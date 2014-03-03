@@ -1293,8 +1293,15 @@ int check_char_name(char * name)
 //-----------------------------------
 // Function to create a new character
 //-----------------------------------
+#if PACKETVER >= 20120307
+int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style)
+{
+	int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1, status_point = 48;
+#else
 int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
 {
+	int status_point = 0;
+#endif
 	char name[NAME_LENGTH];
 	int i, flag;
 	
@@ -1306,10 +1313,14 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 		return flag;
 
 	//check other inputs
+#if PACKETVER >= 20120307
+	if(slot >= MAX_CHARS)
+#else
 	if((slot >= MAX_CHARS) // slots
 	|| (str + agi + vit + int_ + dex + luk != 6*5 ) // stats
 	|| (str < 1 || str > 9 || agi < 1 || agi > 9 || vit < 1 || vit > 9 || int_ < 1 || int_ > 9 || dex < 1 || dex > 9 || luk < 1 || luk > 9) // individual stat values
 	|| (str + int_ != 10 || agi + luk != 10 || vit + dex != 10) ) // pairs
+#endif
 		return -2; // invalid input
 
 	// check the number of already existing chars in this account
@@ -1362,7 +1373,7 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
 	char_dat[i].status.hp = char_dat[i].status.max_hp;
 	char_dat[i].status.sp = char_dat[i].status.max_sp;
-	char_dat[i].status.status_point = 0;
+	char_dat[i].status.status_point = status_point;
 	char_dat[i].status.skill_point = 0;
 	char_dat[i].status.option = 0;
 	char_dat[i].status.karma = 0;
@@ -3885,15 +3896,24 @@ int parse_char(int fd)
 		break;
 
 		// create new char (CH_MAKE_CHAR).
+#if PACKETVER >= 20120307
+		// S 0970 <name>.24B <slot>.B <hair color>.W <hair style>.W
+		case 0x970:
+			FIFOSD_CHECK(31);
+#else
 		// 0067 <name>.24B <str>.B <agi>.B <vit>.B <int>.B <dex>.B <luk>.B <slot>.B <hair color>.W <hair style>.W
 		case 0x67:
 			FIFOSD_CHECK(37);
+#endif
 
 			if( !char_new ) //turn character creation on/off [Kevin]
 				i = -2;
 			else
+#if PACKETVER >= 20120307
+				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
+#else
 				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
-
+#endif
 			//'Charname already exists' (-1), 'Char creation denied' (-2) and 'You are underaged' (-3)
 			if (i < 0)
 			{
@@ -3921,8 +3941,11 @@ int parse_char(int fd)
 				if( ch < MAX_CHARS )
 					sd->found_char[ch] = i; // position of the new char in the char_dat[] array
 			}
-
+#if PACKETVER >= 20120307
+			RFIFOSKIP(fd,31);
+#else
 			RFIFOSKIP(fd,37);
+#endif
 		break;
 
 		// delete char (CH_DELETE_CHAR).
