@@ -39,7 +39,7 @@ struct item_data;
 #define NATURAL_HEAL_INTERVAL 500
 #define MIN_FLOORITEM 2
 #define MAX_FLOORITEM START_ACCOUNT_NUM
-#define MAX_LEVEL 99
+#define MAX_LEVEL 1000
 #define MAX_DROP_PER_MAP 48
 #define MAX_IGNORE_LIST 20 // official is 14
 #define MAX_VENDING 12
@@ -61,14 +61,17 @@ struct item_data;
 
 #define JOBL_UPPER 0x1000 //4096
 #define JOBL_BABY 0x2000  //8192
+#define JOBL_THIRD 0x4000 //
 
 //for filtering and quick checking.
 #define MAPID_UPPERMASK 0x0fff
 #define MAPID_BASEMASK 0x00ff
+
 //First Jobs
 //Note the oddity of the novice:
 //Super Novices are considered the 2-1 version of the novice! Novices are considered a first class type, too...
 enum {
+	//Novice And 1-1 Jobs
 	MAPID_NOVICE = 0x0,
 	MAPID_SWORDMAN,
 	MAPID_MAGE,
@@ -82,7 +85,9 @@ enum {
 	MAPID_NINJA,
 	MAPID_XMAS,
 	MAPID_SUMMER,
-//2_1 classes
+	MAPID_HANBOK,
+	MAPID_GANGSI,
+//2-1 Jobs
 	MAPID_SUPER_NOVICE = JOBL_2_1|0x0,
 	MAPID_KNIGHT,
 	MAPID_WIZARD,
@@ -91,7 +96,9 @@ enum {
 	MAPID_BLACKSMITH,
 	MAPID_ASSASSIN,
 	MAPID_STAR_GLADIATOR,
-//2_2 classes
+	MAPID_KAGEROUOBORO = JOBL_2_1|0x0A,
+	MAPID_DEATH_KNIGHT = JOBL_2_1|0x0E,
+//2-2 Jobs
 	MAPID_CRUSADER = JOBL_2_2|0x1,
 	MAPID_SAGE,
 	MAPID_BARDDANCER,
@@ -99,7 +106,8 @@ enum {
 	MAPID_ALCHEMIST,
 	MAPID_ROGUE,
 	MAPID_SOUL_LINKER,
-//1-1, advanced
+	MAPID_DARK_COLLECTOR = JOBL_2_2|0x0E,
+//Trans Novice And Trans 1-1 Jobs
 	MAPID_NOVICE_HIGH = JOBL_UPPER|0x0,
 	MAPID_SWORDMAN_HIGH,
 	MAPID_MAGE_HIGH,
@@ -107,21 +115,21 @@ enum {
 	MAPID_ACOLYTE_HIGH,
 	MAPID_MERCHANT_HIGH,
 	MAPID_THIEF_HIGH,
-//2_1 advanced
+//Trans 2-1 Jobs
 	MAPID_LORD_KNIGHT = JOBL_UPPER|JOBL_2_1|0x1,
 	MAPID_HIGH_WIZARD,
 	MAPID_SNIPER,
 	MAPID_HIGH_PRIEST,
 	MAPID_WHITESMITH,
 	MAPID_ASSASSIN_CROSS,
-//2_2 advanced
+//Trans 2-2 Jobs
 	MAPID_PALADIN = JOBL_UPPER|JOBL_2_2|0x1,
 	MAPID_PROFESSOR,
 	MAPID_CLOWNGYPSY,
 	MAPID_CHAMPION,
 	MAPID_CREATOR,
 	MAPID_STALKER,
-//1-1 baby
+//Baby Novice And Baby 1-1 Jobs
 	MAPID_BABY = JOBL_BABY|0x0,
 	MAPID_BABY_SWORDMAN,
 	MAPID_BABY_MAGE,
@@ -129,8 +137,7 @@ enum {
 	MAPID_BABY_ACOLYTE,
 	MAPID_BABY_MERCHANT,
 	MAPID_BABY_THIEF,
-	MAPID_BABY_TAEKWON,
-//2_1 baby
+//Baby 2-1 Jobs
 	MAPID_SUPER_BABY = JOBL_BABY|JOBL_2_1|0x0,
 	MAPID_BABY_KNIGHT,
 	MAPID_BABY_WIZARD,
@@ -138,15 +145,57 @@ enum {
 	MAPID_BABY_PRIEST,
 	MAPID_BABY_BLACKSMITH,
 	MAPID_BABY_ASSASSIN,
-	MAPID_BABY_STAR_GLADIATOR,
-//2_2 baby
+//Baby 2-2 Jobs
 	MAPID_BABY_CRUSADER = JOBL_BABY|JOBL_2_2|0x1,
 	MAPID_BABY_SAGE,
 	MAPID_BABY_BARDDANCER,
 	MAPID_BABY_MONK,
 	MAPID_BABY_ALCHEMIST,
 	MAPID_BABY_ROGUE,
-	MAPID_BABY_SOUL_LINKER,
+//3-1 Jobs
+	MAPID_SUPER_NOVICE_E = JOBL_THIRD|JOBL_2_1|0x0,
+	MAPID_RUNE_KNIGHT,
+	MAPID_WARLOCK,
+	MAPID_RANGER,
+	MAPID_ARCH_BISHOP,
+	MAPID_MECHANIC,
+	MAPID_GUILLOTINE_CROSS,
+//3-2 Jobs
+	MAPID_ROYAL_GUARD = JOBL_THIRD|JOBL_2_2|0x1,
+	MAPID_SORCERER,
+	MAPID_MINSTRELWANDERER,
+	MAPID_SURA,
+	MAPID_GENETIC,
+	MAPID_SHADOW_CHASER,
+//Trans 3-1 Jobs
+	MAPID_RUNE_KNIGHT_T = JOBL_THIRD|JOBL_UPPER|JOBL_2_1|0x1,
+	MAPID_WARLOCK_T,
+	MAPID_RANGER_T,
+	MAPID_ARCH_BISHOP_T,
+	MAPID_MECHANIC_T,
+	MAPID_GUILLOTINE_CROSS_T,
+//Trans 3-2 Jobs
+	MAPID_ROYAL_GUARD_T = JOBL_THIRD|JOBL_UPPER|JOBL_2_2|0x1,
+	MAPID_SORCERER_T,
+	MAPID_MINSTRELWANDERER_T,
+	MAPID_SURA_T,
+	MAPID_GENETIC_T,
+	MAPID_SHADOW_CHASER_T,
+//Baby 3-1 Jobs
+	MAPID_SUPER_BABY_E = JOBL_THIRD|JOBL_BABY|JOBL_2_1|0x0,
+	MAPID_BABY_RUNE,
+	MAPID_BABY_WARLOCK,
+	MAPID_BABY_RANGER,
+	MAPID_BABY_BISHOP,
+	MAPID_BABY_MECHANIC,
+	MAPID_BABY_CROSS,
+//Baby 3-2 Jobs
+	MAPID_BABY_GUARD = JOBL_THIRD|JOBL_BABY|JOBL_2_2|0x1,
+	MAPID_BABY_SORCERER,
+	MAPID_BABY_MINSTRELWANDERER,
+	MAPID_BABY_SURA,
+	MAPID_BABY_GENETIC,
+	MAPID_BABY_CHASER,
 };
 
 //Max size for inputs to Graffiti, Talkie Box and Vending text prompts
@@ -185,12 +234,13 @@ enum bl_type {
 	BL_SKILL = 0x040,
 	BL_NPC   = 0x080,
 	BL_CHAT  = 0x100,
+	BL_ELEM  = 0x200,
 
 	BL_ALL   = 0xFFF,
 };
 
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
-#define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER)
+#define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER|BL_ELEM)
 
 enum npc_subtype { WARP, SHOP, SCRIPT, CASHSHOP };
 
@@ -356,8 +406,8 @@ enum _look {
 	LOOK_CLOTHES_COLOR,
 	LOOK_SHIELD,
 	LOOK_SHOES,
-	LOOK_BODY,
-	LOOK_FLOOR,
+	LOOK_BODY,				//Purpose Unknown. Doesen't appear to do anything.
+	LOOK_RESET_COSTUMES,	//Makes all headgear sprites on player vanish when activated.
 	LOOK_ROBE,
 };
 
@@ -669,6 +719,7 @@ typedef struct skill_unit       TBL_SKILL;
 typedef struct pet_data         TBL_PET;
 typedef struct homun_data       TBL_HOM;
 typedef struct mercenary_data   TBL_MER;
+typedef struct elemental_data   TBL_ELEM;
 
 #define BL_CAST(type_, bl) \
 	( ((bl) == (struct block_list*)NULL || (bl)->type != (type_)) ? (T ## type_ *)NULL : (T ## type_ *)(bl) )

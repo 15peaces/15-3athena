@@ -21,6 +21,12 @@
 #define MAX_PC_SKILL_REQUIRE 5
 #define MAX_PC_FEELHATE 3
 
+//15-3athena
+//These may be needed in the future. [15peaces]
+//#define MAX_RUNE 20 //Max number of runes a Rune Knight can carry of each type.
+//#define MAX_RAGE 15 //Max number of rage balls a Royal Guard can have.
+//#define MAX_SPELLBOOK 10 //Max number or spells a Warlock can preserve.
+
 struct weapon_data {
 	int atkmods[3];
 	// all the variables except atkmods get zero'ed in each call of status_calc_pc
@@ -475,6 +481,14 @@ enum ammo_type {
 	A_GRENADE,  //5
 	A_SHURIKEN, //6
 	A_KUNAI     //7
+	A_DAGGER, //2
+	A_BULLET, //3
+	A_SHELL, //4
+	A_GRENADE, //5
+	A_SHURIKEN, //6
+	A_KUNAI, //7
+	A_CANNONBALL, //8
+	A_THROWWEAPON //9
 };
 
 //Equip position constants
@@ -490,6 +504,17 @@ enum equip_pos {
 	EQP_ACC_L    = 0x0008,
 	EQP_ACC_R    = 0x0080, //128
 	EQP_AMMO     = 0x8000, //32768
+	//EQP_COSTUME_HEAD_LOW = 0x1000,
+	//EQP_COSTUME_HEAD_MID = 0x0800,
+	//EQP_COSTUME_HEAD_TOP = 0x0400,
+	//EQP_COSTUME_GARMENT = 0x2000,
+	//EQP_COSTUME_FLOOR = 0x4000,
+	//EQP_SHADOW_ARMOR = 0x10000,//Shadow equip slots will be left disabled until client's supporting them are usable. [Rytech]
+	//EQP_SHADOW_WEAPON = 0x20000,
+	//EQP_SHADOW_SHIELD = 0x40000,
+	//EQP_SHADOW_SHOES = 0x80000,
+	//EQP_SHADOW_ACC_R = 0x100000,
+	//EQP_SHADOW_ACC_L = 0x200000,
 };
 
 #define EQP_WEAPON EQP_HAND_R
@@ -497,6 +522,9 @@ enum equip_pos {
 #define EQP_ARMS (EQP_HAND_R|EQP_HAND_L)
 #define EQP_HELM (EQP_HEAD_LOW|EQP_HEAD_MID|EQP_HEAD_TOP)
 #define EQP_ACC (EQP_ACC_L|EQP_ACC_R)
+//#define EQP_COSTUME_HELM (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_TOP)
+//#define EQP_COSTUME (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_TOP|EQP_COSTUME_GARMENT|EQP_COSTUME_FLOOR)
+//#define EQP_SHADOW_EQUIPS (EQP_SHADOW_ARMOR|EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD|EQP_SHADOW_SHOES|EQP_SHADOW_ACC_R|EQP_SHADOW_ACC_L)
 
 /// Equip positions that use a visible sprite
 #if PACKETVER < 20110111
@@ -519,6 +547,17 @@ enum equip_index {
 	EQI_HAND_L,
 	EQI_HAND_R,
 	EQI_AMMO,
+	//EQI_COSTUME_HEAD_LOW,
+	//EQI_COSTUME_HEAD_MID,
+	//EQI_COSTUME_HEAD_TOP,
+	//EQI_COSTUME_GARMENT,
+	//EQI_COSTUME_FLOOR,
+	//EQI_SHADOW_ARMOR
+	//EQI_SHADOW_WEAPON
+	//EQI_SHADOW_SHIELD
+	//EQI_SHADOW_SHOES
+	//EQI_SHADOW_ACC_R
+	//EQI_SHADOW_ACC_L
 	EQI_MAX
 };
 
@@ -551,8 +590,11 @@ enum equip_index {
 //Checks if the given class value corresponds to a player class. [Skotlex]
 #define pcdb_checkid(class_) \
 ( \
-	( (class_) >= JOB_NOVICE      && (class_) <  JOB_MAX_BASIC   ) \
-||	( (class_) >= JOB_NOVICE_HIGH && (class_) <  JOB_MAX         ) \
+	( (class_) >= JOB_NOVICE			&& (class_) < JOB_MAX_BASIC ) \
+	|| ( (class_) >= JOB_NOVICE_HIGH	&& (class_) <= JOB_DARK_COLLECTOR ) \
+	|| ( (class_) >= JOB_RUNE_KNIGHT	&& (class_) <= JOB_BABY_MECHANIC2 ) \
+	|| ( (class_) >= JOB_SUPER_NOVICE_E && (class_) <= JOB_SUPER_BABY_E ) \
+	|| ( (class_) >= JOB_KAGEROU		&& (class_) < JOB_MAX ) \
 )
 
 int pc_class2idx(int class_);
