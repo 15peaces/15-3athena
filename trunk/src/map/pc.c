@@ -523,7 +523,7 @@ int pc_makesavestatus(struct map_session_data *sd)
 
   	//Only copy the Cart/Peco/Falcon options, the rest are handled via 
 	//status change load/saving. [Skotlex]
-	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING);
+	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
 		
 	if (sd->sc.data[SC_JAILED])
 	{	//When Jailed, do not move last point.
@@ -599,7 +599,8 @@ int pc_equippoint(struct map_session_data *sd,int n)
 	if(sd->inventory_data[n]->look == W_DAGGER	||
 		sd->inventory_data[n]->look == W_1HSWORD ||
 		sd->inventory_data[n]->look == W_1HAXE) {
-		if(ep == EQP_HAND_R && (pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN))
+		if(ep == EQP_HAND_R && (pc_checkskill(sd,AS_LEFT) > 0 || (sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN ||
+			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))//Kagerou and Oboro can dual wield daggers.
 			return EQP_ARMS;
 	}
 	return ep;
@@ -894,8 +895,11 @@ int pc_isequip(struct map_session_data *sd,int n)
 	if (!(1<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1)?1:((sd->class_&JOBL_2_2)?2:0)]))
 		return 0;
 	
-	//Not equipable by upper class. [Skotlex]
-	if(!(1<<((sd->class_&JOBL_UPPER)?1:((sd->class_&JOBL_BABY)?2:0))&item->class_upper))
+	//Checks if the player has the required upper mask to use the item. [15peaces]
+	if (!((item->class_upper&1 && !(sd->class_&(JOBL_UPPER|JOBL_BABY|JOBL_THIRD))) ||
+		(item->class_upper&2 && sd->class_&(JOBL_UPPER|JOBL_THIRD)) ||
+		(item->class_upper&4 && sd->class_&JOBL_BABY) ||
+		(item->class_upper&8 && sd->class_&JOBL_THIRD)))
 		return 0;
 
 	return 1;
@@ -1110,6 +1114,7 @@ int pc_reg_received(struct map_session_data *sd)
 	int i,j;
 	
 	sd->change_level = pc_readglobalreg(sd,"jobchange_level");
+	sd->change_level_2 = pc_readglobalreg(sd,"jobchange_level_2");
 	sd->die_counter = pc_readglobalreg(sd,"PC_DIE_COUNTER");
 
 	// Cash shop
@@ -1465,14 +1470,15 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
 	skill_point = pc_calc_skillpoint(sd);
 	if(pc_checkskill(sd, NV_BASIC) < 9) //Consider Novice Tree when you don't have NV_BASIC maxed.
 		c = MAPID_NOVICE;
-	else
-	//Do not send S. Novices to first class (Novice)
-	if ((sd->class_&JOBL_2) && (sd->class_&MAPID_UPPERMASK) != MAPID_SUPER_NOVICE &&
-		sd->status.skill_point >= sd->status.job_level &&
-		((sd->change_level > 0 && skill_point < sd->change_level+8) || skill_point < 58)) {
+	else if ((sd->class_&JOBL_2) && sd->change_level > 0 && skill_point < 8 + sd->change_level) {
 		//Send it to first class.
 		c &= MAPID_BASEMASK;
 	}
+	else if ((sd->class_&JOBL_THIRD) && sd->change_level_2 > 0 && skill_point < 7 + sd->change_level + sd->change_level_2) {
+		//Send it to second class.
+		c &= MAPID_UPPERMASK;
+	}
+
 	if (sd->class_&JOBL_UPPER) //Convert to Upper
 		c |= JOBL_UPPER;
 	else if (sd->class_&JOBL_BABY) //Convert to Baby
@@ -3806,11 +3812,11 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 	))
 		return 0;
 	
-	//Not usable by upper class. [Skotlex]
-	if(!(
-		(1<<(sd->class_&JOBL_UPPER?1:(sd->class_&JOBL_BABY?2:0))) &
-		item->class_upper
-	))
+	//Checks if the player has the required upper mask to use the item. [Rytech]
+	if (!((item->class_upper&1 && !(sd->class_&(JOBL_UPPER|JOBL_BABY|JOBL_THIRD))) ||
+		(item->class_upper&2 && sd->class_&(JOBL_UPPER|JOBL_THIRD)) ||
+		(item->class_upper&4 && sd->class_&JOBL_BABY) ||
+		(item->class_upper&8 && sd->class_&JOBL_THIRD)))
 		return 0;
 
 	//Dead Branch & Bloody Branch & Porings Box
@@ -5089,7 +5095,7 @@ const char* job_name(int class_)
 		return msg_txt(653 - JOB_KAGEROU+class_);
 	
 	default:
-		return msg_txt(700);
+		return msg_txt(699);
 	}
 }
 
@@ -5189,7 +5195,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	status_calc_pc(sd,0);
 	status_percent_heal(&sd->bl,100,100);
 
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
+	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E))
 	{
 		sc_start(&sd->bl,status_skill2sc(PR_KYRIE),100,1,skill_get_time(PR_KYRIE,1));
 		sc_start(&sd->bl,status_skill2sc(PR_IMPOSITIO),100,1,skill_get_time(PR_IMPOSITIO,1));
@@ -5820,6 +5826,14 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 			i &= ~OPTION_CART;
 		if( i&OPTION_FALCON && pc_checkskill(sd, HT_FALCON) )
 			i &= ~OPTION_FALCON;
+		if( i&OPTION_DRAGON && pc_checkskill(sd, RK_DRAGONTRAINING) )
+			i &= ~OPTION_DRAGON;
+		if( i&OPTION_WUG && pc_checkskill(sd, RA_WUGMASTERY) )
+			i &= ~OPTION_WUG;
+		if( i&OPTION_WUGRIDER && (pc_checkskill(sd, RA_WUGMASTERY) || pc_checkskill(sd, RA_WUGRIDER)) )
+			i &= ~OPTION_WUGRIDER;
+		if( i&OPTION_MADOGEAR && pc_checkskill(sd, NC_MADOLICENCE) )
+			i &= ~OPTION_MADOGEAR;
 
 		if( i != sd->sc.option )
 			pc_setoption(sd, i);
@@ -6163,7 +6177,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	// activate Steel body if a super novice dies at 99+% exp [celest]
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag)
+	if (((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && !sd->state.snovice_dead_flag)
   	{
 		unsigned int next = pc_nextbaseexp(sd);
 		if( next == 0 ) next = pc_thisbaseexp(sd);
@@ -6349,7 +6363,7 @@ int pc_readparam(struct map_session_data* sd,int type)
 	case SP_JOBLEVEL:    val = sd->status.job_level; break;
 	case SP_CLASS:       val = sd->status.class_; break;
 	case SP_BASEJOB:     val = pc_mapid2jobid(sd->class_&MAPID_UPPERMASK, sd->status.sex); break; //Base job, extracting upper type.
-	case SP_UPPER:       val = sd->class_&JOBL_UPPER?1:(sd->class_&JOBL_BABY?2:0); break;
+	case SP_UPPER:       val = sd->class_&JOBL_UPPER?1:(sd->class_&JOBL_BABY?2:0); break; //May need to be updated later to support thirds if item and NPC scripts needs. [15peaces]
 	case SP_BASECLASS:   val = pc_mapid2jobid(sd->class_&MAPID_BASEMASK, sd->status.sex); break; //Extract base class tree. [Skotlex]
 	case SP_SEX:         val = sd->status.sex; break;
 	case SP_WEIGHT:      val = sd->weight; break; // client shows value/10
@@ -6692,8 +6706,16 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	
 	if ((unsigned short)b_class == sd->class_)
 		return 1; //Nothing to change.
+	// Check if we are changing from 2nd to 3rd job.
+	if (b_class&JOBL_THIRD) {
+		if (!(sd->class_&JOBL_THIRD))
+			sd->change_level_2 = sd->status.job_level;
+		else if (!sd->change_level_2)
+			sd->change_level_2 = 40; //Assume 40?
+		pc_setglobalreg (sd, "jobchange_level_2", sd->change_level_2);
+	}
 	// check if we are changing from 1st to 2nd job
-	if (b_class&JOBL_2) {
+	else if (b_class&JOBL_2) {
 		if (!(sd->class_&JOBL_2))
 			sd->change_level = sd->status.job_level;
 		else if (!sd->change_level)
@@ -6761,6 +6783,14 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		i&=~OPTION_CART;
 	if(i&OPTION_FALCON && !pc_checkskill(sd, HT_FALCON))
 		i&=~OPTION_FALCON;
+	if(i&OPTION_DRAGON && !pc_checkskill(sd, RK_DRAGONTRAINING))
+		i&=~OPTION_DRAGON;
+	if(i&OPTION_WUG && !pc_checkskill(sd, RA_WUGMASTERY))
+		i&=~OPTION_WUG;
+	if(i&OPTION_WUGRIDER && (!pc_checkskill(sd, RA_WUGMASTERY) || !pc_checkskill(sd, RA_WUGRIDER)))
+		i&=~OPTION_WUGRIDER;
+	if(i&OPTION_MADOGEAR && !pc_checkskill(sd, NC_MADOLICENCE))
+		i&=~OPTION_MADOGEAR;
 
 	if(i != sd->sc.option)
 		pc_setoption(sd, i);
@@ -6889,16 +6919,35 @@ int pc_setoption(struct map_session_data *sd,int type)
 	sd->sc.option=type;
 	clif_changeoption(&sd->bl);
 
-	if (type&OPTION_RIDING && !(p_type&OPTION_RIDING) && (sd->class_&MAPID_BASEMASK) == MAPID_SWORDMAN)
+	//The SI_RIDING status icon is displayed when mounted on a Peco, Dragon, or Gryphon.
+	if (type&OPTION_RIDING && !(p_type&OPTION_RIDING) || type&OPTION_DRAGON && !(p_type&OPTION_DRAGON))
 	{	//We are going to mount. [Skotlex]
 		clif_status_load(&sd->bl,SI_RIDING,1);
 		status_calc_pc(sd,0); //Mounting/Umounting affects walk and attack speeds.
 	}
-	else if (!(type&OPTION_RIDING) && p_type&OPTION_RIDING && (sd->class_&MAPID_BASEMASK) == MAPID_SWORDMAN)
+	else if (!(type&OPTION_RIDING) && p_type&OPTION_RIDING || !(type&OPTION_DRAGON) && p_type&OPTION_DRAGON)
 	{	//We are going to dismount.
 		clif_status_load(&sd->bl,SI_RIDING,0);
 		status_calc_pc(sd,0); //Mounting/Umounting affects walk and attack speeds.
 	}
+
+	//The SI_WUGRIDER icon is displayed when mounted on a Warg.
+	if (type&OPTION_WUGRIDER && !(p_type&OPTION_WUGRIDER))
+	{
+		clif_status_load(&sd->bl,SI_WUGRIDER,1);
+		status_calc_pc(sd,0); //Update movement speed.
+	}
+	else if (!(type&OPTION_WUGRIDER) && p_type&OPTION_WUGRIDER)
+	{
+		clif_status_load(&sd->bl,SI_WUGRIDER,0);
+		status_calc_pc(sd,0); //Update movement speed.
+	}
+
+	//No icon is displayed when mounted in a Mado, but we still need to update the movement speed.
+	if (type&OPTION_MADOGEAR && !(p_type&OPTION_MADOGEAR))
+		status_calc_pc(sd,0); //Update movement speed.
+	else if (!(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR)
+		status_calc_pc(sd,0); //Update movement speed.
 
 	if(type&OPTION_CART && !(p_type&OPTION_CART))
   	{ //Cart On
@@ -7008,6 +7057,66 @@ int pc_setriding(TBL_PC* sd, int flag)
 		pc_setoption(sd, sd->sc.option&~OPTION_RIDING);
 	}
 
+	return 0;
+}
+
+/*==========================================
+ * Mounts the player on a dragon through script command.
+ *------------------------------------------*/
+int pc_setdragon(TBL_PC* sd, int flag)
+{
+	if( flag ){
+		if( pc_checkskill(sd,RK_DRAGONTRAINING) > 0 )
+			pc_setoption(sd, sd->sc.option|OPTION_DRAGON1);
+	} else if( pc_isdragon(sd) ){
+		pc_setoption(sd, sd->sc.option&~OPTION_DRAGON1);
+	}
+
+	return 0;
+}
+
+/*==========================================
+ * Gives the player a warg through script command.
+ *------------------------------------------*/
+int pc_setwug(TBL_PC* sd, int flag)
+{
+	if( flag ){
+		if( pc_checkskill(sd,RA_WUGMASTERY)>0 )
+			pc_setoption(sd,sd->sc.option|OPTION_WUG);
+	} else if( pc_iswug(sd) ){
+		pc_setoption(sd,sd->sc.option&~OPTION_WUG);
+	}
+
+	return 0;
+}
+	
+/*==========================================
+ * Mounts the player on a warg through script command.
+ *------------------------------------------*/
+int pc_setwugrider(TBL_PC* sd, int flag)
+{
+	if( flag ){
+		if( pc_checkskill(sd,RA_WUGRIDER) > 0 )
+			pc_setoption(sd, sd->sc.option|OPTION_WUGRIDER);
+	} else if( pc_iswugrider(sd) ){
+		pc_setoption(sd, sd->sc.option&~OPTION_WUGRIDER);
+	}
+
+	return 0;
+}
+
+/*==========================================
+ * Mounts the player in a mado through script command.
+ *------------------------------------------*/
+int pc_setmadogear(TBL_PC* sd, int flag)
+{
+	if( flag ){
+		if( pc_checkskill(sd,NC_MADOLICENCE) > 0 )
+			pc_setoption(sd, sd->sc.option|OPTION_MADOGEAR);
+	} else if( pc_ismadogear(sd) ){
+		pc_setoption(sd, sd->sc.option&~OPTION_MADOGEAR);
+	}
+		
 	return 0;
 }
 
@@ -7200,7 +7309,7 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 	case 3: //Char reg
 		if( !strcmp(reg,"PC_DIE_COUNTER") && sd->die_counter != val )
 		{
-			i = (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE);
+			i = (!sd->die_counter && ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E));
 			sd->die_counter = val;
 			if( i )
 				status_calc_pc(sd,0); // Lost the bonus.
@@ -8354,7 +8463,7 @@ int pc_readdb(void)
 	fclose(fp);
 	for (i = 0; i < JOB_MAX; i++) {
 		if (!pcdb_checkid(i)) continue;
-		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER)
+		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK)
 			continue; //Classes that do not need exp tables.
 		j = pc_class2idx(i);
 		if (!max_level[j][0])

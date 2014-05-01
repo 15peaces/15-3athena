@@ -874,8 +874,8 @@ int chrif_changedsex(int fd)
 		sd->status.sex = !sd->status.sex;
 
 		// reset skill of some job
-		if ((sd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER) {
-			// remove specifical skills of Bard classes 
+		if ((sd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) {
+			// Removes Bard, Clown, and Baby Bard sex exclusive skills.
 			for(i = 315; i <= 322; i++) {
 				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
 					sd->status.skill_point += sd->status.skill[i].lv;
@@ -883,8 +883,40 @@ int chrif_changedsex(int fd)
 					sd->status.skill[i].lv = 0;
 				}
 			}
-			// remove specifical skills of Dancer classes 
+			// Removes Dancer, Gypsy, and Baby Dancer sex exclusive skills.
 			for(i = 323; i <= 330; i++) {
+				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
+					sd->status.skill_point += sd->status.skill[i].lv;
+					sd->status.skill[i].id = 0;
+					sd->status.skill[i].lv = 0;
+				}
+			}
+			// Removes Minstrel (Base), Minstrel (Trans) and Baby Minstrel sex exclusive skills.
+			for(i = 2381; i <= 2383; i++) {
+				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
+					sd->status.skill_point += sd->status.skill[i].lv;
+					sd->status.skill[i].id = 0;
+					sd->status.skill[i].lv = 0;
+				}
+			}
+			// Removes Wanderer (Base), Wanderer (Trans) and Baby Wanderer sex exclusive skills.
+			for(i = 2350; i <= 2352; i++) {
+				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
+					sd->status.skill_point += sd->status.skill[i].lv;
+					sd->status.skill[i].id = 0;
+					sd->status.skill[i].lv = 0;
+				}
+			}
+			// Removes Kagerou sex exclusive skills.
+			for(i = 3023; i <= 3025; i++) {
+				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
+					sd->status.skill_point += sd->status.skill[i].lv;
+					sd->status.skill[i].id = 0;
+					sd->status.skill[i].lv = 0;
+				}
+			}
+			// Removes Oboro sex exclusive skills.
+			for(i = 3026; i <= 3029; i++) {
 				if (sd->status.skill[i].id > 0 && sd->status.skill[i].flag == SKILL_FLAG_PERMANENT) {
 					sd->status.skill_point += sd->status.skill[i].lv;
 					sd->status.skill[i].id = 0;

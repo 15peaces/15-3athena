@@ -453,7 +453,7 @@ void initChangeTables(void)
 	SkillStatusChangeTable[SL_STAR]        = (sc_type)MAPID_STAR_GLADIATOR,
 	SkillStatusChangeTable[SL_SAGE]        = (sc_type)MAPID_SAGE,
 	SkillStatusChangeTable[SL_CRUSADER]    = (sc_type)MAPID_CRUSADER,
-	SkillStatusChangeTable[SL_SUPERNOVICE] = (sc_type)MAPID_SUPER_NOVICE,
+	SkillStatusChangeTable[SL_SUPERNOVICE] = (sc_type)MAPID_SUPER_NOVICE, // Fix me to work on Expanded Super Novice [Rytech]
 	SkillStatusChangeTable[SL_KNIGHT]      = (sc_type)MAPID_KNIGHT,
 	SkillStatusChangeTable[SL_WIZARD]      = (sc_type)MAPID_WIZARD,
 	SkillStatusChangeTable[SL_PRIEST]      = (sc_type)MAPID_PRIEST,
@@ -463,6 +463,10 @@ void initChangeTables(void)
 	SkillStatusChangeTable[SL_BLACKSMITH]  = (sc_type)MAPID_BLACKSMITH,
 	SkillStatusChangeTable[SL_HUNTER]      = (sc_type)MAPID_HUNTER,
 	SkillStatusChangeTable[SL_SOULLINKER]  = (sc_type)MAPID_SOUL_LINKER,
+	SkillStatusChangeTable[SL_DEATHKNIGHT] = (sc_type)MAPID_DEATH_KNIGHT,
+	SkillStatusChangeTable[SL_COLLECTOR] = (sc_type)MAPID_DARK_COLLECTOR,
+	SkillStatusChangeTable[SL_NINJA] = (sc_type)MAPID_NINJA, // Fix me to work on Kagerou and Oboro. [Rytech]
+	SkillStatusChangeTable[SL_GUNNER] = (sc_type)MAPID_GUNSLINGER, // Ill need a fixing in the near future.
 
 	//Status that don't have a skill associated.
 	StatusIconChangeTable[SC_WEIGHT50] = SI_WEIGHT50;
@@ -1652,11 +1656,11 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 	unsigned int val = pc_class2idx(sd->status.class_);
 	val = 35 + sd->status.base_level*hp_coefficient2[val]/100 + hp_sigma_val[val][sd->status.base_level];
 
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER)
+	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO)
 		val += 100; //Since their HP can't be approximated well enough without this.
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
+	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.base_level >= 99)
 		val += 2000; //Supernovice lvl99 hp bonus.
 
 	val += val * status->vit/100; // +1% per each point of VIT
@@ -2095,7 +2099,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 
 	// If a Super Novice has never died and is at least joblv 70, he gets all stats +10
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->die_counter == 0 && sd->status.job_level >= 70){
+	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
 		status->str += 10;
 		status->agi += 10;
 		status->vit += 10;
@@ -4463,6 +4467,101 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				case JOB_BABY_CRUSADER:
 					class_ = JOB_BABY_CRUSADER2;
 					break;
+				case JOB_ROYAL_GUARD:
+					class_ = JOB_ROYAL_GUARD2;
+					break;
+				case JOB_ROYAL_GUARD_T:
+					class_ = JOB_ROYAL_GUARD_T2;
+					break;
+				case JOB_BABY_GUARD:
+					class_ = JOB_BABY_GUARD2;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_DRAGON1)
+				switch (class_)
+				{
+				case JOB_RUNE_KNIGHT:
+					class_ = JOB_RUNE_KNIGHT2;
+					break;
+				case JOB_RUNE_KNIGHT_T:
+					class_ = JOB_RUNE_KNIGHT_T2;
+					break;
+				case JOB_BABY_RUNE:
+					class_ = JOB_BABY_RUNE2;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_WUGRIDER)
+				switch (class_)
+				{
+				case JOB_RANGER:
+					class_ = JOB_RANGER2;
+					break;
+				case JOB_RANGER_T:
+					class_ = JOB_RANGER_T2;
+					break;
+				case JOB_BABY_RANGER:
+					class_ = JOB_BABY_RANGER2;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_MADOGEAR)
+				switch (class_)
+				{
+				case JOB_MECHANIC:
+					class_ = JOB_MECHANIC2;
+					break;
+				case JOB_MECHANIC_T:
+					class_ = JOB_MECHANIC_T2;
+					break;
+				case JOB_BABY_MECHANIC:
+					class_ = JOB_BABY_MECHANIC2;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_DRAGON2)
+				switch (class_)
+				{
+				case JOB_RUNE_KNIGHT:
+					class_ = JOB_RUNE_KNIGHT3;
+					break;
+				case JOB_RUNE_KNIGHT_T:
+					class_ = JOB_RUNE_KNIGHT_T3;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_DRAGON3)
+				switch (class_)
+				{
+				case JOB_RUNE_KNIGHT:
+					class_ = JOB_RUNE_KNIGHT4;
+					break;
+				case JOB_RUNE_KNIGHT_T:
+					class_ = JOB_RUNE_KNIGHT_T4;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_DRAGON4)
+				switch (class_)
+				{
+				case JOB_RUNE_KNIGHT:
+					class_ = JOB_RUNE_KNIGHT5;
+					break;
+				case JOB_RUNE_KNIGHT_T:
+					class_ = JOB_RUNE_KNIGHT_T5;
+					break;
+				}
+				else
+				if (sd->sc.option&OPTION_DRAGON5)
+				switch (class_)
+				{
+				case JOB_RUNE_KNIGHT:
+					class_ = JOB_RUNE_KNIGHT6;
+					break;
+				case JOB_RUNE_KNIGHT_T:
+					class_ = JOB_RUNE_KNIGHT_T6;
+					break;
 				}
 				sd->vd.class_ = class_;
 				clif_get_weapon_view(sd, &sd->vd.weapon, &sd->vd.shield);
@@ -5393,7 +5492,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 0;
 			break;
 		case SC_SUITON:
-			if (!val2 || (sd && (sd->class_&MAPID_UPPERMASK) == MAPID_NINJA)) {
+			if (!val2 || (sd && ((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))) {
 				//No penalties.
 				val2 = 0; //Agi penalty
 				val3 = 0; //Walk speed penalty

@@ -154,7 +154,7 @@
 
 //Base Homun skill.
 #define HM_SKILLBASE 8001
-#define MAX_HOMUNSKILL 16
+#define MAX_HOMUNSKILL 43//Increased to 43 to add the mutated homunculus skills.
 #define MAX_HOMUNCULUS_CLASS	16	//[orn]
 #define HM_CLASS_BASE 6001
 #define HM_CLASS_MAX (HM_CLASS_BASE+MAX_HOMUNCULUS_CLASS-1)
@@ -166,8 +166,23 @@
 
 //Mercenary System
 #define MC_SKILLBASE 8201
-#define MAX_MERCSKILL 40
+#define MAX_MERCSKILL 41
 #define MAX_MERCENARY_CLASS 44
+
+//Elemental System
+#define EL_SKILLBASE 8401
+#define MAX_ELEMSKILL 42
+#define MAX_ELEMENTAL_CLASS 12
+#define EL_CLASS_BASE 2114
+#define EL_CLASS_MAX (EL_CLASS_BASE+MAX_ELEMENTAL_CLASS-1)
+
+//Extra 3rd Job Skills
+//Remaps the player skills in the 5000 ID range to a lower range
+//in the skill ID index. This is a better way to handle these skills since
+//increasing the MAX_SKILL to a setting like 5020 would waste a lot of
+//memory.
+//#define ET_SKILLBASE 5001
+//#define MAX_EXTRATHIRDSKILL 18
 
 //15-3athena
 //Will be needed in the future for keeping track of and saving cooldown times for skills. [15peaces]

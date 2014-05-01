@@ -389,6 +389,7 @@ struct map_session_data {
 	unsigned short eventcount; // [celest]
 
 	unsigned char change_level; // [celest]
+	unsigned char change_level_2; // Now that 3rd jobs exist, we need to remember 2nd job levels.
 
 	char fakename[NAME_LENGTH]; // fake names [Valaris]
 
@@ -433,8 +434,8 @@ struct map_session_data {
 	int delunit_prevline;
 };
 
-//Update this max as necessary. 55 is the value needed for Super Baby currently
-#define MAX_SKILL_TREE 55
+//Update this max as necessary. 84 is the value needed for the Expanded Super Baby.
+#define MAX_SKILL_TREE 84
 //Total number of classes (for data storage)
 #define CLASS_COUNT (JOB_MAX - JOB_NOVICE_HIGH + JOB_MAX_BASIC)
 
@@ -475,20 +476,14 @@ enum weapon_type {
 
 enum ammo_type {
 	A_ARROW = 1,
-	A_DAGGER,   //2
-	A_BULLET,   //3
-	A_SHELL,    //4
-	A_GRENADE,  //5
-	A_SHURIKEN, //6
-	A_KUNAI     //7
-	A_DAGGER, //2
-	A_BULLET, //3
-	A_SHELL, //4
-	A_GRENADE, //5
-	A_SHURIKEN, //6
-	A_KUNAI, //7
-	A_CANNONBALL, //8
-	A_THROWWEAPON //9
+	A_DAGGER,		//2
+	A_BULLET,		//3
+	A_SHELL,		//4
+	A_GRENADE,		//5
+	A_SHURIKEN,		//6
+	A_KUNAI,		//7
+	A_CANNONBALL,	//8
+	A_THROWWEAPON,	//9
 };
 
 //Equip position constants
@@ -577,6 +572,10 @@ enum equip_index {
 #define pc_isfalcon(sd)       ( (sd)->sc.option&OPTION_FALCON )
 #define pc_isriding(sd)       ( (sd)->sc.option&OPTION_RIDING )
 #define pc_isinvisible(sd)    ( (sd)->sc.option&OPTION_INVISIBLE )
+#define pc_isdragon(sd) ( (sd)->sc.option&OPTION_DRAGON )
+#define pc_iswug(sd) ( (sd)->sc.option&OPTION_WUG )
+#define pc_iswugrider(sd) ( (sd)->sc.option&OPTION_WUGRIDER )
+#define pc_ismadogear(sd) ( (sd)->sc.option&OPTION_MADOGEAR )
 #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
 #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
 #define pc_maxparameter(sd)   ( (sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter )
@@ -724,6 +723,10 @@ int pc_setoption(struct map_session_data *,int);
 int pc_setcart(struct map_session_data* sd, int type);
 int pc_setfalcon(struct map_session_data* sd, int flag);
 int pc_setriding(struct map_session_data* sd, int flag);
+int pc_setdragon(struct map_session_data* sd, int flag);
+int pc_setwug(struct map_session_data* sd, int flag);
+int pc_setwugrider(struct map_session_data* sd, int flag);
+int pc_setmadogear(struct map_session_data* sd, int flag);
 int pc_changelook(struct map_session_data *,int,int);
 int pc_equiplookall(struct map_session_data *sd);
 
