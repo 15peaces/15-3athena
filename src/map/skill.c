@@ -42,12 +42,14 @@
 #define SKILLUNITTIMER_INTERVAL	100
 
 // ranges reserved for mapping skill ids to skilldb offsets
-#define GD_SKILLRANGEMIN 900
-#define GD_SKILLRANGEMAX (GD_SKILLRANGEMIN+MAX_GUILDSKILL)
-#define MC_SKILLRANGEMIN 800
-#define MC_SKILLRANGEMAX (MC_SKILLRANGEMIN+MAX_MERCSKILL)
-#define HM_SKILLRANGEMIN 700
+#define HM_SKILLRANGEMIN 1101
 #define HM_SKILLRANGEMAX (HM_SKILLRANGEMIN+MAX_HOMUNSKILL)
+#define MC_SKILLRANGEMIN 1301
+#define MC_SKILLRANGEMAX (MC_SKILLRANGEMIN+MAX_MERCSKILL)
+#define EL_SKILLRANGEMIN 1501
+#define EL_SKILLRANGEMAX (EL_SKILLRANGEMIN+MAX_ELEMSKILL)
+#define GD_SKILLRANGEMIN 1701
+#define GD_SKILLRANGEMAX (GD_SKILLRANGEMIN+MAX_GUILDSKILL)
 
 static struct eri *skill_unit_ers = NULL; //For handling skill_unit's [Skotlex]
 static struct eri *skill_timer_ers = NULL; //For handling skill_timerskills [Skotlex]
@@ -83,15 +85,19 @@ int skill_name2id(const char* name)
 /// Returns the skill's array index, or 0 (Unknown Skill).
 int skill_get_index( int id )
 {
-	// avoid ranges reserved for mapping guild/homun/mercenary skills
-	if( (id >= GD_SKILLRANGEMIN && id <= GD_SKILLRANGEMAX)
-	||  (id >= HM_SKILLRANGEMIN && id <= HM_SKILLRANGEMAX)
-	||  (id >= MC_SKILLRANGEMIN && id <= MC_SKILLRANGEMAX) )
+	// avoid ranges reserved for mapping homunculus/mercenary/elemental/guild skills
+	if( (id >= HM_SKILLRANGEMIN && id <= HM_SKILLRANGEMAX)
+		|| (id >= MC_SKILLRANGEMIN && id <= MC_SKILLRANGEMAX)
+		|| (id >= EL_SKILLRANGEMIN && id <= EL_SKILLRANGEMAX)
+		|| (id >= GD_SKILLRANGEMIN && id <= GD_SKILLRANGEMAX) )
 		return 0;
 
 	// map skill id to skill db index
 	if( id >= GD_SKILLBASE )
 		id = GD_SKILLRANGEMIN + id - GD_SKILLBASE;
+	else
+	if( id >= EL_SKILLBASE )
+		id = EL_SKILLRANGEMIN + id - EL_SKILLBASE;
 	else
 	if( id >= MC_SKILLBASE )
 		id = MC_SKILLRANGEMIN + id - MC_SKILLBASE;
@@ -3180,7 +3186,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( status_isimmune(bl) || (dstmd && (dstmd->class_ == MOBID_EMPERIUM || mob_is_battleground(dstmd))) )
 				heal=0;
 
-			if( sd && dstsd && sd->status.partner_id == dstsd->status.char_id && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.sex == 0 )
+			if( sd && dstsd && sd->status.partner_id == dstsd->status.char_id && ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.sex == 0 )
 				heal = heal*2;
 
 			if( tsc && tsc->count )
@@ -11571,11 +11577,12 @@ static bool skill_parse_row_skilldb(char* split[], int columns, int current)
 {// id,range,hit,inf,element,nk,splash,max,list_num,castcancel,cast_defence_rate,inf2,maxcount,skill_type,blow_count,name,description
 	int id = atoi(split[0]);
 	int i;
-	if( (id >= GD_SKILLRANGEMIN && id <= GD_SKILLRANGEMAX)
-	||  (id >= HM_SKILLRANGEMIN && id <= HM_SKILLRANGEMAX)
-	||  (id >= MC_SKILLRANGEMIN && id <= MC_SKILLRANGEMAX) )
+	if( (id >= HM_SKILLRANGEMIN && id <= HM_SKILLRANGEMAX)
+		|| (id >= MC_SKILLRANGEMIN && id <= MC_SKILLRANGEMAX)
+		|| (id >= EL_SKILLRANGEMIN && id <= EL_SKILLRANGEMAX)
+		|| (id >= GD_SKILLRANGEMIN && id <= GD_SKILLRANGEMAX) )
 	{
-		ShowWarning("skill_parse_row_skilldb: Skill id %d is forbidden (interferes with guild/homun/mercenary skill mapping)!\n", id);
+		ShowWarning("skill_parse_row_skilldb: Skill id %d is forbidden (interferes with homunculus/mercenary/elemental/guild skill mapping)!\n", id);
 		return false;
 	}
 

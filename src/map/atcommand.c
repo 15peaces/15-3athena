@@ -4639,31 +4639,122 @@ ACMD_FUNC(mapinfo)
 }
 
 /*==========================================
- *
+* Mounting command for all jobs that have
+* their own class exclusive mount.
  *------------------------------------------*/
-ACMD_FUNC(mount_peco)
+ACMD_FUNC(mount)
 {
 	nullpo_retr(-1, sd);
 
-	if (!pc_isriding(sd)) { // if actually no peco
-		if (!pc_checkskill(sd, KN_RIDING))
-		{
-			clif_displaymessage(fd, msg_txt(213)); // You can not mount a Peco Peco with your current job.
-			return -1;
-		}
-
-		if (sd->disguise)
-		{
-			clif_displaymessage(fd, msg_txt(212)); // Cannot mount a Peco Peco while in disguise.
-			return -1;
-		}
-
-		pc_setoption(sd, sd->sc.option | OPTION_RIDING);
-		clif_displaymessage(fd, msg_txt(102)); // You have mounted a Peco Peco.
-	} else {	//Dismount
-		pc_setoption(sd, sd->sc.option & ~OPTION_RIDING);
-		clif_displaymessage(fd, msg_txt(214)); // You have released your Peco Peco.
+	if (sd->disguise)
+	{ // Check to see if the player is in disguise. If yes, then don't bother continuing.
+		clif_displaymessage(fd, msg_txt(700));// You can't mount while in disguise.
+		return -1;
 	}
+
+	// Checks for Knight, Crusader, Lord Knight, Paladin, Baby Knight, and Baby Crusader.
+	if (((sd->class_&MAPID_UPPERMASK) == MAPID_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_CRUSADER) &&
+		(!((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT && (sd->class_&MAPID_THIRDMASK) <= MAPID_BABY_CHASER)))
+		if (!pc_isriding(sd))// If not on a Peco Peco, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, KN_RIDING))
+			{
+				clif_displaymessage(fd, msg_txt(702)); // You must learn the Riding skill to mount with your current job.
+				return -1;
+			}
+
+			pc_setoption(sd, sd->sc.option | OPTION_RIDING);
+			clif_displaymessage(fd, msg_txt(703)); // You mounted on a Peco Peco.
+		}
+		else
+		{
+			clif_displaymessage(fd, msg_txt(704)); // Your already mounted on a Peco Peco.
+			return -1;
+		}
+
+	// Checks for Rune Knight, Trans Rune Knight, and Baby Rune Knight
+	else if ((sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT || (sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT_T ||
+		(sd->class_&MAPID_THIRDMASK) == MAPID_BABY_RUNE)
+		if (!pc_isdragon(sd))// If not on a Dragon, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, RK_DRAGONTRAINING))
+			{
+				clif_displaymessage(fd, msg_txt(705)); // You must learn the Dragon Training skill to mount with your current job.
+				return -1;
+			}
+
+			pc_setoption(sd, sd->sc.option | OPTION_DRAGON1);
+			clif_displaymessage(fd, msg_txt(706)); // You mounted on a Dragon.
+		}
+		else
+		{
+			clif_displaymessage(fd, msg_txt(707)); // Your already mounted on a Dragon.
+			return -1;
+		}
+
+	// Checks for Ranger, Trans Ranger, and Baby Ranger
+	else if ((sd->class_&MAPID_THIRDMASK) == MAPID_RANGER || (sd->class_&MAPID_THIRDMASK) == MAPID_RANGER_T ||
+		(sd->class_&MAPID_THIRDMASK) == MAPID_BABY_RANGER)
+		if (!pc_iswugrider(sd))// If not on a Warg, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, RA_WUGRIDER))
+			{
+				clif_displaymessage(fd, msg_txt(708)); // You must learn the Warg Mastery skill to mount with your current job.
+				return -1;
+			}
+	
+			pc_setoption(sd, sd->sc.option | OPTION_WUGRIDER);
+			clif_displaymessage(fd, msg_txt(709)); // You mounted on a Warg.
+		}
+		else
+		{
+			clif_displaymessage(fd, msg_txt(710)); // Your already mounted on a Warg.
+			return -1;
+		}
+
+	// Checks for Mechanic, Trans Mechanic, and Baby Mechanic
+	else if ((sd->class_&MAPID_THIRDMASK) == MAPID_MECHANIC || (sd->class_&MAPID_THIRDMASK) == MAPID_MECHANIC_T ||
+		(sd->class_&MAPID_THIRDMASK) == MAPID_BABY_MECHANIC)
+		if (!pc_ismadogear(sd))// If not on a Mado Gear, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, NC_MADOLICENCE))
+			{
+				clif_displaymessage(fd, msg_txt(711)); // You must learn the Mado License skill to mount with your current job.
+				return -1;
+			}
+
+			pc_setoption(sd, sd->sc.option | OPTION_WUGRIDER);
+			clif_displaymessage(fd, msg_txt(712)); // You mounted on a Mado Gear.
+		}
+		else
+		{
+			clif_displaymessage(fd, msg_txt(713)); // Your already mounted on a Mado Gear.
+			return -1;
+		}
+
+	// Checks for Royal Guard, Trans Royal Guard, and Baby Royal Guard
+	else if ((sd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD || (sd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD_T ||
+		(sd->class_&MAPID_THIRDMASK) == MAPID_BABY_GUARD)
+		if (!pc_isriding(sd))// If not on a Gryphon, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, KN_RIDING))
+			{
+				clif_displaymessage(fd, msg_txt(714)); // You must learn the Riding skill to mount with your current job.
+				return -1;
+			}
+
+			pc_setoption(sd, sd->sc.option | OPTION_RIDING);
+			clif_displaymessage(fd, msg_txt(715)); // You mounted on a Gryphon.
+		}
+		else
+		{
+			clif_displaymessage(fd, msg_txt(716)); // Your already mounted on a Gryphon.
+			return -1;
+		}
+
+	// If the player's job is a job that doesen't have a class mount, then its not possiable to mount.
+	else
+		clif_displaymessage(fd, msg_txt(701)); // You can't mount with your current job.
 
 	return 0;
 }
@@ -8805,7 +8896,8 @@ ACMD_FUNC(stats)
 		{ "Luk - %3d", 0 },
 		{ "Zeny - %d", 0 },
 		{ "Free SK Points - %d", 0 },
-		{ "JobChangeLvl - %d", 0 },
+		{ "JobChangeLvl 1st Class - %d", 0 },
+		{ "JobChangeLvl 2nd Class - %d", 0 },
 		{ NULL, 0 }
 	};
 
@@ -8829,6 +8921,7 @@ ACMD_FUNC(stats)
 	output_table[12].value = sd->status.zeny;
 	output_table[13].value = sd->status.skill_point;
 	output_table[14].value = sd->change_level;
+	output_table[15].value = sd->change_level_2;
 
 	sprintf(job_jobname, "Job - %s %s", job_name(sd->status.class_), "(level %d)");
 	sprintf(output, msg_txt(53), sd->status.name); // '%s' stats:
@@ -9102,8 +9195,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "unbanish",          60,60,     atcommand_char_unban },
 	{ "charunban",         60,60,     atcommand_char_unban },
 	{ "charunbanish",      60,60,     atcommand_char_unban },
-	{ "mount",             20,20,     atcommand_mount_peco },
-	{ "mountpeco",         20,20,     atcommand_mount_peco },
+	{ "mount",             20,20,     atcommand_mount },
 	{ "guildspy",          60,60,     atcommand_guildspy },
 	{ "partyspy",          60,60,     atcommand_partyspy },
 	{ "repairall",         60,60,     atcommand_repairall },

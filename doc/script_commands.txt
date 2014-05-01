@@ -191,6 +191,9 @@
 //=       Added 'getnpcid' command. [Ai4rei]
 //= 3.50.20120416
 //=       Allow any type of argument in 'escape_sql' command. [FlavioJS]
+//= 3.51.20130619
+//=       Added 'setdragon', 'checkdragon', 'setwug', 'checkwug', 
+//=       'setwugrider', 'checkwugrider', 'setmadogear', 'checkmadogear'. [Rytech]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -303,7 +306,7 @@ Here is a list of valid top-level commands:
 <map name>%TAB%mapflag%TAB%<flag>
 
 This will, upon loading, set a specified map flag on a map you like. These are 
-normally in files inside 'npc/mapflag' and are loaded first, so by the time the 
+normally in files inside 'conf/mapflag' and are loaded first, so by the time the 
 server's up, all the maps have the flags they should have. Map flags determine 
 the behavior of the map regarding various common problems, for a better 
 explanation, see 'setmapflag'.
@@ -3496,6 +3499,74 @@ The accompanying function will return 1 if the invoking character is riding a
 bird and 0 if they don't.
 
     if (checkriding()) mes "PLEASE leave your bird outside! No riding birds on the floor here!";
+
+---------------------------------------
+
+*setdragon {<flag>};
+*checkdragon()
+
+'setdragon' Command Info: The flag sets if the player will be mounted or dismounted to a Dragon.
+Flag 0: Dismounted player from the Dragon.
+Flag 1: Mounts the player to a Dragon.
+
+Example: setdragon 1; // Mounts the player to a Dragon.
+
+Note: The player must know the skill RK_DRAGONTRAINING to mount on a Dragon.
+
+'checkdragon' Command Info: Checks if the player is mounted on a Dragon.
+
+Example: if (checkdragon()) mes "We have detected that your mounted on a Dragon.
+
+---------------------------------------
+
+*setwug {<flag>};
+*checkwug()
+
+'setwug' Command Info: The flag sets if the player warg will be given or removed.
+Flag 0: Removes the player's Warg.
+Flag 1: Gives the player a Warg.
+
+Example: setwug 1; // Gives the player a Warg.
+
+Note: The player must know the skill RA_WUGMASTERY to have a Warg.
+
+'checkwug' Command Info: Checks if the player has a Warg.
+
+Example: if (checkwug()) mes "We have detected that you have a Warg.
+
+---------------------------------------
+
+*setwugrider {<flag>};
+*checkwugrider()
+
+'setwugrider' Command Info: The flag sets if the player will be mounted or dismounted to a Warg.
+Flag 0: Dismounted player from the Warg.
+Flag 1: Mounts the player to a Warg.
+
+Example: setwugrider 1; // Mounts the player to a Warg.
+
+Note: The player must know the skill RA_WUGRIDER to mount on a Warg.
+
+'checkwugrider' Command Info: Checks if the player is mounted on a Warg.
+
+Example: if (checkwugrider()) mes "We have detected that your mounted on a Warg.
+
+---------------------------------------
+
+*setmadogear {<flag>};
+*checkmadogear()
+
+'setmadogear' Command Info: The flag sets if the player will be mounted or dismounted to a Mado.
+Flag 0: Dismounted player from the Mado.
+Flag 1: Mounts the player to a Mado.
+
+Example: setmadogear 1; // Mounts the player to a Mado.
+
+Note: The player must know the skill NC_MADOLICENCE to mount on a Mado.
+
+'checkmadogear' Command Info: Checks if the player is mounted on a Mado.
+
+Example: if (checkmadogear()) mes "We have detected that your mounted on a Mado.
 
 ---------------------------------------
 

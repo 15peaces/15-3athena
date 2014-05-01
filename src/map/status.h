@@ -695,7 +695,9 @@ enum si_type {
 	SI_MARSHOFABYSS = 354,
 	SI_RECOGNIZEDSPELL = 355,
 	SI_STASIS = 356,
+*/
 	SI_WUGRIDER = 357,
+/*
 	SI_WUGDASH = 358,
 	SI_WUGBITE = 359,
 	SI_CAMOUFLAGE = 360,
@@ -963,7 +965,7 @@ enum {
 	OPT1_STUN,
 	OPT1_SLEEP,
 	//Aegis uses OPT1 = 5 to identify undead enemies (which also grants them immunity to the other opt1 changes)
-	OPT1_STONEWAIT=6, //Petrifying
+	OPT1_STONEWAIT = 6, //Petrifying
 	OPT1_BURNING,
 	OPT1_IMPRISON,
 };
