@@ -43,6 +43,7 @@ struct homun_data {
 
 	struct map_session_data *master; //pointer back to its master
 	int hungry_timer;	//[orn]
+	int int_loss_timer;	//[15peaces]
 	unsigned int exp_next;
 	char blockskill[MAX_SKILL];	// [orn]
 };

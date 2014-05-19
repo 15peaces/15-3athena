@@ -127,6 +127,7 @@ struct script_state {
 	//For backing up purposes
 	struct script_state *bk_st;
 	int bk_npcid;
+	unsigned char* funcname; // Stores the current running function name
 };
 
 struct script_reg {
@@ -181,5 +182,7 @@ int do_final_script(void);
 int add_str(const char* p);
 const char* get_str(int id);
 int script_reload(void);
+
+unsigned char* funcname; // Stores the current running function name
 
 #endif /* _SCRIPT_H_ */

@@ -104,6 +104,9 @@
 #define script_getstr(st,val) conv_str(st, script_getdata(st,val))
 #define script_getref(st,val) ( script_getdata(st,val)->ref )
 
+// Returns name of currently running function 
+#define script_getfuncname(st) ( st->funcname )
+
 // Note: "top" functions/defines use indexes relative to the top of the stack
 //       -1 is the index of the data at the top
 
@@ -3217,10 +3220,10 @@ int run_func(struct script_state *st)
 	st->end = end_sp;
 
 	data = &st->stack->stack_data[st->start];
-	if( data->type == C_NAME && str_data[data->u.num].type == C_FUNC )
+	if( data->type == C_NAME && str_data[data->u.num].type == C_FUNC ){
 		func = data->u.num;
-	else
-	{
+		st->funcname = reference_getname(data);
+	}else{
 		ShowError("script:run_func: not a buildin command.\n");
 		script_reportdata(data);
 		script_reportsrc(st);
@@ -5585,6 +5588,13 @@ BUILDIN_FUNC(checkweight)
 /*==========================================
  * getitem <item id>,<amount>{,<account ID>};
  * getitem "<item name>",<amount>{,<account ID>};
+ * 
+ * getitembound <item id>,<amount>,<type>{,<account ID>}; 
+ * getitembound "<item id>",<amount>,<type>{,<account ID>}; 
+ * Type: 
+ *      1 - Account Bound 
+ *      2 - Guild Bound 
+ *      3 - Party Bound 
  *------------------------------------------*/
 BUILDIN_FUNC(getitem)
 {
@@ -5632,7 +5642,18 @@ BUILDIN_FUNC(getitem)
 	else
 		it.identify=itemdb_isidentified(nameid);
 
-	if( script_hasdata(st,4) )
+	if( !strcmp(script_getfuncname(st),"getitembound") ) { 
+		char bound = script_getnum(st,4); 
+		if( bound < 1 || bound > 3) { //Not a correct bound type 
+			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound); 
+			return 1; 
+		} 
+		it.bound = bound; 
+		if( script_hasdata(st,5) ) 
+			sd=map_id2sd(script_getnum(st,5)); 
+		else 
+			sd=script_rid2sd(st); // Attached player 
+	} else if( script_hasdata(st,4) ) 
 		sd=map_id2sd(script_getnum(st,4)); // <Account ID>
 	else
 		sd=script_rid2sd(st); // Attached player
@@ -5673,12 +5694,23 @@ BUILDIN_FUNC(getitem2)
 {
 	int nameid,amount,get_count,i,flag = 0;
 	int iden,ref,attr,c1,c2,c3,c4;
+	char bound=0;
 	struct item_data *item_data;
 	struct item item_tmp;
 	TBL_PC *sd;
 	struct script_data *data;
 
-	if( script_hasdata(st,11) )
+	if( !strcmp(script_getfuncname(st),"getitembound2") ) { 
+		bound = script_getnum(st,11); 
+		if( bound < 1 || bound > 3) { //Not a correct bound type 
+			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound); 
+			return 1; 
+		} 
+		if( script_hasdata(st,12) ) 
+			sd=map_id2sd(script_getnum(st,12)); 
+		else 
+			sd=script_rid2sd(st); // Attached player 
+	} else if( script_hasdata(st,11) )
 		sd=map_id2sd(script_getnum(st,11)); // <Account ID>
 	else
 		sd=script_rid2sd(st); // Attached player
@@ -5740,6 +5772,7 @@ BUILDIN_FUNC(getitem2)
 		item_tmp.card[1]=(short)c2;
 		item_tmp.card[2]=(short)c3;
 		item_tmp.card[3]=(short)c4;
+		item_tmp.bound=bound;
 
 		//Check if it's stackable.
 		if (!itemdb_isstackable(nameid))
@@ -5817,6 +5850,7 @@ BUILDIN_FUNC(rentitem)
 	it.nameid = nameid;
 	it.identify = 1;
 	it.expire_time = (unsigned int)(time(NULL) + seconds);
+	it.bound = 0;
 
 	if( (flag = pc_additem(sd, &it, 1)) )
 	{
@@ -10427,9 +10461,10 @@ BUILDIN_FUNC(successremovecards)
 	{	// カードを取り除いたアイテム所得
 		int flag;
 		struct item item_tmp;
-		item_tmp.id=0,item_tmp.nameid=sd->status.inventory[i].nameid;
-		item_tmp.equip=0,item_tmp.identify=1,item_tmp.refine=sd->status.inventory[i].refine;
-		item_tmp.attribute=sd->status.inventory[i].attribute,item_tmp.expire_time=sd->status.inventory[i].expire_time;
+		item_tmp.id			=0,item_tmp.nameid=sd->status.inventory[i].nameid;
+		item_tmp.equip		=0,item_tmp.identify=1,item_tmp.refine=sd->status.inventory[i].refine;
+		item_tmp.attribute	=sd->status.inventory[i].attribute,item_tmp.expire_time=sd->status.inventory[i].expire_time;
+		item_tmp.bound      = sd->status.inventory[i].bound;
 		for (j = 0; j < sd->inventory_data[i]->slot; j++)
 			item_tmp.card[j]=0;
 		for (j = sd->inventory_data[i]->slot; j < MAX_SLOTS; j++)
@@ -10514,9 +10549,10 @@ BUILDIN_FUNC(failedremovecards)
 		if(typefail == 1){	// カードのみ損失（武具を返す）
 			int flag;
 			struct item item_tmp;
-			item_tmp.id=0,item_tmp.nameid=sd->status.inventory[i].nameid;
-			item_tmp.equip=0,item_tmp.identify=1,item_tmp.refine=sd->status.inventory[i].refine;
-			item_tmp.attribute=sd->status.inventory[i].attribute,item_tmp.expire_time=sd->status.inventory[i].expire_time;
+			item_tmp.id			=0,item_tmp.nameid=sd->status.inventory[i].nameid;
+			item_tmp.equip		=0,item_tmp.identify=1,item_tmp.refine=sd->status.inventory[i].refine;
+			item_tmp.attribute	=sd->status.inventory[i].attribute,item_tmp.expire_time=sd->status.inventory[i].expire_time;
+			item_tmp.bound      = sd->status.inventory[i].bound;
 
 			//Logs items, got from (N)PC scripts [Lupus]
 			log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
@@ -11163,7 +11199,7 @@ BUILDIN_FUNC(getinventorylist)
 				sprintf(card_var, "@inventorylist_card%d",k+1);
 				pc_setreg(sd,reference_uid(add_str(card_var), j),sd->status.inventory[i].card[k]);
 			}
-			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->status.inventory[i].expire_time);
+			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->status.inventory[i].bound);
 			j++;
 		}
 	}
@@ -15578,6 +15614,39 @@ BUILDIN_FUNC(showdigit)
 	return 0;
 }
 
+/*========================================== 
+ * countbound {<type>}; 
+ * Creates an array of bounded item IDs 
+ * Returns amount of items found 
+ * Type: 
+ *      1 - Account Bound 
+ *      2 - Guild Bound 
+ *      3 - Party Bound 
+ *------------------------------------------*/ 
+BUILDIN_FUNC(countbound) 
+{ 
+	int i, type, j=0, k=0; 
+	TBL_PC *sd; 
+
+	if( (sd = script_rid2sd(st)) == NULL ) 
+		return 0; 
+	 
+	type = script_hasdata(st,2)?script_getnum(st,2):0; 
+ 
+	for(i=0;i<MAX_INVENTORY;i++){ 
+		if(sd->status.inventory[i].nameid > 0 && ( 
+			(!type && sd->status.inventory[i].bound > 0) || 
+			(type && sd->status.inventory[i].bound == type) 
+		)) { 
+			pc_setreg(sd,reference_uid(add_str("@bound_items"), k),sd->status.inventory[i].nameid); 
+			k++; 
+			j += sd->status.inventory[i].amount; 
+		} 
+	} 
+       
+	script_pushint(st,j); 
+	return 0; 
+}
 
 // declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
@@ -16003,5 +16072,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(checkquest, "i?"),
 	BUILDIN_DEF(changequest, "ii"),
 	BUILDIN_DEF(showevent, "ii"),
+
+	//Bound items [Xantara] & [Akinari] 
+	BUILDIN_DEF2(getitem,"getitembound","vii?"), 
+	BUILDIN_DEF2(getitem2,"getitembound2","viiiiiiiii?"), 
+	BUILDIN_DEF(countbound, "?"), 
 	{NULL,NULL,NULL},
 };
