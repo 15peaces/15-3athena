@@ -511,9 +511,14 @@ static int merc_hom_hungry(int tid, unsigned int tick, int id, intptr_t data)
 	if(hd->homunculus.hunger < 0) {
 		hd->homunculus.hunger = 0;
 		// Delete the homunculus if intimacy <= 100
-		if ( !merc_hom_decrease_intimacy(hd, 100) )
-			return merc_hom_delete(hd, E_OMG);
-		clif_send_homdata(sd,SP_INTIMATE,hd->homunculus.intimacy / 100);
+		if (hd->int_loss_timer <= 0){ //Intimacy loss = 1 / 3 Minutes = 20points / hour. [15peaces]
+			if ( !merc_hom_decrease_intimacy(hd, 100) )
+				return merc_hom_delete(hd, E_OMG);
+			clif_send_homdata(sd,SP_INTIMATE,hd->homunculus.intimacy / 100);
+			hd->int_loss_timer = 3; //FIXME: This is not official, but the easiest way currently.
+		}else{
+			hd->int_loss_timer-- ;
+		}
 	}
 
 	clif_send_homdata(sd,SP_HUNGRY,hd->homunculus.hunger);

@@ -1,5 +1,6 @@
 Date	Added
-
+2014/05/10
+	* Added support for 2013-12-23cRagexe. [Ai4rei]
 2014/01/21
 	* Fixed char-server (txt only) would still attempt to allocate zero-sized memory block when there are no characters in the database (bugreport:5138, follow up to r15264). [Ai4rei]
 	- Modified the alloc functions to print an error zero-sized allocation attempts.

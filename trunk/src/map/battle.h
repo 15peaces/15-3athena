@@ -340,6 +340,7 @@ extern struct Battle_Config
 	int sp_rate;
 	int gm_cant_drop_min_lv;
 	int gm_cant_drop_max_lv;
+	int bound_item_drop;
 	int disp_hpmeter;
 	int bone_drop;
 	int buyer_name;

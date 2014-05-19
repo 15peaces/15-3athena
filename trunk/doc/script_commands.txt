@@ -4,7 +4,7 @@
 //= A reference manual for the eAthena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.50.20120416
+//= 3.52.20140519
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -194,6 +194,8 @@
 //= 3.51.20130619
 //=       Added 'setdragon', 'checkdragon', 'setwug', 'checkwug', 
 //=       'setwugrider', 'checkwugrider', 'setmadogear', 'checkmadogear'. [Rytech]
+//= 3.52.20140519
+//=       Added 'getitembound', '*getitembound2' [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -4582,7 +4584,71 @@ Example(s):
 //The invoked character will no longer automatically equip a falchion.
 	autoequip 1104,0;
 
+--------------------------------------- 
+  
+*getitembound <item id>,<amount>,<bound_type>{,<account ID>}; 
+*getitembound "<item name>",<amount>,<bound_type>{,<account ID>}; 
+
+This command will give an amount of specified items to the invoking character.  
+If an optional account ID is specified, and the target character is currently  
+online, items will be created in their inventory instead. If they are not  
+online, nothing will happen.  
+
+It works essentially the same as 'getitem', except that items created using 
+this command will bound the item to the player's account. Depending on the bound type issued, 
+the character may not be able to trade or store these items, however all bounded types 
+cannot be sold, vended, auctioned, or mailed. 
+	 
+Bound Types: 
+	1 - Account Bound 
+	2 - Guild Bound 
+	3 - Party Bound 
+ 
+--------------------------------------- 
+
+*getitembound2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>}; 
+*getitembound2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound_type>{,<account ID>}; 
+
+This command will give an amount of specified items to the invoking character.  
+If an optional account ID is specified, and the target character is currently  
+online, items will be created in their inventory instead. If they are not  
+online, nothing will happen.  
+ 
+It works essentially the same as 'getitem2', except that items created using 
+this command will bound the item to the player's account. Depending on the bound type issued, 
+the character may not be able to trade or store these items, however all bounded types 
+cannot be sold, vended, auctioned, or mailed. 
+ 
+Bound Types: 
+	1 - Account Bound 
+	2 - Guild Bound 
+	3 - Party Bound 
+	
 ---------------------------------------
+ 
+*countbound({<bound_type>}) 
+ 
+This function will return a number of bounded items on the character. 
+Optionally, you may count a specific type of bounded item on the character. 
+
+countbound will also build an array of items in the form of @bound_items. 
+Using countbound without a type counts all types of bounded items. 
+
+Available types are: 
+	1 - Account Bound 
+	2 - Guild Bound 
+	3 - Party Bound 
+ 
+Example: 
+	mes "[Bound Counter]"; 
+	mes "I see you currently have "+countbound+" bounded items."; 
+	next; 
+	mes "The list of bounded items include:"; 
+	for(.@i = 0; .@i<getarraysize(@bound_items); .@i++) 
+		mes getitemname(@bound_items[.@i]); 
+	close; 
+	     
+--------------------------------------- 
 
 *buyingstore <slots>;
 

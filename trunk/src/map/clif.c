@@ -1748,6 +1748,11 @@ void clif_selllist(struct map_session_data *sd)
 			if( sd->status.inventory[i].expire_time )
 				continue; // Cannot Sell Rental Items
 
+			if( sd->status.inventory[i].expire_time || (sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd)) ) 
+				continue; // Cannot Sell Rental Items or Account Bounded Items 
+	 
+			if( sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd)) 
+				continue; // Don't allow sale of bound items
 			val=sd->inventory_data[i]->value_sell;
 			if( val < 0 )
 				continue;
@@ -2112,7 +2117,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, int fail)
 		WFIFOL(fd,23)=0;
 #endif
 #if PACKETVER >= 20071002
-		WFIFOW(fd,27)=0;  // unknown
+		WFIFOW(fd,27)=sd->status.inventory[n].bound ? 2 : 0; 
 #endif
 	}
 	else
@@ -2138,7 +2143,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, int fail)
 		WFIFOL(fd,23)=sd->status.inventory[n].expire_time;
 #endif
 #if PACKETVER >= 20071002
-		WFIFOW(fd,27)=0;  // unknown
+		WFIFOW(fd,27)=sd->status.inventory[n].bound ? 2 : 0; 
 #endif
 	}
 
@@ -2258,6 +2263,7 @@ void clif_inventorylist(struct map_session_data *sd)
 			clif_addcards(WBUFP(bufe, ne*se+16), &sd->status.inventory[i]);
 #if PACKETVER >= 20071002
 			WBUFL(bufe,ne*se+24)=sd->status.inventory[i].expire_time;
+			WBUFW(buf,n+24)=sd->status.inventory[i].bound ? 2 : 0; 
 			WBUFW(bufe,ne*se+28)=0; //Unknown
 #endif
 #if PACKETVER >= 20100629
@@ -2341,6 +2347,7 @@ void clif_equiplist(struct map_session_data *sd)
 		clif_addcards(WBUFP(buf, n*cmd+16), &sd->status.inventory[i]);
 #if PACKETVER >= 20071002
 		WBUFL(buf,n*cmd+24)=sd->status.inventory[i].expire_time;
+		WBUFW(buf,n+24)=sd->status.inventory[i].bound ? 2 : 0;
 		WBUFW(buf,n*cmd+28)=0; //Unknown
 #endif
 #if PACKETVER >= 20100629
@@ -2398,6 +2405,7 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 			clif_addcards(WBUFP(bufe, ne*cmd+16), &items[i]);
 #if PACKETVER >= 20071002
 			WBUFL(bufe,ne*cmd+24)=items[i].expire_time;
+			WBUFW(buf,n+24)=sd->status.inventory[i].bound ? 2 : 0;
 			WBUFW(bufe,ne*cmd+28)=0; //Unknown
 #endif
 			ne++;
@@ -2478,6 +2486,7 @@ void clif_cartlist(struct map_session_data *sd)
 			clif_addcards(WBUFP(bufe, ne*cmd+16), &sd->status.cart[i]);
 #if PACKETVER >= 20071002
 			WBUFL(bufe,ne*cmd+24)=sd->status.cart[i].expire_time;
+			WBUFW(buf,n+24)=sd->status.inventory[i].bound ? 2 : 0;
 			WBUFW(bufe,ne*cmd+28)=0; //Unknown
 #endif
 			ne++;
@@ -14155,6 +14164,11 @@ void clif_parse_Auction_register(int fd, struct map_session_data *sd)
 	}
 
 	// Auction checks...
+	if( sd->status.inventory[sd->auction.index].bound && !pc_can_give_bounded_items(sd) ) { 
+		clif_displaymessage(sd->fd, msg_txt(sd,293)); 
+		clif_Auction_message(fd, 2); // The auction has been canceled 
+		return; 
+	} 
 	if( sd->status.zeny < (auction.hours * battle_config.auction_feeperhour) )
 	{
 		clif_Auction_message(fd, 5); // You do not have enough zeny to pay the Auction Fee.

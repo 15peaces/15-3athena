@@ -600,6 +600,7 @@ int pc_class2idx(int class_);
 int pc_isGM(struct map_session_data *sd);
 int pc_getrefinebonus(int lv,int type);
 bool pc_can_give_items(int level);
+bool pc_can_give_bounded_items(int level);
 
 void pc_onstatuschanged(struct map_session_data* sd, int type);
 
@@ -640,6 +641,9 @@ int pc_payzeny(struct map_session_data*,int);
 int pc_additem(struct map_session_data*,struct item*,int);
 int pc_getzeny(struct map_session_data*,int);
 int pc_delitem(struct map_session_data*,int,int,int,short);
+
+//Bound items 
+int pc_bound_chk(TBL_PC *sd,int type,int *idxlist);
 
 // Special Shop System
 void pc_paycash(struct map_session_data *sd, int price, int points);

@@ -3836,6 +3836,7 @@ static const struct _battle_data {
 	{ "castle_defense_rate",                &battle_config.castle_defense_rate,             100,    0,      100,            },
 	{ "gm_cant_drop_min_lv",                &battle_config.gm_cant_drop_min_lv,             1,      0,      100,            },
 	{ "gm_cant_drop_max_lv",                &battle_config.gm_cant_drop_max_lv,             0,      0,      100,            },
+	{ "bound_item_drop",	                &battle_config.bound_item_drop,		            0,      0,      100,            },
 	{ "disp_hpmeter",                       &battle_config.disp_hpmeter,                    0,      0,      100,            },
 	{ "bone_drop",                          &battle_config.bone_drop,                       0,      0,      2,              },
 	{ "buyer_name",                         &battle_config.buyer_name,                      1,      0,      1,              },

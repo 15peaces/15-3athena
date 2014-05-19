@@ -233,6 +233,7 @@ struct item {
 	char attribute;
 	short card[MAX_SLOTS];
 	unsigned int expire_time;
+	char bound;
 };
 
 struct point {
@@ -284,6 +285,7 @@ struct guild_storage {
 	short storage_status;
 	short storage_amount;
 	struct item items[MAX_GUILD_STORAGE];
+	unsigned short lock;
 };
 
 struct s_pet {

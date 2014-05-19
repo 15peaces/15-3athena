@@ -511,6 +511,14 @@ bool pc_can_give_items(int level)
 	return( level < battle_config.gm_cant_drop_min_lv || level > battle_config.gm_cant_drop_max_lv );
 }
 
+/** 
+* Determines if player can give / drop / trade / vend bounded items 
+*/ 
+bool pc_can_give_bounded_items(int level) 
+{ 
+	return( level > battle_config.bound_item_drop); 
+} 
+
 /*==========================================
  * prepares character for saving.
  *------------------------------------------*/
@@ -911,7 +919,8 @@ int pc_isequip(struct map_session_data *sd,int n)
  *------------------------------------------*/
 bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_time, int gmlevel, struct mmo_charstatus *st)
 {
-	int i;
+	int i, j; 
+	int idxlist[MAX_INVENTORY]; 
 	unsigned long tick = gettick();
 	uint32 ip = session[sd->fd]->client_addr;
 
@@ -1064,6 +1073,12 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 		char tmpstr[1024];
 		strftime(tmpstr, sizeof(tmpstr) - 1, msg_txt(501), localtime(&expiration_time)); // "Your account time limit is: %d-%m-%Y %H:%M:%S."
 		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
+	}
+
+	// Party bound item check 
+	if(sd->status.party_id == 0 && (j = pc_bound_chk(sd,3,idxlist))) { // Party was deleted while character offline 
+		for(i=0;i<j;i++) 
+		pc_delitem(sd,idxlist[i],sd->status.inventory[idxlist[i]].amount,0,1); 
 	}
 
 	// Request all registries (auth is considered completed whence they arrive)
@@ -3512,7 +3527,7 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 	{ // Stackable | Non Rental
 		for( i = 0; i < MAX_INVENTORY; i++ )
 		{
-			if( sd->status.inventory[i].nameid == item_data->nameid && memcmp(&sd->status.inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 )
+			if( sd->status.inventory[i].nameid == item_data->nameid && sd->status.inventory[i].bound == item_data->bound && memcmp(&sd->status.inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 )
 			{
 				if( amount > MAX_AMOUNT - sd->status.inventory[i].amount )
 					return 5;
@@ -3947,7 +3962,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	data = itemdb_search(item_data->nameid);
 
-	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) )
+	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || ((item_data->bound == 2 || item_data->bound == 3) && !pc_can_give_bounded_items(sd->gmlevel)))
 	{ // Check item trade restrictions	[Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(264));
 		return 1;
@@ -3960,7 +3975,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 	if( itemdb_isstackable2(data) && !item_data->expire_time )
 	{
 		ARR_FIND( 0, MAX_CART, i,
-			sd->status.cart[i].nameid == item_data->nameid &&
+			sd->status.cart[i].nameid == item_data->nameid && sd->status.cart[i].bound == item_data->bound &&
 			sd->status.cart[i].card[0] == item_data->card[0] && sd->status.cart[i].card[1] == item_data->card[1] &&
 			sd->status.cart[i].card[2] == item_data->card[2] && sd->status.cart[i].card[3] == item_data->card[3] );
 	};
@@ -4869,6 +4884,24 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 			return -1;
 	}
 }
+/*========================================== 
+* Bound Item Check 
+* Type: 
+* 1 Account Bound 
+* 2 Guild Bound 
+* 3 Party Bound 
+*------------------------------------------*/ 
+int pc_bound_chk(TBL_PC *sd,int type,int *idxlist) 
+{ 
+	int i=0, j=0; 
+	for(i=0;i<MAX_INVENTORY;i++){ 
+		if(sd->status.inventory[i].nameid > 0 && sd->status.inventory[i].amount > 0 && sd->status.inventory[i].bound == type) { 
+			idxlist[j] = i; 
+			j++; 
+		} 
+	} 
+	return j; 
+} 
 
 /*====================================================
  * This function return the name of the job (by [Yor])
@@ -7126,7 +7159,7 @@ int pc_setmadogear(TBL_PC* sd, int flag)
 int pc_candrop(struct map_session_data *sd,struct item *item)
 {
 	int level = pc_isGM(sd);
-	if( item && item->expire_time )
+	if( item && (item->expire_time || (item->bound && !pc_can_give_bounded_items(sd->gmlevel))) ) 
 		return 0;
 	if( !pc_can_give_items(level) ) //check if this GM level can drop items
 		return 0;
