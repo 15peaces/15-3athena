@@ -2066,6 +2066,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2)
 			sd->castrate+=val;
 		break;
+	case SP_FIXEDCASTRATE:
+		if(sd->state.lr_flag != 2)
+			sd->fixedcastrate+=val;
+		break;
 	case SP_MAXHPRATE:
 		if(sd->state.lr_flag != 2)
 			sd->hprate+=val;
@@ -2839,6 +2843,23 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		else {
 			sd->skillcast[i].id = type2;
 			sd->skillcast[i].val = val;
+		}
+		break;
+
+	case SP_FIXEDCASTRATE:
+		if(sd->state.lr_flag == 2)
+			break;
+		ARR_FIND(0, ARRAYLENGTH(sd->fixedskillcast), i, sd->fixedskillcast[i].id == 0 || sd->fixedskillcast[i].id == type2);
+		if (i == ARRAYLENGTH(sd->fixedskillcast))
+		{
+			ShowDebug("run_script: bonus2 bFixedCastRate reached it's limit (%d skills per character), bonus skill %d (+%d%%) lost.\n", ARRAYLENGTH(sd->fixedskillcast), type2, val);
+			break;
+		}
+		if(sd->fixedskillcast[i].id == type2)
+			sd->fixedskillcast[i].val += val;
+		else {
+			sd->fixedskillcast[i].id = type2;
+			sd->fixedskillcast[i].val = val;
 		}
 		break;
 

@@ -498,6 +498,10 @@ extern struct Battle_Config
 	int bg_magic_damage_rate;
 	int bg_misc_damage_rate;
 	int bg_flee_penalty;
+
+	// 15-3athena
+	int renewal_casting_renewal_skills;
+	int castrate_dex_scale_renewal_jobs;
 } battle_config;
 
 void do_init_battle(void);

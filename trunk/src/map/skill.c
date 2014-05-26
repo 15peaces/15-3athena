@@ -151,7 +151,9 @@ int	skill_get_itemid(int id, int idx)     { skill_get (skill_db[id].itemid[idx],
 int	skill_get_itemqty(int id, int idx)    { skill_get (skill_db[id].amount[idx], id, 1); }
 int	skill_get_zeny( int id ,int lv )      { skill_get (skill_db[id].zeny[lv-1], id, lv); }
 int	skill_get_num( int id ,int lv )       { skill_get (skill_db[id].num[lv-1], id, lv); }
+int skill_get_fixed_cast( int id ,int lv ){ skill_get (skill_db[id].fixed_cast[lv-1], id, lv); }
 int	skill_get_cast( int id ,int lv )      { skill_get (skill_db[id].cast[lv-1], id, lv); }
+int	skill_get_cooldown( int id ,int lv )  { skill_get (skill_db[id].cooldown[lv-1], id, lv); }
 int	skill_get_delay( int id ,int lv )     { skill_get (skill_db[id].delay[lv-1], id, lv); }
 int	skill_get_walkdelay( int id ,int lv ) { skill_get (skill_db[id].walkdelay[lv-1], id, lv); }
 int	skill_get_time( int id ,int lv )      { skill_get (skill_db[id].upkeep_time[lv-1], id, lv); }
@@ -1047,6 +1049,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 					if ( battle_config.display_status_timers && sd )
 						clif_status_change(src, SI_ACTIONDELAY, 1, rate);
 				}
+				if (skill_get_cooldown(skill,skilllv))
+					skill_blockpc_start(sd, skill, skill_get_cooldown(skill, skilllv));
 			}
 		}
 	}
@@ -1323,6 +1327,8 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 					if ( battle_config.display_status_timers && dstsd )
 						clif_status_change(bl, SI_ACTIONDELAY, 1, rate);
 				}
+				if (skill_get_cooldown(skillid,skilllv))
+					skill_blockpc_start(sd, skillid, skill_get_cooldown(skillid, skilllv));
 			}
 		}
 	}
@@ -2562,6 +2568,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_BLEEDING:
 	case NPC_CRITICALWOUND:
 	case NPC_HELLPOWER:
+	case RK_DRAGONBREATH:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -3650,6 +3657,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ST_PRESERVE:
 	case NPC_INVINCIBLE:
 	case NPC_INVINCIBLEOFF:
+	case RK_ENCHANTBLADE:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		break;
@@ -5857,6 +5865,8 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv); //Tests show wings don't overwrite the delay but skill scrolls do. [Inkfish]
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv));
+		if( !sd || sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv) )
+			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 		if( sd )
 		{
 			switch( ud->skillid )
@@ -6070,6 +6080,8 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv);
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv));
+		if( !sd || sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv) )
+			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 //		if( sd )
 //		{
 //			switch( ud->skillid )
@@ -6178,6 +6190,15 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		if(battle_config.traps_setting&1)
 		map_foreachinarea( skill_reveal_trap,
 			src->m, x-i, y-i, x+i,y+i,BL_SKILL);
+		break;
+
+	//Offensive Ground Targeted Splash AoE's.
+	case RK_DRAGONBREATH:
+		i = skill_get_splash(skillid, skilllv);
+		map_foreachinarea(skill_area_sub,
+		src->m, x-i, y-i, x+i, y+i, BL_CHAR,
+		src, skillid, skilllv, tick, flag|BCT_ENEMY|1,
+		skill_castend_damage_id);
 		break;
 
 	case SA_VOLCANO:
@@ -6336,7 +6357,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 
 	case MO_BODYRELOCATION:
 		if (unit_movepos(src, x, y, 1, 1)) {
-			clif_skill_poseffect(src,skillid,skilllv,src->x,src->y,tick);
+			#if PACKETVER >= 20120410
+				clif_fast_movement(src, src->x, src->y);
+			#else
+				clif_skill_poseffect(src,skillid,skilllv,src->x,src->y,tick);
+			#endif
 //			clif_slide(src, src->x, src->y); //Poseffect is the one that makes the char snap on the client...
 			if (sd) skill_blockpc_start (sd, MO_EXTREMITYFIST, 2000);
 		}
@@ -8940,7 +8965,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 /*==========================================
  * Does cast-time reductions based on dex, item bonuses and config setting
  *------------------------------------------*/
-int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
+/*int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 {
 	int time = skill_get_cast(skill_id, skill_lv);
 	struct map_session_data *sd;
@@ -8979,12 +9004,170 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 
 	// return final cast time
 	return (time > 0) ? time : 0;
+}*/
+
+/*==========================================
+* Recoded cast time system. Mainly a setup like jRO, Thanks to Rytech. [15peaces]
+* Does cast-time reductions based on dex, int (for renewal), status's, item bonuses, and config setting.
+*------------------------------------------*/
+int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
+{
+	int time = skill_get_cast(skill_id, skill_lv);//Used for regular and renewal variable cast time.
+	int fixed_time = skill_get_fixed_cast(skill_id, skill_lv);//Used for renewal fix time.
+	int fixed_cast_rate = 0;//Used for setting the percentage adjustment of fixed cast times.
+	int final_time = 0;//Used for finalizing time calculations for pre-re and combining time and fixed_time for renewal.
+	int rate = 0;//Used to support the duel dex rates check through castrate_dex_scale and castrate_dex_scale_3rd.
+	int scale = 0;//Used to scale the regular and variable cast times.
+	struct map_session_data *sd;
+	struct status_change *sc;
+
+	nullpo_retr(0, bl);
+	sd = BL_CAST(BL_PC, bl);
+	sc = status_get_sc(bl);
+
+	// Calculates regular and variable cast time.
+	if( !(skill_get_castnodex(skill_id, skill_lv)&1) )
+	{ //If renewal casting is enabled, all renewal skills will follow the renewal cast time formula.
+		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= SR_FLASHCOMBO_ATK_STEP4 || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+		{
+			time -= time * (status_get_dex(bl) * 2 + status_get_int(bl)) / 530;
+			if ( time < 0 ) time = 0;// No return of 0 since were adding the fixed_time later.
+		}
+		else
+		{
+			if (fixed_time < 0)//Prevents negeative values from affecting the variable below.
+				fixed_time = 0;
+			//Adds variable and fixed cast times together to make a full variable time for renewal skills
+			//if renewal_casting_renewal_skills is turned off. Non-renewal skills dont have fixed times,
+			//causing a fixed cast value of 0 to be added and not affect the actural cast time.
+			time = time + fixed_time;
+			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))
+				rate = battle_config.castrate_dex_scale_renewal_jobs;
+			else
+				rate = battle_config.castrate_dex_scale;
+			scale = rate - status_get_dex(bl);
+			if( scale > 0 ) // Not instant cast
+				time = time * scale / rate;
+			else return 0;// Instant cast
+		}
+	}
+	
+	// Calculate cast time reduced by item/card bonuses.
+	// Last condition checks if you have a cast or variable time after calculations to avoid additional processing.
+	if( !(skill_get_castnodex(skill_id, skill_lv)&4) && sd && time > 0)
+	{
+		int i;
+		if( sd->castrate != 100 )
+			time = time * sd->castrate / 100;
+		for( i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id; i++ )
+		{
+			if( sd->skillcast[i].id == skill_id )
+			{
+				time += time * sd->skillcast[i].val / 100;
+				break;
+			}
+		}
+	}
+
+	//These status's only affect regular and variable cast times.
+	if (!(skill_get_castnodex(skill_id, skill_lv)&2) && sc && sc->count && time > 0)
+	{
+		if (sc->data[SC_SUFFRAGIUM]) {
+			time -= time * sc->data[SC_SUFFRAGIUM]->val2 / 100;
+			status_change_end(bl, SC_SUFFRAGIUM, -1);
+		}
+		if (sc->data[SC_POEMBRAGI])
+			time -= time * sc->data[SC_POEMBRAGI]->val2 / 100;
+		if (sc->data[SC_MEMORIZE]) {
+			time -= time * 50 / 100;
+			if ((sc->data[SC_MEMORIZE]->val2) <= 0)
+				status_change_end(bl, SC_MEMORIZE, -1);
+		}
+		if (sc->data[SC_SLOWCAST])
+			time += time * sc->data[SC_SLOWCAST]->val2 / 100;
+		//if (sc->data[SC_IZAYOI])
+			// time -= time * 50 / 100;
+	}
+	
+	//These status's adjust the fixed cast time by a fixed amount. Fixed adjustments stack and can increase or decrease the time.
+	if (sc && sc->count)
+	{
+		//if( sc->data[SC_MANDRAGORA] )
+		// fixed_time += 500 * sc->data[SC_MANDRAGORA]->val1;
+		//if( sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION] )
+		// fixed_time -= 1000;
+	}
+
+	//Fixed cast time reductions in a percentage starts here where reductions from any worn equips and cards that give fixed cast
+	//reductions are calculated. Percentage reductions do not stack and the highest reduction value found on any worn equip,
+	//worn card, skill, or status will be used.
+	if (sd && fixed_time > 0)
+	{
+		int i;
+		if( sd->fixedcastrate != 100 )//Fixed cast reduction on all skills.
+			fixed_cast_rate = 100 - sd->fixedcastrate;
+		for( i = 0; i < ARRAYLENGTH(sd->fixedskillcast) && sd->fixedskillcast[i].id; i++ )
+		{
+			if( sd->fixedskillcast[i].id == skill_id )
+			{ //Fixed cast reduction for a set skill.
+				fixed_cast_rate -= sd->fixedskillcast[i].val;
+				break;
+			}
+		}
+	}
+
+	//Fixed cast time percentage reduction from radius if learned.
+	if( sd && pc_checkskill(sd, WL_RADIUS) > 0 && skill_id >= WL_WHITEIMPRISON && skill_id <= WL_FREEZE_SP && fixed_time > 0 )
+	{
+		int radiusbonus = 5 + 5 * pc_checkskill(sd, WL_RADIUS);
+		if ( radiusbonus > fixed_cast_rate )
+			fixed_cast_rate = radiusbonus;
+	}
+	
+	//Fixed cast time percentage reduction from status's.
+	if (sc && sc->count && fixed_time > 0)
+	{
+		//if( sc->data[SC_DANCEWITHWUG] && sc->data[SC_DANCEWITHWUG]->val4 > fixed_cast_rate)
+			// fixed_cast_rate = sc->data[SC_DANCEWITHWUG]->val4;
+		//if( sc->data[SC_SECRAMENT] && sc->data[SC_SECRAMENT]->val2 > fixed_cast_rate)
+			// fixed_cast_rate = sc->data[SC_SECRAMENT]->val2;
+		//if (sc->data[SC_IZAYOI])
+			// fixed_cast_rate = 100;
+	}
+
+	//Finally after checking through many different checks, we finalize how much of a percentage the fixed cast time will be reduced.
+	if ( fixed_time > 0 && fixed_cast_rate > 0 )
+		fixed_time -= fixed_time * fixed_cast_rate / 100;
+
+	//Check prevents variable and fixed times from going below to a negeative value.
+	if (time < 0)
+		time = 0;
+	if (fixed_time < 0)
+		fixed_time = 0;
+
+	//Only add variable and fixed times when renewal casting for renewal skills are on. Without this check,
+	//it will add the 2 together during the above phase and then readd the fixed time.
+	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= SR_FLASHCOMBO_ATK_STEP4 || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+		final_time = time + fixed_time;
+	else
+		final_time = time;
+
+	//Entire cast time is increased if caster has the Laziness status.
+	//if (sc && sc->data[SC__LAZINESS])
+	// final_time += final_time * sc->data[SC__LAZINESS]->val3 / 100;
+
+	// Config cast time multiplier.
+	if (battle_config.cast_rate != 100)
+		final_time = final_time * battle_config.cast_rate / 100;
+
+	// Return final cast time.
+	return (final_time > 0) ? final_time : 0;
 }
 
 /*==========================================
  * Does cast-time reductions based on sc data.
  *------------------------------------------*/
-int skill_castfix_sc (struct block_list *bl, int time)
+/*int skill_castfix_sc (struct block_list *bl, int time)
 {
 	struct status_change *sc = status_get_sc(bl);
 
@@ -9004,7 +9187,7 @@ int skill_castfix_sc (struct block_list *bl, int time)
 			time -= time * sc->data[SC_POEMBRAGI]->val2 / 100;
 	}
 	return (time > 0) ? time : 0;
-}
+}*/
 
 /*==========================================
  * Does delay reductions based on dex/agi, sc data, item bonuses, ...
@@ -11716,6 +11899,24 @@ static bool skill_parse_row_castdb(char* split[], int columns, int current)
 	return true;
 }
 
+static bool skill_parse_row_renewalcastdb(char* split[], int columns, int current)
+{// SkillID,VariableCastTime,FixedCastTime,AfterCastActDelay,Cooldown,AfterCastWalkDelay,Duration1,Duration2
+	int i = atoi(split[0]);
+	i = skill_get_index(i);
+	if( !i ) // invalid skill id
+		return false;
+
+	skill_split_atoi(split[1],skill_db[i].cast);
+	skill_split_atoi(split[2],skill_db[i].fixed_cast);
+	skill_split_atoi(split[3],skill_db[i].delay);
+	skill_split_atoi(split[4],skill_db[i].cooldown);
+	skill_split_atoi(split[5],skill_db[i].walkdelay);
+	skill_split_atoi(split[6],skill_db[i].upkeep_time);
+	skill_split_atoi(split[7],skill_db[i].upkeep_time2);
+	
+	return true;
+}
+
 static bool skill_parse_row_castnodexdb(char* split[], int columns, int current)
 {// Skill id,Cast,Delay (optional)
 	int i = atoi(split[0]);
@@ -11859,6 +12060,7 @@ static void skill_readdb(void)
 	sv_readdb(db_path, "skill_db.txt"          , ',',  17, 17, MAX_SKILL_DB, skill_parse_row_skilldb);
 	sv_readdb(db_path, "skill_require_db.txt"  , ',',  32, 32, MAX_SKILL_DB, skill_parse_row_requiredb);
 	sv_readdb(db_path, "skill_cast_db.txt"     , ',',   6,  6, MAX_SKILL_DB, skill_parse_row_castdb);
+	sv_readdb(db_path, "skill_renewal_cast_db.txt", ',',   8,  8, MAX_SKILL_DB, skill_parse_row_renewalcastdb);
 	sv_readdb(db_path, "skill_castnodex_db.txt", ',',   2,  3, MAX_SKILL_DB, skill_parse_row_castnodexdb);
 	sv_readdb(db_path, "skill_nocast_db.txt"   , ',',   2,  2, MAX_SKILL_DB, skill_parse_row_nocastdb);
 	sv_readdb(db_path, "skill_unit_db.txt"     , ',',   8,  8, MAX_SKILL_DB, skill_parse_row_unitdb);
