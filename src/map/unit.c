@@ -1136,8 +1136,8 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 	}
   	
 	// moved here to prevent Suffragium from ending if skill fails
-	if (!(skill_get_castnodex(skill_num, skill_lv)&2))
-		casttime = skill_castfix_sc(src, casttime);
+	//if (!(skill_get_castnodex(skill_num, skill_lv)&2))
+	//	casttime = skill_castfix_sc(src, casttime);
 
 	if( casttime > 0 || temp )
 	{ 
@@ -1278,8 +1278,8 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, sh
 	unit_stop_attack(src);
 
 	// moved here to prevent Suffragium from ending if skill fails
-	if (!(skill_get_castnodex(skill_num, skill_lv)&2))
-		casttime = skill_castfix_sc(src, casttime);
+	//if (!(skill_get_castnodex(skill_num, skill_lv)&2))
+	//	casttime = skill_castfix_sc(src, casttime);
 
 	ud->state.skillcastcancel = castcancel&&casttime>0?1:0;
 	if( !sd || sd->skillitem != skill_num || skill_get_cast(skill_num,skill_lv) )

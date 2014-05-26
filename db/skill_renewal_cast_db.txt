@@ -1,0 +1,12 @@
+// Skill Times Database
+//
+// Structure of Database:
+// SkillID,VariableCastTime,FixedCastTime,AfterCastActDelay,Cooldown,AfterCastWalkDelay,Duration1,Duration2
+//
+//===== Rune Knight ========================
+//-- RK_ENCHANTBLADE
+2001,2000,3000,2000,5000,0,300000,0
+
+//-- RK_DRAGONBREATH
+2008,2000,3000,2000,5000,0,300000,0
+//==========================================

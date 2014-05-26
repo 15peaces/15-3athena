@@ -739,4 +739,7 @@ void clif_search_store_info_failed(struct map_session_data* sd, unsigned char re
 void clif_open_search_store_info(struct map_session_data* sd);
 void clif_search_store_info_click_ack(struct map_session_data* sd, short x, short y);
 
+// 15-3athena Added
+void clif_fast_movement(struct block_list *bl, short x, short y);
+
 #endif /* _CLIF_H_ */
