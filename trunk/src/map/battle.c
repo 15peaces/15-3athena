@@ -4022,6 +4022,9 @@ static const struct _battle_data {
 // 15-3athena
 	{ "renewal_casting_renewal_skills",		&battle_config.renewal_casting_renewal_skills,	1,		0,		1,				},
 	{ "castrate_dex_scale_renewal_jobs",	&battle_config.castrate_dex_scale_renewal_jobs,	150,	1,		INT_MAX,		},
+	{ "max_parameter_renewal_jobs",			&battle_config.max_parameter_renewal_jobs,		120,	10,		10000,			},
+	{ "max_baby_parameter_renewal_jobs",	&battle_config.max_baby_parameter_renewal_jobs, 108,	10,		10000,			},
+	{ "max_aspd_renewal_jobs",				&battle_config.max_aspd_renewal_jobs,			193,	100,	199,			},
 };
 
 
@@ -4065,6 +4068,7 @@ void battle_adjust_conf()
 {
 	battle_config.monster_max_aspd = 2000 - battle_config.monster_max_aspd*10;
 	battle_config.max_aspd = 2000 - battle_config.max_aspd*10;
+	battle_config.max_aspd_renewal_jobs = 2000 - battle_config.max_aspd_renewal_jobs*10;
 	battle_config.max_walk_speed = 100*DEFAULT_WALK_SPEED/battle_config.max_walk_speed;	
 	battle_config.max_cart_weight *= 10;
 	

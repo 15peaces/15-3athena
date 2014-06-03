@@ -46,7 +46,7 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
-	#define PACKETVER 20120410
+	#define PACKETVER 20130731
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -89,7 +89,7 @@
 #define MAX_ZENY 1000000000
 #define MAX_FAME 1000000000
 #define MAX_CART 100
-#define MAX_SKILL 3036
+#define MAX_SKILL 5019
 #define GLOBAL_REG_NUM 256
 #define ACCOUNT_REG_NUM 64
 #define ACCOUNT_REG2_NUM 16
@@ -105,7 +105,7 @@
 #define MAX_GUILDPOSITION 20	// increased max guild positions to accomodate for all members [Valaris] (removed) [PoW]
 #define MAX_GUILDEXPULSION 32
 #define MAX_GUILDALLIANCE 16
-#define MAX_GUILDSKILL	15 // increased max guild skills because of new skills [Sara-chan]
+#define MAX_GUILDSKILL	17 // increased max guild skills because of new skills [Sara-chan] [15peaces]
 #define MAX_GUILDCASTLE 34	// Updated to include new entries for WoE:SE. [L0ne_W0lf]
 #define MAX_GUILDLEVEL 50
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
@@ -176,13 +176,14 @@
 #define EL_CLASS_BASE 2114
 #define EL_CLASS_MAX (EL_CLASS_BASE+MAX_ELEMENTAL_CLASS-1)
 
-//Extra 3rd Job Skills
+//Expansion Skills
 //Remaps the player skills in the 5000 ID range to a lower range
 //in the skill ID index. This is a better way to handle these skills since
 //increasing the MAX_SKILL to a setting like 5020 would waste a lot of
 //memory.
-//#define ET_SKILLBASE 5001
-//#define MAX_EXTRATHIRDSKILL 18
+//#define EX_SKILLBASE 5001
+//#define MAX_EXPANSKILL 18
+//Note: Doing this didn't work. Will have to find another way in the future.
 
 //15-3athena
 //Will be needed in the future for keeping track of and saving cooldown times for skills. [15peaces]
@@ -594,8 +595,8 @@ enum {
 	GD_RESTORE=10012,
 	GD_EMERGENCYCALL=10013,
 	GD_DEVELOPMENT=10014,
-	//Below skill disabled until we find out if its still used.
-	//GD_ITEMEMERGENCYCALL=10015,
+	GD_ITEMEMERGENCYCALL=10015,
+	GD_GUILD_STORAGE=10016,
 	GD_MAX,
 };
 
@@ -760,7 +761,9 @@ enum {
 	
 	JOB_KAGEROU = 4211,
 	JOB_OBORO,
-	
+
+	JOB_REBELLION = 4215,
+
 	JOB_MAX,
 };
 

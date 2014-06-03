@@ -35,7 +35,16 @@ typedef enum sc_type {
 	SC_BLIND,
 	SC_BLEEDING,
 	SC_DPOISON, //10
-	SC_COMMON_MAX = 10, // end
+	SC_BURNING,
+	SC_IMPRISON,//White Imprison. Not really common, but aegis treats it as one.
+	SC_FEAR,
+	SC_DEEPSLEEP,
+	SC_FROSTMISTY,
+	SC_COLD,//Crystalize. Another not so common status, but officially treated as one.
+	SC_NORECOVER,
+	//SC_ICEEXPLO,//ICEEXPLO and ILLUSION are also listed as common treated,
+	//SC_ILLUSION,//but not yet confirmed in the zone.
+	SC_COMMON_MAX = 17, // end
 	
 	//Next up, we continue on 20, to leave enough room for additional "common" ailments in the future.
 	SC_PROVOKE = 20,
@@ -428,7 +437,7 @@ enum si_type {
 //	SI_BLADESTOP = 85,
 	SI_EXPLOSIONSPIRITS	= 86,
 	SI_STEELBODY		= 87,
-//	SI_EXTREMITYFIST = 88,
+	SI_EXTREMITYFIST = 88,
 //	SI_COMBOATTACK = 89,
 	SI_FIREWEAPON		= 90,
 	SI_WATERWEAPON		= 91,
@@ -918,6 +927,55 @@ enum si_type {
 	SI_EARTH_INSIGNIA = 570,
 	SI_EQUIPED_FLOOR = 571,
 */
+	// SI_2013_VALENTINE1 = 731,
+	// SI_2013_VALENTINE2 = 732,
+	// SI_2013_VALENTINE3 = 733,
+	// SI_ILLUSIONDOPING = 734,
+	// SI_WIDEWEB = 735,
+	// SI_CHILL = 736,
+	// SI_BURNT = 737,
+	// SI_PCCAFE_PLAY_TIME = 738,
+	// SI_TWISTED_TIME = 739,
+	// SI_FLASHCOMBO = 740,
+	// SI_JITTER_BUFF1 = 741,
+	// SI_JITTER_BUFF2 = 742,
+	// SI_JITTER_BUFF3 = 743,
+	// SI_JITTER_BUFF4 = 744,
+	// SI_JITTER_BUFF5 = 745,
+	// SI_JITTER_BUFF6 = 746,
+	// SI_JITTER_BUFF7 = 747,
+	// SI_JITTER_BUFF8 = 748,
+	// SI_JITTER_BUFF9 = 749,
+	// SI_JITTER_BUFF10 = 750,
+	// SI_CUP_OF_BOZA = 751,
+	// SI_B_TRAP = 752,
+	// SI_E_CHAIN = 753,
+	// SI_E_QD_SHOT_READY = 754,
+	// SI_C_MARKER = 755,
+	// SI_H_MINE = 756,
+	// SI_H_MINE_SPLASH = 757,
+	// SI_P_ALTER = 758,
+	// SI_HEAT_BARREL = 759,
+	// SI_ANTI_M_BLAST = 760,
+	// SI_SLUGSHOT = 761,
+	// SI_SWORDCLAN = 762,
+	// SI_ARCWANDCLAN = 763,
+	// SI_GOLDENMACECLAN = 764,
+	// SI_CROSSBOWCLAN = 765,
+	// SI_PACKING_ENVELOPE1 = 766,
+	// SI_PACKING_ENVELOPE2 = 767,
+	// SI_PACKING_ENVELOPE3 = 768,
+	// SI_PACKING_ENVELOPE4 = 769,
+	// SI_PACKING_ENVELOPE5 = 770,
+	// SI_PACKING_ENVELOPE6 = 771,
+	// SI_PACKING_ENVELOPE7 = 772,
+	// SI_PACKING_ENVELOPE8 = 773,
+	// SI_PACKING_ENVELOPE9 = 774,
+	// SI_PACKING_ENVELOPE10 = 775,
+	// SI_GLASTHEIM_TRANS = 776,
+	// SI_ZONGZI_POUCH_TRANS = 777,
+	// SI_HEAT_BARREL_AFTER = 778,
+	// SI_DECORATION_OF_MUSIC = 779,
 };
 
 // JOINTBEAT stackable ailments
@@ -961,7 +1019,7 @@ enum e_mode
 //Status change option definitions (options are what makes status changes visible to chars
 //who were not on your field of sight when it happened)
 
-//opt1: Non stackable status changes.
+//OPT1: (BODYSTATE_) Non stackable status changes.
 enum {
 	OPT1_STONE = 1, //Petrified
 	OPT1_FREEZE,
@@ -969,16 +1027,16 @@ enum {
 	OPT1_SLEEP,
 	//Aegis uses OPT1 = 5 to identify undead enemies (which also grants them immunity to the other opt1 changes)
 	OPT1_STONEWAIT = 6, //Petrifying
-	OPT1_BURNING,
+	OPT1_BURNING, //FIX ME!!!! I shouldn't lock movement or other actions. [Rytech]
 	OPT1_IMPRISON,
 };
 
-//opt2: Stackable status changes.
+//OPT2: (HEALTHSTATE_) Stackable status changes.
 enum {
 	OPT2_POISON       = 0x0001,
 	OPT2_CURSE        = 0x0002,
 	OPT2_SILENCE      = 0x0004,
-	OPT2_SIGNUMCRUCIS = 0x0008,
+	OPT2_SIGNUMCRUCIS = 0x0008, //Confusion
 	OPT2_BLIND        = 0x0010,
 	OPT2_ANGELUS      = 0x0020,
 	OPT2_BLEEDING     = 0x0040,
@@ -986,7 +1044,7 @@ enum {
 	OPT2_FEAR         = 0x0100,
 };
 
-//opt3: (SHOW_EFST_*)
+//opt3: (SHOW_EFST_)
 enum {
 	OPT3_NORMAL           = 0x00000000,
 	OPT3_QUICKEN          = 0x00000001,
@@ -1009,6 +1067,7 @@ enum {
 	OPT3_CONTRACT         = 0x00020000,
 };
 
+//OPTION: (EFFECTSTATE_)
 enum {
 	OPTION_NOTHING   = 0x00000000,
 	OPTION_SIGHT     = 0x00000001,

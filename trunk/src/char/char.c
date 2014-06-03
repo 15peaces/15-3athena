@@ -1394,6 +1394,7 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.head_top = 0;
 	char_dat[i].status.head_mid = 0;
 	char_dat[i].status.head_bottom = 0;
+	char_dat[i].status.robe = 0;
 	memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
 	memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
 	char_num++;
@@ -1532,6 +1533,7 @@ char * job_name(int class_)
 	case JOB_SUPER_BABY_E: return "Expanded Super Baby";
 	case JOB_KAGEROU: return "Kagerou";
 	case JOB_OBORO: return "Oboro";
+	case JOB_REBELLION: return "Rebellion";
 	}
 	return "Unknown Job";
 }
@@ -1966,6 +1968,61 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 	return 0;
 }
 
+//----------------------------------------
+// Updated function for sending characters data to a player.
+// For 2013 clients and higher. (HC_ACCEPT_ENTER2)
+// Note: I assume this is a official way of coding this,
+// but for some reason it won't display your characters
+// on the character selection screen. Its as if the client
+// is expecting additional info from another packet.
+// Special Thanks to Rytech. [15peaces]
+//----------------------------------------
+/*int mmo_char_send082d(int fd, struct char_session_data* sd)
+{
+	int i, j, found_num = 0;
+	found_num = char_find_characters(sd);
+
+	j = 29;
+	WFIFOHEAD(fd,j + found_num*MAX_CHAR_BUF);
+	WFIFOW(fd,0) = 0x82d;
+	WFIFOB(fd,4) = MAX_CHARS; //NormalSlotNum - Number of slots open for normal service.
+	WFIFOB(fd,5) = 0; //PremiumSlotNum - Number of slots open for premium service.
+	WFIFOB(fd,6) = 0; //BillingSlotNum - Number of slots open for billing service.
+	WFIFOB(fd,7) = MAX_CHARS; //ProducibleSlotNum - Number of ValidSlotNum slots available.
+	WFIFOB(fd,8) = MAX_CHARS; //ValidSlotNum - Total number of slots.
+	memset(WFIFOP(fd,9), 0, 20);//m_extension - Unused bytes.
+	for(i = 0; i < found_num; i++)
+		j += mmo_char_tobuf(WFIFOP(fd,j), &char_dat[sd->found_char[i]].status);
+	WFIFOW(fd,2) = j; //PacketLength
+	WFIFOSET(fd,j);
+
+	return 0;
+}*/
+
+//----------------------------------------
+// Updated function to send characters to a player.
+// For 2013 clients and higher. (HC_ACCEPT_ENTER2)
+// Note: This is a hacked that allows logging in without
+// any known issues by sending the 82d packet, and then
+// sending the 6b packet. This isnt official and will be
+// reworked to a more official setup in the future.
+// Special Thanks to Rytech. [15peaces]
+//----------------------------------------
+void mmo_char_send082d(int fd, struct char_session_data* sd)
+{
+	WFIFOHEAD(fd,29);
+	WFIFOW(fd,0) = 0x82d;
+	WFIFOW(fd,2) = 29; //PacketLength
+	WFIFOB(fd,4) = MAX_CHARS; //NormalSlotNum - Number of slots open for normal service.
+	WFIFOB(fd,5) = 0; //PremiumSlotNum - Number of slots open for premium service.
+	WFIFOB(fd,6) = 0; //BillingSlotNum - Number of slots open for billing service.
+	WFIFOB(fd,7) = MAX_CHARS; //ProducibleSlotNum - Number of ValidSlotNum slots available.
+	WFIFOB(fd,8) = MAX_CHARS; //ValidSlotNum - Total number of slots.
+	memset(WFIFOP(fd,9), 0, 20);//m_extension - Unused bytes.
+	WFIFOSET(fd,29);
+	mmo_char_send006b(fd, sd);
+}
+
 // —£¥(charíœŽž‚ÉŽg—p)
 int char_divorce(struct mmo_charstatus *cs)
 {
@@ -2295,7 +2352,11 @@ int parse_fromlogin(int fd)
 				else
 				{
 					// send characters to player
-					mmo_char_send006b(i, sd);
+					#if PACKETVER >= 20120702
+						mmo_char_send082d(i, sd);
+					#else
+						mmo_char_send006b(i, sd);
+					#endif
 #if PACKETVER >=  20110309
 					// PIN code system, disabled
 					WFIFOHEAD(i, 12);
@@ -2423,6 +2484,7 @@ int parse_fromlogin(int fd)
 					char_dat[i].status.head_top = 0;
 					char_dat[i].status.head_mid = 0;
 					char_dat[i].status.head_bottom = 0;
+					char_dat[i].status.robe = 0;
 
 					if (char_dat[i].status.guild_id)	//If there is a guild, update the guild_member data [Skotlex]
 						inter_guild_sex_changed(char_dat[i].status.guild_id, acc, char_dat[i].status.char_id, sex);

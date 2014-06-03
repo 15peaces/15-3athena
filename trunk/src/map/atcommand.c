@@ -1378,6 +1378,7 @@ ACMD_FUNC(jobchange)
 			{ "super baby e",	4191 },
 			{ "kagerou",		4211 },
 			{ "oboro",			4212 },
+			{ "rebellion",		4215 },
 		};
 
 		for (i=0; i < ARRAYLENGTH(jobs); i++) {
@@ -1421,7 +1422,7 @@ ACMD_FUNC(jobchange)
 			clif_displaymessage(fd, " 23 Super Novice 24 Gunslinger 25 Ninja 4045 Super Baby");
 			clif_displaymessage(fd, "4046 Taekwon 4047 Star Gladiator 4049 Soul Linker 4050 Gangsi");
 			clif_displaymessage(fd, "4051 Death Knight 4052 Dark Collector 4190 Ex. Super Novice 4191 Ex. Super Baby");
-			clif_displaymessage(fd, "4211 Kagerou 4212 Oboro");
+			clif_displaymessage(fd, "4211 Kagerou 4212 Oboro 4215 Rebellion");
 			clif_displaymessage(fd, "----- Baby Novice And Baby 1st Class -----");
 			clif_displaymessage(fd, "4023 Baby Novice 4024 Baby Swordman 4025 Baby Magician 4026 Baby Archer");
 			clif_displaymessage(fd, "4027 Baby Acolyte 4028 Baby Merchant 4029 Baby Thief");
@@ -1486,7 +1487,7 @@ ACMD_FUNC(jobchange)
 		clif_displaymessage(fd, " 23 Super Novice 24 Gunslinger 25 Ninja 4045 Super Baby");
 		clif_displaymessage(fd, "4046 Taekwon 4047 Star Gladiator 4049 Soul Linker 4050 Gangsi");
 		clif_displaymessage(fd, "4051 Death Knight 4052 Dark Collector 4190 Ex. Super Novice 4191 Ex. Super Baby");
-		clif_displaymessage(fd, "4211 Kagerou 4212 Oboro");
+		clif_displaymessage(fd, "4211 Kagerou 4212 Oboro 4215 Rebellion");
 		clif_displaymessage(fd, "----- Baby Novice And Baby 1st Class -----");
 		clif_displaymessage(fd, "4023 Baby Novice 4024 Baby Swordman 4025 Baby Magician 4026 Baby Archer");
 		clif_displaymessage(fd, "4027 Baby Acolyte 4028 Baby Merchant 4029 Baby Thief");
@@ -2317,7 +2318,17 @@ ACMD_FUNC(go)
 		{ MAP_HUGEL,        96, 145, "Hugel" }, // 22
 		{ MAP_RACHEL,      130, 110, "Rachel" }, // 23
 		{ MAP_VEINS,       216, 123, "Veins" }, // 24
-		{ MAP_MOSCOVIA,    223, 184, "Moscovia" }, // 25
+		{ MAP_MOSCOVIA,		223, 184, "Moscovia" }, // 25
+		{ MAP_MIDCAMP,		180, 240, "Midgard Camp" }, // 26
+		{ MAP_MANUK,		282, 138, "Manuk" }, // 27
+		{ MAP_SPLENDIDE,	197, 176, "Splendide" }, // 28
+		{ MAP_BRASILIS,		182, 239, "Brasilis" }, // 29
+		{ MAP_DICASTES,		198, 187, "El Dicastes" }, // 30
+		{ MAP_MORA,			 44, 151, "Mora" }, // 31
+		{ MAP_DEWATA,		200, 180, "Dewata" }, // 32
+		{ MAP_MALANGDO,		140, 114, "Malangdo Island" }, // 33
+		{ MAP_MALAYA,		242, 211, "Malaya Port" }, // 34
+		{ MAP_ECLAGE,		110,  39, "Eclage" }, // 35
 	};
 
 	static const struct {
@@ -2363,6 +2374,16 @@ ACMD_FUNC(go)
 		{ MAP_RACHEL,      "rachel" },
 		{ MAP_VEINS,       "veins" },
 		{ MAP_MOSCOVIA,    "moscovia" },
+		{ MAP_MIDCAMP,		"mid_camp" },
+		{ MAP_MANUK,		"manuk" },
+		{ MAP_SPLENDIDE,	"splendide" },
+		{ MAP_BRASILIS,		"brasilis" },
+		{ MAP_DICASTES,		"dicastes01" },
+		{ MAP_MORA,			"mora" },
+		{ MAP_DEWATA,		"dewata" },
+		{ MAP_MALANGDO,		"malangdo" },
+		{ MAP_MALAYA,		"malaya" },
+		{ MAP_ECLAGE,		"eclage" },
 	};
 
 	nullpo_retr(-1, sd);
@@ -2818,6 +2839,16 @@ ACMD_FUNC(refine)
 		clif_displaymessage(fd, atcmd_output);
 		sprintf(atcmd_output, "%d: Mid Headgear", EQP_HEAD_MID);
 		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, "%d: Top Costume Headgear", EQP_COSTUME_HEAD_TOP);
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, "%d: Mid Costume Headgear", EQP_COSTUME_HEAD_MID);
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, "%d: Lower Costume Headgear", EQP_COSTUME_HEAD_LOW);
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, "%d: Costume Garment", EQP_COSTUME_GARMENT);
+		clif_displaymessage(fd, atcmd_output);
+		sprintf(atcmd_output, "%d: Costume Floor", EQP_COSTUME_FLOOR);
+		clif_displaymessage(fd, atcmd_output);
 		return -1;
 	}
 
@@ -2832,6 +2863,10 @@ ACMD_FUNC(refine)
 		if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == i)
 			continue;
 		if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == i || sd->equip_index[EQI_HEAD_LOW] == i))
+			continue;
+		if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == i)
+			continue;
+		if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == i || sd->equip_index[EQI_COSTUME_HEAD_LOW] == i))
 			continue;
 
 		if(position && !(sd->status.inventory[i].equip & position))
@@ -2991,17 +3026,20 @@ ACMD_FUNC(gat)
  *------------------------------------------*/
 ACMD_FUNC(displaystatus)
 {
-	int i, type, flag, tick;
+	int i, type, flag, tick, val1, val2, val3;
 	nullpo_retr(-1, sd);
 	
-	if (!message || !*message || (i = sscanf(message, "%d %d %d", &type, &flag, &tick)) < 1) {
-		clif_displaymessage(fd, "Please, enter a status type/flag (usage: @displaystatus <status type> <flag> <tick>).");
+	if (!message || !*message || (i = sscanf(message, "%d %d %d %d %d %d", &type, &flag, &tick, &val1, &val2, &val3)) < 1) {
+		clif_displaymessage(fd, "Please, enter a status type/flag (usage: @displaystatus <status type> <flag> <tick> <val1> <val2> <val3>).");
 		return -1;
 	}
 	if (i < 2) flag = 1;
 	if (i < 3) tick = 0;
+	if (i < 4) val1 = 0;
+	if (i < 5) val2 = 0;
+	if (i < 6) val3 = 0;
 
-	clif_status_change(&sd->bl, type, flag, tick);
+	clif_status_change(&sd->bl, type, flag, tick, val1, val2, val3);
 
 	return 0;
 }
@@ -6141,26 +6179,21 @@ ACMD_FUNC(divorce)
 
 /*==========================================
  * @changelook by [Celest]
+ * Recoded by [Rytech]
  *------------------------------------------*/
 ACMD_FUNC(changelook)
 {
-	int i, j = 0, k = 0;
-	int pos[6] = { LOOK_HEAD_TOP,LOOK_HEAD_MID,LOOK_HEAD_BOTTOM,LOOK_WEAPON,LOOK_SHIELD,LOOK_SHOES };
+	int type = 0, value = 0;//p = Position, v = Value.
+	int pos[6] = { LOOK_HEAD_TOP,LOOK_HEAD_MID,LOOK_HEAD_BOTTOM,LOOK_WEAPON,LOOK_SHIELD,LOOK_ROBE };
 
-	if((i = sscanf(message, "%d %d", &j, &k)) < 1) {
-		clif_displaymessage(fd, "Usage: @changelook [<position>] <view id> -- [] = optional");
-		clif_displaymessage(fd, "Position: 1-Top 2-Middle 3-Bottom 4-Weapon 5-Shield");
+	if( sscanf(message, "%d %d", &type, &value) != 2 || type < 1 || type > 6 || value < 0)
+	{//If only 1 value is given, the position value is not between 1 - 6, or the view id value is below 0, it will fail.
+		clif_displaymessage(fd, "Usage: @changelook <position> <view id>");
+		clif_displaymessage(fd, "Position must be a number between 1 - 6 and view id must be 0 or higher.");
+		clif_displaymessage(fd, "Position: 1-Top Head 2-Middle Head 3-Bottom Head 4-Weapon 5-Shield 6-Robe");
 		return -1;
-	} else if (i == 2) {
-		if (j < 1) j = 1;
-		else if (j > 6) j = 6;	// 6 = Shoes - for beta clients only perhaps
-		j = pos[j - 1];
-	} else if (i == 1) {	// position not defined, use HEAD_TOP as default
-		k = j;	// swap
-		j = LOOK_HEAD_TOP;
-	}
-
-	clif_changelook(&sd->bl,j,k);
+	}//If the check passes, display the requested result on the character.
+	clif_changelook(&sd->bl,pos[type-1],value);
 
 	return 0;
 }
@@ -8749,21 +8782,21 @@ ACMD_FUNC(itemlist)
 
 	if( strcmp(command+1, "storagelist") == 0 )
 	{
-		location = "storage";
+		location = "Storage";
 		items = sd->status.storage.items;
 		size = MAX_STORAGE;
 	}
 	else
 	if( strcmp(command+1, "cartlist") == 0 )
 	{
-		location = "cart";
+		location = "Cart";
 		items = sd->status.cart;
 		size = MAX_CART;
 	}
 	else
 	if( strcmp(command+1, "itemlist") == 0 )
 	{
-		location = "inventory";
+		location = "Inventory";
 		items = sd->status.inventory;
 		size = MAX_INVENTORY;
 	}
@@ -8787,7 +8820,7 @@ ACMD_FUNC(itemlist)
 
 		if( count == 1 )
 		{
-			StringBuf_Printf(&buf, "------ %s items list of '%s' ------", location, sd->status.name);
+			StringBuf_Printf(&buf, "------ %s Items List For '%s' ------", location, sd->status.name);
 			clif_displaymessage(fd, StringBuf_Value(&buf));
 			StringBuf_Clear(&buf);
 		}
@@ -8800,35 +8833,51 @@ ACMD_FUNC(itemlist)
 		if( it->equip )
 		{
 			char equipstr[CHAT_SIZE_MAX];
-			strcpy(equipstr, " | equipped: ");
+			strcpy(equipstr, " | Equipped: ");
 			if( it->equip & EQP_GARMENT )
-				strcat(equipstr, "garment, ");
+				strcat(equipstr, "Robe, ");
 			if( it->equip & EQP_ACC_L )
-				strcat(equipstr, "left accessory, ");
+				strcat(equipstr, "Left Accessory, ");
 			if( it->equip & EQP_ARMOR )
-				strcat(equipstr, "body/armor, ");
+				strcat(equipstr, "Body, ");
 			if( (it->equip & EQP_ARMS) == EQP_HAND_R )
-				strcat(equipstr, "right hand, ");
+				strcat(equipstr, "Right Hand, ");
 			if( (it->equip & EQP_ARMS) == EQP_HAND_L )
-				strcat(equipstr, "left hand, ");
+				strcat(equipstr, "Left Hand, ");
 			if( (it->equip & EQP_ARMS) == EQP_ARMS )
-				strcat(equipstr, "both hands, ");
+				strcat(equipstr, "Both Hands, ");
 			if( it->equip & EQP_SHOES )
-				strcat(equipstr, "feet, ");
+				strcat(equipstr, "Shoes, ");
 			if( it->equip & EQP_ACC_R )
-				strcat(equipstr, "right accessory, ");
+				strcat(equipstr, "Right Accessory, ");
 			if( (it->equip & EQP_HELM) == EQP_HEAD_LOW )
-				strcat(equipstr, "lower head, ");
+				strcat(equipstr, "Lower Head, ");
 			if( (it->equip & EQP_HELM) == EQP_HEAD_TOP )
-				strcat(equipstr, "top head, ");
+				strcat(equipstr, "Top Head, ");
 			if( (it->equip & EQP_HELM) == (EQP_HEAD_LOW|EQP_HEAD_TOP) )
-				strcat(equipstr, "lower/top head, ");
+				strcat(equipstr, "Top/Lower Head, ");
 			if( (it->equip & EQP_HELM) == EQP_HEAD_MID )
-				strcat(equipstr, "mid head, ");
+				strcat(equipstr, "Mid Head, ");
 			if( (it->equip & EQP_HELM) == (EQP_HEAD_LOW|EQP_HEAD_MID) )
-				strcat(equipstr, "lower/mid head, ");
+				strcat(equipstr, "Mid/Lower Head, ");
 			if( (it->equip & EQP_HELM) == EQP_HELM )
-				strcat(equipstr, "lower/mid/top head, ");
+				strcat(equipstr, "Top/Mid/Lower Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == EQP_COSTUME_HEAD_LOW )
+				strcat(equipstr, "Lower Costume Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == EQP_COSTUME_HEAD_TOP )
+				strcat(equipstr, "Top Costume Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_TOP) )
+				strcat(equipstr, "Top/Lower Costume Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == EQP_COSTUME_HEAD_MID )
+				strcat(equipstr, "Mid Costume Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_MID) )
+				strcat(equipstr, "Mid/Lower Costume Head, ");
+			if( (it->equip & EQP_COSTUME_HELM) == EQP_COSTUME_HELM )
+				strcat(equipstr, "Top/Mid/Lower Costume Head, ");
+			if( it->equip & EQP_COSTUME_GARMENT )
+				strcat(equipstr, "Costume Robe, ");
+			if( it->equip & EQP_COSTUME_FLOOR )
+				strcat(equipstr, "Costume Floor, ");
 			// remove final ', '
 			equipstr[strlen(equipstr) - 2] = '\0';
 			StringBuf_AppendStr(&buf, equipstr);
@@ -8840,19 +8889,19 @@ ACMD_FUNC(itemlist)
 		if( it->card[0] == CARD0_PET )
 		{// pet egg
 			if (it->card[3])
-				StringBuf_Printf(&buf, " -> (pet egg, pet id: %u, named)", (unsigned int)MakeDWord(it->card[1], it->card[2]));
+				StringBuf_Printf(&buf, " -> (Pet Egg, Pet ID: %u, Named)", (unsigned int)MakeDWord(it->card[1], it->card[2]));
 			else
-				StringBuf_Printf(&buf, " -> (pet egg, pet id: %u, unnamed)", (unsigned int)MakeDWord(it->card[1], it->card[2]));
+				StringBuf_Printf(&buf, " -> (Pet Egg, Pet ID: %u, Unnamed)", (unsigned int)MakeDWord(it->card[1], it->card[2]));
 		}
 		else
 		if(it->card[0] == CARD0_FORGE)
 		{// forged item
-			StringBuf_Printf(&buf, " -> (crafted item, creator id: %u, star crumbs %d, element %d)", (unsigned int)MakeDWord(it->card[2], it->card[3]), it->card[1]>>8, it->card[1]&0x0f);
+			StringBuf_Printf(&buf, " -> (Crafted Item, Creator ID: %u, star crumbs %d, element %d)", (unsigned int)MakeDWord(it->card[2], it->card[3]), it->card[1]>>8, it->card[1]&0x0f);
 		}
 		else
 		if(it->card[0] == CARD0_CREATE)
 		{// created item
-			StringBuf_Printf(&buf, " -> (produced item, creator id: %u)", (unsigned int)MakeDWord(it->card[2], it->card[3]));
+			StringBuf_Printf(&buf, " -> (Produced Item, Creator ID: %u)", (unsigned int)MakeDWord(it->card[2], it->card[3]));
 		}
 		else
 		{// normal item
@@ -8868,7 +8917,7 @@ ACMD_FUNC(itemlist)
 				counter2++;
 
 				if( counter2 == 1 )
-					StringBuf_AppendStr(&buf, " -> (card(s): ");
+					StringBuf_AppendStr(&buf, " -> (Card(s): ");
 
 				if( counter2 != 1 )
 					StringBuf_AppendStr(&buf, ", ");
@@ -9065,6 +9114,21 @@ ACMD_FUNC(font)
 	return 0;
 }
 
+/*==========================================
+* USESKILL_FAIL Testing And Debugging [Rytech]
+*------------------------------------------*/
+ACMD_FUNC(skillfailmsg)
+{
+	int skillid = 0, cause = 0, num = 0;
+
+	if( sscanf(message, "%d %d %d", &skillid, &cause, &num) < 1 )
+	{
+		clif_displaymessage(fd, "Usage: @skillfailmsg <skill id> <cause> <num>");
+		return -1;
+	}
+	clif_skill_fail(sd,skillid,cause,num);
+	return 0;
+}
 
 /*==========================================
  * atcommand_info[] structure definition
@@ -9369,6 +9433,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "delitem",           60,60,     atcommand_delitem },
 	{ "charcommands",       1,1,      atcommand_commands },
 	{ "font",               1,1,      atcommand_font },
+	{ "skillfailmsg",      99,99,     atcommand_skillfailmsg },
 };
 
 

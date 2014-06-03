@@ -32,7 +32,7 @@ struct party_booking_ad_info;
 enum
 {// packet DB
 	MAX_PACKET_DB  = 0xf00,
-	MAX_PACKET_VER = 29,
+	MAX_PACKET_VER = 31,
 	MAX_PACKET_POS = 20,
 };
 
@@ -313,6 +313,7 @@ enum useskill_fail_cause
 	USESKILL_FAIL_STYLE_CHANGE_FIGHTER = 81,
 	USESKILL_FAIL_STYLE_CHANGE_GRAPPLER = 82,
 	USESKILL_FAIL_THERE_ARE_NPC_AROUND = 83,
+	USESKILL_FAIL_NEED_MORE_BULLET = 84,
 };
 
 int clif_setip(const char* ip);
@@ -466,7 +467,7 @@ void clif_bladestop(struct block_list *src, int dst_id, int active);
 void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target target);
 
 int clif_status_load(struct block_list *bl,int type, int flag);
-void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tick);
+void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tick, int val1, int val2, int val3);
 
 void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len);
 void clif_wis_end(int fd, int flag);

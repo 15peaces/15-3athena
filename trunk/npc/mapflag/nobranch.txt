@@ -124,8 +124,8 @@ que_god01	mapflag	nobranch
 que_god02	mapflag	nobranch
 que_bingo	mapflag	nobranch
 que_hugel	mapflag	nobranch
-poring_c01	mapflag	nobranch
-poring_c02	mapflag	nobranch
+//poring_c01	mapflag	nobranch
+//poring_c02	mapflag	nobranch
 kh_mansion	mapflag	nobranch
 kh_rossi	mapflag	nobranch
 kh_school	mapflag	nobranch
@@ -193,13 +193,13 @@ force_1-2	mapflag	nobranch
 force_1-3	mapflag	nobranch
 ordeal_1-1	mapflag	nobranch
 ordeal_1-2	mapflag	nobranch
-ordeal_1-3	mapflag	nobranch
+//ordeal_1-3	mapflag	nobranch
 ordeal_2-1	mapflag	nobranch
 ordeal_2-2	mapflag	nobranch
-ordeal_2-3	mapflag	nobranch
+//ordeal_2-3	mapflag	nobranch
 ordeal_3-1	mapflag	nobranch
 ordeal_3-2	mapflag	nobranch
-ordeal_3-3	mapflag	nobranch
+//ordeal_3-3	mapflag	nobranch
 pvp_2vs2	mapflag	nobranch
 pvp_c_room	mapflag	nobranch
 quiz_00	mapflag	nobranch

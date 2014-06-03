@@ -3141,10 +3141,16 @@ void clif_statusupack(struct map_session_data *sd,int type,int ok,int val)
 /// Notifies the client about the result of a request to equip an item (ZC_REQ_WEAR_EQUIP_ACK).
 /// 00aa <index>.W <equip location>.W <result>.B
 /// 00aa <index>.W <equip location>.W <view id>.W <result>.B (PACKETVER >= 20100629)
-/// result:
+/// 0999 <index>.W <equip location>.L <view id>.W <result>.B (ZC_ACK_WEAR_EQUIP_V5)
+/// 0xaa Result Table:
 ///     0 = failure
 ///     1 = success
 ///     2 = failure due to low level
+/// --------------------------------
+/// 0x999 Result Table:
+///		0 = SUCCESS
+///		1 = FAIL_FORBID
+///		2 = FAILURE
 void clif_equipitemack(struct map_session_data *sd,int n,int pos,int ok)
 {
 	int fd;
@@ -3152,6 +3158,19 @@ void clif_equipitemack(struct map_session_data *sd,int n,int pos,int ok)
 	nullpo_retv(sd);
 
 	fd=sd->fd;
+	//Enable this when adding support for the 0x999 packet.
+/*#else
+	// Converts the result value normally used by packet 0xaa to the correct one used by the 0x999 packet.
+	// Packet 0x999 appears to have the same results table, but the result numbers are different.
+	// Note: Currently no message displays when you cant equip a item. How do I fix this? Is this normal? [Rytech]
+	packet = 0x999;
+	if (ok == 0)
+		ok = 2;
+	else if (ok == 1)
+		ok = 0;
+	else if (ok == 2)
+		ok = 1;
+#endif*/
 	WFIFOHEAD(fd,packet_len(0xaa));
 	WFIFOW(fd,0)=0xaa;
 	WFIFOW(fd,2)=n+2;
@@ -4194,9 +4213,13 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 /// Notifies the client of a skill unit.
 /// 011f <id>.L <creator id>.L <x>.W <y>.W <unit id>.B <visible>.B (ZC_SKILL_ENTRY)
 /// 01c9 <id>.L <creator id>.L <x>.W <y>.W <unit id>.B <visible>.B <has msg>.B <msg>.80B (ZC_SKILL_ENTRY2)
+/// 08c7 <packet lengh>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.B <radius range>.B <visible>.B (ZC_SKILL_ENTRY3)
+/// 099f <packet lengh>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.L <radius range>.B <visible>.B (ZC_SKILL_ENTRY4)
+/// 09ca <packet lengh>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.L <radius range>.B <visible>.B <skill level>.B(ZC_SKILL_ENTRY5)
 static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill_unit *unit)
 {
 	int fd = sd->fd;
+	short packet_type;
 
 #if PACKETVER >= 3
 	if(unit->group->unit_id==UNT_GRAFFITI)	{ // Graffiti [Valaris]
@@ -4214,6 +4237,7 @@ static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill
 		return;
 	}
 #endif
+#if PACKETVER <= 20120702
 	WFIFOHEAD(fd,packet_len(0x11f));
 	WFIFOW(fd, 0)=0x11f;
 	WFIFOL(fd, 2)=unit->bl.id;
@@ -4226,6 +4250,30 @@ static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill
 		WFIFOB(fd,14)=unit->group->unit_id;
 	WFIFOB(fd,15)=1; // ignored by client (always gets set to 1)
 	WFIFOSET(fd,packet_len(0x11f));
+#else
+	#if PACKETVER < 20130731
+		packet_type = 0x99f;
+	#else
+		packet_type = 0x9ca;
+	#endif
+	WFIFOHEAD(fd,packet_len(packet_type));
+	WFIFOW(fd, 0)=packet_type;
+	WFIFOW(fd, 2)=packet_len(packet_type);
+	WFIFOL(fd, 4)=unit->bl.id;
+	WFIFOL(fd, 8)=unit->group->src_id;
+	WFIFOW(fd,12)=unit->bl.x;
+	WFIFOW(fd,14)=unit->bl.y;
+	if (battle_config.traps_setting&1 && skill_get_inf2(unit->group->skill_id)&INF2_TRAP)
+		WFIFOL(fd,16)=UNT_DUMMYSKILL;
+	else
+		WFIFOL(fd,16)=unit->group->unit_id;
+	WFIFOB(fd,20)=unit->range;
+	WFIFOB(fd,21)=1;
+	#if PACKETVER >= 20130731
+		WFIFOB(fd,22)=unit->group->skill_lv;
+	#endif
+	WFIFOSET(fd,packet_len(packet_type));
+#endif
 
 	if(unit->group->skill_id == WZ_ICEWALL)
 		clif_changemapcell(fd,unit->bl.m,unit->bl.x,unit->bl.y,5,SELF);
@@ -4630,16 +4678,21 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id,enum useskill_fail
 
 	WFIFOHEAD(fd,packet_len(0x110));
 	WFIFOW(fd,0) = 0x110;
-	WFIFOW(fd,2) = skill_id;
-	WFIFOL(fd,4) = btype;
-	WFIFOB(fd,8) = 0;// success
-	WFIFOB(fd,9) = cause;
+	WFIFOW(fd,2) = skill_id;//SKID
+	WFIFOL(fd,4) = btype;	//Num
+	WFIFOB(fd,8) = 0;	//Result - Normally set to 0 all the time.
+	WFIFOB(fd,9) = cause;	//Cause
 	WFIFOSET(fd,packet_len(0x110));
 }
 
 
 /// Skill cooldown display icon (ZC_SKILL_POSTDELAY).
 /// 043d <skill ID>.W <tick>.L
+/// Note: This is now often used to start cooldown times for renewal skills.
+/// Because of this and its effect on the display of skill icons in the shortcut bar,
+/// the ZC_SKILL_POSTDELAY_LIST and ZC_SKILL_POSTDELAY_LIST2 will need to be supported
+/// soon to tell the client which skills are currently in cooldown when a player logs on
+/// and display them in the shortcut bar. [Rytech]
 void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int tick)
 {
 #if PACKETVER>=20081112
@@ -4867,6 +4920,7 @@ void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int 
 void clif_skill_setunit(struct skill_unit *unit)
 {
 	unsigned char buf[128];
+	short packet_type;
 
 	nullpo_retv(unit);
 
@@ -4885,6 +4939,8 @@ void clif_skill_setunit(struct skill_unit *unit)
 		return;
 	}
 #endif
+
+#if PACKETVER <= 20120702
 	WBUFW(buf, 0)=0x11f;
 	WBUFL(buf, 2)=unit->bl.id;
 	WBUFL(buf, 6)=unit->group->src_id;
@@ -4896,6 +4952,29 @@ void clif_skill_setunit(struct skill_unit *unit)
 		WBUFB(buf,14)=unit->group->unit_id;
 	WBUFB(buf,15)=1; // ignored by client (always gets set to 1)
 	clif_send(buf,packet_len(0x11f),&unit->bl,AREA);
+4#else
+	#if PACKETVER < 20130731
+		packet_type = 0x99f;
+	#else
+		packet_type = 0x9ca;
+	#endif
+	WBUFW(buf, 0)=packet_type;
+	WBUFW(buf, 2)=packet_len(packet_type);
+	WBUFL(buf, 4)=unit->bl.id;
+	WBUFL(buf, 8)=unit->group->src_id;
+	WBUFW(buf,12)=unit->bl.x;
+	WBUFW(buf,14)=unit->bl.y;
+	if (unit->group->state.song_dance&0x1 && unit->val2&UF_ENSEMBLE)
+		WBUFL(buf,16)=unit->val2&UF_SONG?UNT_DISSONANCE:UNT_UGLYDANCE;
+	else
+		WBUFL(buf,16)=unit->group->unit_id;
+	WBUFB(buf,20)=unit->range;
+	WBUFB(buf,21)=1;
+	#if PACKETVER >= 20130731
+		WBUFB(buf,22)=unit->group->skill_lv;
+	#endif
+	clif_send(buf,packet_len(packet_type),&unit->bl,AREA);
+#endif
 }
 
 
@@ -5121,10 +5200,10 @@ int clif_status_load(struct block_list *bl,int type, int flag)
 /// Notifies clients of a status change.
 /// 0196 <index>.W <id>.L <state>.B (ZC_MSG_STATE_CHANGE)
 /// 043f <index>.W <id>.L <state>.B <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE2)
-/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3  (PACKETVER >= 20111108)
-/// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (PACKETVER >= 20120618)
-/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (PACKETVER >= 20120618)
-void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tick)
+/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
+/// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE3) (PACKETVER >= 20120618)
+/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
+void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tick, int val1, int val2, int val3)
 {
 	unsigned char buf[32];
 
@@ -5155,9 +5234,9 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 	if( battle_config.display_status_timers && tick>0 )
 	{
 		WBUFL(buf,9)=tick;
-		WBUFL(buf,13)=0;
-		WBUFL(buf,17)=0;
-		WBUFL(buf,21)=0;
+		WBUFL(buf,13)=val1;
+		WBUFL(buf,17)=val2;
+		WBUFL(buf,21)=val3;
 	}
 #endif
 	clif_send(buf,packet_len(WBUFW(buf,0)),bl,AREA);
@@ -8561,6 +8640,7 @@ void clif_equipcheckbox(struct map_session_data* sd)
 /// 02d7 <packet len>.W <name>.24B <class>.W <hairstyle>.W <bottom-viewid>.W <mid-viewid>.W <up-viewid>.W <haircolor>.W <cloth-dye>.W <gender>.B {equip item}.28B* (ZC_EQUIPWIN_MICROSCOPE, PACKETVER >= 20100629)
 /// 0859 <packet len>.W <name>.24B <class>.W <hairstyle>.W <bottom-viewid>.W <mid-viewid>.W <up-viewid>.W <haircolor>.W <cloth-dye>.W <gender>.B {equip item}.28B* (ZC_EQUIPWIN_MICROSCOPE2, PACKETVER >= 20101124)
 /// 0859 <packet len>.W <name>.24B <class>.W <hairstyle>.W <bottom-viewid>.W <mid-viewid>.W <up-viewid>.W <robe>.W <haircolor>.W <cloth-dye>.W <gender>.B {equip item}.28B* (ZC_EQUIPWIN_MICROSCOPE2, PACKETVER >= 20110111)
+/// 0997 <packet len>.W <name>.24B <class>.W <hairstyle>.W <bottom-viewid>.W <mid-viewid>.W <up-viewid>.W <robe>.W <haircolor>.W <cloth-dye>.W <gender>.B {equip item}.28B* (ZC_EQUIPWIN_MICROSCOPE_V5)
 void clif_viewequip_ack(struct map_session_data* sd, struct map_session_data* tsd)
 {
 	uint8* buf;
@@ -10036,8 +10116,9 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 }
 
 
-/// Request to equip an item (CZ_REQ_WEAR_EQUIP).
-/// 00a9 <index>.W <position>.W
+/// Request to equip an item.
+/// 00a9 <index>.W <position>.W (CZ_REQ_WEAR_EQUIP)
+/// 0998 <index>.W <position>.L (CZ_REQ_WEAR_EQUIP_V5)
 void clif_parse_EquipItem(int fd,struct map_session_data *sd)
 {
 	int index;
@@ -10075,7 +10156,11 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd)
 	if(sd->inventory_data[index]->type == IT_AMMO)
 		pc_equipitem(sd,index,EQP_AMMO);
 	else
-		pc_equipitem(sd,index,RFIFOW(fd,4));
+#if PACKETVER <= 20120702 //For packet a9.
+			pc_equipitem(sd,index,RFIFOW(fd,4));
+#else //For packet 998.
+			pc_equipitem(sd,index,RFIFOL(fd,4));
+#endif
 }
 
 
@@ -16252,7 +16337,7 @@ static int packetdb_readdb(void)
 #if PACKETVER < 20130000
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 #else
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 19,	0,	0,	0,	0,
+		0,  0,  0,  0,  2,  0,  4,  0, -1,  0,  2, 19,  0,  0,  0,  0,
 #endif
 	    0,  0,  0,  0,  0,  0, -1, -1, -1, -1,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -16263,7 +16348,7 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 //#0x08C0
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 10,
+		0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0, 10,
 		9,	7, 10,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
@@ -16279,11 +16364,11 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0, 14,	6, 50,	0,	0,	0,	0,	0,	0,
 //#0x0980
 		0,	0,	0, 29,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		31, 0,	0,	0,	0,	0,	0, -1,	8, 11,	9,	8,	0,	0,	0,	0,
+		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0, 14,	0,	0,	0,	0,	0,	0,	0,	0,
 //#0x09C0
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,

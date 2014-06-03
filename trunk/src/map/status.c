@@ -245,7 +245,7 @@ void initChangeTables(void)
 	add_sc( MO_BLADESTOP         , SC_BLADESTOP_WAIT  );
 	add_sc( MO_BLADESTOP         , SC_BLADESTOP       );
 	set_sc( MO_EXPLOSIONSPIRITS  , SC_EXPLOSIONSPIRITS, SI_EXPLOSIONSPIRITS, SCB_CRI|SCB_REGEN );
-	set_sc( MO_EXTREMITYFIST     , SC_EXTREMITYFIST   , SI_BLANK           , SCB_REGEN );
+	set_sc( MO_EXTREMITYFIST     , SC_EXTREMITYFIST   , SI_EXTREMITYFIST   , SCB_REGEN );
 	add_sc( SA_MAGICROD          , SC_MAGICROD        );
 	set_sc( SA_AUTOSPELL         , SC_AUTOSPELL       , SI_AUTOSPELL       , SCB_NONE );
 	set_sc( SA_FLAMELAUNCHER     , SC_FIREWEAPON      , SI_FIREWEAPON      , SCB_ATK_ELE );
@@ -451,25 +451,25 @@ void initChangeTables(void)
 	set_sc( GD_REGENERATION      , SC_REGENERATION    , SI_BLANK           , SCB_REGEN );
 
 	// Storing the target job rather than simply SC_SPIRIT simplifies code later on.
-	SkillStatusChangeTable[SL_ALCHEMIST]   = (sc_type)MAPID_ALCHEMIST,
-	SkillStatusChangeTable[SL_MONK]        = (sc_type)MAPID_MONK,
-	SkillStatusChangeTable[SL_STAR]        = (sc_type)MAPID_STAR_GLADIATOR,
-	SkillStatusChangeTable[SL_SAGE]        = (sc_type)MAPID_SAGE,
-	SkillStatusChangeTable[SL_CRUSADER]    = (sc_type)MAPID_CRUSADER,
-	SkillStatusChangeTable[SL_SUPERNOVICE] = (sc_type)MAPID_SUPER_NOVICE, // Fix me to work on Expanded Super Novice [Rytech]
-	SkillStatusChangeTable[SL_KNIGHT]      = (sc_type)MAPID_KNIGHT,
-	SkillStatusChangeTable[SL_WIZARD]      = (sc_type)MAPID_WIZARD,
-	SkillStatusChangeTable[SL_PRIEST]      = (sc_type)MAPID_PRIEST,
-	SkillStatusChangeTable[SL_BARDDANCER]  = (sc_type)MAPID_BARDDANCER,
-	SkillStatusChangeTable[SL_ROGUE]       = (sc_type)MAPID_ROGUE,
-	SkillStatusChangeTable[SL_ASSASIN]     = (sc_type)MAPID_ASSASSIN,
-	SkillStatusChangeTable[SL_BLACKSMITH]  = (sc_type)MAPID_BLACKSMITH,
-	SkillStatusChangeTable[SL_HUNTER]      = (sc_type)MAPID_HUNTER,
-	SkillStatusChangeTable[SL_SOULLINKER]  = (sc_type)MAPID_SOUL_LINKER,
-	SkillStatusChangeTable[SL_DEATHKNIGHT] = (sc_type)MAPID_DEATH_KNIGHT,
-	SkillStatusChangeTable[SL_COLLECTOR] = (sc_type)MAPID_DARK_COLLECTOR,
-	SkillStatusChangeTable[SL_NINJA] = (sc_type)MAPID_NINJA, // Fix me to work on Kagerou and Oboro. [Rytech]
-	SkillStatusChangeTable[SL_GUNNER] = (sc_type)MAPID_GUNSLINGER, // Ill need a fixing in the near future.
+	SkillStatusChangeTable[SL_ALCHEMIST]	= (sc_type)MAPID_ALCHEMIST,
+	SkillStatusChangeTable[SL_MONK]			= (sc_type)MAPID_MONK,
+	SkillStatusChangeTable[SL_STAR]			= (sc_type)MAPID_STAR_GLADIATOR,
+	SkillStatusChangeTable[SL_SAGE]			= (sc_type)MAPID_SAGE,
+	SkillStatusChangeTable[SL_CRUSADER]		= (sc_type)MAPID_CRUSADER,
+	SkillStatusChangeTable[SL_SUPERNOVICE]	= (sc_type)MAPID_SUPER_NOVICE, // Fix me to work on Expanded Super Novice [Rytech]
+	SkillStatusChangeTable[SL_KNIGHT]		= (sc_type)MAPID_KNIGHT,
+	SkillStatusChangeTable[SL_WIZARD]		= (sc_type)MAPID_WIZARD,
+	SkillStatusChangeTable[SL_PRIEST]		= (sc_type)MAPID_PRIEST,
+	SkillStatusChangeTable[SL_BARDDANCER]	= (sc_type)MAPID_BARDDANCER,
+	SkillStatusChangeTable[SL_ROGUE]		= (sc_type)MAPID_ROGUE,
+	SkillStatusChangeTable[SL_ASSASIN]		= (sc_type)MAPID_ASSASSIN,
+	SkillStatusChangeTable[SL_BLACKSMITH]	= (sc_type)MAPID_BLACKSMITH,
+	SkillStatusChangeTable[SL_HUNTER]		= (sc_type)MAPID_HUNTER,
+	SkillStatusChangeTable[SL_SOULLINKER]	= (sc_type)MAPID_SOUL_LINKER,
+	SkillStatusChangeTable[SL_DEATHKNIGHT]	= (sc_type)MAPID_DEATH_KNIGHT,
+	SkillStatusChangeTable[SL_COLLECTOR]	= (sc_type)MAPID_DARK_COLLECTOR,
+	SkillStatusChangeTable[SL_NINJA]		= (sc_type)MAPID_NINJA, // Fix me to work on Kagerou and Oboro. [Rytech]
+	SkillStatusChangeTable[SL_GUNNER]		= (sc_type)MAPID_GUNSLINGER, // // Fix me to work on Rebellion. [15peaces]
 
 	//Status that don't have a skill associated.
 	StatusIconChangeTable[SC_WEIGHT50] = SI_WEIGHT50;
@@ -1659,7 +1659,8 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 	unsigned int val = pc_class2idx(sd->status.class_);
 	val = 35 + sd->status.base_level*hp_coefficient2[val]/100 + hp_sigma_val[val][sd->status.base_level];
 
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO)
+	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER ||
+	(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION)
 		val += 100; //Since their HP can't be approximated well enough without this.
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
@@ -1903,6 +1904,10 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			continue;
 		if(i == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index))
 			continue;
+		if(i == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)
+			continue;
+		if(i == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index))
+			continue;
 		if(!sd->inventory_data[index])
 			continue;
 
@@ -1995,6 +2000,10 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		if(i == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index)
 			continue;
 		if(i == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index))
+			continue;
+		if(i == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)
+			continue;
+		if(i == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index))
 			continue;
 
 		if(sd->inventory_data[index]) {
@@ -2326,6 +2335,11 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	// Basic ASPD value
 	i = status_base_amotion_pc(sd,status);
 	status->amotion = cap_value(i,battle_config.max_aspd,2000);
+
+	// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
+	if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
+	(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+		status->amotion = cap_value(i,battle_config.max_aspd_renewal_jobs,2000);
 
 	// Relative modifiers from passive skills
 	if((skill=pc_checkskill(sd,SA_ADVANCEDBOOK))>0 && sd->status.weapon == W_BOOK)
@@ -3041,7 +3055,12 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 			if(status->aspd_rate != 1000)
 				amotion = amotion*status->aspd_rate/1000;
 			
-			status->amotion = cap_value(amotion,battle_config.max_aspd,2000);
+			// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
+			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
+			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+				status->amotion = cap_value(amotion,battle_config.max_aspd_renewal_jobs,2000);
+			else
+				status->amotion = cap_value(amotion,battle_config.max_aspd,2000);
 			
 			status->adelay = 2*status->amotion;
 		}
@@ -4579,6 +4598,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				sd->vd.hair_color = sd->status.hair_color;
 				sd->vd.cloth_color = sd->status.clothes_color;
 				sd->vd.sex = sd->status.sex;
+				sd->vd.robe = sd->status.robe;
 			} else if (vd)
 				memcpy(&sd->vd, vd, sizeof(struct view_data));
 			else
@@ -5528,7 +5548,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			//val3 : Brings the skilllv (merged into val1 here)
 			//val4 : Partner
 			if (val1 == CG_MOONLIT)
-				clif_status_change(bl,SI_MOONLIT,1,tick);
+				clif_status_change(bl,SI_MOONLIT,1,tick, 0, 0, 0);
 			val1|= (val3<<16);
 			val3 = tick/1000; //Tick duration
 			tick = 1000;
@@ -6232,10 +6252,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	switch(type)
 	{
 		//OPT1
-		case SC_STONE:  sc->opt1 = OPT1_STONEWAIT; break;
-		case SC_FREEZE: sc->opt1 = OPT1_FREEZE;    break;
-		case SC_STUN:   sc->opt1 = OPT1_STUN;      break;
-		case SC_SLEEP:  sc->opt1 = OPT1_SLEEP;     break;
+		case SC_STONE:		sc->opt1 = OPT1_STONEWAIT;	break;
+		case SC_FREEZE:		sc->opt1 = OPT1_FREEZE;		break;
+		case SC_STUN:		sc->opt1 = OPT1_STUN;		break;
+		case SC_SLEEP:		sc->opt1 = OPT1_SLEEP;		break;
+		case SC_BURNING:	sc->opt1 = OPT1_BURNING;	break;
+		case SC_IMPRISON:	sc->opt1 = OPT1_IMPRISON;	break;
 		//OPT2
 		case SC_POISON:       sc->opt2 |= OPT2_POISON;       break;
 		case SC_CURSE:        sc->opt2 |= OPT2_CURSE;        break;
@@ -6245,6 +6267,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ANGELUS:      sc->opt2 |= OPT2_ANGELUS;      break;
 		case SC_BLEEDING:     sc->opt2 |= OPT2_BLEEDING;     break;
 		case SC_DPOISON:      sc->opt2 |= OPT2_DPOISON;      break;
+		case SC_FEAR:         sc->opt2 |= OPT2_FEAR;         break;
 		//OPT3
 		case SC_TWOHANDQUICKEN:
 		case SC_ONEHAND:
@@ -6387,7 +6410,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER ) ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
-		clif_status_change(bl,StatusIconChangeTable[type],1,tick);
+		clif_status_change(bl,StatusIconChangeTable[type],1,tick, val1, val2, val3);
 	else if( sd ) //Send packet to self otherwise (disguised player?)
 		clif_status_load(bl,StatusIconChangeTable[type],1);
 
@@ -6764,7 +6787,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				}
 
 				if((sce->val1&0xFFFF) == CG_MOONLIT)
-					clif_status_change(bl,SI_MOONLIT,0,0);
+					clif_status_change(bl,SI_MOONLIT,0,0, 0, 0, 0);
 
 				status_change_end(bl, SC_LONGING, INVALID_TIMER);
 			}
@@ -7067,7 +7090,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 
 	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
 	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER ) )
-		clif_status_change(bl,StatusIconChangeTable[type],0,0);
+		clif_status_change(bl,StatusIconChangeTable[type],0,0, 0, 0, 0);
 	else if (sd)
 		clif_status_load(bl,StatusIconChangeTable[type],0);
 

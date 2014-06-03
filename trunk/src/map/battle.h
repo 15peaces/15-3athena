@@ -502,6 +502,9 @@ extern struct Battle_Config
 	// 15-3athena
 	int renewal_casting_renewal_skills;
 	int castrate_dex_scale_renewal_jobs;
+	int max_parameter_renewal_jobs;
+	int max_baby_parameter_renewal_jobs;
+	int max_aspd_renewal_jobs;
 } battle_config;
 
 void do_init_battle(void);
