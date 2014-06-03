@@ -6661,7 +6661,7 @@ BUILDIN_FUNC(strnpcinfo)
 
 
 // aegis->athena slot position conversion table
-static unsigned int equip[] = {EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW};
+static unsigned int equip[] = {EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW,EQP_COSTUME_HEAD_TOP,EQP_COSTUME_HEAD_MID,EQP_COSTUME_HEAD_LOW,EQP_COSTUME_GARMENT,EQP_COSTUME_FLOOR};
 
 /*==========================================
  * GetEquipID(Pos);     Pos: 1-10
@@ -12182,6 +12182,9 @@ BUILDIN_FUNC(getlook)
         case LOOK_CLOTHES_COLOR: val=sd->status.clothes_color; break; //7
         case LOOK_SHIELD: val=sd->status.shield; break; //8
         case LOOK_SHOES: break; //9
+		//case LOOK_BODY: break; //10 - Currently not used.
+		//case LOOK_RESET_COSTUMES: break; //11 - Not sure what exactly this is used for.
+		case LOOK_ROBE: val=sd->status.robe; break; //12
         }
 
         script_pushint(st,val);
@@ -12454,6 +12457,8 @@ BUILDIN_FUNC(isequippedcnt)
 			if(j == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index) continue;
 			if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index) continue;
 			if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index)) continue;
+			if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index) continue;
+			if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)) continue;
 			
 			if(!sd->inventory_data[index])
 				continue;
@@ -12513,6 +12518,8 @@ BUILDIN_FUNC(isequipped)
 			if(j == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index) continue;
 			if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index) continue;
 			if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index)) continue;
+			if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index) continue;
+			if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)) continue;
 	
 			if(!sd->inventory_data[index])
 				continue;

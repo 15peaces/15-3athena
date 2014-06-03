@@ -29,11 +29,11 @@ struct status_change_entry;
 
 //Constants to identify the skill's inf value:
 enum e_skill_inf
-{	//0x00 PASSIVE // No need to define here since passive skills are not active type.
+{	//0x00 PASSIVE - No need to define here since passive skills are not active type.
 	INF_ATTACK_SKILL = 0x01,	//TOCHARACTER
 	INF_GROUND_SKILL = 0x02,	//TOGROUND
-	INF_SELF_SKILL = 0x04,	//TOME // Skills casted on self where target is automatically chosen
-	// 0x08 not assigned	//TOITEM //We can target items?
+	INF_SELF_SKILL = 0x04,	//TOME - Skills casted on self where target is automatically chosen
+	// 0x08 not assigned	//TOITEM - We can target items?
 	INF_SUPPORT_SKILL = 0x10,	//TOALL
 	INF_TARGET_TRAP = 0x20,	//TOSKILL
 };
@@ -1149,6 +1149,13 @@ enum e_skill {
 	NPC_DEATHSUMMON,
 	NPC_HELLBURNING,
 	NPC_JACKFROST,
+	NPC_WIDEWEB,
+	NPC_WIDESUCK,
+	NPC_STORMGUST2,
+	NPC_FIRESTORM,
+	NPC_REVERBERATION,
+	NPC_REVERBERATION_ATK,
+	NPC_LEX_AETERNA,
 
 	KN_CHARGEATK = 1001,
 	CR_SHRINK,
@@ -1490,7 +1497,32 @@ enum e_skill {
 	GM_ITEM_ATKMIN,
 	GM_ITEM_MATKMAX,
 	GM_ITEM_MATKMIN,
-	
+
+	RL_GLITTERING_GREED = 2551,
+	RL_RICHS_COIN,
+	RL_MASS_SPIRAL,
+	RL_BANISHING_BUSTER,
+	RL_B_TRAP,
+	RL_FLICKER,
+	RL_S_STORM,
+	RL_E_CHAIN,
+	RL_QD_SHOT,
+	RL_C_MARKER,
+	RL_FIREDANCE,
+	RL_H_MINE,
+	RL_P_ALTER,
+	RL_FALLEN_ANGEL,
+	RL_R_TRIP,
+	RL_D_TAIL,
+	RL_FIRE_RAIN,
+	RL_HEAT_BARREL,
+	RL_AM_BLAST,
+	RL_SLUGSHOT,
+	RL_HAMMER_OF_GOD,
+	RL_R_TRIP_PLUSATK,
+	RL_B_FLICKER_ATK,
+	RL_GLITTERING_GREED_ATK,
+
 	KO_YAMIKUMO = 3001,
 	KO_RIGHT,
 	KO_LEFT,
@@ -1526,6 +1558,8 @@ enum e_skill {
 	ECL_SADAGUI,
 	ECL_SEQUOIADUST,
 	ECLAGE_RECALL,
+	BA_POEMBRAGI2,
+	DC_FORTUNEKISS2,
 
 	GC_DARKCROW = 5001,
 	RA_UNLIMIT,
@@ -1810,6 +1844,10 @@ enum {
 	UNT_FLAMECROSS,
 	UNT_HELLBURNING,
 	UNT_MAGMA_ERUPTION,
+	UNT_KINGS_GRACE,
+	UNT_GLITTERING_GREED,
+	UNT_B_TRAP,
+	UNT_FIRE_RAIN,
 
 	UNT_MAX = 0x190
 };

@@ -230,8 +230,8 @@ que_hugel	mapflag	nomemo
 que_rachel	mapflag	nomemo
 que_san04	mapflag	nomemo
 que_thor	mapflag	nomemo
-poring_c01	mapflag	nomemo
-poring_c02	mapflag	nomemo
+//poring_c01	mapflag	nomemo
+//poring_c02	mapflag	nomemo
 // Dungeons =================
 alde_dun01	mapflag	nomemo
 alde_dun02	mapflag	nomemo
@@ -489,13 +489,13 @@ force_4-1	mapflag	nomemo
 force_5-1	mapflag	nomemo
 ordeal_1-1	mapflag	nomemo
 ordeal_1-2	mapflag	nomemo
-ordeal_1-3	mapflag	nomemo
+//ordeal_1-3	mapflag	nomemo
 ordeal_2-1	mapflag	nomemo
 ordeal_2-2	mapflag	nomemo
-ordeal_2-3	mapflag	nomemo
+//ordeal_2-3	mapflag	nomemo
 ordeal_3-1	mapflag	nomemo
 ordeal_3-2	mapflag	nomemo
-ordeal_3-3	mapflag	nomemo
+//ordeal_3-3	mapflag	nomemo
 pvp_c_room	mapflag	nomemo
 quiz_00	mapflag	nomemo
 quiz_01	mapflag	nomemo

@@ -167,7 +167,7 @@ struct map_session_data {
 	struct registry save_reg;
 	
 	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
-	short equip_index[11];
+	short equip_index[16];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num;
 	int fd;
@@ -489,23 +489,23 @@ enum ammo_type {
 
 //Equip position constants
 enum equip_pos {
-	EQP_HEAD_LOW = 0x0001, 
-	EQP_HEAD_MID = 0x0200, //512
-	EQP_HEAD_TOP = 0x0100, //256
-	EQP_HAND_R   = 0x0002,
-	EQP_HAND_L   = 0x0020, //32
-	EQP_ARMOR    = 0x0010, //16
-	EQP_SHOES    = 0x0040, //64
-	EQP_GARMENT  = 0x0004,
-	EQP_ACC_L    = 0x0008,
-	EQP_ACC_R    = 0x0080, //128
-	EQP_AMMO     = 0x8000, //32768
-	//EQP_COSTUME_HEAD_LOW = 0x1000,
-	//EQP_COSTUME_HEAD_MID = 0x0800,
-	//EQP_COSTUME_HEAD_TOP = 0x0400,
-	//EQP_COSTUME_GARMENT = 0x2000,
-	//EQP_COSTUME_FLOOR = 0x4000,
-	//EQP_SHADOW_ARMOR = 0x10000,//Shadow equip slots will be left disabled until client's supporting them are usable. [Rytech]
+	EQP_HEAD_LOW		= 0x0001, 
+	EQP_HEAD_MID		= 0x0200,
+	EQP_HEAD_TOP		= 0x0100,
+	EQP_HAND_R			= 0x0002,
+	EQP_HAND_L			= 0x0020,
+	EQP_ARMOR			= 0x0010,
+	EQP_SHOES			= 0x0040,
+	EQP_GARMENT			= 0x0004,
+	EQP_ACC_L			= 0x0008,
+	EQP_ACC_R			= 0x0080,
+	EQP_AMMO			= 0x8000,
+	EQP_COSTUME_HEAD_TOP= 0x0400,
+	EQP_COSTUME_HEAD_MID= 0x0800,
+	EQP_COSTUME_HEAD_LOW= 0x1000,
+	EQP_COSTUME_GARMENT = 0x2000,
+	EQP_COSTUME_FLOOR	= 0x4000,
+	//EQP_SHADOW_ARMOR = 0x10000,
 	//EQP_SHADOW_WEAPON = 0x20000,
 	//EQP_SHADOW_SHIELD = 0x40000,
 	//EQP_SHADOW_SHOES = 0x80000,
@@ -518,15 +518,15 @@ enum equip_pos {
 #define EQP_ARMS (EQP_HAND_R|EQP_HAND_L)
 #define EQP_HELM (EQP_HEAD_LOW|EQP_HEAD_MID|EQP_HEAD_TOP)
 #define EQP_ACC (EQP_ACC_L|EQP_ACC_R)
-//#define EQP_COSTUME_HELM (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_TOP)
-//#define EQP_COSTUME (EQP_COSTUME_HEAD_LOW|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_TOP|EQP_COSTUME_GARMENT|EQP_COSTUME_FLOOR)
+#define EQP_COSTUME_HELM (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW)
+#define EQP_COSTUME (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW|EQP_COSTUME_GARMENT|EQP_COSTUME_FLOOR)
 //#define EQP_SHADOW_EQUIPS (EQP_SHADOW_ARMOR|EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD|EQP_SHADOW_SHOES|EQP_SHADOW_ACC_R|EQP_SHADOW_ACC_L)
 
 /// Equip positions that use a visible sprite
 #if PACKETVER < 20110111
 	#define EQP_VISIBLE EQP_HELM
 #else
-	#define EQP_VISIBLE (EQP_HELM|EQP_GARMENT)
+	#define EQP_VISIBLE (EQP_HELM|EQP_COSTUME_HELM|EQP_COSTUME_GARMENT)
 #endif
 
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
@@ -543,17 +543,17 @@ enum equip_index {
 	EQI_HAND_L,
 	EQI_HAND_R,
 	EQI_AMMO,
-	//EQI_COSTUME_HEAD_LOW,
-	//EQI_COSTUME_HEAD_MID,
-	//EQI_COSTUME_HEAD_TOP,
-	//EQI_COSTUME_GARMENT,
-	//EQI_COSTUME_FLOOR,
-	//EQI_SHADOW_ARMOR
-	//EQI_SHADOW_WEAPON
-	//EQI_SHADOW_SHIELD
-	//EQI_SHADOW_SHOES
-	//EQI_SHADOW_ACC_R
-	//EQI_SHADOW_ACC_L
+	EQI_COSTUME_HEAD_TOP,
+	EQI_COSTUME_HEAD_MID,
+	EQI_COSTUME_HEAD_LOW,
+	EQI_COSTUME_GARMENT,
+	EQI_COSTUME_FLOOR,
+	//EQI_SHADOW_ARMOR,
+	//EQI_SHADOW_WEAPON,
+	//EQI_SHADOW_SHIELD,
+	//EQI_SHADOW_SHOES,
+	//EQI_SHADOW_ACC_R,
+	//EQI_SHADOW_ACC_L,
 	EQI_MAX
 };
 
@@ -579,7 +579,13 @@ enum equip_index {
 #define pc_ismadogear(sd) ( (sd)->sc.option&OPTION_MADOGEAR )
 #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
 #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
-#define pc_maxparameter(sd)   ( (sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter )
+#define pc_maxparameter(sd) ( \
+	(sd)->class_ == MAPID_SUPER_NOVICE_E || (sd)->class_ == MAPID_SUPER_BABY_E || \
+	(sd)->class_ == MAPID_KAGEROUOBORO || (sd)->class_ == MAPID_REBELLION || (sd)->class_&JOBL_THIRD ? \
+	(sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter_renewal_jobs : battle_config.max_parameter_renewal_jobs : \
+	(sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter \
+)
+
 
 #define pc_stop_walking(sd, type) unit_stop_walking(&(sd)->bl, type)
 #define pc_stop_attack(sd) unit_stop_attack(&(sd)->bl)
@@ -594,7 +600,8 @@ enum equip_index {
 	|| ( (class_) >= JOB_NOVICE_HIGH	&& (class_) <= JOB_DARK_COLLECTOR ) \
 	|| ( (class_) >= JOB_RUNE_KNIGHT	&& (class_) <= JOB_BABY_MECHANIC2 ) \
 	|| ( (class_) >= JOB_SUPER_NOVICE_E && (class_) <= JOB_SUPER_BABY_E ) \
-	|| ( (class_) >= JOB_KAGEROU		&& (class_) < JOB_MAX ) \
+	|| ( (class_) >= JOB_KAGEROU		&& (class_) <= JOB_OBORO ) \
+	|| ( (class_) >= JOB_REBELLION		&& (class_) < JOB_MAX ) \
 )
 
 int pc_class2idx(int class_);

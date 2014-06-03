@@ -1047,7 +1047,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				if (DIFF_TICK(ud->canact_tick, tick + rate) < 0){
 					ud->canact_tick = tick+rate;
 					if ( battle_config.display_status_timers && sd )
-						clif_status_change(src, SI_ACTIONDELAY, 1, rate);
+						clif_status_change(src, SI_ACTIONDELAY, 1, rate, 0, 0, 0);
 				}
 				if (skill_get_cooldown(skill,skilllv))
 					skill_blockpc_start(sd, skill, skill_get_cooldown(skill, skilllv));
@@ -1325,7 +1325,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 				if (DIFF_TICK(ud->canact_tick, tick + rate) < 0){
 					ud->canact_tick = tick+rate;
 					if ( battle_config.display_status_timers && dstsd )
-						clif_status_change(bl, SI_ACTIONDELAY, 1, rate);
+						clif_status_change(bl, SI_ACTIONDELAY, 1, rate, 0, 0, 0);
 				}
 				if (skill_get_cooldown(skillid,skilllv))
 					skill_blockpc_start(sd, skillid, skill_get_cooldown(skillid, skilllv));
@@ -3878,7 +3878,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case MO_KITRANSLATION:
-		if(dstsd && (dstsd->class_&MAPID_BASEMASK)!=MAPID_GUNSLINGER) {
+		if(dstsd && ((dstsd->class_&MAPID_BASEMASK)!=MAPID_GUNSLINGER || (dstsd->class_&MAPID_UPPERMASK)!=MAPID_REBELLION)) {
 			pc_addspiritball(dstsd,skill_get_time(skillid,skilllv),5);
 		}
 		break;
@@ -3893,7 +3893,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MO_ABSORBSPIRITS:
 		i = 0;
-		if (dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && (dstsd->class_&MAPID_BASEMASK)!=MAPID_GUNSLINGER)
+		if (dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && ((dstsd->class_&MAPID_BASEMASK)!=MAPID_GUNSLINGER || (dstsd->class_&MAPID_UPPERMASK)!=MAPID_REBELLION))
 		{	// split the if for readability, and included gunslingers in the check so that their coins cannot be removed [Reddozen]
 			i = dstsd->spiritball * 7;
 			pc_delspiritball(dstsd,dstsd->spiritball,0);
@@ -5864,8 +5864,8 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv); //Tests show wings don't overwrite the delay but skill scrolls do. [Inkfish]
 		if( battle_config.display_status_timers && sd )
-			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv));
-		if( !sd || sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv) )
+			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
+		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )
 			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 		if( sd )
 		{
@@ -6079,8 +6079,8 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv);
 		if( battle_config.display_status_timers && sd )
-			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv));
-		if( !sd || sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv) )
+			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
+		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )
 			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 //		if( sd )
 //		{
@@ -6284,6 +6284,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case NJ_RAIGEKISAI:
 	case NJ_KAMAITACHI:
 	case NPC_EVILLAND:
+	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
@@ -9041,7 +9042,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 			//if renewal_casting_renewal_skills is turned off. Non-renewal skills dont have fixed times,
 			//causing a fixed cast value of 0 to be added and not affect the actural cast time.
 			time = time + fixed_time;
-			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))
+			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
 				rate = battle_config.castrate_dex_scale_renewal_jobs;
 			else
 				rate = battle_config.castrate_dex_scale;
