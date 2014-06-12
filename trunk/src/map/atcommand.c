@@ -65,6 +65,17 @@ typedef struct AtCommandInfo
 static AtCommandInfo* get_atcommandinfo_byname(const char* name);
 static AtCommandInfo* get_atcommandinfo_byfunc(const AtCommandFunc func);
 
+// @commands (script-based) 
+struct Atcmd_Binding* get_atcommandbind_byname(const char* name) 
+{ 
+	int i = 0; 
+	if( *name == atcommand_symbol || *name == charcommand_symbol ) 
+		name++; // for backwards compatibility 
+	ARR_FIND( 0, ARRAYLENGTH(atcmd_binding), i, strcmp(atcmd_binding[i].command, name) == 0 ); 
+	return ( i < ARRAYLENGTH(atcmd_binding) ) ? &atcmd_binding[i] : NULL; 
+	return NULL; 
+}
+
 ACMD_FUNC(commands);
 
 
@@ -9482,6 +9493,9 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	TBL_PC * ssd = NULL; //sd for target
 	AtCommandInfo * info;
 
+	// @commands (script based) 
+	Atcmd_Binding * binding; 
+
 	nullpo_retr(false, sd);
 	
 	//Shouldn't happen
@@ -9569,7 +9583,33 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	//check to see if any params exist within this command
 	if( sscanf(atcmd_msg, "%99s %99[^\n]", command, params) < 2 )
 		params[0] = '\0';
-	
+
+	// @commands (script based) 
+	if(type == 1) { 
+		// Check if the command initiated is a character command 
+		if (*message == charcommand_symbol && 
+		(ssd = map_nick2sd(charname)) == NULL && (ssd = map_nick2sd(charname2)) == NULL ) 
+		{ 
+			sprintf(output, "%s failed. Player not found.", command); 
+			clif_displaymessage(fd, output); 
+			return true; 
+		} 
+
+		// Get atcommand binding 
+		binding = get_atcommandbind_byname(command); 
+
+		// Check if the binding isn't NULL and there is a NPC event, level of usage met, et cetera 
+		if( binding != NULL && binding->npc_event[0] && 
+		((*atcmd_msg == atcommand_symbol && pc_isGM(sd) >= binding->level) || 
+		(*atcmd_msg == charcommand_symbol && pc_isGM(sd) >= binding->level2))) 
+		{ 
+			// Check if self or character invoking; if self == character invoked, then self invoke. 
+			bool invokeFlag = ((*atcmd_msg == atcommand_symbol) ? 1 : 0); 
+			npc_do_atcmd_event((invokeFlag ? sd : ssd), command, params, binding->npc_event); 
+			return true; 
+		} 
+	} 
+
 	//Grab the command information and check for the proper GM level required to use it or if the command exists
 	info = get_atcommandinfo_byname(command);
 	if( info == NULL || info->func == NULL || ( type && ((*atcmd_msg == atcommand_symbol && pc_isGM(sd) < info->level) || (*atcmd_msg == charcommand_symbol && pc_isGM(sd) < info->level2)) ) )
