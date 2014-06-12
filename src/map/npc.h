@@ -156,4 +156,7 @@ int npc_cashshop_buy(struct map_session_data* sd, unsigned int nameid, int amoun
 
 extern struct npc_data* fake_nd;
 
+// @commands (script-based) 
+int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const char* message, const char* eventname);
+
 #endif /* _NPC_H_ */

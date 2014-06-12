@@ -4,7 +4,7 @@
 //= A reference manual for the eAthena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.52.20140519
+//= 3.53.20140610
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -195,7 +195,9 @@
 //=       Added 'setdragon', 'checkdragon', 'setwug', 'checkwug', 
 //=       'setwugrider', 'checkwugrider', 'setmadogear', 'checkmadogear'. [Rytech]
 //= 3.52.20140519
-//=       Added 'getitembound', '*getitembound2' [15peaces]
+//=       Added 'getitembound', 'getitembound2' [15peaces]
+//= 3.53.20140610
+//=       Added 'bindatcmd', 'unbindatcmd', 'useatcmd' [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -2153,6 +2155,28 @@ array, shifting all the elements beyond this towards the beginning.
 
     deletearray @array[1],3
 
+--------------------------------------- 
+
+*bindatcmd "command","{NPC NAME}::<event label>"{,atcommand level,charcommand level}; 
+*bindatcmd ("command","{NPC NAME}::<event label>"{,atcommand level,charcommand level}); 
+
+This command will bind a NPC event label to an atcommand. Upon execution of 
+the atcommand the user will invoke the NPC event label. 
+
+--------------------------------------- 
+ 
+*unbindatcmd "command"; 
+*unbindatcmd ("command"); 
+ 
+This command will unbind a NPC event label from an atcommand. 
+
+--------------------------------------- 
+ 
+*useatcmd "command"; 
+*useatcmd ("command"); 
+ 
+This command will execute a custom atcommand on the attached RID from a script. 
+	
 ---------------------------------------
 
 ======================================
