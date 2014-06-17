@@ -569,7 +569,11 @@ enum equip_index {
 #define pc_ishiding(sd)       ( (sd)->sc.option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) )
 #define pc_iscloaking(sd)     ( !((sd)->sc.option&OPTION_CHASEWALK) && ((sd)->sc.option&OPTION_CLOAK) )
 #define pc_ischasewalk(sd)    ( (sd)->sc.option&OPTION_CHASEWALK )
+ #if PACKETVER < 20120410
 #define pc_iscarton(sd)       ( (sd)->sc.option&OPTION_CART )
+#else
+#define pc_iscarton(sd)		  ( (sd)->sc.data[SC_ON_PUSH_CART] )
+#endif
 #define pc_isfalcon(sd)       ( (sd)->sc.option&OPTION_FALCON )
 #define pc_isriding(sd)       ( (sd)->sc.option&OPTION_RIDING )
 #define pc_isinvisible(sd)    ( (sd)->sc.option&OPTION_INVISIBLE )

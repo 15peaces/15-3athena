@@ -414,7 +414,10 @@ void initChangeTables(void)
 	add_sc( SA_ELEMENTWIND       , SC_ELEMENTALCHANGE );
 	
 	// Rune Knight
-	set_sc( RK_ENCHANTBLADE , SC_ENCHANTBLADE , SI_ENCHANTBLADE , SCB_NONE );
+	set_sc( RK_ENCHANTBLADE		 , SC_ENCHANTBLADE	  , SI_ENCHANTBLADE	   , SCB_NONE );
+
+	// Arch Bishop
+	set_sc( AB_DUPLELIGHT		 , SC_DUPLELIGHT	  , SI_DUPLELIGHT	   , SCB_NONE );
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -456,7 +459,7 @@ void initChangeTables(void)
 	SkillStatusChangeTable[SL_STAR]			= (sc_type)MAPID_STAR_GLADIATOR,
 	SkillStatusChangeTable[SL_SAGE]			= (sc_type)MAPID_SAGE,
 	SkillStatusChangeTable[SL_CRUSADER]		= (sc_type)MAPID_CRUSADER,
-	SkillStatusChangeTable[SL_SUPERNOVICE]	= (sc_type)MAPID_SUPER_NOVICE, // Fix me to work on Expanded Super Novice [Rytech]
+	SkillStatusChangeTable[SL_SUPERNOVICE]	= (sc_type)MAPID_SUPER_NOVICE,
 	SkillStatusChangeTable[SL_KNIGHT]		= (sc_type)MAPID_KNIGHT,
 	SkillStatusChangeTable[SL_WIZARD]		= (sc_type)MAPID_WIZARD,
 	SkillStatusChangeTable[SL_PRIEST]		= (sc_type)MAPID_PRIEST,
@@ -468,8 +471,8 @@ void initChangeTables(void)
 	SkillStatusChangeTable[SL_SOULLINKER]	= (sc_type)MAPID_SOUL_LINKER,
 	SkillStatusChangeTable[SL_DEATHKNIGHT]	= (sc_type)MAPID_DEATH_KNIGHT,
 	SkillStatusChangeTable[SL_COLLECTOR]	= (sc_type)MAPID_DARK_COLLECTOR,
-	SkillStatusChangeTable[SL_NINJA]		= (sc_type)MAPID_NINJA, // Fix me to work on Kagerou and Oboro. [Rytech]
-	SkillStatusChangeTable[SL_GUNNER]		= (sc_type)MAPID_GUNSLINGER, // // Fix me to work on Rebellion. [15peaces]
+	SkillStatusChangeTable[SL_NINJA]		= (sc_type)MAPID_NINJA,
+	SkillStatusChangeTable[SL_GUNNER]		= (sc_type)MAPID_GUNSLINGER,
 
 	//Status that don't have a skill associated.
 	StatusIconChangeTable[SC_WEIGHT50] = SI_WEIGHT50;
@@ -524,6 +527,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_MERC_HPUP] = SI_MERC_HPUP;
 	StatusIconChangeTable[SC_MERC_SPUP] = SI_MERC_SPUP;
 	StatusIconChangeTable[SC_MERC_HITUP] = SI_MERC_HITUP;
+	//Rental Mounts and Push Carts for newer clients.
+	StatusIconChangeTable[SC_ALL_RIDING] = SI_ALL_RIDING;
+	StatusIconChangeTable[SC_ON_PUSH_CART] = SI_ON_PUSH_CART;
+	//Headgears with special animations through status.
+	StatusIconChangeTable[SC_MOONSTAR] = SI_MOONSTAR;
 
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -581,6 +589,11 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_MERC_HPUP] |= SCB_MAXHP;
 	StatusChangeFlagTable[SC_MERC_SPUP] |= SCB_MAXSP;
 	StatusChangeFlagTable[SC_MERC_HITUP] |= SCB_HIT;
+	// Rental Mounts and Push Carts for newer clients.
+	StatusChangeFlagTable[SC_ALL_RIDING] |= SCB_SPEED;
+	StatusChangeFlagTable[SC_ON_PUSH_CART] |= SCB_SPEED;
+	//Headgears with special animations through status.
+	StatusChangeFlagTable[SC_MOONSTAR] |= SCB_NONE;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -1664,7 +1677,7 @@ static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct sta
 		val += 100; //Since their HP can't be approximated well enough without this.
 	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
 		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
-	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.base_level >= 99)
+	if(((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.base_level >= 99)
 		val += 2000; //Supernovice lvl99 hp bonus.
 
 	val += val * status->vit/100; // +1% per each point of VIT
@@ -2113,7 +2126,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 
 	// If a Super Novice has never died and is at least joblv 70, he gets all stats +10
-	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
+	if(((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
 		status->str += 10;
 		status->agi += 10;
 		status->vit += 10;
@@ -3826,6 +3839,9 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sc->data[SC_FUSION] )
 				val = 25;
 			else
+			if( sc->data[SC_ALL_RIDING] )
+				val = battle_config.all_riding_speed;
+			else
 			if( sd && pc_isriding(sd) )
 				val = 25;
 
@@ -4466,11 +4482,14 @@ void status_set_viewdata(struct block_list *bl, int class_)
 				if (sd->sc.option&OPTION_WEDDING)
 					class_ = JOB_WEDDING;
 				else
+				if (sd->sc.option&OPTION_XMAS)
+					class_ = JOB_XMAS;
+				else
 				if (sd->sc.option&OPTION_SUMMER)
 					class_ = JOB_SUMMER;
 				else
-				if (sd->sc.option&OPTION_XMAS)
-					class_ = JOB_XMAS;
+				if (sd->sc.option&OPTION_HANBOK)
+					class_ = JOB_HANBOK;
 				else
 				if (sd->sc.option&OPTION_RIDING)
 				switch (class_)
@@ -4664,6 +4683,7 @@ void status_set_viewdata(struct block_list *bl, int class_)
 		(vd->class_==JOB_WEDDING && battle_config.wedding_ignorepalette)
 		|| (vd->class_==JOB_XMAS && battle_config.xmas_ignorepalette)
 		|| (vd->class_==JOB_SUMMER && battle_config.summer_ignorepalette)
+		|| (vd->class_==JOB_HANBOK && battle_config.hanbok_ignorepalette)
 	))
 		vd->cloth_color = 0;
 }
@@ -5122,6 +5142,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		if (sc->data[SC_LUKFOOD] && sc->data[SC_LUKFOOD]->val1 > val1)
 			return 0;
 	break;
+	case SC_ALL_RIDING:
+		if ( !sd || pc_isriding(sd) || pc_isdragon(sd) || pc_iswugrider(sd) || pc_ismadogear(sd) )
+			return 0;//Do not get on a rental mount if your on a class mount.
+		if ( sc->data[type] )
+		{
+			status_change_end(bl,SC_ALL_RIDING,INVALID_TIMER);
+			return 0;
+		}
+	break;
 	}
 
 	//Check for BOSS resistances
@@ -5569,6 +5598,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WEDDING:
 		case SC_XMAS:
 		case SC_SUMMER:
+		case SC_HANBOK:
 			if (!vd) return 0;
 			//Store previous values as they could be removed.
 			val1 = vd->class_;
@@ -5578,7 +5608,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			unit_stop_attack(bl);
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
-			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:JOB_SUMMER);
+			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:type==SC_SUMMER?JOB_SUMMER:JOB_HANBOK);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			break;
 		case SC_NOCHAT:
@@ -5701,6 +5731,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_READYCOUNTER:
 		case SC_READYTURN:
 		case SC_DODGE:
+		case SC_ALL_RIDING:
+		case SC_ON_PUSH_CART:
 			tick = -1;
 			break;
 
@@ -6202,9 +6234,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WEDDING:
 		case SC_XMAS:
 		case SC_SUMMER:
+		case SC_HANBOK:
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
-			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:JOB_SUMMER);
+			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:type==SC_SUMMER?JOB_SUMMER:JOB_HANBOK);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,val4);
 			break;	
 		case SC_KAAHI:
@@ -6239,6 +6272,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CLOAKING:
 		case SC_CHASEWALK:
 		case SC_WEIGHT90:
+		case SC_ALL_RIDING:
 			unit_stop_attack(bl);
 		break;
 		case SC_SILENCE:
@@ -6385,6 +6419,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SUMMER:
 			sc->option |= OPTION_SUMMER;
 			break;
+		case SC_HANBOK:
+			sc->option |= OPTION_HANBOK;
+			break;
 		case SC_ORCISH:
 			sc->option |= OPTION_ORCISH;
 			break;
@@ -6529,6 +6566,7 @@ int status_change_clear(struct block_list* bl, int type)
 		case SC_MELTDOWN:
 		case SC_XMAS:
 		case SC_SUMMER:
+		case SC_HANBOK:
 		case SC_NOCHAT:
 		case SC_FUSION:
 		case SC_EARTHSCROLL:
@@ -6549,6 +6587,8 @@ int status_change_clear(struct block_list* bl, int type)
 		case SC_FOOD_DEX_CASH:
 		case SC_FOOD_INT_CASH:
 		case SC_FOOD_LUK_CASH:
+		case SC_ALL_RIDING:
+		case SC_ON_PUSH_CART:
 			continue;
 		}
 
@@ -6636,11 +6676,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_WEDDING:
 		case SC_XMAS:
 		case SC_SUMMER:
+		case SC_HANBOK:
 			if (!vd) break;
 			if (sd)
 			{	//Load data from sd->status.* as the stored values could have changed.
 				//Must remove OPTION to prevent class being rechanged.
-				sc->option &= type==SC_WEDDING?~OPTION_WEDDING:type==SC_XMAS?~OPTION_XMAS:~OPTION_SUMMER;
+				sc->option &= type==SC_WEDDING?~OPTION_WEDDING:type==SC_XMAS?~OPTION_XMAS:type==SC_SUMMER?~OPTION_SUMMER:~OPTION_HANBOK;
 				clif_changeoption(&sd->bl);
 				status_set_viewdata(bl, sd->status.class_);
 			} else {
@@ -6978,6 +7019,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		break;
 	case SC_SUMMER:
 		sc->option &= ~OPTION_SUMMER;
+		break;
+	case SC_HANBOK:
+		sc->option &= ~OPTION_HANBOK;
 		break;
 	case SC_ORCISH:
 		sc->option &= ~OPTION_ORCISH;
@@ -7601,6 +7645,8 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_EXPBOOST:
 			case SC_JEXPBOOST:
 			case SC_ITEMBOOST:
+			case SC_ALL_RIDING:
+			case SC_ON_PUSH_CART:
 				continue;
 				
 			//Debuffs that can be removed.

@@ -61,3 +61,23 @@
 //==================================================================
 //2338,Wedding_Dress,Wedding Dress,5,43000,,500,,0,,0,0xFFFFFFFE,7,0,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 //7170,Tuxedo,Tuxedo,5,43000,,10,,0,,0,0xFFFFFFFE,7,1,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
+
+// Rental Mounts
+12622,Boarding_Halter,Boarding Halter,2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ALL_RIDING,-1,1; },{},{}
+16682,Boarding_Halter_Box,Boarding Halter Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 12622,604800; },{},{}
+
+// Transformation Scrolls
+12658,Trans_Scroll_Devi,Transformation Scroll (Devi),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12659,Trans_Scroll_Ray_Arch,Transformation Scroll (Ray Arch),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12660,Trans_Scroll_Mavka,Transformation Scroll (Mavka),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12661,Trans_Scroll_Marduk,Transformation Scroll (Marduk),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12662,Trans_Scroll_Banshee,Transformation Scroll (Banshee),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12663,Trans_Scroll_Poring,Transformation Scroll (Poring),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+12664,Trans_Scroll_Golem,Transformation Scroll (Golem),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BLANK,1200000,1; },{},{}
+
+//Costume Headgear's Using Status's To Appear
+18742,C_MoonStar_Accessory,Moon Star Accessory,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,881,{},{ sc_start SC_MOONSTAR,-1,0; },{ sc_end SC_MOONSTAR; }
+//18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,883,{},{ sc_start SC_SUPERSTAR,-1,0; },{ sc_end SC_SUPERSTAR; }
+	
+// Hanbok Outfit
+22538,Hanbok_Pocket,Hanbok Pocket,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
