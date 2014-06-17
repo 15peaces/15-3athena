@@ -845,7 +845,7 @@ void clif_clearunit_delayed(struct block_list* bl, unsigned int tick)
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand)
 {
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER))
+	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK))
 	{
 		*rhand = *lhand = 0;
 		return;
@@ -1321,6 +1321,17 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(bl,421,AREA);
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
+			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
+			//if ( sd->sc.count && sd->sc.data[SC_] )
+				// clif_efst_status_change(&sd->bl,SI_,1000,sd->sc.data[SC_]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_DUPLELIGHT] )
+				clif_efst_status_change(&sd->bl,SI_DUPLELIGHT,1000,sd->sc.data[SC_DUPLELIGHT]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_ALL_RIDING] )
+				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
+				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
+				clif_efst_status_change(&sd->bl,SI_MOONSTAR,1000,sd->sc.data[SC_MOONSTAR]->val1,0,0);
 		}
 		break;
 	case BL_MOB:
@@ -2852,12 +2863,13 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		break;
 		case LOOK_BASE:
 			vd->class_ = val;
-			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER)
+			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER || vd->class_ == JOB_HANBOK)
 				vd->weapon = vd->shield = 0;
 			if (vd->cloth_color && (
 				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette)
+				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
+				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette)
 			))
 				clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
 		break;
@@ -2880,7 +2892,8 @@ void clif_changelook(struct block_list *bl,int type,int val)
 			if (val && (
 				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette)
+				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
+				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette)
 			))
 				val = 0;
 			vd->cloth_color = val;
@@ -3946,6 +3959,17 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
+			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
+			//if ( tsd->sc.count && tsd->sc.data[SC_] )
+				// clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_,1000,tsd->sc.data[SC_]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_DUPLELIGHT] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_DUPLELIGHT,1000,tsd->sc.data[SC_DUPLELIGHT]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1000,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_MOONSTAR] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MOONSTAR,1000,tsd->sc.data[SC_MOONSTAR]->val1,0,0);
 		}
 		break;
 	case BL_MER: // Devotion Effects
@@ -4011,20 +4035,21 @@ static int clif_calc_walkdelay(struct block_list *bl,int delay, int type, int da
 /// Sends a 'damage' packet (src performs action on dst)
 /// 008a <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.W <div>.W <type>.B <damage2>.W (ZC_NOTIFY_ACT)
 /// 02e1 <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.L <div>.W <type>.B <damage2>.L (ZC_NOTIFY_ACT2)
+/// 08c8 <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.L <IsSPDamage>.B <div>.W <type>.B <damage2>.L (ZC_NOTIFY_ACT3)
 /// type:
-///     0 = damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
-///     1 = pick up item
-///     2 = sit down
-///     3 = stand up
-///     4 = damage (endure)
-///     5 = (splash?)
-///     6 = (skill?)
-///     7 = (repeat damage?)
-///     8 = multi-hit damage
-///     9 = multi-hit damage (endure)
-///     10 = critical hit
-///     11 = lucky dodge
-///     12 = (touch skill?)
+/// 0 = ATTACK - damage [ damage: total damage, div: amount of hits, damage2: assassin dual-wield damage ]
+/// 1 = ITEMPICKUP - pick up item
+/// 2 = SIT - sit down
+/// 3 = STAND - stand up
+/// 4 = ATTACK_NOMOTION - damage (endure)
+/// 5 = SPLASH - (splash?)
+/// 6 = SKILL - (skill?)
+/// 7 = ATTACK_REPEAT - (repeat damage?)
+/// 8 = ATTACK_MULTIPLE - multi-hit damage
+/// 9 = ATTACK_MULTIPLE_NOMOTION - multi-hit damage (endure)
+/// 10 = ATTACK_CRITICAL - critical hit
+/// 11 = ATTACK_LUCKY - lucky dodge
+/// 12 = TOUCHSKILL - (touch skill?)
 int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int damage, int div, int type, int damage2)
 {
 	unsigned char buf[33];
@@ -4219,7 +4244,9 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill_unit *unit)
 {
 	int fd = sd->fd;
+#if PACKETVER > 20120702
 	short packet_type;
+#endif
 
 #if PACKETVER >= 3
 	if(unit->group->unit_id==UNT_GRAFFITI)	{ // Graffiti [Valaris]
@@ -4267,10 +4294,10 @@ static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill
 		WFIFOL(fd,16)=UNT_DUMMYSKILL;
 	else
 		WFIFOL(fd,16)=unit->group->unit_id;
-	WFIFOB(fd,20)=unit->range;
+	WFIFOB(fd,20)=(unsigned char)unit->range;
 	WFIFOB(fd,21)=1;
 	#if PACKETVER >= 20130731
-		WFIFOB(fd,22)=unit->group->skill_lv;
+		WFIFOB(fd,22)=(unsigned char)unit->group->skill_lv;
 	#endif
 	WFIFOSET(fd,packet_len(packet_type));
 #endif
@@ -4920,7 +4947,9 @@ void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int 
 void clif_skill_setunit(struct skill_unit *unit)
 {
 	unsigned char buf[128];
+#if PACKETVER > 20120702
 	short packet_type;
+#endif
 
 	nullpo_retv(unit);
 
@@ -4968,10 +4997,10 @@ void clif_skill_setunit(struct skill_unit *unit)
 		WBUFL(buf,16)=unit->val2&UF_SONG?UNT_DISSONANCE:UNT_UGLYDANCE;
 	else
 		WBUFL(buf,16)=unit->group->unit_id;
-	WBUFB(buf,20)=unit->range;
+	WBUFB(buf,20)=(unsigned char)unit->range;
 	WBUFB(buf,21)=1;
 	#if PACKETVER >= 20130731
-		WBUFB(buf,22)=unit->group->skill_lv;
+		WBUFB(buf,22)=(unsigned char)unit->group->skill_lv;
 	#endif
 	clif_send(buf,packet_len(packet_type),&unit->bl,AREA);
 #endif
@@ -5223,7 +5252,11 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 
 #if PACKETVER >= 20090121
 	if( battle_config.display_status_timers && tick>0 )
-		WBUFW(buf,0)=0x43f;
+		#if PACKETVER >= 20130320
+			WBUFW(buf,0)=0x983;
+		#else
+			WBUFW(buf,0)=0x43f;
+		#endif
 	else
 #endif
 		WBUFW(buf,0)=0x196;
@@ -5233,15 +5266,94 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 #if PACKETVER >= 20090121
 	if( battle_config.display_status_timers && tick>0 )
 	{
-		WBUFL(buf,9)=tick;
-		WBUFL(buf,13)=val1;
-		WBUFL(buf,17)=val2;
-		WBUFL(buf,21)=val3;
+		#if PACKETVER >= 20130320
+		//eAthena coding currently has no way of retrieving the total duration
+		//needed for MaxMS. For now well send the current tick to it. [Rytech]
+			WBUFL(buf,9)=tick;//MaxMS
+			WBUFL(buf,13)=tick;//RemainMS
+			WBUFL(buf,17)=val1;
+			WBUFL(buf,21)=val2;
+			WBUFL(buf,25)=val3;
+		#else
+			WBUFL(buf,9)=tick;
+			WBUFL(buf,13)=val1;
+			WBUFL(buf,17)=val2;
+			WBUFL(buf,21)=val3;
+		#endif
 	}
 #endif
 	clif_send(buf,packet_len(WBUFW(buf,0)),bl,AREA);
 }
 
+/// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
+/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
+/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
+//void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3)
+void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3)
+{
+	unsigned char buf[32];
+
+	if (type == SI_BLANK) //It shows nothing on the client...
+		return;
+
+	nullpo_retv(bl);
+
+#if PACKETVER >= 20130320
+	WBUFW(buf,0)=0x984;
+#else
+	WBUFW(buf,0)=0x8ff;
+#endif
+	WBUFL(buf,2)=bl->id;
+	WBUFW(buf,6)=type;
+#if PACKETVER >= 20130320
+	WBUFL(buf,8)=tick;
+	WBUFL(buf,12)=tick;
+	WBUFL(buf,16)=val1;
+	WBUFL(buf,20)=val2;
+	WBUFL(buf,24)=val3;
+#else
+	WBUFL(buf,8)=tick;
+	WBUFL(buf,12)=val1;
+	WBUFL(buf,16)=val2;
+	WBUFL(buf,20)=val3;
+#endif
+	clif_send(buf,packet_len(WBUFW(buf,0)),bl,AREA);
+}
+
+/// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
+/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
+/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
+void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3)
+{
+	unsigned char buf[32];
+
+	if (type == SI_BLANK) //It shows nothing on the client...
+		return;
+	
+	nullpo_retv(bl);
+	nullpo_retv(dst);
+
+#if PACKETVER >= 20130320
+	WBUFW(buf,0)=0x984;
+#else
+	WBUFW(buf,0)=0x8ff;
+#endif
+	WBUFL(buf,2)=bl->id;
+	WBUFW(buf,6)=type;
+#if PACKETVER >= 20130320
+	WBUFL(buf,8)=tick;
+	WBUFL(buf,12)=tick;
+	WBUFL(buf,16)=val1;
+	WBUFL(buf,20)=val2;
+	WBUFL(buf,24)=val3;
+#else
+	WBUFL(buf,8)=tick;
+	WBUFL(buf,12)=val1;
+	WBUFL(buf,16)=val2;
+	WBUFL(buf,20)=val3;
+#endif
+	clif_send(buf,packet_len(WBUFW(buf,0)),dst,SELF);
+}
 
 /// Notification about an another object's chat message (ZC_NOTIFY_CHAT).
 /// 008d <packet len>.W <id>.L <message>.?B
@@ -5472,6 +5584,31 @@ void clif_map_type(struct map_session_data* sd, enum map_type type)
 	WFIFOSET(fd,packet_len(0x1D6));
 }
 
+/// Set map type permissions (ZC_MAPPROPERTY_R2).
+/// 099b <type>.W
+void clif_map_type2(struct block_list *bl,enum send_target target)
+{
+	unsigned char buf[8];
+
+	unsigned int NotifyProperty =
+		((map[bl->m].flag.pvp?1:0)<<0)|// PARTY - Show attack cursor on non-party members (PvP)
+		((map_flag_gvg(bl->m)?1:0)<<1)|// GUILD - Show attack cursor on non-guild members (GvG)
+		((map_flag_gvg(bl->m)?1:0)<<2)|// SIEGE - Show emblem over characters heads when in GvG (WoE castle)
+		(0<<3)|// USE_SIMPLE_EFFECT - Automatically enable /mineffect
+		(0<<4)|// DISABLE_LOCKON - Unknown (By the name it might disable cursor lock-on)
+		((map[bl->m].flag.pvp?1:0)<<5)|// COUNT_PK - Show the PvP counter
+		(0<<6)|// NO_PARTY_FORMATION - Prevents party creation/modification (Might be used for instance dungeons)
+		((map[bl->m].flag.battleground?1:0)<<7)|// BATTLEFIELD - Unknown (Does something for battlegrounds areas)
+		(0<<8)|// DISABLE_COSTUMEITEM - Unknown - (Prevents wearing of costume items?)
+		(1<<9)|// USECART - Allow opening cart inventory (Well force it to always allow it)
+		(0<<10);// SUNMOONSTAR_MIRACLE - Unknown - (Guessing it blocks Star Gladiator's Miracle from activating)
+		//(1<<11);// Unused bits. 1 - 10 is 0x1 length and 11 is 0x15 length. May be used for future settings.
+	
+	WBUFW(buf,0)=0x99b;
+	WBUFW(buf,2)=0;//Type - What is it asking for? MAPPROPERTY? MAPTYPE? I don't know. Do we even need it? [Rytech]
+	WBUFL(buf,4)=NotifyProperty;
+	clif_send(buf,packet_len(0x99b),bl,target);
+}
 
 /// Updates PvP ranking (ZC_NOTIFY_RANKING).
 /// 019a <id>.L <ranking>.L <total>.L
@@ -6608,10 +6745,14 @@ void clif_movetoattack(struct map_session_data *sd,struct block_list *bl)
 /// Notifies the client about the result of an item produce request (ZC_ACK_REQMAKINGITEM).
 /// 018f <result>.W <name id>.W
 /// result:
-///     0 = success
-///     1 = failure
-///     2 = success (alchemist)
-///     3 = failure (alchemist)
+/// 0 = Success (Blacksmith)
+/// 1 = Failure (Blacksmith)
+/// 2 = Success (Alchemist)
+/// 3 = Failure (Alchemist)
+/// 4 = Success (Rune Knight)
+/// 5 = Failure (Rune Knight)
+/// 6 = Success (Genetic)
+/// 7 = Failure (Genetic)
 void clif_produceeffect(struct map_session_data* sd,int flag,int nameid)
 {
 	int view,fd;
@@ -9287,6 +9428,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	mail_clear(sd);
 #endif
 
+#if PACKETVER >= 20130320
+	clif_map_type2(&sd->bl,SELF);
+#endif
+
 	if(map[sd->bl.m].flag.loadevent) // Lance
 		npc_script_event(sd, NPCE_LOADMAP);
 
@@ -9733,7 +9878,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if( pc_cant_act(sd) || sd->sc.option&OPTION_HIDE )
 			return;
 
-		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER) )
+		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
 			return;
 
 		if( sd->sc.data[SC_BASILICA] )
@@ -10531,6 +10676,8 @@ void clif_parse_RemoveOption(int fd,struct map_session_data *sd)
 {
 	//Can only remove Cart/Riding/Falcon.
 	pc_setoption(sd,sd->sc.option&~(OPTION_CART|OPTION_RIDING|OPTION_FALCON|OPTION_DRAGON|OPTION_MADOGEAR));
+	if (sd->sc.data[SC_ON_PUSH_CART])
+		pc_setcart(sd,0);
 }
 
 
@@ -10545,7 +10692,14 @@ void clif_parse_ChangeCart(int fd,struct map_session_data *sd)
 
 	type = (int)RFIFOW(fd,2);
 
-	if( (type == 5 && sd->status.base_level > 90) ||
+	if(
+#if PACKETVER >= 20120410
+		(type == 9 && sd->status.base_level > 130) ||
+		(type == 8 && sd->status.base_level > 120) ||
+		(type == 7 && sd->status.base_level > 110) ||
+		(type == 6 && sd->status.base_level > 100) ||
+#endif
+		(type == 5 && sd->status.base_level > 90) ||
 	    (type == 4 && sd->status.base_level > 80) ||
 	    (type == 3 && sd->status.base_level > 65) ||
 	    (type == 2 && sd->status.base_level > 40) ||
@@ -10712,7 +10866,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		}
 	}
 
-	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER) )
+	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
 		return;
 
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
@@ -10808,7 +10962,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 		}
 	}
 
-	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER) )
+	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
 		return;
 
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
@@ -12895,7 +13049,7 @@ void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd)
 ///       "Help me out~ Please~ T_T"
 void clif_parse_NoviceExplosionSpirits(int fd, struct map_session_data *sd)
 {
-	if( (( sd->class_&MAPID_UPPERMASK ) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) )
+	if( (( sd->class_&MAPID_BASEMASK ) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) )
 	{
 		unsigned int next = pc_nextbaseexp(sd);
 
@@ -16356,14 +16510,14 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	5,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 24,
 //#0x0940
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0, 14,	6, 50,	0,	0,	0,	0,	0,	0,
 //#0x0980
-		0,	0,	0, 29,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,	0,	0, 29, 28,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0, 14,	0,	0,	0,	0,	0,	0,	0,	0,

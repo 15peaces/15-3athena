@@ -3942,8 +3942,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if( sd->inventory_data[n]->flag.delay_consume )
 		clif_useitemack(sd,n,amount,true);
 	else
-	{
-		if( sd->status.inventory[n].expire_time == 0 )
+	{ //Don't delete boarding halters. [Rytech]
+		if( sd->status.inventory[n].expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER)
 		{
 			clif_useitemack(sd,n,amount-1,true);
 
@@ -5259,7 +5259,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	status_calc_pc(sd,0);
 	status_percent_heal(&sd->bl,100,100);
 
-	if(((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E))
+	if(((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E))
 	{
 		sc_start(&sd->bl,status_skill2sc(PR_KYRIE),100,1,skill_get_time(PR_KYRIE,1));
 		sc_start(&sd->bl,status_skill2sc(PR_IMPOSITIO),100,1,skill_get_time(PR_IMPOSITIO,1));
@@ -5904,6 +5904,9 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 
 		if( merc_is_hom_active(sd->hd) && pc_checkskill(sd, AM_CALLHOMUN) )
 			merc_hom_vaporize(sd, 0);
+
+		if( sd->sc.data[SC_ON_PUSH_CART] && pc_checkskill(sd, MC_PUSHCART))
+			pc_setcart(sd, 0);
 	}
 
 	for( i = 1; i < MAX_SKILL; i++ )
@@ -6241,7 +6244,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	// activate Steel body if a super novice dies at 99+% exp [celest]
-	if (((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && !sd->state.snovice_dead_flag)
+	if (((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && !sd->state.snovice_dead_flag)
   	{
 		unsigned int next = pc_nextbaseexp(sd);
 		if( next == 0 ) next = pc_thisbaseexp(sd);
@@ -6861,6 +6864,9 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 
 	if(merc_is_hom_active(sd->hd) && !pc_checkskill(sd, AM_CALLHOMUN))
 		merc_hom_vaporize(sd, 0);
+
+	if( sd->sc.data[SC_ON_PUSH_CART] && !pc_checkskill(sd, MC_PUSHCART))
+		pc_setcart(sd, 0);
 	
 	if(sd->status.manner < 0)
 		clif_updateparam_area(sd,SP_MANNER,sd->status.manner);
@@ -7051,6 +7057,11 @@ int pc_setoption(struct map_session_data *sd,int type)
 		new_look = JOB_SUMMER;
 	else if (!(type&OPTION_SUMMER) && p_type&OPTION_SUMMER)
 		new_look = -1;
+	
+	if (type&OPTION_HANBOK && !(p_type&OPTION_HANBOK))
+		new_look = JOB_HANBOK;
+	else if (!(type&OPTION_HANBOK) && p_type&OPTION_HANBOK)
+		new_look = -1;
 
 	if (sd->disguise || !new_look)
 		return 0; //Disguises break sprite changes
@@ -7074,22 +7085,47 @@ int pc_setoption(struct map_session_data *sd,int type)
  *------------------------------------------*/
 int pc_setcart(struct map_session_data *sd,int type)
 {
+ #if PACKETVER < 20120410
 	int cart[6] = {0x0000,OPTION_CART1,OPTION_CART2,OPTION_CART3,OPTION_CART4,OPTION_CART5};
 	int option;
+#endif
+	unsigned char maxcarts = 5;
 
 	nullpo_ret(sd);
 
-	if( type < 0 || type > 5 )
+	if ( PACKETVER >= 20120410 )
+		maxcarts = 9;
+
+	if( type < 0 || type > maxcarts )
 		return 1;// Never trust the values sent by the client! [Skotlex]
 
 	if( pc_checkskill(sd,MC_PUSHCART) <= 0 )
 		return 1;// Push cart is required
+
+	//If the date of the client used is older then 2012-04-10, OPTIONS for carts will be used.
+	//If the date of the client used is equal or newer then 2012-04-10, SC_ON_PUSH_CART will be used.
+#if PACKETVER < 20120410
 
 	// Update option
 	option = sd->sc.option;
 	option &= ~OPTION_CART;// clear cart bits
 	option |= cart[type]; // set cart
 	pc_setoption(sd, option);
+#else
+	if ( type == 0 )
+	{
+		status_change_end(&sd->bl,SC_ON_PUSH_CART,INVALID_TIMER);
+		clif_clearcart(sd->fd);
+	}
+	else
+	{
+	if ( sd->sc.data[SC_ON_PUSH_CART] )//Needed for when changing to a lower type value. [Rytech]
+		status_change_end(&sd->bl,SC_ON_PUSH_CART,INVALID_TIMER);
+		sc_start(&sd->bl, SC_ON_PUSH_CART, 100, type, -1);
+		clif_cartlist(sd);
+		pc_onstatuschanged(sd, SP_CARTINFO);
+	}
+#endif
 
 	return 0;
 }
@@ -7373,7 +7409,7 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 	case 3: //Char reg
 		if( !strcmp(reg,"PC_DIE_COUNTER") && sd->die_counter != val )
 		{
-			i = (!sd->die_counter && ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E));
+			i = (!sd->die_counter && ((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E));
 			sd->die_counter = val;
 			if( i )
 				status_calc_pc(sd,0); // Lost the bonus.

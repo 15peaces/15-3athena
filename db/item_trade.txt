@@ -1606,3 +1606,7 @@
 2822,115,100	// Archer_Manual
 2823,115,100	// Merchant_Manual
 2824,115,100	// Mage_Manual
+
+//Rental Mounts
+12622,91,100 // Boarding_Halter
+16682,73,100 // Boarding_Halter_Box

@@ -3193,7 +3193,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( status_isimmune(bl) || (dstmd && (dstmd->class_ == MOBID_EMPERIUM || mob_is_battleground(dstmd))) )
 				heal=0;
 
-			if( sd && dstsd && sd->status.partner_id == dstsd->status.char_id && ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.sex == 0 )
+			if( sd && dstsd && sd->status.partner_id == dstsd->status.char_id && ((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.sex == 0 )
 				heal = heal*2;
 
 			if( tsc && tsc->count )
@@ -3658,6 +3658,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NPC_INVINCIBLE:
 	case NPC_INVINCIBLEOFF:
 	case RK_ENCHANTBLADE:
+	case AB_DUPLELIGHT:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		break;
@@ -4673,7 +4674,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_HUMMING:		case SC_DONTFORGETME:	case SC_FORTUNE:
 				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
 				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
-				case SC_FOOD_LUK_CASH:
+				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:		case SC_ON_PUSH_CART:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -5371,8 +5372,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SL_STAR:
 	case SL_SUPERNOVICE:
 	case SL_WIZARD:
+	case SL_DEATHKNIGHT:
+	case SL_COLLECTOR:
+	case SL_NINJA:
+	case SL_GUNNER:
 		//NOTE: here, 'type' has the value of the associated MAPID, not of the SC_SPIRIT constant.
-		if (sd && !(dstsd && (dstsd->class_&MAPID_UPPERMASK) == type)) {
+		if (sd && !(dstsd && ((dstsd->class_&MAPID_UPPERMASK) == type ||
+			(skillid == SL_SUPERNOVICE && (dstsd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) ||
+			(skillid == SL_NINJA && (dstsd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) ||
+			(skillid == SL_GUNNER && (dstsd->class_&MAPID_UPPERMASK) == MAPID_REBELLION)))) {
 			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0);
 			break;
 		}
@@ -8719,10 +8727,16 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 			continue;
 		index[i] = pc_search_inventory(sd,require.itemid[i]);
 		if( index[i] < 0 || sd->status.inventory[index[i]].amount < require.amount[i] ) {
-			if( require.itemid[i] == ITEMID_RED_GEMSTONE )
+			if( require.itemid[i] == ITEMID_HOLY_WATER )
+				clif_skill_fail(sd,skill,USESKILL_FAIL_HOLYWATER,0);// holy water required
+			else if( require.itemid[i] == ITEMID_RED_GEMSTONE )
 				clif_skill_fail(sd,skill,USESKILL_FAIL_REDJAMSTONE,0);// red gemstone required
 			else if( require.itemid[i] == ITEMID_BLUE_GEMSTONE )
 				clif_skill_fail(sd,skill,USESKILL_FAIL_BLUEJAMSTONE,0);// blue gemstone required
+			else if( require.itemid[i] == ITEMID_PAINT_BRUSH )
+				clif_skill_fail(sd,skill,USESKILL_FAIL_PAINTBRUSH,0);// paint brush required
+			else if( require.itemid[i] == ITEMID_ANCILLA )
+				clif_skill_fail(sd,skill,USESKILL_FAIL_ANCILLA,0);// ancilla required
 			else
 				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
 			return 0;

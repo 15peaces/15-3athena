@@ -505,6 +505,8 @@ extern struct Battle_Config
 	int max_parameter_renewal_jobs;
 	int max_baby_parameter_renewal_jobs;
 	int max_aspd_renewal_jobs;
+	int hanbok_ignorepalette;
+	int all_riding_speed;
 } battle_config;
 
 void do_init_battle(void);

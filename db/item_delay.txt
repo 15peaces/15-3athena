@@ -4,6 +4,12 @@
 // Structure:
 // Item ID,Delay in Milliseconds
 
+//Yggdrasils
+//This cooldown was added officially in renewal servers.
+//It didn't exist before renewal, but you can enable if you want.
+//607,5000 //Yggdrasilberry
+//608,3000 //Seed_Of_Yggdrasil
+
 //12202,60000	//Str_Dish10_
 //12203,60000	//Agi_Dish10_
 //12204,60000	//Int_Dish10_
@@ -14,3 +20,21 @@
 12210,60000	//Bubble_Gum
 14538,300000	//Glass_Of_Illusion
 14586,180000	//Spark_Candy
+
+//Rental Mounts
+12622,3000 //Boarding_Halter
+
+//Transformation Scrolls
+12658,10000 //Trans_Scroll_Devi
+12659,10000 //Trans_Scroll_Ray_Arch
+12660,10000 //Trans_Scroll_Mavka
+12661,10000 //Trans_Scroll_Marduk
+12662,10000 //Trans_Scroll_Banshee
+12663,10000 //Trans_Scroll_Poring
+12664,10000 //Trans_Scroll_Golem
+
+//Rune Stones
+12725,120000 //Runstone_Nosiege
+12726,30000 //Runstone_Rhydo
+12727,60000 //Runstone_Verkana
+12732,1000 //Runstone_Pertz

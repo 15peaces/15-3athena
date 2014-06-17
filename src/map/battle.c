@@ -4025,6 +4025,8 @@ static const struct _battle_data {
 	{ "max_parameter_renewal_jobs",			&battle_config.max_parameter_renewal_jobs,		120,	10,		10000,			},
 	{ "max_baby_parameter_renewal_jobs",	&battle_config.max_baby_parameter_renewal_jobs, 108,	10,		10000,			},
 	{ "max_aspd_renewal_jobs",				&battle_config.max_aspd_renewal_jobs,			193,	100,	199,			},
+	{ "hanbok_ignorepalette",				&battle_config.hanbok_ignorepalette,			0,		0,		1,				},
+	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,		25,		100,			},
 };
 
 

@@ -9142,6 +9142,22 @@ ACMD_FUNC(skillfailmsg)
 }
 
 /*==========================================
+* Produce Effect Animation Testing And Debugging [Rytech]
+*------------------------------------------*/
+ACMD_FUNC(produceeffect)
+{
+	int itid = 0;
+ 	
+	if( sscanf(message, "%d", &itid) < 1 )
+	{
+		clif_displaymessage(fd, "Usage: @produceeffect <it id>");
+		return -1;
+	}
+	clif_produceeffect(sd,itid,512);
+	return 0;
+}
+
+/*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
 
@@ -9445,6 +9461,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "charcommands",       1,1,      atcommand_commands },
 	{ "font",               1,1,      atcommand_font },
 	{ "skillfailmsg",      99,99,     atcommand_skillfailmsg },
+	{ "produceeffect",     99,99,     atcommand_produceeffect },
 };
 
 
