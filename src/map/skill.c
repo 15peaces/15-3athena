@@ -4675,6 +4675,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
 				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
 				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:		case SC_ON_PUSH_CART:
+				case SC_MOONSTAR:		case SC_SUPER_STAR:		case SC_MONSTER_TRANSFORM:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -10928,13 +10929,13 @@ int skill_unit_move_unit_group (struct skill_unit_group *group, int m, int dx, i
 /*==========================================
  *
  *------------------------------------------*/
-int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger, int qty)
+int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, int trigger, int qty)
 {
 	int i,j;
 
 	nullpo_ret(sd);
 
-	if(nameid<=0)
+	if(nameid == 0)
 		return 0;
 
 	for(i=0;i<MAX_SKILL_PRODUCE_DB;i++){
@@ -10987,7 +10988,7 @@ int skill_can_produce_mix (struct map_session_data *sd, int nameid, int trigger,
 /*==========================================
  *
  *------------------------------------------*/
-int skill_produce_mix (struct map_session_data *sd, int skill_id, int nameid, int slot1, int slot2, int slot3, int qty)
+int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty)
 {
 	int slot[3];
 	int i,sc,ele,idx,equip,wlv,make_per,flag;
@@ -11332,14 +11333,14 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, int nameid, in
 	return 0;
 }
 
-int skill_arrow_create (struct map_session_data *sd, int nameid)
+int skill_arrow_create (struct map_session_data *sd, unsigned short nameid)
 {
 	int i,j,flag,index=-1;
 	struct item tmp_item;
 
 	nullpo_ret(sd);
 
-	if(nameid <= 0)
+	if(nameid == 0)
 		return 1;
 
 	for(i=0;i<MAX_SKILL_ARROW_DB;i++)

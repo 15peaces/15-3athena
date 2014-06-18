@@ -1684,7 +1684,8 @@ ACMD_FUNC(heal)
 ACMD_FUNC(item)
 {
 	char item_name[100];
-	int number = 0, item_id, flag = 0, bound = 0;
+	int number = 0, flag = 0, bound = 0;
+	unsigned short item_id;
 	struct item item_tmp;
 	struct item_data *item_data;
 	int get_count, i;
@@ -1755,7 +1756,8 @@ ACMD_FUNC(item2)
 	struct item item_tmp;
 	struct item_data *item_data;
 	char item_name[100];
-	int item_id, number = 0, bound = 0; 
+	unsigned short item_id;
+	int number = 0, bound = 0;
 	int identify = 0, refine = 0, attr = 0;
 	int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 	int flag;
@@ -2915,7 +2917,8 @@ ACMD_FUNC(refine)
 ACMD_FUNC(produce)
 {
 	char item_name[100];
-	int item_id, attribute = 0, star = 0;
+	unsigned short item_id;
+	int attribute = 0, star = 0;
 	int flag = 0;
 	struct item_data *item_data;
 	struct item tmp_item;
@@ -6094,7 +6097,8 @@ ACMD_FUNC(skilltree)
 // Hand a ring with partners name on it to this char
 void getring (struct map_session_data* sd)
 {
-	int flag, item_id;
+	int flag;
+	unsigned short item_id;
 	struct item item_tmp;
 	item_id = (sd->status.sex) ? WEDDING_RING_M : WEDDING_RING_F;
 
@@ -9024,7 +9028,8 @@ ACMD_FUNC(stats)
 ACMD_FUNC(delitem)
 {
 	char item_name[100];
-	int nameid, amount = 0, total, idx;
+	unsigned short nameid;
+	int amount = 0, total, idx;
 	struct item_data* id;
 
 	nullpo_retr(-1, sd);

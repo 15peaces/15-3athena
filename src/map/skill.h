@@ -197,17 +197,19 @@ enum {
 	UF_DUALMODE      = 0x0800,	// Spells should trigger both ontimer and onplace/onout/onleft effects.
 };
 
-// アイテム作成デ?タベ?ス
+// Create Database item
 struct s_skill_produce_db {
-	int nameid, trigger;
+	unsigned short nameid;
+	int trigger;
 	int req_skill,req_skill_lv,itemlv;
 	int mat_id[MAX_PRODUCE_RESOURCE],mat_amount[MAX_PRODUCE_RESOURCE];
 };
 extern struct s_skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
 
-// 矢作成デ?タベ?ス
+// Creating database arrow
 struct s_skill_arrow_db {
-	int nameid, trigger;
+	unsigned short nameid;
+	int trigger;
 	int cre_id[MAX_ARROW_RESOURCE],cre_amount[MAX_ARROW_RESOURCE];
 };
 extern struct s_skill_arrow_db skill_arrow_db[MAX_SKILL_ARROW_DB];
@@ -344,11 +346,11 @@ int skillnotok_mercenary(int skillid, struct mercenary_data *md);
 
 int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);
 
-// アイテム作成
-int skill_can_produce_mix( struct map_session_data *sd, int nameid, int trigger, int qty);
-int skill_produce_mix( struct map_session_data *sd, int skill_id, int nameid, int slot1, int slot2, int slot3, int qty );
+// Item creation
+int skill_can_produce_mix( struct map_session_data *sd, unsigned short nameid, int trigger, int qty);
+int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty );
 
-int skill_arrow_create( struct map_session_data *sd,int nameid);
+int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
 
 // mobスキルのため
 int skill_castend_nodamage_id( struct block_list *src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );

@@ -507,6 +507,7 @@ extern struct Battle_Config
 	int max_aspd_renewal_jobs;
 	int hanbok_ignorepalette;
 	int all_riding_speed;
+	int transform_end_on_death;
 } battle_config;
 
 void do_init_battle(void);
