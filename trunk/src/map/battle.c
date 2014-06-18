@@ -1210,7 +1210,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						flag.hit = 1;
 					break;
 			}
-		if (tsc && !flag.hit && tsc->opt1 && tsc->opt1 != OPT1_STONEWAIT)
+		if (tsc && !flag.hit && tsc->opt1 && tsc->opt1 != OPT1_STONEWAIT && tsc->opt1 != OPT1_BURNING)
 			flag.hit = 1;
 	}
 
@@ -2815,7 +2815,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	{
 		struct status_change *sc = status_get_sc(target);
 		i = 0; //Temp for "hit or no hit"
-		if(sc && sc->opt1 && sc->opt1 != OPT1_STONEWAIT)
+		if(sc && sc->opt1 && sc->opt1 != OPT1_STONEWAIT && sc->opt1 != OPT1_BURNING)
 			i = 1;
 		else {
 			short
@@ -4027,6 +4027,7 @@ static const struct _battle_data {
 	{ "max_aspd_renewal_jobs",				&battle_config.max_aspd_renewal_jobs,			193,	100,	199,			},
 	{ "hanbok_ignorepalette",				&battle_config.hanbok_ignorepalette,			0,		0,		1,				},
 	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,		25,		100,			},
+	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 };
 
 

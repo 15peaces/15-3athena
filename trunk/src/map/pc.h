@@ -61,7 +61,8 @@ struct weapon_data {
 };
 
 struct s_autospell {
-	short id, lv, rate, card_id, flag;
+	unsigned short card_id;
+	short id, lv, rate, flag;
 	bool lock;  // bAutoSpellOnSkill: blocks autospell from triggering again, while being executed
 };
 
@@ -77,8 +78,9 @@ struct s_addeffectonskill {
 	unsigned char target;
 };
 
-struct s_add_drop { 
-	short id, group;
+struct s_add_drop {
+	unsigned short id;
+	short group;
 	int race, rate;
 };
 
@@ -216,7 +218,7 @@ struct map_session_data {
 	unsigned int ks_floodprotect_tick; // [Kill Steal Protection]
 	
 	struct {
-		int nameid;
+		unsigned short nameid;
 		unsigned int tick;
 	} item_delay[MAX_ITEMDELAYS]; // [Paradox924X]
 
@@ -268,7 +270,7 @@ struct map_session_data {
 	}	add_def[MAX_PC_BONUS], add_mdef[MAX_PC_BONUS], add_mdmg[MAX_PC_BONUS];
 	struct s_add_drop add_drop[MAX_PC_BONUS];
 	struct {
-		int nameid;
+		unsigned short nameid;
 		int rate;
 	} itemhealrate[MAX_PC_BONUS];
 	struct {
@@ -646,9 +648,9 @@ int pc_warpto(struct map_session_data* sd, struct map_session_data* pl_sd);
 int pc_recall(struct map_session_data* sd, struct map_session_data* pl_sd);
 int pc_memo(struct map_session_data* sd, int pos);
 
-int pc_checkadditem(struct map_session_data*,int,int);
+int pc_checkadditem(struct map_session_data*,unsigned short,int);
 int pc_inventoryblank(struct map_session_data*);
-int pc_search_inventory(struct map_session_data *sd,int item_id);
+int pc_search_inventory(struct map_session_data *sd,unsigned short item_id);
 int pc_payzeny(struct map_session_data*,int);
 int pc_additem(struct map_session_data*,struct item*,int);
 int pc_getzeny(struct map_session_data*,int);
@@ -670,7 +672,7 @@ int pc_cartitem_amount(struct map_session_data *sd,int idx,int amount);
 int pc_takeitem(struct map_session_data*,struct flooritem_data*);
 int pc_dropitem(struct map_session_data*,int,int);
 
-bool pc_isequipped(struct map_session_data *sd, int nameid);
+bool pc_isequipped(struct map_session_data *sd, unsigned short nameid);
 bool pc_can_Adopt(struct map_session_data *p1_sd, struct map_session_data *p2_sd, struct map_session_data *b_sd );
 bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd, struct map_session_data *b_sd);
 

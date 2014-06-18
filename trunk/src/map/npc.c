@@ -1192,7 +1192,7 @@ static int npc_buylist_sub(struct map_session_data* sd, int n, unsigned short* i
 /*==========================================
  * Cash Shop Buy
  *------------------------------------------*/
-int npc_cashshop_buy(struct map_session_data* sd, unsigned int nameid, int amount, int points)
+int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amount, int points)
 {
 	struct npc_data *nd = (struct npc_data *)map_id2bl(sd->npc_shopid);
 	struct item_data *item;
@@ -1221,7 +1221,7 @@ int npc_cashshop_buy(struct map_session_data* sd, unsigned int nameid, int amoun
 
 	if(!itemdb_isstackable(nameid) && amount > 1)
 	{
-		ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %d!\n",
+		ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n",
 			sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 		amount = 1;
 	}
@@ -1242,7 +1242,7 @@ int npc_cashshop_buy(struct map_session_data* sd, unsigned int nameid, int amoun
 
 	if( (double)nd->u.shop.shop_item[i].value * amount > INT_MAX )
 	{
-		ShowWarning("npc_cashshop_buy: Item '%s' (%d) price overflow attempt!\n", item->name, nameid);
+		ShowWarning("npc_cashshop_buy: Item '%s' (%hu) price overflow attempt!\n", item->name, nameid);
 		ShowDebug("(NPC:'%s' (%s,%d,%d), player:'%s' (%d/%d), value:%d, amount:%d)\n", nd->exname, map[nd->bl.m].name, nd->bl.x, nd->bl.y, sd->status.name, sd->status.account_id, sd->status.char_id, nd->u.shop.shop_item[i].value, amount);
 		return 5;
 	}
@@ -1296,7 +1296,8 @@ int npc_buylist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// process entries in buy list, one by one
 	for( i = 0; i < n; ++i )
 	{
-		int nameid, amount, value;
+		unsigned short nameid;
+		int amount, value;
 
 		// find this entry in the shop's sell list
 		ARR_FIND( 0, nd->u.shop.count, j, 
@@ -1316,7 +1317,7 @@ int npc_buylist(struct map_session_data* sd, int n, unsigned short* item_list)
 
 		if( !itemdb_isstackable(nameid) && amount > 1 )
 		{	//Exploit? You can't buy more than 1 of equipment types o.O
-			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %d!\n",
+			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 			amount = item_list[i*2+0] = 1;
 		}
@@ -1363,7 +1364,7 @@ int npc_buylist(struct map_session_data* sd, int n, unsigned short* item_list)
 
 	for( i = 0; i < n; ++i )
 	{
-		int nameid = item_list[i*2+1];
+		unsigned short nameid = item_list[i*2+1];
 		int amount = item_list[i*2+0];
 		struct item item_tmp;
 
@@ -1448,7 +1449,8 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// verify the sell list
 	for( i = 0; i < n; i++ )
 	{
-		int nameid, amount, idx, value;
+		unsigned short nameid;
+		int amount, idx, value;
 
 		idx    = item_list[i*2]-2;
 		amount = item_list[i*2+1];
@@ -1483,7 +1485,8 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// delete items
 	for( i = 0; i < n; i++ )
 	{
-		int nameid, amount, idx;
+		unsigned short nameid;
+		int amount, idx;
 
 		idx    = item_list[i*2]-2;
 		amount = item_list[i*2+1];
@@ -1936,9 +1939,10 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 	p = strchr(w4,',');
 	for( i = 0; i < ARRAYLENGTH(items) && p; ++i )
 	{
-		int nameid, value;
+		unsigned short nameid;
+		int value;
 		struct item_data* id;
-		if( sscanf(p, ",%d:%d", &nameid, &value) != 2 )
+		if( sscanf(p, ",%hu:%d", &nameid, &value) != 2 )
 		{
 			ShowError("npc_parse_shop: Invalid item definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 			break;
@@ -1946,7 +1950,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 		if( (id = itemdb_exists(nameid)) == NULL )
 		{
-			ShowWarning("npc_parse_shop: Invalid sell item in file '%s', line '%d' (id '%d').\n", filepath, strline(buffer,start-buffer), nameid);
+			ShowWarning("npc_parse_shop: Invalid sell item in file '%s', line '%d' (id '%hu').\n", filepath, strline(buffer,start-buffer), nameid);
 			p = strchr(p+1,',');
 			continue;
 		}
@@ -1959,7 +1963,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 		if( type == SHOP && value*0.75 < id->value_sell*1.24 )
 		{// Exploit possible: you can buy and sell back with profit
-			ShowWarning("npc_parse_shop: Item %s [%d] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
+			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
 				id->name, nameid, value, (int)(value*0.75), id->value_sell, (int)(id->value_sell*1.24), filepath, strline(buffer,start-buffer));
 		}
 		//for logs filters, atcommands and iteminfo script command

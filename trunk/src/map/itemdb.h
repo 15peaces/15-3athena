@@ -41,7 +41,7 @@ enum item_itemid
 
 #define CARD0_FORGE 0x00FF
 #define CARD0_CREATE 0x00FE
-#define CARD0_PET ((short)0xFF00)
+#define CARD0_PET 0x0100
 
 //Marks if the card0 given is "special" (non-item id used to mark pets/created items. [Skotlex]
 #define itemdb_isspecial(i) (i == CARD0_FORGE || i == CARD0_CREATE || i == CARD0_PET)
@@ -50,7 +50,7 @@ enum item_itemid
 #define UNKNOWN_ITEM_ID 512
 
 struct item_data {
-	int nameid;
+	unsigned short nameid;
 	char name[ITEM_NAME_LENGTH],jname[ITEM_NAME_LENGTH];
 	//Do not add stuff between value_buy and wlv (see how getiteminfo works)
 	int value_buy;
@@ -93,15 +93,15 @@ struct item_data {
 };
 
 struct item_group {
-	int nameid[MAX_RANDITEM];
+	unsigned short nameid[MAX_RANDITEM];
 	int qty; //Counts amount of items in the group.
 };
 
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
-struct item_data* itemdb_load(int nameid);
-struct item_data* itemdb_search(int nameid);
-struct item_data* itemdb_exists(int nameid);
+struct item_data* itemdb_load(unsigned short nameid);
+struct item_data* itemdb_search(unsigned short nameid);
+struct item_data* itemdb_exists(unsigned short nameid);
 #define itemdb_name(n) itemdb_search(n)->name
 #define itemdb_jname(n) itemdb_search(n)->jname
 #define itemdb_type(n) itemdb_search(n)->type
@@ -145,7 +145,7 @@ int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(stru
 
 int itemdb_isequip(int);
 int itemdb_isequip2(struct item_data *);
-int itemdb_isidentified(int);
+int itemdb_isidentified(unsigned short);
 int itemdb_isstackable(int);
 int itemdb_isstackable2(struct item_data *);
 

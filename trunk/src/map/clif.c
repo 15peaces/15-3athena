@@ -1328,10 +1328,14 @@ int clif_spawn(struct block_list *bl)
 				clif_efst_status_change(&sd->bl,SI_DUPLELIGHT,1000,sd->sc.data[SC_DUPLELIGHT]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ALL_RIDING] )
 				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
+				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
 				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
 				clif_efst_status_change(&sd->bl,SI_MOONSTAR,1000,sd->sc.data[SC_MOONSTAR]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_SUPER_STAR] )
+				clif_efst_status_change(&sd->bl,SI_SUPER_STAR,1000,sd->sc.data[SC_SUPER_STAR]->val1,0,0);
 		}
 		break;
 	case BL_MOB:
@@ -3966,10 +3970,14 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_DUPLELIGHT,1000,tsd->sc.data[SC_DUPLELIGHT]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MONSTER_TRANSFORM,1000,tsd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1000,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_MOONSTAR] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MOONSTAR,1000,tsd->sc.data[SC_MOONSTAR]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_SUPER_STAR] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_SUPER_STAR,1000,tsd->sc.data[SC_SUPER_STAR]->val1,0,0);
 		}
 		break;
 	case BL_MER: // Devotion Effects
@@ -5682,7 +5690,7 @@ void clif_refine(int fd, int fail, int index, int val)
 ///     1 = "weapon upgraded: %s" MsgStringTable[912] in rgb(0,205,205)
 ///     2 = "cannot upgrade %s until you level up the upgrade weapon skill" MsgStringTable[913] in rgb(255,200,200)
 ///     3 = "you lack the item %s to upgrade the weapon" MsgStringTable[914] in rgb(255,200,200)
-void clif_upgrademessage(int fd, int result, int item_id)
+void clif_upgrademessage(int fd, int result, unsigned short item_id)
 {
 	WFIFOHEAD(fd,packet_len(0x223));
 	WFIFOW(fd,0)=0x223;
@@ -5866,7 +5874,7 @@ void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *
 {
 	int i,c;
 	int fd;
-	int nameid;
+	unsigned short nameid;
 
 	nullpo_retv(sd);
 	nullpo_retv(dstsd);
@@ -6753,7 +6761,7 @@ void clif_movetoattack(struct map_session_data *sd,struct block_list *bl)
 /// 5 = Failure (Rune Knight)
 /// 6 = Success (Genetic)
 /// 7 = Failure (Genetic)
-void clif_produceeffect(struct map_session_data* sd,int flag,int nameid)
+void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid)
 {
 	int view,fd;
 
@@ -7092,7 +7100,7 @@ void clif_mvp_effect(struct map_session_data *sd)
 
 /// MVP item reward message (ZC_MVP_GETTING_ITEM).
 /// 010a <name id>.W
-void clif_mvp_item(struct map_session_data *sd,int nameid)
+void clif_mvp_item(struct map_session_data *sd, unsigned short nameid)
 {
 	int view,fd;
 
@@ -9584,7 +9592,7 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
 		return;
 	}
 
-	if (sd->sc.opt1 && sd->sc.opt1 == OPT1_STONEWAIT)
+	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 		; //You CAN walk on this OPT1 value.
 	else if( sd->progressbar.npc_id )
 		clif_progressbar_abort(sd);
@@ -11100,7 +11108,7 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 void clif_parse_Cooking(int fd,struct map_session_data *sd)
 {
 	//int type = RFIFOW(fd,2);
-	int nameid = RFIFOW(fd,4);
+	unsigned short nameid = RFIFOW(fd,4);
 
 	if( sd->menuskill_id != AM_PHARMACY )
 	{
@@ -15151,7 +15159,7 @@ void clif_mercenary_message(struct map_session_data* sd, int message)
 
 /// Notification about the remaining time of a rental item (ZC_CASH_TIME_COUNTER).
 /// 0298 <name id>.W <seconds>.L
-void clif_rental_time(int fd, int nameid, int seconds)
+void clif_rental_time(int fd, unsigned short nameid, int seconds)
 { // '<ItemName>' item will disappear in <seconds/60> minutes.
 	WFIFOHEAD(fd,packet_len(0x298));
 	WFIFOW(fd,0) = 0x298;
@@ -15163,7 +15171,7 @@ void clif_rental_time(int fd, int nameid, int seconds)
 
 /// Deletes a rental item from client's inventory (ZC_CASH_ITEM_DELETE).
 /// 0299 <index>.W <name id>.W
-void clif_rental_expired(int fd, int index, int nameid)
+void clif_rental_expired(int fd, int index, unsigned short nameid)
 { // '<ItemName>' item has been deleted from the Inventory
 	WFIFOHEAD(fd,packet_len(0x299));
 	WFIFOW(fd,0) = 0x299;

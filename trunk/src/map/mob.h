@@ -93,8 +93,14 @@ struct mob_db {
 	short range2,range3;
 	short race2;	// celest
 	unsigned short lv;
-	struct { int nameid,p; } dropitem[MAX_MOB_DROP];
-	struct { int nameid,p; } mvpitem[3];
+	struct { 
+		unsigned short nameid; 
+		int p; 
+	} dropitem[MAX_MOB_DROP];
+	struct { 
+		unsigned short nameid; 
+		int p; 
+	} mvpitem[3];
 	struct status_data status;
 	struct view_data vd;
 	short option;

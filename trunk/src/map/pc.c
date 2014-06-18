@@ -619,7 +619,8 @@ int pc_equippoint(struct map_session_data *sd,int n)
 
 int pc_setinventorydata(struct map_session_data *sd)
 {
-	int i,id;
+	unsigned short id;
+	int i;
 
 	nullpo_ret(sd);
 
@@ -726,7 +727,7 @@ static int pc_isAllowedCardOn(struct map_session_data *sd,int s,int eqindex,int 
 	return( i < s ) ? 0 : 1;
 }
 
-bool pc_isequipped(struct map_session_data *sd, int nameid)
+bool pc_isequipped(struct map_session_data *sd, unsigned short nameid)
 {
 	int i, j, index;
 
@@ -1583,7 +1584,7 @@ int pc_disguise(struct map_session_data *sd, int class_)
 	return 1;
 }
 
-static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short flag, short card_id)
+static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, short lv, short rate, short flag, unsigned short card_id)
 {
 	int i;
 
@@ -1619,7 +1620,7 @@ static int pc_bonus_autospell(struct s_autospell *spell, int max, short id, shor
 	return 1;
 }
 
-static int pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short src_skill, short id, short lv, short rate, short card_id)
+static int pc_bonus_autospell_onskill(struct s_autospell *spell, int max, short src_skill, short id, short lv, short rate, unsigned short card_id)
 {
 	int i;
 
@@ -1696,7 +1697,7 @@ static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, e
 	return 1;
 }
 
-static int pc_bonus_item_drop(struct s_add_drop *drop, const short max, short id, short group, int race, int rate)
+static int pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short id, short group, int race, int rate)
 {
 	int i;
 	//Apply config rate adjustment settings.
@@ -3244,7 +3245,7 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 {
 	int i;
-	int nameid;
+	unsigned short nameid;
 
 	nullpo_ret(sd);
 
@@ -3331,10 +3332,10 @@ int pc_modifysellvalue(struct map_session_data *sd,int orig_value)
 }
 
 /*==========================================
- * アイテムを買った暫ﾉ、新しいアイテム欄を使うか、
- * 3万個制限にかかるか確認
+ * Checking if we have enough place on inventory for new item
+ * Make sure to take 30k as limit (for client I guess)
  *------------------------------------------*/
-int pc_checkadditem(struct map_session_data *sd,int nameid,int amount)
+int pc_checkadditem(struct map_session_data *sd,unsigned short nameid,int amount)
 {
 	int i;
 
@@ -3514,9 +3515,10 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 }
 
 /*==========================================
- * アイテムを探して、インデックスを返す
+ * @param nameid Find this Item!
+ * @return Stored index in inventory, or -1 if not found.
  *------------------------------------------*/
-int pc_search_inventory(struct map_session_data *sd,int item_id)
+int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
 {
 	int i;
 	nullpo_retr(-1, sd);
@@ -3729,7 +3731,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 int pc_isUseitem(struct map_session_data *sd,int n)
 {
 	struct item_data *item;
-	int nameid;
+	unsigned short nameid;
 
 	nullpo_ret(sd);
 
@@ -3874,7 +3876,8 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 int pc_useitem(struct map_session_data *sd,int n)
 {
 	unsigned int tick = gettick();
-	int amount, i, nameid;
+	unsigned short nameid;
+	int amount, i;
 	struct script_code *script;
 
 	nullpo_ret(sd);
@@ -3927,7 +3930,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 		}
 		else
 		{// should not happen
-			ShowError("pc_useitem: Exceeded item delay array capacity! (nameid=%d, char_id=%d)\n", nameid, sd->status.char_id);
+			ShowError("pc_useitem: Exceeded item delay array capacity! (nameid=%hu, char_id=%d)\n", nameid, sd->status.char_id);
 		}
 	}
 
@@ -4566,7 +4569,7 @@ int pc_checkskill(struct map_session_data *sd,int skill_id)
  * 武器?更によるスキルの??チェック
  * 引?：
  *   struct map_session_data *sd	セッションデ?タ
- *   int nameid						?備品ID
+ *   unsigned short nameid						?備品ID
  * 返り値：
  *   0		?更なし
  *   -1		スキルを解除
@@ -7708,7 +7711,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	pos = pc_equippoint(sd,n); //With a few exceptions, item should go in all specified slots.
 
 	if(battle_config.battle_log)
-		ShowInfo("equip %d(%d) %x:%x\n",sd->status.inventory[n].nameid,n,id?id->equip:0,req_pos);
+		ShowInfo("equip %hu(%d) %x:%x\n",sd->status.inventory[n].nameid,n,id?id->equip:0,req_pos);
 	if(!pc_isequip(sd,n) || !(pos&req_pos) || sd->status.inventory[n].equip != 0 || sd->status.inventory[n].attribute==1 ) { // [Valaris]
 		// FIXME: pc_isequip: equip level failure uses 2 instead of 0
 		clif_equipitemack(sd,n,0,0);	// fail

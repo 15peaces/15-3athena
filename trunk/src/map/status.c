@@ -527,11 +527,13 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_MERC_HPUP] = SI_MERC_HPUP;
 	StatusIconChangeTable[SC_MERC_SPUP] = SI_MERC_SPUP;
 	StatusIconChangeTable[SC_MERC_HITUP] = SI_MERC_HITUP;
-	//Rental Mounts and Push Carts for newer clients.
+	//Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusIconChangeTable[SC_ALL_RIDING] = SI_ALL_RIDING;
 	StatusIconChangeTable[SC_ON_PUSH_CART] = SI_ON_PUSH_CART;
-	//Headgears with special animations through status.
+	StatusIconChangeTable[SC_MONSTER_TRANSFORM] = SI_MONSTER_TRANSFORM;
+	//Headgears with special animations through status
 	StatusIconChangeTable[SC_MOONSTAR] = SI_MOONSTAR;
+	StatusIconChangeTable[SC_SUPER_STAR] = SI_SUPER_STAR;
 
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -589,11 +591,13 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_MERC_HPUP] |= SCB_MAXHP;
 	StatusChangeFlagTable[SC_MERC_SPUP] |= SCB_MAXSP;
 	StatusChangeFlagTable[SC_MERC_HITUP] |= SCB_HIT;
-	// Rental Mounts and Push Carts for newer clients.
+	//Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusChangeFlagTable[SC_ALL_RIDING] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ON_PUSH_CART] |= SCB_SPEED;
+	StatusChangeFlagTable[SC_MONSTER_TRANSFORM] |= SCB_NONE;
 	//Headgears with special animations through status.
 	StatusChangeFlagTable[SC_MOONSTAR] |= SCB_NONE;
+	StatusChangeFlagTable[SC_SUPER_STAR] |= SCB_NONE;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -5733,6 +5737,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_DODGE:
 		case SC_ALL_RIDING:
 		case SC_ON_PUSH_CART:
+		case SC_MOONSTAR:
+		case SC_SUPER_STAR:
 			tick = -1;
 			break;
 
@@ -6589,9 +6595,13 @@ int status_change_clear(struct block_list* bl, int type)
 		case SC_FOOD_LUK_CASH:
 		case SC_ALL_RIDING:
 		case SC_ON_PUSH_CART:
+		case SC_MOONSTAR:
+		case SC_SUPER_STAR:
 			continue;
 		}
 
+		if ( sc && sc->data[SC_MONSTER_TRANSFORM] && battle_config.transform_end_on_death == 0 && type == 0 )
+			continue;//Config if the monster transform status should end on death. [Rytech]
 		status_change_end(bl, (sc_type)i, INVALID_TIMER);
 
 		if( type == 1 && sc->data[i] )
@@ -7647,6 +7657,9 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_ITEMBOOST:
 			case SC_ALL_RIDING:
 			case SC_ON_PUSH_CART:
+			case SC_MONSTER_TRANSFORM:
+			case SC_MOONSTAR:
+			case SC_SUPER_STAR:
 				continue;
 				
 			//Debuffs that can be removed.
