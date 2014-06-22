@@ -24,7 +24,7 @@ static DBMap*            itemdb_other;// unsigned short nameid -> struct item_da
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
 
-struct item_data dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
+struct item_data *dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
 /*==========================================
  * –¼‘O‚ÅŒŸõ—p
@@ -37,12 +37,14 @@ static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 	str=va_arg(ap,char *);
 	dst=va_arg(ap,struct item_data **);
 	dst2=va_arg(ap,struct item_data **);
-	if(item == &dummy_item) return 0;
+	if(item == dummy_item) 
+		return 0;
 
 	//Absolute priority to Aegis code name.
-	if (*dst != NULL) return 0;
+	if (*dst != NULL) 
+		return 0;
 	if( strcmpi(item->name,str)==0 )
-		*dst=item;
+		*dst = item;
 
 	//Second priority to Client displayed name.
 	if (*dst2 != NULL) return 0;
@@ -52,10 +54,13 @@ static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
 }
 
 /*==========================================
- * –¼‘O‚ÅŒŸõ
+ * Return item data from item name. (lookup)
+ * @param str Item Name
+ * @return item data
  *------------------------------------------*/
 struct item_data* itemdb_searchname(const char *str)
 {
+	/* Needed? [15peaces]
 	struct item_data* item;
 	struct item_data* item2=NULL;
 	int i;
@@ -73,9 +78,12 @@ struct item_data* itemdb_searchname(const char *str)
 		//Second priority to Client displayed name.
 		if( strcasecmp(item->jname,str) == 0 )
 			item2 = item;
-	}
+	}*/
 
-	item = NULL;
+	struct item_data* item = NULL;
+	struct item_data* item2 = NULL;
+
+	//item = NULL;
 	itemdb_other->foreach(itemdb_other,itemdb_searchname_sub,str,&item,&item2);
 	return item?item:item2;
 }
@@ -85,7 +93,7 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
 	struct item_data *item=(struct item_data *)data;
 	char *str;
 	str=va_arg(ap,char *);
-	if (item == &dummy_item)
+	if (item == dummy_item)
 		return 1; //Invalid item.
 	if(stristr(item->jname,str))
 		return 0;
@@ -96,6 +104,10 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
 
 /*==========================================
  * Founds up to N matches. Returns number of matches [Skotlex]
+ * @param *data
+ * @param size
+ * @param str
+ * @return Number of matches item
  *------------------------------------------*/
 int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 {
@@ -165,18 +177,26 @@ int itemdb_group_bonus(struct map_session_data* sd, int itemid)
 	return bonus;
 }
 
-/// Searches for the item_data.
+/// Searches for the item_data. //old Version! [15peaces]
 /// Returns the item_data or NULL if it does not exist.
-struct item_data* itemdb_exists(unsigned short nameid)
+/*struct item_data* itemdb_exists(unsigned short nameid)
 {
 	struct item_data* item;
 
 	if( nameid >= 0 && nameid < ARRAYLENGTH(itemdb_array) )
 		return itemdb_array[nameid];
 	item = (struct item_data*)idb_get(itemdb_other,nameid);
-	if( item == &dummy_item )
+	if( item == dummy_item )
 		return NULL;// dummy data, doesn't exist
 	return item;
+}*/
+
+/** Searches for the item_data. Use this to check if item exists or not.
+ * @param nameid
+ * @return *item_data if item is exist, or NULL if not
+ */
+struct item_data* itemdb_exists(unsigned short nameid) {
+	return ((struct item_data*)idb_get(itemdb_other,nameid));
 }
 
 /// Returns human readable name for given item type.
@@ -278,6 +298,24 @@ static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
 		bclass[1] |= 1<<MAPID_GUNSLINGER;
 }
 
+/**
+ * Create dummy item data
+ */
+static void create_dummy_data(void)
+{
+	CREATE(dummy_item, struct item_data, 1);
+	memset(dummy_item, 0, sizeof(struct item_data));
+	dummy_item->nameid = 500;
+	dummy_item->weight = 1;
+	dummy_item->value_sell = 1;
+	dummy_item->type = IT_ETC; //Etc item
+
+	safestrncpy(dummy_item->name, "UNKNOWN_ITEM", sizeof(dummy_item->name));
+	safestrncpy(dummy_item->jname, "Unknown Item", sizeof(dummy_item->jname));
+
+	dummy_item->view_id = UNKNOWN_ITEM_ID;
+}
+/* old Version [15peaces]
 static void create_dummy_data(void)
 {
 	memset(&dummy_item, 0, sizeof(struct item_data));
@@ -300,9 +338,9 @@ static struct item_data* create_item_data(unsigned short nameid)
 	return id;
 }
 
-/*==========================================
+*==========================================
  * Loads (and creates if not found) an item from the db.
- *------------------------------------------*/
+ *------------------------------------------*
 struct item_data* itemdb_load(unsigned short nameid)
 {
 	struct item_data *id;
@@ -323,10 +361,24 @@ struct item_data* itemdb_load(unsigned short nameid)
 	}
 	return id;
 }
+*/
 
 /*==========================================
  * Loads an item from the db. If not found, it will return the dummy item.
+ * @param nameid
+ * @return *item_data or *dummy_item if item not found
  *------------------------------------------*/
+struct item_data* itemdb_search(unsigned short nameid) {
+	struct item_data* id = (struct item_data*)idb_get(itemdb_other, nameid);
+
+	if (id)
+		return id;
+
+	ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.\n", nameid);
+	return dummy_item;
+}
+
+/* old Version [15peaces]
 struct item_data* itemdb_search(unsigned short nameid)
 {
 	struct item_data* id;
@@ -342,7 +394,7 @@ struct item_data* itemdb_search(unsigned short nameid)
 		dummy_item.nameid = nameid;
 	}
 	return id;
-}
+}*/
 
 /*==========================================
  * Returns if given item is a player-equippable piece.
@@ -742,14 +794,19 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	struct item_data* id;
 	
 	nameid = atoi(str[0]);
-	if( nameid <= 0 )
+	//if( nameid <= 0 )
+	if( atoi(str[0]) <= 0 || atoi(str[0]) >= MAX_ITEMID )
 	{
-		ShowWarning("itemdb_parse_dbrow: Invalid id %hu in line %d of \"%s\", skipping.\n", nameid, line, source);
+		ShowWarning("itemdb_parse_dbrow: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[0]), line, source);
 		return false;
 	}
+	nameid = atoi(str[0]);
 
 	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
-	id = itemdb_load(nameid);
+	//id = itemdb_load(nameid);
+	if (!(id = itemdb_exists(nameid)))
+		CREATE(id, struct item_data, 1);
+
 	safestrncpy(id->name, str[1], sizeof(id->name));
 	safestrncpy(id->jname, str[2], sizeof(id->jname));
 
@@ -845,7 +902,10 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->equip_script = parse_script(str[20], source, line, scriptopt);
 	if (*str[21])
 		id->unequip_script = parse_script(str[21], source, line, scriptopt);
-
+	if (!id->nameid) {
+		id->nameid = nameid;
+		idb_put(itemdb_other, nameid, id);
+	}
 	return true;
 }
 
@@ -1033,7 +1093,7 @@ static void itemdb_read(void)
  *------------------------------------------*/
 
 /// Destroys the item_data.
-static void destroy_item_data(struct item_data* self, int free_self)
+static void destroy_item_data(struct item_data* self)
 {
 	if( self == NULL )
 		return;
@@ -1048,17 +1108,15 @@ static void destroy_item_data(struct item_data* self, int free_self)
 	// trash item
 	memset(self, 0xDD, sizeof(struct item_data));
 #endif
-	// free self
-	if( free_self )
-		aFree(self);
+
+	aFree(self);
 }
 
 static int itemdb_final_sub(DBKey key,void *data,va_list ap)
 {
 	struct item_data *id = (struct item_data *)data;
 
-	if( id != &dummy_item )
-		destroy_item_data(id, 1);
+	destroy_item_data(id);
 
 	return 0;
 }
@@ -1073,7 +1131,7 @@ void itemdb_reload(void)
 	// clear the previous itemdb data
 	for( i = 0; i < ARRAYLENGTH(itemdb_array); ++i )
 		if( itemdb_array[i] )
-			destroy_item_data(itemdb_array[i], 1);
+			destroy_item_data(itemdb_array[i]);
 
 	itemdb_other->clear(itemdb_other, itemdb_final_sub);
 
@@ -1092,6 +1150,15 @@ void itemdb_reload(void)
 	mapit_free(iter);
 }
 
+/**
+ * Finalizing Item DB
+ */
+void do_final_itemdb(void)
+{
+	itemdb_other->destroy(itemdb_other, itemdb_final_sub);
+	destroy_item_data(dummy_item);
+}
+/* old Version [15peaces]
 void do_final_itemdb(void)
 {
 	int i;
@@ -1102,11 +1169,14 @@ void do_final_itemdb(void)
 
 	itemdb_other->destroy(itemdb_other, itemdb_final_sub);
 	destroy_item_data(&dummy_item, 0);
-}
+}*/
 
+/**
+ * Initializing Item DB
+ */
 int do_init_itemdb(void)
 {
-	memset(itemdb_array, 0, sizeof(itemdb_array));
+	//memset(itemdb_array, 0, sizeof(itemdb_array));
 	itemdb_other = idb_alloc(DB_OPT_BASE); 
 	create_dummy_data(); //Dummy data item.
 	itemdb_read();

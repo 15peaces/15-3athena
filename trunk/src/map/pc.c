@@ -925,8 +925,11 @@ int pc_isequip(struct map_session_data *sd,int n)
  *------------------------------------------*/
 bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_time, int gmlevel, struct mmo_charstatus *st)
 {
-	int i, j; 
+	int i; 
+ #ifdef BOUND_ITEMS 
+	int j; 
 	int idxlist[MAX_INVENTORY]; 
+#endif 
 	unsigned long tick = gettick();
 	uint32 ip = session[sd->fd]->client_addr;
 
@@ -1081,11 +1084,13 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 		clif_wis_message(sd->fd, wisp_server_name, tmpstr, strlen(tmpstr)+1);
 	}
 
+#ifdef BOUND_ITEMS
 	// Party bound item check 
 	if(sd->status.party_id == 0 && (j = pc_bound_chk(sd,3,idxlist))) { // Party was deleted while character offline 
 		for(i=0;i<j;i++) 
 		pc_delitem(sd,idxlist[i],sd->status.inventory[idxlist[i]].amount,0,1); 
 	}
+#endif 
 
 	// Request all registries (auth is considered completed whence they arrive)
 	intif_request_registry(sd,7);
@@ -3991,7 +3996,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	data = itemdb_search(item_data->nameid);
 
-	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || ((item_data->bound == 2 || item_data->bound == 3) && !pc_can_give_bounded_items(sd->gmlevel)))
+	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || (item_data->bound > 1 && !pc_can_give_bounded_items(sd->gmlevel)))
 	{ // Check item trade restrictions	[Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(264));
 		return 1;
@@ -4921,6 +4926,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 * 1 Account Bound 
 * 2 Guild Bound 
 * 3 Party Bound 
+* 4 Character Bound
 *------------------------------------------*/ 
 int pc_bound_chk(TBL_PC *sd,int type,int *idxlist) 
 { 

@@ -5652,7 +5652,7 @@ BUILDIN_FUNC(getitem)
 
 	if( !strcmp(script_getfuncname(st),"getitembound") ) { 
 		char bound = script_getnum(st,4); 
-		if( bound < 1 || bound > 3) { //Not a correct bound type 
+		if( bound < 1 || bound > 4) { //Not a correct bound type 
 			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound); 
 			return 1; 
 		} 

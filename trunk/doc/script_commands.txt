@@ -4627,6 +4627,7 @@ Bound Types:
 	1 - Account Bound 
 	2 - Guild Bound 
 	3 - Party Bound 
+	4 - Character Bound 
  
 --------------------------------------- 
 
@@ -4647,6 +4648,7 @@ Bound Types:
 	1 - Account Bound 
 	2 - Guild Bound 
 	3 - Party Bound 
+	4 - Character Bound 
 	
 ---------------------------------------
  
@@ -4661,7 +4663,8 @@ Using countbound without a type counts all types of bounded items.
 Available types are: 
 	1 - Account Bound 
 	2 - Guild Bound 
-	3 - Party Bound 
+	3 - Party Bound
+	4 - Character Bound 
  
 Example: 
 	mes "[Bound Counter]"; 
