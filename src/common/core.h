@@ -4,6 +4,10 @@
 #ifndef	_CORE_H_
 #define	_CORE_H_
 
+// Comment to disable Guild/Party Bound item system 
+// By default, we recover/remove Guild/Party Bound items automatically 
+#define BOUND_ITEMS
+
 enum SERVER_STATE
 {
 	SERVER_STATE_STOP,

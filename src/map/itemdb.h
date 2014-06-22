@@ -6,6 +6,9 @@
 
 #include "../common/mmo.h" // ITEM_NAME_LENGTH
 
+///Maximum allowed Item ID (range: 1 ~ 65,534)
+#define MAX_ITEMID USHRT_MAX
+
 #define MAX_RANDITEM	11000
 
 // The maximum number of item delays
@@ -143,10 +146,10 @@ int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(stru
 #define itemdb_canstore(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_canstore_sub) 
 #define itemdb_canguildstore(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canguildstore_sub) 
 
-int itemdb_isequip(int);
+int itemdb_isequip(unsigned short);
 int itemdb_isequip2(struct item_data *);
 int itemdb_isidentified(unsigned short);
-int itemdb_isstackable(int);
+int itemdb_isstackable(unsigned short);
 int itemdb_isstackable2(struct item_data *);
 
 void itemdb_reload(void);
