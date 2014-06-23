@@ -4028,6 +4028,7 @@ static const struct _battle_data {
 	{ "hanbok_ignorepalette",				&battle_config.hanbok_ignorepalette,			0,		0,		1,				},
 	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,		25,		100,			},
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
+	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,              },
 };
 
 

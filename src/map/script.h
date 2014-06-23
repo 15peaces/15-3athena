@@ -184,7 +184,7 @@ const char* get_str(int id);
 int script_reload(void);
 
 // @commands (script based) 
-void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct DBMap **ref); 
+void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct linkdb_node **ref); 
 
 unsigned char* funcname; // Stores the current running function name
 

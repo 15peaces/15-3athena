@@ -508,6 +508,7 @@ extern struct Battle_Config
 	int hanbok_ignorepalette;
 	int all_riding_speed;
 	int transform_end_on_death;
+	int oktoberfest_ignorepalette;
 } battle_config;
 
 void do_init_battle(void);
