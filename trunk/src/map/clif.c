@@ -845,7 +845,7 @@ void clif_clearunit_delayed(struct block_list* bl, unsigned int tick)
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand)
 {
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK))
+	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
 	{
 		*rhand = *lhand = 0;
 		return;
@@ -947,8 +947,11 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 		WBUFW(buf,0) = spawn?0x2ed:0x2ee;
 #elif PACKETVER < 20101124
 		WBUFW(buf,0) = spawn?0x7f8:0x7f9;
+//#elif PACKETVER < 20120410
 #else
 		WBUFW(buf,0) = spawn?0x858:0x857;
+//#else
+//		WBUFW(buf,0) = spawn?0x90f:0x915;
 #endif
 
 #if PACKETVER >= 20091103
@@ -1072,6 +1075,21 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 #if PACKETVER >= 20080102
 	WBUFW(buf,53) = sd?sd->user_font:0;
 #endif
+	/*if ( bl->type == BL_MOB )
+	{
+		WBUFL(buf,55) = status_get_hp(bl);
+		WBUFL(buf,59) = status_get_max_hp(bl);
+		WBUFB(buf,63) = 0;
+	}
+	else
+	{
+		WBUFL(buf,55) = -1;
+		WBUFL(buf,59) = -1;
+		WBUFB(buf,63) = 0;
+	}*/
+//#if PACKETVER >= 20120410
+//	memcpy((char*)WBUFP(buf,64), name, NAME_LENGTH);
+//	return WBUFW(buffer,2);
 #if PACKETVER >= 20091103
 	memcpy((char*)WBUFP(buf,55), name, NAME_LENGTH);
 	return WBUFW(buffer,2);
@@ -1109,7 +1127,10 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 #elif PACKETVER < 20101124
 	WBUFW(buf, 0) = 0x7f7;
 #else
+//#elif PACKETVER < 20120410
 	WBUFW(buf, 0) = 0x856;
+//#else
+//	WBUFW(buf, 0) = 0x914;
 #endif
 
 #if PACKETVER >= 20091103
@@ -1179,6 +1200,21 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 #if PACKETVER >= 20080102
 	WBUFW(buf,60) = sd?sd->user_font:0;
 #endif
+	/*if ( bl->type == BL_MOB )
+	{
+		WBUFL(buf,62) = status_get_hp(bl);
+		WBUFL(buf,66) = status_get_max_hp(bl);
+		WBUFB(buf,70) = 0;
+	}
+	else
+	{
+		WBUFL(buf,62) = -1;
+		WBUFL(buf,66) = -1;
+		WBUFB(buf,70) = 0;
+	}*/
+//#if PACKETVER >= 20120410
+//	memcpy((char*)WBUFP(buf,71), name, NAME_LENGTH);
+//	return WBUFW(buffer,2);
 #if PACKETVER >= 20091103
 	memcpy((char*)WBUFP(buf,62), name, NAME_LENGTH);
 	return WBUFW(buffer,2);
@@ -2867,13 +2903,15 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		break;
 		case LOOK_BASE:
 			vd->class_ = val;
-			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER || vd->class_ == JOB_HANBOK)
+			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER ||
+				vd->class_ == JOB_HANBOK || vd->class_ == JOB_OKTOBERFEST)
 				vd->weapon = vd->shield = 0;
 			if (vd->cloth_color && (
 				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
 				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
-				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette)
+				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
+				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
 			))
 				clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
 		break;
@@ -2897,7 +2935,8 @@ void clif_changelook(struct block_list *bl,int type,int val)
 				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
 				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
-				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette)
+				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
+				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
 			))
 				val = 0;
 			vd->cloth_color = val;
@@ -9886,7 +9925,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if( pc_cant_act(sd) || sd->sc.option&OPTION_HIDE )
 			return;
 
-		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
+		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST) )
 			return;
 
 		if( sd->sc.data[SC_BASILICA] )
@@ -9927,6 +9966,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		pc_setsit(sd);
 		skill_sit(sd,1);
 		clif_sitting(&sd->bl);
+		clif_status_load(&sd->bl, SI_SIT, 1);
 	break;
 	case 0x03: // standup
 		if (!pc_issit(sd)) {
@@ -9937,6 +9977,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		pc_setstand(sd);
 		skill_sit(sd,0); 
 		clif_standing(&sd->bl);
+		clif_status_load(&sd->bl, SI_SIT, 0);
 	break;
 	}
 }
@@ -10874,7 +10915,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		}
 	}
 
-	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
+	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
 		return;
 
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
@@ -14412,7 +14453,7 @@ void clif_parse_Auction_register(int fd, struct map_session_data *sd)
 
 	// Auction checks...
 	if( sd->status.inventory[sd->auction.index].bound && !pc_can_give_bounded_items(sd) ) { 
-		clif_displaymessage(sd->fd, msg_txt(sd,293)); 
+		clif_displaymessage(sd->fd, msg_txt(293)); 
 		clif_Auction_message(fd, 2); // The auction has been canceled 
 		return; 
 	} 
@@ -16515,8 +16556,8 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 //#0x0900
-		0,	0,	0,	0,	0,	0,	0,	0,	5,	0,	0,	0,	0,	0,	0,	0,
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,  0,  0,  0,  0,  0,  0,  0,  5,  0,  0,  0,  0,  0,  0, -1,
+		0,  0,  0,  0, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 24,
 //#0x0940

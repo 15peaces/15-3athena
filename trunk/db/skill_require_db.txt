@@ -971,7 +971,6 @@
 2535,0,0,30,0,0,0,99,0,0,none,0,6377,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ALL_BUYING_STORE#Open Buying Store#
 2536,0,0,10,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ALL_GUARDIAN_RECALL#Guardian's Recall#
 2537,0,0,70:100,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ALL_ODINS_POWER#Odin's Power#
-
 //2538,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//BEER_BOTTLE_CAP#Beer Bottle Cap#
 
 //2542,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ALL_TETANY#Tentay#
@@ -981,6 +980,7 @@
 //2546,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//GM_ITEM_ATKMIN#Minimal Attack#
 //2547,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//GM_ITEM_MATKMAX#Maximum Magic Attack#
 //2548,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//GM_ITEM_MATKMIN#Minimal Magic Attack#
+//2549,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ALL_LIGHTGUARD#Light Guard#
 
 // Rebellion
 2551,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //RL_GLITTERING_GREED#Flip The Coin Greed#
@@ -1049,9 +1049,13 @@
 3034,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ECL_SEQUOIADUST#Sequoia Dust#
 3035,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//ECLAGE_RECALL#Return To Eclage#
 
-// Copied Bard / Dancer Skills?
-//3036,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //BA_POEMBRAGI2#Poem of Bragi 2#
-//3037,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //DC_FORTUNEKISS2#Fortune Kiss 2#
+// Copied Bard / Dancer Skills (Card Enabled) //These versions dont require instruments/whips right?
+//3036,0,0,40:45:50:55:60:65:70:75:80:85,0,0,0,13:14,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //BA_POEMBRAGI2#Poem of Bragi 2#
+//3037,0,0,43:46:49:52:55:58:61:64:67:70,0,0,0,13:14,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //DC_FORTUNEKISS2#Fortune Kiss 2#
+
+// Misc Skills 2
+//3038,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //ITEM_OPTION_SPLASH_ATTACK#Option Splash Attack#
+//3039,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //GM_FORCE_TRANSFER#Force Transfer#
 
 // EP 14.3 Part 2 3rd Job Skills
 5001,0,0,22:34:46:58:70,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //GC_DARKCROW#Dark Claw#
@@ -1068,10 +1072,7 @@
 5012,0,0,100:150:200:250:300,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //WL_TELEKINESIS_INTENSE#Intense Telekinesis#
 5013,0,0,200:180:160:140:120,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //LG_KINGS_GRACE#King's Grace#
 5014,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
-5015,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //SR_FLASHCOMBO_ATK_STEP1#Flash Combo Attack Step 1#//All 4 steps are using temp req SP values for now.
-5016,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //SR_FLASHCOMBO_ATK_STEP2#Flash Combo Attack Step 2#
-5017,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //SR_FLASHCOMBO_ATK_STEP3#Flash Combo Attack Step 3#
-5018,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 //SR_FLASHCOMBO_ATK_STEP4#Flash Combo Attack Step 4#
+5015,0,0,1,0,0,0,99,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//NC_MAGMA_ERUPTION_DOTDAMAGE#Magma Eruption Dot Damage#
 
 // Homunculus
 8001,0,0,13:16:19:22:25,0,0,0,99,0,0,none,0,545,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//HLIF_HEAL

@@ -1687,6 +1687,9 @@ packet_ver: 27
 0x094B,19,wanttoconnection,2:6:10:14:18
 0x0961,36,storagepassword,0
 0x8d2,10 //Fast Movement
+0x90f,-1 //ZC_NOTIFY_NEWENTRY7
+0x914,-1 //ZC_NOTIFY_MOVEENTRY9
+0x915,-1 //ZC_NOTIFY_STANDENTRY8
 
 //2012-07-02aRagexeRE
 packet_ver: 28

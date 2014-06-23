@@ -62,6 +62,11 @@
 //2338,Wedding_Dress,Wedding Dress,5,43000,,500,,0,,0,0xFFFFFFFE,7,0,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 //7170,Tuxedo,Tuxedo,5,43000,,10,,0,,0,0xFFFFFFFE,7,1,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 
+// Costume Robes
+2573,Archangel_Wing,Archangel Wings,5,20,,100,,0,,0,0xFFFFFFFF,7,2,8192,,1,0,1,{},{},{}
+2576,Bravery_Bag,Adventurer's Backpack,4,0,,200,,20,,1,0xFFFFFFFF,63,2,4,,0,1,2,{ skill "BS_GREED",1; if(getrefine()>6) { if(readparam(bStr)>=90){ bonus bBaseAtk,20; } if(readparam(bInt)>=90){ bonus bMatk,30; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,10; } if(readparam(bAgi)>=90){ bonus bAspdRate,8; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,10; } } if(getrefine()>8) { if(readparam(bStr)>=90){ bonus bBaseAtk,10; } if(readparam(bInt)>=90){ bonus bMatk,20; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,5; } if(readparam(bAgi)>=90){ bonus bAspd,1; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,5; } } },{},{}
+2589,Fallen_Angel_Wing,Fallen Angel Wing,5,20,,100,,0,,0,0xFFFFFFFF,7,2,8192,,1,0,3,{},{},{}
+
 // Rental Mounts
 12622,Boarding_Halter,Boarding Halter,2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ALL_RIDING,-1,1; },{},{}
 16682,Boarding_Halter_Box,Boarding Halter Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 12622,604800; },{},{}
@@ -77,7 +82,10 @@
 
 //Costume Headgear's Using Status's To Appear
 18742,C_MoonStar_Accessory,Moon Star Accessory,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,881,{},{ sc_start SC_MOONSTAR,-1,0; },{ sc_end SC_MOONSTAR; }
-//18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,883,{},{ sc_start SC_SUPERSTAR,-1,0; },{ sc_end SC_SUPERSTAR; }
-	
+18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,883,{},{ sc_start SC_SUPER_STAR,-1,0; },{ sc_end SC_SUPER_STAR; }	
+
 // Hanbok Outfit
 22538,Hanbok_Pocket,Hanbok Pocket,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
+
+// Oktoberfest Outfit
+22625,Oktoberfest_Bag,Oktoberfest Bag,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_OKTOBERFEST,600000,0; },{},{}

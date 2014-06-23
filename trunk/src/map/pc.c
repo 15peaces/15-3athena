@@ -4661,8 +4661,9 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_NINJA:				return MAPID_NINJA;
 		case JOB_XMAS:				return MAPID_XMAS;
 		case JOB_SUMMER:			return MAPID_SUMMER;
-		case JOB_HANBOK:			return MAPID_HANBOK;
 		case JOB_GANGSI:			return MAPID_GANGSI;
+		case JOB_HANBOK:			return MAPID_HANBOK;
+		case JOB_OKTOBERFEST:		return MAPID_OKTOBERFEST;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:		return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:			return MAPID_KNIGHT;
@@ -4804,8 +4805,9 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_NINJA:					return JOB_NINJA;
 		case MAPID_XMAS:					return JOB_XMAS;
 		case MAPID_SUMMER:					return JOB_SUMMER;
-		case MAPID_HANBOK:					return JOB_HANBOK;
 		case MAPID_GANGSI:					return JOB_GANGSI;
+		case MAPID_HANBOK:					return JOB_HANBOK;
+		case MAPID_OKTOBERFEST:				return JOB_OKTOBERFEST;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:			return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:					return JOB_KNIGHT;
@@ -4990,6 +4992,9 @@ const char* job_name(int class_)
 
 	case JOB_HANBOK:
 		return msg_txt(655);
+
+	case JOB_OKTOBERFEST:
+		return msg_txt(657);
 
 	case JOB_NOVICE_HIGH:
 	case JOB_SWORDMAN_HIGH:
@@ -6156,6 +6161,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	npc_script_event(sd,NPCE_DIE);
 
 	pc_setdead(sd);
+	clif_status_load(&sd->bl, SI_SIT, 0);//Remove the sit status icon on death if you died while sitting.
 	//Reset menu skills/item skills
 	if (sd->skillitem)
 		sd->skillitem = sd->skillitemlv = 0;
@@ -7070,6 +7076,11 @@ int pc_setoption(struct map_session_data *sd,int type)
 	if (type&OPTION_HANBOK && !(p_type&OPTION_HANBOK))
 		new_look = JOB_HANBOK;
 	else if (!(type&OPTION_HANBOK) && p_type&OPTION_HANBOK)
+		new_look = -1;
+
+	if (type&OPTION_OKTOBERFEST && !(p_type&OPTION_OKTOBERFEST))
+		new_look = JOB_OKTOBERFEST;
+	else if (!(type&OPTION_OKTOBERFEST) && p_type&OPTION_OKTOBERFEST)
 		new_look = -1;
 
 	if (sd->disguise || !new_look)
@@ -8606,7 +8617,7 @@ int pc_readdb(void)
 	fclose(fp);
 	for (i = 0; i < JOB_MAX; i++) {
 		if (!pcdb_checkid(i)) continue;
-		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK)
+		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK || i == JOB_OKTOBERFEST)
 			continue; //Classes that do not need exp tables.
 		j = pc_class2idx(i);
 		if (!max_level[j][0])
