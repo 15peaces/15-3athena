@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================
+//===== 15-3athena Script ==================================== 
 //= Hall of Fame
 //===========================================================
 //===== By ==================================================
@@ -8,6 +8,7 @@
 //= 2.4 FINAL
 //===== Compatible With =====================================
 //= eAthena SVN and Freya SVN
+//= 15-3athena rev. 1+
 //===== Description =========================================
 //= A Hall of Fame framework. Will update the list on every
 //= login and logout in a safe manner.

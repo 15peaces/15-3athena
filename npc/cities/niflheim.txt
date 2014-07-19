@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Niflheim Script 
 //===== By: ================================================== 
 //= Fyrien, Dizzy, PKGINGO
@@ -8,6 +8,7 @@
 //===== Compatible With: ===================================== 
 //= [Aegis Conversion]
 //= eAthena SVN; Niflheim Required
+//= 15-3athena rev. 1+
 //===== Description: ========================================= 
 //= Official NPC's for Niflheim
 //= 1.01 Splitted file(guides, shops). Fixed rand() bugs,

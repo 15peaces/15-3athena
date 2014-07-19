@@ -81,8 +81,44 @@
 12664,Trans_Scroll_Golem,Transformation Scroll (Golem),2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1200000,1040; },{},{}
 
 //Costume Headgear's Using Status's To Appear
+18741,C_Will_O_Wisp,Will O Wisp,5,20,,0,,0,,0,0xFFFFFFFF,7,2,1024,,0,0,880,{},{ sc_start SC_STRANGELIGHTS,-1,0; },{ sc_end SC_STRANGELIGHTS; }
 18742,C_MoonStar_Accessory,Moon Star Accessory,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,881,{},{ sc_start SC_MOONSTAR,-1,0; },{ sc_end SC_MOONSTAR; }
 18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,883,{},{ sc_start SC_SUPER_STAR,-1,0; },{ sc_end SC_SUPER_STAR; }	
+19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
+
+//Costume Headgear's Using Status's To Appear - Customized to equip to the floor slot to prevent headgear sprites removal.
+//Disable the 3 above lines and enable the 3 below to use.
+//18741,C_Will_O_Wisp,Will O Wisp,5,20,,0,,0,,0,0xFFFFFFFF,7,2,16384,,0,0,880,{},{ sc_start SC_STRANGELIGHTS,-1,0; },{ sc_end SC_STRANGELIGHTS; }
+//18742,C_MoonStar_Accessory,Moon Star Accessory,5,20,,0,,0,,0,0xFFFFFFFF,7,2,16384,,0,0,881,{},{ sc_start SC_MOONSTAR,-1,0; },{ sc_end SC_MOONSTAR; }
+//18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,16384,,0,0,883,{},{ sc_start SC_SUPER_STAR,-1,0; },{ sc_end SC_SUPER_STAR; }
+//19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,16384,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
+
+// Job Related Items - 15-3athena
+//=============================================================
+// Rune Knight Rune Stone Ingredients
+7938,Light_Granule,Light Partacle,3,1000,,10,,,,,,,,,,,,,{},{},{}
+7939,Elder_Branch,Elder's Branch,3,1000,,10,,,,,,,,,,,,,{},{},{}
+
+// Rune Knight's Rune Stones
+12725,Runstone_Nosiege,Nauthiz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_REFRESH",1; },{},{}
+12726,Runstone_Rhydo,Raido Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_CRUSHSTRIKE",1; },{},{}
+12727,Runstone_Verkana,Berkana Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_MILLENNIUMSHIELD",1; },{},{}
+12728,Runstone_Isia,Isa Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_VITALITYACTIVATION",1; },{},{}
+12729,Runstone_Asir,Eihwaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_FIGHTINGSPIRIT",1; },{},{}
+12730,Runstone_Urj,Uruz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_ABUNDANCE",1; },{},{}
+12731,Runstone_Turisus,Thurisaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_GIANTGROWTH",1; },{},{}
+12732,Runstone_Pertz,Perthro Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_STORMBLAST",1; },{},{}
+12733,Runstone_Hagalas,Hagalaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_STONEHARDSKIN",1; },{},{}
+	
+// Rune Knight Rune Ores
+//12734,Runstone_Quality,Quality Rune,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ makerune 5; },{},{}
+//12735,Runstone_Ancient,Ancient Rune,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ makerune 11; },{},{}
+//12736,Runstone_Mystic,Mystic Rune,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ makerune 14; },{},{}
+//12737,Runstone_Ordinary,Ordinary Rune,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ makerune 2; },{},{}
+//12738,Runstone_Rare,Rare Rune,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ makerune 8; },{},{}
+
+// Rune Knight's 10th Rune
+22540,Runstone_Luxanima,Lux Anima Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 
 // Hanbok Outfit
 22538,Hanbok_Pocket,Hanbok Pocket,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}

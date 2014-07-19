@@ -1370,8 +1370,12 @@ int clif_spawn(struct block_list *bl)
 				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
 				clif_efst_status_change(&sd->bl,SI_MOONSTAR,1000,sd->sc.data[SC_MOONSTAR]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_STRANGELIGHTS] )
+				clif_efst_status_change(&sd->bl,SI_STRANGELIGHTS,1000,sd->sc.data[SC_STRANGELIGHTS]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_SUPER_STAR] )
 				clif_efst_status_change(&sd->bl,SI_SUPER_STAR,1000,sd->sc.data[SC_SUPER_STAR]->val1,0,0);
+			if ( sd->sc.count && sd->sc.data[SC_DECORATION_OF_MUSIC] )
+				clif_efst_status_change(&sd->bl,SI_DECORATION_OF_MUSIC,1000,sd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
 		}
 		break;
 	case BL_MOB:
@@ -4015,8 +4019,12 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1000,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_MOONSTAR] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MOONSTAR,1000,tsd->sc.data[SC_MOONSTAR]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_STRANGELIGHTS,1000,tsd->sc.data[SC_STRANGELIGHTS]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_SUPER_STAR] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_SUPER_STAR,1000,tsd->sc.data[SC_SUPER_STAR]->val1,0,0);
+			if ( tsd->sc.count && tsd->sc.data[SC_DECORATION_OF_MUSIC] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_DECORATION_OF_MUSIC,1000,tsd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
 		}
 		break;
 	case BL_MER: // Devotion Effects

@@ -1810,6 +1810,7 @@ packet_ver: 31
 0x08c9,2	// ???
 0x096a,6,getcharnamerequest,2
 0x09ab,6	// bank button onclick
+0x09d4,2	//CZ_NPC_TRADE_QUIT
 
 //Add new packets here
 //packet_ver: 32

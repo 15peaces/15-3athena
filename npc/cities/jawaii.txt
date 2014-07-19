@@ -1,4 +1,4 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ==================================== 
 //= Jawaii (The Lovers' Paradise) Town script
 //===== By: ==================================================
 //= jAthena (1.0)
@@ -8,6 +8,7 @@
 //= 3.6
 //===== Compatible With: =====================================
 //= eAthena SVN
+//= 15-3athena rev. 1+
 //===== Description: =========================================
 //= [Aegis OCnversion]
 //= Jawaii Town Npcs

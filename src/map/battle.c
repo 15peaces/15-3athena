@@ -955,6 +955,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	short s_ele, s_ele_, t_class;
 	int i, nk;
 	bool n_ele = false; // non-elemental
+	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
+	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
+	short job_lv = status_get_job_lv(src);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage wd;
@@ -1011,6 +1014,15 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
+
+	//Some skill formula's checks base/job levels. This caps the number of
+	//levels taken into the different formulas to prevent overpowering skill effects.
+	if (skill_num && levels_effect == 1){//Skip base/job level limits check if a skill wasn't used or is set to not affect skills.
+		if ( base_lv > battle_config.base_level_skill_effect_limit )
+			base_lv = battle_config.base_level_skill_effect_limit;
+		if ( job_lv > battle_config.job_level_skill_effect_limit )
+			job_lv = battle_config.job_level_skill_effect_limit;
+	}
 
 	if(sd)
 		wd.blewcount += battle_blewcount_bonus(sd, skill_num);
@@ -1361,6 +1373,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy ;
 					break;
 				}
+			case RK_DRAGONBREATH: // Set according to the skilldesc [pakpil] // Added from 3ceam  r2 [15peaces]
+				wd.damage = (status_get_hp(src) + status_get_sp(src)) / 40; // Need official value. [pakpil]
+				if( sd )
+					ATK_ADDRATE( 10 * pc_checkskill(sd,RK_DRAGONTRAINING)); // Need official value. [pakpil]
 			default:
 			{
 				i = (flag.cri?1:0)|
@@ -1704,6 +1720,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case NJ_KIRIKAGE:
 					skillratio += 100*(skill_lv-1);
 					break;
+				case NPC_VAMPIRE_GIFT:
+					skillratio += ((skill_lv-1)%5+1)*100;
+					break;
 				case KN_CHARGEATK:
 					{
 					int k = (wflag-1)/3; //+100% every 3 cells of distance
@@ -1717,14 +1736,52 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case MO_BALKYOUNG:
 					skillratio += 200;
 					break;
+				case RK_SONICWAVE:
+					skillratio += 400 + 100 * skill_lv;
+					if( levels_effect == 1 && base_lv >= 100 )
+						skillratio += skillratio * (base_lv - 100) / 200;
+					break;
+				case RK_HUNDREDSPEAR:
+					skillratio += 500 + 80 * skill_lv;
+					if( sd )
+					{
+						short index = sd->equip_index[EQI_HAND_R];
+						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON )
+						{
+							short spearwbd = 1000 - sd->inventory_data[index]->weight / 10;// Spear Weight Bonus Damage.
+							// If weight of weapon is more then 1000, bonus is set to 0 to prevent negative value. [Rytech]
+							if ( spearwbd < 0 )
+								spearwbd = 0;
+							skillratio += spearwbd;
+						}
+					}
+					else
+						skillratio += 1000;//Add the entire bonus when casted by monsters.
+					if( levels_effect == 1 && base_lv >= 100 )
+						skillratio += skillratio * (base_lv - 100) / 200;
+					skillratio += 50 * pc_checkskill(sd,LK_SPIRALPIERCE);//Bonus damage.
+					break;
+
+				case RK_IGNITIONBREAK:
+					i = distance_bl(src,target);
+					if( i < 2 )
+						skillratio = 300 * skill_lv;
+					else if( i < 4 )
+						skillratio = 250 * skill_lv;
+					else
+						skillratio = 200 * skill_lv;
+					if( levels_effect == 1 && base_lv >= 100 )
+						skillratio += skillratio * (base_lv - 100) / 100;
+					//Bonus damage added if fire element weapon is equipped.
+					if( sstatus->rhw.ele == ELE_FIRE )
+						skillratio += 100 * skill_lv;
+					break;
+
 				case HFLI_MOON:	//[orn]
 					skillratio += 10+110*skill_lv;
 					break;
 				case HFLI_SBR44:	//[orn]
 					skillratio += 100 *(skill_lv-1);
-					break;
-				case NPC_VAMPIRE_GIFT:
-					skillratio += ((skill_lv-1)%5+1)*100;
 					break;
 			}
 
@@ -2306,6 +2363,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		status_zap(src, hp, 0);
 	}
 
+	if (sc && sc->data[SC_ENCHANTBLADE] && !skill_num)
+	{ //Adding Enchant Blade's MATK damage to regular weapon attacks.
+		struct Damage ad = battle_calc_magic_attack(src, target, skill_num, skill_lv, wflag);
+		wd.damage += ad.damage;
+	}
+
 	return wd;
 }
 
@@ -2317,9 +2380,14 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	int i, nk;
 	short s_ele;
 	unsigned int skillratio = 100;	//Skill dmg modifiers.
+	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
+	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
+	short job_lv = status_get_job_lv(src);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage ad;
+	struct status_change *sc = status_get_sc(src);
+	struct status_change *tsc = status_get_sc(target);
 	struct status_data *sstatus = status_get_status_data(src);
 	struct status_data *tstatus = status_get_status_data(target);
 	struct {
@@ -2344,8 +2412,22 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	nk = skill_get_nk(skill_num);
 	flag.imdef = nk&NK_IGNORE_DEF?1:0;
 
+	if (sc && !sc->count)
+		sc = NULL; //Skip checking as there are no status changes active.
+	if (tsc && !tsc->count)
+		tsc = NULL; //Skip checking as there are no status changes active.
+
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
+
+	//Some skill formula's checks base/job levels. This caps the number of
+	//levels taken into the different formulas to prevent overpowering skill effects.
+	if (skill_num && levels_effect == 1){//Skip base/job level limits check if a skill wasn't used or is set to not affect skills.
+		if ( base_lv > battle_config.base_level_skill_effect_limit )
+			base_lv = battle_config.base_level_skill_effect_limit;
+		if ( job_lv > battle_config.job_level_skill_effect_limit )
+			job_lv = battle_config.job_level_skill_effect_limit;
+	}
 
 	//Initialize variables that will be used afterwards
 	s_ele = skill_get_ele(skill_num, skill_lv);
@@ -2416,7 +2498,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				break;
 			default:
 			{
-				if (sstatus->matk_max > sstatus->matk_min) {
+				if (sc && sc->data[SC_RECOGNIZEDSPELL]) {
+					MATK_ADD(sstatus->matk_max);//Recognized Spell makes you deal your maximum MATK on all magic attacks.
+				} else if (sstatus->matk_max > sstatus->matk_min) {
 					MATK_ADD(sstatus->matk_min+rand()%(1+sstatus->matk_max-sstatus->matk_min));
 				} else {
 					MATK_ADD(sstatus->matk_min);
@@ -2427,6 +2511,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						ad.damage/= mflag;
 					else
 						ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_num, skill_get_name(skill_num));
+				}
+
+				// Enchant Blade's MATK damage is calculated before
+				// being sent off to combine with the weapon attack.
+				if (sc && sc->data[SC_ENCHANTBLADE] && !skill_num) {
+					MATK_ADD(sc->data[SC_ENCHANTBLADE]->val2);
 				}
 
 				switch(skill_num){
@@ -2670,9 +2760,14 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	int skill;
 	short i, nk;
 	short s_ele;
+	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
+	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
+	short job_lv = status_get_job_lv(src);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage md; //DO NOT CONFUSE with md of mob_data!
+	struct status_change *sc = status_get_sc(src);
+	struct status_change *tsc = status_get_sc(target);
 	struct status_data *sstatus = status_get_status_data(src);
 	struct status_data *tstatus = status_get_status_data(target);
 
@@ -2690,9 +2785,23 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	md.flag=BF_MISC|BF_SKILL;
 
 	nk = skill_get_nk(skill_num);
+
+	if (sc && !sc->count)
+		sc = NULL; //Skip checking as there are no status changes active.
+	if (tsc && !tsc->count)
+		tsc = NULL; //Skip checking as there are no status changes active.
 	
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
+
+	//Some skill formula's checks base/job levels. This caps the number of
+	//levels taken into the different formulas to prevent overpowering skill effects.
+	if (skill_num && levels_effect == 1){//Skip base/job level limits check if a skill wasn't used or is set to not affect skills.
+		if ( base_lv > battle_config.base_level_skill_effect_limit )
+			base_lv = battle_config.base_level_skill_effect_limit;
+		if ( job_lv > battle_config.job_level_skill_effect_limit )
+			job_lv = battle_config.job_level_skill_effect_limit;
+	}
 	
 	if(sd) {
 		sd->state.arrow_atk = 0;
@@ -4029,6 +4138,9 @@ static const struct _battle_data {
 	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,		25,		100,			},
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,              },
+	{ "levels_effect_renewal_skills",		&battle_config.levels_effect_renewal_skills,	0,		0,		1,				},
+	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	160,	1000,			},
+	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
 };
 
 

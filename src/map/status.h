@@ -662,8 +662,10 @@ typedef enum sc_type {
 	SC_ANTI_M_BLAST,
 	SC_SLUGSHOT,
 
-	//Oktoberfest Costume
+	//Additional Status
 	SC_OKTOBERFEST,
+	SC_STRANGELIGHTS,
+	SC_DECORATION_OF_MUSIC,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1027,9 +1029,9 @@ enum si_type {
 	SI_FEARBREEZE = 352,
 	SI_ELECTRICSHOCKER = 353,
 	SI_MARSHOFABYSS = 354,
-	SI_RECOGNIZEDSPELL = 355,
-	SI_STASIS = 356,
 */
+	SI_RECOGNIZEDSPELL = 355,
+	//SI_STASIS = 356,
 	SI_WUGRIDER = 357,
 /*
 	SI_WUGDASH = 358,
@@ -1280,7 +1282,7 @@ enum si_type {
 	// SI_OFFERTORIUM = 716,
 	// SI_TELEKINESIS_INTENSE = 717,
 	SI_MOONSTAR = 718,
-	// SI_STRANGELIGHTS = 719,
+	SI_STRANGELIGHTS = 719,
 	// SI_FULL_THROTTLE = 720,
 	// SI_REBOUND = 721,
 
@@ -1339,7 +1341,7 @@ enum si_type {
 	// SI_GLASTHEIM_TRANS = 776,
 	// SI_ZONGZI_POUCH_TRANS = 777,
 	// SI_HEAT_BARREL_AFTER = 778,
-	// SI_DECORATION_OF_MUSIC = 779,
+	SI_DECORATION_OF_MUSIC = 779,
 	// SI_OVERSEAEXPUP = 780,
 	// SI_CLOWN_N_GYPSY_CARD = 781,
 	// SI_OPEN_NPC_MARKET = 782,
@@ -1671,6 +1673,7 @@ struct status_data *status_get_base_status(struct block_list *bl);
 const char * status_get_name(struct block_list *bl);
 int status_get_class(struct block_list *bl);
 int status_get_lv(struct block_list *bl);
+int status_get_job_lv(struct block_list *bl);
 #define status_get_range(bl) status_get_status_data(bl)->rhw.range
 #define status_get_hp(bl) status_get_status_data(bl)->hp
 #define status_get_max_hp(bl) status_get_status_data(bl)->max_hp
