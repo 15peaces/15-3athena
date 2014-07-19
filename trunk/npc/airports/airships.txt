@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= The Airship System Script
 //===== By: ================================================== 
 //= eAthena Dev Team
@@ -6,6 +6,7 @@
 //= 1.2
 //===== Compatible With: ===================================== 
 //= eAthena SVN 3422+(Requires jA Script System)
+//= 15-3athena rev. 1+
 //===== Description: ========================================= 
 //= The Airship System used in the official servers, however this
 //= one is still about 25% custom and is missing some npcs.

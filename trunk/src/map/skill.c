@@ -677,8 +677,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MG_FROSTDIVER:
-	case WZ_FROSTNOVA:
 		sc_start(bl,SC_FREEZE,skilllv*3+35,skilllv,skill_get_time2(skillid,skilllv));
+		break;
+
+	case WZ_FROSTNOVA:
+		sc_start(bl,SC_FREEZE,skilllv*5+33,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
 	case WZ_STORMGUST:
@@ -936,6 +939,13 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case NPC_CRITICALWOUND:
 		sc_start(bl,SC_CRITICALWOUND,100,skilllv,skill_get_time2(skillid,skilllv));
+		break;
+	case RK_HUNDREDSPEAR:
+		if ( pc_checkskill(sd,KN_SPEARBOOMERANG) > 0 && rand()%100 < 10 + 3 * skilllv )
+		{
+			skill_castend_damage_id(src,bl,KN_SPEARBOOMERANG,pc_checkskill(sd,KN_SPEARBOOMERANG),tick,0);
+			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
+		}
 		break;
 	}
 
@@ -2568,6 +2578,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_BLEEDING:
 	case NPC_CRITICALWOUND:
 	case NPC_HELLPOWER:
+	case RK_SONICWAVE:
+	case RK_HUNDREDSPEAR:
 	case RK_DRAGONBREATH:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -2766,6 +2778,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_PULSESTRIKE:
 	case NPC_HELLJUDGEMENT:
 	case NPC_VAMPIRE_GIFT:
+	case RK_IGNITIONBREAK:
 		if( flag&1 )
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3659,6 +3672,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NPC_INVINCIBLEOFF:
 	case RK_ENCHANTBLADE:
 	case AB_DUPLELIGHT:
+	case WL_RECOGNIZEDSPELL:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		break;
@@ -3948,6 +3962,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+		break;
+
+	case RK_IGNITIONBREAK:
+		skill_area_temp[1] = 0;
+		//clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src),
+		src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 		break;
 
 	case NPC_EARTHQUAKE:
@@ -4676,6 +4698,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
 				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:		case SC_ON_PUSH_CART:
 				case SC_MOONSTAR:		case SC_SUPER_STAR:		case SC_MONSTER_TRANSFORM:
+				case SC_STRANGELIGHTS:	case SC_DECORATION_OF_MUSIC:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -8511,6 +8534,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case RK_HUNDREDSPEAR:
+	case RK_PHANTOMTHRUST://Well make this skill ask for a spear even tho its not official. It does require a spear type.
+		if( require.weapon && !pc_check_weapontype(sd,require.weapon) ) {
+			clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_EQUIPPED_WEAPON_CLASS,4);//Spear required.
+			return 0;
+		}
+		break;
 	}
 
 	switch(require.state) {
@@ -8669,36 +8699,44 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 		return 0;
 	}
 
+	require = skill_get_requirement(sd,skill,lv);
+
 	// perform skill-specific checks (and actions)
 	switch( skill )
 	{
-	case PR_BENEDICTIO:
-		skill_check_pc_partner(sd, skill, &lv, 1, 1);
-		break;
-	case AM_CANNIBALIZE:
-	case AM_SPHEREMINE:
-	{
-		int c=0;
-		int summons[5] = { 1589, 1579, 1575, 1555, 1590 };
-		//int summons[5] = { 1020, 1068, 1118, 1500, 1368 };
-		int maxcount = (skill==AM_CANNIBALIZE)? 6-lv : skill_get_maxcount(skill,lv);
-		int mob_class = (skill==AM_CANNIBALIZE)? summons[lv-1] :1142;
-		if(battle_config.land_skill_limit && maxcount>0 && (battle_config.land_skill_limit&BL_PC)) {
-			i = map_foreachinmap(skill_check_condition_mob_master_sub ,sd->bl.m, BL_MOB, sd->bl.id, mob_class, skill, &c);
-			if(c >= maxcount ||
-				(skill==AM_CANNIBALIZE && c != i && battle_config.summon_flora&2))
-			{	//Fails when: exceed max limit. There are other plant types already out.
-				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
+		case PR_BENEDICTIO:
+			skill_check_pc_partner(sd, skill, &lv, 1, 1);
+			break;
+		case AM_CANNIBALIZE:
+		case AM_SPHEREMINE:
+		{
+			int c=0;
+			int summons[5] = { 1589, 1579, 1575, 1555, 1590 };
+			//int summons[5] = { 1020, 1068, 1118, 1500, 1368 };
+			int maxcount = (skill==AM_CANNIBALIZE)? 6-lv : skill_get_maxcount(skill,lv);
+			int mob_class = (skill==AM_CANNIBALIZE)? summons[lv-1] :1142;
+			if(battle_config.land_skill_limit && maxcount>0 && (battle_config.land_skill_limit&BL_PC)) {
+				i = map_foreachinmap(skill_check_condition_mob_master_sub ,sd->bl.m, BL_MOB, sd->bl.id, mob_class, skill, &c);
+				if(c >= maxcount ||
+					(skill==AM_CANNIBALIZE && c != i && battle_config.summon_flora&2))
+				{	//Fails when: exceed max limit. There are other plant types already out.
+					clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
+					return 0;
+				}
+			}
+			break;
+		}
+		case RK_HUNDREDSPEAR:
+		case RK_PHANTOMTHRUST://Well make this skill ask for a spear even tho its not official. It is spear exclusive.
+			if( require.weapon && !pc_check_weapontype(sd,require.weapon) )
+			{
+				clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_EQUIPPED_WEAPON_CLASS,4);//Spear required.
 				return 0;
 			}
-		}
-		break;
-	}
+			break;
 	}
 
 	status = &sd->battle_status;
-
-	require = skill_get_requirement(sd,skill,lv);
 
 	if( require.hp > 0 && status->hp <= (unsigned int)require.hp) {
 		clif_skill_fail(sd,skill,USESKILL_FAIL_HP_INSUFFICIENT,0);

@@ -1,4 +1,4 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ==================================== 
 //= Umbala Town script
 //===== By: ==================================================
 //= jAthena (1.0) Fusion Dev Team (1.1) Muad Dib (1.2) Darkchild (1.3)
@@ -6,6 +6,7 @@
 //= 2.1
 //===== Compatible With: =====================================
 //= eAthena SVN; RO Episode XX
+//= 15-3athena rev. 1+
 //===== Description: =========================================
 //- [Aegis Conversion]
 //= Umbala Town Npcs

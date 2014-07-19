@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Lighthalzen City
 //===== By: ================================================== 
 //=  erKURITA, Au{R}oN (Translated by Alan), $ephiroth
@@ -6,6 +6,7 @@
 //= 2.2
 //===== Compatible With: ===================================== 
 //= eAthena SVN
+//= 15-3athena rev. 1+
 //===== Description: ========================================= 
 //= Lighthalzen NPCs (Temporal names for now) [erKURITA]
 //===== Additional Comments: ==================================

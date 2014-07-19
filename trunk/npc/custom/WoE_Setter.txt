@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= War of Emperium - Time Setter
 //===== By: ================================================== 
 //= Fredzilla
@@ -6,6 +6,7 @@
 //= 1.5a
 //===== Compatible With: ===================================== 
 //= eAthena 1.0 Final TXT
+//= 15-3athena rev. 1+
 //===== Description: ========================================= 
 //= Lets a GM set WoE times from inside the game
 //===== Additional Comments: ================================= 

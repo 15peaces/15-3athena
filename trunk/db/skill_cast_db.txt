@@ -1,36 +1,25 @@
 // Skill Times Database
 //
 // Structure of Database:
-// SkillID,CastingTime,AfterCastActDelay,AfterCastWalkDelay,Duration1,Duration2
+// SkillID,CastTime,AfterCastDelay,AfterCastWalkDelay,Duration1,Duration2
+//==========================================
+//== Structure Details:
+// Skill ID : The ID of the skill used.
+// Cast Time : The amount of time required to cast the skill. Acts as a full cast time for pre-renewal skills and variable cast time for renewal skills.
+// After Cast Delay : The amount of time the player has to wait before any skill can be used again.
+// After Cast Walk Dleay : The amount of time the player will be unable to move for after using the skill.
+// Duration 1 / Duration 2 : The amount of time set for different effects. Used to set amount of time status and AoE durations last for.
 //
+//== Other Details
+// In every field you can use ':' as a delimiter to level-specific values,
+// For example, if you type in the cast time field 1000:3000:8000
+// If set like this, the cast time for level 1 will be 1 second, level 2 will be 3 seconds, and level 3 will be 8 seconds.
+// You can set them to whatever you want.
+//
+// All skills in the 2000 - 5020 ID range will use the renewal cast time system. Anything else outside the range will use the regular cast time system.
+// Mutated Homunculus skills will also use the renewal system. Their ID's are in the 8017 - 8043 range.
+// Skills in these ID ranges are placed in the skill_renewal_cast_db.
 //==========================================
-// Rough list of Contents:
-//==========================================
-//  1.  1st Jobs Skills
-//  2.  2-1 Jobs Skills
-//  3.  1st Jobs Quest Skills
-//  4.  NPC Skills (1)
-//  5.  2-2 Jobs Skills
-//  6.  Wedding Skills
-//  7.  NPC Skills (2)
-//  8.  Advanced Jobs Skills (1)
-//  9.  Adoption Skills
-// 10.  Taekwon Jobs Skills (1)
-// 11.  Advanced Jobs Skills (2)
-// 12.  Taekwon Jobs Skills (2)
-// 13.  2nd Jobs Quest Skills
-// 14.	Homunculus Skills
-// 15.	Mercenary Skills
-// 16.  Guild Skills
-//==========================================
-// This is just a rough overview to help
-// giving an overview on the document and
-// help navigating through it. (Vedurin)
-//==========================================
-
-
-
-
 
 //===== Swordman ===========================
 //-- SM_PROVOKE

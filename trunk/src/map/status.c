@@ -419,6 +419,9 @@ void initChangeTables(void)
 	// Arch Bishop
 	set_sc( AB_DUPLELIGHT		 , SC_DUPLELIGHT	  , SI_DUPLELIGHT	   , SCB_NONE );
 
+	// Warlock
+	set_sc( WL_RECOGNIZEDSPELL , SC_RECOGNIZEDSPELL , SI_RECOGNIZEDSPELL , SCB_MATK );
+
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
 	set_sc( HFLI_FLEET           , SC_FLEET           , SI_BLANK           , SCB_ASPD|SCB_BATK|SCB_WATK );
@@ -533,7 +536,9 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_MONSTER_TRANSFORM] = SI_MONSTER_TRANSFORM;
 	//Headgears with special animations through status
 	StatusIconChangeTable[SC_MOONSTAR] = SI_MOONSTAR;
+	StatusIconChangeTable[SC_STRANGELIGHTS] = SI_STRANGELIGHTS;
 	StatusIconChangeTable[SC_SUPER_STAR] = SI_SUPER_STAR;
+	StatusIconChangeTable[SC_DECORATION_OF_MUSIC] = SI_DECORATION_OF_MUSIC;
 
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -597,7 +602,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_MONSTER_TRANSFORM] |= SCB_NONE;
 	//Headgears with special animations through status.
 	StatusChangeFlagTable[SC_MOONSTAR] |= SCB_NONE;
+	StatusChangeFlagTable[SC_STRANGELIGHTS] |= SCB_NONE;
 	StatusChangeFlagTable[SC_SUPER_STAR] |= SCB_NONE;
+	StatusChangeFlagTable[SC_DECORATION_OF_MUSIC] |= SCB_NONE;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -4240,6 +4247,24 @@ int status_get_lv(struct block_list *bl)
 	return 1;
 }
 
+int status_get_job_lv(struct block_list *bl)
+{
+	nullpo_ret(bl);
+	switch (bl->type) {
+		case BL_PC:
+			return ((TBL_PC*)bl)->status.job_level;
+		//Non-Player characters don't have job levels. Well just send the most common max job level.
+		//This will allow skills and status's that take job levels into formula's to have max effectiveness
+		//for non-player characters using them. [Rytech]
+		case BL_MOB:
+		case BL_PET:
+		case BL_HOM:
+		case BL_MER:
+			return 50;
+	}
+	return 1;
+}
+
 struct regen_data *status_get_regen_data(struct block_list *bl)
 {
 	nullpo_retr(NULL, bl);
@@ -4905,6 +4930,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	struct status_data *status;
 	struct view_data *vd;
 	int opt_flag, calc_flag, undead_flag;
+	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
+	short base_lv = status_get_lv(bl);//Checks the casters base level for renewal skills.
+	short job_lv = status_get_job_lv(bl);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
 	nullpo_ret(bl);
 	sc = status_get_sc(bl);
@@ -4930,6 +4958,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	sd = BL_CAST(BL_PC, bl);
+
+	//Some skill formula's checks base/job levels. This caps the number of
+	//levels taken into the different formulas to prevent overpowering skill effects.
+	if (levels_effect == 1){//Skip base/job level limits check if set to not affect skills.
+		if ( base_lv > battle_config.base_level_skill_effect_limit )
+			base_lv = battle_config.base_level_skill_effect_limit;
+		if ( job_lv > battle_config.job_level_skill_effect_limit )
+			job_lv = battle_config.job_level_skill_effect_limit;
+	}
 
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
@@ -5743,7 +5780,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ALL_RIDING:
 		case SC_ON_PUSH_CART:
 		case SC_MOONSTAR:
+		case SC_STRANGELIGHTS:
 		case SC_SUPER_STAR:
+		case SC_DECORATION_OF_MUSIC:
 			tick = -1;
 			break;
 
@@ -6232,6 +6271,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 2; // Splendide group
 			break;
 
+		case SC_ENCHANTBLADE://Added MATK Damage
+			val2 = 100 + 20 * val1;
+			if (levels_effect == 1 && base_lv >= 100)
+				val2 = val2 * base_lv / 150;
+			val2 = val2 + status->int_;
+			break;
+
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -6606,7 +6652,9 @@ int status_change_clear(struct block_list* bl, int type)
 		case SC_ALL_RIDING:
 		case SC_ON_PUSH_CART:
 		case SC_MOONSTAR:
+		case SC_STRANGELIGHTS:
 		case SC_SUPER_STAR:
+		case SC_DECORATION_OF_MUSIC:
 			continue;
 		}
 
@@ -7673,7 +7721,9 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_ON_PUSH_CART:
 			case SC_MONSTER_TRANSFORM:
 			case SC_MOONSTAR:
+			case SC_STRANGELIGHTS:
 			case SC_SUPER_STAR:
+			case SC_DECORATION_OF_MUSIC:
 				continue;
 				
 			//Debuffs that can be removed.

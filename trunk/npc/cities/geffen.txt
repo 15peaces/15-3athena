@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Geffen Town
 //===== By: ================================================== 
 //= Everybody mentioned in the comments
@@ -6,6 +6,7 @@
 //= 1.9
 //===== Compatible With: ===================================== 
 //= eAthena SVN
+//= 15-3athena rev. 1+
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Geffen Town NPCs
