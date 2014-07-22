@@ -1277,7 +1277,7 @@
 2572,0,6,1,-1,0x40,0,5,1,no,0,0,0,weapon,0, RL_R_TRIP_PLUSATK,Round Trip Plus Attack
 2573,0,6,1,-1,0,0,5,1,no,0,0,0,weapon,0, RL_B_FLICKER_ATK,Bind Flicker Attack//Max level guess based on Bind Trap max level.
 2574,0,6,1,-1,0,0,10,1,no,0,0,0,weapon,0, RL_GLITTERING_GREED_ATK,Flip The Coin Greed Attack//Guess on max level is from Flip The Coin Greed
-	
+
 // Kagerou / Oboro
 3001,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		KO_YAMIKUMO,Dark Cloud
 3002,0,0,0,0,0,0,5,0,no,0,0,0,none,0,		KO_RIGHT,Right-Hand Training

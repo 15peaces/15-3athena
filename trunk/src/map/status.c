@@ -6259,6 +6259,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_REBIRTH:
 			val2 = 20*val1; //% of life to be revived with
 			break;
+		case SC_FEAR: //3ceam v1
+			val2 = 1; // Stop walking
+			val4 = tick / 1000;
+			tick = 1000;
+			break;
 
 		case SC_MANU_DEF:
 		case SC_MANU_ATK:
@@ -6276,6 +6281,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if (levels_effect == 1 && base_lv >= 100)
 				val2 = val2 * base_lv / 150;
 			val2 = val2 + status->int_;
+			break;
+
+		case SC_RENOVATIO: // 3ceam v1
+			val4 = 5; // seconds between heals
+			tick = 1000;
 			break;
 
 		default:
@@ -7059,6 +7069,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		sc->opt2 &= ~(1<<(type-SC_POISON));
 		break;
 	case SC_DPOISON:
+	case SC_FEAR: // 3ceam v1
 		sc->opt2 &= ~OPT2_DPOISON;
 		break;
 	case SC_SIGNUMCRUCIS:
@@ -7595,6 +7606,33 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		if(sc->data[SC_FOGWALL]) 
 		{	//Blind lasts forever while you are standing on the fog.
 			sc_timer_next(5000+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_FEAR: // 3ceam v1
+		if( --(sce->val4) > 0 )
+		{
+			if( sce->val4 <= 13 ) // Cannot walk during 2 senconds.
+				sce->val2 = 0; // Enable walking.
+			sc_timer_next(1000+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_RENOVATIO: // 3ceam v1
+		if( --(sce->val4) >= 0 )
+		{
+			if( bl->type == BL_MOB )
+			{
+				status_damage(bl,bl,sce->val1 * 150,0,clif_damage(bl,bl,tick,status->amotion,status->dmotion,sce->val1 * 150, 1, 0, 0),0);
+			}
+			else
+			{
+				int hp = status->max_hp * 3 / 100;
+				status_heal(bl,hp,0,3);
+			}
+			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

@@ -947,6 +947,17 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
 		}
 		break;
+	case RA_AIMEDBOLT:
+		if( tsc )
+		{
+			status_change_end(bl, SC_STUN, -1);
+			status_change_end(bl, SC_STOP, -1);
+			status_change_end(bl, SC_ANKLE, -1);
+			status_change_end(bl, SC_STONE, -1);
+			status_change_end(bl, SC_SLEEP, -1);
+			status_change_end(bl, SC_ELECTRICSHOCKER, -1);
+		}
+		break;
 	}
 
 	if (md && battle_config.summons_trigger_autospells && md->master_id && md->special_state.ai)
@@ -5664,6 +5675,30 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				skill_castend_nodamage_id);
 		}
 		break;
+
+	case RK_DRAGONHOWLING: // 3ceam v1
+		if( flag&1)
+			sc_start(bl,type,(50 + 6 * skilllv),skilllv,skill_get_time(skillid,skilllv));
+		else
+		{
+			skill_area_temp[2] = 0;
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			map_foreachinrange(skill_area_sub, src,
+			skill_get_splash(skillid,skilllv),BL_CHAR,
+			src,skillid,skilllv,tick,flag|BCT_ENEMY|SD_PREAMBLE|1,
+			skill_castend_nodamage_id);
+		}
+		break;
+
+	case AB_EPICLESIS: // 3ceam v1
+		if( !status_isdead(bl) )
+			return 0;
+		if( bl->type != BL_PC )
+			return 0;
+		if( status_revive(bl,100,100) )
+			clif_skill_nodamage(src,bl,skillid,skilllv,0);
+		break;
+
 	case NPC_WIDESOULDRAIN:
 		if (flag&1)
 			status_percent_damage(src,bl,0,((skilllv-1)%5+1)*20,false);
@@ -6225,6 +6260,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 
 	//Offensive Ground Targeted Splash AoE's.
+	case RK_WINDCUTTER: // 3ceam v1
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 	case RK_DRAGONBREATH:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub,
