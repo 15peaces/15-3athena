@@ -5,6 +5,16 @@
 // 		- Details.
 //========================================
 07/22/2014
+	r16 [15peaces]
+		*replaced old keep connection alive ping-version by a much more reliable and performance-efficient on-demand flagging found in rAthena.
+		*Merged missing changes from 3ceam rev. 8 - 9
+		*Added some missing Skills to skill_renewal_cast_db.txt
+		*WL_CHAINLIGHTNING, WL_EARTHSTRAIN
+			-Added pre-support for these skills.
+		*RA_AIMEDBOLT
+			-Updated behavior of this skill.
+
+07/22/2014
 	r15 [15peaces]
 		*Added Changelog-15-3athena.txt to add all changes made in 15-3athena.
 		*AB_EPICLESIS, RA_AIMEDBOLT, RK_CRUSHSTRIKE, RK_DRAGONHOWLING, RK_PHANTOMTHRUST, RK_WINDCUTTER

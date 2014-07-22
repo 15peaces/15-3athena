@@ -244,9 +244,9 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 	{
 	case AC_SHOWER:			case MA_SHOWER:
 	case AC_DOUBLE:			case MA_DOUBLE:
-	case HT_BLITZBEAT:
-	case AC_CHARGEARROW:
-	case MA_CHARGEARROW:
+	case HT_BLITZBEAT:		case RA_ARROWSTORM:
+	case AC_CHARGEARROW:	case RA_AIMEDBOLT:
+	case MA_CHARGEARROW:	case RA_WUGBITE:
 	case SN_FALCONASSAULT:
 	case HT_POWER:
 		if( bl->type == BL_PC )
@@ -945,17 +945,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		{
 			skill_castend_damage_id(src,bl,KN_SPEARBOOMERANG,pc_checkskill(sd,KN_SPEARBOOMERANG),tick,0);
 			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
-		}
-		break;
-	case RA_AIMEDBOLT:
-		if( tsc )
-		{
-			status_change_end(bl, SC_STUN, -1);
-			status_change_end(bl, SC_STOP, -1);
-			status_change_end(bl, SC_ANKLE, -1);
-			status_change_end(bl, SC_STONE, -1);
-			status_change_end(bl, SC_SLEEP, -1);
-			status_change_end(bl, SC_ELECTRICSHOCKER, -1);
 		}
 		break;
 	}
@@ -2366,6 +2355,17 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						}
 					}
 					break;
+
+				case WL_EARTHSTRAIN: //3ceam v1
+					skill_unitsetting(src, skl->skill_id, skl->skill_lv, skl->x, skl->y, skl->flag);
+					break;
+
+				case WL_CHAINLIGHTNING: //3ceam v1
+					skill_unitsetting(src, skl->skill_id, skl->skill_lv, target->x, target->y, 0);	
+				case WL_CHAINLIGHTNING_ATK: //3ceam v1
+					skill_castend_damage_id(src, target, WL_CHAINLIGHTNING_ATK, skl->skill_lv, tick, SD_LEVEL);
+					break;
+
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					break;
@@ -6268,6 +6268,36 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		src->m, x-i, y-i, x+i, y+i, BL_CHAR,
 		src, skillid, skilllv, tick, flag|BCT_ENEMY|1,
 		skill_castend_damage_id);
+		break;
+
+	case WL_EARTHSTRAIN: //3ceam v1
+		{
+			int i;
+			type = skill_get_unit_range(skillid, skilllv);
+			for( i = 1; i <= 5; i ++ )
+			{
+				switch( map_calc_dir(src, x, y) )
+				{
+					case 0: // North
+						y += type;
+						break;
+					case 2: // West
+						x -= type;
+						break;
+					case 4: // South
+						y -= type;
+						break;
+					case 6: // East
+						x += type;
+						break;
+					default:
+						if( sd )
+							clif_skill_fail(sd, skillid, 0, 0);
+						return 0;
+				}
+				skill_addtimerskill(src, gettick() + 250 * i, src->id, x, y, skillid, skilllv, 0, 0);
+			}
+		}
 		break;
 
 	case SA_VOLCANO:
