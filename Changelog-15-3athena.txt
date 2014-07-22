@@ -1,0 +1,308 @@
+// Format:
+// Date (mm/dd/yr)
+// rNumber [Author]
+// 	* Modifications.
+// 		- Details.
+//========================================
+07/22/2014
+	r15 [15peaces]
+		*Added Changelog-15-3athena.txt to add all changes made in 15-3athena.
+		*AB_EPICLESIS, RA_AIMEDBOLT, RK_CRUSHSTRIKE, RK_DRAGONHOWLING, RK_PHANTOMTHRUST, RK_WINDCUTTER
+			-Added pre-support for these skills.
+		*RK_DRAGONBREATH
+			-Updated damage formula.
+		*SC_FEAR, SC_RENOVATIO
+			-Added pre-support for these statuses.
+
+07/19/2014
+	r14 [15peaces]
+		*Changed default exe to 2013-12-23cRagexe, since i'll do developpment with this exe now.
+			-The support appears to be stable enough but could still have a few bugs.
+		*Changed / updated some comments
+		*Added missing packet to fix crash on closing a shop window.
+		*Added the player_lv_effect_renewal_skills, base_level_skill_effect_limit, and job_level_skill_effect_limit config settings.
+			-This is used to set if a caster's base/job levels will affect the skills for 3rd jobs and other newer jobs. They also allow setting a limit on how much they can affect them.
+		*Added full support for the Will O Wisp and Decoration of Music item.
+		*Added the status_get_job_lv function.
+			-This is just like the status_get_lv function, except is for job levels.
+			-Non player types like MOB, PET, HOM, and MER will give a result of 50 at all times since they don't have job levels and 50 is the most common job max.
+			-This is needed for future skills.
+		*Updated the const file.
+		*Added the Will O Wisp and Decoration of Music items.
+		*Added customized versions of the status animation headgears.
+			-These allow the headgears with special animations to be equipped to the floor slot instead of their official slots so players can wear regular costume headgears and have special animations at the same time.
+			-This is unofficial.
+		*Added required items for the Rune Knight.
+			-The rune ores are disabled since their script functions arnt coded in yet.
+		*Cleaned up the skill_cast_db file.
+			-Also added info on the different columns.
+		*Made some adjustments in the skill_db.
+			-RK_PHATOMTHRUST INF setting was changed to 16 to work officially.
+		*Added all Rune Knight skill timer settings to the skill_renewal_cast_db.
+			-Also added one for one of the Warlock skills.
+		*WZ_FROSTNOVA
+			-Fixed a issue where the skill didn't have the correct frozen success chance.
+			-Note: eAthena bug.
+		*RK_ENCHANTBLADE, RK_SONICWAVE, RK_HUNDREDSPEAR, RK_IGNITIONBREAK, WL_RECOGNIZESPELL
+			-Added full support for these skills.
+			-Recognized Spell was added early to help with the testing of future magic skills.
+		*RK_DRAGONBREATH
+			-Added pre-support for this skill.
+			-It works, but the damage seems to be really low... need to fix this later.
+
+06/23/2014
+	r13 [15peaces]
+		*Added full support for the Oktoberfest costume job.
+			-A new config was added to allow ignoring palettes for this job as well.
+			-According to Neo, the job ID first appears in the 2013-10-02 Ragexe client. A client of that date or higher is required. However, it can be supported by older 2013 clients by using the custom jobs support patch.
+		*Changed the Gangsi, Death knight, and Dark Collector MAPID's.
+			-The change is final and won't change again.
+		*Added pre-support for the ZC_NOTIFY_NEWENTRY7, ZC_NOTIFY_MOVEENTRY9, and ZC_NOTIFY_STANDENTRY8 packets. This is to support monster HP bar's in the future.
+			-This will be disabled until I can complete it in the future when I figure out how to officially handle it. Will likely need to add ZC_HP_INFO as well.
+		*Changed MAX_SKILL to 5016.
+			-It was lowered since SR_FLASHCOMBO's ATK_STEP tags and ID's no longer exist.
+			-The SR_FLASHCOMBO_ATK_STEP1 tag was replaced with NC_MAGMA_ERUPTION_DOTDAMAGE, proving their complete removal.
+		*Added support for the Sit icon.
+			-The icon will appear when sitting
+			-Something players will welcome as a way to know if another player forces them to sit.
+		*Updated the skill, status, and OPTION enum tables with the latest tags, ID's, and masks.
+		*Added support for all the latest NPC's.
+		*Added some costume robes to item_db2.txt
+		*Fixed a issue where equipping the World Star (Super Star) item would stone curse the player.
+		*Added the Oktoberfest Bag.
+			-Using this item will change you into the Oktoberfest costume job for 10 minutes.
+
+06/22/2014
+	r12 [15peaces]
+		*Updated to eAthena rev. 15268
+			-Fixed wrong range for 'packet_ver_flag' battle config
+		*Some updates on item bound system
+			-Added configuration option BOUND_ITEMS in core.h to disable bound system
+		*Added some notes here and there
+		*Updated some itemdb related functions to handle itemdb more efficient.
+			-If you'll find bugs, please report them as long as the old code is not removed. I've seen no problems with the new functions, but there are still some tests needed!
+			-Updated some itemdb declarations to fix some compiler warnings.
+			-Added the MAX_ITEMID define (by default set to unsigned short limit of 65.534).
+
+06/18/2014
+	r11 [15peaces]
+		*added some comments here and there
+		*Increased limit from 32,767 to 65,535, thanks to rAthena Devs.
+			-Still uses same amount of memory with doubled usable size.
+			-Adjusted CARD0_PET from -256 to 256.
+			-Please run both SQL files after applying this update to avoid values becoming corrupt.
+		*Added support for the transformation scrolls.
+			-Transformation scrolls changes a player into a monster for 20 minutes when used.
+		*Added a huge number of SC's to the const.txt and status.h file.
+			-This is done to prepare for the coding of the skills for 3rd jobs and other jobs.
+			-The tags and ID's assigned to them are now finalized and will not be changed.
+		*Updated some OPT1 checks so the burning status will not lock the affected player.
+		*Fixed a suspected issue where the Moon Star's animation would vanish if the player dies or gets hit with a debuff like effect.
+		*Added full support for the Super Star item.
+
+06/17/2014
+	r10 [15peaces]
+		*Added the produceeffect command.
+			-This is a debug command for testing the animations triggered by the ZC_ACK_REQMAKINGITME packet.
+		*Changed the max client packet size to 20480.
+			-Since the gm_all_skill config now crashes clients and their's no possible fix for it, its now pointless to keep the max packet size at the previous setting it was at.
+		*Fixed a issue where warnings would appear when compiling.
+			-This was due to a new packet in r8 where converting from short to char variables would generate data loss risk messages.
+		*Added support for the ZC_EFST_SET_ENTER packet.
+			-Its very much like the ZC_MSG_STATE_CHANGE packet, except it has no flag.
+			-This is used for triggering status animations on the screen of players coming into view range of other players since those status's arnt kept up with OPT's or OPTION's.
+		*Added support for the ZC_MSG_STATE_CHANGE3, ZC_EFST_SET_ENTER2, and ZC_MAPPROPERTY_R2 packets.
+		*Detection of MAPID_SUPER_NOVICE is now done through MAPID_BASEMASK.
+		*Added full support for push carts for 2012 and 2013 clients.
+		*Added full support for the Hanbok costume job.
+			-This costume can be accessed by using the item (Hanbok Pocket).
+			-This also adds the config setting (hanbok_ignorepalette) to the client.conf battle file.
+		*Added full support for the Rental Mounts.
+			-These are mounts that are accessible to all jobs.
+			-These mounts can be accessed by using the item (Boarding Halter)
+			-This also adds the config setting (all_riding_speed) to the player.conf battle file.
+		*Added the Moon Star item with full support.
+			-This is a unique costume headgear that doesn't display a sprite on the character's head. Instead it activates a status that causes a effects animation to loop on the character. This headgear is the first of its kind with the Super Star being the second.
+		*Increased the MAX_ITEMDELAY to 20 to support the new entrys in the item_delay file.
+		*Added some items to the ITEMID enum table for the support of newer skill fail messages.
+		*Added skill fail message support for a few items.
+		*Updated the const.txt file.
+		*Added a bunch of items to the item_db2.
+			-Added Rental Mounts, Transformation Scrolls, a unique costume headgear, and Hanbok related items.
+		*Updated the item_delay to support a hand full of new items.
+			-Item use delays for Yggdrasilberry and Seed_Of_Yggdrasil are added, but disabled by default since they don't have a delay in pre-renewal servers.
+		*Updated the item_trade file.
+		*Updated the packet_db to include some new required packets for 2013 clients.
+		*AB_DUPLELIGHT
+			-Added pre-support for this skill.
+		*SL_SUPERNOVICE, SL_DEATHKNIGHT, SL_COLLECTOR, SL_NINJA, SL_GUNNER
+			-Fixed a issue where Super Novice links failed when casted on Expanded Super Novice.
+			-Soul links for Death Knight, Dark Collector, Gunslinger, and Ninja now work.
+
+06/12/2014
+	r9 [15peaces]
+		*Added the ability to bind atcommands to NPC events (ex: NPCNAME::OnEvent); original version by ToastOfDoom however heavily modified by enabling command level at the invoking/character (@/#) level and fixes to prevent console errors.
+		*Updated the script_commands.txt documentation with the following script commands: bindatcmd, unbindatcmd and useatcmd.
+
+06/03/2014
+	r8 [15peaces]
+		*Added support for the 2013-03-20eRagexe and 2013-07-31cRagexe client.
+		*MAX_PACKET_VER increased to 31 to support the 2013-03-20eRagexe and 2013-07-31cRagexe client.
+		*Enabled the GD_ITEMEMERGENCYCALL and GD_GUILD_STORAGE skills.
+			-This is to prepare for adding future support for them.
+		*MAX_SKILL is increased to 5019 to support the expansion skills range.
+			-The increase also breaks the gm_allskills feature and can't be fixed right now.
+		*MAX_GUILDSKILL increased to 17.
+		*Added the max_aspd_renewal_jobs config.
+			-This config sets the ASPD limit for 3rd jobs and other jobs released in renewal.
+		*Added the max_parameter_renewal_jobs and max_baby_parameter_renewal_jobs configs.
+			-These configs set the stat limit for 3rd jobs and other jobs released in renewal.
+		*Added support for the latest npc's in the const.txt file.
+		*Added all the latest known tags and ID's until June 2013 to the skill and status enum tables.
+		*The Rebellion job now properly follows the castrate_dex_scale_renewal_jobs config for its Gunslinger skills.
+		*Increased the max hair styles to 29.
+			-Styles 28 and 29 requires a 2013 client or higher, or the use of a custom hair style cap increase patch to view.
+		*Disabled some maps in the mapflag and warp files.
+			-This is due the fact that a few older maps no longer exists.
+		*Rebuilt the entire map cache.
+			-This is to make sure the latest versions of every map is in the cache.
+		*FixedCastRate bonus had its ID changed to 2101 to leave room for any bonuses from other official sources.
+		*PACKETVER changed to 20130731
+			-Default client is now the 2013-07-31cRagexe.
+		*Added support for the ZC_SKILL_ENTRY4 and ZC_SKILL_ENTRY5 packets.
+		*Updated the ZC_MSG_STATE_CHANGE2 packet to be affected by val1, val2, and val3.
+			-This will be needed for future status.
+		*Updated the Skill Fail Message, Skill Unit, and Status tables with the latest entrys.
+		*Added full support for the costume equips.
+			-5 new kinds of armor equips are now equippable in the costume tab of the equip window.
+			-You can use item scripts, set slots, refine setting for them too.
+		*Updated the go, refine, displaystatus, and itemlist commands.
+			-Go now has 10 new town warps,
+			-Refine now works with costume equips.
+			-Displaystatus now allows setting val1, val2, and val3 for testing.
+			-Itemlist now works with costume equips and also had its messages updated.
+		*Recoded the changelook command.
+			-The command is now coded to change the displayed sprite of top headgear, middle headgear, lower headgear, weapon, shield, and robe on the character
+		*Added the skillfailmsg command.
+			-This is a debug command used for testing the different USESKILL_FAIL messages sent through the ZC_ACK_TOUSESKILL packet.
+		*Added pre-support for 7 new common status's.
+		*Added some notes here and there in the source files.
+		*Added place holders for all the latest known skills until June 2013.
+		*Updated the const.txt to support the newest common status, as well as the latest NPC's. Also added some new animations tags.
+		*Exp2 experience table now supports all the latest jobs.
+		*Enabled entrys for the expansion skills in the skill_db and skill_require_db since the skills are now in the skill trees and to prepare for future coding.
+		*Added full support for the Rebellion.
+			-The skill tree still needs to be completed, as well as support for higher base stats.
+			-Bonus stats are set to temporarily values until the official ones are known.
+			-A 2013-07-17Ragexe client or higher is required for this job to be properly playable.
+			-Since RagexeRE clients are no longer supported, a Ragexe release that supports them will be needed.
+		*Fixed a issue where the Dark Collector's assigned MAPID was incorrect.
+		*Updated the Gangsi, Death Knight, and Dark Collector skill trees to official.
+		*Updated the 3rd job skill trees to support the new expansion skills.
+			-These are the skills that were added to the main kRO server on March 20,2013.
+		*Updated the Rebellion skill tree to official.
+		*Updated all Rebellion skills to have official ranges and SP requirements.
+		*MO_EXTREMITYFIST
+			-Updated to now show a status icon when the no SP regen is active.
+		*MO_KITRANSLATION, MO_ABSORBSPIRITS
+			-Skill coding updated to not interfere with Rebellion's coins.
+		*NC_FLAMELAUNCHER
+			-Tweaked the length of the corridor to be around the same range as the cast range.
+		*RL_B_TRAP
+			-Added pre-support for the skill.
+		*Retyped the entire item_db document.
+			-The document has been fully updated and with all the latest information for each field.
+			-Each field is now explained in more detail to make it more understandable to the reader.
+
+05/26/2014
+	r7 [15peaces]
+		*increased MAX_EVENTQUEUE to 5 since only 2 is a bit small for servers even with minimal customations.
+		*Added the duel cast time configuration system.
+			-This system replaces the eAthena coded system with a unique system that allows both classic and renewal cast time mechanics to exist. All skills that existed before renewal will continue using the classic cast time mechanics while all the skills that were added in renewal will use the renewal cast time mechanics. The system also adds a few other features.
+		*Added the bFixedCastTime item bonus.
+			-More info can be found in the item_bonus document.
+		*Disabled the skill_castfix_sc function since its no longer needed.
+		*Completed the support for skill cooldown times.
+		*Added support for the ZC_FASTMOVE packet.
+		*Added the skill_renewal_cast_db.txt file.
+			-Renewal skills cast times, fixed cast times, after casts, cooldowns, etc. will all be placed in here.
+		*MO_BODYRELOCATION
+			-Updated the skill to use the new ZC_FASTMOVE packet.
+			-This is required for clients that don't use poseffect anymore.
+		*RK_DRAGONBREATH
+			-Added pre-support for the skill.
+			-This was needed to test cooldown times for ground targeted skills.
+		*RK_ENCHANTBLADE
+			-Added some basic coding for the testing of the duel cast time configuration system.
+	
+05/19/2014
+	r6 [15peaces]
+		*Updated to eAthena rev. 15267
+			-Added Support for 2013-12-23cRagexe
+		*added a 3 minutes timer to homunculus hungry function. This will trigger when the homunculus hungry rate goes to 0. Official is 18 Intimacy loss per hour. Currently we got 20 (-1 Intimacy / 3 minutes = -20 Intimacy / hour) so it needs some fixing later.
+		*Introducing the Account/Guild/Party Bounded Items System, thanks to rAthena
+			-Adds script commands 'getitembound', 'getitembound2', and 'countbound'
+			-Adds at commands @itembound and @itembound2
+			-Adds bound_item_drop configuration
+			-Documentation updated
+			-DON'T FORGET TO UPDATE YOUR SQL TABLES USING upgrade_15-3athena_svn6.sql!
+		*Some other changes here and there (needed for the bound system.)
+		*The official Rebirth Quest now sets lastJob variable. I've added this feature to make this quest work with the custom Job Changer.
+	
+05/01/2014
+	r5 [15peaces]
+		*Merged changes from eAthena rev. 15266
+			-Fixed stack corruption in mapindex_getmapname for input map names longer than 12 characters
+		*Server no longer trys to load exp tables for the Hanbok job since its just a costume job.
+		*Updated the ranking systems to include the new jobs.
+		*Added support for third job exclusive items.
+		*pc_setdragon, pc_setwug, pc_setwugrider, pc_setmadogear
+			-Added support for these functions.
+		*Increased the MAX_SKILL_TREE to 84.
+		*setdragon, checkdragon, setwug, checkwug, setwugrider, checkwugrider, setmadogear, checkmadogear
+			-Added full support for these script commands.
+		*socket_max_client_packet increased to 31306.
+		*Updated and reworked part of the skill ID remapping.
+		*Added pre-support for a experimental skill ID remapping for the extra 3rd job skills.
+		*Updated entrys in the const file.
+			-Added in all the latest jobs and needed option masks.
+			-Added support for all the latest emotions and NPC's.
+		*Updated the exp file to fully support all the latest jobs.
+		*Updated the job_db1 and job_db2 to fully support the all the latest jobs.
+		*Updated the skill_db, skill_require_db, and skill_tree.
+			-The databases were organized for finding skills for certain jobs more easly.
+			-The update also sets all the correct settings for the skills and adds the tags and ID's for all the latest skills. Finally, it adds full skill tree support for all of the latest jobs.
+		*The Super Novice is now treated as a 1st class job.
+		*The Expanded Super Novice is now treated as a 2nd class job.
+		*The Expanded Super Novice will now gain all the special abilities the Super Novice has.
+		*Expanded Super Novices can now get a +10 bonus to all stats without needing a required job level, but still requires a death counter of 0.
+		*Updated the party_check_state function.
+			-The Sura and Expanded Super Novice were added to the required checks that allow certain skills and effects to be used when certain jobs are present in the party.
+		*HP/SP Pools, base weight, weapon ASPD settings, and bonus stats are now fully added.
+		*Fixed a issue where NJ_SUITON/Hidden Water would affect the Kagerou and Oboro when it shouldn't.
+		*Added support for all the latest class exclusive mounts.
+		*Kagerou and Oboro can now duel weld daggers.
+		*LK_CONCENTRATION
+			-Fixed a issue where the skill had the incorrect pre-required skill requirements.
+		*SL_DEATHKNIGHT, SL_COLLECTOR, SL_NINJA, SL_GUNNER
+			-Added some pre-support for these skills.
+
+03/22/2014
+	r4 [15peaces]
+		*MAX_SKILL increased to 3036.
+		*MAX_LEVEL increased to 1000.
+		*Updated a number of enum tables for future needed stuff.
+			-Tables updated are jobs, emotions, map types, use skill fail messages, bl types, ammo types, equip positions, equip indexs, INF2, required state, skills, units, status icons, options
+		*Changed LOOK_FLOOR to LOOK_RESET_COSTUME since RESET_COSTUME is the official name for it.
+		*All 3rd jobs, baby 3rd jobs, Expanded Super Novice, Kagerou/Oboro, and other jobs are now fully coded in the source code. Its possible to change into them, however all you can do with them is regular attacks and move around. Leveling, skills, equips, and other things currently don't work for them.
+
+03/03/2014
+	r3 [15peaces]
+		*Added full support for the 2012-04-10aRagexeRE client.
+		*Completed the support for the new character creation system.
+			-Characters made will start out with all stats set to 1 and have 48 stat points to use.
+		* PACKET_VER is now set to 20120410 since the recommended client to use is 2012-04-10aRagexeRE and is the client we're doing development with.
+
+03/03/2014
+	r2 [15peaces]
+	*Added eAthena revision 15265 base base version. This will be updated later as needed.

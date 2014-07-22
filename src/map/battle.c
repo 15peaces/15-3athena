@@ -745,7 +745,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 			break;
 		case W_1HSPEAR:
 		case W_2HSPEAR:
-			if((skill = pc_checkskill(sd,KN_SPEARMASTERY)) > 0) {
+			if((skill = pc_checkskill(sd,KN_SPEARMASTERY) * (pc_checkskill(sd,RK_DRAGONTRAINING))?2:1 ) > 0) { //3ceam v1
 				if(!pc_isriding(sd))
 					damage += (skill * 4);
 				else
@@ -1086,6 +1086,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case LK_SPIRALPIERCE:
 				if (!sd) wd.flag=(wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC;
 				break;
+			case RA_AIMEDBOLT: //3ceam v1
+				//Number of hits was based on size of monster. [Jobbie]
+				wd.div_= -(tstatus->size + 2);
+				break;
 		}
 	} else //Range for normal attacks.
 		wd.flag |= flag.arrow?BF_LONG:BF_SHORT;
@@ -1373,10 +1377,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy ;
 					break;
 				}
-			case RK_DRAGONBREATH: // Set according to the skilldesc [pakpil] // Added from 3ceam  r2 [15peaces]
-				wd.damage = (status_get_hp(src) + status_get_sp(src)) / 40; // Need official value. [pakpil]
+			case RK_DRAGONBREATH: // 3ceam v1
+				wd.damage = (status_get_max_hp(src) * 80 / 1000) + (status_get_max_sp(src) * 180 / 100);
 				if( sd )
-					ATK_ADDRATE( 10 * pc_checkskill(sd,RK_DRAGONTRAINING)); // Need official value. [pakpil]
+					wd.damage += wd.damage * (5 * pc_checkskill(sd,RK_DRAGONTRAINING)-1) / 100;
+				break;
+			case RK_CRUSHSTRIKE: // 3ceam v1
+				wd.damage = sstatus->rhw.atk * 10; // Still need official value. [pakpil]
+				break;
+			case RK_PHANTOMTHRUST: // 3ceam v1
+				if(sd)
+					wd.damage += wd.damage * pc_checkskill(sd,KN_SPEARMASTERY) * (pc_checkskill(sd,RK_DRAGONTRAINING))?2:1 / 100; // Still need official value [pakpil]
+				break;
 			default:
 			{
 				i = (flag.cri?1:0)|
@@ -1782,6 +1794,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case HFLI_SBR44:	//[orn]
 					skillratio += 100 *(skill_lv-1);
+					break;
+				case RA_AIMEDBOLT: //3ceam v1
+					skillratio += 100 + 20 * skill_lv;
+					if(tsc && (tsc->data[SC_STUN] || tsc->data[SC_STOP] ||
+						tsc->data[SC_ANKLE] || tsc->data[SC_FREEZE] ||
+						tsc->data[SC_STONE] || tsc->data[SC_SLEEP] ||
+						tsc->data[SC_ELECTRICSHOCKER]) )
+					{
+						if( tstatus->size = 0 ) skillratio += 600 + (60 * skill_lv);
+						else if( tstatus->size = 1 ) skillratio += 1600 + (160 * skill_lv);
+						else skillratio += 3000 + (300 * skill_lv);
+					}
 					break;
 			}
 
