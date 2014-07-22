@@ -82,8 +82,9 @@ typedef int (*ParseFunc)(int fd);
 struct socket_data
 {
 	struct {
-		unsigned int eof : 1;
-		unsigned int server : 1;
+		unsigned char eof : 1;
+		unsigned char server : 1;
+		unsigned char ping : 2; 
 	} flag;
 
 	uint32 client_addr; // remote client address

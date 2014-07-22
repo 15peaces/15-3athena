@@ -2259,6 +2259,17 @@ int parse_fromlogin(int fd)
 		login_fd = -1;
 		loginif_on_disconnect();
 		return 0;
+	} else if ( session[fd]->flag.ping ) {/* we've reached stall time */ 
+		if( DIFF_TICK(last_tick, session[fd]->rdata_tick) > (stall_time * 2) ) {/* we can't wait any longer */ 
+			set_eof(fd); 
+			return 0; 
+		} else if( session[fd]->flag.ping != 2 ) { /* we haven't sent ping out yet */ 
+			WFIFOHEAD(fd,2);// sends a ping packet to login server (will receive pong 0x2718) 
+			WFIFOW(fd,0) = 0x2719; 
+			WFIFOSET(fd,2); 
+	 
+			session[fd]->flag.ping = 2; 
+		} 
 	}
 
 	sd = (struct char_session_data*)session[fd]->session_data;
@@ -2377,6 +2388,7 @@ int parse_fromlogin(int fd)
 			if (RFIFOREST(fd) < 2)
 				return 0;
 			RFIFOSKIP(fd,2);
+			session[fd]->flag.ping = 0; 
 		break;
 
 		// changesex reply
@@ -2612,7 +2624,7 @@ int parse_fromlogin(int fd)
 }
 
 int check_connect_login_server(int tid, unsigned int tick, int id, intptr_t data);
-int ping_login_server(int tid, unsigned int tick, int id, intptr_t data);
+// int ping_login_server(int tid, unsigned int tick, int id, intptr_t data); //Disabled, no need anymore. [15peaces]
 int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data);
 
 void do_init_loginif(void)
@@ -2621,10 +2633,12 @@ void do_init_loginif(void)
 	add_timer_func_list(check_connect_login_server, "check_connect_login_server");
 	add_timer_interval(gettick() + 1000, check_connect_login_server, 0, 0, 10 * 1000);
 	
+	/* //Disabled, no need anymore. [15peaces]
 	// keep the char-login connection alive
 	add_timer_func_list(ping_login_server, "ping_login_server");
 	add_timer_interval(gettick() + 1000, ping_login_server, 0, 0, ((int)stall_time-2) * 1000);
-	
+	*/
+
 	// send a list of all online account IDs to login server
 	add_timer_func_list(send_accounts_tologin, "send_accounts_tologin");
 	add_timer_interval(gettick() + 1000, send_accounts_tologin, 0, 0, 3600 * 1000); //Sync online accounts every hour
@@ -4524,6 +4538,7 @@ int check_connect_login_server(int tid, unsigned int tick, int id, intptr_t data
 	return 1;
 }
 
+/* // Disabled, no need anymore. [15peaces]
 // sends a ping packet to login server (will receive pong 0x2718)
 int ping_login_server(int tid, unsigned int tick, int id, intptr_t data)
 {
@@ -4535,6 +4550,7 @@ int ping_login_server(int tid, unsigned int tick, int id, intptr_t data)
 	}
 	return 0;
 }
+*/
 
 //------------------------------------------------
 //Invoked 15 seconds after mapif_disconnectplayer in case the map server doesn't

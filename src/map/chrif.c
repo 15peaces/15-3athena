@@ -1404,6 +1404,7 @@ void chrif_keepalive(int fd)
 
 void chrif_keepalive_ack(int fd)
 {
+	session[fd]->flag.ping = 0;/* reset ping state, we received a packet */ 
 }
 
 /*==========================================
@@ -1427,6 +1428,14 @@ int chrif_parse(int fd)
 		char_fd = -1;
 		chrif_on_disconnect();
 		return 0;
+	} else if ( session[fd]->flag.ping ) {/* we've reached stall time */ 
+		if( DIFF_TICK(last_tick, session[fd]->rdata_tick) > (stall_time * 2) ) {/* we can't wait any longer */ 
+			set_eof(fd); 
+			return 0; 
+		} else if( session[fd]->flag.ping != 2 ) { /* we haven't sent ping out yet */ 
+			chrif_keepalive(fd); 
+			session[fd]->flag.ping = 2; 
+		}
 	}
 
 	while (RFIFOREST(fd) >= 2)
@@ -1493,12 +1502,14 @@ int chrif_parse(int fd)
 	return 0;
 }
 
+/* Disabled, no need anymore. [15peaces]
 int ping_char_server(int tid, unsigned int tick, int id, intptr_t data)
 {
 	chrif_check(-1);
 	chrif_keepalive(char_fd);
 	return 0;
 }
+*/
 
 // unused
 int send_usercount_tochar(int tid, unsigned int tick, int id, intptr_t data)
@@ -1621,14 +1632,14 @@ int do_init_chrif(void)
 	auth_db_ers = ers_new(sizeof(struct auth_node));
 
 	add_timer_func_list(check_connect_char_server, "check_connect_char_server");
-	add_timer_func_list(ping_char_server, "ping_char_server");
+	// add_timer_func_list(ping_char_server, "ping_char_server"); //Disabled, no need anymore. [15peaces]
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
 
 	// establish map-char connection if not present
 	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
 
 	// keep the map-char connection alive
-	add_timer_interval(gettick() + 1000, ping_char_server, 0, 0, ((int)stall_time-2) * 1000);
+	// add_timer_interval(gettick() + 1000, ping_char_server, 0, 0, ((int)stall_time-2) * 1000); //Disabled, no need anymore. [15peaces]
 
 	// wipe stale data for timed-out client connection requests
 	add_timer_interval(gettick() + 1000, auth_db_cleanup, 0, 0, 30 * 1000);
