@@ -6265,6 +6265,23 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 
+		case SC_SHAPESHIFT: // 3ceam v1.
+			{
+				switch( val1 )
+				{
+					case 1: val2 = ELE_FIRE; break;
+					case 2: val2 = ELE_EARTH; break;
+					case 3: val2 = ELE_WIND; break;
+					case 4: val2 = ELE_WATER; break;
+					default:
+						if( sd )
+							clif_skill_fail(sd, NC_SHAPESHIFT, 0, 0);
+						return 0;
+				}
+				tick = -1;
+			}
+			break;
+
 		case SC_MANU_DEF:
 		case SC_MANU_ATK:
 		case SC_MANU_MATK:

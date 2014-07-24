@@ -1392,10 +1392,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case RK_CRUSHSTRIKE: // 3ceam v1
 				wd.damage = sstatus->rhw.atk * 10; // Still need official value. [pakpil]
 				break;
-			case RK_PHANTOMTHRUST: // 3ceam v1
-				if(sd)
-					wd.damage += wd.damage * pc_checkskill(sd,KN_SPEARMASTERY) * (pc_checkskill(sd,RK_DRAGONTRAINING))?2:1 / 100; // Still need official value [pakpil]
-				break;
 			default:
 			{
 				i = (flag.cri?1:0)|
@@ -1796,6 +1792,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 100 * skill_lv;
 					break;
 
+				case RK_PHANTOMTHRUST: // 3ceam v1.
+					skillratio += 25 * (skill_lv - 1);
+					if( sd )
+					{
+						skillratio += 25 * (pc_checkskill(sd,KN_SPEARMASTERY)-1);
+						//if( pc_isridingdragon(sd) ) //Disabled until supported. [15peaces]
+							//skillratio += 50;
+					}
+					break;
+
 				case HFLI_MOON:	//[orn]
 					skillratio += 10+110*skill_lv;
 					break;
@@ -1804,6 +1810,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RA_AIMEDBOLT: //3ceam v1
 					skillratio += 100 + 20 * skill_lv;
+					if(tsc && (tsc->data[SC_STOP] || tsc->data[SC_ANKLE] ||
+						tsc->data[SC_ELECTRICSHOCKER]))
+						switch(tstatus->size)
+						{
+							case 0: skillratio = skillratio*2; break;
+							case 1: skillratio = skillratio*3; break;
+							case 2: skillratio = skillratio*4; break;
+						}
+					break;
+				
+				case NC_BOOSTKNUCKLE: //3ceam v1
+					skillratio += (100 + 100 * skill_lv) + status_get_dex(src) + status_get_lv(src); // Need the official value. [Rytech]
 					break;
 			}
 
@@ -2621,6 +2639,28 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case NPC_EARTHQUAKE:
 						skillratio += 100 +100*skill_lv +100*(skill_lv/2);
+						break;
+					case WL_SOULEXPANSION: // 3ceam v1
+						{
+							struct status_change *tsc = status_get_sc(target);
+							skillratio += 300 + 100 * skill_lv;
+							//if( tsc && tsc->data[SC_WHITEIMPRISON] ) // Disbaled until SC_WHITEIMPRISON is supported. [15peaces]
+								//skillratio *= 2;
+						}
+					case WL_CHAINLIGHTNING: // 3ceam v1
+					case WL_CHAINLIGHTNING_ATK: // 3ceam v1
+						skillratio += 300 + 100 * skill_lv;
+						break;
+
+					case AB_ADORAMUS: // 3ceam v1
+						skillratio += 400 + 100 * skill_lv;
+						if( sd )
+							skillratio += sd->status.base_level; // Whats the official value? [Rytech]
+						break;
+
+					case AB_RENOVATIO: // 3ceam v1
+						if( sd )
+							skillratio = (int)((15*sd->status.base_level)+(1.5*sd->status.int_));//Damage calculation from iRO wiki. [Jobbie]
 						break;
 				}
 
@@ -3944,7 +3984,7 @@ static const struct _battle_data {
 	{ "produce_item_name_input",            &battle_config.produce_item_name_input,         0x1|0x2, 0,     0x9F,           },
 	{ "display_skill_fail",                 &battle_config.display_skill_fail,              2,      0,      1|2|4|8,        },
 	{ "chat_warpportal",                    &battle_config.chat_warpportal,                 0,      0,      1,              },
-	{ "mob_warp",                           &battle_config.mob_warp,                        0,      0,      1|2|4,          },
+	{ "mob_warp",                           &battle_config.mob_warp,                        0,      0,      1|2|4|8,        },
 	{ "dead_branch_active",                 &battle_config.dead_branch_active,              1,      0,      1,              },
 	{ "vending_max_value",                  &battle_config.vending_max_value,               10000000, 1,    MAX_ZENY,       },
 	{ "vending_over_max",                   &battle_config.vending_over_max,                1,      0,      1,              },

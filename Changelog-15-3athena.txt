@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/24/2014
+	r17 [15peaces]
+		*Fixed an Issue where hatch a pet could disconnect you.
+		*Added a new value in conf/battle/monster.conf to Enable that mobs'll teleport when standing in Dimensional Doors portals
+		*Minor fix to give support to the new options in clones.
+		*updated skill_unit_db.txt
+		*AB_ADORAMUS
+		*AB_RENOVATIO, NC_ANALYZE, NC_BOOSTKNUCKLE, SR_POWERVELOCITY, WL_SOULEXPANSION
+			-Added pre-support for these skills.
+		*RA_AIMEDBOLT, RK_PHANTOMTHRUST, WL_CHAINLIGHTNING
+			-Some more work on these skills.
+		*SR_GATEOFHELL
+			-Added full support for this skill, however the damage formular needs to be updated.
+		*SC_DIMENSIONDOOR
+			-adjusted its behavior to the official. This status don't work on mobs.
+
 07/22/2014
 	r16 [15peaces]
 		*replaced old keep connection alive ping-version by a much more reliable and performance-efficient on-demand flagging found in rAthena.
