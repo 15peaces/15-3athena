@@ -239,6 +239,9 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 		range *=-1;
 	}
 
+	if(bl->type == BL_PC && pc_checkskill((TBL_PC*)bl, WL_RADIUS) && id >= WL_WHITEIMPRISON && id <= WL_FREEZE_SP ) // 3ceam v1.
+		range = range + (pc_checkskill((TBL_PC*)bl, WL_RADIUS));
+
 	//TODO: Find a way better than hardcoding the list of skills affected by AC_VULTURE
 	switch( id )
 	{
@@ -394,6 +397,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			return 0;
 		case AL_TELEPORT:
+		case SC_DIMENSIONDOOR: // 3ceam v1.
 			if(map[m].flag.noteleport) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
@@ -2005,6 +2009,8 @@ int skill_area_sub (struct block_list *bl, va_list ap)
 
 	if(battle_check_target(src,bl,flag) > 0)
 	{
+		if( skill_id == AB_EPICLESIS && src->id == bl->id ) // 3ceam v1.
+			return 0;
 		// several splash skills need this initial dummy packet to display correctly
 		if (flag&SD_PREAMBLE && skill_area_temp[2] == 0)
 			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, 6);
@@ -3086,6 +3092,20 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		status_change_end(src, SC_HIDING, INVALID_TIMER);
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
+
+	case SR_GATEOFHELL: // 3ceam v1.
+		if( !(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) )
+			status_zap(src, 0, status_get_max_sp(src) / 10);
+		else
+			status_change_end(src, SC_COMBO, -1);
+			if( sd )
+			{
+				sd->spiritball_old = sd->spiritball;
+				pc_delspiritball(sd, sd->spiritball, 0);
+			}
+			skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
+			break;
+
 	case 0:
 		if(sd) {
 			if (flag & 3){
@@ -5699,6 +5719,49 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_nodamage(src,bl,skillid,skilllv,0);
 		break;
 
+
+	case NC_ANALYZE:
+		if( !clif_skill_nodamage(src, bl, skillid, skilllv,
+			sc_start2(bl, type, 40 + skilllv * 10, skilllv, src->id, skill_get_time(skillid, skilllv))) )
+		{
+
+			if( sd )
+				clif_skill_fail(sd, skillid, 0, 0);
+			return 0;
+		}
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		break;
+
+	case SR_POWERVELOCITY: // 3ceam v1.
+		{
+			int i;
+			if( !dstsd )
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,0,0);
+				break;
+			}
+			else
+			{
+				if( dstsd->spiritball <= 5 )
+				{
+					for(i = 0; i < 5; i++)
+						pc_addspiritball(dstsd,skill_get_time(CH_SOULCOLLECT,skilllv),5);
+						clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+						if( sd )
+							pc_delspiritball(sd, sd->spiritball, 0);
+				}
+				else
+				{
+					if( sd )
+						clif_skill_fail(sd,skillid,0,0);
+					return 0;
+				}
+			}
+		}
+		break;
+
 	case NPC_WIDESOULDRAIN:
 		if (flag&1)
 			status_percent_damage(src,bl,0,((skilllv-1)%5+1)*20,false);
@@ -7839,7 +7902,30 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			//clif_changetraplook(&src->bl, UNT_FIREPILLAR_ACTIVE);
 			sg->limit=DIFF_TICK(tick,sg->tick)+1500;
 			break;
-	}
+
+	case UNT_MANHOLE: // 3ceam v1.
+		if( sg->val2 || sg->src_id == bl->id) // Don't trap the source
+			break; // Already trapped someone.
+		clif_slide(bl, src->bl.x, src->bl.y);
+		clif_skill_poseffect(bl, sg->skill_id, sg->skill_lv, src->bl.x, src->bl.y, tick);
+		map_moveblock(bl, src->bl.x, src->bl.y, tick);
+		sc_start4(bl, type, 100, sg->skill_lv, 0, 0, sg->group_id, sg->limit);
+		sg->val2 = 1;
+		sg->val3 = bl->id;
+		break;
+
+	case UNT_DIMENSIONDOOR:
+		if ( tsd && map[bl->m].flag.noteleport ) {
+			clif_skill_teleportmessage(tsd,0);
+			break;
+		}
+		if( tsd )
+			pc_randomwarp(tsd,3);
+		//Skill don't work with mobs. [pakpil]
+		if( bl->type == BL_MOB && battle_config.mob_warp&8 )
+			unit_warp(bl,-1,-1,-1,3);
+			break;
+		}
 
 	if (sg->state.magic_power && sc && !sc->data[SC_MAGICPOWER])
 	{	//Unset magic power.
