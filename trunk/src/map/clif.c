@@ -15551,6 +15551,30 @@ void clif_party_show_picker(struct map_session_data * sd, struct item * item_dat
 #endif
 }
 
+void clif_equip_damaged(struct map_session_data *sd, int equip_index)
+{
+#if PACKETVER >= 20070521
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd,packet_len(0x2bb));
+	WFIFOW(fd,0) = 0x2bb;
+	WFIFOW(fd,2) = equip_index;
+	WFIFOL(fd,4) = sd->bl.id;
+	WFIFOSET(fd,packet_len(0x2bb));
+#endif
+}
+void clif_millenniumshield(struct map_session_data *sd, short shields )
+{
+#if PACKETVER >= 20081217
+	unsigned char buf[8];
+	int fd = sd->fd;
+
+	WBUFW(buf,0) = 0x440;
+	WBUFL(buf,2) = sd->bl.id;
+	WBUFW(buf,6) = shields;
+	clif_send(buf,packet_len(0x440),&sd->bl,AREA);
+#endif
+}
 
 /// Display gained exp (ZC_NOTIFY_EXP).
 /// 07f6 <account id>.L <amount>.L <var id>.W <exp type>.W

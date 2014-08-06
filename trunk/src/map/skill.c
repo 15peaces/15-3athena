@@ -944,12 +944,20 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case NPC_CRITICALWOUND:
 		sc_start(bl,SC_CRITICALWOUND,100,skilllv,skill_get_time2(skillid,skilllv));
 		break;
+	case RK_WINDCUTTER: //3ceam v1.
+		if( rand()%100 < 3 + 2 * skilllv )
+			sc_start(bl,SC_FEAR,100,skilllv,skill_get_time2(skillid,skilllv));
+		break;
 	case RK_HUNDREDSPEAR:
 		if ( pc_checkskill(sd,KN_SPEARBOOMERANG) > 0 && rand()%100 < 10 + 3 * skilllv )
 		{
 			skill_castend_damage_id(src,bl,KN_SPEARBOOMERANG,pc_checkskill(sd,KN_SPEARBOOMERANG),tick,0);
 			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
 		}
+		break;
+	case RK_DRAGONBREATH: //3ceam v1.
+		if( rand()%100 < 5 + 5 * skilllv )
+			sc_start(bl,SC_BURNING,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	}
 
@@ -1458,6 +1466,9 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 				pc_unequipitem(sd, j, 3);
 			}
 		}
+#if PACKETVER >= 20070521
+		clif_equip_damaged(sd,i);
+#endif
 		clif_equiplist(sd);
 	}
 
@@ -1963,6 +1974,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
 		skill_additional_effect(bl, src, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
 	}
+
+	if( damage > 0 && skillid == RK_CRUSHSTRIKE ) // Your weapon will not be broken if you miss.
+		skill_break_equip(src,EQP_WEAPON,10000,BCT_SELF);
 
 	if (!(flag&2) &&
 		(
@@ -2598,6 +2612,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RK_SONICWAVE:
 	case RK_HUNDREDSPEAR:
 	case RK_DRAGONBREATH:
+	case RK_STORMBLAST:
+	case AB_DUPLELIGHT_MELEE:
+	case RA_AIMEDBOLT:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -2796,6 +2813,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_HELLJUDGEMENT:
 	case NPC_VAMPIRE_GIFT:
 	case RK_IGNITIONBREAK:
+	case AB_JUDEX:
+	case WL_SOULEXPANSION:
+	case WL_FROSTMISTY:
 		if( flag&1 )
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3105,6 +3125,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			}
 			skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
 			break;
+
+	case RK_CRUSHSTRIKE: //3ceam v1.
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		break;
 
 	case 0:
 		if(sd) {
@@ -3701,6 +3725,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ST_PRESERVE:
 	case NPC_INVINCIBLE:
 	case NPC_INVINCIBLEOFF:
+	case RK_DEATHBOUND:
+	case RK_GIANTGROWTH:
+	case RK_VITALITYACTIVATION:
+	case RK_ABUNDANCE:
 	case RK_ENCHANTBLADE:
 	case AB_DUPLELIGHT:
 	case WL_RECOGNIZEDSPELL:
@@ -5696,7 +5724,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case RK_DRAGONHOWLING: // 3ceam v1
+	case RK_DRAGONHOWLING:// 3ceam v1
 		if( flag&1)
 			sc_start(bl,type,(50 + 6 * skilllv),skilllv,skill_get_time(skillid,skilllv));
 		else
@@ -5707,6 +5735,70 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			skill_get_splash(skillid,skilllv),BL_CHAR,
 			src,skillid,skilllv,tick,flag|BCT_ENEMY|SD_PREAMBLE|1,
 			skill_castend_nodamage_id);
+		}
+		break;
+	case RK_STONEHARDSKIN:// 3ceam v1
+		{
+			int heal = sstatus->hp / 4;
+			if( status_charge(bl,heal,0) )
+				clif_skill_nodamage(src,bl,skillid,skilllv,
+					sc_start2(bl,type,100,skilllv,heal,skill_get_time(skillid,skilllv)));
+			else if( sd )
+				clif_skill_fail(sd,skillid,0,0);
+		}
+		break;
+	case RK_REFRESH:// 3ceam v1
+		{
+			int heal = status_get_max_hp(bl) * 25 / 100;
+			clif_skill_nodamage(src,bl,skillid,skilllv,
+			sc_start2(bl,type,100,skilllv,skill_get_time(skillid,skilllv),skill_get_cooldown(skillid,skilllv)));
+			status_heal(bl,heal,0,1);
+			status_change_clear_buffs(bl,2);
+		}
+	break;
+	case RK_STORMBLAST:// 3ceam v1
+	{
+		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		clif_skill_damage(src,bl,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
+		map_foreachinrange(skill_area_sub,bl,skill_get_splash(skillid,skilllv),splash_target(src),src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+	}
+	break;
+
+	case RK_MILLENNIUMSHIELD: // 3ceam v1
+		{
+			short shields = (rand()%100 < 75)?2:4;
+			sc_start4(bl,type,100,skilllv,shields,0,skill_get_time(skillid,skilllv),skill_get_cooldown(skillid,skilllv));
+			if( sd )
+				clif_millenniumshield(sd,shields);
+			clif_skill_nodamage(src,bl,skillid,1,1);
+		}
+		break;
+	case RK_FIGHTINGSPIRIT: // 3ceam v1
+		if( flag&1 )
+		{
+			if( src != bl )
+			{
+				struct status_change *sc = status_get_sc(src);
+				if( !(sc && sc->data[SC_FIGHTINGSPIRIT]) )
+					break;
+				sc_start(bl,type,100,sc->data[SC_FIGHTINGSPIRIT]->val1/4,skill_get_time(skillid,skilllv));
+			}
+		}
+		else
+		{
+			clif_skill_nodamage(src,bl,skillid,1,1);
+			if( sd && sd->status.party_id )
+			{
+				int atk = 7, aspd = 5; //Seems to be official values. Atk = 7 + 7 * party members, Aspd = +5% [pakpil]
+				i = party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,BCT_PARTY,skill_area_sub_count);
+				if( i > 1 )
+					atk += atk * (i-1);
+					sc_start2(bl,type,100,atk,aspd,skill_get_time(skillid,skilllv));
+					party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),
+					src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+			}
+			else
+				sc_start2(bl,type,100,7,5,skill_get_time(skillid,skilllv));
 		}
 		break;
 
@@ -5938,6 +6030,12 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			if( ud->skillid >= SL_SKE && ud->skillid <= SL_SKA && target->type == BL_MOB )
 			{
 				if( ((TBL_MOB*)target)->class_ == MOBID_EMPERIUM )
+					break;
+			}
+			else if( ud->skillid == RK_PHANTOMTHRUST && sd && sd->status.party_id && target->type == BL_PC )
+			{ // You can use Phantom Thurst on party members in normal maps too. [pakpil]
+				struct map_session_data *tsd = BL_CAST(BL_PC,target);
+				if( !(tsd && tsd->status.party_id && tsd->status.party_id == sd->status.party_id) )
 					break;
 			}
 			else
@@ -6331,6 +6429,15 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		src->m, x-i, y-i, x+i, y+i, BL_CHAR,
 		src, skillid, skilllv, tick, flag|BCT_ENEMY|1,
 		skill_castend_damage_id);
+		break;
+
+	case AB_EPICLESIS: // 3ceam v1
+		sg = skill_unitsetting(src, skillid, skilllv, x, y, flag);
+		if( sg )
+		{
+			int i = sg->unit->range;
+			map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, ALL_RESURRECTION, 1, tick, flag|BCT_NOENEMY|1,skill_castend_nodamage_id);
+		}
 		break;
 
 	case WL_EARTHSTRAIN: //3ceam v1

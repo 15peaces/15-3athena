@@ -414,7 +414,17 @@ void initChangeTables(void)
 	add_sc( SA_ELEMENTWIND       , SC_ELEMENTALCHANGE );
 	
 	// Rune Knight
-	set_sc( RK_ENCHANTBLADE		 , SC_ENCHANTBLADE	  , SI_ENCHANTBLADE	   , SCB_NONE );
+	set_sc( RK_ENCHANTBLADE			, SC_ENCHANTBLADE		, SI_ENCHANTBLADE		, SCB_NONE );
+	add_sc( RK_WINDCUTTER			, SC_FEAR				);
+	set_sc( RK_DEATHBOUND			, SC_DEATHBOUND			, SI_DEATHBOUND			, SCB_NONE );
+	add_sc( RK_DRAGONHOWLING		, SC_FEAR				);
+	add_sc( RK_DRAGONBREATH			, SC_BURNING );
+	set_sc( RK_REFRESH				, SC_REFRESH			, SI_REFRESH			, SCB_NONE );
+	set_sc( RK_GIANTGROWTH			, SC_GIANTGROWTH			, SI_GIANTGROWTH			, SCB_STR );
+	set_sc( RK_STONEHARDSKIN		, SC_STONEHARDSKIN			, SI_STONEHARDSKIN			, SCB_NONE );
+	set_sc( RK_VITALITYACTIVATION	, SC_VITALITYACTIVATION				, SI_VITALITYACTIVATION				, SCB_REGEN );
+	set_sc( RK_FIGHTINGSPIRIT		, SC_FIGHTINGSPIRIT				, SI_FIGHTINGSPIRIT				, SCB_WATK|SCB_ASPD );
+	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE				, SI_ABUNDANCE				, SCB_NONE );
 
 	// Arch Bishop
 	set_sc( AB_DUPLELIGHT		 , SC_DUPLELIGHT	  , SI_DUPLELIGHT	   , SCB_NONE );
@@ -2791,6 +2801,8 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		} else
 			regen->flag&=~sce->val4; //Remove regen as specified by val4
 	}
+	if( sc->data[SC_VITALITYACTIVATION] )
+		regen->flag &=~RGN_SP;
 }
 
 /// Recalculates parts of an object's battle status according to the specified flags.
@@ -3320,6 +3332,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += ((sc->data[SC_MARIONETTE2]->val3)>>16)&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && str < 50)
 		str = 50;
+	if(sc->data[SC_GIANTGROWTH])
+		str += 30;
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -3536,6 +3550,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += sc->data[SC_GATLINGFEVER]->val3;
 	if(sc->data[SC_MADNESSCANCEL])
 		batk += 100;
+	if(sc->data[SC_STONEHARDSKIN] && sc->data[SC_STONEHARDSKIN]->val3)
+		batk -= batk / 100 * 25;
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
 
@@ -3580,6 +3596,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk -= watk * sc->data[SC_STRIPWEAPON]->val2/100;
 	if(sc->data[SC_MERC_ATKUP])
 		watk += sc->data[SC_MERC_ATKUP]->val2;
+	if(sc->data[SC_FIGHTINGSPIRIT])
+		watk += sc->data[SC_FIGHTINGSPIRIT]->val1;
 
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
@@ -4065,6 +4083,10 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		if( sc->data[SC_JOINTBEAT]->val2&BREAK_KNEE )
 			aspd_rate += 100;
 	}
+	if( sc->data[SC_FREEZING] )
+		aspd_rate += 300;
+	if( sc->data[SC_FIGHTINGSPIRIT] && sc->data[SC_FIGHTINGSPIRIT]->val2 )
+		aspd_rate -= aspd_rate * sc->data[SC_FIGHTINGSPIRIT]->val2 / 100;
 
 	return (short)cap_value(aspd_rate,0,SHRT_MAX);
 }
@@ -4946,6 +4968,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	if( !sc )
 		return 0; //Unable to receive status changes
+
+	if( sc->data[SC_REFRESH] && type != SC_STUN && type != SC_FREEZING )
+		return 0;
 	
 	if( status_isdead(bl) && type != SC_NOCHAT )
 		return 0;
@@ -4986,6 +5011,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			return 0;
 	case SC_SLEEP:
 	case SC_STUN:
+	case SC_BURNING:
 		if (sc->opt1)
 			return 0; //Cannot override other opt1 status changes. [Skotlex]
 	break;
@@ -5391,6 +5417,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_MARIONETTE2:
 			case SC_NOCHAT:
 			case SC_CHANGE: //Otherwise your Hp/Sp would get refilled while still within effect of the last invocation.
+			case SC_ABUNDANCE:
+			case SC_FEAR:
 				return 0;
 			case SC_COMBO: 
 			case SC_DANCING:
@@ -6263,6 +6291,21 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 1; // Stop walking
 			val4 = tick / 1000;
 			tick = 1000;
+			break;
+		case SC_BURNING:
+			val2 = 1000;
+			val4 = 10 + tick / 1000; // 10 second base duration + skill based duration
+			tick = 3000;
+			break;
+		case SC_DEATHBOUND: // 3ceam v1.
+			val2 = 500 + 100 * val1;
+			break;
+		case SC_ABUNDANCE: // 3ceam v1.
+			val4 = tick / 10000;
+			tick = 10000;
+			break;
+		case SC_GIANTGROWTH: // 3ceam v1.
+			val4 = tick / 1000;
 			break;
 
 		case SC_SHAPESHIFT: // 3ceam v1.
@@ -7634,6 +7677,29 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				sce->val2 = 0; // Enable walking.
 			sc_timer_next(1000+tick, status_change_timer, bl->id, data);
 			return 0;
+		}
+		break;
+
+	case SC_GIANTGROWTH:
+		if(--(sce->val4) > 0)
+		{
+			if(sce->val3 > 0)
+				sce->val3 *= -1; // mark it to be consumed.
+			else
+				sce->val3 = 0; // Consume it.
+			sc_timer_next(1000+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_ABUNDANCE:
+		if(--(sce->val4) > 0)
+		{
+			if( status_heal(bl,0,60,0) )
+			{
+				sc_timer_next(10000+tick, status_change_timer, bl->id, data);
+				return 0;
+			}
 		}
 		break;
 

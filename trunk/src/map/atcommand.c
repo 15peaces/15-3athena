@@ -71,7 +71,7 @@ struct Atcmd_Binding* get_atcommandbind_byname(const char* name)
 	int i = 0; 
 	if( *name == atcommand_symbol || *name == charcommand_symbol ) 
 		name++; // for backwards compatibility 
-	ARR_FIND( 0, ARRAYLENGTH(atcmd_binding), i, strcmp(atcmd_binding[i].command, name) == 0 ); 
+	ARR_FIND( 0, ARRAYLENGTH(atcmd_binding), i, strcmpi(atcmd_binding[i].command, name) == 0 ); 
 	return ( i < ARRAYLENGTH(atcmd_binding) ) ? &atcmd_binding[i] : NULL; 
 	return NULL; 
 }

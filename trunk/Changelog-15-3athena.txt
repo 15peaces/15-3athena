@@ -4,6 +4,12 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/06/2014
+	r18 [15peaces]
+		*Fixed an Issue with the bindatcmd where commands where case-sensitive. 
+			-To avoid abusing this you should update!
+		*Added Rune Knight skills and some support for their statuses. There are still some issues to fix but most of them work.
+
 07/24/2014
 	r17 [15peaces]
 		*Fixed an Issue where hatch a pet could disconnect you.

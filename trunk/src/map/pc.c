@@ -3890,6 +3890,26 @@ int pc_useitem(struct map_session_data *sd,int n)
 	if( sd->status.inventory[n].nameid <= 0 || sd->status.inventory[n].amount <= 0 )
 		return 0;
 
+	// In this case these sc are cooldown for these skills
+	if( itemdb_is_rune(sd->status.inventory[n].nameid) )
+	{
+		int skill = 0;
+		switch(sd->status.inventory[n].nameid)
+		{
+			case ITEMID_REFRESH: skill = RK_REFRESH; break;
+			case ITEMID_REUSE_CRUSHSTRIKE: skill = RK_CRUSHSTRIKE; break;
+			case ITEMID_REUSE_MILLENNIUMSHIELD: skill = RK_MILLENNIUMSHIELD; break;
+			case ITEMID_VITALITYACTIVATION: skill = RK_VITALITYACTIVATION; break;
+			case ITEMID_FIGHTINGSPIRIT: skill = RK_FIGHTINGSPIRIT; break;
+			case ITEMID_URUZ: skill = RK_ABUNDANCE; break;
+			case ITEMID_GIANTGROWTH: skill = RK_GIANTGROWTH; break;
+			case ITEMID_REUSE_REFRESH: skill = RK_STORMBLAST; break;
+			case ITEMID_STONEHARDSKIN: skill = RK_STONEHARDSKIN; break;
+		}
+		if (sd->blockskill[skill] > 0)
+			return 0; // Nothing to do.
+	}
+
 	if( !pc_isUseitem(sd,n) )
 		return 0;
 
@@ -3946,6 +3966,18 @@ int pc_useitem(struct map_session_data *sd,int n)
 
 	amount = sd->status.inventory[n].amount;
 	script = sd->inventory_data[n]->script;
+
+	// If any other class that isn't Rune Knight class, uses one rune, this is consumed without nothing happends.
+	if( itemdb_is_rune(sd->status.inventory[n].nameid) &&
+	!((sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT || (sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT_T) )
+	{
+		clif_useitemack(sd,n,amount-1,1);
+		if( log_config.enable_logs&0x100 )
+			log_pick(&sd->bl, LOG_TYPE_COMMAND, sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
+		pc_delitem(sd,n,1,1,0);
+		return 1;
+	}
+
 	//Check if the item is to be consumed immediately [Skotlex]
 	if( sd->inventory_data[n]->flag.delay_consume )
 		clif_useitemack(sd,n,amount,true);
@@ -6711,6 +6743,12 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 		sp -= sp * sd->sc.data[SC_CRITICALWOUND]->val2 / 100;
 	}
 
+	if( sd->sc.data[SC_VITALITYACTIVATION] )
+	{
+		hp += hp / 2; // 1.5 times
+		sp -= sp / 2;
+	}
+
 	return status_heal(&sd->bl, hp, sp, 1);
 }
 
@@ -6827,6 +6865,9 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 				status_change_end(&sd->bl, sc, INVALID_TIMER);
 		}
 	}
+
+	if( sd->sc.option&OPTION_MADOGEAR ) // You can mount mado even without NC_MADOLICENCE.
+		pc_setoption(sd,sd->sc.option&~OPTION_MADOGEAR);
 	
 	sd->status.class_ = job;
 	fame_flag = pc_famerank(sd->status.char_id,sd->class_&MAPID_UPPERMASK);

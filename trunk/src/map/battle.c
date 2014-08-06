@@ -470,6 +470,19 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			damage -= damage * 6 * (1+per) / 100;
 		}
 
+		if( (sce = sc->data[SC_STONEHARDSKIN]) && !sc->data[SC_STONEHARDSKIN]->val3 && (damage > 0) )
+		{
+			if( flag&BF_WEAPON )
+			{
+				sce->val2 -= damage;
+				skill_break_equip(src, EQP_WEAPON, 100*sce->val1, BCT_SELF);
+				if( src->type == BL_MOB && !(status_get_status_data(src)->mode&MD_BOSS))
+					sc_start4(src, SC_STONEHARDSKIN, 100, 0, 0, 1, 0, skill_get_time2(RK_STONEHARDSKIN, sce->val1));
+			}
+			if( sce->val2 <= 0 )
+				status_change_end(bl, SC_STONEHARDSKIN, -1);
+		}
+
 		// FIXME:
 		// So Reject Sword calculates the redirected damage before calculating WoE/BG reduction? This is weird. [Inkfish]
 		if((sce=sc->data[SC_REJECTSWORD]) && flag&BF_WEAPON &&
@@ -749,7 +762,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 				if(!pc_isriding(sd))
 					damage += (skill * 4);
 				else
-					damage += (skill * 5);
+					damage += (skill * (5 + pc_checkskill(sd,RK_DRAGONTRAINING)));
 			}
 			break;
 		case W_1HAXE:
@@ -1738,6 +1751,24 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case NPC_VAMPIRE_GIFT:
 					skillratio += ((skill_lv-1)%5+1)*100;
 					break;
+				case RK_WINDCUTTER:
+					skillratio += 100 + 50 * skill_lv;
+					break;
+				case RK_CRUSHSTRIKE:
+					skillratio += 1400;
+					break;
+				case RK_STORMBLAST: // Still need official value [pakpil]
+					skillratio += 300 + (status_get_lv(src) * 2 / 10);
+					break;
+				case RK_PHANTOMTHRUST: // Set according test in RE. [pakpil]
+					skillratio += 25 * (skill_lv - 1);
+					if( sd )
+					{
+						skillratio += 25 * (pc_checkskill(sd,KN_SPEARMASTERY)-1);
+						if( pc_isriding(sd) )
+							skillratio += 50;
+					}
+					break;
 				case KN_CHARGEATK:
 					{
 					int k = (wflag-1)/3; //+100% every 3 cells of distance
@@ -1790,16 +1821,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					//Bonus damage added if fire element weapon is equipped.
 					if( sstatus->rhw.ele == ELE_FIRE )
 						skillratio += 100 * skill_lv;
-					break;
-
-				case RK_PHANTOMTHRUST: // 3ceam v1.
-					skillratio += 25 * (skill_lv - 1);
-					if( sd )
-					{
-						skillratio += 25 * (pc_checkskill(sd,KN_SPEARMASTERY)-1);
-						//if( pc_isridingdragon(sd) ) //Disabled until supported. [15peaces]
-							//skillratio += 50;
-					}
 					break;
 
 				case HFLI_MOON:	//[orn]
@@ -3324,6 +3345,22 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		tsc->data[SC_KAAHI]->val4 = add_timer(tick + skill_get_time2(SL_KAAHI,tsc->data[SC_KAAHI]->val1), kaahi_heal_timer, target->id, SC_KAAHI); //Activate heal.
 
 	wd = battle_calc_attack(BF_WEAPON, src, target, 0, 0, flag);	
+
+	if(sc)
+	{
+		if( sc->data[SC_GIANTGROWTH] && sc->data[SC_GIANTGROWTH]->val3 > 0 && wd.flag&(BF_WEAPON|BF_SHORT) )
+		{ // As I have noticed, this effect is for 1 hit.
+			int rate = rand()%100;
+			wd.damage *= 3;
+			sc->data[SC_GIANTGROWTH]->val3 = 0;
+			if(rate < 10) // Break your weapon still need official value
+				skill_break_equip(src, EQP_WEAPON, rate, BCT_SELF);
+		}
+	}
+	if(tsc && tsc->data[SC_GIANTGROWTH] && wd.flag&(BF_WEAPON|BF_SHORT) ) // short range physical damage.
+	{ // Mark it to amplify target's next attack.
+		tsc->data[SC_GIANTGROWTH]->val3 = 1;
+	}
 
 	if (sd && sd->state.arrow_atk) //Consume arrow.
 		battle_consume_ammo(sd, 0, 0);

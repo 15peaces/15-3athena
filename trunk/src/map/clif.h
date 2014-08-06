@@ -746,4 +746,7 @@ void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, i
 void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
 void clif_map_type2(struct block_list *bl,enum send_target target);
 
+void clif_equip_damaged(struct map_session_data *sd, int equip_index);
+void clif_millenniumshield(struct map_session_data *sd, short shields );
+
 #endif /* _CLIF_H_ */
