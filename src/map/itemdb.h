@@ -100,6 +100,18 @@ struct item_group {
 	int qty; //Counts amount of items in the group.
 };
 
+enum {
+	ITEMID_REFRESH = 12725,
+	ITEMID_REUSE_CRUSHSTRIKE,
+	ITEMID_REUSE_MILLENNIUMSHIELD,
+	ITEMID_VITALITYACTIVATION,
+	ITEMID_FIGHTINGSPIRIT,
+	ITEMID_URUZ,
+	ITEMID_GIANTGROWTH,
+	ITEMID_REUSE_REFRESH,
+	ITEMID_STONEHARDSKIN,
+} rune_list;
+
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
 struct item_data* itemdb_load(unsigned short nameid);
@@ -121,6 +133,7 @@ struct item_data* itemdb_exists(unsigned short nameid);
 #define itemdb_available(n) (itemdb_search(n)->flag.available)
 #define itemdb_viewid(n) (itemdb_search(n)->view_id)
 #define itemdb_autoequip(n) (itemdb_search(n)->flag.autoequip)
+#define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
 const char* itemdb_typename(int type);
 
 int itemdb_group_bonus(struct map_session_data* sd, int itemid);

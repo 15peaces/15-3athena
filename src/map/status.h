@@ -667,6 +667,9 @@ typedef enum sc_type {
 	SC_STRANGELIGHTS,
 	SC_DECORATION_OF_MUSIC,
 
+	//15-3athena added
+	SC_FREEZING = 600,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 
@@ -991,7 +994,7 @@ enum si_type {
 
 	//SI_ENDURE_MDEF = 315,
 	SI_ENCHANTBLADE = 316,
-	/*SI_DEATHBOUND = 317,
+	SI_DEATHBOUND = 317,
 	SI_REFRESH = 318,
 	SI_GIANTGROWTH = 319,
 	SI_STONEHARDSKIN = 320,
@@ -1001,7 +1004,7 @@ enum si_type {
 	SI_REUSE_MILLENNIUMSHIELD = 324,
 	SI_REUSE_CRUSHSTRIKE = 325,
 	SI_REUSE_REFRESH = 326,
-	SI_REUSE_STORMBLAST = 327,
+	/*SI_REUSE_STORMBLAST = 327,
 	SI_VENOMIMPRESS = 328,
 	SI_EPICLESIS = 329,
 	SI_ORATIO = 330,
