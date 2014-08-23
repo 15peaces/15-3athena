@@ -96,6 +96,19 @@
 538,0xbb,    ,  1:1:1:2:2:2:3:3:3:4,0,-1,all,0x010	//NJ_SUITON
 670,0xc7,    ,  1, 4:7:10:13:16:19:22:25:28:31,1000,all,0x008	//NPC_EVILLAND
 
+2213,0x86, , 0,15,1000,enemy, 0x000 //WL_COMET //3ceam v1.
+2214,0x86, , 0, 5, 100,enemy, 0x080 //WL_CHAINLIGHTNING //3ceam v1.
+2216,0xcb, , 1, 1:1:2:2:3,1000,enemy, 0x018 //WL_EARTHSTRAIN //3ceam v1.
+2238,0xd8, , 0, 1,1000,enemy, 0x006	//RA_ELECTRICSHOCKER //3ceam v1.
+2238,0xd8, , 0, 1,1000,enemy, 0x002	//RA_ELECTRICSHOCKER //3ceam v1.
+2239,0xd9, , 0, 1,1000,enemy, 0x006 //RA_CLUSTERBOMB //3ceam v1.
+2249,0xd2, , 0, 1,1000,enemy, 0x022 //RA_MAGENTATRAP //3ceam v1.
+2250,0xd3, , 0, 1,1000,enemy, 0x022 //RA_COBALTTRAP //3ceam v1.
+2251,0xd4, , 0, 1,1000,enemy, 0x022 //RA_MAIZETRAP //3ceam v1.
+2252,0xd5, , 0, 1,1000,enemy, 0x022 //RA_VERDURETRAP //3ceam v1.
+2253,0xd6, , 0, 1,1000,enemy, 0x002 //RA_FIRINGTRAP //3ceam v1.
+2254,0xd7, , 0, 1,1000,enemy, 0x002 //RA_ICEBOUNDTRAP //3ceam v1.
+
 2273,0x86, , 1, 0,1000,ally, 0x002 //NC_NEUTRALBARRIER //3ceam v1.
 2274,0xa1, , 1, 0,1000,ally, 0x002 //NC_STEALTHFIELD //3ceam v1.
 
@@ -107,6 +120,22 @@
 
 2303,0xce, , 0, 1,1000,all, 0x000 //SC_BLOODYLUST //3ceam v1.
 2304,0xd1, , 3, 1,1000,all, 0x000 //SC_FEINTBOMB //3ceam v1.
+
+2443,0xdf, , 0, 1,1000,enemy, 0x008 //SO_FIREWALK //3ceam v1.
+2444,0xdd, , 0, 1,1000,enemy, 0x008 //SO_ELECTRICWALK //3ceam v1.
+2446,0x86, , 0, 7:7:7:9:9,1000,enemy,0x000 //SO_EARTHGRAVE //3ceam v1.
+2447,0x86, , 0, 7:7:7:9:9,1000,enemy,0x000 //SO_DIAMONDDUST //3ceam v1.
+2449,0x86, , 0, 7:7:9:9:11,1000,enemy,0x000 //SO_PSYCHIC_WAVE //3ceam v1.
+2450,0x86, , 3, 1,1000,enemy,0x000 //SO_CLOUD_KILL //3ceam v1.
+2452,0x86, , 0, 7,1000,friend,0x000 //SO_WARMER //3ceam v1.
+2453,0x86, , 0, 7,1000,enemy,0x000 //SO_VACUUM_EXTREME //3ceam v1.
+2479,0xe5, , 0, 1,1000,enemy, 0x000 //GN_THORNS_TRAP //3ceam v1.
+2482,0xe6, , 2, 1,500,enemy, 0x000 //GN_WALLOFTHORN //3ceam v1.
+2485,0xe7, , 0, 3,1000,all, 0x080 //GN_DEMONIC_FIRE //3ceam v1.
+2487,0xe8, , 0, 3,1000,enemy, 0x000 //GN_FIRE_EXPANSION_SMOKE_POWDER //3ceam v1.
+2488,0xe9, , 0, 3,1000,enemy, 0x000 //GN_FIRE_EXPANSION_TEAR_GAS //3ceam v1.
+2483,0x86, , 0, 5,1000,enemy, 0x000 //GN_CRAZYWEED //3ceam v1.
+2490,0xea, , 0, 5,1000,enemy, 0x000 //GN_HELLS_PLANT //3ceam v1.
 
 2555,0x104,  ,  0, 1:2:2:3:3,500,enemy,0x006 //RL_B_TRAP
 8208,0x86,    ,  0, 2,1000,enemy, 0x080	//MA_SHOWER

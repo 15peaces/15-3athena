@@ -372,7 +372,7 @@ void pc_onstatuschanged(struct map_session_data* sd, int type)
 
 	// cart info
 	case SP_CARTINFO:
-		clif_updatecartinfo(sd, sd->cart_num, MAX_CART, sd->cart_weight, battle_config.max_cart_weight);
+		clif_updatecartinfo(sd, sd->cart_num, MAX_CART, sd->cart_weight, battle_config.max_cart_weight + (pc_checkskill(sd,GN_REMODELING_CART)*5000));
 	break;
 
 	// attack range
@@ -3924,7 +3924,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 		(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
 		sd->sc.data[SC_TRICKDEAD] ||
 		sd->sc.data[SC_HIDING] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM)
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
+		sd->sc.data[SC_DIAMONDDUST]
 	))
 		return 0;
 
@@ -4034,7 +4035,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	}
 
-	if( (w = data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight )
+	if( (w = data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight + (pc_checkskill(sd,GN_REMODELING_CART)*5000) )
 		return 1;
 
 	i = MAX_CART;
@@ -5715,6 +5716,8 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 
 		clif_skillup(sd,skill_num);
 		pc_onstatuschanged(sd,SP_SKILLPOINT);
+		if( skill_num == GN_REMODELING_CART )
+			pc_onstatuschanged(sd,SP_CARTINFO);
 		clif_skillinfoblock(sd);
 	}
 

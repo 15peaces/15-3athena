@@ -266,6 +266,30 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 		if( tsc->data[SC_SPIDERWEB]->val2 == 0 )
 			status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
 	}
+	if( tsc && tsc->count )
+	{
+		if( tsc->data[SC_ORATIO] && atk_elem == ELE_HOLY )
+			ratio += tsc->data[SC_ORATIO]->val1 * 2;
+			if( tsc->data[SC_WHITEIMPRISON] && atk_elem != ELE_GHOST )
+				damage = 0;
+			else
+				status_change_end(target, SC_WHITEIMPRISON, -1);
+			if( atk_elem == ELE_FIRE && tsc->data[SC_THORNSTRAP] )
+				status_change_end(target, SC_THORNSTRAP, -1);
+	}
+	if( target && target->type == BL_SKILL )
+	{
+		struct skill_unit *unit = (struct skill_unit*)target;
+		if( atk_elem == ELE_FIRE && unit && unit->group->skill_id == GN_WALLOFTHORN )
+		{
+			struct block_list *src = map_id2bl(unit->val2);
+			if( src )
+			{
+				skill_unitsetting(src, MG_FIREWALL, unit->group->skill_lv, target->x, target->y, 0);
+				return 0;
+			}
+		}
+	}
 	return damage*ratio/100;
 }
 
@@ -751,6 +775,8 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		case W_1HSWORD:
 			if((skill = pc_checkskill(sd,SM_SWORD)) > 0)
 				damage += (skill * 4);
+			if((skill = pc_checkskill(sd,GN_TRAINING_SWORD)) > 0)
+				damage += skill * 5;
 			break;
 		case W_2HSWORD:
 			if((skill = pc_checkskill(sd,SM_TWOHAND)) > 0)
@@ -1313,11 +1339,21 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if(sd && pc_checkskill(sd,AS_SONICACCEL)>0)
 					hitrate += hitrate * 50 / 100;
 				break;
+			case MC_CARTREVOLUTION: //3ceam v1.
+			case GN_CART_TORNADO: //3ceam v1.
+			case GN_CARTCANNON: //3ceam v1.
+				if( sd && pc_checkskill(sd, GN_REMODELING_CART) );
+					hitrate += pc_checkskill(sd, GN_REMODELING_CART) * 4;
+				break;
 		}
 
 		// Weaponry Research hidden bonus
 		if (sd && (skill = pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0)
 			hitrate += hitrate * ( 2 * skill ) / 100;
+
+		if( sd && (sd->status.weapon == W_1HSWORD || sd->status.weapon == W_DAGGER) &&
+			(skill = pc_checkskill(sd, GN_TRAINING_SWORD))>0 )
+			hitrate += 3 * skill;
 
 		hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate); 
 
@@ -1769,6 +1805,43 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio += 50;
 					}
 					break;
+				case AB_DUPLELIGHT_MELEE:
+					skillratio += 10 * skill_lv;
+					break;
+				case RA_ARROWSTORM:
+					skillratio += 100 + 50 * skill_lv;
+					break;
+				case RA_AIMEDBOLT:
+					if( unit_can_move(target) )
+						skillratio = skillratio * 2 + skillratio / 5 * skill_lv;
+					else
+						switch( tstatus->size )
+						{
+							case 1: skillratio = skillratio * 8 + skillratio / 10 * 8 * skill_lv; break;
+							case 2: skillratio = skillratio * 18 + skillratio / 10 * 18 * skill_lv; break;
+							case 3: skillratio = skillratio * 32 + skillratio / 10 * 32 * skill_lv; break;
+							default: break;
+						}
+					break;
+				case SC_TRIANGLESHOT:
+					skillratio += 270 + 30 * skill_lv;
+					break;
+				case GN_CART_TORNADO:
+					skillratio += 50 * skill_lv;
+					if( sd )
+						skillratio += pc_checkskill(sd, GN_REMODELING_CART) * 60; // Need official value. [LimitLine]
+					break;
+				case GN_CARTCANNON:
+					skillratio += 250 + 50 * skill_lv + status_get_int(src) * 2; // Need official value. [LimitLine]
+					if( sd )
+						skillratio += pc_checkskill(sd, GN_REMODELING_CART) * 60; // Need official value. [LimitLine]
+					break;
+				case GN_THORNS_TRAP:
+					skillratio += 10 * skill_lv; // Taken from pakpil's version. Where did he get this from? [LimitLine]
+					break;
+				case GN_CRAZYWEED_ATK:
+					skillratio += 400 + 100 * skill_lv;
+					break;
 				case KN_CHARGEATK:
 					{
 					int k = (wflag-1)/3; //+100% every 3 cells of distance
@@ -1829,18 +1902,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case HFLI_SBR44:	//[orn]
 					skillratio += 100 *(skill_lv-1);
 					break;
-				case RA_AIMEDBOLT: //3ceam v1
-					skillratio += 100 + 20 * skill_lv;
-					if(tsc && (tsc->data[SC_STOP] || tsc->data[SC_ANKLE] ||
-						tsc->data[SC_ELECTRICSHOCKER]))
-						switch(tstatus->size)
-						{
-							case 0: skillratio = skillratio*2; break;
-							case 1: skillratio = skillratio*3; break;
-							case 2: skillratio = skillratio*4; break;
-						}
-					break;
-				
 				case NC_BOOSTKNUCKLE: //3ceam v1
 					skillratio += (100 + 100 * skill_lv) + status_get_dex(src) + status_get_lv(src); // Need the official value. [Rytech]
 					break;
@@ -2670,7 +2731,57 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						}
 					case WL_CHAINLIGHTNING: // 3ceam v1
 					case WL_CHAINLIGHTNING_ATK: // 3ceam v1
+					case SO_FIREWALK: // Need official formula. [LimitLine]
+					case SO_ELECTRICWALK: // Need official formula. [LimitLine]
 						skillratio += 300 + 100 * skill_lv;
+						break;
+
+					case WL_EARTHSTRAIN:
+						skillratio += 2000 + 100 * skill_lv;
+						break;
+					case WL_TETRAVORTEX_FIRE:
+					case WL_TETRAVORTEX_WATER:
+					case WL_TETRAVORTEX_WIND:
+					case WL_TETRAVORTEX_GROUND:
+						skillratio += 400 + 500 * skill_lv;
+						break;
+					case WL_SUMMON_ATK_FIRE:
+					case WL_SUMMON_ATK_WATER:
+					case WL_SUMMON_ATK_WIND:
+					case WL_SUMMON_ATK_GROUND:
+						skillratio += 50 * skill_lv - 50;
+						break;
+					case RA_WUGDASH:
+						skillratio += 500;//Damage based from iROwiki info. [Jobbie]
+						break;
+					case SO_EARTHGRAVE: // Need official formula. [LimitLine]
+					case SO_DIAMONDDUST: // Need official formula. [LimitLine]
+					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
+						skillratio += 300 + 100 * skill_lv;
+						break;
+					case SO_PSYCHIC_WAVE:
+					case SO_VARETYR_SPEAR: // Need official formula. [LimitLine]
+					// Skill desc suggests that the damage increases with your Base Level, and the current formula
+					// applies to a lv 150 character. Need official Level bonus increment. [LimitLine]
+						skillratio += 600 + 100 * skill_lv;
+						break;
+					case SO_CLOUD_KILL:
+						skillratio = 50 * skill_lv; // Need official formula. [LimitLine]
+						break;
+					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
+						skillratio += 400 + 100 * skill_lv;
+						break;
+					case GN_DEMONIC_FIRE:
+						if( skill_lv > 20)
+						{ // Fire expansion Lv.2
+							skillratio += 110 + 20 * (skill_lv - 20) + status_get_int(src) * 3; // Need official INT bonus. [LimitLine]
+						}
+						else if( skill_lv > 10 )
+						{ // Fire expansion Lv.1
+							skillratio += 110 + 20 * (skill_lv - 10) / 2;
+						}
+						else
+							skillratio += 110 + 20 * skill_lv;
 						break;
 
 					case AB_ADORAMUS: // 3ceam v1
@@ -2991,6 +3102,19 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case NPC_EVILLAND:
 		md.damage = skill_calc_heal(src,target,skill_num,skill_lv,false);
+		break;
+	case RA_CLUSTERBOMB:
+		//iRO wiki damage formula.
+		md.damage = 5*sstatus->int_ + (2*sstatus->batk + sstatus->lhw.atk + sstatus->rhw.atk)*(skill_lv+2);
+		if( sd )
+			md.damage += (sd->status.base_level * 2 + ( (sd->status.base_level/50) + 3)*sstatus->dex+300)*skill_lv + pc_checkskill(sd,RA_RESEARCHTRAP);
+		break;
+	case RA_FIRINGTRAP:
+	case RA_ICEBOUNDTRAP:
+		//iRO wiki damage formula.
+		md.damage = 5*sstatus->int_ + sstatus->batk + sstatus->lhw.atk + sstatus->rhw.atk;
+		if( sd )
+			md.damage += (sd->status.base_level * 2 + ( (sd->status.base_level/50) + 3)*sstatus->dex+300)*skill_lv + pc_checkskill(sd,RA_RESEARCHTRAP);
 		break;
 	}
 
@@ -3576,13 +3700,14 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					case WZ_SIGHTBLASTER:
 					case SM_MAGNUM:
 					case MS_MAGNUM:
+					case RA_DETONATOR:
 						state |= BCT_ENEMY;
 						strip_enemy = 0;
 						break;
 					default:
 						return 0;
 				}
-			} else if (su->group->skill_id==WZ_ICEWALL)
+			} else if (su->group->skill_id==WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN)
 			{
 				state |= BCT_ENEMY;
 				strip_enemy = 0;

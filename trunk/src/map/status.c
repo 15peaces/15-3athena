@@ -427,10 +427,36 @@ void initChangeTables(void)
 	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE				, SI_ABUNDANCE				, SCB_NONE );
 
 	// Arch Bishop
-	set_sc( AB_DUPLELIGHT		 , SC_DUPLELIGHT	  , SI_DUPLELIGHT	   , SCB_NONE );
+	set_sc( AB_DUPLELIGHT			, SC_DUPLELIGHT			, SI_DUPLELIGHT	   , SCB_NONE );
 
 	// Warlock
-	set_sc( WL_RECOGNIZEDSPELL , SC_RECOGNIZEDSPELL , SI_RECOGNIZEDSPELL , SCB_MATK );
+	set_sc( WL_RECOGNIZEDSPELL	, SC_RECOGNIZEDSPELL , SI_RECOGNIZEDSPELL , SCB_MATK );
+
+	//Ranger
+	set_sc( RA_FEARBREEZE					, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE );
+	set_sc( RA_WUGDASH						, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED );
+	add_sc( RA_MAGENTATRAP					, SC_ELEMENTALCHANGE	);
+	add_sc( RA_COBALTTRAP					, SC_ELEMENTALCHANGE	);
+	add_sc( RA_MAIZETRAP					, SC_ELEMENTALCHANGE	);
+	add_sc( RA_ELECTRICSHOCKER				, SC_ELECTRICSHOCKER	);
+	add_sc( RA_FIRINGTRAP					, SC_BURNING			);
+	add_sc( RA_ICEBOUNDTRAP					, SC_FREEZING			);
+
+	// Genetic
+	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST	, SI_GN_CARTBOOST	, SCB_SPEED|SCB_BATK	);
+	add_sc( GN_THORNS_TRAP					, SC_THORNSTRAP		);
+	set_sc( GN_BLOOD_SUCKER					, SC_BLOOD_SUCKER	, SI_BLOOD_SUCKER	, SCB_NONE				);
+	add_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER	);
+	add_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS		);
+	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA		, SI_BLANK			, SCB_INT				);
+
+	//Sorcerer
+	add_sc( SO_FIREWALK						, SC_FIREWALK		);
+	add_sc( SO_ELECTRICWALK					, SC_ELECTRICWALK	);
+	add_sc( SO_WARMER						, SC_WARMER			);
+	set_sc( SO_STRIKING						, SC_STRIKING		, SI_BLANK			, SCB_BATK|SCB_CRI		);
+	add_sc( SO_VACUUM_EXTREME				, SC_STOP );
+	add_sc( SO_ARRULLO						, SC_DEEPSLEEP		);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -1101,6 +1127,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		//on dead characters, said checks are left to skill.c [Skotlex]
 		if (target && status_isdead(target))
 			return 0;
+		if( (sc = status_get_sc(src)) && sc->data[SC_DIAMONDDUST] )
+			return 0;
 	}
 
 	if (skill_num == PA_PRESSURE && flag && target) {
@@ -1184,7 +1212,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				(sc->data[SC_MARIONETTE] && skill_num != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
 				(sc->data[SC_MARIONETTE2] && skill_num == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				sc->data[SC_STEELBODY] ||
-				sc->data[SC_BERSERK]
+				sc->data[SC_BERSERK] ||
+				sc->data[SC_DIAMONDDUST]
 			))
 				return 0;
 
@@ -1218,6 +1247,21 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		}
 		if (sc->option&OPTION_CHASEWALK && skill_num != ST_CHASEWALK)
 			return 0;
+		if (sc->option&OPTION_WUGRIDER)//Only usable skill while riding warg.
+			switch( skill_num )
+			{
+				case HT_ANKLESNARE:		case HT_SHOCKWAVE:
+				case HT_SANDMAN:		case HT_FLASHER:
+				case HT_FREEZINGTRAP:	case HT_BLASTMINE:
+				case HT_CLAYMORETRAP:	case HT_TALKIEBOX:
+				case RA_DETONATOR:		case RA_CLUSTERBOMB:
+				case RA_FIRINGTRAP:		case RA_ICEBOUNDTRAP:
+				case RA_WUGDASH:		case RA_WUGSTRIKE:
+				case RA_WUGRIDER:
+					break;
+				default:
+					return 0;
+			}
 	}
 	if (target == NULL || target == src) //No further checking needed.
 		return 1;
@@ -2163,6 +2207,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		status->int_ += (skill+1)/2; // +1 INT / 2 lv
 	if((skill=pc_checkskill(sd,AC_OWL))>0)
 		status->dex += skill;
+	if((skill=pc_checkskill(sd,RA_RESEARCHTRAP))>0)
+		status->int_ += skill;
 
 	// Bonuses from cards and equipment as well as base stat, remember to avoid overflows.
 	i = status->str + sd->status.str + sd->param_bonus[0] + sd->param_equip[0];
@@ -2229,6 +2275,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		status->max_sp += status->max_sp * skill/100;
 	if((skill=pc_checkskill(sd,HW_SOULDRAIN))>0)
 		status->max_sp += status->max_sp * 2*skill/100;
+	if((skill=pc_checkskill(sd,RA_RESEARCHTRAP))>0)
+		status->max_sp += 200 + 20*skill;
 
 	// Apply relative modifiers from equipment
 	if(sd->sprate < 0)
@@ -3443,6 +3491,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += ((sc->data[SC_MARIONETTE2]->val4)>>16)&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && int_ < 50)
 		int_ = 50;
+	if(sc->data[SC_MANDRAGORA])
+		int_ -= 5 + 5 * sc->data[SC_MANDRAGORA]->val1;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -3552,6 +3602,10 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += 100;
 	if(sc->data[SC_STONEHARDSKIN] && sc->data[SC_STONEHARDSKIN]->val3)
 		batk -= batk / 100 * 25;
+	if(sc->data[SC_GN_CARTBOOST])
+		batk += sc->data[SC_GN_CARTBOOST]->val1 * 10;
+	if(sc->data[SC_STRIKING])
+		batk += 50 * sc->data[SC_STRIKING]->val1;
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
 
@@ -3636,6 +3690,8 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 		critical += sc->data[SC_TRUESIGHT]->val2;
 	if(sc->data[SC_CLOAKING])
 		critical += critical;
+	if(sc->data[SC_STRIKING])
+		critical += sc->data[SC_STRIKING]->val1;
 
 	return (short)cap_value(critical,10,SHRT_MAX);
 }
@@ -3953,6 +4009,10 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 10 * sc->data[SC_AVOID]->val1 );
 			if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 				val = max( val, 75 );
+			if( sc->data[SC_WUGDASH] )
+				val = max( val, 15 );
+			if( sc->data[SC_GN_CARTBOOST] )
+				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 
 			//FIXME: official items use a single bonus for this [ultramage]
 			if( sc->data[SC_SPEEDUP0] ) // temporary item-based speedup
@@ -4100,7 +4160,7 @@ static unsigned short status_calc_dmotion(struct block_list *bl, struct status_c
 		return 0;
 	if( sc->data[SC_CONCENTRATION] )
 		return 0;
-	if( sc->data[SC_RUN] )
+	if( sc->data[SC_RUN] || sc->data[SC_WUGDASH] )
 		return 0;
 
 	return (unsigned short)cap_value(dmotion,0,USHRT_MAX);
@@ -6046,6 +6106,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 11-val1; //Chance to consume: 11-skilllv%
 			break;
 		case SC_RUN:
+		case SC_WUGDASH:
 			val4 = gettick(); //Store time at which you started running.
 			tick = -1;
 			break;
@@ -6348,6 +6409,66 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 
+		case SC_WHITEIMPRISON:
+			status_change_end(bl, SC_BURNING, -1);
+			status_change_end(bl, SC_FREEZING, -1);
+			status_change_end(bl, SC_FREEZE, -1);
+			status_change_end(bl, SC_STONE, -1);
+			break;
+		case SC_MARSHOFABYSS:
+			val4 = val1 * (val2 + val3);
+			break;
+		case SC_FREEZING:
+			status_change_end(bl, SC_BURNING, -1);
+			break;
+		case SC_CHAINLIGHTNING:
+			val4 = tick / 1000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 1000;
+			break;
+		case SC_FREEZINGSPELL:
+			if( !sd )
+				return 0; // Should only work on players.
+			val4 = tick / 10000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 10000;
+			break;
+		case SC_ELECTRICSHOCKER:
+			val4 = tick / 1000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 1000;
+			break;
+		case SC_GN_CARTBOOST:
+			if( val1 < 3 )
+				val2 = 50;
+			else if( val1 < 5 )
+				val2 = 75;
+			else
+				val2 = 100;
+			break;
+		case SC_FIREWALK:
+		case SC_ELECTRICWALK:
+			val2 = 6 + 2 * val1;
+			tick = 0;
+			break;
+		case SC_WARMER:
+			val4 = tick / 3000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 3000;
+			status_change_end(bl, SC_FREEZE, -1);
+			status_change_end(bl, SC_FREEZING, -1);
+			break;
+		case SC_BLOOD_SUCKER:
+			val4 = tick / 1000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 1000;
+			break;
+
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -6394,6 +6515,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CLOSECONFINE2:
 		case SC_ANKLE:
 		case SC_SPIDERWEB:
+		case SC_ELECTRICSHOCKER:
+		case SC_THORNSTRAP:
+		case SC_DIAMONDDUST:
 			unit_stop_walking(bl,1);
 		break;
 		case SC_HIDING:
@@ -6633,6 +6757,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_MERC_SPUP:
 			status_percent_heal(bl, 0, 100); // Recover Full SP
+			break;
+		case SC_WUGDASH:
+			{
+				struct unit_data *ud = unit_bl2ud(bl);
+				if( ud )
+					ud->state.running = unit_wugdash(bl, sd);
+			}
 			break;
 		case SC_COMBO:
 			switch (sce->val1) {
@@ -7111,6 +7242,21 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					status_change_end(tbl, SC_STOP, INVALID_TIMER);
 			}
 			break;
+
+		case SC_WHITEIMPRISON:
+			clif_damage(bl, bl, 0, 0, 0, sce->val1 * 400, 0, 0, 0);
+			status_zap(bl, sce->val1 * 400, 0);
+			break;
+		case SC_WUGDASH:
+			{
+				struct unit_data *ud = unit_bl2ud(bl);
+				if (ud) {
+					ud->state.running = 0;
+					if (ud->walktimer != -1)
+						unit_stop_walking(bl,1);
+				}
+			}
+			break;
 		}
 
 	opt_flag = 1;
@@ -7119,6 +7265,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	case SC_FREEZE:
 	case SC_STUN:
 	case SC_SLEEP:
+	case SC_BURNING:
 		sc->opt1 = 0;
 		break;
 
@@ -7716,6 +7863,72 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				status_heal(bl,hp,0,3);
 			}
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_BURNING:
+		if( --(sce->val4) >= 0 )
+		{
+			int damage = status_get_max_hp(bl) / 100 * 3;
+			bool flag;
+			if( status )
+				damage = battle_attr_fix(bl, bl, damage, ELE_FIRE, status->def_ele, status->ele_lv);
+			map_freeblock_lock();
+			status_fix_damage(bl, bl, damage, clif_damage(bl, bl, tick, 0, 0, damage, 0, 0, 0));
+			flag = !sc->data[type];
+			map_freeblock_unlock();
+			if( !flag )	// Target still lives. [LimitLine]
+				sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_CHAINLIGHTNING:
+		if( --(sce->val4) >= 0 )
+		{
+			struct block_list *src = map_id2bl(sce->val2);
+			if( !src || (src && status_isdead(src)) || (src && src->m != bl->m) )
+				break;
+			map_freeblock_lock();
+			skill_attack(skill_get_type(WL_CHAINLIGHTNING_ATK), src, src, bl,
+			WL_CHAINLIGHTNING_ATK, sce->val1, 0, SD_LEVEL);
+			map_freeblock_unlock();
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_WARMER:
+		if( --(sce->val4) >= 0 )
+		{
+			status_heal(bl, 100 * sce->val1, 0, 2);
+			sc_timer_next(3000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+	case SC_BLOOD_SUCKER:
+		if( --(sce->val4) >= 0 )
+		{
+			struct block_list *src = map_id2bl(sce->val2);
+			int damage;
+			if( !src || (src && status_isdead(src) || (src && src->m != bl->m) ) || (src && distance_bl(src, bl) >= 12) )
+				break;
+			map_freeblock_lock();
+			damage = skill_attack(skill_get_type(GN_BLOOD_SUCKER), src, src, bl, GN_BLOOD_SUCKER, sce->val1, tick, 0);
+			map_freeblock_unlock();
+			status_heal(src, damage, 0, 0);
+			clif_skill_nodamage(src, bl, GN_BLOOD_SUCKER, 0, 1);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+	case SC_FIREWALK:
+	case SC_ELECTRICWALK:
+		if( --(sce->val2) >= 0 )
+		{
+			skill_unitsetting(bl, type == SC_FIREWALK ? SO_FIREWALK : SO_ELECTRICWALK, sce->val1, bl->x, bl->y, 0);
+			sc_timer_next(250 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

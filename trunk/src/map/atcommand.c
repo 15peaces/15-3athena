@@ -5939,6 +5939,44 @@ ACMD_FUNC(storeall)
 }
 
 /*==========================================
+ * @storeit
+ * Put everything not equipped into storage.
+ *------------------------------------------*/
+ACMD_FUNC(storeit) {
+
+	int i;
+	nullpo_retr(-1, sd);
+
+	if (sd->npc_id)
+	{
+		clif_displaymessage(fd, "You cannot be talking to an NPC and use this command.");
+		return -1;
+	}
+
+	if (sd->state.storage_flag != 1)
+  	{	//Open storage.
+		switch (storage_storageopen(sd)) {
+		case 2: //Try again
+			clif_displaymessage(fd, "Run this command again..");
+			return 0;
+		case 1: //Failure
+			clif_displaymessage(fd, "You can't open the storage currently.");
+			return -1;
+		}
+	}
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->status.inventory[i].amount) {
+			if(sd->status.inventory[i].equip == 0)
+				storage_storageadd(sd,  i, sd->status.inventory[i].amount);
+		}
+	}
+	storage_storageclose(sd);
+
+	clif_displaymessage(fd, "It is done");
+	return 0;
+}
+
+/*==========================================
  * @skillid by [MouseJstr]
  * lookup a skill by name
  *------------------------------------------*/
@@ -6695,7 +6733,8 @@ ACMD_FUNC(npctalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if(!ifcolor) {
@@ -6740,7 +6779,8 @@ ACMD_FUNC(pettalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%99[^\n]", mes) < 1) {
@@ -7525,7 +7565,8 @@ ACMD_FUNC(homtalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if ( !merc_is_hom_active(sd->hd) ) {
@@ -7952,7 +7993,8 @@ ACMD_FUNC(me)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%199[^\n]", tempmes) < 0) {
@@ -9351,6 +9393,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "killable",          40,40,     atcommand_killable },
 	{ "dropall",           40,40,     atcommand_dropall },
 	{ "storeall",          40,40,     atcommand_storeall },
+	{ "storeit",		   40,40,     atcommand_storeit },
 	{ "skillid",           40,40,     atcommand_skillid },
 	{ "useskill",          40,40,     atcommand_useskill },
 	{ "displayskill",      99,99,     atcommand_displayskill },
