@@ -4,6 +4,33 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/23/2014
+	r19 [15peaces]
+		*Added new atcommand: @storeit.
+			-Put everything not equipped into storage.
+			-This was found on rAthena. I think this is a better version of @storeall, so I added it in.
+		*Increased MAX_CHARS to 12 by default. 
+			-Newer Clients support 12 character slots by default.
+		* Fixed some issues with Burning status:
+			-Map-server crash when someone dies with Burning.
+			-Burning didn't show its sc icon propertly.
+		*Added some new status IDs. They are currently added at the End of SCs since some of them will be moved / changed ore disabled later.
+		*Added Ranger Trap only related skills.
+			-Icebound and Firing Trap deals neutral damage to enemy based on official info.
+			-Clusterbomb is a MiSC type of attack same to Icebound and Firing Trap.
+			-Applied Clusterbomb, Firing, Icebound damage formula based of official info from iROwiki.
+		*Updated some db files
+		* Added Sorcerer and Genetic Skills.
+			- Fire Expansion Lv1-4 still being worked on.
+			- A few skill formulas and damage increments based on base level are custom. Look inside battle.c to find out which.
+			- Sling Item, Change Material, Special Pharmacy not included.
+			- Cast times and cooldowns are also custom. I'll update those later.
+		* Initialized Shadow Chaser's skills implementation. Started with SC_TRIANGLESHOT.
+		*AB_ANCILLA; *AB_DUPLELIGHT; *RA_CLUSTERBOMB; *RA_FIRINGTRAP; *RA_ICEBOUNDTRAP; *RA_DETONATOR; *RA_WUGDASH; *RA_RESEARCHTRAP; *WL_EARTHSTRAIN; *WL_TETRAVORTEX; *WL_SUMMON_ATK
+			-Added pre Support for these skills.
+		*AB_CLEMENTIA; *AB_CANTO; *AB_PRAEFATIO; *AB_CHEAL; *AB_ORATIO; *AB_LAUDAAGNUS; *AB_LAUDARAMUS; *AB_RENOVATIO; *RA_ARROWSTORM; *RA_AIMEDBOLT; *SC_TRIANGLESHOT
+			-Added full support for these Skills. However some formulars may be outdated. ^^
+
 08/06/2014
 	r18 [15peaces]
 		*Fixed an Issue with the bindatcmd where commands where case-sensitive. 
