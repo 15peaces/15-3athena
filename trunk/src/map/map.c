@@ -1617,6 +1617,10 @@ int map_quit(struct map_session_data *sd)
 		}
 	}	
 
+	// Cell PVP [Napster]
+	if( sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )
+		map_pvp_area(sd, 0);
+
 	party_booking_delete(sd); // Party Booking [Spiria]
 	pc_makesavestatus(sd);
 	pc_clean_skilltree(sd);
@@ -2385,6 +2389,8 @@ int map_getcellp(struct map_data* m,int x,int y,cell_chk cellchk)
 			return (cell.novending);
 		case CELL_CHKNOCHAT:
 			return (cell.nochat);
+		case CELL_CHKPVP:	// Cell PVP [Napster]
+			return (cell.pvp);
 
 		// special checks
 		case CELL_CHKPASS:
@@ -2432,11 +2438,12 @@ void map_setcell(int m, int x, int y, cell_t cell, bool flag)
 		case CELL_SHOOTABLE:     map[m].cell[j].shootable = flag;     break;
 		case CELL_WATER:         map[m].cell[j].water = flag;         break;
 
-		case CELL_NPC:           map[m].cell[j].npc = flag;           break;
-		case CELL_BASILICA:      map[m].cell[j].basilica = flag;      break;
-		case CELL_LANDPROTECTOR: map[m].cell[j].landprotector = flag; break;
-		case CELL_NOVENDING:     map[m].cell[j].novending = flag;     break;
-		case CELL_NOCHAT:        map[m].cell[j].nochat = flag;        break;
+		case CELL_NPC:				map[m].cell[j].npc = flag;				break;
+		case CELL_BASILICA:			map[m].cell[j].basilica = flag;			break;
+		case CELL_LANDPROTECTOR:	map[m].cell[j].landprotector = flag;	break;
+		case CELL_NOVENDING:		map[m].cell[j].novending = flag;		break;
+		case CELL_NOCHAT:			map[m].cell[j].nochat = flag;			break;
+		case CELL_PVP:				map[m].cell[j].pvp = flag;				break;		// Cell PVP [Napster]
 		default:
 			ShowWarning("map_setcell: invalid cell type '%d'\n", (int)cell);
 			break;
@@ -3783,6 +3790,42 @@ int do_init(int argc, char *argv[])
 		ShowNotice("Server is running on '"CL_WHITE"PK Mode"CL_RESET"'.\n");
 
 	ShowStatus("Server is '"CL_GREEN"ready"CL_RESET"' and listening on port '"CL_WHITE"%d"CL_RESET"'.\n\n", map_port);
+
+	return 0;
+}
+
+// Cell PVP [Napster]
+int map_pvp_area(struct map_session_data* sd, bool flag)
+{
+	switch(flag) 
+	{
+		case 1:
+			clif_map_property(sd, MAPPROPERTY_FREEPVPZONE);
+			clif_map_type2(&sd->bl,SELF);
+			if (sd->pvp_timer == INVALID_TIMER) {
+				map[sd->bl.m].cell_pvpuser++;
+ 
+				sd->pvp_timer  = add_timer(gettick()+200, pc_calc_pvprank_timer, sd->bl.id, 0);
+				sd->pvp_rank  = 0;
+				sd->pvp_lastusers = 0;
+				sd->pvp_point  = 5;
+				sd->pvp_won   = 0;
+				sd->pvp_lost  = 0;
+				sd->state.pvp  = 1;
+				sd->pvpcan_walkout_tick = gettick();
+			}
+			break;
+		default:
+			clif_pvpset(sd, 0, 0, 2);
+			map[sd->bl.m].cell_pvpuser--;
+
+			if( sd->pvp_timer != INVALID_TIMER )
+				delete_timer(sd->pvp_timer, pc_calc_pvprank_timer);
+
+			sd->pvp_timer  = INVALID_TIMER;
+			sd->state.pvp  = 0;
+			break;
+	}
 
 	return 0;
 }

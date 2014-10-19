@@ -176,6 +176,12 @@ static int unit_walktoxy_timer(int tid, unsigned int tick, int id, intptr_t data
 		} else
 			sd->areanpc_id=0;
 
+		// Cell PVP [Napster]
+		if( !sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
+			map_pvp_area(sd, 1);
+		else if( sd->state.pvp && !map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
+			map_pvp_area(sd, 0);
+
 		if (sd->state.gmaster_flag &&
 			(battle_config.guild_aura&((agit_flag || agit2_flag)?2:1)) &&
 			(battle_config.guild_aura&(map_flag_gvg2(bl->m)?8:4))
@@ -305,6 +311,28 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 
 	if(!(flag&2) && (!(status_get_mode(bl)&MD_CANMOVE) || !unit_can_move(bl)))
 		return 0;
+
+	// Cell PVP [Napster]
+	if (bl->type == BL_PC)
+	{
+		struct map_session_data* sd = (TBL_PC*)bl;
+		unsigned int tick = gettick();
+
+		if (sd && sd->pvpcan_walkout_tick && !map_getcell( sd->bl.m, x, y, CELL_CHKPVP ) ) {
+			if ( DIFF_TICK(tick, sd->pvpcan_walkout_tick) < battle_config.cellpvp_walkout_delay )
+			{
+				int e_tick = (battle_config.cellpvp_walkout_delay - DIFF_TICK( tick, sd->pvpcan_walkout_tick))/1000;
+				char e_msg[150];
+				if( e_tick > 99 )
+						sprintf(e_msg, msg_txt(800), sd->status.name, (double)e_tick / 60); 
+				else
+						sprintf(e_msg, msg_txt(801), sd->status.name, e_tick+1);
+
+				clif_colormes(sd,color_table[COLOR_YELLOW], e_msg);
+				return 0;
+			}
+		}
+	}
 	
 	ud->state.walk_easy = flag&1;
 	ud->target = 0;
@@ -601,6 +629,12 @@ int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool
 		} else
 			sd->areanpc_id=0;
 
+		// Cell PVP [Ize]
+		if( !sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
+			map_pvp_area(sd, 1);
+		else if( sd->state.pvp && !map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
+			map_pvp_area(sd, 0);
+
 		if( sd->status.pet_id > 0 && sd->pd && sd->pd->pet.intimate > 0 )
 		{ // Check if pet needs to be teleported. [Skotlex]
 			int flag = 0;
@@ -837,6 +871,17 @@ int unit_stop_walking(struct block_list *bl,int type)
 
 int unit_skilluse_id(struct block_list *src, int target_id, short skill_num, short skill_lv)
 {
+	// Cell PVP [Napster]
+	struct block_list *bl = map_id2bl(target_id);	
+
+	if( bl && src->type == BL_PC && bl->type == BL_PC && src->id != target_id)
+	{
+		struct map_session_data *dstsd = (TBL_PC*)bl;
+
+		 if( dstsd && dstsd->state.pvp != ((TBL_PC*)src)->state.pvp )
+			 return 0;
+	}
+
 	if(skill_num < 0) return 0;
 
 	return unit_skilluse_id2(

@@ -1,0 +1,32 @@
+//===== eAthena Script ======================================= 
+//= Sample Script for CellPVP System
+//===== By: ================================================== 
+//= Napster
+//===== Current Version: ===================================== 
+//= 1.0
+//===== Compatible With: ===================================== 
+//= 15-3athena
+//===== Description: ========================================= 
+//= 
+//===== Additional Comments: ================================= 
+//= 1.0 Added first version [15peaces]
+//============================================================ 
+
+-	script	test_cellpvp	-1,{
+	end;
+	
+	OnInit:
+		setcell "new_1-1",45,109,53,102,cell_pvp, 1;
+		end;
+}
+
+function	script	F_Autobuff	{
+	sc_start SC_BLESSING, 60000, 10;
+	sc_start SC_INCREASEAGI, 60000, 10;
+	return;
+}
+ 
+-	script	deathmatch_core	-1,{
+	callfunc("F_Autobuff");
+	end;
+}

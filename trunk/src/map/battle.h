@@ -512,6 +512,15 @@ extern struct Battle_Config
 	int levels_effect_renewal_skills;
 	int base_level_skill_effect_limit;
 	int job_level_skill_effect_limit;
+	// Cell PVP [Napster]
+	int cellpvp_deathmatch;
+	int cellpvp_deathmatch_delay;
+	int deathmatch_hp_rate;
+	int deathmatch_sp_rate;
+	int cellpvp_autobuff;
+	int cellpvp_party_enable;
+	int cellpvp_guild_enable;
+	int cellpvp_walkout_delay;
 } battle_config;
 
 void do_init_battle(void);
