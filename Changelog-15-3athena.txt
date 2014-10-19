@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/19/2014
+	r20 [15peaces]
+		*Added support for clif_colormes function
+			-Modification of clif_messagecolor to send colored messages to players to chat log only (doesn't display overhead).
+			-Thanks to rAthena.
+		*Added support for Cell PvP
+			-Create cell for player vs player with out mapflag pvp.
+			-More Info on how it works can be found in samples.
+			-Thanks to Napster from rAthena, I've only ported it and added it to 15-3athena by default.
+
 08/23/2014
 	r19 [15peaces]
 		*Added new atcommand: @storeit.
@@ -29,7 +39,7 @@
 		*AB_ANCILLA; *AB_DUPLELIGHT; *RA_CLUSTERBOMB; *RA_FIRINGTRAP; *RA_ICEBOUNDTRAP; *RA_DETONATOR; *RA_WUGDASH; *RA_RESEARCHTRAP; *WL_EARTHSTRAIN; *WL_TETRAVORTEX; *WL_SUMMON_ATK
 			-Added pre Support for these skills.
 		*AB_CLEMENTIA; *AB_CANTO; *AB_PRAEFATIO; *AB_CHEAL; *AB_ORATIO; *AB_LAUDAAGNUS; *AB_LAUDARAMUS; *AB_RENOVATIO; *RA_ARROWSTORM; *RA_AIMEDBOLT; *SC_TRIANGLESHOT
-			-Added full support for these Skills. However some formulars may be outdated. ^^
+			-Added full support for these Skills. However some formulas may be outdated. ^^
 
 08/06/2014
 	r18 [15peaces]

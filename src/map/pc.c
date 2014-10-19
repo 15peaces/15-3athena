@@ -561,7 +561,7 @@ int pc_makesavestatus(struct map_session_data *sd)
 		sd->status.last_point.y = sd->bl.y;
 	}
 
-	if(map[sd->bl.m].flag.nosave){
+	if(map[sd->bl.m].flag.nosave || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) ){
 		struct map_data *m=&map[sd->bl.m];
 		if(m->save.map)
 			memcpy(&sd->status.last_point,&m->save,sizeof(sd->status.last_point));
@@ -3762,7 +3762,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 			break;
 		case 601: // Fly Wing
 		case 12212: // Giant Fly Wing
-			if( map[sd->bl.m].flag.noteleport || map_flag_gvg(sd->bl.m) )
+			if( map[sd->bl.m].flag.noteleport || map_flag_gvg(sd->bl.m) || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )	// Cell PVP [Napster]
 			{
 				clif_skill_teleportmessage(sd,0);
 				return 0;
@@ -3780,7 +3780,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 				clif_displaymessage(sd->fd, "Duel: Can't use this item in duel.");
 				return 0;
 			}
-			if( nameid != 601 && nameid != 12212 && map[sd->bl.m].flag.noreturn )
+			if( nameid != 601 && nameid != 12212 && map[sd->bl.m].flag.noreturn || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )	// Cell PVP [Napster]
 				return 0;
 			break;
 		case 604: // Dead Branch
@@ -4366,6 +4366,10 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		bg_send_dot_remove(sd);
 		if (sd->regen.state.gc)
 			sd->regen.state.gc = 0;
+
+		// Addon Cell PVP [Napster]
+		if(sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP))
+			map[sd->state.pmap].cell_pvpuser--;
 	}
 
 	if( m < 0 )
@@ -4536,7 +4540,7 @@ int pc_memo(struct map_session_data* sd, int pos)
 	nullpo_ret(sd);
 
 	// check mapflags
-	if( sd->bl.m >= 0 && (map[sd->bl.m].flag.nomemo || map[sd->bl.m].flag.nowarpto) && battle_config.any_warp_GM_min_level > pc_isGM(sd) ) {
+	if( sd->bl.m >= 0 && (map[sd->bl.m].flag.nomemo || map[sd->bl.m].flag.nowarpto) && battle_config.any_warp_GM_min_level > pc_isGM(sd) || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) ) { // Cell PVP [Napster]
 		clif_skill_teleportmessage(sd, 1); // "Saved point cannot be memorized."
 		return 0;
 	}
@@ -6103,6 +6107,12 @@ void pc_respawn(struct map_session_data* sd, clr_type clrtype)
 	pc_setrestartvalue(sd,3);
 	if( pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, clrtype) )
 		clif_resurrection(&sd->bl, 1); //If warping fails, send a normal stand up packet.
+
+	// Addon Cell PVP [Napster]
+	if (sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
+		map_pvp_area(sd, 1);
+	else
+		map_pvp_area(sd, 0);
 }
 
 static int pc_respawn_timer(int tid, unsigned int tick, int id, intptr_t data)
@@ -6114,6 +6124,55 @@ static int pc_respawn_timer(int tid, unsigned int tick, int id, intptr_t data)
 		pc_respawn(sd,CLR_OUTSIGHT);
 	}
 
+	return 0;
+}
+
+// Cell PVP [Napster]
+void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
+{
+	struct npc_data *nd;
+	short x = 0, y = 0;
+
+	if( !pc_isdead(sd) )
+		return; // not applicable
+
+	if( map_getcell(sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) && battle_config.cellpvp_deathmatch ) 
+	{
+		do {
+			x = rand() % (map[sd->bl.m].xs - 2) + 1;
+			y = rand() % (map[sd->bl.m].ys - 2) + 1;
+		} while( !map_getcell(sd->bl.m, x, y, CELL_CHKPVP) );
+
+		pc_setstand(sd, true);
+		pc_setrestartvalue(sd,3);
+		status_percent_heal(&sd->bl, battle_config.deathmatch_hp_rate, battle_config.deathmatch_sp_rate);
+
+		if( pc_setpos(sd, sd->mapindex, x, y, clrtype) )
+			clif_resurrection(&sd->bl, 1); //If warping fails, send a normal stand up packet.
+
+		status_change_clear(&sd->bl, 3);
+
+		if(sd && battle_config.cellpvp_autobuff)
+		{
+			nd = npc_name2id("deathmatch_core");
+			if (nd && nd->subtype == SCRIPT)
+				run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
+		}
+	}
+}
+
+static int pc_deathmatch_timer(int tid, unsigned int tick, int id, intptr_t data)
+{
+	struct map_session_data *sd = map_id2sd(id);
+	if( sd != NULL )
+	{
+		pc_deathmatch(sd, CLR_OUTSIGHT);
+		if (sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )
+		{
+			map_pvp_area(sd, 1);
+			map[sd->bl.m].cell_pvpuser--;
+		}
+	}
 	return 0;
 }
 
@@ -6280,7 +6339,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	if(battle_config.bone_drop==2
-		|| (battle_config.bone_drop==1 && map[sd->bl.m].flag.pvp))
+		|| (battle_config.bone_drop==1 && map[sd->bl.m].flag.pvp || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) && sd->state.pvp) )	// Cell PVP [Napster]
+
 	{
 		struct item item_tmp;
 		memset(&item_tmp,0,sizeof(item_tmp));
@@ -6360,6 +6420,13 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			if(base_penalty)
 				pc_payzeny(sd, base_penalty);
 		}
+	}
+
+	// Cell PVP [Napster]
+	if (map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) && battle_config.cellpvp_deathmatch && sd->state.pvp)
+	{
+		add_timer(tick+battle_config.cellpvp_deathmatch_delay, pc_deathmatch_timer, sd->bl.id, 0);
+		return 1|8;
 	}
 
 	if(map[sd->bl.m].flag.pvp_nightmaredrop)
@@ -8162,6 +8229,14 @@ int pc_calc_pvprank(struct map_session_data *sd)
 	old=sd->pvp_rank;
 	sd->pvp_rank=1;
 	map_foreachinmap(pc_calc_pvprank_sub,sd->bl.m,BL_PC,sd);
+
+	// Cell PVP [Napster]
+	if( (old!=sd->pvp_rank || sd->pvp_lastusers!=m->cell_pvpuser) || sd->state.pvp ) 
+	{
+		clif_pvpset( sd, sd->pvp_rank, sd->pvp_lastusers = m->cell_pvpuser, 0);
+		return sd->pvp_rank;
+	}
+
 	if(old!=sd->pvp_rank || sd->pvp_lastusers!=m->users)
 		clif_pvpset(sd,sd->pvp_rank,sd->pvp_lastusers=m->users,0);
 	return sd->pvp_rank;

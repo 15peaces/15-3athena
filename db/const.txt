@@ -379,29 +379,31 @@ mf_monster_noteleport	49
 mf_pvp_nocalcrank	50
 mf_battleground	51
 
-cell_walkable	0
-cell_shootable	1
-cell_water	2
-cell_npc	3
-cell_basilica	4
+cell_walkable		0
+cell_shootable		1
+cell_water			2
+cell_npc			3
+cell_basilica		4
 cell_landprotector	5
-cell_novending	6
-cell_nochat	7
+cell_novending		6
+cell_nochat			7
+cell_pvp			8	// Cell PVP [Napster]
 
-//cell_gettype	0
-cell_chkwall	1
-cell_chkwater	2
-cell_chkcliff	3
-cell_chkpass	4
-cell_chkreach	5
-cell_chknopass	6
-cell_chknoreach	7
-//cell_chkstack	8
-cell_chknpc	9
-cell_chkbasilica	10
+//cell_gettype			0
+cell_chkwall			1
+cell_chkwater			2
+cell_chkcliff			3
+cell_chkpass			4
+cell_chkreach			5
+cell_chknopass			6
+cell_chknoreach			7
+//cell_chkstack			8
+cell_chknpc				9
+cell_chkbasilica		10
 cell_chklandprotector	11
-cell_chknovending	12
-cell_chknochat	13
+cell_chknovending		12
+cell_chknochat			13
+cell_chkpvp				14	// Cell PVP [Napster]
 
 StatusPoint	9	1
 BaseLevel	11	1

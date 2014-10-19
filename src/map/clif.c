@@ -8344,6 +8344,21 @@ void clif_specialeffect_value(struct block_list* bl, int effect_id, int num, sen
 	}
 }
 
+// Modification of clif_messagecolor to send colored messages to players to chat log only (doesn't display overhead)
+/// 02c1 <packet len>.W <id>.L <color>.L <message>.?B
+int clif_colormes(struct map_session_data * sd, unsigned long color, const char* msg) {
+	unsigned short msg_len = strlen(msg) + 1;
+
+	WFIFOHEAD(sd->fd,msg_len + 12);
+	WFIFOW(sd->fd,0) = 0x2C1;
+	WFIFOW(sd->fd,2) = msg_len + 12;
+	WFIFOL(sd->fd,4) = 0;
+	WFIFOL(sd->fd,8) = color; //either color_table or channel_table
+	safestrncpy((char*)WFIFOP(sd->fd,12), msg, msg_len);
+	WFIFOSET(sd->fd, msg_len + 12);
+
+	return 0;
+}
 
 /// Monster/NPC color chat [SnakeDrak] (ZC_NPC_CHAT).
 /// 02c1 <packet len>.W <id>.L <color>.L <message>.?B

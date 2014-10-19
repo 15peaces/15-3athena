@@ -428,6 +428,7 @@ typedef enum {
 	CELL_LANDPROTECTOR,
 	CELL_NOVENDING,
 	CELL_NOCHAT,
+	CELL_PVP,	// Cell PVP [Napster]
 } cell_t;
 
 // used by map_getcell()
@@ -448,7 +449,8 @@ typedef enum {
 	CELL_CHKBASILICA,
 	CELL_CHKLANDPROTECTOR,
 	CELL_CHKNOVENDING,
-	CELL_CHKNOCHAT,
+	CELL_CHKNOCHAT,		// Whether the cell denies Player Chat Window
+	CELL_CHKPVP,		// Whether the cell has PVP [Napster]
 } cell_chk;
 
 struct mapcell
@@ -465,7 +467,8 @@ struct mapcell
 		basilica : 1,
 		landprotector : 1,
 		novending : 1,
-		nochat : 1;
+		nochat : 1,
+		pvp : 1;	// Cell PVP [Napster]
 
 #ifdef CELL_NOSTACK
 	unsigned char cell_bl; //Holds amount of bls in this cell.
@@ -490,6 +493,7 @@ struct map_data {
 	short bgscore_lion, bgscore_eagle; // Battleground ScoreBoard
 	int npc_num;
 	int users;
+	int cell_pvpuser;	// Cell PVP [Napster]
 	int iwall_num; // Total of invisible walls in this map
 	struct map_flag {
 		unsigned town : 1; // [Suggestion to protect Mail System]
@@ -750,5 +754,8 @@ extern char mob_db2_db[32];
 #endif /* not TXT_ONLY */
 
 void do_shutdown(void);
+
+// Cell PVP [Napster]
+int map_pvp_area(struct map_session_data* sd, bool flag);
 
 #endif /* _MAP_H_ */

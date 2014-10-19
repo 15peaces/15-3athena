@@ -749,4 +749,16 @@ void clif_map_type2(struct block_list *bl,enum send_target target);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
 
+/**
+ * Color Table
+ **/
+enum clif_colors {
+	COLOR_RED,
+	COLOR_WHITE,
+	COLOR_YELLOW,
+	COLOR_MAX
+};
+unsigned long color_table[COLOR_MAX];
+int clif_colormes(struct map_session_data * sd, unsigned long color, const char* msg);
+
 #endif /* _CLIF_H_ */

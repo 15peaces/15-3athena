@@ -147,6 +147,7 @@ struct map_session_data {
 		unsigned short autolootid; // [Zephyrus]
 		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
+		unsigned int pvp : 1;	// Cell PVP [Napster]
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -216,6 +217,7 @@ struct map_session_data {
 	unsigned int cantalk_tick;
 	unsigned int cansendmail_tick; // [Mail System Flood Protection]
 	unsigned int ks_floodprotect_tick; // [Kill Steal Protection]
+	unsigned int pvpcan_walkout_tick; // Cell PVP [Napster]
 	
 	struct {
 		unsigned short nameid;
