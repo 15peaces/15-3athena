@@ -26,6 +26,7 @@
 #include "clif.h"
 #include "skill.h"
 #include "log.h"
+#include "atcommand.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -263,7 +264,7 @@ int guild_send_dot_remove(struct map_session_data *sd)
 }
 //------------------------------------------------------------------------
 
-int guild_create(struct map_session_data *sd, const char *name)
+bool guild_create(struct map_session_data *sd, const char *name)
 {
 	char tname[NAME_LENGTH];
 	struct guild_member m;
@@ -273,42 +274,42 @@ int guild_create(struct map_session_data *sd, const char *name)
 	trim(tname);
 
 	if( !tname[0] )
-		return 0; // empty name
+		return false; // empty name
 
 	if( sd->status.guild_id )
 	{// already in a guild
 		clif_guild_created(sd,1);
-		return 0;
+		return false;
 	}
 	if( battle_config.guild_emperium_check && pc_search_inventory(sd,714) == -1 )
 	{// item required
 		clif_guild_created(sd,3);
-		return 0;
+		return false;
 	}
 
 	guild_makemember(&m,sd);
 	m.position=0;
 	intif_guild_create(name,&m);
-	return 1;
+	return true;
 }
 
-// ì¬‰Â”Û
-int guild_created(int account_id,int guild_id)
+//Whether or not to create guild
+void guild_created(int account_id,int guild_id)
 {
 	struct map_session_data *sd=map_id2sd(account_id);
 
 	if(sd==NULL)
-		return 0;
+		return;
 	if(!guild_id) {
-		clif_guild_created(sd,2);	// ì¬Ž¸”si“¯–¼ƒMƒ‹ƒh‘¶Ýj
-		return 0;
+		clif_guild_created(sd,2);	// Creation failure (presence of the same name Guild)
+		return;
 	}
 	//struct guild *g;
 	sd->status.guild_id=guild_id;
 	clif_guild_created(sd,0);
 	if(battle_config.guild_emperium_check)
-		pc_delitem(sd,pc_search_inventory(sd,714),1,0,0);	// ƒGƒ“ƒyƒŠƒEƒ€Á–Õ
-	return 0;
+		pc_delitem(sd,pc_search_inventory(sd,714),1,0,0);	//emperium consumption
+	return;
 }
 
 // î•ñ—v‹
@@ -340,14 +341,14 @@ int guild_npc_request_info(int guild_id,const char *event)
 	return guild_request_info(guild_id);
 }
 
-// Š‘®ƒLƒƒƒ‰‚ÌŠm”F
-int guild_check_member(struct guild *g)
+//Confirmation of the character belongs to guild
+void guild_check_member(struct guild *g)
 {
 	int i;
 	struct map_session_data *sd;
 	struct s_mapiterator* iter;
 
-	nullpo_ret(g);
+	nullpo_retv(g);
 
 	iter = mapit_getallusers();
 	for( sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC*)mapit_next(iter) )
@@ -363,12 +364,10 @@ int guild_check_member(struct guild *g)
 		}
 	}
 	mapit_free(iter);
-
-	return 0;
 }
 
-// î•ñŠ“¾Ž¸”si‚»‚ÌID‚ÌƒLƒƒƒ‰‚ð‘S•”–¢Š‘®‚É‚·‚éj
-int guild_recv_noinfo(int guild_id)
+//Delete association with guild_id for all characters
+void guild_recv_noinfo(int guild_id)
 {
 	struct map_session_data *sd;
 	struct s_mapiterator* iter;
@@ -380,12 +379,10 @@ int guild_recv_noinfo(int guild_id)
 			sd->status.guild_id = 0; // erase guild
 	}
 	mapit_free(iter);
-
-	return 0;
 }
 
-// î•ñŠ“¾
-int guild_recv_info(struct guild *sg)
+//Get and display information for all member
+void guild_recv_info(struct guild *sg)
 {
 	struct guild *g,before;
 	int i,bm,m;
@@ -393,7 +390,7 @@ int guild_recv_info(struct guild *sg)
 	struct map_session_data *sd;
 	bool guild_new = false;
 
-	nullpo_ret(sg);
+	nullpo_retv(sg);
 
 	if((g = (struct guild*)idb_get(guild_db,sg->guild_id))==NULL)
 	{
@@ -471,64 +468,76 @@ int guild_recv_info(struct guild *sg)
 			ev=ev2;
 		}
 	}
-
-	return 0;
 }
 
 
-// ƒMƒ‹ƒh‚Ö‚ÌŠ©—U
-int guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
+/*=============================================
+ * Player sd send a guild invatation to player tsd to join his guild
+ *--------------------------------------------*/
+void guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 {
 	struct guild *g;
 	int i;
 
-	nullpo_ret(sd);
+	nullpo_retv(sd);
 
 	g=guild_search(sd->status.guild_id);
 
 	if(tsd==NULL || g==NULL)
-		return 0;
+		return;
 
 	if( (i=guild_getposition(g,sd))<0 || !(g->position[i].mode&0x0001) )
-		return 0; //Invite permission.
+		return; //Invite permission.
 
 	if(!battle_config.invite_request_check) {
-		if (tsd->party_invite>0 || tsd->trade_partner || tsd->adopt_invite ) {	// ‘ŠŽè‚ªŽæˆø’†‚©‚Ç‚¤‚©
+		if (tsd->party_invite>0 || tsd->trade_partner || tsd->adopt_invite ) {	//checking if there no other invitation pending
 			clif_guild_inviteack(sd,0);
-			return 0;
+			return;
 		}
 	}
 	
 	if (!tsd->fd) { //You can't invite someone who has already disconnected.
 		clif_guild_inviteack(sd,1);
-		return 0;
+		return;
 	}
 
 	if(tsd->status.guild_id>0 ||
 		tsd->guild_invite>0 ||
-		((agit_flag || agit2_flag) && map[tsd->bl.m].flag.gvg_castle))
+		(battle_config.guild_disable_invite == -1 && (agit_flag || agit2_flag) && map[tsd->bl.m].flag.gvg_castle))
 	{	//Can't invite people inside castles. [Skotlex]
 		clif_guild_inviteack(sd,0);
-		return 0;
+		return;
 	}
 
-	// ’èˆõŠm”F
+	if (battle_config.guild_disable_invite > 0) {
+		if (   (battle_config.guild_disable_invite&1 && (agit_flag || agit2_flag)) // Disable when WOE, regarless the location
+			|| (battle_config.guild_disable_invite&2 && map[sd->bl.m].flag.gvg) //  Disable at GVG, regardless WOE state
+			|| (battle_config.guild_disable_invite&4 && map[sd->bl.m].flag.gvg_castle) // Disable at Castle, regardless WOE state
+			|| (battle_config.guild_disable_invite&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
+			)
+		{
+			clif_colormes(sd,color_table[COLOR_RED],msg_txt(719));
+			//clif_guild_inviteack(sd,0);
+			return;
+		}
+	}
+
+	//search an empty spot in guild
 	ARR_FIND( 0, g->max_member, i, g->member[i].account_id == 0 );
 	if(i==g->max_member){
 		clif_guild_inviteack(sd,3);
-		return 0;
+		return;
 	}
 
 	tsd->guild_invite=sd->status.guild_id;
 	tsd->guild_invite_account=sd->status.account_id;
 
 	clif_guild_invite(tsd,g);
-	return 0;
 }
 
 /// Guild invitation reply.
 /// flag: 0:rejected, 1:accepted
-int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
+bool guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 {
 	struct map_session_data* tsd;
 
@@ -536,7 +545,7 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 
 	// subsequent requests may override the value
 	if( sd->guild_invite != guild_id )
-		return 0; // mismatch
+		return false; // mismatch
 
 	// look up the person who sent the invite
 	//NOTE: this can be NULL because the person might have logged off in the meantime
@@ -545,7 +554,7 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 	if ( sd->status.guild_id > 0 ) // [Paradox924X]
 	{ // Already in another guild.
 		if ( tsd ) clif_guild_inviteack(tsd,0);
-		return 0;
+		return false;
 	}
 	else if( flag == 0 )
 	{// rejected
@@ -557,13 +566,13 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 	{// accepted
 		struct guild_member m;
 		struct guild* g;
-		int i;
+		short i;
 
 		if( (g=guild_search(guild_id)) == NULL )
 		{
 			sd->guild_invite = 0;
 			sd->guild_invite_account = 0;
-			return 0;
+			return false;
 		}
 
 		ARR_FIND( 0, g->max_member, i, g->member[i].account_id == 0 );
@@ -572,7 +581,7 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 			sd->guild_invite = 0;
 			sd->guild_invite_account = 0;
 			if( tsd ) clif_guild_inviteack(tsd,3);
-			return 0;
+			return false;
 		}
 
 		guild_makemember(&m,sd);
@@ -580,7 +589,7 @@ int guild_reply_invite(struct map_session_data* sd, int guild_id, int flag)
 		//TODO: send a minimap update to this player
 	}
 
-	return 0;
+	return false;
 }
 
 //Invoked when a player joins.
@@ -610,34 +619,36 @@ void guild_member_joined(struct map_session_data *sd)
 		g->member[i].sd = sd;
 }
 
-// ƒMƒ‹ƒhƒƒ“ƒo‚ª’Ç‰Á‚³‚ê‚½
-int guild_member_added(int guild_id,int account_id,int char_id,int flag)
+/*==========================================
+ * Add a player to a given guild_id
+ *----------------------------------------*/
+void guild_member_added(int guild_id,int account_id,int char_id,int flag)
 {
 	struct map_session_data *sd= map_id2sd(account_id),*sd2;
 	struct guild *g;
 
 	if( (g=guild_search(guild_id))==NULL )
-		return 0;
+		return;
 
 	if(sd==NULL || sd->guild_invite==0){
-		// ƒLƒƒƒ‰‘¤‚É“o˜^‚Å‚«‚È‚©‚Á‚½‚½‚ß’E‘Þ—v‹‚ðo‚·
+		// cancel if player not present or invalide guild_id invitation
 		if (flag == 0) {
 			ShowError("guild: member added error %d is not online\n",account_id);
  			intif_guild_leave(guild_id,account_id,char_id,0,"** Data Error **");
 		}
-		return 0;
+		return;
 	}
 	sd2 = map_id2sd(sd->guild_invite_account);
 	sd->guild_invite = 0;
 	sd->guild_invite_account = 0;
 
-	if(flag==1){	// Ž¸”s
+	if(flag==1){	//failure
 		if( sd2!=NULL )
 			clif_guild_inviteack(sd2,3);
-		return 0;
+		return;
 	}
 
-		// ¬Œ÷
+	//if all ok add player to guild
 	sd->status.guild_id = g->guild_id;
 	sd->guild_emblem_id = g->emblem_id;
 	//Packets which were sent in the previous 'guild_sent' implementation.
@@ -652,7 +663,7 @@ int guild_member_added(int guild_id,int account_id,int char_id,int flag)
 	//Next line commented because it do nothing, look at guild_recv_info [LuzZza]
 	//clif_charnameupdate(sd); //Update display name [Skotlex]
 
-	return 0;
+	return;
 }
 
 // ƒMƒ‹ƒh’E‘Þ—v‹
@@ -667,10 +678,22 @@ int guild_leave(struct map_session_data* sd, int guild_id, int account_id, int c
 	if(g==NULL)
 		return 0;
 
-	if(sd->status.account_id!=account_id ||
-		sd->status.char_id!=char_id || sd->status.guild_id!=guild_id ||
-		((agit_flag || agit2_flag) && map[sd->bl.m].flag.gvg_castle))
+	if (sd->status.account_id != account_id ||
+		sd->status.char_id != char_id || sd->status.guild_id!=guild_id ||
+		(battle_config.guild_disable_expel == -1 && (agit_flag || agit2_flag) && map[sd->bl.m].flag.gvg_castle))
 		return 0;
+
+	if (battle_config.guild_disable_expel > 0) {
+		if (   (battle_config.guild_disable_expel&1 && (agit_flag || agit2_flag)) // Disable when WOE, regarless the location
+			|| (battle_config.guild_disable_expel&2 && map[sd->bl.m].flag.gvg) //  Disable at GVG, regardless WOE state
+			|| (battle_config.guild_disable_expel&4 && map[sd->bl.m].flag.gvg_castle) // Disable at Castle, regardless WOE state
+			|| (battle_config.guild_disable_expel&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
+			)
+		{
+			clif_colormes(sd,color_table[COLOR_RED],msg_txt(720));
+			return 0;
+		}
+	}
 
 	intif_guild_leave(sd->status.guild_id, sd->status.account_id, sd->status.char_id,0,mes);
 	return 0;
@@ -699,8 +722,20 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, i
   	//Can't leave inside guild castles.
 	if ((tsd = map_id2sd(account_id)) &&
 		tsd->status.char_id == char_id &&
-		((agit_flag || agit2_flag) && map[tsd->bl.m].flag.gvg_castle))
+		(battle_config.guild_disable_expel == -1 && (agit_flag || agit2_flag) && map[tsd->bl.m].flag.gvg_castle))
 		return 0;
+
+	if (battle_config.guild_disable_expel > 0) {
+		if (   (battle_config.guild_disable_expel&1 && (agit_flag || agit2_flag)) // Disable when WOE, regarless the location
+			|| (battle_config.guild_disable_expel&2 && map[sd->bl.m].flag.gvg) //  Disable at GVG, regardless WOE state
+			|| (battle_config.guild_disable_expel&4 && map[sd->bl.m].flag.gvg_castle) // Disable at Castle, regardless WOE state
+			|| (battle_config.guild_disable_expel&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
+			)
+		{
+			clif_colormes(sd,color_table[COLOR_RED],msg_txt(720));
+			return 0;
+		}
+	}
 
 	// find the member and perform expulsion
 	i = guild_getindex(g, account_id, char_id);
@@ -1512,7 +1547,14 @@ int guild_gm_changed(int guild_id, int account_id, int char_id)
 	return 1;
 }
 
-// ƒMƒ‹ƒh‰ðŽU
+int guild_break_sub(struct guild *g) {
+	nullpo_ret(g);
+	return 1;
+}
+
+/*====================================================
+ * Guild disbanded
+ *---------------------------------------------------*/
 int guild_break(struct map_session_data *sd,char *name)
 {
 	struct guild *g;
@@ -1538,7 +1580,7 @@ int guild_break(struct map_session_data *sd,char *name)
 	}
 
 	intif_guild_break(g->guild_id);
-	return 0;
+	return 1;
 }
 
 

@@ -4382,6 +4382,12 @@ static const struct _battle_data {
 	{ "cellpvp_party_enable",               &battle_config.cellpvp_party_enable,            1,      0,      1,              },
 	{ "cellpvp_guild_enable",               &battle_config.cellpvp_guild_enable,            1,      0,      1,              },
 	{ "cellpvp_walkout_delay",              &battle_config.cellpvp_walkout_delay,           5000,   0,      INT_MAX,        },
+	//New Guild configs
+	{ "create_guild",                       &battle_config.guild_create,                    3,      0,      3,              },
+	{ "break_guild",                        &battle_config.guild_break,                     3,      0,      3,              },
+	{ "disable_invite",                     &battle_config.guild_disable_invite,           -1,     -1,      15,             },
+	{ "disable_expel",                      &battle_config.guild_disable_expel,            -1,     -1,      15,             },
+	{ "disable_change_emblem",              &battle_config.guild_disable_change_emblem,     0,      0,      15,             },
 };
 
 

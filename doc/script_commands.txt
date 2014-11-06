@@ -4,7 +4,7 @@
 //= A reference manual for the eAthena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.53.20140610
+//= 3.54.20141104
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -198,6 +198,10 @@
 //=       Added 'getitembound', 'getitembound2' [15peaces]
 //= 3.53.20140610
 //=       Added 'bindatcmd', 'unbindatcmd', 'useatcmd' [15peaces]
+//= 3.54.20141104
+//=       The big Guild management command update! (Thanks to Cydh from rAthena!)
+//=       Added 'guild_info', 'guild_create', 'guild_addmember', 'guild_delmember',
+//=       'guild_changegm', 'guild_break'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -3109,6 +3113,64 @@ Example(s):
 //which ID's = 10 and are at prontera.
 
 	set @persons,getMapGuildUsers("prontera",10);
+
+---------------------------------------
+
+*guild_info(<guild_id>,<type>)
+*guild_info("<guild_id>",<type>)
+
+Get guild information by given 'type':
+	0: If guild_id used, returns "guild name" or "" if not found.
+	   If "guild name" used, returns guild_id or -1 if not found
+	1: Guild level
+	2: Connected member
+	3: Max members
+	4: Average member level
+	5: Allies number. Also $@guildallies_id[] & $@guildallies_name$[] array for Ally IDs & Names
+	6: Enemy number. Also $@guildenemies_id[] & $@guildenemies_name$[] array for Enemy IDs & Names
+	7: Castles. Also $@guildcastles_id[] & $@guildcastles_name$[] array for Castle IDs & Names
+
+---------------------------------------
+
+*guild_create("<name>"{,<char_id>})
+
+Create a new guild and makes 'char_id' or invoker as guild master.
+Return 1 if attempt to creates new guild is success, 0 otherwise.
+
+---------------------------------------
+
+*guild_addmember(<guild_id>{,<char_id>})
+
+Attempt to add new member to guild with 'guild_id'. If 'char_id' is not given
+it will adds invoker to the guild.
+Return 1 if attempt to adds new member is success, 0 otherwise.
+
+---------------------------------------
+
+*guild_delmember <char_id>{,"<message>"{,<guild_id>,<account_id>}}
+
+Expel player from a guild. If player is currently online, 'guild_id' and 'account_id'
+value will be ignored. If player is currenly offline, 'guild_id' and 'account_id'
+must be filled and valid.
+
+Return 1 if attempt to removes player from a guild is success, 0 otherwise.
+
+---------------------------------------
+
+*guild_changegm(<guild_id>,<char_id>)
+
+Changes guild master to 'char_id'. The player must be online and in same guild.
+Return 1 if attempt to changes guild master is success, 0 otherwise.
+
+---------------------------------------
+
+*guild_break({<guild_id>})
+
+Breaks a guild by given 'guild_id' or invoker's guild.
+Guild members must be removed first like breaking a guild by using /breakguild
+or @breakguild.
+Return 1 if attempt to breaks guild is success, 0 otherwise.
+
 
 ---------------------------------------
 //

@@ -4,6 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/05/2014
+	r21 [15peaces]
+		=General
+			*Fixed some Compiler Warnings. More will be fixed soon...
+		=The big Guild Configs & Script Commands Update (Thanks to Cydh)
+			*Config Updates:
+				-Added 'create_guild' to enable/disable guild creation by player.
+				-Added 'break_guild' to enable/disable break a guild by player.
+				-Added 'disable_invite' to enable/disable guild invitation by player.
+				-Added 'disable_expel' to enable/disable guild expulsion by player.
+			*@command Updates:
+				-Added @breakguild. (Thanks to clydelion)
+				works like /breakguild "<guild name>" (without the name though) This is needed for newer clients as an alternative to /guildbreak because support for " " in newer clients is dropped.
+			*Script Command Updates:
+				-Added 'guild_info' to retrieve specified guild information from a given guild (name or ID).
+				-Added 'guild_create' to create a new guild. (Ignore 'create_guild' config value)
+				-Added 'guild_addmember' to add new member to a guild. (Ignore 'disable_invite' config value)
+				-Added 'guild_delmember' to remove/kick/expel a guild member from a guild. (Ignore 'guild_expel' config value)
+				-Added 'guild_changegm' to change guild master from a guild.
+				-Added 'guild_break' to break a guild. Like @breakguild or /breakguild, guild must be empty first. (Ignore 'break_guild' config value)
+
 10/19/2014
 	r20 [15peaces]
 		*Added support for clif_colormes function

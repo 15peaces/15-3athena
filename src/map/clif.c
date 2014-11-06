@@ -1803,10 +1803,10 @@ void clif_selllist(struct map_session_data *sd)
 			if( sd->status.inventory[i].expire_time )
 				continue; // Cannot Sell Rental Items
 
-			if( sd->status.inventory[i].expire_time || (sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd)) ) 
+			if( sd->status.inventory[i].expire_time || (sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
 				continue; // Cannot Sell Rental Items or Account Bounded Items 
 	 
-			if( sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd)) 
+			if( sd->status.inventory[i].bound && !pc_can_give_bounded_items(sd->gmlevel)) 
 				continue; // Don't allow sale of bound items
 			val=sd->inventory_data[i]->value_sell;
 			if( val < 0 )
@@ -12049,6 +12049,11 @@ void clif_parse_CreateGuild(int fd,struct map_session_data *sd)
 		return;
 	}
 
+	if (!(battle_config.guild_create&1)) {
+		clif_colormes(sd, color_table[COLOR_RED], msg_txt(717));
+		return;
+	}
+
 	guild_create(sd, name);
 }
 
@@ -12464,6 +12469,10 @@ void clif_parse_GuildBreak(int fd, struct map_session_data *sd)
 	if( map[sd->bl.m].flag.guildlock )
 	{	//Guild locked.
 		clif_displaymessage(fd, msg_txt(228));
+		return;
+	}
+	if (!(battle_config.guild_break&1)) {
+		clif_colormes(sd, color_table[COLOR_RED], msg_txt(718));
 		return;
 	}
 	guild_break(sd,(char*)RFIFOP(fd,2));
@@ -14480,7 +14489,7 @@ void clif_parse_Auction_register(int fd, struct map_session_data *sd)
 	}
 
 	// Auction checks...
-	if( sd->status.inventory[sd->auction.index].bound && !pc_can_give_bounded_items(sd) ) { 
+	if( sd->status.inventory[sd->auction.index].bound && !pc_can_give_bounded_items(sd->gmlevel) ) { 
 		clif_displaymessage(sd->fd, msg_txt(293)); 
 		clif_Auction_message(fd, 2); // The auction has been canceled 
 		return; 

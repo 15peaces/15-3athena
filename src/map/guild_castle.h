@@ -4,6 +4,7 @@
 #ifndef _GUILD_CASTLE_H_
 #define _GUILD_CASTLE_H_
 
+#include "../common/db.h"
 #include "../common/mmo.h"
 
 //For quick linking to a guardian's info.
@@ -16,6 +17,8 @@ struct guardian_data
 	char guild_name[NAME_LENGTH];
 	struct guild_castle* castle;
 };
+
+DBMap *guild_get_castle_db(void);
 
 struct guild_castle* guild_castle_search(int castle_id);
 struct guild_castle* guild_mapname2gc(const char* mapname);

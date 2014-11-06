@@ -6143,7 +6143,7 @@ void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
 			y = rand() % (map[sd->bl.m].ys - 2) + 1;
 		} while( !map_getcell(sd->bl.m, x, y, CELL_CHKPVP) );
 
-		pc_setstand(sd, true);
+		pc_setstand(sd);
 		pc_setrestartvalue(sd,3);
 		status_percent_heal(&sd->bl, battle_config.deathmatch_hp_rate, battle_config.deathmatch_sp_rate);
 

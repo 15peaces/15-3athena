@@ -48,6 +48,10 @@ static bool guild_read_castledb(char* str[], int columns, int current)
 	return true;
 }
 
+/// Get castle_db
+DBMap *guild_get_castle_db(void) {
+	return castle_db;
+}
 
 static int guild_castle_db_final(DBKey key, void* data, va_list ap)
 {
