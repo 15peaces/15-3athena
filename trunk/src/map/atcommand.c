@@ -4020,6 +4020,11 @@ ACMD_FUNC(guild)
 
 	memset(guild, '\0', sizeof(guild));
 
+	if (!(battle_config.guild_create&2)) {
+		clif_colormes(sd, color_table[COLOR_RED], msg_txt(717));
+		return -1;
+	}
+
 	if (!message || !*message || sscanf(message, "%23[^\n]", guild) < 1) {
 		clif_displaymessage(fd, "Please, enter a guild name (usage: @guild <guild_name>).");
 		return -1;
@@ -4032,6 +4037,47 @@ ACMD_FUNC(guild)
 
 	return 0;
 }
+
+/*==========================================
+ * works like /breakguild "<guild name>" (without the name though)
+ * This is needed for newer clients as an
+ * alternative to /guildbreak because support
+ * for " " in newer clients is dropped. [clydelion]
+ *------------------------------------------*/
+ACMD_FUNC(breakguild) 
+{ 
+        int ret = 0; 
+        struct guild *g; 
+        nullpo_retr(-1, sd); 
+ 
+        if (sd->status.guild_id) { // Check if the player has a guild 
+		if (!(battle_config.guild_break&2)) {
+			clif_colormes(sd, color_table[COLOR_RED], msg_txt(718));
+			return -1;
+		}
+                g = guild_search(sd->status.guild_id); // Search the guild 
+                if (g) { // Check if guild was found 
+                        if (sd->state.gmaster_flag) { // Check if player is guild master 
+                                ret = guild_break(sd, g->name); // Break guild 
+                                if (ret) { // Check if anything went wrong 
+                                        return 0; // Guild was broken 
+                                } else { 
+                                        return -1; // Something went wrong 
+                                } 
+                        } else { // Not guild master 
+                                clif_displaymessage(fd, msg_txt(1181)); // You need to be a Guild Master to use this command. 
+                                return -1; 
+                        } 
+                } else { // Guild was not found. HOW? 
+                        clif_displaymessage(fd, msg_txt(252)); // You are not in a guild. 
+                        return -1; 
+                } 
+        } else { // Player does not have a guild 
+                clif_displaymessage(fd, msg_txt(252)); // You are not in a guild. 
+                return -1; 
+        } 
+        return 0; 
+} 
 
 /*==========================================
  *
@@ -9321,6 +9367,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "spiritball",        40,40,     atcommand_spiritball },
 	{ "party",              1,1,      atcommand_party },
 	{ "guild",             50,50,     atcommand_guild },
+	{ "breakguild",        50,50,     atcommand_breakguild },
 	{ "agitstart",         60,60,     atcommand_agitstart },
 	{ "agitend",           60,60,     atcommand_agitend },
 	{ "mapexit",           99,99,     atcommand_mapexit },

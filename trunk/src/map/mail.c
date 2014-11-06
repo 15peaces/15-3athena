@@ -89,7 +89,7 @@ unsigned char mail_setitem(struct map_session_data *sd, int idx, int amount)
 		if( amount < 0 || amount > sd->status.inventory[idx].amount )
 			return 1;
 		if( !pc_candrop(sd, &sd->status.inventory[idx])  || sd->status.inventory[idx].expire_time  
-		|| (sd->status.inventory[idx].bound && !pc_can_give_bounded_items(sd)) ) 
+		|| (sd->status.inventory[idx].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
 			return 1;
 
 		sd->mail.index = idx;
