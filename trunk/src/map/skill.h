@@ -70,8 +70,7 @@ enum e_skill_inf2
 	INF2_PARTY_ONLY     = 0x0400,
 	INF2_GUILD_ONLY     = 0x0800,
 	INF2_NO_ENEMY       = 0x1000,
-	//Will need this in the future.
-	//INF2_CHORUS_SKILL 0x2000,
+	INF2_CHORUS_SKILL	= 0x2000,
 };
 
 //Walk intervals at which chase-skills are attempted to be triggered.
@@ -352,6 +351,8 @@ int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short
 
 int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
 
+int skill_stasis_check(struct block_list *bl, int skillid);// Stasis skill usage check. [LimitLine]
+
 // mobƒXƒLƒ‹‚Ì‚½‚ß
 int skill_castend_nodamage_id( struct block_list *src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
 int skill_castend_damage_id( struct block_list* src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
@@ -382,12 +383,12 @@ enum {
 	ST_RECOV_WEIGHT_RATE,
 	ST_MOVE_ENABLE,
 	ST_WATER,
-	//ST_DRAGON,
-	//ST_WUG = 16,
-	//ST_RIDINGWUG,
-	//ST_MADO,
+	//ST_RIDINGDRAGON,
+	ST_WUG = 16,
+	ST_RIDINGWUG,
+	//ST_WEAPONBLOCKING,
 	//ST_POISONINGWEAPON,
-	//ST_ELEMENTALSPIRIT,
+	//ST_ROLLINGCUTTER,
 };
 
 enum e_skill {
@@ -1794,9 +1795,9 @@ enum {
 	UNT_EARTHSTRAIN, //TODO
 	UNT_MANHOLE, //TODO
 	UNT_DIMENSIONDOOR, //TODO
-	UNT_CHAOSPANIC, //TODO
-	UNT_MAELSTROM, //TODO
-	UNT_BLOODYLUST, //TODO
+	UNT_CHAOSPANIC,
+	UNT_MAELSTROM,
+	UNT_BLOODYLUST,
 	UNT_FEINTBOMB, //TODO
 	UNT_MAGENTATRAP, //TODO
 	UNT_COBALTTRAP, //TODO
@@ -1808,15 +1809,15 @@ enum {
 	UNT_CLUSTERBOMB, //TODO
 	UNT_REVERBERATION, //TODO
 	UNT_SEVERE_RAINSTORM, //TODO
-	UNT_FIREWALK, //TODO
+	UNT_FIREWALK,
 	UNT_ELECTRICWALK, //TODO
-	UNT_POEMOFNETHERWORLD, //TODO
+	UNT_POEMOFNETHERWORLD,
 	UNT_PSYCHIC_WAVE, //TODO
-	UNT_CLOUD_KILL, //TODO
+	UNT_CLOUD_KILL,
 	UNT_POISONSMOKE, //TODO
 	UNT_NEUTRALBARRIER, //TODO
 	UNT_STEALTHFIELD, //TODO
-	UNT_WARMER, //TODO
+	UNT_WARMER,
 	UNT_THORNS_TRAP, //TODO
 	UNT_WALLOFTHORN, //TODO
 	UNT_DEMONIC_FIRE, //TODO

@@ -434,14 +434,19 @@ void initChangeTables(void)
 
 	//Ranger
 	set_sc( RA_FEARBREEZE					, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE );
+	add_sc( RA_ELECTRICSHOCKER				, SC_ELECTRICSHOCKER );
 	set_sc( RA_WUGDASH						, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED );
 	add_sc( RA_MAGENTATRAP					, SC_ELEMENTALCHANGE	);
 	add_sc( RA_COBALTTRAP					, SC_ELEMENTALCHANGE	);
 	add_sc( RA_MAIZETRAP					, SC_ELEMENTALCHANGE	);
 	add_sc( RA_ELECTRICSHOCKER				, SC_ELECTRICSHOCKER	);
+	add_sc( RA_VERDURETRAP					, SC_ELEMENTALCHANGE	);
 	add_sc( RA_FIRINGTRAP					, SC_BURNING			);
 	add_sc( RA_ICEBOUNDTRAP					, SC_FREEZING			);
 
+	//Shadow Chaser
+	set_sc( SC_SHADOWFORM					, SC__SHADOWFORM		, SI_SHADOWFORM		, SCB_NONE );
+		
 	// Genetic
 	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST	, SI_GN_CARTBOOST	, SCB_SPEED|SCB_BATK	);
 	add_sc( GN_THORNS_TRAP					, SC_THORNSTRAP		);
@@ -1213,6 +1218,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				(sc->data[SC_MARIONETTE2] && skill_num == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				sc->data[SC_STEELBODY] ||
 				sc->data[SC_BERSERK] ||
+				sc->data[SC_WHITEIMPRISON] ||
+				sc->data[SC_STASIS] && skill_stasis_check(src, skill_num)||
 				sc->data[SC_DIAMONDDUST]
 			))
 				return 0;
@@ -3929,6 +3936,9 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			else
 			if( sd && pc_isriding(sd) )
 				val = 25;
+			else
+			if( sd && pc_iswugrider(sd) )
+				val = 10*pc_checkskill(sd,RA_WUGRIDER);
 
 			speed_rate -= val;
 		}
@@ -4904,6 +4914,12 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 			tick /= 5;
 		sc_def = status->agi / 2;
 		break;
+	/* Need to be corrected if its the proper calculation to reduce duration every 10 agi of mob.
+	As for now its commented out until further correction of value. [Jobbie]
+	case SC_ELECTRICSHOCKER:
+	case SC_WUGBITE:
+		if(!sd) tick -= status->agi / 10;
+		break;*/
 	case SC_MAGICMIRROR:
 	case SC_ARMORCHANGE:
 		if (sd) //Duration greatly reduced for players.
@@ -5011,7 +5027,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	struct status_change_entry* sce;
 	struct status_data *status;
 	struct view_data *vd;
-	int opt_flag, calc_flag, undead_flag;
+	int opt_flag, calc_flag, undead_flag, val_flag = 0;
 	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
 	short base_lv = status_get_lv(bl);//Checks the casters base level for renewal skills.
 	short job_lv = status_get_job_lv(bl);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
@@ -6441,6 +6457,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val4 = 1;
 			tick = 1000;
 			break;
+		case SC__SHADOWFORM:
+			val4 = tick / 1000;
+			val_flag |= 1|2|4;
+			tick = 1000;
+			break;
 		case SC_GN_CARTBOOST:
 			if( val1 < 3 )
 				val2 = 50;
@@ -6516,6 +6537,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ANKLE:
 		case SC_SPIDERWEB:
 		case SC_ELECTRICSHOCKER:
+		case SC_WUGBITE:
 		case SC_THORNSTRAP:
 		case SC_DIAMONDDUST:
 			unit_stop_walking(bl,1);
@@ -6702,7 +6724,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER ) ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
-		clif_status_change(bl,StatusIconChangeTable[type],1,tick, val1, val2, val3);
+		clif_status_change(bl,StatusIconChangeTable[type],1,tick,(val_flag&1)?val1:1,(val_flag&2)?val2:0,(val_flag&4)?val3:0);
 	else if( sd ) //Send packet to self otherwise (disguised player?)
 		clif_status_load(bl,StatusIconChangeTable[type],1);
 
@@ -7899,6 +7921,16 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC__SHADOWFORM:
+		if( --(sce->val4) >= 0 )
+		{
+			if( !status_charge(bl, 0, sce->val1 - (sce->val1 - 1)) )
+				break;
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
 	case SC_WARMER:
 		if( --(sce->val4) >= 0 )
 		{
@@ -8074,6 +8106,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_STRIPSHIELD:
 			case SC_STRIPARMOR:
 			case SC_STRIPHELM:
+			case SC_WUGBITE:
 				if (!(type&2))
 					continue;
 				break;

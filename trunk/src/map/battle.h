@@ -522,7 +522,6 @@ extern struct Battle_Config
 	int cellpvp_guild_enable;
 	int cellpvp_walkout_delay;
 	//New Guild Configs
-	int guild_disable_change_emblem;
 	int guild_create;
 	int guild_break;
 	int guild_disable_invite;

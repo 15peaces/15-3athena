@@ -5036,7 +5036,7 @@ void clif_skill_setunit(struct skill_unit *unit)
 		WBUFB(buf,14)=unit->group->unit_id;
 	WBUFB(buf,15)=1; // ignored by client (always gets set to 1)
 	clif_send(buf,packet_len(0x11f),&unit->bl,AREA);
-4#else
+#else
 	#if PACKETVER < 20130731
 		packet_type = 0x99f;
 	#else
@@ -9956,6 +9956,9 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 
 		if( sd->sc.data[SC_DIAMONDDUST] )
+			return;
+
+		if( sd->sc.data[SC__SHADOWFORM] )
 			return;
 
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {
