@@ -1085,9 +1085,9 @@ enum si_type {
 	SI_LG_REFLECTDAMAGE = 390,
 	SI_FORCEOFVANGUARD = 391,
 	SI_BUCHEDENOEL = 392,
-	SI_AUTOSHADOWSPELL = 393,
+	SI_AUTOSHADOWSPELL = 393,*/
 	SI_SHADOWFORM = 394,
-	SI_RAID = 395,
+	/*SI_RAID = 395,
 	SI_SHIELDSPELL_DEF = 396,
 	SI_SHIELDSPELL_MDEF = 397,
 	SI_SHIELDSPELL_REF = 398,
@@ -1656,6 +1656,7 @@ struct status_change {
 	int sg_id; //ID of the previous Storm gust that hit you
 	unsigned char sg_counter; //Storm gust counter (previous hits from storm gust)
 	struct status_change_entry *data[SC_MAX];
+	short comet_x, comet_y; // Point where src casted Comet - required to calculate damage from this point
 };
 
 // for looking up associated data

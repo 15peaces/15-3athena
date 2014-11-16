@@ -4,10 +4,31 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/16/2014
+	r22 [15peaces]
+		*Merged missing changes from 3ceam rev. 70 - 81
+		*Removed Electric Shocker from Researchtrap list to increase range. Should not affect boss monster.
+		*Fixed a typo in GN_CARTCANNON.
+		*Fixed some Compiler Warnings. More will be fixed soon...
+			-fixed an compiler warning in clif_skill_setunit
+			-this function was updated for the new ragexe, but there was a typo until today.
+			-sorry for this.
+		*Reduced the timer interval from 50ms to 20ms (official value)
+			-For a long time it is well known that the Aegis interval is 20ms, but devs have been hesitant to set it to that out of performance reasons; these days however, machines are better and there aren't really many 2000+ player servers anymore, so a 20ms interval is actually quite viable now.
+			-Setting the interval to 20ms makes the server perfectly in sync with the client that expects the server to have a delay of no longer than 20ms.
+			-All skills that are "chain-able" on official servers will now also be 100% chain-able here (previously it just worked to 40%), assuming there is no lag
+			-Skills with cast time will no longer go off 30ms later than officially
+			-Several others improvements in regards of client-server sync (timers are used almost everywhere)
+			-This might increase the CPU usage by up to ~50%, if you have trouble running your server with this, you can increase it again in timer.c (TIMER_MIN_INTERVAL)
+			-Bosses are now able to ignore skill-induced walk delay. They can for example walk after casting Sonic Blow.
+		*RA_AIMEDBOLT; RA_WUGSTRIKE; RA_WUGBITE; RA_WUGRIDER; SC_SHADOWFORM
+			-Added full support for these skills. However some formulas may be outdated. ^^
+		*RA_WUGMASTERY; WL_COMET; WL_WHITEIMPRISON
+			-Added pre-support for these skills
+	
 11/05/2014
 	r21 [15peaces]
-		=General
-			*Fixed some Compiler Warnings. More will be fixed soon...
+		*Fixed some Compiler Warnings. More will be fixed soon...
 		=The big Guild Configs & Script Commands Update (Thanks to Cydh)
 			*Config Updates:
 				-Added 'create_guild' to enable/disable guild creation by player.

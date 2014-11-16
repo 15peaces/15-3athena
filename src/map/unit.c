@@ -960,6 +960,7 @@ int unit_can_move(struct block_list *bl)
 			|| (sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF)
 			|| sc->data[SC_WHITEIMPRISON]
 			|| sc->data[SC_ELECTRICSHOCKER]
+			|| sc->data[SC_WUGBITE]
 			|| sc->data[SC_THORNSTRAP]
 			|| sc->data[SC_DIAMONDDUST]
 		))
@@ -1003,6 +1004,10 @@ int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int 
 	if (delay <= 0 || !ud) return 0;
 	
 	if (type) {
+		//Bosses can ignore skill induced walkdelay (but not damage induced)
+		if(bl->type == BL_MOB && (((TBL_MOB*)bl)->status.mode&MD_BOSS))
+			return 0;
+		//Make sure walk delay is not decreased
 		if (DIFF_TICK(ud->canmove_tick, tick+delay) > 0)
 			return 0;
 	} else {
@@ -1163,8 +1168,14 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 				return 0;
 			}
 			break;
+		case RA_WUGMASTERY:
+			if(pc_isfalcon(sd))
+			{
+				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
+				return 0;
+			}
 		case RA_WUGDASH:
-			if(!(pc_isriding(sd)))
+			if(!pc_iswugrider(sd))
 			{
 				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
 				return 0;
@@ -1257,6 +1268,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 	case GD_EMERGENCYCALL: //Emergency Call double cast when the user has learned Leap [Daegaladh]
 		if( sd && pc_checkskill(sd,TK_HIGHJUMP) )
 			casttime *= 2;
+		break;
+	case WL_WHITEIMPRISON:
+		if( battle_check_target(src,target,BCT_SELF|BCT_ENEMY)<0 )
+			return 0;
 		break;
 	case RA_WUGDASH:
 		if (sc && sc->data[SC_WUGDASH])
@@ -1997,11 +2012,12 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		status_change_end(bl, SC_CHASEWALK, INVALID_TIMER);
 		if (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF)
 			status_change_end(bl, SC_GOSPEL, INVALID_TIMER);
-		status_change_end(bl, SC_CHANGE, INVALID_TIMER);
-		status_change_end(bl, SC_STOP, INVALID_TIMER);
-		status_change_end(bl,SC_ELECTRICSHOCKER, INVALID_TIMER);
-		status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
-		status_change_end(bl,SC_DIAMONDDUST, INVALID_TIMER);
+			status_change_end(bl, SC_CHANGE, INVALID_TIMER);
+			status_change_end(bl, SC_STOP, INVALID_TIMER);
+			status_change_end(bl,SC_ELECTRICSHOCKER, INVALID_TIMER);
+			status_change_end(bl,SC_WUGBITE, INVALID_TIMER);
+			status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
+			status_change_end(bl,SC_DIAMONDDUST, INVALID_TIMER);
 
 	}
 

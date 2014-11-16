@@ -430,6 +430,7 @@ struct map_session_data {
 	const char* debug_file;
 	int debug_line;
 	const char* debug_func;
+	int shadowform_id;
 
 	unsigned int bg_id;
 	unsigned short user_font;
