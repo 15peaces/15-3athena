@@ -4,6 +4,14 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/24/2014
+	r23 [15peaces]
+		*Merged missing changes from 3ceam rev. 82 - 94
+		*Added new function to send packet 0x291 that shows a message from msgstringtable.txt.
+		*Fixed all functions that use packet 0x291.
+		*SC__STRIPACCESSARY
+			-Added full support for this skill
+
 11/16/2014
 	r22 [15peaces]
 		*Merged missing changes from 3ceam rev. 70 - 81

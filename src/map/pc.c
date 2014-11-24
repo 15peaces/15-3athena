@@ -888,6 +888,8 @@ int pc_isequip(struct map_session_data *sd,int n)
 			return 0;
 		if(item->equip & EQP_HELM && sd->sc.data[SC_STRIPHELM])
 			return 0;
+		if(item->equip & EQP_ACC && sd->sc.data[SC__STRIPACCESSARY])
+			return 0;
 
 		if (sd->sc.data[SC_SPIRIT] && sd->sc.data[SC_SPIRIT]->val2 == SL_SUPERNOVICE) {
 			//Spirit of Super Novice equip bonuses. [Skotlex]
@@ -1259,11 +1261,10 @@ int pc_calc_skilltree(struct map_session_data *sd)
 	int c=0;
 
 	nullpo_ret(sd);
-	i = pc_calc_skilltree_normalize_job(sd);
-	c = pc_mapid2jobid(i, sd->status.sex);
+	c = pc_mapid2jobid(sd->class_, sd->status.sex);
 	if( c == -1 )
 	{ //Unable to normalize job??
-		ShowError("pc_calc_skilltree: Unable to normalize job %d for character %s (%d:%d)\n", i, sd->status.name, sd->status.account_id, sd->status.char_id);
+		ShowError("pc_calc_skilltree: Unable to normalize job %d for character %s (%d:%d)\n", sd->class_, sd->status.name, sd->status.account_id, sd->status.char_id);
 		return 1;
 	}
 	c = pc_class2idx(c);
@@ -1417,6 +1418,7 @@ static void pc_check_skilltree(struct map_session_data *sd, int skill)
 		return;
 	}
 	c = pc_class2idx(c);
+
 	do {
 		flag = 0;
 		for( i = 0; i < MAX_SKILL_TREE && (id=skill_tree[c][i].id)>0; i++ )
@@ -5689,6 +5691,7 @@ int pc_statusup2(struct map_session_data* sd, int type, int val)
  *------------------------------------------*/
 int pc_skillup(struct map_session_data *sd,int skill_num)
 {
+	int skill_point, i;
 	nullpo_ret(sd);
 
 	if( skill_num >= GD_SKILLBASE && skill_num < GD_SKILLBASE+MAX_GUILDSKILL )
@@ -5718,7 +5721,7 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 		else if( sd->status.skill_point == 0 && (sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON) )
 			pc_calc_skilltree(sd); // Required to grant all TK Ranger skills.
 		else
-			pc_check_skilltree(sd, skill_num); // Check if a new skill can Lvlup
+			pc_check_skilltree(sd, 0); // Check if a new skill can Lvlup
 
 		clif_skillup(sd,skill_num);
 		pc_onstatuschanged(sd,SP_SKILLPOINT);

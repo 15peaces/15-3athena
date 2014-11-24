@@ -446,7 +446,8 @@ void initChangeTables(void)
 
 	//Shadow Chaser
 	set_sc( SC_SHADOWFORM					, SC__SHADOWFORM		, SI_SHADOWFORM		, SCB_NONE );
-		
+	set_sc( SC_STRIPACCESSARY				, SC__STRIPACCESSARY	, SI_STRIPACCESSARY , SCB_DEX|SCB_INT|SCB_LUK );
+
 	// Genetic
 	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST	, SI_GN_CARTBOOST	, SCB_SPEED|SCB_BATK	);
 	add_sc( GN_THORNS_TRAP					, SC_THORNSTRAP		);
@@ -3500,6 +3501,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ = 50;
 	if(sc->data[SC_MANDRAGORA])
 		int_ -= 5 + 5 * sc->data[SC_MANDRAGORA]->val1;
+	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+		int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -3542,6 +3545,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += ((sc->data[SC_MARIONETTE2]->val4)>>8)&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && dex < 50)
 		dex  = 50;
+	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+		dex -= dex * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -3571,6 +3576,10 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_MARIONETTE2]->val4&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && luk < 50)
 		luk = 50;
+	if(sc->data[SC_LAUDARAMUS])
+		luk += 4 + sc->data[SC_LAUDARAMUS]->val1;
+	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+		luk -= luk * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
@@ -5298,6 +5307,28 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			return 0;
 		}
 	break;
+	
+	case SC__STRIPACCESSARY:
+		if( sd )
+		{
+			int i = -1;
+			if( !(sd->unstripable_equip&EQI_ACC_L) )
+			{
+				i = sd->equip_index[EQI_ACC_L];
+				if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
+					pc_unequipitem(sd,i,3); //L-Accessory
+			}
+			if( !(sd->unstripable_equip&EQI_ACC_R) )
+			{
+				i = sd->equip_index[EQI_ACC_R];
+				if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
+					pc_unequipitem(sd,i,3); //R-Accessory
+			}
+			if( i < 0 )
+				return 0;
+		}
+		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
+		break;
 	}
 
 	//Check for BOSS resistances
@@ -6461,6 +6492,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick / 1000;
 			val_flag |= 1|2|4;
 			tick = 1000;
+			break;
+		case SC__STRIPACCESSARY:
+			if (!sd)
+				val2 = 20;
 			break;
 		case SC_GN_CARTBOOST:
 			if( val1 < 3 )

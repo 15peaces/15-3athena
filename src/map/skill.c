@@ -1471,9 +1471,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 --------------------------------------------------------------------------*/
 int skill_break_equip (struct block_list *bl, unsigned short where, int rate, int flag)
 {
-	const int where_list[4]     = {EQP_WEAPON, EQP_ARMOR, EQP_SHIELD, EQP_HELM};
-	const enum sc_type scatk[4] = {SC_STRIPWEAPON, SC_STRIPARMOR, SC_STRIPSHIELD, SC_STRIPHELM};
-	const enum sc_type scdef[4] = {SC_CP_WEAPON, SC_CP_ARMOR, SC_CP_SHIELD, SC_CP_HELM};
+	const int where_list[5]     = {EQP_WEAPON, EQP_ARMOR, EQP_SHIELD, EQP_HELM, EQP_ACC};
+	const enum sc_type scatk[5] = {SC_STRIPWEAPON, SC_STRIPARMOR, SC_STRIPSHIELD, SC_STRIPHELM, SC__STRIPACCESSARY};
+	const enum sc_type scdef[5] = {SC_CP_WEAPON, SC_CP_ARMOR, SC_CP_SHIELD, SC_CP_HELM, 0};
 	struct status_change *sc = status_get_sc(bl);
 	int i,j;
 	TBL_PC *sd;
@@ -1546,6 +1546,9 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 				case EQI_GARMENT:
 					flag = (where&EQP_GARMENT);
 					break;
+				case EQI_ACC_L:
+				case EQI_ACC_R:
+					flag = (where&EQP_ACC);
 				default:
 					continue;
 			}
@@ -1566,9 +1569,9 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time)
 {
 	struct status_change *sc;
-	const int pos[4]             = {EQP_WEAPON, EQP_SHIELD, EQP_ARMOR, EQP_HELM};
-	const enum sc_type sc_atk[4] = {SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM};
-	const enum sc_type sc_def[4] = {SC_CP_WEAPON, SC_CP_SHIELD, SC_CP_ARMOR, SC_CP_HELM};
+	const int pos[5]             = {EQP_WEAPON, EQP_SHIELD, EQP_ARMOR, EQP_HELM, EQP_ACC};
+	const enum sc_type sc_atk[5] = {SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM, SC__STRIPACCESSARY};
+	const enum sc_type sc_def[5] = {SC_CP_WEAPON, SC_CP_SHIELD, SC_CP_ARMOR, SC_CP_HELM, 0};
 	int i;
 
 	if (rand()%100 >= rate)
@@ -4690,6 +4693,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RG_STRIPARMOR:
 	case RG_STRIPHELM:
 	case ST_FULLSTRIP:
+	case SC_STRIPACCESSARY:
 	{
 		unsigned short location = 0;
 		int d = 0;
@@ -4697,6 +4701,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		//Rate in percent
 		if ( skillid == ST_FULLSTRIP ) {
 			i = 5 + 2*skilllv + (sstatus->dex - tstatus->dex)/5;
+		}
+		else if( skillid == SC_STRIPACCESSARY ){
+			i = 10 * 5 * skilllv + (sstatus->dex - tstatus->dex)/5; // It's an estimated rate [pakpil]
 		} else {
 			i = 5 + 5*skilllv + (sstatus->dex - tstatus->dex)/5;
 		}
@@ -4721,6 +4728,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			break;
 		case ST_FULLSTRIP:
 			location = EQP_WEAPON|EQP_SHIELD|EQP_ARMOR|EQP_HELM;
+			break;
+		case SC_STRIPACCESSARY:
+			location = EQP_ACC;
 			break;
 		}
 
@@ -4909,37 +4919,37 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				if (!tsc->data[i])
 					continue;
 				switch (i) {
-				case SC_WEIGHT50:		case SC_WEIGHT90:		case SC_HALLUCINATION:
-				case SC_STRIPWEAPON:	case SC_STRIPSHIELD:	case SC_STRIPARMOR:
-				case SC_STRIPHELM:		case SC_CP_WEAPON:		case SC_CP_SHIELD:
-				case SC_CP_ARMOR:		case SC_CP_HELM:		case SC_COMBO:
-				case SC_STRFOOD:		case SC_AGIFOOD:		case SC_VITFOOD:
-				case SC_INTFOOD:		case SC_DEXFOOD:		case SC_LUKFOOD:
-				case SC_HITFOOD:		case SC_FLEEFOOD:		case SC_BATKFOOD:
-				case SC_WATKFOOD:		case SC_MATKFOOD:		case SC_DANCING:
-				case SC_GUILDAURA:		case SC_EDP:			case SC_AUTOBERSERK:
-				case SC_CARTBOOST:		case SC_MELTDOWN:		case SC_SAFETYWALL:
-				case SC_SMA:			case SC_SPEEDUP0:		case SC_NOCHAT:
-				case SC_ANKLE:			case SC_SPIDERWEB:		case SC_JAILED:
-				case SC_ITEMBOOST:		case SC_EXPBOOST:		case SC_LIFEINSURANCE:
-				case SC_BOSSMAPINFO:	case SC_PNEUMA:			case SC_AUTOSPELL:
-				case SC_INCHITRATE:		case SC_INCATKRATE:		case SC_NEN:
-				case SC_READYSTORM:		case SC_READYDOWN:		case SC_READYTURN:
-				case SC_READYCOUNTER:	case SC_DODGE:			case SC_WARM:
-				case SC_SPEEDUP1:		case SC_AUTOTRADE:		case SC_CRITICALWOUND:
-				case SC_JEXPBOOST:		case SC_INVINCIBLE:		case SC_INVINCIBLEOFF:
-				case SC_HELLPOWER:		case SC_MANU_ATK:		case SC_MANU_DEF:
-				case SC_SPL_ATK:		case SC_SPL_DEF:		case SC_MANU_MATK:
-				case SC_SPL_MATK:		case SC_RICHMANKIM:		case SC_ETERNALCHAOS:
-				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
-				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_WHISTLE:
-				case SC_ASSNCROS:		case SC_POEMBRAGI:		case SC_APPLEIDUN:
-				case SC_HUMMING:		case SC_DONTFORGETME:	case SC_FORTUNE:
-				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
-				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
-				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:		case SC_ON_PUSH_CART:
-				case SC_MOONSTAR:		case SC_SUPER_STAR:		case SC_MONSTER_TRANSFORM:
-				case SC_STRANGELIGHTS:	case SC_DECORATION_OF_MUSIC:
+				case SC_WEIGHT50:		case SC_WEIGHT90:				case SC_HALLUCINATION:
+				case SC_STRIPWEAPON:	case SC_STRIPSHIELD:			case SC_STRIPARMOR:
+				case SC_STRIPHELM:		case SC_CP_WEAPON:				case SC_CP_SHIELD:
+				case SC_CP_ARMOR:		case SC_CP_HELM:				case SC_COMBO:
+				case SC_STRFOOD:		case SC_AGIFOOD:				case SC_VITFOOD:
+				case SC_INTFOOD:		case SC_DEXFOOD:				case SC_LUKFOOD:
+				case SC_HITFOOD:		case SC_FLEEFOOD:				case SC_BATKFOOD:
+				case SC_WATKFOOD:		case SC_MATKFOOD:				case SC_DANCING:
+				case SC_GUILDAURA:		case SC_EDP:					case SC_AUTOBERSERK:
+				case SC_CARTBOOST:		case SC_MELTDOWN:				case SC_SAFETYWALL:
+				case SC_SMA:			case SC_SPEEDUP0:				case SC_NOCHAT:
+				case SC_ANKLE:			case SC_SPIDERWEB:				case SC_JAILED:
+				case SC_ITEMBOOST:		case SC_EXPBOOST:				case SC_LIFEINSURANCE:
+				case SC_BOSSMAPINFO:	case SC_PNEUMA:					case SC_AUTOSPELL:
+				case SC_INCHITRATE:		case SC_INCATKRATE:				case SC_NEN:
+				case SC_READYSTORM:		case SC_READYDOWN:				case SC_READYTURN:
+				case SC_READYCOUNTER:	case SC_DODGE:					case SC_WARM:
+				case SC_SPEEDUP1:		case SC_AUTOTRADE:				case SC_CRITICALWOUND:
+				case SC_JEXPBOOST:		case SC_INVINCIBLE:				case SC_INVINCIBLEOFF:
+				case SC_HELLPOWER:		case SC_MANU_ATK:				case SC_MANU_DEF:
+				case SC_SPL_ATK:		case SC_SPL_DEF:				case SC_MANU_MATK:
+				case SC_SPL_MATK:		case SC_RICHMANKIM:				case SC_ETERNALCHAOS:
+				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:				case SC_ROKISWEIL:
+				case SC_INTOABYSS:		case SC_SIEGFRIED:				case SC_WHISTLE:
+				case SC_ASSNCROS:		case SC_POEMBRAGI:				case SC_APPLEIDUN:
+				case SC_HUMMING:		case SC_DONTFORGETME:			case SC_FORTUNE:
+				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:			case SC_FOOD_AGI_CASH:
+				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:			case SC_FOOD_INT_CASH:
+				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:				case SC_ON_PUSH_CART:
+				case SC_MOONSTAR:		case SC_SUPER_STAR:				case SC_MONSTER_TRANSFORM:
+				case SC_STRANGELIGHTS:	case SC_DECORATION_OF_MUSIC:	case SC__STRIPACCESSARY:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
