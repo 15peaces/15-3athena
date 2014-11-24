@@ -427,11 +427,10 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 		if( ((TBL_PC*)bl)->shadowform_id > 0 )
 		{
 			struct block_list *s_bl = map_id2bl(((TBL_PC*)bl)->shadowform_id);
-			if( !check_distance_bl(bl,s_bl,skill_get_range(SC_SHADOWFORM,1)) ) // Asume lvl 1.
+			if(s_bl && !check_distance_bl(bl,s_bl,skill_get_range(SC_SHADOWFORM,1)) ) // Asume lvl 1.
 			{
 				((TBL_PC*)bl)->shadowform_id = 0;
-				if( s_bl )
-					status_change_end(s_bl,SC__SHADOWFORM,-1);
+				status_change_end(s_bl,SC__SHADOWFORM,-1);
 			}
 		}
 		skill_unit_move(bl,tick,3);
@@ -1592,6 +1591,7 @@ int map_quit(struct map_session_data *sd)
 			status_change_end(&sd->bl, SC_STRIPARMOR, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STRIPSHIELD, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STRIPHELM, INVALID_TIMER);
+			status_change_end(&sd->bl,SC__STRIPACCESSARY,INVALID_TIMER);
 			status_change_end(&sd->bl, SC_EXTREMITYFIST, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
 			if(sd->sc.data[SC_REGENERATION] && sd->sc.data[SC_REGENERATION]->val4)

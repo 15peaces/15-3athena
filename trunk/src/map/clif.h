@@ -664,6 +664,8 @@ void clif_quest_update_objective(struct map_session_data * sd, struct quest * qd
 void clif_quest_show_event(struct map_session_data *sd, struct block_list *bl, short state, short color);
 void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest);
 
+void clif_msgtable(int fd, int line);
+void clif_msgtable_num(int fd, int line, int num);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
 int do_init_clif(void);
 

@@ -8963,11 +8963,49 @@ void clif_msg_skill(struct map_session_data* sd, unsigned short skill_id, int ms
 	WFIFOSET(fd, packet_len(0x7e6));
 }
 
+// msgstringtable.txt
+// This message must be normalized
+// using "unsigned char msg[a][b]"
+// so that it can be displayed correctly.
+void clif_msgtable(int fd, int line)
+{
+	int a,b;
+
+	b = line / 255;
+	a = line - ( b * 255 ) - b;
+
+	WFIFOHEAD(fd, packet_len(0x291));
+	WFIFOW(fd, 0) = 0x291;
+	WFIFOB(fd, 2) = a;
+	WFIFOB(fd, 3) = b;
+	WFIFOSET(fd, packet_len(0x291));
+}
+
+// msgstringtable.txt
+// This message must be normalized
+// using "unsigned char msg[a][b]"
+// so that it can be displayed correctly.
+void clif_msgtable_num(int fd, int line, int num)
+{
+#if PACKETVER >= 20090805
+	int a,b;
+	b = line / 255;
+	a = line - ( b * 255 ) - b;
+
+	WFIFOHEAD(fd, packet_len(0x7e2));
+	WFIFOW(fd, 0) = 0x7e2;
+	WFIFOB(fd, 2) = a;
+	WFIFOB(fd, 3) = b;
+	WFIFOL(fd, 4) = num;
+	WFIFOSET(fd, packet_len(0x7e2));
+#endif
+}
+
 
 /// View player equip request denied
 void clif_viewequip_fail(struct map_session_data* sd)
 {
-	clif_msg(sd, 0x54d);
+	clif_msgtable(sd->fd, 1357);
 }
 
 
@@ -15226,15 +15264,16 @@ void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 }
 
 
-/// Mercenary Message
-/// message:
-///     0 = Mercenary soldier's duty hour is over.
-///     1 = Your mercenary soldier has been killed.
-///     2 = Your mercenary soldier has been fired.
-///     3 = Your mercenary soldier has ran away.
+/*------------------------------------------
+* Mercenary Message
+* 1266 = Mercenary soldier's duty hour is over.
+* 1267 = Your mercenary soldier has been killed.
+* 1268 = Your mercenary soldier has been fired.
+* 1269 = Your mercenary soldier has ran away.
+*------------------------------------------*/
 void clif_mercenary_message(struct map_session_data* sd, int message)
 {
-	clif_msg(sd, 1266 + message);
+	clif_msgtable(sd->fd, 1266 + message);
 }
 
 
