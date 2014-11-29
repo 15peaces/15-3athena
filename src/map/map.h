@@ -264,6 +264,15 @@ enum {
 	RC_MAX
 };
 
+enum e_classAE {
+	CLASS_NONE = -1, //don't give us bonus
+	CLASS_NORMAL = 0,
+	CLASS_BOSS,
+	CLASS_GUARDIAN,
+	CLASS_ALL,
+	CLASS_MAX //auto upd enum for array len
+};
+
 enum {
 	RC2_NONE = 0,
 	RC2_GOBLIN,

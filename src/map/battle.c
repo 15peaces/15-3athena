@@ -2514,6 +2514,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		wd.damage += ad.damage;
 	}
 
+	if( (sc && sc->data[SC__DEADLYINFECT]) || (tsc && tsc->data[SC__DEADLYINFECT]) )
+	{
+		if( rand()%100 < 50 ) // Estimated value
+			status_change_spread(src, target);
+	}
+
 	return wd;
 }
 
@@ -3425,6 +3431,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if (sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&2))
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
+	
+	if( sc && sc->data[SC__INVISIBILITY] )
+		status_change_end(src,SC__INVISIBILITY, INVALID_TIMER); // Still need confirm this [pakpil]
 
 	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, 1) )
 	{

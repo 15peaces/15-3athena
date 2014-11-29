@@ -14601,6 +14601,9 @@ BUILDIN_FUNC(mercenary_create)
 	if( !merc_class(class_) )
 		return 0;
 
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	contract_time = script_getnum(st,3);
 	merc_create(sd, class_, contract_time);
 #endif
@@ -15764,6 +15767,56 @@ BUILDIN_FUNC(useatcmd)
 	return 0;
 }
 
+/* Cast a skill on the attached player.
+ * npcskill <skill id>, <skill lvl>, <stat point>, <NPC level>;
+ * npcskill "<skill name>", <skill lvl>, <stat point>, <NPC level>; */
+BUILDIN_FUNC(npcskill)
+{
+	uint16 skill_id;
+	unsigned short skill_level;
+	unsigned int stat_point;
+	unsigned int npc_level;
+	struct npc_data *nd;
+	struct map_session_data *sd;
+	struct script_data *data;
+	
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id	= data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2);
+	skill_level	= script_getnum(st, 3);
+	stat_point	= script_getnum(st, 4);
+	npc_level	= script_getnum(st, 5);
+	sd			= script_rid2sd(st);
+	nd			= (struct npc_data *)map_id2bl(sd->npc_id);
+
+	if (stat_point > battle_config.max_parameter_renewal_jobs) {
+		ShowError("npcskill: stat point exceeded maximum of %d.\n",battle_config.max_parameter_renewal_jobs );
+		return 0;
+	}
+	if (npc_level > MAX_LEVEL) {
+		ShowError("npcskill: level exceeded maximum of %d.\n", MAX_LEVEL);
+		return 0;
+	}
+	if (sd == NULL || nd == NULL) { //ain't possible, but I don't trust people.
+		return 0;
+	}
+
+	nd->level = npc_level;
+	nd->stat_point = stat_point;
+
+	if (!nd->status.hp)
+		status_calc_npc(nd, SCO_FIRST);
+	else
+		status_calc_npc(nd, SCO_NONE);
+
+	if (skill_get_inf(skill_id)&INF_GROUND_SKILL)
+		unit_skilluse_pos(&nd->bl, sd->bl.x, sd->bl.y, skill_id, skill_level);
+	else
+		unit_skilluse_id(&nd->bl, sd->bl.id, skill_id, skill_level);
+
+	return 1;
+}
+
 /** Creates new guild and makes the 'char_id' or the invoker as guild master (player must be online)
 * guild_create "<name>"{,<char_id>};
 * @return 1 if attempt is success, 0 otherwise
@@ -16508,5 +16561,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getitem,"getitembound","vii?"), 
 	BUILDIN_DEF2(getitem2,"getitembound2","viiiiiiiii?"), 
 	BUILDIN_DEF(countbound, "?"), 
+
+	//Others
+	BUILDIN_DEF(npcskill,"viii"),
 	{NULL,NULL,NULL},
 };
