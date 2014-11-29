@@ -4,9 +4,25 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/29/2014
+	r24 [15peaces]
+		*Merged missing changes from 3ceam rev. 94 - 95
+		*Fixed some Compiler Warnings. More will be fixed soon...
+		*Added support for 'npcskill' script command.
+		*SC_INVISIBILITY, SC_DEADLYINFECT, SC_ENERVATION, SC_GROOMY, SC_IGNORANCE, SC_LAZINESS, SC_UNLUCKY, SC_WEAKNESS, SC_MANHOLE, SC_SIMENSIONDOOR, SC_REPRODUCE
+			-Added full support for these skills.
+		*SC_BODYPAINT, SC_CHAOSPANIC, SC_BLOODYLUST, RA_ELECTRICSHOCKER
+			-Added pre-support for these skills.
+		*AB_ADORAMUS, WL_COMET
+			-Updated Gemstone Checks
+		*RA_CLUSTERBOMB
+			-Some fixes / updates.
+		*SC_MARSHOFABYSS, SC_EPICLESIS
+			-Added pre-support for these statuses.
+
 11/24/2014
 	r23 [15peaces]
-		*Merged missing changes from 3ceam rev. 82 - 94
+		*Merged missing changes from 3ceam rev. 82 - 93
 		*Added new function to send packet 0x291 that shows a message from msgstringtable.txt.
 		*Fixed all functions that use packet 0x291.
 		*SC__STRIPACCESSARY

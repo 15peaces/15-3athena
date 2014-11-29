@@ -206,7 +206,7 @@ struct map_session_data {
 	short skillid_dance,skilllv_dance;
 	short cook_mastery; // range: [0,1999] [Inkfish]
 	unsigned char blockskill[MAX_SKILL];
-	int cloneskill_id;
+	int cloneskill_id, reproduceskill_id;
 	int menuskill_id, menuskill_val;
 
 	int invincible_timer;

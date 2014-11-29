@@ -5302,7 +5302,7 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 		type == SI_TENSIONRELAX || type == SI_LANDENDOW || type == SI_AUTOBERSERK ||
 		type == SI_BUMP || type == SI_READYSTORM || type == SI_READYDOWN ||
 		type == SI_READYTURN || type == SI_READYCOUNTER || type == SI_DODGE ||
-		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION)
+		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION || type == SI_REPRODUCE)
 		tick=0;
 
 #if PACKETVER >= 20090121
@@ -6874,15 +6874,20 @@ void clif_sendegg(struct map_session_data *sd)
 		clif_displaymessage(fd, "Pets are not allowed in Guild Wars.");
 		return;
 	}
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return;
+
 	WFIFOHEAD(fd, MAX_INVENTORY * 2 + 4);
 	WFIFOW(fd,0)=0x1a6;
-	for(i=0,n=0;i<MAX_INVENTORY;i++){
-		if(sd->status.inventory[i].nameid<=0 || sd->inventory_data[i] == NULL ||
-		   sd->inventory_data[i]->type!=IT_PETEGG ||
-		   sd->status.inventory[i].amount<=0)
-			continue;
-		WFIFOW(fd,n*2+4)=i+2;
-		n++;
+	if(sd->status.pet_id <= 0) {
+		for(i=0,n=0;i<MAX_INVENTORY;i++){
+			if(sd->status.inventory[i].nameid<=0 || sd->inventory_data[i] == NULL ||
+			   sd->inventory_data[i]->type!=IT_PETEGG ||
+			   sd->status.inventory[i].amount<=0)
+				continue;
+			WFIFOW(fd,n*2+4)=i+2;
+			n++;
+		}
 	}
 	WFIFOW(fd,2)=4+n*2;
 	WFIFOSET(fd,WFIFOW(fd,2));
@@ -9737,7 +9742,7 @@ void clif_disconnect_ack(struct map_session_data* sd, short result)
 void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 {
 	/*	Rovert's prevent logout option fixed [Valaris]	*/
-	if( !sd->sc.data[SC_CLOAKING] && !sd->sc.data[SC_HIDING] && !sd->sc.data[SC_CHASEWALK] &&
+	if( !sd->sc.data[SC_CLOAKING] && !sd->sc.data[SC_HIDING] && !sd->sc.data[SC_CHASEWALK] && !sd->sc.data[SC__INVISIBILITY] &&
 		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
 	{
 		set_eof(fd);
@@ -9962,6 +9967,8 @@ void clif_parse_HowManyConnections(int fd, struct map_session_data *sd)
 
 void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, int target_id, unsigned int tick)
 {
+	struct status_change *tsc = status_get_sc(map_id2bl(target_id));
+
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
 		return;
@@ -9997,6 +10004,9 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 
 		if( sd->sc.data[SC__SHADOWFORM] )
+			return;
+
+		if( (sd->sc.count && sd->sc.data[SC__MANHOLE]) || (tsc && tsc->data[SC__MANHOLE]) )
 			return;
 
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {
@@ -10085,7 +10095,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd)
 		break;
 	case 0x01:
 		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/
-		if( !sd->sc.data[SC_CLOAKING] && !sd->sc.data[SC_HIDING] && !sd->sc.data[SC_CHASEWALK] &&
+		if( !sd->sc.data[SC_CLOAKING] && !sd->sc.data[SC_HIDING] && !sd->sc.data[SC_CHASEWALK] && !sd->sc.data[SC__INVISIBILITY] &&
 			(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
 		{	//Send to char-server for character selection.
 			chrif_charselectreq(sd, session[fd]->client_addr);

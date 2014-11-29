@@ -681,6 +681,7 @@ typedef enum sc_type {
 	SC_SPHERE_5,
 	SC_CHAINLIGHTNING,
 	SC_FREEZINGSPELL,
+	SC_CHAOS,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1076,7 +1077,7 @@ enum si_type {
 	SI_MANU_DEF = 382, 
 	SI_SPL_ATK = 383, 
 	SI_SPL_DEF = 384, 
-//	SI_REPRODUCE = 385,
+	SI_REPRODUCE = 385,
 	SI_MANU_MATK = 386,
 	SI_SPL_MATK = 387,
 /*
@@ -1090,32 +1091,32 @@ enum si_type {
 	/*SI_RAID = 395,
 	SI_SHIELDSPELL_DEF = 396,
 	SI_SHIELDSPELL_MDEF = 397,
-	SI_SHIELDSPELL_REF = 398,
+	SI_SHIELDSPELL_REF = 398,*/
 	SI_BODYPAINT = 399,
-	SI_EXEEDBREAK = 400,
+	/*SI_EXEEDBREAK = 400,
 	SI_ADORAMUS = 401,
-	SI_PRESTIGE = 402,
+	SI_PRESTIGE = 402,*/
 	SI_INVISIBILITY = 403,
 	SI_DEADLYINFECT = 404,
-	SI_BANDING = 405,
+	/*SI_BANDING = 405,
 	SI_EARTHDRIVE = 406,
-	SI_INSPIRATION = 407,
+	SI_INSPIRATION = 407,*/
 	SI_ENERVATION = 408,
 	SI_GROOMY = 409,
-	SI_RAISINGDRAGON = 410,
+	//SI_RAISINGDRAGON = 410,
 	SI_IGNORANCE = 411,
 	SI_LAZINESS = 412,
-	SI_LIGHTNINGWALK = 413,
-	SI_ACARAJE = 414,
+	/*SI_LIGHTNINGWALK = 413,
+	SI_ACARAJE = 414,*/
 	SI_UNLUCKY = 415,
-	SI_CURSEDCIRCLE_ATKER = 416,
-	SI_CURSEDCIRCLE_TARGET = 417,
+	/*SI_CURSEDCIRCLE_ATKER = 416,
+	SI_CURSEDCIRCLE_TARGET = 417,*/
 	SI_WEAKNESS = 418,
-	SI_CRESCENTELBOW = 419,
+	/*SI_CRESCENTELBOW = 419,
 	SI_NOEQUIPACCESSARY = 420,*/
 	SI_STRIPACCESSARY = 421,
-	/*SI_MANHOLE = 422,
-	SI_POPECOOKIE = 423,
+	SI_MANHOLE = 422,
+	/*SI_POPECOOKIE = 423,
 	SI_FALLENEMPIRE = 424,
 	SI_GENTLETOUCH_ENERGYGAIN = 425,
 	SI_GENTLETOUCH_CHANGE = 426,
@@ -1555,6 +1556,12 @@ enum scb_flag
 	SCB_ALL     = 0x3FFFFFFF
 };
 
+enum e_status_calc_opt {
+	SCO_NONE  = 0x0,
+	SCO_FIRST = 0x1, /* Trigger the calculations that should take place only onspawn/once */
+	SCO_FORCE = 0x2, /* Only relevant to BL_PC types, ensures call bypasses the queue caused by delayed damage */
+};
+
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM|BL_MER)
 //Define to determine who has regen
@@ -1589,7 +1596,7 @@ struct status_data {
 		aspd_rate;
 	unsigned char
 		def_ele, ele_lv,
-		size, race;
+		size, race, class_;
 	signed char
 		def, mdef;
 	struct weapon_atk rhw, lhw; //Right Hand/Left Hand Weapon.
@@ -1756,6 +1763,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data);
 int status_change_timer_sub(struct block_list* bl, va_list ap);
 int status_change_clear(struct block_list* bl, int type);
 int status_change_clear_buffs(struct block_list* bl, int type);
+int status_change_spread( struct block_list *src, struct block_list *bl );
 
 #define status_calc_bl(bl, flag) status_calc_bl_(bl, (enum scb_flag)(flag), false)
 #define status_calc_mob(md, first) status_calc_bl_(&(md)->bl, SCB_ALL, first)
@@ -1763,6 +1771,7 @@ int status_change_clear_buffs(struct block_list* bl, int type);
 #define status_calc_pc(sd, first) status_calc_bl_(&(sd)->bl, SCB_ALL, first)
 #define status_calc_homunculus(hd, first) status_calc_bl_(&(hd)->bl, SCB_ALL, first)
 #define status_calc_mercenary(md, first) status_calc_bl_(&(md)->bl, SCB_ALL, first)
+#define status_calc_npc(nd, opt) status_calc_bl_(&(nd)->bl, SCB_ALL, opt)
 
 void status_calc_bl_(struct block_list *bl, enum scb_flag flag, bool first);
 int status_calc_mob_(struct mob_data* md, bool first);

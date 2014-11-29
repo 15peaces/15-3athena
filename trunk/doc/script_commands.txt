@@ -4,7 +4,7 @@
 //= A reference manual for the eAthena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.54.20141104
+//= 3.55.20141126
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -202,6 +202,8 @@
 //=       The big Guild management command update! (Thanks to Cydh from rAthena!)
 //=       Added 'guild_info', 'guild_create', 'guild_addmember', 'guild_delmember',
 //=       'guild_changegm', 'guild_break'. [15peaces]
+//=	3.55.20141126
+//=		  Added 'npcskill'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -6596,6 +6598,24 @@ GID as the other unit* commands (See 'GID').
 
 Skill ID is the ID of the skill, skill level is the level of the skill.
 For the position, the x and y are given in the unitSkillUsePos.
+
+---------------------------------------
+
+*npcskill <skill id>,<skill lvl>,<stat point>,<NPC level>;
+*npcskill "<skill name>",<skill lvl>,<stat point>,<NPC level>;
+
+This command causes the attached NPC object to cast a skill on the attached
+player. The skill will have no cast time or cooldown. The player must be
+within the default skill range or the command will fail silently.
+
+The "stat point" parameter temporarily sets all NPC stats to the given value,
+and "NPC level" is the temporary level of the NPC (used in some skills).
+Neither value can be greater than the max level defined in config, and will
+not work properly if the NPC has a mob sprite.
+
+    // Casts Level 10 Heal on the attached player, calculated with
+    // all stats 99 and base level 60.
+    npcskill "AL_HEAL",10,99,60;
 
 ---------------------------------------
 

@@ -417,11 +417,10 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 		if( sc && sc->data[SC__SHADOWFORM] )
 		{
 			struct map_session_data *s_sd = map_id2sd(sc->data[SC__SHADOWFORM]->val2);
-			if( !check_distance_bl(bl,&s_sd->bl,skill_get_range(SC_SHADOWFORM,sc->data[SC__SHADOWFORM]->val1)) )
+			if( s_sd && !check_distance_bl(bl,&s_sd->bl,skill_get_range(SC_SHADOWFORM,sc->data[SC__SHADOWFORM]->val1)) )
 			{
-				status_change_end(bl,SC__SHADOWFORM,-1);
-				if( s_sd )
-					s_sd->shadowform_id = 0;
+				status_change_end(bl,SC__SHADOWFORM, INVALID_TIMER);
+				s_sd->shadowform_id = 0;
 			}
 		}
 		if( ((TBL_PC*)bl)->shadowform_id > 0 )
@@ -430,7 +429,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 			if(s_bl && !check_distance_bl(bl,s_bl,skill_get_range(SC_SHADOWFORM,1)) ) // Asume lvl 1.
 			{
 				((TBL_PC*)bl)->shadowform_id = 0;
-				status_change_end(s_bl,SC__SHADOWFORM,-1);
+				status_change_end(s_bl,SC__SHADOWFORM, INVALID_TIMER);
 			}
 		}
 		skill_unit_move(bl,tick,3);
@@ -1611,6 +1610,7 @@ int map_quit(struct map_session_data *sd)
 			status_change_end(&sd->bl, SC_KAAHI, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_SPIRIT, INVALID_TIMER);
 			status_change_end(&sd->bl, SC__REPRODUCE, INVALID_TIMER);
+			status_change_end(&sd->bl, SC__INVISIBILITY, INVALID_TIMER);
 		}
 	}
 	

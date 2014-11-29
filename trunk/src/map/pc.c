@@ -1182,6 +1182,18 @@ int pc_reg_received(struct map_session_data *sd)
 		}
 	}
 
+	if ((i = pc_checkskill(sd,SC_REPRODUCE)) > 0) {
+		sd->reproduceskill_id = pc_readglobalreg(sd,"REPRODUCE_SKILL");
+		if( sd->reproduceskill_id > 0)
+		{
+			sd->status.skill[sd->reproduceskill_id].id = sd->reproduceskill_id;
+			sd->status.skill[sd->reproduceskill_id].lv = pc_readglobalreg(sd,"REPRODUCE_SKILL_LV");
+			if( i < sd->status.skill[sd->reproduceskill_id].lv)
+				sd->status.skill[sd->reproduceskill_id].lv = i;
+			sd->status.skill[sd->reproduceskill_id].flag = SKILL_FLAG_PLAGIARIZED;
+		}
+	}
+
 	//Weird... maybe registries were reloaded?
 	if (sd->state.active)
 		return 0;
@@ -3929,6 +3941,7 @@ int pc_useitem(struct map_session_data *sd,int n)
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
 		sd->sc.data[SC_WHITEIMPRISON] ||
 		sd->sc.data[SC__SHADOWFORM] ||
+		sd->sc.data[SC__INVISIBILITY] ||
 		sd->sc.data[SC_DIAMONDDUST]
 	))
 		return 0;
@@ -5691,7 +5704,6 @@ int pc_statusup2(struct map_session_data* sd, int type, int val)
  *------------------------------------------*/
 int pc_skillup(struct map_session_data *sd,int skill_num)
 {
-	int skill_point, i;
 	nullpo_ret(sd);
 
 	if( skill_num >= GD_SKILLBASE && skill_num < GD_SKILLBASE+MAX_GUILDSKILL )
@@ -6941,6 +6953,12 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		pc_setglobalreg(sd, "CLONE_SKILL", 0);
 		pc_setglobalreg(sd, "CLONE_SKILL_LV", 0);
 	}
+	if(sd->reproduceskill_id)
+	{
+		sd->reproduceskill_id = 0;
+		pc_setglobalreg(sd, "REPRODUCE_SKILL",0);
+		pc_setglobalreg(sd, "REPRODUCE_SKILL_LV",0);
+	}
 	if ((b_class&&MAPID_UPPERMASK) != (sd->class_&MAPID_UPPERMASK))
 	{ //Things to remove when changing class tree.
 		const int class_ = pc_class2idx(sd->status.class_);
@@ -7283,6 +7301,9 @@ int pc_setcart(struct map_session_data *sd,int type)
  *------------------------------------------*/
 int pc_setfalcon(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,HT_FALCON)>0 )	// ファルコンマスタリ?スキル所持
 			pc_setoption(sd,sd->sc.option|OPTION_FALCON);
@@ -7298,6 +7319,9 @@ int pc_setfalcon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setriding(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,KN_RIDING) > 0 ) // ライディングスキル所持
 			pc_setoption(sd, sd->sc.option|OPTION_RIDING);
@@ -7313,6 +7337,9 @@ int pc_setriding(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setdragon(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,RK_DRAGONTRAINING) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_DRAGON1);
@@ -7328,6 +7355,9 @@ int pc_setdragon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwug(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,RA_WUGMASTERY)>0 )
 			pc_setoption(sd,sd->sc.option|OPTION_WUG);
@@ -7343,6 +7373,9 @@ int pc_setwug(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwugrider(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,RA_WUGRIDER) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_WUGRIDER);
@@ -7358,6 +7391,9 @@ int pc_setwugrider(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setmadogear(TBL_PC* sd, int flag)
 {
+	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+		return 0;
+
 	if( flag ){
 		if( pc_checkskill(sd,NC_MADOLICENCE) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_MADOGEAR);
