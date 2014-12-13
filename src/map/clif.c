@@ -3174,6 +3174,46 @@ void clif_arrow_create_list(struct map_session_data *sd)
 	}
 }
 
+/*===========================================
+ * Skill list for Auto Shadow Spell
+ *------------------------------------------*/
+int clif_skill_select_request(struct map_session_data *sd)
+{
+	int fd, i, c;
+	nullpo_ret(sd);
+	fd = sd->fd;
+	if( !fd ) return 0;
+
+	if( sd->menuskill_id == SC_AUTOSHADOWSPELL )
+		return 0;
+
+	WFIFOHEAD(fd, 2 * 6 + 4);
+	WFIFOW(fd,0) = 0x442;
+	for( i = 0, c = 0; i < MAX_SKILL; i++ )
+
+	if( sd->status.skill[i].flag == 13 && sd->status.skill[i].id > 0 && ( sd->status.skill[i].id >= MG_NAPALMBEAT && sd->status.skill[i].id <=MG_THUNDERSTORM || 
+	sd->status.skill[i].id == AL_HEAL || sd->status.skill[i].id >= WZ_FIREPILLAR && sd->status.skill[i].id <= WZ_HEAVENDRIVE ))
+	{ // Can't auto cast both Extended class and 3rd class skills.
+		WFIFOW(fd,8+c*2) = sd->status.skill[i].id;
+		c++;
+	}
+
+	if( c > 0 )
+	{
+		WFIFOW(fd,2) = 8 + c * 2;
+		WFIFOL(fd,4) = c;
+		WFIFOSET(fd,WFIFOW(fd,2));
+		sd->menuskill_id = SC_AUTOSHADOWSPELL;
+		sd->menuskill_val = c;
+	}
+	else
+	{
+		status_change_end(&sd->bl,SC_STOP,-1);
+		clif_skill_fail(sd,SC_AUTOSHADOWSPELL,USESKILL_FAIL_LEVEL,0);
+	}
+
+	return 1;
+}
 
 /// Notifies the client, about the result of an status change request (ZC_STATUS_CHANGE_ACK).
 /// 00bc <status id>.W <result>.B <value>.B
@@ -11215,6 +11255,24 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
 
+/*==========================================
+* To SC_AUTOSHADOWSPELL
+*------------------------------------------*/
+void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
+{
+	if( sd->menuskill_id != SC_AUTOSHADOWSPELL )
+		return;
+
+	if( pc_istrading(sd) )
+	{
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		sd->menuskill_val = sd->menuskill_id = 0;
+		return;
+	}
+	skill_select_menu(sd,RFIFOL(fd,2),RFIFOW(fd,6));
+	sd->menuskill_val = sd->menuskill_id = 0;
+}
+
 
 /// Answer to mixing item selection dialog (CZ_REQ_MAKINGITEM).
 /// 025b <mk type>.W <name id>.W
@@ -16563,8 +16621,8 @@ static int packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0, 25,
 	//#0x0440
-	    0,  4,  0,  0,  0,  0, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    8,  4,  0,  0,  0,  0, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	//#0x0480
@@ -16872,6 +16930,7 @@ static int packetdb_readdb(void)
 		{clif_parse_BattleChat,"battlechat"},
 		{clif_parse_mercenary_action,"mermenu"},
 		{clif_parse_progressbar,"progressbar"},
+		{clif_parse_SkillSelectMenu,"skillselectmenu"},
 #if PACKETVER >= 20091229
 		{clif_parse_PartyBookingRegisterReq,"bookingregreq"},
 		{clif_parse_PartyBookingSearchReq,"bookingsearchreq"},

@@ -3133,17 +3133,14 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = skill_calc_heal(src,target,skill_num,skill_lv,false);
 		break;
 	case RA_CLUSTERBOMB:
-		//iRO wiki damage formula.
-		md.damage = 5*sstatus->int_ + (2*sstatus->batk + sstatus->lhw.atk + sstatus->rhw.atk)*(skill_lv+2);
-		if( sd )
-			md.damage += (sd->status.base_level * 2 + ( (sd->status.base_level/50) + 3)*sstatus->dex+300)*skill_lv + pc_checkskill(sd,RA_RESEARCHTRAP);
-		break;
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
-		//iRO wiki damage formula.
-		md.damage = 5*sstatus->int_ + sstatus->batk + sstatus->lhw.atk + sstatus->rhw.atk;
-		if( sd )
-			md.damage += (sd->status.base_level * 2 + ( (sd->status.base_level/50) + 3)*sstatus->dex+300)*skill_lv + pc_checkskill(sd,RA_RESEARCHTRAP);
+		{
+			struct Damage wd = battle_calc_attack(BF_WEAPON, src, target, 0, 0, mflag);
+			if( sd )
+				md.damage = (sd->status.base_level*2 + ((sd->status.base_level/50) + 3)*sstatus->dex + 300)*skill_lv + sstatus->int_*5 + pc_checkskill(sd,RA_RESEARCHTRAP);
+			md.damage += ( wd.damage + wd.damage2 ) * ( skill_num == RA_CLUSTERBOMB ) ? (skill_lv+2) : 1;
+		}
 		break;
 	}
 
@@ -3234,7 +3231,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 	if(md.damage < 0)
 		md.damage = 0;
-	else if(md.damage && tstatus->mode&MD_PLANT)
+	else if(md.damage && tstatus->mode&MD_PLANT && skill_num != RA_CLUSTERBOMB)
 		md.damage = 1;
 
 	if(!(nk&NK_NO_ELEFIX))
@@ -3431,6 +3428,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if (sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&2))
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
+
+	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
+		status_change_end(src,SC_CAMOUFLAGE,-1);
 	
 	if( sc && sc->data[SC__INVISIBILITY] )
 		status_change_end(src,SC__INVISIBILITY, INVALID_TIMER); // Still need confirm this [pakpil]
@@ -3538,14 +3538,14 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		struct block_list *s_bl = map_id2bl(tsc->data[SC__SHADOWFORM]->val2);
 		if( s_bl && !status_isdead(s_bl) )
 		{
-			clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2);
+			clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, damage, wd.div_ , wd.type, wd.damage2);
 			status_fix_damage(NULL, s_bl, damage, 0);
 			tsc->data[SC__SHADOWFORM]->val3--;
 			if( tsc->data[SC__SHADOWFORM]->val3 <= 0 || status_isdead(s_bl) )
 			{
 				status_change_end(target, SC__SHADOWFORM, -1);
-				if( tsd )
-					tsd->shadowform_id = 0;
+				if( s_bl->type == BL_PC )
+					((TBL_PC*)s_bl)->shadowform_id = 0;
 			}
 		}
 	}
@@ -3599,6 +3599,32 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				case CAST_DAMAGE:
 					skill_castend_damage_id(src, target, skillid, skilllv, tick, flag);
 					break;
+			}
+		}
+	}
+	if( sc && sc->data[SC__AUTOSHADOWSPELL] && wd.flag&BF_SHORT )
+	{
+		if( sd )
+		{
+			int r_skill, r_lv;
+			if( (r_skill = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id) != 0 && r_skill <= NJ_ISSEN )
+			{
+				if( rand()%1000 < sc->data[SC__AUTOSHADOWSPELL]->val3 )
+				{
+					r_lv = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].lv;
+					switch ( skill_get_casttype(r_skill) )
+					{
+						case CAST_GROUND:
+							skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
+							break;
+						case CAST_NODAMAGE:
+							skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
+							break;
+						case CAST_DAMAGE:
+							skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
+							break;
+					}
+				}
 			}
 		}
 	}
@@ -4182,6 +4208,7 @@ static const struct _battle_data {
 	{ "skill_reiteration",                  &battle_config.skill_reiteration,               BL_NUL, BL_NUL, BL_ALL,         },
 	{ "skill_nofootset",                    &battle_config.skill_nofootset,                 BL_PC,  BL_NUL, BL_ALL,         },
 	{ "player_cloak_check_type",            &battle_config.pc_cloak_check_type,             1,      0,      1|2|4,          },
+	{ "player_camouflage_check_type",		&battle_config.pc_camouflage_check_type,		1,		0,		1|2|4,			},
 	{ "monster_cloak_check_type",           &battle_config.monster_cloak_check_type,        4,      0,      1|2|4,          },
 	{ "sense_type",                         &battle_config.estimation_type,                 1|2,    0,      1|2,            },
 	{ "gvg_eliminate_time",                 &battle_config.gvg_eliminate_time,              7000,   0,      INT_MAX,        },
