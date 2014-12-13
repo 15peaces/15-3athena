@@ -9,6 +9,7 @@ struct block_list;
 struct unit_data;
 struct map_session_data;
 
+#include "atcommand.h"
 #include "clif.h"  // clr_type
 #include "map.h" // struct block_list
 #include "path.h" // struct walkpath_data

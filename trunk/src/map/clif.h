@@ -373,6 +373,7 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 void clif_arrowequip(struct map_session_data *sd,int val); //self
 void clif_arrow_fail(struct map_session_data *sd,int type); //self
 void clif_arrow_create_list(struct map_session_data *sd);	//self
+int clif_skill_select_request( struct map_session_data *sd ); //self
 void clif_statusupack(struct map_session_data *sd,int type,int ok,int val);	// self
 void clif_equipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self
 void clif_unequipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self

@@ -1291,7 +1291,7 @@ packet_ver: 23
 
 //2008-12-10aSakexe
 0x0442,-1
-0x0443,8
+0x0443,8,skillselectmenu,2:6
 
 //2009-01-14aSakexe
 0x043f,25

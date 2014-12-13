@@ -347,6 +347,8 @@ extern struct Battle_Config
 	int gm_cant_party_min_lv;
 	int gm_can_party; // [SketchyPhoenix]
 
+	int pc_camouflage_check_type;
+
 // eAthena additions
 	int night_at_start; // added by [Yor]
 	int day_duration; // added by [Yor]

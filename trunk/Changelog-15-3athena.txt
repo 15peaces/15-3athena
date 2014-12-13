@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/13/2014
+	r25 [15peaces]
+		*Merged missing changes from 3ceam rev. 96 - 130
+		*Fixed some Compiler Warnings.
+		*Removed Freeze and Stone status in status_change_spread as its not included to the status to be spreaded.
+		*Added support for the map_pickrandominrange and skill_spellbook functions. These will be needed later.
+		*Added support for the spellbook_db.txt
+			-You can change the number of preserve points a skill takes up trough Reading Spellbooks in db/spellbook_db.txt
+		* Fixed Groomy, Weakness, Unlucky status regarding its calculation.
+		* Fixed Weakness should not strip weapon if the player is under chemical protection.
+		*Fixed some mistake in SC_SHADOWFORM.
+		*SC_AUTOSHADOWSPELL; GN_CHANGEMATERIAL; WL_RELEASE; Sorcerers Four Elemental Analisys
+			-Added pre-support for these skills.
+		*RA_CLUSTERBOMB; RA_FIRINGTRAP; RA_ICEBOUNDTRAP
+			-Fixed damage calculations.
+		*RA_CAMOUFLAGE; WL_FROSTMISTY; GN_DEMONIC_FIRE; SO_CLOUD_KILL
+			-Added full support for these skills.
+		*WL_TETRAVORTEX; WL_CHAINLIGHTNING
+			-Some more coding on thess skills.
+		*SO_WARMER; SO_VACUUM_EXTREME
+			-Changed unit IDs to the correct ones.
+
 11/29/2014
 	r24 [15peaces]
 		*Merged missing changes from 3ceam rev. 94 - 95

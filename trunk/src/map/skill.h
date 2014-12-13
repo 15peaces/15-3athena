@@ -21,7 +21,7 @@ struct status_change_entry;
 
 //15-3athena
 //May be needed in the future. [15peaces]
-//#define MAX_SKILL_SPELLBOOK_DB 17
+#define MAX_SKILL_SPELLBOOK_DB 17
 //#define MAX_SKILL_MAGICMUSHROOM_DB 23
 //#define MAX_SKILL_IMPROVISE_DB 50
 
@@ -221,6 +221,11 @@ struct s_skill_abra_db {
 };
 extern struct s_skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 
+struct s_skill_spellbook_db {
+	int points;
+};
+extern struct s_skill_spellbook_db skill_spellbook_db[MAX_SKILL_SPELLBOOK_DB];
+
 extern int enchant_eff[5];
 extern int deluge_eff[5];
 
@@ -336,6 +341,7 @@ int skill_autospell(struct map_session_data *md,int skillid);
 int skill_calc_heal(struct block_list *src, struct block_list *target, int skill_id, int skill_lv, bool heal);
 
 bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce);
+bool skill_check_camouflage(struct block_list *bl, struct status_change_entry *sce);
 
 // ステ?タス異常
 int skill_enchant_elemental_end(struct block_list *bl, int type);
@@ -350,6 +356,9 @@ int skill_can_produce_mix( struct map_session_data *sd, unsigned short nameid, i
 int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty );
 
 int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
+int skill_select_menu( struct map_session_data *sd, int flag, int skill_id); // Shadow Cheser Auto Shadow Spell [pakpil]
+int skill_elementalanalysis(struct map_session_data *sd, int n, int type, unsigned short *item_list); // Sorcerer Four Elemental Analisys.
+int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list);	// Genetic Change Material.
 
 int skill_stasis_check(struct block_list *bl, int skillid);// Stasis skill usage check. [LimitLine]
 
@@ -1856,5 +1865,26 @@ enum {
 
 	UNT_MAX = 0x190
 };
+
+enum wl_spellbook {
+	SB_FIREBOLT = 6189,
+	SB_COLDBOLT,
+	SB_LIGHTNINGBOLT,
+	SB_STORMGUST,
+	SB_LORDOFVERMILLION,
+	SB_METEORSTORM,
+	SB_COMET,
+	SB_TETRAVORTEX,
+	SB_THUNDERSTORM,
+	SB_JUPITELTHUNDER,
+	SB_WATERBALL,
+	SB_HEAVENSDRIVE,
+	SB_EARTHSPIKE,
+	SB_EARTHSTRAIN,
+	SB_CHAINLIGHTNING,
+	SB_CRIMSONROCK,
+	SB_DRAINLIFE
+};
+
 
 #endif /* _SKILL_H_ */
