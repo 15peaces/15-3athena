@@ -25,6 +25,8 @@
 // 20081126 - 2008-11-26aSakexe+   - 0x1a2
 // 20090408 - 2009-04-08aSakexe+   - 0x44a (dont use as it overlaps with RE client packets)
 // 20080827 - 2008-08-27aRagexeRE+ - First RE Client
+// 20081126 - 2008-11-26aSakexe+   - 0x1a2, 0x441
+// 20081210 - 2008-12-10aSakexe+   - 0x442
 // 20081217 - 2008-12-17aRagexeRE+ - 0x6d (Note: This one still use old Char Info Packet Structure)
 // 20081218 - 2008-12-17bRagexeRE+ - 0x6d (Note: From this one client use new Char Info Packet Structure)
 // 20090603 - 2009-06-03aRagexeRE+ - 0x7d7, 0x7d8, 0x7d9, 0x7da

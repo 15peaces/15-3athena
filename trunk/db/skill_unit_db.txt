@@ -121,6 +121,10 @@
 2303,0xd0, , 0, 3,1000,all, 0x00E //SC_BLOODYLUST //3ceam v1.
 2304,0xd1, , 3, 1,1000,all, 0x000 //SC_FEINTBOMB //3ceam v1.
 
+2414,0xda,   ,  0, 2,1000,enemy,0x018	//WM_REVERBERATION //3ceam v1.
+
+2418,0xdb,   ,  0,11, 300,enemy, 0x800	//WM_SEVERE_RAINSTORM //3ceam v1.
+
 2443,0xdc, , 0, 1,1000,enemy, 0x008 //SO_FIREWALK //3ceam v1.
 2444,0xdd, , 0, 1,1000,enemy, 0x008 //SO_ELECTRICWALK //3ceam v1.
 2446,0x86, , 0, 7:7:7:9:9,1000,enemy,0x000 //SO_EARTHGRAVE //3ceam v1.

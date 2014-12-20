@@ -395,3 +395,24 @@
 12117,23,1007,1,7433,1,1013,3
 
 //==============================================
+
+//===== Rune Stones ============ ItemLV=24 =====
+//-- Rune Stone Thurisaz <-- RK_RUNEMASTERY Lv1, 1 Elder's Branch, 1 Blue Hair, 1 Claw of Desert Wolf
+12731,24,2010,1,7939,1,1034,1,7030,1
+//-- Rune Stone Isa <-- RK_RUNEMASTERY Lv2, 1 Elder's Branch, 1 Burning Heart
+12728,24,2010,2,7939,1,7097,1
+//-- Rune Stone Wyrd <-- RK_RUNEMASTERY Lv3, 1 Light Partacle, 1 Elder's Branch, 1 Tangled Chains, 1 Dragon Canine
+12729,24,2010,3,7938,1,7939,1,7221,1,1035,1
+//-- Rune Stone Hagalaz <-- RK_RUNEMASTERY Lv4, 1 Elder's Branch, 1 Round Shell, 1 Dragon Skin
+12733,24,2010,4,7939,1,1096,1,7123,1
+//-- Rune Stone Othila <-- RK_RUNEMASTERY Lv5, 1 Light Partacle, 1 Elder's Branch, 1 Orge Tooth
+12732,24,2010,5,7938,1,7939,1,7002,1
+//-- Rune Stone Uruz <-- RK_RUNEMASTERY Lv6, 1 Elder's Branch, 1 Honey, 1 Horrendous Hair
+12730,24,2010,6,7939,1,518,1,1048,1
+//-- Rune Stone Raido <-- RK_RUNEMASTERY Lv7, 1 Light Partacle, 1 Elder's Branch, 1 Red Gemstone
+12726,24,2010,7,7938,1,7939,1,716,1
+//-- Rune Stone Nauthiz <-- RK_RUNEMASTERY Lv8, 1 Light Partacle, 1 Elder's Branch, 1 Destroyed Armor, 1 Word Out Scroll
+12725,24,2010,8,7938,1,7939,1,7069,1,618,1
+//-- Rune Stone Berkana <-- RK_RUNEMASTERY Lv9, 1 Elder's Branch, 1 Armor Piece of Dullahan
+12727,24,2010,9,7939,1,7210,1
+//==============================================

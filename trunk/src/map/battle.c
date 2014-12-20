@@ -437,6 +437,12 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 				status_change_end(bl, SC_AETERNA, INVALID_TIMER); //Shouldn't end until Breaker's non-weapon part connects.
 		}
 
+		if( sc->data[SC_DEEPSLEEP] )
+		{
+			damage += damage / 2; // 1.5 times more damage while in Deep Sleep.
+			status_change_end(bl,SC_DEEPSLEEP, INVALID_TIMER);
+		}
+
 		//Finally damage reductions....
 		if( sc->data[SC_ASSUMPTIO] )
 		{
@@ -2783,6 +2789,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case RA_WUGDASH:
 						skillratio += 500;//Damage based from iROwiki info. [Jobbie]
 						break;
+					case WM_SEVERE_RAINSTORM:
+						skillratio += 50 * skill_lv;
+						break;
 					case SO_EARTHGRAVE: // Need official formula. [LimitLine]
 					case SO_DIAMONDDUST: // Need official formula. [LimitLine]
 					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
@@ -3301,6 +3310,10 @@ int battle_calc_return_damage(struct block_list* bl, int damage, int flag)
 			rdamage += damage * sc->data[SC_REFLECTSHIELD]->val2 / 100;
 			if (rdamage < 1) rdamage = 1;
 		}
+		if( sc && sc->data[SC_DEATHBOUND] && damage > 0 )
+		{
+			rdamage = damage * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
+		}
 	} else {
 		if (sd && sd->long_weapon_damage_return)
 		{
@@ -3527,6 +3540,12 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		rdamage = battle_calc_return_damage(target, damage, wd.flag);
 		if( rdamage > 0 )
 		{
+			if( tsc && tsc->data[SC_DEATHBOUND] )
+			{
+				clif_skill_damage(src,src,tick, status_get_amotion(src),0,-30000,1,RK_DEATHBOUND,tsc->data[SC_DEATHBOUND]->val1,6);
+				damage = rdamage / 2;
+				wd.damage = damage;
+			}
 			rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0);
 			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
 			skill_additional_effect(target,src,CR_REFLECTSHIELD,1,BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
@@ -3782,7 +3801,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					default:
 						return 0;
 				}
-			} else if (su->group->skill_id==WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN)
+			} else if (su->group->skill_id==WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN || su->group->skill_id == WM_REVERBERATION)
 			{
 				state |= BCT_ENEMY;
 				strip_enemy = 0;

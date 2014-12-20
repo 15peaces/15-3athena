@@ -463,6 +463,9 @@ void initChangeTables(void)
 	add_sc( SC_CHAOSPANIC					, SC_CHAOS				);
 	set_sc( SC_BLOODYLUST					, SC__BLOODYLUST        , SI_BLANK          , SCB_BATK|SCB_WATK|SCB_DEF );
 
+	//Minstrel/Wanderer
+	set_sc( WM_LULLABY_DEEPSLEEP , SC_DEEPSLEEP          , SI_DEEP_SLEEP         , SCB_NONE );
+	
 	// Genetic
 	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST	, SI_GN_CARTBOOST	, SCB_SPEED|SCB_BATK	);
 	add_sc( GN_THORNS_TRAP					, SC_THORNSTRAP		);
@@ -472,12 +475,12 @@ void initChangeTables(void)
 	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA		, SI_BLANK			, SCB_INT				);
 
 	//Sorcerer
-	add_sc( SO_FIREWALK						, SC_FIREWALK			);
-	add_sc( SO_ELECTRICWALK					, SC_ELECTRICWALK		);
-	set_sc( SO_CLOUD_KILL					, SC_ELEMENTALCHANGE	, /*SI_CLOUDKILL*/SI_BLANK	, SCB_NONE);
-	add_sc( SO_WARMER						, SC_WARMER				);
-	set_sc( SO_STRIKING						, SC_STRIKING			, SI_BLANK					, SCB_BATK|SCB_CRI);
-	add_sc( SO_ARRULLO						, SC_DEEPSLEEP			);
+	add_sc( SO_FIREWALK		, SC_FIREWALK			);
+	add_sc( SO_ELECTRICWALK	, SC_ELECTRICWALK		);
+	set_sc( SO_CLOUD_KILL	, SC_ELEMENTALCHANGE	, /*SI_CLOUDKILL*/SI_BLANK	, SCB_NONE);
+	add_sc( SO_WARMER		, SC_WARMER				);
+	set_sc( SO_STRIKING		, SC_STRIKING			, SI_BLANK					, SCB_BATK|SCB_CRI);
+	set_sc( SO_ARRULLO		, SC_DEEPSLEEP			, SI_DEEP_SLEEP				, SCB_NONE );
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -1239,7 +1242,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_WHITEIMPRISON] ||
 				sc->data[SC_STASIS] && skill_stasis_check(src, skill_num)||
 				sc->data[SC__INVISIBILITY] ||
-				sc->data[SC_DIAMONDDUST]
+				sc->data[SC_DIAMONDDUST] ||
+				sc->data[SC__IGNORANCE] // Target afflicted with this debuff cannot use skills or magic.
 			))
 				return 0;
 
@@ -2493,6 +2497,11 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->max_weight += 2000*skill;
 	if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING)>0)
 		sd->max_weight += 10000;
+	if(pc_isriding(sd) && (skill=pc_checkskill(sd,RK_DRAGONTRAINING))>0)
+		sd->max_weight += 500 + 200 * skill;
+		sd->max_weight += sd->max_weight * (30 + skill) / 100;
+	if(sd->sc.option&OPTION_MADOGEAR)
+		sd->max_weight += 20000;
 	if(sc->data[SC_KNOWLEDGE])
 		sd->max_weight += sd->max_weight*sc->data[SC_KNOWLEDGE]->val1/10;
 	if((skill=pc_checkskill(sd,ALL_INCCARRY))>0)
@@ -5012,6 +5021,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		sc_def = 3 +status->vit;
 		break;
 	case SC_SLEEP:
+	case SC_DEEPSLEEP: // Need official value [pakpil]
 		sc_def = 3 +status->int_;
 		break;
 	case SC_DECREASEAGI:
@@ -5051,9 +5061,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC__LAZINESS:
 	case SC__WEAKNESS:
 	case SC__UNLUCKY:
-		sc_def = (status->agi / 4) + (status->luk / 10);
-		if( sd )
-			sc_def += sd->status.base_level / 20;
+		sc_def = (status->agi / 4) + (status->luk / 10) + (status_get_lv(bl) / 20) ;
 		break;
 	case SC_MAGICMIRROR:
 	case SC_ARMORCHANGE:
@@ -6719,6 +6727,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val4 = 1;
 			tick = 1000;
 			break;
+		case SC_DEEPSLEEP:
+			val4 = tick / 2000;
+			tick = 2000;
+			break;
 
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
@@ -6752,6 +6764,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_STUN:
 		case SC_SLEEP:
 		case SC_STONE:
+		case SC_DEEPSLEEP:
 			if (sd && pc_issit(sd)) //Avoid sprite sync problems.
 				pc_setstand(sd);
 		case SC_TRICKDEAD:
@@ -8228,6 +8241,14 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+	case SC_DEEPSLEEP:
+		if( --(sce->val4) >= 0 )
+		{ // Recovers 1% HP/SP every 2 seconds.
+			status_heal(bl, status->max_hp * 1 / 100, status->max_sp * 1 / 100, 2);
+			sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
 	}
 
 	// default for all non-handled control paths is to end the status
@@ -8419,8 +8440,6 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 		{
 			//Debuffs that can be spreaded.
 			// NOTE: We'll add/delte SCs when we are able to confirm it.
-			case SC_STUN:
-			case SC_SLEEP:
 			case SC_POISON:
 			case SC_CURSE:
 			case SC_SILENCE:

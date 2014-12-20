@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/20/2014
+	r27 [15peaces]
+		*Merged missing changes from 3ceam rev. 131 - 140
+		*Some Updates in Weight calculations.
+		*Added Rune Stones to produce_db.
+		*Minor fix in SC_DEADLYINFECT. Removed 2 SC that can't be spreaded.
+		*WM_SEVERE_RAINSTORM; WM_LULLABY_DEEPSLEEP; SC__MANHOLE
+			-Added pre-support for these skills.
+		*WM_REVERBERATION; WM_DOMINION_IMPULSE
+			-Added full support for these skills.
+		*SC__SHADOWFORM; SC_INVISIVILITY
+			-Some fixes and updates.
+
 12/13/2014
 	r25 [15peaces]
 		*Merged missing changes from 3ceam rev. 96 - 130
