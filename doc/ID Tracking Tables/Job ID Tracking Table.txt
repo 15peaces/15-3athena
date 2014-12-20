@@ -1,7 +1,96 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-<p>The requested URL /svn/!svn/bc/133/Extra%20Files/Rytech%27s%20Dev%20Files/Server%20Side%20Files/ID%20Tracking%20Tables/Job%20ID%20Tracking%20Table.txt was not found on this server.</p>
-</body></html>
+Job ID Tracking Table by Rytech
+Table Date: 10-19-2009
+
+To whoever holds a copy of this table: Please only use this table for reference. Do not edit this table
+and post it as your own. I put a lot of my time into makeing this and other ID tracking tables.
+
+Before reading, be sure to remember this at all times...
+
+"The primary advantage of transcending first is that one is able to learn the transcended skills before turning to
+the 3rd class, whereas changing immediately from base 2nd class would never be able to obtain them."
+Information from Doddler's RO Future Website.
+
+This means theirs 2 different skill trees for each job server side, one with the trans skills and one without the
+trans skills. I also have the feeling theirs another difference besides skills.
+
+*Confirmed*
+I was right about trans 2nd to 3rd ID's getting something more then trans skills. This was translated by Doddler...
+
+- Characters that change to Rune Knight/Arch Bishop from trans second class will now have more HP/SP than those who
+chanced from normal second class.
+
+This means that all trans 2nd classes that change to 3rd class will get the +25% Max HP and SP bonus. Any base
+2nd class that changes to 3rd class will not get the +25% Max HP and SP bonus.
+
+Finally, all 3rd class jobs are able to equip trans equips no matter if their a base or trans version.
+
+The format is as follow...
+Job ID / Job Skill Tag Mark / Job Name / Extra Info
+
+4046 TK Taekwon
+4047 SG Star Gladiator
+4048 SG Star Gladiator (Union Mode)
+4049 SL Soul Linker
+4050 MB Munak (Marked as Gangsi in jobinheritlist.txt and also shows as Bongun/Munak depending on the sex)
+4051 DE Death Knight
+4052 DA Dark Collector
+4053 ?? ????? (Skiped and unused??? Why???)
+4054 RK Rune Knight (Base 2nd to 3rd)
+4055 WL Warlock (Base 2nd to 3rd)
+4056 RA Ranger (Base 2nd to 3rd)
+4057 AB Arch Bishop (Base 2nd to 3rd)
+4058 NC Mechanic (Base 2nd to 3rd)
+4059 GC Guillotine Cross(Base 2nd to 3rd)
+4060 RK Rune Knight (Trans 2nd to 3rd)
+4061 WL Warlock (Trans 2nd to 3rd)
+4062 RA Ranger (Trans 2nd to 3rd)
+4063 AB Arch Bishop (Trans 2nd to 3rd)
+4064 NC Mechanic (Trans 2nd to 3rd)
+4065 GC Guillotine Cross(Trans 2nd to 3rd)
+4066 LG Royal Guard (Base 2nd to 3rd)
+4067 SO Sorcerer (Base 2nd to 3rd)
+4068 MI Minstrel (Base 2nd to 3rd)
+4069 WA Wanderer (Base 2nd to 3rd)
+4070 SR Sura (Base 2nd to 3rd)
+4071 GN Genetic (Base 2nd to 3rd)
+4072 SC Shadow Chaser (Base 2nd to 3rd)
+4073 LG Royal Guard (Trans 2nd to 3rd)
+4074 SO Sorcerer (Trans 2nd to 3rd)
+4075 MI Minstrel (Trans 2nd to 3rd)
+4076 WA Wanderer (Trans 2nd to 3rd)
+4077 SR Sura (Trans 2nd to 3rd)
+4078 GN Genetic (Trans 2nd to 3rd)
+4079 SC Shadow Chaser (Trans 2nd to 3rd)
+4080 RK Rune Knight Mount (Base 2nd to 3rd) (Green Dragon)
+4081 RK Rune Knight Mount (Trans 2nd to 3rd) (Green Dragon)
+4082 LG Royal Guard Mount (Base 2nd to 3rd)
+4083 LG Royal Guard Mount (Trans 2nd to 3rd)
+4084 RA Ranger Mount (Base 2nd to 3rd)
+4085 RA Ranger Mount (Trans 2nd to 3rd)
+4086 NC Mechanic Mount (Base 2nd to 3rd)
+4087 NC Mechanic Mount (Trans 2nd to 3rd)
+4088 RK Rune Knight Mount (Base 2nd to 3rd) (Black Dragon)
+4089 RK Rune Knight Mount (Trans 2nd to 3rd) (Black Dragon)
+4090 RK Rune Knight Mount (Base 2nd to 3rd) (White Dragon)
+4091 RK Rune Knight Mount (Trans 2nd to 3rd) (White Dragon)
+4092 RK Rune Knight Mount (Base 2nd to 3rd) (Blue Dragon)
+4093 RK Rune Knight Mount (Trans 2nd to 3rd) (Blue Dragon)
+4094 RK Rune Knight Mount (Base 2nd to 3rd) (Red Dragon)
+4095 RK Rune Knight Mount (Trans 2nd to 3rd) (Red Dragon)
+
+Extra Info 1: (Base 2nd to 3rd) These are the ID's for if the player changes from a base 2nd job to a 3rd job.
+A example is a Knight changeing to a Rune Knight. These ID's will not have access to trans skills since the job
+skill tree chains will skip the trans jobs trees.
+
+Extra Info 2: (Trans 2nd to 3rd) These are the ID's for if the player changes from a trans 2nd job to a 3rd job.
+A example is a Lord Knight changeing to a Rune Knight. These ID's will have full access to trans skills since
+the job skill tree chains will link through the trans job trees. These ID's also get a +25% Max HP and SP bonus.
+
+This show's that their will be 2 different skill tree's for each job, one without trans skills and one with trans skills.
+I think what they did was smart.
+
+Note: For some reason, ID 4053 was skiped and wasnt used and the 3rd class ID's start at 4054. Why is this???
+
+Note 2: The Job Skill Tag Mark is the 2 letter mark at the beginning of the skill tags. They usually mark which job
+orginally uses this skill. These letters helps us figure out which skills belong to which jobs. However, some past
+skills can be accessed by more then 1 job.
