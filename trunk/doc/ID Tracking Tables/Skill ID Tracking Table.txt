@@ -1,7 +1,530 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
-<html><head>
-<title>404 Not Found</title>
-</head><body>
-<h1>Not Found</h1>
-<p>The requested URL /svn/!svn/bc/133/Extra%20Files/Rytech%27s%20Dev%20Files/Server%20Side%20Files/ID%20Tracking%20Tables/Skill%20ID%20Tracking%20Table.txt was not found on this server.</p>
-</body></html>
+Skill ID Tracking Table by Rytech
+Table Date: 1-21-2010
+
+To whoever holds a copy of this table: Please only use this table for reference. Do not edit this table
+and post it as your own. I put a lot of my time into makeing this and other ID tracking tables.
+
+Notes:
+
+=Currently, ID's 545 - 652 have no dummy skill icons in place. ID's 2001 and above earther have dummys,
+their actural official skill icons, or no icons at all.
+
+=ID 697 and its tag was found in the client codeing. However, no skill icon, desc, or any other info
+for the skill exists. My guess is that its a skill that removes orcish face from your charactor
+
+The format is as follow...
+Skill ID / Skill Tag / Skill name / Extra Info
+
+// Gangsi (Bongun/Munak)
+545 MB_FIGHTING ?????
+546 MB_NEUTRAL ?????
+547 MB_TAIMING_PUTI ?????
+548 MB_WHITEPOTION ?????
+549 MB_MENTAL ?????
+550 MB_CARDPITCHER ?????
+551 MB_PETPITCHER ?????
+552 MB_BODYSTUDY ?????
+553 MB_BODYALTER ?????
+554 MB_PETMEMORY ?????
+555 MB_M_TELEPORT ?????
+556 MB_B_GAIN ?????
+557 MB_M_GAIN ?????
+558 MB_MISSION ?????
+559 MB_MUNAKKNOWLEDGE ?????
+560 MB_MUNAKBALL ?????
+561 MB_SCROLL ?????
+562 MB_B_GATHERING ?????
+563 MB_M_GATHERING ?????
+564 MB_B_EXCLUDE ?????
+565 MB_B_DRIFT ?????
+566 MB_B_WALLRUSH ?????
+567 MB_M_WALLRUSH ?????
+568 MB_B_WALLSHIFT ?????
+569 MB_M_WALLCRASH ?????
+570 MB_M_REINCARNATION ?????
+571 MB_B_EQUIP ?????
+
+// New Soul Linker And Soul Link Enabled Skills
+572 SL_DEATHKNIGHT ????? (Skill ID's 572 - 579 are being marked as Soul Linker
+573 SL_COLLECTOR ????? soul linking skills and soul link enabled skills because
+574 SL_NINJA ????? of the way the skill names are grouped in the latest
+575 SL_GUNNER ????? official skillnametable.txt)
+576 AM_TWILIGHT4 ?????
+577 ????? ????? (Open for adding another soul link enabled skill???)
+578 DE_BERSERKAIZER ?????
+579 DA_DARKPOWER ?????
+
+// Death Knight
+580 DE_PASSIVE ?????
+581 DE_PATTACK ?????
+582 DE_PSPEED ?????
+583 DE_PDEFENSE ?????
+584 DE_PCRITICAL ?????
+585 DE_PHP ?????
+586 DE_PSP ?????
+587 DE_RESET ?????
+588 DE_RANKING ?????
+589 DE_PTRIPLE ?????
+590 DE_ENERGY ?????
+591 DE_NIGHTMARE ?????
+592 DE_SLASH ?????
+593 DE_COIL ?????
+594 DE_WAVE ?????
+595 DE_REBIRTH ?????
+596 DE_AURA ?????
+597 DE_FREEZER ?????
+598 DE_CHANGEATTACK ?????
+599 DE_PUNISH ?????
+600 DE_POISON ?????
+601 DE_INSTANT ????? (SP requirements found in leveluseskillspamount.txt)
+602 DE_WARNING ?????
+603 DE_RANKEDKNIFE ?????
+604 DE_RANKEDGRADIUS ?????
+605 DE_GAUGE ?????
+606 DE_GTIME ?????
+607 DE_GPAIN ?????
+608 DE_GSKILL ?????
+609 DE_GKILL ?????
+610 DE_ACCEL ?????
+611 DE_BLOCKDOUBLE ?????
+612 DE_BLOCKMELEE ?????
+613 DE_BLOCKFAR ?????
+614 DE_FRONTATTACK ?????
+615 DE_DANGERATTACK ?????
+616 DE_TWINATTACK ?????
+617 DE_WINDATTACK ?????
+618 DE_WATERATTACK ?????
+
+// Dark Collector
+619 DA_ENERGY ?????
+620 DA_CLOUD ?????
+621 DA_FIRSTSLOT ?????
+622 DA_HEADDEF ?????
+623 DA_SPACE ?????
+624 DA_TRANSFORM ?????
+625 DA_EXPLOSION ?????
+626 DA_REWARD ?????
+627 DA_CRUSH ?????
+628 DA_ITEMREBUILD ?????
+629 DA_ILLUSION ?????
+630 DA_NUETRALIZE ?????
+631 DA_RUNNER ?????
+632 DA_TRANSFER ?????
+633 DA_WALL ????? (SP requirements found in leveluseskillspamount.txt)
+634 ????? ?????
+635 DA_REVENGE ?????
+636 DA_EARPLUG ?????
+637 DA_CONTRACT ?????
+638 DA_BLACK ?????
+639 DA_DREAM ?????
+640 DA_MAGICCART ?????
+641 DA_COPY ?????
+642 DA_CRYSTAL ?????
+643 DA_EXP ?????
+644 DA_CARTSWING ?????
+645 DA_REBUILD ?????
+646 DA_JOBCHANGE ?????
+647 DA_EDARKNESS ?????
+648 DA_EGUARDIAN ?????
+649 DA_TIMEOUT ?????
+650 ALL_TIMEIN ?????
+651 DA_ZENYRANK ?????
+652 DA_ACCESSORYMIX ?????
+
+// Misc All ID's
+697 ALL_REVERSEORCISH Reverse Orcish (Skill name guessed when translated)
+698 ALL_WEWISH Oh! Holy Night
+
+// Rune Knight
+2001 RK_ENCHANTBLADE Enchant Blade
+2002 RK_SONICWAVE Sonic Wave
+2003 RK_DEATHBOUND Death Bound
+2004 RK_HUNDREDSPEAR Hundred Spear
+2005 RK_WINDCUTTER Wind Cutter
+2006 RK_IGNITIONBREAK Ignition Break
+2007 RK_DRAGONTRAINING Dragon Training
+2008 RK_DRAGONBREATH Dragon Breath
+2009 RK_DRAGONHOWLING Dragon Howling
+2010 RK_RUNEMASTERY Rune Mastery
+2011 RK_MILLENNIUMSHIELD Millenium Shield (Activated by using the Berkana rune stone)
+2012 RK_CRUSHSTRIKE Crush Strike (Activated by using the Raido rune stone)
+2013 RK_REFRESH Refresh (Activated by using the Nauthiz rune stone)
+2014 RK_GIANTGROWTH Giant Growth (Activated by using the Thurisaz rune stone)
+2015 RK_STONEHARDSKIN Stone Hard Skin (Activated by using the Hagalaz rune stone)
+2016 RK_VITALITYACTIVATION Vitality Activation (Activated by using the Isa rune stone)
+2017 RK_STORMBLAST Storm Blast (Activated by using the Wyrd rune stone)
+2018 RK_FIGHTINGSPIRIT Fighting Spirit (Activated by using the Othila rune stone)
+2019 RK_ABUNDANCE Abundance (Activated by using the Uruz rune stone)
+2020 RK_PHANTOMTHRUST Phantom Thrust
+
+// Rune Knight Notes: Skills 2011 - 2019 appear to be item triggered skills.
+// The items that triger these skills are known as runes. Each rune triggers
+// a different skill.
+
+// Guillotine Cross
+2021 GC_VENOMIMPRESS Venom Impress
+2022 GC_CROSSIMPACT Cross Impact
+2023 GC_DARKILLUSION Dark Illusion
+2024 GC_RESEARCHNEWPOISON Research New Poison
+2025 GC_CREATENEWPOISON Create New Poison
+2026 GC_ANTIDOTE Antidote
+2027 GC_POISONINGWEAPON Poisoning Weapon
+2028 GC_WEAPONBLOCKING Weapon Blocking
+2029 GC_COUNTERSLASH Counter Slash
+2030 GC_WEAPONCRUSH Weapon Crush
+2031 GC_VENOMPRESSURE Venom Pressure
+2032 GC_POISONSMOKE Poison Smoke
+2033 GC_CLOAKINGEXCEED Cloaking Exceed
+2034 GC_PHANTOMMENACE Phantom Menace
+2035 GC_HALLUCINATIONWALK Hallucination Walk
+2036 GC_ROLLINGCUTTER Rolling Cutter
+2037 GC_CROSSRIPPERSLASHER Cross Ripper Slasher
+
+// Arch Bishop
+2038 AB_JUDEX Judex
+2039 AB_ANCILLA Ancilla
+2040 AB_ADORAMUS Adoramus
+2041 AB_CLEMENTIA Crementia
+2042 AB_CANTO Canto Candidus
+2043 AB_CHEAL Coluceo Heal
+2044 AB_EPICLESIS Epiclesis
+2045 AB_PRAEFATIO Praefatio
+2046 AB_ORATIO Oratio
+2047 AB_LAUDAAGNUS Lauda Agnus
+2048 AB_LAUDARAMUS Lauda Ramus
+2049 AB_EUCHARISTICA Eucharistica
+2050 AB_RENOVATIO Renovatio
+2051 AB_HIGHNESSHEAL Highness Heal
+2052 AB_CLEARANCE Clearance
+2053 AB_EXPIATIO Expiatio
+2054 AB_DUPLELIGHT Duple Light
+2055 AB_DUPLELIGHT_MELEE Duple Light Melee (Has same name as Duple Light in the skillnametable)
+2056 AB_DUPLELIGHT_MAGIC Duple Light Magic (Has same name as Duple Light in the skillnametable)
+2057 AB_SILENTIUM Silentium
+
+// ID's 2058 - 2200 are currently not in use. Gap is 142 ID's big. Why???
+
+// Warlock
+2201 WL_WHITEIMPRISON White Imprison
+2202 WL_SOULEXPANSION Soul Expansion
+2203 WL_FROSTMISTY Frosty Misty
+2204 WL_JACKFROST Jack Frost
+2205 WL_MARSHOFABYSS Marsh of Abyss
+2206 WL_RECOGNIZEDSPELL Recognized Spell
+2207 WL_SIENNAEXECRATE Sienna Execrate
+2208 WL_RADIUS Radius
+//2209 WL_SPELLFROZEN Spell Frozen (Old skill tag for this ID)
+2209 WL_STASIS Stasis (New skill tag for this ID)
+2210 WL_DRAINLIFE Drain Life
+2211 WL_CRIMSONROCK Crimson Rock
+2212 WL_HELLINFERNO Hell Inferno
+2213 WL_COMET Comet
+2214 WL_CHAINLIGHTNING Chain Lightning
+2215 WL_CHAINLIGHTNING_ATK Chain Lightning Attack
+2216 WL_EARTHSTRAIN Earth Strain
+2217 WL_TETRAVORTEX Tetra Vortex
+2218 WL_TETRAVORTEX_FIRE Tetra Vortex Fire
+2219 WL_TETRAVORTEX_WATER Tetra Vortex Water
+2220 WL_TETRAVORTEX_WIND Tetra Vortex Wind
+2221 WL_TETRAVORTEX_GROUND Tetra Vortex Earth
+2222 WL_SUMMONFB Summon Fire Ball
+2223 WL_SUMMONBL Summon Lightning Ball
+2224 WL_SUMMONWB Summon Water Ball
+2225 WL_SUMMON_ATK_FIRE Summon Attack Fire
+2226 WL_SUMMON_ATK_WIND Summon Attack Wind
+2227 WL_SUMMON_ATK_WATER Summon Attack Water
+2228 WL_SUMMON_ATK_GROUND Summon Attack Earth
+2229 WL_SUMMONSTONE Summon Stone
+2230 WL_RELEASE Release
+2231 WL_READING_SB Reading Spellbook
+2232 WL_FREEZE_SP Freeze Spell
+
+// Ranger
+2233 RA_ARROWSTORM Arrow Storm
+2234 RA_FEARBREEZE Fear Breeze
+2235 RA_RANGERMAIN Ranger Main
+2236 RA_AIMEDBOLT Aimed Bolt
+2237 RA_DETONATOR Detonator
+2238 RA_ELECTRICSHOCKER Electric Shocker
+2239 RA_CLUSTERBOMB Cluster Bomb
+2240 RA_WUGMASTERY Warg Mastery
+2241 RA_WUGRIDER Warg Rider
+2242 RA_WUGDASH Warg Dash
+2243 RA_WUGSTRIKE Warg Strike
+2244 RA_WUGBITE Warg Bite
+2245 RA_TOOTHOFWUG Tooth of Wug
+2246 RA_SENSITIVEKEEN Sensitive Keen
+2247 RA_CAMOUFLAGE Camouflage
+2248 RA_RESEARCHTRAP Research Trap
+2249 RA_MAGENTATRAP Magenta Trap
+2250 RA_COBALTTRAP Cobalt Trap
+2251 RA_MAIZETRAP Maize Trap
+2252 RA_VERDURETRAP Verdure Trap
+2253 RA_FIRINGTRAP Firing Trap
+2254 RA_ICEBOUNDTRAP Icebound Trap
+
+// Mechanic
+2255 NC_MADOLICENCE Mado Gear License
+2256 NC_BOOSTKNUCKLE Boost Knuckle
+2257 NC_PILEBUNKER Pile Bunker
+2258 NC_VULCANARM Vulcan Arm
+2259 NC_FLAMELAUNCHER Flame Launcher
+2260 NC_COLDSLOWER Cold Slower
+2261 NC_ARMSCANNON Arm Cannon
+2262 NC_ACCELERATION Acceleration
+2263 NC_HOVERING Hovering
+2264 NC_F_SIDESLIDE Front-Side Slide
+2265 NC_B_SIDESLIDE Back-Side Slide
+2266 NC_MAINFRAME Mainframe Restructure
+2267 NC_SELFDESTRUCTION Self Destruction
+2268 NC_SHAPESHIFT Shape Shift
+2269 NC_EMERGENCYCOOL Emergency Cool
+2270 NC_INFRAREDSCAN Infrared Scan
+2271 NC_ANALYZE Analyze
+2272 NC_MAGNETICFIELD Magnetic Field
+2273 NC_NEUTRALBARRIER Neutral Barrier
+2274 NC_STEALTHFIELD Stealth Field
+2275 NC_REPAIR Repair
+2276 NC_TRAININGAXE Axe Training
+2277 NC_RESEARCHFE Research Fire/Earth
+2278 NC_AXEBOOMERANG Axe Boomerang
+2279 NC_POWERSWING Power Swing
+2280 NC_AXETORNADO Axe Tornado
+2281 NC_SILVERSNIPER FAW - Silver Sniper
+2282 NC_MAGICDECOY FAW - Magic Decoy
+2283 NC_DISJOINT FAW Removal
+
+// Shadow Chaser
+2284 SC_FATALMENACE Fatal Menace
+2285 SC_REPRODUCE Reproduce
+2286 SC_AUTOSHADOWSPELL Auto Shadow Spell
+2287 SC_SHADOWFORM Shadow Form
+2288 SC_TRIANGLESHOT Triangle Shot
+2289 SC_BODYPAINT Body Painting
+2290 SC_INVISIBILITY Invisibility
+2291 SC_DEADLYINFECT Deadly Infect
+2292 SC_ENERVATION Masquerade - Enervation
+2293 SC_GROOMY Masquerade - Gloomy
+2294 SC_IGNORANCE Masquerade - Ignorance
+2295 SC_LAZINESS Masquerade - Laziness
+2296 SC_UNLUCKY Masquerade - Unlucky
+2297 SC_WEAKNESS Masquerade - Weakness
+2298 SC_STRIPACCESSARY Strip Accessory
+2299 SC_MANHOLE Man Hole
+2300 SC_DIMENSIONDOOR Dimension Door
+2301 SC_CHAOSPANIC Chaos Panic
+2302 SC_MAELSTROM Maelstrom
+2303 SC_BLOODYLUST Bloody Lust
+2304 SC_FEINTBOMB Feint Bomb
+2305 ????? ?????
+2306 ????? ?????
+
+// Royal Guard
+2307 LG_CANNONSPEAR Cannon Spear
+2308 LG_BANISHINGPOINT Banishing Point
+2309 LG_TRAMPLE Trample
+2310 LG_SHIELDPRESS Shield Press
+2311 LG_REFLECTDAMAGE Reflect Damage
+2312 LG_PINPOINTATTACK Pinpoint Attack
+2313 LG_FORCEOFVANGUARD Force of Vanguard
+2314 LG_RAGEBURST Rage Burst
+2315 LG_SHIELDSPELL Shield Spell
+2316 LG_EXEEDBREAK Exceed Break
+2317 LG_OVERBRAND Over Brand
+2318 LG_PRESTIGE Prestige
+2319 LG_BANDING Banding
+2320 LG_MOONSLASHER Moon Slasher
+2321 LG_RAYOFGENESIS Ray of Genesis
+2322 LG_PIETY Piety
+2323 LG_EARTHDRIVE Earth Drive
+2324 LG_HESPERUSLIT Hesperus Lit
+2325 LG_INSPIRATION Inspiration
+
+// Sura
+2326 SR_DRAGONCOMBO Dragon Combo
+2327 SR_SKYNETBLOW Sky Net Blow
+2328 SR_EARTHSHAKER Earth Shaker
+2329 SR_FALLENEMPIRE Fallen Empire
+2330 SR_TIGERCANNON Tiger Cannon
+2331 SR_HELLGATE Hell Gate
+2332 SR_RAMPAGEBLASTER Rampage Blaster
+2333 SR_CRESCENTELBOW Crescent Elbow
+2334 SR_CURSEDCIRCLE Cursed Circle
+2335 SR_LIGHTNINGWALK Lightning Walk
+2336 SR_KNUCKLEARROW Knuckle Arrow
+2337 SR_WINDMILL Windmill
+2338 SR_RAISINGDRAGON Raising Dragon
+2339 SR_GENTLETOUCH Gentle Touch
+2340 SR_ASSIMILATEPOWER Assimilate Power
+2341 SR_POWERVELOCITY Power Velocity
+2342 SR_CRESCENTELBOW_AUTOSPELL Crescent Elbow Autospell
+2343 SR_GATEOFHELL Gate of Hell
+2344 SR_GENTLETOUCH_QUIET Gentle Touch - Quiet
+2345 SR_GENTLETOUCH_CURE Gentle Touch - Cure
+2346 SR_GENTLETOUCH_ENERGYGAIN Gentle Touch - Energy Gain
+2347 SR_GENTLETOUCH_CHANGE Gentle Touch - Change
+2348 SR_GENTLETOUCH_REVITALIZE Gentle Touch - Revitalize
+2349 ????? ?????
+
+// Wanderer
+2350 WA_SWING_DANCE Swing Dance
+2351 WA_SYMPHONY_OF_LOVER Symphony of Lovers
+2352 WA_MOONLIT_SERENADE Moonlit Serenade
+2353 ????? ?????
+2354 ????? ?????
+2355 ????? ?????
+2356 ????? ?????
+2357 ????? ?????
+2358 ????? ?????
+2359 ????? ?????
+2360 ????? ?????
+2361 ????? ?????
+2362 ????? ?????
+2363 ????? ?????
+2364 ????? ?????
+2365 ????? ?????
+2366 ????? ?????
+2367 ????? ?????
+2368 ????? ?????
+2369 ????? ?????
+2370 ????? ?????
+2371 ????? ?????
+2372 ????? ?????
+2373 ????? ?????
+2374 ????? ?????
+2375 ????? ?????
+2376 ????? ?????
+2377 ????? ?????
+2378 ????? ?????
+2379 ????? ?????
+2380 ????? ?????
+
+// Minstrel
+2381 MI_RUSH_WINDMILL Windmill Rush Attack
+2382 MI_ECHOSONG Echo Song
+2383 MI_HARMONIZE Harmonize
+2384 ????? ?????
+2385 ????? ?????
+2386 ????? ?????
+2387 ????? ?????
+2388 ????? ?????
+2389 ????? ?????
+2390 ????? ?????
+2391 ????? ?????
+2392 ????? ?????
+2393 ????? ?????
+2394 ????? ?????
+2395 ????? ?????
+2396 ????? ?????
+2397 ????? ?????
+2398 ????? ?????
+2399 ????? ?????
+2400 ????? ?????
+2401 ????? ?????
+2402 ????? ?????
+2403 ????? ?????
+2404 ????? ?????
+2405 ????? ?????
+2406 ????? ?????
+2407 ????? ?????
+2408 ????? ?????
+2409 ????? ?????
+2410 ????? ?????
+2411 ????? ?????
+
+// Minstrel/Wanderer
+2412 WM_LESSON Lesson
+2413 WM_METALICSOUND Metallic Sound
+2414 WM_REVERBERATION Reverberation
+2415 WM_REVERBERATION_MELEE Reverberation Melee
+2416 WM_REVERBERATION_MAGIC Reverberation Magic
+2417 WM_DOMINION_IMPULSE Dominion Impulse
+2418 WM_SEVERE_RAINSTORM Severe Rainstorm
+2419 WM_POEMOFNETHERWORLD Poem of The Netherworld
+2420 WM_VOICEOFSIREN Voice of Siren
+2421 WM_DEADHILLHERE Valley of Death
+2422 WM_LULLABY_DEEPSLEEP Deep Sleep Lullaby
+2423 WM_SIRCLEOFNATURE Circle of Nature's Sound
+2424 WM_RANDOMIZESPELL Improvised Song
+2425 WM_GLOOMYDAY Gloomy Day
+2426 WM_GREAT_ECHO Great Echo
+2427 WM_SONG_OF_MANA Song of Mana
+2428 WM_DANCE_WITH_WUG Dance With A Warg
+2429 WM_SOUND_OF_DESTRUCTION Sound of Destruction
+2430 WM_SATURDAY_NIGHT_FEVER Saturday Night Fever
+2431 WM_LERADS_DEW Lerad's Dew
+2432 WM_MELODYOFSINK Melody of Sink
+2433 WM_BEYOND_OF_WARCRY Warcry of Beyond
+2434 WM_UNLIMITED_HUMMING_VOICE Unlimited Humming Voice
+
+// Sorcerer
+2443 SO_FIREWALK Fire Walk
+2444 SO_ELECTRICWALK Electric Walk
+2445 SO_SPELLFIST Spell Fist
+2446 SO_EARTHGRAVE Earth Grave
+2447 SO_DIAMONDDUST Diamond Dust
+2448 SO_POISON_BUSTER Poison Buster
+2449 SO_PSYCHIC_WAVE Psychic Wave
+2450 SO_CLOUD_KILL Cloud Kill
+2451 SO_STRIKING Striking
+2452 SO_WARMER Warmer
+2453 SO_VACUUM_EXTREME Vacuum Extreme
+2454 SO_VARETYR_SPEAR Varetyr Spear
+2455 SO_ARRULLO Arrullo
+//2456 SO_SUMMON_AGNI Summon Agni (Summon Agni's Old ID)
+2456 SO_EL_CONTROL ?????
+2457 SO_SUMMON_AGNI ?????
+2458 SO_SUMMON_AQUA ?????
+2459 SO_SUMMON_VENTUS ?????
+2460 SO_SUMMON_TERA ?????
+2461 ????? ?????
+2462 ????? ?????
+2463 ????? ?????
+2464 ????? ?????
+2465 ????? ?????
+2466 ????? ?????
+2467 ????? ?????
+2468 ????? ?????
+2469 ????? ?????
+2470 ????? ?????
+2471 ????? ?????
+2472 SO_ENDMARK ?????
+2473 ????? ?????
+
+// Genetic
+2474 GN_TRAINING_SWORD Sword Training
+2475 GN_REMODELING_CART Cart Remodeling
+2476 GN_CART_TORNADO Cart Tornado
+2477 GN_CARTCANNON Cart Cannon
+2478 GN_CARTBOOST Cart Boost
+2479 GN_THORNS_TRAP Thorn Trap
+2480 GN_BLOOD_SUCKER Blood Sucker
+2481 GN_SPORE_EXPLOSION Spore Explosion
+2482 GN_WALLOFTHORN Wall of Thorns
+2483 GN_CRAZYWEED Crazy Weed
+2484 GN_CRAZYWEED_ATK Crazy Weed Attack
+2485 GN_DEMONIC_FIRE Demonic Fire
+2486 GN_FIRE_EXPANSION Fire Expansion
+2487 GN_FIRE_EXPANSION_SMOKE_POWDER Fire Expansion Smoke Powder
+2488 GN_FIRE_EXPANSION_TEAR_GAS Fire Expansion Tear Gas
+2489 GN_FIRE_EXPANSION_ACID Fire Expansion Acid
+2490 GN_HELLS_PLANT Hell's Plant
+2491 GN_HELLS_PLANT_ATK Hell's Plant Attack
+2492 GN_MANDRAGORA Howling of Mandragora
+2493 GN_SLINGITEM Sling Item
+2494 GN_CHANGEMATERIAL Change Material
+2495 GN_MIX_COOKING Mix Cooking
+2496 GN_MAKEBOMB Create Bomb
+2497 GN_S_PHARMACY Special Pharmacy
+2498 GN_SLINGITEM_RANGEMELEEATK Sling Item Attack
+
+// Extra 3rd Job Skills
+2515 AB_SECRAMENT Secrament
+2516 WM_SEVERE_RAINSTORM_MELEE Severe Rainstorm Melee
+2517 SR_HOWLINGOFLION Howling of Lion
+2518 SR_RIDEINLIGHTNING Ride In Lightening
+
+// Misc Skills
+2533 ALL_ODINS_RECALL Odin's Recall (A skill icon exists for this skill. Wonder what it does tho.)
+2534 RETURN_TO_ELDICASTES Return To Eldicastes (A skill thats enabled for a player by wearing a certain accessory.)
+
