@@ -1,0 +1,7 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>404 Not Found</title>
+</head><body>
+<h1>Not Found</h1>
+<p>The requested URL /svn/!svn/bc/133/Extra%20Files/Rytech%27s%20Dev%20Files/Server%20Side%20Files/ID%20Tracking%20Tables/Skill%20ID%20Tracking%20Table.txt was not found on this server.</p>
+</body></html>

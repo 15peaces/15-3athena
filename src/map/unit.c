@@ -966,6 +966,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_THORNSTRAP]
 			|| sc->data[SC_DIAMONDDUST]
 			|| sc->data[SC__MANHOLE]
+			|| sc->data[SC_DEEPSLEEP]
 		))
 			return 0;
 	}
@@ -1343,6 +1344,12 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
  	if( sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&4) && skill_num != AS_CLOAKING )
 	{
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
+		if (!src->prev) return 0; //Warped away!
+	}
+
+	if( sc && sc->data[SC__MANHOLE] )
+	{
+		status_change_end(src,SC__MANHOLE, INVALID_TIMER);
 		if (!src->prev) return 0; //Warped away!
 	}
 
@@ -2022,6 +2029,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
 			status_change_end(bl,SC_CAMOUFLAGE, INVALID_TIMER);
 			status_change_end(bl,SC_DIAMONDDUST, INVALID_TIMER);
+			status_change_end(bl,SC__SHADOWFORM, INVALID_TIMER);
 			status_change_end(bl,SC__MANHOLE, INVALID_TIMER);
 
 	}
