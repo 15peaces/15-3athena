@@ -995,68 +995,56 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		if( rand()%100 < 5 + 5 * skilllv )
 			sc_start(bl,SC_BURNING,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
-
 	case AB_ADORAMUS:
 		sc_start(bl, SC_BLIND, 100, skilllv, skill_get_time(skillid, skilllv));
 		sc_start(bl, SC_DECREASEAGI, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
-
 	case WL_FROSTMISTY:
 		// Need oficial success chance at lower levels and how much each job level increases the success chance. [LimitLine]
 		sc_start(bl, SC_FREEZING, 30 + 10 * skilllv + (sd ? sd->status.job_level / 5 : 0), skilllv, skill_get_time(skillid, skilllv));
 		break;
-
 	case WL_JACKFROST:
 		sc_start(bl, SC_FREEZE, 10000, skilllv, skill_get_time(skillid, skilllv));
 		break;
-
 	case WL_CRIMSONROCK:
 		sc_start(bl, SC_STUN, 40, skilllv, skill_get_time(skillid, skilllv));
 		break;
-
 	case WL_HELLINFERNO:
 		sc_start(bl, SC_BURNING, 55 + skilllv * 5, skilllv, skill_get_time(skillid, skilllv));
 		break;
-
 	case WL_COMET:
 		sc_start(bl, SC_BURNING, 100, skilllv, skill_get_time2(skillid, skilllv));
 		break;
-
 	case RA_WUGBITE:
 		sc_start(bl, SC_WUGBITE, 100, skilllv, skill_get_time(skillid, skilllv));
-		if( bl->type == BL_PC )//Only 10 sec duration to players.
-			sc_start(bl, SC_WUGBITE, 100, skilllv, skill_get_time2(skillid, skilllv));
 		break;
+	case RA_SENSITIVEKEEN:
+		if( rand()%100 < 8*skilllv )
+			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, 1);
 	case RA_FIRINGTRAP:
 		sc_start(bl, SC_BURNING, (10*skilllv+40), skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case RA_ICEBOUNDTRAP:
 		sc_start(bl, SC_FREEZING, (10*skilllv+40), skilllv, skill_get_time2(skillid, skilllv));
 		break;
-
 	case SO_EARTHGRAVE:
 		sc_start(bl, SC_BLEEDING, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
-
 	case SO_DIAMONDDUST:
 		sc_start(bl, SC_DIAMONDDUST, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
-
 	case SO_PSYCHIC_WAVE: // Need official rate. [LimitLine]
 	case SO_VARETYR_SPEAR: // Need official rate. [LimitLine]
 		sc_start(bl, SC_STUN, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
-
 	case SO_CLOUD_KILL:
 		sc_start(bl, SC_POISON, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		if(tstatus->mode & ~MD_BOSS ) // Boss monsters should be immune to elemental change trough Cloud Kill. Confirm this. [LimitLine]
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skilllv, skilllv, 5, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
-
 	case GN_CART_TORNADO:
 		sc_start(bl, SC_STUN, 1000000, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
-
 	case GN_HELLS_PLANT_ATK:
 		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		sc_start(bl, SC_BLEEDING, 20 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
@@ -2790,6 +2778,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_DUPLELIGHT_MELEE:
 	case RA_AIMEDBOLT:
 	case RA_WUGBITE:
+	case WL_FROSTMISTY:
 	case SC_TRIANGLESHOT:
 	case GN_CRAZYWEED_ATK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
@@ -2994,7 +2983,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RK_IGNITIONBREAK:
 	case AB_JUDEX:
 	case WL_SOULEXPANSION:
-	case WL_FROSTMISTY:
 	case WL_CRIMSONROCK:
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
@@ -3163,6 +3151,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NJ_KOUENKA:
 	case NJ_HYOUSENSOU:
 	case NJ_HUUJIN:
+	case AB_HIGHNESSHEAL:
+	case AB_DUPLELIGHT_MAGIC:
+	case WL_HELLINFERNO:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -3367,7 +3358,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			{
 				if( sd )
 					clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
-				return 0;
+				break;
 			}
 			else
 			{
@@ -3422,13 +3413,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					clif_skill_nodamage(src, bl, skillid, 0, 1);
 					skill_attack(skill_get_type(skillid - 5 + sc->data[i]->val1 - WLS_FIRE),
 					src, src, bl, skillid - 5 + sc->data[i]->val1 - WLS_FIRE, skilllv, tick, flag|SD_LEVEL);
-					status_change_end(src, i, -1);
+					status_change_end(src, i, INVALID_TIMER);
 					break;
 				}
 				if( i > SC_SPHERE_5 && sd )
 				{
-					clif_skill_fail(sd, skillid, 0, 0);
-					return 0;
+					clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+					break;
 				}
 		}
 		else
@@ -3441,12 +3432,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					skill_addtimerskill(src, gettick() + i * 500, bl->id, 0, 0,
 					skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE, skilllv,
 					skill_get_type(skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE), SD_LEVEL);
-					status_change_end(src, SC_SPHERE_1 + i - 1, -1);
+					status_change_end(src, SC_SPHERE_1 + i - 1, INVALID_TIMER);
 				}
 				if( !j && sd )
 				{
-					clif_skill_fail(sd, skillid, 0, 0);
-					return 0;
+					clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+					break;
 				}
 				clif_skill_nodamage(src, bl, skillid, 0, j);
 		}
@@ -3469,18 +3460,49 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
+	case RA_SENSITIVEKEEN:
+		{
+			struct skill_unit *su = BL_CAST(BL_SKILL,bl);
+			struct skill_unit_group* sg;
+			if( su && (sg=su->group) && skill_get_inf2(sg->skill_id)&INF2_TRAP && sg->src_id != src->id &&
+				battle_check_target(src, map_id2bl(sg->src_id), BCT_ENEMY) > 0 )
+			{
+				if( sd && !(sg->unit_id == UNT_USED_TRAPS || (sg->unit_id == UNT_ANKLESNARE && sg->val2 != 0 )) )
+				{
+					struct item item_tmp;
+					memset(&item_tmp,0,sizeof(item_tmp));
+					item_tmp.nameid = ( sg->unit_id >= UNT_MAGENTATRAP && sg->unit_id <= UNT_CLUSTERBOMB )?ITEMID_SPECIAL_ALLOY_TRAP:ITEMID_TRAP;
+					item_tmp.identify = 1;
+					if( item_tmp.nameid )
+						map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				}
+				skill_delunit(su);
+			}
+		}
+		break;
+
+	case WL_JACKFROST:
+	{
+		struct status_change *tsc = status_get_sc(bl);
+		if( bl->id == skill_area_temp[1] )
+			break;
+		if( tsc && tsc->data[SC_FREEZING] )
+			skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
+	}
+	break;
+
 	case SO_POISON_BUSTER:
 		{
 			struct status_change *tsc = status_get_sc(bl);
 			if( tsc && tsc->data[SC_POISON] )
 			{
 				skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
-				status_change_end(bl, SC_POISON, -1);
+				status_change_end(bl, SC_POISON, INVALID_TIMER);
 			}
 			else if( sd )
 			{
 				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
-				return 0;
+				break;
 			}
 		}
 		break;
@@ -4394,7 +4416,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case ASC_METEORASSAULT:
 	case GS_SPREADATTACK:
-	case WL_FROSTMISTY: // 3ceam v1.
 	case GN_CART_TORNADO: // 3ceam v1.
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -5122,7 +5143,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_INTFOOD:		case SC_DEXFOOD:				case SC_LUKFOOD:
 				case SC_HITFOOD:		case SC_FLEEFOOD:				case SC_BATKFOOD:
 				case SC_WATKFOOD:		case SC_MATKFOOD:				case SC_DANCING:
-				case SC_GUILDAURA:		case SC_EDP:					case SC_AUTOBERSERK:
+				case SC_GUILDAURA:		/*case SC_EDP:*/					case SC_AUTOBERSERK:
 				case SC_CARTBOOST:		case SC_MELTDOWN:				case SC_SAFETYWALL:
 				case SC_SMA:			case SC_SPEEDUP0:				case SC_NOCHAT:
 				case SC_ANKLE:			case SC_SPIDERWEB:				case SC_JAILED:
@@ -6196,7 +6217,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			else
 			{
-				clif_skill_fail(sd, skillid, 0, 0);
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
 				return 0;
 			}
 		}
@@ -6204,26 +6225,20 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case AB_CLEMENTIA:
 	case AB_CANTO:
+		{
+			int bless_lv = pc_checkskill(sd,AL_BLESSING);
+			int agi_lv = pc_checkskill(sd,AL_INCAGI);
+			if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
+				clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,
+					(skillid == AB_CLEMENTIA)? bless_lv : (skillid == AB_CANTO)? agi_lv : skilllv,skill_get_time(skillid,skilllv)));
+			else if( sd )
+				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid,
+					(skillid == AB_CLEMENTIA)? bless_lv : (skillid == AB_CANTO)? agi_lv : skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+		}
+	break;
 	case AB_PRAEFATIO:
 		if( sd == NULL || sd->status.party_id == 0 || flag & 1 )
-		{
-			switch( skillid )
-			{
-				case AB_CLEMENTIA:
-					skillid = AL_BLESSING;
-					break;
-				case AB_CANTO:
-					skillid = AL_INCAGI;
-					break;
-				case AB_PRAEFATIO:
-					skillid = PR_KYRIE;
-					break;
-			}
-			if( skillid == AB_PRAEFATIO )
-				clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start4(bl, type, 100, skilllv, 0, 0, 1, skill_get_time(skillid, skilllv)));
-			else
-				skill_castend_nodamage_id(bl, bl, skillid, sd ? pc_checkskill(sd, skillid) : skilllv, tick, flag);
-		}
+			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start4(bl, type, 100, skilllv, 0, 0, 1, skill_get_time(skillid, skilllv)));
 		else if( sd )
 			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
 		break;
@@ -6234,7 +6249,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( sd && tstatus && !battle_check_undead(tstatus->race, tstatus->def_ele) )
 			{
 				int heal = skill_calc_heal(src, bl, AL_HEAL, pc_checkskill(sd, AL_HEAL), true);
-				clif_skill_nodamage(bl, bl, AL_HEAL, heal, status_heal(bl, heal, 0, 0));
+				clif_skill_nodamage(bl, bl, skillid, heal, status_heal(bl, heal, 0, 0));
 			}
 		}
 		else
@@ -6280,8 +6295,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
 			else if( sd )
 			{
-				clif_skill_fail(sd, skillid, 0, 0);
-				return 0;
+				clif_skill_fail(sd, skillid,USESKILL_FAIL_LEVEL, 0);
+				break;
 			}
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
@@ -6301,6 +6316,184 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			return 0;
 		if( status_revive(bl,100,100) )
 			clif_skill_nodamage(src,bl,skillid,skilllv,0);
+		break;
+
+	case AB_CLEARANCE:
+		if( flag & 1 && (tsc = status_get_sc(bl)) )
+		{
+			for( i = 0; i < SC_MAX; i ++ )
+			{
+				if( !tsc->data[i] )
+					continue;
+				switch( i )
+				{
+					case SC_WEIGHT50: case SC_WEIGHT90: case SC_HALLUCINATION:
+					case SC_STRIPWEAPON: case SC_STRIPSHIELD: case SC_STRIPARMOR:
+					case SC_STRIPHELM: case SC_CP_WEAPON: case SC_CP_SHIELD:
+					case SC_CP_ARMOR: case SC_CP_HELM: case SC_COMBO:
+					case SC_STRFOOD: case SC_AGIFOOD: case SC_VITFOOD:
+					case SC_INTFOOD: case SC_DEXFOOD: case SC_LUKFOOD:
+					case SC_HITFOOD: case SC_FLEEFOOD: case SC_BATKFOOD:
+					case SC_WATKFOOD: case SC_MATKFOOD: case SC_DANCING:
+					case SC_GUILDAURA: /*case SC_EDP:*/ case SC_AUTOBERSERK:
+					case SC_CARTBOOST: case SC_MELTDOWN: case SC_SAFETYWALL:
+					case SC_SMA: case SC_SPEEDUP0: case SC_NOCHAT:
+					case SC_ANKLE: case SC_SPIDERWEB: case SC_JAILED:
+					case SC_ITEMBOOST: case SC_EXPBOOST: case SC_LIFEINSURANCE:
+					case SC_BOSSMAPINFO: case SC_PNEUMA: case SC_AUTOSPELL:
+					case SC_INCHITRATE: case SC_INCATKRATE: case SC_NEN:
+					case SC_READYSTORM: case SC_READYDOWN: case SC_READYTURN:
+					case SC_READYCOUNTER:case SC_DODGE: case SC_WARM:
+					case SC_SPEEDUP1: case SC_AUTOTRADE: case SC_CRITICALWOUND:
+					case SC_JEXPBOOST: case SC_ELECTRICSHOCKER: case SC__STRIPACCESSARY:
+						continue;
+					case SC_ASSUMPTIO:
+						if( bl->type == BL_MOB )
+							continue;
+						break;
+				}
+				if( i == SC_BERSERK )
+					tsc->data[i]->val2 = 0; //Mark a dispelled berserk to avoid setting hp to 100 by setting hp penalty to 0.
+				status_change_end(bl, (sc_type)i, INVALID_TIMER);
+			}
+		}
+		else if( rand()%100 <= 30 + 10 * skilllv )
+		{ // If you succeed, everyone will have their buffs and debuffs dispelled with 100% chance. Need to confirm this. [LimitLine]
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR,
+				src, skillid, skilllv, tick, (map_flag_vs(src->m) ? BCT_ALL : BCT_ENEMY|BCT_PARTY|BCT_SELF)|flag|1,
+				skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, 0, 1);
+		}
+		else if( sd )
+		{
+			clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 1);
+			break;
+		}
+		break;
+
+	case AB_SILENTIUM:
+		// Should the level of Lex Divina be equivalent to the level of Silentium or should the highest level learned be used? [LimitLine]
+		map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR,
+			src, PR_LEXDIVINA, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		break;
+
+	case WL_STASIS:
+		if( flag & 1 )
+			sc_start2(bl, SC_STASIS, 10000, skilllv, src->id, skill_get_time(skillid, skilllv));
+		else
+		{
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR,
+				src, skillid, skilllv, tick,
+				(map_flag_vs(src->m)?BCT_ALL:BCT_ENEMY|BCT_SELF)|flag|1,
+				skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		}
+		break;
+
+	case WL_WHITEIMPRISON:
+		// Need success rate at lower levels, as well as how much each job level influences the success rate. [LimitLine]
+		if( (src == bl || battle_check_target(src, bl, BCT_ENEMY)) &&
+			rand()%100 <= 15 + 10 * skilllv + (sd ? sd->status.job_level / 5 : 0) )
+		{
+			if( bl->type == BL_MOB )
+				i = 1;
+			if( src != bl )
+				i = 2;
+			else
+				i = 3;
+			clif_skill_nodamage(src, bl, skillid, skilllv,
+				sc_start(bl, SC_WHITEIMPRISON, 100, skilllv,
+				skill_get_time(skillid, i)));
+		}
+		else if( sd )
+		{
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+			clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+			break;
+		}
+		break;
+
+	case WL_FROSTMISTY:
+	case WL_JACKFROST:
+		{
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			skill_area_temp[1] = bl->id;
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+		}
+		break;
+
+	case WL_MARSHOFABYSS:
+		// Should marsh of abyss still apply half reduction to players after the 28/10 patch? [LimitLine]
+		clif_skill_nodamage(src, bl, skillid, skilllv,
+		sc_start4(bl, type, 100, skilllv, status_get_int(src), sd ? sd->status.job_level : 0, 0,
+		skill_get_time(skillid, skilllv)));
+		break;
+
+	case WL_SIENNAEXECRATE:
+		// According to this post (http://forums.irowiki.org/showpost.php?p=548447&postcount=1858),
+		// Sienna Execrate un-petrifies enemies in range. So, unless they are un-petrified unregarding the failing chance,
+		// it's just useless.
+		if( flag & 2 )
+			status_change_end(bl, SC_STONE, -1);
+		else if( flag & 1 )
+			sc_start(bl, SC_STONE, 10000, skilllv, skill_get_time(skillid, skilllv));
+		else
+		{
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR,
+				src, skillid, skilllv, tick, flag|BCT_ENEMY|2, skill_castend_nodamage_id);
+			if( rand()%100 <= 55 + 5 * skilllv + (sd ? sd->status.job_level / 5 : 0) )
+			{
+				map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR,
+					src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+			}
+			else if( sd )
+			{
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+				break;
+			}
+		}
+		break;
+
+		case WL_SUMMONFB:
+		case WL_SUMMONBL:
+		case WL_SUMMONWB:
+		case WL_SUMMONSTONE:
+		{
+			short element = 0;
+			struct status_change *sc = status_get_sc(src);
+			if( !sc )
+				break;
+			for( i = SC_SPHERE_1; i <= SC_SPHERE_5 + 1; i ++ )
+			if( !sc->data[i] )
+				break;
+			if( i >= SC_SPHERE_1 && i <= SC_SPHERE_5 )
+			{
+				switch( skillid )
+				{
+					case WL_SUMMONFB:
+						element = WLS_FIRE;
+						break;
+					case WL_SUMMONBL:
+						element = WLS_WIND;
+						break;
+					case WL_SUMMONWB:
+						element = WLS_WATER;
+						break;
+					case WL_SUMMONSTONE:
+						element = WLS_STONE;
+						break;
+				}
+				sc_start(src, i, 100, element, skill_get_time(skillid, skilllv));
+				clif_skill_nodamage(src, bl, skillid, 0, 0);
+			}
+			else if( sd )
+			{
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 1);
+				break;
+			}
+		}
 		break;
 
 	case RA_WUGMASTERY:
@@ -6340,9 +6533,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case RA_SENSITIVEKEEN:
+		if( sd )
+		{
+			map_foreachinrange( status_change_timer_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, SC_SIGHT, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			map_foreachinrange( skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_SKILL, src, skillid,skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+			clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
 	case RA_CAMOUFLAGE:
 		i = sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-		if( i ) clif_skill_nodamage(src,bl,skillid,-1,i);
+		if( i ) clif_skill_nodamage(src,bl,skillid,skilllv,i);
 		else if( sd )
 			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0);
 			break;
@@ -6374,7 +6577,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			else
 			{
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0);
-				return 0;
+				break;
 			}
 		}
 break;
@@ -6386,7 +6589,7 @@ break;
 			if( ((TBL_PC*)bl)->shadowform_id > 0 )
 			{
 				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
-				return 0;
+				break;
 			}
 			if( clif_skill_nodamage(src, bl, skillid, skilllv,
 				sc_start4(src, type, 100, skilllv, bl->id, 5, 0, skill_get_time(skillid, skilllv))))
@@ -7116,6 +7319,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RK_WINDCUTTER: // 3ceam v1
 		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 	case RK_DRAGONBREATH:
+	case RA_SENSITIVEKEEN:
 	case WM_LULLABY_DEEPSLEEP:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub,
@@ -7155,8 +7359,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 						break;
 					default:
 						if( sd )
-							clif_skill_fail(sd, skillid, 0, 0);
-						return 0;
+							clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+						break;
 				}
 				skill_addtimerskill(src, gettick() + 250 * i, src->id, x, y, skillid, skilllv, 0, 0);
 			}
@@ -9815,6 +10019,20 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+
+	case AB_ANCILLA:
+	{
+		int count = 0, i;
+		for( i = 0; i < MAX_INVENTORY; i ++ )
+			if( sd->status.inventory[i].nameid == 12333 )
+				count += sd->status.inventory[i].amount;
+		if( count >= 3 )
+		{
+			clif_skill_fail(sd, skill, USESKILL_FAIL_ANCILLA_NUMOVER, 0);
+			return 0;
+		}
+	}
+	break;
 
 	case AB_ADORAMUS:
 	case WL_COMET:

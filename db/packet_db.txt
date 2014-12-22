@@ -1629,8 +1629,16 @@ packet_ver: 26
 0x0858,-1
 0x0859,-1
 
-//2012-04-10aRagexeRE
+//2011-10-05aRagexeRE
 packet_ver: 27
+0x0436,19,wanttoconnection,2:6:10:14:18
+0x0367,6,ticksend,2
+0x0437,5,walktoxy,2
+0x07ec,7,actionrequest,2:6
+0x0887,6
+
+//2012-04-10aRagexeRE
+packet_ver: 28
 0x01FD,15,repairitem,2
 0x0288,-1,cashshopbuy,4:8
 0x0366,90,useskilltoposinfo,2:4:6:8:10
@@ -1692,7 +1700,7 @@ packet_ver: 27
 0x915,-1 //ZC_NOTIFY_STANDENTRY8
 
 //2012-07-02aRagexeRE
-packet_ver: 28
+packet_ver: 29
 0x0363,19,wanttoconnection,2:6:10:14:18
 0x0364,6,ticksend,2
 0x085a,7,actionrequest,2:6
@@ -1709,7 +1717,7 @@ packet_ver: 28
 0x0960,5,changedir,2:4
 
 //2013-03-20eRagexe
-packet_ver: 29
+packet_ver: 30
 0x088E,7,actionrequest,2:6
 0x089B,10,useskilltoid,2:4:6
 0x0881,5,walktoxy,2
@@ -1757,7 +1765,7 @@ packet_ver: 29
 0x0848,-1,CashShopBuy,2
 	
 //2013-07-31cRagexe
-packet_ver: 30
+packet_ver: 31
 0x0878,7,actionrequest,2:6
 0x0865,10,useskilltoid,2:4:6
 0x0437,5,walktoxy,2
@@ -1791,8 +1799,8 @@ packet_ver: 30
 0x09ab,6 //CZ_REQ_BANKING_CHECK
 0x09ca,23 //ZC_SKILL_ENTRY5
 
-//2013-12-23cRagexe
-packet_ver: 31
+//2013-12-23cRagexe~2014-04-16aRagexe
+packet_ver: 32
 0x022d,19,wanttoconnection,2:6:10:14:18
 0x0202,5,changedir,2:4
 0x035f,6,ticksend,2
@@ -1813,4 +1821,4 @@ packet_ver: 31
 0x09d4,2	//CZ_NPC_TRADE_QUIT
 
 //Add new packets here
-//packet_ver: 32
+//packet_ver: 33
