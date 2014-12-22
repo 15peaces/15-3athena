@@ -1,5 +1,8 @@
 Date	Added
 
+2014/12/20
+	* Some remaining uncommitted changes. [Ai4rei]
+	- Some code cleanups in timer.c and malloc.c
 2014/06/20
 	* Fixed wrong range for 'packet_ver_flag' battle config (follow up to r15267). [Ai4rei]
 2014/05/10

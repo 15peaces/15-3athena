@@ -4,6 +4,34 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/22/2014
+	r29 [15peaces]
+		*Updated to eAthena rev. 15269
+		*Merged missing changes from 3ceam rev. 141 - 143
+		*Some code cleanups in timer.c and malloc.c
+		*Added packet db stub for 2011-10-05aRagexe (packet ver 27).
+			-please note the changed packetvers!
+		*Added all the latest casttime settings for renewal jobs.
+		*ArchBishop Update:
+			- Fixed damage calculation of Adoramus and Judex. Judex should have a sub hits of 3.
+			- Redone Clementia, Canto, Praefatio, and Coloceo Heal to display only skill name above the head.
+			- Ancilla and Epiclesis used now its official fail message.
+		*Ranger Update:
+			-Added RA_SENSITIVEKEEN skill.
+			-Fixed Camouflage not displaying skill name above the head.
+			-Fixed Electricshocker and Wugbite status which should be reduced by 1sec every 10 agi.
+			-Fixed when mounting a warg item skills cannot be used.
+			-Aimedbolt and Arrowstorm can be used without a bow.
+		*Fixed some map_freeblock error caused by some skills.
+		*AB_HIGHNESSHEAL; AB_CLEARANCE; WL_JACKFROST; WL_MARSHOFABYSS; WL_SUMMONFB; WL_SUMMONBL; WL_SUMMONWB; WL_SUMMONSTONE
+			-Added pre-support for these skills.
+		*WL_WHITEIMPRISON
+			-Some more coding on this skill.
+		*AB_DUPLELIGHT_MAGIC; AB_SILENTIUM; WL_HELLINFERNO; WL_STASIS; WL_SIENNAEXECRATE
+			-Added full support for these skills.
+		*WL_FROSTMISTY
+			-Some fixes on this skill.
+
 12/20/2014
 	r27 [15peaces]
 		*Merged missing changes from 3ceam rev. 131 - 140
