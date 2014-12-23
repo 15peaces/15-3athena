@@ -1022,10 +1022,22 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		if( rand()%100 < 8*skilllv )
 			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, 1);
 	case RA_FIRINGTRAP:
-		sc_start(bl, SC_BURNING, (10*skilllv+40), skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_BURNING, 10 * skilllv + 40, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case RA_ICEBOUNDTRAP:
-		sc_start(bl, SC_FREEZING, (10*skilllv+40), skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_FREEZING, 10 * skilllv + 40, skilllv, skill_get_time2(skillid, skilllv));
+		break;
+	case NC_FLAMELAUNCHER:
+		sc_start(bl, SC_BURNING, 50 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		break;
+	case NC_COLDSLOWER:
+		sc_start(bl, SC_FREEZING, 20 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_FREEZING, 10 * skilllv, skilllv, skill_get_time(skillid, skilllv));
+		break;
+	case NC_POWERSWING:
+		if( rand()%100 < 15 ) //Assumed chance of stun status and axe boomerang skill.
+			skill_castend_damage_id(src, bl, NC_AXEBOOMERANG, pc_checkskill(sd, NC_AXEBOOMERANG), tick, 1);
+		sc_start(bl, SC_STUN, 5*skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SO_EARTHGRAVE:
 		sc_start(bl, SC_BLEEDING, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
@@ -2778,7 +2790,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_DUPLELIGHT_MELEE:
 	case RA_AIMEDBOLT:
 	case RA_WUGBITE:
-	case WL_FROSTMISTY:
+	case NC_BOOSTKNUCKLE:
+	case NC_VULCANARM:
+	case NC_COLDSLOWER:
+	case NC_AXEBOOMERANG:
+	case NC_POWERSWING:
 	case SC_TRIANGLESHOT:
 	case GN_CRAZYWEED_ATK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
@@ -2986,6 +3002,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WL_CRIMSONROCK:
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
+	case NC_FLAMELAUNCHER:
+	case NC_ARMSCANNON:
+	case NC_SELFDESTRUCTION:
+	case NC_AXETORNADO:
 	case WM_REVERBERATION:
 	case WM_SEVERE_RAINSTORM:
 	case SO_VARETYR_SPEAR:
@@ -3154,6 +3174,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
+	case WL_FROSTMISTY:
+	case NC_REPAIR:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -3490,6 +3512,37 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
 	}
 	break;
+
+	case NC_PILEBUNKER:
+		if( rand()%100 < 5 + 15*skilllv )
+		{ //Deactivatable Skills: will be uncommented as supported. [15peaces]
+			status_change_end(bl, SC_KYRIE, INVALID_TIMER);
+			status_change_end(bl, SC_AUTOGUARD, INVALID_TIMER);
+			status_change_end(bl, SC_REFLECTSHIELD, INVALID_TIMER);
+			status_change_end(bl, SC_DEFENDER, INVALID_TIMER);
+			status_change_end(bl, SC_STEELBODY, INVALID_TIMER);
+			status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
+			//status_change_end(bl, SC_MILLENNIUMSHIELD, INVALID_TIMER);
+			//status_change_end(bl, SC_REFLECTDAMAGE, INVALID_TIMER);
+			status_change_end(bl, SC_PRESTIGE, INVALID_TIMER);
+			status_change_end(bl, SC_BANDING, INVALID_TIMER);
+			//status_change_end(bl, SC_GT_CHANGE, INVALID_TIMER);
+			//status_change_end(bl, SC_GT_REVITALIZE, INVALID_TIMER);
+		}
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		break;
+	case NC_INFRAREDSCAN:
+		if( flag&1 )
+		{ //TODO: Need a confirmation if the other type of hidden status is included to be scanned. [Jobbie]
+			if( rand()%100 < 50 )
+				sc_start(bl, SC_INFRAREDSCAN, 10000, skilllv, skill_get_time(skillid, skilllv));
+			status_change_end(bl, SC_HIDING, INVALID_TIMER);
+			status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
+		}
+		else
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		break;
 
 	case SO_POISON_BUSTER:
 		{
@@ -4126,6 +4179,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_DUPLELIGHT:
 	case AB_SECRAMENT:
 	case RA_FEARBREEZE:
+	case NC_ACCELERATION:
 	case SC_DEADLYINFECT:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
@@ -4416,7 +4470,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case ASC_METEORASSAULT:
 	case GS_SPREADATTACK:
-	case GN_CART_TORNADO: // 3ceam v1.
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
@@ -4431,10 +4484,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 		break;
 
+	case NC_INFRAREDSCAN:
+	case GC_COUNTERSLASH:
+	case SR_EARTHSHAKER:
+	case SR_WINDMILL:
+	case GN_CART_TORNADO:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+
 	case NPC_EARTHQUAKE:
 	case NPC_VAMPIRE_GIFT:
 	case NPC_HELLJUDGEMENT:
 	case NPC_PULSESTRIKE:
+	case LG_MOONSLASHER:
 		skill_castend_damage_id(src, src, skillid, skilllv, tick, flag);
 		break;
 
@@ -6550,6 +6611,27 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0);
 			break;
 
+	case NC_SELFDESTRUCTION:
+		if( sd )
+		{
+			pc_setoption(sd, sd->sc.option&~OPTION_MADOGEAR);
+			status_zap(src, 0 , sd->status.sp);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+			skill_castend_damage_id(src, src, skillid, skilllv, tick, flag);
+		}
+		break;
+
+	case NC_REPAIR:
+	{
+		int heal = dstsd->status.max_hp*(3+3*skilllv)/100;
+		if( !dstsd )
+			break;
+		status_heal(src, heal, 0, 2);
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		clif_skill_nodamage(src, bl, skillid, heal, 1);
+	}
+	break;
+
 	case SC_REPRODUCE:
 		if( tsc && tsc->data[SC__REPRODUCE] )
 		{
@@ -7318,6 +7400,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	//Offensive Ground Targeted Splash AoE's.
 	case RK_WINDCUTTER: // 3ceam v1
 		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+	case NC_COLDSLOWER:
 	case RK_DRAGONBREATH:
 	case RA_SENSITIVEKEEN:
 	case WM_LULLABY_DEEPSLEEP:
@@ -10069,7 +10152,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		}
 		break;
 	case ST_RIDING:
-		if(!pc_isriding(sd)) {
+		if(!pc_isriding(sd) && !pc_isdragon(sd)) {
+			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
+			return 0;
+		}
+		break;
+	case ST_RIDINGDRAGON:
+		if(!pc_isdragon(sd)) {
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
 			return 0;
 		}
@@ -10144,16 +10233,22 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 	case ST_RIDINGWUG:
 		if(skill == RA_WUGRIDER){
-			if(!pc_isriding(sd) && !pc_iswug(sd)) {
+			if(!pc_iswugrider(sd) && !pc_iswug(sd)) {
 				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
 				return 0;
 			}
 		}
 		else if(skill == RA_WUGSTRIKE){
-			if(!pc_isriding(sd) && !pc_iswug(sd)){
+			if(!pc_iswugrider(sd) && !pc_iswug(sd)){
 				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
 				return 0;
 			}
+		}
+		break;
+	case ST_MADOGEAR:
+		if(!pc_ismadogear(sd)) {
+			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
+			return 0;
 		}
 		break;
 	}
@@ -10476,10 +10571,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		if( itemid_isgemstone(req.itemid[i]) && skill != HW_GANBANTEIN )
 		{
 			if( sd->special_state.no_gemstone )
-			{	//Make it substract 1 gem rather than skipping the cost.
-				if( --req.amount[i] < 1 )
-					req.itemid[i] = 0;
-			}
+			//Make it substract 1 gem rather than skipping the cost.
+				req.amount[i] = req.itemid[i] = 0;
 			if(sc && sc->data[SC_INTOABYSS])
 			{
 				if( skill != SA_ABRACADABRA )
@@ -13823,8 +13916,10 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if( strcmpi(split[10],"recover_weight_rate")==0 ) skill_db[i].state = ST_RECOV_WEIGHT_RATE;
 	else if( strcmpi(split[10],"move_enable")==0 ) skill_db[i].state = ST_MOVE_ENABLE;
 	else if( strcmpi(split[10],"water")==0 ) skill_db[i].state = ST_WATER;
+	else if( strcmpi(split[10],"dragon")==0 ) skill_db[i].state = ST_RIDINGDRAGON;
 	else if( strcmpi(split[10],"warg")==0 ) skill_db[i].state = ST_WUG;
 	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_RIDINGWUG;
+	else if( strcmpi(split[10],"mado")==0 ) skill_db[i].state = ST_MADOGEAR;
 	else skill_db[i].state = ST_NONE;
 
 	skill_split_atoi(split[11],skill_db[i].spiritball);

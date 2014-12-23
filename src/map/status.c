@@ -445,6 +445,10 @@ void initChangeTables(void)
 	add_sc( RA_FIRINGTRAP					, SC_BURNING			);
 	add_sc( RA_ICEBOUNDTRAP					, SC_FREEZING			);
 
+	// Mechanic
+	set_sc( NC_ACCELERATION	, SC_ACCELERATION	, SI_ACCELERATION	, SCB_SPEED );
+	set_sc( NC_INFRAREDSCAN	, SC_INFRAREDSCAN	, SI_INFRAREDSCAN	, SCB_FLEE );
+
 	//Shadow Chaser
 	set_sc( SC_REPRODUCE					, SC__REPRODUCE         , SI_REPRODUCE      , SCB_NONE );
 	set_sc( SC_AUTOSHADOWSPELL				, SC__AUTOSHADOWSPELL   , SI_AUTOSHADOWSPELL, SCB_NONE );
@@ -1921,7 +1925,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	status->mode = MD_MASK&~(MD_BOSS|MD_PLANT|MD_DETECTOR|MD_ANGRY|MD_TARGETWEAK);
 
 	status->size = (sd->class_&JOBL_BABY)?0:1;
-	if (battle_config.character_size && pc_isriding(sd)) { //[Lupus]
+	if (battle_config.character_size && (pc_isriding(sd)||pc_isdragon(sd)||pc_iswugrider(sd)||pc_ismadogear(sd))) { //[Lupus]
 		if (sd->class_&JOBL_BABY) {
 			if (battle_config.character_size&2)
 				status->size++;
@@ -2417,6 +2421,12 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		}
 	}
 
+	if(sd->status.weapon == W_1HAXE && sd->status.weapon == W_2HAXE)
+	{
+		if((skill=pc_checkskill(sd,NC_TRAININGAXE))>0)
+			sd->hit_rate += 2*skill;
+	}
+
 // ----- FLEE CALCULATION -----
 
 	// Absolute modifiers from passive skills
@@ -2479,6 +2489,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		status->aspd_rate -= ((skill+1)/2) * 10;
 	if(pc_isriding(sd))
 		status->aspd_rate += 500-100*pc_checkskill(sd,KN_CAVALIERMASTERY);
+	if(pc_isdragon(sd))
+		status->aspd_rate += 250-50*pc_checkskill(sd,RK_DRAGONTRAINING);
 
 	status->adelay = 2*status->amotion;
 
@@ -2497,13 +2509,12 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->max_weight += 2000*skill;
 	if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING)>0)
 		sd->max_weight += 10000;
-	if(pc_isriding(sd) && (skill=pc_checkskill(sd,RK_DRAGONTRAINING))>0)
-		sd->max_weight += 500 + 200 * skill;
-		sd->max_weight += sd->max_weight * (30 + skill) / 100;
 	if(sd->sc.option&OPTION_MADOGEAR)
 		sd->max_weight += 20000;
 	if(sc->data[SC_KNOWLEDGE])
 		sd->max_weight += sd->max_weight*sc->data[SC_KNOWLEDGE]->val1/10;
+	if(pc_isdragon(sd) && (skill=pc_checkskill(sd,RK_DRAGONTRAINING))>0)
+		sd->max_weight += 5000+2000*skill;
 	if((skill=pc_checkskill(sd,ALL_INCCARRY))>0)
 		sd->max_weight += 2000*skill;
 
@@ -2549,6 +2560,11 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->left_weapon.addrace[RC_DRAGON]+=skill;
 		sd->magic_addrace[RC_DRAGON]+=skill;
 		sd->subrace[RC_DRAGON]+=skill;
+	}
+
+	if((skill=pc_checkskill(sd,NC_RESEARCHFE))>0){
+		sd->subele[ELE_FIRE] += skill*10;
+		sd->subele[ELE_EARTH] += skill*10;
 	}
 
 	if(sc->count){
@@ -3882,6 +3898,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += sc->data[SC_MERC_FLEEUP]->val2;
 	if( sc->data[SC_MARSHOFABYSS] )
 		flee -= flee / 100 * sc->data[SC_MARSHOFABYSS]->val4;
+	if(sc->data[SC_INFRAREDSCAN])
+		flee -= flee * 30 / 100;
 	if( sc->data[SC__LAZINESS] )
 		flee -= flee * sc->data[SC__LAZINESS]->val3 / 100;
 
@@ -4051,8 +4069,13 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sd && pc_isriding(sd) )
 				val = 25;
 			else
+			if( sd && pc_isdragon(sd) )
+				val = 25;
+			else
 			if( sd && pc_iswugrider(sd) )
 				val = 10*pc_checkskill(sd,RA_WUGRIDER);
+			if( sc->data[SC_ACCELERATION] )
+				val = 25;
 
 			speed_rate -= val;
 		}
@@ -4169,6 +4192,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			speed = max(speed, 200);
 		if( sc->data[SC_WALKSPEED] && sc->data[SC_WALKSPEED]->val1 > 0 ) // ChangeSpeed
 			speed = speed * 100 / sc->data[SC_WALKSPEED]->val1;
+		if( sd && pc_ismadogear(sd) )
+			speed += speed * (50 - 10 * pc_checkskill(sd, NC_MADOLICENCE)) / 100;
 	}
 
 	return (short)cap_value(speed,10,USHRT_MAX);
@@ -5505,6 +5530,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		break;
 	case SC_INCREASEAGI:
 		status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
+		status_change_end(bl,SC_ACCELERATION, INVALID_TIMER);
 		break;
 	case SC_QUAGMIRE:
 		status_change_end(bl, SC_CONCENTRATE, INVALID_TIMER);
@@ -5624,6 +5650,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		break;
 	case SC_FOOD_LUK_CASH:
 		status_change_end(bl, SC_LUKFOOD, INVALID_TIMER);
+		break;
+	case SC_ACCELERATION:
+		status_change_end(bl,SC_INCREASEAGI,INVALID_TIMER);
 		break;
 	}
 

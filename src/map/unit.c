@@ -983,7 +983,7 @@ int unit_resume_running(int tid, unsigned int tick, int id, intptr_t data)
 	struct unit_data *ud = (struct unit_data *)data;
 	TBL_PC * sd = map_id2sd(id);
 
-	if(sd && pc_isriding(sd))
+	if(sd && pc_iswugrider(sd))
 		clif_skill_nodamage(ud->bl,ud->bl,RA_WUGDASH,ud->skilllv,
 			sc_start4(ud->bl,status_skill2sc(RA_WUGDASH),100,ud->skilllv,unit_getdir(ud->bl),0,0,1));
 	else
@@ -1172,8 +1172,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 				return 0;
 			}
 			break;
+		case WL_WHITEIMPRISON:
+			if( battle_check_target(src,target,BCT_SELF|BCT_ENEMY)<0 )
+			{
+				clif_skill_fail(sd,skill_num,USESKILL_FAIL_TOTARGET,0);
+				return 0;
+			}
+			break;
 		case RA_WUGMASTERY:
-			if(pc_isfalcon(sd))
+			if((pc_isfalcon(sd) && !battle_config.warg_can_falcon) || sc && sc->data[SC__GROOMY])
 			{
 				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
 				return 0;
@@ -1273,8 +1280,8 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 		if( sd && pc_checkskill(sd,TK_HIGHJUMP) )
 			casttime *= 2;
 		break;
-	case WL_WHITEIMPRISON:
-		if( battle_check_target(src,target,BCT_SELF|BCT_ENEMY)<0 )
+	case RK_ENCHANTBLADE:
+		if( battle_check_target(src,target,BCT_ENEMY)>0 )
 			return 0;
 		break;
 	case RA_WUGDASH:

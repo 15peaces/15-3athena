@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/23/2014
+	r30 [15peaces]
+		*Merged missing changes from 3ceam rev. 144 - 146
+		*Fixed/updated some remaining mounting code.
+		*added support for the warg_can_falcon battleconfig. Read notes for more info.
+		*WL_WHITEIMPRISON; GN_CART_TORNADO; NC_MADOLICENCE; NC_BOOSTKNUCKLE; NC_PILEBUNKER; NC_VULCANARM; NC_FLAMELAUNCHER; NC_COLDSLOWER; NC_ARMSCANNON; NC_ACCELERATION; NC_SELFDESTRUCTION; NC_INFRAREDSCAN; NC_REPAIR; NC_TRAININGAXE; NC_RESEARCHFE; NC_AXEBOOMERANG; NC_POWERSWING
+			-Added full support for these skills.
+		*GC_COUNTERSLASH; SR_EARTHSHAKER; SR_WINDMILL; LG_MOONSLASHER; NC_AXETORNADO
+			-Added pre-support for these skills.
+		*RK_ENCHANTBLADE
+			-Fixed bug where it should not target enemy.
+
 12/22/2014
 	r29 [15peaces]
 		*Updated to eAthena rev. 15269
