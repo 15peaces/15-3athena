@@ -509,6 +509,7 @@ extern struct Battle_Config
 	int max_aspd_renewal_jobs;
 	int hanbok_ignorepalette;
 	int all_riding_speed;
+	int warg_can_falcon;
 	int transform_end_on_death;
 	int oktoberfest_ignorepalette;
 	int levels_effect_renewal_skills;
