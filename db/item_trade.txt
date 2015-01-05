@@ -1610,3 +1610,18 @@
 //Rental Mounts
 12622,91,100 // Boarding_Halter
 16682,73,100 // Boarding_Halter_Box
+
+// kRO 2014-06-04
+//22808,475,100 //Special_Gift_Box
+
+// kRO 2014-06-18
+22781,475,100 //PC_Bang_Normal_Box
+22782,475,100 //PC_Bang_Wooden_Box
+22783,475,100 //PC_Bang_Golden_Box
+22784,475,100 //PC_Bang_Platinum_Box
+
+// kRO 2014-06-25
+6904,475,100 //Piece_Of_Soul_Snake
+20110,475,100 //C_Coiledup_Snake
+//22812,475,100 //Sealed_Dracula_Scroll
+22813,475,100 //Bearer's_Shadow_Box

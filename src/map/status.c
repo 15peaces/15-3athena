@@ -447,7 +447,9 @@ void initChangeTables(void)
 
 	// Mechanic
 	set_sc( NC_ACCELERATION	, SC_ACCELERATION	, SI_ACCELERATION	, SCB_SPEED );
+	set_sc( NC_HOVERING		, SC_HOVERING		, SI_HOVERING		, SCB_SPEED );
 	set_sc( NC_INFRAREDSCAN	, SC_INFRAREDSCAN	, SI_INFRAREDSCAN	, SCB_FLEE );
+	set_sc( NC_ANALYZE		, SC_ANALYZE		, SI_ANALYZE		, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2 );
 
 	//Shadow Chaser
 	set_sc( SC_REPRODUCE					, SC__REPRODUCE         , SI_REPRODUCE      , SCB_NONE );
@@ -3962,6 +3964,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * (sc->data[SC_FLING]->val2)/100;
 	if( sc->data[SC_MARSHOFABYSS] ) // Need official formula. [LimitLine]
 		def -= def / 100 * sc->data[SC_MARSHOFABYSS]->val4;
+	if(sc->data[SC_ANALYZE])
+		def -= def * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC__BLOODYLUST] )
 		def -= def * 55 / 100; // Still need official value [pakpil]
 
@@ -3996,6 +4000,10 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 			  + def2 * ( sc->data[SC_JOINTBEAT]->val2&BREAK_WAIST ? 25 : 0 ) / 100;
 	if(sc->data[SC_FLING])
 		def2 -= def2 * (sc->data[SC_FLING]->val3)/100;
+	if( sc->data[SC_MARSHOFABYSS] ) // Need official formula. [LimitLine]
+		def2 -= def2 / 100 * sc->data[SC_MARSHOFABYSS]->val4;
+	if(sc->data[SC_ANALYZE])
+		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 
 	return (short)cap_value(def2,1,SHRT_MAX);
 }
@@ -4023,6 +4031,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += sc->data[SC_ENDURE]->val1;
 	if(sc->data[SC_CONCENTRATION])
 		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
+	if(sc->data[SC_ANALYZE])
+		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 
 	return (signed char)cap_value(mdef,CHAR_MIN,CHAR_MAX);
 }
@@ -4036,6 +4046,8 @@ static signed short status_calc_mdef2(struct block_list *bl, struct status_chang
 		return 0;
 	if(sc->data[SC_MINDBREAKER])
 		mdef2 -= mdef2 * sc->data[SC_MINDBREAKER]->val3/100;
+	if(sc->data[SC_ANALYZE])
+		mdef2 -= mdef2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 
 	return (short)cap_value(mdef2,1,SHRT_MAX);
 }
@@ -4164,6 +4176,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 75 );
 			if( sc->data[SC_WUGDASH] )
 				val = max( val, 15 );
+			if( sc->data[SC_HOVERING] )
+				val = max( val, 10 );
 			if( sc->data[SC_GN_CARTBOOST] )
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 
