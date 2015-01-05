@@ -4180,6 +4180,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_SECRAMENT:
 	case RA_FEARBREEZE:
 	case NC_ACCELERATION:
+	case NC_HOVERING:
 	case SC_DEADLYINFECT:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
@@ -6621,6 +6622,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case NC_ANALYZE:
+		if( !clif_skill_nodamage(src, bl, skillid, skilllv,
+			sc_start2(bl, type, 40 + skilllv * 10, skilllv, src->id, skill_get_time(skillid, skilllv))) )
+		{
+
+			if( sd )
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+			return 0;
+		}
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		break;
+
 	case NC_REPAIR:
 	{
 		int heal = dstsd->status.max_hp*(3+3*skilllv)/100;
@@ -6780,19 +6794,6 @@ break;
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
-		break;
-
-	case NC_ANALYZE:
-		if( !clif_skill_nodamage(src, bl, skillid, skilllv,
-			sc_start2(bl, type, 40 + skilllv * 10, skilllv, src->id, skill_get_time(skillid, skilllv))) )
-		{
-
-			if( sd )
-				clif_skill_fail(sd, skillid, 0, 0);
-			return 0;
-		}
-		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		break;
 
 	case SR_POWERVELOCITY: // 3ceam v1.
@@ -8723,6 +8724,9 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 	}
 	type = status_skill2sc(sg->skill_id);
 	skillid = sg->skill_id;
+
+	if ( tsc && tsc->data[SC_HOVERING] )
+		return 0; //Under hovering characters are immune to trap and ground target skills.
 
 	if (sg->interval == -1) {
 		switch (sg->unit_id) {

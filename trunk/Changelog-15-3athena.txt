@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+
+01/04/2015
+	r30 [15peaces]
+		*Merged missing changes from 3ceam rev. 147 - 149
+		*Added bunch of items to databases (from kRO 2014 patches)
+		-They're currently untested and maybe won't work for now. I've added them as reminder for now. Full support will be added later.
+		*NC_HOVERING; *NC_ANALYZE
+			-Added full support for these skills.
+
 12/23/2014
 	r30 [15peaces]
 		*Merged missing changes from 3ceam rev. 144 - 146
