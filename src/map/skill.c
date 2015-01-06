@@ -3574,6 +3574,29 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			sc_start(bl,status_skill2sc(skillid),100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 
+	case KO_JYUMONJIKIRI:
+	case GC_DARKILLUSION:
+		{
+			short x, y;
+			short dir = map_calc_dir(bl, src->x, src->y);
+
+			if ( dir < 4 ) {
+				x = bl->x + 2 * (dir > 0) - 3 * (dir > 0);
+				y = bl->y + 1 - (dir / 2) - (dir > 2);
+			} else {
+				x = bl->x + 2 * (dir > 4) - 1 * (dir > 4);
+				y = bl->y + (dir / 6) - 1 + (dir > 6);
+			}
+
+			if ( unit_movepos(src, x, y, 1, 1) ) {
+				clif_slide(src, x, y);
+				clif_fixpos(src); // the official server send these two packets.
+				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+				if ( rand() % 100 < 4 * skilllv && skillid == GC_DARKILLUSION )
+					skill_castend_damage_id(src, bl, GC_CROSSIMPACT, skilllv, tick, flag);
+			}
+		}
+
 	case 0:
 		if(sd) {
 			if (flag & 3){

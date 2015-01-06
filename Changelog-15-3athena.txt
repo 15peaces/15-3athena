@@ -4,9 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/06/2015
+	r32 [15peaces]
+		*KO_HUUMARANKA; KO_HAPPOKUNAI
+			-Added pre-support for these skills.
+		*GC_DARKILLUSION; KO_JYUMONJIKIRI
+			-Added full support for these skills.
 
-01/04/2015
-	r30 [15peaces]
+01/05/2015
+	r31 [15peaces]
 		*Merged missing changes from 3ceam rev. 147 - 149
 		*Added bunch of items to databases (from kRO 2014 patches)
 		-They're currently untested and maybe won't work for now. I've added them as reminder for now. Full support will be added later.

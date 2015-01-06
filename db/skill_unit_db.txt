@@ -141,6 +141,8 @@
 2483,0x86, , 0, 5,1000,enemy, 0x000 //GN_CRAZYWEED //3ceam v1.
 2490,0xea, , 0, 5,1000,enemy, 0x000 //GN_HELLS_PLANT //3ceam v1.
 
+3009,0x86, , 0, 3, 100,enemy, 0x018 //KO_HUUMARANKA
+
 2555,0x104,  ,  0, 1:2:2:3:3,500,enemy,0x006 //RL_B_TRAP
 8208,0x86,    ,  0, 2,1000,enemy, 0x080	//MA_SHOWER
 8209,0x90,    ,  0, 1,1000,enemy, 0x006	//MA_SKIDTRAP

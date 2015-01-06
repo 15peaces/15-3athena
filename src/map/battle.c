@@ -1980,6 +1980,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 100 * skill_lv;
 					break;
 
+				case KO_HUUMARANKA:
+					skillratio += -100 + 150 * skill_lv + status_get_agi(src) + status_get_dex(src) + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 0);
+					break;
+
 				case HFLI_MOON:	//[orn]
 					skillratio += 10+110*skill_lv;
 					break;
@@ -3223,6 +3227,18 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			if( sd )
 				md.damage = (sd->status.base_level*2 + ((sd->status.base_level/50) + 3)*sstatus->dex + 300)*skill_lv + sstatus->int_*5 + pc_checkskill(sd,RA_RESEARCHTRAP);
 			md.damage += ( wd.damage + wd.damage2 ) * ( skill_num == RA_CLUSTERBOMB ) ? (skill_lv+2) : 1;
+		}
+		break;
+	case KO_HAPPOKUNAI:
+		{
+			struct Damage wd = battle_calc_attack(BF_WEAPON, src, target, 0, 1, mflag);
+
+			short totaldef = tstatus->def2 + (short)status_get_def(target);
+
+			md.damage = 3 * wd.damage * (5 + skill_lv) / 5;
+			if ( sd ) wd.damage += sd->arrow_atk;
+				md.damage = (int)(3 * (1 + wd.damage) * (5 + skill_lv) / 5.0f);
+				md.damage -= totaldef;
 		}
 		break;
 	}
