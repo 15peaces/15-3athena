@@ -468,6 +468,7 @@ void initChangeTables(void)
 	set_sc( SC_MANHOLE						, SC__MANHOLE			, SI_MANHOLE		, SCB_NONE );
 	add_sc( SC_CHAOSPANIC					, SC_CHAOS				);
 	set_sc( SC_BLOODYLUST					, SC__BLOODYLUST        , SI_BLANK          , SCB_BATK|SCB_WATK|SCB_DEF );
+	add_sc( SC_MAELSTROM					, SC__MAELSTROM			);
 
 	//Minstrel/Wanderer
 	set_sc( WM_LULLABY_DEEPSLEEP , SC_DEEPSLEEP          , SI_DEEP_SLEEP         , SCB_NONE );
@@ -6829,6 +6830,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_THORNSTRAP:
 		case SC_DIAMONDDUST:
 		case SC__MANHOLE:
+		case SC__MAELSTROM:
 		case SC_CHAOS:
 			unit_stop_walking(bl,1);
 		break;

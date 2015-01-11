@@ -1,10 +1,10 @@
 ﻿//===== Athena Doc ========================================
-//= eAthena Script Commands
+//= 15-3athena Script Commands
 //===== Description =======================================
 //= A reference manual for the eAthena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.55.20141126
+//= 3.56.20150110
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -204,6 +204,8 @@
 //=       'guild_changegm', 'guild_break'. [15peaces]
 //=	3.55.20141126
 //=		  Added 'npcskill'. [15peaces]
+//=	3.56.20150110
+//=		  Added NPC Trader commands. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -1139,6 +1141,7 @@ From here on, we will have the commands sorted as follow:
 8.- Quest Log commands.
 9.- Battleground commands.
 10.- Mercenary commands.
+11.- NPC Trader commands.
 
 =====================
 |1.- Basic commands.|
@@ -7620,6 +7623,68 @@ for name and 0 for all other types.
 
 ----------------------------------------
 
+===========================
+|11.- NPC Trader Commands.|
+===========================
+---------------------------------------
+Commands that control NPC Trader Shops
+See /doc/sample/npc_trader_sample.txt
+
+---------------------------------------
+
+*openshop({NPC_Name});
+
+opens the trader shop from the currently-attached npc unless,
+when the optional NPC_Name param is used.
+
+---------------------------------------
+
+*sellitem <Item_ID>{,<price>{,<qty>}};
+
+adds (or modifies) <Item_ID> data to the shop,
+when <price> is not provided (or when it is -1) itemdb default is used.
+qty is only necessary for NST_MARKET trader types.
+
+when <Item_ID> is already in the shop,
+the previous data (price/qty), is overwritten with the new.
+
+---------------------------------------
+
+*stopselling <Item_ID>;
+
+attempts to remove <Item_ID> from the current shop list.
+
+---------------------------------------
+
+*setcurrency <Val1>{,<Val2>};
+
+updates the currently attached player shop funds.
+
+---------------------------------------
+
+*tradertype(<Type>);
+
+Modifies the npc trader type, item list is cleared upon modifiying the value.
+By default, all npcs staart with tradertype(NST_ZENY);
+
+- NST_ZENY (0) Normal Zeny Shop
+- NST_CASH (1) Normal Cash Shop
+- NST_MARKET (2) Normal NPC Market Shop (where items have limited availability and need to be refurbished)
+- NST_CUSTOM (3) Custom Shop (any currency, item/var/etca, check sample)
+
+---------------------------------------
+
+*purchaseok();
+
+Signs that the transaction (on a NST_CUSTOM trader) has been successful.
+
+---------------------------------------
+
+*shopcount(<Item_ID>);
+
+Returns the amount of still-available <Item_ID> in the shop (on a NST_MARKET trader).
+
+---------------------------------------
 
 Whew.
 That's about all of them.

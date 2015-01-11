@@ -11,6 +11,20 @@ struct block_list;
 struct npc_data;
 struct view_data;
 
+enum npc_parse_options {
+	NPO_NONE = 0x0,
+	NPO_ONINIT = 0x1,
+	NPO_TRADER = 0x2,
+};
+
+enum npc_shop_types {
+	NST_ZENY,/* default */
+	NST_CASH,/* official npc cash shop */
+	NST_MARKET,/* official npc market type */
+	NST_CUSTOM,
+	/* */
+	NST_MAX,
+};
 
 struct npc_timerevent_list {
 	int timer,pos;
@@ -22,6 +36,13 @@ struct npc_label_list {
 struct npc_item_list {
 	unsigned short nameid;
 	unsigned int value;
+	unsigned int qty;
+};
+
+struct npc_shop_data {
+	unsigned char type;/* what am i */
+	struct npc_item_list *item;/* list */
+	unsigned short items;/* total */
 };
 
 struct npc_data {
@@ -56,10 +77,12 @@ struct npc_data {
 			struct npc_timerevent_list *timer_event;
 			int label_list_num;
 			struct npc_label_list *label_list;
+			struct npc_shop_data *shop;
+			bool trader;
 		} scr;
 		struct {
 			struct npc_item_list* shop_item;
-			int count;
+			unsigned short count;
 		} shop;
 		struct {
 			short xs,ys; // OnTouch area radius
@@ -102,6 +125,11 @@ enum npce_event {
 	NPCE_KILLNPC,
 	NPCE_MAX
 };
+
+/* npc trader global data, for ease of transition between the script, cleared on every usage */
+bool trader_ok;
+int trader_funds[2];
+
 struct view_data* npc_get_viewdata(int class_);
 int npc_chat_sub(struct block_list* bl, va_list ap);
 int npc_event_dequeue(struct map_session_data* sd);
@@ -157,6 +185,15 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type);
 
 int npc_duplicate4instance(struct npc_data *snd, int m);
 int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amount, int points);
+
+void npc_trader_count_funds(struct npc_data *nd, struct map_session_data *sd);
+bool npc_trader_pay(struct npc_data *nd, struct map_session_data *sd, int price, int points);
+void npc_trader_update(int master);
+int npc_market_buylist(struct map_session_data* sd, unsigned short list_size, struct packet_npc_market_purchase *p);
+bool npc_trader_open(struct map_session_data *sd, struct npc_data *nd);
+void npc_market_fromsql(void);
+void npc_market_tosql(struct npc_data *nd, unsigned short index);
+void npc_market_delfromsql(struct npc_data *nd, unsigned short index);
 
 extern struct npc_data* fake_nd;
 

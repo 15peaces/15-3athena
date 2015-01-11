@@ -426,6 +426,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			return 0;
 		case AL_TELEPORT:
+		case SC_FATALMENACE:
 		case SC_DIMENSIONDOOR:
 			if(map[m].flag.noteleport) {
 				clif_skill_teleportmessage(sd,0);
@@ -2107,6 +2108,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			skill_addtimerskill(src,tick + 800,bl->id,0,0,skillid,skilllv,0,flag);
 	}
 
+	if( skillid == SC_FATALMENACE && damage > 0 && !flag&1 && !(tstatus->mode&MD_BOSS) )
+		skill_addtimerskill(src,tick + 800,bl->id,bl->x,bl->y,skillid,skilllv,0,flag);
+
 	if(skillid == CR_GRANDCROSS || skillid == NPC_GRANDDARKNESS)
 		dmg.flag |= BF_WEAPON;
 
@@ -2213,7 +2217,8 @@ static int skill_check_unit_range_sub (struct block_list *bl, va_list ap)
 	{
 		case MG_SAFETYWALL:
 		case AL_PNEUMA:
-			if(g_skillid != MG_SAFETYWALL && g_skillid != AL_PNEUMA)
+		case SC_MAELSTROM:
+			if(g_skillid != MG_SAFETYWALL && g_skillid != AL_PNEUMA && g_skillid != SC_MAELSTROM)
 				return 0;
 			break;
 		case AL_WARP:
@@ -2482,7 +2487,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 			break;
 		if(skl->target_id) {
 			target = map_id2bl(skl->target_id);
-			if( skl->skill_id == RG_INTIMIDATE && (!target || target->prev == NULL || !check_distance_bl(src,target,AREA_SIZE)) )
+			if( (skl->skill_id == RG_INTIMIDATE || skl->skill_id == SC_FATALMENACE) && (!target || target->prev == NULL) )
 				target = src; //Required since it has to warp.
 			if(target == NULL)
 				break;
@@ -2545,6 +2550,34 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 				case GN_SPORE_EXPLOSION: //3ceam v1
 					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR,
 					src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);
+					break;
+				case SC_FATALMENACE:
+					{
+						short x,y;
+						int i=0;
+						do{
+							x = rand()%(map[src->m].xs-2)+1;
+							y = rand()%(map[src->m].ys-2)+1;
+						}while(map_getcell(src->m,x,y,CELL_CHKNOPASS) && (i++)<1000 );
+
+						if( unit_warp(src,-1,x,y,3) == 0 )
+						{
+							skill_area_temp[4] = x;
+							skill_area_temp[5] = y;
+							if( status_isdead(target) || target == src ) // If the target is dead uses the target position as area center.
+							{
+								i = skill_get_splash(skl->skill_id,skl->skill_lv);
+								map_foreachinarea(skill_area_sub,src->m,skl->x-i,skl->y-i,skl->x+i,skl->y+i,splash_target(src),src,skl->skill_id,skl->skill_lv,tick,skl->flag|BCT_ENEMY|1,skill_castend_damage_id);
+							}
+							else
+							{
+								skill_area_temp[1] = target->id;
+								map_foreachinrange(skill_area_sub, target,skill_get_splash(skl->skill_id,skl->skill_lv),splash_target(src),src,skl->skill_id,skl->skill_lv,tick,skl->flag|BCT_ENEMY|1,skill_castend_damage_id);
+							}
+							if( target != src && !status_isdead(target) )
+								unit_warp(target, -1, x, y, 3);
+						}
+					}
 					break;
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
@@ -3596,6 +3629,19 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					skill_castend_damage_id(src, bl, GC_CROSSIMPACT, skilllv, tick, flag);
 			}
 		}
+
+	case SC_FATALMENACE:
+		if( !flag&1 )
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		else
+		{
+			if( bl->id != skill_area_temp[1] && skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag) )
+			{
+				if( bl != src && !status_isdead(bl) )
+					unit_warp(bl, -1, (short)skill_area_temp[4], (short)skill_area_temp[5], 3);
+			}
+		}
+		break;
 
 	case 0:
 		if(sd) {
@@ -7641,6 +7687,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SC_DIMENSIONDOOR:
 	case SC_CHAOSPANIC:
 	case SC_BLOODYLUST:
+	case SC_MAELSTROM:
 	case WM_REVERBERATION:
 	case WM_SEVERE_RAINSTORM:
 	case SO_EARTHGRAVE:
@@ -8591,6 +8638,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, un
 		break;
 
 	case UNT_PNEUMA:
+	case UNT_MAELSTROM:
 		if (!sce)
 			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,0,0,sg->limit);
 		break;
@@ -9379,6 +9427,7 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, unsigned in
 	switch(sg->unit_id){
 	case UNT_SAFETYWALL:
 	case UNT_PNEUMA:
+	case UNT_MAELSTROM:
 		if (sce)
 			status_change_end(bl, type, INVALID_TIMER);
 		break;
@@ -9460,6 +9509,7 @@ static int skill_unit_onleft (int skill_id, struct block_list *bl, unsigned int 
 		case HW_GRAVITATION:
 		case NJ_SUITON:
 		case SO_WARMER:
+		case SC_MAELSTROM:
 			if (sce)
 				status_change_end(bl, type, INVALID_TIMER);
 			break;

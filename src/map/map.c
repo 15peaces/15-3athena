@@ -94,16 +94,6 @@ char *SCRIPT_CONF_NAME;
 char *MSG_CONF_NAME;
 char *GRF_PATH_FILENAME;
 
-// ‹É—Í static‚Åƒ?ƒJƒ‹‚É?‚ß‚é
-static DBMap* id_db=NULL; // int id -> struct block_list*
-static DBMap* pc_db=NULL; // int id -> struct map_session_data*
-static DBMap* mobid_db=NULL; // int id -> struct mob_data*
-static DBMap* bossid_db=NULL; // int id -> struct mob_data* (MVP db)
-static DBMap* map_db=NULL; // unsigned int mapindex -> struct map_data*
-static DBMap* nick_db=NULL; // int char_id -> struct charid2nick* (requested names of offline characters)
-static DBMap* charid_db=NULL; // int char_id -> struct map_session_data*
-static DBMap* regen_db=NULL; // int id -> struct block_list* (status_natural_heal processing)
-
 static int map_users=0;
 
 #define block_free_max 1048576
@@ -3907,7 +3897,8 @@ int do_init(int argc, char *argv[])
 	do_init_battleground();
 	do_init_duel();
 
-	npc_event_do_oninit();	// npc‚ÌOnInitƒCƒxƒ“ƒg?s
+	npc_event_do_oninit();	// Init npcs (OnInit)
+	npc_market_fromsql(); /* after OnInit */
 
 	if( console )
 	{

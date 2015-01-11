@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Super Novice Script
 //===== By: ================================================== 
 //= Darkchild
 //===== Current Version: ===================================== 
-//= 2.2
+//= 2.3 [15peaces]
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena SVN
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Super Novice Job Change Npc
@@ -16,6 +16,7 @@
 //= 2.0 Rescripted again, this time using an iRO base. [L0ne_W0lf]
 //= 2.1 Swapped use of baseclass for basejob. [L0ne_W0lf]
 //= 2.2 Added Quest Log commands. [Kisuka]
+//= 2.3 Added an Ex. Super Novice dialog check. [15peaces]
 //============================================================ 
 
 aldeba_in,223,167,3	script	Tzerero#sn	709,{
@@ -327,28 +328,14 @@ aldeba_in,223,167,3	script	Tzerero#sn	709,{
 }
 
 aldeba_in,216,169,5	script	Esseray#sn	86,{
-	if (BaseJob == Job_SuperNovice) {
+	if (Class == Job_Super_Novice_E || Class == Job_Super_Baby_E) {
 		mes "[Esseray]";
-		mes "Hm? Hey, you're a member";
-		mes "of our great Novice Society,";
-		mes "aren't you? Isn't this the";
-		mes "best club ever?!";
-		next;
-		mes "[Essaray]";
-		mes "Living life mundanely,";
-		mes "according to the principles";
-		mes "of Mister Kimu-Shaun...";
-		mes "It's great to be ordinary!";
-		next;
-		mes "[Esseray]";
-		mes "Let's try to lead our lives";
-		mes "as normally as we can!";
-		mes "For your reference, I am";
-		mes "the number one member,";
-		mes "under Mister Tzerero of";
-		mes "course!";
+		mes "You! Stronger than before.";
+		mes "I knew you could pass the test~";
 		close;
 	}
+	if (BaseJob == Job_SuperNovice)
+		callfunc "Esseray_Ex";
 	if (BaseJob == Job_Novice && upper != 1) {
 		mes "[Esseray]";
 		mes "Hah~ you don't know anything";

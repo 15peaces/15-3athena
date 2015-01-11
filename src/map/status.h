@@ -537,6 +537,8 @@ typedef enum sc_type {
 	SC__STRIPACCESSARY,
 	SC__NOEQUIPACCESSARY,
 	SC__MANHOLE,
+	SC_CHAOS,
+	SC__MAELSTROM,
 	SC__BLOODYLUST,
 	
 	//Mutated Homunculus
@@ -681,7 +683,6 @@ typedef enum sc_type {
 	SC_SPHERE_5,
 	SC_CHAINLIGHTNING,
 	SC_FREEZINGSPELL,
-	SC_CHAOS,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

@@ -5,7 +5,7 @@
 #define _CLIF_H_
 
 #include "../common/cbasetypes.h"
-//#include "../common/mmo.h"
+#include "../common/mmo.h"
 struct item;
 struct storage_data;
 struct guild_storage;
@@ -27,6 +27,9 @@ struct guild;
 struct battleground_data;
 struct quest;
 struct party_booking_ad_info;
+
+#define P2PTR(fd) RFIFO2PTR(fd)
+
 #include <stdarg.h>
 
 enum
@@ -41,6 +44,43 @@ struct s_packet_db {
 	void (*func)(int, struct map_session_data *);
 	short pos[MAX_PACKET_POS];
 };
+
+//Trader NPC
+struct packet_npc_market_purchase {
+	short PacketType;
+	short PacketLength;
+	struct {
+		unsigned short ITID;
+		int qty;
+	} list[MAX_INVENTORY];/* assuming MAX_INVENTORY is max since you can't hold more than MAX_INVENTORY items thus cant buy that many at once. */
+} __attribute__((packed));
+
+struct packet_npc_market_result_ack {
+	short PacketType;
+	short PacketLength;
+	unsigned char result;
+	struct {
+		unsigned short ITID;
+		unsigned short qty;
+		unsigned int price;
+	} list[MAX_INVENTORY];/* assuming MAX_INVENTORY is max since you can't hold more than MAX_INVENTORY items thus cant buy that many at once. */
+} __attribute__((packed));
+
+struct packet_npc_market_open {
+	short PacketType;
+	short PacketLength;
+	/* inner struct figured by Ind after some annoying hour of debugging (data Thanks to Yommy) */
+	struct {
+		unsigned short nameid;
+		unsigned char type;
+		unsigned int price;
+		unsigned int qty;
+		unsigned short view;
+	} list[1000];/* TODO: whats the actual max of this? */
+} __attribute__((packed));
+
+static struct packet_npc_market_result_ack npcmarket_result;
+static struct packet_npc_market_open npcmarket_open;
 
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
@@ -393,6 +433,11 @@ void clif_leavechat(struct chat_data* cd, struct map_session_data* sd, bool flag
 void clif_changechatstatus(struct chat_data* cd);	// chat
 void clif_refresh(struct map_session_data *sd);	// self
 
+// New Ranking Packets
+void clif_ranklist_sub(unsigned char *buf, int type);
+void clif_ranklist(struct map_session_data *sd, int type);
+void clif_parse_ranklist(int fd, struct map_session_data *sd);
+void clif_update_rankingpoint(struct map_session_data *sd, int type, int points);
 void clif_fame_blacksmith(struct map_session_data *sd, int points);
 void clif_fame_alchemist(struct map_session_data *sd, int points);
 void clif_fame_taekwon(struct map_session_data *sd, int points);
@@ -748,9 +793,14 @@ void clif_fast_movement(struct block_list *bl, short x, short y);
 void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
 void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
 void clif_map_type2(struct block_list *bl,enum send_target target);
-
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
+//Trade NPC
+void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
+void clif_npc_market_purchase_ack(struct map_session_data *sd, struct packet_npc_market_purchase *req, unsigned char response);
+void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);
+void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
+void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
 
 /**
  * Color Table

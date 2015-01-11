@@ -56,6 +56,8 @@
 		} \
 	} while(0)
 
+#define RFIFO2PTR(fd) (void*)(session[fd]->rdata + session[fd]->rdata_pos)
+
 // buffer I/O macros
 #define RBUFP(p,pos) (((uint8*)(p)) + (pos))
 #define RBUFB(p,pos) (*(uint8*)RBUFP((p),(pos)))

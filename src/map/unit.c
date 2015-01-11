@@ -1046,7 +1046,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 {
 	struct unit_data *ud;
 	struct status_data *tstatus;
-	struct status_change *sc;
+	struct status_change *sc, *tsc;
 	struct map_session_data *sd = NULL;
 	struct block_list * target = NULL;
 	unsigned int tick = gettick();
@@ -1127,6 +1127,11 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 		return 0;
 
 	if( mob_ksprotected(src, target) )
+		return 0;
+
+	tsc = status_get_sc(target);
+
+	if( tsc && tsc->data[SC__MANHOLE] )
 		return 0;
 
 	//Normally not needed because clif.c checks for it, but the at/char/script commands don't! [Skotlex]

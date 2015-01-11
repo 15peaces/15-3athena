@@ -1796,9 +1796,6 @@ packet_ver: 31
 0x092d,5,hommenu,2:4
 0x0884,36,storagepassword,0
 
-0x09ab,6 //CZ_REQ_BANKING_CHECK
-0x09ca,23 //ZC_SKILL_ENTRY5
-
 //2013-12-23cRagexe~2014-04-16aRagexe
 packet_ver: 32
 0x022d,19,wanttoconnection,2:6:10:14:18
@@ -1818,7 +1815,13 @@ packet_ver: 32
 0x08c9,2	// ???
 0x096a,6,getcharnamerequest,2
 0x09ab,6	// bank button onclick
-0x09d4,2	//CZ_NPC_TRADE_QUIT
+0x09ab,6 //CZ_REQ_BANKING_CHECK
+0x09ca,23 //ZC_SKILL_ENTRY5
+0x09d4,2 //CZ_NPC_TRADE_QUIT
+0x09df,7//ZC_ACK_WHISPER2
+0x097c,4,pranklist,0	//CZ_REQ_RANKING
+0x097d,288//ZC_ACK_RANKING
+0x097e,12//ZC_UPDATE_RANKING_POINT
 
 //Add new packets here
 //packet_ver: 33
