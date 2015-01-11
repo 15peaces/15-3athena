@@ -68,6 +68,16 @@ struct item_data;
 #define MAPID_UPPERMASK 0x0fff //Checking 2nd Jobs. Not related to JOBL_UPPER.
 #define MAPID_THIRDMASK 0xffff //Checking 3rd Jobs.
 
+// ‹É—Í static‚Åƒ?ƒJƒ‹‚É?‚ß‚é
+static DBMap* id_db=NULL; // int id -> struct block_list*
+static DBMap* pc_db=NULL; // int id -> struct map_session_data*
+static DBMap* mobid_db=NULL; // int id -> struct mob_data*
+static DBMap* bossid_db=NULL; // int id -> struct mob_data* (MVP db)
+static DBMap* map_db=NULL; // unsigned int mapindex -> struct map_data*
+static DBMap* nick_db=NULL; // int char_id -> struct charid2nick* (requested names of offline characters)
+static DBMap* charid_db=NULL; // int char_id -> struct map_session_data*
+static DBMap* regen_db=NULL; // int id -> struct block_list* (status_natural_heal processing)
+
 //First Jobs
 //Note the oddity of the novice:
 //Super Novices are considered the 2-1 version of the novice! Novices are considered a first class type, too...

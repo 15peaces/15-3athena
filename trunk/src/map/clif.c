@@ -1754,27 +1754,38 @@ void clif_npcbuysell(struct map_session_data* sd, int id)
 /// 00c6 <packet len>.W { <price>.L <discount price>.L <item type>.B <name id>.W }*
 void clif_buylist(struct map_session_data *sd, struct npc_data *nd)
 {
+	struct npc_item_list *shop = NULL;
+	unsigned short shop_size = 0;
 	int fd,i,c;
 
 	nullpo_retv(sd);
 	nullpo_retv(nd);
+
+	if( nd->subtype == SCRIPT ) {
+		shop = nd->u.scr.shop->item;
+		shop_size = nd->u.scr.shop->items;
+	} else {
+		shop = nd->u.shop.shop_item;
+		shop_size = nd->u.shop.count;
+	}
 
 	fd = sd->fd;
 	WFIFOHEAD(fd, 4 + nd->u.shop.count * 11);
 	WFIFOW(fd,0) = 0xc6;
 
 	c = 0;
-	for( i = 0; i < nd->u.shop.count; i++ )
-	{
-		struct item_data* id = itemdb_exists(nd->u.shop.shop_item[i].nameid);
-		int val = nd->u.shop.shop_item[i].value;
-		if( id == NULL )
-			continue;
-		WFIFOL(fd, 4+c*11) = val;
-		WFIFOL(fd, 8+c*11) = pc_modifybuyvalue(sd,val);
-		WFIFOB(fd,12+c*11) = itemtype(id->type);
-		WFIFOW(fd,13+c*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
-		c++;
+	for( i = 0; i < shop_size; i++ ) {
+		if( shop[i].nameid ) {
+			struct item_data* id = itemdb_exists(shop[i].nameid);
+			int val = shop[i].value;
+			if( id == NULL )
+				continue;
+			WFIFOL(fd, 4+c*11) = val;
+			WFIFOL(fd, 8+c*11) = pc_modifybuyvalue(sd,val);
+			WFIFOB(fd,12+c*11) = itemtype(id->type);
+			WFIFOW(fd,13+c*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+			c++;
+		}
 	}
 
 	WFIFOW(fd,2) = 4 + c*11;
@@ -13556,6 +13567,94 @@ void clif_parse_PVPInfo(int fd,struct map_session_data *sd)
 	clif_PVPInfo(sd);
 }
 
+/// ranking pointlist { <name>.24B <point>.L }*10
+void clif_ranklist_sub(unsigned char *buf, int type) {
+	const char* name;
+	struct fame_list* list;
+	int i;
+	
+	switch( type ) {
+		case 0: list = smith_fame_list; break;
+		case 1: list = chemist_fame_list; break;
+		case 3: list = taekwon_fame_list; break;
+		default: return; // Unsupported
+	}
+
+	// Packet size limits this list to 10 elements. [Skotlex]
+	for( i = 0; i < 10 && i < MAX_FAME_LIST; i++ ) {
+		if( list[i].id > 0 ) {
+			if( strcmp(list[i].name, "-") == 0 && (name = map_charid2nick(list[i].id)) != NULL ) {
+				strncpy((char *)(WBUFP(buf, 24 * i)), name, NAME_LENGTH);
+			} else {
+				strncpy((char *)(WBUFP(buf, 24 * i)), list[i].name, NAME_LENGTH);
+			}
+		} else {
+			strncpy((char *)(WBUFP(buf, 24 * i)), "None", 5);
+		}
+		WBUFL(buf, 24 * 10 + i * 4) = list[i].fame; //points
+	}
+	for( ;i < 10; i++ ) { // In case the MAX is less than 10.
+		strncpy((char *)(WBUFP(buf, 24 * i)), "Unavailable", 12);
+		WBUFL(buf, 24 * 10 + i * 4) = 0;
+	}
+}
+
+/// 097d <RankingType>.W {<CharName>.24B <point>L}*10 <mypoint>L (ZC_ACK_RANKING)
+void clif_ranklist(struct map_session_data *sd, int type) {
+	int fd = sd->fd;
+	int mypoint = 0;
+	int upperMask = sd->class_&MAPID_UPPERMASK;
+	
+	WFIFOHEAD(fd, 288);
+	WFIFOW(fd, 0) = 0x97d;
+	WFIFOW(fd, 2) = type;
+	clif_ranklist_sub(WFIFOP(fd,4), type);
+
+	if( (upperMask == MAPID_BLACKSMITH && type == 0)
+		|| (upperMask == MAPID_ALCHEMIST && type == 1)
+		|| (upperMask == MAPID_TAEKWON && type == 2)
+	) {
+		mypoint = sd->status.fame;
+	} else {
+		mypoint = 0;
+	}
+	WFIFOL(fd, 284) = mypoint; //mypoint
+	WFIFOSET(fd, 288);
+}
+
+/*
+* 097c <type> (CZ_REQ_RANKING)
+* */
+void clif_parse_ranklist(int fd, struct map_session_data *sd) {
+	int16 type = RFIFOW(fd, 2); //type
+
+	switch( type ) {
+		case 0:
+		case 1:
+		case 2:
+			clif_ranklist(sd, type); // pk_list unsupported atm
+		break;
+	}
+}
+
+// 097e <RankingType>.W <point>.L <TotalPoint>.L (ZC_UPDATE_RANKING_POINT)
+void clif_update_rankingpoint(struct map_session_data *sd, int type, int points) {
+#if PACKETVER < 20130710
+	switch( type ) {
+		case 0: clif->fame_blacksmith(sd,points); break;
+		case 1: clif->fame_alchemist(sd,points); break;
+		case 2: clif->fame_taekwon(sd,points); break;
+	}
+#else
+	int fd = sd->fd;
+	WFIFOHEAD(fd, 12);
+	WFIFOW(fd, 0) = 0x97e;
+	WFIFOW(fd, 2) = type;
+	WFIFOL(fd, 4) = points;
+	WFIFOL(fd, 8) = sd->status.fame;
+	WFIFOSET(fd, 12);
+#endif
+}
 
 /// /blacksmith list (ZC_BLACKSMITH_RANK).
 /// 0219 { <name>.24B }*10 { <point>.L }*10
@@ -14760,7 +14859,10 @@ void clif_parse_Auction_buysell(int fd, struct map_session_data* sd)
 /// 0287 <packet len>.W <cash point>.L <kafra point>.L { <sell price>.L <discount price>.L <item type>.B <name id>.W }* (PACKETVER >= 20070711)
 void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 {
-	int fd,i;
+	struct npc_item_list *shop = NULL;
+	unsigned short shop_size = 0;
+	int fd,i, c = 0;
+	int currency[2] = { 0,0 };
 #if PACKETVER < 20070711
 	const int offset = 8;
 #else
@@ -14770,24 +14872,43 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 	nullpo_retv(sd);
 	nullpo_retv(nd);
 
+	if( nd->subtype == SCRIPT ) {
+		shop = nd->u.scr.shop->item;
+		shop_size = nd->u.scr.shop->items;
+
+		npc_trader_count_funds(nd, sd);
+
+		currency[0] = trader_funds[0];
+		currency[1] = trader_funds[1];
+	} else {
+		shop = nd->u.shop.shop_item;
+		shop_size = nd->u.shop.count;
+
+		currency[0] = sd->cashPoints;
+		currency[1] = sd->kafraPoints;
+	}
+
 	fd = sd->fd;
 	sd->npc_shopid = nd->bl.id;
-	WFIFOHEAD(fd,offset+nd->u.shop.count*11);
+	WFIFOHEAD(fd,offset+shop_size*11);
 	WFIFOW(fd,0) = 0x287;
-	WFIFOW(fd,2) = offset+nd->u.shop.count*11;
-	WFIFOL(fd,4) = sd->cashPoints; // Cash Points
+	/* 0x2 = length, set after parsing */
+	WFIFOL(fd,4) = currency[0]; // Cash Points
 #if PACKETVER >= 20070711
-	WFIFOL(fd,8) = sd->kafraPoints; // Kafra Points
+	WFIFOL(fd,8) = currency[1]; // Kafra Points
 #endif
 
-	for( i = 0; i < nd->u.shop.count; i++ )
-	{
-		struct item_data* id = itemdb_search(nd->u.shop.shop_item[i].nameid);
-		WFIFOL(fd,offset+0+i*11) = nd->u.shop.shop_item[i].value;
-		WFIFOL(fd,offset+4+i*11) = nd->u.shop.shop_item[i].value; // Discount Price
-		WFIFOB(fd,offset+8+i*11) = itemtype(id->type);
-		WFIFOW(fd,offset+9+i*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+	for( i = 0; i < shop_size; i++ ) {
+		if( shop[i].nameid ) {
+			struct item_data* id = itemdb_search(shop[i].nameid);
+			WFIFOL(fd,offset+0+i*11) = shop[i].value;
+			WFIFOL(fd,offset+4+i*11) = shop[i].value; // Discount Price
+			WFIFOB(fd,offset+8+i*11) = itemtype(id->type);
+			WFIFOW(fd,offset+9+i*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+			c++;
+		}
 	}
+	WFIFOW(fd,2) = offset+c*11;
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
 
@@ -14807,15 +14928,26 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 ///     8 = Some items could not be purchased.
 void clif_cashshop_ack(struct map_session_data* sd, int error)
 {
+	struct npc_data *nd;
 	int fd = sd->fd;
+	int currency[2] = { 0,0 };
+
+	if( (nd = map_id2nd(sd->npc_shopid)) && nd->subtype == SCRIPT ) {
+		npc_trader_count_funds(nd,sd);
+		currency[0] = trader_funds[0];
+		currency[1] = trader_funds[1];
+	} else {
+		currency[0] = sd->cashPoints;
+		currency[1] = sd->kafraPoints;
+	}
 
 	WFIFOHEAD(fd, packet_len(0x289));
 	WFIFOW(fd,0) = 0x289;
-	WFIFOL(fd,2) = sd->cashPoints;
+	WFIFOL(fd,2) = currency[0];
 #if PACKETVER < 20070711
 	WFIFOW(fd,6) = TOW(error);
 #else
-	WFIFOL(fd,6) = sd->kafraPoints;
+	WFIFOL(fd,6) = currency[1];
 	WFIFOW(fd,10) = TOW(error);
 #endif
 	WFIFOSET(fd, packet_len(0x289));
@@ -14846,6 +14978,80 @@ void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
 	clif_cashshop_ack(sd, fail);
 }
 
+/* Thanks to Yommy */
+void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {
+	/* TODO track the state <3~ */
+	sd->npc_shopid = 0;
+}
+
+/* NPC Market (by Ind after an extensive debugging of the packet, only possible thanks to Yommy <3) */
+void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd) {
+	struct npc_item_list *shop = nd->u.scr.shop->item;
+	unsigned short shop_size = nd->u.scr.shop->items, i, c;
+	struct item_data *id = NULL;
+
+	npcmarket_open.PacketType = 0x9d5;
+
+	for(i = 0, c = 0; i < shop_size; i++) {
+		if( shop[i].nameid && (id = itemdb_exists(shop[i].nameid)) ) {
+			npcmarket_open.list[c].nameid = shop[i].nameid;
+			npcmarket_open.list[c].price = shop[i].value;
+			npcmarket_open.list[c].qty = shop[i].qty;
+			npcmarket_open.list[c].type = itemtype(id->type);
+			npcmarket_open.list[c].view = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+			c++;
+		}
+	}
+
+	npcmarket_open.PacketLength = 4 + ( sizeof(npcmarket_open.list[0]) * c );
+
+	clif_send(&npcmarket_open,npcmarket_open.PacketLength,&sd->bl,SELF);
+}
+
+void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd) {
+	/* TODO track the state <3~ */
+	sd->npc_shopid = 0;
+}
+
+void clif_npc_market_purchase_ack(struct map_session_data *sd, struct packet_npc_market_purchase *req, unsigned char response) {
+	unsigned short c = 0;
+
+	npcmarket_result.PacketType = 0x9d7;
+	npcmarket_result.result = response == 0 ? 1 : 0;/* find other values */
+
+	if( npcmarket_result.result ) {
+		unsigned short i, list_size = (req->PacketLength - 4) / sizeof(req->list[0]), j;
+		struct npc_data* nd;
+		struct npc_item_list *shop = NULL;
+		unsigned short shop_size = 0;
+
+		nd = map_id2nd(sd->npc_shopid);
+		shop = nd->u.scr.shop->item;
+		shop_size = nd->u.scr.shop->items;
+
+		for(i = 0; i < list_size; i++) {
+
+			npcmarket_result.list[i].ITID = req->list[i].ITID;
+			npcmarket_result.list[i].qty = req->list[i].qty;
+
+			ARR_FIND( 0, shop_size, j, req->list[i].ITID == shop[j].nameid );
+
+			npcmarket_result.list[i].price = (j != shop_size) ? shop[j].value : 0;
+
+			c++;
+		}
+	}
+
+	npcmarket_result.PacketLength = 5 + ( sizeof(npcmarket_result.list[0]) * c );;
+
+	clif_send(&npcmarket_result,npcmarket_result.PacketLength,&sd->bl,SELF);
+}
+
+void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd) {
+	struct packet_npc_market_purchase *p = P2PTR(fd);
+
+	clif_npc_market_purchase_ack(sd,p,npc_market_buylist(sd,(p->PacketLength - 4) / sizeof(p->list[0]),p));
+}
 
 /// Adoption System
 ///
@@ -16897,6 +17103,7 @@ static int packetdb_readdb(void)
 		{clif_parse_FriendsListAdd,"friendslistadd"},
 		{clif_parse_FriendsListRemove,"friendslistremove"},
 		{clif_parse_FriendsListReply,"friendslistreply"},
+		{clif_parse_ranklist,"pranklist"},
 		{clif_parse_Blacksmith,"blacksmith"},
 		{clif_parse_Alchemist,"alchemist"},
 		{clif_parse_Taekwon,"taekwon"},

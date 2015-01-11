@@ -4,6 +4,32 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/11/2015
+	r33 [15peaces]
+	*2013-12-23cRagexe Update
+		-Added missing ranking packets
+		-Fixed /blacksmith, /taekwon and / alchemist
+	*Merged missing changes from 3ceam rev. 147 - 152
+	-Also cleaned some files up a bit.
+	*Added Expanded Super Novice Jobquest
+		-Added Global Function F_InsertComma
+		-Updated Super Novice NPCs for Expansion Quest
+	*Updated some Robes
+		-type was costume, but they should be normal robes.
+	*Added new npc-type: Trader (thanks to hercules)
+		-PLEASE RUN THE upgrade_15-3athena_svn33.sql TO AVOID ERRORS.
+		-A whole different way to set up shops, they're easier to read and flexible to customize.
+		-Previous format still supported.
+		-To begin with, 'trader' is a phony name, its only purpose is to sign the parser that 'this npc will open the shop when clicked'. the trader npc is in fact a 'script' type (and thus script types can create/manipulate trader shops, and open them with the help of openshop()).
+		-Existing shops will be converted if updated.
+	*SC_FATALMENACE
+		-Added full support for this skill.
+	*SC_MAELSTROM
+		-Added pre-support for this skill.
+	*SC_MANHOLE
+		-Fixed issue where skill attacks to targets under this status where allowed.
+	
+
 01/06/2015
 	r32 [15peaces]
 		*KO_HUUMARANKA; KO_HAPPOKUNAI

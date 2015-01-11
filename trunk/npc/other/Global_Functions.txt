@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Global Functions
 //===== By: ================================================== 
 //= Lupus, kobra_k88
 //===== Current Version: ===================================== 
-//= 2.16
+//= 2.17 [15peaces]
 //===== Compatible With: ===================================== 
-//= eAthena 1.0
+//= 15-3athena
 //===== Description: ========================================= 
 //= <Description>
 //===== Additional Comments: ================================= 
@@ -39,6 +39,7 @@
 //= 2.14 Added old novice variables to F_ClearGarbage. [L0ne_W0lf]
 //= 2.15 Added no unused DTS variables to F_ClearGarbage. [L0ne_W0lf]
 //= 2.16 Added F_GetWeaponType, and F_GetArmorType. [L0ne_W0lf]
+//= 2.17 Added F_InsertComma. [15peaces]
 //============================================================ 
 
 
@@ -345,4 +346,17 @@ function	script	Time2Str	{
 		set .@Time$, .@Time$ + .@Time_Left + " second";
 	
 	return .@Time$;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// Returns a number with commas between every three digits.
+// -- callfunc "F_InsertComma",<number>
+// Examples:
+// callfunc("F_InsertComma",7777777) // returns "7,777,777"
+//////////////////////////////////////////////////////////////////////////////////
+function	script	F_InsertComma	{
+	set .@str$, getarg(0);
+	for (set .@i,getstrlen(.@str$)-3; .@i>0; set .@i,.@i-3)
+	set .@str$, insertchar(.@str$,",",.@i);
+	return .@str$;
 }

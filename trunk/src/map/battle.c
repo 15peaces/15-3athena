@@ -361,6 +361,15 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			return 0;
 		}
 
+		if( sc->data[SC__MAELSTROM] && (flag&BF_MAGIC) && skill_num && (skill_get_inf(skill_num)&INF_GROUND_SKILL) )
+		{
+			int sp = damage * 20 / 100; // Steel need official value.
+			status_heal(bl,0,sp,3);
+			clif_skill_nodamage(bl,bl,SC_MAELSTROM,1,1);
+			d->dmg_lv = ATK_BLOCK;
+			return 0;
+		}
+
 		if( (sce=sc->data[SC_AUTOGUARD]) && flag&BF_WEAPON && !(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK) && rand()%100 < sce->val2 )
 		{
 			int delay;
@@ -1906,6 +1915,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case NC_AXETORNADO:
 					skillratio += (100 + 100 * skill_lv) + sstatus->vit;
+					break;
+				case SC_FATALMENACE:
+					skillratio += 100 * skill_lv;
 					break;
 				case SC_TRIANGLESHOT:
 					skillratio += 270 + 30 * skill_lv;
