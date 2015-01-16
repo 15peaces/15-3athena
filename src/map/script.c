@@ -6999,7 +6999,7 @@ BUILDIN_FUNC(successrefitem)
 }
 
 /*==========================================
- * ¸˜BŽ¸”s
+ * Show a failed Refine +1 attempt
  *------------------------------------------*/
 BUILDIN_FUNC(failedrefitem)
 {
@@ -7027,6 +7027,51 @@ BUILDIN_FUNC(failedrefitem)
 		clif_misceffect(&sd->bl,2);
 	}
 
+	return 0;
+}
+
+/*==========================================
+ * Downgrades an Equipment Part by -1 . [Masao]
+ *------------------------------------------*/
+BUILDIN_FUNC(downrefitem) {
+	short i = -1, down = 1;
+	int pos;
+	TBL_PC *sd;
+
+	sd = script_rid2sd(st);
+	if( sd == NULL )
+		return 0;
+	pos = script_getnum(st,2);
+	if (script_hasdata(st, 3))
+		down = script_getnum(st, 3);
+
+	if (pos > 0 && pos <= ARRAYLENGTH(equip))
+		i = pc_checkequip(sd,equip[pos-1]);
+	if (i >= 0) {
+		unsigned int ep = sd->status.inventory[i].equip;
+
+		//Logs items, got from (N)PC scripts [Lupus]
+		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
+
+		pc_unequipitem(sd,i,2); // status calc will happen in pc_equipitem() below
+		sd->status.inventory[i].refine -= down;
+		sd->status.inventory[i].refine = cap_value( sd->status.inventory[i].refine, 0, MAX_REFINE);
+
+		clif_refine(sd->fd,2,i,sd->status.inventory[i].refine);
+		clif_delitem(sd,i,1,3);
+
+		//Logs items, got from (N)PC scripts [Lupus]
+		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->status.inventory[i].nameid, -1, &sd->status.inventory[i]);
+
+		clif_additem(sd,i,1,0);
+		pc_equipitem(sd,i,ep);
+		clif_misceffect(&sd->bl,2);
+		script_pushint(st, sd->status.inventory[i].refine);
+		return 1;
+	}
+
+	ShowError("buildin_downrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, -1);
 	return 0;
 }
 
@@ -16481,6 +16526,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getequippercentrefinery,"i"),
 	BUILDIN_DEF(successrefitem,"i"),
 	BUILDIN_DEF(failedrefitem,"i"),
+	BUILDIN_DEF(downrefitem,"i?"),
 	BUILDIN_DEF(statusup,"i"),
 	BUILDIN_DEF(statusup2,"ii"),
 	BUILDIN_DEF(bonus,"iv"),

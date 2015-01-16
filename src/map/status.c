@@ -467,7 +467,7 @@ void initChangeTables(void)
 	set_sc( SC_STRIPACCESSARY				, SC__STRIPACCESSARY	, SI_STRIPACCESSARY , SCB_DEX|SCB_INT|SCB_LUK );
 	set_sc( SC_MANHOLE						, SC__MANHOLE			, SI_MANHOLE		, SCB_NONE );
 	add_sc( SC_CHAOSPANIC					, SC_CHAOS				);
-	set_sc( SC_BLOODYLUST					, SC__BLOODYLUST        , SI_BLANK          , SCB_BATK|SCB_WATK|SCB_DEF );
+	set_sc( SC_BLOODYLUST					, SC__BLOODYLUST        , SI_BLOODYLUST		, SCB_BATK|SCB_WATK|SCB_DEF );
 	add_sc( SC_MAELSTROM					, SC__MAELSTROM			);
 
 	//Minstrel/Wanderer
@@ -6746,6 +6746,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2;
 			skill_strip_equip(bl,EQP_WEAPON|EQP_SHIELD,100,val1,tick);
 			break;
+		case SC__BLOODYLUST:
+			val_flag |= 1|2;
+			break;
 		case SC_GN_CARTBOOST:
 			if( val1 < 3 )
 				val2 = 50;
@@ -6863,7 +6866,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_POISON:       sc->opt2 |= OPT2_POISON;       break;
 		case SC_CURSE:        sc->opt2 |= OPT2_CURSE;        break;
 		case SC_SILENCE:      sc->opt2 |= OPT2_SILENCE;      break;
-		case SC_SIGNUMCRUCIS: sc->opt2 |= OPT2_SIGNUMCRUCIS; break;
+		case SC_SIGNUMCRUCIS: case SC_CHAOS: sc->opt2 |= OPT2_SIGNUMCRUCIS; break;
 		case SC_BLIND:        sc->opt2 |= OPT2_BLIND;        break;
 		case SC_ANGELUS:      sc->opt2 |= OPT2_ANGELUS;      break;
 		case SC_BLEEDING:     sc->opt2 |= OPT2_BLEEDING;     break;
@@ -7601,10 +7604,11 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		sc->opt2 &= ~(1<<(type-SC_POISON));
 		break;
 	case SC_DPOISON:
-	case SC_FEAR: // 3ceam v1
+	case SC_FEAR:
 		sc->opt2 &= ~OPT2_DPOISON;
 		break;
 	case SC_SIGNUMCRUCIS:
+	case SC_CHAOS:
 		sc->opt2 &= ~OPT2_SIGNUMCRUCIS;
 		break;
 
