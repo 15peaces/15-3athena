@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/16/2015
+	r34 [15peaces]
+		*Added Kagerou / Oboro Jobquests
+			-Added new Script command: 'downrefitem'.
+			-Thanks to M45T3R & Dastgir Pojee.
+		*Merged missing changes from 3ceam rev. 153 - 155
+		*Fix in SC_BLOODYLUST, SC_MAELSTROM and SC_CHAOSPANIC to adjust these skills to the official behavior.
+			-SC_BLOODYLUST has its own SI and its effect disappears when you left the skill range. No status icon.
+			-SC_CHAOSPANIC uses OPT2_SIGNUMCRUCIS.
+			-SC_MAELSTROM don't shows the skill name when absorb magics.
 01/11/2015
 	r33 [15peaces]
 	*2013-12-23cRagexe Update
