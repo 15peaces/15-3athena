@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.57.20150114
+//= 3.58.20150118
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -208,6 +208,8 @@
 //=		  Added NPC Trader commands. [15peaces]
 //=	3.57.20150110
 //=		  Added 'downrefitem'. [15peaces]
+//=	3.58.20150118
+//=		  Added 'dispbottom2'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -3799,6 +3801,13 @@ be seen by anyone else.
 
 This command will send the given message into the invoking character's chat 
 window.
+
+---------------------------------------
+
+*dispbottom2("0xFF00FF","Message"{,"Player Name"});
+
+This command will send the given message in the given color code into the invoking 
+(or defined) character's chat window.
 
 ---------------------------------------
 

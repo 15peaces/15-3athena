@@ -126,6 +126,10 @@
 22625,Oktoberfest_Bag,Oktoberfest Bag,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_OKTOBERFEST,600000,0; },{},{}
 
 //Misc. Items [15-3athena]
+// Arch Bishop Promise Bible's
+2156,Bible_Of_Promise1,Bible Of Promise Vol1,5,20,,500,,1,,1,0x00000100,8,2,32,,110,1,5,{ bonus bMdef,2; skill "ALL_ODINS_POWER",1; },{},{}
+2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,56000,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
+
 5796,Rooting_Scarf,Rooting Scarf,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1,,1,0,369,{ bonus2 bExpAddClass,Class_All,10; },{},{}
 
 6604,Essence_Rune_Magic,Essence Rune Magic,3,0,,0,,,,,,,,,,,,,{},{},{}

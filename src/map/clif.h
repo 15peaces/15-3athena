@@ -628,6 +628,7 @@ void clif_font(struct map_session_data *sd);
 void clif_notify_chat(struct block_list* bl, const char* message, send_target target);
 void clif_notify_playerchat(struct map_session_data* sd, const char* message);
 void clif_displaymessage(const int fd, const char* mes);
+void clif_displaymessagecolor(struct map_session_data *sd, const char* msg, unsigned long color);
 void clif_displayformatted(struct map_session_data* sd, const char* fmt, ...);
 void clif_disp_onlyself(struct map_session_data *sd, const char *mes, int len);
 void clif_disp_message(struct block_list* src, const char* mes, int len, enum send_target target);

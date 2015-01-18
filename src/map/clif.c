@@ -5543,6 +5543,26 @@ void clif_displaymessage(const int fd, const char* mes)
 	}
 }
 
+/// Send colored message (by [Dastgir/Hercules])
+void clif_displaymessagecolor(struct map_session_data *sd, const char* msg, unsigned long color)
+{
+	int fd;
+	unsigned short len = strlen(msg) + 1;
+
+	if (sd==NULL) return;
+
+	color = (color & 0x0000FF) << 16 | (color & 0x00FF00) | (color & 0xFF0000) >> 16; // RGB to BGR
+	
+	fd = sd->fd;
+	WFIFOHEAD(fd, len+12);
+	WFIFOW(fd,0) = 0x2C1;
+	WFIFOW(fd,2) = len+12;
+	WFIFOL(fd,4) = 0;
+	WFIFOL(fd,8) = color;
+	memcpy(WFIFOP(fd,12), msg, len);
+	WFIFOSET(fd, WFIFOW(fd,2));
+}
+
 
 /// Send formatted message
 void clif_displayformatted(struct map_session_data* sd, const char* fmt, ...)
@@ -10049,10 +10069,13 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST) )
 			return;
 
+		if( sd->sc.option&OPTION_WUGRIDER && sd->weapontype1 )
+			return;
+
 		if( sd->sc.data[SC_BASILICA] )
 			return;
 
-		if( sd->sc.data[SC_DIAMONDDUST] )
+		if( sd->sc.data[SC_CRYSTALIZE] )
 			return;
 
 		if( sd->sc.data[SC__SHADOWFORM] )
