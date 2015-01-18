@@ -11876,6 +11876,31 @@ BUILDIN_FUNC(dispbottom)
 }
 
 /*==========================================
+ * Displays a colored message for the player only (like system messages like "you got an apple" )
+ * Format : dispbottom2("0xFF00FF","Message"{,"Player Name"});
+ *------------------------------------------*/
+BUILDIN_FUNC(dispbottom2)
+{
+	TBL_PC *sd=script_rid2sd(st); //Player Data
+	const char *message; //Message to Display
+	unsigned long color; //Color to display
+	message=script_getstr(st,3);
+	color=strtoul(script_getstr(st,2),NULL,0);
+	if(script_hasdata(st,4)){
+		const char* player;
+		TBL_PC *tsd;
+		player = script_getstr(st,2);
+		tsd=map_nick2sd((char *) player);
+		if (tsd)
+			clif_displaymessagecolor(tsd,message,color);
+		return true;
+	}
+	if(sd)
+		clif_displaymessagecolor(sd,message,color);
+	return true;
+}
+
+/*==========================================
  * All The Players Full Recovery
  * (HP/SP full restore and resurrect if need)
  *------------------------------------------*/
@@ -16721,6 +16746,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(deletepset,"i"), // Delete a pattern set [MouseJstr]
 #endif
 	BUILDIN_DEF(dispbottom,"s"), //added from jA [Lupus]
+	BUILDIN_DEF(dispbottom,"ss?"), //added from hercules [15peaces]
 	BUILDIN_DEF(getusersname,""),
 	BUILDIN_DEF(recovery,""),
 	BUILDIN_DEF(getpetinfo,"i"),

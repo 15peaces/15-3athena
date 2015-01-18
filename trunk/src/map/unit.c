@@ -964,7 +964,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_ELECTRICSHOCKER]
 			|| sc->data[SC_WUGBITE]
 			|| sc->data[SC_THORNSTRAP]
-			|| sc->data[SC_DIAMONDDUST]
+			|| sc->data[SC_CRYSTALIZE]
 			|| sc->data[SC__MANHOLE]
 			|| sc->data[SC_DEEPSLEEP]
 		))
@@ -2040,7 +2040,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl,SC_WUGBITE, INVALID_TIMER);
 			status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
 			status_change_end(bl,SC_CAMOUFLAGE, INVALID_TIMER);
-			status_change_end(bl,SC_DIAMONDDUST, INVALID_TIMER);
+			status_change_end(bl,SC_CRYSTALIZE, INVALID_TIMER);
 			status_change_end(bl,SC__SHADOWFORM, INVALID_TIMER);
 			status_change_end(bl,SC__MANHOLE, INVALID_TIMER);
 

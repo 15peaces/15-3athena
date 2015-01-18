@@ -956,6 +956,19 @@
 9031,0,0,0,0,0,0,0,"Find a puppy"
 9032,86400,0,0,0,0,0,0,"Find a puppy"
 
+//Dewata Quests
+9155,0,0,0,0,0,0,0,"Getting materials for the Jaty Crown"
+9156,0,0,0,0,0,0,0,"Make the Jaty Crown"
+9157,0,0,0,0,0,0,0,"Reward from Sage, Kasyapa"
+9158,0,0,0,0,0,0,0,"Delivery of Good News(1)"
+9159,0,0,0,0,0,0,0,"Back to Paiko"
+9160,0,0,0,0,0,0,0,"Delivery of Good News(2)"
+9161,0,0,0,0,0,0,0,"Back to Paiko"
+9162,0,0,0,0,0,0,0,"Delivery of Good News(3)"
+9163,0,0,0,0,0,0,0,"Back to Paiko"
+9164,0,0,0,0,0,0,0,"Delivery of Good News(4)"
+9165,0,0,0,0,0,0,0,"Reward from Paiko for success of Jaty Crown"
+
 10000,0,0,0,0,0,0,0,"To the Prontera Royal Court"
 10001,0,0,0,0,0,0,0,"Qualification Test"
 10002,0,0,0,0,0,0,0,"Qualification Review"

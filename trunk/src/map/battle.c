@@ -2847,10 +2847,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							//if( tsc && tsc->data[SC_WHITEIMPRISON] ) // Disbaled until SC_WHITEIMPRISON is supported. [15peaces]
 								//skillratio *= 2;
 						}
-					case WL_CHAINLIGHTNING: // 3ceam v1
-					case WL_CHAINLIGHTNING_ATK: // 3ceam v1
-					case SO_FIREWALK: // Need official formula. [LimitLine]
-					case SO_ELECTRICWALK: // Need official formula. [LimitLine]
+					case WL_CHAINLIGHTNING:
+					case WL_CHAINLIGHTNING_ATK:
 						skillratio += 300 + 100 * skill_lv;
 						break;
 
@@ -2874,6 +2872,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;
+						break;
+					case SO_FIREWALK:
+					case SO_ELECTRICWALK:
+						skillratio += 200 * ( status_get_lv(src)/100 ) * 3;
 						break;
 					case SO_EARTHGRAVE: // Need official formula. [LimitLine]
 					case SO_DIAMONDDUST: // Need official formula. [LimitLine]

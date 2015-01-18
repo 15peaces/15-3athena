@@ -4,6 +4,26 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/18/2015
+	r35 [15peaces]
+		*Merged missing changes from 3ceam rev. 156 - 161
+		*Added Dewata Warps and Quests
+			-Tested and working on my public server. ^^
+		*Added support for 'dispbottom2' script command.
+			-Thanks to Dastgir/Hercules
+		*Updated Skill ID Tracking Table
+			-Added some Skillnames.
+		*Minor fix to Arms Cannon to behave same on official. Should be ground target skills.
+		*Minor fix on Repair skill which cannot heal another targets mado
+		*Minor fix to Analyze skill the animation should be on the target not on the caster.
+		*Updated some behavior of Sorcerer skills according to latest update information in iRO wiki.
+		*Cloudkill now used its own status icon.
+		*Fixed when riding warg you can use basic attack
+		*SO_EARTHGRAVE; SO_DIAMONDDUST; SO_PSYCHIC_WAVE
+			-Added full support for these skills.
+		*Added some new items to db.
+			-Bible Of Promise Vol. 1 & Vol. 2
+
 01/16/2015
 	r34 [15peaces]
 		*Added Kagerou / Oboro Jobquests
@@ -14,6 +34,7 @@
 			-SC_BLOODYLUST has its own SI and its effect disappears when you left the skill range. No status icon.
 			-SC_CHAOSPANIC uses OPT2_SIGNUMCRUCIS.
 			-SC_MAELSTROM don't shows the skill name when absorb magics.
+
 01/11/2015
 	r33 [15peaces]
 	*2013-12-23cRagexe Update
@@ -39,7 +60,6 @@
 	*SC_MANHOLE
 		-Fixed issue where skill attacks to targets under this status where allowed.
 	
-
 01/06/2015
 	r32 [15peaces]
 		*KO_HUUMARANKA; KO_HAPPOKUNAI
