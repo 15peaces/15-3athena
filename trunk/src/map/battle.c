@@ -1921,6 +1921,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case SC_TRIANGLESHOT:
 					skillratio += 270 + 30 * skill_lv;
 					break;
+				case WM_METALICSOUND:
+					skillratio += 450 + (50 * skill_lv);
+					if( sd )
+						skillratio += pc_checkskill(sd,WM_LESSON);
+					break;
+				case WM_SEVERE_RAINSTORM_MELEE:
+					skillratio = 50 * skill_lv;
+					break;
 				case GN_CART_TORNADO:
 					skillratio += 50 * skill_lv;
 					if( sd )
@@ -3658,16 +3666,28 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if( tsc && tsc->data[SC__SHADOWFORM] && damage > 0 )
 	{
 		struct block_list *s_bl = map_id2bl(tsc->data[SC__SHADOWFORM]->val2);
-		if( s_bl && !status_isdead(s_bl) )
+		if( !s_bl )
+		{ // If the shadow form target is not present remove the sc.
+			status_change_end(target, SC__SHADOWFORM, INVALID_TIMER);
+		}
+		else if( status_isdead(s_bl) )
+		{ // If the shadow form target is dead remove the sc in both.
+			status_change_end(target, SC__SHADOWFORM, INVALID_TIMER);
+			if( s_bl->type == BL_PC )
+				((TBL_PC*)s_bl)->shadowform_id = 0;
+		}
+		else
 		{
-			clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, damage, wd.div_ , wd.type, wd.damage2);
-			status_fix_damage(NULL, s_bl, damage, 0);
-			tsc->data[SC__SHADOWFORM]->val3--;
-			if( tsc->data[SC__SHADOWFORM]->val3 <= 0 || status_isdead(s_bl) )
-			{
+			if( (--tsc->data[SC__SHADOWFORM]->val3) < 0 )
+			{ // If you have exceded max hits supported, remove the sc in both.
 				status_change_end(target, SC__SHADOWFORM, -1);
 				if( s_bl->type == BL_PC )
 					((TBL_PC*)s_bl)->shadowform_id = 0;
+			}
+			else
+			{
+				clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, damage, wd.div_ , wd.type, wd.damage2);
+				status_fix_damage(NULL, s_bl, damage, 0);
 			}
 		}
 	}
@@ -4298,8 +4318,8 @@ static const struct _battle_data {
 	{ "arrow_decrement",                    &battle_config.arrow_decrement,                 1,      0,      2,              },
 	{ "max_aspd",                           &battle_config.max_aspd,                        199,    100,    199,            },
 	{ "max_walk_speed",                     &battle_config.max_walk_speed,                  300,    100,    100*DEFAULT_WALK_SPEED, },
-	{ "max_lv",                             &battle_config.max_lv,                          99,     0,      127,            },
-	{ "aura_lv",                            &battle_config.aura_lv,                         99,     0,      INT_MAX,        },
+	{ "max_lv",                             &battle_config.max_lv,                          150,    0,      150,            },
+	{ "aura_lv",                            &battle_config.aura_lv,                         150,    0,      INT_MAX,        },
 	{ "max_hp",                             &battle_config.max_hp,                          32500,  100,    1000000000,     },
 	{ "max_sp",                             &battle_config.max_sp,                          32500,  100,    1000000000,     },
 	{ "max_cart_weight",                    &battle_config.max_cart_weight,                 8000,   100,    1000000,        },

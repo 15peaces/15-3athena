@@ -1811,8 +1811,10 @@ packet_ver: 32
 0x07e4,6,takeitem,2
 0x07ec,8,movetokafra,2:4
 0x083c,10,useskilltoid,2:4:6
-0x0844,2	// cashshop button onclick
-0x08c9,2	// ???
+0x0844,2,pCashShopOpen,0
+0x084a,2,pCashShopClose,0
+0x08c9,4,pCashShopSchedule,0
+0x0848,-1,pCashShopBuy,0
 0x096a,6,getcharnamerequest,2
 0x09ab,6	// bank button onclick
 0x09ab,6 //CZ_REQ_BANKING_CHECK
