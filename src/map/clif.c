@@ -58,6 +58,10 @@ struct Clif_Config {
 
 struct s_packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 
+//CashShop
+struct cs_data cs_s;
+struct cs_data *cs = &cs_s;
+
 //Converts item type in case of pet eggs.
 static inline int itemtype(int type)
 {
@@ -11320,7 +11324,6 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
 
-
 /// Answer to mixing item selection dialog (CZ_REQ_MAKINGITEM).
 /// 025b <mk type>.W <name id>.W
 /// mk type:
@@ -15002,6 +15005,215 @@ void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
 	clif_cashshop_ack(sd, fail);
 }
 
+/* [Ind/Hercules] */
+void clif_cashshop_db(void) {
+	FILE *fp;
+	char line[254];
+	int ln = 0;/* line num */
+	char *str[3], *p;
+	struct item_data * data;
+	int val, type, j;
+
+	for( j = 0; j < CASHSHOP_TAB_MAX; j++ ) {
+		CREATE(cs->data[j], struct hCSData *, 1);
+		cs->item_count[j] = 0;
+	}
+
+	if( (fp=fopen("db/cashshop_db.txt","r"))==NULL ){
+		ShowError("can't read %s\n", "db/cashshop_db.txt");
+		return;
+	}
+
+	while(fgets(line, sizeof(line), fp)) {
+		ln++;
+		if( line[0]=='/' && line[1]=='/' )
+			continue;
+
+		memset(str,0,sizeof(str));
+		data = NULL;
+
+		for(j=0,p=line;j<3 && p;j++){
+			str[j]=p;
+			p=strchr(p,',');
+			if(p) *p++=0;
+		}
+
+		if(str[0]==NULL)
+			continue;
+
+		if ( j < 3 ) {
+			if ( j > 1 )
+				ShowWarning("cashshop_db: insufficient fields for entry at %s:%d\n", "db/cashshop_db.txt", ln);
+			continue;
+		}
+		if( ISALPHA(str[0][0]) ) {
+			if( strcmpi(str[0],"new") == 0 )
+				type = CASHSHOP_TAB_NEW;
+			else if( strcmpi(str[0],"popular") == 0 )
+				type = CASHSHOP_TAB_POPULAR;
+			else if( strcmpi(str[0],"limited") == 0 )
+				type = CASHSHOP_TAB_LIMITED;
+			else if( strcmpi(str[0],"rental") == 0 )
+				type = CASHSHOP_TAB_RENTAL;
+			else if( strcmpi(str[0],"permanent") == 0 )
+				type = CASHSHOP_TAB_PERPETUITY;
+			else if( strcmpi(str[0],"scroll") == 0 )
+				type = CASHSHOP_TAB_BUFF;
+			else if( strcmpi(str[0],"usable") == 0 )
+				type = CASHSHOP_TAB_RECOVERY;
+			else if( strcmpi(str[0],"other") == 0 )
+				type = CASHSHOP_TAB_ETC;
+			else {
+				ShowWarning("cashshop_db: unknown type %s for entry at %s:%d\n", str[0], "db/cashshop_db.txt", ln);
+				continue;
+			}
+		} else {
+			type = atoi(str[0]);
+			if( type < 0 || type > CASHSHOP_TAB_MAX ) {
+				ShowWarning("cashshop_db: unknown type %d for entry at %s:%d\n", type, "db/cashshop_db.txt", ln);
+				continue;
+			}
+		}
+
+		if( ISALPHA(str[1][0]) ) {
+			if( !( data = itemdb_searchname(str[1]) ) ) {
+				ShowWarning("cashshop_db: unknown item name %s for entry at %s:%d\n", str[1], "db/cashshop_db.txt", ln);
+				continue;
+			}
+		} else {
+			if( !( data = itemdb_exists(atoi(str[1]))) ) {
+				ShowWarning("cashshop_db: unknown item id %s for entry at %s:%d\n", str[1], "db/cashshop_db.txt", ln);
+				continue;
+			}
+		}
+
+		if( ( val = atoi(str[2]) ) < 1 ) {
+			ShowWarning("cashshop_db: unsupported price '%d' for entry at %s:%d\n", val, "db/cashshop_db.txt", ln);
+			continue;
+		}
+
+		RECREATE(cs->data[type], struct hCSData *, ++cs->item_count[type]);
+		CREATE(cs->data[type][cs->item_count[type] - 1 ], struct hCSData , 1);
+
+		cs->data[type][ cs->item_count[type] - 1 ]->id = data->nameid;
+		cs->data[type][ cs->item_count[type] - 1 ]->price = val;
+
+	}
+	fclose(fp);
+}
+
+void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
+	WFIFOHEAD(fd, 10);
+	WFIFOW(fd, 0) = 0x845;
+	WFIFOL(fd, 2) = sd->cashPoints;/* kafra for now disabled until we know how to apply it */
+	WFIFOL(fd, 6) = sd->cashPoints;
+	WFIFOSET(fd, 10);	
+}
+
+ void clif_parse_CashShopClose(int fd, struct map_session_data *sd) {
+}
+
+void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd) {
+	
+	int i, j = 0;
+
+	for( i = 0; i < CASHSHOP_TAB_MAX; i++ ) {
+		WFIFOHEAD(fd, 8 + ( cs->item_count[i] * 6 ) );
+		WFIFOW(fd, 0) = 0x8ca;
+		WFIFOW(fd, 2) = 8 + ( cs->item_count[i] * 6 );
+		WFIFOW(fd, 4) = cs->item_count[i];
+		WFIFOW(fd, 6) = i;
+
+		for( j = 0; j < cs->item_count[i]; j++ ) {
+			WFIFOW(fd, 8 + ( 6 * j ) ) = cs->data[i][j]->id;
+			WFIFOL(fd, 10 + ( 6 * j ) ) = cs->data[i][j]->price;
+		}
+
+		WFIFOSET(fd, 8 + ( cs->item_count[i] * 6 ));
+	}
+}
+
+void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
+	unsigned short limit = RFIFOW(fd, 4), i, j;
+
+	/* no idea what data is on 6-10 */
+
+	for(i = 0; i < limit; i++) {
+		int qty = RFIFOL(fd, 14 + ( i * 10 ));
+		int id = RFIFOL(fd, 10 + ( i * 10 ));
+		short tab = RFIFOW(fd, 18 + ( i * 10 ));
+		enum CASH_SHOP_BUY_RESULT result = CSBR_UNKNOWN;
+
+		if( tab < 0 || tab > CASHSHOP_TAB_MAX )
+			continue;
+
+		for( j = 0; j < cs->item_count[tab]; j++ ) {
+			if( cs->data[tab][j]->id == id )
+				break;
+		}
+		if( j < cs->item_count[tab] ) {
+			struct item_data *data;
+			if( sd->cashPoints < (cs->data[tab][j]->price * qty) ) {
+				result = CSBR_SHORTTAGE_CASH;
+			} else if ( !( data = itemdb_exists(cs->data[tab][j]->id) ) ) {
+				result = CSBR_UNKONWN_ITEM;
+			} else {
+				struct item item_tmp;
+				int k, get_count;
+
+				get_count = qty;
+
+				if (!itemdb_isstackable2(data))
+					get_count = 1;
+
+				pc_paycash(sd, cs->data[tab][j]->price * qty, 0);/* kafra point support is missing */
+				for (k = 0; k < qty; k += get_count) {
+					if (!pet_create_egg(sd, data->nameid)) {
+						memset(&item_tmp, 0, sizeof(item_tmp));
+						item_tmp.nameid = data->nameid;
+						item_tmp.identify = 1;
+
+						switch (pc_additem(sd, &item_tmp, get_count)) {
+							case 0:
+								result = CSBR_SUCCESS;
+								break;
+							case 1:
+								result = CSBR_EACHITEM_OVERCOUNT;
+								break;
+							case 2:
+								result = CSBR_INVENTORY_WEIGHT;
+								break;
+							case 4:
+								result = CSBR_INVENTORY_ITEMCNT;
+								break;
+							case 5:
+								result = CSBR_EACHITEM_OVERCOUNT;
+								break;
+							case 7:
+								result = CSBR_RUNE_OVERCOUNT;
+								break;
+						}
+
+						if( result != CSBR_SUCCESS )
+							pc_getcash(sd,cs->data[tab][j]->price * get_count, 0);/* kafra point support is missing */
+					}
+				}
+			}
+		} else {
+			result = CSBR_UNKONWN_ITEM;
+		}
+
+		WFIFOHEAD(fd, 16);
+		WFIFOW(fd, 0) = 0x849;
+		WFIFOL(fd, 2) = id;
+		WFIFOW(fd, 6) = result;/* result */
+		WFIFOL(fd, 8) = sd->cashPoints;/* current cash point */
+		WFIFOL(fd, 12) = 0;/* no idea (kafra cash?) */
+		WFIFOSET(fd, 16);
+
+	}
+}
+
 /* Thanks to Yommy */
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {
 	/* TODO track the state <3~ */
@@ -17192,6 +17404,11 @@ static int packetdb_readdb(void)
 		{clif_parse_SearchStoreInfoNextPage,"searchstoreinfonextpage"},
 		{clif_parse_CloseSearchStoreInfo,"closesearchstoreinfo"},
 		{clif_parse_SearchStoreInfoListItemClick,"searchstoreinfolistitemclick"},
+		//CashShop
+		{clif_parse_CashShopOpen,"pCashShopOpen"},
+		{clif_parse_CashShopClose,"pCashShopClose"},
+		{clif_parse_CashShopSchedule,"pCashShopSchedule"},
+		{clif_parse_CashShopBuy,"pCashShopBuy"},
 		{NULL,NULL}
 	};
 
@@ -17342,6 +17559,8 @@ static int packetdb_readdb(void)
  *------------------------------------------*/
 int do_init_clif(void)
 {
+	unsigned char i;
+
 	clif_config.packet_db_ver = -1; // the main packet version of the DB
 	memset(clif_config.connect_cmd, 0, sizeof(clif_config.connect_cmd)); //The default connect command will be determined after reading the packet_db [Skotlex]
 
@@ -17357,5 +17576,13 @@ int do_init_clif(void)
 
 	add_timer_func_list(clif_clearunit_delayed_sub, "clif_clearunit_delayed_sub");
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
+
+	for(i = 0; i < CASHSHOP_TAB_MAX; i++) {
+		int k;
+		for( k = 0; k < cs->item_count[i]; k++ ) {
+			aFree(cs->data[i][k]);
+		}
+		aFree(cs->data[i]);
+	}
 	return 0;
 }

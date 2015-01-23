@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/23/2015
+	r36 [15peaces]
+		*Introducing Cash Shop Support
+			-This update adds full support for the official cash shop and its packets.
+			-Special Thanks to hercules dev-teams.
+			-Special Thanks to Yommy, malufett, Judas, Beret and everyone whos helped get the 2013 client to work, Thank you all!
+			-Special Thanks to atomius who helped me with understanding and porting some parts of the code!
+		*Merged missing changes from 3ceam rev. 162 - 166
+		*Fixed max_lv and aura_lv in battle_confing that was caussing problems with 3rd jobs auras.
+		*Fixed SC_SHADOWFORM that was causing crash servers.
+		*Fixed WM_SEVERE_RAINSTORM, adjusted to the official behavior.
+		*Added WA_SWING_DANCE, WA_SYMPHONY_OF_LOVER, WA_MOONLIT_SERENADE, MI_RUSH_WINDMILL, MI_ECHOSONG, MI_HARMONIZE and WM_METALICSOUND skills.
+
 01/18/2015
 	r35 [15peaces]
 		*Merged missing changes from 3ceam rev. 156 - 161

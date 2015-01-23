@@ -356,6 +356,39 @@ enum useskill_fail_cause
 	USESKILL_FAIL_NEED_MORE_BULLET = 84,
 };
 
+enum CASH_SHOP_TABS {
+	CASHSHOP_TAB_NEW = 0,
+	CASHSHOP_TAB_POPULAR = 1,
+	CASHSHOP_TAB_LIMITED = 2,
+	CASHSHOP_TAB_RENTAL = 3,
+	CASHSHOP_TAB_PERPETUITY = 4,
+	CASHSHOP_TAB_BUFF = 5,
+	CASHSHOP_TAB_RECOVERY = 6,
+	CASHSHOP_TAB_ETC = 7,
+	CASHSHOP_TAB_MAX,
+};
+
+enum CASH_SHOP_BUY_RESULT {
+	CSBR_SUCCESS = 0x0,
+	CSBR_SHORTTAGE_CASH = 0x2,
+	CSBR_UNKONWN_ITEM = 0x3,
+	CSBR_INVENTORY_WEIGHT = 0x4,
+	CSBR_INVENTORY_ITEMCNT = 0x5,
+	CSBR_RUNE_OVERCOUNT = 0x9,
+	CSBR_EACHITEM_OVERCOUNT = 0xa,
+	CSBR_UNKNOWN = 0xb,
+};
+
+struct hCSData {
+	unsigned short id;
+	unsigned int price;
+};
+
+struct cs_data{
+	struct hCSData **data[CASHSHOP_TAB_MAX];
+	unsigned int item_count[CASHSHOP_TAB_MAX];
+};
+
 int clif_setip(const char* ip);
 void clif_setbindip(const char* ip);
 void clif_setport(uint16 port);
@@ -802,6 +835,12 @@ void clif_npc_market_purchase_ack(struct map_session_data *sd, struct packet_npc
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
+//CashShop
+void clif_parse_CashShopOpen(int fd, struct map_session_data *sd);
+void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
+void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
+void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
+void clif_cashshop_db(void);
 
 /**
  * Color Table
