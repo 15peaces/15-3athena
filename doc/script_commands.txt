@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.58.20150118
+//= 3.59.20150214
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -210,6 +210,8 @@
 //=		  Added 'downrefitem'. [15peaces]
 //=	3.58.20150118
 //=		  Added 'dispbottom2'. [15peaces]
+//=	3.59.20150214
+//		  Added 'getargcount'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -1726,6 +1728,22 @@ Otherwise, if <default_value> is present it is returned instead,
 if not the script terminates immediately.
 
 in the previous example getarg(2,-1) would be 3 and getarg(3,-1) would be -1
+
+---------------------------------------
+
+*getargcount()
+
+This function is used when you use the 'callsub' or 'callfunc' commands. In the 
+call you can specify arguments. This function will return the number of arguments 
+provided.
+
+Example:
+	callfunc "funcNPC",5,4,3;
+	...
+	function%TAB%script%TAB%funcNPC%TAB%{
+		.@count = getargcount(); // 3
+		...
+	}
 
 ---------------------------------------
 
