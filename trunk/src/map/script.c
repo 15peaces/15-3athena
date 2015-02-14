@@ -4361,6 +4361,24 @@ BUILDIN_FUNC(getarg)
 	return 0;
 }
 
+/**
+ * Retrieves quantity of arguments provided to callfunc/callsub.
+ * getargcount() -> amount of arguments received in a function
+ **/
+BUILDIN_FUNC(getargcount) {
+	struct script_retinfo* ri;
+
+	if( st->stack->defsp < 1 || st->stack->stack_data[st->stack->defsp - 1].type != C_RETINFO ) {
+		ShowError("script:getargcount: used out of function or callsub label!\n");
+		st->state = END;
+		return 1;
+	}
+	ri = st->stack->stack_data[st->stack->defsp - 1].u.ri;
+
+	script_pushint(st, ri->nargs);
+	return 0;
+}
+
 /// Returns from the current function, optionaly returning a value from the functions.
 /// Don't use outside script functions.
 ///
@@ -16485,6 +16503,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(callfunc,"s*"),
 	BUILDIN_DEF(return,"?"),
 	BUILDIN_DEF(getarg,"i?"),
+	BUILDIN_DEF(getargcount,""),
 	BUILDIN_DEF(jobchange,"i?"),
 	BUILDIN_DEF(jobname,"i"),
 	BUILDIN_DEF(input,"r??"),

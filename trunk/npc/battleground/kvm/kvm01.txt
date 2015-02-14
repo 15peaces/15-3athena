@@ -1,18 +1,18 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 // BattleGround System - KvM 80-99
-//===== By: ================================================== 
+//===== By: ==================================================
 //= ???, L0ne_W0lf
-//===== Current Version: ===================================== 
+//===== Current Version: =====================================
 //= 1.2
-//===== Compatible With: ===================================== 
-//= eAthena 1.0
-//===== Description: ========================================= 
-//= [AEGIS Conversion]
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
+//= [Official Conversion]
 //= Kreiger Von Midgard Battleground for levels 80 to 99
 //= - Winning Team: 5 points
 //= - Losing Team: 1 point
-//===== Additional Comments: ================================= 
-//= 1.0 First Version.
+//===== Changelogs: ==========================================
+//= 1.0 First Version. [L0ne_W0lf]
 //= 1.1 Updated using official Aegis files. [L0ne_W0lf]
 //= 1.2 Upated some announces and dialogs from iRO.
 //=     Changed how the scoreboard works slightly.
@@ -33,8 +33,6 @@ OnEnterBG:
 	end;
 }
 
-bat_room,169,220,0	warp	#kvm801	2,2,bat_room,154,150
-
 bat_room,169,205,3	script	KVM Waiting Room#b::KvM01R_Croix	414,{
 	end;
 
@@ -47,6 +45,7 @@ OnEnterBG:
 	end;
 }
 
+bat_room,169,220,0	warp	#kvm801 2,2,bat_room,154,150
 bat_room,169,211,0	warp	#kvm802	2,2,bat_room,154,150
 
 // Starting Line
@@ -135,11 +134,6 @@ OnInit:
 	disablenpc "KVM Officer#KVM01B";
 	end;
 
-OnGuillaumeJoin:
-OnCroixJoin:
-	donpcevent "KvM01_BG::OnReadyCheck";
-	end;
-
 OnGuillaumeQuit:
 	//set BG_Delay_Tick, gettimetick(2) + 1200;
 OnGuillaumeDie:
@@ -168,21 +162,6 @@ OnCroixDie:
 			mapannounce "bat_c01", "The number of Croixes is "+.Croix_Count+".",bc_map,"0x00ff00";
 		}
 	}
-	end;
-
-OnReadyCheck:
-	if( $@KvM01BG )
-		end;
-	set .@Guillaume, getwaitingroomstate(0,"KvM01R_Guillaume");
-	set .@Croix, getwaitingroomstate(0,"KvM01R_Croix");
-
-	if( .@Guillaume < 5 || .@Croix < 5 )
-		end;
-
-	set $@KvM01BG, 1; // Starting
-	donpcevent "KvM01R_Croix::OnEnterBG";
-	donpcevent "KvM01R_Guillaume::OnEnterBG";
-	donpcevent "KvM01_BG::OnStart";
 	end;
 
 OnStart:
@@ -321,21 +300,6 @@ OnStop:
 	bg_warp $@KvM01BG_id2,"bat_c01",146,55;
 	donpcevent "KvM01_BG_Out::OnBegin";
 	end;
-
-OnReset:
-	set .Croix_Count, 0;
-	set .Guillaume_Count, 0;
-	set $@KvM01BG_Victory, 0;
-	if( $@KvM01BG_id1 ) { bg_destroy $@KvM01BG_id1; set $@KvM01BG_id1, 0; }
-	if( $@KvM01BG_id2 ) { bg_destroy $@KvM01BG_id2; set $@KvM01BG_id2, 0; }
-	disablenpc "KVM Officer#KVM01A";
-	disablenpc "KVM Officer#KVM01B";
-	mapwarp "bat_c01","bat_room",154,150;
-	maprespawnguildid "bat_c01",0,3; // Just in case someone else
-	bg_updatescore "bat_c01",5,5;
-	set $@KvM01BG, 0;
-	donpcevent "KvM01_BG::OnReadyCheck"; // Maybe a game is ready to start
-	end;
 }
 
 -	script	KvM01_BG_Out	-1,{
@@ -359,23 +323,52 @@ OnTimer5000:
 	mapannounce "bat_c01", "Please be careful.",bc_map,"0x00ff00";
 	end;
 
-OnTimer:55000:
+OnTimer55000:
 	mapannounce "bat_c01", "You will be sent back.",bc_map,"0x00ff00";
 	end;
 
 OnTimer60000:
 	stopnpctimer;
-	donpcevent "KvM01_BG::OnReset";
+	set getvariableofnpc(.Croix_Count,"KvM01_BG"), 0;
+	set getvariableofnpc(.Guillaume_Count,"KvM01_BG"), 0;
+	set $@KvM01BG_Victory, 0;
+	if( $@KvM01BG_id1 ) { bg_destroy $@KvM01BG_id1; set $@KvM01BG_id1, 0; }
+	if( $@KvM01BG_id2 ) { bg_destroy $@KvM01BG_id2; set $@KvM01BG_id2, 0; }
+	disablenpc "KVM Officer#KVM01A";
+	disablenpc "KVM Officer#KVM01B";
+	mapwarp "bat_c01","bat_room",154,150;
+	maprespawnguildid "bat_c01",0,3; // Just in case someone else
+	bg_updatescore "bat_c01",5,5;
+	set $@KvM01BG, 0;
+	
+OnGuillaumeJoin:
+OnCroixJoin:
+	if( $@KvM01BG )
+		end;
+	set .@Guillaume, getwaitingroomstate(0,"KvM01R_Guillaume");
+	set .@Croix, getwaitingroomstate(0,"KvM01R_Croix");
+
+	if( .@Guillaume < 5 || .@Croix < 5 )
+		end;
+
+	set $@KvM01BG, 1; // Starting
+	donpcevent "KvM01R_Croix::OnEnterBG";
+	donpcevent "KvM01R_Guillaume::OnEnterBG";
+	donpcevent "KvM01_BG::OnStart";
 	end;
 }
 
 // Battleground rewards
 //============================================================
 bat_c01,51,130,5	script	KVM Officer#KVM01A	419,{
-	if( $@KvM01BG_Victory )
-	{
-		if( $@KvM01BG_Victory == Bat_Team )
-		{ // Victory
+	if( $@KvM01BG_Victory ) {
+		mes "[KVM Officer]";
+		if( $@KvM01BG_Victory == Bat_Team ) {
+			mes "Good Game.";
+			mes "May the glory of KVM be with you.";
+			mes "You aquire the winning points: 5";
+			close2;
+
 			set kvm_point,kvm_point + 5;
 			mes "[KVM Officer]";
 			mes "Good Game.";
@@ -383,48 +376,18 @@ bat_c01,51,130,5	script	KVM Officer#KVM01A	419,{
 			mes "You aquire the winning points: 5";
 			close2;
 		}
-		else
-		{ // 
-			set kvm_point,kvm_point + 1;
-			mes "[KVM Officer]";
+		else {
 			mes "I am so sorry.";
 			mes "I wish you better luck next time.";
 			mes "You aquire the losing points: 1";
 			close2;
+			set kvm_point,kvm_point + 1;
 		}
 		bg_leave;
 		set Bat_Team,0;
 		warp "bat_room",154,150;
-		end;
 	}
 	end;
 }
 
-bat_c01,148,53,1	script	KVM Officer#KVM01B	415,{
-	if( $@KvM01BG_Victory )
-	{
-		if( $@KvM01BG_Victory == Bat_Team )
-		{ // Victory
-			set kvm_point,kvm_point + 5;
-			mes "[KVM Officer]";
-			mes "Good Game.";
-			mes "May the glory of KVM be with you.";
-			mes "You aquire the winning points: 5";
-			close2;
-		}
-		else
-		{ // 
-			set kvm_point,kvm_point + 1;
-			mes "[KVM Officer]";
-			mes "I am so sorry.";
-			mes "I wish you better luck next time.";
-			mes "You aquire the losing points: 1";
-			close2;
-		}
-		bg_leave;
-		set Bat_Team,0;
-		warp "bat_room",154,150;
-		end;
-	}
-	end;
-}
+bat_c01,148,53,1	duplicate(KVM Officer#KVM01A)	KVM Officer#KVM01B	415

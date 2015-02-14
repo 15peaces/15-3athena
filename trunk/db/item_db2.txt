@@ -195,3 +195,25 @@
 24193,Damned_Shadow_Armor,Damned Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Holy,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Holy,1+(getrefine()/2); },{},{}
 24194,Exorcism_Shadow_Armor,Exorcism Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Ghost,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Ghost,1+(getrefine()/2); },{},{}
 24195,Divine_Shadow_Armor,Divine Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Undead,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Undead,1+(getrefine()/2); },{},{}
+
+6410,Idul_Fitri_Card,Idul Fitri Card,3,10,,10,,,,,,,,,,,,,{},{},{}
+6411,Ripe_Watermelon,Ripe Watermelon,3,20,,10,,,,,,,,,,,,,{},{},{}
+6412,Special_Medal,Special Medal,3,0,,0,,,,,,,,,,,,,{},{},{}
+6413,New_Insurance,New Insurance,3,2,,10,,,,,,,,,,,,,{},{},{}
+6414,Raganta_Card,Ragunta Card,3,20,,10,,,,,,,,,,,,,{},{},{}
+6415,Strange_Embryo,Strange Embryo,3,0,,0,,,,,,,,,,,,,{},{},{}
+6416,Pet_Exchange,Pet Exchange,3,0,,0,,,,,,,,,,,,,{},{},{}
+6417,Silvervine,Silvervine Fruit,3,20,,0,,,,,,,,,,,,,{},{},{}
+6418,Agrade_Coin,A Grade Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
+6419,Bgrade_Coin,B Grade Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
+6420,Cgrade_Coin,C Grade Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
+6421,Dgrade_Coin,D Grade Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
+6422,Egrade_Coin,E Grade Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
+6423,Anger_Seagod,Sea God's Wrath,3,20,,0,,,,,,,,,,,,,{},{},{}
+6424,Halloween_Fragment,Spirit Piece,3,20,,0,,,,,,,,,,,,,{},{},{}
+6425,Halloween_Certificate,Halloween Certificate,3,20,,0,,,,,,,,,,,,,{},{},{}
+6426,Bad_Can,Bad Canned Food,3,20,,10,,,,,,,,,,,,,{},{},{}
+6427,Bad_Can_Sack,Bad Canned Food Sack,3,0,,0,,,,,,,,,,,,,{},{},{}
+6428,Bravery_Card_A,Adventure Card A,3,0,,0,,,,,,,,,,,,,{},{},{}
+6429,Bravery_Card_B,Adventure Card B,3,0,,0,,,,,,,,,,,,,{},{},{}
+6430,Picture_Piece,Picture Fragment,3,0,,0,,,,,,,,,,,,,{},{},{}

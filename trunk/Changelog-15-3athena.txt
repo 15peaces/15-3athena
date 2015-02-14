@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/14/2015
+	r37 [15peaces]
+		*Some fixes and clean-up in kvm scripts.
+		*huge quest_db update (Eclage and other quests)
+		*Added all Eclage NPCs, warps and quests.
+			-Also added related misc items.
+			-Added support for script command 'getargcount()'.
+		*Added Coin Exchange NPCs
+		*some clean-up in scripts_athena.conf
+			-it should be allmost everything sorted by name. It's easier to find a specific script this way.
+
 01/23/2015
 	r36 [15peaces]
 		*Introducing Cash Shop Support
