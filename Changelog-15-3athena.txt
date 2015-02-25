@@ -4,6 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/25/2015
+	r38 [15peaces]
+		*Huge number of database entries for new costume items added.
+			-They where found on hercules forums, thanks to zackdreaver.
+			-They seem to be mixed from all official servers, so there might be some work to be done to filter them in future.
+			-The entries are not completed yet, they're only for testing right now. Once they're tested, filtered and fixed, I'll move them to item_db.txt
+			-Also fixed some trading masks.
+		*Added eden groups.
+			-Added quest_db entries.
+			-Added all eden quests 11 - 140.
+			-added support for 'isbegin_quest' script command.
+		*Fixed eclage scripts.
+		*Fixed missing tab in kvm01 script.
+		*Fixed typo in 'dispbottom2' script command.
+		*Removed duplicated EAJ_SUPER_BABY constant from const.txt
+		*Increased MAX_SKILL_PRODUCE_DB to 200 to support Rune Stones.
+
 02/14/2015
 	r37 [15peaces]
 		*Some fixes and clean-up in kvm scripts.

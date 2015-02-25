@@ -1,16 +1,17 @@
-//===== rAthena Script ====================================== 
+//===== 15-3athena Script ====================================
 //= General Eclage NPC.
 //===== By: ================================================== 
 //= Dastgir
 //===== Current Version: ===================================== 
-//= 1.0
+//= 1.1
 //===== Compatible With: ===================================== 
-//= rAthena Project
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Eclage Town NPC
 //===== Additional Comments: ================================= 
 //= 1.0 Generic NPC place holders. [Euphy]
 //= 1.0a Converted from the official Aegis script. [Dastgir]
+//= 1.1 Ported from rAthena to 15-3athena. [15peaces]
 //============================================================ 
 
 ecl_in02,96,22,3	script	sign#prison_inn	545,{
@@ -64,7 +65,7 @@ ecl_in02,164,56,3	script	Receptionist#Laphine	835,{
 					mes "[Receptionist}";
 					mes "Make yourself at home~";
 					close2;
-					Zeny = Zeny - 5000;
+					set Zeny, Zeny - 5000;
 					percentheal 100,100;
 					warp "ecl_in02",167,49;
 					end;
