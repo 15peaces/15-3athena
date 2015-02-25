@@ -14918,6 +14918,19 @@ BUILDIN_FUNC(checkquest)
 	return 0;
 }
 
+BUILDIN_FUNC(isbegin_quest)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int i;
+
+	nullpo_ret(sd);
+
+	i = quest_check(sd, script_getnum(st, 2), (enum quest_check_type) HAVEQUEST);
+	script_pushint(st, i + (i < 1));
+
+	return 0;
+}
+
 BUILDIN_FUNC(showevent)
 {
   TBL_PC *sd = script_rid2sd(st);
@@ -16765,7 +16778,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(deletepset,"i"), // Delete a pattern set [MouseJstr]
 #endif
 	BUILDIN_DEF(dispbottom,"s"), //added from jA [Lupus]
-	BUILDIN_DEF(dispbottom,"ss?"), //added from hercules [15peaces]
+	BUILDIN_DEF(dispbottom2,"ss?"), //added from hercules [15peaces]
 	BUILDIN_DEF(getusersname,""),
 	BUILDIN_DEF(recovery,""),
 	BUILDIN_DEF(getpetinfo,"i"),
@@ -16917,6 +16930,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(erasequest, "i"),
 	BUILDIN_DEF(completequest, "i"),
 	BUILDIN_DEF(checkquest, "i?"),
+	BUILDIN_DEF(isbegin_quest,"i"),
 	BUILDIN_DEF(changequest, "ii"),
 	BUILDIN_DEF(showevent, "ii"),
 

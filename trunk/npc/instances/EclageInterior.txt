@@ -179,14 +179,14 @@ OnEnable:
 	end;
 	
 OnReset:
-	killmonster instance_mapname("1@ecl"),instance_npcname("#sndmaster")+"::OnMyMobDead";
+	killmonster "1@ecl",instance_npcname("#sndmaster")+"::OnMyMobDead";
 	stopnpctimer;
 	end;
 OnTimer1000:
-    mapannounce instance_mapname("1@ecl"),"Warning: Abnormal occurrence in the lighting room. Abnormal occurrence in the lighting room.",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+    mapannounce "1@ecl","Warning: Abnormal occurrence in the lighting room. Abnormal occurrence in the lighting room.",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
 	end;
 OnTimer2000:
-    mapannounce instance_mapname("1@ecl"),"Suspicious Creature: Kerrrrr....krwahhhh!!",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+    mapannounce "1@ecl","Suspicious Creature: Kerrrrr....krwahhhh!!",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
 	hideoffnpc instance_npcname("Suspicious Creature#5");
 	hideoffnpc instance_npcname("Suspicious Creature#6");
 	hideoffnpc instance_npcname("Suspicious Creature#7");
@@ -199,9 +199,9 @@ OnTimer3000:
 	end;
 	
 OnMyMobDead:
-	if (mobcount(instance_mapname("1@ecl"),instance_npcname("#sndmaster")+"::OnMyMobDead") == 0) {
+	if (mobcount("1@ecl",instance_npcname("#sndmaster")+"::OnMyMobDead") == 0) {
 		donpcevent instance_npcname("Shenime#ecl01")+"::OnEnable";
-		mapannounce instance_mapname("1@ecl"),"Shenime: Good, I got here just in time.",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
+		mapannounce "1@ecl","Shenime: Good, I got here just in time.",bc_map,"0xffff00"; //FW_NORMAL 12 0 0
 	}
 	end;
 	
@@ -226,7 +226,7 @@ OnTouch:
 	hideonnpc instance_npcname("Suspicious Creature#6");
 	hideonnpc instance_npcname("Suspicious Creature#7");
 	hideonnpc instance_npcname("Suspicious Creature#8");
-	set .@eclmap$, instance_mapname("1@ecl");
+	set .@eclmap$, "1@ecl";
 	set .@sndmaster$, instance_npcname("#sndmaster");
 	monster .@eclmap$,42,80,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
 	monster .@eclmap$,48,86,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
@@ -244,7 +244,7 @@ OnTouch:
 	end;
 OnTouch:
 	if (.mob_summoned) end;
-	set .@eclmap$, instance_mapname("1@ecl");
+	set .@eclmap$, "1@ecl";
 	set .@eventname$, instance_npcname("#event");
 	mes "An empty room with nothing inside.";
 	mes "a light is coming out of a circular equipment in the middle of the room.";
@@ -271,7 +271,7 @@ OnTouch:
 	set .mob_summoned, 1;
 	close;
 OnMyMobDead:
-	if (mobcount(instance_mapname("1@ecl"),instance_npcname("#event")+"::OnMyMobDead") == 0) {
+	if (mobcount("1@ecl",instance_npcname("#event")+"::OnMyMobDead") == 0) {
 		enablenpc instance_npcname("#sndmaster");
 		donpcevent instance_npcname("#sndmaster")+"::OnEnable";
 	}

@@ -212,6 +212,8 @@
 //=		  Added 'dispbottom2'. [15peaces]
 //=	3.59.20150214
 //		  Added 'getargcount'. [15peaces]
+//= 3.60.20150219
+//		  Added 'isbegin_quest'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -7428,6 +7430,16 @@ If parameter "HUNTING" is supplied:
 	2  = you've killed all of the target monsters
 
 ---------------------------------------
+
+*isbegin_quest(<ID>)
+
+Return the state of the quest: 
+	0  = Quest not started (not in quest log)
+	1  = Quest has been given (state is either "inactive" or "active")
+	2  = Quest completed
+
+---------------------------------------
+
 *showevent <state>, <color>;
 
 Show a colored mark in the mini-map like "viewpoint" and an emotion on top of a NPC.
