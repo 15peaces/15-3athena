@@ -5,10 +5,15 @@
 // 		- Details.
 //========================================
 02/25/2015
+	r39 [15peaces]
+		*Added Ultimate Spellbooks Quest.
+		*Some more clean-up in scripts_athena.conf
+
+02/25/2015
 	r38 [15peaces]
 		*Huge number of database entries for new costume items added.
-			-They where found on hercules forums, thanks to zackdreaver.
-			-They seem to be mixed from all official servers, so there might be some work to be done to filter them in future.
+			-They were found on hercules forums, thanks to zackdreaver.
+			-They seem to be mixed from all official servers, so there might be some work to be done to filter them in the future.
 			-The entries are not completed yet, they're only for testing right now. Once they're tested, filtered and fixed, I'll move them to item_db.txt
 			-Also fixed some trading masks.
 		*Added eden groups.
