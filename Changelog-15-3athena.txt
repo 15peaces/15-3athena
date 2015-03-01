@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/01/2015
+	r41 [15peaces]
+		*Added 2010 Headgear Quests.
+			-Updated quest_db.txt
+		*Corrected Green Maiden IDs.
+		*Some fixes in item_db2.txt.
+		*Some fixes in Level 4 Weapon Quests.
+		*Merged missing changes from 3ceam rev. 167 - 171
+		*Minor fix on Reverberation which calculation to damage not added in battle.c
+		*Fixed some compiler warnings.
+		*Fixed WA_SWING_DANCE, WA_SYMPHONY_OF_LOVER, WA_MOONLIT_SERENADE, MI_RUSH_WINDMILL, MI_ECHOSONG, MI_HARMONIZE that are not stackable.
+		*Fixed WA_SYPMPHONY_OF_LOVER that affect Mdef instead Mdef2.
+		*Fixed WA_SWINGDANCE that have a different value to ASPD and SPEED.
+		*Changed pc_painexp to display exp you gain/lost using packet 0x07f6 on newer clients like on the official server.
+
 02/28/2015
 	r40 [15peaces]
 		*Fixed some Items & some more new Items added. 

@@ -1926,6 +1926,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if( sd )
 						skillratio += pc_checkskill(sd,WM_LESSON);
 					break;
+				case WM_REVERBERATION_MELEE:
+					if( sd )
+						skillratio += 200 + 100 * pc_checkskill(sd, WM_REVERBERATION);
+					break;
 				case WM_SEVERE_RAINSTORM_MELEE:
 					skillratio = 50 * skill_lv;
 					break;
@@ -2880,6 +2884,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;
+						break;
+					case WM_REVERBERATION_MAGIC:
+						if( sd )
+							skillratio += 100 * pc_checkskill(sd, WM_REVERBERATION);
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:
