@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Grade A and Grade S weapon quests
 //===== By: ================================================== 
 //= Vicious_Pucca, Reddozen & MasterOfMuppets
 //===== Current Version: ===================================== 
 //= 1.6
 //===== Compatible With: ===================================== 
-//= eAthena SVN 3422+(Requires jA Script System)
+//= 15-3athena SVN
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Grade A and Grade S weapon quests
@@ -1960,7 +1960,7 @@ niflheim,240,193,3	script	Kayron#lv4	794,{
 		if (.@shobu > 1) {
 			mes "[Kayron]";
 			mes "Let's see...";
-			mes "You won " + shobu + " times.";
+			mes "You won " + .@shobu + " times.";
 			mes "You must be really";
 			mes "Without a doubt, you've";
 			mes "got some pretty good luck~";
@@ -2873,7 +2873,7 @@ niflheim,187,280,3	script	Hein#lv4	795,{
 		if (.@shobu > 1) {
 			mes "[Hein]";
 			mes "Let's see...";
-			mes "You won " + shobu + " times.";
+			mes "You won " + .@shobu + " times.";
 			mes "You're really good at game!";
 			mes "Yes, your luck is at its highest!";
 			next;

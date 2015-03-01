@@ -4270,7 +4270,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NC_ACCELERATION:
 	case NC_HOVERING:
 	case SC_DEADLYINFECT:
-	case MI_HARMONIZE:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
 	case WL_RECOGNIZEDSPELL:
@@ -4580,7 +4579,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_WINDMILL:
 	case GN_CART_TORNADO:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-
 	case NPC_EARTHQUAKE:
 	case NPC_VAMPIRE_GIFT:
 	case NPC_HELLJUDGEMENT:
@@ -4637,11 +4635,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case CASH_BLESSING:
 	case CASH_INCAGI:
 	case CASH_ASSUMPTIO:
-	case WA_SWING_DANCE:
-	case WA_SYMPHONY_OF_LOVER:
-	case WA_MOONLIT_SERENADE:
-	case MI_RUSH_WINDMILL:
-	case MI_ECHOSONG:
 		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
 			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		else if( sd )
@@ -6734,7 +6727,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		int heal = dstsd->status.max_hp*(3+3*skilllv)/100;
 		if( !dstsd )
 			break;
-		if( dstsd && pc_isriding(dstsd,OPTION_MADO) )
+		if( dstsd && pc_ismadogear(dstsd) )
 			status_heal(bl, heal, 0, 2);
 		else
 			status_heal(src, heal, 0, 2);
@@ -6852,6 +6845,53 @@ break;
 		}
 		else
 			clif_skill_fail(sd,skillid,0,0);
+		break;
+
+	case WA_SWING_DANCE:
+	case WA_SYMPHONY_OF_LOVER:
+	case WA_MOONLIT_SERENADE:
+	case MI_RUSH_WINDMILL:
+	case MI_ECHOSONG:
+		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
+		{
+			if( tsc && tsc->data[SC_SWING] )
+				status_change_end(bl,SC_SWING,INVALID_TIMER);
+			if( tsc && tsc->data[SC_SYMPHONY_LOVE] )
+				status_change_end(bl,SC_SYMPHONY_LOVE,INVALID_TIMER);
+			if( tsc && tsc->data[SC_MOONLIT_SERENADE] )
+				status_change_end(bl,SC_MOONLIT_SERENADE,INVALID_TIMER);
+			if( tsc && tsc->data[SC_RUSH_WINDMILL] )
+				status_change_end(bl,SC_RUSH_WINDMILL,INVALID_TIMER);
+			if( tsc && tsc->data[SC_ECHOSONG] )
+				status_change_end(bl,SC_ECHOSONG,INVALID_TIMER);
+			if( tsc && tsc->data[SC_HARMONIZE] )
+				status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		}
+		else if( sd )
+		{ // Only shows effects on caster.
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+		}
+		break;
+
+	case MI_HARMONIZE:
+		{
+			if( tsc && tsc->data[SC_SWING] )
+				status_change_end(bl,SC_SWING,INVALID_TIMER);
+			if( tsc && tsc->data[SC_SYMPHONY_LOVE] )
+				status_change_end(bl,SC_SYMPHONY_LOVE,INVALID_TIMER);
+			if( tsc && tsc->data[SC_MOONLIT_SERENADE] )
+				status_change_end(bl,SC_MOONLIT_SERENADE,INVALID_TIMER);
+			if( tsc && tsc->data[SC_RUSH_WINDMILL] )
+				status_change_end(bl,SC_RUSH_WINDMILL,INVALID_TIMER);
+			if( tsc && tsc->data[SC_ECHOSONG] )
+				status_change_end(bl,SC_ECHOSONG,INVALID_TIMER);
+			if( tsc && tsc->data[SC_HARMONIZE] )
+				status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
+			clif_skill_nodamage(src,bl,skillid,skilllv,
+				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		}
 		break;
 
 	case SO_ARRULLO:

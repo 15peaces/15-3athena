@@ -472,7 +472,7 @@ void initChangeTables(void)
 
 	//Minstrel/Wanderer
 	set_sc( WA_SWING_DANCE			, SC_SWING				, SI_SWING				, SCB_SPEED|SCB_ASPD );
-	set_sc( WA_SYMPHONY_OF_LOVER	, SC_SYMPHONY_LOVE		, SI_SYMPHONY_LOVE		, SCB_MDEF2 );
+	set_sc( WA_SYMPHONY_OF_LOVER	, SC_SYMPHONY_LOVE		, SI_SYMPHONY_LOVE		, SCB_MDEF );
 	set_sc( WA_MOONLIT_SERENADE		, SC_MOONLIT_SERENADE	, SI_MOONLIT_SERENADE	, SCB_MATK );
 	set_sc( MI_RUSH_WINDMILL		, SC_RUSH_WINDMILL		, SI_RUSH_WINDMILL		, SCB_BATK );
 	set_sc( MI_ECHOSONG				, SC_ECHOSONG			, SI_ECHOSONG			, SCB_DEF2 );
@@ -4068,6 +4068,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
 	if(sc->data[SC_ANALYZE])
 		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
+	if(sc->data[SC_SYMPHONY_LOVE])
+		mdef += mdef * sc->data[SC_SYMPHONY_LOVE]->val2 / 100;
 
 	return (signed char)cap_value(mdef,CHAR_MIN,CHAR_MAX);
 }
@@ -4083,8 +4085,6 @@ static signed short status_calc_mdef2(struct block_list *bl, struct status_chang
 		mdef2 -= mdef2 * sc->data[SC_MINDBREAKER]->val3/100;
 	if(sc->data[SC_ANALYZE])
 		mdef2 -= mdef2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
-	if(sc->data[SC_SYMPHONY_LOVE])
-		mdef2 += mdef2 * sc->data[SC_SYMPHONY_LOVE]->val2 / 100;
 
 	return (short)cap_value(mdef2,1,SHRT_MAX);
 }
@@ -4218,7 +4218,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sc->data[SC_GN_CARTBOOST] )
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 			if( sc->data[SC_SWING] )
-				val = max( val, sc->data[SC_SWING]->val2 );
+				val = max( val, sc->data[SC_SWING]->val3 );
 
 			//FIXME: official items use a single bonus for this [ultramage]
 			if( sc->data[SC_SPEEDUP0] ) // temporary item-based speedup
@@ -6826,7 +6826,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_SWING:
-			val2 = 4 * val1;
+			val2 = 4 * val1; // Aspd reduction.
+			val3 = 20 + 5 * val1; // Seems to be that the speed is reduced by (20 + 5 * skilllv)% then an speed of 150 changes to 112.
 			break;
 		case SC_SYMPHONY_LOVE:
 			val2 = 20 * val1;

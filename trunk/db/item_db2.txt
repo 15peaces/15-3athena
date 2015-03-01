@@ -161,8 +161,8 @@
 19829,C_Straw_Hat,Costume Straw Hat,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,0,0,146,{},{},{}
 
 19878,C_Evolved_Drooping_Bunny,Costume Evolved Drooping Bunny,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,249,{},{},{}
+
 19883,C_Cyclops_Glasses,Costume Cyclops Glasses,5,0,,0,,,,,0xFFFFFFFF,63,2,2048,,1,,1087,{},{},{}
-19883,C_Piamette_Hood, Costume Piamette Hood,,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,,,{},{},{}
 
 19935,C_Hunting_Cap_Of_Gust,Costume Hunting Cap Of Gust,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,1076,{},{},{}
 19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,,{},{},{}
@@ -239,7 +239,7 @@
 
 19014,Gravekeeper_Blinker,Gravekeeper Blinker,5,0,,100,,1,,0,0xFFFFFFFF,63,2,512,,10,,1210,{},{},{}
 
-19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine()} },{},{}
+19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
 
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,5,0,,300,,,,0,0xFFFFFFFF,63,2,256,,1,,1249,{bonus2 bAddRace,RC_Boss,15;},{},{}
 
