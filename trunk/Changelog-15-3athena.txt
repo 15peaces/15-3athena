@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/03/2015
+	r42 [15peaces]
+		*Fixed some Items & some more new Items added. 
+			-They were found on hercules forums, thanks to zackdreaver.
+			-They seem to be mixed from all official servers, so there might be some work to be done to filter them in the future.
+			-The entries are not completed yet, they're only for testing right now. Once they're tested, filtered and fixed, I'll move them to item_db.txt
+		*Merged missing changes from 3ceam rev. 172 - 176
+		*SC_FEINTBOMB
+			-Added full support for this skill.
+		*RK_RUNEMASTERY
+			-Added pre-support for this skill.
+			-Also updated skill_produce_mix function to support this and other skills (will be added later).
+
 03/01/2015
 	r41 [15peaces]
 		*Added 2010 Headgear Quests.

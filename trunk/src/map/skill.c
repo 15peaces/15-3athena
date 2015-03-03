@@ -1984,6 +1984,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		else // the central target doesn't display an animation
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
+	case SC_FEINTBOMB:
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,skillid,skilllv,5);
+		break;
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_REVERBERATION_MELEE:
 	case WM_REVERBERATION_MAGIC:
@@ -2597,6 +2600,26 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						}
 					}
 					break;
+				case SC_FEINTBOMB:
+					{
+						short x = 0, y = 0;
+						switch( unit_getdir(src) )
+						{
+							case 0: y -= 6; break;
+							case 1: x += 3; y -= 3; break;
+							case 2: x += 6; break;
+							case 3: x -= 3; y += 3; break;
+							case 4: y += 6; break;
+							case 5: x -= 3; y += 3; break;
+							case 6: x -= 6; break;
+							case 7: x -= 3; y -= 3; break;
+							default: break;
+						}
+						if( unit_movepos(src, src->x+x, src->y+y, 1, 0))
+							clif_slide(src,src->x+x,src->y+y);
+					}
+					break;
+
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					break;
@@ -2848,6 +2871,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_AXEBOOMERANG:
 	case NC_POWERSWING:
 	case SC_TRIANGLESHOT:
+	case SC_FEINTBOMB:
 	case WM_METALICSOUND:
 	case GN_CRAZYWEED_ATK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
@@ -7595,6 +7619,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
 		break;
 
+	case SC_FEINTBOMB:
+		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		clif_skill_nodamage(src,src,skillid,skilllv,1);
+		skill_addtimerskill(src,tick+1000,src->id,src->x,src->y,skillid,skilllv,BF_MISC,flag|BCT_ENEMY|SD_SPLASH|1);
+		break;
+
 	case WM_DOMINION_IMPULSE:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea( skill_ative_reverberation,
@@ -8510,6 +8540,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 
 		break;
 		}
+		break;
+	case SC_FEINTBOMB:
+		limit = skill_get_time2(skillid,skilllv);
+		break;
 	case WM_REVERBERATION:
 		interval = limit;
 		break;
@@ -12544,6 +12578,15 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			}
 			break;
 
+			case UNT_FEINTBOMB:
+				{
+					struct block_list *src = map_id2bl(group->src_id);
+					if( src )
+						map_foreachinrange(skill_area_sub, &unit->bl, skill_get_splash(group->skill_id, group->skill_lv), splash_target(src), src, SC_FEINTBOMB, group->skill_lv, tick, BCT_ENEMY|1, skill_castend_damage_id);
+					skill_delunit(unit);
+				}
+				break;
+
 			case UNT_REVERBERATION:
 				{
 					struct block_list *ss = map_id2bl(group->src_id);
@@ -12937,9 +12980,10 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty)
 {
 	int slot[3];
-	int i,sc,ele,idx,equip,wlv,make_per,flag;
+	int i,sc,ele,idx,equip,wlv = 0,make_per,flag = 0,skill_lv = 0,temp_qty = 0;
 	int num = -1; // exclude the recipe
 	struct status_data *status;
+	int s_job_level = 50;
 
 	nullpo_ret(sd);
 	status = status_get_status_data(&sd->bl);
@@ -13075,6 +13119,32 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				break;
 			case SA_CREATECON: // Elemental Converter Creation
 				make_per = 100000; // should be 100% success rate
+				break;
+			case RK_RUNEMASTERY://Note: The success rate works on a 100.00 scale. A value of 10000 would equal 100% Remember this. [Rytech]
+				make_per = (50 + 2 * pc_checkskill(sd,skill_id)) * 100 // Base success rate and success rate increase from learned Rune Mastery level.
+				+ status->dex / 3 * 10 + status->luk * 10 + s_job_level * 10 // Success increase from DEX, LUK, and job level.
+				+ sd->menuskill_itemused * 100;// Quality of the rune ore used. Values are 2, 5, 8, 11, and 14.
+				switch ( nameid )// Success reduction from rune stone rank. Each rune has a different rank. Values are 5, 10, 15, and 20.
+				{
+					case 12727:// Berkana / RK_MILLENNIUMSHIELD
+						make_per -= 20 * 100;//S-Rank Reduction
+						break;
+					case 12725:// Nauthiz / RK_REFRESH
+					case 12730:// Uruz / RK_ABUNDANCE
+						make_per -= 15 * 100;//A-Rank Reduction
+						break;
+					case 12728:// Isa / RK_VITALITYACTIVATION
+					case 12732:// Perthro / RK_STORMBLAST
+						make_per -= 10 * 100;//B-Rank Reduction
+						break;
+					case 12726:// Raido / RK_CRUSHSTRIKE
+					case 12729:// Eihwaz / RK_FIGHTINGSPIRIT
+					case 12731:// Thurisaz / RK_GIANTGROWTH
+					case 12733:// Hagalaz / RK_STONEHARDSKIN
+						make_per -= 5 * 100;//C-Rank Reduction
+						break;
+				}
+				qty = temp_qty;
 				break;
 			default:
 				if (sd->menuskill_id ==	AM_PHARMACY &&
