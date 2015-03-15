@@ -1,0 +1,1 @@
+This is another pre-renewal 3rd class eAthena modification. It comes basically as a remake and extension of 3ceam, since this project seems to be discontinued. However, it'll take time to get a first stable version, but let's try our best!
