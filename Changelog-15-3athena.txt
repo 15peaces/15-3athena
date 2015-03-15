@@ -4,6 +4,10 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/15/2015
+	r43 [15peaces]
+		*Only a test after changing from Google Code to GitHub.
+
 03/03/2015
 	r42 [15peaces]
 		*Fixed some Items & some more new Items added. 
