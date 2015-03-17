@@ -578,3 +578,20 @@
 54,560,9	// HandMade_Chocolate_
 54,573,9	// Chocolate_Drink
 54,5136,6	// Santa's_Hat_
+
+//Some missing ItemGroups will be added later
+
+//Candy Holder
+55,518,10 //Honey
+55,529,20	//Candy
+55,538,15	//Well_Baked_Cookie
+55,539,10	//Piece_Of_Cake
+55,580,20	//Bread
+55,603,1	//Old_Blue_Box
+55,607,1	//Yggdrasilberry
+55,616,1	//Old_Card_Album
+55,617,1	//Old_Violet_Box
+55,641,1	//Contracts_In_Shadow
+55,7460,10	//Niflheim_Ticket
+55,11550,5	//Pumpkin_Cake
+55,12192,5	//Pumpkin_Pie

@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/17/2015
+	r44 [15peaces]
+		*Added full support for Candy Holder (ItemID: 22514)
+			-Added support for IG_Candy_Holder Itemgroup.
+			-The GroupID is 55 for now, it will be increased as I add in the other Itemgroups.
+		*Merged missing changes from 3ceam rev. 176 - 183
+		*Fixed SC_FEINTBOMB
+			-This skill have been adjusted to the official behavior.
+		*Fixed WM_REVERBERATION
+			-It can be destroyed by attacking it with ranged skills or magic. It takes 1 damage from everything.
+
 03/15/2015
 	r43 [15peaces]
 		*Only a test after changing from Google Code to GitHub.
@@ -14,7 +25,7 @@
 			-They were found on hercules forums, thanks to zackdreaver.
 			-They seem to be mixed from all official servers, so there might be some work to be done to filter them in the future.
 			-The entries are not completed yet, they're only for testing right now. Once they're tested, filtered and fixed, I'll move them to item_db.txt
-		*Merged missing changes from 3ceam rev. 172 - 176
+		*Merged missing changes from 3ceam rev. 172 - 175
 		*SC_FEINTBOMB
 			-Added full support for this skill.
 		*RK_RUNEMASTERY
