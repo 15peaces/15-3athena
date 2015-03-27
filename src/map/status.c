@@ -477,6 +477,7 @@ void initChangeTables(void)
 	set_sc( MI_RUSH_WINDMILL		, SC_RUSH_WINDMILL		, SI_RUSH_WINDMILL		, SCB_BATK );
 	set_sc( MI_ECHOSONG				, SC_ECHOSONG			, SI_ECHOSONG			, SCB_DEF2 );
 	set_sc( MI_HARMONIZE			, SC_HARMONIZE			, SI_HARMONIZE			, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+	add_sc( WM_POEMOFNETHERWORLD	, SC_STOP );
 	set_sc( WM_LULLABY_DEEPSLEEP	, SC_DEEPSLEEP          , SI_DEEP_SLEEP         , SCB_NONE );
 	
 	// Genetic
@@ -5103,8 +5104,9 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		sc_def = 3 +status->vit;
 		break;
 	case SC_SLEEP:
-	case SC_DEEPSLEEP: // Need official value [pakpil]
-		sc_def = 3 +status->int_;
+	case SC_DEEPSLEEP:
+		tick_def = status->int_ / 10; // Seems to be -1 sec every 10 int and -5% chance every 10 int.
+		sc_def = 5 * status->int_ /10;
 		break;
 	case SC_DECREASEAGI:
 		if (sd) tick>>=1; //Half duration for players.

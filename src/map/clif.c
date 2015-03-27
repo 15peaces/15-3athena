@@ -6259,45 +6259,43 @@ void clif_closevendingboard(struct block_list* bl, int fd)
 /// R 0800 <packet len>.W <owner id>.L <unique id>.L { <price>.L <amount>.W <index>.W <type>.B <name id>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W }* (ZC_PC_PURCHASE_ITEMLIST_FROMMC2)
 void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* vending)
 {
-	int i,fd;
+	int i,fd,cmd = 0x133,offset = 0;
 	int count;
 	struct map_session_data* vsd;
-#if PACKETVER < 20100105
-	const int cmd = 0x133;
-	const int offset = 8;
-#else
-	const int cmd = 0x800;
-	const int offset = 12;
-#endif
 
 	nullpo_retv(sd);
 	nullpo_retv(vending);
 	nullpo_retv(vsd=map_id2sd(id));
 
 	fd = sd->fd;
+
 	count = vsd->vend_num;
 
-	WFIFOHEAD(fd, offset+count*22);
-	WFIFOW(fd,0) = cmd;
-	WFIFOW(fd,2) = offset+count*22;
-	WFIFOL(fd,4) = id;
 #if PACKETVER >= 20100105
-	WFIFOL(fd,8) = vsd->vender_id;
+	cmd = 0x800;
+	offset = 4;
 #endif
 
+	WFIFOHEAD(fd, 8+count*22);
+	WFIFOW(fd,0) = cmd;
+	WFIFOW(fd,2) = 12+count*22;
+	WFIFOL(fd,4) = id;
+#if PACKETVER >= 20100105
+	WFIFOL(fd,offset + 4) = vsd->status.char_id; // temporary, could be shop_id??
+#endif
 	for( i = 0; i < count; i++ )
 	{
 		int index = vending[i].index;
 		struct item_data* data = itemdb_search(vsd->status.cart[index].nameid);
-		WFIFOL(fd,offset+ 0+i*22) = vending[i].value;
-		WFIFOW(fd,offset+ 4+i*22) = vending[i].amount;
-		WFIFOW(fd,offset+ 6+i*22) = vending[i].index + 2;
-		WFIFOB(fd,offset+ 8+i*22) = itemtype(data->type);
-		WFIFOW(fd,offset+ 9+i*22) = ( data->view_id > 0 ) ? data->view_id : vsd->status.cart[index].nameid;
-		WFIFOB(fd,offset+11+i*22) = vsd->status.cart[index].identify;
-		WFIFOB(fd,offset+12+i*22) = vsd->status.cart[index].attribute;
-		WFIFOB(fd,offset+13+i*22) = vsd->status.cart[index].refine;
-		clif_addcards(WFIFOP(fd,offset+14+i*22), &vsd->status.cart[index]);
+		WFIFOL(fd,offset + 8+i*22) = vending[i].value;
+		WFIFOW(fd,offset + 12+i*22) = vending[i].amount;
+		WFIFOW(fd,offset + 14+i*22) = vending[i].index + 2;
+		WFIFOB(fd,offset + 16+i*22) = itemtype(data->type);
+		WFIFOW(fd,offset + 17+i*22) = ( data->view_id > 0 ) ? data->view_id : vsd->status.cart[index].nameid;
+		WFIFOB(fd,offset + 19+i*22) = vsd->status.cart[index].identify;
+		WFIFOB(fd,offset + 20+i*22) = vsd->status.cart[index].attribute;
+		WFIFOB(fd,offset + 21+i*22) = vsd->status.cart[index].refine;
+		clif_addcards(WFIFOP(fd, offset + 22+i*22), &vsd->status.cart[index]);
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 }

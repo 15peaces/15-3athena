@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/27/2015
+	r45 [15peaces]
+		*Merged missing changes from 3ceam rev. 184 - 187
+		*Fixed clif_displayexp packet
+			-This should show won and lost experience.
+		*Fixed clif_vendinglist
+			-Should use 0x800 packet instead 0x801.
+		*Updated some comments.
+		*WM_POEMOFNETHERWORLDS
+			-Added pre-support for this skill.
+		* Fixed WM_SEVERE_RAINSTORM
+			-Should be working as intended.
+		*Fixed a mistake in pc_jobchange.
+		*Fixed DeepSleep status def.
+		*Updated some Items in item_db.
+
 03/17/2015
 	r44 [15peaces]
 		*Added full support for Candy Holder (ItemID: 22514)
