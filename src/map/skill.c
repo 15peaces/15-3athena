@@ -420,6 +420,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 
 	switch (skillid) {
 		case AL_WARP:
+		case RETURN_TO_ELDICASTES:
 			if(map[m].flag.nowarp) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
@@ -2044,7 +2045,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 		tsd->reproduceskill_id = skillid;
 		tsd->status.skill[skillid].id = skillid;
-		tsd->status.skill[skillid].lv = skilllv; // I have noticed that the level is the level used. [pakpil]
+		tsd->status.skill[skillid].lv = min(skilllv,pc_checkskill(tsd,SC_REPRODUCE)); // I have noticed that the level is the level used. [pakpil]
 		tsd->status.skill[skillid].flag = 13;//cloneskill flag
 		clif_addskill(tsd,skillid);
 	}
@@ -6938,6 +6939,21 @@ break;
 		}
 		break;
 
+	case RETURN_TO_ELDICASTES:
+		if( sd )
+		{
+			short x = 198, y = 187; // Destiny position.
+			unsigned short mapindex;
+			mapindex = mapindex_name2id(MAP_DICASTES);
+			if(!mapindex)
+			{ //Given map not found?
+				clif_skill_fail(sd,skillid,USESKILL_FAIL,0);
+				return 0;
+			}
+			pc_setpos(sd, mapindex, x, y, 3);
+		}
+		break;
+
 	case SR_POWERVELOCITY: // 3ceam v1.
 		{
 			int i;
@@ -8084,7 +8100,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		return 0;
 	}
 
-	if(sd->sc.opt1 || sd->sc.option&OPTION_HIDE ) {
+	if( (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING) || sd->sc.option&OPTION_HIDE ) {
 		skill_failed(sd);
 		return 0;
 	}
@@ -8698,8 +8714,8 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, un
 
 	sc = status_get_sc(bl);
 
-	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE)
-		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive. [Skotlex]
+	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != RA_ARROWSTORM && sg->skill_id != SO_EARTHGRAVE )
+		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive and Earth Strain. [Skotlex], Include Arrow Storm and Earth Grave. [Jobbie]
 
 	type = status_skill2sc(sg->skill_id);
 	sce = (sc && type != -1)?sc->data[type]:NULL;
@@ -9364,6 +9380,30 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 				skill_castend_damage_id(&src->bl, bl, sg->skill_id, sg->skill_lv, 0, 0);
 			break;
 
+		case UNT_EARTHSTRAIN:
+			{
+				unsigned short location = 0;
+				int rate;
+				/*As the info said strip chance is increased by the caster's BLv
+				  and strip chance is decreased by the target's Dex
+				  Overall Formula: Success chance * (Blvl/100) * (1-Dex/200). [Jobbie]*/
+				switch( sg->skill_lv )
+				{
+					case 1: rate = 6*status_get_lv(ss)/100; break; //4% chance
+					case 2: rate = 14*status_get_lv(ss)/100; break; //14% chance
+					case 3: rate = 24*status_get_lv(ss)/100; break; //24% chance
+					case 4: rate = 36*status_get_lv(ss)/100; break; //36% chance
+					case 5: rate = 50*status_get_lv(ss)/100; break; //50% chance
+				}
+				rate = rate * (1-tstatus->dex/200); //Strip Chance * (1-TargetsDex/200);
+				location = EQP_SHIELD|EQP_ARMOR|EQP_ACC;
+
+				if( rate = skill_strip_equip(bl, location, rate, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv)) )
+					clif_skill_nodamage(&src->bl,bl,sg->skill_id,sg->skill_lv,rate);
+				skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+			}
+			break;
+
 		case UNT_MANHOLE:
 			if( sg->val2 == 0 && tsc && bl->id != sg->src_id)
 			{
@@ -9771,7 +9811,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 	if(pc_isdead(tsd))
 		return 0;
 
-	if (tsd->sc.data[SC_SILENCE] || tsd->sc.opt1)
+	if (tsd->sc.data[SC_SILENCE] || (tsd->sc.opt1 && tsd->sc.opt1 != OPT1_BURNING) )
 		return 0;
 
 	switch(skillid)
@@ -10298,6 +10338,20 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case WL_COMET:
 		if( skill_check_pc_partner(sd, skill, &lv, 1, 0) )
 			sd->special_state.no_gemstone = 1;
+		break;
+	case RA_WUGMASTERY:
+		if((pc_isfalcon(sd) && !battle_config.warg_can_falcon) || sd->sc.data[SC__GROOMY])
+		{
+			clif_skill_fail(sd,skill,USESKILL_FAIL,0);
+			return 0;
+		}
+		break;
+	case RA_WUGDASH:
+		if(!pc_iswugrider(sd))
+		{
+			clif_skill_fail(sd,skill,USESKILL_FAIL,0);
+			return 0;
+		}
 		break;
 	/* NOTE: Uncomment when this sc is available. [pakpil]
 	case SC_MANHOLE:

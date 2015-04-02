@@ -10112,7 +10112,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 		}
 
-		if (sd->ud.skilltimer != INVALID_TIMER || sd->sc.opt1)
+		if (sd->ud.skilltimer != INVALID_TIMER || (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING))
 			break;
 
 		if (sd->sc.count && (
@@ -10447,7 +10447,7 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 		return;
 	}
 
-	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT)
+	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 		return;
 	
 	//This flag enables you to use items while in an NPC. [Skotlex]
@@ -10487,7 +10487,7 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd)
 	if(sd->npc_id) {
 		if (sd->npc_id != sd->npc_item_flag)
 			return;
-	} else if (sd->state.storage_flag || sd->sc.opt1)
+	} else if (sd->state.storage_flag || (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING))
 		; //You can equip/unequip stuff while storage is open/under status changes
 	else if (pc_cant_act(sd))
 		return;

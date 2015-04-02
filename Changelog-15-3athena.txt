@@ -4,6 +4,34 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/02/2015
+	r46 [15peaces]
+		*added new prontera warp-scripts (Thanks to Tranquility)
+			-prontera.txt contains warps for new (downscaled) prontera map.
+			-prontera_old.txt contains warps for old prontera.
+			-new prontera warps are enabled by default. In you're using old prontera map, you can just rename the files to change back to old warps.
+		*Merged missing changes from 3ceam rev. 188 - 195
+		*Fixed SC_INVISIBILITY
+			-Fixed its duration.
+			-Shouldn't lose the state when the SC hits.
+			-Fixed ASPD lost, was too high. Still need the official value.
+		*Fixed a mistake in SC_REPRODUCE.
+		*Added the missing configuration for renewal cast setting and camouflage setting in skill.conf.
+		*Fixed Aimedbolt not properly dealing the total damage when enemy is in immobile status.
+		*Fixed Ranger Traps activation area.
+		*Fixed Mado License bonus damage calculation.
+		*When mounted into a warg you cannot use magic scrolls.
+		*Moved Warg Mastery and Warg Dash fail message into skill_check_condition_castbegin
+		*Removed Warg Dash movement speed calculation while dashing as it uses your current movement speed.
+		*Sorcerer Skills Update.
+			-Striking now will drain sp during its duration and uses Endow skill as its bonus ATK.
+			-Fixed the duration and re-use delay of Warmer.
+			-Warmer should affect all not only allies.
+		*Added RETURN_TO_ELDICASTES skill.
+		*Fixed burning status which makes you paralyze during its duration.
+		*Earth Grave and Arrow Storm should affect hidden targets.
+		*Fixed when mounted and equipped with weapon a client error appears.
+
 03/27/2015
 	r45 [15peaces]
 		*Merged missing changes from 3ceam rev. 184 - 187

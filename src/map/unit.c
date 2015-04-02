@@ -1184,19 +1184,6 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 				return 0;
 			}
 			break;
-		case RA_WUGMASTERY:
-			if((pc_isfalcon(sd) && !battle_config.warg_can_falcon) || sc && sc->data[SC__GROOMY])
-			{
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
-				return 0;
-			}
-		case RA_WUGDASH:
-			if(!pc_iswugrider(sd))
-			{
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
-				return 0;
-			}
-			break;
 		}
 		if (!skill_check_condition_castbegin(sd, skill_num, skill_lv))
 			return 0;

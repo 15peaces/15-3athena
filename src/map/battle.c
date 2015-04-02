@@ -799,7 +799,7 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		damage += skill * 6;
 
 	if( pc_ismadogear(sd) )
-		damage += 40 * pc_checkskill(sd, NC_MADOLICENCE);
+		damage += 20 + 20 * pc_checkskill(sd, NC_MADOLICENCE);
 
 	if(type == 0)
 		weapon = sd->weapontype1;
@@ -2871,7 +2871,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case WL_EARTHSTRAIN:
-						skillratio += 2000 + 100 * skill_lv;
+						skillratio += 1900 + 100 * skill_lv;
 						break;
 					case WL_TETRAVORTEX_FIRE:
 					case WL_TETRAVORTEX_WATER:
@@ -2897,21 +2897,28 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:
-						skillratio += 200 * ( status_get_lv(src)/100 ) * 3;
+						skillratio = 300*(status_get_lv(src)*3/100);
 						break;
-					case SO_EARTHGRAVE: // Need official formula. [LimitLine]
-					case SO_DIAMONDDUST: // Need official formula. [LimitLine]
+					case SO_EARTHGRAVE:
+						if( sd )
+							skillratio = 200*pc_checkskill(sd, SA_SEISMICWEAPON)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
+						break;
+					case SO_DIAMONDDUST:
+						if( sd )
+							skillratio = 200*pc_checkskill(sd, SA_FROSTWEAPON)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
+						break;
 					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
 						skillratio += 300 + 100 * skill_lv;
 						break;
 					case SO_PSYCHIC_WAVE:
-					case SO_VARETYR_SPEAR: // Need official formula. [LimitLine]
-					// Skill desc suggests that the damage increases with your Base Level, and the current formula
-					// applies to a lv 150 character. Need official Level bonus increment. [LimitLine]
-						skillratio += 600 + 100 * skill_lv;
+						skillratio = skill_lv*70+(sstatus->int_*3*status_get_lv(src))/100;
+						break;
+					case SO_VARETYR_SPEAR: //Assumed Formula.
+						if( sd )
+							skillratio = 200*pc_checkskill(sd, SA_LIGHTNINGLOADER)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
 						break;
 					case SO_CLOUD_KILL:
-						skillratio = 50 * skill_lv; // Need official formula. [LimitLine]
+						skillratio = skill_lv*40*status_get_lv(src);
 						break;
 					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
 						skillratio += 400 + 100 * skill_lv;
@@ -3569,9 +3576,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
 		status_change_end(src,SC_CAMOUFLAGE,-1);
-	
-	if( sc && sc->data[SC__INVISIBILITY] )
-		status_change_end(src,SC__INVISIBILITY, INVALID_TIMER); // Still need confirm this [pakpil]
 
 	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, 1) )
 	{

@@ -3855,6 +3855,9 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 	if( nameid >= 12153 && nameid <= 12182 && sd->md != NULL )
 		return 0; // Mercenary Scrolls
 
+	if( pc_iswugrider(sd) && ((nameid >= 686 && nameid <= 700) || (nameid >= 12215 && nameid <= 12220) || (nameid >= 12000 && nameid <= 12003)) )
+		return 0; // Magic Scrolls cannot be used while riding a Warg. [Jobbie]
+
 	//added item_noequip.txt items check by Maya&[Lupus]
 	if (
 		(!map_flag_vs(sd->bl.m) && item->flag.no_equip&1) || // Normal
@@ -4222,7 +4225,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 
 	md = (TBL_MOB *)bl;
 
-	if(md->state.steal_flag == UCHAR_MAX || md->sc.opt1) //already stolen from / status change check
+	if(md->state.steal_flag == UCHAR_MAX || (md->sc.opt1 && md->sc.opt1 != OPT1_BURNING)) //already stolen from / status change check
 		return 0;
 	
 	sd_status= status_get_status_data(&sd->bl);
