@@ -3233,6 +3233,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
 	case WL_FROSTMISTY:
+	case WM_GREAT_ECHO:
 	case NC_REPAIR:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -3743,7 +3744,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	if(status_isdead(src))
 		return 1;
 
-	if( src != bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO && skillid != NPC_WIDESOULDRAIN )
+	if( src != bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO && skillid != NPC_WIDESOULDRAIN && skillid != WM_DEADHILLHERE)
 		return 1;
 
 	tstatus = status_get_status_data(bl);
@@ -6859,21 +6860,7 @@ break;
 	case MI_RUSH_WINDMILL:
 	case MI_ECHOSONG:
 		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
-		{
-			if( tsc && tsc->data[SC_SWING] )
-				status_change_end(bl,SC_SWING,INVALID_TIMER);
-			if( tsc && tsc->data[SC_SYMPHONY_LOVE] )
-				status_change_end(bl,SC_SYMPHONY_LOVE,INVALID_TIMER);
-			if( tsc && tsc->data[SC_MOONLIT_SERENADE] )
-				status_change_end(bl,SC_MOONLIT_SERENADE,INVALID_TIMER);
-			if( tsc && tsc->data[SC_RUSH_WINDMILL] )
-				status_change_end(bl,SC_RUSH_WINDMILL,INVALID_TIMER);
-			if( tsc && tsc->data[SC_ECHOSONG] )
-				status_change_end(bl,SC_ECHOSONG,INVALID_TIMER);
-			if( tsc && tsc->data[SC_HARMONIZE] )
-				status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-		}
 		else if( sd )
 		{ // Only shows effects on caster.
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -6897,6 +6884,167 @@ break;
 				status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
 			clif_skill_nodamage(src,bl,skillid,skilllv,
 				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		}
+		break;
+
+	case WM_DEADHILLHERE:
+		if( bl->type == BL_PC )
+		{
+			if( !status_isdead(bl) )
+				break;
+			if( rand()%100 < 88 + 2 * skilllv )
+			{
+				int heal = tstatus->sp;
+				if( heal <= 0 )
+					heal = 1;
+				tstatus->hp = heal;
+				tstatus->sp -= tstatus->sp * ( 120 - 20 * skilllv ) / 100;
+				clif_skill_nodamage(src,bl,skillid,skilllv,1);
+				pc_revive((TBL_PC*)bl,heal,0);
+				clif_resurrection(bl,1);
+			}
+		}
+		break;
+
+	case WM_VOICEOFSIREN:
+	case WM_SIRCLEOFNATURE:
+		if( flag&1 )
+		{
+			sc_start2(bl,type,(skillid==WM_VOICEOFSIREN)?20+10*skilllv:100,skilllv,(skillid==WM_VOICEOFSIREN)?src->id:0,skill_get_time(skillid,skilllv));
+		}
+		else
+		{
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),(skillid==WM_VOICEOFSIREN)?BL_CHAR:BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case WM_GLOOMYDAY:
+		if( sd )
+		{
+			if( pc_checkskill(sd,KN_BRANDISHSPEAR) || pc_checkskill(sd,LK_SPIRALPIERCE) ||
+				pc_checkskill(sd,CR_SHIELDCHARGE) || pc_checkskill(sd,CR_SHIELDBOOMERANG) ||
+				pc_checkskill(sd,PA_SHIELDCHAIN) || pc_checkskill(sd,LG_SHIELDPRESS) )
+			{
+				sc_start(bl,SC_GLOOMYDAY_SK,100,skilllv,skill_get_time(skillid,skilllv));
+			}
+			else
+				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		else
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+
+	case WM_SATURDAY_NIGHT_FEVER:
+		if( flag&1 )
+		{ // Affect to all targets arround the caster and caster too.
+			if( !(tsc && tsc->data[type]) )
+			{
+				sc_start4(bl, type, 100, skilllv, 0,0,1000,skill_get_time(skillid, skilllv));
+				sc_start(bl, SC_SATURDAY_NIGHT_FEVER, 100, skilllv,skill_get_time(skillid, skilllv)+skill_get_time2(skillid,skilllv));
+			}
+		}
+		else if( flag&2 )
+		{
+			if( src->id != bl->id && battle_check_target(src,bl,BCT_ENEMY) > 0 )
+				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0));
+		}
+		else if( sd )
+		{
+			if( !sd->status.party_id )
+			{
+				clif_skill_fail(sd,skillid, USESKILL_FAIL,0);
+				break;
+			}
+			if( map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),
+					BL_PC, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count) > 7 )
+				flag |= 2;
+			else
+				flag |= 1;
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|BCT_SELF, skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, skilllv,
+				sc_start(src,SC_STOP,100,skilllv,skill_get_time2(skillid,skilllv)));
+			if( flag&2 ) // Dealed here to prevent conflicts
+				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0));
+		}
+		break;
+
+	case WM_SONG_OF_MANA:
+	case WM_DANCE_WITH_WUG:
+	case WM_LERADS_DEW:
+		if( flag&1 )
+		{ // These affect to to all party members near the caster.
+			struct status_change *sc = status_get_sc(src);
+			if( sc && sc->data[type] )
+			{
+				sc_start2(bl,type,100,skilllv,sc->data[type]->val2,skill_get_time(skillid,skilllv));
+			}
+		}
+		else if( sd )
+		{
+			int count = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			if( sc_start2(bl,type,100,skilllv,count,skill_get_time(skillid,skilllv)) )
+				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case WM_MELODYOFSINK:
+	case WM_BEYOND_OF_WARCRY:
+	case WM_UNLIMITED_HUMMING_VOICE:
+		if( flag&1 )
+		{
+			sc_start2(bl,type,100,skilllv,skill_area_temp[0],skill_get_time(skillid,skilllv));
+		}
+		else if( sd )
+		{ // These affect to all targets arround the caster.
+			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case WM_SOUND_OF_DESTRUCTION:
+		if( flag&1 )
+		{
+			if( tsc && tsc->count )
+			{
+				if( rand()%100 < min((tstatus->int_/5) + (tstatus->dex/5) + skill_area_temp[0],100) )
+				{
+					status_change_end(bl,SC_DANCING,INVALID_TIMER);
+					status_change_end(bl,SC_RICHMANKIM,INVALID_TIMER);
+					status_change_end(bl,SC_ETERNALCHAOS,INVALID_TIMER);
+					status_change_end(bl,SC_DRUMBATTLE,INVALID_TIMER);
+					status_change_end(bl,SC_NIBELUNGEN,INVALID_TIMER);
+					status_change_end(bl,SC_ROKISWEIL,INVALID_TIMER);
+					status_change_end(bl,SC_INTOABYSS,INVALID_TIMER);
+					status_change_end(bl,SC_SIEGFRIED,INVALID_TIMER);
+					status_change_end(bl,SC_WHISTLE,INVALID_TIMER);
+					status_change_end(bl,SC_ASSNCROS,INVALID_TIMER);
+					status_change_end(bl,SC_POEMBRAGI,INVALID_TIMER);
+					status_change_end(bl,SC_APPLEIDUN,INVALID_TIMER);
+					status_change_end(bl,SC_HUMMING,INVALID_TIMER);
+					status_change_end(bl,SC_DONTFORGETME,INVALID_TIMER);
+					status_change_end(bl,SC_FORTUNE,INVALID_TIMER);
+					status_change_end(bl,SC_SERVICE4U,INVALID_TIMER);
+					status_change_end(bl,SC_LONGING,INVALID_TIMER);
+					status_change_end(bl,SC_HERMODE,INVALID_TIMER);
+					status_change_end(bl,SC_WINKCHARM,INVALID_TIMER);
+					status_change_end(bl,SC_SONG_OF_MANA,INVALID_TIMER);
+					status_change_end(bl,SC_DANCE_WITH_WUG,INVALID_TIMER);
+					status_change_end(bl,SC_LERADS_DEW,INVALID_TIMER);
+					status_change_end(bl,SC_MELODYOFSINK,INVALID_TIMER);
+					status_change_end(bl,SC_BEYOND_OF_WARCRY,INVALID_TIMER);
+					status_change_end(bl,SC_UNLIMITED_HUMMING_VOICE,INVALID_TIMER);
+				}
+			}
+		}
+		else
+		{
+			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
 
@@ -7642,6 +7790,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea( skill_ative_reverberation,
 		src->m, x-i, y-i, x+i,y+i,BL_SKILL);
+		break;
+
+	case WM_GREAT_ECHO:
+		flag|=1; // Should counsume 1 item per skill usage.
+		map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY, skill_castend_damage_id);
 		break;
 
 	case GN_WALLOFTHORN:
@@ -9802,8 +9955,8 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 	p_sd = va_arg(ap, int *);
 	skillid = va_arg(ap,int);
 
-	if ((skillid != PR_BENEDICTIO && *c >=1) || *c >=2)
-		return 0; //Partner found for ensembles, or the two companions for Benedictio. [Skotlex]
+	if( ((skillid != PR_BENEDICTIO && *c >=1) || *c >=2) && !skill_get_inf2(skillid)&INF2_CHORUS_SKILL )
+		return 0; //Partner found for ensembles, or the two companions for Benedictio. Chorus skills should search for all[Skotlex]*/
 
 	if (bl == src)
 		return 0;
@@ -9814,38 +9967,45 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 	if (tsd->sc.data[SC_SILENCE] || (tsd->sc.opt1 && tsd->sc.opt1 != OPT1_BURNING) )
 		return 0;
 
-	switch(skillid)
+	if( skill_get_inf2(skillid)&INF2_CHORUS_SKILL )
 	{
-		case PR_BENEDICTIO:
-		{
-			int dir = map_calc_dir(&sd->bl,tsd->bl.x,tsd->bl.y);
-			dir = (unit_getdir(&sd->bl) + dir)%8; //This adjusts dir to account for the direction the sd is facing.
-			if ((tsd->class_&MAPID_BASEMASK) == MAPID_ACOLYTE && (dir == 2 || dir == 6) //Must be standing to the left/right of Priest.
-				&& sd->status.sp >= 10)
-				p_sd[(*c)++]=tsd->bl.id;
-			return 1;
-		}
-		default: //Warning: Assuming Ensemble Dance/Songs for code speed. [Skotlex]
-			{
-				int skilllv;
-				if(pc_issit(tsd) || !unit_can_move(&tsd->bl))
-					return 0;
-				if (sd->status.sex != tsd->status.sex &&
-						(tsd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER &&
-						(skilllv = pc_checkskill(tsd, skillid)) > 0 &&
-						(tsd->weapontype1==W_MUSICAL || tsd->weapontype1==W_WHIP) &&
-						sd->status.party_id && tsd->status.party_id &&
-						sd->status.party_id == tsd->status.party_id &&
-						!tsd->sc.data[SC_DANCING])
-				{
-					p_sd[(*c)++]=tsd->bl.id;
-					return skilllv;
-				} else {
-					return 0;
-				}
-			}
-			break;
+		if( tsd->status.party_id == sd->status.party_id && (tsd->class_&MAPID_THIRDMASK) == MAPID_MINSTRELWANDERER || (tsd->class_&MAPID_THIRDMASK) == MAPID_MINSTRELWANDERER_T )
+			p_sd[(*c)++] = tsd->bl.id;
+		return 1;
 	}
+	else
+		switch(skillid)
+		{
+			case PR_BENEDICTIO:
+			{
+				int dir = map_calc_dir(&sd->bl,tsd->bl.x,tsd->bl.y);
+				dir = (unit_getdir(&sd->bl) + dir)%8; //This adjusts dir to account for the direction the sd is facing.
+				if ((tsd->class_&MAPID_BASEMASK) == MAPID_ACOLYTE && (dir == 2 || dir == 6) //Must be standing to the left/right of Priest.
+					&& sd->status.sp >= 10)
+					p_sd[(*c)++]=tsd->bl.id;
+				return 1;
+			}
+			default: //Warning: Assuming Ensemble Dance/Songs for code speed. [Skotlex]
+				{
+					int skilllv;
+					if(pc_issit(tsd) || !unit_can_move(&tsd->bl))
+						return 0;
+					if (sd->status.sex != tsd->status.sex &&
+							(tsd->class_&MAPID_UPPERMASK) == MAPID_BARDDANCER &&
+							(skilllv = pc_checkskill(tsd, skillid)) > 0 &&
+							(tsd->weapontype1==W_MUSICAL || tsd->weapontype1==W_WHIP) &&
+							sd->status.party_id && tsd->status.party_id &&
+							sd->status.party_id == tsd->status.party_id &&
+							!tsd->sc.data[SC_DANCING])
+					{
+						p_sd[(*c)++]=tsd->bl.id;
+						return skilllv;
+					} else {
+						return 0;
+					}
+				}
+				break;
+		}
 	return 0;
 }
 
@@ -9855,7 +10015,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 int skill_check_pc_partner (struct map_session_data *sd, short skill_id, short* skill_lv, int range, int cast_flag)
 {
 	static int c=0;
-	static int p_sd[2] = { 0, 0 };
+	static int p_sd[MAX_PARTY] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int i;
 
 	if (!battle_config.player_skill_partner_check ||
@@ -9865,32 +10025,48 @@ int skill_check_pc_partner (struct map_session_data *sd, short skill_id, short* 
 	if (cast_flag)
 	{	//Execute the skill on the partners.
 		struct map_session_data* tsd;
-		switch (skill_id)
+		if( skill_get_inf2(skill_id)&INF2_CHORUS_SKILL )
 		{
-			case PR_BENEDICTIO:
-				for (i = 0; i < c; i++)
+			for( i = 0; i < c; i++ )
+			{
+				if( (tsd = map_id2sd(p_sd[i])) != NULL )
 				{
-					if ((tsd = map_id2sd(p_sd[i])) != NULL)
-						status_charge(&tsd->bl, 0, 10);
+					if( skill_id == WM_GREAT_ECHO )
+						status_zap(&tsd->bl,0,skill_get_sp(skill_id,*skill_lv)/c);
 				}
-				return c;
-			default: //Warning: Assuming Ensemble skills here (for speed)
-				if (c > 0 && sd->sc.data[SC_DANCING] && (tsd = map_id2sd(p_sd[0])) != NULL)
-				{
-					sd->sc.data[SC_DANCING]->val4 = tsd->bl.id;
-					sc_start4(&tsd->bl,SC_DANCING,100,skill_id,sd->sc.data[SC_DANCING]->val2,*skill_lv,sd->bl.id,skill_get_time(skill_id,*skill_lv)+1000);
-					clif_skill_nodamage(&tsd->bl, &sd->bl, skill_id, *skill_lv, 1);
-					tsd->skillid_dance = skill_id;
-					tsd->skilllv_dance = *skill_lv;
-				}
-				return c;
+			}
+			return c;
 		}
+		else
+			switch (skill_id)
+			{
+				case PR_BENEDICTIO:
+					for (i = 0; i < c; i++)
+					{
+						if ((tsd = map_id2sd(p_sd[i])) != NULL)
+							status_charge(&tsd->bl, 0, 10);
+					}
+					return c;
+				default: //Warning: Assuming Ensemble skills here (for speed)
+					if (c > 0 && sd->sc.data[SC_DANCING] && (tsd = map_id2sd(p_sd[0])) != NULL)
+					{
+						sd->sc.data[SC_DANCING]->val4 = tsd->bl.id;
+						sc_start4(&tsd->bl,SC_DANCING,100,skill_id,sd->sc.data[SC_DANCING]->val2,*skill_lv,sd->bl.id,skill_get_time(skill_id,*skill_lv)+1000);
+						clif_skill_nodamage(&tsd->bl, &sd->bl, skill_id, *skill_lv, 1);
+						tsd->skillid_dance = skill_id;
+						tsd->skilllv_dance = *skill_lv;
+					}
+					return c;
+			}
 	}
 
 	//Else: new search for partners.
 	c = 0;
 	memset (p_sd, 0, sizeof(p_sd));
-	i = map_foreachinrange(skill_check_condition_char_sub, &sd->bl, range, BL_PC, &sd->bl, &c, &p_sd, skill_id);
+	if( skill_get_inf2(skill_id)&INF2_CHORUS_SKILL )
+		i = party_foreachsamemap(skill_check_condition_char_sub,sd,AREA_SIZE,&sd->bl, &c, &p_sd, skill_id);
+	else
+		i = map_foreachinrange(skill_check_condition_char_sub, &sd->bl, range, BL_PC, &sd->bl, &c, &p_sd, skill_id);
 
 	if (skill_id != PR_BENEDICTIO) //Apply the average lv to encore skills.
 		*skill_lv = (i+(*skill_lv))/(c+1); //I know c should be one, but this shows how it could be used for the average of n partners.
@@ -10360,7 +10536,21 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		{
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0);
 			return 0;
-		}*/
+		}
+		break;*/
+	case WM_GREAT_ECHO:
+		{
+			int count;
+			count = skill_check_pc_partner(sd, skill, &lv, skill_get_splash(skill,lv), 0);
+			if( count < 1 )
+			{
+				clif_skill_fail(sd,skill,USESKILL_FAIL,0);
+				return 0;
+			}
+			else
+				require.sp /= count;
+			break;
+		}
 	}
 
 	switch(require.state) {
@@ -10755,6 +10945,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 
 	if( sc && sc->data[SC__LAZINESS] )
 		req.sp += req.sp * sc->data[SC__LAZINESS]->val1 / 10;
+	if( sc && sc->data[SC_UNLIMITED_HUMMING_VOICE] )
+		req.sp += req.sp * sc->data[SC_UNLIMITED_HUMMING_VOICE]->val3 / 100;
 
 	req.zeny = skill_db[j].zeny[lv-1];
 
@@ -11044,8 +11236,8 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//Fixed cast time percentage reduction from status's.
 	if (sc && sc->count && fixed_time > 0)
 	{
-		//if( sc->data[SC_DANCEWITHWUG] && sc->data[SC_DANCEWITHWUG]->val4 > fixed_cast_rate)
-			// fixed_cast_rate = sc->data[SC_DANCEWITHWUG]->val4;
+		//if( sc->data[SC_DANCE_WITH_WUG] && sc->data[SC_DANCE_WITH_WUG]->val4 > fixed_cast_rate)
+			// fixed_cast_rate = sc->data[SC_DANCE_WITH_WUG]->val4;
 		//if( sc->data[SC_SECRAMENT] && sc->data[SC_SECRAMENT]->val2 > fixed_cast_rate)
 			// fixed_cast_rate = sc->data[SC_SECRAMENT]->val2;
 		//if (sc->data[SC_IZAYOI])

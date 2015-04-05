@@ -396,7 +396,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if(sc->data[SC_DODGE] && !sc->opt1 &&
 			(flag&BF_LONG || sc->data[SC_SPURT])
 			&& rand()%100 < 20) {
-			if (sd && pc_issit(sd)) pc_setstand(sd); //Stand it to dodge.
+			if (sd && pc_issit(sd) && !(sc->data[SC_SATURDAY_NIGHT_FEVER] && sc->data[SC_SATURDAY_NIGHT_FEVER]->val2)) pc_setstand(sd); //Stand it to dodge.
 			clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
 			if (!sc->data[SC_COMBO])
 				sc_start4(bl, SC_COMBO, 100, TK_JUMPKICK, src->id, 1, 0, 2000);
@@ -450,6 +450,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			damage += damage / 2; // 1.5 times more damage while in Deep Sleep.
 			status_change_end(bl,SC_DEEPSLEEP, INVALID_TIMER);
 		}
+
+		if( sc->data[SC_SIREN] && damage > 0)
+			status_change_end(bl,SC_SIREN,INVALID_TIMER);
 
 		//Finally damage reductions....
 		if( sc->data[SC_ASSUMPTIO] )
@@ -1430,6 +1433,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				wd.damage2 = 0;
 				break;
 			case LK_SPIRALPIERCE:
+				if( sc && sc->data[SC_GLOOMYDAY_SK] )
+					ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 			case ML_SPIRALPIERCE:
 				if (sd) {
 					short index = sd->equip_index[EQI_HAND_R];
@@ -1468,6 +1473,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				} else
 					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 				break;
 			case HFLI_SBR44:	//[orn]
 				if(src->type == BL_HOM) {
@@ -1612,6 +1619,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 50*skill_lv;
 					break;
 				case KN_BRANDISHSPEAR:
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += 190 + 10 * sc->data[SC_GLOOMYDAY_SK]->val1;
 				case ML_BRANDISH:
 				{
 					int ratio = 100+20*skill_lv;
@@ -1683,6 +1692,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case CR_SHIELDCHARGE:
 					skillratio += 20*skill_lv;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += 190 + 10 * sc->data[SC_GLOOMYDAY_SK]->val1;
 					break;
 				case CR_SHIELDBOOMERANG:
 					skillratio += 30*skill_lv;
@@ -1954,6 +1965,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case GN_CRAZYWEED_ATK:
 					skillratio += 400 + 100 * skill_lv;
+					break;
+				case LG_SHIELDPRESS:
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += 190 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1;
 					break;
 				case KN_CHARGEATK:
 					{
@@ -2894,6 +2909,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WM_REVERBERATION_MAGIC:
 						if( sd )
 							skillratio += 100 * pc_checkskill(sd, WM_REVERBERATION);
+						break;
+					case WM_GREAT_ECHO:
+						skillratio = 900 + 100 * skill_lv;
+						if( sd ) // Still need official value [pakpil]
+							skillratio += 20 * skill_check_pc_partner(sd,skill_num,&(short)skill_lv,skill_get_splash(skill_num,skill_lv),0);
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:

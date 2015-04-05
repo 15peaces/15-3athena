@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/05/2015
+	r47 [15peaces]
+		*Added Renewal City Spawns
+		*Merged missing changes from 3ceam rev. 196
+		*WM_VOICEOFSIREN; WM_DEADHILLHERE; WM_SIRCLEOFNATURE; WM_GREAT_ECHO; WM_SONG_OF_MANA; WM_DANCE_WITH_WUG; WM_SATURDAY_NIGHT_FEVER; WM_LERADS_DEW; WM_MELODYOFSINK; WM_BEYOND_OF_WARCRY; WM_UNLIMITED_HUMMING_VOICE
+			-Added full support for these skills.
+		*WM_SOUND_OF_DESTRUCTION
+			-Added pre-support for this skill.
+
 04/02/2015
 	r46 [15peaces]
 		*added new prontera warp-scripts (Thanks to Tranquility)

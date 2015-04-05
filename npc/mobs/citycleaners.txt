@@ -1,9 +1,9 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= City Monster Spawn Script
 //===== By: ==================================================
 //= massdriller
 //===== Current Version: =====================================
-//= 1.1
+//= 1.2
 //===== Compatible With: =====================================
 //= Any Athena Version
 //===== Description: =========================================
@@ -13,6 +13,7 @@
 //= 0.1b And even more from Poki#3 [Komurka]
 //= 1.0 Removed unofficial city cleaners [Playtester]
 //= 1.1 Added other city spawns [Playtester]
+//= 1.2 Added Renewal City Spawns [15peaces]
 //============================================================
 
 prontera,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
@@ -27,6 +28,13 @@ yuno,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
 umbala,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
 amatsu,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
 gonryun,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+brasilis,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+dewata,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+malaya,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+izlude_a,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+izlude_b,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+izlude_c,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
+izlude_d,0,0,0,0	monster	Wild Rose	1261,1,7200000,3600000,0
 
 //==================================================
 // einbech - Einbech, The Mining Village
@@ -38,3 +46,10 @@ einbech,0,0,0,0	monster	Tarou	1175,5,1800000,1500000,0
 // payon_in02 - Inside Payon
 //==================================================
 payon_in02,23,68,5,5	monster	Thief Bug	1051,7,1200000,600000,0
+
+//==================================================
+// Thief Bug Egg City Spawns
+//==================================================
+payon_in02,23,68,5,5	monster	Thief Bug Egg	1048,7,1200000,600000,0
+jawaii_in,73,117,4,4	monster	Thief Bug Egg	1048,1,5400000,3000000,0
+jawaii_in,83,117,5,5	monster	Thief Bug Egg	1048,1,4800000,2400000,0

@@ -10086,6 +10086,9 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if( (sd->sc.count && sd->sc.data[SC__MANHOLE]) || (tsc && tsc->data[SC__MANHOLE]) )
 			return;
 
+		if( sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id )
+			return;
+
 		if( sd->sc.data[SC_DEEPSLEEP] ) // Can't attack
 			return;
 		
@@ -10105,6 +10108,9 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 2);
 			break;
 		}
+
+		if( sd->sc.data[SC_SATURDAY_NIGHT_FEVER] && sd->sc.data[SC_SATURDAY_NIGHT_FEVER]->val2 )
+			return;
 
 		if(pc_issit(sd)) {
 			//Bugged client? Just refresh them.
@@ -10127,6 +10133,9 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		clif_status_load(&sd->bl, SI_SIT, 1);
 	break;
 	case 0x03: // standup
+		if( sd->sc.data[SC_SATURDAY_NIGHT_FEVER] && sd->sc.data[SC_SATURDAY_NIGHT_FEVER]->val2 )
+			return;
+		
 		if (!pc_issit(sd)) {
 			//Bugged client? Just refresh them.
 			clif_standing(&sd->bl);

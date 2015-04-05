@@ -1147,44 +1147,53 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 	tstatus = status_get_status_data(target);
 	//直前のスキル状況の記録
 	if(sd) {
-		switch(skill_num){
-		case SA_CASTCANCEL:
-			if(ud->skillid != skill_num){
-				sd->skillid_old = ud->skillid;
-				sd->skilllv_old = ud->skilllv;
-			}
-			break;
-		case BD_ENCORE:
-			//Prevent using the dance skill if you no longer have the skill in your tree. 
-			if(!sd->skillid_dance || pc_checkskill(sd,sd->skillid_dance)<=0){
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
-				return 0;
-			}
-			sd->skillid_old = skill_num;
-			break;
-		case BD_LULLABY:
-		case BD_RICHMANKIM:
-		case BD_ETERNALCHAOS:
-		case BD_DRUMBATTLEFIELD:
-		case BD_RINGNIBELUNGEN:
-		case BD_ROKISWEIL:
-		case BD_INTOABYSS:
-		case BD_SIEGFRIED:
-		case CG_MOONLIT:
-			if (skill_check_pc_partner(sd, skill_num, &skill_lv, 1, 0) < 1)
+		if( skill_get_inf2(skill_num)&INF2_CHORUS_SKILL )
+		{
+			if( skill_check_pc_partner(sd,skill_num,&skill_lv,skill_get_splash(skill_num,skill_lv),0) < 1 )
 			{
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
+				clif_skill_fail(sd,skill_num, USESKILL_FAIL, 0);
 				return 0;
 			}
-			break;
-		case WL_WHITEIMPRISON:
-			if( battle_check_target(src,target,BCT_SELF|BCT_ENEMY)<0 )
-			{
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_TOTARGET,0);
-				return 0;
-			}
-			break;
 		}
+		else
+			switch(skill_num){
+				case SA_CASTCANCEL:
+					if(ud->skillid != skill_num){
+						sd->skillid_old = ud->skillid;
+						sd->skilllv_old = ud->skilllv;
+					}
+					break;
+				case BD_ENCORE:
+					//Prevent using the dance skill if you no longer have the skill in your tree. 
+					if(!sd->skillid_dance || pc_checkskill(sd,sd->skillid_dance)<=0){
+						clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
+						return 0;
+					}
+					sd->skillid_old = skill_num;
+					break;
+				case BD_LULLABY:
+				case BD_RICHMANKIM:
+				case BD_ETERNALCHAOS:
+				case BD_DRUMBATTLEFIELD:
+				case BD_RINGNIBELUNGEN:
+				case BD_ROKISWEIL:
+				case BD_INTOABYSS:
+				case BD_SIEGFRIED:
+				case CG_MOONLIT:
+					if (skill_check_pc_partner(sd, skill_num, &skill_lv, 1, 0) < 1)
+					{
+						clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0);
+						return 0;
+					}
+					break;
+				case WL_WHITEIMPRISON:
+					if( battle_check_target(src,target,BCT_SELF|BCT_ENEMY)<0 )
+					{
+						clif_skill_fail(sd,skill_num,USESKILL_FAIL_TOTARGET,0);
+						return 0;
+					}
+					break;
+			}
 		if (!skill_check_condition_castbegin(sd, skill_num, skill_lv))
 			return 0;
 	}
