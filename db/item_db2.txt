@@ -170,7 +170,7 @@
 
 20110,C_Coiledup_Snake,Costume Coiledup Snake,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,,{},{},{}
 
-22777,Gift_Buff_Set,Gift Buff Set,2,10,,100,,,,,,,,,,,,,{ getgroupitem(IG_Gift_Buff_Set); },{},{}
+22777,Gift_Buff_Set,Gift Buff Set,2,10,,100,,,,,,,,,,,,,{ getitem groupranditem(IG_Gift_Buff_Set),1; },{},{}
 22781,PC_Bang_Normal_Box,PC Bang Normal Box,2,10,,200,,,,,,,,,,,,,{},{},{}
 22782,PC_Bang_Wooden_Box,PC Bang Wooden Box,2,10,,200,,,,,,,,,,,,,{},{},{}
 22783,PC_Bang_Golden_Box,PC Bang Golden Box,2,10,,200,,,,,,,,,,,,,{},{},{}
@@ -859,3 +859,13 @@
 
 20768,Arch_Angel_Wing,Arch Angel Wing,5,0,,200,,2,,0,0xFFFFFFFF,63,2,4,,,,10,{},{},{}
 22514,Candy_Holder,Candy Holder,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; },{},{}
+
+//New Items from rAthena
+1775,Siege_Arrow_S,Siege Arrow S,10,10,,1,45,,,,0x000A1848,63,2,32768,,130,,1,{},{},{}
+1776,Siege_Arrow_A,Siege Arrow A,10,10,,1,30,,,,0x000A1848,63,2,32768,,95,,1,{},{},{}
+
+2161,Geffenia_Book_Water,Geffenia Tomb of Water,5,56000,,1000,,30,,1,0x00000200,63,2,32,,100,1,5,{ bonus bMdef,2; bonus bInt,1; if(readparam(bInt)>=120){ bonus bMatk,10; bonus bMaxHP,800; } if(isequipped(1646)){set .@r, getequiprefinerycnt(EQI_HAND_L)*4; bonus2 bVariableCastrate,"WZ_STORMGUST",-.@r; bonus2 bVariableCastrate,"WL_FROSTMISTY",-.@r; bonus2 bVariableCastrate,"WL_JACKFROST",-.@r; } },{},{}
+
+15058,Rider_Suit,Rider Suit,5,20,,1000,0,40,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); if(isequipped(2425)){bonus bAgi,2; bonus bFlee,5;} if(isequipped(2434)){bonus bAgi,2; bonus bFlee,5;} },{},{}
+
+18114,Velum_CrossBow,Vellum CrossBow,4,20,,1100,110,,5,0,0x000A0848,63,2,34,4,95,1,11,{ bonus2 bAddRace,RC_Player,30+getrefine(); bonus2 bIgnoreDefRaceRate,RC_Player,30; if(isequipped(1775)){bonus bLongAtkRate,70;} if(isequipped(1776)){bonus bLongAtkRate,40;} },{},{}

@@ -7093,6 +7093,38 @@ BUILDIN_FUNC(downrefitem) {
 	return 0;
 }
 
+/**
+ * Delete the item equipped at pos.
+ * delequip <equipment slot>{,<char_id>};
+ **/
+BUILDIN_FUNC(delequip) {
+	short i = -1;
+	int pos;
+	int8 ret;
+	TBL_PC *sd;
+
+	pos = script_getnum(st,2);
+	if (!(sd = map_charid2sd(script_getnum(st,3)))) {
+		st->state = END;
+		return 1;
+	}
+
+	if (pos > 0 && pos <= ARRAYLENGTH(equip))
+		i = pc_checkequip(sd,equip[pos-1]);
+	if (i >= 0) {
+		pc_unequipitem(sd,i,3); //recalculate bonus
+		ret = !(pc_delitem(sd,i,1,0,2));
+	}
+	else {
+		ShowError("buildin_delequip: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
+		st->state = END;
+		return 1;
+	}
+
+	script_pushint(st,ret);
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -13224,6 +13256,95 @@ BUILDIN_FUNC(implode)
 	return 0;
 }
 
+//===============================================================
+// replacestr <input>, <search>, <replace>{, <usecase>{, <count>}}
+//
+// Note: Finds all instances of <search> in <input> and replaces
+// with <replace>. If specified will only replace as many
+// instances as specified in <count>. By default will be case
+// sensitive.
+//---------------------------------------------------------------
+BUILDIN_FUNC(replacestr)
+{
+	const char *input = script_getstr(st, 2);
+	const char *find = script_getstr(st, 3);
+	const char *replace = script_getstr(st, 4);
+	size_t inputlen = strlen(input);
+	size_t findlen = strlen(find);
+	struct StringBuf output;
+	bool usecase = true;
+
+	int count = 0;
+	int numFinds = 0;
+	int i = 0, f = 0;
+
+	if(findlen == 0) {
+		ShowError("script:replacestr: Invalid search length.\n");
+		st->state = END;
+		return 1;
+	}
+
+	if(script_hasdata(st, 5)) {
+		struct script_data *data = script_getdata(st, 5);
+
+		get_val(st, data); // Convert into value in case of a variable
+		if( !data_isstring(data) )
+			usecase = script_getnum(st, 5) != 0;
+		else {
+			ShowError("script:replacestr: Invalid usecase value. Expected int got string\n");
+			st->state = END;
+			return 1;
+		}
+	}
+
+	if(script_hasdata(st, 6)) {
+		count = script_getnum(st, 6);
+		if(count == 0) {
+			ShowError("script:replacestr: Invalid count value. Expected int got string\n");
+			st->state = END;
+			return 1;
+		}
+	}
+
+	StringBuf_Init(&output);
+
+	for(; i < inputlen; i++) {
+		if(count && count == numFinds) {	//found enough, stop looking
+			break;
+		}
+
+		for(f = 0; f <= findlen; f++) {
+			if(f == findlen) { //complete match
+				numFinds++;
+				StringBuf_AppendStr(&output, replace);
+
+				i += findlen - 1;
+				break;
+			} else {
+				if(usecase) {
+					if((i + f) > inputlen || input[i + f] != find[f]) {
+						StringBuf_Printf(&output, "%c", input[i]);
+						break;
+					}
+				} else {
+					if(((i + f) > inputlen || input[i + f] != find[f]) && TOUPPER(input[i+f]) != TOUPPER(find[f])) {
+						StringBuf_Printf(&output, "%c", input[i]);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	//append excess after enough found
+	if(i < inputlen)
+		StringBuf_AppendStr(&output, &(input[i]));
+
+	script_pushstrcopy(st, StringBuf_Value(&output));
+	StringBuf_Destroy(&output);
+	return 0;
+}
+
 /// Changes the display name and/or display class of the npc.
 /// Returns 0 is successful, 1 if the npc does not exist.
 ///
@@ -16584,6 +16705,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(successrefitem,"i"),
 	BUILDIN_DEF(failedrefitem,"i"),
 	BUILDIN_DEF(downrefitem,"i?"),
+	BUILDIN_DEF(delequip,"i?"),
 	BUILDIN_DEF(statusup,"i"),
 	BUILDIN_DEF(statusup2,"ii"),
 	BUILDIN_DEF(bonus,"iv"),
@@ -16802,6 +16924,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(substr,"sii"),
 	BUILDIN_DEF(explode, "rss"),
 	BUILDIN_DEF(implode, "r?"),
+	BUILDIN_DEF(replacestr,"sss??"),
 	BUILDIN_DEF(setnpcdisplay,"sv??"),
 	BUILDIN_DEF(compare,"ss"), // Lordalfa - To bring strstr to scripting Engine.
 	BUILDIN_DEF(getiteminfo,"ii"), //[Lupus] returns Items Buy / sell Price, etc info

@@ -395,9 +395,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		
 		if(sc->data[SC_DODGE] && !sc->opt1 &&
 			(flag&BF_LONG || sc->data[SC_SPURT])
-			&& rand()%100 < 20) {
-			if (sd && pc_issit(sd) && !(sc->data[SC_SATURDAY_NIGHT_FEVER] && sc->data[SC_SATURDAY_NIGHT_FEVER]->val2)) pc_setstand(sd); //Stand it to dodge.
-			clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
+		&& rand()%100 < 20) {
+			if (sd && pc_issit(sd) && !sc->data[SC_SITDOWN_FORCE]) pc_setstand(sd); //Stand it to dodge.
+				clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
 			if (!sc->data[SC_COMBO])
 				sc_start4(bl, SC_COMBO, 100, TK_JUMPKICK, src->id, 1, 0, 2000);
 			return 0;
@@ -575,6 +575,12 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 
 	}
 
+	if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 )
+	{
+		if( rand()%100 < 50 ) // Estimated value
+			status_change_spread(bl, src);
+	}
+
 	//SC effects from caster side.
 	sc = status_get_sc(src);
 
@@ -582,6 +588,13 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	{
 		if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 			damage += damage * 75 / 100;
+
+		if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 )
+		{
+			if( rand()%100 < 50 )
+				status_change_spread(src, bl);
+		}
+
 		// [Epoque]
 		if (bl->type == BL_MOB)
 		{
@@ -1561,7 +1574,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				skillratio += sc->data[SC_OVERTHRUST]->val3;
 			if(sc->data[SC_MAXOVERTHRUST])
 				skillratio += sc->data[SC_MAXOVERTHRUST]->val2;
-			if(sc->data[SC_BERSERK])
+			if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
 				skillratio += 100;
 		}
 		if( !skill_num )
@@ -2636,12 +2649,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		wd.damage += ad.damage;
 	}
 
-	if( (sc && sc->data[SC__DEADLYINFECT]) || (tsc && tsc->data[SC__DEADLYINFECT]) )
-	{
-		if( rand()%100 < 50 ) // Estimated value
-			status_change_spread(src, target);
-	}
-
 	return wd;
 }
 
@@ -2913,7 +2920,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WM_GREAT_ECHO:
 						skillratio = 900 + 100 * skill_lv;
 						if( sd ) // Still need official value [pakpil]
-							skillratio += 20 * skill_check_pc_partner(sd,skill_num,&(short)skill_lv,skill_get_splash(skill_num,skill_lv),0);
+						{
+							short lv = (short)skill_lv;
+							skillratio += 20 * skill_check_pc_partner(sd,skill_num,&lv,skill_get_splash(skill_num,skill_lv),0);
+						}
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:

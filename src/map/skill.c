@@ -1985,13 +1985,18 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		else // the central target doesn't display an animation
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
+	case WL_CHAINLIGHTNING_ATK:
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WL_CHAINLIGHTNING,-2,6);
+		break;
 	case WM_SEVERE_RAINSTORM_MELEE:
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WM_SEVERE_RAINSTORM,skilllv,5);
+		break;
 	case SC_FEINTBOMB:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,skillid,skilllv,5);
 		break;
 	case WM_REVERBERATION_MELEE:
 	case WM_REVERBERATION_MAGIC:
-		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skillid, -2, 6);
+		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, WM_REVERBERATION, -2, 6);
 		break;
 
 	default:
@@ -2033,21 +2038,55 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		}
 	}
 
-	if(damage > 0 && dmg.flag&BF_SKILL && sc && sc->data[SC__REPRODUCE] && can_copy(tsd,skillid,bl) )
+	if(damage > 0 && dmg.flag&BF_SKILL && sc && sc->data[SC__REPRODUCE] )
 	{
-		if (tsd->reproduceskill_id && tsd->status.skill[tsd->reproduceskill_id].flag == 13)
-		{ // Delete previous reproduced skill.
-			clif_deleteskill(tsd,tsd->reproduceskill_id);
-			tsd->status.skill[tsd->reproduceskill_id].id = 0;
-			tsd->status.skill[tsd->reproduceskill_id].lv = 0;
-			tsd->status.skill[tsd->reproduceskill_id].flag = 0;
+		int temp_skill = skillid;
+		switch( skillid )
+		{ // Still need know what skill you can reproduce.
+			case WL_TETRAVORTEX_FIRE:
+			case WL_TETRAVORTEX_WATER:
+			case WL_TETRAVORTEX_WIND:
+			case WL_TETRAVORTEX_GROUND:
+				temp_skill = WL_TETRAVORTEX;
+				break;
+			case WL_CHAINLIGHTNING_ATK:
+				temp_skill = WL_CHAINLIGHTNING;
+				break;
+			case WM_REVERBERATION_MELEE:
+			case WM_REVERBERATION_MAGIC:
+				temp_skill = WM_REVERBERATION;
+				break;
+			case GN_CRAZYWEED_ATK:
+				temp_skill = GN_CRAZYWEED;
+				break;
+			case GN_FIRE_EXPANSION_SMOKE_POWDER:
+			case GN_FIRE_EXPANSION_TEAR_GAS:
+			case GN_FIRE_EXPANSION_ACID:
+				temp_skill = GN_FIRE_EXPANSION;
+				break;
+			case GN_HELLS_PLANT_ATK:
+				temp_skill = GN_HELLS_PLANT;
+				break;
+			case WM_SEVERE_RAINSTORM_MELEE:
+				temp_skill = WM_SEVERE_RAINSTORM;
+				break;
 		}
+		if( can_copy(tsd,temp_skill,bl) && !tsd->status.skill[temp_skill].id )
+		{
+			if (tsd->reproduceskill_id && tsd->status.skill[tsd->reproduceskill_id].flag == 13)
+			{ // Delete previous reproduced skill.
+				tsd->status.skill[tsd->reproduceskill_id].id = 0;
+				tsd->status.skill[tsd->reproduceskill_id].lv = 0;
+				tsd->status.skill[tsd->reproduceskill_id].flag = 0;
+				clif_deleteskill(tsd,tsd->reproduceskill_id);
+			}
 
-		tsd->reproduceskill_id = skillid;
-		tsd->status.skill[skillid].id = skillid;
-		tsd->status.skill[skillid].lv = min(skilllv,pc_checkskill(tsd,SC_REPRODUCE)); // I have noticed that the level is the level used. [pakpil]
-		tsd->status.skill[skillid].flag = 13;//cloneskill flag
-		clif_addskill(tsd,skillid);
+			tsd->reproduceskill_id = temp_skill;
+			tsd->status.skill[temp_skill].id = temp_skill;
+			tsd->status.skill[temp_skill].lv = min(skilllv,pc_checkskill(tsd,SC_REPRODUCE)); // I have noticed that the level is the level used. [pakpil]
+			tsd->status.skill[temp_skill].flag = 13;//cloneskill flag
+			clif_addskill(tsd,temp_skill);
+		}
 	}
 
 	if( skillid != WZ_SIGHTRASHER &&
@@ -3816,7 +3855,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						dstsd = sd;
 					}
 				} else
-				if (tsc->data[SC_BERSERK])
+				if (tsc->data[SC_BERSERK] || tsc->data[SC_SATURDAY_NIGHT_FEVER])
 					heal = 0; //Needed so that it actually displays 0 when healing.
 			}
 			if( dstsd && dstsd->sc.option&OPTION_MADOGEAR )
@@ -5328,7 +5367,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						continue;
 					break;
 				}
-				if(i==SC_BERSERK) tsc->data[i]->val2=0; //Mark a dispelled berserk to avoid setting hp to 100 by setting hp penalty to 0.
+				if(i==SC_BERSERK || i==SC_SATURDAY_NIGHT_FEVER) tsc->data[i]->val2=0; //Mark a dispelled berserk to avoid setting hp to 100 by setting hp penalty to 0.
 				status_change_end(bl, (sc_type)i, INVALID_TIMER);
 			}
 			break;
@@ -6508,7 +6547,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 							continue;
 						break;
 				}
-				if( i == SC_BERSERK )
+				if( i == SC_BERSERK || i == SC_SATURDAY_NIGHT_FEVER)
 					tsc->data[i]->val2 = 0; //Mark a dispelled berserk to avoid setting hp to 100 by setting hp penalty to 0.
 				status_change_end(bl, (sc_type)i, INVALID_TIMER);
 			}
@@ -6940,10 +6979,7 @@ break;
 		if( flag&1 )
 		{ // Affect to all targets arround the caster and caster too.
 			if( !(tsc && tsc->data[type]) )
-			{
-				sc_start4(bl, type, 100, skilllv, 0,0,1000,skill_get_time(skillid, skilllv));
-				sc_start(bl, SC_SATURDAY_NIGHT_FEVER, 100, skilllv,skill_get_time(skillid, skilllv)+skill_get_time2(skillid,skilllv));
-			}
+				sc_start(bl, type, 100, skilllv,skill_get_time(skillid, skilllv));
 		}
 		else if( flag&2 )
 		{
@@ -6983,7 +7019,8 @@ break;
 		}
 		else if( sd )
 		{
-			int count = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			short lv = (short)skilllv;
+			int count = skill_check_pc_partner(sd,skillid,&lv,skill_get_splash(skillid,skilllv),1);
 			if( sc_start2(bl,type,100,skilllv,count,skill_get_time(skillid,skilllv)) )
 				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -6999,7 +7036,8 @@ break;
 		}
 		else if( sd )
 		{ // These affect to all targets arround the caster.
-			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			short lv = (short)skilllv;
+			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&lv,skill_get_splash(skillid,skilllv),1);
 			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
@@ -7042,7 +7080,8 @@ break;
 		}
 		else
 		{
-			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&(short)skilllv,skill_get_splash(skillid,skilllv),1);
+			short lv = (short)skilllv;
+			skill_area_temp[0] = skill_check_pc_partner(sd,skillid,&lv,skill_get_splash(skillid,skilllv),1);
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
@@ -7829,12 +7868,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 							ud->skillunit[i]->unit->group->val2 = skilllv;
 							break;
 						case 3:
-							ud->skillunit[i]->unit_id = UNT_DEMONIC_FIRE2;
-							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_DEMONIC_FIRE2);
+							ud->skillunit[i]->unit_id = UNT_FIRE_EXPANSION_SMOKE_POWDER;
+							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_FIRE_EXPANSION_SMOKE_POWDER);
 							break;
 						case 4:
-							ud->skillunit[i]->unit_id = UNT_DEMONIC_FIRE3;
-							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_DEMONIC_FIRE3);
+							ud->skillunit[i]->unit_id = UNT_FIRE_EXPANSION_TEAR_GAS;
+							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_FIRE_EXPANSION_TEAR_GAS);
 							break;
 						case 5:
 						default:
@@ -8268,7 +8307,8 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_MARIONETTE] ||
 		sd->sc.data[SC_WHITEIMPRISON] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
-		sd->sc.data[SC__MANHOLE]
+		sd->sc.data[SC__MANHOLE] ||
+		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]
 	 )) {
 		skill_failed(sd);
 		return 0;
@@ -9536,7 +9576,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 		case UNT_EARTHSTRAIN:
 			{
 				unsigned short location = 0;
-				int rate;
+				int rate = 0;
 				/*As the info said strip chance is increased by the caster's BLv
 				  and strip chance is decreased by the target's Dex
 				  Overall Formula: Success chance * (Blvl/100) * (1-Dex/200). [Jobbie]*/
@@ -9609,8 +9649,8 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 		case UNT_POEMOFNETHERWORLD:
 			if( status_get_mode(bl) != MD_BOSS )
 			{
-				if( !(tsc && tsc->data[SC_STOP]) )
-					sc_start(bl, SC_STOP, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
+				if( !(tsc && tsc->data[type]) )
+					sc_start(bl, type, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
 			}
 			break;
 
@@ -9661,8 +9701,8 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			}
 			break;
 
-		case UNT_DEMONIC_FIRE2:
-		case UNT_DEMONIC_FIRE3:
+		case UNT_FIRE_EXPANSION_SMOKE_POWDER:
+		case UNT_FIRE_EXPANSION_TEAR_GAS:
 			// FIXME: Invalid status change -1 [LimitLine]
 			sc_start(bl, status_skill2sc(sg->skill_id), 100, sg->skill_lv, 1000);
 			break;

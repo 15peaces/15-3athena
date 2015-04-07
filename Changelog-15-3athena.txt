@@ -4,6 +4,31 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/07/2015
+	r48 [15peaces]
+		*Updated ItemDB (Thanks to nanakiwurtz / rAthena)
+			-Added some missing combo scripts.
+			-Added some new Items (currently for testing!)
+			-Added some latest trade_db entries.
+			-Fixed some errors while loading item_db2.txt
+		*Updated PetDB (Thanks to nanakiwurtz / rAthena)
+			-Updated bonus script for Incubus Pet.
+		*Added new script commands 'delequip' and 'replacestr'. (Thanks to rAthena)
+		*Added Port Malaya Quests. (Thanks to rAthena)
+		*Merged missing changes from 3ceam rev. 197 - 203
+		*Fixed some issues in r47 that make conflicts with cygwin.
+		*Fixed SC_FREEZING and SC_BURNING that were stacking.
+		*Minor fix in WM_SEVERE_RAINSTORM
+			-Finally added full support for this skill.
+		*Fixed SC_REPRODUCE
+			-This was memorizing a wrong skill id on certain skills.
+		*RK_MILLENNIUMSHIELD
+			-Added pre-support for this skill.
+		*AB_CLEMENTIA; AB_CANTO; AB_PRAEFATIO; AB_ORATIO; AB_LAUDAAGNUS; AB_LAUDARAMUS; AB_RENOVATIO; WL_FROSTMISTY
+			-Updated these skills and their statuses.
+		*AB_SECRAMENT; WL_MARSHOFABYSS
+			-Added full support for these skills.
+		
 04/05/2015
 	r47 [15peaces]
 		*Added Renewal City Spawns

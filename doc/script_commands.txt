@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.59.20150214
+//= 3.60.20150406
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -214,6 +214,8 @@
 //		  Added 'getargcount'. [15peaces]
 //= 3.60.20150219
 //		  Added 'isbegin_quest'. [15peaces]
+//= 3.60.20150406
+//		  Added 'delequip', 'replacestr'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -4688,6 +4690,16 @@ them. (Which is a good thing.)
 
 ---------------------------------------
 
+*delequip <equipment slot>{,<char_id>};
+
+This command will destroy whatever is currently equipped in the invoking
+character's specified equipment slot. For a full list of possible equipment 
+slots see 'getequipid'.
+
+This command will return 1 if an item was deleted and 0 otherwise.
+
+---------------------------------------
+
 *clearitem;
 
 This command will destroy all items the invoking character has in their 
@@ -6996,6 +7008,20 @@ The first letter is position 0.
 	Example:
 	setarray .@my_array$[0], "This", "is", "a", "test";
 	implode(.@my_array$, " "); //returns "This is a test"
+
+---------------------------------------
+
+*replacestr(<input>, <search>, <replace>{, <usecase>{, <count>}})
+
+Replaces all instances of a search string in the input with the specified
+replacement string. By default is case sensitive unless <usecase> is set
+to 0. If specified it will only replace as many instances as specified
+in the count parameter.
+
+Example:
+	replacestr("testing tester", "test", "dash"); //returns "dashing dasher"
+	replacestr("Donkey", "don", "mon", 0); //returns "monkey"
+	replacestr("test test test test test", "test", "yay", 0, 3); //returns "yay yay yay test test"
 
 ---------------------------------------
 

@@ -3838,7 +3838,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		case 12243: // Mercenary's Berserk Potion
 			if( sd->md == NULL || sd->md->db == NULL )
 				return 0;
-			if( sd->md->sc.data[SC_BERSERK] )
+			if( sd->md->sc.data[SC_BERSERK] || sd->md->sc.data[SC_SATURDAY_NIGHT_FEVER])
 				return 0;
 			if( nameid == 12242 && sd->md->db->lv < 40 )
 				return 0;
@@ -3951,7 +3951,8 @@ int pc_useitem(struct map_session_data *sd,int n)
 		sd->sc.data[SC__SHADOWFORM] ||
 		sd->sc.data[SC__INVISIBILITY] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
-		sd->sc.data[SC_DEEPSLEEP]
+		sd->sc.data[SC_DEEPSLEEP] ||
+		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]
 	))
 		return 0;
 
@@ -7946,7 +7947,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 		return 0;
 	}
 
-	if( sd->sc.data[SC_BERSERK] )
+	if( sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAY_NIGHT_FEVER] )
 	{
 		clif_equipitemack(sd,n,0,0);	// fail
 		return 0;
@@ -8117,7 +8118,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	}
 
 	// if player is berserk then cannot unequip
-	if( !(flag&2) && sd->sc.count && sd->sc.data[SC_BERSERK] )
+	if( !(flag&2) && sd->sc.count && (sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAY_NIGHT_FEVER]) )
 	{
 		clif_unequipitemack(sd,n,0,0);
 		return 0;
