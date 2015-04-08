@@ -16169,12 +16169,13 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index)
 void clif_millenniumshield(struct map_session_data *sd, short shields )
 {
 #if PACKETVER >= 20081217
-	unsigned char buf[8];
+	unsigned char buf[10];
 	int fd = sd->fd;
 
 	WBUFW(buf,0) = 0x440;
 	WBUFL(buf,2) = sd->bl.id;
 	WBUFW(buf,6) = shields;
+	WBUFW(buf,8) = 0;
 	clif_send(buf,packet_len(0x440),&sd->bl,AREA);
 #endif
 }
@@ -17082,7 +17083,7 @@ static int packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0, 25,
 	//#0x0440
-	    8,  4,  0,  0,  0,  0, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	   10,  4,  0,  0,  0,  0, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

@@ -1,17 +1,18 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Episode 12 Socket Enchant NPC
 //===== By: ================================================== 
 //= Gepard
 //===== Current Version: ===================================== 
-//= 1.1
+//= 1.2
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Adds slots to selected weapons and armor.
 //===== Additional Comments: ================================= 
 //= 1.0 First version.
 //= 1.1 Duplicates now spawn from floating NPCs. [L0ne_W0lf]
+//= 1.2 Added Special Ninja Suit. [15peaces]
 //============================================================ 
 
 -	script	Leablem#dummy::SocketEnchant2	-1,{
@@ -170,10 +171,11 @@
 					mes "A class? You seem to want little too much. But, no problem.";
 					mes "So, what kind of armor do you have?";
 					next;
-					switch(select("Pirate Bandana:Black Leather Boots"))
+					switch(select("Pirate Bandana:Black Leather Boots:Special Ninja Suit"))
 					{
 						case 1: callfunc "Func_Socket2",2287,5350,50,61,500,985,1; // 50,61 - it's not a typo
 						case 2: callfunc "Func_Socket2",2425,2434,40,51,500,985,1;
+						case 3: callfunc "Func_Socket2",15053,15056,50,61,500,985,1;
 					}
 				case 4:
 					mes "[Leablem]";

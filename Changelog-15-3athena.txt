@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/08/2015
+	r49 [15peaces]
+		*Merged missing changes from 3ceam rev. 204 - 206
+		*Added SC_REUSE_REFRESH as cooldown for RK_REFRESH according to the official behavior.
+		*Added SC_REUSE_COMET as temproray cooldown until we find a good way to handle it.
+		*Fixed Fear status change.
+		*Fixed SC_STRIPACCESARY skill.
+		*Fixed RK_MILLENNIUMSHIELD packet.
+			-Added full support for this skill.
+		*Updated Episode 12 Socket Enchant NPC to support Special Ninja Suit.
+		*Fixed WL_EARTHSTRAIN that was dealing damage through walls and adjusted its behavior.
+			-Added full support for this skill.		
+
 04/07/2015
 	r48 [15peaces]
 		*Updated ItemDB (Thanks to nanakiwurtz / rAthena)

@@ -2608,10 +2608,6 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 				case WM_REVERBERATION_MAGIC:
 					skill_attack(skill_get_type(skl->skill_id),src, src, target, skl->skill_id, skl->skill_lv, 0, SD_LEVEL);
 					break;
-				case GN_SPORE_EXPLOSION: //3ceam v1
-					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR,
-					src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);
-					break;
 				case SC_FATALMENACE:
 					{
 						short x,y;
@@ -2639,6 +2635,11 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 								unit_warp(target, -1, x, y, 3);
 						}
 					}
+					break;
+
+				case GN_SPORE_EXPLOSION:					
+					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR,						
+						src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);					
 					break;
 
 				default:
@@ -6353,6 +6354,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RK_REFRESH:// 3ceam v1
 		{
 			int heal = status_get_max_hp(bl) * 25 / 100;
+			sc_start(bl,SC_REUSE_REFRESH,100,skilllv,skill_get_cooldown(skillid,skilllv)); // Cooldown
 			clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start2(bl,type,100,skilllv,skill_get_time(skillid,skilllv),skill_get_cooldown(skillid,skilllv)));
 			status_heal(bl,heal,0,1);
@@ -7766,32 +7768,44 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, ALL_RESURRECTION, 1, tick, flag|BCT_NOENEMY|1,skill_castend_nodamage_id);
 		}
 		break;
-
+	case WL_COMET:
+		flag|=1;
+		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		sc_start(src,type,100,skilllv,skill_get_cooldown(skillid,skilllv));
+		break;
 	case WL_EARTHSTRAIN: //3ceam v1
 		{
-			int i;
+			int i, dir = map_calc_dir(src, x, y);
 			type = skill_get_unit_range(skillid, skilllv);
-			for( i = 1; i <= 5; i ++ )
+			x = src->x;
+			y = src->y;
+			for( i = 0; i <= 5; i ++ )
 			{
-				switch( map_calc_dir(src, x, y) )
+				switch( dir )
 				{
-					case 0: // North
-						y += type;
+					// North
+					case 0:
+					case 1:	
+					case 7:
+						y += (i==0)?1:type;
 						break;
-					case 2: // West
-						x -= type;
+					// West
+					case 2:
+						x -= (i==0)?1:type;
 						break;
-					case 4: // South
-						y -= type;
+					// South
+					case 3:
+					case 4:
+					case 5:
+						y -= (i==0)?1:type;
 						break;
-					case 6: // East
-						x += type;
-						break;
-					default:
-						if( sd )
-							clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0);
+					// East
+					case 6:
+						x += (i==0)?1:type;
 						break;
 				}
+				if( map_getcell(src->m,x,y,CELL_CHKWALL) )
+					break;
 				skill_addtimerskill(src, gettick() + 250 * i, src->id, x, y, skillid, skilllv, 0, 0);
 			}
 		}
@@ -10552,6 +10566,8 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 
 	case AB_ADORAMUS:
 	case WL_COMET:
+		if( sc && sc->data[SC_REUSE_COMET] )
+			return 0;
 		if( skill_check_pc_partner(sd, skill, &lv, 1, 0) )
 			sd->special_state.no_gemstone = 1;
 		break;
@@ -14244,26 +14260,26 @@ void skill_init_unit_layout (void)
 		if (i&1) {
 			skill_unit_layout[pos].count = 5;
 			if (i&0x2) {
-				int dx[] = {-1,-1, 0, 0, 1};
-				int dy[] = { 1, 0, 0,-1,-1};
+				int dx[] = {-7,-5, 0, 5, 7};
+				int dy[] = { 0, 0, 0, 0, 0};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			} else {
-				int dx[] = { 1, 1 ,0, 0,-1};
-				int dy[] = { 1, 0, 0,-1,-1};
+				int dx[] = {-7,-5 ,0, 5, 7};
+				int dy[] = { 0, 0, 0, 0, 0};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			}
 		} else {
 			skill_unit_layout[pos].count = 3;
 			if (i%4==0) {
-				int dx[] = {-1, 0, 1};
+				int dx[] = {-7,-5, 0, 5, 7};
 				int dy[] = { 0, 0, 0};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			} else {
 				int dx[] = { 0, 0, 0};
-				int dy[] = {-1, 0, 1};
+				int dy[] = {-7,-5, 0, 5, 7};
 				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 			}
