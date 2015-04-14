@@ -5650,50 +5650,62 @@ int pc_need_status_point(struct map_session_data* sd, int type, int val)
 	return sp;
 }
 
-/// Raises a stat by 1.
-/// Obeys max_parameter limits.
-/// Subtracts stat points.
-///
-/// @param type The stat to change (see enum _sp)
-int pc_statusup(struct map_session_data* sd, int type)
+/**
+ * Raises a stat by the specified amount.
+ *
+ * Obeys max_parameter limits.
+ * Subtracts status points according to the cost of the increased stat points.
+ *
+ * @param sd		The target character.
+ * @param type		The stat to change (see enum _sp)
+ * @param increase	The stat increase (strictly positive) amount.
+ * @retval 0		if the stat was increased by any amount.
+ * @retval 1		if there were no changes.
+ */
+bool pc_statusup(struct map_session_data* sd, int type, int increase)
 {
-	int max, need, val;
+	int max_increase = 0, current = 0, needed_points = 0, final_value = 0;
 
 	nullpo_ret(sd);
 
 	// check conditions
-	need = pc_need_status_point(sd,type,1);
-	if( type < SP_STR || type > SP_LUK || need < 0 || need > sd->status.status_point )
-	{
-		clif_statusupack(sd,type,0,0);
+	if (type < SP_STR || type > SP_LUK || increase <= 0) {
+		clif_statusupack(sd, type, 0, 0);
 		return 1;
 	}
 
 	// check limits
-	max = pc_maxparameter(sd);
-	if( pc_getstat(sd,type) >= max )
-	{
-		clif_statusupack(sd,type,0,0);
+	current = pc_getstat(sd, type);
+	max_increase = pc_maxparameter(sd);
+	increase = cap_value(increase, 0, max_increase); // cap to the maximum status points available
+	if (increase <= 0 || current + increase > pc_maxparameter(sd, (enum e_params)(type-SP_STR))) {
+		clif_statusupack(sd, type, 0, 0);
+		return 1;
+	}
+
+	// check status points
+	needed_points = pc_need_status_point(sd, type, increase);
+	if (needed_points < 0 || needed_points > sd->status.status_point) { // Sanity check
+		clif_statusupack(sd, type, 0, 0);
 		return 1;
 	}
 
 	// set new values
-	val = pc_setstat(sd, type, pc_getstat(sd,type) + 1);
-	sd->status.status_point -= need;
+	final_value = pc_setstat(sd, type, current + increase);
+	sd->status.status_point -= needed_points;
 
-	status_calc_pc(sd,0);
+	status_calc_pc(sd,SCO_NONE);
 
 	// update increase cost indicator
-	if( need != pc_need_status_point(sd,type,1) )
-		pc_onstatuschanged(sd, SP_USTR + type-SP_STR);
+	pc_onstatuschanged(sd, SP_USTR + type-SP_STR);
 
 	// update statpoint count
-	pc_onstatuschanged(sd,SP_STATUSPOINT);
+	pc_onstatuschanged(sd, SP_STATUSPOINT);
 
 	// update stat value
-	clif_statusupack(sd,type,1,val); // required
-	if( val > 255 )
-		pc_onstatuschanged(sd,type); // send after the 'ack' to override the truncated value
+	clif_statusupack(sd, type, 1, final_value); // required
+	if( final_value > 255 )
+		pc_onstatuschanged(sd, type); // send after the 'ack' to override the truncated value
 
 	return 0;
 }

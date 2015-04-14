@@ -10924,19 +10924,23 @@ void clif_parse_ChangeCart(int fd,struct map_session_data *sd)
 		pc_setcart(sd,type);
 }
 
-
 /// Request to increase status (CZ_STATUS_CHANGE).
 /// 00bb <status id>.W <amount>.B
 /// status id:
 ///     SP_STR ~ SP_LUK
 /// amount:
-///     client sends always 1 for this, even when using /str+ and
-///     the like
+///     Old clients always send 1 for this, even when using /str+ and the like.
+///     Newer clients (2013-12-23 and newer) send the correct amount.
 void clif_parse_StatusUp(int fd,struct map_session_data *sd)
 {
-	pc_statusup(sd,RFIFOW(fd,2));
-}
+	int increase_amount = RFIFOB(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 
+	if( increase_amount < 0 ) {
+		ShowDebug("clif_parse_StatusUp: Negative 'increase' value sent by client! (fd: %d, value: %d)\n",
+			fd, increase_amount);
+	}
+	pc_statusup(sd,RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]),increase_amount);
+}
 
 /// Request to increase level of a skill (CZ_UPGRADE_SKILLLEVEL).
 /// 0112 <skill id>.W

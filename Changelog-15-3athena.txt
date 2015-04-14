@@ -4,6 +4,12 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/14/2015
+	r50 [15peaces]
+	*2013-12-23cRagexe Update
+		-Updated CZ_STATUS_CHANGE packet.
+		-Fixed /str, /agi, /vit, /int, /dex and /luk commands.
+
 04/08/2015
 	r49 [15peaces]
 		*Merged missing changes from 3ceam rev. 204 - 206

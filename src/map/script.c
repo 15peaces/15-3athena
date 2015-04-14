@@ -7138,7 +7138,7 @@ BUILDIN_FUNC(statusup)
 	if( sd == NULL )
 		return 0;
 
-	pc_statusup(sd,type);
+	pc_statusup(sd,type,1);
 
 	return 0;
 }
