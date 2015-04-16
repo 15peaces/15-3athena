@@ -4,6 +4,12 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/16/2015
+	r51 [15peaces]
+	*Added Bangungot Hospital Instance Script
+		-This is currently for testing!
+	*Corrected position of Auction Hall Guide to match new prontera.
+	
 04/14/2015
 	r50 [15peaces]
 	*2013-12-23cRagexe Update
