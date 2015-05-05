@@ -4,17 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/05/2015
+	r52 [15peaces]
+		*Updated all Episode 13.x scripts and quest_db entries.
+
 04/16/2015
 	r51 [15peaces]
-	*Added Bangungot Hospital Instance Script
-		-This is currently for testing!
-	*Corrected position of Auction Hall Guide to match new prontera.
+		*Added Bangungot Hospital Instance Script
+			-This is currently for testing!
+		*Corrected position of Auction Hall Guide to match new prontera.
 	
 04/14/2015
 	r50 [15peaces]
-	*2013-12-23cRagexe Update
-		-Updated CZ_STATUS_CHANGE packet.
-		-Fixed /str, /agi, /vit, /int, /dex and /luk commands.
+		*2013-12-23cRagexe Update
+			-Updated CZ_STATUS_CHANGE packet.
+			-Fixed /str, /agi, /vit, /int, /dex and /luk commands.
 
 04/08/2015
 	r49 [15peaces]
