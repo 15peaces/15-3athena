@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/11/2015
+	r53 [15peaces]
+		*GN_HELLS_PLANT
+			-Updated unit_db to official.
+			-Hells Plant should be castable at the feet of another player.
+		*Updated ItemDB
+			-Added full support for Crown of Deceit [1].
+			-Added full support for Assassin's Glove combos.
+
 05/05/2015
 	r52 [15peaces]
 		*Updated all Episode 13.x scripts and quest_db entries.

@@ -869,3 +869,7 @@
 15058,Rider_Suit,Rider Suit,5,20,,1000,0,40,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); if(isequipped(2425)){bonus bAgi,2; bonus bFlee,5;} if(isequipped(2434)){bonus bAgi,2; bonus bFlee,5;} },{},{}
 
 18114,Velum_CrossBow,Vellum CrossBow,4,20,,1100,110,,5,0,0x000A0848,63,2,34,4,95,1,11,{ bonus2 bAddRace,RC_Player,30+getrefine(); bonus2 bIgnoreDefRaceRate,RC_Player,30; if(isequipped(1775)){bonus bLongAtkRate,70;} if(isequipped(1776)){bonus bLongAtkRate,40;} },{},{}
+
+16246,Crown_Of_Deceit_Box,Crown Of Deceit Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5564,1; },{},{}
+
+2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,3,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
