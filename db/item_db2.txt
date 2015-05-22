@@ -873,3 +873,5 @@
 16246,Crown_Of_Deceit_Box,Crown Of Deceit Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5564,1; },{},{}
 
 2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,3,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
+
+19542,C_Devil_Whisper,Costume Devil Whisper,4,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,712,{ bonus bUnbreakableHelm,0; bonus2 bSubRace,RC_Angel,1; bonus2 bSubRace,RC_Demon,1; bonus3 bAddMonsterDropItem,523,RC_Angel,400; bonus3 bAddMonsterDropItem,12020,RC_Demon,400; },{},{}

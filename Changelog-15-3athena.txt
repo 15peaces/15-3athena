@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/22/2015
+	r54 [15peaces]
+		*Introducing a new unique system: The Episode System.
+			-You're able to configure the kRO episode your server will run on.
+			-Please read the instructions before changing anything.
+			-Please note: This feature is experimental right now. I'll extend its functionality from time to time.
+		*Updated ItemDB
+			-Added Hunting Arrow combo bonus.
+			-Added full support for Costume Devil Whisper.
+		*Updated Lighthalzen scripts.
+			-Added Banking functions for Episode 10.2.
+		*Added full support for for EP 1 Day / Night Cycle.
+
 05/11/2015
 	r53 [15peaces]
 		*GN_HELLS_PLANT

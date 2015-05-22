@@ -1,0 +1,28 @@
+//===== 15-3athena Script ====================================
+//= Day-Night Cycle Script
+//===== By: ================================================== 
+//= 15peaces
+//===== Current Version: ===================================== 
+//= 1.0
+//===== Compatible With: ===================================== 
+//= 15-3athena Project (r54+)
+//===== Description: ========================================= 
+//= An Script for EP 1 Day / Night Cycle
+//= There are not that many infos about this system...
+//===== Additional Comments: ================================= 
+//= 1.0 First Version.[15peaces]
+//============================================================
+-	script	DayNight	1,0,30,-1,{
+OnHour07:
+	day;
+	end;
+	
+OnHour19:
+	night;
+	end;
+	
+OnInit:
+	if(gettime(3)>=7 && gettime(3)<19) day;
+	else night;
+	end;
+}

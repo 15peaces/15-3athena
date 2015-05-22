@@ -71,6 +71,7 @@ struct npc_data {
 		struct {
 			struct script_code *script;
 			short xs,ys; // OnTouch area radius
+			short ep_min,ep_max; //Episode System [15peaces]
 			int guild_id;
 			int timer,timerid,timeramount,rid;
 			unsigned int timertick;

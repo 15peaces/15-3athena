@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //=  erKURITA, Au{R}oN (Translated by Alan), $ephiroth
 //===== Current Version: ===================================== 
-//= 2.2
+//= 2.3
 //===== Compatible With: ===================================== 
 //= eAthena SVN
 //= 15-3athena rev. 1+
@@ -43,6 +43,7 @@
 //= 2.0 Added missing Lab Staff#amano08 NPC. (bugreport:4319) [Gepard]
 //= 2.1 Commented out Duplicate NPCs. (bugreport:4555)
 //= 2.2 Added missing NPC found in AEGIS files. [L0ne_W0lf]
+//= 2.3 Added Banking functions for Episode 10.2. [15peaces]
 //=============================================================
 
 lighthalzen,198,285,5	script	Jiwon#zen5	862,{
@@ -2008,7 +2009,7 @@ lhz_in01,25,141,4	script	Regenschirm Guard	868,{
 
 // Lighthalzen Bank Area ------------------------------------------------------
 
-lhz_in02,34,41,1	script	Arthur#zen16	849,{
+lhz_in02,34,41,1	script	Arthur#zen16	1,102,-1,849,{
 	mes "[Arthur]";
 	mes "The chairs here are";
 	mes "so not ergonomic. And";
@@ -2019,7 +2020,7 @@ lhz_in02,34,41,1	script	Arthur#zen16	849,{
 	close;
 }
 
-lhz_in02,28,39,3	script	Helen#zen6	703,{
+lhz_in02,28,39,3	script	Helen#zen6	1,102,-1,703,{
 	mes "[Helen]";
 	mes "You know, maybe when";
 	mes "I grow up, I'll be a bank";
@@ -2029,7 +2030,7 @@ lhz_in02,28,39,3	script	Helen#zen6	703,{
 	close;
 }
 
-lhz_in02,31,34,3	script	Tadem#zen6	847,{
+lhz_in02,31,34,3	script	Tadem#zen6	1,102,-1,847,{
 	mes "[Tadem]";
 	mes "I do so enjoy the";
 	mes "architectural structure";
@@ -2040,7 +2041,7 @@ lhz_in02,31,34,3	script	Tadem#zen6	847,{
 	close;
 }
 
-lhz_in02,31,33,3	script	Gracie#5	863,{
+lhz_in02,31,33,3	script	Gracie#5	1,102,-1,863,{
 	mes "[Gracie]";
 	mes "Oh, it's so comfortable";
 	mes "in here~ Though, why are";
@@ -2059,17 +2060,20 @@ lhz_in02,31,33,3	script	Gracie#5	863,{
 	close;
 }
 
-lhz_in02,21,38,7	script	Bank Clerk#1::BankClerk	86,{
+lhz_in02,21,38,7	script	Bank Clerk#1::BankClerk	1,102,-1,86,{
 	mes "[Bank Clerk]";
-	mes "Due to some critical system";
-	mes "errors, all of the bank services";
-	mes "have been temporarily stopped.";
-	mes "We apologize for any inconvenience and appreciate your understanding.";
-	close;
+	if(getbattleflag("feature.episode") > 102){
+		mes "Due to some critical system";
+		mes "errors, all of the bank services";
+		mes "have been temporarily stopped.";
+		mes "We apologize for any inconvenience and appreciate your understanding.";
+		close;
+	}
+	callfunc("F_Lighthalzen_Bank");
 }
 
-lhz_in02,21,25,7	duplicate(BankClerk)	Bank Clerk#2	86
-lhz_in02,34,22,1	duplicate(BankClerk)	Bank Clerk#3	755
+lhz_in02,21,25,7	duplicate(BankClerk)	Bank Clerk#2	1,102,-1,86
+lhz_in02,34,22,1	duplicate(BankClerk)	Bank Clerk#3	1,102,-1,755
 
 // Lightalzen Prison Area -------------------------------------------------------------
 
@@ -3208,6 +3212,52 @@ lhz_in01,221,131,7	script	Scientist#li_01	865,{
 		close2;
 		warp "lhz_in01",33,224;
 		end;
+	}
+}
+
+function	script	F_Lighthalzen_Bank	{
+	//Custom function
+	//It uses the same variables as the custom banker, so it's fully compatible.
+	mes "Welcome to the Bank of Lighthalzen";
+	mes "What can I do for you?";
+	mes "-------------------------";
+	mes "You got "+zeny+"z with you";
+	mes "Stored: "+#bankstorage+"z";
+	next;
+	switch(select("I'd like to make a deposit.:I'd like to make a withdrawal.:Cancel")){
+		case 1:
+			mes "[Bank Clerk]";
+			mes "Very well... How much would you like to deposit? The maximum you can deposit at once is 10,000,000 Zeny.";
+			input @deposit;
+			if (@deposit < 1){
+				mes "Don't play jokes with me please. Next time ask for a real amount.";
+				close;
+			}else if (@deposit > Zeny){
+				mes "You don't have enough Zeny to make that deposit.";
+				close;
+			}	
+			set Zeny,Zeny - @deposit;
+			set #bankstorage,#bankstorage + @deposit;
+			mes "Thank you very much... Your zeny is in good hands.";
+			close;
+		case 2:
+			mes "[Bank Clerk]";
+			mes "Very well... How much would you like to withdraw? The maximum you can withdraw at one time is 10,000,000 Zeny";
+			input @withdrawl;
+			if (@withdrawl < 1){
+				mes "Don't play jokes with me please. Next time ask for a real amount.";
+				close;
+			}else if (@withdrawl > #bankstorage){
+				mes "You don't have enough Zeny in your account.";
+				close;
+			}	
+			set Zeny,Zeny + @withdrawl;
+			set #bankstorage,#bankstorage - @withdrawl;
+			mes "There's your Zeny. Have a good day.";
+			close;
+		default:
+			mes "Very well... come again soon.";
+			close;
 	}
 }
 

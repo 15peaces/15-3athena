@@ -4655,6 +4655,8 @@ static const struct _battle_data {
 	{ "break_guild",                        &battle_config.guild_break,                     3,      0,      3,              },
 	{ "disable_invite",                     &battle_config.guild_disable_invite,           -1,     -1,      15,             },
 	{ "disable_expel",                      &battle_config.guild_disable_expel,            -1,     -1,      15,             },
+	//Episode System [15peaces]
+	{ "feature.episode",					&battle_config.feature_episode,		           142,     1,      142,            },
 };
 
 

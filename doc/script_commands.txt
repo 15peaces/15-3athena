@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.60.20150406
+//= 3.61.20150521
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -216,6 +216,8 @@
 //		  Added 'isbegin_quest'. [15peaces]
 //= 3.60.20150406
 //		  Added 'delequip', 'replacestr'. [15peaces]
+//= 3.61.20150521
+//		  Added basic support for Episode System. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -426,6 +428,8 @@ current scripts have a zero in there.
 
 <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<sprite id>,{<code>}
 <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>,{<code>}
+<map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,{<code>}
+<map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,<triggerX>,<triggerY>,{<code>}
 
 This will place an NPC object on a specified map at the specified location, and 
 is a top-level command you will use the most in your custom scripting. The NPCs 
@@ -438,6 +442,19 @@ will be meaningless. Facings are counted counterclockwise in increments of 45
 degrees, where 0 means facing towards the top of the map. (So to turn the sprite 
 towards the bottom of the map, you use facing 4, and to make it look southeast 
 it's facing 5.)
+
+The 3 episode flags are optional. All NPC objects will work the same way as before
+the episode system update. So you won't need to update any npcs. These flags
+are:
+	episode_flag:	If set to 1, the server will treat the npc as episode system
+					compatible. Now the other episode flags will be read.
+	min_episode:	Set this to the minimum episode this npc should load.
+					(set this to 0 to disable min_episode)
+	max_episode:	Set this to the maximum episode this npc should load.
+					(set this to -1 to disable max_episode)
+NOTE: More infos about the episode system feature can be found in features.conf
+file. All supported kRO episodes are listed in this file, too. You'll need to set
+your servers episode in mmo.h and recompile your server before using this system.
 
 Sprite id is the sprite number used to display this particular NPC. For a full 
 list of sprite id numbers see http://kalen.s79.xrea.com/npc/npce.shtml You may 
@@ -502,6 +519,7 @@ shop/cashshop/npc: -%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>
 shop/cashshop/npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>
 npc: -%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
 npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
+npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,<triggerX>,<triggerY>
 
 This will duplicate an warp/shop/cashshop/NPC referred to by 'label'.
 Warp duplicates inherit the target location.
@@ -509,6 +527,9 @@ Shop/cashshop duplicates inherit the item list.
 NPC duplicates inherit the script code.
 The rest (name, location, facing, sprite ID, span/trigger area)
 is obtained from the definition of the duplicate (not inherited).
+
+Episode flags work the same way as listed listed in the 'script' part of this documentation.
+However the duplicated npc won't copy the episode-settings of its base npc. 
 
 ** Define a function object
 

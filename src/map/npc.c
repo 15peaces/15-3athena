@@ -2471,12 +2471,15 @@ static const char* npc_skip_script(const char* start, const char* buffer, const 
 /// -%TAB%script%TAB%<NPC Name>%TAB%-1,{<code>}
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<sprite id>,{<code>}
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>,{<code>}
+/// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,{<code>}
+/// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,<triggerX>,<triggerY>,{<code>}
 static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath,  int options)
 {
-	int x, y, dir = 0, m, xs = 0, ys = 0, class_ = 0;	// [Valaris] thanks to fov
+	int x, y, dir = 0, m, xs = 0, ys = 0, class_ = 0, episode_ident, min_episode, max_episode = 0;	// [Valaris] thanks to fov
 	char mapname[32];
 	struct script_code *script;
 	int i;
+	bool ignore = false;
 	const char* end;
 	const char* script_start;
 
@@ -2513,51 +2516,65 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	if( end == NULL )
 		return NULL;// (simple) parse error, don't continue
 
-	script = parse_script(script_start, filepath, strline(buffer,script_start-buffer), SCRIPT_USE_LABEL_DB);
-	label_list = NULL;
-	label_list_num = 0;
-	if( script )
-	{
-		DBMap* label_db = script_get_label_db();
-		label_db->foreach(label_db, npc_convertlabel_db, &label_list, &label_list_num, filepath);
-		label_db->clear(label_db, NULL); // not needed anymore, so clear the db
+	//Episode System [15peaces]
+	if( sscanf(w4, "%d,%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6 ); // OnTouch area defined
+	else if( sscanf(w4, "%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &class_) == 4 ); // no OnTouch area
+	else {// no OnTouch area & no episode
+		class_ = atoi(w4);
+		xs = -1;
+		ys = -1;
+		min_episode = 0;
+		max_episode = 0;
+	}
+
+	//Check Episode
+	if(min_episode == 0 && max_episode == 0);
+	else if(battle_config.feature_episode >= min_episode && max_episode == -1);
+	else if(battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
+	else
+		ignore = true;// ignore npc [15peaces]
+
+	if(ignore == false){
+		script = parse_script(script_start, filepath, strline(buffer,script_start-buffer), SCRIPT_USE_LABEL_DB);
+		label_list = NULL;
+		label_list_num = 0;
+		if( script )
+		{
+			DBMap* label_db = script_get_label_db();
+			label_db->foreach(label_db, npc_convertlabel_db, &label_list, &label_list_num, filepath);
+			label_db->clear(label_db, NULL); // not needed anymore, so clear the db
+		}
 	}
 
 	CREATE(nd, struct npc_data, 1);
 
-	if( sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3 )
-	{// OnTouch area defined
+	if(ignore == false){
+		nd->u.scr.ep_min = min_episode;
+		nd->u.scr.ep_max = max_episode;
 		nd->u.scr.xs = xs;
 		nd->u.scr.ys = ys;
+		nd->bl.prev = nd->bl.next = NULL;
+		nd->bl.m = m;
+		nd->bl.x = x;
+		nd->bl.y = y;
+		npc_parsename(nd, w3, start, buffer, filepath);
+		nd->bl.id = npc_get_new_npc_id();
+		nd->class_ = class_;
+		nd->speed = 200;
+		nd->u.scr.script = script;
+		nd->u.scr.label_list = label_list;
+		nd->u.scr.label_list_num = label_list_num;
+
+		if( options&NPO_TRADER )
+			nd->u.scr.trader = true;
+		nd->u.scr.shop = NULL;
+
+		++npc_script;
+		nd->bl.type = BL_NPC;
+		nd->subtype = SCRIPT;
 	}
-	else
-	{// no OnTouch area
-		class_ = atoi(w4);
-		nd->u.scr.xs = -1;
-		nd->u.scr.ys = -1;
-	}
 
-	nd->bl.prev = nd->bl.next = NULL;
-	nd->bl.m = m;
-	nd->bl.x = x;
-	nd->bl.y = y;
-	npc_parsename(nd, w3, start, buffer, filepath);
-	nd->bl.id = npc_get_new_npc_id();
-	nd->class_ = class_;
-	nd->speed = 200;
-	nd->u.scr.script = script;
-	nd->u.scr.label_list = label_list;
-	nd->u.scr.label_list_num = label_list_num;
-
-	if( options&NPO_TRADER )
-		nd->u.scr.trader = true;
-	nd->u.scr.shop = NULL;
-
-	++npc_script;
-	nd->bl.type = BL_NPC;
-	nd->subtype = SCRIPT;
-
-	if( m >= 0 )
+	if( m >= 0 && ignore == false)
 	{
 		map_addnpc(m, nd);
 		status_change_init(&nd->bl);
@@ -2639,7 +2656,7 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 /// npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<name of target>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
 const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	int x, y, dir, m, xs = -1, ys = -1, class_ = 0;
+	int x, y, dir, m, xs = -1, ys = -1, class_ = 0, episode_ident, min_episode, max_episode = 0;
 	char mapname[32];
 	char srcname[128];
 	int i;
@@ -2686,16 +2703,29 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		m = map_mapname2mapid(mapname);
 	}
 
-	if( type == WARP && sscanf(w4, "%d,%d", &xs, &ys) == 2 );// <spanx>,<spany>
-	else if( type == SCRIPT && sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3);// <sprite id>,<triggerX>,<triggerY>
+	CREATE(nd, struct npc_data, 1);
+
+	nd->u.scr.ep_min = 0;
+	nd->u.scr.ep_max = 0;
+
+	if( type == WARP && sscanf(w4, "%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &xs, &ys) == 5 ){// <ep_identifier>,<min_ep>,<max_ep>,<spanx>,<spany>
+		nd->u.scr.ep_min = min_episode;
+		nd->u.scr.ep_max = max_episode;
+	}
+	else if( type == SCRIPT && sscanf(w4, "%d,%d,%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6){// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>,<triggerX>,<triggerY>
+		nd->u.scr.ep_min = min_episode;
+		nd->u.scr.ep_max = max_episode;
+	}
+	else if( type == SCRIPT && sscanf(w4, "%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_) == 4){// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>
+		nd->u.scr.ep_min = min_episode;
+		nd->u.scr.ep_max = max_episode;
+	}
 	else if( type != WARP ) class_ = atoi(w4);// <sprite id>
 	else
 	{
 		ShowError("npc_parse_duplicate: Invalid span format for duplicate warp in file '%s', line '%d'. Skipping line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return end;// next line, try to continue
 	}
-
-	CREATE(nd, struct npc_data, 1);
 
 	nd->bl.prev = nd->bl.next = NULL;
 	nd->bl.m = m;
@@ -2742,8 +2772,17 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		break;
 	}
 
+	//Check Episode
+	i = 0;
+	if(nd->u.scr.ep_min == 0 && nd->u.scr.ep_max == 0)
+		i = 1;
+	else if(battle_config.feature_episode >= nd->u.scr.ep_min && nd->u.scr.ep_max == -1)
+		i = 1;
+	else if(battle_config.feature_episode >= nd->u.scr.ep_min && battle_config.feature_episode <= nd->u.scr.ep_max)
+		i = 1;
+
 	//Add the npc to its location
-	if( m >= 0 )
+	if( m >= 0 && i == 1)
 	{
 		map_addnpc(m, nd);
 		status_change_init(&nd->bl);
