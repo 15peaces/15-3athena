@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.61.20150521
+//= 3.62.20150523
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -218,6 +218,8 @@
 //		  Added 'delequip', 'replacestr'. [15peaces]
 //= 3.61.20150521
 //		  Added basic support for Episode System. [15peaces]
+//= 3.62.20150523
+//=		  Added 'countstr', 'sprintf'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -7032,6 +7034,19 @@ The first letter is position 0.
 
 ---------------------------------------
 
+*sprintf(<format>[,param[,param[,...]]])
+
+C style sprintf. The resulting string is returned same as in PHP. All C format 
+specifiers are supported except %n. More info: sprintf @ www.cplusplus.com. 
+The number of params is only limited by rA's script engine.
+
+Example:
+	.@format$ = "The %s contains %d monkeys";
+	dispbottom(sprintf(.@format$, "zoo", 5));        //prints "The zoo contains 5 monkeys"
+	dispbottom(sprintf(.@format$, "barrel", 82));    //prints "The barrel contains 82 monkeys"
+
+---------------------------------------
+
 *replacestr(<input>, <search>, <replace>{, <usecase>{, <count>}})
 
 Replaces all instances of a search string in the input with the specified
@@ -7043,6 +7058,17 @@ Example:
 	replacestr("testing tester", "test", "dash"); //returns "dashing dasher"
 	replacestr("Donkey", "don", "mon", 0); //returns "monkey"
 	replacestr("test test test test test", "test", "yay", 0, 3); //returns "yay yay yay test test"
+
+---------------------------------------
+
+*countstr(<input>, <search>{, <usecase>})
+
+Counts all instances of a search string in the input. By default is case
+sensitive unless <usecase> is set to 0.
+
+Example:
+	countstr("test test test Test", "test"); //returns 3
+	countstr("cake Cake", "Cake", 0); //returns 2
 
 ---------------------------------------
 

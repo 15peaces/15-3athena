@@ -1810,6 +1810,7 @@ packet_ver: 32
 0x0438,10,useskilltopos,2:4:6:8
 0x07e4,6,takeitem,2
 0x07ec,8,movetokafra,2:4
+0x0802,26,partyinvite2,2
 0x083c,10,useskilltoid,2:4:6
 0x0844,2,pCashShopOpen,0
 0x084a,2,pCashShopClose,0

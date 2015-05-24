@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/24/2015
+	r55 [15peaces]
+		*2013-12-23cRagexe Update
+			-Fixed party-invite bug, added packet 0x0802.
+		*Fixed a cordinate bug in cursed spirit quest.
+		*Fixed Magic Books quests.
+			-Added F_GetPlural and F_InsertPlural to global functions (thanks to Euphy / rAthena).
+			-Added 'countstr' and 'sprintf' script commands (thanks to rAthena). 
+
 05/22/2015
 	r54 [15peaces]
 		*Introducing a new unique system: The Episode System.

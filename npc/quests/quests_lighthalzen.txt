@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Quest NPCs located in Lighthalzen
 //===== By: ================================================== 
 //= Persian, Vicious_Pucca, aoa00, Evera, MasterOfMupppets,
@@ -6,7 +6,7 @@
 //===== Current Version: ===================================== 
 //= 4.7
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Quests related to Lighthalzen City.
 //===== Additional Comments: ================================= 
@@ -3481,7 +3481,7 @@ OnTouch_:
 	end;
 }
 
-lhz_dun02,60,298,0	duplicate(#kiz02-1)	#kiz02-2	-1,3,3
+lhz_dun02,60,293,0	duplicate(#kiz02-1)	#kiz02-2	-1,3,3
 lhz_dun02,267,278,0	duplicate(#kiz02-1)	#kiz02-3	-1,3,3
 lhz_dun02,94,199,0	duplicate(#kiz02-1)	#kiz02-4	-1,3,3
 

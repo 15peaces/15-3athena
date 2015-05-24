@@ -13256,6 +13256,149 @@ BUILDIN_FUNC(implode)
 	return 0;
 }
 
+//=======================================================
+// sprintf(<format>, ...);
+// Implements C sprintf, except format %n. The resulting string is
+// returned, instead of being saved in variable by reference.
+//-------------------------------------------------------
+BUILDIN_FUNC(sprintf)
+{
+	unsigned int len, argc = 0, arg = 0, buf2_len = 0;
+	const char* format;
+	char* p;
+	char* q;
+	char* buf  = NULL;
+	char* buf2 = NULL;
+	struct script_data* data;
+	StringBuf final_buf;
+
+	// Fetch init data
+	format = script_getstr(st, 2);
+	argc = script_lastdata(st)-2;
+	len = strlen(format);
+
+	// Skip parsing, where no parsing is required.
+	if(len == 0) {
+		script_pushconststr(st,"");
+		return 0;
+	}
+
+	// Pessimistic alloc
+	CREATE(buf, char, len+1);
+
+	// Need not be parsed, just solve stuff like %%.
+	if(argc == 0) {
+		memcpy(buf,format,len+1);
+		script_pushstrcopy(st, buf);
+		aFree(buf);
+		return 0;
+	}
+
+	safestrncpy(buf, format, len+1);
+
+	// Issue sprintf for each parameter
+	StringBuf_Init(&final_buf);
+	q = buf;
+	while((p = strchr(q, '%')) != NULL) {
+		if(p != q) {
+			len = p - q + 1;
+
+			if(buf2_len < len) {
+				RECREATE(buf2, char, len);
+				buf2_len = len;
+			}
+
+			safestrncpy(buf2, q, len);
+			StringBuf_AppendStr(&final_buf, buf2);
+			q = p;
+		}
+
+		p = q + 1;
+
+		if(*p == '%') {  // %%
+			StringBuf_AppendStr(&final_buf, "%");
+			q+=2;
+			continue;
+		}
+
+		if(*p == 'n') {  // %n
+			ShowWarning("buildin_sprintf: Format %%n not supported! Skipping...\n");
+			script_reportsrc(st);
+			q+=2;
+			continue;
+		}
+
+		if(arg >= argc) {
+			ShowError("buildin_sprintf: Not enough arguments passed!\n");
+			if(buf) aFree(buf);
+			if(buf2) aFree(buf2);
+			StringBuf_Destroy(&final_buf);
+			script_pushconststr(st,"");
+			return 1;
+		}
+
+		if((p = strchr(q+1, '%')) == NULL)
+			p = strchr(q, 0);  // EOS
+
+		len = p - q + 1;
+
+		if(buf2_len < len) {
+			RECREATE(buf2, char, len);
+			buf2_len = len;
+		}
+
+		safestrncpy(buf2, q, len);
+		q = p;
+
+		// Note: This assumes the passed value being the correct
+		// type to the current format specifier. If not, the server
+		// probably crashes or returns anything else, than expected,
+		// but it would behave in normal code the same way so it's
+		// the scripter's responsibility.
+		data = script_getdata(st, arg+3);
+
+		if(data_isstring(data))  // String
+			StringBuf_Printf(&final_buf, buf2, script_getstr(st, arg+3));
+		else if(data_isint(data))  // Number
+			StringBuf_Printf(&final_buf, buf2, script_getnum(st, arg+3));
+		else if(data_isreference(data)) {  // Variable
+			char* name = reference_getname(data);
+
+			if(name[strlen(name)-1]=='$')  // var Str
+				StringBuf_Printf(&final_buf, buf2, script_getstr(st, arg+3));
+			else  // var Int
+				StringBuf_Printf(&final_buf, buf2, script_getnum(st, arg+3));
+		} else {  // Unsupported type
+			ShowError("buildin_sprintf: Unknown argument type!\n");
+			if(buf) aFree(buf);
+			if(buf2) aFree(buf2);
+			StringBuf_Destroy(&final_buf);
+			script_pushconststr(st,"");
+			return 1;
+		}
+
+		arg++;
+	}
+
+	// Append anything left
+	if(*q)
+		StringBuf_AppendStr(&final_buf, q);
+
+	// Passed more, than needed
+	if(arg < argc) {
+		ShowWarning("buildin_sprintf: Unused arguments passed.\n");
+		script_reportsrc(st);
+	}
+
+	script_pushstrcopy(st, StringBuf_Value(&final_buf));
+
+	if(buf) aFree(buf);
+	if(buf2) aFree(buf2);
+	StringBuf_Destroy(&final_buf);
+
+	return 0;
+}
+
 //===============================================================
 // replacestr <input>, <search>, <replace>{, <usecase>{, <count>}}
 //
@@ -13342,6 +13485,66 @@ BUILDIN_FUNC(replacestr)
 
 	script_pushstrcopy(st, StringBuf_Value(&output));
 	StringBuf_Destroy(&output);
+	return 0;
+}
+
+//========================================================
+// countstr <input>, <search>{, <usecase>}
+//
+// Note: Counts the number of times <search> occurs in
+// <input>. By default will be case sensitive.
+//--------------------------------------------------------
+BUILDIN_FUNC(countstr)
+{
+	const char *input = script_getstr(st, 2);
+	const char *find = script_getstr(st, 3);
+	size_t inputlen = strlen(input);
+	size_t findlen = strlen(find);
+	bool usecase = true;
+
+	int numFinds = 0;
+	int i = 0, f = 0;
+
+	if(findlen == 0) {
+		ShowError("script:countstr: Invalid search length.\n");
+		st->state = END;
+		return 1;
+	}
+
+	if(script_hasdata(st, 4)) {
+		struct script_data *data;
+
+		data = script_getdata(st, 4);
+		get_val(st, data); // Convert into value in case of a variable
+		if( !data_isstring(data) )
+			usecase = script_getnum(st, 4) != 0;
+		else {
+			ShowError("script:countstr: Invalid usecase value. Expected int got string\n");
+			st->state = END;
+			return 1;
+		}
+	}
+
+	for(; i < inputlen; i++) {
+		for(f = 0; f <= findlen; f++) {
+			if(f == findlen) { //complete match
+				numFinds++;
+				i += findlen - 1;
+				break;
+			} else {
+				if(usecase) {
+					if((i + f) > inputlen || input[i + f] != find[f]) {
+						break;
+					}
+				} else {
+					if(((i + f) > inputlen || input[i + f] != find[f]) && TOUPPER(input[i+f]) != TOUPPER(find[f])) {
+						break;
+					}
+				}
+			}
+		}
+	}
+	script_pushint(st, numFinds);
 	return 0;
 }
 
@@ -16924,7 +17127,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(substr,"sii"),
 	BUILDIN_DEF(explode, "rss"),
 	BUILDIN_DEF(implode, "r?"),
+	BUILDIN_DEF(sprintf,"s*"),  // Thanks to Mirei [15peaces]
 	BUILDIN_DEF(replacestr,"sss??"),
+	BUILDIN_DEF(countstr,"ss?"),
 	BUILDIN_DEF(setnpcdisplay,"sv??"),
 	BUILDIN_DEF(compare,"ss"), // Lordalfa - To bring strstr to scripting Engine.
 	BUILDIN_DEF(getiteminfo,"ii"), //[Lupus] returns Items Buy / sell Price, etc info
