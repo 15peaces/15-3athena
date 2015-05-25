@@ -1351,9 +1351,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 	ud->skilllv      = skill_lv;
 
  	if( sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&4) && skill_num != AS_CLOAKING )
-	{
+	{ // Need confirm if Cloaking Exceed ends it.
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
 		if (!src->prev) return 0; //Warped away!
+	}
+
+	if( sc && sc->data[SC_CLOAKINGEXCEED] && !(sc->data[SC_CLOAKINGEXCEED]->val4&4) && skill_num != GC_CLOAKINGEXCEED )
+	{ // Need confirm if Cloaking ends it.
+		status_change_end(src,SC_CLOAKINGEXCEED,-1);
+		if (!src->prev) return 0;
 	}
 
 	if( sc && sc->data[SC__MANHOLE] )
@@ -1462,8 +1468,14 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, sh
 	ud->skilltarget  = 0;
 
 	if (sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&4))
-	{
+	{ // Need confirm if Cloaking ends it.
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
+		if (!src->prev) return 0; //Warped away!
+	}
+
+	if (sc && sc->data[SC_CLOAKINGEXCEED] && !(sc->data[SC_CLOAKINGEXCEED]->val4&4))
+	{ // Need confirm if Cloaking ends it.
+		status_change_end(src,SC_CLOAKINGEXCEED,-1);
 		if (!src->prev) return 0; //Warped away!
 	}
 
@@ -2034,6 +2046,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl, SC_CHANGE, INVALID_TIMER);
 			status_change_end(bl, SC_STOP, INVALID_TIMER);
 			status_change_end(bl,SC_ELECTRICSHOCKER, INVALID_TIMER);
+			status_change_end(bl,SC_CLOAKINGEXCEED, INVALID_TIMER);
 			status_change_end(bl,SC_WUGBITE, INVALID_TIMER);
 			status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
 			status_change_end(bl,SC_CAMOUFLAGE, INVALID_TIMER);

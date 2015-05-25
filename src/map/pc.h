@@ -147,6 +147,7 @@ struct map_session_data {
 		unsigned short autoloot;
 		unsigned short autolootid; // [Zephyrus]
 		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
+		unsigned improv_flag : 1;
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
 		unsigned int pvp : 1;	// Cell PVP [Napster]
 	} state;

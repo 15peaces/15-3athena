@@ -1887,6 +1887,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio += 50;
 					}
 					break;
+				case GC_CROSSIMPACT:
+					skillratio += 1050 + 50 * skill_lv;
+					break;
+				case GC_ROLLINGCUTTER:
+					skillratio += 20 * skill_lv;
+					break;
+				case GC_CROSSRIPPERSLASHER:
+					skillratio += 60 + 40 * skill_lv;
+					if( sc && sc->data[SC_ROLLINGCUTTER] )
+						skillratio += 25 * sc->data[SC_ROLLINGCUTTER]->val1;
+					break;
 				case AB_DUPLELIGHT_MELEE:
 					skillratio += 10 * skill_lv;
 					break;
@@ -3604,8 +3615,11 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if (sc && sc->data[SC_CLOAKING] && !(sc->data[SC_CLOAKING]->val4&2))
 		status_change_end(src, SC_CLOAKING, INVALID_TIMER);
 
+	if (sc && sc->data[SC_CLOAKINGEXCEED] && !(sc->data[SC_CLOAKINGEXCEED]->val4&2))
+		status_change_end(src,SC_CLOAKINGEXCEED, INVALID_TIMER);
+
 	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
-		status_change_end(src,SC_CAMOUFLAGE,-1);
+		status_change_end(src,SC_CAMOUFLAGE, INVALID_TIMER);
 
 	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, 1) )
 	{

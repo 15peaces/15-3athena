@@ -428,6 +428,10 @@ void initChangeTables(void)
 	set_sc( RK_FIGHTINGSPIRIT		, SC_FIGHTINGSPIRIT		, SI_FIGHTINGSPIRIT			, SCB_WATK|SCB_ASPD );
 	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE			, SI_ABUNDANCE				, SCB_NONE );
 
+	//Guillotine Cross
+	set_sc( GC_ROLLINGCUTTER     , SC_ROLLINGCUTTER   , SI_ROLLINGCUTTER      , SCB_NONE );
+	set_sc( GC_CLOAKINGEXCEED    , SC_CLOAKINGEXCEED  , SI_CLOAKINGEXCEED     , SCB_SPEED );
+
 	// Arch Bishop
 	add_sc( AB_CLEMENTIA	, SC_BLESSING		);
 	add_sc( AB_CANTO		, SC_INCREASEAGI	);
@@ -887,6 +891,8 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			}
 			if(sc->data[SC_DANCING] && (unsigned int)hp > status->max_hp>>2)
 				status_change_end(target, SC_DANCING, INVALID_TIMER);
+			if(sc->data[SC_CLOAKINGEXCEED] && --(sc->data[SC_CLOAKINGEXCEED]->val2) <= 0)
+				status_change_end(target,SC_CLOAKINGEXCEED,-1);
 		}
 		unit_skillcastcancel(target, 2);
 	}
@@ -1392,6 +1398,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			struct map_session_data *sd = (TBL_PC*) target;
 			if (pc_isinvisible(sd))
 				return 0;
+			if ( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) )
+				return 0;
 			if (tsc->option&hide_flag && !(status->mode&MD_BOSS) &&
 				(sd->special_state.perfect_hiding || !(status->mode&MD_DETECTOR)))
 				return 0;
@@ -1443,6 +1451,8 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 	switch (target->type)
 	{	//Check for chase-walk/hiding/cloaking opponents.
 	case BL_PC:
+		if ( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) )
+				return 0;
 		if((tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || (tsc && tsc->data[SC__INVISIBILITY])) &&
 			!(status->mode&MD_BOSS) &&
 			(
@@ -3665,12 +3675,10 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ = 50;
 	if(sc->data[SC_MANDRAGORA])
 		int_ -= 5 + 5 * sc->data[SC_MANDRAGORA]->val1;
-	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+	if(sc->data[SC__STRIPACCESSARY])
 		int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
 		int_ += sc->data[SC_HARMONIZE]->val2;
-	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
-		int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -3713,7 +3721,7 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += ((sc->data[SC_MARIONETTE2]->val4)>>8)&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && dex < 50)
 		dex  = 50;
-	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+	if(sc->data[SC__STRIPACCESSARY])
 		dex -= dex * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
 		dex += sc->data[SC_HARMONIZE]->val2;
@@ -3748,7 +3756,7 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk = 50;
 	if(sc->data[SC_LAUDARAMUS])
 		luk += 4 + sc->data[SC_LAUDARAMUS]->val1;
-	if(bl->type == BL_MOB && sc->data[SC__STRIPACCESSARY])
+	if(sc->data[SC__STRIPACCESSARY])
 		luk -= luk * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
 		luk += sc->data[SC_HARMONIZE]->val2;
@@ -4264,6 +4272,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 10 * sc->data[SC_AVOID]->val1 );
 			if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 				val = max( val, 75 );
+			if( sc->data[SC_CLOAKINGEXCEED] )
+				val = max( val, sc->data[SC_CLOAKINGEXCEED]->val3);
 			if( sc->data[SC_HOVERING] )
 				val = max( val, 10 );
 			if( sc->data[SC_GN_CARTBOOST] )
@@ -6804,19 +6814,31 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SPL_MATK:
 			val2 = 2; // Splendide group
 			break;
-
 		case SC_ENCHANTBLADE://Added MATK Damage
 			val2 = 100 + 20 * val1;
 			if (levels_effect == 1 && base_lv >= 100)
 				val2 = val2 * base_lv / 150;
 			val2 = val2 + status->int_;
 			break;
-
-		case SC_RENOVATIO: // 3ceam v1
-			val4 = 5; // seconds between heals
+		case SC_ROLLINGCUTTER:
+			val_flag |= 1;
+			break;
+		case SC_CLOAKINGEXCEED:
+			val2 = ( val1 + 1 ) / 2;
+			val3 = 90 + val1 * 10;
+			val_flag |= 1|2|4;			
+			if (bl->type == BL_PC)
+				val4 |= battle_config.pc_cloak_check_type&7;
+			else
+				val4 |= battle_config.monster_cloak_check_type&7;
 			tick = 1000;
 			break;
-
+		case SC_RENOVATIO:
+			val4 = tick / 5000;
+			if( val4 < 1 )
+				val4 = 1;
+			tick = 5000;
+			break;
 		case SC_WHITEIMPRISON:
 			status_change_end(bl, SC_BURNING, -1);
 			status_change_end(bl, SC_FREEZING, -1);
@@ -7087,6 +7109,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WEIGHT90:
 		case SC_CAMOUFLAGE:
 		case SC_SIREN:
+		case SC_CLOAKINGEXCEED:
 		case SC_ALL_RIDING:
 			unit_stop_attack(bl);
 		break;
@@ -7213,6 +7236,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			opt_flag = 2;
 			break;
 		case SC_CLOAKING:
+		case SC_CLOAKINGEXCEED:
 		case SC__INVISIBILITY:
 			sc->option |= OPTION_CLOAK;
 			opt_flag = 2;
@@ -7874,7 +7898,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		opt_flag|= 2|4; //Check for warp trigger + AoE trigger
 		break;
 	case SC_CLOAKING:
-	case SC__INVISIBILITY: // Is it ok? [pakpil]
+	case SC_CLOAKINGEXCEED:
+	case SC__INVISIBILITY:
 		sc->option &= ~OPTION_CLOAK;
 		opt_flag|= 2;
 		break;
@@ -8426,7 +8451,14 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			}
 		}
 		break;
-	case SC_RENOVATIO: // 3ceam v1
+
+	case SC_CLOAKINGEXCEED:
+		if(!status_charge(bl, 0, 10 - sce->val1))
+			break;
+		sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+		return 0;
+
+	case SC_RENOVATIO:
 		if( --(sce->val4) >= 0 )
 		{
 			if( bl->type == BL_MOB )
@@ -8627,13 +8659,16 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	case SC_CONCENTRATE:
 		status_change_end(bl, SC_HIDING, INVALID_TIMER);
 		status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
+		status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 		status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 		status_change_end(bl, SC__INVISIBILITY, INVALID_TIMER);
 		break;
 	case SC_RUWACH:	/* At */
-		if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || tsc->data[SC__INVISIBILITY])) {
+		if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED] ||
+			tsc->data[SC_CAMOUFLAGE] || tsc->data[SC__INVISIBILITY])) {
 			status_change_end(bl, SC_HIDING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
+			status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 			status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 			status_change_end(bl, SC__INVISIBILITY, INVALID_TIMER);
 			if(battle_check_target( src, bl, BCT_ENEMY ) > 0)

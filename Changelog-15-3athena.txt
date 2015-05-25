@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/25/2015
+	r56 [15peaces]
+		*Merged missing changes from 3ceam rev. 207 - 211
+		* Minor fix to Strip Accessory. 
+			-No need for another checking if the target is BL_MOB since "(!sd)" part is already doing it.
+			-Strip chance was 12+2*skillLV but still needs the official value of casters dex and targets dex w/c affecting the strip success chance.
+		*WM_RANDOMIZESPELL; GC_CROSSIMPACT; GC_CLOAKINGEXCEED; GC_ROLLINGCUTTER; GC_ROLLINGCUTTER; GC_CROSSRIPPERSLASHER
+			-Added full support for these skills.
+		*WM_POEMOFNETHERWORLD
+			-Added pre-support for this skill.
+
 05/24/2015
 	r55 [15peaces]
 		*2013-12-23cRagexe Update
