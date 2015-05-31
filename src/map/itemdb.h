@@ -40,7 +40,7 @@ enum item_itemid
 #define IG_FINDINGORE 6
 #define IG_POTION 37
 //The max. item group count (increase this when needed).
-#define MAX_ITEMGROUP 56
+#define MAX_ITEMGROUP 57
 
 #define CARD0_FORGE 0x00FF
 #define CARD0_CREATE 0x00FE

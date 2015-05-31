@@ -875,3 +875,21 @@
 2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,3,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
 
 19542,C_Devil_Whisper,Costume Devil Whisper,4,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,712,{ bonus bUnbreakableHelm,0; bonus2 bSubRace,RC_Angel,1; bonus2 bSubRace,RC_Demon,1; bonus3 bAddMonsterDropItem,523,RC_Angel,400; bonus3 bAddMonsterDropItem,12020,RC_Demon,400; },{},{}
+
+//Some Port Malaya Quest Items
+6490,Magic_Clay_Fragment,Magic Clay Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
+6491,Magic_Clay,Magic Clay,3,0,,10,,,,,,,,,,,,,{},{},{}
+6492,Magic_Clay_Lump,Magic Clay Lump,3,0,,10,,,,,,,,,,,,,{},{},{}
+6493,Makibishi,Makibishi,3,30,,1,,,,,,,,,,,,,{},{},{}
+6494,Kafra_Coin2,Kafra Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6495,Para_Logro_Badge,Eden Merit Badge,3,0,,0,,,,,,,,,,,,,{},{},{}
+6496,Tikbalang_Thick_Spine,Tikbalang's Thick Spine,3,300,,10,,,,,,,,,,,,,{},{},{}
+6497,Lesser_Agimat,Lesser Agimat,3,20,,50,,,,,,,,,,,,,{},{},{}
+6498,Jejellopy,Jejellopy,3,200,,10,,,,,,,,,,,,,{},{},{}
+6499,Ancient_Grudge,Ancient Grudge,3,500,,10,,,,,,,,,,,,,{},{},{}
+6500,Sharp_Bamboo,Sharpened Bamboo,3,0,,0,,,,,,,,,,,,,{},{},{}
+
+//Lighthalzen 4 Items
+12623,High_Weapon_Box,Advanced Weapons Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(groupranditem(IG_Advanced_Weapons_Box),1); },{},{}
+
+11550,Pumpkin_Cake,Pumpkin Cake,0,10,,80,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 5,5; },{},{}

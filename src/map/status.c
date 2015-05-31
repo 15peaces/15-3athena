@@ -429,6 +429,7 @@ void initChangeTables(void)
 	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE			, SI_ABUNDANCE				, SCB_NONE );
 
 	//Guillotine Cross
+	set_sc( GC_WEAPONBLOCKING    , SC_WEAPONBLOCKING  , SI_WEAPONBLOCKING     , SCB_NONE );
 	set_sc( GC_ROLLINGCUTTER     , SC_ROLLINGCUTTER   , SI_ROLLINGCUTTER      , SCB_NONE );
 	set_sc( GC_CLOAKINGEXCEED    , SC_CLOAKINGEXCEED  , SI_CLOAKINGEXCEED     , SCB_SPEED );
 
@@ -6820,12 +6821,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = val2 * base_lv / 150;
 			val2 = val2 + status->int_;
 			break;
+		case SC_WEAPONBLOCKING:
+			val2 = 10 + 2 * val1; // Chance
+			val_flag |= 1|2;
+			break;
 		case SC_ROLLINGCUTTER:
 			val_flag |= 1;
 			break;
 		case SC_CLOAKINGEXCEED:
-			val2 = ( val1 + 1 ) / 2;
-			val3 = 90 + val1 * 10;
+			val2 = ( val1 + 1 ) / 2; // Hits
+			val3 = 90 + val1 * 10; // Walk speed
 			val_flag |= 1|2|4;			
 			if (bl->type == BL_PC)
 				val4 |= battle_config.pc_cloak_check_type&7;
@@ -8449,6 +8454,16 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				sc_timer_next(10000+tick, status_change_timer, bl->id, data);
 				return 0;
 			}
+		}
+		break;
+
+	case SC_WEAPONBLOCKING:
+		if( --(sce->val4) >= 0 )
+		{
+			if(!status_charge(bl,0,3))
+				break;
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
 		}
 		break;
 

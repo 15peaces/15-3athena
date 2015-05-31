@@ -721,7 +721,8 @@ IG_Cherish_Box_Ori	52
 IG_Louise_Costume_Box	53
 IG_Xmas_Gift	54
 //Some missing ItemGroups will be added later
-IG_Candy_Holder	55 //389!
+IG_Advanced_Weapons_Box	55 //61
+IG_Candy_Holder	56 //389!
 
 SC_ALL	-1
 SC_STONE	0

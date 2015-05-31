@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/31/2015
+	r57 [15peaces]
+		*Merged missing changes from 3ceam rev. 212 - 213
+		*Added Port Malaya quests to quest_db.
+			-Increased MAX_QUEST_DB to support latest quests.
+		*Fixed some bugs in Port Malaya quests.
+			-Added some missing Items to item_db2.
+		*GC_WEAPONBLOCKING; GC_WEAPONCRUSH; GC_COUNTERSLASH
+			-Added full support for these skills.
+		*Added full support for Advanced Weapons Box (ItemID: 12623)
+			-Added support for IG_Advanced_Weapons_Box Itemgroup.
+			-The GroupID is 55 for now, it will be increased as I add in the other Itemgroups.
+		*Added pre-support for Mechanic Fixed Autonomous Weapon Platforms
+		*Corrected a incorrectly set ID for SO_ENDMARK in the skill_require_db.
+
 05/25/2015
 	r56 [15peaces]
 		*Merged missing changes from 3ceam rev. 207 - 211

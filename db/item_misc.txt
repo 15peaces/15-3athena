@@ -581,17 +581,187 @@
 
 //Some missing ItemGroups will be added later
 
+// Advanced Weapons Box
+55,1130,1	// Nagan
+55,1131,1	// Ice_Falchon
+55,1132,1	// Edge
+55,1133,1	// Fire_Brand
+55,1134,1	// Caesar's Sword
+55,1135,1	// Cutlas
+55,1136,1	// Solar_Sword
+55,1137,1	// Excalibur
+55,1138,1	// Mysteltainn
+55,1139,1	// Tirfing
+55,1140,1	// Byeollungum
+55,1141,1	// Immaterial_Sword
+55,1148,1	// Star_Dust_Blade
+55,1164,1	// Muramasa
+55,1165,1	// Masamune
+55,1166,1	// Dragon_Slayer
+55,1167,1	// Schweizersabel
+55,1168,1	// Zweihander
+55,1169,1	// Executioner
+55,1170,1	// Katzbalger
+55,1171,1	// Zweihander_
+55,1175,1	// Altas_Weapon
+55,1176,1	// Muscle_Cutter
+55,1178,1	// Schweizersabel_
+55,1179,1	// Executioner__
+55,1180,1	// Dragon_Slayer_
+55,1181,1	// Tae_Goo_Lyeon
+55,1182,1	// Bloody_Eater
+55,1185,1	// Violet_Fear
+55,1186,1	// Death_Guidance
+55,1188,1	// Veteran_Sword
+55,1189,1	// Krasnaya
+55,1196,1	// Chrome_Metal_Two-Hand_Sword
+55,1223,1	// Forturn_Sword
+55,1224,1	// Sword_Breaker
+55,1225,1	// Mail_Breaker
+55,1227,1	// Weeder_Knife
+55,1228,1	// Combat_Knife
+55,1229,1	// Kitchen_Knife
+55,1230,1	// Ice_Pick
+55,1231,1	// Bazerald
+55,1232,1	// Assasin_Dagger
+55,1233,1	// Exorciser
+55,1234,1	// Moonlight_Dagger
+55,1235,1	// Azoth
+55,1236,1	// Sucsamad
+55,1237,1	// Grimtooth
+55,1240,1	// Princess_Knife
+55,1241,1	// Cursed_Dagger
+55,1242,1	// Counter_Dagger
+55,1244,1	// Holy_Dagger
+55,1261,1	// Infiltrator
+55,1263,1	// Unholy_Touch
+55,1265,1	// Bloody_Roar
+55,1266,1	// Infiltrator_
+55,1268,1	// Wild_Beast_Claw
+55,1269,1	// Inverse_Scale
+55,1270,1	// Drill_Katar
+55,1271,1	// Blood_Tears
+55,1284,1	// Krishna
+55,1285,1	// Chakram
+55,1305,1	// Cleaver
+55,1311,1	// Vecer_Axe
+55,1363,1	// Bloody_Axe
+55,1364,1	// Great_Axe
+55,1365,1	// Sabbath
+55,1366,1	// Light Epsilon
+55,1367,1	// Slaughter
+55,1368,1	// Tomahawk
+55,1369,1	// Guillotine
+55,1370,1	// Doom_Slayer
+55,1371,1	// Doom_Slayer_
+55,1376,1	// Heart_Breaker
+55,1377,1	// Hurricane_Fury
+55,1385,1	// Bradium_Stonehammer
+55,1387,1	// Giant_Axe
+55,1413,1	// Gungnir
+55,1414,1	// Gelerdria
+55,1415,1	// Brocca
+55,1416,1	// Tjungkuletti
+55,1418,1	// Gungnir_
+55,1420,1	// Long_Horn
+55,1421,1	// Battle_Hook
+55,1422,1	// Hunting_Spear
+55,1433,1	// Imperial_Spear
+55,1466,1	// Crescent_Scythe
+55,1467,1	// Bill_Guisarme
+55,1468,1	// Zephyrus
+55,1469,1	// Longinus's_Spear
+55,1470,1	// Brionac
+55,1471,1	// Hell_Fire
+55,1473,1	// Wizardy_Staff
+55,1474,1	// Gae_Bolg
+55,1477,1	// Spectral_Spear
+55,1478,1	// Ahlspiess
+55,1479,1	// Spectral_Spear_
+55,1480,1	// Gae_Bolg_
+55,1481,1	// Zephyrus_
+55,1484,1	// Cardo
+55,1523,1	// Spike
+55,1524,1	// Golden_Mace
+55,1525,1	// Long_Mace
+55,1527,1	// Quadrille
+55,1528,1	// Grand_Cross
+55,1538,1	// Spike_
+55,1539,1	// Golden_Mace_
+55,1540,1	// Grand_Cross_
+55,1541,1	// Nemesis
+55,1557,1	// Book_Of_The_Apocalypse
+55,1558,1	// Girl's_Diary
+55,1559,1	// Legacy_Of_Dragon
+55,1561,1	// Hardcover_Book
+55,1562,1	// Battlefield_Textbook
+55,1565,1	// Ledger of Death
+55,1616,1	// Wing Staff
+55,1629,1	// Gentleman's Staff
+55,1631,1	// Holy_Stick
+55,1636,1	// Thorn_Staff
+55,1637,1	// Eraser
+55,1643,1	// Dead_Tree_Cane
+55,1654,1	// Mental_Stick
+55,1719,1	// Bow_Of_Roguemaster
+55,1720,1	// Bow_Of_Rudra
+55,1722,1	// Ballista
+55,1724,1	// Dragon_Wing
+55,1725,1	// Bow_Of_Minstrel
+55,1727,1	// Balistar_
+55,1737,1	// Ixion_Wing
+55,1740,1	// Nepenthes_Bow
+55,1741,1	// Cursed_Lyre
+55,1745,1	// Falken_Blitz
+55,1813,1	// Kaiser_Knuckle
+55,1814,1	// Berserk
+55,1815,1	// Claw_Of_Garm
+55,1816,1	// Berserk_
+55,1830,1	// Great_King's_Dance
+55,1913,1	// Electronic_Guitar
+55,1918,1	// Oriental_Lute
+55,1920,1	// Berserk_Guitar
+55,1922,1	// Oriental_Lute_
+55,1926,1	// Harp_Of_Nepenthes
+55,1930,1	// Green_Whistle
+55,1962,1	// Lariat_Whip
+55,1963,1	// Rapture_Rose
+55,1964,1	// Chemeti_Whip
+55,1969,1	// Blade_Whip
+55,1970,1	// Queen's_Whip
+55,1972,1	// Electric_Eel
+55,1973,1	// Sea_Witch_Foot
+55,1974,1	// Carrot_Whip
+55,1976,1	// Queen's_Whip_
+55,1979,1	// Stem_Of_Nepenthes
+55,1984,1	// Stem_Whip
+55,1985,1	// Rose_Vine
+55,2000,1	// Destruction_Rod
+55,2001,1	// Divine_Cross
+55,2004,1	// Kronos
+55,2005,1	// Dea_Staff
+55,13046,1	// Krieg
+55,13047,1	// Weihna
+55,13061,1	// Black_Wing
+55,13062,1	// Ancient_Dagger
+55,13421,1	// Ruber
+55,13431,1	// Chrome_Metal_Sword
+55,16000,1	// Erde
+55,16001,1	// Red_Square_Bag
+55,16010,1	// Red_Ether_Bag
+55,18103,1	// Mystic_Bow
+
 //Candy Holder
-55,518,10 //Honey
-55,529,20	//Candy
-55,538,15	//Well_Baked_Cookie
-55,539,10	//Piece_Of_Cake
-55,580,20	//Bread
-55,603,1	//Old_Blue_Box
-55,607,1	//Yggdrasilberry
-55,616,1	//Old_Card_Album
-55,617,1	//Old_Violet_Box
-55,641,1	//Contracts_In_Shadow
-55,7460,10	//Niflheim_Ticket
-55,11550,5	//Pumpkin_Cake
-55,12192,5	//Pumpkin_Pie
+56,518,10 //Honey
+56,529,20	//Candy
+56,538,15	//Well_Baked_Cookie
+56,539,10	//Piece_Of_Cake
+56,580,20	//Bread
+56,603,1	//Old_Blue_Box
+56,607,1	//Yggdrasilberry
+56,616,1	//Old_Card_Album
+56,617,1	//Old_Violet_Box
+56,641,1	//Contracts_In_Shadow
+56,7460,10	//Niflheim_Ticket
+56,11550,5	//Pumpkin_Cake
+56,12192,5	//Pumpkin_Pie
