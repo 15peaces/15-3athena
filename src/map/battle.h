@@ -529,6 +529,7 @@ extern struct Battle_Config
 	int guild_break;
 	int guild_disable_invite;
 	int guild_disable_expel;
+	int feature_banking;
 	//Episode System [15peaces]
 	int feature_episode;
 } battle_config;

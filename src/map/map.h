@@ -371,6 +371,7 @@ enum _sp {
 	SP_BASECLASS=120,	//Hmm.. why 100+19? I just use the next one... [Skotlex]
 	SP_KILLERRID=121,
 	SP_KILLEDRID=122,
+	SP_BANK_VAULT=123,
 
 	// Mercenaries
 	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,

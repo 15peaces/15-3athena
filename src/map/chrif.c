@@ -44,6 +44,7 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 	11,10,10, 0,11, 0,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, F->2b13, U->2b14, F->2b15, U->2b16, U->2b17
 	 2,10, 2,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
 	-1,10, 8, 2, 2,14,19,19,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, U->2b25, U->2b26, U->2b27
+	10,10, 6, 0, 0, 0, 0, 0,	// 2b28-2b2f: U->2b28, U->2b29, U->2b2a, F->2b2b, F->2b2c, F->2b2d, F->2b2e, F->2b2f 
 };
 
 //Used Packets:
@@ -274,7 +275,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (flag && sd->state.active) //Store player data which is quitting.
 	{
 		//FIXME: SC are lost if there's no connection at save-time because of the way its related data is cleared immediately after this function. [Skotlex]
-		if (chrif_isconnected()) chrif_save_scdata(sd);
+		if (chrif_isconnected()) 
+			chrif_save_scdata(sd);
 		if (!chrif_auth_logout(sd, flag==1?ST_LOGOUT:ST_MAPCHANGE))
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
 	}

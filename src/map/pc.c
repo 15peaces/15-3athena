@@ -1158,6 +1158,9 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->mission_count = pc_readglobalreg(sd,"TK_MISSION_COUNT");
 	}
 
+	if (battle_config.feature_banking)
+		sd->bank_vault = pc_readreg2(sd, BANK_VAULT_VAR);
+
 	//SG map and mob read [Komurka]
 	for(i=0;i<MAX_PC_FEELHATE;i++) //for now - someone need to make reading from txt/sql
 	{
@@ -6662,6 +6665,7 @@ int pc_readparam(struct map_session_data* sd,int type)
 	case SP_FAME:        val = sd->status.fame; break;
 	case SP_KILLERRID:   val = sd->killerrid; break;
 	case SP_KILLEDRID:   val = sd->killedrid; break;
+	case SP_BANK_VAULT:	 val = sd->bank_vault; break;
 	case SP_SPEED:       val = sd->battle_status.speed; break;
 	case SP_HIT:         val = sd->battle_status.hit; break;
 	case SP_FLEE1:       val = sd->battle_status.flee; break;
@@ -6827,6 +6831,13 @@ int pc_setparam(struct map_session_data *sd,int type,int val)
 	case SP_KILLEDRID:
 		sd->killedrid = val;
 		return 1;
+	case SP_BANK_VAULT:
+		if (val < 0)
+			return false;
+		log_zeny(sd, LOG_TYPE_BANK, sd, -(sd->bank_vault - cap_value(val, 0, MAX_BANK_ZENY)));
+		sd->bank_vault = cap_value(val, 0, MAX_BANK_ZENY);
+		pc_setreg2(sd, BANK_VAULT_VAR, sd->bank_vault);
+		return true;
 	default:
 		ShowError("pc_setparam: Attempted to set unknown parameter '%d'.\n", type);
 		return 0;
@@ -7808,6 +7819,71 @@ int pc_setregistry_str(struct map_session_data *sd,const char *reg,const char *v
 	}
 
 	ShowError("pc_setregistry : couldn't set %s, limit of registries reached (%d)\n", reg, regmax);
+
+	return 0;
+}
+
+/**
+ * Set value of player variable
+ * @param sd Player
+ * @param reg Variable name
+ * @param value
+ * @return True if success, false if failed.
+ **/
+bool pc_setreg2(struct map_session_data *sd, const char *reg, int val) {
+	char prefix = reg[0];
+
+	nullpo_retr(false, sd);
+
+	if (reg[strlen(reg)-1] == '$') {
+		ShowError("pc_setreg2: Invalid variable scope '%s'\n", reg);
+		return false;
+	}
+
+	val = cap_value(val, 0, INT_MAX);
+
+	switch (prefix) {
+		case '.':
+		case '\'':
+		case '$':
+			ShowError("pc_setreg2: Invalid variable scope '%s'\n", reg);
+			return false;
+		case '@':
+			return pc_setreg(sd, add_str(reg), val);
+		case '#':
+			return (reg[1] == '#') ? pc_setaccountreg2(sd, reg, val) : pc_setaccountreg(sd, reg, val);
+	}
+
+	return false;
+}
+
+/**
+ * Get value of player variable
+ * @param sd Player
+ * @param reg Variable name
+ * @return Variable value or 0 if failed.
+ **/
+int pc_readreg2(struct map_session_data *sd, const char *reg) {
+	char prefix = reg[0];
+
+	nullpo_ret(sd);
+
+	if (reg[strlen(reg)-1] == '$') {
+		ShowError("pc_readreg2: Invalid variable scope '%s'\n", reg);
+		return 0;
+	}
+
+	switch (prefix) {
+		case '.':
+		case '\'':
+		case '$':
+			ShowError("pc_readreg2: Invalid variable scope '%s'\n", reg);
+			return 0;
+		case '@':
+			return pc_readreg(sd, add_str(reg));
+		case '#':
+			return (reg[1] == '#') ? pc_readaccountreg2(sd, reg) : pc_readaccountreg(sd, reg);
+	}
 
 	return 0;
 }
@@ -9012,8 +9088,60 @@ int pc_read_motd(void)
 	return 0;
 }
 
+/**
+* Deposit some money to bank
+* @param sd
+* @param money Amount of money to deposit
+**/
+enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int money) {
+	unsigned int limit_check = money + sd->bank_vault;
+
+	if( money <= 0 || limit_check > MAX_BANK_ZENY ) {
+		return BDA_OVERFLOW;
+	} else if ( money > sd->status.zeny ) {
+		return BDA_NO_MONEY;
+	}
+
+	if( pc_payzeny(sd,money) )
+		return BDA_NO_MONEY;
+
+	sd->bank_vault += money;
+	pc_setreg2(sd, BANK_VAULT_VAR, sd->bank_vault);
+	
+	chrif_save(sd,0);
+	return BDA_SUCCESS;
+}
+
+/**
+* Withdraw money from bank
+* @param sd
+* @param money Amount of money that will be withdrawn
+**/
+enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int money) {
+	unsigned int limit_check = money + sd->status.zeny;
+	
+	if( money <= 0 ) {
+		return BWA_UNKNOWN_ERROR;
+	} else if ( money > sd->bank_vault ) {
+		return BWA_NO_MONEY;
+	} else if ( limit_check > MAX_ZENY ) {
+		/* no official response for this scenario exists. */
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(722)); //You can't withdraw that much money
+		return BWA_UNKNOWN_ERROR;
+	}
+	
+	if( pc_getzeny(sd,money) )
+		return BWA_NO_MONEY;
+	
+	sd->bank_vault -= money;
+	pc_setreg2(sd, BANK_VAULT_VAR, sd->bank_vault);
+	
+	chrif_save(sd,0);
+	return BWA_SUCCESS;
+}
+
 /*==========================================
- * pc? ŒW‰Šú‰»
+ * pc Init/Terminate
  *------------------------------------------*/
 void do_final_pc(void)
 {

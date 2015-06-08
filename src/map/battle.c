@@ -555,6 +555,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
+		// Should be moved down and removed tsc?? [pakpil]
 		if( skill_num == RA_AIMEDBOLT && !(tsc && (tsc->data[SC_WUGBITE] ||
 			tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER])) )
 			{
@@ -599,6 +600,16 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	{
 		if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 			damage += damage * 75 / 100;
+
+		if( sc->data[SC_POISONINGWEAPON] && (flag&BF_WEAPON) && damage > 0)
+		{
+			if( rand()%100 < sc->data[SC_POISONINGWEAPON]->val3 )
+			{
+				sc_start(bl,sc->data[SC_POISONINGWEAPON]->val2,100,sc->data[SC_POISONINGWEAPON]->val1,
+					skill_get_time2(GC_POISONINGWEAPON,sc->data[SC_POISONINGWEAPON]->val1));
+				status_change_end(src, SC_POISONINGWEAPON, INVALID_TIMER);
+			}
+		}
 
 		if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 )
 		{
@@ -4683,6 +4694,7 @@ static const struct _battle_data {
 	{ "break_guild",                        &battle_config.guild_break,                     3,      0,      3,              },
 	{ "disable_invite",                     &battle_config.guild_disable_invite,           -1,     -1,      15,             },
 	{ "disable_expel",                      &battle_config.guild_disable_expel,            -1,     -1,      15,             },
+	{ "feature.banking",                    &battle_config.feature_banking,                 1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           142,     1,      142,            },
 };
@@ -4746,6 +4758,13 @@ void battle_adjust_conf()
 	if (battle_config.night_duration && battle_config.night_duration < 60000) // added by [Yor]
 		battle_config.night_duration = 60000;
 	
+#if PACKETVER < 20130724
+	if( battle_config.feature_banking ) {
+		ShowWarning("conf/battle/feature.conf banking is enabled but it requires PACKETVER 2013-07-24 or newer, disabling...\n");
+		battle_config.feature_banking = 0;
+	}
+#endif 
+
 #ifndef CELL_NOSTACK
 	if (battle_config.cell_stack_limit != 1)
 		ShowWarning("Battle setting 'cell_stack_limit' takes no effect as this server was compiled without Cell Stack Limit support.\n");

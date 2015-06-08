@@ -20,11 +20,14 @@ enum item_itemid
 {
 	ITEMID_HOLY_WATER = 523,
 	ITEMID_EMPERIUM = 714,
-	ITEMID_YELLOW_GEMSTONE = 715,
-	ITEMID_RED_GEMSTONE = 716,
-	ITEMID_BLUE_GEMSTONE = 717,
+	ITEMID_YELLOW_GEMSTONE,
+	ITEMID_RED_GEMSTONE,
+	ITEMID_BLUE_GEMSTONE,
 	ITEMID_TRAP = 1065,
-	ITEMID_PAINT_BRUSH = 6122,
+	ITEMID_FACEPAINTS = 6120,
+	ITEMID_MAKEUPBRUSH,
+	ITEMID_PAINT_BRUSH,
+	ITEMID_SURFACEPAINTS,
 	ITEMID_SPECIAL_ALLOY_TRAP = 7940,
 	ITEMID_ANCILLA = 12333,
 	ITEMID_BOARDING_HALTER = 12622,
@@ -134,6 +137,8 @@ struct item_data* itemdb_exists(unsigned short nameid);
 #define itemdb_viewid(n) (itemdb_search(n)->view_id)
 #define itemdb_autoequip(n) (itemdb_search(n)->flag.autoequip)
 #define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
+#define itemdb_is_poison(n) (n >= 12717 && n <= 12724)
+#define itemdb_is_spellbook(n) (n > 6188 && n < 6205)
 const char* itemdb_typename(int type);
 
 int itemdb_group_bonus(struct map_session_data* sd, int itemid);

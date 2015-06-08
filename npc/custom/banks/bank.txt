@@ -40,7 +40,7 @@ Ldepocont:
 	if (@deposit > (Zeny - @cost)) goto Lneedzeny2;
 	set Zeny,Zeny - @deposit;
 	set Zeny,Zeny - @cost;
-	set #bankstorage,#bankstorage + @deposit;
+	set #BANKVAULT,#BANKVAULT + @deposit;
 	mes "[Banker]";
 	mes "Thank you very much... Your zeny is in good hands.";
 	close;
@@ -61,7 +61,7 @@ Lwithdrawl:
 Lwithcont:
 	input @withdrawl;
 	if (@withdrawl < 1) goto Lrealamount;
-	if (@withdrawl > #bankstorage) goto Lneedzeny3;
+	if (@withdrawl > #BANKVAULT) goto Lneedzeny3;
 	if ((@cost > Zeny) && ((Zeny + @withdrawl) > @cost)) goto Lcostask; 
 	if (@cost > Zeny) goto Lneedzeny2;
 	goto Lwithcont2;
@@ -76,7 +76,7 @@ Lwithcont:
 		mes "[Banker]";
 		mes "Ok then.";
 		set @withdrawl,@withdrawl - @cost;
-		set #bankstorage,#bankstorage - @cost;
+		set #BANKVAULT,#BANKVAULT - @cost;
 		set @cost,0;
 		next;
 		goto Lwithcont2;
@@ -84,7 +84,7 @@ Lwithcont:
 Lwithcont2:
 	set Zeny,Zeny - @cost;
 	set Zeny,Zeny + @withdrawl;
-	set #bankstorage,#bankstorage - @withdrawl;
+	set #BANKVAULT,#BANKVAULT - @withdrawl;
 	mes "[Banker]";
 	mes "There's your Zeny. Have a good day.";
 	close;
@@ -96,7 +96,7 @@ Lbalance:
 	mes "*Rustle, Rustle*";
 	next;
 	mes "[Banker]";
-	mes "You currently have " + #bankstorage + " Zeny in your account.";
+	mes "You currently have " + #BANKVAULT + " Zeny in your account.";
 	close;
 
 Lrealamount:

@@ -9234,7 +9234,7 @@ ACMD_FUNC(skillfailmsg)
 		clif_displaymessage(fd, "Usage: @skillfailmsg <skill id> <cause> <num>");
 		return -1;
 	}
-	clif_skill_fail(sd,skillid,cause,num);
+	clif_skill_fail(sd,skillid,cause,num,0);
 	return 0;
 }
 

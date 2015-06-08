@@ -1899,7 +1899,6 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data);
 void mapif_server_reset(int id);
 
-
 /// Resets all the data.
 void loginif_reset(void)
 {
@@ -1976,7 +1975,6 @@ int parse_fromlogin(int fd)
 
 		switch( command )
 		{
-
 		// acknowledgement of connect-to-loginserver request
 		case 0x2711:
 			if (RFIFOREST(fd) < 3)

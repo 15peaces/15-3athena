@@ -3222,7 +3222,7 @@ function	script	F_Lighthalzen_Bank	{
 	mes "What can I do for you?";
 	mes "----------------------------";
 	mes "You got "+Zeny+"z with you";
-	mes "Stored: "+#bankstorage+"z";
+	mes "Stored: "+#BANKVAULT+"z";
 	next;
 	switch(select("I'd like to make a deposit.:I'd like to make a withdrawal.:Cancel")){
 		case 1:
@@ -3237,7 +3237,7 @@ function	script	F_Lighthalzen_Bank	{
 				close;
 			}	
 			set Zeny,Zeny - @deposit;
-			set #bankstorage,#bankstorage + @deposit;
+			set #BANKVAULT,#BANKVAULT + @deposit;
 			mes "Thank you very much... Your zeny is in good hands.";
 			close;
 		case 2:
@@ -3247,12 +3247,12 @@ function	script	F_Lighthalzen_Bank	{
 			if (@withdrawl < 1){
 				mes "Don't play jokes with me please. Next time ask for a real amount.";
 				close;
-			}else if (@withdrawl > #bankstorage){
+			}else if (@withdrawl > #BANKVAULT){
 				mes "You don't have enough Zeny in your account.";
 				close;
 			}	
 			set Zeny,Zeny + @withdrawl;
-			set #bankstorage,#bankstorage - @withdrawl;
+			set #BANKVAULT,#BANKVAULT - @withdrawl;
 			mes "There's your Zeny. Have a good day.";
 			close;
 		default:

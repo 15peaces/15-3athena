@@ -57,6 +57,7 @@ struct Clif_Config {
 } clif_config;
 
 struct s_packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
+int packet_db_ack[MAX_PACKET_VER + 1][MAX_ACK_FUNC + 1];
 
 //CashShop
 struct cs_data cs_s;
@@ -3189,6 +3190,80 @@ void clif_arrow_create_list(struct map_session_data *sd)
 	}
 }
 
+/*==========================================
+ * Guillotine Cross Poisons List
+ *------------------------------------------*/
+int clif_poison_list(struct map_session_data *sd, int skill_lv)
+{
+	int i, c;
+	int fd;
+
+	nullpo_retr(0, sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, 8 * 8 + 8);
+	WFIFOW(fd,0) = 0x1ad; // This is the official packet. [pakpil]
+
+	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ )
+	{
+		if( itemdb_is_poison(sd->status.inventory[i].nameid) )
+		{ 
+			WFIFOW(fd, c * 2 + 4) = sd->status.inventory[i].nameid;
+			c ++;
+		}
+	}
+	if( c > 0 )
+	{
+		sd->menuskill_id = GC_POISONINGWEAPON;
+		sd->menuskill_val = c;
+		sd->menuskill_itemused = skill_lv;
+		WFIFOW(fd,2) = c * 2 + 4;
+		WFIFOSET(fd, WFIFOW(fd, 2));
+	}
+	else
+	{
+		clif_skill_fail(sd,GC_POISONINGWEAPON,USESKILL_FAIL_GUILLONTINE_POISON,0,0);
+		return 0;
+	}
+
+	return 1;
+}
+
+/*==========================================
+ * Spellbook list [LimitLine]
+ *------------------------------------------*/
+int clif_spellbook_list(struct map_session_data *sd)
+{
+	int i, c;
+	int fd;
+
+	nullpo_retr(0, sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, 8 * 8 + 8);
+	WFIFOW(fd,0) = 0x1ad;	// This is the official packet. [pakpil]
+
+	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ )
+	{
+		if( itemdb_is_spellbook(sd->status.inventory[i].nameid) )
+		{ 
+			WFIFOW(fd, c * 2 + 4) = sd->status.inventory[i].nameid;
+			c ++;
+		}
+	}
+	if( c > 0 )
+	{
+		sd->menuskill_id = WL_READING_SB;
+		sd->menuskill_val = c;
+		WFIFOW(fd,2) = c * 2 + 4;
+		WFIFOSET(fd, WFIFOW(fd, 2));
+	}
+	else
+		return 0;
+
+	return 1;
+}
+
 /*===========================================
  * Skill list for Auto Shadow Spell
  *------------------------------------------*/
@@ -3224,7 +3299,7 @@ int clif_skill_select_request(struct map_session_data *sd)
 	else
 	{
 		status_change_end(&sd->bl,SC_STOP,-1);
-		clif_skill_fail(sd,SC_AUTOSHADOWSPELL,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,SC_AUTOSHADOWSPELL,USESKILL_FAIL_LEVEL,0,0);
 	}
 
 	return 1;
@@ -4789,7 +4864,7 @@ void clif_skillcastcancel(struct block_list* bl)
 /// if(result!=0) doesn't display any of the previous messages
 /// Note: when this packet is received an unknown flag is always set to 0,
 /// suggesting this is an ACK packet for the UseSkill packets and should be sent on success too [FlavioJS]
-void clif_skill_fail(struct map_session_data *sd,int skill_id,enum useskill_fail_cause cause,int btype)
+void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype, int val)
 {
 	int fd;
 
@@ -4804,7 +4879,7 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id,enum useskill_fail
 	if(battle_config.display_skill_fail&1)
 		return; //Disable all skill failed messages
 
-	if(cause==USESKILL_FAIL_SKILLINTERVAL && !sd->state.showdelay)
+	if(type==USESKILL_FAIL_SKILLINTERVAL && !sd->state.showdelay)
 		return; //Disable delay failed messages
 	
 	if(skill_id == RG_SNATCHER && battle_config.display_skill_fail&4)
@@ -4817,8 +4892,9 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id,enum useskill_fail
 	WFIFOW(fd,0) = 0x110;
 	WFIFOW(fd,2) = skill_id;//SKID
 	WFIFOL(fd,4) = btype;	//Num
-	WFIFOB(fd,8) = 0;	//Result - Normally set to 0 all the time.
-	WFIFOB(fd,9) = cause;	//Cause
+	WFIFOW(fd,6) = val;		//val;
+	WFIFOB(fd,8) = 0;		//Result - Normally set to 0 all the time.
+	WFIFOB(fd,9) = type;	//Cause
 	WFIFOSET(fd,packet_len(0x110));
 }
 
@@ -5231,12 +5307,12 @@ void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
 /// 018d <packet len>.W { <name id>.W { <material id>.W }*3 }*
 /// material id:
 ///     unused by the client
-void clif_skill_produce_mix_list(struct map_session_data *sd, int trigger)
+void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int trigger)
 {
 	int i,c,view,fd;
 	nullpo_retv(sd);
 
-	if(sd->menuskill_id == AM_PHARMACY)
+	if(sd->menuskill_id == skill_num)
 		return; //Avoid resending the menu twice or more times...
 	fd=sd->fd;
 	WFIFOHEAD(fd, MAX_SKILL_PRODUCE_DB * 8 + 8);
@@ -5257,7 +5333,7 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int trigger)
 	WFIFOW(fd, 2)=c*8+8;
 	WFIFOSET(fd,WFIFOW(fd,2));
 	if(c > 0) {
-		sd->menuskill_id = AM_PHARMACY;
+		sd->menuskill_id = skill_num;
 		sd->menuskill_val = trigger;
 		return;
 	}
@@ -6021,7 +6097,7 @@ void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *
 		sd->menuskill_id = BS_REPAIRWEAPON;
 		sd->menuskill_val = dstsd->bl.id;
 	}else
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 }
 
 
@@ -6175,6 +6251,215 @@ void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
 #endif
 }
 
+// 09B7 <unknow data> (ZC_ACK_OPEN_BANKING) 
+void clif_bank_open(struct map_session_data *sd){
+	int fd;
+
+	nullpo_retv(sd);
+	fd = sd->fd;
+
+	WFIFOHEAD(fd,4);
+	WFIFOW(fd,0) = 0x09b7;
+	WFIFOW(fd,2) = 0;
+	WFIFOSET(fd,4);
+}
+
+/*
+ * Request to Open the banking system
+ * 09B6 <aid>L ??? (dunno just wild guess checkme)
+ */
+void clif_parse_BankOpen(int fd, struct map_session_data* sd) {
+	//TODO check if preventing trade or stuff like that
+	//also mark something in case char ain't available for saving, should we check now ?
+	nullpo_retv(sd);
+	if( !battle_config.feature_banking ) {
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		return;
+	}
+	else {
+		struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+		int aid = RFIFOL(fd,info->pos[0]); //unused should we check vs fd ?
+		if(sd->status.account_id == aid){
+			sd->state.banking = 1;
+			//request save ?
+			//chrif_bankdata_request(sd->status.account_id, sd->status.char_id);
+			//on succes open bank ?
+			clif_bank_open(sd);
+		}
+	}
+}
+
+// 09B9 <unknow data> (ZC_ACK_CLOSE_BANKING)
+
+void clif_bank_close(struct map_session_data *sd){
+	int fd;
+
+	nullpo_retv(sd);
+	fd = sd->fd;
+
+	WFIFOHEAD(fd,4);
+	WFIFOW(fd,0) = 0x09B9;
+	WFIFOW(fd,2) = 0;
+	WFIFOSET(fd,4);
+}
+
+/*
+ * Request to close the banking system
+ * 09B8 <aid>L ??? (dunno just wild guess checkme)
+ */
+void clif_parse_BankClose(int fd, struct map_session_data* sd) {
+	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	int aid = RFIFOL(fd,info->pos[0]); //unused should we check vs fd ?
+
+	nullpo_retv(sd);
+	if( !battle_config.feature_banking ) {
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		//still allow to go trough to not stuck player if we have disable it while they was in
+	}
+	if(sd->status.account_id == aid){
+		sd->state.banking = 0;
+		clif_bank_close(sd);
+	}
+}
+
+/*
+ * Display how much we got in bank (I suppose)
+  09A6 <Bank_Vault>Q <Reason>W (PACKET_ZC_BANKING_CHECK)
+ */
+void clif_Bank_Check(struct map_session_data* sd) {
+	unsigned char buf[13];
+	struct s_packet_db* info;
+	int16 len;
+	int cmd = 0;
+
+	nullpo_retv(sd);
+
+	cmd = packet_db_ack[sd->packet_ver][ZC_BANKING_CHECK];
+	if(!cmd) cmd = 0x09A6; //default
+	info = &packet_db[sd->packet_ver][cmd];
+	len = info->len;
+	if(!len) return; //version as packet disable
+	// sd->state.banking = 1; //mark opening and closing
+
+	WBUFW(buf,0) = cmd;
+	WBUFQ(buf,info->pos[0]) = sd->bank_vault; //value
+	WBUFW(buf,info->pos[1]) = 0; //reason
+	clif_send(buf,len,&sd->bl,SELF);
+}
+
+/*
+ * Requesting the data in bank
+ * 09AB <aid>L (PACKET_CZ_REQ_BANKING_CHECK)
+ */
+void clif_parse_BankCheck(int fd, struct map_session_data* sd) {
+	nullpo_retv(sd);
+
+	if( !battle_config.feature_banking ) {
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		return;
+	}
+	else {
+		struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+		int aid = RFIFOL(fd,info->pos[0]); //unused should we check vs fd ?
+		if(sd->status.account_id == aid) //since we have it let check it for extra security
+			clif_Bank_Check(sd);
+	}
+}
+
+/*
+ * Acknowledge of deposit some money in bank
+  09A8 <Reason>W <Money>Q <balance>L (PACKET_ZC_ACK_BANKING_DEPOSIT)
+ */
+void clif_bank_deposit(struct map_session_data *sd, enum e_BANKING_DEPOSIT_ACK reason) {
+	unsigned char buf[17];
+	struct s_packet_db* info;
+	int16 len;
+	int cmd =0;
+
+	nullpo_retv(sd);
+
+	cmd = packet_db_ack[sd->packet_ver][ZC_ACK_BANKING_DEPOSIT];
+	if(!cmd) cmd = 0x09A8;
+	info = &packet_db[sd->packet_ver][cmd];
+	len = info->len;
+	if(!len) return; //version as packet disable
+
+	WBUFW(buf,0) = cmd;
+	WBUFW(buf,info->pos[0]) = (short)reason;
+	WBUFQ(buf,info->pos[1]) = sd->bank_vault;/* money in the bank */
+	WBUFL(buf,info->pos[2]) = sd->status.zeny;/* how much zeny char has after operation */
+	clif_send(buf,len,&sd->bl,SELF);
+}
+
+/*
+ * Request saving some money in bank
+ * @author : original [Yommy/Hercules]
+ * 09A7 <AID>L <Money>L (PACKET_CZ_REQ_BANKING_DEPOSIT)
+ */
+void clif_parse_BankDeposit(int fd, struct map_session_data* sd) {
+	nullpo_retv(sd);
+	if( !battle_config.feature_banking ) {
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		return;
+	}
+	else {
+		struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+		int aid = RFIFOL(fd,info->pos[0]); //unused should we check vs fd ?
+		int money = RFIFOL(fd,info->pos[1]);
+
+		if(sd->status.account_id == aid){
+			enum e_BANKING_DEPOSIT_ACK reason = pc_bank_deposit(sd,max(0,money));
+			clif_bank_deposit(sd,reason);
+		}
+	}
+}
+
+/*
+ * Acknowledge of withdrawing some money from bank
+  09AA <Reason>W <Money>Q <balance>L (PACKET_ZC_ACK_BANKING_WITHDRAW)
+ */
+void clif_bank_withdraw(struct map_session_data *sd,enum e_BANKING_WITHDRAW_ACK reason) {
+	unsigned char buf[17];
+	struct s_packet_db* info;
+	int16 len;
+	int cmd;
+
+	nullpo_retv(sd);
+
+	cmd = packet_db_ack[sd->packet_ver][ZC_ACK_BANKING_WITHDRAW];
+	if(!cmd) cmd = 0x09AA;
+	info = &packet_db[sd->packet_ver][cmd];
+	len = info->len;
+	if(!len) return; //version as packet disable
+
+	WBUFW(buf,0) = cmd;
+	WBUFW(buf,info->pos[0]) = (short)reason;
+	WBUFQ(buf,info->pos[1]) = sd->bank_vault;/* money in the bank */
+	WBUFL(buf,info->pos[2]) = sd->status.zeny;/* how much zeny char has after operation */
+
+	clif_send(buf,len,&sd->bl,SELF);
+}
+
+/*
+ * Request Withdrawing some money from bank
+ * 09A9 <AID>L <Money>L (PACKET_CZ_REQ_BANKING_WITHDRAW)
+ */
+void clif_parse_BankWithdraw(int fd, struct map_session_data* sd) {
+        nullpo_retv(sd);
+	if( !battle_config.feature_banking ) {
+		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		return;
+	}
+	else {
+		struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+		int aid = RFIFOL(fd,info->pos[0]); //unused should we check vs fd ?
+		int money = RFIFOL(fd,info->pos[1]);
+		if(sd->status.account_id == aid){
+			enum e_BANKING_WITHDRAW_ACK reason = pc_bank_withdraw(sd,max(0,money));
+			clif_bank_withdraw(sd,reason);
+		}
+	}
+}
 
 /// Deletes an item from character's cart (ZC_DELETE_ITEM_FROM_CART).
 /// 0125 <index>.W <amount>.L
@@ -9996,13 +10281,13 @@ void clif_parse_Emotion(int fd, struct map_session_data *sd)
 
 	if (battle_config.basic_skill_check == 0 || pc_checkskill(sd, NV_BASIC) >= 2) {
 		if (emoticon == E_MUTE) {// prevent use of the mute emote [Valaris]
-			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1);
+			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1,0);
 			return;
 		}
 		// fix flood of emotion icon (ro-proxy): flood only the hacker player
 		if (sd->emotionlasttime >= time(NULL)) {
 			sd->emotionlasttime = time(NULL) + 1; // not more than 1 per second (using /commands the client can spam it)
-			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1);
+			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1,0);
 			return;
 		}
 		sd->emotionlasttime = time(NULL) + 1; // not more than 1 per second (using /commands the client can spam it)
@@ -10014,7 +10299,7 @@ void clif_parse_Emotion(int fd, struct map_session_data *sd)
 
 		clif_emotion(&sd->bl, emoticon);
 	} else
-		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1);
+		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1,0);
 }
 
 
@@ -10095,7 +10380,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {
 			if (DIFF_TICK(tick, sd->ud.canact_tick) < 0) {
-				clif_skill_fail(sd, 1, USESKILL_FAIL_SKILLINTERVAL, 0);
+				clif_skill_fail(sd, 1, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 				return;
 			}
 		}
@@ -10106,7 +10391,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 	break;
 	case 0x02: // sitdown
 		if (battle_config.basic_skill_check && pc_checkskill(sd, NV_BASIC) < 3) {
-			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 2);
+			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 2,0);
 			break;
 		}
 
@@ -10688,7 +10973,7 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 	if (sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOROOM)
 		return;
 	if(battle_config.basic_skill_check && pc_checkskill(sd,NV_BASIC) < 4) {
-		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,3);
+		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,3,0);
 		return;
 	}
 
@@ -10800,7 +11085,7 @@ void clif_parse_TradeRequest(int fd,struct map_session_data *sd)
 
 	if( battle_config.basic_skill_check && pc_checkskill(sd,NV_BASIC) < 1)
 	{
-		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,0,0);
 		return;
 	}
 	
@@ -11013,7 +11298,7 @@ static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct
 		return;
 	if( DIFF_TICK(tick, md->ud.canact_tick) < 0 )
 	{
-		clif_skill_fail(md->master, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0);
+		clif_skill_fail(md->master, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 		return;
 	}
 
@@ -11085,7 +11370,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	{
 		if( sd->skillitem != skillnum )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0);
+			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 			return;
 		}
 	}
@@ -11170,7 +11455,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	{
 		if( pc_issit(sd) )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_LEVEL, 0);
+			clif_skill_fail(sd, skillnum, USESKILL_FAIL_LEVEL, 0,0);
 			return;
 		}
 		//You can't use Graffiti/TalkieBox AND have a vending open, so this is safe.
@@ -11184,7 +11469,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	{
 		if( sd->skillitem != skillnum )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0);
+			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 			return;
 		}
 	}
@@ -11307,12 +11592,12 @@ void clif_parse_RequestMemo(int fd,struct map_session_data *sd)
 /// 018e <name id>.W { <material id>.W }*3
 void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 {
-	if (sd->menuskill_id !=	AM_PHARMACY)
+	if (sd->menuskill_id !=	AM_PHARMACY && sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON)
 		return;
 
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -11330,7 +11615,7 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
 
 	if( pc_istrading(sd) )
 	{
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -11359,7 +11644,7 @@ void clif_parse_Cooking(int fd,struct map_session_data *sd)
 
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -11376,7 +11661,7 @@ void clif_parse_RepairItem(int fd, struct map_session_data *sd)
 		return;
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -11395,7 +11680,7 @@ void clif_parse_WeaponRefine(int fd, struct map_session_data *sd)
 		return;
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -11500,15 +11785,21 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
 /// 01ae <name id>.W
 void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 {
-	if (sd->menuskill_id != AC_MAKINGARROW)
+	if (sd->menuskill_id != AC_MAKINGARROW && sd->menuskill_id != WL_READING_SB && sd->menuskill_id != GC_POISONINGWEAPON)	// Because we use making arrow packets to show and receive spellbook selections. Actually, if tests prove us to be right, we might as well rename this function to something more generic. [LimitLine]
 		return;
 	if (pc_istrading(sd)) {
 	//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0);
+		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
-	skill_arrow_create(sd,RFIFOW(fd,2));
+	if( sd->menuskill_id == AC_MAKINGARROW )
+		skill_arrow_create(sd,RFIFOW(fd,2));
+	if( sd->menuskill_id == WL_READING_SB )
+		skill_spellbook(sd, RFIFOW(fd, 2));
+	if( sd->menuskill_id == GC_POISONINGWEAPON )
+		skill_poisoningweapon(sd, RFIFOW(fd, 2));
+
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
 
@@ -11765,7 +12056,7 @@ void clif_parse_CreateParty(int fd, struct map_session_data *sd)
 	}
 	if( battle_config.basic_skill_check && pc_checkskill(sd,NV_BASIC) < 7 )
 	{
-		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,4);
+		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,4,0);
 		return;
 	}
 
@@ -11786,7 +12077,7 @@ void clif_parse_CreateParty2(int fd, struct map_session_data *sd)
 	}
 	if( battle_config.basic_skill_check && pc_checkskill(sd,NV_BASIC) < 7 )
 	{
-		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,4);
+		clif_skill_fail(sd,1,USESKILL_FAIL_LEVEL,4,0);
 		return;
 	}
 
@@ -17208,9 +17499,9 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0, 14,	6, 50,	0,	0,	0,	0,	0,	0,
 //#0x0980
 		0,	0,	0, 29, 28,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		0,	0,	0,	0,	0,	0,	0, 14,	0,	0,	0,	0,	0,	0,	0,	0,
+		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
@@ -17407,6 +17698,12 @@ static int packetdb_readdb(void)
 		{clif_parse_PartyBookingUpdateReq,"bookingupdatereq"},
 		{clif_parse_PartyBookingDeleteReq,"bookingdelreq"},
 #endif
+		{clif_parse_BankCheck,"bankcheck"},
+		{clif_parse_BankDeposit,"bankdeposit"},
+		{clif_parse_BankWithdraw,"bankwithdrawal"},
+		{clif_parse_BankOpen,"bankopen"},
+		{clif_parse_BankClose,"bankclose"},
+
 		{clif_parse_PVPInfo,"pvpinfo"},
 		{clif_parse_LessEffect,"lesseffect"},
 		// Buying Store
@@ -17426,6 +17723,16 @@ static int packetdb_readdb(void)
 		{clif_parse_CashShopBuy,"pCashShopBuy"},
 		{NULL,NULL}
 	};
+
+	struct {
+		char *name; //function name
+		int funcidx; //
+	} clif_ack_func[]={ //hash
+		{ "ZC_ACK_OPEN_BANKING", ZC_ACK_OPEN_BANKING},
+		{ "ZC_ACK_BANKING_DEPOSIT", ZC_ACK_BANKING_DEPOSIT},
+		{ "ZC_ACK_BANKING_WITHDRAW", ZC_ACK_BANKING_WITHDRAW},
+		{ "ZC_BANKING_CHECK", ZC_BANKING_CHECK},
+	}; 
 
 	// initialize packet_db[SERVER] from hardcoded packet_len_table[] values
 	memset(packet_db,0,sizeof(packet_db));
@@ -17482,6 +17789,7 @@ static int packetdb_readdb(void)
 				// copy from previous version into new version and continue
 				// - indicating all following packets should be read into the newer version
 				memcpy(&packet_db[packet_ver], &packet_db[prev_ver], sizeof(packet_db[0]));
+				memcpy(&packet_db_ack[packet_ver], &packet_db_ack[prev_ver], sizeof(packet_db_ack[0])); 
 				continue;
 			} else if(strcmpi(w1,"packet_db_ver")==0) {
 				if(strcmpi(w2,"default")==0) //This is the preferred version.
@@ -17527,6 +17835,14 @@ static int packetdb_readdb(void)
 		ARR_FIND( 0, ARRAYLENGTH(clif_parse_func), j, clif_parse_func[j].name != NULL && strcmp(str[2],clif_parse_func[j].name)==0 );
 		if( j < ARRAYLENGTH(clif_parse_func) )
 			packet_db[packet_ver][cmd].func = clif_parse_func[j].func;
+		 else { //search if it's a mapped ack func
+			ARR_FIND( 0, ARRAYLENGTH(clif_ack_func), j, clif_ack_func[j].name != NULL && strcmp(str[2],clif_ack_func[j].name)==0 );
+			if( j < ARRAYLENGTH(clif_ack_func)) {
+				int fidx = clif_ack_func[j].funcidx;
+				packet_db_ack[packet_ver][fidx] = cmd;
+				ShowInfo("Added %s, <=> %X i=%d for v=%d\n",clif_ack_func[j].name,cmd,fidx,packet_ver);
+			}
+		} 
 
 		// set the identifying cmd for the packet_db version
 		if (strcmp(str[2],"wanttoconnection")==0)

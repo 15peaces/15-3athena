@@ -35,14 +35,35 @@ struct party_booking_ad_info;
 enum
 {// packet DB
 	MAX_PACKET_DB  = 0xf00,
-	MAX_PACKET_VER = 32,
+	MAX_PACKET_VER = 33,
 	MAX_PACKET_POS = 20,
+};
+
+enum e_packet_ack {
+	ZC_ACK_OPEN_BANKING = 0,
+	ZC_ACK_BANKING_DEPOSIT,
+	ZC_ACK_BANKING_WITHDRAW,
+	ZC_BANKING_CHECK,
+	MAX_ACK_FUNC //auto upd len
 };
 
 struct s_packet_db {
 	short len;
 	void (*func)(int, struct map_session_data *);
 	short pos[MAX_PACKET_POS];
+};
+
+enum e_BANKING_DEPOSIT_ACK {
+	BDA_SUCCESS  = 0x0,
+	BDA_ERROR    = 0x1,
+	BDA_NO_MONEY = 0x2,
+	BDA_OVERFLOW = 0x3,
+};
+ 
+enum e_BANKING_WITHDRAW_ACK {
+	BWA_SUCCESS       = 0x0,
+	BWA_NO_MONEY      = 0x1,
+	BWA_UNKNOWN_ERROR = 0x2,
 };
 
 //Trader NPC
@@ -86,6 +107,7 @@ static struct packet_npc_market_open npcmarket_open;
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len
 extern struct s_packet_db packet_db[MAX_PACKET_VER+1][MAX_PACKET_DB+1];
+extern int packet_db_ack[MAX_PACKET_VER + 1][MAX_ACK_FUNC + 1];
 
 // local define
 typedef enum send_target {
@@ -446,6 +468,8 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 void clif_arrowequip(struct map_session_data *sd,int val); //self
 void clif_arrow_fail(struct map_session_data *sd,int type); //self
 void clif_arrow_create_list(struct map_session_data *sd);	//self
+int clif_poison_list(struct map_session_data *sd, int skill_lv);
+int clif_spellbook_list(struct map_session_data *sd);	//self
 int clif_skill_select_request( struct map_session_data *sd ); //self
 void clif_statusupack(struct map_session_data *sd,int type,int ok,int val);	// self
 void clif_equipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self
@@ -518,7 +542,7 @@ void clif_deleteskill(struct map_session_data *sd, int id);
 
 void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x, int dst_y, int skill_num, int property, int casttime);
 void clif_skillcastcancel(struct block_list* bl);
-void clif_skill_fail(struct map_session_data *sd,int skill_id,enum useskill_fail_cause cause,int btype);
+void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype, int val);
 void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int tick);
 int clif_skill_damage(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
 //int clif_skill_damage2(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
@@ -528,7 +552,7 @@ void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4);
 void clif_skill_memomessage(struct map_session_data* sd, int type);
 void clif_skill_teleportmessage(struct map_session_data *sd, int type);
-void clif_skill_produce_mix_list(struct map_session_data *sd, int trigger);
+void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int trigger);
 void clif_cooking_list(struct map_session_data *sd, int trigger);
 
 void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid);
@@ -799,6 +823,15 @@ void clif_PartyBookingSearchAck(int fd, struct party_booking_ad_info** results, 
 void clif_PartyBookingUpdateNotify(struct map_session_data* sd, struct party_booking_ad_info* pb_ad);
 void clif_PartyBookingDeleteNotify(struct map_session_data* sd, int index);
 void clif_PartyBookingInsertNotify(struct map_session_data* sd, struct party_booking_ad_info* pb_ad);
+
+/* Bank System [Yommy/Hercules] */
+void clif_bank_deposit (struct map_session_data *sd, enum e_BANKING_DEPOSIT_ACK reason);
+void clif_bank_withdraw (struct map_session_data *sd,enum e_BANKING_WITHDRAW_ACK reason);
+void clif_parse_BankDeposit (int fd, struct map_session_data *sd);
+void clif_parse_BankWithdraw (int fd, struct map_session_data *sd);
+void clif_parse_BankCheck (int fd, struct map_session_data *sd);
+void clif_parse_BankOpen (int fd, struct map_session_data *sd);
+void clif_parse_BankClose (int fd, struct map_session_data *sd);
 
 void clif_showdigit(struct map_session_data* sd, unsigned char type, int value);
 

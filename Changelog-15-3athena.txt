@@ -4,6 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/08/2015
+	r58 [15peaces]
+		*Merged missing changes from 3ceam rev. 214 - 215
+		*ItemDB Updated
+			-Rosa Shield now got 14 Def (130 = renewal)
+			-Added full support for Rune Knight Rune Ores
+		*Marked isday() script command as deprecated
+			-Please consider using !isnight() instead
+		*Some other internal coding for 3rd job skills
+		*Added full support for makerune script command
+		*GC_RESEARCHNEWPOISON; GC_CREATENEWPOISON; GC_POISONINGWEAPON
+			-Added full support for these skills.
+		*Added full support for official banking system (Thanks to rAthena!)
+			-Added some other packets for 2013 Ragexes. (Please note: the packet versions have changed!)
+			-A client 2013-07-24aRagexe or later is required
+			-All banking systems now use the #BANKVAULT variable. So they're compatible to each other.
+
 05/31/2015
 	r57 [15peaces]
 		*Merged missing changes from 3ceam rev. 212 - 213

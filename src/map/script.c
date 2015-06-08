@@ -8097,7 +8097,7 @@ BUILDIN_FUNC(produce)
 		return 0;
 
 	trigger=script_getnum(st,2);
-	clif_skill_produce_mix_list(sd, trigger);
+	clif_skill_produce_mix_list(sd,-1,trigger);
 	return 0;
 }
 /*==========================================
@@ -8115,6 +8115,25 @@ BUILDIN_FUNC(cooking)
 	trigger=script_getnum(st,2);
 	clif_cooking_list(sd, trigger);
 	return 0;
+}
+/*==========================================
+ *
+ *------------------------------------------*/
+BUILDIN_FUNC(makerune)
+{
+	int rune_ore;
+	TBL_PC* sd;
+
+	sd = script_rid2sd(st);
+
+	if( sd == NULL )
+		return 0;
+
+	rune_ore=script_getnum(st,2);
+	sd->menuskill_itemused = rune_ore;
+	clif_skill_produce_mix_list(sd,RK_RUNEMASTERY,24);
+	return 0;
+
 }
 /*==========================================
  * NPC‚Åƒyƒbƒgì‚é
@@ -16303,7 +16322,7 @@ BUILDIN_FUNC(guild_break) {
 			script_pushint(st, 0);
 			return 0;
 		}
-		if (!(g = sd->status.guild_id )) {
+		if (!sd->status.guild_id) {
 			ShowError("buildin_guild_break: Player isn't join in any guild (CID: %d).\n", sd->status.char_id);
 			script_pushint(st, 0);
 			return 0;
@@ -16953,6 +16972,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(itemskill,"vi"),
 	BUILDIN_DEF(produce,"i"),
 	BUILDIN_DEF(cooking,"i"),
+	BUILDIN_DEF(makerune,"i"),
 	BUILDIN_DEF(monster,"siisii?"),
 	BUILDIN_DEF(getmobdrops,"i"),
 	BUILDIN_DEF(areamonster,"siiiisii?"),
@@ -17089,7 +17109,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(logmes,"s"), //this command actls as MES but rints info into LOG file either SQL/TXT [Lupus]
 	BUILDIN_DEF(summon,"si??"), // summons a slave monster [Celest]
 	BUILDIN_DEF(isnight,""), // check whether it is night time [Celest]
-	BUILDIN_DEF(isday,""), // check whether it is day time [Celest]
+	BUILDIN_DEF(isday,""), // check whether it is day time [Celest] // DEPRECATED 2015-06-06 [15peaces]
 	BUILDIN_DEF(isequipped,"i*"), // check whether another item/card has been equipped [Celest]
 	BUILDIN_DEF(isequippedcnt,"i*"), // check how many items/cards are being equipped [Celest]
 	BUILDIN_DEF(cardscnt,"i*"), // check how many items/cards are being equipped in the same arm [Lupus]

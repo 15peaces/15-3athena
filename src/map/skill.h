@@ -22,7 +22,7 @@ struct status_change_entry;
 //15-3athena
 //May be needed in the future. [15peaces]
 #define MAX_SKILL_SPELLBOOK_DB 17
-//#define MAX_SKILL_MAGICMUSHROOM_DB 23
+#define MAX_SKILL_MAGICMUSHROOM_DB 23
 #define MAX_SKILL_IMPROVISE_DB 50
 
 #define MAX_SKILL_LEVEL 100
@@ -232,6 +232,13 @@ struct s_skill_improvise_db {
 };
 extern struct s_skill_improvise_db skill_improvise_db[MAX_SKILL_IMPROVISE_DB];
 
+struct s_skill_magicmushroom_db {
+	int skillid;
+};
+
+extern struct s_skill_magicmushroom_db skill_magicmushroom_db[MAX_SKILL_MAGICMUSHROOM_DB];
+
+
 extern int enchant_eff[5];
 extern int deluge_eff[5];
 
@@ -362,6 +369,8 @@ int skill_can_produce_mix( struct map_session_data *sd, unsigned short nameid, i
 int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty );
 
 int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
+int skill_poisoningweapon( struct map_session_data *sd, int nameid);
+int skill_spellbook( struct map_session_data *sd, int nameid);	// Warlock Spellbooks. [LimitLine]
 int skill_select_menu( struct map_session_data *sd, int flag, int skill_id); // Shadow Cheser Auto Shadow Spell [pakpil]
 int skill_elementalanalysis(struct map_session_data *sd, int n, int type, unsigned short *item_list); // Sorcerer Four Elemental Analisys.
 int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list);	// Genetic Change Material.
@@ -1889,5 +1898,15 @@ enum wl_spellbook {
 	SB_DRAINLIFE
 };
 
+enum gx_poison {
+	PO_PARALYSE = 12717,
+	PO_LEECHESEND,
+	PO_OBLIVIONCURSE,
+	PO_DEATHHURT,
+	PO_TOXIN,
+	PO_PYREXIA,
+	PO_MAGICMUSHROOM,
+	PO_VENOMBLEED
+};
 
 #endif /* _SKILL_H_ */

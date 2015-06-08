@@ -89,6 +89,7 @@
 //Max amount of a single stacked item
 #define MAX_AMOUNT 30000
 #define MAX_ZENY 1000000000
+#define MAX_BANK_ZENY SINT32_MAX
 #define MAX_FAME 1000000000
 #define MAX_CART 100
 #define MAX_SKILL 5016

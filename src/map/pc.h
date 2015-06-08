@@ -21,6 +21,8 @@
 #define MAX_PC_SKILL_REQUIRE 5
 #define MAX_PC_FEELHATE 3
 
+#define BANK_VAULT_VAR "#BANKVAULT"
+
 //15-3athena
 //These may be needed in the future. [15peaces]
 #define MAX_RUNE 20 //Max number of runes a Rune Knight can carry of each type.
@@ -148,7 +150,9 @@ struct map_session_data {
 		unsigned short autolootid; // [Zephyrus]
 		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
 		unsigned improv_flag : 1;
+		unsigned magicmushroom_flag : 1;
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
+		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
 	} state;
 	struct {
@@ -444,6 +448,8 @@ struct map_session_data {
 	// temporary debugging of bug #3504
 	const char* delunit_prevfile;
 	int delunit_prevline;
+
+	int bank_vault; ///< Bank Vault
 };
 
 //Update this max as necessary. 84 is the value needed for the Expanded Super Baby.
@@ -781,6 +787,9 @@ int pc_setregistry(struct map_session_data*,const char*,int,int);
 char *pc_readregistry_str(struct map_session_data*,const char*,int);
 int pc_setregistry_str(struct map_session_data*,const char*,const char*,int);
 
+bool pc_setreg2(struct map_session_data *sd, const char *reg, int val);
+int pc_readreg2(struct map_session_data *sd, const char *reg);
+
 int pc_addeventtimer(struct map_session_data *sd,int tick,const char *name);
 int pc_deleventtimer(struct map_session_data *sd,const char *name);
 int pc_cleareventtimer(struct map_session_data *sd);
@@ -861,5 +870,8 @@ void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
 
 int pc_read_motd(void); // [Valaris]
 int pc_disguise(struct map_session_data *sd, int class_);
+
+enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int money);
+enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int money);
 
 #endif /* _PC_H_ */
