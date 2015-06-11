@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/11/2015
+	r59 [15peaces]
+		*ItemDB updated
+			-Added Costume Valkyrie Helm.
+			-Round Buckleer now got 10 Def (90 = renewal)
+		*MonsterDB updated
+			-added Round Buckler drops
+			-added Furious Stalactic Golem & Furious Orc Warrior
+		*Some other missing changes merged
+	
 06/08/2015
 	r58 [15peaces]
 		*Merged missing changes from 3ceam rev. 214 - 215
