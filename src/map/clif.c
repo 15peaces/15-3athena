@@ -1759,38 +1759,29 @@ void clif_npcbuysell(struct map_session_data* sd, int id)
 /// 00c6 <packet len>.W { <price>.L <discount price>.L <item type>.B <name id>.W }*
 void clif_buylist(struct map_session_data *sd, struct npc_data *nd)
 {
-	struct npc_item_list *shop = NULL;
-	unsigned short shop_size = 0;
 	int fd,i,c;
+	bool discount;
 
 	nullpo_retv(sd);
 	nullpo_retv(nd);
-
-	if( nd->subtype == SCRIPT ) {
-		shop = nd->u.scr.shop->item;
-		shop_size = nd->u.scr.shop->items;
-	} else {
-		shop = nd->u.shop.shop_item;
-		shop_size = nd->u.shop.count;
-	}
 
 	fd = sd->fd;
 	WFIFOHEAD(fd, 4 + nd->u.shop.count * 11);
 	WFIFOW(fd,0) = 0xc6;
 
 	c = 0;
-	for( i = 0; i < shop_size; i++ ) {
-		if( shop[i].nameid ) {
-			struct item_data* id = itemdb_exists(shop[i].nameid);
-			int val = shop[i].value;
-			if( id == NULL )
-				continue;
-			WFIFOL(fd, 4+c*11) = val;
-			WFIFOL(fd, 8+c*11) = pc_modifybuyvalue(sd,val);
-			WFIFOB(fd,12+c*11) = itemtype(id->type);
-			WFIFOW(fd,13+c*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
-			c++;
-		}
+	discount = nd->u.shop.discount;
+	for( i = 0; i < nd->u.shop.count; i++ )
+	{
+		struct item_data* id = itemdb_exists(nd->u.shop.shop_item[i].nameid);
+		int val = nd->u.shop.shop_item[i].value;
+		if( id == NULL )
+			continue;
+		WFIFOL(fd, 4+c*11) = val;
+		WFIFOL(fd, 8+c*11) = (discount) ? pc_modifybuyvalue(sd,val) : val;
+		WFIFOB(fd,12+c*11) = itemtype(id->nameid);
+		WFIFOW(fd,13+c*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+		c++;
 	}
 
 	WFIFOW(fd,2) = 4 + c*11;
@@ -10903,17 +10894,16 @@ void clif_npc_buy_result(struct map_session_data* sd, unsigned char result)
 /// 00c8 <packet len>.W { <amount>.W <name id>.W }*
 void clif_parse_NpcBuyListSend(int fd, struct map_session_data* sd)
 {
-	int n = (RFIFOW(fd,2)-4) /4;
-	unsigned short* item_list = (unsigned short*)RFIFOP(fd,4);
+	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	uint16 n = (RFIFOW(fd,info->pos[0])-4) /4;
 	int result;
 
 	if( sd->state.trading || !sd->npc_shopid )
 		result = 1;
 	else
-		result = npc_buylist(sd,n,item_list);
+		result = npc_buylist(sd, n, (struct s_npc_buy_list*)RFIFOP(fd,info->pos[1]));
 
 	sd->npc_shopid = 0; //Clear shop data.
-
 	clif_npc_buy_result(sd, result);
 }
 
@@ -15191,10 +15181,7 @@ void clif_parse_Auction_buysell(int fd, struct map_session_data* sd)
 /// 0287 <packet len>.W <cash point>.L <kafra point>.L { <sell price>.L <discount price>.L <item type>.B <name id>.W }* (PACKETVER >= 20070711)
 void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 {
-	struct npc_item_list *shop = NULL;
-	unsigned short shop_size = 0;
-	int fd,i, c = 0;
-	int currency[2] = { 0,0 };
+	int fd,i;
 #if PACKETVER < 20070711
 	const int offset = 8;
 #else
@@ -15204,43 +15191,23 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 	nullpo_retv(sd);
 	nullpo_retv(nd);
 
-	if( nd->subtype == SCRIPT ) {
-		shop = nd->u.scr.shop->item;
-		shop_size = nd->u.scr.shop->items;
-
-		npc_trader_count_funds(nd, sd);
-
-		currency[0] = trader_funds[0];
-		currency[1] = trader_funds[1];
-	} else {
-		shop = nd->u.shop.shop_item;
-		shop_size = nd->u.shop.count;
-
-		currency[0] = sd->cashPoints;
-		currency[1] = sd->kafraPoints;
-	}
-
 	fd = sd->fd;
 	sd->npc_shopid = nd->bl.id;
-	WFIFOHEAD(fd,offset+shop_size*11);
+	WFIFOHEAD(fd,offset+nd->u.shop.count*11);
 	WFIFOW(fd,0) = 0x287;
-	/* 0x2 = length, set after parsing */
-	WFIFOL(fd,4) = currency[0]; // Cash Points
+	WFIFOW(fd,2) = offset+nd->u.shop.count*11;
+	WFIFOL(fd,4) = sd->cashPoints; // Cash Points
 #if PACKETVER >= 20070711
-	WFIFOL(fd,8) = currency[1]; // Kafra Points
+	WFIFOL(fd,8) = sd->kafraPoints; // Kafra Points
 #endif
 
-	for( i = 0; i < shop_size; i++ ) {
-		if( shop[i].nameid ) {
-			struct item_data* id = itemdb_search(shop[i].nameid);
-			WFIFOL(fd,offset+0+i*11) = shop[i].value;
-			WFIFOL(fd,offset+4+i*11) = shop[i].value; // Discount Price
-			WFIFOB(fd,offset+8+i*11) = itemtype(id->type);
-			WFIFOW(fd,offset+9+i*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
-			c++;
-		}
+	for( i = 0; i < nd->u.shop.count; i++ ) {
+		struct item_data* id = itemdb_search(nd->u.shop.shop_item[i].nameid);
+		WFIFOL(fd,offset+0+i*11) = nd->u.shop.shop_item[i].value;
+		WFIFOL(fd,offset+4+i*11) = nd->u.shop.shop_item[i].value; // Discount Price
+		WFIFOB(fd,offset+8+i*11) = itemtype(id->nameid);
+		WFIFOW(fd,offset+9+i*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
 	}
-	WFIFOW(fd,2) = offset+c*11;
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
 
@@ -15260,26 +15227,15 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 ///     8 = Some items could not be purchased.
 void clif_cashshop_ack(struct map_session_data* sd, int error)
 {
-	struct npc_data *nd;
 	int fd = sd->fd;
-	int currency[2] = { 0,0 };
-
-	if( (nd = map_id2nd(sd->npc_shopid)) && nd->subtype == SCRIPT ) {
-		npc_trader_count_funds(nd,sd);
-		currency[0] = trader_funds[0];
-		currency[1] = trader_funds[1];
-	} else {
-		currency[0] = sd->cashPoints;
-		currency[1] = sd->kafraPoints;
-	}
 
 	WFIFOHEAD(fd, packet_len(0x289));
 	WFIFOW(fd,0) = 0x289;
-	WFIFOL(fd,2) = currency[0];
+	WFIFOL(fd,2) = sd->cashPoints;
 #if PACKETVER < 20070711
 	WFIFOW(fd,6) = TOW(error);
 #else
-	WFIFOL(fd,6) = currency[1];
+	WFIFOL(fd,6) = sd->kafraPoints;
 	WFIFOW(fd,10) = TOW(error);
 #endif
 	WFIFOSET(fd, packet_len(0x289));
@@ -15525,28 +15481,47 @@ void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {
 	sd->npc_shopid = 0;
 }
 
-/* NPC Market (by Ind after an extensive debugging of the packet, only possible thanks to Yommy <3) */
+/**
+ * Presents list of items, that can be sold to a Market shop.
+ * @author: Ind and Yommy
+ **/
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd) {
-	struct npc_item_list *shop = nd->u.scr.shop->item;
-	unsigned short shop_size = nd->u.scr.shop->items, i, c;
+#if PACKETVER >= 20131223
+	struct npc_item_list *shop = nd->u.shop.shop_item;
+	unsigned short shop_size = nd->u.shop.count, i, c, cmd = 0x9d5;
 	struct item_data *id = NULL;
+	struct s_packet_db *info;
+	int fd;
 
-	npcmarket_open.PacketType = 0x9d5;
+	nullpo_retv(sd);
 
-	for(i = 0, c = 0; i < shop_size; i++) {
-		if( shop[i].nameid && (id = itemdb_exists(shop[i].nameid)) ) {
-			npcmarket_open.list[c].nameid = shop[i].nameid;
-			npcmarket_open.list[c].price = shop[i].value;
-			npcmarket_open.list[c].qty = shop[i].qty;
-			npcmarket_open.list[c].type = itemtype(id->type);
-			npcmarket_open.list[c].view = ( id->view_id > 0 ) ? id->view_id : id->nameid;
+	if (sd->state.trading)
+		return;
+
+	info = &packet_db[sd->packet_ver][cmd];
+	if (!info || info->len == 0)
+		return;
+
+	fd = sd->fd;
+
+	WFIFOHEAD(fd, 4 + shop_size * 13);
+	WFIFOW(fd,0) = cmd;
+
+	for (i = 0, c = 0; i < shop_size; i++) {
+		if (shop[i].nameid && (id = itemdb_exists(shop[i].nameid))) {
+			WFIFOW(fd, 4+c*13) = shop[i].nameid;
+			WFIFOB(fd, 6+c*13) = itemtype(id->nameid);
+			WFIFOL(fd, 7+c*13) = shop[i].value;
+			WFIFOL(fd,11+c*13) = shop[i].qty;
+			WFIFOW(fd,15+c*13) = (id->view_id > 0) ? id->view_id : id->nameid;
 			c++;
 		}
 	}
 
-	npcmarket_open.PacketLength = 4 + ( sizeof(npcmarket_open.list[0]) * c );
-
-	clif_send(&npcmarket_open,npcmarket_open.PacketLength,&sd->bl,SELF);
+	WFIFOW(fd,2) = 4 + c*13;
+	WFIFOSET(fd,WFIFOW(fd,2));
+	sd->state.trading = 1;
+#endif
 }
 
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd) {
@@ -15554,44 +15529,77 @@ void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd) {
 	sd->npc_shopid = 0;
 }
 
-void clif_npc_market_purchase_ack(struct map_session_data *sd, struct packet_npc_market_purchase *req, unsigned char response) {
-	unsigned short c = 0;
+/// Purchase item from Market shop.
+void clif_npc_market_purchase_ack(struct map_session_data *sd, uint8 res, uint8 n, struct s_npc_buy_list *list) {
+#if PACKETVER >= 20131223
+	unsigned short cmd = 0x9d7, len = 0;
+	struct npc_data* nd;
+	uint8 result = (res == 0 ? 1 : 0);
+	int fd = 0;
+	struct s_packet_db *info;
 
-	npcmarket_result.PacketType = 0x9d7;
-	npcmarket_result.result = response == 0 ? 1 : 0;/* find other values */
+	nullpo_retv(sd);
+	nullpo_retv((nd = map_id2nd(sd->npc_shopid)));
 
-	if( npcmarket_result.result ) {
-		unsigned short i, list_size = (req->PacketLength - 4) / sizeof(req->list[0]), j;
-		struct npc_data* nd;
-		struct npc_item_list *shop = NULL;
-		unsigned short shop_size = 0;
+	info = &packet_db[sd->packet_ver][cmd];
+	if (!info || info->len == 0)
+		return;
 
-		nd = map_id2nd(sd->npc_shopid);
-		shop = nd->u.scr.shop->item;
-		shop_size = nd->u.scr.shop->items;
+	fd = sd->fd;
+	len = 5 + 8*n;
 
-		for(i = 0; i < list_size; i++) {
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = cmd;
+	WFIFOW(fd, 2) = len;
 
-			npcmarket_result.list[i].ITID = req->list[i].ITID;
-			npcmarket_result.list[i].qty = req->list[i].qty;
+	if (result) {
+		uint8 i, j;
+		struct npc_item_list *shop = nd->u.shop.shop_item;
+		unsigned short count = nd->u.shop.count;
 
-			ARR_FIND( 0, shop_size, j, req->list[i].ITID == shop[j].nameid );
+		for (i = 0; i < n; i++) {
+			WFIFOW(fd, 5+i*8) = list[i].nameid;
+			WFIFOW(fd, 7+i*8) = list[i].qty;
 
-			npcmarket_result.list[i].price = (j != shop_size) ? shop[j].value : 0;
-
-			c++;
+			ARR_FIND(0, count, j, list[i].nameid == shop[j].nameid);
+			WFIFOL(fd, 9+i*8) = (j != count) ? shop[j].value : 0;
 		}
 	}
 
-	npcmarket_result.PacketLength = 5 + ( sizeof(npcmarket_result.list[0]) * c );;
-
-	clif_send(&npcmarket_result,npcmarket_result.PacketLength,&sd->bl,SELF);
+	WFIFOB(fd, 4) = n;
+	WFIFOSET(fd, len);
+#endif
 }
 
+/// Purchase item from Market shop.
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd) {
-	struct packet_npc_market_purchase *p = P2PTR(fd);
+#if PACKETVER >= 20131223
+	struct s_packet_db* info;
+	struct s_npc_buy_list *item_list;
+	uint16 cmd = RFIFOW(fd,0), len = 0, i = 0;
+	uint8 res = 0, n = 0;
 
-	clif_npc_market_purchase_ack(sd,p,npc_market_buylist(sd,(p->PacketLength - 4) / sizeof(p->list[0]),p));
+	nullpo_retv(sd);
+
+	if (!sd->npc_shopid)
+		return;
+
+	info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	if (!info || info->len == 0)
+		return;
+	len = RFIFOW(fd,info->pos[0]);
+	n = (len-4) / 6;
+
+	CREATE(item_list, struct s_npc_buy_list, n);
+	for (i = 0; i < n; i++) {
+		item_list[i].nameid = RFIFOW(fd,info->pos[1]+i*6);
+		item_list[i].qty    = (uint16)min(RFIFOL(fd,info->pos[2]+i*6),USHRT_MAX);
+	}
+
+	res = npc_buylist(sd, n, item_list);
+	clif_npc_market_purchase_ack(sd, res, n, item_list);
+	aFree(item_list);
+#endif
 }
 
 /// Adoption System
@@ -17721,6 +17729,8 @@ static int packetdb_readdb(void)
 		{clif_parse_CashShopClose,"pCashShopClose"},
 		{clif_parse_CashShopSchedule,"pCashShopSchedule"},
 		{clif_parse_CashShopBuy,"pCashShopBuy"},
+
+		{clif_parse_NPCShopClosed,"npcshopclosed"},
 		{NULL,NULL}
 	};
 

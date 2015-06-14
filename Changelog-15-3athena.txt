@@ -4,6 +4,25 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/14/2015
+	r60 [15peaces]
+		*Merged missing changes from 3ceam rev. 216
+		*Rewrote parts of npc / shop functions (Thanks to rAthena)
+			-fixes some compiler warnings
+			-optimizes the whole functions, saved some code
+			-closing a shop now uses npcshopclosed function
+			-please don't forget to run the upgrade_15-3athena_svn60.sql file
+			-NOTE: Currently the trader script commands are removed. I'll re-add them later.
+		*Minor fix in GC_POISONINGWEAPON. 
+			-Removed extra sound effect when the weapon is poisoned.
+		*Minor fix in GC_ROLLINGCUTTER. 
+			-The counter is reseted when you move from your place.
+		*Removed unneeded configuration in battle config
+			-removed player_lv_effect_renewal_skills.
+		*Added full support for MvP-Tombstones.
+			-They're disabled by default.
+			-To activate yo'll have to set show_mvp_tomb to yes
+
 06/11/2015
 	r59 [15peaces]
 		*ItemDB updated

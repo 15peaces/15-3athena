@@ -70,6 +70,7 @@ char item_db_db[32] = "item_db";
 char item_db2_db[32] = "item_db2";
 char mob_db_db[32] = "mob_db";
 char mob_db2_db[32] = "mob_db2";
+char market_table[32] = "npc_market_data";
 
 // log database
 char log_db_ip[32] = "127.0.0.1";
@@ -388,6 +389,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 //		status_change_end(bl, SC_BLADESTOP, INVALID_TIMER); //Won't stop when you are knocked away, go figure...
 		status_change_end(bl, SC_TATAMIGAESHI, INVALID_TIMER);
 		status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
+		status_change_end(bl,SC_ROLLINGCUTTER, INVALID_TIMER);
 	} else
 	if (bl->type == BL_NPC)
 		npc_unsetcells((TBL_NPC*)bl);
@@ -3899,7 +3901,6 @@ int do_init(int argc, char *argv[])
 	do_init_duel();
 
 	npc_event_do_oninit();	// Init npcs (OnInit)
-	npc_market_fromsql(); /* after OnInit */
 
 	if( console )
 	{

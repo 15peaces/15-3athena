@@ -13994,25 +13994,45 @@ BUILDIN_FUNC(callshop)
 		return 0;
 	}
 	shopname = script_getstr(st, 2);
-	if( script_hasdata(st,3) )
+	if (script_hasdata(st,3))
 		flag = script_getnum(st,3);
 	nd = npc_name2id(shopname);
-	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != SHOP && nd->subtype != CASHSHOP) )
-	{
+	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP) ) {
 		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)\n", shopname);
 		script_pushint(st,0);
 		return 1;
 	}
-	
-	if( nd->subtype == SHOP )
-	{
-		switch( flag )
-		{
+
+	if (nd->subtype == SHOP) {
+		// flag the user as using a valid script call for opening the shop (for floating NPCs)
+		sd->state.callshop = 1;
+
+		switch (flag) {
 			case 1: npc_buysellsel(sd,nd->bl.id,0); break; //Buy window
 			case 2: npc_buysellsel(sd,nd->bl.id,1); break; //Sell window
 			default: clif_npcbuysell(sd,nd->bl.id); break; //Show menu
 		}
 	}
+#if PACKETVER >= 20131223
+	else if (nd->subtype == MARKETSHOP) {
+		unsigned short i;
+
+		for (i = 0; i < nd->u.shop.count; i++) {
+			if (nd->u.shop.shop_item[i].qty)
+				break;
+		}
+
+		if (i == nd->u.shop.count) {
+			clif_colormes(sd, color_table[COLOR_RED], msg_txt(534));
+			return false;
+		}
+
+		sd->npc_shopid = nd->bl.id;
+		clif_npc_market_open(sd, nd);
+		script_pushint(st,1);
+		return 0;
+	}
+#endif
 	else
 		clif_cashshop_show(sd, nd);
 
@@ -14027,22 +14047,35 @@ BUILDIN_FUNC(npcshopitem)
 	struct npc_data* nd = npc_name2id(npcname);
 	int n, i;
 	int amount;
+	uint16 offs = 2;
 
-	if( !nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP ) )
-	{	//Not found.
+	if( !nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP ) ) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
+#if PACKETVER >= 20131223
+	if (nd->subtype == MARKETSHOP) {
+		offs = 3;
+		npc_market_delfromsql_(nd->exname, 0, true);
+	}
+#endif
+
 	// get the count of new entries
-	amount = (script_lastdata(st)-2)/2;
+	amount = (script_lastdata(st)-2)/offs;
 
 	// generate new shop item list
 	RECREATE(nd->u.shop.shop_item, struct npc_item_list, amount);
-	for( n = 0, i = 3; n < amount; n++, i+=2 )
-	{
+	for (n = 0, i = 3; n < amount; n++, i+=offs) {
 		nd->u.shop.shop_item[n].nameid = script_getnum(st,i);
 		nd->u.shop.shop_item[n].value = script_getnum(st,i+1);
+#if PACKETVER >= 20131223
+		if (nd->subtype == MARKETSHOP) {
+			nd->u.shop.shop_item[n].qty = script_getnum(st,i+2);
+			nd->u.shop.shop_item[n].flag = 1;
+			npc_market_tosql(nd->exname, &nd->u.shop.shop_item[n]);
+		}
+#endif
 	}
 	nd->u.shop.count = n;
 
@@ -14056,19 +14089,47 @@ BUILDIN_FUNC(npcshopadditem)
 	struct npc_data* nd = npc_name2id(npcname);
 	int n, i;
 	int amount;
+	uint16 offs = 2;
 
-	if( !nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP ) )
-	{	//Not found.
+	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
+	if (nd->subtype == MARKETSHOP)
+		offs = 3;
+
 	// get the count of new entries
-	amount = (script_lastdata(st)-2)/2;
+	amount = (script_lastdata(st)-2)/offs;
+
+#if PACKETVER >= 20131223
+	if (nd->subtype == MARKETSHOP) {
+		for (n = 0, i = 3; n < amount; n++, i += offs) {
+			uint16 nameid = script_getnum(st,i), j;
+
+			// Check existing entries
+			ARR_FIND(0, nd->u.shop.count, j, nd->u.shop.shop_item[j].nameid == nameid);
+			if (j == nd->u.shop.count) {
+				RECREATE(nd->u.shop.shop_item, struct npc_item_list, nd->u.shop.count+1);
+				j = nd->u.shop.count;
+				nd->u.shop.shop_item[j].flag = 1;
+				nd->u.shop.count++;
+			}
+
+			nd->u.shop.shop_item[j].nameid = nameid;
+			nd->u.shop.shop_item[j].value = script_getnum(st,i+1);
+			nd->u.shop.shop_item[j].qty = script_getnum(st,i+2);
+
+			npc_market_tosql(nd->exname, &nd->u.shop.shop_item[j]);
+		}
+		script_pushint(st,1);
+		return 0;
+	}
+#endif
 
 	// append new items to existing shop item list
 	RECREATE(nd->u.shop.shop_item, struct npc_item_list, nd->u.shop.count+amount);
-	for( n = nd->u.shop.count, i = 3; n < nd->u.shop.count+amount; n++, i+=2 )
+	for (n = nd->u.shop.count, i = 3; n < nd->u.shop.count+amount; n++, i+=offs)
 	{
 		nd->u.shop.shop_item[n].nameid = script_getnum(st,i);
 		nd->u.shop.shop_item[n].value = script_getnum(st,i+1);
@@ -14083,13 +14144,11 @@ BUILDIN_FUNC(npcshopdelitem)
 {
 	const char* npcname = script_getstr(st,2);
 	struct npc_data* nd = npc_name2id(npcname);
-	unsigned short nameid;
 	int n, i;
 	int amount;
 	int size;
 
-	if( !nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP ) )
-	{	//Not found.
+	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -14098,14 +14157,17 @@ BUILDIN_FUNC(npcshopdelitem)
 	size = nd->u.shop.count;
 
 	// remove specified items from the shop item list
-	for( i = 3; i < 3 + amount; i++ )
-	{
-		nameid = script_getnum(st,i);
+	for( i = 3; i < 3 + amount; i++ ) {
+		unsigned short nameid = script_getnum(st,i);
 
 		ARR_FIND( 0, size, n, nd->u.shop.shop_item[n].nameid == nameid );
-		if( n < size )
-		{
-			memmove(&nd->u.shop.shop_item[n], &nd->u.shop.shop_item[n+1], sizeof(nd->u.shop.shop_item[0])*(size-n));
+		if( n < size ) {
+			if (n+1 != size)
+				memmove(&nd->u.shop.shop_item[n], &nd->u.shop.shop_item[n+1], sizeof(nd->u.shop.shop_item[0])*(size-n));
+#if PACKETVER >= 20131223
+			if (nd->subtype == MARKETSHOP)
+				npc_market_delfromsql_(nd->exname, nameid, false);
+#endif
 			size--;
 		}
 	}
@@ -14117,7 +14179,10 @@ BUILDIN_FUNC(npcshopdelitem)
 	return 0;
 }
 
-//Sets a script to attach to a shop npc.
+/**
+ * Sets a script to attach to a shop npc.
+ * npcshopattach "<npc_name>";
+ **/
 BUILDIN_FUNC(npcshopattach)
 {
 	const char* npcname = script_getstr(st,2);
@@ -14127,8 +14192,7 @@ BUILDIN_FUNC(npcshopattach)
 	if( script_hasdata(st,3) )
 		flag = script_getnum(st,3);
 
-	if( !nd || nd->subtype != SHOP )
-	{	//Not found.
+	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -16562,278 +16626,6 @@ BUILDIN_FUNC(guild_changegm) {
 	return 1;
 }
 
-/**
- * @call openshop({NPC Name});
- *
- * @return 1 on success, 0 otherwise.
- **/
-BUILDIN_FUNC(openshop) {
-	struct npc_data *nd;
-	struct map_session_data *sd;
-	const char *name = NULL;
-
-	if( script_hasdata(st, 2) ) {
-		name = script_getstr(st, 2);
-		if( !(nd = npc_name2id(name)) || nd->subtype != SCRIPT ) {
-			ShowWarning("buildin_openshop(\"%s\"): trying to run without a proper NPC!\n",name);
-			return false;
-		}
-	} else if( !(nd = map_id2nd(st->oid)) ) {
-		ShowWarning("buildin_openshop: trying to run without a proper NPC!\n");
-		return false;
-	}
-	if( !( sd = script_rid2sd(st) ) ) {
-		ShowWarning("buildin_openshop: trying to run without a player attached!\n");
-		return false;
-	} else if ( !nd->u.scr.shop || !nd->u.scr.shop->items ) {
-		ShowWarning("buildin_openshop: trying to open without any items!\n");
-		return false;
-	}
-
-	if( !npc_trader_open(sd,nd) )
-	script_pushint(st, 0);
-	else
-	script_pushint(st, 1);
-
-	return true;
-}
-
-/**
- * @call sellitem <Item_ID>,{,price{,qty}};
- *
- * adds <Item_ID> (or modifies if present) to shop
- * if price not provided (or -1) uses the item's value_sell
- **/
-BUILDIN_FUNC(sellitem) {
-	struct npc_data *nd;
-	struct item_data *it;
-	int i = 0, id = script_getnum(st,2);
-	int value = 0;
-	int qty = 0;
-
-	if( !(nd = map_id2nd(st->oid)) ) {
-		ShowWarning("buildin_sellitem: trying to run without a proper NPC!\n");
-		return false;
-	} else if ( !(it = itemdb_exists(id)) ) {
-		ShowWarning("buildin_sellitem: unknown item id '%d'!\n",id);
-		return false;
-	}
-
-	value = script_hasdata(st,3) ? script_getnum(st, 3) : it->value_buy;
-	if( value == -1 )
-		value = it->value_buy;
-
-	if( !nd->u.scr.shop )
-		npc_trader_update(nd->src_id?nd->src_id:nd->bl.id);
-	else {/* no need to run this if its empty */
-		for( i = 0; i < nd->u.scr.shop->items; i++ ) {
-			if( nd->u.scr.shop->item[i].nameid == id )
-				break;
-		}
-	}
-
-	if( nd->u.scr.shop->type == NST_MARKET ) {
-		if( !script_hasdata(st,4) || ( qty = script_getnum(st, 4) ) <= 0 ) {
-			ShowError("buildin_sellitem: invalid 'qty' for market-type shop!\n");
-			return false;
-		}
-	}
-
-	if( ( nd->u.scr.shop->type == NST_ZENY || nd->u.scr.shop->type == NST_MARKET ) && value*0.75 < it->value_sell*1.24 ) {
-		ShowWarning("buildin_sellitem: Item %s [%d] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) in NPC %s (%s)\n",
-			it->name, id, value, (int)(value*0.75), it->value_sell, (int)(it->value_sell*1.24), nd->exname, nd->exname);
-	}
-
-	if( i != nd->u.scr.shop->items ) {
-		nd->u.scr.shop->item[i].value = value;
-		nd->u.scr.shop->item[i].qty = qty;
-		if( nd->u.scr.shop->type == NST_MARKET ) /* has been manually updated, make it reflect on sql */
-			npc_market_tosql(nd,i);
-	} else {
-		for( i = 0; i < nd->u.scr.shop->items; i++ ) {
-			if( nd->u.scr.shop->item[i].nameid == 0 )
-				break;
-		}
-
-		if( i == nd->u.scr.shop->items ) {
-			if( nd->u.scr.shop->items == USHRT_MAX ) {
-				ShowWarning("buildin_sellitem: Can't add %s (%s/%s), shop list is full!\n", it->name, nd->exname, nd->exname);
-				return false;
-			}
-			i = nd->u.scr.shop->items;
-			RECREATE(nd->u.scr.shop->item, struct npc_item_list, ++nd->u.scr.shop->items);
-		}
-
-		nd->u.scr.shop->item[i].nameid	= it->nameid;
-		nd->u.scr.shop->item[i].value	= value;
-		nd->u.scr.shop->item[i].qty	= qty;
-	}
-
-	return true;
-}
-
-/**
- * @call stopselling <Item_ID>;
- *
- * removes <Item_ID> from the current npc shop
- *
- * @return 1 on success, 0 otherwise
- **/
-BUILDIN_FUNC(stopselling) {
-	struct npc_data *nd;
-	int i, id = script_getnum(st,2);
-
-	if( !(nd = map_id2nd(st->oid)) || !nd->u.scr.shop ) {
-		ShowWarning("buildin_stopselling: trying to run without a proper NPC!\n");
-		return false;
-	}
-
-	for( i = 0; i < nd->u.scr.shop->items; i++ ) {
-		if( nd->u.scr.shop->item[i].nameid == id )
-			break;
-	}
-
-	if( i != nd->u.scr.shop->items ) {
-		int cursor;
-
-		if( nd->u.scr.shop->type == NST_MARKET )
-			npc_market_delfromsql(nd,i);
-
-		nd->u.scr.shop->item[i].nameid = 0;
-		nd->u.scr.shop->item[i].value = 0;
-		nd->u.scr.shop->item[i].qty = 0;
-
-		for( i = 0, cursor = 0; i < nd->u.scr.shop->items; i++ ) {
-			if( nd->u.scr.shop->item[i].nameid == 0 )
-				continue;
-
-			if( cursor != i ) {
-				nd->u.scr.shop->item[cursor].nameid = nd->u.scr.shop->item[i].nameid;
-				nd->u.scr.shop->item[cursor].value = nd->u.scr.shop->item[i].value;
-				nd->u.scr.shop->item[cursor].qty = nd->u.scr.shop->item[i].qty;
-			}
-
-			cursor++;
-		}
-
-		script_pushint(st, 1);
-	} else
-		script_pushint(st, 0);
-
-	return true;
-}
-
-/**
- * @call setcurrency <Val1>{,<Val2>};
- *
- * updates currently-attached player shop currency
- **/
-/* setcurrency(<Val1>,{<Val2>}) */
-BUILDIN_FUNC(setcurrency) {
-	int val1 = script_getnum(st,2),
-	val2 = script_hasdata(st, 3) ? script_getnum(st,3) : 0;
-	struct npc_data *nd;
-
-	if( !(nd = map_id2nd(st->oid)) ) {
-		ShowWarning("buildin_setcurrency: trying to run without a proper NPC!\n");
-		return false;
-	}
-
-	trader_funds[0] = val1;
-	trader_funds[1] = val2;
-
-	return true;
-}
-
-/**
- * @call tradertype(<type>);
- *
- * defaults to 0, so no need to call when you're doing zeny
- * check enum npc_shop_types for list
- * cleans shop list on use
- **/
-BUILDIN_FUNC(tradertype) {
-	int type = script_getnum(st, 2);
-	struct npc_data *nd;
-
-	if( !(nd = map_id2nd(st->oid)) ) {
-		ShowWarning("buildin_tradertype: trying to run without a proper NPC!\n");
-		return false;
-	} else if ( type < 0 || type > NST_MAX ) {
-		ShowWarning("buildin_tradertype: invalid type param %d!\n",type);
-		return false;
-	}
-
-	if( !nd->u.scr.shop )
-		npc_trader_update(nd->src_id?nd->src_id:nd->bl.id);
-	else {/* clear list */
-		int i;
-		for( i = 0; i < nd->u.scr.shop->items; i++ ) {		
-			nd->u.scr.shop->item[i].nameid = 0;
-			nd->u.scr.shop->item[i].value = 0;
-			nd->u.scr.shop->item[i].qty = 0;
-		}
-		npc_market_delfromsql(nd,USHRT_MAX);
-	}
-
-	nd->u.scr.shop->type = type;
-
-	return true;
-}
-
-/**
- * @call purchaseok();
- *
- * signs the transaction can proceed
- **/
-BUILDIN_FUNC(purchaseok) {
-	struct npc_data *nd;
-
-	if( !(nd = map_id2nd(st->oid)) || !nd->u.scr.shop ) {
-		ShowWarning("buildin_purchaseok: trying to run without a proper NPC!\n");
-		return false;
-	}
-
-	trader_ok = true;
-
-	return true;
-}
-/**
- * @call shopcount(<Item_ID>);
- *
- * @return number of available items in the script's attached shop
- **/
-BUILDIN_FUNC(shopcount) {
-	struct npc_data *nd;
-	int id = script_getnum(st, 2);
-	unsigned short i;
-
-	if( !(nd = map_id2nd(st->oid)) ) {
-		ShowWarning("buildin_shopcount(%d): trying to run without a proper NPC!\n",id);
-		return false;
-	} else if ( !nd->u.scr.shop || !nd->u.scr.shop->items ) {
-		ShowWarning("buildin_shopcount(%d): trying to use without any items!\n",id);
-		return false;
-	} else if ( nd->u.scr.shop->type != NST_MARKET ) {
-		ShowWarning("buildin_shopcount(%d): trying to use on a non-NST_MARKET shop!\n",id);
-		return false;
-	}
-
-	/* lookup */
-	for(i = 0; i < nd->u.scr.shop->items; i++) {
-		if( nd->u.scr.shop->item[i].nameid == id ) {
-			script_pushint(st, nd->u.scr.shop->item[i].qty);
-			break;
-		}
-	}
-
-	/* didn't find it */
-	if( i == nd->u.scr.shop->items )
-		script_pushint(st, 0);
-
-	return true;
-}
-
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -17286,15 +17078,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(getitem,"getitembound","vii?"), 
 	BUILDIN_DEF2(getitem2,"getitembound2","viiiiiiiii?"), 
 	BUILDIN_DEF(countbound, "?"),
-
-	/* New Shop Support */
-	BUILDIN_DEF(openshop,"?"),
-	BUILDIN_DEF(sellitem,"i??"),
-	BUILDIN_DEF(stopselling,"i"),
-	BUILDIN_DEF(setcurrency,"i?"),
-	BUILDIN_DEF(tradertype,"i"),
-	BUILDIN_DEF(purchaseok,""),
-	BUILDIN_DEF(shopcount, "i"),
 
 	//Others
 	BUILDIN_DEF(npcskill,"viii"),

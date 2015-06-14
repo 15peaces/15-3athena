@@ -864,7 +864,6 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
 //Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
-void clif_npc_market_purchase_ack(struct map_session_data *sd, struct packet_npc_market_purchase *req, unsigned char response);
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);

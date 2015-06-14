@@ -255,7 +255,7 @@ enum bl_type {
 //For common mapforeach calls. Since pets cannot be affected, they aren't included here yet.
 #define BL_CHAR (BL_PC|BL_MOB|BL_HOM|BL_MER|BL_ELEM)
 
-enum npc_subtype { WARP, SHOP, SCRIPT, CASHSHOP };
+enum npc_subtype { WARP, SHOP, SCRIPT, CASHSHOP, MARKETSHOP };
 
 enum {
 	RC_FORMLESS=0,		//NOTHING
@@ -771,6 +771,7 @@ extern char item_db_db[32];
 extern char item_db2_db[32];
 extern char mob_db_db[32];
 extern char mob_db2_db[32];
+extern char market_table[32];
 
 #endif /* not TXT_ONLY */
 

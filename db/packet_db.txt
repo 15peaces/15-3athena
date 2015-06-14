@@ -1866,7 +1866,7 @@ packet_ver: 33
 0x09ab,6	// bank button onclick
 0x09ab,6 //CZ_REQ_BANKING_CHECK
 0x09ca,23 //ZC_SKILL_ENTRY5
-0x09d4,2 //CZ_NPC_TRADE_QUIT
+0x09D4,2,npcshopclosed,0
 0x09df,7//ZC_ACK_WHISPER2
 0x097c,4,pranklist,0	//CZ_REQ_RANKING
 0x097d,288//ZC_ACK_RANKING

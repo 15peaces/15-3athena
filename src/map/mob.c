@@ -805,6 +805,13 @@ int mob_setdelayspawn(struct mob_data *md)
 	if( md->spawn_timer != INVALID_TIMER )
 		delete_timer(md->spawn_timer, mob_delayspawn);
 	md->spawn_timer = add_timer(gettick()+spawntime, mob_delayspawn, md->bl.id, 0);
+	
+	if( md->status.mode&MD_BOSS &&
+		battle_config.show_mvp_tomb){//Tomb System [malufett]
+
+		struct map_session_data *sd =  map_id2sd(md->target_id);
+		md->target_id = npc_mvp_tomb(md, sd );
+	}
 	return 0;
 }
 
@@ -821,6 +828,11 @@ int mob_spawn (struct mob_data *md)
 	int i=0;
 	unsigned int tick = gettick();
 	int c =0;
+
+	if(md->status.mode&MD_BOSS &&
+		battle_config.show_mvp_tomb){ //Tomb System [malufett]
+		npc_mvp_tomb(md, NULL);
+	}
 
 	md->last_thinktime = tick;
 	if (md->bl.prev != NULL)
@@ -2457,6 +2469,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 	if(!md->spawn) //Tell status_damage to remove it from memory.
 		return 5; // Note: Actually, it's 4. Oh well...
+
+	if( mvp_sd && md->status.mode&MD_BOSS && battle_config.show_mvp_tomb)//Tomb System [malufett]
+		md->target_id = mvp_sd->bl.id;
 
 	if( !rebirth )
 		mob_setdelayspawn(md); //Set respawning.

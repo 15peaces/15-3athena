@@ -33,16 +33,21 @@ struct npc_label_list {
 	char name[NAME_LENGTH];
 	int pos;
 };
+
+/// Item list for NPC sell/buy list
 struct npc_item_list {
 	unsigned short nameid;
 	unsigned int value;
-	unsigned int qty;
+#if PACKETVER >= 20131223
+	unsigned short qty; ///< Stock counter (Market shop)
+	uint8 flag; ///< 1: Item added by npcshopitem/npcshopadditem, force load! (Market shop)
+#endif
 };
 
-struct npc_shop_data {
-	unsigned char type;/* what am i */
-	struct npc_item_list *item;/* list */
-	unsigned short items;/* total */
+/// List of bought/sold item for NPC shops
+struct s_npc_buy_list {
+	unsigned short qty;		///< Amount of item will be bought
+	unsigned short nameid;	///< ID of item will be bought
 };
 
 struct npc_data {
@@ -82,8 +87,9 @@ struct npc_data {
 			bool trader;
 		} scr;
 		struct {
-			struct npc_item_list* shop_item;
-			unsigned short count;
+			struct npc_item_list *shop_item;
+			uint16 count;
+			bool discount;
 		} shop;
 		struct {
 			short xs,ys; // OnTouch area radius
@@ -143,7 +149,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd);
 int npc_scriptcont(struct map_session_data* sd, int id);
 struct npc_data* npc_checknear(struct map_session_data* sd, struct block_list* bl);
 int npc_buysellsel(struct map_session_data* sd, int id, int type);
-int npc_buylist(struct map_session_data* sd,int n, unsigned short* item_list);
+uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *item_list);
 int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list);
 void npc_parse_mob2(struct spawn_data* mob);
 struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y);
@@ -187,14 +193,11 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type);
 int npc_duplicate4instance(struct npc_data *snd, int m);
 int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amount, int points);
 
-void npc_trader_count_funds(struct npc_data *nd, struct map_session_data *sd);
-bool npc_trader_pay(struct npc_data *nd, struct map_session_data *sd, int price, int points);
-void npc_trader_update(int master);
-int npc_market_buylist(struct map_session_data* sd, unsigned short list_size, struct packet_npc_market_purchase *p);
-bool npc_trader_open(struct map_session_data *sd, struct npc_data *nd);
-void npc_market_fromsql(void);
-void npc_market_tosql(struct npc_data *nd, unsigned short index);
-void npc_market_delfromsql(struct npc_data *nd, unsigned short index);
+#if PACKETVER >= 20131223
+void npc_market_tosql(const char *exname, struct npc_item_list *list);
+void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clear);
+#endif
+int npc_mvp_tomb(struct mob_data *md, struct map_session_data *sd);
 
 extern struct npc_data* fake_nd;
 

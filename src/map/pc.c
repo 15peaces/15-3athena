@@ -5681,7 +5681,7 @@ bool pc_statusup(struct map_session_data* sd, int type, int increase)
 	current = pc_getstat(sd, type);
 	max_increase = pc_maxparameter(sd);
 	increase = cap_value(increase, 0, max_increase); // cap to the maximum status points available
-	if (increase <= 0 || current + increase > pc_maxparameter(sd, (enum e_params)(type-SP_STR))) {
+	if (increase <= 0 || current + increase > pc_maxparameter(sd)) {
 		clif_statusupack(sd, type, 0, 0);
 		return 1;
 	}
