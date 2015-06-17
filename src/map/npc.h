@@ -11,24 +11,10 @@ struct block_list;
 struct npc_data;
 struct view_data;
 
-enum npc_parse_options {
-	NPO_NONE = 0x0,
-	NPO_ONINIT = 0x1,
-	NPO_TRADER = 0x2,
-};
-
-enum npc_shop_types {
-	NST_ZENY,/* default */
-	NST_CASH,/* official npc cash shop */
-	NST_MARKET,/* official npc market type */
-	NST_CUSTOM,
-	/* */
-	NST_MAX,
-};
-
 struct npc_timerevent_list {
 	int timer,pos;
 };
+
 struct npc_label_list {
 	char name[NAME_LENGTH];
 	int pos;
@@ -83,8 +69,6 @@ struct npc_data {
 			struct npc_timerevent_list *timer_event;
 			int label_list_num;
 			struct npc_label_list *label_list;
-			struct npc_shop_data *shop;
-			bool trader;
 		} scr;
 		struct {
 			struct npc_item_list *shop_item;
@@ -132,10 +116,6 @@ enum npce_event {
 	NPCE_KILLNPC,
 	NPCE_MAX
 };
-
-/* npc trader global data, for ease of transition between the script, cleared on every usage */
-bool trader_ok;
-int trader_funds[2];
 
 struct view_data* npc_get_viewdata(int class_);
 int npc_chat_sub(struct block_list* bl, va_list ap);

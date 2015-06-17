@@ -640,12 +640,15 @@ CREATE TABLE IF NOT EXISTS `storage` (
   KEY `account_id` (`account_id`)
 ) ENGINE=MyISAM;
 
+--
 -- Table structure for table `npc_market_data`
 --
 
 CREATE TABLE IF NOT EXISTS `npc_market_data` (
  `name` varchar(24) NOT NULL default '',
- `itemid` int(11) unsigned NOT NULL default '0',
+ `nameid` int(11) unsigned NOT NULL default '0',
+ `price` int(11) unsigned NOT NULL DEFAULT '0',
  `amount` int(11) unsigned NOT NULL default '0',
- PRIMARY KEY (`name`,`itemid`)
+ `flag` tinyint(3) unsigned NOT NULL DEFAULT '0',
+ PRIMARY KEY (`name`,`nameid`)
 ) ENGINE=MyISAM;

@@ -1871,6 +1871,11 @@ packet_ver: 33
 0x097c,4,pranklist,0	//CZ_REQ_RANKING
 0x097d,288//ZC_ACK_RANKING
 0x097e,12//ZC_UPDATE_RANKING_POINT
+//NPC Market
+0x09D5,-1
+0x09D6,-1,npcmarketpurchase,2:4:6
+0x09D7,-1
+0x09D8,2,npcmarketclosed,0 
 
 //Add new packets here
 //packet_ver: 34

@@ -3354,6 +3354,8 @@ int inter_config_read(char *cfgName)
 		else
 		if(strcmpi(w1,"mob_db2_db")==0)
 			strcpy(mob_db2_db,w2);
+		else if (strcmpi(w1, "market_table") == 0)
+			strcpy(market_table, w2); 
 		else
 		//Map Server SQL DB
 		if(strcmpi(w1,"map_server_ip")==0)

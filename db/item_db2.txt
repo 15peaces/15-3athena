@@ -177,24 +177,25 @@
 22784,PC_Bang_Platinum_Box,PC Bang Platinum Box,2,10,,200,,,,,,,,,,,,,{},{},{}
 22808,Special_Gift_Box,Special Gift Box,2,10,,100,,,,,,,,,,,,,{},{},{}
 22812,Sealed_Dracula_Scroll,Sealed Dracula Scroll,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",22813,19937,17314, 6635),1; },{},{}
-22813,Bearer's_Shadow_Box,Bearer's Shadow Box,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",24180,24181,24182,28183,24184,24185),1; },{},{}
+//22813,Bearer's_Shadow_Box,Bearer's Shadow Box,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",24180,24181,24182,28183,24184,24185),1; },{},{}
 
-24180,Bearer's_Shadow_Armor,Bearer's Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus bMdef,1+(getrefine()/2); },{},{}
-24181,Bearer's_Shadow_Shoes,Bearer's Shadow Shoes,12,10,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,,,{ bonus bMaxSP,50+(5*(getrefine()/2)); },{},{}
-24182,Bearer's_Shadow_Shield,Bearer's Shadow Shield,12,10,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,,,{ bonus bDef,5+(getrefine()/2); },{},{}
-24183,Bearer's_Shadow_Weapon,Bearer's Shadow Weapon,12,10,,0,,,,0,0xFFFFFFFF,63,2,131072,,1,1,,{ bonus bMaxHP,100+(10*(getrefine()/2)); },{},{}
-24184,Bearer's_Shadow_Earring,Bearer's Shadow Earring,12,10,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,,,{ bonus bMatk,5+(getrefine()/2); },{},{}
-24185,Bearer's_Shadow_Pendant,Bearer's Shadow Pendant,12,10,,0,,,,0,0xFFFFFFFF,63,2,2097152,,1,,,{ bonus bBaseAtk,5+(getrefine()/2); },{},{}
-24186,Basis_Shadow_Armor,Basis Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Neutral,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Neutral,1+(getrefine()/2); },{},{}
-24187,Hallowed_Shadow_Armor,Hallowed Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Dark,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Dark,1+(getrefine()/2); },{},{}
-24188,Underneith_Shadow_Armor,Underneith Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Water,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Water,1+(getrefine()/2); },{},{}
-24189,Underneath_Shadow_Armor,Underneath Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Earth,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Earth,1+(getrefine()/2); },{},{}
-24190,Flame_Shadow_Armor,Flame Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Fire,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Fire,1+(getrefine()/2); },{},{}
-24191,Windy_Shadow_Armor,Windy Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Wind,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Wind,1+(getrefine()/2); },{},{}
-24192,Envenom_Shadow_Armor,Envenom Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Poison,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Poison,1+(getrefine()/2); },{},{}
-24193,Damned_Shadow_Armor,Damned Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Holy,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Holy,1+(getrefine()/2); },{},{}
-24194,Exorcism_Shadow_Armor,Exorcism Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Ghost,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Ghost,1+(getrefine()/2); },{},{}
-24195,Divine_Shadow_Armor,Divine Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Undead,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Undead,1+(getrefine()/2); },{},{}
+//Shadow Equipment - Currently unsupported!
+//24180,Bearer's_Shadow_Armor,Bearer's Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus bMdef,1+(getrefine()/2); },{},{}
+//24181,Bearer's_Shadow_Shoes,Bearer's Shadow Shoes,12,10,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,,,{ bonus bMaxSP,50+(5*(getrefine()/2)); },{},{}
+//24182,Bearer's_Shadow_Shield,Bearer's Shadow Shield,12,10,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,,,{ bonus bDef,5+(getrefine()/2); },{},{}
+//24183,Bearer's_Shadow_Weapon,Bearer's Shadow Weapon,12,10,,0,,,,0,0xFFFFFFFF,63,2,131072,,1,1,,{ bonus bMaxHP,100+(10*(getrefine()/2)); },{},{}
+//24184,Bearer's_Shadow_Earring,Bearer's Shadow Earring,12,10,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,,,{ bonus bMatk,5+(getrefine()/2); },{},{}
+//24185,Bearer's_Shadow_Pendant,Bearer's Shadow Pendant,12,10,,0,,,,0,0xFFFFFFFF,63,2,2097152,,1,,,{ bonus bBaseAtk,5+(getrefine()/2); },{},{}
+//24186,Basis_Shadow_Armor,Basis Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Neutral,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Neutral,1+(getrefine()/2); },{},{}
+//24187,Hallowed_Shadow_Armor,Hallowed Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Dark,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Dark,1+(getrefine()/2); },{},{}
+//24188,Underneith_Shadow_Armor,Underneith Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Water,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Water,1+(getrefine()/2); },{},{}
+//24189,Underneath_Shadow_Armor,Underneath Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Earth,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Earth,1+(getrefine()/2); },{},{}
+//24190,Flame_Shadow_Armor,Flame Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Fire,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Fire,1+(getrefine()/2); },{},{}
+//24191,Windy_Shadow_Armor,Windy Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Wind,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Wind,1+(getrefine()/2); },{},{}
+//24192,Envenom_Shadow_Armor,Envenom Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Poison,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Poison,1+(getrefine()/2); },{},{}
+//24193,Damned_Shadow_Armor,Damned Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Holy,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Holy,1+(getrefine()/2); },{},{}
+//24194,Exorcism_Shadow_Armor,Exorcism Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Ghost,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Ghost,1+(getrefine()/2); },{},{}
+//24195,Divine_Shadow_Armor,Divine Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Undead,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Undead,1+(getrefine()/2); },{},{}
 
 6410,Idul_Fitri_Card,Idul Fitri Card,3,10,,10,,,,,,,,,,,,,{},{},{}
 6411,Ripe_Watermelon,Ripe Watermelon,3,20,,10,,,,,,,,,,,,,{},{},{}
@@ -895,3 +896,13 @@
 11550,Pumpkin_Cake,Pumpkin Cake,0,10,,80,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 5,5; },{},{}
 
 19546,C_Valkyrie_Helm,Costume Valkyrie Helm,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1024,,100,0,225,{ bonus bUnbreakableHelm,0; },{},{}
+
+// Guillotine Cross Poisons
+12717,Poison_Paralysis,Paralyze,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_PARALYSE,300000,0; },{},{}
+12718,Poison_Leech,Leech End,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_LEECHESEND,300000,0; },{},{}
+12719,Poison_Oblivion,Oblivion Curse,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_OBLIVIONCURSE,300000,0; },{},{}
+12720,Poison_Disheart,Disheart,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_DEATHHURT,300000,0; },{},{}
+12721,Poison_Numb,Toxin,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_TOXIN,300000,0; },{},{}
+12722,Poison_Fever,Pyrexia,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_PYREXIA,300000,0; },{},{}
+12723,Poison_Laughing,Magic Mushroom,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_MAGICMUSHROOM,300000,0; },{},{}
+12724,Poison_Fatigue,Venom Bleed,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_VENOMBLEED,15000,0; },{},{}

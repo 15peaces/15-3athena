@@ -15477,8 +15477,9 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 
 /* Thanks to Yommy */
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {
-	/* TODO track the state <3~ */
+	nullpo_retv(sd);
 	sd->npc_shopid = 0;
+	sd->state.trading = 0;
 }
 
 /**
@@ -15525,8 +15526,9 @@ void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd) {
 }
 
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd) {
-	/* TODO track the state <3~ */
+	nullpo_retv(sd);
 	sd->npc_shopid = 0;
+	sd->state.trading = 0;
 }
 
 /// Purchase item from Market shop.
@@ -17512,7 +17514,7 @@ static int packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0,  0,  0,  0,  0,  7,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 	};
@@ -17729,8 +17731,10 @@ static int packetdb_readdb(void)
 		{clif_parse_CashShopClose,"pCashShopClose"},
 		{clif_parse_CashShopSchedule,"pCashShopSchedule"},
 		{clif_parse_CashShopBuy,"pCashShopBuy"},
-
 		{clif_parse_NPCShopClosed,"npcshopclosed"},
+		/* Market NPC */
+		{ clif_parse_NPCMarketClosed, "npcmarketclosed" },
+		{ clif_parse_NPCMarketPurchase, "npcmarketpurchase" },
 		{NULL,NULL}
 	};
 

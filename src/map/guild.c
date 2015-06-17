@@ -1032,7 +1032,7 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 		TBL_NPC* nd;
 		for( nd = (TBL_NPC*)mapit_first(iter) ; mapit_exists(iter); nd = (TBL_NPC*)mapit_next(iter) )
 		{
-			if( nd->subtype != SCRIPT || nd->u.scr.guild_id != guild_id )
+			if( nd->subtype != NPCTYPE_SCRIPT || nd->u.scr.guild_id != guild_id )
 				continue;
 			clif_guild_emblem_area(&nd->bl);
 		}

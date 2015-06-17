@@ -1,0 +1,21 @@
+//===== 15-3athena Script ====================================
+//= Sample: NPC Marketshop
+//===== By: ==================================================
+//= 15peaces
+//===== Current Version: =====================================
+//= 1.0
+//===== Description: ========================================= 
+//= Demonstrates NPC Marketshop.
+//============================================================
+
+//This script will re-stock the TestTrader with 50 Red Potions on reboot.
+-	script	RestockMarket	-1,{
+	end;
+	
+OnInit:
+	npcshopupdate "TestTrader",501,100,50;
+	end;
+}
+
+//This Marketshop will sell 50 Red Potions on for 100z ea.
+prontera,152,151,1	marketshop	TestTrader	952,501:100:50;

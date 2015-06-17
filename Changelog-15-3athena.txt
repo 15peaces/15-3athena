@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/17/2015
+	r61 [15peaces]
+		*Merged missing changes from 3ceam rev. 217
+		*Added full support for new npc type 'marketshop'. Thanks to rAthena.
+			-this will replace the 'trader' npc type
+			-all trader-related functions and the npc-type itself got removed
+			-the marketshop got support for stock quantity. Maybe I'll add in 'itemshop' and 'pointshop' later, too. This will bring back the support for other items/points as currencies for shops.
+			-marketshop can defined by: <map name>,<x>,<y>,<facing>%TAB%marketshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>:<quantity>{,<itemid>:<price>:<quantity>...}
+		*Added new script command: npcshopupdate
+			-more infos on script_commands.txt inside doc folder.
+		*Updated map_cache.dat
+		*Commented out some unsupported items in item_db2.txt
+		*Fixed some entries in mob_skill_db2.txt
+		*Mado Gear is usable without Madolicense skill upgraded. Without the license your movement speed will be 50%.
+			-When in Mado Gear Blacksmith and Mastersmith skills are unusable.
+		*Cannot use the skill Return to El Dicaste when mounted in Mado.
+		*Minor clean up to skill Cross Ripper Slasher avoiding redundant sc checking.
+		*Fix the bonus given of Tooth of Warg skill.
+		*Minor fix to NC_TRAININGAXE, GN_REMODELING_CART, GN_TRAINING_SWORD hitrate bonus.
+		*NC_TRAININGAXE should work with Mace.
+		*Added working versions of new poison items.
+
 06/14/2015
 	r60 [15peaces]
 		*Merged missing changes from 3ceam rev. 216

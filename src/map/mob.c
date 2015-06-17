@@ -1091,7 +1091,7 @@ static int mob_warpchase_sub(struct block_list *bl,va_list ap)
 
 	nd = (TBL_NPC*) bl;
 
-	if(nd->subtype != WARP)
+	if(nd->subtype != NPCTYPE_WARP)
 		return 0; //Not a warp
 
 	if(nd->u.warp.mapindex != map[target->m].index)

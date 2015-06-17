@@ -10366,7 +10366,7 @@ BUILDIN_FUNC(flagemblem)
 	{
 		ShowError("script:flagemblem: npc %d not found\n", st->oid);
 	}
-	else if( nd->subtype != SCRIPT )
+	else if( nd->subtype != NPCTYPE_SCRIPT )
 	{
 		ShowError("script:flagemblem: unexpected subtype %d for npc %d '%s'\n", nd->subtype, st->oid, nd->exname);
 	}
@@ -13997,13 +13997,13 @@ BUILDIN_FUNC(callshop)
 	if (script_hasdata(st,3))
 		flag = script_getnum(st,3);
 	nd = npc_name2id(shopname);
-	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP) ) {
+	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP) ) {
 		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)\n", shopname);
 		script_pushint(st,0);
 		return 1;
 	}
 
-	if (nd->subtype == SHOP) {
+	if (nd->subtype == NPCTYPE_SHOP) {
 		// flag the user as using a valid script call for opening the shop (for floating NPCs)
 		sd->state.callshop = 1;
 
@@ -14014,7 +14014,7 @@ BUILDIN_FUNC(callshop)
 		}
 	}
 #if PACKETVER >= 20131223
-	else if (nd->subtype == MARKETSHOP) {
+	else if (nd->subtype == NPCTYPE_MARKETSHOP) {
 		unsigned short i;
 
 		for (i = 0; i < nd->u.shop.count; i++) {
@@ -14049,13 +14049,13 @@ BUILDIN_FUNC(npcshopitem)
 	int amount;
 	uint16 offs = 2;
 
-	if( !nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP ) ) { // Not found.
+	if( !nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP ) ) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
 #if PACKETVER >= 20131223
-	if (nd->subtype == MARKETSHOP) {
+	if (nd->subtype == NPCTYPE_MARKETSHOP) {
 		offs = 3;
 		npc_market_delfromsql_(nd->exname, 0, true);
 	}
@@ -14070,7 +14070,7 @@ BUILDIN_FUNC(npcshopitem)
 		nd->u.shop.shop_item[n].nameid = script_getnum(st,i);
 		nd->u.shop.shop_item[n].value = script_getnum(st,i+1);
 #if PACKETVER >= 20131223
-		if (nd->subtype == MARKETSHOP) {
+		if (nd->subtype == NPCTYPE_MARKETSHOP) {
 			nd->u.shop.shop_item[n].qty = script_getnum(st,i+2);
 			nd->u.shop.shop_item[n].flag = 1;
 			npc_market_tosql(nd->exname, &nd->u.shop.shop_item[n]);
@@ -14091,19 +14091,19 @@ BUILDIN_FUNC(npcshopadditem)
 	int amount;
 	uint16 offs = 2;
 
-	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
+	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
 
-	if (nd->subtype == MARKETSHOP)
+	if (nd->subtype == NPCTYPE_MARKETSHOP)
 		offs = 3;
 
 	// get the count of new entries
 	amount = (script_lastdata(st)-2)/offs;
 
 #if PACKETVER >= 20131223
-	if (nd->subtype == MARKETSHOP) {
+	if (nd->subtype == NPCTYPE_MARKETSHOP) {
 		for (n = 0, i = 3; n < amount; n++, i += offs) {
 			uint16 nameid = script_getnum(st,i), j;
 
@@ -14148,7 +14148,7 @@ BUILDIN_FUNC(npcshopdelitem)
 	int amount;
 	int size;
 
-	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
+	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -14165,7 +14165,7 @@ BUILDIN_FUNC(npcshopdelitem)
 			if (n+1 != size)
 				memmove(&nd->u.shop.shop_item[n], &nd->u.shop.shop_item[n+1], sizeof(nd->u.shop.shop_item[0])*(size-n));
 #if PACKETVER >= 20131223
-			if (nd->subtype == MARKETSHOP)
+			if (nd->subtype == NPCTYPE_MARKETSHOP)
 				npc_market_delfromsql_(nd->exname, nameid, false);
 #endif
 			size--;
@@ -14192,7 +14192,7 @@ BUILDIN_FUNC(npcshopattach)
 	if( script_hasdata(st,3) )
 		flag = script_getnum(st,3);
 
-	if (!nd || ( nd->subtype != SHOP && nd->subtype != CASHSHOP && nd->subtype != MARKETSHOP)) { // Not found.
+	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -14206,6 +14206,54 @@ BUILDIN_FUNC(npcshopattach)
 	return 0;
 }
 
+/**
+ * Update an entry from NPC shop.
+ * npcshopupdate "<name>",<item_id>,<price>{,<stock>}
+ **/
+BUILDIN_FUNC(npcshopupdate) {
+	const char* npcname = script_getstr(st, 2);
+	struct npc_data* nd = npc_name2id(npcname);
+	uint16 nameid = script_getnum(st, 3);
+	int price = script_getnum(st, 4);
+	uint16 stock = 0;
+	int i;
+
+	if( !nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP ) ) { // Not found.
+		script_pushint(st,0);
+		return 1;
+	}
+	
+	if (!nd->u.shop.count) {
+		ShowError("buildin_npcshopupdate: Attempt to update empty shop from '%s'.\n", nd->exname);
+		script_pushint(st,0);
+		return 0;
+	}
+
+	if (nd->subtype == NPCTYPE_MARKETSHOP) {
+		FETCH(5, stock);
+	}
+	else if ((price = cap_value(price, 0, INT_MAX)) == 0) { // Nothing to do here...
+		script_pushint(st,1);
+		return 0;
+	}
+
+	for (i = 0; i < nd->u.shop.count; i++) {
+		if (nd->u.shop.shop_item[i].nameid == nameid) {
+
+			if (price != 0)
+				nd->u.shop.shop_item[i].value = price;
+#if PACKETVER >= 20131223
+			if (nd->subtype == NPCTYPE_MARKETSHOP) {
+				nd->u.shop.shop_item[i].qty = stock;
+				npc_market_tosql(nd->exname, &nd->u.shop.shop_item[i]);
+			}
+#endif
+		}
+	}
+
+	script_pushint(st,1);
+	return 0;
+}
 /*==========================================
  * Returns some values of an item [Lupus]
  * Price, Weight, etc...
@@ -14954,7 +15002,7 @@ BUILDIN_FUNC(getvariableofnpc)
 	}
 
 	nd = npc_name2id(script_getstr(st,3));
-	if( nd == NULL || nd->subtype != SCRIPT || nd->u.scr.script == NULL )
+	if( nd == NULL || nd->subtype != NPCTYPE_SCRIPT || nd->u.scr.script == NULL )
 	{// NPC not found or has no script
 		ShowError("script:getvariableofnpc: can't find npc %s\n", script_getstr(st,3));
 		script_pushnil(st);
@@ -16963,6 +17011,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(npcshopadditem,"sii*"),
 	BUILDIN_DEF(npcshopdelitem,"si*"),
 	BUILDIN_DEF(npcshopattach,"s?"),
+	BUILDIN_DEF(npcshopupdate,"sii?"),
 	BUILDIN_DEF(equip,"i"),
 	BUILDIN_DEF(autoequip,"ii"),
 	BUILDIN_DEF(setbattleflag,"si"),

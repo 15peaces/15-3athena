@@ -6223,7 +6223,7 @@ void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
 		if(sd && battle_config.cellpvp_autobuff)
 		{
 			nd = npc_name2id("deathmatch_core");
-			if (nd && nd->subtype == SCRIPT)
+			if (nd && nd->subtype == NPCTYPE_SCRIPT)
 				run_script(nd->u.scr.script, 0, sd->bl.id, nd->bl.id);
 		}
 	}
