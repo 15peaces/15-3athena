@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.62.20150523
+//= 3.63.20150618
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -220,6 +220,8 @@
 //		  Added basic support for Episode System. [15peaces]
 //= 3.62.20150523
 //=		  Added 'countstr', 'sprintf'. [15peaces]
+//= 3.63.20150618
+//=		  Added 'bonus_script'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -5227,6 +5229,36 @@ autobonus and autobonus3).
 //effect when the bonus is active.
 	autobonus "{ bonus bAllStats,10; }",10,10000,BF_WEAPON|BF_MISC,"{ specialeffect2 EF_FIRESPLASHHIT; }";
 
+---------------------------------------
+
+*bonus_script "<script code>",<duration>{,<flag>{,<type>{,<status_icon>{,<char_id>}}}};
+
+This command will attach a script to a player for a given duration, in seconds.
+After that time, the script will automatically expire. The same bonus cannot be
+stacked. By default, this bonus will be stored on `bonus_script` table when player
+logs out.
+
+Note that the maximum number of 'bonus_script' commands that can run simultaneously
+for a player is 20 (MAX_PC_BONUS_SCRIPT in 'src/common/mmo.h').
+
+Flags: (Default is 0)
+	&1: Remove when dead.
+	&2: Removable by Dispell.
+	&4: Removable by Clearance.
+	&8: Remove when player logs out.
+
+Types:
+	This will be used to decide negative or positive buff for 'debuff_on_logout'.
+	0: Ignore the buff type and won't be removed if the flag is not &8 (Default)
+	1: Buff
+	2: Debuff
+
+Status_icon: See "Status Icon" section in 'db/const.txt'. Default is SI_BLANK (-1).
+
+Example:
+	// Apple gives you +5 Str bonus for 1 minute when it's consumed.
+	512,Apple,Apple,0,15,,20,,,,,0xFFFFFFFF,63,2,,,,,,{ bonus_script "{ bonus bStr,5; }",60; },{},{}
+	
 ---------------------------------------
 
 *skill <skill id>,<level>{,<flag>};

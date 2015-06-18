@@ -114,6 +114,7 @@
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
 #define MAX_QUEST_DB 2100 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
+#define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
 
 // for produce
 #define MIN_ATTRIBUTE 0
@@ -276,6 +277,15 @@ struct accreg {
 struct status_change_data {
 	unsigned short type; //SC_type
 	long val1, val2, val3, val4, tick; //Remaining duration.
+};
+
+#define MAX_BONUS_SCRIPT_LENGTH 512
+struct bonus_script_data {
+	char script_str[MAX_BONUS_SCRIPT_LENGTH]; //< Script string
+	uint32 tick; ///< Tick
+	uint16 flag; ///< Flags @see enum e_bonus_script_flags
+	int16 icon; ///< Icon SI
+	uint8 type; ///< 0 - None, 1 - Buff, 2 - Debuff
 };
 
 struct storage_data {

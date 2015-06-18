@@ -59,6 +59,7 @@ char auction_db[256] = "auction"; // Auctions System
 char friend_db[256] = "friends";
 char hotkey_db[256] = "hotkey";
 char quest_db[256] = "quest";
+char bonus_script_db[256] = "bonus_script"; // cydh bonus_script
 
 // show loading/saving messages
 #ifdef TXT_SQL_CONVERT
@@ -154,6 +155,10 @@ int fame_list_size_taekwon = MAX_FAME_LIST;
 struct fame_list smith_fame_list[MAX_FAME_LIST];
 struct fame_list chemist_fame_list[MAX_FAME_LIST];
 struct fame_list taekwon_fame_list[MAX_FAME_LIST];
+
+// cydh bonus_script
+int bonus_script_get(int fd);///Get bonus_script data
+int bonus_script_save(int fd); ///Save bonus_script data
 
 // check for exit signal
 // 0 is saving complete
@@ -1563,6 +1568,16 @@ int delete_char_sql(int char_id)
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `account_id` = '%d' AND `char_id`='%d'", scdata_db, account_id, char_id) )
 		Sql_ShowDebug(sql_handle);
 #endif
+
+	if (log_char) {
+		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s`(`time`, `account_id`,`char_num`,`char_msg`,`name`) VALUES (NOW(), '%d', '%d', 'Deleted char (CID %d)', '%s')",
+			charlog_db, account_id, 0, char_id, esc_name) )
+			Sql_ShowDebug(sql_handle);
+	}
+
+	/* bonus_scripts */
+	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", bonus_script_db, char_id) )
+		Sql_ShowDebug(sql_handle);
 
 	if (log_char) {
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s`(`time`, `account_id`,`char_num`,`char_msg`,`name`) VALUES (NOW(), '%d', '%d', 'Deleted char (CID %d)', '%s')",
@@ -3195,6 +3210,10 @@ int parse_frommap(int fd)
 			RFIFOSKIP(fd,6);
 		break;
 
+		// cydh bonus_script
+		case 0x2b2d: bonus_script_get(fd); break; //Load data
+		case 0x2b2e: bonus_script_save(fd); break;//Save data
+
 		default:
 		{
 			// inter server - packet
@@ -4216,6 +4235,113 @@ int ping_login_server(int tid, unsigned int tick, int id, intptr_t data)
 	return 0;
 }
 
+/** [Cydh]
+* Get bonus_script data(s) from table to load
+* @param fd
+*/
+int bonus_script_get(int fd) {
+	if (RFIFOREST(fd) < 6)
+		return 0;
+	else {
+		uint8 num_rows = 0;
+		uint32 cid = RFIFOL(fd,2);
+		struct bonus_script_data tmp_bsdata;
+		SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+
+		RFIFOSKIP(fd,6);
+
+		if (SQL_ERROR == SqlStmt_Prepare(stmt,
+			"SELECT `script`, `tick`, `flag`, `type`, `icon` FROM `%s` WHERE `char_id` = '%d' LIMIT %d",
+			bonus_script_db, cid, MAX_PC_BONUS_SCRIPT) ||
+			SQL_ERROR == SqlStmt_Execute(stmt) ||
+			SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_STRING, &tmp_bsdata.script_str, sizeof(tmp_bsdata.script_str), NULL, NULL) ||
+			SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_UINT32, &tmp_bsdata.tick, 0, NULL, NULL) ||
+			SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UINT16, &tmp_bsdata.flag, 0, NULL, NULL) ||
+			SQL_ERROR == SqlStmt_BindColumn(stmt, 3, SQLDT_UINT8,  &tmp_bsdata.type, 0, NULL, NULL) ||
+			SQL_ERROR == SqlStmt_BindColumn(stmt, 4, SQLDT_INT16,  &tmp_bsdata.icon, 0, NULL, NULL)
+			)
+		{
+			SqlStmt_ShowDebug(stmt);
+			SqlStmt_Free(stmt);
+			return 1;
+		}
+
+		if ((num_rows = (uint8)SqlStmt_NumRows(stmt)) > 0) {
+			uint8 i;
+			uint32 size = 9 + num_rows * sizeof(struct bonus_script_data);
+
+			WFIFOHEAD(fd, size);
+			WFIFOW(fd, 0) = 0x2b2f;
+			WFIFOW(fd, 2) = size;
+			WFIFOL(fd, 4) = cid;
+			WFIFOB(fd, 8) = num_rows;
+
+			for (i = 0; i < num_rows && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++) {
+				struct bonus_script_data bsdata;
+				memset(&bsdata, 0, sizeof(bsdata));
+				memset(bsdata.script_str, '\0', sizeof(bsdata.script_str));
+
+				safestrncpy(bsdata.script_str, tmp_bsdata.script_str, strlen(tmp_bsdata.script_str)+1);
+				bsdata.tick = tmp_bsdata.tick;
+				bsdata.flag = tmp_bsdata.flag;
+				bsdata.type = tmp_bsdata.type;
+				bsdata.icon = tmp_bsdata.icon;
+				memcpy(WFIFOP(fd, 9 + i * sizeof(struct bonus_script_data)), &bsdata, sizeof(struct bonus_script_data));
+			}
+
+			WFIFOSET(fd, size);
+
+			ShowInfo("Bonus Script loaded for CID=%d. Total: %d.\n", cid, i);
+
+			if (SQL_ERROR == SqlStmt_Prepare(stmt,"DELETE FROM `%s` WHERE `char_id`='%d'",bonus_script_db,cid) ||
+				SQL_ERROR == SqlStmt_Execute(stmt))
+				SqlStmt_ShowDebug(stmt);
+		}
+		SqlStmt_Free(stmt);
+	}
+	return 1;
+}
+
+/** [Cydh]
+* Save bonus_script data(s) to the table
+* @param fd
+*/
+int bonus_script_save(int fd) {
+	if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
+		return 0;
+	else {
+		uint32 cid = RFIFOL(fd,4);
+		uint8 count = RFIFOB(fd,8);
+
+		if (SQL_ERROR == Sql_Query(sql_handle,"DELETE FROM `%s` WHERE `char_id` = '%d'", bonus_script_db, cid))
+			Sql_ShowDebug(sql_handle);
+
+		if (count > 0) {
+			char esc_script[MAX_BONUS_SCRIPT_LENGTH*2];
+			struct bonus_script_data bsdata;
+			StringBuf buf;
+			uint8 i;
+
+			StringBuf_Init(&buf);
+			StringBuf_Printf(&buf, "INSERT INTO `%s` (`char_id`, `script`, `tick`, `flag`, `type`, `icon`) VALUES ", bonus_script_db);
+			for (i = 0; i < count; ++i) {
+				memcpy(&bsdata, RFIFOP(fd, 9 + i*sizeof(struct bonus_script_data)), sizeof(struct bonus_script_data));
+				Sql_EscapeString(sql_handle, esc_script, bsdata.script_str);
+				if (i > 0)
+					StringBuf_AppendStr(&buf,", ");
+				StringBuf_Printf(&buf, "('%d','%s','%d','%d','%d','%d')", cid, esc_script, bsdata.tick, bsdata.flag, bsdata.type, bsdata.icon);
+			}
+			if (SQL_ERROR == Sql_QueryStr(sql_handle,StringBuf_Value(&buf)))
+				Sql_ShowDebug(sql_handle);
+
+			StringBuf_Destroy(&buf);
+		}
+		ShowInfo("Bonus Script saved for CID=%d. Total: %d.\n", cid, count);
+		RFIFOSKIP(fd,RFIFOW(fd,2));
+	}
+	return 1;
+}
+
 //------------------------------------------------
 //Invoked 15 seconds after mapif_disconnectplayer in case the map server doesn't
 //replies/disconnect the player we tried to kick. [Skotlex]
@@ -4377,6 +4503,8 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(hotkey_db, w2, sizeof(hotkey_db));
 		else if(!strcmpi(w1,"quest_db"))
 			safestrncpy(quest_db,w2,sizeof(quest_db));
+		else if(!strcmpi(w1,"bonus_script_db"))
+			safestrncpy(bonus_script_db, w2, sizeof(bonus_script_db));
 		//support the import command, just like any other config
 		else if(!strcmpi(w1,"import"))
 			sql_config_read(w2);

@@ -37,7 +37,6 @@
 #include <memory.h>
 #include <string.h>
 
-
 //Regen related flags.
 enum e_regen
 {
@@ -910,6 +909,8 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			if(sc->data[SC_CLOAKINGEXCEED] && --(sc->data[SC_CLOAKINGEXCEED]->val2) <= 0)
 				status_change_end(target,SC_CLOAKINGEXCEED,-1);
 		}
+		if (target->type == BL_PC)
+			pc_bonus_script_clear(BL_CAST(BL_PC,target),BSF_REM_ON_DAMAGED);
 		unit_skillcastcancel(target, 2);
 	}
 
@@ -2282,6 +2283,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			run_script(data->script,0,sd->bl.id,0);
 	}
 
+	pc_bonus_script(sd);
+
 	if( sd->pd )
 	{ // Pet Bonus
 		struct pet_data *pd = sd->pd;
@@ -2709,9 +2712,9 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	if(memcmp(b_skill,sd->status.skill,sizeof(sd->status.skill)))
 		clif_skillinfoblock(sd);
 	if(b_weight != sd->weight)
-		pc_onstatuschanged(sd,SP_WEIGHT);
+		clif_updatestatus(sd,SP_WEIGHT);
 	if(b_max_weight != sd->max_weight) {
-		pc_onstatuschanged(sd,SP_MAXWEIGHT);
+		clif_updatestatus(sd,SP_MAXWEIGHT);
 		pc_updateweightstatus(sd);
 	}
 
@@ -3288,7 +3291,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( status->hp > status->max_hp ) //FIXME: Should perhaps a status_zap should be issued?
 		{
 			status->hp = status->max_hp;
-			if( sd ) pc_onstatuschanged(sd,SP_HP);
+			if( sd ) clif_updatestatus(sd,SP_HP);
 		}
 	}
 
@@ -3311,7 +3314,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( status->sp > status->max_sp )
 		{
 			status->sp = status->max_sp;
-			if( sd ) pc_onstatuschanged(sd,SP_SP);
+			if( sd ) clif_updatestatus(sd,SP_SP);
 		}
 	}
 
@@ -3463,55 +3466,55 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, bool first)
 	{
 		TBL_PC* sd = BL_CAST(BL_PC, bl);
 		if(b_status.str != status->str)
-			pc_onstatuschanged(sd,SP_STR);
+			clif_updatestatus(sd,SP_STR);
 		if(b_status.agi != status->agi)
-			pc_onstatuschanged(sd,SP_AGI);
+			clif_updatestatus(sd,SP_AGI);
 		if(b_status.vit != status->vit)
-			pc_onstatuschanged(sd,SP_VIT);
+			clif_updatestatus(sd,SP_VIT);
 		if(b_status.int_ != status->int_)
-			pc_onstatuschanged(sd,SP_INT);
+			clif_updatestatus(sd,SP_INT);
 		if(b_status.dex != status->dex)
-			pc_onstatuschanged(sd,SP_DEX);
+			clif_updatestatus(sd,SP_DEX);
 		if(b_status.luk != status->luk)
-			pc_onstatuschanged(sd,SP_LUK);
+			clif_updatestatus(sd,SP_LUK);
 		if(b_status.hit != status->hit)
-			pc_onstatuschanged(sd,SP_HIT);
+			clif_updatestatus(sd,SP_HIT);
 		if(b_status.flee != status->flee)
-			pc_onstatuschanged(sd,SP_FLEE1);
+			clif_updatestatus(sd,SP_FLEE1);
 		if(b_status.amotion != status->amotion)
-			pc_onstatuschanged(sd,SP_ASPD);
+			clif_updatestatus(sd,SP_ASPD);
 		if(b_status.speed != status->speed)
-			pc_onstatuschanged(sd,SP_SPEED);
+			clif_updatestatus(sd,SP_SPEED);
 		if(b_status.rhw.atk != status->rhw.atk || b_status.lhw.atk != status->lhw.atk || b_status.batk != status->batk)
-			pc_onstatuschanged(sd,SP_ATK1);
+			clif_updatestatus(sd,SP_ATK1);
 		if(b_status.def != status->def)
-			pc_onstatuschanged(sd,SP_DEF1);
+			clif_updatestatus(sd,SP_DEF1);
 		if(b_status.rhw.atk2 != status->rhw.atk2 || b_status.lhw.atk2 != status->lhw.atk2)
-			pc_onstatuschanged(sd,SP_ATK2);
+			clif_updatestatus(sd,SP_ATK2);
 		if(b_status.def2 != status->def2)
-			pc_onstatuschanged(sd,SP_DEF2);
+			clif_updatestatus(sd,SP_DEF2);
 		if(b_status.flee2 != status->flee2)
-			pc_onstatuschanged(sd,SP_FLEE2);
+			clif_updatestatus(sd,SP_FLEE2);
 		if(b_status.cri != status->cri)
-			pc_onstatuschanged(sd,SP_CRITICAL);
+			clif_updatestatus(sd,SP_CRITICAL);
 		if(b_status.matk_max != status->matk_max)
-			pc_onstatuschanged(sd,SP_MATK1);
+			clif_updatestatus(sd,SP_MATK1);
 		if(b_status.matk_min != status->matk_min)
-			pc_onstatuschanged(sd,SP_MATK2);
+			clif_updatestatus(sd,SP_MATK2);
 		if(b_status.mdef != status->mdef)
-			pc_onstatuschanged(sd,SP_MDEF1);
+			clif_updatestatus(sd,SP_MDEF1);
 		if(b_status.mdef2 != status->mdef2)
-			pc_onstatuschanged(sd,SP_MDEF2);
+			clif_updatestatus(sd,SP_MDEF2);
 		if(b_status.rhw.range != status->rhw.range)
-			pc_onstatuschanged(sd,SP_ATTACKRANGE);
+			clif_updatestatus(sd,SP_ATTACKRANGE);
 		if(b_status.max_hp != status->max_hp)
-			pc_onstatuschanged(sd,SP_MAXHP);
+			clif_updatestatus(sd,SP_MAXHP);
 		if(b_status.max_sp != status->max_sp)
-			pc_onstatuschanged(sd,SP_MAXSP);
+			clif_updatestatus(sd,SP_MAXSP);
 		if(b_status.hp != status->hp)
-			pc_onstatuschanged(sd,SP_HP);
+			clif_updatestatus(sd,SP_HP);
 		if(b_status.sp != status->sp)
-			pc_onstatuschanged(sd,SP_SP);
+			clif_updatestatus(sd,SP_SP);
 	}
 	else
 	if( bl->type == BL_HOM )
@@ -6215,7 +6218,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val1 = battle_config.manner_system; //Mute filters.
 			if (sd)
 			{
-				pc_onstatuschanged(sd,SP_MANNER);
+				clif_updatestatus(sd,SP_MANNER);
 			}
 			break;
 
@@ -7783,7 +7786,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				sd->status.manner = 0;
 			if (sd && tid == INVALID_TIMER)
 			{
-				pc_onstatuschanged(sd,SP_MANNER);
+				clif_updatestatus(sd,SP_MANNER);
 			}
 			break;
 		case SC_SPLASHER:	
@@ -8442,7 +8445,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 	case SC_NOCHAT:
 		if(sd){
 			sd->status.manner++;
-			pc_onstatuschanged(sd,SP_MANNER);
+			clif_updatestatus(sd,SP_MANNER);
 			if (sd->status.manner < 0)
 			{	//Every 60 seconds your manner goes up by 1 until it gets back to 0.
 				sc_timer_next(60000+tick, status_change_timer, bl->id, data);
@@ -8967,6 +8970,16 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 				break;
 		}
 		status_change_end(bl, (sc_type)i, INVALID_TIMER);
+
+		//Removes bonus_script
+		if (bl->type == BL_PC) {
+			i = 0;
+			if (type&1) i |= BSF_REM_BUFF;
+			if (type&2) i |= BSF_REM_DEBUFF;
+			if (type&4) i |= BSF_REM_ON_REFRESH;
+			if (type&8) i |= BSF_REM_ON_LUXANIMA;
+			pc_bonus_script_clear(BL_CAST(BL_PC,bl),i);
+		}
 	}
 	return 0;
 }

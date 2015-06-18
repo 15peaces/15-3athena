@@ -60,6 +60,8 @@ int chrif_changesex(struct map_session_data *sd);
 int chrif_chardisconnect(struct map_session_data *sd);
 int chrif_divorce(int partner_id1, int partner_id2);
 
+int chrif_bsdata_request(uint32 char_id);
+
 int do_final_chrif(void);
 int do_init_chrif(void);
 

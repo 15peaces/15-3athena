@@ -1912,10 +1912,10 @@ ACMD_FUNC(baselevelup)
 		clif_displaymessage(fd, msg_txt(22)); // Base level lowered.
 	}
 	sd->status.base_exp = 0;
-	pc_onstatuschanged(sd, SP_STATUSPOINT);
-	pc_onstatuschanged(sd, SP_BASELEVEL);
-	pc_onstatuschanged(sd, SP_BASEEXP);
-	pc_onstatuschanged(sd, SP_NEXTBASEEXP);
+	clif_updatestatus(sd, SP_STATUSPOINT);
+	clif_updatestatus(sd, SP_BASELEVEL);
+	clif_updatestatus(sd, SP_BASEEXP);
+	clif_updatestatus(sd, SP_NEXTBASEEXP);
 	status_calc_pc(sd, 0);
 	if(sd->status.party_id)
 		party_send_levelup(sd);
@@ -1965,10 +1965,10 @@ ACMD_FUNC(joblevelup)
 		clif_displaymessage(fd, msg_txt(25)); // Job level lowered.
 	}
 	sd->status.job_exp = 0;
-	pc_onstatuschanged(sd, SP_JOBLEVEL);
-	pc_onstatuschanged(sd, SP_JOBEXP);
-	pc_onstatuschanged(sd, SP_NEXTJOBEXP);
-	pc_onstatuschanged(sd, SP_SKILLPOINT);
+	clif_updatestatus(sd, SP_JOBLEVEL);
+	clif_updatestatus(sd, SP_JOBEXP);
+	clif_updatestatus(sd, SP_NEXTJOBEXP);
+	clif_updatestatus(sd, SP_SKILLPOINT);
 	status_calc_pc(sd, 0);
 
 	return 0;
@@ -3093,7 +3093,7 @@ ACMD_FUNC(statuspoint)
 
 	if (new_status_point != sd->status.status_point) {
 		sd->status.status_point = new_status_point;
-		pc_onstatuschanged(sd, SP_STATUSPOINT);
+		clif_updatestatus(sd, SP_STATUSPOINT);
 		clif_displaymessage(fd, msg_txt(174)); // Number of status points changed.
 	} else {
 		if (point < 0)
@@ -3142,7 +3142,7 @@ ACMD_FUNC(skillpoint)
 
 	if (new_skill_point != sd->status.skill_point) {
 		sd->status.skill_point = new_skill_point;
-		pc_onstatuschanged(sd, SP_SKILLPOINT);
+		clif_updatestatus(sd, SP_SKILLPOINT);
 		clif_displaymessage(fd, msg_txt(175)); // Number of skill points changed.
 	} else {
 		if (point < 0)
@@ -3176,7 +3176,7 @@ ACMD_FUNC(zeny)
 
 	if (new_zeny != sd->status.zeny) {
 		sd->status.zeny = new_zeny;
-		pc_onstatuschanged(sd, SP_ZENY);
+		clif_updatestatus(sd, SP_ZENY);
 		clif_displaymessage(fd, msg_txt(176)); // Current amount of zeny changed.
 	} else {
 		if (zeny < 0)
@@ -3238,8 +3238,8 @@ ACMD_FUNC(param)
 
 	if (new_value != *status[i]) {
 		*status[i] = new_value;
-		pc_onstatuschanged(sd, SP_STR + i);
-		pc_onstatuschanged(sd, SP_USTR + i);
+		clif_updatestatus(sd, SP_STR + i);
+		clif_updatestatus(sd, SP_USTR + i);
 		status_calc_pc(sd, 0);
 		clif_displaymessage(fd, msg_txt(42)); // Stat changed.
 	} else {
@@ -3289,8 +3289,8 @@ ACMD_FUNC(stat_all)
 		
 		if (new_value != (int)*status[index]) {
 			*status[index] = new_value;
-			pc_onstatuschanged(sd, SP_STR + index);
-			pc_onstatuschanged(sd, SP_USTR + index);
+			clif_updatestatus(sd, SP_STR + index);
+			clif_updatestatus(sd, SP_USTR + index);
 			count++;
 		}
 	}
@@ -3893,7 +3893,7 @@ ACMD_FUNC(allskill)
 	nullpo_retr(-1, sd);
 	pc_allskillup(sd); // all skills
 	sd->status.skill_point = 0; // 0 skill points
-	pc_onstatuschanged(sd, SP_SKILLPOINT); // update
+	clif_updatestatus(sd, SP_SKILLPOINT); // update
 	clif_displaymessage(fd, msg_txt(76)); // All skills have been added to your skill tree.
 
 	return 0;
@@ -9101,8 +9101,8 @@ ACMD_FUNC(stats)
 	output_table[11].value = sd->status.luk;
 	output_table[12].value = sd->status.zeny;
 	output_table[13].value = sd->status.skill_point;
-	output_table[14].value = sd->change_level;
-	output_table[15].value = sd->change_level_2;
+	output_table[15].value = sd->change_level[0];
+	output_table[16].value = sd->change_level[1];
 
 	sprintf(job_jobname, "Job - %s %s", job_name(sd->status.class_), "(level %d)");
 	sprintf(output, msg_txt(53), sd->status.name); // '%s' stats:

@@ -4,6 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/18/2015
+	r62 [15peaces]
+		*Merged missing changes from 3ceam rev. 218 - 222
+		*Added support for 'bonus_script' script command. Thanks to cydh (rAthena).
+			-Don't forget to run the upgrade_15-3athena_svn62.sql!
+		*Updated ItemDB
+			-Adventurer's Backpack now got 2 Def (renewal = 20)
+			-Feral Boots now got 1 Def (renewal = 12)
+			-Feral Tail now got 2 Def (renewal = 16)
+		*Replaced clif_updateparam by clif_updatestatus
+		*Moved all eAthena sql-upgrades to sql/upgrades_eAthena folder.
+		*Fixed the gm_all_skill config setting. 
+			-You can now safely use it. 
+			-Enableing this setting will give you access ONLY to all 1st and 2nd class skills.
+			-You can get 3rd class skills too, but only for the 3rd job your playing as.
+		*Added GC_VENOMPRESSURE skill.
+		*Fixed clif_parse_ProduceMix
+		*Improved Runes cooldown control, adjusted to the official one.
+		*Minor fix in SC__SHADOWFORM.
+			-Moved to a place between freeblock_lock/freeblock_unlock to avoid conflict.
+
 06/17/2015
 	r61 [15peaces]
 		*Merged missing changes from 3ceam rev. 217

@@ -60,7 +60,7 @@ int mail_removezeny(struct map_session_data *sd, short flag)
 		sd->status.zeny -= sd->mail.zeny;
 	}
 	sd->mail.zeny = 0;
-	pc_onstatuschanged(sd, SP_ZENY);
+	clif_updatestatus(sd, SP_ZENY);
 
 	return 1;
 }
@@ -186,7 +186,7 @@ void mail_deliveryfail(struct map_session_data *sd, struct mail_message *msg)
 		log_zeny(sd, LOG_TYPE_MAIL, sd, msg->zeny);
 
 		sd->status.zeny += msg->zeny;
-		pc_onstatuschanged(sd, SP_ZENY);
+		clif_updatestatus(sd, SP_ZENY);
 	}
 	
 	clif_Mail_send(sd->fd, true);

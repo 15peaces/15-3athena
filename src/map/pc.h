@@ -6,6 +6,7 @@
 
 #include "../common/mmo.h" // JOB_*, MAX_FAME_LIST, struct fame_list, struct mmo_charstatus
 #include "../common/timer.h" // INVALID_TIMER
+#include "../common/strlib.h"// StringBuf
 #include "battle.h" // battle_config
 #include "buyingstore.h"  // struct s_buyingstore
 #include "itemdb.h" // MAX_ITEMGROUP
@@ -94,6 +95,17 @@ struct s_autobonus {
 	unsigned short pos;
 };
 
+///Timed bonus 'bonus_script' struct [Cydh]
+struct s_bonus_script_entry {
+	struct script_code *script;
+	StringBuf *script_buf; //Used for comparing and storing on table
+	uint32 tick;
+	uint16 flag;
+	enum si_type icon;
+	uint8 type; //0 - Ignore; 1 - Buff; 2 - Debuff
+	int tid;
+};
+
 struct map_session_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -154,6 +166,7 @@ struct map_session_data {
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
+		unsigned int bg_id;
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -399,8 +412,7 @@ struct map_session_data {
 	int eventtimer[MAX_EVENTTIMER];
 	unsigned short eventcount; // [celest]
 
-	unsigned char change_level; // [celest]
-	unsigned char change_level_2; // Now that 3rd jobs exist, we need to remember 2nd job levels.
+	unsigned char change_level[2]; // [celest]
 
 	char fakename[NAME_LENGTH]; // fake names [Valaris]
 
@@ -450,6 +462,12 @@ struct map_session_data {
 	int delunit_prevline;
 
 	int bank_vault; ///< Bank Vault
+
+	/// Bonus Script [Cydh]
+	struct s_bonus_script_list {
+		struct linkdb_node *head; ///< Bonus script head node. data: struct s_bonus_script_entry *entry, key: (intptr_t)entry
+		uint16 count;
+	} bonus_script;
 };
 
 //Update this max as necessary. 84 is the value needed for the Expanded Super Baby.
@@ -630,8 +648,6 @@ int pc_isGM(struct map_session_data *sd);
 int pc_getrefinebonus(int lv,int type);
 bool pc_can_give_items(int level);
 bool pc_can_give_bounded_items(int level);
-
-void pc_onstatuschanged(struct map_session_data* sd, int type);
 
 int pc_setrestartvalue(struct map_session_data *sd,int type);
 int pc_makesavestatus(struct map_session_data *);
@@ -871,7 +887,19 @@ void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
 int pc_read_motd(void); // [Valaris]
 int pc_disguise(struct map_session_data *sd, int class_);
 
+bool pc_isSkillFromJob( int job_id, int skill_num );
+
+enum pc_msg {
+	MSG_UPGRADESKER_FIRSTJOB	=  0x61e,
+	MSG_UPGRADESKER_SECONDJOB	=  0x61f
+};
+
 enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int money);
 enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int money);
+
+int pc_bonus_script_timer(int tid, unsigned int tick, int id, intptr_t data);
+void pc_bonus_script(struct map_session_data *sd);
+struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum si_type icon, uint16 flag, uint8 type);
+void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);
 
 #endif /* _PC_H_ */

@@ -414,7 +414,8 @@ void clif_viewpoint(struct map_session_data *sd, int npc_id, int type, int x, in
 void clif_additem(struct map_session_data *sd, int n, int amount, int fail); // self
 void clif_dropitem(struct map_session_data *sd,int n,int amount);	//self
 void clif_delitem(struct map_session_data *sd,int n,int amount, short reason); //self
-void clif_updateparam(struct map_session_data* sd, short type, int value);	//self
+int clif_updatestatus(struct map_session_data*,int); //self
+int clif_changestatus(struct block_list*,int,int);	//area
 void clif_updatelongparam(struct map_session_data* sd, short type, int value);	//self
 void clif_updatestatuspointsneeded(struct map_session_data* sd, short type, unsigned char value);	//self
 void clif_updatecartinfo(struct map_session_data* sd, short count, short maxcount, int weight, int maxweight);	//self

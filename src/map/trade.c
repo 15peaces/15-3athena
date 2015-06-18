@@ -496,7 +496,7 @@ void trade_tradecancel(struct map_session_data *sd)
 		sd->deal.item[trade_i].amount = 0;
 	}
 	if (sd->deal.zeny) {
-		pc_onstatuschanged(sd, SP_ZENY);
+		clif_updatestatus(sd, SP_ZENY);
 		sd->deal.zeny = 0;
 	}
 
@@ -517,7 +517,7 @@ void trade_tradecancel(struct map_session_data *sd)
 	}
 	
 	if (target_sd->deal.zeny) {
-		pc_onstatuschanged(target_sd, SP_ZENY);
+		clif_updatestatus(target_sd, SP_ZENY);
 		target_sd->deal.zeny = 0;
 	}
 	target_sd->state.deal_locked = 0;
@@ -617,8 +617,8 @@ void trade_tradecommit(struct map_session_data *sd)
 		sd->deal.zeny = 0;
 		tsd->deal.zeny = 0;
 
-		pc_onstatuschanged(sd, SP_ZENY);
-		pc_onstatuschanged(tsd, SP_ZENY);
+		clif_updatestatus(sd, SP_ZENY);
+		clif_updatestatus(tsd, SP_ZENY);
 	}
 	
 	sd->state.deal_locked = 0;

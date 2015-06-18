@@ -16674,6 +16674,90 @@ BUILDIN_FUNC(guild_changegm) {
 	return 1;
 }
 
+/**
+ * Attach script to player for certain duration
+ * bonus_script "<script code>",<duration>{,<flag>{,<type>{,<status_icon>{,<char_id>}}}};
+ * @param "script code"
+ * @param duration
+ * @param flag
+ * @param icon
+ * @param char_id
+* @author [Cydh]
+ **/
+BUILDIN_FUNC(bonus_script) {
+	uint16 flag = 0;
+	int16 icon = SI_BLANK;
+	uint32 dur;
+	uint8 type = 0;
+	TBL_PC* sd;
+	const char *script_str = NULL;
+	struct s_bonus_script_entry *entry = NULL;
+
+	if (script_hasdata(st,7)) {
+		if (!(sd = map_charid2sd(script_getnum(st,7)))) {
+			ShowError("buildin_bonus_script: Player CID=%d is not found.\n", script_getnum(st,7));
+			return 1;
+		}
+	}
+	else
+		sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return 1;
+	
+	script_str = script_getstr(st,2);
+	dur = 1000 * abs(script_getnum(st,3));
+	FETCH(4, flag);
+	FETCH(5, type);
+	FETCH(6, icon);
+
+	// No Script string, No Duration!
+	if (script_str[0] == '\0' || !dur) {
+		ShowError("buildin_bonus_script: Invalid! Script: \"%s\". Duration: %d\n", script_str, dur);
+		return 1;
+	}
+
+	if (strlen(script_str) >= MAX_BONUS_SCRIPT_LENGTH) {
+		ShowError("buildin_bonus_script: Script string to long: \"%s\".\n", script_str);
+		return 1;
+	}
+
+	if (icon <= SI_BLANK || icon >= SI_MAX)
+		icon = SI_BLANK;
+
+	if ((entry = pc_bonus_script_add(sd, script_str, dur, (enum si_type)icon, flag, type))) {
+		linkdb_insert(&sd->bonus_script.head, (void *)((intptr_t)entry), entry);
+		status_calc_pc(sd,SCO_NONE);
+	}
+	return 0;
+}
+
+/**
+* Removes all bonus script from player
+* bonus_script_clear {<flag>,{<char_id>}};
+* @param flag 0 - Except permanent bonus, 1 - With permanent bonus
+* @param char_id Clear script from this character
+* @author [Cydh]
+*/
+BUILDIN_FUNC(bonus_script_clear) {
+	TBL_PC* sd;
+	bool flag = false;
+
+	if (script_hasdata(st,2))
+		flag = script_getnum(st,2);
+
+	if (script_hasdata(st,3))
+		sd = map_charid2sd(script_getnum(st,3));
+	else
+		sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return 1;
+
+	pc_bonus_script_clear(sd,(flag ? BSF_PERMANENT : BSF_REM_ALL));
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -17130,5 +17214,7 @@ struct script_function buildin_func[] = {
 
 	//Others
 	BUILDIN_DEF(npcskill,"viii"),
+	BUILDIN_DEF(bonus_script,"si????"),
+	BUILDIN_DEF(bonus_script_clear,"??"),
 	{NULL,NULL,NULL},
 };

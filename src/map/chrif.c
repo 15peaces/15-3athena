@@ -44,7 +44,7 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 	11,10,10, 0,11, 0,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, F->2b13, U->2b14, F->2b15, U->2b16, U->2b17
 	 2,10, 2,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
 	-1,10, 8, 2, 2,14,19,19,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, U->2b25, U->2b26, U->2b27
-	10,10, 6, 0, 0, 0, 0, 0,	// 2b28-2b2f: U->2b28, U->2b29, U->2b2a, F->2b2b, F->2b2c, F->2b2d, F->2b2e, F->2b2f 
+	10,10, 6, 0, 0, 0,-1,-1,	// 2b28-2b2f: U->2b28, U->2b29, U->2b2a, F->2b2b, F->2b2c, F->2b2d, U->2b2e, U->2b2f 
 };
 
 //Used Packets:
@@ -96,6 +96,9 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 //2b25: Incoming, chrif_deadopt -> 'Removes baby from Father ID and Mother ID'
 //2b26: Outgoing, chrif_authreq -> 'client authentication request'
 //2b27: Incoming, chrif_authfail -> 'client authentication failed'
+//2b2d: Outgoing, chrif_bsdata_request -> request bonus_script for pc_authok'ed char.
+//2b2e: Outgoing, chrif_save_bsdata -> Send bonus_script of player for saving.
+//2b2f: Incoming, chrif_load_bsdata -> received bonus_script of player for loading.
 
 int chrif_connected = 0;
 int char_fd = -1;
@@ -275,7 +278,7 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (flag && sd->state.active) //Store player data which is quitting.
 	{
 		//FIXME: SC are lost if there's no connection at save-time because of the way its related data is cleared immediately after this function. [Skotlex]
-		if (chrif_isconnected()) 
+		if (chrif_isconnected())
 			chrif_save_scdata(sd);
 		if (!chrif_auth_logout(sd, flag==1?ST_LOGOUT:ST_MAPCHANGE))
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
@@ -925,7 +928,7 @@ int chrif_changedsex(int fd)
 					sd->status.skill[i].lv = 0;
 				}
 			}
-			pc_onstatuschanged(sd, SP_SKILLPOINT);
+			clif_updatestatus(sd, SP_SKILLPOINT);
 			// change job if necessary
 			if (sd->status.sex) //Changed from Dancer
 				sd->status.class_ -= 1;
@@ -1409,6 +1412,129 @@ void chrif_keepalive_ack(int fd)
 	session[fd]->flag.ping = 0;/* reset ping state, we received a packet */ 
 }
 
+/**
+ * ZA 0x2b2d
+ * <cmd>.W <char_id>.L
+ * Requets bonus_script datas
+ * @param char_id
+ * @author [Cydh]
+ **/
+int chrif_bsdata_request(uint32 char_id) {
+	chrif_check(-1);
+	WFIFOHEAD(char_fd,6);
+	WFIFOW(char_fd,0) = 0x2b2d;
+	WFIFOL(char_fd,2) = char_id;
+	WFIFOSET(char_fd,6);
+	return 0;
+}
+
+/**
+ * ZA 0x2b2e
+ * <cmd>.W <len>.W <char_id>.L <count>.B { <bonus_script>.?B }
+ * Stores bonus_script data(s) to the table
+ * @param sd
+ * @author [Cydh]
+ **/
+int chrif_bsdata_save(struct map_session_data *sd, bool quit) {
+	uint8 i = 0;
+
+	chrif_check(-1);
+
+	if (!sd)
+		return 0;
+
+	// Removing...
+	if (quit && sd->bonus_script.head) {
+		uint16 flag = BSF_REM_ON_LOGOUT; //Remove bonus when logout
+		if (battle_config.debuff_on_logout&1) //Remove negative buffs
+			flag |= BSF_REM_DEBUFF;
+		if (battle_config.debuff_on_logout&2) //Remove positive buffs
+			flag |= BSF_REM_BUFF;
+		pc_bonus_script_clear(sd, flag);
+	}
+
+	//ShowInfo("Saving %d bonus script for CID=%d\n", sd->bonus_script.count, sd->status.char_id);
+
+	WFIFOHEAD(char_fd, 9 + sd->bonus_script.count * sizeof(struct bonus_script_data));
+	WFIFOW(char_fd, 0) = 0x2b2e;
+	WFIFOL(char_fd, 4) = sd->status.char_id;
+
+	if (sd->bonus_script.count) {
+		unsigned int tick = gettick();
+		struct linkdb_node *node = NULL;
+
+		for (node = sd->bonus_script.head; node && i < MAX_PC_BONUS_SCRIPT; node = node->next) {
+			const struct TimerData *timer = NULL;
+			struct bonus_script_data bs;
+			struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)node->data;
+
+			if (!entry || !(timer = get_timer(entry->tid)) || DIFF_TICK(timer->tick,tick) < 0)
+				continue;
+
+			memset(&bs, 0, sizeof(bs));
+			safestrncpy(bs.script_str, StringBuf_Value(entry->script_buf), StringBuf_Length(entry->script_buf)+1);
+			bs.tick = DIFF_TICK(timer->tick, tick);
+			bs.flag = entry->flag;
+			bs.type = entry->type;
+			bs.icon = entry->icon;
+			memcpy(WFIFOP(char_fd, 9 + i * sizeof(struct bonus_script_data)), &bs, sizeof(struct bonus_script_data));
+			i++;
+		}
+
+		if (i != sd->bonus_script.count && sd->bonus_script.count > MAX_PC_BONUS_SCRIPT)
+			ShowWarning("Only allowed to save %d (mmo.h::MAX_PC_BONUS_SCRIPT) bonus script each player.\n", MAX_PC_BONUS_SCRIPT);
+	}
+
+	WFIFOB(char_fd, 8) = i;
+	WFIFOW(char_fd, 2) = 9 + sd->bonus_script.count * sizeof(struct bonus_script_data);
+	WFIFOSET(char_fd, WFIFOW(char_fd, 2));
+
+	return 0;
+}
+
+/**
+ * AZ 0x2b2f
+ * <cmd>.W <len>.W <cid>.L <count>.B { <bonus_script_data>.?B }
+ * Bonus script received, set to player
+ * @param fd
+ * @author [Cydh]
+ **/
+int chrif_bsdata_received(int fd) {
+	struct map_session_data *sd;
+	uint32 cid = RFIFOL(fd,4);
+	uint8 count = 0;
+
+	sd = map_charid2sd(cid);
+
+	if (!sd) {
+		ShowError("chrif_bsdata_received: Player with CID %d not found!\n",cid);
+		return -1;
+	}
+
+	if ((count = RFIFOB(fd,8))) {
+		uint8 i = 0;
+
+		//ShowInfo("Loaded %d bonus script for CID=%d\n", count, sd->status.char_id);
+
+		for (i = 0; i < count; i++) {
+			struct bonus_script_data *bs = (struct bonus_script_data*)RFIFOP(fd,9 + i*sizeof(struct bonus_script_data));
+			struct s_bonus_script_entry *entry = NULL;
+
+			if (bs->script_str[0] == '\0' || !bs->tick)
+				continue;
+
+			if (!(entry = pc_bonus_script_add(sd, bs->script_str, bs->tick, (enum si_type)bs->icon, bs->flag, bs->type)))
+				continue;
+
+			linkdb_insert(&sd->bonus_script.head, (void *)((intptr_t)entry), entry);
+		}
+
+		if (sd->bonus_script.head)
+			status_calc_pc(sd,SCO_NONE);
+	}
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -1492,6 +1618,7 @@ int chrif_parse(int fd)
 		case 0x2b24: chrif_keepalive_ack(fd); break;
 		case 0x2b25: chrif_deadopt(RFIFOL(fd,2), RFIFOL(fd,6), RFIFOL(fd,10)); break;
 		case 0x2b27: chrif_authfail(fd); break;
+		case 0x2b2f: chrif_bsdata_received(fd); break;
 		default:
 			ShowError("chrif_parse : unknown packet (session #%d): 0x%x. Disconnecting.\n", fd, cmd);
 			set_eof(fd);

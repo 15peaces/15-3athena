@@ -1408,6 +1408,7 @@ enum si_type {
 	// SI_MTF_CRIDAMAGE2 = 797,
 	// SI_MTF_SPDRAIN = 798,
 	// SI_ACUO_MINT_GUM = 799,
+	SI_MAX,
 };
 
 enum wl_spheres {
@@ -1598,6 +1599,29 @@ enum e_status_calc_opt {
 	SCO_NONE  = 0x0,
 	SCO_FIRST = 0x1, /* Trigger the calculations that should take place only onspawn/once */
 	SCO_FORCE = 0x2, /* Only relevant to BL_PC types, ensures call bypasses the queue caused by delayed damage */
+};
+
+///Enum for bonus_script's flag [Cydh]
+enum e_bonus_script_flags {
+	BSF_REM_ON_DEAD				= 0x001, ///< Removed when dead
+	BSF_REM_ON_DISPELL			= 0x002, ///< Removed by Dispell
+	BSF_REM_ON_CLEARANCE		= 0x004, ///< Removed by Clearance
+	BSF_REM_ON_LOGOUT			= 0x008, ///< Removed when player logged out
+	BSF_REM_ON_BANISHING_BUSTER	= 0x010, ///< Removed by Banishing Buster
+	BSF_REM_ON_REFRESH			= 0x020, ///< Removed by Refresh
+	BSF_REM_ON_LUXANIMA			= 0x040, ///< Removed by Luxanima
+	BSF_REM_ON_MADOGEAR			= 0x080, ///< Removed when Madogear is activated or deactivated
+	BSF_REM_ON_DAMAGED			= 0x100, ///< Removed when receive damage
+	BSF_PERMANENT				= 0x200, ///< Cannot be removed by sc_end SC_ALL
+
+	// These flags cannot be stacked, BSF_FORCE_REPLACE has highest priority to check if YOU force to add both
+	BSF_FORCE_REPLACE			= 0x400, ///< Force to replace duplicated script by expanding the duration
+	BSF_FORCE_DUPLICATE			= 0x800, ///< Force to add duplicated script
+
+	// These flags aren't part of 'bonus_script' scripting flags
+	BSF_REM_ALL		= 0x0,		///< Remove all bonus script
+	BSF_REM_BUFF	= 0x4000,	///< Remove positive buff if battle_config.debuff_on_logout&1
+	BSF_REM_DEBUFF	= 0x8000,	///< Remove negative buff if battle_config.debuff_on_logout&2
 };
 
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
