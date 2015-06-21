@@ -903,7 +903,7 @@
 1646,La'cryma_Stick,La'cryma Stick,4,20,,500,30,,1,2,0x00010204,2,2,2,3,50,1,10,{ bonus bInt,4; bonus bMatkRate,15; bonus bMdef,1; bonus2 bSkillAtk,"WZ_STORMGUST",getrefine(); if (getrefine() > 9) bonus2 bCastRate,"WZ_STORMGUST",-8; },{},{}
 1647,Croce_Staff,Croce Staff,4,20,,500,30,,1,1,0x00008110,2,2,2,3,50,1,10,{ bonus bAtkEle,Ele_Holy; bonus bMatkRate,15; bonus bInt,4; bonus4 bAutoSpellOnSkill,"AL_HEAL","AL_BLESSING",getskilllv("AL_BLESSING")>1?getskilllv("AL_BLESSING"):1,20; },{},{}
 1648,Staff_Of_Bordeaux,Staff Of Bordeaux,4,20,,500,30,,1,0,0x00010204,2,2,2,4,50,1,10,{ bonus bMatkRate,15; bonus bInt,2; bonus bDex,1; if(getskilllv("SA_DRAGONOLOGY") == 5) { bonus bUseSPrate,-15; bonus bInt,3; } },{},{}
-1649,Rafini_Staff,Rafini Staff,4,20,,500,30,,1,0,0x00818315,7,2,2,3,100,1,10,{ /* bonus bMAtk,180; */ /* bonus bFixedCastRateMilli,-(getrefine()*10); */ },{},{}
+1649,Rafini_Staff,Laphine Staff,4,20,,500,30:180,,1,0,0x00818315,63,2,2,3,100,1,10,{ bonus bFixedCastRate,-getrefine(); },{},{}
 1650,P_Staff1,Eden Staff I,4,0,,0,60,,1,0,0x00818314,7,2,2,2,26,0,10,{ /* bonus bMAtk,125; */ bonus bInt,2; },{},{}
 1651,P_Staff2,Eden Staff II,4,0,,0,60,,1,0,0x00818314,7,2,2,2,40,0,10,{ /* bonus bMAtk,150; */ bonus bInt,3; },{},{}
 1652,Tourist_Staff,Tourist Staff,4,0,,500,35,,1,0,0x00818315,7,2,2,1,1,0,10,{ bonus bInt,2; bonus bAgi,1; },{},{}
@@ -2286,8 +2286,8 @@
 4757,Luck8,LUK+8,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,8; },{},{}
 4758,Luck9,LUK+9,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,9; },{},{}
 4759,Luck10,LUK+10,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,10; },{},{}
-4760,Magic_Attack1,MATK+1%,6,20,,10,,,,,,,,16,,,,,{ bonus bMatkRate,1; },{},{}
-4761,Magic_Attack2,MATK+2%,6,20,,10,,,,,,,,16,,,,,{ bonus bMatkRate,2; },{},{}
+4760,Matk1,MATK+1%,6,20,,10,,,,,,,,,,,,,{ bonus bMatkRate,1; bonus bFixedCastrate,-1; },{},{}
+4761,Matk2,MATK+2%,6,20,,10,,,,,,,,,,,,,{ bonus bMatkRate,2; bonus bFixedCastrate,-1; },{},{}
 4762,Evasion6,FLEE+6,6,20,,10,,,,,,,,16,,,,,{ bonus bFlee,6; },{},{}
 4763,Evasion12,FLEE+12,6,20,,10,,,,,,,,16,,,,,{ bonus bFlee,12; },{},{}
 4764,Critical5,CRI+5,6,20,,10,,,,,,,,16,,,,,{ bonus bCritical,5; },{},{}

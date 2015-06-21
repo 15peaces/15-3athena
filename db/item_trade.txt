@@ -1694,3 +1694,15 @@
 20026,59,100
 20027,59,100
 20028,59,100
+
+//Quest Items
+6500,123,100	// Sharp_Bamboo
+6501,123,100	// Salt_Bag
+6502,123,100	// Silver_Cross
+6503,123,100	// Soul_Protection
+6504,123,100	// Cast_Iron_Caldron
+6505,123,100	// Purified_Bone
+6506,123,100	// Memorial_Bouquet
+6507,123,100	// Evil_Bone
+6519,123,100	// Collected_Samples
+6520,123,100	// Lost_Belongings

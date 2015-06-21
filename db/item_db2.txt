@@ -889,6 +889,26 @@
 6498,Jejellopy,Jejellopy,3,200,,10,,,,,,,,,,,,,{},{},{}
 6499,Ancient_Grudge,Ancient Grudge,3,500,,10,,,,,,,,,,,,,{},{},{}
 6500,Sharp_Bamboo,Sharpened Bamboo,3,0,,0,,,,,,,,,,,,,{},{},{}
+6501,Salt_Bag,Salt Bag,3,0,,0,,,,,,,,,,,,,{},{},{}
+6502,Silver_Cross,The Cross,3,0,,0,,,,,,,,,,,,,{},{},{}
+6503,Soul_Protection,Spiritual Protection,3,0,,0,,,,,,,,,,,,,{},{},{}
+6504,Cast_Iron_Caldron,Cast-Iron Caldron,3,0,,0,,,,,,,,,,,,,{},{},{}
+6505,Purified_Bone,Purified Spirit Bone,3,0,,0,,,,,,,,,,,,,{},{},{}
+6506,Memorial_Bouquet,Offering Bouquet,3,0,,0,,,,,,,,,,,,,{},{},{}
+6507,Evil_Bone,Evil Spirit Bone,3,0,,0,,,,,,,,,,,,,{},{},{}
+6508,Silver_Bracelet,Silver Bracelet,3,300,,10,,,,,,,,,,,,,{},{},{}
+6509,Mysterious_Flower,Mysterious Flower,3,500,,10,,,,,,,,,,,,,{},{},{}
+6510,Elegant_Flower,Elegant Flower,3,300,,10,,,,,,,,,,,,,{},{},{}
+6511,Beautiful_Flower,Beautiful Flower,3,300,,10,,,,,,,,,,,,,{},{},{}
+6512,Charm_Fire,Fire Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6513,Charm_Ice,Ice Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6514,Charm_Wind,Wind Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6515,Charm_Earth,Earth Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6516,Bakonawa_Doll,Bakonawa Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6517,Bangungot_Doll,Bangungot Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6518,Buwaya_Doll,Buwaya Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6519,Collected_Samples,Collected Sample,3,0,,0,,,,,,,,,,,,,{},{},{}
+6520,Lost_Belongings,Lost Belongings,3,0,,0,,,,,,,,,,,,,{},{},{}
 
 //Lighthalzen 4 Items
 12623,High_Weapon_Box,Advanced Weapons Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(groupranditem(IG_Advanced_Weapons_Box),1); },{},{}

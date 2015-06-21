@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/21/2015
+	r63 [15peaces]
+		*Merged missing changes from 3ceam rev. 223 - 226
+		*Added all Port Malaya Monsters so far.
+			-changed all HP/EXP/Def values to fit pre-renewal system
+		*Fixed bug in Port Malaya Quests: added missing Quest-Drop
+			-Added item Lost_Belongings to Tiyanak mob
+		*AB_EPICLESIS; GC_VENOMIMPRESS; GC_HALLUCINATIONWALK; GC_ANTIDOTE; GC_POISONSMOKE; SO_VARETYR_SPEAR
+			-Added full support for these skills
+		*Added 3 extra seconds per GC_RESEARCHNEWPOISON level bonus in ASC_EDP.
+		*Minor fix in some status changes used as cooldown that shouldn't be debuffed.
+		*Minor fix in GC_COUNTERSLASH and GC_WEAPONCRUSH that should show skill fail every time you try to use these skills.
+		*Minor update for the damage calculation structure for Sorcerer skills.
+		*Minor fix to Venom Pressure the skill cannot be used without Poisoning Weapon status.
+
 06/18/2015
 	r62 [15peaces]
 		*Merged missing changes from 3ceam rev. 218 - 222

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Euphy
 //===== Current Version: =====================================
-//= 1.3
+//= 1.4
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -24,6 +24,7 @@
 //= 1.1 Added GM management function and NPC. [Euphy]
 //= 1.2 Added VIP features. [Euphy]
 //= 1.3 Ported from rAthena to 15-3athena. [15peaces]
+//= 1.4 Added item Lost_Belongings to Tiyanak mob [15peaces]
 //============================================================
 
 // Cautious Village & Daily Quests :: hi_malaya
@@ -6509,6 +6510,35 @@ sec_in02,10,16,5	script	Bakonawa Intro Helper	543,{
 		}
 		close;
 	}
+}
+
+ma_fild01,1,1,0	script	malaya_ma_fild01_mon	-1,{
+OnInit:
+	enablenpc "malaya_ma_fild01_mon";
+	donpcevent "malaya_ma_fild01_mon::OnEnable";
+	end;
+
+OnEnable:
+	monster "ma_fild01",0,0,"Tiyanak",2314,5,"malaya_ma_fild01_mon::OnMyMobDead";
+	initnpctimer;
+	end;
+
+OnDisable:
+	stopnpctimer;
+	killmonster "ma_fild01","malaya_ma_fild01_mon::OnMyMobDead";
+	disablenpc "malaya_ma_fild01_mon";
+	end;
+
+OnTimer600000:
+	killmonster "ma_fild01","malaya_ma_fild01_mon::OnMyMobDead";
+	stopnpctimer;
+	donpcevent "malaya_ma_fild01_mon::OnEnable";
+	end;
+
+OnMyMobDead:
+	if (mobcount("ma_fild01","malaya_ma_fild01_mon::OnMyMobDead") < 5 && (malaya_bakona2 == 1 || malaya_bakona2 == 2 || malaya_bakona2 == 3 || malaya_bakona2 == 4))
+		getitem 6520,1; //Lost_Belongings
+	end;
 }
 
 // Nurse in Port Malaya :: malaya_bang

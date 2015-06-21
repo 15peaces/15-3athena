@@ -273,9 +273,11 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			if( tsc->data[SC_WHITEIMPRISON] && atk_elem != ELE_GHOST )
 				damage = 0;
 			else
-				status_change_end(target, SC_WHITEIMPRISON, -1);
+				status_change_end(target, SC_WHITEIMPRISON, INVALID_TIMER);
+			if( tsc->data[SC_VENOMIMPRESS] && atk_elem == ELE_POISON)
+				ratio += tsc->data[SC_VENOMIMPRESS]->val2;
 			if( atk_elem == ELE_FIRE && tsc->data[SC_THORNSTRAP] )
-				status_change_end(target, SC_THORNSTRAP, -1);
+				status_change_end(target, SC_THORNSTRAP, INVALID_TIMER);
 	}
 	if( target && target->type == BL_SKILL )
 	{
@@ -2978,25 +2980,25 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 300*(status_get_lv(src)*3/100);
 						break;
 					case SO_EARTHGRAVE:
-						if( sd )
-							skillratio = 200*pc_checkskill(sd, SA_SEISMICWEAPON)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
+						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 )
+									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_DIAMONDDUST:
-						if( sd )
-							skillratio = 200*pc_checkskill(sd, SA_FROSTWEAPON)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
+						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 )
+									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
 						skillratio += 300 + 100 * skill_lv;
 						break;
 					case SO_PSYCHIC_WAVE:
-						skillratio = skill_lv*70+(sstatus->int_*3*status_get_lv(src))/100;
+						skillratio = skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
-						if( sd )
-							skillratio = 200*pc_checkskill(sd, SA_LIGHTNINGLOADER)+(sstatus->int_*skill_lv*status_get_lv(src)/100);
+						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 )
+									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_CLOUD_KILL:
-						skillratio = skill_lv*40*status_get_lv(src);
+						skillratio = skill_lv * 40 * status_get_lv(src) / 100;
 						break;
 					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
 						skillratio += 400 + 100 * skill_lv;

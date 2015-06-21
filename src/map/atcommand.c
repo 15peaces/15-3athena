@@ -9101,8 +9101,8 @@ ACMD_FUNC(stats)
 	output_table[11].value = sd->status.luk;
 	output_table[12].value = sd->status.zeny;
 	output_table[13].value = sd->status.skill_point;
-	output_table[15].value = sd->change_level[0];
-	output_table[16].value = sd->change_level[1];
+	output_table[14].value = sd->change_level[0];
+	output_table[15].value = sd->change_level[1];
 
 	sprintf(job_jobname, "Job - %s %s", job_name(sd->status.class_), "(level %d)");
 	sprintf(output, msg_txt(53), sd->status.name); // '%s' stats:

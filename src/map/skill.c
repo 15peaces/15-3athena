@@ -3454,6 +3454,30 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
+	case GC_DARKILLUSION:
+		{
+			short x, y;
+			short dir = map_calc_dir(src,bl->x,bl->y);
+
+			if( dir > 4 ) x = -1;
+			else if( dir > 0 && dir < 4 ) x = 1;
+			else x = 0;
+			if( dir < 3 || dir > 5 ) y = -1;
+			else if( dir > 3 && dir < 5 ) y = 1;
+			else y = 0;
+
+			if( unit_movepos(src, bl->x+x, bl->y+y, 1, 1) )
+			{
+				clif_slide(src,bl->x+x,bl->y+y);
+				clif_fixpos(src); // the official server send these two packts.
+				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+				if( rand()%100 < 4 * skilllv )
+					skill_castend_damage_id(src,bl,GC_CROSSIMPACT,skilllv,tick,flag);
+			}
+
+		}
+		break;
+
 	case GC_WEAPONCRUSH:
 		skill_castend_nodamage_id(src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -3469,6 +3493,17 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 			status_change_end(src,SC_ROLLINGCUTTER, INVALID_TIMER);
+		}
+		break;
+
+	case GC_PHANTOMMENACE:
+		if( flag&1 )
+		{
+			sc = status_get_sc(bl);
+			if(sc && (sc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || sc->data[SC__INVISIBILITY]) )
+			{
+				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+			}
 		}
 		break;
 
@@ -3712,7 +3747,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case KO_JYUMONJIKIRI:
-	case GC_DARKILLUSION:
 		{
 			short x, y;
 			short dir = map_calc_dir(bl, src->x, src->y);
@@ -3729,8 +3763,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				clif_slide(src, x, y);
 				clif_fixpos(src); // the official server send these two packets.
 				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-				if ( rand() % 100 < 4 * skilllv && skillid == GC_DARKILLUSION )
-					skill_castend_damage_id(src, bl, GC_CROSSIMPACT, skilllv, tick, flag);
 			}
 		}
 
@@ -4327,7 +4359,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case HW_MAGICPOWER:
 	case PF_MEMORIZE:
 	case PA_SACRIFICE:
-	case ASC_EDP:
 	case PF_DOUBLECASTING:
 	case SG_SUN_COMFORT:
 	case SG_MOON_COMFORT:
@@ -4348,6 +4379,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RK_GIANTGROWTH:
 	case RK_VITALITYACTIVATION:
 	case RK_ABUNDANCE:
+	case GC_VENOMIMPRESS:
 	case RK_ENCHANTBLADE:
 	case AB_DUPLELIGHT:
 	case AB_SECRAMENT:
@@ -4640,6 +4672,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			src,skillid,skilllv,tick, flag|BCT_ENEMY|1,
 			skill_castend_damage_id);
 		status_change_end(src, SC_HIDING, INVALID_TIMER);
+		break;
+
+	case ASC_EDP:
+		{
+			int time = skill_get_time(skillid,skilllv);
+			if( sd )
+				time += 3000 * pc_checkskill(sd,GC_RESEARCHNEWPOISON);
+			clif_skill_nodamage(src,bl,skillid,skilllv,
+				sc_start(bl,type,100,skilllv,time));
+		}
 		break;
 
 	case ASC_METEORASSAULT:
@@ -6533,6 +6575,33 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			status_change_end(bl,SC_OBLIVIONCURSE,INVALID_TIMER);
 		break;
 
+	case GC_PHANTOMMENACE:
+		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR,
+			src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+		break;
+
+	case GC_HALLUCINATIONWALK:
+		{
+			int heal = status_get_max_hp(bl) * 10 / 100;
+			if( status_get_hp(bl) < heal )
+			{ // if you haven't enough HP skill fail.
+				if( sd )
+					clif_skill_fail(sd,skillid,USESKILL_FAIL_HP_INSUFFICIENT,0,0);
+				break;
+			}
+			if( !status_charge(bl,heal,0) )
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,USESKILL_FAIL_HP_INSUFFICIENT,0,0);
+				break;
+			}
+			clif_skill_nodamage(src,bl,skillid,skilllv,
+				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		}
+		break;
+
 	case AB_ANCILLA:
 		if( sd )
 		{
@@ -7937,6 +8006,18 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		skill_castend_damage_id);
 		break;
 
+	case GC_POISONSMOKE:
+		if( !(sc && sc->data[SC_POISONINGWEAPON]) )
+		{
+			if( sd )
+				clif_skill_fail(sd,skillid,USESKILL_FAIL_GC_POISONINGWEAPON,0,0);
+			return 0;
+		}
+		clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
+		skill_unitsetting(src, skillid, skilllv, x, y, flag);
+		status_change_end(src,SC_POISONINGWEAPON,INVALID_TIMER);
+ 		break;
+
 	case AB_EPICLESIS:
 		sg = skill_unitsetting(src, skillid, skilllv, x, y, flag);
 		if( sg )
@@ -8939,6 +9020,12 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		break;
 		}
 		break;
+	case GC_POISONSMOKE:
+		if( !(sc && sc->data[SC_POISONINGWEAPON]) )
+			return NULL;
+		val1 = sc->data[SC_POISONINGWEAPON]->val2;
+		limit = 4000 + 2000 * skilllv;
+		break;
 	case WM_REVERBERATION:
 		interval = limit;
 		break;
@@ -9739,6 +9826,17 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			sg->unit_id = UNT_USED_TRAPS;
 			//clif_changetraplook(&src->bl, UNT_FIREPILLAR_ACTIVE);
 			sg->limit=DIFF_TICK(tick,sg->tick)+1500;
+			break;
+
+		case UNT_POISONSMOKE:
+			if( battle_check_target(ss,bl,BCT_ENEMY) > 0 )
+			{
+				if( !(tsc && tsc->data[sg->val1]) )
+				{
+					if( rand()%100 < 20 )
+						sc_start(bl,sg->val1,100,sg->skill_lv,skill_get_time(GC_POISONINGWEAPON,sg->skill_lv));
+				}
+			}
 			break;
 
 		case UNT_EPICLESIS:
@@ -10731,6 +10829,26 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case AB_ANCILLA:
+		{
+			int count = 0, i;
+			for( i = 0; i < MAX_INVENTORY; i ++ )
+				if( sd->status.inventory[i].nameid == ITEMID_ANCILLA )
+					count += sd->status.inventory[i].amount;
+			if( count >= 3 )
+			{
+				clif_skill_fail(sd, skill, USESKILL_FAIL_ANCILLA_NUMOVER, 0, 0);
+				return 0;
+			}
+		}
+		break;	
+	case AB_ADORAMUS:
+	case WL_COMET:
+		if( sc && sc->data[SC_REUSE_COMET] )
+			return 0;
+		if( skill_check_pc_partner(sd, skill, &lv, 1, 0) )
+			sd->special_state.no_gemstone = 1;
+		break;
 	case GC_COUNTERSLASH:
 	case GC_WEAPONCRUSH:
 		if(!(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == GC_WEAPONBLOCKING) )
@@ -10746,26 +10864,20 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
-	case AB_ANCILLA:
-	{
-		int count = 0, i;
-		for( i = 0; i < MAX_INVENTORY; i ++ )
-			if( sd->status.inventory[i].nameid == ITEMID_ANCILLA )
-				count += sd->status.inventory[i].amount;
-		if( count >= 3 )
+	case GC_POISONSMOKE:
+	case GC_VENOMPRESSURE:
+		if( !(sc && sc->data[SC_POISONINGWEAPON]) )
 		{
-			clif_skill_fail(sd, skill, USESKILL_FAIL_ANCILLA_NUMOVER, 0,0);
+			clif_skill_fail(sd, skill, USESKILL_FAIL_GC_POISONINGWEAPON, 0, 0);
 			return 0;
 		}
-	}
-	break;
-
-	case AB_ADORAMUS:
-	case WL_COMET:
-		if( sc && sc->data[SC_REUSE_COMET] )
+		break;
+	case GC_HALLUCINATIONWALK:
+		if( sc && (sc->data[SC_HALLUCINATIONWALK] || sc->data[SC_HALLUCINATIONWALK_POSTDELAY]) )
+		{
+			clif_skill_fail(sd, skill, USESKILL_FAIL_LEVEL, 0, 0 );
 			return 0;
-		if( skill_check_pc_partner(sd, skill, &lv, 1, 0) )
-			sd->special_state.no_gemstone = 1;
+		}
 		break;
 	case RA_WUGMASTERY:
 		if((pc_isfalcon(sd) && !battle_config.warg_can_falcon) || sd->sc.data[SC__GROOMY])
@@ -11335,50 +11447,6 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	
 	return req;
 }
-
-/*==========================================
- * Does cast-time reductions based on dex, item bonuses and config setting
- *------------------------------------------*/
-/*int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
-{
-	int time = skill_get_cast(skill_id, skill_lv);
-	struct map_session_data *sd;
-
-	nullpo_ret(bl);
-	sd = BL_CAST(BL_PC, bl);
-
-	// calculate base cast time (reduced by dex)
-	if( !(skill_get_castnodex(skill_id, skill_lv)&1) )
-	{
-		int scale = battle_config.castrate_dex_scale - status_get_dex(bl);
-		if( scale > 0 )	// not instant cast
-			time = time * scale / battle_config.castrate_dex_scale;
-		else return 0;	// instant cast
-	}
-
-	// calculate cast time reduced by item/card bonuses
-	if( !(skill_get_castnodex(skill_id, skill_lv)&4) && sd )
-	{
-		int i;
-		if( sd->castrate != 100 )
-			time = time * sd->castrate / 100;
-		for( i = 0; i < ARRAYLENGTH(sd->skillcast) && sd->skillcast[i].id; i++ )
-		{
-			if( sd->skillcast[i].id == skill_id )
-			{
-				time+= time * sd->skillcast[i].val / 100;
-				break;
-			}
-		}
-	}
-
-	// config cast time multiplier
-	if (battle_config.cast_rate != 100)
-		time = time * battle_config.cast_rate / 100;
-
-	// return final cast time
-	return (time > 0) ? time : 0;
-}*/
 
 /*==========================================
 * Recoded cast time system. Mainly a setup like jRO, Thanks to Rytech. [15peaces]
