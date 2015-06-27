@@ -4,6 +4,31 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+06/27/2015
+	r64 [15peaces]
+		*Merged missing changes from 3ceam rev. 227 - 229
+		*Archbishop skills update.
+			-Casting time and Cooldowns was updated based on 2010 info.
+			-Clearance was rewritted to behave same to official server. Info: http://forums.irowiki.org/showpost.php?p=591645&postcount=576
+			-Updated Expiatio skill. Currently the skill works the same as Asperio but only its a self skill. Still needs to be redone.
+			-Duple light Melee should take weapon element and Magic is forced to be neutral. Chance to trigger is 25%.
+			-Adoramus requires 1 blue gemstone if casted solo.
+			-Fix structure for Adoramus and Judex damage calculation.
+			-Epiclesis as of official server doesn't damage Undead or Demon type monster.
+			-Renovatio should damage to undead type of monster and fail if casted to self/ally with undead armor.
+			-Cleanup Ancilla coding.
+			-Updated the behavior of Coluceo Heal skill.
+			-Updated Lauda Ramus and Agnus to work like official behavior. Info the same as above link.
+		*NC_F_SIDESLIDE; NC_B_SIDESLIDE; NC_SHAPESHIFT
+			-Added full support for these skills.
+		*Fix some item inside item_db which is not updated to latest Equippable upper-types.
+		*Updated mob_db
+			-Added full support for Swift Petite and Solid Petite.
+		*Updated quest_db
+			-Added some missing Port Malaya entries.
+		*Added missing Eden Group warps
+			-also cleaned-up scripts_warps.conf a bit.
+
 06/21/2015
 	r63 [15peaces]
 		*Merged missing changes from 3ceam rev. 223 - 226

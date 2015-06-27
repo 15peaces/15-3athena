@@ -444,12 +444,12 @@ void initChangeTables(void)
 	set_sc( AB_LAUDAAGNUS	, SC_LAUDAAGNUS		, SI_LAUDAAGNUS		, SCB_VIT );
 	set_sc( AB_LAUDARAMUS	, SC_LAUDARAMUS		, SI_LAUDARAMUS		, SCB_LUK );
 	set_sc( AB_RENOVATIO	, SC_RENOVATIO		, SI_RENOVATIO		, SCB_REGEN );
-	set_sc( AB_EXPIATIO		, SC_EXPIATIO		, SI_EXPIATIO		, SCB_NONE );
+	set_sc( AB_EXPIATIO     , SC_EXPIATIO       , SI_EXPIATIO       , SCB_ATK_ELE );
 	set_sc( AB_DUPLELIGHT	, SC_DUPLELIGHT		, SI_DUPLELIGHT		, SCB_NONE );
 	set_sc( AB_SECRAMENT	, SC_AB_SECRAMENT	, SI_AB_SECRAMENT	, SCB_NONE );
 
 	// Warlock
-	set_sc( WL_RECOGNIZEDSPELL	, SC_RECOGNIZEDSPELL, SI_RECOGNIZEDSPELL	, SCB_MATK );
+	set_sc( WL_RECOGNIZEDSPELL  , SC_RECOGNIZEDSPELL, SI_RECOGNIZEDSPELL	, SCB_NONE );
 	set_sc( WL_FROSTMISTY		, SC_FREEZING		, SI_FROSTMISTY			, SCB_ASPD|SCB_SPEED|SCB_DEF|SCB_DEF2 );
 	set_sc( WL_MARSHOFABYSS		, SC_MARSHOFABYSS	, SI_MARSHOFABYSS		, SCB_SPEED|SCB_FLEE|SCB_DEF|SCB_DEF2 );
 	add_sc( WL_COMET			, SC_REUSE_COMET	);
@@ -469,6 +469,7 @@ void initChangeTables(void)
 	// Mechanic
 	set_sc( NC_ACCELERATION	, SC_ACCELERATION	, SI_ACCELERATION	, SCB_SPEED );
 	set_sc( NC_HOVERING		, SC_HOVERING		, SI_HOVERING		, SCB_SPEED );
+	set_sc( NC_SHAPESHIFT   , SC_SHAPESHIFT     , SI_SHAPESHIFT     , SCB_DEF_ELE );
 	set_sc( NC_INFRAREDSCAN	, SC_INFRAREDSCAN	, SI_INFRAREDSCAN	, SCB_FLEE );
 	set_sc( NC_ANALYZE		, SC_ANALYZE		, SI_ANALYZE		, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2 );
 
@@ -4566,6 +4567,8 @@ static unsigned char status_calc_element(struct block_list *bl, struct status_ch
 		return ELE_UNDEAD;
 	if(sc->data[SC_ELEMENTALCHANGE])
 		return sc->data[SC_ELEMENTALCHANGE]->val2;
+	if(sc->data[SC_SHAPESHIFT])
+		return sc->data[SC_SHAPESHIFT]->val2;
 	return (unsigned char)cap_value(element,0,UCHAR_MAX);
 }
 
@@ -4584,6 +4587,8 @@ static unsigned char status_calc_element_lv(struct block_list *bl, struct status
 		return 1;
 	if(sc->data[SC_ELEMENTALCHANGE])
 		return sc->data[SC_ELEMENTALCHANGE]->val1;
+	if(sc->data[SC_SHAPESHIFT])
+		return sc->data[SC_SHAPESHIFT]->val2;
 	if(sc->data[SC__INVISIBILITY])
 		return 1;
 
@@ -4613,6 +4618,8 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 		return ELE_DARK;
 	if(sc->data[SC_GHOSTWEAPON])
 		return ELE_GHOST;
+	if(sc->data[SC_EXPIATIO])
+		return ELE_HOLY;
 	if(sc->data[SC__INVISIBILITY])
 		return ELE_GHOST;
 	return (unsigned char)cap_value(element,0,UCHAR_MAX);
@@ -6083,6 +6090,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_EARTHWEAPON:
 		case SC_SHADOWWEAPON:
 		case SC_GHOSTWEAPON:
+		case SC_EXPIATIO:
 			skill_enchant_elemental_end(bl,type);
 			break;
 		case SC_ELEMENTALCHANGE:
@@ -6848,23 +6856,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick / 1000;
 			break;
 
-		case SC_SHAPESHIFT: // 3ceam v1.
-			{
-				switch( val1 )
-				{
-					case 1: val2 = ELE_FIRE; break;
-					case 2: val2 = ELE_EARTH; break;
-					case 3: val2 = ELE_WIND; break;
-					case 4: val2 = ELE_WATER; break;
-					default:
-						if( sd )
-							clif_skill_fail(sd, NC_SHAPESHIFT, USESKILL_FAIL_LEVEL, 0, 0);
-						return 0;
-				}
-				tick = -1;
-			}
-			break;
-
 		case SC_MANU_DEF:
 		case SC_MANU_ATK:
 		case SC_MANU_MATK:
@@ -6947,8 +6938,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_RENOVATIO:
 			val4 = tick / 5000;
-			if( val4 < 1 )
-				val4 = 1;
 			tick = 5000;
 			break;
 		case SC_WHITEIMPRISON:
@@ -6976,6 +6965,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if( val4 < 1 )
 				val4 = 1;
 			tick = 10000;
+			break;
+		case SC_SHAPESHIFT:
+			switch( val1 )
+			{
+				case 1: val2 = ELE_FIRE; break;
+				case 2: val2 = ELE_EARTH; break;
+				case 3: val2 = ELE_WIND; break;
+				case 4: val2 = ELE_WATER; break;
+			}
 			break;
 		case SC_ELECTRICSHOCKER:
 		case SC_CRYSTALIZE:

@@ -2829,6 +2829,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			case PF_SOULBURN:
 				ad.damage = tstatus->sp * 2;
 				break;
+			/* Enable this if kRO fix the current skill. Currently no damage to undead or demons. [Jobbie]
+			case AB_EPICLESIS:
+				ad.damage = ??;
+				break;*/
+			case AB_RENOVATIO:
+				//Damage calculation from iRO wiki. [Jobbie]
+				ad.damage = (int)((15 * sd->status.base_level) + (1.5 * sd->status.int_));
 			default:
 			{
 				if (sc && sc->data[SC_RECOGNIZEDSPELL]) {
@@ -3017,12 +3024,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case AB_JUDEX:
-						skillratio += 180 + 20 * skill_lv + (status_get_lv(src)/100);
-						if( skill_lv == 5 )
-							skillratio += 300 + (status_get_lv(src)/100);
+						skillratio = ((skill_lv == 5) ? 400 : (280 + 20 * skill_lv)) * status_get_lv(src) / 100;
 						break;
 
-					case AB_ADORAMUS: // 3ceam v1
+					case AB_ADORAMUS: 
 						skillratio += 400 + 100 * skill_lv;
 						if( sd )
 							skillratio += sd->status.base_level; // Whats the official value? [Rytech]
@@ -3720,6 +3725,15 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		if (sc->data[SC_MAGICALATTACK])
 			//FIXME: invalid return type!
 			return (damage_lv)skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK]->val1,tick,0);
+		if( sc->data[SC_DUPLELIGHT] && rand()%100 <= 25 )//Chance of activation for either physical and magical is 25%
+		{
+			int skillid;
+			if( rand()%2 == 1 )
+				skillid = AB_DUPLELIGHT_MELEE;
+			else
+				skillid = AB_DUPLELIGHT_MAGIC;
+			skill_attack(skill_get_type(skillid), src, src, target, skillid, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
+		}
 	}
 
 	if(tsc && tsc->data[SC_KAAHI] && tsc->data[SC_KAAHI]->val4 == INVALID_TIMER && tstatus->hp < tstatus->max_hp)

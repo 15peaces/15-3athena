@@ -903,7 +903,7 @@
 1646,La'cryma_Stick,La'cryma Stick,4,20,,500,30,,1,2,0x00010204,2,2,2,3,50,1,10,{ bonus bInt,4; bonus bMatkRate,15; bonus bMdef,1; bonus2 bSkillAtk,"WZ_STORMGUST",getrefine(); if (getrefine() > 9) bonus2 bCastRate,"WZ_STORMGUST",-8; },{},{}
 1647,Croce_Staff,Croce Staff,4,20,,500,30,,1,1,0x00008110,2,2,2,3,50,1,10,{ bonus bAtkEle,Ele_Holy; bonus bMatkRate,15; bonus bInt,4; bonus4 bAutoSpellOnSkill,"AL_HEAL","AL_BLESSING",getskilllv("AL_BLESSING")>1?getskilllv("AL_BLESSING"):1,20; },{},{}
 1648,Staff_Of_Bordeaux,Staff Of Bordeaux,4,20,,500,30,,1,0,0x00010204,2,2,2,4,50,1,10,{ bonus bMatkRate,15; bonus bInt,2; bonus bDex,1; if(getskilllv("SA_DRAGONOLOGY") == 5) { bonus bUseSPrate,-15; bonus bInt,3; } },{},{}
-1649,Rafini_Staff,Laphine Staff,4,20,,500,30:180,,1,0,0x00818315,63,2,2,3,100,1,10,{ bonus bFixedCastRate,-getrefine(); },{},{}
+1649,Rafini_Staff,Laphine Staff,4,20,,500,30,,1,0,0x00818315,63,2,2,3,100,1,10,{ /* bonus bMAtk,180; */ bonus bFixedCastRate,-getrefine(); },{},{}
 1650,P_Staff1,Eden Staff I,4,0,,0,60,,1,0,0x00818314,7,2,2,2,26,0,10,{ /* bonus bMAtk,125; */ bonus bInt,2; },{},{}
 1651,P_Staff2,Eden Staff II,4,0,,0,60,,1,0,0x00818314,7,2,2,2,40,0,10,{ /* bonus bMAtk,150; */ bonus bInt,3; },{},{}
 1652,Tourist_Staff,Tourist Staff,4,0,,500,35,,1,0,0x00818315,7,2,2,1,1,0,10,{ bonus bInt,2; bonus bAgi,1; },{},{}
@@ -1352,9 +1352,9 @@
 2394,Krieger_Suit1,Glorious Suit,5,20,,0,,0,,0,0xFFFFFFFE,7,2,16,,81,1,0,{ bonus bMaxHPRate,20; bonus2 bSubRace,RC_DemiHuman,7; if( isequipped(2444,2549) ) { bonus2 bAddRace,RC_NonBoss,5; bonus2 bAddRace,RC_Boss,5; bonus bMatkRate,5; bonus2 bResEff,Eff_Freeze,10000; bonus2 bSkillHeal2,"AM_POTIONPITCHER",3; bonus2 bSkillHeal2,"AL_HEAL",3; bonus2 bSkillHeal2,"PR_SANCTUARY",3; } },{},{}
 2395,Krieger_Suit2,Glorious Popularized Suit,5,20,,0,,0,,0,0xFFFFFFFE,7,2,16,,61,1,0,{ bonus bMaxHP,600; bonus bSPrecovRate,10; },{},{}
 2396,Krieger_Suit3,Glorious Mass-Production Suit,5,20,,0,,0,,0,0xFFFFFFFE,7,2,16,,0,1,0,{ bonus bMaxHP,500; },{},{}
-2397,Incredible_Coat,Incredible Event Resignation Coat,5,10,,900,,2,,0,0xFFFFFFFE,7,2,16,,0,1,0,{},{},{}
-2398,Sniping_Suit_M,Sniping Suit,5,20,,750,,5,,1,0x00000800,2,2,16,,50,1,0,{ bonus bMdef,5; bonus bCritical,6+(readparam(bLuk)/10); bonus bDelayRate,-23; },{},{}
-2399,Dragon_Vest,Dragon Vest,5,20,,500,,3,,1,0xFFFFFFFE,2,2,16,,0,1,0,{ bonus bMdef,3; if(isequipped(2553)) { bonus bAgi,5; bonus bFlee,15; } },{},{}
+2397,Incredible_Coat,Incredible Event Resignation Coat,5,10,,900,,2,,0,0xFFFFFFFE,31,2,16,,0,1,0,{},{},{}
+2398,Sniping_Suit_M,Sniping Suit,5,20,,750,,5,,1,0x00000800,26,2,16,,50,1,0,{ bonus bMdef,5; bonus bCritical,6+(readparam(bLuk)/10); bonus bDelayRate,-23; },{},{}
+2399,Dragon_Vest,Dragon Vest,5,20,,500,,3,,1,0xFFFFFFFE,31,2,16,,0,1,0,{ bonus bMdef,3; if(isequipped(2553)) { bonus bAgi,5; bonus bFlee,15; } },{},{}
 // Footgears
 //===================================================================
 2401,Sandals,Sandals,5,400,,200,,1,,0,0xFFFFFFFF,7,2,64,,0,1,0,{},{},{}
