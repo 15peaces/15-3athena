@@ -222,6 +222,7 @@ struct s_skill_abra_db {
 extern struct s_skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 
 struct s_skill_spellbook_db {
+	int skillid;
 	int points;
 };
 extern struct s_skill_spellbook_db skill_spellbook_db[MAX_SKILL_SPELLBOOK_DB];

@@ -3568,72 +3568,104 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case WL_RELEASE:
-		if( sd && sd->rsb_used )
-		{ // Warlock spellbooks.
-			int i;
-			for( i = 0; i < 10; i ++ )
+		{
+			int spell = 0, i = 0, j = 0;
+			if( !sd )
+				break;
+
+			if( sc && (sc->data[SC_SPELLBOOK1] || sc->data[SC_SPELLBOOK2] || sc->data[SC_SPELLBOOK3] ||
+				sc->data[SC_SPELLBOOK4] || sc->data[SC_SPELLBOOK5] || sc->data[SC_SPELLBOOK6] || sc->data[SC_SPELLBOOK7]) )
 			{
-				if( sd->rsb_id[i] )
+				// Searching spellbook: it uses FIFO criteria at level 1 and LIFO criteria at level 2.
+				for( i = 0; i <= SC_SPELLBOOK7; i++ )
 				{
-					clif_skill_nodamage(src, bl, skillid, 0, 1);
-					switch( skill_get_casttype(sd->rsb_id[i]) )
+					if( sc && sc->data[i] )
 					{
-						case CAST_GROUND:
-							skill_castend_pos2(src, bl->x, bl->y, sd->rsb_id[i],
-							pc_checkskill(sd, sd->rsb_id[i]), 0, 0);
-							break;
-						case CAST_NODAMAGE:
-							skill_castend_nodamage_id(src, bl, sd->rsb_id[i],
-							pc_checkskill(sd, sd->rsb_id[i]), 0, 0);
-							break;
-						case CAST_DAMAGE:
-							skill_castend_damage_id(src, bl, sd->rsb_id[i],
-							pc_checkskill(sd, sd->rsb_id[i]), 0, 0);
-							break;
+						if( tick == 0 )
+						{
+							tick = sc->data[i]->val4;
+								j = i;
+						}
+						else if( skilllv == 1 && sc->data[i]->val4 < tick )
+						{ // At level 1 uses the first book memorized
+							tick = sc->data[i]->val4;
+								j = i;
+						}
+						else
+						{ // At level 2 uses the last book memorized.
+							tick = sc->data[i]->val4;
+								j = i;
+						}
 					}
-					sd->rsb_used -= skill_spellbook_db[sd->rsb_id[i]].points;
-					sd->rsb_id[i] = 0;
+				}
+				if( j < SC_SPELLBOOK1 || j > SC_SPELLBOOK7 )
+				{ // Spellbook not found.
+					if( sd )
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+					break;
+				}
+				if( !( spell = sc->data[j]->val1) )
+				{
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+					break;
+				}
+				if( spell <= 0 || spell > MAX_SKILL )
+				{
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+					break;
+				}
+				switch( skill_get_casttype(spell) )
+				{
+					case CAST_GROUND:
+						skill_castend_pos2(src, bl->x, bl->y, spell, pc_checkskill(sd, spell), tick, flag);
+						break;
+					case CAST_NODAMAGE:
+						skill_castend_nodamage_id(src, bl, spell, pc_checkskill(sd, spell), tick, flag);
+						break;
+					case CAST_DAMAGE:
+						skill_castend_damage_id(src, bl, spell, pc_checkskill(sd, spell), tick, flag);
+						break;
+				}
+				status_change_end(src, j, INVALID_TIMER);
+				break;
+			}
+			else if( skilllv == 1 )
+			{	// Release single ball.
+				int i = 0;
+				for( i = SC_SPHERE_1; i <= SC_SPHERE_5 + 1; i ++ )
+					if( sc && sc->data[i] )
+					{
+						clif_skill_nodamage(src, bl, skillid, 0, 1);
+						skill_attack(skill_get_type(skillid - 5 + sc->data[i]->val1 - WLS_FIRE),
+							src, src, bl, skillid - 5 + sc->data[i]->val1 - WLS_FIRE, skilllv, tick, flag|SD_LEVEL);
+						status_change_end(src, i, INVALID_TIMER);
+						break;
+					}
+				if( i > SC_SPHERE_5 && sd )
+				{
+					clif_skill_fail(sd, skillid, USESKILL_FAIL_SUMMON_NONE, 0, 0);
 					break;
 				}
 			}
-			break;
-		}
-		if( skilllv == 1 )
-		{ // Release single ball.
-			int i = 0;
-			for( i = SC_SPHERE_1; i <= SC_SPHERE_5 + 1; i ++ )
-				if( sc && sc->data[i] )
-				{
-					clif_skill_nodamage(src, bl, skillid, 0, 1);
-					skill_attack(skill_get_type(skillid - 5 + sc->data[i]->val1 - WLS_FIRE),
-					src, src, bl, skillid - 5 + sc->data[i]->val1 - WLS_FIRE, skilllv, tick, flag|SD_LEVEL);
-					status_change_end(src, i, INVALID_TIMER);
-					break;
-				}
-				if( i > SC_SPHERE_5 && sd )
-				{
-					clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0,0);
-					break;
-				}
-		}
-		else
-		{ // Release every ball.
-			int element[4] = {0, 0, 0, 0}, i = 0, j = 0;
-			for( i = 1; i <= 5; i ++ )
-				if( sc && sc->data[SC_SPHERE_1 + i - 1] )
-				{
-					j ++; // This indicates that at least one ball was released.
-					skill_addtimerskill(src, gettick() + i * 500, bl->id, 0, 0,
-					skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE, skilllv,
-					skill_get_type(skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE), SD_LEVEL);
-					status_change_end(src, SC_SPHERE_1 + i - 1, INVALID_TIMER);
-				}
+			else
+			{	// Release every ball.
+				int element[4] = {0, 0, 0, 0}, i = 0, j = 0;
+				for( i = 1; i <= 5; i ++ )
+					if( sc && sc->data[SC_SPHERE_1 + i - 1] )
+					{
+						j ++;	// This indicates that at least one ball was released.
+						skill_addtimerskill(src, gettick() + i * 500, bl->id, 0, 0,
+						skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE, skilllv,
+						skill_get_type(skillid - 5 + sc->data[SC_SPHERE_1 + i - 1]->val1 - WLS_FIRE), SD_LEVEL);
+						status_change_end(src, SC_SPHERE_1 + i - 1, INVALID_TIMER);
+					}
 				if( !j && sd )
 				{
-					clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0,0);
+					clif_skill_fail(sd, skillid, USESKILL_FAIL_SUMMON_NONE, 0, 0);
 					break;
 				}
 				clif_skill_nodamage(src, bl, skillid, 0, j);
+			}
 		}
 		break;
 
@@ -6881,6 +6913,36 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case WL_READING_SB:
+		if( sd )
+		{
+			int i, preserved = 0, max_preserve = (4 + 4 * pc_checkskill(sd,WL_FREEZE_SP)) + status_get_lv(bl)/15 + sstatus->int_/10;
+
+			if( tsc && tsc->data[SC_SPELLBOOK1] && tsc->data[SC_SPELLBOOK2] && tsc->data[SC_SPELLBOOK3] &&
+				tsc->data[SC_SPELLBOOK4] && tsc->data[SC_SPELLBOOK5] && tsc->data[SC_SPELLBOOK6] && tsc->data[SC_SPELLBOOK7] )
+			{ // Not enough available slots to preserve.
+				clif_skill_fail(sd, WL_READING_SB, 0x04, 0, 0);
+				break;
+			}
+
+			for( i = SC_SPELLBOOK1; i <= SC_SPELLBOOK7; i++ )
+			{
+				if( tsc && tsc->data[i] )
+					preserved += tsc->data[i]->val3;
+			}
+
+			if( preserved >= max_preserve )
+			{ // Not enough available preserve points.
+				clif_skill_fail(sd, WL_READING_SB, 0x04, 0, 0);
+				break;
+			}
+
+			sc_start(bl,SC_STOP,100,skilllv,-1); //Can't move while selecting a spellbook.
+			clif_spellbook_list(sd);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		}
+		break;
+
 	case RA_WUGMASTERY:
 		if( sd ){
 			if( !pc_iswug(sd) )
@@ -8089,13 +8151,13 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			switch( unit_getdir(src) )
 			{
 				case 0: y -= 6; break;
-				case 1: x += 3; y -= 3; break;
+				case 1: x += 5; y -= 5; break;
 				case 2: x += 6; break;
-				case 3: x -= 3; y += 3; break;
+				case 3: x -= 5; y += 5; break;
 				case 4: y += 6; break;
-				case 5: x -= 3; y += 3; break;
+				case 5: x -= 5; y += 5; break;
 				case 6: x -= 6; break;
-				case 7: x -= 3; y -= 3; break;
+				case 7: x -= 5; y -= 5; break;
 				default: break;
 			}
 			if( unit_movepos(src, x, y, 1, 1))
@@ -9122,6 +9184,9 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 				val1 = 28 -4*val1 -4*val2;
 			if (val1 < 1) val1 = 1;
 			val2 = 0;
+			break;
+		case WM_REVERBERATION:
+			val1 = 1;
 			break;
 		case GN_WALLOFTHORN:
 			val1 = 1000 * skilllv; // Need official value. [LimitLine]
@@ -10251,19 +10316,15 @@ int skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int dam
 	case UNT_TALKIEBOX:
 	case UNT_ANKLESNARE:
 	case UNT_ICEWALL:
+	case UNT_REVERBERATION:
+	case UNT_WALLOFTHORN:
 		src->val1-=damage;
 		break;
 	case UNT_BLASTMINE:
 	case UNT_CLAYMORETRAP:
 		skill_blown(bl, &src->bl, 2, -1, 0);
 		break;
-	case UNT_REVERBERATION:
-		src->val1 = 0;
-		break;
-	case UNT_WALLOFTHORN:
 		src->val1 -= damage;
-		if( src->val1 < 1 )
-			skill_delunit(src);
 		break;
 	default:
 		damage = 0;
@@ -13232,9 +13293,9 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_ANKLESNARE:
 			case UNT_ELECTRICSHOCKER:
 			case UNT_CLUSTERBOMB:
-			case UNT_REVERBERATION:
+			case UNT_WALLOFTHORN:
 				if( unit->val1 <= 0 ) {
-					if( group->unit_id == UNT_ANKLESNARE && group->val2 > 0 )
+					if( ((group->unit_id == UNT_ANKLESNARE || group->unit_id == UNT_ELECTRICSHOCKER) && group->val2 > 0) || group->unit_id == UNT_WALLOFTHORN )
 						skill_delunit(unit);
 					else {
 						group->unit_id = UNT_USED_TRAPS;
@@ -13242,6 +13303,10 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 					}
 				}
 				break;
+			case UNT_REVERBERATION:
+				if( unit->val1 <= 0 )
+					unit->limit = DIFF_TICK(tick+700,group->tick);
+ 				break;
 		}
 	}
 
@@ -14037,7 +14102,7 @@ int skill_poisoningweapon( struct map_session_data *sd, int nameid)
 {
 
 	sc_type type;
-	int t_lv = 0, chance;
+	int t_lv = 0, chance, i;
 
 	nullpo_retr(0, sd);
 
@@ -14046,6 +14111,14 @@ int skill_poisoningweapon( struct map_session_data *sd, int nameid)
 		clif_skill_fail(sd, GC_POISONINGWEAPON, 0, 0, 0);
 		return 0;
 	}
+
+	if( (i = pc_search_inventory(sd,nameid)) == -1 )
+	{ // prevent hacking
+		clif_skill_fail(sd, GC_POISONINGWEAPON, 0, 0, 0);
+		return 0;
+	}
+
+	pc_delitem(sd, i, 1, 0, 1);
 
 	switch( nameid )
 	{
@@ -14073,9 +14146,17 @@ int skill_poisoningweapon( struct map_session_data *sd, int nameid)
 // Warlock Spellbooks. [LimitLine]
 int skill_spellbook (struct map_session_data *sd, int nameid)
 {
-	int i = 0, skill = 0, max_preserve = 4 + 4 * pc_checkskill(sd, WL_FREEZE_SP);
+	int i = 0, j = 1, skill = 0, preserved = 0, max_preserve = (4 + 4 * pc_checkskill(sd,WL_FREEZE_SP)) + status_get_lv(&sd->bl)/15 + status_get_int(&sd->bl)/10;
+	int points, level;
+	sc_type type = 0;
+	struct status_change *sc;
 
 	nullpo_retr(0, sd);
+
+	sc = status_get_sc(&sd->bl);
+
+	if( sc && sc->data[SC_STOP] )
+		status_change_end(&sd->bl,SC_STOP,INVALID_TIMER);
 
 	if( nameid <= 0 )
 		return 1;
@@ -14100,36 +14181,47 @@ int skill_spellbook (struct map_session_data *sd, int nameid)
 		case SB_CRIMSONROCK: skill = WL_CRIMSONROCK; break;
 		case SB_DRAINLIFE: skill = WL_DRAINLIFE; break;
 		default:
-			clif_skill_fail(sd, WL_READING_SB, 0, 0, 0);
+			clif_skill_fail(sd, WL_READING_SB, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
 			return 0;
-	}
-
-	if( sd->rsb_used + skill_spellbook_db[skill].points > max_preserve )
-	{ // Not enough points.
-		clif_skill_fail(sd, WL_READING_SB, 0, 0, 0);
-		return 0;
 	}
 
 	if( !pc_checkskill(sd, skill) )
 	{ // Hasn't learnt the skill.
 		sc_start(&sd->bl, SC_SLEEP, 100, 1, skill_get_time(WL_READING_SB, pc_checkskill(sd, WL_READING_SB)));
-		clif_skill_fail(sd, WL_READING_SB, 0, 0, 0);
+		clif_skill_fail(sd, WL_READING_SB, USESKILL_FAIL_SPELLBOOK_DIFFICULT_SLEEP, 0, 0);
 		return 0;
 	}
 
 	// Try to preserve skill.
-	for( i = 0; i <= 10; i ++ )
+	for( i = SC_SPELLBOOK1; i <= SC_SPELLBOOK7; i++ )
 	{
-		if( !sd->rsb_id[i] )
-		{ // Preserve skill.
-			sd->rsb_used += skill_spellbook_db[skill].points;
-			sd->rsb_id[i] = skill;
-			sc_start(&sd->bl, SC_FREEZINGSPELL, 100, 1, 0);
-			break;
+		if( sc && sc->data[i] )
+		{
+			preserved += sc->data[i]->val3;
+			j++;
 		}
+		else if( type == 0 )
+			type = i;
 	}
-	if( i == 10 )
-		clif_skill_fail(sd, WL_READING_SB, 0, 0, 0); // No slots left.
+
+	if( preserved >= max_preserve || j >= 7 )
+	{ // Not enough available preserve points or not enough available slots to preserve.
+		clif_skill_fail(sd, WL_READING_SB, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
+		return 0;
+	}
+
+	// Try to preserve skill.
+	ARR_FIND(0,MAX_SKILL_SPELLBOOK_DB,i,skill_spellbook_db[i].skillid == skill);
+	if( i > MAX_SKILL_SPELLBOOK_DB )
+	{ // Skill not found.
+		clif_skill_fail(sd, WL_READING_SB, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
+		return 0;
+	}
+
+	points = skill_spellbook_db[i].points;
+	level = pc_checkskill(sd,skill);
+
+	sc_start4(&sd->bl, type, 100, skill, level, points, gettick(), skill_get_time(WL_READING_SB,pc_checkskill(sd,WL_READING_SB)));
 
 	return 0;
 }
@@ -15010,7 +15102,8 @@ static bool skill_parse_row_spellbookdb(char* split[], int columns, int current)
 		ShowError("spellbook_db: PreservePoints have to be 1 or above! (%d/%s)\n", i, skill_get_name(i));
 		return false;
 	}
-	skill_spellbook_db[i].points = j;
+	skill_spellbook_db[current].skillid = i;
+	skill_spellbook_db[current].points = j;
 	return true;
 }
 

@@ -6958,13 +6958,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val4 = 1;
 			tick = 1000;
 			break;
-		case SC_FREEZINGSPELL:
-			if( !sd )
-				return 0; // Should only work on players.
-			val4 = tick / 10000;
-			if( val4 < 1 )
-				val4 = 1;
-			tick = 10000;
+		case SC_SPELLBOOK1:
+		case SC_SPELLBOOK2:
+		case SC_SPELLBOOK3:
+		case SC_SPELLBOOK4:
+		case SC_SPELLBOOK5:
+		case SC_SPELLBOOK6:
+		case SC_SPELLBOOK7:
+			val_flag |= 1|2|4;
 			break;
 		case SC_SHAPESHIFT:
 			switch( val1 )

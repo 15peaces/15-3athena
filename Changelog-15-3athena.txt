@@ -5,6 +5,18 @@
 // 		- Details.
 //========================================
 06/27/2015
+	r65 [15peaces]
+		*Merged missing changes from 3ceam rev. 230 - 242
+		* Minor fix in SC_FEINTBOMB that was moving to a wrong cell in diagonal.
+		* Fixed crash server in GN_WALLOFTHORN when it received damage.
+		* Fixed GC_POISONINGWEAPON that weren't removing poisons from inventory.
+		*Rewrited WL_READING_SB and WL_RELEASE improving and adjusting its behavior to the official one.
+			-Added full support for these skills.
+			-Should use status changes instead arrays in map_session_data.
+		*Added missing sc check in GC_POISONINGWEAPON.
+		*Fixed an issue in WM_REVERBERATION where these should get 1 damage like plants.
+
+06/27/2015
 	r64 [15peaces]
 		*Merged missing changes from 3ceam rev. 227 - 229
 		*Archbishop skills update.
