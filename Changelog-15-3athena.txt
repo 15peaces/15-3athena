@@ -4,7 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-06/27/2015
+06/29/2015
+	r66 [15peaces]
+		*Merged missing changes from 3ceam rev. 243 - 244
+		*Added LG_FORCEOFVANGUARD and LG_RAGEBURST skills.
+			-Added similar funtions to those used with Monk's spirit spheres to handle LG_FORCEOFVANGUARD since these skills have same behavior and you can get both at a time.
+		*Minor fix in battle_calc_weapon_attack where hitrate calculation is done.
+			-Added missing break.
+
+06/28/2015
 	r65 [15peaces]
 		*Merged missing changes from 3ceam rev. 230 - 242
 		* Minor fix in SC_FEINTBOMB that was moving to a wrong cell in diagonal.
