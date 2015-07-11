@@ -1,0 +1,92 @@
+//===== rAthena Script =======================================
+//= MVP Tomb system
+//===== By: ==================================================
+//= malufett
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= rAthena SVN
+//===== Additional Comments: =================================
+//= 1.0 First version
+//= 2.0 Added Feature showTimeRespawn and showTimerRespawn.
+//= 2.1 Fixed map crashing when MVP arena is use or summoning MVP using 'monster' script.
+//= 3.0 Fixed duplicate issue and max gap.
+//============================================================
+
+-	script	tomb_stone	-1,{
+
+	explode(.@info$, strnpcinfo(2), "|");
+	explode(.@info2$, strnpcinfo(3), "@");
+	explode(.@temp$, .tombinfo$, "|");
+	
+	for( set .@i, 0; .@i <= getarraysize(.@temp$); set .@i, .@i +1 ){
+		explode(.@temp2$, .@temp$[.@i], "/");
+
+		if(.@info2$[1] == .@temp2$[0]){
+			explode(.@info3$, .@temp$[.@i], "/");
+		}
+	}
+
+	mes "[^FF0000" + strmobinfo(2,atoi(.@info$[0])) + "^000000]";
+	mes "Ended up its short life.";
+	mes "Time of death : ^FF0000" + .@info3$[1] + "^000000";
+	if(.showTimeRespawn)
+		mes "Time of respawn :  ^FF0000" + .@info3$[2] + "^000000";
+	mes "Bringer of repose";
+	mes "[^FF0000" + .@info2$[0] +"^000000]";
+	close;
+
+OnMyMobDead:
+	//+-- -- -- -- -- -- -- +
+	//|	  Settings	|
+	//+-- -- -- -- -- -- -- +
+	set .showTimeRespawn, 1; // Display the time when the MVP will respawn
+	set .showTimerRespawn, 1; // Display countdown timer	
+
+	explode(.@info$, strnpcinfo(2), "|");
+	explode(.@info2$, strnpcinfo(3), "@");
+
+	set .@msec, .@info$[1];
+	set .tombinfo$, .tombinfo$ + .@info2$[1] + "/" +gettimestr("%H:%M",10) + "/" + callfunc("timeconverter2", .@info$[1] ) + "|";
+
+
+	if(!.showTimerRespawn) end;
+
+	while ( .@msec > 0) {
+		delwaitingroom strnpcinfo(3);
+		waitingroom callfunc("timeconverter", .@msec ), 0;
+		set .@msec, .@msec - 1000;
+		sleep 1000;
+	}
+	delwaitingroom strnpcinfo(3);
+	end;
+}
+
+
+function	script	timeconverter	{
+
+	set .@tick, getarg(0);
+
+	if ( .@tick <= 0 ) return getarg(0);
+	set .@day, .@tick / 86400000;
+	set .@hour, .@tick % 86400000 / 3600000;
+	set .@min, .@tick % 3600000 / 60000;
+	set .@sec, .@tick % 60000 / 1000;
+
+	return (.@day<10?"0":"") + .@day + ":" + (.@hour<10?"0":"") + .@hour + ":" + (.@min<10?"0":"") + .@min + ":" + (.@sec<10?"0":"") + .@sec ;
+}
+
+
+function	script	timeconverter2	{
+	set .@tick, getarg(0);
+
+	set .@hour, .@tick % 86400000 / 3600000 + gettime(3);
+	set .@min, .@tick % 3600000 / 60000 + gettime(2);
+
+	if(.@min>59){
+		set .@hour, .@hour+1;
+		set .@min, .@min - 60;
+	}
+	
+	return (.@hour<10?"0":"") + .@hour +":"+ (.@min<10?"0":"") + .@min;
+}

@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/11/2015
+	r67 [15peaces]
+		*Merged missing changes from 3ceam rev. 245 - 247
+		*Updated script_commands.txt inside doc folder
+			-added info on URLs and Navigation links.
+		*MvP Tomb Stone update
+			-added missing script. Sorry for this ^^
+		*Corrected Highness Heal healing value formula.
+		*Corrected Coloceo Heal which not healing players although it displays the healing value.
+		*Adjusted Guillotine Cross poisons behavior to work same in official server.
+
 06/29/2015
 	r66 [15peaces]
 		*Merged missing changes from 3ceam rev. 243 - 244

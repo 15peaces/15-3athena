@@ -1216,6 +1216,28 @@ english characters, the color codes might get screwed if they stick to letters
 with no intervening space. Separating them with spaces from the letters on 
 either side solves the problem.
 
+Navigation
+----------
+For clients dated 2011-10-10aRagexe onwards, you can generate navigation links
+using HTML-like labels:
+
+    <NAVI>Display Name<INFO>mapname,x,y,0,000,flag</INFO></NAVI>
+
+The "flag" parameter can be:
+ 0: Do not open Navigation Window (default).
+ 1: Open Navigation Window.
+
+The example below will make the [Tool Shop] text clickable and begin navigation
+to alberta (98,154) when clicked.
+
+    mes "Have you checked out the <NAVI>[Tool Shop]<INFO>alberta,98,154,0,000,0</INFO></NAVI>?";
+
+URLs
+----
+Similarly, you can create links to websites that launch in a new window:
+
+    <URL>Display Name<INFO>http://www.example.com/</INFO></URL>";
+
 ---------------------------------------
 
 *next;

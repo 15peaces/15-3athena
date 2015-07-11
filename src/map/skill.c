@@ -327,6 +327,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 	case NPC_EVILLAND:
 		hp = (skill_lv>6)?666:skill_lv*100;
 		break;
+	case AB_HIGHNESSHEAL:
+		if( sd ) skill_lv = pc_checkskill(sd, AL_HEAL);
 	default:
 		if (skill_lv >= battle_config.max_heal_lv)
 			return battle_config.max_heal;
@@ -3949,6 +3951,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( sd && dstsd && sd->status.partner_id == dstsd->status.char_id && ((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.sex == 0 )
 				heal = heal*2;
 
+			if( skillid == AB_HIGHNESSHEAL )
+				heal = (int)( heal * ( 4 + 0.6 * ( skilllv - 1 ) ) ) / 2;
+
 			if( tsc && tsc->count )
 			{
 				if( tsc->data[SC_KAITE] && !(sstatus->mode&MD_BOSS) )
@@ -6675,6 +6680,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( sd && tstatus && !battle_check_undead(tstatus->race, tstatus->def_ele) )
 			{
 				i = skill_calc_heal(src, bl, AL_HEAL, pc_checkskill(sd, AL_HEAL), true);
+				status_heal(bl, i, 0, 2);
 				clif_skill_nodamage(bl, bl, skillid, i, 1);
 			}
 		}
