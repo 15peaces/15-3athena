@@ -11769,7 +11769,8 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 {
 	// -1 is used by produce script command.
 	if (sd->menuskill_id != -1 && sd->menuskill_id != AM_PHARMACY && sd->menuskill_id != SA_CREATECON &&
-		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON)
+		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON &&
+		sd->menuskill_id != GN_MIX_COOKING && sd->menuskill_id != GN_MAKEBOMB && sd->menuskill_id != GN_S_PHARMACY)
 		return;
 
 	if (pc_istrading(sd)) {
@@ -17247,6 +17248,29 @@ void clif_fast_movement(struct block_list *bl, short x, short y)
 	WBUFW(buf,8) = y;
 
 	clif_send(buf,packet_len(0x8d2),bl,AREA);
+}
+
+/// [Ind/Hercules]
+void clif_showscript(struct block_list* bl, const char* message) {
+	char buf[256];
+	size_t len;
+	nullpo_retv(bl);
+
+	if(!message)
+		return;
+
+	len = strlen(message)+1;
+
+	if( len > sizeof(buf)-8 ) {
+		ShowWarning("clif_showscript: Truncating too long message '%s' (len=%d).\n", message, len);
+		len = sizeof(buf)-8;
+	}
+
+	WBUFW(buf,0) = 0x8b3;
+	WBUFW(buf,2) = (len+8);
+	WBUFL(buf,4) = bl->id;
+	safestrncpy((char *) WBUFP(buf,8), message, len);
+	clif_send((unsigned char *) buf, WBUFW(buf,2), bl, ALL_CLIENT);
 }
 
 /// Parse function for packet debugging.

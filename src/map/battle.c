@@ -2279,6 +2279,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if( src->type == BL_MOB && (skill=pc_checkskill(tsd,RA_RANGERMAIN))>0 &&
 					(sstatus->race == RC_BRUTE || sstatus->race == RC_FISH || sstatus->race == RC_PLANT) )
 					vit_def += skill*5;
+				if( skill = pc_checkskill(tsd, NC_MAINFRAME) > 0 )
+					vit_def += ((skill >= 1 && skill <= 2)? 1+3*skill : skill == 3) ? 11 : 15;
 			} else { //Mob-Pet vit-eq
 				//VIT + rnd(0,[VIT/20]^2-1)
 				vit_def = (def2/20)*(def2/20);
@@ -4715,7 +4717,7 @@ static const struct _battle_data {
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,              },
 	{ "levels_effect_renewal_skills",		&battle_config.levels_effect_renewal_skills,	0,		0,		1,				},
-	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	160,	1000,			},
+	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
 	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },

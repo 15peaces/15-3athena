@@ -7271,12 +7271,31 @@ int pc_setoption(struct map_session_data *sd,int type)
 		status_calc_pc(sd,0); //Update movement speed.
 	}
 
-	//No icon is displayed when mounted in a Mado, but we still need to update the movement speed.
-	if( type&OPTION_MADOGEAR && !(p_type&OPTION_MADOGEAR) ) {
+	//No icon is displayed when mounted in a Mado, but we still need to update the movement speed. [Rytech] [3ceam r747]
+	if (type&OPTION_MADOGEAR && !(p_type&OPTION_MADOGEAR))
+	{//Merchant, Blacksmith, and Whitesmith buffs are removed when mounted on a mado.
 		status_calc_pc(sd,0); //Update movement speed.
+		status_change_end(&sd->bl,SC_ADRENALINE,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_WEAPONPERFECTION,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_OVERTHRUST,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_MAXIMIZEPOWER,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_LOUD,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_MELTDOWN,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_CARTBOOST,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_MAXOVERTHRUST,INVALID_TIMER);
 		pc_bonus_script_clear(sd,BSF_REM_ON_MADOGEAR); // cydh bonus_script
-	} else if( !(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR ) {
+	}
+	else if (!(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR) // [3ceam r747]
+	{//Mechanic mado buffs are removed when unmounting from a mado.
 		status_calc_pc(sd,0); //Update movement speed.
+		status_change_end(&sd->bl,SC_ACCELERATION,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_HOVERING,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_SHAPESHIFT,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_MAGNETICFIELD,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_NEUTRALBARRIER_MASTER,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_STEALTHFIELD_MASTER,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_OVERHEAT,INVALID_TIMER);
+		status_change_end(&sd->bl,SC_OVERHEAT_LIMITPOINT,INVALID_TIMER);
 		pc_bonus_script_clear(sd,BSF_REM_ON_MADOGEAR); // cydh bonus_script
 	}
 

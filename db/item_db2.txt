@@ -926,3 +926,75 @@
 12722,Poison_Fever,Pyrexia,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_PYREXIA,300000,0; },{},{}
 12723,Poison_Laughing,Magic Mushroom,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_MAGICMUSHROOM,300000,0; },{},{}
 12724,Poison_Fatigue,Venom Bleed,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ sc_start SC_VENOMBLEED,15000,0; },{},{}
+
+// Monster Transformation Items and others
+2169,Kalasak,Kalasag,5,20,,400,,40,,0,0xFFFFFFFF,63,2,32,,1,1,1,{ bonus2 bSubClass,Class_Boss,getrefine()/3; },{},{}
+2170,Bayani_Kalasak,Bayani Kalasag,5,20,,400,,40,,1,0xFFFFFFFF,63,2,32,,1,1,1,{ bonus2 bSubClass,Class_Boss,getrefine()/3; },{},{}
+2171,Fox_Armguard,Fox Wrist Guard,5,40000,,200,,45,,1,0x02000000,63,2,32,,100,1,1,{ bonus bFlee,5; },{},{}
+2172,Wolf_Armguard,Wolf Wrist Guard,5,45000,,250,,70,,1,0x02000000,63,2,32,,100,1,1,{ autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",20,5000,BF_WEAPON,"{ specialeffect2 EF_TEIHIT1; }"; },{},{}
+2173,Crescent_Armguard,Crescent Wrist Guard,5,45000,,250,,45,,1,0x02000000,63,2,32,,100,1,1,{ bonus bDelayRate,-(getrefine()*2); },{},{}
+2174,Lumiere_Shield,Lumiere Shield,5,20,,1300,,50,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
+2175,Esprit_Shield,Spirit Shield,5,20,,1300,,50,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
+2176,Dark_Book,Black Book,5,20,,500,,80,,1,0xFFFFFFFF,63,2,32,,65,1,5,{ bonus bMdef,5; set .@r, getrefine(); if (.@r<=6) set .@rate,10; else if (.@r<=8) set .@rate,20; else set .@rate,30; bonus3 bAutoSpellWhenHit,"NPC_DRAGONFEAR",1,.@rate; },{},{}
+2177,Shield_Of_Death,Shield Of Death,5,20,,2000,,150,,1,0xFFFFFFFF,63,2,32,,90,1,3,{ bonus2 bAddClass,Class_Boss,2; bonus2 bMagicAddClass,Class_Boss,2; bonus2 bAddClass,Class_Normal,10; bonus2 bMagicAddClass,Class_Normal,10; },{},{}
+2491,Bangungot_Boots,Bangungot Boots of Nightmare,5,20,,600,,10,,0,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=14){ bonus bSpeedRate,25; } },{},{}
+2492,Bayani_Bangungot_Boots,Bayani Bangungot Boots of Nightmare,5,20,,600,,10,,1,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=12){ bonus bSpeedRate,25; } },{},{}
+2495,Egir_Shoes,Egir Shoes,5,200000,,300,,13,,1,0xFFFFFFFF,63,2,64,,110,1,0,{ if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus bMaxHP,BaseLevel*5; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus bMaxSP,JobLevel*2; },{},{}
+2590,Buwaya_Cloth,Buwaya Sack Cloth,5,20,,200,,8,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r/3; bonus bAddItemHealRate,.@r/3; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
+2591,Bayani_Buwaya_Cloth,Bayani Buwaya Sack Cloth,5,20,,200,,8,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r; bonus bAddItemHealRate,.@r; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
+2592,Boss_Brownie_Manteau,Boss Brownie Manteau,5,20,,100,,3,,0,0xFFFFFFFF,63,2,4,,50,1,0,{},{},{}
+2593,Flow_Manteau,Flow Manteau,5,20,,700,,20,,1,0xFFFFFFFF,63,2,4,,65,1,0,{},{},{}
+2594,Wrapping_Manteau,Wrapping Manteau,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,0,1,0,{},{},{}
+2597,Scarlet_Poncho,Scarlet Poncho,5,0,,500,,10,,1,0xFFFFFFFF,63,2,1024,,,1,0,{ bonus bCritAtkRate,3; /* Confirm: The location. If the location is changed, also change the combo script! */ },{},{}
+2598,Ramor_Manteau,Ramor Manteau,5,20,,700,,20,,,0xFFFFFFFF,63,2,4,,65,1,0,{ bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,-5; /*Gold PC Room: bonus bFlee,20;*/ },{},{}
+5497,King_Tiger_Doll_Hat,King Tiger Doll Hat,5,20,,400,,6,,1,0xFFFFFFFE,63,2,256,,1,1,495,{ bonus bStr,2; bonus bDex,2; bonus2 bAddRace,RC_Brute,10; bonus2 bMagicAddRace,RC_Brute,10; set .@r, getrefine(); autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",3*.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Eddga Power !\"; }"; autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Eddga Power !\"; }"; },{},{} 
+6514,Charm_Wind,Wind Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6515,Charm_Earth,Earth Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
+6516,Bakonawa_Doll,Bakonawa Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6517,Bangungot_Doll,Bangungot Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6518,Buwaya_Doll,Buwaya Doll,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6519,Collected_Samples,Collected Sample,3,0,,0,,,,,,,,,,,,,{},{},{}
+6520,Lost_Belongings,Lost Belongings,3,0,,0,,,,,,,,,,,,,{},{},{}
+6521,Royal_Certificate,Royal Certificate,3,0,,0,,,,,,,,,,,,,{},{},{}
+6522,Royal_Certificate_,Royal Certificate,3,0,,0,,,,,,,,,,,,,{},{},{}
+6523,Bakonawa_Spirit_Piece,Piece of Bakonawa's Spirit,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6524,Bangungot_Spirit_Piece,Piece of Bangungot's Spirit,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6525,Buwaya_Spirit_Piece,Piece of Buwaya's Spirit,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6526,BlueCard_Happy,BlueCard Happy,3,0,,10,,,,,,,,,,,,,{},{},{}
+6527,BlueCard_Enjoy,BlueCard Enjoy,3,0,,10,,,,,,,,,,,,,{},{},{}
+6528,BlueCard_Light,BlueCard Light,3,0,,10,,,,,,,,,,,,,{},{},{}
+6529,BlueCard_Mid,BlueCard Mid,3,0,,10,,,,,,,,,,,,,{},{},{}
+6530,BlueCard_Fall,BlueCard Fall,3,0,,10,,,,,,,,,,,,,{},{},{}
+6531,Royal_Certificate__,Royal Certificate,3,0,,0,,,,,,,,,,,,,{},{},{}
+6532,Honey_Songpyun,Honey Songpyun,3,0,,10,,,,,,,,,,,,,{},{},{}
+6533,Torn_Document,Torn Document,3,2,,500,,,,,,,,,,,,,{},{},{}
+6534,Fruit_Sundae,Fruit Sundae,3,2,,50,,,,,,,,,,,,,{},{},{}
+6535,Red_Cloth,Red Cloth,3,0,,10,,,,,,,,,,,,,{},{},{}
+12658,Trans_Scroll_Devi,Transformation Scroll(Deviruchi),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1109,1200000; showscript "Traaaansformation-!! Deviruchi form!!"; },{},{}
+12659,Trans_Scroll_Ray_Arch,Transformation Scroll(Raydric),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1276,1200000; showscript "Traaaansformation-!! Raydric form!!"; },{},{}
+12660,Trans_Scroll_Mavka,Transformation Scroll(Mavka),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1884,1200000; showscript "Traaaansformation-!! Mavka form!!"; },{},{}
+12661,Trans_Scroll_Marduk,Transformation Scroll(Marduk),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1140,1200000; showscript "Traaaansformation-!! Marduk form!!"; },{},{}
+12662,Trans_Scroll_Banshee,Transformation Scroll(Banshee),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1867,1200000; showscript "Traaaansformation-!! Banshee form!!"; },{},{}
+12663,Trans_Scroll_Poring,Transformation Scroll(Poring),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1002,1200000; showscript "Traaaansformation-!! Poring form!!"; },{},{}
+12664,Trans_Scroll_Golem,Transformation Scroll(Golem),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1040,1200000; showscript "Traaaansformation-!! Golem form!!"; },{},{} 
+12700,Insideout_Shirt,Inside-out Shirt,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "malaya",242,211; },{},{}
+12701,Old_Blue_Box_F,Old Blue Box,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+12791,Combat_Pill,Combat Pill,2,20,,150,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_POTION_BERSERK; bonus_script "{ bonus2 bAddDamageClass,Class_All,5; bonus bMatkRate,5; bonus bMaxHPrate,3; bonus bMaxSPrate,3; }",60,0,0,SI_GM_BATTLE; /* showscript */ },{},{} 
+12796,Red_Booster,Red Booster,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "AC_CONCENTRATION",(getskilllv(45)<3?3:getskilllv(45)); specialeffect2 EF_POTION_BERSERK; showscript "Oh My GOODNESS!!! I FEEL AWESOMELY STRONG!!! WOWOW"; },{},{} 
+15051,Bakonawa_Armor,Bakunawa Scale Armor,4,20,,500,,55,,0,0xFFFFFFFF,63,2,16,,1,1,0,{ bonus2 bSubClass,Class_Boss,getrefine()/2; bonus bAllStats,1; },{},{}
+15052,Bayani_Bakonawa_Armor,Bayani Bakunawa Scale Armor,4,20,,500,,55,,1,0xFFFFFFFF,63,2,16,,1,1,0,{ bonus2 bSubClass,Class_Boss,getrefine()/2; bonus bAllStats,2; },{},{}
+15053,Special_Ninja_Suit,Special Ninja Suit,4,10000,,1200,,70,,0,0x02000000,63,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
+15054,Ninja_Scale_Armor,Ninja Scale Armor,4,10000,,1800,,90,,1,0x02000000,63,2,16,,100,1,0,{ bonus bMaxHPrate,15; bonus bMaxSPrate,-30; },{},{}
+15055,Tenebris_Latitantes,Armor of Nothingness,4,10000,,1500,,60,,1,0x02000000,63,2,16,,100,1,0,{ bonus bAgi,1; bonus4 bAutoSpellWhenHit,"KO_ZANZOU",1,50,1; },{},{}
+15056,Special_Ninja_Suit_,Special Ninja Suit,4,10000,,1200,,70,,1,0x02000000,63,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
+15057,Pure_White_Apron,Pure White Apron,4,20,,600,0,50,0,1,0xFFFFFFFF,63,2,16,,0,1,0,{},{},{}
+15058,Rider_Suit,Rider Suit,4,20,,1000,0,40,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); },{},{}
+15059,2011Love_Daddy,2011Love Daddy,4,20,,100,0,80,0,1,0xFFFFFFFF,63,2,16,,0,1,0,{},{},{}
+15060,Sky_Blue_Smock,Sky Blue Smock,4,20,,300,0,1,0,1,0xFFFFFFFF,63,2,16,,0,1,0,{},{},{}
+15061,Egir_Armor,Egir Armor,4,200000,,2600,,55,,1,0xFFFFFFFF,63,2,16,,110,1,0,{ bonus bAllStats,1; if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus2 bResEff,Eff_Silence,5000; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus2 bResEff,Eff_Stun,5000; },{},{}
+18650,RWC_Shouting_Mouth,RWC Shouting Mouth,4,20,,50,,0,,0,0xFFFFFFFF,63,2,1,,1,0,194,{ bonus3 bAutoSpellWhenHit,"SM_ENDURE",1,10; bonus3 bAutoSpellWhenHit,"MO_CALLSPIRITS",5,10; bonus3 bAutoSpellWhenHit,"MO_EXPLOSIONSPIRITS",5,10; bonus3 bAutoSpell,"BS_MAXIMIZE",5,10; bonus3 bAutoSpell,"MC_LOUD",1,10; bonus3 bAutoSpell,"AC_CONCENTRATION",5,10; bonus3 bAutoSpell,"PR_GLORIA",3,10; autobonus "{ bonus bStr,3; bonus bAgi,3; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; showscript \"RWC 2011 Fighting!!\"; }"; autobonus "{ bonus bInt,3; bonus bLuk,3; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; showscript \"RWC 2011 Fighting!!\"; }"; },{},{} 
+18671,Rudolf_Hairband,Rudolf Hairband,4,20,,200,,5,,0,0xFFFFFFFF,63,2,256,,30,1,836,{ bonus3 bAutoSpell,"AL_INCAGI",10,50; bonus3 bAutoSpellWhenHit,"AL_INCAGI",10,50; bonus2 bAddItemHealRate,515,2000; autobonus "{ bonus bLuk,20; }",10,50000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus2 "{ bonus bStr,20; }",10,50000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; },{},{} 
+18810,Hell_Pumpkin_Hat,Hell Pumpkin Hat,4,20,,500,,12,,0,0xFFFFFFFF,63,2,256,,0,1,717,{ bonus bMdef,12; bonus2 bSubRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_Player,5; },{},{} 
+18810,Hell_Pumpkin_Hat,Hell Pumpkin Hat,4,20,,500,,12,,0,0xFFFFFFFF,63,2,256,,0,1,717,{ bonus bMdef,12; bonus2 bSubRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_Player,5; },{},{}
+18856,W_King_Tiger_Doll_Hat,W King Tiger Doll Hat,4,10,,0,,10,,0,0xFFFFFFFF,63,2,256,,1,1,973,{ bonus bStr,2; bonus bDex,2; bonus2 bAddRace,RC_Brute,10; set .@r, getrefine(); autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",3*.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Traaaansformation-!! Eddga form!!\"; }"; autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Traaaansformation-!! Eddga form!!\"; }"; },{},{} 
+19538,Full_Moon,Full Moon,4,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,780,{ autobonus "{ bonus bBaseAtk,50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus "{ bonus bMatk,50; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; /* showscript */ }"; },{},{} 

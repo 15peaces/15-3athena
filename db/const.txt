@@ -725,6 +725,7 @@ IG_Advanced_Weapons_Box	55 //61
 IG_Candy_Holder	56 //389!
 
 SC_ALL	-1
+SC_NONE	-1
 SC_STONE	0
 SC_FREEZE	1
 SC_STUN	2

@@ -4,6 +4,32 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/20/2015
+	r68 [15peaces]
+		*Merged missing changes from 3ceam rev. 248 - 250
+		*Another update in script_commands.txt inside doc folder
+			-added info on Itemlinks.
+		*Fixed WL_COMET and AB_ADORAMUS that are not checking for partner correctly and wasn't consuming Blue/Red gemstones while were casted alone.
+		*WL_COMET
+			-Added full support for this skill.
+		*Added Malangdo Quests
+			-Thanks to rAthena.
+			-This is only for testing currently. There may be some database entries missing.
+		*Added more Monster Transformation Items and some other items
+			-Again, please note all items in item_db2.txt are only for testing and may be bugged.
+			-I'll merge all these items to item_db.txt after fixing and testing them!
+		*Added script command `showscript "<message>"{,<GID>};`
+			-Thanks to rAthena.
+		*Fixed bug with base_level_skill_effect_limit where minimum should be 99.
+			-The minimum value was set to 160.
+			-Aslo removed outdated renewal_cast_enable config.
+		*Added missing Guillotine Cross Poisons entries to produce_db.txt
+		*Added NC_MAINFRAME, NC_SILVERSNIPER, NC_DISJOINT, GN_S_PHARMACY, GN_MIX_COOKING and GN_MAKEBOMB.
+		*Corrected some SC_* in which mado is unequipped it is not ended.
+		*Fixed missing auto trigger code of Warg Strike when attacking normal or with Bow.
+		*Fixed NC_COLDSLOWER which is having the same status effect.
+		*Fixed SC_LEECHESEND. Follow up (r67)
+
 07/11/2015
 	r67 [15peaces]
 		*Merged missing changes from 3ceam rev. 245 - 247

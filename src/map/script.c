@@ -16758,6 +16758,35 @@ BUILDIN_FUNC(bonus_script_clear) {
 	return 0;
 }
 
+/**
+ * Display script message
+ * showscript "<message>"{,<GID>};
+ **/
+BUILDIN_FUNC(showscript) {
+	struct block_list *bl = NULL;
+	const char *msg = script_getstr(st,2);
+	int id = 0;
+
+	if (script_hasdata(st,3)) {
+		id = script_getnum(st,3);
+		bl = map_id2bl(id);
+	}
+	else {
+		bl = st->rid ? map_id2bl(st->rid) : map_id2bl(st->oid);
+	}
+
+	if (!bl) {
+		ShowError("buildin_showscript: Script not attached. (id=%, rid=%d, oid=%d)\n", id, st->rid, st->oid);
+		script_pushint(st,0);
+		return 1;
+	}
+
+	clif_showscript(bl, msg);
+
+	script_pushint(st,1);
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -17216,5 +17245,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(npcskill,"viii"),
 	BUILDIN_DEF(bonus_script,"si????"),
 	BUILDIN_DEF(bonus_script_clear,"??"),
+	BUILDIN_DEF(showscript,"s?"),
 	{NULL,NULL,NULL},
 };

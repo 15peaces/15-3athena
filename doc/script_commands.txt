@@ -1236,7 +1236,13 @@ URLs
 ----
 Similarly, you can create links to websites that launch in a new window:
 
-    <URL>Display Name<INFO>http://www.example.com/</INFO></URL>";
+    <URL>Display Name<INFO>http://www.example.com/</INFO></URL>
+	
+Itemlinks
+---------
+Similarly, you can create links to item descriptions. This will open the item description window of the ItemID given:
+
+    <ITEMLINK>VALKYRIE shield<INFO>2115</INFO></ITEMLINK>
 
 ---------------------------------------
 
@@ -3886,6 +3892,13 @@ window.
 
 This command will send the given message in the given color code into the invoking 
 (or defined) character's chat window.
+
+---------------------------------------
+
+*showscript "<message>"{,<GID>};
+
+Makes attached player or GID says a message like shouting a skill name, the message
+will be seen to everyone around but not in chat window.
 
 ---------------------------------------
 

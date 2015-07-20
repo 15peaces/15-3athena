@@ -821,11 +821,13 @@ void clif_search_store_info_click_ack(struct map_session_data* sd, short x, shor
 
 // 15-3athena Added
 void clif_fast_movement(struct block_list *bl, short x, short y);
+void clif_showscript(struct block_list* bl, const char* message);
 void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
 void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
 void clif_map_type2(struct block_list *bl,enum send_target target);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
+
 //Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);
