@@ -945,8 +945,38 @@
 2592,Boss_Brownie_Manteau,Boss Brownie Manteau,5,20,,100,,3,,0,0xFFFFFFFF,63,2,4,,50,1,0,{},{},{}
 2593,Flow_Manteau,Flow Manteau,5,20,,700,,20,,1,0xFFFFFFFF,63,2,4,,65,1,0,{},{},{}
 2594,Wrapping_Manteau,Wrapping Manteau,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,0,1,0,{},{},{}
-2597,Scarlet_Poncho,Scarlet Poncho,5,0,,500,,10,,1,0xFFFFFFFF,63,2,1024,,,1,0,{ bonus bCritAtkRate,3; /* Confirm: The location. If the location is changed, also change the combo script! */ },{},{}
+2597,Scarlet_Poncho,Scarlet Poncho,5,0,,500,,10,,1,0xFFFFFFFF,63,2,1024,,,1,0,{ bonus bCritAtkRate,3; /* Combo-Script missing */ },{},{}
 2598,Ramor_Manteau,Ramor Manteau,5,20,,700,,20,,,0xFFFFFFFF,63,2,4,,65,1,0,{ bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,-5; /*Gold PC Room: bonus bFlee,20;*/ },{},{}
+2894,Glove_Of_Shura,Sura Gauntlet,5,20,,400,,1,,0,0x00008000,63,2,136,,130,0,0,{ bonus bStr,5; bonus bMaxSPrate,6; bonus bMaxHPrate,-6; if(readparam(bStr)>=120){ bonus bBaseAtk,30; } },{},{}
+2895,Medal_Of_Valor1,Medal Of Valor1,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bVariableCastrate,-2; },{},{}
+2896,Medal_Of_Valor2,Medal Of Valor2,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; },{},{}
+2897,2011RWC_Necklace_J,2011RWC Necklace J,5,0,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus2 bAddClass,Class_All,5; bonus bMatkRate,5; bonus2 bExpAddClass,Class_All,1; },{},{}
+2898,Black_Rosary,Dark Rosary,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,90,0,0,{ bonus bMdef,15; },{},{}
+2899,Sound_Amplifier,Sound Amplification Device,5,20,,100,,0,,1,0x00080800,63,2,136,,90,0,0,{ bonus2 bSkillAtk,"WM_METALICSOUND",150; bonus2 bSkillUseSP,"WM_METALICSOUND",-60; bonus bVariableCastrate,-50; },{},{}
+2900,Morrigane's_Belt_,Morrigane's Belt,5,30000,,200,,0,,1,0xFFFFFFFE,63,2,136,,61,0,0,{},{},{}
+2901,Morrigane's_Pendant_,Morrigane's Pendant,5,30000,,200,,0,,1,0xFFFFFFFE,63,2,136,,61,0,0,{ bonus bStr,2; },{},{}
+2902,Morpheus's_Ring_,Morpheus's Ring,5,30000,,100,,0,,1,0xFFFFFFFE,63,2,136,,33,0,0,{ bonus bInt,1; },{},{}
+2903,Morpheus's_Armlet_,Morpheus's Armlet,5,30000,,100,,0,,1,0xFFFFFFFE,63,2,136,,33,0,0,{ bonus bInt,1; },{},{}
+4472,Bradium_Goram_Card,Bradium Golem Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Brute,10; },{},{}
+4473,Ancient_Tree_Card,Ancient Tree Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Undead,10; },{},{}
+4474,Jakudam_Card,Zakudam Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_DemiHuman,10; bonus2 bMagicAddRace,RC_Player,10; },{},{}
+4475,Cobalt_Mineral_Card,Cobalt Mineral Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Formless,10; },{},{}
+4476,Pinguicula_Card,Pinguicula Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Insect,10; },{},{}
+4477,Hell_Apocalips_Card,Hell Apocalypse Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bMagicAddRace,RC_Demon,10; },{},{}
+4478,Light_Up_Card3,Light Up Card,6,20,,10,,,,,,,,64,,,,,{},{},{}
+4479,Light_Up_Card4,Light Up Card,6,20,,10,,,,,,,,4,,,,,{},{},{}
+4480,Sealed_Kiel_Card,Sealed Kiel Card,6,20,,10,,,,,,,,769,,,,,{ bonus bDelayRate,((getrefine()>14)?-20:-15); },{},{}
+4481,Sealed_Ktullanux_Card,Sealed Ktullanux Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEle,Ele_Fire,((getrefine()>14)?35:25); bonus5 bAutoSpellWhenHit,"WZ_FROSTNOVA",10,10,BF_WEAPON|BF_MAGIC,0; },{},{}
+4582,Bungisngis_Card,Bungisngis Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMaxHPrate,(getrefine()/2); },{},{}
+4583,Engkanto_Card,Engkanto Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bAddEle,Ele_Poison,30; bonus2 bMagicAddEle,Ele_Poison,30; bonus2 bIgnoreDefRaceRate,RC_Plant,30; },{},{}
+4584,Manananggal_Card,Manananggal Card,6,20,,10,,,,,,,,2,,,,,{ bonus bSPDrainValue,1; bonus bMaxSPrate,-1; },{},{}
+4585,Mangkukulam_Card,Mangkukulam Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxSPrate,10; bonus bHPGainValue,-666; },{},{}
+4586,Tikbalang_Card,Tikbalang Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Wind,(getrefine()>=9)?10:5; },{},{}
+4587,Tiyanak_Card,Tiyanak Card,6,20,,10,,,,,,,,136,,,,,{ bonus2 bCriticalAddRace,RC_Brute,12; bonus2 bCriticalAddRace,RC_Fish,12; bonus2 bCriticalAddRace,RC_DemiHuman,12; },{},{}
+4588,Wakwak_Card,Wakwak Card,6,20,,10,,,,,,,,4,,,,,{ bonus bBaseAtk,5*readparam(bStr)/10; },{},{}
+4589,Jejeling_Card,Jejeling Card,6,20,,10,,,,,,,,4,,,,,{ bonus bMaxHP,200*readparam(bVit)/10; },{},{}
+4590,Bangungot_Card,Bangungot Card,6,20,,10,,,,,,,,16,,,,,{ bonus bInt,4; bonus5 bAutoSpellWhenHit,"NPC_WIDESLEEP",5,70,BF_MAGIC,0; },{},{}
+4591,Bakonawa_Card,Bakonawa Card,6,20,,10,,,,,,,,16,,,,,{ bonus bStr,4; bonus5 bAutoSpellWhenHit,"NPC_WIDEBLEEDING",5,70,BF_WEAPON,0; },{},{}
 5497,King_Tiger_Doll_Hat,King Tiger Doll Hat,5,20,,400,,6,,1,0xFFFFFFFE,63,2,256,,1,1,495,{ bonus bStr,2; bonus bDex,2; bonus2 bAddRace,RC_Brute,10; bonus2 bMagicAddRace,RC_Brute,10; set .@r, getrefine(); autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",3*.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Eddga Power !\"; }"; autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",.@r,3000,BF_NORMAL,"{ sc_start SC_MONSTER_TRANSFORM,1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Eddga Power !\"; }"; },{},{} 
 6514,Charm_Wind,Wind Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}
 6515,Charm_Earth,Earth Amulet,3,100,,1,,,,,,,,,,,,,{},{},{}

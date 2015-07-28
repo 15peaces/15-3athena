@@ -2774,7 +2774,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	}
 
 	//Initialize variables that will be used afterwards
-	s_ele = skill_get_ele(skill_num, skill_lv);
+	if( skill_num == WL_HELLINFERNO && mflag&1 )
+		s_ele = ELE_FIRE; // Flag&1 Fire, Flag&2 Shawdow.
+	else
+		s_ele = skill_get_ele(skill_num, skill_lv);
 
 	if (s_ele == -1) // pl=-1 : the skill takes the weapon's element
 		s_ele = sstatus->rhw.ele;
@@ -2951,13 +2954,53 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case NPC_EARTHQUAKE:
 						skillratio += 100 +100*skill_lv +100*(skill_lv/2);
 						break;
-					case WL_SOULEXPANSION: // 3ceam v1
+					case WL_SOULEXPANSION:
 						{
 							struct status_change *tsc = status_get_sc(target);
 							skillratio += 300 + 100 * skill_lv;
-							//if( tsc && tsc->data[SC_WHITEIMPRISON] ) // Disbaled until SC_WHITEIMPRISON is supported. [15peaces]
-								//skillratio *= 2;
+							if( tsc && tsc->data[SC_WHITEIMPRISON] )
+								skillratio *= 2;
 						}
+					case WL_FROSTMISTY:
+							skillratio += 100 + 100 * skill_lv;
+							break;
+					case WL_JACKFROST:
+						skillratio += 900 + 300 * skill_lv;
+						break;
+					case WL_DRAINLIFE:
+						skillratio += 400 + 100 * skill_lv;
+						break;
+					case WL_CRIMSONROCK:
+						skillratio += 1400 + 100 * skill_lv;
+						break;
+					case WL_HELLINFERNO:
+						if( s_ele == ELE_FIRE )
+							skillratio += 60 * skill_lv;
+						else
+							skillratio += 240 * skill_lv;
+						break;
+					case WL_COMET:
+						if( sc && sc->data[SC_REUSE_COMET] )
+						{
+							switch( distance_xy(target->x, target->y, sc->data[SC_REUSE_COMET]->val2,sc->data[SC_REUSE_COMET]->val3) )
+							{
+								case 0: case 1: case 2: case 3:
+									skillratio += 2400 + 500 * skill_lv;
+									break;
+								case 4: case 5: case 6: case 7:
+									skillratio += 1900 + 400 * skill_lv;
+									break;
+								case 8: case 9: case 10: case 11:
+									skillratio += 1400 + 300 * skill_lv;
+									break;
+								default:
+									skillratio += 900 + 200 * skill_lv;
+									break;
+							}
+						}
+						else
+							skillratio += 2400 + 500 * skill_lv; 
+						break;
 					case WL_CHAINLIGHTNING:
 					case WL_CHAINLIGHTNING_ATK:
 						skillratio += 300 + 100 * skill_lv;

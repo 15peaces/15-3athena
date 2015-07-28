@@ -492,6 +492,7 @@ void initChangeTables(void)
 	add_sc( SC_MAELSTROM		, SC__MAELSTROM			);
 
 	//Royal Guard
+	add_sc( LG_REFLECTDAMAGE     , SC_LG_REFLECTDAMAGE );
 	set_sc( LG_FORCEOFVANGUARD   , SC_FORCEOFVANGUARD    , SI_FORCEOFVANGUARD   , SCB_MAXHP|SCB_DEF );
 
 	//Minstrel/Wanderer

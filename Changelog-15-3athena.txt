@@ -4,6 +4,25 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/28/2015
+	r69 [15peaces]
+		*Merged missing changes from 3ceam rev. 251 - 255
+		*Added some more missing items
+		*Added some more missing monsters
+			-Added some of the champion monster spawns. More will be added later.
+		*Fixed RA_ELECTRICSHOCKET that wasn't draining SP and wasn't traped all in 5x5
+		*Fixed some items that aren't given its bonus correctly to certain classes.
+		*Fixed WL_COMET adjusting its behavior to the official one.
+		*Minor fix in WL_COMET and AB_ADORAMUS that should fails before cast them if you haven't requires gemstones when are casted alone.
+		*Added check for 3rd jobs in Thanatos tower quest.
+		*Fixed an issue in WL_READING_SB where it wasn't removing SC_STOP status when the Warlock haven't Spellbooks on the inventory.
+		*Fixed WL_HELLINFERNO that was not working propertly.
+		*Minor cleanup in skill_additional_effect.
+		*WL_JACKFROST
+			-Some more coding on this skill.
+		*WL_DRAINLIFE; WL_CRIMSONROCK
+			-Added full support for these skills.
+
 07/20/2015
 	r68 [15peaces]
 		*Merged missing changes from 3ceam rev. 248 - 250
@@ -22,7 +41,7 @@
 			-Thanks to rAthena.
 		*Fixed bug with base_level_skill_effect_limit where minimum should be 99.
 			-The minimum value was set to 160.
-			-Aslo removed outdated renewal_cast_enable config.
+			-Also removed outdated renewal_cast_enable config.
 		*Added missing Guillotine Cross Poisons entries to produce_db.txt
 		*Added NC_MAINFRAME, NC_SILVERSNIPER, NC_DISJOINT, GN_S_PHARMACY, GN_MIX_COOKING and GN_MAKEBOMB.
 		*Corrected some SC_* in which mado is unequipped it is not ended.
@@ -775,7 +794,7 @@
 			-Added full support for these skills.
 			-Recognized Spell was added early to help with the testing of future magic skills.
 		*RK_DRAGONBREATH
-			-Added pre-support for this skill.
+			-Added full support for this skill.
 			-It works, but the damage seems to be really low... need to fix this later.
 
 06/23/2014
