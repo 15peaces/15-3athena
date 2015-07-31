@@ -4,6 +4,20 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/31/2015
+	r70 [15peaces]
+		*Merged missing changes from 3ceam rev. 256 - 257
+		*Fixed wrong configuration on client.conf
+			-This was set to try fixing the 3rd class aura. However, found out that the 2013 client only supports lv 160 / 175 aura. So we'll fix this after we increase the base-level.
+		*Updated ItemDB
+			-added some more new items
+			-fixed some itemtypes
+		*Added LG_BANISHINGPOINT skill.
+		*Fixed WM_GREAT_ECHO skill damage type and SP reduction per W/M in party.
+		*Fixed WL_FROSTMISTY and WL_JACKFROST casting, aftercast and cooldown time and Freezing/Freeze chances.
+		*Fixed SC_FREEZING that don't affect to boss monsters.
+		*Fixed WL_FROSTMISTY damage.
+
 07/28/2015
 	r69 [15peaces]
 		*Merged missing changes from 3ceam rev. 251 - 255

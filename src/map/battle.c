@@ -2003,6 +2003,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case SC_FEINTBOMB:
 					skillratio += 100 + 100 * skill_lv;
 					break;
+				case LG_BANISHINGPOINT:
+					skillratio = ((50 * skill_lv) + (30 * ((sd)?pc_checkskill(sd,SM_BASH):1))) * status_get_lv(src) / 100;
+					break;
 				case LG_RAGEBURST:
 					if( sd && sd->rageball_old )
 						skillratio = sd->rageball_old * 200 * status_get_lv(src) / 100;
@@ -2018,6 +2021,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case WM_SEVERE_RAINSTORM_MELEE:
 					skillratio = 50 + 50 * skill_lv;
+					break;
+				case WM_GREAT_ECHO:
+					skillratio = 900 + 100 * skill_lv;
+					if( sd )	// Still need official value [pakpil]
+					{
+						short lv = (short)skill_lv;
+						skillratio += 20 * skill_check_pc_partner(sd,skill_num,&lv,skill_get_splash(skill_num,skill_lv),0);
+					}
 					break;
 				case GN_CART_TORNADO:
 					skillratio += 50 * skill_lv;
@@ -2962,8 +2973,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 								skillratio *= 2;
 						}
 					case WL_FROSTMISTY:
-							skillratio += 100 + 100 * skill_lv;
-							break;
+						skillratio = (200 + 100 * skill_lv) * (status_get_lv(src) / 100);
+						break;
 					case WL_JACKFROST:
 						skillratio += 900 + 300 * skill_lv;
 						break;
@@ -3027,14 +3038,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WM_REVERBERATION_MAGIC:
 						if( sd )
 							skillratio += 100 * pc_checkskill(sd, WM_REVERBERATION);
-						break;
-					case WM_GREAT_ECHO:
-						skillratio = 900 + 100 * skill_lv;
-						if( sd ) // Still need official value [pakpil]
-						{
-							short lv = (short)skill_lv;
-							skillratio += 20 * skill_check_pc_partner(sd,skill_num,&lv,skill_get_splash(skill_num,skill_lv),0);
-						}
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:
