@@ -11538,6 +11538,9 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	
 	if( target_id < 0 && -target_id == sd->bl.id ) // for disguises [Valaris]
 		target_id = sd->bl.id;
+
+	if( sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id )
+		return;
 	
 	if( sd->ud.skilltimer != INVALID_TIMER )
 	{

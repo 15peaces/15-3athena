@@ -1706,3 +1706,9 @@
 6507,123,100	// Evil_Bone
 6519,123,100	// Collected_Samples
 6520,123,100	// Lost_Belongings
+
+//Misc Items (not confirmed...)
+2856,87,100		// Half_Megin
+15023,87,100	// Half_Brynhild
+16628,87,100	// Brynhild_Box
+18828,87,100	// 2012RMSCNO1

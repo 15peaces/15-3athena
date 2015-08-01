@@ -449,6 +449,7 @@ void initChangeTables(void)
 	set_sc( AB_SECRAMENT	, SC_AB_SECRAMENT	, SI_AB_SECRAMENT	, SCB_NONE );
 
 	// Warlock
+	add_sc( WL_WHITEIMPRISON    , SC_WHITEIMPRISON );
 	set_sc( WL_RECOGNIZEDSPELL  , SC_RECOGNIZEDSPELL, SI_RECOGNIZEDSPELL	, SCB_NONE );
 	set_sc( WL_FROSTMISTY		, SC_FREEZING		, SI_FROSTMISTY			, SCB_ASPD|SCB_SPEED|SCB_DEF|SCB_DEF2 );
 	set_sc( WL_MARSHOFABYSS		, SC_MARSHOFABYSS	, SI_MARSHOFABYSS		, SCB_SPEED|SCB_FLEE|SCB_DEF|SCB_DEF2 );
@@ -5299,6 +5300,9 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC_OBLIVIONCURSE:
 		sc_def = status->int_ / 125; //FIXME: info said this is the formula of status chance. Check again pls. [Jobbie]
 		break;
+	case SC_WHITEIMPRISON:
+		sc_def = status_get_lv(bl)/5 + status->vit/4 + status->agi/10;
+		break;
 	case SC_ELECTRICSHOCKER:
 	case SC_WUGBITE:
 		if( bl->type == BL_MOB ){
@@ -5757,6 +5761,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_ROKISWEIL:
 			case SC_FOGWALL:
 			case SC_FREEZING:
+			case SC_BURNING:// Place here until we have info about its behavior on Boss-monsters. [pakpil]
+			case SC_MARSHOFABYSS:
 				return 0;
 		}
 	}
@@ -7255,6 +7261,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC__MAELSTROM:
 		case SC_CHAOS:
 		case SC_CRYSTALIZE:
+		case SC_WHITEIMPRISON:
 			unit_stop_walking(bl,1);
 		break;
 		case SC_HIDING:
@@ -7994,8 +8001,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			sc_start(bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(GC_HALLUCINATIONWALK,sce->val1));
 			break;
 		case SC_WHITEIMPRISON:
-			clif_damage(bl, bl, 0, 0, 0, sce->val1 * 400, 0, 0, 0);
-			status_zap(bl, sce->val1 * 400, 0);
+			if( sce->val3 == 0 ){
+				clif_damage(bl, bl, 0, 0, 0, (bl->id==sce->val2)?2000:1200, 0, 0, 0);
+				status_zap(bl, (bl->id==sce->val2)?2000:1200, 0);
+			}
 			break;
 		case SC_WUGDASH:
 			{
@@ -8031,6 +8040,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	case SC_STUN:
 	case SC_SLEEP:
 	case SC_BURNING:
+	case SC_WHITEIMPRISON:
 		sc->opt1 = 0;
 		break;
 

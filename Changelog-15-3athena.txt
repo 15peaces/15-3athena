@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/01/2015
+	r71 [15peaces]
+		*Merged missing changes from 3ceam rev. 258 - 262
+		*Added trading restrictions for some items added in r70.
+			-they are currently unconfirmed. ^^
+		*Fixed WM_VOICEOFSIREN that wasn't blocking use skills in the W/M under the skill effect.
+        *Added genetic homunculus s tags and ID's to the mob_db2.
+			-They will remain disabled until we'll support them.
+			-I don't plan on leaving them here since they will require their own systems and database files real soon.
+		*Updated WL_WHITEIMPRISON and WL_SOULEXPANSION skills.
+			-Added full support for WL_SOULEXPANSION.
+
 07/31/2015
 	r70 [15peaces]
 		*Merged missing changes from 3ceam rev. 256 - 257
