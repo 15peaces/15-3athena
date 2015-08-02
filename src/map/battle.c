@@ -272,7 +272,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			ratio += tsc->data[SC_ORATIO]->val1 * 2;
 			if( tsc->data[SC_WHITEIMPRISON] && atk_elem != ELE_GHOST ){
 				damage = 0;
-			}else{
+			}else if( tsc->data[SC_WHITEIMPRISON] ){
 				tsc->data[SC_WHITEIMPRISON]->val3 = 1;	// Don't deal damage when sc ends.
 				status_change_end(target, SC_WHITEIMPRISON, INVALID_TIMER);
 			}
@@ -2862,7 +2862,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				break;*/
 			case AB_RENOVATIO:
 				//Damage calculation from iRO wiki. [Jobbie]
-				ad.damage = (int)((15 * sd->status.base_level) + (1.5 * sd->status.int_));
+				ad.damage = (int)((15 * status_get_lv(src)) + (1.5 * sstatus->int_));
 			default:
 			{
 				if (sc && sc->data[SC_RECOGNIZEDSPELL]) {
@@ -2975,7 +2975,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 								skillratio *= 2;
 						}
 					case WL_FROSTMISTY:
-						skillratio = (200 + 100 * skill_lv) * (status_get_lv(src) / 100);
+						skillratio += -100 + (200 + 100 * skill_lv) * (status_get_lv(src) / 100);
 						break;
 					case WL_JACKFROST:
 						skillratio += 900 + 300 * skill_lv;
@@ -3038,33 +3038,32 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 50 * skill_lv;
 						break;
 					case WM_REVERBERATION_MAGIC:
-						if( sd )
-							skillratio += 100 * pc_checkskill(sd, WM_REVERBERATION);
+						skillratio += 100 * (sd ? pc_checkskill(sd, WM_REVERBERATION) : 1);
 						break;
 					case SO_FIREWALK:
 					case SO_ELECTRICWALK:
-						skillratio = 300*(status_get_lv(src)*3/100);
+						skillratio += -100 + 300 * ( status_get_lv(src) * 3 / 100 );
 						break;
 					case SO_EARTHGRAVE:
-						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 )
-									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 )
+							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_DIAMONDDUST:
-						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 )
-									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 )
+							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
 						skillratio += 300 + 100 * skill_lv;
 						break;
 					case SO_PSYCHIC_WAVE:
-						skillratio = skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
+						skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
-						skillratio = 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 )
-									+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 )
+							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
 						break;
 					case SO_CLOUD_KILL:
-						skillratio = skill_lv * 40 * status_get_lv(src) / 100;
+						skillratio += -100 + skill_lv * 40 * status_get_lv(src) / 100;
 						break;
 					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
 						skillratio += 400 + 100 * skill_lv;
@@ -3083,15 +3082,15 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case AB_JUDEX:
-						skillratio = ((skill_lv == 5) ? 400 : (280 + 20 * skill_lv)) * status_get_lv(src) / 100;
+						skillratio += -100 + ((skill_lv == 5) ? 400 : (280 + 20 * skill_lv)) * status_get_lv(src) / 100;
 						break;
-
 					case AB_ADORAMUS: 
 						skillratio += 400 + 100 * skill_lv;
 						if( sd )
 							skillratio += sd->status.base_level; // Whats the official value? [Rytech]
 						break;
-
+					case AB_DUPLELIGHT_MAGIC:
+						skillratio += 100 + 20 * skill_lv;
 					case AB_RENOVATIO: // 3ceam v1
 						if( sd )
 							skillratio = (int)((15*sd->status.base_level)+(1.5*sd->status.int_));//Damage calculation from iRO wiki. [Jobbie]

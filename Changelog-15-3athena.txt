@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/02/2015
+	r72 [15peaces]
+		*Merged missing changes from 3ceam rev. 263 - 266
+		*Updated ItemDB
+			-Added support for Costume Beginner Cap. You'll need to get the client side files to get this item working.
+		*Fixed an issue that was crashing server.
+		*Fixed GC_WEAPONBLOCKING that wasn't consuming SP while active.
+		*Fixed some damage formulas.
+		*AB_JUDEX; SO_FIREWALK; SO_ELECTRICWALK
+			-Added full support for these skills.
+
 08/01/2015
 	r71 [15peaces]
 		*Merged missing changes from 3ceam rev. 258 - 262

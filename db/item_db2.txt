@@ -839,6 +839,9 @@
 20271,C_Sunflower,Costume Sunflower,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,37,{},{},{}
 20272,C_Unicorn_Horn,Costume Unicorn Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,42,{},{},{}
 
+20307,C_Beginner_Cap,Costume Beginner Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1348,{if(BaseLevel<100) {	bonus bHit,30-(3*(BaseLevel/10)); bonus bMaxHP,1000-(100*(BaseLevel/10)); bonus bMaxSP,200-(20*(BaseLevel/10)); bonus bVariableCastrate,-10+(BaseLevel/10); bonus bHealPower,150-(10*(BaseLevel/10)); bonus bHealPower2,10*(BaseLevel/10); bonus bAddItemHealRate,10*(BaseLevel/10);}},{},{}
+
+
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
 
 20724,Love_Dad_Wing_2012,Love Dad Wing 2012,5,0,,100,,15,,1,0xFFFFFFFF,63,2,4,,,,5,{ if(readparam(bStr)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bStr,getrefine(); } if(readparam(bAgi)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bAgi,getrefine(); } if(readparam(bVit)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bVit,getrefine(); } if(readparam(bInt)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bInt,getrefine(); } if(readparam(bDex)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bDex,getrefine(); } if(readparam(bLuk)>=90) { bonus bAllStats,1; bonus bMaxHPrate,1; bonus bMaxSPrate,1; bonus bLuk,getrefine(); } },{},{}
