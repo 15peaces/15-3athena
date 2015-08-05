@@ -4,6 +4,13 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/05/2015
+	r73 [15peaces]
+		*Merged missing changes from 3ceam rev. 267 - 273
+		*Updated ItemDB
+			-changed Ebon Armor to fit pre-RE system. Also added natural drops.
+		*Fixed GC_WEAPONCRUSH behavior.
+	
 08/02/2015
 	r72 [15peaces]
 		*Merged missing changes from 3ceam rev. 263 - 266

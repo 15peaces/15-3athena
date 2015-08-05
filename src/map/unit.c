@@ -1105,6 +1105,17 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 				return 0;
 			}
 			break;
+		case GC_WEAPONCRUSH:
+			if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == GC_WEAPONBLOCKING ){
+				if ((target=map_id2bl(sc->data[SC_COMBO]->val2)) == NULL){
+					clif_skill_fail(sd,skill_num,USESKILL_FAIL_GC_WEAPONBLOCKING,0,0);
+					return 0;
+				}
+			}else{
+				clif_skill_fail(sd,skill_num,USESKILL_FAIL_GC_WEAPONBLOCKING,0,0);
+				return 0;
+			}
+			break;
 		}
 		if (target)
 			target_id = target->id;
