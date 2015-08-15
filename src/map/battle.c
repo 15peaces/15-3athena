@@ -1283,6 +1283,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			wd.div_ = skill_get_num(GS_CHAINACTION,skill_lv);
 			wd.type = 0x08;
 		}
+		else if( sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW && (i = sd->equip_index[EQI_AMMO]) >= 0 && sd->inventory_data[i] && sd->status.inventory[i].amount > 1 )
+		{
+			short rate[] = { 4, 4, 7, 9, 10 };
+			if( sc->data[SC_FEARBREEZE]->val1 > 0 && sc->data[SC_FEARBREEZE]->val1 < 6 && rand()%100 < rate[sc->data[SC_FEARBREEZE]->val1] )
+			{
+				wd.type = 0x08;
+				flag.arrow = 1; // To consume Ammo Later (div_ - 1)
+				wd.div_ = 2 + (sc->data[SC_FEARBREEZE]->val1 > 2) ? rand()%(sc->data[SC_FEARBREEZE]->val1 - 2) : 0;
+				wd.div_ = min(wd.div_,sd->status.inventory[i].amount); // Reduce number of hits if you don't have enough arrows
+			}
+		}
 	}
 
 	//Check for critical
@@ -2192,7 +2203,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case NC_POWERSWING:
 			case NC_AXETORNADO:
 				ATK_ADDRATE(status_get_lv(src)/6);//Should led up to 1.25 times the normal damage if Blevel is 150. [Jobbie]
-				if( skill_num == NC_AXETORNADO && ((sstatus->rhw.atk) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND) )
+				if( skill_num == NC_AXETORNADO && ((sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND) )
 					ATK_ADDRATE(50);
 				break;
 		}
@@ -3589,6 +3600,12 @@ int battle_calc_return_damage(struct block_list* bl, int damage, int flag)
 		{
 			rdamage = damage * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
 		}
+		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
+		{
+			int max_damage = status_get_max_hp(bl) * status_get_lv(bl) / 100;
+			rdamage = damage * sc->data[SC_LG_REFLECTDAMAGE]->val2 / 100;
+			if( rdamage > max_damage ) rdamage = max_damage;
+		}
 	} else {
 		if (sd && sd->long_weapon_damage_return)
 		{
@@ -3642,6 +3659,36 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, 
 	
 	if (rhp || rsp)
 		status_zap(tbl, rhp, rsp);
+}
+
+// Deals the same damage to targets in area. [pakpil]
+int battle_damage_area( struct block_list *bl, va_list ap)
+{
+	unsigned int tick;
+	int amotion, dmotion, damage;
+	struct block_list *src;
+
+	nullpo_retr(0, bl);
+	
+	tick=va_arg(ap, unsigned int);
+	src=va_arg(ap,struct block_list *);
+	amotion=va_arg(ap,int);
+	dmotion=va_arg(ap,int);
+	damage=va_arg(ap,int);
+
+	if( bl != src && battle_check_target(src,bl,BCT_ENEMY) && !(bl->type == BL_MOB && ((TBL_MOB*)bl)->class_ == MOBID_EMPERIUM) )
+	{
+		map_freeblock_lock();
+		if( amotion )
+			battle_delay_damage(tick, amotion,src,bl,0,0,0,damage,ATK_DEF,0);
+		else
+			status_fix_damage(src,bl,damage,0);
+		clif_damage(bl,bl,tick,amotion,dmotion,damage,1,ATK_BLOCK,0);
+		skill_additional_effect(src, bl, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+		map_freeblock_unlock();
+	}
+	
+	return 0;
 }
 
 /*==========================================
@@ -3831,8 +3878,17 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				wd.damage = damage;
 			}
 			rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0);
-			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
-			skill_additional_effect(target,src,CR_REFLECTSHIELD,1,BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+			if( tsc && tsc->data[SC_LG_REFLECTDAMAGE] )
+			{
+				damage -= rdamage;
+				map_foreachinrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,target,wd.amotion,wd.dmotion,rdamage,tstatus->race,0);
+			}
+			else
+			{
+				rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0);
+				//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
+				skill_additional_effect(target,src,CR_REFLECTSHIELD,1,BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+			}
 		}
 	}
 
@@ -3951,7 +4007,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				battle_drain(sd, target, wd.damage, wd.damage2, tstatus->race, is_boss(target));
 		}
 	}
-	if (rdamage > 0) { //By sending attack type "none" skill_additional_effect won't be invoked. [Skotlex]
+	if( rdamage > 0 && !(tsc && tsc->data[SC_LG_REFLECTDAMAGE]) ) { //By sending attack type "none" skill_additional_effect won't be invoked. [Skotlex]
 		if(tsd && src != target)
 			battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
 		battle_delay_damage(tick, wd.amotion, target, src, 0, 0, 0, rdamage, ATK_DEF, rdelay);

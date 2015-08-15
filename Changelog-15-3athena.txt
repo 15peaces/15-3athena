@@ -4,6 +4,34 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/11/2015
+	r74 [15peaces]
+		*Merged missing changes from 3ceam rev. 274 - 283
+		*Done some script-updates.
+			-This update was mainly done to fix some critical errors on my current main server. 
+			-While fixing them there I thought it would be the best to update these files on 15-3athena, too.
+			-updated CashShop_Functions.txt
+			-updated nobranch.txt; nomemo.txt
+			-updated warps/pvp/pvp.txt; moved to warps/pvp.txt (pointless to keep pvp folder, there is only 1 warp file...)
+			-added missing Port Malaya and Dewata city npcs
+			-added missing Dewata guides
+			-added navigation functions. Increased default EP to 14.3 to support navigation system.
+			-added Arch Bishop and Shadow Chaser job quests. These are the first 3rd job change quests!
+		*Added support for consumeitem script command. Thanks to rAthena.
+		*Fixed GC_CREATENEWPOISON skill.
+			-All poisons require and consume 1 Medicine Bowl and 1 Poison Creation Kit.
+			-The ammount of bottles obtained depends on GC_RESEARCHNEWPOISON skill level.
+		*Adjusted the behavior of Fearbreeze skill.
+		*Fixed a mistake in checking wind element for both hands when using NC_AXETORNADO.
+		*ST_REJECTSWORD
+			-Fixed prerequisites. Even in pre-re there should be no prerequisite to skill this.
+		*Added LG_REFLECTDAMAGE skill.
+			-Updated CR_REFLECTSHIELD that should fail if you are under LG_REFLECTDAMAGE and viceversa.
+		*Minor fix in LG_BANISHINGPOINT that should take the weapon element.
+
+
+
+
 08/05/2015
 	r73 [15peaces]
 		*Merged missing changes from 3ceam rev. 267 - 273

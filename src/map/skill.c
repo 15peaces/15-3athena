@@ -1839,7 +1839,13 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	if( damage > 0 && dmg.flag&BF_WEAPON && src != bl && ( src == dsrc || ( dsrc->type == BL_SKILL && ( skillid == SG_SUN_WARM || skillid == SG_MOON_WARM || skillid == SG_STAR_WARM ) ) )
 		&& skillid != WS_CARTTERMINATION )
+		rdamage = battle_calc_return_damage(bl, damage, dmg.flag);	
+
+	if( damage > 0 && sc && sc->data[SC_LG_REFLECTDAMAGE] )
+	{
 		rdamage = battle_calc_return_damage(bl, damage, dmg.flag);
+		damage -= rdamage;
+	}
 
 	//Skill hit type
 	type=(skillid==0)?5:skill_get_hit(skillid);
@@ -2172,15 +2178,23 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	if( rdamage > 0 )
 	{
-		if( dmg.amotion )
-			battle_delay_damage(tick, dmg.amotion,bl,src,0,0,0,rdamage,ATK_DEF,0);
+		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
+		{
+			damage -= rdamage;
+			map_foreachinrange(battle_damage_area,bl,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,bl,dmg.amotion,sstatus->dmotion,rdamage,tstatus->race);
+		}
 		else
-			status_fix_damage(bl,src,rdamage,0);
-		clif_damage(src,src,tick, dmg.amotion,0,rdamage,dmg.div_>1?dmg.div_:1,4,0);
-		//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
-		if( tsd && src != bl )
-			battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
-		skill_additional_effect(bl, src, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+		{
+			if( dmg.amotion )
+				battle_delay_damage(tick, dmg.amotion,bl,src,0,0,0,rdamage,ATK_DEF,0);
+			else
+				status_fix_damage(bl,src,rdamage,0);
+			clif_damage(src,src,tick, dmg.amotion,0,rdamage,1,4,0);
+			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
+			if( tsd && src != bl )
+				battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
+			skill_additional_effect(bl, src, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+		}
 	}
 
 	if( damage > 0 && skillid == RK_CRUSHSTRIKE ) // Your weapon will not be broken if you miss.
@@ -7190,6 +7204,20 @@ break;
 			clif_skill_fail(sd,skillid,0,0,0);
 		break;
 
+	case LG_REFLECTDAMAGE:
+		if( tsc && tsc->data[SC_REFLECTSHIELD] )
+		{
+			if( sd )
+				clif_skill_fail(sd, skillid, 0x04, 0, 0);
+			break;
+		}
+		if( tsc && tsc->data[type] )
+			status_change_end(bl,type,-1);
+		else
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+ 		break;
+
 	case WA_SWING_DANCE:
 	case WA_SYMPHONY_OF_LOVER:
 	case WA_MOONLIT_SERENADE:
@@ -11116,6 +11144,20 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case CR_REFLECTSHIELD:
+		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
+		{
+			clif_skill_fail(sd, skill, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
+			return 0;
+		}
+		break;
+	case LG_REFLECTDAMAGE:
+		if( sc && sc->data[SC_REFLECTSHIELD] )
+		{
+			clif_skill_fail(sd, skill, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
+ 			return 0;
+ 		}
+ 		break;
 	}
 
 	switch(require.state) {
@@ -13802,6 +13844,9 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	if (!skill_id) //A skill can be specified for some override cases.
 		skill_id = skill_produce_db[idx].req_skill;
 
+	if( skill_id == GC_RESEARCHNEWPOISON )
+		skill_id = GC_CREATENEWPOISON;
+
 	slot[0]=slot1;
 	slot[1]=slot2;
 	slot[2]=slot3;
@@ -13972,6 +14017,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			case GC_CREATENEWPOISON:
 				skill_lv = pc_checkskill(sd,GC_RESEARCHNEWPOISON);
 				make_per = 3000 + 500 * skill_lv;
+				qty = skill_lv;
 				break;
 			case GN_MIX_COOKING:
 			case GN_MAKEBOMB:

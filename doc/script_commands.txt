@@ -4623,6 +4623,17 @@ target cursor is shown.
 // skill has been used from skill tree.
 605,Anodyne,Anodyne,11,2000,0,100,,,,,10477567,2,,,,,{ itemskill 8,1; },{}
 
+---------------------------------------
+
+*consumeitem <item id>{,<char_id>};
+*consumeitem "<item name>"{,<char_id>};
+
+This command will run the item script of the specified item on the invoking
+character. The character does not need to possess the item, and the item will
+not be deleted. While this command is intended for usable items, it will run
+for any item type.
+
+This command does not currently work with the 'itemskill' script command.
 
 ---------------------------------------
 

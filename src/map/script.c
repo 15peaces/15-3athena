@@ -173,6 +173,28 @@
 #define SCRIPT_BLOCK_SIZE 512
 enum { LABEL_NEXTLINE=1,LABEL_START };
 
+TBL_PC *script_rid2sd(struct script_state *st);
+
+/**
+ * Get `sd` from a char id in `loc` param instead of attached rid
+ * @param st Script
+ * @param loc Location to look char id in script parameter
+ * @param sd Variable that will be assigned
+ * @return True if `sd` is assigned, false otherwise
+ **/
+static bool script_charid2sd_(struct script_state *st, uint8 loc, struct map_session_data **sd, const char *func) {
+	if (script_hasdata(st, loc)) {
+		int id_ = script_getnum(st, loc);
+		if (!(*sd = map_charid2sd(id_)))
+			ShowError("%s: Player with char id '%d' is not found.\n", func, id_);
+	}
+	else
+		*sd = script_rid2sd(st);
+	return (*sd) ? true : false;
+}
+
+#define script_charid2sd(loc,sd) script_charid2sd_(st,(loc),&(sd),__FUNCTION__)
+
 /// temporary buffer for passing around compiled bytecode
 /// @see add_scriptb, set_label, parse_script
 static unsigned char* script_buf = NULL;
@@ -11780,6 +11802,46 @@ BUILDIN_FUNC(npcskilleffect)
 	return 0;
 }
 
+/* Consumes an item.
+ * consumeitem <item id>{,<char_id>};
+ * consumeitem "<item name>"{,<char_id>};
+ * @param item: Item ID or name
+ */
+BUILDIN_FUNC(consumeitem)
+{
+	TBL_PC *sd;
+	struct script_data *data;
+	struct item_data *item_data;
+
+	if (!script_charid2sd(3, sd))
+		return 1;
+
+	data = script_getdata( st, 2 );
+	get_val( st, data );
+
+	if( data_isstring( data ) ){
+		const char *name = conv_str( st, data );
+
+		if( ( item_data = itemdb_searchname( name ) ) == NULL ){
+			ShowError( "buildin_consumeitem: Nonexistant item %s requested.\n", name );
+			return 1;
+		}
+	}else if( data_isint( data ) ){
+		unsigned short nameid = conv_num( st, data );
+
+		if( ( item_data = itemdb_exists( nameid ) ) == NULL ){
+			ShowError("buildin_consumeitem: Nonexistant item %hu requested.\n", nameid );
+			return 1;
+		}
+	}else{
+		ShowError("buildin_consumeitem: invalid data type for argument #1 (%d).\n", data->type );
+		return 1;
+	}
+
+	run_script( item_data->script, 0, sd->bl.id, 0 );
+	return 0;
+}
+
 /*==========================================
  * Special effects [Valaris]
  *------------------------------------------*/
@@ -17039,6 +17101,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(petskillsupport,"viiii"), // [Skotlex]
 	BUILDIN_DEF(skilleffect,"vi"), // skill effect [Celest]
 	BUILDIN_DEF(npcskilleffect,"viii"), // npc skill effect [Valaris]
+	BUILDIN_DEF(consumeitem,"v?"),
 	BUILDIN_DEF(specialeffect,"i??"), // npc skill effect [Valaris]
 	BUILDIN_DEF(specialeffect2,"i??"), // skill effect on players[Valaris]
 	BUILDIN_DEF(nude,""), // nude command [Valaris]
