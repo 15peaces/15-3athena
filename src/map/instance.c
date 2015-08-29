@@ -30,7 +30,7 @@ struct s_instance instance[MAX_INSTANCE];
 
 
 /// Checks whether given instance id is valid or not.
-static bool instance_is_valid(int instance_id)
+bool instance_is_valid(int instance_id)
 {
 	if( instance_id < 1 || instance_id >= ARRAYLENGTH(instance) )
 	{// out of range
@@ -85,6 +85,9 @@ int instance_create(int party_id, const char *name)
 	instance[i].party_id = party_id;
 	instance[i].ivar = NULL;
 	instance[i].svar = NULL;
+	instance[i].respawn.map = 0;
+	instance[i].respawn.y = 0;
+	instance[i].respawn.x = 0;
 
 	safestrncpy( instance[i].name, name, sizeof(instance[i].name) );
 	memset( instance[i].map, 0x00, sizeof(instance[i].map) );
@@ -190,6 +193,20 @@ int instance_map2imap(int m, int instance_id)
  	return -1;
 }
 
+int instance_mapname2imap(const char *map_name, int instance_id) {
+ 	int i;
+	
+	if( !instance_is_valid(instance_id) ) {
+		return -1;
+	}
+	
+	for( i = 0; i < instance[instance_id].num_map; i++ ) {
+		if( instance[instance_id].map[i] && !strcmpi(map[map[instance[instance_id].map[i]].instance_src_map].name,map_name) )
+			return instance[instance_id].map[i];
+ 	}
+ 	return -1;
+}
+
 /*--------------------------------------
  * m : source map
  * instance_id : where to search
@@ -224,6 +241,16 @@ int instance_map_npcsub(struct block_list* bl, va_list args)
 	return 1;
 }
 
+int instance_init_npc(struct block_list* bl, va_list args) {
+	struct npc_data* nd;
+
+	nullpo_retr(0, bl);
+	nullpo_retr(0, args);
+	nullpo_retr(0, nd = (struct npc_data *)bl);
+
+	return npc_instanceinit(nd);
+}
+
 /*--------------------------------------
  * Init all map on the instance. Npcs are created here
  *--------------------------------------*/
@@ -236,6 +263,9 @@ void instance_init(int instance_id)
 
 	for( i = 0; i < instance[instance_id].num_map; i++ )
 		map_foreachinmap(instance_map_npcsub, map[instance[instance_id].map[i]].instance_src_map, BL_NPC, instance[instance_id].map[i]);
+
+	/* cant be together with the previous because it will rely on all of them being up */
+	map_foreachininstance(instance_init_npc, instance_id, BL_NPC);
 
 	instance[instance_id].state = INSTANCE_BUSY;
 	ShowInfo("[Instance] Initialized %s.\n", instance[instance_id].name);

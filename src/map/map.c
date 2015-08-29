@@ -1181,6 +1181,35 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type,..
 	return returnCount;
 }
 
+/**
+ * Applies func to every block_list object of bl_type type on all maps
+ * of instance instance_id.
+ * Returns the sum of values returned by func.
+ * @param func Function to be applied
+ * @param m Map id
+ * @param type enum bl_type
+ * @param ... Extra arguments for func
+ * @return Sum of the values returned by func
+ */
+int map_foreachininstance(int (*func)(struct block_list*, va_list), int16 instance_id, int type, ...) {
+	int i, returnCount=0;
+	va_list ap;
+
+	va_start(ap, type);
+
+	for (i = 0; i < instance[instance_id].num_map; i++) {
+		int m = instance[instance_id].map[i];
+		va_list apcopy;
+		va_copy(apcopy, ap);
+		returnCount += map_foreachinmap(func, m, type, apcopy);
+		va_end(apcopy);
+	}
+
+	va_end(ap);
+
+	return returnCount;
+}
+
 /*==========================================
 * Adapted from foreachinrange [LimitLine]
 * Use it to pick 'max' random targets.

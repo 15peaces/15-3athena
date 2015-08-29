@@ -156,9 +156,7 @@ int npc_ontouch2_event(struct map_session_data *sd, struct npc_data *nd)
 }
 
 /*==========================================
- * NPCの無効化/有効化
- * npc_enable
- * npc_enable_sub 有効時にOnTouchイベントを実行
+ * Sub-function of npc_enable, runs OnTouch event when enabled
  *------------------------------------------*/
 int npc_enable_sub(struct block_list *bl, va_list ap)
 {
@@ -860,13 +858,14 @@ int npc_touchnext_areanpc(struct map_session_data* sd, bool leavemap)
 }
 
 /*==========================================
- * 接触型のNPC処理
+ * Exec OnTouch for player if in range of area event
  *------------------------------------------*/
 int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 {
 	int xs,ys;
 	int f = 1;
 	int i;
+	int j, found_warp = 0;
 
 	nullpo_retr(1, sd);
 
@@ -910,6 +909,24 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 			pc_setpos(sd,map[m].npc[i]->u.warp.mapindex,map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,CLR_OUTSIGHT);
 			break;
 		case NPCTYPE_SCRIPT:
+			for (j = i; j < map[m].npc_num; j++) {
+				if (map[m].npc[j]->subtype != NPCTYPE_WARP) {
+					continue;
+				}
+
+				if ((sd->bl.x >= (map[m].npc[j]->bl.x - map[m].npc[j]->u.warp.xs) && sd->bl.x <= (map[m].npc[j]->bl.x + map[m].npc[j]->u.warp.xs)) &&
+					(sd->bl.y >= (map[m].npc[j]->bl.y - map[m].npc[j]->u.warp.ys) && sd->bl.y <= (map[m].npc[j]->bl.y + map[m].npc[j]->u.warp.ys))) {
+					if( pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]) || pc_isdead(sd) )
+						break; // hidden or dead chars cannot use warps
+					pc_setpos(sd,map[m].npc[j]->u.warp.mapindex,map[m].npc[j]->u.warp.x,map[m].npc[j]->u.warp.y,CLR_OUTSIGHT);
+					found_warp = 1;
+					break;
+				}
+			}
+
+			if (found_warp > 0) {
+				break;
+			}
 			if( npc_ontouch_event(sd,map[m].npc[i]) > 0 && npc_ontouch2_event(sd,map[m].npc[i]) > 0 )
 			{ // failed to run OnTouch event, so just click the npc
 				struct unit_data *ud = unit_bl2ud(&sd->bl);
@@ -2903,6 +2920,19 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 
 		npc_parse_duplicate(w1, w2, w3, w4, stat_buf, stat_buf, "INSTANCING");
 	}
+
+	return 0;
+}
+
+int npc_instanceinit(struct npc_data* nd)
+{
+	struct event_data *ev;
+	char evname[EVENT_NAME_LENGTH];
+
+	snprintf(evname, ARRAYLENGTH(evname), "%s::OnInstanceInit", nd->exname);
+
+	if( ( ev = (struct event_data*)strdb_get(ev_db, evname) ) )
+		run_script(nd->u.scr.script,ev->pos,0,nd->bl.id);
 
 	return 0;
 }

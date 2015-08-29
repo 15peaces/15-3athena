@@ -647,6 +647,7 @@ int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_
 int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int y, int type, ...);
 int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
 int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, ...);
+int map_foreachininstance(int (*func)(struct block_list*, va_list), int16 instance_id, int type, ...);
 //blockŠÖ˜A‚É’Ç‰Á
 int map_count_oncell(int m,int x,int y,int type);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);

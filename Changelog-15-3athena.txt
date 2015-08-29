@@ -4,7 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-08/11/2015
+08/29/2015
+	r75 [15peaces]
+		*Merged missing changes from 3ceam rev. 284 - 285
+		*Instance Dungeons Update (Thanks to hercules / shennetsind)
+			-Now we'll be able to add newer instances like Old Glast Heim.
+			-This Update also includes the ability for instances to reset (or be destroyed if instance files were disabled/removed) upon @reloadscript, instance scripts are able to control to what stage the instances are to be reset via the instance_set_respawn (reload spawn) script command, OnInstanceInit labels are now triggered when the instance starts via instance_init (and upon reload), they may be used alongside instance variables (which are persistent to @reloadscript) to save players' progress.
+			-Also all currently existing Instances are fully updated to latest hercules versions.
+		*Fixed Shadow Chaser job quest
+			-also added missing monsters.
+		*Added Old Glast Heim instance
+			-Monsters and drops are currently placeholders and need to be re-checked!
+		*Added LG_CANNONSPEAR skill. Still need some info.
+		*Fixed LG_REFLECTDAMAGE that shouldn't reduce damage reflected.
+	
+08/15/2015
 	r74 [15peaces]
 		*Merged missing changes from 3ceam rev. 274 - 283
 		*Done some script-updates.
@@ -28,9 +42,6 @@
 		*Added LG_REFLECTDAMAGE skill.
 			-Updated CR_REFLECTSHIELD that should fail if you are under LG_REFLECTDAMAGE and viceversa.
 		*Minor fix in LG_BANISHINGPOINT that should take the weapon element.
-
-
-
 
 08/05/2015
 	r73 [15peaces]

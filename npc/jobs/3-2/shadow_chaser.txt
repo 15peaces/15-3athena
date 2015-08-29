@@ -1,11 +1,11 @@
-//===== rAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Shadow Chaser Job Quest
 //===== By: ================================================== 
 //= Muad_Dib
 //===== Current Version: ===================================== 
-//= 1.4
+//= 1.5
 //===== Compatible With: ===================================== 
-//= rAthena Project
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Official Conversion]
 //= Job change Quest from Rogue / Stalker -> Shadow Chaser.
@@ -15,6 +15,7 @@
 //= 1.2 Updated dialogue. [Joseph]
 //= 1.3 Updated to official script. [Euphy]
 //= 1.4 Added VIP features. [Euphy]
+//= 1.5 Ported from rAthena. [15peaces]
 //============================================================
 
 morocc,156,70,3	script	Girl#sc00	93,3,3,{
@@ -1365,13 +1366,6 @@ s_atelier,70,66,4	script	Dumk#sc13_lgh	481,{
 	}
 	if (checkweight(1201,4) == 0) {
 		mes "- You can't continue on in this quest because you are overweight. -";
-		close;
-	}
-	if (ismounting()) {
-		mes "[Dumk]";
-		mes "Who is this guy? Why should he sit in front of me so high?";
-		mes "Although I do not know why you riding on it, but here is in door,";
-		mes "That is no danger to rely on animals to escape, so you please get down!";
 		close;
 	}
 	if (BaseJob == Job_Rogue) {

@@ -2036,13 +2036,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio = 50 + 50 * skill_lv;
 					break;
 				case WM_GREAT_ECHO:
-					skillratio = 900 + 100 * skill_lv;
+					skillratio += 900 + 100 * skill_lv;
 					if( sd )	// Still need official value [pakpil]
 					{
 						short lv = (short)skill_lv;
 						skillratio += 20 * skill_check_pc_partner(sd,skill_num,&lv,skill_get_splash(skill_num,skill_lv),0);
 					}
 					break;
+				case LG_CANNONSPEAR:// Stimated formula. Still need confirm it.
+					skillratio += -100 + (50 * skill_lv) * ( sstatus->str / 50 ) * (status_get_lv(src) / 100);
+ 					break;
 				case GN_CART_TORNADO:
 					skillratio += 50 * skill_lv;
 					if( sd )
@@ -3880,7 +3883,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0);
 			if( tsc && tsc->data[SC_LG_REFLECTDAMAGE] )
 			{
-				damage -= rdamage;
 				map_foreachinrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,target,wd.amotion,wd.dmotion,rdamage,tstatus->race,0);
 			}
 			else
@@ -4840,7 +4842,7 @@ static const struct _battle_data {
 	{ "show_mvp_tomb",						&battle_config.show_mvp_tomb,					1,		0,		1				},
 	{ "feature.banking",                    &battle_config.feature_banking,                 1,      0,      1,              },
 	//Episode System [15peaces]
-	{ "feature.episode",					&battle_config.feature_episode,		           142,     1,      142,            },
+	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
 };
 
 

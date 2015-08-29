@@ -5413,7 +5413,7 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
  *------------------------------------------*/
 int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp,unsigned int job_exp,bool quest)
 {
-#if PACKETVER < 20091027
+#if PACKETVER < 20091110
 	char output[256];
 #endif
 	float nextbp=0, nextjp=0;
@@ -5477,7 +5477,7 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 		clif_updatestatus(sd,SP_JOBEXP);
 	}
 
-#if PACKETVER >= 20091027
+#if PACKETVER >= 20091110
 	if(base_exp)
 		clif_displayexp(sd, base_exp, SP_BASEEXP, quest);
 	if(job_exp)

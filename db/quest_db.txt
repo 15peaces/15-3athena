@@ -729,7 +729,7 @@
 7155,0,0,0,0,0,0,0,"The training course 'conquer the orc dungeon!' - complete a quest"
 7156,0,0,0,0,0,0,0,"The training course 'conquer an undersea city!' - start"
 7157,0,1264,15,0,0,0,0,"The training course 'conquer an undersea city!' - A real battle 1"
-7158,0,1065,10,0,0,0,0,0,"The training course 'conquer an undersea city!' - A real battle 2"
+7158,0,1065,10,0,0,0,0,"The training course 'conquer an undersea city!' - A real battle 2"
 7159,0,0,0,0,0,0,0,"The training course 'conquer an undersea city!' - Complete a quest"
 7160,0,0,0,0,0,0,0,"Mysterious Cryptogram"
 7161,0,0,0,0,0,0,0,"Mysterious Cryptogram - 2nd"
@@ -1579,6 +1579,8 @@
 12221,0,0,0,0,0,0,0,"How to create fossil elixir"
 12222,0,0,0,0,0,0,0,"How to create storm elixir"
 
+// Old Glast Heim
+12317,82800,0,0,0,0,0,0,"Fake Keyblade"
 12318,0,2475,1,0,0,0,0,"Upper Cats: annoying guy"
 12319,0,2476,1,0,0,0,0,"Upper Cats: annoying guy"
 
