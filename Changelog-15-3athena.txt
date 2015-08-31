@@ -6,6 +6,47 @@
 //========================================
 08/29/2015
 	r75 [15peaces]
+		*Merged missing changes from 3ceam rev. 286 - 298
+		*Full rewrite of MvP tomb stones
+			-this fixes some critical bugs and optimizes the whole system.
+			-also there is no external npc script required anymore.
+		*Updated Crystalize status
+			-Crystalize status must be ended when hitted by fire element.
+		*Added new SC_*'s used by items 12429 to 12434.
+			-These items uses its own sc together with its own status icon to match official servers implementation.
+		*Added new costumes from JRO
+			-Thanks to hercules/zackdreaver
+			-also added some other misc items
+		*Fixed a mistake in calculation for Clusterbomb skill.
+		*Corrected the behavior of Reflect Shield and Reflect Damage when used vice versa.
+		*Added missing value of -Def for freezing status.
+		*Corrected the behavior of Warg Strike when used in WoE while mounted.
+		*Corrected the behavior of Summon Balls of Warlock when reaching maximum #'s of summon.
+		*WL_CHAINLIGHTNING
+			-Added full support for this skill.
+		*Status Burning and Freezing
+			-added reductions by stats.
+			-Burning : the 3% hp is not elemental, should not be reduced.
+			-Freezing : ignores target defenses at Freeze, but does not ignores 100% freeze defense, like Marc Card.
+		*Rewrite/Fix of various skills:
+			-White Imprison : moved the place where damage is reduced to 0, eAthena style. Added ignored skills than can bypass the status.
+			-Hell Inferno : calculating Fire and Dark damages separately. Also, Burning status only start if Fire part hits.
+			-Comet : Damage formula update. Fixed the partner's check.
+			-Highness Heal : eAthena style implementation.
+			-Crimson Rock : correct blown. Should take the main target x and y at the hit moment and everybody move away from this point.
+			-Jack Frost and Frost Misty : just by Freezing and Freeze status updates.
+			-Phantom Spear : fixed this Blown style to use the normal and checks for normal blown limitations (gvg maps, emperium, armor property).
+			-Chain Lightning : now working as it should. Removed SC_CHAINLIGHTNING, officially a single target can be affected by lots of different Chains. One hit by a time, max 3 hit on a same target if it don't chain.
+			-Drain Life : rewrite rate formula.
+			-Storm Blast : just a simple change to show effect on caster.
+			-Stasis : fixed limitations and rate. Also, this don't block Songs and Emsembles, but those don't buff people if the bard/dancer is under stasis effect.
+			-Sienna Execrate; Adoramus : fixed the partner's check.
+			-Marsh of Abyss : update on formulas. Still need to test if this affects hit or flee.
+
+
+
+08/29/2015
+	r75 [15peaces]
 		*Merged missing changes from 3ceam rev. 284 - 285
 		*Instance Dungeons Update (Thanks to hercules / shennetsind)
 			-Now we'll be able to add newer instances like Old Glast Heim.
@@ -814,8 +855,7 @@
 		*Added a new value in conf/battle/monster.conf to Enable that mobs'll teleport when standing in Dimensional Doors portals
 		*Minor fix to give support to the new options in clones.
 		*updated skill_unit_db.txt
-		*AB_ADORAMUS
-		*AB_RENOVATIO, NC_ANALYZE, NC_BOOSTKNUCKLE, SR_POWERVELOCITY, WL_SOULEXPANSION
+		*AB_ADORAMUS, AB_RENOVATIO, NC_ANALYZE, NC_BOOSTKNUCKLE, SR_POWERVELOCITY, WL_SOULEXPANSION
 			-Added pre-support for these skills.
 		*RA_AIMEDBOLT, RK_PHANTOMTHRUST, WL_CHAINLIGHTNING
 			-Some more work on these skills.

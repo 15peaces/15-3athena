@@ -80,6 +80,11 @@ struct npc_data {
 			short x,y; // destination coords
 			unsigned short mapindex; // destination map
 		} warp;
+		struct {
+			struct mob_data *md;
+			time_t kill_time;
+			char killer_name[NAME_LENGTH];
+		} tomb;
 	} u;
 };
 
@@ -178,7 +183,6 @@ int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amo
 void npc_market_tosql(const char *exname, struct npc_item_list *list);
 void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clear);
 #endif
-int npc_mvp_tomb(struct mob_data *md, struct map_session_data *sd);
 
 extern struct npc_data* fake_nd;
 

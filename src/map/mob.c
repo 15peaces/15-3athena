@@ -102,6 +102,77 @@ int mobdb_searchname(const char *str)
 
 	return 0;
 }
+
+/*==========================================
+ *              MvP Tomb [GreenBox]
+ *------------------------------------------*/
+void mvptomb_create(struct mob_data *md, char *killer, time_t time)
+{
+	struct npc_data *nd;
+
+	if ( md->tomb_nid )
+		mvptomb_destroy(md);
+
+	CREATE(nd, struct npc_data, 1);
+
+	nd->bl.id = md->tomb_nid = npc_get_new_npc_id();
+	
+    nd->ud.dir = md->ud.dir;
+	nd->bl.m = md->bl.m;
+	nd->bl.x = md->bl.x;
+	nd->bl.y = md->bl.y;
+	nd->bl.type = BL_NPC;
+	
+	safestrncpy(nd->name, msg_txt(726), sizeof(nd->name));
+
+	nd->class_ = 565;
+	nd->speed = 200;
+	nd->subtype = NPCTYPE_TOMB;
+
+	nd->u.tomb.md = md;
+	nd->u.tomb.kill_time = time;
+	
+	if (killer)
+		safestrncpy(nd->u.tomb.killer_name, killer, NAME_LENGTH);
+	else
+		nd->u.tomb.killer_name[0] = '\0';
+
+	map_addnpc(nd->bl.m, nd);
+	map_addblock(&nd->bl);
+	status_set_viewdata(&nd->bl, nd->class_);
+    status_change_init(&nd->bl);
+    unit_dataset(&nd->bl);
+    clif_spawn(&nd->bl);
+
+}
+
+void mvptomb_destroy(struct mob_data *md) {
+	struct npc_data *nd;
+
+	if ( (nd = map_id2nd(md->tomb_nid)) ) {
+		int m, i;
+
+		m = nd->bl.m;
+		
+		clif_clearunit_area(&nd->bl,CLR_OUTSIGHT);
+		
+		map_delblock(&nd->bl);
+
+		ARR_FIND( 0, map[m].npc_num, i, map[m].npc[i] == nd );
+		if( !(i == map[m].npc_num) ) {
+			map[m].npc_num--;
+			map[m].npc[i] = map[m].npc[map[m].npc_num];
+			map[m].npc[map[m].npc_num] = NULL;
+		}
+
+		map_deliddb(&nd->bl);
+
+		aFree(nd);
+	}
+
+	md->tomb_nid = 0;
+}
+
 static int mobdb_searchname_array_sub(struct mob_db* mob, const char *str)
 {
 	if (mob == mob_dummy)
@@ -805,13 +876,6 @@ int mob_setdelayspawn(struct mob_data *md)
 	if( md->spawn_timer != INVALID_TIMER )
 		delete_timer(md->spawn_timer, mob_delayspawn);
 	md->spawn_timer = add_timer(gettick()+spawntime, mob_delayspawn, md->bl.id, 0);
-	
-	if( md->status.mode&MD_BOSS &&
-		battle_config.show_mvp_tomb){//Tomb System [malufett]
-
-		struct map_session_data *sd =  map_id2sd(md->target_id);
-		md->target_id = npc_mvp_tomb(md, sd );
-	}
 	return 0;
 }
 
@@ -828,11 +892,6 @@ int mob_spawn (struct mob_data *md)
 	int i=0;
 	unsigned int tick = gettick();
 	int c =0;
-
-	if(md->status.mode&MD_BOSS &&
-		battle_config.show_mvp_tomb){ //Tomb System [malufett]
-		npc_mvp_tomb(md, NULL);
-	}
 
 	md->last_thinktime = tick;
 	if (md->bl.prev != NULL)
@@ -902,6 +961,10 @@ int mob_spawn (struct mob_data *md)
 	if(md->db->option)
 		// Added for carts, falcons and pecos for cloned monsters. [Valaris]
 		md->sc.option = md->db->option;
+
+	// MvP tomb [GreenBox]
+	if ( md->tomb_nid )
+		mvptomb_destroy(md);
 
 	map_addblock(&md->bl);
 	clif_spawn(&md->bl);
@@ -2470,8 +2533,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	if(!md->spawn) //Tell status_damage to remove it from memory.
 		return 5; // Note: Actually, it's 4. Oh well...
 
-	if( mvp_sd && md->status.mode&MD_BOSS && battle_config.show_mvp_tomb)//Tomb System [malufett]
-		md->target_id = mvp_sd->bl.id;
+	// MvP tomb [GreenBox]
+	if (battle_config.mvp_tomb_enabled && md->spawn->state.boss)
+		mvptomb_create(md, mvp_sd ? mvp_sd->status.name : NULL, time(NULL));
 
 	if( !rebirth )
 		mob_setdelayspawn(md); //Set respawning.

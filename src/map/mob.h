@@ -9,6 +9,7 @@
 #include "map.h" // struct status_data, struct view_data, struct mob_skill
 #include "status.h" // struct status data, struct status_change
 #include "unit.h" // unit_stop_walking(), unit_stop_attack()
+#include "npc.h"
 
 
 #define MAX_RANDOMMONSTER 4
@@ -167,6 +168,9 @@ struct mob_data {
 	short skillidx;
 	unsigned int skilldelay[MAX_MOBSKILL];
 	char npc_event[EVENT_NAME_LENGTH];
+
+	//MvP Tombstone NPC ID
+	int tomb_nid;
 };
 
 
@@ -282,6 +286,10 @@ int mob_is_clone(int class_);
 
 int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char *event, int master_id, int mode, int flag, unsigned int duration);
 int mob_clone_delete(struct mob_data *md);
+
+// MvP Tomb System
+void mvptomb_create(struct mob_data *md, char *killer, time_t time);
+void mvptomb_destroy(struct mob_data *md);
 
 void mob_reload(void);
 

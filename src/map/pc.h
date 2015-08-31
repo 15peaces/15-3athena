@@ -163,6 +163,7 @@ struct map_session_data {
 		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
 		unsigned improv_flag : 1;
 		unsigned magicmushroom_flag : 1;
+		unsigned no_gemstone : 1; // If a skill have a partner near, it don't consume gemstone but SP from all (ADORAMUS, COMET)
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]

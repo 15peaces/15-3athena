@@ -1046,3 +1046,32 @@
 15096,Heroic_Trade-Mail,Heroic Trade-Mail,5,10,,500,,100,,1,0x00040420,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; set .@r, getrefine(); if(readparam(bStr) >= 90) bonus bStr,.@r/2; if(readparam(bInt) >= 90) bonus bInt,.@r/2; if(readparam(bAgi) >= 90) bonus bAgi,.@r/2; if(readparam(bVit) >= 90) bonus bVit,.@r/2; if(readparam(bDex) >= 90) bonus bDex,.@r/2; if(readparam(bLuk) >= 90) bonus bLuk,.@r/2; },{},{}
 15097,Heroic_Hidden_Cloth,Heroic Hidden Cloth,5,10,,200,,70,,1,0x00021040,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus2 bSkillAtk,"SC_FATALMENACE",10; bonus2 bSkillAtk,"SC_TRIANGLESHOT",10; bonus2 bSkillAtk,"GC_CROSSIMPACT",10; bonus2 bSkillAtk,"GC_CROSSRIPPERSLASHER",10; autobonus "{ bonus bCritical,20; bonus bFlee,20; bonus bAtkRate,10; bonus bMatkRate,10; }",(5+getrefine())*10,10000; },{},{}
 15098,Heroic_Target_Suit,Heroic Target Suit,5,10,,200,,60,,1,0x00080808,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; set .@r, getrefine(); bonus bAllStats,1; bonus5 bAutoSpell,"AC_CONCENTRATION",10,(5+.@r)*5,BG_WEAPON,0; bonus5 bAutoSpell,"AC_DOUBLE",10,(5+.@r)*5,BG_WEAPON,1;  bonus5 bAutoSpell,"AC_CHARGEARROW",10,(5+.@r)*5,BG_WEAPON,0; },{},{}
+
+
+//New Costumes from jRO
+20311,Costume_Magical_Booster,Costume Magical Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,873,{},{},{}
+20312,Costume_Barons_Evil_Eye,Costume Baron's Evil Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,989,{},{},{}
+20313,Costume_CD_in_Mouth,Costume CD in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,815,{},{},{}
+20314,Costume_New_Wave_Sunglasses,Costume New Wave Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,856,{},{},{}
+20315,Costume_Analyze_Eye,Costume Analyze Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1351,{},{},{}
+20316,Costume_Seraph_Wing_Helm,Costume Seraph Wing Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1352,{},{},{}
+20317,Costume_Nekomimi_Cyber_Headphone,Costume Nekomimi Cyber Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1353,{},{},{}
+20318,Costume_Charleston_Antenna,Costume Charleston Antenna,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1354,{},{},{}
+20319,Costume_Crimson_Booster,Costume Crimson Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1355,{},{},{}
+20331,Costume_Desert_Prince,Costume Desert Prince,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,567,{},{},{}
+20332,Costume_Pure_White_Ribbon,Costume Pure White Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1175,{},{},{}
+20333,Costume_Family_Hat,Costume Family Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,650,{},{},{}
+
+//Other new Items
+2190,Ancient_Shield_Of_Aeon,Ancient Shield Of Aeon,5,0,,200,,5,,1,0x000FDF80,63,2,32,,130,1,2,{ bonus2 bSubEle,Ele_Neutral,10; bonus2 bSubEle,Ele_Fire,10; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Dark,10; bonus2 bSubEle,Ele_Holy,10; bonus2 bSubEle,Ele_Ghost,10; bonus bMaxHP,500; bonus bMaxSP,50; if(getrefine()>=14) skill "MG_STONECURSE",5; },{},{}
+5765,Black_Tail_Ribbon,Black Tail Ribbon,5,20,,100,,0,,1,0xFFFFFFFF,63,2,256,,10,1,642,{ bonus bMdef,5; bonus bLongAtkDef,10; bonus2 bSubEle,Ele_Neutral,5; },{},{}
+12699,Tikbalang_Belt,Tikbalang Harness,2,20,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 2313; },{},{}
+12700,Insideout_Shirt,Inside-out Shirt,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "malaya",242,211; },{},{}
+12701,Old_Blue_Box_F,Old Blue Box,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+12702,Old_Bleu_Box,Old Navy Box,2,0,,200,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(groupranditem(IG_BleuBox),1); getitem(groupranditem(IG_BleuBox),1); },{},{}
+12703,Holy_Egg_2,Holy Egg,2,0,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(groupranditem(IG_Holy_Egg_2),1); },{},{}
+12704,Elixir_Of_Life,Elixir of Life,0,0,,10,,,,,0xFFFFFFFF,63,2,,,85,,,{ percentheal 100,0; },{},{}
+12705,Noble_Nameplate,Noble Nameplate,2,0,,100,,,,,0xFFFFFFFF,63,2,,,90,,,{ sc_start SC_EXPBOOST,1800000,100; },{},{}
+12706,Lucky_Cookie01,Lucky Cookie,11,0,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "PR_GLORIA",5; },{},{}
+12707,Lucky_Cookie02,Lucky Cookie,11,0,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "PR_MAGNIFICAT",1; },{},{}
+12708,Lucky_Cookie03,Lucky Cookie,11,0,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "PR_IMPOSITIO",3; },{},{}

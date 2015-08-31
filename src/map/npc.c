@@ -1104,6 +1104,31 @@ int npc_globalmessage(const char* name, const char* mes)
 	return 0;
 }
 
+// MvP tomb [GreenBox]
+void run_tomb(struct map_session_data* sd, struct npc_data* nd)
+{
+	char buffer[200];
+    char time[10];
+	
+    strftime(time, sizeof(time), "%H:%M", localtime(&nd->u.tomb.kill_time));
+
+	// TODO: Find exact color?
+	snprintf(buffer, sizeof(buffer), msg_txt(727), nd->u.tomb.md->db->name);
+    clif_scriptmes(sd, nd->bl.id, buffer);
+
+    clif_scriptmes(sd, nd->bl.id, msg_txt(728));
+
+    snprintf(buffer, sizeof(buffer), msg_txt(729), time);
+    clif_scriptmes(sd, nd->bl.id, buffer);
+	
+    clif_scriptmes(sd, nd->bl.id, msg_txt(730));
+
+ 	snprintf(buffer, sizeof(buffer), msg_txt(731), nd->u.tomb.killer_name[0] ? nd->u.tomb.killer_name : "Unknown"); 
+	clif_scriptmes(sd, nd->bl.id, buffer);
+
+    clif_scriptclose(sd, nd->bl.id);
+}
+
 /*==========================================
  * NPC 1st call when clicking on npc
  * Do specific action for NPC type (openshop, run scripts...)
@@ -1154,6 +1179,8 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 		case NPCTYPE_SCRIPT:
 			run_script(nd->u.scr.script,0,sd->bl.id,nd->bl.id);
 			break;
+		case NPCTYPE_TOMB:
+			run_tomb(sd,nd);
 	}
 
 	return 0;
@@ -3983,57 +4010,6 @@ static void npc_debug_warps(void)
 	for (m = 0; m < map_num; m++)
 		for (i = 0; i < map[m].npc_num; i++)
 			npc_debug_warps_sub(map[m].npc[i]);
-}
-
-/**
- * MVP Tomb System. (Thanks to malufett / rAthena)
- **/
-int npc_mvp_tomb(struct mob_data *md, struct map_session_data *sd)
-{
-	char w1[256], w2[256], w3[256];
-	struct npc_data *nd = NULL;
-
-	nullpo_ret(md);
-
-	if(sd)
-	{
-		struct mob_data *boss_md = map_getmob_boss(sd->bl.m); // Search for Boss on this Map and ignore summoned Boss
-		if( boss_md != NULL &&
-		boss_md->bl.prev != NULL &&
-		md->bl.id == boss_md->bl.id )
-		{
-			int x = boss_md->bl.x, y = boss_md->bl.y;
-			const struct TimerData * timer_data = get_timer(md->spawn_timer);
-			if(md->spawn_timer == INVALID_TIMER)
-				return 1;
-
-			sprintf(w2, "Tomb#%d|%d", boss_md->class_, (DIFF_TICK(timer_data->tick, gettick())  + 60));
-			sprintf(w1, "%s, %d, %d, 1", map[boss_md->bl.m].name, x , y);
-			sprintf(w3, "%s@%s", sd->status.name, map[boss_md->bl.m].name);
-			sprintf(w2, "%s::%s", w2, w3);
-			sprintf(w3, "%s::OnMyMobDead", w3);
-			
-			safestrncpy(md->npc_event, w3, sizeof(md->npc_event));
-			npc_parse_duplicate(w1,"duplicate(tomb_stone)",w2,"565", "-", "-", "MVP_TOMB"+boss_md->class_);
-
-			npc_event(sd,md->npc_event,0);
-			safestrncpy(md->npc_event, "", sizeof(md->npc_event));
-			return sd->bl.id;
-		}
-	} else {
-		
-		struct map_session_data *msd =  map_id2sd(md->target_id);
-		
-		if(msd != NULL) {
-			sprintf(w1, "%s@%s", msd->status.name, map[md->bl.m].name);
-			nd = npc_name2id(w1);
-			if (nd  != NULL) {
-				npc_unload(nd);
-				md->target_id = 0;
-		   }
-		}
-	}
-	return 0;
 }
 
 /*==========================================

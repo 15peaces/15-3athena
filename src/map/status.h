@@ -687,6 +687,7 @@ typedef enum sc_type {
 	SC_REUSE_REFRESH,
 	SC_BERKANA,
 	SC_REUSE_COMET, // Temporary status change used as cooldown in certain skills.
+	SC_REUSE_STASIS, // Temporary status change
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1185,13 +1186,13 @@ enum si_type {
 	SI_MUSTLE_M = 488,
 	SI_LIFE_FORCE_F = 489,*/
 	SI_VACUUM_EXTREME = 490,
-	/*SI_SAVAGE_STEAK = 491,
+	SI_SAVAGE_STEAK = 491,
 	SI_COCKTAIL_WARG_BLOOD = 492,
 	SI_MINOR_BBQ = 493,
 	SI_SIROMA_ICE_TEA = 494,
 	SI_DROCERA_HERB_STEAMED = 495,
 	SI_PUTTI_TAILS_NOODLES = 496,
-	SI_BANANA_BOMB = 497,
+	/*SI_BANANA_BOMB = 497,
 	SI_SUMMON_AGNI = 498,*/
 	SI_SPELLBOOK4 = 499,
 	SI_SPELLBOOK5 = 500,
@@ -1722,6 +1723,7 @@ struct status_change {
 	unsigned short mp_matk_min, mp_matk_max; //Previous matk min/max for ground spells (Amplify magic power)
 	int sg_id; //ID of the previous Storm gust that hit you
 	unsigned char sg_counter; //Storm gust counter (previous hits from storm gust)
+	short comet_x, comet_y; // Point where src casted Comet - required to calculate damage from this point
 	struct status_change_entry *data[SC_MAX];
 };
 
