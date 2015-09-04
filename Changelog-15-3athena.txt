@@ -4,14 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-08/29/2015
-	r75 [15peaces]
+09/04/2015
+	r77 [15peaces]
+		*Merged missing changes from 3ceam rev. 299
+		*Added some more missing items
+		*Reimplementation of Earth Strain.
+			-Skill Level affects: number of waves, hits per wave, equips that can be strip.
+			-Basic Area (wave) = 15 x 5 = 3 Heaven's Drive.
+			-Caster can walk just after the skill usage.
+
+08/31/2015
+	r76 [15peaces]
 		*Merged missing changes from 3ceam rev. 286 - 298
 		*Full rewrite of MvP tomb stones
 			-this fixes some critical bugs and optimizes the whole system.
 			-also there is no external npc script required anymore.
 		*Updated Crystalize status
-			-Crystalize status must be ended when hitted by fire element.
+			-Crystalize status must be ended when hit by fire element.
 		*Added new SC_*'s used by items 12429 to 12434.
 			-These items uses its own sc together with its own status icon to match official servers implementation.
 		*Added new costumes from JRO
@@ -42,8 +51,6 @@
 			-Stasis : fixed limitations and rate. Also, this don't block Songs and Emsembles, but those don't buff people if the bard/dancer is under stasis effect.
 			-Sienna Execrate; Adoramus : fixed the partner's check.
 			-Marsh of Abyss : update on formulas. Still need to test if this affects hit or flee.
-
-
 
 08/29/2015
 	r75 [15peaces]

@@ -1065,6 +1065,16 @@
 //Other new Items
 2190,Ancient_Shield_Of_Aeon,Ancient Shield Of Aeon,5,0,,200,,5,,1,0x000FDF80,63,2,32,,130,1,2,{ bonus2 bSubEle,Ele_Neutral,10; bonus2 bSubEle,Ele_Fire,10; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Dark,10; bonus2 bSubEle,Ele_Holy,10; bonus2 bSubEle,Ele_Ghost,10; bonus bMaxHP,500; bonus bMaxSP,50; if(getrefine()>=14) skill "MG_STONECURSE",5; },{},{}
 5765,Black_Tail_Ribbon,Black Tail Ribbon,5,20,,100,,0,,1,0xFFFFFFFF,63,2,256,,10,1,642,{ bonus bMdef,5; bonus bLongAtkDef,10; bonus2 bSubEle,Ele_Neutral,5; },{},{}
+6442,Octopus_Hunt_Stick,Octopus Hunting Skewer,3,0,,0,,,,,,,,,,,,,{},{},{}
+6443,Sillit_Pong_Bottle,Sillit Pong Bottle,3,20,,0,,,,,,,,,,,,,{},{},{}
+6444,Emperium_G,Emperium G,3,2,,1000,,,,,,,,,,,,,{},{},{}
+6445,Blue_Card_X,Blue Card X,3,0,,10,,,,,,,,,,,,,{},{},{}
+6446,Green_Paper,Green Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6447,Red_Paper,Red Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6448,White_Paper,White Paper,3,0,,0,,,,,,,,,,,,,{},{},{}
+6449,Casual_Diary,Casual Diary,3,0,,0,,,,,,,,,,,,,{},{},{}
+6450,Honest_Diary,Honest Diary,3,0,,0,,,,,,,,,,,,,{},{},{}
+6451,Unknown_Fish,Unknown Fish,3,20,,0,,,,,,,,,,,,,{},{},{}
 12699,Tikbalang_Belt,Tikbalang Harness,2,20,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 2313; },{},{}
 12700,Insideout_Shirt,Inside-out Shirt,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "malaya",242,211; },{},{}
 12701,Old_Blue_Box_F,Old Blue Box,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
