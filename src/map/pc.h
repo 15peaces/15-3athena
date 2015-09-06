@@ -28,7 +28,7 @@
 //These may be needed in the future. [15peaces]
 #define MAX_RUNE 20 //Max number of runes a Rune Knight can carry of each type.
 #define MAX_RAGE 15 //Max number of rage balls a Royal Guard can have.
-//#define MAX_SPELLBOOK 10 //Max number or spells a Warlock can preserve.
+#define MAX_SPELLBOOK 10 //Max number or spells a Warlock can preserve.
 
 struct weapon_data {
 	int atkmods[3];
@@ -440,6 +440,13 @@ struct map_session_data {
 		struct mail_data inbox;
 		bool changed; // if true, should sync with charserver on next mailbox request
 	} mail;
+
+	// Reading SpellBook
+	struct {
+		unsigned short skillid;
+		unsigned char level;
+		unsigned char points;
+	} rsb[MAX_SPELLBOOK];
 
 	//Quest log system [Kevin] [Inkfish]
 	int num_quests;

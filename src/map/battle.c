@@ -3065,6 +3065,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SUMMON_ATK_WIND:
 					case WL_SUMMON_ATK_GROUND:
 						skillratio += 50 * skill_lv - 50;
+						skillratio = skillratio * (status_get_lv(src) + 2 * (sd ? sd->status.job_level : 0)) / 100;
 						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;
@@ -4126,10 +4127,12 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	int m,state = 0; //Initial state none
 	int strip_enemy = 1; //Flag which marks whether to remove the BCT_ENEMY status if it's also friend/ally.
 	struct block_list *s_bl = src, *t_bl = target;
+	struct unit_data *ud = NULL;
 
 	nullpo_ret(src);
 	nullpo_ret(target);
 
+	ud = unit_bl2ud(target);
 	m = target->m;
 
 	//t_bl/s_bl hold the 'master' of the attack, while src/target are the actual
@@ -4147,6 +4150,9 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 				return -1; //Cannot be targeted yet.
 			break;
 		case BL_MOB:
+			if (ud && ud->immune_attack)
+				return 0;
+
 			if((((TBL_MOB*)target)->special_state.ai == 2 || //Marine Spheres
 				(((TBL_MOB*)target)->special_state.ai == 3 && battle_config.summon_flora&1)) && //Floras
 				s_bl->type == BL_PC && src->type != BL_MOB)
@@ -4188,9 +4194,10 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 				return 0;
 		}
 			break;
-		//Valid targets with no special checks here.
 		case BL_MER:
 		case BL_HOM:
+			if (ud && ud->immune_attack)
+				return 0;
 			break;
 		//All else not specified is an invalid target.
 		default:	

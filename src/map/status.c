@@ -4705,7 +4705,9 @@ const char* status_get_name(struct block_list *bl)
 	case BL_MOB: return ((TBL_MOB*)bl)->name;
 	case BL_PET: return ((TBL_PET*)bl)->pet.name;
 	case BL_HOM: return ((TBL_HOM*)bl)->homunculus.name;
+	//case BL_MER: // They only have database names which are global, not specific to GID.
 	case BL_NPC: return ((TBL_NPC*)bl)->name;
+	//case BL_ELEM: // They only have database names which are global, not specific to GID.
 	}
 	return "Unknown";
 }
@@ -7033,15 +7035,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_FREEZING:
 			status_change_end(bl, SC_BURNING, -1);
-			break;
-		case SC_SPELLBOOK1:
-		case SC_SPELLBOOK2:
-		case SC_SPELLBOOK3:
-		case SC_SPELLBOOK4:
-		case SC_SPELLBOOK5:
-		case SC_SPELLBOOK6:
-		case SC_SPELLBOOK7:
-			val_flag |= 1|2|4;
 			break;
 		case SC_SHAPESHIFT:
 			switch( val1 )

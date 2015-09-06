@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+09/06/2015
+	r78 [15peaces]
+		*Merged missing changes from 3ceam rev. 300
+		*Added / fixed some more new items
+			-I know, many of them are duplicates for now, I'll merge them later.
+		*Updated Lighthalzen Dungeon spawn scripts
+			-also added Bio 4 monsters. (currently renwal versions, need to be changed later)
+		*Implemented Basic Unit Controller Script Commands
+			-Added getunitname, setunitname, getunitdata, and setunitdata script commands.
+			-Split unitstop to unitstopattack and unitstopwalk.
+			-Expanded unitskilluseid and unitskillusepos to be able to adjust casttime of skill.
+			-Added two new monster modes: MD_NORANDOM_WALK and MD_NOCAST_SKILL.
+			-The areamonster script command now saves spawned monster game IDs in an array called $@mobid[].
+			-Adjusted other monster spawning script commands to return game ID.
+			-Updated documentation to reflect changes.
+		*Reading Spell Book : changing the way it was coded. 
+			-Officially it uses 7 different status changes, but in the client they do nothing, and if they are going to increment the slots in the future, for Aegis it means increase more and more SC_TYPEs.
+			-SC_READING_SB : it will be used to add the SP consumption per second by learned book.
+			-Summon Spheres: added the extra bonus per base and job level.
+			-Reading Spell Book : Added a missing check in the inventory, for the book.
+			-Now summon spheres will be released in the correct order, not using the status change order.
+
 09/04/2015
 	r77 [15peaces]
 		*Merged missing changes from 3ceam rev. 299

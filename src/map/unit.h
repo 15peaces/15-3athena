@@ -34,6 +34,7 @@ struct unit_data {
 	unsigned int attackabletime;
 	unsigned int canact_tick;
 	unsigned int canmove_tick;
+	bool immune_attack; ///< Whether the unit is immune to attacks
 	uint8 dir;
 	unsigned char walk_count;
 	struct {
