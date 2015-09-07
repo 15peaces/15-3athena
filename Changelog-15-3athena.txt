@@ -4,6 +4,12 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+09/07/2015
+	r79 [15peaces]
+		*Added 'Eff_Burning' status, used in Banaspaty Card
+		*Updates to SC_BURNING duration
+		*Added some new Cards to ItemDB
+
 09/06/2015
 	r78 [15peaces]
 		*Merged missing changes from 3ceam rev. 300

@@ -615,6 +615,7 @@ Eff_Confusion	7
 Eff_Blind	8
 Eff_Bleeding	9
 Eff_DPoison	10
+Eff_Burning	310
 
 Ele_Neutral	0
 Ele_Water	1

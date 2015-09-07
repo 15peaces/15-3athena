@@ -5338,7 +5338,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC_BURNING:
 		// From iROwiki : http://forums.irowiki.org/showpost.php?p=577240&postcount=583
 		tick -= 50*status->luk + 60*status->int_ + 170*status->vit;
-		tick = max(tick,10000); // Minimum Duration 10s.
+		tick = max(tick,6000); // Minimum Duration 6s.
 		break;
 	case SC_FREEZING:
 		tick -= 40*status->vit;
