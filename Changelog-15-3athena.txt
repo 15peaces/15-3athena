@@ -4,6 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/14/2015
+	r80 [15peaces]
+		*Merged missing changes from 3ceam rev. 301
+		*Added some more new Cards and other Items to ItemDB
+			-Some of the scripts are commented out. Guess I'll need to add support for getgroupitem, soon...
+		*Added Jail monster spawns
+		*Fixed wrong partymember requirement in Endless Tower instance.
+			-Changed it for testing purposes and forgot to change it back, sorry ^^.
+		*Added missing Port Malaya instances
+			-Added Buwaya Cave instance.
+			-Added Bakonawa Lake instance.
+		*Tetra Vortex
+			-Using balls from newest to older
+			-Now requires 4 balls, any element.
+			-Keeps Magic Power until last hit or target dead.
+			-Add a status effect at the end of the 4 hits, if the target survives. This status depends of the elements used.
+			-Added full support for this skill.
+		*Earth Strain and Frost Misty : Fixed damage formula.
+		*Reading Spell Book : Added sp consumption by learned spells.
+		*Comet and Adoramus : Cast begin checks.
+
 09/07/2015
 	r79 [15peaces]
 		*Added 'Eff_Burning' status, used in Banaspaty Card

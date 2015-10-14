@@ -1230,6 +1230,16 @@
 18120,Bow_Of_Evil_Slayer,Bow Of Evil Slayer,4,10,,1350,,115,,1,0x00020008,63,2,34,,100,1,11,{ bonus2 bAddRace,RC_Demon,10; bonus2 bAddRace,RC_Undead,10; set .@r,getrefine(); bonus bAtkRate,(.@r>=9)?(5):((.@r>=12)?(7):(0)); },{},{}
 
 //New Cards
+4456,Nidhogg_Shadow_Card,Nidhoggur Shadow Card,6,20,,10,,,,,,,,16,,,,,{ bonus bInt,5; if (Class == Job_High_Wizard || Class == Job_Baby_Warlock || Class == Job_Warlock || Class == Job_Warlock_T) bonus bFixedCastrate,-50; },{},{}
+4457,Nahtzigger_Card,Naght Sieger Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bMagicAtkEle,Ele_Ghost,30; },{},{}
+4458,Duneirre_Card,Duneyrr Card,6,20,,10,,,,,,,,769,,,,,{ bonus bBaseAtk,10; autobonus "{ bonus bAspdRate,5; }",10,10000,0,"{ specialeffect2 EF_HASTEUP; }"; },{},{}
+4459,Lata_Card,Rata Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; autobonus "{ bonus bFixedCastrate,-50; }",5,4000,BF_MAGIC,"{ specialeffect2 EF_SUFFRAGIUM; }"; },{},{}
+4460,Ringco_Card,Rhyncho Card,6,20,,10,,,,,,,,769,,,,,{ bonus bHealPower,4; bonus2 bSkillUseSP,"AL_HEAL",-15; },{},{}
+4461,Pillar_Card,Phylla Card,6,20,,10,,,,,,,,769,,,,,{ bonus bDex,1; bonus bAgi,1; autobonus "{ bonus bCritical,20; }",15,4000,0,"{ specialeffect2 EF_ENHANCE; }"; },{},{}
+4462,Hardrock_Mammos_Card,Hardrock Mammoth Card,6,20,,10,,,,,,,,16,,,,,{ set .@r, getrefine(); bonus bDef,5; if(.@r>=12) { bonus bDef,20; bonus bMaxHPrate,10; } if(.@r>=14) { bonus bMaxHPrate,3; } },{},{}
+4463,Tendrilrion_Card,Tendrilrion Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritical,5; set .@r, getrefine(); if(.@r>=12) { bonus bBaseAtk,35; } if(.@r>=14) { bonus bCritical,10; } },{},{}
+4464,Aunoe_Card,Aunoe Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,20; },{},{}
+4465,Panat_Card,Fanat Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,10; if(getiteminfo(getequipid(EQI_HAND_R),11)==3) { set .@r, getrefine(); if(.@r>=10) { bonus bAspd,1; } if(.@r>=14) { bonus bAspd,1; } } },{},{}
 4518,Banaspaty_Card,Banaspaty Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Burning,500,ATF_TARGET; },{},{}
 4519,Butoijo_Card,Butoijo Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Angel,20; },{},{}
 4520,Leak_Card,Leak Card,6,20,,10,,,,,,,,4,,,,,{ bonus bStr,3; bonus2 bAddEff,Eff_Confusion,5000; bonus3 bAddEff,Eff_Confusion,5000,ATF_SKILL; },{},{}
@@ -1240,3 +1250,28 @@
 4525,Kraken_Card,Kraken Card,6,20,,10,,,,,,,,4,,,,,{ bonus bFlee,10; skill "TF_HIDING",1; skill "RG_RAID",1; bonus5 bAutoSpellOnSkill,"RG_RAID","NPC_WIDEBLEEDING",1,250,1; },{},{ sc_end SC_HIDING; }
 4526,Odd_Coelacanth_Card,Weird Coelacanth Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxSPrate,5; bonus bMdef,50; },{},{}
 4527,Black_Coelacanth_Card,Dark Coelacanth Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,10; bonus bDef,100; },{},{}
+
+//Octupus Stick related and others
+12651,Lv110_Imperial_Gift,Level 110 Bounty,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12623,1; getitem 16765,1; getitem 16765,1; getitem 16765,1; },{},{}
+12652,Lv130_Imperial_Gift,Level 130 Bounty,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12613,10; },{},{}
+12653,Lv150_Imperial_Gift,Level 150 Bounty,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 16740,1; getitem 16740,1; getitem 16740,1; getitem 5364,1; },{},{}
+12654,Lucky_Egg_C9,Lucky Egg C9,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Lucky_Egg_C9);*/ },{},{}
+12655,Brain_Powder,Brain Powder,2,2000,,100,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+12656,Magical_Powder,Magical Powder,2,3000,,200,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+12657,Madness_Powder,Madness Powder,2,4000,,300,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+12658,Trans_Scroll_Devi,Transformation Scroll(Deviruchi),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1200000,1109; showscript "Traaaansformation-!! Deviruchi form!!"; },{},{}
+12659,Trans_Scroll_Ray_Arch,Transformation Scroll(Raydric),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1200000,1276; showscript "Traaaansformation-!! Raydric form!!"; },{},{}
+12660,Trans_Scroll_Mavka,Transformation Scroll(Mavka),2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MONSTER_TRANSFORM,1200000,1884; showscript "Traaaansformation-!! Mavka form!!"; },{},{}
+16765,Octo_Hstick_Box,Octopus Hunting Skewer 23 Hour Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Octo_Hstick_Box);*/ rentitem 6442,86400; },{},{}
+16766,Octo_Hstick_Box2,Octopus Hunting Skewer 3 Day Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Octo_Hstick_Box2);*/ rentitem 6442,259200; },{},{}
+16767,Octo_Hstick_Box3,Octopus Hunting Skewer 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Octo_Hstick_Box3);*/ rentitem 6442,604800; },{},{}
+17013,Malang_Woe_Encard_Box,Malang Woe Encard Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Malang_Woe_Encard_Box);*/ getitem 16740,1; getitem 16765,1; },{},{}
+17014,Butterfly_ear_Box,Butterfly ear Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 19509,1; },{},{}
+17015,Stuckhead_Screw_Box,Stuckhead Screw Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 19510,1; },{},{}
+17016,Aquarius_Diadem_Scroll,Aquarius Diadem Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Aquarius_Diadem_Scroll);*/ },{},{}
+17017,Aquarius_Di_Scroll_Box,Aquarius Di Scroll Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Aquarius_Di_Scroll_Box);*/ },{},{}
+17018,Libra_Scroll2,Libra Scroll2,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17019,Scorpio_Scroll2,Scorpio Scroll2,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17020,Tw_Nov_Scroll2,Tw Nov Scroll2,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Tw_Nov_Scroll2);*/ },{},{}
+17021,Summer_Scroll3,Summer Scroll3,2,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Summer_Scroll3);*/ },{},{}
+17022,Super_Pet_Egg1_2,Super Pet Egg1 2,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Super_Pet_Egg1_2);*/ },{},{}
