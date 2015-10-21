@@ -71,6 +71,7 @@ char item_db2_db[32] = "item_db2";
 char mob_db_db[32] = "mob_db";
 char mob_db2_db[32] = "mob_db2";
 char market_table[32] = "npc_market_data";
+char db_roulette_table[32] = "db_roulette";
 
 // log database
 char log_db_ip[32] = "127.0.0.1";
@@ -3382,20 +3383,18 @@ int inter_config_read(char *cfgName)
 			safestrncpy(main_chat_nick, w2, sizeof(main_chat_nick));
 			
 	#ifndef TXT_ONLY
-		else
-		if(strcmpi(w1,"item_db_db")==0)
+		else if(strcmpi(w1,"item_db_db")==0)
 			strcpy(item_db_db,w2);
-		else
-		if(strcmpi(w1,"mob_db_db")==0)
+		else if(strcmpi(w1,"mob_db_db")==0)
 			strcpy(mob_db_db,w2);
-		else
-		if(strcmpi(w1,"item_db2_db")==0)
+		else if(strcmpi(w1,"item_db2_db")==0)
 			strcpy(item_db2_db,w2);
-		else
-		if(strcmpi(w1,"mob_db2_db")==0)
+		else if(strcmpi(w1,"mob_db2_db")==0)
 			strcpy(mob_db2_db,w2);
 		else if (strcmpi(w1, "market_table") == 0)
 			strcpy(market_table, w2); 
+		else if( strcmpi(w1, "db_roulette_table") == 0)
+			strcpy(db_roulette_table, w2);
 		else
 		//Map Server SQL DB
 		if(strcmpi(w1,"map_server_ip")==0)

@@ -379,6 +379,9 @@ enum _sp {
 	SP_KILLERRID=121,
 	SP_KILLEDRID=122,
 	SP_BANK_VAULT=123,
+	SP_ROULETTE_BRONZE = 124,
+	SP_ROULETTE_SILVER = 125,
+	SP_ROULETTE_GOLD = 126,
 
 	// Mercenaries
 	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,
@@ -782,6 +785,7 @@ extern char item_db2_db[32];
 extern char mob_db_db[32];
 extern char mob_db2_db[32];
 extern char market_table[32];
+extern char db_roulette_table[32];
 
 #endif /* not TXT_ONLY */
 

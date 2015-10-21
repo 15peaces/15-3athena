@@ -428,6 +428,9 @@ BaseJob	119	1
 BaseClass	120	1
 killerrid	121 1
 killedrid	122 1
+RouletteBronze	124	1
+RouletteSilver	125	1
+RouletteGold	126	1 
 
 bMaxHP	6
 bMaxSP	8
@@ -591,6 +594,13 @@ bSPVanishRate	2042
 bMagicSPGainValue	2043
 bMagicHPGainValue	2044
 bAddClassDropItem	2045
+
+bHPVanishRaceRate	2074
+bSPVanishRaceRate	2075
+bAbsorbDmgMaxHP	2076
+bSubSkill	2077
+bSubDefEle	2078
+
 bFixedCastRate	2101
 
 EQI_HEAD_TOP	1

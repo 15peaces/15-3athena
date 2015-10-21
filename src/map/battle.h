@@ -534,6 +534,7 @@ extern struct Battle_Config
 	//Other (renewal) Features
 	int feature_banking;
 	int mvp_tomb_enabled;
+	int feature_roulette;
 	//Episode System [15peaces]
 	int feature_episode;
 } battle_config;

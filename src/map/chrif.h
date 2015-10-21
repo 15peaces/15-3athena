@@ -56,7 +56,7 @@ int chrif_char_offline_nsd(int account_id, int char_id);
 int chrif_char_reset_offline(void);
 int send_users_tochar(void);
 int chrif_char_online(struct map_session_data *sd);
-int chrif_changesex(struct map_session_data *sd);
+int chrif_changesex(struct map_session_data *sd, bool change_account);
 int chrif_chardisconnect(struct map_session_data *sd);
 int chrif_divorce(int partner_id1, int partner_id2);
 

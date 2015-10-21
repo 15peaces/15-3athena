@@ -26,6 +26,7 @@ e_log_chat_type;
 
 typedef enum e_log_pick_type
 {
+	LOG_TYPE_NONE             = 0,
 	LOG_TYPE_TRADE            = 0x00001,
 	LOG_TYPE_VENDING          = 0x00002,
 	LOG_TYPE_PICKDROP_PLAYER  = 0x00004,
@@ -43,10 +44,11 @@ typedef enum e_log_pick_type
 	LOG_TYPE_AUCTION          = 0x04000,
 	LOG_TYPE_BUYING_STORE     = 0x08000,
 	LOG_TYPE_BANK             = 0x10000,
+	LOG_TYPE_ROULETTE         = 0x20000,
 	// combinations
 	LOG_TYPE_LOOT             = LOG_TYPE_PICKDROP_MONSTER|LOG_TYPE_CONSUME,
 	// all
-	LOG_TYPE_ALL              = 0xFFFF,
+	LOG_TYPE_ALL              = 0xFFFFF,
 }
 e_log_pick_type;
 

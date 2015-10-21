@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/21/2015
+	r81 [15peaces]
+		*Merged missing changes from 3ceam rev. 302 - 304
+		*Some internal clean-up here and there...
+			-Following items are now stable and ready for public use:
+				--Rental Mounts related items (#12622, #16682)
+				--Some Costume Headgear's (#18741, #18742, #18744)
+			-Done some clean-up in item_trade.txt. Now we can find missing IDs easier. ^^
+				--More changes on this file will be done with a later update.
+		*2014 Client Support added
+			-The support seems to be stable enough for public use. However there might be a few (hidden) bugs left. 
+			-Implemented the Roulette Game feature.
+			-Implemented per-character sex change feature.
+			-Implemented Hotkey Rotate Packet.
+			-Special thanks to HerculesWS and rathena for the base.
+		*Added some missing constants
+			-the b* constants are only placeholders for now...
+		*Item DB Update
+			-Added kRO 2014-12-24 [Calendar Rewards Event] items
+		*Reverted Spell Book list does not show if no books on inventory.
+		*Added LG_PIETY skill.
+
 10/14/2015
 	r80 [15peaces]
 		*Merged missing changes from 3ceam rev. 301

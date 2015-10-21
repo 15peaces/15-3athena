@@ -488,7 +488,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->pet_id != cp->pet_id) || (p->weapon != cp->weapon) || (p->hom_id != cp->hom_id) ||
 		(p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->delete_date != cp->delete_date) ||
-		(p->rename != cp->rename) || (p->robe != cp->robe)
+		(p->rename != cp->rename) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift)
 	)
 	{	//Save status
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `base_level`='%d', `job_level`='%d',"
@@ -498,7 +498,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',"
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
-			"`delete_date`='%lu',`robe`='%d'"
+			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -509,7 +509,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y,
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
-			p->robe,
+			p->robe, p->hotkey_rowshift,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
@@ -866,6 +866,55 @@ int memitemdata_to_sql(const struct item items[], int max, int id, int tableswit
 	return errors;
 }
 
+/**
+ * Returns the correct gender ID for the given character and enum value.
+ *
+ * If the per-character sex is defined but not supported by the current packetver, the database entries are corrected.
+ *
+ * @param sd Character data, if available.
+ * @param p  Character status.
+ * @param sex Character sex (database enum)
+ *
+ * @retval SEX_MALE if the per-character sex is male
+ * @retval SEX_FEMALE if the per-character sex is female
+ * @retval 99 if the per-character sex is not defined or the current PACKETVER doesn't support it.
+ */
+int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charstatus *p, char sex)
+{
+#if PACKETVER >= 20141016
+	(void)sd; (void)p; // Unused
+	switch (sex) {
+		case 'M':
+			return SEX_MALE;
+		case 'F':
+			return SEX_FEMALE;
+		case 'U':
+		default:
+			return 99;
+	}
+#else
+	if (sex == 'M' || sex == 'F') {
+		if (!sd) {
+			// sd is not available, there isn't much we can do. Just return and print a warning.
+			ShowWarning("Character '%s' (CID: %d, AID: %d) has sex '%c', but PACKETVER does not support per-character sex. Defaulting to 'U'.\n",
+					p->name, p->char_id, p->account_id, sex);
+			return 99;
+		}
+		if ((sex == 'M' && sd->sex == SEX_FEMALE)
+		 || (sex == 'F' && sd->sex == SEX_MALE)) {
+			ShowWarning("Changing sex of character '%s' (CID: %d, AID: %d) to 'U' due to incompatible PACKETVER.\n", p->name, p->char_id, p->account_id);
+			char_parse_ackchangecharsex(p->char_id, sd->sex);
+		} else {
+			ShowInfo("Resetting sex of character '%s' (CID: %d, AID: %d) to 'U' due to incompatible PACKETVER.\n", p->name, p->char_id, p->account_id);
+		}
+		if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `sex` = 'U' WHERE `char_id` = '%d'", char_db, p->char_id)) {
+			Sql_ShowDebug(sql_handle);
+		}
+	}
+	return 99;
+#endif
+}
+
 int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p);
 
 #ifndef TXT_SQL_CONVERT
@@ -877,6 +926,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	struct mmo_charstatus p;
 	int j = 0, i;
 	char last_map[MAP_NAME_LENGTH_EXT];
+	char sex[2];
 
 	stmt = SqlStmt_Malloc(sql_handle);
 	if( stmt == NULL )
@@ -892,7 +942,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`"
+		"`robe`,`sex`,`hotkey_rowshift`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -931,6 +981,8 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 33, SQLDT_SHORT,	&p.rename, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 34, SQLDT_UINT32, &p.delete_date, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 35, SQLDT_SHORT,  &p.robe, 0, NULL, NULL)
+ 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 36, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL) 
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_UCHAR,  &p.hotkey_rowshift, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -941,6 +993,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	{
 		p.last_point.map = mapindex_name2id(last_map);
 		sd->found_char[i] = p.char_id;
+		p.sex = char_mmo_gender(sd, &p, sex[0]);
 		j += mmo_char_tobuf(WBUFP(buf, j), &p);
 	}
 	for( ; i < MAX_CHARS; i++ )
@@ -971,6 +1024,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	struct hotkey tmp_hotkey;
 	int hotkey_num;
 #endif
+	char sex[2];
 
 	memset(p, 0, sizeof(struct mmo_charstatus));
 	
@@ -989,7 +1043,8 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
-		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`"
+		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`,`sex`,"
+		"`hotkey_rowshift`"
 		" FROM `%s` WHERE `char_id`=? LIMIT 1", char_db)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
@@ -1044,6 +1099,8 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 	||  SQL_ERROR == SqlStmt_BindColumn(stmt, 48, SQLDT_SHORT,	&p->rename, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 49, SQLDT_UINT32, &p->delete_date, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 50, SQLDT_SHORT,  &p->robe, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 51, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 52, SQLDT_UCHAR,  &p->hotkey_rowshift, 0, NULL, NULL) 
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1056,6 +1113,7 @@ int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything
 		SqlStmt_Free(stmt);
 		return 0;	
 	}
+	p->sex = char_mmo_gender(NULL, p, sex[0]);
 	p->last_point.map = mapindex_name2id(last_map);
 	p->save_point.map = mapindex_name2id(save_map);
 
@@ -1623,7 +1681,7 @@ int count_users(void)
 // Writes char data to the buffer in the format used by the client.
 // Used in packets 0x6b (chars info) and 0x6d (new char info)
 // Returns the size
-#define MAX_CHAR_BUF 144 //Max size (for WFIFOHEAD calls)
+#define MAX_CHAR_BUF 150 //Max size (for WFIFOHEAD calls)
 int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 {
 	unsigned short offset = 0;
@@ -1657,7 +1715,13 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	WBUFW(buf,48) = min(p->max_sp, INT16_MAX);
 	WBUFW(buf,50) = DEFAULT_WALK_SPEED; // p->speed;
 	WBUFW(buf,52) = p->class_;
+#if PACKETVER >= 20141022
+	WBUFL(buf,54) = p->hair;
+	offset+=2;
+	buf = WBUFP(buffer,offset);
+#else
 	WBUFW(buf,54) = p->hair;
+#endif
 	WBUFW(buf,56) = p->option&0x7E80020 ? 0 : p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
 	WBUFW(buf,58) = p->base_level;
 	WBUFW(buf,60) = min(p->skill_point, INT16_MAX);
@@ -1696,8 +1760,12 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	offset += 4;
 #endif
 #if PACKETVER >= 20111025
-	WBUFL(buf,136) = 0;  // unknown purpose (0 = disabled, otherwise displays "Add-Ons" sidebar)
+	WBUFL(buf,136) = ( p->rename > 0 ) ? 1 : 0;  // (0 = disabled, otherwise displays "Add-Ons" sidebar)
 	offset += 4;
+#endif
+#if PACKETVER >= 20141016
+	WBUFB(buf,140) = p->sex;// sex - (0 = female, 1 = male, 99 = logindefined)
+	offset += 1;
 #endif
 	return 106+offset;
 }
@@ -2101,6 +2169,11 @@ int parse_fromlogin(int fd)
 
 		// changesex reply
 		case 0x2723:
+			char_parse_ackchangesex(fd, sd);
+			break;
+
+		/* Disabled and replaced by char_parse_ackchangesex function! [15peaces]
+			Can be removed later...
 			if (RFIFOREST(fd) < 7)
 				return 0;
 		{
@@ -2188,7 +2261,7 @@ int parse_fromlogin(int fd)
 			mapif_sendall(buf, 7);
 		}
 		break;
-
+		*/
 		// reply to an account_reg2 registry request
 		case 0x2729:
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
@@ -2352,6 +2425,247 @@ int save_accreg2(unsigned char* buf, int len)
 		return 1;
 	}
 	return 0;
+}
+
+/**
+ * Performs the necessary operations when changing a character's sex, such as
+ * correcting the job class and unequipping items, and propagating the
+ * information to the guild data.
+ *
+ * @param sex      The new sex (SEX_MALE or SEX_FEMALE).
+ * @param acc      The character's account ID.
+ * @param char_id  The character ID.
+ * @param class_   The character's current job class.
+ * @param guild_id The character's guild ID.
+ */
+void char_parse_change_sex_sub(int sex, int acc, int char_id, int class_, int guild_id)
+{
+	// job modification
+	if (class_ == JOB_BARD || class_ == JOB_DANCER)
+		class_ = (sex == SEX_MALE ? JOB_BARD : JOB_DANCER);
+	else if (class_ == JOB_CLOWN || class_ == JOB_GYPSY)
+		class_ = (sex == SEX_MALE ? JOB_CLOWN : JOB_GYPSY);
+	else if (class_ == JOB_BABY_BARD || class_ == JOB_BABY_DANCER)
+		class_ = (sex == SEX_MALE ? JOB_BABY_BARD : JOB_BABY_DANCER);
+	else if (class_ == JOB_MINSTREL || class_ == JOB_WANDERER)
+		class_ = (sex == SEX_MALE ? JOB_MINSTREL : JOB_WANDERER);
+	else if (class_ == JOB_MINSTREL_T || class_ == JOB_WANDERER_T)
+		class_ = (sex == SEX_MALE ? JOB_MINSTREL_T : JOB_WANDERER_T);
+	else if (class_ == JOB_BABY_MINSTREL || class_ == JOB_BABY_WANDERER)
+		class_ = (sex == SEX_MALE ? JOB_BABY_MINSTREL : JOB_BABY_WANDERER);
+	else if (class_ == JOB_KAGEROU || class_ == JOB_OBORO)
+		class_ = (sex == SEX_MALE ? JOB_KAGEROU : JOB_OBORO);
+
+	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `equip` = '0' WHERE `char_id` = '%d'", inventory_db, char_id))
+		Sql_ShowDebug(sql_handle);
+
+	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class` = '%d', `weapon` = '0', `shield` = '0', `head_top` = '0', `head_mid` = '0', `head_bottom` = '0' WHERE `char_id` = '%d'", char_db, class_, char_id))
+		Sql_ShowDebug(sql_handle);
+	if (guild_id) // If there is a guild, update the guild_member data [Skotlex]
+		inter_guild_sex_changed(guild_id, acc, char_id, sex);
+}
+
+int char_parse_ackchangesex(int fd, struct char_session_data* sd)
+{
+	if (RFIFOREST(fd) < 7)
+		return 0;
+	{
+		unsigned char buf[7];
+		int acc = RFIFOL(fd,2);
+		int sex = RFIFOB(fd,6);
+		RFIFOSKIP(fd,7);
+
+		if (acc > 0) { // TODO: Is this even possible?
+			unsigned char i;
+			int char_id = 0, class_ = 0, guild_id = 0;
+			struct auth_node* node = (struct auth_node*)idb_get(auth_db, acc);
+			SqlStmt *stmt;
+
+			if (node != NULL)
+				node->sex = sex;
+
+			// get characters
+			stmt = SqlStmt_Malloc(sql_handle);
+			if (SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `char_id`, `class`, `guild_id` FROM `%s` WHERE `account_id` = '%d'", char_db, acc) || SqlStmt_Execute(stmt)) {
+				SqlStmt_ShowDebug(stmt);
+				SqlStmt_Free(stmt);
+			}
+
+			SqlStmt_BindColumn(stmt, 0, SQLDT_INT,   &char_id,  0, NULL, NULL);
+			SqlStmt_BindColumn(stmt, 1, SQLDT_SHORT, &class_,   0, NULL, NULL);
+			SqlStmt_BindColumn(stmt, 2, SQLDT_INT,   &guild_id, 0, NULL, NULL);
+
+			for (i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i) {
+				char_parse_change_sex_sub(sex, acc, char_id, class_, guild_id);
+			}
+			SqlStmt_Free(stmt);
+		}
+
+		// notify all mapservers about this change
+		WBUFW(buf,0) = 0x2b0d;
+		WBUFL(buf,2) = acc;
+		WBUFB(buf,6) = sex;
+		mapif_sendall(buf, 7);
+	}
+	return 1;
+}
+
+/**
+ * Changes a character's sex.
+ * The information is updated on database, and the character is kicked if it
+ * currently is online.
+ *
+ * @param char_id The character's ID.
+ * @param sex     The new sex.
+ * @retval 0 in case of success.
+ * @retval 1 in case of failure.
+ */
+int char_parse_ackchangecharsex(int char_id, int sex)
+{
+	int class_ = 0, guild_id = 0, account_id = 0;
+	unsigned char buf[7];
+	char *data;
+
+	// get character data
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `account_id`,`class`,`guild_id` FROM `%s` WHERE `char_id` = '%d'", char_db, char_id)) {
+		Sql_ShowDebug(sql_handle);
+		return 1;
+	}
+	if (Sql_NumRows(sql_handle) != 1 || SQL_ERROR == Sql_NextRow(sql_handle)) {
+		Sql_FreeResult(sql_handle);
+		return 1;
+	}
+
+	Sql_GetData(sql_handle, 0, &data, NULL); account_id = atoi(data);
+	Sql_GetData(sql_handle, 1, &data, NULL); class_ = atoi(data);
+	Sql_GetData(sql_handle, 2, &data, NULL); guild_id = atoi(data);
+	Sql_FreeResult(sql_handle);
+
+	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `sex` = '%c' WHERE `char_id` = '%d'", char_db, sex == SEX_MALE ? 'M' : 'F', char_id)) {
+		Sql_ShowDebug(sql_handle);
+		return 1;
+	}
+	char_parse_change_sex_sub(sex, account_id, char_id, class_, guild_id);
+
+	// disconnect player if online on char-server
+	disconnect_player(account_id);
+
+	// notify all mapservers about this change
+	WBUFW(buf,0) = 0x2b0d;
+	WBUFL(buf,2) = account_id;
+	WBUFB(buf,6) = sex;
+	mapif_sendall(buf, 7);
+	return 0;
+}
+
+/**
+ * Forward a change of status for account to login-serv
+ * @param fd: which fd to parse from
+ * @return : 0 not enough data received, 1 success
+ */
+int char_parse_fwlog_changestatus(int fd){
+	if (RFIFOREST(fd) < 44)
+		return 0;
+	else {
+		int result = 0; // 0-login-server request done, 1-player not found, 2-gm level too low, 3-login-server offline, 4-current group level > VIP group level
+		char esc_name[NAME_LENGTH*2+1];
+		char answer = true;
+
+		int aid = RFIFOL(fd,2); // account_id of who ask (-1 if server itself made this request)
+		const char* name = (char*)RFIFOP(fd,6); // name of the target character
+		int operation = RFIFOW(fd,30); // type of operation: 1-block, 2-ban, 3-unblock, 4-unban, 5-changesex, 6-vip, 7-changecharsex
+		int32 timediff = 0;
+		int val1 = 0, sex = SEX_MALE;
+
+		if (operation == 2) {
+			timediff = RFIFOL(fd, 32);
+			val1 = RFIFOL(fd, 36);
+		} else if (operation == 7)
+			sex = RFIFOB(fd, 32);
+		RFIFOSKIP(fd,44);
+
+		Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
+		if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `account_id`, `char_id` FROM `%s` WHERE `name` = '%s'", char_db, esc_name) )
+			Sql_ShowDebug(sql_handle);
+		else if( Sql_NumRows(sql_handle) == 0 ) {
+			result = 1; // 1-player not found
+		}
+		else if( SQL_SUCCESS != Sql_NextRow(sql_handle) ) {
+			Sql_ShowDebug(sql_handle);
+			result = 1;
+		} else {
+			int t_aid; // target account id
+			int t_cid; // target char id
+			char* data;
+
+			Sql_GetData(sql_handle, 0, &data, NULL); t_aid = atoi(data);
+			Sql_GetData(sql_handle, 1, &data, NULL); t_cid = atoi(data);
+			Sql_FreeResult(sql_handle);
+
+			if( login_fd <= 0 )
+				result = 3; // 3-login-server offline
+			//FIXME: need to move this check to login server [ultramage]
+			//	if( acc != -1 && isGM(acc) < isGM(account_id) )
+			//		result = 2; // 2-gm level too low
+			else {
+				//! NOTE: See src/char/chrif.h::enum chrif_req_op for the number
+				switch( operation ) {
+					case 1: // block
+						WFIFOHEAD(login_fd,10);
+						WFIFOW(login_fd,0) = 0x2724;
+						WFIFOL(login_fd,2) = t_aid;
+						WFIFOL(login_fd,6) = 5; // new account status
+						WFIFOSET(login_fd,10);
+						break;
+					case 2: // ban
+						WFIFOHEAD(login_fd,10);
+						WFIFOW(login_fd, 0) = 0x2725;
+						WFIFOL(login_fd, 2) = t_aid;
+						WFIFOL(login_fd, 6) = timediff;
+						WFIFOSET(login_fd,10);
+						break;
+					case 3: // unblock
+						WFIFOHEAD(login_fd,10);
+						WFIFOW(login_fd,0) = 0x2724;
+						WFIFOL(login_fd,2) = t_aid;
+						WFIFOL(login_fd,6) = 0; // new account status
+						WFIFOSET(login_fd,10);
+						break;
+					case 4: // unban
+						WFIFOHEAD(login_fd,6);
+						WFIFOW(login_fd,0) = 0x272a;
+						WFIFOL(login_fd,2) = t_aid;
+						WFIFOSET(login_fd,6);
+						break;
+					case 5: // changesex
+						answer = false;
+						WFIFOHEAD(login_fd,6);
+						WFIFOW(login_fd,0) = 0x2727;
+						WFIFOL(login_fd,2) = t_aid;
+						WFIFOSET(login_fd,6);
+						break;
+					case 6: // vip (not yet supported [15peaces])
+						break;
+					case 7: // changecharsex
+						answer = false;
+						char_parse_ackchangecharsex(t_cid, sex);
+						break;
+				} //end switch operation
+			} //login is connected
+		}
+
+		// send answer if a player asks, not if the server asks
+		if( aid != -1 && answer) { // Don't send answer for changesex/changecharsex
+			WFIFOHEAD(fd,34);
+			WFIFOW(fd, 0) = 0x2b0f;
+			WFIFOL(fd, 2) = aid;
+			safestrncpy((char*)WFIFOP(fd,6), name, NAME_LENGTH);
+			WFIFOW(fd,30) = operation;
+			WFIFOW(fd,32) = result;
+			WFIFOSET(fd,34);
+		}
+	}
+	return 1;
 }
 
 void char_read_fame_list(void)
@@ -2886,6 +3200,9 @@ int parse_frommap(int fd)
 		break;
 
 		case 0x2b0e: // Request from map-server to change an account's status (will just be forwarded to login server)
+			char_parse_fwlog_changestatus(fd);
+			break;
+		/*Disabled and replaced by char_parse_fwlog_changestatus function. [15peaces]	
 			if (RFIFOREST(fd) < 44)
 				return 0;
 		{
@@ -2987,6 +3304,7 @@ int parse_frommap(int fd)
 			}
 		}
 		break;
+	*/
 
 		case 0x2b10: // Update and send fame ranking list
 			if (RFIFOREST(fd) < 11)
@@ -3172,6 +3490,7 @@ int parse_frommap(int fd)
 				node->sex == sex /*&&
 				node->ip == ip*/ )
 			{// auth ok
+			if (cd->sex == 99)
 				cd->sex = sex;
 
 				WFIFOHEAD(fd,24 + sizeof(struct mmo_charstatus));
@@ -3669,7 +3988,8 @@ int parse_char(int fd)
 
 			//Have to switch over to the DB instance otherwise data won't propagate [Kevin]
 			cd = (struct mmo_charstatus *)idb_get(char_db_, char_id);
-			cd->sex = sd->sex;
+			if (cd->sex == 99)
+				cd->sex = sd->sex;
 
 			if (log_char) {
 				char esc_name[NAME_LENGTH*2+1];

@@ -9627,15 +9627,48 @@ BUILDIN_FUNC(changebase)
 }
 
 /*==========================================
- * ê´ï ïœä∑
+ * Change account sex and unequip all item and request for a changesex to char-serv
  *------------------------------------------*/
 BUILDIN_FUNC(changesex)
 {
+	int i;
 	TBL_PC *sd = NULL;
 	sd = script_rid2sd(st);
 
-	chrif_changesex(sd);
+ 	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+	for(i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, true);
 	return 0;
+}
+
+/*==========================================
++ * Change character's sex and unequip all item and request for a changesex to char-serv
+*------------------------------------------*/
+BUILDIN_FUNC(changecharsex)
+{
+#if PACKETVER >= 20141016
+	int i;
+	TBL_PC *sd = NULL;
+
+	if (!script_charid2sd(2,sd))
+		return 1;
+
+	pc_resetskill(sd,4);
+	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+	for (i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, false);
+	return 0;
+#else
+	return 1;
+#endif
 }
 
 /*==========================================
@@ -17526,7 +17559,7 @@ BUILDIN_FUNC(showscript) {
 	}
 
 	if (!bl) {
-		ShowError("buildin_showscript: Script not attached. (id=%, rid=%d, oid=%d)\n", id, st->rid, st->oid);
+		ShowError("buildin_showscript: Script not attached. (id=%d, rid=%d, oid=%d)\n", id, st->rid, st->oid);
 		script_pushint(st,0);
 		return 1;
 	}
@@ -17722,6 +17755,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(skillpointcount,""),
 	BUILDIN_DEF(changebase,"i?"),
 	BUILDIN_DEF(changesex,""),
+	BUILDIN_DEF(changecharsex,"?"),
 	BUILDIN_DEF(waitingroom,"si?????"),
 	BUILDIN_DEF(delwaitingroom,"?"),
 	BUILDIN_DEF2(waitingroomkickall,"kickwaitingroomall","?"),

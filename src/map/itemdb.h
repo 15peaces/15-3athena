@@ -14,26 +14,33 @@
 // The maximum number of item delays
 #define MAX_ITEMDELAYS	20
 
+#define MAX_ROULETTE_LEVEL 7 /** client-defined value **/
+#define MAX_ROULETTE_COLUMNS 9 /** client-defined value **/
+
 #define MAX_SEARCH	5  //Designed for search functions, species max number of matches to display.
 
 enum item_itemid
 {
-	ITEMID_HOLY_WATER = 523,
-	ITEMID_EMPERIUM = 714,
-	ITEMID_YELLOW_GEMSTONE,
-	ITEMID_RED_GEMSTONE,
-	ITEMID_BLUE_GEMSTONE,
-	ITEMID_TRAP = 1065,
-	ITEMID_FACEPAINTS = 6120,
-	ITEMID_MAKEUPBRUSH,
-	ITEMID_PAINT_BRUSH,
-	ITEMID_SURFACEPAINTS,
-	ITEMID_SPECIAL_ALLOY_TRAP = 7940,
-	ITEMID_ANCILLA = 12333,
-	ITEMID_BOARDING_HALTER = 12622,
-	ITEMID_STONE = 7049,
-	ITEMID_SKULL_ = 7420,
-	ITEMID_TOKEN_OF_SIEGFRIED = 7621,
+ 	ITEMID_YELLOW_POTION		= 503,
+ 	ITEMID_WHITE_POTION			= 504,
+ 	ITEMID_BLUE_POTION			= 505,
+	ITEMID_APPLE				= 512,
+	ITEMID_HOLY_WATER			= 523,
+	ITEMID_EMPERIUM				= 714,
+	ITEMID_YELLOW_GEMSTONE		,
+	ITEMID_RED_GEMSTONE			,
+	ITEMID_BLUE_GEMSTONE		,
+	ITEMID_TRAP = 1065			,
+	ITEMID_FACEPAINTS			= 6120,
+	ITEMID_MAKEUPBRUSH			,
+	ITEMID_PAINT_BRUSH			,
+	ITEMID_SURFACEPAINTS		,
+	ITEMID_SPECIAL_ALLOY_TRAP	= 7940,
+	ITEMID_ANCILLA				= 12333,
+	ITEMID_BOARDING_HALTER		= 12622,
+	ITEMID_STONE				= 7049,
+	ITEMID_SKULL_				= 7420,
+	ITEMID_TOKEN_OF_SIEGFRIED	= 7621,
 };
 
 #define itemid_isgemstone(id) ( (id) >= ITEMID_YELLOW_GEMSTONE && (id) <= ITEMID_BLUE_GEMSTONE )
@@ -54,6 +61,14 @@ enum item_itemid
 
 //Use apple for unknown items.
 #define UNKNOWN_ITEM_ID 512
+
+/// Struct of Roulette db
+struct s_roulette_db {
+	unsigned short *nameid[MAX_ROULETTE_LEVEL], /// Item ID
+		           *qty[MAX_ROULETTE_LEVEL]; /// Amount of Item ID
+	int *flag[MAX_ROULETTE_LEVEL]; /// Whether the item is for loss or win
+	int items[MAX_ROULETTE_LEVEL]; /// Number of items in the list for each
+} rd;
 
 struct item_data {
 	unsigned short nameid;
@@ -169,6 +184,8 @@ int itemdb_isequip2(struct item_data *);
 int itemdb_isidentified(unsigned short);
 int itemdb_isstackable(unsigned short);
 int itemdb_isstackable2(struct item_data *);
+
+bool itemdb_parse_roulette_db(void);
 
 void itemdb_reload(void);
 

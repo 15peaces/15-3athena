@@ -23,6 +23,9 @@
 #define MAX_PC_FEELHATE 3
 
 #define BANK_VAULT_VAR "#BANKVAULT"
+#define ROULETTE_BRONZE_VAR "RouletteBronze"
+#define ROULETTE_SILVER_VAR "RouletteSilver"
+#define ROULETTE_GOLD_VAR "RouletteGold"
 
 //15-3athena
 //These may be needed in the future. [15peaces]
@@ -475,6 +478,17 @@ struct map_session_data {
 		struct linkdb_node *head; ///< Bonus script head node. data: struct s_bonus_script_entry *entry, key: (intptr_t)entry
 		uint16 count;
 	} bonus_script;
+
+	struct {
+		int bronze, silver, gold; ///< Roulette Coin
+	} roulette_point;
+
+	struct {
+		short stage;
+		int8 prizeIdx;
+		short prizeStage;
+		bool claimPrize;
+	} roulette;
 };
 
 //Update this max as necessary. 84 is the value needed for the Expanded Super Baby.

@@ -7146,14 +7146,45 @@ ACMD_FUNC(uptime)
 
 /*==========================================
  * @changesex <sex>
- * => Changes one's sex. Argument sex can be 0 or 1, m or f, male or female.
+ * => Changes one's account sex. Argument sex can be 0 or 1, m or f, male or female.
  *------------------------------------------*/
 ACMD_FUNC(changesex)
-{
+ {
+ 	int i;
+
 	nullpo_retr(-1, sd);
-	chrif_changesex(sd);
+
+	pc_resetskill(sd,4);
+	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+	for (i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, true);
 	return 0;
 }
+
+/*==========================================
+ * @changecharsex <sex>
+ * => Changes one's character sex. Argument sex can be 0 or 1, m or f, male or female.
+ *------------------------------------------*/
+ACMD_FUNC(changecharsex)
+{
+	int i;
+
+ 	nullpo_retr(-1, sd);
+
+ 	pc_resetskill(sd,4);
+ 	// to avoid any problem with equipment and invalid sex, equipment is unequiped.
+	for (i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			pc_unequipitem(sd, sd->equip_index[i], 3);
+	}
+
+	chrif_changesex(sd, false);
+ 	return 0;
+ }
 
 /*================================================
  * @mute - Mutes a player for a set amount of time
@@ -9465,6 +9496,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "clearweather",      99,99,     atcommand_clearweather },
 	{ "uptime",             1,1,      atcommand_uptime },
 	{ "changesex",         60,60,     atcommand_changesex },
+	{ "changecharsex",     60,60,     atcommand_changecharsex },
 	{ "mute",              80,80,     atcommand_mute },
 	{ "refresh",            1,1,      atcommand_refresh },
 	{ "identify",          40,40,     atcommand_identify },

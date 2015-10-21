@@ -69,7 +69,7 @@ static const int packet_len_table[0x3d] = { // U - used, F - free
 //2b0a: FREE
 //2b0b: FREE
 //2b0c: Outgoing, chrif_changeemail -> 'change mail address ...'
-//2b0d: Incoming, chrif_changedsex -> 'Change sex of acc XY'
+//2b0d: Incoming, chrif_changedsex -> 'Change sex of acc XY' (or char)
 //2b0e: Outgoing, chrif_char_ask_name -> 'Do some operations (change sex, ban / unban etc)'
 //2b0f: Incoming, chrif_char_ask_name_answer -> 'answer of the 2b0e'
 //2b10: Outgoing, chrif_updatefamelist -> 'Update the fame ranking lists and send them'
@@ -671,7 +671,9 @@ void chrif_authfail(int fd)
 		node->account_id == account_id &&
 		node->char_id == char_id &&
 		node->login_id1 == login_id1 &&
+#if PACKETVER < 20141016
 		node->sex == sex &&
+#endif
 		node->state == ST_LOGIN )
 	{// found a match
 		clif_authfail_fd(node->fd, 0);
@@ -798,14 +800,16 @@ int chrif_char_ask_name(int acc, const char* character_name, unsigned short oper
 	return 0;
 }
 
-int chrif_changesex(struct map_session_data *sd)
+int chrif_changesex(struct map_session_data *sd, bool change_account)
 {
 	chrif_check(-1);
 	WFIFOHEAD(char_fd,44);
 	WFIFOW(char_fd,0) = 0x2b0e;
 	WFIFOL(char_fd,2) = sd->status.account_id;
 	safestrncpy((char*)WFIFOP(char_fd,6), sd->status.name, NAME_LENGTH);
-	WFIFOW(char_fd,30) = 5;
+	WFIFOW(char_fd,30) = (change_account ? 5 : 7);
+	if (!change_account)
+		WFIFOB(char_fd,32) = sd->status.sex == SEX_MALE ? SEX_FEMALE : SEX_MALE;
 	WFIFOSET(char_fd,44);
 
 	clif_displaymessage(sd->fd, "Need disconnection to perform change-sex request...");
@@ -845,7 +849,7 @@ static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 
 	case 2 : action = "ban"; break;
 	case 3 : action = "unblock"; break;
 	case 4 : action = "unban"; break;
-	case 5 : action = "change the sex of"; break;
+	case 5 : case 7: action = "change the sex of"; break;
 	default: action = "???"; break;
 	}
 	

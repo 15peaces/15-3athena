@@ -497,6 +497,7 @@ void initChangeTables(void)
 	//Royal Guard
 	add_sc( LG_REFLECTDAMAGE     , SC_LG_REFLECTDAMAGE );
 	set_sc( LG_FORCEOFVANGUARD   , SC_FORCEOFVANGUARD    , SI_FORCEOFVANGUARD   , SCB_MAXHP|SCB_DEF );
+	set_sc( LG_PIETY             , SC_BENEDICTIO         , SI_BENEDICTIO        , SCB_DEF_ELE );
 
 	//Minstrel/Wanderer
 	set_sc( WA_SWING_DANCE				, SC_SWING					, SI_SWING					, SCB_SPEED|SCB_ASPD );
@@ -7329,15 +7330,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_BURNING:	sc->opt1 = OPT1_BURNING;	break;
 		case SC_IMPRISON:	sc->opt1 = OPT1_IMPRISON;	break;
 		//OPT2
-		case SC_POISON:       sc->opt2 |= OPT2_POISON;       break;
-		case SC_CURSE: case SC_OBLIVIONCURSE:        sc->opt2 |= OPT2_CURSE;        break;
-		case SC_SILENCE:      sc->opt2 |= OPT2_SILENCE;      break;
-		case SC_SIGNUMCRUCIS: case SC_CHAOS: sc->opt2 |= OPT2_SIGNUMCRUCIS; break;
-		case SC_BLIND:        sc->opt2 |= OPT2_BLIND;        break;
-		case SC_ANGELUS:      sc->opt2 |= OPT2_ANGELUS;      break;
-		case SC_BLEEDING:     sc->opt2 |= OPT2_BLEEDING;     break;
-		case SC_DPOISON:      sc->opt2 |= OPT2_DPOISON;      break;
-		case SC_FEAR:         sc->opt2 |= OPT2_FEAR;         break;
+		case SC_POISON:									sc->opt2 |= OPT2_POISON;		break;
+		case SC_CURSE:			case SC_OBLIVIONCURSE:	sc->opt2 |= OPT2_CURSE;			break;
+		case SC_SILENCE:								sc->opt2 |= OPT2_SILENCE;		break;
+		case SC_SIGNUMCRUCIS:	case SC_CHAOS:			sc->opt2 |= OPT2_SIGNUMCRUCIS;	break;
+		case SC_BLIND:									sc->opt2 |= OPT2_BLIND;			break;
+		case SC_ANGELUS:		case SC_BENEDICTIO:		sc->opt2 |= OPT2_ANGELUS;		break;// Piety use this, i need confirm if Benedictio do it too. [pakpil]
+		case SC_BLEEDING:								sc->opt2 |= OPT2_BLEEDING;		break;
+		case SC_DPOISON:								sc->opt2 |= OPT2_DPOISON;		break;
+		case SC_FEAR:									sc->opt2 |= OPT2_FEAR;			break;
 		//OPT3
 		case SC_TWOHANDQUICKEN:
 		case SC_ONEHAND:

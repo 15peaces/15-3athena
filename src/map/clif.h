@@ -34,8 +34,8 @@ struct party_booking_ad_info;
 
 enum
 {// packet DB
-	MAX_PACKET_DB  = 0xf00,
-	MAX_PACKET_VER = 33,
+	MAX_PACKET_DB  = 0xAFF,
+	MAX_PACKET_VER = 35,
 	MAX_PACKET_POS = 20,
 };
 
@@ -64,6 +64,35 @@ enum e_BANKING_WITHDRAW_ACK {
 	BWA_SUCCESS       = 0x0,
 	BWA_NO_MONEY      = 0x1,
 	BWA_UNKNOWN_ERROR = 0x2,
+};
+
+enum RECV_ROULETTE_ITEM_REQ {
+	RECV_ITEM_SUCCESS    = 0x0,
+	RECV_ITEM_FAILED     = 0x1,
+	RECV_ITEM_OVERCOUNT  = 0x2,
+	RECV_ITEM_OVERWEIGHT = 0x3,
+};
+
+enum RECV_ROULETTE_ITEM_ACK {
+	RECV_ITEM_NORMAL =  0x0,
+	RECV_ITEM_LOSING =  0x1,
+};
+
+enum GENERATE_ROULETTE_ACK {
+	GENERATE_ROULETTE_SUCCESS         = 0x0,
+	GENERATE_ROULETTE_FAILED          = 0x1,
+	GENERATE_ROULETTE_NO_ENOUGH_POINT = 0x2,
+	GENERATE_ROULETTE_LOSING          = 0x3,
+};
+
+enum OPEN_ROULETTE_ACK {
+	OPEN_ROULETTE_SUCCESS = 0x0,
+	OPEN_ROULETTE_FAILED  = 0x1,
+};
+
+enum CLOSE_ROULETTE_ACK {
+	CLOSE_ROULETTE_SUCCESS = 0x0,
+	CLOSE_ROULETTE_FAILED  = 0x1,
 };
 
 // packet_db[SERVER] is reserved for server use
@@ -819,7 +848,7 @@ void clif_search_store_info_failed(struct map_session_data* sd, unsigned char re
 void clif_open_search_store_info(struct map_session_data* sd);
 void clif_search_store_info_click_ack(struct map_session_data* sd, short x, short y);
 
-// 15-3athena Added
+/// 15-3athena Added
 void clif_fast_movement(struct block_list *bl, short x, short y);
 void clif_showscript(struct block_list* bl, const char* message);
 void clif_efst_status_change(struct block_list *bl,int type,unsigned int tick, int val1, int val2, int val3);
@@ -828,22 +857,31 @@ void clif_map_type2(struct block_list *bl,enum send_target target);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
 
-//Trade NPC
+/// Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketClosed(int fd, struct map_session_data *sd);
 void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
-//CashShop
+/// CashShop
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd);
 void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
 void clif_cashshop_db(void);
 
+/// Roulette
+void clif_roulette_generate_ack(struct map_session_data *sd, unsigned char result, short stage, short prizeIdx, short bonusItemID);
+void clif_parse_RouletteOpen(int fd, struct map_session_data *sd);
+void clif_parse_RouletteInfo(int fd, struct map_session_data *sd);
+void clif_parse_RouletteClose(int fd, struct map_session_data *sd);
+void clif_parse_RouletteGenerate(int fd, struct map_session_data *sd);
+void clif_parse_RouletteRecvItem(int fd, struct map_session_data *sd);
+
 /**
  * Color Table
  **/
 enum clif_colors {
+	COLOR_DEFAULT,
 	COLOR_RED,
 	COLOR_WHITE,
 	COLOR_YELLOW,

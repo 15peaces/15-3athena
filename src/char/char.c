@@ -3489,6 +3489,7 @@ int parse_frommap(int fd)
 				node->sex == sex /*&&
 				node->ip == ip*/ )
 			{// auth ok
+			if (cd->sex == 99)
 				cd->sex = sex;
 
 				WFIFOHEAD(fd,24 + sizeof(struct mmo_charstatus));
