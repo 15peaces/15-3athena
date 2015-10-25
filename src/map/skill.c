@@ -1039,8 +1039,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		skill_castend_nodamage_id(src,bl,skillid,skilllv,tick,BCT_ENEMY);
 		break;
 	case AB_ADORAMUS:
-		sc_start(bl, SC_BLIND, 100, skilllv, skill_get_time(skillid, skilllv));
-		sc_start(bl, SC_DECREASEAGI, 100, skilllv, skill_get_time(skillid, skilllv));
+		sc_start(bl, SC_ADORAMUS, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case WL_FROSTMISTY:
 		rate = 20 + 12 * skilllv;
@@ -1071,6 +1070,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			skill_castend_damage_id(src, bl, NC_AXEBOOMERANG, pc_checkskill(sd, NC_AXEBOOMERANG), tick, 1);
 		sc_start(bl, SC_STUN, 5*skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
+	case LG_SHIELDPRESS:
+		sc_start(bl, SC_STUN, 30 + 8 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+ 		break;
 	case WM_METALICSOUND:
 		sc_start(bl, SC_CHAOS, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -3022,6 +3024,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SC_FEINTBOMB:
 	case LG_CANNONSPEAR:
 	case LG_BANISHINGPOINT:
+	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
 	case WM_METALICSOUND:
 	case WM_SEVERE_RAINSTORM_MELEE:
@@ -3671,7 +3674,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			int spheres[5] = { 0, 0, 0, 0, 0 },
 				positions[5] = {-1,-1,-1,-1,-1 },
-				i, j = 0, k, subskill;
+				i, j = 0, k, subskill = 0;
 
 			for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
 				if( sc && sc->data[i] )
@@ -3786,7 +3789,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				{
 					skele = WL_RELEASE - 5 + sc->data[spheres[i]]->val1 - WLS_FIRE; // Convert Ball Element into Skill ATK for balls
 					// WL_SUMMON_ATK_FIRE, WL_SUMMON_ATK_WIND, WL_SUMMON_ATK_WATER, WL_SUMMON_ATK_GROUND
-					skill_addtimerskill(src,tick+status_get_adelay(src)*i,bl->id,0,0,skele,skilllv,BF_MAGIC,flag);
+					skill_addtimerskill(src,tick+status_get_adelay(src)*i,bl->id,0,0,skele,skilllv,BF_MAGIC,SD_LEVEL);
 					status_change_end(src,spheres[i],-1); // Eliminate ball
 				}
 				clif_skill_nodamage(src,bl,skillid,0,1);
@@ -4541,6 +4544,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NC_HOVERING:
 	case NC_SHAPESHIFT:
 	case SC_DEADLYINFECT:
+	case LG_PRESTIGE:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
 	case WL_RECOGNIZEDSPELL:
@@ -11243,6 +11247,14 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+		/* Remove when these sc's are implemented. [pakpil]
+	case LG_PRESTIGE:
+		if( sc && (sc->data[SC_BANDING] || sc->data[SC_INSPIRATION]) )
+		{
+			clif_skill_damage(sd,skill,0,0,0);
+			return 0;
+		}
+		break;*/
 	case LG_RAGEBURST:
 		if( sd->rageball == 0 )
 		{

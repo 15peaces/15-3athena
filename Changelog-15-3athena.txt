@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/25/2015
+	r82 [15peaces]
+		*Merged missing changes from 3ceam rev. 305 - 307
+		*Some internal clean-up here and there..
+			-Done rest of clean-up in item_trade.txt. Now we can find missing IDs easier. ^^
+				--Also removed duplicates and unneeded entries.
+				--Activated some disabled restrictions for existing / confirmed items.
+		*Added Mora related town npcs and guides.
+		*Added Eclage monster spawns.
+			-Also added eclage monsters. These are currently renewal versions. Need to change them later. ^^
+		*Added LG_PRESTIGE and LG_SHIELDPRESS skills.
+		*Minor fix in LG_PIETY where its casting should be interrupted when the caster get damage.
+		*Adoramus Update adjusted to official behavior.
+			-Uses now its own SC_* and SI_* regardless to its blind status effect.
+
 10/21/2015
 	r81 [15peaces]
 		*Merged missing changes from 3ceam rev. 302 - 304
