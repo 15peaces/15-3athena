@@ -2406,7 +2406,7 @@
 5070,Headband_Of_Power,Hot-blooded Headband,5,20,,100,,1,,0,0xFFFFFFFE,7,2,256,,0,1,154,{ bonus bStr,2; },{},{}
 5071,Indian_Headband,Indian Headband,5,20,,200,,1,,0,0xFFFFFFFE,7,2,256,,0,1,155,{ bonus bDex,1; },{},{}
 5072,Inccubus_Horn,Incubus Horn,5,20,,800,,4,,0,0xFFFFFFFE,7,2,256,,70,1,156,{ bonus bAgi,1; bonus bMdef,10; },{},{}
-5073,Cap_Of_Concentration,Model Training Hat,5,20,,700,,2,,0,0xFFFFFFFE,7,2,256,,0,1,157,{ bonus bDex,2; },{},{}
+5073,Cap_Of_Concentration,Model Training Hat,5,20,,700,,2,,0,0xFFFFFFFE,7,2,256,,0,1,157,{ bonus bDex,2; if(isequipped(5574)){ bonus bDex,2; bonus bDef,2;} },{},{}
 5074,Ear_Of_Angel's_Wing,Angel Wing Ears,5,20,,100,,1,,0,0xFFFFFFFF,7,2,512,,70,0,158,{ bonus bStr,1; },{},{}
 5075,Cowboy_Hat,Cowboy Hat,5,20,,500,,4,,0,0xFFFFFFFF,7,2,256,,0,1,159,{},{},{}
 5076,Fur_Hat,Beanie,5,20,,350,,2,,0,0xFFFFFFFF,7,2,256,,0,1,160,{ bonus bLuk,1; },{},{}
@@ -2907,7 +2907,6 @@
 //5571,Rasta_Wig,Rasta_Wig,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,1,552,{ bonus bStr,1; },{},{}
 5572,Savage_Baby_Hat,Savage Babe Hat,5,20,,100,,1,,1,0xFFFFFFFF,7,2,256,,1,1,553,{ bonus bVit,2; },{},{}
 5573,Bogy_Horn,Dokebi Horn,5,20,,100,,1,,1,0xFFFFFFFF,7,2,256,,0,1,554,{},{},{}
-5574,Pencil_in_Mouth,Well-Chewed Pencil,5,20,,100,,0,,0,0xFFFFFFFF,7,2,1,,10,0,555,{ bonus bdex,2; bonus bHitRate,3; },{},{}
 //5575,Onigiri_Hat,Rice Ball Hat,5,20,,100,,1,,1,0xFFFFFFFF,7,2,256,,30,0,556,{},{},{}
 //5576,Japan_Winecup,Wine Cup,5,20,,100,,1,,0,0xFFFFFFFF,7,2,1,,0,0,557,{},{},{}
 5577,Dark_Knight_Mask_,Dark Knight Mask,5,,,3000,,5,,0,0xFFFFFFFF,7,2,769,,80,1,479,{ bonus bStr,3; if(isequipped(2779,2780)) { bonus bMatkRate,10; bonus bInt,5; bonus2 bSubRace,RC_Angel,10; } },{},{}

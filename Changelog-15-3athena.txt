@@ -4,6 +4,13 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/26/2015
+	r83 [15peaces]
+		*Merged missing changes from 3ceam rev. 308 - 311
+		*Fixed Model Training Hat & Well-Chewed Pencil combo.
+		*Fixed LG_SHIELDPRESS.
+			-Applied missing effects from Gloomy Day skill.
+
 10/25/2015
 	r82 [15peaces]
 		*Merged missing changes from 3ceam rev. 305 - 307
