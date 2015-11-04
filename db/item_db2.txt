@@ -1433,3 +1433,68 @@
 22884,October_Gift_Box,October Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12529,5; },{},{}
 22885,November_Gift_Box,November Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem callfunc("F_Rand",2566,2856,2857,15023),1209600; },{},{}
 22886,December_Gift_Box,December Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22869,10; },{},{}
+
+//Eden Group Equipment (renewal versions)
+1192,P_Slayer1,Eden Slayer I,4,0,,0,162,,1,0,0x00004082,63,2,34,2,26,0,3,{},{},{}
+1193,P_Slayer2,Eden Slayer II,4,0,,0,185,,1,0,0x00004082,63,2,34,2,40,0,3,{},{},{}
+1197,P_Slayer3,Eden Slayer III,4,0,,0,200,,1,0,0x00004082,63,2,34,3,60,0,3,{},{},{}
+1289,P_Katar1,Eden Katar I,4,0,,0,155,,1,0,0x00001000,63,2,34,3,60,0,16,{},{},{}
+1391,P_Two_Handed_Axe1,Eden Two-Handed Axe I,4,0,,0,195,,1,0,0x000444A2,63,2,34,3,60,0,7,{},{},{}
+1434,P_Spear1,Eden Spear I,4,0,,0,165,,3,0,0x00004082,63,2,2,3,60,0,4,{},{},{}
+1583,P_Book1,Eden Book I,4,0,,0,135:110,,1,0,0x00410100,63,2,2,3,60,0,15,{},{},{}
+1650,P_Staff1,Eden Staff I,4,0,,0,60:125,,1,0,0x00818314,63,2,2,2,26,0,10,{ bonus bInt,2; },{},{}
+1651,P_Staff2,Eden Staff II,4,0,,0,60:150,,1,0,0x00818314,63,2,2,2,40,0,10,{ bonus bInt,3; },{},{}
+1658,P_Staff3,Eden Staff III,4,0,,0,60:170,,1,0,0x00818314,63,2,2,3,60,0,10,{ bonus bInt,4; },{},{}
+1747,P_Bow1,Eden Bow I,4,0,,0,82,,5,0,0x000A0848,63,2,34,2,26,0,11,{},{},{}
+1748,P_Bow2,Eden Bow II,4,0,,0,120,,5,0,0x000A0848,63,2,34,2,40,0,11,{},{},{}
+1831,P_Knuckle1,Eden Knuckle I,4,0,,0,120,,1,0,0x00008100,63,2,2,3,60,0,12,{},{},{}
+1931,P_Guitar1,Eden Guitar I,4,0,,0,125,,1,0,0x00080000,63,1,2,3,60,0,13,{},{},{}
+1986,P_Tail1,Eden Tail I,4,0,,0,125,,2,0,0x00080000,63,0,2,3,60,0,14,{},{},{}
+2456,Para_Team_Boots1,Eden Team Boots I,5,0,,0,,14,,0,0xFFFFFFFF,63,2,64,,12,0,0,{ bonus bHPrecovRate,10; bonus bSPrecovRate,2; },{},{}
+2457,Para_Team_Boots2,Eden Team Boots II,5,0,,0,,16,,0,0xFFFFFFFF,63,2,64,,26,0,0,{ bonus bHPrecovRate,12; bonus bSPrecovRate,4; },{},{}
+2458,Para_Team_Boots3,Eden Team Boots III,5,0,,0,,18,,0,0xFFFFFFFF,63,2,64,,40,0,0,{ bonus bHPrecovRate,14; bonus bSPrecovRate,6; },{},{}
+2473,Para_Team_Boots4,Eden Team Boots IV,5,0,,0,,20,,0,0xFFFFFFFF,63,2,64,,60,0,0,{ bonus bAgi,1; bonus bVit,1; bonus bHPrecovRate,28; bonus bSPrecovRate,12; },{},{}
+2560,Para_Team_Manteau1,Eden Team Manteau I,5,0,,0,,14,,0,0xFFFFFFFF,63,2,4,,12,0,0,{ bonus2 bSubEle,Ele_Neutral,10; },{},{}
+2571,Para_Team_Manteau2,Eden Team Manteau II,5,0,,0,,18,,0,0xFFFFFFFF,63,2,4,,60,0,0,{ bonus bFlee,12; bonus2 bSubEle,Ele_Neutral,10; },{},{}
+5583,Para_Team_Hat1,Eden Team Hat I,5,0,,0,,1,,0,0xFFFFFFFF,63,2,256,,12,1,465,{},{},{}
+13050,P_Dagger1,Eden Dagger I,4,0,,0,124:60,,1,0,0x3E9F7EEF,63,2,2,2,26,0,1,{},{},{}
+13051,P_Dagger2,Eden Dagger II,4,0,,0,158:70,,1,0,0x3E9F7EEF,63,2,2,2,40,0,1,{},{},{}
+13066,P_Dagger3,Eden Dagger III,4,0,,0,165:80,,1,0,0x3E9F7EEF,63,2,2,3,60,0,1,{},{},{}
+13112,P_Revolver1,Eden Revlover I,4,0,,0,44,,7,0,0x41000000,63,2,34,1,26,0,17,{ bonus bHit,-5; },{},{}
+13113,P_Revolver2,Eden Revlover II,4,0,,0,60,,7,0,0x41000000,63,2,34,1,40,0,17,{ bonus bHit,-5; },{},{}
+13114,P_Revolver3,Eden Revolver III,4,0,,0,76,,7,0,0x41000000,63,2,34,3,60,0,17,{ bonus bHit,-5; },{},{}
+13310,P_Huuma_Suriken1,P.Huuma Suriken I,4,0,,0,170,,1,0,0x02000000,63,2,34,3,60,0,22,{ bonus bMatk,50; },{},{}
+13423,P_Sabre1,Eden Sabre I,4,0,,0,147,,1,0,0x000654E2,63,2,2,2,26,0,2,{},{},{}
+13424,P_Sabre2,Eden Sabre II,4,0,,0,170,,1,0,0x000654E2,63,2,2,2,40,0,2,{},{},{}
+13434,P_Saber3,Eden Saber III,4,0,,0,185,,1,0,0x000654E2,63,2,2,3,60,0,2,{},{},{}
+15009,Para_Team_Uniform1,Eden Team Uniform I,5,0,,0,,35,,0,0xFFFFFFFF,63,2,16,,12,0,0,{ bonus bMaxHP,100; bonus bMaxSP,10; },{},{}
+15010,Para_Team_Uniform2,Eden Team Uniform II,5,0,,0,,46,,0,0xFFFFFFFF,63,2,16,,26,0,0,{ bonus bMaxHP,200; bonus bMaxSP,20; },{},{}
+15011,Para_Team_Uniform3,Eden Team Uniform III,5,0,,0,,58,,0,0xFFFFFFFF,63,2,16,,40,0,0,{ bonus bMaxHP,300; bonus bMaxSP,30; bonus bMdef,5; },{},{}
+15031,Para_Team_Armor,Paradise Uniform IV,5,0,,0,,70,,0,0xFFFFFFFF,63,2,16,,60,0,0,{ bonus bMdef,5; bonus bMaxHP,500; bonus bMaxSP,50; bonus bStr,1; bonus bInt,1; bonus bDex,1; },{},{}
+16004,P_Mace1,Eden Mace I,4,0,,0,142,,1,0,0x0004C5B2,63,2,2,2,26,0,8,{},{},{}
+16005,P_Mace2,Eden Mace II,4,0,,0,163,,1,0,0x0004C5B2,63,2,2,2,40,0,8,{},{},{}
+16014,P_Mace3,Eden Mace III,4,0,,0,172,,1,0,0x0004C5B3,63,2,2,3,60,0,8,{},{},{}
+18106,P_Bow3,Eden Bow III,4,0,,0,140,,5,0,0x000A0848,63,2,34,3,60,0,11,{},{},{}
+18514,Para_Team_Hat2,Eden Team Hat II,5,0,,0,,5,,1,0xFFFFFFFF,63,2,256,,60,1,682,{ autobonus "{ bonus bBaseAtk,10; }",70,5000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bMatk,10; }",50,5000,BF_MAGIC,"{ specialeffect2 EF_SPELLBREAKER; }"; },{},{}
+
+//misc. monster drops
+6557,Fancy_Fairy_Wing,Fancy Fairy Wing,3,2350,,10,,,,,,,,,,,,,{},{},{}
+6558,Pile_Of_Acorn,Pile Of Acorn,3,1500,,10,,,,,,,,,,,,,{},{},{}
+6559,Eye_Drops,Eye Drops,3,1780,,10,,,,,,,,,,,,,{},{},{}
+6560,Leaf_Bookmark,Leaf Bookmark,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6561,Dustball,Dustball,3,2000,,10,,,,,,,,,,,,,{},{},{}
+6562,Tiny_Mouse_Tail,Tiny Mouse Tail,3,0,,0,,,,,,,,,,,,,{},{},{}
+6563,Weeds,Weeds,3,0,,0,,,,,,,,,,,,,{},{},{}
+6564,Captive_Hatchling,Captive Hatchling,3,0,,10,,,,,,,,,,,,,{},{},{}
+6565,Racy_Spice,Racy Spice,3,20,,10,,,,,,,,,,,,,{},{},{}
+6566,Cacao99_Recipe,Cacao99 Recipe,3,0,,0,,,,,,,,,,,,,{},{},{}
+12812,Snow_Flip,Snow Flip,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "ECL_SNOWFLIP",1; },{},{}
+12813,Peony_Mommy,Peony Mamy,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "ECL_PEONYMAMY",1; },{},{}
+12814,Slapping_Herb,Slapping Herb,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "ECL_SADAGUI",1; },{},{}
+12815,Yggdrasil_Dust,Yggdrasil Dust,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "ECL_SEQUOIADUST",1; },{},{}
+12816,Old_Ore_Box_,Old Ore Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,60,,,{},{},{}
+12817,Old_Card_Album_,Old Card Album,2,0,,0,,,,,0xFFFFFFFF,63,2,,,80,,,{},{},{}
+12818,High_Weapon_Box_,High Weapon Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,100,,,{},{},{}
+12819,Zherlthsh_Tck_Box_,Zherlthsh Tck Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,150,,,{ getitem 6184,1; },{},{}
+12820,Mao_Guai_Scroll,Mao Guai Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ mercenary_create 2348,1800000; },{},{}
+12821,Loli_Ruri_Scroll,Loli Ruri Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ mercenary_create 2349,1800000; },{},{}

@@ -4,6 +4,26 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/04/2015
+	r84 [15peaces]
+		*Merged missing changes from 3ceam rev. 312 - 317
+		*Added missing Eden Group equipment.
+			-also fixed trading restrictions.
+		*Added some missing items
+			-also moved some stable items from db2 to item_db.
+		*Fixed HP of Bangungot (ID 2327)
+			-this monster has a plant setup so it should stay at 250 HP. ^^
+		*Fixed WM_GLOOMYDAY. Added missing skill data.
+		*Fixed LG_REFLECTDAMAGE area effect.
+		*Fixed LG_CANNONSPEAR that had a wrong behavior.
+		*Fixed GN_THORNSTRAP.
+			-Fixed its unit layout.
+			-Fixed behavior using clif_changetraplook instead skill_unitsetting.
+		*Added GN_MANDRAGORA skill.
+		*Fixed Vacuum Extreme missing duration resistance.
+			-This skill now uses its own SC_* and SI_* to adopt official behavior.
+		*Fixed SO_STRIKING.
+
 10/26/2015
 	r83 [15peaces]
 		*Merged missing changes from 3ceam rev. 308 - 311

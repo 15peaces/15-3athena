@@ -527,15 +527,15 @@ void initChangeTables(void)
 	set_sc( GN_BLOOD_SUCKER					, SC_BLOOD_SUCKER				, SI_BLOOD_SUCKER				, SCB_NONE );
 	set_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER, SI_FIRE_EXPANSION_SMOKE_POWDER, SCB_NONE );
 	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS	, SCB_NONE );
-	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_BLANK						, SCB_INT );
-
+	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA                 , SCB_INT );
 	//Sorcerer
-	add_sc( SO_FIREWALK		, SC_FIREWALK			);
-	add_sc( SO_ELECTRICWALK	, SC_ELECTRICWALK		);
-	set_sc( SO_CLOUD_KILL	, SC_ELEMENTALCHANGE	, SI_CLOUD_KILL				, SCB_NONE );
-	add_sc( SO_WARMER		, SC_WARMER				);
-	set_sc( SO_STRIKING		, SC_STRIKING			, SI_BLANK					, SCB_BATK|SCB_CRI);
-	set_sc( SO_ARRULLO		, SC_DEEPSLEEP			, SI_DEEP_SLEEP				, SCB_NONE );
+	add_sc( SO_FIREWALK			, SC_FIREWALK			);
+	add_sc( SO_ELECTRICWALK		, SC_ELECTRICWALK		);
+	set_sc( SO_CLOUD_KILL		, SC_ELEMENTALCHANGE	, SI_CLOUD_KILL				, SCB_NONE );
+	add_sc( SO_WARMER			, SC_WARMER				);
+	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME		, SI_VACUUM_EXTREME			, SCB_NONE );
+	set_sc( SO_STRIKING         , SC_STRIKING			, SI_STRIKING				, SCB_WATK|SCB_CRI );
+	set_sc( SO_ARRULLO			, SC_DEEPSLEEP			, SI_DEEP_SLEEP				, SCB_NONE );
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -3891,8 +3891,6 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk -= batk / 100 * 25;
 	if(sc->data[SC_GN_CARTBOOST])
 		batk += sc->data[SC_GN_CARTBOOST]->val1 * 10;
-	if(sc->data[SC_STRIKING])
-		batk += sc->data[SC_STRIKING]->val2;
 	if(sc->data[SC__ENERVATION])
 		batk -= batk * 25 / 100;
 	if(sc->data[SC__BLOODYLUST])
@@ -3952,6 +3950,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_FIGHTINGSPIRIT]->val1;
 	if(sc->data[SC__BLOODYLUST])
 		watk += watk * 32 / 100; // Still need official value [pakpil]
+	if(sc->data[SC_STRIKING])
+		watk += sc->data[SC_STRIKING]->val2;
 
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
@@ -5374,7 +5374,10 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		sc_def = (status->agi / 4) + (status->luk / 10) + (status_get_lv(bl) / 20) ;
 		break;
 	case SC_CRYSTALIZE:
-		tick -= (1000 * (status->vit/10)) + (status_get_lv(bl)/50);
+		tick -= (1000*(status->vit/10))+(status_get_lv(bl)/50);
+		break;
+	case SC_VACUUM_EXTREME:
+		tick -= 500*status->str;
 		break;
 	case SC_MAGICMIRROR:
 	case SC_ARMORCHANGE:
@@ -7164,8 +7167,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
 			break;
 		case SC_STRIKING:
+			val2 = 50 + 50 * val1;
 			if( sd )
-				val2 = pc_checkskill(sd, SA_FLAMELAUNCHER|SA_FROSTWEAPON|SA_LIGHTNINGLOADER|SA_SEISMICWEAPON);
+			{
+				val2 += 5 * pc_checkskill(sd, SA_FLAMELAUNCHER);
+				val2 += 5 * pc_checkskill(sd, SA_FROSTWEAPON);
+				val2 += 5 * pc_checkskill(sd, SA_LIGHTNINGLOADER);
+				val2 += 5 * pc_checkskill(sd, SA_SEISMICWEAPON);
+			}
 			val4 = tick / 1000;
 			tick = 1000;
 			break;
@@ -7325,6 +7334,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CHAOS:
 		case SC_CRYSTALIZE:
 		case SC_WHITEIMPRISON:
+		case SC_VACUUM_EXTREME:
 			unit_stop_walking(bl,1);
 		break;
 		case SC_HIDING:
@@ -9173,6 +9183,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_STRIPHELM:
 			case SC_WUGBITE:
 			case SC_ADORAMUS:
+			case SC_VACUUM_EXTREME:
 				if (!(type&2))
 					continue;
 				break;

@@ -968,6 +968,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC__MANHOLE]
 			|| (sc->data[SC_FEAR] && sc->data[SC_FEAR]->val2 > 0)
 			|| sc->data[SC_DEEPSLEEP]
+			|| sc->data[SC_VACUUM_EXTREME]
 		))
 			return 0;
 	}
@@ -2073,6 +2074,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl,SC_CRYSTALIZE, INVALID_TIMER);
 			status_change_end(bl,SC__SHADOWFORM, INVALID_TIMER);
 			status_change_end(bl,SC__MANHOLE, INVALID_TIMER);
+			status_change_end(bl,SC_VACUUM_EXTREME, INVALID_TIMER);
 
 	}
 
