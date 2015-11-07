@@ -62,27 +62,6 @@
 //2338,Wedding_Dress,Wedding Dress,5,43000,,500,,0,,0,0xFFFFFFFE,7,0,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 //7170,Tuxedo,Tuxedo,5,43000,,10,,0,,0,0xFFFFFFFE,7,1,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 
-//
-16000,Erde,Erde,4,20,,500,130,,1,2,0x0004C5B2,2,2,2,4,50,1,8,{ bonus2 bSkillAtk,"AM_ACIDTERROR",20; bonus2 bSkillAtk,"AM_DEMONSTRATION",20; bonus bMaxSP,50; bonus bHealPower,10; },{},{}
-16001,Red_Square_Bag,Red Square Bag,4,20,,500,130,,1,2,0x0004C5B2,2,2,2,3,50,1,8,{ bonus bMaxHP,200; bonus2 bSkillAtk,"AM_ACIDTERROR",20; bonus2 bSkillAtk,"AM_DEMONSTRATION",20; bonus2 bAddMonsterDropItem,501,50; bonus2 bAddMonsterDropItem,502,20; bonus2 bAddMonsterDropItem,503,20; bonus2 bAddMonsterDropItem,504,20; bonus2 bAddMonsterDropItem,505,10; if(readparam(bStr)>=95) bonus2 bAddEff,Eff_Stun,500; },{},{}
-16002,Stunner_C,Stunner,4,0,,0,175,,1,0,0x00008110,7,2,2,3,1,0,8,{ bonus2 bAddEff,Eff_Stun,1000; bonus2 bAddSize,0,40; bonus2 bAddSize,1,40; bonus2 bAddSize,2,40; },{},{}
-16003,Carga_Mace,Carga Mace,4,20,,1500,175,,1,2,0x0004C5B2,7,2,2,3,100,1,8,{},{},{}
-16004,P_Mace1,Eden Mace I,4,0,,0,142,,1,0,0x0004C5B2,7,2,2,2,26,0,8,{},{},{}
-16005,P_Mace2,Eden Mace II,4,0,,0,163,,1,0,0x0004C5B2,7,2,2,2,40,0,8,{},{},{}
-16006,Tourist_Mace,Tourist Mace,4,0,,500,45,,1,0,0x0004C5B3,7,2,2,1,1,0,8,{ bonus bInt,1; bonus bAgi,1; },{},{}
-16007,Mjolnir_C,Mjolnir,4,20,,0,250,,1,0,0x000444A2,7,2,2,4,95,0,8,{ bonus bAtkEle,Ele_Wind; bonus bStr,15; bonus bDex,40; },{},{}
-16008,F_Spanner_C,Spanner,4,2,,0,150,,1,0,0x00008110,7,2,2,3,0,0,8,{},{},{}
-16009,E_Spanner_C,Spanner,4,2,,0,150,,1,0,0x00008110,7,2,2,3,0,0,8,{},{},{}
-16010,Red_Ether_Bag,Red Ether Bag,4,20,,0,15,,1,1,0x0004C5B2,7,2,2,3,102,1,8,{ /* bonus bMatk,100; */ },{},{}
-//
-16134,King_Frog_Hat_Box,Frog King Hat Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5528,1; },{},{}
-16135,Evil's_Bone_Hat_Box,Satanic Bone Helm Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5529,1; },{},{}
-//16186,Baby_Dragon_Hat_Box,
-//16226,Aries_Diadem_Box,
-//16227,Aries_Crown_Box,
-//16230,Taurus_Diadem_Box,
-//16231,Taurus_Crown_Box,
-//16246,Crown_of_Deceit_Box,
 16247,Dragon_Arhat_Mask_Box,Dragon Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5565,1; },{},{}
 16248,Tiger_Arhat_Mask_Box,Tiger Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5566,1; },{},{}
 //16249,Knight's_Gift_Box

@@ -2055,6 +2055,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		status_change_end(bl, SC_MARIONETTE2, INVALID_TIMER);
 		status_change_end(bl, SC_CLOSECONFINE, INVALID_TIMER);
 		status_change_end(bl, SC_CLOSECONFINE2, INVALID_TIMER);
+		status_change_end(bl, SC_ROLLINGCUTTER, INVALID_TIMER);
 		status_change_end(bl, SC_HIDING, INVALID_TIMER);
 		// If the bl is a PC, we'll handle the removal of cloaking later
 		if( bl->type != BL_PC )

@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/07/2015
+	r85 [15peaces]
+		*Merged missing changes from 3ceam rev. 318 - 319
+		*Added some new NPC constants.
+		*Moved some stable items from db2 to item_db.
+			-Also removed some placeholders.
+		*Removed duplicated entry in skill_nocast_db
+		*Fixed SO_STRIKING. Follow up r84 (c076f7d).
+		*Removed SC_CHAINLIGHTNING and SC_FREEZINGSPELL since they are no longer needed.
+		*Fixed Earth Strain not taking Magic Power.
+			-Release skill removes Magic Power previous to cast skill.
+		*Completed skills of Guillotine Cross.
+
 11/04/2015
 	r84 [15peaces]
 		*Merged missing changes from 3ceam rev. 312 - 317

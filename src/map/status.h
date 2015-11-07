@@ -682,13 +682,12 @@ typedef enum sc_type {
 	SC_SPHERE_3,
 	SC_SPHERE_4,
 	SC_SPHERE_5,
-	SC_CHAINLIGHTNING,
-	SC_FREEZINGSPELL,
 	SC_GLOOMYDAY_SK,
 	SC_REUSE_REFRESH,
 	SC_BERKANA,
 	SC_REUSE_COMET, // Temporary status change used as cooldown in certain skills.
 	SC_REUSE_STASIS, // Temporary status change
+	SC_REUSE_HALLUCINATIONWALK, // Temporary status change
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
