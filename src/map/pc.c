@@ -1184,6 +1184,7 @@ int pc_reg_received(struct map_session_data *sd)
 	chrif_bsdata_request(sd->status.char_id); // cydh bonus_script
 
 #ifndef TXT_ONLY
+	chrif_skillcooldown_request(sd->status.account_id, sd->status.char_id);
 	intif_Mail_requestinbox(sd->status.char_id, 0); // MAIL SYSTEM - Request Mail Inbox
 	intif_request_questlog(sd);
 #endif

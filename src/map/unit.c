@@ -2299,6 +2299,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			pc_inventory_rental_clear(sd);
 			if( sd->bg_id ) bg_team_leave(sd,1);
 			pc_delspiritball(sd,sd->spiritball,1);
+			skill_blockpc_clear(sd);
 
 			if( sd->reg )
 			{	//Double logout already freed pointer fix... [Skotlex]

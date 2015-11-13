@@ -732,3 +732,16 @@ INSERT INTO `db_roulette`(`index`, `level`, `item_id`, `amount`, `flag` ) VALUES
 INSERT INTO `db_roulette`(`index`, `level`, `item_id`, `amount`, `flag` ) VALUES ( 39, 7, 671, 1, 1 ); -- Gold_Coin
 INSERT INTO `db_roulette`(`index`, `level`, `item_id`, `amount`, `flag` ) VALUES ( 40, 7, 6233, 1, 0 ); -- Guarantee_Armor_8Up
 INSERT INTO `db_roulette`(`index`, `level`, `item_id`, `amount`, `flag` ) VALUES ( 41, 7, 6233, 1, 0 ); -- Guarantee_Armor_8Up	// KRO lists this twice
+
+--
+-- Table structure for table `skillcooldown`
+--
+
+CREATE TABLE IF NOT EXISTS `skillcooldown` (
+  `account_id` int(11) unsigned NOT NULL,
+  `char_id` int(11) unsigned NOT NULL,
+  `skill` smallint(11) unsigned NOT NULL default '0',
+  `tick` int(11) NOT NULL,
+  KEY (`account_id`),
+  KEY (`char_id`)
+) ENGINE=MyISAM;

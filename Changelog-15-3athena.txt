@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/13/2015
+	r86 [15peaces]
+		*Merged missing changes from 3ceam rev. 320 - 321
+		*2014 Ragexe support update
+			-added support for ZC_ALL_QUEST_LIST2 packet to fix questlog issues. (Thanks to Rytech / 3ceam)
+		*Added some new Headgears.
+		*Moved some stable items from db2 to item_db.
+			-Also removed some placeholders.
+		*New way to save skill cooldown data without using SC_REUSE_
+			-Please apply upgrade_15-3athena_svn86.sql into your main database.
+			-Thanks to zephyrus / 3ceam.
+
 11/07/2015
 	r85 [15peaces]
 		*Merged missing changes from 3ceam rev. 318 - 319

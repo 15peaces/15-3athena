@@ -2898,8 +2898,8 @@
 //5562,Good_Wedding_Veil_J,Luxurious Wedding Veil,5,0,,500,,0,,1,0xFFFFFFFF,7,2,768,,45,0,489,{ bonus bCastRate,-3; bonus bDelayRate,-3; bonus bMdef,10; },{},{}
 //5563,Dolor_Hat,Dolor Hat,5,20,,100,,1,,1,0xFFFFFFFF,7,2,256,,0,0,547,{},{},{}
 5564,Crown_Of_Deceit,Crown of Deceit,5,20,,300,,3,,1,0xFFFFFFFF,7,2,768,,85,1,544,{ bonus bInt,4; bonus bCastRate,-10; },{},{}
-//5565,Dragon_Arhat_Mask,Dragon Arhat Mask,5,0,,0,,5,,0,0xFFFFFFFF,7,2,513,,0,0,545,{ bonus2 bAddRace,RC_DemiHuman,10; },{},{}
-//5566,Tiger_Arhat_Mask,Tiger Arhat Mask,5,0,,0,,1,,0,0xFFFFFFFF,7,2,513,,0,0,546,{ bonus bStr,1; bonus2 bAddRace,RC_DemiHuman,2; },{},{}
+5565,Dragon_Arhat_Mask,Dragon Arhat Mask,5,0,,0,,5,,0,0xFFFFFFFF,7,2,513,,0,0,545,{ bonus2 bAddRace,RC_DemiHuman,10; },{},{}
+5566,Tiger_Arhat_Mask,Tiger Arhat Mask,5,0,,0,,1,,0,0xFFFFFFFF,7,2,513,,0,0,546,{ bonus bStr,1; bonus2 bAddRace,RC_DemiHuman,2; },{},{}
 5567,Bright_Fury,Bright Fury,5,20,,300,,1,,1,0xFFFFFFFF,7,2,256,,1,1,548,{ bonus bStr,1; bonus2 bAddRace,RC_NonBoss,2; bonus2 bAddRace,RC_Boss,2; bonus bAspdRate,2; },{},{}
 5568,Rabbit_Bonnet,Rabbit Bonnet,5,20,,1000,,1,,1,0xFFFFFFFF,7,2,768,,0,1,549,{ bonus bInt,2; },{},{}
 5569,Gemini_Diadem,Gemini Diadem,5,20,,300,,4,,0,0xFFFFFFFF,7,2,256,,70,1,550,{ bonus bAgi,2; bonus bMatkRate,2; if(getrefine()>6) { bonus bMdef,7; bonus bMAtkRate,8; bonus2 bSubEle,Ele_Wind,5; } },{},{}
@@ -6642,6 +6642,8 @@
 16010,Red_Ether_Bag,Red Ether Bag,4,20,,0,15,,1,1,0x0004C5B2,7,2,2,3,102,1,8,{ bonus bMatk,100; },{},{}
 16134,King_Frog_Hat_Box,Frog King Hat Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5528,1; },{},{}
 16135,Evil's_Bone_Hat_Box,Satanic Bone Helm Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5529,1; },{},{}
+16247,Dragon_Arhat_Mask_Box,Dragon Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5565,1; },{},{}
+16248,Tiger_Arhat_Mask_Box,Tiger Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5566,1; },{},{}
 18500,Cheer_Scarf6,Cheer Scarf6,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 18501,Cheer_Scarf8,Cheer Scarf8,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 18502,Cheer_Scarf10,Cheer Scarf10,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
