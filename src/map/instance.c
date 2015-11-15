@@ -216,7 +216,7 @@ int instance_mapid2imapid(int m, int instance_id)
 {
 	if( map[m].flag.src4instance == 0 )
 		return m; // not instances found for this map
-	else if( map[m].instance_id )
+	else if( map[m].instance_id >= 0 )
 	{ // This map is a instance, not a src map instance
 		ShowError("map_instance_mapid2imapid: already instanced (%d / %d)\n", m, instance_id);
 		return -1;

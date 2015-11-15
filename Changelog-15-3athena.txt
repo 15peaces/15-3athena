@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/15/2015
+	r87 [15peaces]
+		*Merged missing changes from 3ceam rev. 322
+		*Added some more new Cards and other Items to ItemDB
+		*Some fixing in instance system to avoid false positives.
+		*Added Guillotine Cross job quest.
+		*Removed SC_REUSE_STASIS, SC_REUSE_COMET, SC_REUSE_HALLUCINATIONWALK.
+		*Added some missing quest_db entries.
+
 11/13/2015
 	r86 [15peaces]
 		*Merged missing changes from 3ceam rev. 320 - 321

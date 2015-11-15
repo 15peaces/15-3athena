@@ -62,19 +62,8 @@
 //2338,Wedding_Dress,Wedding Dress,5,43000,,500,,0,,0,0xFFFFFFFE,7,0,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 //7170,Tuxedo,Tuxedo,5,43000,,10,,0,,0,0xFFFFFFFE,7,1,16,,0,1,0,{},{ setoption Option_Wedding,1; },{ setoption Option_Wedding,0; }
 
-16257,Buddah_Scroll,Buddah Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-//16258,HD_Bradium_5_Box,
-//16259,HD_Carnium_5_Box,
-//16260,HD_Bradium_10_Box,
-//16261,HD_Carnium_10_Box,
-//16262,HD_Bradium_5_Box,
-//16263,HD_Carnium_5_Box,
-//16264,HD_Bradium_10_Box,
-//16265,HD_Carnium_10_Box,
-//16267,HE_Battle_Manual_Box
-//16268,HE_Bubble_Gum_Box
-//16269,Cancer_Diadem_Box
-//16270,Cancer_Crown_Box,
+16257,Buddah_Scroll,Buddah Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{} //getgroupitem needed...
+
 16304,Evil_Incarnation,Evil Incarnation,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 //16343,Leo_Crown_Box
 //16344,Leo_Diadem_Box
@@ -1331,6 +1320,16 @@
 4463,Tendrilrion_Card,Tendrilrion Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritical,5; set .@r, getrefine(); if(.@r>=12) { bonus bBaseAtk,35; } if(.@r>=14) { bonus bCritical,10; } },{},{}
 4464,Aunoe_Card,Aunoe Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,20; },{},{}
 4465,Panat_Card,Fanat Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,10; if(getiteminfo(getequipid(EQI_HAND_R),11)==3) { set .@r, getrefine(); if(.@r>=10) { bonus bAspd,1; } if(.@r>=14) { bonus bAspd,1; } } },{},{}
+4508,Gold_Scaraba_Card,Gold Scaraba Card,6,20,,10,,,,,,,,136,,,,,{ bonus bBaseAtk,20; bonus bMaxHPrate,-1; },{},{}
+4509,Gold_Q_Scaraba_Card,Gold Queen Scaraba Card,6,20,,10,,,,,,,,769,,,,,{ bonus bInt,3; bonus2 bSubRace,RC_Insect,10; if(getrefine()>=9) { bonus2 bSubRace,RC_Insect,5; } },{},{}
+4510,Miming_Card,Miming Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAutoSpell,"WM_LULLABY_DEEPSLEEP",1,30; },{},{}
+4511,Little_Fatum_Card,Little Fatum Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Silence,500,ATF_SKILL; },{},{}
+4512,Parus_Card,Parus Card,6,20,,10,,,,,,,,769,,,,,{ bonus bHealPower,3; if(BaseClass==Job_Acolyte){ bonus bHealPower,getrefine()/2; } },{},{}
+4513,Angra_Mantis_Card,Angra Mantis Card,6,20,,10,,,,,,,,769,,,,,{ bonus bCritAtkRate,2; if(BaseClass==Job_Thief){ bonus bCritAtkRate,getrefine()/2; } },{},{}
+4514,Pom_Spider_Card,Pom Spider Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Undead,20; },{},{}
+4515,Alnoldi_Card,Alnoldi Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bSubRace,RC_Plant,30; },{},{}
+4516,Comodo_Card,Comodo Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDef,50; bonus bFlee,-25; },{},{}
+4517,Cendrawasih_Card,Cendrawasih Card,6,20,,10,,,,,,,,769,,,,,{ bonus bInt,2; if(BaseClass==Job_Mage){ bonus bInt,getrefine()/3; } },{},{}
 4518,Banaspaty_Card,Banaspaty Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Burning,500,ATF_TARGET; },{},{}
 4519,Butoijo_Card,Butoijo Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Angel,20; },{},{}
 4520,Leak_Card,Leak Card,6,20,,10,,,,,,,,4,,,,,{ bonus bStr,3; bonus2 bAddEff,Eff_Confusion,5000; bonus3 bAddEff,Eff_Confusion,5000,ATF_SKILL; },{},{}
@@ -1483,3 +1482,35 @@
 18673,Tare_Pope_,Tare Pope,5,20,,300,,0,,1,0xFFFFFFFF,63,2,256,,1,0,817,{ bonus bUnbreakableHelm,1; bonus bSPrecovRate,2; },{},{}
 18674,Planewing_Hat,Planewing Hat,5,20,,200,,3,,1,0xFFFFFFFE,63,2,256,,1,1,820,{ bonus bAgi,3; },{},{}
 18675,Green_Apple_Hat,Green Apple Hat,5,20,,200,,3,,1,0xFFFFFFFE,63,2,256,,20,1,821,{ bonus bDex,2; bonus bHit,5; },{},{}
+
+//Missing Items
+6486,BlueCard_0,Blue 0 Card,3,0,,10,,,,,,,,,,,,,{},{},{}
+6487,BlueCard_1,Blue 1 Card,3,0,,10,,,,,,,,,,,,,{},{},{}
+6488,Thanks_Invest_Ticket,Thanks Invest Ticket,3,0,,10,,,,,,,,,,,,,{},{},{}
+6489,Cats_Invest_Certif,Cats Invest Certificate,3,0,,10,,,,,,,,,,,,,{},{},{}
+6490,Magic_Clay_Fragment,Magic Clay Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
+6491,Magic_Clay,Magic Clay,3,0,,10,,,,,,,,,,,,,{},{},{}
+6492,Magic_Clay_Lump,Magic Clay Lump,3,0,,10,,,,,,,,,,,,,{},{},{}
+6493,Makibishi,Makibishi,3,30,,1,,,,,,,,,,,,,{},{},{}
+6494,Kafra_Coin2,Kafra Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6495,Para_Logro_Badge,Eden Merit Badge,3,0,,0,,,,,,,,,,,,,{},{},{}
+6846,(Limited)Gym_Membership_Card,(Limited)Gym Membership Card,6,10,,10,,,,,,,,,,,,,{},{},{}
+6847,Very_Small_Box,Very Small Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6848,Light_Box,Light Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6849,Request_Complete_Certificate,Request Complete Certificate,3,10,,0,,,,,,,,,,,,,{},{},{}
+6850,Questionable_Box,Questionable Box,3,10,,0,,,,,,,,,,,,,{},{},{}
+6851,Questionable_Document,Questionable Document,3,10,,0,,,,,,,,,,,,,{},{},{}
+6852,Super_Corrector,Super Corrector,3,10,,0,,,,,,,,,,,,,{},{},{}
+6853,Thanks_Bouquet,Thanks Bouquet,3,10,,0,,,,,,,,,,,,,{},{},{}
+6854,Novus_Captured,Novus Captured,3,10,,0,,,,,,,,,,,,,{},{},{}
+6855,Tatacho_Captured,Tatacho Captured,3,10,,0,,,,,,,,,,,,,{},{},{}
+7602,BlueCard_R,Blue R Card,3,0,,10,,,,,,,,,,,,,{},{},{}
+7603,RO_Party_Ticket,RO Party Invitation Ticket,3,0,,10,,,,,,,,,,,,,{},{},{}
+7604,Flour,Flour,3,0,,10,,,,,,,,,,,,,{},{},{}
+7605,Chicken_Egg,Chicken Egg,3,0,,10,,,,,,,,,,,,,{},{},{}
+7606,Coin,Token of the Ox,3,0,,10,,,,,,,,,,,,,{},{},{}
+7607,Evil_Dragon_Head,Neck of Demon Dragon,3,10,,10,,,,,,,,,,,,,{},{},{}
+7608,Premium_Ticket,Premium Ticket,3,20,,10,,,,,,,,,,,,,{},{},{}
+7609,Pumpkin_Mojo,Pumpkin Mojo,3,0,,10,,,,,,,,,,,,,{},{},{}
+7610,Food_Ticket,Food Exchange Ticket,3,1000,,10,,,,,,,,,,,,,{},{},{}
+7611,Fox_Symbol,Symbol of Fox,3,20,,10,,,,,,,,,,,,,{},{},{}

@@ -1579,6 +1579,9 @@
 12221,0,0,0,0,0,0,0,"How to create fossil elixir"
 12222,0,0,0,0,0,0,0,"How to create storm elixir"
 
+12278,604800,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Towards Bakonawa Lake..."
+12279,0,2322,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Get Rid of Bakonawa"
+
 // Old Glast Heim
 12317,82800,0,0,0,0,0,0,"Fake Keyblade"
 12318,0,2475,1,0,0,0,0,"Upper Cats: annoying guy"

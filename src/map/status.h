@@ -685,9 +685,6 @@ typedef enum sc_type {
 	SC_GLOOMYDAY_SK,
 	SC_REUSE_REFRESH,
 	SC_BERKANA,
-	SC_REUSE_COMET, // Temporary status change used as cooldown in certain skills.
-	SC_REUSE_STASIS, // Temporary status change
-	SC_REUSE_HALLUCINATIONWALK, // Temporary status change
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

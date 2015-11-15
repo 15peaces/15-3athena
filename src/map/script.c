@@ -8370,7 +8370,7 @@ BUILDIN_FUNC(areamonster)
 	else
 	{
 		m = map_mapname2mapid(mapn);
-		if( map[m].flag.src4instance && st->instance_id )
+		if( map[m].flag.src4instance && st->instance_id  >= 0 )
 		{ // Try to redirect to the instance map, not the src map
 			if( (m = instance_mapid2imapid(m, st->instance_id)) < 0 )
 			{
