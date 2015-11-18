@@ -352,7 +352,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 
 	if( sc && sc->count )
 	{
-		if( sd->sc.data[SC_DEATHHURT] )
+		if( sc->data[SC_DEATHHURT] )
 			hp -= hp * 20 / 100;
 		if( sc->data[SC_CRITICALWOUND] && heal ) // Critical Wound has no effect on offensive heal. [Inkfish]
 			hp -= hp * sc->data[SC_CRITICALWOUND]->val2/100;
@@ -1075,6 +1075,15 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case LG_SHIELDPRESS:
 		sc_start(bl, SC_STUN, 30 + 8 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+ 		break;
+	case LG_PINPOINTATTACK:
+		rate = 12 + (10 * skilllv + (sstatus->agi / 100) ) * 140 / 100;
+		switch( skilllv )
+		{
+			case 1: sc_start(bl,SC_BLEEDING,rate,skilllv,skill_get_time(skillid,skilllv)); break;
+			case 2: if( dstsd && dstsd->spiritball && rand()%100 < rate ) pc_delspiritball(dstsd, dstsd->spiritball, 0); break;
+			default: skill_break_equip(bl,(skilllv == 3) ? EQP_SHIELD : (skilllv == 4) ? EQP_ARMOR : EQP_WEAPON,rate,BCT_ENEMY); break;
+		}
  		break;
 	case WM_METALICSOUND:
 		sc_start(bl, SC_CHAOS, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
@@ -2217,10 +2226,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if( rdamage > 0 )
 	{
 		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
-		{
-			damage -= rdamage;
 			map_foreachinrange(battle_damage_area,bl,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,bl,dmg.amotion,sstatus->dmotion,rdamage,tstatus->race);
-		}
 		else
 		{
 			if( dmg.amotion )
@@ -3121,6 +3127,18 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_get_type(skillid),src,src,skillid,skilllv,tick,flag,BCT_ENEMY);
 		break;
 
+	case LG_PINPOINTATTACK:
+		if( unit_movepos(src, bl->x, bl->y, 1, 1) )
+		{
+			if( map_flag_gvg(src->m) )
+			{
+				clif_slide(src,bl->x,bl->y);
+				clif_fixpos(src);	// Aegis send this packet too.
+			}
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+ 		}
+ 		break;
+
 	case NPC_ACIDBREATH:
 	case NPC_DARKNESSBREATH:
 	case NPC_FIREBREATH:
@@ -3851,7 +3869,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_STEELBODY, INVALID_TIMER);
 			status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
 			//status_change_end(bl, SC_MILLENNIUMSHIELD, INVALID_TIMER);
-			//status_change_end(bl, SC_REFLECTDAMAGE, INVALID_TIMER);
+			status_change_end(bl, SC_LG_REFLECTDAMAGE, INVALID_TIMER);
 			status_change_end(bl, SC_PRESTIGE, INVALID_TIMER);
 			status_change_end(bl, SC_BANDING, INVALID_TIMER);
 			//status_change_end(bl, SC_GT_CHANGE, INVALID_TIMER);

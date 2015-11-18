@@ -7995,8 +7995,6 @@ This command summons a mercenary of given class, for given amount of
 time in milliseconds. Typically used in item scripts of mercenary
 scrolls.
 
-Returned value is the game ID of the spawned mercenary.
-
 ----------------------------------------
 
 *mercenary_heal <hp>,<sp>;

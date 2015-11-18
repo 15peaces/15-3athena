@@ -15806,7 +15806,6 @@ BUILDIN_FUNC(mercenary_create)
 
 	contract_time = script_getnum(st,3);
 	merc_create(sd, class_, contract_time);
-	script_pushint(st, sd->md->bl.id);
 #else
 	script_pushint(st, 0);
 #endif

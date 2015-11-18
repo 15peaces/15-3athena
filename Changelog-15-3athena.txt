@@ -4,6 +4,20 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/18/2015
+	r88 [15peaces]
+		*Merged missing changes from 3ceam rev. 323 - 329
+		*Fixed wrong format of quest_db entries...
+		*Updated IG_Advanced_Weapons_Box.
+			-Used hercules as reference.
+		*Added some more new items
+		*Also added support for one new monster mercenary.
+		*Fixed LG_REFLECTDAMAGE that shouldn't reduce damage received.
+		*Fixed a crash bug with SC_DEATHHURT.
+		*Added LG_PINPOINTATTACK skill.
+		*Fixed crash bug when creating a mercenary.
+			-Revert `mercenary_create` command to don't return mercenary game id.
+
 11/15/2015
 	r87 [15peaces]
 		*Merged missing changes from 3ceam rev. 322

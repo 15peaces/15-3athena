@@ -6644,6 +6644,7 @@
 16135,Evil's_Bone_Hat_Box,Satanic Bone Helm Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5529,1; },{},{}
 16247,Dragon_Arhat_Mask_Box,Dragon Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5565,1; },{},{}
 16248,Tiger_Arhat_Mask_Box,Tiger Arhat Mask Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5566,1; },{},{}
+16461,Red_Wing_Hat_Box,Red Wing Hat Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 5690,1; },{},{}
 18500,Cheer_Scarf6,Cheer Scarf6,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 18501,Cheer_Scarf8,Cheer Scarf8,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 18502,Cheer_Scarf10,Cheer Scarf10,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
