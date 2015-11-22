@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/22/2015
+	r89 [15peaces]
+		*Merged missing changes from 3ceam rev. 330 - 335
+		*Updates for Unit Controller Script Commands (Thanks to aleos89 / rAthena)
+			-Follow up to r78 (fd99a93)
+			-Base stats (STR, AGI, etc) will now stick after the unit's statuses are recalculated.
+			-Statuses are directly modifiable now (ATK, DEF, etc)
+			-Created constant values so it's a lot easier to read.
+			-Updated script command documentation to reflect changes.
+		*Minor fix to Pinpoint Attack. (followed up r88 (bc19c43))
+			-Snap effect during WoE should not be triggered however this skill is usable as range attack.
+		*Fixed GN_WALLOFTHORN.
+			-iRO Wiki says that this skill don't affect to Boss monsters.
+			-Don't deal damage to non-monsters out of vs maps.
+		*Added huge number of new items.
+
 11/18/2015
 	r88 [15peaces]
 		*Merged missing changes from 3ceam rev. 323 - 329
