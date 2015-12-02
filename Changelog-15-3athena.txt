@@ -4,6 +4,20 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/02/2015
+	r90 [15peaces]
+		*Merged missing changes from 3ceam rev. 330 - 340
+		*Mora update
+			-Added missing warps, shops, spawns & quests
+			-Added support for mora enchants
+			-Added quest_db entries
+		*Eclage update
+			-Updated quests to latest rAthena state.
+		*Added RWC 2012 enchants.
+			-disabled and untested... feel free to test :D
+		*Added / updated / fixed huge number of items.
+		*Enabled the elemental spirits monsters in mob_db2. They are treated as regular monsters by the client.
+		
 11/22/2015
 	r89 [15peaces]
 		*Merged missing changes from 3ceam rev. 330 - 335
