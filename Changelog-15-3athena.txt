@@ -4,6 +4,11 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/03/2015
+	r90 [15peaces]
+		*Fixed typo in clif_roulette_recvitem_ack (Issue #2).
+			-Thanks to cold-hr for reporting.
+
 12/02/2015
 	r90 [15peaces]
 		*Merged missing changes from 3ceam rev. 330 - 340

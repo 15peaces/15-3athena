@@ -17463,7 +17463,7 @@ static void clif_roulette_recvitem_ack(struct map_session_data *sd, enum RECV_RO
 	uint16 cmd = 0xa22;
 	unsigned char buf[5];
 
-	nullpo_retv(sd)
+	nullpo_retv(sd);
 
 	if (packet_db[sd->packet_ver][cmd].len == 0)
 		return;
