@@ -36,6 +36,13 @@
 //= 2.4 Added GM management function. [Euphy]
 //============================================================ 
 
+1@tower	mapflag	src4instance
+2@tower	mapflag	src4instance
+3@tower	mapflag	src4instance
+4@tower	mapflag	src4instance
+5@tower	mapflag	src4instance
+6@tower	mapflag	src4instance
+//============================================================
 alberta,214,77,6	script	Captain Janssen	709,{
 	if (checkweight(1201,1) == 0) {
 		mes "^008800Wait here!!";

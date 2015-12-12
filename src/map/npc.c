@@ -3624,6 +3624,8 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.guildlock=state;
 	else if (!strcmpi(w3,"reset"))
 		map[m].flag.reset=state;
+	else if ( !strcmpi(w3,"src4instance") )
+		map[m].flag.src4instance = (state) ? 1 : 0;
 	else
 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 
@@ -3927,8 +3929,7 @@ int npc_reload(void)
 		"\t-'"CL_WHITE"%d"CL_RESET"' Mobs Not Cached\n",
 		npc_id - npc_new_min, npc_warp, npc_shop, npc_script, npc_mob, npc_cache_mob, npc_delay_mob);
 
-	for( i = 0; i < ARRAYLENGTH(instance); ++i )
-		instance_init(instance[i].instance_id);
+	do_reload_instance();
 
 	//Re-read the NPC Script Events cache.
 	npc_read_event_script();

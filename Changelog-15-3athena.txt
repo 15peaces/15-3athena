@@ -4,8 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/12/2015
+	r92 [15peaces]
+		*Merged missing changes from 3ceam rev. 341 - 343
+		*Instance System Update
+			-added support for mapflag "src4instance".
+			-fixed some bugs, now the system should be working as intended...
+			-please report any bugs you find, i'll fix them asap.
+		*Added huge number of missing quest_db entries.
+			-increased MAX_QUEST_DB to support all new entries.
+			-Thanks to rAthena.
+		*Fixed Mercury Riser.
+		*Changed Comodo Card to fit Pre-Renewal System.
+		*Added all Mora Enchant related items.
+		*Fixed WM_SIRCLEOFNATURE.
+			-Can be used in Vs maps only.
+			-Affect to enemys, alies and yourself.
+			-Don't show HP recovery.
+		*Added LG_OVERBRAND skill.
+
 12/03/2015
-	r90 [15peaces]
+	r91 [15peaces]
 		*Fixed typo in clif_roulette_recvitem_ack (Issue #2).
 			-Thanks to cold-hr for reporting.
 

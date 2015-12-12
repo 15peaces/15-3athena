@@ -14,6 +14,9 @@
 //= 1.2 Ported from hercules to 15-3athena. [15peaces]
 //============================================================
 
+1@gl_k	mapflag	src4instance
+2@gl_k	mapflag	src4instance
+//============================================================
 glast_01,204,273,6	script	Hugin#ghinstance	755,{
 	mes "^ff0000This isn't considered a normal progression dungeon. Please note this point.^000000";
 	next;

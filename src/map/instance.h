@@ -24,10 +24,12 @@ struct s_instance {
 	struct linkdb_node *ivar, *svar; // Instance Variable for scripts
 	
 	int progress_timer;
-	time_t progress_timeout;
+	unsigned int progress_timeout;
+
+	unsigned int original_progress_timeout;
 
 	int idle_timer;
-	time_t idle_timeout, idle_timeoutval;
+	unsigned int idle_timeout, idle_timeoutval;
 
 	struct point respawn;/* reload spawn */
 };
@@ -50,6 +52,7 @@ void instance_check_idle(int instance_id);
 void instance_check_kick(struct map_session_data *sd);
 void instance_set_timeout(int instance_id, unsigned int progress_timeout, unsigned int idle_timeout);
 
+void do_reload_instance(void);
 void do_final_instance(void);
 void do_init_instance(void);
 

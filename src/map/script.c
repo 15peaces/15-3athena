@@ -16262,7 +16262,7 @@ BUILDIN_FUNC(checkquest)
 
 BUILDIN_FUNC(isbegin_quest)
 {
-	struct map_session_data *sd = script_rid2sd(st);
+	TBL_PC * sd = script_rid2sd(st);
 	int i;
 
 	nullpo_ret(sd);

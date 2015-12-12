@@ -163,6 +163,7 @@ int instance_add_map(const char *name, int instance_id, bool usebasename)
 	map[im].m = im;
 	map[im].instance_id = instance_id;
 	map[im].instance_src_map = m;
+	map[im].flag.src4instance = 0; //clear
 	map[m].flag.src4instance = 1; // Flag this map as a src map for instances
 
 	instance[instance_id].map[instance[instance_id].num_map++] = im; // Attach to actual instance
@@ -196,6 +197,7 @@ int instance_map2imap(int m, int instance_id)
 int instance_mapname2imap(const char *map_name, int instance_id) {
  	int i;
 	
+	nullpo_retr(-1, map_name);
 	if( !instance_is_valid(instance_id) ) {
 		return -1;
 	}
@@ -214,18 +216,26 @@ int instance_mapname2imap(const char *map_name, int instance_id) {
  *--------------------------------------*/
 int instance_mapid2imapid(int m, int instance_id)
 {
+	int i, max;
+
 	if( map[m].flag.src4instance == 0 )
 		return m; // not instances found for this map
 	else if( map[m].instance_id >= 0 )
 	{ // This map is a instance, not a src map instance
-		ShowError("map_instance_mapid2imapid: already instanced (%d / %d)\n", m, instance_id);
+		ShowError("instance_mapid2imapid: already instanced (%d / %d)\n", m, instance_id);
 		return -1;
 	}
 
 	if( !instance_is_valid(instance_id) )
 		return -1;
 
-	return instance_map2imap(m, instance_id);
+	max = instance[instance_id].num_map;
+
+	for( i = 0; i < max; i++ )
+		if( map[instance[instance_id].map[i]].instance_src_map == m )
+			return instance[instance_id].map[i];
+
+	return -1;
 }
 
 /*--------------------------------------
@@ -406,7 +416,7 @@ void instance_destroy(int instance_id)
 void instance_check_idle(int instance_id)
 {
 	bool idle = true;
-	time_t now = time(NULL);
+	unsigned int now = (unsigned int)time(NULL);
 
 	if( !instance_is_valid(instance_id) || instance[instance_id].idle_timeoutval == 0 )
 		return;
@@ -434,7 +444,7 @@ void instance_check_idle(int instance_id)
  *--------------------------------------*/
 void instance_set_timeout(int instance_id, unsigned int progress_timeout, unsigned int idle_timeout)
 {
-	time_t now = time(0);
+	unsigned int now = (unsigned int)time(NULL);
 
 	if( !instance_is_valid(instance_id) )
 		return;
@@ -487,6 +497,36 @@ void instance_check_kick(struct map_session_data *sd)
 		else
 			pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, CLR_TELEPORT);
 	}
+}
+
+void do_reload_instance(void) {
+	struct s_mapiterator *iter;
+	struct map_session_data *sd;
+	int i, k;
+	
+	for(i = 0; i < MAX_INSTANCE; i++) {
+		for(k = 0; k < instance->num_map; k++) {
+			if( !map[map[instance[i].map[k]].instance_src_map].flag.src4instance )
+				break;
+		}
+		
+		if( k != instance[i].num_map ) /* any (or all) of them were disabled, we destroy */
+			instance_destroy(i);
+		else {
+			/* populate the instance again */
+			instance_init(i);
+			/* restart timers */
+			instance_set_timeout(i,instance[i].original_progress_timeout,instance[i].idle_timeoutval);
+		}
+	}
+	
+	iter = mapit_getallusers();
+	for( sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC*)mapit_next(iter) ) {
+		if(sd && map[sd->bl.m].instance_id >= 0) {
+			pc_setpos(sd,instance[map[sd->bl.m].instance_id].respawn.map,instance[map[sd->bl.m].instance_id].respawn.x,instance[map[sd->bl.m].instance_id].respawn.y,CLR_TELEPORT);
+		}
+	}
+	mapit_free(iter);
 }
 
 void do_final_instance(void)

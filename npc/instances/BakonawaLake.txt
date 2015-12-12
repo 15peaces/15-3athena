@@ -13,6 +13,9 @@
 //= 1.1 Added GM management NPC. [Euphy]
 //= 1.2 Ported from hercules to 15-3athena. [15peaces]
 //============================================================
+
+1@ma_b	mapflag	src4instance
+//============================================================
 ma_scene01,174,179,4	script	Taho	541,{
 	disable_items;
 	if (checkweight(1201,1) == 0) {
