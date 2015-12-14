@@ -1050,6 +1050,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		if( sd ) rate += rate * sd->status.job_level / 200;
 		sc_start(bl,SC_FREEZING,rate,skilllv,skill_get_time(skillid,skilllv));
 		break;
+	case WL_JACKFROST:
+		sc_start(bl,SC_FREEZE,100,skilllv,skill_get_time(skillid,skilllv));
+ 		break;
 	case RA_WUGBITE:
 		sc_start(bl, SC_WUGBITE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
@@ -3276,6 +3279,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WL_SOULEXPANSION:
 	case WL_CRIMSONROCK:
 	case WL_COMET:
+	case WL_JACKFROST:
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
 	case NC_FLAMELAUNCHER:
@@ -3453,7 +3457,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_RENOVATIO:
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
-	case WL_FROSTMISTY:
 	case NC_REPAIR:
 	case WL_HELLINFERNO:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
@@ -3683,6 +3686,15 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
+	case WL_FROSTMISTY:
+		//Don't deal damage to hidden targets but these get Freezing anyway.
+		sc = status_get_sc(bl);
+		if( sc && (sc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || sc->data[SC__INVISIBILITY]) )
+			sc_start(bl,SC_FREEZING,20 + 12 * skilllv,skilllv,skill_get_time(skillid,skilllv));
+		else
+			skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
+ 		break;
+
 	case WL_DRAINLIFE:
 		{
 			int heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
@@ -3860,16 +3872,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			}
 		}
 		break;
-
-	case WL_JACKFROST:
-	{
-		struct status_change *tsc = status_get_sc(bl);
-		if( bl->id == skill_area_temp[1] )
-			break;
-		if( tsc && tsc->data[SC_FREEZING] )
-			skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
-	}
-	break;
 
 	case NC_PILEBUNKER:
 		if( rand()%100 < 5 + 15*skilllv )
@@ -6997,9 +6999,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case WL_JACKFROST:
 		{
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			skill_area_temp[1] = bl->id;
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
-		}
+			skill_area_temp[1] = 0;
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
+				src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+ 		}
 		break;
 
 	case WL_MARSHOFABYSS:
@@ -8388,7 +8392,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		{
 			int x1_1 = 0, x1_2 = 0, y1_1 = 0, y1_2 = 0; // First area
 			int x2_1 = 0, x2_2 = 0, y2_1 = 0, y2_2 = 0; // Second area
-			short c, l, dir, ax, ay, bx, by; // a = colum, b = line.
+			short c, l, dir, ax = 0, ay = 0, bx = 0, by = 0; // a = colum, b = line.
 			i = skill_get_splash(skillid,skilllv);
 			dir = map_calc_dir(src, x, y);
 			switch( dir )
@@ -11777,6 +11781,10 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		req.sp += (status->max_sp * (-sp_rate))/100;
 	if( sd->dsprate!=100 )
 		req.sp = req.sp * sd->dsprate / 100;
+
+	ARR_FIND(0, ARRAYLENGTH(sd->skillusesp), i, sd->skillusesp[i].id == skill);
+	if( i < ARRAYLENGTH(sd->skillusesp) )
+		req.sp -= sd->skillusesp[i].val;
 
 	if( sc && sc->data[SC__LAZINESS] )
 		req.sp += req.sp * sc->data[SC__LAZINESS]->val1 / 10;

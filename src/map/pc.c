@@ -2964,6 +2964,21 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		if(sd->state.lr_flag != 2)
 			sd->ignore_def[type2] += val;
 		break;
+	case SP_SKILL_USE_SP: // bonus2 bSkillUseSP,sk,n;
+		if(sd->state.lr_flag == 2)
+			break;
+		ARR_FIND(0, ARRAYLENGTH(sd->skillusesp), i, sd->skillusesp[i].id == 0 || sd->skillusesp[i].id == type2);
+		if (i == ARRAYLENGTH(sd->skillusesp)) {
+			ShowError("pc_bonus2: SP_SKILL_USE_SP: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", ARRAYLENGTH(sd->skillusesp), type2, val);
+			break;
+		}
+		if (sd->skillusesp[i].id == type2)
+			sd->skillusesp[i].val += val;
+		else {
+			sd->skillusesp[i].id = type2;
+			sd->skillusesp[i].val = val;
+		}
+		break;
 
 	default:
 		ShowWarning("pc_bonus2: unknown type %d %d %d!\n",type,type2,val);

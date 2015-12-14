@@ -2728,7 +2728,9 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOL(fd,4)=sd->battle_status.max_sp;
 		break;
 	case SP_HP:
-		WFIFOL(fd,4)=sd->battle_status.hp;
+		// On officials the HP never go below 1, even if you die [Lemongrass]
+		// On officials the HP Novice class never go below 50%, even if you die [Napster]
+		WFIFOL(fd,4)= sd->battle_status.hp ? sd->battle_status.hp : (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE ? 1 : sd->battle_status.max_hp/2; 
 		if( battle_config.disp_hpmeter )
 			clif_hpmeter(sd);
 		if( !battle_config.party_hp_mode && sd->status.party_id )

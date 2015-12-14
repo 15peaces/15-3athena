@@ -595,6 +595,8 @@ bMagicSPGainValue	2043
 bMagicHPGainValue	2044
 bAddClassDropItem	2045
 
+bSkillUseSP	2055
+
 bHPVanishRaceRate	2074
 bSPVanishRaceRate	2075
 bAbsorbDmgMaxHP	2076

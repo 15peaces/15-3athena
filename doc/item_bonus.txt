@@ -76,6 +76,7 @@ bonus bAspdRate,n;			Attack speed + n%
 bonus bAtkRange,n;			Attack range + n
 bonus bCastrate,n;			Skill casting time rate + n%
 bonus bUseSPrate,n;			SP consumption + n%
+bonus2 bSkillUseSP,sk,n;    	Reduces SP consumption of skill sk by n
 bonus bHPrecovRate,n;			Natural HP recovery ratio + n%
 bonus bSPrecovRate,n;			Natural SP recovery ratio + n%
 bonus bDoubleRate,n;			Double Attack probability n% (works with all weapons | only the highest among all is applied)

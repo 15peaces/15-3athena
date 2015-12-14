@@ -4,6 +4,29 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/14/2015
+	r93 [15peaces]
+		*Merged missing changes from 3ceam rev. 344 - 345
+		*Fixed Bug with HP display on dead characters.
+			-It's now confirmed that the client displays 1 hp when you have died.
+			-Also Novice Class HP won't go below 50%.
+			-Both tested and confirmed on kRO and iRO.
+			-Server will calculate with 0 HP for dead character, as before. ^^
+		*Added / updated / fixed huge number of items.
+			-you may have noticed we're f*cking far behind with item and monster databases...
+			-currently I'm trying to catch up a bit. ^^
+			-added all missing enchantment items.
+		*Added full support for 'bonus2 bSkillUseSP,sk,n' item bonus.
+			-Reduces SP consumption of skill sk by n
+		*Added huge number of missing quest_db entries.
+			-increased MAX_QUEST_DB to support all new entries.
+			-Thanks to rAthena.
+		*Added functions to check for equipment swap hacks.
+			-Thanks to Euphy / rAthena.
+		*Updated WL_JACKFROST skill.
+			-Added full support for this skill.
+		*Fixed WL_FROSTMISTY skill that don't deal damage to hidden enemies but is causing Freezing anyway.
+
 12/12/2015
 	r92 [15peaces]
 		*Merged missing changes from 3ceam rev. 341 - 343
