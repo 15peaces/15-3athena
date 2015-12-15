@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/15/2015
+	r94 [15peaces]
+		*Merged missing changes from 3ceam rev. 348 - 355
+		*Added LG_EARTHDRIVE skill.
+		*Minor fix in LG_OVERBRAND that wasn't applied damage formula correctly.
+		*Adjusted Land skills of Sorcerer closer to official behavior.
+			-Fixed Cloud Kill which can be casted more than one.
+			-People not on top of Warmer area of effect must not take its status effect. Fixed also which people affected this status is not immune to Freeze and Freezing status.
+			-Fixed the resistance calculation for Vacuume Extreme.
+			-Corrected the Arch Bishop skill 'Adoramus' to not cause duplicate agi down effect.
+		*Fixed Cloud Kill not causing poison effect.
+			-The poison element changing part of the skill effect is removed. But still it will cause Poison status.
+		*Removed the probability of Stun status of Psychic Wave.
+		*Fixed and issue where characters under Magic Mushroom effects have free cast.
+
 12/14/2015
 	r93 [15peaces]
 		*Merged missing changes from 3ceam rev. 344 - 345

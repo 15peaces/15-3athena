@@ -98,7 +98,6 @@
 1212,0,0,0,0,0,0,0,"Look out the window, Cheers for Raccoon Hurray team!"
 1213,0,0,0,0,0,0,0,"Look out the window, Cheers for Raccoon Hurray team!"
 // Find Professor Worm's Memory
-// Quest ID,Time Limit,Target1,Val1,Target2,Val2,Target3,Val3,Quest Title
 1214,0,0,0,0,0,0,0,"Getting back Professor Worm's memory"
 1215,0,0,0,0,0,0,0,"Getting back Professor Worm's memory"
 //1216,0,0,0,0,0,0,0,2364,6522,3000,0,0,0,0,0,0,"Getting back Professor Worm's memory" -> Need to add support for quest-related drops...

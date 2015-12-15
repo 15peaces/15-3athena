@@ -1306,7 +1306,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
   	
 	// force to use the random skill effect from magic mushroom. [Jobbie]
 	if( sc && sc->data[SC_MAGICMUSHROOM] )
-		casttime = 0;
+	{
+		if( sd && sd->state.magicmushroom_flag && sd->skillitem == skill_num )
+			casttime = 0;
+	}
 
 	// moved here to prevent Suffragium from ending if skill fails
 	//if (!(skill_get_castnodex(skill_num, skill_lv)&2))
