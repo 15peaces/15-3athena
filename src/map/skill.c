@@ -1094,6 +1094,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			default: skill_break_equip(bl,(skilllv == 3) ? EQP_SHIELD : (skilllv == 4) ? EQP_ARMOR : EQP_WEAPON,rate,BCT_ENEMY); break;
 		}
  		break;
+	case LG_EARTHDRIVE:
+		skill_break_equip(src, EQP_SHIELD, 500, BCT_SELF);
+		break;
 	case WM_METALICSOUND:
 		sc_start(bl, SC_CHAOS, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -2034,9 +2037,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case WM_SEVERE_RAINSTORM_MELEE:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WM_SEVERE_RAINSTORM,skilllv,5);
 		break;
-	case SC_FEINTBOMB:
-		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,skillid,skilllv,5);
-		break;
 	case WM_REVERBERATION_MELEE:
 	case WM_REVERBERATION_MAGIC:
 		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, WM_REVERBERATION, -2, 6);
@@ -2194,8 +2194,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				short dir_x, dir_y;
 				dir_x = dirx[(direction+4)%8];
 				dir_y = diry[(direction+4)%8];
-				if( map_getcell(bl->m,bl->x+dir_x,bl->y+dir_y,CELL_CHKNOPASS) )
-					skill_addtimerskill(src, tick+300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag&4);	
+				if( map_getcell(bl->m, bl->x+dir_x, bl->y+dir_y, CELL_CHKNOPASS) != 0 )
+					skill_addtimerskill(src, tick + 300 * ((flag&2) ? 1 : 2), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|4);	
 			}
 		}
 		else
@@ -2792,8 +2792,8 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					}
 					break;
 				case LG_OVERBRAND:
-						skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL|4);
-						break;
+					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
+					break;
 				case GN_SPORE_EXPLOSION:					
 					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR,						
 						src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);					
@@ -3946,11 +3946,18 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
  		break;
 
+	case LG_SHIELDSPELL:
+		if( flag&1 )
+			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		else
+			skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
+		break;
+
 	case LG_OVERBRAND:
 		if( flag&1 )
 			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag|SD_LEVEL);
 		else
-			skill_addtimerskill(src, tick + 300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL);
+			skill_addtimerskill(src, tick + 300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL|2);
 		break;
 
 	case WM_LULLABY_DEEPSLEEP:
@@ -4618,6 +4625,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NC_HOVERING:
 	case NC_SHAPESHIFT:
 	case SC_DEADLYINFECT:
+	case LG_EXEEDBREAK:
 	case LG_PRESTIGE:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
@@ -6084,7 +6092,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			// Players can only remove their own traps or traps on Vs maps.
 			if( su && (sg = su->group) && (src->type == BL_MER || sg->src_id == src->id || map_flag_vs(bl->m)) && (skill_get_inf2(sg->skill_id)&INF2_TRAP) )
 			{
-				if( sd && !(sg->unit_id == UNT_USED_TRAPS || (sg->unit_id == UNT_ANKLESNARE && sg->val2 != 0 )) )
+				if( sd && !(sg->unit_id == UNT_USED_TRAPS || (sg->unit_id == UNT_ANKLESNARE && sg->val2 != 0 )) && sg->unit_id != UNT_THORNS_TRAP )
 				{ // prevent picking up expired traps
 					if( battle_config.skill_removetrap_type )
 					{ // get back all items used to deploy the trap
@@ -7364,6 +7372,128 @@ break;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
  		break;
 
+	case LG_SHIELDSPELL:
+		if( flag&1 )
+		{
+			int duration = (sd) ? sd->shieldmdef * 2000 : 10000;
+			sc_start(bl,SC_SILENCE,100,skilllv,duration);
+		}
+		else
+		{
+			int opt = skilllv;
+			int rate = rand()%100;
+			int val, brate;
+			switch( skilllv )
+			{
+				case 1:
+					{
+						struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
+						if( !shield_data || shield_data->type != IT_ARMOR )
+						{	// No shield?
+							if( sd )
+								clif_skill_fail(sd, skillid, 0, 0, 0);
+							break;
+						}
+						brate = shield_data->def * 10;
+						if( rate < 50 )
+							opt = 1;
+						else if( rate < 75 )
+							opt = 2;
+						else
+							opt = 3;
+
+						switch( opt )
+						{
+							case 1:
+								sc_start(bl,SC_SHIELDSPELL_DEF,100,opt,-1);
+								clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+								if( rate < brate )
+									map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+								status_change_end(bl,SC_SHIELDSPELL_DEF,-1);
+								break;
+							case 2:
+								val = 10 * shield_data->def; // % Reflected damage.
+								sc_start2(bl,SC_SHIELDSPELL_DEF,brate,opt,val,shield_data->def * 30000);
+								break;
+							case 3:
+								val = 20 * shield_data->def; // Attack increase.
+								sc_start2(bl,SC_SHIELDSPELL_DEF,brate,opt,val,shield_data->def * 30000);
+								break;
+						}
+					}
+					break;
+
+				case 2:
+					brate = sd->shieldmdef * 20;
+					if( rate < 30 )
+						opt = 1;
+					else if( rate < 60 )
+						opt = 2;
+					else
+						opt = 3;
+					switch( opt )
+					{
+						case 1:
+							sc_start(bl,SC_SHIELDSPELL_MDEF,100,opt,-1);
+							clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+							if( rate < brate )
+								map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|2,skill_castend_damage_id);
+							status_change_end(bl,SC_SHIELDSPELL_MDEF,-1);
+							break;
+						case 2:
+							sc_start(bl,SC_SHIELDSPELL_MDEF,100,opt,-1);
+							clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+							if( rate < brate )
+								map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
+							break;
+ 						case 3:
+ 							if( sc_start(bl,SC_SHIELDSPELL_MDEF,brate,opt,sd->shieldmdef * 30000) )
+								clif_skill_nodamage(src,bl,PR_MAGNIFICAT,skilllv,
+								sc_start(bl,SC_MAGNIFICAT,100,1,sd->shieldmdef * 30000));
+ 							break;
+					}
+					break;
+
+				case 3:
+				{
+					struct item *it = &sd->status.inventory[sd->equip_index[EQI_HAND_L]];
+					if( !it )
+					{	// No shield?
+						if( sd )
+							clif_skill_fail(sd,skillid,0,0,0);
+						break;
+					}
+					brate = it->refine * 5;
+					if( rate < 25 )
+						opt = 1;
+					else if( rate < 50 )
+						opt = 2;
+					else
+						opt = 3;
+					switch( opt )
+					{
+						case 1:
+							val = (105 / 10) * it->refine;
+							sc_start2(bl,SC_SHIELDSPELL_REF,brate,opt,val,skill_get_time(skillid,skilllv));
+							break;
+						case 2: case 3:
+							if( rate < brate )
+							{
+								val = sstatus->max_hp * (11 + it->refine) / 100;
+								status_heal(bl, val, 0, 3);
+							}
+							break;
+						/*case 3:
+							// Full protection. I need confirm what effect should be here. Moved to case 2 to until we got it.
+							break;*/
+					}
+				}
+				break;
+			}
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
 	case LG_PIETY:
 		if( flag&1 )
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
@@ -7805,7 +7935,7 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			return 0;
 		}
 
-		if( sd && ud->skilltimer != INVALID_TIMER && pc_checkskill(sd,SA_FREECAST) > 0 )
+		if( sd && ud->skilltimer != -1 && (pc_checkskill(sd,SA_FREECAST) > 0 || ud->skillid == LG_EXEEDBREAK) )
 		{// restore original walk speed
 			ud->skilltimer = INVALID_TIMER;
 			status_calc_bl(&sd->bl, SCB_SPEED);
@@ -8514,11 +8644,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 				{
 					switch( skilllv )
 					{
-						case 1:
-						case 2:
-							ud->skillunit[i]->unit->val2 = skilllv;
-							ud->skillunit[i]->unit->group->val2 = skilllv;
-							break;
 						case 3:
 							ud->skillunit[i]->unit_id = UNT_FIRE_EXPANSION_SMOKE_POWDER;
 							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_FIRE_EXPANSION_SMOKE_POWDER);
@@ -8528,14 +8653,16 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 							clif_changetraplook(&ud->skillunit[i]->unit->bl, UNT_FIRE_EXPANSION_TEAR_GAS);
 							break;
 						case 5:
-						default:
 							map_foreachinarea(skill_area_sub, src->m,
 							ud->skillunit[i]->unit->bl.x - 3, ud->skillunit[i]->unit->bl.y - 3,
 							ud->skillunit[i]->unit->bl.x + 3, ud->skillunit[i]->unit->bl.y + 3, BL_CHAR,
-							src, CR_ACIDDEMONSTRATION, sd ? pc_checkskill(sd, CR_ACIDDEMONSTRATION) : skilllv,
-							tick, flag|BCT_ENEMY|1|SD_LEVEL, skill_castend_damage_id);
+							src, CR_ACIDDEMONSTRATION, sd ? pc_checkskill(sd, CR_ACIDDEMONSTRATION) : skilllv, tick, flag|BCT_ENEMY|1|SD_LEVEL, skill_castend_damage_id);
 							skill_delunit(ud->skillunit[i]->unit);
 							break;
+						default:
+							ud->skillunit[i]->unit->val2 = skilllv;
+							ud->skillunit[i]->unit->group->val2 = skilllv;
+ 							break;
 					}
 				}
 			}
@@ -10324,7 +10451,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			break;
 
 		case UNT_POEMOFNETHERWORLD:
-			if( status_get_mode(bl) != MD_BOSS )
+			if( !(status_get_mode(bl)&MD_BOSS) )
 			{
 				if( !(tsc && tsc->data[type]) )
 					sc_start(bl, type, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
@@ -10383,9 +10510,11 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			break;
 
 		case UNT_FIRE_EXPANSION_SMOKE_POWDER:
+			sc_start(bl, status_skill2sc(GN_FIRE_EXPANSION_SMOKE_POWDER), 100, sg->skill_lv, 1000);
+			break;
+
 		case UNT_FIRE_EXPANSION_TEAR_GAS:
-			// FIXME: Invalid status change -1 [LimitLine]
-			sc_start(bl, status_skill2sc(sg->skill_id), 100, sg->skill_lv, 1000);
+			sc_start(bl, status_skill2sc(GN_FIRE_EXPANSION_TEAR_GAS), 100, sg->skill_lv, 1000);
 			break;
 
 		case UNT_HELLS_PLANT:
@@ -10395,7 +10524,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 		case UNT_CLOUD_KILL:
 			if(tsc && !tsc->data[type])
 				status_change_start(bl,type,10000,sg->skill_lv,sg->group_id,0,0,skill_get_time2(sg->skill_id,sg->skill_lv),8);
-			skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
+			skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
  			break;
 
 		case UNT_VACUUM_EXTREME:
@@ -11252,25 +11381,19 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			}
 		}
 		break;
+	case WL_COMET:
 	case AB_ADORAMUS:
-		if( skill_check_pc_partner(sd,skill,&lv,1,0) <= 0 && pc_search_inventory(sd,ITEMID_BLUE_GEMSTONE) <= require.amount[0] )
+		if( skill_check_pc_partner(sd,skill,&lv,1,0) <= 0 && ((i = pc_search_inventory(sd,require.itemid[0])) < 0 || sd->status.inventory[i].amount < require.amount[0]) )
 		{
 			clif_skill_fail(sd,skill,USESKILL_FAIL_SKILLINTERVAL,0,0);
-			return 0;
-		}
+ 			return 0;
+ 		}
 		break;
 	case GC_HALLUCINATIONWALK:
 		if( sc && (sc->data[SC_HALLUCINATIONWALK] || sc->data[SC_HALLUCINATIONWALK_POSTDELAY]) )
 		{
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 			return 0;
-		}
-		break;
-	case WL_COMET:
-		if( skill_check_pc_partner(sd,skill,&lv,1,0) <= 0 && pc_search_inventory(sd,ITEMID_RED_GEMSTONE) <= require.amount[0])
-		{
-			clif_skill_fail(sd,skill,USESKILL_FAIL_SKILLINTERVAL,0,0);
- 			return 0;
 		}
 		break;
 	case WL_SUMMONFB:
@@ -11859,6 +11982,10 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			if ( i < 4 )
 				continue;
 			break;
+		case GN_FIRE_EXPANSION:
+			if( i < 5 )
+ 				continue;
+ 			break;
 		}
 
 		req.itemid[i] = skill_db[j].itemid[i];
@@ -11878,7 +12005,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			}
 		}
 	}
-	if( skill == NC_SHAPESHIFT )
+	if( skill == NC_SHAPESHIFT || skill == GN_FIRE_EXPANSION )
 	{		
 		req.itemid[lv-1] = skill_db[j].itemid[lv-1];
 		req.amount[lv-1] = skill_db[j].amount[lv-1];

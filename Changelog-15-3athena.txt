@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/17/2015
+	r95 [15peaces]
+		*Merged missing changes from 3ceam rev. 356 - 365
+		*Fixed an issue in LG_OVERBRAND skill that was causing skill malfunction.
+		*Added LG_SHIELDSPELL skill.
+		*Fixed Cloud Kill causing too low damage.
+		*Fixed an issue of Fire Expansions level 3 and 4 when used causing invalid sc timeer. 
+			-Note: This two level still doesn't have an effect when used seems the effect of the status used by these two skills are unknown/no formula. This needs proper testing in kRO.
+		*Corrected a warp destination typo in The Sign quest.
+		*Added LG_EXEEDBREAK skill.
+		*Fixed SC_FEINTBOMB, removed unnecessary clif_damage.
+		*Fixed AB_ADORAMUS and WL_COMET that wasn't checking properly for partner and/or gemstones.
+		*Fixed WM_POEMOFNETHERWORLD that was affecting to Boss monsters.
+		*Adjusted Saturday Night Fever effect. Some adjustments are based on 2010 infos.
+			-HP/SP drain while in Frenzy state is now 1% in all levels every 3 seconds.
+			-While in Frenzy state the effect of unable to use skills has been removed.
+			-DEF and FLEE reduction are not the same as Berserk state of Lord Knight. -DEF(10+10*LV) and -FLEE(40+10*LV)
+			-While in Frenzy state also this adds 100*LV of Attack Power.
+			-When Frenzy ends the state of forced sitting is reduced from 10 seconds to 3 seconds.
+			-NOTE: Probably ASPD, Movement Speed and MaxHP bonus that is from Berserk of LK will not be given as a bonus also while in Saturday Night Fever effect in official but for now the bonus effect is still until there is a confirmation about it.
+		*Fix Deep Sleep status can use skill.
+
 12/15/2015
 	r94 [15peaces]
 		*Merged missing changes from 3ceam rev. 348 - 355

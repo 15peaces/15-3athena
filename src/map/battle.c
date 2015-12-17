@@ -2090,13 +2090,29 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if( sd && sd->rageball_old )
 						skillratio = sd->rageball_old * 200 * status_get_lv(src) / 100;
 					break;
+				case LG_SHIELDSPELL:
+					if( wflag&1 )
+					{
+						skillratio += 200;
+						if( sd )
+						{
+							struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
+							if( shield_data )
+								skillratio *= shield_data->def;
+						}
+						else
+							skillratio *= 9;
+					}
+					else
+						skillratio += (sd) ? sd->shieldmdef * 20 : 1000;
+ 					break;
 				case LG_OVERBRAND:
 					if( wflag&4 )
-						skillratio = 160 * skill_lv * status_get_lv(src);
+						skillratio = 160 * skill_lv * status_get_lv(src) / 100;
 					else if( wflag&1 )
-						skillratio += (((2667 * skill_lv)/10) * skill_lv + (sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1) * (status_get_lv(src) / 3);
+						skillratio += ((2567 * skill_lv / 10) + ((sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1)) * (status_get_lv(src) / 100);
 					else
-						skillratio = ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * (status_get_lv(src) / 100);
+						skillratio = ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * status_get_lv(src) / 100;
  					break;
 				case LG_EARTHDRIVE:
 					skillratio = (skillratio + 100) * skill_lv * status_get_lv(src) / 100;
@@ -3637,14 +3653,14 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 //Calculates BF_WEAPON returned damage.
 int battle_calc_return_damage(struct block_list* bl, int damage, int flag) {
 	struct map_session_data* sd = NULL;
-	int rdamage = 0;
+	int rdamage = 0, max_damage;
 	struct status_change* sc = status_get_sc(bl);
 
 	sd = BL_CAST(BL_PC, bl);
 
 	// Reflect Damage skill should reflect all damage types.
 	if( sc && sc->data[SC_LG_REFLECTDAMAGE] ) {
-		int max_damage = status_get_max_hp(bl) * status_get_lv(bl) / 100;
+		max_damage = status_get_max_hp(bl) * status_get_lv(bl) / 100;
 		rdamage = damage * sc->data[SC_LG_REFLECTDAMAGE]->val2 / 100;
 		if( rdamage > max_damage ) rdamage = max_damage;
 	}
@@ -3663,7 +3679,16 @@ int battle_calc_return_damage(struct block_list* bl, int damage, int flag) {
 		}
 		if( sc && sc->data[SC_DEATHBOUND] && damage > 0 )
 		{
-			rdamage = damage * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
+			rdamage += damage * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
+			if( rdamage < 1 ) rdamage = 1;
+		}
+		if( sc && sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 2 )
+		{
+			max_damage = status_get_max_hp(bl);
+			rdamage += damage * sc->data[SC_SHIELDSPELL_DEF]->val2 / 100;
+			if( rdamage > max_damage )
+				rdamage = max_damage;
+			if( rdamage < 1 ) rdamage = 1;
 		}
 	} else {
 		if (sd && sd->long_weapon_damage_return)
@@ -3915,6 +3940,11 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			if(rate < 10) // Break your weapon still need official value
 				skill_break_equip(src, EQP_WEAPON, rate, BCT_SELF);
 		}
+		if( sc->data[SC_EXEEDBREAK] )
+		{
+			wd.damage = wd.damage * sc->data[SC_EXEEDBREAK]->val1 / 100;
+			status_change_end(src,SC_EXEEDBREAK,INVALID_TIMER);
+ 		}
 	}
 	if(tsc && tsc->data[SC_GIANTGROWTH] && wd.flag&(BF_WEAPON|BF_SHORT) ) // short range physical damage.
 	{ // Mark it to amplify target's next attack.

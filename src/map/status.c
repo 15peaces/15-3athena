@@ -496,10 +496,11 @@ void initChangeTables(void)
 	add_sc( SC_MAELSTROM		, SC__MAELSTROM			);
 
 	//Royal Guard
-	add_sc( LG_REFLECTDAMAGE     , SC_LG_REFLECTDAMAGE );
-	set_sc( LG_FORCEOFVANGUARD   , SC_FORCEOFVANGUARD    , SI_FORCEOFVANGUARD   , SCB_MAXHP|SCB_DEF );
-	set_sc( LG_PRESTIGE          , SC_PRESTIGE           , SI_PRESTIGE          , SCB_DEF2 );
-	set_sc( LG_PIETY             , SC_BENEDICTIO         , SI_BENEDICTIO        , SCB_DEF_ELE );
+	add_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	);
+	set_sc( LG_FORCEOFVANGUARD	, SC_FORCEOFVANGUARD	, SI_FORCEOFVANGUARD	, SCB_MAXHP|SCB_DEF );
+	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF2 );
+	set_sc( LG_PIETY			, SC_BENEDICTIO			, SI_BENEDICTIO			, SCB_DEF_ELE );
+	set_sc( LG_EXEEDBREAK		, SC_EXEEDBREAK			, SI_EXEEDBREAK			, SCB_NONE );
 
 	//Minstrel/Wanderer
 	set_sc( WA_SWING_DANCE				, SC_SWING					, SI_SWING					, SCB_SPEED|SCB_ASPD );
@@ -515,7 +516,7 @@ void initChangeTables(void)
 	set_sc( WM_GLOOMYDAY				, SC_GLOOMYDAY				, SI_GLOOMYDAY				, SCB_FLEE|SCB_ASPD );
 	set_sc( WM_SONG_OF_MANA				, SC_SONG_OF_MANA			, SI_SONG_OF_MANA			, SCB_NONE );
 	set_sc( WM_DANCE_WITH_WUG			, SC_DANCE_WITH_WUG			, SI_DANCE_WITH_WUG			, SCB_ASPD );
-	set_sc( WM_SATURDAY_NIGHT_FEVER		, SC_SATURDAY_NIGHT_FEVER	, SI_SATURDAY_NIGHT_FEVER	, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN );
+	set_sc( WM_SATURDAY_NIGHT_FEVER     , SC_SATURDAY_NIGHT_FEVER   , SI_SATURDAY_NIGHT_FEVER   , SCB_BATK|SCB_DEF|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN );
 	set_sc( WM_LERADS_DEW				, SC_LERADS_DEW				, SI_LERADS_DEW				, SCB_MAXHP );
 	set_sc( WM_MELODYOFSINK				, SC_MELODYOFSINK			, SI_MELODYOFSINK			, SCB_MATK|SCB_DEF2 );
 	set_sc( WM_BEYOND_OF_WARCRY			, SC_BEYOND_OF_WARCRY		, SI_BEYOND_OF_WARCRY		, SCB_BATK|SCB_MATK );
@@ -673,6 +674,10 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_DROCERA_HERB_STEAMED] = SI_DROCERA_HERB_STEAMED;
 	StatusIconChangeTable[SC_PUTTI_TAILS_NOODLES] = SI_PUTTI_TAILS_NOODLES;
 
+	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
+	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
+	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
+
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] = SCB_ASPD;
@@ -765,6 +770,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SIROMA_ICE_TEA] |= SCB_DEX;
 	StatusChangeFlagTable[SC_DROCERA_HERB_STEAMED] |= SCB_AGI;
 	StatusChangeFlagTable[SC_PUTTI_TAILS_NOODLES] |= SCB_LUK;
+
+	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
+	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF2;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -1357,7 +1365,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC__INVISIBILITY] ||
 				sc->data[SC_CRYSTALIZE] ||
 				sc->data[SC__IGNORANCE] || // Target afflicted with this debuff cannot use skills or magic.
-				sc->data[SC_SATURDAY_NIGHT_FEVER]
+				sc->data[SC_DEEPSLEEP]
 			))
 				return 0;
 
@@ -2228,6 +2236,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		else if(sd->inventory_data[index]->type == IT_ARMOR) {
 			refinedef += sd->status.inventory[index].refine*refinebonus[0][0];
 			if(sd->inventory_data[index]->script) {
+				if( sd->status.inventory[index].equip == EQP_SHIELD )
+					sd->special_state.checkshieldmdef = 1;
 				run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
 				if (!calculating) //Abort, run_script retriggered this. [Skotlex]
 					return 1;
@@ -3898,6 +3908,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += batk * 32 / 100; // Still need official value [pakpil]
 	if(sc->data[SC_RUSH_WINDMILL])
 		batk += batk * sc->data[SC_RUSH_WINDMILL]->val2/100;
+	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
+		batk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
 	if(sc->data[SC_MELODYOFSINK])
 		batk -= batk * sc->data[SC_MELODYOFSINK]->val3/100;
 	if(sc->data[SC_BEYOND_OF_WARCRY])
@@ -3953,6 +3965,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * 32 / 100; // Still need official value [pakpil]
 	if(sc->data[SC_STRIKING])
 		watk += sc->data[SC_STRIKING]->val2;
+	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
+		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
 
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
@@ -4068,7 +4082,7 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += 10;
 	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
 		flee -= flee * 50/100;
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		flee -= flee * 50/100;
 	if(sc->data[SC_BLIND] || sc->data[SC_PYREXIA])
 		flee -= flee * 25/100;
@@ -4094,6 +4108,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee -= flee * sc->data[SC_GLOOMYDAY]->val2 / 100;
 	if( sc->data[SC_HALLUCINATIONWALK] )
 		flee += sc->data[SC_HALLUCINATIONWALK]->val2;
+	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
+		flee -= flee * (40 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 
 	return (short)cap_value(flee,1,SHRT_MAX);
 }
@@ -4118,7 +4134,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if(!sc || !sc->count)
 		return (signed char)cap_value(def,CHAR_MIN,CHAR_MAX);
 
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		return 0;
 	if(sc->data[SC_SKA])
 		return sc->data[SC_SKA]->val3;
@@ -4162,6 +4178,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * 55 / 100; // Still need official value [pakpil]
 	if( sc->data[SC_FORCEOFVANGUARD] )
 		def += def * 2 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
+	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
+		def -= def * (10 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 
 	return (signed char)cap_value(def,CHAR_MIN,CHAR_MAX);
 }
@@ -4171,7 +4189,7 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 	if(!sc || !sc->count)
 		return cap_value(def2,1,SHRT_MAX);
 	
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		return 0;
 	if(sc->data[SC_ETERNALCHAOS])
 		return 0;
@@ -4202,6 +4220,8 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		def2 += def2 * sc->data[SC_ECHOSONG]->val2/100;
 	if( sc->data[SC_PRESTIGE] )
 		def2 += def2 * sc->data[SC_PRESTIGE]->val1 / 100;
+	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1 )
+		def2 += sc->data[SC_SHIELDSPELL_REF]->val2;
 
 	return (short)cap_value(def2,1,SHRT_MAX);
 }
@@ -4211,7 +4231,7 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	if(!sc || !sc->count)
 		return (signed char)cap_value(mdef,CHAR_MIN,CHAR_MAX);
 
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		return 0;
 	if(sc->data[SC_BARRIER])
 		return 100;
@@ -4244,7 +4264,7 @@ static signed short status_calc_mdef2(struct block_list *bl, struct status_chang
 	if(!sc || !sc->count)
 		return cap_value(mdef2,1,SHRT_MAX);
 
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		return 0;
 	if(sc->data[SC_MINDBREAKER])
 		mdef2 -= mdef2 * sc->data[SC_MINDBREAKER]->val3/100;
@@ -4262,9 +4282,12 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if( sc == NULL )
 		return cap_value(speed,10,USHRT_MAX);
 
-	if( sd && sd->ud.skilltimer != INVALID_TIMER && pc_checkskill(sd,SA_FREECAST) > 0 )
+	if( sd && sd->ud.skilltimer != -1 && ( sd->ud.skillid == LG_EXEEDBREAK || pc_checkskill(sd,SA_FREECAST) > 0) )
 	{
-		speed_rate = 175 - 5 * pc_checkskill(sd,SA_FREECAST);
+		if( sd->ud.skillid == LG_EXEEDBREAK )
+			speed_rate = 100 + 60 - (sd->ud.skilllv * 10); // -50% at skilllv 1 -> -10% at skilllv 5
+		else
+			speed_rate = 175 - 5 * pc_checkskill(sd,SA_FREECAST);
 	}
 	else
 	{
@@ -6023,6 +6046,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	case SC_LG_REFLECTDAMAGE:
 		status_change_end(bl,SC_REFLECTSHIELD,INVALID_TIMER);
 		break;
+	// Remove previous status changes.
+	case SC_SHIELDSPELL_DEF:
+	case SC_SHIELDSPELL_MDEF:
+	case SC_SHIELDSPELL_REF:
+		status_change_end(bl,SC_MAGNIFICAT,INVALID_TIMER);
+		status_change_end(bl,SC_SHIELDSPELL_DEF,INVALID_TIMER);
+		status_change_end(bl,SC_SHIELDSPELL_MDEF,INVALID_TIMER);
+		status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
+ 		break;
 	}
 
 	//Check for overlapping fails
@@ -6085,6 +6117,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_ENCHANTARMS:
 			case SC_ARMOR_ELEMENT:
 			case SC_ARMOR_RESIST:
+			case SC_EXEEDBREAK:
 				break;
 			case SC_GOSPEL:
 				 //Must not override a casting gospel char.
@@ -6543,7 +6576,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_BERSERK:
-		case SC_SATURDAY_NIGHT_FEVER:
 			if (!sc->data[SC_ENDURE] || !sc->data[SC_ENDURE]->val4)
 				sc_start4(bl, SC_ENDURE, 100,10,0,0,2, tick);
 			//HP healing is performing after the calc_status call.
@@ -7214,6 +7246,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick/3000;
 			tick = 3000;
 			break;
+		case SC_SATURDAY_NIGHT_FEVER:
+			if (!val4) val4 = skill_get_time2(status_sc2skill(type),val1);
+			if (!val4) val4 = 3000;
+			val3 = tick/val4;
+			tick = val4;
+			break;
 		case SC_GLOOMYDAY:
 			val2 = 3 + 2 * val1; // Flee reduction.
 			val3 = 3 * val1; // ASPD reduction.
@@ -7257,11 +7295,29 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 
+		case SC_EXEEDBREAK:
+			val1 *= 150; // 150 * skill_lv
+			if( sd )
+			{	// Chars.
+				struct item_data *id = sd->inventory_data[sd->equip_index[EQI_HAND_R]];
+				if( id ) val1 += (id->weight/10 * id->wlv * status_get_lv(bl) / 100); // (weapon_weight * weapon_level * base_lvl)/100
+				val1 += 15 * sd->status.job_level; // 15 * job_lvl
+			}
+			else	// Mobs
+				val1 += (400 * status_get_lv(bl) / 100) + (15 * (status_get_lv(bl) / 2));	// About 1138% at mob_lvl 99. Is an aproximation to a standard weapon. [pakpil] 
+ 			break;
+
 		case SC_PRESTIGE:	// Bassed on suggested formula in iRO Wiki and some test, still need more test. [pakpil]
 			val2 = ((status->int_ + status->luk) / 6) + 5;	// Chance to evade magic damage.
 			val1 *= 15; // Defence added
 			if( sd )
 				val1 += 10 * pc_checkskill(sd,CR_DEFENDER);
+			val_flag |= 1|2;
+			break;
+
+		case SC_SHIELDSPELL_DEF:
+		case SC_SHIELDSPELL_MDEF:
+		case SC_SHIELDSPELL_REF:
 			val_flag |= 1|2;
 			break;
 
@@ -7404,7 +7460,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			opt_flag = 0;
 			break;
 		case SC_BERSERK:
-		case SC_SATURDAY_NIGHT_FEVER:
 			sc->opt3 |= OPT3_BERSERK;
 			opt_flag = 0;
 			break;
@@ -8576,7 +8631,6 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		break;
 
 	case SC_BERSERK:
-	case SC_SATURDAY_NIGHT_FEVER:
 		// 5% every 10 seconds [DracoRPG]
 		if( --( sce->val3 ) > 0 && status_charge(bl, sce->val2, 0) && status->hp > 100 )
 		{
@@ -8988,6 +9042,19 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		{
 			status_heal(bl,0,sce->val3,3);
 			sc_timer_next(3000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_SATURDAY_NIGHT_FEVER:
+		// 1% HP/SP drain every 3 seconds [Jobbie]
+		if( --(sce->val3) >= 0 )
+		{
+			int hp = 1 * status->hp / 100;
+			int sp = 1 * status->sp / 100;
+			if( !status_charge(bl, hp, sp) )
+				break;
+			sc_timer_next(sce->val4+tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
