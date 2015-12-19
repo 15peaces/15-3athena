@@ -3778,15 +3778,6 @@ This functions will return true or false depending on whether the server is in
 night mode or day mode:
 
 	if (!isnight()) mes "I only prowl in the night.";
-	
-*isday()
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    @ /!\ This command is deprecated @
-    @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-This command is deprecated and it should not be used in new scripts, as it
-is likely to be removed at a later time. Please consider using !isnight()
-instead.
 
 ---------------------------------------
 \\

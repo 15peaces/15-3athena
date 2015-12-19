@@ -4,6 +4,29 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/19/2015
+	r96 [15peaces]
+		*Merged missing changes from 3ceam rev. 366 - 373
+		*Removed deprecated 'isday()' command.
+			-please use '!isnight()' instead.
+		*Fixes in Warg Bite.
+			-Warg Bite should immobilize bosses and when they can't reach for the attacker due to this immobilization, the attack is considered rude attack.
+		*Added / updated / fixed huge number of items.
+			-Added missing Siege Arrow combo bonus, thanks to hercules.
+			-Added support for SC_VITATA_500 status.
+			-Updated Flame Stone, Ice Stone, Wind Stone, and Shadow Orb selling prices based on kRO.
+			-Updated some item scripts based on Aegis.
+			-Fixed 'Light Concentration Potion', 'Light Awakening Potion' and 'Light Berserk Potion' not giving additional ASPD when used. Thanks to Emistry/hercules.
+		*Added LG_MOONLSLASHER skill.
+		*Fixed RK_DEATHBOUND.
+			-Adjusted behavior.
+			-Disable reflecting damage in Boss Monster until we can confirm if this skill work in Boss monster or not.
+		*Fixed LG_REFLECTDAMAGE.
+		*Added LG_TRAMPLE skill.
+		*Fixed GN_WALLOFTHORN.
+			-It has to become a Fire Wall when it receives fire damage.
+			-It must be destroyed when it receives more damage than it can bear.
+
 12/17/2015
 	r95 [15peaces]
 		*Merged missing changes from 3ceam rev. 356 - 365

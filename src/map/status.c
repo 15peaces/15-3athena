@@ -674,6 +674,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_DROCERA_HERB_STEAMED] = SI_DROCERA_HERB_STEAMED;
 	StatusIconChangeTable[SC_PUTTI_TAILS_NOODLES] = SI_PUTTI_TAILS_NOODLES;
 
+	StatusIconChangeTable[SC_VITATA_500] |= SI_VITATA_500;
+
 	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
@@ -770,6 +772,8 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SIROMA_ICE_TEA] |= SCB_DEX;
 	StatusChangeFlagTable[SC_DROCERA_HERB_STEAMED] |= SCB_AGI;
 	StatusChangeFlagTable[SC_PUTTI_TAILS_NOODLES] |= SCB_LUK;
+	
+	StatusChangeFlagTable[SC_VITATA_500] |= SCB_REGEN | SCB_MAXSP;
 
 	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
 	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF2;
@@ -3115,6 +3119,8 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 	}
 	if( sc->data[SC_VITALITYACTIVATION] )
 		regen->flag &=~RGN_SP;
+	if (sc->data[SC_VITATA_500])
+		regen->rate.sp += regen->rate.sp * sc->data[SC_VITATA_500]->val1 / 100;
 }
 
 /// Recalculates parts of an object's battle status according to the specified flags.
@@ -4632,6 +4638,8 @@ static unsigned int status_calc_maxsp(struct block_list *bl, struct status_chang
 		maxsp += maxsp * sc->data[SC_SERVICE4U]->val2/100;
 	if(sc->data[SC_MERC_SPUP])
 		maxsp += maxsp * sc->data[SC_MERC_SPUP]->val2/100;
+	if (sc->data[SC_VITATA_500])
+		maxsp += maxsp * sc->data[SC_VITATA_500]->val2 / 100;
 
 	return cap_value(maxsp,1,UINT_MAX);
 }
@@ -5844,6 +5852,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_BURNING:// Place here until we have info about its behavior on Boss-monsters. [pakpil]
 			case SC_MARSHOFABYSS:
 			case SC_ADORAMUS:
+			//case SC_WUGBITE:
 
 			// Exploid prevention - kRO Fix
 			case SC_PYREXIA:

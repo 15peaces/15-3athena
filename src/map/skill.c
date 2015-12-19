@@ -1094,6 +1094,13 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			default: skill_break_equip(bl,(skilllv == 3) ? EQP_SHIELD : (skilllv == 4) ? EQP_ARMOR : EQP_WEAPON,rate,BCT_ENEMY); break;
 		}
  		break;
+	case LG_MOONSLASHER:
+		rate = 40 + (skilllv > 1) ? 8 * skilllv : 0;
+		if( rand()%100 < rate && dstsd ) // Uses skill_addtimerskill to avoid damage and setsit packet overlaping. Officially clif_setsit is received about 500 ms after damage packet.
+			skill_addtimerskill(src,tick+500,bl->id,0,0,skillid,skilllv,BF_WEAPON,0);
+		else if( dstmd && !is_boss(bl) )
+			sc_start(bl,SC_STOP,100,skilllv,skill_get_time(skillid,skilllv));
+ 		break;
 	case LG_EARTHDRIVE:
 		skill_break_equip(src, EQP_SHIELD, 500, BCT_SELF);
 		break;
@@ -2247,7 +2254,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if( rdamage > 0 )
 	{
 		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
-			map_foreachinrange(battle_damage_area,bl,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,bl,dmg.amotion,sstatus->dmotion,rdamage,tstatus->race);
+			if( src != bl )// Don't reflect your own damage (Grand Cross)
+				map_foreachinrange(battle_damage_area,bl,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,bl,dmg.amotion,sstatus->dmotion,rdamage,tstatus->race);
 		else
 		{
 			if( dmg.amotion )
@@ -2791,6 +2799,17 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						}
 					}
 					break;
+				case LG_MOONSLASHER:
+					if( target->type == BL_PC )
+					{
+						struct map_session_data *tsd = BL_CAST(BL_PC,target);
+						if( tsd && !pc_issit(tsd) )
+						{
+							pc_setsit(tsd);
+							clif_sitting(&tsd->bl);
+ 						}
+ 					}
+ 					break;
 				case LG_OVERBRAND:
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
@@ -2909,6 +2928,39 @@ static int skill_ative_reverberation( struct block_list *bl, va_list ap)
 		clif_changetraplook(bl, UNT_USED_TRAPS);
 		su->limit=DIFF_TICK(gettick(),su->group->tick)+1500;
 		su->group->unit_id = UNT_USED_TRAPS;
+	}
+	return 0;
+}
+
+static int skill_destroy_trap( struct block_list *bl, va_list ap )
+{
+	struct skill_unit *su = (struct skill_unit *)bl;
+	struct skill_unit_group *sg;
+	unsigned int tick;
+	
+	nullpo_retr(0, su);
+	nullpo_retr(0, sg = su->group);
+	tick = va_arg(ap, unsigned int);
+
+	if (su->alive && su->group && skill_get_inf2(su->group->skill_id)&INF2_TRAP)
+	{
+		switch( su->group->unit_id )
+		{
+			case UNT_FIRINGTRAP:
+			case UNT_ICEBOUNDTRAP:
+			case UNT_CLUSTERBOMB:
+			case UNT_LANDMINE:
+			case UNT_CLAYMORETRAP:
+			case UNT_BLASTMINE:
+			case UNT_SHOCKWAVE:
+			case UNT_SANDMAN:
+			case UNT_FLASHER:
+			case UNT_FREEZINGTRAP:
+				map_foreachinrange(skill_trap_splash,&su->bl, skill_get_splash(sg->skill_id, sg->skill_lv), sg->bl_flag, &su->bl,tick);
+				break;
+		}
+		// Traps aren't not recovered.
+		skill_delunit(su);
 	}
 	return 0;
 }
@@ -3289,6 +3341,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_FLAMELAUNCHER:
 	case NC_SELFDESTRUCTION:
 	case NC_AXETORNADO:
+	case LG_MOONSLASHER:
 	case LG_EARTHDRIVE:
 	case WM_REVERBERATION:
 	case SO_VARETYR_SPEAR:
@@ -3322,6 +3375,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			if( skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE )
 				clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			if( skillid ==  LG_MOONSLASHER );
+				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 
 			skill_area_temp[0] = 0;
 			skill_area_temp[1] = bl->id;
@@ -3910,7 +3965,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 		break;
 	case SC_FATALMENACE:
-		if( !flag&1 )
+		if( !(flag&1) )
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		else
 		{
@@ -3947,11 +4002,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
  		break;
 
 	case LG_SHIELDSPELL:
-		if( flag&1 )
-			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
-		else
-			skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
-		break;
+		// flag&1: Phisycal Attack, flag&2: Magic Attack.
+		skill_attack((flag&1)?BF_WEAPON:BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
+ 		break;
 
 	case LG_OVERBRAND:
 		if( flag&1 )
@@ -7364,6 +7417,11 @@ break;
 			clif_skill_fail(sd,skillid,0,0,0);
 		break;
 
+	case LG_TRAMPLE:
+		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		map_foreachinrange(skill_destroy_trap,bl,skill_get_splash(skillid,skilllv),BL_SKILL,tick);
+		break;
+
 	case LG_REFLECTDAMAGE:
 		if( tsc && tsc->data[type] )
 			status_change_end(bl,type,-1);
@@ -9557,6 +9615,11 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 
 	case WM_REVERBERATION:
 		interval = limit;
+		break;
+
+	case GN_WALLOFTHORN:
+		if( flag&1 )
+			limit = 3000;
 		break;
 	}
 
@@ -13850,9 +13913,8 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_ANKLESNARE:
 			case UNT_ELECTRICSHOCKER:
 			case UNT_CLUSTERBOMB:
-			case UNT_WALLOFTHORN:
 				if( unit->val1 <= 0 ) {
-					if( ((group->unit_id == UNT_ANKLESNARE || group->unit_id == UNT_ELECTRICSHOCKER) && group->val2 > 0) || group->unit_id == UNT_WALLOFTHORN )
+					if( (group->unit_id == UNT_ANKLESNARE || group->unit_id == UNT_ELECTRICSHOCKER) && group->val2 > 0 )
 						skill_delunit(unit);
 					else {
 						group->unit_id = UNT_USED_TRAPS;
@@ -13863,6 +13925,13 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_REVERBERATION:
 				if( unit->val1 <= 0 )
 					unit->limit = DIFF_TICK(tick+700,group->tick);
+ 				break;
+			case UNT_WALLOFTHORN:
+				if( unit->val1 <= 0 )
+				{
+					group->unit_id = UNT_USED_TRAPS;
+					group->limit = DIFF_TICK(tick, group->tick) + 1500;
+				}
  				break;
 		}
 	}

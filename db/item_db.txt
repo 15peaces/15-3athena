@@ -4098,10 +4098,10 @@
 7518,Women's_Medal,Women's Medal,3,0,,10,,,,,,,,,,,,,{},{},{}
 7519,Money_Envelope,Handsel,3,0,,10,,,,,,,,,,,,,{},{},{}
 7520,Chinese_Scroll,Please Be Rich,3,0,,10,,,,,,,,,,,,,{},{},{}
-7521,Flame_Stone,Flame Stone,3,150,,10,,,,,,,,,,,,,{},{},{}
-7522,Ice_Stone,Ice Stone,3,150,,10,,,,,,,,,,,,,{},{},{}
-7523,Wind_Stone,Wind Stone,3,150,,10,,,,,,,,,,,,,{},{},{}
-7524,Shadow_Orb,Shadow Orb,3,300,,20,,,,,,,,,,,,,{},{},{}
+7521,Flame_Stone,Flame Stone,3,112,,10,,,,,,,,,,,,,{},{},{}
+7522,Ice_Stone,Ice Stone,3,112,,10,,,,,,,,,,,,,{},{},{}
+7523,Wind_Stone,Wind Stone,3,112,,10,,,,,,,,,,,,,{},{},{}
+7524,Shadow_Orb,Shadow Orb,3,225,,20,,,,,,,,,,,,,{},{},{}
 7525,Summer_Feast_Ticket,Summer Festival Ticket,3,10,,10,,,,,,,,,,,,,{},{},{}
 7526,Manuscript_Paper,Manuscript Paper,3,2,,0,,,,,,,,,,,,,{},{},{}
 7527,Life_Book,Book About True Life,3,0,,100,,,,,,,,,,,,,{},{},{}
@@ -4443,8 +4443,9 @@
 7935,Poison_Herb_Seratum,Poison Herb Seratum,3,1,,10,,,,,,,,,,,,,{},{},{}
 7936,Poison_Herb_Scopolia,Poison Herb Scoporia,3,1,,10,,,,,,,,,,,,,{},{},{}
 7937,Poison_Herb_Amoena,Poison Herb Amoena,3,1,,10,,,,,,,,,,,,,{},{},{}
-7938,Light_Granule,Light Granule,3,1000,,10,,,,,,,,,,,,,{},{},{}
-7939,Elder_Branch,Elder Branch,3,1000,,10,,,,,,,,,,,,,{},{},{}
+// Rune Knight Rune Stone Ingredients
+7938,Light_Granule,Light Partacle,3,1000,,10,,,,,,,,,,,,,{},{},{}
+7939,Elder_Branch,Elder's Branch,3,1000,,10,,,,,,,,,,,,,{},{},{}
 7940,Special_Alloy_Trap,Special Alloy Trap,3,200,,2,,,,,,,,,,,,,{},{},{}
 7941,Halloween_Ticket,Halloween Ticket,3,10,,0,,,,,,,,,,,,,{},{},{}
 7942,Letter_From_Chico,Chico Cesar Letter,3,0,,0,,,,,,,,,,,,,{},{},{}
@@ -5236,12 +5237,12 @@
 12529,White_Slim_Potion_Box,White Slim Potion Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12530,Mastela_Fruit_Box,Mastela Fruit Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12531,White_Potion_Box,White Potion Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12532,Royal_Jelly_Box2,Royal Jelly Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12533,Blue_Herb_Box2,Blue Herb Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12534,Yggdrasil_Seed_Box,Yggdrasil Seed Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12532,Royal_Jelly_Box2,Royal Jelly Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 526,100;},{},{}
+12533,Blue_Herb_Box2,Blue Herb Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 510,100;},{},{}
+12534,Yggdrasil_Seed_Box,Yggdrasil Seed Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 608,30;},{},{}
 12535,Iggdrasilberry_Box,Iggdrasilberry Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12536,NY_Rice_Cake_Soup,NY Rice Cake Soup,2,20,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12537,Solo_Gift_Basket,Solo Gift Basket,2,1000,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12536,NY_Rice_Cake_Soup,NY Rice Cake Soup,2,20,,100,,,,,0xFFFFFFFF,7,2,,,,,,{percentheal 20,20;},{},{}
+12537,Solo_Gift_Basket,Solo Gift Basket,2,1000,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 597,5; getitem 596,3; getitem 561,3; getitem 573,4; getitem 559,10; getitem 560,10; },{},{}
 12538,Couple_Event_Basket,Couple Event Basket,2,2000,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12539,Splendid_Box,Splendid Box,2,20,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12540,GM_Warp_Box,GM Warp Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -5254,7 +5255,7 @@
 12547,Chalcenodny_Box,Chalcenodny Box,2,0,,200,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12548,Buy_Market_Permit2,Shabby Purchase Street Stall License,2,500,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ buyingstore 2; },{},{}
 12549,White_Slim_Pot_Box2,White Slim Pot Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12550,Poison_Bottle_Box2,Poison Bottle Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12550,Poison_Bottle_Box2,Poison Bottle Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 678,30;},{},{}
 12551,MVP_Tele_Scroll,MVP Tele Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12552,Quest_Tele_Scroll,Quest Tele Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12553,Brysinggamen_Piece_Box,Brysinggamen Piece Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -5281,7 +5282,7 @@
 12574,Mora_Berry,Mora Berry,2,0,,20,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,rand(50,65); specialeffect2 EF_GUARD; bonus_script "{ bonus2 bAddDefClass,2137,50; bonus2 bAddDefClass,2136,50; bonus2 bAddDefClass,2134,50; bonus2 bAddDefClass,2133,50; bonus2 bAddDefClass,2132,50; }",120; },{},{}
 12575,Arrow_Of_Elf_Cntr,Arrow Of Elf Cntr,2,500,,250,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12576,Hunting_Arrow_Cntr,Hunting Arrow Cntr,2,500,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1774,500; },{},{}
-12577,Lucky_Egg_C6,Lucky Egg C6,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12577,Lucky_Egg_C6,Lucky Egg C6,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 13208,200;},{},{}
 12578,Rapid_Life_Water,Rapid Life Water,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12579,Ring_Of_Valkyrie_Box,Ring Of Valkyrie Box,2,20,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12580,Vending_Search_Scroll,Universal Catalog Silver,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ searchstores 10,0; },{},{}
@@ -5322,26 +5323,28 @@
 12722,Poison_Fever,Pyrexia,2,2,,20,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12723,Poison_Laughing,Magic Mushroom,2,2,,20,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12724,Poison_Fatigue,Venom Bleed,2,2,,20,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12725,Runstone_Nosiege,Nosiege Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12726,Runstone_Rhydo,Rhydo Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12727,Runstone_Verkana,Verkana Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12728,Runstone_Isia,Isia Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12729,Runstone_Asir,Asir Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12730,Runstone_Urj,Urj Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12731,Runstone_Turisus,Turisus Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12732,Runstone_Pertz,Pertz Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12733,Runstone_Hagalas,Hagalas Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12734,Runstone_Quality,Quality Rough Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12735,Runstone_Ancient,Ancient Rough Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12736,Runstone_Mystic,Mystic Rough Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12737,Runstone_Ordinary,General Rough Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12738,Runstone_Rare,Rare Rough Runestone,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+// Rune Knight's Rune Stones
+12725,Runstone_Nosiege,Nauthiz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_REFRESH",1; },{},{}
+12726,Runstone_Rhydo,Raido Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_CRUSHSTRIKE",1; },{},{}
+12727,Runstone_Verkana,Berkana Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_MILLENNIUMSHIELD",1; },{},{}
+12728,Runstone_Isia,Isa Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_VITALITYACTIVATION",1; },{},{}
+12729,Runstone_Asir,Eihwaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_FIGHTINGSPIRIT",1; },{},{}
+12730,Runstone_Urj,Uruz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_ABUNDANCE",1; },{},{}
+12731,Runstone_Turisus,Thurisaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_GIANTGROWTH",1; },{},{}
+12732,Runstone_Pertz,Perthro Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_STORMBLAST",1; },{},{}
+12733,Runstone_Hagalas,Hagalaz Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_STONEHARDSKIN",1; },{},{}
+// Rune Knight Rune Ores
+12734,Runstone_Quality,Luxurious Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 1; },{},{}
+12735,Runstone_Ancient,Ancient Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 2; },{},{}
+12736,Runstone_Mystic,Mystic Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 3; },{},{}
+12737,Runstone_Ordinary,General Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 4; },{},{}
+12738,Runstone_Rare,Rare Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 5; },{},{}
 12739,Snow_Flower,Snow Flowers,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12740,Inc_Str_Scroll,Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12741,Inc_Int_Scroll,Intellect Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12742,Valentine_Gift_Box1,Valentine Gift Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12743,Valentine_Gift_Box2,Valentine Gift Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12744,Chocotate_Box,Chocolate Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12743,Valentine_Gift_Box2,Valentine Gift Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 7947,1;},{},{}
+12744,Chocotate_Box,Chocolate Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 558,1;},{},{}
 12745,Skull_Scroll,Skull Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12746,Destruction_Scroll,Destruction Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12747,Royal_Scroll,Royal Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -5352,7 +5355,7 @@
 12752,Prayer_Scroll,Prayer Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12753,Soul_Scroll,Soul Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12754,New_Year_Bun,New Year Bun,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12755,Traditional_Firecrack,Traditional Firecrack,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12755,Traditional_Firecrack,Chinese Fireworks,2,2,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_POK_JAP; /* itemskill "MO_CALLSPIRITS",3; itemskill "MO_FINGEROFFENSIVE",5; */ },{},{}
 12756,New_Gift_Envelope,New Gift Envelope,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12757,Loyal_Ring1_Box,Loyal Ring1 Box,2,10,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12758,Loyal_Ring2_Box,Loyal Ring2 Box,2,10,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -6508,9 +6511,9 @@
 14469,Ox_Tail_Scroll,Ox Tail Egg,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 14500,Insurance60,Life Insurrance Certificate,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_LIFEINSURANCE,3600000,0; },{},{}
 14508,Zeny_Scroll,Zeny Pet Egg Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-14509,Light_Center_Pot,Light Concentration Potion,2,800,,20,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ASPDPOTION0,1800000,0; },{},{}
-14510,Light_Awakening_Pot,Light Awakening Potion,2,1500,,20,,,,,0xFFF7FEEF,7,2,,,40,,,{ sc_start SC_ASPDPOTION1,1800000,0; },{},{}
-14511,Light_Berserk_Pot,Light Berserk Potion,2,3000,,20,,,,,0x01E646A6,7,2,,,85,,,{ sc_start SC_ASPDPOTION2,1800000,0; },{},{}
+14509,Light_Center_Pot,Light Concentration Potion,2,800,,20,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ASPDPOTION0,1800000,4; },{},{}
+14510,Light_Awakening_Pot,Light Awakening Potion,2,1500,,20,,,,,0xFFF7FEEF,7,2,,,40,,,{ sc_start SC_ASPDPOTION1,1800000,6; },{},{}
+14511,Light_Berserk_Pot,Light Berserk Potion,2,3000,,20,,,,,0x01E646A6,7,2,,,85,,,{ sc_start SC_ASPDPOTION2,1800000,9; },{},{}
 14512,Meteor_10_Scroll,Meteor Storm Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_METEOR",10; },{},{}
 14513,Storm_10_Scroll,Storm Gust Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_STORMGUST",10; },{},{}
 14514,Vermilion_10_Scroll,Lord of Vermilion Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_VERMILION",10; },{},{}
