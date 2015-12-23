@@ -5785,46 +5785,22 @@ void clif_notify_playerchat(struct map_session_data* sd, const char* message)
  	nullpo_retv(mes);
  
  	//Scrapped, as these are shared by disconnected players =X [Skotlex]
- 	if (fd == 0)
- 		;
- 	else {
-		char *message, *line;
-
-		message = aStrdup(mes);
-		line = strtok(message, "\n");
+	if ( fd > 0 ) {
 #if PACKETVER == 20141022
 		/** for some reason game client crashes depending on message pattern (only for this packet) **/
 		/** so we redirect to ZC_NPC_CHAT **/
-		//clif_colormes(fd, color_table[COLOR_DEFAULT], mes);
-		while(line != NULL) {
-			unsigned long color = (color_table[COLOR_DEFAULT] & 0x0000FF) << 16 | (color_table[COLOR_DEFAULT] & 0x00FF00) | (color_table[COLOR_DEFAULT] & 0xFF0000) >> 16; // RGB to BGR
-			unsigned short len = strnlen(line, CHAT_SIZE_MAX);
-
-			if (len > 0) { 
-				WFIFOHEAD(fd, 13 + len);
-				WFIFOW(fd, 0) = 0x2C1;
-				WFIFOW(fd, 2) = 13 + len;
-				WFIFOL(fd, 4) = 0;
-				WFIFOL(fd, 8) = color;
-				safestrncpy((char*)WFIFOP(fd, 12), line, len + 1);
-				WFIFOSET(fd, WFIFOW(fd, 2));
-			}
+		clif_disp_overheadcolor_self(fd, COLOR_DEFAULT, mes);
 #else
- 		while(line != NULL) {
- 			// Limit message to 255+1 characters (otherwise it causes a buffer overflow in the client)
- 			int len = strnlen(line, CHAT_SIZE_MAX);
- 
- 			if (len > 0) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
- 				WFIFOHEAD(fd, 5 + len);
- 				WFIFOW(fd,0) = 0x8e;
- 				WFIFOW(fd,2) = 5 + len; // 4 + len + NULL teminate
- 				safestrncpy((char *)WFIFOP(fd,4), line, len + 1);
- 				WFIFOSET(fd, 5 + len);
- 			}
+		size_t len;
+
+		if ( ( len = strnlen(mes, 255) ) > 0 ) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
+			WFIFOHEAD(fd, 5 + len);
+			WFIFOW(fd,0) = 0x8e;
+			WFIFOW(fd,2) = 5 + len; // 4 + len + NULL terminate
+			safestrncpy((char *)WFIFOP(fd,4), mes, len + 1);
+			WFIFOSET(fd, 5 + len);
+		}
 #endif
- 			line = strtok(NULL, "\n");
- 		}
- 		aFree(message);
 	}
 }
 
@@ -6478,7 +6454,7 @@ void clif_parse_BankOpen(int fd, struct map_session_data* sd) {
 	//also mark something in case char ain't available for saving, should we check now ?
 	nullpo_retv(sd);
 	if( !battle_config.feature_banking ) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(723)); //Banking is disabled
 		return;
 	}
 	else {
@@ -6518,7 +6494,7 @@ void clif_parse_BankClose(int fd, struct map_session_data* sd) {
 
 	nullpo_retv(sd);
 	if( !battle_config.feature_banking ) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(723)); //Banking is disabled
 		//still allow to go trough to not stuck player if we have disable it while they was in
 	}
 	if(sd->status.account_id == aid){
@@ -6560,7 +6536,7 @@ void clif_parse_BankCheck(int fd, struct map_session_data* sd) {
 	nullpo_retv(sd);
 
 	if( !battle_config.feature_banking ) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(723)); //Banking is disabled
 		return;
 	}
 	else {
@@ -6604,7 +6580,7 @@ void clif_bank_deposit(struct map_session_data *sd, enum e_BANKING_DEPOSIT_ACK r
 void clif_parse_BankDeposit(int fd, struct map_session_data* sd) {
 	nullpo_retv(sd);
 	if( !battle_config.feature_banking ) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(723)); //Banking is disabled
 		return;
 	}
 	else {
@@ -6652,7 +6628,7 @@ void clif_bank_withdraw(struct map_session_data *sd,enum e_BANKING_WITHDRAW_ACK 
 void clif_parse_BankWithdraw(int fd, struct map_session_data* sd) {
         nullpo_retv(sd);
 	if( !battle_config.feature_banking ) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(723)); //Banking is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(723)); //Banking is disabled
 		return;
 	}
 	else {
@@ -8921,54 +8897,57 @@ void clif_specialeffect_value(struct block_list* bl, int effect_id, int num, sen
 	}
 }
 
-// Modification of clif_messagecolor to send colored messages to players to chat log only (doesn't display overhead)
-/// 02c1 <packet len>.W <id>.L <color>.L <message>.?B
-int clif_colormes(struct map_session_data * sd, unsigned long color, const char* msg) {
-	unsigned short msg_len = strlen(msg) + 1;
+/**
+ * Modification of clif_disp_overheadcolor to send colored messages to players to chat log only (doesn't display overhead).
+ *
+ * 02c1 <packet len>.W <id>.L <color>.L <message>.?B
+ *
+ * @param fd    Target fd to send the message to
+ * @param color Message color (RGB format: 0xRRGGBB)
+ * @param msg   Message text
+ */
+void clif_disp_overheadcolor_self(int fd, uint32 color, const char *msg)
+{
+	size_t msg_len = strlen(msg) + 1;
 
-	WFIFOHEAD(sd->fd,msg_len + 12);
-	WFIFOW(sd->fd,0) = 0x2C1;
-	WFIFOW(sd->fd,2) = msg_len + 12;
-	WFIFOL(sd->fd,4) = 0;
-	WFIFOL(sd->fd,8) = color; //either color_table or channel_table
-	safestrncpy((char*)WFIFOP(sd->fd,12), msg, msg_len);
-	WFIFOSET(sd->fd, msg_len + 12);
-
-	return 0;
+	WFIFOHEAD(fd,msg_len + 12);
+	WFIFOW(fd,0) = 0x2C1;
+	WFIFOW(fd,2) = msg_len + 12;
+	WFIFOL(fd,4) = 0;
+	WFIFOL(fd,8) = RGB2BGR(color);
+	safestrncpy((char*)WFIFOP(fd,12), msg, msg_len);
+	WFIFOSET(fd, msg_len + 12);
 }
 
-/// Monster/NPC color chat [SnakeDrak] (ZC_NPC_CHAT).
-/// 02c1 <packet len>.W <id>.L <color>.L <message>.?B
-void clif_messagecolor(struct block_list* bl, unsigned long color, const char* msg)
+/**
+ * Monster/NPC color chat [SnakeDrak] (ZC_NPC_CHAT).
+ *
+ * 02c1 <packet len>.W <id>.L <color>.L <message>.?B
+ *
+ * @param bl    Source block list.
+ * @param color Message color (RGB format: 0xRRGGBB)
+ * @param msg   Message text
+ */
+void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *msg)
 {
-	unsigned short msg_len = strlen(msg) + 1;
+	size_t msg_len = strlen(msg) + 1;
 	uint8 buf[256];
-	color = (color & 0x0000FF) << 16 | (color & 0x00FF00) | (color & 0xFF0000) >> 16; // RGB to BGR
 
 	nullpo_retv(bl);
 
-	if( msg_len > sizeof(buf)-12 )
-	{
-		ShowWarning("clif_messagecolor: Truncating too long message '%s' (len=%u).\n", msg, msg_len);
+	if (msg_len > sizeof(buf)-12) {
+		ShowWarning("clif_disp_overheadcolor: Truncating too long message '%s'.\n", msg);
 		msg_len = sizeof(buf)-12;
 	}
 
 	WBUFW(buf,0) = 0x2C1;
 	WBUFW(buf,2) = msg_len + 12;
 	WBUFL(buf,4) = bl->id;
-	WBUFL(buf,8) = color;
+	WBUFL(buf,8) = RGB2BGR(color);
 	memcpy(WBUFP(buf,12), msg, msg_len);
 
 	clif_send(buf, WBUFW(buf,2), bl, AREA_CHAT_WOC);
 }
-
-
-/// Public chat message [Valaris]
-void clif_message(struct block_list* bl, const char* msg)
-{
-	clif_notify_chat(bl, msg, AREA_CHAT_WOC);
-}
-
 
 // refresh the client's screen, getting rid of any effects
 void clif_refresh(struct map_session_data *sd)
@@ -9240,16 +9219,36 @@ void clif_slide(struct block_list *bl, int x, int y)
 }
 
 
-/*------------------------------------------
- * @me command by lordalfa, rewritten implementation by Skotlex
- *------------------------------------------*/
-void clif_disp_overhead(struct map_session_data *sd, const char* mes)
+/// Public chat message (ZC_NOTIFY_CHAT). lordalfa/Skotlex - used by @me as well
+/// 008d <packet len>.W <id>.L <message>.?B
+void clif_disp_overhead(struct block_list *bl, const char* mes)
 {
+	unsigned char buf[256]; //This should be more than sufficient, the theoretical max is CHAT_SIZE + 8 (pads and extra inserted crap)
+	size_t len_mes;
+
+	nullpo_retv(bl);
+	nullpo_retv(mes);
+	len_mes = strlen(mes)+1; //Account for \0
+
+	if (len_mes > sizeof(buf)-8) {
+		ShowError("clif_disp_overhead: Message too long\n");
+		len_mes = sizeof(buf)-8; //Trunk it to avoid problems.
+	}
 	// send message to others
-	clif_notify_chat(&sd->bl, mes, AREA_CHAT_WOC);
+	WBUFW(buf,0) = 0x8d;
+	WBUFW(buf,2) = len_mes + 8; // len of message + 8 (command+len+id)
+	WBUFL(buf,4) = bl->id;
+	safestrncpy((char*)WBUFP(buf,8), mes, len_mes);
+	clif_send(buf, WBUFW(buf,2), bl, AREA_CHAT_WOC);
 
 	// send back message to the speaker
-	clif_notify_playerchat(sd, mes);
+	if( bl->type == BL_PC ) {
+		WBUFW(buf,0) = 0x8e;
+		WBUFW(buf, 2) = len_mes + 4;
+		safestrncpy((char*)WBUFP(buf,4), mes, len_mes);
+		clif_send(buf, WBUFW(buf,2), bl, SELF);
+	}
+
 }
 
 /*==========================
@@ -12746,7 +12745,7 @@ void clif_parse_CreateGuild(int fd,struct map_session_data *sd)
 	}
 
 	if (!(battle_config.guild_create&1)) {
-		clif_colormes(sd, color_table[COLOR_RED], msg_txt(717));
+		clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(717));
 		return;
 	}
 
@@ -13168,7 +13167,7 @@ void clif_parse_GuildBreak(int fd, struct map_session_data *sd)
 		return;
 	}
 	if (!(battle_config.guild_break&1)) {
-		clif_colormes(sd, color_table[COLOR_RED], msg_txt(718));
+		clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(718));
 		return;
 	}
 	guild_break(sd,(char*)RFIFOP(fd,2));
@@ -17386,7 +17385,7 @@ void clif_parse_RouletteOpen(int fd, struct map_session_data* sd)
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(724)); //Roulette is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(724)); //Roulette is disabled
 		return;
 	}
 
@@ -17416,7 +17415,7 @@ void clif_parse_RouletteInfo(int fd, struct map_session_data* sd)
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(724)); //Roulette is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(724)); //Roulette is disabled
 		return;
 	}
 
@@ -17449,7 +17448,7 @@ void clif_parse_RouletteClose(int fd, struct map_session_data* sd)
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(724)); //Roulette is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(724)); //Roulette is disabled
 		return;
 	}
 
@@ -17520,7 +17519,7 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(724)); //Roulette is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(724)); //Roulette is disabled
 		return;
 	}
 
@@ -17577,7 +17576,7 @@ void clif_parse_RouletteRecvItem(int fd, struct map_session_data* sd)
 	nullpo_retv(sd);
 
 	if (!battle_config.feature_roulette) {
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(724)); //Roulette is disabled
+		clif_disp_overheadcolor_self(fd,COLOR_RED,msg_txt(724)); //Roulette is disabled
 		return;
 	}
 

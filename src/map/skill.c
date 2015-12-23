@@ -1059,11 +1059,16 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_FREEZE,100,skilllv,skill_get_time(skillid,skilllv));
  		break;
 	case RA_WUGBITE:
-		sc_start(bl, SC_WUGBITE, 100, skilllv, skill_get_time(skillid, skilllv));
-		break;
+		{
+			int duration = skill_get_time(skillid, skilllv), bduration;
+			if( sd && (bduration = pc_checkskill(sd, RA_TOOTHOFWUG))>0 )
+				duration += bduration * 1000;
+			sc_start(bl, SC_WUGBITE, 100, skilllv, duration);
+		}
+ 		break;
 	case RA_SENSITIVEKEEN:
 		if( rand()%100 < 8*skilllv )
-			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, 1);
+			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, SD_ANIMATION);
 	case RA_FIRINGTRAP:
 		sc_start(bl, SC_BURNING, 10 * skilllv + 40, skilllv, skill_get_time2(skillid, skilllv));
 		break;
@@ -2102,6 +2107,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			case WL_CHAINLIGHTNING_ATK:
 				temp_skill = WL_CHAINLIGHTNING;
 				break;
+			case AB_DUPLELIGHT_MELEE:
+			case AB_DUPLELIGHT_MAGIC:
+				temp_skill = AB_DUPLELIGHT;
+ 				break;
 			case WM_REVERBERATION_MELEE:
 			case WM_REVERBERATION_MAGIC:
 				temp_skill = WM_REVERBERATION;
@@ -3890,8 +3899,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
 
 				if( skilllv == 1 ) j = 1; // Limit only to one ball
-				for( i = 0; i < j; i++ )
-				{
+				for( i = 0; i < j; i++ ){
 					skele = WL_RELEASE - 5 + sc->data[spheres[i]]->val1 - WLS_FIRE; // Convert Ball Element into Skill ATK for balls
 					// WL_SUMMON_ATK_FIRE, WL_SUMMON_ATK_WIND, WL_SUMMON_ATK_WATER, WL_SUMMON_ATK_GROUND
 					skill_addtimerskill(src,tick+status_get_adelay(src)*i,bl->id,0,0,skele,skilllv,BF_MAGIC,flag|SD_LEVEL);
@@ -3904,16 +3912,19 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case RA_WUGSTRIKE:
 		if( sd && pc_iswugrider(sd) ){
-			if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground 
-				&& unit_movepos(src, bl->x, bl->y, 0, 1) )
-				clif_slide(src, bl->x, bl->y);
+			if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1) )
+ 				clif_slide(src, bl->x, bl->y);
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		}else
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
 	case RA_SENSITIVEKEEN:
-		{
+		if( bl->type != BL_SKILL ){ // Only Hits Invisible Targets
+			sc = status_get_sc(bl);
+			if(sc && (sc->option&(OPTION_HIDE|OPTION_CLOAK) || sc->data[SC__INVISIBILITY]) )
+				skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		}else{
 			struct skill_unit *su = BL_CAST(BL_SKILL,bl);
 			struct skill_unit_group* sg;
 			if( su && (sg=su->group) && skill_get_inf2(sg->skill_id)&INF2_TRAP && sg->src_id != src->id &&
@@ -5203,7 +5214,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			//NOTE: mobs don't have the sprite animation that is used when performing this skill (will cause glitches)
 			char temp[70];
 			snprintf(temp, sizeof(temp), "%s : %s !!",md->name,skill_db[skillid].desc);
-			clif_message(&md->bl,temp);
+			clif_disp_overhead(&md->bl,temp);
 		}
 		break;
 
@@ -6919,9 +6930,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			if( sd && tstatus && !battle_check_undead(tstatus->race, tstatus->def_ele) )
 			{
-				i = skill_calc_heal(src, bl, AL_HEAL, pc_checkskill(sd, AL_HEAL), true);
-				status_heal(bl, i, 0, 2);
-				clif_skill_nodamage(bl, bl, skillid, i, 1);
+				i = skill_calc_heal(src, bl, AL_HEAL, pc_checkskill(sd, AL_HEAL), true);				
+				clif_skill_nodamage(bl, bl, skillid, status_heal(bl, i, 0, 1), 1);
 			}
 		}
 		else if( sd )
@@ -7230,13 +7240,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case RA_SENSITIVEKEEN:
-		if( sd )
-		{
-			map_foreachinrange( status_change_timer_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, SC_SIGHT, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			map_foreachinrange( skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_SKILL, src, skillid,skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
-			clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		}
+		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR|BL_SKILL,
+			src,skillid,skilllv,tick,flag|BCT_ENEMY,skill_castend_damage_id);
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		break;
 
 	case RA_CAMOUFLAGE:
@@ -8485,7 +8492,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case NC_COLDSLOWER:
 	case NC_ARMSCANNON:
 	case RK_DRAGONBREATH:
-	case RA_SENSITIVEKEEN:
 	case WM_LULLABY_DEEPSLEEP:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub,

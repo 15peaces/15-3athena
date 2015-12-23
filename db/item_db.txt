@@ -1151,7 +1151,8 @@
 2152,Anti_Demon_Shield_C,Anti-Demon Shield,5,0,,0,,120,,0,0xFFFFFFFF,7,2,32,,1,0,3,{},{},{}
 2153,Imperial_Guard,Imperial Guard,5,20,,2500,,120,,1,0x00000000,7,2,32,,102,1,0,{ bonus bMdef,5; },{},{}
 2154,Toy_Shield,Toy Shield,5,0,,500,,1,,1,0xFFFFFFFF,7,2,32,,10,1,1,{},{},{}
-2156,Bible_Of_Promise1,Bible Of Promise,5,20,,500,,10,,1,0x00000000,7,2,32,,110,1,5,{ bonus bMdef,2; },{},{}
+2156,Bible_Of_Promise1,Bible Of Promise Vol1,5,20,,500,,1,,1,0x00000100,8,2,32,,110,1,5,{ bonus bMdef,2; skill "ALL_ODINS_POWER",1; },{},{}
+2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,56000,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
 2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
 // Headgears
 //===================================================================
@@ -3126,7 +3127,7 @@
 5793,Ribbon_Of_Life,Ribbon Of Life,5,20,,0,,2,,0,0xFFFFFFFF,7,2,512,,1,0,575,{ bonus bInt,1; bonus bMdef,2; },{},{}
 5794,3D_Glasses_,3D Glasses,5,20,,0,,1,,0,0xFFFFFFFF,7,2,512,,1,0,661,{},{},{}
 //5795,Red_Dress_Hat,Red Dress Hat,5,20,,0,,0,,0,0xFFFFFFFF,7,2,256,,1,1,670,{ bonus bMdef,7; },{},{}
-5796,Cheer_Scarf,Cheer Scarf,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
+5796,Rooting_Scarf,Rooting Scarf,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1,,1,0,369,{ bonus2 bExpAddRace,RC_NonBoss,10; bonus2 bExpAddRace,RC_Boss,10; },{},{}
 5797,Cheer_Scarf2,Cheer Scarf2,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 5798,Cheer_Scarf3,Cheer Scarf3,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
 5799,Cheer_Scarf4,Cheer Scarf4,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1,,1,0,369,{},{},{}
@@ -6701,3 +6702,5 @@
 19507,Clear_Sun,Clear Sun,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,654,{},{},{}
 //Costume Headgear's Using Status's To Appear -> sprites currently missing in kRO
 19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
+// Hanbok Outfit
+22538,Hanbok_Pocket,Hanbok Pocket,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}

@@ -4,6 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/23/2015
+	r97 [15peaces]
+		*Merged missing changes from 3ceam rev. 374 - 377
+		*Complete rewrite of message-system. (Thanks to hercules)
+			-This was made to fix various bugs with colored messages.
+			-This also fixes the bug with 2014 ragexe, where all messages appeared white.
+		*Finally added support for 2nd / 3rd NPC view ranges.
+			-Thanks to 3ceam.
+		*Fixed Eclage quests
+			-Fixed typos with view-IDs...
+		*Some more work on item_db
+			-mainly clean-up and small fixes. ^^
+		*Fixed the behavior of Sensitive Keen which is not functioning well.
+			-Minor fix to Warg Bite skill not having the bonus duration of 1*skillLv sec from Tooth of Wug.
+		*Minor fix on Coloceo Heal.
+		*Fixed Reproduce skill not copying properly skill Duple Light.
+
 12/19/2015
 	r96 [15peaces]
 		*Merged missing changes from 3ceam rev. 366 - 373

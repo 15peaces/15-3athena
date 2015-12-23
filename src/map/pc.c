@@ -9237,7 +9237,7 @@ enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int mo
 		return BWA_NO_MONEY;
 	} else if ( limit_check > MAX_ZENY ) {
 		/* no official response for this scenario exists. */
-		clif_colormes(sd,color_table[COLOR_RED],msg_txt(722)); //You can't withdraw that much money
+		clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(722)); //You can't withdraw that much money
 		return BWA_UNKNOWN_ERROR;
 	}
 	

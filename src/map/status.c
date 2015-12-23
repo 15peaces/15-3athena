@@ -8665,7 +8665,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		//if (sce->val4 % 1000 == 0) {
 		//	char timer[10];
 		//	snprintf (timer, 10, "%d", sce->val4/1000);
-		//	clif_message(bl, timer);
+		//	clif_disp_overhead(bl, timer);
 		//}
 		if((sce->val4 -= 500) > 0) {
 			sc_timer_next(500 + tick, status_change_timer, bl->id, data);

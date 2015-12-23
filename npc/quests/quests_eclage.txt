@@ -185,7 +185,7 @@ ecl_fild01,94,322,5	script	Security Guard#ep14_2	447,{
 }
 ecl_fild01,100,323,3	duplicate(Security Guard#ep14_2)	Security Guard#ep14_2_2	447
 
-ecl_fild01,111,320,3	script	Immigration Officer#ep14	4424,{
+ecl_fild01,111,320,3	script	Immigration Officer#ep14	445,{
 	mes "[Immigration Officer]";
 	if (ep14_2_oliver == 0) {
 		mes "What do you need?";
@@ -2744,7 +2744,7 @@ function	script	WeightBigQuest	{
 	}
 }
 
-eclage,282,255,4	script	Wuhari#eclbig	4426,{
+eclage,282,255,4	script	Wuhari#eclbig	620,{
 	callfunc "WeightBigQuest";
 	mes "[Wuhari]";
 	if (BaseLevel < 120)
@@ -4184,7 +4184,7 @@ ecl_fild01,134,109,4	script	Warao#eclbig	446,{
 	close;
 }
 
-ecl_in01,38,37,4	script	A kneeling boy#eclbig	4366,{
+ecl_in01,38,37,4	script	A kneeling boy#eclbig	441,{
 	mes "[A kneeling boy]";
 	mes "Why am I kneeling like this?";
 	next;
@@ -5594,7 +5594,7 @@ eclage,164,102,3	script	Cruyan#eclage	442,{
 	close;
 }
 
-ecl_fild01,98,299,5	script	Balumin#eclage	4472,{
+ecl_fild01,98,299,5	script	Balumin#eclage	461,{
 	if (ep14_2_detect < 1 || (ep14_2_detect >= 10 && ep14_2_detect <= 13)) end;
 	if (ep14_2_detect == 14) {
 		if (checkweight(607,5) == 0) {
@@ -6300,7 +6300,7 @@ ecl_in04,209,200,3	script	Wandering Merchant#ecl2	807,{
 	close;
 }
 
-ecl_in04,203,199,5	script	Balumin#eclage2	4472,{
+ecl_in04,203,199,5	script	Balumin#eclage2	461,{
 	mes "[Balumin]";
 	if (ep14_2_detect == 9) {
 		mes "I'm glad that the incident";
@@ -7008,7 +7008,7 @@ ecl_in04,81,102,3	script	Residence exit#ecl_port2	844,{
 
 // Troublesome Fairies (Prankster of Eclage)
 //============================================================
-ecl_in02,160,36,4	script	Eirinn#nk	4366,{
+ecl_in02,160,36,4	script	Eirinn#nk	441,{
 	switch( isbegin_quest(4254) ) {
 		mes "[Eirinn]";
 	case 0:
@@ -7739,7 +7739,7 @@ ecl_in01,26,88,5	script	Cecilia#nk	440,{
 	}
 }
 
-ecl_in01,80,77,5	script	Dominic#nk	4424,3,3,{
+ecl_in01,80,77,5	script	Dominic#nk	445,3,3,{
 	mes "[Dominic]";
 	switch( isbegin_quest(4260) ) {
 	case 0:
@@ -8369,7 +8369,7 @@ ecl_in01,82,79,4	script	Magazine#02	111,{
 
 // Light and Darkness
 //============================================================
-ecl_in02,98,32,3	script	Eclage Guard#tl1b	4472,{
+ecl_in02,98,32,3	script	Eclage Guard#tl1b	461,{
 	mes "[Eclage Guard]";
 	if (ep14_2_mylord > 6) {
 		mes "You are working for.. The king.";
@@ -9649,7 +9649,7 @@ mid_camp,179,258,4	script	Ford#pa0829	544,{
 	close;
 }
 
-ecl_in02,133,115,7	script	Prison Guard#pa0829	4472,{
+ecl_in02,133,115,7	script	Prison Guard#pa0829	461,{
 	if (checkweight(1201,1) == 0) {
 		mes "It seems like there are too many types of items. Let's try again after reducing the number of types.";
 		close;
@@ -15450,7 +15450,7 @@ ecl_in03,41,90,3	script	Mayor Jun Kardui#tl01	624,{
 	end;
 }
 
-eclage,112,40,3	script	Eclage Guard Leo#tl	4472,{
+eclage,112,40,3	script	Eclage Guard Leo#tl	461,{
 	if (!checkweight(1301,3)) {
 		mes "- You have too many items to proceed with the quest. -";
 		close;
@@ -15806,7 +15806,7 @@ S_Setquest7423:
 	return;
 }
 
-ecl_fild01,205,86,3	script	Eclage Messenger Roy#tl	4472,{
+ecl_fild01,205,86,3	script	Eclage Messenger Roy#tl	461,{
 	if (!checkweight(1301,3)) {
 		mes "- You have too many items to proceed with the quest. -";
 		close;
@@ -16140,7 +16140,7 @@ OnTouch:
 	}
 }
 
-eclage,275,294,3	script	Eclage Resident#tl02	4424,{
+eclage,275,294,3	script	Eclage Resident#tl02	445,{
 OnTalk:
 	if (ep14_2_mylord == 10 && checkquest(7425) == -1) {
 		mes "[Female Laphine]";

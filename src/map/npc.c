@@ -99,7 +99,8 @@ struct event_data {
 static struct eri *timer_event_ers; //For the npc timer data. [Skotlex]
 
 //For holding the view data of npc classes. [Skotlex]
-static DBMap* npcview_db;  // int class_ -> struct view_data*
+static struct view_data npc_viewdb[MAX_NPC_CLASS];
+static struct view_data npc_viewdb_2[MAX_NPC_CLASS_2];
 
 static struct script_event_s
 {	//Holds pointers to the commonly executed scripts for speedup. [Skotlex]
@@ -108,25 +109,15 @@ static struct script_event_s
 	uint8 event_count;
 } script_event[NPCE_MAX];
 
-static void* npc_create_viewdata(DBKey key, va_list args)
-{
-	struct view_data* vd;
-
-	CREATE(vd, struct view_data, 1);
-	vd->class_ = key.i;
-
-	return vd;
-}
-
-// Returns the viewdata for normal npc classes.
-// FIXME: class_ should be signed short
 struct view_data* npc_get_viewdata(int class_)
-{
-	if( npcdb_checkid(class_) || class_ == WARP_CLASS )
-	{// Allocate valid entries as needed.
-		return (struct view_data*)idb_ensure(npcview_db, class_, &npc_create_viewdata);
-	}
-
+{	//Returns the viewdata for normal npc classes.
+	if (class_ == INVISIBLE_CLASS)
+		return &npc_viewdb[0];
+	if (npcdb_checkid(class_) || class_ == WARP_CLASS)
+		if ( class_ >= NPC_CLASS_BASE_2 )
+			return &npc_viewdb_2[class_-NPC_CLASS_BASE_2];
+		else
+			return &npc_viewdb[class_];
 	return NULL;
 }
 
@@ -1167,7 +1158,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 				}
 
 				if (i == nd->u.shop.count) {
-					clif_colormes(sd, color_table[COLOR_RED], msg_txt(534));
+					clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(534));
 					return false;
 				}
 
@@ -3969,7 +3960,6 @@ int do_final_npc(void)
 	//There is no free function for npcname_db because at this point there shouldn't be any npcs left!
 	//So if there is anything remaining, let the memory manager catch it and report it.
 	npcname_db->destroy(npcname_db, NULL);
-	npcview_db->destroy(npcview_db, NULL);
 #if PACKETVER >= 20131223
 	NPCMarketDB->destroy(NPCMarketDB, npc_market_free);
 #endif
@@ -4019,10 +4009,18 @@ static void npc_debug_warps(void)
 int do_init_npc(void)
 {
 	struct npc_src_list *file;
+	int i;
+
+	//Stock view data for normal npcs.
+	memset(&npc_viewdb, 0, sizeof(npc_viewdb));
+	npc_viewdb[0].class_ = INVISIBLE_CLASS; //Invisible class is stored here.
+	for( i = 1; i < MAX_NPC_CLASS; i++ ) 
+		npc_viewdb[i].class_ = i;
+	for( i = NPC_CLASS_BASE_2; i < NPC_CLASS_MAX_2; i++ )
+		npc_viewdb_2[i-NPC_CLASS_BASE_2].class_ = i;
 
 	ev_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA),2*NAME_LENGTH+2+1);
 	npcname_db = strdb_alloc(DB_OPT_BASE,NAME_LENGTH);
-	npcview_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
 #if PACKETVER >= 20131223
 	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NAME_LENGTH+1);

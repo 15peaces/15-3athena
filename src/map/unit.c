@@ -328,7 +328,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 				else
 						sprintf(e_msg, msg_txt(801), sd->status.name, e_tick+1);
 
-				clif_colormes(sd,color_table[COLOR_YELLOW], e_msg);
+				clif_disp_overheadcolor_self(sd->fd,COLOR_WHITE, e_msg);
 				return 0;
 			}
 		}

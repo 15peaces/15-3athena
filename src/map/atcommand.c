@@ -4021,7 +4021,7 @@ ACMD_FUNC(guild)
 	memset(guild, '\0', sizeof(guild));
 
 	if (!(battle_config.guild_create&2)) {
-		clif_colormes(sd, color_table[COLOR_RED], msg_txt(717));
+		clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(717));
 		return -1;
 	}
 
@@ -4052,7 +4052,7 @@ ACMD_FUNC(breakguild)
  
         if (sd->status.guild_id) { // Check if the player has a guild 
 		if (!(battle_config.guild_break&2)) {
-			clif_colormes(sd, color_table[COLOR_RED], msg_txt(718));
+			clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(718));
 			return -1;
 		}
                 g = guild_search(sd->status.guild_id); // Search the guild 
@@ -6805,8 +6805,8 @@ ACMD_FUNC(npctalk)
 	strtok(name, "#"); // discard extra name identifier if present
 	snprintf(temp, sizeof(temp), "%s : %s", name, mes);
 	
-	if(ifcolor) clif_messagecolor(&nd->bl,color,temp);
-	else clif_message(&nd->bl, temp);
+	if(ifcolor) clif_disp_overheadcolor(&nd->bl,color,temp);
+	else clif_disp_overhead(&nd->bl, temp);
 
 	return 0;
 }
@@ -6856,7 +6856,7 @@ ACMD_FUNC(pettalk)
 	}
 
 	snprintf(temp, sizeof temp ,"%s : %s", pd->pet.name, mes);
-	clif_message(&pd->bl, temp);
+	clif_disp_overhead(&pd->bl, temp);
 
 	return 0;
 }
@@ -7660,7 +7660,7 @@ ACMD_FUNC(homtalk)
 	}
 
 	snprintf(temp, sizeof temp ,"%s : %s", sd->hd->homunculus.name, mes);
-	clif_message(&sd->hd->bl, temp);
+	clif_disp_overhead(&sd->hd->bl, temp);
 
 	return 0;
 }
@@ -8084,7 +8084,7 @@ ACMD_FUNC(me)
 	}
 	
 	sprintf(atcmd_output, msg_txt(270), sd->status.name, tempmes);	// *%s %s*
-	clif_disp_overhead(sd, atcmd_output);
+	clif_disp_overhead(&sd->bl, atcmd_output);
 	
 	return 0;
 	

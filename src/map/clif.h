@@ -32,6 +32,13 @@ struct party_booking_ad_info;
 
 #include <stdarg.h>
 
+#define RGB2BGR(c) ((c & 0x0000FF) << 16 | (c & 0x00FF00) | (c & 0xFF0000) >> 16)
+
+#define COLOR_RED     0xff0000U
+#define COLOR_GREEN   0x00ff00U
+#define COLOR_WHITE   0xffffffU
+#define COLOR_DEFAULT COLOR_GREEN
+
 enum
 {// packet DB
 	MAX_PACKET_DB  = 0xAFF,
@@ -713,8 +720,6 @@ void clif_friendslist_reqack(struct map_session_data *sd, struct map_session_dat
 void clif_weather(int m); // [Valaris]
 void clif_specialeffect(struct block_list* bl, int type, enum send_target target); // special effects [Valaris]
 void clif_specialeffect_single(struct block_list* bl, int type, int fd);
-void clif_messagecolor(struct block_list* bl, unsigned long color, const char* msg); // Mob/Npc color talk [SnakeDrak]
-void clif_message(struct block_list* bl, const char* msg); // messages (from mobs/npcs) [Valaris]
 void clif_specialeffect_value(struct block_list* bl, int effect_id, int num, send_target target);
 
 void clif_GM_kickack(struct map_session_data *sd, int id);
@@ -722,7 +727,7 @@ void clif_GM_kick(struct map_session_data *sd,struct map_session_data *tsd);
 void clif_manner_message(struct map_session_data* sd, uint32 type);
 void clif_GM_silence(struct map_session_data* sd, struct map_session_data* tsd, uint8 type);
 
-void clif_disp_overhead(struct map_session_data *sd, const char* mes);
+void clif_disp_overhead(struct block_list *bl, const char* mes);
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand);
 
@@ -877,17 +882,7 @@ void clif_parse_RouletteClose(int fd, struct map_session_data *sd);
 void clif_parse_RouletteGenerate(int fd, struct map_session_data *sd);
 void clif_parse_RouletteRecvItem(int fd, struct map_session_data *sd);
 
-/**
- * Color Table
- **/
-enum clif_colors {
-	COLOR_DEFAULT,
-	COLOR_RED,
-	COLOR_WHITE,
-	COLOR_YELLOW,
-	COLOR_MAX
-};
-unsigned long color_table[COLOR_MAX];
-int clif_colormes(struct map_session_data * sd, unsigned long color, const char* msg);
+void clif_disp_overheadcolor_self(int fd, uint32 color, const char *msg);
+void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *msg);
 
 #endif /* _CLIF_H_ */

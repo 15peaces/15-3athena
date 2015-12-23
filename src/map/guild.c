@@ -516,7 +516,7 @@ void guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 			|| (battle_config.guild_disable_invite&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
 			)
 		{
-			clif_colormes(sd,color_table[COLOR_RED],msg_txt(719));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(719));
 			//clif_guild_inviteack(sd,0);
 			return;
 		}
@@ -690,7 +690,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, int account_id, int c
 			|| (battle_config.guild_disable_expel&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
 			)
 		{
-			clif_colormes(sd,color_table[COLOR_RED],msg_txt(720));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(720));
 			return 0;
 		}
 	}
@@ -732,7 +732,7 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, i
 			|| (battle_config.guild_disable_expel&8 && (!map[sd->bl.m].flag.gvg ||!map[sd->bl.m].flag.gvg_castle || !(agit_flag || agit2_flag))) // Disable at normal condition
 			)
 		{
-			clif_colormes(sd,color_table[COLOR_RED],msg_txt(720));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(720));
 			return 0;
 		}
 	}

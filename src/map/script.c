@@ -12370,7 +12370,7 @@ BUILDIN_FUNC(npctalk)
 		safestrncpy(name, nd->name, sizeof(name));
 		strtok(name, "#"); // discard extra name identifier if present
 		safesnprintf(message, sizeof(message), "%s : %s", name, str);
-		clif_message(&nd->bl, message);
+		clif_disp_overhead(&nd->bl, message);
 	}
 
 	return 0;
@@ -14128,7 +14128,7 @@ BUILDIN_FUNC(callshop)
 		}
 
 		if (i == nd->u.shop.count) {
-			clif_colormes(sd, color_table[COLOR_RED], msg_txt(534));
+			clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(534));
 			return false;
 		}
 
@@ -15668,7 +15668,7 @@ BUILDIN_FUNC(unittalk)
 
 		StringBuf_Init(&sbuf);
 		StringBuf_Printf(&sbuf, "%s : %s", status_get_name(bl), message);
-		clif_message(bl, StringBuf_Value(&sbuf));
+		clif_disp_overhead(bl, StringBuf_Value(&sbuf));
 		if( bl->type == BL_PC )
 			clif_displaymessage(((TBL_PC*)bl)->fd, StringBuf_Value(&sbuf));
 		StringBuf_Destroy(&sbuf);
@@ -17586,7 +17586,7 @@ BUILDIN_FUNC(guild_addmember) {
 	sd->guild_invite = guild_id;
 	sd->guild_invite_account = 0;
 	script_pushint(st, guild_reply_invite(sd, guild_id, 1));
-	clif_colormes(sd, color_table[COLOR_WHITE], g->name);
+	clif_disp_overheadcolor_self(sd->fd, COLOR_WHITE, g->name);
 	return 1;
 }
 
