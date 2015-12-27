@@ -6001,6 +6001,24 @@ BUILDIN_FUNC(grouprandomitem)
 	return 0;
 }
 
+/* getitempackage <package_id>;
+ * Gives item(s) to the attached player based on item group contents
+ */
+BUILDIN_FUNC(getitempackage) {
+	struct map_session_data *sd = NULL;
+	int packageid;
+
+	if( !( sd = script_rid2sd(st) ) ) {
+		ShowWarning("buildin_getitempackage: no player attached!!\n");
+		script_pushint(st, 1);
+	}
+
+	packageid = script_getnum(st,2);
+	itemdb_package_item(sd,packageid);
+	script_pushint(st,0);
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -17839,6 +17857,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getitem2,"viiiiiiii?"),
 	BUILDIN_DEF(getnameditem,"vv"),
 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i"),
+	BUILDIN_DEF(getitempackage,"i"),
 	BUILDIN_DEF(makeitem,"visii"),
 	BUILDIN_DEF(delitem,"vi?"),
 	BUILDIN_DEF(delitem2,"viiiiiiii?"),

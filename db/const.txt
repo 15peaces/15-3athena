@@ -737,6 +737,9 @@ IG_Xmas_Gift	54
 IG_Advanced_Weapons_Box	55 //61
 IG_Candy_Holder	56 //389!
 
+//Item Packages
+IP_New_Year_Scroll	1 //225
+
 SC_ALL	-1
 SC_NONE	-1
 SC_STONE	0

@@ -49,8 +49,9 @@ enum item_itemid
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6
 #define IG_POTION 37
-//The max. item group count (increase this when needed).
-#define MAX_ITEMGROUP 57
+//The max. item group count, same for item packages (increase this when needed).
+#define MAX_ITEMGROUP 58
+#define MAX_ITEMPACKAGE 1
 
 #define CARD0_FORGE 0x00FF
 #define CARD0_CREATE 0x00FE
@@ -118,6 +119,14 @@ struct item_group {
 	int qty; //Counts amount of items in the group.
 };
 
+struct item_package {
+	unsigned short nameid[MAX_RANDITEM];
+	int qty; //Counts amount of items in the group.
+	unsigned short prob[MAX_RANDITEM];
+	unsigned short amount[MAX_RANDITEM];
+	unsigned short ismust[MAX_RANDITEM];
+};
+
 enum {
 	ITEMID_REFRESH = 12725,
 	ITEMID_REUSE_CRUSHSTRIKE,
@@ -154,6 +163,7 @@ struct item_data* itemdb_exists(unsigned short nameid);
 #define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
 #define itemdb_is_poison(n) (n >= 12717 && n <= 12724)
 #define itemdb_is_spellbook(n) (n > 6188 && n < 6205)
+#define itemdb_is_element(n) (n >= 990 && n <= 993)
 const char* itemdb_typename(int type);
 
 int itemdb_group_bonus(struct map_session_data* sd, int itemid);
@@ -186,6 +196,8 @@ int itemdb_isstackable(unsigned short);
 int itemdb_isstackable2(struct item_data *);
 
 bool itemdb_parse_roulette_db(void);
+
+void itemdb_package_item(struct map_session_data *sd, int packageid);
 
 void itemdb_reload(void);
 

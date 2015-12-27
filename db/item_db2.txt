@@ -2029,3 +2029,6 @@
 17233,Scroll_Of_Death,Scroll Of Death,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Scroll_Of_Death);*/ },{},{}
 17234,Scroll_Of_Life,Scroll Of Life,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Scroll_Of_Life);*/ },{},{}
 17235,Scroll_Of_Magic,Scroll Of Magic,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Scroll_Of_Magic);*/ },{},{}
+
+//getitempackage testing
+14408,New_Year_Scroll,New Year Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_New_Year_Scroll); },{},{}

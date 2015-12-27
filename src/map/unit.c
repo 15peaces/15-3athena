@@ -963,6 +963,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_WHITEIMPRISON]
 			|| sc->data[SC_ELECTRICSHOCKER]
 			|| sc->data[SC_WUGBITE]
+			|| sc->data[SC_MAGNETICFIELD]
 			|| sc->data[SC_THORNSTRAP]
 			|| sc->data[SC_CRYSTALIZE]
 			|| sc->data[SC__MANHOLE]
@@ -2072,15 +2073,20 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl, SC_GOSPEL, INVALID_TIMER);
 			status_change_end(bl, SC_CHANGE, INVALID_TIMER);
 			status_change_end(bl, SC_STOP, INVALID_TIMER);
-			status_change_end(bl,SC_ELECTRICSHOCKER, INVALID_TIMER);
-			status_change_end(bl,SC_CLOAKINGEXCEED, INVALID_TIMER);
-			status_change_end(bl,SC_WUGBITE, INVALID_TIMER);
-			status_change_end(bl,SC_WUGDASH, INVALID_TIMER);
-			status_change_end(bl,SC_CAMOUFLAGE, INVALID_TIMER);
-			status_change_end(bl,SC_CRYSTALIZE, INVALID_TIMER);
-			status_change_end(bl,SC__SHADOWFORM, INVALID_TIMER);
-			status_change_end(bl,SC__MANHOLE, INVALID_TIMER);
-			status_change_end(bl,SC_VACUUM_EXTREME, INVALID_TIMER);
+			status_change_end(bl, SC_ELECTRICSHOCKER, INVALID_TIMER);
+			status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
+			status_change_end(bl, SC_WUGBITE, INVALID_TIMER);
+			status_change_end(bl, SC_WUGDASH, INVALID_TIMER);
+			status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
+			status_change_end(bl, SC_MAGNETICFIELD, INVALID_TIMER);
+			status_change_end(bl, SC_NEUTRALBARRIER_MASTER, INVALID_TIMER);
+			status_change_end(bl, SC_NEUTRALBARRIER, INVALID_TIMER);
+			status_change_end(bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
+			status_change_end(bl, SC_STEALTHFIELD, INVALID_TIMER);
+			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
+			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+			status_change_end(bl, SC__MANHOLE, INVALID_TIMER);
+			status_change_end(bl, SC_VACUUM_EXTREME, INVALID_TIMER);
 
 	}
 

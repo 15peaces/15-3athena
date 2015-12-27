@@ -48,6 +48,7 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
+	//#define PACKETVER 20120410
 	//#define PACKETVER 20131223
 	#define PACKETVER 20141022
 #endif
@@ -113,7 +114,7 @@
 #define MAX_GUILDCASTLE 34	// Updated to include new entries for WoE:SE. [L0ne_W0lf]
 #define MAX_GUILDLEVEL 50
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
-#define MAX_QUEST_DB 2416 //Max quests that the server will load
+#define MAX_QUEST_DB 2423 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
 

@@ -227,6 +227,29 @@ int pc_delspiritball(struct map_session_data *sd,int count,int type)
 	return 0;
 }
 
+int pc_overheat(struct map_session_data *sd, int val)
+{
+	int heat = val, skill,
+		limit[] = { 10, 20, 28, 46, 66 };
+
+	if( !sd || !pc_ismadogear(sd) || sd->sc.data[SC_OVERHEAT] )
+		return 0; // already burning
+
+	skill = cap_value(pc_checkskill(sd,NC_MAINFRAME),0,4);
+	if( sd->sc.data[SC_OVERHEAT_LIMITPOINT] ){
+		heat += sd->sc.data[SC_OVERHEAT_LIMITPOINT]->val1;
+		status_change_end(&sd->bl,SC_OVERHEAT_LIMITPOINT,-1);
+	}
+
+	heat = max(0,heat); // Avoid negative HEAT
+	if( heat >= limit[skill] )
+		sc_start(&sd->bl,SC_OVERHEAT,100,0,1000);
+	else
+		sc_start(&sd->bl,SC_OVERHEAT_LIMITPOINT,100,heat,30000);
+
+	return 0;
+}
+
 static int pc_rageball_timer(int tid, unsigned int tick, int id, intptr data)
 {
 	struct map_session_data *sd;
@@ -3918,21 +3941,20 @@ int pc_useitem(struct map_session_data *sd,int n)
 	// In this case these sc are OFFICIALS cooldowns for these skills
 	if( itemdb_is_rune(sd->status.inventory[n].nameid) )
 	{
-		struct status_change *sc = status_get_sc(&sd->bl);
-		if( sc )
+		switch(sd->status.inventory[n].nameid)
 		{
 			switch(sd->status.inventory[n].nameid)
 			{
 				case ITEMID_REFRESH:
-					if( sc->data[SC_REUSE_REFRESH] )
+					if( skill_blockpc_get(sd,RK_REFRESH) != -1 )
 						return 0;
 					break;
 				case ITEMID_REUSE_CRUSHSTRIKE:
-					if( sc->data[SC_CRUSHSTRIKE] )
+					if( skill_blockpc_get(sd,RK_CRUSHSTRIKE) != -1 )
 						return 0;
 					break;
 				case ITEMID_REUSE_MILLENNIUMSHIELD:
-					if( sc->data[SC_BERKANA] )
+					if( skill_blockpc_get(sd,RK_MILLENNIUMSHIELD) != -1 )
 						return 0;
 					break;
 			}
@@ -4394,6 +4416,10 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 				return 1; //You may not get out!
 			status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_WARM, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_NEUTRALBARRIER_MASTER, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_NEUTRALBARRIER, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STEALTHFIELD, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_SUN_COMFORT, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_MOON_COMFORT, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STAR_COMFORT, INVALID_TIMER);

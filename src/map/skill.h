@@ -375,6 +375,7 @@ int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short
 
 int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
 int skill_poisoningweapon( struct map_session_data *sd, int nameid);
+int skill_magicdecoy( struct map_session_data *sd, int nameid);
 int skill_spellbook( struct map_session_data *sd, int nameid);	// Warlock Spellbooks. [LimitLine]
 int skill_select_menu( struct map_session_data *sd, int flag, int skill_id); // Shadow Cheser Auto Shadow Spell [pakpil]
 int skill_elementalanalysis(struct map_session_data *sd, int n, int type, unsigned short *item_list); // Sorcerer Four Elemental Analisys.
@@ -388,6 +389,7 @@ int skill_castend_damage_id( struct block_list* src, struct block_list *bl,int s
 int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skilllv,unsigned int tick,int flag);
 
 int skill_blockpc_start (struct map_session_data*,int,int);
+int skill_blockpc_get (struct map_session_data *sd, int skillid);
 int skill_blockhomun_start (struct homun_data*,int,int);
 int skill_blockmerc_start (struct mercenary_data*,int,int);
 

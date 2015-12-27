@@ -1,4 +1,4 @@
-﻿//===== Athena Doc ========================================
+﻿//===== 15-3athena Documentation =============================
 //= 15-3athena Script Commands
 //===== Description =======================================
 //= A reference manual for the 15-3athena scripting language.
@@ -4598,6 +4598,15 @@ When used in conjunction with other functions, you can get a random item. For
 example, for a random pet lure:
 
 getitem groupranditem(15),1;
+
+---------------------------------------
+
+*getitempackage <package_id>;
+Gives item(s) to the attached player based on item package contents.
+This is not working like 'getitem(groupranditem)' which only give 1 item for specified
+item group.
+
+More info, see doc/item_package.txt.
 
 ---------------------------------------
 

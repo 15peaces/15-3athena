@@ -3413,6 +3413,40 @@ int clif_poison_list(struct map_session_data *sd, int skill_lv)
 }
 
 /*==========================================
+ * Magic Decoy Material List
+ *------------------------------------------*/
+int clif_magicdecoy_list(struct map_session_data *sd, short x, short y)
+{
+	int i, c;
+	int fd;
+
+	nullpo_retr(0, sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, 8 * 8 + 8);
+	WFIFOW(fd,0) = 0x1ad; // This is the official packet. [pakpil]
+
+	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ ){
+		if( itemdb_is_element(sd->status.inventory[i].nameid) ){ 
+			WFIFOW(fd, c * 2 + 4) = sd->status.inventory[i].nameid;
+			c ++;
+		}
+	}
+	if( c > 0 ){
+		sd->menuskill_id = NC_MAGICDECOY;
+		sd->menuskill_val = c;
+		sd->menuskill_itemused = (x<<16)|y;
+		WFIFOW(fd,2) = c * 2 + 4;
+		WFIFOSET(fd, WFIFOW(fd, 2));
+	}else{
+		clif_skill_fail(sd,NC_MAGICDECOY,0x2b,0,0);
+		return 0;
+	}
+
+	return 1;
+}
+
+/*==========================================
  * Spellbook list [LimitLine]
  *------------------------------------------*/
 int clif_spellbook_list(struct map_session_data *sd){
@@ -5614,7 +5648,8 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 		type == SI_BUMP || type == SI_READYSTORM || type == SI_READYDOWN ||
 		type == SI_READYTURN || type == SI_READYCOUNTER || type == SI_DODGE ||
 		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION || type == SI_REPRODUCE ||
-		type == SI_BLOODYLUST || type == SI_FORCEOFVANGUARD || type == SI_WARMER)
+		type == SI_BLOODYLUST || type == SI_FORCEOFVANGUARD || type == SI_WARMER || type == SI_NEUTRALBARRIER ||
+		type == SI_OVERHEAT)
 		tick=0;
 
 #if PACKETVER >= 20090121
@@ -10563,6 +10598,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 	if (sd->sc.count &&
 		(sd->sc.data[SC_TRICKDEAD] ||
 		sd->sc.data[SC_AUTOCOUNTER] ||
+		sd->sc.data[SC_DEATHBOUND] ||
 		sd->sc.data[SC_BLADESTOP]))
 		return;
 
@@ -10941,6 +10977,7 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 
 		if (sd->sc.count && (
 			sd->sc.data[SC_AUTOCOUNTER] ||
+			sd->sc.data[SC_DEATHBOUND] ||
 			sd->sc.data[SC_BLADESTOP] ||
 			(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM)
 		))
@@ -12016,20 +12053,37 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
 /// 01ae <name id>.W
 void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 {
-	if (sd->menuskill_id != AC_MAKINGARROW && sd->menuskill_id != WL_READING_SB && sd->menuskill_id != GC_POISONINGWEAPON)	// Because we use making arrow packets to show and receive spellbook selections. Actually, if tests prove us to be right, we might as well rename this function to something more generic. [LimitLine]
-		return;
-	if (pc_istrading(sd)) {
-	//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL,0,0);
+	switch( sd->menuskill_id ){
+		case AC_MAKINGARROW:
+		case WL_READING_SB:
+		case GC_POISONINGWEAPON:
+		case NC_MAGICDECOY:
+			break;
+		default:
+			return;
+	}
+
+	if( pc_istrading(sd) )
+	{ // Make it fail to avoid shop exploits where you sell something different than you see.
+ 		clif_skill_fail(sd,sd->ud.skillid,0,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
-	if( sd->menuskill_id == AC_MAKINGARROW )
-		skill_arrow_create(sd,RFIFOW(fd,2));
-	if( sd->menuskill_id == WL_READING_SB )
-		skill_spellbook(sd, RFIFOW(fd, 2));
-	if( sd->menuskill_id == GC_POISONINGWEAPON )
-		skill_poisoningweapon(sd, RFIFOW(fd, 2));
+
+	switch( sd->menuskill_id ){
+		case AC_MAKINGARROW:
+			skill_arrow_create(sd,RFIFOW(fd,2));
+			break;
+		case WL_READING_SB:
+			skill_spellbook(sd,RFIFOW(fd,2));
+			break;
+		case GC_POISONINGWEAPON:
+			skill_poisoningweapon(sd,RFIFOW(fd,2));
+			break;
+		case NC_MAGICDECOY:
+			skill_magicdecoy(sd,RFIFOW(fd,2));
+			break;
+	}
 
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
@@ -14204,9 +14258,9 @@ void clif_parse_ranklist(int fd, struct map_session_data *sd) {
 void clif_update_rankingpoint(struct map_session_data *sd, int type, int points) {
 #if PACKETVER < 20130710
 	switch( type ) {
-		case 0: clif->fame_blacksmith(sd,points); break;
-		case 1: clif->fame_alchemist(sd,points); break;
-		case 2: clif->fame_taekwon(sd,points); break;
+		case 0: clif_fame_blacksmith(sd,points); break;
+		case 1: clif_fame_alchemist(sd,points); break;
+		case 2: clif_fame_taekwon(sd,points); break;
 	}
 #else
 	int fd = sd->fd;

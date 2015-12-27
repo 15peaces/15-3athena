@@ -469,6 +469,7 @@ void clif_arrowequip(struct map_session_data *sd,int val); //self
 void clif_arrow_fail(struct map_session_data *sd,int type); //self
 void clif_arrow_create_list(struct map_session_data *sd);	//self
 int clif_poison_list(struct map_session_data *sd, int skill_lv);
+int clif_magicdecoy_list(struct map_session_data *sd, short x, short y);
 int clif_spellbook_list(struct map_session_data *sd);	//self
 int clif_skill_select_request( struct map_session_data *sd ); //self
 void clif_statusupack(struct map_session_data *sd,int type,int ok,int val);	// self

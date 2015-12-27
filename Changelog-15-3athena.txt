@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/27/2015
+	r98 [15peaces]
+		*Merged missing changes from 3ceam rev. 378 - 382
+		*fixed compile error in clif_update_rankingpoint, appeared when compiled with PACKETVER < 20130710
+			-thanks to @cold-hr for reporting it.
+		*Added Dungeon Signposts (Monster Info)
+		*Added El Dicastes Scripts
+		*Added missing entries in quest_db.
+		*Added full support for 'getitempackage' script command.
+			-This is our implemention of 'getgroupitem'. I've decided to seperate these.
+			-Thanks to rAthena / hercules to make this possible.
+			-A new file was created inside db folder to store "Item Packages". It's called item_package_db.txt.
+			-New types of constants will be used for item packages: IP_MyItemPackage.
+			-More infos can be found inside doc-folder.
+		*Reviewed all Rune Knight skills.
+		*Completed the Mechanic reviewed skills. 
+			-Added also the rest of Mechanic skills that are not yet coded.
+		*Minor fix in LG_PINPOINTATTACK that was adding more damage that it should. 
+			-All critical damages have 40% more damage in renewal mechanics. If you want to get this extra damage, uncomment. This stuff will be handle later.
+		*Added LG_INSPIRATION.
+			-Minor fix to fail message of Magic Decoy.
+
 12/23/2015
 	r97 [15peaces]
 		*Merged missing changes from 3ceam rev. 374 - 377

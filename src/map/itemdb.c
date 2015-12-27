@@ -3,8 +3,10 @@
 
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
+#include "../common/utils.h"
 #include "itemdb.h"
 #include "map.h"
 #include "battle.h" // struct battle_config
@@ -23,6 +25,7 @@ static struct item_data* itemdb_array[MAX_ITEMDB];
 static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
+static struct item_package itempackage_db[MAX_ITEMPACKAGE];
 
 struct item_data *dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
 
@@ -143,6 +146,35 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 	}
 	return count + itemdb_other->getall(itemdb_other,(void**)data,size,itemdb_searchname_array_sub,str);
 }
+
+void itemdb_package_item(struct map_session_data *sd, int packageid) {
+	int i = 0, get_count, j, flag;
+
+	nullpo_retv(sd);
+
+	for( i = 0; i < itempackage_db[packageid].qty; i++ ) {
+		struct item it;
+		memset(&it, 0, sizeof(it));
+
+		it.nameid = itempackage_db[packageid].nameid[i];
+		get_count = itemdb_isstackable(it.nameid) ? itempackage_db[packageid].amount[i] : 1;
+		it.amount = get_count == 1 ? 1 : get_count;
+
+		if( itempackage_db[packageid].ismust[i] ) {
+			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) {
+				if ( ( flag = pc_additem(sd, &it, get_count) ) )
+					clif_additem(sd, 0, 0, flag);
+			}
+		}else{
+			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) {
+				if( rnd()%10000 >= itempackage_db[packageid].prob[i] )
+					if ( ( flag = pc_additem(sd, &it, get_count) ) )
+						clif_additem(sd, 0, 0, flag);
+			}
+		}
+	}
+}
+
 
 
 /*==========================================
@@ -640,6 +672,109 @@ static void itemdb_read_itemgroup(void)
 	memset(&itemgroup_db, 0, sizeof(itemgroup_db));
 	itemdb_read_itemgroup_sub(path);
 	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", "item_group_db.txt");
+	return;
+}
+
+/*==========================================
+ * read item package data
+ * Structure: PackageID,ItemID,Rate{,Amount,isMust}
+ *------------------------------------------*/
+static void itemdb_read_itempackage_sub(const char* filename)
+{
+	FILE *fp;
+	char line[1024];
+	int ln=0;
+	unsigned short nameid;
+	int packageid,amt,j;
+	int prob = 1;
+	uint8 rand_package = 1;
+	char *str[5],*p;
+	char w1[1024], w2[1024];
+	
+	if( (fp=fopen(filename,"r"))==NULL ){
+		ShowError("can't read %s\n", filename);
+		return;
+	}
+
+	while(fgets(line, sizeof(line), fp))
+	{
+		ln++;
+		if(line[0]=='/' && line[1]=='/')
+			continue;
+		if(strstr(line,"import")) {
+			if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) == 2 &&
+				strcmpi(w1, "import") == 0) {
+				itemdb_read_itempackage_sub(w2);
+				continue;
+			}
+		}
+		memset(str,0,sizeof(str));
+		for(j=0,p=line;j<5 && p;j++){
+			str[j]=p;
+			p=strchr(p,',');
+			if(p) *p++=0;
+		}
+		if(str[0]==NULL)
+			continue;
+		if (j<5) {
+			if (j>1) //Or else it barks on blank lines...
+				ShowWarning("itemdb_read_itempackage: Insufficient fields for entry at %s:%d\n", filename, ln);
+			continue;
+		}
+		packageid = atoi(str[0]);
+		if (packageid < 0 || packageid > MAX_ITEMPACKAGE) {
+			ShowWarning("itemdb_read_itempackage: Invalid package %d in %s:%d\n", packageid, filename, ln);
+			continue;
+		}
+
+		nameid = atoi(str[1]);
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_read_itempackage: Non-existant item %d in %s:%d\n", nameid, filename, ln);
+			continue;
+		}
+
+		prob = atoi(str[2]);
+
+		if (str[3] != NULL)
+			amt = atoi(str[3]);
+		if (amt <= 0 || amt > MAX_AMOUNT) {
+			ShowWarning("itemdb_read_itempackage: Invalid amount ('%d') set for item %d in %s:%d\nresetting to 1.", amt, str[0], filename, ln);
+			amt = 1;
+			continue;
+		}
+
+		if (str[4] != NULL)
+			rand_package = atoi(str[4]);
+		if (rand_package < 0 || rand_package > MAX_RANDITEM) {
+			ShowWarning("itemdb_read_itempackage: Invalid sub group '%d' for package '%s' in %s:%d\n", rand_package, str[0], filename, ln);
+			continue;
+		}
+
+		if (rand_package != 0 && prob < 1) {
+			ShowWarning("itemdb_read_itempackage: Random item must has probability. Package '%s' in %s:%d\n", str[0], filename, ln);
+			continue;
+		}
+
+		//for(j=0;j<prob;j++){
+			itempackage_db[packageid].nameid[itempackage_db[packageid].qty] = nameid;
+			itempackage_db[packageid].prob[itempackage_db[packageid].qty] = prob;
+			itempackage_db[packageid].amount[itempackage_db[packageid].qty] = amt;
+			itempackage_db[packageid].ismust[itempackage_db[packageid].qty] = rand_package;
+			itempackage_db[packageid].qty++;
+		//}
+	}
+	fclose(fp);
+	return;
+}
+
+static void itemdb_read_itempackage(void)
+{
+	char path[256];
+	snprintf(path, 255, "%s/item_package_db.txt", db_path);
+
+	memset(&itempackage_db, 0, sizeof(itempackage_db));
+	itemdb_read_itempackage_sub(path);
+	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", "item_package_db.txt");
 	return;
 }
 
@@ -1193,6 +1328,7 @@ static void itemdb_read(void)
 		itemdb_readdb();
 
 	itemdb_read_itemgroup();
+	itemdb_read_itempackage();
 	sv_readdb(db_path, "item_avail.txt",   ',', 2, 2, -1,             &itemdb_read_itemavail);
 	sv_readdb(db_path, "item_noequip.txt", ',', 2, 2, -1,             &itemdb_read_noequip);
 	sv_readdb(db_path, "item_trade.txt",   ',', 3, 3, -1,             &itemdb_read_itemtrade);

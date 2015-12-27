@@ -14,7 +14,7 @@
 8,605,5		// Anodyne
 8,645,5		// Concentration Potion
 8,656,5		// Awakening Potion
-8,657,5		// Berserk Potion
+8,656,5		// Berserk Potion
 8,678,1		// Poison Bottle
 8,12016,4	// Speed Potion
 8,12017,5	// Slow Potion
@@ -66,7 +66,7 @@
 18,990,16	// Boody_Red
 18,999,14	// Steel
 18,1011,12	// Emveretarcon
-18,757,10	// Elunium_Stone
+18,756,10	// Elunium_Stone
 18,756,9	// Oridecon_Stone
 18,997,8	// Great_Nature
 18,996,7	// Rough_Wind
@@ -79,7 +79,7 @@
 // Food Types
 19,526,5	// Royal_Jelly
 19,12042,10	// Str_Dish02
-19,12057,10	// Agi_Dish02
+19,12056,10	// Agi_Dish02
 19,12053,10	// Vit_Dish03
 19,12062,10	// Dex_Dish02
 19,12068,10	// Luk_Dish03
@@ -117,7 +117,7 @@
 // Minerals - Unused
 21,714,1	// Emperium
 21,756,1	// Rough Oridecon
-21,757,1	// Rough Elunium
+21,756,1	// Rough Elunium
 21,969,1	// Gold
 21,984,1	// Oridecon
 21,985,1	// Elunium
@@ -357,7 +357,7 @@
 36,554,1	// Mochi
 36,555,1	// Traditional Rice Cake
 36,556,1	// Rice Cake Stick
-36,557,1	// Neatly Sliced Rice Cake
+36,556,1	// Neatly Sliced Rice Cake
 36,558,1	// Chocolate
 36,559,1	// Hand-made Chocolate
 36,560,1	// Hand-made White Chocolate
@@ -366,7 +366,7 @@
 36,566,1	// Tom Yum Goong
 36,567,1	// Shrimp
 36,568,1	// Lemon
-36,576,1	// Prickly Fruit
+36,566,1	// Prickly Fruit
 36,607,1	// Yggdrasil Berry
 36,608,1	// Yggdrasil Seed
 36,663,1	// Songpyun
@@ -418,7 +418,7 @@
 41,607,100	// Yggdrasil Berry
 41,608,100	// Yggdrasil Seed
 41,12018,100	// Firecracker
-41,573,100	// Chocolate Drink
+41,563,100	// Chocolate Drink
 41,5182,1	// Puppy Hat
 // Old Yellow Box
 42,5259,1	// Elephant Hat
@@ -576,7 +576,7 @@
 54,732,6	// Crystal_Jewel__
 54,559,9	// Light_Orange_Pot
 54,560,9	// HandMade_Chocolate_
-54,573,9	// Chocolate_Drink
+54,563,9	// Chocolate_Drink
 54,5136,6	// Santa's_Hat_
 
 //Some missing ItemGroups will be added later
@@ -689,7 +689,7 @@
 55,1539,5	// Golden_Mace_
 55,1540,1	// Grand_Cross_
 55,1541,5	// Nemesis
-55,1557,5	// Book_Of_The_Apocalypse
+55,1556,5	// Book_Of_The_Apocalypse
 55,1558,5	// Girl's_Diary
 55,1559,5	// Legacy_Of_Dragon
 55,1561,5	// Hardcover_Book

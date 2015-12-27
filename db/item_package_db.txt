@@ -1,0 +1,30 @@
+// Item Package Database
+//
+// Structure of Database:
+// PackageID,ItemID,Rate{,Amount,Random}
+
+//IP_New_Year_Scroll
+1,12903,1500,1,1	// 1x Str_Dish_Box
+1,12904,1500,1,1	// 1x Agi_Dish_Box
+1,12905,1500,1,1	// 1x Int_Dish_Box
+1,12906,1500,1,1// 1x Dex_Dish_Box
+1,12907,1500,1,1	// 1x Luk_Dish_Box
+1,12908,1500,1,1	// 1x Vit_Dish_Box
+1,14232,950,1,1	// 1x Yggdrasilberry_Box_
+1,17071,50,1,1	// 1x Superb_Fish_Box50
+1,4145,1,1,2	// 1x Berzebub_Card
+1,4480,1,1,2	// 1x Sealed_Kiel_Card
+1,4489,3,1,2	// 1x Sealed_Pharaoh_Card
+1,2589,10,1,2	// 1x Fallen_Angel_Wing
+1,18603,5,1,2	// 1x Black_Devil_Mask_
+1,5209,50,1,2	// 1x Yellow_Baseball_Cap
+1,5507,30,1,2	// 1x Pink_Pajamas_Hat
+1,2345,50,1,2	// 1x Flame_Sprits_Armor_
+1,5783,500,1,2	// 1x YellowBunny_Hairband
+1,13710,200,1,2	// 1x Max_Weight_Up_Box
+1,12103,300,1,2	// 1x Bloody_Dead_Branch
+1,6024,1250,1,2	// 1x 17Carat_Dia
+1,12710,2000,5,2	// 5x Guyak_Pudding
+1,12406,2000,10,2	// 10x Psychic_ArmorS
+1,12642,2000,1,2// 1x Fruit_Of_Mastela_Box2
+1,12533,1600,1,2	// 1x Blue_Herb_Box2

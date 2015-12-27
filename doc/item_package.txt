@@ -1,0 +1,86 @@
+//===== 15-3athena Documentation =============================
+//= Item Database
+//===== By: ==================================================
+//= 15-3athena Dev Team
+//===== Last Updated: ========================================
+//= 20151227
+//===== Description: =========================================
+//= Explanation of the item_package.txt file and structure.
+//============================================================
+
+Items within an item package can be retrieved through the 
+'getitempackage' script command.
+
+---------------------------------------
+
+PackageID: Supports IP_* constants.
+
+---------------------------------------
+
+ItemID: Available item_id that will be obtained from this item package.
+
+---------------------------------------
+
+Rate: Probability to get the item. Not a percentage value!
+
+Examples:
+	IP_MyItemPackage,Knife,5
+	IP_MyItemPackage,Dagger,1
+
+	- Knife has chance 5/6 (83.3%) to be obtained
+	- Dagger has chance 1/6 (16.7%) to be obtained
+
+---------------------------------------
+
+Amount: Amount of item that will be obtained.
+
+---------------------------------------
+
+Random: Set this to '0' and the item will always be obtained ("must" item).
+		Random value will allocates where the item will be stored at random group.
+		(max. random group is 4, defined as MAX_ITEMGROUP_RANDGROUP in 'src/map/itemdb.c'.)
+
+	Item Package:
+		IP_MyItemPackage,Knife,0,1,0		//a "must" item
+		IP_MyItemPackage,Dagger,0,1,0		//a "must" item
+		IP_MyItemPackage,Stiletto,5,1,1		//random at package 1
+		IP_MyItemPackage,Stiletto_,2,1,1	//random at package 1
+		IP_MyItemPackage,Stiletto,5,1,2		//random at package 2
+		IP_MyItemPackage,Dagger_,4,1,2		//random at package 2
+
+	Usage:
+	getitempackage(<package_id>)
+	------------
+	-> 'getitempackage(IG_MyItemPackage);'
+		- Player always gets 1x Knife and 1x Dagger
+		- Player has chance to get 1x Stiletto by chance 5/7 from group 1
+		- Player has chance to get 1x Stiletto_ by chance 2/7 from group 1
+		- Player has chance to get 1x Stiletto by chance 5/9 from group 2
+		- Player has chance to get 1x Dagger_ by chance 4/9 from group 2
+
+	-----------------------------------------
+
+		If the 'Rate' for random '0' is not 0 (more than 0), that means this item
+		also can be obtained as random item.
+		If you want the "must" item only can be obtained without random chance,
+		change the 'Rate' for this item to 0.
+
+	Example:
+		IP_MyItemPackage2,Knife,0,1,0
+		IP_MyItemPackage2,Dagger,5,1,0
+		IP_MyItemPackage2,Stiletto,2,1,1
+
+	-> usage: 'getitempackage(IP_MyItemPackage2);'
+		- 1x Knife always be obtained
+		- 1x Dagger always be obtained and also has chance to get 1 more by
+		  chance 5/7
+		- 1x Stiletto can be obtained by chance 2/7
+		result -> player will get 1x Knife, 1x Dagger, and 1x Dagger or 1x Stiletto
+
+---------------------------------------
+
+Supports to import other file, usage:
+import: db/path/filename.txt
+
+Example:
+import: db/import/item_bluebox.txt
