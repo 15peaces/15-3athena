@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/29/2015
+	r99 [15peaces]
+		*Merged missing changes from 3ceam rev. 383 - 387
+		*Fixed some typos in item_misc.txt (follow up to r98 / b5c0f05)
+		*Vending & Buying Store report Packet Implemented
+			-New Feature for 2014-10-23 client or newer
+			--When user close shop, the client showing report for buy/sell
+			-Thanks to icxbb-xx/rAthena
+		*Added more missing entries in quest_db.
+		*Some Updates to item_db.
+			-finally added full support for some items that use getitempackage- command.
+			-Added another huge number of missing items.
+		*Fixed issues with the cash shop that appears on 2010-08-03 and newer clients and expands on its features. (Thanks to Rytech)
+			-thanks to @cold-hr for reporting it (Issue #1).
+		*Added the "cashshop_price_rate" config. (Thanks to Rytech)
+			-This allow you to set the rate of the prices for cash shop items.
+			-Something good for use on discount events.
+		*Added the missing effect LG_EARTHDRIVE which will cause the reduction of 25% for ASPD and DEF.
+		*Fixed LG_REFLECTSHIELD & SC_SHADOWFORM. 
+			-Royal Guards under Reflect damage are reflecting damage received from shadow form.
+		*Reviewed all Shadow Chaser, Guillotine Cross & Ranger skills.
+
 12/27/2015
 	r98 [15peaces]
 		*Merged missing changes from 3ceam rev. 378 - 382

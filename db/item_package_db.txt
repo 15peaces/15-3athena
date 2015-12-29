@@ -3,7 +3,7 @@
 // Structure of Database:
 // PackageID,ItemID,Rate{,Amount,Random}
 
-//IP_New_Year_Scroll
+// IP_New_Year_Scroll
 1,12903,1500,1,1	// 1x Str_Dish_Box
 1,12904,1500,1,1	// 1x Agi_Dish_Box
 1,12905,1500,1,1	// 1x Int_Dish_Box
@@ -28,3 +28,100 @@
 1,12406,2000,10,2	// 10x Psychic_ArmorS
 1,12642,2000,1,2// 1x Fruit_Of_Mastela_Box2
 1,12533,1600,1,2	// 1x Blue_Herb_Box2
+
+// IP_Buddah_Scroll
+2,14600,0,3,0	// 3x Mental_Potion
+2,12902,1400,1,1	// 1x Bubble_Gum_Box
+2,12903,1400,1,1	// 1x Str_Dish_Box
+2,12919,1400,1,1	// 1x Megaphone_Box
+2,12900,1352,1,1	// 1x Battle_Manual_Box
+2,12922,1250,1,1	// 1x Token_Of_Siegfried_Box
+2,13741,1400,1,1	// 1x Shadow_Armor_S_Box10
+2,12710,1400,10,1	// 10x Guyak_Pudding
+2,18750,30,1,1	// 1x Poker_Card_In_Mouth
+2,18693,100,1,1	// 1x Sleeping_Kitty_Cat
+2,18600,10,1,1	// 1x Cat_Ear_Beret
+2,6456,70,1,1	// 1x Guarantee_Weapon_5Up
+2,18694,100,1,1	// 1x Red_Hood
+2,18743,20,1,1	// 1x Spirit_Of_Chung_E
+2,6228,5,1,1	// 1x Guarantee_Weapon_9Up
+2,4499,3,1,1	// 1x Sealed_Samurai_Card
+2,20707,10,1,1	// 1x Kirin_Wing
+2,16753,50,1,1	// 1x Unbreak_Weap_Box
+
+// IP_Evil_Incarnation
+3,14234,224,1,1	// 1x Dead_Tree_Branch_Box2
+3,12710,124,10,1	// 10x Guyak_Pudding
+3,12905,123,1,1	// 1x Int_Dish_Box
+3,12907,122,1,1	// 1x Luk_Dish_Box
+3,12908,121,1,1	// 1x Vit_Dish_Box
+3,12903,120,1,1	// 1x Str_Dish_Box
+3,5206,47,1,1// 1x Romantic_White_Flower
+3,5056,46,1,1	// 1x Love_Berry
+3,5188,26,1,1	// 1x Minstrel_Hat
+3,5182,25,1,1	// 1x Puppy_Hat
+3,5020,10,1,1	// 1x Kafra_Band
+3,5584,9,1,1	// 1x Majestic_Evil_Horn
+3,12261,2,2,1	// 2x Secret_Medicine
+3,12259,1,1,1	// 1x Miracle_Medicine
+
+// IP_Taurus_Crown_Scroll
+4,2533,1,1,1		// 1x Freyja_Cape
+4,4452,50,1,1		// 1x Centipede_Larva_Card
+4,16760,100,1,1		// 1x Umbala_Spirit_Box2
+4,5550,100,1,1		// 1x Taurus_Crown
+4,5102,200,1,1		// 1x Round_Eyes
+4,5351,245,1,1		// 1x Sunflower_
+4,5352,400,1,1		// 1x Poporing_Cap
+4,13710,500,1,1		// 1x Max_Weight_Up_Box
+4,14600,1000,1,1	// 1x Mental_Potion
+4,13540,1000,1,1	// 1x Vermilion_10_Scroll_Box
+4,13846,1100,1,1	// 1x Mysterious_Travel_Sack2
+4,13607,1500,1,1	// 1x Bubble_Gum_Box5
+4,13712,1800,1,1	// 1x Small_Life_Potion_Box30
+4,14508,2004,10,1	// 10x Zeny_Scroll
+
+// IP_Taurus_Crown_Scroll_Box
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+5,17077,0,1,0	// 1x Taurus_Crown_Scroll
+
+// IP_Hallo_Scroll
+6,18543,50,1,1		// 1x Witchs_Hat
+6,5227,350,1,1		// 1x Red_Deviruchi_Cap
+6,12901,1350,1,1	// 1x Insurance_Package
+6,12328,1350,1,1	// 1x Charm_Of_Happiness
+6,12246,220,1,1		// 1x Magic_Card_Album
+6,14375,330,1,1		// 1x Holy_Celestial_Axe_Box
+6,13738,1350,1,1	// 1x Glass_Of_Illusion_Box5
+6,13742,600,1,1		// 1x Shadow_Armor_S_Box30
+6,12278,1350,5,1	// 5x Alice_Scroll
+6,6130,1350,1,1		// 1x Ticket_Loli_Ruri
+6,4340,10,1,1		// 1x Teddy_Bear_Card
+6,14243,1300,1,1	// 1x Hallow_Ring_Box
+6,5121,140,1,1		// 1x Zherlthsh_Mask
+6,12411,150,1,1		// 1x HE_Battle_Manual
+6,14508,100,30,1	// 30x Zeny_Scroll
+
+// IP_Tw_Aug_Scroll
+7,14232,1350,1,1	// 1x Yggdrasilberry_Box_
+7,12550,1280,1,1	// 1x Poison_Bottle_Box2
+7,12787,1300,5,1	// 5x Diabolic_Scroll
+7,12902,1300,1,1	// 1x Bubble_Gum_Box
+7,12900,1130,1,1	// 1x Battle_Manual_Box
+7,6484,800,1,1		// 1x Enchant_Book
+7,12406,1021,10,1	// 10x Psychic_ArmorS
+7,12908,1350,1,1	// 1x Vit_Dish_Box
+7,6457,200,1,1		// 1x Guarantee_Armor_5Up
+7,5362,150,1,1		// 1x Ninja_Scroll
+7,5237,100,1,1		// 1x Pink_Fur_Hat
+7,2589,3,1,1		// 1x Fallen_Angel_Wing
+7,4303,15,1,1		// 1x Whisper_Boss_Card
+7,4408,1,1,1		// 1x Gloom_Under_Night_Card

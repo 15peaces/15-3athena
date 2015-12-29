@@ -626,9 +626,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
-		// Should be moved down and removed tsc?? [pakpil]
-		if( skill_num == RA_AIMEDBOLT && !(tsc && (tsc->data[SC_WUGBITE] ||
-			tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER])) )
+		if( skill_num == RA_AIMEDBOLT && tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
 			{
 				status_change_end(bl, SC_WUGBITE, -1);
 				status_change_end(bl, SC_ANKLE, -1);
@@ -660,51 +658,42 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			pc_addrageball(sd,skill_get_time(LG_FORCEOFVANGUARD,sce->val1),sce->val3);
  	}
 
-	if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 )
-	{
-		if( rand()%100 < 50 ) // Estimated value
-			status_change_spread(bl, src);
-	}
+	if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20 )
+		status_change_spread(bl, src); // Deadly infect attacked side
 
 	//SC effects from caster side.
 	sc = status_get_sc(src);
 
-	if (sc && sc->count)
-	{
+	if (sc && sc->count){
 		if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 			damage += damage * 75 / 100;
+		if( sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3 )
+			sc_start(bl,sc->data[SC_POISONINGWEAPON]->val2,100,sc->data[SC_POISONINGWEAPON]->val1,skill_get_time2(GC_POISONINGWEAPON,sc->data[SC_POISONINGWEAPON]->val1));
+ 		if( sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20 )
+			status_change_spread(src, bl);
+ 	}
 
-	if( sc && sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3 )
-		sc_start(bl,sc->data[SC_POISONINGWEAPON]->val2,100,sc->data[SC_POISONINGWEAPON]->val1,skill_get_time2(GC_POISONINGWEAPON,sc->data[SC_POISONINGWEAPON]->val1));
+	// [Epoque]
+	if (bl->type == BL_MOB)
+	{
+		int i;
 
-		if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 )
-		{
-			if( rand()%100 < 50 )
-				status_change_spread(src, bl);
-		}
-
-		// [Epoque]
-		if (bl->type == BL_MOB)
-		{
-			int i;
-
-			if ( ((sce=sc->data[SC_MANU_ATK]) && (flag&BF_WEAPON)) ||
-				 ((sce=sc->data[SC_MANU_MATK]) && (flag&BF_MAGIC))
-				)
-				for (i=0;ARRAYLENGTH(mob_manuk)>i;i++)
-					if (((TBL_MOB*)bl)->class_==mob_manuk[i]) {
-						damage += damage*sce->val1/100;
-						break;
-					}
-			if ( ((sce=sc->data[SC_SPL_ATK]) && (flag&BF_WEAPON)) ||
-				 ((sce=sc->data[SC_SPL_MATK]) && (flag&BF_MAGIC))
-				)
-				for (i=0;ARRAYLENGTH(mob_splendide)>i;i++)
-					if (((TBL_MOB*)bl)->class_==mob_splendide[i]) {
-						damage += damage*sce->val1/100;
-						break;
-					}
-		}
+		if ( ((sce=sc->data[SC_MANU_ATK]) && (flag&BF_WEAPON)) ||
+			 ((sce=sc->data[SC_MANU_MATK]) && (flag&BF_MAGIC))
+			)
+			for (i=0;ARRAYLENGTH(mob_manuk)>i;i++)
+				if (((TBL_MOB*)bl)->class_==mob_manuk[i]) {
+					damage += damage*sce->val1/100;
+					break;
+				}
+		if ( ((sce=sc->data[SC_SPL_ATK]) && (flag&BF_WEAPON)) ||
+			 ((sce=sc->data[SC_SPL_MATK]) && (flag&BF_MAGIC))
+			)
+			for (i=0;ARRAYLENGTH(mob_splendide)>i;i++)
+				if (((TBL_MOB*)bl)->class_==mob_splendide[i]) {
+					damage += damage*sce->val1/100;
+					break;
+				}
 	}
 
 	if (battle_config.pk_mode && sd && bl->type == BL_PC && damage)
@@ -1274,13 +1263,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if (!sd) wd.flag=(wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC;
 				break;
 			case RA_AIMEDBOLT: //Ankle Snare, Electric Shocker, Warg Bite effect count as snared.
-				if( !(tsc && (tsc->data[SC_WUGBITE] ||
-					tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER] )) )
-					{
-						wd.div_ = 1; // 1 hit if status is not immobile.
-					}else{
-						wd.div_= ( wd.div_>0?tstatus->size+2:-(tstatus->size+1) );
-					}
+				if( tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
+					wd.div_ = tstatus->size + 2;
 				break;
 		}
 	} else //Range for normal attacks.
@@ -1349,12 +1333,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		else if( sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW && (i = sd->equip_index[EQI_AMMO]) >= 0 && sd->inventory_data[i] && sd->status.inventory[i].amount > 1 )
 		{
 			short rate[] = { 4, 4, 7, 9, 10 };
-			if( sc->data[SC_FEARBREEZE]->val1 > 0 && sc->data[SC_FEARBREEZE]->val1 < 6 && rand()%100 < rate[sc->data[SC_FEARBREEZE]->val1] )
+			if( sc->data[SC_FEARBREEZE]->val1 > 0 && sc->data[SC_FEARBREEZE]->val1 < 6 && rand()%100 < rate[sc->data[SC_FEARBREEZE]->val1 - 1] )
 			{
 				wd.type = 0x08;
-				flag.arrow = 1; // To consume Ammo Later (div_ - 1)
-				wd.div_ = 2 + (sc->data[SC_FEARBREEZE]->val1 > 2) ? rand()%(sc->data[SC_FEARBREEZE]->val1 - 2) : 0;
+				wd.div_ = 2 + (sc->data[SC_FEARBREEZE]->val1 > 2 ? rand()%(sc->data[SC_FEARBREEZE]->val1 - 2) : 0);
 				wd.div_ = min(wd.div_,sd->status.inventory[i].amount); // Reduce number of hits if you don't have enough arrows
+				sd->state.fearbreeze = wd.div_ - 1;
 			}
 		}
 	}
@@ -1512,6 +1496,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case GC_VENOMPRESSURE:
 					hitrate += 10 + 4 * skill_lv;
 					break;
+				case SC_FATALMENACE:
+					hitrate -= (35 - skill_lv * 5);
+ 					break;
 			}
 
 			// Weaponry Research hidden bonus
@@ -1889,7 +1876,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case SN_SHARPSHOOTING:
 				case MA_SHARPSHOOTING:
-					skillratio += 100+50*skill_lv;
+				case RA_ARROWSTORM:
+					skillratio += 100 + 50 * skill_lv;
 					break;
 				case CG_ARROWVULCAN:
 					skillratio += 100+100*skill_lv;
@@ -2023,21 +2011,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case AB_DUPLELIGHT_MELEE:
 					skillratio += 10 * skill_lv;
 					break;
-				case RA_ARROWSTORM:
-					skillratio += 100 + 50 * skill_lv;
-					break;
 				case RA_AIMEDBOLT:
-					//Note: Multiple hits are already calculated into damage values. [Jobbie]
 					skillratio += 100 + 20 * skill_lv;
-					if( tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] ||
-						tsc->data[SC_ELECTRICSHOCKER]) )
-						switch(tstatus->size)
-						{
-							case 0: skillratio = skillratio*2; break;
-							case 1: skillratio = skillratio*3; break;
-							case 2: skillratio = skillratio*4; break;
-						}
+					if( tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
+						skillratio = skillratio * (tstatus->size + 2);
 					break;
+				case RA_CLUSTERBOMB:
+					skillratio += 100 + 100 * skill_lv;
+ 					break;
 				case RA_WUGDASH:
 					skillratio += 500;//Damage based from iROwiki info. [Jobbie]
 					break;
@@ -3348,7 +3329,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
  *------------------------------------------*/
 struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 {
-	int skill;
+	int skill, s_level;
 	short i, nk;
 	short s_ele;
 	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
@@ -3407,6 +3388,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 	//Skill Range Criteria
 	md.flag |= battle_range_type(src, target, skill_num, skill_lv);
+	s_level = status_get_lv(src);
 
 	switch( skill_num )
 	{
@@ -3503,12 +3485,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	case RA_CLUSTERBOMB:
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
-		{
-			struct Damage wd = battle_calc_attack(BF_WEAPON, src, target, 0, 0, mflag);
-			if( sd )
-				md.damage = (sd->status.base_level*2 + ((sd->status.base_level/50) + 3)*sstatus->dex + 300)*skill_lv + sstatus->int_*5 + pc_checkskill(sd,RA_RESEARCHTRAP);
-			md.damage += ( wd.damage + wd.damage2 ) * ( skill_num == RA_CLUSTERBOMB  ? (skill_lv+2) : 1);
-		}
+		md.damage = (s_level * 2 + ((s_level/50) + 3) * sstatus->dex + 300) * skill_lv + sstatus->int_ * 5 + pc_checkskill(sd,RA_RESEARCHTRAP) * 40;
 		break;
 	case NC_SELFDESTRUCTION:
 		md.damage = (sstatus->hp + sstatus->sp) * 50 * skill_lv / 100;
@@ -3626,11 +3603,26 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	else if( map[target->m].flag.battleground )
 		md.damage = battle_calc_bg_damage(src,target,md.damage,md.div_,skill_num,skill_lv,md.flag);
 
-	if (skill_num == NJ_ZENYNAGE && sd)
-	{	//Time to Pay Up.
-		if ( md.damage > sd->status.zeny )
-			md.damage=sd->status.zeny;
-		pc_payzeny(sd, md.damage);
+	switch( skill_num )
+	{
+		case RA_CLUSTERBOMB:
+		case RA_FIRINGTRAP:
+ 		case RA_ICEBOUNDTRAP:
+			{
+				struct Damage wd;
+
+				wd = battle_calc_weapon_attack(src,target,skill_num,skill_lv,mflag);
+				md.damage += wd.damage;
+			}
+			break;
+		case NJ_ZENYNAGE:
+			if( sd )
+			{
+				if ( md.damage > sd->status.zeny )
+					md.damage = sd->status.zeny;
+				pc_payzeny(sd, md.damage);
+			}
+		break;
 	}
 
 	return md;
@@ -3701,14 +3693,12 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 		}
 		if (sc && sc->data[SC_REFLECTSHIELD]){
 			rdamage += (*damage) * sc->data[SC_REFLECTSHIELD]->val2 / 100;
-			if (rdamage < 1) rdamage = 1;
+			rdamage = cap_value(rdamage,1,max_damage);
 		}
 		if( sc && sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 2 ){
 			max_damage = status_get_max_hp(bl);
 			rdamage += (*damage) * sc->data[SC_SHIELDSPELL_DEF]->val2 / 100;
-			if( rdamage > max_damage )
-				rdamage = max_damage;
-			if( rdamage < 1 ) rdamage = 1;
+			rdamage = cap_value(rdamage,1,max_damage);
 		}
 		if( ssc && ssc->data[SC_INSPIRATION] ){
 			rdamage += (*damage) / 100;
@@ -4019,7 +4009,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			else
 			{
 				clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, damage, wd.div_ , wd.type, wd.damage2);
-				status_fix_damage(NULL, s_bl, damage, 0);
+				status_damage(target, s_bl, damage, 0, 0, 32);
 			}
 		}
 	}
@@ -4076,30 +4066,20 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			}
 		}
 	}
-	if( sc && sc->data[SC__AUTOSHADOWSPELL] && wd.flag&BF_SHORT )
-	{
-		if( sd )
-		{
-			int r_skill, r_lv;
-			if( (r_skill = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id) != 0 && r_skill <= NJ_ISSEN )
-			{
-				if( rand()%1000 < sc->data[SC__AUTOSHADOWSPELL]->val3 )
-				{
-					r_lv = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].lv;
-					switch ( skill_get_casttype(r_skill) )
-					{
-						case CAST_GROUND:
-							skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
-							break;
-						case CAST_NODAMAGE:
-							skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
-							break;
-						case CAST_DAMAGE:
-							skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
-							break;
-					}
-				}
-			}
+	if( sd && wd.flag&BF_SHORT && sc && sc->data[SC__AUTOSHADOWSPELL] && rand()%100 < sc->data[SC__AUTOSHADOWSPELL]->val3 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id != 0 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].flag == 13 ){
+		int r_skill = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id,
+			r_lv = sc->data[SC__AUTOSHADOWSPELL]->val2;
+
+		switch( skill_get_casttype(r_skill) ){
+			case CAST_GROUND:
+				skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
+				break;
+			case CAST_NODAMAGE:
+				skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
+				break;
+			case CAST_DAMAGE:
+				skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
+				break;
 		}
 	}
 	if (sd) {
@@ -4931,6 +4911,7 @@ static const struct _battle_data {
 	{ "levels_effect_renewal_skills",		&battle_config.levels_effect_renewal_skills,	0,		0,		1,				},
 	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
 	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
+	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },

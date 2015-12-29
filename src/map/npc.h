@@ -189,6 +189,7 @@ int npc_script_event(struct map_session_data* sd, enum npce_event type);
 int npc_duplicate4instance(struct npc_data *snd, int m);
 int npc_instanceinit(struct npc_data* nd);
 int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amount, int points);
+int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_list *item_list, int points);
 
 #if PACKETVER >= 20131223
 void npc_market_tosql(const char *exname, struct npc_item_list *list);

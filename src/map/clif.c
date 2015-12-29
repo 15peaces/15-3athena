@@ -6870,20 +6870,29 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 }
 
 
-/// Inform merchant that someone has bought an item (ZC_DELETEITEM_FROM_MCSTORE).
-/// 0137 <index>.W <amount>.W
-void clif_vendingreport(struct map_session_data* sd, int index, int amount)
-{
-	int fd;
+/// Inform merchant that someone has bought an item.
+/// 0137 <index>.W <amount>.W (ZC_DELETEITEM_FROM_MCSTORE).
+/// 09e5 <index>.W <amount>.W <GID>.L <Date>.L <zeny>.L (ZC_DELETEITEM_FROM_MCSTORE2).
+void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny) {
+#if PACKETVER < 20141016		// TODO : not sure for client date [Napster]
+	const int cmd = 0x137;
+#else
+	const int cmd = 0x9e5;
+#endif
+	int fd = sd->fd;
 
 	nullpo_retv(sd);
 
-	fd = sd->fd;
-	WFIFOHEAD(fd,packet_len(0x137));
-	WFIFOW(fd,0) = 0x137;
+	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOW(fd,0) = cmd;
 	WFIFOW(fd,2) = index+2;
 	WFIFOW(fd,4) = amount;
-	WFIFOSET(fd,packet_len(0x137));
+#if PACKETVER >= 20141016
+	WFIFOL(fd,6) = char_id;	// GID
+	WFIFOL(fd,10) = (int)time(NULL);	// Date
+	WFIFOL(fd,14) = zeny;		// zeny
+#endif
+	WFIFOSET(fd,packet_len(cmd));
 }
 
 
@@ -7457,7 +7466,7 @@ void clif_sendegg(struct map_session_data *sd)
 		clif_displaymessage(fd, "Pets are not allowed in Guild Wars.");
 		return;
 	}
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return;
 
 	WFIFOHEAD(fd, MAX_INVENTORY * 2 + 4);
@@ -10622,13 +10631,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if( sd->sc.option&OPTION_WUGRIDER && sd->weapontype1 )
 			return;
 
-		if( sd->sc.data[SC_BASILICA] )
-			return;
-
-		if( sd->sc.data[SC_CRYSTALIZE] )
-			return;
-
-		if( sd->sc.data[SC__SHADOWFORM] )
+		if( sd->sc.data[SC_BASILICA] || sd->sc.data[SC_CRYSTALIZE] || sd->sc.data[SC__SHADOWFORM] )
 			return;
 
 		if( (sd->sc.count && sd->sc.data[SC__MANHOLE]) || (tsc && tsc->data[SC__MANHOLE]) )
@@ -15499,8 +15502,8 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 	for( i = 0; i < nd->u.shop.count; i++ ) {
 		struct item_data* id = itemdb_search(nd->u.shop.shop_item[i].nameid);
 		WFIFOL(fd,offset+0+i*11) = nd->u.shop.shop_item[i].value;
-		WFIFOL(fd,offset+4+i*11) = nd->u.shop.shop_item[i].value; // Discount Price
-		WFIFOB(fd,offset+8+i*11) = itemtype(id->nameid);
+		WFIFOL(fd,offset+4+i*11) = pc_modify_cashshop_buy_value(sd,nd->u.shop.shop_item[i].value); // Discount Price
+		WFIFOB(fd,offset+8+i*11) = itemtype(id->type);
 		WFIFOW(fd,offset+9+i*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
@@ -15518,8 +15521,9 @@ void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd)
 ///     4 = You cannot purchase items while you are in a trade. (ERROR_TYPE_EXCHANGE)
 ///     5 = The Purchase has failed because the Item Information was incorrect. (ERROR_TYPE_ITEM_ID)
 ///     6 = You do not have enough Kafra Credit Points. (ERROR_TYPE_MONEY)
-///     7 = You can purchase up to 10 items.
-///     8 = Some items could not be purchased.
+///     7 = You can purchase up to 10 items. (ERROR_TYPE_OVER_PRODUCT_TOTAL_CNT)
+///     8 = Some items could not be purchased. (ERROR_TYPE_SOME_BUY_FAILURE)
+///     9 = Unknwon. (ERROR_TYPE_INVENTORY_ITEMCNT)
 void clif_cashshop_ack(struct map_session_data* sd, int error)
 {
 	int fd = sd->fd;
@@ -15559,6 +15563,30 @@ void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
 		fail = npc_cashshop_buy(sd, nameid, amount, points);
 
 	clif_cashshop_ack(sd, fail);
+}
+
+/// Request to buy item(s) from cash shop (CZ_PC_BUY_CASH_POINT_ITEM).
+/// Basicly a overhauled version of this packet that allow buying multiple items.
+/// 0288 <packet len>.W <kafra points>.L <count>.W { <amount>.W <name id>.W }.4B*count (PACKETVER >= 20100803)
+void clif_parse_CashShopListSend(int fd, struct map_session_data *sd)
+{
+	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	int result = 0, points = 0;
+	short length, count = 0;
+	nullpo_retv(sd);
+
+	length = (RFIFOW(fd,2)-10)/4;
+	points = RFIFOL(fd,4);
+	count = RFIFOW(fd,8);
+
+	if( sd->state.trading || !sd->npc_shopid )
+		result = 1;
+	else if (count > 10)
+		result = 7;// Cant buy more then 10 items at once.
+	else
+		result = npc_cashshop_buylist(sd, length, (struct s_npc_buy_list*)RFIFOP(fd,info->pos[1]), points);
+
+	clif_cashshop_ack(sd, result);
 }
 
 /* [Ind/Hercules] */
@@ -17109,18 +17137,33 @@ void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short resu
 }
 
 
-/// Updates the zeny limit and an item in the buying store item list (ZC_UPDATE_ITEM_FROM_BUYING_STORE).
-/// 081b <name id>.W <amount>.W <limit zeny>.L
-void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount)
-{
+/// Updates the zeny limit and an item in the buying store item list.
+/// 081b <name id>.W <amount>.W <limit zeny>.L (ZC_UPDATE_ITEM_FROM_BUYING_STORE)
+/// 09e6 <name id>.W <amount>.W <zeny>.L <limit zeny>.L <GID>.L <Date>.L (ZC_UPDATE_ITEM_FROM_BUYING_STORE2)
+void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount, uint32 char_id, int zeny) {
+#if PACKETVER < 20141016		// TODO : not sure for client date [Napster]
+	const int cmd = 0x81b;
+#else
+	const int cmd = 0x9e6;
+#endif
+	int offset = 0;
 	int fd = sd->fd;
 
-	WFIFOHEAD(fd,packet_len(0x81b));
-	WFIFOW(fd,0) = 0x81b;
+	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOW(fd,0) = cmd;
 	WFIFOW(fd,2) = nameid;
 	WFIFOW(fd,4) = amount;  // amount of nameid received
-	WFIFOW(fd,6) = sd->buyingstore.zenylimit;
-	WFIFOSET(fd,packet_len(0x81b));
+#if PACKETVER >= 20141016
+	WFIFOL(fd,6) = zeny;		// zeny
+	offset += 4;
+#endif
+	WFIFOL(fd,6+offset) = sd->buyingstore.zenylimit;
+#if PACKETVER >= 20141016
+	WFIFOL(fd,10+offset) = char_id;		// GID
+	WFIFOL(fd,14+offset) = (int)time(NULL);		// date
+#endif
+
+	WFIFOSET(fd,packet_len(cmd));
 }
 
 
@@ -17944,8 +17987,10 @@ static int packetdb_readdb(void)
 	//#0x0280
 #if PACKETVER < 20070711
 	    0,  0,  0,  6, 14,  0,  0, -1,  6,  8, 18,  0,  0,  0,  0,  0,
-#else
+#elif PACKETVER < 20100803
 	    0,  0,  0,  6, 14,  0,  0, -1, 10, 12, 18,  0,  0,  0,  0,  0, // 0x288, 0x289 increase by 4 (kafra points)
+ #else
+	    0,  0,  0,  6, 14,  0,  0, -1, -1, 12, 18,  0,  0,  0,  0,  0, // 0x288 changed to -1
 #endif
 	    0,  4,  0, 70, 10,  0,  0,  0,  8,  6, 27, 80,  0, -1,  0,  0,
 	    0,  0,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -18105,7 +18150,7 @@ static int packetdb_readdb(void)
 //#0x09C0
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0,  0,  0,  0,  0,  7,
-		0,  0,  0,  0,  0,  0,  0,  3, 11,  0, 11, -1,  0,  3, 11,  0,
+		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11,  0,
 		0, 11, 12, 11,  0,  0,  0,  0,  0,143,  0,  0,  0,  0,  0,  0,
 //#0x0a00
 #if PACKETVER >= 20141022
@@ -18294,7 +18339,11 @@ static int packetdb_readdb(void)
 		// Quest Log System
 		{clif_parse_questStateAck,"queststate"},
 #endif
+#if PACKETVER < 20100803
 		{clif_parse_cashshop_buy,"cashshopbuy"},
+#else
+		{clif_parse_CashShopListSend,"cashshopbuy"},
+#endif
 		{clif_parse_ViewPlayerEquip,"viewplayerequip"},
 		{clif_parse_EquipTick,"equiptickbox"},
 		{clif_parse_BattleChat,"battlechat"},

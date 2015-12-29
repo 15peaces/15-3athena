@@ -180,6 +180,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		short amount = *(uint16*)(data + 4*i + 0);
 		short idx    = *(uint16*)(data + 4*i + 2);
 		idx -= 2;
+		z = 0.; // zeny counter
 
 		//Logs sold (V)ending items [Lupus]
 		log_pick(&vsd->bl, LOG_TYPE_VENDING, vsd->status.cart[idx].nameid, -amount, &vsd->status.cart[idx]);
@@ -188,8 +189,11 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		// vending item
 		pc_additem(sd, &vsd->status.cart[idx], amount);
 		vsd->vending[vend_list[i]].amount -= amount;
+		z += ((double)vsd->vending[i].value * (double)amount);
 		pc_cart_delitem(vsd, idx, amount, 0);
-		clif_vendingreport(vsd, idx, amount);
+		if( battle_config.vending_tax )
+			z -= z * (battle_config.vending_tax/10000.);
+		clif_vendingreport(vsd, idx, amount, sd->status.char_id, (int)z);
 
 		//print buyer's name
 		if( battle_config.buyer_name )

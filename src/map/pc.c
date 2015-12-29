@@ -3360,6 +3360,17 @@ int pc_modifybuyvalue(struct map_session_data *sd,int orig_value)
 	return val;
 }
 
+int pc_modify_cashshop_buy_value(struct map_session_data *sd,int value)
+{
+	int val = value;
+
+	if ( battle_config.cashshop_price_rate != 100 )
+		val = (value * battle_config.cashshop_price_rate / 100);
+	if (val < 1) val = 1;
+
+	return val;
+}
+
 /*==========================================
  * ƒXƒLƒ‹‚É‚æ‚é?‚è’lC³
  *------------------------------------------*/
@@ -7510,7 +7521,7 @@ int pc_setcart(struct map_session_data *sd,int type)
  *------------------------------------------*/
 int pc_setfalcon(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag )
@@ -7529,7 +7540,7 @@ int pc_setfalcon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setriding(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag ){
@@ -7547,7 +7558,7 @@ int pc_setriding(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setdragon(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag ){
@@ -7565,7 +7576,7 @@ int pc_setdragon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwug(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag ){
@@ -7583,7 +7594,7 @@ int pc_setwug(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwugrider(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag ){
@@ -7601,7 +7612,7 @@ int pc_setwugrider(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setmadogear(TBL_PC* sd, int flag)
 {
-	if( sd->sc.count && sd->sc.data[SC__GROOMY] )
+	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	if( flag ){

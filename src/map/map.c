@@ -374,6 +374,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 	int x0 = bl->x, y0 = bl->y;
 	struct status_change *sc = NULL;
 	int moveblock = ( x0/BLOCK_SIZE != x1/BLOCK_SIZE || y0/BLOCK_SIZE != y1/BLOCK_SIZE);
+	struct map_session_data *sd = BL_CAST(BL_PC,bl);
 
 	if (!bl->prev) {
 		//Block not in map, just update coordinates, but do naught else.
@@ -406,40 +407,21 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 	else map_addblcell(bl);
 #endif
 
-	if (bl->type&BL_CHAR) {
-		if( sc && sc->data[SC__SHADOWFORM] )
-		{
-			struct map_session_data *s_sd = map_id2sd(sc->data[SC__SHADOWFORM]->val2);
-			if( s_sd )
-			{
-				if( !check_distance_bl(bl,&s_sd->bl,skill_get_range(SC_SHADOWFORM,sc->data[SC__SHADOWFORM]->val1)) )
-				{
-					status_change_end(bl,SC__SHADOWFORM,INVALID_TIMER);
-					s_sd->shadowform_id = 0;
-				}
+	if( bl->type&BL_CHAR ){
+		if( sd )
+		{ // Shadow Form distances
+			struct block_list *d_bl;
+			if( sc && sc->data[SC__SHADOWFORM] && ((d_bl = map_id2bl(sc->data[SC__SHADOWFORM]->val2)) == NULL || bl->m != d_bl->m || !check_distance_bl(bl,d_bl,skill_get_range(SC_SHADOWFORM,1))) )
+				status_change_end(bl,SC__SHADOWFORM,-1);
+			if( sd->shadowform_id && ((d_bl = map_id2bl(sd->shadowform_id)) == NULL || bl->m != d_bl->m || !check_distance_bl(bl,d_bl,skill_get_range(SC_SHADOWFORM,1))) ){
+				if( d_bl ) status_change_end(d_bl,SC__SHADOWFORM,-1);
+				sd->shadowform_id = 0;
 			}
 		}
-		if( bl->type == BL_PC )
-		{
-			if( ((TBL_PC*)bl)->shadowform_id > 0 )
-			{
-				struct block_list *s_bl = map_id2bl(((TBL_PC*)bl)->shadowform_id);
-				if( s_bl )
-				{
-					if( s_bl->m != bl->m || !check_distance_bl(bl,s_bl,skill_get_range(SC_SHADOWFORM,1)) ) // Asume lvl 1.
-					{
-						((TBL_PC*)bl)->shadowform_id = 0;
-						status_change_end(s_bl,SC__SHADOWFORM,INVALID_TIMER);
-					}
-				}
-				else
-					((TBL_PC *)bl)->shadowform_id = 0;
-			}
-		}
+
 		skill_unit_move(bl,tick,3);
-		sc = status_get_sc(bl);
-		if (sc) {
-			if (sc->count) {
+		if (sc){
+			if (sc->count){
 				if (sc->data[SC_CLOAKING])
 					skill_check_cloaking(bl, sc->data[SC_CLOAKING]);
 				if (sc->data[SC_CAMOUFLAGE])
@@ -454,8 +436,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 					skill_unit_move_unit_group(skill_id2group(sc->data[SC_STEALTHFIELD_MASTER]->val2), bl->m, x1-x0, y1-y0);
  			}
 		}
-	} else
-	if (bl->type == BL_NPC)
+	} else if (bl->type == BL_NPC)
 		npc_setcells((TBL_NPC*)bl);
 
 	return 0;

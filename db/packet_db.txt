@@ -1607,6 +1607,7 @@ packet_ver: 25
 //0x841,4
 
 //2010-08-03aRagexeRE
+0x0288,-1,cashshopbuy,2:4:8
 0x0839,66
 0x0842,6,recall2,2
 0x0843,6,remove2,2
@@ -1638,10 +1639,14 @@ packet_ver: 27
 0x07ec,7,actionrequest,2:6
 0x0887,6
 
+// New Packet
+0x090F,-1		// ZC_NOTIFY_NEWENTRY7
+0x0914,-1		// ZC_NOTIFY_MOVEENTRY8
+0x0915,-1		// ZC_NOTIFY_STANDENTRY9
+
 //2012-04-10aRagexeRE
 packet_ver: 28
 0x01FD,15,repairitem,2
-0x0288,-1,cashshopbuy,4:8
 0x0366,90,useskilltoposinfo,2:4:6:8:10
 0x0369,7,actionrequest,2:6
 0x0437,5,walktoxy,2
@@ -1910,19 +1915,14 @@ packet_ver: 34
 0x0364,5,hommenu,2:4
 0x0936,36,storagepassword,0
 0x09DF,7
-0x0a00,269
-0x0A01,3,hotkeyrowshift,2
-// Roulette System [Yommy]
-0x0A19,2,rouletteopen,0 // HEADER_CZ_REQ_OPEN_ROULETTE
-0x0A1A,23 // HEADER_ZC_ACK_OPEN_ROULETTE
-0x0A1B,2,rouletteinfo,0 // HEADER_CZ_REQ_ROULETTE_INFO
-0x0A1C,-1 // HEADER_ZC_ACK_ROULETTE_INFO
-0x0A1D,2,rouletteclose,0 // HEADER_CZ_REQ_CLOSE_ROULETTE
-0x0A1E,3 // HEADER_ZC_ACK_CLOSE_ROULETTE
-0x0A1F,2,roulettegenerate,0 // HEADER_CZ_REQ_GENERATE_ROULETTE
-0x0A20,21 // HEADER_ZC_ACK_GENERATE_ROULETTE
-0x0A21,3,rouletterecvitem,2 // HEADER_CZ_RECV_ROULETTE_ITEM
-0x0A22,5 // HEADER_ZC_RECV_ROULETTE_ITEM
+
+// New packet
+0x0A00,269		// ZC_SHORTCUT_KEY_LIST_V3
+0x0A01,3,hotkeyrowshift,2	// CZ_SHORTCUTKEYBAR_ROTATE
+0x0A02,4		// ZC_DRESSROOM_OPEN
+0x09F7,75		// ZC_PROPERTY_HOMUN_2
+0x09E5,18		// ZC_DELETEITEM_FROM_MCSTORE2
+0x09E6,22		// ZC_UPDATE_ITEM_FROM_BUYING_STORE2
 
 //2014-10-22bRagexe
 packet_ver: 35
@@ -1979,8 +1979,14 @@ packet_ver: 35
 0x0a0c,56
 0x0a0d,-1
 0x0a13,26
-0x0A18,14
-0x0a24,66
+
+// New Packet
+0x0A18,14		// ZC_ACCEPT_ENTER3
+0x0A28,3		// ZC_ACK_OPENSTORE2
+0x09FD,-1		// ZC_NOTIFY_MOVEENTRY11
+0x09FE,-1		// ZC_NOTIFY_NEWENTRY11
+0x09FF,-1		// ZC_NOTIFY_STANDENTRY11
+//0x09F8,-1		// ZC_ALL_QUEST_LIST3
 
 //Add new packets here
 //packet_ver: 36

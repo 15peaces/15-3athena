@@ -172,6 +172,7 @@ struct map_session_data {
 		unsigned improv_flag : 1;
 		unsigned magicmushroom_flag : 1;
 		unsigned no_gemstone : 1; // If a skill have a partner near, it don't consume gemstone but SP from all (ADORAMUS, COMET)
+		unsigned fearbreeze : 4; // Arrows used on SC_FEARBREEZE
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
@@ -757,6 +758,7 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *bl);
 
 int pc_modifybuyvalue(struct map_session_data*,int);
 int pc_modifysellvalue(struct map_session_data*,int);
+int pc_modify_cashshop_buy_value(struct map_session_data *sd,int value);// For cash shop items. [Rytech]
 
 int pc_follow(struct map_session_data*, int); // [MouseJstr]
 int pc_stop_following(struct map_session_data*);
