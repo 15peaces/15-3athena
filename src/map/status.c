@@ -536,11 +536,12 @@ void initChangeTables(void)
 	//Sorcerer
 	add_sc( SO_FIREWALK			, SC_FIREWALK			);
 	add_sc( SO_ELECTRICWALK		, SC_ELECTRICWALK		);
-	set_sc( SO_CLOUD_KILL       , SC_POISON				, SI_CLOUD_KILL				, SCB_NONE );
+	set_sc( SO_CLOUD_KILL       , SC_POISON				, SI_CLOUD_KILL			, SCB_NONE );
 	add_sc( SO_WARMER			, SC_WARMER				);
-	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME		, SI_VACUUM_EXTREME			, SCB_NONE );
-	set_sc( SO_STRIKING         , SC_STRIKING			, SI_STRIKING				, SCB_WATK|SCB_CRI );
-	set_sc( SO_ARRULLO			, SC_DEEPSLEEP			, SI_DEEP_SLEEP				, SCB_NONE );
+	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME		, SI_VACUUM_EXTREME		, SCB_NONE );
+	set_sc( SO_STRIKING         , SC_STRIKING			, SI_STRIKING			, SCB_WATK|SCB_CRI );
+	set_sc( SO_ARRULLO			, SC_DEEPSLEEP			, SI_DEEP_SLEEP			, SCB_NONE );
+	set_sc( SO_SPELLFIST        , SC_SPELLFIST			, SI_SPELLFIST			, SCB_NONE );
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -6111,9 +6112,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	case SC_FOOD_LUK_CASH:
 		status_change_end(bl, SC_LUKFOOD, INVALID_TIMER);
 		break;
-	case SC_ACCELERATION:
-		status_change_end(bl,SC_INCREASEAGI,INVALID_TIMER);
-		break;
 	case SC_SWING:
 	case SC_SYMPHONY_LOVE:
 	case SC_MOONLIT_SERENADE:
@@ -7289,8 +7287,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 0;
 			break;
 		case SC_WARMER:
-			val4 = tick / 3000;
-			tick = 3000;
 			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
 			status_change_end(bl, SC_FREEZING, INVALID_TIMER);
 			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
@@ -7439,6 +7435,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick / 1000;
 			tick = 1000;
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
+			break;
+		case SC_SPELLFIST:
+			val_flag |= 1|2|4;
 			break;
 
 		default:
@@ -9077,6 +9076,12 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC__REPRODUCE:
+		if(!status_charge(bl, 0, 1))
+			break;
+		sc_timer_next(1000+tick, status_change_timer, bl->id, data);
+		return 0;
+
 	case SC__SHADOWFORM:
 		if( --(sce->val4) >= 0 )
 		{
@@ -9097,14 +9102,6 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		}
 		break;
 
-	case SC_WARMER:
-		if( --(sce->val4) >= 0 )
-		{
-			status_heal(bl, 130 * sce->val1, 0, 2);
-			sc_timer_next(3000 + tick, status_change_timer, bl->id, data);
-			return 0;
-		}
-		break;
 	case SC_STRIKING:
 		if( --(sce->val4) >= 0 )
 		{

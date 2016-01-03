@@ -2940,6 +2940,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				ad.damage = (int)((15 * status_get_lv(src)) + (1.5 * sstatus->int_));
 			default:
 			{
+				if( skill_num == RK_ENCHANTBLADE ){
+					if( sc && sc->data[SC_ENCHANTBLADE] )
+						ad.damage += sc->data[SC_ENCHANTBLADE]->val2;
+					else
+						return ad;
+				}
 				if (sc && sc->data[SC_RECOGNIZEDSPELL]) {
 					MATK_ADD(sstatus->matk_max);//Recognized Spell makes you deal your maximum MATK on all magic attacks.
 				} else if (sstatus->matk_max > sstatus->matk_min) {
@@ -3153,7 +3159,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case AB_JUDEX:
-						skillratio = ((skill_lv == 5) ? 400 : (280 + 20 * skill_lv)) * status_get_lv(src) / 100;
+						skillratio += (skill_lv == 5) ? 300 : 180 + 20 * skill_lv;
+						skillratio = skillratio * status_get_lv(src) / 100;
 						break;
 					case AB_ADORAMUS: 
 						skillratio += 400 + 100 * skill_lv;
@@ -3657,7 +3664,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 //Calculates BF_WEAPON returned damage.
 int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int *damage, int flag) {
 	struct map_session_data* sd = NULL;
-	int rdamage = 0, max_damage = status_get_hp(bl);
+	int rdamage = 0, max_damage = status_get_max_hp(bl);
 	struct status_change *sc = status_get_sc(bl);
 	struct status_change *ssc = status_get_sc(src);
 
@@ -3696,7 +3703,6 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage = cap_value(rdamage,1,max_damage);
 		}
 		if( sc && sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 2 ){
-			max_damage = status_get_max_hp(bl);
 			rdamage += (*damage) * sc->data[SC_SHIELDSPELL_DEF]->val2 / 100;
 			rdamage = cap_value(rdamage,1,max_damage);
 		}
@@ -3947,10 +3953,17 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if(sc)
 	{
-		if( sc->data[SC_EXEEDBREAK] )
-		{
+		if( sc->data[SC_EXEEDBREAK] ){
 			wd.damage = wd.damage * sc->data[SC_EXEEDBREAK]->val1 / 100;
 			status_change_end(src,SC_EXEEDBREAK,INVALID_TIMER);
+ 		}
+		if( sc->data[SC_SPELLFIST] ){
+			if( --(sc->data[SC_SPELLFIST]->val1) >= 0 ){
+				wd = battle_calc_attack(BF_MAGIC,src,target,sc->data[SC_SPELLFIST]->val3,sc->data[SC_SPELLFIST]->val4,flag);
+				wd.damage += (wd.damage / sc->data[SC_SPELLFIST]->val4) * sc->data[SC_SPELLFIST]->val2;
+			}
+			else
+				status_change_end(src,SC_SPELLFIST,-1);
  		}
 	}
 	if( sd && sc && sc->data[SC_GIANTGROWTH] && wd.flag&(BF_WEAPON|BF_SHORT) && rand()%100 < pc_checkskill(sd,RK_RUNEMASTERY) )

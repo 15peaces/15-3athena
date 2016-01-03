@@ -204,7 +204,11 @@ int naddr_ = 0;   // # of ip addresses
 
 // Maximum packet size in bytes, which the client is able to handle.
 // Larger packets cause a buffer overflow and stack corruption.
-static size_t socket_max_client_packet = 20480;
+#if PACKETVER < 20131223
+static size_t socket_max_client_packet = 24576;
+#else
+static size_t socket_max_client_packet = 65636;
+#endif
 
 // initial recv buffer size (this will also be the max. size)
 // biggest known packet: S 0153 <len>.w <emblem data>.?B -> 24x24 256 color .bmp (0153 + len.w + 1618/1654/1756 bytes)
@@ -1086,8 +1090,21 @@ int socket_config_read(const char* cfgName)
 			ddos_autoreset = atoi(w2);
 		else if (!strcmpi(w1,"debug"))
 			access_debug = config_switch(w2);
-		else if (!strcmpi(w1,"socket_max_client_packet"))
+		else if (!strcmpi(w1,"socket_max_client_packet")){
 			socket_max_client_packet = strtoul(w2, NULL, 0);
+#if PACKETVER < 20131223
+			if( socket_max_client_packet > 24576 ){
+				ShowWarning( "socket_max_client_packet: Value %u is to high. Defaulting to %u.\n", socket_max_client_packet, 24576 );
+				ShowWarning( "socket_max_client_packet: If you want to use this value consider upgrading your client to 2013-12-23 or newer.\n" );
+				socket_max_client_packet = 24576;
+			}
+#else
+			if( socket_max_client_packet > 65636 ){
+				ShowWarning( "socket_max_client_packet: Value %u is to high. Defaulting to %u.\n", socket_max_client_packet, 65636 );
+				socket_max_client_packet = 65636;
+			}
+#endif
+		}
 		else if (!strcmpi(w1, "import"))
 			socket_config_read(w2);
 	}

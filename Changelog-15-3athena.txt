@@ -4,9 +4,48 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/03/2016
+	r100 [15peaces]
+		*Merged missing changes from 3ceam rev. 390 - 400
+		*Huge Updates to item_db and mob_db/mob_skill_db.
+			-reviewed large number of items in item_db2.
+			-reviewed large number of monsters in mob_db2.
+			-moved stable / fully working items to item_db.
+			-moved stable / fully working monsters to mob_db/mob_skill_db.
+			-Added missing Mora equippment.
+			-Added HALLOWEEN_G_BOX and IP_HALLOWEEN_G_BOX
+		*Replaced Eclage Instance by hercules version.
+		*Added El Dicastes related warps.
+		*Updated the maximum size for packets
+			-Also added a safe-check for this config to avoid buffer overflows caused by miss-config.
+			-According to rAthena even older than 2013-12-23 clients can deal with 24576 as a maximum size.
+			-According to 3ceam revision 764 clients from 2013-12-23 on can deal with bigger packets. 
+			-3ceam uses 65636 as maximum, so we'll use it as default value. Thanks to Rytech!
+			-Please consider staying with the default value.
+		*Re-added missing roulette packets...
+		*Fixed issues Character Deletion Time for newer clients.
+		*Reviewed all Arch Bishop skills.
+		*Fixed the behavior of Epiclesis which people not under its area of effect status is not ended.
+		*Strip Accessory after-cast delay should trigger once it is success.
+		*Fixed Warmer which not affecting people under its area of effect.
+		*Fixed Acceleration removing Increase agi.
+		*Added skill_reproduce_db to be used as a copy list for Reproduce skill. 
+			-Adjusted its behavior according to official.
+		*Fix a minor bug on Clementia and Canto when under a party the duration become higher than the set duration in database.
+		*Fix Wug Bite not getting elements on weapon and etc.
+		*Minor fix to Earth Grave dealing high amount of damage.
+		*Fixed RK_ENCHANTBLADE. 
+			-Added missing code that was causing this status wasn't adding magic damage correctly.
+			-Fixed max returned damage, should be Max HP instead Current HP.
+		*Added SO_SPELLFIST skill.
+		*Fixed GN_WALLOFTHORN skill.
+			-The skill is targetable to enemy/self.
+			-Player can walk inside the area without the wall and if it move in the area of wall the player(center) must receive damage too.
+			-Was dealing damage in non-pvp maps when the wall become a wall of fire.
+
 12/29/2015
 	r99 [15peaces]
-		*Merged missing changes from 3ceam rev. 383 - 387
+		*Merged missing changes from 3ceam rev. 383 - 389
 		*Fixed some typos in item_misc.txt (follow up to r98 / b5c0f05)
 		*Vending & Buying Store report Packet Implemented
 			-New Feature for 2014-10-23 client or newer

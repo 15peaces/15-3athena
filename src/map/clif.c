@@ -11514,10 +11514,11 @@ static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_sess
 		return;
 	if( hd->bl.id != target_id && skill_get_inf(skillnum)&INF_SELF_SKILL )
 		target_id = hd->bl.id;
-	if( hd->ud.skilltimer != INVALID_TIMER )
-	{
-		if( skillnum != SA_CASTCANCEL ) return;
-	}
+	if( sd->ud.skilltimer != INVALID_TIMER ){
+		if( skillnum != SA_CASTCANCEL &&
+		!(skillnum == SO_SPELLFIST && (sd->ud.skillid == MG_FIREBOLT || sd->ud.skillid == MG_COLDBOLT || sd->ud.skillid == MG_LIGHTNINGBOLT)) )
+ 			return;
+ 	}
 	else if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
 		return;
 

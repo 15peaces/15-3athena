@@ -599,6 +599,7 @@
 4227,10800,0,0,0,0,0,0,"91-99 Mission Board Timer"
 
 4229,82800,0,0,0,0,0,0,"Devil in the Cave"
+
 4254,0,0,0,0,0,0,0,"Fairy with a stomache"
 4255,0,2363,20,0,0,0,0,"Revenge!"
 4256,0,0,0,0,0,0,0,"An accomplice?"

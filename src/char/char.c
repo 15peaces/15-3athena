@@ -1921,7 +1921,11 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	offset += MAP_NAME_LENGTH_EXT;
 #endif
 #if PACKETVER >= 20100803
+#if PACKETVER > 20130000 && PACKETVER < 20141016
+  	WBUFL(buf,124) = (p->delete_date?TOL(p->delete_date-time(NULL)):0);
+ #else
 	WBUFL(buf,124) = TOL(p->delete_date);
+#endif
 	offset += 4;
 #endif
 #if PACKETVER >= 20110111

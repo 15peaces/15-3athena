@@ -745,6 +745,7 @@ IP_Taurus_Crown_Scroll	4 		//272
 IP_Taurus_Crown_Scroll_Box	5 	//273
 IP_Hallo_Scroll	6 				//292
 IP_Tw_Aug_Scroll	7 			//318
+IP_HALLOWEEN_G_BOX	8			//386
 
 SC_ALL	-1
 SC_NONE	-1
