@@ -1386,6 +1386,8 @@ int clif_spawn(struct block_list *bl)
 				clif_efst_status_change(&sd->bl,SI_SUPER_STAR,1000,sd->sc.data[SC_SUPER_STAR]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_DECORATION_OF_MUSIC] )
 				clif_efst_status_change(&sd->bl,SI_DECORATION_OF_MUSIC,1000,sd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_BANDING] )
+				clif_status_change(&sd->bl,SI_BANDING,1,9999,sd->sc.data[SC_BANDING]->val1,0,0);
 		}
 		break;
 	case BL_MOB:
@@ -4350,6 +4352,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
+			if( tsd->sc.count && tsd->sc.data[SC_BANDING] )
+				clif_display_banding(&sd->bl,&tsd->bl,tsd->sc.data[SC_BANDING]->val1);
 			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
 			//if ( tsd->sc.count && tsd->sc.data[SC_] )
 				// clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_,1000,tsd->sc.data[SC_]->val1,0,0);
@@ -5648,7 +5652,7 @@ void clif_status_change(struct block_list *bl,int type,int flag,unsigned int tic
 		type == SI_BUMP || type == SI_READYSTORM || type == SI_READYDOWN ||
 		type == SI_READYTURN || type == SI_READYCOUNTER || type == SI_DODGE ||
 		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION || type == SI_REPRODUCE ||
-		type == SI_BLOODYLUST || type == SI_FORCEOFVANGUARD || type == SI_WARMER || type == SI_NEUTRALBARRIER ||
+		type == SI_BLOODYLUST || type == SI_FORCEOFVANGUARD || type == SI_NEUTRALBARRIER ||
 		type == SI_OVERHEAT)
 		tick=0;
 
@@ -5812,6 +5816,34 @@ void clif_notify_playerchat(struct map_session_data* sd, const char* message)
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
 
+/*==========================================
+ * Display Banding when someone under this
+ * status change walk into your view range.
+ *------------------------------------------*/
+int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1)
+{
+	unsigned char buf[32];
+
+	nullpo_retr(0, bl);
+	nullpo_retr(0, dst);
+
+	if( battle_config.display_status_timers )
+		WBUFW(buf,0)=0x043f;
+	else
+		WBUFW(buf,0)=0x0196;
+	WBUFW(buf,2)=SI_BANDING;
+	WBUFL(buf,4)=bl->id;
+	WBUFB(buf,8)=1;
+	if( battle_config.display_status_timers )
+	{
+		WBUFL(buf,9)=0;
+		WBUFL(buf,13)=val1;
+		WBUFL(buf,17)=0;
+		WBUFL(buf,21)=0;
+	}
+	clif_send(buf,packet_len(WBUFW(buf,0)),dst,SELF);
+	return 0;
+}
 
  /// Send message (modified by [Yor]) (ZC_NOTIFY_PLAYERCHAT).
  /// 008e <packet len>.W <message>.?B
@@ -11613,7 +11645,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	// Whether skill fails or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
 
-	if( pc_cant_act(sd) )
+	if( pc_cant_act(sd) && skillnum != SR_GENTLETOUCH_CURE )
 		return;
 	if( pc_issit(sd) )
 		return;

@@ -391,7 +391,8 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 //		status_change_end(bl, SC_BLADESTOP, INVALID_TIMER); //Won't stop when you are knocked away, go figure...
 		status_change_end(bl, SC_TATAMIGAESHI, INVALID_TIMER);
 		status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
-		status_change_end(bl,SC_ROLLINGCUTTER, INVALID_TIMER);
+		status_change_end(bl, SC_ROLLINGCUTTER, INVALID_TIMER);
+		status_change_end(bl, SC_PROPERTYWALK, INVALID_TIMER);
 	} else
 	if (bl->type == BL_NPC)
 		npc_unsetcells((TBL_NPC*)bl);
@@ -434,6 +435,14 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 					skill_unit_move_unit_group(skill_id2group(sc->data[SC_NEUTRALBARRIER_MASTER]->val2), bl->m, x1-x0, y1-y0);
 				if (sc->data[SC_STEALTHFIELD_MASTER])
 					skill_unit_move_unit_group(skill_id2group(sc->data[SC_STEALTHFIELD_MASTER]->val2), bl->m, x1-x0, y1-y0);
+				if (sc->data[SC_BANDING])
+					skill_unit_move_unit_group(skill_id2group(sc->data[SC_BANDING]->val4), bl->m, x1-x0, y1-y0);
+				if (sc->data[SC_PROPERTYWALK]){
+					if( sc->data[SC_PROPERTYWALK]->val3 < skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) ){
+						if( skill_unitsetting(bl,sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2,x0, y0,0) )
+							sc->data[SC_PROPERTYWALK]->val3++;
+					}
+				}
  			}
 		}
 	} else if (bl->type == BL_NPC)

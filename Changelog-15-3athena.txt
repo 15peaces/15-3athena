@@ -4,6 +4,30 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/06/2016
+	r101 [15peaces]
+		*Merged missing changes from 3ceam rev. 401 - 412
+		*Fixed #3
+			-Thanks to @cold-hr / rAthena.
+		*Fixed #5
+			-Thanks to @cold-hr.
+			-Server tried to load respawn-data for unexisting instance IDs while reloading instance data.
+		*Added missing items to Pet Groomers.
+			-Also managed some more clean-up inside item_db.
+		*Fix a typo in skill_reproduce_db.txt
+		*Added Hazy Forest instance.
+		*Fixed WM_MELODYOFSINK that had an incorrect SCB.
+		*Fixed GN_WALLOFTHORN that was causing problems with repeating fire damages.
+		*Fixed SC_FIREWALK and SC_ELECTRICWALK. 
+			-Skills behavior adjusted to the official one.
+		*Added RG_BANDING skill.
+		*Added Gentle Touch Skills. (Cure, Quiet, Energy Gain, Revitalize, Change)
+		*Minor fix to Disjoint skill.
+		*Minor update to the behavior of Warmer skill.
+		*SC_CRIFOOD
+			-Added full support for this SC.
+		*Fixed some mistakes in pc.c
+	
 01/03/2016
 	r100 [15peaces]
 		*Merged missing changes from 3ceam rev. 390 - 400

@@ -522,9 +522,8 @@ void do_reload_instance(void) {
 	
 	iter = mapit_getallusers();
 	for( sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); sd = (TBL_PC*)mapit_next(iter) ) {
-		if(sd && map[sd->bl.m].instance_id >= 0) {
+		if(sd && map[sd->bl.m].instance_id)
 			pc_setpos(sd,instance[map[sd->bl.m].instance_id].respawn.map,instance[map[sd->bl.m].instance_id].respawn.x,instance[map[sd->bl.m].instance_id].respawn.y,CLR_TELEPORT);
-		}
 	}
 	mapit_free(iter);
 }

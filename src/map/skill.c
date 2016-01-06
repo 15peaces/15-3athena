@@ -1127,6 +1127,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		skill_break_equip(src, EQP_SHIELD, 500, BCT_SELF);
 		sc_start(bl, SC_EARTHDRIVE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
+	case SR_GENTLETOUCH_QUIET:
+		sc_start(bl, SC_SILENCE, 2 * skilllv, skilllv, skill_get_time(skillid, skilllv));
+		break;
 	case WM_METALICSOUND:
 		sc_start(bl, SC_CHAOS, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -3120,6 +3123,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_BANISHINGPOINT:
 	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
+	case SR_GENTLETOUCH_QUIET:
 	case WM_METALICSOUND:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
@@ -4674,6 +4678,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SC_DEADLYINFECT:
 	case LG_EXEEDBREAK:
 	case LG_PRESTIGE:
+	case SR_GENTLETOUCH_ENERGYGAIN:
+	case SR_GENTLETOUCH_CHANGE:
+	case SR_GENTLETOUCH_REVITALIZE:
 	case SO_STRIKING:
 	case GN_CARTBOOST:
 	case WL_RECOGNIZEDSPELL:
@@ -5761,6 +5768,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FOOD_LUK_CASH:	case SC_ALL_RIDING:				case SC_ON_PUSH_CART:
 				case SC_MOONSTAR:		case SC_SUPER_STAR:				case SC_MONSTER_TRANSFORM:
 				case SC_STRANGELIGHTS:	case SC_DECORATION_OF_MUSIC:	case SC__STRIPACCESSARY:
+				case SC_CRIFOOD:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7012,7 +7020,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC__LAZINESS:				case SC__UNLUCKY:		case SC__WEAKNESS:
 				case SC_SAVAGE_STEAK:			case SC_COCKTAIL_WARG_BLOOD:	case SC_MAGNETICFIELD:
 				case SC_MINOR_BBQ:				case SC_SIROMA_ICE_TEA:	case SC_DROCERA_HERB_STEAMED:
-				case SC_PUTTI_TAILS_NOODLES:
+				case SC_PUTTI_TAILS_NOODLES:	case SC_CRIFOOD:
 				case SC_NEUTRALBARRIER_MASTER:	case SC_NEUTRALBARRIER:
 				case SC_STEALTHFIELD_MASTER:	case SC_STEALTHFIELD:
 				// ---------------------------
@@ -7322,6 +7330,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			md = map_id2md(bl->id);
 			if( md && md->class_ >= 2042 && md->class_ <= 2046 )
 				status_kill(bl);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 	
@@ -7547,6 +7556,26 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_nodamage(bl,src,skillid,skilllv,
 				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
 		}
+		break;
+
+	case SR_GENTLETOUCH_CURE:
+		if( status_isimmune(bl) ) {
+			clif_skill_nodamage(src,bl,skillid,skilllv,0);
+			break;
+		}
+		if( (tsc && tsc->opt1) && rand()%100 < 5 * skilllv ){
+			status_change_end(bl, SC_STONE, INVALID_TIMER);
+			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+			status_change_end(bl, SC_STUN, INVALID_TIMER);
+			status_change_end(bl, SC_POISON, INVALID_TIMER);
+			status_change_end(bl, SC_SILENCE, INVALID_TIMER);
+			status_change_end(bl, SC_BLIND, INVALID_TIMER);
+			status_change_end(bl, SC_HALLUCINATION, INVALID_TIMER);
+			status_change_end(bl, SC_BURNING, INVALID_TIMER);
+			status_change_end(bl, SC_FREEZING, INVALID_TIMER);
+			skill_castend_nodamage_id(src, bl, AL_HEAL, skilllv, tick, flag);
+		}
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		break;
 
 	case WA_SWING_DANCE:
@@ -8655,6 +8684,14 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		}
  		break;
 
+	case LG_BANDING:
+		clif_skill_nodamage(src,src,skillid,skilllv,1);
+		if( sc && sc->data[SC_BANDING] )
+			status_change_end(src,SC_BANDING,INVALID_TIMER);
+		else if( (sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0)) != NULL )
+			sc_start4(src,SC_BANDING,100,skilllv,0,0,sg->group_id,skill_get_time(skillid,skilllv));
+		break;
+
 	case WM_DOMINION_IMPULSE:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea( skill_ative_reverberation,
@@ -8716,7 +8753,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_FIREWALK:
 	case SO_ELECTRICWALK:
 		clif_skill_nodamage(src, src ,skillid, skilllv,
-		sc_start(src, status_skill2sc(skillid), 100, skilllv, skill_get_time(skillid, skilllv)));
+			sc_start2(src, status_skill2sc(skillid), 100, skillid, skilllv, skill_get_time(skillid, skilllv)));
 		break;
 
 	case SA_VOLCANO:
@@ -9585,6 +9622,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		val1 = sc->data[SC_POISONINGWEAPON]->val1; // Level of Poison, to determine poisoning time
 		val2 = sc->data[SC_POISONINGWEAPON]->val2; // Type of Poison
 		limit = 4000 + 2000 * skilllv;
+		break;
+
+	case LG_BANDING:
+		limit = -1;
 		break;
 
 	case WM_REVERBERATION:
@@ -10530,13 +10571,18 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 				int hp = 130 * sg->skill_lv;
 				status_heal(bl, hp, 0, 0);
 				if( tstatus->hp != tstatus->max_hp )
-					clif_skill_nodamage(&src->bl, bl, AL_HEAL, hp, 1);
+					clif_skill_nodamage(&src->bl, bl, AL_HEAL, hp, 0);
 				sc_start(bl, type, 100, sg->skill_lv, sg->interval + 100);
 			}
 			break;
 
 		case UNT_VACUUM_EXTREME:
 			sc_start(bl, SC_VACUUM_EXTREME, 100, sg->skill_lv, sg->limit);
+			break;
+
+		case UNT_BANDING:
+			if( battle_check_target(ss,bl,BCT_ENEMY) > 0 && !(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE]) )
+				sc_start(bl,SC_BANDING_DEFENCE,100,50,2000 * sg->skill_lv);
 			break;
 		}
 
@@ -11481,8 +11527,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		}
 		break;
 	case LG_PRESTIGE:
-		if( sc && sc->data[SC_INSPIRATION] )
-		{
+		if( sc && (sc->data[SC_BANDING] || sc->data[SC_INSPIRATION]) ){
 			clif_skill_fail(sd,skill,0,0,0);
 			return 0;
 		}
@@ -12789,7 +12834,6 @@ int skill_sit (struct map_session_data *sd, int type)
 	int range = 0, lv;
 	nullpo_ret(sd);
 
-
 	if((lv = pc_checkskill(sd,RG_GANGSTER)) > 0) {
 		flag|=1;
 		range = skill_get_splash(RG_GANGSTER, lv);
@@ -12802,6 +12846,11 @@ int skill_sit (struct map_session_data *sd, int type)
 		flag|=2;
 		range = skill_get_splash(TK_SPTIME, lv);
 	}
+
+	if (type)
+		clif_status_load(&sd->bl, SI_SIT, 1);
+	else
+		clif_status_load(&sd->bl, SI_SIT, 0);
 
 	if (!flag) return 0;
 
@@ -13595,15 +13644,21 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 		case NC_NEUTRALBARRIER:
 			if( sc && sc->data[SC_NEUTRALBARRIER_MASTER] ){
 				sc->data[SC_NEUTRALBARRIER_MASTER]->val2 = 0;
-				status_change_end(src,SC_NEUTRALBARRIER_MASTER,-1);
+				status_change_end(src,SC_NEUTRALBARRIER_MASTER,INVALID_TIMER);
 			}
 			break;
 		case NC_STEALTHFIELD:
 			if( sc && sc->data[SC_STEALTHFIELD_MASTER] ){
 				sc->data[SC_STEALTHFIELD_MASTER]->val2 = 0;
-				status_change_end(src,SC_STEALTHFIELD_MASTER,-1);
+				status_change_end(src,SC_STEALTHFIELD_MASTER,INVALID_TIMER);
 			}
 			break;
+	case LG_BANDING:
+		if( sc && sc->data[SC_BANDING] ){
+			sc->data[SC_BANDING]->val4 = 0;
+			status_change_end(src,SC_BANDING,INVALID_TIMER);
+		}
+		break;
 	}
 
 	if (src->type==BL_PC && group->state.ammo_consume)
@@ -13848,6 +13903,20 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 					skill_delunit(unit);
 				}
 				break;
+
+			case UNT_BANDING:
+			{
+				struct block_list *src = map_id2bl(group->src_id);
+				struct status_change *sc;
+				if( !src || (sc = status_get_sc(src)) == NULL || !sc->data[SC_BANDING] ){
+					skill_delunit(unit);
+					break;
+				}
+				// This unit isn't removed while SC_BANDING is active.
+				group->limit = DIFF_TICK(tick+group->interval,group->tick);
+				unit->limit = DIFF_TICK(tick+group->interval,group->tick);
+ 			}
+ 			break;
 
 			default:
 				skill_delunit(unit);
