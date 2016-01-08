@@ -544,7 +544,7 @@ void initChangeTables(void)
 	set_sc( SO_FIREWALK         , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
 	set_sc( SO_ELECTRICWALK     , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
 	set_sc( SO_CLOUD_KILL       , SC_POISON			, SI_CLOUD_KILL		, SCB_NONE );
-	add_sc( SO_WARMER			, SC_WARMER			);
+	set_sc( SO_WARMER           , SC_WARMER         , SI_WARMER         , SCB_NONE );
 	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME	, SI_VACUUM_EXTREME	, SCB_NONE );
 	set_sc( SO_STRIKING         , SC_STRIKING		, SI_STRIKING		, SCB_WATK|SCB_CRI );
 	set_sc( SO_ARRULLO			, SC_DEEPSLEEP		, SI_DEEP_SLEEP		, SCB_NONE );
@@ -5631,7 +5631,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_SLOWDOWN:
 			case SC_MINDBREAKER:
 			case SC_WINKCHARM:
-			case SC_STOP:
+			//case SC_STOP: Some tests have determined that this status is not blocked by Nauthiz Rune
 			case SC_ORCISH:
 			case SC_STRIPWEAPON:
 			case SC_STRIPSHIELD:

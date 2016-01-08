@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/08/2016
+	r102 [15peaces]
+		*Merged missing changes from 3ceam rev. 413 - 415
+		*Fixed #6
+			-Thanks to @cold-hr.
+			-clif_buylist sent itemid where itemtype was expected.
+		*Managed some more clean-up and updates inside item_db.
+		*Fixed SO_SPELLFIST that was crashing map server when was used by a GM without restrictions.
+		*Minor fix in RK_REFRESH where it shouldn't block Stop status change.
+
 01/06/2016
 	r101 [15peaces]
 		*Merged missing changes from 3ceam rev. 401 - 412
