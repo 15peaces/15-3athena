@@ -182,10 +182,12 @@ Setting For Jobs In The Swordman Tree
 0x00004000,8 = Royal Guard
 --------------------------------
 Upper Jobs Table
-1 = Regular Jobs (Trans, Baby, and Third inherits this permission)
-2 = Trans Jobs (Third inherits this permission)
-4 = Baby Jobs
-8 = Third Jobs
+1 	= Regular Jobs (Trans, Baby, and Third inherits this permission)
+2 	= Trans Jobs (Third inherits this permission)
+4 	= Baby Jobs
+8 	= Third Jobs
+16	= Trans-3rd jobs
+24	= Baby 3rd jobs
 --------------------------------
 
 =Gender

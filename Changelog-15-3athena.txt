@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/13/2016
+	r103 [15peaces]
+		*Merged missing changes from 3ceam rev. 416 - 425
+		*Managed some more clean-up and updates inside item_db.
+		*Added 3rd class jobquest related warps.
+		*Added Mechanic and Ranger Jobchange Quests.
+		*Added battle_config.renewal_edp to enable / disable new EDP effects in some skills.
+		*Fixed 'guild_skill_relog_delay' that was not working properly.
+		*Some updates to documentation.
+		*Fixed GN_WALLOFTHORN that was malfunctioning.
+
 01/08/2016
 	r102 [15peaces]
 		*Merged missing changes from 3ceam rev. 413 - 415

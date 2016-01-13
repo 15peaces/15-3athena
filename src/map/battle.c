@@ -2221,6 +2221,22 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 			}
 
+			// Some skill under EDP status have been nerfed.
+			if( battle_config.renewal_edp && sc && sc->data[SC_EDP] ){
+				switch( skill_num ){
+					case AS_SONICBLOW:
+					case ASC_BREAKER:
+						if( battle_config.renewal_edp&1 )
+							skillratio >>= 1;
+						break;
+					case GC_CROSSIMPACT:
+					case GC_COUNTERSLASH:
+						if( battle_config.renewal_edp&2 )
+							skillratio >>= 1;// Half skillratio.
+						break;
+				}
+			}
+
 			ATK_RATE(skillratio);
 
 			//Constant/misc additions from skills
@@ -2263,12 +2279,29 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			if(sc->data[SC_TRUESIGHT])
 				ATK_ADDRATE(2*sc->data[SC_TRUESIGHT]->val1);
 
-			if(sc->data[SC_EDP] &&
-			  	skill_num != ASC_BREAKER &&
-				skill_num != ASC_METEORASSAULT &&
-				skill_num != AS_SPLASHER &&
-				skill_num != AS_VENOMKNIFE)
-				ATK_ADDRATE(sc->data[SC_EDP]->val3);
+			if(sc->data[SC_EDP] ){
+				switch( skill_num ){	
+					case ASC_METEORASSAULT:
+					case AS_SPLASHER:
+					case AS_VENOMKNIFE:
+					case ASC_BREAKER:
+						break;
+					case AS_GRIMTOOTH: // Grimtooth skill no longer takes the effect of Enchant Deadly Poison.
+					// Skill effects nerfed, don't add EDP effects.
+					case AS_SONICBLOW:
+						if( !(battle_config.renewal_edp&1) )
+							ATK_ADDRATE(sc->data[SC_EDP]->val3);
+						break;
+					case GC_CROSSIMPACT:
+					case GC_COUNTERSLASH:
+						if( !(battle_config.renewal_edp&2) )
+							ATK_ADDRATE(sc->data[SC_EDP]->val3);
+						break;
+					default:
+						ATK_ADDRATE(sc->data[SC_EDP]->val3);
+						break;
+				}
+			}
 		}
 
 		switch (skill_num) {
@@ -4939,6 +4972,7 @@ static const struct _battle_data {
 	{ "levels_effect_renewal_skills",		&battle_config.levels_effect_renewal_skills,	0,		0,		1,				},
 	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
 	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
+	{ "renewal_edp",                        &battle_config.renewal_edp,                      0,     0,      3,				},
 	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },

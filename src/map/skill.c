@@ -7841,15 +7841,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case GN_WALLOFTHORN:
-		if( skill_unitsetting(bl, skillid, skilllv, bl->x, bl->y, 0) ){
-			clif_skill_nodamage(src, src, skillid, skilllv, 1);
-		}else if( sd ){
-			clif_skill_fail(sd, skillid, 0, 0, 0);
-			return 0;
-		}
-		break;
-
 	case GN_MANDRAGORA:
 		if( flag & 1 )
 		{
@@ -8055,6 +8046,12 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 					ud->skillx = target->x;
 					ud->skilly = target->y;
 				}
+				ud->skilltimer=tid;
+				return skill_castend_pos(tid,tick,id,data);
+			case GN_WALLOFTHORN:
+				inf2 = skill_get_splash(ud->skillid, ud->skilllv);
+				ud->skillx = target->x;
+				ud->skilly = target->y;
 				ud->skilltimer=tid;
 				return skill_castend_pos(tid,tick,id,data);
 		}
@@ -8341,7 +8338,7 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 				if(ud->skillunit[i]->skill_id == ud->skillid)
 					maxcount--;
 			}
-			if( maxcount == 0 )
+			if( maxcount <= 0 )
 			{
 				if (sd) clif_skill_fail(sd,ud->skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -8703,15 +8700,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY, skill_castend_damage_id);
 		break;
 
-	case GN_WALLOFTHORN:
-		if( skill_unitsetting(src, skillid, skilllv, src->x, src->y, 0) )
-			clif_skill_nodamage(src, src, skillid, skilllv, 1);
-		else if( sd ){
-			clif_skill_fail(sd, skillid, 0, 0,0);
-			return 0;
-		}
-		break;
-
 	case GN_FIRE_EXPANSION:
 		{
 			int i;
@@ -8859,6 +8847,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_DIAMONDDUST:
 	case SO_PSYCHIC_WAVE:
 	case SO_VACUUM_EXTREME:
+	case GN_WALLOFTHORN:
 	case GN_THORNS_TRAP:
 	case GN_CRAZYWEED:
 	case GN_DEMONIC_FIRE:

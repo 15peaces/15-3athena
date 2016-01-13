@@ -517,6 +517,7 @@ extern struct Battle_Config
 	int levels_effect_renewal_skills;
 	int base_level_skill_effect_limit;
 	int job_level_skill_effect_limit;
+	int renewal_edp;
 	int cashshop_price_rate;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
