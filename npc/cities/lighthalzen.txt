@@ -2062,7 +2062,7 @@ lhz_in02,31,33,3	script	Gracie#5	1,102,-1,863,{
 
 lhz_in02,21,38,7	script	Bank Clerk#1::BankClerk	1,102,-1,86,{
 	mes "[Bank Clerk]";
-	if(getbattleflag("feature.episode") > 102){
+	if(getepisode() > 102){
 		mes "Due to some critical system";
 		mes "errors, all of the bank services";
 		mes "have been temporarily stopped.";

@@ -17809,6 +17809,15 @@ BUILDIN_FUNC(showscript) {
 	return 0;
 }
 
+/**
+ * Returns the episode the server is running on.
+ * checkepisode;
+ **/
+BUILDIN_FUNC(getepisode) {
+	script_pushint(st,battle_config.feature_episode);
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -18278,5 +18287,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_script,"si????"),
 	BUILDIN_DEF(bonus_script_clear,"??"),
 	BUILDIN_DEF(showscript,"s?"),
+	BUILDIN_DEF(getepisode,""),
 	{NULL,NULL,NULL},
 };

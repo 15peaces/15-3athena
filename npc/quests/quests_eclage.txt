@@ -885,7 +885,7 @@ ecl_fild01,192,94,4	script	Golie#ep14_2	442,{
 	close;
 }
 
-eclage,283,275,4	script	Glaces#ep14_2	4363,{
+eclage,283,275,4	script	Glaces#ep14_2	438,{
 	mes "[Glaces]";
 	if (ep14_2_oliver < 7) {
 		mes "Hm......";
@@ -3581,7 +3581,7 @@ eclage,200,272,4	script	Masione#eclbig	4362,{
 	close;
 }
 
-eclage,163,228,4	script	Goatie#eclbig	4363,{
+eclage,163,228,4	script	Goatie#eclbig	438,{
 	callfunc "WeightBigQuest";
 	mes "[Goatie]";
 	if (ep14_2_big == 10) {
@@ -4143,7 +4143,7 @@ eclage,106,61,4	script	Markoza#eclbig	444,{
 	close;
 }
 
-ecl_in02,168,41,2	script	Pambo#eclbig	4363,{
+ecl_in02,168,41,2	script	Pambo#eclbig	438,{
 	mes "[Pambo]";
 	mes "Do you like things that twinkle?";
 	next;
@@ -11258,7 +11258,7 @@ ecl_fild01,83,263,5	script	Watering Laphine#1	444,{
 	close;
 }
 
-ecl_fild01,163,196,5	script	Dancing Laphine#1	4363,{
+ecl_fild01,163,196,5	script	Dancing Laphine#1	438,{
 	mes "[Dancing Laphine]";
 	if (ep14_2_nines < 1)
 		mes "It's important to warm up like this before you start dancing. One, two, three, four....";

@@ -1165,6 +1165,7 @@
 2174,Lumiere_Shield,Lumiere Shield,5,20,,1300,,6,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2175,Esprit_Shield,Spirit Shield,5,20,,1300,,6,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2176,Dark_Book,Black Book,5,20,,500,,9,,1,0xFFFFFFFF,63,2,32,,65,1,5,{ bonus bMdef,5; set .@r, getrefine(); if (.@r<=6) set .@rate,10; else if (.@r<=8) set .@rate,20; else set .@rate,30; bonus3 bAutoSpellWhenHit,"NPC_DRAGONFEAR",1,.@rate; },{},{}
+2177,Shield_Of_Death,Shield Of Death,5,20,,2000,,17,,1,0xFFFFFFFF,63,2,32,,90,1,3,{ bonus2 bAddRace,RC_Boss,2; bonus2 bMagicAddRace,RC_Boss,2; bonus2 bAddRace,RC_NonBoss,10; bonus2 bMagicAddRace,RC_NonBoss,10; },{},{}
 
 2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
 // Headgears
@@ -1441,6 +1442,11 @@
 2468,Aqua_Shoes,Aqua Shoes,5,20,,500,,12,,1,0x00000000,7,2,64,,100,1,0,{ bonus bMdef,2; },{},{}
 2469,Crimson_Shoes,Crismons Shoes,5,20,,500,,12,,1,0x00000000,7,2,64,,100,1,0,{ bonus bMdef,2; },{},{}
 2470,Forest_Shoes,Forest Shoes,5,20,,500,,12,,1,0x00000000,7,2,64,,100,1,0,{ bonus bMdef,2; },{},{}
+
+2491,Bangungot_Boots,Bangungot Boots of Nightmare,5,20,,600,,1,,0,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=14){ bonus bSpeedRate,25; } },{},{}
+2492,Bayani_Bangungot_Boots,Bayani Bangungot Boots of Nightmare,5,20,,600,,1,,1,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=12){ bonus bSpeedRate,25; } },{},{}
+
+2495,Egir_Shoes,Egir Shoes,5,200000,,300,,1,,1,0xFFFFFFFF,63,2,64,,110,1,0,{ if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus bMaxHP,BaseLevel*5; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus bMaxSP,JobLevel*2; },{},{}
 // Garments
 //===================================================================
 2501,Hood,Hood,5,1000,,200,,1,,0,0xFFFFFFFF,7,2,4,,0,1,0,{},{},{}
@@ -1484,7 +1490,7 @@
 2539,Commander_Manteau_,Commander's Manteau,5,10,,0,,3,,1,0x00898B1C,7,2,4,,80,1,0,{ bonus bMaxHP,50; bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,1; },{},{}
 2540,Sheriff_Manteau,Sheriff's Manteau,5,10,,0,,3,,1,0x01000000,7,2,4,,80,1,0,{ bonus bMaxHP,50; bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,1; },{},{}
 2541,Asprika,Asprika,5,20,,400,,5,,0,0xFFFFFFFF,7,2,4,,94,0,0,{ bonus bMdef,5; bonus3 bSubEle,Ele_Neutral,30,BF_SHORT; bonus3 bSubEle,Ele_Water,30,BF_SHORT; bonus3 bSubEle,Ele_Earth,30,BF_SHORT; bonus3 bSubEle,Ele_Fire,30,BF_SHORT; bonus3 bSubEle,Ele_Wind,30,BF_SHORT; bonus3 bSubEle,Ele_Poison,30,BF_SHORT; bonus3 bSubEle,Ele_Holy,30,BF_SHORT; bonus3 bSubEle,Ele_Dark,30,BF_SHORT; bonus3 bSubEle,Ele_Ghost,30,BF_SHORT; bonus3 bSubEle,Ele_Undead,30,BF_SHORT; bonus bFlee,30; skill "AL_TELEPORT",1; bonus bUnbreakableGarment,0; },{},{}
-2542,Flame_Manteau,Flame Manteau of Naght Sieger,5,20,,70,,4,,1,0xFFFFFFFE,2,2,4,,70,1,0,{ bonus bMaxHPRate,5; bonus bMdef,2; bonus bMatkRate,1; bonus2 bAddEle,Ele_Fire,2; },{},{}
+2542,Flame_Manteau,Flame Manteau of Naght Sieger,5,20,,700,,4,,1,0xFFFFFFFE,18,2,4,,70,1,0,{ bonus bMaxHPrate,5; bonus bMdef,2; bonus bMatkRate,1; bonus2 bAddEle,Ele_Fire,2; },{},{}
 2543,Sylphid_Manteau,Sylphid Manteau,5,20,,0,,9,,0,0xFFFFFFFF,7,2,4,,0,0,0,{ bonus bFlee,13; bonus2 bSubEle,Ele_Neutral,13; bonus bFlee2,1; },{},{}
 2544,Leather_Of_Tendrilion,Leather of Tendrilion,5,20,,300,,3,,1,0x00CFDF80,2,2,4,,0,1,0,{ bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubRace,RC_Plant,5; bonus2 bSubRace,RC_Brute,5; },{},{}
 2545,Musika,Musika,5,20,,500,,2,,1,0x00008100,2,2,4,,70,1,0,{ bonus bMdef,3; bonus3 bAutoSpellwhenhit,"AL_HEAL",getskilllv("AL_HEAL") ? getskilllv("AL_HEAL") : 1,20; },{},{}
@@ -1515,6 +1521,7 @@
 
 2576,Bravery_Bag,Adventurer's Backpack,5,0,,200,,2,,1,0xFFFFFFFF,63,2,4,,0,1,2,{ skill "BS_GREED",1; set .@r, getrefine(); if(.@r>6) { if(readparam(bStr)>=90){ bonus bBaseAtk,20; } if(readparam(bInt)>=90){ bonus bMatk,30; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,10; } if(readparam(bAgi)>=90){ bonus bAspdRate,8; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,10; } } if(.@r>8) { if(readparam(bStr)>=90){ bonus bBaseAtk,10; } if(readparam(bInt)>=90){ bonus bMatk,20; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,5; } if(readparam(bAgi)>=90){ bonus bAspd,1; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,5; } } },{},{}
 
+2590,Buwaya_Cloth,Buwaya Sack Cloth,5,20,,200,,1,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r/3; bonus bAddItemHealRate,.@r/3; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
 // Accessories
 //===================================================================
 2601,Ring,Ring,5,30000,,100,,0,,0,0xFFFFFFFE,7,2,136,,20,0,0,{ bonus bStr,2; },{},{}

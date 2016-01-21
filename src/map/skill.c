@@ -9631,6 +9631,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case GN_WALLOFTHORN:
 		if( flag&1 )
 			limit = 3000;
+		val3 = (x<<16)|y;
 		break;
 	}
 

@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/21/2016
+	r104 [15peaces]
+		*Merged missing changes from 3ceam rev. 426 - 427
+		*Managed some more clean-up and updates inside item_db.
+		*added getepisode() script command
+			-you'll no longer need to check the battle configs directly.
+			-This functions will return the episode the server is running on.
+		*Fixed some typos in eclage quests.
+		*Fixed GN_WALLOFTHORN that wasn't placing Fire Wall in the same place where the wall of thorns was placed.
+		*Fixed GC_CLOAKINGEXCEED. Added some confirmed skills that affect to cloakingexceeded targets.
+
 01/13/2016
 	r103 [15peaces]
 		*Merged missing changes from 3ceam rev. 416 - 425

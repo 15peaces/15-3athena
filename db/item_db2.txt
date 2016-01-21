@@ -544,12 +544,7 @@
 // incomplete (renewal)
 15058,Rider_Suit,Rider Suit,5,20,,1000,0,40,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); },{},{}
 
-// Monster Transformation Items and others
-2177,Shield_Of_Death,Shield Of Death,5,20,,2000,,150,,1,0xFFFFFFFF,63,2,32,,90,1,3,{ bonus2 bAddClass,Class_Boss,2; bonus2 bMagicAddClass,Class_Boss,2; bonus2 bAddClass,Class_Normal,10; bonus2 bMagicAddClass,Class_Normal,10; },{},{}
-2491,Bangungot_Boots,Bangungot Boots of Nightmare,5,20,,600,,10,,0,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=14){ bonus bSpeedRate,25; } },{},{}
-2492,Bayani_Bangungot_Boots,Bayani Bangungot Boots of Nightmare,5,20,,600,,10,,1,0xFFFFFFFF,63,2,64,,1,1,0,{ set .@r, getrefine(); bonus bMdef,.@r; if(.@r>=12){ bonus bSpeedRate,25; } },{},{}
-2495,Egir_Shoes,Egir Shoes,5,200000,,300,,13,,1,0xFFFFFFFF,63,2,64,,110,1,0,{ if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus bMaxHP,BaseLevel*5; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus bMaxSP,JobLevel*2; },{},{}
-2590,Buwaya_Cloth,Buwaya Sack Cloth,5,20,,200,,8,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r/3; bonus bAddItemHealRate,.@r/3; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
+// Monster Transformation Items and others (renewal)
 2591,Bayani_Buwaya_Cloth,Bayani Buwaya Sack Cloth,5,20,,200,,8,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r; bonus bAddItemHealRate,.@r; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
 2592,Boss_Brownie_Manteau,Boss Brownie Manteau,5,20,,100,,3,,0,0xFFFFFFFF,63,2,4,,50,1,0,{},{},{}
 2593,Flow_Manteau,Flow Manteau,5,20,,700,,20,,1,0xFFFFFFFF,63,2,4,,65,1,0,{},{},{}
@@ -1125,13 +1120,13 @@
 18568,Humming_Bird,Humming Bird,5,20,,100,,3,,0,0xFFFFFFFF,63,2,256,,10,0,702,{ bonus bMdef,6; },{},{}
 18570,Ancient_Gold_Deco,Ancient Gold Ornament,5,20,,400,,7,,1,0xFFFFFFFE,63,2,256,,100,1,739,{ if(BaseLevel >= 150) { bonus bAllStats,2; } if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief){ bonus2 bAddClass,Class_All,8; } if(BaseClass==Job_Mage||BaseClass==Job_Acolyte){ bonus bMatk,8; } if(BaseClass==Job_Archer){ bonus bDex,3; bonus bLongAtkRate,10; } },{},{}
 18571,Lucky_Hat,Lucky Hat,5,20,,1000,,0,,1,0xFFFFFFFF,63,2,256,,0,0,740,{ bonus2 bExpAddRace,RC_All,3; },{},{}
-18574,Lord_of_Death,Lord of Death,5,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,70,1,742,{ bonus bMdef,5; set .@r,getrefine(); bonus2 bAddClass,Class_Boss,(.@r>5?.@r+5:10); bonus2 bMagicAddClass,Class_Boss,(.@r>5?.@r+5:10); bonus2 bSubClass,Class_Normal,-5; },{},{}
+18574,Lord_of_Death,Lord of Death,5,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,70,1,742,{ bonus bMdef,5; set .@r,getrefine(); bonus2 bAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bMagicAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bSubClass,Class_Normal,-5; },{},{}
 18575,Wunderkammer,Wunderkammer,5,20,,500,,10,,1,0xFFFFFFFF,63,2,769,,20,0,743,{ bonus bMdef,10; },{},{}
 18576,YinYang_Earring,YinYang Earring,5,20,,100,,0,,0,0xFFFFFFFF,63,2,512,,50,0,744,{ bonus2 bSkillAtk,"MO_CHAINCOMBO",10; bonus2 bSkillAtk,"MO_TRIPLEATTACK",5; bonus2 bSkillAtk,"MO_COMBOFINISH",5; bonus2 bSkillUseSP,"MO_CHAINCOMBO",1; bonus2 bSkillUseSP,"MO_COMBOFINISH",1; },{},{}
 18577,24_Bolt,24 Bolt,5,20,,200,,0,,0,0xFFFFFFFF,63,2,512,,10,0,696,{},{},{}
 18578,Helm_Of_Valor,Helm Of Valor,5,0,,0,,4,,0,0xFFFFFFFF,63,2,256,,0,0,258,{ bonus2 bAddRace,RC_All,3; },{},{}
 18579,9th_Anni_Hat,9th Anni Hat,5,0,,90,,0,,0,0xFFFFFFFF,63,2,256,,0,1,745,{ bonus bMdef,9; },{},{}
-18595,Horn_Of_Ancient,Horn of Ancient,5,40,,200,,8,,1,0xFFFFFFFF,63,2,256,,50,1,757,{ bonus2 bSubRace,RC_Boss,10; bonus2 bAddClass,Class_Boss,10; set .@r,getrefine(); if (.@r > 6) { autobonus "{ bonus bBaseAtk,100; }",10,10000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; } if (.@r > 8) { bonus2 bSubRace,RC_Boss,10; bonus2 bAddClass,Class_Boss,10; } },{},{}
+18595,Horn_Of_Ancient,Horn of Ancient,5,40,,200,,8,,1,0xFFFFFFFF,63,2,256,,50,1,757,{ bonus2 bSubRace,RC_Boss,10; bonus2 bAddRace,RC_Boss,10; set .@r,getrefine(); if (.@r > 6) { autobonus "{ bonus bBaseAtk,100; }",10,10000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; } if (.@r > 8) { bonus2 bSubRace,RC_Boss,10; bonus2 bAddRace,RC_Boss,10; } },{},{}
 18596,Sprout_Hat,Sprout Hat,5,20,,200,,4,,0,0xFFFFFFFF,63,2,256,,70,1,758,{ skill "WZ_HEAVENDRIVE",3; },{},{}
 18597,Mercury_Riser,Mercury Riser,5,40,,200,,10,,1,0xFFFFFFFF,63,2,256,,0,1,759,{ bonus2 bSubRace,RC_DemiHuman,10; bonus2 bAddRace,RC_DemiHuman,10; bonus bAspdRate,3; bonus bCritical,3; if(getrefine() >= 7) { bonus bAspdRate,2; bonus bCritical,2; } if(getrefine() >= 9) { bonus bAspdRate,2; bonus bCritical,2;}},{},{}
 18598,Mini_Tree_J,Mini Tree J,5,20,,50,,0,,1,0xFFFFFFFF,63,2,256,,0,0,727,{ bonus bMdef,20; },{},{}
@@ -1693,7 +1688,6 @@
 2539,Commander_Manteau_,Commander's Manteau,5,10,,0,,20,,1,0x00898B1C,63,2,4,,80,1,0,{ bonus bMaxHP,50; bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,1; bonus2 bSubRace,RC_DemiHuman,1; },{},{}
 2540,Sheriff_Manteau,Sheriff's Manteau,5,10,,0,,20,,1,0x41000000,63,2,4,,80,1,0,{ bonus bMaxHP,50; bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,1; bonus2 bSubRace,RC_DemiHuman,1; },{},{}
 2541,Asprika,Asprika,5,20,,400,,40,,0,0xFFFFFFFF,63,2,4,,94,0,0,{ bonus bMdef,5; bonus3 bSubEle,Ele_Neutral,30,BF_SHORT; bonus3 bSubEle,Ele_Water,30,BF_SHORT; bonus3 bSubEle,Ele_Earth,30,BF_SHORT; bonus3 bSubEle,Ele_Fire,30,BF_SHORT; bonus3 bSubEle,Ele_Wind,30,BF_SHORT; bonus3 bSubEle,Ele_Poison,30,BF_SHORT; bonus3 bSubEle,Ele_Holy,30,BF_SHORT; bonus3 bSubEle,Ele_Dark,30,BF_SHORT; bonus3 bSubEle,Ele_Ghost,30,BF_SHORT; bonus3 bSubEle,Ele_Undead,30,BF_SHORT; bonus bFlee,30; skill "AL_TELEPORT",1; bonus bUnbreakableGarment,1; },{},{}
-2542,Flame_Manteau,Flame Manteau of Naght Sieger,5,20,,700,,16,,1,0xFFFFFFFE,18,2,4,,70,1,0,{ bonus bMaxHPrate,5; bonus bMdef,2; bonus bMatkRate,1; bonus2 bAddEle,Ele_Fire,2; },{},{}
 4489,Sealed_Pharaoh_Card,Sealed Pharaoh Card,6,20,,10,,,,,,,,769,,,,,{ bonus bUseSPrate,-15; },{},{}
 4490,Sealed_M_Flower_Card,Sealed Moonlight Flower Card,6,20,,10,,,,,,,,64,,,,,{ skill "AL_INCAGI",((getrefine()>14)?5:1); },{},{}
 4491,Sealed_B_Shecil_Card,Sealed Sniper Card,6,20,,10,,,,,,,,2,,,,,{ bonus bHPrecovRate,-100; bonus2 bHPDrainRate,50,((getrefine()>14)?15:10); },{},{}
@@ -1871,3 +1865,25 @@
 19702,C_Twin_Pompom_By_JB,Costume Twin Pompom By JB,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,390,{},{},{}
 19706,C_Red_Dress_Hat,Costume Red Dress Hat,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,670,{},{},{}
 19707,C_Polar_Bear_Cap,Costume Polar Bear Cap,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,0,0,966,{ bonus bUnbreakableHelm,1; },{},{}
+
+// Missing quest items
+6543,Lv110_Achieved_Coin,Lv110 Achieved Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6544,Lv120_Achieved_Coin,Lv120 Achieved Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6545,Firm_Hair,Firm Hair,3,0,,0,,,,,,,,,,,,,{},{},{}
+6546,Younger_Bro_Letter,Younger Bro Letter,3,0,,0,,,,,,,,,,,,,{},{},{}
+6547,Stained_Research_Book,Stained Research Book,3,0,,0,,,,,,,,,,,,,{},{},{}
+6548,Piece_Of_Lapine_Wing,Piece Of Lapine Wing,3,0,,0,,,,,,,,,,,,,{},{},{}
+6549,Courtesy_Ticket,Courtesy Ticket,3,0,,0,,,,,,,,,,,,,{},{},{}
+6550,Brownie_Ticket,Brownie Ticket,3,20,,0,,,,,,,,,,,,,{},{},{}
+6551,RWC_Spirit_Auger,RWC Spirit Auger,3,0,,10,,,,,,,,,,,,,{},{},{}
+6552,Mail_Package,Mail Package,3,0,,0,,,,,,,,,,,,,{},{},{}
+6553,Leaf_Made_Wood,Leaf Made Wood,3,0,,0,,,,,,,,,,,,,{},{},{}
+6554,Seed_Box,Seed Box,3,0,,0,,,,,,,,,,,,,{},{},{}
+6555,Birthday_Candle,Birthday Candle,3,0,,0,,,,,,,,,,,,,{},{},{}
+6556,Nespresso_Ticket,Nespresso Ticket,3,0,,10,,,,,,,,,,,,,{},{},{}
+6557,Fancy_Fairy_Wing,Fancy Fairy Wing,3,2350,,10,,,,,,,,,,,,,{},{},{}
+6558,Pile_Of_Acorn,Pile Of Acorn,3,1500,,10,,,,,,,,,,,,,{},{},{}
+6559,Eye_Drops,Eye Drops,3,1780,,10,,,,,,,,,,,,,{},{},{}
+6560,Leaf_Bookmark,Leaf Bookmark,3,3000,,10,,,,,,,,,,,,,{},{},{}
+6561,Dustball,Dustball,3,2000,,10,,,,,,,,,,,,,{},{},{}
+6562,Tiny_Mouse_Tail,Tiny Mouse Tail,3,0,,0,,,,,,,,,,,,,{},{},{}
