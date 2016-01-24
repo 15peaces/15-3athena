@@ -539,6 +539,7 @@ extern struct Battle_Config
 	int feature_roulette;
 	//Episode System [15peaces]
 	int feature_episode;
+	int episode_readdb;
 } battle_config;
 
 void do_init_battle(void);

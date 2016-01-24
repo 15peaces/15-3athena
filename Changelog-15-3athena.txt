@@ -4,6 +4,29 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/24/2016
+	r105 [15peaces]
+		*Merged missing changes from 3ceam rev. 428 - 433
+		*2012-04-10 Client update
+			-Added support for the "favorite item tab" feature. Thanks to rAthana/Judas, credits to Fatal Error.
+			-This feature requires 2011-11-22aRagexeRE or newer to work. So 2012-04-10aRagexeRE is the first client for us.
+			-Be aware this update requires a new column in the inventory db, run upgrade_15-3athena_svn105.sql in your database.
+		*Another instance system fix.
+			-fixed instance_mapid2imapid function.
+		*Episode System update
+			-added documentation about the whole system.
+			-added basic support for episode specific databases.
+			-added some episode 2 support. Thanks to  DoJo~*/Aegis
+			-Note: the item_db for episode 2 is currently in progress and not ready-to-use.
+		*Fixed SC_DEEPSLEEP that wasn't stopping attacks on monster.
+		*Fixed status_check_skilluse. Added unsupported skill level.
+		*Fixed SO_EARTHGRAVE and SO_DIAMONDDUST according to the official behavior.
+		*Fixed clif_blown where this should send clif_slide and clif_fixpos as official server to refresh the client correctly.
+		*Fixed battle_calc_return_damage that was returning short ranged magic damage.
+		*Fixed SO_VARETYR_SPEAR that should deal magic and physical damage.
+		*Fixed SO_POISON_BUSTER damage formula.
+		*Minor fix in SO_CLOUD_KILL that should deal damage every 0,5 seconds instead of 0,3.
+
 01/21/2016
 	r104 [15peaces]
 		*Merged missing changes from 3ceam rev. 426 - 427

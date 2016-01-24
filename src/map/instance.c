@@ -182,12 +182,9 @@ int instance_map2imap(int m, int instance_id)
  	int i;
 
 	if( !instance_is_valid(instance_id) )
-	{
 		return -1;
-	}
-	
-	for( i = 0; i < instance[instance_id].num_map; i++ )
- 	{
+
+	for( i = 0; i < instance[instance_id].num_map; i++ ){
 		if( instance[instance_id].map[i] && map[instance[instance_id].map[i]].instance_src_map == m )
 			return instance[instance_id].map[i];
  	}
@@ -216,11 +213,9 @@ int instance_mapname2imap(const char *map_name, int instance_id) {
  *--------------------------------------*/
 int instance_mapid2imapid(int m, int instance_id)
 {
-	int i, max;
-
 	if( map[m].flag.src4instance == 0 )
 		return m; // not instances found for this map
-	else if( map[m].instance_id >= 0 )
+	else if( map[m].instance_id > 0 )
 	{ // This map is a instance, not a src map instance
 		ShowError("instance_mapid2imapid: already instanced (%d / %d)\n", m, instance_id);
 		return -1;
@@ -229,13 +224,7 @@ int instance_mapid2imapid(int m, int instance_id)
 	if( !instance_is_valid(instance_id) )
 		return -1;
 
-	max = instance[instance_id].num_map;
-
-	for( i = 0; i < max; i++ )
-		if( map[instance[instance_id].map[i]].instance_src_map == m )
-			return instance[instance_id].map[i];
-
-	return -1;
+	return(instance_map2imap(m, instance_id));
 }
 
 /*--------------------------------------

@@ -2212,7 +2212,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += skillratio * (base_lv - 100) / 200;
 					skillratio += 50 * pc_checkskill(sd,LK_SPIRALPIERCE);//Bonus damage.
 					break;
-
+				case SO_VARETYR_SPEAR: //Assumed Formula.
+					skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 );
+					break;
 				case KO_HUUMARANKA:
 					skillratio += -100 + 150 * skill_lv + status_get_agi(src) + status_get_dex(src) + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 0);
 					break;
@@ -3169,22 +3171,19 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += -100 + 300 * ( status_get_lv(src) * 3 / 100 );
 						break;
 					case SO_EARTHGRAVE:
-						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 )
-							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
 						break;
 					case SO_DIAMONDDUST:
-						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 )
-							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
 						break;
-					case SO_POISON_BUSTER: // Need official formula. [LimitLine]
-						skillratio += 300 + 100 * skill_lv;
+					case SO_POISON_BUSTER:
+						skillratio += 165 * skill_lv;
 						break;
 					case SO_PSYCHIC_WAVE:
 						skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
-						skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 )
-							+ ( sstatus->int_ * skill_lv * status_get_lv(src) / 100 );
+						skillratio += -100 + (sstatus->int_ * skill_lv * status_get_lv(src) / 100);
 						break;
 					case SO_CLOUD_KILL:
 						skillratio += -100 + skill_lv * 40 * status_get_lv(src) / 100;
@@ -3375,6 +3374,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		struct Damage md = battle_calc_magic_attack(src,target,skill_num,-skill_lv,mflag);
 		ad.damage += md.damage;
 	}
+
+	if( skill_num == SO_VARETYR_SPEAR )
+	{ // Physical damage.
+		struct Damage wd = battle_calc_weapon_attack(src,target,skill_num,skill_lv,mflag);
+		ad.damage += wd.damage;
+	}
+
 	return ad;
 }
 
@@ -3725,7 +3731,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 	}
 
 	//Bounces back part of the damage.
-	else if (flag & BF_SHORT) {
+	else if( (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT ) {
 		if (sd && sd->short_weapon_damage_return)
 		{
 			rdamage += (*damage) * sd->short_weapon_damage_return / 100;
@@ -3922,13 +3928,11 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
 		status_change_end(src,SC_CAMOUFLAGE, INVALID_TIMER);
 
-	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, 1) )
-	{
+	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, tsc->data[SC_AUTOCOUNTER]->val1, 1) ){
 		int dir = map_calc_dir(target,src->x,src->y);
 		int t_dir = unit_getdir(target);
 		int dist = distance_bl(src, target);
-		if(dist <= 0 || (!map_check_dir(dir,t_dir) && dist <= tstatus->rhw.range+1))
-		{
+		if(dist <= 0 || (!map_check_dir(dir,t_dir) && dist <= tstatus->rhw.range+1)){
 			int skilllv = tsc->data[SC_AUTOCOUNTER]->val1;
 			clif_skillcastcancel(target); //Remove the casting bar. [Skotlex]
 			clif_damage(src, target, tick, sstatus->amotion, 1, 0, 1, 0, 0); //Display MISS.
@@ -3938,8 +3942,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 	}
 
-	if( tsc && tsc->data[SC_BLADESTOP_WAIT] && !is_boss(src) && (src->type == BL_PC || tsd == NULL || distance_bl(src, target) <= (tsd->status.weapon == W_FIST ? 1U : 2U)) )
-	{
+	if( tsc && tsc->data[SC_BLADESTOP_WAIT] && !is_boss(src) && (src->type == BL_PC || tsd == NULL || distance_bl(src, target) <= (tsd->status.weapon == W_FIST ? 1U : 2U)) ){
 		int skilllv = tsc->data[SC_BLADESTOP_WAIT]->val1;
 		int duration = skill_get_time2(MO_BLADESTOP,skilllv);
 		status_change_end(target, SC_BLADESTOP_WAIT, INVALID_TIMER);
@@ -3952,8 +3955,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 	}
 
-	if(sd && (skillv = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0)
-	{
+	if(sd && (skillv = pc_checkskill(sd,MO_TRIPLEATTACK)) > 0){
 		int triple_rate= 30 - skillv; //Base Rate
 		if (sc && sc->data[SC_SKILLRATE_UP] && sc->data[SC_SKILLRATE_UP]->val1 == MO_TRIPLEATTACK)
 		{
@@ -4166,7 +4168,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			(rand()%100 < tsc->data[SC_POISONREACT]->val3
 			|| sstatus->def_ele == ELE_POISON) &&
 //			check_distance_bl(src, target, tstatus->rhw.range+1) && Doesn't checks range! o.O;
-			status_check_skilluse(target, src, TF_POISON, 0)
+			status_check_skilluse(target, src, TF_POISON, tsc->data[SC_POISONREACT]->val1, 0)
 		) {	//Poison React
 			struct status_change_entry *sce = tsc->data[SC_POISONREACT];
 			if (sstatus->def_ele == ELE_POISON) {
@@ -4998,6 +5000,7 @@ static const struct _battle_data {
 	{ "feature.roulette",                   &battle_config.feature_roulette,                1,      0,      1,              }, 
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
+	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
 };
 
 

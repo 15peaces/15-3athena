@@ -1156,15 +1156,24 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	return true;
 }
 
-/*==========================================
- * アイテムデータベースの読み込み
- *------------------------------------------*/
+/**
+* Read item from item db
+* item_db2 overwriting item_db
+*/
 static int itemdb_readdb(void)
 {
 	const char* filename[] = { "item_db.txt", "item_db2.txt" };
-	int fi;
+	char epfile[256];
+	int fi, files;
 
-	for( fi = 0; fi < ARRAYLENGTH(filename); ++fi )
+	sprintf(epfile, "item_db_ep%i.txt", battle_config.feature_episode);
+
+	files = ARRAYLENGTH(filename);
+
+	if(battle_config.episode_readdb)
+		files = 1;
+
+	for( fi = 0; fi < files; ++fi )
 	{
 		uint32 lines = 0, count = 0;
 		char line[1024];
@@ -1172,11 +1181,16 @@ static int itemdb_readdb(void)
 		char path[256];
 		FILE* fp;
 
-		sprintf(path, "%s/%s", db_path, filename[fi]);
+		if(battle_config.episode_readdb)
+			sprintf(path, "%s/episode/%s", db_path, epfile);
+		else
+			sprintf(path, "%s/%s", db_path, filename[fi]);
 		fp = fopen(path, "r");
 		if( fp == NULL )
 		{
 			ShowWarning("itemdb_readdb: File not found \"%s\", skipping.\n", path);
+			if(battle_config.episode_readdb)
+				ShowWarning("itemdb_readdb: Please create episode specific file or disable episode.readdb.\n");
 			continue;
 		}
 
@@ -1261,7 +1275,10 @@ static int itemdb_readdb(void)
 
 		fclose(fp);
 
-		ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, filename[fi]);
+		if(battle_config.episode_readdb)
+			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, epfile);
+		else
+			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, filename[fi]);
 	}
 
 	return 0;

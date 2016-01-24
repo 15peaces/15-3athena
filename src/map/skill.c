@@ -1839,11 +1839,11 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	if (src != dsrc) {
 		//When caster is not the src of attack, this is a ground skill, and as such, do the relevant target checking. [Skotlex]
-		if (!status_check_skilluse(battle_config.skill_caster_check?src:NULL, bl, skillid, 2))
+		if( !status_check_skilluse(battle_config.skill_caster_check?src:NULL, bl, skillid, skilllv, 2) )
 			return 0;
 	} else if ((flag&SD_ANIMATION) && skill_get_nk(skillid)&NK_SPLASH) {
 		//Note that splash attacks often only check versus the targetted mob, those around the splash area normally don't get checked for being hidden/cloaked/etc. [Skotlex]
-		if (!status_check_skilluse(src, bl, skillid, 2))
+		if( !status_check_skilluse(src, bl, skillid, skilllv, 2) )
 			return 0;
 	}
 
@@ -2071,6 +2071,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		break;
 	case WL_SOULEXPANSION:
 	case WL_COMET:
+	case SO_EARTHGRAVE:
+	case SO_DIAMONDDUST:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,skilllv,8);
 		break;
 	case WL_CHAINLIGHTNING_ATK:
@@ -3524,6 +3526,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
+	case SO_EARTHGRAVE:
+	case SO_DIAMONDDUST:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -8125,7 +8129,7 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 		}
 
 		//Avoid doing double checks for instant-cast skills.
-		if (tid != INVALID_TIMER && !status_check_skilluse(src, target, ud->skillid, 1))
+		if( tid != INVALID_TIMER && !status_check_skilluse(src, target, ud->skillid, ud->skilllv, 1) )
 			break;
 
 		if(md) {
@@ -8347,7 +8351,7 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 
 		if(tid != INVALID_TIMER)
 		{	//Avoid double checks on instant cast skills. [Skotlex]
-			if (!status_check_skilluse(src, NULL, ud->skillid, 1))
+			if( !status_check_skilluse(src, NULL, ud->skillid, ud->skilllv, 1) )
 				break;
 			if(battle_config.skill_add_range &&
 				!check_distance_blxy(src, ud->skillx, ud->skilly, skill_get_range2(src,ud->skillid,ud->skilllv)+battle_config.skill_add_range)) {
@@ -8508,6 +8512,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case NC_ARMSCANNON:
 	case RK_DRAGONBREATH:
 	case WM_LULLABY_DEEPSLEEP:
+	case SO_EARTHGRAVE:
+	case SO_DIAMONDDUST:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub,
 		src->m, x-i, y-i, x+i, y+i, BL_CHAR,
@@ -8843,8 +8849,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case WM_REVERBERATION:
 	case WM_SEVERE_RAINSTORM:
 	case WM_POEMOFNETHERWORLD:
-	case SO_EARTHGRAVE:
-	case SO_DIAMONDDUST:
 	case SO_PSYCHIC_WAVE:
 	case SO_VACUUM_EXTREME:
 	case GN_WALLOFTHORN:
@@ -9795,8 +9799,8 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, un
 	sc = status_get_sc(bl);
 	ssc = status_get_sc(ss);
 
-	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != RA_ARROWSTORM && sg->skill_id != SO_EARTHGRAVE )
-		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive and Earth Strain. [Skotlex], Include Arrow Storm and Earth Grave. [Jobbie]
+	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != RA_ARROWSTORM )
+		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive and Earth Strain. [Skotlex], include Arrow Storm. [Jobbie]
 
 	type = status_skill2sc(sg->skill_id);
 	sce = (sc && type != -1)?sc->data[type]:NULL;
@@ -12925,8 +12929,7 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 	if (skill_area_temp[1] == bl->id) //This is the target of the skill, do a full attack and skip target checks.
 		return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
 
-	if(battle_check_target(dsrc,bl,type) <= 0 ||
-		!status_check_skilluse(NULL, bl, skillid, 2))
+	if( battle_check_target(dsrc,bl,type) <= 0 || !status_check_skilluse(NULL, bl, skillid, skilllv, 2) )
 		return 0;
 
 

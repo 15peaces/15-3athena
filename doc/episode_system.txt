@@ -1,0 +1,76 @@
+//===== 15-3athena Documentation =============================
+//= Episode system
+//===== By: ==================================================
+//= 15-3athena Dev Team
+//===== Last Updated: ========================================
+//= 20160124
+//===== Description: =========================================
+//= Explanation of the episode system
+//============================================================
+
+15-3athena comes with a episode select feature.
+However, the feature is currently under developpment and will be extended as needed.
+In this file I'll try to explain some basic stuff.
+
+1.Configs
+---------
+
+To configure the episode system, there are at the moment 2 configs aviable.
+Both can be found inside battle/feature.conf file:
+
+	feature.episode
+	---------------
+	*This config allows you to set the episode, the server will run on.
+	*It's set as a integer variable with 2 parts: [episode][sub-episode]
+		-[episode] can 1 or 2 digits long (for episode 1 it's 1 // for episode 10 it's 10)
+		-[sub-episode] can only be 1 digit long. if you don't want to set a sub-episode it's 0
+		-Examples:
+			//let's set the episode to 1:
+			feature.episode: 10
+
+			//let's set the episode to 10:
+			feature.episode: 100
+			
+			//let's set the episode to 10.1:
+			feature.episode: 101
+			
+	episode.readdb
+	--------------
+	*This config allows you to load episode-specific database-files.
+	*These files are stored inside db/episode folder.
+	*If episode-specific file was loaded, the main-db file will be ignored.
+	*This also means, you'll have to add EVERY entry you'll need to this file.
+	*File names are [name_of_maindb_file]_ep[episode][sub-episode].txt
+		-[name_of_maindb_file] filename of db file (item_db / mob_db)
+		-[episode][sub-episode] see above...
+		-Examples:
+			//let's create a item_db for episode 1.
+			//Filename would be:
+			item_db_ep10.txt
+
+			//let's create a item_db for episode 10:
+			//Filename would be:
+			item_db_ep100.txt
+			
+			//let's create a item_db for episode 10.1:
+			//Filename would be:
+			item_db_ep101.txt
+			
+
+2.Database
+----------
+
+Database structures are unchanged. Just add files as needed inside db/episode folder.
+Currently not all database-files are supported.
+
+Supported episode-specific database-files:
+	* -
+	
+	
+3.NPCs
+------
+
+To check what episode the server is currently running on, you can use the 'getepisode' script command.
+
+Also we can disable a whole npc script for a certain range of episodes. 
+To do so, please refer to the script_commands documentation.

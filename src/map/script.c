@@ -16631,6 +16631,7 @@ BUILDIN_FUNC(instance_attachmap)
 		script_pushconststr(st, "");
 		return 0;
 	}
+	//ShowDebug("buildin_instance_attachmap: Map attached (%s): %d\n", name, m);
 	script_pushconststr(st, map[m].name);
 	
 	return 0;

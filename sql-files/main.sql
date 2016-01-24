@@ -379,6 +379,7 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `card2` smallint(5) unsigned NOT NULL default '0',
   `card3` smallint(5) unsigned NOT NULL default '0',
   `expire_time` int(11) unsigned NOT NULL default '0',
+  `favorite` TINYINT unsigned NOT NULL DEFAULT '0',
   `bound` tinyint(3) unsigned NOT NULL default '0', 
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)

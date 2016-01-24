@@ -1751,6 +1751,8 @@ packet_ver: 30
 0x086D,26,partyinvite2,2
 //0x0890,4 // Unknown
 0x086F,26,friendslistadd,2
+0x0907,5,moveitem,2:4
+0x0908,5
 0x093F,5,hommenu,2:4
 0x0947,36,storagepassword,0
 
