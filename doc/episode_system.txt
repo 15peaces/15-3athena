@@ -64,7 +64,7 @@ Database structures are unchanged. Just add files as needed inside db/episode fo
 Currently not all database-files are supported.
 
 Supported episode-specific database-files:
-	* -
+	*item_db.txt
 	
 	
 3.NPCs

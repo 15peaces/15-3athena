@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/04/2016
+	r106 [15peaces]
+		*Merged missing changes from 3ceam rev. 434
+		*Fixed mistake from my last git
+			-item_db_ep20.txt should be item_db_ep60.txt
+		*Added more episode 6 items to database.
+			-Note: the item_db for episode 6 is currently in progress and not ready-to-use.
+		*The server will now load the default database if episode.readdb is activated but no database file is found.
+		*Removed two unused constants for alchemists
+			-Job_Alchem(Job_Alchemist would be correct)
+			-Job_Baby_Alchem(Job_Baby_Alchemist would be correct)
+		*Added SO_EL_ANALYSIS skill.
+
 01/24/2016
 	r105 [15peaces]
 		*Merged missing changes from 3ceam rev. 428 - 433

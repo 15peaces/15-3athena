@@ -1166,12 +1166,30 @@ static int itemdb_readdb(void)
 	char epfile[256];
 	int fi, files;
 
+	bool epdb = battle_config.episode_readdb;
+
 	sprintf(epfile, "item_db_ep%i.txt", battle_config.feature_episode);
 
 	files = ARRAYLENGTH(filename);
 
-	if(battle_config.episode_readdb)
-		files = 1;
+	// Testing episode database [15peaces]
+	if(epdb){
+		FILE* tfp;
+		char tpath[256];
+
+		sprintf(tpath, "%s/episode/%s", db_path, epfile);
+		tfp = fopen(tpath, "r");
+
+		if( tfp == NULL )
+		{
+			ShowWarning("itemdb_readdb: File not found \"%s\", skipping.\n", tpath);
+			ShowWarning("itemdb_readdb: Please create episode specific file or disable episode.readdb. Loading default database...\n");
+			epdb = false;
+		}else{
+			fclose(tfp);
+			files = 1;
+		}
+	}
 
 	for( fi = 0; fi < files; ++fi )
 	{
@@ -1181,7 +1199,7 @@ static int itemdb_readdb(void)
 		char path[256];
 		FILE* fp;
 
-		if(battle_config.episode_readdb)
+		if(epdb)
 			sprintf(path, "%s/episode/%s", db_path, epfile);
 		else
 			sprintf(path, "%s/%s", db_path, filename[fi]);
@@ -1189,8 +1207,6 @@ static int itemdb_readdb(void)
 		if( fp == NULL )
 		{
 			ShowWarning("itemdb_readdb: File not found \"%s\", skipping.\n", path);
-			if(battle_config.episode_readdb)
-				ShowWarning("itemdb_readdb: Please create episode specific file or disable episode.readdb.\n");
 			continue;
 		}
 
@@ -1275,7 +1291,7 @@ static int itemdb_readdb(void)
 
 		fclose(fp);
 
-		if(battle_config.episode_readdb)
+		if(epdb)
 			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, epfile);
 		else
 			ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, filename[fi]);

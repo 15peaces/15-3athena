@@ -7824,22 +7824,26 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SO_ARRULLO:
 		if( flag & 1 )
 			sc_start2(bl, type, 80, skilllv, 1, skill_get_time(skillid, skilllv));
-		else
-		{
+		else{
 			clif_skill_nodamage(src, bl, skillid, 0, 1);
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
 		break;
 
+	case SO_EL_ANALYSIS:
+		if( sd ){
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			clif_skill_itemlistwindow(sd,skillid,skilllv);
+		}
+		break;
+
 	case GN_BLOOD_SUCKER:
-		if( skill_unitsetting(src, skillid, skilllv, bl->x, bl->y, 0) )
-		{
+		if( skill_unitsetting(src, skillid, skilllv, bl->x, bl->y, 0) ){
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid,skilllv));
 		}
-		else if( sd )
-		{
+		else if( sd ){
 			clif_skill_fail(sd, skillid, 0, 0,0);
 			return 0;
 		}
@@ -11050,21 +11054,22 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		return 1;
 	}
 
-	if( sd->menuskill_id == AM_PHARMACY )
-	{
-		switch( skill )
-		{
-		case AM_PHARMACY:
-		case AC_MAKINGARROW:
-		case BS_REPAIRWEAPON:
-		case AM_TWILIGHT1:
-		case AM_TWILIGHT2:
-		case AM_TWILIGHT3:
-		case GN_MIX_COOKING:
-		case GN_MAKEBOMB:
-		case GN_S_PHARMACY:
+	if( sd->menuskill_id ){
+		if( sd->menuskill_id == AM_PHARMACY ){
+			switch( skill ){
+				case AM_PHARMACY:
+				case AC_MAKINGARROW:
+				case BS_REPAIRWEAPON:
+				case AM_TWILIGHT1:
+				case AM_TWILIGHT2:
+				case AM_TWILIGHT3:
+				case GN_MIX_COOKING:
+				case GN_MAKEBOMB:
+				case GN_S_PHARMACY:
+					return 0;
+			}
+		}else if( sd->menuskill_id == skill )
 			return 0;
-		}
 	}
 
 	status = &sd->battle_status;
@@ -11721,21 +11726,23 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 		return 1;
 	}
 
-	if( sd->menuskill_id == AM_PHARMACY )
+	if( sd->menuskill_id )
 	{ // Cast start or cast end??
-		switch( skill )
-		{
-		case AM_PHARMACY:
-		case AC_MAKINGARROW:
-		case BS_REPAIRWEAPON:
-		case AM_TWILIGHT1:
-		case AM_TWILIGHT2:
-		case AM_TWILIGHT3:
-		case GN_MIX_COOKING:
-		case GN_MAKEBOMB:
-		case GN_S_PHARMACY:
+		if( sd->menuskill_id == AM_PHARMACY ){
+			switch( skill ){
+				case AM_PHARMACY:
+				case AC_MAKINGARROW:
+				case BS_REPAIRWEAPON:
+				case AM_TWILIGHT1:
+				case AM_TWILIGHT2:
+				case AM_TWILIGHT3:
+				case GN_MIX_COOKING:
+				case GN_MAKEBOMB:
+				case GN_S_PHARMACY:
+					return 0;
+			}
+		}else if( sd->menuskill_id == skill )
 			return 0;
-		}
 	}
 	
 	if( sd->skillitem == skill ) // Casting finished (Item skill or Hocus-Pocus)
