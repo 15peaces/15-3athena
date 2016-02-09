@@ -3129,7 +3129,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_METALICSOUND:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
-	case GN_CRAZYWEED_ATK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -4048,6 +4047,18 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_addtimerskill(src, gettick() + skill_get_time(skillid, skilllv) - 1000, bl->id, 0, 0, skillid, skilllv, 0, 0);
 		}
 		break;
+
+	case GN_CRAZYWEED:
+		if( rand()%100 < 75 ){
+			if( bl->type == BL_SKILL )
+			{	// Still need confirm what units can remove this.
+				struct skill_unit *su = (struct skill_unit *)bl;
+				if( su && (su->group->skill_id == GN_WALLOFTHORN || (skill_get_inf2(su->group->skill_id)&INF2_TRAP)) )
+					skill_delunit(su);
+			}else
+				skill_attack(BF_WEAPON,src,src,bl,GN_CRAZYWEED_ATK,skilllv,tick,flag);
+ 		}
+ 		break;
 
 	case KO_JYUMONJIKIRI:
 		{
@@ -7863,16 +7874,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case GN_MIX_COOKING:
 		if(sd) {
+			sd->menuskill_id = skillid;
 			sd->menuskill_itemused = skilllv;
-			clif_skill_produce_mix_list(sd,skillid,27);
+			clif_cooking_list(sd,27,skillid,(skilllv==2)?10:1,6);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
 
 	case GN_MAKEBOMB:
 		if(sd) {
-			sd->menuskill_itemused = skilllv;
-			clif_skill_produce_mix_list(sd,skillid,28);
+			sd->menuskill_id = skillid;
+			sd->menuskill_val = skilllv;
+			clif_cooking_list(sd,28,skillid,(skilllv==2)?10:1,5);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
@@ -7880,7 +7893,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case GN_S_PHARMACY:
 		if(sd) {
 			sd->menuskill_itemused = skilllv;
-			clif_skill_produce_mix_list(sd,skillid,29);
+			clif_cooking_list(sd,skillid,29,1,6);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
@@ -8057,7 +8070,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 				ud->skilltimer=tid;
 				return skill_castend_pos(tid,tick,id,data);
 			case GN_WALLOFTHORN:
-				inf2 = skill_get_splash(ud->skillid, ud->skilllv);
 				ud->skillx = target->x;
 				ud->skilly = target->y;
 				ud->skilltimer=tid;
@@ -8066,9 +8078,8 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 
 		if(ud->skillid == RG_BACKSTAP) {
 			int dir = map_calc_dir(src,target->x,target->y),t_dir = unit_getdir(target);
-			if(check_distance_bl(src, target, 0) || map_check_dir(dir,t_dir)) {
+			if(check_distance_bl(src, target, 0) || map_check_dir(dir,t_dir))
 				break;
-			}
 		}
 
 		if( ud->skillid == PR_TURNUNDEAD )
@@ -8710,6 +8721,13 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY, skill_castend_damage_id);
 		break;
 
+	case GN_CRAZYWEED:
+		i = skill_get_splash(skillid,skilllv);
+		map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR|BL_SKILL,
+			src,skillid,skilllv,tick,flag|BCT_ENEMY|1,
+			skill_castend_damage_id);
+		break;
+
 	case GN_FIRE_EXPANSION:
 		{
 			int i;
@@ -8857,7 +8875,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_VACUUM_EXTREME:
 	case GN_WALLOFTHORN:
 	case GN_THORNS_TRAP:
-	case GN_CRAZYWEED:
 	case GN_DEMONIC_FIRE:
 	case GN_HELLS_PLANT:
 	case RL_B_TRAP:
@@ -9964,6 +9981,15 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, un
 			break;
 		skill_blown(ss,bl,skill_get_blewcount(sg->skill_id,sg->skill_lv),unit_getdir(bl),0);
 		break;
+
+	case UNT_WALLOFTHORN:
+		if( status_get_mode(bl)&MD_BOSS )
+			break;	// iRO Wiki says that this skill don't affect to Boss monsters.
+		if( battle_check_target(ss,bl,BCT_ENEMY) <= 0 )
+			skill_blown(&src->bl,bl,skill_get_blewcount(sg->skill_id,sg->skill_lv),unit_getdir(bl),0);
+		else
+			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+		break;
 	}
 	return skillid;
 }
@@ -10048,7 +10074,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			int count=0;
 			const int x = bl->x, y = bl->y;
 
-			if( sg->skill_id == GN_WALLOFTHORN && bl->type != BL_MOB && !map_flag_vs(bl->m) )
+			if( sg->skill_id == GN_WALLOFTHORN && !map_flag_vs(bl->m) )
 				break;
 
 			//Take into account these hit more times than the timer interval can handle.
@@ -10150,10 +10176,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 				case GS_DESPERADO:
 					if (rand()%100 < src->val1)
 						skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
-					break;
-
-				case GN_CRAZYWEED:
-					skill_castend_damage_id(ss, bl, GN_CRAZYWEED_ATK, sg->skill_lv, tick, SD_LEVEL|SD_ANIMATION);
 					break;
 
 				default:
@@ -10519,14 +10541,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			}
 			break;
 
-		case UNT_WALLOFTHORN:
-			if( tstatus->mode&MD_BOSS )
-				break;	// iRO Wiki says that this skill don't affect to Boss monsters.
-			if( bl->type != BL_MOB && !map_flag_vs(bl->m) )
-				break;	// Don't deal damage to non-monsters out of vs maps.
-			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
-			break;
-
 		case UNT_DEMONIC_FIRE:
 			{
 				switch( sg->val2 )
@@ -10566,11 +10580,12 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 
 		case UNT_WARMER:
 			if( bl->type == BL_PC && !battle_check_undead(tstatus->race, tstatus->def_ele) && tstatus->race != RC_DEMON ){
-				int hp = 130 * sg->skill_lv;
+				int hp = 125 * sg->skill_lv; // Officially is 125 * skill_lv.
 				status_heal(bl, hp, 0, 0);
 				if( tstatus->hp != tstatus->max_hp )
 					clif_skill_nodamage(&src->bl, bl, AL_HEAL, hp, 0);
-				sc_start(bl, type, 100, sg->skill_lv, sg->interval + 100);
+				if( (tsc = status_get_sc(bl)) && (tsc->data[SC_FREEZE] || tsc->data[SC_FREEZING]) ) // It only affects if the target is under Freeze or Freezing status.
+					sc_start(bl, type, 100, sg->skill_lv, sg->interval + 100);
 			}
 			break;
 
@@ -11063,9 +11078,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 				case AM_TWILIGHT1:
 				case AM_TWILIGHT2:
 				case AM_TWILIGHT3:
-				case GN_MIX_COOKING:
-				case GN_MAKEBOMB:
-				case GN_S_PHARMACY:
 					return 0;
 			}
 		}else if( sd->menuskill_id == skill )
@@ -11736,9 +11748,6 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 				case AM_TWILIGHT1:
 				case AM_TWILIGHT2:
 				case AM_TWILIGHT3:
-				case GN_MIX_COOKING:
-				case GN_MAKEBOMB:
-				case GN_S_PHARMACY:
 					return 0;
 			}
 		}else if( sd->menuskill_id == skill )
@@ -13942,9 +13951,8 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_ANKLESNARE:
 			case UNT_ELECTRICSHOCKER:
 			case UNT_CLUSTERBOMB:
-			case UNT_WALLOFTHORN:
 				if( unit->val1 <= 0 ) {
-					if( ((group->unit_id == UNT_ANKLESNARE || group->unit_id == UNT_ELECTRICSHOCKER) && group->val2 > 0) || group->unit_id == UNT_WALLOFTHORN )
+					if( (group->unit_id == UNT_ANKLESNARE || group->unit_id == UNT_ELECTRICSHOCKER) && group->val2 > 0 )
 						skill_delunit(unit);
 					else {
 						group->unit_id = UNT_USED_TRAPS;
@@ -13955,6 +13963,12 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_REVERBERATION:
 				if( unit->val1 <= 0 )
 					unit->limit = DIFF_TICK(tick+700,group->tick);
+ 				break;
+			case UNT_WALLOFTHORN:
+				if( unit->val1 <= 0 ){
+					group->unit_id = UNT_USED_TRAPS;
+					group->limit = DIFF_TICK(tick, group->tick) + 1500;
+				}
  				break;
 		}
 	}
@@ -14316,6 +14330,10 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 
 	if (qty < 1)
 		qty = 1;
+
+	if( skill_id == GN_MIX_COOKING || skill_id == GN_MAKEBOMB )
+		qty = (qty == 2) ? 10 : 1; // At level 2 produces 10 items at a time and consume every required items to each item produced.
+
 	temp_qty = qty;
 
 	if (!skill_id) //A skill can be specified for some override cases.
@@ -14498,12 +14516,8 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				break;
 			case GN_MIX_COOKING:
 			case GN_MAKEBOMB:
-				{
-					i = sd->menuskill_itemused;
-					make_per = (5000 + 50*status->dex + 30*status->luk); //Custom rate value.
-					if( i == 2 )
-						qty = 10; //SkillLv 2 creates you 10 items directly.
-				}
+				// 	TODO: finde a proper chance.
+				make_per = (5000 + 50*status->dex + 30*status->luk); //Custom rate value.
 				break;
 			case GN_S_PHARMACY:
 				{
@@ -14519,8 +14533,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				}
 				break;
 			default:
-				if (sd->menuskill_id ==	AM_PHARMACY &&
-					sd->menuskill_val > 10 && sd->menuskill_val <= 20)
+				if( sd->menuskill_id ==	AM_PHARMACY && sd->menuskill_val > 10 && sd->menuskill_val <= 20 )
 				{	//Assume Cooking Dish
 					if (sd->menuskill_val >= 15) //Legendary Cooking Set.
 						make_per = 10000; //100% Success
@@ -14662,9 +14675,6 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				case AM_TWILIGHT2:
 				case AM_TWILIGHT3:
 				case ASC_CDP:
-				case GN_MIX_COOKING:
-				case GN_MAKEBOMB:
-				case GN_S_PHARMACY:
 					clif_produceeffect(sd,2,nameid);
 					clif_misceffect(&sd->bl,5);
 					break;
@@ -14679,6 +14689,10 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 					clif_produceeffect(sd,2,nameid);
 					clif_misceffect(&sd->bl,5);
 					break;
+				case GN_MIX_COOKING:
+				case GN_MAKEBOMB:
+				case GN_S_PHARMACY:
+					break;	// No effects here.
 				default: //Those that don't require a skill?
 					if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20)
 					{ //Cooking items.
@@ -14713,9 +14727,6 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			case AM_TWILIGHT1:
 			case AM_TWILIGHT2:
 			case AM_TWILIGHT3:
-			case GN_MIX_COOKING:
-			case GN_MAKEBOMB:
-			case GN_S_PHARMACY:
 				clif_produceeffect(sd,3,nameid);
 				clif_misceffect(&sd->bl,6);
 				sd->potion_success_counter = 0; // Fame point system [DracoRPG]
@@ -14731,6 +14742,10 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				clif_produceeffect(sd,3,nameid);
 				clif_misceffect(&sd->bl,6);
 				break;
+			case GN_MIX_COOKING:
+			case GN_MAKEBOMB:
+			case GN_S_PHARMACY:
+				break;	// No effects here.
 			default:
 				if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 )
 				{ //Cooking items.
@@ -14938,11 +14953,9 @@ int skill_select_menu(struct map_session_data *sd,int flag,int skill_id)
 
 	lv = (aslvl + 1) / 2;// The level the skill will be autocasted.
 	lv = min(lv,sd->status.skill[skill_id].lv);
-	if ( aslvl >= 10 )//If level 10 or higher is casted, set to a fixed 15%.
-		prob = 15;
-	else
-		prob = 30 - 2 * aslvl;//If below level 10, follow this formula.
+	prob = (aslvl == 10) ? 15 : (32 - 2 * aslvl); // Probability at level 10 was increased to 15.
 	sc_start4(&sd->bl,SC__AUTOSHADOWSPELL,100,id,lv,prob,0,skill_get_time(SC_AUTOSHADOWSPELL,aslvl));
+	status_change_end(&sd->bl,SC_STOP,INVALID_TIMER);
 	return 0;
 }
 

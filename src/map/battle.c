@@ -216,11 +216,18 @@ int battle_delay_damage (unsigned int tick, int amotion, struct block_list *src,
 {
 	struct delay_damage *dat;
 	struct status_change *sc;
+	struct block_list *d_tbl = NULL;
 	nullpo_ret(src);
 	nullpo_ret(target);
 
 	sc = status_get_sc(target);
-	if( sc && sc->data[SC_DEVOTION] && damage > 0 )
+
+  	if (sc && sc->data[SC_DEVOTION] && sc->data[SC_DEVOTION]->val1)
+ 		d_tbl = map_id2bl(sc->data[SC_DEVOTION]->val1);
+
+	if( sc && sc->data[SC_DEVOTION] && 
+		check_distance_bl(target,d_tbl,sc->data[SC_DEVOTION]->val3) && //Devo Range fix [15peaces]
+		damage > 0 )
 		damage = 0;
 
 	if (!battle_config.delay_battle_damage) {
@@ -440,6 +447,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if( (sce=sc->data[SC_AUTOGUARD]) && flag&BF_WEAPON && !(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK) && rand()%100 < sce->val2 )
 		{
 			int delay;
+			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
+			struct block_list *d_bl = NULL;
+
 			clif_skill_nodamage(bl,bl,CR_AUTOGUARD,sce->val1,1);
 			// different delay depending on skill level [celest]
 			if (sce->val1 <= 5)
@@ -448,11 +458,25 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 				delay = 200;
 			else
 				delay = 100;
-			unit_set_walkdelay(bl, gettick(), delay, 1);
 
-			if(sc->data[SC_SHRINK] && rand()%100<5*sce->val1)
-				skill_blown(bl,src,skill_get_blewcount(CR_SHRINK,1),-1,0);
-			return 0;
+			// Devo fix [15peaces]
+			if( sce_d && (d_bl = map_id2bl(sce_d->val1)) &&
+				((d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == bl->id) ||
+				(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce_d->val2] == bl->id)) &&
+				check_distance_bl(bl,d_bl,sce_d->val3) )
+			{ //If player is target of devotion, show guard effect on the devotion caster rather than the target
+				clif_skill_nodamage(d_bl,d_bl,CR_AUTOGUARD,sce->val1,1);
+				unit_set_walkdelay(d_bl,gettick(),delay,1);
+				d->dmg_lv = ATK_MISS;
+				return 0;
+			} else {
+				clif_skill_nodamage(bl,bl,CR_AUTOGUARD,sce->val1,1);
+				unit_set_walkdelay(bl,gettick(),delay,1);
+				if( sc->data[SC_SHRINK] && rand()%100 < 5 * sce->val1 )
+					skill_blown(bl,src,skill_get_blewcount(CR_SHRINK,1),-1,0);
+				d->dmg_lv = ATK_MISS;
+				return 0;
+			}
 		}
 
 		if( sd && (sce = sc->data[SC_BERKANA]) && sce->val2 > 0 && damage > 0 )
@@ -546,6 +570,22 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 
 		if( sc->data[SC_SIREN] && damage > 0)
 			status_change_end(bl,SC_SIREN,INVALID_TIMER);
+
+		if( sc->data[SC_DEVOTION] ) {
+			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
+			struct block_list *d_bl = map_id2bl(sce_d->val1);
+
+			if( d_bl &&
+				((d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == bl->id) ||
+				(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce_d->val2] == bl->id)) &&
+				check_distance_bl(bl,d_bl,sce_d->val3) )
+			{
+				struct status_change *d_sc = status_get_sc(d_bl);
+
+				if( d_sc && d_sc->data[SC_DEFENDER] && (flag&(BF_LONG|BF_MAGIC)) == BF_LONG && skill_num != ASC_BREAKER && skill_num != CR_ACIDDEMONSTRATION && skill_num != NJ_ZENYNAGE && skill_num != KO_MUCHANAGE )
+					damage -= damage * d_sc->data[SC_DEFENDER]->val2 / 100;
+			}
+		}
 
 		//Finally damage reductions....
 		if( sc->data[SC_ASSUMPTIO] )
@@ -1607,7 +1647,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				}
 			case RK_DRAGONBREATH:
-				wd.damage = (status_get_hp(src) * 80 / 1000) + (status_get_sp(src) * 180 / 100);
+				wd.damage = (status_get_hp(src) * 16 / 1000) + (status_get_sp(src) * 192 / 1000);
 				if( sd )
 					wd.damage += wd.damage * (5 * pc_checkskill(sd,RK_DRAGONTRAINING)-1) / 100;
 				break;
@@ -1984,24 +2024,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case NPC_VAMPIRE_GIFT:
 					skillratio += ((skill_lv-1)%5+1)*100;
 					break;
-				case RK_WINDCUTTER:
-					skillratio += 100 + 50 * skill_lv;
-					break;
-				case RK_IGNITIONBREAK:
-					i = distance_bl(src,target);
-					skillratio += 100 * (4 - cap_value(i,1,3)) * skill_lv;
-					if( sstatus->rhw.ele == ELE_FIRE )
-						skillratio +=  skillratio / 2;
- 					break;
-				case RK_CRUSHSTRIKE:
-					skillratio += 1400;
-					break;
-				case RK_STORMBLAST:
-					skillratio += sstatus->int_ * (sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 1);
-					break;
-				case RK_PHANTOMTHRUST:
-					skillratio += 20 * (skill_lv - 1);
- 					break;
 				case GC_CROSSIMPACT:
 					skillratio += 1050 + 50 * skill_lv;
 					break;
@@ -2187,10 +2209,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case MO_BALKYOUNG:
 					skillratio += 200;
 					break;
-				case RK_SONICWAVE:
-					skillratio += 400 + 100 * skill_lv;
-					if( levels_effect == 1 && base_lv >= 100 )
-						skillratio += skillratio * (base_lv - 100) / 200;
+				case RK_SONICWAVE: // Sugested formula from irowiki. 
+					skillratio += 400 + (100 * skill_lv); // Base skillratio.
+					skillratio *= (1 + (s_level-100) / 20); // Bonus by base level.
 					break;
 				case RK_HUNDREDSPEAR:
 					skillratio += 500 + 80 * skill_lv;
@@ -2212,6 +2233,31 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += skillratio * (base_lv - 100) / 200;
 					skillratio += 50 * pc_checkskill(sd,LK_SPIRALPIERCE);//Bonus damage.
 					break;
+				case RK_WINDCUTTER: // Sugested formula from irowiki.
+					skillratio += 50 * skill_lv; // Base skillratio
+					skillratio *= (1 + (s_level-50) / 20); // Bonus by base level.
+					break;
+				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
+					i = distance_bl(src,target) / 2;
+					skillratio += 100 + (200 * skill_lv) - (100 * i); // Base skillratio
+					if( i > 1 ) skillratio -= 100 * (skill_lv - 1); // Less damage at 4 or 5 cells.
+					skillratio *= (1 + (s_level-100) / 20); // Bonus by base level.
+					if( sstatus->rhw.ele == ELE_FIRE )
+						skillratio +=  skillratio / 2;
+					break;
+				case RK_DRAGONBREATH: // Sugested formula from irowiki.
+					skillratio *= skill_lv * s_level / 100;
+					break;
+				case RK_CRUSHSTRIKE:
+					skillratio += 1400;
+					break;
+				case RK_STORMBLAST:
+					skillratio += sstatus->int_ * (sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 1);
+					break;
+				case RK_PHANTOMTHRUST: // TODO: Check if the damage is increased by Spear Mastery and how much.
+ 					skillratio += 20 * (skill_lv - 1);
+					skillratio *= (1 + (s_level-100) / 20); // Bonus by base level. Still need confirm it.
+ 					break;
 				case SO_VARETYR_SPEAR: //Assumed Formula.
 					skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 );
 					break;
@@ -3735,7 +3781,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 		if (sd && sd->short_weapon_damage_return)
 		{
 			rdamage += (*damage) * sd->short_weapon_damage_return / 100;
-			if(rdamage < 1) rdamage = 1;
+			rdamage = max(rdamage,1);
 		}
 		if( sc && sc->data[SC_DEATHBOUND] )
 		{
@@ -3767,7 +3813,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 		if (sd && sd->long_weapon_damage_return)
 		{
 			rdamage += (*damage) * sd->long_weapon_damage_return / 100;
-			if (rdamage < 1) rdamage = 1;
+			rdamage = max(rdamage,1);
 		}
 	}
 	return rdamage;

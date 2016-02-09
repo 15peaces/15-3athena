@@ -555,7 +555,8 @@ void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short sk
 void clif_skill_memomessage(struct map_session_data* sd, int type);
 void clif_skill_teleportmessage(struct map_session_data *sd, int type);
 void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int trigger);
-void clif_cooking_list(struct map_session_data *sd, int trigger);
+void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, int qty, int list_type);
+void clif_cooking_fail(struct map_session_data *sd, int skill_id, int val, int list_type, int fails);
 
 void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid);
 

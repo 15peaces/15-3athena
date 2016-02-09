@@ -1524,6 +1524,8 @@
 2590,Buwaya_Cloth,Buwaya Sack Cloth,5,20,,200,,1,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r/3; bonus bAddItemHealRate,.@r/3; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
 2591,Bayani_Buwaya_Cloth,Bayani Buwaya Sack Cloth,5,20,,200,,1,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ set .@r, getrefine(); bonus bHealPower2,.@r; bonus bAddItemHealRate,.@r; bonus2 bSubEle,Ele_Water,10; bonus2 bSubEle,Ele_Wind,10; bonus2 bSubEle,Ele_Earth,10; bonus2 bSubEle,Ele_Fire,10; },{},{}
 2592,Boss_Brownie_Manteau,Boss Brownie Manteau,5,20,,100,,0,,0,0xFFFFFFFF,63,2,4,,50,1,0,{},{},{}
+2593,Flow_Manteau,Flow Manteau,5,20,,700,,2,,1,0xFFFFFFFF,63,2,4,,65,1,0,{},{},{}
+2594,Wrapping_Manteau,Wrapping Manteau,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,0,1,0,{},{},{}
 // Accessories
 //===================================================================
 2601,Ring,Ring,5,30000,,100,,0,,0,0xFFFFFFFE,7,2,136,,20,0,0,{ bonus bStr,2; },{},{}

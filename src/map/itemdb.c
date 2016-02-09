@@ -438,6 +438,8 @@ int itemdb_isequip(unsigned short nameid)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
+		case IT_THROWWEAPON:
+		case IT_CANNONBALL:
 			return 1;
 		default:
 			return 0;
@@ -454,6 +456,8 @@ int itemdb_isequip2(struct item_data *data)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
+		case IT_THROWWEAPON:
+		case IT_CANNONBALL:
 			return 1;
 		default:
 			return 0;

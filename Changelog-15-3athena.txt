@@ -4,6 +4,39 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/09/2016
+	r107 [15peaces]
+		*Merged missing changes from 3ceam rev. 435 - 437
+		*Some clean-up inside battle.c
+		*Fixed #7: Corrected a few things with Devotion range checks.
+			-Thanks to @rathena & @cold-hr.
+			-Please report bugs (if found), I'll try to fix it asap.
+		*Manuk & Splendide updates
+			-Added Coin Merchants.
+		*Added missing 3rd class breeder npcs.
+		*Added more missing trader npcs.
+			-Also did some clean-up.
+		*Added some more testing items to item_db2.txt
+		*Fixed GN_WALLOFTHORN according to official behavior.
+			-Can't be used in mobs.
+			-Can be used in enemies, allies and yourself.
+			-Deal damage and knock back to enemies.
+			-Don't deal damage to allies or yourself but get knock back.
+			-When the wall receive more damage than it can bear, the wall is completely removed.
+			-When the wall is in Fire Wall mode, don't deal damage to allies or yourself.
+		*Fixed GN_CRAZYWEED according to official behavior.
+			-Is instant AoE skill
+			-It have a chance to don't deal damage to a target.
+			-It removes Wall of Thorns and traps.
+		*Updated Rune Knight Skills
+			- Updated RK_DRAGONBREATH, RK_HUNDREDSPEAR, RK_IGNITIONBREAK, RK_PHANTOMTHRUST, RK_SONICWAVE and RK_WINDCUTTER according to info from irowiki.
+		*These skills use clif_cooking_list instead of clif_skill_produce_mix_list.
+			-Updated clif_cooking_list, function was updated too.
+		*Updated GN_CART_TORNADO that take weapon element.
+		*Updated NC_ARMSCANNON and GN_CARTCANNON.
+			-Added two new ammo types: IT_CANNONBALL and IT_THORWWEAPON used in these skills.
+			-Updated item_db2.txt with these two items.
+
 02/04/2016
 	r106 [15peaces]
 		*Merged missing changes from 3ceam rev. 434
