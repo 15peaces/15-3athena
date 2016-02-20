@@ -406,8 +406,8 @@ struct hCSData {
 };
 
 struct cs_data{
-	struct hCSData **data[CASHSHOP_TAB_MAX];
-	unsigned int item_count[CASHSHOP_TAB_MAX];
+	struct hCSData **data;
+	unsigned int item_count;
 };
 
 int clif_setip(const char* ip);
@@ -877,6 +877,7 @@ void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
 void clif_cashshop_db(void);
+static int clif_cashshop_db_parserow( char** str, const char* source, int line );
 
 /// Roulette
 void clif_roulette_generate_ack(struct map_session_data *sd, unsigned char result, short stage, short prizeIdx, short bonusItemID);

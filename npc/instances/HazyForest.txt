@@ -795,7 +795,7 @@ mora,46,152,5	script	Flower Smelling Lady	510,{
 }
 
 mora,48,152,3	script	Sharp Eyed Man	512,{
-	if (checkweight(Knife,1) == 0 || MaxWeight - Weight < 1000) {
+	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 1000) {
 		mes "- You have too many items to do this quest. -";
 		close;
 	}

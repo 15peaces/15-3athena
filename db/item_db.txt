@@ -1526,6 +1526,9 @@
 2592,Boss_Brownie_Manteau,Boss Brownie Manteau,5,20,,100,,0,,0,0xFFFFFFFF,63,2,4,,50,1,0,{},{},{}
 2593,Flow_Manteau,Flow Manteau,5,20,,700,,2,,1,0xFFFFFFFF,63,2,4,,65,1,0,{},{},{}
 2594,Wrapping_Manteau,Wrapping Manteau,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,0,1,0,{},{},{}
+
+2597,Scarlet_Poncho,Scarlet Poncho,5,0,,500,,1,,1,0xFFFFFFFF,63,2,1024,,,1,0,{ bonus bCritAtkRate,3; if(isequipped(28342)){bonus bCritAtkRate,5; bonus bCritical,10; set .@r, getequiprefinerycnt(EQI_COSTUME_HEAD_TOP); if (.@r > 7) bonus bCritAtkRate,4; else if (.@r > 5) bonus bCritAtkRate,3; } },{},{}
+2598,Ramor_Manteau,Ramor Manteau,5,20,,700,,2,,,0xFFFFFFFF,63,2,4,,65,1,0,{ bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,-5; /*Gold PC Room: bonus bFlee,20;*/ },{},{}
 // Accessories
 //===================================================================
 2601,Ring,Ring,5,30000,,100,,0,,0,0xFFFFFFFE,7,2,136,,20,0,0,{ bonus bStr,2; },{},{}
@@ -1795,6 +1798,8 @@
 2866,Ring_Of_Archbishop,Ring Of Archbishop,5,20,,0,,0,,0,0x00000000,7,2,136,,110,0,0,{ bonus bDex,2; },{},{}
 
 2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,0,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
+
+2894,Glove_Of_Shura,Sura Gauntlet,5,20,,400,,0,,0,0x00008000,63,2,136,,130,0,0,{ bonus bStr,5; bonus bMaxSPrate,6; bonus bMaxHPrate,-6; if(readparam(bStr)>=120){ bonus bBaseAtk,30; } },{},{}
 // Cards
 //===================================================================
 4001,Poring_Card,Poring Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,2; bonus bFlee2,1; },{},{}

@@ -39,6 +39,7 @@
 
 639,Armlet_Of_Obedience,Armlet of Obedience,2,18000,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1029; },{},{}
 
+641,Contracts_In_Shadow,Contract in Shadow,2,100,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1109; },{},{}
 642,Book_Of_Devil,Book of the Devil,2,1800,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1101; },{},{}
 
 645,Center_Potion,Concentration Potion,2,800,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ASPDPOTION0,1800000,0; },{},{}
@@ -46,9 +47,13 @@
 656,Awakening_Potion,Awakening Potion,2,1500,,150,,,,,0xFFF7FEEF,7,2,,,40,,,{ sc_start SC_ASPDPOTION1,1800000,0; },{},{}
 657,Berserk_Potion,Berserk Potion,2,3000,,200,,,,,0x01E646A6,7,2,,,85,,,{ sc_start SC_ASPDPOTION2,1800000,0; },{},{}
 
+672,Copper_Coin_Moneybag,Bag of Bronze Coins,3,1000,,400,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+673,Copper_Coin,Bronze Coin,2,100,,40,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{} 
+
 702,Animal_Blood,Animal Gore,3,450,,100,,,,,,,,,,,,,{},{},{}
 
 704,Aloe,Aloe,3,500,,10,,,,,,,,,,,,,{},{},{}
+705,Clover,Clover,3,10,,10,,,,,,,,,,,,,{},{},{}
 
 717,Blue_Gemstone,Blue Gemstone,3,600,,30,,,,,,,,,,,,,{},{},{}
 
@@ -60,6 +65,10 @@
 726,Blue_Jewel,Sapphire,3,6000,,100,,,,,,,,,,,,,{},{},{}
 
 729,Bluish_Green_Jewel,Zircon,3,6000,,100,,,,,,,,,,,,,{},{},{}
+730,Crystal_Jewel,1carat Diamond,3,10000,,100,,,,,,,,,,,,,{},{},{}
+731,Crystal_Jewel_,2carat Diamond,3,25000,,100,,,,,,,,,,,,,{},{},{}
+732,Crystal_Jewel__,3carat Diamond,3,55000,,100,,,,,,,,,,,,,{},{},{}
+733,Crystal_Jewel___,Cracked Diamond,3,10,,100,,,,,,,,,,,,,{},{},{}
 
 735,Blue_Porcelain,Chung Jah,3,5000,,500,,,,,,,,,,,,,{},{},{}
 
@@ -69,11 +78,16 @@
 
 744,Bunch_Of_Flowers,Bouquet,3,2000,,50,,,,,,,,,,,,,{},{},{}
 
+747,Crystal_Mirror,Crystal Mirror,3,15000,,50,,,,,,,,,,,,,{},{},{}
+
 750,Baphomet_Doll,Baphomet Doll,3,18000,,100,,,,,,,,,,,,,{},{},{}
+
+901,Danggie,Daenggie,3,260,,10,,,,,,,,,,,,,{},{},{}
 
 915,Chrysalis,Chrysalis,3,8,,10,,,,,,,,,,,,,{},{},{}
 
 919,Animal's_Skin,Animal Skin,3,36,,10,,,,,,,,,,,,,{},{},{}
+920,Claw_Of_Wolves,Wolf Claw,3,58,,10,,,,,,,,,,,,,{},{},{}
 
 925,Bill_Of_Birds,Bill of Birds,3,64,,10,,,,,,,,,,,,,{},{},{}
 
@@ -83,13 +97,27 @@
 
 952,Cactus_Needle,Cactus Needle,3,82,,10,,,,,,,,,,,,,{},{},{}
 
+961,Conch,Conch,3,158,,10,,,,,,,,,,,,,{},{},{}
+
+964,Crap_Shell,Crab Shell,3,90,,10,,,,,,,,,,,,,{},{},{}
+965,Clam_Shell,Clam Shell,3,56,,10,,,,,,,,,,,,,{},{},{}
+
 970,Alchol,Alcohol,3,400,,30,,,,,,,,,,,,,{},{},{}
+
+973,Counteragent,Counteragent,3,800,,70,,,,,,,,,,,,,{},{},{}
+
+978,Cobaltblue_Dyestuffs,Cobaltblue Dyestuffs,3,8000,,150,,,,,,,,,,,,,{},{},{}
 
 983,Black_Dyestuffs,Black Dyestuffs,3,8000,,150,,,,,,,,,,,,,{},{},{}
 
 986,Anvil,Anvil,3,30000,,500,,,,,,,,,,,,,{},{},{}
 
 990,Boody_Red,Red Blood,3,1000,,50,,,,,,,,,,,,,{},{},{}
+991,Crystal_Blue,Crystal Blue,3,1000,,50,,,,,,,,,,,,,{},{},{}
+
+1003,Coal,Coal,3,500,,50,,,,,,,,,,,,,{},{},{}
+
+1013,Colorful_Shell,Rainbow Shell,3,90,,10,,,,,,,,,,,,,{},{},{}
 
 1024,Chinese_Ink,Squid Ink,3,264,,10,,,,,,,,,,,,,{},{},{}
 
@@ -97,11 +125,15 @@
 
 1032,Blossom_Of_Maneater,Maneater Blossom,3,196,,10,,,,,,,,,,,,,{},{},{}
 
+1034,Cobold_Hair,Blue Hair,3,342,,10,,,,,,,,,,,,,{},{},{}
+
 1065,Booby_Trap,Trap,3,100,,10,,,,,,,,,,,,,{},{},{}
 
 1107,Blade,Blade,4,2900,,700,53,,1,3,0x000654E3,7,2,2,1,2,1,2,{},{},{}
 1108,Blade_,Blade,4,2900,,700,53,,1,4,0x000654E3,7,2,2,1,2,1,2,{},{},{}
 1109,Blade__,Blade,4,2900,,700,53,,1,0,0x000654E3,7,2,2,1,2,1,2,{},{},{}
+
+1135,Cutlas,Cutlus,4,20,,900,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ skill "SM_BASH",5; bonus bStr,2; bonus bDef,1; },{},{}
 
 1140,Byeorrun_Gum,Byeollungum,4,20,,900,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bSubRace,RC_NonBoss,-10; bonus2 bAddRace,RC_Boss,50; bonus bAllStats,2; },{},{}
 
@@ -112,16 +144,35 @@
 1160,Broad_Sword,Broad Sword,4,65000,,2000,140,,1,1,0x00004082,7,2,34,3,33,1,3,{ bonus bDef,5; bonus bUnbreakableWeapon,0; },{},{}
 1161,Balmung,Balmung,4,20,,1000,250,,1,0,0xFFFFFFFF,7,2,34,4,48,1,3,{ bonus bUnbreakableWeapon,0; bonus bAtkEle,Ele_Holy; },{},{}
 1162,Broad_Sword_,Broad Sword,4,65000,,2000,140,,1,2,0x00004082,7,2,34,3,33,1,3,{ bonus bDef,5; bonus bUnbreakableWeapon,0; },{},{}
+1163,Claymore,Claymore,4,74000,,2500,180,,1,0,0x00004080,7,2,34,3,33,1,3,{},{},{}
 
-1232,Assasin_Dagger,Assassin Dagger,4,20,,600,140,,1,0,0x00001000,7,2,2,4,36,1,1,{ bonus bMaxHPrate,20; bonus bMaxSPrate,15; bonus bAspdRate,2; bonus bAtkEle,Ele_Dark; },{},{}
+1204,Cutter,Cutter,4,1250,,500,30,,1,3,0xFE9F7EEF,7,2,2,1,1,1,1,{},{},{}
+1205,Cutter_,Cutter,4,1250,,500,30,,1,4,0xFE9F7EEF,7,2,2,1,1,1,1,{},{},{}
+1206,Cutter__,Cutter,4,1250,,500,30,,1,0,0xFE9F7EEF,7,2,2,1,1,1,1,{},{},{}
+
+1213,Dagger,Dagger,4,14000,,600,73,,1,2,0xFE9F7EEF,7,2,2,2,12,1,1,{},{},{}
+1214,Dagger_,Dagger,4,14000,,600,73,,1,3,0xFE9F7EEF,7,2,2,2,12,1,1,{},{},{}
+1215,Dagger__,Dagger,4,14000,,600,73,,1,0,0xFE9F7EEF,7,2,2,2,12,1,1,{},{},{}
+
+1222,Damascus,Damascus,4,49000,,800,118,,1,1,0x028F5EEE,7,2,2,3,24,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
+
+1226,Damascus_,Damascus,4,49000,,800,118,,1,2,0x028F5EEE,7,2,2,3,24,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
+
+1228,Combat_Knife,Combat Knife,4,20,,400,80,,1,0,0x028F5EEE,7,2,2,4,36,1,1,{ bonus bIgnoreDefRace,RC_DemiHuman; bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Demon,-10; },{},{}
 
 1231,Bazerald,Bazerald,4,20,,500,70,,1,0,0x028F5EEE,7,2,2,4,36,1,1,{ bonus bAtkEle,Ele_Fire; bonus bInt,5; bonus bMatkRate,10; },{},{}
+1232,Assasin_Dagger,Assassin Dagger,4,20,,600,140,,1,0,0x00001000,7,2,2,4,36,1,1,{ bonus bMaxHPrate,20; bonus bMaxSPrate,15; bonus bAspdRate,2; bonus bAtkEle,Ele_Dark; },{},{}
 
 1235,Azoth,Azoth,4,20,,700,110,,1,0,0x00040000,7,2,2,4,36,1,1,{ bonus bClassChange,300; },{},{}
+
+1241,Cursed_Dagger,Cursed Dagger,4,80000,,400,55,,1,0,0x00810204,7,2,2,4,85,1,1,{ bonus2 bAddEff,Eff_Curse,5000; },{},{}
+1242,Counter_Dagger,Dagger of Counter,4,120000,,550,140,,1,0,0x00810204,7,2,2,4,55,1,1,{ bonus bCritical,90; },{},{}
 
 1301,Axe,Axe,4,500,,800,38,,1,3,0x000654E3,7,2,2,1,3,1,6,{},{},{}
 1302,Axe_,Axe,4,500,,800,38,,1,4,0x000654E3,7,2,2,1,3,1,6,{},{},{}
 1303,Axe__,Axe,4,500,,800,38,,1,0,0x000654E3,7,2,2,1,3,1,6,{},{},{}
+
+1305,Cleaver,Cleaver,4,20,,1200,140,,1,0,0x000444A2,7,2,2,4,44,1,6,{ bonus2 bSubRace,RC_DemiHuman,5; bonus3 bAddMonsterDropItem,517,RC_Brute,3000; },{},{}
 
 1351,Battle_Axe,Battle Axe,4,5400,,1500,80,,1,3,0x000444A2,7,2,34,1,3,1,7,{},{},{}
 1352,Battle_Axe_,Battle Axe,4,5400,,1500,80,,1,4,0x000444A2,7,2,34,1,3,1,7,{},{},{}
@@ -133,9 +184,14 @@
 
 1363,Brood_Axe,Bloody Axe,4,20,,4000,170,,1,0,0x000444A2,7,2,34,4,44,1,7,{ bonus bStr,10; bonus bSpeedRate,25; },{},{}
 
+1466,Crescent_Scythe,Crescent Scythe,4,20,,2500,180,,3,0,0x00004082,7,2,34,4,48,1,5,{ bonus bCritical,30; bonus bHit,10; },{},{}
 1467,Bill_Guisarme,Bill Guisarme,4,20,,1000,183,,3,0,0x00004082,7,2,34,4,48,1,5,{ bonus2 bAddRace,RC_Brute,10; bonus2 bAddRace,RC_DemiHuman,5; },{},{}
 
 1470,Brionac,Brionac,4,20,,3000,190,,3,0,0x00004082,7,2,34,4,48,1,5,{ bonus bAtkEle,Ele_Holy; skill "AL_HEAL",5; bonus3 bAutoSpell,"MG_SOULSTRIKE",3,100; bonus2 bAddRace,RC_Boss,5; },{},{}
+
+1501,Club,Club,4,120,,700,23,,1,3,0x0004C5B3,7,2,2,1,2,1,8,{},{},{}
+1502,Club_,Club,4,120,,700,23,,1,4,0x0004C5B3,7,2,2,1,2,1,8,{},{},{}
+1503,Club__,Club,4,120,,700,23,,1,0,0x0004C5B3,7,2,2,1,2,1,8,{},{},{}
 
 1519,Chain,Chain,4,23000,,800,84,,1,2,0x0004C5B2,7,2,2,2,14,1,8,{},{},{}
 1520,Chain_,Chain,4,23000,,800,84,,1,3,0x0004C5B2,7,2,2,2,14,1,8,{},{},{}
@@ -165,7 +221,13 @@
 1701,Bow,Bow,4,1000,,500,15,,5,3,0x000A0848,7,2,34,1,4,1,11,{},{},{}
 1702,Bow_,Bow,4,1000,,500,15,,5,4,0x000A0848,7,2,34,1,4,1,11,{},{},{}
 1703,Bow__,Bow,4,1000,,0,15,,5,0,0x000A0848,7,2,34,1,4,1,11,{ bonus2 bAddDamageClass,1002,500; bonus2 bAddDamageClass,1113,500; bonus2 bAddDamageClass,1031,500; bonus2 bAddDamageClass,1242,500; },{},{}
+1704,Composite_Bow,Composite Bow,4,2500,,600,29,,5,3,0x000A0848,7,2,34,1,4,1,11,{},{},{}
+1705,Composite_Bow_,Composite Bow,4,2500,,600,29,,5,4,0x000A0848,7,2,34,1,4,1,11,{},{},{}
+1706,Composite_Bow__,Composite Bow,4,2500,,600,29,,5,0,0x000A0848,7,2,34,1,4,1,11,{},{},{}
 
+1710,CrossBow,Crossbow,4,17000,,900,65,,5,2,0x000A0848,7,2,34,2,18,1,11,{},{},{}
+1711,CrossBow_,Crossbow,4,17000,,900,65,,5,3,0x000A0848,7,2,34,2,18,1,11,{},{},{}
+1712,CrossBow__,Crossbow,4,17000,,900,65,,5,0,0x000A0848,7,2,34,2,18,1,11,{},{},{}
 1713,Arbalest,Arbalest,4,48000,,1000,90,,5,1,0x000A0848,7,2,34,3,33,1,11,{ bonus bDex,2; },{},{}
 1715,Arbalest_,Arbalest,4,48000,,1000,90,,5,2,0x000A0848,7,2,34,3,33,1,11,{ bonus bDex,2; },{},{}
 
@@ -176,10 +238,16 @@
 
 1750,Arrow,Arrow,10,1,,1,25,,,,0x000A1848,7,2,32768,,1,,1,{},{},{}
 
+1754,Crystal_Arrow,Crystal Arrow,10,3,,2,30,,,,0x000A1848,7,2,32768,,1,,1,{ bonus bAtkEle,Ele_Water; },{},{}
 1755,Arrow_Of_Wind,Arrow of Wind,10,3,,2,30,,,,0x000A1848,7,2,32768,,1,,1,{ bonus bAtkEle,Ele_Wind; },{},{}
+
+1761,Curse_Arrow,Cursed Arrow,10,10,,3,1,,,,0x000A1848,7,2,32768,,1,,1,{ bonus2 bAddEff,Eff_Curse,1000; },{},{}
 
 1766,Arrow_Of_Counter_Evil,Arrow of Counter Evil,10,40,,3,50,,,,0x000A1848,7,2,32768,,1,,1,{ bonus bAtkEle,Ele_Holy; },{},{}
 1767,Arrow_Of_Shadow,Arrow of Shadow,10,3,,2,30,,,,0x000A1848,7,2,32768,,1,,1,{ bonus bAtkEle,Ele_Dark; },{},{}
+
+1809,Claw,Claw,4,67000,,500,86,,1,1,0x00008100,7,2,2,3,24,1,12,{ bonus bStr,2; },{},{}
+1810,Claw_,Claw,4,67000,,500,86,,1,2,0x00008100,7,2,2,3,24,1,12,{ bonus bStr,2; },{},{}
 
 1814,Berserk,Berserk,4,20,,500,120,,1,0,0x00008100,7,2,2,4,36,1,12,{ bonus bAspdRate,12; },{},{}
 
@@ -204,9 +272,13 @@
 2232,Circlet,Circlet,5,7500,,300,,3,,0,0x00818314,7,2,256,,0,1,18,{ bonus bMdef,3; },{},{}
 2233,Circlet_,Circlet,5,7500,,300,,3,,1,0x00818314,7,2,256,,0,1,18,{ bonus bMdef,3; },{},{}
 
+2235,Crown,Crown,5,20,,400,,4,,0,0xFFFFFFFE,7,1,256,,45,1,45,{ bonus bInt,2; },{},{}
+
 2240,Beard,Beard,5,2,,100,,0,,0,0xFFFFFFFF,7,2,1,,0,0,24,{},{},{}
 
 2244,Big_Sis'_Ribbon,Big Ribbon,5,15000,,200,,2,,0,0xFFFFFFFE,7,2,256,,0,1,28,{ bonus bMdef,3; },{},{}
+
+2249,Coronet,Coronet,5,20,,300,,3,,0,0xFFFFFFFE,7,2,256,,0,1,33,{ bonus bInt,1; },{},{}
 
 2254,Angelic_Chain,Angel Wing,5,20,,100,,2,,0,0xFFFFFFFE,7,2,256,,0,1,38,{ bonus bMdef,3; bonus bAgi,1; bonus bLuk,1; bonus2 bSubRace,RC_Demon,3; },{},{}
 
@@ -223,21 +295,36 @@
 2295,Blinker,Blinker,5,1500,,100,,0,,0,0xFFFFFFFE,7,2,512,,0,0,82,{ bonus2 bResEff,Eff_Blind,10000; },{},{}
 2296,Binoculars,Binoculars,5,20,,100,,1,,0,0x00080808,7,2,512,,50,0,83,{ bonus bDex,1; },{},{}
 
+2301,Cotton_Shirt,Cotton Shirt,5,10,,100,,1,,0,0xFFFFFFFF,7,2,16,,0,1,0,{},{},{}
+2302,Cotton_Shirt_,Cotton Shirt,5,10,,100,,1,,1,0xFFFFFFFF,7,2,16,,0,1,0,{},{},{}
+
 2305,Adventure_Suit,Adventurer's Suit,5,1000,,300,,3,,0,0xFFFFFFFF,7,2,16,,0,1,0,{},{},{}
 2306,Adventurere's_Suit_,Adventurer's Suit,5,1000,,300,,3,,1,0xFFFFFFFF,7,2,16,,0,1,0,{},{},{}
+
+2309,Coat,Coat,5,22000,,1200,,5,,0,0xFFFFFFFE,7,2,16,,0,1,0,{},{},{}
+2310,Coat_,Coat,5,22000,,1200,,5,,1,0xFFFFFFFE,7,2,16,,0,1,0,{},{},{}
 
 2314,Chain_Mail,Chain Mail,5,65000,,3300,,8,,0,0x000654E2,7,2,16,,0,1,0,{},{},{}
 2315,Chain_Mail_,Chain Mail,5,65000,,3300,,8,,1,0x000654E2,7,2,16,,0,1,0,{},{},{}
 
+2318,Clothes_Of_The_Lord,Lord's Clothes,5,20,,2500,,8,,1,0x00040420,7,2,16,,70,1,0,{ bonus bMdef,5; bonus bInt,1; },{},{}
+
 2405,Boots,Boots,5,18000,,600,,4,,0,0x016E5CEA,7,2,64,,0,1,0,{},{},{}
 2406,Boots_,Boots,5,18000,,600,,4,,1,0x016E5CEA,7,2,64,,0,1,0,{},{},{}
 2407,Chrystal_Pumps,Crystal Pumps,5,20,,100,,0,,0,0xFFFFFFFE,7,0,64,,0,1,0,{ bonus bMdef,10; bonus bLuk,5; },{},{}
+2408,Cuffs,Shackles,5,5000,,3000,,3,,0,0xFFFFFFFF,7,2,64,,0,1,0,{ if (isequipped(2655)) { bonus bBaseAtk,50; bonus2 bAddDefClass,1196,20; bonus2 bAddDefClass,1197,20; } },{},{}
 
 2507,Cape_Of_Ancient_Lord,Ancient Cape,5,82000,,600,,2,,0,0xFFFFFFFE,7,2,4,,40,1,0,{ bonus bAgi,1; },{},{}
 
+2509,Clack_Of_Servival,Survivor's Manteau,5,20000,,550,,0,,0,0x00810204,7,2,4,,75,1,0,{ bonus bMdef,5; bonus bVit,10; if(isequipped(1618) || isequipped(1620)){ bonus bMaxHP,300; bonus bMatkRate,getequiprefinerycnt(EQI_HAND_R)-5; bonus2 bSubEle,Ele_Neutral,getrefine()*3; } },{},{}
+
 2605,Brooch,Brooch,5,30000,,100,,0,,0,0xFFFFFFFE,7,2,136,,20,0,0,{ bonus bAgi,2; },{},{}
 
+2607,Clip,Clip,5,30000,,100,,0,,1,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bMaxSP,10; },{},{}
+
 2614,An_Eye_Of_Dullahan,Eye of Dullahan,5,90000,,100,,0,,0,0xFFFFFFFE,7,2,136,,50,0,0,{ bonus2 bResEff,Eff_Poison,10000; bonus2 bSubRace,RC_Undead,4; bonus2 bSubRace,RC_Demon,4; },{},{}
+
+2616,Critical_Ring,Critical Ring,5,75000,,100,,0,,0,0xFFFFFFFE,7,2,136,,40,0,0,{ bonus bCritical,5; },{},{}
 
 2625,Brooch_,Brooch,5,30000,,200,,0,,1,0xFFFFFFFE,7,2,136,,90,0,0,{ bonus bAgi,1; },{},{}
 
@@ -265,14 +352,20 @@
 
 4013,Andre_Egg_Card,Andre Egg Card,6,20,,10,,,,,,,,32,,,,,{ bonus bMaxHPrate,5; },{},{}
 
+4015,Condor_Card,Condor Card,6,20,,10,,,,,,,,4,,,,,{ bonus bFlee,10; },{},{}
+
 4018,Andre_Larva_Card,Andre Larva Card,6,20,,10,,,,,,,,2,,,,,{ bonus bInt,1; bonus bMaxSP,10; },{},{}
 
 4032,Ambernite_Card,Ambernite Card,6,20,,10,,,,,,,,32,,,,,{ bonus bDef,2; },{},{}
+
+4040,Creamy_Card,Creamy Card,6,20,,10,,,,,,,,136,,,,,{ skill "AL_TELEPORT",1; },{},{}
+4041,Coco_Card,Coco Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bResEff,Eff_Sleep,2000; bonus bDef,1; },{},{}
 
 4043,Andre_Card,Andre Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,20; },{},{}
 
 4054,Angeling_Card,Angeling Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDefEle,Ele_Holy; },{},{}
 
+4061,Cornutus_Card,Cornutus Card,6,20,,10,,,,,,,,16,,,,,{ bonus bUnbreakableArmor,0; bonus bDef,1; },{},{}
 4062,Anacondaq_Card,Anacondaq Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddEle,Ele_Poison,20; },{},{}
 4063,Caramel_Card,Caramel Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddRace,RC_Insect,20; },{},{}
 
@@ -298,9 +391,13 @@
 5016,Boy's_Cap,Boy's Cap,5,20,,100,,2,,0,0xFFFFFFFE,7,2,256,,0,1,102,{},{},{}
 5017,Bone_Helm,Bone Helm,5,20,,800,,7,,0,0x000444A2,7,2,256,,70,1,103,{ bonus2 bSubEle,Ele_Dark,-15; },{},{}
 
+5019,Corsair,Corsair,5,20,,500,,5,,0,0xFFFFFFFE,7,2,256,,0,1,105,{ bonus bVit,1; },{},{}
+
 5021,Bankruptcy_Of_Heart,Grief for Greed,5,20,,1200,,4,,0,0x00040420,7,2,256,,38,1,107,{ bonus bInt,1; bonus bDex,1; },{},{}
 
 5028,Candle,Candle,5,20,,150,,0,,0,0xFFFFFFFF,7,2,256,,0,1,113,{},{},{}
+
+5036,Cross_Band,Cross Hat,5,20,,250,,1,,0,0xFFFFFFFE,7,2,256,,10,1,121,{},{},{}
 
 5040,Blush,Blush,5,20,,100,,0,,0,0xFFFFFFFF,7,2,512,,0,0,125,{},{},{}
 
@@ -310,21 +407,35 @@
 
 5054,Assassin_Mask,Assassin Mask,5,20,,100,,0,,0,0x00001100,7,2,1,,70,0,180,{},{},{}
 
+5097,Cone_Hat_,Holiday Hat,5,0,,400,,0,,0,0xFFFFFFFF,7,2,256,,0,1,144,{},{},{}
+
 5099,Cat_Hat,Neko Mimi,5,20,,300,,1,,0,0xFFFFFFFF,7,2,256,,0,1,182,{ bonus bLuk,2; bonus bMdef,10; bonus2 bSubRace,RC_Brute,5; },{},{}
+
+5106,Cone_Hat_INA,2nd Anniversary Hat,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,1,0,144,{ bonus bLuk,1; },{},{}
 
 5129,Bird_Nest,Bird Nest,5,20,,400,,1,,0,0xFFFFFFFF,7,2,256,,50,0,201,{ bonus bAgi,2; bonus2 bSubRace,RC_Brute,10; },{},{}
 
 7003,Anolian_Skin,Anolian Skin,3,968,,10,,,,,,,,,,,,,{},{},{}
+
+7007,Claw_Of_Rat,Claw of Rat,3,748,,10,,,,,,,,,,,,,{},{},{}
+
+7011,Claw_Of_Monkey,Claw of Monkey,3,466,,10,,,,,,,,,,,,,{},{},{}
+
+7013,Coral_Reef,Coral Reef,3,772,,10,,,,,,,,,,,,,{},{},{}
 
 7015,Bookclip_In_Memory,Bookclip in Memory,3,3000,,20,,,,,,,,,,,,,{},{},{}
 
 7024,Bloody_Edge,Bloody Edge,3,10000,,40,,,,,,,,,,,,,{},{},{}
 
 7029,Admission_For_Duel,Admission for Duel,3,0,,0,,,,,,,,,,,,,{},{},{}
+7030,Claw_Of_Desert_Wolf,Claw of Desert Wolf,3,208,,10,,,,,,,,,,,,,{},{},{}
 
 7046,Cart_Parts,Cart Parts,3,1,,10,,,,,,,,,,,,,{},{},{}
 7047,Alice's_Apron,Alice's Apron,3,2424,,10,,,,,,,,,,,,,{},{},{}
 
+7050,Cotton_Mat,Cotton Mat,3,100,,10,,,,,,,,,,,,,{},{},{}
+
+7053,Cyfar,Cyfar,3,772,,10,,,,,,,,,,,,,{},{},{}
 7054,Brigan,Brigan,3,746,,10,,,,,,,,,,,,,{},{},{}
 7055,Animal_Pooopoo,Animal Poop,3,100,,50,,,,,,,,,,,,,{},{},{}
 
@@ -338,8 +449,10 @@
 
 7081,Beard_Of_Women,Woman's Moustache,3,1,,500,,,,,,,,,,,,,{},{},{}
 
-7095,Broken_Steel_Piece,Metal Fragment,3,1075,,10,,,,,,,,,,,,,{},{},{}
+7088,Crystal_Of_Snow,Snow Crystal,3,1,,500,,,,,,,,,,,,,{},{},{}
 
+7095,Broken_Steel_Piece,Metal Fragment,3,1075,,10,,,,,,,,,,,,,{},{},{}
+7096,Cold_Magma,Lava,3,1109,,10,,,,,,,,,,,,,{},{},{}
 7097,Burning_Heart,Burning Heart,3,924,,10,,,,,,,,,,,,,{},{},{}
 
 7108,Boroken_Shiled_Piece,Piece of Shield,3,1680,,10,,,,,,,,,,,,,{},{},{}
@@ -348,15 +461,23 @@
 
 7120,Burning_Horse_Shoe,Burning Horseshoe,3,823,,10,,,,,,,,,,,,,{},{},{}
 
+7132,Coating_Create_Book,Glistening Coat Creation Guide,3,100000,,10,,,,,,,,,,,,,{},{},{}
+
+7139,Coating_Bottle,Glistening Coat,3,200,,10,,,,,,,,,,,,,{},{},{}
+
 7156,Broken_Shuriken,Broken Shuriken,3,470,,10,,,,,,,,,,,,,{},{},{}
 
 7158,Broken_Wine_Vessel,Broken Liquor Jar,3,160,,10,,,,,,,,,,,,,{},{},{}
+
+7162,Cloud_Piece,Cloud Crumb,3,390,,10,,,,,,,,,,,,,{},{},{}
 
 7173,BurnBuster_Bag,iROGM02's Backpack,3,0,,10,,,,,,,,,,,,,{},{},{}
 
 7182,Cacao,Cacao,3,200,,20,,,,,,,,,,,,,{},{},{}
 
 7188,Browny_Root,Brown Root,3,560,,10,,,,,,,,,,,,,{},{},{}
+
+7199,Coupon,Coupon,3,0,,10,,,,,,,,,,,,,{},{},{}
 
 7214,Bat_Cage,Bat Cage,3,880,,10,,,,,,,,,,,,,{},{},{}
 7215,Broken_Needle,Broken Needle,3,690,,10,,,,,,,,,,,,,{},{},{}
@@ -410,6 +531,8 @@
 
 7305,Authority_Of_Nine_World,Symbol of the Nine Realms,3,0,,0,,,,,,,,,,,,,{},{},{}
 
+7405,Crushed_Can,Crushed Can,3,2,,10,,,,,,,,,,,,,{},{},{}
+
 7461,BlueCard_A,Blue A Card,3,0,,10,,,,,,,,,,,,,{},{},{}
 7462,BlueCard_E,Blue E Card,3,0,,10,,,,,,,,,,,,,{},{},{}
 7463,BlueCard_F,Blue F Card,3,0,,10,,,,,,,,,,,,,{},{},{}
@@ -439,3 +562,5 @@
 10017,Bark_Shorts,Bark Shorts,8,20,,0,,,,,,,,,,,,,{},{},{}
 
 12101,Citron,Citron,0,20,,300,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+
+12130,Cookie_Bag,Cookie Bag,2,2,,70,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_CookieBag),1; getitem groupranditem(IG_CookieBag),1; getitem groupranditem(IG_CookieBag),1; },{},{}

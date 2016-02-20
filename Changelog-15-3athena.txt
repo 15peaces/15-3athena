@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/20/2016
+	r108 [15peaces]
+		*Added more episode 6 items to database.
+			-also did some more clean-up and updating on item_db.
+			-Note: the item_db for episode 6 is currently in progress and not ready-to-use.
+		*Rewrote parts of the new cashshop.
+			-Optimized some stuff.
+			-Fixed suspected memory leak inside clif_cashshop_db function.
+		*Fixed banking system packets
+			-now the official banking system is working again.
+		*Fixed security leak inside skill_produce_mix, where user can cook without have the required materials.
+		*Fixed bug in Hazy Forest Instance.
+
 02/09/2016
 	r107 [15peaces]
 		*Merged missing changes from 3ceam rev. 435 - 437

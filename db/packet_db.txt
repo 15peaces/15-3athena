@@ -1813,7 +1813,7 @@ packet_ver: 31
 0x09B7,4,ZC_ACK_OPEN_BANKING,2
 0x09B8,6,bankclose,2
 0x09B9,4,ZC_ACK_CLOSE_BANKING,2
-	
+
 //2013-07-31cRagexe
 0x09ca,23 //ZC_SKILL_ENTRY5
 
@@ -1871,8 +1871,6 @@ packet_ver: 33
 0x08c9,4,pCashShopSchedule,0
 0x0848,-1,pCashShopBuy,0
 0x096a,6,getcharnamerequest,2
-0x09ab,6	// bank button onclick
-0x09ab,6 //CZ_REQ_BANKING_CHECK
 0x09ca,23 //ZC_SKILL_ENTRY5
 0x09D4,2,npcshopclosed,0
 0x09df,7//ZC_ACK_WHISPER2

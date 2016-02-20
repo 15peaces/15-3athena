@@ -14397,8 +14397,10 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				y = sd->status.inventory[j].amount;
 				if(y>x)y=x;
 				pc_delitem(sd,j,y,0,0);
-			} else
+			} else {
 				ShowError("skill_produce_mix: material item error\n");
+				return 0;
+			}
 
 			x-=y;
 		}while( j>=0 && x>0 );

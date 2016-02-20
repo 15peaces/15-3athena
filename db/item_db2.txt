@@ -296,8 +296,11 @@
 19996,C_Horse_King,Costume Horse King,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1198,{},{},{}
 19997,C_Bomb_Hat,Costume Bomb Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1191,{},{},{}
 19998,C_Dragon_Turtle_Hat,Costume Dragon Turtle Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1192,{},{},{}
-19999,C_Mouse_Hat1,Costume Mouse Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1193,{},{},{}
-20000,C_Mouse_Hat2,Costume Mouse Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1194,{},{},{}
+19999,C_Mouse_Hat1,Costume Mouse Hat 1,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1193,{},{},{}
+20000,C_Mouse_Hat2,Costume Mouse Hat 2,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1194,{},{},{}
+20001,C_Mouse_Hat3,Costume Mouse Hat 3,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1195,{},{},{}
+20002,C_Mouse_Hat4,Costume Mouse Hat 4,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1196,{},{},{}
+20003,C_Mouse_Hat5,Costume Mouse Hat 5,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1197,{},{},{}
 20004,C_Big_Golden_Bell,Costume Big Golden Bell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,175,{},{},{}
 20005,C_Sigrun_Wing,Costume Sigrun Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,568,{},{},{}
 20006,C_Dark_Knight_Mask,Costume Dark Knight Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,479,{},{},{}
@@ -545,9 +548,6 @@
 15058,Rider_Suit,Rider Suit,5,20,,1000,0,40,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); },{},{}
 
 // Monster Transformation Items and others (renewal)
-2597,Scarlet_Poncho,Scarlet Poncho,5,0,,500,,10,,1,0xFFFFFFFF,63,2,1024,,,1,0,{ bonus bCritAtkRate,3; /* Combo-Script missing */ },{},{}
-2598,Ramor_Manteau,Ramor Manteau,5,20,,700,,20,,,0xFFFFFFFF,63,2,4,,65,1,0,{ bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,-5; /*Gold PC Room: bonus bFlee,20;*/ },{},{}
-2894,Glove_Of_Shura,Sura Gauntlet,5,20,,400,,1,,0,0x00008000,63,2,136,,130,0,0,{ bonus bStr,5; bonus bMaxSPrate,6; bonus bMaxHPrate,-6; if(readparam(bStr)>=120){ bonus bBaseAtk,30; } },{},{}
 2895,Medal_Of_Valor1,Medal Of Valor1,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bCastrate,-2; },{},{}
 2896,Medal_Of_Valor2,Medal Of Valor2,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; },{},{}
 2897,2011RWC_Necklace_J,2011RWC Necklace J,5,0,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus2 bAddRace,RC_Boss,5; bonus2 bAddRace,RC_NonBoss,5; bonus bMatkRate,5; bonus2 bExpAddRace,RC_Boss,1; bonus2 bExpAddRace,RC_NonBoss,1; },{},{}
@@ -1901,9 +1901,15 @@
 18917,LoveLove_Balloon,LoveLove Balloon,5,10,,200,,5,,0,0xFFFFFFFF,63,2,1,,1,0,1039,{ bonus bAllStats,1; bonus bUnbreakableHelm,1; },{},{}
 19511,Heart_Eye_Patch1,Heart Eye Patch 1,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,697,{ bonus bUnbreakableHelm,1; },{},{}
 19512,Heart_Eye_Patch2,Heart Eye Patch 2,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,698,{ bonus bUnbreakableHelm,1; },{},{}
+19518,Rainbow,Rainbow,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,704,{ bonus bUnbreakableHelm,1; },{},{}
+19519,Lightning_Cloud,Thunderstorm Cloud,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,688,{ bonus bUnbreakableHelm,1; },{},{}
+19520,Rain_Cloud,Rain Cloud,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,705,{ bonus bUnbreakableHelm,1; },{},{}
 19531,C_Cube_Mask,Costume Cube Mask,5,0,,0,,0,,0,0xFFFFFFFF,63,2,6144,,0,0,472,{ bonus bUnbreakableHelm,1; bonus bFlee,1; },{},{}
+19532,C_Red_Bunny_Band,Red Bunny Band,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,640,{ bonus bUnbreakableHelm,1; bonus bDex,1; },{},{}
 19536,C_Rose_Corsage,Costume Rose Corsage,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,533,{ bonus bUnbreakableHelm,1; bonus bInt,1; },{},{}
 19573,C_Heart_Wing_Hairband,Costume Heart Wing Hairband,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,733,{},{},{}
+19739,C_Sleeping_Kitty_Hat,Costume Sleeping Kitty Hat,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,838,{ bonus2 bAddRace,RC_Brute,2; },{},{}
+20183,C_There's..Something..,Costume There's..Something..,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,1,1,1091,{},{},{}
 
 // 3rd class related items (testing)
 6248,Chowder_Pot,Chowder Pot,3,600,,10,,,,,,,,,,,,,{},{},{}
