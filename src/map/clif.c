@@ -2383,7 +2383,7 @@ void clif_inventorylist(struct map_session_data *sd)
 		WBUFW(bufe,2)=4+ne*se;
 		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
 	}
-#if PACKETVER >= 20111122
+#if PACKETVER >= 20111122 && PACKETVER < 20120925
 	for( i = 0; i < MAX_INVENTORY; i++ ) {
 		if( sd->status.inventory[i].nameid <= 0 || sd->inventory_data[i] == NULL )
 			continue;

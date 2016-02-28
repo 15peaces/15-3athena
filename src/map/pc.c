@@ -3669,7 +3669,17 @@ int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
 }
 
 /*==========================================
- * ƒAƒCƒeƒ€’Ç‰ÁBŒÂ?‚Ì‚Ýitem\‘¢?‚Ì?Žš‚ð–³Ž‹
+ * Attempt to add a new item to player inventory
+ * @param sd
+ * @param item_data
+ * @param amount
+ * @return
+ *   0 = success
+ *   1 = invalid itemid not found or negative amount
+ *   2 = overweight
+ *   3 = ?
+ *   4 = no free place found
+ *   5 = max amount reached
  *------------------------------------------*/
 int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 {
@@ -3719,9 +3729,11 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 			return 4;
 
 		memcpy(&sd->status.inventory[i], item_data, sizeof(sd->status.inventory[0]));
-		// clear equips field first, just in case
+		// clear equip and favorite fields first, just in case
 		if( item_data->equip )
 			sd->status.inventory[i].equip = 0;
+		if( item_data->favorite )
+			sd->status.inventory[i].favorite = 0;
 
 		sd->status.inventory[i].amount = amount;
 		sd->inventory_data[i] = data;
@@ -4167,7 +4179,11 @@ int pc_useitem(struct map_session_data *sd,int n)
 }
 
 /*==========================================
- * ƒJ?ƒgƒAƒCƒeƒ€’Ç‰ÁBŒÂ?‚Ì‚Ýitem\‘¢?‚Ì?Žš‚ð–³Ž‹
+ * Add item on cart for given index.
+ * @param sd
+ * @param item
+ * @param amount
+ * @return 0 = success; 1 = fail;
  *------------------------------------------*/
 int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount)
 {
@@ -4218,6 +4234,8 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		sd->cart_num++;
 		clif_cart_additem(sd,i,amount,0);
 	}
+
+	sd->status.cart[i].favorite = 0;/* clear */
 
 	sd->cart_weight += w;
 	clif_updatestatus(sd,SP_CARTINFO);

@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/28/2016
+	r109 [15peaces]
+		*Fixed Eclage quests.
+			-added missing return in WeightBigQuest function.
+			-fixed instance.
+			-added missing monsters & items.
+		*Added more episode 6 items to database.
+			-also did some more clean-up and updating on item_db.
+			-Note: the item_db for episode 6 is currently in progress and not ready-to-use.
+		*Some fixing on favorite tab support.
+			-The support is not finnished yet.
+			-You can use the favorite tab now but it will not be saved on logout currently.
+
 02/20/2016
 	r108 [15peaces]
 		*Added more episode 6 items to database.

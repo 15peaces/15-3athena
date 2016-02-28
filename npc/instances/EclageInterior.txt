@@ -143,24 +143,24 @@ OnEnable:
 	end;
 }
 
-1@ecl,51,64,1	script	Suspicious Creature#1	MOROCC_4_142,{
+1@ecl,51,64,1	script	Suspicious Creature#1	2375,{
 	end;
 }
 
-1@ecl,43,67,3	duplicate(Suspicious Creature#1)	Suspicious Creature#2	MOROCC_4_142,0,0
-1@ecl,55,80,3	duplicate(Suspicious Creature#1)	Suspicious Creature#3	MOROCC_4_142,0,0
-1@ecl,60,75,3	duplicate(Suspicious Creature#1)	Suspicious Creature#4	MOROCC_4_142,0,0
+1@ecl,43,67,3	duplicate(Suspicious Creature#1)	Suspicious Creature#2	2375,0,0
+1@ecl,55,80,3	duplicate(Suspicious Creature#1)	Suspicious Creature#3	2375,0,0
+1@ecl,60,75,3	duplicate(Suspicious Creature#1)	Suspicious Creature#4	2375,0,0
 
-1@ecl,42,80,5	script	Suspicious Creature#5	MOROCC_2_142,{
+1@ecl,42,80,5	script	Suspicious Creature#5	2376,{
 	end;
 OnInstanceInit:
 	hideonnpc instance_npcname(strnpcinfo(0));
 	end;
 }
 
-1@ecl,48,86,3	duplicate(Suspicious Creature#5)	Suspicious Creature#6	MOROCC_2_142,0,0
-1@ecl,58,82,3	duplicate(Suspicious Creature#5)	Suspicious Creature#7	MOROCC_2_142,0,0
-1@ecl,56,88,3	duplicate(Suspicious Creature#5)	Suspicious Creature#8	MOROCC_2_142,0,0
+1@ecl,48,86,3	duplicate(Suspicious Creature#5)	Suspicious Creature#6	2376,0,0
+1@ecl,58,82,3	duplicate(Suspicious Creature#5)	Suspicious Creature#7	2376,0,0
+1@ecl,56,88,3	duplicate(Suspicious Creature#5)	Suspicious Creature#8	2376,0,0
 
 1@ecl,53,83,0	script	#sndmaster	139,10,10,{
 	end;
@@ -224,14 +224,14 @@ OnTouch:
 	hideonnpc instance_npcname("Suspicious Creature#8");
 	set .@eclmap$, instance_mapname("1@ecl");
 	set .@sndmaster$, instance_npcname("#sndmaster");
-	monster .@eclmap$,42,80,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,48,86,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,59,82,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,56,88,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,39,72,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,42,69,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,47,64,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
-	monster .@eclmap$,50,60,"Subordinate of the King of Demons",MOROCC_2_142,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,42,80,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,48,86,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,59,82,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,56,88,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,39,72,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,42,69,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,47,64,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
+	monster .@eclmap$,50,60,"Subordinate of the King of Demons",2376,1,.@sndmaster$+"::OnMyMobDead";
 	set .mob_summoned, 1;
     close;
 }
@@ -260,10 +260,10 @@ OnTouch:
 	hideonnpc instance_npcname("Suspicious Creature#2");
 	hideonnpc instance_npcname("Suspicious Creature#3");
 	hideonnpc instance_npcname("Suspicious Creature#4");
-	monster .@eclmap$,51,64,"Suspicious Creature",MOROCC_4_142,1,.@eventname$+"::OnMyMobDead";
-	monster .@eclmap$,43,67,"Suspicious Creature",MOROCC_4_142,1,.@eventname$+"::OnMyMobDead";
-	monster .@eclmap$,55,80,"Suspicious Creature",MOROCC_4_142,1,.@eventname$+"::OnMyMobDead";
-	monster .@eclmap$,60,75,"Suspicious Creature",MOROCC_4_142,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,51,64,"Suspicious Creature",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,43,67,"Suspicious Creature",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,55,80,"Suspicious Creature",2375,1,.@eventname$+"::OnMyMobDead";
+	monster .@eclmap$,60,75,"Suspicious Creature",2375,1,.@eventname$+"::OnMyMobDead";
 	set .mob_summoned, 1;
 	close;
 OnMyMobDead:
@@ -366,20 +366,20 @@ OnInstanceInit:
 	end;
 }
 
-1@ecl,148,29,3	script	Loki#ecl01	4_M_ROKI2,{
+1@ecl,148,29,3	script	Loki#ecl01	512,{
 	mes "[Loki]";
 	mes "It seems like this guy next to me has a lot more to say than I do.";
 	mes "Why don't you explain to him first?";
 	close;
 }
 
-1@ecl,147,30,3	script	Nydhog#ecl01	4_F_NYDHOG,{
+1@ecl,147,30,3	script	Nydhog#ecl01	510,{
 	mes "[Guardian Nydhog]";
 	mes "I think you should talk to Hisie first.";
 	close;
 }
 
-1@ecl,144,27,5	script	Hisie#ecl01	4_M_FARIY_HISIE,{
+1@ecl,144,27,5	script	Hisie#ecl01	623,{
 	cutin "hisie01",0;
 	mes "[Hisie]";
 	mes "Can you tell me exactly what happened?";

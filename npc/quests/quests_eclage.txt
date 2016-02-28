@@ -2742,6 +2742,7 @@ function	script	WeightBigQuest	{
 		mes "- try again. -";
 		close;
 	}
+	return;
 }
 
 eclage,282,255,4	script	Wuhari#eclbig	620,{
