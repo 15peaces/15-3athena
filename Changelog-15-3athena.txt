@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/29/2016
+	r110 [15peaces]
+		*Merged missing changes from 3ceam rev. 438 - 443
+		*Song and Dance timers now correctly update in the instance of Dissonance/Ugly Dance cell switches - Fixes #9
+			-Thanks to @rathena & @cold-hr.
+		*Fixed an issue where AL_WARP and maybe other skills were failing. (follow up to r107 / 5782f93)
+		*Fixed GN_HELLSPLANT that should disappear when the plant attacks a target.
+		*Fixed NC_MAGICDECOY that wasn't properly limiting the number of FAW presents.
+		*Updated LG_OVERBRAND according with its 2010 behavior.
+		*Did some more clean-up inside itemDB.
+
 02/28/2016
 	r109 [15peaces]
 		*Fixed Eclage quests.

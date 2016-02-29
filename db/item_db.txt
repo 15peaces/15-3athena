@@ -6868,12 +6868,22 @@
 18507,Elven_Ears_,Elven Ears,5,20,,100,,0,,1,0xFFFFFFFE,7,2,512,,70,0,73,{},{},{}
 
 18650,RWC_Shouting_Mouth,RWC Shouting Mouth,5,20,,50,,0,,0,0xFFFFFFFF,63,2,1,,1,0,194,{ bonus3 bAutoSpellWhenHit,"SM_ENDURE",1,10; bonus3 bAutoSpellWhenHit,"MO_CALLSPIRITS",5,10; bonus3 bAutoSpellWhenHit,"MO_EXPLOSIONSPIRITS",5,10; bonus3 bAutoSpell,"BS_MAXIMIZE",5,10; bonus3 bAutoSpell,"MC_LOUD",1,10; bonus3 bAutoSpell,"AC_CONCENTRATION",5,10; bonus3 bAutoSpell,"PR_GLORIA",3,10; autobonus "{ bonus bStr,3; bonus bAgi,3; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; showscript \"RWC 2011 Fighting!!\"; }"; autobonus "{ bonus bInt,3; bonus bLuk,3; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; showscript \"RWC 2011 Fighting!!\"; }"; },{},{} 
+
+18671,Rudolf_Hairband,Rudolf Hairband,5,20,,200,,1,,0,0xFFFFFFFF,63,2,256,,30,1,836,{ bonus3 bAutoSpell,"AL_INCAGI",10,50; bonus3 bAutoSpellWhenHit,"AL_INCAGI",10,50; bonus2 bAddItemHealRate,515,2000; autobonus "{ bonus bLuk,20; }",10,50000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus2 "{ bonus bStr,20; }",10,50000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; },{},{} 
 // Costume Headgear's Using Status's To Appear
 18741,C_Will_O_Wisp,Will O Wisp,5,20,,0,,0,,0,0xFFFFFFFF,7,2,1024,,0,0,880,{},{ sc_start SC_STRANGELIGHTS,-1,0; },{ sc_end SC_STRANGELIGHTS; }
 18742,C_MoonStar_Accessory,Moon Star Accessory,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,881,{},{ sc_start SC_MOONSTAR,-1,0; },{ sc_end SC_MOONSTAR; }
 18744,C_World_Star,World Star,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,883,{},{ sc_start SC_SUPER_STAR,-1,0; },{ sc_end SC_SUPER_STAR; }	
 
 18804,Thornwood_Band,Thornwood Band,5,0,,300,,1,,1,0xFFFFFFFF,63,2,256,,10,,921,{},{},{}
+
+18810,Hell_Pumpkin_Hat,Hell Pumpkin Hat,5,20,,500,,1,,0,0xFFFFFFFF,63,2,256,,0,1,717,{ bonus bMdef,12; bonus2 bSubRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; },{},{} 
+
+18828,2012RMSCNO1,2013 RWC Winners Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,942,{ bonus bAllStats,5; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18829,2012RMSCNO2,2013 RWC Runners-Up Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,943,{ bonus bAllStats,4; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18830,2012RMSCNO3,2013 RWC 3rd Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,944,{ bonus bAllStats,3; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18831,2012RMSCNO4,2012RMSCNO4,5,0,,1000,,2,,1,0xFFFFFFFF,63,2,256,,95,0,945,{ bonus bAllStats,2; bonus bMdef,5; bonus bSpeedAddRate,10; },{},{}
+18832,Rolf_Von_Gigue_666,Rolf Von Gigue 666,5,20,,300,,0,,0,0xFFFFFFFF,63,2,256,,0,1,946,{ bonus3 bAutoSpell,"BS_ADRENALINE",2,5; },{},{}
 
 18837,Cheering_Whistle,Cheering Whistle,5,0,,100,,,,0,0xFFFFFFFF,63,2,1,,1,,952,{},{},{}
 
