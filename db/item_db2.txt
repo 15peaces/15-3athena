@@ -184,7 +184,7 @@
 19849,C_Munak_Hat,Costume Munak Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,51,{},{},{}
 19850,C_Bongun_Hat,Costume Bongun Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,139,{},{},{}
 19851,C_Teddybear_Hat,Costume Teddybear Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,143,{},{},{}
-19853,C_Filir_Wings,Costume Filir Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,595,{},{},{}
+19853,C_Filir Wings,Costume Filir Wings,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,595,{ bonus2 bExpAddRace,RC_Boss,5; bonus2 bExpAddRace,RC_NonBoss,5; },{},{}
 19856,C_Snow_Cone_Hat,Costume Snow Cone Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1080,{},{},{}
 19857,C_Crayfish_Hat,Costume Crayfish Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,728,{},{},{}
 19858,C_Smokie_Leaf,Costume Smokie Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,148,{},{},{}

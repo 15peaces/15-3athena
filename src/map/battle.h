@@ -519,6 +519,7 @@ extern struct Battle_Config
 	int job_level_skill_effect_limit;
 	int renewal_edp;
 	int cashshop_price_rate;
+	int death_penalty_maxlv;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
 	int cellpvp_deathmatch_delay;

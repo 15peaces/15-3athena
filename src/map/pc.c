@@ -45,7 +45,9 @@
 #include <time.h>
 
 
-#define PVP_CALCRANK_INTERVAL 1000	// PVP‡ˆÊŒvŽZ‚ÌŠÔŠu
+#define PVP_CALCRANK_INTERVAL 1000	// PVP calculation interval
+#define MAX_LEVEL_BASE_EXP 99999999 ///< Max Base EXP for player on Max Base Level
+#define MAX_LEVEL_JOB_EXP 999999999 ///< Max Job EXP for player on Max Job Level
 static unsigned int exp_table[CLASS_COUNT][2][MAX_LEVEL];
 static unsigned int max_level[CLASS_COUNT][2];
 static unsigned int statp[MAX_LEVEL+1];
@@ -5487,7 +5489,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 {
 	unsigned int next = pc_nextbaseexp(sd);
 
-	if (!next || sd->status.base_exp < next)
+	if (!next || sd->status.base_exp < next || pc_is_maxbaselv(sd))
 		return 0;
 	do {
 		sd->status.base_exp -= next;
@@ -5539,7 +5541,7 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 	unsigned int next = pc_nextjobexp(sd);
 
 	nullpo_ret(sd);
-	if(!next || sd->status.job_exp < next)
+	if(!next || sd->status.job_exp < next || pc_is_maxjoblv(sd))
 		return 0;
 
 	do {
@@ -5594,13 +5596,41 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 
 	return;
 }
-/*==========================================
- * Give x exp at sd player and calculate remaining exp for next lvl
- *------------------------------------------*/
+
+/// Show EXP gained by player in percentage by @showexp
+/// @param sd Player
+/// @param base_exp Base EXP gained/loss
+/// @param next_base_exp Base EXP needed for next base level
+/// @param job_exp Job EXP gained/loss
+/// @param next_job_exp Job EXP needed for next job level
+/// @param lost True:EXP penalty, lose EXP
+static void pc_gainexp_disp(struct map_session_data *sd, unsigned int base_exp, unsigned int next_base_exp, unsigned int job_exp, unsigned int next_job_exp, bool lost) {
+	char output[CHAT_SIZE_MAX];
+
+	nullpo_retv(sd);
+
+	sprintf(output, msg_txt(734), // Experience %s Base:%ld (%0.2f%%) Job:%ld (%0.2f%%)
+		(lost) ? msg_txt(733) : msg_txt(732),
+		(long)base_exp * (lost ? -1 : 1), (base_exp / (float)next_base_exp * 100 * (lost ? -1 : 1)),
+		(long)job_exp * (lost ? -1 : 1), (job_exp / (float)next_job_exp * 100 * (lost ? -1 : 1)));
+	clif_disp_onlyself(sd, output, strlen(output));
+}
+
+/**
+ * Give Base or Job EXP to player, then calculate remaining exp for next lvl
+ * @param sd Player
+ * @param src EXP source
+ * @param base_exp Base EXP gained
+ * @param base_exp Job EXP gained
+ * @param quest True if EXP from quest, false otherwise.
+ * @return
+ **/
 int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp,unsigned int job_exp,bool quest)
 {
 	float nextbp=0, nextjp=0;
 	unsigned int nextb=0, nextj=0;
+	uint8 flag = 0; ///< 1: Base EXP given, 2: Job EXP given, 4: Max Base level, 8: Max Job Level
+
 	nullpo_ret(sd);
 
 	if(sd->bl.prev == NULL || pc_isdead(sd))
@@ -5616,8 +5646,18 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 
 	nextb = pc_nextbaseexp(sd);
 	nextj = pc_nextjobexp(sd);
+
+	flag = ((base_exp) ? 1 : 0) |
+			((job_exp) ? 2 : 0) |
+			(pc_is_maxbaselv(sd) ? 4 : 0) |
+			(pc_is_maxjoblv(sd) ? 8 : 0);
+
+	if (flag&4 && sd->status.base_exp >= MAX_LEVEL_BASE_EXP)
+		base_exp = 0;
+	if (flag&8 && sd->status.job_exp >= MAX_LEVEL_JOB_EXP)
+		job_exp = 0;
 		
-	if(sd->state.showexp || battle_config.max_exp_gain_rate){
+	if ((base_exp || job_exp) && (sd->state.showexp || battle_config.max_exp_gain_rate)){
 		if (nextb > 0)
 			nextbp = (float) base_exp / (float) nextb;
 		if (nextj > 0)
@@ -5639,101 +5679,114 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 		}
 	}
 	
-	//Cap exp to the level up requirement of the previous level when you are at max level, otherwise cap at UINT_MAX (this is required for some S. Novice bonuses). [Skotlex]
+	// Give EXP for Base Level 
 	if (base_exp) {
-		nextb = nextb?UINT_MAX:pc_thisbaseexp(sd);
 		if(sd->status.base_exp > nextb - base_exp)
 			sd->status.base_exp = nextb;
 		else
 			sd->status.base_exp += base_exp;
-		pc_checkbaselevelup(sd);
-		clif_updatestatus(sd,SP_BASEEXP);
+		if (!pc_checkbaselevelup(sd))
+			clif_updatestatus(sd,SP_BASEEXP);
 	}
 
+	// Give EXP for Job Level
 	if (job_exp) {
-		nextj = nextj?UINT_MAX:pc_thisjobexp(sd);
 		if(sd->status.job_exp > nextj - job_exp)
 			sd->status.job_exp = nextj;
 		else
 			sd->status.job_exp += job_exp;
-		pc_checkjoblevelup(sd);
-		clif_updatestatus(sd,SP_JOBEXP);
+		if (!pc_checkjoblevelup(sd))
+			clif_updatestatus(sd,SP_JOBEXP);
 	}
 
-#if PACKETVER >= 20091110
-	if(base_exp)
-		clif_displayexp(sd, base_exp, SP_BASEEXP, quest);
-	if(job_exp)
-		clif_displayexp(sd, job_exp,  SP_JOBEXP, quest);
-#endif
-	if(sd->state.showexp) {
-#if PACKETVER < 20091027
-		sprintf(output,
-			"Experience Gained Base:%u (%.2f%%) Job:%u (%.2f%%)",base_exp,nextbp*(float)100,job_exp,nextjp*(float)100);
-		clif_disp_onlyself(sd,output,strlen(output));
+#if PACKETVER < 20091110
+	pc_gainexp_disp(sd, base_exp, nextb, job_exp, nextj, false);
 #else
-	if( base_exp )
-		clif_displayexp(sd,base_exp,SP_BASEEXP,quest);
-	if( job_exp )
-		clif_displayexp(sd,job_exp,SP_JOBEXP,quest);
+	if (flag&1)
+		clif_displayexp(sd, (flag&4) ? 0 : base_exp, SP_BASEEXP, quest, false);
+	if (flag&2)
+		clif_displayexp(sd, (flag&8) ? 0 : job_exp,  SP_JOBEXP, quest, false);
 #endif
-	}
+	if(sd->state.showexp)
+		pc_gainexp_disp(sd, base_exp, nextb, job_exp, nextj, false);
 
 	return 1;
 }
 
-/*==========================================
- * Returns max level for this character.
- *------------------------------------------*/
+/**
+ * Returns max base level for this character.
+ * @param sd Player
+ * @return Max Base Level
+ **/
 unsigned int pc_maxbaselv(struct map_session_data *sd)
 {
   	return max_level[pc_class2idx(sd->status.class_)][0];
 };
 
+/**
+ * Returns max job level for this character.
+ * @param sd Player
+ * @return Max Job Level
+ **/
 unsigned int pc_maxjoblv(struct map_session_data *sd)
 {
   	return max_level[pc_class2idx(sd->status.class_)][1];
 };
 
-/*==========================================
- * base level‘¤•K—v??’lŒvŽZ
- *------------------------------------------*/
+/**
+ * Check if player is reached max base level
+ * @param sd
+ * @return True if reached max level
+ **/
+bool pc_is_maxbaselv(struct map_session_data *sd) {
+	nullpo_retr(false, sd);
+	return (sd->status.base_level >= pc_maxbaselv(sd));
+}
+
+/**
+ * Check if player is reached max base level
+ * @param sd
+ * @return True if reached max level
+ **/
+bool pc_is_maxjoblv(struct map_session_data *sd) {
+	nullpo_retr(false, sd);
+	return (sd->status.job_level >= pc_maxjoblv(sd));
+}
+
+/**
+ * Base exp needed for player to level up.
+ * @param sd
+ * @return Base EXP needed for next base level
+ **/
 unsigned int pc_nextbaseexp(struct map_session_data *sd)
 {
 	nullpo_ret(sd);
 
-	if(sd->status.base_level>=pc_maxbaselv(sd) || sd->status.base_level<=0)
+	if (sd->status.base_level == 0) // Is this something that possible?
 		return 0;
+
+	if (pc_is_maxbaselv(sd))
+		return MAX_LEVEL_BASE_EXP; // On max level, player's base EXP limit is 99,999,999
 
 	return exp_table[pc_class2idx(sd->status.class_)][0][sd->status.base_level-1];
 }
 
-unsigned int pc_thisbaseexp(struct map_session_data *sd)
-{
-	if(sd->status.base_level>pc_maxbaselv(sd) || sd->status.base_level<=1)
-		return 0;
-
-	return exp_table[pc_class2idx(sd->status.class_)][0][sd->status.base_level-2];
-}
-
-
-/*==========================================
- * job level‘¤•K—v??’lŒvŽZ
- *------------------------------------------*/
+/**
+ * Job exp needed for player to level up.
+ * @param sd
+ * @return Job EXP needed for next job level
+ **/
 unsigned int pc_nextjobexp(struct map_session_data *sd)
 {
 	nullpo_ret(sd);
 
-	if(sd->status.job_level>=pc_maxjoblv(sd) || sd->status.job_level<=0)
+	if (sd->status.job_level == 0) // Is this something that possible?
 		return 0;
-	return exp_table[pc_class2idx(sd->status.class_)][1][sd->status.job_level-1];
-}
 
-unsigned int pc_thisjobexp(struct map_session_data *sd)
-{
-	if(sd->status.job_level>pc_maxjoblv(sd) || sd->status.job_level<=1)
-		return 0;
-	return exp_table[pc_class2idx(sd->status.class_)][1][sd->status.job_level-2];
+	if (pc_is_maxjoblv(sd))
+		return MAX_LEVEL_JOB_EXP; // On max level, player's job EXP limit is 999,999,999
+
+	return exp_table[pc_class2idx(sd->status.class_)][1][sd->status.job_level-1];
 }
 
 /// Returns the value of the specified stat.
@@ -6651,9 +6704,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	// activate Steel body if a super novice dies at 99+% exp [celest]
 	if (((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && !sd->state.snovice_dead_flag)
   	{
-		unsigned int next = pc_nextbaseexp(sd);
-		if( next == 0 ) next = pc_thisbaseexp(sd);
-		if( get_percentage(sd->status.base_exp,next) >= 99 && !map_flag_gvg(sd->bl.m) )
+		unsigned int exp = pc_nextbaseexp(sd);
+		if( exp && get_percentage(sd->status.base_exp,exp) >= 99 && !map_flag_gvg(sd->bl.m) )
 		{
 			sd->state.snovice_dead_flag = 1;
 			pc_setstand(sd);
@@ -6677,56 +6729,51 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		&& !map[sd->bl.m].flag.noexppenalty && !map_flag_gvg(sd->bl.m)
 		&& !sd->sc.data[SC_BABY] && !sd->sc.data[SC_LIFEINSURANCE])
 	{
-		unsigned int base_penalty =0;
-		if (battle_config.death_penalty_base > 0) {
-			int exp;
+		uint32 base_penalty = battle_config.death_penalty_base;
+		uint32 job_penalty = battle_config.death_penalty_job;
+		uint32 zeny_penalty = battle_config.zeny_penalty;
+
+		if ((battle_config.death_penalty_maxlv&1 || !pc_is_maxbaselv(sd)) && base_penalty > 0) {
 			switch (battle_config.death_penalty_type) {
-				case 1:
-					base_penalty = (unsigned int) ((double)pc_nextbaseexp(sd) * (double)battle_config.death_penalty_base/10000);
-				break;
-				case 2:
-					base_penalty = (unsigned int) ((double)sd->status.base_exp * (double)battle_config.death_penalty_base/10000);
-				break;
+				case 1: base_penalty = (uint32) ( pc_nextbaseexp(sd) * ( base_penalty / 10000. ) ); break;
+				case 2: base_penalty = (uint32) ( sd->status.base_exp * ( base_penalty / 10000. ) ); break;
 			}
-			if(base_penalty) {
-			  	if (battle_config.pk_mode && src && src->type==BL_PC)
-					base_penalty*=2;
-				exp = min(sd->status.base_exp, base_penalty);
-#if PACKETVER >= 20091027
-				clif_displayexp(sd, exp, SP_BASEEXP, false);
-#endif
-				sd->status.base_exp -= min(sd->status.base_exp, base_penalty);
+			if (base_penalty){ //recheck after altering to speedup
+				if (battle_config.pk_mode && src && src->type==BL_PC)
+					base_penalty *= 2;
+				base_penalty = min(sd->status.base_exp, base_penalty);
+				sd->status.base_exp -= base_penalty;
+				clif_displayexp(sd, base_penalty, SP_BASEEXP, false, true);
 				clif_updatestatus(sd,SP_BASEEXP);
 			}
 		}
-		if(battle_config.death_penalty_job > 0)
-	  	{
+		else 
 			base_penalty = 0;
+
+		if ((battle_config.death_penalty_maxlv&2 || !pc_is_maxjoblv(sd)) && job_penalty > 0) {
 			switch (battle_config.death_penalty_type) {
-				case 1:
-					base_penalty = (unsigned int) ((double)pc_nextjobexp(sd) * (double)battle_config.death_penalty_job/10000);
-				break;
-				case 2:
-					base_penalty = (unsigned int) ((double)sd->status.job_exp * (double)battle_config.death_penalty_job/10000);
-				break;
+				case 1: job_penalty = (uint32) ( pc_nextjobexp(sd) * ( job_penalty / 10000. ) ); break;
+				case 2: job_penalty = (uint32) ( sd->status.job_exp * ( job_penalty /10000. ) ); break;
 			}
-			if(base_penalty) {
-				int exp;
-			  	if (battle_config.pk_mode && src && src->type==BL_PC)
-					base_penalty*=2;
-				exp = min(sd->status.job_exp, base_penalty);
-#if PACKETVER >= 20091027
-					clif_displayexp(sd, exp, SP_JOBEXP, false);
-#endif
-				sd->status.job_exp -= exp;
+			if (job_penalty) {
+				if (battle_config.pk_mode && src && src->type==BL_PC)
+					job_penalty *= 2;
+				job_penalty = min(sd->status.job_exp, job_penalty);
+				sd->status.job_exp -= job_penalty;
+				clif_displayexp(sd, job_penalty, SP_JOBEXP, false, true);
 				clif_updatestatus(sd,SP_JOBEXP);
 			}
 		}
-		if(battle_config.zeny_penalty > 0 && !map[sd->bl.m].flag.nozenypenalty)
-	  	{
-			base_penalty = (unsigned int)((double)sd->status.zeny * (double)battle_config.zeny_penalty / 10000.);
-			if(base_penalty)
-				pc_payzeny(sd, base_penalty);
+		else
+			job_penalty = 0;
+
+		if (sd->state.showexp && (base_penalty || job_penalty))
+			pc_gainexp_disp(sd, base_penalty, pc_nextbaseexp(sd), job_penalty, pc_nextjobexp(sd), true);
+
+		if( zeny_penalty > 0 && !map[sd->bl.m].flag.nozenypenalty) {
+			zeny_penalty = (uint32)( sd->status.zeny * ( zeny_penalty / 10000. ) );
+			if(zeny_penalty)
+				pc_payzeny(sd, zeny_penalty);
 		}
 	}
 

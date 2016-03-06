@@ -5591,24 +5591,6 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int
 	}
 }
 
-void clif_cooking_fail(struct map_session_data *sd, int skill_id, int val, int list_type, int fails)
-{
-#if PACKETVER >= 20090922
-	int fd;
-
-	nullpo_retv(sd);
-
-	fd = sd->fd;
-	WFIFOHEAD(fd, packet_len(0x7e6));
-	WFIFOW(fd,0) = 0x7e6;
-	WFIFOW(fd,2) = skill_id;
-	WFIFOB(fd,4) = val;
-	WFIFOW(fd,5) = list_type;
-	WFIFOB(fd,7) = (fails) ? 1 : 0;
-	WFIFOSET(fd, packet_len(0x7e6));
-#endif
-}
-
 /// Present a list of producable items (ZC_MAKINGITEM_LIST).
 /// 025a <packet len>.W <mk type>.W { <name id>.W }*
 /// mk type:
@@ -5653,14 +5635,26 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 		sd->menuskill_id = skill_id;
 		sd->menuskill_val = trigger;
 		if( skill_id != AM_PHARMACY ){
-			sd->menuskill_itemused = 1; // amount.
+			sd->menuskill_itemused = qty; // amount.
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));
 		}
 	}else{
 		sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
 		if( skill_id != AM_PHARMACY ) // AM_PHARMACY is used to Cooking.
-			clif_cooking_fail(sd,skill_id,0x25,list_type,0);
+		{	// It fails.
+#if PACKETVER >= 20090922
+			WFIFOW(fd,0) = 0x7e6;
+			WFIFOW(fd,2) = skill_id;
+			WFIFOB(fd,4) = 0x25;
+			WFIFOW(fd,5) = list_type;
+			WFIFOB(fd,7) = 0;
+			WFIFOSET(fd, packet_len(0x7e6));
+#else
+			WFIFOW(fd,2) = 6 + 2*c;
+			WFIFOSET(fd,WFIFOW(fd,2));
+#endif
+		}
 	}
 }
 
@@ -16941,7 +16935,12 @@ void clif_millenniumshield(struct map_session_data *sd, short shields )
 /// exp type:
 ///     0 = normal exp gain/loss
 ///     1 = quest exp gain/loss
-void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest)
+/// @param sd Player
+/// @param exp EXP value gained/loss
+/// @param type SP_BASEEXP, SP_JOBEXP
+/// @param quest False:Normal EXP; True:Quest EXP (displayed in purple color)
+/// @param lost True:if lossing EXP
+void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest, bool lost)
 {
 	int fd;
 
@@ -16952,7 +16951,7 @@ void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, b
 	WFIFOHEAD(fd, packet_len(0x7f6));
 	WFIFOW(fd,0) = 0x7f6;
 	WFIFOL(fd,2) = sd->bl.id;
-	WFIFOL(fd,6) = exp;
+	WFIFOL(fd,6) = (int)min(exp, INT_MAX) * (lost ? -1 : 1);
 	WFIFOW(fd,10) = type;
 	WFIFOW(fd,12) = quest?1:0;// Normal exp is shown in yellow, quest exp is shown in purple.
 	WFIFOSET(fd,packet_len(0x7f6));

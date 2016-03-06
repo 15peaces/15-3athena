@@ -532,6 +532,12 @@
 4134,0,0,0,0,0,0,0,"Iara"
 4135,86400,0,0,0,0,0,0,"Iara"
 
+4161,0,0,0,0,0,0,0,"Siege Expert"
+4162,0,0,0,0,0,0,0,"Party Recruiting Expert"
+4163,0,0,0,0,0,0,0,"Battleground Expert"
+4164,0,0,0,0,0,0,0,"Memorial Dungeon Expert"
+4165,0,0,0,0,0,0,0,"Map Expert"
+4166,0,0,0,0,0,0,0,"Passing Grades"
 // Paradise 86 - 90 [Chilly]
 4167,0,1321,30,0,0,0,0,"Paradise: Dragon Tail Handling"
 4168,0,1322,30,0,0,0,0,"Paradise: Spring Rabbit Handling"

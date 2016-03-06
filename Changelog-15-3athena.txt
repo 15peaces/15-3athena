@@ -4,9 +4,42 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/06/2016
+	r111 [15peaces]
+		*Merged missing changes from 3ceam rev. 448 - 451
+		*Fixed some typos in quests_eclage file.
+		*Fixed Costume Filir Wings
+		*Added some missing quest_db entries.
+		*Added official EXP on Max Level
+			-'Last' EXP for max base level is 99,999,999 and 999,999,999 for Job EXP on max job level.
+			-Player still obtains EXP on max level (of course until both base & job reach 100%).
+			-This behavior is used for Base EXP check for:
+				--Super Novice's Explosion Spirit.
+				--Royal Guard's Inspiration.
+				--High Priest's Redemptio.
+			-Added config `death_penalty_maxlv`, default is set to 0. Player on max level, never loss EXP by death penalty.
+			-Thanks to @rathena / @cydh 
+			-On EXP lost by death penalty. EXP will be shown as negative value.
+			-Fixed check for EXP value on packet `0x07f6`. EXP is limited to INT_MIN until INT_MAX by client (so don't expect client to displays value more than this!)
+			-Added EXP gained/lost message by `@showexp` on death penalty too.
+		*Fixed an issue in GN_MIX_COOKING and GN_MAKEBOMB where these wasn't creating 10 items at level 2.
+		*Fixed a mistake in WM_REVERBERATION.
+		*Fixed range exploit
+			-Players will no longer get +2 range server-sided when using a target spell
+			-This will prevent players from modifying the client to get extra range
+		*Fixed Poison Bottle. Still need confirm if Normal Guillotine Cross can drink it without die.
+		*Updated statpoint db and item_delay db with a better one.
+		*monster database fixes
+			-Updated some MVP drops to the most reliable pre-renewal data available
+			-Changed Aunoe and Fanat from their iRO version to the kRO version (weaker)
+			-Fixed modes of all SE Guild Dungeon monsters
+			-Other minor corrections
+		*Updated SO_STRIKING skill, according to official behavior.
+		*Updated Deep Sleep status where target base level reduces its duration.
+	
 02/29/2016
 	r110 [15peaces]
-		*Merged missing changes from 3ceam rev. 438 - 443
+		*Merged missing changes from 3ceam rev. 438 - 447
 		*Song and Dance timers now correctly update in the instance of Dissonance/Ugly Dance cell switches - Fixes #9
 			-Thanks to @rathena & @cold-hr.
 		*Fixed an issue where AL_WARP and maybe other skills were failing. (follow up to r107 / 5782f93)
