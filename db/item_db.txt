@@ -6888,6 +6888,9 @@
 
 18860,Preschool_Hat,Preschool Hat,5,0,,100,,1,,1,0xFFFFFFFF,63,2,256,,1,,977,{},{},{}
 
+18942,Knit_Cap_of_Water,Knit Cap of Water,5,0,,1000,,0,,0,0xFFFFFFFF,63,2,256,,90,,1077,{},{},{}
+18943,Silk_Hat_of_Earth,Silk Hat of Earth,5,0,,1000,,0,,0,0xFFFFFFFF,63,2,256,,90,,1078,{},{},{}
+
 19500,T_Mr_Smile,T Mr Smile,5,0,,0,,0,,0,0xFFFFFFFF,7,2,6144,,0,0,65,{ bonus bStr,2; },{},{}
 19501,T_Spinx_Helm,T Spinx Helm,5,0,,0,,0,,1,0xFFFFFFFF,7,2,5120,,0,0,137,{},{},{}
 19504,T_Sunglasses,T Sunglasses,5,0,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,12,{},{},{}
@@ -6917,6 +6920,7 @@
 19612,C_Note_Headphone,Costume Note Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,220,{},{},{}
 19613,C_Valkyrie_Feather_Band,Costume Valkyrie Feather Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,300,{},{},{}
 19614,C_Super_Novice_Hat,Costume Super Novice Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,193,{},{},{}
+19615,C_Loki_Mask,Costume Loki Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,346,{},{},{}
 
 19617,C_Puppy_Headband,Costume Puppy Headband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,199,{},{},{}
 
@@ -6925,6 +6929,8 @@
 19622,C_Crescent_Hairpin,Costume Crescent Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,132,{},{},{}
 
 19624,C_Blank_Eyes,Costume Blank Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,185,{},{},{}
+
+19628,C_Headset,Costume Headset,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,97,{},{},{}
 
 19631,C_Poring_Fedora_Hat,Costume Poring Fedora Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,919,{},{},{}
 
@@ -7015,6 +7021,11 @@
 
 19741,C_Majestic_Devil_Horns,Costume Majestic Devil Horns,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,562,{},{},{}
 19742,C_Small_Golden_Wings,Costume Small Golden Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,724,{bonus2 bExpAddRace,RC_NonBoss,1; bonus2 bExpAddRace,RC_Boss,1;},{},{}
+19743,C_Anubis_Helm_J,Costume Anubis Helm J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,485,{},{},{}
+19744,C_Black_Tail_Ribbon,Costume Black Tail Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,642,{},{},{}
+19745,C_Holy Marching_Hat_J,Costume Holy Marching Hat J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,587,{},{},{}
+19746,C_Executioner_Hood,Costume Executioner Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,326,{},{},{}
+19747,C_Tha_Despero_Mask_J,Costume Tha Despero Mask J,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,693,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}

@@ -5851,9 +5851,13 @@ int pc_need_status_point(struct map_session_data* sd, int type, int val)
 	if ( val < 0 )
 		swap(low, high);
 
-	for ( ; low < high; low++ )
-		sp += ( 1 + (low + 9) / 10 );
-	
+	for ( ; low < high; low++ ){
+		if( battle_config.renewal_statpoints )
+			sp += ( 1 + (low + 9) / 10 ); // classic
+		else
+			sp += (low < 100) ? (2 + (low - 1) / 10) : (16 + 4 * ((low - 100) / 5)); // Renewal machanic.
+	}
+
 	return sp;
 }
 
@@ -9291,7 +9295,10 @@ int pc_readdb(void)
 	// ƒXƒLƒ‹ƒcƒŠ?
 	memset(statp,0,sizeof(statp));
 	i=1;
-	sprintf(line, "%s/statpoint.txt", db_path);
+	if( battle_config.renewal_statpoints )
+		sprintf(line, "%s/statpoint_renewal.txt", db_path); // Renewal mechanic
+	else
+		sprintf(line, "%s/statpoint.txt", db_path); // Old mechanic.
 	fp=fopen(line,"r");
 	if(fp == NULL){
 		ShowWarning("Can't read '"CL_WHITE"%s"CL_RESET"'... Generating DB.\n",line);

@@ -46,16 +46,16 @@
 //prt_sewb2,0,0,0,0	monster	Furious Thief Bug	2634,2,300000,0
 //beach_dun3,0,0,0,0	monster	Elusive Thara Frog	2635,2,300000,0
 //ein_fild03,0,0,0,0	monster	Swift Teddy Bear	2636,2,300000,0
-//man_fild03,0,0,0,0	monster	Solid Tatacho	2637,2,300000,0
-//mjo_dun01,0,0,0,0	monster	Tarou Ringleader	2638,2,300000,0
-//ayo_dun02,0,0,0,0	monster	Furious Tamruan	2639,2,300000,0
-//gl_sew03,0,0,0,0	monster	Elusive Sting	2640,2,300000,0
-//lhz_fild02,0,0,0,0	monster	Swift Stem Worm	2641,2,300000,0
-//moc_fild13,0,0,0,0	monster	Solid Steel Chonchon	2642,2,300000,0
-//ve_fild07,0,0,0,0	monster	Stapo Ringleader	2643,2,300000,0
+man_fild03,0,0,0,0	monster	Solid Tatacho	2637,2,300000,0
+mjo_dun01,0,0,0,0	monster	Tarou Ringleader	2638,2,300000,0
+ayo_dun02,0,0,0,0	monster	Furious Tamruan	2639,2,300000,0
+gl_sew03,0,0,0,0	monster	Elusive Sting	2640,2,300000,0
+lhz_fild02,0,0,0,0	monster	Swift Stem Worm	2641,2,300000,0
+moc_fild13,0,0,0,0	monster	Solid Steel Chonchon	2642,2,300000,0
+ve_fild07,0,0,0,0	monster	Stapo Ringleader	2643,2,300000,0
 beach_dun2,0,0,0,0	monster	Furious Stalactic Golem	2644,2,300000,0
-//prt_fild02,0,0,0,0	monster	Elusive Stainer	2645,2,300000,0
-//treasure_n1,0,0,0,0	monster	Swift Spore	2646,2,300000,0
+prt_fild02,0,0,0,0	monster	Elusive Stainer	2645,2,300000,0
+treasure_n1,0,0,0,0	monster	Swift Spore	2646,2,300000,0
 //tur_dun02,0,0,0,0	monster	Solid Solider	2647,2,300000,0
 //pay_dun02,0,0,0,0	monster	Soldier Skeleton Ringleader	2648,2,300000,0
 //pay_dun01,0,0,0,0	monster	Furious Soldier Skeleton	2649,2,300000,0
@@ -102,16 +102,16 @@ beach_dun2,0,0,0,0	monster	Furious Stalactic Golem	2644,2,300000,0
 //gl_knt02,0,0,0,0	monster	Swift Raydric	2690,2,300000,0
 //gl_knt01,0,0,0,0	monster	Solid Raydric	2691,2,300000,0
 //lhz_dun02,0,0,0,0	monster	Laurell Weinder Ringleader	2692,2,300000,0
-//dic_dun03,0,0,0,0	monster	Furious Rake Scaraba	2693,2,300000,0
+dic_dun03,0,0,0,0	monster	Furious Rake Scaraba	2693,2,300000,0
 //cmd_fild07,0,0,0,0	monster	Elusive Raggler	2694,2,300000,0
 //lhz_fild01,0,0,0,0	monster	Swift Rafflesia	2695,2,300000,0
 //lhz_fild01,0,0,0,0	monster	Poring Ringleader	2696,2,300000,0
-//lhz_fild01,0,0,0,0	monster	Furious Poring	2697,2,300000,0
-//lhz_fild01,0,0,0,0	monster	Elusive Poring	2698,2,300000,0
-//gef_fild07,0,0,0,0	monster	Swift Poring	2699,2,300000,0
-//ein_fild09,0,0,0,0	monster	Solid Porcellio	2700,2,300000,0
-//prt_maze03,0,0,0,0	monster	Poporing Ringleader	2701,2,300000,0
-//prt_maze02,0,0,0,0	monster	Furious Poporing	2702,2,300000,0
+lhz_fild01,0,0,0,0	monster	Furious Poring	2697,2,300000,0
+lhz_fild01,0,0,0,0	monster	Elusive Poring	2698,2,300000,0
+gef_fild07,0,0,0,0	monster	Swift Poring	2699,2,300000,0
+ein_fild09,0,0,0,0	monster	Solid Porcellio	2700,2,300000,0
+prt_maze03,0,0,0,0	monster	Poporing Ringleader	2701,2,300000,0
+prt_maze02,0,0,0,0	monster	Furious Poporing	2702,2,300000,0
 //pay_fild04,0,0,0,0	monster	Elusive Poporing	2703,2,300000,0
 //ama_dun02,0,0,0,0	monster	Swift Poison Toad	2704,2,300000,0
 //mjolnir_06,0,0,0,0	monster	Solid Poison Spore	2705,2,300000,0
@@ -144,16 +144,16 @@ gef_fild10,0,0,0,0	monster	Furious Orc Warrior	2722,2,300000,0
 //mag_dun02,0,0,0,0	monster	Furious Nightmare Terror	2732,2,300000,0
 //gl_chyard_,0,0,0,0	monster	Elusive Wraith Dead (Nightmare)	2733,2,300000,0
 //gl_cas02_,0,0,0,0	monster	Furious Wanderer (Nightmare)	2734,2,300000,0
-//man_fild01,0,0,0,0	monster	Solid Nephentes	2735,2,300000,0
-//abbey03,0,0,0,0	monster	Necromancer Ringleader	2736,2,300000,0
-//xmas_dun02,0,0,0,0	monster	Furious Myst Case	2737,2,300000,0
-//ve_fild04,0,0,0,0	monster	Elusive Muscipular	2738,2,300000,0
-//moc_pryd03,0,0,0,0	monster	Swift Mummy	2739,2,300000,0
-//moc_pryd02,0,0,0,0	monster	Solid Mummy	2740,2,300000,0
-//moc_fild01,0,0,0,0	monster	Muka Ringleader	2741,2,300000,0
-//moc_fild22,0,0,0,0	monster	Furious Incarnation of Morroc	2742,2,300000,0
-//moc_fild21,0,0,0,0	monster	Elusive Incarnation of Morroc	2743,2,300000,0
-//moc_fild20,0,0,0,0	monster	Swift Incarnation of Morroc	2744,2,300000,0
+man_fild01,0,0,0,0	monster	Solid Nephentes	2735,2,300000,0
+abbey03,0,0,0,0	monster	Necromancer Ringleader	2736,2,300000,0
+xmas_dun02,0,0,0,0	monster	Furious Myst Case	2737,2,300000,0
+ve_fild04,0,0,0,0	monster	Elusive Muscipular	2738,2,300000,0
+moc_pryd03,0,0,0,0	monster	Swift Mummy	2739,2,300000,0
+moc_pryd02,0,0,0,0	monster	Solid Mummy	2740,2,300000,0
+moc_fild01,0,0,0,0	monster	Muka Ringleader	2741,2,300000,0
+moc_fild22,0,0,0,0	monster	Furious Incarnation of Morroc	2742,2,300000,0
+moc_fild21,0,0,0,0	monster	Elusive Incarnation of Morroc	2743,2,300000,0
+moc_fild20,0,0,0,0	monster	Swift Incarnation of Morroc	2744,2,300000,0
 //ein_fild06,0,0,0,0	monster	Solid Holden	2745,2,300000,0
 //ama_dun01,0,0,0,0	monster	Miyabi Doll Ringleader	2746,2,300000,0
 //moc_prydn1,0,0,0,0	monster	Furious Minorous	2747,2,300000,0
@@ -208,16 +208,16 @@ gef_fild10,0,0,0,0	monster	Furious Orc Warrior	2722,2,300000,0
 //lou_dun02,0,0,0,0	monster	Yao Jun Ringleader	2796,2,300000,0
 //gef_dun00,0,0,0,0	monster	Furious Hunter Fly	2797,2,300000,0
 //prt_fild05,0,0,0,0	monster	Elusive Hornet	2798,2,300000,0
-//dic_dun01,0,0,0,0	monster	Swift Uni-horn Scaraba	2799,2,300000,0
-//pay_fild09,0,0,0,0	monster	Solid Horn	2800,2,300000,0
-//ra_san03,0,0,0,0	monster	Hodremlin Ringleader	2801,2,300000,0
-//moc_fild17,0,0,0,0	monster	Furious Hode	2802,2,300000,0
-//ra_fild04,0,0,0,0	monster	Elusive Hill Wind	2803,2,300000,0
-//ra_fild03,0,0,0,0	monster	Swift Hill Wind	2804,2,300000,0
-//alde_dun02,0,0,0,0	monster	Solid High Orc	2805,2,300000,0
-//yuno_fild04,0,0,0,0	monster	Harpy Ringleader	2806,2,300000,0
-//yuno_fild03,0,0,0,0	monster	Furious Harpy	2807,2,300000,0
-//cmd_fild01,0,0,0,0	monster	Elusive Grove	2808,2,300000,0
+dic_dun01,0,0,0,0	monster	Swift Uni-horn Scaraba	2799,2,300000,0
+pay_fild09,0,0,0,0	monster	Solid Horn	2800,2,300000,0
+ra_san03,0,0,0,0	monster	Hodremlin Ringleader	2801,2,300000,0
+moc_fild17,0,0,0,0	monster	Furious Hode	2802,2,300000,0
+ra_fild04,0,0,0,0	monster	Elusive Hill Wind	2803,2,300000,0
+ra_fild03,0,0,0,0	monster	Swift Hill Wind	2804,2,300000,0
+alde_dun02,0,0,0,0	monster	Solid High Orc	2805,2,300000,0
+yuno_fild04,0,0,0,0	monster	Harpy Ringleader	2806,2,300000,0
+yuno_fild03,0,0,0,0	monster	Furious Harpy	2807,2,300000,0
+cmd_fild01,0,0,0,0	monster	Elusive Grove	2808,2,300000,0
 //pay_fild10,0,0,0,0	monster	Swift Greatest General	2809,2,300000,0
 //yuno_fild09,0,0,0,0	monster	Solid Grand Peco	2810,2,300000,0
 //yuno_fild08,0,0,0,0	monster	Grand Peco Ringleader	2811,2,300000,0
@@ -259,16 +259,16 @@ gef_fild10,0,0,0,0	monster	Furious Orc Warrior	2722,2,300000,0
 //in_sphinx1,0,0,0,0	monster	Elusive Drainliar	2847,2,300000,0
 //tur_dun01,0,0,0,0	monster	Swift Dragon Tail	2848,2,300000,0
 //nyd_dun01,0,0,0,0	monster	Solid Draco	2849,2,300000,0
-//dic_fild02,0,0,0,0	monster	Dolomedes Ringleader	2850,2,300000,0
-//pay_dun04,0,0,0,0	monster	Furious Dokebi	2851,2,300000,0
-//nif_fild01,0,0,0,0	monster	Elusive Disguise	2852,2,300000,0
-//jupe_core,0,0,0,0	monster	Swift Dimik	2853,2,300000,0
-//gef_dun02,0,0,0,0	monster	Solid Deviruchi	2854,2,300000,0
-//ra_fild01,0,0,0,0	monster	Baby Desert Wolf Ringleader	2855,2,300000,0
-//moc_fild11,0,0,0,0	monster	Furious Baby Desert Wolf	2856,2,300000,0
-//cmd_fild08,0,0,0,0	monster	Elusive Deniro	2857,2,300000,0
-//tha_t06,0,0,0,0	monster	Swift Death Word	2858,2,300000,0
-//tha_t04,0,0,0,0	monster	Solid Death Word	2859,2,300000,0
+dic_fild02,0,0,0,0	monster	Dolomedes Ringleader	2850,2,300000,0
+pay_dun04,0,0,0,0	monster	Furious Dokebi	2851,2,300000,0
+nif_fild01,0,0,0,0	monster	Elusive Disguise	2852,2,300000,0
+jupe_core,0,0,0,0	monster	Swift Dimik	2853,2,300000,0
+gef_dun02,0,0,0,0	monster	Solid Deviruchi	2854,2,300000,0
+ra_fild01,0,0,0,0	monster	Baby Desert Wolf Ringleader	2855,2,300000,0
+moc_fild11,0,0,0,0	monster	Furious Baby Desert Wolf	2856,2,300000,0
+cmd_fild08,0,0,0,0	monster	Elusive Deniro	2857,2,300000,0
+tha_t06,0,0,0,0	monster	Swift Death Word	2858,2,300000,0
+tha_t04,0,0,0,0	monster	Solid Death Word	2859,2,300000,0
 //tha_t03,0,0,0,0	monster	Death Word Ringleader	2860,2,300000,0
 //gl_chyard,0,0,0,0	monster	Furious Dark Priest	2861,2,300000,0
 //lou_dun03,0,0,0,0	monster	Elusive Zhu Po Long	2862,2,300000,0
@@ -282,9 +282,9 @@ gef_fild10,0,0,0,0	monster	Furious Orc Warrior	2722,2,300000,0
 //c_tower4,0,0,0,0	monster	Clock Ringleader	2870,2,300000,0
 //c_tower2,0,0,0,0	monster	Furious Clock	2871,2,300000,0
 //gef_fild00,0,0,0,0	monster	Elusive Chonchon	2872,2,300000,0
-//dic_fild01,0,0,0,0	monster	Swift Centipede	2873,2,300000,0
-//ecl_tdun01,0,0,0,0	monster	Solid Cenere	2874,2,300000,0
-//lhz_dun04,0,0,0,0	monster	Celia Ringleader	2875,2,300000,0
+dic_fild01,0,0,0,0	monster	Swift Centipede	2873,2,300000,0
+ecl_tdun01,0,0,0,0	monster	Solid Cenere	2874,2,300000,0
+lhz_dun04,0,0,0,0	monster	Celia Ringleader	2875,2,300000,0
 gld_dun03,0,0,0,0	monster	Furious Caterpillar	2876,2,300000,0
 gl_cas01,0,0,0,0	monster	Elusive Carat	2877,2,300000,0
 mjolnir_01,0,0,0,0	monster	Swift Caramel	2878,2,300000,0
@@ -305,16 +305,16 @@ alde_dun04,0,0,0,0	monster	Furious Bathory	2885,2,300000,0
 //gl_dun01,0,0,0,0	monster	Solid Arclouze	2893,2,300000,0
 //alde_dun01,0,0,0,0	monster	Arclouze Ringleader	2894,2,300000,0
 //juperos_02,0,0,0,0	monster	Furious Apocalypse	2895,2,300000,0
-//dic_dun02,0,0,0,0	monster	Elusive Antler Scaraba	2896,2,300000,0
-//ecl_tdun03,0,0,0,0	monster	Swift Antique Book	2897,2,300000,0
-//ecl_tdun02,0,0,0,0	monster	Solid Antique Book	2898,2,300000,0
-//gl_sew04,0,0,0,0	monster	Furious Anolian	2899,2,300000,0
-//gld2_ald,0,0,0,0	monster	Elusive Angra Mantis	2900,2,300000,0
-//gld_dun02_2,0,0,0,0	monster	Swift Angra Mantis	2901,2,300000,0
-//anthell02,0,0,0,0	monster	Solid Andre	2902,2,300000,0
-//tha_t02,0,0,0,0	monster	Ancient Mimic Ringleader	2903,2,300000,0
-//ra_fild08,0,0,0,0	monster	Furious Anacondaq	2904,2,300000,0
-//prt_fild04,0,0,0,0	monster	Elusive Ambernite	2905,2,300000,0
+dic_dun02,0,0,0,0	monster	Elusive Antler Scaraba	2896,2,300000,0
+ecl_tdun03,0,0,0,0	monster	Swift Antique Book	2897,2,300000,0
+ecl_tdun02,0,0,0,0	monster	Solid Antique Book	2898,2,300000,0
+gl_sew04,0,0,0,0	monster	Furious Anolian	2899,2,300000,0
+gld2_ald,0,0,0,0	monster	Elusive Angra Mantis	2900,2,300000,0
+gld_dun02_2,0,0,0,0	monster	Swift Angra Mantis	2901,2,300000,0
+anthell02,0,0,0,0	monster	Solid Andre	2902,2,300000,0
+tha_t02,0,0,0,0	monster	Ancient Mimic Ringleader	2903,2,300000,0
+ra_fild08,0,0,0,0	monster	Furious Anacondaq	2904,2,300000,0
+prt_fild04,0,0,0,0	monster	Elusive Ambernite	2905,2,300000,0
 //dew_fild01,0,0,0,0	monster	Swift Rafflesia Arnoldi	2906,2,300000,0
 //cmd_fild03,0,0,0,0	monster	Solid Alligator	2907,2,300000,0
 //kh_dun01,0,0,0,0	monster	Aliza Ringleader	2908,2,300000,0

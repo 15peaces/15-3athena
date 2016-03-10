@@ -520,6 +520,7 @@ extern struct Battle_Config
 	int renewal_edp;
 	int cashshop_price_rate;
 	int death_penalty_maxlv;
+	int renewal_statpoints;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
 	int cellpvp_deathmatch_delay;

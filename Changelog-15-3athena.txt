@@ -4,6 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/10/2016
+	r112 [15peaces]
+		*Merged missing changes from 3ceam rev. 452 - 453
+		*Reviewed / added all Manuk and El Dicastes monster spawns.
+		*Some clean-up and updating in itemDB & monsterDB
+			-added more missing items
+			-added more champion mobs (currently renewal versions).
+			-re-replaced item_delay.txt, sorry for the mess-up ^^
+		*Added support for configuring the use of the old stat points mechanic or the renewal one. 
+			-More info in conf/battle/player.conf.
+
 03/06/2016
 	r111 [15peaces]
 		*Merged missing changes from 3ceam rev. 448 - 451

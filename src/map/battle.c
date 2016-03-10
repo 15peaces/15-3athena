@@ -5025,6 +5025,7 @@ static const struct _battle_data {
 	{ "renewal_edp",                        &battle_config.renewal_edp,                      0,     0,      3,				},
 	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	{ "death_penalty_maxlv",                &battle_config.death_penalty_maxlv,             0,      0,      3,              }, 
+	{ "renewal_statpoints",					&battle_config.renewal_statpoints,				0,		0,		1,				},
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },
