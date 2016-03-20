@@ -1914,4 +1914,4 @@
 18002,Dark_Cannon_Ball,Dark Cannon Ball,10,200,,10,120,,,,0xFFFFFFFF,8,2,32768,,1,,8,{ bonus bAtkEle,Ele_Dark; },{},{}
 18003,Soul_Cannon_Ball,Soul Cannon Ball,10,200,,10,120,,,,0xFFFFFFFF,8,2,32768,,1,,8,{ bonus bAtkEle,Ele_Ghost; },{},{}
 18004,Iron_Cannon_Ball,Iron Cannon Ball,10,500,,10,250,,,,0xFFFFFFFF,8,2,32768,,1,,8,{ bonus bAtkEle,Ele_Neutral; },{},{}
- 
+19540,C_Rabbit_Earplug,Costume Rabbit Earplugs,5,20,,0,,0,,0,0xFFFFFFFF,63,2,7168,,1,0,515,{ bonus bAgi,1; bonus bFlee,2; },{},{}

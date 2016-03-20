@@ -1,12 +1,70 @@
-//===== eAthena Script =======================================
-//= Map flags that disable use of fly wings
+//===== 15-3athena Script ====================================
+//= Mapflag: Disable use of fly wings
 //===== By: ==================================================
-//= eAthena Dev Team
-//= 1.6a [Lupus]
-//===== Notes: ===============================================
-//= For disabling Butterfly wings use noreturn
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
+//= 1.7
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: ========================================= 
+//= For disabling Butterfly wings use noreturn
+//===== Additional Comments: ================================= 
+//= 1.7 Added support for episode mapflags [15peaces]
+//============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_noteleport	-1,{
+Oninit:	
+	// Episode 13.1+
+	if(getepisode() >= 131){
+		setmapflag "mid_campin" ,mf_noteleport;
+		setmapflag "mid_campin" ,mf_noteleport;
+		setmapflag "moc_fild22b",mf_noteleport;
+		setmapflag "que_dan01"  ,mf_noteleport;
+		setmapflag "que_dan02"  ,mf_noteleport;
+		setmapflag "schg_que01" ,mf_noteleport;
+		setmapflag "arug_que01" ,mf_noteleport;
+		setmapflag "man_in01"   ,mf_noteleport;
+		setmapflag "spl_in01"   ,mf_noteleport;
+	}
+	
+	end;
+}
+
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
+// Arenas =====================>\\
+arena_room	mapflag	noteleport
+sec_in01	mapflag	noteleport
+
+// Guild Castles =================
+aldeg_cas01	mapflag	noteleport
+aldeg_cas02	mapflag	noteleport
+aldeg_cas03	mapflag	noteleport
+aldeg_cas04	mapflag	noteleport
+aldeg_cas05	mapflag	noteleport
+gefg_cas01	mapflag	noteleport
+gefg_cas02	mapflag	noteleport
+gefg_cas03	mapflag	noteleport
+gefg_cas04	mapflag	noteleport
+gefg_cas05	mapflag	noteleport
+payg_cas01	mapflag	noteleport
+payg_cas02	mapflag	noteleport
+payg_cas03	mapflag	noteleport
+payg_cas04	mapflag	noteleport
+payg_cas05	mapflag	noteleport
+prtg_cas01	mapflag	noteleport
+prtg_cas02	mapflag	noteleport
+prtg_cas03	mapflag	noteleport
+prtg_cas04	mapflag	noteleport
+prtg_cas05	mapflag	noteleport
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
 // Cities ========================
 ayo_in01	mapflag	noteleport
 ayo_in02	mapflag	noteleport
@@ -159,26 +217,6 @@ que_job03	mapflag	noteleport
 cave	mapflag	noteleport
 
 // Guild Castles =================
-aldeg_cas01	mapflag	noteleport
-aldeg_cas02	mapflag	noteleport
-aldeg_cas03	mapflag	noteleport
-aldeg_cas04	mapflag	noteleport
-aldeg_cas05	mapflag	noteleport
-gefg_cas01	mapflag	noteleport
-gefg_cas02	mapflag	noteleport
-gefg_cas03	mapflag	noteleport
-gefg_cas04	mapflag	noteleport
-gefg_cas05	mapflag	noteleport
-payg_cas01	mapflag	noteleport
-payg_cas02	mapflag	noteleport
-payg_cas03	mapflag	noteleport
-payg_cas04	mapflag	noteleport
-payg_cas05	mapflag	noteleport
-prtg_cas01	mapflag	noteleport
-prtg_cas02	mapflag	noteleport
-prtg_cas03	mapflag	noteleport
-prtg_cas04	mapflag	noteleport
-prtg_cas05	mapflag	noteleport
 schg_cas01	mapflag	noteleport
 schg_cas02	mapflag	noteleport
 schg_cas03	mapflag	noteleport
@@ -202,7 +240,6 @@ guild_vs4	mapflag	noteleport
 guild_vs5	mapflag	noteleport
 
 // Arenas =====================>\\
-arena_room	mapflag	noteleport
 force_1-1	mapflag	noteleport
 force_2-1	mapflag	noteleport
 force_3-1	mapflag	noteleport
@@ -210,7 +247,6 @@ force_4-1	mapflag	noteleport
 force_5-1	mapflag	noteleport
 force_1-2	mapflag	noteleport
 force_1-3	mapflag	noteleport
-sec_in01	mapflag	noteleport
 sec_in02	mapflag	noteleport
 
 // PvP Arenas=======================
@@ -364,16 +400,6 @@ bat_b01	mapflag	noteleport
 bat_b02	mapflag	noteleport
 bat_a01	mapflag	noteleport
 bat_a02	mapflag	noteleport
-
-// Episode 13 ====================
-mid_campin	mapflag	noteleport
-moc_fild22b	mapflag	noteleport
-que_dan01	mapflag	noteleport
-que_dan02	mapflag	noteleport
-schg_que01	mapflag	noteleport
-arug_que01	mapflag	noteleport
-man_in01	mapflag	noteleport
-spl_in01	mapflag	noteleport
 
 //Orc's Memory ===================
 1@orcs	mapflag	noteleport

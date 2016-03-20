@@ -1,10 +1,22 @@
-//===== eAthena Script =======================================
-//= Map flags that disable auto saving
+//===== 15-3athena Script ====================================
+//= Mapflag: Disable auto saving
 //===== By: ==================================================
-//= eAthena Dev Team
-//= 1.7 [Lupus]
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
+//= 1.8
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Additional Comments: =================================
+//= 1.8 Added support for episode mapflags [15peaces]
+//============================================================
 
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
 // Job Quests ====================
 job_sword1	mapflag	nosave	SavePoint
 //job_thief1	mapflag	nosave	SavePoint

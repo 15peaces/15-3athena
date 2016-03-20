@@ -1,27 +1,25 @@
-//===== eAthena Script =======================================
-//= GvG On Map Flags
+//===== 15-3athena Script ====================================
+//= Mapflag: GvG On Map Flags
 //===== By: ==================================================
-//= eAthena Dev Team
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.2
+//= 1.3
+//===== Compatible With: =====================================
+//= 15-3athena Project
 //===== Description: =========================================
 //= gvg: Turns on GvG mode (same as PvP except Guilds are
 //=      automatically allied)
 //= gvg_castle: Describes castle maps for WoE.
 //===== Additional Comments: =================================
-//= 1.2 Updated with new meanings of gvg and gvg_castle
 //= 1.1 Added Novice Guild Castles
+//= 1.2 Updated with new meanings of gvg and gvg_castle
+//= 1.3 Added support for episode mapflags [15peaces]
 //============================================================
 
-// GvG Arenas =============
-guild_vs1	mapflag	gvg
-guild_vs2	mapflag	gvg
-guild_vs3	mapflag	gvg
-guild_vs4	mapflag	gvg
-guild_vs5	mapflag	gvg
-
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
 // Guild Castles ==========
-aldeg_cas01	mapflag	gvg_castle
 aldeg_cas02	mapflag	gvg_castle
 aldeg_cas03	mapflag	gvg_castle
 aldeg_cas04	mapflag	gvg_castle
@@ -41,6 +39,19 @@ prtg_cas02	mapflag	gvg_castle
 prtg_cas03	mapflag	gvg_castle
 prtg_cas04	mapflag	gvg_castle
 prtg_cas05	mapflag	gvg_castle
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
+// GvG Arenas =============
+guild_vs1	mapflag	gvg
+guild_vs2	mapflag	gvg
+guild_vs3	mapflag	gvg
+guild_vs4	mapflag	gvg
+guild_vs5	mapflag	gvg
+
+// Guild Castles ==========
+aldeg_cas01	mapflag	gvg_castle
 schg_cas01	mapflag	gvg_castle
 schg_cas02	mapflag	gvg_castle
 schg_cas03	mapflag	gvg_castle

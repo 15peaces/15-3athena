@@ -3785,7 +3785,7 @@ night mode or day mode:
 
 This functions will return the episode the server is running on:
 
-	if (getepisode() = 123) mes "Current Episode is 12.3";
+	if (getepisode() == 123) mes "Current Episode is 12.3";
 	if (getepisode() >= 110 && getepisode() <= 121) mes "Yes we're running inside episode range 11 - 12.1";
 	
 

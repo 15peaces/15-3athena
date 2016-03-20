@@ -4,6 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/20/2016
+	r113 [15peaces]
+		*Merged missing changes from 3ceam rev. 454 - 455
+		*Fixed critical duel exploit, Thanks to @rathena
+			-PLEASE UPDATE ASAP!
+			-Entering or leaving duel will now remove all the skill units you've placed
+			-Entering or leaving duel will now behave like warping / moving on a different tile
+		*Episode system update
+			-updated descriptions
+			-added support for episode specific mapflags
+			-added episode 5 mapflags (I might miss some of them, I'll re-check them later...)
+		*Fixed small bugs in Port Malaya instance
+		*Optimized RK_SONICWAVE and RK_IGNITIONBREAK damage formula.
+		*Optimized RK_WINDCUTTER skill that was dealing damage in a 5x5 area instead a 5x3 area as it should.
+			-Added new system to hold not square or circular areas in skills that haven't skill units. More skills will be added later. This system works like skill_unit layouts.
+
+
 03/10/2016
 	r112 [15peaces]
 		*Merged missing changes from 3ceam rev. 452 - 453

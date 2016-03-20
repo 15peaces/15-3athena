@@ -16,6 +16,8 @@
 struct duel duel_list[MAX_DUEL];
 int duel_count = 0;
 
+static void duel_set(const unsigned int did, struct map_session_data* sd);
+
 /*==========================================
  * Duel organizing functions [LuzZza]
  *------------------------------------------*/
@@ -79,6 +81,26 @@ int duel_showinfo(const unsigned int did, struct map_session_data* sd)
 	return 0;
 }
 
+/*
+ * Moves sd to duel
+ */
+static void duel_set(const unsigned int did, struct map_session_data* sd) {
+	sd->state.changemap = 1;
+	sd->state.warping = 1;
+
+	// As you move to a different plane, ground effects need to be cleared
+	skill_clear_unitgroup(&sd->bl);
+	skill_unit_move(&sd->bl, gettick(), 2);
+	skill_cleartimerskill(&sd->bl);
+
+	sd->duel_group = did;
+
+	skill_unit_move(&sd->bl, gettick(), 3);
+
+	sd->state.changemap = 0;
+	sd->state.warping = 0;
+}
+
 int duel_create(struct map_session_data* sd, const unsigned int maxpl)
 {
 	int i=1;
@@ -88,7 +110,7 @@ int duel_create(struct map_session_data* sd, const unsigned int maxpl)
 	if(i == MAX_DUEL) return 0;
 	
 	duel_count++;
-	sd->duel_group = i;
+	duel_set(i, sd);
 	duel_list[i].members_count++;
 	duel_list[i].invites_count = 0;
 	duel_list[i].max_players_limit = maxpl;
@@ -141,7 +163,7 @@ int duel_leave(const unsigned int did, struct map_session_data* sd)
 		duel_count--;
 	}
 	
-	sd->duel_group = 0;
+	duel_set(0, sd);
 	duel_savetime(sd);
 	clif_map_property(sd, MAPPROPERTY_NOTHING);
 	return 0;
@@ -152,7 +174,7 @@ int duel_accept(const unsigned int did, struct map_session_data* sd)
 	char output[256];
 	
 	duel_list[did].members_count++;
-	sd->duel_group = sd->duel_invite;
+	duel_set(sd->duel_invite, sd);
 	duel_list[did].invites_count--;
 	sd->duel_invite = 0;
 	

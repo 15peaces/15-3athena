@@ -41,15 +41,15 @@ ma_scene01,174,179,4	script	Taho	541,{
 	set .@md_name$, "Bakonawa Lake";
 
 	set .@baku_time, checkquest(12278,PLAYTIME);
-	if (!.@baku_time) {
-		if (!checkquest(12279)) setquest 12279;
+	if (.@baku_time <= 0) {
+		if (checkquest(12279) <= 0) setquest 12279;
 	}
 	if (!.@party_id) {
 		mes "[Taho]";
 		mes "Isn't there any company who can go with you? Or even if you wanna go alone, come after organizing a party.";
 		close;
 	}
-	if (!.@baku_time) {
+	if (.@baku_time <= 0) {
 		if (getcharid(0) == getpartyleader(.@party_id,2)) {
 			mes "[Taho]";
 			mes "Are you the leader of the Bakonawa slayers? The road is not well so we have to go down the cliff with a rope, is that OK?";

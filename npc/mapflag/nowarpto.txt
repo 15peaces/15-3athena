@@ -1,12 +1,51 @@
-//===== eAthena Script =======================================
-//= Map flags that disable warpto
+//===== 15-3athena Script ====================================
+//= Mapflag: Disable warpto
 //===== By: ==================================================
-//= eAthena Dev Team
-//= v 1.3
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
+//= 1.4
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Additional Comments: =================================
+//= 1.4 Added support for episode mapflags [15peaces]
+//============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_nowarpto	-1,{
+Oninit:	
+	// Episode 13.1+
+	if(getepisode() >= 131){
+		setmapflag "mid_campin" ,mf_nowarpto;
+		setmapflag "man_fild01" ,mf_nowarpto;
+		setmapflag "man_fild03" ,mf_nowarpto;
+		setmapflag "spl_fild02" ,mf_nowarpto;
+		setmapflag "spl_fild03" ,mf_nowarpto;
+		setmapflag "moc_fild22b",mf_nowarpto;
+		setmapflag "que_dan01"  ,mf_nowarpto;
+		setmapflag "que_dan02"  ,mf_nowarpto;
+		setmapflag "schg_que01" ,mf_nowarpto;
+		setmapflag "schg_dun01" ,mf_nowarpto;
+		setmapflag "arug_que01" ,mf_nowarpto;
+		setmapflag "arug_dun01" ,mf_nowarpto;
+		setmapflag "nyd_dun01"  ,mf_nowarpto;
+		setmapflag "nyd_dun02"  ,mf_nowarpto;
+		setmapflag "manuk"      ,mf_nowarpto;
+		setmapflag "man_fild02" ,mf_nowarpto;
+		setmapflag "man_in01"   ,mf_nowarpto;
+		setmapflag "splendide"  ,mf_nowarpto;
+		setmapflag "spl_fild01" ,mf_nowarpto;
+		setmapflag "spl_in01"   ,mf_nowarpto;
+	}
+	
+	end;
+}
+
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
 // Guild Castles ========================
-//alde_gld	mapflag	nowarpto
 aldeg_cas01	mapflag	nowarpto
 aldeg_cas02	mapflag	nowarpto
 aldeg_cas03	mapflag	nowarpto
@@ -17,18 +56,24 @@ gefg_cas02	mapflag	nowarpto
 gefg_cas03	mapflag	nowarpto
 gefg_cas04	mapflag	nowarpto
 gefg_cas05	mapflag	nowarpto
-//pay_gld	mapflag	nowarpto
 payg_cas01	mapflag	nowarpto
 payg_cas02	mapflag	nowarpto
 payg_cas03	mapflag	nowarpto
 payg_cas04	mapflag	nowarpto
 payg_cas05	mapflag	nowarpto
-//prt_gld	mapflag	nowarpto
 prtg_cas01	mapflag	nowarpto
 prtg_cas02	mapflag	nowarpto
 prtg_cas03	mapflag	nowarpto
 prtg_cas04	mapflag	nowarpto
 prtg_cas05	mapflag	nowarpto
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
+// Guild Castles ========================
+//alde_gld	mapflag	nowarpto
+//pay_gld	mapflag	nowarpto
+//prt_gld	mapflag	nowarpto
 schg_cas01	mapflag	nowarpto
 schg_cas02	mapflag	nowarpto
 schg_cas03	mapflag	nowarpto
@@ -109,28 +154,6 @@ bat_b01	mapflag	nowarpto
 bat_b02	mapflag	nowarpto
 bat_a01	mapflag	nowarpto
 bat_a02	mapflag	nowarpto
-
-// Episode 13 ====================
-mid_campin	mapflag	nowarpto
-man_fild01	mapflag	nowarpto
-man_fild03	mapflag	nowarpto
-spl_fild02	mapflag	nowarpto
-spl_fild03	mapflag	nowarpto
-moc_fild22b	mapflag	nowarpto
-que_dan01	mapflag	nowarpto
-que_dan02	mapflag	nowarpto
-schg_que01	mapflag	nowarpto
-schg_dun01	mapflag	nowarpto
-arug_que01	mapflag	nowarpto
-arug_dun01	mapflag	nowarpto
-nyd_dun01	mapflag	nowarpto
-nyd_dun02	mapflag	nowarpto
-manuk	mapflag	nowarpto
-man_fild02	mapflag	nowarpto
-man_in01	mapflag	nowarpto
-splendide	mapflag	nowarpto
-spl_fild01	mapflag	nowarpto
-spl_in01	mapflag	nowarpto
 
 //Orc's Memory ===================
 1@orcs	mapflag	nowarpto

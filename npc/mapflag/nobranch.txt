@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 2.1
+//= 2.2
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -18,8 +18,171 @@
 //= 1.9 Updated. [L0ne_W0lf]
 //= 2.0 Renewal split. [Euphy]
 //= 2.1 Updated and ported from rAthena. [15peaces]
+//= 2.2 Added support for episode mapflags [15peaces]
 //============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_nobranch	-1,{
+Oninit:
+	// Episode 5
+	if(getepisode() == 50){
+		setmapflag "ordeal_1-3",mf_nobranch;
+		setmapflag "ordeal_2-3",mf_nobranch;
+		setmapflag "ordeal_3-3",mf_nobranch;
+		setmapflag "hunter_1-1",mf_nobranch;
+		setmapflag "hunter_2-1",mf_nobranch;
+		setmapflag "hunter_3-1",mf_nobranch;
+		setmapflag "knight_1-1",mf_nobranch;
+		setmapflag "knight_2-1",mf_nobranch;
+		setmapflag "knight_3-1",mf_nobranch;
+		setmapflag "priest_1-1",mf_nobranch;
+		setmapflag "priest_2-1",mf_nobranch;
+		setmapflag "priest_3-1",mf_nobranch;
+		setmapflag "thief_1-1" ,mf_nobranch;
+		setmapflag "thief_2-1" ,mf_nobranch;
+		setmapflag "thief_3-1" ,mf_nobranch;
+		setmapflag "wizard_1-1",mf_nobranch;
+		setmapflag "wizard_2-1",mf_nobranch;
+		setmapflag "wizard_3-1",mf_nobranch;
+		setmapflag "sword_1-1" ,mf_nobranch;
+		setmapflag "sword_2-1" ,mf_nobranch;
+		setmapflag "sword_3-1" ,mf_nobranch;
+	}
+	
+	// Episode 12+
+	if(getepisode() >= 120){
+		setmapflag "1@cata" ,mf_nobranch;
+		setmapflag "2@cata" ,mf_nobranch;
+		setmapflag "e_tower",mf_nobranch;
+		setmapflag "1@tower",mf_nobranch;
+		setmapflag "2@tower",mf_nobranch;
+		setmapflag "3@tower",mf_nobranch;
+		setmapflag "4@tower",mf_nobranch;
+		setmapflag "5@tower",mf_nobranch;
+		setmapflag "6@tower",mf_nobranch;
+	}
+	
+	// Episode 13.1+
+	if(getepisode() >= 131){
+		setmapflag "mid_camp"   ,mf_nobranch;
+		setmapflag "mid_campin" ,mf_nobranch;
+		setmapflag "man_fild01" ,mf_nobranch;
+		setmapflag "moc_fild22b",mf_nobranch;
+		setmapflag "que_dan01"  ,mf_nobranch;
+		setmapflag "que_dan02"  ,mf_nobranch;
+		setmapflag "schg_que01" ,mf_nobranch;
+		setmapflag "arug_que01" ,mf_nobranch;
+		setmapflag "1@orcs"     ,mf_nobranch;
+		setmapflag "2@orcs"     ,mf_nobranch;
+	}
+	
+	// Episode 13.2+
+	if(getepisode() >= 132){
+		setmapflag "1@nyd"     ,mf_nobranch;
+		setmapflag "2@nyd"     ,mf_nobranch;
+		setmapflag "manuk"     ,mf_nobranch;
+		setmapflag "man_fild02",mf_nobranch;
+		setmapflag "man_in01"  ,mf_nobranch;
+		setmapflag "splendide" ,mf_nobranch;
+		setmapflag "spl_in01"  ,mf_nobranch;
+		setmapflag "spl_in02"  ,mf_nobranch;
+	}
+		
+	// Episode 13.3+
+	if(getepisode() >= 133){
+		setmapflag "dicastes01",mf_nobranch;
+		setmapflag "dicastes02",mf_nobranch;
+		setmapflag "dic_in01"  ,mf_nobranch;
+		setmapflag "s_atelier" ,mf_nobranch;
+	}
+
+	// Episode 14.1+ & Dewata
+	if(getepisode() >= 141){
+		setmapflag "mora"    ,mf_nobranch;
+		setmapflag "1@mist"  ,mf_nobranch;
+		setmapflag "dewata"  ,mf_nobranch;
+		setmapflag "dew_in01",mf_nobranch;
+	}
+	
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "eclage"    ,mf_nobranch;
+		setmapflag "ecl_in01"  ,mf_nobranch;
+		setmapflag "ecl_in02"  ,mf_nobranch;
+		setmapflag "ecl_in03"  ,mf_nobranch;
+		setmapflag "ecl_in04"  ,mf_nobranch;
+		setmapflag "1@ecl"     ,mf_nobranch;
+		setmapflag "ecl_hub01" ,mf_nobranch;
+		setmapflag "que_avan01",mf_nobranch;
+	}
+	
+	end;
+}
+
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
+
+// Arenas ======================
+arena_room	mapflag	nobranch
+force_1-1	mapflag	nobranch
+force_1-2	mapflag	nobranch
+force_1-3	mapflag	nobranch
+ordeal_1-1	mapflag	nobranch
+ordeal_1-2	mapflag	nobranch
+ordeal_2-1	mapflag	nobranch
+ordeal_2-2	mapflag	nobranch
+ordeal_3-1	mapflag	nobranch
+ordeal_3-2	mapflag	nobranch
+pvp_2vs2	mapflag	nobranch
+pvp_c_room	mapflag	nobranch
+quiz_00	mapflag	nobranch
+quiz_01	mapflag	nobranch
+sec_in01	mapflag	nobranch
+prt_are_in	mapflag	nobranch
+prt_are01	mapflag	nobranch
+
+// Guild Castles ===============
+aldeg_cas01	mapflag	nobranch
+aldeg_cas02	mapflag	nobranch
+aldeg_cas03	mapflag	nobranch
+aldeg_cas04	mapflag	nobranch
+aldeg_cas05	mapflag	nobranch
+gefg_cas01	mapflag	nobranch
+gefg_cas02	mapflag	nobranch
+gefg_cas03	mapflag	nobranch
+gefg_cas04	mapflag	nobranch
+gefg_cas05	mapflag	nobranch
+payg_cas01	mapflag	nobranch
+payg_cas02	mapflag	nobranch
+payg_cas03	mapflag	nobranch
+payg_cas04	mapflag	nobranch
+payg_cas05	mapflag	nobranch
+prtg_cas01.gat	mapflag	nobranch
+prtg_cas02.gat	mapflag	nobranch
+prtg_cas03.gat	mapflag	nobranch
+prtg_cas04.gat	mapflag	nobranch
+prtg_cas05.gat	mapflag	nobranch
+
+// Job Quests ==================
+job_thief1	mapflag	nobranch
+job_hunte	mapflag	nobranch
+job_knt	mapflag	nobranch
+job_prist	mapflag	nobranch
+job_wiz	mapflag	nobranch
+in_moc_16	mapflag	nobranch
+in_hunter	mapflag	nobranch
+alde_alche	mapflag	nobranch
+job_sage	mapflag	nobranch
+monk_test	mapflag	nobranch
+monk_in	mapflag	nobranch
+in_rogue	mapflag	nobranch
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
 // Cities ======================
 ayo_in01	mapflag	nobranch
 ayo_in02	mapflag	nobranch
@@ -109,23 +272,9 @@ cave	mapflag	nobranch
 
 // Job Quests ==================
 job_sword1	mapflag	nobranch
-job_thief1	mapflag	nobranch
-// 2-1
-job_knt	mapflag	nobranch
-job_prist	mapflag	nobranch
-job_wiz	mapflag	nobranch
-job_hunte	mapflag	nobranch
-in_hunter	mapflag	nobranch
-in_moc_16	mapflag	nobranch
-// 2-2
-alde_alche	mapflag	nobranch
 job_cru	mapflag	nobranch
 job_duncer	mapflag	nobranch
 job_monk	mapflag	nobranch
-monk_test	mapflag	nobranch
-monk_in	mapflag	nobranch
-in_rogue	mapflag	nobranch
-job_sage	mapflag	nobranch
 que_ng	mapflag	nobranch
 job_soul	mapflag	nobranch
 job_star	mapflag	nobranch
@@ -149,22 +298,7 @@ que_thor	mapflag	nobranch
 
 // Guild Castles ===============
 //alde_gld	mapflag	nobranch
-aldeg_cas01	mapflag	nobranch
-aldeg_cas02	mapflag	nobranch
-aldeg_cas03	mapflag	nobranch
-aldeg_cas04	mapflag	nobranch
-aldeg_cas05	mapflag	nobranch
-gefg_cas01	mapflag	nobranch
-gefg_cas02	mapflag	nobranch
-gefg_cas03	mapflag	nobranch
-gefg_cas04	mapflag	nobranch
-gefg_cas05	mapflag	nobranch
 //pay_gld	mapflag	nobranch
-payg_cas01	mapflag	nobranch
-payg_cas02	mapflag	nobranch
-payg_cas03	mapflag	nobranch
-payg_cas04	mapflag	nobranch
-payg_cas05	mapflag	nobranch
 //prt_gld	mapflag	nobranch
 prtg_cas01	mapflag	nobranch
 prtg_cas02	mapflag	nobranch
@@ -196,40 +330,6 @@ guild_vs2	mapflag	nobranch
 guild_vs3	mapflag	nobranch
 guild_vs4	mapflag	nobranch
 guild_vs5	mapflag	nobranch
-
-// Arenas ======================
-arena_room	mapflag	nobranch
-force_1-1	mapflag	nobranch
-force_1-2	mapflag	nobranch
-force_1-3	mapflag	nobranch
-ordeal_1-1	mapflag	nobranch
-ordeal_1-2	mapflag	nobranch
-//ordeal_1-3	mapflag	nobranch
-ordeal_2-1	mapflag	nobranch
-ordeal_2-2	mapflag	nobranch
-//ordeal_2-3	mapflag	nobranch
-ordeal_3-1	mapflag	nobranch
-ordeal_3-2	mapflag	nobranch
-//ordeal_3-3	mapflag	nobranch
-pvp_2vs2	mapflag	nobranch
-pvp_c_room	mapflag	nobranch
-quiz_00	mapflag	nobranch
-quiz_01	mapflag	nobranch
-sec_in01	mapflag	nobranch
-//hunter_1-1	mapflag	nobranch
-//hunter_2-1	mapflag	nobranch
-//hunter_3-1	mapflag	nobranch
-//knight_1-1	mapflag	nobranch
-//knight_2-1	mapflag	nobranch
-//knight_3-1	mapflag	nobranch
-//priest_1-1	mapflag	nobranch
-//priest_2-1	mapflag	nobranch
-//priest_3-1	mapflag	nobranch
-prt_are_in	mapflag	nobranch
-prt_are01	mapflag	nobranch
-//wizard_1-1	mapflag	nobranch
-//wizard_2-1	mapflag	nobranch
-//wizard_3-1	mapflag	nobranch
 
 // PvP Arenas ==================
 pvp_y_room	mapflag	nobranch
@@ -291,29 +391,6 @@ que_qaru03	mapflag	nobranch
 que_qaru04	mapflag	nobranch
 que_qaru05	mapflag	nobranch
 
-// Episode 12 ==================
-1@cata	mapflag	nobranch
-2@cata	mapflag	nobranch
-e_tower	mapflag	nobranch
-1@tower	mapflag	nobranch
-2@tower	mapflag	nobranch
-3@tower	mapflag	nobranch
-4@tower	mapflag	nobranch
-5@tower	mapflag	nobranch
-6@tower	mapflag	nobranch
-
-// Episode 13.1 ================
-mid_camp	mapflag	nobranch
-mid_campin	mapflag	nobranch
-man_fild01	mapflag	nobranch
-moc_fild22b	mapflag	nobranch
-que_dan01	mapflag	nobranch
-que_dan02	mapflag	nobranch
-schg_que01	mapflag	nobranch
-arug_que01	mapflag	nobranch
-1@orcs	mapflag	nobranch
-2@orcs	mapflag	nobranch
-
 // Battle Grounds ==============
 bat_c01	mapflag	nobranch
 bat_c02	mapflag	nobranch
@@ -323,16 +400,6 @@ bat_b01	mapflag	nobranch
 bat_b02	mapflag	nobranch
 bat_a01	mapflag	nobranch
 bat_a02	mapflag	nobranch
-
-// Episode 13.2 ================
-1@nyd	mapflag	nobranch
-2@nyd	mapflag	nobranch
-manuk	mapflag	nobranch
-man_fild02	mapflag	nobranch
-man_in01	mapflag	nobranch
-splendide	mapflag	nobranch
-spl_in01	mapflag	nobranch
-spl_in02	mapflag	nobranch
 
 //evt_zombie	mapflag	nobranch
 
@@ -360,18 +427,6 @@ jupe_core2	mapflag	nobranch
 brasilis	mapflag	nobranch
 bra_in01	mapflag	nobranch
 
-// Episode 13.3 ================
-dicastes01	mapflag	nobranch
-dicastes02	mapflag	nobranch
-dic_in01	mapflag	nobranch
-s_atelier	mapflag	nobranch
-
-// Episode 14.1 & Dewata =======
-mora	mapflag	nobranch
-1@mist	mapflag	nobranch
-dewata	mapflag	nobranch
-dew_in01	mapflag	nobranch
-
 // Episode Zero & Malaya Port ==
 malangdo	mapflag	nobranch
 mal_in01	mapflag	nobranch
@@ -396,16 +451,6 @@ ma_zif09	mapflag	nobranch
 1@ma_h	mapflag	nobranch
 1@ma_c	mapflag	nobranch
 1@ma_b	mapflag	nobranch
-
-// Episode 14.2 ================
-eclage	mapflag	nobranch
-ecl_in01	mapflag	nobranch
-ecl_in02	mapflag	nobranch
-ecl_in03	mapflag	nobranch
-ecl_in04	mapflag	nobranch
-1@ecl	mapflag	nobranch
-ecl_hub01	mapflag	nobranch
-que_avan01	mapflag	nobranch
 
 // Izlude duplicates ===========
 izlude_a	mapflag	nobranch
