@@ -4,6 +4,12 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/21/2016
+	r114 [15peaces]
+		*Merged missing changes from 3ceam rev. 455
+		*Cleaned up pet_db to prepare for future updates.
+		*Optimized LG_OVERBRAND behavior with the new layout system.
+		
 03/20/2016
 	r113 [15peaces]
 		*Merged missing changes from 3ceam rev. 454 - 455
@@ -19,7 +25,6 @@
 		*Optimized RK_SONICWAVE and RK_IGNITIONBREAK damage formula.
 		*Optimized RK_WINDCUTTER skill that was dealing damage in a 5x5 area instead a 5x3 area as it should.
 			-Added new system to hold not square or circular areas in skills that haven't skill units. More skills will be added later. This system works like skill_unit layouts.
-
 
 03/10/2016
 	r112 [15peaces]
