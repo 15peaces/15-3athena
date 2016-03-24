@@ -1089,7 +1089,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	for( i = 0; i < 3; i++ )
 		sd->hate_mob[i] = -1;
 
-	// ˆÊ’u‚ÌÝ’è
+	//warp player
 	if ((i=pc_setpos(sd,sd->status.last_point.map, sd->status.last_point.x, sd->status.last_point.y, CLR_OUTSIGHT)) != 0) {
 		ShowError ("Last_point_map %s - id %d not found (error code %d)\n", mapindex_id2name(sd->status.last_point.map), sd->status.last_point.map, i);
 
@@ -1099,6 +1099,9 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 			clif_authfail_fd(sd->fd, 0);
 			return false;
 		}
+	} else if (map_getcell(map_mapindex2mapid(sd->status.last_point.map), sd->status.last_point.x, sd->status.last_point.y, CELL_CHKNOPASS)) {
+		//warp player stuck in invaild cell
+		pc_setpos(sd,sd->status.last_point.map,0,0,CLR_OUTSIGHT);
 	}
 
 	clif_authok(sd);
@@ -5853,9 +5856,9 @@ int pc_need_status_point(struct map_session_data* sd, int type, int val)
 
 	for ( ; low < high; low++ ){
 		if( battle_config.renewal_statpoints )
-			sp += ( 1 + (low + 9) / 10 ); // classic
-		else
 			sp += (low < 100) ? (2 + (low - 1) / 10) : (16 + 4 * ((low - 100) / 5)); // Renewal machanic.
+		else
+			sp += ( 1 + (low + 9) / 10 ); // classic
 	}
 
 	return sp;

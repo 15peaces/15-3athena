@@ -2252,9 +2252,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RK_STORMBLAST:
 					skillratio += sstatus->int_ * (sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 1);
 					break;
-				case RK_PHANTOMTHRUST: // TODO: Check if the damage is increased by Spear Mastery and how much.
- 					skillratio += 20 * (skill_lv - 1);
-					skillratio *= (1 + (s_level-100) / 20); // Bonus by base level. Still need confirm it.
+				case RK_PHANTOMTHRUST: // TODO: How much Spear Mastery affects?.
+					skillratio += 20 * (skill_lv - 1);
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					if( sd ) skillratio += pc_checkskill(sd, KN_SPEARMASTERY) * 10; // Temporary value.
  					break;
 				case SO_VARETYR_SPEAR: //Assumed Formula.
 					skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 );
@@ -3144,7 +3145,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SOULEXPANSION:
 						{
 							struct status_change *tsc = status_get_sc(target);
-							skillratio += 300 + 100 * skill_lv;
+							skillratio += 300 + 100 * skill_lv + status_get_int(src);	//Revisar
+							skillratio *= status_get_lv(src) / 100;
 							if( tsc && tsc->data[SC_WHITEIMPRISON] )
 								skillratio *= 2;
 						}
@@ -3185,9 +3187,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WL_CHAINLIGHTNING:
 					case WL_CHAINLIGHTNING_ATK:
-						skillratio += 300 + 100 * skill_lv;
+						skillratio += 100 + 300 * skill_lv * status_get_lv(src) / 100;
 						break;
-
 					case WL_EARTHSTRAIN:
 						skillratio += 1900 + 100 * skill_lv;
 						break;
@@ -3776,20 +3777,17 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 
 	//Bounces back part of the damage.
 	else if( (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT ) {
-		if (sd && sd->short_weapon_damage_return)
-		{
+		if (sd && sd->short_weapon_damage_return){
 			rdamage += (*damage) * sd->short_weapon_damage_return / 100;
 			rdamage = max(rdamage,1);
 		}
-		if( sc && sc->data[SC_DEATHBOUND] )
-		{
+		if( sc && sc->data[SC_DEATHBOUND] ){
 			int dir = map_calc_dir(bl,src->x,src->y),
 				t_dir = unit_getdir(bl), rd1 = 0;
 
-			if( distance_bl(src,bl) <= 0 || !map_check_dir(dir,t_dir) )
-			{
+			if( distance_bl(src,bl) <= 0 || !map_check_dir(dir,t_dir) ){
 				rd1 = min((*damage),max_damage) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
-				(*damage) = rd1 / 2;
+				(*damage) = rd1 * 30 / 100; // Received damge = 30% of amplifly damage.
 				clif_skill_damage(src,bl,gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1,6);
 				status_change_end(bl,SC_DEATHBOUND,-1);
 				rdamage += rd1;

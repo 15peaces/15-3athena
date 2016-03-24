@@ -7026,6 +7026,9 @@
 19745,C_Holy Marching_Hat_J,Costume Holy Marching Hat J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,587,{},{},{}
 19746,C_Executioner_Hood,Costume Executioner Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,326,{},{},{}
 19747,C_Tha_Despero_Mask_J,Costume Tha Despero Mask J,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,693,{},{},{}
+19748,C_Diadem,Costume Diadem,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,335,{},{},{}
+19749,C_Gold_Spirit_Chain,Costume Gold Spirit Chain,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,260,{},{},{}
+19750,C_Saint_Frill_Ribbon,Costume Saint Frill Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,987,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}

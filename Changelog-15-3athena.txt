@@ -4,9 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/24/2016
+	r115 [15peaces]
+		*Merged missing changes from 3ceam rev. 457 - 458
+		*Some clean-up in item_db.
+		*Players now will auto warped to random spot in the map upon login in case they're stuck in dead cell.
+			-thanks to @herculesws / @hemagx
+		*Minor updates in some skills.
+		*Fixed a mistake with battle_config.renewal_statpoints.
+
 03/21/2016
 	r114 [15peaces]
-		*Merged missing changes from 3ceam rev. 455
+		*Merged missing changes from 3ceam rev. 456
 		*Cleaned up pet_db to prepare for future updates.
 		*Optimized LG_OVERBRAND behavior with the new layout system.
 		
