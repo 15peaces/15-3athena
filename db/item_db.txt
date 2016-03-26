@@ -7029,6 +7029,9 @@
 19748,C_Diadem,Costume Diadem,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,335,{},{},{}
 19749,C_Gold_Spirit_Chain,Costume Gold Spirit Chain,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,260,{},{},{}
 19750,C_Saint_Frill_Ribbon,Costume Saint Frill Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,987,{},{},{}
+19751,C_Light_Darkness_Crown,Costume Light Darkness Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,988,{},{},{}
+
+19753,C_Celestial_Hat,Costume Celestial Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,462,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}

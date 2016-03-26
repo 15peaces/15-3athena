@@ -29,18 +29,22 @@
 Oninit:
 	// Episode 5
 	if(getepisode() == 50){
-		setmapflag "ordeal_1-3",mf_nomemo;
-		setmapflag "ordeal_2-3",mf_nomemo;
-		setmapflag "ordeal_3-3",mf_nomemo;
 		setmapflag "hunter_1-1",mf_nomemo;
 		setmapflag "hunter_2-1",mf_nomemo;
 		setmapflag "hunter_3-1",mf_nomemo;
+		setmapflag "job_knight",mf_nomemo;
 		setmapflag "knight_1-1",mf_nomemo;
 		setmapflag "knight_2-1",mf_nomemo;
 		setmapflag "knight_3-1",mf_nomemo;
+		setmapflag "ordeal_1-3",mf_nomemo;
+		setmapflag "ordeal_2-3",mf_nomemo;
+		setmapflag "ordeal_3-3",mf_nomemo;
 		setmapflag "priest_1-1",mf_nomemo;
 		setmapflag "priest_2-1",mf_nomemo;
 		setmapflag "priest_3-1",mf_nomemo;
+		setmapflag "sword_1-1" ,mf_nomemo;
+		setmapflag "sword_2-1" ,mf_nomemo;
+		setmapflag "sword_3-1" ,mf_nomemo;
 		setmapflag "thief_1-1" ,mf_nomemo;
 		setmapflag "thief_2-1" ,mf_nomemo;
 		setmapflag "thief_3-1" ,mf_nomemo;
@@ -296,6 +300,22 @@ tur_dun06	mapflag	nomemo
 xmas_dun01	mapflag	nomemo
 xmas_dun02	mapflag	nomemo
 
+// Job Quests ================
+// First Job Class
+job_thief1	mapflag	nomemo
+// Primary Second Job Class
+in_hunter	mapflag	nomemo
+in_moc_16	mapflag	nomemo
+job_hunte	mapflag	nomemo
+job_prist	mapflag	nomemo
+job_wiz	mapflag	nomemo
+// Secondary Second Job Class
+alde_alche	mapflag	nomemo
+in_rogue	mapflag	nomemo
+job_sage	mapflag	nomemo
+monk_in	mapflag	nomemo
+monk_test	mapflag	nomemo
+
 // Guild Castles =============
 aldeg_cas01	mapflag	nomemo
 aldeg_cas02	mapflag	nomemo
@@ -510,24 +530,13 @@ cave	mapflag	nomemo
 // Job Quests ================
 // First Job Class
 job_sword1	mapflag	nomemo
-job_thief1	mapflag	nomemo
 job_star	mapflag	nomemo
 // Primary Second Job Class
 job_knt	mapflag	nomemo
-job_prist	mapflag	nomemo
-job_wiz	mapflag	nomemo
-job_hunte	mapflag	nomemo
-in_hunter	mapflag	nomemo
-in_moc_16	mapflag	nomemo
 // Secondary Second Job Class
-alde_alche	mapflag	nomemo
 job_cru	mapflag	nomemo
 job_duncer	mapflag	nomemo
 job_monk	mapflag	nomemo
-monk_test	mapflag	nomemo
-monk_in	mapflag	nomemo
-in_rogue	mapflag	nomemo
-job_sage	mapflag	nomemo
 job_soul	mapflag	nomemo
 que_ng	mapflag	nomemo
 

@@ -400,14 +400,14 @@ enum CASH_SHOP_BUY_RESULT {
 	CSBR_UNKNOWN = 0xb,
 };
 
-struct hCSData {
+struct cash_item_data {
 	unsigned short id;
-	unsigned int price;
+	uint32 price;
 };
 
-struct cs_data{
-	struct hCSData **data;
-	unsigned int item_count;
+struct cash_item_db {
+	struct cash_item_data** item;
+	uint32 count;
 };
 
 int clif_setip(const char* ip);
@@ -876,6 +876,7 @@ void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
 void clif_cashshop_db(void);
+void do_final_cashshop(void);
 static int clif_cashshop_db_parserow( char** str, const char* source, int line );
 
 /// Roulette

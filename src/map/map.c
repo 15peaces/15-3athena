@@ -3610,6 +3610,7 @@ void do_final(void)
 	do_final_unit();
 	do_final_battleground();
 	do_final_duel();
+	do_final_cashshop();
 	
 	map_db->destroy(map_db, map_db_final);
 	

@@ -4,6 +4,28 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/26/2016
+	r116 [15peaces]
+		*Merged missing changes from 3ceam rev. 459 - 463
+		*Added Minstrel jobquest
+		*CashShop Update
+			-Yes, again... hopefully this will fix all memleaks...
+			-Did some clean-up and renaming, so it's easier to read the whole code
+		*Added do_final_cashop function
+			-This destroys cashshop class and cleans up the data
+			-This was done in do_init_clif, what was really the wrong position...
+			-Now the function will be called together with all the other final functions.
+		*Added full support for missing Pet "Christmas Snow Rabbit".
+			-Also added related mob_db / item_db entries and some more.
+			-Did some clean-up in item_db and mob_db.
+		*Some more work on episode 5 mapflags
+		*Minor fix in GN_TRAINING_SWORD and GN_REMODELING_CART's skill effect according to official behavior.
+		*Fixed GN_S_PHARMACY that wasn't working properly.
+		*Updated GN_CART_TORNADO that doesn't stun targets at all.
+		*Optimized GN_MIX_COOKING and GN_MAKEBOMB skills. Removed duplicate code.
+		*Added GN_CHANGEMATERIAL skill. Still have to add more recipes.
+		*Fixed GN_CRAZYWEED skill that wasn't targeting traps. Updated with some ground skill that can be removed with GN_CRAZYWEED.
+
 03/24/2016
 	r115 [15peaces]
 		*Merged missing changes from 3ceam rev. 457 - 458

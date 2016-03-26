@@ -14,8 +14,38 @@
 //============================================================
 
 //============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_nopenalty	-1,{
+Oninit:
+	// Episode 5
+	if(getepisode() == 50){
+		setmapflag "job_knight",mf_nopenalty;
+		setmapflag "sword_1-1" ,mf_nopenalty;
+		setmapflag "sword_2-1" ,mf_nopenalty;
+		setmapflag "sword_3-1" ,mf_nopenalty;
+	}
+	
+	end;
+}
+
+//============================================================
 // Global Mapflags / Episode unknown
 //============================================================
+// Job Quests ========================
+job_thief1	mapflag	nopenalty
+// 2-1 -----------------------
+job_hunte	mapflag	nopenalty
+job_prist	mapflag	nopenalty
+job_wiz	mapflag	nopenalty
+in_hunter	mapflag	nopenalty
+in_moc_16	mapflag	nopenalty
+// 2-2 --------------------
+alde_alche	mapflag	nopenalty
+job_sage	mapflag	nopenalty
+monk_test	mapflag	nopenalty
+monk_in	mapflag	nopenalty
+in_rogue	mapflag	nopenalty
 // Arenas=======================>\\
 sec_in01	mapflag	nopenalty
 
@@ -142,22 +172,10 @@ moc_para01	mapflag	nopenalty
 
 // Job Quests ========================
 job_sword1	mapflag	nopenalty
-job_thief1	mapflag	nopenalty
-// 2-1 -----------------------
-job_prist	mapflag	nopenalty
-job_wiz	mapflag	nopenalty
-job_hunte	mapflag	nopenalty
-in_hunter	mapflag	nopenalty
-in_moc_16	mapflag	nopenalty
 // 2-2 --------------------
-alde_alche	mapflag	nopenalty
 job_cru	mapflag	nopenalty
 job_duncer	mapflag	nopenalty
 job_monk	mapflag	nopenalty
-monk_test	mapflag	nopenalty
-monk_in	mapflag	nopenalty
-in_rogue	mapflag	nopenalty
-job_sage	mapflag	nopenalty
 
 // Misc Quests =======================
 que_sign01	mapflag	nopenalty

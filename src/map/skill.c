@@ -1157,16 +1157,13 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case SO_DIAMONDDUST:
 		sc_start(bl, SC_CRYSTALIZE, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
-	case SO_VARETYR_SPEAR:
-		sc_start(bl, SC_STUN, 20, skilllv, skill_get_time2(skillid, skilllv));
-		break;
 	case SO_CLOUD_KILL:
 		sc_start(bl, SC_POISON, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		if(tstatus->mode & ~MD_BOSS ) // Boss monsters should be immune to elemental change trough Cloud Kill. Confirm this. [LimitLine]
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skilllv, skilllv, 5, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
-	case GN_CART_TORNADO:
-		sc_start(bl, SC_STUN, 1000000, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
+	case SO_VARETYR_SPEAR:
+		sc_start(bl, SC_STUN, 20, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case GN_HELLS_PLANT_ATK:
 		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
@@ -4069,11 +4066,34 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case GN_CRAZYWEED:
 		if( rand()%100 < 75 ){
-			if( bl->type == BL_SKILL )
-			{	// Still need confirm what units can remove this.
+			if( bl->type == BL_SKILL ) {
 				struct skill_unit *su = (struct skill_unit *)bl;
-				if( su && (su->group->skill_id == GN_WALLOFTHORN || (skill_get_inf2(su->group->skill_id)&INF2_TRAP)) )
+				if( !su )
+					break;
+				if( skill_get_inf2(su->group->skill_id)&INF2_TRAP )
+				{	// Still need confirm it.
 					skill_delunit(su);
+					break;
+				}
+
+				switch( su->group->skill_id )
+				{	// Unconfirmed list, based on info from irowiki.
+					case GN_WALLOFTHORN:
+					case GN_THORNS_TRAP:
+					case SC_BLOODYLUST:
+					case SC_CHAOSPANIC:
+					case SC_MAELSTROM:
+					case WZ_FIREPILLAR:
+					case SA_LANDPROTECTOR:
+					case SA_VOLCANO:
+					case SA_DELUGE:
+					case SA_VIOLENTGALE:
+					case MG_SAFETYWALL:
+					case AL_PNEUMA:
+						skill_delunit(su);
+						break;
+				}
+				break;
 			}else
 				skill_attack(BF_WEAPON,src,src,bl,GN_CRAZYWEED_ATK,skilllv,tick,flag);
  		}
@@ -7860,9 +7880,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
 		break;
-
+	
 	case SO_EL_ANALYSIS:
-		if( sd ){
+	case GN_CHANGEMATERIAL:
+		if( sd ) {
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 			clif_skill_itemlistwindow(sd,skillid,skilllv);
 		}
@@ -7893,26 +7914,28 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case GN_MIX_COOKING:
 		if(sd) {
-			sd->menuskill_id = skillid;
-			sd->menuskill_itemused = (skilllv == 2) ? 10 : 1;
-			clif_cooking_list(sd,27,skillid,sd->menuskill_itemused,6);
+			clif_cooking_list(sd,27,skillid,(skilllv == 2) ? 10 : 1,6);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
 
 	case GN_MAKEBOMB:
 		if(sd) {
-			sd->menuskill_id = skillid;
-			sd->menuskill_val = (skilllv==2)?10:1;
-			clif_cooking_list(sd,28,skillid,sd->menuskill_itemused,5);
+			clif_cooking_list(sd,28,skillid,(skilllv==2) ? 10 : 1,5);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
 
 	case GN_S_PHARMACY:
 		if(sd) {
-			sd->menuskill_itemused = 1;
-			clif_cooking_list(sd,skillid,29,sd->menuskill_itemused,6);
+			switch( skilllv )
+			{
+				case 6: case 7: case 8: i = 3; break; //3 items to make at once.
+				case 9: i = 3 + rand()%3; break; //3~5 items to make at once.
+				case 10: i = 4 + rand()%3; break; //4~6 items to make at once.
+				default: i = 2; //2 item to make at once.
+			}
+			clif_cooking_list(sd,29,skillid,i,6);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
@@ -8657,7 +8680,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 
 	case LG_OVERBRAND:
 		{
-			int dir = map_calc_dir(src, x, y);	
+			int dir = map_calc_dir(src, x, y);
 			struct s_skill_nounit_layout *layout = skill_get_nounit_layout(skillid,skilllv,src,x,y,dir);
 			for( i = 0; i < layout->count; i++ )
 				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
@@ -14533,18 +14556,14 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				// 	TODO: finde a proper chance.
 				make_per = (5000 + 50*status->dex + 30*status->luk); //Custom rate value.
 				break;
-			case GN_S_PHARMACY:
-				{
-					i = sd->menuskill_itemused;
-					make_per = 100000; //100% success rate.
-					switch( i )
-					{
-						case 6: case 7: case 8: qty = 3; break; //3 items to make at once.
-						case 9: qty = 3 + rand()%3; break; //3~5 items to make at once.
-						case 10: qty = 4 + rand()%3; break; //4~6 items to make at once.
-						default: qty = 2; //2 item to make at once.
-					}
+
+			case GN_CHANGEMATERIAL:
+				switch( nameid ) {
+					case 1010: qty = 8; break;
+					case 1061: qty = 2; break;
 				}
+			case GN_S_PHARMACY:
+				make_per = 10000; //100% success rate.
 				break;
 			default:
 				if( sd->menuskill_id ==	AM_PHARMACY && sd->menuskill_val > 10 && sd->menuskill_val <= 20 )

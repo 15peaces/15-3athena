@@ -60,8 +60,7 @@ struct s_packet_db packet_db[MAX_PACKET_VER + 1][MAX_PACKET_DB + 1];
 int packet_db_ack[MAX_PACKET_VER + 1][MAX_ACK_FUNC + 1];
 
 //CashShop
-struct cs_data cs_s[CASHSHOP_TAB_MAX];
-//struct cs_data *cs = &cs_s;
+struct cash_item_db cash_shop_items[CASHSHOP_TAB_MAX];
 
 //Converts item type in case of pet eggs.
 static inline int itemtype(int type)
@@ -3531,6 +3530,7 @@ int clif_skill_select_request(struct map_session_data *sd)
 
 /*===========================================
  * Skill list for Four Elemental Analysis
+ * and Change Material skills.
  *------------------------------------------*/
 int clif_skill_itemlistwindow( struct map_session_data *sd, int skill_id, int skill_lv )
 {
@@ -3538,6 +3538,11 @@ int clif_skill_itemlistwindow( struct map_session_data *sd, int skill_id, int sk
 	int fd, val = 1;
 
 	nullpo_retr(0,sd);
+
+	if( skill_id == GN_CHANGEMATERIAL ){
+		skill_lv = 0; // Changematerial
+		val = 0;
+	}
 
 	sd->menuskill_id = skill_id; // To prevent hacking.
 	sd->menuskill_val = skill_lv;
@@ -11950,9 +11955,8 @@ void clif_parse_RequestMemo(int fd,struct map_session_data *sd)
 void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 {
 	// -1 is used by produce script command.
-	if (sd->menuskill_id != -1 && sd->menuskill_id != AM_PHARMACY && sd->menuskill_id != SA_CREATECON &&
-		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON &&
-		sd->menuskill_id != GN_S_PHARMACY)
+	if( sd->menuskill_id != -1 && sd->menuskill_id != AM_PHARMACY && sd->menuskill_id != SA_CREATECON &&
+		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON )
 		return;
 
 	if (pc_istrading(sd)) {
@@ -11998,7 +12002,7 @@ void clif_parse_Cooking(int fd,struct map_session_data *sd)
 	unsigned short nameid = RFIFOW(fd,4);
 	int amount = 1;
 
-	if( type == 6 && sd->menuskill_id != GN_MIX_COOKING )
+	if( type == 6 && sd->menuskill_id != GN_MIX_COOKING && sd->menuskill_id != GN_S_PHARMACY )
 		return;
 
 	if( sd->menuskill_id != AM_PHARMACY )
@@ -15757,7 +15761,7 @@ static int clif_cashshop_db_parserow( char** str, const char* source, int line )
 	if( itemdb_exists( nameid ) ){
 		uint16 tab = atoi( str[0] );
 		uint32 price = atoi( str[2] );
-		struct hCSData* cid;
+		struct cash_item_data* cid;
 		int j;
 
 		if( tab > CASHSHOP_TAB_MAX ){
@@ -15768,18 +15772,18 @@ static int clif_cashshop_db_parserow( char** str, const char* source, int line )
 			return 0;
 		}
 
-		ARR_FIND( 0, cs_s[tab].item_count, j, nameid == cs_s[tab].data[j]->id );
+		ARR_FIND( 0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->id );
 
-		if( j == cs_s[tab].item_count ){
-			RECREATE( cs_s[tab].data, struct hCSData *, ++cs_s[tab].item_count );
-			CREATE( cs_s[tab].data[ cs_s[tab].item_count - 1], struct hCSData, 1 );
-			cid = cs_s[tab].data[ cs_s[tab].item_count - 1];
-		}else{
-			cid = cs_s[tab].data[j];
-		}
+		if( j == cash_shop_items[tab].count ){
+			RECREATE( cash_shop_items[tab].item, struct cash_item_data *, ++cash_shop_items[tab].count );
+			CREATE( cash_shop_items[tab].item[ cash_shop_items[tab].count - 1], struct cash_item_data, 1 );
+			cid = cash_shop_items[tab].item[ cash_shop_items[tab].count - 1];
+		}else
+			cid = cash_shop_items[tab].item[j];
 
 		cid->id = nameid;
 		cid->price = price;
+
 		return 1;
 	}else{
 		ShowWarning( "cashshop_parse_dbrow: Invalid ID %hu in line %d of \"%s\", skipping...\n", nameid, line, source );
@@ -15800,22 +15804,25 @@ void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
 }
 
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd) {
-	
-	int i, j = 0;
+	int tab;
 
-	for( i = 0; i < CASHSHOP_TAB_MAX; i++ ) {
-		WFIFOHEAD(fd, 8 + ( cs_s[i].item_count * 6 ) );
-		WFIFOW(fd, 0) = 0x8ca;
-		WFIFOW(fd, 2) = 8 + ( cs_s[i].item_count * 6 );
-		WFIFOW(fd, 4) = cs_s[i].item_count;
-		WFIFOW(fd, 6) = i;
+	for( tab = CASHSHOP_TAB_NEW; tab < CASHSHOP_TAB_MAX; tab++ ){
+		int length = 8 + cash_shop_items[tab].count * 6;
+		int i, offset;
 
-		for( j = 0; j < cs_s[i].item_count; j++ ) {
-			WFIFOW(fd, 8 + ( 6 * j ) ) = cs_s[i].data[j]->id;
-			WFIFOL(fd, 10 + ( 6 * j ) ) = cs_s[i].data[j]->price;
+		WFIFOHEAD( fd, length );
+		WFIFOW( fd, 0 ) = 0x8ca;
+		WFIFOW( fd, 2 ) = length;
+		WFIFOW( fd, 4 ) = cash_shop_items[tab].count;
+		WFIFOW( fd, 6 ) = tab;
+
+		for( i = 0, offset = 8; i < cash_shop_items[tab].count; i++, offset += 6 ){
+			struct item_data *id = itemdb_search(cash_shop_items[tab].item[i]->id);
+			WFIFOW( fd, offset ) = (id->view_id) ? id->view_id : cash_shop_items[tab].item[i]->id;
+			WFIFOL( fd, offset + 2 ) = cash_shop_items[tab].item[i]->price;
 		}
 
-		WFIFOSET(fd, 8 + ( cs_s[i].item_count * 6 ));
+		WFIFOSET( fd, length );
 	}
 }
 
@@ -15833,15 +15840,15 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 		if( tab < 0 || tab > CASHSHOP_TAB_MAX )
 			continue;
 
-		for( j = 0; j < cs_s[tab].item_count; j++ ) {
-			if( cs_s[tab].data[j]->id == id )
+		for( j = 0; j < cash_shop_items[tab].count; j++ ) {
+			if( cash_shop_items[tab].item[j]->id == id )
 				break;
 		}
-		if( j < cs_s[tab].item_count ) {
+		if( j < cash_shop_items[tab].count ) {
 			struct item_data *data;
-			if( sd->cashPoints < (cs_s[tab].data[j]->price * qty) ) {
+			if( sd->cashPoints < (cash_shop_items[tab].item[j]->price * qty) ) {
 				result = CSBR_SHORTTAGE_CASH;
-			} else if ( !( data = itemdb_exists(cs_s[tab].data[j]->id) ) ) {
+			} else if ( !( data = itemdb_exists(cash_shop_items[tab].item[j]->id) ) ) {
 				result = CSBR_UNKONWN_ITEM;
 			} else {
 				struct item item_tmp;
@@ -15852,7 +15859,7 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 				if (!itemdb_isstackable2(data))
 					get_count = 1;
 
-				pc_paycash(sd, cs_s[tab].data[j]->price * qty, 0);/* kafra point support is missing */
+				pc_paycash(sd, cash_shop_items[tab].item[j]->price * qty, 0);/* kafra point support is missing */ 
 				for (k = 0; k < qty; k += get_count) {
 					if (!pet_create_egg(sd, data->nameid)) {
 						memset(&item_tmp, 0, sizeof(item_tmp));
@@ -15881,7 +15888,7 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 						}
 
 						if( result != CSBR_SUCCESS )
-							pc_getcash(sd,cs_s[tab].data[j]->price * get_count, 0);/* kafra point support is missing */
+							pc_getcash(sd,cash_shop_items[tab].item[j]->price * get_count, 0);/* kafra point support is missing */ 
 					}
 				}
 			}
@@ -16965,24 +16972,30 @@ void clif_parse_ItemListWindowSelected(int fd, struct map_session_data* sd)
 	int flag = RFIFOL(fd,8); // Button clicked: 0 = Cancel, 1 = OK
 	unsigned short* item_list = (unsigned short*)RFIFOP(fd,12);
 
-	if( sd->state.trading || sd->npc_shopid || n == 0)
+	if( sd->state.trading || sd->npc_shopid )
 		return;
-
-	if( flag == 0 ){		
-		sd->menuskill_id = sd->menuskill_val = 0;
+	
+	if( flag == 0 || n == 0) {
+		sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
 		return; // Canceled by player.
 	}
 
-	if( sd->menuskill_id != SO_EL_ANALYSIS || sd->menuskill_val != type )
+	if( sd->menuskill_id != SO_EL_ANALYSIS && sd->menuskill_id != GN_CHANGEMATERIAL ) {
+		sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
 		return; // Prevent hacking.
+	}
 
 	switch( type ){
+		case 0: // Change Material
+			skill_changematerial(sd,n,item_list);
+			break;
 		case 1:	// Level 1: Pure to Rough
 		case 2:	// Level 2: Rough to Pure
 			skill_elementalanalysis(sd,n,type,item_list);
 			break;
 	}
-	sd->menuskill_id = sd->menuskill_val = 0;
+	sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
+
 	return;
 }
 
@@ -18733,13 +18746,27 @@ static int packetdb_readdb(void)
 	return 0;
 }
 
+/*
+ * Destroys cashshop class.
+ * Closes all and cleanup.
+ */
+void do_final_cashshop( void ){
+	int tab, i;
+
+	for( tab = CASHSHOP_TAB_NEW; tab < CASHSHOP_TAB_MAX; tab++ ){
+		for( i = 0; i < cash_shop_items[tab].count; i++ ){
+			aFree( cash_shop_items[tab].item[i] );
+		}
+		aFree( cash_shop_items[tab].item );
+	}
+	memset( cash_shop_items, 0, sizeof( cash_shop_items ) );
+}
+
 /*==========================================
  *
  *------------------------------------------*/
 int do_init_clif(void)
 {
-	unsigned char i;
-
 	clif_config.packet_db_ver = -1; // the main packet version of the DB
 	memset(clif_config.connect_cmd, 0, sizeof(clif_config.connect_cmd)); //The default connect command will be determined after reading the packet_db [Skotlex]
 
@@ -18756,12 +18783,5 @@ int do_init_clif(void)
 	add_timer_func_list(clif_clearunit_delayed_sub, "clif_clearunit_delayed_sub");
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
 
-	for(i = 0; i < CASHSHOP_TAB_MAX; i++) {
-		int k;
-		for( k = 0; k < cs_s[i].item_count; k++ ) {
-			aFree(cs_s[i].data[k]);
-		}
-		aFree(cs_s[i].data);
-	}
 	return 0;
 }

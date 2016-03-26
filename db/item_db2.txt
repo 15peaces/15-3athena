@@ -81,10 +81,8 @@
 18938,Astro_Circle,Astro Circle,5,0,,300,,1,,0,0xFFFFFFFF,63,2,256,,1,,1073,{},{},{}
 18969,Boss_Beret_J,Boss Beret_J,5,0,,0,,,,0,0xFFFFFFFF,63,2,256,,,,1134,{},{},{}
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
-
-19751,C_Light_Darkness_Crown,Costume Light Darkness Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,988,{},{},{}
 19752,C_Shelter_Wing_Ears,Costume Shelter Wing Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,990,{},{},{}
-19753,C_Celestial_Hat,Costume Celestial Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,462,{},{},{}
+
 19754,C_Good_Wedding_Veil,Costume Good Wedding Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,489,{},{},{}
 19755,C_YinYang_Earring,Costume YinYang Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,744,{},{},{}
 19756,C_Holy_Mom_Love,Costume Holy Mom Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,610,{},{},{}
@@ -1912,3 +1910,10 @@
 18003,Soul_Cannon_Ball,Soul Cannon Ball,10,200,,10,120,,,,0xFFFFFFFF,8,2,32768,,1,,8,{ bonus bAtkEle,Ele_Ghost; },{},{}
 18004,Iron_Cannon_Ball,Iron Cannon Ball,10,500,,10,250,,,,0xFFFFFFFF,8,2,32768,,1,,8,{ bonus bAtkEle,Ele_Neutral; },{},{}
 19540,C_Rabbit_Earplug,Costume Rabbit Earplugs,5,20,,0,,0,,0,0xFFFFFFFF,63,2,7168,,1,0,515,{ bonus bAgi,1; bonus bFlee,2; },{},{}
+
+//missing Eggs
+9058,Snow_Rabbit_Egg,Christmas Snow Rabbit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9059,Tikbalang_Egg,Tikbalang Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9060,Brownie_Egg,Brownie Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9061,Marin_Egg,Marin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9062,Novice_Poring_Egg,Novice Poring Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
