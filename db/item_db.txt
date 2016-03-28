@@ -2845,8 +2845,8 @@
 5449,Solo_Play_Box2,Soloplay Box2,5,,,300,,0,,1,0xFFFFFFFF,7,2,769,,0,1,450,{},{},{}
 //5450,Sun_Cap,Solar Hat,5,20,,1000,,0,,0,0xFFFFFFFE,7,2,256,,20,1,451,{},{},{}
 5451,Dragonhelm_Gold,RWC 2008 Dragon Helm Gold,5,20,,2500,,7,,0,0xFFFFFFFF,7,2,256,,1,0,452,{ bonus bAspdRate,10; bonus bAllStats,3; bonus2 bAddRace,RC_DemiHuman,5; },{},{}
-5452,Dragonhelm_Silver,RWC 2008 Dragon Helm Silver,5,20,,2500,,5,,0,0xFFFFFFFF,7,2,256,,1,0,453,{ bonus bAspdRate,7; bonus bAllStats,2; bonus2 bAddRace,RC_DemiHuman,3; },{},{}
-5453,Dragonhelm_Copper,RWC 2008 Dragon Helm Copper,5,20,,2500,,0,,0,0xFFFFFFFF,7,2,256,,1,0,454,{ bonus bAspdRate,5; bonus bAllStats,2; bonus2 bAddRace,RC_DemiHuman,1; },{},{}
+5452,Dragonhelm_Silver,RWC 2008 Dragon Helm Silver,5,20,,2500,,5,,1,0xFFFFFFFF,7,2,256,,1,0,453,{ bonus bAspdRate,7; bonus bAllStats,2; bonus2 bAddRace,RC_DemiHuman,3; },{},{}
+5453,Dragonhelm_Copper,RWC 2008 Dragon Helm Copper,5,20,,2500,,0,,1,0xFFFFFFFF,7,2,256,,1,0,454,{ bonus bAspdRate,5; bonus bAllStats,2; bonus2 bAddRace,RC_DemiHuman,1; },{},{}
 5454,Dog_Cap_,Puppy Hat,5,20,,500,,3,,1,0xFFFFFFFF,7,2,256,,0,1,234,{ bonus bStr,1; bonus bInt,1; autobonus "{ bonus bCritical,100; }",10,3000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bIgnoreMdefRate,100; }",10,3000,BF_MAGIC,"{ specialeffect2 EF_MAGICALATTHIT; }"; },{},{}
 5455,Geographer_Band_,Decorative Geographer,5,20,,500,,1,,1,0xFFFFFFFF,7,2,256,,0,1,238,{ bonus bInt,1; bonus3 bAutoSpell,"AL_HEAL",5,50; bonus3 bAutoSpellWhenHit,"AL_HEAL",5,30; },{},{}
 5456,Vacation_Hat_,Summer Hat,5,20,,200,,0,,1,0xFFFFFFFF,7,2,256,,0,1,315,{ bonus bVit,5; bonus bHPrecovRate,20; bonus bSPrecovRate,15; },{},{}
@@ -7032,6 +7032,9 @@
 19751,C_Light_Darkness_Crown,Costume Light Darkness Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,988,{},{},{}
 
 19753,C_Celestial_Hat,Costume Celestial Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,462,{},{},{}
+19754,C_Good_Wedding_Veil,Costume Good Wedding Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,489,{},{},{}
+19755,C_YinYang_Earring,Costume YinYang Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,744,{},{},{}
+19756,C_Holy_Mom_Love,Costume Holy Mom Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,610,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}

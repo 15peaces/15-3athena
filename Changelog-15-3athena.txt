@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/28/2016
+	r117 [15peaces]
+		*Merged missing changes from 3ceam rev. 464 - 466
+		*Added Octupus Cave instance
+			-Also added missing monsters
+			-Did some clean-up in mob_dbs
+		*Added more missing items
+			-Added some more item packages
+			-Did some clean-up in item_dbs
+		*Updated RK_CRUSHSTRIKE and RK_STORMBLAST damage formulas with info from irowiki.
+		*Fixed WM_GLOOMYDAY that was checking in source instead of checking in the target.
+
 03/26/2016
 	r116 [15peaces]
 		*Merged missing changes from 3ceam rev. 459 - 463

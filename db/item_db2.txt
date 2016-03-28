@@ -83,9 +83,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 19752,C_Shelter_Wing_Ears,Costume Shelter Wing Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,990,{},{},{}
 
-19754,C_Good_Wedding_Veil,Costume Good Wedding Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,489,{},{},{}
-19755,C_YinYang_Earring,Costume YinYang Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,744,{},{},{}
-19756,C_Holy_Mom_Love,Costume Holy Mom Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,610,{},{},{}
 19757,C_Water_Lily_Crown,Costume Water Lily Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,312,{},{},{}
 19758,C_Frog_King_Hat,Costume Frog King Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,522,{},{},{}
 19759,C_Umbrella_Hat,Costume Umbrella Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,338,{},{},{}
@@ -1917,3 +1914,23 @@
 9060,Brownie_Egg,Brownie Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
 9061,Marin_Egg,Marin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
 9062,Novice_Poring_Egg,Novice Poring Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+
+//Octupus Cave (renewal)
+4528,Mutant_Coelacanth_Card,Mutant Coelacanth Card,6,20,,10,,,,,,,,769,,,,,{ set .@r, getrefine(); bonus bMatkRate,2+(.@r/2); bonus bMaxHPrate,-.@r/2; },{},{}
+4529,Cruel_Coelacanth_Card,Violent Coelacanth Card,6,20,,10,,,,,,,,769,,,,,{ set .@r, getrefine(); bonus2 bAddClass,Class_All,2+(.@r/2); bonus bMaxSPrate,-.@r/2; },{},{}
+4530,Siorava_Card,Siorava Card,6,20,,10,,,,,,,,769,,,,,{ bonus bLuk,2; if(BaseClass==Job_Merchant){ bonus bLuk,2+(getrefine()/3); } },{},{}
+4531,Red_Eruma_Card,Red Eruma Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Curse,100,ATF_MAGIC; },{},{}
+4532,Wild_Rider_Card,Wild Rider Card,6,20,,10,,,,,,,,64,,,,,{ bonus bAgi,1; bonus3 bAutoSpell,"AL_INCAGI",1,50; },{},{}
+4533,Mini_Octopus_Card,Octopus Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Blind,100,ATF_MAGIC; },{},{}
+4534,Giant_Octopus_Card,Giant Octopus Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,12; skill "WZ_WATERBALL",5; },{},{}
+4535,Sealed_Rand_Card,Sealed Randgris Card,6,20,,10,,,,,,,,2,,,,,{ bonus bAtkRate,(getrefine()>=15?8:5); bonus5 bAutoSpell,"SA_DISPELL",1,1,BF_NORMAL,1; bonus bUnbreakableWeapon,1; },{},{}
+4536,Sealed_Atroce_Card,Sealed Atroce Card,6,20,,10,,,,,,,,2,,,,,{ set .@r, getrefine(); bonus bBaseAtk,((.@r>14)?25:15); autobonus "{ bonus bAspdRate,((.@r>14)?75:50); }",5,10000,0,"{ specialeffect2 EF_POTION_BERSERK; }"; },{},{}
+4537,Sealed_Phreeoni_Card,Sealed Phreeoni Card,6,20,,10,,,,,,,,2,,,,,{ bonus bHit,((getrefine()>14)?75:50); },{},{}
+12612,Old_Coin_Pocket,Old Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Old_Coin_Pocket); },{},{}
+12614,Mid_Coin_Pocket,Intermediate Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Mid_Coin_Pocket); },{},{}
+12615,Low_Coin_Pocket,Minor Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Low_Coin_Pocket); },{},{}
+12636,Malang_Sp_Can,Malangdo Canned Specialties,2,20,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "malangdo",140,114; },{},{}
+12637,Gong_Bug_Pocket,Sow Bug Pocket,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13208,200; },{},{}
+12638,Dried_Squid_Box,Dried Squid Box,2,20,,2000,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13292,200; },{},{}
+12639,Flying_Fish_Box,Flying Fish Box,2,20,,2000,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13293,200; },{},{}
+12640,Starfish_Box,Starfish Box,2,20,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13291,200; },{},{}

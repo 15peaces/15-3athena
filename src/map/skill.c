@@ -7693,19 +7693,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WM_GLOOMYDAY:
-		if( sd )
-		{
-			if( pc_checkskill(sd,KN_BRANDISHSPEAR) || pc_checkskill(sd,LK_SPIRALPIERCE) ||
-				pc_checkskill(sd,CR_SHIELDCHARGE) || pc_checkskill(sd,CR_SHIELDBOOMERANG) ||
-				pc_checkskill(sd,PA_SHIELDCHAIN) || pc_checkskill(sd,LG_SHIELDPRESS) )
-			{
+		if( dstsd ) {
+			if( pc_checkskill(dstsd,KN_BRANDISHSPEAR) || pc_checkskill(dstsd,LK_SPIRALPIERCE) ||
+				pc_checkskill(dstsd,CR_SHIELDCHARGE) || pc_checkskill(dstsd,CR_SHIELDBOOMERANG) ||
+				pc_checkskill(dstsd,PA_SHIELDCHAIN) || pc_checkskill(dstsd,LG_SHIELDPRESS) ) {
 				sc_start(bl,SC_GLOOMYDAY_SK,100,skilllv,skill_get_time(skillid,skilllv));
-			}
-			else
+			} else
 				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		}
-		else
+		} else
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 
