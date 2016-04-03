@@ -9995,13 +9995,22 @@ BUILDIN_FUNC(setmapflagnosave)
 	x=script_getnum(st,4);
 	y=script_getnum(st,5);
 	m = map_mapname2mapid(str);
-	mapindex = mapindex_name2id(str2);	
-	
-	if(m >= 0 && mapindex) {
-		map[m].flag.nosave=1;
-		map[m].save.map=mapindex;
-		map[m].save.x=x;
-		map[m].save.y=y;
+
+    if(m >= 0) {
+		if(strcmp(str2,"SavePoint")==0) {
+				map[m].flag.nosave=1;
+				map[m].save.map = 0;
+				map[m].save.x = -1;
+				map[m].save.y = -1;
+		} else {
+			mapindex = mapindex_name2id(str2);
+			if(mapindex > 0) {
+				map[m].flag.nosave=1;
+				map[m].save.map=mapindex;
+				map[m].save.x=x;
+				map[m].save.y=y;
+			}
+		}
 	}
 
 	return 0;

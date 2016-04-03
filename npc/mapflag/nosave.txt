@@ -11,8 +11,30 @@
 //============================================================
 
 //============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_nosave	-1,{
+Oninit:
+	// after Episode 5
+	if(getepisode() > 50)
+		setmapflagnosave "monk_in","SavePoint",0,0;
+
+	end;
+}
+//============================================================
 // Global Mapflags / Episode unknown
 //============================================================
+// 2-1
+job_hunte	mapflag	nosave	SavePoint
+job_knt	mapflag	nosave	SavePoint
+job_prist	mapflag	nosave	SavePoint
+job_wiz	mapflag	nosave	SavePoint
+in_moc_16	mapflag	nosave	SavePoint
+// 2-2
+alde_alche	mapflag	nosave	SavePoint
+job_sage	mapflag	nosave	SavePoint
+monk_test	mapflag	nosave	SavePoint
+in_rogue	mapflag	nosave	SavePoint
 
 //============================================================
 // RECHECK NEEDED, came after ep5??
@@ -20,22 +42,11 @@
 // Job Quests ====================
 job_sword1	mapflag	nosave	SavePoint
 //job_thief1	mapflag	nosave	SavePoint
-// 2-1
-job_knt	mapflag	nosave	SavePoint
-job_prist	mapflag	nosave	SavePoint
-job_wiz	mapflag	nosave	SavePoint
-in_moc_16	mapflag	nosave	SavePoint
-job_hunte	mapflag	nosave	SavePoint
 //in_hunter	mapflag	nosave	SavePoint
 // 2-2
-alde_alche	mapflag	nosave	SavePoint
 job_cru	mapflag	nosave	SavePoint
 job_duncer	mapflag	nosave	SavePoint
 job_monk	mapflag	nosave	SavePoint
-monk_test	mapflag	nosave	SavePoint
-monk_in	mapflag	nosave	SavePoint
-in_rogue	mapflag	nosave	SavePoint
-job_sage	mapflag	nosave	SavePoint
 
 job_star	mapflag	nosave	SavePoint
 job_soul	mapflag	nosave	SavePoint

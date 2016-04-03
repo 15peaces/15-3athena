@@ -75,7 +75,6 @@
 1191,0,0,0,0,0,0,0,"Get Rid of Bakonawa"
 1192,0,0,0,0,0,0,0,"Get Rid of Bakonawa"
 1193,0,0,0,0,0,0,0,"Get Rid of Bakonawa"
-
 // 2011 X-Mas Event
 1194,0,0,0,0,0,0,0,"Look out the window, Cheers for Raccoon Hurray team!"
 1195,0,0,0,0,0,0,0,"Look out the window, Cheers for Raccoon Hurray team!"

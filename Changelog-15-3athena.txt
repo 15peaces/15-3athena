@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/03/2016
+	r118 [15peaces]
+		*Updated setmapflagnosave function
+			-it now supports "SavePoint" as a alternate map.
+			-don't know for what reason this was skipped by eA-devs...
+			-now we can use episode-specific nosave-Mapflags :D
+		*Some more work on episode 5 mapflags
+		*Some fixing on item_db.
+			-Added Whikebain's Black Tail script and combo-script
+		*Added HD Refiners
+			-Also added missing items
+
 03/28/2016
 	r117 [15peaces]
 		*Merged missing changes from 3ceam rev. 464 - 466

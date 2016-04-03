@@ -1783,7 +1783,7 @@
 2852,E_Rosary_C,Rosary,5,1,,0,,0,,0,0xFFFFFFFE,7,2,136,,1,0,0,{ bonus bLuk,4; bonus bMdef,5; },{},{}
 2853,Telekinetic_Orb,Telekinetic Orb,5,20,,200,,2,,0,0x00000000,7,2,136,,110,0,0,{ bonus bInt,3; bonus bMdef,1; },{},{}
 2854,Alchemy_Glove,Alchemy Glove,5,20,,100,,1,,1,0x00000000,7,2,136,,125,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
-2855,Whike_Black_Tail,Whike Black Tail,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,45,0,0,{},{},{}
+2855,Whike_Black_Tail,Whike Black Tail,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,45,0,0,{bonus bCritical,7; bonus bAspdRate,3; bonus2 bAddEff2,Eff_Curse,10; if(isequipped(5360)){bonus bCritAtkRate,10; if(getequiprefinerycnt(EQI_HEAD_TOP)>5) bonus bCritical,5;}},{},{}
 2856,Half_Megin,Half Megingjard,5,20,,0,,1,,0,0xFFFFFFFF,7,2,136,,47,0,0,{ bonus bStr,20; bonus bMdef,3; },{},{}
 2857,Half_Brysing,Half Brisingamen,5,20,,0,,1,,0,0xFFFFFFFF,7,2,136,,47,0,0,{ bonus bStr,3; bonus bInt,5; bonus bVit,3; bonus bDex,3; bonus bAgi,3; bonus bLuk,5; bonus bMdef,2; },{},{}
 2858,Pendant_Of_Guardian,Guardian Pendant,5,0,,0,,0,,0,0xFFFFFFFF,7,2,136,,70,0,0,{},{},{}

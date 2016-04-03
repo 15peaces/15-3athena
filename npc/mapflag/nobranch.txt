@@ -37,6 +37,7 @@ Oninit:
 		setmapflag "knight_1-1",mf_nobranch;
 		setmapflag "knight_2-1",mf_nobranch;
 		setmapflag "knight_3-1",mf_nobranch;
+		setmapflag "moc_castle",mf_nobranch;
 		setmapflag "priest_1-1",mf_nobranch;
 		setmapflag "priest_2-1",mf_nobranch;
 		setmapflag "priest_3-1",mf_nobranch;
@@ -122,8 +123,36 @@ Oninit:
 }
 
 //============================================================
-// Global Mapflags / Episode unknown
+// Global Mapflags / Episode <= 5
 //============================================================
+// Cities ======================
+alberta_in	mapflag	nobranch
+aldeba_in	mapflag	nobranch
+ama_in01	mapflag	nobranch
+ama_in02	mapflag	nobranch
+cmd_in01	mapflag	nobranch
+cmd_in02	mapflag	nobranch
+gef_tower	mapflag	nobranch
+geffen_in	mapflag	nobranch
+gon_in	mapflag	nobranch
+gon_test	mapflag	nobranch
+in_orcs01	mapflag	nobranch
+izlude_in	mapflag	nobranch
+morocc_in	mapflag	nobranch
+payon_in01	mapflag	nobranch
+payon_in02	mapflag	nobranch
+prt_are_in	mapflag	nobranch
+prt_are01	mapflag	nobranch
+prt_castle	mapflag	nobranch
+prt_church	mapflag	nobranch
+prt_in	mapflag	nobranch
+um_in	mapflag	nobranch
+xmas_in	mapflag	nobranch
+yuno_in01	mapflag	nobranch
+yuno_in02	mapflag	nobranch
+yuno_in03	mapflag	nobranch
+yuno_in04	mapflag	nobranch
+yuno_in05	mapflag	nobranch
 
 // Arenas ======================
 arena_room	mapflag	nobranch
@@ -141,8 +170,6 @@ pvp_c_room	mapflag	nobranch
 quiz_00	mapflag	nobranch
 quiz_01	mapflag	nobranch
 sec_in01	mapflag	nobranch
-prt_are_in	mapflag	nobranch
-prt_are01	mapflag	nobranch
 
 // Guild Castles ===============
 aldeg_cas01	mapflag	nobranch
@@ -187,24 +214,11 @@ in_rogue	mapflag	nobranch
 ayo_in01	mapflag	nobranch
 ayo_in02	mapflag	nobranch
 alb_ship	mapflag	nobranch
-alberta_in	mapflag	nobranch
-aldeba_in	mapflag	nobranch
-ama_in01	mapflag	nobranch
-ama_in02	mapflag	nobranch
 ama_test	mapflag	nobranch
-cmd_in01	mapflag	nobranch
-cmd_in02	mapflag	nobranch
-gef_tower	mapflag	nobranch
-geffen_in	mapflag	nobranch
-gon_in	mapflag	nobranch
-gon_test	mapflag	nobranch
-in_orcs01	mapflag	nobranch
-izlude_in	mapflag	nobranch
 jawaii_in	mapflag	nobranch
 lou_in01	mapflag	nobranch
 lou_in02	mapflag	nobranch
 moc_castle	mapflag	nobranch
-morocc_in	mapflag	nobranch
 moscovia	mapflag	nobranch
 mosk_in	mapflag	nobranch
 new_zone01	mapflag	nobranch
@@ -232,19 +246,7 @@ new_5-2	mapflag	nobranch
 new_5-3	mapflag	nobranch
 new_5-4	mapflag	nobranch
 nif_in	mapflag	nobranch
-payon_in01	mapflag	nobranch
-payon_in02	mapflag	nobranch
 payon_in03	mapflag	nobranch
-prt_castle	mapflag	nobranch
-prt_church	mapflag	nobranch
-prt_in	mapflag	nobranch
-um_in	mapflag	nobranch
-xmas_in	mapflag	nobranch
-yuno_in01	mapflag	nobranch
-yuno_in02	mapflag	nobranch
-yuno_in03	mapflag	nobranch
-yuno_in04	mapflag	nobranch
-yuno_in05	mapflag	nobranch
 que_sign01	mapflag	nobranch
 ein_in01	mapflag	nobranch
 airport	mapflag	nobranch

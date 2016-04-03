@@ -17,6 +17,14 @@
 //============================================================
 	-	script	_ep_mf_noteleport	-1,{
 Oninit:	
+	// Episode 5.0
+	if(getepisode() == 50){
+		setmapflag "sword_1-1" ,mf_noteleport;
+		setmapflag "sword_2-1" ,mf_noteleport;
+		setmapflag "sword_3-1" ,mf_noteleport;
+		setmapflag "job_knight",mf_noteleport;
+	}
+	
 	// Episode 13.1+
 	if(getepisode() >= 131){
 		setmapflag "mid_campin" ,mf_noteleport;
@@ -36,7 +44,21 @@ Oninit:
 //============================================================
 // Global Mapflags / Episode unknown
 //============================================================
-// Arenas =====================>\\
+// Job Quests ====================
+job_thief1	mapflag	noteleport
+// 2-1 -----------------------
+job_hunte	mapflag	noteleport
+job_prist	mapflag	noteleport
+job_wiz	mapflag	noteleport
+in_hunter	mapflag	noteleport
+in_moc_16	mapflag	noteleport
+// 2-2 --------------------
+alde_alche	mapflag	noteleport
+job_sage	mapflag	noteleport
+monk_test	mapflag	noteleport
+monk_in	mapflag	noteleport
+in_rogue	mapflag	noteleport
+// Arenas ========================
 arena_room	mapflag	noteleport
 sec_in01	mapflag	noteleport
 
@@ -179,23 +201,12 @@ moc_para01	mapflag	noteleport
 
 // Job Quests ====================
 job_sword1	mapflag	noteleport
-job_thief1	mapflag	noteleport
 // 2-1 -----------------------
 job_knt	mapflag	noteleport
-job_prist	mapflag	noteleport
-job_wiz	mapflag	noteleport
-job_hunte	mapflag	noteleport
-in_hunter	mapflag	noteleport
-in_moc_16	mapflag	noteleport
 // 2-2 --------------------
-alde_alche	mapflag	noteleport
 job_cru	mapflag	noteleport
 job_duncer	mapflag	noteleport
 job_monk	mapflag	noteleport
-monk_test	mapflag	noteleport
-monk_in	mapflag	noteleport
-in_rogue	mapflag	noteleport
-job_sage	mapflag	noteleport
 job_star	mapflag	noteleport
 job_soul	mapflag	noteleport
 que_ng	mapflag	noteleport

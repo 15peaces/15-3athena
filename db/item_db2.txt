@@ -1014,9 +1014,9 @@
 18566,Nut_Donut_In_Mouth,Nut Donut In Mouth,5,20,,0,,1,,0,0xFFFFFFFF,63,2,1,,0,0,736,{ bonus bBaseAtk,5; bonus bMatk,5; },{},{}
 18567,Stretched_Nose,Stretched Nose,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,0,0,737,{},{},{}
 18568,Humming_Bird,Humming Bird,5,20,,100,,3,,0,0xFFFFFFFF,63,2,256,,10,0,702,{ bonus bMdef,6; },{},{}
-18570,Ancient_Gold_Deco,Ancient Gold Ornament,5,20,,400,,7,,1,0xFFFFFFFE,63,2,256,,100,1,739,{ if(BaseLevel >= 150) { bonus bAllStats,2; } if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief){ bonus2 bAddClass,Class_All,8; } if(BaseClass==Job_Mage||BaseClass==Job_Acolyte){ bonus bMatk,8; } if(BaseClass==Job_Archer){ bonus bDex,3; bonus bLongAtkRate,10; } },{},{}
+18570,Ancient_Gold_Deco,Ancient Gold Ornament,5,20,,400,,7,,1,0xFFFFFFFE,63,2,256,,100,1,739,{ if(BaseLevel >= 150) { bonus bAllStats,2; } if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief){ bonus2 bAddRace,RC_NonBoss,8; bonus2 bAddRace,RC_Boss,8; } if(BaseClass==Job_Mage||BaseClass==Job_Acolyte){ bonus bMatk,8; } if(BaseClass==Job_Archer){ bonus bDex,3; bonus bLongAtkRate,10; } },{},{}
 18571,Lucky_Hat,Lucky Hat,5,20,,1000,,0,,1,0xFFFFFFFF,63,2,256,,0,0,740,{ bonus2 bExpAddRace,RC_All,3; },{},{}
-18574,Lord_of_Death,Lord of Death,5,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,70,1,742,{ bonus bMdef,5; set .@r,getrefine(); bonus2 bAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bMagicAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bSubClass,Class_Normal,-5; },{},{}
+18574,Lord_of_Death,Lord of Death,5,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,70,1,742,{ bonus bMdef,5; set .@r,getrefine(); bonus2 bAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bMagicAddRace,RC_Boss,(.@r>5?.@r+5:10); bonus2 bSubRace,RC_NonBoss,-5; },{},{}
 18575,Wunderkammer,Wunderkammer,5,20,,500,,10,,1,0xFFFFFFFF,63,2,769,,20,0,743,{ bonus bMdef,10; },{},{}
 18576,YinYang_Earring,YinYang Earring,5,20,,100,,0,,0,0xFFFFFFFF,63,2,512,,50,0,744,{ bonus2 bSkillAtk,"MO_CHAINCOMBO",10; bonus2 bSkillAtk,"MO_TRIPLEATTACK",5; bonus2 bSkillAtk,"MO_COMBOFINISH",5; bonus2 bSkillUseSP,"MO_CHAINCOMBO",1; bonus2 bSkillUseSP,"MO_COMBOFINISH",1; },{},{}
 18577,24_Bolt,24 Bolt,5,20,,200,,0,,0,0xFFFFFFFF,63,2,512,,10,0,696,{},{},{}
@@ -1934,3 +1934,31 @@
 12638,Dried_Squid_Box,Dried Squid Box,2,20,,2000,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13292,200; },{},{}
 12639,Flying_Fish_Box,Flying Fish Box,2,20,,2000,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13293,200; },{},{}
 12640,Starfish_Box,Starfish Box,2,20,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13291,200; },{},{}
+
+// HD Boxes & more
+16258,HD_Bradium_5_Box,HD Bradium 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6226,5; },{},{}
+16259,HD_Carnium_5_Box,HD Carnium 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6225,5; },{},{}
+16260,HD_Bradium_10_Box,HD Bradium 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6226,10; },{},{}
+16261,HD_Carnium_10_Box,HD Carnium 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6225,10; },{},{}
+16262,HD_Bradium_5_Box2,HD Bradium 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6226,5; },{},{}
+16263,HD_Carnium_5_Box2,HD Carnium 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6225,5; },{},{}
+16264,HD_Bradium_10_Box2,HD Bradium 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6226,10; },{},{}
+16265,HD_Carnium_10_Box2,HD Carnium 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6225,10; },{},{}
+16266,Indonesia_Beret_Box,Indonesia Beret Box,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,1,,,{ getitem 5580,1; },{},{}
+16267,HE_Battle_Manual_Box,HE Battle Manual Box,2,20,10,1,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12411,10; },{},{}
+16393,HD_Ori_Box5,HD Oridecon 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6240,5; },{},{}
+16394,HD_Ori_Box10,HD Oridecon 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6240,10; },{},{}
+16395,HD_Elu_Box5,HD Elunium 5 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6241,5; },{},{}
+16396,HD_Elu_Box10,HD Elunium 10 Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6241,10; },{},{}
+16397,Virgo_Diadem_Box,Virgo Diadem Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 5599,1; },{},{}
+16398,Virgo_Crown_Box_,Virgo Crown Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 5598,1; },{},{}
+16399,Virgo_Diadem_Box_,Virgo Diadem Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 5599,1; },{},{}
+17104,HD_Oridecon_50Box,HD Oridecon 50 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6240,50; },{},{}
+17105,HD_Elunium_50Box,HD Elunium 50 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 6241,50; },{},{}
+17106,Max_Weight_Up_10Box,Heavy Lifter Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 7776,10; },{},{}
+17109,Capri_Scroll,Capri Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17110,Aquarius_Scroll,Aquarius Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17113,Pisces_Scroll,Pisces Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17114,Horn_Of_Ancient_Box,Horn Of Ancient Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 18595,1; },{},{}
+17246,HD_Elunium_Box(30),HD Elunium Box(30),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 6241,30; },{},{}
+17247,HD_Oridecon_Box(30),HD Oridecon Box(30),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 6240,30; },{},{}
