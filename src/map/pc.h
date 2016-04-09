@@ -288,11 +288,15 @@ struct map_session_data {
 	struct s_addeffect addeff[MAX_PC_BONUS], addeff2[MAX_PC_BONUS];
 	struct s_addeffectonskill addeff3[MAX_PC_BONUS];
 
-	struct { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
+	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		unsigned short id;
 		short val;
 	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS]
-		, skillcast[MAX_PC_BONUS], fixedskillcast[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS];
+		, skillusesp[MAX_PC_BONUS];
+	struct s_skill_bonus_i32 { // Copy of s_skill_bonus struct but for larger values [15peaces]
+		uint16 id;
+		int32 val;
+	} skillcooldown[MAX_PC_BONUS], skillcast[MAX_PC_BONUS], fixedskillcast[MAX_PC_BONUS];
 	struct {
 		short value;
 		int rate;
@@ -691,6 +695,7 @@ int pc_isequip(struct map_session_data *sd,int n);
 int pc_equippoint(struct map_session_data *sd,int n);
 int pc_setinventorydata(struct map_session_data *sd);
 
+int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 int pc_checkskill(struct map_session_data *sd,int skill_id);
 int pc_checkallowskill(struct map_session_data *sd);
 int pc_checkequip(struct map_session_data *sd,int pos);

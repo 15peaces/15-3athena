@@ -3103,6 +3103,23 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		}
 		break;
 
+	case SP_SKILL_COOLDOWN: // bonus2 bSkillCooldown,sk,t;
+		if(sd->state.lr_flag == 2)
+			break;
+		ARR_FIND(0, ARRAYLENGTH(sd->skillcooldown), i, sd->skillcooldown[i].id == 0 || sd->skillcooldown[i].id == type2);
+		if (i == ARRAYLENGTH(sd->skillcooldown))
+		{
+			ShowError("pc_bonus2: SP_SKILL_COOLDOWN: Reached max (%d) number of skills per character, bonus skill %d (%d) lost.\n", ARRAYLENGTH(sd->skillcooldown), type2, val);
+			break;
+		}
+		if (sd->skillcooldown[i].id == type2)
+			sd->skillcooldown[i].val += val;
+		else {
+			sd->skillcooldown[i].id = type2;
+			sd->skillcooldown[i].val = val;
+		}
+		break;
+
 	default:
 		ShowWarning("pc_bonus2: unknown type %d %d %d!\n",type,type2,val);
 		break;
@@ -4784,10 +4801,36 @@ int pc_memo(struct map_session_data* sd, int pos)
 }
 
 //
-// •Ší??
+// Skills
 //
+
+/**
+ * Get the skill current cooldown for player.
+ * (get the db base cooldown for skill + player specific cooldown)
+ * @param sd : player pointer
+ * @param id : skill id
+ * @param lv : skill lv
+ * @return player skill cooldown
+ */
+int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv) {
+	uint8 i;
+	uint16 idx = skill_get_index(skill_id);
+	int cooldown = 0, cooldownlen = ARRAYLENGTH(sd->skillcooldown);
+	
+	if (!idx) return 0;
+	if (skill_db[idx].cooldown[skill_lv - 1])
+		cooldown = skill_db[idx].cooldown[skill_lv - 1];
+
+	ARR_FIND(0, cooldownlen, i, sd->skillcooldown[i].id == skill_id);
+	if (i < cooldownlen) {
+		cooldown += sd->skillcooldown[i].val;
+		cooldown = max(0,cooldown);
+	}
+	return cooldown;
+}
+
 /*==========================================
- * ƒXƒLƒ‹‚Ì?õ Š—L‚µ‚Ä‚¢‚½ê‡Lv‚ª•Ô‚é
+ * Return player sd skill_lv learned for given skill
  *------------------------------------------*/
 int pc_checkskill(struct map_session_data *sd,int skill_id)
 {

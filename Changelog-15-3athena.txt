@@ -4,6 +4,13 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/09/2016
+	r119 [15peaces]
+		*Added full support for bonus2 bSkillCooldown,sk,t; item bonus
+			-Increases cooldown of skill sk by t milliseconds.
+			-Also added Gigantic Lance for testing.
+		*Added Genetic Jobchange quest.
+		
 04/03/2016
 	r118 [15peaces]
 		*Updated setmapflagnosave function

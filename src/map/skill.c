@@ -3848,7 +3848,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			ARR_FIND(0,MAX_SPELLBOOK,i,sd->rsb[i].skillid != 0);
 			if( i < MAX_SPELLBOOK )
 			{ // SpellBook
-				int rsb_skillid, rsb_skilllv;
+				int rsb_skillid, rsb_skilllv, cooldown;
 				if( skilllv > 1 )
 				{
 					ARR_FIND(0,MAX_SPELLBOOK,i,sd->rsb[i].skillid == 0);
@@ -3879,6 +3879,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 						skill_castend_damage_id(src,bl,rsb_skillid,rsb_skilllv,tick,0);
 						break;
 				}
+					cooldown = pc_get_skillcooldown(sd,rsb_skillid, rsb_skilllv);
+				if( cooldown )
+					skill_blockpc_start(sd, rsb_skillid, cooldown);
 			}
 			else
 			{ // Summon Balls
@@ -8221,6 +8224,10 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv); //Tests show wings don't overwrite the delay but skill scrolls do. [Inkfish]
+		if (sd) { //Cooldown application
+			int cooldown = pc_get_skillcooldown(sd,ud->skillid, ud->skilllv); // Increases/Decreases cooldown of a skill by item/card bonuses.
+			if(cooldown) skill_blockpc_start(sd, ud->skillid, cooldown);
+		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
 		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )
@@ -8440,6 +8447,10 @@ int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data)
 
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv);
+		if (sd) { //Cooldown application
+			int cooldown = pc_get_skillcooldown(sd,ud->skillid, ud->skilllv);
+			if(cooldown) skill_blockpc_start(sd, ud->skillid, cooldown);
+		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
 		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )

@@ -91,7 +91,7 @@ struct skill_condition {
 	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[MAX_SKILL_ITEM_REQUIRE];
 };
 
-// スキルデ?タベ?ス
+/// Database skills.
 struct s_skill_db {
 	char name[NAME_LENGTH];
 	char desc[40];

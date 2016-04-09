@@ -293,13 +293,11 @@
 2184,0,0,0,0,0,0,0,"Flower of Alfheim"
 2185,0,0,0,0,0,0,0,"Spirit of Alfheim"
 2186,64800,0,0,0,0,0,0,"Helping Grenouille"
-
 2187,0,0,0,0,0,0,0,"Arch Bishop job changing quest"
 2188,0,0,0,0,0,0,0,"Arch Bishop job changing quest"
 2189,0,0,0,0,0,0,0,"Arch Bishop job changing quest"
 2190,0,0,0,0,0,0,0,"Arch Bishop job changing quest"
 2191,0,0,0,0,0,0,0,"Arch Bishop job changing quest"
-
 2192,0,0,0,0,0,0,0,"Guarana quest"
 2193,0,0,0,0,0,0,0,"Guarana quest"
 2194,0,0,0,0,0,0,0,"Guarana quest"
@@ -317,7 +315,6 @@
 2206,0,0,0,0,0,0,0,"Brasilis Water Lily"
 2207,0,0,0,0,0,0,0,"Brasilis Water Lily"
 2208,0,0,0,0,0,0,0,"Bathroom Ghost"
-
 2209,0,0,0,0,0,0,0,"Generic Job Change Quest"
 2210,0,0,0,0,0,0,0,"Generic Job Change Quest"
 2211,0,0,0,0,0,0,0,"Generic Job Change Quest"

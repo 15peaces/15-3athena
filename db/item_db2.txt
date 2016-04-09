@@ -1962,3 +1962,6 @@
 17114,Horn_Of_Ancient_Box,Horn Of Ancient Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 18595,1; },{},{}
 17246,HD_Elunium_Box(30),HD Elunium Box(30),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 6241,30; },{},{}
 17247,HD_Oridecon_Box(30),HD Oridecon Box(30),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 6240,30; },{},{}
+
+// bSkillCooldown testing
+1490,Giant_Lance,Gigantic Lance,4,20,,20000,20,,3,0,0x00000080,63,2,34,4,140,1,5,{ bonus bAspd,-10; bonus2 bSkillCooldown,"LK_SPIRALPIERCE",20000; if(readparam(bStr)>=120){ bonus bBaseAtk,300; } },{},{ heal 0,-600; }
