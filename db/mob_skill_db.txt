@@ -4859,9 +4859,7 @@
 1894,Pouring@WZ_WATERBALL,attack,86,10,10000,500,5000,no,target,always,0,,,,,,,
 1894,Pouring@WZ_WATERBALL,chase,86,10,10000,500,5000,no,target,always,0,,,,,,,
 
-1904,Bomb Poring@NPC_SELFDESTRUCTION,idle,173,1,1000,3000,0,no,self,always,0,,,,,,,
-1904,Bomb Poring@NPC_SELFDESTRUCTION,attack,173,1,1000,3000,0,no,self,always,0,,,,,,,
-1904,Bomb Poring@NPC_SELFDESTRUCTION,chase,173,1,1000,3000,0,no,self,always,0,,,,,,,
+1904,Bomb Poring@NPC_SELFDESTRUCTION,any,173,1,10000,3000,0,no,self,always,0,,,,,,,
 
 // Satan Morroc (12.1)
 //5% HP - Dragon Fear
@@ -6338,6 +6336,26 @@
 2316,Jejeling@NPC_EMOTION,loot,197,1,2000,0,5000,yes,self,always,0,2,,,,,,
 2316,Jejeling@NPC_WATERATTACK,attack,184,1,2000,0,5000,yes,target,always,0,,,,,,,
 2316,Jejeling@WZ_WATERBALL,attack,86,4,500,1000,5000,yes,target,always,0,,,,,,,
+2317,Bangungot@NPC_POWERUP,attack,349,5,10000,0,30000,yes,self,myhpltmaxrate,30,,,,,,,
+2317,Bangungot@NPC_POWERUP,chase,349,5,10000,0,30000,yes,self,myhpltmaxrate,30,,,,,,,
+2317,Bangungot@NPC_AGIUP,attack,350,5,10000,0,30000,yes,self,myhpltmaxrate,30,,,,,,,
+2317,Bangungot@NPC_AGIUP,chase,350,5,10000,0,30000,yes,self,myhpltmaxrate,30,,,,,,,
+2317,Bangungot@NPC_PULSESTRIKE,attack,661,5,2000,0,30000,yes,self,always,0,,,,,,32,
+2317,Bangungot@BS_HAMMERFALL,attack,110,11,1000,1500,5000,no,target,always,0,,,,,,,
+2317,Bangungot@HW_GANBANTEIN,attack,483,1,2000,0,5000,yes,target,always,0,,,,,,,
+2317,Bangungot@KN_TWOHANDQUICKEN,attack,60,20,10000,0,90000,yes,self,myhpltmaxrate,30,,,,,,,
+2317,Bangungot@AS_SONICBLOW,attack,136,10,2000,0,5000,yes,target,always,0,,,,,,,
+2317,Bangungot@WZ_METEOR,attack,83,11,2000,500,5000,no,target,myhpltmaxrate,90,,,,,,,
+2317,Bangungot@SA_DISPELL,attack,289,5,10000,0,30000,yes,target,always,0,,,,,,,
+2317,Bangungot@SA_DISPELL,chase,289,5,10000,0,30000,yes,target,always,0,,,,,,,
+2317,Bangungot@CR_HOLYCROSS,attack,253,10,2000,0,5000,yes,target,always,0,,,,,,,
+2317,Bangungot@KN_BRANDISHSPEAR,attack,57,20,2000,0,5000,yes,target,always,0,,,,,,,
+2317,Bangungot@MG_THUNDERSTORM,attack,21,10,10000,1500,5000,no,target,attackpcge,2,,,,,,,
+2317,Bangungot@WZ_VERMILION,attack,85,20,2000,1000,5000,no,target,always,0,,,,,,,
+2317,Bangungot@WZ_VERMILION,chase,85,20,2000,1000,5000,no,target,always,0,,,,,,,
+2317,Bangungot@NPC_CRITICALWOUND,attack,673,4,2000,0,5000,yes,target,always,0,,,,,,,
+2318,Bangungot@NPC_ALLHEAL,idle,687,1,3000,2000,5000,no,self,always,0,,,,,,,
+2318,Bangungot@NPC_ALLHEAL,attack,687,1,3000,2000,5000,no,self,always,0,,,,,,,
 
 2363,Menblatt@KN_PIERCE,attack,56,10,500,700,5000,no,target,always,0,,,,,,6,
 2363,Menblatt@NPC_DARKSTRIKE,chase,340,5,2000,700,5000,no,target,always,0,,,,,,6,

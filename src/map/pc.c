@@ -4573,9 +4573,10 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 					s_sd->shadowform_id = 0;
 					status_change_end(&sd->bl,SC__SHADOWFORM,INVALID_TIMER);
 			}
+			if (sd->sc.data[SC_CURSEDCIRCLE_ATKER])
+				status_change_end(&sd->bl,SC_CURSEDCIRCLE_ATKER,-1);
 		}
-		if (sd->shadowform_id)
-		{
+		if (sd->shadowform_id){
 			struct block_list *s_bl = map_id2bl(sd->shadowform_id);
 			if( s_bl )
 				status_change_end(s_bl,SC__SHADOWFORM,INVALID_TIMER);

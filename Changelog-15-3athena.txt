@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/10/2016
+	r120 [15peaces]
+		*Merged missing changes from 3ceam rev. 467 - 468
+		*Added missing monsters for Guillotine Cross Jobquest
+			-Done some more clean-up and updating on mob_db
+			-Bombring is not a looter anymore, since it causes problems with Ranger Jobquest.
+		*Added Rune Knight and Warlock Jobquests
+			-These are the last missing 3-1 Jobquests
+		*Updated GN_CHANGEMATERIAL, added two items you can made though this skill.
+		*Added the rest of Sura Skills.
+			-Please test and report properly each skills bug.
+
 04/09/2016
 	r119 [15peaces]
 		*Added full support for bonus2 bSkillCooldown,sk,t; item bonus

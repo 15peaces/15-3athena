@@ -105,7 +105,7 @@ treasure_n1,0,0,0,0	monster	Swift Spore	2646,2,300000,0
 dic_dun03,0,0,0,0	monster	Furious Rake Scaraba	2693,2,300000,0
 //cmd_fild07,0,0,0,0	monster	Elusive Raggler	2694,2,300000,0
 //lhz_fild01,0,0,0,0	monster	Swift Rafflesia	2695,2,300000,0
-//lhz_fild01,0,0,0,0	monster	Poring Ringleader	2696,2,300000,0
+lhz_fild01,0,0,0,0	monster	Poring Ringleader	2696,2,300000,0
 lhz_fild01,0,0,0,0	monster	Furious Poring	2697,2,300000,0
 lhz_fild01,0,0,0,0	monster	Elusive Poring	2698,2,300000,0
 gef_fild07,0,0,0,0	monster	Swift Poring	2699,2,300000,0

@@ -1642,7 +1642,6 @@
 11103,0,0,0,0,0,0,0,"Secret note of Bazet"
 11104,82800,0,0,0,0,0,0,"Resting time"
 11105,0,0,0,0,0,0,0,"Tendrilrion skin"
-
 11106,0,0,0,0,0,0,0,"Job changing to Warlock"
 11107,0,0,0,0,0,0,0,"Job changing to Warlock"
 11108,0,0,0,0,0,0,0,"Job changing to Warlock"
@@ -1651,7 +1650,6 @@
 11111,0,0,0,0,0,0,0,"Job changing to Warlock"
 11112,0,0,0,0,0,0,0,"Job changing to Warlock"
 11113,0,0,0,0,0,0,0,"Until radering is functioning"
-
 11114,0,1004,10,0,0,0,0,"Request : Hunt Honet"
 11115,0,1009,20,0,0,0,0,"Request : Hunt Condor"
 11116,0,1052,10,0,0,0,0,"Request : Hunt grasshopper's leg"
