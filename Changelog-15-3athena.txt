@@ -6,6 +6,23 @@
 //========================================
 04/10/2016
 	r120 [15peaces]
+		*Merged missing changes from 3ceam rev. 469 - 473
+			-Note: skipped changes on Rune Knight Runes, I'll need to redo some stuff there...
+		*Updated Orleans's Server's combo script.
+		*Added missing cooking items so Material Seller.
+		*Added official Card Trader NPC "Putty".
+		*Added full support for freeloop script command.
+			-Toggling this to enabled (1) allows the script instance to bypass the infinite loop protection, allowing your script to loop as much as it may need.
+			-"Putty" is the first NPC to use this script command, but more will follow I guess...
+		*Some updates on ItemDB
+			-Added full support for IP_Bgrade_Pocket
+		*Changed some more monsters to fix pre-renewal sytem
+		*Fixed an issue where Asura crashes when used.
+		*Fixed a server crash when a mob uses SR_CURSEDCIRCLE.
+		*Fixed produce_db.txt where some required items in GN_MAKEBOMB were switched.
+		
+04/10/2016
+	r120 [15peaces]
 		*Merged missing changes from 3ceam rev. 467 - 468
 		*Added missing monsters for Guillotine Cross Jobquest
 			-Done some more clean-up and updating on mob_db

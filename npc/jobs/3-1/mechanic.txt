@@ -213,12 +213,6 @@ yuno,129,156,3	script	Chainheart	923,{
 	}
 	if (BaseJob == Job_Blacksmith) {
 		if (BaseLevel > 98 && JobLevel > 49 && SkillPoint == 0) {
-			if (VIP_SCRIPT) {
-				callfunc "VIP_Third_Class";
-				set job__mechanic,1;
-				setquest 10090;
-				next;
-			}
 			mes "At a glance, you, seem to be a very versatile person on dealing with various things.";
 			mes "You look quite skilled.";
 			mes "You can be the one.";

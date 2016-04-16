@@ -734,7 +734,7 @@ IG_Louise_Costume_Box	53
 IG_Xmas_Gift	54
 //Some missing ItemGroups will be added later
 IG_Advanced_Weapons_Box	55 //61
-IG_Candy_Holder	56 //389!
+IG_Candy_Holder	56 //389
 
 //Item Packages
 IP_New_Year_Scroll	1 			//225
@@ -747,7 +747,8 @@ IP_Tw_Aug_Scroll	7 			//318
 IP_Old_Coin_Pocket	8			//343
 IP_Mid_Coin_Pocket	9			//345
 IP_Low_Coin_Pocket	10			//346
-IP_HALLOWEEN_G_BOX	11			//386
+IP_Bgrade_Pocket	11			//349
+IP_HALLOWEEN_G_BOX	12			//386
 
 SC_ALL	-1
 SC_NONE	-1

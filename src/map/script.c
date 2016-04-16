@@ -3492,7 +3492,7 @@ void run_script_main(struct script_state *st)
 			run_func(st);
 			if(st->state==GOTO){
 				st->state = RUN;
-				if( gotocount>0 && (--gotocount)<=0 ){
+				if( !st->freeloop && gotocount>0 && (--gotocount)<=0 ){
 					ShowError("run_script: infinity loop !\n");
 					script_reportsrc(st);
 					st->state=END;
@@ -3540,7 +3540,7 @@ void run_script_main(struct script_state *st)
 			st->state=END;
 			break;
 		}
-		if( cmdcount>0 && (--cmdcount)<=0 ){
+		if( !st->freeloop && cmdcount>0 && (--cmdcount)<=0 ){
 			ShowError("run_script: infinity loop !\n");
 			script_reportsrc(st);
 			st->state=END;
@@ -17263,6 +17263,22 @@ BUILDIN_FUNC(countbound)
 	return 0; 
 }
 
+/**
+ * freeloop(<toggle>) -> toggles this script instance's looping-check ability
+ **/
+BUILDIN_FUNC(freeloop) {
+
+	if( script_hasdata(st,2) ) {
+		if( script_getnum(st,2) )
+			st->freeloop = 1;
+		else
+			st->freeloop = 0;
+	}
+
+	script_pushint(st, st->freeloop);
+	return 0;
+}
+
 /** 
  * @commands (script based) 
  **/ 
@@ -18299,5 +18315,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_script_clear,"??"),
 	BUILDIN_DEF(showscript,"s?"),
 	BUILDIN_DEF(getepisode,""),
+	BUILDIN_DEF(freeloop,"?"),
 	{NULL,NULL,NULL},
 };

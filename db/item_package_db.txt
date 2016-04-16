@@ -165,31 +165,41 @@
 
 // IP_Low_Coin_Pocket
 10,12636,600,1,1	// 1x Malang_Sp_Can
-10,6304,300,1,1	// 1x Sapa_Feat_Cert
-10,6420,100,1,1	// 1x Cgrade_Coin
+10,6304,300,1,1		// 1x Sapa_Feat_Cert
+10,6420,100,1,1		// 1x Cgrade_Coin
 10,12636,600,1,2	// 1x Malang_Sp_Can
-10,6380,200,1,2	// 1x Mora_Coin
-10,6421,200,1,2	// 1x Dgrade_Coin
+10,6380,200,1,2		// 1x Mora_Coin
+10,6421,200,1,2		// 1x Dgrade_Coin
 10,12636,500,1,3	// 1x Malang_Sp_Can
-10,6080,300,1,3	// 1x Manuk_Coin
-10,6422,200,1,3	// 1x Egrade_Coin
+10,6080,300,1,3		// 1x Manuk_Coin
+10,6422,200,1,3		// 1x Egrade_Coin
 10,12636,500,1,4	// 1x Malang_Sp_Can
-10,6081,300,1,4	// 1x Splendide_Coin
-10,6422,200,1,4	// 1x Egrade_Coin
+10,6081,300,1,4		// 1x Splendide_Coin
+10,6422,200,1,4		// 1x Egrade_Coin
+
+// IP_Bgrade_Pocket
+11,6419,0,1,0		// 1x Bgrade_Coin
+11,6420,0,1,0		// 1x Cgrade_Coin
+11,6421,0,1,0		// 1x Dgrade_Coin
+11,12636,800,1,2	// 1x Malang_Sp_Can
+11,6421,50,1,2		// 1x Dgrade_Coin
+11,6420,150,1,2		// 1x Cgrade_Coin
+11,12636,800,1,3	// 1x Malang_Sp_Can
+11,6421,200,1,3		// 1x Dgrade_Coin
 
 // IP_HALLOWEEN_G_BOX
-11,929,1,30,1	// 30x Immortal_Heart
-11,1061,1,30,1	// 30x Starsand_Of_Witch
-11,713,1,30,1	// 30x Empty_Bottle
-11,970,1,30,1	// 30x Alchol
-11,972,1,30,1	// 30x Karvodailnirol
-11,1059,1,30,1	// 30x Transparent_Cloth
-11,905,1,30,1	// 30x Stem
-11,7033,1,30,1	// 30x Poison_Spore
-11,12016,1,5,1	// 5x Speed_Up_Potion
-11,558,1,5,1		// 5x Chocolate
-11,12414,1,5,1	// 5x Guarana_Candy
-11,608,1,5,1		// 5x Seed_Of_Yggdrasil
-11,603,1,1,1		// 1x Old_Blue_Box
-11,616,1,1,1		// 1x Old_Card_Album
-11,617,1,1,1		// 1x Old_Violet_Box
+12,929,1,30,1	// 30x Immortal_Heart
+12,1061,1,30,1	// 30x Starsand_Of_Witch
+12,713,1,30,1	// 30x Empty_Bottle
+12,970,1,30,1	// 30x Alchol
+12,972,1,30,1	// 30x Karvodailnirol
+12,1059,1,30,1	// 30x Transparent_Cloth
+12,905,1,30,1	// 30x Stem
+12,7033,1,30,1	// 30x Poison_Spore
+12,12016,1,5,1	// 5x Speed_Up_Potion
+12,558,1,5,1	// 5x Chocolate
+12,12414,1,5,1	// 5x Guarana_Candy
+12,608,1,5,1	// 5x Seed_Of_Yggdrasil
+12,603,1,1,1	// 1x Old_Blue_Box
+12,616,1,1,1	// 1x Old_Card_Album
+12,617,1,1,1	// 1x Old_Violet_Box

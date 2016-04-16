@@ -1120,7 +1120,7 @@
 2120,Improved_Arm_Guard_,Advanced Arm Guard,5,40000,,150,,4,,1,0x02000000,7,2,32,,50,1,1,{ bonus bMdef,5; },{},{}
 2121,Memorize_Book_,Memory Book,5,20,,1000,,3,,1,0x00810204,7,2,32,,0,1,5,{ bonus bInt,1; bonus bMdef,2; if (isequipped(2717,2239)) { bonus bHPrecovRate,15; bonus bSPrecovRate,15; bonus bMatkRate,7; }; },{},{}
 2122,Platinum_Shield,Platinum Shield,5,20,,1200,,5,,0,0xFFFFFFFE,2,2,32,,68,1,4,{ bonus bMdef,5; bonus2 bSubSize,1,15; bonus2 bSubSize,2,15; bonus2 bSubRace,RC_Undead,10; bonus5 bAutoSpellWhenHit,"NPC_MAGICMIRROR",2,150,BF_MAGIC,0; },{},{}
-2123,Orleans_Server,Orleans's Server,5,20,,1000,,5,,1,0xFFFFFFFE,2,2,32,,55,1,4,{ bonus bMdef,2; bonus bMagicDamageReturn,5; if (isequipped(2701)) bonus bCastrate,-10; },{},{}
+2123,Orleans_Server,Orleans's Server,5,20,,1000,,5,,1,0xFFFFFFFE,2,2,32,,55,1,4,{ bonus bMdef,2; bonus bMagicDamageReturn,5; if (isequipped(2701)) bonus bCastrate,-10; } if (isequipped(2881)) bonus bMatkRate,getequiprefinerycnt(EQI_HAND_L)*2; },{},{}
 2124,Thorny_Buckler,Thorny Buckler,5,20,,1000,,5,,1,0xFFFFFFFE,2,2,32,,55,1,2,{ bonus bMdef,2; if (isequipped(2702)) { bonus bAspdRate,10; bonus bShortWeaponDamageReturn,5; } },{},{}
 2125,Strong_Shield,Strong Shield,5,20,,2500,,4,,1,0xFFFFFFFE,2,2,32,,75,1,4,{ bonus bNoKnockback,0; bonus2 bSubEle,Ele_Neutral,-20; bonus2 bSubEle,Ele_Fire,-20; bonus2 bSubEle,Ele_Water,-20; bonus2 bSubEle,Ele_Wind,-20; bonus2 bSubEle,Ele_Earth,-20; bonus2 bSubEle,Ele_Dark,-20; bonus2 bSubEle,Ele_Holy,-20; bonus2 bSubEle,Ele_Ghost,-20; },{},{}
 2126,Guyak_Shield,Guyak Shield,5,20,,700,,3,,0,0xFFFFFFFE,7,2,32,,75,1,2,{ bonus bMdef,3; },{},{}
@@ -5375,7 +5375,7 @@
 12528,E_Convex_Mirror,E Convex Mirror,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12529,White_Slim_Potion_Box,White Slim Potion Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12530,Mastela_Fruit_Box,Mastela Fruit Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12531,White_Potion_Box,White Potion Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12531,White_Potion_Box,White Potion Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 504,100; },{},{}
 12532,Royal_Jelly_Box2,Royal Jelly Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 526,100;},{},{}
 12533,Blue_Herb_Box2,Blue Herb Box2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 510,100;},{},{}
 12534,Yggdrasil_Seed_Box,Yggdrasil Seed Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 608,30;},{},{}
@@ -7035,6 +7035,10 @@
 19754,C_Good_Wedding_Veil,Costume Good Wedding Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,489,{},{},{}
 19755,C_YinYang_Earring,Costume YinYang Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,744,{},{},{}
 19756,C_Holy_Mom_Love,Costume Holy Mom Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,610,{},{},{}
+19757,C_Water_Lily_Crown,Costume Water Lily Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,312,{},{},{}
+19758,C_Frog_King_Hat,Costume Frog King Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,522,{},{},{}
+19759,C_Umbrella_Hat,Costume Umbrella Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,338,{},{},{}
+19760,C_Rainbow_Veil,Costume Rainbow Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,992,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}
