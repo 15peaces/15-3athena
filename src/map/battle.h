@@ -518,6 +518,9 @@ extern struct Battle_Config
 	int base_level_skill_effect_limit;
 	int job_level_skill_effect_limit;
 	int renewal_edp;
+	int max_highlvl_nerf; // [Pinky]
+	int skillsbonus_maxhp_RK; // [Pinky]
+	int skillsbonus_maxhp_SR; // [Pinky]
 	int cashshop_price_rate;
 	int death_penalty_maxlv;
 	int renewal_statpoints;

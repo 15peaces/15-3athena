@@ -595,6 +595,7 @@ bAddClassDropItem	2045
 
 bSkillCooldown	2050
 bSkillUseSP	2055
+bMagicAtkEle	2056
 
 bHPVanishRaceRate	2074
 bSPVanishRaceRate	2075

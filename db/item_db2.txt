@@ -83,8 +83,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 19752,C_Shelter_Wing_Ears,Costume Shelter Wing Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,990,{},{},{}
 
-19761,C_White_Lily,Costume White Lily,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,993,{},{},{}
-19762,C_Happy_Peace_Proof,Costume Happy Peace Proof,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,994,{},{},{}
 19763,C_Leaf_Cat_Hat,Costume Leaf Cat Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,539,{},{},{}
 19766,C_Yggdrasil_Hat,Costume Yggdrasil Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,997,{},{},{}
 19767,C_Home_Cherry_Blossom,Costume Home Cherry Blossom,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,602,{},{},{}
@@ -1961,3 +1959,9 @@
 
 // bSkillCooldown testing
 1490,Giant_Lance,Gigantic Lance,4,20,,20000,20,,3,0,0x00000080,63,2,34,4,140,1,5,{ bonus bAspd,-10; bonus2 bSkillCooldown,"LK_SPIRALPIERCE",20000; if(readparam(bStr)>=120){ bonus bBaseAtk,300; } },{},{ heal 0,-600; }
+//bMagicAtkEle testing
+2854,Alchemy_Glove,Alchemy Glove,5,20,,100,,1,,1,0xFFFFFFFE,63,2,136,,125,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bMagicAtkEle,Ele_Fire,10; bonus2 bMagicAtkEle,Ele_Water,-20; bonus2 bSubEle,Ele_Water,-30; bonus3 bAutoSpell,"MG_FIREBALL",5,30; bonus5 bAutoSpell,"MG_FIREBOLT",5,30,BF_MAGIC,1; },{},{}
+
+// Official EXP-Giving Scripts
+12259,Miracle_Medicine,Miracle Tonic,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ set BaseExp,BaseExp+3000000; set JobExp,JobExp+1500000; },{},{} 
+12261,Secret_Medicine,Leap of Fantasy,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ set BaseExp,BaseExp+2000000; set JobExp,JobExp+1000000; },{},{} 

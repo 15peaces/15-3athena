@@ -111,6 +111,8 @@ bonus bAtkEle,n;				Gives the player's attacks element n
 							n: 0=Neutral, 1=Water, 2=Earth, 3=Fire, 4=Wind, 5=Poison, 6=Holy, 7=Dark, 8=Spirit, 9=Undead
 bonus bDefEle,n;				Gives the player's defense element n
 							n: 0=Neutral, 1=Water, 2=Earth, 3=Fire, 4=Wind, 5=Poison, 6=Holy, 7=Dark, 8=Spirit, 9=Undead
+bonus2 bMagicAtkEle,e,x;  		Increases damage of n element magic by x%
+							n: 0=Neutral, 1=Water, 2=Earth, 3=Fire, 4=Wind, 5=Poison, 6=Holy, 7=Dark, 8=Spirit, 9=Undead
 bonus bSplashRange n;			Splash attack radius + n (e.g. n=1 makes a 3*3 cells area, n=2 a 5*5 area, etc)
 								Only the highest among all is applied
 bonus bSplashAddRange n;		Splash attack radius + n (e.g. n=1 makes a 3*3 cells area, n=2 a 5*5 area, etc)

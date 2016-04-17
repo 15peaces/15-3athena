@@ -4,8 +4,40 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-04/10/2016
-	r120 [15peaces]
+04/17/2016
+	r122 [15peaces]
+		*Merged missing changes from 3ceam rev. 474 - 480
+		*Fixed experience not counting for the next level
+			-This was broken on 63c5a0b because the function pc_thisbaseexp was misinterpreted.
+		*Official EXP-Giving Script
+			-Job Quest EXP always be shown in yellow color.
+			-Miracle Tonic (12259) and Leap of Fantasy (12261) give fixed EXP through `pc_setparam` that ignore EXP item bonuses and exp rates. Not as Quest EXP from `getexp` script.
+			-If given EXP is 0 by `getexp`, it won't be notified in client EXP log.
+			-If given EXP for base/job that reach max level, client will be notified as 0 EXP gained.
+			-Follow up 63c5a0b
+		*Fixed some small typos on my last commit.
+		*Fixed Pedro the Sailor in Port Malaya to warp players to a valid location in izlude.
+		*Added Malangdo Dungeon spawns.
+			-Also added missing monsters and did some clean-up
+		*Added bonus2 bMagicAtkEle,e,x; item bonus
+			-Increases damage of n element magic by x%
+			-Also added a item to test the bonus and did some more clean-up.
+		*Fixed a bug where experience might go above the defined maximum 
+		*Fixed an issue in RK_PHANTOMTHRUST where was working on party members in PvP maps.
+		*Fixed WM_SOUND_OF_DESTRUCTION where was causing crash server when was used by clones. 
+			-Same fix in WM_MELODYOFSINK, WM_BEYOND_OF_WARCRY and WM_UNLIMITED_HUMMING_VOICE to avoid the same problem.
+		*Added checks for NULL pointers in pc_isGM and skill_check_pc_partner functions to avoid possibles server crash.
+		*Fixed LG_CANNONSPEAR, LG_RAGEBURST, LG_MOONSLASHER, LG_OVERBRAND, LG_SHIELDPRESS, LG_PINPOINTATTACK, LG_BANISHINGPOINT, LG_OVERBRAND_BRANDISH, LG_OVERBRAND_PLUSATK and LG_EARTHDRIVE damage formulas.
+		*Updated LG_EXEEDBREAK that is no longer keeping its effects after switching weapons.
+		*Fixed GN_CARTBOOST that wasn't removing decrease agility at all.
+		*Fixed the missing effect of MaxHP for Raising Dragon.
+		*Fixed SC_MANHOLE. 
+			-Man Holed targets were getting damage with AoE or ground skills.
+		*Added setting to limit 3rd job skill damage based on base level, hp/sp or maxhp/maxsp. Thx to Pinky.
+			-Some of these settings are only temp and might be replaced later. But it's better to have these settings for now so you can nerf certain 3rd class skills.
+
+04/16/2016
+	r121 [15peaces]
 		*Merged missing changes from 3ceam rev. 469 - 473
 			-Note: skipped changes on Rune Knight Runes, I'll need to redo some stuff there...
 		*Updated Orleans's Server's combo script.
@@ -16,7 +48,7 @@
 			-"Putty" is the first NPC to use this script command, but more will follow I guess...
 		*Some updates on ItemDB
 			-Added full support for IP_Bgrade_Pocket
-		*Changed some more monsters to fix pre-renewal sytem
+		*Changed some more monsters to fit pre-renewal sytem
 		*Fixed an issue where Asura crashes when used.
 		*Fixed a server crash when a mob uses SR_CURSEDCIRCLE.
 		*Fixed produce_db.txt where some required items in GN_MAKEBOMB were switched.

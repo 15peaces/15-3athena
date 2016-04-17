@@ -223,7 +223,7 @@
 //= 3.63.20150618
 //=		  Added 'bonus_script'. [15peaces]
 //= 3.64.20160416
-//=		  Added 'bonus_script'. [15peaces]
+//=		  Added 'freeloop'. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 

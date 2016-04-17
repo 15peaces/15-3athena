@@ -2386,7 +2386,7 @@ malaya,326,68,2	script	Pedro the Sailor	100,{
 				mes "Let's go before the ghosts come back!";
 				set Zeny, Zeny - 1000;
 				close2;
-				warp "izlude",195,180;
+				warp "izlude",195,210;
 				end;
 			} else if (.@playtime == 2) {
 				erasequest 7401;

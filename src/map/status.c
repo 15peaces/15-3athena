@@ -2091,6 +2091,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		+ sizeof(sd->magic_addele)
 		+ sizeof(sd->magic_addrace)
 		+ sizeof(sd->magic_addsize)
+		+ sizeof(sd->magic_atk_ele)
 		+ sizeof(sd->critaddrace)
 		+ sizeof(sd->expaddrace)
 		+ sizeof(sd->ignore_mdef)
@@ -4720,6 +4721,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * 3 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
 	if(sc->data[SC_INSPIRATION]) //Custom value.
 		maxhp += maxhp * 3 * sc->data[SC_INSPIRATION]->val1 / 100;
+	if(sc->data[SC_RAISINGDRAGON])
+		maxhp += maxhp / 100 * (2 + sc->data[SC_RAISINGDRAGON]->val1);
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 		maxhp -= maxhp * (2 * sc->data[SC_GENTLETOUCH_CHANGE]->val1) / 100;
 	if(sc->data[SC_GENTLETOUCH_REVITALIZE])
@@ -6116,7 +6119,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
 		break;
 	case SC_CARTBOOST:
-		if(sc->data[SC_DECREASEAGI] && sc->data[SC_ADORAMUS])
+		if(sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
 		{	//Cancel Decrease Agi, but take no further effect [Skotlex]
 			status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
 			status_change_end(bl, SC_ADORAMUS, INVALID_TIMER);

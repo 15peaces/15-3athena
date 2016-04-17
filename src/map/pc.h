@@ -276,6 +276,7 @@ struct map_session_data {
 	int magic_addele[ELE_MAX];
 	int magic_addrace[RC_MAX];
 	int magic_addsize[3];
+	int magic_atk_ele[ELE_MAX];
 	int critaddrace[RC_MAX];
 	int expaddrace[RC_MAX];
 	int ignore_mdef[RC_MAX];
@@ -774,7 +775,7 @@ bool pc_is_maxbaselv(struct map_session_data *sd);
 bool pc_is_maxjoblv(struct map_session_data *sd);
 int pc_checkbaselevelup(struct map_session_data *sd);
 int pc_checkjoblevelup(struct map_session_data *sd);
-int pc_gainexp(struct map_session_data*,struct block_list*,unsigned int,unsigned int, bool);
+int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp, unsigned int job_exp, bool quest); 
 unsigned int pc_nextbaseexp(struct map_session_data *sd);
 unsigned int pc_nextjobexp(struct map_session_data *sd);
 int pc_gets_status_point(int);

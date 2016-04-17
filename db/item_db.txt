@@ -7039,6 +7039,8 @@
 19758,C_Frog_King_Hat,Costume Frog King Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,522,{},{},{}
 19759,C_Umbrella_Hat,Costume Umbrella Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,338,{},{},{}
 19760,C_Rainbow_Veil,Costume Rainbow Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,992,{},{},{}
+19761,C_White_Lily,Costume White Lily,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,993,{},{},{}
+19762,C_Happy_Peace_Proof,Costume Happy Peace Proof,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,994,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}
