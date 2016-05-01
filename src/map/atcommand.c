@@ -30,6 +30,7 @@
 #include "pet.h"
 #include "homunculus.h"
 #include "mercenary.h"
+#include "elemental.h"
 #include "party.h"
 #include "guild.h"
 #include "script.h"
@@ -4388,6 +4389,7 @@ ACMD_FUNC(reloadmobdb)
 	mob_reload();
 	read_petdb();
 	merc_reload();
+	read_eledb();
 	clif_displaymessage(fd, msg_txt(98)); // Monster database has been reloaded.
 
 	return 0;
@@ -4401,6 +4403,7 @@ ACMD_FUNC(reloadskilldb)
 	nullpo_retr(-1, sd);
 	skill_reload();
 	merc_skill_reload();
+	ele_skill_reload();
 	clif_displaymessage(fd, msg_txt(99)); // Skill database has been reloaded.
 
 	return 0;

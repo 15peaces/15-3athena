@@ -803,6 +803,10 @@ void clif_mercenary_skillblock(struct map_session_data *sd);
 void clif_mercenary_message(struct map_session_data* sd, int message);
 void clif_mercenary_updatestatus(struct map_session_data *sd, int type);
 
+// Elementals
+void clif_elemental_info(struct map_session_data *sd);
+void clif_elemental_updatestatus(struct map_session_data *sd, int type);
+
 // RENTAL SYSTEM
 void clif_rental_time(int fd, unsigned short nameid, int seconds);
 void clif_rental_expired(int fd, int index, unsigned short nameid);

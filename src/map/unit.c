@@ -15,6 +15,7 @@
 #include "homunculus.h"
 #include "instance.h"
 #include "mercenary.h"
+#include "elemental.h"
 #include "skill.h"
 #include "clif.h"
 #include "duel.h"
@@ -49,6 +50,7 @@ struct unit_data* unit_bl2ud(struct block_list *bl)
 	if( bl->type == BL_NPC) return &((struct npc_data*)bl)->ud;
 	if( bl->type == BL_HOM) return &((struct homun_data*)bl)->ud;
 	if( bl->type == BL_MER) return &((struct mercenary_data*)bl)->ud;
+	if( bl->type == BL_ELEM) return &((struct elemental_data*)bl)->ud;
 	return NULL;
 }
 
@@ -2241,6 +2243,19 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		}
 		break;
 	}
+	case BL_ELEM:
+	{
+		struct elemental_data *ed = (struct elemental_data *)bl;
+		ud->canact_tick = ud->canmove_tick;
+		if( elemental_get_lifetime(ed) <= 0 && !(ed->master && !ed->master->state.active) ) {
+			clif_clearunit_area(bl,clrtype);
+			map_delblock(bl);
+			unit_free(bl,CLR_OUTSIGHT);
+			map_freeblock_unlock();
+			return 0;
+		}
+		break;
+	}
 	default: ;// do nothing
 	}
 
@@ -2250,8 +2265,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 	return 1;
 }
 
-void unit_remove_map_pc(struct map_session_data *sd, clr_type clrtype)
-{
+void unit_remove_map_pc(struct map_session_data *sd, clr_type clrtype) {
 	unit_remove_map(&sd->bl,clrtype);
 
 	if (clrtype == CLR_TELEPORT) clrtype = CLR_OUTSIGHT; //CLR_TELEPORT is the warp from logging out, but pets/homunc need to just 'vanish' instead of showing the warping out animation.
@@ -2262,13 +2276,15 @@ void unit_remove_map_pc(struct map_session_data *sd, clr_type clrtype)
 		unit_remove_map(&sd->hd->bl, clrtype);
 	if(sd->md)
 		unit_remove_map(&sd->md->bl, clrtype);
+	if(sd->ed)
+		unit_remove_map(&sd->ed->bl, clrtype);
 }
 
-void unit_free_pc(struct map_session_data *sd)
-{
+void unit_free_pc(struct map_session_data *sd) {
 	if (sd->pd) unit_free(&sd->pd->bl,CLR_OUTSIGHT);
 	if (sd->hd) unit_free(&sd->hd->bl,CLR_OUTSIGHT);
 	if (sd->md) unit_free(&sd->md->bl,CLR_OUTSIGHT);
+	if (sd->ed) unit_free(&sd->ed->bl,CLR_OUTSIGHT);
 	unit_free(&sd->bl,CLR_TELEPORT);
 }
 
@@ -2484,6 +2500,25 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->md = NULL;
 
 			merc_contract_stop(md);
+			break;
+		}
+		case BL_ELEM:
+		{
+			struct elemental_data *ed = (TBL_ELEM*)bl;
+			struct map_session_data *sd = ed->master;
+			if( clrtype >= 0 ) {
+				if( elemental_get_lifetime(ed) > 0 )
+					elemental_save(ed);
+				else {
+					intif_elemental_delete(ed->elemental.elemental_id);
+					if( sd )
+						sd->status.ele_id = 0;
+				}
+			}
+			if( sd )
+				sd->ed = NULL;
+
+			ele_summon_stop(ed);
 			break;
 		}
 	}

@@ -13802,6 +13802,36 @@ BUILDIN_FUNC(pow)
 	return 0;
 }
 
+BUILDIN_FUNC(min)
+{
+	int i, min;
+
+	min = script_getnum(st, 2);
+	for (i = 3; script_hasdata(st, i); i++) {
+		int next = script_getnum(st, i);
+		if (next < min)
+			min = next;
+	}
+	script_pushint(st, min);
+
+	return true;
+}
+
+BUILDIN_FUNC(max)
+{
+	int i, max;
+
+	max = script_getnum(st, 2);
+	for (i = 3; script_hasdata(st, i); i++) {
+		int next = script_getnum(st, i);
+		if (next > max)
+			max = next;
+	}
+	script_pushint(st, max);
+
+	return true;
+}
+
 BUILDIN_FUNC(distance)
 {
 	int x0, y0, x1, y1;
@@ -18172,6 +18202,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(sqrt,"i"),
 	BUILDIN_DEF(pow,"ii"),
 	BUILDIN_DEF(distance,"iiii"),
+	BUILDIN_DEF(min, "i*"),
+	BUILDIN_DEF(max, "i*"),
 	// <--- [zBuffer] List of mathematics commands
 	BUILDIN_DEF(md5,"s"),
 	// [zBuffer] List of dynamic var commands --->

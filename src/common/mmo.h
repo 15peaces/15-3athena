@@ -178,6 +178,7 @@
 //Elemental System
 #define EL_SKILLBASE 8401
 #define MAX_ELEMSKILL 42
+#define MAX_ELESKILLTREE 9
 #define MAX_ELEMENTAL_CLASS 12
 #define EL_CLASS_BASE 2114
 #define EL_CLASS_MAX (EL_CLASS_BASE+MAX_ELEMENTAL_CLASS-1)
@@ -356,6 +357,15 @@ struct s_mercenary {
 	unsigned int life_time;
 };
 
+struct s_elemental {
+	int elemental_id;
+	int char_id;
+	short class_;
+	int mode;
+	int hp, sp;
+	unsigned int life_time;
+};
+
 struct s_friend {
 	int account_id;
 	int char_id;
@@ -388,7 +398,7 @@ struct mmo_charstatus {
 	short manner;
 	unsigned char karma;
 	short hair,hair_color,clothes_color;
-	int party_id,guild_id,pet_id,hom_id,mer_id;
+	int party_id,guild_id,pet_id,hom_id,mer_id,ele_id;
 	int fame;
 
 	// Mercenary Guilds Rank

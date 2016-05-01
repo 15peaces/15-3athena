@@ -17,6 +17,7 @@
 #include "skill.h"
 #include "homunculus.h"
 #include "mercenary.h"
+#include "elemental.h"
 #include "mob.h"
 #include "itemdb.h"
 #include "clif.h"
@@ -139,6 +140,7 @@ int battle_gettarget(struct block_list* bl)
 		case BL_PET: return ((struct pet_data*)bl)->target_id;
 		case BL_HOM: return ((struct homun_data*)bl)->ud.target;
 		case BL_MER: return ((struct mercenary_data*)bl)->ud.target;
+		case BL_ELEM: return ((struct elemental_data*)bl)->ud.target;
 	}
 	return 0;
 }
@@ -4624,6 +4626,10 @@ struct block_list* battle_get_master(struct block_list *src)
 			case BL_MER:
 				if (((TBL_MER*)src)->master)
 					src = (struct block_list*)((TBL_MER*)src)->master;
+				break;
+			case BL_ELEM:
+				if (((TBL_ELEM*)src)->master)
+					src = (struct block_list*)((TBL_ELEM*)src)->master;
 				break;
 			case BL_SKILL:
 				if (((TBL_SKILL*)src)->group && ((TBL_SKILL*)src)->group->src_id)

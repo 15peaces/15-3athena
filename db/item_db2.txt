@@ -1180,7 +1180,7 @@
 2476,Peuz_Greave,Peuz's Greaves,5,20,,900,,32,,1,0x00000080,56,2,64,,100,1,0,{ bonus bMaxSP,40; set .@r, getrefine(); bonus bAgi,(.@r<=7?.@r-7:1); },{},{}
 2477,Sabah_Shoes,Sapha Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bMaxSP,30; bonus bLuk,3; },{},{}
 2478,Nab_Shoes,Nab Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bFlee,3; bonus bInt,2; },{},{}
-2479,White_Wing_Boots,White Wing Boots,5,20,,400,,18,,1,0x00000800,63,2,64,,100,1,0,{ bonus bAgi,2; bonus2 bSkillUseSP,"RA_AIMEDBOLT",10; },{},{}
+2479,White_Wing_Boots,White Wing Boots,5,20,,400,,18,,1,0x00000800,63,2,64,,100,1,0,{ bonus bAgi,2; bonus2 bSkillUseSP,"RA_AIMEDBOLT",10; if(isequipped(2580) && isequipped(2890) && isequipped(15042)) { bonus bAspd,2; bonus2 bSkillAtk,"RA_ARROWSTORM",50; bonus bLongAtkRate,30; bonus3 bAutoSpell,"AC_DOUBLE",max(getskilllv("AC_DOUBLE"),3),20; } },{},{}
 2480,Black_Wing_Boots,Black Wing Boots,5,20,,400,,18,,1,0x00000800,56,2,64,,100,1,0,{ bonus bInt,2; bonus bMaxSPrate,5; },{},{}
 2568,Muffler_Of_Roki,Loki's Muffler,5,20,,400,,10,,0,0xFFFFFFFF,63,2,4,,100,0,0,{ bonus bAgi,1; bonus2 bSkillAtk,"ASC_BREAKER",5; bonus2 bSkillAtk,"GC_CROSSIMPACT",5; },{},{}
 2569,Shawl_Of_Affection,Shawl Of Affection,5,20,,400,,12,,0,0x00000100,63,2,4,,100,1,0,{ bonus bFlee2,5; bonus5 bAutoSpellWhenHit,"AB_RENOVATIO",1,30,BF_WEAPON,0; bonus5 bAutoSpellWhenHit,"AB_RENOVATIO",1,40,BF_MAGIC,0; },{},{}

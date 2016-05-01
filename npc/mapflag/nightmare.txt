@@ -1,10 +1,19 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Map flags that allow players to drop items/equips on death
 //===== By: ==================================================
-//= eAthena Dev Team
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
+//= 1.7
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Current Version: =====================================
+//===== Additional Comments: ================================= 
+//= 1.7 Added support for episode mapflags [15peaces]
+//============================================================
 
-
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
 //Nightmare Equipment Drops PVP
 pvp_n_1-1	mapflag	pvp_nightmaredrop	random,equip,300
 pvp_n_2-1	mapflag	pvp_nightmaredrop	random,equip,300

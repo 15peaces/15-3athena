@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/01/2016
+	r123 [15peaces]
+		*Merged missing changes from 3ceam rev. 481 - 484
+		*Changed Scaraba Hole monsters and others to fit pre-renewal system.
+		*Added missing White Wing Set drops and combo script
+		*Added some more episode 5 mapflags.
+		*Added support for episode specific castle_db files.
+			-Added castle_db file for episode 5.
+		*Added initial beta version of Sorcerer's Spirits.
+			-Added SO_SUMMON_AGNI, SO_SUMMON_AQUA, SO_SUMMON_VENTUS, SO_SUMMON_TERA, SO_EL_CONTROL and SO_EL_CURE skills.
+			-Currently the spirits seems to crash the client... I'll fix this later, please don't use them for now! ^^
+			-Don't forget to add upgrade_15-3athena_svn123.sql to your SQL-DB to avoid errors!
+
 04/17/2016
 	r122 [15peaces]
 		*Merged missing changes from 3ceam rev. 474 - 480

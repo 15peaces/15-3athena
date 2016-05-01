@@ -21,6 +21,8 @@ size_t filesize(FILE* fp);
 /// calculates the value of A / B, in percent (rounded down)
 unsigned int get_percentage(const unsigned int A, const unsigned int B);
 
+bool EpisodeDBExists(const char* dbpath, const char* filename);
+
 //////////////////////////////////////////////////////////////////////////
 // byte word dword access [Shinomori]
 //////////////////////////////////////////////////////////////////////////

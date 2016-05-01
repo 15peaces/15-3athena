@@ -1,4 +1,4 @@
-// Guild Castles Database
+// 15-3athena Main Guild Castles Database
 //
 // Structure of Database:
 // CastleID,MapName,CastleName,OnGuildBreakEventName,Flag

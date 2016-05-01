@@ -1178,21 +1178,10 @@ static int itemdb_readdb(void)
 
 	// Testing episode database [15peaces]
 	if(epdb){
-		FILE* tfp;
-		char tpath[256];
-
-		sprintf(tpath, "%s/episode/%s", db_path, epfile);
-		tfp = fopen(tpath, "r");
-
-		if( tfp == NULL )
-		{
-			ShowWarning("itemdb_readdb: File not found \"%s\", skipping.\n", tpath);
-			ShowWarning("itemdb_readdb: Please create episode specific file or disable episode.readdb. Loading default database...\n");
+		if(!EpisodeDBExists(db_path, epfile))
 			epdb = false;
-		}else{
-			fclose(tfp);
+		else
 			files = 1;
-		}
 	}
 
 	for( fi = 0; fi < files; ++fi )

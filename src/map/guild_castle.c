@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "guild_castle.h"
+#include "battle.h"
 #include "clif.h" // clif_guild_emblem_area()
 #include "guild.h" // guild_search(), guild_request_info(), guild_npc_request_info()
 #include "intif.h" // intif_guild_castle_dataload(), intif_guild_castle_datasave()
@@ -17,6 +18,9 @@
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
+#include "../common/utils.h"
+
+#include <stdio.h>
 #include <stdlib.h> // atoi()
 
 
@@ -362,14 +366,19 @@ void guild_castle_guardian_updateemblem(int guild_id, int emblem_id)
 	dbi_destroy(iter);
 }
 
-
 void do_init_guild_castle(void)
 {
+	char file[256];
+	sprintf(file, "castle_db_ep%i.txt", battle_config.feature_episode);
+
 	castle_db = idb_alloc(DB_OPT_BASE);
 	guild_castleinfoevent_db = idb_alloc(DB_OPT_BASE);
-	sv_readdb(db_path, "castle_db.txt", ',', 4, 5, -1, &guild_read_castledb);
+	if(battle_config.episode_readdb && EpisodeDBExists(db_path, file))
+		sprintf(file, "episode/castle_db_ep%i.txt", battle_config.feature_episode);
+	else
+		sprintf(file, "castle_db.txt");
+	sv_readdb(db_path, file, ',', 4, 5, -1, &guild_read_castledb);
 }
-
 
 void do_final_guild_castle(void)
 {

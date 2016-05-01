@@ -36,62 +36,8 @@ job_sage	mapflag	nosave	SavePoint
 monk_test	mapflag	nosave	SavePoint
 in_rogue	mapflag	nosave	SavePoint
 
-//============================================================
-// RECHECK NEEDED, came after ep5??
-//============================================================
-// Job Quests ====================
-job_sword1	mapflag	nosave	SavePoint
-//job_thief1	mapflag	nosave	SavePoint
-//in_hunter	mapflag	nosave	SavePoint
-// 2-2
-job_cru	mapflag	nosave	SavePoint
-job_duncer	mapflag	nosave	SavePoint
-job_monk	mapflag	nosave	SavePoint
-
-job_star	mapflag	nosave	SavePoint
-job_soul	mapflag	nosave	SavePoint
-
 // Special Quests Places =====
-ama_test	mapflag	nosave	SavePoint
-gef_dun03	mapflag	nosave	SavePoint
-que_god01	mapflag	nosave	SavePoint
-que_god02	mapflag	nosave	SavePoint
-que_sign01	mapflag	nosave	SavePoint
-que_sign02	mapflag	nosave	SavePoint
-que_thor	mapflag	nosave	SavePoint
-que_ng	mapflag	nosave	SavePoint
 gon_test	mapflag	nosave	SavePoint
-kh_kiehl01	mapflag	nosave	SavePoint
-kh_kiehl02	mapflag	nosave	SavePoint
-que_bingo	mapflag	nosave	SavePoint
-
-// GvG Arenas ==========================
-guild_vs1	mapflag	nosave	SavePoint
-guild_vs2	mapflag	nosave	SavePoint
-guild_vs3	mapflag	nosave	SavePoint
-guild_vs4	mapflag	nosave	SavePoint
-guild_vs5	mapflag	nosave	SavePoint
-
-// Izlude Arena ========================
-force_1-1	mapflag	nosave	SavePoint
-force_1-2	mapflag	nosave	SavePoint
-force_1-3	mapflag	nosave	SavePoint
-force_2-1	mapflag	nosave	SavePoint
-force_2-2	mapflag	nosave	SavePoint
-force_2-3	mapflag	nosave	SavePoint
-force_3-1	mapflag	nosave	SavePoint
-force_3-2	mapflag	nosave	SavePoint
-force_3-3	mapflag	nosave	SavePoint
-force_4-1	mapflag	nosave	SavePoint
-force_5-1	mapflag	nosave	SavePoint
-prt_are_in	mapflag	nosave	SavePoint
-
-// Juperos =============================
-jupe_area1	mapflag	nosave	SavePoint
-jupe_area2	mapflag	nosave	SavePoint
-jupe_ele	mapflag	nosave	SavePoint
-jupe_ele_r	mapflag	nosave	SavePoint
-jupe_gate	mapflag	nosave	SavePoint
 
 //PvP Arenas =================================
 pvp_y_room	mapflag	nosave	SavePoint
@@ -177,6 +123,62 @@ pvp_n_8-3	mapflag	nosave	SavePoint
 pvp_n_8-4	mapflag	nosave	SavePoint
 pvp_n_8-5	mapflag	nosave	SavePoint
 pvp_2vs2	mapflag	nosave	SavePoint
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
+// Job Quests ====================
+job_sword1	mapflag	nosave	SavePoint
+//job_thief1	mapflag	nosave	SavePoint
+//in_hunter	mapflag	nosave	SavePoint
+// 2-2
+job_cru	mapflag	nosave	SavePoint
+job_duncer	mapflag	nosave	SavePoint
+job_monk	mapflag	nosave	SavePoint
+
+job_star	mapflag	nosave	SavePoint
+job_soul	mapflag	nosave	SavePoint
+
+// Special Quests Places =====
+ama_test	mapflag	nosave	SavePoint
+gef_dun03	mapflag	nosave	SavePoint
+que_god01	mapflag	nosave	SavePoint
+que_god02	mapflag	nosave	SavePoint
+que_sign01	mapflag	nosave	SavePoint
+que_sign02	mapflag	nosave	SavePoint
+que_thor	mapflag	nosave	SavePoint
+que_ng	mapflag	nosave	SavePoint
+kh_kiehl01	mapflag	nosave	SavePoint
+kh_kiehl02	mapflag	nosave	SavePoint
+que_bingo	mapflag	nosave	SavePoint
+
+// GvG Arenas ==========================
+guild_vs1	mapflag	nosave	SavePoint
+guild_vs2	mapflag	nosave	SavePoint
+guild_vs3	mapflag	nosave	SavePoint
+guild_vs4	mapflag	nosave	SavePoint
+guild_vs5	mapflag	nosave	SavePoint
+
+// Izlude Arena ========================
+force_1-1	mapflag	nosave	SavePoint
+force_1-2	mapflag	nosave	SavePoint
+force_1-3	mapflag	nosave	SavePoint
+force_2-1	mapflag	nosave	SavePoint
+force_2-2	mapflag	nosave	SavePoint
+force_2-3	mapflag	nosave	SavePoint
+force_3-1	mapflag	nosave	SavePoint
+force_3-2	mapflag	nosave	SavePoint
+force_3-3	mapflag	nosave	SavePoint
+force_4-1	mapflag	nosave	SavePoint
+force_5-1	mapflag	nosave	SavePoint
+prt_are_in	mapflag	nosave	SavePoint
+
+// Juperos =============================
+jupe_area1	mapflag	nosave	SavePoint
+jupe_area2	mapflag	nosave	SavePoint
+jupe_ele	mapflag	nosave	SavePoint
+jupe_ele_r	mapflag	nosave	SavePoint
+jupe_gate	mapflag	nosave	SavePoint
 
 //WoE Castles =================================
 aldeg_cas01	mapflag	nosave	SavePoint

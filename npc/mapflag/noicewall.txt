@@ -1,74 +1,100 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Map flags that disable icewall skill
 //===== By: ==================================================
-//= eAthena Dev Team
-//=============================================================
+//= 15-3athena Dev Team
+//===== Current Version: =====================================
+//= 1.9
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Additional Comments: =================================
 //= noicewall: Disables Icewall skill.
 //= To disable Icewall on a specific map add the mapname here.
 //= 1.6a Re-enabled icewalls for cities [Lupus]
 //= 1.7 Officially icewall is allowed on interoirs. [L0ne_w0lf]
 //= 1.8 fixed aru castles mapnames
+//= 1.9 Added support for episode mapflags [15peaces]
 //============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_noicewall	-1,{
+Oninit:
+	// Episode 5 (and up, where removed later... what episode?!?)
+	if(getepisode() == 50){
+		setmapflag "alberta_in",mf_noicewall;
+		setmapflag "alberta"   ,mf_noicewall;
+		setmapflag "alde_alche",mf_noicewall;
+		setmapflag "aldeba_in" ,mf_noicewall;
+		setmapflag "aldebaran" ,mf_noicewall;
+		setmapflag "ama_in01"  ,mf_noicewall;
+		setmapflag "ama_in02"  ,mf_noicewall;
+		setmapflag "cmd_in01"  ,mf_noicewall;
+		setmapflag "cmd_in02"  ,mf_noicewall;
+		setmapflag "comodo"    ,mf_noicewall;
+		setmapflag "gef_tower" ,mf_noicewall;
+		setmapflag "geffen"    ,mf_noicewall;
+		setmapflag "geffen_in" ,mf_noicewall;
+		setmapflag "gon_in"    ,mf_noicewall;
+		setmapflag "gonryun"   ,mf_noicewall;
+		setmapflag "in_hunter" ,mf_noicewall;
+		setmapflag "in_moc_16" ,mf_noicewall;
+		setmapflag "in_orcs01" ,mf_noicewall;
+		setmapflag "izlude_in" ,mf_noicewall;
+		setmapflag "izlude"    ,mf_noicewall;
+		setmapflag "moc_castle",mf_noicewall;
+		setmapflag "monk_in"   ,mf_noicewall;
+		setmapflag "morocc_in" ,mf_noicewall;
+		setmapflag "morocc"    ,mf_noicewall;
+		setmapflag "payon_in01",mf_noicewall;
+		setmapflag "payon_in02",mf_noicewall;
+		setmapflag "payon"     ,mf_noicewall;
+		setmapflag "pay_arche" ,mf_noicewall;
+		setmapflag "prt_are_in",mf_noicewall;
+		setmapflag "prt_are01" ,mf_noicewall;
+		setmapflag "prt_castle",mf_noicewall;
+		setmapflag "prt_church",mf_noicewall;
+		setmapflag "prt_in"    ,mf_noicewall;
+		setmapflag "prontera"  ,mf_noicewall;
+		setmapflag "sec_in01"  ,mf_noicewall;
+		setmapflag "sword_1-1" ,mf_noicewall;
+		setmapflag "sword_2-1" ,mf_noicewall;
+		setmapflag "sword_3-1" ,mf_noicewall;
+		setmapflag "um_in"     ,mf_noicewall;
+		setmapflag "umbala"    ,mf_noicewall;
+		setmapflag "xmas_in"   ,mf_noicewall;
+		setmapflag "xmas"      ,mf_noicewall;
+		setmapflag "yuno_in01" ,mf_noicewall;
+		setmapflag "yuno_in03" ,mf_noicewall;
+		setmapflag "yuno_in04" ,mf_noicewall;
+		setmapflag "yuno_in05" ,mf_noicewall;
+		setmapflag "yuno"      ,mf_noicewall;
+		setmapflag "gon_test"  ,mf_noicewall;
+		setmapflag "nif_in"    ,mf_noicewall;
+		setmapflag "louyang"   ,mf_noicewall;
+	}
+	
+	end;
+}
+
+//============================================================
+// Global Mapflags
+//============================================================
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
 //ayo_in01	mapflag	noicewall
 //ayo_in02	mapflag	noicewall
-//alberta_in	mapflag	noicewall
-//alberta	mapflag	noicewall
-//alde_alche	mapflag	noicewall
-//aldeba_in	mapflag	noicewall
-//aldebaran	mapflag	noicewall
-//ama_in01	mapflag	noicewall
-//ama_in02	mapflag	noicewall
-//amatsu	mapflag	noicewall
 //ayothaya	mapflag	noicewall
-//cmd_in01	mapflag	noicewall
-//cmd_in02	mapflag	noicewall
-//comodo	mapflag	noicewall
 //einbroch	mapflag	noicewall
 //einbech	mapflag	noicewall
-//gef_tower	mapflag	noicewall
-//geffen	mapflag	noicewall
-//geffen_in	mapflag	noicewall
-//gon_in	mapflag	noicewall
-//gonryun	mapflag	noicewall
-//in_hunter	mapflag	noicewall
-//in_moc_16	mapflag	noicewall
-//in_orcs01	mapflag	noicewall
-//izlude_in	mapflag	noicewall
-//izlude	mapflag	noicewall
 //hugel	mapflag	noicewall
 //jawaii	mapflag	noicewall
-//moc_castle	mapflag	noicewall
-//monk_in	mapflag	noicewall
-//morocc_in	mapflag	noicewall
-//morocc	mapflag	noicewall
 //mosk_in	mapflag	noicewall
-//payon_in01	mapflag	noicewall
-//payon_in02	mapflag	noicewall
 //payon_in03	mapflag	noicewall
-//payon	mapflag	noicewall
-//pay_arche	mapflag	noicewall
-//prt_are_in	mapflag	noicewall
-//prt_are01	mapflag	noicewall
-//prt_castle	mapflag	noicewall
-//prt_church	mapflag	noicewall
-//prt_in	mapflag	noicewall
-//prontera	mapflag	noicewall
-//sec_in01	mapflag	noicewall
 //job_sword1	mapflag	noicewall
-//um_in	mapflag	noicewall
-//umbala	mapflag	noicewall
-//xmas_in	mapflag	noicewall
-//xmas	mapflag	noicewall
-//yuno_in01	mapflag	noicewall
 //yuno_in02	mapflag	noicewall
-//yuno_in03	mapflag	noicewall
-//yuno_in04	mapflag	noicewall
-//yuno_in05	mapflag	noicewall
-//yuno	mapflag	noicewall
-//gon_test	mapflag	noicewall
-//nif_in	mapflag	noicewall
-//louyang	mapflag	noicewall
 //que_sign01	mapflag	noicewall
 //ein_in01	mapflag	noicewall
 //airport	mapflag	noicewall

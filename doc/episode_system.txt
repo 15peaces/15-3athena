@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Last Updated: ========================================
-//= 20160124
+//= 20160501
 //===== Description: =========================================
 //= Explanation of the episode system
 //============================================================
@@ -64,6 +64,7 @@ Database structures are unchanged. Just add files as needed inside db/episode fo
 Currently not all database-files are supported.
 
 Supported episode-specific database-files:
+	*castle_db.txt
 	*item_db.txt
 	
 	

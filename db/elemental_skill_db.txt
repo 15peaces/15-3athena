@@ -1,0 +1,4 @@
+// 15-3athena Monster Elementals Skill Database
+//
+// Structure of Database:
+//ElementalID,SkillID,SkillLevel,ReqMode

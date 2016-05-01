@@ -37,6 +37,7 @@
 #include "homunculus.h"
 #include "instance.h"
 #include "mercenary.h"
+#include "elemental.h"
 #include "log.h"
 #include "clif.h"
 #include "mail.h"
@@ -9113,6 +9114,8 @@ void clif_refresh(struct map_session_data *sd)
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
 	}
+	if( sd->ed )
+		clif_elemental_info(sd);
 	map_foreachinrange(clif_getareachar,&sd->bl,AREA_SIZE,BL_ALL,sd);
 	clif_weather_check(sd);
 	if( sd->chatID )
@@ -9212,6 +9215,9 @@ void clif_charnameack (int fd, struct block_list *bl)
 		break;
 	case BL_MER:
 		memcpy(WBUFP(buf,6), ((TBL_MER*)bl)->db->name, NAME_LENGTH);
+		break;
+	case BL_ELEM:
+		memcpy(WBUFP(buf,6), ((TBL_ELEM*)bl)->db->name, NAME_LENGTH);
 		break;
 	case BL_PET:
 		memcpy(WBUFP(buf,6), ((TBL_PET*)bl)->pet.name, NAME_LENGTH);
@@ -10125,12 +10131,20 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			skill_unit_move(&sd->hd->bl,gettick(),1); // apply land skills immediately
 	}
 
-	if( sd->md )
-	{
+	if( sd->md ) {
 		map_addblock(&sd->md->bl);
 		clif_spawn(&sd->md->bl);
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
+	}
+
+	if( sd->ed ) {
+		map_addblock(&sd->ed->bl);
+		clif_spawn(&sd->ed->bl);
+		clif_elemental_info(sd);
+		clif_elemental_updatestatus(sd,SP_HP);
+		clif_hpmeter_single(sd->fd,sd->ed->bl.id,sd->ed->battle_status.hp,sd->ed->battle_status.matk_max);
+		clif_elemental_updatestatus(sd,SP_SP);
 	}
 
 	if(sd->state.connect_new) {
@@ -16563,6 +16577,58 @@ void clif_mercenary_message(struct map_session_data* sd, int message)
 	clif_msgtable(sd->fd, 1266 + message);
 }
 
+/*==========================================
+ * Elemental System
+ *==========================================*/
+void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
+	struct elemental_data *ed;
+	struct status_data *status;
+	int fd;
+	if( sd == NULL || (ed = sd->ed) == NULL )
+		return;
+
+	fd = sd->fd;
+	status = &ed->battle_status;
+	WFIFOHEAD(fd,8);
+	WFIFOW(fd,0) = 0x81e;
+	WFIFOW(fd,2) = type;
+	switch( type ) {
+		case SP_HP:
+			WFIFOL(fd,4) = status->hp;
+			break;
+		case SP_MAXHP:
+			WFIFOL(fd,4) = status->max_hp;
+			break;
+		case SP_SP:
+			WFIFOL(fd,4) = status->sp;
+			break;
+		case SP_MAXSP:
+			WFIFOL(fd,4) = status->max_sp;
+			break;
+	}
+	WFIFOSET(fd,8);
+}
+
+void clif_elemental_info(struct map_session_data *sd) {
+	int fd;
+	struct elemental_data *ed;
+	struct status_data *status;
+
+	if( sd == NULL || (ed = sd->ed) == NULL )
+		return;
+
+	fd = sd->fd;
+	status = &ed->battle_status;
+
+	WFIFOHEAD(fd,22);
+	WFIFOW(fd, 0) = 0x81d;
+	WFIFOL(fd, 2) = ed->bl.id;
+	WFIFOL(fd, 6) = status->hp;
+	WFIFOL(fd,10) = status->max_hp;
+	WFIFOL(fd,14) = status->sp;
+	WFIFOL(fd,18) = status->max_sp;
+	WFIFOSET(fd,22);
+}
 
 /// Notification about the remaining time of a rental item (ZC_CASH_TIME_COUNTER).
 /// 0298 <name id>.W <seconds>.L
@@ -18302,7 +18368,7 @@ static int packetdb_readdb(void)
 #else // for Party booking ( PACKETVER >= 20091229 )
 	   -1, -1, 18,  4,  8,  6,  2,  4, 14, 50, 18,  6,  2,  3, 14, 20,
 #endif
-	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10,  0,  0,  0,
+	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10, 22,  8,  0,
 	    0,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0, -1, -1,  3,  2, 66,  5,  2, 12,  6,  0,  0,
 	//#0x0840

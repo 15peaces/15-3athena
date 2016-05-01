@@ -1,15 +1,18 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Map flags that enable pvp
 //===== By: ==================================================
-//= eAthena Dev Team
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.0
+//= 1.1
 //===== Description: =========================================
 //= pvp: Turns on PvP mode
 //===== Additional Comments: =================================
-//=
+//= 1.1 Added support for episode mapflags [15peaces]
 //============================================================
 
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
 // PvP ========================
 pvp_y_1-1	mapflag	pvp
 pvp_y_1-2	mapflag	pvp
@@ -92,6 +95,11 @@ pvp_n_8-3	mapflag	pvp
 pvp_n_8-4	mapflag	pvp
 pvp_n_8-5	mapflag	pvp
 pvp_2vs2	mapflag	pvp
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
+// PvP ========================
 
 //Aldebaran Turbo Track
 turbo_e_4	mapflag	pvp

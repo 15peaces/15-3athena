@@ -5,13 +5,14 @@
 #define _INFIF_H_
 
 #include "../common/cbasetypes.h" // bool
-//#include "../common/mmo.h"
+
 struct party_member;
 struct guild_member;
 struct guild_position;
 struct s_pet;
 struct s_homunculus;
 struct s_mercenary;
+struct s_elemental;
 struct mail_message;
 struct auction_data;
 
@@ -102,6 +103,12 @@ int intif_Auction_cancel(int char_id, unsigned int auction_id);
 int intif_Auction_close(int char_id, unsigned int auction_id);
 int intif_Auction_bid(int char_id, const char* name, unsigned int auction_id, int bid);
 #endif
+
+// ELEMENTAL SYSTEM
+int intif_elemental_create(struct s_elemental *ele);
+int intif_elemental_request(int ele_id, int char_id);
+int intif_elemental_delete(int ele_id);
+int intif_elemental_save(struct s_elemental *ele);
 
 bool CheckForCharServer(void);
 

@@ -19,6 +19,7 @@
 #include "pet.h"
 #include "homunculus.h"
 #include "mercenary.h"
+#include "elemental.h"
 #include "mob.h"
 #include "npc.h"
 #include "battle.h"
@@ -4255,6 +4256,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	struct mob_data *md, *dstmd;
 	struct homun_data *hd;
 	struct mercenary_data *mer;
+	struct elemental_data *ele;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *tsc;
 	struct status_change_entry *tsce;
@@ -4274,6 +4276,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	hd = BL_CAST(BL_HOM, src);
 	md = BL_CAST(BL_MOB, src);
 	mer = BL_CAST(BL_MER, src);
+	ele = BL_CAST(BL_ELEM, src);
 
 	dstsd = BL_CAST(BL_PC, bl);
 	dstmd = BL_CAST(BL_MOB, bl);
@@ -8037,7 +8040,75 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
 		break;
-	
+
+	case SO_SUMMON_AGNI:
+	case SO_SUMMON_AQUA:
+	case SO_SUMMON_VENTUS:
+	case SO_SUMMON_TERA:
+		if( sd ) {
+			int ele_class = skill_get_elemental_type(skillid,skilllv);
+
+			// Remove previous elemental fisrt.
+			if( sd->ed && ele_delete(sd->ed,0) ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			// Summoning the new one.
+			if( !ele_create(sd,ele_class,skill_get_time(skillid,skilllv)) ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case SO_EL_CONTROL:
+		if( sd ) {
+			int mode = EL_MODE_PASSIVE;	// Standard mode.
+			if( !sd->ed ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			if( skilllv == 4 )
+			{	// At level 4 delete elementals.
+				if( ele_delete(sd->ed, 0) )
+					clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			switch( skilllv )
+			{	// Select mode bassed on skill level used.
+				case 1: mode = EL_MODE_PASSIVE; break;
+				case 2: mode = EL_MODE_ASSIST; break;
+				case 3: mode = EL_MODE_AGRESSIVE; break;
+			}
+			if( !elemental_change_mode(sd->ed,mode) ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case SO_EL_CURE:
+		if( sd ) {
+			struct elemental_data *ed = sd->ed;
+			int s_hp = sd->battle_status.hp * 10 / 100, s_sp = sd->battle_status.sp * 10 / 100;
+			int e_hp, e_sp;
+			if( !ed ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			if( !status_charge(&sd->bl,s_hp,s_sp) ) {
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			e_hp = ed->battle_status.max_hp * 10 / 100;
+			e_sp = ed->battle_status.max_sp * 10 / 100;
+			status_heal(&ed->bl,e_hp,e_sp,3);
+			clif_skill_nodamage(src,&ed->bl,skillid,skilllv,1);
+		}
+		break;
+
 	case SO_EL_ANALYSIS:
 	case GN_CHANGEMATERIAL:
 		if( sd ) {
@@ -11773,6 +11844,12 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 				require.sp -= require.sp * 20 * count / 100; //  -20% each W/M in the party.
 			break;
 		}
+	case SO_EL_CONTROL:
+		if( !sd->status.ele_id || !sd->ed ) {
+			clif_skill_fail(sd,skill,0x00,0,0);
+			return 0;
+		}
+		break;
 	case RETURN_TO_ELDICASTES:
 		if( pc_ismadogear(sd) )
 		{ //Cannot be used if Mado is equipped.
@@ -12359,6 +12436,12 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		case SR_GATEOFHELL:
 			if( sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE )
 				req.sp -= req.sp * 10 / 100;
+			break;
+		case SO_SUMMON_AGNI:
+		case SO_SUMMON_AQUA:
+		case SO_SUMMON_VENTUS:
+		case SO_SUMMON_TERA:
+			req.sp -= req.sp * (5 + 5 * pc_checkskill(sd,SO_EL_SYMPATHY)) / 100;
 			break;
 	}
 	
@@ -15982,6 +16065,21 @@ int skill_stasis_check(struct block_list *bl, int skillid)
 		return 1;
 
 	return 0;//Any skills thats not the above will work.
+}
+
+int skill_get_elemental_type(int skill_id, int skill_lv ) {
+	int type = 0;
+
+	switch( skill_id ) {
+		case SO_SUMMON_AGNI:	type = 2114; break;
+		case SO_SUMMON_AQUA:	type = 2117; break;
+		case SO_SUMMON_VENTUS:	type = 2120; break;
+		case SO_SUMMON_TERA:	type = 2123; break;
+	}
+
+	type += skill_lv - 1;
+
+	return type;
 }
 
 /*==========================================

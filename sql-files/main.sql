@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `guild_id` int(11) unsigned NOT NULL default '0',
   `pet_id` int(11) unsigned NOT NULL default '0',
   `homun_id` int(11) unsigned NOT NULL default '0',
+  `elemental_id` int(11) unsigned NOT NULL default '0',
   `hair` tinyint(4) unsigned NOT NULL default '0',
   `hair_color` smallint(5) unsigned NOT NULL default '0',
   `clothes_color` smallint(5) unsigned NOT NULL default '0',
@@ -133,6 +134,21 @@ CREATE TABLE IF NOT EXISTS `charlog` (
   `hair` tinyint(4) NOT NULL default '0',
   `hair_color` int(11) NOT NULL default '0'
 ) ENGINE=MyISAM; 
+
+--
+-- Table structure for table `elemental`
+--
+
+CREATE TABLE `elemental` (
+  `ele_id` int(11) unsigned NOT NULL auto_increment,
+  `char_id` int(11) NOT NULL,
+  `class` mediumint(9) unsigned NOT NULL default '0',
+  `mode` int(11) unsigned NOT NULL default '1',
+  `hp` int(12) NOT NULL default '1',
+  `sp` int(12) NOT NULL default '1',
+  `life_time` int(11) NOT NULL default '0',
+  PRIMARY KEY  (`ele_id`)
+) ENGINE=MyISAM;
 
 --
 -- Table structure for table `friends`

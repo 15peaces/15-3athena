@@ -3,13 +3,13 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.7
+//= 1.1
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
 //= For disabling Butterfly wings use noreturn
 //===== Additional Comments: ================================= 
-//= 1.7 Added support for episode mapflags [15peaces]
+//= 1.1 Added support for episode mapflags [15peaces]
 //============================================================
 
 //============================================================
@@ -44,6 +44,36 @@ Oninit:
 //============================================================
 // Global Mapflags / Episode unknown
 //============================================================
+// Cities ========================
+alberta_in	mapflag	noteleport
+aldeba_in	mapflag	noteleport
+ama_in01	mapflag	noteleport
+ama_in02	mapflag	noteleport
+cmd_in01	mapflag	noteleport
+cmd_in02	mapflag	noteleport
+gef_tower	mapflag	noteleport
+geffen_in	mapflag	noteleport
+gon_in	mapflag	noteleport
+gon_test	mapflag	noteleport
+in_orcs01	mapflag	noteleport
+izlude_in	mapflag	noteleport
+moc_castle	mapflag	noteleport
+morocc_in	mapflag	noteleport
+payon_in01	mapflag	noteleport
+payon_in02	mapflag	noteleport
+prt_are_in	mapflag	noteleport
+prt_are01	mapflag	noteleport
+prt_castle	mapflag	noteleport
+prt_church	mapflag	noteleport
+prt_in	mapflag	noteleport
+um_in	mapflag	noteleport
+xmas_in	mapflag	noteleport
+yuno_in01	mapflag	noteleport
+yuno_in02	mapflag	noteleport
+yuno_in03	mapflag	noteleport
+yuno_in04	mapflag	noteleport
+yuno_in05	mapflag	noteleport
+
 // Job Quests ====================
 job_thief1	mapflag	noteleport
 // 2-1 -----------------------
@@ -61,6 +91,91 @@ in_rogue	mapflag	noteleport
 // Arenas ========================
 arena_room	mapflag	noteleport
 sec_in01	mapflag	noteleport
+
+// PvP Arenas=======================
+pvp_y_room	mapflag	noteleport
+pvp_y_1-1	mapflag	noteleport
+pvp_y_1-2	mapflag	noteleport
+pvp_y_1-3	mapflag	noteleport
+pvp_y_1-4	mapflag	noteleport
+pvp_y_1-5	mapflag	noteleport
+pvp_y_2-1	mapflag	noteleport
+pvp_y_2-2	mapflag	noteleport
+pvp_y_2-3	mapflag	noteleport
+pvp_y_2-4	mapflag	noteleport
+pvp_y_2-5	mapflag	noteleport
+pvp_y_3-1	mapflag	noteleport
+pvp_y_3-2	mapflag	noteleport
+pvp_y_3-3	mapflag	noteleport
+pvp_y_3-4	mapflag	noteleport
+pvp_y_3-5	mapflag	noteleport
+pvp_y_4-1	mapflag	noteleport
+pvp_y_4-2	mapflag	noteleport
+pvp_y_4-3	mapflag	noteleport
+pvp_y_4-4	mapflag	noteleport
+pvp_y_4-5	mapflag	noteleport
+pvp_y_5-1	mapflag	noteleport
+pvp_y_5-2	mapflag	noteleport
+pvp_y_5-3	mapflag	noteleport
+pvp_y_5-4	mapflag	noteleport
+pvp_y_5-5	mapflag	noteleport
+pvp_y_6-1	mapflag	noteleport
+pvp_y_6-2	mapflag	noteleport
+pvp_y_6-3	mapflag	noteleport
+pvp_y_6-4	mapflag	noteleport
+pvp_y_6-5	mapflag	noteleport
+pvp_y_7-1	mapflag	noteleport
+pvp_y_7-2	mapflag	noteleport
+pvp_y_7-3	mapflag	noteleport
+pvp_y_7-4	mapflag	noteleport
+pvp_y_7-5	mapflag	noteleport
+pvp_y_8-1	mapflag	noteleport
+pvp_y_8-2	mapflag	noteleport
+pvp_y_8-3	mapflag	noteleport
+pvp_y_8-4	mapflag	noteleport
+pvp_y_8-5	mapflag	noteleport
+pvp_n_room	mapflag	noteleport
+pvp_n_1-1	mapflag	noteleport
+pvp_n_1-2	mapflag	noteleport
+pvp_n_1-3	mapflag	noteleport
+pvp_n_1-4	mapflag	noteleport
+pvp_n_1-5	mapflag	noteleport
+pvp_n_2-1	mapflag	noteleport
+pvp_n_2-2	mapflag	noteleport
+pvp_n_2-3	mapflag	noteleport
+pvp_n_2-4	mapflag	noteleport
+pvp_n_2-5	mapflag	noteleport
+pvp_n_3-1	mapflag	noteleport
+pvp_n_3-2	mapflag	noteleport
+pvp_n_3-3	mapflag	noteleport
+pvp_n_3-4	mapflag	noteleport
+pvp_n_3-5	mapflag	noteleport
+pvp_n_4-1	mapflag	noteleport
+pvp_n_4-2	mapflag	noteleport
+pvp_n_4-3	mapflag	noteleport
+pvp_n_4-4	mapflag	noteleport
+pvp_n_4-5	mapflag	noteleport
+pvp_n_5-1	mapflag	noteleport
+pvp_n_5-2	mapflag	noteleport
+pvp_n_5-3	mapflag	noteleport
+pvp_n_5-4	mapflag	noteleport
+pvp_n_5-5	mapflag	noteleport
+pvp_n_6-1	mapflag	noteleport
+pvp_n_6-2	mapflag	noteleport
+pvp_n_6-3	mapflag	noteleport
+pvp_n_6-4	mapflag	noteleport
+pvp_n_6-5	mapflag	noteleport
+pvp_n_7-1	mapflag	noteleport
+pvp_n_7-2	mapflag	noteleport
+pvp_n_7-3	mapflag	noteleport
+pvp_n_7-4	mapflag	noteleport
+pvp_n_7-5	mapflag	noteleport
+pvp_n_8-1	mapflag	noteleport
+pvp_n_8-2	mapflag	noteleport
+pvp_n_8-3	mapflag	noteleport
+pvp_n_8-4	mapflag	noteleport
+pvp_n_8-5	mapflag	noteleport
+pvp_2vs2	mapflag	noteleport
 
 // Guild Castles =================
 aldeg_cas01	mapflag	noteleport
@@ -91,26 +206,12 @@ prtg_cas05	mapflag	noteleport
 ayo_in01	mapflag	noteleport
 ayo_in02	mapflag	noteleport
 alb_ship	mapflag	noteleport
-alberta_in	mapflag	noteleport
-aldeba_in	mapflag	noteleport
 ama_dun01	mapflag	noteleport
-ama_in01	mapflag	noteleport
-ama_in02	mapflag	noteleport
 ama_test	mapflag	noteleport
-cmd_in01	mapflag	noteleport
-cmd_in02	mapflag	noteleport
 gef_dun03	mapflag	noteleport
-gef_tower	mapflag	noteleport
-geffen_in	mapflag	noteleport
-gon_test	mapflag	noteleport
-gon_in	mapflag	noteleport
-in_orcs01	mapflag	noteleport
-izlude_in	mapflag	noteleport
 jawaii_in	mapflag	noteleport
 lou_in01	mapflag	noteleport
 lou_in02	mapflag	noteleport
-moc_castle	mapflag	noteleport
-morocc_in	mapflag	noteleport
 mosk_in	mapflag	noteleport
 new_zone01	mapflag	noteleport
 new_zone02	mapflag	noteleport
@@ -137,21 +238,7 @@ new_5-2	mapflag	noteleport
 new_5-3	mapflag	noteleport
 new_5-4	mapflag	noteleport
 nif_in	mapflag	noteleport
-payon_in01	mapflag	noteleport
-payon_in02	mapflag	noteleport
 payon_in03	mapflag	noteleport
-prt_are_in	mapflag	noteleport
-prt_are01	mapflag	noteleport
-prt_castle	mapflag	noteleport
-prt_church	mapflag	noteleport
-prt_in	mapflag	noteleport
-um_in	mapflag	noteleport
-xmas_in	mapflag	noteleport
-yuno_in01	mapflag	noteleport
-yuno_in02	mapflag	noteleport
-yuno_in03	mapflag	noteleport
-yuno_in04	mapflag	noteleport
-yuno_in05	mapflag	noteleport
 que_sign01	mapflag	noteleport
 que_sign02	mapflag	noteleport
 ein_in01	mapflag	noteleport
@@ -259,91 +346,6 @@ force_5-1	mapflag	noteleport
 force_1-2	mapflag	noteleport
 force_1-3	mapflag	noteleport
 sec_in02	mapflag	noteleport
-
-// PvP Arenas=======================
-pvp_y_room	mapflag	noteleport
-pvp_y_1-1	mapflag	noteleport
-pvp_y_1-2	mapflag	noteleport
-pvp_y_1-3	mapflag	noteleport
-pvp_y_1-4	mapflag	noteleport
-pvp_y_1-5	mapflag	noteleport
-pvp_y_2-1	mapflag	noteleport
-pvp_y_2-2	mapflag	noteleport
-pvp_y_2-3	mapflag	noteleport
-pvp_y_2-4	mapflag	noteleport
-pvp_y_2-5	mapflag	noteleport
-pvp_y_3-1	mapflag	noteleport
-pvp_y_3-2	mapflag	noteleport
-pvp_y_3-3	mapflag	noteleport
-pvp_y_3-4	mapflag	noteleport
-pvp_y_3-5	mapflag	noteleport
-pvp_y_4-1	mapflag	noteleport
-pvp_y_4-2	mapflag	noteleport
-pvp_y_4-3	mapflag	noteleport
-pvp_y_4-4	mapflag	noteleport
-pvp_y_4-5	mapflag	noteleport
-pvp_y_5-1	mapflag	noteleport
-pvp_y_5-2	mapflag	noteleport
-pvp_y_5-3	mapflag	noteleport
-pvp_y_5-4	mapflag	noteleport
-pvp_y_5-5	mapflag	noteleport
-pvp_y_6-1	mapflag	noteleport
-pvp_y_6-2	mapflag	noteleport
-pvp_y_6-3	mapflag	noteleport
-pvp_y_6-4	mapflag	noteleport
-pvp_y_6-5	mapflag	noteleport
-pvp_y_7-1	mapflag	noteleport
-pvp_y_7-2	mapflag	noteleport
-pvp_y_7-3	mapflag	noteleport
-pvp_y_7-4	mapflag	noteleport
-pvp_y_7-5	mapflag	noteleport
-pvp_y_8-1	mapflag	noteleport
-pvp_y_8-2	mapflag	noteleport
-pvp_y_8-3	mapflag	noteleport
-pvp_y_8-4	mapflag	noteleport
-pvp_y_8-5	mapflag	noteleport
-pvp_n_room	mapflag	noteleport
-pvp_n_1-1	mapflag	noteleport
-pvp_n_1-2	mapflag	noteleport
-pvp_n_1-3	mapflag	noteleport
-pvp_n_1-4	mapflag	noteleport
-pvp_n_1-5	mapflag	noteleport
-pvp_n_2-1	mapflag	noteleport
-pvp_n_2-2	mapflag	noteleport
-pvp_n_2-3	mapflag	noteleport
-pvp_n_2-4	mapflag	noteleport
-pvp_n_2-5	mapflag	noteleport
-pvp_n_3-1	mapflag	noteleport
-pvp_n_3-2	mapflag	noteleport
-pvp_n_3-3	mapflag	noteleport
-pvp_n_3-4	mapflag	noteleport
-pvp_n_3-5	mapflag	noteleport
-pvp_n_4-1	mapflag	noteleport
-pvp_n_4-2	mapflag	noteleport
-pvp_n_4-3	mapflag	noteleport
-pvp_n_4-4	mapflag	noteleport
-pvp_n_4-5	mapflag	noteleport
-pvp_n_5-1	mapflag	noteleport
-pvp_n_5-2	mapflag	noteleport
-pvp_n_5-3	mapflag	noteleport
-pvp_n_5-4	mapflag	noteleport
-pvp_n_5-5	mapflag	noteleport
-pvp_n_6-1	mapflag	noteleport
-pvp_n_6-2	mapflag	noteleport
-pvp_n_6-3	mapflag	noteleport
-pvp_n_6-4	mapflag	noteleport
-pvp_n_6-5	mapflag	noteleport
-pvp_n_7-1	mapflag	noteleport
-pvp_n_7-2	mapflag	noteleport
-pvp_n_7-3	mapflag	noteleport
-pvp_n_7-4	mapflag	noteleport
-pvp_n_7-5	mapflag	noteleport
-pvp_n_8-1	mapflag	noteleport
-pvp_n_8-2	mapflag	noteleport
-pvp_n_8-3	mapflag	noteleport
-pvp_n_8-4	mapflag	noteleport
-pvp_n_8-5	mapflag	noteleport
-pvp_2vs2	mapflag	noteleport
 
 //Aldebaran Turbo Track ==========
 turbo_room	mapflag	noteleport
