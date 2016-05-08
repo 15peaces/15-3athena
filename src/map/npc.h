@@ -11,6 +11,14 @@ struct block_list;
 struct npc_data;
 struct view_data;
 
+/// pointer size fix which fixes several gcc warnings
+/// currently only used by bindatcmd script, so best to place here [15peaces]
+#ifdef __64BIT__
+	#define __64BPRTSIZE(y) (intptr)y
+#else
+	#define __64BPRTSIZE(y) y
+#endif
+
 struct npc_timerevent_list {
 	int timer,pos;
 };

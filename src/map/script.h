@@ -311,7 +311,6 @@ enum unitdata_merctypes {
 	UMER_DMOTION,
 };
 
-/*Disabled until supported [15peaces]
 enum unitdata_elemtypes {
 	UELE_SIZE = 0,
 	UELE_HP,
@@ -350,7 +349,6 @@ enum unitdata_elemtypes {
 	UELE_ADELAY,
 	UELE_DMOTION,
 };
-*/
 
 enum unitdata_npctypes {
 	UNPC_DISPLAY = 0,

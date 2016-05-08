@@ -3536,23 +3536,21 @@ int clif_skill_select_request(struct map_session_data *sd)
 int clif_skill_itemlistwindow( struct map_session_data *sd, int skill_id, int skill_lv )
 {
 #if PACKETVER >= 20090922
-	int fd, val = 1;
+	int fd;
 
 	nullpo_retr(0,sd);
 
-	if( skill_id == GN_CHANGEMATERIAL ){
-		skill_lv = 0; // Changematerial
-		val = 0;
-	}
-
 	sd->menuskill_id = skill_id; // To prevent hacking.
 	sd->menuskill_val = skill_lv;
+
+	if( skill_id == GN_CHANGEMATERIAL )
+		skill_lv = 0; // Changematerial
 
 	fd = sd->fd;
 	WFIFOHEAD(fd,packet_len(0x7e3));
 	WFIFOW(fd,0) = 0x7e3;
 	WFIFOL(fd,2) = skill_lv;
-	WFIFOL(fd,4) = val;
+	WFIFOL(fd,4) = 0;
 	WFIFOSET(fd,packet_len(0x7e3));
 
 #endif
@@ -17034,8 +17032,7 @@ void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, b
 }
 
 /// S 07e4 <length>.w <option>.l <val>.l {<index>.w <amount>.w).4b*
-void clif_parse_ItemListWindowSelected(int fd, struct map_session_data* sd)
-{
+void clif_parse_ItemListWindowSelected(int fd, struct map_session_data* sd) {
 	int n = (RFIFOW(fd,2)-12) / 4;
 	int type = RFIFOL(fd,4);
 	int flag = RFIFOL(fd,8); // Button clicked: 0 = Cancel, 1 = OK
@@ -17054,7 +17051,7 @@ void clif_parse_ItemListWindowSelected(int fd, struct map_session_data* sd)
 		return; // Prevent hacking.
 	}
 
-	switch( type ){
+	switch( type ) {
 		case 0: // Change Material
 			skill_changematerial(sd,n,item_list);
 			break;
@@ -18402,7 +18399,7 @@ static int packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0, 14,	6, 50,	0,	0,	0,	0,	0,	0,
 //#0x0980
 		0,	0,	0, 29, 28,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0,  0,
+		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
 		0,  0,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0

@@ -8264,7 +8264,7 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 	}
 
 	if(ud->skillid != SA_CASTCANCEL  &&
-	!(ud->skillid == SO_SPELLFIST && (sd && sd->skillid_old == MG_FIREBOLT || sd->skillid_old == MG_COLDBOLT || sd->skillid_old == MG_LIGHTNINGBOLT)) )
+	!(ud->skillid == SO_SPELLFIST && (sd && (sd->skillid_old == MG_FIREBOLT || sd->skillid_old == MG_COLDBOLT || sd->skillid_old == MG_LIGHTNINGBOLT))) )
 	{// otherwise handled in unit_skillcastcancel()
 		if( ud->skilltimer != tid ) {
 			ShowError("skill_castend_id: Timer mismatch %d!=%d!\n", ud->skilltimer, tid);
@@ -12337,10 +12337,17 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			if ( i < 4 )
 				continue;
 			break;
+		case SO_SUMMON_AGNI:
+		case SO_SUMMON_AQUA:
+		case SO_SUMMON_VENTUS:
+		case SO_SUMMON_TERA:
+			if( i < 3 )
+				continue;
+			break;
 		case GN_FIRE_EXPANSION:
 			if( i < 5 )
- 				continue;
- 			break;
+				continue;
+			break;
 		}
 
 		req.itemid[i] = skill_db[j].itemid[i];
@@ -12360,8 +12367,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			}
 		}
 	}
-	if( skill == NC_SHAPESHIFT || skill == GN_FIRE_EXPANSION )
-	{		
+	if( skill == NC_SHAPESHIFT || skill == GN_FIRE_EXPANSION || skill == SO_SUMMON_AGNI ||
+		skill == SO_SUMMON_AQUA || skill == SO_SUMMON_VENTUS || skill == SO_SUMMON_TERA ) {
 		req.itemid[lv-1] = skill_db[j].itemid[lv-1];
 		req.amount[lv-1] = skill_db[j].amount[lv-1];
 	}
@@ -14710,7 +14717,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 
 	if((equip=itemdb_isequip(nameid)))
 		wlv = itemdb_wlv(nameid);
-	if(!equip) {
+	if( !equip || skill_id == GN_CHANGEMATERIAL ) {
 		switch(skill_id){
 			case BS_IRON:
 			case BS_STEEL:
@@ -14928,7 +14935,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 //			log_produce(sd,nameid,slot1,slot2,slot3,1);
 //TODO update PICKLOG
 
-		if(equip){
+		if( equip && skill_id != GN_CHANGEMATERIAL ) {
 			clif_produceeffect(sd,0,nameid);
 			clif_misceffect(&sd->bl,3);
 			if(itemdb_wlv(nameid) >= 3 && ((ele? 1 : 0) + sc) >= 3) // Fame point system [DracoRPG]
@@ -15020,7 +15027,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 //		log_produce(sd,nameid,slot1,slot2,slot3,0);
 //TODO update PICKLOG
 
-	if(equip){
+	if( equip && skill_id != GN_CHANGEMATERIAL ) {
 		clif_produceeffect(sd,1,nameid);
 		clif_misceffect(&sd->bl,2);
 	} else {
@@ -15340,29 +15347,22 @@ int skill_elementalanalysis(struct map_session_data* sd, int n, int skill_lv, un
 	return 0;
 }
 
-int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list)
-{
+int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list) {
 	int i, j, k, c, p, nameid, amount;
 	
 	nullpo_ret(sd);
 	nullpo_ret(item_list);
 
 	// Search for objects that can be created.
-	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ )
-	{
-		if( skill_produce_db[i].itemlv == 26 )
-		{
+	for( i = 0; i < MAX_SKILL_PRODUCE_DB; i++ ) {
+		if( skill_produce_db[i].itemlv == 26 ) {
 			p = 0;
-			do
-			{
+			do {
 				c = 0;
 				// Verification of overlap between the objects required and the list submitted.
-				for( j = 0; j < MAX_PRODUCE_RESOURCE; j++ )
-				{
-					if( skill_produce_db[i].mat_id[j] > 0 )
-					{
-						for( k = 0; k < n; k++ )
-						{
+				for( j = 0; j < MAX_PRODUCE_RESOURCE; j++ ) {
+					if( skill_produce_db[i].mat_id[j] > 0 ) {
+						for( k = 0; k < n; k++ ) {
 							int idx = item_list[k*2+0]-2;
 							nameid = sd->status.inventory[idx].nameid;
 							amount = item_list[k*2+1];
@@ -15370,15 +15370,13 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 							if( nameid == skill_produce_db[i].mat_id[j] && (amount-p*skill_produce_db[i].mat_amount[j]) >= skill_produce_db[i].mat_amount[j] )
 								c++; // match
 						}
-					}
-					else
+					} else
 						break;	// No more items required
 				}
 				p++;
 			} while(n == j && c == n);
 			p--;
-			if ( p > 0 )
-			{
+			if ( p > 0 ) {
 				skill_produce_mix(sd,GN_CHANGEMATERIAL,skill_produce_db[i].nameid,0,0,0,p);
 				return 1;
 			}

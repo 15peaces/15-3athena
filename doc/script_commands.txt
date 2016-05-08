@@ -5790,6 +5790,13 @@ For the position, the x and y are given in the UnitSkillUsePos.
 
 ---------------------------------------
 
+*unitexists <GID>;
+
+Checks if the given Game ID exists. Returns false if the object doesn't exist, or true if
+it does.
+
+---------------------------------------
+
 *getunitname <GID>;
 
 Gets the name of the given unit. Supported types are monster, homunculus, pet, and NPC.
@@ -5806,6 +5813,8 @@ homunculus, and pet. To change an NPC's name, see 'setnpcdisplay'. Mercenary and
 Elemental don't support custom names.
 
 Changing a homunculus or pet name will be permanent.
+
+Returns "Unknown" if unit is not found.
 
 ---------------------------------------
 
@@ -5860,7 +5869,6 @@ Parameter (indexes) for elementals are:
 	UELE_MAXSP		UELE_SPEED			UELE_DEX			UELE_MDEF		UELE_ELELEVEL
 	UELE_MASTERCID	UELE_LOOKDIR		UELE_LUK			UELE_HIT		UELE_AMOTION
 	UELE_MAPID		UELE_CANMOVETICK	UELE_DMGIMMUNE		UELE_FLEE		ELE_ADELAY
-*** elementals are currently unsupported, so these are disabled for now ***
 
 Parameter (indexes) for NPCs are:
 	UNPC_DISPLAY	UNPC_LOOKDIR		UNPC_PLUSALLSTAT	UNPC_HIT		UNPC_AMOTION
@@ -5893,6 +5901,8 @@ Parameter (indexes) for NPCs are:
 
 		- UNPC_PLUSALLSTAT: same as 'bAllStats'; increases/decreses all stats by given amount
 
+Both getunitdata and setunitdata will return -1 if the given GID does not exist.
+		
 Example:
 	// Spawn some Porings and save the Game ID.
 	// - Keep in mind, when the 'monster' script command is used,

@@ -4,6 +4,34 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/08/2016
+	r124 [15peaces]
+		*Merged missing changes from 3ceam rev. 485 - 488
+		*Updated item_db for episode 14.3.
+		*Changed some more champion monsters to fit pre-renewal system.
+		*Added Sound Amplifier [1] to Creamy Fear drops.
+			-It's clearly mentioned on kROs website to be dropped by Creamy Fear.
+			-Droprate is not confirmed, but 0,01% is the lowest possible, I'll leave it there for now.
+		*Updated item_buyingstore.txt to kRO 2016-04-30.
+			-Disabled unsupported items.
+		*Fixed some critical packet errors on banking system and related functions.
+			-they could've caused loss of data on global_reg_value.
+			-please update asap!
+		*Fixed an issue where bindatcmd didn't store the correct ammount of parameters in .@atcmd_numparameters variable.
+		*Fixed a possible item ID overflow for script command makeitem
+		*Fixed a possible overflow with script command getareadropitem.
+		*Adjusted item count variables to match item ID variable type as well.
+		*Managed some clean-up here and there.
+		*Added return values for unit script commands
+			-Script commands getunitdata and setunitdata will return -1 when the given GID is not found.
+			-Script commands getunitname and setunitname will return Unknown when the given GID is not found.
+			-Added a new script command unitexists
+			-Also these commands can now be used for sorcerer elemental spirits.
+		*Fixed GN_CHANGEMATERIAL and SO_EL_ANALYSIS.
+		*Fixed an issue with consumption items of Sorcerer's Summon skills.
+			-Please note: Sorcerer Elemental Spirits packets for 2013 (and up) clients seems to be wrong currently...
+		*Fixed errors while compiling server as txt version.
+	
 05/01/2016
 	r123 [15peaces]
 		*Merged missing changes from 3ceam rev. 481 - 484
