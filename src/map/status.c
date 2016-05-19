@@ -494,7 +494,7 @@ void initChangeTables(void)
 	set_sc( SC_WEAKNESS			, SC__WEAKNESS			, SI_WEAKNESS		, SCB_FLEE2|SCB_MAXHP );
 	set_sc( SC_STRIPACCESSARY	, SC__STRIPACCESSARY	, SI_STRIPACCESSARY , SCB_DEX|SCB_INT|SCB_LUK );
 	set_sc( SC_MANHOLE			, SC__MANHOLE			, SI_MANHOLE		, SCB_NONE );
-	add_sc( SC_CHAOSPANIC		, SC_CHAOS				);
+	add_sc( SC_CONFUSIONPANIC	, SC_CONFUSION			);
 	add_sc( SC_MAELSTROM        , SC__MAELSTROM			);
 	set_sc( SC_BLOODYLUST       , SC__BLOODYLUST        , SI_BLOODYLUST     , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
 
@@ -676,6 +676,8 @@ void initChangeTables(void)
 
 	StatusIconChangeTable[SC_GLOOMYDAY_SK] = SI_GLOOMYDAY;
 
+	StatusIconChangeTable[SC_MOVESLOW_POTION] = SI_MOVESLOW_POTION;
+
 	StatusIconChangeTable[SC_TOXIN] = SI_TOXIN;
 	StatusIconChangeTable[SC_PARALYSE] = SI_PARALYSE;
 	StatusIconChangeTable[SC_VENOMBLEED] = SI_VENOMBLEED;
@@ -705,8 +707,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_ASPDPOTION3] = SCB_ASPD;
 	StatusChangeFlagTable[SC_SPEEDUP0] = SCB_SPEED;
 	StatusChangeFlagTable[SC_SPEEDUP1] = SCB_SPEED;
-	StatusChangeFlagTable[SC_ATKPOTION] = SCB_BATK;
-	StatusChangeFlagTable[SC_MATKPOTION] = SCB_MATK;
+	StatusChangeFlagTable[SC_MOVESLOW_POTION] |= SCB_SPEED;
+	StatusChangeFlagTable[SC_ATKPOTION] |= SCB_BATK;
+	StatusChangeFlagTable[SC_MATKPOTION] |= SCB_MATK;
 	StatusChangeFlagTable[SC_INCALLSTATUS] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
 	StatusChangeFlagTable[SC_INCSTR] |= SCB_STR;
 	StatusChangeFlagTable[SC_INCAGI] |= SCB_AGI;
@@ -743,12 +746,12 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_WALKSPEED] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ITEMSCRIPT] |= SCB_ALL;
 	// Cash Items
-	StatusChangeFlagTable[SC_FOOD_STR_CASH] = SCB_STR;
-	StatusChangeFlagTable[SC_FOOD_AGI_CASH] = SCB_AGI;
-	StatusChangeFlagTable[SC_FOOD_VIT_CASH] = SCB_VIT;
-	StatusChangeFlagTable[SC_FOOD_DEX_CASH] = SCB_DEX;
-	StatusChangeFlagTable[SC_FOOD_INT_CASH] = SCB_INT;
-	StatusChangeFlagTable[SC_FOOD_LUK_CASH] = SCB_LUK;
+	StatusChangeFlagTable[SC_FOOD_STR_CASH] |= SCB_STR;
+	StatusChangeFlagTable[SC_FOOD_AGI_CASH] |= SCB_AGI;
+	StatusChangeFlagTable[SC_FOOD_VIT_CASH] |= SCB_VIT;
+	StatusChangeFlagTable[SC_FOOD_DEX_CASH] |= SCB_DEX;
+	StatusChangeFlagTable[SC_FOOD_INT_CASH] |= SCB_INT;
+	StatusChangeFlagTable[SC_FOOD_LUK_CASH] |= SCB_LUK;
 	// Mercenary Bonus Effects
 	StatusChangeFlagTable[SC_MERC_FLEEUP] |= SCB_FLEE;
 	StatusChangeFlagTable[SC_MERC_ATKUP] |= SCB_WATK;
@@ -4490,6 +4493,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, 75 );
 				if( sc->data[SC_SLOWDOWN] ) // Slow Potion
 					val = max( val, 100 );
+				if (sc->data[SC_MOVESLOW_POTION]) // Used by Slow_Down_Potion [Frost]
+					val = max(val, sc->data[SC_MOVESLOW_POTION]->val1);
 				if( sc->data[SC_GATLINGFEVER] )
 					val = max( val, 100 );
 				if( sc->data[SC_SUITON] )
@@ -6353,7 +6358,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC__LAZINESS:
 			case SC__WEAKNESS:
 			case SC__UNLUCKY:
-			case SC_CHAOS:
 				return 0;
 			case SC_COMBO: 
 			case SC_DANCING:
@@ -7649,7 +7653,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_THORNSTRAP:
 		case SC__MANHOLE:
 		case SC__MAELSTROM:
-		case SC_CHAOS:
 		case SC_CRYSTALIZE:
 		case SC_WHITEIMPRISON:
 		case SC_VACUUM_EXTREME:
@@ -7688,7 +7691,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_POISON:									sc->opt2 |= OPT2_POISON;		break;
 		case SC_CURSE:									sc->opt2 |= OPT2_CURSE;			break;
 		case SC_SILENCE:								sc->opt2 |= OPT2_SILENCE;		break;
-		case SC_SIGNUMCRUCIS:	case SC_CHAOS:			sc->opt2 |= OPT2_SIGNUMCRUCIS;	break;
+		case SC_SIGNUMCRUCIS:	case SC_CONFUSION:			sc->opt2 |= OPT2_SIGNUMCRUCIS;	break;
 		case SC_BLIND:									sc->opt2 |= OPT2_BLIND;			break;
 		case SC_ANGELUS:		case SC_BENEDICTIO:		sc->opt2 |= OPT2_ANGELUS;		break;// Piety use this, i need confirm if Benedictio do it too. [pakpil]
 		case SC_BLEEDING:								sc->opt2 |= OPT2_BLEEDING;		break;
@@ -8493,7 +8496,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		sc->opt2 &= ~OPT2_DPOISON;
 		break;
 	case SC_SIGNUMCRUCIS:
-	case SC_CHAOS:
+	case SC_CONFUSION:
 		sc->opt2 &= ~OPT2_SIGNUMCRUCIS;
 		break;
 

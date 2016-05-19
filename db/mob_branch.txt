@@ -87,6 +87,7 @@
 1095,Andre,357142
 1096,Angeling,71428
 1097,Ant Egg,71428
+1098,Anubis,71428
 1099,Argiope,71428
 1100,Argos,214285
 1101,Baphomet Jr.,71428
@@ -413,3 +414,8 @@
 1783,Galion,71428
 1784,Stapo,71428
 1789,Iceicle,71428
+1796,Aunoe,142857
+2016,Aqua Elemental,71428
+2019,Ancient Tree,71428
+2085,Antler Scaraba,71428
+2090,Antler Scaraba Egg,71428

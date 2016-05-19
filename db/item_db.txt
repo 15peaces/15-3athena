@@ -155,7 +155,7 @@
 659,Heart_Of_Her,Her Heart,2,500,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1188; },{},{}
 660,Prohibition_Red_Candle,Forbidden Red Candle,2,20000,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1200; },{},{}
 661,Sway_Apron,Soft Apron,2,20000,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ pet 1275; },{},{}
-662,Inspector_Certificate,Authoritative Badge,2,1450,,30,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SpeedUp0,180000,0; },{},{}
+662,Inspector_Certificate,Authoritative Badge,2,1450,,30,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SpeedUp0,180000,25; },{},{}
 663,Korea_Rice_Cake,Korean Rice Cake,0,1,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 10,0; },{},{}
 664,Gift_Box_1,Gift Box,2,1000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_GiftBox_1),1; },{},{}
 665,Gift_Box_2,Gift Box,2,1000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_GiftBox_2),1; },{},{}
@@ -1158,7 +1158,7 @@
 
 2169,Kalasak,Kalasag,5,20,,400,,4,,0,0xFFFFFFFF,63,2,32,,1,1,1,{ bonus2 bSubRace,RC_Boss,getrefine()/3; },{},{}
 2170,Bayani_Kalasak,Bayani Kalasag,5,20,,400,,4,,1,0xFFFFFFFF,63,2,32,,1,1,1,{ bonus2 bSubRace,RC_Boss,getrefine()/3; },{},{}
-2171,Fox_Armguard,Fox Wrist Guard,5,40000,,200,,5,,1,0x02000000,63,2,32,,100,1,1,{ bonus bFlee,5; },{},{}
+2171,Fox_Armguard,Fox Wrist Guard,5,40000,,200,,5,,1,0x02000000,63,2,32,,100,1,1,{ bonus bFlee,5; if(isequipped(15053) || isequipped(15056)){bonus bAgi,2;} },{},{}
 2172,Wolf_Armguard,Wolf Wrist Guard,5,45000,,250,,8,,1,0x02000000,63,2,32,,100,1,1,{ autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",20,5000,BF_WEAPON,"{ specialeffect2 EF_TEIHIT1; }"; },{},{}
 2173,Crescent_Armguard,Crescent Wrist Guard,5,45000,,250,,5,,1,0x02000000,63,2,32,,100,1,1,{ bonus bDelayRate,-(getrefine()*2); },{},{}
 2174,Lumiere_Shield,Lumiere Shield,5,20,,1300,,6,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
@@ -4865,7 +4865,7 @@
 12014,Imma_Arrow_Container,Immaterial Arrow Quiver,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1757,500; },{},{}
 12015,Rusty_Arrow_Container,Rusty Arrow Quiver,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1762,500; },{},{}
 12016,Speed_Up_Potion,Speed Potion,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SpeedUp1,5000,0; },{},{}
-12017,Slow_Down_Potion,Slow Potion,2,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SlowDown,5000,0; },{},{}
+12017,Slow_Down_Potion,Slow Potion,2,2,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_MOVESLOW_POTION,5000,100; },{},{}
 12018,Fire_Cracker,Firecracker,2,2,,20,,,,,0xFFFFFFFF,7,2,,,,,,{ end; },{},{}
 12019,Holy_Egg,Holy Egg,11,2,,150,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ALL_RESURRECTION",2; },{},{}
 12020,Water_Of_Darkness,Cursed Water,11,2,,30,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ITEM_ENCHANTARMS",8; },{},{}
@@ -4980,7 +4980,7 @@
 12129,Fantastic_Cooking_Kits,Fantastic Cooking Kit,2,10000,,70,,,,,0xFFFFFFFF,7,2,,,,,,{ cooking 15; },{},{}
 12130,Cookie_Bag,Cookie Bag,2,2,,70,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_CookieBag),1; getitem groupranditem(IG_CookieBag),1; getitem groupranditem(IG_CookieBag),1; },{},{}
 12131,Lucky_Potion,Lucky Potion,0,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12132,Red_Bag,Santa's Bag,2,0,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_Xmas,600000,0; },{},{}
+12132,Red_Bag,Santa's Bag,2,0,,200,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_XMAS,600000,0; sc_start SC_SPEEDUP0,600000,25; },{},{}
 12133,Ice_Cream_,McDonald's Ice Cone,0,0,,80,,,,,0xFFFFFFFF,7,2,,,,,,{ if(gettime(5) != MDiceCone) { set MDiceCone,gettime(5); percentheal 50,50; } },{},{}
 12134,Red_Envelope,Red Envelope,2,1,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ set Zeny,Zeny+rand(1000,10000); },{},{}
 12135,Green_Ale,Green Ale,2,20,,30,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 50,50; if(rand(100) >= 90)sc_start SC_Confusion,10000,0; },{},{}
@@ -5039,7 +5039,7 @@
 12188,Magical_Moon_Cake,Grace Moon Cake,0,20,,300,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 50,50; },{},{}
 12189,Red_Box_,Old Red Box,2,50000,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_RedBox_2),1; },{},{}
 12190,Moon_Cake,Moon Cake,2,2,,300,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12191,Special_Moon_Cake,Special Moon Cake,2,2,,500,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12191,Special_Moon_Cake,Special Moon Cake,2,2,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_ASPDPOTION0,600000,4; sc_start SC_SPEEDUP0,600000,25; },{},{}
 12192,Pumpkin_Pie,Pumpkin Pie,0,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 5,5; },{},{}
 12193,Brezel,Pretzel,2,20,,20,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12194,Hometown_Gift,Hometown Gift,2,20,,200,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_HometownGift),1; getitem groupranditem(IG_HometownGift),1; getitem groupranditem(IG_HometownGift),1; },{},{}
@@ -5482,8 +5482,8 @@
 12737,Runstone_Ordinary,General Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 4; },{},{}
 12738,Runstone_Rare,Rare Rune,0,100,,100,,,,,0xFFFFFFFF,24,2,,,,,,{ makerune 5; },{},{}
 12739,Snow_Flower,Snow Flowers,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12740,Inc_Str_Scroll,Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12741,Inc_Int_Scroll,Intellect Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12740,Inc_Str_Scroll,Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_POTION_BERSERK; bonus_script "{ bonus bStr,20; }",60,0,0,SI_STR_SCROLL; },{},{}
+12741,Inc_Int_Scroll,Intellect Amplification Scroll,2,1,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_SPELLBREAKER; bonus_script "{ bonus bInt,20; }",60,0,0,SI_INT_SCROLL; },{},{}
 12742,Valentine_Gift_Box1,Valentine Gift Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12743,Valentine_Gift_Box2,Valentine Gift Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 7947,1;},{},{}
 12744,Chocotate_Box,Chocolate Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 558,1;},{},{}
@@ -6659,8 +6659,8 @@
 14500,Insurance60,Life Insurrance Certificate,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_LIFEINSURANCE,3600000,0; },{},{}
 14508,Zeny_Scroll,Zeny Pet Egg Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 14509,Light_Center_Pot,Light Concentration Potion,2,800,,20,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_ASPDPOTION0,1800000,4; },{},{}
-14510,Light_Awakening_Pot,Light Awakening Potion,2,1500,,20,,,,,0xFFF7FEEF,7,2,,,40,,,{ sc_start SC_ASPDPOTION1,1800000,6; },{},{}
-14511,Light_Berserk_Pot,Light Berserk Potion,2,3000,,20,,,,,0x01E646A6,7,2,,,85,,,{ sc_start SC_ASPDPOTION2,1800000,9; },{},{}
+14510,Light_Awakening_Pot,Light Awakening Potion,2,1500,,20,,,,,0xFFF7FEEF,7,2,,,40,,,{ sc_start SC_ASPDPOTION1,1800000,0; },{},{}
+14511,Light_Berserk_Pot,Light Berserk Potion,2,3000,,20,,,,,0x01E646A6,7,2,,,85,,,{ sc_start SC_ASPDPOTION2,1800000,0; },{},{}
 14512,Meteor_10_Scroll,Meteor Storm Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_METEOR",10; },{},{}
 14513,Storm_10_Scroll,Storm Gust Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_STORMGUST",10; },{},{}
 14514,Vermilion_10_Scroll,Lord of Vermilion Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_VERMILION",10; },{},{}
@@ -7041,6 +7041,7 @@
 19760,C_Rainbow_Veil,Costume Rainbow Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,992,{},{},{}
 19761,C_White_Lily,Costume White Lily,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,993,{},{},{}
 19762,C_Happy_Peace_Proof,Costume Happy Peace Proof,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,994,{},{},{}
+19763,C_Leaf_Cat_Hat,Costume Leaf Cat Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,539,{},{},{}
 
 19768,C_Sakura_Coronet,Costume Sakura Coronet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,645,{},{},{}
 19769,C_Mischievous_Fairy,Costume Mischievous Fairy,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,405,{},{},{}
@@ -7055,6 +7056,8 @@
 19826,C_Ice_Wing_Ear,Costume Ice Wing Ear,5,20,,10,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,584,{},{},{}
 19827,C_Amistr,Costume Amistr,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,,{},{},{}
 19829,C_Straw_Hat,Costume Straw Hat,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,0,0,146,{},{},{}
+
+19853,C_Filir Wings,Costume Filir Wings,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,595,{ bonus2 bExpAddRace,RC_Boss,5; bonus2 bExpAddRace,RC_NonBoss,5; },{},{}
 // Costume Headgear's Using Status's To Appear -> sprites currently missing in kRO
 19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
 

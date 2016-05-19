@@ -1170,7 +1170,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_FEAR, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case WM_METALICSOUND:
-		sc_start(bl, SC_CHAOS, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+		sc_start(bl, SC_CONFUSION, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
 	case SO_EARTHGRAVE:
 		sc_start(bl, SC_BLEEDING, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
@@ -4170,7 +4170,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					case GN_WALLOFTHORN:
 					case GN_THORNS_TRAP:
 					case SC_BLOODYLUST:
-					case SC_CHAOSPANIC:
+					case SC_CONFUSIONPANIC:
 					case SC_MAELSTROM:
 					case WZ_FIREPILLAR:
 					case SA_LANDPROTECTOR:
@@ -6242,9 +6242,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case NPC_AGIUP:
-		sc_start(bl,SC_SPEEDUP1,100,skilllv,skill_get_time(skillid, skilllv));
-		clif_skill_nodamage(src,bl,skillid,skilllv,
-			sc_start(bl,type,100,100,skill_get_time(skillid, skilllv)));
+			sc_start(bl, SC_SPEEDUP1, 100, 100, skill_get_time(skillid, skilllv)); // Fix 100% movement speed in all levels. [Frost]
+			clif_skill_nodamage(src, bl, skillid, skilllv,
+				sc_start(bl, type, 100, 100, skill_get_time(skillid, skilllv)));
 		break;
 
 	case NPC_INVISIBLE:
@@ -9072,7 +9072,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RA_ICEBOUNDTRAP:
 	case SC_MANHOLE:
 	case SC_DIMENSIONDOOR:
-	case SC_CHAOSPANIC:
+	case SC_CONFUSIONPANIC:
 	case SC_BLOODYLUST:
 	case SC_MAELSTROM:
 	case WM_REVERBERATION:

@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/19/2016
+	r125 [15peaces]
+		*Added Renewal Ninja shops.
+		*Added some random cards to Old Card Album.
+		*Added some random monsters to Dead Branches.
+		*Some Updates to item_db.
+			-Added missing Fox Wrist Guard combo script.
+			-Fixed some items to their official behavior.
+			-Added full support for SC_MOVESLOW_POTION.
+			-Added some new item packages.
+		*Did some minor fixing with SCs. 
+			-Removed unneeded temp-SCs and fixed a missmatch in status.h / const.txt.
+		*NPC_AGIUP movement speed is now official
+			-Movement speed changed from 50% to 100%
+			-Fixed 100% movement speed per level.
+
 05/08/2016
 	r124 [15peaces]
 		*Merged missing changes from 3ceam rev. 485 - 488
