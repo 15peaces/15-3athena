@@ -49,7 +49,7 @@
 
 #ifndef PACKETVER
 	//#define PACKETVER 20131223 //Stable client [15peaces]
-	#define PACKETVER 20141022 //Experimental / semi-stable [15peaces]
+	#define PACKETVER 20141022 //Stable client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -259,6 +259,44 @@ enum e_skill_flag
 	//...
 };
 
+//OPTION: (EFFECTSTATE_)
+enum {
+	OPTION_NOTHING		= 0x00000000,
+	OPTION_SIGHT		= 0x00000001,
+	OPTION_HIDE			= 0x00000002,
+	OPTION_CLOAK		= 0x00000004,
+	OPTION_CART1		= 0x00000008,
+	OPTION_FALCON		= 0x00000010,
+	OPTION_RIDING		= 0x00000020,
+	OPTION_INVISIBLE	= 0x00000040,
+	OPTION_CART2		= 0x00000080,
+	OPTION_CART3		= 0x00000100,
+	OPTION_CART4		= 0x00000200,
+	OPTION_CART5		= 0x00000400,
+	OPTION_ORCISH		= 0x00000800,
+	OPTION_WEDDING		= 0x00001000,
+	OPTION_RUWACH		= 0x00002000,
+	OPTION_CHASEWALK	= 0x00004000,
+	OPTION_FLYING		= 0x00008000, //Note that clientside Flying and Xmas are 0x8000 for clients prior to 2007.
+	OPTION_XMAS			= 0x00010000,
+	OPTION_TRANSFORM	= 0x00020000,
+	OPTION_SUMMER		= 0x00040000,
+	OPTION_DRAGON1		= 0x00080000,
+	OPTION_WUG			= 0x00100000,
+	OPTION_WUGRIDER		= 0x00200000,
+	OPTION_MADOGEAR		= 0x00400000,
+	OPTION_DRAGON2		= 0x00800000,
+	OPTION_DRAGON3		= 0x01000000,
+	OPTION_DRAGON4		= 0x02000000,
+	OPTION_DRAGON5		= 0x04000000,
+	OPTION_HANBOK		= 0x08000000,
+	OPTION_OKTOBERFEST	= 0x10000000,
+	// compound constants
+	OPTION_CART      = OPTION_CART1|OPTION_CART2|OPTION_CART3|OPTION_CART4|OPTION_CART5,
+	OPTION_DRAGON    = OPTION_DRAGON1|OPTION_DRAGON2|OPTION_DRAGON3|OPTION_DRAGON4|OPTION_DRAGON5,
+	OPTION_MASK      = ~OPTION_INVISIBLE,
+};
+
 struct s_skill {
 	unsigned short id;
 	unsigned char lv;
@@ -397,7 +435,7 @@ struct mmo_charstatus {
 	unsigned int option;
 	short manner;
 	unsigned char karma;
-	short hair,hair_color,clothes_color;
+	short hair,hair_color,clothes_color,body;
 	int party_id,guild_id,pet_id,hom_id,mer_id,ele_id;
 	int fame;
 
@@ -430,6 +468,7 @@ struct mmo_charstatus {
 #endif
 	bool show_equip;
 	short rename;
+	unsigned short slotchange;
 
 	time_t delete_date;
 

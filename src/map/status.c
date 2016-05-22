@@ -5709,10 +5709,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		return 0; //Unable to receive status changes
 
 	if( sc->data[SC_REFRESH] ){
-		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX && type != SC_STUN )
+		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX && type != SC_STUN ) // Confirmed.
 			return 0; // Inmune
 		switch( type )
 		{
+			// Confirmed
+			case SC_DEEPSLEEP:
+			case SC_CONFUSION:
+			case SC_BURNING:
+			case SC_FEAR:
+			case SC_WHITEIMPRISON:
+			// Not confirmed.
 			case SC_HALLUCINATION:
 			case SC_QUAGMIRE:
 			case SC_SIGNUMCRUCIS:
@@ -5720,7 +5727,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_SLOWDOWN:
 			case SC_MINDBREAKER:
 			case SC_WINKCHARM:
-			//case SC_STOP: Some tests have determined that this status is not blocked by Nauthiz Rune
 			case SC_ORCISH:
 			case SC_STRIPWEAPON:
 			case SC_STRIPSHIELD:
@@ -5730,9 +5736,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_MAGNETICFIELD:
 			case SC_ADORAMUS:
 			case SC_VACUUM_EXTREME:
-			case SC_BURNING:
-			case SC_FEAR:
-			case SC_DEEPSLEEP:
 				return 0;
 		}
 	}
@@ -6242,6 +6245,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		break;
 	case SC_FOOD_LUK_CASH:
 		status_change_end(bl, SC_LUKFOOD, INVALID_TIMER);
+		break;
+	case SC_FIGHTINGSPIRIT:
+		status_change_end(bl, type, INVALID_TIMER); // Remove previous one.
 		break;
 	case SC_SWING:
 	case SC_SYMPHONY_LOVE:
@@ -7267,6 +7273,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if (levels_effect == 1 && base_lv >= 100)
 				val2 = val2 * base_lv / 150;
 			val2 = val2 + status->int_;
+			break;
+		case SC_GIANTGROWTH:
+			val2 = 10; // Triple damage success rate.
 			break;
 		case SC_VENOMIMPRESS:
 			val2 = 10 * val1;
@@ -9050,13 +9059,12 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		}
 		break;
 	case SC_ABUNDANCE:
-		if(--(sce->val4) > 0)
-		{
-			if( status_heal(bl,0,60,0) )
-			{
-				sc_timer_next(10000+tick, status_change_timer, bl->id, data);
-				return 0;
-			}
+		if(--(sce->val4) > 0) {
+			if( !sc->data[SC_BERSERK] )
+				status_heal(bl,0,60,0);
+				
+			sc_timer_next(10000+tick, status_change_timer, bl->id, data);
+			return 0;
 		}
 		break;
 
@@ -9527,7 +9535,9 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 
 /*==========================================
  * Clears buffs/debuffs of a character.
- * type&1 -> buffs, type&2 -> debuffs
+ * type&1 -> buffs 
+ * type&2 -> debuffs
+ * type&4 -> RK_REFRESH skill
  *------------------------------------------*/
 int status_change_clear_buffs (struct block_list* bl, int type)
 {
@@ -9609,6 +9619,12 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 				continue;
 				
 			//Debuffs that can be removed.
+			case SC_STRIPWEAPON:
+			case SC_STRIPSHIELD:
+			case SC_STRIPARMOR:
+			case SC_STRIPHELM:
+				if( type&4 )	// Don't remove it by Refresh.
+					continue;
 			case SC_HALLUCINATION:
 			case SC_QUAGMIRE:
 			case SC_SIGNUMCRUCIS:
@@ -9618,10 +9634,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_WINKCHARM:
 			case SC_STOP:
 			case SC_ORCISH:
-			case SC_STRIPWEAPON:
-			case SC_STRIPSHIELD:
-			case SC_STRIPARMOR:
-			case SC_STRIPHELM:
 			case SC__STRIPACCESSARY:
 			case SC_WUGBITE:
 			case SC_ADORAMUS:

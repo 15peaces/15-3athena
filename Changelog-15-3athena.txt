@@ -4,6 +4,29 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/22/2016
+	r126 [15peaces]
+		*Merged missing changes from 3ceam rev. 489
+		*Some more updating and fixing on 2014-10-22 ragexe and some others
+			-I guess we can now say the 2014-10-22 ragexe should be stable and ready for public use... FINALLY! ^_^
+			-updated mmo_char_tobuf to send all data for this client correctly to buffer. (Some of this data are placeholders for now and might be used later as I add these features in.)
+			-Fix sending 0x908 packet.
+			-Fixed Vending system.
+		*Fix memory leak after closing mysql connection. Thanks to @4144 / @HerculesWS
+		*Added some messages I needed for debugging.
+		*Fixed wired bug in elemental_db.
+		*Added some more missing items.
+		*Updated some Rune Knight skills:
+			-RK_DRAGONBREATH: Adjusted casting time. The effect of Dragon Training applies in the final damage. Ignores target's def cards.
+			-RK_MILLENNIUMSHIELD: Have a chance to cause stun when one shied is broken.
+			-RK_STONEHARDSKIN: Breaking target's weapon rate is 25% and does not depends on RK_RUNEMASTERY.
+			-RK_GIANTGROWTH: Triple damage rate is 10%. Breaking self weapon rate is 1%.
+			-RK_FIGHTINGSPIRIT: Aspd rate is 40 * Rune Mastery level.
+			-RK_CRUSHSTRIKE: If you use this rune without any weapon equipped, the skill fails and the rune is consumed.
+			-RK_REFRESH: Updated the list of status that this can block. Can't remove divests.
+			-RK_FIGHTINGSPIRIT: If two or more Rune Knights in the same party uses it, only the last one gets 7 * party members bonus.
+			-RK_ABUNDANCE: Doesn't recovery SP if you have Frenzy activated.
+
 05/19/2016
 	r125 [15peaces]
 		*Added Renewal Ninja shops.

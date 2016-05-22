@@ -6871,7 +6871,7 @@ void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* ven
 	WFIFOW(fd,2) = 12+count*22;
 	WFIFOL(fd,4) = id;
 #if PACKETVER >= 20100105
-	WFIFOL(fd,offset + 4) = vsd->status.char_id; // temporary, could be shop_id??
+	WFIFOL(fd,offset + 4) = vsd->vender_id;
 #endif
 	for( i = 0; i < count; i++ )
 	{
@@ -12856,8 +12856,7 @@ void clif_parse_PurchaseReq(int fd, struct map_session_data* sd)
 
 /// Shop item(s) purchase request (CZ_PC_PURCHASE_ITEMLIST_FROMMC2).
 /// 0801 <packet len>.W <account id>.L <unique id>.L { <amount>.W <index>.W }*
-void clif_parse_PurchaseReq2(int fd, struct map_session_data* sd)
-{
+void clif_parse_PurchaseReq2(int fd, struct map_session_data* sd) {
 	int len = (int)RFIFOW(fd,2) - 12;
 	int aid = (int)RFIFOL(fd,4);
 	int uid = (int)RFIFOL(fd,8);
@@ -17978,7 +17977,7 @@ void clif_favorite_item(struct map_session_data* sd, unsigned short index) {
 	WFIFOHEAD(fd,packet_len(0x908));
 	WFIFOW(fd,0) = 0x908;
 	WFIFOW(fd,2) = index+2;
-	WFIFOL(fd,4) = (sd->status.inventory[index].favorite == 1) ? 0 : 1;
+	WFIFOB(fd,4) = (sd->status.inventory[index].favorite == 1) ? 0 : 1;
 	WFIFOSET(fd,packet_len(0x908));
 }
 
@@ -18365,7 +18364,7 @@ static int packetdb_readdb(void)
 #else // for Party booking ( PACKETVER >= 20091229 )
 	   -1, -1, 18,  4,  8,  6,  2,  4, 14, 50, 18,  6,  2,  3, 14, 20,
 #endif
-	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10, 22,  8,  0,
+	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10,  0,  0,  0,
 	    0,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0, -1, -1,  3,  2, 66,  5,  2, 12,  6,  0,  0,
 	//#0x0840

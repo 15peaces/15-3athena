@@ -2538,7 +2538,7 @@ int map_random_dir(struct block_list *bl, short *x, short *y)
 	return 0;
 }
 
-// gatŒn
+// gat system
 inline static struct mapcell map_gat2cell(int gat)
 {
 	struct mapcell cell = {0};

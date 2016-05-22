@@ -1856,14 +1856,17 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	WBUFW(buf,48) = min(p->max_sp, INT16_MAX);
 	WBUFW(buf,50) = DEFAULT_WALK_SPEED; // p->speed;
 	WBUFW(buf,52) = p->class_;
+	WBUFW(buf,54) = p->hair;
 #if PACKETVER >= 20141022
-	WBUFL(buf,54) = p->hair;
+	WBUFW(buf,56) = p->body;
 	offset+=2;
 	buf = WBUFP(buffer,offset);
-#else
-	WBUFW(buf,54) = p->hair;
 #endif
-	WBUFW(buf,56) = p->option&0x7E80020 ? 0 : p->weapon; //When the weapon is sent and your option is riding, the client crashes on login!?
+
+	//When the weapon is sent and your option is riding, the client crashes on login!?
+	// FIXME[Haru]: is OPTION_HANBOK intended to be part of this list? And if it is, should the list also include other OPTION_ costumes?
+	WBUFW(buf,56) = (p->option&(OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR|OPTION_HANBOK)) ? 0 : p->weapon;
+
 	WBUFW(buf,58) = p->base_level;
 	WBUFW(buf,60) = min(p->skill_point, INT16_MAX);
 	WBUFW(buf,62) = p->head_bottom;
@@ -1900,17 +1903,19 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	WBUFL(buf,128) = p->robe;
 	offset += 4;
 #endif
-#if PACKETVER >= 20110928
-	WBUFL(buf,132) = 0;  // change slot feature (0 = disabled, otherwise enabled)
-	offset += 4;
-#endif
-#if PACKETVER >= 20111025
-	WBUFL(buf,136) = ( p->rename > 0 ) ? 1 : 0;  // (0 = disabled, otherwise displays "Add-Ons" sidebar)
-	offset += 4;
-#endif
-#if PACKETVER >= 20141016
-	WBUFB(buf,140) = p->sex;// sex - (0 = female, 1 = male, 99 = logindefined)
-	offset += 1;
+#if PACKETVER != 20111116 //2011-11-16 wants 136, ask gravity.
+	#if PACKETVER >= 20110928
+		WBUFL(buf,132) = ( p->slotchange > 0 ) ? 1 : 0;  // change slot feature (0 = disabled, otherwise enabled)
+		offset += 4;
+	#endif
+	#if PACKETVER >= 20111025
+		WBUFL(buf,136) = ( p->rename > 0 ) ? 1 : 0;  // (0 = disabled, otherwise displays "Add-Ons" sidebar)
+		offset += 4;
+	#endif
+	#if PACKETVER >= 20141016
+		WBUFB(buf,140) = p->sex;// sex - (0 = female, 1 = male, 99 = logindefined)
+		offset += 1;
+	#endif
 #endif
 	return 106+offset;
 }

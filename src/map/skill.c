@@ -1228,7 +1228,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			if( sc )
 			{
 				if(sc->data[SC_GIANTGROWTH])
-					rate += 10;
+					rate += 1;
 				if(sc->data[SC_OVERTHRUST])
 					rate += 10;
 				if(sc->data[SC_MAXOVERTHRUST])
@@ -6944,10 +6944,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_nodamage(src,bl,skillid,1,1);
 		}
 		break;
-	case RK_FIGHTINGSPIRIT: // 3ceam v1
+	case RK_FIGHTINGSPIRIT:
 		if( flag&1 ){
 			if( src == bl )
-				sc_start2(bl,type,100,skill_area_temp[5],40,skill_get_time(skillid,skilllv));
+				sc_start2(bl,type,100,skill_area_temp[5],40*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
 			else
 				sc_start(bl,type,100,skill_area_temp[5]/4,skill_get_time(skillid,skilllv));
 		}else{
@@ -12038,8 +12038,18 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 			break;
 	}
 	
-	if( sd->skillitem == skill ) // Casting finished (Item skill or Hocus-Pocus)
+	if( sd->skillitem == skill ) // Casting finished (Item skill or Hocus-Pocus) 
+	{
+		if( skill == RK_CRUSHSTRIKE )
+		{	// If you haven't any weapon equiped, it fails.
+			short index = sd->equip_index[EQI_HAND_R];
+			if( index < 0 || !sd->inventory_data[index] || sd->inventory_data[index]->type != IT_WEAPON ) {
+				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0xa);
+				return 0;
+			}
+		}
 		return 1;
+	}
 
 	if( pc_is90overweight(sd) )
 	{

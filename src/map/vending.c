@@ -2,6 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/nullpo.h"
+#include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
 #include "clif.h"
@@ -82,6 +83,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	if( vsd->vender_id != uid )
 	{// shop has changed
 		clif_buyvending(sd, 0, 0, 6);  // store information was incorrect
+		ShowDebug("vending_purchasereq: store information was incorrect (vender_id: %i <> uid: %i)", vsd->vender_id, uid);
 		return;
 	}
 
