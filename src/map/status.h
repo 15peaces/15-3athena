@@ -1176,8 +1176,8 @@ enum si_type {
 	SI_ENERGY_DRINK_RESERCH = 481,
 	SI_EXTRACT_WHITE_POTION_Z = 482,*/
 	SI_VITATA_500 = 483,
-	/*SI_EXTRACT_SALAMINE_JUICE = 484,
-	SI_BOOST500 = 485,
+	SI_EXTRACT_SALAMINE_JUICE = 484,
+	/*SI_BOOST500 = 485,
 	SI_FULL_SWING_K = 486,
 	SI_MANA_PLUS = 487,
 	SI_MUSTLE_M = 488,
@@ -1621,7 +1621,7 @@ struct status_data {
 	short 
 		hit, flee, cri, flee2,
 		def2, mdef2,
-		aspd_rate;
+		aspd_rate, aspd_amount;
 	unsigned char
 		def_ele, ele_lv,
 		size, race, class_;

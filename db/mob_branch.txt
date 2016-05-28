@@ -415,7 +415,34 @@
 1784,Stapo,71428
 1789,Iceicle,71428
 1796,Aunoe,142857
+1797,Fanat,142857
+1830,Bow Guardian,71428
+1839,Byrogue,71428
+1866,Hellhound,71428
+1867,Banshee,71428
+1869,Flame Skull,71428
+1872,Hell Fly,71428
+1882,Baba-Yaga,71428
+1974,Banshee Master,71428
+1975,Beholder Master,71428
+1976,Cobalt Mineral,71428
+1977,Heavy Metaling,71428
+1978,Hell Vesper,71428
+1987,Centipede,71428
+1989,Hillthrion,71428
+1992,Cornus,71428
+1999,Centipede Larva,71428
+2013,Draco,71428
+2015,Dark Pinguicula,71428
 2016,Aqua Elemental,71428
+2018,Duneyrr,71428
 2019,Ancient Tree,71428
+2023,Dark Shadow,71428
+2024,Bradium Golem,71428
+2069,Iara,71428
+2071,Headless Mule,71428
+2074,Curupira,71428
 2085,Antler Scaraba,71428
 2090,Antler Scaraba Egg,71428
+2092,Dolomedes,71428
+2093,Botaring,142857

@@ -4,6 +4,14 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/28/2016
+	r127 [15peaces]
+		*Added full support for Concentrated Ceromain Soup.
+			-Also added support for fixed aspd-modifiers.
+		*Added missing Mora-Set drops.
+		*Added some missing item combo scripts.
+		*Added some more random monsters to Dead Branches.
+
 05/22/2016
 	r126 [15peaces]
 		*Merged missing changes from 3ceam rev. 489

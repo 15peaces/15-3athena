@@ -693,8 +693,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SIROMA_ICE_TEA] = SI_SIROMA_ICE_TEA;
 	StatusIconChangeTable[SC_DROCERA_HERB_STEAMED] = SI_DROCERA_HERB_STEAMED;
 	StatusIconChangeTable[SC_PUTTI_TAILS_NOODLES] = SI_PUTTI_TAILS_NOODLES;
-
 	StatusIconChangeTable[SC_VITATA_500] |= SI_VITATA_500;
+	StatusIconChangeTable[SC_EXTRACT_SALAMINE_JUICE] = SI_EXTRACT_SALAMINE_JUICE;
 
 	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
@@ -797,6 +797,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SIROMA_ICE_TEA] |= SCB_DEX;
 	StatusChangeFlagTable[SC_DROCERA_HERB_STEAMED] |= SCB_AGI;
 	StatusChangeFlagTable[SC_PUTTI_TAILS_NOODLES] |= SCB_LUK;
+	StatusChangeFlagTable[SC_EXTRACT_SALAMINE_JUICE] |= SCB_ASPD;
 
 	//Mechanic
 	StatusChangeFlagTable[SC_STEALTHFIELD_MASTER] |= SCB_SPEED;
@@ -2131,6 +2132,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		if(battle_config.character_size&1)
 			status->size++;
 	}
+	status->aspd_amount = 0;
 	status->aspd_rate = 1000;
 	status->ele_lv = 1;
 	status->race = RC_DEMIHUMAN;
@@ -2916,6 +2918,7 @@ int status_calc_homunculus_(struct homun_data *hd, bool first)
 	status->rhw.atk = status->dex;
 	status->rhw.atk2 = status->str + hom->level;
 
+	status->aspd_amount = 0;
 	status->aspd_rate = 1000;
 
 	amotion = (1000 -4*status->agi -status->dex) * hd->homunculusDB->baseASPD/1000;
@@ -3007,6 +3010,7 @@ static signed short status_calc_def2(struct block_list *,struct status_change *,
 static signed char status_calc_mdef(struct block_list *,struct status_change *,int);
 static signed short status_calc_mdef2(struct block_list *,struct status_change *,int);
 static unsigned short status_calc_speed(struct block_list *,struct status_change *,int);
+static short status_calc_aspd_amount(struct block_list *,struct status_change *,int);
 static short status_calc_aspd_rate(struct block_list *,struct status_change *,int);
 static unsigned short status_calc_dmotion(struct block_list *bl, struct status_change *sc, int dmotion);
 static unsigned int status_calc_maxhp(struct block_list *,struct status_change *,unsigned int);
@@ -3484,10 +3488,13 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 	if(flag&SCB_ASPD) {
 		int amotion;
-		if( bl->type&BL_PC )
-		{
+		if( bl->type&BL_PC ) {
 			amotion = status_base_amotion_pc(sd,status);
+			status->aspd_amount = status_calc_aspd_amount(bl, sc, b_status->aspd_amount);
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
+
+			if(status->aspd_amount != 0)
+				amotion -= status->aspd_amount;
 			
 			if(status->aspd_rate != 1000)
 				amotion = amotion*status->aspd_rate/1000;
@@ -3505,7 +3512,11 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( bl->type&BL_HOM )
 		{
 			amotion = (1000 -4*status->agi -status->dex) * ((TBL_HOM*)bl)->homunculusDB->baseASPD/1000;			
+			status->aspd_amount = status_calc_aspd_amount(bl, sc, b_status->aspd_amount);
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
+
+			if(status->aspd_amount != 0)
+				amotion -= status->aspd_amount;
 			
 			if(status->aspd_rate != 1000)
 				amotion = amotion*status->aspd_rate/1000;
@@ -3517,7 +3528,11 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		else // mercenary and mobs
 		{
 			amotion = b_status->amotion;
+			status->aspd_amount = status_calc_aspd_amount(bl, sc, b_status->aspd_amount);
 			status->aspd_rate = status_calc_aspd_rate(bl, sc, b_status->aspd_rate);
+
+			if(status->aspd_amount != 0)
+				amotion -= status->aspd_amount;
 			
 			if(status->aspd_rate != 1000)
 				amotion = amotion*status->aspd_rate/1000;
@@ -4590,6 +4605,20 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	return (short)cap_value(speed,10,USHRT_MAX);
 }
 
+/// Calculates an object's ASPD modifier by a fixed amount.
+/// Calculation is done before aspd_rate.
+/// Note that the scale of aspd_amount is 10 = 1 ASPD.
+static short status_calc_aspd_amount(struct block_list *bl, struct status_change *sc, int aspd_amount)
+{
+	if( !sc || !sc->count )
+		return cap_value(aspd_amount,0,SHRT_MAX);
+
+	if( sc->data[SC_EXTRACT_SALAMINE_JUICE] ) // Correct Way to handle? [15peaces]
+		aspd_amount += sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
+
+	return (short)cap_value(aspd_amount,0,SHRT_MAX);
+}
+
 /// Calculates an object's ASPD modifier (alters the base amotion value).
 /// Note that the scale of aspd_rate is 1000 = 100%.
 static short status_calc_aspd_rate(struct block_list *bl, struct status_change *sc, int aspd_rate)
@@ -4717,6 +4746,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= aspd_rate * (sc->data[SC_GENTLETOUCH_CHANGE]->val2/200) / 100;
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 		aspd_rate -= aspd_rate * sc->data[SC_GENTLETOUCH_REVITALIZE]->val2 / 100;
+	if( sc->data[SC_EXTRACT_SALAMINE_JUICE] )
+		aspd_rate -= sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1 * 10;
 
 	return (short)cap_value(aspd_rate,0,SHRT_MAX);
 }

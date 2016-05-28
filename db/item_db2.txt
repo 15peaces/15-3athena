@@ -155,10 +155,10 @@
 19850,C_Bongun_Hat,Costume Bongun Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,139,{},{},{}
 19851,C_Teddybear_Hat,Costume Teddybear Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,143,{},{},{}
 19856,C_Snow_Cone_Hat,Costume Snow Cone Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1080,{},{},{}
-
 19857,C_Crayfish_Hat,Costume Crayfish Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,728,{},{},{}
 19858,C_Smokie_Leaf,Costume Smokie Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,148,{},{},{}
 19859,C_Flying_Angel,Costume Flying Angel,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,264,{},{},{}
+
 19860,C_School_Criatura_Hat,Costume School Criatura Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,872,{},{},{}
 19861,C_Heart_Hairpin,Costume Heart Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,126,{},{},{}
 19862,C_Succubus_Horn,Costume Succubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,150,{},{},{}
@@ -1174,12 +1174,12 @@
 2472,Shoes_Of_Judgement,Shoes Of Judgement,5,20,,300,,12,,0,0x00000100,63,2,64,,100,1,0,{ bonus2 bSkillAtk,"AB_JUDEX",30; bonus2 bSkillUseSP,"AB_JUDEX",-40; bonus bMaxSP,150; if(isequipped(2570,15030)){if(isequipped(16013)){bonus2 bAddRace,RC_Undead,15; bonus2 bMagicAddRace,RC_Undead,15; bonus2 bSkillAtk,"AB_ADORAMUS",200; bonus2 bSkillUseSP,"AB_ADORAMUS",-30;}if(isequipped(16018)){bonus2 bAddRace,RC_Undead,30; bonus2 bMagicAddRace,RC_Undead,30; bonus2 bSkillAtk,"AB_ADORAMUS",200; bonus2 bSkillUseSP,"AB_ADORAMUS",-30; bonus2 bCastrate,"AL_HOLYLIGHT",-50; bonus2 bCastrate,"PR_TURNUNDEAD",-50; bonus2 bCastrate,"PR_MAGNUS",-50; bonus2 bCastrate,"AB_JUDEX",-50; bonus2 bCastrate,"AB_ADORAMUS",-50;}}},{},{}
 2473,Para_Team_Boots4,Eden Team Boots IV,5,0,,0,,20,,0,0xFFFFFFFF,63,2,64,,60,0,0,{ bonus bAgi,1; bonus bVit,1; bonus bHPrecovRate,28; bonus bSPrecovRate,12; },{},{}
 2474,Lehmannza_Shoes,Lehmannza Shoes,5,20,,500,,3,,1,0xFFFFFFFF,63,2,64,,60,1,0,{ bonus bMdef,3; },{},{}
-2475,Ur_Greave,Ur's Greaves,5,20,,900,,32,,1,0x00000080,56,2,64,,100,1,0,{ bonus bMaxSP,40; set .@r, getrefine(); bonus bMaxHPrate,(.@r<=7?.@r-7:1); },{},{}
-2476,Peuz_Greave,Peuz's Greaves,5,20,,900,,32,,1,0x00000080,56,2,64,,100,1,0,{ bonus bMaxSP,40; set .@r, getrefine(); bonus bAgi,(.@r<=7?.@r-7:1); },{},{}
-2477,Sabah_Shoes,Sapha Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bMaxSP,30; bonus bLuk,3; },{},{}
-2478,Nab_Shoes,Nab Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bFlee,3; bonus bInt,2; },{},{}
-2479,White_Wing_Boots,White Wing Boots,5,20,,400,,18,,1,0x00000800,63,2,64,,100,1,0,{ bonus bAgi,2; bonus2 bSkillUseSP,"RA_AIMEDBOLT",10; if(isequipped(2580,2890,15042)) { bonus bAspd,2; bonus2 bSkillAtk,"RA_ARROWSTORM",50; bonus bLongAtkRate,30; bonus3 bAutoSpell,"AC_DOUBLE",max(getskilllv("AC_DOUBLE"),3),20; }; },{},{}
-2480,Black_Wing_Boots,Black Wing Boots,5,20,,400,,18,,1,0x00000800,56,2,64,,100,1,0,{ bonus bInt,2; bonus bMaxSPrate,5; },{},{}
+2475,Ur_Greave,Ur's Greaves,5,20,,900,,32,,1,0x00000080,56,2,64,,100,1,0,{ bonus bMaxSP,40; set .@r, getrefine(); bonus bMaxHPrate,(.@r<=7?.@r-7:1); if(isequipped(2574,2883,15036)){ bonus bMaxHPRate,14; bonus2 bSubEle,Ele_Neutral,10; bonus2 bSkillAtk,"RK_HUNDREDSPEAR",50; skill "CR_AUTOGUARD",1; bonus bUseSPrate,10; } },{},{}
+2476,Peuz_Greave,Peuz's Greaves,5,20,,900,,32,,1,0x00000080,56,2,64,,100,1,0,{ bonus bMaxSP,40; set .@r, getrefine(); bonus bAgi,(.@r<=7?.@r-7:1); if(isequipped(2575,2884,15037)){ bonus2 bAddClass,Class_All,10; bonus3 bAutoSpell,"RK_STORMBLAST",1,20; bonus2 bSkillAtk,"RK_WINDCUTTER",100; bonus2 bSkillAtk,"RK_SONICWAVE",100; autobonus3 "{ bonus bAspd,2; }",1000,10000,"LK_CONCENTRATION","{ specialeffect2 EF_ENHANCE; }"; }},{},{}
+2477,Sabah_Shoes,Sapha Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bMaxSP,30; bonus bLuk,3; if(isequipped(2577,2886,15038)){ bonus bFlee,10; bonus bCritical,15; bonus bCritAtkRate,40; bonus2 bSkillAtk,"GC_CROSSIMPACT",20; bonus bUseSPrate,10; }},{},{}
+2478,Nab_Shoes,Nab Shoes,5,20,,400,,18,,1,0x00001000,63,2,64,,100,1,0,{ bonus bFlee,3; bonus bInt,2; if(isequipped(2578,2887,15039)){ bonus3 bAutoSpell,"ASC_BREAKER",max(getskilllv("ASC_BREAKER"),1),20; if(readparam(bStr)>119) { bonus bBaseAtk,30; } bonus2 bAddClass,Class_All,10; bonus bMatkRate,10; bonus bCritical,-20; }},{},{}
+2479,White_Wing_Boots,White Wing Boots,5,20,,400,,18,,1,0x00000800,63,2,64,,100,1,0,{ bonus bAgi,2; bonus2 bSkillUseSP,"RA_AIMEDBOLT",10; if(isequipped(2580,2890,15042)){ bonus bAspd,2; bonus2 bSkillAtk,"RA_ARROWSTORM",50; bonus bLongAtkRate,30; bonus3 bAutoSpell,"AC_DOUBLE",max(getskilllv("AC_DOUBLE"),3),20; }; },{},{}
+2480,Black_Wing_Boots,Black Wing Boots,5,20,,400,,18,,1,0x00000800,56,2,64,,100,1,0,{ bonus bInt,2; bonus bMaxSPrate,5; if(isequipped(2581,2891,15043)){ bonus bMaxHPRate,15; bonus bFlee2,20; bonus2 bSkillAtk,"RA_CLUSTERBOMB",20; bonus bLongAtkRate,-30; bonus bAspd,-7; }},{},{}
 2568,Muffler_Of_Roki,Loki's Muffler,5,20,,400,,10,,0,0xFFFFFFFF,63,2,4,,100,0,0,{ bonus bAgi,1; bonus2 bSkillAtk,"ASC_BREAKER",5; bonus2 bSkillAtk,"GC_CROSSIMPACT",5; },{},{}
 2569,Shawl_Of_Affection,Shawl Of Affection,5,20,,400,,12,,0,0x00000100,63,2,4,,100,1,0,{ bonus bFlee2,5; bonus5 bAutoSpellWhenHit,"AB_RENOVATIO",1,30,BF_WEAPON,0; bonus5 bAutoSpellWhenHit,"AB_RENOVATIO",1,40,BF_MAGIC,0; },{},{}
 2570,Shawl_Of_Judgement,Shawl Of Judgement,5,20,,400,,12,,0,0x00000100,63,2,4,,100,1,0,{ bonus bFlee,5; set .@i, (getskilllv("AB_ORATIO")<2)?2:getskilllv("AB_ORATIO"); bonus5 bAutoSpellWhenHit,"AB_ORATIO",.@i,30,BF_WEAPON,0; bonus5 bAutoSpellWhenHit,"AB_ORATIO",.@i,40,BF_MAGIC,0; },{},{}
