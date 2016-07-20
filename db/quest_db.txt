@@ -331,6 +331,19 @@
 2222,0,0,0,0,0,0,0,"Wanderer Job Change Quest"
 2223,0,1428,100,0,0,0,0,"Generic Job Change Quest"
 
+// Secret in the Woods
+2271,0,0,0,0,0,0,0,"Secret in the Woods"
+2272,0,0,0,0,0,0,0,"Secret in the Woods"
+2273,0,0,0,0,0,0,0,"Secret in the Woods"
+2274,0,0,0,0,0,0,0,"Secret in the Woods"
+2275,0,0,0,0,0,0,0,"Secret in the Woods"
+2276,0,0,0,0,0,0,0,"Secret in the Woods"
+2277,0,0,0,0,0,0,0,"Secret in the Woods"
+2278,0,0,0,0,0,0,0,"Secret in the Woods"
+2279,0,0,0,0,0,0,0,"Secret in the Woods"
+2280,0,0,0,0,0,0,0,"Secret in the Woods"
+2281,0,2319,1,0,0,0,0,0,"Get Rid of Buwaya"
+
 3000,0,0,0,0,0,0,0,"Job Change to Bard"
 3001,0,0,0,0,0,0,0,"Job Change to Bard"
 3002,0,0,0,0,0,0,0,"Job Change to Bard"
@@ -930,11 +943,31 @@
 7180,0,0,0,0,0,0,0,"Message from Doomk"
 7181,0,0,0,0,0,0,0,"Karakas's ring"
 
+7200,82800,0,0,0,0,0,0,"Cheshire's call"
+7201,0,0,0,0,0,0,0,"Removing traces"
+7202,0,0,0,0,0,0,0,"Secret order from Doha - Collect proof"
+7203,0,0,0,0,0,0,0,"Secret order from Doha - Final Report"
+
 7206,0,0,0,0,0,0,0,"New Day for Cheshire"
 7207,0,0,0,0,0,0,0,"Cheshire's Box"
 7208,86400,0,0,0,0,0,0,"Wait for Cheshire?"
 7209,0,0,0,0,0,0,0,"Forget the box."
 7210,0,0,0,0,0,0,0,"Daily delivery"
+// Misty Forest Labyrinth
+7211,9000,0,0,0,0,0,0,"Misty Forest Labyrinth Exploration"
+7212,0,0,0,0,0,0,0,"Loki's Search"
+7213,0,0,0,0,0,0,0,"Wandering Protector"
+
+7226,0,1621,30,0,0,0,0,"Paradise Advanced: Kiren Hunt 2 (Part A)"
+7227,0,1622,5,0,0,0,0,"Paradise Advanced: Kiren Hunt 2 (Part B)"
+7228,0,0,0,0,0,0,0,"Paradise Advanced: Kiren Complete"
+7229,0,0,0,0,0,0,0,"Paradise Advanced: Naomi Training"
+7230,0,1776,30,0,0,0,0,"Paradise Advanced: Naomi Hunt 1"
+7231,0,1776,30,0,0,0,0,"Paradise Advanced: Naomi Hunt 2"
+7232,0,0,0,0,0,0,0,"Paradise Advanced: Naomi Complete"
+7233,0,0,0,0,0,0,0,"Paradise Advanced: Margaret Training"
+7234,0,0,0,0,0,0,0,"Paradise Advanced: Margaret's Favor"
+7235,0,1988,1,0,0,0,0,"Paradise Advanced: Margaret Hunt 1"
 
 // Port Malaya
 7350,0,0,0,0,0,0,0,"Cautious Village"
@@ -1348,6 +1381,7 @@
 9030,0,0,0,0,0,0,0,"Find a puppy"
 9031,0,0,0,0,0,0,0,"Find a puppy"
 9032,86400,0,0,0,0,0,0,"Find a puppy"
+
 9058,0,0,0,0,0,0,0,"O'Riley's Request"
 9059,0,0,0,0,0,0,0,"Happy St. Patrick's Day"
 9117,0,0,0,0,0,0,0,"Lina's Curse"
@@ -1747,9 +1781,6 @@
 11305,0,0,0,0,0,0,0,"Nurse at Port Malaya-22"
 11306,0,0,0,0,0,0,0,"Nurse at Port Malaya-23"
 11307,0,0,0,0,0,0,0,"Nurse at Port Malaya-24"
-11308,0,0,0,0,0,0,0,"Nurse at Port Malaya-25"
-11309,0,2327,1,0,0,0,0,"Nurse at Port Malaya-26"
-
 11308,0,0,0,0,0,0,0,"Nurse at Port Malaya-25"
 11309,0,2327,1,0,0,0,0,"Nurse at Port Malaya-26"
 11310,30,0,0,0,0,0,0,"Eclage's Entrance"

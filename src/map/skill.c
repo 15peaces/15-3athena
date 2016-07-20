@@ -1055,7 +1055,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
  		break;
 	case WL_FROSTMISTY:
 		rate = 20 + 12 * skilllv;
-		if( sd ) rate += rate * sd->status.job_level / 200;
+		if( sd ) rate *= 1 + sd->status.job_level / 200;
 		sc_start(bl,SC_FREEZING,rate,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case WL_COMET:
@@ -1065,16 +1065,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		{
 			int rate = 0, i;
 			const int pos[5] = { EQP_WEAPON, EQP_HELM, EQP_SHIELD, EQP_ARMOR, EQP_ACC };
-			switch( skilllv )
-			{
-			case 1: rate = 6; break;
-			case 2: rate = 14; break;
-			case 3: rate = 24; break;
-			case 4: rate = 36; break;
-			case 5: rate = 50; break;
-			}
-			rate = rate * status_get_lv(src) / 100; // Increased by Level
-			rate -= rate * tstatus->dex/200; // Reduced by Target Dex
+			rate = (6 + (skilllv > 2)?6:0 + 2 * skilllv) * status_get_lv(src) / 100;
+			rate *= 1 - tstatus->dex / 200; // Reduced by Target Dex
 
 			for( i = 0; i < skilllv; i++ )
 				skill_strip_equip(bl,pos[i],rate,skilllv,skill_get_time2(skillid,skilllv));
@@ -2126,7 +2118,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case WL_TETRAVORTEX_WATER:
 	case WL_TETRAVORTEX_WIND:
 	case WL_TETRAVORTEX_GROUND:
-		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WL_TETRAVORTEX_FIRE,skilllv,type);
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WL_TETRAVORTEX_FIRE,-2,type);
 		break;
 	case WM_SEVERE_RAINSTORM_MELEE:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,WM_SEVERE_RAINSTORM,skilllv,5);
@@ -3825,9 +3817,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			int heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
 			int rate = 25 + 5 * skilllv;
 			if( sd && sd->status.base_level >= 99 )
-				rate += rate * sd->status.job_level / 100;
+				rate += rate * (1 + sd->status.job_level) / 50 ;
 
-			heal = (8 * skilllv * status_get_lv(src) * heal) / 10000;
+			heal *= 8 * skilllv * status_get_lv(src) / 100;
+
+			if( bl->type == BL_SKILL )
+				heal = 0;	// Don't absorb heal from Ice Walls or other skill units.
+
 			if( heal && rand()%100 < rate )
 			{
 				status_heal(src, heal, 0, 0);
@@ -7258,7 +7254,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(7+2*skilllv)*1000,2);
 		}else{
 			int rate = 40 + 8 * skilllv;
-			if( sd ) rate += rate * sd->status.job_level / 200;
+			if( sd ) rate *= 1 + sd->status.job_level / 200;
 			// IroWiki says Rate should be reduced by target stats, but currently unknown
 			if( rand()%100 < rate )
 			{ // Success on First Target
@@ -7276,8 +7272,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					skill_area_temp[1] = bl->id;
 					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skillid,skilllv),BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
 				}
-				else if( sd ) // Failure on Defenses
-					clif_skill_fail(sd,skillid,0,0,0);
+				// Doesn't send failure packet if it fails on defense.
 			}
 			else if( sd ) // Failure on Rate
 				clif_skill_fail(sd,skillid,0,0,0);

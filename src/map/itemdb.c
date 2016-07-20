@@ -347,53 +347,6 @@ static void create_dummy_data(void)
 
 	dummy_item->view_id = UNKNOWN_ITEM_ID;
 }
-/* old Version [15peaces]
-static void create_dummy_data(void)
-{
-	memset(&dummy_item, 0, sizeof(struct item_data));
-	dummy_item.nameid=500;
-	dummy_item.weight=1;
-	dummy_item.value_sell=1;
-	dummy_item.type=IT_ETC; //Etc item
-	safestrncpy(dummy_item.name,"UNKNOWN_ITEM",sizeof(dummy_item.name));
-	safestrncpy(dummy_item.jname,"UNKNOWN_ITEM",sizeof(dummy_item.jname));
-	dummy_item.view_id=UNKNOWN_ITEM_ID;
-}
-
-static struct item_data* create_item_data(unsigned short nameid)
-{
-	struct item_data *id;
-	CREATE(id, struct item_data, 1);
-	id->nameid = nameid;
-	id->weight = 1;
-	id->type = IT_ETC;
-	return id;
-}
-
-*==========================================
- * Loads (and creates if not found) an item from the db.
- *------------------------------------------*
-struct item_data* itemdb_load(unsigned short nameid)
-{
-	struct item_data *id;
-
-	if( nameid >= 0 && nameid < ARRAYLENGTH(itemdb_array) )
-	{
-		id = itemdb_array[nameid];
-		if( id == NULL || id == &dummy_item )
-			id = itemdb_array[nameid] = create_item_data(nameid);
-		return id;
-	}
-
-	id = (struct item_data*)idb_get(itemdb_other, nameid);
-	if( id == NULL || id == &dummy_item )
-	{
-		id = create_item_data(nameid);
-		idb_put(itemdb_other, nameid, id);
-	}
-	return id;
-}
-*/
 
 /*==========================================
  * Loads an item from the db. If not found, it will return the dummy item.
@@ -409,24 +362,6 @@ struct item_data* itemdb_search(unsigned short nameid) {
 	ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.\n", nameid);
 	return dummy_item;
 }
-
-/* old Version [15peaces]
-struct item_data* itemdb_search(unsigned short nameid)
-{
-	struct item_data* id;
-	if( nameid >= 0 && nameid < ARRAYLENGTH(itemdb_array) )
-		id = itemdb_array[nameid];
-	else
-		id = (struct item_data*)idb_get(itemdb_other, nameid);
-
-	if( id == NULL )
-	{
-		ShowWarning("itemdb_search: Item ID %hu does not exists in the item_db. Using dummy data.\n", nameid);
-		id = &dummy_item;
-		dummy_item.nameid = nameid;
-	}
-	return id;
-}*/
 
 /*==========================================
  * Returns if given item is a player-equippable piece.

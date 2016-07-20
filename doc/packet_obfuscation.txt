@@ -1,0 +1,34 @@
+//===== 15-3athena Documentation =============================
+//= Episode system
+//===== By: ==================================================
+//= 15-3athena Dev Team
+//===== Last Updated: ========================================
+//= 20160619
+//===== Description: =========================================
+//= Explanation of Packet Obfuscation
+//============================================================
+
+15-3athena is able to support encrypted packets.
+This is making servers WPE free without using another protection software.
+Also Packet spamming is no longer possible by normal means, with this feature each 
+packet sent has its own id, so spamming (by sending the same packet more than once) is impossible.
+
+Enabling support:
+-----------------
+Packet Obfuscation support is not stable yet and currently disabled by default. 
+
+	-It can be enabled in src/config/core.h by enabling #define PACKET_OBFUSCATION.
+	-When diff'ing your client, make sure to not apply the "Disable encrypted packet" diff.
+
+	-A new definition has been added in db/packet_db.txt called packet_keys_use. 
+		Make sure this corresponds to the packet_ver you are using!
+	-Clients 2011-10-05 and newer will contain a new definition in db/packet_db.txt called packet_keys. 
+		These will have the three default keys for their specific client version. 
+		These keys can be changed if you use the diff to change the default key of the client.
+
+	-If you happen to change your keys, make sure the ones you apply in the diff match the order in the packet_keys definition.
+	-If your server supports multiple clients, make sure all clients are using the same 3 keys.
+
+----------------------------------------------------
+-Keep in mind, the maximum key value is 0x7FFFFFFF!-
+----------------------------------------------------

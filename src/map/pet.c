@@ -680,10 +680,16 @@ int pet_equipitem(struct map_session_data *sd,int index)
 	return 0;
 }
 
-static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd)
-{
+/**
+ * Remove a pet's equipment.
+ * @param sd : player requesting
+ * @param pd : pet requesting
+ * @return 0:success, 1:failure
+ */
+static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 	struct item tmp_item;
-	unsigned short nameid,flag;
+	unsigned short nameid;
+	unsigned char flag = 0;
 
 	if(pd->pet.equip == 0)
 		return 1;

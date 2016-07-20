@@ -8,6 +8,13 @@
 // By default, we recover/remove Guild/Party Bound items automatically 
 #define BOUND_ITEMS
 
+/// Comment to disable the official packet obfuscation support.
+/// When enabled, make sure there is value for 'packet_keys' of used packet version or
+/// defined 'packet_keys_use' in db/packet_db.txt.
+/// This requires PACKETVER 2011-08-17 or newer.
+/// EXPERIMENTAL FEATURE [15peaces]
+//#define PACKET_OBFUSCATION
+
 enum SERVER_STATE
 {
 	SERVER_STATE_STOP,

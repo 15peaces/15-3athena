@@ -50,6 +50,8 @@
 int stdout_with_ansisequence = 0;
 
 int msg_silent = 0; //Specifies how silent the console is.
+int console_msg_log = 0;//[Ind] msg error logging
+char console_log_filepath[32] = "./log/unknown.log";
 
 ///////////////////////////////////////////////////////////////////////////////
 /// static/dynamic buffer for the messages
@@ -682,6 +684,29 @@ int _vShowMessage(enum msg_type flag, const char *string, va_list ap)
 	if (!string || *string == '\0') {
 		ShowError("Empty string passed to _vShowMessage().\n");
 		return 1;
+	}
+	if(
+		( flag == MSG_WARNING && console_msg_log&1 ) ||
+		( ( flag == MSG_ERROR || flag == MSG_SQL ) && console_msg_log&2 ) ||
+		( flag == MSG_DEBUG && console_msg_log&4 ) ) {//[Ind]
+		FILE *log = NULL;
+		if( (log = fopen(console_log_filepath ? console_log_filepath : "./log/unknown.log","a+")) ) {
+			char timestring[255];
+			time_t curtime;
+			time(&curtime);
+			strftime(timestring, 254, "%m/%d/%Y %H:%M:%S", localtime(&curtime));
+			fprintf(log,"(%s) [ %s ] : ",
+				timestring,
+				flag == MSG_WARNING ? "Warning" :
+				flag == MSG_ERROR ? "Error" :
+				flag == MSG_SQL ? "SQL Error" :
+				flag == MSG_DEBUG ? "Debug" :
+				"Unknown");
+			va_copy(apcopy, ap);
+			vfprintf(log,string,apcopy);
+			va_end(apcopy);
+			fclose(log);
+		}
 	}
 	if(
 	    (flag == MSG_INFORMATION && msg_silent&1) ||

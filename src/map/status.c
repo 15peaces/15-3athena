@@ -5583,7 +5583,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		sc_def = status->agi / 2;
 		break;
 	case SC_WHITEIMPRISON:
-		sc_def = status_get_lv(bl)/5 + status->vit/4 + status->agi/10;
+		rate -= status_get_lv(bl) / 5 + status->vit / 4 + status->agi / 10; // Lineal Reduction of Rate
 		tick_def = (int)floor(log10(status_get_lv(bl)) * 10.);
 		break;
 	case SC_BURNING:
@@ -8447,8 +8447,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_WHITEIMPRISON:
 			if( tid == -1 )
 				break; // Terminated by Damage
-			clif_damage(bl,bl,0,0,0,2000,0,0,0);
-			status_zap(bl,2000,0);
+			clif_damage(bl,bl,0,0,0,400*sce->val1,0,0,0);
+			status_zap(bl,400*sce->val1,0);
 			break;
 		case SC_WUGDASH:
 			{

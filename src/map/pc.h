@@ -200,7 +200,7 @@ struct map_session_data {
 	struct registry save_reg;
 	
 	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
-	short equip_index[16];
+	short equip_index[EQI_MAX];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num;
 	int fd;
@@ -504,6 +504,10 @@ struct map_session_data {
 		short prizeStage;
 		bool claimPrize;
 	} roulette;
+
+#ifdef PACKET_OBFUSCATION
+	unsigned int cryptKey; ///< Packet obfuscation key to be used for the next received packet
+#endif
 };
 
 //Update this max as necessary. 84 is the value needed for the Expanded Super Baby.
@@ -576,12 +580,12 @@ enum equip_pos {
 	EQP_COSTUME_HEAD_LOW= 0x1000,
 	EQP_COSTUME_GARMENT = 0x2000,
 	EQP_COSTUME_FLOOR	= 0x4000,
-	//EQP_SHADOW_ARMOR = 0x10000,
-	//EQP_SHADOW_WEAPON = 0x20000,
-	//EQP_SHADOW_SHIELD = 0x40000,
-	//EQP_SHADOW_SHOES = 0x80000,
-	//EQP_SHADOW_ACC_R = 0x100000,
-	//EQP_SHADOW_ACC_L = 0x200000,
+	EQP_SHADOW_ARMOR	= 0x10000,
+	EQP_SHADOW_WEAPON	= 0x20000,
+	EQP_SHADOW_SHIELD	= 0x40000,
+	EQP_SHADOW_SHOES	= 0x80000,
+	EQP_SHADOW_ACC_R	= 0x100000,
+	EQP_SHADOW_ACC_L	= 0x200000,
 };
 
 #define EQP_WEAPON EQP_HAND_R
@@ -591,7 +595,8 @@ enum equip_pos {
 #define EQP_ACC (EQP_ACC_L|EQP_ACC_R)
 #define EQP_COSTUME_HELM (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW)
 #define EQP_COSTUME (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW|EQP_COSTUME_GARMENT|EQP_COSTUME_FLOOR)
-//#define EQP_SHADOW_EQUIPS (EQP_SHADOW_ARMOR|EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD|EQP_SHADOW_SHOES|EQP_SHADOW_ACC_R|EQP_SHADOW_ACC_L)
+#define EQP_SHADOW_ACC (EQP_SHADOW_ACC_L|EQP_SHADOW_ACC_R)
+#define EQP_SHADOW_EQUIPS (EQP_SHADOW_ARMOR|EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD|EQP_SHADOW_SHOES|EQP_SHADOW_ACC_R|EQP_SHADOW_ACC_L)
 
 /// Equip positions that use a visible sprite
 #if PACKETVER < 20110111
@@ -599,34 +604,6 @@ enum equip_pos {
 #else
 	#define EQP_VISIBLE (EQP_HELM|EQP_COSTUME_HELM|EQP_COSTUME_GARMENT)
 #endif
-
-//Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
-//where the arrows are equipped)
-enum equip_index {
-	EQI_ACC_L = 0,
-	EQI_ACC_R,
-	EQI_SHOES,
-	EQI_GARMENT,
-	EQI_HEAD_LOW,
-	EQI_HEAD_MID,
-	EQI_HEAD_TOP,
-	EQI_ARMOR,
-	EQI_HAND_L,
-	EQI_HAND_R,
-	EQI_AMMO,
-	EQI_COSTUME_HEAD_TOP,
-	EQI_COSTUME_HEAD_MID,
-	EQI_COSTUME_HEAD_LOW,
-	EQI_COSTUME_GARMENT,
-	EQI_COSTUME_FLOOR,
-	//EQI_SHADOW_ARMOR,
-	//EQI_SHADOW_WEAPON,
-	//EQI_SHADOW_SHIELD,
-	//EQI_SHADOW_SHOES,
-	//EQI_SHADOW_ACC_R,
-	//EQI_SHADOW_ACC_L,
-	EQI_MAX
-};
 
 #define pc_setdead(sd)        ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 1 )
 #define pc_setsit(sd)         ( (sd)->state.dead_sit = (sd)->vd.dead_sit = 2 )

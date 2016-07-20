@@ -41,6 +41,7 @@ struct party_booking_ad_info;
 
 enum
 {// packet DB
+	MIN_PACKET_DB  = 0x064,
 	MAX_PACKET_DB  = 0xAFF,
 	MAX_PACKET_VER = 35,
 	MAX_PACKET_POS = 20,
@@ -51,6 +52,7 @@ enum e_packet_ack {
 	ZC_ACK_BANKING_DEPOSIT,
 	ZC_ACK_BANKING_WITHDRAW,
 	ZC_BANKING_CHECK,
+	ZC_WEAR_EQUIP_ACK,
 	MAX_ACK_FUNC //auto upd len
 };
 
@@ -59,6 +61,13 @@ struct s_packet_db {
 	void (*func)(int, struct map_session_data *);
 	short pos[MAX_PACKET_POS];
 };
+
+#ifdef PACKET_OBFUSCATION
+/// Keys based on packet versions
+struct s_packet_keys {
+	unsigned int keys[3]; ///< 3-Keys
+};
+#endif
 
 enum e_BANKING_DEPOSIT_ACK {
 	BDA_SUCCESS  = 0x0,
@@ -447,7 +456,7 @@ void clif_scriptinput(struct map_session_data *sd, int npcid);	//self
 void clif_scriptinputstr(struct map_session_data *sd, int npcid);	// self
 void clif_cutin(struct map_session_data* sd, const char* image, int type);	//self
 void clif_viewpoint(struct map_session_data *sd, int npc_id, int type, int x, int y, int id, int color);	//self
-void clif_additem(struct map_session_data *sd, int n, int amount, int fail); // self
+void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char fail); // self
 void clif_dropitem(struct map_session_data *sd,int n,int amount);	//self
 void clif_delitem(struct map_session_data *sd,int n,int amount, short reason); //self
 int clif_updatestatus(struct map_session_data*,int); //self
@@ -474,7 +483,7 @@ int clif_spellbook_list(struct map_session_data *sd);	//self
 int clif_skill_select_request( struct map_session_data *sd ); //self
 int clif_skill_itemlistwindow( struct map_session_data *sd, int skill_id, int skill_lv ); //self
 void clif_statusupack(struct map_session_data *sd,int type,int ok,int val);	// self
-void clif_equipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self
+void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 ok);	// self
 void clif_unequipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self
 void clif_misceffect(struct block_list* bl,int type);	// area
 void clif_changeoption(struct block_list* bl);	// area
@@ -868,6 +877,9 @@ void clif_map_type2(struct block_list *bl,enum send_target target);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
 int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1);
+
+// V5 Item Packets
+void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip);
 
 /// Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);

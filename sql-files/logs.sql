@@ -18,6 +18,7 @@ CREATE TABLE `picklog` (
   `card2` smallint(5) unsigned NOT NULL default '0',
   `card3` smallint(5) unsigned NOT NULL default '0',
   `map` varchar(11) NOT NULL default '',
+  `bound` tinyint(1) unsigned NOT NULL default '0', 
   PRIMARY KEY  (`id`),
   INDEX (`type`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;

@@ -33,9 +33,15 @@
 // Main packet version of the DB to use (default = max available version)
 // Client detection is faster when all clients use this version.
 // Version 23 is the latest Sakexe (above versions are for Renewal clients)
+//
+// packet_keys values are default value for each packet version, if no value
+// or value is 'default' in packet_keys_use, server will uses default keys
+// according to used packet_db_ver. packet_keys_use is user-defined keys.
+// Maximum key value is 0x7FFFFFFF.
+// NOTE: Keys won't be reloaded, initialized on first load only.
 //packet_db_ver: 25
 packet_db_ver: default
-
+packet_keys_use: default
 
 packet_ver: 5
 0x0064,55
@@ -1633,6 +1639,7 @@ packet_ver: 26
 
 //2011-10-05aRagexeRE
 packet_ver: 27
+packet_keys: 0x291E6762,0x77CD391A,0x60AC2F16 // [Shakto]
 0x0436,19,wanttoconnection,2:6:10:14:18
 0x0367,6,ticksend,2
 0x0437,5,walktoxy,2
@@ -1646,6 +1653,7 @@ packet_ver: 27
 
 //2012-04-10aRagexeRE
 packet_ver: 28
+packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x01FD,15,repairitem,2
 0x0366,90,useskilltoposinfo,2:4:6:8:10
 0x0369,7,actionrequest,2:6
@@ -1707,6 +1715,7 @@ packet_ver: 28
 
 //2012-07-02aRagexeRE
 packet_ver: 29
+packet_keys: 0x25733B31,0x53486CFD,0x398649BD // [Shakto]
 0x0363,19,wanttoconnection,2:6:10:14:18
 0x0364,6,ticksend,2
 0x085a,7,actionrequest,2:6
@@ -1724,6 +1733,7 @@ packet_ver: 29
 
 //2013-03-20eRagexe
 packet_ver: 30
+packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 0x088E,7,actionrequest,2:6
 0x089B,10,useskilltoid,2:4:6
 0x0881,5,walktoxy,2
@@ -1761,8 +1771,18 @@ packet_ver: 30
 0x08ff,24 // ZC_EFST_SET_ENTER
 0x983,29 // ZC_MSG_STATE_CHANGE3
 0x984,28 // ZC_EFST_SET_ENTER2
+
+0x0990,31 // ZC_ITEM_PICKUP_ACK_V5
+0x0991,-1 // ZC_INVENTORY_ITEMLIST_NORMAL_V5
+0x0992,-1 // ZC_INVENTORY_ITEMLIST_EQUIP_V5
+0x0993,-1 // ZC_CART_ITEMLIST_NORMAL_V5
+0x0994,-1 // ZC_CART_ITEMLIST_EQUIP_V5
+0x0995,-1 // ZC_STORE_ITEMLIST_NORMAL_V5
+0x0996,-1 // ZC_STORE_ITEMLIST_EQUIP_V5
+0x0997,-1 // ZC_EQUIPWIN_MICROSCOPE_V5
 0x0998,8,equipitem,2:4 // CZ_REQ_WEAR_EQUIP_V5
-//0x0999,11 // ZC_ACK_WEAR_EQUIP_V5
+0x0999,11 // ZC_ACK_WEAR_EQUIP_V5
+0x099a,9 // ZC_ACK_TAKEOFF_EQUIP_V5
 0x99b,8 // ZC_MAPPROPERTY_R2
 0x099f,22 // ZC_SKILL_ENTRY4
 	
@@ -1774,6 +1794,7 @@ packet_ver: 30
 
 //2013-07-17 Ragexe
 packet_ver: 31
+packet_keys: 0x2BED4F91,0x5F9E00CF,0x5EE5520C
 0x0918,7,actionrequest,2:6
 0x091E,10,useskilltoid,2:4:6
 0x083C,5,walktoxy,2
@@ -1819,6 +1840,7 @@ packet_ver: 31
 
 //2013-08-07Ragexe
 packet_ver: 32
+packet_keys: 0x7E241DE0,0x5E805580,0x3D807D80 // [Shakto]
 0x0369,7,actionrequest,2:6
 0x083C,10,useskilltoid,2:4:6
 0x0437,5,walktoxy,2
@@ -1852,6 +1874,8 @@ packet_ver: 32
 
 //2013-12-23cRagexe~2014-04-16aRagexe
 packet_ver: 33
+packet_keys: 0x631C511C,0x111C111C,0x111C111C // [Shakto]
+0x014f,6,guildrequestinfo,2
 0x022d,19,wanttoconnection,2:6:10:14:18
 0x0202,5,changedir,2:4
 0x035f,6,ticksend,2
@@ -1871,6 +1895,7 @@ packet_ver: 33
 0x08c9,4,pCashShopSchedule,0
 0x0848,-1,pCashShopBuy,0
 0x096a,6,getcharnamerequest,2
+0x097A,-1 // ZC_ALL_QUEST_LIST2
 0x09ca,23 //ZC_SKILL_ENTRY5
 0x09D4,2,npcshopclosed,0
 0x09df,7//ZC_ACK_WHISPER2
@@ -1885,6 +1910,7 @@ packet_ver: 33
 
 //2014-10-16Ragexe
 packet_ver: 34
+packet_keys: 0x2DFF467C,0x444B37EE,0x2C1B634F // [YomRawr]
 0x0369,7,actionrequest,2:6
 0x083C,10,useskilltoid,2:4:6
 0x0437,5,walktoxy,2
@@ -1938,6 +1964,7 @@ packet_ver: 34
 
 //2014-10-22bRagexe
 packet_ver: 35
+packet_keys: 0x290551EA,0x2B952C75,0x2D67669B // [YomRawr]
 0x006d,149
 0x023b,10,useskilltopos,2:4:6:8
 0x0281,-1,itemlistwindowselected,2:4:8:12

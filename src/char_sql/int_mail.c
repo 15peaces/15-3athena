@@ -29,7 +29,7 @@ static int mail_fromsql(int char_id, struct mail_data* md)
 
 	StringBuf_Init(&buf);
 	StringBuf_AppendStr(&buf, "SELECT `id`,`send_name`,`send_id`,`dest_name`,`dest_id`,`title`,`message`,`time`,`status`,"
-		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`");
+		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`,`bound`");
 	for (i = 0; i < MAX_SLOTS; i++)
 		StringBuf_Printf(&buf, ",`card%d`", i);
 
@@ -61,12 +61,13 @@ static int mail_fromsql(int char_id, struct mail_data* md)
 		Sql_GetData(sql_handle,12, &data, NULL); item->refine = atoi(data);
 		Sql_GetData(sql_handle,13, &data, NULL); item->attribute = atoi(data);
 		Sql_GetData(sql_handle,14, &data, NULL); item->identify = atoi(data);
+		Sql_GetData(sql_handle,15, &data, NULL); item->bound = atoi(data);
 		item->expire_time = 0;
 		item->bound = 0;
 
 		for (j = 0; j < MAX_SLOTS; j++)
 		{
-			Sql_GetData(sql_handle, 15 + j, &data, NULL);
+			Sql_GetData(sql_handle, 16 + j, &data, NULL);
 			item->card[j] = atoi(data);
 		}
 	}
@@ -107,11 +108,11 @@ int mail_savemessage(struct mail_message* msg)
 
 	// build message save query
 	StringBuf_Init(&buf);
-	StringBuf_Printf(&buf, "INSERT INTO `%s` (`send_name`, `send_id`, `dest_name`, `dest_id`, `title`, `message`, `time`, `status`, `zeny`, `amount`, `nameid`, `refine`, `attribute`, `identify`", mail_db);
+	StringBuf_Printf(&buf, "INSERT INTO `%s` (`send_name`, `send_id`, `dest_name`, `dest_id`, `title`, `message`, `time`, `status`, `zeny`, `amount`, `nameid`, `refine`, `attribute`, `identify`, `bound`", mail_db);
 	for (j = 0; j < MAX_SLOTS; j++)
 		StringBuf_Printf(&buf, ", `card%d`", j);
-	StringBuf_Printf(&buf, ") VALUES (?, '%d', ?, '%d', ?, ?, '%lu', '%d', '%d', '%d', '%hu', '%d', '%d', '%d'",
-		msg->send_id, msg->dest_id, (unsigned long)msg->timestamp, msg->status, msg->zeny, msg->item.amount, msg->item.nameid, msg->item.refine, msg->item.attribute, msg->item.identify);
+	StringBuf_Printf(&buf, ") VALUES (?, '%d', ?, '%d', ?, ?, '%lu', '%d', '%d', '%d', '%hu', '%d', '%d', '%d', '%d'",
+		msg->send_id, msg->dest_id, (unsigned long)msg->timestamp, msg->status, msg->zeny, msg->item.amount, msg->item.nameid, msg->item.refine, msg->item.attribute, msg->item.identify, msg->item.bound);
 	for (j = 0; j < MAX_SLOTS; j++)
 		StringBuf_Printf(&buf, ", '%hu'", msg->item.card[j]);
 	StringBuf_AppendStr(&buf, ")");
@@ -145,7 +146,7 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg)
 
 	StringBuf_Init(&buf);
 	StringBuf_AppendStr(&buf, "SELECT `id`,`send_name`,`send_id`,`dest_name`,`dest_id`,`title`,`message`,`time`,`status`,"
-		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`");
+		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`,`bound`");
 	for( j = 0; j < MAX_SLOTS; j++ )
 		StringBuf_Printf(&buf, ",`card%d`", j);
 	StringBuf_Printf(&buf, " FROM `%s` WHERE `id` = '%d'", mail_db, mail_id);
@@ -177,12 +178,13 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg)
 		Sql_GetData(sql_handle,12, &data, NULL); msg->item.refine = atoi(data);
 		Sql_GetData(sql_handle,13, &data, NULL); msg->item.attribute = atoi(data);
 		Sql_GetData(sql_handle,14, &data, NULL); msg->item.identify = atoi(data);
+		Sql_GetData(sql_handle,15, &data, NULL); msg->item.bound = atoi(data);
 		msg->item.expire_time = 0;
 		msg->item.bound = 0;
 
 		for( j = 0; j < MAX_SLOTS; j++ )
 		{
-			Sql_GetData(sql_handle,15 + j, &data, NULL);
+			Sql_GetData(sql_handle,16 + j, &data, NULL);
 			msg->item.card[j] = atoi(data);
 		}
 	}

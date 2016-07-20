@@ -235,7 +235,7 @@ struct item {
 	int id;
 	unsigned short nameid;
 	short amount;
-	unsigned short equip; // location(s) where item is equipped (using enum equip_pos for bitmasking)
+	unsigned int equip; // location(s) where item is equipped (using enum equip_pos for bitmasking)
 	char identify;
 	char refine;
 	char attribute;
@@ -243,6 +243,34 @@ struct item {
 	unsigned int expire_time;
 	char favorite;
 	char bound;
+};
+
+//Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
+//where the arrows are equipped)
+enum equip_index {
+	EQI_ACC_L = 0,
+	EQI_ACC_R,
+	EQI_SHOES,
+	EQI_GARMENT,
+	EQI_HEAD_LOW,
+	EQI_HEAD_MID,
+	EQI_HEAD_TOP,
+	EQI_ARMOR,
+	EQI_HAND_L,
+	EQI_HAND_R,
+	EQI_AMMO,
+	EQI_COSTUME_HEAD_TOP,
+	EQI_COSTUME_HEAD_MID,
+	EQI_COSTUME_HEAD_LOW,
+	EQI_COSTUME_GARMENT,
+	EQI_COSTUME_FLOOR,
+	EQI_SHADOW_ARMOR,
+	EQI_SHADOW_WEAPON,
+	EQI_SHADOW_SHIELD,
+	EQI_SHADOW_SHOES,
+	EQI_SHADOW_ACC_R,
+	EQI_SHADOW_ACC_L,
+	EQI_MAX
 };
 
 struct point {
@@ -849,6 +877,12 @@ enum {
 // sanity checks...
 #if MAX_ZENY > INT_MAX
 #error MAX_ZENY is too big
+#endif
+
+#ifdef PACKET_OBFUSCATION
+	#if PACKETVER < 20110817
+		#undef PACKET_OBFUSCATION
+	#endif
 #endif
 
 #endif /* _MMO_H_ */

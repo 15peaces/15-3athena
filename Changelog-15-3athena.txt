@@ -4,6 +4,40 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/20/2016
+	r128 [15peaces]
+		*Merged missing changes from 3ceam rev. 490
+		*IMPORTANT: Don't forget to run the SQl-Update files!
+		*Extended Map-Servers logging to log certain messages into a logfile.
+			-Thanks to rAthena.
+		*Updated Old Card Album. (Based on January 2015 infos.)
+		*Implemented new kRO cards.
+		*Added some quest_db entries.
+			-Also fixed some entries and removed duplicates.
+		*Added Malangdo NPCs.
+		*Added basic Packet Obfuscation support
+			-For now it's disabled by default since it's not stable yet!
+			-More informations can be found on docs (packet_obfuscation.txt)!
+			-Thanks to @HerculesWS!
+		*Corrected an incorrect packet header size for requesting player registries.
+			-Thanks to @wilkemeyer!
+		*ZC_ALL_QUEST_LIST2
+			-Added support for this packet.
+		*Added support for V5 item packets.
+			-Rewrote clif_storagelist, thanks to rAthena.
+			-Updated all item-related clif_functions to use the new packets.
+			-Huge thanks to @3ceam for the base and @rytech16 for helping me out!
+		*Fixed GN_REMODELING_CART that was not extending max cart weight correctly.
+		*Updated some Warlock skills according to info from irowiki and some tests.
+			-WL_SOULEXPANSION, WL_DRAINLIFE and WL_COMET: Corrected damage formula.
+			-WL_CRIMSONROCK, WL_HELLINFERNO: Added base level-dependent damage modifier.
+			-WL_FROSTMISTY: Corrected formula and updated job level-dependent success rate modifier.
+			-WL_EARTHSTRAIN: Updated strip success rate formula.
+			-WL_TETRAVORTEX: Shouldn't show skill name when the animation starts.
+			-WL_DRAINLIFE: Updated absorbed heal formula. Doesn't absorb heal from Ice Walls or other skill unit.
+			-WL_WHITEIMPRISON: Updated success defense and caster dependent rate. Final damage is according to the skill level, tests say: 400 * skill level in every targets.
+			-WL_SIENNAEXECRATE: Updated success rate. Doesn't show skill fail message if the skill fails because target's defense.
+
 05/28/2016
 	r127 [15peaces]
 		*Added full support for Concentrated Ceromain Soup.

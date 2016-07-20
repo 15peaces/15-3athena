@@ -3435,13 +3435,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SOULEXPANSION:
 						{
 							struct status_change *tsc = status_get_sc(target);
-							skillratio += 300 + 100 * skill_lv + status_get_int(src);	//Revisar
+							skillratio = skillratio + 300 + 100 * skill_lv + status_get_int(src);
 							skillratio *= status_get_lv(src) / 100;
 							if( tsc && tsc->data[SC_WHITEIMPRISON] )
 								skillratio *= 2;
 						}
 					case WL_FROSTMISTY:
-						skillratio += 100 + 100 * skill_lv;
+						skillratio = skillratio + 100 + 100 * skill_lv;
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
 						{
 							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
@@ -3469,16 +3469,25 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						}
 						break;
 					case WL_DRAINLIFE:
-						skillratio += 400 + 100 * skill_lv;
+						skillratio = skillratio + 400 + 100 * skill_lv * (1 + sstatus->int_/1000);
+						skillratio = skillratio * status_get_lv(src) / 100;
 						break;
 					case WL_CRIMSONROCK:
 						skillratio += 1200 + 300 * skill_lv;
+						if( battle_config.max_highlvl_nerf && status_get_lv(src) > battle_config.max_highlvl_nerf ) // [Pinky]
+							skillratio += 15 * (battle_config.max_highlvl_nerf - 100);
+						else
+							skillratio += 15 * (status_get_lv(src) - 100);
 						break;
 					case WL_HELLINFERNO:
 						if( s_ele == ELE_FIRE )
 							skillratio += 60 * skill_lv - 100;
 						else
 							skillratio += 240 * skill_lv - 100;
+						if( battle_config.max_highlvl_nerf && status_get_lv(src) > battle_config.max_highlvl_nerf ) // [Pinky]
+							skillratio *= battle_config.max_highlvl_nerf / 100;
+						else
+							skillratio *= status_get_lv(src) / 100;
 						break;
 					case WL_COMET:
 						i = distance_xy(target->x, target->y, sc->comet_x, sc->comet_y);
@@ -3495,11 +3504,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
 						{
 							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += 100 + 300 * skill_lv * status_get_lv(src) / 100;
+								skillratio = (skillratio + 100 + 300 * skill_lv) * status_get_lv(src) / 100;
 							else
-								skillratio += 100 + 300 * skill_lv * battle_config.max_highlvl_nerf / 100;
+								skillratio = (skillratio + 100 + 300 * skill_lv) * battle_config.max_highlvl_nerf / 100;
 						} else
-							skillratio += 100 + 300 * skill_lv * status_get_lv(src) / 100;
+							skillratio = (skillratio + 100 + 300 * skill_lv) * status_get_lv(src) / 100;
 						break;
 					case WL_EARTHSTRAIN:
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
