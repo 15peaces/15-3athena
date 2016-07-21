@@ -2615,7 +2615,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->itemhealrate2 += val;
 		break;
 	default:
-		ShowWarning("pc_bonus: unknown type %d %d !\n",type,val);
+		ShowWarning("pc_bonus: unknown bonus type %d %d in item #%d\n", type, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
 		break;
 	}
 	return 0;
@@ -3140,7 +3140,7 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		break;
 
 	default:
-		ShowWarning("pc_bonus2: unknown type %d %d %d!\n",type,type2,val);
+		ShowWarning("pc_bonus2: unknown bonus type %d %d %d in item #%d\n", type, type2, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
 		break;
 	}
 	return 0;
@@ -3267,7 +3267,7 @@ int pc_bonus3(struct map_session_data *sd,int type,int type2,int type3,int val)
 		break;
 
 	default:
-		ShowWarning("pc_bonus3: unknown type %d %d %d %d!\n",type,type2,type3,val);
+		ShowWarning("pc_bonus3: unknown bonus type %d %d %d %d in item #%d\n", type, type2, type3, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
 		break;
 	}
 
@@ -3309,7 +3309,7 @@ int pc_bonus4(struct map_session_data *sd,int type,int type2,int type3,int type4
 		break;
 
 	default:
-		ShowWarning("pc_bonus4: unknown type %d %d %d %d %d!\n",type,type2,type3,type4,val);
+		ShowWarning("pc_bonus4: unknown bonus type %d %d %d %d %d in item #%d\n", type, type2, type3, type4, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
 		break;
 	}
 
@@ -3337,7 +3337,7 @@ int pc_bonus5(struct map_session_data *sd,int type,int type2,int type3,int type4
 		break;
 
 	default:
-		ShowWarning("pc_bonus5: unknown type %d %d %d %d %d %d!\n",type,type2,type3,type4,type5,val);
+		ShowWarning("pc_bonus5: unknown bonus type %d %d %d %d %d %d in item #%d\n", type, type2, type3, type4, type5, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
 		break;
 	}
 
@@ -5777,7 +5777,7 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 	if (flag&2)
 		clif_displayexp(sd, (flag&8) ? 0 : job_exp,  SP_JOBEXP, quest, false);
 #endif
-	if(sd->state.showexp)
+	if(sd->state.showexp && (base_exp || job_exp))
 		pc_gainexp_disp(sd, base_exp, nextb, job_exp, nextj, false);
 
 	return 1;
@@ -6127,8 +6127,8 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 		if( skill_num == GN_REMODELING_CART )
 			clif_updatestatus(sd,SP_CARTINFO);
 		//FIXME: The server have to send clif_skillup() with all skills
-		//available to the current job tab instead clif_skillinfoblock. [pakpil]
-		clif_skillinfoblock(sd);
+		//available to the current job tab instead clif_skillupdateinfoblock. [pakpil]
+		clif_skillupdateinfoblock(sd);
 	}
 
 	return 0;
@@ -6178,7 +6178,7 @@ int pc_allskillup(struct map_session_data *sd)
 	status_calc_pc(sd,0);
 	//Required because if you could level up all skills previously, 
 	//the update will not be sent as only the lv variable changes.
-	clif_skillinfoblock(sd);
+	clif_skillupdateinfoblock(sd);
 	return 0;
 }
 
@@ -6266,7 +6266,7 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 		party_send_levelup(sd);
 
 	status_calc_pc(sd,0);
-	clif_skillinfoblock(sd);
+	clif_skillupdateinfoblock(sd);
 
 	return 0;
 }
@@ -6422,7 +6422,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 	if( flag&1 )
 	{
 		clif_updatestatus(sd,SP_SKILLPOINT);
-		clif_skillinfoblock(sd);
+		clif_skillupdateinfoblock(sd);
 		status_calc_pc(sd,0);
 	}
 
@@ -6661,7 +6661,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		merc_delete(sd->md, 3); // Your mercenary soldier has ran away.
 
 	if( sd->ed )
-		ele_delete(sd->ed, 0);
+		elemental_delete(sd->ed, 0);
 
 	// Leave duel if you die [LuzZza]
 	if(battle_config.duel_autoleave_when_die) {
@@ -7465,7 +7465,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 
 	//Update skill tree.
 	pc_calc_skilltree(sd);
-	clif_skillinfoblock(sd);
+	clif_skillupdateinfoblock(sd);
 
 	//Remove peco/cart/falcon
 	i = sd->sc.option;
@@ -7727,7 +7727,7 @@ int pc_setoption(struct map_session_data *sd,int type)
 	clif_changelook(&sd->bl,LOOK_BASE,new_look);
 	if (sd->vd.cloth_color)
 		clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->vd.cloth_color);
-	clif_skillinfoblock(sd); // Skill list needs to be updated after base change.
+	clif_skillupdateinfoblock(sd); // Skill list needs to be updated after base change.
 
 	return 0;
 }
@@ -8592,7 +8592,7 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 
 	status_calc_pc(sd,0);
 	if (flag) //Update skill data
-		clif_skillinfoblock(sd);
+		clif_skillupdateinfoblock(sd);
 
 	//OnEquip script [Skotlex]
 	if (id) {

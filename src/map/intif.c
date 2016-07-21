@@ -370,15 +370,14 @@ int intif_send_guild_storage(int account_id,struct guild_storage *gstor)
 
 /// Create a party.
 /// Returns true if the request is sent.
-bool intif_create_party(struct party_member* member, const char* name, int item, int item2)
-{
+bool intif_create_party(struct party_member* member, const char* name, int item, int item2) {
 	if (CheckForCharServer())
 		return false;
 	nullpo_retr(false, member);
 
-	WFIFOHEAD(inter_fd,64);
+	WFIFOHEAD(inter_fd, 6+NAME_LENGTH+sizeof(struct party_member));
 	WFIFOW(inter_fd,0) = 0x3020;
-	WFIFOW(inter_fd,2) = 30+sizeof(struct party_member);
+	WFIFOW(inter_fd,2) = 6+NAME_LENGTH+sizeof(struct party_member);
 	memcpy(WFIFOP(inter_fd,4),name, NAME_LENGTH);
 	WFIFOB(inter_fd,28) = item;
 	WFIFOB(inter_fd,29) = item2;
@@ -2028,7 +2027,7 @@ int intif_parse_elemental_received(int fd) {
 		return 0;
 	}
 
-	ele_data_received((struct s_elemental*)RFIFOP(fd,5), RFIFOB(fd,4));
+	elemental_data_received((struct s_elemental*)RFIFOP(fd,5), RFIFOB(fd,4));
 	return 0;
 }
 

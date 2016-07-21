@@ -1072,21 +1072,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 		sc = NULL; //Unneeded
 
 	//temp: used to signal combo-skills right now.
-	if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_num)
-	{
-		if (sc->data[SC_COMBO]->val2)
-			target_id = sc->data[SC_COMBO]->val2;
-		else
-			target_id = ud->target;
-		temp = 1;
-	} else
-	if ( target_id == src->id && 
-		skill_get_inf(skill_num)&INF_SELF_SKILL &&
-		skill_get_inf2(skill_num)&INF2_NO_TARGET_SELF )
-	{
-		target_id = ud->target; //Auto-select target. [Skotlex]
-		temp = 1;
-	}
+	temp =	( target_id == src->id && 
+				( 
+					( !(skill_get_inf(skill_num)&INF_SELF_SKILL) && sd && sd->state.combo ) || 
+					( skill_get_inf(skill_num)&INF_SELF_SKILL && skill_get_inf2(skill_num)&INF2_NO_TARGET_SELF ) || 
+					skill_num == SR_DRAGONCOMBO
+				) 
+			);
+	if (temp)
+		target_id = ud->target; //Auto-select skills. [Skotlex]
 
 	if (sd) {
 		//Target_id checking.
@@ -2518,7 +2512,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			if( sd )
 				sd->ed = NULL;
 
-			ele_summon_stop(ed);
+			elemental_summon_stop(ed);
 			break;
 		}
 	}

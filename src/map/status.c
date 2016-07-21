@@ -67,6 +67,7 @@ int current_equip_card_id; //To prevent card-stacking (from jA) [Skotlex]
 //we need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only
 //to avoid cards exploits
 
+
 static sc_type SkillStatusChangeTable[MAX_SKILL]; // skill  -> status
 static int StatusIconChangeTable[SC_MAX];         // status -> icon
 unsigned long StatusChangeFlagTable[SC_MAX];      // status -> flags
@@ -619,6 +620,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_ASPDPOTION3] = SI_ASPDPOTIONINFINITY;
 	StatusIconChangeTable[SC_SPEEDUP0] = SI_MOVHASTE_HORSE;
 	StatusIconChangeTable[SC_SPEEDUP1] = SI_SPEEDPOTION1;
+	StatusIconChangeTable[SC_COMBO] = SI_COMBOATTACK;
 	StatusIconChangeTable[SC_INCSTR] = SI_INCSTR;
 	StatusIconChangeTable[SC_MIRACLE] = SI_SPIRIT;
 	StatusIconChangeTable[SC_INTRAVISION] = SI_INTRAVISION;
@@ -1549,7 +1551,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			return 0; // Can't use support skills on Homunculus (only Master/Self)
 		if( target->type == BL_MER && (skill_num == PR_ASPERSIO || (skill_num >= SA_FLAMELAUNCHER && skill_num <= SA_SEISMICWEAPON)) && battle_get_master(target) != src )
 			return 0; // Can't use Weapon endow skills on Mercenary (only Master)
-		if( target->type == BL_MER && skill_num == AM_POTIONPITCHER )
+		if( (target->type == BL_MER || target->type == BL_ELEM) && skill_num == AM_POTIONPITCHER )
 			return 0; // Can't use Potion Pitcher on Mercenaries
 	default:
 		//Check for chase-walk/hiding/cloaking opponents.
@@ -2383,6 +2385,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			}
 		}
 	}
+	current_equip_card_id = 0; // Clear stored card ID [Secret]
 
 	if( sc->count && sc->data[SC_ITEMSCRIPT] )
 	{
@@ -2821,7 +2824,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		return 0;
 	}
 	if(memcmp(b_skill,sd->status.skill,sizeof(sd->status.skill)))
-		clif_skillinfoblock(sd);
+		clif_skillupdateinfoblock(sd);
 	if(b_weight != sd->weight)
 		clif_updatestatus(sd,SP_WEIGHT);
 	if(b_max_weight != sd->max_weight) {
@@ -2976,18 +2979,31 @@ int status_calc_npc_(struct npc_data *nd, enum e_status_calc_opt opt)
 int status_calc_elemental_(struct elemental_data *ed, bool first) {
 	struct status_data *status = &ed->base_status;
 	struct s_elemental *ele = &ed->elemental;
+	struct map_session_data *sd = ed->master;
+	
+	if( !sd )
+		return 0;
 
 	if( first ) {
 		memcpy(status, &ed->db->status, sizeof(struct status_data));
 		status->mode = MD_CANMOVE|MD_CANATTACK;
+		status->max_hp += 4000 + 500 * pc_checkskill(sd,SO_EL_SYMPATHY);
+		status->max_sp += 300 + 50 * pc_checkskill(sd,SO_EL_SYMPATHY);
 		status->hp = status->max_hp;
 		status->sp = status->max_sp;
-		ed->battle_status.hp = ele->hp;
-		ed->battle_status.sp = ele->sp;
-	}
+		status->str += sd->base_status.str * 25 / 100;
+		status->agi += sd->base_status.agi * 25 / 100;
+		status->vit += sd->base_status.vit * 25 / 100;
+		status->int_ += sd->base_status.int_ * 25 / 100;
+		status->def += sd->base_status.dex * 25 / 100;
+		status->luk += sd->base_status.luk * 25 / 100;
 
-	status_calc_misc(&ed->bl, status, ed->db->lv);
-	status_cpy(&ed->battle_status, status);
+		status_calc_misc(&ed->bl, status, ed->db->lv);
+		memcpy(&ed->battle_status,status,sizeof(struct status_data));
+	} else {
+		status_calc_misc(&ed->bl, status, ed->db->lv);
+		status_cpy(&ed->battle_status, status);
+	}
 
 	return 0;
 }
@@ -4786,7 +4802,7 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 	if(sc->data[SC_MERC_HPUP])
 		maxhp += maxhp * sc->data[SC_MERC_HPUP]->val2/100;
 	if(sc->data[SC_EPICLESIS])
-		maxhp += maxhp / 100 * 5 * sc->data[SC_EPICLESIS]->val1;
+		maxhp += maxhp * 5 * sc->data[SC_EPICLESIS]->val1 / 100;
 	if(sc->data[SC_VENOMBLEED])
 		maxhp -= maxhp * 15 / 100;
 	if(sc->data[SC__WEAKNESS])
@@ -5225,8 +5241,8 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 		vd = merc_get_hom_viewdata(class_);
 	else if (merc_class(class_))
 		vd = merc_get_viewdata(class_);
-	else if (ele_class(class_))
-		vd = ele_get_viewdata(class_);
+	else if (elemental_class(class_))
+		vd = elemental_get_viewdata(class_);
 	else
 		vd = NULL;
 
@@ -6507,8 +6523,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = val1*20; //SP gained
 			break;
 		case SC_KYRIE:
-			val2 = status->max_hp * (val1 * 2 + 10) / 100; //%Max HP to absorb
-			val3 = (val1 / 2 + 5); //Hits
+			if ( val4 )
+			{// Formula's for Praefatio
+				val2 = status->max_hp * (val1 * 2 + 16) / 100; //%Max HP to absorb
+				val3 = 6 + val1; //Hits
+			} else
+			{// Formula's for Kyrie Eleison
+				val2 = status->max_hp * (val1 * 2 + 10) / 100; //%Max HP to absorb
+				val3 = (val1 / 2 + 5); //Hits
+			}
 			break;
 		case SC_MAGICPOWER:
 			//val1: Skill lv
@@ -7973,12 +7996,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				case MO_COMBOFINISH:
 				case CH_TIGERFIST:
 				case CH_CHAINCRUSH:
-					if (sd)
-						clif_skillinfo(sd,MO_EXTREMITYFIST, INF_SELF_SKILL);
+				case SR_DRAGONCOMBO:
+					if( sd ) {
+						sd->state.combo = 1;
+						clif_skillupdateinfoblock(sd);
+					}
 					break;
 				case TK_JUMPKICK:
-					if (sd)
-						clif_skillinfo(sd,TK_JUMPKICK, INF_SELF_SKILL);
+					if( sd ) {
+						sd->state.combo = 2;
+						clif_skillupdateinfoblock(sd);
+					}
 					break;
 			}
 	}
@@ -8155,7 +8183,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
 			clif_changelook(bl,LOOK_SHIELD,vd->shield);
-			if(sd) clif_skillinfoblock(sd);
+			if(sd) clif_skillupdateinfoblock(sd);
 		break;
 		case SC_RUN:
 		{
@@ -8336,10 +8364,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				case MO_COMBOFINISH:
 				case CH_TIGERFIST:
 				case CH_CHAINCRUSH:
-					clif_skillinfo(sd, MO_EXTREMITYFIST, 0);
+					clif_skillupdateinfo(sd, MO_EXTREMITYFIST, 0, 1);
 					break;
 				case TK_JUMPKICK:
-					clif_skillinfo(sd, TK_JUMPKICK, 0);
+					clif_skillupdateinfo(sd, TK_JUMPKICK, 0, 1);
 					break;
 			}
 			break;
@@ -9229,21 +9257,13 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		return 0;
 
 	case SC_RENOVATIO:
-		if( --(sce->val4) >= 0 )
-		{
-			if( bl->type == BL_MOB )
-			{
-				status_damage(bl,bl,sce->val1 * 150,0,clif_damage(bl,bl,tick,status->amotion,status->dmotion,sce->val1 * 150, 1, 0, 0),0);
-			}
-			else
-			{
-				int hp = status->max_hp * 3 / 100;
-				status_heal(bl,hp,0,3);
-			}
+		if( --(sce->val4) >= 0 ) {
+			status_heal(bl, status->max_hp * 3 / 100, 0, 2);
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
+
 	case SC_BURNING:
 		if( --(sce->val4) >= 0 )
 		{

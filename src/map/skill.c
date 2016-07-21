@@ -2069,8 +2069,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		}	//Switch End
 		if (flag) { //Possible to chain
 			flag = DIFF_TICK(sd->ud.canact_tick, tick);
-			if (flag < 1) flag = 1;
-			sc_start2(src,SC_COMBO,100,skillid,bl->id,flag);
+			if (flag < 0) flag = 0;
+			flag += 300 * battle_config.combo_delay_rate/100;
+			sc_start(src,SC_COMBO,100,skillid,flag);
 			clif_combo_delay(src, flag);
 		}
 	}
@@ -2389,6 +2390,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				status_damage(bl, s_bl, damage, 0, 0, 32);
 			}
 		}
+		// Just show damage in target.
+		clif_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, dmg.type, dmg.damage2 );
+		return ATK_NONE;
 	}
 
 	if (!(flag&2) &&
@@ -3179,7 +3183,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_BANISHINGPOINT:
 	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
-	case SR_DRAGONCOMBO:
 	case SR_SKYNETBLOW:
 	case SR_FALLENEMPIRE:
 	case SR_RAMPAGEBLASTER:
@@ -4073,6 +4076,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case LG_OVERBRAND_BRANDISH:
 		skill_addtimerskill(src, tick + 300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL);
+		break;
+
+	case SR_DRAGONCOMBO:
+		if( sd ) // Dragon Combo must back to target-selectable skill after use it as combo.
+			clif_skillupdateinfo(sd,SR_DRAGONCOMBO,0,0);
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
 	case SR_KNUCKLEARROW:
@@ -7090,19 +7099,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case AB_LAUDAAGNUS:
-		if( flag&1 || sd == NULL )
-		{
+		if( flag&1 || sd == NULL ) {
 			if( (tsc && (tsc->data[SC_FREEZE] || tsc->data[SC_STONE] ||
-				tsc->data[SC_BLIND]))&& (rand()%100 < 30+5*skilllv) )
-			{
+				tsc->data[SC_BLIND]))&& (rand()%100 < 30+5*skilllv) ) {
 				status_change_end(bl, SC_FREEZE, INVALID_TIMER);
 				status_change_end(bl, SC_STONE, INVALID_TIMER);
 				status_change_end(bl, SC_BLIND, INVALID_TIMER);
-				clif_skill_nodamage(bl, bl, skillid, skilllv,
-					sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
 			}
-		}
-		else if( sd )
+			// Success rate only applies to the curing effect and not stat bonus.
+			clif_skill_nodamage(bl, bl, skillid, skilllv,
+				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
+		} else if( sd )
 			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv),
 				src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
 		break;
@@ -7110,19 +7117,23 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_LAUDARAMUS:
 		if( flag&1 || sd == NULL )
 		{
-			if( (tsc && (tsc->data[SC_SLEEP] || tsc->data[SC_STUN] ||
-				tsc->data[SC_SILENCE]))&& (rand()%100 < 30+5*skilllv) )
+			if( (tsc && (tsc->data[SC_STUN] || tsc->data[SC_SLEEP] || 
+				tsc->data[SC_SILENCE] || tsc->data[SC_DEEPSLEEP] || 
+				tsc->data[SC_MANDRAGORA])) && (rand()%100 < 40+10*skilllv) )
 			{
-				status_change_end(bl, SC_SLEEP, INVALID_TIMER);
 				status_change_end(bl, SC_STUN, INVALID_TIMER);
+				status_change_end(bl, SC_SLEEP, INVALID_TIMER);
 				status_change_end(bl, SC_SILENCE, INVALID_TIMER);
-				clif_skill_nodamage(bl, bl, skillid, skilllv,
-					sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
+				status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+				status_change_end(bl, SC_MANDRAGORA, INVALID_TIMER);
 			}
+			clif_skill_nodamage(bl, bl, skillid, skilllv,
+				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
+			//Success rate only applies to the curing effect and not stat bonus.
+		}
 		else if( sd )
 			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv),
 				src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
-		}
 		break;
 
 	case AB_EPICLESIS:
@@ -8041,15 +8052,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SO_SUMMON_VENTUS:
 	case SO_SUMMON_TERA:
 		if( sd ) {
-			int ele_class = skill_get_elemental_type(skillid,skilllv);
+			int elemental_class = skill_get_elemental_type(skillid,skilllv);
 
 			// Remove previous elemental fisrt.
-			if( sd->ed && ele_delete(sd->ed,0) ) {
+			if( sd->ed && elemental_delete(sd->ed,0) ) {
 				clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
 			// Summoning the new one.
-			if( !ele_create(sd,ele_class,skill_get_time(skillid,skilllv)) ) {
+			if( !elemental_create(sd,elemental_class,skill_get_time(skillid,skilllv)) ) {
 				clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
@@ -8066,7 +8077,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 			if( skilllv == 4 )
 			{	// At level 4 delete elementals.
-				if( ele_delete(sd->ed, 0) )
+				if( elemental_delete(sd->ed, 0) )
 					clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
@@ -8074,7 +8085,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			{	// Select mode bassed on skill level used.
 				case 1: mode = EL_MODE_PASSIVE; break;
 				case 2: mode = EL_MODE_ASSIST; break;
-				case 3: mode = EL_MODE_AGRESSIVE; break;
+				case 3: mode = EL_MODE_AGGRESSIVE; break;
 			}
 			if( !elemental_change_mode(sd->ed,mode) ) {
 				clif_skill_fail(sd,skillid,0,0,0);
@@ -8339,8 +8350,8 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 			inf = skill_get_inf(ud->skillid);
 			inf2 = skill_get_inf2(ud->skillid);
 
-			if(inf&INF_ATTACK_SKILL ||
-				(inf&INF_SELF_SKILL && inf2&INF2_NO_TARGET_SELF)) //Combo skills
+			if(inf&INF_ATTACK_SKILL || (inf&INF_SELF_SKILL && inf2&INF2_NO_TARGET_SELF) || //Combo skills
+				ud->skillid == SR_DRAGONCOMBO && src == target)	// Casted through combo.
 				inf = BCT_ENEMY; //Offensive skill.
 			else if(inf2&INF2_NO_ENEMY)
 				inf = BCT_NOENEMY;
@@ -10666,14 +10677,22 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 					case 3: case 4: hp = 4; sp = 3; break;
 					case 5: default: hp = 5; sp = 4; break;
 				}
-				hp = tstatus->max_hp / 100 * hp;
-				sp = tstatus->max_sp / 100 * sp;
+				hp = tstatus->max_hp * hp / 100;
+				sp = tstatus->max_sp * sp / 100;
 				status_heal(bl, hp, sp, 0);
-				if( tstatus->hp != tstatus->max_hp )
+				if( tstatus->hp < tstatus->max_hp )
 					clif_skill_nodamage(&src->bl, bl, AL_HEAL, hp, 1);
-				if( tstatus->sp != tstatus->max_sp )
+				if( tstatus->sp < tstatus->max_sp )
 					clif_skill_nodamage(&src->bl, bl, MG_SRECOVERY, sp, 1);
 				sc_start(bl, type, 100, sg->skill_lv, sg->interval + 100);
+				sg->val2++;
+				// Reveal hidden players every 5 seconds.
+				if( sg->val2 >= 5 ) {
+					sg->val2 = 0;
+					// TODO: check if other hidden status can be removed.
+					status_change_end(bl,SC_HIDING,INVALID_TIMER);
+					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
+				}
 			}
 			/* Enable this if kRO fix the current skill. Currently no damage on undead and demon monster. [Jobbie]
 			else if( battle_check_target(ss, bl, BCT_ENEMY) > 0 && battle_check_undead(tstatus->race, tstatus->def_ele) )
@@ -11137,13 +11156,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 			}
 		case AB_ADORAMUS:
 		{ // Adoramus does not consume Blue Gemstone when there is at least 1 Priest class next to the caster
-			if( tsd->status.sp >= 10+lv && (
-				tsd->status.class_ == JOB_PRIEST ||
-				tsd->status.class_ == JOB_HIGH_PRIEST ||
-				tsd->status.class_ == JOB_BABY_PRIEST ||
-				tsd->status.class_ == JOB_ARCH_BISHOP ||
-				tsd->status.class_ == JOB_ARCH_BISHOP_T ||
-				tsd->status.class_ == JOB_BABY_BISHOP) )
+			if( tsd->status.sp >= 2*lv && (tsd->class_&MAPID_UPPERMASK) == MAPID_PRIEST )
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}
@@ -11187,8 +11200,12 @@ int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* s
 
 	nullpo_retr(0,sd);
 
-	if( !battle_config.player_skill_partner_check || (battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond) )
-		return 99; //As if there were infinite partners.
+	if( !battle_config.player_skill_partner_check || (battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond) ) {
+		if( skill_get_inf2(skill_id)&INF2_CHORUS_SKILL )
+			return MAX_PARTY; // To avoid extremly high effects in skills that use the amount of party members as damage multiplier.
+		else
+			return 99; //As if there were infinite partners.
+	}
 
 	if( cast_flag == 0 || cast_flag == 2 )
 	{ // Search for Partners
@@ -11227,9 +11244,8 @@ int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* s
 					}
 					break;
 				case AB_ADORAMUS:
-					if( c > 0 && (tsd = map_id2sd(p_sd[0])) != NULL )
-					{
-						i = 10 + (*skill_lv);
+					if( c > 0 && (tsd = map_id2sd(p_sd[0])) != NULL ) {
+						i = 2 * (*skill_lv);
 						status_charge(&tsd->bl, 0, i);
 					}
 					break;
@@ -11732,6 +11748,12 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case AB_HIGHNESSHEAL:
+		if( sd && pc_checkskill(sd,AL_HEAL) == 0 ) {
+				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+				return 0;
+		}
+		break;
 	case GC_COUNTERSLASH:
 	case GC_WEAPONCRUSH:
 		if( !(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == GC_WEAPONBLOCKING) )	{
@@ -11957,6 +11979,12 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case ST_MADOGEAR:
 		if(!pc_ismadogear(sd)) {
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+			return 0;
+		}
+		break;
+	case ST_ELEMENTALSPIRIT:
+		if(!sd->ed) {
+			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0x4f);
 			return 0;
 		}
 		break;
@@ -16219,6 +16247,7 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if( strcmpi(split[10],"warg")==0 ) skill_db[i].state = ST_WUG;
 	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_RIDINGWUG;
 	else if( strcmpi(split[10],"mado")==0 ) skill_db[i].state = ST_MADOGEAR;
+	else if( strcmpi(split[10],"elementalspirit")==0 ) skill_db[i].state = ST_ELEMENTALSPIRIT;
 	else skill_db[i].state = ST_NONE;
 
 	skill_split_atoi(split[11],skill_db[i].spiritball);

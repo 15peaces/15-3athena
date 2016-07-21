@@ -19,6 +19,10 @@
 //  explosionspirits = Requires Fury skill activated
 //  cartboost = Requires a Pushcart and Cart Boost skill activated
 //  shield = Requires a shield equipped
+//  mado = Requires to have an active mado
+//  poisonweapon = Requires to be under Poisoning Weapon.
+//  rollingcutter = Requires at least one Rotation Counter from Rolling Cutter.
+//  elementalspirit = Requires to have an Elemental Spirit summoned.
 
 // Swordman
 5,0,0,8:8:8:8:8:15:15:15:15:15,0,0,0,0:1:2:3:4:5:6:7:8:9:10:12:13:14:15:16:17:18:19:20:21:22,0,0,none,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0	//SM_BASH#ƒoƒbƒVƒ…#

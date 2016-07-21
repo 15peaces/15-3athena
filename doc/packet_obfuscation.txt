@@ -1,5 +1,5 @@
 //===== 15-3athena Documentation =============================
-//= Episode system
+//= Packet Obfuscation
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Last Updated: ========================================

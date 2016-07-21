@@ -3686,6 +3686,7 @@ void do_final(void)
 	do_final_status();
 	do_final_unit();
 	do_final_battleground();
+	do_final_elemental();
 	do_final_duel();
 	do_final_cashshop();
 	

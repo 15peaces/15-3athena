@@ -545,9 +545,9 @@ int clif_outsight(struct block_list *bl,va_list ap);	// map_forallinmovearea cal
 void clif_class_change(struct block_list *bl,int class_,int type);
 #define clif_mob_class_change(md, class_) clif_class_change(&md->bl, class_, 1)
 
-void clif_skillinfoblock(struct map_session_data *sd);
+void clif_skillupdateinfoblock(struct map_session_data *sd);
 void clif_skillup(struct map_session_data *sd,int skill_num);
-void clif_skillinfo(struct map_session_data *sd,int skill, int inf);
+void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int range);
 void clif_addskill(struct map_session_data *sd, int id);
 void clif_deleteskill(struct map_session_data *sd, int id);
 

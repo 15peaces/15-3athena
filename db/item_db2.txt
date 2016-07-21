@@ -161,9 +161,9 @@
 19860,C_School_Criatura_Hat,Costume School Criatura Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,872,{},{},{}
 19861,C_Heart_Hairpin,Costume Heart Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,126,{},{},{}
 19862,C_Succubus_Horn,Costume Succubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,150,{},{},{}
-
 19863,C_Incubus_Horn,Costume Incubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,156,{},{},{}
 19864,C_Dokebis_Wig,Costume Dokebi's Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,302,{},{},{}
+
 19865,C_Joker_Jester,Costume Joker Jester,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,89,{},{},{}
 19866,C_Blue_Pajamas,Costume Blue Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
 19867,C_Red_Pajamas,Costume Red Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
@@ -666,7 +666,7 @@
 12620,Dgrade_Pocket,D Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Dgrade_Pocket);*/ },{},{}
 12621,Egrade_Pocket,E Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Egrade_Pocket);*/ },{},{}
 12622,Boarding_Halter,Reins Of Mount,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_ALL_RIDING,-1,1; },{},{}
-12623,High_Weapon_Box,Advanced Weapons Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(groupranditem(IG_Advanced_Weapons_Box),1); },{},{}
+12623,High_Weapon_Box,Advanced Weapons Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Advanced_Weapons_Box),1; },{},{}
 12624,Delicious_Jelly,Delicious Jelly,0,20,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 3,3; },{},{}
 12625,Sapa_Feat_Cert_Pack,Sapa Feat Cert Pack,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 13069,Aztoe_Nail,As-nail,4,56000,,500,160:80,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bAtkEle,Ele_Wind; bonus2 bAddEff,Eff_Freeze,100+(getrefine()*50); },{},{}
@@ -874,7 +874,7 @@
 12815,Yggdrasil_Dust,Yggdrasil Dust,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "ECL_SEQUOIADUST",1; },{},{}
 12816,Old_Ore_Box_,Old Ore Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,60,,,{},{},{}
 12817,Old_Card_Album_,Old Card Album,2,0,,0,,,,,0xFFFFFFFF,63,2,,,80,,,{},{},{}
-12818,High_Weapon_Box_,High Weapon Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,100,,,{},{},{}
+12818,High_Weapon_Box_,High Weapon Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,100,,,{getitem groupranditem(IG_Advanced_Weapons_Box),1;},{},{}
 12819,Zherlthsh_Tck_Box_,Zherlthsh Tck Box,2,0,,0,,,,,0xFFFFFFFF,63,2,,,150,,,{ getitem 6184,1; },{},{}
 12820,Mao_Guai_Scroll,Mao Guai Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ mercenary_create 2348,1800000; },{},{}
 12821,Loli_Ruri_Scroll,Loli Ruri Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ mercenary_create 2349,1800000; },{},{}
@@ -1875,7 +1875,7 @@
 13271,Throwing_Manaplus,Throwing Manaplus,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
 13272,Throwing_Cure_Free,Throwing Cure Free,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
 13273,Throwing_Muramura_M,Throwing Muramura M,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
-13274,Throwing_Falmons_F,Throwing Falmons F,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
+13274,Throwing_Falmons_F,Throwing Falmons F,17,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
 13275,Throwing_Increase_HP_Potion_(Small),Throwing Increase HP Potion (Small),11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
 13276,Throwing_Increase_HP_Potion_(Medium),Throwing Increase HP Potion (Medium),11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
 13277,Throwing_Increase_HP_Potion_(Large),Throwing Increase HP Potion (Large),11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}

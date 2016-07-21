@@ -1200,7 +1200,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	unsigned int skillratio = 100;	//Skill dmg modifiers.
 	short skill=0;
 	short s_ele, s_ele_, t_class;
-	int i, nk, s_level = status_get_lv(src);
+	int i, nk, s_level;
 	bool n_ele = false; // non-elemental
 	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
 	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
@@ -1231,6 +1231,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 	nullpo_retr(wd, src);
 	nullpo_retr(wd, target);
+
+	s_level = status_get_lv(src);
+	if( skill_num >= RK_ENCHANTBLADE && skill_num <= LG_OVERBRAND_PLUSATK &&
+		battle_config.max_highlvl_nerf && s_level > battle_config.max_highlvl_nerf )
+		s_level = battle_config.max_highlvl_nerf;
 
 	//Initial flag
 	flag.rh=1;
@@ -1999,10 +2004,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case TK_JUMPKICK:
 					skillratio += -70 + 10*skill_lv;
 					if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_num)
-						skillratio += 10*status_get_lv(src)/3; //Tumble bonus
+						skillratio += 10*s_level/3; //Tumble bonus
 					if (wflag)
 					{
-						skillratio += 10*status_get_lv(src)/3; //Running bonus (TODO: What is the real bonus?)
+						skillratio += 10*s_level/3; //Running bonus (TODO: What is the real bonus?)
 						if( sc && sc->data[SC_SPURT] )  // Spurt bonus
 							skillratio *= 2;
 					}
@@ -2099,105 +2104,40 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case NC_BOOSTKNUCKLE:
 					skillratio += 100 + 100 * skill_lv + sstatus->dex;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_PILEBUNKER:
 					skillratio += 200 + 100 * skill_lv + sstatus->str;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_VULCANARM:
 					skillratio += 70 * skill_lv - 100 + sstatus->dex;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_FLAMELAUNCHER:
 				case NC_COLDSLOWER:
 					skillratio += 200 + 300 * skill_lv;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_ARMSCANNON:
-					switch(tstatus->size)
-					{
+					switch(tstatus->size) {
 						case 0: skillratio += 100 + 500 * skill_lv; break;//small
 						case 1: skillratio += 100 + 400 * skill_lv; break;//medium
 						case 2: skillratio += 100 + 300 * skill_lv; break;//large
 					}
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_AXEBOOMERANG:
 					skillratio += 60 + 40 * skill_lv;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_POWERSWING:
 					skillratio += 80 + 20 * skill_lv + sstatus->str + sstatus->dex;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_AXETORNADO:
 					skillratio += 100 + 100 * skill_lv + sstatus->vit;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case SC_FATALMENACE:
 					skillratio += 100 * skill_lv;
@@ -2209,24 +2149,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 100 + 100 * skill_lv;
 					break;
 				case LG_CANNONSPEAR:// Stimated formula. Still need confirm it.
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += -100 + ((50  + sstatus->str) * skill_lv * s_level / 100);
-						else
-							skillratio += -100 + ((50  + sstatus->str) * skill_lv * battle_config.max_highlvl_nerf / 100);
-					} else
-						skillratio += -100 + ((50  + sstatus->str) * skill_lv * s_level / 100);
+					skillratio += -100 + (50  + sstatus->str) * skill_lv * s_level / 100;
 					break;
 				case LG_BANISHINGPOINT:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += -100 + (((50 * skill_lv) + (30 * ((sd)?pc_checkskill(sd,SM_BASH):1))) * s_level / 100);
-						else
-							skillratio += -100 + (((50 * skill_lv) + (30 * ((sd)?pc_checkskill(sd,SM_BASH):1))) * battle_config.max_highlvl_nerf / 100);
-					} else
-						skillratio += -100 + (((50 * skill_lv) + (30 * ((sd)?pc_checkskill(sd,SM_BASH):1))) * s_level / 100);
+					skillratio += -100 + ((50 * skill_lv) + (30 * ((sd)?pc_checkskill(sd,SM_BASH):1))) * s_level / 100;
 					break;
 				case LG_SHIELDPRESS:
 					skillratio += 60 + 43 * skill_lv * s_level / 100;
@@ -2234,26 +2160,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 80 + (5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 					break;
 				case LG_PINPOINTATTACK:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio = ((100 * skill_lv) + (10 * status_get_agi(src)) ) * s_level / 100;
-						else
-							skillratio = ((100 * skill_lv) + (10 * status_get_agi(src)) ) * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio = ((100 * skill_lv) + (10 * status_get_agi(src)) ) * s_level / 100;
+					skillratio = ((100 * skill_lv) + (10 * status_get_agi(src)) ) * s_level / 100;
 					break;
 				case LG_RAGEBURST:
-					if( sd && sd->rageball_old ) {
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(s_level <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + (sd->rageball_old * 200 * s_level / 100);
-							else
-								skillratio += -100 + (sd->rageball_old * 200 * battle_config.max_highlvl_nerf / 100);
-						} else
-							skillratio += -100 + (sd->rageball_old * 200 * s_level / 100);
-					}
+					if( sd && sd->rageball_old )
+						skillratio += -100 + (sd->rageball_old * 200 * s_level / 100);
+					else
+						skillratio += -100 + 15 * 200 * s_level / 100;
+					break;
 					break;
 				case LG_SHIELDSPELL:
 					if( wflag&1 )
@@ -2272,55 +2186,19 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += (sd) ? sd->shieldmdef * 20 : 1000;
 					break;
 				case LG_MOONSLASHER:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += -100 + (120 * skill_lv + ((sd) ? pc_checkskill(sd,LG_OVERBRAND) : 5) * 80) * s_level / 100;
-						else
-							skillratio += -100 + (120 * skill_lv + ((sd) ? pc_checkskill(sd,LG_OVERBRAND) : 5) * 80) * battle_config.max_highlvl_nerf / 100;
-					}
-					else
-						skillratio += -100 + (120 * skill_lv + ((sd) ? pc_checkskill(sd,LG_OVERBRAND) : 5) * 80) * s_level / 100;
+					skillratio += -100 + (120 * skill_lv + ((sd) ? pc_checkskill(sd,LG_OVERBRAND) : 5) * 80) * s_level / 100;
 					break;
 				case LG_OVERBRAND:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += ((2567 * skill_lv / 10) + ((sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1)) * s_level / 100;
-						else
-							skillratio += ((2567 * skill_lv / 10) + ((sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1)) * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio += ((2567 * skill_lv / 10) + ((sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1)) * s_level / 100;
+					skillratio += ((2567 * skill_lv / 10) + ((sd) ? pc_checkskill(sd,CR_SPEARQUICKEN): 1)) * s_level / 100;
 					break;
 				case LG_OVERBRAND_BRANDISH:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += -100 + ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * s_level / 100;
-						else
-							skillratio += -100 + ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio += -100 + ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * s_level / 100;
+					skillratio += -100 + ((200 * skill_lv) +  (2 * (status_get_str(src) + status_get_dex(src)) / 3)) * s_level / 100;
 					break;
 				case LG_OVERBRAND_PLUSATK:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio = 160 * skill_lv * s_level / 100;
-						else
-							skillratio = 160 * skill_lv * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio = 160 * skill_lv * s_level / 100;
+					skillratio = 160 * skill_lv * s_level / 100;
 					break;
 				case LG_EARTHDRIVE:
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio = (skillratio + 100) * skill_lv * s_level / 100;
-						else
-							skillratio = (skillratio + 100) * skill_lv * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio = (skillratio + 100) * skill_lv * s_level / 100;
+					skillratio = (skillratio + 100) * skill_lv * s_level / 100;
 					break;
 				case SR_DRAGONCOMBO:
 					skillratio += 40 * skill_lv;
@@ -2414,14 +2292,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 50 * skill_lv;
 					if( sd )
 						skillratio += pc_checkskill(sd, GN_REMODELING_CART) * 50;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * s_level / 100;
-						else
-							skillratio += skillratio * battle_config.max_highlvl_nerf / 100;
-					} else
-						skillratio += skillratio * s_level / 100;
+					skillratio += skillratio * s_level / 100;
 					break;
 				case GN_CARTCANNON:
 					skillratio += 250 + 50 * skill_lv + status_get_int(src) * 2; // Need official value. [LimitLine]
@@ -2449,15 +2320,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RK_SONICWAVE: // Sugested formula from irowiki. 
 					skillratio += 400 + 100 * skill_lv; // Base skillratio.
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case RK_HUNDREDSPEAR:
 					skillratio += 500 + 80 * skill_lv;
@@ -2481,29 +2344,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RK_WINDCUTTER: // Sugested formula from irowiki.
 					skillratio += 50 * skill_lv; // Base skillratio
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if(s_level <= battle_config.max_highlvl_nerf)
-							skillratio *= 1 + (s_level-50) / 20; // Bonus by base level.
-						else
-							skillratio *= 1 + (battle_config.max_highlvl_nerf-50) / 20; // Bonus by base level.
-					} else
-						skillratio *= (1 + (s_level-50) / 20); // Bonus by base level.
+					if( s_level > 50 ) skillratio += skillratio * (1 + (s_level-50) / 20); // Bonus by base level.
 					break;
 				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
 					i = distance_bl(src,target) / 2;
 					skillratio += 100 * skill_lv;
 					if( i < 4 ) skillratio += 100 * skill_lv;
 					if( i < 2 ) skillratio += 100;
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					if( sstatus->rhw.ele == ELE_FIRE )	skillratio +=  skillratio / 2;	// Bonus by fire element endow.
 					break;
 				case RK_DRAGONBREATH: // Sugested formula from irowiki.
@@ -2524,15 +2372,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RK_PHANTOMTHRUST: // TODO: How much Spear Mastery affects?.
 					skillratio += 20 * (skill_lv - 1);
-					if( battle_config.max_highlvl_nerf ) // [Pinky]
-					{
-						if( s_level > 100 && s_level <= battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-						else if( s_level > battle_config.max_highlvl_nerf)
-							skillratio += skillratio * (battle_config.max_highlvl_nerf - 100) / 200;	// Base level bonus.
-					} else {
-						if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					}
+					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					if( sd ) skillratio += pc_checkskill(sd, KN_SPEARMASTERY) * 10; // Temporary value.
 					break;
 				case SO_VARETYR_SPEAR: //Assumed Formula.
@@ -2726,6 +2566,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			short vit_def;
 			signed char def1 = status_get_def(target); //Don't use tstatus->def1 due to skill timer reductions.
 			short def2 = (short)tstatus->def2;
+
+			if( sc && sc->data[SC_EXPIATIO] )
+			{ // Deffense bypass 5 * skilllv
+				def1 -= def1 * 5 * sc->data[SC_EXPIATIO]->val1 / 100;
+				def2 -= def2 * 5 * sc->data[SC_EXPIATIO]->val1 / 100;
+			}
 
 			if( sd )
 			{
@@ -3195,7 +3041,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
  *------------------------------------------*/
 struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 {
-	int i, nk;
+	int i, s_level, nk;
 	short s_ele;
 	unsigned int skillratio = 100;	//Skill dmg modifiers.
 	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
@@ -3221,6 +3067,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
+
+	s_level = status_get_lv(src);
 
 	//Initial Values
 	ad.damage = 1;
@@ -3304,13 +3152,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			case ALL_RESURRECTION:
 			case PR_TURNUNDEAD:
 				//Undead check is on skill_castend_damageid code.
-				i = 20*skill_lv + sstatus->luk + sstatus->int_ + status_get_lv(src)
+				i = 20*skill_lv + sstatus->luk + sstatus->int_ + s_level
 				  	+ 200 - 200*tstatus->hp/tstatus->max_hp;
 				if(i > 700) i = 700;
 				if(rand()%1000 < i && !(tstatus->mode&MD_BOSS))
 					ad.damage = tstatus->hp;
 				else
-					ad.damage = status_get_lv(src) + sstatus->int_ + skill_lv * 10;
+					ad.damage = s_level + sstatus->int_ + skill_lv * 10;
 				break;
 			case PF_SOULBURN:
 				ad.damage = tstatus->sp * 2;
@@ -3321,7 +3169,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 				break;*/
 			case AB_RENOVATIO:
 				//Damage calculation from iRO wiki. [Jobbie]
-				ad.damage = (int)((15 * status_get_lv(src)) + (1.5 * sstatus->int_));
+				ad.damage = (int)((15 * s_level) + (1.5 * sstatus->int_));
 			default:
 			{
 				if( skill_num == RK_ENCHANTBLADE ){
@@ -3408,7 +3256,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += (tstatus->size!=2?5*skill_lv:-99); //Full damage is dealt on small/medium targets
 						break;
 					case SL_SMA:
-						skillratio += -60 + status_get_lv(src); //Base damage is 40% + lv%
+						skillratio += -60 + s_level; //Base damage is 40% + lv%
 						break;
 					case NJ_KOUENKA:
 						skillratio -= 10;
@@ -3435,59 +3283,35 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SOULEXPANSION:
 						{
 							struct status_change *tsc = status_get_sc(target);
-							skillratio = skillratio + 300 + 100 * skill_lv + status_get_int(src);
-							skillratio *= status_get_lv(src) / 100;
+							skillratio = (skillratio + 300 + 100 * skill_lv + status_get_int(src)) * s_level / 100;
 							if( tsc && tsc->data[SC_WHITEIMPRISON] )
-								skillratio *= 2;
+								skillratio <<= 1;
 						}
-					case WL_FROSTMISTY:
-						skillratio = skillratio + 100 + 100 * skill_lv;
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio = skillratio * status_get_lv(src) / 100;
-							else
-								skillratio = skillratio * battle_config.max_highlvl_nerf / 100;
-						} else
-							skillratio = skillratio * status_get_lv(src) / 100;
 						break;
+					case WL_FROSTMISTY:
+						skillratio = (skillratio + 100 + 100 * skill_lv) * s_level / 100;
 						break;
 					case WL_JACKFROST:
 						{
 							struct status_change *tsc = status_get_sc(target);
-							if( tsc && tsc->data[SC_FREEZING] ) {
-								if( battle_config.max_highlvl_nerf ) // [Pinky]
-								{
-									if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-										skillratio = (skillratio + 900 + (300 * skill_lv)) * status_get_lv(src) / 100;
-									else
-										skillratio = (skillratio + 900 + (300 * skill_lv)) * battle_config.max_highlvl_nerf / 100;
-								} else
-									skillratio = (skillratio + 900 + (300 * skill_lv)) * status_get_lv(src) / 100;
-							} else
+							if( tsc && tsc->data[SC_FREEZING] )
+								skillratio = (skillratio + 900 + (300 * skill_lv)) * s_level / 100;
+							else
 								skillratio = (skillratio + 500) * (1 + (status_get_lv(src) / 100));
 						}
 						break;
 					case WL_DRAINLIFE:
-						skillratio = skillratio + 400 + 100 * skill_lv * (1 + sstatus->int_/1000);
-						skillratio = skillratio * status_get_lv(src) / 100;
+						skillratio = (skillratio + 400 + 100 * skill_lv * (1 + sstatus->int_/1000)) * s_level / 100;
 						break;
 					case WL_CRIMSONROCK:
-						skillratio += 1200 + 300 * skill_lv;
-						if( battle_config.max_highlvl_nerf && status_get_lv(src) > battle_config.max_highlvl_nerf ) // [Pinky]
-							skillratio += 15 * (battle_config.max_highlvl_nerf - 100);
-						else
-							skillratio += 15 * (status_get_lv(src) - 100);
+						skillratio = skillratio + 1200 + 300 * skill_lv + 15 * (s_level - 100);
 						break;
 					case WL_HELLINFERNO:
 						if( s_ele == ELE_FIRE )
 							skillratio += 60 * skill_lv - 100;
 						else
 							skillratio += 240 * skill_lv - 100;
-						if( battle_config.max_highlvl_nerf && status_get_lv(src) > battle_config.max_highlvl_nerf ) // [Pinky]
-							skillratio *= battle_config.max_highlvl_nerf / 100;
-						else
-							skillratio *= status_get_lv(src) / 100;
+						skillratio += skillratio * s_level / 100;
 						break;
 					case WL_COMET:
 						i = distance_xy(target->x, target->y, sc->comet_x, sc->comet_y);
@@ -3501,24 +3325,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WL_CHAINLIGHTNING:
 					case WL_CHAINLIGHTNING_ATK:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio = (skillratio + 100 + 300 * skill_lv) * status_get_lv(src) / 100;
-							else
-								skillratio = (skillratio + 100 + 300 * skill_lv) * battle_config.max_highlvl_nerf / 100;
-						} else
-							skillratio = (skillratio + 100 + 300 * skill_lv) * status_get_lv(src) / 100;
+						skillratio = (skillratio + 100 + 300 * skill_lv) * s_level / 100;
 						break;
 					case WL_EARTHSTRAIN:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio = skillratio * status_get_lv(src)/100;
-							else
-								skillratio = skillratio * battle_config.max_highlvl_nerf/100;
-						} else
-							skillratio = skillratio * status_get_lv(src)/100;
+						skillratio = (skillratio + 1900 + 100 * skill_lv) * s_level/100;
 						break;
 					case WL_TETRAVORTEX_FIRE:
 					case WL_TETRAVORTEX_WATER:
@@ -3531,7 +3341,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SUMMON_ATK_WIND:
 					case WL_SUMMON_ATK_GROUND:
 						skillratio += 50 * skill_lv - 50;
-						skillratio = skillratio * (status_get_lv(src) + 2 * (sd ? sd->status.job_level : 0)) / 100;
+						skillratio = skillratio * (s_level + 2 * (sd ? sd->status.job_level : 0)) / 100;
 						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;
@@ -3543,65 +3353,44 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case SO_ELECTRICWALK:
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
 						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 300 * ( status_get_lv(src) * 3 / 100 );
+							if(s_level <= battle_config.max_highlvl_nerf)
+								skillratio += -100 + 300 * ( s_level * 3 / 100 );
 							else
 								skillratio += -100 + 300 * ( battle_config.max_highlvl_nerf * 3 / 100 );
 						} else
-							skillratio += -100 + 300 * ( status_get_lv(src) * 3 / 100 );
+							skillratio += -100 + 300 * ( s_level * 3 / 100 );
 						break;
 					case SO_EARTHGRAVE:
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
 						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
+							if(s_level <= battle_config.max_highlvl_nerf)
+								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
 							else
 								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * battle_config.max_highlvl_nerf / 100;
 						} else
-							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
+							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
 						break;
 					case SO_DIAMONDDUST:
 						if( battle_config.max_highlvl_nerf ) // [Pinky]
 						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
+							if(s_level <= battle_config.max_highlvl_nerf)
+								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
 							else
 								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * battle_config.max_highlvl_nerf / 100;
 						} else
-							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * status_get_lv(src) / 100;
+							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
 						break;
 					case SO_POISON_BUSTER:
 						skillratio += 165 * skill_lv;
 						break;
 					case SO_PSYCHIC_WAVE:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
-							else
-								skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * battle_config.max_highlvl_nerf / 100 );
-						} else
-							skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * status_get_lv(src) / 100 );
+						skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * s_level / 100 );
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + (sstatus->int_ * skill_lv * status_get_lv(src) / 100);
-							else
-								skillratio += -100 + (sstatus->int_ * skill_lv * battle_config.max_highlvl_nerf / 100);
-						} else
-							skillratio += -100 + (sstatus->int_ * skill_lv * status_get_lv(src) / 100);
+						skillratio += -100 + (sstatus->int_ * skill_lv * s_level / 100);
 						break;
 					case SO_CLOUD_KILL:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(status_get_lv(src) <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + skill_lv * 40 * status_get_lv(src) / 100;
-							else
-								skillratio += -100 + skill_lv * 40 * battle_config.max_highlvl_nerf / 100;
-						} else
-							skillratio += -100 + skill_lv * 40 * status_get_lv(src) / 100;
+						skillratio += -100 + skill_lv * 40 * s_level / 100;
 						break;
 					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
 						skillratio += 400 + 100 * skill_lv;
@@ -3620,13 +3409,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case AB_JUDEX:
-						skillratio += (skill_lv == 5) ? 300 : 180 + 20 * skill_lv;
-						skillratio = skillratio * status_get_lv(src) / 100;
+						skillratio = (skillratio + (skill_lv == 5) ? 300 : 180 + 20 * skill_lv) * s_level / 100;
 						break;
 					case AB_ADORAMUS: 
-						skillratio += 400 + 100 * skill_lv;
-						if( sd )
-							skillratio += sd->status.base_level; // Whats the official value? [Rytech]
+						skillratio = (skillratio + 100 + 100 * skill_lv) * s_level / 100;
 						break;
 					case AB_DUPLELIGHT_MAGIC:
 						skillratio += 100 + 20 * skill_lv;
@@ -4397,35 +4183,25 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		if (sc->data[SC_MAGICALATTACK])
 			//FIXME: invalid return type!
 			return (damage_lv)skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK]->val1,tick,0);
-		if( sc->data[SC_DUPLELIGHT] && rand()%100 <= 25 )//Chance of activation for either physical and magical is 25%
-		{
-			int skillid;
-			if( rand()%2 == 1 )
-				skillid = AB_DUPLELIGHT_MELEE;
-			else
-				skillid = AB_DUPLELIGHT_MAGIC;
-			skill_attack(skill_get_type(skillid), src, src, target, skillid, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
-		}
-		if( sc->data[SC_GENTLETOUCH_ENERGYGAIN] ){
+		if( sc->data[SC_GENTLETOUCH_ENERGYGAIN] ) {
 			int duration = skill_get_time(MO_CALLSPIRITS, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1); 
 			if( sd && rand()%100 < 10 + sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1 * 5 )
 				pc_addspiritball(sd, duration, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1);
 		}
 	}
 
-	if(tsc && tsc->data[SC_KAAHI] && tsc->data[SC_KAAHI]->val4 == INVALID_TIMER && tstatus->hp < tstatus->max_hp)
+	if(tsc && tsc->data[SC_KAAHI] && tsc->data[SC_KAAHI]->val4 == -1 && tstatus->hp < tstatus->max_hp )
 		tsc->data[SC_KAAHI]->val4 = add_timer(tick + skill_get_time2(SL_KAAHI,tsc->data[SC_KAAHI]->val1), kaahi_heal_timer, target->id, SC_KAAHI); //Activate heal.
 
-	wd = battle_calc_attack(BF_WEAPON, src, target, 0, 0, flag);	
+	wd = battle_calc_attack(BF_WEAPON, src, target, 0, 0, flag);
 
-	if(sc)
-	{
-		if( sc->data[SC_EXEEDBREAK] ){
+	if(sc) {
+		if( sc->data[SC_EXEEDBREAK] ) {
 			wd.damage = wd.damage * sc->data[SC_EXEEDBREAK]->val1 / 100;
-			status_change_end(src,SC_EXEEDBREAK,INVALID_TIMER);
- 		}
-		if( sc->data[SC_SPELLFIST] ){
-			if( --(sc->data[SC_SPELLFIST]->val1) >= 0 ){
+			status_change_end(src,SC_EXEEDBREAK,-1);
+		}
+		if( sc->data[SC_SPELLFIST] ) {
+			if( --(sc->data[SC_SPELLFIST]->val1) >= 0 ) {
 				wd = battle_calc_attack(BF_MAGIC,src,target,sc->data[SC_SPELLFIST]->val3,sc->data[SC_SPELLFIST]->val4,flag);
 				wd.damage += (wd.damage / sc->data[SC_SPELLFIST]->val4) * sc->data[SC_SPELLFIST]->val2;
 			}
@@ -4433,7 +4209,8 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				status_change_end(src,SC_SPELLFIST,-1);
 		}
 	}
-	if( sd && sc && sc->data[SC_GIANTGROWTH] && wd.flag&(BF_WEAPON|BF_SHORT) && rand()%100 < sc->data[SC_GIANTGROWTH]->val2 )
+
+	if( sd && sc && sc->data[SC_GIANTGROWTH] && (wd.flag&BF_SHORT) && rand()%100 < sc->data[SC_GIANTGROWTH]->val2 )
 		wd.damage *= 3; // Triple Damage
 
 	if (sd && sd->state.arrow_atk) //Consume arrow.
@@ -4442,6 +4219,17 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	damage = wd.damage + wd.damage2;
 	if( damage > 0 && src != target )
 	{
+		
+		if( sc && sc->data[SC_DUPLELIGHT] && (wd.flag&BF_SHORT) && rand()%100 <= 25 )//Chance of activation for either physical and magical is 25%
+		{	// Activates it only from melee damage
+			int skillid;
+			if( rand()%2 == 1 )
+				skillid = AB_DUPLELIGHT_MELEE;
+			else
+				skillid = AB_DUPLELIGHT_MAGIC;
+			skill_attack(skill_get_type(skillid), src, src, target, skillid, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
+		}
+
 		if( tsc && tsc->data[SC_DEATHBOUND] && (sstatus->mode&MD_BOSS)  )
 			rdamage = 0;
 		else
@@ -4492,6 +4280,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				status_damage(target, s_bl, damage, 0, 0, 32);
 			}
 		}
+		// Just show damage in target.
+		clif_damage(src, target, tick, wd.damage, wd.dmotion, damage, wd.div_, wd.type, wd.damage2 );
+		return ATK_NONE;
 	}
 
 	wd.dmotion = clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2);
@@ -4503,22 +4294,50 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	battle_delay_damage(tick, wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion);
 
-	if( tsc && tsc->data[SC_DEVOTION] )
-	{
-		struct status_change_entry *sce = tsc->data[SC_DEVOTION];
-		struct block_list *d_bl = map_id2bl(sce->val1);
+	if( tsc ) {
+		if( tsc->data[SC_DEVOTION] ) {
+			struct status_change_entry *sce = tsc->data[SC_DEVOTION];
+			struct block_list *d_bl = map_id2bl(sce->val1);
 
-		if( d_bl && (
-			(d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == target->id) ||
-			(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce->val2] == target->id)
-			) && check_distance_bl(target, d_bl, sce->val3) )
-		{
-			clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, 0, 0);
-			status_fix_damage(NULL, d_bl, damage, 0);
+			if( d_bl && (
+				(d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == target->id) ||
+				(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce->val2] == target->id)
+				) && check_distance_bl(target, d_bl, sce->val3) ) {
+				clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, 0, 0);
+				status_fix_damage(NULL, d_bl, damage, 0);
+			}
+			else
+				status_change_end(target, SC_DEVOTION, INVALID_TIMER);
 		}
-		else
-			status_change_end(target, SC_DEVOTION, INVALID_TIMER);
+
+		if( tsc->data[SC_CIRCLE_OF_FIRE_OPTION] && (wd.flag&BF_SHORT) && target->type == BL_PC ) {
+			struct elemental_data *ed = ((TBL_PC*)target)->ed;
+			if( ed ) {
+				clif_skill_damage(&ed->bl, target, tick, status_get_amotion(src), 0, -30000, 1, EL_CIRCLE_OF_FIRE, tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1, 6);
+				skill_attack(BF_MAGIC,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,tick,wd.flag);
+			}
+		}
+
+		if( tsc->data[SC_WATER_SCREEN_OPTION] && tsc->data[SC_WATER_SCREEN_OPTION]->val1 ) {
+			struct block_list *e_bl = map_id2bl(tsc->data[SC_WATER_SCREEN_OPTION]->val1);
+			if( e_bl && !status_isdead(e_bl) ) {
+				clif_damage(e_bl,e_bl,tick,wd.amotion,wd.dmotion,damage,wd.div_,wd.type,wd.damage2);
+				status_damage(target,e_bl,damage,0,0,0);
+				// Just show damage in target.
+				clif_damage(src, target, tick, wd.amotion, wd.dmotion, damage, wd.div_, wd.type, wd.damage2 );
+				return ATK_NONE;
+			}			
+		}
 	}
+
+	wd.dmotion = clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2);
+
+	if (sd && sd->splash_range > 0 && damage > 0)
+		skill_castend_damage_id(src, target, 0, 1, tick, 0);
+
+	map_freeblock_lock();
+
+	battle_delay_damage(tick, wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion);
 
 	if (sc && sc->data[SC_AUTOSPELL] && rand()%100 < sc->data[SC_AUTOSPELL]->val4) {
 		int sp = 0;
@@ -4532,6 +4351,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		if (skilllv < 1) skilllv = 1;
 		sp = skill_get_sp(skillid,skilllv) * 2 / 3;
 
+		if (sd) sd->state.autocast = 1;
 		if (status_charge(src, 0, sp)) {
 			switch (skill_get_casttype(skillid)) {
 				case CAST_GROUND:
@@ -4545,23 +4365,43 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 					break;
 			}
 		}
+		if (sd) sd->state.autocast = 0;
 	}
-	if( sd && wd.flag&BF_SHORT && sc && sc->data[SC__AUTOSHADOWSPELL] && rand()%100 < sc->data[SC__AUTOSHADOWSPELL]->val3 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id != 0 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].flag == 13 ){
+	if( sd && wd.flag&BF_SHORT && sc && sc->data[SC__AUTOSHADOWSPELL] && rand()%100 < sc->data[SC__AUTOSHADOWSPELL]->val3 &&
+		sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id != 0 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].flag == 13 ) {
 		int r_skill = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id,
 			r_lv = sc->data[SC__AUTOSHADOWSPELL]->val2;
 
-		switch( skill_get_casttype(r_skill) ){
-			case CAST_GROUND:
-				skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
-				break;
-			case CAST_NODAMAGE:
-				skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
-				break;
-			case CAST_DAMAGE:
-				skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
-				break;
-		}
+			skill_consume_requirement(sd,r_skill,r_lv,3);
+			switch( skill_get_casttype(r_skill) ) {
+				case CAST_GROUND:
+					skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
+					break;
+				case CAST_DAMAGE:
+					skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
+					break;
+				case CAST_NODAMAGE:
+					skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
+					break;
+			}
+
+			sd->ud.canact_tick = tick + skill_delayfix(src, r_skill, r_lv);
+			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, r_skill, r_lv), 0, 0, 1);
 	}
+	if( sd && sc && (sc->data[SC_TROPIC_OPTION] || sc->data[SC_CHILLY_AIR_OPTION] || sc->data[SC_WILD_STORM_OPTION] || sc->data[SC_UPHEAVAL_OPTION]) )
+	{	// Autocast one Bolt depending on status change.
+		int skillid = 0;
+		if( sc->data[SC_TROPIC_OPTION] ) skillid = sc->data[SC_TROPIC_OPTION]->val3;
+		else if( sc->data[SC_CHILLY_AIR_OPTION] ) skillid = sc->data[SC_CHILLY_AIR_OPTION]->val3;
+		else if( sc->data[SC_WILD_STORM_OPTION] ) skillid = sc->data[SC_WILD_STORM_OPTION]->val2;
+		else if( sc->data[SC_UPHEAVAL_OPTION] ) skillid = sc->data[SC_UPHEAVAL_OPTION]->val2;
+
+		sd->state.autocast = 1;
+		if( skillid && rand()%100 < 5 )
+			skill_castend_damage_id(src, target, skillid, pc_checkskill(sd,skillid), tick, flag);
+		sd->state.autocast = 0;
+	}
+
 	if (sd) {
 		if (wd.flag & BF_WEAPON && src != target && damage > 0) {
 			if (battle_config.left_cardfix_to_right)

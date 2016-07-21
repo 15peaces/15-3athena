@@ -4,6 +4,36 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/21/2016
+	r129 [15peaces]
+		*Merged missing changes from 3ceam rev. 491 - 498
+		*Fixed some stuff from my last commit.
+			-Disabled Packet debug function.
+			-Fixed an issue where mailing items would reset bound-states.
+		*Optimized buffer size forintif_create_party
+		*Adjusted atcommand showexp to not display the message if no base or job EXP is given.
+		*Re-added packet 0x147 for 2009-07-15 clients and older.
+		*Expanded pc_bonus warnings to give item-id when unknown bonus type is detected.
+		*Fixed elemental's initial mode. It must be passive.
+		*Updated elemental's action range.
+		*Added elemental's skill tree.
+		*Fixed a typo in elementals modes
+		*Enabled BL_ELEM in clif_bl_type.
+		*Cleaned and unified some stuff relative to Elementals Spirits.
+		*Cleaned previous code relative to 'max_highlvl_nerf' to avoid recursive code.
+		*Fixed SC_DUPLELIGHT that wasn't blocking melee damages only.
+		*Fixed a mistake in 'skill_get_index' where elemental skills wasn't being stored correctly in skill_db when the server start.
+		*Added restriction to use AM_POTIONPITCHER on elementals.
+		*Added initial stat calculation from elementals. These will be stored in the db soon.
+		*Added restriction in skill_check_pc_partner to avoid large damage in some skills that use the party member count as skill effect multiplier when player_skill_partner_check is off. Limited to MAX_PARTY.
+		*Fixed SC_SHADOWFORM that don't deal damage to the Chaser and just display damage.
+		*Fixed SR_DRAGONCOMBO and SR_FALLENEMPIRE:
+			-SR_DRAGONCOMBO can be used after Trefecta skill as a combo.
+			-SR_FALLENEMPIRE can be used after SR_DRAGONCOMBO only.
+		*Added Status Icon to SC_COMBO according to official behavior.
+		*Some ItemDB-Updates / Fixes
+			-Updated High_Weapon_Box (12818) item script.
+	
 07/20/2016
 	r128 [15peaces]
 		*Merged missing changes from 3ceam rev. 490

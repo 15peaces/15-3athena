@@ -4925,7 +4925,7 @@ Example:
 	mes "I see you currently have "+countbound+" bounded items."; 
 	next; 
 	mes "The list of bounded items include:"; 
-	for(.@i = 0; .@i<getarraysize(@bound_items); .@i++) 
+	for(set .@i, 0; .@i<getarraysize(@bound_items); set .@i,.@i+1)  
 		mes getitemname(@bound_items[.@i]); 
 	close; 
 	     

@@ -51,7 +51,7 @@
 
 //#define DUMP_UNKNOWN_PACKET
 //#define DUMP_INVALID_PACKET
-#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
+//#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
 
 struct Clif_Config {
 	int packet_db_ver;	//Preferred packet version.
@@ -268,8 +268,7 @@ uint32 clif_refresh_ip(void)
 /*==========================================
  * mapŽI‚Ìport“Ç‚Ýo‚µ
  *------------------------------------------*/
-uint16 clif_getport(void)
-{
+uint16 clif_getport(void) {
 	return map_port;
 }
 
@@ -285,7 +284,7 @@ static inline unsigned char clif_bl_type(struct block_list *bl) {
 	case BL_PET:   return pcdb_checkid(status_get_viewdata(bl)->class_)?0x0:0x7; //NPC_PET_TYPE
 	case BL_HOM:   return 0x8; //NPC_HOM_TYPE
 	case BL_MER:   return 0x9; //NPC_MERSOL_TYPE
-// case BL_ELEM:  return 0xA; //NPC_ELEMENTAL_TYPE
+	case BL_ELEM:  return 0xa; //NPC_ELEMENTAL_TYPE
 	default:       return 0x1; //NPC_TYPE
 	}
 }
@@ -4982,7 +4981,7 @@ int clif_insight(struct block_list *bl,va_list ap)
 
 /// Updates whole skill tree (ZC_SKILLINFO_LIST).
 /// 010f <packet len>.W { <skill id>.W <type>.L <level>.W <sp cost>.W <attack range>.W <skill name>.24B <upgradable>.B }*
-void clif_skillinfoblock(struct map_session_data *sd)
+void clif_skillupdateinfoblock(struct map_session_data *sd)
 {
 	int fd;
 	int i,len,id;
@@ -5062,7 +5061,7 @@ void clif_deleteskill(struct map_session_data *sd, int id)
 	WFIFOW(fd,2) = id;
 	WFIFOSET(fd,packet_len(0x441));
 #else
-	clif_skillinfoblock(sd);
+	clif_skillupdateinfoblock(sd);
 #endif
 }
 
@@ -5089,22 +5088,36 @@ void clif_skillup(struct map_session_data *sd,int skill_num)
 
 /// Updates a skill in the skill tree (ZC_SKILLINFO_UPDATE2).
 /// 07e1 <skill id>.W <type>.L <level>.W <sp cost>.W <attack range>.W <upgradable>.B
-void clif_skillinfo(struct map_session_data *sd,int skill, int inf)
-{
-	const int fd = sd->fd;
+void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int range) {
+	int fd, id, cmd, offs = 0;
+	
+#if PACKETVER < 20090715
+	cmd = 0x147;
+#else
+	cmd = 0x7e1;
+#endif
+	
+	nullpo_retv(sd);
+	fd = sd->fd;
+ 	if( (id=sd->status.skill[skillid].id) <= 0 )
+ 		return;
 
-	WFIFOHEAD(fd,packet_len(0x7e1));
-	WFIFOW(fd,0) = 0x7e1;
-	WFIFOW(fd,2) = skill;
-	WFIFOL(fd,4) = inf?inf:skill_get_inf(skill);
-	WFIFOW(fd,8) = sd->status.skill[skill].lv;
-	WFIFOW(fd,10) = skill_get_sp(skill,sd->status.skill[skill].lv);
-	WFIFOW(fd,12) = skill_get_range2(&sd->bl,skill,sd->status.skill[skill].lv);
-	if( sd->status.skill[skill].flag == SKILL_FLAG_PERMANENT )
-		WFIFOB(fd,14) = (sd->status.skill[skill].lv < skill_tree_get_max(skill, sd->status.class_))? 1:0;
+	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOW(fd,0) = cmd;
+	WFIFOW(fd,2) = id;
+	WFIFOL(fd,4) = type?type:skill_get_inf(id);
+	WFIFOW(fd,8) = sd->status.skill[skillid].lv;
+	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[skillid].lv);
+	WFIFOW(fd,12) = range?range:skill_get_range2(&sd->bl,id,sd->status.skill[skillid].lv);
+#if PACKETVER < 20090715
+	safestrncpy((char*)WFIFOP(fd,14), skill_get_name(id), NAME_LENGTH);
+	offs = 24;
+#endif
+	if( sd->status.skill[skillid].flag == SKILL_FLAG_PERMANENT )
+		WFIFOB(fd,14+offs) = (sd->status.skill[skillid].lv < skill_tree_get_max(id, sd->status.class_))? 1:0;
 	else
-		WFIFOB(fd,14) = 0;
-	WFIFOSET(fd,packet_len(0x7e1));
+		WFIFOB(fd,14+offs) = 0;
+	WFIFOSET(fd,packet_len(cmd));
 }
 
 
@@ -10211,7 +10224,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	if(sd->state.connect_new) {
 		int lv;
 		sd->state.connect_new = 0;
-		clif_skillinfoblock(sd);
+		clif_skillupdateinfoblock(sd);
 		clif_hotkeys_send(sd);
 		clif_updatestatus(sd,SP_BASEEXP);
 		clif_updatestatus(sd,SP_NEXTBASEEXP);

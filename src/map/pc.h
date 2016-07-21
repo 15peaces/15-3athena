@@ -131,6 +131,7 @@ struct map_session_data {
 		unsigned int lr_flag : 2;
 		unsigned int connect_new : 1;
 		unsigned int arrow_atk : 1;
+		unsigned combo : 2; // 1:Asura, 2:Kick [Inkfish]
 		unsigned int gangsterparadise : 1;
 		unsigned int rest : 1;
 		unsigned int storage_flag : 2; //0: closed, 1: Normal Storage open, 2: guild storage open [Skotlex]

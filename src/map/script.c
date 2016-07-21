@@ -5630,9 +5630,10 @@ BUILDIN_FUNC(checkweight) {
  * getitembound <item id>,<amount>,<type>{,<account ID>}; 
  * getitembound "<item id>",<amount>,<type>{,<account ID>}; 
  * Type: 
- *      1 - Account Bound 
- *      2 - Guild Bound 
- *      3 - Party Bound 
+ *	1 - Account Bound 
+ *	2 - Guild Bound 
+ *	3 - Party Bound 
+ *	4 - Character Bound
  *------------------------------------------*/
 BUILDIN_FUNC(getitem) {
 	unsigned short nameid, amount;
@@ -9620,7 +9621,7 @@ BUILDIN_FUNC(changebase)
 		clif_changelook(&sd->bl,LOOK_WEAPON,sd->status.weapon);
 		if (sd->vd.cloth_color)
 			clif_changelook(&sd->bl,LOOK_CLOTHES_COLOR,sd->vd.cloth_color);
-		clif_skillinfoblock(sd);
+		clif_skillupdateinfoblock(sd);
 	}
 
 	return 0;
@@ -11404,6 +11405,7 @@ BUILDIN_FUNC(getinventorylist)
 				sprintf(card_var, "@inventorylist_card%d",k+1);
 				pc_setreg(sd,reference_uid(add_str(card_var), j),sd->status.inventory[i].card[k]);
 			}
+			pc_setreg(sd,reference_uid(add_str("@inventorylist_expire"), j),sd->status.inventory[i].expire_time);
 			pc_setreg(sd,reference_uid(add_str("@inventorylist_bound"), j),sd->status.inventory[i].bound);
 			j++;
 		}
