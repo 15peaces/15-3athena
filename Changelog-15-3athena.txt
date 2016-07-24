@@ -4,6 +4,10 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/24/2016
+	r130 [15peaces]
+		*Updated item_db.sql.
+
 07/21/2016
 	r129 [15peaces]
 		*Merged missing changes from 3ceam rev. 491 - 498
