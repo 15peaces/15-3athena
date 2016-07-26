@@ -294,14 +294,15 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 	}
 
 	ratio = attr_fix_table[def_lv-1][atk_elem][def_type];
-	if (sc && sc->count)
-	{
+	if (sc && sc->count) {
 		if(sc->data[SC_VOLCANO] && atk_elem == ELE_FIRE)
 			ratio += enchant_eff[sc->data[SC_VOLCANO]->val1-1];
 		if(sc->data[SC_VIOLENTGALE] && atk_elem == ELE_WIND)
 			ratio += enchant_eff[sc->data[SC_VIOLENTGALE]->val1-1];
 		if(sc->data[SC_DELUGE] && atk_elem == ELE_WATER)
 			ratio += enchant_eff[sc->data[SC_DELUGE]->val1-1];
+		if(sc->data[SC_FIRE_CLOAK_OPTION] && atk_elem == ELE_FIRE)
+			damage += damage * sc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
 	}
 	if( atk_elem == ELE_FIRE && tsc && tsc->count && tsc->data[SC_SPIDERWEB] )
 	{
@@ -311,14 +312,15 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 		if( tsc->data[SC_SPIDERWEB]->val2 == 0 )
 			status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
 	}
-	if( tsc && tsc->count )
-	{
+	if( tsc && tsc->count ) {
 		if( tsc->data[SC_ORATIO] && atk_elem == ELE_HOLY )
 			ratio += tsc->data[SC_ORATIO]->val1 * 2;
 		if( tsc->data[SC_VENOMIMPRESS] && atk_elem == ELE_POISON)
 			ratio += tsc->data[SC_VENOMIMPRESS]->val2;
 		if( atk_elem == ELE_FIRE && tsc->data[SC_THORNSTRAP] )
 			status_change_end(target, SC_THORNSTRAP, INVALID_TIMER);
+		if( tsc->data[SC_FIRE_CLOAK_OPTION] && atk_elem == ELE_FIRE)
+			damage -= damage * tsc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
 	}
 	if( target && target->type == BL_SKILL )
 	{
@@ -424,6 +426,11 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		if( (sc->data[SC_PNEUMA] && (flag&(BF_MAGIC|BF_LONG)) == BF_LONG) || sc->data[SC__MANHOLE] ) {
+			d->dmg_lv = ATK_BLOCK;
+			return 0;
+		}
+		if( sc->data[SC_ZEPHYR] && ((flag&BF_LONG) || rand()%100 < 10) )
+		{	// TODO: check if it blocks both, magic and physical ranged damages.
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
 		}
@@ -1347,6 +1354,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case SR_GATEOFHELL:
 				if( sd )
 					wd.div_ = sd->spiritball_old + 2; // 7 Consecutive hits.
+				break;
+			case EL_STONE_RAIN:
+				if( !(wflag&1) )
+					wd.div_ = 1;
 				break;
 		}
 	} else //Range for normal attacks.
@@ -2377,6 +2388,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case SO_VARETYR_SPEAR: //Assumed Formula.
 					skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 );
+					if( sc && sc->data[SC_BLAST_OPTION] )
+						skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 					break;
 				case KO_HUUMARANKA:
 					skillratio += -100 + 150 * skill_lv + status_get_agi(src) + status_get_dex(src) + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 0);
@@ -2387,6 +2400,30 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case HFLI_SBR44:	//[orn]
 					skillratio += 100 *(skill_lv-1);
+					break;
+
+				case EL_FIRE_BOMB_ATK:
+				case EL_WATER_SCREW_ATK:
+					skillratio += 100 * skill_lv;
+					break;
+				case EL_FIRE_ARROW:
+				case EL_STONE_HAMMER:
+					skillratio += 200 * skill_lv;
+					break;
+				case EL_TIDAL_WEAPON:
+					skillratio += 1000 * skill_lv;
+					break;
+				case EL_HURRICANE_ATK:
+				case EL_TYPOON_MIS_ATK:
+				case EL_FIRE_WAVE_ATK:
+				case EL_ROCK_CRUSHER_ATK:
+						skillratio += 200 + 100 * skill_lv;
+						break;
+				case EL_STONE_RAIN:
+					if( wflag&1 )
+						skillratio += 500 + 100 * skill_lv;
+					else
+						skillratio += 200 + 100 * skill_lv;
 					break;
 			}
 
@@ -3042,7 +3079,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list *target,int skill_num,int skill_lv,int mflag)
 {
 	int i, s_level, nk;
-	short s_ele;
+	short s_ele = skill_get_ele(skill_num, skill_lv);
 	unsigned int skillratio = 100;	//Skill dmg modifiers.
 	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
 	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
@@ -3093,18 +3130,39 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			job_lv = battle_config.job_level_skill_effect_limit;
 	}
 
-	//Initialize variables that will be used afterwards
-	if( skill_num == WL_HELLINFERNO && mflag&1 )
-		s_ele = ELE_FIRE; // Flag&1 Fire, Flag&2 Shawdow.
-	else
+	// Skill Element Definition
+	if( skill_num == WL_HELLINFERNO ) {
+		if( skill_lv >= 0 )
+			s_ele = ELE_FIRE;
+		else {
+			s_ele = ELE_DARK;
+			skill_lv = -skill_lv;
+		}
+	} else if ( skill_num == LG_HESPERUSLIT && sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 4 )
+			s_ele = ELE_HOLY;
+	else if( sc && (sc->data[SC_HEATER_OPTION] || sc->data[SC_COOLER_OPTION] ||
+		sc->data[SC_BLAST_OPTION] || sc->data[SC_CURSED_SOIL_OPTION]) && skill_num == SO_PSYCHIC_WAVE )
+	{	// Status change from Elemental Spirits that change Psychic Wave damage element.
+		if( sc->data[SC_HEATER_OPTION] )
+			s_ele = sc->data[SC_HEATER_OPTION]->val4;
+		else if( sc->data[SC_COOLER_OPTION] )
+			s_ele = sc->data[SC_COOLER_OPTION]->val4;
+		else if( sc->data[SC_BLAST_OPTION] )
+			s_ele = sc->data[SC_BLAST_OPTION]->val3;
+		else if( sc->data[SC_CURSED_SOIL_OPTION] )
+			s_ele = sc->data[SC_CURSED_SOIL_OPTION]->val4;
+	} else if ( skill_num == KO_KAIHOU )
+		//If a GM character trys to use the skill with no sphere's, one of the four status will likely not be active.
+		s_ele = ELE_NEUTRAL; // We'll use neutral element for now. [15peaces]
+	else {
 		s_ele = skill_get_ele(skill_num, skill_lv);
-
-	if (s_ele == -1) // pl=-1 : the skill takes the weapon's element
-		s_ele = sstatus->rhw.ele;
-	else if (s_ele == -2) //Use status element
-		s_ele = status_get_attack_sc_element(src,status_get_sc(src));
-	else if( s_ele == -3 ) //Use random element
-		s_ele = rand()%ELE_MAX;
+		if( s_ele == -1 )
+			s_ele = sstatus->rhw.ele;
+		else if( s_ele == -2 )
+			s_ele = status_get_attack_sc_element(src,sc);
+		else if( s_ele == -3 ) //Use random element
+			s_ele = rand()%ELE_MAX;
+	}
 	
 	//Set miscellaneous data that needs be filled
 	if(sd) {
@@ -3116,10 +3174,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	ad.flag |= battle_range_type(src, target, skill_num, skill_lv);
 	flag.infdef=(tstatus->mode&MD_PLANT?1:0);
 		
-	switch(skill_num)
-	{
+	switch(skill_num) {
 		case MG_FIREWALL:
 		case NJ_KAENSIN:
+		case EL_FIRE_MANTLE:
 			ad.dmotion = 0; //No flinch animation.
 			if ( tstatus->def_ele == ELE_FIRE || battle_check_undead(tstatus->race, tstatus->def_ele) )
 				ad.blewcount = 0; //No knockback
@@ -3208,14 +3266,32 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if (battle_check_undead(tstatus->race,tstatus->def_ele))
 							skillratio += 5*skill_lv;
 						break;
+					case MG_COLDBOLT:
+						if( sc && sc->data[SC_AQUAPLAY_OPTION] )
+							skillratio += skillratio * sc->data[SC_AQUAPLAY_OPTION]->val3 / 100;
+						break;
 					case MG_FIREWALL:
 						skillratio -= 50;
+						if( sc && sc->data[SC_PYROTECHNIC_OPTION] )
+							skillratio += skillratio * sc->data[SC_PYROTECHNIC_OPTION]->val3 / 100;
+						break;
+					case MG_FIREBOLT:
+						if( sc && sc->data[SC_PYROTECHNIC_OPTION] )
+							skillratio += skillratio * sc->data[SC_PYROTECHNIC_OPTION]->val3 / 100;
+						break;
+					case MG_LIGHTNINGBOLT:
+						if( sc && sc->data[SC_GUST_OPTION] )
+							skillratio += skillratio * sc->data[SC_GUST_OPTION]->val2 / 100;
 						break;
 					case MG_THUNDERSTORM:
 						skillratio -= 20;
+						if( sc && sc->data[SC_GUST_OPTION] )
+							skillratio += skillratio * sc->data[SC_GUST_OPTION]->val2 / 100;
 						break;
 					case MG_FROSTDIVER:
 						skillratio += 10*skill_lv;
+						if( sc && sc->data[SC_AQUAPLAY_OPTION] )
+							skillratio += skillratio * sc->data[SC_AQUAPLAY_OPTION]->val3 / 100;
 						break;
 					case AL_HOLYLIGHT:
 						skillratio += 25;
@@ -3242,6 +3318,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WZ_WATERBALL:
 						skillratio += 30*skill_lv;
+						break;
+					case WZ_EARTHSPIKE:
+					case WZ_HEAVENDRIVE:
+						if( sc && sc->data[SC_PETROLOGY_OPTION] )
+							skillratio += skillratio * sc->data[SC_PETROLOGY_OPTION]->val3 / 100;
 						break;
 					case WZ_STORMGUST:
 						skillratio += 40*skill_lv;
@@ -3280,6 +3361,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case NPC_EARTHQUAKE:
 						skillratio += 100 +100*skill_lv +100*(skill_lv/2);
 						break;
+
+					case AB_RENOVATIO: // 3ceam v1
+						if( sd )
+							skillratio = (int)((15*sd->status.base_level)+(1.5*sd->status.int_));//Damage calculation from iRO wiki. [Jobbie]
+						break;
+
 					case WL_SOULEXPANSION:
 						{
 							struct status_change *tsc = status_get_sc(target);
@@ -3350,47 +3437,52 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 100 * (sd ? pc_checkskill(sd, WM_REVERBERATION) : 1);
 						break;
 					case SO_FIREWALK:
+						skillratio += -100 + 300 * ( s_level * 3 / 100 );
+						if( sc && sc->data[SC_HEATER_OPTION] )
+							skillratio += skillratio * sc->data[SC_HEATER_OPTION]->val3 / 100;
+						break;
 					case SO_ELECTRICWALK:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(s_level <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 300 * ( s_level * 3 / 100 );
-							else
-								skillratio += -100 + 300 * ( battle_config.max_highlvl_nerf * 3 / 100 );
-						} else
-							skillratio += -100 + 300 * ( s_level * 3 / 100 );
+						skillratio += -100 + 300 * ( s_level * 3 / 100 );
+						if( sc && sc->data[SC_BLAST_OPTION] )
+							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_EARTHGRAVE:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(s_level <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
-							else
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * battle_config.max_highlvl_nerf / 100;
-						} else
-							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						if( sc && sc->data[SC_BLAST_OPTION] )
+							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_DIAMONDDUST:
-						if( battle_config.max_highlvl_nerf ) // [Pinky]
-						{
-							if(s_level <= battle_config.max_highlvl_nerf)
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
-							else
-								skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * battle_config.max_highlvl_nerf / 100;
-						} else
-							skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						if( sc && sc->data[SC_COOLER_OPTION] )
+							skillratio += skillratio * sc->data[SC_COOLER_OPTION]->val3 / 100;
 						break;
 					case SO_POISON_BUSTER:
 						skillratio += 165 * skill_lv;
+						if( sc && sc->data[SC_CURSED_SOIL_OPTION] )
+							skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val2 / 100;
 						break;
 					case SO_PSYCHIC_WAVE:
 						skillratio += -100 + skill_lv * 70 + ( sstatus->int_ * 3 * s_level / 100 );
+						if( sc ) {
+							if( sc->data[SC_HEATER_OPTION] )
+								skillratio += skillratio * sc->data[SC_HEATER_OPTION]->val3 / 100;
+							else if(sc->data[SC_COOLER_OPTION] )
+								skillratio += skillratio * sc->data[SC_COOLER_OPTION]->val3 / 100;
+							else if(sc->data[SC_BLAST_OPTION] )
+								skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
+							else if(sc->data[SC_CURSED_SOIL_OPTION] )
+								skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val3 / 100;
+						}
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
 						skillratio += -100 + (sstatus->int_ * skill_lv * s_level / 100);
+					if( sc && sc->data[SC_BLAST_OPTION] )
+						skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_CLOUD_KILL:
 						skillratio += -100 + skill_lv * 40 * s_level / 100;
+						if( sc && sc->data[SC_CURSED_SOIL_OPTION] )
+							skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val2 / 100;
 						break;
 					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
 						skillratio += 400 + 100 * skill_lv;
@@ -3416,9 +3508,28 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case AB_DUPLELIGHT_MAGIC:
 						skillratio += 100 + 20 * skill_lv;
-					case AB_RENOVATIO: // 3ceam v1
-						if( sd )
-							skillratio = (int)((15*sd->status.base_level)+(1.5*sd->status.int_));//Damage calculation from iRO wiki. [Jobbie]
+
+					case EL_CIRCLE_OF_FIRE:
+						skillratio += 300 * skill_lv;
+						break;
+					case EL_FIRE_BOMB:
+					case EL_WATER_SCREW:
+						skillratio += 600 * skill_lv;
+						break;
+					case EL_HURRICANE:
+					case EL_TYPOON_MIS:
+						skillratio += 1000 * skill_lv;
+						break;
+					case EL_FIRE_MANTLE:
+						skillratio += 100 * skill_lv;
+						break;
+					case EL_ICE_NEEDLE:
+					case EL_WIND_SLASH:
+						skillratio += 200 * skill_lv;
+						break;
+					case EL_FIRE_WAVE:
+					case EL_ROCK_CRUSHER:
+						skillratio += 100 + 100 * skill_lv;
 						break;
 				}
 
@@ -4253,36 +4364,40 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 	}
 
-	if( tsc && tsc->data[SC__SHADOWFORM] && damage > 0 )
-	{
-		struct block_list *s_bl = map_id2bl(tsc->data[SC__SHADOWFORM]->val2);
-		if( !s_bl )
-		{ // If the shadow form target is not present remove the sc.
-			status_change_end(target, SC__SHADOWFORM, INVALID_TIMER);
-		}
-		else if( status_isdead(s_bl) )
-		{ // If the shadow form target is dead remove the sc in both.
-			status_change_end(target, SC__SHADOWFORM, INVALID_TIMER);
-			if( s_bl->type == BL_PC )
-				((TBL_PC*)s_bl)->shadowform_id = 0;
-		}
-		else
-		{
-			if( (--tsc->data[SC__SHADOWFORM]->val3) < 0 )
-			{ // If you have exceded max hits supported, remove the sc in both.
-				status_change_end(target, SC__SHADOWFORM, -1);
-				if( s_bl->type == BL_PC )
-					((TBL_PC*)s_bl)->shadowform_id = 0;
-			}
-			else
+	if( tsc ) {
+		if( tsc->data[SC_DEVOTION] ) {
+			struct status_change_entry *sce = tsc->data[SC_DEVOTION];
+			struct block_list *d_bl = map_id2bl(sce->val1);
+
+			if( d_bl && (
+				(d_bl->type == BL_MER && ((TBL_MER*)d_bl)->master && ((TBL_MER*)d_bl)->master->bl.id == target->id) ||
+				(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce->val2] == target->id)
+				) && check_distance_bl(target, d_bl, sce->val3) )
 			{
-				clif_damage(s_bl, s_bl, tick, wd.amotion, wd.dmotion, damage, wd.div_ , wd.type, wd.damage2);
-				status_damage(target, s_bl, damage, 0, 0, 32);
+				clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, 0, 0);
+				status_fix_damage(NULL, d_bl, damage, 0);
+			} else
+				status_change_end(target, SC_DEVOTION, INVALID_TIMER);
+		}
+
+		if( tsc->data[SC_CIRCLE_OF_FIRE_OPTION] && (wd.flag&BF_SHORT) && target->type == BL_PC ) {
+			struct elemental_data *ed = ((TBL_PC*)target)->ed;
+			if( ed ) {
+				clif_skill_damage(&ed->bl, target, tick, status_get_amotion(src), 0, -30000, 1, EL_CIRCLE_OF_FIRE, tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1, 6);
+				skill_attack(BF_MAGIC,&ed->bl,&ed->bl,src,EL_CIRCLE_OF_FIRE,tsc->data[SC_CIRCLE_OF_FIRE_OPTION]->val1,tick,wd.flag);
 			}
 		}
-		// Just show damage in target.
-		clif_damage(src, target, tick, wd.damage, wd.dmotion, damage, wd.div_, wd.type, wd.damage2 );
-		return ATK_NONE;
+
+		if( tsc->data[SC_WATER_SCREEN_OPTION] && tsc->data[SC_WATER_SCREEN_OPTION]->val1 ) {
+			struct block_list *e_bl = map_id2bl(tsc->data[SC_WATER_SCREEN_OPTION]->val1);
+			if( e_bl && !status_isdead(e_bl) ) {
+				clif_damage(e_bl,e_bl,tick,wd.amotion,wd.dmotion,damage,wd.div_,wd.type,wd.damage2);
+				status_damage(target,e_bl,damage,0,0,0);
+				// Just show damage in target.
+				clif_damage(src, target, tick, wd.amotion, wd.dmotion, damage, wd.div_, wd.type, wd.damage2 );
+				return ATK_NONE;
+			}			
+		}
 	}
 
 	wd.dmotion = clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2);

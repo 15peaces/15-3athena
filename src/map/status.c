@@ -586,6 +586,34 @@ void initChangeTables(void)
 	set_sc( MER_BLESSING         , SC_BLESSING        , SI_BLESSING        , SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( MER_INCAGI           , SC_INCREASEAGI     , SI_INCREASEAGI     , SCB_AGI|SCB_SPEED );
 
+	// Elemental Spirit summoner's 'side' status changes.
+	set_sc( EL_PYROTECHNIC       , SC_PYROTECHNIC_OPTION     , SI_PYROTECHNIC_OPTION , SCB_WATK );
+	set_sc( EL_HEATER            , SC_HEATER_OPTION          , SI_HEATER_OPTION   , SCB_WATK );
+	set_sc( EL_TROPIC            , SC_TROPIC_OPTION          , SI_TROPIC_OPTION   , SCB_WATK );
+	set_sc( EL_CIRCLE_OF_FIRE    , SC_CIRCLE_OF_FIRE_OPTION  , SI_CIRCLE_OF_FIRE_OPTION , SCB_NONE );
+	set_sc( EL_FIRE_CLOAK        , SC_FIRE_CLOAK_OPTION      , SI_FIRE_CLOAK_OPTION , SCB_ALL );
+	set_sc( EL_AQUAPLAY          , SC_AQUAPLAY_OPTION        , SI_AQUAPLAY_OPTION , SCB_MATK );
+	set_sc( EL_WATER_SCREEN      , SC_WATER_SCREEN_OPTION    , SI_WATER_SCREEN_OPTION , SCB_NONE );
+	set_sc( EL_COOLER            , SC_COOLER_OPTION          , SI_COOLER_OPTION   , SCB_MATK );
+	set_sc( EL_WATER_DROP        , SC_WATER_DROP_OPTION      , SI_WATER_DROP_OPTION , SCB_ALL );
+	set_sc( EL_CHILLY_AIR        , SC_CHILLY_AIR_OPTION      , SI_CHILLY_AIR_OPTION , SCB_MATK );
+	set_sc( EL_WATER_BARRIER     , SC_WATER_BARRIER          , SI_WATER_BARRIER       , SCB_MDEF|SCB_WATK|SCB_MATK|SCB_FLEE );
+	set_sc( EL_TIDAL_WEAPON      , SC_TIDAL_WEAPON_OPTION    , SI_TIDAL_WEAPON_OPTION , SCB_ALL );
+	set_sc( EL_GUST              , SC_GUST_OPTION            , SI_GUST_OPTION     , SCB_NONE );
+	set_sc( EL_WIND_STEP         , SC_WIND_STEP_OPTION       , SI_WIND_STEP_OPTION  , SCB_SPEED|SCB_FLEE );
+	set_sc( EL_BLAST             , SC_BLAST_OPTION           , SI_BLAST_OPTION    , SCB_NONE );
+	set_sc( EL_WILD_STORM        , SC_WILD_STORM_OPTION      , SI_WILD_STORM_OPTION , SCB_NONE );
+	set_sc( EL_WIND_CURTAIN      , SC_WIND_CURTAIN_OPTION    , SI_WIND_CURTAIN_OPTION , SCB_ALL );
+	set_sc( EL_ZEPHYR            , SC_ZEPHYR                 , SI_ZEPHYR              , SCB_FLEE );
+	set_sc( EL_PETROLOGY         , SC_PETROLOGY_OPTION       , SI_PETROLOGY_OPTION  , SCB_NONE );
+	set_sc( EL_SOLID_SKIN        , SC_SOLID_SKIN_OPTION      , SI_SOLID_SKIN_OPTION   , SCB_DEF|SCB_MAXHP );
+	set_sc( EL_CURSED_SOIL       , SC_CURSED_SOIL_OPTION     , SI_CURSED_SOIL_OPTION     , SCB_NONE );
+	set_sc( EL_STONE_SHIELD      , SC_STONE_SHIELD_OPTION    , SI_STONE_SHIELD_OPTION , SCB_ALL );
+	set_sc( EL_UPHEAVAL          , SC_UPHEAVAL_OPTION        , SI_UPHEAVAL_OPTION   , SCB_NONE );
+	set_sc( EL_POWER_OF_GAIA     , SC_POWER_OF_GAIA          , SI_POWER_OF_GAIA       , SCB_MAXHP|SCB_DEF|SCB_SPEED );
+	set_sc( EL_ROCK_CRUSHER      , SC_ROCK_CRUSHER           , SI_ROCK_CRUSHER      ,   SCB_DEF );
+	set_sc( EL_ROCK_CRUSHER_ATK  , SC_ROCK_CRUSHER_ATK       , SI_ROCK_CRUSHER_ATK  ,   SCB_SPEED );
+
 	set_sc( GD_LEADERSHIP        , SC_GUILDAURA       , SI_BLANK           , SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX );
 	set_sc( GD_BATTLEORDER       , SC_BATTLEORDERS    , SI_BLANK           , SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( GD_REGENERATION      , SC_REGENERATION    , SI_BLANK           , SCB_REGEN );
@@ -701,6 +729,28 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
+
+	// Elemental Spirit's 'side' status change icons.
+	StatusIconChangeTable[SC_PYROTECHNIC] = SI_PYROTECHNIC;
+	StatusIconChangeTable[SC_HEATER] = SI_HEATER;
+	StatusIconChangeTable[SC_TROPIC] = SI_TROPIC;
+	StatusIconChangeTable[SC_AQUAPLAY] = SI_AQUAPLAY;
+	StatusIconChangeTable[SC_COOLER] = SI_COOLER;
+	StatusIconChangeTable[SC_CHILLY_AIR] = SI_CHILLY_AIR;
+	StatusIconChangeTable[SC_GUST] = SI_GUST;
+	StatusIconChangeTable[SC_BLAST] = SI_BLAST;
+	StatusIconChangeTable[SC_WILD_STORM] = SI_WILD_STORM;
+	StatusIconChangeTable[SC_PETROLOGY] = SI_PETROLOGY;
+	StatusIconChangeTable[SC_CURSED_SOIL] = SI_CURSED_SOIL;
+	StatusIconChangeTable[SC_UPHEAVAL] = SI_UPHEAVAL;
+	StatusIconChangeTable[SC_CIRCLE_OF_FIRE] = SI_CIRCLE_OF_FIRE;
+	StatusIconChangeTable[SC_FIRE_CLOAK] = SI_FIRE_CLOAK;
+	StatusIconChangeTable[SC_WATER_SCREEN] = SI_WATER_SCREEN;
+	StatusIconChangeTable[SC_WATER_DROP] = SI_WATER_DROP;
+	StatusIconChangeTable[SC_WIND_STEP] = SI_WIND_STEP;
+	StatusIconChangeTable[SC_WIND_CURTAIN] = SI_WIND_CURTAIN;
+	StatusIconChangeTable[SC_SOLID_SKIN] = SI_SOLID_SKIN;
+	StatusIconChangeTable[SC_STONE_SHIELD] = SI_STONE_SHIELD;
 
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -2310,7 +2360,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		if(sd->inventory_data[index]){		// Arrows
 			sd->arrow_atk += sd->inventory_data[index]->atk;
 			sd->state.lr_flag = 2;
-			run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
+			if( sd->inventory_data[index]->look != A_THROWWEAPON )
+				run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
 			sd->state.lr_flag = 0;
 			if (!calculating) //Abort, run_script retriggered status_calc_pc. [Skotlex]
 				return 1;
@@ -2777,7 +2828,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->subele[ELE_EARTH] += skill*10;
 	}
 
-	if(sc->count){
+	if(sc->count) {
      	if(sc->data[SC_CONCENTRATE])
 		{	//Update the card-bonus data
 			sc->data[SC_CONCENTRATE]->val3 = sd->param_bonus[1]; //Agi
@@ -2812,6 +2863,26 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			sd->subele[ELE_EARTH] += sc->data[SC_ARMOR_RESIST]->val2;
 			sd->subele[ELE_FIRE] += sc->data[SC_ARMOR_RESIST]->val3;
 			sd->subele[ELE_WIND] += sc->data[SC_ARMOR_RESIST]->val4;
+		}
+		if( sc->data[SC_FIRE_CLOAK_OPTION] ) {
+			i = sc->data[SC_FIRE_CLOAK_OPTION]->val2;
+			sd->subele[ELE_FIRE] += i;
+			sd->subele[ELE_EARTH] -= i;
+		}
+		if( sc->data[SC_WATER_DROP_OPTION] ) {
+			i = sc->data[SC_WATER_DROP_OPTION]->val2;
+			sd->subele[ELE_WATER] += i;
+			sd->subele[ELE_WIND] -= i;
+		}
+		if( sc->data[SC_WIND_CURTAIN_OPTION] ) {
+			i = sc->data[SC_WIND_CURTAIN_OPTION]->val2;
+			sd->subele[ELE_WIND] += i;
+			sd->subele[ELE_WATER] -= i;
+		}
+		if( sc->data[SC_STONE_SHIELD_OPTION] ) {
+			i = sc->data[SC_STONE_SHIELD_OPTION]->val2;
+			sd->subele[ELE_EARTH] += i;
+			sd->subele[ELE_FIRE] -= i;
 		}
 	}
 
@@ -2980,9 +3051,17 @@ int status_calc_elemental_(struct elemental_data *ed, bool first) {
 	struct status_data *status = &ed->base_status;
 	struct s_elemental *ele = &ed->elemental;
 	struct map_session_data *sd = ed->master;
+	struct status_change *sc = status_get_sc(&ed->bl);
 	
 	if( !sd )
 		return 0;
+
+	status->str = ele->str;
+	status->agi = ele->agi;
+	status->vit = ele->vit;
+	status->dex = ele->dex;
+	status->int_ = ele->int_;
+	status->luk = ele->luk;
 
 	if( first ) {
 		memcpy(status, &ed->db->status, sizeof(struct status_data));
@@ -4119,6 +4198,16 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_INSPIRATION]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0 )
 		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * (sc->data[SC_BANDING]->val2);
+	if( sc->data[SC_TROPIC_OPTION] )
+		watk += sc->data[SC_TROPIC_OPTION]->val2;
+	if( sc->data[SC_HEATER_OPTION] )
+		watk += sc->data[SC_HEATER_OPTION]->val2;
+	if( sc->data[SC_WATER_BARRIER] )
+		watk -= sc->data[SC_WATER_BARRIER]->val3;
+	if( sc->data[SC_PYROTECHNIC_OPTION] )
+		watk += sc->data[SC_PYROTECHNIC_OPTION]->val2;	
+	if( sc && sc->data[SC_TIDAL_WEAPON] )
+		watk += watk * sc->data[SC_TIDAL_WEAPON_OPTION]->val2 / 100;
 
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
@@ -4140,6 +4229,14 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += matk * sc->data[SC_INCMATKRATE]->val1/100;
 	if(sc->data[SC_MOONLIT_SERENADE])
 		matk += matk * sc->data[SC_MOONLIT_SERENADE]->val2/100;
+	if(sc->data[SC_BEYOND_OF_WARCRY])
+		matk -= matk * sc->data[SC_BEYOND_OF_WARCRY]->val3/100;
+	if(sc->data[SC_AQUAPLAY_OPTION])
+		matk += sc->data[SC_AQUAPLAY_OPTION]->val2;
+	if(sc->data[SC_CHILLY_AIR_OPTION])
+		matk += sc->data[SC_CHILLY_AIR_OPTION]->val2;
+	if(sc->data[SC_WATER_BARRIER])
+		matk -= sc->data[SC_WATER_BARRIER]->val3;
 
 	return (unsigned short)cap_value(matk,0,USHRT_MAX);
 }
@@ -4266,6 +4363,12 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += sc->data[SC_HALLUCINATIONWALK]->val2;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		flee -= flee * (40 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
+	if( sc->data[SC_WATER_BARRIER] )
+		flee -= sc->data[SC_WATER_BARRIER]->val3;
+	if( sc->data[SC_WIND_STEP_OPTION] )
+		flee += flee * sc->data[SC_WIND_STEP_OPTION]->val2 / 100;
+	if( sc->data[SC_ZEPHYR] )
+		flee += flee * sc->data[SC_ZEPHYR]->val2 / 100;
 
 	return (short)cap_value(flee,1,SHRT_MAX);
 }
@@ -4340,6 +4443,10 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * 25 / 100;
 	if( sc->data[SC_GENTLETOUCH_CHANGE] )
 		def -= def * sc->data[SC_GENTLETOUCH_CHANGE]->val3 / 100;
+	if( sc->data[SC_ROCK_CRUSHER] )
+		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
+	if( sc->data[SC_POWER_OF_GAIA] )
+		def += def * sc->data[SC_POWER_OF_GAIA]->val2 / 100;
 
 	return (signed char)cap_value(def,CHAR_MIN,CHAR_MAX);
 }
@@ -4421,6 +4528,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += mdef * sc->data[SC_SYMPHONY_LOVE]->val2 / 100;
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 		mdef -= mdef * sc->data[SC_GENTLETOUCH_CHANGE]->val3 / 100;
+	if(sc->data[SC_WATER_BARRIER])
+		mdef += sc->data[SC_WATER_BARRIER]->val2;
 
 	return (signed char)cap_value(mdef,CHAR_MIN,CHAR_MAX);
 }
@@ -4548,6 +4657,10 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, 30 );
 				if( sc->data[SC_BANDING_DEFENCE] )
 					val = max( val, sc->data[SC_BANDING_DEFENCE]->val1 );
+				if( sc->data[SC_ROCK_CRUSHER_ATK] )
+					val = max( val, sc->data[SC_ROCK_CRUSHER_ATK]->val2 );
+				if( sc->data[SC_POWER_OF_GAIA] )
+					val = max( val, sc->data[SC_POWER_OF_GAIA]->val2 );
 
 				if( sd && sd->speed_rate + sd->speed_add_rate > 0 ) // permanent item-based speedup
 					val = max( val, sd->speed_rate + sd->speed_add_rate );
@@ -4590,6 +4703,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, sc->data[SC_SWING]->val3 );
 			if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 				val = max( val, sc->data[SC_GENTLETOUCH_REVITALIZE]->val2 );
+			if( sc->data[SC_WIND_STEP_OPTION] )
+				val = max( val, sc->data[SC_WIND_STEP_OPTION]->val2 );
 
 			//FIXME: official items use a single bonus for this [ultramage]
 			if( sc->data[SC_SPEEDUP0] ) // temporary item-based speedup
@@ -4819,6 +4934,10 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp -= maxhp * (2 * sc->data[SC_GENTLETOUCH_CHANGE]->val1) / 100;
 	if(sc->data[SC_GENTLETOUCH_REVITALIZE])
 		maxhp += maxhp * (6 * sc->data[SC_GENTLETOUCH_REVITALIZE]->val1) / 100;
+	if(sc->data[SC_SOLID_SKIN_OPTION])
+		maxhp += 2000;// Fix amount.
+	if(sc->data[SC_POWER_OF_GAIA])
+		maxhp += 3000;
 
 	return cap_value(maxhp,1,UINT_MAX);
 }
@@ -4847,7 +4966,7 @@ static unsigned char status_calc_element(struct block_list *bl, struct status_ch
 	if(!sc || !sc->count)
 		return element;
 
-	if(sc->data[SC_FREEZE])
+	if(sc->data[SC_FREEZE] || sc->data[SC_TIDAL_WEAPON_OPTION] || sc->data[SC_TIDAL_WEAPON])
 		return ELE_WATER;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 		return ELE_EARTH;
@@ -4859,6 +4978,7 @@ static unsigned char status_calc_element(struct block_list *bl, struct status_ch
 		return sc->data[SC_ELEMENTALCHANGE]->val2;
 	if(sc->data[SC_SHAPESHIFT])
 		return sc->data[SC_SHAPESHIFT]->val2;
+
 	return (unsigned char)cap_value(element,0,UCHAR_MAX);
 }
 
@@ -5841,278 +5961,284 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	undead_flag = battle_check_undead(status->race,status->def_ele);
 	//Check for inmunities / sc fails
-	switch (type)
-	{
-	case SC_FREEZE:
-	case SC_STONE:
-		//Undead are immune to Freeze/Stone
-		if (undead_flag && !(flag&1))
-			return 0;
-		break;
-	case SC_SLEEP:
-	case SC_STUN:
-	case SC_FREEZING:
-		if (sc->opt1)
-			return 0; //Cannot override other opt1 status changes. [Skotlex]
-		if((type == SC_FREEZE || type == SC_FREEZING) && sc->data[SC_WARMER])
-			return 0; //Immune to Frozen and Freezing status if under Warmer status. [Jobbie]
- 	break;
-	case SC_BERSERK:
-		if( sc->data[SC_SATURDAY_NIGHT_FEVER] )
-			return 0;
-		break;
-	case SC_BURNING:
-		if(sc->data[SC_FREEZING] || sc->opt1)
-			return 0;
-		break;
-	case SC_SIGNUMCRUCIS:
-		//Only affects demons and undead element (but not players)
-		if((!undead_flag && status->race!=RC_DEMON) || bl->type == BL_PC)
-			return 0;
-		break;
-	case SC_AETERNA:
-		if( (sc->data[SC_STONE] && sc->opt1 == OPT1_STONE) || sc->data[SC_FREEZE] )
-			return 0;
-		break;
-	case SC_KYRIE:
-		if (bl->type == BL_MOB)
-			return 0;
-		break;
-	case SC_OVERTHRUST:
-		if (sc->data[SC_MAXOVERTHRUST])
-			return 0; //Overthrust can't take effect if under Max Overthrust. [Skotlex]
-		break;
-	case SC_ADRENALINE:
-		if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE)))
-			return 0;
-		if (sc->data[SC_QUAGMIRE] ||
-			sc->data[SC_DECREASEAGI] ||
-			sc->data[SC_ADORAMUS]
-		)
-			return 0;
-		break;
-	case SC_ADRENALINE2:
-		if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE2)))
-			return 0;
-		if (sc->data[SC_QUAGMIRE] ||
-			sc->data[SC_DECREASEAGI] ||
-			sc->data[SC_ADORAMUS]
-		)
-			return 0;
-		break;
-	case SC_ONEHAND:
-	case SC_MERC_QUICKEN:
-	case SC_TWOHANDQUICKEN:
-		if(sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
-			return 0;
-	case SC_CONCENTRATE:
-	case SC_INCREASEAGI:
-	case SC_SPEARQUICKEN:
-	case SC_TRUESIGHT:
-	case SC_WINDWALK:
-	case SC_CARTBOOST:
-	case SC_ASSNCROS:
-		if (sc->data[SC_QUAGMIRE])
-			return 0;
-	break;
-	case SC_CLOAKING:
-		//Avoid cloaking with no wall and low skill level. [Skotlex]
-		//Due to the cloaking card, we have to check the wall versus to known
-		//skill level rather than the used one. [Skotlex]
-		//if (sd && val1 < 3 && skill_check_cloaking(bl,NULL))
-		if( sd && pc_checkskill(sd, AS_CLOAKING) < 3 && !skill_check_cloaking(bl,NULL) )
-			return 0;
-		break;
-	case SC_CLOAKINGEXCEED:
-	case SC_HIDING:
-		if( sc->data[SC_WUGBITE] )
-			return 0; // Prevent Cloaking, Exceed and Hiding
- 		break;
-	case SC_MODECHANGE:
-		{
-			int mode;
-			struct status_data *bstatus = status_get_base_status(bl);
-			if (!bstatus) return 0;
-			if (sc->data[type])
-			{	//Pile up with previous values.
-				if(!val2) val2 = sc->data[type]->val2;
-				val3 |= sc->data[type]->val3;
-				val4 |= sc->data[type]->val4;
-			}
-			mode = val2?val2:bstatus->mode; //Base mode
-			if (val4) mode&=~val4; //Del mode
-			if (val3) mode|= val3; //Add mode
-			if (mode == bstatus->mode) { //No change.
-				if (sc->data[type]) //Abort previous status
-					return status_change_end(bl, type, INVALID_TIMER);
+	switch (type) {
+		case SC_STONE:
+			if(sc->data[SC_POWER_OF_GAIA])
 				return 0;
-			}
-		}
-		break;
-	//Strip skills, need to divest something or it fails.
-	case SC_STRIPWEAPON:
-		if (sd) {
-			int i;
-			opt_flag = 0; //Reuse to check success condition.
-			if(sd->unstripable_equip&EQP_WEAPON)
+			break;
+		case SC_FREEZE:
+			//Undead are immune to Freeze/Stone
+			if (undead_flag && !(flag&1))
 				return 0;
-			i = sd->equip_index[EQI_HAND_L];
-			if (i>=0 && sd->inventory_data[i] &&
-				sd->inventory_data[i]->type == IT_WEAPON)
+			break;
+		case SC_SLEEP:
+		case SC_STUN:
+		case SC_FREEZING:
+			if (sc->opt1)
+				return 0; //Cannot override other opt1 status changes. [Skotlex]
+			if((type == SC_FREEZE || type == SC_FREEZING) && sc->data[SC_WARMER])
+				return 0; //Immune to Frozen and Freezing status if under Warmer status. [Jobbie]
+			break;
+		case SC_BERSERK:
+			if( sc->data[SC_SATURDAY_NIGHT_FEVER] )
+				return 0;
+			break;
+		case SC_BURNING:
+			if(sc->data[SC_FREEZING] || sc->opt1)
+				return 0;
+			break;
+		case SC_SIGNUMCRUCIS:
+			//Only affects demons and undead element (but not players)
+			if((!undead_flag && status->race!=RC_DEMON) || bl->type == BL_PC)
+				return 0;
+			break;
+		case SC_AETERNA:
+			if( (sc->data[SC_STONE] && sc->opt1 == OPT1_STONE) || sc->data[SC_FREEZE] )
+				return 0;
+			break;
+		case SC_KYRIE:
+			if (bl->type == BL_MOB)
+				return 0;
+			break;
+		case SC_OVERTHRUST:
+			if (sc->data[SC_MAXOVERTHRUST])
+				return 0; //Overthrust can't take effect if under Max Overthrust. [Skotlex]
+			break;
+		case SC_ADRENALINE:
+			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE)))
+				return 0;
+			if (sc->data[SC_QUAGMIRE] ||
+				sc->data[SC_DECREASEAGI] ||
+				sc->data[SC_ADORAMUS]
+			)
+				return 0;
+			break;
+		case SC_ADRENALINE2:
+			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE2)))
+				return 0;
+			if (sc->data[SC_QUAGMIRE] ||
+				sc->data[SC_DECREASEAGI] ||
+				sc->data[SC_ADORAMUS]
+			)
+				return 0;
+			break;
+		case SC_ONEHAND:
+		case SC_MERC_QUICKEN:
+		case SC_TWOHANDQUICKEN:
+			if(sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
+				return 0;
+		case SC_CONCENTRATE:
+		case SC_INCREASEAGI:
+		case SC_SPEARQUICKEN:
+		case SC_TRUESIGHT:
+		case SC_WINDWALK:
+		case SC_CARTBOOST:
+		case SC_ASSNCROS:
+			if (sc->data[SC_QUAGMIRE])
+				return 0;
+		break;
+		case SC_CLOAKING:
+			//Avoid cloaking with no wall and low skill level. [Skotlex]
+			//Due to the cloaking card, we have to check the wall versus to known
+			//skill level rather than the used one. [Skotlex]
+			//if (sd && val1 < 3 && skill_check_cloaking(bl,NULL))
+			if( sd && pc_checkskill(sd, AS_CLOAKING) < 3 && !skill_check_cloaking(bl,NULL) )
+				return 0;
+			break;
+		case SC_CLOAKINGEXCEED:
+		case SC_HIDING:
+			if( sc->data[SC_WUGBITE] )
+				return 0; // Prevent Cloaking, Exceed and Hiding
+ 			break;
+		case SC_MODECHANGE:
 			{
-				opt_flag|=1;
-				pc_unequipitem(sd,i,3); //L-hand weapon
+				int mode;
+				struct status_data *bstatus = status_get_base_status(bl);
+				if (!bstatus) return 0;
+				if (sc->data[type])
+				{	//Pile up with previous values.
+					if(!val2) val2 = sc->data[type]->val2;
+					val3 |= sc->data[type]->val3;
+					val4 |= sc->data[type]->val4;
+				}
+				mode = val2?val2:bstatus->mode; //Base mode
+				if (val4) mode&=~val4; //Del mode
+				if (val3) mode|= val3; //Add mode
+				if (mode == bstatus->mode) { //No change.
+					if (sc->data[type]) //Abort previous status
+						return status_change_end(bl, type, INVALID_TIMER);
+					return 0;
+				}
 			}
+			break;
+		//Strip skills, need to divest something or it fails.
+		case SC_STRIPWEAPON:
+			if (sd) {
+				int i;
+				opt_flag = 0; //Reuse to check success condition.
+				if(sd->unstripable_equip&EQP_WEAPON)
+					return 0;
+				i = sd->equip_index[EQI_HAND_L];
+				if (i>=0 && sd->inventory_data[i] &&
+					sd->inventory_data[i]->type == IT_WEAPON)
+				{
+					opt_flag|=1;
+					pc_unequipitem(sd,i,3); //L-hand weapon
+				}
 
-			i = sd->equip_index[EQI_HAND_R];
-			if (i>=0 && sd->inventory_data[i] &&
-				sd->inventory_data[i]->type == IT_WEAPON)
-			{
-				opt_flag|=2;
+				i = sd->equip_index[EQI_HAND_R];
+				if (i>=0 && sd->inventory_data[i] &&
+					sd->inventory_data[i]->type == IT_WEAPON)
+				{
+					opt_flag|=2;
+					pc_unequipitem(sd,i,3);
+				}
+				if (!opt_flag) return 0;
+			}
+			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
+		break;
+		case SC_STRIPSHIELD:
+			if( val2 == 1 ) val2 = 0; //GX effect. Do not take shield off..		
+			else
+			if (sd) {
+				int i;
+				if(sd->unstripable_equip&EQP_SHIELD)
+					return 0;
+				i = sd->equip_index[EQI_HAND_L];
+				if (i<0 || !sd->inventory_data[i] ||
+					sd->inventory_data[i]->type != IT_ARMOR)
+					return 0;
 				pc_unequipitem(sd,i,3);
 			}
-			if (!opt_flag) return 0;
-		}
-		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
-	break;
-	case SC_STRIPSHIELD:
-		if( val2 == 1 ) val2 = 0; //GX effect. Do not take shield off..		
-		else
-		if (sd) {
-			int i;
-			if(sd->unstripable_equip&EQP_SHIELD)
-				return 0;
-			i = sd->equip_index[EQI_HAND_L];
-			if (i<0 || !sd->inventory_data[i] ||
-				sd->inventory_data[i]->type != IT_ARMOR)
-				return 0;
-			pc_unequipitem(sd,i,3);
-		}
-		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
-	break;
-	case SC_STRIPARMOR:
-		if (sd) {
-			int i;
-			if(sd->unstripable_equip&EQP_ARMOR)
-				return 0;
-			i = sd->equip_index[EQI_ARMOR];
-			if (i<0 || !sd->inventory_data[i])
-				return 0;
-			pc_unequipitem(sd,i,3);
-		}
-		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
-	break;
-	case SC_STRIPHELM:
-		if (sd) {
-			int i;
-			if(sd->unstripable_equip&EQP_HELM)
-				return 0;
-			i = sd->equip_index[EQI_HEAD_TOP];
-			if (i<0 || !sd->inventory_data[i])
-				return 0;
-			pc_unequipitem(sd,i,3);
-		}
-		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
-	break;
-	case SC_MERC_FLEEUP:
-	case SC_MERC_ATKUP:
-	case SC_MERC_HPUP:
-	case SC_MERC_SPUP:
-	case SC_MERC_HITUP:
-		if( bl->type != BL_MER )
-			return 0; // Stats only for Mercenaries
-	break;
-	case SC_CAMOUFLAGE:
-		if( sd && pc_checkskill(sd, RA_CAMOUFLAGE) < 3 && !skill_check_camouflage(bl,NULL) )
-			return 0;
+			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 		break;
-	case SC_STRFOOD:
-		if (sc->data[SC_FOOD_STR_CASH] && sc->data[SC_FOOD_STR_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_AGIFOOD:
-		if (sc->data[SC_FOOD_AGI_CASH] && sc->data[SC_FOOD_AGI_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_VITFOOD:
-		if (sc->data[SC_FOOD_VIT_CASH] && sc->data[SC_FOOD_VIT_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_INTFOOD:
-		if (sc->data[SC_FOOD_INT_CASH] && sc->data[SC_FOOD_INT_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_DEXFOOD:
-		if (sc->data[SC_FOOD_DEX_CASH] && sc->data[SC_FOOD_DEX_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_LUKFOOD:
-		if (sc->data[SC_FOOD_LUK_CASH] && sc->data[SC_FOOD_LUK_CASH]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_STR_CASH:
-		if (sc->data[SC_STRFOOD] && sc->data[SC_STRFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_AGI_CASH:
-		if (sc->data[SC_AGIFOOD] && sc->data[SC_AGIFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_VIT_CASH:
-		if (sc->data[SC_VITFOOD] && sc->data[SC_VITFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_INT_CASH:
-		if (sc->data[SC_INTFOOD] && sc->data[SC_INTFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_DEX_CASH:
-		if (sc->data[SC_DEXFOOD] && sc->data[SC_DEXFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_FOOD_LUK_CASH:
-		if (sc->data[SC_LUKFOOD] && sc->data[SC_LUKFOOD]->val1 > val1)
-			return 0;
-	break;
-	case SC_ALL_RIDING:
-		if ( !sd || pc_isriding(sd) || pc_isdragon(sd) || pc_iswugrider(sd) || pc_ismadogear(sd) )
-			return 0;//Do not get on a rental mount if your on a class mount.
-		if ( sc->data[type] )
-		{
-			status_change_end(bl,SC_ALL_RIDING,INVALID_TIMER);
-			return 0;
-		}
-	break;
+		case SC_STRIPARMOR:
+			if (sd) {
+				int i;
+				if(sd->unstripable_equip&EQP_ARMOR)
+					return 0;
+				i = sd->equip_index[EQI_ARMOR];
+				if (i<0 || !sd->inventory_data[i])
+					return 0;
+				pc_unequipitem(sd,i,3);
+			}
+			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
+		break;
+		case SC_STRIPHELM:
+			if (sd) {
+				int i;
+				if(sd->unstripable_equip&EQP_HELM)
+					return 0;
+				i = sd->equip_index[EQI_HEAD_TOP];
+				if (i<0 || !sd->inventory_data[i])
+					return 0;
+				pc_unequipitem(sd,i,3);
+			}
+			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
+		break;
+		case SC_MERC_FLEEUP:
+		case SC_MERC_ATKUP:
+		case SC_MERC_HPUP:
+		case SC_MERC_SPUP:
+		case SC_MERC_HITUP:
+			if( bl->type != BL_MER )
+				return 0; // Stats only for Mercenaries
+		break;
+		case SC_CAMOUFLAGE:
+			if( sd && pc_checkskill(sd, RA_CAMOUFLAGE) < 3 && !skill_check_camouflage(bl,NULL) )
+				return 0;
+			break;
+		case SC_STRFOOD:
+			if (sc->data[SC_FOOD_STR_CASH] && sc->data[SC_FOOD_STR_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_AGIFOOD:
+			if (sc->data[SC_FOOD_AGI_CASH] && sc->data[SC_FOOD_AGI_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_VITFOOD:
+			if (sc->data[SC_FOOD_VIT_CASH] && sc->data[SC_FOOD_VIT_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_INTFOOD:
+			if (sc->data[SC_FOOD_INT_CASH] && sc->data[SC_FOOD_INT_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_DEXFOOD:
+			if (sc->data[SC_FOOD_DEX_CASH] && sc->data[SC_FOOD_DEX_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_LUKFOOD:
+			if (sc->data[SC_FOOD_LUK_CASH] && sc->data[SC_FOOD_LUK_CASH]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_STR_CASH:
+			if (sc->data[SC_STRFOOD] && sc->data[SC_STRFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_AGI_CASH:
+			if (sc->data[SC_AGIFOOD] && sc->data[SC_AGIFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_VIT_CASH:
+			if (sc->data[SC_VITFOOD] && sc->data[SC_VITFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_INT_CASH:
+			if (sc->data[SC_INTFOOD] && sc->data[SC_INTFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_DEX_CASH:
+			if (sc->data[SC_DEXFOOD] && sc->data[SC_DEXFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_FOOD_LUK_CASH:
+			if (sc->data[SC_LUKFOOD] && sc->data[SC_LUKFOOD]->val1 > val1)
+				return 0;
+		break;
+		case SC_ALL_RIDING:
+			if ( !sd || pc_isriding(sd) || pc_isdragon(sd) || pc_iswugrider(sd) || pc_ismadogear(sd) )
+				return 0;//Do not get on a rental mount if your on a class mount.
+			if ( sc->data[type] )
+			{
+				status_change_end(bl,SC_ALL_RIDING,INVALID_TIMER);
+				return 0;
+			}
+		break;
 	
-	case SC__STRIPACCESSARY:
-		if( sd )
-		{
-			int i = -1;
-			if( !(sd->unstripable_equip&EQI_ACC_L) )
+		case SC__STRIPACCESSARY:
+			if( sd )
 			{
-				i = sd->equip_index[EQI_ACC_L];
-				if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
-					pc_unequipitem(sd,i,3); //L-Accessory
+				int i = -1;
+				if( !(sd->unstripable_equip&EQI_ACC_L) )
+				{
+					i = sd->equip_index[EQI_ACC_L];
+					if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
+						pc_unequipitem(sd,i,3); //L-Accessory
+				}
+				if( !(sd->unstripable_equip&EQI_ACC_R) )
+				{
+					i = sd->equip_index[EQI_ACC_R];
+					if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
+						pc_unequipitem(sd,i,3); //R-Accessory
+				}
+				if( i < 0 )
+					return 0;
 			}
-			if( !(sd->unstripable_equip&EQI_ACC_R) )
-			{
-				i = sd->equip_index[EQI_ACC_R];
-				if( i >= 0 && sd->inventory_data[i] && sd->inventory_data[i]->type == IT_ARMOR )
-					pc_unequipitem(sd,i,3); //R-Accessory
-			}
-			if( i < 0 )
+			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
+			break;
+		case SC_SATURDAY_NIGHT_FEVER:
+			if(sc->data[SC_BERSERK] || sc->data[SC_INSPIRATION])
 				return 0;
-		}
-		if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
-		break;
-	case SC_SATURDAY_NIGHT_FEVER:
-		if(sc->data[SC_BERSERK] || sc->data[SC_INSPIRATION])
-			return 0;
-		break;
-	case SC_MAGNETICFIELD:
-		if(sc->data[SC_HOVERING])
-			return 0;
-	break;
+			break;
+		case SC_MAGNETICFIELD:
+			if(sc->data[SC_HOVERING])
+				return 0;
+			break;
+		case SC_BLEEDING:
+			if(sc->data[SC_POWER_OF_GAIA])
+				return 0;
+			break;
 	}
 
 	//Check for BOSS resistances
@@ -7655,7 +7781,105 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 5 * val1; //Custom value VIT, ASPD, SPEED bonus.
 			val3 = 60 + 40 * val1; //HP recovery
 			break;
-
+		case SC_PYROTECHNIC_OPTION:
+			val2 = 60;	// Watk TODO: Renewal (Atk2)
+			val3 = 11;	// % Increase damage.
+			val_flag |= 1|2|4;
+			break;
+		case SC_HEATER_OPTION:
+			val2 = 120; // Watk. TODO: Renewal (Atk2)
+			val3 = 33;	// % Increase effects.
+			val4 = 3;	// Change into fire element.
+			val_flag |= 1|2|4;
+			break;
+		case SC_TROPIC_OPTION:
+			val2 = 180; // Watk. TODO: Renewal (Atk2)
+			val3 = MG_FIREBOLT;
+			break;
+		case SC_AQUAPLAY_OPTION:
+			val2 = 40; // Matk. TODO: Renewal (Matk1)
+			val3 = 33;	// % Increase effects.
+			val_flag |= 1|2|4;
+			break;
+		case SC_COOLER_OPTION:
+			val2 = 80;	// % Freezing chance
+			val3 = 33;	// % increased damage
+			val4 = 1;	// Change into water elemet
+			val_flag |= 1|2|4;
+			break;
+		case SC_CHILLY_AIR_OPTION:
+			val2 = 120; // Matk. TODO: Renewal (Matk1)
+			val3 = MG_COLDBOLT;
+			val_flag |= 1|2;
+			break;
+		case SC_GUST_OPTION:
+			val2 = 33;
+			val_flag |= 1|2;
+			break;
+		case SC_WIND_STEP_OPTION:
+			val2 = 50;	// % Increase speed and flee.
+			break;
+		case SC_BLAST_OPTION:
+			val2 = 33;
+			val3 = 4;
+			val_flag |= 1|2|4;
+			break;
+		case SC_WILD_STORM_OPTION:
+			val2 = MG_LIGHTNINGBOLT;
+			val_flag |= 1|2;
+			break;
+		case SC_PETROLOGY_OPTION:
+			val2 = 5;
+			val3 = 33;
+			val_flag |= 1|2|4;
+			break;
+		case SC_CURSED_SOIL_OPTION:
+			val2 = 10;
+			val3 = 33;
+			val4 = 2;
+			val_flag |= 1|2|3;
+			break;
+		case SC_UPHEAVAL_OPTION:
+			val2 = WZ_EARTHSPIKE;
+			val_flag |= 1|2;
+			break;
+		case SC_CIRCLE_OF_FIRE_OPTION:
+			val2 = 300;
+			val_flag |= 1|2;
+			break;
+		case SC_FIRE_CLOAK_OPTION:
+		case SC_WATER_DROP_OPTION:
+		case SC_WIND_CURTAIN_OPTION:
+		case SC_STONE_SHIELD_OPTION:
+			val2 = 20;	// Elemental modifier. Not confirmed.
+			break;
+		case SC_CIRCLE_OF_FIRE:
+		case SC_FIRE_CLOAK:
+		case SC_WATER_DROP:
+		case SC_WATER_SCREEN:
+		case SC_WIND_CURTAIN:
+		case SC_WIND_STEP:
+		case SC_STONE_SHIELD:
+		case SC_SOLID_SKIN:
+			val2 = 10;
+			tick = 2000;
+			break;
+		case SC_WATER_BARRIER:
+			val2 = 40;	// Increasement. Mdef1 ??? 
+			val3 = 20;	// Reductions. Atk2, Flee1, Matk1 ????
+			val_flag |= 1|2|4;
+			break;
+		case SC_ZEPHYR:
+			val2 = 22;	// Flee.
+			break;
+		case SC_TIDAL_WEAPON:
+			val2 = 20; // Increase Elemental's attack.
+			break;
+		case SC_ROCK_CRUSHER:
+		case SC_ROCK_CRUSHER_ATK:
+		case SC_POWER_OF_GAIA:
+			val2 = 33;
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -9511,6 +9735,24 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+
+	case SC_CIRCLE_OF_FIRE:
+	case SC_FIRE_CLOAK:
+	case SC_WATER_DROP:
+	case SC_WATER_SCREEN:
+	case SC_WIND_CURTAIN:
+	case SC_WIND_STEP:
+	case SC_STONE_SHIELD:
+	case SC_SOLID_SKIN:
+		if( !status_charge(bl,0,sce->val2) ) {
+			struct block_list *s_bl = battle_get_master(bl);
+			if( s_bl )
+				status_change_end(s_bl,type+1,INVALID_TIMER);
+			status_change_end(bl,type,INVALID_TIMER);
+			break;
+		}
+		sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
+		return 0;
 
 	}
 

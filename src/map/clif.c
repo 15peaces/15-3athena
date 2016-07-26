@@ -5326,7 +5326,15 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,unsigned int
 	}
 	WBUFW(buf,28)=skill_lv;
 	WBUFW(buf,30)=div;
-	WBUFB(buf,32)=type;
+	// For some reason, late 2013 and newer clients have
+	// a issue that causes players and monsters to endure
+	// type 6 (ACTION_SKILL) skills. So we have to do a small
+	// hack to set all type 6 to be sent as type 8 ACTION_ATTACK_MULTIPLE
+#if PACKETVER < 20131223
+ 	WBUFB(buf,32)=type;
+#else
+	WBUFB(buf,32)=(type==6)?8:type;
+#endif
 	if (disguised(dst)) {
 		clif_send(buf,packet_len(0x1de),dst,AREA_WOS);
 		WBUFL(buf,8)=-dst->id;
