@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/31/2016
+	r132 [15peaces]
+		*Merged missing changes from 3ceam rev. 501 - 502
+		*Increased MAX_QUEST_DB to load all entries.
+			-Forgot to do this after updating the quest_db file.
+		*Updated bonus bBaseAtk to allow atk-reduce.
+			-This also fixes the Hermode Cap [1].
+		*Some monster updates.
+			-Added Dark Priest spawn to Glastheim.
+			-Added Furious Dark Priest and some other champion monsters.
+			-Did some clean-up in mob_db files.
+		*Fixed some mistakes relative to Elemental Spirits.
+		*Fixed SC_MAELSTROM skill that wasn't working correctly in its area effect.
+		*Updated SO_FIREWALK and SO_ELECTRICWALK that are not stackable in the same cell and can't be casted until all available steps are used.
+
 07/26/2016
 	r131 [15peaces]
 		*Merged missing changes from 3ceam rev. 499 - 500

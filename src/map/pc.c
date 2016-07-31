@@ -2080,11 +2080,15 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			status->lhw.atk2 =  cap_value(bonus, 0, USHRT_MAX);
 		}
 		break;
-	case SP_BASE_ATK:
+/*	case SP_BASE_ATK: // pre-renewal behavior [15peaces]
 		if(sd->state.lr_flag != 2) {
 			bonus = status->batk + val;
 			status->batk = cap_value(bonus, 0, USHRT_MAX);
 		}
+		break;*/
+	case SP_BASE_ATK: // allow atk-reduce [15peaces]
+		if(sd->state.lr_flag != 2)
+			status->batk += val;
 		break;
 	case SP_DEF1:
 		if(sd->state.lr_flag != 2) {

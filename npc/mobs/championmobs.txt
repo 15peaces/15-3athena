@@ -16,7 +16,7 @@
 //gl_prison,0,0,0,0	monster	Solid Zombie Prisoner	2604,2,300000,0
 //gld_dun04,0,0,0,0	monster	Zombie Master Ringleader	2605,2,300000,0
 //pay_dun00,0,0,0,0	monster	Furious Zombie	2606,2,300000,0
-//schg_dun01,0,0,0,0	monster	Elusive Zakudam	2607,2,300000,0
+schg_dun01,0,0,0,0	monster	Elusive Zakudam	2607,2,300000,0
 //prt_fild03,0,0,0,0	monster	Swift Yoyo	2608,2,300000,0
 //ayo_fild02,0,0,0,0	monster	Solid Yoyo	2609,2,300000,0
 //pay_fild06,0,0,0,0	monster	Wormtail Ringleader	2610,2,300000,0
@@ -270,9 +270,9 @@ cmd_fild08,0,0,0,0	monster	Elusive Deniro	2857,2,300000,0
 tha_t06,0,0,0,0	monster	Swift Death Word	2858,2,300000,0
 tha_t04,0,0,0,0	monster	Solid Death Word	2859,2,300000,0
 //tha_t03,0,0,0,0	monster	Death Word Ringleader	2860,2,300000,0
-//gl_chyard,0,0,0,0	monster	Furious Dark Priest	2861,2,300000,0
-//lou_dun03,0,0,0,0	monster	Elusive Zhu Po Long	2862,2,300000,0
-//gef_fild05,0,0,0,0	monster	Swift Creamy	2863,2,300000,0
+gl_chyard,0,0,0,0	monster	Furious Dark Priest	2861,2,300000,0
+lou_dun03,0,0,0,0	monster	Elusive Zhu Po Long	2862,2,300000,0
+gef_fild05,0,0,0,0	monster	Swift Creamy	2863,2,300000,0
 //iz_dun02,0,0,0,0	monster	Solid Cornutus	2864,2,300000,0
 //xmas_dun01,0,0,0,0	monster	Cookie Ringleader	2865,2,300000,0
 //kh_kiehl01,0,0,0,0	monster	Furious Constant	2866,2,300000,0
@@ -295,7 +295,7 @@ man_fild02,0,0,0,0	monster	Elusive Bradium Golem	2882,2,300000,0
 gon_dun01,0,0,0,0	monster	Swift Bloody Butterfly	2883,2,300000,0
 pay_fild07,0,0,0,0	monster	Bigfoot Ringleader	2884,2,300000,0
 alde_dun04,0,0,0,0	monster	Furious Bathory	2885,2,300000,0
-//arug_dun01,0,0,0,0	monster	Elusive Banshee Master	2886,2,300000,0
+arug_dun01,0,0,0,0	monster	Elusive Banshee Master	2886,2,300000,0
 //abbey01,0,0,0,0	monster	Swift Banshee	2887,2,300000,0
 //dew_dun02,0,0,0,0	monster	Solid Banaspaty	2888,2,300000,0
 //tur_dun04,0,0,0,0	monster	Assaulter Ringleader	2889,2,300000,0

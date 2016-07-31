@@ -440,8 +440,11 @@ int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
 					skill_unit_move_unit_group(skill_id2group(sc->data[SC_BANDING]->val4), bl->m, x1-x0, y1-y0);
 				if (sc->data[SC_PROPERTYWALK]){
 					if( sc->data[SC_PROPERTYWALK]->val3 < skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) ){
-						if( skill_unitsetting(bl,sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2,x0, y0,0) )
-							sc->data[SC_PROPERTYWALK]->val3++;
+						if( map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_ELECTRICWALK,NULL,0) == NULL && map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_FIREWALK,NULL,0) == NULL )
+						{	// These aren't stackable in the same cell.
+							if( skill_unitsetting(bl,sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2,x0, y0,0) )
+								sc->data[SC_PROPERTYWALK]->val3++;
+						}
 					}
 				}
  			}
@@ -479,11 +482,11 @@ int map_count_oncell(int m, int x, int y, int type)
 
 	return count;
 }
-/*
- * «»«E¾ªÎõÌôøªËÌ¸ªÄª±ª¿«¹«­«Eæ«Ë«Ã«ÈªòÚ÷ª?
- */
-struct skill_unit* map_find_skill_unit_oncell(struct block_list* target,int x,int y,int skill_id,struct skill_unit* out_unit)
-{
+/*======================================
+ * Look for a skill unit on the given cell.
+ * flag&1: check for rivalry.
+ *--------------------------------------*/
+struct skill_unit* map_find_skill_unit_oncell(struct block_list* target,int x,int y,int skill_id,struct skill_unit* out_unit,int flag) {
 	int m,bx,by;
 	struct block_list *bl;
 	struct skill_unit *unit;
@@ -503,7 +506,7 @@ struct skill_unit* map_find_skill_unit_oncell(struct block_list* target,int x,in
 		unit = (struct skill_unit *) bl;
 		if( unit == out_unit || !unit->alive || !unit->group || unit->group->skill_id != skill_id )
 			continue;
-		if( battle_check_target(&unit->bl,target,unit->group->target_flag) > 0 )
+		if( !(flag&1) || battle_check_target(&unit->bl,target,unit->group->target_flag) > 0 )
 			return unit;
 	}
 	return NULL;
@@ -2622,6 +2625,8 @@ int map_getcellp(struct map_data* m,int x,int y,cell_chk cellchk)
 			return (cell.nochat);
 		case CELL_CHKPVP:	// Cell PVP [Napster]
 			return (cell.pvp);
+		case CELL_CHKMAELSTROM:
+			return (cell.maelstrom);
 
 		// special checks
 		case CELL_CHKPASS:
@@ -2674,7 +2679,8 @@ void map_setcell(int m, int x, int y, cell_t cell, bool flag)
 		case CELL_LANDPROTECTOR:	map[m].cell[j].landprotector = flag;	break;
 		case CELL_NOVENDING:		map[m].cell[j].novending = flag;		break;
 		case CELL_NOCHAT:			map[m].cell[j].nochat = flag;			break;
-		case CELL_PVP:				map[m].cell[j].pvp = flag;				break;		// Cell PVP [Napster]
+		case CELL_PVP:				map[m].cell[j].pvp = flag;				break; // Cell PVP [Napster]
+		case CELL_MAELSTROM:		map[m].cell[j].maelstrom = flag;		break;
 		default:
 			ShowWarning("map_setcell: invalid cell type '%d'\n", (int)cell);
 			break;

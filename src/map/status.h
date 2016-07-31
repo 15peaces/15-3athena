@@ -682,7 +682,6 @@ typedef enum sc_type {
 	SC_SPHERE_4,
 	SC_SPHERE_5,
 	SC_GLOOMYDAY_SK,
-	SC__MAELSTROM,
 	SC_REUSE_REFRESH,
 	SC_BERKANA,
 
@@ -1613,12 +1612,11 @@ struct status_data {
 		max_hp, max_sp;
 	unsigned short
 		str, agi, vit, int_, dex, luk,
-		batk,
 		matk_min, matk_max,
 		speed,
 		amotion, adelay, dmotion;
 	enum e_mode mode;
-	short 
+	short batk, 
 		hit, flee, cri, flee2,
 		def2, mdef2,
 		aspd_rate, aspd_amount;

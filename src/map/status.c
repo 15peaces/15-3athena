@@ -496,7 +496,6 @@ void initChangeTables(void)
 	set_sc( SC_STRIPACCESSARY	, SC__STRIPACCESSARY	, SI_STRIPACCESSARY , SCB_DEX|SCB_INT|SCB_LUK );
 	set_sc( SC_MANHOLE			, SC__MANHOLE			, SI_MANHOLE		, SCB_NONE );
 	add_sc( SC_CONFUSIONPANIC	, SC_CONFUSION			);
-	add_sc( SC_MAELSTROM        , SC__MAELSTROM			);
 	set_sc( SC_BLOODYLUST       , SC__BLOODYLUST        , SI_BLOODYLUST     , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
 
 	// Royal Guard
@@ -7939,7 +7938,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WUGBITE:
 		case SC_THORNSTRAP:
 		case SC__MANHOLE:
-		case SC__MAELSTROM:
 		case SC_CRYSTALIZE:
 		case SC_WHITEIMPRISON:
 		case SC_VACUUM_EXTREME:
@@ -9899,7 +9897,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_DECORATION_OF_MUSIC:
 			case SC_ELECTRICSHOCKER:
 			case SC__MANHOLE:
-			case SC__MAELSTROM:
 			// Extra large skills cooldowns
 			case SC_SAVAGE_STEAK:
 			case SC_COCKTAIL_WARG_BLOOD:

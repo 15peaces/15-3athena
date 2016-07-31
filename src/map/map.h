@@ -463,6 +463,7 @@ typedef enum {
 	CELL_NOVENDING,
 	CELL_NOCHAT,
 	CELL_PVP,	// Cell PVP [Napster]
+	CELL_MAELSTROM,
 } cell_t;
 
 // used by map_getcell()
@@ -485,6 +486,7 @@ typedef enum {
 	CELL_CHKNOVENDING,
 	CELL_CHKNOCHAT,		// Whether the cell denies Player Chat Window
 	CELL_CHKPVP,		// Whether the cell has PVP [Napster]
+	CELL_CHKMAELSTROM,
 } cell_chk;
 
 struct mapcell
@@ -502,7 +504,8 @@ struct mapcell
 		landprotector : 1,
 		novending : 1,
 		nochat : 1,
-		pvp : 1;	// Cell PVP [Napster]
+		pvp : 1,	// Cell PVP [Napster]
+		maelstrom : 1;
 
 #ifdef CELL_NOSTACK
 	unsigned char cell_bl; //Holds amount of bls in this cell.
@@ -658,7 +661,7 @@ int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, .
 int map_foreachininstance(int (*func)(struct block_list*, va_list), int16 instance_id, int type, ...);
 //blockŠÖ˜A‚É’Ç‰Á
 int map_count_oncell(int m,int x,int y,int type);
-struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *);
+struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *,int flag);
 // ˆêŽž“IobjectŠÖ˜A
 int map_get_new_object_id(void);
 int map_search_freecell(struct block_list *src, int m, short *x, short *y, int rx, int ry, int flag);
