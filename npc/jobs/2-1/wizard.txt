@@ -1403,7 +1403,7 @@ OnTimer60000:
 	end;
 
 OnTimer61000:
-	donpcevent "Room of Earth#Failed::OnEnable";
+	enablenpc "Room of Earth#Failed";
 	end;
 
 OnTimer62000:

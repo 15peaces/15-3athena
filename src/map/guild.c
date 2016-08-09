@@ -307,8 +307,12 @@ void guild_created(int account_id,int guild_id)
 	//struct guild *g;
 	sd->status.guild_id=guild_id;
 	clif_guild_created(sd,0);
-	if(battle_config.guild_emperium_check)
-		pc_delitem(sd,pc_search_inventory(sd,714),1,0,0);	//emperium consumption
+	if(battle_config.guild_emperium_check){
+		int index = pc_search_inventory(sd,ITEMID_EMPERIUM);
+
+		if( index > 0 )
+			pc_delitem(sd,index,1,0,0);	//emperium consumption
+	}
 	return;
 }
 

@@ -5993,13 +5993,13 @@ int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1
 	return 0;
 }
 
- /// Send message (modified by [Yor]) (ZC_NOTIFY_PLAYERCHAT).
- /// 008e <packet len>.W <message>.?B
- void clif_displaymessage(const int fd, const char* mes)
- {
- 	nullpo_retv(mes);
- 
- 	//Scrapped, as these are shared by disconnected players =X [Skotlex]
+/// Send message (modified by [Yor]) (ZC_NOTIFY_PLAYERCHAT).
+/// 008e <packet len>.W <message>.?B
+void clif_displaymessage(const int fd, const char* mes)
+{
+	nullpo_retv(mes);
+
+	//Scrapped, as these are shared by disconnected players =X [Skotlex]
 	if ( fd > 0 ) {
 #if PACKETVER == 20141022
 		/** for some reason game client crashes depending on message pattern (only for this packet) **/

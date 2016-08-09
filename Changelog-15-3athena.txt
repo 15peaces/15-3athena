@@ -4,6 +4,20 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+08/09/2016
+	r133 [15peaces]
+		*Merged missing changes from 3ceam rev. 503 - 504
+		*Added Eclage Card drops.
+			-Also added some missing cards.
+		*Added some more monsters to Dead Branches.
+		*Fixed Wizard Jobquest
+			-Fixed getting stuck when failing 2nd Wave of Earth Room.
+		*Fixed an issue where the Itembound system would crash the char-server.
+		*Fixed an typo that was causing map server crashes.
+		*Fixed wrong item deletion in guild creation code if emperium item not in inventory.
+			-Thanks to @HerculesWS / @4144.
+		*Fixed GC_CLOAKINGEXCEED that wasn't properly hiding from demons/insects.
+
 07/31/2016
 	r132 [15peaces]
 		*Merged missing changes from 3ceam rev. 501 - 502

@@ -417,12 +417,15 @@
 1796,Aunoe,142857
 1797,Fanat,142857
 1830,Bow Guardian,71428
+1837,Imp,71428
 1839,Byrogue,71428
 1866,Hellhound,71428
 1867,Banshee,71428
 1869,Flame Skull,71428
 1872,Hell Fly,71428
 1882,Baba-Yaga,71428
+1920,Incarnation of Morroc,71428
+1921,Incarnation of Morroc,71428
 1974,Banshee Master,71428
 1975,Beholder Master,71428
 1976,Cobalt Mineral,71428

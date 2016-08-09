@@ -163,13 +163,13 @@
 19862,C_Succubus_Horn,Costume Succubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,150,{},{},{}
 19863,C_Incubus_Horn,Costume Incubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,156,{},{},{}
 19864,C_Dokebis_Wig,Costume Dokebi's Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,302,{},{},{}
-
 19865,C_Joker_Jester,Costume Joker Jester,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,89,{},{},{}
 19866,C_Blue_Pajamas,Costume Blue Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
 19867,C_Red_Pajamas,Costume Red Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
 19868,C_Showy_High_Cap,Costume Showy High Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,830,{},{},{}
 19869,C_Boss_Beret,Costume Boss Beret,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1134,{},{},{}
 19873,C_Carnival_Hat,Costume Carnival Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,505,{},{},{}
+
 19874,C_Carnival_Circlet,Costume Carnival Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,506,{},{},{}
 19875,C_Love_Rabbit_Hood,Costume Love Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,549,{},{},{}
 19876,C_Rabbit_Ear_Hat,Costume Rabbit Ear Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,384,{},{},{}
@@ -2186,6 +2186,17 @@
 22700,Jumping_Support_Box,Jumping Support Box,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,,,,{ /*TODO: getitem 12529,1; getitem 12323,200; getitem 12324,50; and 5 boxes that containing quivers + oridecons*/ },{},{}
 
 // New kRO Cards [renewal]
+4593,Menblatt_Card,Menblatt Card,6,20,,10,,,,,,,,4,,,,,{ bonus bLongAtkRate,readparam(bDex)/10; },{},{}
+4594,Petal_Card,Petal Card,6,20,,10,,,,,,,,4,,,,,{ bonus bCritAtkRate,2*(readparam(bLuk)/10); },{},{}
+4595,Cenere_Card,Cenere Card,6,20,,10,,,,,,,,4,,,,,{ bonus bAspdRate,2*(readparam(bAgi)/10); },{},{}
+4596,Antique_Book_Card,Antique Book Card,6,20,,10,,,,,,,,4,,,,,{ bonus bMatk,5*(readparam(bInt)/10); },{},{}
+4597,Lichtern_Blue_Card,Lichtern Blue Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Water,(getrefine()>=9)?10:5; },{},{}
+4598,Lichtern_Green_Card,Lichtern Green Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Ghost,(getrefine()>=9)?10:5; },{},{}
+4599,Lichtern_Red_Card,Lichtern Red Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Fire,(getrefine()>=9)?10:5; },{},{}
+4600,Lichtern_Yellow_Card,Lichtern Yellow Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Earth,(getrefine()>=9)?10:5; },{},{}
+4601,Amdarais_Card,Amdarais Card,6,20,,10,,,,,,,,16,,,,,{ bonus bAtkRate,15; bonus bMatkRate,15; bonus2 bHPLossRate,666,4000; bonus2 bSPLossRate,66,4000; },{},{ heal -6666,-666; }
+4602,Realized_Amdarais_Card,Realized Amdarais Card,6,20,,10,,,,,,,,16,,,,,{ bonus bAtkRate,20; bonus bMatkRate,20; bonus2 bHPLossRate,666,6000; bonus2 bSPLossRate,66,6000; },{},{ heal -6666,-666; }
+4607,Faithful_Manager_Card,Faithful Manager Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,5; bonus bMatk,5; if(getiteminfo(getequipid(EQI_HAND_R),11) == W_BOOK) { set .@r, getrefine(); if(.@r>=10) { bonus bBaseAtk,20; bonus bMatk,20; } if(.@r>=14) { bonus bBaseAtk,20; bonus bMatk,20; } } },{},{}
 4642,Min_Toad_Card,Infinite Toad Card,6,20,,10,,,,,,,,64,,,,,{ set .@r,getrefine(); if(.@r>6){ set .@b,.@b+2; if(.@r>8) set .@b,.@b+3; } bonus bFlee2,2+.@b; },{},{}
 4643,Min_Vagabond_Wolf_Card,Infinite Vagabond Wolf Card,6,20,,10,,,,,,,,64,,,,,{ set .@r,getrefine(); if(.@r>6){ set .@b,.@b+10; if(.@r>8)set .@b,.@b+15; } bonus bAtk,10+.@b; },{},{}
 4644,Min_Vocal_Card,Infinite Vocal Card,6,20,,10,,,,,,,,64,,,,,{ set .@r,getrefine(); if(.@r>6){ set .@b,.@b+10; if(.@r>8) set .@b,.@b+15; } bonus bMdef,5+.@b; },{},{}
