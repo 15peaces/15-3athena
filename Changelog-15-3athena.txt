@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+09/06/2016
+	r134 [15peaces]
+		*Merged missing changes from 3ceam rev. 505 - 806
+		*Fixed potential quest warnings in quests/quests_13_1.txt
+		*Updated SR_CRESCENTELBOW according to the official behavior.
+		*Added all kinds of Malangdo traders and refiners.
+			-Also added F_getpositionname, thanks to rAthena.
+		*Updated GN_SLINGITEM, added bombs. Still need more test.
+		*Updated item_db: changed Genetic's bombs to Throwing item.
+		*Fixed GC_CLOAKINGEXCEED following r133.
+		*Updated GN_MAKEBOMB. Added fail/success skill messages.
+		*Added clif_skill_msg to show some skill messages from msgstringtable.txt with certain skills.
+		*Added enum with some skill messages that are equivalent to msgstringtable.txt line numbers.
+		*Random clean up.
+
 08/09/2016
 	r133 [15peaces]
 		*Merged missing changes from 3ceam rev. 503 - 504

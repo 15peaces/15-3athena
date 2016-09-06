@@ -1639,16 +1639,16 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 
 	switch (target->type)
 	{	//Check for chase-walk/hiding/cloaking opponents.
-	case BL_PC:
-		if ( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) )
+		case BL_PC:
+			if( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) && (((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
 				return 0;
-		if( (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || tsc->data[SC__INVISIBILITY] || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&MD_BOSS) &&
-			( ((TBL_PC*)target)->special_state.perfect_hiding || !(status->mode&MD_DETECTOR) ) )
- 			return 0;
-		break;
-	default:
-		if( tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&(MD_BOSS|MD_DETECTOR)) )
-			return 0;
+			if( (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || tsc->data[SC__INVISIBILITY] || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&MD_BOSS) &&
+				( ((TBL_PC*)target)->special_state.perfect_hiding || !(status->mode&MD_DETECTOR) ) )
+ 				return 0;
+			break;
+		default:
+			if( tsc && (tsc->option&(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&(MD_BOSS|MD_DETECTOR)) )
+				return 0;
 	}
 
 	return 1;

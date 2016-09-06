@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Lupus, kobra_k88
 //===== Current Version: ===================================== 
-//= 2.19 [15peaces]
+//= 2.20 [15peaces]
 //===== Compatible With: ===================================== 
 //= 15-3athena
 //===== Description: ========================================= 
@@ -42,6 +42,8 @@
 //= 2.17 Added F_InsertComma. [15peaces]
 //= 2.18 Added F_GetPlural, F_InsertPlural (thanks to Euphy / rAthena) [15peaces]
 //= 2.19 Added functions to check for equipment swap hacks. (thanks to Euphy / rAthena) [15peaces]
+//= 2.20 Added "F_getpositionname". [15peaces]
+
 //============================================================ 
 
 
@@ -496,4 +498,37 @@ function	script	F_InsertComma	{
 	for (set .@i,getstrlen(.@str$)-3; .@i>0; set .@i,.@i-3)
 	set .@str$, insertchar(.@str$,",",.@i);
 	return .@str$;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// Return the position name of the EQI_* equipment slot.
+//////////////////////////////////////////////////////////////////////////////////
+function	script	F_getpositionname	{
+	switch( getarg(0,999) ) {
+		case EQI_ACC_L:		return "Accessory 1";
+		case EQI_ACC_R:		return "Accessory 2";
+		case EQI_SHOES:		return "Shoes";
+		case EQI_GARMENT:	return "Robe";
+		case EQI_HEAD_LOW:	return "Head 3";
+		case EQI_HEAD_MID:	return "Head 2";
+		case EQI_HEAD_TOP:	return "Head";
+		case EQI_ARMOR:		return "Body";
+		case EQI_HAND_L:	return "Left hand";
+		case EQI_HAND_R:	return "Right hand";
+/*
+		case EQI_COSTUME_HEAD_TOP:	return "Upper Costume Headgear";
+		case EQI_COSTUME_HEAD_MID:	return "Middle Costume Headgear";
+		case EQI_COSTUME_HEAD_LOW:	return "Lower Costume Headgear";
+		case EQI_COSTUME_GARMENT:	return "Costume Garment";
+		case EQI_AMMO:			return "Arrow/Ammunition";
+		case EQI_SHADOW_ARMOR:	return "Shadow Armor";
+		case EQI_SHADOW_WEAPON:	return "Shadow Weapon";
+		case EQI_SHADOW_SHIELD:	return "Shadow Shield";
+		case EQI_SHADOW_SHOES:	return "Shadow Shoes";
+		case EQI_SHADOW_ACC_R:	return "Shadow Accessory 2";
+		case EQI_SHADOW_ACC_L:	return "Shadow Accessory 1";
+*/
+		default:
+			return "Unknown";
+	}
 }

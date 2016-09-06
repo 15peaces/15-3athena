@@ -5120,7 +5120,6 @@ void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int r
 	WFIFOSET(fd,packet_len(cmd));
 }
 
-
 /// Notifies clients in area, that an object is about to use a skill.
 /// 013e <src id>.L <dst id>.L <x>.W <y>.W <skill id>.W <property>.L <delaytime>.L (ZC_USESKILL_ACK)
 /// 07fb <src id>.L <dst id>.L <x>.W <y>.W <skill id>.W <property>.L <delaytime>.L <is disposable>.B (ZC_USESKILL_ACK2)
@@ -5165,7 +5164,6 @@ void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x,
 		clif_send(buf,packet_len(cmd), bl, AREA);
 }
 
-
 /// Notifies clients in area, that an object canceled casting (ZC_DISPEL).
 /// 01b9 <id>.L
 void clif_skillcastcancel(struct block_list* bl)
@@ -5178,7 +5176,6 @@ void clif_skillcastcancel(struct block_list* bl)
 	WBUFL(buf,2) = bl->id;
 	clif_send(buf,packet_len(0x1b9), bl, AREA);
 }
-
 
 /// Notifies the client about the result of a skill use request (ZC_ACK_TOUSESKILL).
 /// 0110 <skill id>.W <num>.L <result>.B <cause>.B
@@ -5237,7 +5234,6 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype
 	WFIFOSET(fd,packet_len(0x110));
 }
 
-
 /// Skill cooldown display icon (ZC_SKILL_POSTDELAY).
 /// 043d <skill ID>.W <tick>.L
 /// Note: This is now often used to start cooldown times for renewal skills.
@@ -5260,7 +5256,6 @@ void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int 
 	WFIFOSET(fd,packet_len(0x43d));
 #endif
 }
-
 
 /// Skill attack effect and damage.
 /// 0114 <skill id>.W <src id>.L <dst id>.L <tick>.L <src delay>.L <dst delay>.L <damage>.W <level>.W <div>.W <type>.B (ZC_NOTIFY_SKILL)
@@ -5356,7 +5351,6 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,unsigned int
 	return clif_calc_walkdelay(dst,ddelay,type,damage,div);
 }
 
-
 /// Ground skill attack effect and damage (ZC_NOTIFY_SKILL_POSITION).
 /// 0115 <skill id>.W <src id>.L <dst id>.L <tick>.L <src delay>.L <dst delay>.L <x>.W <y>.W <damage>.W <level>.W <div>.W <type>.B
 /*
@@ -5415,7 +5409,6 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,unsigned in
 }
 */
 
-
 /// Non-damaging skill effect (ZC_USE_SKILL).
 /// 011a <skill id>.W <skill lv>.W <dst id>.L <src id>.L <result>.B
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail)
@@ -5448,7 +5441,6 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 	return fail;
 }
 
-
 /// Non-damaging ground skill effect (ZC_NOTIFY_GROUNDSKILL).
 /// 0117 <skill id>.W <src id>.L <level>.W <x>.W <y>.W <tick>.L
 void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int tick)
@@ -5472,6 +5464,20 @@ void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int 
 		clif_send(buf,packet_len(0x117),src,AREA);
 }
 
+void clif_skill_msg(struct map_session_data *sd, int skill_id, int msg) {
+#if PACKETVER >= 20090922
+	int fd;
+
+	nullpo_retv(sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd,packet_len(0x7e6));
+	WFIFOW(fd,0) = 0x7e6;
+	WFIFOW(fd,2) = skill_id;
+	WFIFOL(fd,4) = msg;
+	WFIFOSET(fd, packet_len(0x7e6));
+#endif
+}
 
 /*==========================================
  * 場所スキルエフェクト表示
@@ -5739,12 +5745,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 		if( skill_id != AM_PHARMACY ) // AM_PHARMACY is used to Cooking.
 		{	// It fails.
 #if PACKETVER >= 20090922
-			WFIFOW(fd,0) = 0x7e6;
-			WFIFOW(fd,2) = skill_id;
-			WFIFOB(fd,4) = 0x25;
-			WFIFOW(fd,5) = list_type;
-			WFIFOB(fd,7) = 0;
-			WFIFOSET(fd, packet_len(0x7e6));
+			clif_skill_msg(sd,skill_id,SKMSG_MATERIAL_FAIL);
 #else
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));

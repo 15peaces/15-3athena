@@ -2141,6 +2141,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case WM_REVERBERATION_MAGIC:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,WM_REVERBERATION,-2,6);
 		break;
+	case GN_SLINGITEM_RANGEMELEEATK:
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,GN_SLINGITEM,-2,6);
+		break;
 	case LG_OVERBRAND_BRANDISH:
 	case LG_OVERBRAND_PLUSATK:
 	case EL_FIRE_BOMB:
@@ -8276,18 +8279,25 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case GN_SLINGITEM:
 		if( sd ) {
-			struct script_code *script;
+			short ammo_id;
 			i = sd->equip_index[EQI_AMMO];
 			if( i <= 0 )
 				break; // No ammo.
-			script = sd->inventory_data[i]->script;
-			if( !script )
-				break;
+			ammo_id = sd->inventory_data[i]->nameid;
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			if( dstsd )
-				run_script(script,0,dstsd->bl.id,fake_nd->bl.id);
-			else
-				run_script(script,0,src->id,0);
+			if( ammo_id <= 0 )
+				break;
+			if( itemdb_is_GNbomb(ammo_id) )
+				skill_attack(BF_WEAPON,src,src,bl,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,ammo_id-13260+1);
+			else {
+				struct script_code *script = sd->inventory_data[i]->script;
+				if( !script )
+					break;
+				if( dstsd )
+					run_script(script,0,dstsd->bl.id,fake_nd->bl.id);
+				else
+					run_script(script,0,src->id,0);
+			}
 		}
 		break;
 
@@ -15284,9 +15294,11 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 					clif_misceffect(&sd->bl,5);
 					break;
 				case GN_MIX_COOKING:
-				case GN_MAKEBOMB:
 				case GN_S_PHARMACY:
 					break;	// No effects here.
+				case GN_MAKEBOMB:
+					clif_skill_msg(sd,skill_id,SKMSG_SUCCESS);
+					break;
 				default: //Those that don't require a skill?
 					if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20)
 					{ //Cooking items.

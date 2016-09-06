@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Refining NPCs
 //===== By: ==================================================
-//= Syrus22 (1.1) dafide18 (1.4) Skotlex (1.5)
+//= Syrus22 (1.1) dafide18 (1.4) Skotlex (1.5) 15peaces (3.0)
 //===== Current Version: =====================================
-//= 2.9
+//= 3.0
 //===== Compatible With: =====================================
-//= Any Athena Version
+//= 15-3athena Project
 //===== Description: =========================================
 //= Refining NPCs and Metal Salesmen.
 //===== Additional Comments: =================================
@@ -54,7 +54,9 @@
 //= 2.8 Added proper Blacksmith Supplier to Einroch. [L0ne_W0lf]
 //=     Updated dated features comment to reflect new usage.
 //= 2.8a Small bugfix. (bugreport:2418) [Paradox924X]
-//= 2.9 MOved Morroc repairman to Morroc Ruins. [L0ne_W0lf]
+//= 2.9 Moved Morroc repairman to Morroc Ruins. [L0ne_W0lf]
+//= 3.0 Added Malangdo Refiner "Clink". [15peaces]
+
 //============================================================
 
 
@@ -1250,4 +1252,168 @@ function	script	repairmain	{
 		mes "items to repair.";
 		close;
 	}
+}
+
+// Malangdo Refiner
+//============================================================
+malangdo,224,172,6	script	Clink#mal_normal	544,{
+	disable_items;
+	mes "[Clink]";
+	mes "My cool dad Holink said I have the world's greatest refine hammer!!";
+	mes "Meow Meow~";
+	mes "Who do you think I am?";
+	mes "Yes!!! You!! You want to refine?";
+	next;
+	setarray .@indices[1], EQI_HEAD_TOP, EQI_ARMOR, EQI_HAND_L, EQI_HAND_R, EQI_GARMENT, EQI_SHOES, EQI_ACC_L, EQI_ACC_R, EQI_HEAD_MID, EQI_HEAD_LOW;
+	for(set .@i,1; .@i<=10; set .@i,.@i+1)
+		set .@menu$, .@menu$ + ( getequipisequiped(.@indices[.@i]) ? getequipname(.@indices[.@i]) : callfunc("F_getpositionname",.@indices[.@i]) +"-[Empty]" ) +":";
+	set .@part, .@indices[ select(.@menu$) ];
+	if (!getequipisequiped(.@part)) {
+		mes "[Clink]";
+		switch(.@part) {
+		case 1:
+			mes "Dad said. There's no cure for stupidity...";
+			break;
+		case 2:
+			mes "There's nothing to see here!!";
+			break;
+		case 3:
+			mes "What an arrogant left hand this is!";
+			break;
+		case 4:
+			mes "What an arrogant right hand this is!";
+			break;
+		case 5:
+			mes "Get that dirty thing off my face!!";
+			break;
+		case 6:
+			mes "Kyaong~! Do not provoke me.";
+			break;
+		case 7:
+		case 8:
+			mes "Where is the accessory?";
+			break;
+		case 9:
+		case 10:
+			mes "Are you talking about the other head part?";
+			break;
+		}
+		close;
+	}
+	if (!getequipisenableref(.@part)) {
+		mes "[Clink]";
+		mes "This can't be refined!!";
+		close;
+	}
+	if (getequiprefinerycnt(.@part) >= 10) {
+		mes "[Clink]";
+		mes "Perfect refining. Did I do this for you?";
+		close;
+	}
+	mes "[Clink]";
+	switch(getequipweaponlv(.@part)) {
+	default:
+	case 0: // Armor
+		set .@price,2000;
+		set .@material,985; //Elunium
+		set .@type$,"armor";
+		mes "Hmm, an armor refine? Someone like you?";
+		break;
+	case 1: // Level 1 Weapon
+		set .@price,50;
+		set .@material,1010; //Phracon
+		set .@type$,"weapon";
+		mes "A level 1 weapon?";
+		mes "Urr... Annoying... Okay, let's try...";
+		break;
+	case 2: // Level 2 Weapon
+		set .@price,200;
+		set .@material,1011; //Emveretarcon
+		set .@type$,"weapon";
+		mes "A level 2 weapon?";
+		break;
+	case 3: // Level 3 Weapon
+		set .@price,20000;
+		set .@material,984; //Oridecon
+		set .@type$,"weapon";
+		mes "Woot!! A level 3 weapon? Impressive~";
+		break;
+	case 4: // Level 4 Weapon
+		set .@price,50000;
+		set .@material,984; //Oridecon
+		set .@type$,"weapon";
+		mes "Wow!... A level 4 weapon~!!";
+		break;
+	}
+	mes "You need ^ff9999"+getitemname(.@material)+"^000000 and ^ff9999"+.@price+"^000000 Zeny. Do you have them?";
+	next;
+	if(select("Yes, I do!!:Forget about it!!") == 2) {
+		mes "[Clink]";
+		mes "I knew it!!";
+		mes "I knew you were not worth trying my magical refining hammer for.";
+		close;
+	}
+	if (getequippercentrefinery(.@part) < 100) {
+		mes "[Clink]";
+		mes "Wow!!";
+		mes "This "+.@type$+" has been refined quite a bit, huh?";
+		mes "You do know that this might break, right?";
+		next;
+		mes "[Clink]";
+		mes "If you break the "+.@type$+", you can never use it again.";
+		mes "Cards and enchant effects...";
+		mes "the ^ff0000whole thing will disappear^000000.";
+		mes "You still up for this~?";
+		next;
+		if(select("Yes, I am!!:Forget about it!!") == 2) {
+			mes "[Clink]";
+			mes "I knew it!!";
+			mes "You can't even take this big step. Don't think about refining...";
+			close;
+		}
+	}
+	if (countitem(.@material) == 0 || Zeny < .@price) {
+		mes "[Clink]";
+		mes "Hey you!! Didn't I tell you";
+		mes "that you need ^ff9999"+getitemname(.@material)+"^000000 and ^ff9999"+.@price+"^000000 Zeny??!!";
+		close;
+	}
+	delitem .@material,1;
+	set Zeny, Zeny-.@price;
+	if (getequippercentrefinery(.@part) <= rand(100)) {
+		failedrefitem .@part;
+		mes "[Clink]";
+		mes "Cry Hammer!! Cry!!!";
+		next;
+		switch(rand(1,5)) {
+			case 1: emotion e_sob; break;
+			case 2: emotion e_swt2; break;
+			case 3: emotion e_wah; break;
+			case 4: emotion e_hmm; break;
+			case 5: emotion e_lv2; break;
+		}
+		mes "[Clink]";
+		mes "Huh?! I failed?!";
+		next;
+		mes "[Clink]";
+		mes "Arrgg~ It's all~ Broken...? What a pity~";
+		next;
+		mes "[Clink]";
+		mes "Hey...!! Get me another one.";
+		mes "This is not possible.";
+		mes "How can my hammer fail from refining?";
+		close;
+	}
+	successrefitem .@part;
+	mes "[Clink]";
+	mes "Cry Hammer!! Cry!!!";
+	next;
+	emotion e_kis;
+	mes "[Clink]";
+	mes "Ok!! Perfect!!";
+	mes "There's nothing I can't refine";
+	mes "with this special hammer.";
+	mes "You can praise me!!";
+	mes "What a day!!";
+	close;
 }

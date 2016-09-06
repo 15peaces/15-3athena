@@ -1907,4 +1907,13 @@ enum gx_poison {
 	PO_VENOMBLEED
 };
 
+// msgstringtable
+// To use with clif_skill_msg();
+enum skill_msg {
+  SKMSG_MATERIAL_FAIL =  0x625,
+  SKMSG_MATERIAL_NO_EXIST,
+  SKMSG_SUCCESS,
+  SKMSG_FAIL_MATERIAL_DESTROY
+};
+
 #endif /* _SKILL_H_ */

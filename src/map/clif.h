@@ -559,6 +559,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,unsigned int
 //int clif_skill_damage2(struct block_list *src,struct block_list *dst,unsigned int tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail);
 void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int tick);
+void clif_skill_msg(struct map_session_data *sd, int skill_id, int msg);
 void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4);
 void clif_skill_memomessage(struct map_session_data* sd, int type);
