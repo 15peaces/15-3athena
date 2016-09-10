@@ -4,6 +4,11 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+09/10/2016
+	r135 [15peaces]
+		*Fixed some SQL-Warnings related to itembound-system.
+		*Updated Dead Branches, added some new monsters.
+
 09/06/2016
 	r134 [15peaces]
 		*Merged missing changes from 3ceam rev. 505 - 806

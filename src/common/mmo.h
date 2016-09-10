@@ -242,8 +242,8 @@ struct item {
 	char attribute;
 	unsigned short card[MAX_SLOTS];
 	unsigned int expire_time;
-	char favorite;
-	char bound;
+	unsigned char favorite;
+	unsigned char bound;
 };
 
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index

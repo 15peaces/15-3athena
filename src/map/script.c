@@ -10648,7 +10648,7 @@ BUILDIN_FUNC(successremovecards)
 			cardflag = 1;
 			item_tmp.id=0,item_tmp.nameid=sd->status.inventory[i].card[c];
 			item_tmp.equip=0,item_tmp.identify=1,item_tmp.refine=0;
-			item_tmp.attribute=0,item_tmp.expire_time=0;
+			item_tmp.attribute=0,item_tmp.expire_time=0,item_tmp.bound=0;
 			for (j = 0; j < MAX_SLOTS; j++)
 				item_tmp.card[j]=0;
 
