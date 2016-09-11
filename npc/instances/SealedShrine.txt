@@ -1,4 +1,4 @@
-//===== Hercules Script ======================================
+//===== 15-3athena Script ====================================
 //= Sealed Shrine
 //===== By: ==================================================
 //= L0ne_W0lf
@@ -403,8 +403,10 @@ prt_monk,261,91,3	script	Rust Blackhand#edq	826,{
 				next;
 				mes "[Rust Blackhand]";
 				mes "You'll never know how great this hat is until you get one. If you understood, go and get the ingredients.";
-				//recall_completequest 3043
-				changequest 3042,3043;
+				if (checkquest(3042) > 0)
+					erasequest 3042;
+				erasequest 3043;
+				setquest 3043;
 				close;
 			case 2:
 				mes "[Rust Blackhand]";

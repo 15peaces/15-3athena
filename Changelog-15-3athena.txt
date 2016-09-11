@@ -4,6 +4,11 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+09/11/2016
+	r136 [15peaces]
+		*Fixed a Bug in Sealed Shrine Instance where you cannot get the L_Magestic_Goat more than once.
+		*Updated Dead Branches, added some new monsters.
+
 09/10/2016
 	r135 [15peaces]
 		*Fixed some SQL-Warnings related to itembound-system.
