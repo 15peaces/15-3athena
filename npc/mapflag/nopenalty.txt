@@ -18,6 +18,10 @@
 //============================================================
 	-	script	_ep_mf_nopenalty	-1,{
 Oninit:
+	// Episode 3+
+	if(getepisode() >= 30)
+		setmapflag "comodo",mf_nopenalty;
+
 	// Episode 5
 	if(getepisode() == 50){
 		setmapflag "job_knight",mf_nopenalty;
@@ -135,7 +139,6 @@ alberta	mapflag	nopenalty
 aldebaran	mapflag	nopenalty
 amatsu	mapflag	nopenalty
 ama_test	mapflag	nopenalty
-comodo	mapflag	nopenalty
 geffen	mapflag	nopenalty
 gef_dun03	mapflag	nopenalty
 gonryun	mapflag	nopenalty

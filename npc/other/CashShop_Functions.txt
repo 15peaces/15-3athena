@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 2.0
+//= 2.1
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -28,6 +28,7 @@
 //= (Disabled for 15-3athena, we won't support VIP system) [15peaces] 
 //= 1.9 Added checkdragon() in F_CashReset. [Capuche]
 //= 2.0 Updated and ported from rAthena. [15peaces]
+//= 2.1 Added support for episode system. [15peaces]
 //============================================================ 
 
 // Kafra Card
@@ -198,7 +199,7 @@ function	script	F_CashTele	{
 		case 1: warp "payon",158,55; end;
 		case 2: warp "alberta",115,57; end;
 		case 3: warp "morocc",158,48; end;
-		case 4: warp "comodo",217,148; end;
+		case 4: if(getepisode() >= 30) warp "comodo",217,148; end;
 		case 5: warp "SavePoint",0,0; end;
 		}
 	case 3:

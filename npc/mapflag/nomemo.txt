@@ -27,6 +27,14 @@
 //============================================================
 	-	script	_ep_mf_nomemo	-1,{
 Oninit:
+	// Episode 3+
+	if(getepisode() >= 30){
+		// Comodo Beach --------------
+		setmapflag "beach_dun" ,mf_nomemo;
+		setmapflag "beach_dun2",mf_nomemo;
+		setmapflag "beach_dun3",mf_nomemo;
+	}
+
 	// Episode 5
 	if(getepisode() == 50){
 		setmapflag "hunter_1-1",mf_nomemo;
@@ -217,10 +225,6 @@ anthell02	mapflag	nomemo
 ama_dun01	mapflag	nomemo
 ama_dun02	mapflag	nomemo
 ama_dun03	mapflag	nomemo
-// Comodo Beach --------------
-beach_dun	mapflag	nomemo
-beach_dun2	mapflag	nomemo
-beach_dun3	mapflag	nomemo
 // Clock Tower ---------------
 c_tower1	mapflag	nomemo
 c_tower2	mapflag	nomemo

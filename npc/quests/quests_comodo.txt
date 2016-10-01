@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Quest NPCs related to Comodo
 //===== By: ================================================== 
 //= kobra_k88; L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.5b
+//= 1.7
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Headgear Quests 1 [Aegis Conversion]:
 //= - 'Cross Hat', 'Bulb Hairband'
@@ -28,12 +28,13 @@
 //= 1.5a Fixed a bad countitem. (bugreport:840) [Samuray22]
 //= 1.5b Fixed stripped hairband and blue hairband checking the wrong amount of items, bugreport:1674 [Brainstorm]
 //= 1.6 Updated headgear quest NPCs. [L0ne_W0lf]
+//= 1.7 Added support for episode system. [15peaces]
 //============================================================ 
 
 // Headgear Quests 1
 // Cross Hat, Bulb Hairband, Striped Hairband, Blue Hairband
 //============================================================ 
-comodo,228,159,3	script	Hair Ornament Girl	700,{
+comodo,228,159,3	script	Hair Ornament Girl	1,30,-1,700,{
 	mes "[Hair Ornament Girl]";
 	if (Sex == 1) {
 		mes "Oh, hello!";
@@ -230,7 +231,7 @@ comodo,228,159,3	script	Hair Ornament Girl	700,{
 // Headgear Quests 2
 // 'Mine Helmet', 'Parcel Hat', 'Money Loser's Grief', 'Phantom of the Opera Mask'
 //============================================================ 
-comodo,273,137,4	script	Traveler#head	702,{
+comodo,273,137,4	script	Traveler#head	1,30,-1,702,{
 	mes "[Isac Mari]";
 	mes "I travel around the world, and collect many interesting stories from people. Sometimes they teach me how to make special items.";
 	next;
@@ -474,7 +475,7 @@ comodo,273,137,4	script	Traveler#head	702,{
 
 // Doomed Swords - Comodo Portion. (Continued in Juno)
 //============================================================ 
-comodo,206,310,4	script	Campground Boy#cmd	704,{
+comodo,206,310,4	script	Campground Boy#cmd	1,30,-1,704,{
 	if (dmdswrd_Q < 4) {
 		switch(dmdswrd_Q) {
 		case 0:
@@ -636,7 +637,7 @@ comodo,206,310,4	script	Campground Boy#cmd	704,{
 	}
 }
 
-comodo,204,310,4	script	Camping Youth#cmd	65,{
+comodo,204,310,4	script	Camping Youth#cmd	1,30,-1,65,{
 	if (dmdswrd_Q < 5) {
 		switch(dmdswrd_Q) {
 		case 0:
@@ -744,7 +745,7 @@ comodo,204,310,4	script	Camping Youth#cmd	65,{
 	}
 }
 
-comodo,209,305,4	script	Camping Maiden#cmd	71,{
+comodo,209,305,4	script	Camping Maiden#cmd	1,30,-1,71,{
 	mes "[Emralhandas]";
 	mes "Rockha, let me pour";
 	mes "you another drink. We";
@@ -812,7 +813,7 @@ comodo,209,305,4	script	Camping Maiden#cmd	71,{
 	close;
 }
 
-comodo,209,314,4	script	Campground Lad#cmd	706,{
+comodo,209,314,4	script	Campground Lad#cmd	1,30,-1,706,{
 	if (dmdswrd_Q < 4) {
 		switch(dmdswrd_Q) {
 		case 0:
@@ -863,7 +864,7 @@ comodo,209,314,4	script	Campground Lad#cmd	706,{
 	}
 }
 
-comodo,221,310,4	script	BBQ Boy#cmd	86,{
+comodo,221,310,4	script	BBQ Boy#cmd	1,30,-1,86,{
 	mes "[Rinta]";
 	mes "I didn't mean to,";
 	mes "but I accidentally";
@@ -881,7 +882,7 @@ comodo,221,310,4	script	BBQ Boy#cmd	86,{
 	close;
 }
 
-comodo,218,309,4	script	BBQ Visitor#cmd	90,{
+comodo,218,309,4	script	BBQ Visitor#cmd	1,30,-1,90,{
 	mes "[Razy]";
 	mes "Those people over there";
 	mes "are friends of the Village";
@@ -900,7 +901,7 @@ comodo,218,309,4	script	BBQ Visitor#cmd	90,{
 	close;
 }
 
-comodo,216,310,4	script	BBQ Papa#cmd::CmdFamily	50,{
+comodo,216,310,4	script	BBQ Papa#cmd::CmdFamily	1,30,-1,50,{
 	mes "[BBQ Boy]";
 	mes "D-daddy! Is what those";
 	mes "people talking about true?";
@@ -947,11 +948,11 @@ comodo,216,310,4	script	BBQ Papa#cmd::CmdFamily	50,{
 	close;
 }
 
-comodo,215,307,4	duplicate(CmdFamily)	BBQ Mama#cmd	74
+comodo,215,307,4	duplicate(CmdFamily)	BBQ Mama#cmd	1,30,-1,74
 
-comodo,213,310,4	duplicate(CmdFamily)	BBQ Boy#cmd2	706
+comodo,213,310,4	duplicate(CmdFamily)	BBQ Boy#cmd2	1,30,-1,706
 
-cmd_in02,32,140,4	script	Chief#cmd	49,{
+cmd_in02,32,140,4	script	Chief#cmd	1,30,-1,49,{
 	if (dmdswrd_Q > 4) {
 		mes "[Tausupa]";
 		mes "Maybe you can't tell because";
@@ -1102,7 +1103,7 @@ cmd_in02,32,140,4	script	Chief#cmd	49,{
 	}	
 }
 
-comodo,88,97,4	script	Toruna#cmd	109,{
+comodo,88,97,4	script	Toruna#cmd	1,30,-1,109,{
 	mes "[Toruna]";
 	mes "When I think about it,";
 	mes "there are many fascinating";
@@ -1238,7 +1239,7 @@ comodo,88,97,4	script	Toruna#cmd	109,{
 	}
 }
 
-comodo,164,291,4	script	Rakusa#cmd	73,{
+comodo,164,291,4	script	Rakusa#cmd	1,30,-1,73,{
 	if (dmdswrd_Q == 6 || dmdswrd_Q == 7) {
 		switch(dmdswrd_Q) {
 		case 6:
@@ -1289,7 +1290,7 @@ comodo,164,291,4	script	Rakusa#cmd	73,{
 	}
 }
 
-comodo,169,284,4	script	Kichiri#cmd	98,{
+comodo,169,284,4	script	Kichiri#cmd	1,30,-1,98,{
 	if (dmdswrd_Q == 7 || dmdswrd_Q == 8) {
 		switch(dmdswrd_Q) {
 		case 7:
@@ -1341,7 +1342,7 @@ comodo,169,284,4	script	Kichiri#cmd	98,{
 	}
 }
 
-comodo,163,280,4	script	Magatu#cmd	55,{
+comodo,163,280,4	script	Magatu#cmd	1,30,-1,55,{
 	if (dmdswrd_Q == 8 || dmdswrd_Q == 9) {
 		switch(dmdswrd_Q) {
 		case 8:
@@ -1404,7 +1405,7 @@ comodo,163,280,4	script	Magatu#cmd	55,{
 	}
 }
 
-cmd_in02,189,99,4	script	Manzi#cmd	85,{
+cmd_in02,189,99,4	script	Manzi#cmd	1,30,-1,85,{
 	if (dmdswrd_Q == 9 || dmdswrd_Q == 10) {
 		switch(dmdswrd_Q) {
 		case 9:
@@ -1493,7 +1494,7 @@ cmd_in02,189,99,4	script	Manzi#cmd	85,{
 	}
 }
 
-comodo,187,153,4	script	Hullaris#cmd	701,{
+comodo,187,153,4	script	Hullaris#cmd	1,30,-1,701,{
 	if (dmdswrd_Q >= 10 && dmdswrd_Q <= 13) {
 		switch(dmdswrd_Q) {
 		case 10:
@@ -1730,7 +1731,7 @@ comodo,187,153,4	script	Hullaris#cmd	701,{
 	}
 }
 
-beach_dun3,30,220,4	script	Nigirboran#cmd	704,{
+beach_dun3,30,220,4	script	Nigirboran#cmd	1,30,-1,704,{
 	if (dmdswrd_Q >= 11 && dmdswrd_Q <= 14) {
 		switch(dmdswrd_Q) {
 		case 11:
@@ -1962,7 +1963,7 @@ beach_dun3,30,220,4	script	Nigirboran#cmd	704,{
 	}
 }
 
-aldebaran,44,53,4	script	Meteurengut#cmd	64,{
+aldebaran,44,53,4	script	Meteurengut#cmd	1,30,-1,64,{
 	if (dmdswrd_Q >= 14 && dmdswrd_Q <= 17) {
 		switch(dmdswrd_Q) {
 		case 14:
@@ -2186,7 +2187,7 @@ aldebaran,44,53,4	script	Meteurengut#cmd	64,{
 	}
 }
 
-morocc,201,30,4	script	Zaka#cmd	99,{
+morocc,201,30,4	script	Zaka#cmd	1,30,-1,99,{
 	if (dmdswrd_Q >= 17 && dmdswrd_Q <= 22) {
 		switch(dmdswrd_Q) {
 		case 17:
@@ -2402,7 +2403,7 @@ morocc,201,30,4	script	Zaka#cmd	99,{
 	}
 }
 
-comodo,232,87,4	script	Won#cmd	106,{
+comodo,232,87,4	script	Won#cmd	1,30,-1,106,{
 	if (dmdswrd_Q >= 22 && dmdswrd_Q <= 24) {
 		switch(dmdswrd_Q) {
 		case 22:

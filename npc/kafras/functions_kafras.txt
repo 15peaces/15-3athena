@@ -1,13 +1,13 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Kafra Functions
 //===== By: ================================================== 
 //= eAthena Dev Team
 //= Darlskies, Darkchild, Syrus22, Lupus, kobra_k88 (2.0)
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 6.3
+//= 6.4
 //===== Compatible With: ===================================== 
-//= eAthena 1.0
+//= 15-3athena Project
 //===== Description: =========================================
 //= These functions handle save, storage, cart rental, teleport,
 //= and Free Teleport/Warp/Rent Cart options for all Kafra NPCs.
@@ -58,6 +58,7 @@
 //= 6.1 Added menu for Turbo Track Kafra Staff. [L0ne_W0lf]
 //= 6.2 Updated/Fixed warp cords. [Kisuka]
 //= 6.3 #kafra_code is now stored as is. [brianluau]
+//= 6.4 Added support for episode system. [15peaces]
 //============================================================ 
 
 
@@ -401,14 +402,14 @@ function	script	F_KafTele	{
 		if (@wrpD$[@num] == "Alberta") warp "alberta", 117, 56;
 		if (@wrpD$[@num] == "Al De Baran") warp "aldebaran",168,112;
 		if (@wrpD$[@num] == "Aldebaran") warp "aldebaran",168,112;
-		if (@wrpD$[@num] == "Comodo") warp "comodo", 209, 143;
+		if (@wrpD$[@num] == "Comodo" && getepisode() >= 30) warp "comodo", 209, 143;
 		if (@wrpD$[@num] == "Izlude") warp "izlude", 91, 136;
 		if (@wrpD$[@num] == "Geffen") warp "geffen", 120, 39;
 		if (@wrpD$[@num] == "Morroc") warp "morocc", 156, 46;
 		if (@wrpD$[@num] == "Payon") warp "payon", 161, 58;
 		if (@wrpD$[@num] == "Prontera") warp "prontera", 116, 72;
 		if (@wrpD$[@num] == "Mjolnir Dead Pit") warp "mjolnir_02", 99, 351;
-		if (@wrpD$[@num] == "Comodo Pharos Beacon") warp "cmd_fild07", 127, 134;
+		if (@wrpD$[@num] == "Comodo Pharos Beacon" && getepisode() >= 30) warp "cmd_fild07", 127, 134;
 		if (@wrpD$[@num] == "Orc Dungeon") warp "gef_fild10", 52, 326;
 		if (@wrpD$[@num] == "Umbala") warp "umbala", 100, 154;
 		if (@wrpD$[@num] == "Juno") warp "yuno", 158, 125;

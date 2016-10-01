@@ -1,12 +1,12 @@
-//===== eAthena Script ===============
+//===== 15-3athena Script ==================================== 
 //= Comodo Kafras
-//===== By: ============================
+//===== By: ================================================== 
 //= eAthena Dev Team
-//===== Current Version: =======================
-//= 2.3
-//===== Compatible With: ============================
-//= eAthena 1.0
-//===== Description: ============================================
+//===== Current Version: ===================================== 
+//= 2.4
+//===== Compatible With: ===================================== 
+//= 15-3athena Project
+//===== Description: ========================================= 
 //= Description of argument settings for callfunc "F_Kafra".
 //=  arg(0): When set at 0 the default Kafra message is displayed.
 //=  When set to 1 the Niflhiem Kafra message is displayed.
@@ -15,7 +15,7 @@
 //=  arg(2): Set to 1 to disable info menu.  Otherwise set to 0.
 //=  arg(3): Cost of Storage service
 //=  arg(4): Cost of Rent a Pushcart service
-//===== Additional Comments: ==========================================
+//===== Additional Comments: ================================= 
 //= v1.1 Now using functions :)
 //= v2.1b Minor changes to function calls. Using arguments.
 //= This version uses arrays .[kobra_k88]
@@ -24,11 +24,12 @@
 //= 2.21 from Pharos, both warps are now 1200z [Evera]
 //= 2.3 Updated function calls with new arguments. [L0ne_W0lf]
 //=	Added unique Kafra Welcome message2.
-//=====================================================================
+//= 2.4 Added support for episode system. [15peaces]
+//============================================================
 
 
 // In Town ==============================================>\\
-comodo,195,150,4	script	Kafra Employee::kaf_comodo	721,{
+comodo,195,150,4	script	Kafra Employee::kaf_comodo	1,30,-1,721,{
 	cutin "kafra_07",2;
 	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
 	setarray @wrpD$[0], "Morroc", "Comodo Pharos Beacon", "Umbala";
@@ -51,7 +52,7 @@ comodo,195,150,4	script	Kafra Employee::kaf_comodo	721,{
 }
 
 // Comodo Pharos Lighthouse (Beacon Island) ===================>\\
-cmd_fild07,136,134,4	script	Kafra Employee::kaf_cmd_fild07	721,{
+cmd_fild07,136,134,4	script	Kafra Employee::kaf_cmd_fild07	1,30,-1,721,{
 	cutin "kafra_07",2;
 	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
 	setarray @wrpD$[0], "Comodo", "Morroc";

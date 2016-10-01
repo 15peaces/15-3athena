@@ -1,17 +1,18 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Party Relay Quest
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.0
+//= 1.2
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Party Relay Quest.
 //===== Additional Comments: ================================= 
 //= 1.0 First version. [L0ne_W0lf]
 //= 1.1 Fixed a couple typos, npcs check area for PCs. [L0ne_W0lf]
+//= 1.2 Added support for episode system. [15peaces]
 //============================================================
 
 payon,103,113,3	script	Ledrion#payon::RelayLedrion	109,{
@@ -3477,10 +3478,10 @@ payon,168,314,3	script	Lospii#payon::RelayLospii	706,{
 }
 
 // Comodo Relay
-comodo,71,137,3	duplicate(RelayLedrion)	Ledrion#comodo	109
-comodo,236,197,3	duplicate(RelayGatan)	Gatan#comodo	86
-comodo,152,184,3	duplicate(RelayBafhail)	Bafhail#comodo	731
-comodo,64,219,3	duplicate(RelayLospii)	Lospii#comodo	706
+comodo,71,137,3	duplicate(RelayLedrion)	Ledrion#comodo	1,30,-1,109
+comodo,236,197,3	duplicate(RelayGatan)	Gatan#comodo	1,30,-1,86
+comodo,152,184,3	duplicate(RelayBafhail)	Bafhail#comodo	1,30,-1,731
+comodo,64,219,3	duplicate(RelayLospii)	Lospii#comodo	1,30,-1,706
 
 // Einbroch Relay
 einbroch,107,93,3	duplicate(RelayLedrion)	Ledrion#einbroch	109

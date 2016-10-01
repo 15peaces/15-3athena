@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Comodo Guides
 //===== By: ================================================== 
 //= kobra_k88; L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.5
+//= 1.6
 //===== Compatible With: ===================================== 
-//= eAthena  SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Guides for the City of Comodo
@@ -16,17 +16,18 @@
 //=	to Muad_Dib [MasterOfMuppets]
 //= 1.4	Removed 3 guides, and converted to use functions.
 //= 1.5 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
+//= 1.6 Added support for episode system. [15peaces]
 //============================================================
 
-comodo,322,178,4	script	Comodo Guide#cmd::CmdGuide	700,{
+comodo,322,178,4	script	Comodo Guide#cmd::CmdGuide	1,30,-1,700,{
 	callfunc "F_CmdGuide","Native Kokomo";
 }
 
-comodo,176,350,4	script	Comodo Guide#2cmd	700,{
+comodo,176,350,4	script	Comodo Guide#2cmd	1,30,-1,700,{
 	callfunc "F_CmdGuide","Native Nutcoco";
 }
 
-comodo,37,219,4	script	Guide#2cmd	700,{
+comodo,37,219,4	script	Guide#2cmd	1,30,-1,700,{
 	callfunc "F_CmdGuide","Native Papaya";
 }
 

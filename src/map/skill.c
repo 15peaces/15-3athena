@@ -4373,8 +4373,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 /*==========================================
  *
  *------------------------------------------*/
-int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, int skillid, int skilllv, unsigned int tick, int flag)
-{
+int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, int skillid, int skilllv, unsigned int tick, int flag) {
 	struct map_session_data *sd, *dstsd;
 	struct mob_data *md, *dstmd;
 	struct homun_data *hd;
@@ -5701,8 +5700,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{	//Prevent vending of GMs with unnecessary Level to trade/drop. [Skotlex]
 			if ( !pc_can_give_items(pc_isGM(sd)) )
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
-			else
+			else {
+				sd->state.workinprogress = WIP_DISABLE_ALL;
 				clif_openvendingreq(sd,2+skilllv);
+			}
 		}
 		break;
 
@@ -6163,9 +6164,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case SA_AUTOSPELL:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		if(sd)
+		if(sd) {
 			clif_autospell(sd,skilllv);
-		else {
+			sd->state.workinprogress = WIP_DISABLE_ALL;
+		} else {
 			int maxlv=1,spellid=0;
 			static const int spellarray[3] = { MG_COLDBOLT,MG_FIREBOLT,MG_LIGHTNINGBOLT };
 			if(skilllv >= 10) {
@@ -13245,11 +13247,12 @@ void skill_repairweapon (struct map_session_data *sd, int idx)
 /*==========================================
  * Item Appraisal
  *------------------------------------------*/
-void skill_identify (struct map_session_data *sd, int idx)
-{
+void skill_identify (struct map_session_data *sd, int idx) {
 	int flag=1;
 
 	nullpo_retv(sd);
+
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 
 	if(idx >= 0 && idx < MAX_INVENTORY) {
 		if(sd->status.inventory[idx].nameid > 0 && sd->status.inventory[idx].identify == 0 ){

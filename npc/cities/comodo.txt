@@ -3,10 +3,9 @@
 //===== By: ================================================== 
 //= eAthena dev team
 //===== Current Version: ===================================== 
-//= 1.9
+//= 2.0
 //===== Compatible With: ===================================== 
-//= eAthena SVN
-//= 15-3athena rev. 1+
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Comodo Town NPCs
@@ -22,11 +21,12 @@
 //= 1.7 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
 //= 1.8 Fixed a small bug. (close -> close2) [L0ne_W0lf]
 //= 1.9 Added a missing Kafra NPC. [L0ne_W0lf]
+//= 2.0 Added support for episode system. [15peaces]
 //============================================================
 
 // Inside Comodo
 //============================================================
-cmd_in02,73,81,4	script	Martine#cmd	48,{
+cmd_in02,73,81,4	script	Martine#cmd	1,30,-1,48,{
 	mes "[Martine]";
 	mes "Gambling...? The games";
 	mes "provided here in the Comodo";
@@ -51,7 +51,7 @@ cmd_in02,73,81,4	script	Martine#cmd	48,{
 	close;
 }
 
-cmd_in02,48,55,4	script	Scoursege#cmd	51,{
+cmd_in02,48,55,4	script	Scoursege#cmd	1,30,-1,51,{
 	mes "[Scoursege]";
 	mes "Damn it! Where did that";
 	mes "guy go? He promised me that";
@@ -67,7 +67,7 @@ cmd_in02,48,55,4	script	Scoursege#cmd	51,{
 	close;
 }
 
-cmd_in02,64,43,4	script	Roberto#cmd	709,{
+cmd_in02,64,43,4	script	Roberto#cmd	1,30,-1,709,{
 	mes "[Roberto]";
 	mes "Heh heh heh...";
 	mes "Whaaaat a gullible";
@@ -78,7 +78,7 @@ cmd_in02,64,43,4	script	Roberto#cmd	709,{
 	close;
 }
 
-cmd_in02,89,72,4	script	Deniroz#cmd	89,{
+cmd_in02,89,72,4	script	Deniroz#cmd	1,30,-1,89,{
 	mes "[Deniroz]";
 	mes "All I need is for this";
 	mes "little steel bead to fall";
@@ -96,7 +96,7 @@ cmd_in02,89,72,4	script	Deniroz#cmd	89,{
 	close;
 }
 
-cmd_in02,178,92,4	script	Shalone#cmd	101,{
+cmd_in02,178,92,4	script	Shalone#cmd	1,30,-1,101,{
 	mes "[Shalone]";
 	mes "Oh, I'm sorry, sir,";
 	mes "but it looks like you";
@@ -107,7 +107,7 @@ cmd_in02,178,92,4	script	Shalone#cmd	101,{
 	close;
 }
 
-cmd_in02,178,86,4	script	Stonae#cmd	98,{
+cmd_in02,178,86,4	script	Stonae#cmd	1,30,-1,98,{
 	mes "[Stonae]";
 	mes "N-no...";
 	mes "I lost again?!";
@@ -118,7 +118,7 @@ cmd_in02,178,86,4	script	Stonae#cmd	98,{
 	close;
 }
 
-cmd_in02,172,105,4	script	G . J#cmd	86,{
+cmd_in02,172,105,4	script	G . J#cmd	1,30,-1,86,{
 	mes "[G . J]";
 	mes "The more I think about it,";
 	mes "it seems easier to become";
@@ -143,7 +143,7 @@ cmd_in02,172,105,4	script	G . J#cmd	86,{
 	close;
 }
 
-cmd_in02,174,126,4	script	Loyar#cmd	83,{
+cmd_in02,174,126,4	script	Loyar#cmd	1,30,-1,83,{
 	mes "[Loyar]";
 	mes "Comodo Casino's interior";
 	mes "design is so pleasing to the";
@@ -199,7 +199,7 @@ cmd_in02,174,126,4	script	Loyar#cmd	83,{
 	}
 }
 
-cmd_in02,57,62,4	script	Moo#cmd	109,{
+cmd_in02,57,62,4	script	Moo#cmd	1,30,-1,109,{
 	set mooz,rand(1,10);
 	if (mooz == 1) {
 		mes "[Moo]";
@@ -238,7 +238,7 @@ cmd_in02,57,62,4	script	Moo#cmd	109,{
 
 // Comodo Field
 //============================================================
-cmd_fild04,188,74,4	script	Zyosegirl#cmd	93,{
+cmd_fild04,188,74,4	script	Zyosegirl#cmd	1,30,-1,93,{
 	mes "[Zyosegirl]";
 	mes "People call me the";
 	mes "Sea Lady because I'm";
@@ -256,7 +256,7 @@ cmd_fild04,188,74,4	script	Zyosegirl#cmd	93,{
 	close;
 }
 
-cmd_fild04,248,86,4	script	Ziyaol#cmd	709,{
+cmd_fild04,248,86,4	script	Ziyaol#cmd	1,30,-1,709,{
 	mes "[Ziyaol]";
 	mes "Ahhh, it's nice being";
 	mes "a fisherman. You just";
@@ -283,7 +283,7 @@ cmd_fild04,248,86,4	script	Ziyaol#cmd	709,{
 	close;
 }
 
-cmd_fild04,267,137,4	script	Daeguro#cmd	703,{
+cmd_fild04,267,137,4	script	Daeguro#cmd	1,30,-1,703,{
 	mes "[Daeguro]";
 	mes "I love playing in";
 	mes "the sand-- it's so soft";
@@ -294,7 +294,7 @@ cmd_fild04,267,137,4	script	Daeguro#cmd	703,{
 	close;
 }
 
-cmd_fild07,192,58,4	script	Rahasu#cmd	100,{
+cmd_fild07,192,58,4	script	Rahasu#cmd	1,30,-1,100,{
 	mes "[Rahasu]";
 	mes "Hey, I'm Rahasu.";
 	mes "If you want to learn";
@@ -328,7 +328,7 @@ cmd_fild07,192,58,4	script	Rahasu#cmd	100,{
 	close;
 }
 
-cmd_fild07,52,280,4	script	Hallosu#cmd	100,{
+cmd_fild07,52,280,4	script	Hallosu#cmd	1,30,-1,100,{
 	mes "[Hallosu]";
 	mes "Hello, this is one of the";
 	mes "lighthouses that make up";
@@ -339,7 +339,7 @@ cmd_fild07,52,280,4	script	Hallosu#cmd	100,{
 	close;
 }
 
-cmd_fild07,299,83,4	script	Zain#cmd	100,{
+cmd_fild07,299,83,4	script	Zain#cmd	1,30,-1,100,{
 	mes "[Zain]";
 	mes "Would you like to";
 	mes "board a ship on the";
@@ -381,7 +381,7 @@ cmd_fild07,299,83,4	script	Zain#cmd	100,{
 	}
 }
 
-cmd_fild07,94,134,4	script	Sarumane#cmd	100,{
+cmd_fild07,94,134,4	script	Sarumane#cmd	1,30,-1,100,{
 	mes "[Sarumane]";
 	mes "Would you like to";
 	mes "board a ship on the";
@@ -424,7 +424,7 @@ cmd_fild07,94,134,4	script	Sarumane#cmd	100,{
 }
 
 
-cmd_in02,146,180,4	script	Kafra Employee::kaf_comodo2	721,{
+cmd_in02,146,180,4	script	Kafra Employee::kaf_comodo2	1,30,-1,721,{
 	cutin "kafra_07",2;
 	mes "[Kafra Misty]";
 	mes "Welcome to the";
@@ -447,7 +447,7 @@ cmd_in02,146,180,4	script	Kafra Employee::kaf_comodo2	721,{
 
 // Morroc Field
 //============================================================
-moc_fild12,35,303,4	script	Serutero#cmd	59,{
+moc_fild12,35,303,4	script	Serutero#cmd	1,30,-1,59,{
 	mes "[Serutero]";
 	mes "Hello, I'm Serutero,";
 	mes "guardian of the roads that";

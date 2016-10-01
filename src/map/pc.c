@@ -4077,16 +4077,23 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 }
 
 /*==========================================
- * ƒAƒCƒeƒ€‚ðŽg‚¤
+ * Last checks to use an item.
+ * Return:
+ *	0 = fail
+ *	1 = success
  *------------------------------------------*/
-int pc_useitem(struct map_session_data *sd,int n)
-{
+int pc_useitem(struct map_session_data *sd,int n) {
 	unsigned int tick = gettick();
 	unsigned short nameid;
 	int amount, i;
 	struct script_code *script;
 
 	nullpo_ret(sd);
+
+	if (sd->npc_id && sd->progressbar.npc_id) {
+		clif_progressbar_abort(sd);
+		return 0; // First item use attempt cancels the progress bar
+	}
 
 	if( sd->status.inventory[n].nameid <= 0 || sd->status.inventory[n].amount <= 0 )
 		return 0;
@@ -4519,8 +4526,7 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
  * 1 - Invalid map index.
  * 2 - Map not in this map-server, and failed to locate alternate map-server.
  *------------------------------------------*/
-int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y, clr_type clrtype)
-{
+int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y, clr_type clrtype) {
 	int m;
 
 	nullpo_ret(sd);
@@ -4566,6 +4572,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 
 	sd->state.changemap = (sd->mapindex != mapindex);
 	sd->state.warping = 1;
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 	if( sd->state.changemap )
 	{ // Misc map-changing settings
 		sd->state.pmap = sd->bl.m;

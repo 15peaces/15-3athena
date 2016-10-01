@@ -1,11 +1,11 @@
-//===== rAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Eden Group Quests - Common NPCs
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.8
+//= 1.9
 //===== Compatible With: ===================================== 
-//= rAthena Project
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Eden Group Headquarter NPC's.
 //===== Additional Comments: ================================= 
@@ -19,6 +19,7 @@
 //= 1.6 Added Izlude RE coordinates. [Euphy]
 //= 1.7 Added Malaya teleporter. [Euphy]
 //= 1.8 Updated to match the latest official script. [Euphy]
+//= 1.9 Added support for episode system. [15peaces]
 //============================================================
 
 // Common NPCs :: lv_tre
@@ -232,7 +233,7 @@ que_ng,33,73,3	duplicate(eto)	Eden Teleport Officer#13	729
 que_ng,144,161,5	duplicate(eto)	Eden Teleport Officer#14	729
 yuno,144,189,5	duplicate(eto)	Eden Teleport Officer#15	729
 rachel,125,144,3	duplicate(eto)	Eden Teleport Officer#16	729
-comodo,202,151,4	duplicate(eto)	Eden Teleport Officer#17	729
+comodo,202,151,4	duplicate(eto)	Eden Teleport Officer#17	1,30,-1,729
 hugel,93,153,4	duplicate(eto)	Eden Teleport Officer#18	729
 veins,220,109,4	duplicate(eto)	Eden Teleport Officer#19	729
 einbroch,250,211,4	duplicate(eto)	Eden Teleport Officer#20	729
@@ -272,7 +273,7 @@ OnTouch:
 		case 14: warp "que_ng",144,166; end;
 		case 15: warp "yuno",158,125; end;
 		case 16: warp "rachel",115,125; end;
-		case 17: warp "comodo",192,145; end;
+		case 17: if(getepisode() >=30) warp "comodo",192,145; end;
 		case 18: warp "hugel",88,148; end;
 		case 19: warp "veins",216,104; end;
 		case 20: warp "einbroch",246,204; end;

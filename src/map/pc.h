@@ -178,6 +178,7 @@ struct map_session_data {
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
 		unsigned int bg_id;
+		unsigned int workinprogress : 2; // See clif.h::e_workinprogress
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -639,7 +640,6 @@ enum equip_pos {
 	(sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter \
 )
 
-
 #define pc_stop_walking(sd, type) unit_stop_walking(&(sd)->bl, type)
 #define pc_stop_attack(sd) unit_stop_attack(&(sd)->bl)
 
@@ -656,6 +656,10 @@ enum equip_pos {
 	|| ( (class_) >= JOB_KAGEROU		&& (class_) <= JOB_OBORO ) \
 	|| ( (class_) >= JOB_REBELLION		&& (class_) < JOB_MAX ) \
 )
+
+static inline bool pc_hasprogress(struct map_session_data *sd, enum e_wip_block progress) {
+	return sd == NULL || (sd->state.workinprogress&progress) == progress;
+}
 
 int pc_class2idx(int class_);
 int pc_isGM(struct map_session_data *sd);

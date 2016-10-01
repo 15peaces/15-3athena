@@ -1,15 +1,33 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Allows Mailbox access
 //===== By: ==================================================
 //= Epoque
 //===== Current Version: =====================================
-//= 1.0a [Epoque]
+//= 1.1
 //===== Compatible With: =====================================
-//=
+//= 15-3athena Project
 //===== Description: =========================================
 //=
+//===== Additional Comments: ================================= 
+//= 1.0 [Epoque]
+//= 1.1 Added support for episode mapflags [15peaces]
 //============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_town	-1,{
+Oninit:
+	// Episode 3+
+	if(getepisode() >= 30)
+		setmapflag "comodo",mf_town;
+		
+	end;
+}
+
+//============================================================
+// Global Mapflags
+//============================================================
 prontera	mapflag	town
 izlude	mapflag	town
 moc_ruins	mapflag	town
@@ -22,7 +40,6 @@ yuno	mapflag	town
 lighthalzen	mapflag	town
 einbroch	mapflag	town
 einbech	mapflag	town
-comodo	mapflag	town
 umbala	mapflag	town
 amatsu	mapflag	town
 gonryun	mapflag	town

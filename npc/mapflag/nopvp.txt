@@ -17,6 +17,13 @@
 //============================================================
 	-	script	_ep_mf_pvp_off	-1,{
 Oninit:
+	// Episode 3+
+	if(getepisode() >= 30){
+		pvpoff "cmd_in01";
+		pvpoff "cmd_in02";
+		pvpoff "comodo";
+	}
+
 	// Episode 5
 	if(getepisode() == 50){
 		pvpoff "sword_1-1";
@@ -38,9 +45,6 @@ aldebaran	mapflag	pvp	off
 ama_in01	mapflag	pvp	off
 ama_in02	mapflag	pvp	off
 amatsu	mapflag	pvp	off
-cmd_in01	mapflag	pvp	off
-cmd_in02	mapflag	pvp	off
-comodo	mapflag	pvp	off
 gef_tower	mapflag	pvp	off
 geffen	mapflag	pvp	off
 geffen_in	mapflag	pvp	off

@@ -1,11 +1,11 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ==================================== 
 //= Mail Boxes
 //===== By: ==================================================
 //= L0ne_W0lf
 //===== Current Version: =====================================
-//= 1.6
+//= 1.7
 //===== Compatible With: =====================================
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Pickup and write mail from/to players in game.
@@ -18,6 +18,7 @@
 //= 1.4 Added a Mapflag to prevent mail operations in other maps [Zephyrus]
 //= 1.5 Moved Morroc Mail boxes to Morroc Ruins. [L0ne_W0lf]
 //= 1.6 Duplicates now spawn from floating NPCs. [L0ne_W0lf]
+//= 1.4 Added support for episode system. [15peaces]
 //============================================================
 
 // Floating mailbox npc that all NPCs duplicate from.
@@ -108,7 +109,7 @@ einbech,182,124,0	duplicate(MailBox)	Mailbox#3ein	888
 
 // Comodo
 //============================================================
-comodo,200,150,0	duplicate(MailBox)	Mailbox#cmd	888
+comodo,200,150,0	duplicate(MailBox)	Mailbox#cmd	1,30,-1,888
 
 // Umbala
 //============================================================

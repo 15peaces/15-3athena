@@ -1,21 +1,37 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Map flags that enable the use of Neuralizer
 //===== By: ==================================================
 //= Daegaladh
 //===== Current Version: =====================================
-//= 1.0 [Daegaladh]
+//= 1.1
 //===== Compatible With: =====================================
-//=
+//= 15-3athena Project
 //===== Description: =========================================
 //=
+//===== Additional Comments: ================================= 
+//= 1.1 Added support for episode mapflags [15peaces]
 //============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_reset	-1,{
+Oninit:
+	// Episode 3+
+	if(getepisode() >= 30)
+		setmapflag "comodo",mf_reset;
+
+	end;
+}
+
+//============================================================
+// Global Mapflags
+//============================================================
 alberta	mapflag	reset
 aldebaran	mapflag	reset
 amatsu	mapflag	reset
 ayothaya	mapflag	reset
 brasilis	mapflag	reset
-comodo	mapflag	reset
 einbroch	mapflag	reset
 einbech	mapflag	reset
 geffen	mapflag	reset

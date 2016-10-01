@@ -4,6 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+
+10/01/2016
+	r137 [15peaces]
+		*Merged missing changes from 3ceam rev. 507
+		*Cleaned, and organized some database files and other things.
+			-Organized linkes in skill_reproduce_db.
+			-Removed 1 unneeded skill tag.
+			-A few other small things here and there.
+			-Added missing Wolfs Blood drops.
+		*Corrected progress bar behavior (Thanks to rAthena)
+		*Some more work on Episode System
+			-Comodo NPCs and spawns will now only load on Episode 3.0 and up.
+			-Star Gladiator, Bard, Dancer and Minstrel Job Quests, all Nameless Island Quests, all Veins Quests and the Valkyrie Realm will also only load on Episode 3.0 and up (for now), they need Comodo.
+			-All Kafra Warps to Comodo will only work on Episode 3.0 and up.
+			-Corrected Episode specific mapflags.
+			-Added support for controlling reset- mapflag via script commands.
+			-Updated setmapflag/removemapflag commands to support setting a restricted zone.
+			-Some Quest-NPCs of Eden Group will only load on Episode 3.0 and up (for now), they need Comodo.
+			-Added full support for episode specific shop npcs and spawn sets.
+			-Rewrote / optimized episode-code in npc_parse_duplicate.
+
 09/11/2016
 	r136 [15peaces]
 		*Fixed a Bug in Sealed Shrine Instance where you cannot get the L_Magestic_Goat more than once.
@@ -16,7 +37,7 @@
 
 09/06/2016
 	r134 [15peaces]
-		*Merged missing changes from 3ceam rev. 505 - 806
+		*Merged missing changes from 3ceam rev. 505 - 506
 		*Fixed potential quest warnings in quests/quests_13_1.txt
 		*Updated SR_CRESCENTELBOW according to the official behavior.
 		*Added all kinds of Malangdo traders and refiners.

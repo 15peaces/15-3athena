@@ -1,11 +1,11 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ==================================== 
 //= Comodo Gambling
 //===== By: ==================================================
 //= Reddozen, Cypress, Zefris
 //===== Current Version: =====================================
-//= 1.2
+//= 1.4
 //===== Compatible With: =====================================
-//= eAthena SVN 6769+ (temporary npc variables)
+//= 15-3athena Project
 //===== Description: =========================================
 //= Random items from 3carat diamonds in Comodo
 //===== Additional Comments: =================================
@@ -22,9 +22,10 @@
 //= 1.1- Updated prizes according to 11.1 NPC [Paradox924X]
 //= 1.2 Corrected NPC names to fall within proper restrictions. [L0ne_W0lf]
 //= 1.3 Added missing item. [Kisuka]
+//= 1.4 Added support for episode system. [15peaces]
 //============================================================ 
 
-comodo,219,160,3	script	Kachua	91,{
+comodo,219,160,3	script	Kachua	1,30,-1,91,{
 
 	cutin "katsua01.bmp",2;
 
@@ -388,7 +389,7 @@ comodo,219,160,3	script	Kachua	91,{
 	end;
 }
 
-mjolnir_02,85,364,3	script	Blacksmith Miner	726,{
+mjolnir_02,85,364,3	script	Blacksmith Miner	1,30,-1,726,{
 
 	mes "[Dwayne]";
 	mes "Wahahahaha~";
@@ -477,7 +478,7 @@ mjolnir_02,85,364,3	script	Blacksmith Miner	726,{
 	close;
 }
 
-comodo,204,148,7	script	Devellin	90,{
+comodo,204,148,7	script	Devellin	1,30,-1,90,{
 
 	mes "[Devellin]";
 	mes "It seems some traveller showed";
@@ -502,7 +503,7 @@ comodo,204,148,7	script	Devellin	90,{
 	close;
 }
 
-comodo,210,154,4	script	Suspicious Guy#cmd	118,{
+comodo,210,154,4	script	Suspicious Guy#cmd	1,30,-1,118,{
 
 	if (BaseClass == Job_Thief) {
 	

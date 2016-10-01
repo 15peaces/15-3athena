@@ -20,6 +20,10 @@
 //============================================================
 	-	script	_ep_mf_noicewall	-1,{
 Oninit:
+	// Episode 3 - 5
+	if(getepisode() >= 30 && getepisode() <= 50)
+		setmapflag "comodo",mf_noicewall;
+
 	// Episode 5 (and up, where removed later... what episode?!?)
 	if(getepisode() == 50){
 		setmapflag "alberta_in",mf_noicewall;
@@ -31,7 +35,6 @@ Oninit:
 		setmapflag "ama_in02"  ,mf_noicewall;
 		setmapflag "cmd_in01"  ,mf_noicewall;
 		setmapflag "cmd_in02"  ,mf_noicewall;
-		setmapflag "comodo"    ,mf_noicewall;
 		setmapflag "gef_tower" ,mf_noicewall;
 		setmapflag "geffen"    ,mf_noicewall;
 		setmapflag "geffen_in" ,mf_noicewall;

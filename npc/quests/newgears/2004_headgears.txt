@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= 2004 Headgear Quests
 //===== By: ================================================== 
 //= Dj-Yhn
 //===== Current Version: ===================================== 
-//= 1.6
+//= 1.7
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= 2004 New Headgears. Official Quests
@@ -33,6 +33,7 @@
 //= 1.4 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
 //= 1.5 Vito'd function call for checkweight. [L0ne_W0lf]
 //= 1.6 Replaced effect numerics with constants. [L0ne_W0lf]
+//= 1.7 Added support for episode system. [15peaces]
 //============================================================
 
 // Black Cat Ears
@@ -502,7 +503,7 @@ prontera,165,232,3	script	Nephia#1	744,{
 
 // Indian Headband
 //============================================================
-comodo,237,217,5	script	Meruntei#1	732,{
+comodo,237,217,5	script	Meruntei#1	1,30,-1,732,{
 	if (checkweight(1201,1) == 0) {
 		mes "- Wait a minute! -";
 		mes "- Currently you're carrying -";

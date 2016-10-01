@@ -5548,8 +5548,7 @@ void clif_skill_setunit(struct skill_unit *unit)
 
 /// Presents a list of available warp destinations (ZC_WARPLIST).
 /// 011c <skill id>.W { <map name>.16B }*4
-void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4)
-{
+void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4) {
 	int fd;
 	nullpo_retv(sd);
 	fd = sd->fd;
@@ -5567,9 +5566,10 @@ void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short sk
 	WFIFOSET(fd,packet_len(0x11c));
 
 	sd->menuskill_id = skill_num;
-	if (skill_num == AL_WARP)
+	if (skill_num == AL_WARP) {
 		sd->menuskill_val = (sd->ud.skillx<<16)|sd->ud.skilly; //Store warp position here.
-	else
+		sd->state.workinprogress = WIP_DISABLE_ALL;
+	} else
 		sd->menuskill_val = skill_lv;
 }
 
@@ -6421,8 +6421,7 @@ void clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int
 
 /// Presents a list of items that can be identified (ZC_ITEMIDENTIFY_LIST).
 /// 0177 <packet len>.W { <name id>.W }*
-void clif_item_identify_list(struct map_session_data *sd)
-{
+void clif_item_identify_list(struct map_session_data *sd) {
 	int i,c;
 	int fd;
 
@@ -6443,6 +6442,7 @@ void clif_item_identify_list(struct map_session_data *sd)
 		WFIFOSET(fd,WFIFOW(fd,2));
 		sd->menuskill_id = MC_IDENTIFY;
 		sd->menuskill_val = c;
+		sd->state.workinprogress = WIP_DISABLE_ALL;
 	}
 }
 
@@ -10488,14 +10488,14 @@ void clif_progressbar_abort(struct map_session_data * sd)
 
 /// Notification from the client, that the progress bar has reached 100% (CZ_PROGRESS).
 /// 02f1
-void clif_parse_progressbar(int fd, struct map_session_data * sd)
-{
+void clif_parse_progressbar(int fd, struct map_session_data * sd) {
 	int npc_id = sd->progressbar.npc_id;
 
 	if( gettick() < sd->progressbar.timeout && sd->st )
 		sd->st->state = END;
 
 	sd->progressbar.npc_id = sd->progressbar.timeout = 0;
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 	npc_scriptcont(sd, npc_id);
 }
 
@@ -10504,8 +10504,7 @@ void clif_parse_progressbar(int fd, struct map_session_data * sd)
 /// 0085 <dest>.3B (CZ_REQUEST_MOVE)
 /// 035f <dest>.3B (CZ_REQUEST_MOVE2)
 /// There are various variants of this packet, some of them have padding between fields.
-void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
-{
+void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 	short x, y;
 
 	if (pc_isdead(sd)) {
@@ -10515,9 +10514,10 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd)
 
 	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 		; //You CAN walk on this OPT1 value.
-	else if( sd->progressbar.npc_id )
+	else if(sd->progressbar.npc_id) {
 		clif_progressbar_abort(sd);
-	else if (pc_cant_act(sd))
+		return; // First walk attempt cancels the progress bar
+	} else if (pc_cant_act(sd))
 		return;
 
 	if(sd->sc.data[SC_RUN] || sd->sc.data[SC_WUGDASH] )
@@ -12022,11 +12022,12 @@ void clif_parse_UseSkillToPosMoreInfo(int fd, struct map_session_data *sd)
 
 /// Answer to map selection dialog (CZ_SELECT_WARPPOINT).
 /// 011b <skill id>.W <map name>.16B
-void clif_parse_UseSkillMap(int fd, struct map_session_data* sd)
-{
+void clif_parse_UseSkillMap(int fd, struct map_session_data* sd) {
 	short skill_num = RFIFOW(fd,2);
 	char map_name[MAP_NAME_LENGTH];
+
 	mapindex_getmapname((char*)RFIFOP(fd,4), map_name);
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 
 	if(skill_num != sd->menuskill_id) 
 		return;
@@ -12237,8 +12238,7 @@ void clif_parse_NpcCloseClicked(int fd,struct map_session_data *sd)
 /// 0178 <index>.W
 /// index:
 ///     -1 = cancel
-void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
-{
+void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 	short idx = RFIFOW(fd,2);
 
 	if (sd->menuskill_id != MC_IDENTIFY)
@@ -12246,6 +12246,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd)
 	if( idx == -1 )
 	{// cancel pressed
 		sd->menuskill_val = sd->menuskill_id = 0;
+		sd->state.workinprogress = WIP_DISABLE_NONE;
 		return;
 	}
 	skill_identify(sd,idx-2);
@@ -12295,10 +12296,10 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 
 /// Answer to SA_AUTOSPELL skill selection dialog (CZ_SELECTAUTOSPELL).
 /// 01ce <skill id>.L
-void clif_parse_AutoSpell(int fd,struct map_session_data *sd)
-{
+void clif_parse_AutoSpell(int fd,struct map_session_data *sd) {
 	if (sd->menuskill_id != SA_AUTOSPELL)
 		return;
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 	skill_autospell(sd,RFIFOL(fd,2));
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
@@ -12964,12 +12965,14 @@ void clif_parse_PurchaseReq2(int fd, struct map_session_data* sd) {
 /// result:
 ///     0 = canceled
 ///     1 = open
-void clif_parse_OpenVending(int fd, struct map_session_data* sd)
-{
+void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	short len = (short)RFIFOW(fd,2) - 85;
 	const char* message = (char*)RFIFOP(fd,4);
 	bool flag = (bool)RFIFOB(fd,84);
 	const uint8* data = (uint8*)RFIFOP(fd,85);
+
+	if( !flag )
+		sd->state.workinprogress = WIP_DISABLE_NONE;
 
 	if( sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOROOM )
 		return;

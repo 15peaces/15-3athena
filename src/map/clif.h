@@ -111,6 +111,13 @@ enum CLOSE_ROULETTE_ACK {
 	CLOSE_ROULETTE_FAILED  = 0x1,
 };
 
+enum e_wip_block {
+	WIP_DISABLE_NONE = 0x0,
+	WIP_DISABLE_SKILLITEM = 0x1,
+	WIP_DISABLE_NPC = 0x2,
+	WIP_DISABLE_ALL = 0x3,
+};
+
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len

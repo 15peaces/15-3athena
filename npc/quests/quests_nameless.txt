@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Nameless Island Quests
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 2.1
+//= 2.3
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Collection of Nameless Island Quests
@@ -59,11 +59,12 @@
 //=     - Muff's Loan
 //=     - Broken Diamond
 //=     - Z-Gang Quest
+//= 2.3 Added support for episode system. [15peaces]
 //============================================================ 
 
 // Nameless Island and Cursed Monestary Access Quest
 //============================================================
-airplane_01,95,61,3	script	QuestTrigger#Aru	-1,3,3,{
+airplane_01,95,61,3	script	QuestTrigger#Aru	1,30,-1,-1,3,3,{
 	end;
 
 OnTouch:	
@@ -83,7 +84,7 @@ OnTouch:
 	end;
 }
 
-airplane_01,95,61,3	script	Agent#Aru	899,5,5,{
+airplane_01,95,61,3	script	Agent#Aru	1,30,-1,899,5,5,{
 	end;
 
 OnInit:
@@ -91,7 +92,7 @@ OnInit:
 	end;
 }
 
-cmd_in02,174,89,7	script	Ordinary Man#pc1	97,{
+cmd_in02,174,89,7	script	Ordinary Man#pc1	1,30,-1,97,{
 	if (aru_monas < 2) {
 		mes "[Larjes]";
 		mes "Damn it, I lost again!";
@@ -142,7 +143,7 @@ cmd_in02,174,89,7	script	Ordinary Man#pc1	97,{
 	}
 }
 
-cmd_in02,111,52,3	script	Ordinary Man#pc2	97,{
+cmd_in02,111,52,3	script	Ordinary Man#pc2	1,30,-1,97,{
 	if (aru_monas < 3) {
 		mes "[Larjes]";
 		mes "^666666*Sigh...*^000000";
@@ -203,7 +204,7 @@ cmd_in02,111,52,3	script	Ordinary Man#pc2	97,{
 	}
 }
 
-ra_in01,308,59,1	script	Waiter#Aru	930,{
+ra_in01,308,59,1	script	Waiter#Aru	1,30,-1,930,{
 	if (aru_monas < 7) {
 		mes "[Waiter]";
 		mes "Welcome to";
@@ -250,7 +251,7 @@ ra_in01,308,59,1	script	Waiter#Aru	930,{
 	close;
 }
 
-ra_in01,301,50,3	script	Normal-Looking Man	927,{
+ra_in01,301,50,3	script	Normal-Looking Man	1,30,-1,927,{
 	mes "[Normal-Looking Man]";
 	mes "Mmm-Mmm!";
 	mes "I love the food in";
@@ -261,7 +262,7 @@ ra_in01,301,50,3	script	Normal-Looking Man	927,{
 	close;
 }
 
-ra_in01,301,52,3	script	Common-Looking Man	927,{
+ra_in01,301,52,3	script	Common-Looking Man	1,30,-1,927,{
 	mes "[Common-Looking Man]";
 	mes "The food here isn't bad,";
 	mes "but my favorite restaurants";
@@ -270,7 +271,7 @@ ra_in01,301,52,3	script	Common-Looking Man	927,{
 	close;
 }
 
-ra_in01,297,50,7	script	Suspicious-Looking Man	926,{
+ra_in01,297,50,7	script	Suspicious-Looking Man	1,30,-1,926,{
 	mes "[Suspicious-Looking Man]";
 	mes "Each dish has its own";
 	mes "unique taste that you must";
@@ -280,7 +281,7 @@ ra_in01,297,50,7	script	Suspicious-Looking Man	926,{
 	close;
 }
 
-ra_in01,301,43,0	script	#Aru_conv	-1,3,3,{
+ra_in01,301,43,0	script	#Aru_conv	1,30,-1,-1,3,3,{
 	end;
 
 OnTouch:
@@ -436,7 +437,7 @@ OnTouch:
 	end;
 }
 
-ve_in,78,314,5	script	Magistrate#Aru	945,{
+ve_in,78,314,5	script	Magistrate#Aru	1,30,-1,945,{
 	if (aru_monas < 8) {
 		mes "[Al Hamad]";
 		mes "Argh! Why must this";
@@ -628,7 +629,7 @@ ve_in,78,314,5	script	Magistrate#Aru	945,{
 	}
 }
 
-ve_in,81,296,3	script	Soldier#Aru	946,{
+ve_in,81,296,3	script	Soldier#Aru	1,30,-1,946,{
 	if (aru_monas < 9) {
 		mes "[Himus]";
 		mes "Huh. The magistrate";
@@ -689,7 +690,7 @@ ve_in,81,296,3	script	Soldier#Aru	946,{
 	}
 }
 
-ra_temple,165,57,5	script	Niren#ss	915,{
+ra_temple,165,57,5	script	Niren#ss	1,30,-1,915,{
 	if (checkweight(907,200) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -1370,7 +1371,7 @@ ra_temple,165,57,5	script	Niren#ss	915,{
 	end;
 }
 
-ve_in,239,115,1	script	Drunkard#Aru	943,{
+ve_in,239,115,1	script	Drunkard#Aru	1,30,-1,943,{
 	if (aru_monas < 14) {
 		mes "[Drunkard]";
 		mes "Man, I feel great! Hah hah!";
@@ -1418,7 +1419,7 @@ ve_in,239,115,1	script	Drunkard#Aru	943,{
 	}
 }
 
-ve_fild07,125,128,0	script	Boat#Aru	111,{
+ve_fild07,125,128,0	script	Boat#Aru	1,30,-1,111,{
 	if (aru_monas < 16) {
 		mes "^3355FFThis boat seems to ";
 		mes "be in decent condition.";
@@ -1541,7 +1542,7 @@ ve_fild07,125,128,0	script	Boat#Aru	111,{
 	}
 }
 
-ve_fild07,128,130,1	script	Secret Agent#Aru	97,{
+ve_fild07,128,130,1	script	Secret Agent#Aru	1,30,-1,97,{
 	if (aru_monas == 16) {
 		mes "[Larjes]";
 		mes "Are you ready to go";
@@ -1577,7 +1578,7 @@ OnInit:
 	end;
 }
 
-nameless_i,259,218,3	script	Larjes#Aru	97,{
+nameless_i,259,218,3	script	Larjes#Aru	1,30,-1,97,{
 	if(aru_monas < 18) {
 		mes "[Larjes]";
 		mes "I don't like this place.";
@@ -1628,7 +1629,7 @@ nameless_i,259,218,3	script	Larjes#Aru	97,{
 	}
 }
 
-nameless_i,212,184,0	script	#aru_clue1	-1,2,3,{
+nameless_i,212,184,0	script	#aru_clue1	1,30,-1,-1,2,3,{
 	end;
 
 OnTouch:
@@ -1649,7 +1650,7 @@ OnTouch:
 	end;
 }
 
-nameless_in,21,176,0	script	#aru_clue2	-1,2,2,{
+nameless_in,21,176,0	script	#aru_clue2	1,30,-1,-1,2,2,{
 	end;
 
 OnTouch:
@@ -1664,7 +1665,7 @@ OnTouch:
 	end;
 }
 
-nameless_i,129,218,0	script	#aru_clue3	-1,4,3,{
+nameless_i,129,218,0	script	#aru_clue3	1,30,-1,-1,4,3,{
 	end;
 
 OnTouch:
@@ -1678,7 +1679,7 @@ OnTouch:
 	end;
 }
 
-nameless_i,127,207,0	script	Dead Crow#Aru	111,{
+nameless_i,127,207,0	script	Dead Crow#Aru	1,30,-1,111,{
 	if (aru_monas < 17) { 
 		mes "^3355FFThere is a dead crow on the ground.";
 		close;
@@ -1726,7 +1727,7 @@ nameless_i,127,207,0	script	Dead Crow#Aru	111,{
 	end;
 }
 
-nameless_i,168,257,0	script	Aru_LockedDoor	45,1,1,{
+nameless_i,168,257,0	script	Aru_LockedDoor	1,30,-1,45,1,1,{
 	end;
 
 OnTouch:
@@ -1739,7 +1740,7 @@ OnTouch:
 	close;
 }
 
-nameless_in,15,60,0	script	#Aru_Trigger	-1,1,1,{
+nameless_in,15,60,0	script	#Aru_Trigger	1,30,-1,-1,1,1,{
 	end;
 
 OnTouch:
@@ -1816,14 +1817,14 @@ OnTouch:
 	}
 }
 
-nameless_in,13,58,6	script	Larjes#Aru2	97,{
+nameless_in,13,58,6	script	Larjes#Aru2	1,30,-1,97,{
 	mes "[Larjes]";
 	mes "Be careful. That guy";
 	mes "looks pretty dangerous.";
 	close;
 }
 
-nameless_in,13,53,0	script	Creature#Aru	1864,{
+nameless_in,13,53,0	script	Creature#Aru	1,30,-1,1864,{
 	end;
 
 OnInit:
@@ -1835,7 +1836,7 @@ OnMyMobDead:
 	end;
 }
 
-nameless_in,13,53,0	script	#Aru_Trigger2	-1,3,1,{
+nameless_in,13,53,0	script	#Aru_Trigger2	1,30,-1,-1,3,1,{
 	end;
 
 OnTouch:
@@ -1851,7 +1852,7 @@ OnTouch:
 	end;
 }
 
-nameless_in,12,37,0	script	aru_warp	45,1,1,{
+nameless_in,12,37,0	script	aru_warp	1,30,-1,45,1,1,{
 	end;
 
 OnTouch:
@@ -1866,7 +1867,7 @@ OnInit:
 	end;
 }
 
-nameless_n,169,254,0	script	#Aru_Trigger3	-1,3,3,{
+nameless_n,169,254,0	script	#Aru_Trigger3	1,30,-1,-1,3,3,{
 	end;
 
 OnTouch:
@@ -1893,7 +1894,7 @@ OnTouch:
 	end;
 }
 
-nameless_n,166,254,7	script	Larjes#Aru3	97,{
+nameless_n,166,254,7	script	Larjes#Aru3	1,30,-1,97,{
 	end;
 
 OnInit:
@@ -1901,7 +1902,7 @@ OnInit:
 	end;
 }
 
-nameless_n,259,218,3	script	Larjes#Boat1	97,{
+nameless_n,259,218,3	script	Larjes#Boat1	1,30,-1,97,{
 	if ((aru_monas == 23) && (countitem(7726))) {
 		mes "[Larjes]";
 		mes "I don't believe it...";
@@ -1945,7 +1946,7 @@ nameless_n,259,218,3	script	Larjes#Boat1	97,{
 	close;
 }
 
-abbey02,224,70,0	script	Book#Aru	111,{
+abbey02,224,70,0	script	Book#Aru	1,30,-1,111,{
 	if (checkweight(7766,1) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -1982,7 +1983,7 @@ abbey02,224,70,0	script	Book#Aru	111,{
 	}
 }
 
-abbey03,232,233,4	script	Man#Aru	956,{
+abbey03,232,233,4	script	Man#Aru	1,30,-1,956,{
 	if (aru_monas < 22) {
 		mes "^3355FFYou find a man lying on";
 		mes "the floor, wearing torn";
@@ -2042,7 +2043,7 @@ OnTimer300000:
 	end;
 }
 
-abbey03,232,232,4	script	Dead Man#Aru	956,{
+abbey03,232,232,4	script	Dead Man#Aru	1,30,-1,956,{
 	if (checkweight(7766,1) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -2081,7 +2082,7 @@ OnInit:
 	end;
 }
 
-ra_temple,168,54,3	script	Sippie#ss	917,{
+ra_temple,168,54,3	script	Sippie#ss	1,30,-1,917,{
 	mes "[Sippie]";
 	mes "Now I finally have some";
 	mes "time to take a break.";
@@ -2130,7 +2131,7 @@ ra_temple,168,54,3	script	Sippie#ss	917,{
 
 // Peace to the Arunafeltz
 //============================================================
-moc_ruins,77,167,4	script	Foreign Merchant#aru1	880,5,5,{
+moc_ruins,77,167,4	script	Foreign Merchant#aru1	1,30,-1,880,5,5,{
 	if (aru_vol == 27) {
 		if (aru_em == 0) {
 			emotion e_dots;
@@ -2317,7 +2318,7 @@ OnTouch:
 	end;
 }
 
-moc_ruins,86,149,0	script	#ForeignMerchant1	-1,3,3,{
+moc_ruins,86,149,0	script	#ForeignMerchant1	1,30,-1,-1,3,3,{
 OnTouch:
 	if (aru_em == 4) {
 		set aru_em,5;
@@ -2325,7 +2326,7 @@ OnTouch:
 	end;
 }
 
-moc_ruins,88,136,0	script	#ForeignMerchant2	-1,3,3,{
+moc_ruins,88,136,0	script	#ForeignMerchant2	1,30,-1,-1,3,3,{
 OnTouch:
 	if (aru_em == 1) {
 		set aru_em,2;
@@ -2342,7 +2343,7 @@ OnTouch:
 	end;
 }
 
-moc_ruins,106,133,0	script	#ForeignMerchant3	-1,3,3,{
+moc_ruins,106,133,0	script	#ForeignMerchant3	1,30,-1,-1,3,3,{
 OnTouch:
 	if (aru_em == 2) {
 		set aru_em,3;
@@ -2350,7 +2351,7 @@ OnTouch:
 	end;
 }
 
-moc_ruins,115,147,0	script	#ForeignMerchant4	-1,3,3,{
+moc_ruins,115,147,0	script	#ForeignMerchant4	1,30,-1,-1,3,3,{
 OnTouch:
 	if (aru_em == 3) {
 		set aru_em,4;
@@ -2358,7 +2359,7 @@ OnTouch:
 	end;
 }
 
-moc_ruins,101,133,7	script	Foreign Merchant#aru2	929,{
+moc_ruins,101,133,7	script	Foreign Merchant#aru2	1,30,-1,929,{
 	if ((aru_em > 1) && (aru_em < 7)) {
 		mes "["+ strcharinfo(0) +"]";
 		mes "Excuse me, but I heard";
@@ -2441,7 +2442,7 @@ OnInit:
 	end;
 }
 
-ra_temin,103,151,7	script	Female Follower#em	917,{
+ra_temin,103,151,7	script	Female Follower#em	1,30,-1,917,{
 	if (aru_em < 9) {
 		mes "[Sappie]";
 		mes "I work really hard to keep";
@@ -2536,7 +2537,7 @@ ra_temin,103,151,7	script	Female Follower#em	917,{
 	}
 }
 
-ra_fild03,139,355,5	script	Ishmael#em	914,{
+ra_fild03,139,355,5	script	Ishmael#em	1,30,-1,914,{
 	if (checkweight(907,200) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -2726,17 +2727,17 @@ ra_fild03,139,355,5	script	Ishmael#em	914,{
 	}
 }
 
-que_temsky,101,93,1	script	Niren#em_sky	915,{
+que_temsky,101,93,1	script	Niren#em_sky	1,30,-1,915,{
 	end;
 }
-que_temsky,98,93,7	script	Zhed#em_sky	932,{
+que_temsky,98,93,7	script	Zhed#em_sky	1,30,-1,932,{
 	end;
 }
-que_temsky,99,100,6	script	Pope#rachel2	936,{
+que_temsky,99,100,6	script	Pope#rachel2	1,30,-1,936,{
 	end;
 }
 
-que_temsky,100,93,0	script	#em_sky_s	-1,5,2,{
+que_temsky,100,93,0	script	#em_sky_s	1,30,-1,-1,5,2,{
 //OnTouch2:
 OnTouch:
 	if (aru_em == 21) {
@@ -3017,7 +3018,7 @@ OnTouch:
 	end;
 }
 
-rachel,142,136,0	script	#em_end	-1,5,5,{
+rachel,142,136,0	script	#em_end	1,30,-1,-1,5,5,{
 OnInit:
 	stopnpctimer;
 	end;
@@ -3080,7 +3081,7 @@ que_temsky,99,7,0	warp	quetemskyout	1,1,ra_temin,276,231
 
 // Muff's Loan
 //============================================================ 
-comodo,224,187,3	script	Muff	86,{
+comodo,224,187,3	script	Muff	1,30,-1,86,{
 	if (checkweight(907,200) == 0) {
 		mes "[Muff]";
 		mes "You're carrying way too";
@@ -3461,7 +3462,7 @@ comodo,224,187,3	script	Muff	86,{
 	close;
 }
 
-alberta,127,143,3	script	Belder	85,{
+alberta,127,143,3	script	Belder	1,30,-1,85,{
 	if (diamond_edq == 0) {
 		mes "[Belder]";
 		mes "I ought to hire some";
@@ -3571,7 +3572,7 @@ OnTouch:
 	end;
 }
 
-cmd_fild01,55,160,0	script	Heap of Earth	844,{
+cmd_fild01,55,160,0	script	Heap of Earth	1,30,-1,844,{
 	if (diamond_edq == 1) {
 		mes "^3355FFIt looks like someone";
 		mes "dug a hole in the ground,";
@@ -3643,7 +3644,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 	close;
 }
 
-izlude_in,110,64,3	script	Dorian	878,2,2,{
+izlude_in,110,64,3	script	Dorian	1,30,-1,878,2,2,{
 	if (checkweight(907,200) == 0) {
 		mes "[Dorian]";
 		mes "Ugh, just like a member";
@@ -4149,7 +4150,7 @@ OnTouch:
 	end;
 }
 
-izlude_in,113,66,0	script	Strange Machine	111,{
+izlude_in,113,66,0	script	Strange Machine	1,30,-1,111,{
 	if (checkweight(907,200) == 0) {
 		mes "[Dorian]";
 		mes "Ugh, just like a member";
@@ -4527,7 +4528,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 
 // Broken Diamond
 //============================================================ 
-moc_ruins,152,147,5	script	Ibrahim	732,3,3,{
+moc_ruins,152,147,5	script	Ibrahim	1,30,-1,732,3,3,{
 	if (checkweight(907,200) == 0) {
 		mes "[Ibrahim]";
 		mes "You're carrying too much";
@@ -5053,7 +5054,7 @@ if ((diamond_edq == 14) && (BaseLevel > 65)) {
 	end;
 }
 
-alberta,102,80,3	script	Jhonnita	86,{
+alberta,102,80,3	script	Jhonnita	1,30,-1,86,{
 	if ((diamond_edq == 15) || (diamond_edq == 16)) {
 		mes "[Jhonnita]";
 		mes "Oh, it's always nice";
@@ -5214,7 +5215,7 @@ alberta,102,80,3	script	Jhonnita	86,{
 	}
 }
 
-payon,69,65,5	script	Kimeunbang	89,{
+payon,69,65,5	script	Kimeunbang	1,30,-1,89,{
 	if (diamond_edq == 15) {
 		mes "[Kimeunbang]";
 		mes "Zzzz... Huh?";
@@ -5347,7 +5348,7 @@ payon,69,65,5	script	Kimeunbang	89,{
 	}
 }
 
-geffen,128,153,3	script	Leblo	883,{
+geffen,128,153,3	script	Leblo	1,30,-1,883,{
 	if ((diamond_edq == 15) || (diamond_edq == 16)) {
 		mes "[Leblo]";
 		mes "Oh, I've heard about";
@@ -5559,7 +5560,7 @@ geffen,128,153,3	script	Leblo	883,{
 	close;
 }
 
-payon_in03,167,149,3	script	Wola	75,2,2,{
+payon_in03,167,149,3	script	Wola	1,30,-1,75,2,2,{
 	if (checkweight(907,1) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -5901,7 +5902,7 @@ OnTouch:
 	end;
 }
 
-in_rogue,366,46,3	script	Rogue Investigator	828,{
+in_rogue,366,46,3	script	Rogue Investigator	1,30,-1,828,{
 	if ((diamond_edq == 22) && (BaseJob == Job_Rogue)) {
 		mes "[Investigator]";
 		mes "Oh, remember me?";
@@ -6100,7 +6101,7 @@ in_rogue,366,46,3	script	Rogue Investigator	828,{
 	close;
 }
 
-cmd_in02,94,208,5	script	Investigator	828,{
+cmd_in02,94,208,5	script	Investigator	1,30,-1,828,{
 	if ((diamond_edq == 22) || (diamond_edq == 23)) {
 		if (BaseJob == Job_Rogue) {
 			mes "[Investigator]";
@@ -6139,7 +6140,7 @@ cmd_in02,94,208,5	script	Investigator	828,{
 	}
 }
 
-cmd_in02,69,188,1	script	Small Safe	844,{
+cmd_in02,69,188,1	script	Small Safe	1,30,-1,844,{
 	if ((diamond_edq == 22) || (diamond_edq == 23)) {
 		mes "^3355FFThere is a small";
 		mes "safe hidden under the";
@@ -6197,7 +6198,7 @@ cmd_in02,69,188,1	script	Small Safe	844,{
 	close;
 }
 
-cmd_in02,69,196,0	script	Odd Switch#Switch1	844,{
+cmd_in02,69,196,0	script	Odd Switch#Switch1	1,30,-1,844,{
 	if ((diamond_edq == 22) || (diamond_edq == 23)) {
 		mes "^3355FFThere is a tiny";
 		mes "switch on the ground";
@@ -6225,7 +6226,7 @@ OnInit:
 	end;
 }
 
-cmd_in02,80,189,0	script	Odd Switch#Switch2	844,{
+cmd_in02,80,189,0	script	Odd Switch#Switch2	1,30,-1,844,{
 	if ((diamond_edq == 22) || (diamond_edq == 23)) {
 		mes "^3355FFThere is a tiny";
 		mes "switch on the ground";
@@ -6257,7 +6258,7 @@ OnInit:
 
 // Z-Gang Quest
 //============================================================ 
-prontera,150,326,0	script	Wanted Notice#edq	111,{
+prontera,150,326,0	script	Wanted Notice#edq	1,30,-1,111,{
 	if (zdan_edq == 0) {
 		mes "====National Wanted Notice====";
 		mes "Please report any information";
@@ -6345,7 +6346,7 @@ OnDisable:
 	end;
 }
 
-prontera,148,326,3	script	Chief Officer#edq	734,{
+prontera,148,326,3	script	Chief Officer#edq	1,30,-1,734,{
 	if (checkweight(907,200) == 0) {
 		mes "[Chief Officer]";
 		mes "You're carrying far too";
@@ -6566,7 +6567,7 @@ prontera,148,326,3	script	Chief Officer#edq	734,{
 	close;
 }
 
-prt_in,168,18,1	script	Valdes	65,2,2,{
+prt_in,168,18,1	script	Valdes	1,30,-1,65,2,2,{
 	if (checkweight(907,100) == 0) {
 		mes "^3355FFWait a second!";
 		mes "Right now, you're carrying";
@@ -6753,7 +6754,7 @@ OnTouch:
 	end;
 }
 
-in_rogue,359,116,3	script	Marybell	747,{
+in_rogue,359,116,3	script	Marybell	1,30,-1,747,{
 	if (zdan_edq == 4) {
 		mes "[Marybell]";
 		mes "Hey. What do you want?";
@@ -7154,7 +7155,7 @@ in_rogue,359,116,3	script	Marybell	747,{
 	}
 }
 
-payon,244,62,3	script	Moonho Ahn	897,{
+payon,244,62,3	script	Moonho Ahn	1,30,-1,897,{
 	if (zdan_edq == 5) {
 		mes "[Moonho Ahn]";
 		mes "Hahaha, now what brings";
@@ -7703,7 +7704,7 @@ payon,244,62,3	script	Moonho Ahn	897,{
 	close;
 }
 
-payon,192,176,3	script	Gooho Ahn	903,{
+payon,192,176,3	script	Gooho Ahn	1,30,-1,903,{
 	if (zdan_edq == 12) {
 		mes "[Gooho Ahn]";
 		mes "Oh, hello";
@@ -7911,7 +7912,7 @@ payon,192,176,3	script	Gooho Ahn	903,{
 	close;
 }
 
-moc_ruins,90,67,3	script	Suspicious Man#1	99,2,2,{
+moc_ruins,90,67,3	script	Suspicious Man#1	1,30,-1,99,2,2,{
 	if ((zdan_edq == 9) && ($@zdan == 0)) {
 		set $@zdan,1;
 		initnpctimer;
@@ -8158,7 +8159,7 @@ OnTouch:
 }
 
 //Incorrect position.
-moc_ruins,78,167,3	script	Suspicious Man#2	99,2,2,{
+moc_ruins,78,167,3	script	Suspicious Man#2	1,30,-1,99,2,2,{
 	if ((zdan_edq == 9) && ($@zdan == 0)) {
 		set $@zdan,1;
 		initnpctimer;
@@ -8406,7 +8407,7 @@ OnTouch:
 	end;
 }
 
-moc_fild17,209,235,0	script	Odd Slab	111,4,4,{
+moc_fild17,209,235,0	script	Odd Slab	1,30,-1,111,4,4,{
 	if (((zdan_edq == 15) || (zdan_edq == 16) || (zdan_edq == 17)) && ($@door2 == 0)) {
 		mes "[Odd Slab]";
 		mes "^FF0000*Creak Creak*";
@@ -8594,7 +8595,7 @@ OnTouch:
 	end;
 }
 
-z_agit,98,44,0	script	EntranceCheck#1	-1,10,10,{
+z_agit,98,44,0	script	EntranceCheck#1	1,30,-1,-1,10,10,{
 OnTouch:
 	if (((zdan_edq == 15) || (zdan_edq == 16)) && ($@monster_zgang == 0)) {
 		set $@monster_zgang,1;
@@ -8623,7 +8624,7 @@ OnTouch:
 	end;
 }
 
-z_agit,98,92,0	script	EntranceCheck#2	-1,10,10,{
+z_agit,98,92,0	script	EntranceCheck#2	1,30,-1,-1,10,10,{
 OnTouch:
 	if (((zdan_edq == 15) || (zdan_edq == 16)) && ($@monster_zgang == 0)) {
 		set $@monster_zgang,1;
@@ -8652,7 +8653,7 @@ OnTouch:
 	end;
 }
 
-z_agit,1,1,0	script	#zdan_broad	111,{
+z_agit,1,1,0	script	#zdan_broad	1,30,-1,111,{
 OnInit:
 	disablenpc "#zdan_broad";
 	stopnpctimer;
@@ -8797,7 +8798,7 @@ OnTimer300000:
 	end;
 }
 
-z_agit,97,101,3	script	Louis	931,{
+z_agit,97,101,3	script	Louis	1,30,-1,931,{
 	if (checkweight(907,200) == 0) {
 		mes "[Louis]";
 		mes "You mess with the";
@@ -8917,7 +8918,7 @@ OnInit:
 	end;
 }
 
-z_agit,99,101,3	script	Martha	101,{
+z_agit,99,101,3	script	Martha	1,30,-1,101,{
 	if (checkweight(907,200) == 0) {
 		mes "[Martha]";
 		mes "Hey, you're carrying";
@@ -9041,7 +9042,7 @@ OnInit:
 	end;
 }
 
-z_agit,95,101,3	script	Catfoii	876,{
+z_agit,95,101,3	script	Catfoii	1,30,-1,876,{
 	if (checkweight(907,200) == 0) {
 		mes "[Catfoii]";
 		mes "You're carrying too";
@@ -9163,7 +9164,7 @@ OnInit:
 
 // Unlucky Emerald
 //============================================================ 
-morocc,143,63,3	script	Ragged Man#nd	929,{
+morocc,143,63,3	script	Ragged Man#nd	1,30,-1,929,{
 	if (treasure_nd == 0) {
 		mes "[Ragged Man]";
 		mes "H-hello? Would you help me?";
@@ -9404,7 +9405,7 @@ morocc,143,63,3	script	Ragged Man#nd	929,{
 	}
 }
 
-morocc,102,298,3	script	Man#zgang	98,{
+morocc,102,298,3	script	Man#zgang	1,30,-1,98,{
 	if (treasure_nd < 2) {
 		mes "[Man]";
 		mes "What do you want?";
@@ -9800,7 +9801,7 @@ morocc,102,298,3	script	Man#zgang	98,{
 	}
 }
 
-comodo,339,224,3	script	Man in Hiding#nd	881,{
+comodo,339,224,3	script	Man in Hiding#nd	1,30,-1,881,{
 	if (treasure_nd < 7) {
 		mes "[Man in Hiding]";
 		mes "Whoa, don't get so close!";
@@ -10003,7 +10004,7 @@ comodo,339,224,3	script	Man in Hiding#nd	881,{
 	}
 }
 
-moc_fild18,108,116,0	script	#treasure	844,{
+moc_fild18,108,116,0	script	#treasure	1,30,-1,844,{
 	if (checkweight(907,300) == 0) {
 		mes "^3355FFYou're carrying too many";
 		mes "items: there's no way you";
@@ -10115,7 +10116,7 @@ moc_fild18,108,116,0	script	#treasure	844,{
 	}
 }
 
-comodo,139,184,3	script	Scholar#zgang	742,{
+comodo,139,184,3	script	Scholar#zgang	1,30,-1,742,{
 	if (jewel_nd < 9) {
 		mes "[Scholar]";
 		mes "I'm an antique appraiser.";
@@ -10276,7 +10277,7 @@ comodo,139,184,3	script	Scholar#zgang	742,{
 	}
 }
 
-alberta_in,70,109,5	script	Shaman	788,{
+alberta_in,70,109,5	script	Shaman	1,30,-1,788,{
 	if (jewel_nd == 0) {
 		mes "[Shaman]";
 		mes "The spiritual realm is";
@@ -10693,7 +10694,7 @@ alberta_in,70,109,5	script	Shaman	788,{
 	}
 }
 
-yuno_in04,38,48,3	script	Archeologist	55,{
+yuno_in04,38,48,3	script	Archeologist	1,30,-1,55,{
 	if (jewel_nd < 18) {
 		mes "[Archeologist]";
 		mes "There's so much to do!";
@@ -10892,7 +10893,7 @@ yuno_in04,38,48,3	script	Archeologist	55,{
 	}
 }
 
-prontera,140,304,5	script	Old Soldier	901,{
+prontera,140,304,5	script	Old Soldier	1,30,-1,901,{
 	if (checkweight(907,200) == 0) {
 		mes "[Retired Soldier]";
 		mes "Why are you carrying";
@@ -11221,7 +11222,7 @@ prontera,140,304,5	script	Old Soldier	901,{
 	}
 }
 
-gef_fild08,182,185,0	script	The Wanderer	739,{
+gef_fild08,182,185,0	script	The Wanderer	1,30,-1,739,{
 	if (jewel_nd < 21) {
 		mes "[The Wanderer]";
 		mes "I'm just a wanderer";
@@ -11555,7 +11556,7 @@ OnTimer60000:
 	end;
 }
 
-gef_fild08,182,182,0	script	#CallGhost	-1,2,2,{
+gef_fild08,182,182,0	script	#CallGhost	1,30,-1,-1,2,2,{
 	end;
 
 //OnTouch2:
@@ -11586,7 +11587,7 @@ OnTouch:
 
 // Rogue Guild Investigation
 //============================================================ 
-prontera,163,204,3	script	Man from Morroc	99,{
+prontera,163,204,3	script	Man from Morroc	1,30,-1,99,{
 	if (rumour_nd == 0) {
 		mes "[Morroc Traveler]";
 		mes "Ah, it's very nice and";
@@ -11652,7 +11653,7 @@ prontera,163,204,3	script	Man from Morroc	99,{
 	}
 }
 
-in_rogue,355,28,5	script	Rogue Agent	118,{
+in_rogue,355,28,5	script	Rogue Agent	1,30,-1,118,{
 	if (checkweight(907,200) == 0) {
 		mes "[Guildsman]";
 		mes "You're carrying too";
@@ -11855,7 +11856,7 @@ in_rogue,355,28,5	script	Rogue Agent	118,{
 	}
 }
 
-aldebaran,114,56,5	script	Rogue Agent#nd0	828,{
+aldebaran,114,56,5	script	Rogue Agent#nd0	1,30,-1,828,{
 	if (rumour_nd < 3) {
 		mes "[Agent]";
 		mes "Listen, I'm working on";
@@ -11987,7 +11988,7 @@ aldebaran,114,56,5	script	Rogue Agent#nd0	828,{
 	}
 }
 
-geffen,91,36,5	script	Rogue Guild Agent#nd1	828,{
+geffen,91,36,5	script	Rogue Guild Agent#nd1	1,30,-1,828,{
 	if (rumour_nd < 4) {
 		if (zdan_edq > 12) {
 			mes "[Rogue Guild Agent]";
@@ -12364,7 +12365,7 @@ geffen,91,36,5	script	Rogue Guild Agent#nd1	828,{
 	}
 }
 
-payon,209,44,5	script	Rogue Guild Agent#nd2	828,{
+payon,209,44,5	script	Rogue Guild Agent#nd2	1,30,-1,828,{
 	if (rumour_nd < 3) {
 		mes "[Agent]";
 		mes "What? You want somethin'?";
@@ -12846,7 +12847,7 @@ payon,209,44,5	script	Rogue Guild Agent#nd2	828,{
 	}
 }
 
-comodo,233,199,5	script	Rogue Guild Agent#nd3	810,{
+comodo,233,199,5	script	Rogue Guild Agent#nd3	1,30,-1,810,{
 	if (checkweight(907,200) == 0) {
 		mes "[Agent]";
 		mes "You've got too many";
@@ -13128,7 +13129,7 @@ comodo,233,199,5	script	Rogue Guild Agent#nd3	810,{
 	}
 }
 
-morocc,116,39,3	script	Rogue Guild Agent#nd4	779,{
+morocc,116,39,3	script	Rogue Guild Agent#nd4	1,30,-1,779,{
 	if (rumour_nd == 1) {
 		mes "[Agent]";
 		mes "A case? What are you...?";

@@ -26,6 +26,10 @@
 //============================================================
 	-	script	_ep_mf_nobranch	-1,{
 Oninit:
+	// Episode 3+
+	if(getepisode() >= 30)
+		setmapflag "comodo",mf_nobranch;
+
 	// Episode 5
 	if(getepisode() == 50){
 		setmapflag "ordeal_1-3",mf_nobranch;
@@ -342,7 +346,6 @@ alberta	mapflag	nobranch
 aldebaran	mapflag	nobranch
 amatsu	mapflag	nobranch
 ayothaya	mapflag	nobranch
-comodo	mapflag	nobranch
 einbroch	mapflag	nobranch
 einbech	mapflag	nobranch
 geffen	mapflag	nobranch

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Last Updated: ========================================
-//= 20160501
+//= 20161001
 //===== Description: =========================================
 //= Explanation of the episode system
 //============================================================
@@ -73,5 +73,6 @@ Supported episode-specific database-files:
 
 To check what episode the server is currently running on, you can use the 'getepisode' script command.
 
-Also we can disable a whole npc script for a certain range of episodes. 
+Also we can disable a whole npc, shop, monster or warp script for a certain range of episodes.
+Duplicates of npc types mentioned above can also be disabled. 
 To do so, please refer to the script_commands documentation.

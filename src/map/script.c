@@ -10059,7 +10059,7 @@ BUILDIN_FUNC(getmapflag)
 			case MF_MONSTER_NOTELEPORT:	script_pushint(st,map[m].flag.monster_noteleport); break;
 			case MF_PVP_NOCALCRANK:		script_pushint(st,map[m].flag.pvp_nocalcrank); break;
 			case MF_BATTLEGROUND:		script_pushint(st,map[m].flag.battleground); break;
-			case MF_RESET:			script_pushint(st,map[m].flag.reset); break;
+			case MF_RESET:				script_pushint(st,map[m].flag.reset); break;
 		}
 	}
 
@@ -10114,7 +10114,10 @@ BUILDIN_FUNC(setmapflag)
 			case MF_NORETURN:			map[m].flag.noreturn=1; break;
 			case MF_NOWARPTO:			map[m].flag.nowarpto=1; break;
 			case MF_NIGHTMAREDROP:		map[m].flag.pvp_nightmaredrop=1; break;
-			case MF_RESTRICTED:			map[m].flag.restricted=1; break;
+			case MF_RESTRICTED:
+				map[m].zone |= 1<<((int)atoi(val)+1);
+				map[m].flag.restricted=1;
+				break;
 			case MF_NOCOMMAND:			map[m].nocommand = (!val || atoi(val) <= 0) ? 100 : atoi(val); break;
 			case MF_JEXP:				map[m].jexp = (!val || atoi(val) < 0) ? 100 : atoi(val); break;
 			case MF_BEXP:				map[m].bexp = (!val || atoi(val) < 0) ? 100 : atoi(val); break;
@@ -10129,7 +10132,7 @@ BUILDIN_FUNC(setmapflag)
 			case MF_MONSTER_NOTELEPORT:	map[m].flag.monster_noteleport=1; break;
 			case MF_PVP_NOCALCRANK:		map[m].flag.pvp_nocalcrank=1; break;
 			case MF_BATTLEGROUND:		map[m].flag.battleground = (!val || atoi(val) < 0 || atoi(val) > 2) ? 1 : atoi(val); break;
-			case MF_RESET:			map[m].flag.reset=1; break;
+			case MF_RESET:				map[m].flag.reset=1; break;
 		}
 	}
 
@@ -10140,9 +10143,13 @@ BUILDIN_FUNC(removemapflag)
 {
 	int m,i;
 	const char *str;
+	const char *val=NULL;
 
 	str=script_getstr(st,2);
 	i=script_getnum(st,3);
+	if(script_hasdata(st,4)){
+		val=script_getstr(st,4);
+	}
 	m = map_mapname2mapid(str);
 	if(m >= 0) {
 		switch(i) {
@@ -10181,7 +10188,12 @@ BUILDIN_FUNC(removemapflag)
 			case MF_NORETURN:			map[m].flag.noreturn=0; break;
 			case MF_NOWARPTO:			map[m].flag.nowarpto=0; break;
 			case MF_NIGHTMAREDROP:		map[m].flag.pvp_nightmaredrop=0; break;
-			case MF_RESTRICTED:			map[m].flag.restricted=0; break;
+			case MF_RESTRICTED:
+				map[m].zone ^= 1<<((int)atoi(val)+1);
+				if (map[m].zone == 0){
+					map[m].flag.restricted=0;
+				}
+				break;
 			case MF_NOCOMMAND:			map[m].nocommand=0; break;
 			case MF_JEXP:				map[m].jexp=100; break;
 			case MF_BEXP:				map[m].bexp=100; break;
@@ -10196,7 +10208,7 @@ BUILDIN_FUNC(removemapflag)
 			case MF_MONSTER_NOTELEPORT:	map[m].flag.monster_noteleport=0; break;
 			case MF_PVP_NOCALCRANK:		map[m].flag.pvp_nocalcrank=0; break;
 			case MF_BATTLEGROUND:		map[m].flag.battleground=0; break;
-			case MF_RESET:			map[m].flag.reset=0; break;
+			case MF_RESET:				map[m].flag.reset=0; break;
 		}
 	}
 
@@ -17128,8 +17140,7 @@ BUILDIN_FUNC(areamobuseskill)
 }
 
 
-BUILDIN_FUNC(progressbar)
-{
+BUILDIN_FUNC(progressbar) {
 #if PACKETVER >= 20080318
 	struct map_session_data * sd = script_rid2sd(st);
 	const char * color;
@@ -17145,6 +17156,7 @@ BUILDIN_FUNC(progressbar)
 
 	sd->progressbar.npc_id = st->oid;
 	sd->progressbar.timeout = gettick() + second*1000;
+	sd->state.workinprogress = WIP_DISABLE_ALL;
 
 	clif_progressbar(sd, strtol(color, (char **)NULL, 0), second);
 #endif
@@ -18087,7 +18099,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setmapflagnosave,"ssii"),
 	BUILDIN_DEF(getmapflag,"si"),
 	BUILDIN_DEF(setmapflag,"si?"),
-	BUILDIN_DEF(removemapflag,"si"),
+	BUILDIN_DEF(removemapflag,"si?"),
 	BUILDIN_DEF(pvpon,"s"),
 	BUILDIN_DEF(pvpoff,"s"),
 	BUILDIN_DEF(gvgon,"s"),

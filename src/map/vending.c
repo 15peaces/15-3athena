@@ -248,8 +248,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
  * Open shop
  * data := {<index>.w <amount>.w <value>.l}[count]
  *------------------------------------------*/
-void vending_openvending(struct map_session_data* sd, const char* message, bool flag, const uint8* data, int count)
-{
+void vending_openvending(struct map_session_data* sd, const char* message, bool flag, const uint8* data, int count) {
 	int i, j;
 	int vending_skill_lvl;
 	nullpo_retv(sd);
@@ -312,6 +311,7 @@ void vending_openvending(struct map_session_data* sd, const char* message, bool 
 	}
 
 	sd->state.vending = true;
+	sd->state.workinprogress = WIP_DISABLE_NONE;
 	sd->vender_id = vending_getuid();
 	sd->vend_num = i;
 	safestrncpy(sd->message, message, MESSAGE_SIZE);

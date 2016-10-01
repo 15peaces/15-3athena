@@ -2300,10 +2300,10 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 /**
  * Parses a shop/cashshop npc.
  * Line definition :
- * <map name>,<x>,<y>,<facing>%TAB%shop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
- * <map name>,<x>,<y>,<facing>%TAB%cashshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
- * <map name>,<x>,<y>,<facing>%TAB%marketshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>:<quantity>{,<itemid>:<price>:<quantity>...}
- * @param w1 : word 1 before tab (<from map name>,<x>,<y>,<facing>)
+ * <map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%shop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
+ * <map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%cashshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
+ * <map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%marketshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>:<quantity>{,<itemid>:<price>:<quantity>...}
+ * @param w1 : word 1 before tab (<from map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>})
  * @param w2 : word 2 before tab (shop|cashshop|marketshop), keyword that sent us in this parsing
  * @param w3 : word 3 before tab (<NPC Name>)
  * @param w4 : word 4 before tab (<sprited id>,<shop definition...>)
@@ -2312,10 +2312,9 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
  * @param filepath : filename with path wich we are parsing
  * @return new index for next parsing
  */
-static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
-{
+static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath) {
 	char *p, point_str[32];
-	int x, y, dir, m, is_discount = 0;
+	int x, y, dir, m, is_discount = 0, episode_ident = 0, min_episode = 0, max_episode = 0;
 	unsigned short nameid = 0;
 	struct npc_data *nd;
 	enum npc_subtype type;
@@ -2324,13 +2323,11 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 	{// 'floating' shop?
 		x = y = dir = 0;
 		m = -1;
-	}
-	else
-	{// w1=<map name>,<x>,<y>,<facing>
+	} else {
 		char mapname[32];
-		if( sscanf(w1, "%31[^,],%d,%d,%d", mapname, &x, &y, &dir) != 4
-		||	strchr(w4, ',') == NULL )
-		{
+		if( sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d", mapname, &x, &y, &dir, &episode_ident, &min_episode, &max_episode) == 7); // w1=<map name>,<x>,<y>,<facing>,<episode_flag>,<min_episode>,<max_episode> [15peaces]
+		else if( sscanf(w1, "%31[^,],%d,%d,%d", mapname, &x, &y, &dir) == 4);// w1=<map name>,<x>,<y>,<facing>
+		else {
 			ShowError("npc_parse_shop: Invalid shop definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 			return strchr(start,'\n');// skip and continue
 		}
@@ -2365,6 +2362,13 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			is_discount = 1;
 			break;
 	}
+
+	//Check Episode [15peaces]
+	if(min_episode <= 0 && max_episode <= 0);
+	else if(battle_config.feature_episode >= min_episode && max_episode == -1);
+	else if(battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
+	else
+		return strchr(start, '\n'); // skip and continue
 	
 	CREATE(nd, struct npc_data, 1);
 
@@ -2780,9 +2784,8 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 /// shop/cashshop/npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<name of target>)%TAB%<NPC Name>%TAB%<sprite id>
 /// npc: -%TAB%duplicate(<name of target>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
 /// npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<name of target>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
-const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
-{
-	int x, y, dir, m, xs = -1, ys = -1, class_ = 0, episode_ident, min_episode, max_episode = 0;
+const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath){
+	int x, y, dir, m, xs = -1, ys = -1, class_ = 0, episode_ident = 0, min_episode = 0, max_episode = 0;
 	char mapname[32];
 	char srcname[128];
 	int i;
@@ -2804,6 +2807,19 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		return end;// next line, try to continue
 	}
 	safestrncpy(srcname, w2+10, length-10);
+
+	sscanf(w4, "%d,%d,%d", &episode_ident, &min_episode, &max_episode);
+
+	//Check Episode [15peaces]
+	if(episode_ident != 1) {
+		min_episode = 0;
+		max_episode = 0;
+	}
+	else if(min_episode <= 0 && max_episode <= 0);
+	else if(battle_config.feature_episode >= min_episode && max_episode == -1);
+	else if(battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
+	else
+		return end;// next line, try to continue
 
 	dnd = npc_name2id(srcname);
 	if( dnd == NULL) {
@@ -2834,24 +2850,17 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	nd->u.scr.ep_min = 0;
 	nd->u.scr.ep_max = 0;
 
-	if( type == NPCTYPE_WARP && sscanf(w4, "%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &xs, &ys) == 5 ){// <ep_identifier>,<min_ep>,<max_ep>,<spanx>,<spany>
-		nd->u.scr.ep_min = min_episode;
-		nd->u.scr.ep_max = max_episode;
-	}
-	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6){// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>,<triggerX>,<triggerY>
-		nd->u.scr.ep_min = min_episode;
-		nd->u.scr.ep_max = max_episode;
-	}
-	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_) == 4){// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>
-		nd->u.scr.ep_min = min_episode;
-		nd->u.scr.ep_max = max_episode;
-	}
+	if( type == NPCTYPE_WARP && sscanf(w4, "%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &xs, &ys) == 5 );// <ep_identifier>,<min_ep>,<max_ep>,<spanx>,<spany>
+	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6);// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>,<triggerX>,<triggerY>
+	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_) == 4);// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>
 	else if( type != NPCTYPE_WARP ) class_ = atoi(w4);// <sprite id>
-	else
-	{
+	else {
 		ShowError("npc_parse_duplicate: Invalid span format for duplicate warp in file '%s', line '%d'. Skipping line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return end;// next line, try to continue
 	}
+
+	nd->u.scr.ep_min = min_episode;
+	nd->u.scr.ep_max = max_episode;
 
 	nd->bl.prev = nd->bl.next = NULL;
 	nd->bl.m = m;
@@ -2897,17 +2906,8 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		break;
 	}
 
-	//Check Episode
-	i = 0;
-	if(nd->u.scr.ep_min == 0 && nd->u.scr.ep_max == 0)
-		i = 1;
-	else if(battle_config.feature_episode >= nd->u.scr.ep_min && nd->u.scr.ep_max == -1)
-		i = 1;
-	else if(battle_config.feature_episode >= nd->u.scr.ep_min && battle_config.feature_episode <= nd->u.scr.ep_max)
-		i = 1;
-
 	//Add the npc to its location
-	if( m >= 0 && i == 1)
+	if( m >= 0)
 	{
 		map_addnpc(m, nd);
 		status_change_init(&nd->bl);
@@ -3312,7 +3312,7 @@ void npc_parse_mob2(struct spawn_data* mob)
 
 static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	int num, class_, mode, m,x,y,xs,ys, i,j;
+	int num, class_, mode, m,x,y,xs,ys, i,j, episode_ident = 0, min_episode = 0, max_episode = 0;
 	char mapname[32];
 	struct spawn_data mob, *data;
 	struct mob_db* db;
@@ -3321,14 +3321,20 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 
 	mob.state.boss = !strcmpi(w2,"boss_monster");
 
-	// w1=<map name>,<x>,<y>,<xs>,<ys>
+	// w1=<map name>,<x>,<y>,<xs>,<ys>{,<episode_flag>,<min_episode>,<max_episode>}
 	// w4=<mob id>,<amount>,<delay1>,<delay2>,<event>
-	if( sscanf(w1, "%31[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) < 3
-	||	sscanf(w4, "%d,%d,%u,%u,%127[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 )
-	{
+	if( sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d,%d,%d", mapname, &x, &y, &xs, &ys, &episode_ident, &min_episode, &max_episode) == 8);
+	else if( sscanf(w1, "%31[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) == 5);
+	else {
 		ShowError("npc_parse_mob: Invalid mob definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return strchr(start,'\n');// skip and continue
 	}
+
+	if(sscanf(w4, "%d,%d,%u,%u,%127[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
+		ShowError("npc_parse_mob: Invalid mob definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
+		return strchr(start,'\n');// skip and continue
+	}
+
 	if( mapindex_name2id(mapname) == 0 )
 	{
 		ShowError("npc_parse_mob: Unknown map '%s' in file '%s', line '%d'.\n", mapname, filepath, strline(buffer,start-buffer));
@@ -3344,6 +3350,13 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		ShowError("npc_parse_mob: Spawn coordinates out of range: %s (%d,%d), map size is (%d,%d) - %s %s (file '%s', line '%d').\n", map[mob.m].name, x, y, (map[mob.m].xs-1), (map[mob.m].ys-1), w1, w3, filepath, strline(buffer,start-buffer));
 		return strchr(start,'\n');// skip and continue
 	}
+
+	//Check Episode [15peaces]
+	if(min_episode <= 0 && max_episode <= 0);
+	else if(battle_config.feature_episode >= min_episode && max_episode == -1);
+	else if(battle_config.feature_episode >= min_episode && battle_config.feature_episode <= max_episode);
+	else
+		return strchr(start, '\n'); // skip and continue
 
 	// check monster ID if exists!
 	if( mobdb_checkid(class_) == 0 )

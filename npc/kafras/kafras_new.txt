@@ -1,12 +1,12 @@
-//===== eAthena Script ===========
+//===== 15-3athena Script ==================================== 
 //= New Kafras
-//===== By: =========================
+//===== By: ================================================== 
 //= eAthena Dev Team
-//===== Current Version: ===================
-//= 3.1
-//===== Compatible With: =====================
-//= eAthena 1.0
-//===== Description: ============================================
+//===== Current Version: ===================================== 
+//= 3.2
+//===== Compatible With: ===================================== 
+//= 15-3athena Project
+//===== Description: ========================================= 
 //= Description of argument settings for callfunc "F_Kafra".
 //=  arg(0): When set at 0 the default Kafra message is displayed.
 //=    When set to 1 the Niflhiem Kafra message is displayed.
@@ -15,7 +15,7 @@
 //=  arg(2): Set to 1 to disable info menu.  Otherwise set to 0.
 //=  arg(3): Cost of Storage service
 //=  arg(4): Cost of Rent a Pushcart service
-//===== Additional Comments: ==============================================
+//===== Additional Comments: ================================= 
 //= v1.1 Now using functions
 //= v2.1 Added Niflheim Kafra by Dizzy
 //= v2.1b Minor changes to function calls.  Using arguments.
@@ -33,7 +33,8 @@
 //= 3.0 Updated function calls with new arguments. [L0ne_W0lf]
 //=	Added unique Kafra Welcome messages.
 //= 3.1 Fixed one of Einbroch (east) kafras not displaying a name, bugreport:857 [Brainstorm]
-//==========================================================================
+//= 3.2 Added support for episode system. [15peaces]
+//============================================================
 
 // Amatsu ------------------------------------------------------------------
 amatsu,102,149,4	script	Kafra Employee::kaf_amatsu	116,{
@@ -199,10 +200,14 @@ louyang,210,104,5	script	Kafra Employee::kaf_louyang	117,{
 umbala,128,133,4	script	Kafra Employee::kaf_umbala	721,{
 	cutin "kafra_07",2;
 	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
-	setarray @wrpD$[0], "Comodo";
-	setarray @wrpP[0], 1800;
-	set @wrpC$[0], @wrpD$[0]+" -> "+@wrpP[0];
-	set @wrpC$[1], "Cancel";
+	set .@i,0;
+	if(getepisode() >= 30) {	
+		setarray @wrpD$[.@i], "Comodo";
+		setarray @wrpP[.@i], 1800;
+		set @wrpC$[.@i], @wrpD$[.@i]+" -> "+@wrpP[.@i];
+		set .@i,1;
+	}
+	set @wrpC$[.@i], "Cancel";
 	mes "[Kafra Employee]";
 	mes "Welcome to the";
 	mes "Kafra Corporation.";

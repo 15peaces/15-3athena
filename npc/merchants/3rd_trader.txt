@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Masao, Mercurial
 //===== Current Version: ===================================== 
-//= 1.5b
+//= 1.6
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -19,6 +19,7 @@
 //= 1.5 Added Izlude duplicates. [Euphy]
 //= 1.5a Remove useless array & misc. [Capuche]
 //= 1.5b Ported from rAthena to 15-3athena. [15peaces]
+//= 1.6 Added support for episode system. [15peaces]
 //============================================================ 
 
 // Poison Herb Merchants (Guillotine Cross) :: poison_herb_3rd_trader
@@ -264,7 +265,7 @@ gef_tower,105,172,5	duplicate(pss)	Point Merchant#Sorcerer	700
 prt_in,131,66,0	duplicate(pss)	Point Merchant#Prontera	700
 alberta,105,52,7	duplicate(pss)	Point Merchant#Alberta	700
 aldebaran,133,114,5	duplicate(pss)	Point Merchant#Aldebaran	700
-comodo,193,159,5	duplicate(pss)	Point Merchant#Comodo	700
+comodo,193,159,5	duplicate(pss)	Point Merchant#Comodo	1,30,-1,700
 geffen,129,49,5	duplicate(pss)	Point Merchant#Geffen	700
 izlude,138,163,5	duplicate(pss)	Point Merchant#Izlude	700	// Old coordinates: izlude (135,121)
 izlude_a,138,163,5	duplicate(pss)	Point Merchant#Izlude_a	700

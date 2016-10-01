@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Dastgir
 //===== Current Version: ===================================== 
-//= 1.1
+//= 1.2
 //===== Description: ========================================= 
 //= Quests For Headgears:
 //=     Flower Of Fairy, NeckTie, Hair Brush
@@ -11,6 +11,7 @@
 //===== Additional Comments: ================================= 
 //= 1.0 Converted from the official Aegis script. [Dastgir]
 //= 1.1 Ported from hercules to 15-3athena. [15peaces]
+//= 1.2 Added support for episode system. [15peaces]
 //============================================================ 
 
 gonryun,149,189,0	script	Yotang#Flower_Of_Fairy	50,{
@@ -255,7 +256,7 @@ lhz_in02,276,281,1	script	Drunken Man#Necktie	748,{
 }
 
 // 3. Making the new headgear Hair Brush(5444)
-comodo,236,164,0	script	Hat Girl#Hair_Brush	69,{
+comodo,236,164,0	script	Hat Girl#Hair_Brush	1,30,-1,69,{
 	mes "[Hat Girl]";
 	mes "Isn't the unique hat much better";
 	mes "than the common hairbands?";

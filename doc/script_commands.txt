@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ===========================================
-//= 3.65.20160425
+//= 3.66.20160924
 //=========================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -226,6 +226,8 @@
 //=		  Added 'freeloop'. [15peaces]
 //= 3.65.20160425
 //=		  Added 'min' and 'max'. [15peaces]
+// =3.66.20160924
+//=		  Added episode support to shops and warps [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -345,7 +347,7 @@ explanation, see 'setmapflag'.
 
 ** Create a permanent monster spawn:
 
-<map name>,<x>,<y>,<xs>,<ys>%TAB%monster%TAB%<monster name>%TAB%<mob id>,<amount>,<delay1>,<delay2>,<event>
+<map name>,<x>,<y>,<xs>,<ys>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%monster%TAB%<monster name>%TAB%<mob id>,<amount>,<delay1>,<delay2>,<event>
 
 Map name is the name of the map the monsters will spawn on. x,y are the
 coordinates where the mob should spawn. If xs and ys are non-zero, they
@@ -370,6 +372,19 @@ and 10000 actually stand for 2*MAX_MOB_DB and MAX_MOB_DB respectively, which
 is defined on mob.h, and can change in the future as more mobs are created).
 The recommended way to change a mob's size is to use the event-field (see
 below).
+
+The 3 episode flags are optional. All NPC objects will work the same way as before
+the episode system update. So you won't need to update any npcs. These flags
+are:
+	episode_flag:	If set to 1, the server will treat the npc as episode system
+					compatible. Now the other episode flags will be read.
+	min_episode:	Set this to the minimum episode this npc should load.
+					(set this to 0 to disable min_episode)
+	max_episode:	Set this to the maximum episode this npc should load.
+					(set this to -1 to disable max_episode)
+NOTE: More infos about the episode system feature can be found in features.conf
+file. All supported kRO episodes are listed in this file, too. You'll need to set
+your servers episode in mmo.h and recompile your server before using this system.
 
 Amount is the amount of monsters that will be spawned when this command is 
 executed, it is affected by spawn rates in 'battle_athena.conf'.
@@ -500,8 +515,8 @@ these floating NPC objects are for. More on that below.
 ** Define a shop/cashshop NPC.
 
 -%TAB%shop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
-<map name>,<x>,<y>,<facing>%TAB%shop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
-<map name>,<x>,<y>,<facing>%TAB%marketshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>:<quantity>{,<itemid>:<price>:<quantity>...}
+<map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%shop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>{,<itemid>:<price>...}
+<map name>,<x>,<y>,<facing>{,<episode_flag>,<min_episode>,<max_episode>}%TAB%marketshop%TAB%<NPC Name>%TAB%<sprite id>,<itemid>:<price>:<quantity>{,<itemid>:<price>:<quantity>...}
 
 This will define a shop NPC, which, when triggered (which can only be done by 
 clicking) will cause a shop window to come up. No code whatsoever runs in shop 
@@ -520,6 +535,16 @@ to use the Cash Shop interface, allowing you to buy items with special points
 This type of shop will not allow you to sell items at it, you may only
 purchase items here. The layout used to define sale items still count, and
 "<price>" refers to how many points will be spent purchasing the them.
+
+The 3 episode flags are optional. All NPC objects will work the same way as before
+the episode system update. So you won't need to update any npcs. These flags
+are:
+	episode_flag:	If set to 1, the server will treat the npc as episode system
+					compatible. Now the other episode flags will be read.
+	min_episode:	Set this to the minimum episode this npc should load.
+					(set this to 0 to disable min_episode)
+	max_episode:	Set this to the maximum episode this npc should load.
+					(set this to -1 to disable max_episode)
 
 NOTES:
  - That you cannot use -1 to specify default selling price!
@@ -6555,7 +6580,7 @@ kick the reconnecting players off to the alternate map given to the coordinates
 
 ---------------------------------------
 
-*setmapflag "<map name>",<flag>;
+*setmapflag "<map name>",<flag>{,<zone>};
 
 This command marks a specified map with a map flag given. Map flags alter the 
 behavior of the map, you can see the list of the available ones in 
@@ -6570,12 +6595,16 @@ skills or open up trade deals (mf_notrade, mf_novending, mf_noskill, mf_noicewal
 current weather effects (mf_snow, mf_fog, mf_sakura, mf_leaves, mf_rain, mf_clouds, 
 mf_fireworks) and whether night will be in effect on this map (mf_nightenabled).
 
+The zone optional parameter is used to set the zone for restricted mapflags.
+
 ---------------------------------------
 
-*removemapflag "<map name>",<flag>;
+*removemapflag "<map name>",<flag>{,<zone>};
 
 This command removes a mapflag from a specified map. 
 See 'setmapflag' for a list of mapflags.
+
+The zone optional parameter is used to remove the zone from restricted mapflags.
 
 ---------------------------------------
 
