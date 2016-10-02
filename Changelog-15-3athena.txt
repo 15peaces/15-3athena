@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/02/2016
+	r138 [15peaces]
+		*Merged missing changes from 3ceam rev. 508
+		*Enabled level-up atcommands trigger OnPCLvUpEvent
+			-OnPCBaseLvUpEvent
+			-OnPCJobLvUpEvent
+			-Thanks to @HerculesWS / @Emistry
+		*Few more tweaks here and there.
+			-Added monsters that are summoned through the Summon Legion skill.
+			-Few other things and cleanups.
 
 10/01/2016
 	r137 [15peaces]

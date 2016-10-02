@@ -1920,6 +1920,8 @@ ACMD_FUNC(baselevelup)
 	status_calc_pc(sd, 0);
 	if(sd->status.party_id)
 		party_send_levelup(sd);
+	npc_script_event(sd, NPCE_BASELVUP); // Trigger OnPCBaseLvUpEvent
+
 	return 0;
 }
 
@@ -1971,6 +1973,7 @@ ACMD_FUNC(joblevelup)
 	clif_updatestatus(sd, SP_NEXTJOBEXP);
 	clif_updatestatus(sd, SP_SKILLPOINT);
 	status_calc_pc(sd, 0);
+	npc_script_event(sd, NPCE_JOBLVUP); // Trigger OnPCJobLvUpEvent
 
 	return 0;
 }
