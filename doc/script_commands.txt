@@ -4373,6 +4373,17 @@ wall), the character is pushed only up to the obstacle.
     pushpc DIR_EAST, 5;
 
 ---------------------------------------
+
+*jobcanentermap("<mapname>"{,<JobID>});
+
+Return true if player (decided by job) can enter the map, false otherwise.
+
+For optional 'JobID', see constant of Job_*, or use player's Class, BaseJob,
+and BaseClass. If no player is attached, this param must have a value.
+
+See also db/job_noenter.txt
+
+---------------------------------------
 \\
 4,1.- Item-related commands
 \\

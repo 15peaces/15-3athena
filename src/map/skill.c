@@ -6867,6 +6867,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				if ((dstsd = g->member[i].sd) != NULL && sd != dstsd && !dstsd->state.autotrade) {
 					if (map[dstsd->bl.m].flag.nowarp && !map_flag_gvg2(dstsd->bl.m))
 						continue;
+					if (!pc_job_can_entermap((enum e_job)dstsd->status.class_, src->m, dstsd->gmlevel))
+						continue;
 					if(map_getcell(src->m,src->x+dx[j],src->y+dy[j],CELL_CHKNOREACH))
 						dx[j] = dy[j] = 0;
 					pc_setpos(dstsd, map_id2index(src->m), src->x+dx[j], src->y+dy[j], CLR_RESPAWN);
@@ -10314,8 +10316,10 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, un
 				if( --sg->val1 <= 0 )
 					skill_delunitgroup(sg);
 
-				pc_setpos(sd,m,x,y,CLR_TELEPORT);
-				sg = src->group; // avoid dangling pointer (pc_setpos can cause deletion of 'sg')
+				if (pc_job_can_entermap((enum e_job)sd->status.class_, map_mapindex2mapid(m), sd->gmlevel)) {
+					pc_setpos(sd,m,x,y,CLR_TELEPORT);
+					sg = src->group; // avoid dangling pointer (pc_setpos can cause deletion of 'sg')
+				}
 			}
 		} else
 		if(bl->type == BL_MOB && battle_config.mob_warp&2)
@@ -14480,13 +14484,13 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 				if(group->val1) {
 		  			sd = map_charid2sd(group->val1);
 					group->val1 = 0;
-					if (sd && !map[sd->bl.m].flag.nowarp)
+					if (sd && !map[sd->bl.m].flag.nowarp && pc_job_can_entermap((enum e_job)sd->status.class_, unit->bl.m, sd->gmlevel)) 
 						pc_setpos(sd,map_id2index(unit->bl.m),unit->bl.x,unit->bl.y,CLR_TELEPORT);
 				}
 				if(group->val2) {
 					sd = map_charid2sd(group->val2);
 					group->val2 = 0;
-					if (sd && !map[sd->bl.m].flag.nowarp)
+					if (sd && !map[sd->bl.m].flag.nowarp && pc_job_can_entermap((enum e_job)sd->status.class_, unit->bl.m, sd->gmlevel)) 
 						pc_setpos(sd,map_id2index(unit->bl.m),unit->bl.x,unit->bl.y,CLR_TELEPORT);
 				}
 				skill_delunit(unit);
@@ -14981,7 +14985,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			{
 				if( temp_qty > MAX_RUNE - sd->status.inventory[i].amount )
 				{
-					clif_msgtable(sd->fd,1563);
+					clif_msgtable(sd->fd,SKMSG_RUNESTONE_OVERCOUNT);
 					return 0;
 				}
 			}

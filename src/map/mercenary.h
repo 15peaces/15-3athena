@@ -13,6 +13,13 @@ enum {
 	SWORD_MERC_GUILD,
 };
 
+enum merc_msg {
+	MSG_MER_FINISH	= 0x4f2,
+	MSG_MER_DIE		= 0x4f3,
+	MSG_MER_RETIRE 	= 0x4f4,
+	MSG_MER_RUNAWAY	= 0x4f5,
+};
+
 struct s_mercenary_db {
 	int class_;
 	char sprite[NAME_LENGTH], name[NAME_LENGTH];

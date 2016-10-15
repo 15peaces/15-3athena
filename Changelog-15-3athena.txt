@@ -4,9 +4,24 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/15/2016
+	r139 [15peaces]
+		*Merged missing changes from 3ceam rev. 510
+		*Added missing Ice Crystal, Light Granule and some Card drops.
+		*Added placeholders and constants for new NPC skills
+			-Will be coded in as needed in future. ^^
+		*Added support to store Elemental status in elemental sql table.
+		*Optimized clif_msgtable and clif_msgtable_num packets.
+			-Added some constant message to these packets.
+		*Added missing description related to skill_add_heal_rate.
+		*Rewrite of pc_readdb, thanks to rAthena.
+			-This fixes and optimizes all current reading structures.
+			-Added pre-support for job_noenter.txt file, which will be needed in a future update I'm working on.
+			-updated exp.txt to support the new reading-algorythm. More updates to this file will be done soon.
+
 10/02/2016
 	r138 [15peaces]
-		*Merged missing changes from 3ceam rev. 508
+		*Merged missing changes from 3ceam rev. 508 - 509
 		*Enabled level-up atcommands trigger OnPCLvUpEvent
 			-OnPCBaseLvUpEvent
 			-OnPCJobLvUpEvent

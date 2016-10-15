@@ -564,6 +564,23 @@ enum ammo_type {
 	A_THROWWEAPON,	//9
 };
 
+struct {
+	unsigned int base_hp[MAX_LEVEL], base_sp[MAX_LEVEL]; //Storage for the first calculation with hp/sp factor and multiplicator
+	int hp_factor, hp_multiplicator, sp_factor;
+	int max_weight_base;
+	char job_bonus[MAX_LEVEL];
+	int aspd_base[MAX_WEAPON_TYPE];
+	uint32 exp_table[2][MAX_LEVEL];
+	uint32 max_level[2];
+	struct s_params {
+		uint16 str, agi, vit, int_, dex, luk;
+	} max_param;
+	struct s_job_noenter_map {
+		uint32 zone;
+		uint8 gm_lv;
+	} noenter_map;
+} job_info[CLASS_COUNT];
+
 //Equip position constants
 enum equip_pos {
 	EQP_HEAD_LOW		= 0x0001, 
@@ -890,7 +907,7 @@ extern struct fame_list smith_fame_list[MAX_FAME_LIST];
 extern struct fame_list chemist_fame_list[MAX_FAME_LIST];
 extern struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
-int pc_readdb(void);
+void pc_readdb(void);
 int do_init_pc(void);
 void do_final_pc(void);
 
@@ -926,5 +943,7 @@ int pc_bonus_script_timer(int tid, unsigned int tick, int id, intptr_t data);
 void pc_bonus_script(struct map_session_data *sd);
 struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum si_type icon, uint16 flag, uint8 type);
 void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);
+
+bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv);
 
 #endif /* _PC_H_ */

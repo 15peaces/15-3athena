@@ -9760,38 +9760,21 @@ void clif_msg_skill(struct map_session_data* sd, unsigned short skill_id, int ms
 }
 
 // msgstringtable.txt
-// This message must be normalized
-// using "unsigned char msg[a][b]"
-// so that it can be displayed correctly.
-void clif_msgtable(int fd, int line)
-{
-	int a,b;
-
-	b = line / 255;
-	a = line - ( b * 255 ) - b;
-
+// 0x291 <line>.W
+void clif_msgtable(int fd, int line) {
 	WFIFOHEAD(fd, packet_len(0x291));
 	WFIFOW(fd, 0) = 0x291;
-	WFIFOB(fd, 2) = a;
-	WFIFOB(fd, 3) = b;
+	WFIFOW(fd, 2) = line;
 	WFIFOSET(fd, packet_len(0x291));
 }
 
 // msgstringtable.txt
-// This message must be normalized
-// using "unsigned char msg[a][b]"
-// so that it can be displayed correctly.
-void clif_msgtable_num(int fd, int line, int num)
-{
+// 0x7e2 <line>.W <value>.L
+void clif_msgtable_num(int fd, int line, int num) {
 #if PACKETVER >= 20090805
-	int a,b;
-	b = line / 255;
-	a = line - ( b * 255 ) - b;
-
 	WFIFOHEAD(fd, packet_len(0x7e2));
 	WFIFOW(fd, 0) = 0x7e2;
-	WFIFOB(fd, 2) = a;
-	WFIFOB(fd, 3) = b;
+	WFIFOW(fd, 2) = line;
 	WFIFOL(fd, 4) = num;
 	WFIFOSET(fd, packet_len(0x7e2));
 #endif
@@ -16660,9 +16643,8 @@ void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 * 1268 = Your mercenary soldier has been fired.
 * 1269 = Your mercenary soldier has ran away.
 *------------------------------------------*/
-void clif_mercenary_message(struct map_session_data* sd, int message)
-{
-	clif_msgtable(sd->fd, 1266 + message);
+void clif_mercenary_message(struct map_session_data* sd, int message) {
+	clif_msgtable(sd->fd, MSG_MER_FINISH + message);
 }
 
 /*==========================================

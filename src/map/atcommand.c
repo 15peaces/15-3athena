@@ -459,7 +459,7 @@ ACMD_FUNC(mapmove)
 		if (!map_search_freecell(NULL, m, &x, &y, 10, 10, 1))
 			x = y = 0; //Invalid cell, use random spot.
 	}
-	if (map[m].flag.nowarpto && battle_config.any_warp_GM_min_level > pc_isGM(sd)) {
+	if ((map[m].flag.nowarpto && battle_config.any_warp_GM_min_level > pc_isGM(sd)) || !pc_job_can_entermap((enum e_job)sd->status.class_, m, sd->gmlevel)) {
 		clif_displaymessage(fd, msg_txt(247));
 		return -1;
 	}
