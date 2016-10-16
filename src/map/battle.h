@@ -4,6 +4,8 @@
 #ifndef _BATTLE_H_
 #define _BATTLE_H_
 
+#include "map.h" //ELE_MAX
+
 // state of a single attack attempt; used in flee/def penalty calculations when mobbed
 typedef enum damage_lv {
 	ATK_NONE,    // not an attack
@@ -24,8 +26,8 @@ struct Damage {
 	enum damage_lv dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
 };
 
-// 属性表（読み込みはpc.c、battle_attr_fixで使用）
-extern int attr_fix_table[4][10][10];
+//(Used in read pc.c,) attribute table (battle_attr_fix)
+extern int attr_fix_table[4][ELE_MAX][ELE_MAX];
 
 struct map_session_data;
 struct mob_data;

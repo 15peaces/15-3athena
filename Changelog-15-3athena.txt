@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/16/2016
+	r140 [15peaces]
+		*Merged missing changes from 3ceam rev. 511 - 513
+		*Updated Genetic's foods and potions that are usable by every jobs and reduced its duration to 5 minutes.
+		*Added official Black Mass Effect. Reduce all stats by a random amount between -5 and -10.
+		*Added Boost 500 potion.
+		*Added Genetic's bomb that deal damage and Mysterious Powder effect 
+		*Updated GN_MIX_COOKING that should create Black Mass, Black Lump, Hard Black Lump, Extremely Hard Black Lump or Mysterious Powder when it fails.
+		*Fixed WL_DRAINLIFE that was healing extremely.
+		* Added missing check for sd in LG_SHIELDSPELL.
+		*Fixed an issue with sv_readdb where a db-row won't be read correctly in some cases.
+			-Also fixed an issues where attr_fix.txt won't be read anymore. Follow up r139(@cd0f269).
+		*Complete review of exp.txt
+			-Clean-up of all rows
+			-Updated all jobs to support latest level-caps.
+		
 10/15/2016
 	r139 [15peaces]
 		*Merged missing changes from 3ceam rev. 510

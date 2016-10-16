@@ -1868,7 +1868,6 @@
 13265,Black_Lump,Black Lump,17,10,,50,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
 13266,Hard_Black_Lump,Hard Black Lump,17,10,,50,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
 13267,Extremely_Hard_Black_Lump,Extremely Hard Black Lump,17,10,,50,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
-13268,Mysterious_Powder,Mysterious Powder,17,10,,10,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
 // Generic Created Throwable Booster Items
 13269,Throwing_Boost_500,Throwing Boost 500,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}
 13270,Throwing_Full_Swing_K,Throwing Full Swing K,11,10,,100,0,,,,0xFFFFFFFF,8,2,32768,,1,,8,{},{},{}

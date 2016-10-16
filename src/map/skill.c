@@ -1181,6 +1181,25 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		sc_start(bl, SC_BLEEDING, 20 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
+	case GN_SLINGITEM_RANGEMELEEATK:
+		if( sd ) {
+			switch( sd->itemid )
+			{	// Starting SCs here instead of do it in skill_additional_effect to simplify the code.
+				case 13261:
+					sc_start(bl, SC_STUN, 100, skilllv, skill_get_time2(GN_SLINGITEM, skilllv));
+					sc_start(bl, SC_BLEEDING, 100, skilllv, skill_get_time2(GN_SLINGITEM, skilllv));
+					break;
+				case 13262:					
+					sc_start(bl, SC_MELON_BOMB, 100, skilllv, skill_get_time(GN_SLINGITEM, skilllv));	// Reduces ASPD and moviment speed
+					break;
+				case 13264:
+					sc_start(bl, SC_BANANA_BOMB, 100, skilllv, skill_get_time(GN_SLINGITEM, skilllv));	// Reduces LUK ż?Needed confirm it, may be it's bugged in kRORE?
+					sc_start(bl, SC_BANANA_BOMB_SITDOWN_POSTDELAY, 75, skilllv, skill_get_time(GN_SLINGITEM_RANGEMELEEATK,skilllv)); // Sitdown for 3 seconds.
+					break;
+			}
+			sd->itemid = -1;
+		}
+		break;
 	case EL_WIND_SLASH:	// Non confirmed rate.
 		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -3240,6 +3259,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_METALICSOUND:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
+	case GN_SLINGITEM_RANGEMELEEATK:
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -3868,7 +3888,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if( sd && sd->status.base_level >= 99 )
 				rate += rate * (1 + sd->status.job_level) / 50 ;
 
-			heal *= 8 * skilllv * status_get_lv(src) / 100;
+			heal = heal * 8 * skilllv * status_get_lv(src) / 10000;
 
 			if( bl->type == BL_SKILL )
 				heal = 0;	// Don't absorb heal from Ice Walls or other skill units.
@@ -7704,18 +7724,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
  		break;
 
 	case LG_SHIELDSPELL:
-		if( flag&1 )
-		{
+		if( flag&1 ) {
 			int duration = (sd) ? sd->shieldmdef * 2000 : 10000;
 			sc_start(bl,SC_SILENCE,100,skilllv,duration);
-		}
-		else
-		{
+		} else if( sd ) {
 			int opt = skilllv;
 			int rate = rand()%100;
 			int val, brate;
-			switch( skilllv )
-			{
+			switch( skilllv ) {
 				case 1:
 					{
 						struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
@@ -8288,12 +8304,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( i <= 0 )
 				break; // No ammo.
 			ammo_id = sd->inventory_data[i]->nameid;
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 			if( ammo_id <= 0 )
 				break;
-			if( itemdb_is_GNbomb(ammo_id) )
-				skill_attack(BF_WEAPON,src,src,bl,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,ammo_id-13260+1);
-			else {
+			sd->itemid = ammo_id;
+			if( itemdb_is_GNbomb(ammo_id) ) { 
+				if( ammo_id == 13263 )
+					map_foreachincell(skill_area_sub,bl->m,bl->x,bl->y,BL_CHAR,src,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+				else
+					skill_attack(BF_WEAPON,src,src,bl,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag);
+			} else {
 				struct script_code *script = sd->inventory_data[i]->script;
 				if( !script )
 					break;
@@ -8303,6 +8322,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					run_script(script,0,src->id,0);
 			}
 		}
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);// This packet is received twice actually, I think it is to show the animation.
 		break;
 
 	case GN_MIX_COOKING:
@@ -15126,6 +15147,8 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				qty = rand()%(skill_lv+1);
 				break;
 			case GN_MIX_COOKING:
+				make_per = 3000; //As I can see this is not affectd by dex or int
+				break;
 			case GN_MAKEBOMB:
 				// 	TODO: finde a proper chance.
 				make_per = (5000 + 50*status->dex + 30*status->luk); //Custom rate value.
@@ -15301,6 +15324,23 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 					clif_misceffect(&sd->bl,5);
 					break;
 				case GN_MIX_COOKING:
+					{
+						struct item tmp_item;
+						const int products[5][2] = {{13265,6500},{13266,4000},{13267,3000},{13268,500},{12435,500}};
+						memset(&tmp_item,0,sizeof(tmp_item));
+						tmp_item.nameid = nameid;
+						do {
+							i = rand()%5;
+							tmp_item.nameid = products[i][0];
+						} while( rand()%10000 >= products[i][1] );
+						tmp_item.amount = (skill_lv == 2)?10:1; // TODO: Find the proper value to it.
+						tmp_item.identify = 1;
+						if( pc_additem(sd,&tmp_item,tmp_item.amount) ) {
+							clif_additem(sd,0,0,flag);
+							map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+						}
+					}
+					break;
 				case GN_S_PHARMACY:
 					break;	// No effects here.
 				case GN_MAKEBOMB:

@@ -9338,16 +9338,16 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 
 	maxlvl = atoi(fields[0]);
 	if(maxlvl > MAX_LEVEL || maxlvl<1){
-		ShowError("pc_readdb_job_exp: Invalid maxlevel %d specified.\n", maxlvl);
+		ShowError("pc_readdb_exp: Invalid maxlevel %d specified.\n", maxlvl);
 		return false;
 	}
 	if((maxlvl+3) > columns){ //nb values = (maxlvl-startlvl)+1-index1stvalue
-		ShowError("pc_readdb_job_exp: Number of columns %d defined is too low for max level %d.\n",columns,maxlvl);
+		ShowError("pc_readdb_exp: Number of columns %d defined is too low for max level %d.\n",columns,maxlvl);
 		return false;
 	}
 	type = atoi(fields[2]);
 	if(type < 0 || type > 1){
-		ShowError("pc_readdb_job_exp: Invalid type %d specified.\n", type);
+		ShowError("pc_readdb_exp: Invalid type %d specified.\n", type);
 		return false;
 	}
 	job_count = pc_split_atoi(fields[1],jobs,':',CLASS_COUNT);
@@ -9355,7 +9355,7 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 		return false;
 	job_id = jobs[0];
 	if(!pcdb_checkid(job_id)){
-		ShowError("pc_readdb_job_exp: Invalid job class %d specified.\n", job_id);
+		ShowError("pc_readdb_exp: Invalid job class %d specified.\n", job_id);
 		return false;
 	}
 	idx = pc_class2idx(job_id);
@@ -9370,7 +9370,7 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 	while ((ui = job_info[idx].max_level[type]) >= 2 && job_info[idx].exp_table[type][ui-2] <= 0)
 		job_info[idx].max_level[type]--;
 	if (job_info[idx].max_level[type] < maxlvl) {
-		ShowWarning("pc_readdb_job_exp: Specified max %u for job %d, but that job's exp table only goes up to level %u.\n", maxlvl, job_id, job_info[idx].max_level[type]);
+		ShowWarning("pc_readdb_exp: Specified max %u for job %d, but that job's exp table only goes up to level %u.\n", maxlvl, job_id, job_info[idx].max_level[type]);
 		ShowInfo("Filling the missing values with the last exp entry.\n");
 		//Fill the requested values with the last entry.
 		ui = (job_info[idx].max_level[type] <= 2? 0: job_info[idx].max_level[type]-2);
@@ -9382,7 +9382,7 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 	for (i = 1; i < job_count; i++) {
 		job_id = jobs[i];
 		if (!pcdb_checkid(job_id)) {
-			ShowError("pc_readdb_job_exp: Invalid job ID %d.\n", job_id);
+			ShowError("pc_readdb_exp: Invalid job ID %d.\n", job_id);
 			continue;
 		}
 		idx = pc_class2idx(job_id);
@@ -9475,7 +9475,7 @@ void pc_readdb(void) {
 	s = pc_read_statsdb(db_path,s);
 	sv_readdb(db_path, "job_db1.txt",',',5+MAX_WEAPON_TYPE,5+MAX_WEAPON_TYPE,CLASS_COUNT,&pc_readdb_job1);
 	sv_readdb(db_path, "job_db2.txt",',',1,1+MAX_LEVEL,CLASS_COUNT,&pc_readdb_job2);
-	sv_readdb(db_path, "exp.txt",',',4,MAX_LEVEL+3,CLASS_COUNT*2,&pc_readdb_exp);
+	sv_readdb(db_path, "exp.txt",',',4,1000+3,CLASS_COUNT*2,&pc_readdb_exp);
 	sv_readdb(db_path, "job_noenter.txt", ',', 3, 3, CLASS_COUNT, &pc_readdb_job_noenter);
 
 	// Reset and read skilltree - needs to be read after pc_readdb_job_exp to get max base and job levels

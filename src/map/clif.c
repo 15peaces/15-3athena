@@ -10831,7 +10831,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			break;
 		}
 
-		if( sd->sc.data[SC_SITDOWN_FORCE] )
+		if( sd->sc.data[SC_SITDOWN_FORCE] || sd->sc.data[SC_BANANA_BOMB_SITDOWN_POSTDELAY] )
 			return;
 
 		if(pc_issit(sd)) {

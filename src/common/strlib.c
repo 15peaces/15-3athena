@@ -927,44 +927,44 @@ const char* skip_escaped_c(const char* p)
 }
 
 
-/// Opens and parses a file containing delim-separated columns, feeding them to the specified callback function row by row.
-/// Tracks the progress of the operation (current line number, number of successfully processed rows).
-/// Returns 'true' if it was able to process the specified file, or 'false' if it could not be read.
-///
-/// @param directory Directory
-/// @param filename File to process
-/// @param delim Field delimiter
-/// @param mincols Minimum number of columns of a valid row
-/// @param maxcols Maximum number of columns of a valid row
-/// @param parseproc User-supplied row processing function
-/// @return true on success, false if file could not be opened
-bool sv_readdb(const char* directory, const char* filename, char delim, int mincols, int maxcols, int maxrows, bool (*parseproc)(char* fields[], int columns, int current))
-{
+/**
+ * Opens and parses a file containing delim-separated columns, feeding them to the specified callback function row by row.
+ * Tracks the progress of the operation (current line number, number of successfully processed rows).
+ * Returns 'true' if it was able to process the specified file, or 'false' if it could not be read.
+ * @param directory : Directory
+ * @param filename : filename File to process
+ * @param delim : delim Field delimiter
+ * @param mincols : mincols Minimum number of columns of a valid row
+ * @param maxcols : maxcols Maximum number of columns of a valid row
+ * @param maxrows : maxcols Maximum number of columns of a valid row
+ * @param parseproc : parseproc User-supplied row processing function
+ * @param silent : should we display error if file not found ?
+ * @return true on success, false if file could not be opened
+ */
+bool sv_readdb(const char* directory, const char* filename, char delim, int mincols, int maxcols, int maxrows, bool (*parseproc)(char* fields[], int columns, int current)) {
 	FILE* fp;
 	int lines = 0;
 	int entries = 0;
 	char** fields; // buffer for fields ([0] is reserved)
-	int columns, fields_length;
-	char path[1024], line[1024];
-	char* match;
+	int columns, nb_cols;
+	char path[1024], *line;
+	const short colsize=512;
 
 	snprintf(path, sizeof(path), "%s/%s", directory, filename);
 
 	// open file
 	fp = fopen(path, "r");
 	if( fp == NULL )
-	{
-		ShowError("sv_readdb: Cannot read file '"CL_WHITE"%s"CL_RESET"'.\n", path);
 		return false;
-	}
 
 	// allocate enough memory for the maximum requested amount of columns plus the reserved one
-	fields_length = maxcols+1;
-	fields = (char**)aMalloc(fields_length*sizeof(char*));
+	nb_cols = maxcols+1;
+	fields = (char**)aMalloc(nb_cols*sizeof(char*));
+	line = (char*)aMalloc(nb_cols*colsize);
 
 	// process rows one by one
-	while( fgets(line, sizeof(line), fp) )
-	{
+	while( fgets(line, maxcols*colsize, fp) ) {
+		char *match;
 		lines++;
 
 		if( ( match = strstr(line, "//") ) != NULL )
@@ -972,32 +972,31 @@ bool sv_readdb(const char* directory, const char* filename, char delim, int minc
 			match[0] = 0;
 		}
 
-		//TODO: strip trailing whitespace
+		//trim(line); //TODO: strip trailing whitespace
+		//trim2(line,1); //removing trailing actually break mob_skill_db
 		if( line[0] == '\0' || line[0] == '\n' || line[0] == '\r')
 			continue;
 
-		columns = sv_split(line, strlen(line), 0, delim, fields, fields_length, (e_svopt)(SV_TERMINATE_LF|SV_TERMINATE_CRLF));
+		columns = sv_split(line, strlen(line), 0, delim, fields, nb_cols, (e_svopt)(SV_TERMINATE_LF|SV_TERMINATE_CRLF));
 
-		if( columns < mincols )
-		{
+		if( columns < mincols ) {
 			ShowError("sv_readdb: Insufficient columns in line %d of \"%s\" (found %d, need at least %d).\n", lines, path, columns, mincols);
 			continue; // not enough columns
 		}
-		if( columns > maxcols )
-		{
+		if( columns > maxcols ) {
 			ShowError("sv_readdb: Too many columns in line %d of \"%s\" (found %d, maximum is %d).\n", lines, path, columns, maxcols );
 			continue; // too many columns
 		}
-		if( entries == maxrows )
-		{
+		if( entries == maxrows ) {
 			ShowError("sv_readdb: Reached the maximum allowed number of entries (%d) when parsing file \"%s\".\n", maxrows, path);
 			break;
 		}
 
 		// parse this row
-		if( !parseproc(fields+1, columns, entries) )
-		{
+		if( !parseproc(fields+1, columns, entries) ) {
 			ShowError("sv_readdb: Could not process contents of line %d of \"%s\".\n", lines, path);
+                        //perhaps call a provided function to clean entries if we have fail
+                        //clearproc(fields+1, columns, entries)
 			continue; // invalid row contents
 		}
 
@@ -1006,6 +1005,7 @@ bool sv_readdb(const char* directory, const char* filename, char delim, int minc
 	}
 
 	aFree(fields);
+	aFree(line);
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, path);
 

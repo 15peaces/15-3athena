@@ -707,6 +707,7 @@ void initChangeTables(void)
 
 	StatusIconChangeTable[SC_MOVESLOW_POTION] = SI_MOVESLOW_POTION;
 
+	//Guillotine Cross Poisons
 	StatusIconChangeTable[SC_TOXIN] = SI_TOXIN;
 	StatusIconChangeTable[SC_PARALYSE] = SI_PARALYSE;
 	StatusIconChangeTable[SC_VENOMBLEED] = SI_VENOMBLEED;
@@ -750,6 +751,14 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_WIND_CURTAIN] = SI_WIND_CURTAIN;
 	StatusIconChangeTable[SC_SOLID_SKIN] = SI_SOLID_SKIN;
 	StatusIconChangeTable[SC_STONE_SHIELD] = SI_STONE_SHIELD;
+
+	StatusIconChangeTable[SC_BOOST500] |= SI_BOOST500;
+	StatusIconChangeTable[SC_MELON_BOMB] = SI_MELON_BOMB;
+	StatusIconChangeTable[SC_BANANA_BOMB] = SI_BANANA_BOMB;
+	StatusIconChangeTable[SC_BANANA_BOMB_SITDOWN_POSTDELAY] = SI_BANANA_BOMB_SITDOWN_POSTDELAY;
+	StatusIconChangeTable[SC_LIFE_FORCE_F] |= SI_LIFE_FORCE_F;
+	StatusIconChangeTable[SC_STOMACHACHE] = SI_STOMACHACHE;
+	StatusIconChangeTable[SC_MYSTERIOUS_POWDER] = SI_MYSTERIOUS_POWDER;
 
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
@@ -858,6 +867,12 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
 	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF2;
 	StatusChangeFlagTable[SC_BANDING_DEFENCE] |= SCB_SPEED;
+
+	StatusChangeFlagTable[SC_BOOST500] |= SCB_ASPD;
+	StatusChangeFlagTable[SC_MELON_BOMB] |= SCB_SPEED|SCB_ASPD;
+	StatusChangeFlagTable[SC_BANANA_BOMB] = SCB_LUK;
+	StatusChangeFlagTable[SC_STOMACHACHE] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
+	StatusChangeFlagTable[SC_MYSTERIOUS_POWDER] |= SCB_MAXHP;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -3863,6 +3878,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_SAVAGE_STEAK]->val1;
 	if(sc->data[SC_INSPIRATION])
 		str += sc->data[SC_INSPIRATION]->val3;
+	if(sc->data[SC_STOMACHACHE])
+		str -= sc->data[SC_STOMACHACHE]->val1;
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -3910,6 +3927,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_DROCERA_HERB_STEAMED]->val1;
 	if(sc->data[SC_INSPIRATION])
 		agi += sc->data[SC_INSPIRATION]->val3;
+	if(sc->data[SC_STOMACHACHE])
+		agi -= sc->data[SC_STOMACHACHE]->val1;
 
 	return (unsigned short)cap_value(agi,0,USHRT_MAX);
 }
@@ -3949,6 +3968,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_GENTLETOUCH_REVITALIZE])
 		vit += sc->data[SC_GENTLETOUCH_REVITALIZE]->val2;
+	if(sc->data[SC_STOMACHACHE])
+		vit -= sc->data[SC_STOMACHACHE]->val1;
 
 	return (unsigned short)cap_value(vit,0,USHRT_MAX);
 }
@@ -3998,6 +4019,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_COCKTAIL_WARG_BLOOD]->val1;
 	if(sc->data[SC_INSPIRATION])
 		int_ += sc->data[SC_INSPIRATION]->val3;
+	if(sc->data[SC_STOMACHACHE])
+		int_ -= sc->data[SC_STOMACHACHE]->val1;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -4048,6 +4071,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_SIROMA_ICE_TEA]->val1;
 	if(sc->data[SC_INSPIRATION])
 		dex += sc->data[SC_INSPIRATION]->val3;
+	if(sc->data[SC_STOMACHACHE])
+		dex -= sc->data[SC_STOMACHACHE]->val1;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -4087,6 +4112,10 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_PUTTI_TAILS_NOODLES]->val1;
 	if(sc->data[SC_INSPIRATION])
 		luk += sc->data[SC_INSPIRATION]->val3;
+	if(sc->data[SC_STOMACHACHE])
+		luk -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_BANANA_BOMB])
+		luk -= luk * sc->data[SC_BANANA_BOMB]->val1 / 100;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
@@ -4661,6 +4690,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, sc->data[SC_ROCK_CRUSHER_ATK]->val2 );
 				if( sc->data[SC_POWER_OF_GAIA] )
 					val = max( val, sc->data[SC_POWER_OF_GAIA]->val2 );
+				if( sc->data[SC_MELON_BOMB] )
+					val = max( val, sc->data[SC_MELON_BOMB]->val1 );
 
 				if( sd && sd->speed_rate + sd->speed_add_rate > 0 ) // permanent item-based speedup
 					val = max( val, sd->speed_rate + sd->speed_add_rate );
@@ -4877,6 +4908,10 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= aspd_rate * (sc->data[SC_GENTLETOUCH_CHANGE]->val2/200) / 100;
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 		aspd_rate -= aspd_rate * sc->data[SC_GENTLETOUCH_REVITALIZE]->val2 / 100;
+	if( sc->data[SC_BOOST500] )
+		aspd_rate -= aspd_rate * sc->data[SC_BOOST500]->val2 / 100;
+	if( sc->data[SC_MELON_BOMB] )
+		aspd_rate += aspd_rate * sc->data[SC_MELON_BOMB]->val1 / 100;
 	if( sc->data[SC_EXTRACT_SALAMINE_JUICE] )
 		aspd_rate -= sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1 * 10;
 
@@ -4938,6 +4973,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += 2000;// Fix amount.
 	if(sc->data[SC_POWER_OF_GAIA])
 		maxhp += 3000;
+	if(sc->data[SC_MYSTERIOUS_POWDER])
+		maxhp -= sc->data[SC_MYSTERIOUS_POWDER]->val1 / 100;
 
 	return cap_value(maxhp,1,UINT_MAX);
 }
@@ -7688,8 +7725,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = 3 * val1; // ASPD reduction.
 			break;
 		case SC_SITDOWN_FORCE:
-			if( sd && !pc_issit(sd) )
-			{
+		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
+			if( sd && !pc_issit(sd) ) {
 				pc_setsit(sd);
 				clif_sitting(bl);
 			}
@@ -7879,6 +7916,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ROCK_CRUSHER_ATK:
 		case SC_POWER_OF_GAIA:
 			val2 = 33;
+			break;
+		case SC_BOOST500:
+			val2 = 20;
+			break;
+		case SC_MELON_BOMB:
+		case SC_BANANA_BOMB:
+			val1 = 15;
 			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
@@ -10320,9 +10364,72 @@ static bool status_readdb_refine(char* fields[], int columns, int current)
 	return true;
 }
 
+/**
+ * Read attribute fix database for attack calculations
+ * Function stores information in the attr_fix_table
+ * @return True
+ */
+static bool status_readdb_attrfix(const char *basedir)
+{
+	FILE *fp;
+	char line[512], path[512];
+	int entries = 0;
+
+
+	sprintf(path, "%s/attr_fix.txt", basedir);
+	fp = fopen(path,"r");
+	if (fp == NULL) {
+		ShowError("Can't read %s\n", path);
+		return 1;
+	}
+	while (fgets(line, sizeof(line), fp)) {
+		int lv, i, j;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+
+		lv = atoi(line);
+
+		for (i = 0; i < ELE_ALL;) {
+			char *p;
+			if (!fgets(line, sizeof(line), fp))
+				break;
+			if (line[0]=='/' && line[1]=='/')
+				continue;
+
+			for (j = 0, p = line; j < ELE_ALL && p; j++) {
+				while (*p == 32) //skipping space (32=' ')
+					p++;
+                                //TODO seem unsafe to continue without check
+				attr_fix_table[lv-1][i][j] = atoi(p);
+				if (battle_config.attr_recover == 0 && attr_fix_table[lv-1][i][j] < 0)
+					attr_fix_table[lv-1][i][j] = 0;
+				p = strchr(p,',');
+				if(p)
+					*p++=0;
+			}
+
+			i++;
+		}
+		entries++;
+	}
+	fclose(fp);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, path);
+	return true;
+}
+
+/**
+ * Sets defaults in tables and starts read db functions
+ * sv_readdb reads the file, outputting the information line-by-line to
+ * previous functions above, separating information by delimiter
+ * DBs being read:
+ *	attr_fix.txt: Attribute adjustment table for attacks
+ *	size_fix.txt: Size adjustment table for weapons
+ *	refine_db.txt: Refining data table
+ * @return 0
+ */
 int status_readdb(void)
 {
-	int i, j;
+	int i, j, k;
 
 	// initialize databases to default
 	//
@@ -10352,11 +10459,16 @@ int status_readdb(void)
 		refinebonus[i][2]=10;  // safe limit
 	}
 
+	// attr_fix.txt
+	for(i=0;i<4;i++)
+		for(j=0;j<ELE_ALL;j++)
+			for(k=0;k<ELE_ALL;k++)
+				attr_fix_table[i][j][k]=100;
+
 	// read databases
 	//
 
-	sv_readdb(db_path, "job_db1.txt",   ',', 5+MAX_WEAPON_TYPE, 5+MAX_WEAPON_TYPE, -1,                            &status_readdb_job1);
-	sv_readdb(db_path, "job_db2.txt",   ',', 1,                 1+MAX_LEVEL,       -1,                            &status_readdb_job2);
+	status_readdb_attrfix(db_path);
 	sv_readdb(db_path, "size_fix.txt",  ',', MAX_WEAPON_TYPE,   MAX_WEAPON_TYPE,    ARRAYLENGTH(atkmods),         &status_readdb_sizefix);
 	sv_readdb(db_path, "refine_db.txt", ',', 3+MAX_REFINE+1,    3+MAX_REFINE+1,     ARRAYLENGTH(percentrefinery), &status_readdb_refine);
 
