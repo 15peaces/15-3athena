@@ -125,21 +125,6 @@ struct s_subnet {
 } subnet[16];
 int subnet_count = 0;
 
-struct char_session_data {
-	bool auth; // whether the session is authed or not
-	int account_id;
-	uint32 login_id1, login_id2;
-	uint8 sex;
-	int found_char[MAX_CHARS]; // ids of chars on this account
-	char email[40]; // e-mail (default: a@a.com) by [Yor]
-	time_t expiration_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
-	int gmlevel;
-	uint32 version;
-	uint8 clienttype;
-	char new_name[NAME_LENGTH];
-	char birthdate[10+1];  // YYYY-MM-DD
-};
-
 int max_connect_user = 0;
 int gm_allow_level = 99;
 int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;

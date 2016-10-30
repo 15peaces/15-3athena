@@ -4,6 +4,16 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+10/30/2016
+	r141 [15peaces]
+		*Changed some monsters to fit pre-renewal system.
+		*Added some placeholders to item_db.txt.
+			-These are official aegis names for missing items.
+		*Updated effect_list.txt in doc-folder to 2014/10/22 Ragexe effects.
+			-It was quite outdated and had to be done ^^
+		*Moved struct char_session_data from char.c to char.h
+			-This should fix a compile error in gcc.
+		
 10/16/2016
 	r140 [15peaces]
 		*Merged missing changes from 3ceam rev. 511 - 513

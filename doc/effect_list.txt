@@ -1,9 +1,9 @@
-//===== Athena Doc ========================================
+//===== 15-3athena Documentation ==========================
 //= Client Effects List
 //===== By ================================================
 //= Valaris, Spira, Au{R}oN, Tharis, HiddenDragon
 //===== Version ===========================================
-//= 2.3
+//= 2.4
 //=========================================================
 //= 1.0 - Formatted to the standard
 //= 1.1 - New Effects, up to 2007/05/07 Sakexe. [Au{R}oN]
@@ -19,6 +19,7 @@
 //= 2.1 - New Effects, up to 2008/08/06a Sakexe. [Au{R}oN]
 //= 2.2 - New Effects, up to 2009/01/21a Sakexe. [Au{R}oN]
 //= 2.3 - New Effects, up to 2010/08/04b RagexeRE. [Ai4rei]
+//= 2.4 - New Effects, up to 2014/10/22 Ragexe. [15peaces]
 //===== Description =======================================
 //= A list of client-side effects sorted by their ID
 //=========================================================
@@ -31,106 +32,106 @@ It's also possible to attach effects to item/npc scripts by using 'misceffect'.
 
 number	description
 ------	-----------
-0.	Regular Hit
-1.	Bash
-2.	Melee Skill Hit
-3.	Melee Skill Hit
-4.	Melee Skill Hit
-5.	Melee Skill Hit
-6.	Being Warped
-7.	Item Heal effect
-8.	Yellow Ripple Effect
-9.	Different Type of Heal
-10.	Mammonite
-11.	Endure
-12.	Yellow cast aura
-13.	Blue Box
-14.	Blue restoring effect
-15.	Soul Strike
-16.	Hide
-17.	Magnum Break
-18.	Steal
-19.	(Invalid)
-20.	Envenom/Poison
-21.	Detoxify
-22.	Sight
-23.	Stone Curse
-24.	Fire Ball
-25.	Fire Wall
-26.	A sound (a swipe?)
-27.	Frost Diver (Traveling to Target)
-28.	Frost Diver (Hitting)
-29.	Lightning Bolt
-30.	Thunder Storm
-31.	Weird bubbles launching from feet
-32.	Small clustered explosions
-33.	Ruwach
-34.	Old Map Exit Animation (unused)
-35.	Old Warp Portal (unused)
-36.	Old Warp Portal (unused)
-37.	AGI Up
-38.	AGI Down
-39.	Aqua Benedicta
-40.	Signum Crucis
-41.	Angelus
-42.	Blessing
-43.	Dex + Agi Up
-44.	Little Fog Smoke.
-45.	Faint Little Ball Things.
-46.	Sand Wind
-47.	Torch
-48.	Small Piece of Glass
-49.	Firebolt/Wall Hits
-50.	Spinning Fire Thing
-51.	Ice Elemental Hit
-52.	Wind Elemental Hit
-53.	Puff of Purpulish Smoke?
-54.	Cast Initiation Aura (Water Element)
-55.	Cast Initiation Aura (Fire Element)
-56.	Cast Initiation Aura (Wind Element)
-57.	Cast Initiation Aura (Earth Element)
-58.	Cast Initiation Aura (Holy Element)
-59.	Cast Initiation Aura (Poison Element)
-60.	Cast target circle
-61.	Old Warp Portal (NPC Warp, unused)
-62.	Sight Trasher
-63.	Moonlight Sphere
-64.	Something Like Puruple/Yellow Light Bullet
-65.	Something Like Absorb of Power
-66.	Cure
-67.	Provoke
-68.	MVP Banner
-69.	Skid Trap
-70.	Brandish Spear
-71.	Spiral White balls
-72.	Bigger Spiral White balls
-73.	Blue/White Small Aura
-74.	Ice Wall
-75.	Gloria
-76.	Magnificat
-77.	Resurrection
-78.	Status Recovery
-79.	Earth Spike
-80.	Spear Boomerang
-81.	Skill hit
-82.	Turn Undead
-83.	Sanctuary
-84.	Impositio Manus
-85.	Lex Aeterna
-86.	Aspersio
-87.	Lex Divina
-88.	Suffragium
-89.	Storm Gust
-90.	Lord of Vermilion
-91.	B. S. Sacramenti
-92.	Meteor Storm
-93.	Jupitel Thunder (Ball)
-94.	Jupitel Thunder (Hit)
-95.	Quagmire
-96.	Fire Pillar
-97.	Fire Pillar/Land Mine hit
-98.	Adrenaline Rush
-99.	Flasher Trap
+0.		Regular Hit
+1.		Bash
+2.		Melee Skill Hit
+3.		Melee Skill Hit
+4.		Melee Skill Hit
+5.		Melee Skill Hit
+6.		Being Warped
+7.		Item Heal effect
+8.		Yellow Ripple Effect
+9.		Different Type of Heal
+10.		Mammonite
+11.		Endure
+12.		Yellow cast aura
+13.		Blue Box
+14.		Blue restoring effect
+15.		Soul Strike
+16.		Hide
+17.		Magnum Break
+18.		Steal
+19.		(Invalid)
+20.		Envenom/Poison
+21.		Detoxify
+22.		Sight
+23.		Stone Curse
+24.		Fire Ball
+25.		Fire Wall
+26.		A sound (a swipe?)
+27.		Frost Diver (Traveling to Target)
+28.		Frost Diver (Hitting)
+29.		Lightning Bolt
+30.		Thunder Storm
+31.		Weird bubbles launching from feet
+32.		Small clustered explosions
+33.		Ruwach
+34.		Old Map Exit Animation
+35.		Old Warp Portal
+36.		Old Warp Portal
+37.		AGI Up
+38.		AGI Down
+39.		Aqua Benedicta
+40.		Signum Crucis
+41.		Angelus
+42.		Blessing
+43.		Dex + Agi Up
+44.		Little Fog Smoke.
+45.		Faint Little Ball Things.
+46.		Sand Wind
+47.		Torch
+48.		Small Piece of Glass
+49.		Firebolt/Wall Hits
+50.		Spinning Fire Thing
+51.		Ice Elemental Hit
+52.		Wind Elemental Hit
+53.		Puff of Purpulish Smoke?
+54.		Cast Initiation Aura (Water Element)
+55.		Cast Initiation Aura (Fire Element)
+56.		Cast Initiation Aura (Wind Element)
+57.		Cast Initiation Aura (Earth Element)
+58.		Cast Initiation Aura (Holy Element)
+59.		Cast Initiation Aura (Poison Element)
+60.		Cast target circle
+61.		Old Warp Portal
+62.		Sight Trasher
+63.		Moonlight Sphere
+64.		Something Like Puruple/Yellow Light Bullet
+65.		Something Like Absorb of Power
+66.		Cure
+67.		Provoke
+68.		MVP Banner
+69.		Skid Trap
+70.		Brandish Spear
+71.		Spiral White balls
+72.		Bigger Spiral White balls
+73.		Blue/White Small Aura
+74.		Ice Wall
+75.		Gloria
+76.		Magnificat
+77.		Resurrection
+78.		Status Recovery
+79.		Earth Spike
+80.		Spear Boomerang
+81.		Skill hit
+82.		Turn Undead
+83.		Sanctuary
+84.		Impositio Manus
+85.		Lex Aeterna
+86.		Aspersio
+87.		Lex Divina
+88.		Suffragium
+89.		Storm Gust
+90.		Lord of Vermilion
+91.		B. S. Sacramenti
+92.		Meteor Storm
+93.		Jupitel Thunder (Ball)
+94.		Jupitel Thunder (Hit)
+95.		Quagmire
+96.		Fire Pillar
+97.		Fire Pillar/Land Mine hit
+98.		Adrenaline Rush
+99.		Flasher Trap
 100.	Yellow ball fountain
 101.	Weapon Repair
 102.	Hammerfall
@@ -168,7 +169,7 @@ number	description
 134.	Ice Effect (Used by NPCs)
 135.	Ice Effect (Used by NPCs)
 136.	Slow Poison
-137.	Old Sanctuary Map Unit (unused)
+137.	Old Sanctuary Map Unit
 138.	Fire pillar
 139.	Sandman Trap
 140.	Ressurection Aura
@@ -198,8 +199,8 @@ number	description
 164.	(Nothing)
 165.	Comodo Fireworks Ball
 166.	Energy Coat (Visual Effect)
-167.	(Nothing)
-168.	(Nothing)
+167.	tamingsuccess.str not found error
+168.	tamingfailed.str not found error
 169.	Energy Coat Animation
 170.	Cart Revolution
 171.	Venom Dust Map Unit
@@ -261,7 +262,7 @@ number	description
 227.	Snatch
 228.	(Nothing)
 229.	(Nothing)
-230.	(Nothing)
+230.	Clouds (Map effect)
 231.	Map Light Pillar Animation 1
 232.	Sacrifice (Visual Effect)
 233.	Fog
@@ -334,7 +335,7 @@ number	description
 300.	Chemical Protection
 301.	Fire Works (Sound Effect)
 302.	Bomb
-303.	(Unused)
+303.	Probably an Old Effect of Monk Skill
 304.	Teleportation Animation
 305.	Pharmacy Success
 306.	Pharmacy Failed
@@ -467,8 +468,8 @@ number	description
 433.	Solar, Lunar and Stellar Opposition (Visual Effect)
 434.	Taekwon Kick Hit 4
 435.	Whirlwind Kick
-436.	White Barrier (Unused)
-437.	White barrier 2 (Unused)
+436.	White Barrier
+437.	White barrier 2
 438.	Kaite Reflect Animation
 439.	Flying Side Kick
 440.	Assumptio (Animation)
@@ -548,7 +549,7 @@ number	description
 514.	Really Big Circle
 515.	Einbroch Fog
 516.	Airship Cloud
-517.	(Nothing)
+517.	Small Blue Cloud
 518.	Cart Termination
 519.	Speed Down Potion
 520.	Shield Bumerang
@@ -729,16 +730,16 @@ number	description
 695.	Rotating green light
 696.	The same of 690 and 691 but Blue/Purple
 697.	(Nothing)
-698.	(Nothing)
+698.	Red Clouds (Map effect)
 699.	Fall of powder from the sky and raise of some leaf
 700.	Big Colored Green Sphere.
 701.	Huge Blue Sphere
 702.	Little Colored Violet Sphere
 703.	Light Infiltration with fall of pownder
-704.	Client Error (mobile_ef02.str)
+704.	Flash and Feathers
 705.	Client Error (mobile_ef01.str)
-706.	Client Error (mobile_ef03.str)
-707.	Client Crash :P
+706.	Storm Gust (?)
+707.	Client Crash (mobile_ef04.spr)
 708.	A Perfect Copy of Storm Gust Effect (Effect 89)
 709.	A Firework that split in 4 mini fireworks
 710.	A Sphere like Effect 701 but Green, and a bit more larger
@@ -767,7 +768,7 @@ number	description
 733.	Some sound and effect of Soul Destroyer but White (Probably something related Rune Knight)
 734.	Chain Lightning
 735.	(Nothing)
-736.	(Nothing)
+736.	Wind element sphere
 737.	(Nothing)
 738.	(Nothing)
 739.	Old Magenta Trap
@@ -817,23 +818,135 @@ number	description
 783.	Yellow spinning pipe
 784.	Like 783, just smaller
 785.	A lot of small flying wrench
-786.	
-787.	
-788.	
+786.	Mechanic's Analyze
+787.	Yellow Sphere
+788.	Venom Impress
 789.	Freezing Status Effect
 790.	Burning Status Effect
 791.	Spheres flying from character with ice explosion sound effect
-792.	
-793.	
-794.	
+792.	Hallucination Walk
+793.	Small spheres flying up
+794.	Infrared Scan
 795.	Like Hammer Fall, just with Axe
-796.	
+796.	Blue Triangles / Whirl
 797.	Sienna Execrate
-...
-839.	Client Error ()
-...
+798.	(nothing)
+799.	Stasis
+800.	Red lines
+801.	Frost Diver
+802.	Basilica
+803.	Recognized Spell
+804.	Tetra Vortex
+805.	Tetra Vortex casting
+806.	Fire Ball
+807.	Intimidate
+808.	Recognized Spell (?)
+809.	Shadow Form
+810.	Intimidate
+811.	Body Paint
+812.	Black Body
+813.	Masquerade
+814.	Masquerade
+815.	Masquerade
+816.	Masquerade
+817.	Masquerade
+818.	Masquerade
+819.	(nothing)
+820.	(sound?)
+821.	Waterfall
+822.	Man Hole
+823.	Man Hole (inside)
+824.	Small spheres flying up
+825.	Dimension Door
+826.	Dark casting aura
+827.	Chaos Panic
+828.	Some kind of red aura
+829.	Bloody Lust
+830.	Begin casting
+831.	Begin casting
+832.	Sonic Wave
+833.	(nothing)
+834.	Joblevel up 50
+835.	Hundred Spear
+836.	Cross Impact
+837.	Rolling Cutter cast
+838.	Water field below character
+839.	Client Error (w_comp_00.tga)
+840.	Begin Spell (red)
+841.	Begin Spell (green)
+842.	Begin Spell (yellow)
+843.	Begin Spell (white)
+844.	Begin Spell (violet)
+845.	Begin Spell (light blue)
+846.	Green smoke
+847.	Red lines rising
+848.	Blue lines rising
+849.	(nothing)
+850.	Small blue dots
+851.	Fairy shadows (black)
+852.	Fairy shadows (green)
+853.	Geographer's shadows
+854.	Flying music notes (blue)
+855.	(nothing)
+856.	Reverberation
+857.	Severe Rainstorm
+858.	Flying music notes (red)
+859.	Secrament
+860.	Reverberation
+861.	Circle of Nature's Sound
+862.	Secrament
+863.	Chemical Protection
+864.	Masquerade
+865.	Circle of Nature's Sound
+866.	Dance with Wug
+867.	Dance with Wug
+868.	Song of Mana
+869.	(sound?)
+870.	Saturday Night Fever
+871.	Lerad's Dew
+872.	Lerad's Dew
+873.	Pink Dust
+874.	Another Song?
+875.	Turquoise Dust
+876.	Another Song?
+877.	White Dust
+878.	Another Song?
+879.	Heart
+880.	Begin Spell
+881.	150 Aura
+882.	Red Ball (?)
 883.	Epiclesis
-...
+884.	Gradius Laser
+885.	Dragon Combo
+886.	Power Absorb
+887.	Hitline
+888.	Earth Shaker
+889.	Dragon Combo (?)
+890.	Character spinning
+891.	Fire Ball (sound)
+892.	Triple Attack
+893.	Dark Illusion
+894.	Ground Shake
+895.	Charge effect
+896.	Charge effect
+897.	Charge animation
+898.	Charge animation (infinite)
+899.	Blue lines rising up
+900.	Charge animation (infinite)
+901.	Explosions
+902.	png test (?)
+903.	Cast effect (flames)
+904.	Cross Impact
+905.	(nothing)
+906.	Shield Press
+907.	(sound?)
+908.	Prestige
+909.	Banding
+910.	Inspiration
+911.	Cast animation (green)
+912.	Green (ghost) arms
+913.	Fire Ball (sound)
+914.	(nothing)
 915.	Green ??? attacking the character (11x11 area).
 916.	Orange-red Ifrits spinning around the character (5x5 area).
 917.	Pink-red Ifrits spinning around the character (5x5 area).
@@ -860,11 +973,11 @@ number	description
 938.	Four copies of the character flying away with a red aura.
 939.	Deluge aura.
 940.	Snow Flake above the character.
-941.	(Nothing)
+941.	sort of water "explosion"
 942.	Splash of water.
 943.	Visual effect of Soul Destroyer but green.
 944.	Shower of red rocks with sound of Magic Crasher.
-945.	(Nothing)
+945.	Space (Map effect)
 946.	Fireflies?
 947.	Lightning ball above the character head.
 948.	Two lightning balls, one on either side of the character head.
@@ -878,4 +991,21 @@ number	description
 956.	Burn mark on the character body.
 957.	Three brown balls on face of the character, the one in the middle spinning.
 958.	Two small flames, one on either side of the character.
-959+.	No More Effects From 2010/08/04b RagexeRE.
+959.	Flame inside character
+960.	Eraser Cutter
+961.	Silent Breeze
+962.	Magma Flow
+963.	Character turnas gray
+964.	Lava Slide
+965.	Sonic Claw
+966.	Tinder Breaker
+967.	Midnight Frenzy
+968.	(nothing)
+969.	Music notes flying away.
+970.	Tetra Vortex
+971.	Tetra Vortex
+972.	Tetra Vortex
+973.	Tetra Vortex
+974.	(nothing)
+975.	Emitter (?)
+976+.	No More Effects From 2014/10/22 Ragexe.
