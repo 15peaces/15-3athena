@@ -1671,6 +1671,9 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 
 	z = 0;
 
+	if (sd->status.zeny >= MAX_ZENY && nd->master_nd == NULL)
+		return 1;
+
 	// verify the sell list
 	for( i = 0; i < n; i++ )
 	{
@@ -1731,6 +1734,9 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 
 		pc_delitem(sd, idx, amount, 0, 6);
 	}
+
+	if (z + sd->status.zeny > MAX_ZENY && nd->master_nd == NULL)
+		return 1;
 
 	if( z > MAX_ZENY )
 		z = MAX_ZENY;

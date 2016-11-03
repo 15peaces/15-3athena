@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/03/2016
+	r142 [15peaces]
+		*Merged missing changes from 3ceam rev. 514
+		*Fixed another compile error in gcc.
+		*Added official behavior when selling items to NPCs.
+			-If you reached server's max zeny and sell some items to the trader npc, a message will show 'The Deal has failed.' and the item will not deleted on officials.
+			-Thanks to @herculesWS
+		*Added some more new items to item_db2.txt
+			-Thanks to 3ceam community.
+		*Fixed GN_CART_TORNADO. It deals full damage to Plants and ignore its def.
+		*Fixed GN_CARTBOOST. It doesn't add attack bonus, just add (10*skill lv)% damage while using Cart Cannon and Cart Tornado, not in Cart Remodeling.
+
 10/30/2016
 	r141 [15peaces]
 		*Changed some monsters to fit pre-renewal system.

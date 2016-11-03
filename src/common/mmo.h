@@ -703,7 +703,7 @@ enum {
 
 
 //These mark the ID of the jobs, as expected by the client. [Skotlex]
-enum {
+enum e_job {
 	JOB_NOVICE = 0,
 	JOB_SWORDMAN,
 	JOB_MAGE,

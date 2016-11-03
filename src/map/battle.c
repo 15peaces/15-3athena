@@ -1236,21 +1236,25 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		s_level = battle_config.max_highlvl_nerf;
 
 	//Initial flag
-	flag.rh=1;
-	flag.weapon=1;
-	flag.infdef=((tstatus->mode&MD_PLANT || (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->skill_id==WM_REVERBERATION))?1:0);
+	flag.rh = 1;
+	flag.weapon = 1;
+	flag.infdef =(tstatus->mode&MD_PLANT) ? 1 : 0;
+	if( !flag.infdef && (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION) )
+		flag.infdef = 1; // Reberberation takes 1 damage
+	if( flag.infdef && skill_num == GN_CART_TORNADO )
+		flag.infdef = 0;	// Full damage on plants.
 
 	//Initial Values
-	wd.type=0; //Normal attack
-	wd.div_=skill_num?skill_get_num(skill_num,skill_lv):1;
-	wd.amotion=(skill_num && skill_get_inf(skill_num)&INF_GROUND_SKILL)?0:sstatus->amotion; //Amotion should be 0 for ground skills.
-	if(skill_num == KN_AUTOCOUNTER)
+	wd.type = 0; //Normal attack
+	wd.div_ = skill_num?skill_get_num(skill_num,skill_lv):1;
+	wd.amotion = (skill_num && skill_get_inf(skill_num)&INF_GROUND_SKILL)?0:sstatus->amotion; //Amotion should be 0 for ground skills.
+	if( skill_num == KN_AUTOCOUNTER )
 		wd.amotion >>= 1;
-	wd.dmotion=tstatus->dmotion;
-	wd.blewcount=skill_get_blewcount(skill_num,skill_lv);
+	wd.dmotion = tstatus->dmotion;
+	wd.blewcount = skill_get_blewcount(skill_num,skill_lv);
 	wd.flag = BF_WEAPON; //Initial Flag
 	wd.flag |= (skill_num||wflag)?BF_SKILL:BF_NORMAL; // Baphomet card's splash damage is counted as a skill. [Inkfish]
-	wd.dmg_lv=ATK_DEF;	//This assumption simplifies the assignation later
+	wd.dmg_lv = ATK_DEF;	//This assumption simplifies the assignation later
 	nk = skill_get_nk(skill_num);
 	if( !skill_num && wflag ) //If flag, this is splash damage from Baphomet Card and it always hits.
 		nk |= NK_NO_CARDFIX_ATK|NK_IGNORE_FLEE;
@@ -1600,9 +1604,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		else
 			flag.hit = 1;
 	}	//End hit/miss calculation
-
-	if( target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION )
-		flag.infdef = 1;
 
 	if (flag.hit && !flag.infdef) //No need to do the math for plants
 	{	//Hitting attack
@@ -2286,15 +2287,15 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					}
 					break;
 				case GN_CART_TORNADO:
-					skillratio += 50 * skill_lv;
-					if( sd )
-						skillratio += pc_checkskill(sd, GN_REMODELING_CART) * 50;
+					skillratio += 50 * skill_lv + (sd) ? pc_checkskill(sd, GN_REMODELING_CART) * 50 : 250;
 					skillratio += skillratio * s_level / 100;
+					if( sc && sc->data[SC_GN_CARTBOOST] )
+						skillratio += 10 * sc->data[SC_GN_CARTBOOST]->val1;
 					break;
 				case GN_CARTCANNON:
 					skillratio += 250 + 50 * skill_lv + status_get_int(src) * 2; // Need official value. [LimitLine]
-					if( sd )
-						skillratio += pc_checkskill(sd, GN_REMODELING_CART) * 60; // Need official value. [LimitLine]
+					if( sc && sc->data[SC_GN_CARTBOOST] )
+						skillratio += 10 * sc->data[SC_GN_CARTBOOST]->val1;
 					break;
 				case GN_THORNS_TRAP:
 					skillratio += 10 * skill_lv; // Taken from pakpil's version. Where did he get this from? [LimitLine]
@@ -2583,7 +2584,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			}
 
 			if (skill_num != CR_GRANDCROSS && skill_num != NPC_GRANDDARKNESS)
-		  	{	//Ignore Defense?
+			{	//Ignore Defense?
 				if (!flag.idef && (
 					sd->right_weapon.ignore_def_ele & (1<<tstatus->def_ele) ||
 					sd->right_weapon.ignore_def_race & (1<<tstatus->race) ||
@@ -2602,6 +2603,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							flag.idef2 = 1;
 				}
 			}
+			if( skill_num == GN_CART_TORNADO && (tstatus->mode&MD_PLANT) )
+				flag.idef = 1; // ignore def on plants
 		}
 
 		if (!flag.idef || !flag.idef2)

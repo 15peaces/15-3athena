@@ -538,12 +538,12 @@ void initChangeTables(void)
 	set_sc( WM_UNLIMITED_HUMMING_VOICE	, SC_UNLIMITED_HUMMING_VOICE, SI_UNLIMITED_HUMMING_VOICE, SCB_NONE );
 
 	// Genetic
-	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED|SCB_BATK );
+	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED );
 	set_sc( GN_THORNS_TRAP					, SC_THORNSTRAP					, SI_THORNS_TRAP				, SCB_NONE );
 	set_sc( GN_BLOOD_SUCKER					, SC_BLOOD_SUCKER				, SI_BLOOD_SUCKER				, SCB_NONE );
 	set_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER, SI_FIRE_EXPANSION_SMOKE_POWDER, SCB_NONE );
 	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS	, SCB_NONE );
-	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA                 , SCB_INT );
+	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA					, SCB_INT );
 
 	// Sorcerer
 	set_sc( SO_FIREWALK         , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
@@ -4152,8 +4152,6 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += sc->data[SC_GATLINGFEVER]->val3;
 	if(sc->data[SC_MADNESSCANCEL])
 		batk += 100;
-	if(sc->data[SC_GN_CARTBOOST])
-		batk += sc->data[SC_GN_CARTBOOST]->val1 * 10;
 	if(sc->data[SC__ENERVATION])
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
 	if(sc->data[SC__BLOODYLUST])
