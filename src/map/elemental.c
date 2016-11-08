@@ -120,14 +120,20 @@ static int elemental_summon_end(int tid, unsigned int tick, int id, intptr data)
 	return 0;
 }
 
+void elemental_summon_stop(struct elemental_data *ed) {
+	nullpo_retv(ed);
+	if( ed->summon_timer != INVALID_TIMER )
+		delete_timer(ed->summon_timer, elemental_summon_end);
+	ed->summon_timer = INVALID_TIMER;
+}
+
 int elemental_delete(struct elemental_data *ed, int reply) {
 	struct map_session_data *sd;
 
-	nullpo_retr(0,ed);
+	nullpo_ret(ed);
 	
 	sd = ed->master;
 	ed->elemental.life_time = 0;
-	ed->summon_timer = INVALID_TIMER;
 
 	elemental_clean_effect(ed);
 	elemental_summon_stop(ed);
@@ -139,13 +145,6 @@ int elemental_delete(struct elemental_data *ed, int reply) {
 	sd->status.ele_id = 0;
 
 	return unit_remove_map(&ed->bl, CLR_OUTSIGHT);
-}
-
-void elemental_summon_stop(struct elemental_data *ed) {
-	nullpo_retv(ed);
-	if( ed->summon_timer != INVALID_TIMER )
-		delete_timer(ed->summon_timer, elemental_summon_end);
-	ed->summon_timer = INVALID_TIMER;
 }
 
 void elemental_summon_init(struct elemental_data *ed) {

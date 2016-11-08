@@ -16285,43 +16285,87 @@ void clif_parse_EquipTick(int fd, struct map_session_data* sd)
 /// Questlog System [Kevin] [Inkfish]
 ///
 
-/// Sends list of all quest states.
-/// 02b1 <packet len>.W <num>.L { <quest id>.L <active>.B }*num (ZC_ALL_QUEST_LIST)
-/// 097a <packet len>.W <num>.L { <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W }*num (ZC_ALL_QUEST_LIST2)
-/// 09f8 <packet len>.W <num>.L { <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W }*num (ZC_ALL_QUEST_LIST3)
-void clif_quest_send_list(struct map_session_data * sd)
+/**
+ * Safe check to init packet len & quest num for player.
+ * @param def_len
+ * @param info_len Length of each quest info.
+ * @param avail_quests Avail quests that player has.
+ * @param limit_out Limit for quest num, to make sure the quest num is still in allowed value.
+ * @param len_out Packet length as initial set => def_len + limit_out * info_len.
+ **/
+static void clif_quest_len(int def_len, int info_len, int avail_quests, int *limit_out, int *len_out) {
+	(*limit_out) = (0xFFFF - def_len) / info_len;
+	(*limit_out) = (avail_quests > (*limit_out)) ? (*limit_out) : avail_quests;
+	(*len_out) = ((*limit_out) * info_len) + def_len;
+}
+
+/// Sends list of all quest states (ZC_ALL_QUEST_LIST).
+/// 02b1 <packet len>.W <num>.L { <quest id>.L <active>.B }*num
+/// 097a <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <mob_id>.L <killed>.W <total>.W <mob name>.24B }*count }*num (ZC_ALL_QUEST_LIST2)
+/// 09f8 <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <mob_id>.L <killed>.W <total>.W <mob name>.24B }*count }*num (ZC_ALL_QUEST_LIST3)	// TODO!
+void clif_quest_send_list(struct map_session_data *sd)
 {
 	int fd = sd->fd;
 	int i;
-#if PACKETVER < 20141022
-	short packet_num = 0x2b1;
-	short quest_info = 5;
-#else
-	short packet_num = 0x97a;
-	short quest_info = 15;
-#endif
-	int len = sd->avail_quests*quest_info+8;
+	int offset = 8;
+	int limit = 0;
 
-	WFIFOHEAD(fd,len);
-	WFIFOW(fd, 0) = packet_num;
-	WFIFOW(fd, 2) = len;
-	WFIFOL(fd, 4) = sd->avail_quests;
-
-	for( i = 0; i < sd->avail_quests; i++ )
-	{
-		WFIFOL(fd, i*quest_info+8) = sd->quest_log[i].quest_id;
-		WFIFOB(fd, i*quest_info+12) = sd->quest_log[i].state;
 #if PACKETVER >= 20141022
-		WFIFOL(fd, i*quest_info+13) = sd->quest_log[i].time - quest_db[sd->quest_index[i]].time;
-		WFIFOL(fd, i*quest_info+17) = sd->quest_log[i].time;
-		WFIFOW(fd, i*quest_info+21) = quest_db[sd->quest_index[i]].num_objectives;
-#endif
+	clif_quest_len(offset, 15 + ((10 + NAME_LENGTH) * MAX_QUEST_OBJECTIVES), sd->avail_quests, &limit, &i);
+	WFIFOHEAD(fd,i);
+	WFIFOW(fd, 0) = 0x97a;
+	WFIFOL(fd, 4) = limit;
+
+	for (i = 0; i < limit; i++) {
+		WFIFOL(fd, offset) = sd->quest_log[i].quest_id;
+		offset += 4;
+		WFIFOB(fd, offset) = sd->quest_log[i].state;
+		offset++;
+		WFIFOL(fd, offset) = sd->quest_log[i].time - quest_db[sd->quest_index[i]].time;
+		offset += 4;
+		WFIFOL(fd, offset) = sd->quest_log[i].time;
+		offset += 4;
+		WFIFOW(fd, offset) = quest_db[sd->quest_index[i]].num_objectives;
+		offset += 2;
+		
+		if( quest_db[sd->quest_index[i]].num_objectives > 0 ){
+			int j;
+			struct mob_db *mob;
+
+			for( j = 0; j < quest_db[sd->quest_index[i]].num_objectives; j++ ){
+				mob = mob_db(quest_db[sd->quest_index[i]].mob[j]);
+
+				WFIFOL(fd, offset) = quest_db[sd->quest_index[i]].mob[j];
+				offset += 4;
+				WFIFOW(fd, offset) = sd->quest_log[i].count[j];
+				offset += 2;
+				WFIFOW(fd, offset) = quest_db[sd->quest_index[i]].count[j];
+				offset += 2;
+				safestrncpy((char*)WFIFOP(fd, offset), mob->jname, NAME_LENGTH);
+				offset += NAME_LENGTH;
+			}
+		}
 	}
 
-	WFIFOSET(fd, len);
+	WFIFOW(fd, 2) = offset;
+	WFIFOSET(fd, offset);
+#else
+	clif_quest_len(offset, 5, sd->avail_quests, &limit, &i);
+	WFIFOHEAD(fd,i);
+	WFIFOW(fd, 0) = 0x2b1;
+	WFIFOL(fd, 4) = limit;
+
+	for (i = 0; i < limit; i++) {
+		WFIFOL(fd, offset) = sd->quest_log[i].quest_id;
+		offset += 4;
+		WFIFOB(fd, offset) = sd->quest_log[i].state;
+		offset += 1;
+	}
+	
+	WFIFOW(fd, 2) = offset;
+	WFIFOSET(fd, offset);
+#endif
 }
-
-
 
 /// Sends list of all quest missions (ZC_ALL_QUEST_MISSION).
 /// 02b2 <packet len>.W <num>.L { <quest id>.L <start time>.L <expire time>.L <mobs>.W { <mob id>.L <mob count>.W <mob name>.24B }*3 }*num

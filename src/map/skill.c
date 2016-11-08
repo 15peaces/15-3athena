@@ -3975,6 +3975,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					status_change_end(&sd->bl,SC_READING_SB,-1);
 
 				status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
+
+				clif_skill_nodamage(src,bl,skillid,skilllv,1);
+				if( !skill_check_condition_castbegin(sd,rsb_skillid,rsb_skilllv) )
+					break;
+
 				switch( skill_get_casttype(rsb_skillid) )
 				{
 					case CAST_GROUND:
@@ -11981,7 +11986,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case AB_ADORAMUS:
 		if( skill_check_pc_partner(sd,skill,&lv,1,0) <= 0 && ((i = pc_search_inventory(sd,require.itemid[0])) < 0 || sd->status.inventory[i].amount < require.amount[0]) )
 		{
-			clif_skill_fail(sd,skill,USESKILL_FAIL_SKILLINTERVAL,0,0);
+			clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_ITEM,0,0x2cc);
  			return 0;
  		}
 		break;
@@ -12001,7 +12006,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			ARR_FIND(SC_SPHERE_1,SC_SPHERE_5+1,i,!sc->data[i]);
 			if( i == SC_SPHERE_5+1 )
 			{ // No more free slots
-				clif_skill_fail(sd,skill,USESKILL_FAIL_SUMMON,0,0);
+				clif_skill_fail(sd,skill,USESKILL_FAIL_SPELLBOOK_PRESERVATION_POINT,0,0);
 				return 0;
 			}
 		}
@@ -15957,8 +15962,10 @@ void skill_init_unit_layout (void)
 			else if( i >= HM_SKILLRANGEMIN && i <= HM_SKILLRANGEMAX )
 				skill = HM_SKILLBASE + i - HM_SKILLRANGEMIN;
 			else */
-			if( i >= EL_SKILLRANGEMIN && i <= EL_SKILLRANGEMAX )
-				skill = i - EL_SKILLRANGEMIN + EL_SKILLBASE - 116; //WHY�?
+			if( i >= EL_SKILLRANGEMIN && i <= EL_SKILLRANGEMAX ) {
+				skill -= EL_SKILLRANGEMIN;
+				skill += EL_SKILLBASE;
+			}
 			switch( skill ) {
 				case EL_FIRE_MANTLE:
 				{

@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/08/2016
+	r143 [15peaces]
+		*Merged missing changes from 3ceam rev. 515 - 517
+		*Added missing Zakudam Card drop.
+		*Added Missing Roulette Items.
+		*Disabled Summoner class in exp.txt until it's supported.
+			-This is to avoid error-logs on mapserver.
+		*Updated instructor Ur's quests.
+		*Rewrote clif_quest_send_list function to fix some crashes on 2014 ragexe.
+		*Fixed WL_RELEASE that should check for requirements when before cast any skill like Comet. Updated skill fails packets.
+		*Fixed a couple of issues with elementals timers and unknown unit layout.
+		*Fixed WL_JACKFROST damage formula.
+
 11/03/2016
 	r142 [15peaces]
 		*Merged missing changes from 3ceam rev. 514
