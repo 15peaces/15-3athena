@@ -643,7 +643,7 @@ void clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 void clif_party_inviteack(struct map_session_data* sd, const char* nick, int result);
 void clif_party_option(struct party_data* p, int member_id, send_target type);
 void clif_party_option_failexp(struct map_session_data* sd);
-void clif_party_withdraw(struct party_data* p, struct map_session_data* sd, int account_id, const char* name, int flag);
+void clif_party_withdraw(struct map_session_data *sd, uint32 account_id, const char* name, enum e_party_member_withdraw result, enum send_target target); 
 void clif_party_message(struct party_data* p, int account_id, const char* mes, int len);
 void clif_party_xy(struct map_session_data *sd);
 void clif_party_xy_single(int fd, struct map_session_data *sd);
@@ -888,6 +888,9 @@ int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1
 
 // V5 Item Packets
 void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip);
+
+int clif_set_unit_idle_v10(struct block_list* bl, unsigned char* buffer, bool spawn);
+int clif_set_unit_walking_v10(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
 
 /// Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);

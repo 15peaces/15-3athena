@@ -477,6 +477,12 @@ int skillnotok (int skillid, struct map_session_data *sd)
 				return 1;
 			}
 			break;
+		case GC_DARKILLUSION:
+			if( map_flag_gvg(m)) {
+				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
+				return 1;
+			}
+			break;
 		case WM_LULLABY_DEEPSLEEP:
 		case WM_SIRCLEOFNATURE:
 			if( !map_flag_vs(m) )
@@ -12433,9 +12439,9 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 		return 0;
 	}
 
-	if( require.ammo ) { //Skill requires stuff equipped in the arrow slot.
-		if((i=sd->equip_index[EQI_AMMO]) < 0 ||
-			!sd->inventory_data[i] ||
+	if( require.ammo )
+	{ //Skill requires stuff equipped in the arrow slot.
+		if( (i = sd->equip_index[EQI_AMMO]) < 0 || !sd->inventory_data[i] ||
 			sd->status.inventory[i].amount < require.ammo_qty
 		) {
 			clif_arrow_fail(sd,0);

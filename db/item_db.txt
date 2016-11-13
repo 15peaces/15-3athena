@@ -1561,7 +1561,7 @@
 2566,Half_Asprika,Half Asprika,5,20,,0,,20,,0,0xFFFFFFFF,7,2,4,,47,0,0,{ bonus bMdef,2; },{},{}
 //2567,Academy_Manteau
 2568,Muffler_Of_Roki,Loki's MUffler,5,20,,400,,10,,0,0xFFFFFFFF,7,2,4,,100,0,0,{ bonus bAgi,1; },{},{}
-2569,Shawl_Of_Affection
+//2569,Shawl_Of_Affection
 //2570,Shawl_Of_Judgement
 //2571,Para_Team_Manteau2
 //2572,Katabart_Sholder
@@ -5422,26 +5422,26 @@
 12414,Guarana_Candy,Guarana Candy,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12415,Siege_Teleport_Scroll2,Siege Teleport Scroll2,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12416,LUcky_Egg_C3,LUcky Egg C3,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12417,Boost_500,Boost 500,3,10,,10,,,,,,,,,,,,,{ sc_start SC_Boost500,500000,0; },{},{}
+12417,Boost_500,Boost 500,2,,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_BOOST500,500000,20; },{},{}
 12418,Full_SwingK,Full SwingK,2,100,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12419,Mana_Plus,Mana Plus,2,100,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12420,Stamina_Up_M,Stamina Up M,2,100,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12421,Digestive_F,Digestive F,2,100,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-+12422,HP_Increase_Potion_(Small),HP Increase Potion (Small),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,1; itemheal 840,0; },{},{}
-+12423,HP_Increase_Potion_(Medium),HP Increase Potion (Medium),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,2; itemheal 1040,0; },{},{}
-+12424,HP_Increase_Potion_(Large),HP Increase Potion (Large),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,5; itemheal 1240,0; },{},{}
-+12425,SP_Increase_Potion_(Small),SP Increase Potion (Small),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,2; itemheal 0,200; },{},{}
-+12426,SP_Increase_Potion_(Medium),SP Increase Potion (Medium),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,4; itemheal 0,300; },{},{}
-+12427,SP_Increase_Potion_(Large),SP Increase Potion (Large),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,8; itemheal 0,400; },{},{}
-+12428,Concentrated_White_Potion_Z,Concentrated White Potion Z,0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{  itemheal rand(1500,1600),0; sc_start SC_WhitePotionZ,500000,0; },{},{}
-+12429,Savage_Full_Roast,Savage Full Roast,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SAVAGE_STEAK, 300000, 20; },{},{}
-+12430,Cocktail_Warg_Blood,Cocktail Warg Blood,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_COCKTAIL_WARG_BLOOD, 300000, 20; },{},{}
-+12431,Minor_Stew,Minor Stew,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_MINOR_BBQ, 300000, 20; },{},{}
-+12432,Siroma_Iced_Tea,Siroma Iced Tea,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SIROMA_ICE_TEA, 300000, 20; },{},{}
-+12433,Drosera_Herb_Salad,Drosera Herb Salad,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_DROCERA_HERB_STEAMED, 300000, 20; },{},{}
-+12434,Petite_Tail_Noodles,Petite Tail Noodles,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_PUTTI_TAILS_NOODLES, 300000, 20; },{},{}
-+12435,Black_Mass,Black Mass,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_STOMACHACHE, 300000, rand(5,10); },{},{}
-+12436,Vitata_500,Vitata 500,0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12422,HP_Increase_Potion_(Small),HP Increase Potion (Small),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,1; itemheal 840,0; },{},{}
+12423,HP_Increase_Potion_(Medium),HP Increase Potion (Medium),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,2; itemheal 1040,0; },{},{}
+12424,HP_Increase_Potion_(Large),HP Increase Potion (Large),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMHPRATE,500000,5; itemheal 1240,0; },{},{}
+12425,SP_Increase_Potion_(Small),SP Increase Potion (Small),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,2; itemheal 0,200; },{},{}
+12426,SP_Increase_Potion_(Medium),SP Increase Potion (Medium),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,4; itemheal 0,300; },{},{}
+12427,SP_Increase_Potion_(Large),SP Increase Potion (Large),0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCMSPRATE,500000,8; itemheal 0,400; },{},{}
+12428,Concentrated_White_Potion_Z,Concentrated White Potion Z,0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{  itemheal rand(1500,1600),0; sc_start SC_WhitePotionZ,500000,0; },{},{}
+12429,Savage_Full_Roast,Savage Full Roast,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SAVAGE_STEAK, 300000, 20; },{},{}
+12430,Cocktail_Warg_Blood,Cocktail Warg Blood,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_COCKTAIL_WARG_BLOOD, 300000, 20; },{},{}
+12431,Minor_Stew,Minor Stew,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_MINOR_BBQ, 300000, 20; },{},{}
+12432,Siroma_Iced_Tea,Siroma Iced Tea,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_SIROMA_ICE_TEA, 300000, 20; },{},{}
+12433,Drosera_Herb_Salad,Drosera Herb Salad,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_DROCERA_HERB_STEAMED, 300000, 20; },{},{}
+12434,Petite_Tail_Noodles,Petite Tail Noodles,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_PUTTI_TAILS_NOODLES, 300000, 20; },{},{}
+12435,Black_Mass,Black Mass,2,,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_STOMACHACHE, 60000,  rand(5,10); },{},{}
+12436,Vitata_500,Vitata 500,0,10,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12437,Concentrated_Ceromain_Soup,Concentrated Ceromain Soup,2,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_EXTRACT_SALAMINE_JUICE,500000,10; },{},{}
 12438,F_Giant_Fly_Wing,F Giant Fly Wing,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12439,F_Battle_Manual,F Battle Manual,2,2,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
@@ -7241,7 +7241,16 @@
 
 19878,C_Evolved_Drooping_Bunny,Costume Evolved Drooping Bunny,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,249,{},{},{}
 
-19883,C_Cyclops_Glasses,Costume Cyclops Glasses,5,0,,0,,,,,0xFFFFFFFF,63,2,2048,,1,,1087,{},{},{}
+19883,C_Piamette_Hood,Costume Piamette Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,,1087,{},{},{}
+19884,C_Vanargand_Helm,Costume Vanargand Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,804,{},{},{}
+19885,C_Blinker,Costume Blinker,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,82,{},{},{}
+19886,C_Purple_Glasses,Costume Purple Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,26,{},{},{}
+19887,C_Cyclops_Glasses,Costume Cyclops Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,23,{},{},{}
+19888,C_Glasses,Costume Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,3,{},{},{}
+19889,C_Small_Ribbons,Costume Small Ribbons,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,169,{},{},{}
+19890,C_Mage_Hat,Costume Mage Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,112,{},{},{}
+19891,C_Magnolia_Hat,Costume Magnolia Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,373,{},{},{}
+19892,C_Night_Sparrow_Hat,Costume Night Sparrow Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,913,{},{},{}
 
 19935,C_Hunting_Cap_Of_Gust,Costume Hunting Cap Of Gust,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,1076,{},{},{}
 19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,,{},{},{}

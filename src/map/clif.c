@@ -964,10 +964,8 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 		WBUFW(buf,0) = spawn?0x7f8:0x7f9;
 #elif PACKETVER < 20120221
 		WBUFW(buf,0) = spawn ? 0x858 : 0x857;
-#elif PACKETVER < 20131223
+#else // V9 packets, <= 20141022 (?)
 		WBUFW(buf,0) = spawn ? 0x90f : 0x915;
-#else
-		WBUFW(buf,0) = spawn ? 0x9dc : 0x9dd;
 #endif
 
 #if PACKETVER >= 20091103
@@ -992,11 +990,6 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 	}
 #endif
 	WBUFL(buf, 2) = bl->id;
-#if PACKETVER >= 20131223
-	WBUFL(buf,6) = (sd) ? sd->status.char_id : 0; // GID/CCODE
-	offset+=4;
-	buf = WBUFP(buffer,offset);
-#endif
 	WBUFW(buf, 6) = status_get_speed(bl);
 	WBUFW(buf, 8) = (sc)? sc->opt1 : 0;
 	WBUFW(buf,10) = (sc)? sc->opt2 : 0;
@@ -7337,36 +7330,23 @@ void clif_party_option_failexp(struct map_session_data* sd)
 
 
 /// 0105 <account id>.L <char name>.24B <result>.B (ZC_DELETE_MEMBER_FROM_GROUP).
-/// result:
-///     0 = leave
-///     1 = expel
-///     2 = cannot leave party on this map
-///     3 = cannot expel from party on this map
-void clif_party_withdraw(struct party_data* p, struct map_session_data* sd, int account_id, const char* name, int flag)
-{
-	unsigned char buf[64];
-	int i;
+///		sd Send the notification for this player
+///		account_id Account ID of kicked member
+///		name Name of kicked member
+///		result Party leave result @see PARTY_MEMBER_WITHDRAW
+///		target Send target
+void clif_party_withdraw(struct map_session_data *sd, uint32 account_id, const char* name, enum e_party_member_withdraw result, enum send_target target) {
+	unsigned char buf[2+4+NAME_LENGTH+1];
 
-	nullpo_retv(p);
+	if (!sd)
+		return;
 
-	if(!sd && (flag&0xf0)==0)
-	{
-		for(i=0;i<MAX_PARTY && !p->data[i].sd;i++);
-			if (i < MAX_PARTY)
-				sd = p->data[i].sd;
-	}
+	WBUFW(buf,0) = 0x0105;
+	WBUFL(buf,2) = account_id;
+	memcpy(WBUFP(buf,6), name, NAME_LENGTH);
+	WBUFB(buf,6+NAME_LENGTH) = result;
 
-	if(!sd) return;
-
-	WBUFW(buf,0)=0x105;
-	WBUFL(buf,2)=account_id;
-	memcpy(WBUFP(buf,6),name,NAME_LENGTH);
-	WBUFB(buf,30)=flag&0x0f;
-
-	if((flag&0xf0)==0)
-		clif_send(buf,packet_len(0x105),&sd->bl,PARTY);
-	 else
-		clif_send(buf,packet_len(0x105),&sd->bl,SELF);
+	clif_send(buf, 2+4+NAME_LENGTH+1, &sd->bl, target);
 }
 
 

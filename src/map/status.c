@@ -4907,7 +4907,7 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 		aspd_rate -= aspd_rate * sc->data[SC_GENTLETOUCH_REVITALIZE]->val2 / 100;
 	if( sc->data[SC_BOOST500] )
-		aspd_rate -= aspd_rate * sc->data[SC_BOOST500]->val2 / 100;
+		aspd_rate -= aspd_rate * sc->data[SC_BOOST500]->val1 / 100;
 	if( sc->data[SC_MELON_BOMB] )
 		aspd_rate += aspd_rate * sc->data[SC_MELON_BOMB]->val1 / 100;
 	if( sc->data[SC_EXTRACT_SALAMINE_JUICE] )
@@ -7915,12 +7915,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_POWER_OF_GAIA:
 			val2 = 33;
 			break;
-		case SC_BOOST500:
-			val2 = 20;
-			break;
 		case SC_MELON_BOMB:
 		case SC_BANANA_BOMB:
 			val1 = 15;
+			break;
+		case SC_STOMACHACHE:
+			val2 = 8;	// SP consume.
+			val4 = tick / 10000;
+			tick = 10000;
 			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
@@ -9774,6 +9776,20 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			if( !sc->data[type] ) return 0;
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
+		}
+		break;
+
+	case SC_STOMACHACHE:
+		if( --(sce->val4) > 0 ) {
+			status_charge(bl,0,sce->val2);	// Reduce 8 every 10 seconds.
+			if( sd && !pc_issit(sd) )	// Force to sit every 10 seconds.
+			{
+				pc_stop_walking(sd,1|4);
+				pc_stop_attack(sd);
+				pc_setsit(sd);
+				clif_sitting(bl);
+			}
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 		}
 		break;
 

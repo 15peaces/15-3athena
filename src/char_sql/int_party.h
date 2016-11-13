@@ -24,7 +24,7 @@ struct mmo_charstatus;
 int inter_party_parse_frommap(int fd);
 int inter_party_sql_init(void);
 void inter_party_sql_final(void);
-int inter_party_leave(int party_id,int account_id, int char_id);
+int inter_party_leave(int party_id,uint32 account_id, uint32 char_id, char *name);
 int inter_party_CharOnline(int char_id, int party_id);
 int inter_party_CharOffline(int char_id, int party_id);
 bool inter_party_update(struct mmo_charstatus* cd);

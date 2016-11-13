@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/13/2016
+	r144 [15peaces]
+		*Merged missing changes from 3ceam rev. 518 - 519
+		*Some Updates to item_db.
+			-Moved some items to item_db.txt, they're stable and ready for public use. ^^
+			-Added some more new items for testing.
+			-Fixed some typos and other bugs in item_db.txt.
+		*Fixed an issue in clif_set_unit_idle that was causing problems with displaying npcs and monsters.
+			-The 2014-10-22 ragexe still uses the same packets as 2013-12-23 ragexe. I thought it would allready use v10 packets...
+		*Cleanup party withdraw (Thanks to @rathena)
+			-Added enum for withdraw result in mmo.h.
+			-Added name of kicked player and changed `sd` init from `account_id` to `char_id`.
+			-Fixed party list window isn't updated when member kicked.
+		*Updated Black Mass that drains SP and force to sit every 10 seconds. Its duration is 60 seconds.
+		*Fixed GC_DARKILLUSION that can be used in WoE maps.
+
 11/08/2016
 	r143 [15peaces]
 		*Merged missing changes from 3ceam rev. 515 - 517

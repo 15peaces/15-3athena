@@ -107,7 +107,7 @@ static TBL_PC* party_sd_check(int party_id, int account_id, int char_id)
 		sd->status.party_id = party_id;// auto-join if not in a party
 	if (sd->status.party_id != party_id)
 	{	//If player belongs to a different party, kick him out.
-		intif_party_leave(party_id,account_id,char_id);
+		intif_party_leave(party_id,account_id,char_id,sd->status.name,PARTY_MEMBER_WITHDRAW_LEAVE);
 		return NULL;
 	}
 
@@ -192,7 +192,7 @@ void party_created(int account_id, int char_id, int fail, int party_id, const ch
 	if (!sd || sd->status.char_id != char_id || !sd->party_creating )
 	{	//Character logged off before creation ack?
 		if (!fail) //break up party since player could not be added to it.
-			intif_party_leave(party_id,account_id,char_id);
+			intif_party_leave(party_id,account_id,char_id,"",PARTY_MEMBER_WITHDRAW_LEAVE);
 		return;
 	}
 
@@ -314,7 +314,7 @@ int party_recv_info(struct party* sp, int char_id)
 		sd = p->data[member_id].sd;
 		if( sd == NULL )
 			continue;// not online
-		party_member_withdraw(sp->party_id, sd->status.account_id, sd->status.char_id);
+		party_member_withdraw(sp->party_id, sd->status.account_id, sd->status.char_id, sd->status.name, PARTY_MEMBER_WITHDRAW_LEAVE); 
 	}
 	memcpy(&p->party, sp, sizeof(struct party));
 	memset(&p->state, 0, sizeof(p->state));
@@ -482,7 +482,7 @@ int party_member_added(int party_id,int account_id,int char_id, int flag)
 
 	if(sd == NULL || sd->status.char_id != char_id || !sd->party_joining ) {
 		if (!flag) //Char logged off before being accepted into party.
-			intif_party_leave(party_id,account_id,char_id);
+			intif_party_leave(party_id,account_id,char_id,"",PARTY_MEMBER_WITHDRAW_LEAVE);
 		return 0;
 	}
 
@@ -494,7 +494,7 @@ int party_member_added(int party_id,int account_id,int char_id, int flag)
 
 	if (!p) {
 		ShowError("party_member_added: party %d not found.\n",party_id);
-		intif_party_leave(party_id,account_id,char_id);
+		intif_party_leave(party_id,account_id,char_id,"",PARTY_MEMBER_WITHDRAW_LEAVE);
 		return 0;
 	}
 
@@ -551,7 +551,7 @@ int party_removemember(struct map_session_data* sd, int account_id, char* name)
 	if( i == MAX_PARTY )
 		return 0; // no such char in party
 
-	intif_party_leave(p->party.party_id,account_id,p->party.member[i].char_id);
+	intif_party_leave(p->party.party_id,account_id,p->party.member[i].char_id,p->party.member[i].name,PARTY_MEMBER_WITHDRAW_EXPEL); 
 	return 1;
 }
 
@@ -569,23 +569,21 @@ int party_leave(struct map_session_data *sd)
 	if( i == MAX_PARTY )
 		return 0;
 
-	intif_party_leave(p->party.party_id,sd->status.account_id,sd->status.char_id);
+	intif_party_leave(p->party.party_id,sd->status.account_id,sd->status.char_id,sd->status.name,PARTY_MEMBER_WITHDRAW_LEAVE); 
 	return 1;
 }
 
 /// Invoked (from char-server) when a party member leaves the party.
-int party_member_withdraw(int party_id, int account_id, int char_id)
-{
-	struct map_session_data* sd = map_id2sd(account_id);
+int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char *name, enum e_party_member_withdraw type) {
+	struct map_session_data* sd = map_charid2sd(char_id);
 	struct party_data* p = party_search(party_id);
-	int i;
 
-	if( p )
-	{
+	if( p ) {
+		int i;
+		clif_party_withdraw(party_getavailablesd(p), account_id, name, type, PARTY);
 		ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == account_id && p->party.member[i].char_id == char_id );
 		if( i < MAX_PARTY )
 		{
-			clif_party_withdraw(p,sd,account_id,p->party.member[i].name,0x00);
 			memset(&p->party.member[i], 0, sizeof(p->party.member[0]));
 			memset(&p->data[i], 0, sizeof(p->data[0]));
 			p->party.count--;
@@ -593,7 +591,7 @@ int party_member_withdraw(int party_id, int account_id, int char_id)
 		}
 	}
 
-	if( sd && sd->status.party_id == party_id && sd->status.char_id == char_id ) {
+	if( sd && sd->status.party_id == party_id ) {
 #ifdef BOUND_ITEMS 
 		int idxlist[MAX_INVENTORY]; //or malloc to reduce consumtion 
 		int j,i; 
@@ -631,7 +629,7 @@ int party_broken(int party_id)
 	{
 		if( p->data[i].sd!=NULL )
 		{
-			clif_party_withdraw(p,p->data[i].sd,p->party.member[i].account_id,p->party.member[i].name,0x10);
+			clif_party_withdraw(p->data[i].sd,p->party.member[i].account_id,p->party.member[i].name,PARTY_MEMBER_WITHDRAW_EXPEL,SELF); 
 			p->data[i].sd->status.party_id=0;
 		}
 	}

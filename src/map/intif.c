@@ -37,7 +37,7 @@
 static const int packet_len_table[]={
 	-1,-1,27,-1, -1, 0,37, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
 	 0, 0, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
-	39,-1,15,15, 14,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
+	39,-1,15,15,15+NAME_LENGTH,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0, -1,74,-1,11, 11,-1,  0, 0, //0x3840
 	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
@@ -424,17 +424,18 @@ int intif_party_changeoption(int party_id,int account_id,int exp,int item)
 	WFIFOSET(inter_fd,14);
 	return 0;
 }
-// パーティ脱退要求
-int intif_party_leave(int party_id,int account_id, int char_id)
-{
+// Ask the char-serv to make aid,cid quit party
+int intif_party_leave(int party_id, uint32 account_id, uint32 char_id, char *name, enum e_party_member_withdraw type) {
 	if (CheckForCharServer())
 		return 0;
-	WFIFOHEAD(inter_fd,14);
-	WFIFOW(inter_fd,0)=0x3024;
-	WFIFOL(inter_fd,2)=party_id;
-	WFIFOL(inter_fd,6)=account_id;
-	WFIFOL(inter_fd,10)=char_id;
-	WFIFOSET(inter_fd,14);
+	WFIFOHEAD(inter_fd,15+NAME_LENGTH);
+	WFIFOW(inter_fd,0) = 0x3024;
+	WFIFOL(inter_fd,2) = party_id;
+	WFIFOL(inter_fd,6) = account_id;
+	WFIFOL(inter_fd,10) = char_id;
+	memcpy((char *)WFIFOP(inter_fd,14), name, NAME_LENGTH);
+	WFIFOB(inter_fd,14+NAME_LENGTH) = type;
+	WFIFOSET(inter_fd,15+NAME_LENGTH);
 	return 0;
 }
 // パーティ移動要求
@@ -1044,12 +1045,11 @@ int intif_parse_PartyOptionChanged(int fd)
 	party_optionchanged(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOW(fd,10),RFIFOW(fd,12),RFIFOB(fd,14));
 	return 0;
 }
-// パーティ脱退通知
-int intif_parse_PartyMemberWithdraw(int fd)
-{
+// ACK member leaving party
+int intif_parse_PartyMemberWithdraw(int fd) {
 	if(battle_config.etc_log)
-		ShowInfo("intif: party member withdraw: Party(%d), Account(%d), Char(%d)\n",RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10));
-	party_member_withdraw(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10));
+		ShowInfo("intif: party member withdraw: Type(%d) Party(%d), Account(%d), Char(%d), Name(%s)\n",RFIFOB(fd,14+NAME_LENGTH),RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),(char*)RFIFOP(fd,14)); 
+	party_member_withdraw(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),(char*)RFIFOP(fd,14),(enum e_party_member_withdraw)RFIFOB(fd,14+NAME_LENGTH)); 
 	return 0;
 }
 // パーティ解散通知
