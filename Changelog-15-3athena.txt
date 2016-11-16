@@ -4,6 +4,18 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+11/16/2016
+	r145 [15peaces]
+		*Merged missing changes from 3ceam rev. 520 - 522
+		*Random clean up.
+		*Updated map-index and mapcache based on kRO 2016-10-31 data.
+		*Added some stuff related to Izlude Novice Academy.
+			-In future you'll be able to decide, which "Novice Ground" to be used on your server.
+			-It's not ready use, only the maps and some random stuff is done yet!
+		*Fixed LG_BANDING.
+			-Added missing status icon to SC_BANDING_DEFENSE.
+		*Fixed GN_SLINGITEM that should fail when it's used on non-enemy targets with bombs. In this case it fails, shows the animation and removes an item.
+
 11/13/2016
 	r144 [15peaces]
 		*Merged missing changes from 3ceam rev. 518 - 519

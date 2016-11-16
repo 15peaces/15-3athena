@@ -897,6 +897,17 @@ izlude_a
 izlude_b
 izlude_c
 izlude_d
+iz_int
+iz_ng01
+iz_int01
+iz_int02
+iz_int03
+iz_int04
+int_land
+int_land01
+int_land02
+int_land03
+int_land04
 te_prt_gld
 te_alde_gld
 teg_dun01

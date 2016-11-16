@@ -1,16 +1,17 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Izlude Warp Script
 //===== By: ==================================================
 //= Athena (1.0), Nana (1.1)
 //===== Current Version: =====================================
-//= 1.4
+//= 1.5
 //===== Compatible With: =====================================
-//= Any Athena Version
+//= 15-3athena Project
 //===== Description: =========================================
 //= Warp Points for Izlude
 //===== Additional Comments: =================================
 //= 1.3 Added warps to Izlude Airship [Justin84]
 //= 1.4 Minor correction on airport warps
+//= 1.5 Added Renewal Intro warps [15peaces]
 //============================================================
 
 //= Izlude City ==============================================
@@ -32,3 +33,76 @@ izlude_in,74,158,0	warp	iz04-1	3,2,izlude,52,167
 izlude_in,87,169,0	warp	iz05-1	2,3,izlude_in,111,169
 //izlude,149,39,0	warp	izair1	1,1,izlude,180,56
 //izlude,176,56,0	warp	lizair2	1,1,izlude,145,39
+
+//= iz_int(Intro) & int_land(Secluded Island) ================
+iz_int,27,30,0	script	noviship#room1-1	45,2,2,{
+	end;
+
+OnTouch:
+	warp(strnpcinfo(4), 51, 30);
+	end;
+
+//OnInit:
+	//questinfo(21001, QTYPE_QUEST, 1, Job_Novice);
+}
+
+iz_int,47,30,3	script	noviship#room1-2	45,2,2,{
+	end;
+
+OnTouch:
+	set @display, 0;
+	warp(strnpcinfo(4), 22, 30);
+	end;
+}
+
+iz_int,56,15,0	script	noviship	45,2,2,{
+	end;
+
+OnTouch:
+	savepoint("int_land"+strnpcinfo(2), 77, 101);
+	warp("int_land"+strnpcinfo(2), 85, 107);
+}
+
+int_land,49,57,0	script	noviship#izlude	45,2,2,{
+	end;
+
+OnTouch:
+	mes "^4d4dffOnce you left this island there is no way back.";
+	mes "Are you sure you want to go directly to Izlude?^000000";
+	next;
+	mes "^4d4dffIf you do, the quest got deleted from your Quest Log.^000000";
+	next;
+	if (select("Do not go to Izlude yet", "Sail to Izlude!") == 1) {
+		mes "[Sailor]";
+		mes "You want to stay here longer?";
+		mes "Good, then I wait until you're ready~";
+		close();
+	}
+	mes "[Sailor]";
+	mes "Lets head toward Izlude!";
+	close2;
+	if (checkquest(21001))
+		erasequest 21001;
+	if (checkquest(21002))
+		erasequest 21002;
+	warp("izlude"+strnpcinfo(2), 196, 209);
+	end;
+}
+
+//= iz_int(Intro) & int_land(Secluded Island) Duplicates =====
+iz_int01,27,30,0	duplicate(noviship#room1-1)	noviship#room1-1a	45,2,2
+iz_int02,27,30,0	duplicate(noviship#room1-1)	noviship#room1-1b	45,2,2
+iz_int03,27,30,0	duplicate(noviship#room1-1)	noviship#room1-1c	45,2,2
+iz_int04,27,30,0	duplicate(noviship#room1-1)	noviship#room1-1d	45,2,2
+iz_int01,47,30,0	duplicate(noviship#room1-2)	noviship#room1-2a	45,2,2
+iz_int02,47,30,0	duplicate(noviship#room1-2)	noviship#room1-2b	45,2,2
+iz_int03,47,30,0	duplicate(noviship#room1-2)	noviship#room1-2c	45,2,2
+iz_int04,47,30,0	duplicate(noviship#room1-2)	noviship#room1-2d	45,2,2
+iz_int01,56,15,0	duplicate(noviship)	noviship#01	45,2,2
+iz_int02,56,15,0	duplicate(noviship)	noviship#02	45,2,2
+iz_int03,56,15,0	duplicate(noviship)	noviship#03	45,2,2
+iz_int04,56,15,0	duplicate(noviship)	noviship#04	45,2,2
+int_land01,49,57,0	duplicate(noviship#izlude)	noviship#_a	45,2,2
+int_land02,49,57,0	duplicate(noviship#izlude)	noviship#_b	45,2,2
+int_land03,49,57,0	duplicate(noviship#izlude)	noviship#_c	45,2,2
+int_land04,49,57,0	duplicate(noviship#izlude)	noviship#_d	45,2,2

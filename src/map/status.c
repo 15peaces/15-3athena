@@ -729,6 +729,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
+	StatusIconChangeTable[SC_BANDING_DEFENCE] = SI_BANDING_DEFENCE;
 
 	// Elemental Spirit's 'side' status change icons.
 	StatusIconChangeTable[SC_PYROTECHNIC] = SI_PYROTECHNIC;
@@ -2183,7 +2184,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		clif_status_load(&sd->bl, SI_INTRAVISION, 0);
 
 	memset(&sd->special_state,0,sizeof(sd->special_state));
-	memset(&status->max_hp, 0, sizeof(struct status_data)-(sizeof(status->hp)+sizeof(status->sp)));
+	memset(&status->max_hp, 0, sizeof(struct status_data) - (sizeof(status->hp) + sizeof(status->sp)));
 
 	//FIXME: Most of these stuff should be calculated once, but how do I fix the memset above to do that? [Skotlex]
 	status->speed = DEFAULT_WALK_SPEED;
@@ -6619,6 +6620,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_LERADS_DEW:
 				if( sc && sc->data[SC_BERSERK] )
 					return 0;
+				break;
 			default:
 				if(sce->val1 > val1)
 					return 1; //Return true to not mess up skill animations. [Skotlex]

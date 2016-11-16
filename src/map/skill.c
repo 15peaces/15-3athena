@@ -8319,10 +8319,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				break;
 			sd->itemid = ammo_id;
 			if( itemdb_is_GNbomb(ammo_id) ) { 
-				if( ammo_id == 13263 )
-					map_foreachincell(skill_area_sub,bl->m,bl->x,bl->y,BL_CHAR,src,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-				else
-					skill_attack(BF_WEAPON,src,src,bl,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag);
+				if( battle_check_target(src,bl,BCT_ENEMY) >= 0 )
+				{	// Only attack if the target is an enemy.
+					if( ammo_id == 13263 )
+						map_foreachincell(skill_area_sub,bl->m,bl->x,bl->y,BL_CHAR,src,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+					else
+						skill_attack(BF_WEAPON,src,src,bl,GN_SLINGITEM_RANGEMELEEATK,skilllv,tick,flag);
+				} else //Otherwise, it fails, shows animation and removes items.
+					clif_skill_fail(sd,GN_SLINGITEM_RANGEMELEEATK,0xa,0,0);
 			} else {
 				struct script_code *script = sd->inventory_data[i]->script;
 				if( !script )
@@ -9174,11 +9178,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 
 	case LG_BANDING:
-		clif_skill_nodamage(src,src,skillid,skilllv,1);
 		if( sc && sc->data[SC_BANDING] )
 			status_change_end(src,SC_BANDING,INVALID_TIMER);
 		else if( (sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0)) != NULL )
 			sc_start4(src,SC_BANDING,100,skilllv,0,0,sg->group_id,skill_get_time(skillid,skilllv));
+		clif_skill_nodamage(src,src,skillid,skilllv,1);
 		break;
 
 	case WM_DOMINION_IMPULSE:
@@ -11080,7 +11084,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 
 		case UNT_BANDING:
 			if( battle_check_target(ss,bl,BCT_ENEMY) > 0 && !(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE]) )
-				sc_start(bl,SC_BANDING_DEFENCE,100,50,2000 * sg->skill_lv);
+				sc_start(bl,SC_BANDING_DEFENCE,100,90,skill_get_time(sg->skill_id,sg->skill_lv));
 			break;
 
 		case UNT_FIRE_MANTLE:

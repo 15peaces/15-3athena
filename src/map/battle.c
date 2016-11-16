@@ -950,27 +950,26 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		damage += (skill*(int)(3+(sd->status.base_level+1)*0.05));	// submitted by orn
 		//damage += (skill * 3);
 
-	if((skill = pc_checkskill(sd,HT_BEASTBANE)) > 0 && (status->race==RC_BRUTE || status->race==RC_INSECT) ) {
+	if((skill = pc_checkskill(sd,HT_BEASTBANE)) > 0 && (status->race==RC_BRUTE || status->race==RC_INSECT)) {
 		damage += (skill * 4);
 		if (sd->sc.data[SC_SPIRIT] && sd->sc.data[SC_SPIRIT]->val2 == SL_HUNTER)
 			damage += sd->status.str;
 	}
 
-	if( (skill = pc_checkskill(sd, RA_RANGERMAIN)) > 0 && (status->race == RC_BRUTE || status->race == RC_PLANT || status->race == RC_FISH) )
+	if((skill = pc_checkskill(sd, RA_RANGERMAIN)) > 0 && (status->race == RC_BRUTE || status->race == RC_PLANT || status->race == RC_FISH))
 		damage += skill * 5;
 
-	if((skill = pc_checkskill(sd,NC_RESEARCHFE)) > 0 && (status->def_ele == ELE_FIRE || status->def_ele == ELE_EARTH) )
+	if((skill = pc_checkskill(sd,NC_RESEARCHFE)) > 0 && (status->def_ele == ELE_FIRE || status->def_ele == ELE_EARTH))
 		damage += (skill * 10);
 
-	if( pc_ismadogear(sd) )
+	if(pc_ismadogear(sd))
 		damage += 20 + 20 * pc_checkskill(sd, NC_MADOLICENCE);
 
 	if(type == 0)
 		weapon = sd->weapontype1;
 	else
 		weapon = sd->weapontype2;
-	switch(weapon)
-	{
+	switch(weapon) {
 		case W_DAGGER:
 		case W_1HSWORD:
 			if((skill = pc_checkskill(sd,SM_SWORD)) > 0)
@@ -1729,8 +1728,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				}
 
 				//Add any bonuses that modify the base baseatk+watk (pre-skills)
-				if(sd)
-				{
+				if(sd) {
 					if (sd->atk_rate)
 						ATK_ADDRATE(sd->atk_rate);
 
@@ -1739,12 +1737,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 					// In the renewal system, skills have 40% more damage in critical hits. Uncomment it if you want add it.
 					/*
-					if(skill_num == LG_PINPOINTATTACK )
+					if(skill_num == LG_PINPOINTATTACK)
 						ATK_ADDRATE(40);
 					*/
 
-					if(sd->status.party_id && (skill=pc_checkskill(sd,TK_POWER)) > 0){
-						if( (i = party_foreachsamemap(party_sub_count, sd, 0)) > 1 ) // exclude the player himself [Inkfish]
+					if(sd->status.party_id && (skill=pc_checkskill(sd,TK_POWER)) > 0) {
+						if((i = party_foreachsamemap(party_sub_count, sd, 0)) > 1) // exclude the player himself [Inkfish]
 							ATK_ADDRATE(2*skill*i);
 					}
 				}
@@ -1753,8 +1751,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		} //End switch(skill_num)
 
 		//Skill damage modifiers that stack linearly
-		if(sc && skill_num != PA_SACRIFICE)
-		{
+		if(sc && skill_num != PA_SACRIFICE) {
 			if(sc->data[SC_OVERTHRUST])
 				skillratio += sc->data[SC_OVERTHRUST]->val3;
 			if(sc->data[SC_MAXOVERTHRUST])

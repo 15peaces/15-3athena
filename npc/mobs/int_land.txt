@@ -1,0 +1,39 @@
+//===== 15-3athena Script ====================================
+//= Beginner Area (int_land) monster spawn
+//===== By: ==================================================
+//= 15peaces
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
+//= 1.0 Added spawns based on kRO infos. Also added quest-drops. [15peaces]
+//============================================================
+int_land,1,1,0	script	_int_land_mon	-1,{
+OnInit:
+	enablenpc "_int_land_mon";
+	donpcevent "_int_land_mon::OnEnable";
+	end;
+
+OnEnable:
+	monster "int_land",0,0,"Poring",1002,25,"_int_land_mon::OnMyMobDead";
+	initnpctimer;
+	end;
+
+OnDisable:
+	stopnpctimer;
+	killmonster "int_land","_int_land_mon::OnMyMobDead";
+	disablenpc "_int_land_mon";
+	end;
+
+OnTimer600000:
+	killmonster "int_land","_int_land_mon::OnMyMobDead";
+	stopnpctimer;
+	donpcevent "_int_land_mon::OnEnable";
+	end;
+
+OnMyMobDead:
+	if (checkquest(21002) == 1)
+		getitem 6008,1; //Lumber
+	end;
+}

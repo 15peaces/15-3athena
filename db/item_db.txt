@@ -3417,7 +3417,7 @@
 6005,New_Year_Rice_Cake,New Year Rice Cake,3,0,,10,,,,,,,,,,,,,{},{},{}
 6006,Rice_Cake_Delivery_Box,Rice Cake Delivery Box,3,0,,10,,,,,,,,,,,,,{},{},{}
 6007,New_Year_Rice_Cake_Soup,New Year Rice Cake Soup,3,0,,10,,,,,,,,,,,,,{},{},{}
-6008,Wood,Wood,3,0,,10,,,,,,,,,,,,,{},{},{}
+6008,Lumber,Lumber,3,0,,10,,,,,,,,,,,,,{},{},{}
 6009,Large_Magical_Fan,Big Fan Of Magic,3,0,,0,,,,,,,,,,,,,{},{},{}
 6010,Pickaxe,Hoe,3,0,,10,,,,,,,,,,,,,{},{},{}
 6011,Blue_Card_B,Blue B Card,3,0,,10,,,,,,,,,,,,,{},{},{}
