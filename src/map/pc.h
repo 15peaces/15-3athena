@@ -474,6 +474,10 @@ struct map_session_data {
 	struct quest quest_log[MAX_QUEST_DB];
 	bool save_quest;
 
+	// Questinfo Cache
+	bool *qi_display;
+	unsigned short qi_count;
+
 	// temporary debug [flaviojs]
 	const char* debug_file;
 	int debug_line;
@@ -943,6 +947,9 @@ int pc_bonus_script_timer(int tid, unsigned int tick, int id, intptr_t data);
 void pc_bonus_script(struct map_session_data *sd);
 struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum si_type icon, uint16 flag, uint8 type);
 void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);
+
+void pc_show_questinfo(struct map_session_data *sd);
+void pc_show_questinfo_reinit(struct map_session_data *sd);
 
 bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv);
 

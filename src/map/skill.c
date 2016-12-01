@@ -1038,8 +1038,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_FEAR,3+2*skilllv,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case RK_HUNDREDSPEAR:
-		if ( pc_checkskill(sd,KN_SPEARBOOMERANG) > 0 && rand()%100 < 10 + 3 * skilllv )
-		{
+		if ( pc_checkskill(sd,KN_SPEARBOOMERANG) > 0 && rand()%100 < 10 + 3 * skilllv ) {
 			skill_castend_damage_id(src,bl,KN_SPEARBOOMERANG,pc_checkskill(sd,KN_SPEARBOOMERANG),tick,0);
 			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
 		}
@@ -3522,14 +3521,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			if( skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE )
 				clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			if( skillid ==  LG_MOONSLASHER );
+			if(skillid ==  LG_MOONSLASHER)
 				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 
 			skill_area_temp[0] = 0;
 			skill_area_temp[1] = bl->id;
 			skill_area_temp[2] = 0;
-			if( skillid == WL_CRIMSONROCK )
-			{
+			if(skillid == WL_CRIMSONROCK) {
 				skill_area_temp[4] = bl->x;
 				skill_area_temp[5] = bl->y;
 			}
@@ -3537,7 +3535,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			// if skill damage should be split among targets, count them
 			//SD_LEVEL -> Forced splash damage for Auto Blitz-Beat -> count targets
 			//special case: Venom Splasher uses a different range for searching than for splashing
-			if( flag&SD_LEVEL || skill_get_nk(skillid)&NK_SPLASHSPLIT )
+			if(flag&SD_LEVEL || skill_get_nk(skillid)&NK_SPLASHSPLIT)
 				skill_area_temp[0] = map_foreachinrange(skill_area_sub, bl, (skillid == AS_SPLASHER)?1:skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
@@ -12615,11 +12613,13 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			req.sp += req.sp + sc->data[SC__LAZINESS]->val1 * 10;
 		if( sc->data[SC_UNLIMITED_HUMMING_VOICE] )
 			req.sp += req.sp * sc->data[SC_UNLIMITED_HUMMING_VOICE]->val3 / 100;
+		if(sc->data[SC_RECOGNIZEDSPELL])
+			req.sp += req.sp / 4;
 	}
 
 	req.zeny = skill_db[j].zeny[lv-1];
 
-	if( sc && sc->data[SC__UNLUCKY] )
+	if(sc && sc->data[SC__UNLUCKY])
 		req.zeny += sc->data[SC__UNLUCKY]->val1 * 500;
 
 	req.spiritball = skill_db[j].spiritball[lv-1];

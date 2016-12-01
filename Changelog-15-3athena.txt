@@ -4,6 +4,26 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/01/2016
+	r146 [15peaces]
+		*Merged missing changes from 3ceam rev. 523
+		*Added full support for questinfo script-command
+			-Thanks to rAthena for the base.
+		*Fixed GC_WEAPONBLOCKING wasn't only blocking short range attacks.
+		*Fixed RA_AIMEDBOLT didn't remove immobile statuses.
+		*Fixed the insane hit bonus of GN_TRAINING_SWORD.
+		*Fixed Gloomy Day bonus wasn't applied to some shield skills.
+		*Fixed the crazy level based damage bonus of RK_WINDCUTTER.
+		*Fixed the duplicate level based damage bonus of some Mechanic skill.c
+		*Fixed a minor exploit: mechanics could have WS buffs in mado for a short period of time.
+		*Fixed RK_HUNDREDSPEAR could trigger Spear Bumerang withouth the skill learned.
+		*Fixed some redundant server-client communication, when using some AoE damaging skills.
+		*Fixed the SP consumption increase of WL_RECOGNIZEDSPELL.
+		*Fixed levels of NC_SHAPESHIFT and FIREWALK, LIGHTNINGWALK can't be switched properly.
+		*Fixed SC_LEECHESEND didn't interrupt cast.
+		*Fixed some minor issues in SC_DEADLYINFECT.
+		*Some random cleanup.
+
 11/16/2016
 	r145 [15peaces]
 		*Merged missing changes from 3ceam rev. 520 - 522

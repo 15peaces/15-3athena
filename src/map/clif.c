@@ -4901,7 +4901,7 @@ int clif_outsight(struct block_list *bl,va_list ap)
 
 	if (tsd && tsd->fd)
 	{	//tsd has lost sight of the bl object.
-		switch(bl->type){
+		switch(bl->type) {
 		case BL_PC:
 			if (sd->vd.class_ != INVISIBLE_CLASS)
 				clif_clearunit_single(bl->id,CLR_OUTSIGHT,tsd->fd);
@@ -10337,6 +10337,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 //	Trigger skill effects if you appear standing on them
 	if(!battle_config.pc_invincible_time)
 		skill_unit_move(&sd->bl,gettick(),1);
+
+// Show Questinfo-Icons
+	pc_show_questinfo_reinit(sd);
+	pc_show_questinfo(sd);
 }
 
 

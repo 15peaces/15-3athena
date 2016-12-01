@@ -442,16 +442,14 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			return 0;
 		}
 
-		if( sc->data[SC_WEAPONBLOCKING] && (flag&(BF_WEAPON|BF_SHORT)) && rand()%100 < sc->data[SC_WEAPONBLOCKING]->val2 )
-		{
+		if( sc->data[SC_WEAPONBLOCKING] && flag&BF_SHORT && rand()%100 < sc->data[SC_WEAPONBLOCKING]->val2 ) {
 			clif_skill_nodamage(bl,src,GC_WEAPONBLOCKING,1,1);
 			d->dmg_lv = ATK_NONE;
 			sc_start2(bl,SC_COMBO,100,GC_WEAPONBLOCKING,src->id,2000);
 			return 0;
 		}
 
-		if( (sce=sc->data[SC_AUTOGUARD]) && flag&BF_WEAPON && !(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK) && rand()%100 < sce->val2 )
-		{
+		if( (sce=sc->data[SC_AUTOGUARD]) && flag&BF_WEAPON && !(skill_get_nk(skill_num)&NK_NO_CARDFIX_ATK) && rand()%100 < sce->val2 ) {
 			int delay;
 			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
 			struct block_list *d_bl = NULL;
@@ -679,17 +677,16 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
-		if( skill_num == RA_AIMEDBOLT && tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
-			{
-				status_change_end(bl, SC_WUGBITE, -1);
-				status_change_end(bl, SC_ANKLE, -1);
-				status_change_end(bl, SC_ELECTRICSHOCKER, -1);
-			}
+		if( skill_num == RA_AIMEDBOLT && sc && (sc->data[SC_WUGBITE] || sc->data[SC_ANKLE] || sc->data[SC_ELECTRICSHOCKER]) ) {
+			status_change_end(bl, SC_WUGBITE, INVALID_TIMER);
+			status_change_end(bl, SC_ANKLE, INVALID_TIMER);
+			status_change_end(bl, SC_ELECTRICSHOCKER, INVALID_TIMER);
+		}
 
 		//Finally Kyrie because it may, or not, reduce damage to 0.
-		if((sce = sc->data[SC_KYRIE]) && damage > 0){
+		if((sce = sc->data[SC_KYRIE]) && damage > 0) {
 			sce->val2-=damage;
-			if(flag&BF_WEAPON || skill_num == TF_THROWSTONE){
+			if(flag&BF_WEAPON || skill_num == TF_THROWSTONE) {
 				if(sce->val2>=0)
 					damage=0;
 				else
@@ -1593,7 +1590,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 			if( sd && (sd->status.weapon == W_1HSWORD || sd->status.weapon == W_DAGGER) && 
 				(skill = pc_checkskill(sd, GN_TRAINING_SWORD))>0 )
-				hitrate += hitrate * 3 * skill;
+				hitrate += 3 * skill;
 		}
 
 		hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate); 
@@ -1667,7 +1664,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 					if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
 						ATK_ADD(sd->inventory_data[index]->weight/10);
-					break;
 				} else
 					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
 					if( sc && sc->data[SC_GLOOMYDAY_SK] )
@@ -2359,7 +2355,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RK_WINDCUTTER: // Sugested formula from irowiki.
 					skillratio += 50 * skill_lv; // Base skillratio
-					if( s_level > 50 ) skillratio += skillratio * (1 + (s_level-50) / 20); // Bonus by base level.
+					if( s_level > 50 ) skillratio += skillratio * (1 + (s_level-50) / 200); // Bonus by base level.
 					break;
 				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
 					i = distance_bl(src,target) / 2;
@@ -2532,17 +2528,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if( sd && (i = pc_checkskill(sd,RK_DRAGONTRAINING)-1) > 0 )
 					ATK_ADDRATE(5 * i);
 				break;
-			case NC_BOOSTKNUCKLE:
-			case NC_PILEBUNKER:
-			case NC_VULCANARM:
-			case NC_FLAMELAUNCHER:
-			case NC_COLDSLOWER:
-			case NC_ARMSCANNON:
-			case NC_AXEBOOMERANG:
-			case NC_POWERSWING:
 			case NC_AXETORNADO:
-				ATK_ADDRATE(status_get_lv(src)/6);//Should led up to 1.25 times the normal damage if Blevel is 150. [Jobbie]
-				if( skill_num == NC_AXETORNADO && ((sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND) )
+				if( (sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND )
 					ATK_ADDRATE(50);
 				break;
 			case SR_EARTHSHAKER:

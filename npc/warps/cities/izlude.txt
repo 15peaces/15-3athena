@@ -42,8 +42,8 @@ OnTouch:
 	warp(strnpcinfo(4), 51, 30);
 	end;
 
-//OnInit:
-	//questinfo(21001, QTYPE_QUEST, 1, Job_Novice);
+OnInit:
+	questinfo(21001, QTYPE_QUEST, 1, Job_Novice);
 }
 
 iz_int,47,30,3	script	noviship#room1-2	45,2,2,{

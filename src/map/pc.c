@@ -3752,14 +3752,11 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 
 	if( itemdb_isstackable2(data) && item_data->expire_time == 0 )
 	{ // Stackable | Non Rental
-		for( i = 0; i < MAX_INVENTORY; i++ )
-		{
-			if( sd->status.inventory[i].nameid == item_data->nameid && sd->status.inventory[i].bound == item_data->bound && memcmp(&sd->status.inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 )
-			{
+		for( i = 0; i < MAX_INVENTORY; i++ ) {
+			if( sd->status.inventory[i].nameid == item_data->nameid && sd->status.inventory[i].bound == item_data->bound && memcmp(&sd->status.inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 ) {
 				if( amount > MAX_AMOUNT - sd->status.inventory[i].amount )
 					return 5;
-				if( itemdb_is_rune(sd->status.inventory[i].nameid) && amount > MAX_RUNE - sd->status.inventory[i].amount )
-				{
+				if( itemdb_is_rune(sd->status.inventory[i].nameid) && amount > MAX_RUNE - sd->status.inventory[i].amount ) {
 					clif_msgtable(sd->fd,1418);
 					return 1;
 				}
@@ -7657,8 +7654,7 @@ int pc_setoption(struct map_session_data *sd,int type)
 		status_change_end(&sd->bl,SC_CARTBOOST,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_MAXOVERTHRUST,INVALID_TIMER);
 		pc_bonus_script_clear(sd,BSF_REM_ON_MADOGEAR); // cydh bonus_script
-	}
-	else if (!(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR) // [3ceam r747]
+	} else if (!(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR) // [3ceam r747]
 	{//Mechanic mado buffs are removed when unmounting from a mado.
 		status_calc_pc(sd,0); //Update movement speed.
 		status_change_end(&sd->bl,SC_ACCELERATION,INVALID_TIMER);
@@ -9817,6 +9813,129 @@ void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag) {
 
 	if (count && !(flag&BSF_REM_ON_LOGOUT)) //Don't need to do this if log out
 		status_calc_pc(sd,SCO_NONE);
+}
+
+/**
+ * Toggle to remember if the questinfo is displayed yet or not.
+ * @param qi_display Display flag
+ * @param show If show is true and qi_display is 0, set qi_display to 1 and show the event bubble.
+ *             If show is false and qi_display is 1, set qi_display to 0 and hide the event bubble.
+ **/
+static void pc_show_questinfo_sub(struct map_session_data *sd, bool *qi_display, struct questinfo *qi, bool show) {
+	if (show) {
+		// Check if need to be displayed
+		if ((*qi_display) != 1) {
+			(*qi_display) = 1;
+			clif_quest_show_event(sd, &qi->nd->bl, qi->icon, qi->color);
+		}
+	}
+	else {
+		// Check if need to be hide
+		if ((*qi_display) != 0) {
+			(*qi_display) = 0;
+#if PACKETVER >= 20120410
+			clif_quest_show_event(sd, &qi->nd->bl, 9999, 0);
+#else
+			clif_quest_show_event(sd, &qi->nd->bl, 0, 0);
+#endif
+		}
+	}
+}
+
+/**
+ * Show available NPC Quest / Event Icon Check [Kisuka]
+ * @param sd Player
+ **/
+void pc_show_questinfo(struct map_session_data *sd) {
+#if PACKETVER >= 20090218
+	struct questinfo *qi = NULL;
+	unsigned short i;
+	uint8 j;
+	int8 mystate = 0;
+	bool failed = false;
+
+	nullpo_retv(sd);
+
+	if (sd->bl.m < 0 || sd->bl.m >= MAX_MAPINDEX)
+		return;
+	if (!map[sd->bl.m].qi_count || !map[sd->bl.m].qi_data)
+		return;
+
+	for(i = 0; i < map[sd->bl.m].qi_count; i++) {
+		qi = &map[sd->bl.m].qi_data[i];
+
+		if (!qi)
+			continue;
+
+		if (quest_check(sd, qi->quest_id, HAVEQUEST) != -1) { // Check if quest is not started
+			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
+			continue;
+		}
+
+		// Level range checks
+		if (sd->status.base_level < qi->min_level || sd->status.base_level > qi->max_level) {
+			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
+			continue;
+		}
+
+		// Quest requirements
+		if (qi->req_count) {
+			failed = false;
+			for (j = 0; j < qi->req_count; j++) {
+				mystate = quest_check(sd, qi->req[j].quest_id, HAVEQUEST);
+				mystate = mystate + (mystate < 1);
+				if (mystate != qi->req[j].state) {
+					failed = true;
+					break;
+				}
+			}
+			if (failed) {
+				pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
+				continue;
+			}
+		}
+
+		// Job requirements
+		if (qi->jobid_count) {
+			failed = true;
+			for (j = 0; j < qi->jobid_count; j++) {
+				if (pc_mapid2jobid(sd->class_,sd->status.sex) == qi->jobid[j]) {
+					pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, true);
+					failed = false;
+					break;
+				}
+			}
+			if (!failed)
+				continue;
+			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, false);
+		}
+		else {
+			pc_show_questinfo_sub(sd, &sd->qi_display[i], qi, true);
+		}
+	}
+#endif
+}
+
+/**
+ * Reinit the questinfo for player when changing map
+ * @param sd Player
+ **/
+void pc_show_questinfo_reinit(struct map_session_data *sd) {
+#if PACKETVER >= 20090218
+	nullpo_retv(sd);
+
+	if (sd->qi_display) {
+		aFree(sd->qi_display);
+		sd->qi_display = NULL;
+	}
+	sd->qi_count = 0;
+
+	if (sd->bl.m < 0 || sd->bl.m >= MAX_MAPINDEX)
+		return;
+	if (!map[sd->bl.m].qi_count || !map[sd->bl.m].qi_data)
+		return;
+	CREATE(sd->qi_display, bool, (sd->qi_count = map[sd->bl.m].qi_count));
+#endif
 }
 
 /**

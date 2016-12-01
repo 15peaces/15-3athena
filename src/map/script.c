@@ -16297,6 +16297,94 @@ BUILDIN_FUNC(readbook)
 Questlog script commands
 *******************/
 
+ /**
+ * Add job criteria to questinfo
+ * @param qi Quest Info
+ * @param job
+ * @author [Cydh]
+ **/
+static void buildin_questinfo_setjob(struct questinfo *qi, int job) {
+	RECREATE(qi->jobid, unsigned short, qi->jobid_count+1);
+	qi->jobid[qi->jobid_count++] = job;
+}
+
+/**
+ * questinfo <Quest ID>,<Icon>{,<Map Mark Color>{,<Job Class>}};
+ **/
+BUILDIN_FUNC(questinfo) {
+	TBL_NPC* nd = map_id2nd(st->oid);
+	int quest_id, icon;
+	struct questinfo qi, *q2;
+
+	if( nd == NULL || nd->bl.m == -1 ) {
+		ShowError("buildin_questinfo: No NPC attached.\n");
+		return 1;
+	}
+
+	quest_id = script_getnum(st, 2);
+	icon = script_getnum(st, 3);
+
+#if PACKETVER >= 20120410
+	switch(icon) {
+		case QTYPE_QUEST:
+		case QTYPE_QUEST2:
+		case QTYPE_JOB:
+		case QTYPE_JOB2:
+		case QTYPE_EVENT:
+		case QTYPE_EVENT2:
+		case QTYPE_WARG:
+		case QTYPE_WARG2:
+			// Leave everything as it is
+			break;
+		case QTYPE_NONE:
+		default:
+			// Default to nothing if icon id is invalid.
+			icon = QTYPE_NONE;
+			break;
+	}
+#else
+	if(icon < QTYPE_QUEST || icon > 7) // TODO: check why 7 and not QTYPE_WARG, might be related to icon + 1 below
+		icon = QTYPE_QUEST;
+	else
+		icon = icon + 1;
+#endif
+
+	qi.quest_id = quest_id;
+	qi.icon = (unsigned char)icon;
+	qi.nd = nd;
+
+	if( script_hasdata(st, 4) ) {
+		int color = script_getnum(st, 4);
+		if( color < 0 || color > 3 ) {
+			ShowWarning("buildin_questinfo: invalid color '%d', changing to 0\n",color);
+			script_reportfunc(st);
+			color = 0;
+		}
+		qi.color = (unsigned char)color;
+	}
+
+	qi.min_level = 1;
+	qi.max_level = MAX_LEVEL;
+
+	q2 = map_add_questinfo(nd->bl.m, &qi);
+	q2->req = NULL;
+	q2->req_count = 0;
+	q2->jobid = NULL;
+	q2->jobid_count = 0;
+
+	if(script_hasdata(st, 5)) {
+		int job = script_getnum(st, 5);
+
+		if (!pcdb_checkid(job))
+			ShowError("buildin_questinfo: Nonexistant Job Class.\n");
+		else {
+			buildin_questinfo_setjob(q2, job);
+		}
+	}
+
+	return 0;
+}
+
 BUILDIN_FUNC(setquest)
 {
 	TBL_PC * sd = script_rid2sd(st);
@@ -18396,6 +18484,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(useatcmd, "s"),
 
 	//Quest Log System [Inkfish]
+	BUILDIN_DEF(questinfo, "ii??"),
 	BUILDIN_DEF(setquest, "i"),
 	BUILDIN_DEF(erasequest, "i"),
 	BUILDIN_DEF(completequest, "i"),

@@ -519,6 +519,24 @@ struct iwall_data {
 	bool shootable;
 };
 
+struct questinfo_req {
+	unsigned int quest_id;
+	unsigned state : 2; // 0: Doesn't have, 1: Inactive, 2: Active, 3: Complete //! TODO: CONFIRM ME!!
+};
+
+struct questinfo {
+	struct npc_data *nd;
+	unsigned short icon;
+	unsigned char color;
+	int quest_id;
+	unsigned short min_level,
+		max_level;
+	uint8 req_count;
+	uint8 jobid_count;
+	struct questinfo_req *req;
+	unsigned short *jobid;
+};
+
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; // The map index used by the mapindex* functions.
@@ -601,6 +619,10 @@ struct map_data {
 	// Instance Variables
 	int instance_id;
 	int instance_src_map;
+
+	// Questinfo Cache
+	struct questinfo *qi_data;
+	unsigned short qi_count;
 };
 
 /// Stores information about a remote map (for multi-mapserver setups).
@@ -711,6 +733,8 @@ void map_foreachiddb(int (*func)(struct block_list* bl, va_list args), ...);
 struct map_session_data * map_nick2sd(const char*);
 struct mob_data * map_getmob_boss(int m);
 struct mob_data * map_id2boss(int id);
+
+struct questinfo *map_add_questinfo(int m, struct questinfo *qi);
 
 /// Bitfield of flags for the iterator.
 enum e_mapitflags

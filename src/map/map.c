@@ -3586,6 +3586,32 @@ int log_sql_init(void)
 	return 0;
 }
 
+struct questinfo *map_add_questinfo(int m, struct questinfo *qi) {
+	unsigned short i;
+
+	/* duplicate, override */
+	for(i = 0; i < map[m].qi_count; i++) {
+		if( &map[m].qi_data[i] && map[m].qi_data[i].nd == qi->nd && map[m].qi_data[i].quest_id == qi->quest_id)
+			break;
+	}
+
+	if( i == map[m].qi_count )
+		RECREATE(map[m].qi_data, struct questinfo, ++map[m].qi_count);
+	else { // clear previous criteria on override
+		if (map[m].qi_data[i].jobid)
+			aFree(map[m].qi_data[i].jobid);
+		map[m].qi_data[i].jobid = NULL;
+		map[m].qi_data[i].jobid_count = 0;
+		if (map[m].qi_data[i].req)
+			aFree(map[m].qi_data[i].req);
+		map[m].qi_data[i].req = NULL;
+		map[m].qi_data[i].req_count = 0;
+	}
+
+	memcpy(&map[m].qi_data[i], qi, sizeof(struct questinfo));
+	return &map[m].qi_data[i];
+}
+
 #endif /* not TXT_ONLY */
 
 int map_db_final(DBKey k,void *d,va_list ap)
