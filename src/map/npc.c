@@ -3206,6 +3206,7 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 	if( ev == NULL || (nd = ev->nd) == NULL ) 
 	{ 
 		ShowError("npc_event: event not found [%s]\n", eventname); 
+		aFree(temp);
 		return 0; 
 	} 
 
@@ -3216,16 +3217,19 @@ int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const c
 		if( i < MAX_EVENTQUEUE ) 
 		{ 
 			safestrncpy(sd->eventqueue[i],eventname,50); //Event enqueued. 
+			aFree(temp);
 			return 0; 
 		} 
 
 		ShowWarning("npc_event: player's event queue is full, can't add event '%s' !\n", eventname); 
+		aFree(temp);
 		return 1; 
 	} 
  
 	if( ev->nd->sc.option&OPTION_INVISIBLE ) 
 	{ // Disabled npc, shouldn't trigger event. 
-		npc_event_dequeue(sd); 
+		npc_event_dequeue(sd);
+		aFree(temp);
 		return 2; 
 	} 
 

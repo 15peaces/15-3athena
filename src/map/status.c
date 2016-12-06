@@ -7661,14 +7661,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
 			break;
 		case SC_STRIKING:
-			val2 = 25 + 10 * val1;
-			if( sd )
-			{
-				val2 += pc_checkskill(sd, SA_FLAMELAUNCHER) * 5;
-				val2 += pc_checkskill(sd, SA_FROSTWEAPON) * 5;
-				val2 += pc_checkskill(sd, SA_LIGHTNINGLOADER) * 5;
-				val2 += pc_checkskill(sd, SA_SEISMICWEAPON) * 5;
-			}
 			val4 = tick / 1000;
 			tick = 1000;
 			break;
@@ -9630,38 +9622,38 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 	case SC_STRIKING:
 		if( --(sce->val4) >= 0 )
 		{
-			if( !status_charge(bl,0,20*sce->val1/100) )
+			if( !status_charge( bl,0, sce->val1 ) )
 				break;
-			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			sc_timer_next( 1000 + tick, status_change_timer, bl->id, data );
 			return 0;
 		}
 		break;
 	case SC_BLOOD_SUCKER:
-		if( --(sce->val4) >= 0 )
+		if( --( sce->val4 ) >= 0 )
 		{
-			struct block_list *src = map_id2bl(sce->val2);
+			struct block_list *src = map_id2bl( sce->val2 );
 			int damage;
-			if( !src || (src && status_isdead(src) || (src && src->m != bl->m) ) || (src && distance_bl(src, bl) >= 12) )
+			if( !src || (src && status_isdead( src ) || ( src && src->m != bl->m ) ) || ( src && distance_bl( src, bl ) >= 12 ) )
 				break;
 			map_freeblock_lock();
-			damage = skill_attack(skill_get_type(GN_BLOOD_SUCKER), src, src, bl, GN_BLOOD_SUCKER, sce->val1, tick, 0);
+			damage = skill_attack( skill_get_type( GN_BLOOD_SUCKER ), src, src, bl, GN_BLOOD_SUCKER, sce->val1, tick, 0 );
 			map_freeblock_unlock();
-			status_heal(src, damage, 0, 0);
-			clif_skill_nodamage(src, bl, GN_BLOOD_SUCKER, 0, 1);
-			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			status_heal( src, damage, 0, 0 );
+			clif_skill_nodamage( src, bl, GN_BLOOD_SUCKER, 0, 1 );
+			sc_timer_next( 1000 + tick, status_change_timer, bl->id, data );
 			return 0;
 		}
 		break;
 	case SC_SIREN:
-		if( --(sce->val4) >= 0 )
+		if( --( sce->val4 ) >= 0 )
 		{
-			clif_emotion(bl,3);
-			sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
+			clif_emotion( bl, 3 );
+			sc_timer_next( 2000 + tick, status_change_timer, bl->id, data );
 			return 0;
 		}
 		break;
 	case SC_DEEPSLEEP:
-		if( --(sce->val4) >= 0 )
+		if( --( sce->val4 ) >= 0 )
 		{ // Recovers 1% HP/SP every 2 seconds.
 			status_heal(bl, status->max_hp / 100, status->max_sp / 100, 2);
 			sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
@@ -10091,7 +10083,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 				data.val2 = sc->data[i]->val2;
 				data.val3 = sc->data[i]->val3;
 				data.val4 = sc->data[i]->val4;
-				status_change_start(bl,i,10000,data.val1,data.val2,data.val3,data.val4,data.tick,1|2|8); // SpeedRO Patch
+				status_change_start( bl, (sc_type)i, 10000, data.val1, data.val2, data.val3, data.val4, data.tick, 1|2|8 );
 					flag = 1;
 				break;
 			default:
@@ -10103,8 +10095,8 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 }
 
 //Natural regen related stuff.
-static unsigned int natural_heal_prev_tick,natural_heal_diff_tick;
-static int status_natural_heal(struct block_list* bl, va_list args)
+static unsigned int natural_heal_prev_tick, natural_heal_diff_tick;
+static int status_natural_heal( struct block_list* bl, va_list args )
 {
 	struct regen_data *regen;
 	struct status_data *status;
@@ -10115,11 +10107,13 @@ static int status_natural_heal(struct block_list* bl, va_list args)
 	struct map_session_data *sd;
 	int val,rate,bonus = 0,flag;
 
-	regen = status_get_regen_data(bl);
-	if (!regen) return 0;
-	status = status_get_status_data(bl);
-	sc = status_get_sc(bl);
-	if (sc && !sc->count)
+	regen = status_get_regen_data( bl );
+	if ( !regen ) 
+		return 0;
+
+	status = status_get_status_data( bl );
+	sc = status_get_sc( bl );
+	if ( sc && !sc->count )
 		sc = NULL;
 	sd = BL_CAST(BL_PC,bl);
 

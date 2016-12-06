@@ -4,6 +4,24 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/06/2016
+	r147 [15peaces]
+		*Merged missing changes from 3ceam rev. 524
+		*Fixed an memory leak in some cases if an script-based atcommand fails.
+		*Added missing Elven Bow Drops.
+		*Added some more Champion Monsters & Items.
+		*Some random cleanup.
+		*RK_WINDCUTTER damage formula reviewed.
+		*RA_WUGSTRIKE damage formula corrected.
+		*SA_SPELLFIST implementation completed.
+		*Skill's delay that casted by AutoShadowSpell is applied.
+		*Holy light and magnus can't be casted by AutoShadowSpell.
+		*SO_STRIKING check the skills which are grant bonuses on the caster size.
+		*Shadow Form can't be dispelled.
+		*Some improvements to masquarade's rates.
+		*GN_MANDRAGORA only drains SP on success.
+		*GN_SPECIALPHARMACY consume item amounts fixed.
+
 12/01/2016
 	r146 [15peaces]
 		*Merged missing changes from 3ceam rev. 523

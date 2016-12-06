@@ -2230,7 +2230,7 @@
 4695,V_Trentini_Card,True Trentini Card,6,20,,10,,,,,,,,2,,,,,{ if(getrefine() > 9) set .@b,.@b+20; if(getequipweaponlv(-1) == 4) set .@b,.@b+20; bonus2 bSkillAtk,"WM_SEVERE_RAINSTORM",20+.@b; },{},{}
 4696,V_Alphoccio_Card,True Alphoccio Card,6,20,,10,,,,,,,,2,,,,,{ if(getrefine() > 9) set .@b,.@b+20; if(getequipweaponlv(-1) == 4) set .@b,.@b+20; bonus2 bSkillAtk,"WM_REVERBERATION",20+.@b; },{},{}
 
-// New Items (Renewal)
+// New Items (Renewal) (recheck itemtypes!)
 12609,Old_Ore_Box,Old Ore Box,2,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Old_Ore_Box);*/ },{},{}
 12831,Potion_Box,Potion Box,2,0,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 545,100; getitem 546,100; getitem 547,100; getitem 505,100; },{},{}
 17496,Lucky_Silvervine_Fruit_Box_III110,Lucky Silvervine Fruit Box III(110),18,10,,10,,,,,,,,,,,,,{ /*getgroupitem(IG_Lucky_Silvervine_Fruit_Box_III110);*/ },{},{}
@@ -2355,3 +2355,33 @@
 18618,Airplane_Hat,Airplane Hat,4,20,,200,,8,,1,0xFFFFFFFE,63,2,256,,20,1,775,{},{},{}
 18619,Thief_Bandana,Thief Bandana,4,20,,200,,1,,0,0xFFFFFFFE,63,2,256,,20,1,776,{ bonus3 bAutoSpell,"TF_STEAL",1,20; },{},{}
 18620,Heart_Eye_Patch,Heart Eyepatch,4,5,,50,,2,,0,0xFFFFFFFF,63,2,512,,20,1,779,{},{},{}
+
+// New Items (Renewal)
+18685,Stardust_Hairband,Stardust Hairband,5,20,,1000,,0,,0,0xFFFFFFFF,63,2,256,,10,0,831,{},{},{}
+18686,2011_RMSC_1,2011 RMSC 1,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,5; },{},{}
+18687,2011_RMSC_2,2011 RMSC 2,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,3; },{},{}
+18688,2011_RMSC_3,2011 RMSC 3,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,1; },{},{}
+18689,2011_RMSC_4,2011 RMSC 4,5,20,,10,,0,,0,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; },{},{}
+18690,Sirt_Evil_Eye,Sirt Evil Eye,5,20,,400,,0,,0,0xFFFFFFFF,63,2,512,,50,0,345,{ bonus bUnbreakableHelm,1; bonus bStr,1; },{},{}
+18691,Rising_Black_Dragon,Rising Black Dragon,5,20,,100,,3,,0,0xFFFFFFFF,63,2,256,,1,1,863,{},{},{}
+18692,Mike_Hat,Mike Hat,5,20,,200,,3,,1,0xFFFFFFFE,63,2,256,,1,1,837,{ bonus bDex,2; bonus bLuk,1; },{},{}
+18693,Sleeping_Kitty_Cat,Sleeping Kitty Cat,5,20,,200,,4,,1,0xFFFFFFFE,63,2,256,,20,1,838,{ bonus2 bAddRace,RC_Brute,2; },{},{}
+18694,Red_Hood,Red Hood,5,20,,200,,3,,1,0xFFFFFFFE,63,2,256,,20,1,839,{ bonus bCritical,10; },{},{}
+19148,Santa_Poring_Balloon,Santa Poring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1428,{ bonus2 bAddItemGroupHealRate,IG_Candy,200; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19149,Poporing_Balloon,Poporing Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1429,{ bonus2 bAddEff,Eff_Poison,500; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19150,Metalring_Balloon,Metalring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1431,{ bonus3 bAutoSpell,"RG_STRIPWEAPON",1,50; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19151,Devilring_Balloon,Devilring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1434,{ bonus2 bAddEff,Eff_Curse,500; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19152,Angelring_Balloon,Angelring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1435,{ bonus2 bAddItemHealRate,504,100; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19153,Ghostring_Balloon,Ghostring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1436,{ bonus3 bAutoSpell,"MG_SOULSTRIKE",5,10; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19154,Arch_Angelring_Balloon,Arch Angelring Balloon,5,20,,10,,0,,0,0xFFFFFFFF,63,2,1,,1,0,1437,{ skill "ALL_RESURRECTION",1; bonus2 bExpAddRace,RC_All,5; bonus2 bDropAddRace,RC_All,5; },{},{}
+19155,Demons_Eyes,Demon's Eyes,5,20,,10,,0,,0,0xFFFFFFFF,63,2,512,,60,0,1490,{ bonus2 bSubRace,RC_Player,3; bonus bFlee2,2; },{},{}
+31060,C_Starfish_Headband,Costume Starfish Headband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,793,{},{},{}
+31061,C_Nipper_Hairpin,Costume Nipper Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,470,{},{},{}
+31062,C_Eleanor_Wig,Costume Eleanor Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1502,{},{},{}
+31063,C_Hair_Bun_Blue,Costume Hair Bun Blue,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1503,{},{},{}
+31064,C_Hair_Bun_Red,Costume Hair Bun Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1504,{},{},{}
+31065,C_Hair_Bun_Yellow,Costume Hair Bun Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1505,{},{},{}
+31066,C_Hair_Bun_Green,Costume Hair Bun Green,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1506,{},{},{}
+31067,C_Hair_Bun_Black,Costume Hair Bun Black,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1507,{},{},{}
+31068,C_Hair_Bun_White,Costume Hair Bun White,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1508,{},{},{}
+31069,C_Hair_Bun_Crimson,Costume Hair Bun Crimson,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1509,{},{},{}

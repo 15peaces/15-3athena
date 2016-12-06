@@ -235,16 +235,16 @@ cmd_fild01,0,0,0,0	monster	Elusive Grove	2808,2,300000,0
 //gef_dun01,0,0,0,0	monster	Elusive Ghoul	2823,2,300000,0
 //yuno_fild12,0,0,0,0	monster	Swift Geographer	2824,2,300000,0
 //yuno_fild01,0,0,0,0	monster	Solid Geographer	2825,2,300000,0
-//glast_01,0,0,0,0	monster	Gargoyle Ringleader	2826,2,300000,0
-//gl_sew02,0,0,0,0	monster	Furious Gargoyle	2827,2,300000,0
-//ve_fild01,0,0,0,0	monster	Elusive Galion	2828,2,300000,0
-//cmd_fild02,0,0,0,0	monster	Swift Seal	2829,2,300000,0
-//tur_dun05,0,0,0,0	monster	Solid Freezer	2830,2,300000,0
-//tur_dun03,0,0,0,0	monster	Freezer Ringleader	2831,2,300000,0
-//abyss_01,0,0,0,0	monster	Furious Ferus	2832,2,300000,0
-//prt_sewb1,0,0,0,0	monster	Elusive Familiar	2833,2,300000,0
-//gefenia01,0,0,0,0	monster	Swift False Angel	2834,2,300000,0
-//prt_fild06,0,0,0,0	monster	Solid Fabre	2835,2,300000,0
+glast_01,0,0,0,0	monster	Gargoyle Ringleader	2826,2,300000,0
+gl_sew02,0,0,0,0	monster	Furious Gargoyle	2827,2,300000,0
+ve_fild01,0,0,0,0	monster	Elusive Galion	2828,2,300000,0
+cmd_fild02,0,0,0,0	monster	Swift Seal	2829,2,300000,0
+tur_dun05,0,0,0,0	monster	Solid Freezer	2830,2,300000,0
+tur_dun03,0,0,0,0	monster	Freezer Ringleader	2831,2,300000,0
+abyss_01,0,0,0,0	monster	Furious Ferus	2832,2,300000,0
+prt_sewb1,0,0,0,0	monster	Elusive Familiar	2833,2,300000,0
+gefenia01,0,0,0,0	monster	Swift False Angel	2834,2,300000,0
+prt_fild06,0,0,0,0	monster	Solid Fabre	2835,2,300000,0
 //pay_fild03,0,0,0,0	monster	Fabre Ringleader	2836,2,300000,0
 //mag_dun01,0,0,0,0	monster	Furious Explosion	2837,2,300000,0
 //gl_church,0,0,0,0	monster	Elusive Evil Druid	2838,2,300000,0
