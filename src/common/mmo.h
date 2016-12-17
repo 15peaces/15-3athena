@@ -117,6 +117,8 @@
 #define MAX_QUEST_DB 2487 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
+#define MAX_CLAN 500
+#define MAX_CLANALLIANCE 6
 
 // for produce
 #define MIN_ATTRIBUTE 0
@@ -465,7 +467,7 @@ struct mmo_charstatus {
 	short manner;
 	unsigned char karma;
 	short hair,hair_color,clothes_color,body;
-	int party_id,guild_id,pet_id,hom_id,mer_id,ele_id;
+	int party_id, guild_id, clan_id, pet_id, hom_id, mer_id, ele_id;
 	int fame;
 
 	// Mercenary Guilds Rank
@@ -475,19 +477,19 @@ struct mmo_charstatus {
 
 	short weapon; // enum weapon_type
 	short shield; // view-id
-	short head_top,head_mid,head_bottom;
+	short head_top, head_mid, head_bottom;
 	short robe;
 
 	char name[NAME_LENGTH];
-	unsigned int base_level,job_level;
-	short str,agi,vit,int_,dex,luk;
-	unsigned char slot,sex;
+	unsigned int base_level, job_level;
+	short str, agi, vit, int_, dex, luk;
+	unsigned char slot, sex;
 
 	uint32 mapip;
 	uint16 mapport;
 
-	struct point last_point,save_point,memo_point[MAX_MEMOPOINTS];
-	struct item inventory[MAX_INVENTORY],cart[MAX_CART];
+	struct point last_point, save_point, memo_point[MAX_MEMOPOINTS];
+	struct item inventory[MAX_INVENTORY], cart[MAX_CART];
 	struct storage_data storage;
 	struct s_skill skill[MAX_SKILL];
 
@@ -880,6 +882,22 @@ enum e_party_member_withdraw {
 	PARTY_MEMBER_WITHDRAW_EXPEL,	  ///< Kicked
 	PARTY_MEMBER_WITHDRAW_CANT_LEAVE, ///< TODO: Cannot /leave
 	PARTY_MEMBER_WITHDRAW_CANT_EXPEL, ///< TODO: Cannot be kicked
+};
+
+struct clan_alliance {
+	int opposition;
+	int clan_id;
+	char name[NAME_LENGTH];
+};
+
+struct clan {
+	int id;
+	char name[NAME_LENGTH];
+	char master[NAME_LENGTH];
+	char map[MAP_NAME_LENGTH_EXT];
+	short max_member, connect_member;
+	struct map_session_data *members[MAX_CLAN];
+	struct clan_alliance alliance[MAX_CLANALLIANCE];
 };
 
 // sanity checks...

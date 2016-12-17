@@ -761,6 +761,14 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_STOMACHACHE] = SI_STOMACHACHE;
 	StatusIconChangeTable[SC_MYSTERIOUS_POWDER] = SI_MYSTERIOUS_POWDER;
 
+	// Clan System
+	StatusIconChangeTable[SC_CLAN_INFO] = SI_CLAN_INFO;
+	StatusIconChangeTable[SC_SWORDCLAN] = SI_SWORDCLAN;
+	StatusIconChangeTable[SC_ARCWANDCLAN] = SI_ARCWANDCLAN;
+	StatusIconChangeTable[SC_GOLDENMACECLAN] = SI_GOLDENMACECLAN;
+	StatusIconChangeTable[SC_CROSSBOWCLAN] = SI_CROSSBOWCLAN;
+	StatusIconChangeTable[SC_JUMPINGCLAN] = SI_JUMPINGCLAN;
+
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] = SCB_ASPD;
@@ -874,6 +882,14 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_BANANA_BOMB] = SCB_LUK;
 	StatusChangeFlagTable[SC_STOMACHACHE] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
 	StatusChangeFlagTable[SC_MYSTERIOUS_POWDER] |= SCB_MAXHP;
+
+	// Clan System
+	StatusChangeFlagTable[SC_CLAN_INFO] |= SCB_NONE;
+	StatusChangeFlagTable[SC_SWORDCLAN] |= SCB_STR|SCB_VIT|SCB_MAXHP|SCB_MAXSP;
+	StatusChangeFlagTable[SC_ARCWANDCLAN] |= SCB_INT|SCB_DEX|SCB_MAXHP|SCB_MAXSP;
+	StatusChangeFlagTable[SC_GOLDENMACECLAN] |= SCB_LUK|SCB_INT|SCB_MAXHP|SCB_MAXSP;
+	StatusChangeFlagTable[SC_CROSSBOWCLAN] |= SCB_DEX|SCB_AGI|SCB_MAXHP|SCB_MAXSP;
+	StatusChangeFlagTable[SC_JUMPINGCLAN] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -3881,6 +3897,10 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		str -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_SWORDCLAN])
+		str += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		str += 1;
 
 	return (unsigned short)cap_value(str,0,USHRT_MAX);
 }
@@ -3930,6 +3950,10 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		agi -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_CROSSBOWCLAN])
+		agi += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		agi += 1;
 
 	return (unsigned short)cap_value(agi,0,USHRT_MAX);
 }
@@ -3971,6 +3995,10 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_GENTLETOUCH_REVITALIZE]->val2;
 	if(sc->data[SC_STOMACHACHE])
 		vit -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_SWORDCLAN])
+		vit += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		vit += 1;
 
 	return (unsigned short)cap_value(vit,0,USHRT_MAX);
 }
@@ -4022,6 +4050,12 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		int_ -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_ARCWANDCLAN])
+		int_ += 1;
+	if(sc->data[SC_GOLDENMACECLAN])
+		int_ += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		int_ += 1;
 
 	return (unsigned short)cap_value(int_,0,USHRT_MAX);
 }
@@ -4074,6 +4108,12 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		dex -= sc->data[SC_STOMACHACHE]->val1;
+	if(sc->data[SC_ARCWANDCLAN])
+		dex += 1;
+	if(sc->data[SC_CROSSBOWCLAN])
+		dex += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		dex += 1;
 
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
@@ -4117,6 +4157,10 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk -= sc->data[SC_STOMACHACHE]->val1;
 	if(sc->data[SC_BANANA_BOMB])
 		luk -= luk * sc->data[SC_BANANA_BOMB]->val1 / 100;
+	if(sc->data[SC_GOLDENMACECLAN])
+		luk += 1;
+	if(sc->data[SC_JUMPINGCLAN])
+		luk += 1;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
@@ -4972,6 +5016,14 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += 2000;// Fix amount.
 	if(sc->data[SC_POWER_OF_GAIA])
 		maxhp += 3000;
+	if(sc->data[SC_SWORDCLAN])
+		maxhp += 30;
+	if(sc->data[SC_ARCWANDCLAN])
+		maxhp += 30;
+	if(sc->data[SC_GOLDENMACECLAN])
+		maxhp += 30;
+	if(sc->data[SC_CROSSBOWCLAN])
+		maxhp += 30;
 	if(sc->data[SC_MYSTERIOUS_POWDER])
 		maxhp -= sc->data[SC_MYSTERIOUS_POWDER]->val1 / 100;
 
@@ -7920,6 +7972,19 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick / 10000;
 			tick = 10000;
 			break;
+		case SC_CLAN_INFO:
+ 			val_flag |= 1|2;
+			tick = -1;
+ 			break;
+		case SC_SWORDCLAN:
+		case SC_ARCWANDCLAN:
+		case SC_GOLDENMACECLAN:
+		case SC_CROSSBOWCLAN:
+		case SC_JUMPINGCLAN:
+			val_flag |= 1;
+			tick = -1;
+			status_change_start(bl, SC_CLAN_INFO, 10000, 0, val2, 0, 0, -1, flag);
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -8302,44 +8367,64 @@ int status_change_clear(struct block_list* bl, int type)
 		  continue;
 
 		if(type == 0)
-		switch (i)
-		{	//Type 0: PC killed -> Place here statuses that do not dispel on death.
-		case SC_WEIGHT50:
-		case SC_WEIGHT90:
-		case SC_EDP:
-		case SC_MELTDOWN:
-		case SC_XMAS:
-		case SC_SUMMER:
-		case SC_HANBOK:
-		case SC_OKTOBERFEST:
-		case SC_NOCHAT:
-		case SC_FUSION:
-		case SC_EARTHSCROLL:
-		case SC_READYSTORM:
-		case SC_READYDOWN:
-		case SC_READYCOUNTER:
-		case SC_READYTURN:
-		case SC_DODGE:
-		case SC_JAILED:
-		case SC_EXPBOOST:
-		case SC_ITEMBOOST:
-		case SC_HELLPOWER:
-		case SC_JEXPBOOST:
-		case SC_AUTOTRADE:
-		case SC_FOOD_STR_CASH:
-		case SC_FOOD_AGI_CASH:
-		case SC_FOOD_VIT_CASH:
-		case SC_FOOD_DEX_CASH:
-		case SC_FOOD_INT_CASH:
-		case SC_FOOD_LUK_CASH:
-		case SC_ALL_RIDING:
-		case SC_ON_PUSH_CART:
-		case SC_MOONSTAR:
-		case SC_STRANGELIGHTS:
-		case SC_SUPER_STAR:
-		case SC_DECORATION_OF_MUSIC:
-			continue;
-		}
+			switch(i)
+			{	//Type 0: PC killed -> Place here statuses that do not dispel on death.
+				case SC_WEIGHT50:
+				case SC_WEIGHT90:
+				case SC_EDP:
+				case SC_MELTDOWN:
+				case SC_XMAS:
+				case SC_SUMMER:
+				case SC_HANBOK:
+				case SC_OKTOBERFEST:
+				case SC_NOCHAT:
+				case SC_FUSION:
+				case SC_EARTHSCROLL:
+				case SC_READYSTORM:
+				case SC_READYDOWN:
+				case SC_READYCOUNTER:
+				case SC_READYTURN:
+				case SC_DODGE:
+				case SC_JAILED:
+				case SC_EXPBOOST:
+				case SC_ITEMBOOST:
+				case SC_HELLPOWER:
+				case SC_JEXPBOOST:
+				case SC_AUTOTRADE:
+				case SC_FOOD_STR_CASH:
+				case SC_FOOD_AGI_CASH:
+				case SC_FOOD_VIT_CASH:
+				case SC_FOOD_DEX_CASH:
+				case SC_FOOD_INT_CASH:
+				case SC_FOOD_LUK_CASH:
+				case SC_ALL_RIDING:
+				case SC_ON_PUSH_CART:
+				case SC_MOONSTAR:
+				case SC_STRANGELIGHTS:
+				case SC_SUPER_STAR:
+				case SC_DECORATION_OF_MUSIC:
+				// Clans
+				case SC_CLAN_INFO:
+				case SC_SWORDCLAN:
+				case SC_ARCWANDCLAN:
+				case SC_GOLDENMACECLAN:
+				case SC_CROSSBOWCLAN:
+				case SC_JUMPINGCLAN:
+					continue;
+			}
+
+		if(type == 3)
+			switch(i)
+			{
+				// Clans
+				case SC_CLAN_INFO:
+				case SC_SWORDCLAN:
+				case SC_ARCWANDCLAN:
+				case SC_GOLDENMACECLAN:
+				case SC_CROSSBOWCLAN:
+				case SC_JUMPINGCLAN:
+					continue;
+			}
 
 		if ( sc && sc->data[SC_MONSTER_TRANSFORM] && battle_config.transform_end_on_death == 0 && type == 0 )
 			continue;//Config if the monster transform status should end on death. [Rytech]
@@ -8803,169 +8888,178 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					pc_addspiritball(sd, skill_get_time(MO_CALLSPIRITS, sce->val1), 5);
 			}
 			break;
-		}
-
-	opt_flag = 1;
-	switch(type){
-	case SC_STONE:
-	case SC_FREEZE:
-	case SC_STUN:
-	case SC_SLEEP:
-	case SC_BURNING:
-	case SC_WHITEIMPRISON:
-		sc->opt1 = 0;
-		break;
-
-	case SC_POISON:
-	case SC_CURSE:
-	case SC_SILENCE:
-	case SC_BLIND:
-		sc->opt2 &= ~(1<<(type-SC_POISON));
-		break;
-	case SC_DPOISON:
-	case SC_FEAR:
-		sc->opt2 &= ~OPT2_DPOISON;
-		break;
-	case SC_SIGNUMCRUCIS:
-	case SC_CONFUSION:
-		sc->opt2 &= ~OPT2_SIGNUMCRUCIS;
-		break;
-
-	case SC_HIDING:
-		sc->option &= ~OPTION_HIDE;
-		opt_flag|= 2|4; //Check for warp trigger + AoE trigger
-		break;
-	case SC_CLOAKING:
-	case SC_CLOAKINGEXCEED:
-	case SC__INVISIBILITY:
-		sc->option &= ~OPTION_CLOAK;
-		opt_flag|= 2;
-		break;
-	case SC_CHASEWALK:
-		sc->option &= ~(OPTION_CHASEWALK|OPTION_CLOAK);
-		opt_flag|= 2;
-		break;
-	case SC_SIGHT:
-		sc->option &= ~OPTION_SIGHT;
-		break;
-	case SC_WEDDING:	
-		sc->option &= ~OPTION_WEDDING;
-		break;
-	case SC_XMAS:	
-		sc->option &= ~OPTION_XMAS;
-		break;
-	case SC_SUMMER:
-		sc->option &= ~OPTION_SUMMER;
-		break;
-	case SC_HANBOK:
-		sc->option &= ~OPTION_HANBOK;
-		break;
-	case SC_OKTOBERFEST:
-		sc->option &= ~OPTION_OKTOBERFEST;
-		break;
-	case SC_ORCISH:
-		sc->option &= ~OPTION_ORCISH;
-		break;
-	case SC_RUWACH:
-		sc->option &= ~OPTION_RUWACH;
-		break;
-	case SC_FUSION:
-		sc->option &= ~OPTION_FLYING;
-		break;
-	//opt3
-	case SC_TWOHANDQUICKEN:
-	case SC_ONEHAND:
-	case SC_SPEARQUICKEN:
-	case SC_CONCENTRATION:
-	case SC_MERC_QUICKEN:
-		sc->opt3 &= ~OPT3_QUICKEN;
-		opt_flag = 0;
-		break;
-	case SC_OVERTHRUST:
-	case SC_MAXOVERTHRUST:
-	case SC_SWOO:
-		sc->opt3 &= ~OPT3_OVERTHRUST;
-		opt_flag = 0;
-		break;
-	case SC_ENERGYCOAT:
-	case SC_SKE:
-		sc->opt3 &= ~OPT3_ENERGYCOAT;
-		opt_flag = 0;
-		break;
-	case SC_INCATKRATE: //Simulated Explosion spirits effect.
-		if (bl->type != BL_MOB)
-		{
-			opt_flag = 0;
+		case SC_SWORDCLAN:
+		case SC_ARCWANDCLAN:
+		case SC_GOLDENMACECLAN:
+		case SC_CROSSBOWCLAN:
+		case SC_JUMPINGCLAN:
+			status_change_end(bl, SC_CLAN_INFO, INVALID_TIMER);
 			break;
 		}
-	case SC_EXPLOSIONSPIRITS:
-		sc->opt3 &= ~OPT3_EXPLOSIONSPIRITS;
-		opt_flag = 0;
-		break;
-	case SC_STEELBODY:
-	case SC_SKA:
-		sc->opt3 &= ~OPT3_STEELBODY;
-		opt_flag = 0;
-		break;
-	case SC_BLADESTOP:
-	case SC_CURSEDCIRCLE_ATKER:
-	case SC_CURSEDCIRCLE_TARGET:
-		sc->opt3 &= ~OPT3_BLADESTOP;
-		opt_flag = 0;
-		break;
-	case SC_AURABLADE:
-		sc->opt3 &= ~OPT3_AURABLADE;
-		opt_flag = 0;
-		break;
-	case SC_BERSERK:
-	case SC_SATURDAY_NIGHT_FEVER:
-		sc->opt3 &= ~OPT3_BERSERK;
-		opt_flag = 0;
-		break;
-//	case ???: // doesn't seem to do anything
-//		sc->opt3 &= ~OPT3_LIGHTBLADE;
-//		opt_flag = 0;
-//		break;
-	case SC_DANCING:
-		if ((sce->val1&0xFFFF) == CG_MOONLIT)
-			sc->opt3 &= ~OPT3_MOONLIT;
-		opt_flag = 0;
-		break;
-	case SC_MARIONETTE:
-	case SC_MARIONETTE2:
-		sc->opt3 &= ~OPT3_MARIONETTE;
-		opt_flag = 0;
-		break;
-	case SC_ASSUMPTIO:
-		sc->opt3 &= ~OPT3_ASSUMPTIO;
-		opt_flag = 0;
-		break;
-	case SC_WARM: //SG skills [Komurka]
-		sc->opt3 &= ~OPT3_WARM;
-		opt_flag = 0;
-		break;
-	case SC_KAITE:
-		sc->opt3 &= ~OPT3_KAITE;
-		opt_flag = 0;
-		break;
-	case SC_BUNSINJYUTSU:
-		sc->opt3 &= ~OPT3_BUNSIN;
-		opt_flag = 0;
-		break;
-	case SC_SPIRIT:
-		sc->opt3 &= ~OPT3_SOULLINK;
-		opt_flag = 0;
-		break;
-	case SC_CHANGEUNDEAD:
-		sc->opt3 &= ~OPT3_UNDEAD;
-		opt_flag = 0;
-		break;
-//	case ???: // from DA_CONTRACT (looks like biolab mobs aura)
-//		sc->opt3 &= ~OPT3_CONTRACT;
-//		opt_flag = 0;
-//		break;
-	default:
-		opt_flag = 0;
+
+
+	opt_flag = 1;
+	switch(type)
+	{
+		case SC_STONE:
+		case SC_FREEZE:
+		case SC_STUN:
+		case SC_SLEEP:
+		case SC_BURNING:
+		case SC_WHITEIMPRISON:
+			sc->opt1 = 0;
+			break;
+
+		case SC_POISON:
+		case SC_CURSE:
+		case SC_SILENCE:
+		case SC_BLIND:
+			sc->opt2 &= ~(1<<(type-SC_POISON));
+			break;
+		case SC_DPOISON:
+		case SC_FEAR:
+			sc->opt2 &= ~OPT2_DPOISON;
+			break;
+		case SC_SIGNUMCRUCIS:
+		case SC_CONFUSION:
+			sc->opt2 &= ~OPT2_SIGNUMCRUCIS;
+			break;
+
+		case SC_HIDING:
+			sc->option &= ~OPTION_HIDE;
+			opt_flag|= 2|4; //Check for warp trigger + AoE trigger
+			break;
+		case SC_CLOAKING:
+		case SC_CLOAKINGEXCEED:
+		case SC__INVISIBILITY:
+			sc->option &= ~OPTION_CLOAK;
+			opt_flag|= 2;
+			break;
+		case SC_CHASEWALK:
+			sc->option &= ~(OPTION_CHASEWALK|OPTION_CLOAK);
+			opt_flag|= 2;
+			break;
+		case SC_SIGHT:
+			sc->option &= ~OPTION_SIGHT;
+			break;
+		case SC_WEDDING:	
+			sc->option &= ~OPTION_WEDDING;
+			break;
+		case SC_XMAS:	
+			sc->option &= ~OPTION_XMAS;
+			break;
+		case SC_SUMMER:
+			sc->option &= ~OPTION_SUMMER;
+			break;
+		case SC_HANBOK:
+			sc->option &= ~OPTION_HANBOK;
+			break;
+		case SC_OKTOBERFEST:
+			sc->option &= ~OPTION_OKTOBERFEST;
+			break;
+		case SC_ORCISH:
+			sc->option &= ~OPTION_ORCISH;
+			break;
+		case SC_RUWACH:
+			sc->option &= ~OPTION_RUWACH;
+			break;
+		case SC_FUSION:
+			sc->option &= ~OPTION_FLYING;
+			break;
+		//opt3
+		case SC_TWOHANDQUICKEN:
+		case SC_ONEHAND:
+		case SC_SPEARQUICKEN:
+		case SC_CONCENTRATION:
+		case SC_MERC_QUICKEN:
+			sc->opt3 &= ~OPT3_QUICKEN;
+			opt_flag = 0;
+			break;
+		case SC_OVERTHRUST:
+		case SC_MAXOVERTHRUST:
+		case SC_SWOO:
+			sc->opt3 &= ~OPT3_OVERTHRUST;
+			opt_flag = 0;
+			break;
+		case SC_ENERGYCOAT:
+		case SC_SKE:
+			sc->opt3 &= ~OPT3_ENERGYCOAT;
+			opt_flag = 0;
+			break;
+		case SC_INCATKRATE: //Simulated Explosion spirits effect.
+			if (bl->type != BL_MOB)
+			{
+				opt_flag = 0;
+				break;
+			}
+		case SC_EXPLOSIONSPIRITS:
+			sc->opt3 &= ~OPT3_EXPLOSIONSPIRITS;
+			opt_flag = 0;
+			break;
+		case SC_STEELBODY:
+		case SC_SKA:
+			sc->opt3 &= ~OPT3_STEELBODY;
+			opt_flag = 0;
+			break;
+		case SC_BLADESTOP:
+		case SC_CURSEDCIRCLE_ATKER:
+		case SC_CURSEDCIRCLE_TARGET:
+			sc->opt3 &= ~OPT3_BLADESTOP;
+			opt_flag = 0;
+			break;
+		case SC_AURABLADE:
+			sc->opt3 &= ~OPT3_AURABLADE;
+			opt_flag = 0;
+			break;
+		case SC_BERSERK:
+		case SC_SATURDAY_NIGHT_FEVER:
+			sc->opt3 &= ~OPT3_BERSERK;
+			opt_flag = 0;
+			break;
+	//	case ???: // doesn't seem to do anything
+	//		sc->opt3 &= ~OPT3_LIGHTBLADE;
+	//		opt_flag = 0;
+	//		break;
+		case SC_DANCING:
+			if ((sce->val1&0xFFFF) == CG_MOONLIT)
+				sc->opt3 &= ~OPT3_MOONLIT;
+			opt_flag = 0;
+			break;
+		case SC_MARIONETTE:
+		case SC_MARIONETTE2:
+			sc->opt3 &= ~OPT3_MARIONETTE;
+			opt_flag = 0;
+			break;
+		case SC_ASSUMPTIO:
+			sc->opt3 &= ~OPT3_ASSUMPTIO;
+			opt_flag = 0;
+			break;
+		case SC_WARM: //SG skills [Komurka]
+			sc->opt3 &= ~OPT3_WARM;
+			opt_flag = 0;
+			break;
+		case SC_KAITE:
+			sc->opt3 &= ~OPT3_KAITE;
+			opt_flag = 0;
+			break;
+		case SC_BUNSINJYUTSU:
+			sc->opt3 &= ~OPT3_BUNSIN;
+			opt_flag = 0;
+			break;
+		case SC_SPIRIT:
+			sc->opt3 &= ~OPT3_SOULLINK;
+			opt_flag = 0;
+			break;
+		case SC_CHANGEUNDEAD:
+			sc->opt3 &= ~OPT3_UNDEAD;
+			opt_flag = 0;
+			break;
+	//	case ???: // from DA_CONTRACT (looks like biolab mobs aura)
+	//		sc->opt3 &= ~OPT3_CONTRACT;
+	//		opt_flag = 0;
+	//		break;
+		default:
+			opt_flag = 0;
 	}
 
 	if (calc_flag&SCB_DYE)

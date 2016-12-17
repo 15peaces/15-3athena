@@ -6087,6 +6087,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_MOONSTAR:		case SC_SUPER_STAR:				case SC_MONSTER_TRANSFORM:
 				case SC_STRANGELIGHTS:	case SC_DECORATION_OF_MUSIC:	case SC__STRIPACCESSARY:
 				case SC_CRIFOOD:		case SC__SHADOWFORM:
+				// Clans
+				case SC_CLAN_INFO:		case SC_SWORDCLAN:				case SC_ARCWANDCLAN:
+				case SC_GOLDENMACECLAN:	case SC_CROSSBOWCLAN:			case SC_JUMPINGCLAN:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7339,6 +7342,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_PUTTI_TAILS_NOODLES:	case SC_CRIFOOD:
 				case SC_NEUTRALBARRIER_MASTER:	case SC_NEUTRALBARRIER:
 				case SC_STEALTHFIELD_MASTER:	case SC_STEALTHFIELD:
+				case SC_CLAN_INFO:				case SC_SWORDCLAN:		case SC_ARCWANDCLAN:
+				case SC_GOLDENMACECLAN:			case SC_CROSSBOWCLAN:
 				// ---------------------------
 					continue;
 				case SC_ASSUMPTIO:

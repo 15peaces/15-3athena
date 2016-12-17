@@ -74,6 +74,8 @@ extern char guild_member_db[256];
 extern char guild_position_db[256];
 extern char guild_skill_db[256];
 extern char guild_storage_db[256];
+extern char clan_db[256];
+extern char clan_alliance_db[256];
 extern char party_db[256];
 extern char pet_db[256];
 extern char mail_db[256];

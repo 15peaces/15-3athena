@@ -24,6 +24,7 @@ struct s_vending;
 struct party;
 struct party_data;
 struct guild;
+struct clan;
 struct battleground_data;
 struct quest;
 struct party_booking_ad_info;
@@ -158,6 +159,7 @@ typedef enum send_target {
 	BG_SAMEMAP_WOS,
 	BG_AREA,
 	BG_AREA_WOS,
+	CLAN,
 } send_target;
 
 typedef enum emotion_type
@@ -681,6 +683,12 @@ void clif_guild_broken(struct map_session_data *sd,int flag);
 void clif_guild_xy(struct map_session_data *sd);
 void clif_guild_xy_single(int fd, struct map_session_data *sd);
 void clif_guild_xy_remove(struct map_session_data *sd);
+
+// Clan System
+void clif_clan_basicinfo( struct map_session_data *sd );
+void clif_clan_message(struct clan *clan,const char *mes,int len);
+void clif_clan_onlinecount( struct clan* clan );
+void clif_clan_leave( struct map_session_data* sd );
 
 // Battleground
 void clif_bg_hp(struct map_session_data *sd);

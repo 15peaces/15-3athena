@@ -54,6 +54,8 @@ char guild_member_db[256] = "guild_member";
 char guild_position_db[256] = "guild_position";
 char guild_skill_db[256] = "guild_skill";
 char guild_storage_db[256] = "guild_storage";
+char clan_db[256] = "clan";
+char clan_alliance_db[256] = "clan_alliance";
 char party_db[256] = "party";
 char pet_db[256] = "pet";
 char mail_db[256] = "mail"; // MAIL SYSTEM
@@ -474,7 +476,8 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->pet_id != cp->pet_id) || (p->weapon != cp->weapon) || (p->hom_id != cp->hom_id) ||
 		(p->ele_id != cp->ele_id) || (p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->delete_date != cp->delete_date) ||
-		(p->rename != cp->rename) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift)
+		(p->rename != cp->rename) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
+		(p->clan_id != cp->clan_id )
 	)
 	{	//Save status
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `base_level`='%d', `job_level`='%d',"
@@ -484,7 +487,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',`elemental_id`='%d',"
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
-			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d'"
+			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -495,12 +498,13 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y,
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
-			p->robe, p->hotkey_rowshift,
+			p->robe, p->hotkey_rowshift, p->clan_id,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
 			errors++;
-		} else
+		} 
+		else
 			strcat(save_status, " status");
 	}
 
@@ -1066,7 +1070,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`sex`,`hotkey_rowshift`"
+		"`robe`,`sex`,`hotkey_rowshift`,`clan_id`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -1107,32 +1111,33 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 35, SQLDT_SHORT,  &p.robe, 0, NULL, NULL)
  	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 36, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL) 
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_UCHAR,  &p.hotkey_rowshift, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 59, SQLDT_INT,    &p.clan_id, 0, NULL, NULL)
 	)
 	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
+		SqlStmt_ShowDebug( stmt );
+		SqlStmt_Free( stmt );
 		return 0;
 	}
-	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
+	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow( stmt ); i++ )
 	{
-		p.last_point.map = mapindex_name2id(last_map);
+		p.last_point.map = mapindex_name2id( last_map );
 		sd->found_char[i] = p.char_id;
-		p.sex = char_mmo_gender(sd, &p, sex[0]);
-		j += mmo_char_tobuf(WBUFP(buf, j), &p);
+		p.sex = char_mmo_gender( sd, &p, sex[0] );
+		j += mmo_char_tobuf( WBUFP( buf, j ), &p );
 	}
 	for( ; i < MAX_CHARS; i++ )
 		sd->found_char[i] = -1;
 
-	memset(sd->new_name,0,sizeof(sd->new_name));
+	memset( sd->new_name, 0, sizeof( sd->new_name ) );
 
-	SqlStmt_Free(stmt);
+	SqlStmt_Free( stmt );
 	return j;
 }
 
 //=====================================================================================================
-int mmo_char_fromsql(int char_id, struct mmo_charstatus* p, bool load_everything)
+int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everything )
 {
-	int i,j;
+	int i, j;
 	char t_msg[128] = "";
 	struct mmo_charstatus* cp;
 	StringBuf buf;
@@ -5021,6 +5026,10 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(guild_position_db, w2, sizeof(guild_position_db));
 		else if(!strcmpi(w1,"guild_storage_db"))
 			safestrncpy(guild_storage_db, w2, sizeof(guild_storage_db));
+		else if(!strcmpi(w1,"clan_table"))
+			safestrncpy(clan_db, w2, sizeof(clan_db));
+		else if(!strcmpi(w1,"clan_alliance_table"))
+			safestrncpy(clan_alliance_db, w2, sizeof(clan_alliance_db));
 		else if(!strcmpi(w1,"party_db"))
 			safestrncpy(party_db, w2, sizeof(party_db));
 		else if(!strcmpi(w1,"pet_db"))
@@ -5041,12 +5050,12 @@ void sql_config_read(const char* cfgName)
 		else if(!strcmpi(w1,"import"))
 			sql_config_read(w2);
 	}
-	fclose(fp);
-	ShowInfo("Done reading %s.\n", cfgName);
+	fclose( fp );
+	ShowInfo( "Done reading %s.\n", cfgName );
 }
 #ifndef TXT_SQL_CONVERT
 
-int char_config_read(const char* cfgName)
+int char_config_read( const char* cfgName )
 {
 	char line[1024], w1[1024], w2[1024];
 	FILE* fp = fopen(cfgName, "r");

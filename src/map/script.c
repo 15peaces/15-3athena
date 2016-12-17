@@ -19,6 +19,7 @@
 
 #include "map.h"
 #include "path.h"
+#include "clan.h"
 #include "clif.h"
 #include "chrif.h"
 #include "itemdb.h"
@@ -6403,7 +6404,14 @@ BUILDIN_FUNC(readparam)
 	return 0;
 }
 /*==========================================
- *ƒLƒƒƒ‰ŠÖŒW‚ÌIDŽæ“¾
+ * Return charid identification
+ * return by @num :
+ *	0 : char_id
+ *	1 : party_id
+ *	2 : guild_id
+ *	3 : account_id
+ *	4 : bg_id
+ *	5 : clan_id
  *------------------------------------------*/
 BUILDIN_FUNC(getcharid)
 {
@@ -6421,16 +6429,18 @@ BUILDIN_FUNC(getcharid)
 		return 0;
 	}
 
-	switch( num ) {
-	case 0: script_pushint(st,sd->status.char_id); break;
-	case 1: script_pushint(st,sd->status.party_id); break;
-	case 2: script_pushint(st,sd->status.guild_id); break;
-	case 3: script_pushint(st,sd->status.account_id); break;
-	case 4: script_pushint(st,sd->bg_id); break;
-	default:
-		ShowError("buildin_getcharid: invalid parameter (%d).\n", num);
-		script_pushint(st,0);
-		break;
+	switch(num) 
+	{
+		case 0: script_pushint(st, sd->status.char_id); break;
+		case 1: script_pushint(st, sd->status.party_id); break;
+		case 2: script_pushint(st, sd->status.guild_id); break;
+		case 3: script_pushint(st, sd->status.account_id); break;
+		case 4: script_pushint(st, sd->bg_id); break;
+		case 5: script_pushint(st, sd->status.clan_id); break;
+		default:
+			ShowError("buildin_getcharid: invalid parameter (%d).\n", num);
+			script_pushint(st, 0);
+			break;
 	}
 		
 	return 0;
@@ -6440,26 +6450,27 @@ BUILDIN_FUNC(getcharid)
  *------------------------------------------*/
 BUILDIN_FUNC(getnpcid)
 {
-	int num = script_getnum(st,2);
+	int num = script_getnum(st, 2);
 	struct npc_data* nd = NULL;
 
-	if( script_hasdata(st,3) )
+	if (script_hasdata(st, 3))
 	{// unique npc name
-		if( ( nd = npc_name2id(script_getstr(st,3)) ) == NULL )
+		if ((nd = npc_name2id(script_getstr(st, 3))) == NULL)
 		{
-			ShowError("buildin_getnpcid: No such NPC '%s'.\n", script_getstr(st,3));
-			script_pushint(st,0);
+			ShowError("buildin_getnpcid: No such NPC '%s'.\n", script_getstr(st, 3));
+			script_pushint(st, 0);
 			return 1;
 		}
 	}
 
-	switch (num) {
+	switch(num)
+	{
 		case 0:
-			script_pushint(st,nd ? nd->bl.id : st->oid);
+			script_pushint(st, nd ? nd->bl.id : st->oid);
 			break;
 		default:
 			ShowError("buildin_getnpcid: invalid parameter (%d).\n", num);
-			script_pushint(st,0);
+			script_pushint(st, 0);
 			return 1;
 	}
 
@@ -17871,6 +17882,44 @@ BUILDIN_FUNC(guild_changegm) {
 	return 1;
 }
 
+// Clan System
+BUILDIN_FUNC(clan_join)
+{
+	struct map_session_data *sd;
+	int clan_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd))
+	{
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (clan_member_join(sd, clan_id, sd->status.account_id, sd->status.char_id))
+		script_pushint(st, true);
+	else
+		script_pushint(st, false);
+
+	return 0;
+}
+
+BUILDIN_FUNC(clan_leave)
+{
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(2, sd))
+	{
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (clan_member_leave(sd, sd->status.clan_id, sd->status.account_id, sd->status.char_id))
+		script_pushint(st, true);
+	else
+		script_pushint(st, false);
+
+	return 0;
+}
+
 /**
  * Attach script to player for certain duration
  * bonus_script "<script code>",<duration>{,<flag>{,<type>{,<status_icon>{,<char_id>}}}};
@@ -18109,6 +18158,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildname,"i"),
 	BUILDIN_DEF(getguildmaster,"i"),
 	BUILDIN_DEF(getguildmasterid,"i"),
+	// Clan system
+	BUILDIN_DEF(clan_join,"i?"),
+	BUILDIN_DEF(clan_leave,"?"),
 	BUILDIN_DEF(strcharinfo,"i"),
 	BUILDIN_DEF(strnpcinfo,"i"),
 	BUILDIN_DEF(getequipid,"i"),

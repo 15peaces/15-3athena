@@ -10,6 +10,7 @@
 #include "map.h"
 #include "battle.h"
 #include "chrif.h"
+#include "clan.h"
 #include "clif.h"
 #include "pc.h"
 #include "intif.h"
@@ -45,6 +46,7 @@ static const int packet_len_table[]={
 	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0, -1, 3,  3, 0, //0x3870  Mercenaries [Zephyrus] Elementals [pakpil]
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3880
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
+	-1,-1, 8, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x38A0  Clans
 };
 
 extern int char_fd;		// inter serverのfdはchar_fdを使う
@@ -2107,10 +2109,104 @@ void intif_parse_itembound_ack(int fd) {
 	if(gstor) gstor->lock = 0; //Unlock now that operation is completed 
 }
 #endif
+
+int intif_clan_requestclans()
+{
+	if (CheckForCharServer())
+		return 0;
+	WFIFOHEAD(inter_fd, 2);
+	WFIFOW(inter_fd, 0) = 0x30A0;
+	WFIFOSET(inter_fd, 2);
+	return 1;
+}
+
+void intif_parse_clans(int fd)
+{
+	clan_load_clandata((RFIFOW(fd, 2) - 4) / sizeof(struct clan), (struct clan*)RFIFOP(fd, 4));
+}
+
+int intif_clan_message(int clan_id, uint32 account_id, const char *mes, int len)
+{
+	if (CheckForCharServer())
+		return 0;
+
+	if (other_mapserver_count < 1)
+		return 0; //No need to send.
+
+	WFIFOHEAD(inter_fd, len + 12);
+	WFIFOW(inter_fd, 0) = 0x30A1;
+	WFIFOW(inter_fd, 2) = len+12;
+	WFIFOL(inter_fd, 4) = clan_id;
+	WFIFOL(inter_fd, 8) = account_id;
+	memcpy(WFIFOP(inter_fd, 12), mes, len);
+	WFIFOSET(inter_fd, len + 12);
+
+	return 1;
+}
+
+int intif_parse_clan_message(int fd)
+{
+	clan_recv_message(RFIFOL(fd, 4), RFIFOL(fd, 8), (char *) RFIFOP(fd, 12), RFIFOW(fd, 2) - 12);
+
+	return 1;
+}
+
+int intif_clan_member_left(int clan_id)
+{
+	if (CheckForCharServer())
+		return 0;
+
+	if (other_mapserver_count < 1)
+		return 0; //No need to send.
+
+	WFIFOHEAD(inter_fd, 6);
+	WFIFOW(inter_fd, 0) = 0x30A2;
+	WFIFOL(inter_fd, 2) = clan_id;
+	WFIFOSET(inter_fd, 6);
+	
+	return 1;
+}
+
+int intif_clan_member_joined(int clan_id)
+{
+	if (CheckForCharServer())
+		return 0;
+
+	if (other_mapserver_count < 1)
+		return 0; //No need to send.
+
+	WFIFOHEAD(inter_fd, 6);
+	WFIFOW(inter_fd, 0) = 0x30A3;
+	WFIFOL(inter_fd, 2) = clan_id;
+	WFIFOSET(inter_fd, 6);
+	
+	return 1;
+}
+
+int intif_parse_clan_onlinecount(int fd)
+{
+	struct clan* clan = clan_search(RFIFOL(fd, 2));
+
+	if(clan == NULL)
+		return 0;
+
+	clan->connect_member = RFIFOW(fd, 6);
+
+	clif_clan_onlinecount(clan);
+
+	return 1;
+}
+
 //-----------------------------------------------------------------
-// inter serverからの通信
-// エラーがあれば0(false)を返すこと
-// パケットが処理できれば1,パケット長が足りなければ2を返すこと
+
+/*========================================== 
+ * Communication from the inter server, Main entry point interface (inter<=>map) 
+ * @param fd : inter-serv link
+ * @return
+ *  0 (unknow packet).
+ *  1 sucess (no error)
+ *  2 invalid lenght of packet (not enough data yet)
+ *------------------------------------------*/ 
 int intif_parse(int fd)
 {
 	int packet_len, cmd;
@@ -2210,19 +2306,28 @@ int intif_parse(int fd)
 	case 0x387d:	intif_parse_elemental_deleted(fd); break;
 	case 0x387e:	intif_parse_elemental_saved(fd); break;
 
+// Pet System
 	case 0x3880:	intif_parse_CreatePet(fd); break;
 	case 0x3881:	intif_parse_RecvPetData(fd); break;
 	case 0x3882:	intif_parse_SavePetOk(fd); break;
 	case 0x3883:	intif_parse_DeletePetOk(fd); break;
+
+// Homunculus System
 	case 0x3890:	intif_parse_CreateHomunculus(fd); break;
 	case 0x3891:	intif_parse_RecvHomunculusData(fd); break;
 	case 0x3892:	intif_parse_SaveHomunculusOk(fd); break;
 	case 0x3893:	intif_parse_DeleteHomunculusOk(fd); break;
+
+// Clan system
+	case 0x38A0:	intif_parse_clans(fd); break;
+	case 0x38A1:	intif_parse_clan_message(fd); break;
+	case 0x38A2:	intif_parse_clan_onlinecount(fd); break;
+
 	default:
-		ShowError("intif_parse : unknown packet %d %x\n",fd,RFIFOW(fd,0));
+		ShowError("intif_parse : unknown packet %d %x\n", fd, RFIFOW(fd, 0));
 		return 0;
 	}
-	// パケット読み飛ばし
-	RFIFOSKIP(fd,packet_len);
+	// Skip packet
+	RFIFOSKIP(fd, packet_len);
 	return 1;
 }

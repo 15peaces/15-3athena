@@ -4,7 +4,7 @@
 //= A reference manual for the 15-3athena scripting language.
 //= Commands are sorted depending on their functionality.
 //===== Version ==============================================
-//= 3.67.20161117
+//= 3.68.20161207
 //============================================================
 //= 1.0 - First release, filled will as much info as I could
 //=       remember or figure out, most likely there are errors,
@@ -229,7 +229,9 @@
 //= 3.66.20160924
 //=		  Added episode support to shops and warps [15peaces]
 //= 3.67.20161117
-//        Added 'questinfo'. [15peaces]
+//=       Added 'questinfo'. [15peaces]
+//= 3.68.20161207
+//=       Added documentation for clan-system. [15peaces]
 //=========================================================
 
 This document is a reference manual for all the scripting commands and functions 
@@ -2450,6 +2452,7 @@ Type is the kind of associated ID number required:
  2 - Guild ID
  3 - Account ID
  4 - Battle Ground ID
+ 5 - Clan ID
 
 For most purposes other than printing it, a number is better to have than a name 
 (people do horrifying things to their character names).
@@ -3133,7 +3136,7 @@ You need to put a 'close' after that yourself.
 
 ---------------------------------------
 \\
-2,2.- Guild-related commands
+2,2.- Guild- / Clan- related commands
 \\
 ---------------------------------------
 *getguildname(<guild id>)
@@ -3319,10 +3322,25 @@ Guild members must be removed first like breaking a guild by using /breakguild
 or @breakguild.
 Return 1 if attempt to breaks guild is success, 0 otherwise.
 
+---------------------------------------
+
+*clan_join(<clan id>{,<char id>});
+
+The attached player joins the clan with the <clan id>. On a successful join,
+true is returned, else false if the join failed.
+If <char id> is specified, the specified player is used rather than the attached one.
+
+---------------------------------------
+
+*clan_leave({<char id>});
+
+The attached player will leave their clan. On a successful leave, true is returned,
+else false if the leave failed.
+If <char id> is specified, the specified player is used rather than the attached one.
 
 ---------------------------------------
 //
-2,2.- End of guild-related commands
+2,2.- End of Guild- / Clan- related commands
 //
 ---------------------------------------
 

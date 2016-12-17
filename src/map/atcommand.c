@@ -4029,7 +4029,14 @@ ACMD_FUNC(guild)
 		return -1;
 	}
 
-	if (!message || !*message || sscanf(message, "%23[^\n]", guild) < 1) {
+	if (sd->clan) 
+	{
+		clif_displaymessage(fd, msg_txt(735)); // You cannot create a guild because you are in a clan.
+		return -1;
+	}
+
+	if (!message || !*message || sscanf(message, "%23[^\n]", guild) < 1)
+	{
 		clif_displaymessage(fd, "Please, enter a guild name (usage: @guild <guild_name>).");
 		return -1;
 	}

@@ -627,8 +627,28 @@ int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target
 		}
 		break;
 
+	case CLAN:
+		if (sd && sd->clan)
+		{
+			struct clan* clan = sd->clan;
+
+			for (i = 0; i < clan->max_member; i++)
+			{
+				if ((sd = clan->members[i]) == NULL || !(fd = sd->fd))
+					continue;
+
+				if (packet_db[sd->packet_ver][RBUFW(buf,0)].len)
+				{ // packet must exist for the client version
+					WFIFOHEAD(fd, len);
+					memcpy(WFIFOP(fd, 0), buf, len);
+					WFIFOSET(fd, len);
+				}
+			}
+		}
+		break;
+
 	default:
-		ShowError("clif_send: Unrecognized type %d\n",type);
+		ShowError("clif_send: Unrecognized type %d\n", type);
 		return -1;
 	}
 
@@ -12976,6 +12996,9 @@ void clif_parse_CreateGuild(int fd,struct map_session_data *sd)
 		return;
 	}
 
+	if (sd->clan) // Should display a clientside message "You are currently joined in Clan !!" so we ignore it
+		return;
+
 	guild_create(sd, name);
 }
 
@@ -13215,6 +13238,10 @@ void clif_parse_GuildInvite(int fd,struct map_session_data *sd)
 		return;
 	}
 
+	// Players in a clan can not join a guild
+	if (t_sd && t_sd->clan)
+		return;
+
 	guild_invite(sd,t_sd);
 }
 
@@ -13400,6 +13427,141 @@ void clif_parse_GuildBreak(int fd, struct map_session_data *sd)
 	guild_break(sd,(char*)RFIFOP(fd,2));
 }
 
+/// Sends a clan message to a player (ZC_NOTIFY_CLAN_CHAT)
+/// 098e <length>.W <name>.24B <message>.?B 
+void clif_clan_message(struct clan *clan, const char *mes, int len)
+{
+#if PACKETVER >= 20131223
+	struct map_session_data *sd;
+	uint8 buf[256];
+
+	if (len == 0)
+		return;
+	else if (len > (sizeof(buf) - 5 - NAME_LENGTH))
+	{
+		ShowWarning("clif_clan_message: Truncated message '%s' (len=%d, max=%d, clan_id=%d).\n", mes, len, sizeof(buf) - 5, clan->id);
+		len = sizeof(buf) - 5 - NAME_LENGTH;
+	}
+
+	WBUFW(buf, 0) = 0x98e;
+	WBUFW(buf, 2) = len + 5 + NAME_LENGTH;
+	
+	// Offially the sender name should also be filled here, but it is not required by the client and since it's in the message too we do not fill it
+	//safestrncpy(WBUFCP(buf,4), sendername, NAME_LENGTH);
+	safestrncpy(WBUFCP(buf, 4 + NAME_LENGTH), mes, len + 1);
+
+	if ((sd = clan_getavailablesd(clan)) != NULL)
+		clif_send(buf, WBUFW(buf, 2), &sd->bl, CLAN);
+#endif
+}
+
+/// Parses a clan message from a player. (CZ_CLAN_CHAT)
+/// 098d <length>.W <text>.?B (<name> : <message>)
+void clif_parse_clan_chat(int fd, struct map_session_data* sd)
+{
+#if PACKETVER >= 20131223
+	char *name, *message;
+	int namelen, messagelen;
+
+	// validate packet and retrieve name and message
+	if (!clif_process_message(sd, 0, &name, &namelen, &message, &messagelen ))
+		return;
+
+	clan_send_message(sd, RFIFOCP(fd, 4), RFIFOW(fd, 2) - 4);
+#endif
+}
+
+/// Sends the basic clan informations to the client. (ZC_CLANINFO)
+/// 098a <length>.W <clan id>.L <clan name>.24B <clan master>.24B <clan map>.16B <alliance count>.B
+///      <antagonist count>.B { <alliance>.24B } * alliance count { <antagonist>.24B } * antagonist count
+void clif_clan_basicinfo(struct map_session_data *sd)
+{
+#if PACKETVER >= 20131223
+	int fd, offset, length, i, flag;
+	struct clan* clan;
+	char mapname[MAP_NAME_LENGTH_EXT];
+	
+	nullpo_retv(sd);
+	nullpo_retv(clan = sd->clan);
+	
+	// Check if the player has a valid session and is not autotrading
+	if (!session_isValid(sd->fd))
+		return;
+
+	length = 8 + 2 * NAME_LENGTH + MAP_NAME_LENGTH_EXT + 2;
+	fd = sd->fd;
+
+	WFIFOHEAD(fd, length);
+
+	memset(WFIFOP(fd, 0), 0, length);
+
+	WFIFOW(fd, 0) = 0x98a;
+	WFIFOL(fd, 4) = clan->id;
+	offset = 8;
+	safestrncpy(WFIFOCP(fd, offset), clan->name, NAME_LENGTH);
+	offset += NAME_LENGTH;
+	safestrncpy(WFIFOCP(fd, offset), clan->master, NAME_LENGTH);
+	offset += NAME_LENGTH;
+	mapindex_getmapname_ext(clan->map, mapname);
+	safestrncpy( WFIFOCP(fd, offset), mapname, MAP_NAME_LENGTH_EXT);
+	offset += MAP_NAME_LENGTH_EXT;
+
+	WFIFOB(fd, offset++) = clan_get_alliance_count(clan, 0);
+	WFIFOB(fd, offset++) = clan_get_alliance_count(clan, 1);
+
+	for (flag = 0; flag < 2; flag++)
+	{
+		for (i = 0; i < MAX_CLANALLIANCE; i++)
+		{
+			if (clan->alliance[i].clan_id > 0 && clan->alliance[i].opposition == flag)
+			{
+				safestrncpy(WFIFOCP(fd, offset), clan->alliance[i].name, NAME_LENGTH);
+				offset += NAME_LENGTH;
+			}
+		}
+	}
+
+	WFIFOW(fd, 2) = offset;
+	WFIFOSET(fd, offset);
+#endif
+}
+
+/// Updates the online and maximum player count of a clan. (ZC_NOTIFY_CLAN_CONNECTINFO)
+/// 0988 <online count>.W <maximum member amount>.W
+void clif_clan_onlinecount(struct clan* clan)
+{
+#if PACKETVER >= 20131223
+	uint8 buf[6];
+	struct map_session_data *sd;
+
+	WBUFW(buf, 0) = 0x988;
+	WBUFW(buf, 2) = clan->connect_member;
+	WBUFW(buf, 4) = clan->max_member;
+
+	if ((sd = clan_getavailablesd(clan)) != NULL)
+		clif_send(buf, 6, &sd->bl, CLAN);
+#endif
+}
+
+/// Notifies the client that the player has left his clan. (ZC_ACK_CLAN_LEAVE)
+/// 0989
+void clif_clan_leave(struct map_session_data* sd)
+{
+#if PACKETVER >= 20131223
+	int fd;
+	
+	nullpo_retv(sd);
+	
+	if (!session_isValid(sd->fd))
+		return;
+	
+	fd = sd->fd;
+
+	WFIFOHEAD(fd, 2);
+	WFIFOW(fd, 0) = 0x989;
+	WFIFOSET(fd, 2);
+#endif
+}
 
 /// Pet
 ///
@@ -18536,7 +18698,7 @@ void packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0, 14,	6, 50,	0,	0,	0,	0,	0,	0,
 //#0x0980
-		0,	0,	0, 29, 28,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		0,  0,  0, 29, 28,  0,  0,  0,  6,  2, -1,  0,  0, -1, -1,  0,
 		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
 		0,  0,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
@@ -18786,28 +18948,34 @@ void packetdb_readdb(void)
 		{ clif_parse_RouletteRecvItem, "rouletterecvitem" },
 		// HotkeyRowShift
 		{ clif_parse_HotkeyRowShift, "hotkeyrowshift"},
+		// Clan System
+		{clif_parse_clan_chat, "clanchat"},
 		{NULL,NULL}
 	};
 
-	struct {
+	struct 
+	{
 		char *name; //function name
 		int funcidx; //
-	} clif_ack_func[]={ //hash
-		{ "ZC_ACK_OPEN_BANKING", ZC_ACK_OPEN_BANKING},
-		{ "ZC_ACK_BANKING_DEPOSIT", ZC_ACK_BANKING_DEPOSIT},
-		{ "ZC_ACK_BANKING_WITHDRAW", ZC_ACK_BANKING_WITHDRAW},
-		{ "ZC_BANKING_CHECK", ZC_BANKING_CHECK},
+	} 
+	clif_ack_func[] =
+	{ //hash
+		{"ZC_ACK_OPEN_BANKING", ZC_ACK_OPEN_BANKING},
+		{"ZC_ACK_BANKING_DEPOSIT", ZC_ACK_BANKING_DEPOSIT},
+		{"ZC_ACK_BANKING_WITHDRAW", ZC_ACK_BANKING_WITHDRAW},
+		{"ZC_BANKING_CHECK", ZC_BANKING_CHECK},
 	}; 
 
-	memset(packet_db_ack,0,sizeof(packet_db_ack));
+	memset(packet_db_ack, 0, sizeof(packet_db_ack));
 
 	// initialize packet_db[SERVER] from hardcoded packet_len_table[] values
-	memset(packet_db,0,sizeof(packet_db));
-	for( i = 0; i < ARRAYLENGTH(packet_len_table); ++i )
+	memset(packet_db, 0, sizeof(packet_db));
+	for (i = 0; i < ARRAYLENGTH(packet_len_table); ++i)
 		packet_len(i) = packet_len_table[i];
 
 	sprintf(line, "%s/packet_db.txt", db_path);
-	if( (fp=fopen(line,"r"))==NULL ){
+	if ((fp = fopen(line, "r")) == NULL)
+	{
 		ShowFatalError("can't read %s\n", line);
 		exit(EXIT_FAILURE);
 	}

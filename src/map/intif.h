@@ -110,6 +110,12 @@ int intif_elemental_request(int ele_id, int char_id);
 int intif_elemental_delete(int ele_id);
 int intif_elemental_save(struct s_elemental *ele);
 
+// CLAN SYSTEM
+int intif_clan_requestclans();
+int intif_clan_message(int clan_id, uint32 account_id, const char *mes, int len);
+int intif_clan_member_joined(int clan_id);
+int intif_clan_member_left(int clan_id);
+
 bool CheckForCharServer(void);
 
 #endif /* _INTIF_H_ */

@@ -16,6 +16,7 @@
 #include "battle.h" // battle_config
 #include "battleground.h"
 #include "chrif.h"
+#include "clan.h"
 #include "clif.h"
 #include "date.h" // is_day_of_*()
 #include "duel.h"
@@ -1289,15 +1290,17 @@ int pc_reg_received(struct map_session_data *sd)
 		party_member_joined(sd);
 	if (sd->status.guild_id)
 		guild_member_joined(sd);
+	if (sd->status.clan_id)
+		clan_member_joined(sd);
 	
 	// pet, homunculus, mercenary and elementals
 	if (sd->status.pet_id > 0)
 		intif_request_petdata(sd->status.account_id, sd->status.char_id, sd->status.pet_id);
-	if( sd->status.hom_id > 0 )
+	if (sd->status.hom_id > 0)
 		intif_homunculus_requestload(sd->status.account_id, sd->status.hom_id);
-	if( sd->status.mer_id > 0 )
+	if (sd->status.mer_id > 0)
 		intif_mercenary_request(sd->status.mer_id, sd->status.char_id);
-	if( sd->status.ele_id > 0 )
+	if (sd->status.ele_id > 0)
 		intif_elemental_request(sd->status.ele_id, sd->status.char_id);
 
 	map_addiddb(&sd->bl);
@@ -1305,7 +1308,7 @@ int pc_reg_received(struct map_session_data *sd)
 	if (!chrif_auth_finished(sd))
 		ShowError("pc_reg_received: Failed to properly remove player %d:%d from logging db!\n", sd->status.account_id, sd->status.char_id);
 
-	status_calc_pc(sd,1);
+	status_calc_pc(sd, 1);
 	chrif_scdata_request(sd->status.account_id, sd->status.char_id);
 
 	chrif_bsdata_request(sd->status.char_id); // cydh bonus_script
@@ -4868,20 +4871,25 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
  * Return player sd skill_lv learned for given skill
  *------------------------------------------*/
 int pc_checkskill(struct map_session_data *sd,int skill_id) {
-	nullpo_ret(sd);
-	if( skill_id >= GD_SKILLBASE && skill_id < GD_MAX ) {
+	if( sd == NULL )
+		return 0;
+
+	if( skill_id >= GD_SKILLBASE && skill_id < GD_MAX ) 
+	{
 		struct guild *g;
 
-		if( sd->status.guild_id>0 && (g=guild_search(sd->status.guild_id))!=NULL)
-			return guild_checkskill(g,skill_id);
+		if( sd->status.guild_id > 0 && ( g = guild_search( sd->status.guild_id ) ) != NULL )
+			return guild_checkskill( g, skill_id );
 		return 0;
-	} else if( skill_id < 0 || skill_id >= ARRAYLENGTH(sd->status.skill) ) {
-		ShowError("pc_checkskill: Invalid skill id %d (char_id=%d).\n", skill_id, sd->status.char_id);
+	} 
+	else if( skill_id < 0 || skill_id >= ARRAYLENGTH( sd->status.skill ) ) 
+	{
+		ShowError( "pc_checkskill: Invalid skill id %d (char_id=%d).\n", skill_id, sd->status.char_id );
 		return 0;
 	}
 
-	if(sd->status.skill[skill_id].id == skill_id)
-		return (sd->status.skill[skill_id].lv);
+	if( sd->status.skill[skill_id].id == skill_id )
+		return( sd->status.skill[skill_id].lv );
 
 	return 0;
 }

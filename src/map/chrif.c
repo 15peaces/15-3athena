@@ -12,6 +12,7 @@
 
 #include "map.h"
 #include "battle.h"
+#include "clan.h"
 #include "clif.h"
 #include "intif.h"
 #include "npc.h"
@@ -38,7 +39,8 @@ static int check_connect_char_server(int tid, unsigned int tick, int id, intptr_
 static struct eri *auth_db_ers; //For reutilizing player login structures.
 static DBMap* auth_db; // int id -> struct auth_node*
 
-static const int packet_len_table[0x3d] = { // U - used, F - free
+static const int packet_len_table[0x3d] = 
+{								// U - used, F - free
 	60, 3,-1,27,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
 	 6,-1,18, 7,-1,35,30, 6,	// 2b00-2b07: U->2b00, U->2b01, U->2b02, U->2b03, U->2b04, U->2b05, U->2b06, U->2b07
 	 6,30, 0, 0,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, F->2b0a, F->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
@@ -475,37 +477,40 @@ int chrif_connectack(int fd)
 	if( !char_init_done ) {
 		char_init_done = true;
 		ShowStatus("Event '"CL_WHITE"OnInterIfInitOnce"CL_RESET"' executed with '"CL_WHITE"%d"CL_RESET"' NPCs.\n", npc_event_doall("OnInterIfInitOnce"));
+		intif_clan_requestclans();
 	}
 
 	return 0;
 }
-static int chrif_reconnect(DBKey key,void *data,va_list ap)
+
+static int chrif_reconnect(DBKey key, void *data, va_list ap)
 {
-	struct auth_node *node=(struct auth_node*)data;
-	switch (node->state) {
-	case ST_LOGIN:
-		if (node->sd && node->char_dat == NULL)
-		{	//Since there is no way to request the char auth, make it fail.
-			pc_authfail(node->sd);
-			chrif_char_offline(node->sd);
-			chrif_auth_delete(node->account_id, node->char_id, ST_LOGIN);
-		}
-		break;
-	case ST_LOGOUT:
-		//Re-send final save
-		chrif_save(node->sd, 1);
-		break;
-	case ST_MAPCHANGE:
-		{	//Re-send map-change request.
-		struct map_session_data *sd = node->sd;
-		uint32 ip;
-		uint16 port;
-		if(map_mapname2ipport(sd->mapindex,&ip,&port)==0)
-			chrif_changemapserver(sd, ip, port);
-		else //too much lag/timeout is the closest explanation for this error.
-			clif_authfail_fd(sd->fd, 3);
-		break;
-		}
+	struct auth_node *node = (struct auth_node*)data;
+	switch (node->state) 
+	{
+		case ST_LOGIN:
+			if (node->sd && node->char_dat == NULL)
+			{	//Since there is no way to request the char auth, make it fail.
+				pc_authfail(node->sd);
+				chrif_char_offline(node->sd);
+				chrif_auth_delete(node->account_id, node->char_id, ST_LOGIN);
+			}
+			break;
+		case ST_LOGOUT:
+			//Re-send final save
+			chrif_save(node->sd, 1);
+			break;
+		case ST_MAPCHANGE:
+			{	//Re-send map-change request.
+				struct map_session_data *sd = node->sd;
+				uint32 ip;
+				uint16 port;
+				if (map_mapname2ipport(sd->mapindex,&ip,&port) == 0)
+					chrif_changemapserver(sd, ip, port);
+				else //too much lag/timeout is the closest explanation for this error.
+					clif_authfail_fd(sd->fd, 3);
+			}
+			break;
 	}
 	return 0;
 }

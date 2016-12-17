@@ -4,6 +4,22 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/17/2016
+	r148 [15peaces]
+		*Merged missing changes from 3ceam rev. 525
+		*Some random cleanup.
+		*Added latest NPC IDs.
+		*Added full support for clan system.
+			-Thanks to rAthena.
+			-Please don't forget to run upgrade_15-3athena_svn148.sql.
+			-Requires 2013-12-23 client or newer.
+			-Includes the Sword, Arc Wand, Golden Mace, and Cross Bow Clans.
+			--Jumping Clan is not yet implemented as more information is needed.
+			-Includes official NPC to join and leave Clans.
+			-Side note: Confirm your chat window has the Clan Info setting enabled to display messages.
+			-Added clan_join and clan_leave script commands.
+		*Fixed a mistake in a previous clean up that was causing map crashes or nullpo messages if the servers is compiled as debug mode. Sorry.
+		
 12/06/2016
 	r147 [15peaces]
 		*Merged missing changes from 3ceam rev. 524

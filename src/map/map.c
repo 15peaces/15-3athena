@@ -16,6 +16,7 @@
 #include "map.h"
 #include "path.h"
 #include "chrif.h"
+#include "clan.h"
 #include "clif.h"
 #include "duel.h"
 #include "intif.h"
@@ -1762,12 +1763,15 @@ int map_quit(struct map_session_data *sd)
 	if (sd->npc_id)
 		npc_event_dequeue(sd);
 
+	if (sd->status.clan_id)
+		clan_member_left(sd);
+
 	npc_script_event(sd, NPCE_LOGOUT);
 
 	//Unit_free handles clearing the player related data, 
 	//map_quit handles extra specific data which is related to quitting normally
 	//(changing map-servers invokes unit_free but bypasses map_quit)
-	if( sd->sc.count )
+	if (sd->sc.count)
 	{
 		//Status that are not saved...
 		status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
@@ -1785,7 +1789,8 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);
 		status_change_end(&sd->bl,SC_RAISINGDRAGON, INVALID_TIMER);
-		if (battle_config.debuff_on_logout&1) {
+		if (battle_config.debuff_on_logout&1) 
+		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STRIPWEAPON, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STRIPARMOR, INVALID_TIMER);
@@ -4032,6 +4037,7 @@ int do_init(int argc, char *argv[])
 	do_init_battle();
 	do_init_instance();
 	do_init_chrif();
+	do_init_clan();
 	do_init_clif();
 	do_init_script();
 	do_init_itemdb();

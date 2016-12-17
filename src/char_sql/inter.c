@@ -17,6 +17,7 @@
 #include "int_homun.h"
 #include "int_mercenary.h"
 #include "int_elemental.h"
+#include "int_clan.h"
 #include "int_mail.h"
 #include "int_auction.h"
 #include "int_quest.h"
@@ -56,6 +57,7 @@ int inter_recv_packet_length[] = {
 	-1,10, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0, -1,10,  6,-1,	// 3070-  Mercenary packets [Zephyrus], Elemental packets [pakpil]
 	48,14,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3080-
 	-1,10,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3090-  Homunculus packets [albator]
+	 2,-1, 6, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 30A0-  Clan packets
 };
 
 struct WisData {
@@ -307,6 +309,7 @@ int inter_init_sql(const char *file)
 	inter_accreg_sql_init();
 	inter_mail_sql_init();
 	inter_auction_sql_init();
+	inter_clan_init();
 
 #endif //TXT_SQL_CONVERT
 	return 0;
@@ -327,6 +330,7 @@ void inter_final(void)
 	inter_elemental_sql_final();
 	inter_mail_sql_final();
 	inter_auction_sql_final();
+	inter_clan_final();
 	
 	if (accreg_pt) aFree(accreg_pt);
 	return;
@@ -739,13 +743,14 @@ int inter_parse_frommap(int fd)
 		  || inter_mail_parse_frommap(fd)
 		  || inter_auction_parse_frommap(fd)
 		  || inter_quest_parse_frommap(fd)
+		  || inter_clan_parse_frommap(fd)
 		   )
 			break;
 		else
 			return 0;
 	}
 
-	RFIFOSKIP(fd, len);
+	RFIFOSKIP( fd, len );
 	return 1;
 }
 

@@ -134,6 +134,14 @@ SOURCE=..\src\map\chrif.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\src\map\clan.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\src\map\clan.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\src\map\clif.c
 # End Source File
 # Begin Source File
