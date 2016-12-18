@@ -7054,9 +7054,9 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 	}
 	WFIFOSET(fd,WFIFOW(fd,2));
 
-#if PACKETVER >= 20141022
+#if PACKETVER >= 20140625
 	// Should go elsewhere perhaps? It has to be bundled with this however.
-	WFIFOHEAD(fd, 3);
+	WFIFOHEAD(fd, packet_len(0xa28));
 	WFIFOW(fd, 0) = 0xa28;
 	WFIFOB(fd, 2) = 0; // 1 is failure. Our current responses to failure are working so not yet implemented.
 	WFIFOSET(fd, 3);
@@ -7067,8 +7067,9 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 /// Inform merchant that someone has bought an item.
 /// 0137 <index>.W <amount>.W (ZC_DELETEITEM_FROM_MCSTORE).
 /// 09e5 <index>.W <amount>.W <GID>.L <Date>.L <zeny>.L (ZC_DELETEITEM_FROM_MCSTORE2).
-void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny) {
-#if PACKETVER < 20141016		// TODO : not sure for client date [Napster]
+void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint32 char_id, int zeny)
+{
+#if PACKETVER < 20141016 // TODO : not sure for client date [Napster]
 	const int cmd = 0x137;
 #else
 	const int cmd = 0x9e5;
@@ -7077,14 +7078,14 @@ void clif_vendingreport(struct map_session_data* sd, int index, int amount, uint
 
 	nullpo_retv(sd);
 
-	WFIFOHEAD(fd,packet_len(cmd));
-	WFIFOW(fd,0) = cmd;
-	WFIFOW(fd,2) = index+2;
-	WFIFOW(fd,4) = amount;
+	WFIFOHEAD(fd, packet_len(cmd));
+	WFIFOW(fd, 0) = cmd;
+	WFIFOW(fd, 2) = index+2;
+	WFIFOW(fd, 4) = amount;
 #if PACKETVER >= 20141016
-	WFIFOL(fd,6) = char_id;	// GID
-	WFIFOL(fd,10) = (int)time(NULL);	// Date
-	WFIFOL(fd,14) = zeny;		// zeny
+	WFIFOL(fd, 6) = char_id;	// GID
+	WFIFOL(fd, 10) = (int)time(NULL);	// Date
+	WFIFOL(fd, 14) = zeny;		// zeny
 #endif
 	WFIFOSET(fd,packet_len(cmd));
 }
@@ -12091,24 +12092,22 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
 void clif_parse_Cooking(int fd,struct map_session_data *sd)
 {
 	int type = RFIFOW(fd,2);
-	unsigned short nameid = RFIFOW(fd,4);
-	int amount = 1;
+	unsigned short nameid = RFIFOW(fd, 4);
 
-	if( type == 6 && sd->menuskill_id != GN_MIX_COOKING && sd->menuskill_id != GN_S_PHARMACY )
+	if (type == 6 && sd->menuskill_id != GN_MIX_COOKING && sd->menuskill_id != GN_S_PHARMACY)
 		return;
 
-	if( sd->menuskill_id != AM_PHARMACY )
+	if (sd->menuskill_id != AM_PHARMACY)
+		return;
+
+	if (pc_istrading(sd))
 	{
-		return;
-	}
-
-	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd, sd->ud.skillid, USESKILL_FAIL_LEVEL, 0, 0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
-	skill_produce_mix(sd,sd->menuskill_id,nameid,0,0,0,sd->menuskill_itemused);
+	skill_produce_mix(sd, sd->menuskill_id, nameid, 0, 0, 0, sd->menuskill_itemused);
 	sd->menuskill_val = sd->menuskill_id = sd->menuskill_itemused = 0;
 }
 
@@ -12119,9 +12118,10 @@ void clif_parse_RepairItem(int fd, struct map_session_data *sd)
 {
 	if (sd->menuskill_id != BS_REPAIRWEAPON)
 		return;
-	if (pc_istrading(sd)) {
+	if (pc_istrading(sd))
+	{
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd, sd->ud.skillid, USESKILL_FAIL_LEVEL, 0, 0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -14590,8 +14590,9 @@ void clif_parse_ranklist(int fd, struct map_session_data *sd) {
 }
 
 // 097e <RankingType>.W <point>.L <TotalPoint>.L (ZC_UPDATE_RANKING_POINT)
-void clif_update_rankingpoint(struct map_session_data *sd, int type, int points) {
-#if PACKETVER < 20130710
+void clif_update_rankingpoint(struct map_session_data *sd, int type, int points)
+{
+#if PACKETVER < 20120502
 	switch( type ) {
 		case 0: clif_fame_blacksmith(sd,points); break;
 		case 1: clif_fame_alchemist(sd,points); break;
@@ -14599,12 +14600,14 @@ void clif_update_rankingpoint(struct map_session_data *sd, int type, int points)
 	}
 #else
 	int fd = sd->fd;
-	WFIFOHEAD(fd, 12);
+	int len = packet_len(0x97e);
+
+	WFIFOHEAD(fd, len);
 	WFIFOW(fd, 0) = 0x97e;
 	WFIFOW(fd, 2) = type;
 	WFIFOL(fd, 4) = points;
 	WFIFOL(fd, 8) = sd->status.fame;
-	WFIFOSET(fd, 12);
+	WFIFOSET(fd, len);
 #endif
 }
 
@@ -14615,8 +14618,8 @@ void clif_blacksmith(struct map_session_data* sd)
 	int i, fd = sd->fd;
 	const char* name;
 
-	WFIFOHEAD(fd,packet_len(0x219));
-	WFIFOW(fd,0) = 0x219;
+	WFIFOHEAD(fd, packet_len(0x219));
+	WFIFOW(fd, 0) = 0x219;
 	//Packet size limits this list to 10 elements. [Skotlex]
 	for (i = 0; i < 10 && i < MAX_FAME_LIST; i++) {
 		if (smith_fame_list[i].id > 0) {

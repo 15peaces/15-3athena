@@ -459,17 +459,17 @@ void initChangeTables(void)
 	set_sc( WL_MARSHOFABYSS     , SC_MARSHOFABYSS   , SI_MARSHOFABYSS		, SCB_SPEED|SCB_FLEE|SCB_DEF|SCB_MDEF ); 
 
 	// Ranger
-	set_sc( RA_FEARBREEZE		, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE );
-	set_sc( RA_ELECTRICSHOCKER  , SC_ELECTRICSHOCKER	, SI_ELECTRICSHOCKER, SCB_NONE );	
-	set_sc( RA_WUGDASH			, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED );
-	set_sc( RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE     , SCB_SPEED );
-	add_sc( RA_MAGENTATRAP		, SC_ELEMENTALCHANGE	);
-	add_sc( RA_COBALTTRAP		, SC_ELEMENTALCHANGE	);
-	add_sc( RA_MAIZETRAP		, SC_ELEMENTALCHANGE	);
-	add_sc( RA_ELECTRICSHOCKER	, SC_ELECTRICSHOCKER	);
-	add_sc( RA_VERDURETRAP		, SC_ELEMENTALCHANGE	);
-	add_sc( RA_FIRINGTRAP		, SC_BURNING			);
-	set_sc( RA_ICEBOUNDTRAP		, SC_FREEZING			, SI_FROSTMISTY		, SCB_NONE );
+	set_sc(RA_FEARBREEZE		, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE);
+	set_sc(RA_ELECTRICSHOCKER	, SC_ELECTRICSHOCKER	, SI_ELECTRICSHOCKER, SCB_NONE);
+	set_sc(RA_WUGDASH			, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED);
+	set_sc(RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE		, SCB_CRI|SCB_SPEED);
+	add_sc(RA_MAGENTATRAP		, SC_ELEMENTALCHANGE	);
+	add_sc(RA_COBALTTRAP		, SC_ELEMENTALCHANGE	);
+	add_sc(RA_MAIZETRAP			, SC_ELEMENTALCHANGE	);
+	add_sc(RA_ELECTRICSHOCKER	, SC_ELECTRICSHOCKER	);
+	add_sc(RA_VERDURETRAP		, SC_ELEMENTALCHANGE	);
+	add_sc(RA_FIRINGTRAP		, SC_BURNING			);
+	set_sc(RA_ICEBOUNDTRAP		, SC_FREEZING			, SI_FROSTMISTY		, SCB_NONE);
 
 	// Mechanic
 	set_sc( NC_ACCELERATION		, SC_ACCELERATION	, SI_ACCELERATION	, SCB_SPEED );
@@ -509,13 +509,13 @@ void initChangeTables(void)
 	set_sc( LG_EARTHDRIVE       , SC_EARTHDRIVE         , SI_EARTHDRIVE			, SCB_DEF|SCB_ASPD );
 
 	// Sura
-	set_sc( SR_CRESCENTELBOW            , SC_CRESCENTELBOW			, SI_CRESCENTELBOW            , SCB_NONE );
-	set_sc( SR_CURSEDCIRCLE             , SC_CURSEDCIRCLE_TARGET	, SI_CURSEDCIRCLE_TARGET      , SCB_NONE );
-	set_sc( SR_LIGHTNINGWALK            , SC_LIGHTNINGWALK			, SI_LIGHTNINGWALK            , SCB_NONE );
-	set_sc( SR_RAISINGDRAGON            , SC_RAISINGDRAGON			, SI_RAISINGDRAGON            , SCB_MAXHP|SCB_MAXSP|SCB_ASPD );
-	set_sc( SR_GENTLETOUCH_ENERGYGAIN   , SC_GENTLETOUCH_ENERGYGAIN , SI_GENTLETOUCH_ENERGYGAIN   , SCB_NONE );
-	set_sc( SR_GENTLETOUCH_CHANGE       , SC_GENTLETOUCH_CHANGE     , SI_GENTLETOUCH_CHANGE       , SCB_BATK|SCB_ASPD|SCB_DEF|SCB_MDEF );
-	set_sc( SR_GENTLETOUCH_REVITALIZE   , SC_GENTLETOUCH_REVITALIZE , SI_GENTLETOUCH_REVITALIZE   , SCB_VIT|SCB_MAXHP|SCB_DEF2|SCB_REGEN|SCB_ASPD|SCB_SPEED );
+	set_sc(SR_CRESCENTELBOW				, SC_CRESCENTELBOW			, SI_CRESCENTELBOW			, SCB_NONE);
+	set_sc(SR_CURSEDCIRCLE				, SC_CURSEDCIRCLE_TARGET	, SI_CURSEDCIRCLE_TARGET	, SCB_NONE);
+	set_sc(SR_LIGHTNINGWALK				, SC_LIGHTNINGWALK			, SI_LIGHTNINGWALK			, SCB_NONE);
+	set_sc(SR_RAISINGDRAGON				, SC_RAISINGDRAGON			, SI_RAISINGDRAGON			, SCB_REGEN|SCB_MAXHP|SCB_MAXSP|SCB_ASPD);
+	set_sc(SR_GENTLETOUCH_ENERGYGAIN	, SC_GENTLETOUCH_ENERGYGAIN	, SI_GENTLETOUCH_ENERGYGAIN	, SCB_NONE);
+	set_sc(SR_GENTLETOUCH_CHANGE		, SC_GENTLETOUCH_CHANGE		, SI_GENTLETOUCH_CHANGE		, SCB_BATK|SCB_ASPD|SCB_DEF|SCB_MDEF);
+	set_sc(SR_GENTLETOUCH_REVITALIZE	, SC_GENTLETOUCH_REVITALIZE	, SI_GENTLETOUCH_REVITALIZE	, SCB_VIT|SCB_MAXHP|SCB_DEF2|SCB_REGEN|SCB_ASPD|SCB_SPEED);
 
 	// Minstrel/Wanderer
 	set_sc( WA_SWING_DANCE				, SC_SWING					, SI_SWING					, SCB_SPEED|SCB_ASPD );
@@ -3079,11 +3079,11 @@ int status_calc_npc_(struct npc_data *nd, enum e_status_calc_opt opt)
 	return 0;
 }
 
-int status_calc_elemental_(struct elemental_data *ed, bool first) {
+int status_calc_elemental_(struct elemental_data *ed, bool first)
+{
 	struct status_data *status = &ed->base_status;
 	struct s_elemental *ele = &ed->elemental;
 	struct map_session_data *sd = ed->master;
-	struct status_change *sc = status_get_sc(&ed->bl);
 	
 	if( !sd )
 		return 0;
@@ -3095,11 +3095,12 @@ int status_calc_elemental_(struct elemental_data *ed, bool first) {
 	status->int_ = ele->int_;
 	status->luk = ele->luk;
 
-	if( first ) {
+	if (first)
+	{
 		memcpy(status, &ed->db->status, sizeof(struct status_data));
 		status->mode = MD_CANMOVE|MD_CANATTACK;
-		status->max_hp += 4000 + 500 * pc_checkskill(sd,SO_EL_SYMPATHY);
-		status->max_sp += 300 + 50 * pc_checkskill(sd,SO_EL_SYMPATHY);
+		status->max_hp += 4000 + 500 * pc_checkskill(sd, SO_EL_SYMPATHY);
+		status->max_sp += 300 + 50 * pc_checkskill(sd, SO_EL_SYMPATHY);
 		status->hp = status->max_hp;
 		status->sp = status->max_sp;
 		status->str += sd->base_status.str * 25 / 100;
@@ -3329,10 +3330,6 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 	}
 	if( sc->data[SC_VITALITYACTIVATION] )
 		regen->flag &=~RGN_SP;
-	if( sc->data[SC_GENTLETOUCH_REVITALIZE] ){
-		const struct status_change_entry *sce = sc->data[SC_GENTLETOUCH_REVITALIZE];
-		regen->rate.hp += sce->val3;
-	}
 	if (sc->data[SC_VITATA_500])
 		regen->rate.sp += regen->rate.sp * sc->data[SC_VITATA_500]->val1 / 100;
 }
@@ -3350,19 +3347,22 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 	if (!b_status || !status)
 		return;
 
-	if((!(bl->type&BL_REGEN)) && (!sc || !sc->count)) { //No difference.
+	if ((!(bl->type&BL_REGEN)) && (!sc || !sc->count)) 
+	{ //No difference.
 		status_cpy(status, b_status);
 		return;
 	}
 
-	if(flag&SCB_STR) {
+	if (flag&SCB_STR)
+	{
 		status->str = status_calc_str(bl, sc, b_status->str);
 		flag|=SCB_BATK;
-		if( bl->type&BL_HOM )
+		if (bl->type&BL_HOM)
 			flag |= SCB_WATK;
 	}
 
-	if(flag&SCB_AGI) {
+	if (flag&SCB_AGI)
+	{
 		status->agi = status_calc_agi(bl, sc, b_status->agi);
 		flag|=SCB_FLEE;
 		if( bl->type&(BL_PC|BL_HOM) )
@@ -4316,7 +4316,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 static signed short status_calc_critical(struct block_list *bl, struct status_change *sc, int critical)
 {
 	if(!sc || !sc->count)
-		return cap_value(critical,10,SHRT_MAX);
+		return cap_value(critical, 10, SHRT_MAX);
 
 	if (sc->data[SC_INCCRI])
 		critical += sc->data[SC_INCCRI]->val2;
@@ -4328,16 +4328,18 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 		critical += sc->data[SC_FORTUNE]->val2;
 	if (sc->data[SC_TRUESIGHT])
 		critical += sc->data[SC_TRUESIGHT]->val2;
-	if(sc->data[SC_CLOAKING])
+	if (sc->data[SC_CLOAKING])
 		critical += critical;
-	if(sc->data[SC_STRIKING])
+	if (sc->data[SC_STRIKING])
 		critical += critical * sc->data[SC_STRIKING]->val1 / 100;
-	if(sc->data[SC__INVISIBILITY])
+	if (sc->data[SC__INVISIBILITY])
 		critical += critical * sc->data[SC__INVISIBILITY]->val3 / 100;
-	if(sc->data[SC__UNLUCKY])
+	if (sc->data[SC_CAMOUFLAGE])
+		critical += 100;
+	if (sc->data[SC__UNLUCKY])
 		critical -= critical * sc->data[SC__UNLUCKY]->val2 / 100;
 
-	return (short)cap_value(critical,10,SHRT_MAX);
+	return (short)cap_value(critical, 10, SHRT_MAX);
 }
 
 static signed short status_calc_hit(struct block_list *bl, struct status_change *sc, int hit)
@@ -5825,10 +5827,10 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC_ELECTRICSHOCKER:
 	case SC_WUGBITE:
 		{
-			if( bl->type == BL_MOB )
-				tick -= 1000 * (status->agi/10);
-			if( sd && type != SC_ELECTRICSHOCKER )
-				tick >>= 1; //Only 10 seconds should be on players.
+			if (bl->type == BL_MOB)
+				tick -= 1000 * (status->agi / 10);
+			if (sd && type != SC_ELECTRICSHOCKER)
+				tick >>= 1;
 		}
 		break;
 	case SC_CRYSTALIZE:
@@ -9704,9 +9706,9 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		break;
 
 	case SC__INVISIBILITY:
-		if( --(sce->val4) >= 0 )
+		if (--(sce->val4) >= 0)
 		{
-			if( !status_charge(bl, 0, (status->sp * 10 - sce->val1) / 100) )// 10% - skilllv.
+			if (!status_charge(bl, 0, (status->sp * 6 - sce->val1) / 100)) // 6% - skilllv.
 				break;
 			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
@@ -9949,11 +9951,10 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 		}
 		break;
 	case SC_SIGHTBLASTER:
-		if( battle_check_target( src, bl, BCT_ENEMY ) > 0 &&
-			status_check_skilluse(src, bl, WZ_SIGHTBLASTER, sce->val1, 2) )
+		if (battle_check_target(src, bl, BCT_ENEMY) > 0 && status_check_skilluse(src, bl, WZ_SIGHTBLASTER, sce->val1, 2))
 		{
-			skill_attack(BF_MAGIC,src,src,bl,WZ_SIGHTBLASTER,1,tick,0);
-			if (sce) sce->val2 = 0; //This signals it to end.
+			skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, 1, tick, 0);
+			sce->val2 = 0; // This signals it to end.
 		}
 		break;
 	case SC_CLOSECONFINE:
@@ -10306,28 +10307,34 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 		if(regen->tick.hp >= (unsigned int)battle_config.natural_healhp_interval)
 		{
 			val = 0;
-			do {
+			do
+			{
 				val += regen->hp;
+				// Placed here waiting for renewal. [pakpil]
+				if (sc && sc->data[SC_GENTLETOUCH_REVITALIZE])
+					val = val * sc->data[SC_GENTLETOUCH_REVITALIZE]->val3 / 100;
 				regen->tick.hp -= battle_config.natural_healhp_interval;
 			} while(regen->tick.hp >= (unsigned int)battle_config.natural_healhp_interval);
 			if (status_heal(bl, val, 0, 1) < val)
-				flag&=~RGN_SHP; //full.
+				flag &= ~RGN_SHP; //full.
 		}
 	}
 
 	//Natural SP regen
-	if(flag&RGN_SP)
+	if (flag&RGN_SP)
 	{
 		rate = natural_heal_diff_tick*(regen->rate.sp+bonus);
 		// Homun SP regen fix (they should regen as if they were sitting (twice as fast) 
-		if(bl->type==BL_HOM) rate *=2;
+		if (bl->type == BL_HOM)
+			rate *= 2;
 
 		regen->tick.sp += rate;
 		
-		if(regen->tick.sp >= (unsigned int)battle_config.natural_healsp_interval)
+		if (regen->tick.sp >= (unsigned int)battle_config.natural_healsp_interval)
 		{
 			val = 0;
-			do {
+			do
+			{
 				val += regen->sp;
 				regen->tick.sp -= battle_config.natural_healsp_interval;
 			} while(regen->tick.sp >= (unsigned int)battle_config.natural_healsp_interval);

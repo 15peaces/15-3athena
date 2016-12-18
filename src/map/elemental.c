@@ -542,32 +542,32 @@ static int elemental_ai_sub_timer_activesearch(struct block_list *bl, va_list ap
 	return 0;
 }
 
-static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_data *sd, unsigned int tick) {
-	struct block_list *target = NULL, *abl = NULL;
-	struct block_list *mtbl = NULL;
+static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_data *sd, unsigned int tick)
+{
+	struct block_list *target = NULL;
 	int master_dist, view_range, mode;
 
-	nullpo_retr(0,ed);
-	nullpo_retr(0,sd);
+	nullpo_retr(0, ed);
+	nullpo_retr(0, sd);
 
-	if( ed->bl.prev == NULL || sd == NULL || sd->bl.prev == NULL )
+	if (ed->bl.prev == NULL || sd == NULL || sd->bl.prev == NULL)
 		return 0;
 
-	if( DIFF_TICK(tick,ed->last_thinktime) < MIN_ELETHINKTIME )
+	if (DIFF_TICK(tick, ed->last_thinktime) < MIN_ELETHINKTIME)
 		return 0;
 
 	ed->last_thinktime = tick;
 
-	if( ed->ud.skilltimer != -1 )
+	if (ed->ud.skilltimer != -1)
 		return 0;
 
-	if( ed->ud.walktimer != -1 && ed->ud.walkpath.path_pos <= 2 )
+	if (ed->ud.walktimer != -1 && ed->ud.walkpath.path_pos <= 2)
 		return 0; //No thinking when you just started to walk.
 
-	if(ed->ud.walkpath.path_pos < ed->ud.walkpath.path_len && ed->ud.target == sd->bl.id)
+	if (ed->ud.walkpath.path_pos < ed->ud.walkpath.path_len && ed->ud.target == sd->bl.id)
 		return 0; //No thinking until be near the master.
 
-	if( ed->sc.count && ed->sc.data[SC_BLIND] )
+	if (ed->sc.count && ed->sc.data[SC_BLIND])
 		view_range = 3;
 	else
 		view_range = ed->db->range2;

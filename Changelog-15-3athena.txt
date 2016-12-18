@@ -6,6 +6,27 @@
 //========================================
 12/17/2016
 	r148 [15peaces]
+		*Merged missing changes from 3ceam rev. 526 - 536
+		*Some more random cleanup.
+		*Fixed version for packet 0x0a28 ZC_ACK_OPENSTORE2
+			-it's used since 2014-06-25aRagexeRE. However, we don't support this client... ^^
+		*Fixed version for new ranking packets.
+			-they're used since 2012-05-02aRagexeRE.
+		*Fixed some spellbook wasn't working correctly.
+		*Updated SC_INVISIBILITY sp cost.
+		*Fixed SR_RAISINGDRAGON's regen penalty.
+		*Fixed Spiral Pierce's Gloomy Day bonus.
+		*Fixed a mistake in SO_SPELLFIST (followup r147 / @4db722f)
+		*Fixed and issue with SR_GENTLETOUCH_REVITALIZE that was healing too fast (temporary fix).
+		*Severe Rainstorm's AoE fixed.
+		*A bug in aimed bolt is fixed (the damage bonus on immobile enemies was applied twice)
+		*Implemented the most of Ranger balance changes:
+			-Arrow Storm, Aimed Bolt, Cluster Bomb, Warg Rider, Warg Dash, Warg Strike, Warg Bite, Firing/Icebound Trap and Tooth of Warg is updated.
+			-Camouflage is partly updated.
+			-Need official chance for Warg Bite and official base level damage bonus for Aimed Bolt and Arrow Storm.
+		
+12/17/2016
+	r148 [15peaces]
 		*Merged missing changes from 3ceam rev. 525
 		*Some random cleanup.
 		*Added latest NPC IDs.

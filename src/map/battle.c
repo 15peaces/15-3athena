@@ -358,7 +358,6 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
  *------------------------------------------*/
 int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int damage,int skill_num,int skill_lv,int element){
 	struct map_session_data *sd = NULL;
-	struct map_session_data *tsd = NULL;
 	struct status_change *sc, *tsc;
 	struct status_change_entry *sce;
 	int div_ = d->div_, flag = d->flag;
@@ -1339,39 +1338,36 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case LK_SPIRALPIERCE:
 				if (!sd) wd.flag=(wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC;
 				break;
-			case RA_AIMEDBOLT: //Ankle Snare, Electric Shocker, Warg Bite effect count as snared.
-				if( tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
-					wd.div_ = tstatus->size + 2;
-				break;
 			case SR_GATEOFHELL:
-				if( sd )
+				if (sd)
 					wd.div_ = sd->spiritball_old + 2; // 7 Consecutive hits.
 				break;
 			case EL_STONE_RAIN:
-				if( !(wflag&1) )
+				if (!(wflag&1))
 					wd.div_ = 1;
 				break;
 		}
-	} else //Range for normal attacks.
-		wd.flag |= flag.arrow?BF_LONG:BF_SHORT;
+	}
+	else //Range for normal attacks.
+		wd.flag |= flag.arrow ? BF_LONG : BF_SHORT;
 	
-	if ( (!skill_num || skill_num == PA_SACRIFICE) && tstatus->flee2 && rand()%1000 < tstatus->flee2 )
+	if ((!skill_num || skill_num == PA_SACRIFICE) && tstatus->flee2 && rand()%1000 < tstatus->flee2)
 	{	//Check for Lucky Dodge
-		wd.type=0x0b;
-		wd.dmg_lv=ATK_LUCKY;
-		if (wd.div_ < 0) wd.div_*=-1;
+		wd.type = 0x0b;
+		wd.dmg_lv = ATK_LUCKY;
+		if (wd.div_ < 0) wd.div_ *= -1;
 		return wd;
 	}
 
 	t_class = status_get_class(target);
 	s_ele = s_ele_ = skill_get_ele(skill_num, skill_lv);
-	if( !skill_num || s_ele == -1 )
+	if (!skill_num || s_ele == -1)
 	{ //Take weapon's element
 		s_ele = sstatus->rhw.ele;
 		s_ele_ = sstatus->lhw.ele;
-		if( flag.arrow && sd && sd->arrow_ele )
+		if (flag.arrow && sd && sd->arrow_ele)
 			s_ele = sd->arrow_ele;
-		if( battle_config.attack_attr_none&src->type )
+		if (battle_config.attack_attr_none&src->type)
 			n_ele = true; //Weapon's element is "not elemental"
 	}
 	else if( s_ele == -2 ) //Use enchantment's element
@@ -1627,24 +1623,25 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				wd.damage2 = 0;
 				break;
 			case LK_SPIRALPIERCE:
-				if( sc && sc->data[SC_GLOOMYDAY_SK] )
-					ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 			case ML_SPIRALPIERCE:
-				if (sd) {
+				if (sd) 
+				{
 					short index = sd->equip_index[EQI_HAND_R];
 
-					if (index >= 0 &&
-						sd->inventory_data[index] &&
-						sd->inventory_data[index]->type == IT_WEAPON)
+					if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 						wd.damage = sd->inventory_data[index]->weight*8/100; //80% of weight
-				} else
+				} 
+				else
 					wd.damage = sstatus->rhw.atk2*8/10; //Else use Atk2
 
-				ATK_ADDRATE(50*skill_lv); //Skill modifier applies to weight only.
+				ATK_ADDRATE(50 * skill_lv); //Skill modifier applies to weight only.
 				i = sstatus->str/10;
-				i*=i;
+				i *= i;
 				ATK_ADD(i); //Add str bonus.
-				switch (tstatus->size) { //Size-fix. Is this modified by weapon perfection?
+				if (sc && sc->data[SC_GLOOMYDAY_SK] && skill_num == LK_SPIRALPIERCE)
+					ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
+				switch (tstatus->size) 
+				{ //Size-fix. Is this modified by weapon perfection?
 					case 0: //Small: 125%
 						ATK_RATE(125);
 						break;
@@ -1951,7 +1948,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case SN_SHARPSHOOTING:
 				case MA_SHARPSHOOTING:
-				case RA_ARROWSTORM:
 					skillratio += 100 + 50 * skill_lv;
 					break;
 				case CG_ARROWVULCAN:
@@ -2075,40 +2071,55 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case AB_DUPLELIGHT_MELEE:
 					skillratio += 10 * skill_lv;
 					break;
+				case RA_ARROWSTORM:
+					skillratio += 100 + 50 * skill_lv;
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200; // Need official value.
+					break;
 				case RA_AIMEDBOLT:
-					skillratio += 100 + 20 * skill_lv;
-					if( tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]) )
-						skillratio = skillratio * (tstatus->size + 2);
+					skillratio += 400 + 50 * skill_lv;
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200; // Need official value.
+					if (tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]))
+						wd.div_ = tstatus->size + 2 + rand()%2;
 					break;
 				case RA_CLUSTERBOMB:
 					skillratio += 100 + 100 * skill_lv;
  					break;
 				case RA_WUGDASH:
-					skillratio += 500;//Damage based from iROwiki info. [Jobbie]
+					skillratio += 500; // Damage based from iROwiki info. [Jobbie]
 					break;
 				case RA_WUGSTRIKE:
-					skillratio = 120 * skill_lv;
+					skillratio = 200 * skill_lv;
 					break;
 				case RA_WUGBITE:
+					skillratio += 300 + 200 * skill_lv;
+					if (skill_lv == 5)
+						skillratio += 100;
+					break;
 				case RA_SENSITIVEKEEN:
 					skillratio += 50 * skill_lv;
 					break;
 				case NC_BOOSTKNUCKLE:
 					skillratio += 100 + 100 * skill_lv + sstatus->dex;
-					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 					break;
 				case NC_PILEBUNKER:
 					skillratio += 200 + 100 * skill_lv + sstatus->str;
-					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 					break;
 				case NC_VULCANARM:
 					skillratio += 70 * skill_lv - 100 + sstatus->dex;
-					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_FLAMELAUNCHER:
 				case NC_COLDSLOWER:
 					skillratio += 200 + 300 * skill_lv;
-					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					if (s_level > 100)
+						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_ARMSCANNON:
 					switch(tstatus->size) {
@@ -2472,8 +2483,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_WUGDASH:
 				case RA_WUGSTRIKE:
 				case RA_WUGBITE:
-					if(sd)
-						ATK_ADD(6*pc_checkskill(sd, RA_TOOTHOFWUG));
+					if (sd)
+						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
 					break;
 			}
 		}
@@ -3261,55 +3272,59 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case MG_COLDBOLT:
 						if ( sc ) {
 							if ( sc->data[SC_SPELLFIST] ) {
-								skillratio *= ad.blewcount;
+								skillratio *= ad.div_;
 								skillratio += skillratio / sc->data[SC_SPELLFIST]->val4 * sc->data[SC_SPELLFIST]->val2;
-								ad.blewcount = 1;				// ad mods, to make it work similar to regular hits [Xazax]
+								ad.div_ = 1;				// ad mods, to make it work similar to regular hits [Xazax]
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
 							}
-							if( sc->data[SC_AQUAPLAY_OPTION] )
+							if (sc->data[SC_AQUAPLAY_OPTION])
 								skillratio += skillratio * sc->data[SC_AQUAPLAY_OPTION]->val3 / 100;
 						}
 						break;
 					case MG_FIREWALL:
 						skillratio -= 50;
-						if( sc && sc->data[SC_PYROTECHNIC_OPTION] )
+						if(sc && sc->data[SC_PYROTECHNIC_OPTION])
 							skillratio += skillratio * sc->data[SC_PYROTECHNIC_OPTION]->val3 / 100;
 						break;
 					case MG_FIREBOLT:
-						if ( sc ) {
-							if ( sc->data[SC_SPELLFIST] ) {
-								skillratio *= ad.blewcount;
+						if (sc) 
+						{
+							if (sc->data[SC_SPELLFIST])
+							{
+								skillratio *= ad.div_;
 								skillratio += skillratio / sc->data[SC_SPELLFIST]->val4 * sc->data[SC_SPELLFIST]->val2;
-								ad.blewcount = 1;
+								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
 							}
-							if( sc->data[SC_PYROTECHNIC_OPTION] )
+							if (sc->data[SC_PYROTECHNIC_OPTION])
 								skillratio += skillratio * sc->data[SC_PYROTECHNIC_OPTION]->val3 / 100;
 						}
 						break;
 					case MG_LIGHTNINGBOLT:
-						if ( sc ) {
-							if ( sc->data[SC_SPELLFIST] ) {
-								skillratio *= ad.blewcount;
+						if (sc) 
+						{
+							if (sc->data[SC_SPELLFIST])
+							{
+								skillratio *= ad.div_;
 								skillratio += skillratio / sc->data[SC_SPELLFIST]->val4 * sc->data[SC_SPELLFIST]->val2;
-								ad.blewcount = 1;
+								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
 							}
-							if( sc->data[SC_GUST_OPTION] )
+							if (sc->data[SC_GUST_OPTION])
 								skillratio += skillratio * sc->data[SC_GUST_OPTION]->val2 / 100;
 						}
 						break;
 					case MG_THUNDERSTORM:
 						skillratio -= 20;
-						if( sc && sc->data[SC_GUST_OPTION] )
+						if (sc && sc->data[SC_GUST_OPTION])
 							skillratio += skillratio * sc->data[SC_GUST_OPTION]->val2 / 100;
 						break;
 					case MG_FROSTDIVER:
 						skillratio += 10*skill_lv;
-						if( sc && sc->data[SC_AQUAPLAY_OPTION] )
+						if (sc && sc->data[SC_AQUAPLAY_OPTION])
 							skillratio += skillratio * sc->data[SC_AQUAPLAY_OPTION]->val3 / 100;
 						break;
 					case AL_HOLYLIGHT:
@@ -3321,7 +3336,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 45;
 						break;
 					case WZ_FROSTNOVA:
-						skillratio += (100+skill_lv*10)*2/3-100;
+						skillratio += (100 + skill_lv * 10) * 2 / 3 - 100;
 						break;
 					case WZ_FIREPILLAR:
 						if (skill_lv > 10)

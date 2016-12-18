@@ -1076,10 +1076,10 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_FREEZE,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case RA_WUGBITE:
-		sc_start(bl, SC_WUGBITE, 100, skilllv, skill_get_time(skillid, skilllv) + (sd ? pc_checkskill(sd,RA_TOOTHOFWUG) * 1000 : 0));
+		sc_start(bl, SC_WUGBITE, 70, skilllv, skill_get_time(skillid, skilllv) + (sd ? pc_checkskill(sd,RA_TOOTHOFWUG) * 1000 : 0)); // Need official chance.
 		break;
 	case RA_SENSITIVEKEEN:
-		if( rand()%100 < 8*skilllv )
+		if (rand()%100 < 8*skilllv)
 			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, SD_ANIMATION);
 		break;
 	case RA_MAGENTATRAP:
@@ -1091,10 +1091,10 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
-		sc_start(bl, (skillid == RA_FIRINGTRAP)? SC_BURNING:SC_FREEZING, 10 * skilllv + 40, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, (skillid == RA_FIRINGTRAP) ? SC_BURNING : SC_FREEZING, 10 * skilllv + 40, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case NC_PILEBUNKER:
-		if( rand()%100 < 5 + 15*skilllv )
+		if (rand()%100 < 5 + 15*skilllv)
 		{ //Deactivatable Statuses: Kyrie Eleison, Assumptio, Mental Strength, Auto Guard, Millennium Shield
 			status_change_end(bl, SC_KYRIE, INVALID_TIMER);
 			status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
@@ -7831,11 +7831,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					switch( opt )
 					{
 						case 1:
-							val = (105 / 10) * it->refine;
-							sc_start2(bl,SC_SHIELDSPELL_REF,brate,opt,val,skill_get_time(skillid,skilllv));
+							val = 105 * it->refine / 10;
+							sc_start2(bl, SC_SHIELDSPELL_REF, brate, opt, val, skill_get_time(skillid, skilllv));
 							break;
 						case 2: case 3:
-							if( rate < brate )
+							if (rate < brate)
 							{
 								val = sstatus->max_hp * (11 + it->refine) / 100;
 								status_heal(bl, val, 0, 3);
@@ -7848,17 +7848,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				}
 				break;
 			}
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
 	case LG_PIETY:
-		if( flag&1 )
-			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-		else {
+		if (flag&1)
+			sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
+		else
+		{
 			skill_area_temp[2] = 0;
-			map_foreachinrange(skill_area_sub,bl,skill_get_splash(skillid,skilllv),BL_PC,src,skillid,skilllv,tick,flag|SD_PREAMBLE|BCT_PARTY|BCT_SELF|1,skill_castend_nodamage_id);
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_PC, src, skillid, skilllv, tick, flag|SD_PREAMBLE|BCT_PARTY|BCT_SELF|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
  		break;
 
@@ -8497,7 +8498,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 	struct block_list *target, *src;
 	struct map_session_data *sd;
 	struct mob_data *md;
-	struct elemental_data *ed;
 	struct unit_data *ud;
 	struct status_change *sc = NULL;
 	int inf,inf2,flag = 0;
@@ -8518,7 +8518,6 @@ int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data)
 
 	sd = BL_CAST(BL_PC,  src);
 	md = BL_CAST(BL_MOB, src);
-	ed = BL_CAST(BL_ELEM, src);
 
 	if( src->prev == NULL ) {
 		ud->skilltimer = INVALID_TIMER;

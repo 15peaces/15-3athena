@@ -44,7 +44,12 @@ enum item_itemid
 };
 
 #define itemid_isgemstone(id) ( (id) >= ITEMID_YELLOW_GEMSTONE && (id) <= ITEMID_BLUE_GEMSTONE )
-#define itemdb_iscashfood(id) ( (id) >= 12202 && (id) <= 12207 )
+#define itemdb_iscashfood(id) ((id) >= 12202 && (id) <= 12207)
+#define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
+#define itemdb_is_poison(n) (n >= 12717 && n <= 12724)
+#define itemdb_is_spellbook(n) (n >= 6188 && n <= 6205)
+#define itemdb_is_element(n) (n >= 990 && n <= 993)
+#define itemdb_is_GNbomb(n) (n >= 13260 && n <= 13267)
 
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6
@@ -64,7 +69,8 @@ enum item_itemid
 #define UNKNOWN_ITEM_ID 512
 
 /// Struct of Roulette db
-struct s_roulette_db {
+struct s_roulette_db
+{
 	unsigned short *nameid[MAX_ROULETTE_LEVEL], /// Item ID
 		           *qty[MAX_ROULETTE_LEVEL]; /// Amount of Item ID
 	int *flag[MAX_ROULETTE_LEVEL]; /// Whether the item is for loss or win
@@ -160,11 +166,6 @@ struct item_data* itemdb_exists(unsigned short nameid);
 #define itemdb_available(n) (itemdb_search(n)->flag.available)
 #define itemdb_viewid(n) (itemdb_search(n)->view_id)
 #define itemdb_autoequip(n) (itemdb_search(n)->flag.autoequip)
-#define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
-#define itemdb_is_poison(n) (n >= 12717 && n <= 12724)
-#define itemdb_is_spellbook(n) (n > 6188 && n < 6205)
-#define itemdb_is_element(n) (n >= 990 && n <= 993)
-#define itemdb_is_GNbomb(n) (n >= 13260 && n <= 13267)
 const char* itemdb_typename(int type);
 
 int itemdb_group_bonus(struct map_session_data* sd, int itemid);
