@@ -1716,13 +1716,10 @@
 2890,White_Wing_Brooch,White Wing Brooch,5,20,,100,,0,,0,0x00000800,63,2,136,,100,0,0,{ bonus bDex,2; bonus bLongAtkRate,3; },{},{}
 2891,Black_Wing_Brooch,Black Wing Brooch,5,20,,100,,0,,0,0x00000800,56,2,136,,100,0,0,{ bonus bInt,2; bonus bFlee2,3; },{},{}
 2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,3,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
-15036,Ur_Plate,Ur's Plate,5,20,,3000,,110,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,10; bonus bMaxHPrate,getrefine(); bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubEle,Ele_Neutral,5; },{},{}
 15037,Peuz_Plate,Peuz's Plate,5,20,,3000,,110,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,10; bonus bBaseAtk,20; bonus bFlee,17; },{},{}
 15038,Sabah_Cloth,Sapha's Cloth,5,20,,100,,45,,1,0x00001000,63,2,16,,100,1,0,{ bonus bLuk,3; bonus3 bAutoSpell,"ASC_METEORASSAULT",(getskilllv("ASC_METEORASSAULT")?getskilllv("ASC_METEORASSAULT"):1),20; },{},{}
-15039,Nab_Cloth,Nab's Cloth,5,20,,100,,45,,1,0x00001000,63,2,16,,100,1,0,{ bonus bStr,2; bonus bInt,2; },{},{}
 15040,Prison_Uniform,Prison Uniform,5,10,,1500,,5,,0,0xFFFFFFFF,63,2,16,,50,1,0,{ set .@r, getrefine(); set .@rate, (.@r>10?10:.@r); bonus bHit,.@rate; bonus bFlee,.@rate; },{},{}
 15041,Boitata_Armor,Boitata Armor,5,20,,600,,45,,1,0xFFFFFFFF,63,2,16,,60,1,0,{ bonus bMdef,3; bonus2 bSubEle,Ele_Neutral,7; bonus bMaxHPrate,5; bonus bFlee,5; },{},{}
-15042,White_Wing_Suits,White Wing Suits,5,20,,100,,45,,1,0x00000800,63,2,16,,100,1,0,{ set .@r, getrefine(); bonus bLongAtkRate,.@r*2; bonus bFlee,.@r; },{},{}
 15043,Black_Wing_Suits,Black Wing Suits,5,20,,100,,45,,1,0x00000800,56,2,16,,100,1,0,{ bonus bInt,2; bonus bBaseAtk,getrefine()*3; },{},{}
 15044,Green_Operation_Coat,Green Surgical Gown,5,56000,,660,,66,,1,0x00040000,63,2,16,,100,1,0,{ bonus bDex,1; bonus bMaxSP,30; },{},{}
 15045,Armor_Of_Valor,Armor Of Valor,5,0,,0,,4,,0,0xFFFFFFFF,63,2,16,,0,0,0,{ bonus bHPrecovRate,10; },{},{}

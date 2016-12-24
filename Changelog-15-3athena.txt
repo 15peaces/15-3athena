@@ -4,8 +4,17 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-12/17/2016
-	r148 [15peaces]
+12/24/2016
+	r150 [15peaces]
+		*Merged missing changes from 3ceam rev. 537
+		*Some more random cleanup.
+		*Changed some random Mora equips to fit pre-renewal system.
+		*Fixed WL_JACKFROST's job level damage bonus.
+		*Fixed that Reflect Damage reflected the damage through the walls.
+		*Fixed Frost Misty, Drain Life, White Imprison and Sienna Execrate success rates.
+
+12/18/2016
+	r149 [15peaces]
 		*Merged missing changes from 3ceam rev. 526 - 536
 		*Some more random cleanup.
 		*Fixed version for packet 0x0a28 ZC_ACK_OPENSTORE2
@@ -24,7 +33,7 @@
 			-Arrow Storm, Aimed Bolt, Cluster Bomb, Warg Rider, Warg Dash, Warg Strike, Warg Bite, Firing/Icebound Trap and Tooth of Warg is updated.
 			-Camouflage is partly updated.
 			-Need official chance for Warg Bite and official base level damage bonus for Aimed Bolt and Arrow Storm.
-		
+
 12/17/2016
 	r148 [15peaces]
 		*Merged missing changes from 3ceam rev. 525
@@ -40,7 +49,7 @@
 			-Side note: Confirm your chat window has the Clan Info setting enabled to display messages.
 			-Added clan_join and clan_leave script commands.
 		*Fixed a mistake in a previous clean up that was causing map crashes or nullpo messages if the servers is compiled as debug mode. Sorry.
-		
+
 12/06/2016
 	r147 [15peaces]
 		*Merged missing changes from 3ceam rev. 524

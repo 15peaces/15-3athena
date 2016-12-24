@@ -1055,32 +1055,33 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
  		break;
 	case WL_FROSTMISTY:
 		rate = 20 + 12 * skilllv;
-		if( sd ) rate *= 1 + sd->status.job_level / 200;
-		sc_start(bl,SC_FREEZING,rate,skilllv,skill_get_time(skillid,skilllv));
+		if(sd)
+			rate = (int)(rate * (1 + sd->status.job_level / 200.));
+		sc_start(bl, SC_FREEZING, rate, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case WL_COMET:
-		sc_start4(bl,SC_BURNING,100,skilllv,1000,src->id,0,skill_get_time(skillid,skilllv));
+		sc_start4(bl, SC_BURNING, 100, skilllv, 1000, src->id, 0, skill_get_time(skillid, skilllv));
 		break;
 	case WL_EARTHSTRAIN:
 		{
 			int rate = 0, i;
-			const int pos[5] = { EQP_WEAPON, EQP_HELM, EQP_SHIELD, EQP_ARMOR, EQP_ACC };
-			rate = (6 + (skilllv > 2)?6:0 + 2 * skilllv) * status_get_lv(src) / 100;
+			const int pos[5] = {EQP_WEAPON, EQP_HELM, EQP_SHIELD, EQP_ARMOR, EQP_ACC};
+			rate = (6 + (skilllv > 2) ? 6 : 0 + 2 * skilllv) * status_get_lv(src) / 100;
 			rate *= 1 - tstatus->dex / 200; // Reduced by Target Dex
 
 			for( i = 0; i < skilllv; i++ )
-				skill_strip_equip(bl,pos[i],rate,skilllv,skill_get_time2(skillid,skilllv));
+				skill_strip_equip(bl, pos[i], rate, skilllv, skill_get_time2(skillid, skilllv));
 		}
 		break;
 	case WL_JACKFROST:
-		sc_start(bl,SC_FREEZE,100,skilllv,skill_get_time(skillid,skilllv));
+		sc_start(bl, SC_FREEZE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case RA_WUGBITE:
 		sc_start(bl, SC_WUGBITE, 70, skilllv, skill_get_time(skillid, skilllv) + (sd ? pc_checkskill(sd,RA_TOOTHOFWUG) * 1000 : 0)); // Need official chance.
 		break;
 	case RA_SENSITIVEKEEN:
-		if (rand()%100 < 8*skilllv)
-			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE):skilllv, tick, SD_ANIMATION);
+		if (rand()%100 < 8 * skilllv)
+			skill_castend_damage_id(src, bl, RA_WUGBITE, sd ? pc_checkskill(sd, RA_WUGBITE) : skilllv, tick, SD_ANIMATION);
 		break;
 	case RA_MAGENTATRAP:
 	case RA_COBALTTRAP:
@@ -3889,15 +3890,15 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			int heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
 			int rate = 25 + 5 * skilllv;
-			if( sd && sd->status.base_level >= 99 )
-				rate += rate * (1 + sd->status.job_level) / 50 ;
+			if (sd)
+				rate = (int)(rate * (1 + sd->status.job_level / 50. ));
 
 			heal = heal * 8 * skilllv * status_get_lv(src) / 10000;
 
-			if( bl->type == BL_SKILL )
-				heal = 0;	// Don't absorb heal from Ice Walls or other skill units.
+			if (bl->type == BL_SKILL)
+				heal = 0; // Don't absorb heal from Ice Walls or other skill units.
 
-			if( heal && rand()%100 < rate )
+			if (heal && rand()%100 < rate)
 			{
 				status_heal(src, heal, 0, 0);
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
@@ -7421,28 +7422,29 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(7+2*skilllv)*1000,2);
 		}else{
 			int rate = 40 + 8 * skilllv;
-			if( sd ) rate *= 1 + sd->status.job_level / 200;
+			if (sd)
+				rate = (int)(rate * (1 + sd->status.job_level / 200.));
 			// IroWiki says Rate should be reduced by target stats, but currently unknown
-			if( rand()%100 < rate )
+			if (rand()%100 < rate)
 			{ // Success on First Target
 				rate = 0;
-				if( !tsc->data[SC_STONE] )
-					rate = status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(7+2*skilllv)*1000,2);
+				if (!tsc->data[SC_STONE])
+					rate = status_change_start(bl, SC_STONE, 10000, skilllv, 0, 0, 1000, (7 + 2 * skilllv) * 1000, 2);
 				else
 				{
 					rate = 1;
-					status_change_end(bl,SC_STONE,-1);
+					status_change_end(bl, SC_STONE, INVALID_TIMER);
 				}
 
-				if( rate )
+				if (rate)
 				{
 					skill_area_temp[1] = bl->id;
-					map_foreachinrange(skill_area_sub,bl,skill_get_splash(skillid,skilllv),BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
+					map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 				}
 				// Doesn't send failure packet if it fails on defense.
 			}
-			else if( sd ) // Failure on Rate
-				clif_skill_fail(sd,skillid,0,0,0);
+			else if (sd) // Failure on Rate
+				clif_skill_fail(sd, skillid, 0, 0, 0);
 		}
 		break;
 

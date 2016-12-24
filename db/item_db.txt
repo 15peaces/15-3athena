@@ -6967,6 +6967,13 @@
 15027,Crimson_Robe,Crimson Robe,5,20,,500,,40,,0,0x00000000,7,2,16,,100,1,0,{ bonus bInt,1; bonus bMdef,10; },{},{}
 15028,Forest_Robe,Forest Robe,5,20,,500,,40,,0,0x00000000,7,2,16,,100,1,0,{ bonus bInt,1; bonus bMdef,10; },{},{}
 
+// Mora
+15036,Ur_Plate,Ur's Plate,5,20,,3000,,12,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,1; bonus bMaxHPrate,getrefine(); bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubEle,Ele_Neutral,5; },{},{}
+
+15039,Nab_Cloth,Nab's Cloth,5,20,,100,,6,,1,0x00001000,63,2,16,,100,1,0,{ bonus bStr,2; bonus bInt,2; },{},{}
+
+15042,White_Wing_Suits,White Wing Suits,5,20,,100,,6,,1,0x00000800,63,2,16,,100,1,0,{ set .@r, getrefine(); bonus bLongAtkRate,.@r*2; bonus bFlee,.@r/5; },{},{}
+
 15051,Bakonawa_Armor,Bakunawa Scale Armor,5,20,,500,,6,,0,0xFFFFFFFF,63,2,16,,1,1,0,{ bonus2 bSubRace,RC_Boss,getrefine()/2; bonus bAllStats,1; },{},{}
 15052,Bayani_Bakonawa_Armor,Bayani Bakunawa Scale Armor,5,20,,500,,6,,1,0xFFFFFFFF,63,2,16,,1,1,0,{ bonus2 bSubRace,RC_Boss,getrefine()/2; bonus bAllStats,2; },{},{}
 15053,Special_Ninja_Suit,Special Ninja Suit,5,10000,,1200,,8,,0,0x02000000,63,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
