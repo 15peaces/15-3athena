@@ -1052,12 +1052,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case AB_ADORAMUS:
 		if( tsc && !tsc->data[SC_DECREASEAGI] ) //Prevent duplicate agi-down effect.
 			sc_start(bl, SC_ADORAMUS, 100, skilllv, skill_get_time(skillid, skilllv));
- 		break;
-	case WL_FROSTMISTY:
-		rate = 20 + 12 * skilllv;
-		if(sd)
-			rate = (int)(rate * (1 + sd->status.job_level / 200.));
-		sc_start(bl, SC_FREEZING, rate, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case WL_COMET:
 		sc_start4(bl, SC_BURNING, 100, skilllv, 1000, src->id, 0, skill_get_time(skillid, skilllv));
@@ -3884,7 +3878,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			sc_start(bl,SC_FREEZING,20 + 12 * skilllv,skilllv,skill_get_time(skillid,skilllv));
 		else
 			skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
- 		break;
+		break;
 
 	case WL_DRAINLIFE:
 		{
@@ -7391,14 +7385,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WL_FROSTMISTY:
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR|BL_SKILL, src, skillid, skilllv, tick, flag|BCT_ENEMY, skill_castend_damage_id);
+		break;
+
 	case WL_JACKFROST:
 		{
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			skill_area_temp[1] = 0;
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
-				src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
- 		}
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+			map_foreachinshootrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR|BL_SKILL, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+		}
 		break;
 
 	case WL_MARSHOFABYSS:
@@ -10112,7 +10109,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 
 	case WM_REVERBERATION:
 		interval = limit;
-		break;
+		val2 = 1;
+	case WM_POEMOFNETHERWORLD:	// Can't be placed on top of Land Protector.
+		if (map_getcell(sd->bl.m, x, y, CELL_CHKLANDPROTECTOR))
+			return 0;
 
 	case SO_CLOUD_KILL:
 		skill_clear_group(src, 4);
@@ -10122,7 +10122,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
  		break;
 
 	case GN_WALLOFTHORN:
-		if( flag&1 )
+		if (flag&1)
 			limit = 3000;
 		val3 = (x<<16)|y;
 		break;
@@ -10978,22 +10978,22 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			break;
 
 		case UNT_REVERBERATION:
-			sg->limit = DIFF_TICK(gettick(),sg->tick) + 1500;
+			sg->limit = DIFF_TICK(gettick(), sg->tick) + 1500;
 			sg->val1 = 0;
-			clif_changetraplook(&src->bl,UNT_USED_TRAPS);
-			skill_castend_damage_id(ss, bl, sg->skill_id, sg->skill_lv, tick, SD_LEVEL|BCT_ENEMY);
+			clif_changetraplook(&src->bl, UNT_USED_TRAPS);
+			skill_castend_damage_id(ss, bl, sg->skill_id, sg->skill_lv, tick, SD_LEVEL|BCT_ENEMY|1);
 			sg->unit_id = UNT_USED_TRAPS;
 			break;
 	
 		case UNT_SEVERE_RAINSTORM:
-			if( battle_check_target(&src->bl, bl, BCT_ENEMY) )
-				skill_attack(BF_WEAPON,ss,&src->bl,bl,WM_SEVERE_RAINSTORM_MELEE,sg->skill_lv,tick,0);
+			if (battle_check_target(&src->bl, bl, BCT_ENEMY))
+				skill_attack(BF_WEAPON, ss, &src->bl, bl, WM_SEVERE_RAINSTORM_MELEE, sg->skill_lv, tick, 0);
 			break;
 
 		case UNT_POEMOFNETHERWORLD:
-			if( !(status_get_mode(bl)&MD_BOSS) )
+			if (!(status_get_mode(bl)&MD_BOSS))
 			{
-				if( !(tsc && tsc->data[type]) )
+				if (!(tsc && tsc->data[type]))
 					sc_start(bl, type, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
 			}
 			break;
@@ -14539,15 +14539,15 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_REVERBERATION:
 				{
 					struct block_list *ss = map_id2bl(group->src_id);
-					if(unit->val1 <= 0) // If it was deactivated.
+					if (unit->val1 <= 0) // If it was deactivated.
 					{
 						skill_delunit(unit);
 						break;
 					}
-					clif_changetraplook(bl,UNT_USED_TRAPS);
-					skill_castend_damage_id(ss, &group->unit->bl, group->skill_id, group->skill_lv, tick, 0);
-					group->limit=DIFF_TICK(tick,group->tick)+1500;
-					unit->limit=DIFF_TICK(tick,group->tick)+1500;
+					clif_changetraplook(bl, UNT_USED_TRAPS);
+					skill_castend_damage_id(ss, &group->unit->bl, group->skill_id, group->skill_lv, tick, SD_LEVEL|BCT_ENEMY|1);
+					group->limit = DIFF_TICK(tick, group->tick) + 1500;
+					unit->limit = DIFF_TICK(tick, group->tick) + 1500;
 					group->unit_id = UNT_USED_TRAPS;
 				}
 				break;
@@ -14555,7 +14555,7 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			case UNT_FEINTBOMB:
 				{
 					struct block_list *src = map_id2bl(group->src_id);
-					if( src )
+					if (src)
 						map_foreachinrange(skill_area_sub, &group->unit->bl, unit->range, splash_target(src), src, SC_FEINTBOMB, group->skill_lv, tick, BCT_ENEMY|1, skill_castend_damage_id);
 					skill_delunit(unit);
 				}
@@ -15293,6 +15293,12 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 		} else {
 			int fame = 0;
 			tmp_item.amount = 0;
+			if (skill_id == GN_MIX_COOKING && temp_qty > 1) // Mix Cooking level 2.
+			{	// Success. As I see the chance as level 2 is global, not indiviual.
+				if( rand()%10000 < make_per )
+					tmp_item.amount = 5 + rand()%5;
+			}
+			else
 			for (i=0; i< qty; i++)
 			{	//Apply quantity modifiers.
 				if (rand()%10000 < make_per || qty == 1)
@@ -15353,40 +15359,44 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				case GN_MIX_COOKING:
 					{
 						struct item tmp_item;
-						const int products[5][2] = {{13265,6500},{13266,4000},{13267,3000},{13268,500},{12435,500}};
-						memset(&tmp_item,0,sizeof(tmp_item));
+						const int products[5][2] = {{13265, 6500}, {13266, 4000}, {13267, 3000}, {13268, 500}, {12435, 500}};
+						memset(&tmp_item, 0, sizeof(tmp_item));
 						tmp_item.nameid = nameid;
 						do {
 							i = rand()%5;
 							tmp_item.nameid = products[i][0];
 						} while( rand()%10000 >= products[i][1] );
-						tmp_item.amount = (skill_lv == 2)?10:1; // TODO: Find the proper value to it.
+						tmp_item.amount = (temp_qty > 1 ) ? 5 + rand()%5 : 1; // When it fails it gives a random amount of items.
 						tmp_item.identify = 1;
-						if( pc_additem(sd,&tmp_item,tmp_item.amount) ) {
-							clif_additem(sd,0,0,flag);
-							map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+						if (pc_additem(sd,&tmp_item,tmp_item.amount))
+						{
+							clif_additem(sd, 0, 0, flag);
+							map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
 						}
+						clif_skill_msg(sd, skill_id, SKMSG_FAIL_MATERIAL_DESTROY);
 					}
+					break;
+				case GN_MAKEBOMB:
+					clif_skill_msg(sd, skill_id, SKMSG_SUCCESS);
 					break;
 				case GN_S_PHARMACY:
 					break;	// No effects here.
-				case GN_MAKEBOMB:
-					clif_skill_msg(sd,skill_id,SKMSG_SUCCESS);
-					break;
 				default: //Those that don't require a skill?
-					if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20)
+					if (skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20)
 					{ //Cooking items.
 						clif_specialeffect(&sd->bl, 608, AREA);
-						if( sd->cook_mastery < 1999 )
-							pc_setglobalreg(sd, "COOK_MASTERY",sd->cook_mastery + ( 1 << ( (skill_produce_db[idx].itemlv - 11) / 2 ) ) * 5);
+						if (sd->cook_mastery < 1999)
+							pc_setglobalreg(sd, "COOK_MASTERY", sd->cook_mastery + (1 << ((skill_produce_db[idx].itemlv - 11) / 2)) * 5);
 					}
 					break;
 			}
 		}
-		if (tmp_item.amount) { //Success
-			if((flag = pc_additem(sd,&tmp_item,tmp_item.amount))) {
-				clif_additem(sd,0,0,flag);
-				map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+		if (tmp_item.amount)
+		{ //Success
+			if((flag = pc_additem(sd, &tmp_item, tmp_item.amount)))
+			{
+				clif_additem(sd, 0, 0, flag);
+				map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
 			}
 			return 1;
 		}

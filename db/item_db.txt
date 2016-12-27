@@ -7259,8 +7259,9 @@
 19891,C_Magnolia_Hat,Costume Magnolia Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,373,{},{},{}
 19892,C_Night_Sparrow_Hat,Costume Night Sparrow Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,913,{},{},{}
 
+19934,C_Flaming_Ten_Gallon_Hat,Costume Flaming Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1075,{},{},{}
 19935,C_Hunting_Cap_Of_Gust,Costume Hunting Cap Of Gust,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,1076,{},{},{}
-19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,,{},{},{}
+19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1077,{},{},{}
 19937,C_Silk_Hat_of_Earth,Costume Silk Hat of Earth,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,,{},{},{}
 
 20110,C_Coiledup_Snake,Costume Coiledup Snake,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,,{},{},{}

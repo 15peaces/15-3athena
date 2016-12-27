@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+12/27/2016
+	r151 [15peaces]
+		*Merged missing changes from 3ceam rev. 538 - 539
+		*Added some more missing items.
+		*Fixed WL_FROSTMISTY and WL_JACKFROST skills according to the official behavior:
+			-Both miss in plants.
+			-Both deal damage through shootable walls.
+			-WL_JACKFROST causes Frozen status when hit.
+			-WL_FROSTMISTY causes Freezing status through non-shootable walls, even if it doesn't deal damage.
+			-Both don't deal damage in hidden targets.
+		*Fixed WM_REVERBERATION and WM_POEMOFNETHERWORLD that can't be placed on top of Land Protector.
+		*Fixed WM_REVERBERATION that wasn't dealing damage.
+		*Fixed GN_MIX_COOKING Lv 2. 
+			-Some test say that the chance at level 2 is global instead of individual and if success it give you a certain amount of food but it gives you no lumps. Otherwise if it fails, it gives you a certain amount of lumps but it gives you no foods.
+
 12/24/2016
 	r150 [15peaces]
 		*Merged missing changes from 3ceam rev. 537
