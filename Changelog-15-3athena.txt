@@ -4,6 +4,14 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/03/2017
+	r152 [15peaces]
+		*Merged missing changes from 3ceam rev. 540 - 541
+		*Updated LG_BANDING according to the official behavior.
+		*Some updates to item_db.
+			-added some placeholders for items found in aegis-files.
+			-corrected some aegis-names.
+
 12/27/2016
 	r151 [15peaces]
 		*Merged missing changes from 3ceam rev. 538 - 539
