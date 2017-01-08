@@ -4,6 +4,32 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/08/2017
+	r153 [15peaces]
+		*Merged missing changes from 3ceam rev. 542 - 549
+		*Some updates to item_db.
+			-added some placeholders for items found in aegis-files.
+			-corrected some aegis-names.
+			-Added some missing items.
+			-Added full support for some more Costume Items.
+		*Added missing Biolab 4 card drops.
+		*Added some checks to char_parse_change_sex_sub to delete gender exclusive skills from db.
+			-Thanks to @rytech16 for the base.
+		*Fixed a mistake in WM_REVERBERATION/WM_POEMOFNETHERWORLD.
+		*Updated Raising Dragon to its official behavior
+			-ASDP bonus is commented out because in official its not properly applied as bonus.
+			-Dangerous Soul Collect and Call Spirit are both affected of Raising Dragon status.
+		*Released skills delay is applied after WL_Release.
+		*Fixed a bug when an enemy is catched with Cursed Circle could still attack.
+		*AutoShadowSpell is optimized a bit.
+		*Added LG_RAYOFGENESIS.
+		*Removed static condition to some variables in pc_banding.
+		*Updated LG_BANDING that can't be used under Inspiration effects and it displays animation when the Royal Guard starts walking.
+		*Minor optimization in some chorus skills.
+		*Cobalt Trap, Magenta Trap, Maize Trap, Verdure Trap, Electric Shocker are now usable while riding a Warg as of September 2010 Ranger update.
+		*Fixed some Sorcerer skillratio.
+		*Added some missing checks for sd and removed some unnecessary checks for sd relative to some Royal Guard skills.
+
 01/03/2017
 	r152 [15peaces]
 		*Merged missing changes from 3ceam rev. 540 - 541

@@ -2199,6 +2199,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case LG_OVERBRAND_PLUSATK:
 					skillratio = 160 * skill_lv * s_level / 100;
 					break;
+				case LG_RAYOFGENESIS:
+					skillratio = (skillratio + 200 + 300 * skill_lv) * s_level / 100;
+					break;
 				case LG_EARTHDRIVE:
 					skillratio = (skillratio + 100) * skill_lv * s_level / 100;
 					break;
@@ -2485,6 +2488,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_WUGBITE:
 					if (sd)
 						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
+					break;
+				case LG_RAYOFGENESIS:
+					if( sc && sc->data[SC_BANDING] )
+					{// Increase only if the RG is under Banding.
+						short lv = (short)skill_lv;
+						ATK_ADDRATE(190 * ((sd) ? skill_check_pc_partner(sd, (short)skill_num, &lv, skill_get_splash(skill_num, skill_lv), 0) : 1));
+					}
 					break;
 			}
 		}
@@ -3074,6 +3084,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		wd.damage += ad.damage;
 	}
 
+	if( skill_num == LG_RAYOFGENESIS )
+	{
+		struct Damage md = battle_calc_magic_attack(src, target, skill_num, skill_lv, wflag);
+		wd.damage += md.damage;
+	}
+
 	return wd;
 }
 
@@ -3467,6 +3483,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 50 * skill_lv - 50;
 						skillratio *= ( s_level + 2 * ( (sd) ? sd->status.job_level : 0 ) ) / 100;
 						break;
+					case LG_RAYOFGENESIS:
+						skillratio = (skillratio + 200) * skill_lv * s_level / 100;
+						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;
 						break;
@@ -3474,22 +3493,22 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 100 * ( (sd) ? pc_checkskill( sd, WM_REVERBERATION ) : 1 );
 						break;
 					case SO_FIREWALK:
-						skillratio += -100 + 300 * ( s_level * 3 / 100 );
+						skillratio = 300 * s_level / 100;
 						if( sc && sc->data[SC_HEATER_OPTION] )
 							skillratio += skillratio * sc->data[SC_HEATER_OPTION]->val3 / 100;
 						break;
 					case SO_ELECTRICWALK:
-						skillratio += -100 + 300 * ( s_level * 3 / 100 );
+						skillratio = 300 * s_level / 100;
 						if( sc && sc->data[SC_BLAST_OPTION] )
 							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_EARTHGRAVE:
-						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_SEISMICWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						skillratio = ( 200 * pc_checkskill(sd, SA_SEISMICWEAPON) + sstatus->int_ * skill_lv ) * s_level / 100;
 						if( sc && sc->data[SC_BLAST_OPTION] )
 							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_DIAMONDDUST:
-						skillratio += -100 + 200 * (sd ? pc_checkskill(sd, SA_FROSTWEAPON) : 1 + sstatus->int_ * skill_lv) * s_level / 100;
+						skillratio = ( 200 * pc_checkskill(sd, SA_FROSTWEAPON) + sstatus->int_ * skill_lv ) * s_level / 100;
 						if( sc && sc->data[SC_COOLER_OPTION] )
 							skillratio += skillratio * sc->data[SC_COOLER_OPTION]->val3 / 100;
 						break;
@@ -4548,28 +4567,23 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			r_lv = sc->data[SC__AUTOSHADOWSPELL]->val2;
 
 			skill_consume_requirement( sd, r_skill, r_lv, 3 );
-		if ( r_skill != AL_HOLYLIGHT && r_skill != PR_MAGNUS )
+		if (r_skill != AL_HOLYLIGHT && r_skill != PR_MAGNUS)
 		{
-			struct unit_data *ud;
-
-			switch( skill_get_casttype( r_skill ) )
+			switch (skill_get_casttype(r_skill))
 			{
 				case CAST_GROUND:
-					skill_castend_pos2( src, target->x, target->y, r_skill, r_lv, tick, flag );
+					skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
 					break;
 				case CAST_NODAMAGE:
-					skill_castend_nodamage_id( src, target, r_skill, r_lv, tick, flag );
+					skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
 					break;
 				case CAST_DAMAGE:
-					skill_castend_damage_id( src, target, r_skill, r_lv, tick, flag );
+					skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
 					break;
 			}
 
-			if ( ( ud = unit_bl2ud( src ) ) != NULL )
-			{
-				ud->canact_tick = tick + skill_delayfix( src, r_skill, r_lv );
-				clif_status_change( src, SI_ACTIONDELAY, 1, skill_delayfix( src, r_skill, r_lv ), 0, 0, 1 );
-			}
+			sd->ud.canact_tick = tick + skill_delayfix(src, r_skill, r_lv);
+			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, r_skill, r_lv), 0, 0, 1);
 		}
 
 			sd->ud.canact_tick = tick + skill_delayfix( src, r_skill, r_lv );

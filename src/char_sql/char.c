@@ -2596,6 +2596,33 @@ void char_parse_change_sex_sub(int sex, int acc, int char_id, int class_, int gu
 	else if (class_ == JOB_KAGEROU || class_ == JOB_OBORO)
 		class_ = (sex == SEX_MALE ? JOB_KAGEROU : JOB_OBORO);
 
+	// Removes Bard/Dancer gender exclusive skills.
+	if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `skill_point` = `skill_point` +"
+		" (SELECT SUM(lv) FROM `%s` WHERE `char_id` = '%d' AND `id` >= '315' AND `id` <= '330' AND `lv` > '0')"
+		" WHERE `char_id` = '%d'",
+		char_db, skill_db, char_id, char_id) )
+		Sql_ShowDebug(sql_handle);
+	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d' AND `id` >= '315' AND `id` <= '330'", skill_db, char_id) )
+		Sql_ShowDebug(sql_handle);
+
+	// Removes Minstrel/Wanderer gender exclusive skills.
+	if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `skill_point` = `skill_point` +"
+		" (SELECT SUM(lv) FROM `%s` WHERE `char_id` = '%d' AND `id` >= '2350' AND `id` <= '2383' AND `lv` > '0')"
+		" WHERE `char_id` = '%d'",
+		char_db, skill_db, char_id, char_id) )
+	Sql_ShowDebug(sql_handle);
+	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d' AND `id` >= '2350' AND `id` <= '2383'", skill_db, char_id) )
+		Sql_ShowDebug(sql_handle);
+	
+	// Removes Kagerou/Oboro gender exclusive skills.
+	if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `skill_point` = `skill_point` +"
+		" (SELECT SUM(lv) FROM `%s` WHERE `char_id` = '%d' AND `id` >= '3023' AND `id` <= '3029' AND `lv` > '0')"
+		" WHERE `char_id` = '%d'",
+		char_db, skill_db, char_id, char_id) )
+		Sql_ShowDebug(sql_handle);
+	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d' AND `id` >= '3023' AND `id` <= '3029'", skill_db, char_id) )
+		Sql_ShowDebug(sql_handle);
+
 	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `equip` = '0' WHERE `char_id` = '%d'", inventory_db, char_id))
 		Sql_ShowDebug(sql_handle);
 

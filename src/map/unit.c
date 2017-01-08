@@ -92,9 +92,12 @@ int unit_walktoxy_sub(struct block_list *bl)
 
 	ud->state.change_walk_target=0;
 
-	if (bl->type == BL_PC) {
+	if (bl->type == BL_PC)
+	{
 		((TBL_PC *)bl)->head_dir = 0;
 		clif_walkok((TBL_PC*)bl);
+		if (ud->walktimer == INVALID_TIMER && ((TBL_PC *)bl)->sc.data[SC_BANDING])
+			clif_status_change(bl, SI_BANDING, 1, 9999, ((TBL_PC *)bl)->sc.data[SC_BANDING]->val1, 0, 0);
 	}
 	clif_move(ud);
 

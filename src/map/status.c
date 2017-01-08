@@ -513,7 +513,7 @@ void initChangeTables(void)
 	set_sc(SR_CRESCENTELBOW				, SC_CRESCENTELBOW			, SI_CRESCENTELBOW			, SCB_NONE);
 	set_sc(SR_CURSEDCIRCLE				, SC_CURSEDCIRCLE_TARGET	, SI_CURSEDCIRCLE_TARGET	, SCB_NONE);
 	set_sc(SR_LIGHTNINGWALK				, SC_LIGHTNINGWALK			, SI_LIGHTNINGWALK			, SCB_NONE);
-	set_sc(SR_RAISINGDRAGON				, SC_RAISINGDRAGON			, SI_RAISINGDRAGON			, SCB_REGEN|SCB_MAXHP|SCB_MAXSP|SCB_ASPD);
+	set_sc(SR_RAISINGDRAGON			, SC_RAISINGDRAGON			, SI_RAISINGDRAGON			, SCB_REGEN|SCB_MAXHP|SCB_MAXSP/*|SCB_ASPD*/);
 	set_sc(SR_GENTLETOUCH_ENERGYGAIN	, SC_GENTLETOUCH_ENERGYGAIN	, SI_GENTLETOUCH_ENERGYGAIN	, SCB_NONE);
 	set_sc(SR_GENTLETOUCH_CHANGE		, SC_GENTLETOUCH_CHANGE		, SI_GENTLETOUCH_CHANGE		, SCB_BATK|SCB_ASPD|SCB_DEF|SCB_MDEF);
 	set_sc(SR_GENTLETOUCH_REVITALIZE	, SC_GENTLETOUCH_REVITALIZE	, SI_GENTLETOUCH_REVITALIZE	, SCB_VIT|SCB_MAXHP|SCB_DEF2|SCB_REGEN|SCB_ASPD|SCB_SPEED);
@@ -1549,16 +1549,18 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		if (sc->option&OPTION_CHASEWALK && skill_num != ST_CHASEWALK)
 			return 0;
 		if (sc->option&OPTION_WUGRIDER && ((TBL_PC*)src)->skillitem != skill_num)//Only usable skill while riding warg.
-			switch( skill_num )
+			switch (skill_num)
 			{
 				case HT_ANKLESNARE:		case HT_SHOCKWAVE:
 				case HT_SANDMAN:		case HT_FLASHER:
 				case HT_FREEZINGTRAP:	case HT_BLASTMINE:
 				case HT_CLAYMORETRAP:	case HT_TALKIEBOX:
-				case RA_DETONATOR:		case RA_CLUSTERBOMB:
-				case RA_FIRINGTRAP:		case RA_ICEBOUNDTRAP:
+				case RA_DETONATOR:		case RA_ELECTRICSHOCKER:
+				case RA_CLUSTERBOMB:	case RA_WUGRIDER:
 				case RA_WUGDASH:		case RA_WUGSTRIKE:
-				case RA_WUGRIDER:
+				case RA_MAGENTATRAP:	case RA_COBALTTRAP:
+				case RA_MAIZETRAP:		case RA_VERDURETRAP:
+				case RA_FIRINGTRAP:		case RA_ICEBOUNDTRAP:
 					break;
 				default:
 					return 0;
@@ -4948,8 +4950,9 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate += aspd_rate * sc->data[SC_GLOOMYDAY]->val3 / 100;
 	if( sc->data[SC_EARTHDRIVE] )
 		aspd_rate += aspd_rate * 25 / 100;
-	if( sc->data[SC_RAISINGDRAGON] )
-		aspd_rate -= 100; //FIXME: Need official ASPD bonus of this status. [Jobbie]
+	/*As far I tested the skill there is no ASPD addition applied. [Jobbie] */
+	//if( sc->data[SC_RAISINGDRAGON] )
+	//	aspd_rate -= 100; //FIXME: Need official ASPD bonus of this status. [Jobbie]
 	if( sc->data[SC_GENTLETOUCH_CHANGE] )
 		aspd_rate -= aspd_rate * (sc->data[SC_GENTLETOUCH_CHANGE]->val2/200) / 100;
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
@@ -8883,12 +8886,16 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_RAISINGDRAGON:
-			if( sd && sce->val2 && !pc_isdead(sd) ){
-				int i;
+			if (sd && sce->val2 && !pc_isdead(sd))
+			{
+				int i = min(sd->spiritball, 5);
 				pc_delspiritball(sd, sd->spiritball, 0);
-				status_change_end(bl, SC_EXPLOSIONSPIRITS, -1);
-				for( i = 0; i < 5; i++ )
-					pc_addspiritball(sd, skill_get_time(MO_CALLSPIRITS, sce->val1), 5);
+				status_change_end(bl, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
+				while (i > 0)
+				{
+					pc_addspiritball(sd, skill_get_time(MO_CALLSPIRITS, pc_checkskill(sd,MO_CALLSPIRITS)), 5);
+					--i;
+				}
 			}
 			break;
 		case SC_SWORDCLAN:
@@ -9806,8 +9813,10 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		return 0;
 
 	case SC_BANDING:
-		if(status_charge(bl, 0, 7 - sce->val1)){
-			pc_banding(sd, sce->val1);
+		if (status_charge(bl, 0, 7 - sce->val1))
+		{
+			if (sd)
+				pc_banding(sd, sce->val1);
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}

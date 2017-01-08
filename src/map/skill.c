@@ -1128,7 +1128,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			skill_addtimerskill(src,tick+500,bl->id,0,0,skillid,skilllv,BF_WEAPON,0);
 		else if( dstmd && !is_boss(bl) )
 			sc_start(bl,SC_STOP,100,skilllv,skill_get_time(skillid,skilllv));
- 		break;
+		break;
+	case LG_RAYOFGENESIS:	// 50% chance to cause Blind on Undead and Demon monsters.
+		if (battle_check_undead(tstatus->race, tstatus->def_ele) || tstatus->race == RC_DEMON)
+			sc_start(bl, SC_BLIND,50, skilllv, skill_get_time(skillid, skilllv));
+		break;
 	case LG_EARTHDRIVE:
 		skill_break_equip(src, EQP_SHIELD, 500, BCT_SELF);
 		sc_start(bl, SC_EARTHDRIVE, 100, skilllv, skill_get_time(skillid, skilllv));
@@ -3250,6 +3254,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_BANISHINGPOINT:
 	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
+	case LG_RAYOFGENESIS:
 	case SR_SKYNETBLOW:
 	case SR_FALLENEMPIRE:
 	case SR_RAMPAGEBLASTER:
@@ -3956,44 +3961,47 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if( i < MAX_SPELLBOOK )
 			{ // SpellBook
 				int rsb_skillid, rsb_skilllv, cooldown;
-				if( skilllv > 1 )
+				if (skilllv > 1)
 				{
-					ARR_FIND(0,MAX_SPELLBOOK,i,sd->rsb[i].skillid == 0);
+					ARR_FIND(0, MAX_SPELLBOOK, i, sd->rsb[i].skillid == 0);
 					i--; // At skilllvl 2, Release uses the last learned skill in spellbook
 				}
 
 				rsb_skillid = sd->rsb[i].skillid;
 				rsb_skilllv = sd->rsb[i].level;
 				
-				if( skilllv > 1 )
+				if (skilllv > 1)
 					sd->rsb[i].skillid = 0; // Last position - only remove it from list
 				else
-					memmove(&sd->rsb[0],&sd->rsb[1],sizeof(sd->rsb) - sizeof(sd->rsb[0]));
+					memmove(&sd->rsb[0], &sd->rsb[1], sizeof(sd->rsb) - sizeof(sd->rsb[0]));
 
-				if( sd->rsb[0].skillid == 0 )
-					status_change_end(&sd->bl,SC_READING_SB,-1);
+				if (sd->rsb[0].skillid == 0)
+					status_change_end(&sd->bl, SC_READING_SB, INVALID_TIMER);
 
 				status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
 
-				clif_skill_nodamage(src,bl,skillid,skilllv,1);
-				if( !skill_check_condition_castbegin(sd,rsb_skillid,rsb_skilllv) )
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				if (!skill_check_condition_castbegin(sd, rsb_skillid, rsb_skilllv))
 					break;
 
-				switch( skill_get_casttype(rsb_skillid) )
+				switch (skill_get_casttype(rsb_skillid))
 				{
 					case CAST_GROUND:
-						skill_castend_pos2(src,bl->x,bl->y,rsb_skillid,rsb_skilllv,tick,0);
+						skill_castend_pos2(src, bl->x, bl->y, rsb_skillid, rsb_skilllv, tick, 0);
 						break;
 					case CAST_NODAMAGE:
-						skill_castend_nodamage_id(src,bl,rsb_skillid,rsb_skilllv,tick,0);
+						skill_castend_nodamage_id(src, bl, rsb_skillid, rsb_skilllv, tick, 0);
 						break;
 					case CAST_DAMAGE:
-						skill_castend_damage_id(src,bl,rsb_skillid,rsb_skilllv,tick,0);
+						skill_castend_damage_id(src, bl, rsb_skillid, rsb_skilllv, tick, 0);
 						break;
 				}
-					cooldown = pc_get_skillcooldown(sd,rsb_skillid, rsb_skilllv);
-				if( cooldown )
+					cooldown = pc_get_skillcooldown(sd, rsb_skillid, rsb_skilllv);
+				if (cooldown)
 					skill_blockpc_start(sd, rsb_skillid, cooldown);
+
+				sd->ud.canact_tick = tick + skill_delayfix(src, rsb_skillid, rsb_skilllv);
+				clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, rsb_skillid, rsb_skilllv), 0, 0, 1);
 			}
 			else
 			{ // Summon Balls
@@ -5186,23 +5194,31 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case MO_CALLSPIRITS:
-		if(sd) {
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			pc_addspiritball(sd,skill_get_time(skillid,skilllv),skilllv);
+		if (sd)
+		{
+			if (!sd->sc.data[SC_RAISINGDRAGON])
+				pc_addspiritball(sd, skill_get_time(skillid, skilllv), skilllv);
+			else
+			{ // Call Spirit can summon more than its max level if under raising dragon status. [Jobbie]
+				short rd_lvl = sd->sc.data[SC_RAISINGDRAGON]->val1;
+				pc_addspiritball(sd, skill_get_time(skillid, skilllv), skilllv + rd_lvl);
+			}
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
 	case CH_SOULCOLLECT:
-		if( sd ){
-			if( !sd->sc.data[SC_RAISINGDRAGON] ){
+		if (sd)
+		{
+			if (!sd->sc.data[SC_RAISINGDRAGON])
+			{
 				for( i = 0; i < 5; i++ )
 					pc_addspiritball(sd, skill_get_time(skillid, skilllv), 5);
 			}
-			else{ //Soul Collect will directly summon 15 spiritballs if RD status is Level 10. [Jobbie]
-				short rd_lvl = sd->sc.data[SC_RAISINGDRAGON]->val1;
-				short max = ( rd_lvl == 10 ) ? 15 : 5;
-				for( i = 0; i < max; i++ )
-					pc_addspiritball(sd, skill_get_time(skillid, skilllv), (rd_lvl == 10) ? 15 : 5 + rd_lvl );
+			else
+			{ //As Tested in kRO Soul Collect will summon 5 + raising dragon level spirit balls directly. [Jobbie]
+				for (i = 0; i < 15; i++)
+					pc_addspiritball(sd, skill_get_time(skillid, skilllv), 5 + sd->sc.data[SC_RAISINGDRAGON]->val1);
 			}
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
@@ -7747,8 +7763,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
 						if( !shield_data || shield_data->type != IT_ARMOR )
 						{	// No shield?
-							if( sd )
-								clif_skill_fail(sd, skillid, 0, 0, 0);
+							clif_skill_fail(sd, skillid, 0, 0, 0);
 							break;
 						}
 						brate = shield_data->def * 10;
@@ -7816,8 +7831,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					struct item *it = &sd->status.inventory[sd->equip_index[EQI_HAND_L]];
 					if( !it )
 					{	// No shield?
-						if( sd )
-							clif_skill_fail(sd,skillid,0,0,0);
+						clif_skill_fail(sd,skillid,0,0,0);
 						break;
 					}
 					brate = it->refine * 5;
@@ -7890,7 +7904,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_CURSEDCIRCLE:
 		if( flag&1 ){
 			if( is_boss(bl) ) break;
-			if( sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid, skilllv))){
+			if (sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid, skilllv)))
+			{
+				unit_stop_attack(bl);
 				clif_bladestop(src, bl->id, 1);
 				map_freeblock_unlock();
 				return 1;
@@ -7905,12 +7921,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SR_RAISINGDRAGON:
-		if( sd ){
+		if (sd)
+		{
 			short max = 5 + skilllv;
-			clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv,skill_get_time(skillid, skilllv)));
-			sc_start(bl, SC_EXPLOSIONSPIRITS, 100, skilllv, skill_get_time(skillid, skilllv));				
-			for( i = 0; i < max; i++ ) // Don't call more than max available spheres.
+			sc_start(bl, SC_EXPLOSIONSPIRITS, 100, skilllv, skill_get_time(skillid, skilllv));
+			for (i = 0; i < max; i++) // Don't call more than max available spheres.
 				pc_addspiritball(sd, skill_get_time(skillid, skilllv), max);
+			clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv,skill_get_time(skillid, skilllv)));
 		}
 		break;
 
@@ -8092,9 +8109,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		else
 		{ // These affect to all targets arround the caster.
 			short lv = (short)skilllv;
-			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd,skillid,&lv,skill_get_splash(skillid,skilllv),1) : 50; // 50% chance in non BL_PC (clones).
-			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd, skillid, &lv, skill_get_splash(skillid, skilllv), 1) : 50; // 50% chance in non BL_PC (clones).
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
@@ -8133,10 +8150,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				}
 			}
 		} else {
-			short lv = (short)skilllv;
-			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd,skillid,&lv,skill_get_splash(skillid,skilllv),1) : 50; // 50% chance in non BL_PC (clones).
+			short *lv = (short*)&skilllv;
+			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd, skillid, lv, skill_get_splash(skillid, skilllv), 1) : 50; // 50% chance in non BL_PC (clones).
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
@@ -9181,6 +9198,16 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		clif_skill_nodamage(src, src, skillid, skilllv, 1);
 		break;
 
+	case LG_RAYOFGENESIS:
+		if (status_charge(src, status_get_max_hp(src) * 3 * skilllv / 100,0))
+		{
+			i = skill_get_splash(skillid, skilllv);
+			map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+		}
+		else if(sd)
+			clif_skill_fail(sd, skillid, USESKILL_FAIL, 0, 0);
+		break;
+
 	case WM_DOMINION_IMPULSE:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea( skill_ative_reverberation,
@@ -10115,8 +10142,8 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		interval = limit;
 		val2 = 1;
 	case WM_POEMOFNETHERWORLD:	// Can't be placed on top of Land Protector.
-		if (map_getcell(sd->bl.m, x, y, CELL_CHKLANDPROTECTOR))
-			return 0;
+		if (map_getcell(src->m, x, y, CELL_CHKLANDPROTECTOR))
+			return NULL;
 
 	case SO_CLOUD_KILL:
 		skill_clear_group(src, 4);
@@ -11446,6 +11473,12 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}
+		case LG_RAYOFGENESIS:
+		{
+			if (tsd->status.party_id == sd->status.party_id && (tsd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD && tsd->sc.data[SC_BANDING])
+				p_sd[(*c)++] = tsd->bl.id;
+			return 1;
+		}
 			default: //Warning: Assuming Ensemble Dance/Songs for code speed. [Skotlex]
 				{
 					int skilllv;
@@ -11708,9 +11741,14 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		}
 		break;
 	case MO_CALLSPIRITS:
-		if(sd->spiritball >= lv) {
-			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
-			return 0;
+		{
+			if (sc && sc->data[SC_RAISINGDRAGON])
+				lv = sc->data[SC_RAISINGDRAGON]->val1 + lv;
+			if (sd->spiritball >= lv)
+			{
+				clif_skill_fail(sd, skill, 0, 0, 0);
+				return 0;
+			}
 		}
 		break;
 	case MO_FINGEROFFENSIVE:
@@ -12090,6 +12128,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case LG_BANDING:
+		if (sc && sc->data[SC_INSPIRATION])
+		{
+			clif_skill_fail(sd, skill, 0, 0, 0);
+			return 0;
+		}
+		break;
 	case LG_PRESTIGE:
 		if( sc && (sc->data[SC_BANDING] || sc->data[SC_INSPIRATION]) ){
 			clif_skill_fail(sd,skill,0,0,0);
@@ -12103,6 +12148,17 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		sd->rageball_old = require.spiritball = sd->rageball;
+		break;
+	case LG_RAYOFGENESIS:
+		if (sc && sc->data[SC_INSPIRATION])
+			return 1;	// Don't check for partner.
+		if (!(sc && sc->data[SC_BANDING]))
+		{
+			clif_skill_fail(sd, skill, USESKILL_FAIL, 0, 0);
+			return 0;
+		}
+		else if (skill_check_pc_partner(sd, skill, &lv, skill_get_range(skill, lv), 0) < 1)
+			return 0; // Just fails, no msg here.
 		break;
 	case SR_FALLENEMPIRE:
 		if( !(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_DRAGONCOMBO) )
