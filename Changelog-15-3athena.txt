@@ -4,9 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+01/15/2017
+	r154 [15peaces]
+		*Merged missing changes from 3ceam rev. 551 - 552
+		*Fixed Rune Knight's runes behavior. 
+			-These can be used by every job but these do nothing if you haven't required Rune Mastery level to use it, even if you are Rune Knight class.
+		*Fixed RK_CRUSHSTRIKE formula.
+		*Added full support for S Grade Coin Bag and A Grade Coin Bag.
+		*Fixed Camouflage duration.
+		*Some random cleanup.
+
 01/08/2017
 	r153 [15peaces]
-		*Merged missing changes from 3ceam rev. 542 - 549
+		*Merged missing changes from 3ceam rev. 542 - 550
 		*Some updates to item_db.
 			-added some placeholders for items found in aegis-files.
 			-corrected some aegis-names.

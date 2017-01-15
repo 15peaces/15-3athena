@@ -3236,7 +3236,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RK_SONICWAVE:
 	case RK_HUNDREDSPEAR:
 	case RK_DRAGONBREATH:
-	case RK_STORMBLAST:
 	case GC_CROSSIMPACT:
 	case GC_VENOMPRESSURE:
 	case AB_DUPLELIGHT_MELEE:
@@ -3823,8 +3822,16 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
+	case RK_STORMBLAST:
 	case RK_CRUSHSTRIKE:
-		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		if (sd)
+		{
+			int lv = 3; //RK_STORMBLAST
+			if (skillid == RK_CRUSHSTRIKE)
+				lv = 7;
+			if (pc_checkskill(sd, RK_RUNEMASTERY) >= lv)
+				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		}
 		break;
 
 	case GC_DARKILLUSION:
@@ -4965,9 +4972,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NPC_INVINCIBLE:
 	case NPC_INVINCIBLEOFF:
 	case RK_DEATHBOUND:
-	case RK_GIANTGROWTH:
-	case RK_VITALITYACTIVATION:
-	case RK_ABUNDANCE:
 	case GC_VENOMIMPRESS:
 	case AB_DUPLELIGHT:
 	case AB_SECRAMENT:
@@ -7089,46 +7093,70 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 	case RK_STONEHARDSKIN:
+		if (sd && pc_checkskill(sd, RK_RUNEMASTERY) >= 4)
 		{
 			int heal = sstatus->hp / 4; // 25% HP
-			if( status_charge( bl, heal, 0 ) )
-				clif_skill_nodamage( src, bl, skillid, skilllv, sc_start2( bl, type, 100, skilllv, heal, skill_get_time( skillid, skilllv ) ) );
-			else if( sd )
-				clif_skill_fail( sd, skillid, 0, 0, 0 );
+			if (status_charge(bl, heal, 0))
+				clif_skill_nodamage(src, bl, skillid, skilllv, sc_start2(bl, type, 100, skilllv, heal, skill_get_time(skillid, skilllv)));
+			else
+				clif_skill_fail(sd, skillid, 0, 0, 0);
 		}
 		break;
 	case RK_REFRESH:
+		if (sd && pc_checkskill(sd, RK_RUNEMASTERY) >= 8)
 		{
 			int heal = status_get_max_hp(bl) * 25 / 100;
-			clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
-			status_heal( bl, heal, 0, 1 );
-			status_change_clear_buffs( bl, 2 );
+			clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
+			status_heal(bl, heal, 0, 1);
+			status_change_clear_buffs(bl, 2);
 		}
 	break;
 
 	case RK_MILLENNIUMSHIELD:
+		if (sd && pc_checkskill(sd,RK_RUNEMASTERY) >= 9)
 		{
 			short shields = 2 + rand()%3;
-			sc_start4(bl,type,100,skilllv,shields,1000,0,skill_get_time(skillid,skilllv));
-			if( sd ) clif_millenniumshield(sd,shields);
-			clif_skill_nodamage(src,bl,skillid,1,1);
+			sc_start4(bl, type, 100, skilllv, shields, 1000, 0, skill_get_time(skillid, skilllv));
+			clif_millenniumshield(sd, shields);
+			clif_skill_nodamage(src, bl, skillid, 1, 1);
 		}
 		break;
-	case RK_FIGHTINGSPIRIT:
-		if( flag&1 ){
-			if( src == bl )
-				sc_start2(bl,type,100,skill_area_temp[5],40*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
-			else
-				sc_start(bl,type,100,skill_area_temp[5]/4,skill_get_time(skillid,skilllv));
-		}else{
-			if( sd && sd->status.party_id ){
-				i = party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,BCT_PARTY,skill_area_sub_count);
-				skill_area_temp[5] = 7 * i; // ATK
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
-			}else
-				sc_start2(bl,type,100,7,5,skill_get_time(skillid,skilllv));
+
+	case RK_GIANTGROWTH:
+	case RK_VITALITYACTIVATION:
+	case RK_ABUNDANCE:
+		if (sd)
+		{
+			int lv = 1; // RK_GIANTGROWTH
+			if (skillid == RK_VITALITYACTIVATION)
+				lv = 2;
+			else if (skillid == RK_ABUNDANCE)
+				lv = 6;
+			if (pc_checkskill(sd, RK_RUNEMASTERY) >= lv)
+				clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
 		}
-		clif_skill_nodamage(src,bl,skillid,1,1);
+		break;
+
+	case RK_FIGHTINGSPIRIT:
+		if (flag&1)
+		{
+			if (src == bl)
+				sc_start2(bl, type, 100, skill_area_temp[5], 40 * (sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skillid, skilllv));
+			else
+				sc_start(bl, type, 100, skill_area_temp[5] / 4, skill_get_time(skillid, skilllv));
+		}
+		else if (sd && pc_checkskill(sd, RK_RUNEMASTERY) >= 5)
+		{
+			if (sd->status.party_id)
+			{
+				i = party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, BCT_PARTY, skill_area_sub_count);
+				skill_area_temp[5] = 7 * i; // ATK
+				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+			}
+			else
+				sc_start2(bl, type, 100, 7, 5,skill_get_time(skillid, skilllv));
+		}
+		clif_skill_nodamage(src, bl, skillid, 1, 1);
 		break;
 
 	case GC_ROLLINGCUTTER:

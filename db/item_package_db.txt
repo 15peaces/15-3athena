@@ -191,50 +191,69 @@
 11,6081,300,1,4		// 1x Splendide_Coin
 11,6422,200,1,4		// 1x Egrade_Coin
 
-// IP_Bgrade_Pocket
+// IP_Sgrade_Pocket
+12,6418,0,1,0		// 1x Agrade_Coin
 12,6419,0,1,0		// 1x Bgrade_Coin
-12,6420,0,1,0		// 1x Cgrade_Coin
-12,6421,0,1,0		// 1x Dgrade_Coin
 12,12636,800,1,2	// 1x Malang_Sp_Can
-12,6421,50,1,2		// 1x Dgrade_Coin
-12,6420,150,1,2		// 1x Cgrade_Coin
-12,12636,800,1,3	// 1x Malang_Sp_Can
-12,6421,200,1,3		// 1x Dgrade_Coin
+12,6418,200,1,2		// 1x Agrade_Coin
+12,12636,700,1,3	// 1x Malang_Sp_Can
+12,6419,200,1,3		// 1x Bgrade_Coin
+12,6423,100,1,3		// 1x Anger_Seagod
+
+// IP_Agrade_Pocket
+13,6418,0,1,0		// 1x Agrade_Coin
+13,6419,0,1,0		// 1x Bgrade_Coin
+13,6420,0,1,0		// 1x Cgrade_Coin
+13,12636,800,1,2	// 1x Malang_Sp_Can
+13,6420,50,1,2		// 1x Cgrade_Coin
+13,6419,150,1,2		// 1x Bgrade_Coin
+13,12636,800,1,3	// 1x Malang_Sp_Can
+13,6420,200,1,3		// 1x Cgrade_Coin
+
+// IP_Bgrade_Pocket
+14,6419,0,1,0		// 1x Bgrade_Coin
+14,6420,0,1,0		// 1x Cgrade_Coin
+14,6421,0,1,0		// 1x Dgrade_Coin
+14,12636,800,1,2	// 1x Malang_Sp_Can
+14,6421,50,1,2		// 1x Dgrade_Coin
+14,6420,150,1,2		// 1x Cgrade_Coin
+14,12636,800,1,3	// 1x Malang_Sp_Can
+14,6421,200,1,3		// 1x Dgrade_Coin
 
 // IP_HALLOWEEN_G_BOX
-13,929,1,30,1	// 30x Immortal_Heart
-13,1061,1,30,1	// 30x Starsand_Of_Witch
-13,713,1,30,1	// 30x Empty_Bottle
-13,970,1,30,1	// 30x Alchol
-13,972,1,30,1	// 30x Karvodailnirol
-13,1059,1,30,1	// 30x Transparent_Cloth
-13,905,1,30,1	// 30x Stem
-13,7033,1,30,1	// 30x Poison_Spore
-13,12016,1,5,1	// 5x Speed_Up_Potion
-13,558,1,5,1	// 5x Chocolate
-13,12414,1,5,1	// 5x Guarana_Candy
-13,608,1,5,1	// 5x Seed_Of_Yggdrasil
-13,603,1,1,1	// 1x Old_Blue_Box
-13,616,1,1,1	// 1x Old_Card_Album
-13,617,1,1,1	// 1x Old_Violet_Box
+15,929,1,30,1	// 30x Immortal_Heart
+15,1061,1,30,1	// 30x Starsand_Of_Witch
+15,713,1,30,1	// 30x Empty_Bottle
+15,970,1,30,1	// 30x Alchol
+15,972,1,30,1	// 30x Karvodailnirol
+15,1059,1,30,1	// 30x Transparent_Cloth
+15,905,1,30,1	// 30x Stem
+15,7033,1,30,1	// 30x Poison_Spore
+15,12016,1,5,1	// 5x Speed_Up_Potion
+15,558,1,5,1	// 5x Chocolate
+15,12414,1,5,1	// 5x Guarana_Candy
+15,608,1,5,1	// 5x Seed_Of_Yggdrasil
+15,603,1,1,1	// 1x Old_Blue_Box
+15,616,1,1,1	// 1x Old_Card_Album
+15,617,1,1,1	// 1x Old_Violet_Box
 
 //IP_Sg_Weapon_Supply_Box
-14,18113,3,1,1	// 1x Velum_Arbalest
-14,2016,8,1,1	// 1x Velum_Arc_Wand
-14,1586,8,1,1	// 1x Velum_Bible
-14,1395,1,1,1	// 1x Velum_Buster
-14,1832,3,1,1	// 1x Velum_Claw
-14,21001,8,1,1	// 1x Velum_Claymore
-14,18114,8,1,1	// 1x Velum_CrossBow
-14,13072,3,1,1	// 1x Velum_Damascus
-14,1587,8,1,1	// 1x Velum_Encyclopedia
-14,16021,3,1,1	// 1x Velum_Flail
-14,1492,8,1,1	// 1x Velum_Glaive
-14,1396,8,1,1	// 1x Velum_Guillotine
-14,1293,2,1,1	// 1x Velum_Jamadhar
-14,21002,8,1,1	// 1x Velum_Katzbalger
-14,1294,1,1,1	// 1x Velum_Scare
-14,1436,8,1,1	// 1x Velum_Spear
-14,16020,3,1,1	// 1x Velum_Stunner
-14,12678,13,1,1	// 1x Siege_Arrow_Quiver_A
-14,12677,13,1,1	// 1x Siege_Arrow_Quiver_S
+16,18113,3,1,1	// 1x Velum_Arbalest
+16,2016,8,1,1	// 1x Velum_Arc_Wand
+16,1586,8,1,1	// 1x Velum_Bible
+16,1395,1,1,1	// 1x Velum_Buster
+16,1832,3,1,1	// 1x Velum_Claw
+16,21001,8,1,1	// 1x Velum_Claymore
+16,18114,8,1,1	// 1x Velum_CrossBow
+16,13072,3,1,1	// 1x Velum_Damascus
+16,1587,8,1,1	// 1x Velum_Encyclopedia
+16,16021,3,1,1	// 1x Velum_Flail
+16,1492,8,1,1	// 1x Velum_Glaive
+16,1396,8,1,1	// 1x Velum_Guillotine
+16,1293,2,1,1	// 1x Velum_Jamadhar
+16,21002,8,1,1	// 1x Velum_Katzbalger
+16,1294,1,1,1	// 1x Velum_Scare
+16,1436,8,1,1	// 1x Velum_Spear
+16,16020,3,1,1	// 1x Velum_Stunner
+16,12678,13,1,1	// 1x Siege_Arrow_Quiver_A
+16,12677,13,1,1	// 1x Siege_Arrow_Quiver_S

@@ -676,7 +676,8 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
-		if( skill_num == RA_AIMEDBOLT && sc && (sc->data[SC_WUGBITE] || sc->data[SC_ANKLE] || sc->data[SC_ELECTRICSHOCKER]) ) {
+		if (skill_num == RA_AIMEDBOLT && (sc->data[SC_WUGBITE] || sc->data[SC_ANKLE] || sc->data[SC_ELECTRICSHOCKER]))
+		{
 			status_change_end(bl, SC_WUGBITE, INVALID_TIMER);
 			status_change_end(bl, SC_ANKLE, INVALID_TIMER);
 			status_change_end(bl, SC_ELECTRICSHOCKER, INVALID_TIMER);
@@ -723,20 +724,21 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			int duration = skill_get_time2(MO_CALLSPIRITS, sce->val1);
 			if( sd ) pc_addspiritball(sd, duration, sce->val1);
 		}
- 	}
 
-	if( sc && sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20 )
-		status_change_spread(bl, src); // Deadly infect attacked side
+		if (sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20)
+			status_change_spread(bl, src); // Deadly infect attacked side
+	}
 
 	//SC effects from caster side.
 	sc = status_get_sc(src);
 
-	if (sc && sc->count){
-		if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
+	if (sc && sc->count)
+	{
+		if (sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF])
 			damage += damage * 75 / 100;
-		if( sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3 )
-			sc_start(bl,sc->data[SC_POISONINGWEAPON]->val2,100,sc->data[SC_POISONINGWEAPON]->val1,skill_get_time2(GC_POISONINGWEAPON,sc->data[SC_POISONINGWEAPON]->val1));
- 		if( sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20 )
+		if (sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3)
+			sc_start(bl, (sc_type)sc->data[SC_POISONINGWEAPON]->val2, 100, sc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, sc->data[SC_POISONINGWEAPON]->val1));
+ 		if (sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20)
 			status_change_spread(src, bl);
  	}
 
@@ -1493,9 +1495,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if( sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_CRUSADER )
 						flag.hit = 1;
 					break;
-				case LG_PINPOINTATTACK:
-					flag.hit = 1; // Always hits.
- 					break;
 			}
 		if (tsc && !flag.hit && tsc->opt1 && tsc->opt1 != OPT1_STONEWAIT && tsc->opt1 != OPT1_BURNING)
 			flag.hit = 1;
@@ -2382,16 +2381,19 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RK_DRAGONBREATH: // Sugested formula from irowiki.
 					skillratio *= skill_lv * s_level / 100;
 					break;
-				case RK_CRUSHSTRIKE:	// Sugested formula fro irowiki.
+				case RK_CRUSHSTRIKE: // Sugested formula from irowiki.
 					skillratio += 550;
-					if( sd ) {
+					if (sd)
+					{
 						short index = sd->equip_index[EQI_HAND_R];
-						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON ) {
-							skillratio += 100 * sd->inventory_data[index]->wlv; // Increased by weapon level.
-							skillratio *= sd->status.inventory[index].refine;	// Increased by weapon refine.
+						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+						{
+							skillratio += 100 * sd->status.inventory[index].refine;	// Increased by weapon refine.
+							skillratio *= sd->inventory_data[index]->wlv; // Increased by weapon level.
 						}
 					}
 					break;
+
 				case RK_STORMBLAST:
 					skillratio += -100 + 100 * (sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 1) +  sstatus->int_ / 4;
 					break;

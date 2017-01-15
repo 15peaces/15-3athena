@@ -749,9 +749,11 @@ IP_Old_Coin_Pocket	8			//343
 IP_High_Coin_Pocket	9			//344
 IP_Mid_Coin_Pocket	10			//345
 IP_Low_Coin_Pocket	11			//346
-IP_Bgrade_Pocket	12			//349
-IP_HALLOWEEN_G_BOX	13			//386
-IP_Sg_Weapon_Supply_Box	14		//388
+IP_SGRADE_POCKET	12			//347
+IP_Agrade_Pocket	13			//348
+IP_Bgrade_Pocket	14			//349
+IP_HALLOWEEN_G_BOX	15			//386
+IP_Sg_Weapon_Supply_Box	16		//388
 
 SC_ALL	-1
 SC_NONE	-1
