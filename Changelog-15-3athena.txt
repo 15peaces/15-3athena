@@ -6,6 +6,10 @@
 //========================================
 02/19/2017
 	r155 [15peaces]
+		*Fixed a typo on my last commit, sorry. ^^
+
+02/19/2017
+	r155 [15peaces]
 		*Merged missing changes from 3ceam rev. 553 - 555
 		*WoE:Training Edition implementation
 			-Added a new version of WoE, WoE:TE which forbids 3rd class and 2nd expanded class from joining.

@@ -274,7 +274,7 @@ int guild_castlealldataload(int len,struct guild_castle *gc)
 			{ // last owned one
 				guild_npc_request_info(c->guild_id, "::OnAgitInit");
 				guild_npc_request_info(c->guild_id, "::OnAgitInit2");
-				guild_npc_request_info(c->guild_id, "::OnAgitInit2");
+				guild_npc_request_info(c->guild_id, "::OnAgitInit3");
 			}
 		}
 	}
