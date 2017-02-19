@@ -3,11 +3,12 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.8
+//= 1.9
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Additional Comments: =================================
 //= 1.8 Added support for episode mapflags [15peaces]
+//= 1.9 1.1 Added GVG TE maps. [15peaces]
 //============================================================
 
 //============================================================
@@ -221,6 +222,20 @@ gld_dun01	mapflag	nosave	SavePoint
 gld_dun02	mapflag	nosave	SavePoint
 gld_dun03	mapflag	nosave	SavePoint
 gld_dun04	mapflag	nosave	SavePoint
+teg_dun01	mapflag	nosave	SavePoint
+teg_dun02	mapflag	nosave	SavePoint
+
+// WOE:Training Edition Castles =====
+te_prtcas01	mapflag	nosave	SavePoint
+te_prtcas02	mapflag	nosave	SavePoint
+te_prtcas03	mapflag	nosave	SavePoint
+te_prtcas04	mapflag	nosave	SavePoint
+te_prtcas05	mapflag	nosave	SavePoint
+te_aldecas1	mapflag	nosave	SavePoint
+te_aldecas2	mapflag	nosave	SavePoint
+te_aldecas3	mapflag	nosave	SavePoint
+te_aldecas4	mapflag	nosave	SavePoint
+te_aldecas5	mapflag	nosave	SavePoint
 
 //Normal Maps =================================
 yggdrasil01	mapflag	nosave	SavePoint

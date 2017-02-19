@@ -4,6 +4,33 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/19/2017
+	r155 [15peaces]
+		*Merged missing changes from 3ceam rev. 553 - 555
+		*WoE:Training Edition implementation
+			-Added a new version of WoE, WoE:TE which forbids 3rd class and 2nd expanded class from joining.
+			  - 10 new WoE castles.
+			  - New zone for job_noenter.txt
+			  - Various items are restricted.
+			-New monsters for the guild dungeon.
+			-Thanks to rAthena for the base!
+		*Removed Visual Studio 2006 project files.
+			-We all knew this would happen one day. ^^
+		*Added some missing renewal drops.
+		*Updated npctalk script command to accept another npc name.
+		*Added support for longer NPC names.
+			-NPC names can be longer than it's displayed on client.
+			-Thanks to rAthena.
+		*Added conf/import folder with dummy files to avoid some map-server errors.
+		*Fixed WM_REVERBERATION skill.
+		*Fixed a typo relative to Rage balls from Royal Guard.
+		*Added missing code in r154 (follow-up: @ed6ede4) relative to Rune Knight runes.
+		*Some random clean up.
+		*Fixed Psychic Wave to official behavior
+		*Fix Earth Strain bypassing the skill effect dont stack, dealing its damage twice sometimes
+		*Adjusted Neutral Barrier and Stealth Field inter timers
+		*Adjusted Cloud Kill animation to show more properly
+
 01/15/2017
 	r154 [15peaces]
 		*Merged missing changes from 3ceam rev. 551 - 552

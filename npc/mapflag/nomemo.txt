@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 2.2
+//= 2.3
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -20,6 +20,7 @@
 //= 2.0 Renewal split. [Euphy]
 //= 2.1 Updated and ported from rAthena. [15peaces]
 //= 2.2 Added support for episode mapflags [15peaces]
+//= 2.3 Added GVG TE Maps. [15peaces]
 //============================================================
 
 //============================================================
@@ -852,3 +853,17 @@ gl_cas02_	mapflag	nomemo
 1@sara	mapflag	nomemo
 1@gef_in	mapflag	nomemo
 dali	mapflag	nomemo
+
+// WOE:TE Maps ===================
+te_prtcas01	mapflag	nomemo
+te_prtcas02	mapflag	nomemo
+te_prtcas03	mapflag	nomemo
+te_prtcas04	mapflag	nomemo
+te_prtcas05	mapflag	nomemo
+te_aldecas1	mapflag	nomemo
+te_aldecas2	mapflag	nomemo
+te_aldecas3	mapflag	nomemo
+te_aldecas4	mapflag	nomemo
+te_aldecas5	mapflag	nomemo
+teg_dun01	mapflag	nomemo
+teg_dun02	mapflag	nomemo

@@ -1,0 +1,60 @@
+//===== 15-3athena Script ====================================
+//= War of Emperium - Auto-Start
+//===== By: ================================================== 
+//= Capuche
+//===== Current Version: ===================================== 
+//= 1.1 [15peaces]
+//===== Compatible With: ===================================== 
+//= 15-3athena
+//===== Description: =========================================
+//= Basic auto-start for War of Emperium TE.
+//===== Changelogs: ==========================================
+//= 1.0 First version. [Capuche]
+//= 1.1 Ported from rAthena. [15peaces]
+//============================================================
+
+-	script	woe_TE_contoller	-1,{
+function WoeTimer;
+
+OnSun2000:// date woe start
+	if (agitcheck3() == 0)
+		agitstart3;
+	end;
+OnSun2100:// date woe end
+	if (agitcheck3() == 1)
+		agitend3;
+	end;
+
+OnAgitInit3:
+	WoeTimer( "Sunday",20,21 );// <day>, <hour start>, <hour end>
+	end;
+
+	function WoeTimer 
+	{
+		set .@Sunday    , 0;
+		set .@Monday    , 1;
+		set .@Tuesday   , 2;
+		set .@Wednesday , 3;
+		set .@Thursday  , 4;
+		set .@Friday    , 5;
+		set .@Saturday  , 6;
+
+		set .@day, getd( ".@"+ getarg(0) );
+		set .@hour_start , getarg(1);
+		set .@hour_end   , getarg(2);
+		set .@woe_status , agitcheck3();
+		set .@hour_today , gettime(3);
+		set .@day_today  , gettime(4);
+		setd ".day_"+ .@day, 1;
+		setd ".hour_start_"+ .@hour_start, 1;
+
+		if (.@day_today == .@day) 
+		{
+			if (.@hour_today >= .@hour_start && .@hour_today < .@hour_end && .@woe_status == 0)
+				agitstart3;
+			else if (.@hour_today == .@hour_end && .@woe_status)
+				agitend3;
+		}
+		return;
+	}
+}

@@ -4091,17 +4091,16 @@ ACMD_FUNC(breakguild)
 } 
 
 /*==========================================
- *
+ * Start WoE:FE
  *------------------------------------------*/
-ACMD_FUNC(agitstart)
-{
+ACMD_FUNC(agitstart) {
 	nullpo_retr(-1, sd);
-	if (agit_flag == 1) {
+	if (agit_flag) {
 		clif_displaymessage(fd, msg_txt(73)); // War of Emperium is currently in progress.
 		return -1;
 	}
 
-	agit_flag = 1;
+	agit_flag = true;
 	guild_agit_start();
 	clif_displaymessage(fd, msg_txt(72)); // War of Emperium has been initiated.
 
@@ -4109,17 +4108,16 @@ ACMD_FUNC(agitstart)
 }
 
 /*==========================================
- *
+ * Start WoE:SE
  *------------------------------------------*/
-ACMD_FUNC(agitstart2)
-{
+ACMD_FUNC(agitstart2) {
 	nullpo_retr(-1, sd);
-	if (agit2_flag == 1) {
+	if (agit2_flag) {
 		clif_displaymessage(fd, msg_txt(404)); // "War of Emperium SE is currently in progress."
 		return -1;
 	}
 
-	agit2_flag = 1;
+	agit2_flag = true;
 	guild_agit2_start();
 	clif_displaymessage(fd, msg_txt(403)); // "War of Emperium SE has been initiated."
 
@@ -4127,17 +4125,34 @@ ACMD_FUNC(agitstart2)
 }
 
 /*==========================================
- *
+ * Start WoE:TE
  *------------------------------------------*/
-ACMD_FUNC(agitend)
-{
+ACMD_FUNC(agitstart3) {
 	nullpo_retr(-1, sd);
-	if (agit_flag == 0) {
+
+	if (agit3_flag) {
+		clif_displaymessage(fd, msg_txt(408)); // "War of Emperium TE is currently in progress."
+		return -1;
+	}
+
+	agit3_flag = true;
+	guild_agit3_start();
+	clif_displaymessage(fd, msg_txt(407)); // "War of Emperium TE has been initiated."
+
+	return 0;
+}
+
+/*==========================================
+ * End WoE:FE
+ *------------------------------------------*/
+ACMD_FUNC(agitend) {
+	nullpo_retr(-1, sd);
+	if (!agit_flag) {
 		clif_displaymessage(fd, msg_txt(75)); // War of Emperium is currently not in progress.
 		return -1;
 	}
 
-	agit_flag = 0;
+	agit_flag = false;
 	guild_agit_end();
 	clif_displaymessage(fd, msg_txt(74)); // War of Emperium has been ended.
 
@@ -4145,19 +4160,38 @@ ACMD_FUNC(agitend)
 }
 
 /*==========================================
- *
+ * End WoE:SE
  *------------------------------------------*/
-ACMD_FUNC(agitend2)
-{
+ACMD_FUNC(agitend2) {
 	nullpo_retr(-1, sd);
-	if (agit2_flag == 0) {
+	if (!agit2_flag) {
 		clif_displaymessage(fd, msg_txt(406)); // "War of Emperium SE is currently not in progress."
 		return -1;
 	}
 
-	agit2_flag = 0;
+	agit2_flag = false;
 	guild_agit2_end();
 	clif_displaymessage(fd, msg_txt(405)); // "War of Emperium SE has been ended."
+
+	return 0;
+}
+
+/*==========================================
+ * End WoE:TE
+ *------------------------------------------*/
+ACMD_FUNC(agitend3)
+{
+	nullpo_retr(-1, sd);
+
+	if (!agit3_flag)
+	{
+		clif_displaymessage(fd, msg_txt(410));// War of Emperium TE is currently not in progress.
+		return -1;
+	}
+
+	agit3_flag = false;
+	guild_agit3_end();
+	clif_displaymessage(fd, msg_txt(409));// War of Emperium TE has been ended.
 
 	return 0;
 }
@@ -4615,6 +4649,10 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "GvG Dungeon | ");
 	if (map[m_id].flag.gvg_castle)
 		strcat(atcmd_output, "GvG Castle | ");
+	if (map[m_id].flag.gvg_te)
+		strcat(atcmd_output, " GvG TE |");
+	if (map[m_id].flag.gvg_te_castle)
+		strcat(atcmd_output, " GvG TE Castle |");
 	if (map[m_id].flag.gvg_noparty)
 		strcat(atcmd_output, "NoParty | ");
 	clif_displaymessage(fd, atcmd_output);
@@ -5043,7 +5081,7 @@ ACMD_FUNC(nuke)
  *------------------------------------------*/
 ACMD_FUNC(tonpc)
 {
-	char npcname[NAME_LENGTH+1];
+	char npcname[NPC_NAME_LENGTH];
 	struct npc_data *nd;
 
 	nullpo_retr(-1, sd);
@@ -5073,7 +5111,7 @@ ACMD_FUNC(tonpc)
  *------------------------------------------*/
 ACMD_FUNC(shownpc)
 {
-	char NPCname[NAME_LENGTH+1];
+	char NPCname[NPC_NAME_LENGTH];
 	nullpo_retr(-1, sd);
 
 	memset(NPCname, '\0', sizeof(NPCname));
@@ -5099,7 +5137,7 @@ ACMD_FUNC(shownpc)
  *------------------------------------------*/
 ACMD_FUNC(hidenpc)
 {
-	char NPCname[NAME_LENGTH+1];
+	char NPCname[NPC_NAME_LENGTH];
 	nullpo_retr(-1, sd);
 
 	memset(NPCname, '\0', sizeof(NPCname));
@@ -5148,7 +5186,7 @@ ACMD_FUNC(loadnpc)
 ACMD_FUNC(unloadnpc)
 {
 	struct npc_data *nd;
-	char NPCname[NAME_LENGTH+1];
+	char NPCname[NPC_NAME_LENGTH];
 	nullpo_retr(-1, sd);
 
 	memset(NPCname, '\0', sizeof(NPCname));
@@ -6785,7 +6823,7 @@ ACMD_FUNC(cleanmap)
  *------------------------------------------*/
 ACMD_FUNC(npctalk)
 {
-	char name[NAME_LENGTH],mes[100],temp[100];
+	char name[NPC_NAME_LENGTH],mes[100],temp[100];
 	struct npc_data *nd;
 	bool ifcolor=(*(command + 8) != 'c' && *(command + 8) != 'C')?0:1;
 	unsigned long color=0;
@@ -8206,16 +8244,16 @@ ACMD_FUNC(mapflag)
 			if ( sscanf(message, "%99s %d", map_flag, &state) < 2 ) {
 				clif_displaymessage(fd, "Usage: @mapflag <mapflag name> <state:1|0|zone> <map name>");
 				clif_displaymessage(fd, "Supported mapflags:");
-				clif_displaymessage(fd, "nomemo     nowarp      nowarpto    noreturn    monster_noteleport");
-				clif_displaymessage(fd, "nobranch   nopenalty   pvp         gvg         noexppenalty");
-				clif_displaymessage(fd, "notrade    novending   nodrop      noskill     noicewall");
-				clif_displaymessage(fd, "snow       clouds      clouds2     fog         nozenypenalty");
-				clif_displaymessage(fd, "fireworks  sakura      leaves      rain        nightenabled");
-				clif_displaymessage(fd, "nogo       noexp       nobaseexp   nojobexp    noloot");
-				clif_displaymessage(fd, "nomvploot  restricted  loadevent	nochat      partylock");
-				clif_displaymessage(fd, "guildlock");
+				clif_displaymessage(fd, "nomemo         nowarp           nowarpto   noreturn    monster_noteleport");
+				clif_displaymessage(fd, "nobranch       nopenalty        pvp        gvg         gvg_te");
+				clif_displaymessage(fd, "noexppenalty     notrade    novending   nodrop");
+				clif_displaymessage(fd, "noskill        noicewall        snow       clouds      clouds2");
+				clif_displaymessage(fd, "fog            nozenypenalty    fireworks  sakura      leaves");
+				clif_displaymessage(fd, "rain           nightenabled     nogo       noexp       nobaseexp");
+				clif_displaymessage(fd, "nojobexp       noloot           nomvploot  restricted  loadevent");
+				clif_displaymessage(fd, "nochat         partylock        guildlock");
 				clif_displaymessage(fd, "");
-				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-7) to set a zone, 0 to turn off all zones for the map");
+				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-8) to set a zone, 0 to turn off all zones for the map");
 				return -1;
 			}
 			m = sd->bl.m;
@@ -8230,8 +8268,8 @@ ACMD_FUNC(mapflag)
 		clif_displaymessage(fd, "Setting flag value to 1");
 		state = 1;
 	}
-	else if (state > 7) {
-		clif_displaymessage(fd, "Maximum zone value is 7");
+	else if (state > 8) {
+		clif_displaymessage(fd, "Maximum zone value is 8");
 		return -1;
 	}
 
@@ -8306,11 +8344,28 @@ ACMD_FUNC(mapflag)
 		map[m].flag.pvp_nocalcrank=state;
 	} */
 	else if (!strcmpi(map_flag,"gvg")) {
-		map[m].flag.gvg=state;
+		map[m].flag.gvg = state;
 		if (state) {
 			if (map[m].flag.pvp) {
 				clif_displaymessage(fd, "You can't set PvP and GvG flags for the same map! Removing PvP flags.");
 				map[m].flag.pvp=0;
+			}
+			clif_map_property_mapall(sd->bl.m, MAPPROPERTY_AGITZONE);
+		}
+		else {
+			clif_map_property_mapall(sd->bl.m, MAPPROPERTY_NOTHING);
+			map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
+		}
+	}
+	else if (!strcmpi(map_flag,"gvg_te")) {
+		map[m].flag.gvg_te = state;
+		if (state) {
+			if (map[m].flag.pvp) {
+				clif_displaymessage(fd, "You can't set PvP and GvG:TE flags for the same map! Removing PvP flags.");
+				map[m].flag.pvp = 0;
+			} else if (map[m].flag.gvg) {
+				clif_displaymessage(fd, "You can't set GvG and GvG:TE flags for the same map! Removing GvG flags.");
+				map[m].flag.gvg = 0;
 			}
 			clif_map_property_mapall(sd->bl.m, MAPPROPERTY_AGITZONE);
 		}
@@ -8338,6 +8393,18 @@ ACMD_FUNC(mapflag)
 		{
 			clif_displaymessage(fd, "You can't set PvP and GvG flags for the same map! Removing PvP flags.");
 			map[m].flag.pvp=0;
+		}
+	else if (!strcmpi(map_flag,"gvg_te_castle")) {
+		map[m].flag.gvg_te_castle=state;
+		if (map[m].flag.pvp)
+		{
+			clif_displaymessage(fd, "You can't set PvP and GvG:TE flags for the same map! Removing PvP flags.");
+			map[m].flag.pvp=0;
+		}
+		if (map[m].flag.gvg)
+		{
+			clif_displaymessage(fd, "You can't set GvG and GvG:TE flags for the same map! Removing GvG flags.");
+			map[m].flag.gvg=0;
 		}
 	} */
 	else if (!strcmpi(map_flag,"noexppenalty")) {
@@ -9606,6 +9673,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "font",               1,1,      atcommand_font },
 	{ "skillfailmsg",      99,99,     atcommand_skillfailmsg },
 	{ "produceeffect",     99,99,     atcommand_produceeffect },
+	{ "agitstart3",        60,60,     atcommand_agitstart3 },
+	{ "agitend3",          60,60,     atcommand_agitend3 },
 };
 
 

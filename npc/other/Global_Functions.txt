@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Lupus, kobra_k88
 //===== Current Version: ===================================== 
-//= 2.20 [15peaces]
+//= 2.21 [15peaces]
 //===== Compatible With: ===================================== 
 //= 15-3athena
 //===== Description: ========================================= 
@@ -43,7 +43,7 @@
 //= 2.18 Added F_GetPlural, F_InsertPlural (thanks to Euphy / rAthena) [15peaces]
 //= 2.19 Added functions to check for equipment swap hacks. (thanks to Euphy / rAthena) [15peaces]
 //= 2.20 Added "F_getpositionname". [15peaces]
-
+//= 2.21 Added "F_WoeTETimeStart". [15peaces]
 //============================================================ 
 
 
@@ -531,4 +531,26 @@ function	script	F_getpositionname	{
 		default:
 			return "Unknown";
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+// Return true if the woe te will start in X seconds or less, false otherwise
+//////////////////////////////////////////////////////////////////////////////////
+function	script	F_WoeTETimeStart	{
+	set .@woe_status, agitcheck3();
+	set .@min_today, gettime(2);
+	set .@hour_today, gettime(3);
+	set .@day_today, gettime(4);
+
+	if (getvariableofnpc( getd( ".day_"+ .@day_today ),"woe_TE_contoller" )) 
+	{
+		set .@h, getvariableofnpc( getd( ".hour_start_"+ .@hour_today ),"woe_TE_contoller" );
+		if (.@h > .@hour_today) 
+		{
+			set .@time, (60 - .@min_today) *60 + ( .@h - .@hour_today -1 ) *3600;
+			if (.@time <= getarg(0))
+				return true;
+		}
+	}
+	return false;
 }

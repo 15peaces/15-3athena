@@ -3250,6 +3250,23 @@ int mob_is_clone(int class_)
 	return class_;
 }
 
+/**
+ * Previously, using skill_nocast with flag 16
+ * @param skill_id
+ * @return True:If disabled, False:If enabled
+ * @!TODO : Move this hardcodes!
+ **/
+static bool mob_clone_disabled_skills(uint16 skill_id)
+{
+	switch (skill_id)
+	{
+		case PR_TURNUNDEAD:
+		case PR_MAGNUS:
+			return true;
+	}
+	return false;
+}
+
 //Flag values:
 //&1: Set special ai (fight mobs, not players)
 //If mode is not passed, a default aggressive mode is used.
@@ -3303,7 +3320,7 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 		skill_id = skill_tree[pc_class2idx(sd->status.class_)][j].id;
 		if (!skill_id || sd->status.skill[skill_id].lv < 1 ||
 			(skill_get_inf2(skill_id)&(INF2_WEDDING_SKILL|INF2_GUILD_SKILL)) ||
-			skill_get_nocast(skill_id)&16
+			mob_clone_disabled_skills(skill_id)
 		)
 			continue;
 		//Normal aggressive mob, disable skills that cannot help them fight

@@ -376,6 +376,8 @@ mf_monster_noteleport	49
 mf_pvp_nocalcrank	50
 mf_battleground	51
 mf_reset	52
+mf_gvg_te_castle	53
+mf_gvg_te	54
 
 cell_walkable		0
 cell_shootable		1
@@ -749,7 +751,7 @@ IP_Old_Coin_Pocket	8			//343
 IP_High_Coin_Pocket	9			//344
 IP_Mid_Coin_Pocket	10			//345
 IP_Low_Coin_Pocket	11			//346
-IP_SGRADE_POCKET	12			//347
+IP_Sgrade_Pocket	12			//347
 IP_Agrade_Pocket	13			//348
 IP_Bgrade_Pocket	14			//349
 IP_HALLOWEEN_G_BOX	15			//386
@@ -4382,3 +4384,6 @@ QTYPE_EVENT2	5
 QTYPE_WARG	6
 QTYPE_WARG2	8
 QTYPE_NONE	9999
+
+// Maximums defined in source & needed in scripts [15peaces]
+MAX_GUARDIANS	8

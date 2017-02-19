@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.9
+//= 2.0
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Additional Comments: =================================
@@ -13,6 +13,7 @@
 //= 1.7 Officially icewall is allowed on interoirs. [L0ne_w0lf]
 //= 1.8 fixed aru castles mapnames
 //= 1.9 Added support for episode mapflags [15peaces]
+//= 2.0 Added WOE:TE maps [15peaces]
 //============================================================
 
 //============================================================
@@ -174,3 +175,15 @@ nguild_prt	mapflag	noicewall
 // Poring War ====================
 poring_w01	mapflag	noicewall
 poring_w02	mapflag	noicewall
+
+// WOE:TE Maps ===================
+te_prtcas01	mapflag	noicewall
+te_prtcas02	mapflag	noicewall
+te_prtcas03	mapflag	noicewall
+te_prtcas04	mapflag	noicewall
+te_prtcas05	mapflag	noicewall
+te_aldecas1	mapflag	noicewall
+te_aldecas2	mapflag	noicewall
+te_aldecas3	mapflag	noicewall
+te_aldecas4	mapflag	noicewall
+te_aldecas5	mapflag	noicewall

@@ -252,6 +252,7 @@ int guild_castlealldataload(int len,struct guild_castle *gc)
 	if( ev < 0 ) { //No castles owned, invoke OnAgitInit as it is.
 		npc_event_doall("OnAgitInit");
 		npc_event_doall("OnAgitInit2");
+		npc_event_doall("OnAgitInit3");
 	}
 	else // load received castles into memory, one by one
 	for( i = 0; i < n; i++, gc++ )
@@ -269,8 +270,10 @@ int guild_castlealldataload(int len,struct guild_castle *gc)
 		{
 			if( i != ev )
 				guild_request_info(c->guild_id);
-			else { // last owned one
+			else
+			{ // last owned one
 				guild_npc_request_info(c->guild_id, "::OnAgitInit");
+				guild_npc_request_info(c->guild_id, "::OnAgitInit2");
 				guild_npc_request_info(c->guild_id, "::OnAgitInit2");
 			}
 		}

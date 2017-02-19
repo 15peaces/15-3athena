@@ -52,8 +52,8 @@ struct npc_data {
 	struct npc_data *master_nd;
 	short class_;
 	short speed;
-	char name[NAME_LENGTH+1];// display name
-	char exname[NAME_LENGTH+1];// unique npc name
+	char name[NPC_NAME_LENGTH+1];// display name
+	char exname[NPC_NAME_LENGTH+1];// unique npc name
 	int chat_id;
 	int touching_id;
 	unsigned int next_walktime;

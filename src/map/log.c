@@ -394,18 +394,14 @@ void log_npc(struct map_session_data* sd, const char* message)
 /// logs chat
 void log_chat(e_log_chat_type type, int type_id, int src_charid, int src_accid, const char* map, int x, int y, const char* dst_charname, const char* message)
 {
-	if( ( log_config.chat&type ) == 0 )
-	{// disabled
+	if ((log_config.chat&type) == 0) // disabled
 		return;
-	}
 
-	if( log_config.log_chat_woe_disable && ( agit_flag || agit2_flag ) )
-	{// no chat logging during woe
+	if (log_config.log_chat_woe_disable && is_agit_start()) // no chat logging during woe
 		return;
-	}
 
 #ifndef TXT_ONLY
-	if( log_config.sql_logs )
+	if (log_config.sql_logs)
 	{
 		SqlStmt* stmt;
 
@@ -428,7 +424,7 @@ void log_chat(e_log_chat_type type, int type_id, int src_charid, int src_accid, 
 		time_t curtime;
 		FILE* logfp;
 
-		if( ( logfp = fopen(log_config.log_chat, "a") ) == NULL )
+		if ((logfp = fopen(log_config.log_chat, "a")) == NULL)
 			return;
 		time(&curtime);
 		strftime(timestring, sizeof(timestring), "%m/%d/%Y %H:%M:%S", localtime(&curtime));

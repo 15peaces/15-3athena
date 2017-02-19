@@ -3,13 +3,14 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.1
+//= 1.2
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
 //= For disabling Butterfly wings use noreturn
 //===== Additional Comments: ================================= 
 //= 1.1 Added support for episode mapflags [15peaces]
+//= 1.2 Added WOE:TE maps [15peaces]
 //============================================================
 
 //============================================================
@@ -435,3 +436,25 @@ nyd_dun02	mapflag	noteleport
 poring_w01	mapflag	noteleport
 poring_w02	mapflag	noteleport
 poring_w02	mapflag	monster_noteleport
+
+// WOE:TE Maps ===================
+te_prtcas01	mapflag	noteleport
+te_prtcas02	mapflag	noteleport
+te_prtcas03	mapflag	noteleport
+te_prtcas04	mapflag	noteleport
+te_prtcas05	mapflag	noteleport
+te_aldecas1	mapflag	noteleport
+te_aldecas2	mapflag	noteleport
+te_aldecas3	mapflag	noteleport
+te_aldecas4	mapflag	noteleport
+te_aldecas5	mapflag	noteleport
+te_prtcas01	mapflag	monster_noteleport
+te_prtcas02	mapflag	monster_noteleport
+te_prtcas03	mapflag	monster_noteleport
+te_prtcas04	mapflag	monster_noteleport
+te_prtcas05	mapflag	monster_noteleport
+te_aldecas1	mapflag	monster_noteleport
+te_aldecas2	mapflag	monster_noteleport
+te_aldecas3	mapflag	monster_noteleport
+te_aldecas4	mapflag	monster_noteleport
+te_aldecas5	mapflag	monster_noteleport

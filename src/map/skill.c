@@ -3491,7 +3491,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_REVERBERATION:
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
-		if( flag&1 )
+		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
 			// skill_area_temp[1] holds the id of the original target
@@ -3501,19 +3501,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				sflag |= SD_LEVEL; // -1 will be used in packets instead of the skill level
 			if( skill_area_temp[1] != bl->id && !(skill_get_inf2(skillid)&INF2_NPC_SKILL) )
 				sflag |= SD_ANIMATION; // original target gets no animation (as well as all NPC skills)
-	
-			if( skillid == WM_REVERBERATION )
-			{
-				skill_addtimerskill(src, tick + 200, bl->id, src->x, src->y, WM_REVERBERATION_MELEE, skilllv,BF_WEAPON,flag);
-				skill_addtimerskill(src, tick + 800, bl->id, src->x, src->y, WM_REVERBERATION_MELEE, skilllv,BF_WEAPON,flag);
-				skill_addtimerskill(src, tick + 1200, bl->id, src->x, src->y, WM_REVERBERATION_MAGIC, skilllv,BF_MAGIC,flag);
-				break;
-			}
+			
 			heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, sflag);
-			if( skillid == NPC_VAMPIRE_GIFT && heal > 0 )
+			if (skillid == NPC_VAMPIRE_GIFT && heal > 0)
 			{
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
-				status_heal(src,heal,0,0);
+				status_heal(src, heal, 0, 0);
 			}
 		}
 		else
@@ -8178,8 +8171,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				}
 			}
 		} else {
-			short *lv = (short*)&skilllv;
-			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd, skillid, lv, skill_get_splash(skillid, skilllv), 1) : 50; // 50% chance in non BL_PC (clones).
+			short lv = skilllv;
+			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd, skillid, &lv, skill_get_splash(skillid, skilllv), 1) : 50; // 50% chance in non BL_PC (clones).
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
@@ -11030,18 +11023,16 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			break;
 
 		case UNT_DIMENSIONDOOR:
-			if( tsd && !map[bl->m].flag.noteleport )
-				pc_randomwarp(tsd,3);
-			else if( bl->type == BL_MOB && battle_config.mob_warp&8 )
-				unit_warp(bl,-1,-1,-1,3);
+			if (tsd && !map[bl->m].flag.noteleport)
+				pc_randomwarp(tsd, CLR_TELEPORT);
+			else if (bl->type == BL_MOB && battle_config.mob_warp&8)
+				unit_warp(bl, -1, -1, -1, CLR_TELEPORT);
 			break;
 
 		case UNT_REVERBERATION:
-			sg->limit = DIFF_TICK(gettick(), sg->tick) + 1500;
-			sg->val1 = 0;
 			clif_changetraplook(&src->bl, UNT_USED_TRAPS);
-			skill_castend_damage_id(ss, bl, sg->skill_id, sg->skill_lv, tick, SD_LEVEL|BCT_ENEMY|1);
-			sg->unit_id = UNT_USED_TRAPS;
+			map_foreachinrange(skill_trap_splash, &src->bl, skill_get_splash(sg->skill_id, sg->skill_lv), sg->bl_flag, &src->bl, tick);
+			sg->limit = DIFF_TICK(tick, sg->tick) + 1500;
 			break;
 	
 		case UNT_SEVERE_RAINSTORM:
@@ -14015,11 +14006,15 @@ static int skill_trap_splash (struct block_list *bl, va_list ap)
 		case UNT_ELECTRICSHOCKER:
 			clif_skill_damage(src,bl,tick,0,0,-30000,1,sg->skill_id,sg->skill_lv,5);
 			break;
+		case UNT_REVERBERATION:
+			skill_attack(BF_WEAPON, ss, src, bl, WM_REVERBERATION_MELEE, sg->skill_lv, tick, 0);
+			skill_addtimerskill(ss, tick + 200, bl->id, 0, 0, WM_REVERBERATION_MAGIC, sg->skill_lv, BF_MAGIC, SD_LEVEL);
+			break;
 		case UNT_SEVERE_RAINSTORM:
-			skill_attack(BF_WEAPON,ss,ss,bl,WM_SEVERE_RAINSTORM_MELEE,sg->skill_lv,tick,0);
+			skill_attack(BF_WEAPON, ss, ss, bl, WM_SEVERE_RAINSTORM_MELEE, sg->skill_lv, tick, 0);
 			break;
 		default:
-			skill_attack(skill_get_type(sg->skill_id),ss,src,bl,sg->skill_id,sg->skill_lv,tick,0);
+			skill_attack(skill_get_type(sg->skill_id), ss, src, bl, sg->skill_id, sg->skill_lv, tick, 0);
 			break;
 	}
 	return 1;
@@ -14633,7 +14628,7 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 						break;
 					}
 					clif_changetraplook(bl, UNT_USED_TRAPS);
-					skill_castend_damage_id(ss, &group->unit->bl, group->skill_id, group->skill_lv, tick, SD_LEVEL|BCT_ENEMY|1);
+					map_foreachinrange(skill_trap_splash, bl, skill_get_splash(group->skill_id, group->skill_lv), group->bl_flag, bl, tick);
 					group->limit = DIFF_TICK(tick, group->tick) + 1500;
 					unit->limit = DIFF_TICK(tick, group->tick) + 1500;
 					group->unit_id = UNT_USED_TRAPS;

@@ -57,7 +57,7 @@ static int npc_cache_mob=0;
 #if PACKETVER >= 20131223
 struct s_npc_market {
 	struct npc_item_list *list;
-	char exname[NAME_LENGTH+1];
+	char exname[NPC_NAME_LENGTH+1];
 	uint16 count;
 };
 static DBMap *NPCMarketDB; /// Stock persistency! Temporary market stocks from `market` table. struct s_npc_market, key: NPC exname
@@ -2141,16 +2141,16 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 {
 	const char* p;
 	struct npc_data* dnd;// duplicate npc
-	char newname[NAME_LENGTH];
+	char newname[NPC_NAME_LENGTH+1];
 
 	// parse name
 	p = strstr(name,"::");
 	if( p )
 	{// <Display name>::<Unique name>
 		size_t len = p-name;
-		if( len > NAME_LENGTH )
+		if( len > NPC_NAME_LENGTH )
 		{
-			ShowWarning("npc_parsename: Display name of '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NAME_LENGTH);
+			ShowWarning("npc_parsename: Display name of '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NPC_NAME_LENGTH);
 			safestrncpy(nd->name, name, sizeof(nd->name));
 		}
 		else
@@ -2159,15 +2159,15 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 			memset(nd->name+len, 0, sizeof(nd->name)-len);
 		}
 		len = strlen(p+2);
-		if( len > NAME_LENGTH )
-			ShowWarning("npc_parsename: Unique name of '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NAME_LENGTH);
+		if( len > NPC_NAME_LENGTH )
+			ShowWarning("npc_parsename: Unique name of '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NPC_NAME_LENGTH);
 		safestrncpy(nd->exname, p+2, sizeof(nd->exname));
 	}
 	else
 	{// <Display name>
 		size_t len = strlen(name);
-		if( len > NAME_LENGTH )
-			ShowWarning("npc_parsename: Name '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NAME_LENGTH);
+		if( len > NPC_NAME_LENGTH )
+			ShowWarning("npc_parsename: Name '%s' is too long (len=%u) in file '%s', line'%d'. Truncating to %u characters.\n", name, (unsigned int)len, filepath, strline(buffer,start-buffer), NPC_NAME_LENGTH);
 		safestrncpy(nd->name, name, sizeof(nd->name));
 		safestrncpy(nd->exname, name, sizeof(nd->exname));
 	}
@@ -2993,7 +2993,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 
 int npc_duplicate4instance(struct npc_data *snd, int m)
 {
-	char newname[NAME_LENGTH];
+	char newname[NPC_NAME_LENGTH+1];
 
 	if( map[m].instance_id == 0 )
 		return 1;
@@ -3641,6 +3641,24 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.gvg_castle=state;
 		if (state) map[m].flag.pvp=0;
 	}
+	else if (!strcmpi(w3,"gvg_te")) {
+		map[m].flag.gvg_te = state;
+		if( state && map[m].flag.pvp ) {
+			map[m].flag.pvp = 0;
+			ShowWarning("npc_parse_mapflag: You can't set PvP and GvG flags for the same map! Removing PvP flag from %s (file '%s', line '%d').\n", map[m].name, filepath, strline(buffer,start-buffer));
+		}
+		if( state && map[m].flag.battleground ) {
+			map[m].flag.battleground = 0;
+			ShowWarning("npc_parse_mapflag: You can't set GvG and BattleGround flags for the same map! Removing BattleGround flag from %s (file '%s', line '%d').\n", map[m].name, filepath, strline(buffer,start-buffer));
+		}
+	}
+	else if (!strcmpi(w3,"gvg_te_castle")) {
+		map[m].flag.gvg_te_castle = state;
+		if (state) {
+			map[m].flag.gvg_castle = 0;
+			map[m].flag.pvp = 0;
+		}
+	}
 	else if (!strcmpi(w3,"battleground")) {
 		if( state )
 		{
@@ -4159,10 +4177,10 @@ int do_init_npc(void)
 		npc_viewdb_2[i-NPC_CLASS_BASE_2].class_ = i;
 
 	ev_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA),2*NAME_LENGTH+2+1);
-	npcname_db = strdb_alloc(DB_OPT_BASE,NAME_LENGTH);
+	npcname_db = strdb_alloc(DB_OPT_BASE,NPC_NAME_LENGTH);
 
 #if PACKETVER >= 20131223
-	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NAME_LENGTH+1);
+	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);
 	npc_market_fromsql();
 #endif
 

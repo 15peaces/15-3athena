@@ -114,7 +114,7 @@
 #define MAX_GUILDCASTLE 34	// Updated to include new entries for WoE:SE. [L0ne_W0lf]
 #define MAX_GUILDLEVEL 50
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
-#define MAX_QUEST_DB 2487 //Max quests that the server will load
+#define MAX_QUEST_DB 2503 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
 #define MAX_CLAN 500
@@ -135,6 +135,8 @@
 //For character names, title names, guilds, maps, etc.
 //Includes null-terminator as it is the length of the array.
 #define NAME_LENGTH (23 + 1)
+//NPC names can be longer than it's displayed on client (NAME_LENGTH).
+#define NPC_NAME_LENGTH 50
 //For item names, which tend to have much longer names.
 #define ITEM_NAME_LENGTH 50
 //For Map Names, which the client considers to be 16 in length including the .gat extension

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.4
+//= 1.5
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -15,6 +15,7 @@
 //= 1.2 Added Endless Tower Restrictions. (bugreport:4707) [L0ne_W0lf]
 //= 1.3 Added Orc's Memory, Nidhoggur's Nest and towns restrictions [Daegaladh]
 //= 1.4 Added support for episode mapflags [15peaces]
+//= 1.5 Added WOE:TE maps [15peaces]
 //============================================================
 
 //============================================================
@@ -118,3 +119,7 @@ umbala	mapflag	restricted	7
 veins	mapflag	restricted	7
 xmas	mapflag	restricted	7
 yuno	mapflag	restricted	7
+
+// Restricted maps for WOE:TE Items ==
+teg_dun01	mapflag	restricted	8
+teg_dun02	mapflag	restricted	8

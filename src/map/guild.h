@@ -75,6 +75,9 @@ int guild_agit_end(void);
 int guild_agit2_start(void);
 int guild_agit2_end(void);
 
+int guild_agit3_start(void);
+int guild_agit3_end(void);
+
 #ifdef BOUND_ITEMS
 void guild_retrieveitembound(int char_id,int aid,int guild_id); 
 #endif

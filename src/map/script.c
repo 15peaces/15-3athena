@@ -388,7 +388,9 @@ enum {
 	MF_MONSTER_NOTELEPORT,
 	MF_PVP_NOCALCRANK,	//50
 	MF_BATTLEGROUND,
-	MF_RESET
+	MF_RESET,
+	MF_GVG_TE_CASTLE,
+	MF_GVG_TE,
 };
 
 const char* script_op2name(int op)
@@ -10079,6 +10081,8 @@ BUILDIN_FUNC(getmapflag)
 			case MF_PVP_NOCALCRANK:		script_pushint(st,map[m].flag.pvp_nocalcrank); break;
 			case MF_BATTLEGROUND:		script_pushint(st,map[m].flag.battleground); break;
 			case MF_RESET:				script_pushint(st,map[m].flag.reset); break;
+			case MF_GVG_TE_CASTLE:		script_pushint(st,map[m].flag.gvg_te_castle); break;
+			case MF_GVG_TE:				script_pushint(st,map[m].flag.gvg_te); break;
 		}
 	}
 
@@ -10152,6 +10156,11 @@ BUILDIN_FUNC(setmapflag)
 			case MF_PVP_NOCALCRANK:		map[m].flag.pvp_nocalcrank=1; break;
 			case MF_BATTLEGROUND:		map[m].flag.battleground = (!val || atoi(val) < 0 || atoi(val) > 2) ? 1 : atoi(val); break;
 			case MF_RESET:				map[m].flag.reset=1; break;
+			case MF_GVG_TE_CASTLE:		map[m].flag.gvg_te_castle = 1; break;
+			case MF_GVG_TE:
+				map[m].flag.gvg_te = 1;
+				clif_map_property_mapall(m, MAPPROPERTY_AGITZONE);
+				break;
 		}
 	}
 
@@ -10228,6 +10237,11 @@ BUILDIN_FUNC(removemapflag)
 			case MF_PVP_NOCALCRANK:		map[m].flag.pvp_nocalcrank=0; break;
 			case MF_BATTLEGROUND:		map[m].flag.battleground=0; break;
 			case MF_RESET:				map[m].flag.reset=0; break;
+			case MF_GVG_TE_CASTLE:		map[m].flag.gvg_te_castle = 0; break;
+			case MF_GVG_TE:
+				map[m].flag.gvg_te = 0;
+				clif_map_property_mapall(m, MAPPROPERTY_NOTHING);
+				break;
 		}
 	}
 
@@ -10329,6 +10343,35 @@ BUILDIN_FUNC(gvgoff)
 
 	return 0;
 }
+
+BUILDIN_FUNC(gvgon3)
+{
+	int16 m;
+	const char *str;
+
+	str = script_getstr(st,2);
+	m = map_mapname2mapid(str);
+	if (m >= 0 && !map[m].flag.gvg_te) {
+		map[m].flag.gvg_te = 1;
+		clif_map_property_mapall(m, MAPPROPERTY_AGITZONE);
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(gvgoff3)
+{
+	int16 m;
+	const char *str;
+
+	str = script_getstr(st,2);
+	m = map_mapname2mapid(str);
+	if (m >= 0 && map[m].flag.gvg_te) {
+		map[m].flag.gvg_te = 0;
+		clif_map_property_mapall(m, MAPPROPERTY_NOTHING);
+	}
+	return 0;
+}
+
 /*==========================================
  *	Shows an emoticon on top of the player/npc
  *	emotion emotion#, <target: 0 - NPC, 1 - PC>, <NPC/PC name>
@@ -10411,53 +10454,119 @@ BUILDIN_FUNC(maprespawnguildid)
 	return 0;
 }
 
+/// Siege commands
+
+/*==========================================
+ * Start WoE:FE
+ * agitstart();
+ *------------------------------------------*/
 BUILDIN_FUNC(agitstart)
 {
-	if(agit_flag==1) return 0;      // Agit already Start.
-	agit_flag=1;
+	if(agit_flag)
+		return 0; // Agit already Start.
+	
+	agit_flag = true;
 	guild_agit_start();
 	return 0;
 }
 
+/*==========================================
+ * End WoE:FE
+ * agitend();
+ *------------------------------------------*/
 BUILDIN_FUNC(agitend)
 {
-	if(agit_flag==0) return 0;      // Agit already End.
-	agit_flag=0;
+	if(!agit_flag)
+		return 0; // Agit already End.
+	
+	agit_flag = false;
 	guild_agit_end();
 	return 0;
 }
 
+/*==========================================
+ * Start WoE:SE
+ * agitstart2();
+ *------------------------------------------*/
 BUILDIN_FUNC(agitstart2)
 {
-	if(agit2_flag==1) return 0;      // Agit2 already Start.
-	agit2_flag=1;
+	if(agit2_flag)
+		return 0; // Agit2 already Start.
+	
+	agit2_flag = true;
 	guild_agit2_start();
 	return 0;
 }
 
+/*==========================================
+ * End WoE:SE
+ * agitend2();
+ *------------------------------------------*/
 BUILDIN_FUNC(agitend2)
 {
-	if(agit2_flag==0) return 0;      // Agit2 already End.
-	agit2_flag=0;
+	if(!agit2_flag)
+		return 0; // Agit2 already End.
+	
+	agit2_flag = false;
 	guild_agit2_end();
 	return 0;
 }
 
 /*==========================================
- * Returns whether woe is on or off.	// choice script
+ * Start WoE:TE
+ * agitstart3();
  *------------------------------------------*/
-BUILDIN_FUNC(agitcheck)
+BUILDIN_FUNC(agitstart3)
 {
-	script_pushint(st,agit_flag);
+	if(agit3_flag)
+		return 0; // Agit3 already Start.
+	
+	agit3_flag = true;
+	guild_agit3_start();
 	return 0;
 }
 
 /*==========================================
- * Returns whether woese is on or off.	// choice script
+ * End WoE:TE
+ * agitend3();
+ *------------------------------------------*/
+BUILDIN_FUNC(agitend3)
+{
+	if(!agit3_flag)
+		return 0; // Agit3 already End.
+	
+	agit3_flag = false;
+	guild_agit3_end();
+	return 0;
+}
+
+/*==========================================
+ * Returns whether WoE:FE is on or off.
+ * agitcheck();
+ *------------------------------------------*/
+BUILDIN_FUNC(agitcheck)
+{
+	script_pushint(st, agit_flag);
+	return 0;
+}
+
+/*==========================================
+ * Returns whether WoE:SE is on or off.
+ * agitcheck2();
  *------------------------------------------*/
 BUILDIN_FUNC(agitcheck2)
 {
 	script_pushint(st,agit2_flag);
+	return 0;
+}
+
+/*==========================================
+ * Returns whether WoE:TE is on or off.
+ * agitcheck3();
+ *------------------------------------------*/
+BUILDIN_FUNC(agitcheck3)
+{
+	script_pushint(st,agit3_flag);
 	return 0;
 }
 
@@ -12401,20 +12510,19 @@ BUILDIN_FUNC(message)
  *------------------------------------------*/
 BUILDIN_FUNC(npctalk)
 {
-	const char* str;
-	char name[NAME_LENGTH], message[256];
+	struct npc_data* nd = NULL;
+	const char* str = script_getstr(st,2);
 
-	struct npc_data* nd = (struct npc_data *)map_id2bl(st->oid);
-	str = script_getstr(st,2);
-
-	if(nd)
+	if (script_hasdata(st, 3))
+		nd = npc_name2id(script_getstr(st, 3));
+	else
+		nd = (struct npc_data *)map_id2bl(st->oid);
+	if (nd != NULL)
 	{
-		safestrncpy(name, nd->name, sizeof(name));
-		strtok(name, "#"); // discard extra name identifier if present
-		safesnprintf(message, sizeof(message), "%s : %s", name, str);
+		char message[256];
+		safesnprintf(message, sizeof(message), "%s", str);
 		clif_disp_overhead(&nd->bl, message);
 	}
-
 	return 0;
 }
 
@@ -18033,42 +18141,50 @@ BUILDIN_FUNC(showscript) {
 	return 0;
 }
 
-/**
+/*==========================================
  * Returns the episode the server is running on.
- * checkepisode;
- **/
-BUILDIN_FUNC(getepisode) {
+ * checkepisode();
+ *------------------------------------------*/
+BUILDIN_FUNC(getepisode)
+{
 	script_pushint(st,battle_config.feature_episode);
 	return 0;
 }
 
-/**
+/*==========================================
  * jobcanentermap("<mapname>"{,<JobID>});
  * Check if (player with) JobID can enter the map.
  * @param mapname Map name
  * @param JobID Player's JobID (optional)
- **/
-BUILDIN_FUNC(jobcanentermap) {
+ *------------------------------------------*/
+BUILDIN_FUNC(jobcanentermap)
+{
 	const char *mapname = script_getstr(st, 2);
 	int mapidx = mapindex_name2id(mapname), m = -1;
 	int jobid = 0;
 	TBL_PC *sd = NULL;
 
-	if (!mapidx) {// Invalid map
+	if (!mapidx)
+	{// Invalid map
 		script_pushint(st, false);
 		return 0;
 	}
 	m = map_mapindex2mapid(mapidx);
-	if (m == -1) { // Map is on different map server
+	if (m == -1)
+	{ // Map is on different map server
 		ShowError("buildin_jobcanentermap: Map '%s' is not found in this server.\n", mapname);
 		script_pushint(st, false);
 		return 0;
 	}
 
-	if (script_hasdata(st, 3)) {
+	if (script_hasdata(st, 3))
+	{
 		jobid = script_getnum(st, 3);
-	} else {
-		if (!(sd = script_rid2sd(st))) {
+	}
+	else
+	{
+		if (!(sd = script_rid2sd(st)))
+		{
 			script_pushint(st, false);
 			return 1;
 		}
@@ -18076,6 +18192,67 @@ BUILDIN_FUNC(jobcanentermap) {
 	}
 
 	script_pushint(st, pc_job_can_entermap((enum e_job)jobid, m, sd ? sd->gmlevel : 0));
+	return 0;
+}
+
+/*==========================================
+ * Return alliance information between the two guilds.
+ * getguildalliance(<guild id1>,<guild id2>);
+ * Return values:
+ *	-2 - Guild ID1 does not exist
+ *	-1 - Guild ID2 does not exist
+ *	 0 - Both guilds have no relation OR guild ID aren't given
+ *	 1 - Both guilds are allies
+ *	 2 - Both guilds are antagonists
+ *------------------------------------------*/
+BUILDIN_FUNC(getguildalliance)
+{
+	struct guild *guild_data1, *guild_data2;
+	int guild_id1, guild_id2, i = 0;
+
+	guild_id1 = script_getnum(st, 2);
+	guild_id2 = script_getnum(st, 3);
+
+	if (guild_id1 < 1 || guild_id2 < 1)
+	{
+		script_pushint(st, 0);
+		return 0;
+	}
+
+	if (guild_id1 == guild_id2)
+	{
+		script_pushint(st, 1);
+		return 0;
+	}
+
+	guild_data1 = guild_search(guild_id1);
+	guild_data2 = guild_search(guild_id2);
+
+	if (guild_data1 == NULL)
+	{
+		ShowWarning("buildin_getguildalliance: Requesting non-existent GuildID1 '%d'.\n", guild_id1);
+		script_pushint(st, -2);
+		return 1;
+	}
+	if (guild_data2 == NULL)
+	{
+		ShowWarning("buildin_getguildalliance: Requesting non-existent GuildID2 '%d'.\n", guild_id2);
+		script_pushint(st, -1);
+		return 1;
+	}
+
+	ARR_FIND(0, MAX_GUILDALLIANCE, i, guild_data1->alliance[i].guild_id == guild_id2);
+	if (i == MAX_GUILDALLIANCE)
+	{
+		script_pushint(st, 0);
+		return 0;
+	}
+
+	if (guild_data1->alliance[i].opposition)
+		script_pushint(st, 2);
+	else
+		script_pushint(st, 1);
+
 	return 0;
 }
 
@@ -18345,7 +18522,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(charcommand,"s"), // [MouseJstr]
 	BUILDIN_DEF(movenpc,"sii?"), // [MouseJstr]
 	BUILDIN_DEF(message,"ss"), // [MouseJstr]
-	BUILDIN_DEF(npctalk,"s"), // [Valaris]
+	BUILDIN_DEF(npctalk,"s?"), // [Valaris]
 	BUILDIN_DEF(mobcount,"ss"),
 	BUILDIN_DEF(getlook,"i"),
 	BUILDIN_DEF(getsavepoint,"i"),
@@ -18510,7 +18687,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bg_get_data,"ii"),
 	BUILDIN_DEF(bg_getareausers,"isiiii"),
 	BUILDIN_DEF(bg_updatescore,"sii"),
-
 	// Instancing
 	BUILDIN_DEF(instance_create,"si"),
 	BUILDIN_DEF(instance_destroy,"?"),
@@ -18527,14 +18703,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(instance_check_party,"i???"),
 	BUILDIN_DEF(instance_mapname,"s?"),
 	BUILDIN_DEF(instance_set_respawn,"sii?"),
-
-	/** 
-	 * @commands (script based) 
-	 **/ 
+	// @commands (script based)
 	BUILDIN_DEF(bindatcmd, "ss??"), 
 	BUILDIN_DEF(unbindatcmd, "s"), 
 	BUILDIN_DEF(useatcmd, "s"),
-
 	//Quest Log System [Inkfish]
 	BUILDIN_DEF(questinfo, "ii??"),
 	BUILDIN_DEF(setquest, "i"),
@@ -18544,13 +18716,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(isbegin_quest,"i"),
 	BUILDIN_DEF(changequest, "ii"),
 	BUILDIN_DEF(showevent, "ii"),
-
-	//Bound items [Xantara] & [Akinari] 
+	// Bound items [Xantara] & [Akinari] 
 	BUILDIN_DEF2(getitem,"getitembound","vii?"), 
 	BUILDIN_DEF2(getitem2,"getitembound2","viiiiiiiii?"), 
 	BUILDIN_DEF(countbound, "?"),
-
-	//Others
+	// Others
 	BUILDIN_DEF(npcskill,"viii"),
 	BUILDIN_DEF(bonus_script,"si????"),
 	BUILDIN_DEF(bonus_script_clear,"??"),
@@ -18558,5 +18728,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getepisode,""),
 	BUILDIN_DEF(freeloop,"?"),
 	BUILDIN_DEF(jobcanentermap,"s?"),
+	// WoE TE
+	BUILDIN_DEF(agitstart3,""),
+	BUILDIN_DEF(agitend3,""),
+	BUILDIN_DEF(agitcheck3,""),
+	BUILDIN_DEF(gvgon3,"s"),
+	BUILDIN_DEF(gvgoff3,"s"),
+	BUILDIN_DEF(getguildalliance,"ii"), 
 	{NULL,NULL,NULL},
 };

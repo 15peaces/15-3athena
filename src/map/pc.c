@@ -261,27 +261,34 @@ static int pc_rageball_timer(int tid, unsigned int tick, int id, intptr data)
 {
 	struct map_session_data *sd;
 	int i;
-	if( (sd=(struct map_session_data *)map_id2sd(id)) == NULL || sd->bl.type!=BL_PC )
+	if ((sd = (struct map_session_data *)map_id2sd(id)) == NULL || sd->bl.type != BL_PC)
 		return 1;
-	if( sd->rageball <= 0 )
+
+	if (sd->rageball <= 0)
 	{
-		ShowError("pc_spiritball_timer: %d spiritball's available. (aid=%d cid=%d tid=%d)\n", sd->spiritball, sd->status.account_id, sd->status.char_id, tid);
+		ShowError("pc_rageball_timer: %d rageball's available. (aid=%d cid=%d tid=%d)\n", sd->rageball, sd->status.account_id, sd->status.char_id, tid);
 		sd->rageball = 0;
 		return 0;
 	}
+
 	ARR_FIND(0, sd->rageball, i, sd->rage_timer[i] == tid);
-	if( i == sd->rageball )
+	
+	if (i == sd->rageball)
 	{
 		ShowError("pc_rageball_timer: timer not found (aid=%d cid=%d tid=%d)\n", sd->status.account_id, sd->status.char_id, tid);
 		return 0;
 	}
+	
 	sd->rageball--;
-	if( i != sd->rageball )
+	
+	if (i != sd->rageball)
 		memmove(sd->rage_timer+i, sd->rage_timer+i+1, (sd->rageball-i)*sizeof(int));
+	
 	sd->rage_timer[sd->rageball] = INVALID_TIMER;
 	clif_millenniumshield(sd, sd->rageball);
 	return 0;
 }
+
 int pc_addrageball(struct map_session_data *sd,int interval, int max)
 {
 	int tid, i;
@@ -4057,10 +4064,11 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 
 	//added item_noequip.txt items check by Maya&[Lupus]
 	if (
-		(!map_flag_vs(sd->bl.m) && item->flag.no_equip&1) || // Normal
+		(!map_flag_vs2(sd->bl.m) && item->flag.no_equip&1) || // Normal
 		(map[sd->bl.m].flag.pvp && item->flag.no_equip&2) || // PVP
-		(map_flag_gvg(sd->bl.m) && item->flag.no_equip&4) || // GVG
+		(map_flag_gvg2_no_te(sd->bl.m) && item->flag.no_equip&4) || // GVG
 		(map[sd->bl.m].flag.battleground && item->flag.no_equip&8) || // Battleground
+		(map_flag_gvg2_te(sd->bl.m) && item->flag.no_equip&16) || // WOE:TE
 		(map[sd->bl.m].flag.restricted && item->flag.no_equip&(8*map[sd->bl.m].zone)) // Zone restriction
 	)
 		return 0;
@@ -4201,17 +4209,6 @@ int pc_useitem(struct map_session_data *sd,int n) {
 
 	amount = sd->status.inventory[n].amount;
 	script = sd->inventory_data[n]->script;
-
-	// If any other class that isn't Rune Knight class, uses one rune, this is consumed without nothing happends.
-	if( itemdb_is_rune(sd->status.inventory[n].nameid) &&
-	!((sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT || (sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT_T) )
-	{
-		clif_useitemack(sd,n,amount-1,1);
-		if( log_config.enable_logs&0x100 )
-			log_pick(&sd->bl, LOG_TYPE_COMMAND, sd->status.inventory[n].nameid, -1, &sd->status.inventory[n]);
-		pc_delitem(sd,n,1,1,0);
-		return 1;
-	}
 
 	//Check if the item is to be consumed immediately [Skotlex]
 	if( sd->inventory_data[n]->flag.delay_consume )
@@ -9985,10 +9982,11 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int gm_lv) {
 	if (!job_info[idx].noenter_map.zone || gm_lv > job_info[idx].noenter_map.gm_lv)
 		return true;
 
-	if ((!map_flag_vs(m) && job_info[idx].noenter_map.zone&1) || // Normal
+	if ((!map_flag_vs2(m) && job_info[idx].noenter_map.zone&1) || // Normal
 		(map[m].flag.pvp && job_info[idx].noenter_map.zone&2) || // PVP
-		(map_flag_gvg2(m) && job_info[idx].noenter_map.zone&4) || // GVG
+		(map_flag_gvg2_no_te(m) && job_info[idx].noenter_map.zone&4) || // GVG
 		(map[m].flag.battleground && job_info[idx].noenter_map.zone&8) || // Battleground
+		(map_flag_gvg2_te(m) && job_info[idx].noenter_map.zone&16) || // WOE:TE
 		(map[m].flag.restricted && job_info[idx].noenter_map.zone&(8*map[m].zone)) // Zone restriction
 		)
 		return false;

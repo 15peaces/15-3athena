@@ -3,11 +3,12 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.4
+//= 1.5
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Additional Comments: =================================
 //= 1.4 Added support for episode mapflags [15peaces]
+//= 1.5 Added WOE:TE maps [15peaces]
 //============================================================
 
 //============================================================
@@ -166,3 +167,15 @@ bat_a02	mapflag	nowarpto
 // Poring War ====================
 poring_w01	mapflag	nowarpto
 poring_w02	mapflag	nowarpto
+
+// WOE:TE Maps ===================
+te_prtcas01	mapflag	nowarpto
+te_prtcas02	mapflag	nowarpto
+te_prtcas03	mapflag	nowarpto
+te_prtcas04	mapflag	nowarpto
+te_prtcas05	mapflag	nowarpto
+te_aldecas1	mapflag	nowarpto
+te_aldecas2	mapflag	nowarpto
+te_aldecas3	mapflag	nowarpto
+te_aldecas4	mapflag	nowarpto
+te_aldecas5	mapflag	nowarpto
