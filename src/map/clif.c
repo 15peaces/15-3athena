@@ -10836,10 +10836,11 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			break;
 		}
 
-		if( sd->sc.data[SC_SITDOWN_FORCE] || sd->sc.data[SC_BANANA_BOMB_SITDOWN_POSTDELAY] )
+		if (sd->sc.data[SC_SITDOWN_FORCE])
 			return;
 
-		if(pc_issit(sd)) {
+		if (pc_issit(sd))
+		{
 			//Bugged client? Just refresh them.
 			clif_sitting(&sd->bl);
 			return;

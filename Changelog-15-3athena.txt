@@ -4,6 +4,25 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/24/2017
+	r156 [15peaces]
+		*Merged missing changes from 3ceam rev. 556 - 557
+		*Rewrote some more calculation formulars. This is a critical fix, you should update ASAP!
+			-Thanks to rAthena for the base.
+			-This is another follow-up to r139(@cd0f269).
+			-HP, SP, ASPD and most of the damage calculations where destroyed in this commit.
+			-Now the calculations should be fixed, sorry for this... ^^"
+		*Fixed SR_CRESCENTELBOW.
+			-Consumes spirit spheres when is casted not when it takes damage.
+			-It only consumes spirit spheres if you have. Is it a bug in kRO-RE?
+		*Fixed SR_ASSIMILATEPOWER animation.
+		*Fixed SR_EARTHSHAKER animation.
+		*Fixed SR_CURSEDCIRCLE:
+			-It doesn't use OPT3_BLADESTOP.
+			-The effect is removed with packet 0x196.
+		*Optimized SR_LIGHTNINGWALK skill.
+		*Fixed a mistake related to Banana Bomb, you're able to stand up when the bomb force you to sit.
+
 02/19/2017
 	r155 [15peaces]
 		*Fixed a typo on my last commit, sorry. ^^

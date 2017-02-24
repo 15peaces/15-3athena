@@ -48,16 +48,10 @@ enum e_regen
 	RGN_SSP = 0x08,
 };
 
-static int max_weight_base[CLASS_COUNT];
-static int hp_coefficient[CLASS_COUNT];
-static int hp_coefficient2[CLASS_COUNT];
 static int hp_sigma_val[CLASS_COUNT][MAX_LEVEL+1];
-static int sp_coefficient[CLASS_COUNT];
-static int aspd_base[CLASS_COUNT][MAX_WEAPON_TYPE];	//[blackhole89]
 static int refinebonus[MAX_REFINE_BONUS][3];	// 精錬ボーナステーブル(refine_db.txt)
 int percentrefinery[5][MAX_REFINE+1];	// 精錬成功率(refine_db.txt)
 static int atkmods[3][MAX_WEAPON_TYPE];	// 武器ATKサイズ修正(size_fix.txt)
-static char job_bonus[CLASS_COUNT][MAX_LEVEL];
 
 static struct eri *sc_data_ers; //For sc_data entries
 static struct status_data dummy_status;
@@ -717,6 +711,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_PYREXIA] = SI_PYREXIA;
 	StatusIconChangeTable[SC_OBLIVIONCURSE] = SI_OBLIVIONCURSE;
 	StatusIconChangeTable[SC_LEECHESEND] = SI_LEECHESEND;
+	StatusIconChangeTable[SC_CURSEDCIRCLE_ATKER] = SI_CURSEDCIRCLE_ATKER;
 	//Genetics New Food Items Status Icons
 	StatusIconChangeTable[SC_SAVAGE_STEAK] = SI_SAVAGE_STEAK;
 	StatusIconChangeTable[SC_COCKTAIL_WARG_BLOOD] = SI_COCKTAIL_WARG_BLOOD;
@@ -1693,11 +1688,12 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 int status_base_amotion_pc(struct map_session_data* sd, struct status_data* status)
 {
 	int amotion;
+	int classidx = pc_class2idx(sd->status.class_);
 	
 	// base weapon delay
 	amotion = (sd->status.weapon < MAX_WEAPON_TYPE)
-	 ? (aspd_base[pc_class2idx(sd->status.class_)][sd->status.weapon]) // single weapon
-	 : (aspd_base[pc_class2idx(sd->status.class_)][sd->weapontype1] + aspd_base[pc_class2idx(sd->status.class_)][sd->weapontype2])*7/10; // dual-wield
+	 ? (job_info[classidx].aspd_base[sd->status.weapon]) // Single weapon
+	 : (job_info[classidx].aspd_base[sd->weapontype1] + job_info[classidx].aspd_base[sd->weapontype2])*7/10; // Dual-wield
 	
 	// percentual delay reduction from stats
 	amotion-= amotion * (4*status->agi + status->dex)/1000;
@@ -2039,73 +2035,36 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 		pd->rate_fix = pd->rate_fix*battle_config.pet_support_rate/100;
 
 	return 1;
-}	
-
-/// Helper function for status_base_pc_maxhp(), used to pre-calculate the hp_sigma_val[] array
-static void status_calc_sigma(void)
-{
-	int i,j;
-
-	for(i = 0; i < CLASS_COUNT; i++)
-	{
-		unsigned int k = 0;
-		hp_sigma_val[i][0] = hp_sigma_val[i][1] = 0;
-		for(j = 2; j <= MAX_LEVEL; j++)
-		{
-			k += (hp_coefficient[i]*j + 50) / 100;
-			hp_sigma_val[i][j] = k;
-			if (k >= INT_MAX)
-				break; //Overflow protection. [Skotlex]
-		}
-		for(; j <= MAX_LEVEL; j++)
-			hp_sigma_val[i][j] = INT_MAX;
-	}
 }
 
-/// Calculates base MaxHP value according to class and base level
-/// The recursive equation used to calculate level bonus is (using integer operations)
-///    f(0) = 35 | f(x+1) = f(x) + A + (x + B)*C/D
-/// which reduces to something close to
-///    f(x) = 35 + x*(A + B*C/D) + sum(i=2..x){ i*C/D }
-static unsigned int status_base_pc_maxhp(struct map_session_data* sd, struct status_data* status)
+// Get final MaxHP or MaxSP for player. References: http://irowiki.org/wiki/Max_HP and http://irowiki.org/wiki/Max_SP
+// The calculation needs base_level, base_status/battle_status (vit or int), additive modifier, and multiplicative modifier
+// @param sd Player
+// @param stat Vit/Int of player as param modifier
+// @param isHP true - calculates Max HP, false - calculated Max SP
+// @return max The max value of HP or SP
+static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned int stat, bool isHP) 
 {
-	unsigned int val = pc_class2idx(sd->status.class_);
-	val = 35 + sd->status.base_level*hp_coefficient2[val]/100 + hp_sigma_val[val][sd->status.base_level];
+	double dmax = 0;
+	uint16 idx, level, job_id;
 
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_GUNSLINGER ||
-	(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION)
-		val += 100; //Since their HP can't be approximated well enough without this.
-	if((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
-		val *= 3; //Triple max HP for top ranking Taekwons over level 90.
-	if(((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->status.base_level >= 99)
-		val += 2000; //Supernovice lvl99 hp bonus.
+	nullpo_ret(sd);
 
-	val += val * status->vit/100; // +1% per each point of VIT
+	job_id = pc_mapid2jobid(sd->class_,sd->status.sex);
+	idx = pc_class2idx(job_id);
+	level = umax(sd->status.base_level,1);
 
-	if (sd->class_&JOBL_UPPER)
-		val += val * 25/100; //Trans classes get a 25% hp bonus
-	else if (sd->class_&JOBL_BABY)
-		val -= val * 30/100; //Baby classes get a 30% hp penalty
-	return val;
+	if (isHP) //Calculates MaxHP
+		dmax = job_info[idx].base_hp[level-1] * (1 + (umax(stat,1) * 0.01)) * ((sd->class_&JOBL_UPPER)?1.25:(pc_is_taekwon_ranker(sd))?3:1);
+	else //Calculates MaxSP
+		dmax = job_info[idx].base_sp[level-1] * (1 + (umax(stat,1) * 0.01)) * ((sd->class_&JOBL_UPPER)?1.25:(pc_is_taekwon_ranker(sd))?3:1);
+
+	//Make sure it's not negative before casting to unsigned int
+	if(dmax < 1)
+		dmax = 1;
+
+	return cap_value((unsigned int)dmax,1,UINT_MAX);
 }
-
-static unsigned int status_base_pc_maxsp(struct map_session_data* sd, struct status_data *status)
-{
-	unsigned int val;
-
-	val = 10 + sd->status.base_level*sp_coefficient[pc_class2idx(sd->status.class_)]/100;
-	val += val * status->int_/100;
-
-	if (sd->class_&JOBL_UPPER)
-		val += val * 25/100;
-	else if (sd->class_&JOBL_BABY)
-		val -= val * 30/100;
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
-		val *= 3; //Triple max SP for top ranking Taekwons over level 90.
-
-	return val;
-}
-
 
 //Calculates player data from scratch without counting SC adjustments.
 //Should be invoked whenever players raise stats, learn passive skills or change equipment.
@@ -2129,7 +2088,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 	pc_calc_skilltree(sd);	// スキルツリ?の計算
 
-	sd->max_weight = max_weight_base[pc_class2idx(sd->status.class_)]+sd->status.str*300;
+	sd->max_weight = job_info[pc_class2idx(sd->status.class_)].max_weight_base+sd->status.str * 300;
 
 	if(first) {
 		//Load Hp/SP from char-received data.
@@ -2521,10 +2480,12 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 	// Job bonuses
 	index = pc_class2idx(sd->status.class_);
-	for(i=0;i<(int)sd->status.job_level && i<MAX_LEVEL;i++){
-		if(!job_bonus[index][i])
+	for(i=0;i<(int)sd->status.job_level && i<MAX_LEVEL;i++)
+	{
+		if(!job_info[index].job_bonus[i])
 			continue;
-		switch(job_bonus[index][i]) {
+		switch(job_info[index].job_bonus[i])
+		{
 			case 1: status->str++; break;
 			case 2: status->agi++; break;
 			case 3: status->vit++; break;
@@ -2584,7 +2545,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 	// Basic MaxHP value
 	//We hold the standard Max HP here to make it faster to recalculate on vit changes.
-	sd->status.max_hp = status_base_pc_maxhp(sd,status);
+	sd->status.max_hp = status_calc_maxhpsp_pc(sd,status->vit,true);
 	//This is done to handle underflows from negative Max HP bonuses
 	i = sd->status.max_hp + (int)status->max_hp;
 	status->max_hp = cap_value(i, 0, INT_MAX);
@@ -2609,7 +2570,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 // ----- SP MAX CALCULATION -----
 
 	// Basic MaxSP value
-	sd->status.max_sp = status_base_pc_maxsp(sd,status);
+	sd->status.max_sp = status_calc_maxhpsp_pc(sd,status->int_,false);
 	//This is done to handle underflows from negative Max SP bonuses
 	i = sd->status.max_sp + (int)status->max_sp;
 	status->max_sp = cap_value(i, 0, INT_MAX);
@@ -3548,7 +3509,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 	if(flag&SCB_MAXHP) {
 		if( bl->type&BL_PC )
 		{
-			status->max_hp = status_base_pc_maxhp(sd,status);
+			status->max_hp = status_calc_maxhpsp_pc(sd,status->vit,true);
 			status->max_hp += b_status->max_hp - sd->status.max_hp;
 
 			status->max_hp = status_calc_maxhp(bl, sc, status->max_hp);
@@ -3571,7 +3532,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 	if(flag&SCB_MAXSP) {
 		if( bl->type&BL_PC )
 		{
-			status->max_sp = status_base_pc_maxsp(sd,status);
+			status->max_sp = status_calc_maxhpsp_pc(sd,status->int_,false);
 			status->max_sp += b_status->max_sp - sd->status.max_sp;
 
 			status->max_sp = status_calc_maxsp(&sd->bl, &sd->sc, status->max_sp);
@@ -7855,14 +7816,24 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
 			break;
 		case SC_SPELLFIST:
+		case SC_CURSEDCIRCLE_ATKER:
 			val_flag |= 1|2|4;
+			break;
+		case SC_CRESCENTELBOW:
+			val2 = 94 + val1;
+			val_flag |= 1|2;
+			break;
+		case SC_LIGHTNINGWALK:
+			val1 = 88 + 2 * val1;
+			val_flag |= 1;
 			break;
 		case SC_RAISINGDRAGON:
 			val3 = tick / 5000;
 			tick = 5000;
 			break;
 		case SC_GENTLETOUCH_CHANGE:
-			if( sd ) val2 = (13 * val1 / 2) * sd->status.agi; //Aspd - old formula.
+			if (sd)
+				val2 = (13 * val1 / 2) * sd->status.agi; //Aspd - old formula.
 			val3 = 20 + 1 * val1; //Base Atk, Reduction to DEF & MDEF
 			break;
 		case SC_GENTLETOUCH_REVITALIZE:
@@ -8129,8 +8100,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			opt_flag = 0;
 			break;
 		case SC_BLADESTOP:
-		case SC_CURSEDCIRCLE_ATKER:
-		case SC_CURSEDCIRCLE_TARGET:
 			sc->opt3 |= OPT3_BLADESTOP;
 			opt_flag = 0;
 			break;
@@ -8878,10 +8847,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_CURSEDCIRCLE_ATKER:
+			if (sce->val3)
 			{
 				int range = skill_get_splash(SR_CURSEDCIRCLE, sce->val1);
-				map_foreachinarea(status_change_timer_sub, 
-					bl->m, bl->x-range, bl->y-range, bl->x+range, bl->y+range, BL_CHAR, bl, sce, SC_CURSEDCIRCLE_TARGET, gettick());
+				map_foreachinarea(status_change_timer_sub, bl->m, bl->x-range, bl->y-range, bl->x+range, bl->y+range, BL_CHAR, bl, sce, SC_CURSEDCIRCLE_TARGET, gettick());
 			}
 			break;
 		case SC_RAISINGDRAGON:
@@ -9011,8 +8980,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			opt_flag = 0;
 			break;
 		case SC_BLADESTOP:
-		case SC_CURSEDCIRCLE_ATKER:
-		case SC_CURSEDCIRCLE_TARGET:
 			sc->opt3 &= ~OPT3_BLADESTOP;
 			opt_flag = 0;
 			break;
@@ -10425,14 +10392,14 @@ static bool status_readdb_job1(char* fields[], int columns, int current)
 	}
 	idx = pc_class2idx(class_);
 
-	max_weight_base[idx] = atoi(fields[1]);
-	hp_coefficient[idx]  = atoi(fields[2]);
-	hp_coefficient2[idx] = atoi(fields[3]);
-	sp_coefficient[idx]  = atoi(fields[4]);
+	job_info[idx].max_weight_base = atoi(fields[1]);
+	job_info[idx].hp_factor  = atoi(fields[2]);
+	job_info[idx].hp_multiplicator = atoi(fields[3]);
+	job_info[idx].sp_factor  = atoi(fields[4]);
 
 	for(i = 0; i < MAX_WEAPON_TYPE; i++)
 	{
-		aspd_base[idx][i] = atoi(fields[i+5]);
+		job_info[idx].aspd_base[i] = atoi(fields[i+5]);
 	}
 	return true;
 }
@@ -10452,7 +10419,7 @@ static bool status_readdb_job2(char* fields[], int columns, int current)
 
 	for(i = 1; i < columns; i++)
 	{
-		job_bonus[idx][i-1] = atoi(fields[i]);
+		job_info[idx].job_bonus[i-1] = atoi(fields[i]);
 	}
 	return true;
 }
@@ -10550,19 +10517,6 @@ int status_readdb(void)
 {
 	int i, j, k;
 
-	// initialize databases to default
-	//
-
-	// job_db1.txt
-	memset(max_weight_base, 0, sizeof(max_weight_base));
-	memset(hp_coefficient, 0, sizeof(hp_coefficient));
-	memset(hp_coefficient2, 0, sizeof(hp_coefficient2));
-	memset(sp_coefficient, 0, sizeof(sp_coefficient));
-	memset(aspd_base, 0, sizeof(aspd_base));
-
-	// job_db2.txt
-	memset(job_bonus,0,sizeof(job_bonus)); // Job-specific stats bonus
-
 	// size_fix.txt
 	for(i=0;i<ARRAYLENGTH(atkmods);i++)
 		for(j=0;j<MAX_WEAPON_TYPE;j++)
@@ -10595,7 +10549,7 @@ int status_readdb(void)
 }
 
 /*==========================================
- * スキル関係初期化処理
+ * Status db init and destroy.
  *------------------------------------------*/
 int do_init_status(void)
 {
@@ -10605,7 +10559,6 @@ int do_init_status(void)
 	initChangeTables();
 	initDummyData();
 	status_readdb();
-	status_calc_sigma();
 	natural_heal_prev_tick = gettick();
 	sc_data_ers = ers_new(sizeof(struct status_change_entry));
 	add_timer_interval(natural_heal_prev_tick + NATURAL_HEAL_INTERVAL, status_natural_heal_timer, 0, 0, NATURAL_HEAL_INTERVAL);

@@ -696,17 +696,12 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 				status_change_end(bl, SC_KYRIE, INVALID_TIMER);
 		}
 
-		if( (sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 ){
-			if( rand()%100 < 88 + 2 * sce->val1 ){
-				short x, y;
-				damage = 0;
-				map_search_freecell(src, 0, &x, &y, 1, 1, 0);
-				unit_movepos(bl, x, y, 1, 1);
-				clif_slide(bl, x, y);
-				clif_fixpos(bl);
-				map_moveblock(bl, x, y, gettick());
-				status_change_end(bl, SC_LIGHTNINGWALK, -1);
-			}
+		if ((sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 && rand()%100 < sce->val1)
+		{
+			skill_blown(src, bl, 1, -2, 0);
+			d->div_ = ATK_DEF;
+			status_change_end(bl, SC_LIGHTNINGWALK, INVALID_TIMER);
+			return 0;
 		}
 
 		if (!damage) return 0;
@@ -4138,13 +4133,15 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage += (*damage) / 100;
 			rdamage = cap_value(rdamage,1,max_damage);
 		}
-		if( sc && sc->data[SC_CRESCENTELBOW] && !is_boss(bl) && sd && sd->spiritball >= 2 &&
-			rand()%100 < 94 + sc->data[SC_CRESCENTELBOW]->val1 )
+		if (sc && sc->data[SC_CRESCENTELBOW] && !is_boss(bl) && rand()%100 < sc->data[SC_CRESCENTELBOW]->val2)
 		{	// Stimated formula from test
 			rdamage += (int)((*damage) + (*damage) * status_get_hp(src) * 2.15 / 100000);
-			if( rdamage < 1 ) rdamage = 1;
+			if (rdamage < 1)
+				rdamage = 1;
 		}
-	} else {
+	}
+	else
+	{
 		if (sd && sd->long_weapon_damage_return)
 		{
 			rdamage += (*damage) * sd->long_weapon_damage_return / 100;
@@ -4429,14 +4426,13 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			}
 			else
 			{
-				if( tsc && tsc->data[SC_CRESCENTELBOW] )
+				if (tsc && tsc->data[SC_CRESCENTELBOW])
 				{	// Deal rdamage to src and 10% damage back to target.
-					clif_skill_nodamage(target,target,SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1,1);
-					skill_blown(target,src,skill_get_blewcount(SR_CRESCENTELBOW_AUTOSPELL,tsc->data[SC_CRESCENTELBOW]->val1),unit_getdir(src),0);
-					status_damage(src,target,rdamage/10,0,0,1);
-					clif_damage(src, target, tick, wd.amotion, wd.dmotion, rdamage/10, wd.div_ , wd.type, wd.damage2);
-					status_change_end(target,SC_CRESCENTELBOW,-1);
-					if( tsd ) pc_delspiritball(tsd,2,0); // remove 2 spiritballs here.
+					clif_skill_nodamage(target, target, SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1, 1);
+					skill_blown(target, src,skill_get_blewcount(SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1), unit_getdir(src), 0);
+					status_damage(NULL, target, rdamage / 10, 0, 0, 1);
+					clif_damage(target, target, tick, wd.amotion, wd.dmotion, rdamage/10, wd.div_ , wd.type, wd.damage2);
+					status_change_end(target, SC_CRESCENTELBOW, INVALID_TIMER);
 				}
 				rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0);
 				//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]

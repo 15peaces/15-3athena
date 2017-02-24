@@ -257,6 +257,7 @@ typedef char bool;
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
+static inline uint32 umax(uint32 a, uint32 b){ return (a > b) ? a : b; }
 
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))

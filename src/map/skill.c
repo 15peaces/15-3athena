@@ -2140,7 +2140,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
 	case WL_HELLINFERNO:
-		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,skillid,-2,6);
+	case SR_EARTHSHAKER:
+		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skillid, -2, 6);
 		break;
 	case WL_SOULEXPANSION:
 	case WL_COMET:
@@ -7923,8 +7924,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SR_CURSEDCIRCLE:
-		if( flag&1 ){
-			if( is_boss(bl) ) break;
+		if (flag&1)
+		{
+			if (is_boss(bl))
+				break;
 			if (sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid, skilllv)))
 			{
 				unit_stop_attack(bl);
@@ -7932,12 +7935,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				map_freeblock_unlock();
 				return 1;
 			}
-		}else{
+		}
+		else
+		{
 			int count = 0;
-			clif_skill_nodamage(src, src, skillid, skilllv,	sc_start(src, SC_CURSEDCIRCLE_ATKER, 100, skilllv, skill_get_time(skillid,skilllv)));
+			clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 			count = map_forcountinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv), (sd)?sd->spiritball_old:15, // Assume 15 spiritballs in non-charactors
 				BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			if( sd ) pc_delspiritball(sd, count, 0);
+			if(sd)
+				pc_delspiritball(sd, count, 0);
+			clif_skill_nodamage(src, src, skillid, skilllv, sc_start2(src, SC_CURSEDCIRCLE_ATKER, 100, skilllv, count, skill_get_time(skillid,skilllv)));
+
 		}
 		break;
 
@@ -7953,16 +7961,23 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SR_ASSIMILATEPOWER:
-		if( flag&1 ){
+		if (flag&1)
+		{
 			i = 0;
-			if( dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && (dstsd->class_&MAPID_BASEMASK)!=MAPID_GUNSLINGER ){
+			if (dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && (dstsd->class_&MAPID_BASEMASK) != MAPID_GUNSLINGER)
+			{
 				i = dstsd->spiritball; //1%sp per spiritball.
 				pc_delspiritball(dstsd, dstsd->spiritball, 0);
 			}
-			if( i ) status_percent_heal(src, 0, i); 
+			if (i)
+				status_percent_heal(src, 0, i);
 			clif_skill_nodamage(src, bl, skillid, skilllv, i ? 1:0);
-		}else
+		}
+		else
+		{
+			clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_nodamage_id);
+		}
 		break;
 
 	case SR_POWERVELOCITY:
@@ -9017,11 +9032,15 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	type = status_skill2sc(skillid);
 	sce = (sc && type != -1)?sc->data[type]:NULL;
 
-	if( sc ){ //Status end during cast end.
-		if( sc->data[SC_CAMOUFLAGE] )
-			status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
-		if( sc->data[SC_CURSEDCIRCLE_ATKER] )
-			status_change_end(src,SC_CURSEDCIRCLE_ATKER,INVALID_TIMER);
+	if (sc) 
+	{ //Status end during cast end.
+		if (sc->data[SC_CAMOUFLAGE])
+			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
+		if (sc->data[SC_CURSEDCIRCLE_ATKER])
+		{
+			sc->data[SC_CURSEDCIRCLE_ATKER]->val3 = 1;
+			status_change_end(src, SC_CURSEDCIRCLE_ATKER, INVALID_TIMER);
+		}
 	}
 
 	switch (skillid) { //Skill effect.
@@ -12847,6 +12866,10 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			break;
 		case LG_RAGEBURST:
 			req.spiritball = sd->rageball?sd->rageball:1;
+			break;
+		case SR_CRESCENTELBOW:
+			if (sd->spiritball <= 0)
+				req.spiritball = 0; // Only consumes spirit spheres if these are pressent. Is a bug?
 			break;
 		case SR_RAMPAGEBLASTER:
 			req.spiritball = sd->spiritball?sd->spiritball:15;

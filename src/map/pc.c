@@ -43,6 +43,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 #include <time.h>
 
@@ -9340,6 +9341,61 @@ static bool pc_readdb_job2(char* fields[], int columns, int current)
 	return true;
 }
 
+// [Cydh]
+// Calculates base hp of player. Reference: http://irowiki.org/wiki/Max_HP
+// @param level Base level of player
+// @param class_ Job ID @see enum e_job
+// @return base_hp
+static unsigned int pc_calc_basehp(uint16 level, uint16 class_) 
+{
+	double base_hp;
+	uint16 i, idx = pc_class2idx(class_);
+
+	base_hp = 35 + level * (job_info[idx].hp_multiplicator/100.);
+
+	if(level >= 10 && (class_ == JOB_NINJA || class_ == JOB_GUNSLINGER)) base_hp += 90;
+
+	for (i = 2; i <= level; i++)
+		base_hp += floor(((job_info[idx].hp_factor/100.) * i) + 0.5); //Don't have round()
+	/*if (class_ == JOB_SUMMONER)
+		base_hp += floor((base_hp / 2) + 0.5);*/
+	return (unsigned int)base_hp;
+}
+
+// [Playtester]
+// Calculates base sp of player.
+// @param level Base level of player
+// @param class_ Job ID @see enum e_job
+// @return base_sp
+static unsigned int pc_calc_basesp(uint16 level, uint16 class_) 
+{
+	double base_sp;
+	uint16 idx = pc_class2idx(class_);
+
+	base_sp = 10 + floor(level * (job_info[idx].sp_factor / 100.));
+
+	switch (class_) 
+	{
+		case JOB_NINJA:
+			if (level >= 10)
+				base_sp -= 22;
+			else
+				base_sp = 11 + 3*level;
+			break;
+		case JOB_GUNSLINGER:
+			if (level > 10)
+				base_sp -= 18;
+			else
+				base_sp = 9 + 3*level;
+			break;
+		/*case JOB_SUMMONER:
+			base_sp -= floor(base_sp / 2);
+			break;*/
+	}
+
+	return (unsigned int)base_sp;
+}
+
 //Reading job_exp.txt line
 //Max Level,Class list,Type (0 - Base Exp; 1 - Job Exp),Exp/lvl...
 static bool pc_readdb_exp(char* fields[], int columns, int current)
@@ -9490,7 +9546,7 @@ void pc_readdb(void) {
 	sv_readdb(db_path, "exp.txt",',',4,1000+3,CLASS_COUNT*2,&pc_readdb_exp);
 	sv_readdb(db_path, "job_noenter.txt", ',', 3, 3, CLASS_COUNT, &pc_readdb_job_noenter);
 
-	// Reset and read skilltree - needs to be read after pc_readdb_job_exp to get max base and job levels
+	// Reset and read skilltree
 	memset(skill_tree, 0, sizeof(skill_tree));
 	sv_readdb(db_path, "skill_tree.txt", ',', 3 + MAX_PC_SKILL_REQUIRE * 2, 5 + MAX_PC_SKILL_REQUIRE * 2, -1, &pc_readdb_skilltree);
 
@@ -9503,8 +9559,10 @@ void pc_readdb(void) {
 	battle_config.use_statpoint_table = k; //restore setting
 	
 	//Checking if all class have their data
-	for (i = 0; i < JOB_MAX; i++) {
+	for (i = 0; i < JOB_MAX; i++) 
+	{
 		int idx;
+		uint16 j;
 		if (!pcdb_checkid(i))
 			continue;
 		if (i == JOB_WEDDING || i == JOB_XMAS || i == JOB_SUMMER || i == JOB_HANBOK || i == JOB_OKTOBERFEST)
@@ -9514,6 +9572,15 @@ void pc_readdb(void) {
 			ShowWarning("Class %s (%d) does not have a base exp table.\n", job_name(i), i);
 		if (!job_info[idx].max_level[1])
 			ShowWarning("Class %s (%d) does not have a job exp table.\n", job_name(i), i);
+
+		//Init and checking the empty value of Base HP/SP [Cydh]
+		for (j = 0; j < (job_info[idx].max_level[0] ? job_info[idx].max_level[0] : MAX_LEVEL); j++) 
+		{
+			if (job_info[idx].base_hp[j] == 0)
+				job_info[idx].base_hp[j] = pc_calc_basehp(j+1,i);
+			if (job_info[idx].base_sp[j] == 0)
+				job_info[idx].base_sp[j] = pc_calc_basesp(j+1,i);
+		}
 	}
 }
 
