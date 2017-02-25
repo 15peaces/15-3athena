@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D356871D-58E1-450B-967A-E6E9646175AF}</ProjectGuid>
-    <RootNamespace>map-server_sql</RootNamespace>
+    <ProjectGuid>{D356871D-58E1-450B-967A-E4E9646175AF}</ProjectGuid>
+    <RootNamespace>char-server_sql</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -20,10 +20,12 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -34,6 +36,7 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -44,12 +47,13 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">char-server_sql</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\src\common;..\3rdparty\msinttypes\include;..\3rdparty\pcre\old\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;PCRE_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\src\common;..\3rdparty\msinttypes\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -57,13 +61,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <DisableSpecificWarnings>4018;4100;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>config.vc.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libcmtd.lib;oldnames.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\3rdparty\pcre\old\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcmtd.lib;oldnames.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -76,20 +80,20 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\src\common;..\3rdparty\msinttypes\include;..\3rdparty\pcre\old\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;PCRE_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\src\common;..\3rdparty\msinttypes\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4018;4100;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>config.vc.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>libcmt.lib;oldnames.lib;pcre.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\3rdparty\pcre\old\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libcmt.lib;oldnames.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -103,85 +107,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\map\atcommand.c" />
-    <ClCompile Include="..\src\map\battle.c" />
-    <ClCompile Include="..\src\map\battleground.c" />
-    <ClCompile Include="..\src\map\buyingstore.c" />
-    <ClCompile Include="..\src\map\chat.c" />
-    <ClCompile Include="..\src\map\chrif.c" />
-    <ClCompile Include="..\src\map\clan.c" />
-    <ClCompile Include="..\src\map\clif.c" />
-    <ClCompile Include="..\src\map\date.c" />
-    <ClCompile Include="..\src\map\duel.c" />
-	<ClCompile Include="..\src\map\elemental.c" />
-    <ClCompile Include="..\src\map\guild.c" />
-    <ClCompile Include="..\src\map\guild_castle.c" />
-    <ClCompile Include="..\src\map\guild_expcache.c" />
-    <ClCompile Include="..\src\map\homunculus.c" />
-    <ClCompile Include="..\src\map\instance.c" />
-    <ClCompile Include="..\src\map\intif.c" />
-    <ClCompile Include="..\src\map\itemdb.c" />
-    <ClCompile Include="..\src\map\log.c" />
-    <ClCompile Include="..\src\map\mail.c" />
-    <ClCompile Include="..\src\map\map.c" />
-    <ClCompile Include="..\src\map\mapreg_sql.c" />
-    <ClCompile Include="..\src\map\mercenary.c" />
-    <ClCompile Include="..\src\map\mob.c" />
-    <ClCompile Include="..\src\map\npc.c" />
-    <ClCompile Include="..\src\map\npc_chat.c" />
-    <ClCompile Include="..\src\map\party.c" />
-    <ClCompile Include="..\src\map\path.c" />
-    <ClCompile Include="..\src\map\pc.c" />
-    <ClCompile Include="..\src\map\pet.c" />
-    <ClCompile Include="..\src\map\quest.c" />
-    <ClCompile Include="..\src\map\script.c" />
-    <ClCompile Include="..\src\map\searchstore.c" />
-    <ClCompile Include="..\src\map\skill.c" />
-    <ClCompile Include="..\src\map\status.c" />
-    <ClCompile Include="..\src\map\storage.c" />
-    <ClCompile Include="..\src\map\trade.c" />
-    <ClCompile Include="..\src\map\unit.c" />
-    <ClCompile Include="..\src\map\vending.c" />
+    <ClCompile Include="..\src\char_sql\char.c" />
+    <ClCompile Include="..\src\char_sql\int_auction.c" />
+    <ClCompile Include="..\src\char_sql\int_clan.c" />
+    <ClCompile Include="..\src\char_sql\int_elemental.c" />
+    <ClCompile Include="..\src\char_sql\int_guild.c" />
+    <ClCompile Include="..\src\char_sql\int_homun.c" />
+    <ClCompile Include="..\src\char_sql\int_mail.c" />
+    <ClCompile Include="..\src\char_sql\int_mercenary.c" />
+    <ClCompile Include="..\src\char_sql\int_party.c" />
+    <ClCompile Include="..\src\char_sql\int_pet.c" />
+    <ClCompile Include="..\src\char_sql\int_quest.c" />
+    <ClCompile Include="..\src\char_sql\int_storage.c" />
+    <ClCompile Include="..\src\char_sql\inter.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\map\atcommand.h" />
-    <ClInclude Include="..\src\map\battle.h" />
-    <ClInclude Include="..\src\map\battleground.h" />
-    <ClInclude Include="..\src\map\buyingstore.h" />
-    <ClInclude Include="..\src\map\chat.h" />
-    <ClInclude Include="..\src\map\chrif.h" />
-    <ClInclude Include="..\src\map\clan.h" />
-    <ClInclude Include="..\src\map\clif.h" />
-    <ClInclude Include="..\src\map\date.h" />
-    <ClInclude Include="..\src\map\duel.h" />
-	<ClInclude Include="..\src\map\elemental.h" />
-    <ClInclude Include="..\src\map\guild.h" />
-    <ClInclude Include="..\src\map\guild_castle.h" />
-    <ClInclude Include="..\src\map\guild_expcache.h" />
-    <ClInclude Include="..\src\map\homunculus.h" />
-    <ClInclude Include="..\src\map\instance.h" />
-    <ClInclude Include="..\src\map\intif.h" />
-    <ClInclude Include="..\src\map\itemdb.h" />
-    <ClInclude Include="..\src\map\log.h" />
-    <ClInclude Include="..\src\map\mail.h" />
-    <ClInclude Include="..\src\map\map.h" />
-    <ClInclude Include="..\src\map\mapreg.h" />
-    <ClInclude Include="..\src\map\mercenary.h" />
-    <ClInclude Include="..\src\map\mob.h" />
-    <ClInclude Include="..\src\map\npc.h" />
-    <ClInclude Include="..\src\map\party.h" />
-    <ClInclude Include="..\src\map\path.h" />
-    <ClInclude Include="..\src\map\pc.h" />
-    <ClInclude Include="..\src\map\pet.h" />
-    <ClInclude Include="..\src\map\quest.h" />
-    <ClInclude Include="..\src\map\script.h" />
-    <ClInclude Include="..\src\map\searchstore.h" />
-    <ClInclude Include="..\src\map\skill.h" />
-    <ClInclude Include="..\src\map\status.h" />
-    <ClInclude Include="..\src\map\storage.h" />
-    <ClInclude Include="..\src\map\trade.h" />
-    <ClInclude Include="..\src\map\unit.h" />
-    <ClInclude Include="..\src\map\vending.h" />
+    <ClInclude Include="..\src\char_sql\char.h" />
+    <ClInclude Include="..\src\char_sql\int_auction.h" />
+    <ClInclude Include="..\src\char_sql\int_clan.h" />
+    <ClInclude Include="..\src\char_sql\int_elemental.h" />
+    <ClInclude Include="..\src\char_sql\int_guild.h" />
+    <ClInclude Include="..\src\char_sql\int_homun.h" />
+    <ClInclude Include="..\src\char_sql\int_mail.h" />
+    <ClInclude Include="..\src\char_sql\int_mercenary.h" />
+    <ClInclude Include="..\src\char_sql\int_party.h" />
+    <ClInclude Include="..\src\char_sql\int_pet.h" />
+    <ClInclude Include="..\src\char_sql\int_quest.h" />
+    <ClInclude Include="..\src\char_sql\int_storage.h" />
+    <ClInclude Include="..\src\char_sql\inter.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="common_sql.vcxproj">

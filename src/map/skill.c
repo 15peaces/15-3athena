@@ -1147,11 +1147,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		status_percent_damage(src, bl, 0, 5+1*skilllv, false);
 		break;
 	case SR_WINDMILL:
-		if( dstsd && !pc_issit(dstsd) ){
-			pc_setsit(dstsd);
-			clif_sitting(&dstsd->bl);
+		if (dstsd && !pc_issit(dstsd))
+		{
+			skill_sit(dstsd, 1);
+			clif_sitting(&dstsd->bl, true);
 		}
-		if( dstmd && !is_boss(bl) )
+		if (dstmd && !is_boss(bl))
 			sc_start(bl, SC_STUN, 100, skilllv, 1000 + 1000 * (rand()%3));
 		break;
 	case SR_GENTLETOUCH_QUIET:
@@ -1161,7 +1162,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_FEAR, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case WM_METALICSOUND:
-		sc_start(bl, SC_CONFUSION, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+		sc_start(bl, SC_CONFUSION, 20 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SO_EARTHGRAVE:
 		sc_start(bl, SC_BLEEDING, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
@@ -2930,11 +2931,13 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 						unit_warp(target, -1, skl->x, skl->y, 3);
 					break;
 				case LG_MOONSLASHER:
-					if( target->type == BL_PC ){
-						struct map_session_data *tsd = BL_CAST(BL_PC,target);
-						if( tsd && !pc_issit(tsd) ){
-							pc_setsit(tsd);
-							clif_sitting(&tsd->bl);
+					if( target->type == BL_PC )
+					{
+						struct map_session_data *tsd = BL_CAST(BL_PC, target);
+						if (tsd && !pc_issit(tsd))
+						{
+							skill_sit(tsd, 1);
+							clif_sitting(&tsd->bl, true);
 						}
 					}
 					break;
@@ -2944,8 +2947,7 @@ static int skill_timerskill(int tid, unsigned int tick, int id, intptr_t data)
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
 				case GN_SPORE_EXPLOSION:
-					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR,						
-						src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);					
+					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR, src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);
 					break;
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);

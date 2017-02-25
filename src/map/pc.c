@@ -6618,19 +6618,21 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 	if( !src || src == &sd->bl )
 		return;
 
-	if( pc_issit(sd) ) {
+	if (pc_issit(sd))
+	{
 		pc_setstand(sd);
-		skill_sit(sd,0);
+		skill_sit(sd, 0);
+		clif_standing(&sd->bl, true); // To sincronize client and server.
 	}
 
-	if( sd->progressbar.npc_id )
+	if (sd->progressbar.npc_id)
 		clif_progressbar_abort(sd);
 
-	if( sd->status.pet_id > 0 && sd->pd && battle_config.pet_damage_support )
-		pet_target_check(sd,src,1);
+	if (sd->status.pet_id > 0 && sd->pd && battle_config.pet_damage_support)
+		pet_target_check(sd, src, 1);
 
-	if( sd->status.ele_id > 0 )
-		elemental_set_target(sd,src);
+	if (sd->status.ele_id > 0)
+		elemental_set_target(sd, src);
 
 	sd->canlog_tick = gettick();
 }
@@ -9472,29 +9474,36 @@ static int pc_read_statsdb(const char *basedir, int last_s){
 		sprintf(line, "%s/statpoint.txt", basedir); // Old mechanic.
 	
 	fp=fopen(line,"r");
-	if(fp == NULL){
-		ShowWarning("Can't read '"CL_WHITE"%s"CL_RESET"'... Generating DB.\n",line);
-		return max(last_s,i);
-	} else {
-		int entries=0;
+	if (fp == NULL)
+	{
+		ShowWarning("Can't read '"CL_WHITE"%s"CL_RESET"'... Generating DB.\n", line);
+		return max(last_s, i);
+	}
+	else
+	{
+		int entries = 0;
 		while(fgets(line, sizeof(line), fp))
 		{
 			int stat;
 			trim(line);
-			if(line[0] == '\0' || (line[0]=='/' && line[1]=='/'))
+			if (line[0] == '\0' || (line[0]=='/' && line[1]=='/'))
 				continue;
-			if ((stat=strtoul(line,NULL,10))<0)
-				stat=0;
+			if ((stat = strtoul(line, NULL, 10)) < 0)
+				stat = 0;
 			if (i > MAX_LEVEL)
 				break;
-			statp[i]=stat;
+			statp[i] = stat;
 			i++;
 			entries++;
 		}
 		fclose(fp);
-		ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s/%s"CL_RESET"'.\n", entries, basedir,"statpoint.txt");
+		if (battle_config.renewal_statpoints)
+			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s/%s"CL_RESET"'.\n", entries, basedir, "statpoint_renewal.txt");
+		else
+			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s/%s"CL_RESET"'.\n", entries, basedir, "statpoint.txt");
+
 	}
-	return max(last_s,i);
+	return max(last_s, i);
 }
 
 /**

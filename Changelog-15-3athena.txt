@@ -4,6 +4,14 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+02/25/2017
+	r157 [15peaces]
+		*Merged missing changes from 3ceam rev. 558 - 560
+		*Replaced old Visual Studio 7.1 project files with Visual Studio 11 project files.
+			-with this release prepare yourself to don't use Visual Studio 2008 anymore since it's really outdated...
+		*Optimized clif_sitting and clif_standing packets behavior and some skills that use these packet like SR_WINDMILL and LG_MOONSLASHER.
+		*Correctly display on startup, which statpoint table has been read.
+	
 02/24/2017
 	r156 [15peaces]
 		*Merged missing changes from 3ceam rev. 556 - 557

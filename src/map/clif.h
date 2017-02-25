@@ -478,8 +478,8 @@ void clif_updatestat(struct map_session_data* sd, int type, int value, int plusv
 void clif_updateparam_area(struct map_session_data* sd, short type, int value);	//area
 int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int damage, int div, int type, int damage2);	// area
 void clif_takeitem(struct block_list* src, struct block_list* dst);
-void clif_sitting(struct block_list* bl);
-void clif_standing(struct block_list* bl);
+void clif_sitting(struct block_list* bl, bool area);
+void clif_standing(struct block_list* bl, bool area);
 void clif_changelook(struct block_list *bl,int type,int val);	// area
 void clif_changetraplook(struct block_list *bl,int val); // area
 void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_target target); //area specified in 'target'

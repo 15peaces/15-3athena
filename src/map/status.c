@@ -7051,9 +7051,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_TENSIONRELAX:
-			if (sd) {
+			if (sd)
+			{
 				pc_setsit(sd);
-				clif_sitting(&sd->bl);
+				clif_sitting(&sd->bl, true);
 			}
 			val2 = 12; //SP cost
 			val4 = 10000; //Decrease at 10secs intervals.
@@ -7061,7 +7062,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = val4;
 			break;
 		case SC_PARRYING:
-		    val2 = 20 + val1*3; //Block Chance
+			val2 = 20 + val1*3; //Block Chance
 			break;
 
 		case SC_WINDWALK:
@@ -7738,9 +7739,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_SITDOWN_FORCE:
 		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
-			if( sd && !pc_issit(sd) ) {
+			if (sd && !pc_issit(sd))
+			{
 				pc_setsit(sd);
-				clif_sitting(bl);
+				skill_sit(sd, 1);
+				clif_sitting(bl, true);
 			}
 			break;
 		case SC_DANCE_WITH_WUG:
@@ -8819,10 +8822,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_SITDOWN_FORCE:
-			if( sd && pc_issit(sd) )
+			if (sd && pc_issit(sd))
 			{
 				pc_setstand(sd);
-				clif_standing(bl);
+				clif_standing(bl, true);
 			}
 			break;
 		case SC_ADORAMUS:
@@ -8830,7 +8833,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
  			break;
 		case SC_NEUTRALBARRIER_MASTER:
 		case SC_STEALTHFIELD_MASTER:
-			if( sce->val2 ){
+			if (sce->val2)
+			{
 				struct skill_unit_group* group = skill_id2group(sce->val2);
 				sce->val2 = 0;
 				skill_delunitgroup(group);
@@ -9846,14 +9850,15 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		break;
 
 	case SC_STOMACHACHE:
-		if( --(sce->val4) > 0 ) {
-			status_charge(bl,0,sce->val2);	// Reduce 8 every 10 seconds.
-			if( sd && !pc_issit(sd) )	// Force to sit every 10 seconds.
+		if( --(sce->val4) > 0 )
+		{
+			status_charge(bl,0,sce->val2); // Reduce 8 every 10 seconds.
+			if (sd && !pc_issit(sd)) // Force to sit every 10 seconds.
 			{
-				pc_stop_walking(sd,1|4);
+				pc_stop_walking(sd, 1|4);
 				pc_stop_attack(sd);
 				pc_setsit(sd);
-				clif_sitting(bl);
+				clif_sitting(bl, true);
 			}
 			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 		}
