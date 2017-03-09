@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/09/2017
+	r158 [15peaces]
+		*Merged missing changes from 3ceam rev. 561 - 563
+		*Added missing Warrior's Will drops and some card drops.
+		*Added Malaya Port Dungeon spawns.
+		*Added more missing champion monsters.
+		*Did some clean-up.
+		*Fixed a bug: baselvlup command did not use stat point table, even if it was set in the config. It could lead to stat points inconsistency.
+		
 02/25/2017
 	r157 [15peaces]
 		*Merged missing changes from 3ceam rev. 558 - 560

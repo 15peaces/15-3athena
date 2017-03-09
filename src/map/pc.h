@@ -914,11 +914,17 @@ extern struct fame_list smith_fame_list[MAX_FAME_LIST];
 extern struct fame_list chemist_fame_list[MAX_FAME_LIST];
 extern struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
+extern unsigned int statp[MAX_LEVEL + 1];
+
 void pc_readdb(void);
 int do_init_pc(void);
 void do_final_pc(void);
 
-enum {ADDITEM_EXIST,ADDITEM_NEW,ADDITEM_OVERAMOUNT};
+enum {
+	ADDITEM_EXIST,
+	ADDITEM_NEW,
+	ADDITEM_OVERAMOUNT
+};
 
 // timer for night.day
 extern int day_timer_tid;

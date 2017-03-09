@@ -40,7 +40,7 @@ schg_dun01,0,0,0,0	monster	Elusive Zakudam	2607,2,300000,0
 //iz_dun01,0,0,0,0	monster	Solid Vadon	2628,2,300000,0
 //ein_fild02,0,0,0,0	monster	Ungoliant Ringleader	2629,2,300000,0
 //bra_fild01,0,0,0,0	monster	Furious Toucan	2630,2,300000,0
-//ma_fild01,0,0,0,0	monster	Elusive Tiyanak	2631,2,300000,0
+ma_fild01,0,0,0,0	monster	Elusive Tiyanak	2631,2,300000,0
 //prt_sewb4,0,0,0,0	monster	Solid Thief Bug	2632,2,300000,0
 //prt_sewb3,0,0,0,0	monster	Thief Bug Ringleader	2633,2,300000,0
 //prt_sewb2,0,0,0,0	monster	Furious Thief Bug	2634,2,300000,0
@@ -76,7 +76,7 @@ treasure_n1,0,0,0,0	monster	Swift Spore	2646,2,300000,0
 //ama_dun03,0,0,0,0	monster	Furious Shinobi	2664,2,300000,0
 //tha_t11,0,0,0,0	monster	Elusive Mistress of Shelter	2665,2,300000,0
 //hu_fild06,0,0,0,0	monster	Swift Shellfish	2666,2,300000,0
-//lhz_dun03,0,0,0,0	monster	Solid Cecil Damon	2667,2,300000,0
+lhz_dun03,0,0,0,0	monster	Solid Cecil Damon	2667,2,300000,0
 //cmd_fild04,0,0,0,0	monster	Sea Otter Ringleader	2668,2,300000,0
 //iz_dun05,0,0,0,0	monster	Furious Lamp Rey	2669,2,300000,0
 //moc_fild18,0,0,0,0	monster	Elusive Scorpion	2670,2,300000,0
@@ -175,7 +175,7 @@ moc_fild20,0,0,0,0	monster	Swift Incarnation of Morroc	2744,2,300000,0
 //in_sphinx3,0,0,0,0	monster	Elusive Marduk	2763,2,300000,0
 //prt_maze03,0,0,0,0	monster	Swift Mantis	2764,2,300000,0
 //gef_fild04,0,0,0,0	monster	Solid Mandragora	2765,2,300000,0
-//ma_dun01,0,0,0,0	monster	Manananggal Ringleader	2766,2,300000,0
+ma_dun01,0,0,0,0	monster	Manananggal Ringleader	2766,2,300000,0
 //gl_dun02,0,0,0,0	monster	Furious Majoruros	2767,2,300000,0
 //prt_fild09,0,0,0,0	monster	Elusive Magnolia	2768,2,300000,0
 //ve_fild03,0,0,0,0	monster	Swift Magmaring	2769,2,300000,0

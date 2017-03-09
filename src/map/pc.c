@@ -52,11 +52,7 @@
 #define MAX_LEVEL_BASE_EXP 99999999 ///< Max Base EXP for player on Max Base Level
 #define MAX_LEVEL_JOB_EXP 999999999 ///< Max Job EXP for player on Max Job Level
 
-// Not needed anymore... [15peaces]
-//static unsigned int exp_table[CLASS_COUNT][2][MAX_LEVEL];
-//static unsigned int max_level[CLASS_COUNT][2];
-
-static unsigned int statp[MAX_LEVEL+1];
+unsigned int statp[MAX_LEVEL + 1];
 
 // h-files are for declarations, not for implementations... [Shinomori]
 struct skill_tree_entry skill_tree[CLASS_COUNT][MAX_SKILL_TREE];
