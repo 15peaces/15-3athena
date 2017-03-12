@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS `charlog` (
 --
 -- Table structure for table `clan`
 --
-CREATE TABLE `clan` (
+CREATE TABLE IF NOT EXISTS `clan` (
   `clan_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(24) NOT NULL DEFAULT '',
   `master` varchar(24) NOT NULL DEFAULT '',
@@ -159,7 +159,7 @@ INSERT INTO `clan` VALUES ('4', 'Crossbow Clan', 'Shaam Rumi', 'payon', '500');
 -- ----------------------------
 -- Table structure for `clan_alliance`
 -- ----------------------------
-CREATE TABLE `clan_alliance` (
+CREATE TABLE IF NOT EXISTS `clan_alliance` (
   `clan_id` int(11) unsigned NOT NULL DEFAULT '0',
   `opposition` int(11) unsigned NOT NULL DEFAULT '0',
   `alliance_id` int(11) unsigned NOT NULL DEFAULT '0',
@@ -184,7 +184,7 @@ INSERT INTO `clan_alliance` VALUES ('4', '1', '2', 'Arcwand Clan');
 -- Table structure for table `elemental`
 --
 
-CREATE TABLE `elemental` (
+CREATE TABLE IF NOT EXISTS `elemental` (
   `ele_id` int(11) unsigned NOT NULL auto_increment,
   `char_id` int(11) NOT NULL,
   `class` mediumint(9) unsigned NOT NULL default '0',
@@ -741,7 +741,7 @@ CREATE TABLE IF NOT EXISTS `bonus_script` (
 
 -- Table structure for `db_roulette`
 --
-CREATE TABLE `db_roulette` (
+CREATE TABLE IF NOT EXISTS `db_roulette` (
   `index` int(11) NOT NULL default '0',
   `level` smallint(5) unsigned NOT NULL,
   `item_id` smallint(5) unsigned NOT NULL,

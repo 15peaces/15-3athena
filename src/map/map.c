@@ -1748,7 +1748,16 @@ void map_deliddb(struct block_list *bl)
  *------------------------------------------*/
 int map_quit(struct map_session_data *sd)
 {
-	if(!sd->state.active) { //Removing a player that is not active.
+	if (sd->state.keepshop == false) 
+	{ // Close vending/buyingstore
+		if (sd->state.vending)
+			vending_closevending(sd);
+		else if (sd->state.buyingstore)
+			buyingstore_close(sd);
+	}
+
+	if (!sd->state.active) 
+	{ //Removing a player that is not active.
 		struct auth_node *node = chrif_search(sd->status.account_id);
 		if (node && node->char_id == sd->status.char_id &&
 			node->state != ST_LOGOUT)

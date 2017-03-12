@@ -698,22 +698,22 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 
 		if ((sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 && rand()%100 < sce->val1)
 		{
-			skill_blown(src, bl, 1, -2, 0);
+			skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), 0);
 			d->div_ = ATK_DEF;
 			status_change_end(bl, SC_LIGHTNINGWALK, INVALID_TIMER);
 			return 0;
 		}
 
-		if (!damage) return 0;
+		if (!damage)
+			return 0;
 
 		//Probably not the most correct place, but it'll do here
 		//(since battle_drain is strictly for players currently)
-		if ((sce=sc->data[SC_BLOODLUST]) && flag&BF_WEAPON && damage > 0 &&
-			rand()%100 < sce->val3)
+		if ((sce=sc->data[SC_BLOODLUST]) && flag&BF_WEAPON && damage > 0 && rand()%100 < sce->val3)
 			status_heal(src, damage*sce->val4/100, 0, 3);
 
-		if( sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && flag&BF_WEAPON && rand()%100 < sce->val2 )
-			pc_addrageball(sd,skill_get_time(LG_FORCEOFVANGUARD,sce->val1),sce->val3);
+		if (sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && flag&BF_WEAPON && rand()%100 < sce->val2)
+			pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD, sce->val1), sce->val3);
 
 		if( (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && flag&BF_WEAPON && rand()%100 < 10 + 5 * sce->val1 ){
 			int duration = skill_get_time2(MO_CALLSPIRITS, sce->val1);
@@ -815,28 +815,29 @@ int battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int dam
 			return 0; // Crystal cannot receive skill damage on battlegrounds
 	}
 
-	switch( skill_num )
+	switch (skill_num)
 	{
 		case PA_PRESSURE:
 		case HW_GRAVITATION:
 		case NJ_ZENYNAGE:
+		case GN_HELLS_PLANT_ATK:
 			break;
 		default:
-			if( flag&BF_SKILL )
+			if (flag&BF_SKILL)
 			{ //Skills get a different reduction than non-skills. [Skotlex]
-				if( flag&BF_WEAPON )
-					damage = damage * battle_config.bg_weapon_damage_rate/100;
-				if( flag&BF_MAGIC )
-					damage = damage * battle_config.bg_magic_damage_rate/100;
-				if(	flag&BF_MISC )
-					damage = damage * battle_config.bg_misc_damage_rate/100;
+				if (flag&BF_WEAPON)
+					damage = damage * battle_config.bg_weapon_damage_rate / 100;
+				if (flag&BF_MAGIC)
+					damage = damage * battle_config.bg_magic_damage_rate / 100;
+				if (flag&BF_MISC)
+					damage = damage * battle_config.bg_misc_damage_rate / 100;
 			}
 			else
 			{ //Normal attacks get reductions based on range.
-				if( flag&BF_SHORT )
-					damage = damage * battle_config.bg_short_damage_rate/100;
-				if( flag&BF_LONG )
-					damage = damage * battle_config.bg_long_damage_rate/100;
+				if (flag&BF_SHORT)
+					damage = damage * battle_config.bg_short_damage_rate / 100;
+				if (flag&BF_LONG)
+					damage = damage * battle_config.bg_long_damage_rate / 100;
 			}
 			
 			if( !damage ) damage = 1;
@@ -2298,9 +2299,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if( sc && sc->data[SC_GN_CARTBOOST] )
 						skillratio += 10 * sc->data[SC_GN_CARTBOOST]->val1;
 					break;
-				case GN_THORNS_TRAP:
-					skillratio += 10 * skill_lv; // Taken from pakpil's version. Where did he get this from? [LimitLine]
-					break;
+				case GN_SPORE_EXPLOSION:
+						skillratio += 200 + 100 * skill_lv;
+						break;
 				case GN_CRAZYWEED_ATK:
 					skillratio += 400 + 100 * skill_lv;
 					break;
@@ -3537,15 +3538,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if( sc && sc->data[SC_CURSED_SOIL_OPTION] )
 							skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val2 / 100;
 						break;
-					case GN_SPORE_EXPLOSION: // Need official value. [LimitLine]
-						skillratio += 400 + 100 * skill_lv;
-						break;
 					case GN_DEMONIC_FIRE:
-						if( skill_lv > 20)
+						if (skill_lv > 20)
 						{ // Fire expansion Lv.2
 							skillratio += 110 + 20 * (skill_lv - 20) + status_get_int(src) * 3; // Need official INT bonus. [LimitLine]
 						}
-						else if( skill_lv > 10 )
+						else if (skill_lv > 10)
 						{ // Fire expansion Lv.1
 							skillratio += 110 + 20 * (skill_lv - 10) / 2;
 						}
@@ -3922,6 +3920,15 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case NC_SELFDESTRUCTION:
 		md.damage = (sstatus->hp + sstatus->sp) * 50 * skill_lv / 100;
+ 		break;
+	case GN_THORNS_TRAP:
+		md.damage = 100 + 200 * skill_lv + sstatus->int_;
+		break;
+	case GN_BLOOD_SUCKER:
+		md.damage = 200 + 100 * skill_lv + sstatus->int_;
+		break;
+	case GN_HELLS_PLANT_ATK:
+		md.damage = ((sstatus->int_ * 25) + (status_get_lv(target) * 15) * skill_lv) + (10 / (10 - pc_checkskill(sd,BA_MUSICALLESSON)));
  		break;
 	case KO_HAPPOKUNAI:
 		{

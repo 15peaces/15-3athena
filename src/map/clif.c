@@ -50,8 +50,8 @@
 #include <time.h>
 
 //#define DUMP_UNKNOWN_PACKET
-//#define DUMP_INVALID_PACKET
-//#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
+#define DUMP_INVALID_PACKET
+#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
 
 struct Clif_Config {
 	int packet_db_ver;	//Preferred packet version.
@@ -8910,17 +8910,24 @@ void clif_GM_kickack(struct map_session_data *sd, int id)
 }
 
 
-void clif_GM_kick(struct map_session_data *sd,struct map_session_data *tsd)
+void clif_GM_kick(struct map_session_data *sd, struct map_session_data *tsd)
 {
-	int fd = tsd->fd;
+	int fd;
+
+	nullpo_retv(tsd);
+
+	fd = tsd->fd;
+
+	if (sd == NULL)
+		tsd->state.keepshop = true;
 
 	if( fd > 0 )
 		clif_authfail_fd(fd, 15);
 	else
 		map_quit(tsd);
 
-	if( sd )
-		clif_GM_kickack(sd,tsd->status.account_id);
+	if (sd)
+		clif_GM_kickack(sd, tsd->status.account_id);
 }
 
 
@@ -16051,27 +16058,34 @@ void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
  void clif_parse_CashShopClose(int fd, struct map_session_data *sd) {
 }
 
-void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd) {
+void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd)
+{ // FIXME: Crash on Login if compiled with VS 2012... [15peaces]
+/*#if PACKETVER >= 20110614
 	int tab;
 
-	for( tab = CASHSHOP_TAB_NEW; tab < CASHSHOP_TAB_MAX; tab++ ){
+	for (tab = CASHSHOP_TAB_NEW; tab < CASHSHOP_TAB_MAX; tab++)
+	{
 		int length = 8 + cash_shop_items[tab].count * 6;
 		int i, offset;
 
-		WFIFOHEAD( fd, length );
-		WFIFOW( fd, 0 ) = 0x8ca;
-		WFIFOW( fd, 2 ) = length;
-		WFIFOW( fd, 4 ) = cash_shop_items[tab].count;
-		WFIFOW( fd, 6 ) = tab;
+		if (cash_shop_items[tab].count == 0)
+			continue; // Skip empty tabs, the client only expects filled ones
 
-		for( i = 0, offset = 8; i < cash_shop_items[tab].count; i++, offset += 6 ){
-			struct item_data *id = itemdb_search(cash_shop_items[tab].item[i]->id);
-			WFIFOW( fd, offset ) = (id->view_id) ? id->view_id : cash_shop_items[tab].item[i]->id;
-			WFIFOL( fd, offset + 2 ) = cash_shop_items[tab].item[i]->price;
+		WFIFOHEAD(fd, length);
+		WFIFOW(fd, 0) = 0x8ca;
+		WFIFOW(fd, 2) = length;
+		WFIFOW(fd, 4) = cash_shop_items[tab].count;
+		WFIFOW(fd, 6) = tab;
+
+		for (i = 0, offset = 8; i < cash_shop_items[tab].count; i++, offset += 6)
+		{
+			WFIFOW(fd, offset) = cash_shop_items[tab].item[i]->id;
+			WFIFOL(fd, offset + 2) = cash_shop_items[tab].item[i]->price;
 		}
 
 		WFIFOSET( fd, length );
 	}
+#endif*/
 }
 
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {

@@ -1440,7 +1440,9 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 		{	//Rude attacked check.
 			if( !battle_check_range(&md->bl, tbl, md->status.rhw.range)
 			&&  ( //Can't attack back and can't reach back.
-			      (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) || md->sc.data[SC_WUGBITE]))
+			      (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
+				  || md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
+				  || md->sc.data[SC_MANHOLE]))
 			      || !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
 			    )
 			&&  md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
@@ -1451,8 +1453,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 				return true;
 			}
 		}
-		else
-		if( (abl = map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode)) || (md->sc.count && md->sc.data[SC_CONFUSION]))
+		else if( (abl = map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode)) || (md->sc.count && md->sc.data[SC_CONFUSION]))
 		{
 			if( md->bl.m != abl->m || abl->prev == NULL
 				|| (dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE // Attacker longer than visual area
@@ -1461,8 +1462,10 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 				|| (battle_config.mob_ai&0x2 && !status_check_skilluse(&md->bl, abl, 0, 0, 0)) // Cannot normal attack back to Attacker
 				|| (!battle_check_range(&md->bl, abl, md->status.rhw.range) // Not on Melee Range and ...
 				&& ( // Reach check
-					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) || md->sc.data[SC_WUGBITE]))
-					|| !mob_can_reach(md, abl, dist+md->db->range3, MSS_RUSH)
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
+					|| md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
+					|| md->sc.data[SC_MANHOLE]))
+					|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
 				)
 				) )
 			{ // Rude attacked

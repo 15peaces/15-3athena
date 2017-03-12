@@ -6,6 +6,32 @@
 //========================================
 03/09/2017
 	r158 [15peaces]
+		*Merged missing changes from 3ceam rev. 564 - 572
+		*Added packets for 2014-06-13aRagexe client.
+			-Thanks to @Lilystar for the base.
+		*Fixed vending/buyingstore info not being removed
+			-Resolves vending and buyinstore information not being removed when a player is kicked.
+			-Thanks to @rathena!
+		*Added missing Elemental Resist Potion icon
+			-Separated the SC_ARMOR_ELEMENT to each element (Water, Earth, Fire, Wind).
+			-Added the status icon for the respective element.
+			-Also added all missing SI_ constants to status.h
+			-Thanks to @rathena!
+		*Disabled a cashshop-function for now.
+			-It causes a mapserver-crash on login if compiled with VS 2012. Need to fix this first.
+		*Some statuses that causing boss monster to immobilize are now identified as rude attack. Meaning boss monster will teleport once it can't reach an enemy.
+		*Added the Sorcerer's Elemental Spirits Guide book (item 11056) to the item_db.
+		*Updated Spore Explosion by adjusted the damage
+			-ratio to official (using info in the iRO wiki forums)
+			-If the damage is still not being fully applied correctly after this, then its a problem in skill.c that will need to be corrected in the future.
+		*Fixed Hell Plant, Blood Sucker, and Thorns Trap.
+			-Added official damage formula. Formula is fixed damage now.
+			-Hell Plant now officially ignores DEF, VIT DEF, and damage reduction cards.
+		*Fixed Phantom Thrust and Lightning Walk skills.
+		*Small adjustments in main.sql.
+
+03/09/2017
+	r158 [15peaces]
 		*Merged missing changes from 3ceam rev. 561 - 563
 		*Added missing Warrior's Will drops and some card drops.
 		*Added Malaya Port Dungeon spawns.
