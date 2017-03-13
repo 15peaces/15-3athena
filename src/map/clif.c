@@ -50,8 +50,8 @@
 #include <time.h>
 
 //#define DUMP_UNKNOWN_PACKET
-#define DUMP_INVALID_PACKET
-#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
+//#define DUMP_INVALID_PACKET
+//#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
 
 struct Clif_Config {
 	int packet_db_ver;	//Preferred packet version.
@@ -16058,6 +16058,7 @@ void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
  void clif_parse_CashShopClose(int fd, struct map_session_data *sd) {
 }
 
+void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd) __attribute__((nonnull (2)));
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd)
 { // FIXME: Crash on Login if compiled with VS 2012... [15peaces]
 /*#if PACKETVER >= 20110614
@@ -16085,7 +16086,8 @@ void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd)
 
 		WFIFOSET( fd, length );
 	}
-#endif*/
+#endif
+*/
 }
 
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
@@ -18710,7 +18712,7 @@ void packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 //#0x08C0
-		0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0, 10,
+		0,  0,  0,  0,  0,  0,  0, 20, 34,  0,  0,  0,  0,  0,  0, 10,
 		9,	7, 10,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,

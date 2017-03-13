@@ -17563,9 +17563,9 @@ BUILDIN_FUNC(bindatcmd)
 
 	// check if event is already binded 
 	ARR_FIND(0, MAX_ATCMD_BINDINGS, i, strcmp(atcmd_binding[i].command,atcmd) == 0); 
-	if( i < MAX_ATCMD_BINDINGS ) 
+	if (i < MAX_ATCMD_BINDINGS) 
 	{ 
-		safestrncpy(atcmd_binding[i].npc_event, eventName, 50); 
+		safestrncpy(atcmd_binding[i].npc_event, eventName, EVENT_NAME_LENGTH); 
 		atcmd_binding[i].level = level; 
 		atcmd_binding[i].level2 = level2; 
 	} 
@@ -17575,7 +17575,7 @@ BUILDIN_FUNC(bindatcmd)
 		if( i < MAX_ATCMD_BINDINGS ) 
 		{ 
 			safestrncpy(atcmd_binding[i].command, atcmd, 50); 
-			safestrncpy(atcmd_binding[i].npc_event, eventName, 50); 
+			safestrncpy(atcmd_binding[i].npc_event, eventName, EVENT_NAME_LENGTH); 
 			atcmd_binding[i].level = level; 
 			atcmd_binding[i].level2 = level2; 
 		} 

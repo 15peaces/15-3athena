@@ -297,7 +297,7 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 	if (data->state.size)
 		md->special_state.size = data->state.size;
 	if (data->eventname[0] && strlen(data->eventname) >= 4)
-		memcpy(md->npc_event, data->eventname, 50);
+		safestrncpy(md->npc_event, data->eventname, EVENT_NAME_LENGTH);
 	if(md->db->status.mode&MD_LOOTER)
 		md->lootitem = (struct item *)aCalloc(LOOTITEM_SIZE,sizeof(struct item));
 	md->spawn_timer = INVALID_TIMER;
@@ -1442,7 +1442,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 			&&  ( //Can't attack back and can't reach back.
 			      (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
 				  || md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
-				  || md->sc.data[SC_MANHOLE]))
+				  || md->sc.data[SC__MANHOLE]))
 			      || !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
 			    )
 			&&  md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
@@ -1464,7 +1464,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, unsigned int tick)
 				&& ( // Reach check
 					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
 					|| md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
-					|| md->sc.data[SC_MANHOLE]))
+					|| md->sc.data[SC__MANHOLE]))
 					|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
 				)
 				) )

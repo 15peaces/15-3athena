@@ -4,8 +4,25 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
-03/09/2017
-	r158 [15peaces]
+03/13/2017
+	r160 [15peaces]
+		*Merged missing changes from 3ceam rev. 573 - 585
+		*Added missing Carga Mace drops.
+		*Added IP_Cgrade_Pocket item package.
+		*bindatcmd now supports the new event name length. (Follow up: r155 (@f6a444d))
+		*Added the packet db entry for 0x0A0E. 
+		*Fixed error in GN_HELLS_PLANT_ATK formula.
+		*Updated Over Brand attack formula.
+		*Fixed ratio codes to not be underpowered when setting the max_highlvl_nerf below 100.
+		*Small cleanup on a few of the ratios.
+		*Added Pinky's patch to limit that high job levels can provide extremely high damage in skills that are affected by job levels.
+		*Fixed Windmill's sit effect.
+		*Fixed Cursed Circle interrupting casts.
+		*A small cursed circle cleanup.
+		*Fixed a crash bug caused by a typo in my last commit.
+
+03/12/2017
+	r159 [15peaces]
 		*Merged missing changes from 3ceam rev. 564 - 572
 		*Added packets for 2014-06-13aRagexe client.
 			-Thanks to @Lilystar for the base.

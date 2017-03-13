@@ -4,7 +4,8 @@
 #ifndef _ATCOMMAND_H_
 #define _ATCOMMAND_H_
 
-//#include "map.h"
+#include "map.h"
+
 struct map_session_data;
 
 //This is the distance at which @autoloot works,
@@ -50,7 +51,7 @@ void do_final_msg(void);
 // @commands (script based) 
 typedef struct Atcmd_Binding { 
 	char command[50]; 
-	char npc_event[50]; 
+	char npc_event[EVENT_NAME_LENGTH]; 
 	int level; 
 	int level2; 
 } Atcmd_Binding; 
