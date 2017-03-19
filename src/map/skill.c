@@ -1219,20 +1219,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	}
 
-	// Mechanic Overheat
-	if( sd )
-		switch( skillid )
-		{
-		case NC_BOOSTKNUCKLE:
-		case NC_PILEBUNKER:
-		case NC_VULCANARM:
-		case NC_FLAMELAUNCHER:
-		case NC_COLDSLOWER:
-		case NC_ARMSCANNON:
-			pc_overheat(sd,1);
-			break;
-		}
-
 	if (md && battle_config.summons_trigger_autospells && md->master_id && md->special_state.ai)
 	{	//Pass heritage to Master for status causing effects. [Skotlex]
 		sd = map_id2sd(md->master_id);
@@ -2339,17 +2325,21 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 					skill_addtimerskill(src, tick + 300 * ((flag&2) ? 1 : 2), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|4);	
 			}
 		}
-		if( skillid == LG_OVERBRAND ){
-			if( skill_blown(dsrc,bl,dmg.blewcount,direction,0) ){
+		if (skillid == LG_OVERBRAND)
+		{
+			if (skill_blown(dsrc, bl, dmg.blewcount, direction, 0))
+			{
 				short dir_x, dir_y;
-				dir_x = dirx[(direction+4)%8];
-				dir_y = diry[(direction+4)%8];
-				if( map_getcell(bl->m, bl->x+dir_x, bl->y+dir_y, CELL_CHKNOPASS) != 0 )
-					skill_addtimerskill(src, tick + 600, bl->id, 0, 0, LG_OVERBRAND_PLUSATK, skilllv, BF_WEAPON, flag );
+				dir_x = dirx[(direction + 4)%8];
+				dir_y = diry[(direction + 4)%8];
+				if (map_getcell(bl->m, bl->x+dir_x, bl->y+dir_y, CELL_CHKNOPASS) != 0)
+					skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, LG_OVERBRAND_PLUSATK, skilllv, BF_WEAPON, flag);
 			}
-		}
+			else
+				skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, LG_OVERBRAND_PLUSATK, skilllv, BF_WEAPON, flag);
+ 		}
 		else
-			skill_blown(dsrc,bl,dmg.blewcount,direction,0);
+			skill_blown(dsrc, bl, dmg.blewcount, direction, 0);
 	}
 
 	//Delayed damage must be dealt after the knockback (it needs to know actual position of target)
@@ -3244,17 +3234,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_HELLPOWER:
 	case RK_SONICWAVE:
 	case RK_HUNDREDSPEAR:
-	case RK_DRAGONBREATH:
 	case GC_CROSSIMPACT:
 	case GC_VENOMPRESSURE:
 	case AB_DUPLELIGHT_MELEE:
 	case RA_AIMEDBOLT:
-	case NC_BOOSTKNUCKLE:
-	case NC_PILEBUNKER:
-	case NC_VULCANARM:
-	case NC_FLAMELAUNCHER:
-	case NC_COLDSLOWER:
-	case NC_ARMSCANNON:
 	case NC_AXEBOOMERANG:
 	case NC_POWERSWING:
 	case SC_TRIANGLESHOT:
@@ -3269,11 +3252,22 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SR_CRESCENTELBOW_AUTOSPELL:
 	case SR_GATEOFHELL:
 	case SR_GENTLETOUCH_QUIET:
-	case WM_METALICSOUND:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
 	case GN_SLINGITEM_RANGEMELEEATK:
-		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		break;
+
+	case NC_BOOSTKNUCKLE:
+	case NC_PILEBUNKER:
+	case NC_VULCANARM:
+	case NC_FLAMELAUNCHER:
+	case NC_COLDSLOWER:
+	case NC_ARMSCANNON:
+		// Heat of the mado
+		if (sd)
+			pc_overheat(sd, 1);
+		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
 	case LK_JOINTBEAT: // decide the ailment first (affects attack damage and effect)
@@ -3664,6 +3658,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
+	case WM_METALICSOUND:
 	case SO_EARTHGRAVE:
 	case SO_DIAMONDDUST:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
@@ -3755,7 +3750,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_SMOKING:
 	case GS_FLING:
 	case NJ_ZENYNAGE:
-		skill_attack(BF_MISC,src,src,bl,skillid,skilllv,tick,flag);
+	case RK_DRAGONBREATH:
+	case GN_HELLS_PLANT_ATK:
+		skill_attack(BF_MISC, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
 	case HVAN_EXPLOSION:
@@ -4162,7 +4159,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case LG_OVERBRAND_BRANDISH:
-		skill_addtimerskill(src, tick + 300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL);
+		skill_addtimerskill(src, tick + status_get_amotion(src)*8/10, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL);
 		break;
 
 	case SR_DRAGONCOMBO:
@@ -9232,16 +9229,19 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		skill_blown(src,src,6,unit_getdir(src),0);
 		break;
 
+	/* LG_OVERBRAND_BRANDISH iterated first, because even if an enemy was knocked back from the area of LG_OVERBRAND_BRANDISH because of LG_OVERBRAND should receive the damage.
+	LG_OVERBRAND_BRANDISH has delayed damage, so LG_OVERBRAND's damage will apply first anyways. */
 	case LG_OVERBRAND:
 		{
 			int dir = map_calc_dir(src, x, y);
-			struct s_skill_nounit_layout *layout = skill_get_nounit_layout(skillid,skilllv,src,x,y,dir);
-			for( i = 0; i < layout->count; i++ )
-				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
-			layout = skill_get_nounit_layout(LG_OVERBRAND_BRANDISH,skilllv,src,x,y,dir);
-			for( i = 0; i < layout->count; i++ )
+			struct s_skill_nounit_layout  *layout;
+			layout = skill_get_nounit_layout(LG_OVERBRAND_BRANDISH, skilllv, src, x, y, dir);
+			for (i = 0; i < layout->count; i++)
 				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, LG_OVERBRAND_BRANDISH, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
-		}
+			layout = skill_get_nounit_layout(skillid, skilllv, src, x, y, dir);
+			for (i = 0; i < layout->count; i++)
+				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
+ 		}
 		break;
 
 	case LG_BANDING:
@@ -10599,10 +10599,14 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 	if ( tsc && tsc->data[SC_HOVERING] )
 		return 0; //Under hovering characters are immune to trap and ground target skills.
 
-	if (sg->interval == -1) {
-		switch (sg->unit_id) {
+	if (sg->interval == -1)
+	{
+		switch (sg->unit_id) 
+		{
 			case UNT_ANKLESNARE: //These happen when a trap is splash-triggered by multiple targets on the same cell.
 			case UNT_FIREPILLAR_ACTIVE:
+ 			case UNT_ELECTRICSHOCKER:
+			case UNT_MANHOLE:
 				return 0;
 			default:
 				ShowError("skill_unit_onplace_timer: interval error (unit id %x)\n", sg->unit_id);
@@ -11165,8 +11169,8 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, uns
 			break;
 
 		case UNT_BANDING:
-			if( battle_check_target(ss,bl,BCT_ENEMY) > 0 && !(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE]) )
-				sc_start(bl,SC_BANDING_DEFENCE,100,90,skill_get_time(sg->skill_id,sg->skill_lv));
+			if (battle_check_target(ss, bl, BCT_ENEMY) > 0 && !(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE]))
+				sc_start(bl, SC_BANDING_DEFENCE, 100, 90, skill_get_time2(sg->skill_id, sg->skill_lv));
 			break;
 
 		case UNT_FIRE_MANTLE:
@@ -14668,19 +14672,16 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 			break;
 
 			case UNT_REVERBERATION:
+				if (unit->val1 <= 0) // If it was deactivated.
 				{
-					struct block_list *ss = map_id2bl(group->src_id);
-					if (unit->val1 <= 0) // If it was deactivated.
-					{
-						skill_delunit(unit);
-						break;
-					}
-					clif_changetraplook(bl, UNT_USED_TRAPS);
-					map_foreachinrange(skill_trap_splash, bl, skill_get_splash(group->skill_id, group->skill_lv), group->bl_flag, bl, tick);
-					group->limit = DIFF_TICK(tick, group->tick) + 1500;
-					unit->limit = DIFF_TICK(tick, group->tick) + 1500;
-					group->unit_id = UNT_USED_TRAPS;
+					skill_delunit(unit);
+					break;
 				}
+				clif_changetraplook(bl, UNT_USED_TRAPS);
+				map_foreachinrange(skill_trap_splash, bl, skill_get_splash(group->skill_id, group->skill_lv), group->bl_flag, bl, tick);
+				group->limit = DIFF_TICK(tick, group->tick) + 1500;
+				unit->limit = DIFF_TICK(tick, group->tick) + 1500;
+				group->unit_id = UNT_USED_TRAPS;
 				break;
 
 			case UNT_FEINTBOMB:
@@ -15312,21 +15313,36 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				break;
 
 			case GN_CHANGEMATERIAL:
-				switch( nameid ) {
-					case 1010: qty = 8; break;
-					case 1061: qty = 2; break;
+				switch (nameid)
+				{
+					case 1010: 
+						qty = 8; 
+						break;
+					case 1061: 
+						qty = 2; 
+						break;
 					// Throwable potions
-					case 13275: case 13278:
+					case 13275:	case 13278:
 						qty = 10;
 						break;
 				}
+				make_per = 100000; //100% success rate.
+				break;
 			case GN_S_PHARMACY:
-				switch( pc_checkskill( sd, GN_S_PHARMACY ) )
+				// Note: This is not the chosen skill level but the highest available. Need confirmation/fix.
+				switch (pc_checkskill(sd, GN_S_PHARMACY))
 				{
-					case 6: case 7: case 8: qty = 3; break; //3 items to make at once.
-					case 9: qty = 3 + rand()%3; break; //3~5 items to make at once.
-					case 10: qty = 4 + rand()%3; break; //4~6 items to make at once.
-					default: qty = 2; //2 item to make at once.
+					case 6:	case 7:	case 8:	// 3 items to make at once.
+						qty = 3; 
+						break;
+					case 9:					// 3~5 items to make at once.
+						qty = 3 + rand()%3; 
+						break;
+					case 10:				// 4~6 items to make at once.
+						qty = 4 + rand()%3; 
+						break;
+					default: 
+						qty = 2;	
 				}
 				make_per = 10000; //100% success rate.
 				break;
@@ -16434,7 +16450,7 @@ void skill_init_nounit_layout (void){
 		pos++;
 	}
 
-	overbrand_brandish_nounit_pos = pos;
+	overbrand_nounit_pos = pos;
 	for( i = 0; i < 8; i++ ){
 		if( i&1 ){
 			skill_nounit_layout[pos].count = 74;

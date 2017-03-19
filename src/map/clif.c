@@ -1444,28 +1444,36 @@ int clif_spawn(struct block_list *bl)
 	return 0;
 }
 
-/// Sends information about owned homunculus to the client (ZC_PROPERTY_HOMUN). [orn]
+/// Sends information about owned homunculus to the client (ZC_PROPERTY_HOMUN). [orn] [15peaces]
 /// 022e <name>.24B <modified>.B <level>.W <hunger>.W <intimacy>.W <equip id>.W <atk>.W <matk>.W <hit>.W <crit>.W <def>.W <mdef>.W <flee>.W <aspd>.W <hp>.W <max hp>.W <sp>.W <max sp>.W <exp>.L <max exp>.L <skill points>.W <atk range>.W
+/// 09f7 <name>.24B <modified>.B <level>.W <hunger>.W <intimacy>.W <equip id>.W <atk>.W <matk>.W <hit>.W <crit>.W <def>.W <mdef>.W <flee>.W <aspd>.W <hp>.L <max hp>.L <sp>.W <max sp>.W <exp>.L <max exp>.L <skill points>.W <atk range>.W (ZC_PROPERTY_HOMUN_2)
 void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 {
 	struct status_data *status;
 	unsigned char buf[128];
+	int offset = 0;
+
+#if PACKETVER < 20141016
+ 	const int cmd = 0x22e;
+#else
+ 	const int cmd = 0x9f7;
+#endif
 	
 	nullpo_retv(hd);
 
 	status = &hd->battle_status;
-	memset(buf,0,packet_len(0x22e));
-	WBUFW(buf,0)=0x22e;
-	memcpy(WBUFP(buf,2),hd->homunculus.name,NAME_LENGTH);
+	memset(buf, 0, packet_len(cmd));
+	WBUFW(buf, 0) = cmd;
+	memcpy(WBUFP(buf, 2), hd->homunculus.name, NAME_LENGTH);
 	// Bit field, bit 0 : rename_flag (1 = already renamed), bit 1 : homunc vaporized (1 = true), bit 2 : homunc dead (1 = true)
-	WBUFB(buf,26)=(battle_config.hom_rename?0:hd->homunculus.rename_flag) | (hd->homunculus.vaporize << 1) | (hd->homunculus.hp?0:4);
-	WBUFW(buf,27)=hd->homunculus.level;
-	WBUFW(buf,29)=hd->homunculus.hunger;
-	WBUFW(buf,31)=(unsigned short) (hd->homunculus.intimacy / 100) ;
-	WBUFW(buf,33)=0; // equip id
-	WBUFW(buf,35)=cap_value(status->rhw.atk2+status->batk, 0, INT16_MAX);
-	WBUFW(buf,37)=cap_value(status->matk_max, 0, INT16_MAX);
-	WBUFW(buf,39)=status->hit;
+	WBUFB(buf, 26) = (battle_config.hom_rename ? 0 : hd->homunculus.rename_flag) | (hd->homunculus.vaporize << 1) | (hd->homunculus.hp ? 0 : 4);
+	WBUFW(buf, 27) = hd->homunculus.level;
+	WBUFW(buf, 29) = hd->homunculus.hunger;
+	WBUFW(buf, 31) = (unsigned short) (hd->homunculus.intimacy / 100) ;
+	WBUFW(buf, 33) = 0; // equip id
+	WBUFW(buf, 35) = cap_value(status->rhw.atk2+status->batk, 0, INT16_MAX);
+	WBUFW(buf, 37) = cap_value(status->matk_max, 0, INT16_MAX);
+	WBUFW(buf, 39) = status->hit;
 	if (battle_config.hom_setting&0x10)
 		WBUFW(buf,41)=status->luk/3 + 1;	//crit is a +1 decimal value! Just display purpose.[Vicious]
 	else
@@ -1474,6 +1482,18 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	WBUFW(buf,45)=status->mdef;
 	WBUFW(buf,47)=status->flee;
 	WBUFW(buf,49)=(flag)?0:status->amotion;
+#if PACKETVER >= 20141016
+	// Homunculus HP bar will screw up if the percentage calculation exceeds signed values
+	// Tested maximum: 21474836(=INT32_MAX/100), any value above will screw up the HP bar
+	if (status->max_hp > (INT32_MAX/100)) {
+		WBUFL(buf,51) = status->hp/(status->max_hp/100);
+		WBUFL(buf,55) = 100;
+	} else {
+		WBUFL(buf,51) = status->hp;
+		WBUFL(buf,55) = status->max_hp;
+	}
+	offset = 4;
+#else
 	if (status->max_hp > INT16_MAX) {
 		WBUFW(buf,51) = status->hp/(status->max_hp/100);
 		WBUFW(buf,53) = 100;
@@ -1481,18 +1501,19 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 		WBUFW(buf,51)=status->hp;
 		WBUFW(buf,53)=status->max_hp;
 	}
+#endif
 	if (status->max_sp > INT16_MAX) {
-		WBUFW(buf,55) = status->sp/(status->max_sp/100);
-		WBUFW(buf,57) = 100;
+		WBUFW(buf,55+offset) = status->sp/(status->max_sp/100);
+		WBUFW(buf,57+offset) = 100;
 	} else {
-		WBUFW(buf,55)=status->sp;
-		WBUFW(buf,57)=status->max_sp;
+		WBUFW(buf,55+offset)=status->sp;
+		WBUFW(buf,57+offset)=status->max_sp;
 	}
-	WBUFL(buf,59)=hd->homunculus.exp;
-	WBUFL(buf,63)=hd->exp_next;
-	WBUFW(buf,67)=hd->homunculus.skillpts;
-	WBUFW(buf,69)=status_get_range(&hd->bl);
-	clif_send(buf,packet_len(0x22e),&sd->bl,SELF);
+	WBUFL(buf,59+offset)=hd->homunculus.exp;
+	WBUFL(buf,63+offset)=hd->exp_next;
+	WBUFW(buf,67+offset)=hd->homunculus.skillpts;
+	WBUFW(buf,69+offset)=status_get_range(&hd->bl);
+	clif_send(buf,packet_len(cmd),&sd->bl,SELF);
 }
 
 
@@ -18735,7 +18756,7 @@ void packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0,  0,  0,  0,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11,  0,
-		0, 11, 12, 11,  0,  0,  0,  0,  0,143,  0,  0,  0,  0,  0,  0,
+		0, 11, 12, 11,  0,  0,  0,  75,  0,143,  0,  0,  0,  0,  0,  0,
 //#0x0a00
 #if PACKETVER >= 20141022
 	  269,  3,  0,  2,  6, 49,  6,  9, 26, 45, 47, 47, 56, -1,  0,  0,

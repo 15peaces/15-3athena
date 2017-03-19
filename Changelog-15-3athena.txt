@@ -4,6 +4,59 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/19/2017
+	r161 [15peaces]
+		*Merged missing changes from 3ceam rev. 586 - 593
+		*Added full support for ZC_PROPERTY_HOMUN_2 packet.
+			-A 2014-10-16 ragexe client or newer will be needed to support this packet.
+			-Thanks to rAthena for the base.
+		*Updated sleep2 and awake functions to make them work for non-players.
+			-Thanks to rAthena for the base.
+		*Some tweaks to skill_castfix
+		*Fixed GN_CHANGEMATERIAL gave the wrong amount of items
+		*Fixed Striking's crit bonus
+		*Fixed a crash caused by Exceed Break
+		*Fixed an issue with the heat of mado
+		*Some minor cleanups
+		*Fixed and updated many Sura skills.
+			-SR_DRAGONCOMBO now works more like a combo and no longer has a range.
+			-SR_SKYNETBLOW damage formula updated.
+			-SR_FALLENEMPIRE now works more like a combo and no longer has a range.
+				--Extra damage from enemy's weight has been disabled, but will be readded later.
+			-SR_TIGERCANNON now works more like a combo and no longer has a range.
+				--Extra damage from the consumed HP has been disabled since it doesent increase skill ratio.
+				--It appears to be used as added on reduceable fixed damage. Will add later.
+			-SR_RAMPAGEBLASTER no longer has a chance to deal 2x or 3x damage when in critical explosion status.
+				--Was disabled since its no longer official. Plus its doing %100 chance of 2x damage for some reason.
+				--Totally pointless to leave this enabled.
+			-SR_RAISINGDRAGON Max HP/SP increase corrected to a max of %12 at lv 10.
+			-SR_GENTLETOUCH_CHANGE updated the ammount of HP thats consumed on use. Max is %10 at lv 5.
+			-SR_GENTLETOUCH_REVITALIZE now gives the correct % of Max HP increase. Max is %15 at lv 5.
+				--Removed the added VIT stats since their's no info anywhere about it giving VIT.
+				--It only says about increaseing VIT DEF.
+			-SR_HOWLINGOFLION now deals damage.
+		*Fixed Genetics can only use one GN_THORNS_TRAP at a time.
+		*Adjusted OVERBRAND to official behavior:
+			-Fixed the delays, AoE, the evaluation of the brandish damage and the cases when the 3rd part of the damage should be applied.
+		*Fixed the length of the cohesion status of BANDING.
+		*Fixed a MANHOLE related false positive error message.
+		*On TXT builds map server no longer sends the request for the char server to save cooldowns.
+		*RK_DRAGONBREATH
+			-Damage now ignores defense. (SHOULD IGNORE!!!! Will test more later)
+			-Skill level affects damage like it should, however Dragon Training isn't affecting the damage since yet.
+			-Element damage reduction cards and equips shouldn't work.
+		*RK_STORM_BLAST
+			-Damage formula updated.
+			-INT now correctly affects damage.
+			-Each 4 INT increases the damage ratio by %100
+			-Rune Mastery still increases damage ratio by %100 * Skill LV
+		*WM_METALICSOUND
+			-Damage ratio updated. Max possible damage with Metalic alone is %600.
+			-Lesson now increases the damage by %40 * Skill LV for a max increase of %400.
+			-Skill now takes the element of your weapon or equiped arrow.
+		*Added a missing piece of code for GN_HELLS_PLANT_ATK.
+		*Corrected Banana Bomb's damage.
+
 03/13/2017
 	r160 [15peaces]
 		*Merged missing changes from 3ceam rev. 573 - 585

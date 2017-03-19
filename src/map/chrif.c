@@ -281,11 +281,13 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (flag && sd->state.active) //Store player data which is quitting.
 	{
 		//FIXME: SC are lost if there's no connection at save-time because of the way its related data is cleared immediately after this function. [Skotlex]
-		if( chrif_isconnected() )
+		if (chrif_isconnected())
 		{
 			chrif_save_scdata(sd);
+#ifndef TXT_ONLY
 			chrif_skillcooldown_save(sd);
-		};
+#endif
+		}
 		if (!chrif_auth_logout(sd, flag==1?ST_LOGOUT:ST_MAPCHANGE))
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
 	}
