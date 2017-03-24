@@ -2340,20 +2340,20 @@ void clif_item_sub(unsigned char *buf, int n, struct item *i, struct item_data *
 		WBUFW(buf,n+6) = i->equip;
 		WBUFB(buf,n+8)  =i->attribute;
 		WBUFB(buf,n+9) = i->refine;
-		clif_addcards(WBUFP(bufe, n+10), i);
+		clif_addcards(WBUFP(buf, n+10), i);
 #if PACKETVER >= 20071002
-			WBUFL(bufe,ne*se+18) = i->expire_time;
+			WBUFL(buf,n+18) = i->expire_time;
 			WBUFW(buf,n+22) = i->bound ? 2 : 0; 
 #endif
 #if PACKETVER >= 20100629
 		WBUFW(buf,n+24) = (id->equip&EQP_VISIBLE) ? id->look : 0;
 #endif
 	} else { //Stackable item.
-		WBUFW(buf,n+4) = it->amount;
+		WBUFW(buf,n+4) = i->amount;
 		WBUFW(buf,n+6) = (equip == -2 && id->equip == EQP_AMMO) ? id->equip : 0;
-		clif_addcards(WBUFP(buf, n+8), it); //8B
+		clif_addcards(WBUFP(buf, n+8), i); //8B
 #if PACKETVER >= 20071002
-		WBUFL(buf,n+16) = it->expire_time;
+		WBUFL(buf,n+16) = i->expire_time;
 #endif
 	}
 #endif
@@ -3735,7 +3735,7 @@ void clif_unequipitemack(struct map_session_data *sd,int n,int pos,int ok) {
 	cmd = 0x99a;
 	ok = ok ? 0 : 1;
 #elif PACKETVER >= 20110824
-	header = 0x8d1;
+	cmd = 0x8d1;
 	ok = ok ? 0 : 1;
 #else
 	cmd = 0xac;
