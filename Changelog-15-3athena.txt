@@ -4,6 +4,21 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/26/2017
+	r163 [15peaces]
+		*Merged missing changes from 3ceam rev. 594 - 595
+		*Adjusted the homunculus and mvplog tables to support increased EXP amounts.
+			-Don't forget to run the SQL-Updates.
+		*RK_DRAGONBREATH damage is now affected by the learned level of RK_DRAGONTRAINING
+		*NC_PILEBUNKER ranged changed to 1.
+		*SC_AUTOSHADOWSPELL now autocasts the correct level of skills.
+		*WM_RANDOMIZESPELL now casts the correct level of skills.
+		*Added some needed code for a few skills. Misc type and defense ignoreing ones.
+		*Updated the following skills: Swing Dance, Rush Windmill, Echo Song, Symphony of Lovers.
+		*Metallic sound no longer causes Chaos effect, the SP burn of the skill is implemented.
+		*Fixed a possible crash when clones use Asura Strike.
+		*Change Material no longer need exact amount of items, it tries to do the change as many times as possible.
+
 03/24/2017
 	r162 [15peaces]
 		*Fixed some compile errors related to 2012-04-10 clients.

@@ -2064,12 +2064,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_ARROWSTORM:
 					skillratio += 100 + 50 * skill_lv;
 					if (s_level > 100)
-						skillratio += skillratio * (s_level - 100) / 200; // Need official value.
+						skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 					break;
 				case RA_AIMEDBOLT:
 					skillratio += 400 + 50 * skill_lv;
 					if (s_level > 100)
-						skillratio += skillratio * (s_level - 100) / 200; // Need official value.
+						skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 					if (tsc && (tsc->data[SC_WUGBITE] || tsc->data[SC_ANKLE] || tsc->data[SC_ELECTRICSHOCKER]))
 						wd.div_ = tstatus->size + 2 + rand()%2;
 					break;
@@ -2378,7 +2378,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RK_WINDCUTTER: // Sugested formula from irowiki.
 					skillratio += 50 * skill_lv; // Base skillratio
 					if (s_level > 50)
-						skillratio += skillratio * (s_level - 50) / 200; // x1.5 at base level 150
+						skillratio += skillratio * (s_level - 50) / 200; // Base level bonus.
 					break;
 				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
 					i = distance_bl(src,target) / 2;
@@ -3969,17 +3969,14 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case RK_DRAGONBREATH:
 		if( battle_config.skillsbonus_maxhp_RK && status_get_hp(src) > battle_config.skillsbonus_maxhp_RK ) // [Pinky]
-		md.damage = ((battle_config.skillsbonus_maxhp_RK * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
+			md.damage = ((battle_config.skillsbonus_maxhp_RK * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
 		else
-		md.damage = ((status_get_hp(src) * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
-		// Need someone to properly code this part in here however its supposed to be.
-		//if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-		//
-		// How can I increase a fixed damage attack by a % when it doesent use ATK or MATK???
-		//case RK_DRAGONBREATH:
-		//if( sd && (i = pc_checkskill(sd,RK_DRAGONTRAINING)-1) > 0 )
-		//ATK_ADDRATE(5 * i);
-		break;
+			md.damage = ((status_get_hp(src) * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
+		if (sd) 
+			md.damage += md.damage * 5 * (pc_checkskill(sd,RK_DRAGONTRAINING) -1) / 100; // Damaged is increased if you know Dragon Training [Rytech]
+		if (status_get_lv(src) > 100) 
+			md.damage += md.damage * (s_level - 100) / 200; // Base level bonus.
+ 		break;
 	case RA_CLUSTERBOMB:
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
@@ -5509,12 +5506,13 @@ static const struct _battle_data {
 	{ "levels_effect_renewal_skills",		&battle_config.levels_effect_renewal_skills,	0,		0,		1,				},
 	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
 	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
-	{ "renewal_edp",                        &battle_config.renewal_edp,                      0,     0,      3,				},
-	{ "max_highlvl_nerf",                   &battle_config.max_highlvl_nerf,                 100,   0,      INT_MAX,        },
-	{ "max_joblvl_nerf",                    &battle_config.max_joblvl_nerf,                  100,   0,      INT_MAX,        },
-	{ "max_joblvl_nerf_misc",               &battle_config.max_joblvl_nerf_misc,             100,   0,      INT_MAX,        },
-	{ "skillsbonus_maxhp_RK",               &battle_config.skillsbonus_maxhp_RK,             0,     0,      INT_MAX,        },
-	{ "skillsbonus_maxhp_SR",               &battle_config.skillsbonus_maxhp_SR,             0,     0,      INT_MAX,        },
+	{ "renewal_edp",                        &battle_config.renewal_edp,                     0,      0,      3,				},
+	{ "max_highlvl_nerf",                   &battle_config.max_highlvl_nerf,                100,    0,      INT_MAX,        },
+	{ "max_joblvl_nerf",                    &battle_config.max_joblvl_nerf,                 100,    0,      INT_MAX,        },
+	{ "max_joblvl_nerf_misc",               &battle_config.max_joblvl_nerf_misc,            100,    0,      INT_MAX,        },
+	{ "skillsbonus_maxhp_RK",               &battle_config.skillsbonus_maxhp_RK,            0,      0,      INT_MAX,        },
+	{ "skillsbonus_maxhp_SR",               &battle_config.skillsbonus_maxhp_SR,            0,      0,      INT_MAX,        },
+	{ "metallicsound_spburn_rate",          &battle_config.metallicsound_spburn_rate,       100,    0,      INT_MAX,        },
 	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	{ "death_penalty_maxlv",                &battle_config.death_penalty_maxlv,             0,      0,      3,              }, 
 	{ "renewal_statpoints",					&battle_config.renewal_statpoints,				0,		0,		1,				},

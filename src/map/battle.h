@@ -525,6 +525,7 @@ extern struct Battle_Config
 	int max_joblvl_nerf_misc; // [Pinky]
 	int skillsbonus_maxhp_RK; // [Pinky]
 	int skillsbonus_maxhp_SR; // [Pinky]
+	int metallicsound_spburn_rate;
 	int cashshop_price_rate;
 	int death_penalty_maxlv;
 	int renewal_statpoints;

@@ -4765,7 +4765,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sc->data[SC_GN_CARTBOOST] )
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 			if( sc->data[SC_SWING] )
-				val = max( val, sc->data[SC_SWING]->val3 );
+				val = max( val, sc->data[SC_SWING]->val2 );
 			if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 				val = max( val, sc->data[SC_GENTLETOUCH_REVITALIZE]->val2 );
 			if( sc->data[SC_WIND_STEP_OPTION] )
@@ -7721,20 +7721,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_SWING:
-			val2 = 4 * val1; // Aspd reduction.
-			val3 = 20 + 5 * val1; // Seems to be that the speed is reduced by (20 + 5 * skilllv)% then an speed of 150 changes to 112.
+			val2 = 4 * val1; // Walk speed and aspd reduction.
 			break;
 		case SC_SYMPHONY_LOVE:
-			val2 = 20 * val1;
+		case SC_RUSH_WINDMILL:
+		case SC_ECHOSONG:
+			val2 = 6 * val1;
+			val2 += val3; //Adding 1% * Lesson Bonus
+			val2 += (int)(floor(val4 * 0.2)); //Adding 0.2% per JobLevel
 			break;
 		case SC_MOONLIT_SERENADE:
 			val2 = 10 * val1;
-			break;
-		case SC_RUSH_WINDMILL:
-			val2 = 10 * val1;
-			break;
-		case SC_ECHOSONG:
-			val2 = 20 * val1;
 			break;
 		case SC_HARMONIZE:
 			val2 = 3 + 2 * val1;
