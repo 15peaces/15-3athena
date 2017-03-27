@@ -4,6 +4,54 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+03/27/2017
+	r164 [15peaces]
+		*Merged missing changes from 3ceam rev. 596 - 601
+		*Implemented SC Blocking Database
+			-This database contains status (SC) that will be disabled/blocked on certain map.
+			-The specified map for SC is determined by map type or zone.
+			-The disabled SC will be removed if player has the SC from previous map and will fail to be applied again.
+			-Thanks to @rathena!
+		*The LG_HESPERUSLIT skill was added but only partly works as ill finish the rest later.
+		*SR_RIDEINLIGHTNING updated and now deals 200% * Skill Level.
+		*WM_METALICSOUND has been updated.
+			-WM_LESSON now increases the damage by 55% per level.
+		*WM_SOUND_OF_DESTRUCTION full recode started.
+			-Currently works and deals a splash damage around the targeted enemy and deals 250% ATK.
+			-It removes Min and Wan buffs by a reduceable % chance, but the part of the code is disabled until fully checked.
+		*Fixed an issue in shadowform: some case the damage wasn't just redirrected but also applied.
+		*Fixed SR_ASSIMILATEPOWER do not consume own spirits.
+		*Fixed the life time of spirits transfered by SR_POWERVELOCITY.
+		*Fixed a bloodsucker related warning.
+		*Fixed White Imprison's chance reduction.
+		*Caster of cursed circle can no longer attack.
+		*LG_HESPERUSLIT fails if BANDING is not activated.
+		*Fixed a typo in pc.c
+		*Some small cleanup.
+		*Fixed Genetic made HP and SP pots from recovering
+			-incorrect amounts of HP and SP.
+			-Other minor tweaks in item_db.txt
+		*Preadded support for crafting throwable medium and large Genetic HP and SP pots. They will be disabled until the Change Material bugs is fixed.
+		*NC_FLAMELAUNCHER and LG_CANNONSPEAR are now fully officialy coded.
+			-Both skills now use the line algorithm that Sharp Shooting and North Wind use.
+			-The old code was left in, but disabled until I decide what to do with them later.
+		*SR_RAMPAGEBLASTER is now fully official.
+		*SR_GATEOFHELL is very close to official.
+			-Damage is now correctly devided between the 7 hits.
+			-Players lost HP now affects the damage.
+			-Skill is now cast interuptable.
+			-Now works more officially and stable for GM's.
+			-Only coding thats missing is the adding damage from the amount of consumed SP and damage increase according to your base level.
+		*SO_FIREWALK and SO_ELECTRICWALK now correctly deals damage in a 1x1 AoE on every cell the Sorcerer walks on. (Was dealing 3x3 before bug fix)
+		*SO_CLOUDKILL now deals poison element damage.
+		*SO_POISON_BUSTER now deals a splash RoE around the target.
+		*SO_WARMER is now a fire element skill even tho its just used for healing.
+		*GN_CART_TORNADO is now more up to date using iRo Wiki Data.
+			-Official damage formula.
+		*GN_CARTCANNON now closer to official using iRO Wiki data.
+			-Damage formula was added.
+			-Fixed a bug that made it use the line algorithm when it shouldnt.
+		
 03/26/2017
 	r163 [15peaces]
 		*Merged missing changes from 3ceam rev. 594 - 595

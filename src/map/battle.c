@@ -797,6 +797,33 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	if( sd && pc_ismadogear(sd) && (element == ELE_FIRE || element == ELE_WATER) && rand()%100 < 50 )
 		pc_overheat(sd,element == ELE_FIRE ? 1 : -1);
 
+	if (sc && sc->data[SC__SHADOWFORM])
+	{
+		struct block_list *s_bl = map_id2bl(sc->data[SC__SHADOWFORM]->val2);
+		if (!s_bl) // If the shadow form target is not present remove the sc.
+			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+		else if (status_isdead(s_bl))
+		{ // If the shadow form target is dead remove the sc in both.
+			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+			if (s_bl->type == BL_PC)
+				((TBL_PC*)s_bl)->shadowform_id = 0;
+		}
+		else
+		{
+			if ((--sc->data[SC__SHADOWFORM]->val3) < 0)
+			{ // If you have exceded max hits supported, remove the sc in both.
+				status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+				if (s_bl->type == BL_PC)
+					((TBL_PC*)s_bl)->shadowform_id = 0;
+			}
+			else
+			{
+				status_damage(src, s_bl, damage, 0, clif_damage(s_bl, s_bl, gettick(), 500, 500, damage, -1, 0, 0), 0);
+				return ATK_NONE;
+			}
+		}
+	}
+
 	return damage;
 }
 
@@ -1337,10 +1364,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case LK_SPIRALPIERCE:
 				if (!sd) wd.flag=(wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC;
 				break;
-			case SR_GATEOFHELL:
-				if (sd)
-					wd.div_ = sd->spiritball_old + 2; // 7 Consecutive hits.
-				break;
+
 			case EL_STONE_RAIN:
 				if (!(wflag&1))
 					wd.div_ = 1;
@@ -2216,6 +2240,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (s_level > 100)
 						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
  					break;
+				case LG_HESPERUSLIT:
+					skillratio += 120 * skill_lv - 100;
+					break;
 				case SR_DRAGONCOMBO:
 					skillratio += 40 * skill_lv;
 					break;
@@ -2240,10 +2267,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio = 2000; // Its appears the sacrificed HP is added as fixed damage (reduceable) Will have to do later. [Rytech]
  					break;
 				case SR_RAMPAGEBLASTER:
-					if( sd && sd->spiritball_old > 0 )
-						skillratio += 50 * skill_lv * sd->spiritball_old - 100; //250% at Lv 5 * # of spiritballs
-					//if( sc && sc->data[SC_EXPLOSIONSPIRITS] ) //assumed chance percentage to deal x2~x3 damage if in fury state. [Jobbie]
-					//	skillratio = skillratio * ( (rand()%100 < 35) ? 3 : 2 ); // Fix me. Disabled due to it currently giving %100 chance for 2x damage.
+					if( sc && sc->data[SC_EXPLOSIONSPIRITS] )
+						skillratio += 40 * skill_lv * sd->spiritball_old - 100;
+					else
+						skillratio += 20 * skill_lv * sd->spiritball_old - 100;
  					break;
 				case SR_KNUCKLEARROW:
 					if( wflag&4 )
@@ -2255,26 +2282,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 150;
 					break;
 				case SR_GATEOFHELL:
-					{ //TODO: Fill up with correct formula. Although this calculation is close to official but still its custom. [Jobbie]
-						int hp_rate = sstatus->hp * 100 / sstatus->max_hp;
-						int GOHMAX_HP;
-
-						if( battle_config.skillsbonus_maxhp_SR && sstatus->max_hp > battle_config.skillsbonus_maxhp_SR )
-							GOHMAX_HP = battle_config.skillsbonus_maxhp_SR;
-						else
-							GOHMAX_HP = sstatus->max_hp;
-
-						if( hp_rate <= 100 && hp_rate >= 80 )
-							skillratio = 50 * skill_lv + ( GOHMAX_HP * 2 / 100 );
-						else if( hp_rate <= 79 && hp_rate >= 60 )
-							skillratio = 50 * skill_lv + ( GOHMAX_HP * 4 / 100 );
-						else if( hp_rate <= 59 && hp_rate >= 40 )
-							skillratio = 50 * skill_lv + ( GOHMAX_HP * 6 / 100 );
-						else if( hp_rate <= 39 && hp_rate >= 20 )
-							skillratio = 50 * skill_lv + ( GOHMAX_HP * 8 / 100 );
-						else
-							skillratio = 50 * skill_lv + ( GOHMAX_HP * 10 / 100 );
-					}
+					skillratio += 500 * skill_lv - 100;
 					break;
 				case SR_GENTLETOUCH_QUIET:
 					skillratio += 100 * skill_lv - 100 + sstatus->dex;
@@ -2283,8 +2291,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 300 * skill_lv - 100;
 					break;
 				case SR_RIDEINLIGHTNING:
-					if( sd && sd->spiritball_old > 0 )
-						skillratio += (100 * skill_lv) + sstatus->dex * sd->spiritball_old;
+					skillratio += 200 * skill_lv - 100;
 					break;
 				case WM_REVERBERATION_MELEE:
 					skillratio += 200 + 100 * pc_checkskill(sd, WM_REVERBERATION);
@@ -2300,15 +2307,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 20 * skill_check_pc_partner(sd,skill_num,&lv,skill_get_splash(skill_num,skill_lv),0);
 					}
 					break;
+				case WM_SOUND_OF_DESTRUCTION:
+					skillratio += 150;
+ 					break;
 				case GN_CART_TORNADO:
-					skillratio += 50 * skill_lv + (sd) ? pc_checkskill(sd, GN_REMODELING_CART) * 50 : 250;
+					skillratio += 50 * skill_lv + pc_checkskill(sd, GN_REMODELING_CART) * 100 - 100;
 					if (s_level > 100)
 						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					if (sc && sc->data[SC_GN_CARTBOOST])
 						skillratio += 10 * sc->data[SC_GN_CARTBOOST]->val1;
 					break;
 				case GN_CARTCANNON:
-					skillratio += 250 + 50 * skill_lv + status_get_int(src) * 2; // Need official value. [LimitLine]
+					skillratio += 250 + 50 * skill_lv + pc_checkskill(sd, GN_REMODELING_CART) * (sstatus->int_ / 2);
 					if( sc && sc->data[SC_GN_CARTBOOST] )
 						skillratio += 10 * sc->data[SC_GN_CARTBOOST]->val1;
 					break;
@@ -2505,6 +2515,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						ATK_ADDRATE(190 * ((sd) ? skill_check_pc_partner(sd, (short)skill_num, &lv, skill_get_splash(skill_num, skill_lv), 0) : 1));
 					}
 					break;
+				case SR_GATEOFHELL:
+					ATK_ADD (sstatus->max_hp - status_get_hp(src)); // Will have to add the consumed SP part to the formula in the future. [Rytech]
+ 					break;
 			}
 		}
 		//Div fix.
@@ -3517,7 +3530,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
  						break;
 					case WM_METALICSOUND:
-						skillratio += 120 * skill_lv + 40 * pc_checkskill(sd, WM_LESSON) - 100;
+						skillratio += 120 * skill_lv + 60 * pc_checkskill(sd, WM_LESSON) - 100;
 						break;
 					case WM_SEVERE_RAINSTORM:
 						skillratio += 50 * skill_lv;

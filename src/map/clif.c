@@ -10355,6 +10355,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
 		}
 
+		status_change_clear_onChangeMap(&sd->bl, &sd->sc);
 		map_iwall_get(sd); // Updates Walls Info on this Map to Client
 		sd->state.changemap = false;
 	}
@@ -10820,6 +10821,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		sd->sc.data[SC_AUTOCOUNTER] ||
 		sd->sc.data[SC_DEATHBOUND] ||
 		sd->sc.data[SC_BLADESTOP] ||
+		sd->sc.data[SC_CURSEDCIRCLE_ATKER] ||
 		sd->sc.data[SC_CURSEDCIRCLE_TARGET]))
 		return;
 

@@ -1909,6 +1909,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data);
 int status_change_timer_sub(struct block_list* bl, va_list ap);
 int status_change_clear(struct block_list* bl, int type);
 int status_change_clear_buffs(struct block_list* bl, int type);
+void status_change_clear_onChangeMap(struct block_list *bl, struct status_change *sc);
 int status_change_spread( struct block_list *src, struct block_list *bl );
 
 #define status_calc_bl(bl, flag) status_calc_bl_(bl, (enum scb_flag)(flag), false)

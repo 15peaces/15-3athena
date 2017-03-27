@@ -61,6 +61,10 @@ int current_equip_card_id; //To prevent card-stacking (from jA) [Skotlex]
 //we need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only
 //to avoid cards exploits
 
+unsigned int SCDisabled[SC_MAX]; /// List of disabled SC on map zones. [Cydh]
+static bool status_change_isDisabledOnMap_(sc_type type, bool mapIsVS, bool mapIsPVP, bool mapIsGVG, bool mapIsBG, unsigned int mapZone, bool mapIsTE);
+#define status_change_isDisabledOnMap(type, m) ( status_change_isDisabledOnMap_((type), map_flag_vs2((m)), map[(m)].flag.pvp, map_flag_gvg2_no_te((m)), map[(m)].flag.battleground, map[(m)].zone << 3, map_flag_gvg2_te((m))) )
+ 
 
 static sc_type SkillStatusChangeTable[MAX_SKILL]; // skill  -> status
 static int StatusIconChangeTable[SC_MAX];         // status -> icon
@@ -121,6 +125,7 @@ void initChangeTables(void)
 
 	memset(StatusSkillChangeTable, 0, sizeof(StatusSkillChangeTable));
 	memset(StatusChangeFlagTable, 0, sizeof(StatusChangeFlagTable));
+	memset(SCDisabled, 0, sizeof(SCDisabled));
 
 	//First we define the skill for common ailments. These are used in skill_additional_effect through sc cards. [Skotlex]
 	set_sc( NPC_PETRIFYATTACK , SC_STONE     , SI_BLANK    , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
@@ -5799,8 +5804,8 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		sc_def = status->agi / 2;
 		break;
 	case SC_WHITEIMPRISON:
-		rate -= status_get_lv(bl) / 5 + status->vit / 4 + status->agi / 10; // Lineal Reduction of Rate
-		tick_def = (int)floor(log10(status_get_lv(bl)) * 10.);
+		rate -= (status_get_lv(bl) / 5 + status->vit / 4 + status->agi / 10) * 100; // Lineal Reduction of Rate
+		tick_def = (int)floor(log10((double)status_get_lv(bl)) * 10.);
 		break;
 	case SC_BURNING:
 		// From iROwiki : http://forums.irowiki.org/showpost.php?p=577240&postcount=583
@@ -6012,6 +6017,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 	
 	if( status_isdead(bl) && type != SC_NOCHAT )
+		return 0;
+
+	if (status_change_isDisabledOnMap(type, bl->m))
 		return 0;
 
 	if( bl->type == BL_MOB && type != SC_SAFETYWALL && type != SC_PNEUMA )
@@ -9729,14 +9737,17 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		{
 			struct block_list *src = map_id2bl( sce->val2 );
 			int damage;
+			bool flag;
 			if( !src || (src && status_isdead( src ) || ( src && src->m != bl->m ) ) || ( src && distance_bl( src, bl ) >= 12 ) )
 				break;
 			map_freeblock_lock();
 			damage = skill_attack( skill_get_type( GN_BLOOD_SUCKER ), src, src, bl, GN_BLOOD_SUCKER, sce->val1, tick, 0 );
+			flag = !sc->data[type];
 			map_freeblock_unlock();
 			status_heal( src, damage, 0, 0 );
 			clif_skill_nodamage( src, bl, GN_BLOOD_SUCKER, 0, 1 );
-			sc_timer_next( 1000 + tick, status_change_timer, bl->id, data );
+			if (!flag)
+				sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -10402,6 +10413,90 @@ static int status_natural_heal_timer(int tid, unsigned int tick, int id, intptr_
 }
 
 /*==========================================
+ * Check if status is disabled on a map
+ * @param type: Status Change data
+ * @param mapIsVS: If the map is a map_flag_vs type
+ * @param mapisPVP: If the map is a PvP type
+ * @param mapIsGVG: If the map is a map_flag_gvg type
+ * @param mapIsBG: If the map is a Battleground type
+ * @param mapZone: Map Zone type
+ * @param mapIsTE: If the map us WOE TE 
+ * @return True - SC disabled on map; False - SC not disabled on map/Invalid SC
+ *------------------------------------------*/
+static bool status_change_isDisabledOnMap_(sc_type type, bool mapIsVS, bool mapIsPVP, bool mapIsGVG, bool mapIsBG, unsigned int mapZone, bool mapIsTE) 
+{
+	if (type <= SC_NONE || type >= SC_MAX)
+		return false;
+
+	if ((!mapIsVS && SCDisabled[type]&1) ||
+		(mapIsPVP && SCDisabled[type]&2) ||
+		(mapIsGVG && SCDisabled[type]&4) ||
+		(mapIsBG && SCDisabled[type]&8) ||
+		(mapIsTE && SCDisabled[type]&16) ||
+		(SCDisabled[type]&(mapZone)))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+/*==========================================
+ * Clear a status if it is disabled on a map
+ * @param bl: Block list data
+ * @param sc: Status Change data
+ *------------------------------------------*/
+void status_change_clear_onChangeMap(struct block_list *bl, struct status_change *sc)
+{
+	nullpo_retv(bl);
+
+	if (sc && sc->count) {
+		unsigned short i;
+		bool mapIsVS = map_flag_vs2(bl->m);
+		bool mapIsPVP = map[bl->m].flag.pvp;
+		bool mapIsGVG = map_flag_gvg2_no_te(bl->m);
+		bool mapIsBG = map[bl->m].flag.battleground;
+		bool mapIsTE = map_flag_gvg2_te(bl->m);
+		unsigned int mapZone = map[bl->m].zone << 3;
+
+		for (i = 0; i < SC_MAX; i++) {
+			if (!sc->data[i] || !SCDisabled[i])
+				continue;
+
+			if (status_change_isDisabledOnMap_((sc_type)i, mapIsVS, mapIsPVP, mapIsGVG, mapIsBG, mapZone, mapIsTE)) 
+				status_change_end(bl, (sc_type)i, INVALID_TIMER);
+		}
+	}
+}
+
+/*==========================================
+ * Read status_disabled.txt file
+ * @param str: Fields passed from sv_readdb
+ * @param columns: Columns passed from sv_readdb function call
+ * @param current: Current row being read into SCDisabled array
+ * @return True - Successfully stored, False - Invalid SC
+ *------------------------------------------*/
+static bool status_readdb_status_disabled(char **str, int columns, int current)
+{
+	int type = SC_NONE;
+
+	if (ISDIGIT(str[0][0]))
+		type = atoi(str[0]);
+	else {
+		if (!script_get_constant(str[0],&type))
+			type = SC_NONE;
+	}
+
+	if (type <= SC_NONE || type >= SC_MAX) {
+		ShowError("status_readdb_status_disabled: Invalid SC with type %s.\n", str[0]);
+		return false;
+	}
+
+	SCDisabled[type] = (unsigned int)atol(str[1]);
+	return true;
+}
+
+/*==========================================
  * DB reading.
  * job_db1.txt    - weight, hp, sp, aspd
  * job_db2.txt    - job level stat bonuses
@@ -10547,6 +10642,8 @@ int status_readdb(void)
 {
 	int i, j, k;
 
+	memset(SCDisabled, 0, sizeof(SCDisabled));
+
 	// size_fix.txt
 	for(i=0;i<ARRAYLENGTH(atkmods);i++)
 		for(j=0;j<MAX_WEAPON_TYPE;j++)
@@ -10572,8 +10669,9 @@ int status_readdb(void)
 	//
 
 	status_readdb_attrfix(db_path);
-	sv_readdb(db_path, "size_fix.txt",  ',', MAX_WEAPON_TYPE,   MAX_WEAPON_TYPE,    ARRAYLENGTH(atkmods),         &status_readdb_sizefix);
-	sv_readdb(db_path, "refine_db.txt", ',', 3+MAX_REFINE+1,    3+MAX_REFINE+1,     ARRAYLENGTH(percentrefinery), &status_readdb_refine);
+ 	sv_readdb(db_path, "status_disabled.txt", ',', 2,                 2,                  -1,                           &status_readdb_status_disabled); 
+	sv_readdb(db_path, "size_fix.txt",        ',', MAX_WEAPON_TYPE,   MAX_WEAPON_TYPE,    ARRAYLENGTH(atkmods),         &status_readdb_sizefix);
+	sv_readdb(db_path, "refine_db.txt",       ',', 3+MAX_REFINE+1,    3+MAX_REFINE+1,     ARRAYLENGTH(percentrefinery), &status_readdb_refine);
 
 	return 0;
 }

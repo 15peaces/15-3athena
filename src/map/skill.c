@@ -2409,39 +2409,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		}
 	}
 
-	if( sc && sc->data[SC__SHADOWFORM] && damage > 0 )
-	{
-		struct block_list *s_bl = map_id2bl(sc->data[SC__SHADOWFORM]->val2);
-		
-		if( !s_bl )
-		{
-				status_change_end(bl, SC__SHADOWFORM, -1);
-		}
-		else if( status_isdead(s_bl) )
-		{
-				status_change_end(bl, SC__SHADOWFORM, -1);
-				if( s_bl->type == BL_PC )
-					((TBL_PC*)s_bl)->shadowform_id = 0;
-		}
-		else
-		{
-			if( (--sc->data[SC__SHADOWFORM]->val3) < 0 )
-			{
-				status_change_end(bl, SC__SHADOWFORM, -1);
-				if( s_bl->type == BL_PC )
-					((TBL_PC*)s_bl)->shadowform_id = 0;
-			}
-			else
-			{
-				clif_damage(s_bl,s_bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2);
-				status_damage(bl, s_bl, damage, 0, 0, 32);
-			}
-		}
-		// Just show damage in target.
-		clif_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, dmg.type, dmg.damage2 );
-		return ATK_NONE;
-	}
-
 	if (skillid == WM_METALICSOUND)
 		status_zap(bl, 0, damage*battle_config.metallicsound_spburn_rate / (100 * (110 - pc_checkskill(sd, WM_LESSON) * 10)));
 
@@ -3246,6 +3213,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
 	case LG_RAYOFGENESIS:
+	case LG_HESPERUSLIT:
 	case SR_SKYNETBLOW:
 	case SR_FALLENEMPIRE:
 	case SR_RAMPAGEBLASTER:
@@ -3261,7 +3229,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_BOOSTKNUCKLE:
 	case NC_PILEBUNKER:
 	case NC_VULCANARM:
-	case NC_FLAMELAUNCHER:
 	case NC_COLDSLOWER:
 	case NC_ARMSCANNON:
 		// Heat of the mado
@@ -3335,11 +3302,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
-	case GN_CARTCANNON:
-		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+	case NC_FLAMELAUNCHER:
+		if (sd) 
+			pc_overheat(sd,1);
 	case SN_SHARPSHOOTING:
 	case MA_SHARPSHOOTING:
 	case NJ_KAMAITACHI:
+	case LG_CANNONSPEAR:
 		//It won't shoot through walls since on castend there has to be a direct
 		//line of sight between caster and target.
 		skill_area_temp[1] = bl->id;
@@ -3492,8 +3461,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SR_RIDEINLIGHTNING:
 	case SR_TIGERCANNON:
 	case WM_REVERBERATION:
+	case WM_SOUND_OF_DESTRUCTION:
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
+	case GN_CARTCANNON:
 		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3514,8 +3485,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		else
 		{
-			if( skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE )
-				clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			if (skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE || GN_CARTCANNON)
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			if(skillid ==  LG_MOONSLASHER)
 				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 
@@ -4126,7 +4097,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
 		}
 		break;
-	case LG_CANNONSPEAR:
+	/*case LG_CANNONSPEAR: // Clean Up Later If Found Not Needed
 		{
 			int length = skill_get_maxcount(skillid,skilllv);
 			int dir = map_calc_dir(src,bl->x,bl->y);
@@ -4149,7 +4120,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				skill_get_splash(skillid, skilllv),length, splash_target(src),
 				skill_get_type(skillid),src,src,skillid,skilllv,tick,flag,BCT_ENEMY);
 		}
- 		break;
+ 		break;*/
 
 	case LG_SHIELDSPELL:
 		// flag&1: Phisycal Attack, flag&2: Magic Attack.
@@ -5885,9 +5856,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			break;
 		}
 
-		//Attempts to strip at rate i and duration d
-		if( (i = skill_strip_equip(bl, location, i, skilllv, d)) || skillid != ST_FULLSTRIP || skillid != GC_WEAPONCRUSH)
-			clif_skill_nodamage(src,bl,skillid,skilllv,i); 
+		// Attempts to strip at rate i and duration d
+		if ((i = skill_strip_equip(bl, location, i, skilllv, d)) || (skillid != ST_FULLSTRIP && skillid != GC_WEAPONCRUSH))
+			clif_skill_nodamage(src, bl, skillid, skilllv, i); 
 
 		//Nothing stripped.
 		if( sd && !i )
@@ -7611,7 +7582,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR|BL_SKILL,src,skillid,skilllv,tick,flag|BCT_ENEMY,skill_castend_damage_id);
 		break;
 
-	case NC_FLAMELAUNCHER:
+	/*case NC_FLAMELAUNCHER: // Clean Up Later If Found Not Needed
 		{
 			int dir = map_calc_dir(src,bl->x,bl->y);
 			int c, x = src->x, y = src->y, mx = 0, my = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
@@ -7636,7 +7607,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				map_foreachincell(skill_area_sub,src->m,x+x2,y+y2,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
 			}
 		}
-		break;
+		break;*/
 
 	case NC_F_SIDESLIDE:
 	case NC_B_SIDESLIDE:
@@ -7992,7 +7963,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		else
 		{
 			clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_nodamage_id);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|BCT_SELF|SD_SPLASH|1, skill_castend_nodamage_id);
 		}
 		break;
 
@@ -8001,7 +7972,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			break;
 		if( sd && dstsd->spiritball <= 5 ){
 			for(i = 0; i <= 5; i++){
-				pc_addspiritball(dstsd, skill_get_time(MO_CALLSPIRITS, skilllv), i);
+				pc_addspiritball(dstsd, skill_get_time(MO_CALLSPIRITS, pc_checkskill(sd,MO_CALLSPIRITS)), i);
 				pc_delspiritball(sd, sd->spiritball, 0);
 			}
 		}
@@ -8175,7 +8146,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case WM_SOUND_OF_DESTRUCTION:
+	/*case WM_SOUND_OF_DESTRUCTION:
 		if( flag&1 )
 		{
 			if( tsc && tsc->count )
@@ -8215,7 +8186,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
-		break;
+		break; */
 
 	case WM_RANDOMIZESPELL:
 		{
@@ -11472,8 +11443,6 @@ int skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int dam
 	case UNT_CLAYMORETRAP:
 		skill_blown(bl, &src->bl, 2, -1, 0);
 		break;
-		src->val1 -= damage;
-		break;
 	default:
 		damage = 0;
 		break;
@@ -12231,6 +12200,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		else if (skill_check_pc_partner(sd, skill, &lv, skill_get_range(skill, lv), 0) < 1)
 			return 0; // Just fails, no msg here.
 		break;
+	case LG_HESPERUSLIT:
+		if (!sc || !sc->data[SC_BANDING])
+		{
+			clif_skill_fail(sd, skill, 0, 0, 0);
+			return 0;
+		}
+ 		break;
 	case SR_FALLENEMPIRE:
 		if( !(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_DRAGONCOMBO) )
 			return 0;
