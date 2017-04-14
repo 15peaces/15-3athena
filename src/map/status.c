@@ -8836,7 +8836,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_WHITEIMPRISON:
 			if( tid == -1 )
 				break; // Terminated by Damage
-			clif_damage(bl,bl,0,0,0,400*sce->val1,0,0,0);
+			clif_damage(bl,bl,0,0,0,400*sce->val1,0,0,0, false);
 			status_zap(bl,400*sce->val1,0);
 			break;
 		case SC_WUGDASH:
@@ -9502,7 +9502,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		{
 			bool flag;
 			map_freeblock_lock();
-			clif_damage(bl,bl,tick,status_get_amotion(bl),0,100,0,0,0);
+			clif_damage(bl,bl,tick,status_get_amotion(bl),0,100,0,0,0, false);
 			status_fix_damage(NULL,bl,100,0);
 			flag = !sc->data[type];
 			map_freeblock_unlock();
@@ -9593,7 +9593,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		{ //Damage is every 10 seconds including 3%sp drain.
 			bool flag;
 			map_freeblock_lock();
-			clif_damage(bl,bl,tick,status_get_amotion(bl),1,1,0,0,0);
+			clif_damage(bl,bl,tick,status_get_amotion(bl),1,1,0,0,0, false);
 			status_damage(NULL,bl,1,status->max_sp*3/100,0,16);
 			flag = !sc->data[type];
 			map_freeblock_unlock();
@@ -9644,7 +9644,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 				damage += battle_attr_fix(NULL, bl, sce->val2, ELE_FIRE, status->def_ele, status->ele_lv);
 
 			map_freeblock_lock();
-			status_fix_damage(src,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,0,0));
+			status_fix_damage(src,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,0,0, false));
 			flag = !sc->data[type];
 			map_freeblock_unlock();
 			if( !flag )	// Target still lives. [LimitLine]
@@ -9835,7 +9835,7 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 			int flag, damage = status->max_hp / 100; // Suggestion 1% each second
 			if( damage >= status->hp ) damage = status->hp - 1; // Do not kill, just keep you with 1 hp minimum
 			map_freeblock_lock();
-			status_fix_damage(NULL,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,0,0));
+			status_fix_damage(NULL,bl,damage,clif_damage(bl,bl,tick,0,0,damage,0,0,0, false));
 			flag = !sc->data[type];
 			map_freeblock_unlock();
 			if( !flag )

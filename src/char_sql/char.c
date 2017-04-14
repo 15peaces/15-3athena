@@ -475,8 +475,8 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->party_id != cp->party_id) || (p->guild_id != cp->guild_id) ||
 		(p->pet_id != cp->pet_id) || (p->weapon != cp->weapon) || (p->hom_id != cp->hom_id) ||
 		(p->ele_id != cp->ele_id) || (p->shield != cp->shield) || (p->head_top != cp->head_top) ||
-		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->delete_date != cp->delete_date) ||
-		(p->rename != cp->rename) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
+		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->rename != cp->rename) ||
+		(p->delete_date != cp->delete_date) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
 		(p->clan_id != cp->clan_id )
 	)
 	{	//Save status

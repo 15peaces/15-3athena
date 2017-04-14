@@ -1175,7 +1175,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skilllv, skilllv, 5, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
 	case SO_VARETYR_SPEAR:
-		sc_start(bl, SC_STUN, 20, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case GN_HELLS_PLANT_ATK:
 		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
@@ -2112,7 +2112,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case NPC_CRITICALSLASH:
 	case TF_DOUBLE:
 	case GS_CHAINACTION:
-		dmg.dmotion = clif_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2);
+		dmg.dmotion = clif_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2, false);
 		break;
 
 	case AS_SPLASHER:
@@ -2353,7 +2353,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			(d_bl->type == BL_PC && ((TBL_PC*)d_bl)->devotion[sce->val2] == bl->id)
 			) && check_distance_bl(bl, d_bl, sce->val3) )
 		{
-			clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, 0, 0);
+			clif_damage(d_bl, d_bl, gettick(), 0, 0, damage, 0, 0, 0, false);
 			status_fix_damage(NULL, d_bl, damage, 0);
 		}
 		else
@@ -2388,7 +2388,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				battle_delay_damage(tick, dmg.amotion,bl,src,0,0,0,rdamage,ATK_DEF,0);
 			else
 				status_fix_damage(bl,src,rdamage,0);
-			clif_damage(src,src,tick, dmg.amotion,0,rdamage,1,4,0);
+			clif_damage(src,src,tick, dmg.amotion,0,rdamage,1,4,0, false);
 			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
 			if( tsd && src != bl )
 				battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
@@ -2415,10 +2415,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if( sc && sc->data[SC_WATER_SCREEN_OPTION] && sc->data[SC_WATER_SCREEN_OPTION]->val1 && damage > 0) {
 		struct block_list *e_bl = map_id2bl(sc->data[SC_WATER_SCREEN_OPTION]->val1);
 		if( e_bl && !status_isdead(e_bl) ) {
-			clif_damage(e_bl,e_bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2);
+			clif_damage(e_bl,e_bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2, false);
 			status_damage(bl,e_bl,damage,0,0,0);
 			// Just show damage in target.
-			clif_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, dmg.type, dmg.damage2 );
+			clif_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, dmg.type, dmg.damage2, false);
 			return ATK_NONE;
 		}
 	}
@@ -3485,9 +3485,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		else
 		{
-			if (skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE || GN_CARTCANNON)
+			if (skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE || skillid == GN_CARTCANNON)
 				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-			if(skillid ==  LG_MOONSLASHER)
+			if (skillid == LG_MOONSLASHER)
 				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 
 			skill_area_temp[0] = 0;
@@ -3597,7 +3597,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 	case CH_PALMSTRIKE: //	Palm Strike takes effect 1sec after casting. [Skotlex]
 	//	clif_skill_nodamage(src,bl,skillid,skilllv,0); //Can't make this one display the correct attack animation delay :/
-		clif_damage(src,bl,tick,status_get_amotion(src),0,-1,1,4,0); //Display an absorbed damage attack.
+		clif_damage(src,bl,tick,status_get_amotion(src),0,-1,1,4,0, false); //Display an absorbed damage attack.
 		skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag);
 		break;
 
@@ -6711,7 +6711,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					{
 						int where[] = { EQP_ARMOR, EQP_SHIELD, EQP_HELM, EQP_SHOES, EQP_GARMENT };
 						status_fix_damage(src, bl, 1000, 0);
-						clif_damage(src,bl,tick,0,0,1000,0,0,0);
+						clif_damage(src,bl,tick,0,0,1000,0,0,0, false);
 						if( !status_isdead(bl) )
 							skill_break_equip(bl, where[rand()%5], 10000, BCT_ENEMY);
 					}
@@ -6746,14 +6746,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					break;
 				case 10:	// 6666 damage, atk matk halved, cursed
 					status_fix_damage(src, bl, 6666, 0);
-					clif_damage(src,bl,tick,0,0,6666,0,0,0);
+					clif_damage(src,bl,tick,0,0,6666,0,0,0, false);
 					sc_start(bl,SC_INCATKRATE,100,-50,skill_get_time2(skillid,skilllv));
 					sc_start(bl,SC_INCMATKRATE,100,-50,skill_get_time2(skillid,skilllv));
 					sc_start(bl,SC_CURSE,skilllv,100,skill_get_time2(skillid,skilllv));
 					break;
 				case 11:	// 4444 damage
 					status_fix_damage(src, bl, 4444, 0);
-					clif_damage(src,bl,tick,0,0,4444,0,0,0);
+					clif_damage(src,bl,tick,0,0,4444,0,0,0, false);
 					break;
 				case 12:	// stun
 					sc_start(bl,SC_STUN,100,skilllv,5000);
@@ -8089,7 +8089,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		else if( flag&2 )
 		{
 			if( src->id != bl->id && battle_check_target(src,bl,BCT_ENEMY) > 0 )
-				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0));
+				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0, false));
 		}
 		else if( sd )
 		{
@@ -8107,7 +8107,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_nodamage(src, bl, skillid, skilllv,
 				sc_start(src,SC_STOP,100,skilllv,skill_get_time2(skillid,skilllv)));
 			if( flag&2 ) // Dealed here to prevent conflicts
-				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0));
+				status_fix_damage(src,bl,9999,clif_damage(src,bl,tick,0,0,9999,0,0,0, false));
 		}
 		break;
 
@@ -15905,9 +15905,10 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 				}
 				p++;
 			} while(n == j && c == n);
+			p--;
 			if (p > 0)
 			{
-				skill_produce_mix(sd, GN_CHANGEMATERIAL, skill_produce_db[i].nameid, 0, 0, 0, p - 1);
+				skill_produce_mix(sd, GN_CHANGEMATERIAL, skill_produce_db[i].nameid, 0, 0, 0, p);
 				return 1;
 			}
 		}

@@ -1274,6 +1274,10 @@ Similarly, you can create links to websites that launch in a new window:
 
     <URL>Display Name<INFO>http://www.example.com/</INFO></URL>
 	
+To modify the browser window size you can simply add the width and height infos:
+    
+	<URL>Display Name<INFO>http://www.example.com/,800,600</INFO></URL>
+	
 Itemlinks
 ---------
 Similarly, you can create links to item descriptions. This will open the item description window of the ItemID given:

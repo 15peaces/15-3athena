@@ -4,6 +4,23 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/14/2017
+	r165 [15peaces]
+		*Merged missing changes from 3ceam rev. 602 - 604
+		*Added missing status restrictions for WoE:TE.
+		*Fixed a mistake in mmo_char_tosql where delete_date and rename columns where switched...
+		*Some updates to item_db.
+			-Added two missing item packages.
+		*Added full support for packet 0x08c8 (ZC_NOTIFY_ACT3).
+			-a 2013-12-23 or newer client will be required to use this new damage-packet.
+		*Changed the buffer-size in clif_notify_chat to be affected by CHAT_SIZE_MAX const.
+		*Fixed a crash bug with SR_RAMPAGEBLASTER.
+		*Fixed a typo in GN_CARTCANNON.
+		*Fixed an issue with GN_CHANGEMATERIAL.
+		*Updated comment for the gm_all_skill setting.
+			-The code for this was changed back to the orginal since the server is now able to stop itself from sending oversized packets.
+		*Updated SO_VARETYR_SPEAR magic damage part to now be affected by SA_LIGHTNINGLOADER and do correct chance % to stun.
+
 03/27/2017
 	r164 [15peaces]
 		*Merged missing changes from 3ceam rev. 596 - 601

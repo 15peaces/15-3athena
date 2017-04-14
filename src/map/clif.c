@@ -4594,14 +4594,21 @@ static int clif_calc_walkdelay(struct block_list *bl,int delay, int type, int da
 /// 10 = ATTACK_CRITICAL - critical hit
 /// 11 = ATTACK_LUCKY - lucky dodge
 /// 12 = TOUCHSKILL - (touch skill?)
-int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int damage, int div, int type, int damage2)
+int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int64 sdamage, int div, int type, int64 sdamage2, bool spdamage)
 {
-	unsigned char buf[33];
+	unsigned char buf[34];
 	struct status_change *sc;
+	int damage = (int)cap_value(sdamage,INT_MIN,INT_MAX);
+	int damage2 = (int)cap_value(sdamage2,INT_MIN,INT_MAX);
 #if PACKETVER < 20071113
 	const int cmd = 0x8a;
-#else
+	int offset = 0;
+#elif PACKETVER < 20131223
 	const int cmd = 0x2e1;
+	int offset = 2;
+#else
+	const int cmd = 0x8c8;
+	int offset = 3;
 #endif
 
 	nullpo_ret(src);
@@ -4616,39 +4623,41 @@ int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tic
 		}
 	}
 
-	WBUFW(buf,0)=cmd;
-	WBUFL(buf,2)=src->id;
-	WBUFL(buf,6)=dst->id;
-	WBUFL(buf,10)=tick;
-	WBUFL(buf,14)=sdelay;
-	WBUFL(buf,18)=ddelay;
+	WBUFW(buf,0) = cmd;
+	WBUFL(buf,2) = src->id;
+	WBUFL(buf,6) = dst->id;
+	WBUFL(buf,10) = tick;
+	WBUFL(buf,14) = sdelay;
+	WBUFL(buf,18) = ddelay;
+	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
 #if PACKETVER < 20071113
-	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFW(buf,22)=damage?div:0;
-		WBUFW(buf,27)=damage2?div:0;
-	} else {
-		WBUFW(buf,22)=min(damage, INT16_MAX);
-		WBUFW(buf,27)=damage2;
-	}
-	WBUFW(buf,24)=div;
-	WBUFB(buf,26)=type;
+		WBUFW(buf,22) = damage ? div : 0;
+		WBUFW(buf,27+offset) = damage2 ? div : 0;
 #else
-	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
-		WBUFL(buf,22)=damage?div:0;
-		WBUFL(buf,29)=damage2?div:0;
-	} else {
-		WBUFL(buf,22)=damage;
-		WBUFL(buf,29)=damage2;
-	}
-	WBUFW(buf,26)=div;
-	WBUFB(buf,28)=type;
+		WBUFL(buf, 22) = damage ? div : 0;
+		WBUFL(buf, 27 + offset) = damage2 ? div : 0;
 #endif
+	} else {
+#if PACKETVER < 20071113
+		WBUFW(buf,22) = min(damage, INT16_MAX);
+		WBUFW(buf,27+offset) = damage2;
+#else
+		WBUFL(buf,22) = damage;
+		WBUFL(buf,27+offset) = damage2;
+#endif
+	}
+#if PACKETVER >= 20131223
+	WBUFB(buf,26) = (spdamage) ? 1 : 0; // IsSPDamage - Displays blue digits.
+#endif
+	WBUFW(buf,24+offset) = div;
+	WBUFB(buf,26+offset) = type;
+
 	if(disguised(dst)) {
-		clif_send(buf,packet_len(cmd),dst,AREA_WOS);
+		clif_send(buf, packet_len(cmd), dst, AREA_WOS);
 		WBUFL(buf,6) = -dst->id;
-		clif_send(buf,packet_len(cmd),dst,SELF);
+		clif_send(buf, packet_len(cmd), dst, SELF);
 	} else
-		clif_send(buf,packet_len(cmd),dst,AREA);
+		clif_send(buf, packet_len(cmd), dst, AREA);
 
 	if(disguised(src)) {
 		WBUFL(buf,2) = -src->id;
@@ -4659,12 +4668,16 @@ int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tic
 		if(damage2 > 0) WBUFW(buf,27) = -1;
 #else
 		if(damage > 0) WBUFL(buf,22) = -1;
-		if(damage2 > 0) WBUFL(buf,29) = -1;
+		if(damage2 > 0) WBUFL(buf,27+offset) = -1;
 #endif
 		clif_send(buf,packet_len(cmd),src,SELF);
 	}
+
+	if(src == dst) {
+		unit_setdir(src, unit_getdir(src));
+	}
 	//Return adjusted can't walk delay for further processing.
-	return clif_calc_walkdelay(dst,ddelay,type,damage+damage2,div);
+	return clif_calc_walkdelay(dst, ddelay, type, damage+damage2, div);
 }
 
 /*==========================================
@@ -5956,7 +5969,7 @@ void clif_efst_status_change_single(struct block_list *dst, struct block_list *b
 /// 008d <packet len>.W <id>.L <message>.?B
 void clif_notify_chat(struct block_list* bl, const char* message, send_target target)
 {
-	uint8 buf[8+255+1];
+	uint8 buf[8 + CHAT_SIZE_MAX];
 	size_t length;
 
 	if( !message[0] )
@@ -5978,7 +5991,6 @@ void clif_notify_chat(struct block_list* bl, const char* message, send_target ta
 	safestrncpy((char*)WBUFP(buf,8), message, length+1);
 	clif_send(buf, WBUFW(buf,2), bl, target);
 }
-
 
 /// Notification about player's own chat message (ZC_NOTIFY_PLAYERCHAT).
 /// 008e <packet len>.W <message>.?B

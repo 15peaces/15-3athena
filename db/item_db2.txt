@@ -648,8 +648,8 @@
 12617,Agrade_Pocket,A Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Agrade_Pocket); },{},{}
 12618,Bgrade_Pocket,B Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Bgrade_Pocket); },{},{}
 12619,Cgrade_Pocket,C Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Cgrade_Pocket); },{},{}
-12620,Dgrade_Pocket,D Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Dgrade_Pocket);*/ },{},{}
-12621,Egrade_Pocket,E Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Egrade_Pocket);*/ },{},{}
+12620,Dgrade_Pocket,D Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Dgrade_Pocket); },{},{}
+12621,Egrade_Pocket,E Grade Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Egrade_Pocket); },{},{}
 12622,Boarding_Halter,Reins Of Mount,11,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_ALL_RIDING,-1,1; },{},{}
 12623,High_Weapon_Box,Advanced Weapons Box,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Advanced_Weapons_Box),1; },{},{}
 12624,Delicious_Jelly,Delicious Jelly,0,20,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 3,3; },{},{}
@@ -2656,3 +2656,25 @@
 20704,TE_Woe_Magic_Manteau,TE Woe Magic Manteau,5,0,,0,,5,,0,0x00818315,63,2,4,1,40,1,,{ bonus2 bMagicAddRace,RC_Player,10; bonus2 bResEff,Eff_Freeze,25; },{},{}
 21006,TE_Woe_Two_Hand_Sword,TE Woe Two Hand Sword,4,0,,0,150,,1,0,0x00004082,63,2,34,3,40,1,3,{ bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Bleeding,3000; },{},{}
 21007,Heavy_Greatsword,Heavy Greatsword,4,20,,2500,330,,1,1,0x00004082,63,2,34,1,150,1,3,{ bonus bStr,20; },{},{}
+
+// More items (renewal)
+2907,Buwaya_Tattoo,Bawaya Agimat Tattoo,5,20,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus bMatkRate,7; bonus bVariableCastrate,-7; },{},{}
+2908,Light_Ring,Light Ring,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{},{},{}
+2909,Darkness_Ring,Darkness Ring,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{},{},{}
+2910,Bakonawa_Tattoo,Bakunawa Agimat Tattoo,5,20,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus2 bAddClass,Class_All,7; bonus bAspdRate,10; },{},{}
+2911,Bangungot_Tattoo,Bangungot Agimat Tattoo,5,20,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus bHealPower,4; bonus bHealPower2,7; },{},{}
+2912,Xylitol_2011,Xylitol 2011,5,20,,300,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{},{},{}
+2913,Thief_Handcuff,Thief Handcuff,5,20,,1400,,0,,1,0xFFFFFFFF,63,2,136,,10,0,0,{ bonus bBaseAtk,5; },{},{}
+2914,Wizard_Left_Eye,Wizard Left Eye,5,20,,100,,1,,1,0x00CFDF80,63,2,136,,0,0,0,{ bonus bInt,4; bonus bMdef,3; },{},{}
+2915,Ettlang_Keepsake,Ettlang Keepsake,5,20,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bMdef,10; },{},{}
+2916,Fairy_Wing,Fairy Wing,5,0,,10,,0,,0,0xFFFFFFFF,63,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
+19568,C_Ancient_Horns,Costume Ancient Horns,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,757,{ bonus bStr,1; },{},{}
+19569,C_Sprout_Hat,Costume Sprout Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,758,{ bonus bInt,1; },{},{}
+19570,C_Mercury_Riser,Costume Mercury Riser,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,759,{ bonus bLuk,1; },{},{}
+19571,C_White_Musang_Hat,Costume White Musang Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,770,{ bonus bStr,1; },{},{}
+19572,C_Black_Musang_Hat,Costume Black Musang Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,771,{ bonus bInt,1; },{},{}
+19573,C_Heart_Wing_Hairband,Costume Heart Wing Hairband,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,733,{},{},{}
+19574,C_Lord_of_Death,Costume Lord of Death,5,0,,0,,0,,0,0xFFFFFFFF,63,2,3072,,0,1,742,{ bonus bUnbreakableHelm,1; },{},{}
+19575,C_Ascension_Black_Dragon,Costume Ascension Black Dragon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,863,{},{},{}
+19576,C_Tare_Pope,Costume Tare Pope,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,817,{},{},{}
+19577,10th_Anni_Poring_Hat,10th Anni Poring Hat,5,10,,100,,1,,0,0xFFFFFFFF,63,2,1024,,1,1,874,{},{},{}

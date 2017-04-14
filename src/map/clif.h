@@ -476,7 +476,7 @@ void clif_updatecartinfo(struct map_session_data* sd, short count, short maxcoun
 void clif_updateattackrange(struct map_session_data* sd, short range);	//self
 void clif_updatestat(struct map_session_data* sd, int type, int value, int plusvalue); //self
 void clif_updateparam_area(struct map_session_data* sd, short type, int value);	//area
-int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int damage, int div, int type, int damage2);	// area
+int clif_damage(struct block_list* src, struct block_list* dst, unsigned int tick, int sdelay, int ddelay, int64 sdamage, int div, int type, int64 sdamage2, bool spdamage); // area
 void clif_takeitem(struct block_list* src, struct block_list* dst);
 void clif_sitting(struct block_list* bl, bool area);
 void clif_standing(struct block_list* bl, bool area);

@@ -1998,7 +1998,7 @@ int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int
 	if(damage+damage2 <= 0)
 		return 0;
 	
-	return status_fix_damage(src,target,damage+damage2,clif_damage(target,target,tick,sdelay,ddelay,damage,div,type,damage2));
+	return status_fix_damage(src,target,damage+damage2,clif_damage(target,target,tick,sdelay,ddelay,damage,div,type,damage2, false));
 }
 
 /*==========================================

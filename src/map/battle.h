@@ -24,6 +24,7 @@ struct Damage {
 	int blewcount;
 	int flag;
 	enum damage_lv dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
+	bool isspdamage; /// Display blue damage numbers in clif_damage
 };
 
 //(Used in read pc.c,) attribute table (battle_attr_fix)

@@ -4,7 +4,7 @@
 //Item ID, TradeMask, GM-Level Override
 //Trading mask values:
 //	1	- Item can't be drop
-//	2	- Item can't be traded (nor vended)
+//	2	- Item can't be traded (nor vended, mailed or auctioned)
 //	4	- Wedded partner can override restriction 2.
 //	8	- Item can't be sold to npcs
 //	16	- Item can't be placed in the cart
