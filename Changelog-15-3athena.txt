@@ -4,6 +4,11 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/16/2017
+	r166 [15peaces]
+		*Updated help-documents to reflect all changes I've made on the commands...
+			-also updated the readme- folder.
+
 04/14/2017
 	r165 [15peaces]
 		*Merged missing changes from 3ceam rev. 602 - 604

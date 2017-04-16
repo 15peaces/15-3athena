@@ -13,6 +13,11 @@
  60:/item <item_name> - Gives you 1 of the desired item.
  60:@item <item name or ID> <quantity> - Gives you the desired item.
  60:@item2 <item name or ID> <quantity> <identified_flag> <refine> <broken_flag> <Card1> <Card2> <Card3> <Card4> - Gives you the desired item.
+ 60:@itembound <item name/ID> <amount> <bound_type>  - Creates the specified item and bounds it to the account.
+ 60:    bound_type: 1 = Account, 2 = Guild, 3 = Party, 4 = Character
+ 60:@itembound2 <item name/ID> <quantity> <identify_flag> <refine> <attribute> <card1> <card2> <card3> <card4> <bound_type> - Creates an item with the given parameters and bounds it to the account.
+ 60:	identify_flag: 0 = unidentified, 1 = identified, attribute: 0 = not broken, 1 = broken
+ 60:    bound_type: 1 = Account, 2 = Guild, 3 = Party, 4 = Character
  40: 
  40:--- PVP CMD ---
  40:@pvpon - Turns pvp on on the current map
@@ -21,10 +26,15 @@
  40:@gvgoff/@gpvpoff - Turns gvg off on the current map
  60:@agitstart - Starts War of Emperium
  60:@agitend - End War of Emperium
+ 60:@agitstart2 - Starts War of Emperium:Second Edition
+ 60:@agitend2 - End War of Emperium:Second Edition
+ 60:@agitstart3 - Starts War of Emperium:Training Edition
+ 60:@agitend3 - End War of Emperium:Training Edition
   1: 
   1:--- GROUPS CMD ---
   1:@party <party_name> - Create a party.
- 50:@guild <guild_name> - Create a guild.
+ 50:/breakguild/@guild <guild_name> - Create a guild.
+ 50:@breakguild - Breaks your guild if you're the master.
  60:@guildlvup/@guildlvlup <# of levels> - Raise Guild by desired number of levels
  60:@guildrecall <guild_name/id> - Warps all online characters of a guild to you.
  60:@partyrecall <party_name/id> - Warps all online characters of a party to you.
@@ -91,4 +101,8 @@
  99: 
  99:@gat - For debugging (you inspect around gat)
  99:@packet - For debugging (packet variety)
+ 99:@displaystatus - For debugging (Displays a status change without really applying it)
+ 99:@displayskill - For debugging (Displays the animation of a skill without really using it)
+ 99:@skillfailmsg - For debugging (Displays a skill fail message)
+ 99:@produceeffect - For debugging (Displays a produce animation)
 100:@nuke <char name> -

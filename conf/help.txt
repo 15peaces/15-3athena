@@ -65,7 +65,7 @@
  10: 
  20:/shift/@jumpto/@warpto/@goto <char name> - Warps you to selected character
  20:@follow <char_name> - follow a player
- 20:@mountpeco - Give/remove you a peco (Class is required, but not skill)
+ 20:@mount - Puts you on a mount if your current job has one. (Class is required, but not skill)
  20:@disguise <monster_name_or_monster_ID> - Change your appearence to other players to a mob.
  20:@undisguise - Restore your normal appearance.
  20:@model <hair ID: 0-17> <hair color: 0-8> <clothes color: 0-4> - Changes your characters appearence.
@@ -154,6 +154,7 @@
  40:@effect <effect_id> [flag] - Give an efect to your character.
  40:@dropall - throws all your possession on the ground
  40:@storeall - puts all your possessions in storage
+ 40:@storeit - puts everything not equipped into storage
  40:@killable - make your character killable
  40:@memo [memo_position] - set/change a memo location (no position: display memo points).
  40:@spiritball <number: 1-1000> - Gives you "spirit spheres" like from the skill "Call Spirits"
@@ -207,6 +208,7 @@
  50:@slaveclone [Player Name] - Spawns a supportive clone of the given player that follows the creator around.
  50:@evilclone [Player Name] - Spawns an agressive clone of the given player.
  60:@changesex - Changes your gender.
+ 60:@changecharsex - Changes your characters gender.
  10: 
   1:--- DUEL CMD ---
   1:@duel - Starts a duel.
