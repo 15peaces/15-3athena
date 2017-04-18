@@ -984,8 +984,10 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 		WBUFW(buf,0) = spawn?0x7f8:0x7f9;
 #elif PACKETVER < 20120221
 		WBUFW(buf,0) = spawn ? 0x858 : 0x857;
-#else // V9 packets, <= 20141022 (?)
+#elif PACKETVER < 20131223
 		WBUFW(buf,0) = spawn ? 0x90f : 0x915;
+#else // PACKETVER < 20150513
+		WBUFW(buf,0) = spawn ? 0x9dc : 0x9dd;
 #endif
 
 #if PACKETVER >= 20091103
@@ -1010,6 +1012,11 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 	}
 #endif
 	WBUFL(buf, 2) = bl->id;
+#if PACKETVER >= 20131223
+	WBUFL(buf,6) = (sd) ? sd->status.char_id : 0;	// GID/CCODE
+	offset+=4;
+	buf = WBUFP(buffer,offset);
+#endif
 	WBUFW(buf, 6) = status_get_speed(bl);
 	WBUFW(buf, 8) = (sc)? sc->opt1 : 0;
 	WBUFW(buf,10) = (sc)? sc->opt2 : 0;
@@ -1164,19 +1171,24 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 	WBUFW(buf, 0) = 0x2ec;
 #elif PACKETVER < 20101124
 	WBUFW(buf, 0) = 0x7f7;
-#else
-//#elif PACKETVER < 20120410
+#elif PACKETVER < 20120221
 	WBUFW(buf, 0) = 0x856;
-//#else
-//	WBUFW(buf, 0) = 0x914;
+#elif PACKETVER < 20131223
+	WBUFW(buf, 0) = 0x914;
+#else // PACKETVER < 20150513
+	WBUFW(buf, 0) = 0x9db;
 #endif
 
 #if PACKETVER >= 20091103
 	name = status_get_name(bl);
 #if PACKETVER < 20110111
-	WBUFW(buf, 2) = 69+strlen(name);
+	WBUFW(buf, 2) = (uint16)(69+strlen(name));
+#elif PACKETVER < 20120221
+	WBUFW(buf, 2) = (uint16)(71+strlen(name));
+#elif PACKETVER < 20130807
+	WBUFW(buf, 2) = (uint16)(84+strlen(name));
 #else
-	WBUFW(buf, 2) = 71+strlen(name);
+	WBUFW(buf, 2) = (uint16)(86+strlen(name));
 #endif
 	offset+=2;
 	buf = WBUFP(buffer,offset);
@@ -1187,6 +1199,11 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 	buf = WBUFP(buffer,offset);
 #endif
 	WBUFL(buf, 2) = bl->id;
+#if PACKETVER >= 20131223
+	WBUFL(buf,6) = (sd) ? sd->status.char_id : 0;	// GID/CCODE
+	offset+=4;
+	buf = WBUFP(buffer,offset);
+#endif
 	WBUFW(buf, 6) = status_get_speed(bl);
 	WBUFW(buf, 8) = (sc)? sc->opt1 : 0;
 	WBUFW(buf,10) = (sc)? sc->opt2 : 0;
@@ -1238,23 +1255,28 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 #if PACKETVER >= 20080102
 	WBUFW(buf,60) = sd?sd->user_font:0;
 #endif
-	/*if ( bl->type == BL_MOB )
-	{
-		WBUFL(buf,62) = status_get_hp(bl);
-		WBUFL(buf,66) = status_get_max_hp(bl);
-		WBUFB(buf,70) = 0;
-	}
-	else
-	{
-		WBUFL(buf,62) = -1;
-		WBUFL(buf,66) = -1;
-		WBUFB(buf,70) = 0;
-	}*/
-//#if PACKETVER >= 20120410
-//	memcpy((char*)WBUFP(buf,71), name, NAME_LENGTH);
-//	return WBUFW(buffer,2);
+#if PACKETVER >= 20120221
+	/*if ( battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && (status_get_hp(bl) < status_get_max_hp(bl)) ) {
+		WBUFL(buf,62) = status_get_max_hp(bl);		// maxHP
+		WBUFL(buf,66) = status_get_hp(bl);		// HP
+	} else {*/
+		WBUFL(buf,62) = -1;		// maxHP
+		WBUFL(buf,66) = -1;		// HP
+	//}
+
+	WBUFB(buf,70) = ( bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0) ) ? 1 : 0; // isBoss
+#endif
+#if PACKETVER >= 20150513
+	WBUFW(buf,71) = vd->body_style;	// body
+	offset+= 2;
+	buf = WBUFP(buffer,offset);
+#endif
 #if PACKETVER >= 20091103
-	memcpy((char*)WBUFP(buf,62), name, NAME_LENGTH);
+#if PACKETVER >= 20120221
+	safestrncpy(WBUFCP(buf,71), name, NAME_LENGTH);
+#else
+	safestrncpy(WBUFCP(buf,62), name, NAME_LENGTH);
+#endif
 	return WBUFW(buffer,2);
 #else
 	return packet_len(WBUFW(buffer,0));

@@ -498,7 +498,7 @@ void initChangeTables(void)
 	set_sc( SC_BLOODYLUST       , SC__BLOODYLUST        , SI_BLOODYLUST     , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
 
 	// Royal Guard
-	add_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	);
+	set_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	, SI_LG_REFLECTDAMAGE	, SCB_NONE );
 	set_sc( LG_FORCEOFVANGUARD	, SC_FORCEOFVANGUARD	, SI_FORCEOFVANGUARD	, SCB_MAXHP|SCB_DEF );
 	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF2 );
 	set_sc( LG_PIETY			, SC_BENEDICTIO			, SI_BENEDICTIO			, SCB_DEF_ELE );
@@ -536,14 +536,6 @@ void initChangeTables(void)
 	set_sc( WM_BEYOND_OF_WARCRY			, SC_BEYOND_OF_WARCRY		, SI_BEYOND_OF_WARCRY		, SCB_BATK|SCB_MATK );
 	set_sc( WM_UNLIMITED_HUMMING_VOICE	, SC_UNLIMITED_HUMMING_VOICE, SI_UNLIMITED_HUMMING_VOICE, SCB_NONE );
 
-	// Genetic
-	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED );
-	set_sc( GN_THORNS_TRAP					, SC_THORNSTRAP					, SI_THORNS_TRAP				, SCB_NONE );
-	set_sc( GN_BLOOD_SUCKER					, SC_BLOOD_SUCKER				, SI_BLOOD_SUCKER				, SCB_NONE );
-	set_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER, SI_FIRE_EXPANSION_SMOKE_POWDER, SCB_NONE );
-	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS	, SCB_NONE );
-	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA					, SCB_INT );
-
 	// Sorcerer
 	set_sc( SO_FIREWALK         , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
 	set_sc( SO_ELECTRICWALK     , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
@@ -553,6 +545,14 @@ void initChangeTables(void)
 	set_sc( SO_STRIKING         , SC_STRIKING		, SI_STRIKING		, SCB_WATK|SCB_CRI );
 	set_sc( SO_ARRULLO			, SC_DEEPSLEEP		, SI_DEEP_SLEEP		, SCB_NONE );
 	set_sc( SO_SPELLFIST        , SC_SPELLFIST		, SI_SPELLFIST		, SCB_NONE );
+
+	// Genetic
+	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED );
+	set_sc( GN_THORNS_TRAP					, SC_THORNSTRAP					, SI_THORNS_TRAP				, SCB_NONE );
+	set_sc( GN_BLOOD_SUCKER					, SC_BLOOD_SUCKER				, SI_BLOOD_SUCKER				, SCB_NONE );
+	set_sc( GN_FIRE_EXPANSION_SMOKE_POWDER	, SC_FIRE_EXPANSION_SMOKE_POWDER, SI_FIRE_EXPANSION_SMOKE_POWDER, SCB_NONE );
+	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS	, SCB_NONE );
+	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA					, SCB_INT );
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -6517,22 +6517,20 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	case SC_ECHOSONG:
 	case SC_HARMONIZE:
 	case SC_SIREN:
+	case SC_DEEPSLEEP:
 	case SC_SIRCLEOFNATURE:
-	case SC_GLOOMYDAY_SK:
-	case SC_GLOOMYDAY:
-		if( sc->data[type] ) // Don't remove same sc.
+		if (sc->data[type]) // Don't remove same sc.
 			break;
-		status_change_end(bl,SC_SWING,INVALID_TIMER);
-		status_change_end(bl,SC_SYMPHONY_LOVE,INVALID_TIMER);
-		status_change_end(bl,SC_MOONLIT_SERENADE,INVALID_TIMER);
-		status_change_end(bl,SC_RUSH_WINDMILL,INVALID_TIMER);
-		status_change_end(bl,SC_ECHOSONG,INVALID_TIMER);
-		status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
-		status_change_end(bl,SC_SIREN,INVALID_TIMER);
-		status_change_end(bl,SC_SIRCLEOFNATURE,INVALID_TIMER);
-		status_change_end(bl,SC_GLOOMYDAY_SK,INVALID_TIMER);
-		status_change_end(bl,SC_GLOOMYDAY,INVALID_TIMER);
-		if( type != MI_HARMONIZE ) // Harmonize isn't stackable with other 3rd class dances and Chorus skills.
+		status_change_end(bl, SC_SWING, INVALID_TIMER);
+		status_change_end(bl, SC_SYMPHONY_LOVE, INVALID_TIMER);
+		status_change_end(bl, SC_MOONLIT_SERENADE, INVALID_TIMER);
+		status_change_end(bl, SC_RUSH_WINDMILL, INVALID_TIMER);
+		status_change_end(bl, SC_ECHOSONG, INVALID_TIMER);
+		status_change_end(bl, SC_HARMONIZE, INVALID_TIMER);
+		status_change_end(bl, SC_SIREN, INVALID_TIMER);
+		status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+		status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
+		if (type != MI_HARMONIZE) // Harmonize isn't stackable with other 3rd class dances and Chorus skills.
 			break;
 	case SC_SONG_OF_MANA:
 	case SC_DANCE_WITH_WUG:
@@ -6540,15 +6538,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	case SC_MELODYOFSINK:
 	case SC_BEYOND_OF_WARCRY:
 	case SC_UNLIMITED_HUMMING_VOICE:
-		if( sc->data[type] ) // Don't remove same sc.
+		if (sc->data[type]) // Don't remove same sc.
 			break;
-		status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
-		status_change_end(bl,SC_SONG_OF_MANA,INVALID_TIMER);
-		status_change_end(bl,SC_DANCE_WITH_WUG,INVALID_TIMER);
-		status_change_end(bl,SC_LERADS_DEW,INVALID_TIMER);
-		status_change_end(bl,SC_MELODYOFSINK,INVALID_TIMER);
-		status_change_end(bl,SC_BEYOND_OF_WARCRY,INVALID_TIMER);
-		status_change_end(bl,SC_UNLIMITED_HUMMING_VOICE,INVALID_TIMER);
+		status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
+		status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
+		status_change_end(bl, SC_LERADS_DEW, INVALID_TIMER);
+		status_change_end(bl, SC_MELODYOFSINK, INVALID_TIMER);
+		status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
+		status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
 		break;
 	case SC_REFLECTSHIELD:
 		status_change_end(bl,SC_LG_REFLECTDAMAGE,INVALID_TIMER);

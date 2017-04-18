@@ -4,6 +4,29 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/18/2017
+	r167 [15peaces]
+		*Merged missing changes from 3ceam rev. 605 - 606
+		*(Finally) added full support for two new packets:
+			-ZC_NOTIFY_MOVEENTRY10 and ZC_NOTIFY_NEWENTRY10
+			-A 2013-12-23cRagexe or newer will be required to use these packets.
+		*Started adding in the Insignia skills.
+			-Note that you can cast them and their animations will show, but they wont give any status effects since I didnt code those in yet.
+		*Added support for 2 new units.
+		*Did some cleanup in status.h and added missing status tags and ID's.
+		*Started fixing obvious bugs that shouldnt be in here.
+			-NC_EMERGENCYCOOL now properly ends the Over Heat status.
+			-LG_REFLECTDAMAGE now properly displays its status icon.
+			-SO_EARTHGRAVE and SO_DIAMONDDUST is now full ground skills, uses the UNIT_DUMMYSKILL like it should, and is now blocked by Land Protector.
+		*Did some cleaning up.
+		*Regular Fixes
+			-SO_PSYCHIC_WAVE effects no longer stack and no longer bypasses walls.
+			-WM_GREAT_ECHO damage formula corrected and updated additional damage formula.
+			-Cleaned up the code for SO_SPELLFIST to use less code and make it more accurate and effective.
+			-Fixed bug where SO_EARTHGRAVE damage was increased by EL_BLAST. Its now correctly increased by EL_CURSED_SOIL.
+			-MI_HARMONIZE now no longer removes Min / Wan chorus buffs and debuffs.
+			-Looked over the Min / Wan solo performance skills and Chorus skills and corrected a few to not, incorrectly cancel out.
+
 04/16/2017
 	r166 [15peaces]
 		*Updated help-documents to reflect all changes I've made on the commands...

@@ -2127,8 +2127,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		break;
 	case WL_SOULEXPANSION:
 	case WL_COMET:
-	case SO_EARTHGRAVE:
-	case SO_DIAMONDDUST:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,skilllv,8);
 		break;
 	case WL_CHAINLIGHTNING_ATK:
@@ -3630,8 +3628,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
 	case WM_METALICSOUND:
-	case SO_EARTHGRAVE:
-	case SO_DIAMONDDUST:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -5310,8 +5306,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case NC_EMERGENCYCOOL:
-		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		status_change_end(src,SC_OVERHEAT_LIMITPOINT,-1);
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		status_change_end(src, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
+		status_change_end(src, SC_OVERHEAT, INVALID_TIMER);
 		break;
 	case NC_INFRAREDSCAN:
 	case GC_COUNTERSLASH:
@@ -8022,16 +8019,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case MI_HARMONIZE:
-		{
-			status_change_end(bl,SC_SWING,INVALID_TIMER);
-			status_change_end(bl,SC_SYMPHONY_LOVE,INVALID_TIMER);
-			status_change_end(bl,SC_MOONLIT_SERENADE,INVALID_TIMER);
-			status_change_end(bl,SC_RUSH_WINDMILL,INVALID_TIMER);
-			status_change_end(bl,SC_ECHOSONG,INVALID_TIMER);
-			status_change_end(bl,SC_HARMONIZE,INVALID_TIMER);
-			clif_skill_nodamage(src, bl, skillid, skilllv,
-				sc_start(bl, type, 100, skilllv, skill_get_time(skillid,skilllv)));
- 		}
+		clif_skill_nodamage(src, bl, skillid, skilllv,sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
 		break;
 
 	case WM_DEADHILLHERE:
@@ -9110,8 +9098,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case NC_ARMSCANNON:
 	case RK_DRAGONBREATH:
 	case WM_LULLABY_DEEPSLEEP:
-	case SO_EARTHGRAVE:
-	case SO_DIAMONDDUST:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub,
 		src->m, x-i, y-i, x+i, y+i, BL_CHAR,
@@ -9417,6 +9403,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case GN_THORNS_TRAP:
 	case GN_DEMONIC_FIRE:
 	case GN_HELLS_PLANT:
+	case SO_EARTHGRAVE:
+	case SO_DIAMONDDUST:
+	case SO_FIRE_INSIGNIA:
+	case SO_WATER_INSIGNIA:
+	case SO_WIND_INSIGNIA:
+	case SO_EARTH_INSIGNIA:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.

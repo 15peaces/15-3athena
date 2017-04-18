@@ -1876,7 +1876,7 @@ packet_keys: 0x7E241DE0,0x5E805580,0x3D807D80 // [Shakto]
 0x0887,36,storagepassword,2:4:20
 0x09C1,10,ZC_C_MARKERINFO,2:6:8
 
-//2013-12-23cRagexe~2014-04-16aRagexe
+//2013-12-23cRagexe
 packet_ver: 33
 packet_keys: 0x631C511C,0x111C111C,0x111C111C // [Shakto]
 0x014f,6,guildrequestinfo,2
@@ -1915,6 +1915,13 @@ packet_keys: 0x631C511C,0x111C111C,0x111C111C // [Shakto]
 0x098A,-1
 0x098D,-1,clanchat,2:4
 0x098E,-1
+
+// New Packet
+0x097A,-1		// ZC_ALL_QUEST_LIST2
+0x09DB,-1		// ZC_NOTIFY_MOVEENTRY10
+0x09DC,-1		// ZC_NOTIFY_NEWENTRY10
+0x09DD,-1	// ZC_NOTIFY_STANDENTRY10
+0x09DF,7		// ZC_ACK_WHISPER02
 
 // 2014-06-12 - 2014-06-13 Ragexe
 packet_ver: 34
