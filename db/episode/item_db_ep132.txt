@@ -1,0 +1,131 @@
+// 15-3athena Items Database for Episode 13.2
+//
+// Structure of Database:
+// ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV,Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
+//
+// Cards
+//===================================================================
+4001,Poring_Card,Poring Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,2; bonus bFlee2,1; },{},{}
+
+4006,Lunatic_Card,Lunatic Card,6,20,,10,,,,,,,,2,,,,,{ bonus bLuk,1; bonus bCritical,1; bonus bFlee2,1; },{},{}
+
+4009,Chonchon_Card,Chonchon Card,6,20,,10,,,,,,,,64,,,,,{ bonus bAgi,1; bonus bFlee,2; },{},{}
+
+4014,Roda_Frog_Card,Roda Frog Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHP,400; bonus bMaxSP,50; },{},{}
+
+4021,Rocker_Card,Rocker Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDex,1; bonus bBaseAtk,5; },{},{}
+
+4025,Skeleton_Card,Skeleton Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,10; bonus2 bAddEff,Eff_Stun,200; },{},{}
+
+4029,Wolf_Card,Wolf Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,15; bonus bCritical,1; },{},{}
+
+4031,Pecopeco_Card,Peco Peco Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,10; },{},{}
+
+4074,BigFoot_Card,Bigfoot Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bSubRace,RC_Insect,30; },{},{}
+
+4090,Munak_Card,Munak Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bResEff,Eff_Stone,1500; bonus2 bSubEle,Ele_Earth,5; bonus bDef,1; },{},{}
+
+4106,Mummy_Card,Mummy Card,6,20,,10,,,,,,,,2,,,,,{ bonus bHit,20; },{},{}
+
+4127,Nightmare_Card,Nightmare Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bResEff,Eff_Sleep,10000; bonus bAgi,1; },{},{}
+
+4153,Crab_Card,Crab Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,5; bonus2 bAddDamageClass,1266,30; if(isequipped(4247,4273)) { bonus3 bAddMonsterDropItem,544,RC_Fish,3000; bonus2 bAddEle,Ele_Water,30; } },{},{}
+
+4161,Grand_Peco_Card,Grand Peco Card,6,20,,10,,,,,,,,769,,,,,{ bonus3 bAutoSpellWhenHit,"PR_GLORIA",1,50; if(isequipped(4031)) { bonus bDef,3; bonus bVit,3; } },{},{}
+4162,Grizzly_Card,Grizzly Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEffWhenHit,Eff_Blind,300+600*(isequipped(4074)); },{},{}
+
+4166,Nightmare_Terror_Card,Nightmare Terror Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEffWhenHit,Eff_Curse,300+600*(isequipped(4127)); },{},{}
+
+4168,Dark_Lord_Card,Dark Lord Card,6,20,,10,,,,,,,,64,,,,,{ bonus3 bAutoSpellWhenHit,"WZ_METEOR",5,100; if(isequipped(4169)) { bonus bMaxHPrate,20; bonus bMaxSPrate,20; } },{},{}
+4169,Dark_Illusion_Card,Dark Illusion Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMaxHPrate,-10; bonus bMaxSPrate,-10; bonus bCastrate,-10-10*isequipped(4168); },{},{}
+
+4172,The_Paper_Card,The Paper Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,20; bonus2 bSPDrainValue,-1,0; },{},{}
+
+4178,Dragon_Tail_Card,Dragon Tail Card,6,20,,10,,,,,,,,4,,,,,{ bonus bAgi,1; bonus bFlee,10; bonus2 bSkillAtk,"AC_DOUBLE",5; bonus2 bSkillAtk,"AC_SHOWER",5; },{},{}
+4179,Dragon_Fly_Card,Dragon Fly Card,6,20,,10,,,,,,,,4,,,,,{ bonus bAgi,1; if(isequipped(4009)) bonus bFlee,18; },{},{}
+
+4183,Vagabond_Wolf_Card,Vagabond Wolf Card,6,20,,10,,,,,,,,4,,,,,{ bonus bStr,1; if(isequipped(4029)) bonus bFlee,18; },{},{}
+
+4185,Rideword_Card,Rideword Card,6,20,,10,,,,,,,,769,,,,,{ bonus bInt,1; if(BaseClass == Job_Acolyte) { bonus bInt,1; bonus bMdef,1; } },{},{}
+4186,Raggler_Card,Raggler Card,6,20,,10,,,,,,,,64,,,,,{ bonus bStr,1; bonus bVit,1; if(isequipped(4233,4281,4321,4206)) { bonus bLuk,10; bonus2 bSPDrainValue,2,0; bonus2 bSkillAtk,42,20; if(BaseClass == Job_Merchant) { bonus2 bAddMonsterDropItem,617,5; bonus bMagicDamageReturn,20; } } },{},{}
+
+4191,Loli_Ruri_Card,Loli Ruri Card,6,20,,10,,,,,,,,16,,,,,{ bonus3 bAutoSpellWhenHit,"AL_HEAL",3,50; },{},{}
+
+4193,Lude_Card,Lude Card,6,20,,10,,,,,,,,136,,,,,{ if(BaseJob==Job_Novice||BaseJob==Job_SuperNovice) bonus3 bAutoSpellWhenHit,"SM_ENDURE",1,200; },{},{}
+
+4197,Mastering_Card,Mastering Card,6,20,,10,,,,,,,,4,,,,,{ bonus bLuk,1; if(isequipped(4001)) bonus bFlee,18; },{},{}
+
+4199,Merman_Card,Merman Card,6,20,,10,,,,,,,,64,,,,,{ bonus bHPrecovRate,10; bonus bSPrecovRate,10; if(isequipped(4297,4234,4252,4178)) { bonus bAgi,5; bonus bDex,3; bonus bLongAtkRate,20; bonus bPerfectHitAddRate,20; if(BaseClass == Job_Archer) { bonus2 bExpAddRace,RC_Brute,5; bonus2 bWeaponComaRace,RC_Brute,100; } } },{},{}
+
+4206,Mystcase_Card,Myst Case Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bAddMonsterDropItem,644,30; },{},{}
+
+4208,Miyabi_Ningyo_Card,Miyabi Doll Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxSPrate,10; bonus2 bSkillAtk,"MG_FROSTDIVER",5; },{},{}
+
+4210,Wander_Man_Card,Wanderer Card,6,20,,10,,,,,,,,4,,,,,{ if(BaseClass == Job_Thief) bonus bFlee,20; if(isequipped(4172,4257,4230,4272) == 0) { bonus3 bAutoSpell,"RG_INTIMIDATE",1,20; } else { bonus bAgi,5; bonus bStr,5; bonus bAspdRate,5; bonus bSpeedRate,25; bonus2 bSPDrainValue,1,0; if(BaseClass == Job_Thief) bonus bNoGemStone,0; } },{},{}
+4211,Vocal_Card,Vocal Card,6,20,,10,,,,,,,,4,,,,,{ bonus bMdef,3; if(isequipped(4021)) bonus bFlee,18; },{},{}
+4212,Bon_Gun_Card,Bongun Card,6,20,,10,,,,,,,,136,,,,,{ bonus3 bAutoSpell,"SM_BASH",1,20; bonus2 bAddSkillBlow,"SM_BASH",5; bonus2 bAddDefClass,1026,-100; },{},{}
+
+4217,Live_Peach_Tree_Card,Enchanted Peach Tree Card,6,20,,10,,,,,,,,32,,,,,{ bonus3 bAutoSpell,"AL_HEAL",1+9*(getskilllv("AL_HEAL")==10),20; if(isequipped(4280,4185,4293,4312)) { bonus bVit,10; bonus bCastrate,-10; bonus bUseSPRate,-10; if(BaseClass == Job_Acolyte) { bonus2 bExpAddRace,RC_Undead,5; bonus2 bExpAddRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,30; bonus2 bSubRace,RC_Demon,30; } } },{},{}
+4218,Succubus_Card,Succubus Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHP,1000; if (isequipped(4269)) { bonus bVit,1; bonus bHPrecovRate,10; } else { bonus bVit,-3; bonus bHPrecovRate,-20; } },{},{}
+
+4220,Solider_Card,Solider Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDef,2; bonus bMdef,2; },{},{}
+
+4222,Skel_Prisoner_Card,Skeleton Prisoner Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEffWhenHit,Eff_Sleep,300+600*(isequipped(4025)); },{},{}
+
+4229,C_Tower_Manager_Card,Tower Keeper Card,6,20,,10,,,,,,,,769,,,,,{ bonus bInt,1; bonus bCastrate,-5; if(isequipped(4244,4299,4313)) { bonus bDef,3; bonus bMdef,3; } },{},{}
+4230,Shinobi_Card,Shinobi Card,6,20,,10,,,,,,,,136,,,,,{ bonus bAgi,1; bonus3 bAutoSpellWhenHit,"AS_CLOAKING",5,100; },{},{}
+
+4233,Baby_Leopard_Card,Baby Leopard Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,3; if(BaseClass == Job_Merchant) bonus bUnbreakableArmor,0; },{},{}
+4234,Anolian_Card,Anolian Card,6,20,,10,,,,,,,,16,,,,,{ bonus3 bAutoSpellWhenHit,"AC_CONCENTRATION",1+9*(getskilllv("AC_CONCENTRATION")==10),30; },{},{}
+
+4237,Owl_Duke_Card,Owl Duke Card,6,20,,10,,,,,,,,136,,,,,{ bonus3 bAutoSpell,"PR_IMPOSITIO",3,3; if(isequipped(4238)) bonus3 bAutoSpell,"MG_LIGHTNINGBOLT",5,20; },{},{}
+4238,Owl_Baron_Card,Owl Baron Card,6,20,,10,,,,,,,,136,,,,,{ bonus3 bAutoSpell,"PR_LEXAETERNA",1,30; },{},{}
+
+4244,Alarm_Card,Alarm Card,6,20,,10,,,,,,,,64,,,,,{ bonus3 bAutoSpellWhenHit,"MG_SIGHT",1,200; bonus bMaxHP,300; bonus bVit,1; },{},{}
+
+4246,Assulter_Card,Assaulter Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,10; bonus2 bCriticalAddRace,RC_DemiHuman,7; },{},{}
+4247,Aster_Card,Aster Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,5; bonus2 bAddDamageClass,1074,30; },{},{}
+4248,Ancient_Mummy_Card,Ancient Mummy Card,6,20,,10,,,,,,,,32,,,,,{ bonus3 bAutoSpellWhenHit,"AL_CRUCIS",5,30; if(isequipped(4106)) bonus bPerfectHitAddRate,20; },{},{}
+
+4252,Alligator_Card,Alligator Card,6,20,,10,,,,,,,,136,,,,,{ bonus bLongAtkDef,5; },{},{}
+
+4257,Wild_Rose_Card,Wild Rose Card,6,20,,10,,,,,,,,64,,,,,{ bonus bAgi,1; if(BaseClass == Job_Thief) bonus bFlee2,5; },{},{}
+4258,Wicked_Nymph_Card,Evil Nymph Card,6,20,,10,,,,,,,,769,,,,,{ bonus bInt,1; bonus bMaxSP,50; },{},{}
+
+4266,Eclipse_Card,Eclipse Card,6,20,,10,,,,,,,,4,,,,,{ bonus bVit,1; if(isequipped(4006)) bonus bFlee,18; },{},{}
+
+4269,Incubus_Card,Incubus Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMaxSP,150; if(isequipped(4218)) { bonus bInt,1; bonus bSPrecovRate,10; } else { bonus bInt,-3; bonus bSPrecovRate,-20; } },{},{}
+
+4272,Dancing_Dragon_Card,Zhu Po Long Card,6,20,,10,,,,,,,,136,,,,,{ bonus bAgi,1; bonus bCritical,3; },{},{}
+4273,Shellfish_Card,Shell Fish Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,5; bonus2 bAddDamageClass,1073,30; },{},{}
+
+4280,Geographer_Card,Geographer Card,6,20,,10,,,,,,,,16,,,,,{ bonus3 bAutoSpellWhenHit,"AL_BLESSING",2+8*(getskilllv("AL_BLESSING")==10),30; },{},{}
+4281,Zipper_Bear_Card,Zipper Bear Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,30; bonus2 bSPDrainValue,-1,0; if(BaseClass == Job_Merchant) bonus bUnbreakableWeapon,0; },{},{}
+
+4293,Cookie_Card,Cookie Card,6,20,,10,,,,,,,,136,,,,,{ bonus bLuk,2; bonus2 bSkillAtk,"AL_HOLYLIGHT",10; },{},{}
+4294,Quve_Card,Quve Card,6,20,,10,,,,,,,,136,,,,,{ if(BaseJob==Job_Novice||BaseJob==Job_SuperNovice) bonus3 bAutoSpellWhenHit,"AL_INCAGI",1,100; if(isequipped(4193)) { bonus bMaxHP,300; bonus bMaxSP,60; } },{},{}
+
+4297,Cruiser_Card,Cruiser Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,10; bonus2 bCriticalAddRace,RC_Brute,7; },{},{}
+
+4299,Clock_Card,Clock Card,6,20,,10,,,,,,,,16,,,,,{ bonus3 bAutoSpellWhenHit,"CR_AUTOGUARD",3+7*(getskilllv("CR_AUTOGUARD")==10),30; },{},{ sc_end SC_AUTOGUARD; }
+
+4306,Toad_Card,Toad Card,6,20,,10,,,,,,,,4,,,,,{ bonus bFlee2,1; if(isequipped(4014)) bonus bFlee,18; },{},{}
+
+4309,Parasite_Card,Parasite Card,6,20,,10,,,,,,,,32,,,,,{ bonus bDef,1; bonus2 bSubEle,Ele_Neutral,5; },{},{}
+
+4311,Permeter_Card,Permeter Card,6,20,,10,,,,,,,,769,,,,,{ bonus2 bSubEle,Ele_Dark,15; bonus2 bSubEle,Ele_Undead,15; },{},{}
+4312,Fur_Seal_Card,Seal Card,6,20,,10,,,,,,,,2,,,,,{ bonus bFlee,3; bonus bHit,10; if(BaseClass == Job_Acolyte) { bonus2 bCriticalAddRace,RC_Undead,9; bonus2 bCriticalAddRace,RC_Demon,9; } },{},{}
+4313,Punk_Card,Punk Card,6,20,,10,,,,,,,,4,,,,,{ bonus4 bAutoSpellWhenHit,"WZ_QUAGMIRE",1+4*(getskilllv("WZ_QUAGMIRE")==5),50,0; },{},{}
+
+4319,Freezer_Card,Freezer Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxHP,300; if(getrefine()>=9) bonus2 bSkillAtk,"SM_BASH",10; if(isequipped(4246,4311,4220,4331)) { bonus bStr,10; bonus bMaxHPrate,20; bonus bHPrecovRate,50; bonus3 bAutoSpell,"BS_WEAPONPERFECT",1,3; bonus2 bAddMonsterDropItem,501,500; if(BaseClass == Job_Swordman) { bonus2 bAddItemHealRate,IG_Potion,50; } } },{},{}
+
+4321,Hylozoist_Card,Hylozoist Card,6,20,,10,,,,,,,,136,,,,,{ bonus bClassChange,100; },{},{}
+
+4323,Garm_Baby_Card,Hatii Babe Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAutoSpell,"MG_FROSTDIVER",3,50+250*isequipped(4324); },{},{}
+4324,Garm_Card,Hatii Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEffWhenHit,Eff_Freeze,5000; },{},{}
+4325,Harpy_Card,Harpy Card,6,20,,10,,,,,,,,4,,,,,{ bonus2 bSubEle,Ele_Neutral,15; bonus2 bSkillAtk,"MG_NAPALMBEAT",5; if(isequipped(4191,4208,4258,4309,4327)) { bonus bMaxHP,500; bonus bDef,5; bonus bMdef,5; bonus2 bSkillAtk,14,10; bonus2 bSkillAtk,19,10; bonus2 bSkillAtk,20,10; if(BaseClass == Job_Mage) { bonus bMatkRate,3; bonus bCastrate,-15; } } },{},{}
+
+4327,Blood_Butterfly_Card,Bloody Butterfly Card,6,20,,10,,,,,,,,136,,,,,{ bonus bCastrate,30; bonus bNoCastCancel,0; bonus2 bSkillAtk,18,5; },{},{}
+4328,Hyegun_Card,Yao Jun Card,6,20,,10,,,,,,,,4,,,,,{ bonus bFlee,15; bonus bCritical,1; if(isequipped(4090,4212)) bonus bAllStats,1; },{},{}
+
+4331,Heater_Card,Heater Card,6,20,,10,,,,,,,,136,,,,,{ bonus bCritical,3; if(BaseClass == Job_Swordman) bonus bFlee2,3; },{},{}

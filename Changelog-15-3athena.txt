@@ -4,6 +4,26 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/22/2017
+	r168 [15peaces]
+		*Merged missing changes from 3ceam rev. 607 - 612
+		*Added missing Catalog Magician NPC.
+			-corrected a Tutorial Instructor dialog.
+		*Added item_db for Episode 13.2
+			-it's not a ready db right now, only some cards are added right now. ^^
+		*SC_BLOODYLUST AoE size corrected to a 5x5.
+		*GN_HELLS_PLANT AoE corrected to a 3x3.
+		*Fixed SC_FATALMENACE crash bug.
+		*Fixed SC_SHADOWFORM and GN_SLINGITEM to no longer allow use on players outside a duel.
+		*Fixed SR_RAISINGDRAGON to no longer allow using Asura Strike with 1 sphere.
+		*WM_SOUND_OF_DESTRUCTION now removes all singing, dancing, esemble, chorus, etc. buffs from targeted players, including the ones in the AoE around the target by a chance.
+			-Added a temporarly % chance until we get the official formula. Chance: 5 + 5 * Skill LV.
+		*Fixed WM_SATURDAY_NIGHT_FEVER to be more official. Still a bit buggy, but it works much better.
+		*Changed GN_HELLS_PLANT_ATK damage formula to a more thought out and balanced one.
+			-The old one clearly showed it was over powered due to players being able to deal over 14k damage on other players if the caster had 120 INT, max level AM_CANNIBALIZE and GN_HELLS_PLANT, and the target was level 150. Even with renewal mechanics the 
+				--damage would be the same. That damage can kill most players easly in PVP, which is bullshit. So that old formula was proven to be incorrect and needed a temporarly change until we can get the official one.
+				--Note: Hell Plant may be stable and slightly buggy, but is now in question if it needs to be recoded.
+
 04/18/2017
 	r167 [15peaces]
 		*Merged missing changes from 3ceam rev. 605 - 606

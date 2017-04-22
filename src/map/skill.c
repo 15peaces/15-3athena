@@ -1159,6 +1159,39 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case SR_HOWLINGOFLION:
 		sc_start(bl, SC_FEAR, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
+	case WM_SOUND_OF_DESTRUCTION:
+		if (rand()%100 < 5 + 5 * skilllv) // Temporarly Check Until We Get the Official Formula
+		{
+			status_change_end(bl, SC_DANCING, INVALID_TIMER);
+			status_change_end(bl, SC_RICHMANKIM, INVALID_TIMER);
+			status_change_end(bl, SC_ETERNALCHAOS, INVALID_TIMER);
+			status_change_end(bl, SC_DRUMBATTLE, INVALID_TIMER);
+			status_change_end(bl, SC_NIBELUNGEN, INVALID_TIMER);
+			status_change_end(bl, SC_INTOABYSS, INVALID_TIMER);
+			status_change_end(bl, SC_SIEGFRIED, INVALID_TIMER);
+			status_change_end(bl, SC_WHISTLE, INVALID_TIMER);
+			status_change_end(bl, SC_ASSNCROS, INVALID_TIMER);
+			status_change_end(bl, SC_POEMBRAGI, INVALID_TIMER);
+			status_change_end(bl, SC_APPLEIDUN, INVALID_TIMER);
+			status_change_end(bl, SC_HUMMING, INVALID_TIMER);
+			status_change_end(bl, SC_FORTUNE, INVALID_TIMER);
+			status_change_end(bl, SC_SERVICE4U, INVALID_TIMER);
+			status_change_end(bl, SC_LONGING, INVALID_TIMER);
+			status_change_end(bl, SC_SWING, INVALID_TIMER);
+			status_change_end(bl, SC_SYMPHONY_LOVE, INVALID_TIMER);
+			status_change_end(bl, SC_MOONLIT_SERENADE, INVALID_TIMER);
+			status_change_end(bl, SC_RUSH_WINDMILL, INVALID_TIMER);
+			status_change_end(bl, SC_ECHOSONG, INVALID_TIMER);
+			status_change_end(bl, SC_HARMONIZE, INVALID_TIMER);
+			status_change_end(bl, SC_WINKCHARM, INVALID_TIMER);
+			status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
+			status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
+			status_change_end(bl, SC_LERADS_DEW, INVALID_TIMER);
+			status_change_end(bl, SC_MELODYOFSINK, INVALID_TIMER);
+			status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
+			status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
+		}
+		break;
 	case SO_EARTHGRAVE:
 		sc_start(bl, SC_BLEEDING, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
@@ -2358,11 +2391,12 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			status_change_end(bl, SC_DEVOTION, INVALID_TIMER);
 	}
 
-	if( damage > 0 && !(tstatus->mode&MD_BOSS) ){
-		if( skillid == RG_INTIMIDATE && rand()%100 < (50 + skilllv * 5 + status_get_lv(src) - status_get_lv(bl)) )
-			skill_addtimerskill(src,tick + 800,bl->id,0,0,skillid,skilllv,0,flag);
-		else if( skillid == SC_FATALMENACE )
-			skill_addtimerskill(bl,tick + 800,0,skill_area_temp[4],skill_area_temp[5],skillid,skilllv,0,flag);
+	if (damage > 0 && !(tstatus->mode&MD_BOSS))
+	{
+		if (skillid == RG_INTIMIDATE && rand()%100 < (50 + skilllv * 5 + status_get_lv(src) - status_get_lv(bl)))
+			skill_addtimerskill(src, tick + 800, bl->id, 0, 0, skillid, skilllv, 0, flag);
+		else if (skillid == SC_FATALMENACE)
+			skill_addtimerskill(bl, tick + 800, bl->id, skill_area_temp[4], skill_area_temp[5], skillid, skilllv, 0, flag);
 	}
 	if(skillid == CR_GRANDCROSS || skillid == NPC_GRANDDARKNESS)
 		dmg.flag |= BF_WEAPON;
@@ -8134,48 +8168,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	/*case WM_SOUND_OF_DESTRUCTION:
-		if( flag&1 )
-		{
-			if( tsc && tsc->count )
-			{
-				if( rand()%100 < min((tstatus->int_/5) + (tstatus->dex/5) + skill_area_temp[0],100) )
-				{
-					status_change_end(bl,SC_DANCING,INVALID_TIMER);
-					status_change_end(bl,SC_RICHMANKIM,INVALID_TIMER);
-					status_change_end(bl,SC_ETERNALCHAOS,INVALID_TIMER);
-					status_change_end(bl,SC_DRUMBATTLE,INVALID_TIMER);
-					status_change_end(bl,SC_NIBELUNGEN,INVALID_TIMER);
-					status_change_end(bl,SC_ROKISWEIL,INVALID_TIMER);
-					status_change_end(bl,SC_INTOABYSS,INVALID_TIMER);
-					status_change_end(bl,SC_SIEGFRIED,INVALID_TIMER);
-					status_change_end(bl,SC_WHISTLE,INVALID_TIMER);
-					status_change_end(bl,SC_ASSNCROS,INVALID_TIMER);
-					status_change_end(bl,SC_POEMBRAGI,INVALID_TIMER);
-					status_change_end(bl,SC_APPLEIDUN,INVALID_TIMER);
-					status_change_end(bl,SC_HUMMING,INVALID_TIMER);
-					status_change_end(bl,SC_DONTFORGETME,INVALID_TIMER);
-					status_change_end(bl,SC_FORTUNE,INVALID_TIMER);
-					status_change_end(bl,SC_SERVICE4U,INVALID_TIMER);
-					status_change_end(bl,SC_LONGING,INVALID_TIMER);
-					status_change_end(bl,SC_HERMODE,INVALID_TIMER);
-					status_change_end(bl,SC_WINKCHARM,INVALID_TIMER);
-					status_change_end(bl,SC_SONG_OF_MANA,INVALID_TIMER);
-					status_change_end(bl,SC_DANCE_WITH_WUG,INVALID_TIMER);
-					status_change_end(bl,SC_LERADS_DEW,INVALID_TIMER);
-					status_change_end(bl,SC_MELODYOFSINK,INVALID_TIMER);
-					status_change_end(bl,SC_BEYOND_OF_WARCRY,INVALID_TIMER);
-					status_change_end(bl,SC_UNLIMITED_HUMMING_VOICE,INVALID_TIMER);
-				}
-			}
-		} else {
-			short lv = skilllv;
-			skill_area_temp[0] = (sd) ? skill_check_pc_partner(sd, skillid, &lv, skill_get_splash(skillid, skilllv), 1) : 50; // 50% chance in non BL_PC (clones).
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-		}
-		break; */
-
 	case WM_RANDOMIZESPELL:
 		{
 			int improv_skillid = 0, improv_skilllv;
@@ -8356,9 +8348,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			sd->itemid = ammo_id;
 			if( itemdb_is_GNbomb( ammo_id ) ) 
 			{ 
-				if( battle_check_target( src, bl, BCT_ENEMY ) >= 0 )
-				{	// Only attack if the target is an enemy.
-					if( ammo_id == 13263 )
+				if(battle_check_target(src, bl, BCT_ENEMY) > 0)
+				{// Only attack if the target is an enemy.
+					if(ammo_id == 13263)
 						map_foreachincell( skill_area_sub, bl->m, bl->x, bl->y, BL_CHAR, src, GN_SLINGITEM_RANGEMELEEATK, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id );
 					else
 						skill_attack( BF_WEAPON, src, src, bl, GN_SLINGITEM_RANGEMELEEATK, skilllv, tick, flag );
@@ -12864,7 +12856,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 				}
 			}
 			else if (sc->data[SC_RAISINGDRAGON]) //Only Asura will consume all remaining balls under RD status. [Jobbie]
-			req.spiritball = (sd && sd->spiritball) ? sd->spiritball : 15;
+			req.spiritball = max((sd) ? sd->spiritball : 15, 5);
 			break;
 		case LG_RAGEBURST:
 			req.spiritball = sd->rageball?sd->rageball:1;

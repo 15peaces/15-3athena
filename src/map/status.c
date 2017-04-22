@@ -530,7 +530,7 @@ void initChangeTables(void)
 	set_sc( WM_GLOOMYDAY				, SC_GLOOMYDAY				, SI_GLOOMYDAY				, SCB_FLEE|SCB_ASPD );
 	set_sc( WM_SONG_OF_MANA				, SC_SONG_OF_MANA			, SI_SONG_OF_MANA			, SCB_NONE );
 	set_sc( WM_DANCE_WITH_WUG			, SC_DANCE_WITH_WUG			, SI_DANCE_WITH_WUG			, SCB_ASPD );
-	set_sc( WM_SATURDAY_NIGHT_FEVER     , SC_SATURDAY_NIGHT_FEVER   , SI_SATURDAY_NIGHT_FEVER   , SCB_BATK|SCB_DEF|SCB_FLEE|SCB_SPEED|SCB_ASPD|SCB_MAXHP|SCB_REGEN );
+	set_sc( WM_SATURDAY_NIGHT_FEVER		, SC_SATURDAY_NIGHT_FEVER	, SI_SATURDAY_NIGHT_FEVER	, SCB_BATK|SCB_DEF|SCB_FLEE|SCB_REGEN );
 	set_sc( WM_LERADS_DEW				, SC_LERADS_DEW				, SI_LERADS_DEW				, SCB_MAXHP );
 	set_sc( WM_MELODYOFSINK             , SC_MELODYOFSINK           , SI_MELODYOFSINK           , SCB_BATK|SCB_MATK );
 	set_sc( WM_BEYOND_OF_WARCRY			, SC_BEYOND_OF_WARCRY		, SI_BEYOND_OF_WARCRY		, SCB_BATK|SCB_MATK );
@@ -1228,11 +1228,12 @@ int status_heal(struct block_list *bl,int hp,int sp, int flag)
 		hp = 0;
 	}
 
-	if(hp) {
-		if (!(flag&1) && sc && (sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER]))
+	if (hp)
+	{
+		if (!(flag&1) && sc && (sc->data[SC_BERSERK]))
 			hp = 0;
 
-		if((unsigned int)hp > status->max_hp - status->hp)
+		if ((unsigned int)hp > status->max_hp - status->hp)
 			hp = status->max_hp - status->hp;
 	}
 
@@ -1506,6 +1507,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_CRYSTALIZE] ||
 				sc->data[SC__IGNORANCE] || // Target afflicted with this debuff cannot use skills or magic.
 				sc->data[SC_DEEPSLEEP] ||
+				sc->data[SC_SATURDAY_NIGHT_FEVER] ||
 				sc->data[SC_CURSEDCIRCLE_TARGET]
 			))
 				return 0;
@@ -4888,9 +4890,9 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= max;
 
 	  	//These stack with the rest of bonuses.
-		if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+		if (sc->data[SC_BERSERK])
 			aspd_rate -= 300;
-		else if(sc->data[SC_MADNESSCANCEL])
+		else if (sc->data[SC_MADNESSCANCEL])
 			aspd_rate -= 200;
 	}
 
@@ -4984,7 +4986,7 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * sc->data[SC_APPLEIDUN]->val2/100;
 	if(sc->data[SC_DELUGE])
 		maxhp += maxhp * sc->data[SC_DELUGE]->val2/100;
-	if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+	if(sc->data[SC_BERSERK])
 		maxhp += maxhp * 2;
 	if(sc->data[SC_MARIONETTE])
 		maxhp -= 1000;
@@ -6067,10 +6069,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if((type == SC_FREEZE || type == SC_FREEZING) && sc->data[SC_WARMER])
 				return 0; //Immune to Frozen and Freezing status if under Warmer status. [Jobbie]
 			break;
-		case SC_BERSERK:
-			if( sc->data[SC_SATURDAY_NIGHT_FEVER] )
-				return 0;
-			break;
 		case SC_BURNING:
 			if(sc->data[SC_FREEZING] || sc->opt1)
 				return 0;
@@ -6315,10 +6313,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			}
 			if (tick == 1) return 1; //Minimal duration: Only strip without causing the SC
 			break;
-		case SC_SATURDAY_NIGHT_FEVER:
-			if(sc->data[SC_BERSERK] || sc->data[SC_INSPIRATION])
-				return 0;
-			break;
 		case SC_MAGNETICFIELD:
 			if(sc->data[SC_HOVERING])
 				return 0;
@@ -6431,7 +6425,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_CLOSECONFINE2, INVALID_TIMER);
 		break;
 	case SC_BERSERK:
-	case SC_SATURDAY_NIGHT_FEVER:
 		if(battle_config.berserk_cancels_buffs)
 		{
 			status_change_end(bl, SC_ONEHAND, INVALID_TIMER);
@@ -9022,7 +9015,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			opt_flag = 0;
 			break;
 		case SC_BERSERK:
-		case SC_SATURDAY_NIGHT_FEVER:
 			sc->opt3 &= ~OPT3_BERSERK;
 			opt_flag = 0;
 			break;

@@ -802,8 +802,8 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		struct block_list *s_bl = map_id2bl(sc->data[SC__SHADOWFORM]->val2);
 		if (!s_bl) // If the shadow form target is not present remove the sc.
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
-		else if (status_isdead(s_bl))
-		{ // If the shadow form target is dead remove the sc in both.
+		else if (status_isdead(s_bl) || !battle_check_target(src, s_bl, BCT_ENEMY))
+		{ // If the shadow form target is dead or not your enemy remove the sc in both.
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			if (s_bl->type == BL_PC)
 				((TBL_PC*)s_bl)->shadowform_id = 0;
@@ -4004,7 +4004,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = 200 + 100 * skill_lv + sstatus->int_;
 		break;
 	case GN_HELLS_PLANT_ATK:
-		md.damage = ((sstatus->int_ * 25) + (status_get_lv(target) * 15) * skill_lv) + (10 / (10 - pc_checkskill(sd,AM_CANNIBALIZE)));
+		md.damage = sstatus->int_ * 4 * skill_lv * (10 / (10 - pc_checkskill(sd, AM_CANNIBALIZE))); // Need accurate official formula. [Rytech]
  		break;
 	case KO_HAPPOKUNAI:
 		{
