@@ -441,10 +441,11 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			return 0;
 		}
 
-		if( sc->data[SC_WEAPONBLOCKING] && flag&BF_SHORT && rand()%100 < sc->data[SC_WEAPONBLOCKING]->val2 ) {
-			clif_skill_nodamage(bl,src,GC_WEAPONBLOCKING,1,1);
+		if (sc->data[SC_WEAPONBLOCKING] && flag&(BF_SHORT|BF_WEAPON) && rand()%100 < sc->data[SC_WEAPONBLOCKING]->val2)
+		{
+			clif_skill_nodamage(bl, src, GC_WEAPONBLOCKING, 1, 1);
 			d->dmg_lv = ATK_NONE;
-			sc_start2(bl,SC_COMBO,100,GC_WEAPONBLOCKING,src->id,2000);
+			sc_start2(bl, SC_COMBO, 100, GC_WEAPONBLOCKING, src->id, 2000);
 			return 0;
 		}
 
@@ -1657,9 +1658,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				ATK_ADDRATE(50 * skill_lv); //Skill modifier applies to weight only.
 				i = sstatus->str/10;
 				i *= i;
-				ATK_ADD(i); //Add str bonus.
+				ATK_ADD(i); // Add str bonus.
 				if (sc && sc->data[SC_GLOOMYDAY_SK] && skill_num == LK_SPIRALPIERCE)
-					ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
+					ATK_ADDRATE(100 + 25 * (sc->data[SC_GLOOMYDAY_SK]->val1-1));
 				switch (tstatus->size) 
 				{ //Size-fix. Is this modified by weapon perfection?
 					case 0: //Small: 125%
@@ -3435,12 +3436,25 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 100*skill_lv;
 						break;
 					case NPC_EARTHQUAKE:
-						skillratio += 100 +100*skill_lv +100*(skill_lv/2);
+						skillratio += 100 + 100*skill_lv + 100*(skill_lv/2);
 						break;
 
-					case AB_RENOVATIO: // 3ceam v1
+					case AB_JUDEX:
+						skillratio = skillratio + ((skill_lv == 5) ? 300 : 180 + 20 * skill_lv);
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
+ 						break;
+					case AB_ADORAMUS: 
+						skillratio = skillratio + 100 + 100 * skill_lv;
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
+ 						break;
+					case AB_RENOVATIO:
 						if( sd )
 							skillratio = (int)((15*sd->status.base_level)+(1.5*sd->status.int_));//Damage calculation from iRO wiki. [Jobbie]
+						break;
+					case AB_DUPLELIGHT_MAGIC:
+						skillratio += 100 + 20 * skill_lv;
 						break;
 
 					case WL_SOULEXPANSION:
@@ -3455,8 +3469,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WL_FROSTMISTY:
 						skillratio = skillratio + 100 + 100 * skill_lv;
-						if(s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WL_JACKFROST:
 						{
@@ -3472,9 +3486,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						}
 						break;
 					case WL_DRAINLIFE:
-						skillratio = (skillratio + 400 + 100 * skill_lv * (1 + sstatus->int_/1000));
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						skillratio += 400 + 100 * skill_lv * (1 + sstatus->int_/1000);
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WL_CRIMSONROCK:
 						skillratio += 1200 + 300 * skill_lv;
@@ -3487,7 +3501,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						else
 							skillratio += 240 * skill_lv - 100;
 						if (s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 						break;
 					case WL_COMET:
 						i = distance_xy( target->x, target->y, sc->comet_x, sc->comet_y );
@@ -3500,14 +3514,14 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 1000 + 500 * skill_lv;
 						break;
 					case WL_CHAINLIGHTNING_ATK:
-						skillratio = (skillratio + 100 + 300 * skill_lv);
+						skillratio += 100 + 300 * skill_lv;
 						if (s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WL_EARTHSTRAIN:
-						skillratio = (skillratio + 1900 + 100 * skill_lv);
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						skillratio += 1900 + 100 * skill_lv;
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WL_TETRAVORTEX_FIRE:
 					case WL_TETRAVORTEX_WATER:
@@ -3520,13 +3534,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SUMMON_ATK_WIND:
 					case WL_SUMMON_ATK_GROUND:
 						skillratio += 50 * skill_lv - 50;
-						if (s_level > 100) 
+						if (s_level > 100)
 							skillratio += skillratio * (s_level - 100) / 100 + (s_job_level / 50);
 						break;
 					case LG_RAYOFGENESIS:
 						skillratio = (skillratio + 200) * skill_lv;
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WM_METALICSOUND:
 						skillratio += 120 * skill_lv + 60 * pc_checkskill(sd, WM_LESSON) - 100;
@@ -3539,29 +3553,29 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case SO_FIREWALK:
 						skillratio = 300;
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc && sc->data[SC_HEATER_OPTION])
 							skillratio += skillratio * sc->data[SC_HEATER_OPTION]->val3 / 100;
 						break;
 					case SO_ELECTRICWALK:
 						skillratio = 300;
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc && sc->data[SC_BLAST_OPTION])
 							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_EARTHGRAVE:
 						skillratio = (200 * pc_checkskill(sd, SA_SEISMICWEAPON) + sstatus->int_ * skill_lv);
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 						if (sc && sc->data[SC_CURSED_SOIL_OPTION])
 							skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val2 / 100;
 						break;
 					case SO_DIAMONDDUST:
 						skillratio = (200 * pc_checkskill(sd, SA_FROSTWEAPON) + sstatus->int_ * skill_lv);
 						if (s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc && sc->data[SC_COOLER_OPTION])
 							skillratio += skillratio * sc->data[SC_COOLER_OPTION]->val3 / 100;
 						break;
@@ -3572,8 +3586,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case SO_PSYCHIC_WAVE:
 						skillratio += -100 + skill_lv * 70 + (sstatus->int_ * 3);
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc)
 						{
 							if (sc->data[SC_HEATER_OPTION])
@@ -3588,15 +3602,15 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case SO_VARETYR_SPEAR: //Assumed Formula.
 						skillratio += -100 + ( 100 * pc_checkskill(sd, SA_LIGHTNINGLOADER) + sstatus->int_ * skill_lv );
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+						if (s_level > 100)
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc && sc->data[SC_BLAST_OPTION])
 							skillratio += skillratio * sc->data[SC_BLAST_OPTION]->val2 / 100;
 						break;
 					case SO_CLOUD_KILL:
 						skillratio += -100 + skill_lv * 40;
 						if (s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						if (sc && sc->data[SC_CURSED_SOIL_OPTION])
 							skillratio += skillratio * sc->data[SC_CURSED_SOIL_OPTION]->val2 / 100;
 						break;
@@ -3612,19 +3626,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						else
 							skillratio += 110 + 20 * skill_lv;
 						break;
-
-					case AB_JUDEX:
-						skillratio = (skillratio + (skill_lv == 5) ? 300 : 180 + 20 * skill_lv);
-						if(s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
- 						break;
-					case AB_ADORAMUS: 
-						skillratio = (skillratio + 100 + 100 * skill_lv);
-						if (s_level > 100) 
-							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
- 						break;
-					case AB_DUPLELIGHT_MAGIC:
-						skillratio += 100 + 20 * skill_lv;
 
 					case EL_CIRCLE_OF_FIRE:
 						skillratio += 300 * skill_lv;
@@ -4192,15 +4193,16 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage += (*damage) * sd->short_weapon_damage_return / 100;
 			rdamage = max(rdamage,1);
 		}
-		if( sc && sc->data[SC_DEATHBOUND] ){
-			int dir = map_calc_dir(bl,src->x,src->y),
-				t_dir = unit_getdir(bl), rd1 = 0;
+		if (sc && sc->data[SC_DEATHBOUND] && !is_boss(src))
+		{
+			int dir = map_calc_dir(bl, src->x, src->y), t_dir = unit_getdir(bl), rd1 = 0;
 
-			if( distance_bl(src,bl) <= 0 || !map_check_dir(dir,t_dir) ){
-				rd1 = min((*damage),max_damage) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
+			if (distance_bl(src,bl) <= 0 || !map_check_dir(dir, t_dir))
+			{
+				rd1 = min((*damage), max_damage) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
 				(*damage) = rd1 * 30 / 100; // Received damge = 30% of amplifly damage.
-				clif_skill_damage(src,bl,gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1,6);
-				status_change_end(bl,SC_DEATHBOUND,-1);
+				clif_skill_damage(src, bl, gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1, 6);
+				status_change_end(bl, SC_DEATHBOUND, INVALID_TIMER);
 				rdamage += rd1;
 			}
 		}
@@ -4216,7 +4218,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage += (*damage) / 100;
 			rdamage = cap_value(rdamage,1,max_damage);
 		}
-		if (sc && sc->data[SC_CRESCENTELBOW] && !is_boss(bl) && rand()%100 < sc->data[SC_CRESCENTELBOW]->val2)
+		if (sc && sc->data[SC_CRESCENTELBOW] && !(flag&BF_SKILL) && !is_boss(src) && rand()%100 < sc->data[SC_CRESCENTELBOW]->val2)
 		{	// Stimated formula from test
 			rdamage += (int)((*damage) + (*damage) * status_get_hp(src) * 2.15 / 100000);
 			if (rdamage < 1)
@@ -4493,10 +4495,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			skill_attack(skill_get_type(skillid), src, src, target, skillid, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
 		}
 
-		if( tsc && tsc->data[SC_DEATHBOUND] && (sstatus->mode&MD_BOSS)  )
-			rdamage = 0;
-		else
-			rdamage = battle_calc_return_damage(src, target, &damage, wd.flag);
+		rdamage = battle_calc_return_damage(src, target, &damage, wd.flag);
 
 		if( rdamage > 0 )
 		{

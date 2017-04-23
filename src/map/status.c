@@ -8709,17 +8709,17 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					bl->m, bl->x-range, bl->y-range, bl->x+range,bl->y+range,BL_CHAR,bl,sce,type,gettick());
 			}
 			break;
-		case SC_COMBO:
-			if( sd )
-			switch (sce->val1) {
-				case MO_COMBOFINISH:
-				case CH_TIGERFIST:
-				case CH_CHAINCRUSH:
-					clif_skillupdateinfo(sd, MO_EXTREMITYFIST, 0, 1);
-					break;
-				case TK_JUMPKICK:
-					clif_skillupdateinfo(sd, TK_JUMPKICK, 0, 1);
-					break;
+		case SC_COMBO: //Clear last used skill when it is part of a combo.
+			if (sd)
+			{
+				if (sd->state.combo)
+				{
+					sd->state.combo = 0;
+					clif_skillupdateinfoblock(sd);
+				}
+				if (sd->skillid_old == sce->val1)
+					sd->skillid_old = sd->skilllv_old = 0;
+				clif_skillupdateinfo(sd, SR_DRAGONCOMBO, INF_ATTACK_SKILL, 1);
 			}
 			break;
 
@@ -9667,7 +9667,8 @@ int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
 		break;
 
 	case SC_READING_SB:
-		status_charge(bl,0,sce->val2);
+		if (!status_charge(bl, 0, sce->val2))
+			break;
 		sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 		return 0;
 

@@ -205,13 +205,14 @@ int elemental_data_received(struct s_elemental *ele, bool flag) {
 	sd->status.ele_id = ele->elemental_id;
 	ed->battle_status.mode = ele->mode = EL_MODE_PASSIVE; // Initial mode.
 
-	if( ed && ed->bl.prev == NULL && sd->bl.prev != NULL ) {
+	if (ed->bl.prev == NULL && sd->bl.prev != NULL)
+	{
 		map_addblock(&ed->bl);
 		clif_spawn(&ed->bl);
 		clif_elemental_info(sd);
-		clif_elemental_updatestatus(sd,SP_HP);
-		clif_hpmeter_single(sd->fd,ed->bl.id,ed->battle_status.hp,ed->battle_status.matk_max);
-		clif_elemental_updatestatus(sd,SP_SP);
+		clif_elemental_updatestatus(sd, SP_HP);
+		clif_hpmeter_single(sd->fd, ed->bl.id, ed->battle_status.hp, ed->battle_status.matk_max);
+		clif_elemental_updatestatus(sd, SP_SP);
 	}
 
 	return 1;

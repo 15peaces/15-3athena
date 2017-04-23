@@ -4,6 +4,30 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+04/23/2017
+	r169 [15peaces]
+		*Merged missing changes from 3ceam rev. 613 - 614
+		*Updated Thanatos Tower Quest to episode 13.1 version.
+			-thanks to @rathena.
+		*Fixed wrong itemdrop with Galapago Card.
+		*Weapon Block no longer trigger on short range magic skills.
+		*Fixed the damage Spiral Pierce damage bonus from Gloomy Day.
+		*Fixed a bug that Spirit of Wizard didn't block Kaite's reflection when Fragment was available.
+		*Fixed a crash bug caused by SC_FATALMENACE.
+		*Fixed the blind chance of SC_BODYPAINT.
+		*Some minor cleanup.
+		*SO_CLOUD_KILL now officially hits every 0.3 seconds.
+		*SO_WARMER now fully works.
+			-Status activates when standing in the AoE and lasts for 30 seconds when outside the AoE.
+		*Adjusted max level of elemental spirit skills to all have 1 level.
+			-Their all officially max lv 1 and its pointless to have anything higher.
+		*SR_CRESCENTELBOW now fully requires 2 spirit spheres to use. If you dont have them then the skill will fail.
+			-This is one of those bugs on the official server thats clearly a bug and shouldnt be coded in here.
+		*Fixed some long standing Crescent Elbow bug.
+		*Fixed GN_MAKEBOMB wasn't creating the right amount of item sometimes.
+		*Fixed a glitch with SR_DRAGONCOMBO.
+		*Fixed SC_READING_SB wasn't canceled when the user ran out of sp.
+
 04/22/2017
 	r168 [15peaces]
 		*Merged missing changes from 3ceam rev. 607 - 612

@@ -5091,7 +5091,6 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 	WFIFOSET(fd,len);
 }
 
-
 /// Adds new skill to the skill tree (ZC_ADD_SKILL).
 /// 0111 <skill id>.W <type>.L <level>.W <sp cost>.W <attack range>.W <skill name>.24B <upgradable>.B
 void clif_addskill(struct map_session_data *sd, int id)
