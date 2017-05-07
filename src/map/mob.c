@@ -4411,7 +4411,7 @@ static void mob_load(void)
 	mob_read_randommonster();
 	mob_readchatdb();
 	mob_readskilldb();
-	sv_readdb(db_path, "mob_race2_db.txt", ',', 2, 20, -1, &mob_readdb_race2);
+	sv_readdb(db_path, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2);
 }
 
 void mob_reload(void)

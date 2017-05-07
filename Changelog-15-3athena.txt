@@ -4,6 +4,15 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/07/2017
+	r170 [15peaces]
+		*Merged missing changes from 3ceam rev. 615
+		*Added more episode 13.2 item-combos found on aegis.
+		*Fixed an issue in RWC 2012 enchanter where Spell / MATK options where switched.
+		*Changed some random mobs to fit pre-renewal system.
+		*Added some missing items.
+		*Fixed a bug found on Queen Scaraba Card where not all damage bonusses where applied properly.
+
 04/23/2017
 	r169 [15peaces]
 		*Merged missing changes from 3ceam rev. 613 - 614

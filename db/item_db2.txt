@@ -930,7 +930,7 @@
 2881,Orleans_Necklace,Orleans Necklace,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bDex,2; bonus bMatk,20; },{},{}
 2882,Ecoro_Cardslip,Ecoro Cardslip,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bVit,1; bonus bLuk,1; },{},{}
 2883,Ur_Seal,Ur's Seal,5,20,,200,,4,,1,0x00000080,56,2,136,,100,0,0,{ bonus bMaxHPrate,2; bonus2 bSkillUseSP,"LK_SPIRALPIERCE",5; bonus2 bSkillUseSP,"RK_HUNDREDSPEAR",5; },{},{}
-2967,RWC_2012_Ring_,Chambered RWC 2012 Ring,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,Race_All,1; },{},{}
+2967,RWC_2012_Ring_,Chambered RWC 2012 Ring,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; },{},{}
 2968,RWC_2012_Pendant,RWC 2012 Pendant,5,20,,200,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bMatkRate,1; },{},{}
 2969,RWC_2012_Pendant_,Chambered RWC 2012 Pendant,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bMatkRate,1; },{},{}
 2984,Glove_Save_Rimnil,Glove Save Rimnil,5,10,,100,,,,1,0xFFFFFFFF,63,2,136,,30,1,,{ bonus2 bExpAddRace,RC_All,5; },{},{}
@@ -1347,7 +1347,7 @@
 4816,Sharp3,Sharp Lv3,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,12; bonus bHit,4; },{},{}
 4817,Sharp2,Sharp Lv2,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,9; bonus bHit,3; },{},{}
 4818,Sharp1,Sharp Lv1,6,20,,10,,,,,,,,,,,,,{ bonus bCritical,6; bonus bHit,2; },{},{}
-4819,Atk1,ATK+1%,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddRace,Race_All,1; },{},{}
+4819,Atk1,ATK+1%,6,20,,10,,,,,,,,,,,,,{ bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; },{},{}
 4820,Fighting_Spirit5,Fighting Lv5,6,20,,10,,,,,,,,,,,,,{ bonus bBaseAtk,18; bonus bHit,5; },{},{}
 4821,Fighting_Spirit6,Fighting Lv6,6,20,,10,,,,,,,,,,,,,{ bonus bBaseAtk,21; bonus bHit,5; },{},{}
 4822,Fighting_Spirit7,Fighting Lv7,6,20,,10,,,,,,,,,,,,,{ bonus bBaseAtk,24; bonus bHit,5; },{},{}
@@ -1382,8 +1382,8 @@
 4850,Heal_Amount3,Archbishop Lv2,6,20,,10,,,,,,,,,,,,,{ bonus bHealPower,6; bonus bUseSPrate,5; },{},{}
 4851,Heal_Amount4,Archbishop Lv3,6,20,,10,,,,,,,,,,,,,{ bonus bHealPower,12; bonus bUseSPrate,10; },{},{}
 4852,Heal_Amount5,Archbishop Lv4,6,20,,10,,,,,,,,,,,,,{ bonus bHealPower,20; bonus bUseSPrate,15; },{},{}
-4853,S_STR,Special STR,6,20,,10,,,,,,,,,,,,,{ bonus bStr,1; set .@r, getrefine(); if(.@r>7) { bonus bStr,3; } if(.@r>8) { bonus2 bAddRace,Race_All,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
-4854,S_AGI,Special AGI,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,1; set .@r, getrefine(); if(.@r>7) { bonus bAgi,3; } if(.@r>8) { bonus2 bAddRace,Race_All,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
+4853,S_STR,Special STR,6,20,,10,,,,,,,,,,,,,{ bonus bStr,1; set .@r, getrefine(); if(.@r>7) { bonus bStr,3; } if(.@r>8) { bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
+4854,S_AGI,Special AGI,6,20,,10,,,,,,,,,,,,,{ bonus bAgi,1; set .@r, getrefine(); if(.@r>7) { bonus bAgi,3; } if(.@r>8) { bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
 4855,S_VIT,Special VIT,6,20,,10,,,,,,,,,,,,,{ bonus bVit,1; set .@r, getrefine(); if(.@r>7) { bonus bVit,3; } if(.@r>8) { bonus bMaxSPrate,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
 4856,S_INT,Special INT,6,20,,10,,,,,,,,,,,,,{ bonus bInt,1; set .@r, getrefine(); if(.@r>7) { bonus bInt,3; } if(.@r>8) { bonus bMatkRate,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
 4857,S_DEX,Special DEX,6,20,,10,,,,,,,,,,,,,{ bonus bDex,1; set .@r, getrefine(); if(.@r>7) { bonus bDex,3; } if(.@r>8) { bonus bMatkRate,1; } if(.@r>11) { bonus bAspd,1; bonus bFixedCastrate,-7; } },{},{}
@@ -1579,7 +1579,7 @@
 4504,Sealed_Eddga_Card,Sealed Eddga Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxHPrate,((getrefine()>14)?-35:-50); },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
 4505,Scaraba_Card,Scaraba Card,6,20,,10,,,,,,,,136,,,,,{ bonus bMatk,20; bonus bMaxSPrate,-1; },{},{}
 4506,Dolomedes_Card,Dolomedes Card,6,20,,10,,,,,,,,769,,,,,{ bonus bDex,2; if(BaseClass==Job_Archer){ bonus bDex,getrefine()/3; } },{},{}
-4507,Q_Scaraba_Card,Queen Scaraba Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddDamageClass,2085,30; bonus2 bAddDamageClass,2090,30; bonus2 bAddDamageClass,2144,30; bonus2 bAddDamageClass,2145,30; bonus2 bAddDamageClass,2083,30; bonus2 bAddDamageClass,2088,30; bonus2 bAddDamageClass,2084,30; bonus2 bAddDamageClass,2089,30; bonus2 bAddDamageClass,2087,30; bonus2 bAddDamageClass,2086,30; bonus2 bAddDamageClass,2091,30; bonus2 bAddMonsterDropItem,12806,30; },{},{}
+4507,Q_Scaraba_Card,Queen Scaraba Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bAddRace2,7,30; bonus2 bAddMonsterDropItem,12806,30; },{},{}
 4508,Gold_Scaraba_Card,Gold Scaraba Card,6,20,,10,,,,,,,,136,,,,,{ bonus bBaseAtk,20; bonus bMaxHPrate,-1; },{},{}
 5507,Pink_Pajamas_Hat,Pink Night Cap,5,0,,100,,4,,0,0xFFFFFFFF,63,2,256,,0,1,502,{ bonus bBaseAtk,5; bonus bMatkRate,5; },{},{}
 5508,Shark_Hat,Shark Hat,5,20,,500,,3,,0,0xFFFFFFFF,63,2,256,,0,1,503,{ bonus bStr,1; bonus bAgi,2; bonus bMdef,1; bonus2 bAddEle,Ele_Water,5; bonus2 bSubEle,Ele_Water,10; },{},{}
@@ -1772,8 +1772,8 @@
 2916,Fairy_Wing,Fairy Wing,5,0,,10,,0,,0,0xFFFFFFFF,63,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
 2977,Broken_Heart,Broken Heart,5,10,,100,,0,,1,0xFFFFFFFF,63,2,136,,110,0,,{ bonus bMaxSP,200; skill "DC_SCREAM",3; },{},{}
 2978,Kindly_Heart,Kindly Heart,5,10,,100,,0,,1,0xFFFFFFFF,63,2,136,,110,0,,{ bonus bMaxSP,500; bonus2 bHPRegenRate,300,10000; },{},{}
-2966,RWC_2012_Ring,RWC 2012 Ring,5,20,,200,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,Race_All,1; },{},{}
-2967,RWC_2012_Ring_,Chambered RWC 2012 Ring,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,Race_All,1; },{},{}
+2966,RWC_2012_Ring,RWC 2012 Ring,5,20,,200,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; },{},{}
+2967,RWC_2012_Ring_,Chambered RWC 2012 Ring,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus2 bAddRace,RC_Boss,1; bonus2 bAddRace,RC_NonBoss,1; },{},{}
 2997,RWC_Gold_Brooch,RWC Gold Brooch,5,10,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,,{ bonus bBaseAtk,25; bonus bMatk,20; },{},{}
 2999,RWC_Brooch,RWC Brooch,5,10,,200,,0,,0,0xFFFFFFFF,63,2,136,,0,0,,{ bonus bMaxHP,300; bonus bMaxSP,30; },{},{}
 18532,Heart_Ribbon_Band,Heart Ribbon Hairband,5,20,,100,,0,,1,0xFFFFFFFF,63,2,256,,10,1,708,{ bonus bInt,2; },{},{}
@@ -2668,6 +2668,17 @@
 2914,Wizard_Left_Eye,Wizard Left Eye,5,20,,100,,1,,1,0x00CFDF80,63,2,136,,0,0,0,{ bonus bInt,4; bonus bMdef,3; },{},{}
 2915,Ettlang_Keepsake,Ettlang Keepsake,5,20,,50,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bMdef,10; },{},{}
 2916,Fairy_Wing,Fairy Wing,5,0,,10,,0,,0,0xFFFFFFFF,63,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
+6435,Fresh_Fruit,Fresh Fruit,3,0,,100,,,,,,,,,,,,,{},{},{}
+6436,Ptotection_Seagod,Sea God's Call,3,20,,0,,,,,,,,,,,,,{},{},{}
+6437,Scaraba_Perfume,Scaraba Perfume,3,0,,0,,,,,,,,,,,,,{},{},{}
+6438,Unbreakable_Weap,Unbreakable Weapon,3,0,,10,,,,,,,,,,,,,{},{},{}
+6439,Unbreakable_Def,Unbreakable Armor,3,0,,10,,,,,,,,,,,,,{},{},{}
+6440,General_Lubricant,General Lubrication,3,20,,0,,,,,,,,,,,,,{},{},{}
+6441,High_RankLubricant,Advanced Lubrication,3,20,,0,,,,,,,,,,,,,{},{},{}
+6442,Octopus_Hunt_Stick,Octopus Hunting Skewer,3,0,,0,,,,,,,,,,,,,{},{},{}
+6443,Sillit_Pong_Bottle,Sillit Pong Bottle,3,20,,0,,,,,,,,,,,,,{},{},{}
+6444,Emperium_G,Emperium G,3,2,,1000,,,,,,,,,,,,,{},{},{}
+6665,RWC_Inicializer,RWC Inicializer,3,0,,10,,,,,,,,,,,,,{},{},{}
 19568,C_Ancient_Horns,Costume Ancient Horns,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,757,{ bonus bStr,1; },{},{}
 19569,C_Sprout_Hat,Costume Sprout Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,758,{ bonus bInt,1; },{},{}
 19570,C_Mercury_Riser,Costume Mercury Riser,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,759,{ bonus bLuk,1; },{},{}
@@ -2678,3 +2689,5 @@
 19575,C_Ascension_Black_Dragon,Costume Ascension Black Dragon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,863,{},{},{}
 19576,C_Tare_Pope,Costume Tare Pope,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,817,{},{},{}
 19577,10th_Anni_Poring_Hat,10th Anni Poring Hat,5,10,,100,,1,,0,0xFFFFFFFF,63,2,1024,,1,1,874,{},{},{}
+31186,C_Black_Cat,Costume Black Cat,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,1,1582,{},{},{} 
+ 

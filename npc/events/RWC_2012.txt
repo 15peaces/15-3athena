@@ -210,10 +210,10 @@ prontera,147,59,3	script	Goldberg#pron	878,{
 			setarray .@enc[0],4795,4796,4797; //HP100,HP200,HP300
 			break;
 		case 5:
-			setarray .@enc[0],4760,4761,4806; //Matk1,Matk2,Matk3
+			setarray .@enc[0],4815,4814,4813; //Spell1,Spell2,Spell3
 			break;
 		case 6:
-			setarray .@enc[0],4815,4814,4813; //Spell1,Spell2,Spell3
+			setarray .@enc[0],4760,4761,4806; //Matk1,Matk2,Matk3
 			break;
 		case 7:
 			setarray .@enc[0],4870,4800,4871; //SP25,SP50,SP75
