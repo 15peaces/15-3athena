@@ -4,9 +4,27 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+05/14/2017
+	r171 [15peaces]
+		*Merged missing changes from 3ceam rev. 618 - 620
+		*Added Biolab Gear Exchange NPC.
+		*Updated the elemental_db and set many settings to official.
+			-This update fixes many problems, like attack, skill, and view range.
+			-This also adds official property elements, movement speed, and size scales.
+			-HP/SP, ATK, stats, DEF/MDEF, etc. are all temporarly as these values are mainly different depending on the summoner stats upon summoning.
+		*Updated EP 13.3 equips to (nearly) official. Lacking support for 1 or 2 bonus script in the source.
+		*Updated all FAW monsters settings to official.
+			-Skills still needs to be worked on.
+			-Updated test elemental spirit entry to be more official.
+		*Updated all elemental spirits offensive skills ratio's to official.
+		*Added support for the ALL_CATCRY and ALL_DREAM_SUMMERNIGHT.
+			-The items that give these skills can be found at the bottom in item_db2.
+		*Major update to the skill_cast_db.
+			-Some skills have a 100% fixed cast time and is added to the skill_castnodex_db.
+			-Also added some settings for other skills.
+
 05/07/2017
 	r170 [15peaces]
-		*Merged missing changes from 3ceam rev. 615
 		*Added more episode 13.2 item-combos found on aegis.
 		*Fixed an issue in RWC 2012 enchanter where Spell / MATK options where switched.
 		*Changed some random mobs to fit pre-renewal system.
@@ -15,7 +33,7 @@
 
 04/23/2017
 	r169 [15peaces]
-		*Merged missing changes from 3ceam rev. 613 - 614
+		*Merged missing changes from 3ceam rev. 613 - 617
 		*Updated Thanatos Tower Quest to episode 13.1 version.
 			-thanks to @rathena.
 		*Fixed wrong itemdrop with Galapago Card.
