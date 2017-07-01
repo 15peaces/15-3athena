@@ -1,26 +1,26 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Merchant Job Quest
 //===== By: ================================================== 
 //= kobra_k88; L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 2.3
+//= 2.4
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
-//= [Aegis Conversion]
+//= [Official Conversion]
 //= Job quest for Merchant classes
 //===== Additional Comments: ================================= 
-//= Fully working
-//= v1.1 Added instant job change for High Novice [Lupus]
-//= v1.3 Added Baby Class support [Lupus]
-//= v1.4 Optimised and moved first checker to Jfunc1-1 [massdriller]
+//= 1.0 Fully working.
+//= 1.1 Added instant job change for High Novice [Lupus]
+//= 1.3 Added Baby Class support [Lupus]
+//= 1.4 Optimised and moved first checker to Jfunc1-1 [massdriller]
 //= 1.5 Changed Prontera->Izlude teleport price to 600 [Lupus]
 //= 1.5.1 Removed Duplicates [Silent]
 //= 1.5.2 Now saves/restores all quest skills [Lupus]
 //= 1.6 Merged back JFunc, CHANGED NUMBERS TO CONSTANTS [Lupus]
 //= 1.7 Updated to use Free Ticket for Kafra [Lupus]
 //= 1.8 Rescripted to Aegis 10.3 stadards. [L0ne_W0lf]
-//=	No longer uses function "F_ToHigh"
+//=     No longer uses function "F_ToHigh"
 //= 1.9 Bugfixes, thanks to Barron-Monster. [L0ne_W0lf]
 //= 1.9a Added a missing next; (Barron-Monster) [L0ne_W0lf]
 //= 1.9b Typo. "nextl" -> "next;" (Barron-Monster) [L0ne_W0lf]
@@ -28,6 +28,7 @@
 //= 2.1 Fixed mistake in condition check. [L0ne_W0lf]
 //= 2.2 Added Quest Log commands. [L0ne_W0lf]
 //= 2.3 Fixed an issue with completequest by adding checkquest. [Kisuka]
+//= 2.4 Quest log fixes thanks to Euphy / rAthena. [15peaces]
 //============================================================ 
 
 alberta_in,53,43,6	script	Merchant#mer	86,{
@@ -43,7 +44,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			mes "Whoa...";
 			mes "You've actually been to Valhalla?! Wow, you've come a long way...";
 			next;
-			if (getskilllv("NV_BASIC") < 9) {
+			if (!callfunc("F_CanChangeJob")) {
 				mes "[Chief Mahnsoo]";
 				mes "Hmmm...";
 				mes "It seems that you're not ready to become a Merchant again. Go finish learning the Basic Novice Skills first.";
@@ -55,11 +56,11 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			mes "[Chief Mahnsoo]";
 			mes "I guess it's destiny that we meet like this once more. Alright. Once again, let me change you into a Merchant!";
 			next;
-			skill 143,0,0;
+			skill "NV_TRICKDEAD",0,SKILL_PERM;
 			jobchange Job_Merchant_High;
-			skill 153,1,0;
-			skill 154,1,0;
-			skill 155,1,0;
+			skill "MC_CARTREVOLUTION",1,SKILL_PERM;
+			skill "MC_CHANGECART",1,SKILL_PERM;
+			skill "MC_LOUD",1,SKILL_PERM;
 			mes "[Chief Mahnsoo]";
 			mes "Ah~ How nostalgic. Just like old times! Alright, do your best!";
 			close;
@@ -135,7 +136,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 					mes "Please return when you have earned the 500 zeny that you need to become a Merchant.";
 					close;
 				}
-				set zeny,zeny-500;
+				set Zeny, Zeny-500;
 				mes "Ah yes...!";
 				mes "Now your";
 				mes "membership";
@@ -153,17 +154,9 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 		mes "Congratulations!";
 		callfunc "Job_Change",Job_Merchant;
 		callfunc "F_ClearJobVar";
-		if(checkquest(1009) != -1) {
-			completequest 1009;
-		}
-		else if(checkquest(1010) != -1) {
-			completequest 1010;
-		}
-		else if(checkquest(1011) != -1) {
-			completequest 1011;
-		}
-		else {
-			completequest 1012;
+		for ( set .@quest_id, 1009; .@quest_id <= 1012; set .@quest_id,.@quest_id+1 ) {
+			if (isbegin_quest(.@quest_id) == 1)
+				completequest .@quest_id;
 		}
 		mes "I'm very pleased that you are joining the Merchant Guild and hope that you will play an active part in Rune-Midgarts' economy.";
 		next;
@@ -171,7 +164,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			mes "[Chief Mahnsoo]";
 			mes "*Ahem* Aaaaand let me give you a little bit of money for delivering that message to Blossom for me.";
 			mes "I hope you'll help me again next time~";
-			set zeny,zeny+200;
+			set Zeny, Zeny+200;
 			set quest_alb_01,2;
 		}
 		else {
@@ -198,12 +191,10 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			if (job_merchant_q2 == 1) {
 				mes "[Chief Mahnsoo]";
 				mes "Remember, the Serial Number of the package is ^3355FF2485741^000000.";
-				setquest 1009;
 			}
 			else {
 				mes "[Chief Mahnsoo]";
 				mes "Remember, the Serial Number of the package is ^3355FF2328137^000000.";
-				setquest 1009;
 			}
 		}
 		else if (job_merchant_q2 == 3 || job_merchant_q2 == 4) {
@@ -212,12 +203,10 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			if (job_merchant_q2 == 3) {
 				mes "[Chief Mahnsoo]";
 				mes "When you get there, give the package to the Mage Guildsman in charge. Remember, the packages Serial Number is ^3355FF2989396^000000.";
-				setquest 1010;
 			}
 			else {
 				mes "[Chief Mahnsoo]";
 				mes "When you get there, give the package to the Mage Guildsman in charge. Remember, the packages Serial Number is ^3355FF2191737^000000.";
-				setquest 1010;
 			}
 		}
 		else if (job_merchant_q2 == 5 || job_merchant_q2 == 6) {
@@ -229,12 +218,10 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			if (job_merchant_q2 == 5) {
 				mes "[Chief Mahnsoo]";
 				mes "But he's a little forgetful, so give it to one of his students. Remember, the package's Serial Number is ^3355FF3012685^000000.";
-				setquest 1011;
 			}
 			else {
 				mes "[Chief Mahnsoo]";
 				mes "But he's a little forgetful, give it to one of his students. Remember, the package's Serial Number is ^3355FF3487372^000000.";
-				setquest 1011;
 			}
 		}
 		else if (job_merchant_q2 == 7 || job_merchant_q2 == 8) {
@@ -243,12 +230,10 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			if (job_merchant_q2 == 7) {
 				mes "[Chief Mahnsoo]";
 				mes "Remember, the package's Serial Number is ^3355FF3318702^000000.";
-				setquest 1012;
 			}
 			else {
 				mes "[Chief Mahnsoo]";
 				mes "Remember, the package's Serial Number is ^3355FF3543625^000000.";
-				setquest 1012;
 			}
 		}
 		if (job_merchant_q2 == 7 || job_merchant_q2 == 8) {
@@ -295,7 +280,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 			mes "be a Merchant?";
 			mes "Well...";
 			next;
-			if (getskilllv("NV_BASIC") < 9) {
+			if (!callfunc("F_CanChangeJob")) {
 				mes "[Chief Mahnsoo]";
 				mes "First, you have to be a Novice with Job Level 10. Once you do that, make sure you learn all of the Basic Skills.";
 				next;
@@ -343,7 +328,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 					mes "[Chief Mahnsoo]";
 					if (Zeny >= 1000) {
 						set job_merchant_q,2;
-						set zeny,zeny-1000;
+						set Zeny, Zeny-1000;
 						mes "Alright~";
 						mes "That's 1,000 zeny.";
 						mes "Excellent, excellent.";
@@ -357,7 +342,7 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 					mes "[Chief Mahnsoo]";
 					if (Zeny >= 500) {
 						set job_merchant_q,1;
-						set zeny,zeny-500;
+						set Zeny, Zeny-500;
 						mes "Let's see...";
 						mes "That's 500 Zeny. Although I don't think splitting payment is a good idea for any Merchant, it's alright since you're still learning.";
 					}
@@ -402,22 +387,22 @@ alberta_in,53,43,6	script	Merchant#mer	86,{
 				mes "[Chief Mahnsoo]";
 				mes "When you get there, visit the Kafra Employee stationed there. Her name is Blossom. Did you get";
 				mes "all of that?";
-				callsub S_GiveSerial,2485741,1,2328137,2;
+				callsub S_GiveSerial,2485741,1,2328137,2,1009;
 				break;
 			case 2:
 				mes "First, get the delivery package from the storehouse, and then go to the Mage Guild in Geffen. When you get there, visit the Mage Guildsman in charge.";
-				callsub S_GiveSerial,2989396,3,2191737,4;
+				callsub S_GiveSerial,2989396,3,2191737,4,1010;
 				break;
 			case 3:
 				mes "First, get the delivery package from the storehouse, and then go to Morroc. There you must find Java Dullihan, the dyemaker.";
 				next;
 				mes "[Chief Mahnsoo]";
 				mes "He's a bit forgetful, so you should probably give the package to one of his students.";
-				callsub S_GiveSerial,3012685,5,3487372,6;
+				callsub S_GiveSerial,3012685,5,3487372,6,1011;
 				break;
 			case 4:
 				mes "First, get the delivery package from the storehouse, and then give it to the Kafra Employee stationed on Byalan Island.";
-				callsub S_GiveSerial,3318702,7,3543625,8;
+				callsub S_GiveSerial,3318702,7,3543625,8,1012;
 				next;
 				mes "[Chief Mahnsoo]";
 				mes "Ummmm...";
@@ -496,18 +481,17 @@ S_GiveSerial:
 	next;
 	mes "[Chief Mahnsoo]";
 	mes "Remember...";
-	if (rand(1)) {
-		mes "The package's";
-		mes "Serial Number is";
+	mes "The package's";
+	mes "Serial Number is";
+	if (rand(2)) {
 		mes "^3355FF"+getarg(0)+"^000000.";
 		set job_merchant_q2,getarg(1);
 	}
 	else {
-		mes "The package's";
-		mes "Serial Number is";
 		mes "^3355FF"+getarg(2)+"^000000.";
 		set job_merchant_q2,getarg(3);
 	}
+	setquest getarg(4);
 	return;
 }
 
@@ -1060,10 +1044,10 @@ prontera,248,42,0	script	Kafra Employee#mer	116,{
 				cutin "",255;
 				end;
 			}
-			set zeny,zeny-600;
+			set Zeny, Zeny-600;
 			set RESRVPTS, RESRVPTS + 37;
 			cutin "",255;
-			warp "izlude",94,134;
+			warp "izlude",94,103;
 			end;
 		}
 		close2;

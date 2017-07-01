@@ -4,6 +4,19 @@
 // 	* Modifications.
 // 		- Details.
 //========================================
+07/01/2017
+	r172 [15peaces]
+		*Merged missing changes from 3ceam rev. 621
+		*Updated Merchant, Mage and Wizard Job Quests to fix some issues.
+			-Thanks to rAthena.
+		*Added support for official GM NPCs.
+			-Now we can use them, but most of them are disabled inside their scripts for now.
+			-Thanks to rAthena.
+		*Some random updates on item & monster dbs.
+			-Added some missing item drops.
+			-Added missing item-combo-scripts to RWC accessories.
+		*Updated effect_list document, added propper skill names.
+	
 05/14/2017
 	r171 [15peaces]
 		*Merged missing changes from 3ceam rev. 618 - 620
