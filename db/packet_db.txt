@@ -1651,6 +1651,11 @@ packet_keys: 0x291E6762,0x77CD391A,0x60AC2F16 // [Shakto]
 0x0914,-1		// ZC_NOTIFY_MOVEENTRY8
 0x0915,-1		// ZC_NOTIFY_STANDENTRY9
 
+0x08d7,28,pBGQueueRegister,2
+0x090a,26,pBGQueueCheckState,2
+0x08da,26,pBGQueueRevokeReq,2
+0x08e0,51,pBGQueueBattleBeginAck,2
+
 //2012-04-10aRagexeRE
 packet_ver: 28
 packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
@@ -1677,7 +1682,6 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0891,6,dropitem,2:4
 0x089C,26,friendslistadd,2
 0x08A6,8,movefromkafra,2:4
-0x08D7,28,battlegroundreg,2:4 //Added to prevent disconnections
 0x08E5,41,bookingregreq,2:4 //Added to prevent disconnections
 0x08E6,4
 0x08E7,10,bookingsearchreq,2

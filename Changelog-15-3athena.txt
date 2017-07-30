@@ -3,7 +3,34 @@
 // rNumber [Author]
 // 	* Modifications.
 // 		- Details.
+//			--More Details.
 //========================================
+07/30/2017
+	r173 [15peaces]
+		*Merged missing changes from 3ceam rev. 622 - 625
+		*Fixed Normal Stat food can't override the effect of Cash Stat food.
+			-thanks to @HerculesWS
+		*document previously undocumented parameter of readparam.
+		*Added iRO EXP-Quest: Kill 50 Disguise or Loli Ruri.
+			-requested by community.
+		*Added some new items.
+			-Also added some missing drops.
+		*Added basic support for Battlegrounds Queue System
+			-most of its features were added in this patch:
+				--Arenas: 
+					---They're easily configurable in the new db/bg_arena_db.txt file, it's possible to add more arenas by editing the client's lua files/entryqueue/entryqueuelist.lua file.
+					---Currently there are no scripts done, so it won't do anything right now. However, the basic support is done now.
+				--Special Thanks To @HerculesWS for the base.
+		*Fixed some warnings from cppcheck.
+		*Some updates to skill_castnodex_db.
+		*Removed unused code for NC_FLAMELAUNCHER and LG_CANNONSPEAR since its no longer needed.
+		*Did some cleanup in the skill.c file.
+		*Adjusted WL_EARTHSTRAIN's stepping number to official.
+		-Adjusted stepping timer close to officials, but not fully.
+			-Added disabled lines that holds setup for official AoE layout, unit number count, and stepping timer settings. These are disabled since it causes the animation to create too much noise due to the heaves drive 
+			-animation appearing on every cell, which is 15 cells every 0.150 seconds. Enough to flood all your sound channels and hurt your hears. So the temp code will continue to be used until the animation is replaced.
+		*Added UNIT ID for MH_VOLCANIC_ASH.
+
 07/01/2017
 	r172 [15peaces]
 		*Merged missing changes from 3ceam rev. 621
@@ -16,7 +43,7 @@
 			-Added some missing item drops.
 			-Added missing item-combo-scripts to RWC accessories.
 		*Updated effect_list document, added propper skill names.
-	
+
 05/14/2017
 	r171 [15peaces]
 		*Merged missing changes from 3ceam rev. 618 - 620

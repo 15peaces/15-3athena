@@ -356,11 +356,9 @@ uint64 Sql_NumRows(Sql* self)
 /// Returns the number of affected rows of the last query.
 uint64 Sql_AffectedRows(Sql* self)
 {
-	uint64 rows;
-
 	if( self )
 	{
-		rows = mysql_affected_rows(&self->handle);
+		uint64 rows = mysql_affected_rows(&self->handle);
 		if( rows == (uint64)(~0) )
 		{
 			ShowSQL("DB error - %s\n", mysql_error(&self->handle));
@@ -857,11 +855,9 @@ uint64 SqlStmt_NumRows(SqlStmt* self)
 /// Returns the number of affected rows of the last statement.
 uint64 SqlStmt_AffectedRows(SqlStmt* self)
 {
-	uint64 rows;
-
 	if( self )
 	{
-		rows = mysql_stmt_affected_rows(self->stmt);
+		uint64 rows = mysql_stmt_affected_rows(self->stmt);
 		if( rows == (uint64)(~0) )
 		{
 			ShowSQL("DB error - %s\n", mysql_stmt_error(self->stmt));
@@ -882,7 +878,6 @@ int SqlStmt_NextRow(SqlStmt* self)
 	size_t i;
 	size_t cols;
 	MYSQL_BIND* column;
-	unsigned long length;
 
 	if( self == NULL )
 		return SQL_ERROR;
@@ -936,7 +931,7 @@ int SqlStmt_NextRow(SqlStmt* self)
 	cols = SqlStmt_NumColumns(self);
 	for( i = 0; i < cols; ++i )
 	{
-		length = self->column_lengths[i].length;
+		unsigned long length = self->column_lengths[i].length;
 		column = &self->columns[i];
 #if !defined(MYSQL_DATA_TRUNCATED)
 		// MySQL 4.1/(below?) returns success even if data is truncated, so we test truncation manually [FlavioJS]

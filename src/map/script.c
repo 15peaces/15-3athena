@@ -158,9 +158,6 @@
 /// Returns the type of param
 #define reference_getparamtype(data) ( str_data[reference_getid(data)].val )
 
-/// Composes the uid of a reference from the id and the index
-#define reference_uid(id,idx) ( (int32)((((uint32)(id)) & 0x00ffffff) | (((uint32)(idx)) << 24)) )
-
 #define not_server_variable(prefix) ( (prefix) != '$' && (prefix) != '.' && (prefix) != '\'')
 #define not_array_variable(prefix) ( (prefix) != '$' && (prefix) != '@' && (prefix) != '.' && (prefix) != '\'' )
 #define is_string_variable(name) ( (name)[strlen(name) - 1] == '$' )
@@ -3774,6 +3771,8 @@ void script_setarray_pc(struct map_session_data* sd, const char* varname, uint8 
  *------------------------------------------*/
 int do_final_script()
 {
+	int i;
+
 #ifdef DEBUG_HASH
 	if (battle_config.etc_log)
 	{
@@ -3844,10 +3843,16 @@ int do_final_script()
 		linkdb_final(&sleep_db);
 	}
 
+	for (i = 0; i < VECTOR_LENGTH(sc_queue); i++) {
+		VECTOR_CLEAR(VECTOR_INDEX(sc_queue, i).entries);
+	}
+	VECTOR_CLEAR(sc_queue);
+
 	if (str_data)
 		aFree(str_data);
 	if (str_buf)
 		aFree(str_buf);
+
 
 	return 0;
 }
@@ -6400,7 +6405,8 @@ BUILDIN_FUNC(disableitemuse)
 }
 
 /*==========================================
- *キャラ関係のパラメータ取得
+ * return the basic stats of sd
+ * chk pc_readparam for available type
  *------------------------------------------*/
 BUILDIN_FUNC(readparam)
 {
@@ -18264,6 +18270,153 @@ BUILDIN_FUNC(getguildalliance)
 		script_pushint(st, 1);
 
 	return 0;
+}
+
+/**
+ * Creates a new queue.
+ *
+ * @return The index of the created queue.
+ */
+int script_queue_create(void)
+{
+	struct script_queue *queue = NULL;
+	int i;
+
+	ARR_FIND(0, VECTOR_LENGTH(sc_queue), i, !VECTOR_INDEX(sc_queue, i).valid);
+
+	if (i == VECTOR_LENGTH(sc_queue)) {
+		VECTOR_ENSURE(sc_queue, 1, 1);
+		VECTOR_PUSHZEROED(sc_queue);
+	}
+	queue = &VECTOR_INDEX(sc_queue, i);
+
+	memset(&VECTOR_INDEX(sc_queue, i), 0, sizeof(VECTOR_INDEX(sc_queue, i)));
+
+	queue->id = i;
+	queue->valid = true;
+	return i;
+}
+
+/**
+ * Returns the queue with he given index, if it exists.
+ *
+ * @param idx The queue index.
+ *
+ * @return The queue, or NULL if it doesn't exist.
+ */
+struct script_queue *script_queue_get(int idx)
+{
+	if (idx < 0 || idx >= VECTOR_LENGTH(sc_queue) || !VECTOR_INDEX(sc_queue, idx).valid)
+		return NULL;
+	return &VECTOR_INDEX(sc_queue, idx);
+}
+
+/**
+ * Adds an entry to the given queue.
+ *
+ * @param idx The queue index.
+ * @param var The entry to add.
+ * @retval false if the queue is invalid or the entry is already in the queue.
+ * @retval true in case of success.
+ */
+bool script_queue_add(int idx, int var)
+{
+	int i;
+	struct map_session_data *sd = NULL;
+	struct script_queue *queue = NULL;
+
+	if (idx < 0 || idx >= VECTOR_LENGTH(sc_queue) || !VECTOR_INDEX(sc_queue, idx).valid) {
+		ShowWarning("script_queue_add: unknown queue id %d\n",idx);
+		return false;
+	}
+
+	queue = &VECTOR_INDEX(sc_queue, idx);
+
+	ARR_FIND(0, VECTOR_LENGTH(queue->entries), i, VECTOR_INDEX(queue->entries, i) == var);
+	if (i != VECTOR_LENGTH(queue->entries)) {
+		return false; // Entry already exists
+	}
+
+	VECTOR_ENSURE(queue->entries, 1, 1);
+	VECTOR_PUSH(queue->entries, var);
+
+	if (var >= START_ACCOUNT_NUM && (sd = map_id2sd(var)) != NULL) {
+		VECTOR_ENSURE(sd->script_queues, 1, 1);
+		VECTOR_PUSH(sd->script_queues, idx);
+	}
+	return true;
+}
+
+/**
+ * Removes an entry from the given queue.
+ *
+ * @param idx The queue index.
+ * @param var The entry to remove.
+ * @retval true if the entry was removed.
+ * @retval false if the entry wasn't in queue.
+ */
+bool script_queue_remove(int idx, int var)
+{
+	int i;
+	struct map_session_data *sd = NULL;
+	struct script_queue *queue = NULL;
+
+	if (idx < 0 || idx >= VECTOR_LENGTH(sc_queue) || !VECTOR_INDEX(sc_queue, idx).valid) {
+		ShowWarning("script_queue_remove: unknown queue id %d (used with var %d)\n",idx,var);
+		return false;
+	}
+
+	queue = &VECTOR_INDEX(sc_queue, idx);
+
+	ARR_FIND(0, VECTOR_LENGTH(queue->entries), i, VECTOR_INDEX(queue->entries, i) == var);
+	if (i == VECTOR_LENGTH(queue->entries))
+		return false;
+
+	VECTOR_ERASE(queue->entries, i);
+
+	if (var >= START_ACCOUNT_NUM && (sd = map_id2sd(var)) != NULL) {
+		ARR_FIND(0, VECTOR_LENGTH(sd->script_queues), i, VECTOR_INDEX(sd->script_queues, i) == queue->id);
+
+		if (i != VECTOR_LENGTH(sd->script_queues))
+			VECTOR_ERASE(sd->script_queues, i);
+	}
+	return true;
+}
+
+/**
+ * Clears a queue.
+ *
+ * @param idx The queue index.
+ *
+ * @retval true if the queue was correctly cleared.
+ * @retval false if the queue didn't exist.
+ */
+bool script_queue_clear(int idx)
+{
+	struct script_queue *queue = NULL;
+
+	if (idx < 0 || idx >= VECTOR_LENGTH(sc_queue) || !VECTOR_INDEX(sc_queue, idx).valid) {
+		ShowWarning("script_queue_clear: unknown queue id %d\n",idx);
+		return false;
+	}
+
+	queue = &VECTOR_INDEX(sc_queue, idx);
+
+	while (VECTOR_LENGTH(queue->entries) > 0) {
+		int entry = VECTOR_POP(queue->entries);
+		struct map_session_data *sd = NULL;
+
+		if (entry >= START_ACCOUNT_NUM && (sd = map_id2sd(entry)) != NULL) {
+			int i;
+			ARR_FIND(0, VECTOR_LENGTH(sd->script_queues), i, VECTOR_INDEX(sd->script_queues, i) == queue->id);
+
+			if (i != VECTOR_LENGTH(sd->script_queues))
+				VECTOR_ERASE(sd->script_queues, i);
+		}
+	}
+	VECTOR_CLEAR(queue->entries);
+
+	return true;
 }
 
 /// declarations that were supposed to be exported from npc_chat.c

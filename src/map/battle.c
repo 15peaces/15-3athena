@@ -5502,7 +5502,8 @@ static const struct _battle_data {
 	{ "bg_weapon_attack_damage_rate",       &battle_config.bg_weapon_damage_rate,           60,     0,      INT_MAX,        },
 	{ "bg_magic_attack_damage_rate",        &battle_config.bg_magic_damage_rate,            60,     0,      INT_MAX,        },
 	{ "bg_misc_attack_damage_rate",         &battle_config.bg_misc_damage_rate,             60,     0,      INT_MAX,        },
-	{ "bg_flee_penalty",                    &battle_config.bg_flee_penalty,                 20,     0,      INT_MAX,        },
+	{ "bg_queue",                           &battle_config.bg_queue,                        1,      0,      1,              },
+	{ "bg_queue_maximum_afk_seconds",       &battle_config.bg_queue_maximum_afk_seconds,    30,     0,      INT_MAX,        },
 // 15-3athena
 	{ "renewal_casting_renewal_skills",		&battle_config.renewal_casting_renewal_skills,	1,		0,		1,				},
 	{ "castrate_dex_scale_renewal_jobs",	&battle_config.castrate_dex_scale_renewal_jobs,	150,	1,		INT_MAX,		},

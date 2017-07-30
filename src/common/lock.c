@@ -34,9 +34,12 @@ FILE* lock_fopen (const char* filename, int *info) {
 // 旧ファイルを削除＆新ファイルをリネーム
 int lock_fclose (FILE *fp, const char* filename, int *info) {
 	int ret = 1;
-	char newfile[512];
-	char oldfile[512];
-	if (fp != NULL) {
+
+	if (fp != NULL) 
+	{
+		char newfile[512];
+		char oldfile[512];
+
 		ret = fclose(fp);
 		sprintf(newfile, "%s_%04d.tmp", filename, *info);
 		sprintf(oldfile, "%s.bak", filename);	// old backup file

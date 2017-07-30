@@ -11,6 +11,14 @@
 	#define NULLPO_CHECK
 #endif
 
+/**
+ * Reports an assertion failure if the passed expression is false.
+ *
+ * @param EX The expression to test.
+ * @return false if the passed expression is true, false otherwise.
+ */
+#define Assert_chk(EX) ( (EX) ? false : (nullpo_assert_report(__FILE__, __LINE__, __func__, #EX, "failed assertion"), true) )
+
 #ifdef NULLPO_CHECK
 
 #define NLP_MARK __FILE__, __LINE__, __func__
@@ -27,6 +35,8 @@
 /// Breaks out of a loop/switch in case of a NULL pointer.
 #define nullpo_retb(t)      if( nullpo_chk(NLP_MARK, (void *)(t), #t) ) { break; }
 
+void nullpo_assert_report(const char *file, int line, const char *func, const char *targetname, const char *title);
+
 /// Checks for and reports NULL pointers.
 /// Used by nullpo_ret* macros.
 /// @param  file    set to __FILE__
@@ -39,6 +49,15 @@
 ///     1 = NULL
 /// @note   Prefer using NLP_MARK for file, line, func.
 int nullpo_chk(const char* file, int line, const char* func, const void* target, const char* targetname);
+
+/**
+ * Returns void if the given assertion fails.
+ *
+ * @param t statement to check
+ */
+#define Assert_retv(t) \
+	do { if (Assert_chk(t)) return; } while(0)
+
 
 #else /* NULLPO_CHECK */
 

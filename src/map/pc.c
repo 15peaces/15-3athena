@@ -1005,8 +1005,8 @@ int pc_isequip(struct map_session_data *sd,int n)
 }
 
 /*==========================================
- * session id‚É–â‘è–³‚µ
- * charŽI‚©‚ç‘—‚ç‚ê‚Ä‚«‚½ƒXƒe?ƒ^ƒX‚ðÝ’è
+ * No problem with the session id
+ * set the status that has been sent from char server
  *------------------------------------------*/
 bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_time, int gmlevel, struct mmo_charstatus *st)
 {
@@ -1103,6 +1103,11 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 
 	sd->guild_x = -1;
 	sd->guild_y = -1;
+
+	sd->bg_queue.arena = NULL;
+	sd->bg_queue.ready = 0;
+	sd->bg_queue.client_has_bg_data = 0;
+	sd->bg_queue.type = BGQT_INVALID;
 
 	// Event Timers
 	for( i = 0; i < MAX_EVENTTIMER; i++ )

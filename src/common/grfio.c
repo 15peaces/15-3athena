@@ -334,7 +334,6 @@ void* grfio_reads(const char* fname, int* size)
 	if( entry == NULL || entry->gentry == GENTRY_DATADIR || entry->checklocal )
 	{// LocalFileCheck
 		char lfname[256];
-		int declen;
 		FILE* in;
 
 		grfio_localpath_create(lfname, sizeof(lfname), ( entry && entry->fnd ) ? entry->fnd : fname);
@@ -342,7 +341,7 @@ void* grfio_reads(const char* fname, int* size)
 		in = fopen(lfname, "rb");
 		if( in != NULL )
 		{
-			declen = filesize(in);
+			int declen = filesize(in);
 			buf2 = (unsigned char *)aMallocA(declen+1);  // +1 for resnametable zero-termination
 			fread(buf2, 1, declen, in);
 			fclose(in);
@@ -424,13 +423,15 @@ static char* decode_filename(unsigned char* buf, int len)
 static bool isFullEncrypt(const char* fname)
 {
 	static const char extensions[4][5] = { ".gnd", ".gat", ".act", ".str" };
-	size_t i;
 
 	const char* ext = strrchr(fname, '.');
 	if( ext != NULL )
+	{
+		size_t i;
 		for( i = 0; i < ARRAYLENGTH(extensions); ++i )
 			if( strcmpi(ext, extensions[i]) == 0 )
 				return false;
+	}
 
 	return true;
 }

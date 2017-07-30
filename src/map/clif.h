@@ -70,6 +70,12 @@ struct s_packet_keys {
 };
 #endif
 
+enum BATTLEGROUNDS_QUEUE_NOTICE_DELETED {
+	BGQND_CLOSEWINDOW = 1,
+	BGQND_FAIL_BGNAME_WRONG = 3,
+	BGQND_FAIL_NOT_QUEUING = 11,
+};
+
 enum e_BANKING_DEPOSIT_ACK {
 	BDA_SUCCESS  = 0x0,
 	BDA_ERROR    = 0x1,
@@ -159,6 +165,7 @@ typedef enum send_target {
 	BG_SAMEMAP_WOS,
 	BG_AREA,
 	BG_AREA_WOS,
+	BG_QUEUE,
 	CLAN,
 } send_target;
 
@@ -416,6 +423,23 @@ enum CASH_SHOP_BUY_RESULT {
 	CSBR_RUNE_OVERCOUNT = 0x9,
 	CSBR_EACHITEM_OVERCOUNT = 0xa,
 	CSBR_UNKNOWN = 0xb,
+};
+
+enum BATTLEGROUNDS_QUEUE_ACK {
+	BGQA_SUCCESS = 1,
+	BGQA_FAIL_QUEUING_FINISHED,
+	BGQA_FAIL_BGNAME_INVALID,
+	BGQA_FAIL_TYPE_INVALID,
+	BGQA_FAIL_PPL_OVERAMOUNT,
+	BGQA_FAIL_LEVEL_INCORRECT,
+	BGQA_DUPLICATE_REQUEST,
+	BGQA_PLEASE_RELOGIN,
+	BGQA_NOT_PARTY_GUILD_LEADER,
+	BGQA_FAIL_CLASS_INVALID,
+	/* not official way to respond (gotta find packet?) */
+	BGQA_FAIL_DESERTER,
+	BGQA_FAIL_COOLDOWN,
+	BGQA_FAIL_TEAM_COUNT,
 };
 
 struct cash_item_data {
@@ -699,6 +723,11 @@ void clif_bg_updatescore(int m);
 void clif_bg_updatescore_single(struct map_session_data *sd);
 void clif_sendbgemblem_area(struct map_session_data *sd);
 void clif_sendbgemblem_single(int fd, struct map_session_data *sd);
+void clif_bgqueue_notice_delete(struct map_session_data *sd, enum BATTLEGROUNDS_QUEUE_NOTICE_DELETED response, const char *name);
+void clif_bgqueue_battlebegins(struct map_session_data *sd, unsigned char arena_id, enum send_target target);
+void clif_bgqueue_ack(struct map_session_data *sd, enum BATTLEGROUNDS_QUEUE_ACK response, unsigned char arena_id);
+void clif_bgqueue_joined(struct map_session_data *sd, int pos);
+void clif_bgqueue_update_info(struct map_session_data *sd, unsigned char arena_id, int position);
 
 // Instancing
 int clif_instance(int instance_id, int type, int flag);

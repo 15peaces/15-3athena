@@ -489,10 +489,9 @@ void ers_force_destroy_all(void)
 {
 	uint32 i;
 	uint32 j;
-	ERS_impl obj;
 
 	for (i = 0; i < ers_num; i++) {
-		obj = ers_root[i];
+		ERS_impl obj = ers_root[i];
 		if (obj->max) {
 			for (j = 0; j < obj->num; j++)
 				aFree(obj->blocks[j]); // block of entries

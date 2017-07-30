@@ -6,6 +6,9 @@
 
 #define NUM_WHISPER_VAR 10
 
+/// Composes the uid of a reference from the id and the index
+#define reference_uid(id,idx) ( (int32)((((uint32)(id)) & 0x00ffffff) | (((uint32)(idx)) << 24)) )
+
 struct map_session_data;
 
 extern int potion_flag; //For use on Alchemist improved potions/Potion Pitcher. [Skotlex]
@@ -107,6 +110,19 @@ struct script_stack {
 	struct linkdb_node** var_function;// scope variables
 };
 
+/**
+ * Data structure to represent a script queue.
+ * Thanks to hercules.
+ */
+struct script_queue
+{
+	int id;                              ///< Queue identifier
+	VECTOR_DECL(int) entries;            ///< Items in the queue.
+	bool valid;                          ///< Whether the queue is valid.
+	char event_logout[EVENT_NAME_LENGTH];    ///< Logout event
+};
+
+VECTOR_DECL(struct script_queue) sc_queue;
 
 //
 // Script state
@@ -437,5 +453,12 @@ int script_reload(void);
 
 // @commands (script based) 
 void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct linkdb_node **ref); 
+
+// Script Queue
+struct script_queue *script_queue_get(int idx);
+bool script_queue_add(int idx, int var);
+bool script_queue_remove(int idx, int var);
+int script_queue_create(void);
+bool script_queue_clear(int idx);
 
 #endif /* _SCRIPT_H_ */

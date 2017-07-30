@@ -627,6 +627,22 @@ int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target
 		}
 		break;
 
+		case BG_QUEUE:
+			if( sd && sd->bg_queue.arena ) {
+				struct script_queue *queue = script_queue_get(sd->bg_queue.arena->queue_id);
+
+				for (i = 0; i < VECTOR_LENGTH(queue->entries); i++) {
+					struct map_session_data *qsd = map_id2sd(VECTOR_INDEX(queue->entries, i));
+
+					if (qsd != NULL) {
+						WFIFOHEAD(qsd->fd,len);
+						memcpy(WFIFOP(qsd->fd,0), buf, len);
+						WFIFOSET(qsd->fd,len);
+					}
+				}
+			}
+			break;
+
 	case CLAN:
 		if (sd && sd->clan)
 		{
@@ -17080,7 +17096,7 @@ void clif_bg_message(struct battleground_data *bg, int src_id, const char *name,
 {
 	struct map_session_data *sd;
 	unsigned char *buf;
-	if( (sd = bg_getavailablesd(bg)) == NULL )
+	if( !bg->count || (sd = bg_getavailablesd(bg)) == NULL )
 		return;
 
 	buf = (unsigned char*)aMallocA((len + NAME_LENGTH + 8)*sizeof(unsigned char));
@@ -17184,6 +17200,198 @@ void clif_sendbgemblem_single(int fd, struct map_session_data *sd)
 	WFIFOSET(fd,packet_len(0x2dd));
 }
 
+/// Battleground Queue
+
+void clif_bgqueue_notice_delete(struct map_session_data *sd, enum BATTLEGROUNDS_QUEUE_NOTICE_DELETED response, const char *name)
+{	
+	unsigned char buf[30];
+
+	nullpo_retv(sd);
+
+	WBUFW(buf,0) = 0x8db;
+	WBUFW(buf,2) = response;
+	safestrncpy((char*)WBUFCP(buf,6), name, NAME_LENGTH);
+
+	clif_send(buf, packet_len(0x8db), &sd->bl, SELF);
+}
+
+void clif_parse_bgqueue_register(int fd, struct map_session_data *sd)
+{
+	unsigned int packet_len;
+	int16 type;
+	char bg_name[NAME_LENGTH];
+	struct battleground_arena *arena = NULL;
+
+	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+
+	if( !battle_config.bg_queue ) return;
+
+	packet_len = RFIFOW(fd,p->pos[0]);
+	type = RFIFOL(fd,p->pos[1]);
+	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[2]), sizeof(bg_name));
+
+	if( !(arena = bg_name2arena(bg_name)) ) {
+		clif_bgqueue_ack(sd,BGQA_FAIL_BGNAME_INVALID,0);
+		return;
+	}
+
+	switch( (enum bg_queue_types)type ) {
+		case BGQT_INDIVIDUAL:
+		case BGQT_PARTY:
+		case BGQT_GUILD:
+			break;
+		default:
+			clif_bgqueue_ack(sd,BGQA_FAIL_TYPE_INVALID, arena->bg_arena_id);
+			return;
+	}
+
+	bg_queue_add(sd, arena, (enum bg_queue_types)type);
+}
+
+void clif_bgqueue_joined(struct map_session_data *sd, int pos) {
+	unsigned char buf[30];
+
+	nullpo_retv(sd);
+
+	WBUFW(buf,0) = 0x8d9;
+	safestrncpy((char*)WBUFCP(buf,2),sd->status.name,NAME_LENGTH);
+	WBUFL(buf,26) = pos;
+
+	clif_send(buf,packet_len(0x8d9), &sd->bl, BG_QUEUE);
+}
+
+void clif_bgqueue_pcleft(struct map_session_data *sd) {
+	/* no idea */
+	return;
+}
+
+void clif_parse_bgqueue_checkstate(int fd, struct map_session_data *sd)
+{
+	unsigned int packet_len;
+	char bg_name[NAME_LENGTH];
+
+	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	packet_len = RFIFOW(fd,p->pos[0]);
+	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[1]), sizeof(bg_name));
+
+	if (sd->bg_queue.arena && sd->bg_queue.type) {
+		clif_bgqueue_update_info(sd,sd->bg_queue.arena->bg_arena_id,bg_id2pos(sd->bg_queue.arena->queue_id,sd->status.account_id));
+	} else {
+		clif_bgqueue_notice_delete(sd, BGQND_FAIL_NOT_QUEUING,bg_name);
+	}
+}
+
+void clif_parse_bgqueue_revoke_req(int fd, struct map_session_data *sd)
+{
+	unsigned int packet_len;
+	char bg_name[NAME_LENGTH];
+
+	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+	packet_len = RFIFOW(fd,p->pos[0]);
+	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[1]), sizeof(bg_name));
+
+	if( sd->bg_queue.arena )
+		bg_queue_player_cleanup(sd);
+	else
+		clif_bgqueue_notice_delete(sd, BGQND_FAIL_NOT_QUEUING,bg_name);
+}
+
+void clif_parse_bgqueue_battlebegin_ack(int fd, struct map_session_data *sd)
+{
+	struct battleground_arena *arena;
+	unsigned int packet_len;
+	uint8 result;
+	char bg_name[NAME_LENGTH], game_name[NAME_LENGTH];
+
+	struct s_packet_db* p = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
+
+	if( !battle_config.bg_queue ) return;
+
+	packet_len = RFIFOW(fd,p->pos[0]);
+	result = RFIFOB(fd, p->pos[1]);
+	safestrncpy(bg_name, (const char*)RFIFOP(fd,p->pos[2]), sizeof(bg_name));
+	safestrncpy(game_name, (const char*)RFIFOP(fd,p->pos[3]), sizeof(game_name));
+
+	if( ( arena = bg_name2arena(bg_name) )  ) {
+		bg_queue_ready_ack(arena,sd, ( result == 1 ) ? true : false);
+	} else {
+		clif_bgqueue_ack(sd,BGQA_FAIL_BGNAME_INVALID, 0);
+	}
+}
+
+void clif_bgqueue_update_info(struct map_session_data *sd, unsigned char arena_id, int position) {
+	struct battleground_data *bg;
+	unsigned char buf[30];
+	
+	nullpo_retv(sd);
+
+	if(!sd->bg_id)
+		return;
+
+	if((bg = bg_team_search(sd->bg_id)) == NULL)
+		return;
+
+	Assert_retv(arena_id < bg->arena.bg_arena_id);
+	
+	WBUFW(buf,0) = 0x8d9;
+	safestrncpy((char*)WBUFCP(buf,2), bg->arena.name, NAME_LENGTH);
+	WBUFL(buf,26) = position;
+
+	sd->bg_queue.client_has_bg_data = true; // Client creates bg data when this packet arrives
+
+	clif_send(buf,packet_len(0x8d9), &sd->bl, SELF);
+}
+
+// Sends BG ready req to all with same bg arena/type as sd
+void clif_bgqueue_battlebegins(struct map_session_data *sd, unsigned char arena_id, enum send_target target) {
+	struct battleground_data *bg;
+	unsigned char buf[50];
+
+	nullpo_retv(sd);
+
+	if(!sd->bg_id)
+		return;
+
+	if((bg = bg_team_search(sd->bg_id)) == NULL)
+		return;
+
+	Assert_retv(arena_id < bg->arena.bg_arena_id);
+
+	WBUFW(buf,0) = 0x8df;
+	safestrncpy((char*)WBUFCP(buf,2), bg->arena.name, NAME_LENGTH); // BG-Name
+	safestrncpy((char*)WBUFCP(buf,26), bg->arena.name, NAME_LENGTH); // Game-Name
+
+	clif_send(buf, packet_len(0x8df), &sd->bl, target);
+}
+
+void clif_bgqueue_ack(struct map_session_data *sd, enum BATTLEGROUNDS_QUEUE_ACK response, unsigned char arena_id) 
+{
+	struct battleground_data *bg;
+	unsigned char buf[30];
+
+	if(!sd->bg_id)
+		return;
+
+	if((bg = bg_team_search(sd->bg_id)) == NULL)
+		return;
+
+	switch (response) {
+		case BGQA_FAIL_COOLDOWN:
+		case BGQA_FAIL_DESERTER:
+		case BGQA_FAIL_TEAM_COUNT:
+			break;
+		default: {
+			nullpo_retv(sd);
+			
+			WBUFW(buf,0) = 0x8d8;
+			WBUFW(buf,2) = response;
+			safestrncpy((char*)WBUFCP(buf,6), bg->arena.name, NAME_LENGTH);
+
+			clif_send(buf,packet_len(0x8df), &sd->bl, SELF);
+		}
+			break;
+	}
+}
 
 /// Custom Fonts (ZC_NOTIFY_FONT).
 /// 02ef <account_id>.L <font id>.W
@@ -19035,6 +19243,11 @@ void packetdb_readdb(void)
 		{ clif_parse_HotkeyRowShift, "hotkeyrowshift"},
 		// Clan System
 		{clif_parse_clan_chat, "clanchat"},
+		// Battleground Queue
+		{clif_parse_bgqueue_register, "pBGQueueRegister"},
+		{clif_parse_bgqueue_checkstate, "pBGQueueCheckState"},
+		{clif_parse_bgqueue_revoke_req, "pBGQueueRevokeReq"},
+		{clif_parse_bgqueue_battlebegin_ack, "pBGQueueBattleBeginAck"},
 		{NULL,NULL}
 	};
 

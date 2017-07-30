@@ -259,53 +259,64 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 		range = range + (pc_checkskill((TBL_PC*)bl, WL_RADIUS));
 
 	//TODO: Find a way better than hardcoding the list of skills affected by AC_VULTURE
-	switch( id )
+	switch(id)
 	{
-	case AC_SHOWER:			case MA_SHOWER:
-	case AC_DOUBLE:			case MA_DOUBLE:
-	case HT_BLITZBEAT:		case RA_ARROWSTORM:
-	case AC_CHARGEARROW:	case RA_AIMEDBOLT:
-	case MA_CHARGEARROW:	case RA_WUGBITE:
-	case SN_FALCONASSAULT:
-	case HT_POWER:
-		if( bl->type == BL_PC )
-			range += pc_checkskill((TBL_PC*)bl, AC_VULTURE);
-		else
-			range += 10; //Assume level 10?
-		break;
-	// added to allow GS skills to be effected by the range of Snake Eyes [Reddozen]
-	case GS_RAPIDSHOWER:
-	case GS_PIERCINGSHOT:
-	case GS_FULLBUSTER:
-	case GS_SPREADATTACK:
-	case GS_GROUNDDRIFT:
-		if (bl->type == BL_PC)
-			range += pc_checkskill((TBL_PC*)bl, GS_SNAKEEYE);
-		else
-			range += 10; //Assume level 10?
-		break;
-	case NJ_KIRIKAGE:
-		if (bl->type == BL_PC)
-			range = skill_get_range(NJ_SHADOWJUMP,pc_checkskill((TBL_PC*)bl,NJ_SHADOWJUMP));
-		break;
-	case WL_WHITEIMPRISON:	case WL_CRIMSONROCK:
-	case WL_SOULEXPANSION:	case WL_HELLINFERNO:
-	case WL_FROSTMISTY:		case WL_COMET:
-	case WL_JACKFROST:		case WL_CHAINLIGHTNING:
-	case WL_MARSHOFABYSS:	case WL_EARTHSTRAIN:
-	case WL_SIENNAEXECRATE: case WL_TETRAVORTEX:
-	case WL_DRAINLIFE:		case WL_RELEASE:
-		if( bl->type == BL_PC )
-			range += pc_checkskill((TBL_PC*)bl, WL_RADIUS);
-		break;
-	//Added to allow increasing traps range
-		case HT_LANDMINE:		case HT_FREEZINGTRAP:
-		case HT_BLASTMINE:		case HT_CLAYMORETRAP:
-		case RA_CLUSTERBOMB:	case RA_FIRINGTRAP:
-		case RA_ICEBOUNDTRAP:
-		if( bl->type == BL_PC )
-			range += (1 + pc_checkskill((TBL_PC*)bl, RA_RESEARCHTRAP))/2;
-		break;
+		case AC_DOUBLE:			case MA_DOUBLE:
+		case AC_SHOWER:			case MA_SHOWER:
+		case HT_BLITZBEAT:		
+		case AC_CHARGEARROW:	case MA_CHARGEARROW:	
+		case SN_FALCONASSAULT:
+		case HT_POWER:
+		case RA_ARROWSTORM:
+		case RA_AIMEDBOLT:
+		case RA_WUGBITE:
+			if( bl->type == BL_PC )
+				range += pc_checkskill((TBL_PC*)bl, AC_VULTURE);
+			else
+				range += 10; //Assume level 10?
+			break;
+		// added to allow GS skills to be effected by the range of Snake Eyes [Reddozen]
+		case GS_RAPIDSHOWER:
+		case GS_PIERCINGSHOT:
+		case GS_FULLBUSTER:
+		case GS_SPREADATTACK:
+		case GS_GROUNDDRIFT:
+			if (bl->type == BL_PC)
+				range += pc_checkskill((TBL_PC*)bl, GS_SNAKEEYE);
+			else
+				range += 10; //Assume level 10?
+			break;
+		case NJ_KIRIKAGE:
+			if (bl->type == BL_PC)
+				range = skill_get_range(NJ_SHADOWJUMP,pc_checkskill((TBL_PC*)bl,NJ_SHADOWJUMP));
+			break;
+		case WL_WHITEIMPRISON:
+		case WL_SOULEXPANSION:
+		case WL_FROSTMISTY:
+		case WL_MARSHOFABYSS:
+		case WL_SIENNAEXECRATE:
+		case WL_DRAINLIFE:
+		case WL_CRIMSONROCK:
+		case WL_HELLINFERNO:
+		case WL_COMET:
+		case WL_CHAINLIGHTNING:
+		case WL_TETRAVORTEX:
+		case WL_RELEASE:
+		//case WL_READING_SP:// Code shows this in here. Why when its self casted?
+			if( bl->type == BL_PC )
+				range += pc_checkskill((TBL_PC*)bl, WL_RADIUS);
+			break;
+		//Added to allow increasing traps range
+		case HT_LANDMINE:
+		case HT_FREEZINGTRAP:
+		case HT_BLASTMINE:
+		case HT_CLAYMORETRAP:
+		case RA_CLUSTERBOMB:
+		case RA_FIRINGTRAP:
+ 		case RA_ICEBOUNDTRAP:
+			if( bl->type == BL_PC )
+				range += (1 + pc_checkskill((TBL_PC*)bl, RA_RESEARCHTRAP))/2;
+			break;
 	}
 
 	if( !range && bl->type != BL_PC )
@@ -4126,30 +4137,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
 		}
 		break;
-	/*case LG_CANNONSPEAR: // Clean Up Later If Found Not Needed
-		{
-			int length = skill_get_maxcount(skillid,skilllv);
-			int dir = map_calc_dir(src,bl->x,bl->y);
-			short src_x = src->x, src_y = src->y;
-			short dst_x = src_x, dst_y = src_y;
-			// Normalize attack direction.
-			switch( dir )
-			{
-				case 0:	src_y++; dst_y += length; break;
-				case 1: src_x--; src_y++; dst_x -= length; dst_y += length; break;
-				case 2: src_x--; dst_x -= length; break;
-				case 3: src_x--; src_y--; dst_x -= length; dst_y -= length; break;
-				case 4: src_y--; dst_y -= length; break;
-				case 5: src_x++; src_y--; dst_x += length; dst_y -= length; break;
-				case 6: src_x++; dst_x += length; break;
-				case 7: src_x++; src_y++; dst_x += length; dst_y += length; break;
-			}
-			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			map_foreachinpath(skill_attack_area,src->m,src_x,src_y,dst_x,dst_y,
-				skill_get_splash(skillid, skilllv),length, splash_target(src),
-				skill_get_type(skillid),src,src,skillid,skilllv,tick,flag,BCT_ENEMY);
-		}
- 		break;*/
 
 	case LG_SHIELDSPELL:
 		// flag&1: Phisycal Attack, flag&2: Magic Attack.
@@ -7612,33 +7599,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid,skilllv),BL_CHAR|BL_SKILL,src,skillid,skilllv,tick,flag|BCT_ENEMY,skill_castend_damage_id);
 		break;
 
-	/*case NC_FLAMELAUNCHER: // Clean Up Later If Found Not Needed
-		{
-			int dir = map_calc_dir(src,bl->x,bl->y);
-			int c, x = src->x, y = src->y, mx = 0, my = 0, x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-
-			switch( dir ){
-				case 0: my = 1; x1 = -1; x2 = 1; break;
-				case 2: mx = -1; y1 = -1; y2 = 1; break;
-				case 4: my = -1; x1 = -1; x2 = 1; break;
-				case 6: mx = 1; y1 = -1; y2 = 1; break;
-
-				case 1: mx = -1; my = 1; x1 = -1; y2 = 1; break;
-				case 3: mx = -1; my = -1; x1 = -1; y2 = -1; break;
-				case 5: mx = 1; my = -1; x1 = 1; y2 = -1; break;
-				case 7: mx = 1; my = 1; x1 = 1; y2 = 1; break;
-			}
-
-			for( c = 0; c < 5; c++ ){
-				x = x + mx; y = y + my;
-				map_foreachincell(skill_area_sub,src->m,x,y,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-				map_foreachincell(skill_area_sub,src->m,x+x1,y+y1,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-				map_foreachincell(skill_area_sub,src->m,x+x2,y+y2,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-			}
-		}
-		break;*/
-
 	case NC_F_SIDESLIDE:
 	case NC_B_SIDESLIDE:
 		{
@@ -9128,7 +9088,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 	case WL_EARTHSTRAIN:
 		{
-			int i, wave = skilllv + 2, dir = map_calc_dir(src,x,y);
+			int i, wave = skilllv + 4, dir = map_calc_dir(src,x,y);
 			int sx = x, sy = y;
 
 			if( sc && sc->data[SC_MAGICPOWER] )
@@ -9143,7 +9103,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 					case 2: sx = src->x - i; break;
 					case 6: sx = src->x + i; break;
 				}
-				skill_addtimerskill(src,gettick() + (250 * i),0,sx,sy,skillid,skilllv,dir,flag&2);
+				skill_addtimerskill(src,gettick() + (200 * i),0,sx,sy,skillid,skilllv,dir,flag&2); // Temp code until animation is replaced. [15peaces]
+				//skill_addtimerskill(src,gettick() + (150 * i),0,sx,sy,skillid,skilllv,dir,flag&2); // Official steping timer, but disabled due to too much noise.
 			}
 		}
 		break;
@@ -16374,26 +16335,31 @@ void skill_init_unit_layout (void)
 	earthstrain_unit_pos = pos;
 	for( i = 0; i < 8; i++ )
 	{ // For each Direction
-		skill_unit_layout[pos].count = 3; // 3 Heaven's Drive, each 5x5
+		skill_unit_layout[pos].count = 3; // Temp code being used as the official method makes too much noise in game. [Rytech]
+		//skill_unit_layout[pos].count = 15; // This line is here to replace the above one once gravity changes the animation.
 		switch( i )
 		{
-		case 0: case 1: case 3: case 4: case 5: case 7:
-			{
-				int dx[] = {-5, 0, 5};
-				int dy[] = { 0, 0, 0};
-				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
-			}
-			break;
-		case 2:
-		case 6:
-			{
-				int dx[] = { 0, 0, 0};
-				int dy[] = {-5, 0, 5};
-				memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
-			}
-			break;
+			case 0: case 1: case 3: case 4: case 5: case 7:
+				{
+					int dx[] = {-5, 0, 5};
+					int dy[] = { 0, 0, 0};
+					//int dx[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7}; // Leave this here for future use.
+					//int dy[] = { 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0};
+					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
+					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
+				}
+				break;
+			case 2:
+			case 6:
+				{
+					int dx[] = { 0, 0, 0};
+					int dy[] = {-5, 0, 5};
+					//int dx[] = { 0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0}; // Leave this here for future use.
+					//int dy[] = {-7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7};
+					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
+					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
+				}
+				break;
 		}
 		pos++;
 	}

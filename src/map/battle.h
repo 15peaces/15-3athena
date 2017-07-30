@@ -505,6 +505,8 @@ extern struct Battle_Config
 	int bg_magic_damage_rate;
 	int bg_misc_damage_rate;
 	int bg_flee_penalty;
+	int bg_queue;
+	int bg_queue_maximum_afk_seconds;
 
 	// 15-3athena
 	int renewal_casting_renewal_skills;

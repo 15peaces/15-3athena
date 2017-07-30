@@ -1748,6 +1748,8 @@ void map_deliddb(struct block_list *bl)
  *------------------------------------------*/
 int map_quit(struct map_session_data *sd)
 {
+	int i;
+
 	if (sd->state.keepshop == false) 
 	{ // Close vending/buyingstore
 		if (sd->state.vending)
@@ -1775,6 +1777,18 @@ int map_quit(struct map_session_data *sd)
 
 	if (sd->status.clan_id)
 		clan_member_left(sd);
+
+	for (i = 0; i < VECTOR_LENGTH(sd->script_queues); i++) {
+		struct script_queue *queue = script_queue_get(VECTOR_INDEX(sd->script_queues, i));
+		if (queue && queue->event_logout[0] != '\0') {
+			npc_event(sd, queue->event_logout, 0);
+		}
+	}
+	/* two times, the npc event above may assign a new one or delete others */
+	while (VECTOR_LENGTH(sd->script_queues)) {
+		int qid = VECTOR_LAST(sd->script_queues);
+		script_queue_remove(qid, sd->status.account_id);
+	}
 
 	npc_script_event(sd, NPCE_LOGOUT);
 

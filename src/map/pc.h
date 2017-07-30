@@ -492,6 +492,17 @@ struct map_session_data {
 	unsigned int bg_id;
 	unsigned short user_font;
 
+	/* Possible Thanks to Yommy~ / herc.ws! */
+	struct
+	{
+		unsigned int ready : 1;/* did he accept the 'match is about to start, enter' dialog? */
+		unsigned int client_has_bg_data : 1; /* flags whether the client has the "in queue" window (aka the client knows it is in a queue) */
+		struct battleground_arena *arena;
+		enum bg_queue_types type;
+	} bg_queue;
+
+	VECTOR_DECL(int) script_queues;
+
 	// temporary debugging of bug #3504
 	const char* delunit_prevfile;
 	int delunit_prevline;
