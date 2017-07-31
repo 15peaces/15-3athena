@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/31/2017
+	r174 [15peaces]
+		*Merged missing changes from 3ceam rev. 626
+		*Fixed and re-enabled CashShop. With this Update, the 2014-10-22bRagexe and all its known features are supported. It's time to add a 2015 ragexe support soon, I guess.
+			-There was a map-crash when entering the map-server.
+			-This only appeared if compiled with VS 2012.
+			-Re-wrote part of cashshop_db.txt loading-functions to fix this.
+		*Did some small bug fixes and updates.
+
 07/30/2017
 	r173 [15peaces]
 		*Merged missing changes from 3ceam rev. 622 - 625

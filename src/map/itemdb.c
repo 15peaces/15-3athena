@@ -1228,6 +1228,42 @@ static int itemdb_readdb(void)
 	return 0;
 }
 
+/// Reads one line from database and assigns it to RAM.
+static bool itemdb_read_cashshop(char* str[], int columns, int current){
+	unsigned short nameid = atoi( str[1] );
+
+	if( itemdb_exists( nameid ) ){
+		uint16 tab = atoi( str[0] );
+		uint32 price = atoi( str[2] );
+		struct cash_item_data* cid;
+		int j;
+
+		if( tab > CASHSHOP_TAB_MAX ){
+			ShowWarning( "itemdb_read_cashshop: Invalid tab %d, skipping...\n", tab);
+			return false;
+		}else if( price < 1 ){
+			ShowWarning( "itemdb_read_cashshop: Invalid price %d, skipping...\n", price);
+			return false;
+		}
+
+		ARR_FIND( 0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->id );
+
+		if( j == cash_shop_items[tab].count ){
+			RECREATE( cash_shop_items[tab].item, struct cash_item_data *, ++cash_shop_items[tab].count );
+			CREATE( cash_shop_items[tab].item[ cash_shop_items[tab].count - 1], struct cash_item_data, 1 );
+			cid = cash_shop_items[tab].item[ cash_shop_items[tab].count - 1];
+		}else
+			cid = cash_shop_items[tab].item[j];
+
+		cid->id = nameid;
+		cid->price = price;
+	}else{
+		ShowWarning( "itemdb_read_cashshop: Invalid ID %hu, skipping...\n", nameid);
+		return false;
+	}
+	return true;
+}
+
 #ifndef TXT_ONLY
 /*======================================
  * item_db table reading
@@ -1295,6 +1331,7 @@ static void itemdb_read(void)
 	sv_readdb(db_path, "item_trade.txt",   ',', 3, 3, -1,             &itemdb_read_itemtrade);
 	sv_readdb(db_path, "item_delay.txt",   ',', 2, 2, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
 	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,         &itemdb_read_buyingstore);
+	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,             &itemdb_read_cashshop);
 }
 
 /*==========================================
@@ -1385,7 +1422,6 @@ int do_init_itemdb(void)
 	itemdb_other = idb_alloc(DB_OPT_BASE); 
 	create_dummy_data(); //Dummy data item.
 	itemdb_read();
-	clif_cashshop_db();
 
 	if (battle_config.feature_roulette)
 		itemdb_parse_roulette_db();

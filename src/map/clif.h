@@ -452,6 +452,9 @@ struct cash_item_db {
 	uint32 count;
 };
 
+//CashShop
+struct cash_item_db cash_shop_items[CASHSHOP_TAB_MAX];
+
 int clif_setip(const char* ip);
 void clif_setbindip(const char* ip);
 void clif_setport(uint16 port);
@@ -939,9 +942,7 @@ void clif_parse_CashShopOpen(int fd, struct map_session_data *sd);
 void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
-void clif_cashshop_db(void);
 void do_final_cashshop(void);
-static int clif_cashshop_db_parserow( char** str, const char* source, int line );
 
 /// Roulette
 void clif_roulette_generate_ack(struct map_session_data *sd, unsigned char result, short stage, short prizeIdx, short bonusItemID);

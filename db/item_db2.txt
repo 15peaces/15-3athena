@@ -299,7 +299,6 @@
 20046,C_Blue_Ribbon_Band,Costume Blue Ribbon Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1222,{},{},{}
 20047,C_Prayer_Cherry_Blossom,Costume Prayer Cherry Blossom,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1223,{},{},{}
 20048,C_Wind_Prairie,Costume Wind Prairie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1224,{},{},{}
-
 20049,C_Giant_Aid_Band,Costume Giant Aid Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,147,{},{},{}
 20050,C_PhD_Hat,Costume Ph.D Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,98,{},{},{}
 20053,C_WKing_Tiger_Doll_Hat,Costume WKing Tiger Doll Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,973,{},{},{}
@@ -315,6 +314,7 @@
 20073,C_Hair_Band,Costume Hair Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,9,{},{},{}
 20074,C_Biretta,Costume Biretta,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,11,{},{},{}
 20084,C_Ceremonial_Hat,Costume Ceremonial Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,325,{},{},{}
+
 20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}
 20086,C_Dragon_Cintamani_Hat1,Costume Dragon Cintamani Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1245,{},{},{}
 20087,C_Dragon_Cintamani_Hat2,Costume Dragon Cintamani Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1246,{},{},{}
@@ -2279,7 +2279,7 @@
 18550,Asgard_Blessing,Asgard Blessing,4,20,,300,,3,,1,0xFFFFFFFF,63,2,256,,30,1,724,{ bonus bAllStats,2; bonus2 bSubEle,Ele_All,5; bonus2 bHPRegenRate,(MaxHp/100),10000; },{},{}
 18551,Galaxy_Circlet,Galaxy Circlet,4,20,,1000,,5,,1,0xFFFFFFFF,63,2,256,,50,1,725,{ set .@r, getrefine(); set .@a, .@r*10; set .@b, .@r/2; bonus bMdef,5; bonus bMaxHP,.@a; bonus bMaxSP,.@a; bonus2 bSubEle,Ele_Earth,.@b; bonus2 bSubEle,Ele_Fire,.@b; bonus2 bSubEle,Ele_Water,.@b; },{},{}
 18552,Proba_Angel_Blessing,Proba Angel Blessing,4,20,,1200,,0,,1,0xFFFFFFFF,63,2,256,,10,1,444,{ bonus bLuk,2; },{},{}
-18553,Mini_Tree,Mini Tree,4,20,,50,,5,,0,0xFFFFFFFF,63,2,256,,0,1,727,{ bonus2 bResEff,Eff_Stun,20; bonus2 bResEff,Eff_Curse,20; bonus2 bResEff,Eff_Blind,20; bonus2 bResEff,Eff_Confusion,20; bonus2 bAddMonsterDropItem,529,300; bonus2 bAddMonsterDropItem,529,644; },{},{}
+18553,Mini_Tree,Mini Tree,4,20,,50,,5,,0,0xFFFFFFFF,63,2,256,,0,1,727,{ bonus2 bResEff,Eff_Stun,20; bonus2 bResEff,Eff_Curse,20; bonus2 bResEff,Eff_Blind,20; bonus2 bResEff,Eff_Confusion,20; bonus2 bAddMonsterDropItem,12130,300; bonus2 bAddMonsterDropItem,12130,644; },{},{}
 18554,King_Prawn_Hat,King Prawn Hat,4,20,,1000,,8,,0,0xFFFFFFFF,63,2,256,,0,0,728,{ bonus2 bAddItemGroupHealRate,IG_Fish,100; },{},{}
 18555,General_Helmet,General Helmet,4,20,,200,,3,,1,0xFFFFFFFF,63,2,256,,10,1,729,{ bonus bMdef,3; bonus2 bAddRace,RC_Dragon,5; bonus2 bMagicAddRace,RC_Dragon,5; bonus2 bSubRace,RC_Dragon,5; bonus3 bAddMonsterDropItem,7444,RC_Dragon,2; },{},{}
 18556,Angel_Helmet,Angel Helmet,4,0,,0,,0,,0,0xFFFFFFFF,63,2,512,,0,0,3,{ bonus3 bAddMonsterIdDropItem,6464,2220,310; },{},{}

@@ -67,9 +67,6 @@ static unsigned int clif_cryptKey[3]; // Used keys
 #endif
 static unsigned short clif_parse_cmd(int fd, struct map_session_data *sd);
 
-//CashShop
-struct cash_item_db cash_shop_items[CASHSHOP_TAB_MAX];
-
 //Converts item type in case of pet eggs.
 static inline int itemtype(int type)
 {
@@ -16016,108 +16013,6 @@ void clif_parse_CashShopListSend(int fd, struct map_session_data *sd)
 /* [Ind/Hercules]
  * Rewrite by: 15peaces
  */
-void clif_cashshop_db(void) {
-	const char *file = "db/cashshop_db.txt";
-	uint32 lines = 0, count = 0;
-	char line[1024];
-	
-	FILE* fp;
-
-	fp = fopen( file, "r" );
-		if( fp == NULL ) {
-			ShowWarning( "itemdb_readdb: File not found \"%s\"...\n", file );
-			return;
-		}
-
-		while( fgets( line, sizeof( line ), fp ) ){
-			char *str[3], *p;
-			int i;
-			lines++;
-
-			if( line[0] == '/' && line[1] == '/' )
-				continue;
-
-			memset( str, 0, sizeof( str ) );
-
-			p = line;
-			while( ISSPACE( *p ) )
-				++p;
-			if( *p == '\0' )
-				continue;
-
-			for( i = 0; i < 2; ++i ){
-				str[i] = p;
-				p = strchr( p, ',' );
-
-				if( p == NULL )
-					break;
-
-				*p = '\0';
-				++p;
-			}
-
-			str[2] = p;
-			while( !ISSPACE( *p ) && *p != '\0' && *p != '/' )
-				++p;
-
-			if( p == NULL ){
-				ShowError("cashshop_read_db_txt: Insufficient columns in line %d of \"%s\" (item with id %d), skipping.\n", lines, file, atoi( str[0] ) );
-				continue;
-			}
-
-			if( !clif_cashshop_db_parserow( str, file, lines ) )
-				continue;
-
-			count++;
-		}
-
-		fclose(fp);
-
-		ShowStatus( "Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, file );
-}
-
-/*
- * Reads one line from database and assigns it to RAM.
- * return
- *  0 = failure
- *  1 = success
- */
-static int clif_cashshop_db_parserow( char** str, const char* source, int line ){
-	unsigned short nameid = atoi( str[1] );
-
-	if( itemdb_exists( nameid ) ){
-		uint16 tab = atoi( str[0] );
-		uint32 price = atoi( str[2] );
-		struct cash_item_data* cid;
-		int j;
-
-		if( tab > CASHSHOP_TAB_MAX ){
-			ShowWarning( "cashshop_parse_dbrow: Invalid tab %d in line %d of \"%s\", skipping...\n", tab, line, source );
-			return 0;
-		}else if( price < 1 ){
-			ShowWarning( "cashshop_parse_dbrow: Invalid price %d in line %d of \"%s\", skipping...\n", price, line, source );
-			return 0;
-		}
-
-		ARR_FIND( 0, cash_shop_items[tab].count, j, nameid == cash_shop_items[tab].item[j]->id );
-
-		if( j == cash_shop_items[tab].count ){
-			RECREATE( cash_shop_items[tab].item, struct cash_item_data *, ++cash_shop_items[tab].count );
-			CREATE( cash_shop_items[tab].item[ cash_shop_items[tab].count - 1], struct cash_item_data, 1 );
-			cid = cash_shop_items[tab].item[ cash_shop_items[tab].count - 1];
-		}else
-			cid = cash_shop_items[tab].item[j];
-
-		cid->id = nameid;
-		cid->price = price;
-
-		return 1;
-	}else{
-		ShowWarning( "cashshop_parse_dbrow: Invalid ID %hu in line %d of \"%s\", skipping...\n", nameid, line, source );
-	}
-
-	return 0;
-}
 
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
 	WFIFOHEAD(fd, 10);
@@ -16128,38 +16023,36 @@ void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
 }
 
  void clif_parse_CashShopClose(int fd, struct map_session_data *sd) {
+	 return;
 }
 
-void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd) __attribute__((nonnull (2)));
 void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd)
-{ // FIXME: Crash on Login if compiled with VS 2012... [15peaces]
-/*#if PACKETVER >= 20110614
-	int tab;
+{
+#if PACKETVER >= 20110614
+	int i, j, length = 0;
 
-	for (tab = CASHSHOP_TAB_NEW; tab < CASHSHOP_TAB_MAX; tab++)
+	for (i = 0; i < CASHSHOP_TAB_MAX; i++)
 	{
-		int length = 8 + cash_shop_items[tab].count * 6;
-		int i, offset;
+		length = 8 + cash_shop_items[i].count * 6;
 
-		if (cash_shop_items[tab].count == 0)
+		if (cash_shop_items[i].count == 0)
 			continue; // Skip empty tabs, the client only expects filled ones
 
 		WFIFOHEAD(fd, length);
 		WFIFOW(fd, 0) = 0x8ca;
 		WFIFOW(fd, 2) = length;
-		WFIFOW(fd, 4) = cash_shop_items[tab].count;
-		WFIFOW(fd, 6) = tab;
-
-		for (i = 0, offset = 8; i < cash_shop_items[tab].count; i++, offset += 6)
+		WFIFOW(fd, 4) = cash_shop_items[i].count;
+		WFIFOW(fd, 6) = i;
+		
+		for (j = 0; j < cash_shop_items[i].count; j++)
 		{
-			WFIFOW(fd, offset) = cash_shop_items[tab].item[i]->id;
-			WFIFOL(fd, offset + 2) = cash_shop_items[tab].item[i]->price;
+			WFIFOW(fd, 8 + ( 6 * j ) ) = cash_shop_items[i].item[j]->id;
+			WFIFOL(fd, 10 + ( 6 * j ) ) = cash_shop_items[i].item[j]->price;
 		}
 
 		WFIFOSET( fd, length );
 	}
 #endif
-*/
 }
 
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
