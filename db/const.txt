@@ -759,6 +759,7 @@ IP_Dgrade_Pocket	16			//351
 IP_Egrade_Pocket	17			//352
 IP_HALLOWEEN_G_BOX	18			//386
 IP_Sg_Weapon_Supply_Box	19		//388
+IP_IDRO10TH_SCROLL	20			//442
 
 SC_ALL	-1
 SC_NONE	-1

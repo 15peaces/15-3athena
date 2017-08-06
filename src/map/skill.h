@@ -152,7 +152,7 @@ struct skill_unit_group {
 	int map;
 	int target_flag; //Holds BCT_* flag for battle_check_target
 	int bl_flag;	//Holds BL_* flag for map_foreachin* functions
-	unsigned int tick;
+	int64 tick;
 	int limit,interval;
 
 	short skill_id,skill_lv;
@@ -181,7 +181,7 @@ struct skill_unit {
 
 #define MAX_SKILLUNITGROUPTICKSET 25
 struct skill_unit_group_tickset {
-	unsigned int tick;
+	int64 tick;
 	int id;
 };
 
@@ -305,16 +305,16 @@ const char*	skill_get_desc( int id ); 	// [Skotlex]
 int skill_name2id(const char* name);
 
 int skill_isammotype(struct map_session_data *sd, int skill);
-int skill_castend_id(int tid, unsigned int tick, int id, intptr_t data);
-int skill_castend_pos(int tid, unsigned int tick, int id, intptr_t data);
+int skill_castend_id(int tid, int64 tick, int id, intptr_t data);
+int skill_castend_pos(int tid, int64 tick, int id, intptr_t data);
 int skill_castend_map( struct map_session_data *sd,short skill_num, const char *map);
 
 int skill_cleartimerskill(struct block_list *src);
-int skill_addtimerskill(struct block_list *src,unsigned int tick,int target,int x,int y,int skill_id,int skill_lv,int type,int flag);
+int skill_addtimerskill(struct block_list *src,int64 tick,int target,int x,int y,int skill_id,int skill_lv,int type,int flag);
 
 // 追加?果
-int skill_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,int dmg_lv,unsigned int tick);
-int skill_counter_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,unsigned int tick);
+int skill_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,int dmg_lv,int64 tick);
+int skill_counter_additional_effect( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int attack_type,int64 tick);
 int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, int flag);
 int skill_break_equip(struct block_list *bl, unsigned short where, int rate, int flag);
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time);
@@ -329,7 +329,7 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
 
-int skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int damage,unsigned int tick);
+int skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int damage,int64 tick);
 
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
@@ -344,8 +344,8 @@ struct skill_condition skill_get_requirement(struct map_session_data *sd, short 
 int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* skill_lv, int range, int cast_flag);
 // -- moonsoul	(added skill_check_unit_cell)
 int skill_check_unit_cell(int skillid,int m,int x,int y,int unit_id);
-int skill_unit_out_all( struct block_list *bl,unsigned int tick,int range);
-int skill_unit_move(struct block_list *bl,unsigned int tick,int flag);
+int skill_unit_out_all( struct block_list *bl,int64 tick,int range);
+int skill_unit_move(struct block_list *bl,int64 tick,int flag);
 int skill_unit_move_unit_group( struct skill_unit_group *group, int m,int dx,int dy);
 
 struct skill_unit_group *skill_check_dancing( struct block_list *src );
@@ -357,7 +357,7 @@ int skill_guildaura_sub (struct map_session_data* sd, int id, int strvit, int ag
 int skill_castcancel(struct block_list *bl,int type);
 
 int skill_sit (struct map_session_data *sd, int type);
-void skill_brandishspear(struct block_list* src, struct block_list* bl, int skillid, int skilllv, unsigned int tick, int flag);
+void skill_brandishspear(struct block_list* src, struct block_list* bl, int skillid, int skilllv, int64 tick, int flag);
 void skill_repairweapon(struct map_session_data *sd, int idx);
 void skill_identify(struct map_session_data *sd,int idx);
 void skill_weaponrefine(struct map_session_data *sd,int idx); // [Celest]
@@ -375,7 +375,7 @@ int skillnotok_hom(int skillid, struct homun_data *hd);
 int skillnotok_mercenary(int skillid, struct mercenary_data *md);
 
 int skill_blockpc_clear(struct map_session_data *sd);
-int skill_blockpc_end(int tid, unsigned int tick, int id, intptr data);
+int skill_blockpc_end(int tid, int64 tick, int id, intptr data);
 
 int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);
 
@@ -395,9 +395,9 @@ int skill_stasis_check(struct block_list *bl, int skillid);// Stasis skill usage
 int skill_get_elemental_type(int skill_id, int skill_lv);
 
 // mobスキルのため
-int skill_castend_nodamage_id( struct block_list *src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
-int skill_castend_damage_id( struct block_list* src, struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
-int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skilllv,unsigned int tick,int flag);
+int skill_castend_nodamage_id( struct block_list *src, struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
+int skill_castend_damage_id( struct block_list* src, struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
+int skill_castend_pos2( struct block_list *src, int x,int y,int skillid,int skilllv,int64 tick,int flag);
 
 int skill_blockpc_start (struct map_session_data*,int,int);
 int skill_blockpc_get (struct map_session_data *sd, int skillid);
@@ -405,7 +405,7 @@ int skill_blockhomun_start (struct homun_data*,int,int);
 int skill_blockmerc_start (struct mercenary_data*,int,int);
 
 // スキル攻?一括?理
-int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,unsigned int tick,int flag );
+int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
 
 void skill_reload(void);
 

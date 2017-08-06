@@ -3358,7 +3358,7 @@ struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n)
 /*==========================================
  * Timer function for sleep
  *------------------------------------------*/
-int run_script_timer(int tid, unsigned int tick, int id, intptr_t data)
+int run_script_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct script_state *st     = (struct script_state *)data;
 	struct linkdb_node *node    = (struct linkdb_node *)sleep_db;
@@ -8022,7 +8022,7 @@ BUILDIN_FUNC(gettimetick)	/* Asgard Version */
 	case 0:
 	default:
 		//type 0:(System Ticks)
-		script_pushint(st,gettick());
+		script_pushint(st,(int)gettick());
 		break;
 	}
 	return 0;
@@ -12817,7 +12817,7 @@ BUILDIN_FUNC(summon)
 	const char *str,*event="";
 	TBL_PC *sd;
 	struct mob_data *md;
-	int tick = gettick();
+	int64 tick = gettick();
 
 	sd=script_rid2sd(st);
 	if (!sd) return 0;

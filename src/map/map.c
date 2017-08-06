@@ -235,7 +235,7 @@ int map_freeblock_unlock (void)
 // ‚±‚ÌŠÖ”‚ÍAdo_timer() ‚ÌƒgƒbƒvƒŒƒxƒ‹‚©‚çŒÄ‚Î‚ê‚é‚Ì‚ÅA
 // block_free_lock ‚ð’¼Ú‚¢‚¶‚Á‚Ä‚àŽxá–³‚¢‚Í‚¸B
 
-int map_freeblock_timer(int tid, unsigned int tick, int id, intptr_t data)
+int map_freeblock_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	if (block_free_lock > 0) {
 		ShowError("map_freeblock_timer: block_free_lock(%d) is invalid.\n", block_free_lock);
@@ -372,7 +372,7 @@ int map_delblock(struct block_list* bl)
  * Pass flag as 1 to prevent doing skill_unit_move checks
  * (which are executed by default on BL_CHAR types)
  *------------------------------------------*/
-int map_moveblock(struct block_list *bl, int x1, int y1, unsigned int tick)
+int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 {
 	int x0 = bl->x, y0 = bl->y;
 	struct status_change *sc = NULL;
@@ -1416,7 +1416,7 @@ int map_get_new_object_id(void)
  * ŒãŽÒ‚ÍAmap_clearflooritem(id)‚Ö
  * map.h?‚Å#define‚µ‚Ä‚ ‚é
  *------------------------------------------*/
-int map_clearflooritem_timer(int tid, unsigned int tick, int id, intptr_t data)
+int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct flooritem_data* fitem = (struct flooritem_data*)idb_get(id_db, id);
 	if( fitem==NULL || fitem->bl.type!=BL_ITEM || (!data && fitem->cleartimer != tid) )
@@ -2396,7 +2396,7 @@ int map_removemobs_sub(struct block_list *bl, va_list ap)
 	return 1;
 }
 
-int map_removemobs_timer(int tid, unsigned int tick, int id, intptr_t data)
+int map_removemobs_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	int count;
 	const int m = id;
@@ -3912,7 +3912,7 @@ int do_init(int argc, char *argv[])
 	GRF_PATH_FILENAME = "conf/grf-files.txt";
 	safestrncpy(console_log_filepath, "./log/map-msg_log.log", sizeof(console_log_filepath));
 
-	srand(gettick());
+	srand((unsigned int)gettick());
 
 	for( i = 1; i < argc ; i++ )
 	{

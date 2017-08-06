@@ -6170,7 +6170,7 @@ ACMD_FUNC(useskill)
 ACMD_FUNC(displayskill)
 {
 	struct status_data * status;
-	unsigned int tick;
+	int64 tick;
 	int skillnum;
 	int skilllv = 1;
 	nullpo_retr(-1, sd);
@@ -6996,7 +6996,7 @@ ACMD_FUNC(summon)
 	int mob_id = 0;
 	int duration = 0;
 	struct mob_data *md;
-	unsigned int tick=gettick();
+	int64 tick=gettick();
 
 	nullpo_retr(-1, sd);
 

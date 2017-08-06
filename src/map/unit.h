@@ -31,9 +31,9 @@ struct unit_data {
 	int   attacktimer;
 	int   walktimer;
 	int	chaserange;
-	unsigned int attackabletime;
-	unsigned int canact_tick;
-	unsigned int canmove_tick;
+	int64 attackabletime;
+	int64 canact_tick;
+	int64 canmove_tick;
 	bool immune_attack; ///< Whether the unit is immune to attacks
 	uint8 dir;
 	unsigned char walk_count;
@@ -81,7 +81,7 @@ int unit_calc_pos(struct block_list *bl, int tx, int ty, int dir);
 int unit_stop_walking(struct block_list *bl,int type);
 int unit_can_move(struct block_list *bl);
 int unit_is_walking(struct block_list *bl);
-int unit_set_walkdelay(struct block_list *bl, unsigned int tick, int delay, int type);
+int unit_set_walkdelay(struct block_list *bl, int64 tick, int delay, int type);
 
 int unit_escape(struct block_list *bl, struct block_list *target, short dist);
 // ˆÊ’u‚Ì‹­§ˆÚ“®(‚«”ò‚Î‚µ‚È‚Ç)
@@ -116,7 +116,7 @@ int unit_counttargeted(struct block_list *bl,int target_lv);
 // unit_data ‚Ì‰Šú‰»ˆ—
 void unit_dataset(struct block_list *bl);
 
-int unit_fixdamage(struct block_list *src,struct block_list *target,unsigned int tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);
+int unit_fixdamage(struct block_list *src,struct block_list *target,int64 tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);
 // ‚»‚Ì‘¼
 struct unit_data* unit_bl2ud(struct block_list *bl);
 void unit_remove_map_pc(struct map_session_data *sd, clr_type clrtype);

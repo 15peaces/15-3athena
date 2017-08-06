@@ -100,7 +100,7 @@ int elemental_save(struct elemental_data *ed) {
 	return 1;
 }
 
-static int elemental_summon_end(int tid, unsigned int tick, int id, intptr data) {
+static int elemental_summon_end(int tid, int64 tick, int id, intptr data) {
 	struct map_session_data *sd;
 	struct elemental_data *ed;
 
@@ -321,7 +321,7 @@ bool elemental_clean_effect(struct elemental_data *ed) {
 	return true;
 }
 
-bool elemental_action(struct elemental_data *ed, struct block_list *bl, unsigned int tick) {
+bool elemental_action(struct elemental_data *ed, struct block_list *bl, int64 tick) {
 	short skillnum, skilllv;
 	int i;
 
@@ -543,7 +543,7 @@ static int elemental_ai_sub_timer_activesearch(struct block_list *bl, va_list ap
 	return 0;
 }
 
-static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_data *sd, unsigned int tick)
+static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_data *sd, int64 tick)
 {
 	struct block_list *target = NULL;
 	int master_dist, view_range, mode;
@@ -634,14 +634,14 @@ static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_
 }
 
 static int elemental_ai_sub_foreachclient(struct map_session_data *sd, va_list ap) {
-	unsigned int tick = va_arg(ap,unsigned int);
+	int64 tick = va_arg(ap,unsigned int);
 	if(sd->status.ele_id && sd->ed)
 		elemental_ai_sub_timer(sd->ed,sd,tick);
 
 	return 0;
 }
 
-static int elemental_ai_timer(int tid, unsigned int tick, int id, intptr data) {
+static int elemental_ai_timer(int tid, int64 tick, int id, intptr data) {
 	map_foreachpc(elemental_ai_sub_foreachclient,tick);
 
 	return 0;

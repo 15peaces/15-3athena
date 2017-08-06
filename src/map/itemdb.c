@@ -147,29 +147,57 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 	return count + itemdb_other->getall(itemdb_other,(void**)data,size,itemdb_searchname_array_sub,str);
 }
 
-void itemdb_package_item(struct map_session_data *sd, int packageid) {
+void itemdb_package_item(struct map_session_data *sd, int packageid) 
+{
 	int i = 0, get_count, j, flag;
+	uint16 rand_group=1;
 
 	nullpo_retv(sd);
 
-	for( i = 0; i < itempackage_db[packageid].qty; i++ ) {
+	for( i = 0; i < itempackage_db[packageid].qty; i++ ) 
+	{
 		struct item it;
 		memset(&it, 0, sizeof(it));
 
 		it.nameid = itempackage_db[packageid].nameid[i];
+		it.identify = 1;
 		get_count = itemdb_isstackable(it.nameid) ? itempackage_db[packageid].amount[i] : 1;
 		it.amount = get_count == 1 ? 1 : get_count;
 
-		if( itempackage_db[packageid].ismust[i] ) {
-			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) {
+		if( itempackage_db[packageid].isrand[i] == 0 ) 
+		{ // "Must"-Item
+			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) 
+			{
 				if ( ( flag = pc_additem(sd, &it, get_count) ) )
+				{
+					if( itempackage_db[packageid].announced[i] )
+					{
+						ShowDebug("itemdb_package_item: Announced item!\n");
+						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
+					}
 					clif_additem(sd, 0, 0, flag);
+				}
 			}
-		}else{
-			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) {
-				if( rnd()%10000 >= itempackage_db[packageid].prob[i] )
+		}
+		else
+		{ // Random item.
+			if(itempackage_db[packageid].max_rand > 1)
+				rand_group = rnd()%itempackage_db[packageid].max_rand;
+
+			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) 
+			{ 
+				if( itempackage_db[packageid].isrand[i] == rand_group && rnd()%10000 <= itempackage_db[packageid].prob[i] )
+				{
 					if ( ( flag = pc_additem(sd, &it, get_count) ) )
+					{
+						if( itempackage_db[packageid].announced[i] )
+						{
+							ShowDebug("itemdb_package_item: Announced item!\n");
+							clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
+						}
 						clif_additem(sd, 0, 0, flag);
+					}
+				}
 			}
 		}
 	}
@@ -623,11 +651,11 @@ static void itemdb_read_itempackage_sub(const char* filename)
 	FILE *fp;
 	char line[1024];
 	int ln=0;
-	unsigned short nameid;
+	unsigned short nameid, announced=0;
 	int packageid,amt,j;
 	int prob = 1;
 	uint8 rand_package = 1;
-	char *str[5],*p;
+	char *str[6],*p;
 	char w1[1024], w2[1024];
 	
 	if( (fp=fopen(filename,"r"))==NULL ){
@@ -648,14 +676,14 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			}
 		}
 		memset(str,0,sizeof(str));
-		for(j=0,p=line;j<5 && p;j++){
+		for(j=0,p=line;j<6 && p;j++){
 			str[j]=p;
 			p=strchr(p,',');
 			if(p) *p++=0;
 		}
 		if(str[0]==NULL)
 			continue;
-		if (j<5) {
+		if (j<3) {
 			if (j>1) //Or else it barks on blank lines...
 				ShowWarning("itemdb_read_itempackage: Insufficient fields for entry at %s:%d\n", filename, ln);
 			continue;
@@ -689,6 +717,13 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			continue;
 		}
 
+		if (str[5] != NULL)
+			announced = atoi(str[5]);
+		if (announced < 0 || announced > 1) {
+			ShowWarning("itemdb_read_itempackage: Invalid isAnnounced flag '%d' for package '%s' in %s:%d. Defaulting to 0.\n", announced, str[0], filename, ln);
+			announced = 0;
+			continue;
+		}
 		if (rand_package != 0 && prob < 1) {
 			ShowWarning("itemdb_read_itempackage: Random item must has probability. Package '%s' in %s:%d\n", str[0], filename, ln);
 			continue;
@@ -698,8 +733,11 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			itempackage_db[packageid].nameid[itempackage_db[packageid].qty] = nameid;
 			itempackage_db[packageid].prob[itempackage_db[packageid].qty] = prob;
 			itempackage_db[packageid].amount[itempackage_db[packageid].qty] = amt;
-			itempackage_db[packageid].ismust[itempackage_db[packageid].qty] = rand_package;
+			itempackage_db[packageid].isrand[itempackage_db[packageid].qty] = rand_package;
+			itempackage_db[packageid].announced[itempackage_db[packageid].qty] = announced;
 			itempackage_db[packageid].qty++;
+			if(rand_package > itempackage_db[packageid].max_rand)
+				itempackage_db[packageid].max_rand = rand_package;
 		//}
 	}
 	fclose(fp);

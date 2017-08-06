@@ -103,7 +103,7 @@ struct s_autobonus {
 struct s_bonus_script_entry {
 	struct script_code *script;
 	StringBuf *script_buf; //Used for comparing and storing on table
-	uint32 tick;
+	int64 tick;
 	uint16 flag;
 	enum si_type icon;
 	uint8 type; //0 - Ignore; 1 - Buff; 2 - Debuff
@@ -223,7 +223,7 @@ struct map_session_data {
 
 	struct{
 		int npc_id;
-		unsigned int timeout;
+		int64 timeout;
 	} progressbar; //Progress Bar [Inkfish]
 
 	struct{
@@ -244,18 +244,18 @@ struct map_session_data {
 	int menuskill_id, menuskill_val, menuskill_itemused;
 
 	int invincible_timer;
-	unsigned int canlog_tick;
-	unsigned int canuseitem_tick;	// [Skotlex]
-	unsigned int canusecashfood_tick;
-	unsigned int canequip_tick;	// [Inkfish]
-	unsigned int cantalk_tick;
-	unsigned int cansendmail_tick; // [Mail System Flood Protection]
-	unsigned int ks_floodprotect_tick; // [Kill Steal Protection]
-	unsigned int pvpcan_walkout_tick; // Cell PVP [Napster]
+	int64 canlog_tick;
+	int64 canuseitem_tick;	// [Skotlex]
+	int64 canusecashfood_tick;
+	int64 canequip_tick;	// [Inkfish]
+	int64 cantalk_tick;
+	int64 cansendmail_tick; // [Mail System Flood Protection]
+	int64 ks_floodprotect_tick; // [Kill Steal Protection]
+	int64 pvpcan_walkout_tick; // Cell PVP [Napster]
 	
 	struct {
 		unsigned short nameid;
-		unsigned int tick;
+		int64 tick;
 	} item_delay[MAX_ITEMDELAYS]; // [Paradox924X]
 
 	short weapontype1,weapontype2;
@@ -305,7 +305,7 @@ struct map_session_data {
 	struct {
 		short value;
 		int rate;
-		int tick;
+		int64 tick;
 	} hp_loss, sp_loss, hp_regen, sp_regen;
 	struct {
 		short class_, rate;
@@ -766,7 +766,7 @@ int pc_updateweightstatus(struct map_session_data *sd);
 
 int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short atk_type,const char *o_script,unsigned short pos,bool onskill);
 int pc_exeautobonus(struct map_session_data* sd,struct s_autobonus *bonus);
-int pc_endautobonus(int tid, unsigned int tick, int id, intptr_t data);
+int pc_endautobonus(int tid, int64 tick, int id, intptr_t data);
 int pc_delautobonus(struct map_session_data* sd,struct s_autobonus *bonus,char max,bool restore);
 
 int pc_bonus(struct map_session_data*,int,int);
@@ -868,7 +868,7 @@ int pc_cleareventtimer(struct map_session_data *sd);
 int pc_addeventtimercount(struct map_session_data *sd,const char *name,int tick);
 
 int pc_calc_pvprank(struct map_session_data *sd);
-int pc_calc_pvprank_timer(int tid, unsigned int tick, int id, intptr_t data);
+int pc_calc_pvprank_timer(int tid, int64 tick, int id, intptr_t data);
 
 int pc_ismarried(struct map_session_data *sd);
 int pc_marriage(struct map_session_data *sd,struct map_session_data *dstsd);
@@ -878,8 +878,8 @@ struct map_session_data *pc_get_father(struct map_session_data *sd);
 struct map_session_data *pc_get_mother(struct map_session_data *sd);
 struct map_session_data *pc_get_child(struct map_session_data *sd);
 
-void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick);
-void pc_regen (struct map_session_data *sd, unsigned int diff_tick);
+void pc_bleeding (struct map_session_data *sd, int64 diff_tick);
+void pc_regen (struct map_session_data *sd, int64 diff_tick);
 
 void pc_setstand(struct map_session_data *sd);
 int pc_candrop(struct map_session_data *sd,struct item *item);
@@ -941,8 +941,8 @@ enum {
 // timer for night.day
 extern int day_timer_tid;
 extern int night_timer_tid;
-int map_day_timer(int tid, unsigned int tick, int id, intptr_t data); // by [yor]
-int map_night_timer(int tid, unsigned int tick, int id, intptr_t data); // by [yor]
+int map_day_timer(int tid, int64 tick, int id, intptr_t data); // by [yor]
+int map_night_timer(int tid, int64 tick, int id, intptr_t data); // by [yor]
 
 // Rental System
 void pc_inventory_rentals(struct map_session_data *sd);
@@ -964,7 +964,7 @@ enum pc_msg {
 enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int money);
 enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int money);
 
-int pc_bonus_script_timer(int tid, unsigned int tick, int id, intptr_t data);
+int pc_bonus_script_timer(int tid, int64 tick, int id, intptr_t data);
 void pc_bonus_script(struct map_session_data *sd);
 struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum si_type icon, uint16 flag, uint8 type);
 void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);

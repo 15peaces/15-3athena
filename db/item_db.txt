@@ -7799,7 +7799,30 @@
 
 19974,C_Camouflage_Rabbit_Hood,Costume Camouflage Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1142,{},{},{}
 
-20110,C_Coiledup_Snake,Costume Coiledup Snake,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,,{},{},{}
+20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}
+20086,C_Dragon_Cintamani_Hat1,Costume Dragon Cintamani Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1245,{},{},{}
+20087,C_Dragon_Cintamani_Hat2,Costume Dragon Cintamani Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1246,{},{},{}
+
+20091,C_Smoking_Pipe,Costume Smoking Pipe,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,55,{},{},{}
+20092,C_Sale_Banner,Costume Sale Banner,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,183,{},{},{}
+20093,C_Wizard_Hat,Costume Wizard Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,36,{},{},{}
+20094,C_Green_Ribbon,Costume Green Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,439,{},{},{}
+20095,C_Red_Ribbon,Costume Red Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,440,{},{},{}
+20096,C_Blue_Ribbon,Costume Blue Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,441,{},{},{}
+20097,C_White_Ribbon,Costume White Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,442,{},{},{}
+
+20102,C_Horse_King_J,Costume Horse King_J,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1189,{},{},{}
+20103,C_Drooping_Panda,Costume Drooping Panda,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1029,{},{},{}
+20104,C_Picky_Egg_Shell,Costume Picky Egg Shell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1001,{},{},{}
+20105,C_Fish_Head,Costume Fish Head,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,386,{},{},{}
+20106,C_Classic_Hat,Costume Classic Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,475,{},{},{}
+20107,C_Fish_in_mouth,Costume Fish in mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,406,{},{},{}
+20108,C_Blind_Glasses,Costume Blind Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,813,{},{},{}
+20109,C_Jolly_Roger_Hat,Costume Jolly Roger Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,962,{},{},{}
+20110,C_Coiledup_Snake_Hat1,Costume Coiledup Snake Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1258,{},{},{}
+20111,C_Coiledup_Snake_Hat2,Costume Coiledup Snake Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1259,{},{},{}
+//
+20114,C_Funeral_Hat,Costume Funeral Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,77,{},{},{}
 
 20132,C_Subject_Aura,Costume Subject Aura,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1267,{},{},{}
 

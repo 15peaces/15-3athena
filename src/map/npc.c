@@ -372,7 +372,7 @@ bool npc_event_isspecial(const char* eventname)
 /*==========================================
  * 時計イベント実行
  *------------------------------------------*/
-int npc_event_do_clock(int tid, unsigned int tick, int id, intptr_t data)
+int npc_event_do_clock(int tid, int64 tick, int id, intptr_t data)
 {
 	static struct tm ev_tm_b; // tracks previous execution time
 	time_t timer;
@@ -471,11 +471,11 @@ struct timer_event_data {
 /*==========================================
  * triger 'OnTimerXXXX' events
  *------------------------------------------*/
-int npc_timerevent(int tid, unsigned int tick, int id, intptr_t data)
+int npc_timerevent(int tid, int64 tick, int id, intptr_t data)
 {
 	int next;
 	int old_rid, old_timer;
-	unsigned int old_tick;
+	int64 old_tick;
 	struct npc_data* nd=(struct npc_data *)map_id2bl(id);
 	struct npc_timerevent_list *te;
 	struct timer_event_data *ted = (struct timer_event_data*)data;
@@ -548,7 +548,7 @@ int npc_timerevent(int tid, unsigned int tick, int id, intptr_t data)
 int npc_timerevent_start(struct npc_data* nd, int rid)
 {
 	int j, next;
-	unsigned int tick = gettick();
+	int64 tick = gettick();
 	struct map_session_data *sd = NULL; //Player to whom script is attached.
 	struct timer_event_data *ted;
 		
@@ -673,7 +673,7 @@ void npc_timerevent_quit(struct map_session_data* sd)
 		if( ev )
 		{
 			int old_rid,old_timer;
-			unsigned int old_tick;
+			int64 old_tick;
 
 			//Set timer related info.
 			old_rid = (nd->u.scr.rid == sd->bl.id ? 0 : nd->u.scr.rid); // Detach rid if the last attached player logged off.

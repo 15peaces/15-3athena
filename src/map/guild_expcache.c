@@ -72,7 +72,7 @@ static int guild_addexp_timer_sub(DBKey dataid, void* data, va_list ap)
 }
 
 
-static int guild_addexp_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int guild_addexp_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	guild_expcache_db->clear(guild_expcache_db, guild_addexp_timer_sub);
 	return 0;

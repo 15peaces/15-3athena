@@ -56,7 +56,7 @@ enum item_itemid
 #define IG_POTION 37
 //The max. item group count, same for item packages (increase this when needed).
 #define MAX_ITEMGROUP 58
-#define MAX_ITEMPACKAGE 19
+#define MAX_ITEMPACKAGE 20
 
 #define CARD0_FORGE 0x00FF
 #define CARD0_CREATE 0x00FE
@@ -130,7 +130,9 @@ struct item_package {
 	int qty; //Counts amount of items in the group.
 	unsigned short prob[MAX_RANDITEM];
 	unsigned short amount[MAX_RANDITEM];
-	unsigned short ismust[MAX_RANDITEM];
+	unsigned short isrand[MAX_RANDITEM];
+	unsigned short announced[MAX_RANDITEM];
+	unsigned short max_rand;
 };
 
 enum {

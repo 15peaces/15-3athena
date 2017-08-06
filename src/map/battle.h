@@ -63,10 +63,10 @@ enum {	// 最終計算のフラグ
 	BF_SKILLMASK= 0x0f00,
 };
 
-int battle_delay_damage (unsigned int tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay);
+int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay);
 int battle_damage_area( struct block_list *bl, va_list ap);
 // 通常攻撃処理まとめ
-enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,unsigned int tick,int flag);
+enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,int64 tick,int flag);
 
 // 各種パラメータを得る
 struct block_list* battle_get_master(struct block_list *src);

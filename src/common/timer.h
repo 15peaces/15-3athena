@@ -17,10 +17,10 @@
 
 // Struct declaration
 
-typedef int (*TimerFunc)(int tid, unsigned int tick, int id, intptr_t data);
+typedef int (*TimerFunc)(int tid, int64 tick, int id, intptr_t data);
 
 struct TimerData {
-	unsigned int tick;
+	int64 tick;
 	TimerFunc func;
 	int type;
 	int interval;
@@ -33,22 +33,22 @@ struct TimerData {
 
 // Function prototype declaration
 
-unsigned int gettick(void);
-unsigned int gettick_nocache(void);
+int64 gettick(void);
+int64 gettick_nocache(void);
 
-int add_timer(unsigned int tick, TimerFunc func, int id, intptr_t data);
-int add_timer_interval(unsigned int tick, TimerFunc func, int id, intptr_t data, int interval);
+int add_timer(int64 tick, TimerFunc func, int id, intptr_t data);
+int add_timer_interval(int64 tick, TimerFunc func, int id, intptr_t data, int interval);
 const struct TimerData* get_timer(int tid);
 int delete_timer(int tid, TimerFunc func);
 
-int addtick_timer(int tid, unsigned int tick);
-int settick_timer(int tid, unsigned int tick);
+int addtick_timer(int tid, int64 tick);
+int settick_timer(int tid, int64 tick);
 
 int add_timer_func_list(TimerFunc func, char* name);
 
 unsigned long get_uptime(void);
 
-int do_timer(unsigned int tick);
+int do_timer(int64 tick);
 void timer_init(void);
 void timer_final(void);
 

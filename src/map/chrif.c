@@ -34,7 +34,7 @@
 #include <sys/types.h>
 #include <time.h>
 
-static int check_connect_char_server(int tid, unsigned int tick, int id, intptr_t data);
+static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data);
 
 static struct eri *auth_db_ers; //For reutilizing player login structures.
 static DBMap* auth_db; // int id -> struct auth_node*
@@ -735,7 +735,7 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
-int auth_db_cleanup(int tid, unsigned int tick, int id, intptr_t data)
+int auth_db_cleanup(int tid, int64 tick, int id, intptr_t data)
 {
 	if(!chrif_isconnected()) return 0;
 	auth_db->foreach(auth_db, auth_db_cleanup_sub);
@@ -1235,7 +1235,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 {	//parses the sc_data of the player and sends it to the char-server for saving. [Skotlex]
 #ifdef ENABLE_SC_SAVING
 	int i, count=0;
-	unsigned int tick;
+	int64 tick;
 	struct status_change_data data;
 	struct status_change *sc = &sd->sc;
 	const struct TimerData *timer;
@@ -1281,7 +1281,7 @@ int chrif_skillcooldown_save(struct map_session_data *sd)
 {
 	int i, count = 0;
 	struct skill_cooldown_data data;
-	unsigned int tick;
+	int64 tick;
 	const struct TimerData *timer;
 
 	chrif_check(-1);
@@ -1563,7 +1563,7 @@ int chrif_bsdata_save(struct map_session_data *sd, bool quit) {
 	WFIFOL(char_fd, 4) = sd->status.char_id;
 
 	if (sd->bonus_script.count) {
-		unsigned int tick = gettick();
+		int64 tick = gettick();
 		struct linkdb_node *node = NULL;
 
 		for (node = sd->bonus_script.head; node && i < MAX_PC_BONUS_SCRIPT; node = node->next) {
@@ -1736,7 +1736,7 @@ int chrif_parse(int fd)
 }
 
 /* Disabled, no need anymore. [15peaces]
-int ping_char_server(int tid, unsigned int tick, int id, intptr_t data)
+int ping_char_server(int tid, int64 tick, int id, intptr_t data)
 {
 	chrif_check(-1);
 	chrif_keepalive(char_fd);
@@ -1745,7 +1745,7 @@ int ping_char_server(int tid, unsigned int tick, int id, intptr_t data)
 */
 
 // unused
-int send_usercount_tochar(int tid, unsigned int tick, int id, intptr_t data)
+int send_usercount_tochar(int tid, int64 tick, int id, intptr_t data)
 {
 	chrif_check(-1);
 
@@ -1790,7 +1790,7 @@ int send_users_tochar(void)
  * timer関数
  * char鯖との接続を確認し、もし切れていたら再度接続する
  *------------------------------------------*/
-static int check_connect_char_server(int tid, unsigned int tick, int id, intptr_t data)
+static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data)
 {
 	static int displayed = 0;
 	if (char_fd <= 0 || session[char_fd] == NULL)

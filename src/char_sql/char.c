@@ -190,7 +190,7 @@ struct online_char_data {
 };
 
 static DBMap* online_char_db; // int account_id -> struct online_char_data*
-static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, intptr_t data);
+static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
 
 static void* create_online_char_data(DBKey key, va_list args)
 {
@@ -2119,7 +2119,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 	// continues when account data is received...
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data);
+int send_accounts_tologin(int tid, int64 tick, int id, intptr_t data);
 void mapif_server_reset(int id);
 
 /// Resets all the data.
@@ -2512,9 +2512,9 @@ int parse_fromlogin(int fd)
 	return 0;
 }
 
-int check_connect_login_server(int tid, unsigned int tick, int id, intptr_t data);
-int ping_login_server(int tid, unsigned int tick, int id, intptr_t data);
-int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data);
+int check_connect_login_server(int tid, int64 tick, int id, intptr_t data);
+int ping_login_server(int tid, int64 tick, int id, intptr_t data);
+int send_accounts_tologin(int tid, int64 tick, int id, intptr_t data);
 
 void do_init_loginif(void)
 {
@@ -4694,7 +4694,7 @@ int mapif_send(int fd, unsigned char *buf, unsigned int len)
 	return 0;
 }
 
-int broadcast_user_count(int tid, unsigned int tick, int id, intptr_t data)
+int broadcast_user_count(int tid, int64 tick, int id, intptr_t data)
 {
 	uint8 buf[6];
 	int users = count_users();
@@ -4737,7 +4737,7 @@ static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data)
+int send_accounts_tologin(int tid, int64 tick, int id, intptr_t data)
 {
 	if (login_fd > 0 && session[login_fd])
 	{
@@ -4755,7 +4755,7 @@ int send_accounts_tologin(int tid, unsigned int tick, int id, intptr_t data)
 	return 0;
 }
 
-int check_connect_login_server(int tid, unsigned int tick, int id, intptr_t data)
+int check_connect_login_server(int tid, int64 tick, int id, intptr_t data)
 {
 	if (login_fd > 0 && session[login_fd] != NULL)
 		return 0;
@@ -4788,7 +4788,7 @@ int check_connect_login_server(int tid, unsigned int tick, int id, intptr_t data
 }
 
 // sends a ping packet to login server (will receive pong 0x2718)
-int ping_login_server(int tid, unsigned int tick, int id, intptr_t data)
+int ping_login_server(int tid, int64 tick, int id, intptr_t data)
 {
 	if (login_fd > 0 && session[login_fd] != NULL)
 	{
@@ -4910,7 +4910,7 @@ int bonus_script_save(int fd) {
 //Invoked 15 seconds after mapif_disconnectplayer in case the map server doesn't
 //replies/disconnect the player we tried to kick. [Skotlex]
 //------------------------------------------------
-static int chardb_waiting_disconnect(int tid, unsigned int tick, int id, intptr_t data)
+static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data)
 {
 	struct online_char_data* character;
 	if ((character = (struct online_char_data*)idb_get(online_char_db, id)) != NULL && character->waiting_disconnect == tid)
@@ -4934,7 +4934,7 @@ static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup(int tid, unsigned int tick, int id, intptr_t data)
+static int online_data_cleanup(int tid, int64 tick, int id, intptr_t data)
 {
 	online_char_db->foreach(online_char_db, online_data_cleanup_sub);
 	return 0;

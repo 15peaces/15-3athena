@@ -62,7 +62,7 @@ int inter_recv_packet_length[] = {
 
 struct WisData {
 	int id, fd, count, len;
-	unsigned long tick;
+	int64 tick;
 	unsigned char src[24], dst[24], msg[512];
 };
 static DBMap* wis_db = NULL; // int wis_id -> struct WisData*
@@ -461,7 +461,7 @@ int check_ttl_wisdata_sub(DBKey key, void *data, va_list ap)
 
 int check_ttl_wisdata(void)
 {
-	unsigned long tick = gettick();
+	int64 tick = gettick();
 	int i;
 
 	do {

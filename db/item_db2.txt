@@ -314,32 +314,11 @@
 20073,C_Hair_Band,Costume Hair Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,9,{},{},{}
 20074,C_Biretta,Costume Biretta,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,11,{},{},{}
 20084,C_Ceremonial_Hat,Costume Ceremonial Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,325,{},{},{}
+20099,C_Ljosalfar,Costume Ljosalfar,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1239,{},{},{} // CHECKME: Resource Error...
+20100,C_Volume_Fhat,Costume Volume Fhat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1240,{},{},{} // CHECKME: Resource Error...
+20112,C_Aqua_Ten_Gallon_Hat,Costume Aqua Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1256,{},{},{} // CHECKME: Resource Error...
+20113,C_Star_Reading_Hat,Costume Star Reading Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1253,{},{},{} // CHECKME: Resource Error...
 
-20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}
-20086,C_Dragon_Cintamani_Hat1,Costume Dragon Cintamani Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1245,{},{},{}
-20087,C_Dragon_Cintamani_Hat2,Costume Dragon Cintamani Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1246,{},{},{}
-20091,C_Smoking_Pipe,Costume Smoking Pipe,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,55,{},{},{}
-20092,C_Sale_Banner,Costume Sale Banner,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,183,{},{},{}
-20093,C_Wizard_Hat,Costume Wizard Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,36,{},{},{}
-20094,C_Green_Ribbon,Costume Green Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,439,{},{},{}
-20095,C_Red_Ribbon,Costume Red Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,440,{},{},{}
-20096,C_Blue_Ribbon,Costume Blue Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,441,{},{},{}
-20097,C_White_Ribbon,Costume White Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,442,{},{},{}
-20099,C_Ljosalfar,Costume Ljosalfar,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1239,{},{},{}
-20100,C_Volume_Fhat,Costume Volume Fhat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1240,{},{},{}
-20102,C_Horse_King_J,Costume Horse King_J,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1189,{},{},{}
-20103,C_Drooping_Panda,Costume Drooping Panda,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1029,{},{},{}
-20104,C_Picky_Egg_Shell,Costume Picky Egg Shell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1001,{},{},{}
-20105,C_Fish_Head,Costume Fish Head,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,386,{},{},{}
-20106,C_Classic_Hat,Costume Classic Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,475,{},{},{}
-20107,C_Fish_in_mouth,Costume Fish in mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,406,{},{},{}
-20108,C_Blind_Glasses,Costume Blind Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,813,{},{},{}
-20109,C_Jolly_Roger_Hat,Costume Jolly Roger Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,962,{},{},{}
-20110,C_Coiledup_Snake_Hat1,Costume Coiledup Snake Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1258,{},{},{}
-20111,C_Coiledup_Snake_Hat2,Costume Coiledup Snake Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1259,{},{},{}
-20112,C_Aqua_Ten_Gallon_Hat,Costume Aqua Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1256,{},{},{}
-20113,C_Star_Reading_Hat,Costume Star Reading Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1253,{},{},{}
-20114,C_Funeral_Hat,Costume Funeral Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,77,{},{},{}
 20115,C_Under_Rim_Glasses,Costume Under Rim Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1255,{},{},{}
 20116,C_Mermaid_Headphones,Costume Mermaid Headphones,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1254,{},{},{}
 20117,C_Raspberry_Mousse_Hat,Costume Raspberry Mousse Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1257,{},{},{}
@@ -729,7 +708,7 @@
 4521,Sedora_Card,Sedora Card,6,20,,10,,,,,,,,2,,,,,{ bonus bCritAtkRate,15; },{},{}
 4522,Sropho_Card,Sropho Card,6,20,,10,,,,,,,,2,,,,,{ bonus4 bAddEff,Eff_Crystalize,500,ATF_SHORT,3000; },{},{}
 4523,Pot_Dofle_Card,Pot Dofle Card,6,20,,10,,,,,,,,16,,,,,{ bonus bDefEle,Ele_Water; bonus2 bSubRace,RC_Fish,10; },{},{}
-4524,King_Dramoh_Card,King Dramoh Card,6,20,,10,,,,,,,,769,,,,,{ bonus bStr,2; if(BaseClass==Job_Swordman){ bonus bStr,2+(getrefine()/3); } },{},{}
+4524,King_Dramoh_Card,King Dramoh Card,6,20,,10,,,,,,,,769,,,,,{ bonus bStr,2; if(BaseClass==Job_Swordman){ bonus bStr,getrefine()/3; } },{},{}
 4525,Kraken_Card,Kraken Card,6,20,,10,,,,,,,,4,,,,,{ bonus bFlee,10; skill "TF_HIDING",1; skill "RG_RAID",1; bonus5 bAutoSpellOnSkill,"RG_RAID","NPC_WIDEBLEEDING",1,250,1; },{},{ sc_end SC_HIDING; }
 4526,Odd_Coelacanth_Card,Weird Coelacanth Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxSPrate,5; bonus bMdef,50; },{},{}
 4527,Black_Coelacanth_Card,Dark Coelacanth Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,10; bonus bDef,100; },{},{}
@@ -2624,7 +2603,6 @@
 15033,Tutorial_Mattle,Tutorial Mantle,5,0,,600,,37,,0,0x00000000,63,2,16,,1,0,0,{},{},{}
 15034,Tutorial_Mattle_,Tutorial Mantle,5,0,,600,,37,,1,0x00000000,63,2,16,,1,0,0,{},{},{}
 15035,2010_Love_Dad,2010 Love Dad,5,10,,100,,6,,1,0xFFFFFFFF,63,2,16,,0,1,0,{ bonus bAllStats,1; bonus bMaxHP,150; bonus bMaxSP,150; bonus2 bResEff,Eff_Stone,9000; bonus2 bResEff,Eff_Freeze,9000; bonus2 bResEff,Eff_Stun,9000; bonus2 bResEff,Eff_Sleep,9000; bonus2 bResEff,Eff_Silence,9000; bonus2 bResEff,Eff_Curse,9000; bonus2 bResEff,Eff_Confusion,9000; bonus2 bResEff,Eff_Blind,9000; bonus2 bResEff,Eff_Poison,9000; bonus2 bResEff,Eff_Bleeding,9000; },{},{}
-15036,Ur_Plate,Ur's Plate,5,20,,3000,,110,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,10; bonus bMaxHPrate,getrefine(); bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_Player,5; bonus2 bSubEle,Ele_Neutral,5; },{},{}
 15037,Peuz_Plate,Peuz's Plate,5,20,,3000,,110,,0,0x00000080,56,2,16,,100,1,0,{ bonus bMdef,10; bonus bBaseAtk,20; bonus bFlee,17; },{},{}
 15038,Sabah_Cloth,Sapha's Cloth,5,20,,100,,45,,1,0x00001000,63,2,16,,100,1,0,{ bonus bLuk,3; bonus3 bAutoSpell,"ASC_METEORASSAULT",max(getskilllv("ASC_METEORASSAULT"),1),20; },{},{}
 15039,Nab_Cloth,Nab's Cloth,5,20,,100,,45,,1,0x00001000,63,2,16,,100,1,0,{ bonus bStr,2; bonus bInt,2; },{},{}
@@ -2730,7 +2708,7 @@
 4600,LichternY_Card,Lichtern Yellow Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Earth,(getrefine()>=9)?10:5; },{},{}
 4601,Amdarais_Card,Amdarais Card,6,20,,10,,,,,,,,16,,,,,{ bonus bAtkRate,15; bonus bMatkRate,15; bonus2 bHPLossRate,666,4000; bonus2 bSPLossRate,66,4000; },{},{ heal -6666,-666; }
 11605,Cookie_Bat,Cookie Bat,0,0,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(50,100),0; /*TODO*/ },{},{}
-17320,Birthday_IdRO10th_Scroll,Birthday IdRO10th Scroll,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,1,,,{ getgroupitem(IG_Birthday_IdRO10th_Scroll); },{},{}
+17320,Birthday_IdRO10th_Scroll,Birthday IdRO10th Scroll,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,1,,,{ getitempackage(IP_IDRO10TH_SCROLL); },{},{}
 17321,Three_Master_Package,Three Master Package,18,10,,10,,,,0,0x0,0,2,,,,,,{ /*TODO: Confirm the items and rates*/ getitem 14534,20; getitem 14535,20; },{},{}
 17322,Three_Master_Package(10),Three Master Package(10),18,10,,10,,,,0,0x0,0,2,,,,,,{ /*TODO: Confirm the items and rates*/ getitem 14534,200; getitem 14535,200; },{},{}
 19510,Nut_On_Head,Screw Stuck in Head,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,696,{ bonus bUnbreakableHelm,1; },{},{}

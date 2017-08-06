@@ -32,7 +32,7 @@ static DBMap* party_db; // int party_id -> struct party_data* (releases data)
 static DBMap* party_booking_db; // int char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
 static unsigned long party_booking_nextid = 1;
 
-int party_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data);
+int party_send_xy_timer(int tid, int64 tick, int id, intptr_t data);
 
 /*==========================================
  * Fills the given party_member structure according to the sd provided. 
@@ -890,7 +890,7 @@ int party_skill_check(struct map_session_data *sd, int party_id, int skillid, in
 	return 0;
 }
 
-int party_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data)
+int party_send_xy_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct party_data* p;
 

@@ -160,7 +160,7 @@ struct mob_data {
 	int areanpc_id; //Required in OnTouchNPC (to avoid multiple area touchs)
 	unsigned int bg_id; // BattleGround System
 
-	unsigned int next_walktime,last_thinktime,last_linktime,last_pcneartime;
+	int64 next_walktime,last_thinktime,last_linktime,last_pcneartime;
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
@@ -169,7 +169,7 @@ struct mob_data {
 	int master_id,master_dist;
 
 	short skillidx;
-	unsigned int skilldelay[MAX_MOBSKILL];
+	int64 skilldelay[MAX_MOBSKILL];
 	char npc_event[EVENT_NAME_LENGTH];
 
 	//MvP Tombstone NPC ID
@@ -244,13 +244,13 @@ int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobnam
 int mob_spawn_bg(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, unsigned int bg_id);
 int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
 
-int mob_randomwalk(struct mob_data *md,unsigned int tick);
+int mob_randomwalk(struct mob_data *md,int64 tick);
 int mob_warpchase(struct mob_data *md, struct block_list *target);
 int mob_target(struct mob_data *md,struct block_list *bl,int dist);
-int mob_unlocktarget(struct mob_data *md, unsigned int tick);
+int mob_unlocktarget(struct mob_data *md, int64 tick);
 struct mob_data* mob_spawn_dataset(struct spawn_data *data);
 int mob_spawn(struct mob_data *md);
-int mob_delayspawn(int tid, unsigned int tick, int id, intptr_t data);
+int mob_delayspawn(int tid, int64 tick, int id, intptr_t data);
 int mob_setdelayspawn(struct mob_data *md);
 int mob_parse_dataset(struct spawn_data *data);
 void mob_log_damage(struct mob_data *md, struct block_list *src, int damage);
@@ -267,7 +267,7 @@ void mob_clear_spawninfo();
 int do_init_mob(void);
 int do_final_mob(void);
 
-int mob_timer_delete(int tid, unsigned int tick, int id, intptr_t data);
+int mob_timer_delete(int tid, int64 tick, int id, intptr_t data);
 int mob_deleteslave(struct mob_data *md);
 
 int mob_random_class (int *value, size_t count);
@@ -276,10 +276,10 @@ int mob_class_change(struct mob_data *md,int class_);
 int mob_warpslave(struct block_list *bl, int range);
 int mob_linksearch(struct block_list *bl,va_list ap);
 
-int mobskill_use(struct mob_data *md,unsigned int tick,int event);
-int mobskill_event(struct mob_data *md,struct block_list *src,unsigned int tick, int flag);
-int mobskill_castend_id( int tid, unsigned int tick, int id,int data );
-int mobskill_castend_pos( int tid, unsigned int tick, int id,int data );
+int mobskill_use(struct mob_data *md,int64 tick,int event);
+int mobskill_event(struct mob_data *md,struct block_list *src,int64 tick, int flag);
+int mobskill_castend_id( int tid, int64 tick, int id,int data );
+int mobskill_castend_pos( int tid, int64 tick, int id,int data );
 int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id);
 int mob_countslave(struct block_list *bl);
 

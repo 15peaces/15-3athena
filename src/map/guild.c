@@ -54,7 +54,7 @@ struct{
 	}need[MAX_GUILD_SKILL_REQUIRE];
 } guild_skill_tree[MAX_GUILDSKILL];
 
-static int guild_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data);
+static int guild_send_xy_timer(int tid, int64 tick, int id, intptr_t data);
 
 /*==========================================
  * Retrieves and validates the sd pointer for this guild member [Skotlex]
@@ -250,7 +250,7 @@ int guild_send_xy_timer_sub(DBKey key,void *data,va_list ap)
 }
 
 //Code from party_send_xy_timer [Skotlex]
-static int guild_send_xy_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int guild_send_xy_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	guild_db->foreach(guild_db,guild_send_xy_timer_sub,tick);
 	return 0;

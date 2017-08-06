@@ -73,7 +73,7 @@ struct npc_data {
 			short ep_min,ep_max; //Episode System [15peaces]
 			int guild_id;
 			int timer,timerid,timeramount,rid;
-			unsigned int timertick;
+			int64 timertick;
 			struct npc_timerevent_list *timer_event;
 			int label_list_num;
 			struct npc_label_list *label_list;

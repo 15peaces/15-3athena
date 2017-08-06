@@ -7247,7 +7247,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_RUN:
 		case SC_WUGDASH:
-			val4 = gettick(); //Store time at which you started running.
+			val4 = (int)gettick(); //Store time at which you started running.
 			tick = -1;
 			break;
 		case SC_KAAHI:
@@ -9075,7 +9075,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	return 1;
 }
 
-int kaahi_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
+int kaahi_heal_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct block_list *bl;
 	struct status_change *sc;
@@ -9112,7 +9112,7 @@ int kaahi_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
 /*==========================================
  * ステータス異常終了タイマー
  *------------------------------------------*/
-int status_change_timer(int tid, unsigned int tick, int id, intptr_t data)
+int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	enum sc_type type = (sc_type)data;
 	struct block_list *bl;
@@ -9907,7 +9907,7 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	struct block_list* src = va_arg(ap,struct block_list*);
 	struct status_change_entry* sce = va_arg(ap,struct status_change_entry*);
 	enum sc_type type = (sc_type)va_arg(ap,int); //gcc: enum args get promoted to int
-	unsigned int tick = va_arg(ap,unsigned int);
+	int64 tick = va_arg(ap,unsigned int);
 
 	if (status_isdead(bl))
 		return 0;
@@ -10103,7 +10103,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 	int i, flag = 0;
 	struct status_change *sc = status_get_sc(src);
 	const struct TimerData *timer;
-	unsigned int tick;
+	int64 tick;
 	struct status_change_data data;
 
 	if( !sc || !sc->count )
@@ -10176,7 +10176,8 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 }
 
 //Natural regen related stuff.
-static unsigned int natural_heal_prev_tick, natural_heal_diff_tick;
+static int64 natural_heal_prev_tick;
+static unsigned int natural_heal_diff_tick;
 static int status_natural_heal( struct block_list* bl, va_list args )
 {
 	struct regen_data *regen;
@@ -10376,7 +10377,7 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 }
 
 //Natural heal main timer.
-static int status_natural_heal_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int status_natural_heal_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	natural_heal_diff_tick = DIFF_TICK(tick,natural_heal_prev_tick);
 	map_foreachregen(status_natural_heal);

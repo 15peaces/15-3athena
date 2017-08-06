@@ -52,7 +52,7 @@ struct elemental_data {
 	int summon_timer;
 	int skill_timer;
 
-	unsigned last_thinktime, last_linktime;
+	int64 last_thinktime, last_linktime;
 	short min_chase;
 	int target_id, attacked_id;
 };
@@ -81,7 +81,7 @@ int elemental_skillnotok(int skillid, struct elemental_data *ed);
 int elemental_set_target( struct map_session_data *sd, struct block_list *bl );
 void elemental_clean_single_effect(struct elemental_data *ed, int skill_num);
 bool elemental_clean_effect(struct elemental_data *ed);
-bool elemental_action(struct elemental_data *ed, struct block_list *bl, unsigned int tick);
+bool elemental_action(struct elemental_data *ed, struct block_list *bl, int64 tick);
 
 #define elemental_stop_walking(ed, type) unit_stop_walking(&(ed)->bl, type)
 #define elemental_stop_attack(ed) unit_stop_attack(&(ed)->bl)

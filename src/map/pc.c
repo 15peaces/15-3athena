@@ -93,7 +93,7 @@ int pc_isGM(struct map_session_data* sd)
 	return (sd) ? sd->gmlevel : 0;
 }
 
-static int pc_invincible_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_invincible_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd;
 
@@ -131,7 +131,7 @@ void pc_delinvincibletimer(struct map_session_data* sd)
 	}
 }
 
-static int pc_spiritball_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_spiritball_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd;
 	int i;
@@ -254,7 +254,7 @@ int pc_overheat(struct map_session_data *sd, int val)
 	return 0;
 }
 
-static int pc_rageball_timer(int tid, unsigned int tick, int id, intptr data)
+static int pc_rageball_timer(int tid, int64 tick, int id, intptr data)
 {
 	struct map_session_data *sd;
 	int i;
@@ -509,7 +509,7 @@ int pc_setrestartvalue(struct map_session_data *sd,int type)
 /*==========================================
 	Rental System
  *------------------------------------------*/
-static int pc_inventory_rental_end(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_inventory_rental_end(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	if( sd == NULL )
@@ -1015,7 +1015,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	int j; 
 	int idxlist[MAX_INVENTORY]; 
 #endif 
-	unsigned long tick = gettick();
+	int64 tick = gettick();
 	uint32 ip = session[sd->fd]->client_addr;
 
 	sd->login_id2 = login_id2;
@@ -1990,7 +1990,7 @@ int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *autobonus)
 	return 0;
 }
 
-int pc_endautobonus(int tid, unsigned int tick, int id, intptr_t data)
+int pc_endautobonus(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	struct s_autobonus *autobonus = (struct s_autobonus *)data;
@@ -3896,7 +3896,7 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 {
 	int flag=0;
-	unsigned int tick = gettick();
+	int64 tick = gettick();
 	struct map_session_data *first_sd = NULL,*second_sd = NULL,*third_sd = NULL;
 	struct party_data *p=NULL;
 
@@ -4111,7 +4111,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
  *	1 = success
  *------------------------------------------*/
 int pc_useitem(struct map_session_data *sd,int n) {
-	unsigned int tick = gettick();
+	int64 tick = gettick();
 	unsigned short nameid;
 	int amount, i;
 	struct script_code *script;
@@ -5516,7 +5516,7 @@ const char* job_name(int class_)
 	}
 }
 
-int pc_follow_timer(int tid, unsigned int tick, int id, intptr_t data)
+int pc_follow_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd;
 	struct block_list *tbl;
@@ -6546,7 +6546,7 @@ void pc_respawn(struct map_session_data* sd, clr_type clrtype)
 		map_pvp_area(sd, 0);
 }
 
-static int pc_respawn_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_respawn_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	if( sd != NULL )
@@ -6592,7 +6592,7 @@ void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
 	}
 }
 
-static int pc_deathmatch_timer(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_deathmatch_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd = map_id2sd(id);
 	if( sd != NULL )
@@ -6641,7 +6641,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 int pc_dead(struct map_session_data *sd,struct block_list *src)
 {
 	int i=0,j=0,k=0;
-	unsigned int tick = gettick();
+	int64 tick = gettick();
 		
 	for(k = 0; k < 5; k++)
 	if (sd->devotion[k]){
@@ -8334,7 +8334,7 @@ int pc_readreg2(struct map_session_data *sd, const char *reg) {
 /*==========================================
  * ƒCƒxƒ“ƒgƒ^ƒCƒ}??—
  *------------------------------------------*/
-static int pc_eventtimer(int tid, unsigned int tick, int id, intptr_t data)
+static int pc_eventtimer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd=map_id2sd(id);
 	char *p = (char *)data;
@@ -8886,7 +8886,7 @@ int pc_calc_pvprank(struct map_session_data *sd)
 /*==========================================
  * PVP‡ˆÊŒvŽZ(timer)
  *------------------------------------------*/
-int pc_calc_pvprank_timer(int tid, unsigned int tick, int id, intptr_t data)
+int pc_calc_pvprank_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct map_session_data *sd=NULL;
 
@@ -9008,7 +9008,7 @@ struct map_session_data *pc_get_child (struct map_session_data *sd)
 	return NULL;
 }
 
-void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
+void pc_bleeding (struct map_session_data *sd, int64 diff_tick)
 {
 	int hp = 0, sp = 0;
 
@@ -9042,7 +9042,7 @@ void pc_bleeding (struct map_session_data *sd, unsigned int diff_tick)
 //Character regen. Flag is used to know which types of regen can take place.
 //&1: HP regen
 //&2: SP regen
-void pc_regen (struct map_session_data *sd, unsigned int diff_tick)
+void pc_regen (struct map_session_data *sd, int64 diff_tick)
 {
 	int hp = 0, sp = 0;
 
@@ -9085,7 +9085,7 @@ int pc_setsavepoint(struct map_session_data *sd, short mapindex,int x,int y)
 /*==========================================
  * Ž©“®ƒZ?ƒu (timer??)
  *------------------------------------------*/
-int pc_autosave(int tid, unsigned int tick, int id, intptr_t data)
+int pc_autosave(int tid, int64 tick, int id, intptr_t data)
 {
 	int interval;
 	struct s_mapiterator* iter;
@@ -9139,7 +9139,7 @@ static int pc_daynight_timer_sub(struct map_session_data *sd,va_list ap)
  * timer to do the day [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_day_timer(int tid, unsigned int tick, int id, intptr_t data)
+int map_day_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	char tmp_soutput[1024];
 
@@ -9160,7 +9160,7 @@ int map_day_timer(int tid, unsigned int tick, int id, intptr_t data)
  * timer to do the night [Yor]
  * data: 0 = called by timer, 1 = gmcommand/script
  *------------------------------------------------*/
-int map_night_timer(int tid, unsigned int tick, int id, intptr_t data)
+int map_night_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	char tmp_soutput[1024];
 
@@ -9712,7 +9712,7 @@ enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int mo
  * @author [Cydh]
  **/
 void pc_bonus_script(struct map_session_data *sd) {
-	int now = gettick();
+	int64 now = gettick();
 	struct linkdb_node *node = NULL, *next = NULL;
 
 	if (!sd || !(node = sd->bonus_script.head))
@@ -9771,7 +9771,7 @@ struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, co
 		while (node) {
 			entry = (struct s_bonus_script_entry *)node->data;
 			if (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0) {
-				int newdur = gettick() + dur;
+				int64 newdur = gettick() + dur;
 				if (flag&BSF_FORCE_REPLACE && entry->tick < newdur) { // Change duration
 					settick_timer(entry->tid, newdur);
 					script_free_code(script);
@@ -9847,7 +9847,7 @@ static void inline pc_bonus_script_check_final(struct map_session_data *sd) {
 * @param data
 * @author [Cydh]
 **/
-int pc_bonus_script_timer(int tid, unsigned int tick, int id, intptr_t data) {
+int pc_bonus_script_timer(int tid, int64 tick, int id, intptr_t data) {
 	struct map_session_data *sd;
 	struct s_bonus_script_entry *entry = (struct s_bonus_script_entry *)data;
 

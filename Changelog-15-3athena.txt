@@ -5,6 +5,30 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/06/2017
+	r175 [15peaces]
+		*Some updates & fixes in ItemDB.
+			-Fixed Ur's Plate DEF & MDEF.
+			-Also fixed STR-Bonus of King Dramoh Card.
+			-Added full support for Birthday IdRO10th Scroll.
+		*Fixed a linker warning if compiled with VS 2012.
+		*Changed 'tick' variables to 64 bit
+			-This fixes an issue with timers that stop working after about 24-49 days when the tick overflows (note that this may happen much earlier than that, and at hard to predict times, on some systems)
+			-Updated the RDTSC help message in the configure script to also warn users about issues with SpeedStep enabled systems.
+			-On Windows, tick() still has a resolution of 10~15ms (or even as low as 100ms on some systems).
+			-Note: on Windows versions earlier than 6.x (Vista, Server 2008), the tick overflow issue is NOT fixed, since they don't support the function used to retrieve a 64 bit tick. This isn't a big issue, since
+				those platforms are already - or going soon to be - out of their extended support period, and it's already advisable to upgrade, for other reasons. If you're the unfortunate user of such a system, it is
+				recommended that you reboot your machine at least once every 49 days for 15-3athena to work reliably.
+			-Note: To clear some doubts, this has absolutely NOTHING to do with 32/64 bit CPUs or OSes. It's all about a variable's size, not the size of registers of your CPU, and a 32bit CPU will be able to handle this just 
+				fine.
+			-Thanks to @HerculesWS.
+		*Fixed & updated item_package system.
+			-Random items will now drop randomly.
+			-all items are identified.
+			-added a new flag: isAnnounced.
+				--Setting this to 1, will broadcast this item if dropped.
+				--also added full support for ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN. This is needed to broadcast this drop. A 2009-12-01aRagexeRE or newer is required for this packet.
+
 07/31/2017
 	r174 [15peaces]
 		*Merged missing changes from 3ceam rev. 626
