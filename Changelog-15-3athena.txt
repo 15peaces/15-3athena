@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/07/2017
+	r176 [15peaces]
+		*Some updates & fixes in ItemDB.
+			-Added full support for Something Candy Holders.
+			-Added missing items for new item packages.
+			-Some random error-message-fixing.
+			-mooved some stable items to item_db.
+
 08/06/2017
 	r175 [15peaces]
 		*Some updates & fixes in ItemDB.

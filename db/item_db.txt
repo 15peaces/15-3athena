@@ -7823,7 +7823,11 @@
 20111,C_Coiledup_Snake_Hat2,Costume Coiledup Snake Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1259,{},{},{}
 //
 20114,C_Funeral_Hat,Costume Funeral Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,77,{},{},{}
-
+//
+20118,C_Cake_Hat,Costume Cake Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,109,{},{},{}
+20119,C_Beanie,Costume Beanie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,160,{},{},{}
+20120,C_Antenna,Costume Antenna,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,97,{},{},{}
+//
 20132,C_Subject_Aura,Costume Subject Aura,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1267,{},{},{}
 
 20177,C_Drooping_Dorasuke,Costume Drooping Dorasuke,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1290,{},{},{}

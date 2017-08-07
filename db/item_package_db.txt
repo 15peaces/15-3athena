@@ -305,3 +305,25 @@
 20,4492,15,1,1,1		// 1x Sealed_Orc_Hero_Card
 20,4488,15,1,1,1		// 1x Sealed_D_Lord_Card
 20,4305,1,1,1,1			// 1x Turtle_General_Card
+
+//IP_Something_Candy_Holder
+21,517,5,5,0,0 		// 5x Meat
+21,518,9,3,0,0 		// 3x Honey
+21,529,9,7,0,0 		// 7x Candy
+21,538,10,2,0,0 	// 2x Well-baked Cookie
+21,539,10,1,0,0 	// 1x Piece of Cake
+21,580,5,3,0,0 		// 3x Bread
+21,603,2,1,0,0 		// 1x Old Blue Box
+21,607,2,1,0,0 		// 1x Yggdrasilberry
+21,616,1,1,0,0 		// 1x Old Card Album
+21,617,1,1,0,0 		// 1x Old Purple Box
+21,11550,7,1,0,0 	// 1x Pumpkin Cake
+21,11592,6,3,0,0 	// 3x Trans Candy Red
+21,11593,6,3,0,0 	// 3x Trans Candy Blue
+21,11594,6,3,0,0 	// 3x Trans Candy Yellow
+21,11595,6,3,0,0 	// 3x Trans Candy Green
+21,12192,7,3,0,0 	// 3x Pumpkin Pie
+21,20183,1,1,0,0 	// 1x Costume: Floating Ghost
+21,22067,1,1,0,0 	// 1x Witch Shoes
+21,22669,5,1,0,0 	// 1x October Spooky Trade Box
+21,22670,1,1,0,0	// 1x DARK INVITATION
