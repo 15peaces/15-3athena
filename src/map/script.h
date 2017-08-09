@@ -144,7 +144,7 @@ struct script_state {
 	struct script_state *bk_st;
 	int bk_npcid;
 	unsigned freeloop : 1;// used by buildin_freeloop
-	unsigned char* funcname; // Stores the current running function name
+	char* funcname; // Stores the current running function name
 };
 
 struct script_reg {

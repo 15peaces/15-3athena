@@ -757,6 +757,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_ARMOR_ELEMENT_FIRE] = SI_RESIST_PROPERTY_FIRE;
 	StatusIconChangeTable[SC_ARMOR_ELEMENT_WIND] = SI_RESIST_PROPERTY_WIND;
 
+	StatusIconChangeTable[SC_MONSTER_TRANSFORM] = SI_MONSTER_TRANSFORM;
+	StatusIconChangeTable[SC_ACTIVE_MONSTER_TRANSFORM] = SI_ACTIVE_MONSTER_TRANSFORM;
 	StatusIconChangeTable[SC_BOOST500] |= SI_BOOST500;
 	StatusIconChangeTable[SC_MELON_BOMB] = SI_MELON_BOMB;
 	StatusIconChangeTable[SC_BANANA_BOMB] = SI_BANANA_BOMB;
@@ -7972,6 +7974,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = -1;
 			status_change_start(bl, SC_CLAN_INFO, 10000, 0, val2, 0, 0, -1, flag);
 			break;
+		case SC_MONSTER_TRANSFORM:
+		case SC_ACTIVE_MONSTER_TRANSFORM:
+			if( !mobdb_checkid(val1) )
+				val1 = MOBID_PORING; // Default poring
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -8004,6 +8011,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
  			break;
 	}
 
+	// Values that must be set regardless of flag&4 e.g. val_flag [Ind]
+	switch(type)
+	{
+		// Start |1 val_flag setting
+		case SC_MONSTER_TRANSFORM:
+		case SC_ACTIVE_MONSTER_TRANSFORM:
+			val_flag |= 1;
+			break;
+	}
+	
 	//Those that make you stop attacking/walking....
 	switch (type)
 	{
@@ -8801,6 +8818,11 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				if( tbl && (sc = status_get_sc(tbl)) && sc->data[SC_STOP] && sc->data[SC_STOP]->val2 == bl->id )
 					status_change_end(tbl, SC_STOP, INVALID_TIMER);
 			}
+			break;
+		case SC_MONSTER_TRANSFORM:
+		case SC_ACTIVE_MONSTER_TRANSFORM:
+			if (sce->val2)
+				status_change_end(bl, (sc_type)sce->val2, INVALID_TIMER);
 			break;
 		case SC_HALLUCINATIONWALK:
 			sc_start(bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(GC_HALLUCINATIONWALK,sce->val1));
@@ -10028,6 +10050,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_ALL_RIDING:
 			case SC_ON_PUSH_CART:
 			case SC_MONSTER_TRANSFORM:
+			case SC_ACTIVE_MONSTER_TRANSFORM:
 			case SC_MOONSTAR:
 			case SC_STRANGELIGHTS:
 			case SC_SUPER_STAR:

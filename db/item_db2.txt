@@ -329,17 +329,13 @@
 20153,C_Monochrome_Cap,Costume Monochrome Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1274,{},{},{}
 20154,C_Falling_Maple_leafs,Costume Falling Maple leafs,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1275,{},{},{}
 20155,C_Lady_Feather_Hat,Costume Lady Feather Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1276,{},{},{}
-
 20156,C_Fan_in_Mouth,Costume Fan in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,857,{},{},{}
 20157,C_Blue_Fish,Costume Blue Fish,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,149,{},{},{}
 20158,C_Circlet,Costume Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,18,{},{},{}
 20159,C_Blue_Hairband,Costume Blue Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,136,{},{},{}
 20160,C_Magnolia_Hat_J,Costume Magnolia Hat_J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,373,{},{},{}
 20180,C_Western_Grace,Costume Western Grace,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,32,{},{},{}
-20181,C_Mystic_Rose,Costume Mystic Rose,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,198,{},{},{}
-20182,C_Rainbow_Eggshell,Costume Rainbow Eggshell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,124,{},{},{}
-20184,C_Party_Hat,Costume Party Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,144,{},{},{}
-20186,C_Magnis_Cap,Costume Magni's Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,250,{},{},{}
+
 20190,C_Chick_Hat_J,Costume Chick Hat J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,432,{},{},{}
 20191,C_Black_Cat_Ears_Beret,Costume Black Cat Ears Beret,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1071,{},{},{}
 20192,C_Green_Foxtail,Costume Green Foxtail,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1058,{},{},{}
@@ -2715,10 +2711,10 @@
 4599,LichternR_Card,Lichtern Red Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Fire,(getrefine()>=9)?10:5; },{},{}
 4600,LichternY_Card,Lichtern Yellow Card,6,20,,10,,,,,,,,769,,,,,{ bonus bMatk,10; bonus2 bMagicAtkEle,Ele_Earth,(getrefine()>=9)?10:5; },{},{}
 4601,Amdarais_Card,Amdarais Card,6,20,,10,,,,,,,,16,,,,,{ bonus bAtkRate,15; bonus bMatkRate,15; bonus2 bHPLossRate,666,4000; bonus2 bSPLossRate,66,4000; },{},{ heal -6666,-666; }
-11592,Trans_Candy_Red,Trans Candy Red,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; /*transform 1507,600000,SC_MTF_MHP,1000;*/ },{},{}
-11593,Trans_Candy_Blue,Trans Candy Blue,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; /*transform 1102,600000,SC_MTF_MSP,100;*/ },{},{}
-11594,Trans_Candy_Yellow,Trans Candy Yellow,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; /*transform 1130,600000,SC_MTF_PUMPKIN,2000;*/ },{},{}
-11595,Trans_Candy_Green,Trans Candy Green,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; /*transform 1508,600000,SC_MTF_HITFLEE,10,20;*/ },{},{}
+11592,Trans_Candy_Red,Trans Candy Red,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; transform 1507,600000,SC_MTF_MHP,1000; },{},{}
+11593,Trans_Candy_Blue,Trans Candy Blue,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; transform 1102,600000,SC_MTF_MSP,100; },{},{}
+11594,Trans_Candy_Yellow,Trans Candy Yellow,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; transform 1130,600000,SC_MTF_PUMPKIN,2000; },{},{}
+11595,Trans_Candy_Green,Trans Candy Green,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 45,0; transform 1508,600000,SC_MTF_HITFLEE,10,20; },{},{}
 11596,Blood_In_Skull,Blood In Skull,0,20,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(600,800),0; },{},{}
 11597,Iron_Worm,Iron Worm,0,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 11598,Bitter_Cacao_Bean,Bitter Cacao Bean,0,10,,0,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}

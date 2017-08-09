@@ -18045,6 +18045,98 @@ BUILDIN_FUNC(clan_leave)
 }
 
 /**
+ * Turns a player into a monster and optionally can grant a SC attribute effect.
+ * montransform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
+ * active_transform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
+ * @param monster: Monster ID or name
+ * @param duration: Transform duration in millisecond (ms)
+ * @param sc_type: Type of SC that will be affected during the transformation
+ * @param val1: Value for SC
+ * @param val2: Value for SC
+ * @param val3: Value for SC
+ * @param val4: Value for SC
+ * @author: malufett
+ */
+BUILDIN_FUNC(montransform) {
+	TBL_PC *sd;
+	enum sc_type type;
+	int tick, mob_id, val1, val2, val3, val4;
+	struct script_data *data;
+	val1 = val2 = val3 = val4 = 0;
+
+	if(!(sd = script_rid2sd(st)))
+		return 1;
+
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	if( data_isstring(data) )
+		mob_id = mobdb_searchname(script_getstr(st, 2));
+	else
+		mob_id = mobdb_checkid(script_getnum(st, 2));
+
+	tick = script_getnum(st, 3);
+
+	if (script_hasdata(st, 4))
+		type = (sc_type)script_getnum(st, 4);
+	else
+		type = SC_NONE;
+
+	if (mob_id == 0) {
+		if( data_isstring(data) )
+			ShowWarning("buildin_montransform: Attempted to use non-existing monster '%s'.\n", script_getstr(st, 2));
+		else
+			ShowWarning("buildin_montransform: Attempted to use non-existing monster of ID '%d'.\n", script_getnum(st, 2));
+		return 1;
+	}
+
+	if (mob_id == MOBID_EMPERIUM) {
+		ShowWarning("buildin_montransform: Monster 'Emperium' cannot be used.\n");
+		return 1;
+	}
+
+	if (!(type >= SC_NONE && type < SC_MAX)) {
+		ShowWarning("buildin_montransform: Unsupported status change id %d\n", type);
+		return 1;
+	}
+
+	if (script_hasdata(st, 5))
+		val1 = script_getnum(st, 5);
+
+	if (script_hasdata(st, 6))
+		val2 = script_getnum(st, 6);
+
+	if (script_hasdata(st, 7))
+		val3 = script_getnum(st, 7);
+
+	if (script_hasdata(st, 8))
+		val4 = script_getnum(st, 8);
+
+	if (tick != 0) {
+		if (battle_config.gvg_mon_trans_disable && map_flag_gvg2(sd->bl.m)) {
+			clif_displaymessage(sd->fd, msg_txt(739)); // Transforming into monster is not allowed in Guild Wars.
+			return 1;
+		}
+
+		if (sd->disguise){
+			clif_displaymessage(sd->fd, msg_txt(737)); // Cannot transform into monster while in disguise.
+			return 1;
+		}
+
+		if (!strcmp(script_getfuncname(st), "active_transform")) {
+			status_change_end(&sd->bl, SC_ACTIVE_MONSTER_TRANSFORM, INVALID_TIMER); // Clear previous
+			sc_start2(&sd->bl, SC_ACTIVE_MONSTER_TRANSFORM, 100, mob_id, type, tick);
+		} else {
+			status_change_end(&sd->bl, SC_MONSTER_TRANSFORM, INVALID_TIMER); // Clear previous
+			sc_start2(&sd->bl, SC_MONSTER_TRANSFORM, 100, mob_id, type, tick);
+		}
+		if (type != SC_NONE)
+			sc_start4(&sd->bl, type, 100, val1, val2, val3, val4, tick);
+	}
+
+	return 0;
+}
+
+/**
  * Attach script to player for certain duration
  * bonus_script "<script code>",<duration>{,<flag>{,<type>{,<status_icon>{,<char_id>}}}};
  * @param "script code"
@@ -18890,7 +18982,10 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(showscript,"s?"),
 	BUILDIN_DEF(getepisode,""),
 	BUILDIN_DEF(freeloop,"?"),
+	// Monster Transform [malufett/Hercules]
 	BUILDIN_DEF(jobcanentermap,"s?"),
+	BUILDIN_DEF2(montransform, "transform", "vi?????"),
+	BUILDIN_DEF2(montransform, "active_transform", "vi?????"),
 	// WoE TE
 	BUILDIN_DEF(agitstart3,""),
 	BUILDIN_DEF(agitend3,""),

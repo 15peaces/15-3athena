@@ -6103,6 +6103,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				// Elemental Resist Potions
 				case SC_ARMOR_ELEMENT_WATER:	case SC_ARMOR_ELEMENT_EARTH:	case SC_ARMOR_ELEMENT_FIRE:	
 				case SC_ARMOR_ELEMENT_WIND:
+				// Others
+				case SC_ACTIVE_MONSTER_TRANSFORM:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7380,7 +7382,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_NEUTRALBARRIER_MASTER:	case SC_NEUTRALBARRIER:
 				case SC_STEALTHFIELD_MASTER:	case SC_STEALTHFIELD:
 				case SC_CLAN_INFO:				case SC_SWORDCLAN:		case SC_ARCWANDCLAN:
-				case SC_GOLDENMACECLAN:			case SC_CROSSBOWCLAN:
+				case SC_GOLDENMACECLAN:			case SC_CROSSBOWCLAN:	case SC_ACTIVE_MONSTER_TRANSFORM:
 				// ---------------------------
 					continue;
 				case SC_ASSUMPTIO:
@@ -15259,7 +15261,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 						qty *= 2; 
 						break;
 					// Throwable potions
-					case 13275:	case 13278:
+					case 13275: case 13276: case 13277: case 13278: case 13279: case 13280:
 						qty *= 10;
 						break;
 				}

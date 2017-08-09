@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/07/2017
+	r177 [15peaces]
+		*Merged missing changes from 3ceam rev. 627
+		*Added full support for transform script commands.
+			-This command will turn a player into a monster for a given duration and can grant a SC attribute effect while transformed.
+			-More informations can be found in script_command document.
+			-Thanks to @rathena.
+		*Some updates & fixes in ItemDB.
+			-mooved some stable items to item_db.
+			-re-added pre-renewal King Tiger Doll Hat.
+		*Enabled all HP/SP throwing pots in produce_db.
+		*Updated SO_POISON_BUSTER damage ratio to official.
+		*Added missing throwing HP/SP pots to GN_CHANGEMATERIAL checks.
+
 08/07/2017
 	r176 [15peaces]
 		*Some updates & fixes in ItemDB.

@@ -273,6 +273,7 @@ extern struct Battle_Config
 	int gvg_misc_damage_rate;
 	int gvg_flee_penalty;
 	int gvg_eliminate_time;
+	int gvg_mon_trans_disable;
 	int pk_short_damage_rate;
 	int pk_long_damage_rate;
 	int pk_weapon_damage_rate;
