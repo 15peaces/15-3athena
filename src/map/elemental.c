@@ -805,8 +805,10 @@ int read_elemental_skilldb(void)
 	return 0;
 }
 
-void reload_elementaldb(void) {
+void reload_elementaldb(void)
+{
 	read_elementaldb();
+	read_elemental_skilldb();
 }
 
 void reload_elemental_skilldb(void) {

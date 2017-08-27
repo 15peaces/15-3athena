@@ -3052,16 +3052,19 @@ static int skill_reveal_trap (struct block_list *bl, va_list ap)
 	return 0;
 }
 
-static int skill_ative_reverberation( struct block_list *bl, va_list ap)
+static int skill_ative_reverberation(struct block_list *bl, va_list ap)
 {
 	struct skill_unit *su = (TBL_SKILL*)bl;
-	if( bl->type != BL_SKILL )
+	struct skill_unit_group *sg;
+
+	if(bl->type != BL_SKILL)
 		return 0;
-	if( su->alive && su->group && su->group->skill_id == WM_REVERBERATION )
+
+	if(su->alive && (sg = su->group) && sg->skill_id == WM_REVERBERATION)
 	{
 		clif_changetraplook(bl, UNT_USED_TRAPS);
-		su->limit=DIFF_TICK(gettick(),su->group->tick)+1500;
-		su->group->unit_id = UNT_USED_TRAPS;
+		su->limit=DIFF_TICK(gettick(),sg->tick)+1500;
+		sg->unit_id = UNT_USED_TRAPS;
 	}
 	return 0;
 }
@@ -3073,12 +3076,11 @@ static int skill_destroy_trap( struct block_list *bl, va_list ap )
 	int64 tick;
 	
 	nullpo_retr(0, su);
-	nullpo_retr(0, sg = su->group);
-	tick = va_arg(ap, unsigned int);
+	tick = va_arg(ap, int64);
 
-	if (su->alive && su->group && skill_get_inf2(su->group->skill_id)&INF2_TRAP)
+	if (su->alive && (sg = su->group) && skill_get_inf2(sg->skill_id)&INF2_TRAP)
 	{
-		switch( su->group->unit_id )
+		switch (sg->unit_id)
 		{
 			case UNT_FIRINGTRAP:
 			case UNT_ICEBOUNDTRAP:
@@ -8350,9 +8352,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case GN_S_PHARMACY:
-		if(sd) {
-			clif_cooking_list( sd, 29, skillid, 1, 6 );
-			clif_skill_nodamage( src, bl, skillid, skilllv, 1 );
+		if (sd)
+		{
+			sd->skillid_old = skillid;
+			sd->skilllv_old = skilllv;
+			clif_cooking_list(sd, 29, skillid, 1, 6);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
@@ -15269,7 +15274,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				break;
 			case GN_S_PHARMACY:
 				// Note: This is not the chosen skill level but the highest available. Need confirmation/fix.
-				switch (pc_checkskill(sd, GN_S_PHARMACY))
+				switch (sd->skilllv_old)
 				{
 					case 6:	case 7:	case 8:	// 3 items to make at once.
 						qty = 3; 
