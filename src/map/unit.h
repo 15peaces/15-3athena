@@ -57,6 +57,7 @@ struct view_data {
 		head_mid,
 		head_bottom,
 		hair_style,
+		body_style,
 		hair_color,
 		cloth_color;
 	uint8 sex;

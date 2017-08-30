@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/30/2017
+	r179 [15peaces]
+		*Added base-support for 2015-10-29aRagexe client.
+			-Note: This client is experimental and not stable for public use! You can login and play (kind of), but as allways with a new client there are many bugs and issues I have to fix first.
+			-Added packets.
+			-Added dummy-data for body-style feature in view-data.
+			-Known issues:
+				--chatting (including @-commands ; /commands work however...) is currently broken since the packets changed.
+				--Try using RoDex or Archivement System will disconnect you, packets are not added yet.
+				--Due to an issue with new packets added below NPCs are currently invisible. Will be fixed later.
+				--...
+			*ZC_NOTIFY_NEWENTRY11; ZC_NOTIFY_STANDENTRY11; ZC_NOTIFY_MOVEENTRY11
+				-Added support for these packets.
+				-Thanks to @3ceam.
+
 08/27/2017
 	r178 [15peaces]
 		*Merged missing changes from 3ceam rev. 628

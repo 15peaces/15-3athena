@@ -44,7 +44,7 @@ enum
 {// packet DB
 	MIN_PACKET_DB  = 0x064,
 	MAX_PACKET_DB  = 0xA40,
-	MAX_PACKET_VER = 36,
+	MAX_PACKET_VER = 37,
 	MAX_PACKET_POS = 20,
 };
 
@@ -933,11 +933,8 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
 int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1);
 
-// V5 Item Packets
+// V5 Item Packet
 void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip);
-
-int clif_set_unit_idle_v10(struct block_list* bl, unsigned char* buffer, bool spawn);
-int clif_set_unit_walking_v10(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
 
 /// Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);

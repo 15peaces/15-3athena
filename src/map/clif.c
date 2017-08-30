@@ -999,8 +999,8 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 		WBUFW(buf,0) = spawn ? 0x858 : 0x857;
 #elif PACKETVER < 20131223
 		WBUFW(buf,0) = spawn ? 0x90f : 0x915;
-#else // PACKETVER < 20150513
-		WBUFW(buf,0) = spawn ? 0x9dc : 0x9dd;
+#elif PACKETVER < 20150513
+		WBUFW(buf,0) = spawn ? 0x9fe : 0x9ff;
 #endif
 
 #if PACKETVER >= 20091103
@@ -1144,11 +1144,15 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 
 	WBUFB(buf,63) = ( bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0) ) ? 1 : 0;		// isBoss
 #endif
+#if PACKETVER >= 20150513
+	WBUFW(buf,64) = 0;// body
+	buf = WBUFP(buffer,offset);
+#endif
 #if PACKETVER >= 20091103
 #if PACKETVER >= 20120221
-	memcpy((char*)WBUFP(buf,64), name, NAME_LENGTH);
+	safestrncpy(WBUFCP(buf,64), name, NAME_LENGTH);
 #else
-	memcpy((char*)WBUFP(buf,55), name, NAME_LENGTH);
+	safestrncpy(WBUFCP(buf,55), name, NAME_LENGTH);
 #endif
 	return WBUFW(buffer,2);
 #else
@@ -1188,8 +1192,10 @@ static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, un
 	WBUFW(buf, 0) = 0x856;
 #elif PACKETVER < 20131223
 	WBUFW(buf, 0) = 0x914;
-#else // PACKETVER < 20150513
+#elif PACKETVER < 20150513
 	WBUFW(buf, 0) = 0x9db;
+#else
+	WBUFW(buf, 0) = 0x9fd;
 #endif
 
 #if PACKETVER >= 20091103
@@ -18947,7 +18953,7 @@ void packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0,  0,  0,  0,  0,  7,
+		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11,  0,
 		0, 11, 12, 11,  0,  0,  0,  75,  0,143,  0,  0,  0,  0,  0,  0,
 //#0x0a00
