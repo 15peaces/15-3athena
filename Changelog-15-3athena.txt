@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/31/2017
+	r180 [15peaces]
+		*ZC_NOTIFY_NEWENTRY11; ZC_NOTIFY_STANDENTRY11
+			-Fixed these packets. NPCs are visible again. ^^
+
 08/30/2017
 	r179 [15peaces]
 		*Added base-support for 2015-10-29aRagexe client.

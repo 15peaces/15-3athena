@@ -963,9 +963,8 @@ static int clif_setlevel(struct block_list* bl)
 	return lv;
 }
 
-/*==========================================
- * Prepares 'unit standing/spawning' packet
- *------------------------------------------*/
+/// Prepares 'unit standing/spawning' packet (ZC_NOTIFY_NEWENTRY/ZC_NOTIFY_STANDENTRY).
+/// Currently supports up to v11.
 static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool spawn) {
 	struct map_session_data* sd;
 	struct status_change* sc = status_get_sc(bl);
@@ -1000,6 +999,8 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 #elif PACKETVER < 20131223
 		WBUFW(buf,0) = spawn ? 0x90f : 0x915;
 #elif PACKETVER < 20150513
+		WBUFW(buf,0) = spawn ? 0x9dc : 0x9dd;
+#else
 		WBUFW(buf,0) = spawn ? 0x9fe : 0x9ff;
 #endif
 
@@ -1160,9 +1161,8 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 #endif
 }
 
-/*==========================================
- * Prepares 'unit walking' packet
- *------------------------------------------*/
+/// Prepares 'unit walking' packet (ZC_NOTIFY_MOVEENTRY).
+/// Currently supports up to v11.
 static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer)
 {
 	struct map_session_data* sd;
