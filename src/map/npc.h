@@ -56,7 +56,7 @@ struct npc_data {
 	char exname[NPC_NAME_LENGTH+1];// unique npc name
 	int chat_id;
 	int touching_id;
-	unsigned int next_walktime;
+	int64 next_walktime;
 
 	unsigned size : 2;
 
@@ -185,7 +185,7 @@ bool npc_event_isspecial(const char* eventname);
 int npc_timerevent_start(struct npc_data* nd, int rid);
 int npc_timerevent_stop(struct npc_data* nd);
 void npc_timerevent_quit(struct map_session_data* sd);
-int npc_gettimerevent_tick(struct npc_data* nd);
+int64 npc_gettimerevent_tick(struct npc_data* nd);
 int npc_settimerevent_tick(struct npc_data* nd, int newtimer);
 int npc_remove_map(struct npc_data* nd);
 void npc_unload_duplicates (struct npc_data* nd);

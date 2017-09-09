@@ -8844,7 +8844,7 @@ BUILDIN_FUNC(getnpctimer)
 
 	switch( type )
 	{
-	case 0: val = npc_gettimerevent_tick(nd); break;
+	case 0: val = (int)npc_gettimerevent_tick(nd); break;
 	case 1:
 		if( nd->u.scr.rid )
 		{

@@ -54,9 +54,6 @@ struct unit_data* unit_bl2ud(struct block_list *bl)
 	return NULL;
 }
 
-static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data);
-static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data);
-
 int unit_walktoxy_sub(struct block_list *bl)
 {
 	int i;
@@ -326,7 +323,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 		if (sd && sd->pvpcan_walkout_tick && !map_getcell( sd->bl.m, x, y, CELL_CHKPVP ) ) {
 			if ( DIFF_TICK(tick, sd->pvpcan_walkout_tick) < battle_config.cellpvp_walkout_delay )
 			{
-				int e_tick = (battle_config.cellpvp_walkout_delay - DIFF_TICK( tick, sd->pvpcan_walkout_tick))/1000;
+				int64 e_tick = (battle_config.cellpvp_walkout_delay - DIFF_TICK( tick, sd->pvpcan_walkout_tick))/1000;
 				char e_msg[150];
 				if( e_tick > 99 )
 						sprintf(e_msg, msg_txt(800), sd->status.name, (double)e_tick / 60); 

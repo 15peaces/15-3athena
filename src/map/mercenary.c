@@ -95,7 +95,7 @@ int mercenary_get_lifetime(struct mercenary_data *md)
 		return 0;
 
 	td = get_timer(md->contract_timer);
-	return (td != NULL) ? DIFF_TICK(td->tick, gettick()) : 0;
+	return (td != NULL) ? DIFF_TICK32(td->tick, gettick()) : 0;
 }
 
 int mercenary_get_guild(struct mercenary_data *md)

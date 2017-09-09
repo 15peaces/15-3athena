@@ -68,6 +68,7 @@ struct view_data {
 
 // 歩行開始
 //     戻り値は、0 ( 成功 ), 1 ( 失敗 )
+static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data);
 int unit_walktoxy( struct block_list *bl, short x, short y, int easy);
 int unit_walktobl( struct block_list *bl, struct block_list *target, int range, int easy);
 int unit_run(struct block_list *bl);
@@ -108,6 +109,8 @@ int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, shor
 // スキル使用( 補正済みキャスト時間、キャンセル不可設定付き )
 int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, short skill_lv, int casttime, int castcancel);
 int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, short skill_num, short skill_lv, int casttime, int castcancel);
+
+static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data);
 
 // 詠唱キャンセル
 int unit_skillcastcancel(struct block_list *bl,int type);

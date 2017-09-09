@@ -197,17 +197,17 @@ static int64 tick(void) {
 #if defined(TICK_CACHE) && TICK_CACHE > 1
 //////////////////////////////////////////////////////////////////////////
 // tick is cached for TICK_CACHE calls
-static unsigned int gettick_cache;
+static int64 gettick_cache;
 static int gettick_count = 1;
 
-unsigned int gettick_nocache(void)
+int64 gettick_nocache(void)
 {
 	gettick_count = TICK_CACHE;
 	gettick_cache = tick();
 	return gettick_cache;
 }
 
-unsigned int gettick(void)
+int64 gettick(void)
 {
 	return ( --gettick_count == 0 ) ? gettick_nocache() : gettick_cache;
 }
@@ -344,14 +344,14 @@ int delete_timer(int tid, TimerFunc func)
 
 /// Adjusts a timer's expiration time.
 /// Returns the new tick value, or -1 if it fails.
-int addtick_timer(int tid, int64 tick)
+int64 timer_addtick(int tid, int64 tick)
 {
-	return settick_timer(tid, timer_data[tid].tick+tick);
+	return timer_settick(tid, timer_data[tid].tick+tick);
 }
 
 /// Modifies a timer's expiration time (an alternative to deleting a timer and starting a new one).
 /// Returns the new tick value, or -1 if it fails.
-int settick_timer(int tid, int64 tick)
+int64 timer_settick(int tid, int64 tick)
 {
 	size_t i;
 	
@@ -359,28 +359,28 @@ int settick_timer(int tid, int64 tick)
 	ARR_FIND(0, BHEAP_LENGTH(timer_heap), i, BHEAP_DATA(timer_heap)[i] == tid);
 	if( i == BHEAP_LENGTH(timer_heap) )
 	{
-		ShowError("settick_timer: no such timer %d (%p(%s))\n", tid, timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
+		ShowError("timer_settick: no such timer %d (%p(%s))\n", tid, timer_data[tid].func, search_timer_func_list(timer_data[tid].func));
 		return -1;
 	}
 
-	if( (int)tick == -1 )
-		tick = 0;// add 1ms to avoid the error value -1
+	if (tick == -1)
+		tick = 0; // add 1ms to avoid the error value -1
 
-	if( timer_data[tid].tick == tick )
-		return (int)tick;// nothing to do, already in propper position
+	if (timer_data[tid].tick == tick)
+		return tick; // nothing to do, already in propper position
 
 	// pop and push adjusted timer
 	BHEAP_POPINDEX(timer_heap, i, DIFFTICK_MINTOPCMP);
 	timer_data[tid].tick = tick;
 	BHEAP_PUSH(timer_heap, tid, DIFFTICK_MINTOPCMP);
-	return (int)tick;
+	return tick;
 }
 
 /// Executes all expired timers.
 /// Returns the value of the smallest non-expired timer (or 1 second if there aren't any).
 int do_timer(int64 tick)
 {
-	int diff = TIMER_MAX_INTERVAL; // return value
+	int64 diff = TIMER_MAX_INTERVAL; // return value
 
 	// process all timers one by one
 	while( BHEAP_LENGTH(timer_heap) )
@@ -429,7 +429,7 @@ int do_timer(int64 tick)
 		}
 	}
 
-	return cap_value(diff, TIMER_MIN_INTERVAL, TIMER_MAX_INTERVAL);
+	return (int)cap_value(diff, TIMER_MIN_INTERVAL, TIMER_MAX_INTERVAL);
 }
 
 unsigned long get_uptime(void)

@@ -2514,7 +2514,6 @@ int parse_fromlogin(int fd)
 
 int check_connect_login_server(int tid, int64 tick, int id, intptr_t data);
 int ping_login_server(int tid, int64 tick, int id, intptr_t data);
-int send_accounts_tologin(int tid, int64 tick, int id, intptr_t data);
 
 void do_init_loginif(void)
 {

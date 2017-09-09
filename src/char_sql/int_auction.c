@@ -226,7 +226,7 @@ void inter_auctions_fromsql(void)
 		}
 
 		if( auction->timestamp > now )
-			endtick = ((unsigned int)(auction->timestamp - now) * 1000) + tick;
+			endtick = ((int64)(auction->timestamp - now) * 1000) + tick;
 		else
 			endtick = tick + 10000; // 10 Second's to process ended auctions
 

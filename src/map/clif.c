@@ -4667,7 +4667,7 @@ int clif_damage(struct block_list* src, struct block_list* dst, int64 tick, int 
 	WBUFW(buf,0) = cmd;
 	WBUFL(buf,2) = src->id;
 	WBUFL(buf,6) = dst->id;
-	WBUFL(buf,10) = (unsigned int)tick;
+	WBUFL(buf,10) = (uint32)tick;
 	WBUFL(buf,14) = sdelay;
 	WBUFL(buf,18) = ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
@@ -5336,7 +5336,7 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype
 /// the ZC_SKILL_POSTDELAY_LIST and ZC_SKILL_POSTDELAY_LIST2 will need to be supported
 /// soon to tell the client which skills are currently in cooldown when a player logs on
 /// and display them in the shortcut bar. [Rytech]
-void clif_skill_cooldown(struct map_session_data *sd, int skillid, int64 tick)
+void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int duration)
 {
 #if PACKETVER>=20081112
 	int fd;
@@ -5347,7 +5347,7 @@ void clif_skill_cooldown(struct map_session_data *sd, int skillid, int64 tick)
 	WFIFOHEAD(fd,packet_len(0x43d));
 	WFIFOW(fd,0) = 0x43d;
 	WFIFOW(fd,2) = skillid;
-	WFIFOL(fd,4) = (unsigned int)tick;
+	WFIFOL(fd,4) = duration;
 	WFIFOSET(fd,packet_len(0x43d));
 #endif
 }
@@ -5375,7 +5375,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,i
 	WBUFW(buf,2)=skill_id;
 	WBUFL(buf,4)=src->id;
 	WBUFL(buf,8)=dst->id;
-	WBUFL(buf,12)=tick;
+	WBUFL(buf,12)=(uint32)tick;
 	WBUFL(buf,16)=sdelay;
 	WBUFL(buf,20)=ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
@@ -5406,7 +5406,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,i
 	WBUFW(buf,2)=skill_id;
 	WBUFL(buf,4)=src->id;
 	WBUFL(buf,8)=dst->id;
-	WBUFL(buf,12)=(unsigned int)tick;
+	WBUFL(buf,12)=(uint32)tick;
 	WBUFL(buf,16)=sdelay;
 	WBUFL(buf,20)=ddelay;
 	if (battle_config.hide_woe_damage && map_flag_gvg(src->m)) {
@@ -5470,7 +5470,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 	WBUFW(buf,2)=skill_id;
 	WBUFL(buf,4)=src->id;
 	WBUFL(buf,8)=dst->id;
-	WBUFL(buf,12)=tick;
+	WBUFL(buf,12)=(uint32)tick;
 	WBUFL(buf,16)=sdelay;
 	WBUFL(buf,20)=ddelay;
 	WBUFW(buf,24)=dst->x;
@@ -5550,7 +5550,7 @@ void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int 
 	WBUFW(buf,8)=val;
 	WBUFW(buf,10)=x;
 	WBUFW(buf,12)=y;
-	WBUFL(buf,14)=(unsigned int)tick;
+	WBUFL(buf,14)=(uint32)tick;
 	if(disguised(src)) {
 		clif_send(buf,packet_len(0x117),src,AREA_WOS);
 		WBUFL(buf,4)=-src->id;
@@ -10469,7 +10469,7 @@ void clif_notify_time(struct map_session_data* sd, int64 time)
 
 	WFIFOHEAD(fd,packet_len(0x7f));
 	WFIFOW(fd,0) = 0x7f;
-	WFIFOL(fd,2) = (unsigned int)time;
+	WFIFOL(fd,2) = (uint32)time;
 	WFIFOSET(fd,packet_len(0x7f));
 }
 
@@ -11982,9 +11982,9 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
 }
 
-/*==========================================
- * スキル使用（場所指定）
- *------------------------------------------*/
+ /*==========================================
+  * Client tells server he'd like to use AoE skill id 'skill_id' of level 'skill_lv' on 'x','y' location
+  *------------------------------------------*/
 static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, short skilllv, short skillnum, short x, short y, int skillmoreinfo)
 {
 	int lv;
@@ -16388,7 +16388,7 @@ void clif_bossmapinfo(int fd, struct mob_data *md, short flag)
 			unsigned int seconds;
 			int hours, minutes;
 
-			seconds = DIFF_TICK(timer_data->tick, gettick()) / 1000 + 60;
+			seconds = (unsigned int)(DIFF_TICK(timer_data->tick, gettick()) / 1000 + 60);
 			hours = seconds / (60 * 60);
 			seconds = seconds - (60 * 60 * hours);
 			minutes = seconds / 60;

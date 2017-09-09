@@ -88,7 +88,7 @@ int elemental_get_lifetime(struct elemental_data *ed) {
 		return 0;
 
 	td = get_timer(ed->summon_timer);
-	return (td != NULL) ? DIFF_TICK(td->tick, gettick()) : 0;
+	return (td != NULL) ? DIFF_TICK32(td->tick, gettick()) : 0;
 }
 
 int elemental_save(struct elemental_data *ed) {
@@ -634,7 +634,7 @@ static int elemental_ai_sub_timer(struct elemental_data *ed, struct map_session_
 }
 
 static int elemental_ai_sub_foreachclient(struct map_session_data *sd, va_list ap) {
-	int64 tick = va_arg(ap,unsigned int);
+	int64 tick = va_arg(ap,int64);
 	if(sd->status.ele_id && sd->ed)
 		elemental_ai_sub_timer(sd->ed,sd,tick);
 

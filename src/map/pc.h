@@ -219,7 +219,7 @@ struct map_session_data {
 	char npc_str[CHATBOX_SIZE]; // for passing npc input box text to script engine
 	int npc_timer_id; //For player attached npc timers. [Skotlex]
 	unsigned int chatID;
-	time_t idletime;
+	int64 idletime;
 
 	struct{
 		int npc_id;

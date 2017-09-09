@@ -1256,7 +1256,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 			timer = get_timer(sc->data[i]->timer);
 			if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
 				continue;
-			data.tick = DIFF_TICK(timer->tick,tick); //Duration that is left before ending.
+			data.tick = DIFF_TICK32(timer->tick, tick); //Duration that is left before ending.
 		} else
 			data.tick = -1; //Infinite duration
 		data.type = i;
@@ -1303,7 +1303,7 @@ int chrif_skillcooldown_save(struct map_session_data *sd)
 		if( timer == NULL || timer->func != skill_blockpc_end || DIFF_TICK(timer->tick,tick) < 0 )
 			continue;
 		
-		data.tick = DIFF_TICK(timer->tick,tick);
+		data.tick = DIFF_TICK32(timer->tick,tick);
 		data.skill_id = sd->scd[i]->skill_id;
 		memcpy(WFIFOP(char_fd,14+count*sizeof(struct skill_cooldown_data)),	&data, sizeof(struct skill_cooldown_data));
 		count++;
@@ -1576,7 +1576,7 @@ int chrif_bsdata_save(struct map_session_data *sd, bool quit) {
 
 			memset(&bs, 0, sizeof(bs));
 			safestrncpy(bs.script_str, StringBuf_Value(entry->script_buf), StringBuf_Length(entry->script_buf)+1);
-			bs.tick = DIFF_TICK(timer->tick, tick);
+			bs.tick = DIFF_TICK32(timer->tick, tick);
 			bs.flag = entry->flag;
 			bs.type = entry->type;
 			bs.icon = entry->icon;

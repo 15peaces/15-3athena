@@ -7249,7 +7249,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_RUN:
 		case SC_WUGDASH:
-			val4 = (int)gettick(); //Store time at which you started running.
+			{
+				//Store time at which you started running.
+				int64 currenttick = gettick();
+				// Note: this int64 value is stored in two separate int32 variables (FIXME)
+				val3 = (int)(currenttick&0x00000000ffffffffLL);
+				val4 = (int)((currenttick&0xffffffff00000000LL)>>32);
+			}
 			tick = -1;
 			break;
 		case SC_KAAHI:
@@ -8539,6 +8545,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		{
 			struct unit_data *ud = unit_bl2ud(bl);
 			bool begin_spurt = true;
+			// Note: this int64 value is stored in two separate int32 variables (FIXME)
+			int64 starttick  = (int64)sce->val3&0x00000000ffffffffLL;
+			      starttick |= ((int64)sce->val4<<32)&0xffffffff00000000LL;
+
 			if (ud) {
 				if(!ud->state.running)
 					begin_spurt = false;
@@ -8547,7 +8557,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					unit_stop_walking(bl,1);
 			}
 			if (begin_spurt && sce->val1 >= 7 &&
-				DIFF_TICK(gettick(), sce->val4) <= 1000 &&
+				DIFF_TICK(gettick(), starttick) <= 1000 &&
 				(!sd || (sd->weapontype1 == 0 && sd->weapontype2 == 0))
 			)
 				sc_start(bl,SC_SPURT,100,sce->val1,skill_get_time2(status_sc2skill(type), sce->val1));
@@ -9929,7 +9939,7 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	struct block_list* src = va_arg(ap,struct block_list*);
 	struct status_change_entry* sce = va_arg(ap,struct status_change_entry*);
 	enum sc_type type = (sc_type)va_arg(ap,int); //gcc: enum args get promoted to int
-	int64 tick = va_arg(ap,unsigned int);
+	int64 tick = va_arg(ap, int64);
 
 	if (status_isdead(bl))
 		return 0;
@@ -10180,7 +10190,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 					timer = get_timer(sc->data[i]->timer);
 					if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
 						continue;
-						data.tick = DIFF_TICK(timer->tick,tick);
+						data.tick = DIFF_TICK32(timer->tick, tick);
 				} else
 					data.tick = -1;
 				data.val1 = sc->data[i]->val1;
@@ -10402,7 +10412,8 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 //Natural heal main timer.
 static int status_natural_heal_timer(int tid, int64 tick, int id, intptr_t data)
 {
-	natural_heal_diff_tick = DIFF_TICK(tick,natural_heal_prev_tick);
+	// This difference is always positive and lower than UINT_MAX (~24 days)
+	natural_heal_diff_tick = (unsigned int)cap_value(DIFF_TICK(tick, natural_heal_prev_tick), 0, UINT_MAX);
 	map_foreachregen(status_natural_heal);
 	natural_heal_prev_tick = tick;
 	return 0;

@@ -6,7 +6,8 @@
 
 #include "cbasetypes.h"
 
-#define DIFF_TICK(a,b) ((int)((a)-(b)))
+#define DIFF_TICK(a,b) ((a)-(b))
+#define DIFF_TICK32(a,b) ((int32)((a)-(b))) 
 
 #define INVALID_TIMER (-1)
 
@@ -41,8 +42,8 @@ int add_timer_interval(int64 tick, TimerFunc func, int id, intptr_t data, int in
 const struct TimerData* get_timer(int tid);
 int delete_timer(int tid, TimerFunc func);
 
-int addtick_timer(int tid, int64 tick);
-int settick_timer(int tid, int64 tick);
+int64 timer_addtick(int tid, int64 tick);
+int64 timer_settick(int tid, int64 tick);
 
 int add_timer_func_list(TimerFunc func, char* name);
 

@@ -820,7 +820,7 @@ int mob_linksearch(struct block_list *bl,va_list ap)
 	md=(struct mob_data *)bl;
 	class_ = va_arg(ap, int);
 	target = va_arg(ap, struct block_list *);
-	tick=va_arg(ap, unsigned int);
+	tick = va_arg(ap, int64);
 
 	if (md->class_ == class_ && DIFF_TICK(md->last_linktime, tick) < MIN_MOBLINKTIME
 		&& !md->target_id)
@@ -892,7 +892,7 @@ int mob_spawn (struct mob_data *md)
 {
 	int i=0;
 	int64 tick = gettick();
-	int64 c =0;
+	int64 c = 0;
 
 	md->last_thinktime = tick;
 	if (md->bl.prev != NULL)
@@ -1635,7 +1635,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 static int mob_ai_sub_hard_timer(struct block_list *bl,va_list ap)
 {
 	struct mob_data *md = (struct mob_data*)bl;
-	int64 tick = va_arg(ap, unsigned int);
+	int64 tick = va_arg(ap, int64);
 	if (mob_ai_sub_hard(md, tick)) 
 	{	//Hard AI triggered.
 		if(!md->state.spotted)
@@ -1651,7 +1651,7 @@ static int mob_ai_sub_hard_timer(struct block_list *bl,va_list ap)
 static int mob_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
 	int64 tick;
-	tick=va_arg(ap,unsigned int);
+	tick = va_arg(ap, int64);
 	map_foreachinrange(mob_ai_sub_hard_timer,&sd->bl, AREA_SIZE+ACTIVE_AI_RANGE, BL_MOB,tick);
 
 	return 0;
@@ -1669,7 +1669,7 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 	if(md->bl.prev == NULL)
 		return 0;
 
-	tick = va_arg(args,unsigned int);
+	tick = va_arg(args, int64);
 
 	if (battle_config.mob_ai&0x20 && map[md->bl.m].users>0)
 		return (int)mob_ai_sub_hard(md, tick);
@@ -2654,7 +2654,7 @@ int mob_random_class (int *value, size_t count)
  *------------------------------------------*/
 int mob_class_change (struct mob_data *md, int class_)
 {
-	int64 c, tick = gettick();
+	int64 tick = gettick(), c = 0;
 	int i, hp_rate;
 
 	nullpo_ret(md);

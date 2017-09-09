@@ -934,7 +934,7 @@ static int pet_ai_sub_hard(struct pet_data *pd, struct map_session_data *sd, int
 
 static int pet_ai_sub_foreachclient(struct map_session_data *sd,va_list ap)
 {
-	int64 tick = va_arg(ap,unsigned int);
+	int64 tick = va_arg(ap, int64);
 	if(sd->status.pet_id && sd->pd)
 		pet_ai_sub_hard(sd->pd,sd,tick);
 

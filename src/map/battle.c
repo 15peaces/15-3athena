@@ -340,7 +340,7 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 				y = sg->val3 & 0xffff;
 				skill_unitsetting(src,su->group->skill_id,su->group->skill_lv,x,y,1);
 				sg->val3 = -1;
-				sg->limit = DIFF_TICK(gettick(),sg->tick)+300;
+				sg->limit = DIFF_TICK32(gettick(),sg->tick)+300;
 			}
 		}
 	}
@@ -4290,7 +4290,7 @@ int battle_damage_area( struct block_list *bl, va_list ap)
 
 	nullpo_retr(0, bl);
 	
-	tick=va_arg(ap, unsigned int);
+	tick=va_arg(ap, int64);
 	src=va_arg(ap,struct block_list *);
 	amotion=va_arg(ap,int);
 	dmotion=va_arg(ap,int);

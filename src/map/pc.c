@@ -538,7 +538,7 @@ int pc_inventory_rental_clear(struct map_session_data *sd)
 void pc_inventory_rentals(struct map_session_data *sd)
 {
 	int i, c = 0;
-	unsigned int expire_tick, next_tick = UINT_MAX;
+	int64 expire_tick, next_tick = INT64_MAX;
 
 	for( i = 0; i < MAX_INVENTORY; i++ )
 	{ // Check for Rentals on Inventory
@@ -554,7 +554,7 @@ void pc_inventory_rentals(struct map_session_data *sd)
 		}
 		else
 		{
-			expire_tick = (unsigned int)(sd->status.inventory[i].expire_time - time(NULL)) * 1000;
+			expire_tick = (int64)(sd->status.inventory[i].expire_time - time(NULL)) * 1000;
 			clif_rental_time(sd->fd, sd->status.inventory[i].nameid, (int)(expire_tick / 1000));
 			next_tick = min(expire_tick, next_tick);
 			c++;
@@ -4189,7 +4189,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		{
 			if( sd->item_delay[i].nameid )
 			{// found
-				if( DIFF_TICK(sd->item_delay[i].tick, tick) > 0 )
+				if( (int)DIFF_TICK(sd->item_delay[i].tick, tick) > 0 )
 					return 0; // Delay has not expired yet
 			}
 			else
@@ -8416,7 +8416,7 @@ int pc_addeventtimercount(struct map_session_data *sd,const char *name,int tick)
 	for(i=0;i<MAX_EVENTTIMER;i++)
 		if( sd->eventtimer[i] != INVALID_TIMER && strcmp(
 			(char *)(get_timer(sd->eventtimer[i])->data), name)==0 ){
-				addtick_timer(sd->eventtimer[i],tick);
+				timer_addtick(sd->eventtimer[i],tick);
 				break;
 		}
 
@@ -9773,7 +9773,7 @@ struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, co
 			if (strcmpi(script_str, StringBuf_Value(entry->script_buf)) == 0) {
 				int64 newdur = gettick() + dur;
 				if (flag&BSF_FORCE_REPLACE && entry->tick < newdur) { // Change duration
-					settick_timer(entry->tid, newdur);
+					timer_settick(entry->tid, newdur);
 					script_free_code(script);
 					return NULL;
 				}
