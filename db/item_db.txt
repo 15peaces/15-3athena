@@ -7838,6 +7838,11 @@
 20184,C_Party_Hat,Costume Party Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,144,{},{},{}
 20186,C_Magnis_Cap,Costume Magni's Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,250,{},{},{}
 //
+20190,C_Chick_Hat_J,Costume Chick Hat J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,432,{},{},{}
+//
+20202,C_Deviruchi_Balloon,Costume Deviruchi Balloon,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1082,{},{},{}
+20203,C_Bandana,Costume Bandana,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,6,{},{},{}
+//
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
 
 20727,C_Brilliant_Golden_Wings,Brilliant Golden Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,,,5,{},{},{}

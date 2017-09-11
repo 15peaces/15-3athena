@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/11/2017
+	r182 [15peaces]
+		*Merged missing changes from 3ceam rev. 629
+		*Some updates & fixes in ItemDB.
+			-mooved some stable items to item_db.
+		*Some Rebellion related updates.
+			-The jobs are not aviable right now. I added this stuff only to do some testing for my life-server.
+			-Added Rebellion Shops.
+			-Added missing Rebellion-related items.
+		*SR_RIDEINLIGHTNING damage bonus on Wind elemental weapon adjusted to official value.
+		*Reflect damage should no longer bypass nonshootable mapcells.
+		*Leech End's cast interrupt no longer bypass phen.
+		*Hells Plant disappear when a friendly unit steps on it.
+		*Minor cleanups.
+
 09/09/2017
 	r181 [15peaces]
 		*Updated more timer-related code.

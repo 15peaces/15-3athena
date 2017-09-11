@@ -2582,7 +2582,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				break;
 			case SR_RIDEINLIGHTNING:
 				if( (sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND )
-					ATK_ADDRATE(20);
+					ATK_ADDRATE(skill_lv * 5);
 				break;
 		}
 		
@@ -4296,16 +4296,16 @@ int battle_damage_area( struct block_list *bl, va_list ap)
 	dmotion=va_arg(ap,int);
 	damage=va_arg(ap,int);
 
-	if( bl != src && battle_check_target(src,bl,BCT_ENEMY) > 0 && !(bl->type == BL_MOB && ((TBL_MOB*)bl)->class_ == MOBID_EMPERIUM) &&
-		!( map[bl->m].flag.battleground && bl->type == BL_MOB && (((TBL_MOB*)bl)->class_ == 1914 || ((TBL_MOB*)bl)->class_ == 1915)) )
+
+	if (bl != src && battle_check_target(src, bl, BCT_ENEMY) > 0 && !(bl->type == BL_MOB && ((TBL_MOB*)bl)->class_ == MOBID_EMPERIUM))
 	{
 		map_freeblock_lock();
-		if( amotion )
-			battle_delay_damage(tick, amotion,src,bl,0,0,0,damage,ATK_DEF,0);
+		if (amotion)
+			battle_delay_damage(tick, amotion, src, bl, 0, 0, 0, damage, ATK_DEF, 0);
 		else
-			status_fix_damage(src,bl,damage,0);
-		clif_damage(bl,bl,tick,amotion,dmotion,damage,1,ATK_BLOCK,0,false);
-		skill_additional_effect(src, bl, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
+			status_fix_damage(src, bl, damage, 0);
+		clif_damage(bl, bl, tick, amotion, dmotion, damage, 1, ATK_BLOCK, 0, false);
+		skill_additional_effect(src, bl, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF, tick);
 		map_freeblock_unlock();
 	}
 	

@@ -2424,8 +2424,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if( rdamage > 0 )
 	{
 		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
-			if( src != bl )// Don't reflect your own damage (Grand Cross)
-				map_foreachinrange(battle_damage_area,bl,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,tick,bl,dmg.amotion,sstatus->dmotion,rdamage,tstatus->race);
+			if(src != bl) // Don't reflect your own damage (Grand Cross)
+				map_foreachinshootrange(battle_damage_area, bl, skill_get_splash(LG_REFLECTDAMAGE, 1), BL_CHAR, tick, bl, dmg.amotion, sstatus->dmotion, rdamage, tstatus->race);
 		else
 		{
 			if( dmg.amotion )
@@ -11075,8 +11075,9 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			break;
 
 		case UNT_HELLS_PLANT:
-			if( skill_attack(skill_get_type(GN_HELLS_PLANT_ATK), ss, &src->bl, bl, GN_HELLS_PLANT_ATK, sg->skill_lv, tick, 0) )
-				sg->limit = DIFF_TICK32(tick, sg->tick) + 100;
+			if (battle_check_target(&src->bl, bl, BCT_ENEMY) > 0)
+				skill_attack(skill_get_type(GN_HELLS_PLANT_ATK), ss, &src->bl, bl, GN_HELLS_PLANT_ATK, sg->skill_lv, tick, 0);
+			sg->limit = DIFF_TICK32(tick, sg->tick) + 100;
 			break;
 
 		case UNT_CLOUD_KILL:
@@ -11425,7 +11426,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 	skillid = va_arg(ap,int);
 	lv = va_arg(ap,int);
 
-	if( ((skillid != PR_BENEDICTIO && *c >=1) || *c >=2) && !skill_get_inf2(skillid)&INF2_CHORUS_SKILL )
+	if (((skillid != PR_BENEDICTIO && *c >=1) || *c >=2) && !(skill_get_inf2(skillid)&INF2_CHORUS_SKILL))
 		return 0; //Partner found for ensembles, or the two companions for Benedictio. Chorus skills should search for all[Skotlex]*/
 
 	if (bl == src)

@@ -6540,17 +6540,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
  		break;
 	case SC_GENTLETOUCH_ENERGYGAIN:
-		status_change_end(bl, SC_GENTLETOUCH_CHANGE, INVALID_TIMER);
-		status_change_end(bl, SC_GENTLETOUCH_REVITALIZE, INVALID_TIMER);
-		break;
 	case SC_GENTLETOUCH_CHANGE:
-		status_change_end(bl, SC_GENTLETOUCH_ENERGYGAIN, INVALID_TIMER);
-		status_change_end(bl, SC_GENTLETOUCH_REVITALIZE, INVALID_TIMER);
-		break;
 	case SC_GENTLETOUCH_REVITALIZE:
+		if (sc->data[type]) // Don't remove same sc.
+			break;
+		status_change_end(bl, SC_GENTLETOUCH_REVITALIZE, INVALID_TIMER);
 		status_change_end(bl, SC_GENTLETOUCH_ENERGYGAIN, INVALID_TIMER);
 		status_change_end(bl, SC_GENTLETOUCH_CHANGE, INVALID_TIMER);
-		break;
+ 		break;
 	}
 
 	//Check for overlapping fails
@@ -9529,7 +9526,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			else
 				damage += 7 * status->vit;
 
-			unit_skillcastcancel(bl,0);
+			unit_skillcastcancel(bl, 2);
 			map_freeblock_lock();
 			status_zap(bl,damage,0);
 			flag = !sc->data[type];
