@@ -721,7 +721,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			if( sd ) pc_addspiritball(sd, duration, sce->val1);
 		}
 
-		if (sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20)
+		if(sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * sc->data[SC__DEADLYINFECT]->val1)
 			status_change_spread(bl, src); // Deadly infect attacked side
 	}
 
@@ -734,31 +734,38 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			damage += damage * 75 / 100;
 		if (sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3)
 			sc_start(bl, (sc_type)sc->data[SC_POISONINGWEAPON]->val2, 100, sc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, sc->data[SC_POISONINGWEAPON]->val1));
- 		if (sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 20)
+		if (tsc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * skill_lv)
 			status_change_spread(src, bl);
  	}
 
-	// [Epoque]
-	if (bl->type == BL_MOB)
+	if (tsc && tsc->count)
 	{
-		int i;
+		if (tsc->data[SC_INVINCIBLE] && !tsc->data[SC_INVINCIBLEOFF])
+			damage += damage * 75 / 100;
+		// [Epoque]
+		if (bl->type == BL_MOB)
+		{
+			int i;
 
-		if ( ((sce=sc->data[SC_MANU_ATK]) && (flag&BF_WEAPON)) ||
-			 ((sce=sc->data[SC_MANU_MATK]) && (flag&BF_MAGIC))
-			)
-			for (i=0;ARRAYLENGTH(mob_manuk)>i;i++)
-				if (((TBL_MOB*)bl)->class_==mob_manuk[i]) {
-					damage += damage*sce->val1/100;
-					break;
-				}
-		if ( ((sce=sc->data[SC_SPL_ATK]) && (flag&BF_WEAPON)) ||
-			 ((sce=sc->data[SC_SPL_MATK]) && (flag&BF_MAGIC))
-			)
-			for (i=0;ARRAYLENGTH(mob_splendide)>i;i++)
-				if (((TBL_MOB*)bl)->class_==mob_splendide[i]) {
-					damage += damage*sce->val1/100;
-					break;
-				}
+			if (((sce=tsc->data[SC_MANU_ATK]) && (flag&BF_WEAPON)) || ((sce=tsc->data[SC_MANU_MATK]) && (flag&BF_MAGIC)))
+				for (i=0; ARRAYLENGTH(mob_manuk) > i; i++)
+					if (((TBL_MOB*)bl)->class_==mob_manuk[i])
+					{
+						damage += damage*sce->val1/100;
+						break;
+					}
+			if (((sce=tsc->data[SC_SPL_ATK]) && (flag&BF_WEAPON)) || ((sce=tsc->data[SC_SPL_MATK]) && (flag&BF_MAGIC)))
+				for (i = 0; ARRAYLENGTH(mob_splendide) > i; i++)
+					if (((TBL_MOB*)bl)->class_==mob_splendide[i])
+					{
+						damage += damage*sce->val1/100;
+						break;
+					}
+		}
+		if (tsc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < tsc->data[SC_POISONINGWEAPON]->val3)
+			sc_start(bl, (sc_type)tsc->data[SC_POISONINGWEAPON]->val2, 100, tsc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, tsc->data[SC_POISONINGWEAPON]->val1));
+		if (tsc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * tsc->data[SC__DEADLYINFECT]->val1)
+			status_change_spread(src, bl);
 	}
 
 	if (battle_config.pk_mode && sd && bl->type == BL_PC && damage)
@@ -1263,8 +1270,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	flag.infdef =(tstatus->mode&MD_PLANT) ? 1 : 0;
 	if( !flag.infdef && (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION) )
 		flag.infdef = 1; // Reberberation takes 1 damage
-	if( flag.infdef && skill_num == GN_CART_TORNADO )
-		flag.infdef = 0;	// Full damage on plants.
 
 	//Initial Values
 	wd.type = 0; //Normal attack
@@ -2309,7 +2314,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					}
 					break;
 				case WM_SOUND_OF_DESTRUCTION:
-					skillratio += 150;
+					skillratio += 400;
  					break;
 				case GN_CART_TORNADO:
 					skillratio += 50 * skill_lv + pc_checkskill(sd, GN_REMODELING_CART) * 100 - 100;
@@ -2631,8 +2636,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							flag.idef2 = 1;
 				}
 			}
-			if( skill_num == GN_CART_TORNADO && (tstatus->mode&MD_PLANT) )
-				flag.idef = 1; // ignore def on plants
 		}
 
 		if (!flag.idef || !flag.idef2)
@@ -4449,7 +4452,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			return (damage_lv)skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK]->val1,tick,0);
 		if( sc->data[SC_GENTLETOUCH_ENERGYGAIN] ) {
 			int duration = skill_get_time(MO_CALLSPIRITS, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1); 
-			if( sd && rand()%100 < 10 + sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1 * 5 )
+			if (sd && rand()%100 < 10 + 5 * sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1)
 				pc_addspiritball(sd, duration, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1);
 		}
 	}
@@ -4485,10 +4488,10 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if( damage > 0 && src != target )
 	{
 		
-		if( sc && sc->data[SC_DUPLELIGHT] && (wd.flag&BF_SHORT) && rand()%100 <= 25 )//Chance of activation for either physical and magical is 25%
+		if (sc && sc->data[SC_DUPLELIGHT] && (wd.flag&BF_SHORT) && rand()%100 <= 10+2*sc->data[SC_DUPLELIGHT]->val1)
 		{	// Activates it only from melee damage
 			int skillid;
-			if( rand()%2 == 1 )
+			if (rand()%2 == 1)
 				skillid = AB_DUPLELIGHT_MELEE;
 			else
 				skillid = AB_DUPLELIGHT_MAGIC;
@@ -4635,7 +4638,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 					skill_castend_nodamage_id(src, target, skillid, skilllv, tick, flag);
 					break;
 				case CAST_DAMAGE:
+					// status_change_end(bl, SC_SPELLFIST, INVALID_TIMER); // To avoid autocasted bolts acting as spell fisted ones [Xazax]
 					skill_castend_damage_id(src, target, skillid, skilllv, tick, flag);
+					// TODO: Restore Spellfist status here?
 					break;
 			}
 		}

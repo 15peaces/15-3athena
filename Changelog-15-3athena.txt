@@ -5,6 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/30/2017
+	r183 [15peaces]
+		*Merged missing changes from 3ceam rev. 630 - 632
+		*Added Sara's Memory Instance.
+			-Thanks to @HerculesWS.
+		*Improved some status-updates related to HP and baselevel.
+			-This might be needed later on for 2017 clients but it's nice to be done right now. ^^
+			-Thanks to @rathena.
+		*Updated most skill status % chances.
+		*Increased WM_SOUND_OF_DESTRUCTION damage to official.
+			-Its said in iRO wiki forums and some other sources its 250% ATK, but I have info here that says its 500% MATK. So just the ratio was adjusted.
+		*Boss types are now immune to SC_BITE and SC_ELECTRICSHOCKER since they restrict movement.
+		*GN_CART_TORNADO now correctly deals 1 damage on plant types.
+		*Fixed Earth Strain and Moon Slasher success chance formula
+		*Fixed Earth Strain success reduction formula
+		*Added HP and SP consumption of Tiger Cannon, and removed some old unused code.
+		*Marsh of Abyss reduces flee instead of hit
+		*Gangsi, Death Knight, and Dark Collector related skills updated.
+			-Found cast times added to skill_cast_db.
+
 09/11/2017
 	r182 [15peaces]
 		*Merged missing changes from 3ceam rev. 629

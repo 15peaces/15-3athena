@@ -1764,6 +1764,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	return 0;
 }
 
+#ifndef TXT_ONLY
 #if PACKETVER >= 20131223
 /**
  * Saves persistent NPC Market Data into SQL
@@ -1932,6 +1933,7 @@ static void npc_market_fromsql(void) {
 
 	ShowStatus("Done loading '"CL_WHITE"%d"CL_RESET"' entries for '"CL_WHITE"%d"CL_RESET"' NPC Markets from '"CL_WHITE"%s"CL_RESET"' table.\n", count, db_size(NPCMarketDB), market_table);
 }
+#endif
 #endif
 
 int npc_remove_map(struct npc_data* nd)
@@ -4116,8 +4118,10 @@ int do_final_npc(void)
 	//There is no free function for npcname_db because at this point there shouldn't be any npcs left!
 	//So if there is anything remaining, let the memory manager catch it and report it.
 	npcname_db->destroy(npcname_db, NULL);
+#ifndef TXT_ONLY
 #if PACKETVER >= 20131223
 	NPCMarketDB->destroy(NPCMarketDB, npc_market_free);
+#endif
 #endif
 	ers_destroy(timer_event_ers);
 	npc_clearsrcfile();

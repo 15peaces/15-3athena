@@ -2858,12 +2858,6 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		// On officials the HP never go below 1, even if you die [Lemongrass]
 		// On officials the HP Novice class never go below 50%, even if you die [Napster]
 		WFIFOL(fd,4)= sd->battle_status.hp ? sd->battle_status.hp : (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE ? 1 : sd->battle_status.max_hp/2; 
-		if( battle_config.disp_hpmeter )
-			clif_hpmeter(sd);
-		if( !battle_config.party_hp_mode && sd->status.party_id )
-			clif_party_hp(sd);
-		if( sd->state.bg_id )
-			clif_bg_hp(sd);
 		break;
 	case SP_SP:
 		WFIFOL(fd,4)=sd->battle_status.sp;
@@ -3002,6 +2996,22 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		return 1;
 	}
 	WFIFOSET(fd,len);
+
+	// Additional update packets that should be sent right after
+	switch (type) 
+	{
+		case SP_BASELEVEL:
+			pc_update_job_and_level(sd);
+			break;
+		case SP_HP:
+			if (battle_config.disp_hpmeter)
+				clif_hpmeter(sd);
+			if (!battle_config.party_hp_mode && sd->status.party_id)
+				clif_party_hp(sd);
+			if (sd->state.bg_id)
+				clif_bg_hp(sd);
+			break;
+	}
 
 	return 0;
 }

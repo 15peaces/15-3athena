@@ -7526,6 +7526,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	status_calc_pc(sd,0);
 	pc_checkallowskill(sd);
 	pc_equiplookall(sd);
+	pc_update_job_and_level(sd);
 
 	//if you were previously famous, not anymore.
 	if (fame_flag) {
@@ -10069,6 +10070,22 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int gm_lv) {
 		return false;
 
 	return true;
+}
+
+void pc_update_job_and_level(struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+
+	if (sd->status.party_id) {
+		struct party_data *p;
+		int i;
+
+		if ((p = party_search(sd->status.party_id)) != NULL) {
+			ARR_FIND(0, MAX_PARTY, i, p->party.member[i].char_id == sd->status.char_id);
+			if (i < MAX_PARTY)
+				p->party.member[i].lv = sd->status.base_level;
+		}
+	}
 }
 
 /*==========================================
