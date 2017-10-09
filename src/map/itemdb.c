@@ -397,12 +397,11 @@ struct item_data* itemdb_search(unsigned short nameid) {
 int itemdb_isequip(unsigned short nameid)
 {
 	int type=itemdb_type(nameid);
-	switch (type) {
+	switch (type) 
+	{
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
-		case IT_THROWWEAPON:
-		case IT_CANNONBALL:
 			return 1;
 		default:
 			return 0;
@@ -415,12 +414,11 @@ int itemdb_isequip(unsigned short nameid)
 int itemdb_isequip2(struct item_data *data)
 { 
 	nullpo_ret(data);
-	switch(data->type) {
+	switch(data->type)
+	{
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
-		case IT_THROWWEAPON:
-		case IT_CANNONBALL:
 			return 1;
 		default:
 			return 0;

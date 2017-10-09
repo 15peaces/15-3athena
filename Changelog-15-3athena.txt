@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/09/2017
+	r184 [15peaces]
+		*Merged missing changes from 3ceam rev. 633
+		*Added Pinguicula Card drop.
+		*Adjusted Elemental Spirits settings to be closer to official.
+			-Stats had to be set to 1 as stat settings cant be lower then 1.
+			-Elementals will have the same stats as the player that summoned it.
+			-Elemental's skill cast range is officially 5 cells.
+		*Demonic Fire AoE's effects no longer stack on top of each other and now check for walls.
+		*Removed CANNONBALL and THROWWEAPON item types as their not needed.
+			-Setting them as ammo types works just as effective and requires less code.
+
 09/30/2017
 	r183 [15peaces]
 		*Merged missing changes from 3ceam rev. 630 - 632
