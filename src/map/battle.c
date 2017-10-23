@@ -3323,7 +3323,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case MG_COLDBOLT:
 						if (sc) 
 						{
-							if (sc->data[SC_SPELLFIST]) 
+							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
 								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100; // val4 = used bolt level, val2 = used spellfist level. [Rytech]
 								ad.div_ = 1; // ad mods, to make it work similar to regular hits [Xazax]
@@ -3342,7 +3342,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case MG_FIREBOLT:
 						if (sc) 
 						{
-							if (sc->data[SC_SPELLFIST])
+							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
 								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100;
 								ad.div_ = 1;
@@ -3356,7 +3356,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case MG_LIGHTNINGBOLT:
 						if (sc) 
 						{
-							if (sc->data[SC_SPELLFIST])
+							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
 								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100;
 								ad.div_ = 1;
@@ -4638,9 +4638,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 					skill_castend_nodamage_id(src, target, skillid, skilllv, tick, flag);
 					break;
 				case CAST_DAMAGE:
-					// status_change_end(bl, SC_SPELLFIST, INVALID_TIMER); // To avoid autocasted bolts acting as spell fisted ones [Xazax]
 					skill_castend_damage_id(src, target, skillid, skilllv, tick, flag);
-					// TODO: Restore Spellfist status here?
 					break;
 			}
 		}

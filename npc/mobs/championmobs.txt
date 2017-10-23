@@ -120,16 +120,16 @@ prt_maze02,0,0,0,0	monster	Furious Poporing	2702,2,300000,0
 //ein_dun01,0,0,0,0	monster	Elusive Pitman	2708,2,300000,0
 //bra_dun01,0,0,0,0	monster	Swift Piranha	2709,2,300000,0
 //spl_fild01,0,0,0,0	monster	Solid Dark Pinguicula	2710,2,300000,0
-//spl_fild02,0,0,0,0	monster	Pinguicula Ringleader	2711,2,300000,0
-//moc_fild12,0,0,0,0	monster	Furious Picky	2712,2,300000,0
-//iz_dun03,0,0,0,0	monster	Elusive Phen	2713,2,300000,0
+spl_fild02,0,0,0,0	monster	Pinguicula Ringleader	2711,2,300000,0
+moc_fild12,0,0,0,0	monster	Furious Picky	2712,2,300000,0
+iz_dun03,0,0,0,0	monster	Elusive Phen	2713,2,300000,0
 gef_fild08,0,0,0,0	monster	Swift Petite	2714,2,300000,0
 gef_fild06,0,0,0,0	monster	Solid Petite	2715,2,300000,0
-//treasure02,0,0,0,0	monster	Penomena Ringleader	2716,2,300000,0
-//alde_dun03,0,0,0,0	monster	Furious Penomena	2717,2,300000,0
-//moc_fild02,0,0,0,0	monster	Elusive Peco Peco	2718,2,300000,0
-//in_sphinx5,0,0,0,0	monster	Swift Pasana	2719,2,300000,0
-//um_fild03,0,0,0,0	monster	Solid Parasite	2720,2,300000,0
+treasure02,0,0,0,0	monster	Penomena Ringleader	2716,2,300000,0
+alde_dun03,0,0,0,0	monster	Furious Penomena	2717,2,300000,0
+moc_fild02,0,0,0,0	monster	Elusive Peco Peco	2718,2,300000,0
+in_sphinx5,0,0,0,0	monster	Swift Pasana	2719,2,300000,0
+um_fild03,0,0,0,0	monster	Solid Parasite	2720,2,300000,0
 //tha_t05,0,0,0,0	monster	Owl Duke Ringleader	2721,2,300000,0
 gef_fild10,0,0,0,0	monster	Furious Orc Warrior	2722,2,300000,0
 //orcsdun01,0,0,0,0	monster	Elusive Orc Zombie	2723,2,300000,0

@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+23/10/2017
+	r185 [15peaces]
+		*Merged missing changes from 3ceam rev. 634
+		*Added some missing champion monsters.
+		*Spell Fist no longer effect autocasted bolts
+		*Auto Shadow Spell consumes the requirements of the autocasted skill
+		*Added official hp and sp consumption to Inspiration
+		*Fixed in SC_CURSED_SOIL_OPTION val3 wasn't sended to the client
+		*Fixed that Circle of Fire wasn't cancelled in some cases when it supposed to
+		*Added SP Consumption of Reflect Damage
+		*Updated masquarade skill success chances
+		*Minor cleanups and fixes
+
 10/09/2017
 	r184 [15peaces]
 		*Merged missing changes from 3ceam rev. 633
