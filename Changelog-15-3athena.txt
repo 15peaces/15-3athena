@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+25/10/2017
+	r186 [15peaces]
+		*Added support for MD_MVP
+			-This is supposed to be the true "MVP"-mode. Some of my renewal-testing mobs are using this mode already.
+			-MD_BOSS is supposed to be "miniboss"-only.
+			-also added item_rate_*_mvp to drops.conf to allow configuration of different item drop rates.
+			-this fixes some issues with newer mvps like Leak.
+			-MD_DETECTOR and MD_KNOCKBACK_IMMUNE are also checked now while reading mob_db.
+			--if set, the monster will be marked as boss-type.
+			--please note that MD_KNOCKBACK_IMMUNE is however not supported yet.
+			-Thanks to @rathena for the base.
+
 23/10/2017
 	r185 [15peaces]
 		*Merged missing changes from 3ceam rev. 634

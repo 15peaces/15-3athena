@@ -1,5 +1,5 @@
-//===== Athena Doc ========================================
-//= eAthena Monster Modes Reference
+//===== 15-3athena Documentation ==========================
+//= 15-3athena Monster Modes Reference
 //===== By ================================================
 //= Developers
 //===== Version ===========================================
@@ -32,7 +32,7 @@ MD_RANDOMTARGET       | 0x008000 |    32768 (not implemented)
 MD_IGNOREMELEE        | 0x010000 |    65536 (not implemented)
 MD_IGNOREMAGIC        | 0x020000 |   131072 (not implemented)
 MD_IGNORERANGED       | 0x040000 |   262144 (not implemented)
-MD_MVP                | 0x080000 |   524288 (not implemented)
+MD_MVP                | 0x080000 |   524288
 MD_IGNOREMISC         | 0x100000 |  1048576 (not implemented)
 MD_KNOCKBACK_IMMUNE   | 0x200000 |  2097152 (not implemented)
 MD_NORANDOM_WALK      | 0x400000 |  4194304
@@ -86,6 +86,9 @@ Target Weak: Allows aggressive monsters to only be aggressive against
 
 Random Target: Picks a new random target in range on each attack / skill.
 	(not implemented)
+	
+MVP: Flagged as MVP which makes mobs resistant to Coma. Also displays the
+	MVP sign and gives players MVP EXP or MVP items.
 
 Aegis Mob Types:
 -------------------------------------------------------------------------------

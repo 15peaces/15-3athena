@@ -3536,6 +3536,7 @@ static bool mob_parse_dbrow(char** str)
 	struct mob_db *db, entry;
 	struct status_data *status;
 	int class_, i, k;
+	bool is_mvp, is_boss;
 	double exp, maxhp;
 	struct mob_data data;
 	
@@ -3625,6 +3626,11 @@ static bool mob_parse_dbrow(char** str)
 	status->mode = (int)strtol(str[25], NULL, 0);
 	if (!battle_config.monster_active_enable)
 		status->mode &= ~MD_AGGRESSIVE;
+
+	if (status_has_mode(status,/*MD_STATUS_IMMUNE|*/MD_KNOCKBACK_IMMUNE|MD_DETECTOR))
+		status->class_ = CLASS_BOSS;
+	else // Store as Normal and overwrite in mob_race2_db for special Class
+		status->class_ = CLASS_NORMAL;
 	
 	status->speed = atoi(str[26]);
 	status->aspd_rate = 1000;
@@ -3686,6 +3692,9 @@ static bool mob_parse_dbrow(char** str)
 			}
 		}
 	}
+
+	is_mvp = status_has_mode(status, MD_MVP);
+	is_boss = status_has_mode(status, MD_BOSS);
 	
 	for(i = 0; i < MAX_MOB_DROP; i++) {
 		int rate = 0, rate_adjust, type;
@@ -3699,6 +3708,7 @@ static bool mob_parse_dbrow(char** str)
 		}
 		type = itemdb_type(db->dropitem[i].nameid);
 		rate = atoi(str[k+1]);
+
 		if( (class_ >= 1324 && class_ <= 1363) || (class_ >= 1938 && class_ <= 1946) )
 		{	//Treasure box drop rates [Skotlex]
 			rate_adjust = battle_config.item_rate_treasure;
@@ -3708,30 +3718,30 @@ static bool mob_parse_dbrow(char** str)
 		else switch (type)
 		{ // Added suport to restrict normal drops of MVP's [Reddozen]
 		case IT_HEALING:
-			rate_adjust = (status->mode&MD_BOSS) ? battle_config.item_rate_heal_boss : battle_config.item_rate_heal;
+			rate_adjust = is_mvp ? battle_config.item_rate_heal_mvp : (is_boss ? battle_config.item_rate_heal_boss : battle_config.item_rate_heal);
 			ratemin = battle_config.item_drop_heal_min;
 			ratemax = battle_config.item_drop_heal_max;
 			break;
 		case IT_USABLE:
 		case IT_CASH:
-			rate_adjust = (status->mode&MD_BOSS) ? battle_config.item_rate_use_boss : battle_config.item_rate_use;
+			rate_adjust = is_mvp ? battle_config.item_rate_use_mvp : (is_boss ? battle_config.item_rate_use_boss : battle_config.item_rate_use);
 			ratemin = battle_config.item_drop_use_min;
 			ratemax = battle_config.item_drop_use_max;
 			break;
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_PETARMOR:
-			rate_adjust = (status->mode&MD_BOSS) ? battle_config.item_rate_equip_boss : battle_config.item_rate_equip;
+			rate_adjust = is_mvp ? battle_config.item_rate_equip_mvp : (is_boss ? battle_config.item_rate_equip_boss : battle_config.item_rate_equip);
 			ratemin = battle_config.item_drop_equip_min;
 			ratemax = battle_config.item_drop_equip_max;
 			break;
 		case IT_CARD:
-			rate_adjust = (status->mode&MD_BOSS) ? battle_config.item_rate_card_boss : battle_config.item_rate_card;
+			rate_adjust = is_mvp ? battle_config.item_rate_card_mvp : (is_boss ? battle_config.item_rate_card_boss : battle_config.item_rate_card);
 			ratemin = battle_config.item_drop_card_min;
 			ratemax = battle_config.item_drop_card_max;
 			break;
 		default:
-			rate_adjust = (status->mode&MD_BOSS) ? battle_config.item_rate_common_boss : battle_config.item_rate_common;
+			rate_adjust = is_mvp ? battle_config.item_rate_common_mvp : (is_boss ? battle_config.item_rate_common_boss : battle_config.item_rate_common);
 			ratemin = battle_config.item_drop_common_min;
 			ratemax = battle_config.item_drop_common_max;
 			break;
