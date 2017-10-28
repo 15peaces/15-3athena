@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+28/10/2017
+	r187 [15peaces]
+		*Added missing coma resistance for MD_MVP.
+			-follow-up to r186(@c51afab)
+		
 25/10/2017
 	r186 [15peaces]
 		*Added support for MD_MVP

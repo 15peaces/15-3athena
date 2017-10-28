@@ -6342,6 +6342,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		}
 	}
 
+	// Check for mvp resistance // atm only those who OS
+	if(status_has_mode(status,MD_MVP) /*&& !(flag&SCSTART_NOAVOID)*/) {
+		 switch (type) {
+		 case SC_COMA:
+		// continue list...
+		     return 0;
+		}
+	}
+
 	//Before overlapping fail, one must check for status cured.
 	switch (type)
 	{
