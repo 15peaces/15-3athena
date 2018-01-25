@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= SinSloth(Most of the NPCs), MasterOfMuppets(Some of the NPCs + bug fixes) & Kargha(The quiz NPCs)
 //===== Current Version: ===================================== 
-//= 3.5
+//= 3.5b
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -21,7 +21,8 @@
 //=     Moved the disablewaitingroomevent in dancing portion.
 //= 3.3 Applied Kazukin's fix for the dancing portion. (bugreport:3966) [L0ne_W0lf]
 //= 3.4 Updated 'waitingroom' to support required zeny/lvl. [Kisuka]
-//= 3.5 Added support for episode system. [15peaces]
+//= 3.4a Added support for episode system. [15peaces]
+//= 3.4b Corrected an invalid map name. Thanks to Joseph. [15peaces] 
 //============================================================ 
 
 //============================================================ 
@@ -2672,7 +2673,7 @@ aldeba_in,155,101,3	script	Sir Jore#sign	1,30,-1,805,7,7,{
 			mes "......";
 			mes "...No!";
 			mes "Look what";
-			mes "made me do!";
+			mes "you made me do!";
 			next;
 			emotion e_sob;
 			mes "[Sir Jore]";
@@ -2747,10 +2748,10 @@ aldeba_in,155,101,3	script	Sir Jore#sign	1,30,-1,805,7,7,{
 				next;
 				set sign_q,16;
 				mes "[Sir Jore]";
-				mes "Just bring";
-				mes "10 Empty Test Tube,";
-				mes "10 Green Herb and";
-				mes "2 Yggdrasil Leaf.";
+				mes "Just bring me";
+				mes "10 Empty Test Tubes,";
+				mes "10 Green Herbs and";
+				mes "2 Yggdrasil Leafs.";
 				next;
 				mes "[Sir Jore]";
 				mes "You see, l-lately I've";
@@ -8479,7 +8480,7 @@ um_in,27,23,3	script	Fastidious-Looking Guy	1,30,-1,121,{
 		mes "to find some ancient";
 		mes "or really aged paper...";
 		next;
-		if (countitem(1097) > 6) {
+		if (countitem(1097) > 9) {
 			mes "[Cyon]";
 			mes "How did you find these";
 			mes "Worn Out Pages? This is great,";
@@ -8499,7 +8500,7 @@ um_in,27,23,3	script	Fastidious-Looking Guy	1,30,-1,121,{
 			mes "Just as I thought!";
 			mes "The Sobbing Starlight is responding to these Worn Out Pages! Excellent! I've finally fulfilled my promise to Metz! Now he can leave";
 			mes "me alone!";
-			delitem 1097,7; //Worn_Out_Page
+			delitem 1097,10; //Worn_Out_Page
 			set sign_q,76;
 			getitem 7275,1; //Ancient_Document
 			close;
@@ -12058,7 +12059,7 @@ niflheim,102,54,4	script	Mad Man#s	1,30,-1,739,{
 						emotion e_pif;
 						close;
 					case 2:
-						if (Zeny < 20000) {
+						if (Zeny < 60000) {
 							mes "[Laichin]";
 							mes "What is this?";
 							mes "You tryin to welch";
@@ -14249,7 +14250,7 @@ gl_dun02,140,72,0	script	Mysterious Energy#7	1,30,-1,111,{
 	}
 }
 
-// Angrboda's Seal 8 °¡Àå small 119 182
+// Angrboda's Seal 8 very small 119 182
 gl_dun02,119,182,0	script	Mysterious Energy#8	1,30,-1,111,{
 	callfunc "F_UpdateSignVars";
 	set .@crash_s,rand(1,1000);
@@ -14705,7 +14706,7 @@ Oncall:
 	end;
 
 OnMyMobDead:
-	if (mobcount("gue_sign01","CallMonster#witch::OnMyMobDead") < 1) {
+	if (mobcount("que_sign01","CallMonster#witch::OnMyMobDead") < 1) {
 		donpcevent "Serin#witch::OnEnable";
 	}
 	end;

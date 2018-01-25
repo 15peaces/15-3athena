@@ -3,7 +3,7 @@
 //===== By ===================================================
 //= Celesta, Lupus
 //===== Version ==============================================
-//= 2.1
+//= 2.0a
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -20,7 +20,7 @@
 //= 1.8 Added missing checkweights. [L0ne_W0lf]
 //= 1.9 Moved Morroc NPCs to Morroc Ruins. [L0ne_W0lf]
 //= 2.0 Removed unused "name" variable. [L0ne_W0lf]
-//= 2.1 Added support for episode system. [15peaces]
+//= 2.0a Added support for episode system. [15peaces]
 //============================================================ 
 
 alberta,43,244,0	script	Tourist#thai	1,30,-1,99,{
@@ -458,8 +458,7 @@ alberta,43,244,0	script	Tourist#thai	1,30,-1,99,{
 			next;
 			mes "[Tourist]";
 			mes "Hopefully, it'll be useful.";
-			set .@now_weight,MaxWeight-Weight;
-			if (.@now_weight < 500) {
+			if (MaxWeight - Weight < 500) {
 				mes "Umm...it seems you're carrying too much stuff with you.";
 				mes "Doncha want me to help you?";
 				close;

@@ -1054,11 +1054,11 @@ static void parse_nextline(bool first, const char* p)
 }
 
 /*==========================================
- * çÄÇÃâêÕ
+ * çAnalysis section
  *------------------------------------------*/
 const char* parse_simpleexpr(const char *p)
 {
-	int i;
+	long long i;
 	p=skip_space(p);
 
 	if(*p==';' || *p==',')
@@ -1082,8 +1082,15 @@ const char* parse_simpleexpr(const char *p)
 		++p;
 	} else if(ISDIGIT(*p) || ((*p=='-' || *p=='+') && ISDIGIT(p[1]))){
 		char *np;
-		i=strtoul(p,&np,0);
-		add_scripti(i);
+		i=strtoll(p,&np,0);
+		if( i < INT_MIN ) {
+			i = INT_MIN;
+			disp_error_message("parse_simpleexpr: underflow detected, capping value to INT_MIN",p);
+		} else if( i > INT_MAX ) {
+			i = INT_MAX;
+			disp_error_message("parse_simpleexpr: overflow detected, capping value to INT_MAX",p);
+		}
+		add_scripti((int)i); // Cast is safe, as it's already been checked for overflows
 		p=np;
 	} else if(*p=='"'){
 		add_scriptc(C_STR);
@@ -8201,6 +8208,55 @@ BUILDIN_FUNC(makerune)
 	return 0;
 
 }
+
+/**
+ * hascashmount() returns 1 if mounting a cash mount or 0 otherwise
+ **/
+BUILDIN_FUNC(hascashmount)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return true;
+
+	if (sd->sc.data[SC_ALL_RIDING]) {
+		script_pushint(st, 1);
+	} else {
+		script_pushint(st, 0);
+	}
+
+	return true;
+}
+
+/**
+ * setcashmount() returns 1 on success or 0 otherwise
+ *
+ * - Toggles cash mounts on a player when he can mount
+ * - Will fail if the player is already riding a standard mount e.g. dragon, peco, wug, mado, etc.
+ * - Will unmount the player is he is already mounting a cash mount
+ **/
+BUILDIN_FUNC(setcashmount)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return true;
+
+	if (pc_hasmount(sd)) {
+		clif_msgtable(sd->fd, 1931);
+		script_pushint(st, 0); // Can't mount with one of these
+	} else {
+		if (sd->sc.data[SC_ALL_RIDING]) {
+			status_change_end(&sd->bl, SC_ALL_RIDING, INVALID_TIMER);
+		} else {
+			sc_start(&sd->bl, SC_ALL_RIDING, 100, battle_config.all_riding_speed, -1);
+		}
+		script_pushint(st, 1); // In both cases, return 1.
+	}
+
+	return true;
+}
+
 /*==========================================
  * NPCÇ≈ÉyÉbÉgçÏÇÈ
  *------------------------------------------*/
@@ -18654,6 +18710,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(produce,"i"),
 	BUILDIN_DEF(cooking,"i"),
 	BUILDIN_DEF(makerune,"i"),
+	BUILDIN_DEF(hascashmount,""),//[Ind]
+	BUILDIN_DEF(setcashmount,""),//[Ind]
 	BUILDIN_DEF(monster,"siisii?"),
 	BUILDIN_DEF(getmobdrops,"i"),
 	BUILDIN_DEF(areamonster,"siiiisii?"),

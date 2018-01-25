@@ -17,12 +17,11 @@ arena_room,52,42,7	script	lvl 70s Waiting Room	124,{
 	end;
 
 OnInit:
-	waitingroom "Individual ; lvl 70 or higher",50,"lvl 70s Waiting Room::OnStartArena",1;
+	waitingroom "Individual; Level 70 to 89",50,"lvl 70s Waiting Room::OnStartArena",1,1000,70,89;
 	enablewaitingroomevent;
 	end;
 
 OnStartArena:
-	enablenpc "ArenaFee#70";
 	warpwaitingpc "force_3-1",99,12;
 	donpcevent "arena#70::Onstart";
 	disablewaitingroomevent;
@@ -30,18 +29,6 @@ OnStartArena:
 
 Onstart:
 	enablewaitingroomevent;
-	end;
-}
-
-force_3-1,99,12,1	script	ArenaFee#70	139,1,1,{
-
-OnInit:
-	disablenpc "ArenaFee#70";
-	end;
-
-OnTouch:
-	set Zeny,Zeny -1000;
-	disablenpc "ArenaFee#70";
 	end;
 }
 
@@ -222,7 +209,7 @@ On09_end:
 
 }
 
-force_3-1,10,56,4	script	arena#70	139,{
+-	script	arena#70	-1,{
 
 Onreset_01:
 	donpcevent "force_01ex#70::Onreset";
@@ -424,14 +411,14 @@ OnTouch:
 
 }
 
-force_3-1,1,1,1	script	force_01start#70	-1,{
+-	script	force_01start#70	-1,{
 Onon:
 	donpcevent "force_01mob#70::Onon";
 end;
 
 }
 
-force_3-1,10,56,4	script	force_01mob#70	139,{
+-	script	force_01mob#70	-1,{
 
 Onon:
 	monster "force_3-1",25,36,"Kobold",1545,1,"force_01mob#70::OnMobDeath";
@@ -455,14 +442,14 @@ OnMobDeath:
 	end;
 }
 
-force_3-1,1,1,1	script	force_02start#70	-1,{
+-	script	force_02start#70	-1,{
 
 Onon:
 	donpcevent "force_02mob#70::Onon";
 	end;
 }
 
-force_3-1,10,56,4	script	force_02ex#70	139,{
+-	script	force_02ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_02ex#70::OnMobEx";
@@ -487,7 +474,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,10,56,4	script	force_02mob#70	139,{
+-	script	force_02mob#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_02mob#70::OnMobDeath";
@@ -516,7 +503,7 @@ Onon:
 	end;
 }
 
-force_3-1,10,56,4	script	force_03ex#70	139,{
+-	script	force_03ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_03ex#70::OnMobEx";
@@ -531,7 +518,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,20,56,4	script	force_03mob#70	139,{
+-	script	force_03mob#70	-1,{
 
 Onon:
 	donpcevent "force_03ex#70::Onsummonmob_03";
@@ -555,7 +542,7 @@ OnMobDeath:
 	end;
 }
 
-force_3-1,1,1,1	script	force_04start#70	-1,{
+-	script	force_04start#70	-1,{
 
 Onon:
 	donpcevent "force_04mob#70::Onon";
@@ -563,7 +550,7 @@ end;
 
 }
 
-force_3-1,10,56,4	script	force_04ex#70	139,{
+-	script	force_04ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_04ex#70::OnMobEx";
@@ -583,7 +570,7 @@ OnMobEx:
 
 }
 
-force_3-1,22,56,4	script	force_04mob#70	139,{
+-	script	force_04mob#70	-1,{
 
 Onon:
 	donpcevent "force_04ex#70::Onsummonmob_04";
@@ -605,14 +592,14 @@ OnMobDeath:
 	end;
 }
 
-force_3-1,1,1,1	script	force_05start#70	-1,{
+-	script	force_05start#70	-1,{
 
 Onon:
 	donpcevent "force_05mob#70::Onon";
 	end;
 }
 
-force_3-1,10,56,4	script	force_05ex#70	139,{
+-	script	force_05ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_05ex#70::OnMobEx";
@@ -634,7 +621,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,24,56,4	script	force_05mob#70	139,{
+-	script	force_05mob#70	-1,{
 
 Onon:
 	monster "force_3-1",164,183,"Argiope",1429,1,"force_05mob#70::OnMobDeath";
@@ -660,14 +647,14 @@ OnMobDeath:
 
 }
 
-force_3-1,1,1,1	script	force_06start#70	-1,{
+-	script	force_06start#70	-1,{
 
 Onon:
 	donpcevent "force_06mob#70::Onon";
 	end;
 }
 
-force_3-1,10,56,4	script	force_06ex#70	139,{
+-	script	force_06ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_06ex#70::OnMobEx";
@@ -690,7 +677,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,18,56,4	script	force_06mob#70	139,{
+-	script	force_06mob#70	-1,{
 
 Onon:
 	donpcevent "force_06ex#70::Onsummonmob_06";
@@ -722,7 +709,7 @@ Onon:
 	end;
 }
 
-force_3-1,12,56,4	script	force_07ex#70	139,{
+-	script	force_07ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_07ex#70::OnMobEx";
@@ -748,7 +735,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,18,56,4	script	force_07mob#70	139,{
+-	script	force_07mob#70	-1,{
 
 Onon:
 	donpcevent "force_07ex#70::Onsummonmob_07";
@@ -769,28 +756,28 @@ OnMobDeath:
 	end;
 }
 
-force_3-1,1,1,1	script	force_08start#70	-1,{
+-	script	force_08start#70	-1,{
 
 Onon:
 	donpcevent "force_08ex#70::Onon";
 	end;
 }
 
-force_3-1,18,56,4	script	force_08ex#70	139,{
+-	script	force_08ex#70	-1,{
 
 Onon:
 	donpcevent "arena#70::Onreset_08";
 	end;
 }
 
-force_3-1,1,1,1	script	force_09start#70	-1,{
+-	script	force_09start#70	-1,{
 
 Onon:
 	donpcevent "force_09mob#70::Onon";
 	end;
 }
 
-force_3-1,10,56,4	script	force_09ex#70	139,{
+-	script	force_09ex#70	-1,{
 
 Onreset:
 	killmonster "force_3-1","force_09ex#70::OnMobEx";
@@ -817,7 +804,7 @@ OnMobEx:
 	end;
 }
 
-force_3-1,16,56,4	script	force_09mob#70	139,{
+-	script	force_09mob#70	-1,{
 
 Onon:
 	monster "force_3-1",99,99,"Kobold Leader",1548,1,"force_09mob#70::OnMobDeath";
@@ -1000,7 +987,7 @@ prt_are_in,25,84,3	script	Staff#70-2	67,{
 	}	
 }
 
-prt_are_in,14,195,3	script	#arn_timer_70	139,{
+-	script	#arn_timer_70	-1,{
 
 Onon:
 	initnpctimer;
@@ -1032,14 +1019,14 @@ Onstop:
 
 }
 
-prt_are_in,1,1,1	script	arn_warp_70	-1,{
+-	script	arn_warp_70	-1,{
 
 Onout:
-	areawarp "prt_are_in",22,183,20,20,"arena_room",100,75;
+	areawarp "prt_are_in",14,91,29,74,"arena_room",100,75;
 	end;
 }
 
-force_3-1,10,55,4	script	cast#70	139,{
+-	script	cast#70	-1,{
 Ontimeover1:
 	mapannounce "force_3-1","Arena will be reactivated due to an error occurred during battle.",0,0xFFCE00;
 	end;
@@ -1054,7 +1041,7 @@ Onnomal2:
 	end;
 }
 
-force_3-1,100,60,3	script	alloff#70	139,{
+-	script	alloff#70	-1,{
 
 Onon:
 	mapwarp "force_3-1","prt_are_in",126,190,0,0;

@@ -667,6 +667,7 @@ enum equip_pos {
 #define pc_iswug(sd) ( (sd)->sc.option&OPTION_WUG )
 #define pc_iswugrider(sd) ( (sd)->sc.option&OPTION_WUGRIDER )
 #define pc_ismadogear(sd) ( (sd)->sc.option&OPTION_MADOGEAR )
+#define pc_hasmount(sd)       ( (sd)->sc.option&(OPTION_RIDING|OPTION_WUGRIDER|OPTION_DRAGON|OPTION_MADOGEAR) )
 #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
 #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
 #define pc_maxparameter(sd) ( \

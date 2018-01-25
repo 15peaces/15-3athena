@@ -1,4 +1,4 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Sage Job Quest
 //===== By: ==================================================
 //= jAthena (0.9) - I guess
@@ -7,7 +7,7 @@
 //===== Current Version: ===================================== 
 //= 2.8
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Job quest for Sage classes
@@ -2560,6 +2560,8 @@ job_sage,50,165,4	script	Test Helper#talk	700,{
 }
 
 job_sage,50,165,4	script	Waiting Room#sg	700,{
+	end;
+
 OnInit:
 	disablenpc "Waiting Room#sg";
 	waitingroom "Waiting Room",20,"Waiting Room#sg::OnStartArena",1;

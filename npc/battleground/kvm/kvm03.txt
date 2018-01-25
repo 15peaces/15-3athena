@@ -7,7 +7,7 @@
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
-//= [AEGIS Conversion]
+//= [Official Conversion]
 //= Kreiger Von Midgard Battleground for levels 60 to 80
 //= - Winning Team: 2 points
 //= - Losing Team: 1 point
@@ -53,11 +53,11 @@ bat_room,225,211,0	warp	#kvm702	2,2,bat_room,154,150
 	end;
 
 OnKvM03One: 
-	misceffect EF_CHANGECOLD;
+	specialeffect EF_CHANGECOLD;
 	end;
 
 OnKvM03Two: 
-	misceffect EF_CHANGEPOISON;
+	specialeffect EF_CHANGEPOISON;
 	end;
 }
 

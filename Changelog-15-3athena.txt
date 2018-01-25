@@ -5,6 +5,87 @@
 // 		- Details.
 //			--More Details.
 //========================================
+25/01/2017
+	r188 [15peaces]
+		*Huge number of NPC & Database updates. (Thanks to @HerculesWS)
+			-Lot's of possible bug fixes and stuff.
+			-Updated Airship NPCs to official.
+			-Updated Refiners and Repairers
+				--Updated several NPC names and locations.
+				--Added WoE map Refiners.
+			-Added missing BB and VB in Battlegrounds Badge Exchanger menu.
+			-Optimized "Erundek" NPC (battleground\bg_common.txt).
+			-Fixed an issue in flavius where Taekwons can hit the crystal with Whirlwind Kick while the guardians are still alive.
+				--Also removed MaxLvl checks in BG Waitingrooms.
+			-Added Royal Guard and Wanderer job quests.
+			-Fixed Izlude RE warps.
+			-Updated npc/cities/alberta.txt			
+			-Fixed and enabled two Manuk NPCs (cities\manuk.txt)
+			-Removed unofficial Guide option in functions_kafras.txt.
+			-Optimized kafras/functions_kafras.txt.
+			-Merged and cleaned up Kafras. (kafras/kafras.txt)
+			-Added Warp Points / View Points Function. (kafras/functions_kafras.txt)
+			-Added Falcon & Wolf Flute Traders.
+			-Added Bossnia MVP event.
+				--disabled by default.
+			-Fixed issue in niflheim quest where the script set a variable not related to the quest at all.
+			-Added check in Knight job change test to prevent repeating the quest.
+			-Optimization of Knight job change quest (jobs\2-1\knight.txt).
+			-Some updates to /npc/custom folder:
+				--Combined heal.txt and heal_payment.txt into one script, set options within file to enable or disable zeny requirement.
+				--Updated job changer to support 3rd jobs.
+				--Updated warper with new towns and some dungeons.
+				--Card remover now has option to prevent or allow item destruction upon removing failure
+				--Added a full itemmall (thanks Masao!)
+			-Updated 1st class platinum skill NPC's.
+			-Added +11 and above refiner NPC.
+				--Added NPC to refine Oridecons / Eluniums to Cardium / Bradium.
+				--Updated refine_db.txt with probably custom values for +11 to +20 values.
+				--Some little script improvements to Suhnbi. (Enriched Elunium / Oridecon Upgrader.)
+			-Updated 2005 Headgears Official Quests.
+				--Fixed item check bugs
+				--Added missing airport NPC
+				--Took out unneeded breaks
+			-Added 'disable_items' to all applicable scripts.
+			-Added missing Malangdo Culvert instance
+			-Added Genetic Book Seller to Alchemist Shop.
+			-Updated Gunslinger Ammo & Boxes Sales NPC positions.
+			-Added the "Catalog Magician" NPC to merchants/buying_shops.txt.
+			-Documented 'makerune' in script_commands.txt.
+			-Updated Magic Mushroom DB according to 3CeAM revision 703.
+			-Optimized quests/quests_moscovia.txt.
+			-Corrected multiple dialog issues in okolnir quests.
+			-Added new towns to the custom warper.
+			-npc/custom/ folder overhaul:
+				--Script Changes:
+					---Stylist replaced with a much more efficient script
+					---MVP Arena heavily condensed, and text edited
+					---Removed logout suggestion in Reset NPC (why was that there?)
+				--Reorganization:
+					---All folders in root directory removed except "battleground", "events", "quests"
+					---All non-essential scripts in root directory moved to "etc" folder
+					---A few files renamed for easier identification
+					---scripts_custom.conf reordered for easier identification
+			-Guild folder update.
+				--Partially rewrote all castle files and updated all Castle flags, NPC's and warp coordinations to latest available official file.
+				--Renamed agit_template to agit_main and also updated it to latest available official file.
+				--Removed the Treasure Room Protection from agit_template and separated it into another file which will now be known as trs_rp.txt
+					---trs_rp.txt will allow that only the Guildleader can be in the Treasure Room, if you want to disable this protection just set an // in scripts_guild.conf before npc: npc/guild/trs_rp.txt .
+				--Moved payon castle map warps from warps/cities/payon.txt to warps/guildcastles.txt.
+			-Moved all NPC's and Warps around to match the new Izlude Town Map.
+			-Updated Tutorial quests.
+			-Merged Falicious Okolnir Quest in quests/okolnir into one file. (quests/okolnir.txt)
+			-Fixed check quest in Brasilis puppy quest.
+			-Added new Quests (Thanks Flaid)
+				--Expanded MAX_QUEST_DB for the newly added quests
+			-Fixed an error in the Diamond seller script that was making the NPC check for weight incorrectly.
+			-Added setcashmount and hascashmount script commands.
+		*Added an integer overflow check on literal values in the script parser
+			-When attempting to use a value greater than INT_MAX or smaller than INT_MIN (about +/- 2 billions), an error message will be shown and script execution will be aborted.
+			-Corrected some scripts that were attempting to use such values.
+			-Fixed some possible issues when using literal negative values in scripts.
+			-Thanks to @HerculesWS for the base.
+
 28/10/2017
 	r187 [15peaces]
 		*Added missing coma resistance for MD_MVP.

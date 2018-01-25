@@ -7,7 +7,7 @@
 //===== Compatible With: ===================================== 
 //= eAthena SVN
 //===== Description: ========================================= 
-//= [Aegis Conversion]
+//= [Official Conversion]
 //= Metto Quest:
 //= - Not really sure exaclty what it's for. :P
 //= - Variable in use: metto_q (max 9)
@@ -35,8 +35,8 @@
 //= 2.0a Fixed several typos (bugreport:1786) [akrus]
 //============================================================ 
 
-// Metto Quest
-
+// Metto Quest :: yuno_ryusei
+//============================================================
 yuno_in03,26,39,3	script	Metto#juno	709,{
 	mes "[Metto]";
 	if (metto_q == 0) {
@@ -229,8 +229,7 @@ yuno_in01,17,30,5	script	Wagan#juno	85,{
 		next;
 		mes "[Wagan]";
 		if (Class == Job_Sage) {
-			set .@now_weight,maxweight - weight;
-			if (.@now_weight < 300) {
+			if (MaxWeight - Weight < 300) {
 				mes "Oh no, it seems that you are carrying too much stuff! Would you make some room?";
 				close;
 			}
@@ -239,8 +238,7 @@ yuno_in01,17,30,5	script	Wagan#juno	85,{
 			getitem 715,10; //Yellow_Gemstone
 			close;
 		}
-		set .@now_weight,maxweight - weight;
-		if (.@now_weight < 150) {
+		if (MaxWeight - Weight < 150) {
 			mes "Oh no, it seems that you are carrying too much! Would you make some room?";
 			close;
 		}
@@ -1097,7 +1095,7 @@ yuno,213,298,4	script	Sage Esklah#juno	735,{
 			mes "^3355FF5 Decayed Nail^000000.";
 			next;
 			mes "[Esklah]";
-			mes "For someone seeking the doomed sword, this should be a relatively simple task. Now go, and bring me what I have asked."			;
+			mes "For someone seeking the doomed sword, this should be a relatively simple task. Now go, and bring me what I have asked.";
 			set dmdswrd_Q,28;
 			close;
 		case 28:

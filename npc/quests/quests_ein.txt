@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Quest NPCs related to Einbroch and Einbech
 //===== By: ================================================== 
 //= Evera and The eAthena Dev Team
 //===== Current Version: ===================================== 
-//= 2.5
+//= 2.7
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis conversion]
 //= Oridecon/Mineral Quest
@@ -49,9 +49,11 @@
 //= 2.5 Added quest log entries for:
 //=     - Factory Quest
 //=     - Murder Quest
+//= 2.6 Updated EXP. Thanks to Euphy. [15peaces]
+//= 2.7 Added GM management function. Thanks to Euphy. [15peaces]
 //============================================================ 
 
-// Oridecon Stone OR Mineral Stone Quest
+// Oridecon Stone OR Mineral Stone Quest :: ein_amano
 //============================================================ 
 einbech,97,167,5	script	Cavitar	847,{
 	if (ein_gear1 == 2){
@@ -470,7 +472,7 @@ einbech,97,167,5	script	Cavitar	847,{
 	}
 }
 
-// Uwe Kleine
+// Uwe Kleine :: ein_anoz
 //============================================================
 einbroch,215,180,6	script	Uwe Kleine#ein	85,{
 	set EinUwe,0;
@@ -3209,7 +3211,7 @@ einbroch,215,180,6	script	Uwe Kleine#ein	85,{
 	}
 }
 
-// Factory Quest
+// Factory Quest :: ein_factory
 //============================================================
 einbroch,1,1,0	script	Einbroch Smog Alert	-1,{
 	end;
@@ -3424,7 +3426,7 @@ einbroch,132,84,3	script	Liotzburg#ein	853,2,2,{
 	close;
 
 OnTouch:
-	if ($EinPolution > 9) {
+	if ($EinPolution > 9 && !$@AlrdEinPoll) {
 		mes "[Liotzburg]";
 		mes "What's going on?!";
 		mes "Who's responsible?!";
@@ -3438,8 +3440,10 @@ OnTouch:
 		mes "fix this! I gotta hide and find";
 		mes "someplace safe!";
 		close2;
-		donpcevent "Einbroch Smog Alert::OnEnable";
-		hideonnpc "Liotzburg#ein";
+ 		if ($EinPolution > 9 && !$@AlrdEinPoll) {
+			donpcevent "Einbroch Smog Alert::OnEnable";
+			hideonnpc "Liotzburg#ein";
+		}
 		end;
 	}
 	else {
@@ -3553,27 +3557,13 @@ ein_in01,67,242,3	script	Zelmeto	851,{
 			set $EinPolution,$EinPolution+1;
 			completequest 8031;
 			set EinFactory,16;
-			if (BaseLevel < 41) {
-				getexp 615,0;
-			}
-			else if (BaseLevel < 51) {
-				getexp 3075,0;
-			}
-			else if (BaseLevel < 61) {
-				getexp 6604,0;
-			}
-			else if (BaseLevel < 71) {
-				getexp 18508,0;
-			}
-			else if( BaseLevel < 81) {
-				getexp 32062,0;
-			}
-			else if (BaseLevel < 91) {
-				getexp 76026,0;
-			}
-			else if (BaseLevel < 99) {
-				getexp 290675,0;
-			}
+			if (BaseLevel < 41) getexp 615,0;
+			else if (BaseLevel < 51) getexp 3075,0;
+			else if (BaseLevel < 61) getexp 6604,0;
+			else if (BaseLevel < 71) getexp 18508,0;
+			else if (BaseLevel < 81) getexp 32066,0;
+			else if (BaseLevel < 91) getexp 76026,0;
+			else getexp 290675,0;
 			next;
 			mes "[Zelmeto]";
 			mes "^333333*Whew*^000000";
@@ -4169,21 +4159,25 @@ ein_in01,95,239,3	script	Conveyor#ins2	111,{
 }
 
 // Administrator NPC used to rig the invasion in Einbroch.
-/**/
+
 sec_in02,127,86,3	script	Factory Quest Test	851,{
-	input .@input; //,0,9000;
-	if ((.@input < 0) || (.@input > 9000)) {
+	set .@i, callfunc("F_GM_NPC",8028,0,0,9000);
+	if (.@i == -2) {
 		mes "[Test1]";
 		mes "Boo~ya.";
 		close;
-	}
-	else if (.@input == 0) {
+	} else if (.@i == -1) {
 		mes "[Test1]";
 		mes "Do you want";
 		mes "to cancel~?";
 		close;
-	}
-	else if (.@input == 8028) {
+	} else if (.@i == 0) {
+		mes "[Test1]";
+		mes "Whoa...";
+		mes "That is";
+		mes "sooo wrong!";
+		close;
+	} else {
 		mes "[Test1]";
 		mes "The current value";
 		mes "of the global variable";
@@ -4211,17 +4205,10 @@ sec_in02,127,86,3	script	Factory Quest Test	851,{
 			close;
 		}
 	}
-	else {
-		mes "[Test1]";
-		mes "Whoa...";
-		mes "That is";
-		mes "sooo wrong!";
-		close;
-	}
 }
 /**/
 
-// Murder Quest
+// Murder Quest :: ein_main_tre
 //============================================================ 
 einbech,165,105,7	script	Buender Hikeman#ein	847,{
 	cutin "ein_hicman",2;
@@ -4672,18 +4659,10 @@ einbech,165,105,7	script	Buender Hikeman#ein	847,{
 			cutin "ein_hicman",255;
 			completequest 2078;
 			set Shinokas_Quest,11;
-			if (BaseLevel < 70) {
-				getexp 100000,80000;
-			}
-			else if ((BaseLevel > 69) && (BaseLevel < 80)) {
-				getexp 300000,100000;
-			}
-			else if ((BaseLevel > 79) && (BaseLevel < 90)) {
-				getexp 500000,300000;
-			}
-			else if ((BaseLevel > 89) && (BaseLevel < 100)) {
-				getexp 700000,500000;
-			}
+			if (BaseLevel < 70) getexp 100000,80000;
+			else if ((BaseLevel > 69) && (BaseLevel < 80)) getexp 300000,100000;
+			else if ((BaseLevel > 79) && (BaseLevel < 90)) getexp 500000,300000;
+			else getexp 700000,500000;
 			end;
 		case 2:
 			mes "["+strcharinfo(0)+"]";
@@ -5679,7 +5658,8 @@ einbech,57,210,3	script	Young Man#Shinokas_Quest	855,{
 	close;
 }
 
-
+// Typing Test :: ein_main_ma1
+//============================================================
 einbroch,51,52,0	script	Security#ein	45,1,1,{
 	end;
 
@@ -5791,8 +5771,7 @@ OnTouch:
 				}
 			}
 			else {
-				mes "[Security System]";
-				mes "You haved failed";
+				mes "You have failed";
 				mes "the identification";
 				mes "check. Access denied.";
 				close;
@@ -5833,7 +5812,7 @@ OnTouch:
 	}
 }
 
-// Lovers Quest
+// Lovers Quest :: ein_ryu
 //============================================================ 
 ein_in01,31,138,3	script	Calla#ein	90,{
 	if (checkweight(908,70) == 0) {
@@ -5896,7 +5875,7 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "[Calla]";
 		mes "I just heard from my mother";
 		mes "that she's planning to have";
-		mes "tea with Clitzer! I'm sure that";
+		mes "tea with Klitzer! I'm sure that";
 		mes "I have you to thank for this~";
 		next;
 		mes "[Calla]";
@@ -5911,7 +5890,7 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "I feel like such a fool,";
 		mes "thinking it was all hopeless.";
 		mes "I'll be doing my best to have";
-		mes "my parents accept Clitzer and";
+		mes "my parents accept Klitzer and";
 		mes "someday we'll be married~";
 		next;
 		mes "[Calla]";
@@ -5945,18 +5924,10 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "feel goooood~";
 		percentheal 100,0;
 		set EIN_LOVERQ,17;
-		if (BaseLevel < 41) {
-			getexp 610,0;
-		}
-		else if (BaseLevel < 61) {
-			getexp 6000,0;
-		}
-		else if (BaseLevel < 81) {
-			getexp 30000,0;
-		}
-		else if (BaseLevel < 99) {
-			getexp 200000,0;
-		}
+		if (BaseLevel < 41) getexp 610,0;
+		else if (BaseLevel < 61) getexp 6000,0;
+		else if (BaseLevel < 81) getexp 30000,0;
+		else getexp 200000,0;
 		next;
 		mes "[Calla]";
 		mes "So how was it?";
@@ -5972,12 +5943,13 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "I'll always pray for";
 		mes "your safety on your";
 		mes "your adventures~";
+		completequest 8088;
 		close;
 	}
 	if ((EIN_LOVERQ == 5) && (countitem(712) > 0)) {
 		mes "[Calla]";
 		mes "You've spoken";
-		mes "with Clitzer? How";
+		mes "with Klitzer? How";
 		mes "is he? What did he say?";
 		next;
 		mes "[Calla]";
@@ -6002,7 +5974,7 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 			mes "Ah, " + strcharinfo(0) + "!";
 			mes "Such a lovely name~";
 			mes "I promise that I won't ever";
-			mes "forget it. Oh, and if you pass by Einbech, would you thank Clitzer for the flower for me please?";
+			mes "forget it. Oh, and if you pass by Einbech, would you thank Klitzer for the flower for me please?";
 			next;
 			mes "[Calla]";
 			mes "A-and... And...";
@@ -6011,6 +5983,7 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 			mes "^333333*Sob Sob...*^000000";
 			delitem 712,1; //Flower
 			set EIN_LOVERQ,6;
+			changequest 8079,808;
 			close;
 		}
 		else {
@@ -6040,17 +6013,18 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "[Calla]";
 		mes "Would you please";
 		mes "take this Violin and";
-		mes "try to make it to Clitzer";
+		mes "try to make it to Klitzer";
 		mes "this time? Thank you";
 		mes "for your help~";
 		set EIN_LOVERQ,3;
+		changequest 8078,8077;
 		getitem 1901,1; //Violin
 		close;
 	}
 	if ((EIN_LOVERQ == 3) || (EIN_LOVERQ == 5)) {
 		mes "[Calla]";
 		mes "Oh, please send my";
-		mes "regards to Clitzer for me.";
+		mes "regards to Klitzer for me.";
 		mes "I wish I could comfort";
 		mes "him in person, but this";
 		mes "is the best I can do for now.";
@@ -6066,7 +6040,7 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "a prison to me...";
 		next;
 		mes "[Calla]";
-		mes "Oh, you've met Clitzer?";
+		mes "Oh, you've met Klitzer?";
 		mes "Isn't he so kind, such";
 		mes "a perfect gentleman?";
 		next;
@@ -6076,22 +6050,23 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 		mes "impossible. My parents think";
 		mes "he's not good enough for me,";
 		mes "but they're wrong! What am";
-		mes "I going to do? Oh, Clitzer...";
+		mes "I going to do? Oh, Klitzer...";
 		next;
 		mes "[Calla]";
 		mes "Well, maybe I can't see";
 		mes "him, but would you give";
-		mes "my violin to Clitzer for me?";
+		mes "my violin to Klitzer for me?";
 		mes "I used to play this for him";
 		mes "all the time...";
 		next;
 		set EIN_LOVERQ,3;
+		changequest 8078,8077;
 		getitem 1901,1; //Violin
 		mes "[Calla]";
 		mes "I'm sorry to trouble you,";
 		mes "but please understand";
 		mes "that I want to comfort my";
-		mes "Clitzer in any way that";
+		mes "Klitzer in any way that";
 		mes "I possibly can. Thank";
 		mes "you so much, adventurer...";
 		close;
@@ -6126,9 +6101,9 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 	}
 }
 
-ein_in01,200,101,5	script	Clitzer#ein	854,{
+ein_in01,200,101,5	script	Klitzer#ein	854,{
 	if (EIN_LOVERQ == 16) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Look out, world!";
 		mes "I'm gonna become";
 		mes "worthy of Calla's love!";
@@ -6137,7 +6112,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if ((EIN_LOVERQ == 15) && (countitem(7170) > 0)) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Waaaah!";
 		mes "What should I wear?!";
 		mes "I can't for the life of me";
@@ -6145,7 +6120,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "um, formal? I've never worn";
 		mes "anything like that before!";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Wait, " + strcharinfo(0) + ".";
 		mes "What's that you've got";
 		mes "there? I've seen something";
@@ -6155,19 +6130,19 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		next;
 		switch(select("Give it to him.:Ignore Him.")) {
 		case 1:
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "I can have this?";
 			mes "Oh, thank you so much!";
 			mes "Finally, I have something";
 			mes "nice enough to wear to meet";
 			mes "Calla's mom! What a relief!";
 			next;
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "You've been helping me all";
 			mes "this time and I haven't properly expressed my gratitude. I'm sorry";
 			mes "if I've been too absorbed in my own problems. I may be poor, but I need to repay you somehow...";
 			next;
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "Wait...";
 			mes "Why don't you have this";
 			mes "ore? I don't know how";
@@ -6176,6 +6151,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 			mes "even be useful to you later~";
 			delitem 7170,1; //Tuxedo
 			set EIN_LOVERQ,16;
+			changequest 8087,8088;
 			switch(rand(1,7)) {
 			case 1:
 				getitem 7289,1; //Olivine
@@ -6199,7 +6175,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 				getitem 7296,1; //Pyroxene
 			}
 			next;
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "" + strcharinfo(0) + ",";
 			mes "you've really opened";
 			mes "my eyes. From now on,";
@@ -6208,7 +6184,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 			mes "become worthy of Calla's love.";
 			close;
 		case 2:
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "But how can I get";
 			mes "a Tuxedo? Ooh, I hope";
 			mes "it doesn't cost too much";
@@ -6218,14 +6194,14 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		}
 	}
 	if (EIN_LOVERQ == 15) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Noooooo!";
 		mes "I've got to find";
 		mes "the perfect thing";
 		mes "to wear or Calla's";
 		mes "mother might ^FF0000hate^000000 me!";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "What am I gonna do?!";
 		mes "Okay, nothing too flashy";
 		mes "or revealing. Can't let her";
@@ -6235,15 +6211,15 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if (EIN_LOVERQ == 14) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Noooooo!";
 		mes "I've got to find";
 		mes "the perfect thing";
 		mes "to wear or Calla's";
 		mes "mother might ^FF0000hate^000000 me!";
 		next;
-		mes "[Clitzer]";
-		mes "Think, Clitzer, think!";
+		mes "[Klitzer]";
+		mes "Think, Klitzer, think!";
 		mes "Okay, no fun colors.";
 		mes "I don't want her to";
 		mes "think I'm not serious";
@@ -6252,20 +6228,20 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if (EIN_LOVERQ == 13) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Eh...?";
 		mes "What did you just say?";
 		mes "You did something for";
 		mes "the Kapellthaines?";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "What...?";
 		mes "Did you just say";
 		mes "that Calla's mother";
 		mes "wants me to have tea";
 		mes "with her? Holy moley...!";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Okay, okay.";
 		mes "I-I I'll need something";
 		mes "nice to wear, right? Oh.";
@@ -6273,7 +6249,8 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "W-what should I do?";
 		next;
 		set EIN_LOVERQ,14;
-		mes "[Clitzer]";
+		changequest 8085,8086;
+		mes "[Klitzer]";
 		mes "This monkey suit";
 		mes "that I've got on just";
 		mes "won't do! Arrrgh! But I've";
@@ -6283,7 +6260,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if (EIN_LOVERQ > 6) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "*Sigh...*";
 		mes "What can I do to";
 		mes "get Calla's parents";
@@ -6293,13 +6270,13 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if (EIN_LOVERQ == 6) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "You've given her";
 		mes "the flower? That's";
 		mes "great! Thank you,";
 		mes "thank you so mu--";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "...Oh!";
 		mes "Gosh! I was thinking so";
 		mes "much about myself that";
@@ -6307,13 +6284,13 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "name! I'm sorry for being";
 		mes "so knuckle-headed...";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "So...";
 		mes "What's your name?";
 		next;
 		input .@input$;
 		if (.@input$ == strcharinfo(0)) {
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "" + strcharinfo(0) + "...";
 			mes "That's very nice. Thank you,";
 			mes "I'm really grateful for your help. Although I can't see Calla in";
@@ -6321,7 +6298,8 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 			mes "my regards if you help me.";
 			next;
 			set EIN_LOVERQ,7;
-			mes "[Clitzer]";
+			changequest 8080,8081;
+			mes "[Klitzer]";
 			mes "I feel so much";
 			mes "better now. Oh!";
 			mes "When you have the";
@@ -6331,7 +6309,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 			close;	
 		}
 		else {
-			mes "[Clitzer]";
+			mes "[Klitzer]";
 			mes "Hm...?";
 			mes "Oh, don't be";
 			mes "so nervous~";
@@ -6342,13 +6320,13 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		}
 	}
 	if (EIN_LOVERQ == 5) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Have you left to";
 		mes "see Calla for me yet?";
 		mes "I'm sorry if I sound";
 		mes "pretty demanding...";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Anyway, please";
 		mes "remember to bring";
 		mes "Calla ^FF00001 Flower^000000 for me.";
@@ -6358,20 +6336,20 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if ((EIN_LOVERQ == 3) && (countitem(1901) == 1)) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "What brings you here?";
 		mes "Aren't you tired of hearing";
 		mes "me moan and whine about";
 		mes "lost love? ^333333*Siiiiigh...*^000000";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Hey, this violin...";
 		mes "Calla used to play";
 		mes "such beautiful music";
 		mes "on this for me. Did";
 		mes "she give this to you?";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "I see. Calla must have";
 		mes "known that I'm all broken up";
 		mes "right now. She's too good to";
@@ -6379,21 +6357,21 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "my feelings before thinking";
 		mes "about herself?";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "I know I'm being";
 		mes "shameless, but I have";
 		mes "a favor to ask. Adventurer,";
 		mes "would you please send";
 		mes "Calla a present for me?";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "All you need to do is";
 		mes "just give her ^FF00001 Flower^000000.";
 		mes "I don't have the zeny and";
 		mes "I don't think I'm welcome";
 		mes "at Kapellthaine Manor.";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Here, in return, I'll";
 		mes "give you this health";
 		mes "massage. It's not a";
@@ -6413,33 +6391,26 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		percentheal 100,0;
 		delitem 1901,1; //Violin
 		set EIN_LOVERQ,5;
-		if (BaseLevel < 41) {
-			getexp 610,0;
-		}
-		else if (BaseLevel < 61) {
-			getexp 6000,0;
-		}
-		else if (BaseLevel < 81) {
-			getexp 30000,0;
-		}
-		else if (BaseLevel < 99) {
-			getexp 200000,0;
-		}
+		changequest 8077,8079;
+		if (BaseLevel < 41) getexp 610,0;
+		else if (BaseLevel < 61) getexp 6000,0;
+		else if (BaseLevel < 81) getexp 30000,0;
+		else getexp 200000,0;
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Would you please bring";
 		mes "1 Flower to Calla for me?";
 		mes "I'm sorry for troubling you... ";
 		close;
 	}
 	if (EIN_LOVERQ == 2) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "^333333*Sigh*^000000";
 		mes "I really appreciate your";
 		mes "sympathy, but I'm merely";
 		mes "a coward and a fool.";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Yeah...";
 		mes "I'm a coward for doing";
 		mes "nothing about my feelings";
@@ -6448,26 +6419,26 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		close;
 	}
 	if (EIN_LOVERQ == 1) {
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "That faintly sweet";
 		mes "and pleasant scent...";
 		mes "It's just like the fragrance";
 		mes "they use in Calla's house.";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Ah, so you visited";
 		mes "Calla in Einbroch?";
 		mes "I miss her sooo much!";
 		mes "Is she doing alright?";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "Calla's so beautiful.";
 		mes "And she's so lovely.";
 		mes "Every time I close my";
 		mes "eyes, I can still see";
 		mes "her lovely smile.";
 		next;
-		mes "[Clitzer]";
+		mes "[Klitzer]";
 		mes "I'm sorry if I sound";
 		mes "silly, but I can't help";
 		mes "it. I know I'm acting like";
@@ -6475,7 +6446,8 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "give anything to see her...";
 		next;
 		set EIN_LOVERQ,2;
-		mes "[Clitzer]";
+		setquest 8076;
+		mes "[Klitzer]";
 		mes "Just...";
 		mes "Just don't listen";
 		mes "to anything I say.";
@@ -6484,13 +6456,13 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 		mes "person. That has to be it...";
 		close;
 	}
-	mes "[Clitzer]";
+	mes "[Klitzer]";
 	mes "Is there something";
 	mes "that you really want";
 	mes "in life, but it's just";
 	mes "beyond your grasp?";
 	next;
-	mes "[Clitzer]";
+	mes "[Klitzer]";
 	mes "I wish I were more";
 	mes "like you adventurers.";
 	mes "People like you never";
@@ -6498,7 +6470,7 @@ ein_in01,200,101,5	script	Clitzer#ein	854,{
 	mes "what the obstacles may be.";
 	mes "But I'm so helpless...";
 	next;
-	mes "[Clitzer]";
+	mes "[Klitzer]";
 	mes "I can't even see";
 	mes "the one person that";
 	mes "I love. We've just so";
@@ -6553,6 +6525,7 @@ OnTouch:
 		mes "wakes up, it won't be today!";
 		delitem 1901,1; //Violin
 		set EIN_LOVERQ,4;
+		changequest 8077,8078;
 		percentheal -90,0;
 		close2;
 		warp "einbroch",112,245;
@@ -6585,7 +6558,7 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 		mes "honor to most commoners.";
 		next;
 		mes "[Satra]";
-		mes "However, Clitzer";
+		mes "However, Klitzer";
 		mes "has no reason to feel so";
 		mes "intimidated. Tell the poor";
 		mes "boy that he's earned the";
@@ -6627,9 +6600,9 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 		mes "who actually gathered these?";
 		next;
 		input .@input$;
-		if (.@input$ == "Clitzer") {
+		if (.@input$ == "Klitzer") {
 			mes "[Satra]";
-			mes "Ah, Clitzer?";
+			mes "Ah, Klitzer?";
 			mes "I must say, that's";
 			mes "a very humble name.";
 			mes "Yet it's so familiar...";
@@ -6638,7 +6611,7 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 			mes "Ah, I recall there";
 			mes "was a hooligan that";
 			mes "has been pestering my";
-			mes "daughter named Clitzer.";
+			mes "daughter named Klitzer.";
 			mes "Perhaps they are one";
 			mes "and the same. Hmm...";
 			next;
@@ -6661,15 +6634,16 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 			mes "For a humble peasant,";
 			mes "this must be like a dream";
 			mes "come true! And to have tea";
-			mes "with Clitzer. Oh, what would";
+			mes "with Klitzer. Oh, what would";
 			mes "the girls say? Ah, but I did";
 			mes "marry that oafish Megass~";
 			next;
 			delitem 1003,10; //Coal
 			set EIN_LOVERQ,13;
+			changequest 8084,8085;
 			mes "[Satra]";
 			mes "Anyway, when you next";
-			mes "meet Clitzer, please tell";
+			mes "meet Klitzer, please tell";
 			mes "him to pay me a visit soon.";
 			mes "Oh, and remind him to dress";
 			mes "appropriately for this special";
@@ -6679,7 +6653,7 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 		else {
 			mes "[Satra]";
 			mes "I beg your pardon?";
-			mes "" + inputstr + "? Oh my...";
+			mes .@input$ + "? Oh my...";
 			mes "I believe I may have";
 			mes "misheard you. Ho ho ho ho~";
 			close;
@@ -6892,6 +6866,7 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 		next;
 		delitem 1003,10; //Coal
 		set EIN_LOVERQ,10;
+		changequest 8083,8084;
 		mes "[Satra]";
 		mes "Well, I shall try to";
 		mes "find some use for these.";
@@ -7042,6 +7017,7 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 		mes "this kind of task will require";
 		mes "some effort on your part.";
 		set EIN_LOVERQ,9;
+		changequest 8082,8083;
 		next;
 		mes "[Satra]";
 		mes "Tah tah,";
@@ -7092,7 +7068,7 @@ ein_in01,191,102,5	script	Kaijeta#ein	846,{
 	if (EIN_LOVERQ == 15) {
 		mes "[Kaijeta]";
 		mes "Thank you for helping";
-		mes "my son Clitzer. Sadly, the";
+		mes "my son Klitzer. Sadly, the";
 		mes "little fool doesn't have any";
 		mes "clue when it comes to certain";
 		mes "things like choosing clothing.";
@@ -7109,13 +7085,14 @@ ein_in01,191,102,5	script	Kaijeta#ein	846,{
 	if (EIN_LOVERQ == 14) {
 		mes "[Kaijeta]";
 		mes "Thank you for helping";
-		mes "my son Clitzer. Sadly, the";
+		mes "my son Klitzer. Sadly, the";
 		mes "little fool doesn't have any";
 		mes "clue when it comes to certain";
 		mes "things like choosing clothing.";
 		mes "He gets so nervous about it!";
 		next;
 		set EIN_LOVERQ,15;
+		changequest 8086,8087;
 		mes "[Kaijeta]";
 		mes "A man should wear nice";
 		mes "clothes, like a Formal Suit";
@@ -7130,6 +7107,7 @@ ein_in01,191,102,5	script	Kaijeta#ein	846,{
 		mes "petty hatred between our";
 		mes "two towns stop my son from";
 		mes "seeing the woman he loves...";
+		changequest 8081,8082;
 		close;
 	}
 	if (EIN_LOVERQ == 7) {
@@ -7287,13 +7265,13 @@ einbech,176,125,3	script	Ellhenje#ein	850,{
 	mes "that everyone here likes...";
 	next;
 	mes "[Ellhenje]";
-	mes "I'm talking about Clitzer!";
+	mes "I'm talking about Klitzer!";
 	mes "He's almost too honest and";
 	mes "almost too diligent. But most";
 	mes "of all, he's the nicest guy~";
 	next;
 	mes "[Ellhenje]";
-	mes "Clitzer was born in one of";
+	mes "Klitzer was born in one of";
 	mes "Einbech's poorest families,";
 	mes "but he's usually happy and always thinks about others. I guess that's why people like to think of him";
 	mes "as representing all of Einbech.";

@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
-//= Megingjard seal unlocking NPCs.
+//===== 15-3athena Script ====================================
+//= God Item Quest - Megingjard Seal 
 //===== By: ================================================== 
 //= SinSloth
 //===== Current Version: ===================================== 
-//= 1.9
+//= 2.0
 //===== Compatible With: ===================================== 
-//= eAthena
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Quest for breaking the seal of Megingjard.
 //===== Additional Comments: =================================
@@ -19,9 +19,14 @@
 //= 1.7 Replaced effect numerics with constants. [Samuray22]
 //= 1.8 Corrected how exp reward is applied. [L0ne_W0lf]
 //= 1.9 Fixed some input checks and variable types. [brianluau]
+//= 2.0 Updated to hercules script v. 2.2.[15peaces]
 //============================================================
 
 prt_castle,44,151,0	script	Rebarev Doug	56,{
+	if (checkweight(1301,3) == 0) {
+		mes "- You are carrying too many items! -";
+		close;
+	}
 	cutin "god_rebeireb",2;
 	if ((countitem(7080) > 3) && (countitem(7081) > 4) && (countitem(7082) > 3) && (countitem(7084) > 2) && (countitem(7085) > 2)) {
 		mes "[Rebarev Doug]";
@@ -52,7 +57,7 @@ prt_castle,44,151,0	script	Rebarev Doug	56,{
 			break;
 		}
 	}
-	if ($God1 < 50) {
+	if ($God1 < $@god_check1) {
 		mes "[Rebarev Doug]";
 		mes "We are Crusaders that have";
 		mes "been training in preparation";
@@ -138,7 +143,7 @@ prt_castle,44,151,0	script	Rebarev Doug	56,{
 			break;
 		}
 	}
-	else if($God1 > 49 && $God2 < 100) {
+	else if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(BaseLevel > 59) {
 			if(god_eremes == 0) {
 				mes "[Rebarev Doug]";
@@ -532,7 +537,7 @@ prt_castle,44,151,0	script	Rebarev Doug	56,{
 }
 
 prt_castle,48,164,0	script	Crusader#God	734,{
-	if($God1 > 49 && $God2 < 100) {
+	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes > 22 && god_eremes < 25) {
 			mes "[Max Von Shedough]";
 			mes "Welcome, friend!";
@@ -556,14 +561,14 @@ prt_castle,48,164,0	script	Crusader#God	734,{
 			mes "[Max Von Shedough]";
 			mes "However, as of now, the petition you've just given me is considered classified information. Please keep this a military secret.";
 			set $God2,$God2+1;
-			if($God2 == 50) {
+			if($God2 == $@god_check1) {
 				announce "The 2nd seal of [Megingjard] has appeared.",bc_all;
 			}
-			else if($God1 > 99 && $God2 > 99 && $God3 > 99 && $God4 > 99) {
-				announce "Four seals have been released at the same time with the seal of [Megingjard].",bc_all;
-			}
-			else if($God2 > 99) {
-				announce "The 2nd seal of [Megingjard] has been released.",bc_all;
+			else if ($God2 == $@god_check2) {
+				if ($God1 == $@god_check2 && $God2 == $@god_check2 && $God3 == $@god_check2 && $God4 == $@god_check2)
+					announce "Four seals have been released at the same time with the seal of [Megingjard].",bc_all;
+				else
+					announce "The 2nd seal of [Megingjard] has been released.",bc_all;
 			}
 			if(god_eremes == 23) {
 				set god_eremes,25;
@@ -629,12 +634,7 @@ prt_in,172,109,0	script	A File#megin1	111,{
 	}
 	else if(god_eremes < 7) {
 		mes "[Librarian Jekan]";
-		if(Sex) {
-			mes "I'm sorry sir,";
-		}
-		else {
-			mes "I'm sorry ma'am,";
-		}
+		mes "I'm sorry "+((Sex)?"sir":"ma'am")+",";
 		mes "but special authorization is required to browse that section. Otherwise, it's off limits.";
 		close;
 	}
@@ -778,7 +778,7 @@ prt_in,166,109,0	script	A File#megin5	111,{
 }
 
 prt_in,172,106,0	script	Librarian#megin	833,{
-	if($God1 > 49 && $God2 < 100) {
+	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes > 2 && god_eremes < 7) {
 			mes "[Librarian Jekan]";
 			mes "Ah, please do";
@@ -802,8 +802,8 @@ prt_in,172,106,0	script	Librarian#megin	833,{
 			mes "[Librarian Jekan]";
 			mes "Darn it...!";
 			mes "I can't read anything when the light is this dim! It's bad enough my eyes have gone bad...";
-			next;
 			while(1) {
+				next;
 				switch(select("You have bad eyes?:I want to read some documents.:Let me help you find those files...:What kind of files are you looking for?")) {
 				case 1:
 					mes "[Librarian Jekan]";
@@ -1536,7 +1536,7 @@ prt_in,172,106,0	script	Librarian#megin	833,{
 }
 
 geffen_in,109,161,3	script	Crusader#God1	751,{
-	if($God1 > 49 && $God2 < 100) {
+	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes > 17 && god_megin_1 < 2) {
 			mes "[Zan.Huadoku]";
 			mes "^333333*Phew...*^000000";
@@ -1790,7 +1790,7 @@ geffen_in,109,161,3	script	Crusader#God1	751,{
 }
 
 morocc_in,146,179,0	script	Employee#megin1	66,{
-	if($God1 > 49 && $God2 < 100) {
+	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes > 17 && god_megin_2 < 1) {
 			mes "^3355FFThe Inn Employee";
 			mes "eyes you suspiciously.^000000";
@@ -1995,7 +1995,7 @@ morocc_in,146,179,0	script	Employee#megin1	66,{
 }
 
 in_rogue,243,61,0	script	Suspicious Man#megin	748,{
-	if($God1 > 49 && $God2 < 100) {
+	if($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes == 18) {
 			mes "[Cuaque Donon]";
 			mes "Wh-who are you?!";
@@ -2264,7 +2264,7 @@ in_rogue,243,61,0	script	Suspicious Man#megin	748,{
 }
 
 alberta,196,146,0	script	Crusader#megin2	751,{
-	if ($God1 > 49 && $God2 < 100) {
+	if ($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes == 18) {
 			mes "[Jack O]";
 			mes "^333333*Yawn...*^000000";
@@ -2455,7 +2455,7 @@ alberta,196,146,0	script	Crusader#megin2	751,{
 }
 
 aldebaran,66,213,0	script	Lady#megin	69,{
-	if ($God1 > 49 && $God2 < 100) {
+	if ($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if(god_eremes == 18) {
 			mes "[Emma Searth]";
 			mes "^333333*Sigh...*^000000 I haven't gotten any response from them. I don't know";
@@ -2648,7 +2648,15 @@ aldebaran,66,213,0	script	Lady#megin	69,{
 			mes "I really appreciate you coming here to talk to me about the old days. I, I want you to have this.";
 			set god_eremes,28;
 			getitem 603,1; // Old_Blue_Box
-			getexp 1220358,0;
+			if (BaseLevel < 56) getexp 27000,0;
+			else if ((BaseLevel > 55) && (BaseLevel < 61)) getexp 30000,0;
+			else if ((BaseLevel > 60) && (BaseLevel < 66)) getexp 56052,0;
+			else if ((BaseLevel > 65) && (BaseLevel < 71)) getexp 82233,0;
+			else if ((BaseLevel > 70) && (BaseLevel < 76)) getexp 212271,0;
+			else if ((BaseLevel > 75) && (BaseLevel < 81)) getexp 390738,0;
+			else if ((BaseLevel > 80) && (BaseLevel < 86)) getexp 451020,0;
+			else if ((BaseLevel > 85) && (BaseLevel < 91)) getexp 546156,0;
+			else getexp 1220358,0;
 			close;
 		}
 		else if (god_eremes == 28) {
@@ -2680,7 +2688,7 @@ aldebaran,66,213,0	script	Lady#megin	69,{
 }
 
 cmd_in02,190,94,3	script	Man#megin	828,{
-	if ($God1 > 49 && $God2 < 100) {
+	if ($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if (god_eremes == 18) {
 			mes "[Royal Myst]";
 			mes "Wha...?";
@@ -2884,7 +2892,7 @@ cmd_in02,190,94,3	script	Man#megin	828,{
 }
 
 jawaii_in,44,110,0	script	Security Officer#megin	734,{
-	if ($God1 > 49 && $God2 < 100) {
+	if ($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if (god_eremes == 18) {
 			mes "[The Nineball]";
 			mes "Welcome to Jawaii,";
@@ -2942,7 +2950,7 @@ jawaii_in,44,110,0	script	Security Officer#megin	734,{
 }
 
 niflheim,109,254,0	script	Egnigem	796,{
-	if ($God1 > 49 && $God2 < 100) {
+	if ($God1 >= $@god_check1 && $God2 < $@god_check2) {
 		if (god_eremes > 19 && god_eremes < 25) {
 			if (god_eremes > 22) {
 				mes "[Egnigem]";
@@ -3167,7 +3175,15 @@ niflheim,109,254,0	script	Egnigem	796,{
 			specialeffect EF_LOCKON;
 			specialeffect2 EF_HOLYCROSS;
 			set god_eremes,27;
-			getexp 1220358,0;
+			if (BaseLevel < 56) getexp 27000,0;
+			else if ((BaseLevel > 55) && (BaseLevel < 61)) getexp 30000,0;
+			else if ((BaseLevel > 60) && (BaseLevel < 66)) getexp 56052,0;
+			else if ((BaseLevel > 65) && (BaseLevel < 71)) getexp 82233,0;
+			else if ((BaseLevel > 70) && (BaseLevel < 76)) getexp 212271,0;
+			else if ((BaseLevel > 75) && (BaseLevel < 81)) getexp 390738,0;
+			else if ((BaseLevel > 80) && (BaseLevel < 86)) getexp 451020,0;
+			else if ((BaseLevel > 85) && (BaseLevel < 91)) getexp 546156,0;
+			else getexp 1220358,0;
 			close;
 		}
 		else if (god_eremes == 26) {
@@ -3205,7 +3221,15 @@ niflheim,109,254,0	script	Egnigem	796,{
 			specialeffect EF_LOCKON;
 			specialeffect2 EF_HOLYCROSS;
 			set god_eremes,27;
-			getexp 1220358,0;
+			if (BaseLevel < 56) getexp 27000,0;
+			else if ((BaseLevel > 55) && (BaseLevel < 61)) getexp 30000,0;
+			else if ((BaseLevel > 60) && (BaseLevel < 66)) getexp 56052,0;
+			else if ((BaseLevel > 65) && (BaseLevel < 71)) getexp 82233,0;
+			else if ((BaseLevel > 70) && (BaseLevel < 76)) getexp 212271,0;
+			else if ((BaseLevel > 75) && (BaseLevel < 81)) getexp 390738,0;
+			else if ((BaseLevel > 80) && (BaseLevel < 86)) getexp 451020,0;
+			else if ((BaseLevel > 85) && (BaseLevel < 91)) getexp 546156,0;
+			else getexp 1220358,0;
 			close;
 		}
 		else if (god_eremes < 20) {

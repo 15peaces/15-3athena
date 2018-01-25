@@ -5,10 +5,9 @@
 //= DNett123 (1.1 - 1.5)
 //= L0ne_w0lf
 //===== Current Version: =====================================
-//= 3.6
+//= 3.7
 //===== Compatible With: =====================================
-//= eAthena SVN
-//= 15-3athena rev. 1+
+//= 15-3athena Project
 //===== Description: =========================================
 //= [Aegis OCnversion]
 //= Jawaii Town Npcs
@@ -36,6 +35,7 @@
 //= 3.4 Added missing checkweights. [L0ne_W0lf]
 //= 3.5 Replaced effect numerics with constants. [L0ne_W0lf]
 //= 3.6 Fixed bartender so he no longer hangs. [L0ne_W0lf]
+//= 3.7 Added correct Izlude RE coordinates. [15peaces]
 //============================================================
 
 // Jawaii
@@ -59,7 +59,7 @@ jawaii,239,112,7	script	Mariner#toizu	100,{
 		mes "guide you to";
 		mes "Izlude.";
 		close2;
-		warp "izlude",176,213;
+		warp "izlude",195,212;
 		end;
 	}
 	mes "[Mariner]";

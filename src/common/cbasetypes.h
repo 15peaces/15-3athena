@@ -219,7 +219,9 @@ typedef uintptr_t uintptr;
 #define strnicmp			strncasecmp
 #endif
 #if defined(_MSC_VER) && _MSC_VER > 1200
-#define strtoull			_strtoui64
+#define strtoull	_strtoui64
+#define strtoll     _strtoi64
+
 #endif
 
 // keyword replacement in windows

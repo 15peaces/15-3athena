@@ -12,7 +12,7 @@ struct mercenary_data;
 struct status_change;
 
 //Use this to refer the max refinery level [Skotlex]
-#define MAX_REFINE 10
+#define MAX_REFINE 20
 #define MAX_REFINE_BONUS 5
 
 extern unsigned long StatusChangeFlagTable[];
@@ -1342,7 +1342,6 @@ enum si_type {
 	// SI_M_LIFEPOTION = 670,
 	// SI_ENTRY_QUEUE_NOTIFY_ADMISSION_TIME_OUT = 671,
 	// SI_UNKNOWN_NAME = 672,
-	//	SI_ON_PUSH_CART = 673,
 	SI_ON_PUSH_CART = 673,
 	// SI_HAT_EFFECT = 674,
 	// SI_FLOWER_LEAF = 675,

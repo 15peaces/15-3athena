@@ -3,10 +3,9 @@
 //===== By: ================================================== 
 //= Muad_Dib
 //===== Current Version: ===================================== 
-//= 1.5
+//= 1.6
 //===== Compatible With: ===================================== 
-//= eAthena Revision 3000+
-//= 15-3athena rev. 1+
+//= 15-3athena Project
 //===== Description: ========================================= 
 //=
 //===== Additional Comments: ================================= 
@@ -990,7 +989,7 @@ einbech,148,246,5	script	Franz#ein	851,{
 			mes "Now those aggressive teddy";
 			mes "bears are scattered all over";
 			mes "the place and the government";
-			mes "	has classified them as monsters. Kill with extreme prejudice!";
+			mes "has classified them as monsters. Kill with extreme prejudice!";
 			next;
 			mes "[Franz]";
 			mes "According to adventurers";

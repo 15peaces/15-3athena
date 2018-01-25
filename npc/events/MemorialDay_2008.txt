@@ -1,11 +1,11 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ==================================== 
 //= In Memory of Heroes (iRO Memorial Day 2008)
 //===== By: ==================================================
 //= Kisuka
 //===== Current Version: =====================================
 //= 1.2
 //===== Compatible With: =====================================
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: =========================================
 //
 //===== Additional Comments: =================================
@@ -29,7 +29,7 @@ prontera,182,214,4	script	Lauds#Memorial	58,{
 		next;
 		mes "[Mad Sago Lauds]";
 		mes "What is this!?";
-		emotion 0;
+		emotion e_gasp;
 		next;
 		mes "[Mad Sago Lauds]";
 		mes "Where is your towel!?";
@@ -167,7 +167,7 @@ prontera,182,214,4	script	Lauds#Memorial	58,{
 		if(.@RandomMsg == 1) {
 			mes "[Mad Sago Lauds]";
 			mes "Don't panic!";
-			emotion 0;
+			emotion e_gasp;
 			close;	
 		}
 		else if(.@RandomMsg == 2) {

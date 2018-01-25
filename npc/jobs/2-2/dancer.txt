@@ -4,7 +4,7 @@
 //= Kalen - Original jAthena
 //= Fredzilla - Converted, Lupus
 //===== Current Version: ===================================== 
-//= 3.8
+//= 3.7b
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -20,7 +20,8 @@
 //= 3.6 Applied Correction bug with for loop. [L0ne_W0lf]
 //= 3.6a Fixed a little Exploit to bug the quest with a timeout. (bugreport:2252) [Samuray22]
 //= 3.7 Added Quest Log commands. [Kisuka]
-//= 3.8 Added support for episode system. [15peaces]
+//= 3.7a Added support for episode system. [15peaces]
+//= 3.7b Fixed a label execution. Thanks to Euphy. [15peaces]
 //============================================================
 
 comodo,180,153,4	script	Sonotora#1	1,30,-1,90,{
@@ -896,6 +897,8 @@ job_duncer,95,93,4	script	Bijou#da	1,30,-1,101,{
 // Waiting Room
 //============================================================ 
 job_duncer,32,154,1	script	Waiting Room#dance	1,30,-1,66,{
+	end;
+
 OnInit:
 	waitingroom "Waiting Room",20,"Waiting Room#dance::OnStartArena",1;
 	enablewaitingroomevent;
@@ -1321,8 +1324,8 @@ OnDisable:
 }
 
 // Backup Dancers
-//============================================================ 
-job_duncer,63,110,4	script	Backdancer#1::BackDancer	1,30,-1,724,{
+//============================================================
+job_duncer,63,110,4	script	Backdancer#1	724,{
 	end;
 
 OnSmile:

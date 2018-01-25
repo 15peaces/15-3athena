@@ -1,12 +1,12 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Quest NPCs related to Izlude
 //===== By: ================================================== 
 //= Evera and The eAthena Dev Team
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.1
+//= 1.2
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Edgar's Offer:
 //= - [Aegis conversion]
@@ -14,11 +14,12 @@
 //===== Additional Comments: ================================= 
 //= 1.0 Initial release [Evera]
 //= 1.1 Updated to 10.3 standard. [L0ne_W0lf]
+//= 1.2 Updated to match the new Izlude Map. Thanks to Masao. [15peaces]
 //============================================================
 
 // Edgar's Offer
 //============================================================
-izlude,182,214,2	script	Edgar#izlude	49,{
+izlude,179,219,4	script	Edgar#izlude	49,{ 
 	if (MISC_QUEST & 16) {
 		mes "[Edgar]";
 		mes "So are you heading to Alberta again? Let me give you the same discount and only charge 250 Zeny, just like the last time.";

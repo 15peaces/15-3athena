@@ -564,8 +564,7 @@ geffen,172,52,1	script	Goodman#qsk_bs	826,{
 				close;
 			}
 			else if (BLACK_SK2 == 1) {
-				set .@now_weight,MaxWeight-Weight;
-				if (.@now_weight < 5000) {
+				if (MaxWeight - Weight < 5000) {
 					mes "[Goodman]";
 					mes "Back already, eh?";
 					mes "Alright, let me check";

@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 2.2
+//= 2.5
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -46,9 +46,12 @@
 //= 2.0 Removed level requirement. (bugreport:4678) [L0ne_W0lf]
 //= 2.1 Corrected quest log for Thor Volcano Base Quest (bugerport:5074) [L0ne_W0lf]
 //= 2.2 Added support for episode system. [15peaces]
-//============================================================ 
+//= 2.3 Fixed incorrect use of 'close'. Thanks to Joseph. [15peaces]
+//= 2.4 Updated EXP. Thanks to Euphy. [15peaces]
+//= 2.5 Added GM management NPC. Thanks to Euphy. [15peaces]
+//============================================================
 
-// Stone Quest
+// Stone Quest :: veins_stone
 //============================================================ 
 ve_fild05,257,130,4	script	Wincing Old Man#ve	1,30,-1,945,{
 	if ((MaxWeight - Weight) < 2000 || checkweight(1201,1) == 0) {
@@ -640,7 +643,7 @@ ve_in02,68,39,7	script	Factory Worker#ve2	1,30,-1,943,{
 	close;
 }
 
-// Spy Quest
+// Spy Quest :: veins_secret
 //============================================================ 
 prontera,202,122,0	script	Kid#sch	1,30,-1,703,{
 	if (que_sch == 0) {
@@ -2655,8 +2658,22 @@ comodo,135,299,0	script	Young Man#sch2	1,30,-1,809,{
 	}
 }
 
-// Siblings Quest
-//============================================================ 
+sec_in02,10,43,4	script	Extra Story Patch	809,{
+	callfunc "F_GM_NPC";
+	mes "[Patch]";
+	mes "Yeah, you can try.";
+	next;
+	if(select("Now:How many?") == 2) {
+		input .@input,0,1000;
+		set que_sch, .@input;
+	}
+	mes " ";
+	mes ""+que_sch;
+	close;
+}
+
+// Siblings Quest :: veins_camel
+//============================================================
 veins,327,185,3	script	Kid#camelcamel	1,30,-1,944,{
 	if (MISC_QUEST & 8192) {
 		if (rachel_camel == 0) {
@@ -3110,6 +3127,7 @@ veins,327,185,3	script	Kid#camelcamel	1,30,-1,944,{
 				mes "I'm happy that";
 				mes "I can help you too!";
 				set aru_monas,16;
+				changequest 17011,17012;
 				close;
 			}
 			else if (aru_monas > 15) {
@@ -4004,7 +4022,7 @@ veins,181,166,3	script	Lockenlock	1,30,-1,900,{
 		mes "The army's rotten to the core";
 		mes "for doing something like this.";
 		next;
-		mes "	[Locksmith Lockenlock]";
+		mes "[Locksmith Lockenlock]";
 		mes "You're a real good person,";
 		mes "and I'm glad I got to know";
 		mes "you. I don't know if we'll";
@@ -5110,7 +5128,7 @@ veins,221,120,5	script	Young Town Native	1,30,-1,943,{
 	}
 }
 
-// Thor Volcano Base Quest
+// Thor Volcano Base Quest :: veins_camp
 //============================================================ 
 
 ra_temin,87,133,1	script	Rachel Guard#vol1	1,30,-1,934,5,2,{
@@ -5238,14 +5256,12 @@ ra_temin,87,133,1	script	Rachel Guard#vol1	1,30,-1,934,5,2,{
 		disablenpc "Rachel Guard#vol1";
 		end;
 	}
-	else {
-		mes "[Guard Karlum]";
-		mes "High Priest Vildt isn't";
-		mes "here right now. Please";
-		mes "come back later if you";
-		mes "wish to see him.";
-		close;
-	}
+	mes "[Guard Karlum]";
+	mes "High Priest Vildt isn't";
+	mes "here right now. Please";
+	mes "come back later if you";
+	mes "wish to see him.";
+	close;
 
 OnInit:
 	enablenpc "Rachel Guard#vol1";
@@ -5253,7 +5269,7 @@ OnInit:
 
 OnTouch:
 	warp "ra_temin",85,137;
-	close;
+	end;
 }
 
 ra_temin,82,133,7	script	Rachel Guard#vol2	1,30,-1,934,5,2,{
@@ -6382,7 +6398,7 @@ thor_camp,250,104,3	script	Sahedi#vol	1,30,-1,934,{
 		mes "like this in the past, but...";
 		mes "Is this... How bad is this?";
 		next;
-		emotion 19,1;
+		emotion e_swt2,1;
 		mes "["+strcharinfo(0)+"]";
 		mes "Oh... Oh, no!";
 		mes "Yikes! I guess if it's";
@@ -6473,7 +6489,7 @@ thor_camp,250,104,3	script	Sahedi#vol	1,30,-1,934,{
 		mes "It'll be a disaster, just";
 		mes "like it happened in the past!";
 		next;
-		emotion 52,1;
+		emotion e_flash,1;
 		mes "["+strcharinfo(0)+"]";
 		mes "Yes, I agree. There's";
 		mes "a good chance of an...";
@@ -6485,7 +6501,7 @@ thor_camp,250,104,3	script	Sahedi#vol	1,30,-1,934,{
 		mes "How much time do we";
 		mes "have to evacuate?";
 		next;
-		emotion 52,1;
+		emotion e_flash,1;
 		mes "["+strcharinfo(0)+"]";
 		mes "Well... Uh...";
 		mes "According to my data...";
@@ -7189,6 +7205,7 @@ thor_camp,156,57,3	duplicate(VeinsDummy)	Dummy#5	1,30,-1,111
 thor_camp,162,57,3	duplicate(VeinsDummy)	Dummy#6	1,30,-1,111
 
 thor_camp,248,104,5	script	Aitra#vol	1,30,-1,939,{
+	end;
 OnInit:
 	disablenpc "Aitra#vol";
 	end;
@@ -7403,7 +7420,7 @@ ve_in,237,131,1	script	Female Customer#ve1	1,30,-1,940,{
 	next;
 	mes "["+strcharinfo(0)+"]";
 	mes "Meee?";
-	emotion 19,1;
+	emotion e_swt2,1;
 	next;
 	mes "[Female Customer]";
 	mes "Mmm...";

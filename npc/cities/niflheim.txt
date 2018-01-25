@@ -110,7 +110,7 @@ nif_in,16,30,4	script	Undead Familiar#nif	799,{
 	close;
 }
 
-nif_in,156,93,5	script	Child#nifflheim	793,{
+nif_in,156,93,5	script	Child#niflheim	793,{
 	mes "[Alakina Ann]";
 	mes "Where...where am I...?";
 	mes "I remember I was sleeping";
@@ -246,7 +246,7 @@ niflheim,350,258,1	script	Cursed Spirit#nif	802,{
 			switch(rand(1,5)) {
 			case 1:
 				if (morison_meat < 15) {
-					set MISC_QUEST,MISC_QUEST | 1;
+					set morrison_meat,15;
 					mes "[Ashe Bruce]";
 					mes "You... You broke the curse!";
 					mes "How did you know that spell?!";

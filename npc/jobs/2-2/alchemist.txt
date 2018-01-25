@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ==================================== 
 //= Alchemist Job Quest
 //===== By: ==================================================
 //= nestor_zulueta (Fusion), converted by Darkchild
 //===== Current Version: ===================================== 
 //= 3.0
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Job quest for Alchemist classes
@@ -1890,8 +1890,7 @@ alde_alche,145,19,1	script	Chief Researcher#am	57,{
 		}
 	}
 	else if (ALCH_Q == 22) {
-		set .@now_weight,MaxWeight-Weight;
-		if (.@now_weight < 1370) {
+		if (MaxWeight - Weight < 1370) {
 			mes "[Nicholas Flamel]";
 			mes "Whoa...";
 			mes "You're carrying too much stuff! First, put some of your things in Kafra Storage.";

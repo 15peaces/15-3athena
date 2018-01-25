@@ -5,7 +5,7 @@
 //= Darlskies, Darkchild, Syrus22, Lupus, kobra_k88 (2.0)
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 6.4
+//= 6.7
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: =========================================
@@ -58,7 +58,11 @@
 //= 6.1 Added menu for Turbo Track Kafra Staff. [L0ne_W0lf]
 //= 6.2 Updated/Fixed warp cords. [Kisuka]
 //= 6.3 #kafra_code is now stored as is. [brianluau]
-//= 6.4 Added support for episode system. [15peaces]
+//= 6.3a Added support for episode system. [15peaces]
+//= 6.4 Removed unofficial Guide function. Thanks to Daegaladh. [15peaces]
+//= 6.5 Optimized. Thanks to Joseph. [15peaces] 
+//= 6.6 Added Warp Points / View Points Function. Thanks to Joseph. [15peaces]
+//= 6.7 Added Rune Knight Kafra. Thanks to Euphy. [15peaces]
 //============================================================ 
 
 
@@ -117,102 +121,58 @@ function	script	F_Kafra	{
 			mes "service locations, you're never";
 			mes "far from home.";
 			break;
-
-		//NPC has it's own welcome message. (Display nothing)
 		case 5:
+			// NPC has it's own welcome message. (Display nothing)
 			break;
 	}
 	next;
-
-	M_Menu:
-		cleararray @K_Menu0$[0],"",7;
-	switch(getarg(1)){
-		// Save and Storage only
-		case 1:
-			setarray @K_Menu0$[0],"Save","Use Storage","Cancel";
-			break;
-
-		// Storage only
-		case 2:
-			setarray @K_Menu0$[0],"Use Storage","Cancel";
-			break;
-
-		// No Teleport (Common)
-		case 3: 
-			setarray @K_Menu0$[0],"Save","Use Storage","Rent a Pushcart","Guide","Check Other Information","Cancel";
-			break;
-
-		// Case 4 is Einbroch no tele message.
-
-		// No save, or teleport. (Common)
-		case 5:
-			setarray @K_Menu0$[0],"Use Storage","Rent a Pushcart","Check Other Information","Guide","Cancel";
-			break;
-
-		// Storage and Check Other Information only.
-		case 6:
-			setarray @K_Menu0$[0],"Use Storage","Guide","Check Other Information","Cancel";
-			break;
-
-		// Save, Storage, and Pushcart only (Kafra Warehouse)
-		case 7:
-			setarray @K_Menu0$[0],"Save","Use Storage","Rent a Pushcart","Cancel";
-			break;
-
-		// Save, Storage, Other Check information. (Turbo track)
-		case 8:
-			setarray @K_Menu0$[0],"Save","Use Storage","Check Other Information","Cancel";
-			break;
-
-		// Common Kafra Employee
-		default:
-			setarray @K_Menu0$[0],"Save","Use Storage","Use Teleport Service","Rent a Pushcart","Guide","Check Other Information","Cancel";
-			break;
-	}
-
-	// Guild Kafra Menu override (free Teleport, free Storage, Free Cart)
-	if(getarg(0)==2) {
-		cleararray @K_Menu0$[0],"",7;
-		setarray @K_Menu0$[0],"Use Storage","Use Guild Storage","Rent a Pushcart","Use Teleport Service","Cancel";
-	}
-	menu 	@K_Menu0$[0],K_Menu0,@K_Menu0$[1],K_Menu1,@K_Menu0$[2],K_Menu2,
-		@K_Menu0$[3],K_Menu3,@K_Menu0$[4],K_Menu4,@K_Menu0$[5],K_Menu5,
-		@K_Menu0$[6],K_Menu6,@K_Menu0$[7],K_Menu7;
-	K_Menu0:
-		set @num,0;
-		goto K_Menuf;
-	K_Menu1:
-		set @num,1;
-		goto K_Menuf;
-	K_Menu2:
-		set @num,2;
-		goto K_Menuf;
-	K_Menu3:
-		set @num,3;
-		goto K_Menuf;
-	K_Menu4:
-		set @num,4;
-		goto K_Menuf;
-	K_Menu5:
-		set @num,5;
-		goto K_Menuf;
-	K_Menu6:
-		set @num,6;
-		goto K_Menuf;
-	K_Menu7:
-		set @num,7;
-	K_Menuf:
-		if (@K_Menu0$[@num] == "Save") return;
-		if (@K_Menu0$[@num] == "Use Storage"){
-			// Do not charge for Guild Storage
-			if(getarg(0) == 2) callfunc "F_KafStor",2,0,0;
-			else callfunc "F_KafStor",0,getarg(3),getarg(0);
-			next;
-			goto M_Menu;
+	while (1) {
+		deletearray @K_Menu0$[0],getarraysize(@K_Menu0$);
+		if (getarg(0) == 2) {
+			// Guild Kafra Menu override (free Teleport, free Storage, Free Cart)
+			setarray @K_Menu0$[0],"Use Storage","Use Guild Storage","Rent a Pushcart","Use Teleport Service","Cancel";
+		} else {
+			switch(getarg(1)){
+				// Save and Storage only
+				case 1:	setarray @K_Menu0$[0],"Save","Use Storage","Cancel"; break;
+				// Storage only
+				case 2:	setarray @K_Menu0$[0],"Use Storage","Cancel"; break;
+				// No Teleport (Common)
+				case 3: setarray @K_Menu0$[0],"Save","Use Storage","Rent a Pushcart","Check Other Information","Cancel"; break;
+				// Case 4 is Einbroch no tele message.
+				// No save, or teleport. (Common)
+				case 5:	setarray @K_Menu0$[0],"Use Storage","Rent a Pushcart","Check Other Information","Cancel"; break;
+				// Storage and Check Other Information only.
+				case 6:	setarray @K_Menu0$[0],"Use Storage","Check Other Information","Cancel";	break;
+				// Save, Storage, and Pushcart only (Kafra Warehouse)
+				case 7:	setarray @K_Menu0$[0],"Save","Use Storage","Rent a Pushcart","Cancel"; break;
+				// Save, Storage, Other Check information. (Turbo track)
+				case 8: setarray @K_Menu0$[0],"Save","Use Storage","Check Other Information","Cancel"; break;
+				// No Save (Rune Knight)
+				case 9: setarray @K_Menu0$[0],"Use Storage","Rent a Pushcart","Use Teleport Service","Check Other Information","Cancel"; break;
+				// Storage, Save, and Pushcart (Dewata, reorder of case 7)
+				case 10: setarray @K_Menu0$[0],"Use Storage","Save","Rent a Pushcart","Cancel"; break;
+				// Default message (obsolete)
+				default: setarray @K_Menu0$[0],"Save","Use Storage","Use Teleport Service","Rent a Pushcart","Check Other Information","Cancel"; break;
+			}
 		}
-		if (@K_Menu0$[@num] == "Use Teleport Service"){
+		set .@menu$,"";
+		for (set .@i, 0; .@i < getarraysize(@K_Menu0$); set .@i, .@i + 1)
+			set .@menu$, .@menu$ + @K_Menu0$[.@i] + ":";	
+		set .@j, select (.@menu$) - 1;
+		if (@K_Menu0$[.@j] == "Save") {
+			return;
+		} else if (@K_Menu0$[.@j] == "Use Storage") {
+			// Do not charge for Guild Storage
+			if(getarg(0) == 2) 
+				callfunc "F_KafStor",2,0,0;
+			else 
+				callfunc "F_KafStor",0,getarg(3),getarg(0);
+			next;
+		} else if (@K_Menu0$[.@j] == "Use Teleport Service") {
 			// Display Einbroch "No Teleport Service" notice.
-			if(getarg(1) == 4){
+			if(getarg(1) != 4) callfunc "F_KafTele",getarg(0);
+			else {
 				mes "[Kafra Employee]";
 				mes "Because of the ^FF0000Limited";
 				mes "Transport Agreement^000000, the";
@@ -225,35 +185,22 @@ function	script	F_Kafra	{
 				mes "use the Airship Service";
 				mes "instead. Thank you for your";
 				mes "understanding and cooperation.";
-				next;
-				goto M_Menu;
 			}
-			callfunc "F_KafTele",getarg(0);
-			goto M_Menu;
-		}
-		if (@K_Menu0$[@num] == "Rent a Pushcart"){
-			if(callfunc("F_KafCart",getarg(0),getarg(4)) == 1) next;
-			goto M_Menu;
-		}
-		if (@K_Menu0$[@num] == "Guide"){
-			callfunc "F_KafGuide";
-			next;
-			goto M_Menu;
-		}
-		if (@K_Menu0$[@num] == "Check Other Information"){
+		} else if (@K_Menu0$[.@j] == "Rent a Pushcart") {
+			if(callfunc("F_KafCart",getarg(0),getarg(4)) == 1) 
+				next;
+		} else if (@K_Menu0$[.@j] == "Check Other Information") {
 			callfunc "F_KafInfo",getarg(2);
-			goto M_Menu;
-		}
-		if (@K_Menu0$[@num] == "Cancel"){
+			next;
+		} else if (@K_Menu0$[.@j] == "Cancel"){
 			callfunc "F_KafEnd",getarg(0),0;
 			end;
-		}
-		if (@K_Menu0$[@num] == "Use Guild Storage"){
+		} else if (@K_Menu0$[.@j] == "Use Guild Storage") {
 			callfunc "F_KafStor",1,0;
 			next;
-			goto M_Menu;
 		}
 
+	}
 }
 
 
@@ -325,11 +272,8 @@ function	script	F_KafStor	{
 		if (getarg(2) == 1) {
 			percentheal 0,-10;
 			mes "[Kafra Employee]";
-			mes "^666666Thank you.. for... using...";
-			mes "Thank you.. for... using...";
-			mes "Thank you.. for... using...";
-			mes "Thank you.. for... using...";
-			mes "Thank you.. for... using...^000000";
+			for (set .@i, 0; .@i < 5; set .@i, .@i + 1)
+				mes "^666666Thank you.. for... using...^000000";
 		}
 		// Normal message
 		else {
@@ -355,66 +299,43 @@ function	script	F_KafTele	{
 	mes "Please choose";
 	mes "your destination.";
 	next;
-
-	menu 	@wrpC$[0],M_Wrp0, @wrpC$[1],M_Wrp1, @wrpC$[2],M_Wrp2, @wrpC$[3],M_Wrp3, 
-		@wrpC$[4],M_Wrp4, @wrpC$[5],M_Wrp5, @wrpC$[6],M_Wrp6;
-
-	M_Wrp0:
-		set @num, 0;
-		goto L_Warp;
-	M_Wrp1:
-		set @num, 1;
-		goto L_Warp;
-	M_Wrp2:
-		set @num, 2;
-		goto L_Warp;
-	M_Wrp3:
-		set @num, 3;
-		goto L_Warp;
-	M_Wrp4:
-		set @num, 4;
-		goto L_Warp;
-	M_Wrp5:
-		set @num, 5;
-		goto L_Warp;
-	M_Wrp6:
-		set @num, 6;
-
-	L_Warp:
-		if (@wrpC$[@num] == "Cancel") return;
-		// Consume "Free Ticket for Kafra Transportation" if available.
-		// Do not consume if in Guild castle
-		if(countitem(7060) > 0 && getarg(0) != 2) delitem 7060,1;
-		else {
-			if (Zeny<@wrpP[@num]){
-				mes "[Kafra Employee]";
-				mes "I'm sorry, but you don't have";
-				mes "enough zeny for the Teleport";
-				mes "Service. The fee to teleport";
-				mes "to "+@wrpD$[@num]+" is "+@wrpP[@num]+" zeny.";
-				close2;
-				cutin "", 255;
-				end;
-			}
-			set Zeny, Zeny-@wrpP[@num];
-			set RESRVPTS, RESRVPTS + (@wrpP[@num]/16);
+	set .@menu$, "";
+	for (set .@i, 0; .@i <= 6; set .@i, .@i + 1)
+		set .@menu$, .@menu$ + @wrpC$[.@i] + ":";
+	set .@j, select (.@menu$) - 1;
+	if (@wrpC$[.@j] == "Cancel") return;
+	// Consume "Free Ticket for Kafra Transportation" if available.
+	// Do not consume if in Guild castle
+	if(countitem(7060) > 0 && getarg(0) != 2) delitem 7060,1;
+	else {
+		if (Zeny<@wrpP[.@j]){
+			mes "[Kafra Employee]";
+			mes "I'm sorry, but you don't have";
+			mes "enough zeny for the Teleport";
+			mes "Service. The fee to teleport";
+			mes "to "+@wrpD$[.@j]+" is "+@wrpP[.@j]+" zeny.";
+			close2;
+			cutin "", 255;
+			end;
 		}
-		if (@wrpD$[@num] == "Alberta") warp "alberta", 117, 56;
-		if (@wrpD$[@num] == "Al De Baran") warp "aldebaran",168,112;
-		if (@wrpD$[@num] == "Aldebaran") warp "aldebaran",168,112;
-		if (@wrpD$[@num] == "Comodo" && getepisode() >= 30) warp "comodo", 209, 143;
-		if (@wrpD$[@num] == "Izlude") warp "izlude", 91, 136;
-		if (@wrpD$[@num] == "Geffen") warp "geffen", 120, 39;
-		if (@wrpD$[@num] == "Morroc") warp "morocc", 156, 46;
-		if (@wrpD$[@num] == "Payon") warp "payon", 161, 58;
-		if (@wrpD$[@num] == "Prontera") warp "prontera", 116, 72;
-		if (@wrpD$[@num] == "Mjolnir Dead Pit") warp "mjolnir_02", 99, 351;
-		if (@wrpD$[@num] == "Comodo Pharos Beacon" && getepisode() >= 30) warp "cmd_fild07", 127, 134;
-		if (@wrpD$[@num] == "Orc Dungeon") warp "gef_fild10", 52, 326;
-		if (@wrpD$[@num] == "Umbala") warp "umbala", 100, 154;
-		if (@wrpD$[@num] == "Juno") warp "yuno", 158, 125;
-		cutin "", 255;
-		end;
+		set Zeny, Zeny - @wrpP[.@j];
+		set RESRVPTS, RESRVPTS + (@wrpP[.@j]/16);
+	}
+	cutin "", 255;
+	if (@wrpD$[.@j] == "Al De Baran") warp "aldebaran",168,112;
+	else if (@wrpD$[.@j] == "Alberta") warp "alberta", 117, 56;
+	else if (@wrpD$[.@j] == "Comodo") warp "comodo", 209, 143;
+	else if (@wrpD$[.@j] == "Comodo Pharos Beacon") warp "cmd_fild07", 127, 134;
+	else if (@wrpD$[.@j] == "Geffen") warp "geffen", 120, 39;
+	else if (@wrpD$[.@j] == "Izlude") warp "izlude", 128, 98;
+	else if (@wrpD$[.@j] == "Juno") warp "yuno", 158, 125;
+	else if (@wrpD$[.@j] == "Mjolnir Dead Pit") warp "mjolnir_02", 99, 351;
+	else if (@wrpD$[.@j] == "Morroc") warp "morocc", 156, 46;
+	else if (@wrpD$[.@j] == "Orc Dungeon") warp "gef_fild10", 52, 326;
+	else if (@wrpD$[.@j] == "Payon") warp "payon", 161, 58;
+	else if (@wrpD$[.@j] == "Prontera") warp "prontera", 116, 72;
+	else if (@wrpD$[.@j] == "Umbala") warp "umbala", 100, 154;
+	end;
 }
 
 
@@ -450,7 +371,7 @@ function	script	F_KafCart	{
 		mes "fee is "+getarg(1)+" zeny. Would";
 		mes "you like to rent a Pushcart?";
 		next;
-		menu "Rent a Pushcart.",-, "Cancel.",M_End;
+		if (select("Rent a Pushcart.:Cancel") == 2) return 0;
 			if(Zeny<getarg(1)){
 				mes "[Kafra Employee]";
 				mes "I'm sorry, but you";
@@ -464,60 +385,43 @@ function	script	F_KafCart	{
 	}
 	setcart;
 	return 1;
-
-M_End:
-	return 0;
-}
-
-
-// Pass Function ===============================================================
-function	script	F_KafGuide	{
-	mes "[Kafra Employee]";
-	mes "WIP...";
-	return;
 }
 
 // Special Reserve Points Function ===========================================
 function	script	F_KafInfo	{
-
-	sM_Menu:
-//Uncomment next line to block Kafra Storage Protection
-//	if(getarg(0) == 0) menu "Check Special Reserve Points.",sM_ResChk, "Kafra Employee Locations",sM_KafLoc, "Cancel",sM_End;
-	if(getarg(0) == 0) menu "Check Special Reserve Points.",sM_ResChk, "Storage Password Service",sM_KafCode, "Kafra Employee Locations",sM_KafLoc, "Cancel",sM_End;
-
-	sM_ResChk:
-		mes "[Kafra Employee]";
-		mes "Let's see...";
-		mes strcharinfo(0) + "...";
-		mes "Ah, you have a total of";
-		mes RESRVPTS+ " Special Reserve Points.";
-		next;
-		mes "[Kafra Employee]";
-		mes "You can exchange your";
-		mes "Special Reserve Points for";
-		mes "rewards at the Kafra Main Office in Al De Baran. Please use our";
-		mes "convenient services to see the benefits of our rewards program.";
-		next;
-		if(getarg(0) == 1) return;
-		goto sM_Menu;
-
-	sM_KafLoc:
-		viewpoint 1,@viewpX[0],@viewpY[0],1,0xFF00FF;
-		viewpoint 1,@viewpX[1],@viewpY[1],2,0xFF00FF;
-		viewpoint 1,@viewpX[2],@viewpY[2],3,0xFF00FF;
-		viewpoint 1,@viewpX[3],@viewpY[3],4,0xFF00FF;
-		next;
-		viewpoint 2,@viewpX[0],@viewpY[0],1,0xFF00FF;
-		viewpoint 2,@viewpX[1],@viewpY[1],2,0xFF00FF;
-		viewpoint 2,@viewpX[2],@viewpY[2],3,0xFF00FF;
-		viewpoint 2,@viewpX[3],@viewpY[3],4,0xFF00FF;
-		goto sM_Menu;
-
-	sM_KafCode:
-		callfunc("F_SetKafCode","[Kafra Employee]","Kafra Services");
-
-	sM_End:
-		return;
+	// Uncomment next line to block Kafra Storage Protection
+	//	set .@block, 1;
+		setarray .@m$, "Check Special Reserve Points.","Storage Password Service","Kafra Employee Locations","Cancel";
+		if (getarg(0) == 2) deletearray .@m$[1],2; // Port Malaya, Rune Knight
+		else if (.@block) deletearray .@m$[1],1;
+	while (1) {
+		set .@j, select(implode(.@m$,":")) - 1;
+		if (.@m$[.@j] == "Check Special Reserve Points.") {
+			mes "[Kafra Employee]";
+			mes "Let's see...";
+			mes strcharinfo(0) + "...";
+			mes "Ah, you have a total of";
+			mes RESRVPTS+ " Special Reserve Points.";
+			next;
+			mes "[Kafra Employee]";
+			mes "You can exchange your";
+			mes "Special Reserve Points for";
+			mes "rewards at the Kafra Main Office in Al De Baran. Please use our";
+			mes "convenient services to see the benefits of our rewards program.";
+			next;
+			if(getarg(0) == 1) return;
+		} else if (.@m$[.@j] == "Kafra Employee Locations") {
+			for (set .@i, 0; .@i <= 3; set .@i, .@i + 1)
+				viewpoint 1,@viewpX[.@i],@viewpY[.@i],(.@i+1),0xFF00FF;
+			next;
+			for (set .@i, 0; .@i <= 3; set .@i, .@i + 1)
+				viewpoint 2,@viewpX[.@i],@viewpY[.@i],(.@i+1),0xFF00FF;
+		} else if (.@m$[.@j] == "Storage Password Service") {
+			callfunc("F_SetKafCode","[Kafra Employee]","Kafra Services");
+		} else {
+			return;
+		}
+	}
 }
 
 
@@ -558,7 +462,7 @@ function	script	F_KafEnd	{
 
 // Check Storage Password Function ====================
 function	script	F_CheckKafCode	{
-	if(#kafra_code==0) return;
+	if(!#kafra_code) return;
 	mes "Enter your storage password:";
 	set @code_,0;
 	input @code_;
@@ -580,81 +484,86 @@ function	script	F_SetKafCode	{
 	if(#kafra_code) {
 		mes "Your storage is protected with a password. What would you do now?";
 		next;
-		menu "Change old password -> 5000z",-,
-		"Remove storage password -> 1000z",M_CLEAR,
-		"Cancel",M_END;
+		switch (select("Change old password -> 5000z:Remove storage password -> 1000z:Cancel")) {
+			Case 1:
+				mes getarg(0);
+				mes "At first, please enter your ^0000FFold password^000000.";
+				set @code,callfunc("F_EntKafCode");
+				if(!@code || @code != #kafra_code) {
+					mes "Wrong password. You can't set a new password.";
+					emotion e_hmm;
+					break;
+				}
+				next;
+				callsub S_SET,getarg(0),getarg(1);
+				break;
+			Case 2:
+				mes getarg(0);
+				mes "Please, enter your password before its removal.";
+				set @code,callfunc("F_EntKafCode");
+				if(!@code) {
+					mes "The password hasn't been removed.";
+					emotion e_hmm;
+					break;
+				}
+				next;
+				mes getarg(0);
+				if(Zeny < 1000) {
+					mes "You don't have enough zeny.";
+					emotion e_cash;
+					break;
+				}
+				set Zeny,Zeny-1000;
+				if(@code == #kafra_code) {
+					set #kafra_code,0;
+					mes "You've successfully cleared your storage password.";
+					mes "Thank you for using "+getarg(1)+".";
+					emotion e_thx;
+				} else {
+					mes "Wrong password. We won't return your 1000z.";
+					mes "Please, next time enter correct password.";
+					emotion e_sry;
+				}
+				break;
+			Case 3:
+				break;
+		}
 	} else {
-		mes ""+getarg(1)+" proudly presents you a new service:";
+		mes getarg(1)+" proudly presents you a new service:";
 		mes "Additional storage protection with a password.";
 		next;
-		menu "Set new password -> 5000z",M_SET,
-		"Cancel",M_END;
+		switch (select("Set new password -> 5000z:Cancel")) {
+			Case 1: callsub S_SET,getarg(0),getarg(1); break;
+			Case 2: break;		
+		}
 	}
+	close2;
+	cutin "",255;
+	end;
 
-	mes getarg(0);
-	mes "At first, please enter your ^0000FFold password^000000.";
-	set @code,callfunc("F_EntKafCode");
-	if(@code==0 || @code != #kafra_code) {
-		mes "Wrong password. You can't set a new password.";
-		emotion e_hmm;
-		goto M_END;
-	}
-	next;
-
-M_SET:
+S_SET:
 	mes getarg(0);
 	mes "Now enter your ^FF0000new password^000000 to protect your storage from thieves.";
 	set @code,callfunc("F_EntKafCode");
-	if(@code==0) {
+	if(!@code) {
 		mes "The password hasn't been changed.";
 		emotion e_hmm;
-		goto M_END;
+		return;
 	}
 	next;
 	mes getarg(0);
-	if(Zeny < 5000) goto L_ZENY;
+	if(Zeny < 5000) {
+		mes "You don't have enough zeny.";
+		emotion e_cash;
+		return;
+	}
 	set Zeny,Zeny-5000;
-	//set RESRVPTS, RESRVPTS + (5000/50);	//hardcoded password doesn't add pts
 
 	set #kafra_code,@code;
 	mes "You've protected your storage with a secret password.";
 	mes "Thank you for using "+getarg(1)+".";
 	emotion e_thx;
-	goto M_END;	
-
-M_CLEAR:
-	mes getarg(0);
-	mes "Please, enter your password before its removal.";
-	set @code,callfunc("F_EntKafCode");
-	if(@code==0) {
-		mes "The password hasn't been removed.";
-		emotion e_hmm;
-		goto M_END;
-	}
-	next;
-	mes getarg(0);
-	if(Zeny < 1000) goto L_ZENY;
-	set Zeny,Zeny-1000;
-	//set RESRVPTS, RESRVPTS + (1000/50);	//hardcoded password doesn't add pts
-	if(@code == #kafra_code) {
-		set #kafra_code,0;
-		mes "You've successfully cleared your storage password.";
-		mes "Thank you for using "+getarg(1)+".";
-		emotion e_thx;
-	} else {
-		mes "Wrong password. We won't return your 1000z.";
-		mes "Please, next time enter correct password.";
-		emotion e_sry;
-	}
-	goto M_END;	
-
-L_ZENY:
-	mes "You don't have enough zeny.";
-	emotion e_cash;
-M_END:
-	close2;
-	cutin "",255;
-	end;
+	return;
 }
 
 // Basic Password Validation Function ====================
@@ -675,4 +584,66 @@ function	script	F_EntKafCode	{
 		return 0;
 	}
 	return @code_;
+}
+
+//===================================================
+// Warp Points / View Points Function
+//===================================================
+function	script	F_KafSet	{
+	cleararray @wrpC$[0],"",getarraysize(@wrpC$);
+	cleararray @wrpD$[0],"",getarraysize(@wrpD$);
+	cleararray @wrpP$[0],"",getarraysize(@wrpP$);
+	cleararray @viewpX[0],"",getarraysize(@viewpX);
+	cleararray @viewpY[0],"",getarraysize(@viewpY);
+	if (strnpcinfo(4) == "prontera") {
+		setarray @wrpD$[0], "Izlude", "Geffen", "Payon", "Morroc", "Orc Dungeon", "Alberta";
+		setarray @wrpP[0], 600, 1200, 1200, 1200, 1200, 1800;
+		setarray @viewpX[0], 151, 29, 282, 152;
+		setarray @viewpY[0], 29, 207, 200, 326;
+	} else if (strnpcinfo(4) == "alberta") {
+		setarray @wrpP[0], 1200, 1800, 1800;
+		setarray @wrpD$[0], "Payon", "Morroc", "Prontera";
+		setarray @viewpX[0], 28, 113, 0, 0;
+		setarray @viewpY[0], 229, 60, 0, 0;
+	} else if (strnpcinfo(4) == "aldebaran") {
+		setarray @wrpP[0], 1200, 1200, 1800, 1700;
+		setarray @wrpD$[0], "Geffen", "Juno" , "Izlude", "Mjolnir Dead Pit";
+	} else if (strnpcinfo(4) == "comodo" ) {
+		setarray @wrpD$[0], "Morroc", "Comodo Pharos Beacon", "Umbala";
+		setarray @wrpP[0], 1800, 1200, 1800;
+	} else if (strnpcinfo(4) == "cmd_fild07") {
+		setarray @wrpD$[0], "Comodo", "Morroc";
+		setarray @wrpP[0], 1200, 1200;
+	} else if (strnpcinfo(4) == "geffen") {
+		setarray @wrpD$[0], "Prontera", "Al De Baran", "Orc Dungeon", "Mjolnir Dead Pit";
+		setarray @wrpP[0], 1200, 1200, 1200, 1700;
+		setarray @viewpX[0], 120, 203;
+		setarray @viewpY[0], 62, 123;
+	} else if (strnpcinfo(4) == "izlude") {
+		setarray @wrpD$[0], "Geffen", "Payon", "Morroc", "Al De Baran";
+		setarray @wrpP[0], 1200, 1200, 1200, 1800;
+	} else if (strnpcinfo(4) == "morocc") {
+		setarray @wrpD$[0], "Prontera", "Payon", "Alberta", "Comodo", "Comodo Pharos Beacon";
+		setarray @wrpP[0], 1200, 1200, 1800, 1800, 1200;
+		setarray @viewpX[0], 156, 163, 28, 292;
+		setarray @viewpY[0], 97, 260, 167, 211;
+	} else if (strnpcinfo(4) == "umbala") {
+		setarray @wrpD$[0], "Comodo";
+		setarray @wrpP[0], 1800;
+	} else if (strnpcinfo(4) == "payon") {
+		setarray @wrpD$[0], "Prontera", "Alberta", "Morroc";
+		setarray @wrpP[0], 1200, 1200, 1200;
+	} else if (strnpcinfo(4) == "yuno") {
+		setarray @wrpD$[0], "Al De Baran";
+		setarray @wrpP[0], 1200;
+		setarray @viewpX[0], 328, 278, 153, 0;
+		setarray @viewpY[0], 108, 221, 187, 0;
+	} else if (strnpcinfo(4) == "job3_rune01") {
+		setarray @wrpD$[0], "Izlude", "Geffen", "Payon", "Morroc", "Alberta";
+		setarray @wrpP[0], 600, 1200, 1200, 1200, 1800;
+	}
+	for (set .@i, 0; .@i < getarraysize(@wrpD$); set .@i, .@i + 1)
+		setd "@wrpC$["+.@i+"]",getd("@wrpD$["+.@i+"]")+" -> "+getd("@wrpP["+.@i+"]");
+	setd "@wrpC$["+getarraysize(@wrpC$)+"]","Cancel";
+	return;
 }

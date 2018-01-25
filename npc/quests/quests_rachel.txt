@@ -1,11 +1,11 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Rachel Quests
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 3.4
+//= 3.6
 //===== Compatible With: ===================================== 
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Collection of Rachel Quests 
 //= Lost Child Quest:
@@ -26,21 +26,6 @@
 //= - Variable in use: ra_have_donated (0 no/1 yes)
 //= - Variable in use: $rachel_donate (max 10000)
 //===== Additional Comments: ================================= 
-//= 1.0 First version, needs testing. [L0ne_W0lf]
-//= 1.1 Some slight optimization. [L0ne_W0lf]
-//= 1.2 Fixed Man Stuck in Ice only giving 1 Freezing Snow Powder. [L0ne_W0lf]
-//= 1.3 Added the ability to redeem lottery tickets before donation max is met. [L0ne_W0lf]
-//= 1.4 Removed an erroneous "case". Thanks, Jet. [L0ne_W0lf]
-//= 1.5 Fixed a bug in Bruspetti quest. [SinSloth]
-//= 1.5b Fixed some typos in various quests. [SinSloth]
-//= 1.6 Fixed a couple bugs with the Pope's Office Guards... [L0ne_W0lf]
-//= 1.7 Fixed Maheo, he will revert to his frozen state when clicked. [L0ne_W0lf]
-//=	Replaced  instances of "+name+", with "+strcharinfo(0)".
-//= 1.8 Various fixes: Hamion will now delete items used for Wind Hammer. [L0ne_W0lf]
-//=	Fixed EXP reward in Ice Necklace quest, fixed a typo in an NPC header.
-//=	Another minor fix to Hamion. "< 1" -> "< 2". Added a missing close to
-//=	the ontouch "key". Thanks to Gepard for pointing them out.
-//= 1.9 Fixed a misorder with variable checkings. [SinSloth]
 //= 2.0 Fixed experience gains to match upcoming rate adjustments. [SinSloth]
 //= 2.1 Corrected NPC names to fall within proper restrictions. [L0ne_W0lf]
 //= 2.2 Maheo NPC now uses "setnpcdisplay" instead of two NPCs. [L0ne_W0lf]
@@ -63,10 +48,12 @@
 //= 3.4 Added quest log entries for:
 //=     - Ice Necklace Quest
 //=     - Thor Volcano Base Quest addition.
-//============================================================ 
+//= 3.5 Updated RE/Pre-RE EXP. [Euphy]
+//= 3.6 Added questlog support. [Euphy]
+//============================================================
 
-// Lost Child Quest (Prerequisite to High Priest quest)
-//============================================================ 
+// Lost Child Quest (Prerequisite to High Priest quest) :: rachel_wonjumin
+//============================================================
 ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 	if (BaseLevel < 60) {
 		mes "[Vincent]";
@@ -77,7 +64,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "work, brave adventurer.";
 		close;
 	}
-
 	if (lost_boy < 1) {
 		mes "[Vincent]";
 		mes "I am Vincert, steward of";
@@ -94,9 +80,7 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "ask you for your help with";
 		mes "a problem on his behalf.";
 		next;
-
 		switch(select("I'm too busy.:Sure, why not?")) {
-
 		case 1:
 			mes "[Vincent]";
 			mes "I understand.";
@@ -106,7 +90,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 			mes "later, then I'd like to ask for";
 			mes "your assistance once again.";
 			close;
-
 		case 2:
 			mes "[Vincent]";
 			mes "Thank you. You see,";
@@ -138,12 +121,10 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 			mes "You might want to question the";
 			mes "other servants of his whereabouts. Thanks again for your help.";
 			set lost_boy,1;
+			setquest 8089;
 			close;
-
 		}
-
 	}
-
 	else if ((lost_boy >= 1) && (lost_boy < 4)) {
 		mes "[Vincent]";
 		mes "I suggest looking around";
@@ -152,7 +133,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "Phobe's current location.";
 		close;
 	}
-
 	else if ((lost_boy >= 4) && (lost_boy < 7)) {
 		mes "[Vincent]";
 		mes "We're running out";
@@ -161,7 +141,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "as soon as you can.";
 		close;
 	}
-
 	else if (lost_boy == 7) {
 		mes "[Vincent]";
 		mes "Ah...!";
@@ -297,10 +276,9 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "just a kid, so he's probably";
 		mes "hiding somewhere in town.";
 		set lost_boy,8;
+		changequest 8094,8095;
 		close;
 	}
-
-
 	else if (lost_boy == 8) {
 		mes "[Vincent]";
 		mes "The gem is very special...";
@@ -339,8 +317,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "hiding somewhere in town...";
 		close;
 	}
-
-
 	else if (lost_boy == 9) {
 		mes "[Vincent]";
 		mes "You came back!";
@@ -386,9 +362,9 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "Jenny about Phobe?";
 		mes "Sure, sure, I'll do that.";
 		set lost_boy,10;
+		changequest 8097,8097;
 		close;
 	}
-
 	else if (lost_boy == 10) {
 		mes "[Vincent]";
 		mes "Oh! While I return this";
@@ -402,8 +378,7 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "Jenny about Phobe?";
 		mes "Sure, sure, I'll do that.";
 		close;
-	}	
-
+	}
 	else if (lost_boy == 11) {
 		mes "["+strcharinfo(0)+"]";
 		mes "I told Jenny that";
@@ -447,8 +422,9 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "I don't know what's inside,";
 		mes "but I know these items are";
 		mes "quite valuable nowadays...";
-		getitem 617,1; //Old_Violet_Box
 		set lost_boy,12;
+		changequest 8098,8099;
+		getitem 617,1; //Old_Violet_Box
 		next;
 		mes "[Vincent]";
 		mes "Ah, and this note is a";
@@ -463,7 +439,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "from Vincent.^000000";
 		close;
 	}
-
 	else {
 		mes "[Vincent]";
 		mes "Thank you for everything";
@@ -473,7 +448,6 @@ ra_in01,384,246,3	script	Vincent#ra_in01	47,{
 		mes "hesitate to ask me, alright?";
 		close;
 	}
-
 }
 
 rachel,114,232,3	script	Logan#ra_in01	869,{
@@ -487,7 +461,6 @@ rachel,114,232,3	script	Logan#ra_in01	869,{
 		mes "don't distract me, please.";
 		close;
 	}
-
 	else if (lost_boy == 1) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me, but do";
@@ -533,9 +506,9 @@ rachel,114,232,3	script	Logan#ra_in01	869,{
 		mes "inside the mansion. He's";
 		mes "been working here for a while.";
 		set lost_boy,2;
+		changequest 8089,8090;
 		close;
 	}
-
 	else if (lost_boy == 2) {
 		mes "[Logan]";
 		mes "If you want to learn";
@@ -546,7 +519,6 @@ rachel,114,232,3	script	Logan#ra_in01	869,{
 		mes "the mansion is a good bet.";
 		close;
 	}
-
 }
 
 ra_in01,372,200,3	script	Manson#ra_in01	929,{
@@ -560,7 +532,6 @@ ra_in01,372,200,3	script	Manson#ra_in01	929,{
 		mes "cleaning up after visitors.";
 		close;
 	}
-
 	else if (lost_boy == 1) {
 		mes "[Manson]";
 		mes "You know, considering";
@@ -571,7 +542,6 @@ ra_in01,372,200,3	script	Manson#ra_in01	929,{
 		mes "Sir Zhed here in the mansion.";
 		close;
 	}
-
 	else if (lost_boy == 2) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me, but do you";
@@ -634,9 +604,9 @@ ra_in01,372,200,3	script	Manson#ra_in01	929,{
 		mes "now, and she'd appreciate";
 		mes "your help in finding Phobe.";
 		set lost_boy,3;
+		changequest 8090,8091;
 		close;
 	}
-
 	else if (lost_boy == 3) {
 		mes "[Manson]";
 		mes "You know, if you want to";
@@ -647,7 +617,6 @@ ra_in01,372,200,3	script	Manson#ra_in01	929,{
 		mes "your help in finding Phobe.";
 		close;
 	}
-
 	else {
 		mes "[Manson]";
 		mes "Nuts, there's so much";
@@ -657,7 +626,6 @@ ra_in01,372,200,3	script	Manson#ra_in01	929,{
 		mes "Ah well, it's a living.";
 		close;
 	}
-
 }
 
 rachel,48,237,3	script	Jenny#ra_in01	894,{
@@ -670,7 +638,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 		mes "haven't been invited!";
 		close;
 	}
-
 	else if (lost_boy == 3) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me, but are";
@@ -720,9 +687,9 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 		mes "Alright, I guess I can go";
 		mes "to the market and ask around.";
 		set lost_boy,4;
+		changequest 8091,8092;
 		close;
 	}
-
 	else if ((lost_boy >= 3) && (lost_boy < 6)) {
 		mes "[Jenny]";
 		mes "Please find Phobe,";
@@ -738,7 +705,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 		mes "Phobe was last seen.";
 		close;
 	}
-
 	else if (lost_boy == 6) {
 		mes "[Jenny]";
 		mes "Please find Phobe,";
@@ -748,7 +714,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 		mes "about that boy, you know?";
 		close;
 	}
-
 	else if ((lost_boy > 6) && (lost_boy < 11)) {
 		mes "[Jenny]";
 		mes "Oh! You're back!";
@@ -761,7 +726,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 			mes "important to discuss";
 			mes "with Vincent first.";
 		}
-
 		else if (lost_boy == 8) {
 			mes "["+strcharinfo(0)+"]";
 			mes "Actually... Uh...";
@@ -770,7 +734,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 			mes "lead! Don't worry, I'll";
 			mes "find him soon, I promise.";
 		}
-
 		else if (lost_boy == 9) {
 			mes "["+strcharinfo(0)+"]";
 			mes "Actually... Uh...";
@@ -780,7 +743,6 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 			mes "some good news soon,";
 			mes "I promise. Se eyou later~";
 		}
-
 		else if (lost_boy == 10) {
 			mes "["+strcharinfo(0)+"]";
 			mes "Yes, he's fine, just";
@@ -821,11 +783,10 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 			mes "happier. Thank you for";
 			mes "all of your help, adventurer~";
 			set lost_boy,11;
+			changequest 8097,8098;
 		}
-
 		close;
 	}
-
 	else if ((lost_boy > 10) && (lost_boy < 13)) {
 		mes "[Jenny]";
 		mes "Thank you so much for";
@@ -836,9 +797,7 @@ rachel,48,237,3	script	Jenny#ra_in01	894,{
 		mes "I am to you as a mother...";
 		close;
 	}
-
 	end;
-	
 }
 
 rachel,138,73,5	script	Idle Merchant#ra_in01	85,{
@@ -852,7 +811,6 @@ rachel,138,73,5	script	Idle Merchant#ra_in01	85,{
 		mes "pack it up and go home.";
 		close;
 	}
-
 	else if (lost_boy == 4) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me?";
@@ -932,7 +890,6 @@ rachel,138,73,5	script	Idle Merchant#ra_in01	85,{
 		set lost_boy,5;
 		close;
 	}
-
 	else if (lost_boy >= 5) {
 		mes "["+strcharinfo(0)+"]";
 		mes "(^333333I better ask the other";
@@ -943,7 +900,6 @@ rachel,138,73,5	script	Idle Merchant#ra_in01	85,{
 		mes "ridiculous mock vegetables.^000000)";
 		close;
 	}
-
 }
 
 rachel,120,47,3	script	Idle Merchant#ra_in01_2	85,{
@@ -956,7 +912,6 @@ rachel,120,47,3	script	Idle Merchant#ra_in01_2	85,{
 		mes "make a living like this.";
 		close;
 	}
-
 	else if (lost_boy == 5) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me,";
@@ -1004,9 +959,9 @@ rachel,120,47,3	script	Idle Merchant#ra_in01_2	85,{
 		mes "in that ice cave. That place";
 		mes "can be plenty dangerous.";
 		set lost_boy,6;
+		changequest 8092,8093;
 		close;
 	}
-
 	else if (lost_boy == 6) {
 		mes "[Idle Merchant]";
 		mes "So yeah, last night,";
@@ -1039,8 +994,6 @@ rachel,120,47,3	script	Idle Merchant#ra_in01_2	85,{
 		mes "can be plenty dangerous.";
 		close;
 	}
-
-
 }
 
 ra_fild01,245,325,3	script	Suspicious Man#ra_in01	934,{
@@ -1053,7 +1006,6 @@ ra_fild01,245,325,3	script	Suspicious Man#ra_in01	934,{
 		mes "precious oxygen!";
 		close;
 	}
-
 	if (lost_boy == 6) {
 		mes "["+strcharinfo(0)+"]";
 		mes "Excuse me, but do you";
@@ -1134,9 +1086,9 @@ ra_fild01,245,325,3	script	Suspicious Man#ra_in01	934,{
 		mes "to Vincent and make";
 		mes "him explain everything.";
 		set lost_boy,7;
+		changequest 8093,8094;
 		close;
 	}
-
 	else if (lost_boy == 7) {
 		mes "[Mogan]";
 		mes "It looks like he set";
@@ -1153,7 +1105,6 @@ ra_fild01,245,325,3	script	Suspicious Man#ra_in01	934,{
 		mes "him explain everything.";
 		close;
 	}
-
 }
 
 rachel,263,32,3	script	Kid#ra_in01	931,{
@@ -1162,7 +1113,6 @@ rachel,263,32,3	script	Kid#ra_in01	931,{
 		mes "Leave me alone!";
 		close;
 	}
-
 	else if (lost_boy == 8) {
 		mes "^3355FFYou catch a shining";
 		mes "glint from this boy's";
@@ -1247,9 +1197,9 @@ rachel,263,32,3	script	Kid#ra_in01	931,{
 		mes "you should bring this red";
 		mes "jewel back to Vincent.^000000";
 		set lost_boy,9;
+		changequest 8095,8096;
 		close;
 	}
-
 	else if (lost_boy == 9) {
 		mes "[Phobe]";
 		mes "I... I'm not ready";
@@ -1265,7 +1215,6 @@ rachel,263,32,3	script	Kid#ra_in01	931,{
 		mes "jewel back to Vincent.^000000";
 		close;
 	}
-
 	else {
 		mes "["+strcharinfo(0)+"]";
 		mes "You know, you should";
@@ -1289,14 +1238,10 @@ rachel,263,32,3	script	Kid#ra_in01	931,{
 		mes "Gosh... Fine.";
 		close;
 	}
-
 }
 
-//End of Lost Child quest
-//============================================================ 
-
-//Bruspetti Quest (Perequisite: Lighthalzen "Friendship" quest)
-//============================================================ 
+// Bruspetti Quest (Perequisite: Lighthalzen "Friendship" quest) :: rachel_ryu
+//============================================================
 ra_in01,235,194,5	script	Katinshuell	931,{
 	if (rach_vice > 21) {
 		mes "[Katinshuell]";
@@ -1307,7 +1252,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "could have had a chance...";
 		close;
 	}
-
 	else if ((rach_vice == 21) && (countitem(1201) > 0)) {
 		mes "[Katinshuell]";
 		mes "Please... Please just";
@@ -1318,9 +1262,9 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "turn me in, go ahead...";
 		delitem 1201,1; //Knife
 		set rach_vice,22;
+		changequest 8121,8122;
 		close;
 	}
-
 	else if (rach_vice == 21) {
 		mes "[Katinshuell]";
 		mes "I suppose it's my";
@@ -1330,7 +1274,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "truly happy. Bruspetti...";
 		close;
 	}
-
 	else if ((rach_vice == 20) && (countitem(1201) > 0)) {
 		mes "[Katinshuell]";
 		mes "I suppose there's";
@@ -1435,7 +1378,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "God! My life sucks!";
 		close;
 	}
-
 	else if (rach_vice == 21) {
 		mes "[Katinshuell]";
 		mes "^333333*Pant pant*^000000";
@@ -1446,7 +1388,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "h-haunt me... Ha ha ha...";
 		close;
 	}
-
 	else if ((rach_vice == 20) && (countitem(1201) > 0)) {
 		mes "[Katinshuell]";
 		mes "I...";
@@ -1488,7 +1429,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "Mr. Katinshuell?";
 		close;
 	}
-
 	else if ((rach_vice == 19) || (rach_vice == 20)) {
 		mes "[Katinshuell]";
 		mes "I...";
@@ -1508,6 +1448,7 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "I... I don't have";
 		mes "to tell you anything!";
 		set rach_vice,20;
+		changequest 8120,8121;
 		next;
 		mes "[" + strcharinfo(0) + "]";
 		mes "(^333333He's still resisting";
@@ -1515,7 +1456,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "him to reveal the truth?^000000)";
 		close;
 	}
-
 	else if (rach_vice == 18) {
 		mes "[" + strcharinfo(0) + "]";
 		mes "Let's see...";
@@ -1582,7 +1522,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes ".........";
 		close;
 	}
-
 	else if (rach_vice == 17) {
 		mes "[Katinshuell]";
 		mes "Damn it! I don't want to";
@@ -1600,7 +1539,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		set rach_vice,18;
 		close;
 	}
-
 	else if (rach_vice == 16) {
 		mes "[Katinshuell]";
 		mes "Ha ha ha...";
@@ -1636,7 +1574,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 			mes "I don't know what";
 			mes "you're talking about!";
 			close;
-
 		case 2:
 			mes "[" + strcharinfo(0) + "]";
 			mes "You know, I found out";
@@ -1685,7 +1622,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 				mes "backfired, so I'm going";
 				mes "to have to try this again.)^000000";
 				close;
-
 			case 2:
 				mes "[" + strcharinfo(0) + "]";
 				mes "So while she was away";
@@ -1704,7 +1640,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 				mes "backfired, so I'm going";
 				mes "to have to try this again.)^000000";
 				close;
-
 			case 3:
 				mes "[" + strcharinfo(0) + "]";
 				mes "Wait a second! Your break-up";
@@ -1740,7 +1675,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 					mes "backfired, so I'm going";
 					mes "to have to try this again.)^000000";
 					close;
-
 				case 2:
 					mes "[" + strcharinfo(0) + "]";
 					mes "Hmm... Why are you";
@@ -1768,9 +1702,7 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 					mes "before I get really angry!";
 					close;
 				}
-
 			}
-
 		case 3:
 			mes "[" + strcharinfo(0) + "]";
 			mes "Freya's Spring.";
@@ -1788,7 +1720,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 			mes "That's a pretty";
 			mes "good reason.";
 			close;
-
 		case 4:
 			mes "[" + strcharinfo(0) + "]";
 			mes "If Bruspetti is not";
@@ -1809,11 +1740,8 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 			mes "to question him again until";
 			mes "my gut feeling is satisfied!^000000)";
 			close;
-
 		}
-
 	}
-
 	else if ((rach_vice == 15) && (countitem(7571))) {
 		mes "[Katinshuell]";
 		mes "Oh, it's you again.";
@@ -1866,11 +1794,11 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		next;
 		mes "[Katinshuell]";
 		mes "......!";
+		delitem 7571,1; //Diary_Of_Blue
 		set rach_vice,16;
-		delitem 7571,1; //Blue_Diary
+		changequest 8119,8120;
 		close;
 	}
-
 	else if ((rach_vice == 10) || (rach_vice == 11)) {
 		mes "[Katinshuell]";
 		mes "Argh! I'm so depressed.";
@@ -1916,6 +1844,7 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 			close;
 		}
 		set rach_vice,11;
+		changequest 8114,8115;
 		mes "[Katinshuell]";
 		mes "You happy, now?";
 		mes "Quit trying to pry into";
@@ -1925,7 +1854,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "you came to do, right?";
 		close;
 	}
-
 	else if (rach_vice == 4) {
 		mes "[Katinshuell]";
 		mes "Uh... ";
@@ -1935,9 +1863,7 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "be left alone. Go away...";
 		close;
 	}
-
 	else if (rach_vice == 3) {
-		set rach_vice,4;
 		mes "[Katinshuell]";
 		mes "Eh? Oh, it's one of you";
 		mes "guys, those do-gooder";
@@ -1952,9 +1878,10 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "can't handle. Me and my";
 		mes "girlfriend are history now.";
 		mes "It's over between us.";
+		set rach_vice,4;
+		changequest 8107,8108;
 		close;
 	}
-
 	else if (rach_vice == 2) {
 		mes "[Katinshuell]";
 		mes "You're an adventurer,";
@@ -1971,7 +1898,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "of mine never cease to haunt me...";
 		close;
 	}
-
 	else if (rach_vice == 1) {
 		mes "[Katinshuell]";
 		mes "You're an adventurer,";
@@ -1987,7 +1913,6 @@ ra_in01,235,194,5	script	Katinshuell	931,{
 		mes "left all alone, these thoughts of mine never cease to haunt me...";
 		close;
 	}
-
 	else if (rach_vice == 0) {
 		mes "[Katinshuell]";
 		mes "You're an adventurer,";
@@ -2043,7 +1968,6 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "Thanks, adventurer.";
 		close;
 	}
-
 	else if (rach_vice == 14) {
 		mes "[Mr. Shendar]";
 		mes "So you have a pretty";
@@ -2067,7 +1991,6 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "to hate and distrust him!";
 		close;
 	}
-
 	else if (rach_vice == 13) {
 		mes "[Mr. Shendar]";
 		mes "Hey! Hey! Are you";
@@ -2118,7 +2041,6 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "around here? I'd better go";
 		mes "and ask him about this...";
 		next;
-		set rach_vice,14;
 		mes "[Mr. Shendar]";
 		mes "Wait, where are";
 		mes "you going? I... I'm";
@@ -2147,9 +2069,10 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "father. Besides, adventurers";
 		mes "like you can offer her the";
 		mes "best protection...";
+		set rach_vice,14;
+		changequest 8117,8118;
 		close;
 	}
-
 	else if (rach_vice == 9) {
 		mes "[Mr. Shendar]";
 		mes "Curses! I should have never";
@@ -2159,9 +2082,7 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "is naturally too curious...!";
 		close;
 	}
-
 	else if (rach_vice == 8) {
-		set rach_vice,9;
 		mes "[Mr. Shendar]";
 		mes "What? My daughter went";
 		mes "to Lighthalzen? She doesn't";
@@ -2198,11 +2119,11 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "Oh, but how a father";
 		mes "worries. Will my sweet,";
 		mes "darling Bruspetti be alright?";
+		set rach_vice,9;
+		changequest 8112,8113;
 		close;
 	}
-
 	else if ((rach_vice == 4) || (rach_vice == 5)) {
-		set rach_vice,5;
 		mes "[Mr. Shendar]";
 		mes "I miss my daughter. Yes,";
 		mes "the house smells different";
@@ -2217,9 +2138,10 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "distinctively pleasant";
 		mes "scent about them. I guess";
 		mes "it must be pheremonal?";
+		set rach_vice,5;
+		changequest 8108,8109;
 		close;
 	}
-
 	else if (rach_vice == 2) {
 		mes "[Mr. Shendar]";
 		mes "Take my advice: never";
@@ -2238,9 +2160,7 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "little neck! At least, I should...";
 		close;
 	}
-
 	else if (rach_vice == 1) {
-		set rach_vice,2;
 		mes "[Mr. Shendar]";
 		mes "I just found out that";
 		mes "my precious daughter has";
@@ -2264,9 +2184,10 @@ ra_in01,250,19,3	script	Mr. Shendar	929,{
 		mes "awful long time, but she's";
 		mes "also an adult now. I... I guess";
 		mes "she should be just fine.";
+		set rach_vice,2;
+		setquest 8106;
 		close;
 	}
-
 	mes "[Mr. Shendar]";
 	mes "I just found out that";
 	mes "my precious daughter has";
@@ -2296,7 +2217,6 @@ rachel,73,244,3	script	Lachellen	919,{
 		mes "I can't wait to see her~";
 		close;
 	}
-
 	else if ((rach_vice == 11) || (rach_vice == 12)) {
 		mes "[Lachellen]";
 		mes "Oh, hello again~";
@@ -2318,7 +2238,6 @@ rachel,73,244,3	script	Lachellen	919,{
 			next;
 		}
 		else if (.@input$ == "Freya's Spring") {
-			set rach_vice,12;
 			mes "[Lachellen]";
 			mes "Freya's Spring?";
 			mes "Oh, I like that place!";
@@ -2341,6 +2260,8 @@ rachel,73,244,3	script	Lachellen	919,{
 			mes "so you look like a real loser";
 			mes "if you go there alone. That's";
 			mes "why I want a boyfriend now...";
+			set rach_vice,12;
+			changequest 8115,8116;
 			next;
 		}
 		else {
@@ -2359,7 +2280,6 @@ rachel,73,244,3	script	Lachellen	919,{
 		mes "just a little bit.";
 		close;
 	}
-
 	else if (rach_vice == 7) {
 		mes "[Lachellen]";
 		mes "Let's see... Bruspetti";
@@ -2378,9 +2298,7 @@ rachel,73,244,3	script	Lachellen	919,{
 		mes "tell her I said ''hi,'' okay?";
 		close;
 	}
-
 	else if (rach_vice == 6) {
-		set rach_vice,7;
 		mes "[Lachellen]";
 		mes "Oh, Bruspetti's dad";
 		mes "was talking about how";
@@ -2412,11 +2330,11 @@ rachel,73,244,3	script	Lachellen	919,{
 		mes "and her boyfriend usually";
 		mes "went on dates, you might";
 		mes "be able to find something.";
+		set rach_vice,7;
+		changequest 8110,8111;
 		close;
 	}
-
 	else if ((rach_vice == 2) || (rach_vice == 3)) {
-		set rach_vice,3;
 		mes "[Lachellen]";
 		mes "Ooh, I'm so jealous";
 		mes "of Bruspetti! She's been";
@@ -2431,9 +2349,10 @@ rachel,73,244,3	script	Lachellen	919,{
 		mes "she's also admitted that";
 		mes "she doesn't know much about";
 		mes "him. Let's see... He grew up in Lighthalzen? That's all she knows.";
+		set rach_vice,3;
+		changequest 8106,8107;
 		close;
 	}
-
 	mes "[Lachellen]";
 	mes "My friend Bruspetti";
 	mes "is a really nice girl~";
@@ -2510,7 +2429,6 @@ rachel,266,35,3	script	Grandma#rachel	918,{
 		mes "not particularly special.";
 		close;
 	}
-
 	else if (rach_vice == 13) {
 		mes "[Grandma]";
 		mes "When you get to be my";
@@ -2521,9 +2439,7 @@ rachel,266,35,3	script	Grandma#rachel	918,{
 		mes "worry when I could've relaxed.";
 		close;
 	}
-
 	else if (rach_vice == 12) {
-		set rach_vice,13;
 		mes "[Grandma]";
 		mes "Oh, back again, eh?";
 		mes "I guess you must really";
@@ -2550,6 +2466,8 @@ rachel,266,35,3	script	Grandma#rachel	918,{
 		mes "to let go of whatever's";
 		mes "bothering you, and just";
 		mes "enjoy life as it is now.";
+		set rach_vice,13;
+		changequest 8116,8117;
 		close;
 	}
 	mes "[Grandma]";
@@ -2569,7 +2487,6 @@ rachel,266,35,3	script	Grandma#rachel	918,{
 lhz_in02,213,207,0	script	#ratrace1	111,4,4,{
 OnTouch:
 	if (rach_vice == 5) {
-		set rach_vice,6;
 		mes "[" + strcharinfo(0) + "]";
 		mes "This...";
 		mes "This smell...";
@@ -2581,6 +2498,8 @@ OnTouch:
 		mes "Wait, could this be";
 		mes "the scent that Bruspetti's";
 		mes "father mentioned earlier?";
+		set rach_vice,6;
+		changequest 8109,8110;
 		close;
 	}
 	end;
@@ -2622,6 +2541,7 @@ OnTouch:
 		mes "Who would be to blame?";
 		next;
 		set rach_vice,24;
+		completequest 8122;
 		if (BaseLevel > 90) getexp 1300000,0;
 		else if (BaseLevel > 75) getexp 850000,0;
 		else getexp 450000,0;
@@ -2633,7 +2553,6 @@ OnTouch:
 		mes "forgive himself.";
 		close;
 	}
-
 	else if (rach_vice == 22) {
 		mes "[" + strcharinfo(0) + "]";
 		mes "This must be where";
@@ -2665,7 +2584,6 @@ OnTouch:
 		mes "...What?";
 		close;
 	}
-
 	else if (rach_vice == 8) {
 		mes "[" + strcharinfo(0) + "]";
 		mes "That old woman told";
@@ -2675,9 +2593,7 @@ OnTouch:
 		mes "make sure I tread carefully.";
 		close;
 	}
-
 	else if (rach_vice == 7) {
-		set rach_vice,8;
 		mes "[???]";
 		mes "Oh, be very careful!";
 		mes "You don't want to get";
@@ -2695,6 +2611,8 @@ OnTouch:
 		next;
 		mes "[" + strcharinfo(0) + "]";
 		mes "Ah, I see.";
+		set rach_vice,8;
+		changequest 8111,8112;
 		close;
 	}
 	end;
@@ -2709,10 +2627,10 @@ ra_in01,255,25,0	script	Book#ra_in	111,{
 		mes "you talk to Katinshuell.^000000";
 		close;
 	}
-
 	else if (rach_vice == 14) {
 		set rach_vice,15;
-		getitem 7571,1; //Blue_Diary
+		changequest 8118,8119;
+		getitem 7571,1; //Diary_Of_Blue
 		mes "^3355FFThis must be";
 		mes "Bruspetti's diary!";
 		mes "You now have permission";
@@ -2721,25 +2639,22 @@ ra_in01,255,25,0	script	Book#ra_in	111,{
 		mes "Katinshuell are connected...^000000";
 		close;
 	}
-
 	else if ((rach_vice == 9) || (rach_vice == 10)) {
-		set rach_vice,10;
 		mes "^3355FFThis must be";
 		mes "Bruspetti's diary!";
 		mes "But... reading it";
 		mes "would make you feel";
 		mes "like a real creep.";
 		mes "So don't touch it.^000000";
+		set rach_vice,10;
+		changequest 8113,8114;
 		close;
 	}
 
 }
 
-//End of Bruspetti quest
-//============================================================ 
-
-// Ice Necklace/Summon Ktullanux Quest and Glacial Heart buyer
-//============================================================ 
+// Ice Necklace/Summon Ktullanux Quest and Glacial Heart buyer :: rachel_tre
+//============================================================
 //iRO Changed this NPC to avoid "offending" people.
 //To enable how it originally looked, uncomment the
 //line below (npc header), and comment the line
@@ -2927,8 +2842,8 @@ rachel,157,183,3	script	Sincere Follower Urstia	916,{
 			mes " what you have done for me.";
 			delitem 7573,1; //Magic_Necklace_
 			getexp 700000,0;
-			completequest 2113;
 			set ice_necklace_q,6;
+			completequest 2113;
 			next;
 			mes "["+strcharinfo(0)+"]";
 			mes "Oh, let's just say it was";
@@ -2989,12 +2904,12 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "this ice off of me!.";
 		next;
 		if (getskilllv("MG_FIREBOLT") > 0) {
-			misceffect EF_FIREBALL;
+			specialeffect EF_FIREBALL;
 			mes "^3355FFYou cast Fire Bolt at";
 			mes "the ice..^000000";
 		}
 		else {
-			misceffect EF_HIT2;
+			specialeffect EF_HIT2;
 			mes "^3355FFYou hammer at the";
 			mes "ice with all your might.^000000";
 		}
@@ -3155,8 +3070,8 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "this prison of ice. He can";
 		mes "be found near Freya's Spring:";
 		mes "beseech him on my behalf!";
-		changequest 2109,2110;
 		set ice_necklace_q,2;
+		changequest 2109,2110;
 		close2;
 		cutin "",255;
 		end;
@@ -3218,9 +3133,9 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "swung it down at the ice";
 		mes "with all of your strength.^000000";
 		next;
-		misceffect EF_TEIHIT3;
-		misceffect EF_FREEZE;
-		misceffect EF_ICECRASH;
+		specialeffect EF_TEIHIT3;
+		specialeffect EF_FREEZE;
+		specialeffect EF_ICECRASH;
 		mes "^3355FF*Pzzzzz*";
 		mes "*CRASH!*^000000";
 		next;
@@ -3231,7 +3146,7 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "After all of this";
 		mes "time! I'm free!";
 		next;
-		misceffect EF_BEGINSPELL4;
+		specialeffect EF_BEGINSPELL4;
 		mes "[Maheo]";
 		mes "Now, all of the monsters";
 		mes "in this cave will taste the";
@@ -3244,7 +3159,7 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		monster "ice_dun02",114,112,"Snowier",1775,1,"Man Stuck in Ice#cave::OnMyMobDead";
 		monster "ice_dun02",126,105,"Snowier",1775,1,"Man Stuck in Ice#cave::OnMyMobDead";
 		monster "ice_dun02",121,99,"Snowier",1775,1,"Man Stuck in Ice#cave::OnMyMobDead";
-		misceffect EF_LORD;
+		specialeffect EF_LORD;
 		killmonster "ice_dun02","Man Stuck in Ice#cave::OnMyMobDead";
 		mes "[Maheo]";
 		mes "Muhahahahahahahaha!";
@@ -3268,7 +3183,7 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "[Maheo]";
 		mes "Let's see, now...";
 		next;
-		misceffect EF_FROSTWEAPON;
+		specialeffect EF_FROSTWEAPON;
 		mes "^3355FF*Ting*^000000";
 		next;
 		mes "[Maheo]";
@@ -3278,12 +3193,12 @@ ice_dun02,120,105,3	script	Man Stuck in Ice#cave	924,5,5,{
 		mes "And please don't mention";
 		mes "the fact that I trapped myself";
 		mes "in ice to anyone else, okay?";
-		delitem 7572,1; //Magic_Necklace
-		delitem 7569,1; //Wind Of_Hammer
-		getitem 7574,4; //Freezing Snow Powder
-		getitem 7573,1; //Magic_Necklace_
-		changequest 2112,2113;
 		set ice_necklace_q,5;
+		changequest 2112,2113;
+		delitem 7569,1; //Hammer_Of_Wind
+		delitem 7572,1; //Magic_Necklace
+		getitem 7573,1; //Magic_Necklace_
+		getitem 7574,4; //Ice_Particle
 		close2;
 		cutin "",255;
 		setnpcdisplay "Man Stuck in Ice#cave",924;
@@ -3388,8 +3303,8 @@ rachel,265,98,3	script	Hamion#aru	930,{
 		mes "not one of those smithing tools.";
 		mes "I'd help you if I could, but...";
 		mes "I'm just smart, not strong.";
-		changequest 2110,2111;
 		set ice_necklace_q,3;
+		changequest 2110,2111;
 		close;
 	}
 	else if (ice_necklace_q == 3) {
@@ -3455,12 +3370,12 @@ rachel,265,98,3	script	Hamion#aru	930,{
 		mes "This hammer will only work";
 		mes "once, so make sure that you";
 		mes "smash that ice properly!";
+		delitem 1354,1; //Hammer
 		delitem 996,5; //Rough_Wind
-		delitem 1354,1; //Empty_Scroll
-		delitem 7433,1; //Hammer
-		getitem 7569,1; //Hammer_of_Wind
-		changequest 2111,2112;
+		delitem 7433,1; //Scroll
 		set ice_necklace_q,4;
+		changequest 2111,2112;
+		getitem 7569,1; //Hammer_of_Wind
 		close;
 	}
 	else if (ice_necklace_q >= 4) {
@@ -3571,7 +3486,7 @@ rachel,113,96,5	script	Mohadian	929,10,10,{
 		mes "It's always a pleasure";
 		mes "doing business with you~";
 		delitem 7561,.@hearts; //Glacial Hearts
-		set zeny,zeny+.@totalprice;
+		set Zeny, Zeny+.@totalprice;
 		close;
 	}
 
@@ -3584,7 +3499,6 @@ OnTouch:
 		close;
 	}
 	end;
-
 }
 
 ice_dun03,126,126,3	script	Blazing Fire#ice1	802,{
@@ -3594,7 +3508,7 @@ ice_dun03,126,126,3	script	Blazing Fire#ice1	802,{
 	mes "you can put this fire out";
 	mes "with conventional means.^000000";
 	if (ice_necklace_q > 4) {
-		if ($ktullanux_summon < 4) {
+		if ($@ktullanux_summon < 4) {
 			if (countitem(7574) > 0) {
 				next;
 				select("Use Freezing Snow Powder.");
@@ -3603,8 +3517,8 @@ ice_dun03,126,126,3	script	Blazing Fire#ice1	802,{
 				mes "flickers before extinguising.^000000";
 				delitem 7574,1; //Freezing Snow Powder
 				hideonnpc "Blazing Fire#ice1";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 			}
 			else if (countitem(7562) > 0) {
 				next;
@@ -3614,18 +3528,13 @@ ice_dun03,126,126,3	script	Blazing Fire#ice1	802,{
 				mes "extinguising.^000000";
 				delitem 7562,1; //Ice Scale
 				hideonnpc "Blazing Fire#ice1";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 				close;
 			}
 		}
 	}
 	close;
-
-OnInit:
-	set $ktullanux_summon,0;
-	end;
-
 }
 
 
@@ -3636,7 +3545,7 @@ ice_dun03,172,126,0	script	Blazing Fire#ice2	802,{
 	mes "you can put this fire out";
 	mes "with conventional means.^000000";
 	if (ice_necklace_q > 4) {
-		if ($ktullanux_summon < 4) {
+		if ($@ktullanux_summon < 4) {
 			if (countitem(7574) > 0) {
 				next;
 				select("Use Freezing Snow Powder.");
@@ -3645,8 +3554,8 @@ ice_dun03,172,126,0	script	Blazing Fire#ice2	802,{
 				mes "flickers before extinguising.^000000";
 				delitem 7574,1; //Freezing Snow Powder
 				hideonnpc "Blazing Fire#ice2";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 			}
 			else if (countitem(7562) > 0) {
 				next;
@@ -3656,18 +3565,13 @@ ice_dun03,172,126,0	script	Blazing Fire#ice2	802,{
 				mes "extinguising.^000000";
 				delitem 7562,1; //Ice Scale
 				hideonnpc "Blazing Fire#ice2";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 				close;
 			}
 		}
 	}
 	close;
-
-OnInit:
-	set $ktullanux_summon,0;
-	end;
-
 }
 
 ice_dun03,172,172,0	script	Blazing Fire#ice3	802,{
@@ -3677,7 +3581,7 @@ ice_dun03,172,172,0	script	Blazing Fire#ice3	802,{
 	mes "you can put this fire out";
 	mes "with conventional means.^000000";
 	if (ice_necklace_q > 4) {
-		if ($ktullanux_summon < 4) {
+		if ($@ktullanux_summon < 4) {
 			if (countitem(7574) > 0) {
 				next;
 				select("Use Freezing Snow Powder.");
@@ -3686,8 +3590,8 @@ ice_dun03,172,172,0	script	Blazing Fire#ice3	802,{
 				mes "flickers before extinguising.^000000";
 				delitem 7574,1; //Freezing Snow Powder
 				hideonnpc "Blazing Fire#ice3";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 			}
 			else if (countitem(7562) > 0) {
 				next;
@@ -3697,18 +3601,13 @@ ice_dun03,172,172,0	script	Blazing Fire#ice3	802,{
 				mes "extinguising.^000000";
 				delitem 7562,1; //Ice Scale
 				hideonnpc "Blazing Fire#ice3";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 				close;
 			}
 		}
 	}
 	close;
-
-OnInit:
-	set $ktullanux_summon,0;
-	end;
-
 }
 
 ice_dun03,127,172,0	script	Blazing Fire#ice4	802,{
@@ -3718,7 +3617,7 @@ ice_dun03,127,172,0	script	Blazing Fire#ice4	802,{
 	mes "you can put this fire out";
 	mes "with conventional means.^000000";
 	if (ice_necklace_q > 4) {
-		if ($ktullanux_summon < 4) {
+		if ($@ktullanux_summon < 4) {
 			if (countitem(7574) > 0) {
 				next;
 				select("Use Freezing Snow Powder.");
@@ -3727,8 +3626,8 @@ ice_dun03,127,172,0	script	Blazing Fire#ice4	802,{
 				mes "flickers before extinguising.^000000";
 				delitem 7574,1; //Freezing Snow Powder
 				hideonnpc "Blazing Fire#ice4";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 			}
 			else if (countitem(7562) > 0) {
 				next;
@@ -3738,18 +3637,13 @@ ice_dun03,127,172,0	script	Blazing Fire#ice4	802,{
 				mes "extinguising.^000000";
 				delitem 7562,1; //Ice Scale
 				hideonnpc "Blazing Fire#ice4";
-				set $ktullanux_summon,$ktullanux_summon+1;
-				if ($ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
+				set $@ktullanux_summon,$@ktullanux_summon+1;
+				if ($@ktullanux_summon == 4) donpcevent "ice_boss#broad::OnStart";
 				close;
 			}
 		}
 	}
 	close;
-
-OnInit:
-	set $ktullanux_summon,0;
-	end;
-
 }
 
 ice_dun03,1,173,5	script	ice_boss#broad	-1,{
@@ -3789,7 +3683,6 @@ OnTimer21000:
 	stopnpctimer;
 	donpcevent "ice_boss#on::OnStart";
 	end;
-
 }
 
 ice_dun03,1,174,3	script	ice_boss#on	-1,{
@@ -3814,7 +3707,7 @@ OnMyMobDead:
 
 OnTimer7200000:
 	stopnpctimer;
-	set $ktullanux_summon,0;
+	set $@ktullanux_summon,0;
 	hideoffnpc "Blazing Fire#ice1";
 	hideoffnpc "Blazing Fire#ice2";
 	hideoffnpc "Blazing Fire#ice3";
@@ -3829,10 +3722,10 @@ OnStart:
 	enablenpc "#ice_4f_2";
 	enablenpc "#ice_4f_3";
 	enablenpc "#ice_4f_4";
-	donpcevent "#ice_4f_1::OnEnable";
-	donpcevent "#ice_4f_2::OnEnable";
-	donpcevent "#ice_4f_3::OnEnable";
-	donpcevent "#ice_4f_4::OnEnable";
+	specialeffect EF_MAPPILLAR2,AREA,"#ice_4f_1";
+	specialeffect EF_MAPPILLAR2,AREA,"#ice_4f_2";
+	specialeffect EF_MAPPILLAR2,AREA,"#ice_4f_3";
+	specialeffect EF_MAPPILLAR2,AREA,"#ice_4f_4";
 	end;
 
 OnTimer60000:
@@ -3852,11 +3745,6 @@ OnTouch:
 OnInit:
 	disablenpc "#ice_4f_1";
 	end;
-
-OnEnable:
-	misceffect EF_MAPPILLAR2;
-	end;
-
 }
 
 ice_dun03,138,148,0	script	#ice_4f_2	45,2,2,{
@@ -3867,11 +3755,6 @@ OnTouch:
 OnInit:
 	disablenpc "#ice_4f_2";
 	end;
-
-OnEnable:
-	misceffect EF_MAPPILLAR2;
-	end;
-
 }
 
 ice_dun03,161,148,0	script	#ice_4f_3	45,2,2,{
@@ -3882,11 +3765,6 @@ OnTouch:
 OnInit:
 	disablenpc "#ice_4f_3";
 	end;
-
-OnEnable:
-	misceffect EF_MAPPILLAR2;
-	end;
-
 }
 
 ice_dun03,151,162,0	script	#ice_4f_4	45,2,2,{
@@ -3897,19 +3775,10 @@ OnTouch:
 OnInit:
 	disablenpc "#ice_4f_4";
 	end;
-
-OnEnable:
-	misceffect EF_MAPPILLAR2;
-	end;
-
 }
 
-// End of Ice Necklace/Summon Ktullanux Quest
-//============================================================ 
-
-
-// Donation Lottery Quest/High Priest Quest
-//============================================================ 
+// Donation Lottery Quest/High Priest Quest :: rachel_oz & rachel_ma1
+//============================================================
 ra_temple,119,180,0	script	Temple Entrance#ra_tem	45,1,1,{
 OnTouch:
 	if ($rachel_donate >= 10000) {
@@ -3967,7 +3836,7 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "a contribution. Regardless,";
 			mes "we invite you to celebrate the";
 			mes "grace of the goddess with us.";
-			Emotion e_ho;
+			emotion e_ho;
 			next;
 			mes "[Priestess Nemma]";
 			mes "There's one High Priest that";
@@ -4011,21 +3880,16 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "of 50,000 zeny, and we can only";
 			mes "accept up to 150,000 zeny at once. It's a bit complicated, I know...";
 			next;
-
 			switch(select("50,000z - 1 Lottery Ticket:100,000z - 2 Lottery Ticket:150,000z - 3 Lottery Ticket:Cancel")) {
-
 			case 1:
 				callsub S_Donate,1,"50,000";
 				break;
-
 			case 2:
 				callsub S_Donate,2,"100,000";
 				break;
-
 			case 3:
 				callsub S_Donate,3,"150,000";
 				break;
-
 			case 4:
 				cutin "ra_nemma02",2;
 				mes "[Priestess Nemma]";
@@ -4035,13 +3899,9 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "zeny. Even so, Freya is always";
 				mes "protecting you, wherever you go~";
 				break;
-
 			}
-
 			goto L_End;
-
 		}
-
 		else {
 			cutin "ra_nemma03",2;
 			mes "[Priestess Nemma]";
@@ -4051,9 +3911,7 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "while ago. So what brings you";
 			mes "to the temple today, hmm?";
 			next;
-
 			switch(select("I've come to donate again.:Just sight-seeing.:I came to attend the service.:I just wanted to see you again.")) {
-
 			case 1:
 				mes "[Priestess Nemma]";
 				mes "You've come to make another";
@@ -4063,21 +3921,16 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "accept donations in increments of";
 				mes "50,000 zeny up to 150,000 zeny.";
 				next;
-
 				switch(select("50,000z - 1 Lottery Ticket:100,000z - 2 Lottery Ticket:150,000z - 3 Lottery Ticket:Cancel")) {
-
 				case 1:
 					callsub S_Donate,1,"50,000";
 					break;
-
 				case 2:
 					callsub S_Donate,2,"100,000";
 					break;
-
 				case 3:
 					callsub S_Donate,3,"150,000";
 					break;
-
 				case 4:
 					cutin "ra_nemma02",2;
 					mes "[Priestess Nemma]";
@@ -4087,10 +3940,8 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 					mes "zeny. Even so, Freya is always";
 					mes "protecting you, wherever you go~";
 					break;
-
 				}
 				goto L_End;
-
 			case 2:
 				mes "[Priestess Nemma]";
 				mes "Oh! If you'd like some";
@@ -4106,7 +3957,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "Well, anyway, she'll help";
 				mes "you out. See you later!";
 				break;
-
 			case 3:
 				mes "[Priestess Nemma]";
 				mes "You're here for the";
@@ -4115,20 +3965,14 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "of calm that you can only";
 				mes "get from goddess Freya~";
 				break;
-
 			case 4:
 				mes "[Priestess Nemma]";
 				mes "Oh, how sweet of you~";
 				break;
-
 			}
-
 			goto L_End;
-
 		}
-
 	}
-
 	else {
 		if (MISC_QUEST & 8192) {
 			cutin "ra_nemma01",2;
@@ -4136,7 +3980,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "Welcome to our temple!";
 			goto L_End;
 		}
-
 		if (ra_tem_q < 1) {
 			mes "[Priestess Nemma]";
 			mes "Hello, there!";
@@ -4170,7 +4013,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			set ra_tem_q,1;
 			goto L_End;
 		}
-
 		else if ((ra_tem_q >= 1) && (ra_tem_q < 10)) {
 			mes "[Priestess Nemma]";
 			mes "If the gate's locked, then";
@@ -4186,7 +4028,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "Ooh, Panno, help me!";
 			goto L_End;
 		}
-
 		else if (ra_tem_q == 10) {
 			cutin "ra_nemma04",2;
 			mes "[Priestess Nemma]";
@@ -4213,7 +4054,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "Oooh, what should I do?!";
 			goto L_End;
 		}
-
 		else if (ra_tem_q == 11) {
 			emotion e_ho;
 			cutin "ra_nemma03",2;
@@ -4226,7 +4066,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			mes "Lottery Tickets inside, okay?";
 			goto L_End;
 		}
-
 		else if (ra_tem_q == 12) {
 			mes "[Priestess Nemma]";
 			mes "Mmm... I know what";
@@ -4254,7 +4093,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 			set ra_tem_q,13;
 			goto L_End;
 		}
-
 		else if (ra_tem_q == 13) {
 			mes "[Priestess Nemma]";
 			mes "Hey, did you bring me";
@@ -4267,7 +4105,7 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				next;
 				if (countitem(12018) >= 20) {
 					cutin "ra_nemma04",2;
-					delitem 12018,20; //FireCracker";
+					delitem 12018,20; //Fire_Cracker
 					getexp 200000,0;
 					set ra_tem_q,14;
 					mes "[Priestess Nemma]";
@@ -4299,7 +4137,6 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "but still. How much fun are";
 				mes "fireworks if there isn't a lot?";
 			}
-
 			else {
 				cutin "ra_nemma01",2;
 				mes "[Priestess Nemma]";
@@ -4309,16 +4146,13 @@ ra_temple,116,174,3	script	Nemma#ra_temple	920,{
 				mes "back with, anyway~";
 			}
 			goto L_End;
-
 		}
-
 		else {
 			cutin "ra_nemma01",2;
 			mes "[Priestess Nemma]";
 			mes "Welcome to our temple!";
 		}
 		goto L_End;
-
 	}
 
 L_End:
@@ -4346,7 +4180,7 @@ S_Donate:
 		mes "generous and rewards the patient!";
 		return;
 	}
-	if (zeny >= getarg(0)*50000) {
+	if (Zeny >= getarg(0)*50000) {
 		if (!checkweight(7570,getarg(0))) {
 			cutin "ra_nemma02",2;
 			mes "[Priestess Nemma]";
@@ -4368,7 +4202,7 @@ S_Donate:
 		}
 		set $rachel_donate,$rachel_donate+getarg(0);
 		getitem 7570,getarg(0); //Temple_Lottery_Ticket
-		set zeny,zeny-getarg(0)*50000;
+		set Zeny, Zeny-getarg(0)*50000;
 		set ra_have_donated,1;
 		if ($rachel_donate > 9999) {
 			cutin "ra_nemma03",2;
@@ -4411,7 +4245,6 @@ S_Donate:
 		mes "Well, maybe another time, yes?";
 		return;
 	}
-
 }
 
 rachel,243,37,3	script	Kid#Candy Addict	921,{
@@ -4448,22 +4281,17 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 		mes "[Kid]";
 		mes "Oh hey, do";
 		mes "you like candy?";
-
 		if (ra_tem_q == 1) {
 			next;
 			switch(select("Not at all.:Yeah.:Sure, I love the stuff~:Not much.")) {
-
 			case 1:
 				mes "[Kid]";
 				mes "Hmpf! Okay.";
 				close;
-
 			case 2:
 				break;
-
 			case 3:
 				break;
-			
 			case 4:
 				mes "[Kid]";
 				mes "Oh. It's 'cause you're";
@@ -4475,10 +4303,7 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 				mes "Tell me, tell";
 				mes "me, how come?";
 				close;
-
 			}
-
-
 			if (rand(1,2) != 2) {
 				mes "[Kid]";
 				mes "Oh yeah...?";
@@ -4495,7 +4320,6 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 				mes "I tricked you!";
 				mes "You big big dummy!";
 			}
-
 			else {
 				mes "[Kid]";
 				mes "Oh, you do?";
@@ -4611,14 +4435,11 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 				mes "cool secret, so promise";
 				mes "that you won't be mad anymore.";
 				next;
-
 				switch(select("No, thanks.:What's that?")) {
-
 				case 1:
 					mes "[Kid]";
 					mes "Please~";
 					break;
-
 				case 2:
 					mes "[Kid]";
 					mes "Did you know that";
@@ -4643,16 +4464,11 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 					mes "be madder at you!";
 					set ra_tem_q,2;
 					break;
-
 				}
-
 			}
-
 		}
 		close;
-
 	}
-
 	else if (ra_tem_q == 2) {
 		mes "[Kid]";
 		mes "You're leaving?";
@@ -4677,7 +4493,6 @@ rachel,243,37,3	script	Kid#Candy Addict	921,{
 		mes "huh? Gosh! Some people!";
 		close;
 	}
-
 }
 
 ra_temple,67,209,0	script	zawa00	-1,3,3,{
@@ -4704,7 +4519,6 @@ OnTouch:
 		mes "you don't get caught?^000000";
 		close;
 	}
-
 	else if ((ra_tem_q >= 3) && (ra_tem_q < 10)) {
 		mes "^3355FFWould you like to";
 		mes "enter the temple";
@@ -4720,12 +4534,11 @@ OnTouch:
 		mes "that you can enter.^000000";
 		close;
 	}
-
 	end;
 }
 
 que_rachel,63,82,0	script	Window#ra_temple	111,{
-	mes "^3355FFThis window it open^000000";
+	mes "^3355FFThis window is open.^000000";
 	next;
 	if(select("Stay:Exit Through Window") == 2) {
 		close2;
@@ -4743,7 +4556,6 @@ OnTouch:
 		set ra_tem_q,3;
 		close;
 	}
-
 	end;
 }
 
@@ -4758,9 +4570,7 @@ OnTouch:
 		set ra_tem_q,4;
 		close;
 	}
-
 	end;
-
 }
 
 que_rachel,94,139,0	script	zawa03	-1,10,10,{
@@ -4771,9 +4581,7 @@ OnTouch:
 		set ra_tem_q,5;
 		close;
 	}
-
 	end;
-
 }
 
 que_rachel,132,70,0	script	zawa04	-1,10,10,{
@@ -4790,9 +4598,7 @@ OnTouch:
 		set ra_tem_q,6;
 		close;
 	}
-
 	end;
-
 }
 
 que_rachel,28,315,0	script	Bloody Spot	-1,5,5,{
@@ -4816,16 +4622,13 @@ OnTouch:
 			set ra_tem_q,7;
 			close;
 		}
-
 		else {
 			mes "^3355FFYou decide that your";
 			mes "time would be better spent";
 			mes "investigating something else.^000000";
 			close;
 		}
-
 	}
-
 	else if (ra_tem_q == 7) {
 		mes "^3355FFThis dark spot on the";
 		mes "ground is really creepy,";
@@ -4849,16 +4652,13 @@ OnTouch:
 			set ra_tem_q,8;
 			close;
 		}
-
 		else {
 			mes "^3355FFYou decide that your";
 			mes "time would be better spent";
 			mes "investigating something else.^000000";
 			close;
 		}
-
 	}
-
 	else if (ra_tem_q == 8) {
 		mes "^3355FFThis blood stain on the";
 		mes "ground is a pretty bad";
@@ -4868,7 +4668,6 @@ OnTouch:
 		mes "bleeding does the same to you.^000000";
 		close;
 	}
-
 	end;
 }
 
@@ -4898,7 +4697,6 @@ OnTouch:
 		set ra_tem_q,9;
 		close;
 	}
-
 	end;
 }
 
@@ -4910,9 +4708,7 @@ que_rachel,160,37,0	duplicate(nemma01)	nemma05	-1,5,5
 que_rachel,169,18,0	script	Quest Temple Exit#ra_tem	45,2,2,{
 	mes "^3355FFThe gate is closed.^000000";
 	next;
-
 	switch(select("Push Gate:Examine Gate:Kick Gate:Smash Gate with Weapon")) {
-
 	case 1:
 		mes "^3355FFYou push the gate";
 		mes "with all of your might...";
@@ -4924,7 +4720,6 @@ que_rachel,169,18,0	script	Quest Temple Exit#ra_tem	45,2,2,{
 		}
 		mes "But it won't even budge.^000000";
 		break;
-
 	case 2:
 		mes "^3355FFThere's some strange";
 		mes "machinery installed on";
@@ -4933,7 +4728,6 @@ que_rachel,169,18,0	script	Quest Temple Exit#ra_tem	45,2,2,{
 		mes "a card or permit. The lights";
 		mes "are on, so it must be working.^000000";
 		break;
-
 	case 3:
 		mes "^3355FFYou angrily kick the gate...";
 		if (ra_tem_q == 9) {
@@ -4947,7 +4741,6 @@ que_rachel,169,18,0	script	Quest Temple Exit#ra_tem	45,2,2,{
 		mes "gate refuses to open for you.";
 		mes "Oh, and your foot hurts too.^000000.";
 		break;
-
 	case 4:
 		mes "^3355FFWait! That's not";
 		mes "a good idea. You can't";
@@ -4958,7 +4751,6 @@ que_rachel,169,18,0	script	Quest Temple Exit#ra_tem	45,2,2,{
 
 	}
 	close;
-
 }
 
 ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
@@ -5053,8 +4845,9 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 		mes "you in your travels. Peace";
 		mes "be with you, "+strcharinfo(0)+".";
 		close2;
-		cutin "ra_gman",255;
+		cutin "",255;
 		set lost_boy,13;
+		completequest 8099;
 		specialeffect2 EF_ABSORBSPIRITS;
 		getexp 900000,0;
 		end;
@@ -5096,7 +4889,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 			mes "someone that I can really";
 			mes "rely on to do this for me...";
 			close2;
-			cutin "ra_gman",255;
+			cutin "",255;
 			end;
 		}
 		cutin "ra_gman",2;
@@ -5218,8 +5011,12 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 		next;
 		mes "^3355FFYou received a High";
 		mes "Priest's recommendation.^000000";
+		close2;
+		cutin "",255;
 		set ra_tem_q,15;
 		set lost_boy,14;
+		setquest 8100;
+		end;
 	}
 	else if ((ra_tem_q == 15) || (ra_tem_q == 16)) {
 		mes "[High Priest Zhed]";
@@ -5312,6 +5109,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 		mes "discussion. Why don't you";
 		mes "wait and relax in the next room";
 		mes "over there in the meantime?";
+		changequest 8101,8102;
 		close2;
 		cutin "",255;
 		warp "ra_temin",297,156;
@@ -5369,7 +5167,11 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 		mes "the Holy Ground? Regardless...";
 		mes "If you want to go there, then";
 		mes "just go there. Who'll stop you?^000000";
+		close2;
+		cutin "",255;
 		set ra_tem_q,20;
+		changequest 8103,8104;
+		end;
 	}
 	else if ((ra_tem_q >= 20) && (ra_tem_q < 22)) {
 		cutin "ra_gman2",2;
@@ -5470,6 +5272,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 		set MISC_QUEST,MISC_QUEST | 8192;
 		set ra_tem_q,0;
 		cutin "",255;
+		completequest 8105;
 		specialeffect2 EF_ABSORBSPIRITS;
 		getexp 900000,600000;
 		end;
@@ -5539,6 +5342,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "I'm sure that she can tell you";
 					mes "more about what happened.";
 					set aru_monas,12;
+					changequest 17007,17008;
 					next;
 					mes "[High Priest Zhed]";
 					mes "If you do decide to";
@@ -5564,7 +5368,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "me like that! Saying";
 				mes "it like that is kind of";
 				mes "overdoing it, isn't it?";
-				emotion 54,1;
+				emotion e_sigh,1;
 				next;
 				mes "[High Priest Zhed]";
 				mes "Not at all. In fact, I'm";
@@ -5574,7 +5378,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "by the Valkyries. Now, how";
 				mes "may I help you, my friend?";
 				next;
-				select("Mysterious Building in the Volcano:");
+				select("Mysterious Building in the Volcano");
 				mes "["+strcharinfo(0)+"]";
 				mes "Actually, I was wondering";
 				mes "if you knew of anything about";
@@ -5777,10 +5581,10 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "of a really good way";
 				mes "for you to infiltrate";
 				mes "that place. Hmmmm...";
-				setquest 2114;
 				set aru_vol,1;
+				setquest 2114;
 				close2;
-				cutin "ra_gman",255;
+				cutin "",255;
 				end;
 			}
 			else if ((aru_vol > 0) && (aru_vol < 5)) {
@@ -5869,7 +5673,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					break;
 				}
 				close2;
-				cutin "ra_gman",255;
+				cutin "",255;
 				end;
 			}
 			else if (aru_vol == 5) {
@@ -5950,8 +5754,8 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "best chance of entering the Thor";
 					mes "Volcano camp without suspicion.";
 					delitem 7342,1; //File01
-					changequest 2115,2116;
 					set aru_vol,6;
+					changequest 2115,2116;
 				}
 				else {
 					mes "["+strcharinfo(0)+"]";
@@ -5970,7 +5774,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "best chance of entering the Thor";
 				mes "Volcano camp without suspicion.";
 				close2;
-				cutin "ra_gman",255;
+				cutin "",255;
 				end;
 			}
 			else if ((aru_vol > 6) && (aru_vol < 26)) {
@@ -5983,7 +5787,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "best chance of entering the Thor";
 				mes "Volcano camp without suspicion.";
 				close2;
-				cutin "ra_gman",255;
+				cutin "",255;
 				end;
 			}
 			else if (aru_vol == 26) {
@@ -6025,11 +5829,11 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 				mes "I will be contacting you again.";
 				mes "Together, we can protect";
 				mes "peace between our nations.";
-				completequest 60213;
 				set aru_vol,27;
+				completequest 60213;
 				getexp 200000,0;
 				close2;
-				cutin "ra_gman",255;
+				cutin "",255;
 				end;
 			}
 			else if (aru_vol > 26) {
@@ -6101,7 +5905,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "before the other High";
 					mes "Priests ruin our nation.";
 					next;
-					Emotion e_omg,1;
+					emotion e_omg,1;
 					mes "["+strcharinfo(0)+"]";
 					mes "Y-you're not thinking";
 					mes "of overthrowing the";
@@ -6109,7 +5913,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "that a bit extreme?";
 					next;
 					cutin "ra_gman2",2;
-					Emotion e_swt;
+					emotion e_swt;
 					mes "[High Priest Zhed]";
 					mes "What? No, no!";
 					mes "Don't jump to conclusions";
@@ -6228,7 +6032,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "I already have someone in";
 					mes "mind that might help us.";
 					next;
-					Emotion 52,1;
+					emotion e_flash,1;
 					mes "["+strcharinfo(0)+"]";
 					mes "That sounds good.";
 					mes "Who is he?";
@@ -6241,7 +6045,7 @@ ra_temin,277,159,3	script	High Priest Zhed#rachel	932,{
 					mes "may even think I deserve";
 					mes "to be excommunicated...";
 					next;
-					Emotion e_no1,1;
+					emotion e_no1,1;
 					mes "["+strcharinfo(0)+"]";
 					mes "Come on, it wouldn't";
 					mes "hurt to try! Besides,";
@@ -6990,13 +6794,11 @@ ra_temin,134,134,3	duplicate(raofficeguard)	Pope's Office Guard#2ra	926
 
 ra_temin,134,131,0	script	gyoin1#rachel	45,1,1,{
 OnTouch:
-	if (ra_tem_q == 16) {
+	if (ra_tem_q == 16)
 		warp "ra_temin",276,239;
-	}
 	else if ((ra_tem_q > 16) || (MISC_QUEST & 8192)){
-		if ((aru_em == 15) || (aru_em == 21)) {
+		if ((aru_em == 15) || (aru_em == 21))
 			warp "ra_temin",276,239;
-		}
 		else {
 			mes "[Pope's Office Guard]";
 			mes "I'm sorry, but the pope";
@@ -7156,9 +6958,10 @@ ra_temsky,99,99,5	script	Pope#rachel	936,{
 		mes "learning. Now I have to";
 		mes "go officiate services, so...";
 		mes "This is goodbye for now...";
-		set ra_tem_q,17;
 		close2;
 		cutin "",255;
+		set ra_tem_q,17;
+		changequest 8100,8101;
 		end;
 	}
 	else {
@@ -7260,7 +7063,6 @@ OnTimer120000:
 	stopnpctimer;
 	hideonnpc "High Priestess Niren#ra";
 	end;
-
 }
 
 ra_temin,293,144,0	script	out1#rachel	-1,3,3,{
@@ -7281,9 +7083,7 @@ OnTouch:
 		warp "ra_temin",300,153;
 		end;
 	}
-
 	end;
-
 }
 
 ra_temin,288,151,0	script	hidden1#rachel	-1,1,6,{
@@ -7442,11 +7242,10 @@ OnTouch:
 		mes "For now, you may as well";
 		mes "talk to High Priest Zhed.^000000";
 		set ra_tem_q,19;
+		changequest 8102,8103;
 		close;
 	}
-
 	end;
-
 }
 
 ra_temin,272,143,0	script	key1#rachel	-1,3,3,{
@@ -7471,7 +7270,6 @@ OnTouch:
 		set ra_tem_q,21;
 		close;
 	}
-
 	end;
 }
 
@@ -7497,10 +7295,8 @@ OnTouch:
 		}
 		close;
 	}
-
 	mes "^3355FFThe door is locked.^000000";
 	close;
-	
 }
 
 que_san04,119,115,0	script	imir1#rachel	-1,2,2,{
@@ -7532,73 +7328,75 @@ OnTouch:
 }
 
 que_san04,119,203,0	script	imir3#rachel	-1,7,7,{
-	OnTouch:
-		if (ra_tem_q == 21) {
-			mes "^3355FFNo wonder this object";
-			mes "in the water seems so";
-			mes "familiar: it's a Ymir's";
-			mes "Heart Piece! In fact, there's";
-			mes "dozens of them just lying here.^000000";
-			next;
-			mes "^3355FFWhy would so many of these";
-			mes "powerful artifacts be here";
-			mes "in the Holy Ground? Perhaps";
-			mes "this is the secret that the";
-			mes "priests are trying to keep.^000000";
-			next;
-			hideoffnpc "High Priestess Niren#r2";
-			cutin "ra_gwoman",2;
-			mes "[High Priestess Niren]";
-			mes "How dare you intrude";
-			mes "the Holy Ground! Identify";
-			mes "yourself! I'll have you tried!";
-			next;
-			cutin "ra_gwoman2",2;
-			mes "[High Priestess Niren]";
-			mes "O-oh! It's you, the";
-			mes "adventurer recommended";
-			mes "by Bekento. Hm. I apologize";
-			mes "for snapping at you like";
-			mes "that. Didn't you know that";
-			mes "no one's allowed here?";
-			next;
-			cutin "ra_gwoman",2;
-			mes "[High Priestess Niren]";
-			mes "Hmm. Well, you Rune-Midgarts";
-			mes "adventurers are famous for your";
-			mes "skills and abilities, but this";
-			mes "was not expected. I mean, we";
-			mes "made sure this place was";
-			mes "absolutely secure.";
-			next;
-			cutin "ra_gwoman2",2;
-			mes "[High Priestess Niren]";
-			mes "What's done is done...";
-			mes "I warned Bekento that he";
-			mes "might cause trouble for you,";
-			mes "but it seems that you've";
-			mes "caused trouble for him.";
-			next;
-			mes "[High Priestess Niren]";
-			mes "Understand this:";
-			mes "most intruders are";
-			mes "severely punished, but";
-			mes "because of my friendship";
-			mes "with Bekento, I'm letting";
-			mes "you off easy. Remember that.";
-			next;
-			sc_start SC_Blind,600000,0;
-			mes "^3355FFNiren began to chant";
-			mes "in a low voice, and your";
-			mes "eyelids grow heavier as you";
-			mes "grow drowsier and sleepier...^000000";
-			set ra_tem_q,22;
-			close2;
-			hideonnpc "High Priestess Niren#r2";
-			warp "rachel",163,152;
-			end;
-		}
+OnTouch:
+	if (ra_tem_q == 21) {
+		mes "^3355FFNo wonder this object";
+		mes "in the water seems so";
+		mes "familiar: it's a Ymir's";
+		mes "Heart Piece! In fact, there's";
+		mes "dozens of them just lying here.^000000";
+		next;
+		mes "^3355FFWhy would so many of these";
+		mes "powerful artifacts be here";
+		mes "in the Holy Ground? Perhaps";
+		mes "this is the secret that the";
+		mes "priests are trying to keep.^000000";
+		next;
+		hideoffnpc "High Priestess Niren#r2";
+		cutin "ra_gwoman",2;
+		mes "[High Priestess Niren]";
+		mes "How dare you intrude";
+		mes "the Holy Ground! Identify";
+		mes "yourself! I'll have you tried!";
+		next;
+		cutin "ra_gwoman2",2;
+		mes "[High Priestess Niren]";
+		mes "O-oh! It's you, the";
+		mes "adventurer recommended";
+		mes "by Bekento. Hm. I apologize";
+		mes "for snapping at you like";
+		mes "that. Didn't you know that";
+		mes "no one's allowed here?";
+		next;
+		cutin "ra_gwoman",2;
+		mes "[High Priestess Niren]";
+		mes "Hmm. Well, you Rune-Midgarts";
+		mes "adventurers are famous for your";
+		mes "skills and abilities, but this";
+		mes "was not expected. I mean, we";
+		mes "made sure this place was";
+		mes "absolutely secure.";
+		next;
+		cutin "ra_gwoman2",2;
+		mes "[High Priestess Niren]";
+		mes "What's done is done...";
+		mes "I warned Bekento that he";
+		mes "might cause trouble for you,";
+		mes "but it seems that you've";
+		mes "caused trouble for him.";
+		next;
+		mes "[High Priestess Niren]";
+		mes "Understand this:";
+		mes "most intruders are";
+		mes "severely punished, but";
+		mes "because of my friendship";
+		mes "with Bekento, I'm letting";
+		mes "you off easy. Remember that.";
+		next;
+		sc_start SC_BLIND,600000,0;
+		mes "^3355FFNiren began to chant";
+		mes "in a low voice, and your";
+		mes "eyelids grow heavier as you";
+		mes "grow drowsier and sleepier...^000000";
+		close2;
+		cutin "",255;
+		hideonnpc "High Priestess Niren#r2";
+		set ra_tem_q,22;
+		changequest 8104,8105;
+		warp "rachel",163,152;
 		end;
+	}
+	end;
 }
 
 que_san04,122,200,4	script	High Priestess Niren#r2	915,{
@@ -7627,20 +7425,19 @@ OnTouch:
 		mes "back to Rachel Town. How long";
 		mes "have you been unconscious?^000000";
 		next;
-		sc_end SC_Blind;
+		sc_end SC_BLIND;
 		mes "^3355FFIt would be best to";
 		mes "ask High Priest Zhed";
 		mes "about what had happened.^000000";
 		set ra_tem_q,23;
 		close;
 	}
-
 	end;
 }
 
-//rachel,142,167,5	script	Seeking Follower#rachel	917,6,6,{
 rachel,142,167,5	script	Seeking Follower#rachel	916,6,6,{
 	if ((lost_boy == 13) && (ra_tem_q == 20)) {
+		L_Mes:
 		mes "[Arunafeltz Follower]";
 		mes "Excuse me, but";
 		mes "are you "+strcharinfo(0)+"?";
@@ -7661,7 +7458,6 @@ rachel,142,167,5	script	Seeking Follower#rachel	916,6,6,{
 		mes "right room of the temple.";
 		close;
 	}
-
 	else {
 		mes "[Arunafeltz Follower]";
 		mes "May Freya bless you";
@@ -7670,29 +7466,26 @@ rachel,142,167,5	script	Seeking Follower#rachel	916,6,6,{
 	}
 
 OnTouch:
-	if ((lost_boy == 13) && (ra_tem_q == 20)) {
-		mes "[Arunafeltz Follower]";
-		mes "Excuse me, but";
-		mes "are you "+strcharinfo(0)+"?";
-		next;
-		select("Yes.");
-		mes "[Arunafeltz Follower]";
-		mes "High Priest Zhed";
-		mes "would like to see";
-		mes "you right away, "+strcharinfo(0)+".";
-		next;
-		select("May ask why?");
-		mes "[Arunafeltz Follower]";
-		mes "Well, I actually have no";
-		mes "idea. I'm only supposed to";
-		mes "inform you that he's looking";
-		mes "for you. Please visit High";
-		mes "Priest Zhed in the second";
-		mes "right room of the temple.";
-		close;
-	}
-
+	if ((lost_boy == 13) && (ra_tem_q == 20)) goto L_Mes;
+	end;
 }
 
-// End of Donation Lottery/High Priest quest
+//============================================================
+// Old changelog
+//============================================================
+//= 1.0 First version, needs testing. [L0ne_W0lf]
+//= 1.1 Some slight optimization. [L0ne_W0lf]
+//= 1.2 Fixed Man Stuck in Ice only giving 1 Freezing Snow Powder. [L0ne_W0lf]
+//= 1.3 Added the ability to redeem lottery tickets before donation max is met. [L0ne_W0lf]
+//= 1.4 Removed an erroneous "case". Thanks, Jet. [L0ne_W0lf]
+//= 1.5 Fixed a bug in Bruspetti quest. [SinSloth]
+//= 1.5b Fixed some typos in various quests. [SinSloth]
+//= 1.6 Fixed a couple bugs with the Pope's Office Guards... [L0ne_W0lf]
+//= 1.7 Fixed Maheo, he will revert to his frozen state when clicked. [L0ne_W0lf]
+//=	Replaced  instances of "+name+", with "+strcharinfo(0)".
+//= 1.8 Various fixes: Hamion will now delete items used for Wind Hammer. [L0ne_W0lf]
+//=	Fixed EXP reward in Ice Necklace quest, fixed a typo in an NPC header.
+//=	Another minor fix to Hamion. "< 1" -> "< 2". Added a missing close to
+//=	the ontouch "key". Thanks to Gepard for pointing them out.
+//= 1.9 Fixed a misorder with variable checkings. [SinSloth]
 //============================================================

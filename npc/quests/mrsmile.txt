@@ -1,17 +1,18 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Mr. Smile Quest
 //===== By: ================================================== 
 //= kobra_k88, Akaru
 //===== Current Version: ===================================== 
-//= 1.4a
+//= 1.5
 //===== Compatible With: ===================================== 
-//= eAthena 7.15 +
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= [Aegis Conversion]
 //= Trade Clover, Fluff and Jellopy for a Mr. Smile mask.
 //===== Additional Comments: ================================= 
 //= 1.4 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
 //= 1.4a Fixed a little Typo error in duplicates. (bugreport:749) [Samuray22]
+//= 1.5 Updated to match the new Izlude Map. Thanks to Masao. [15peaces]
 //============================================================ 
 
 prontera,157,187,4	script	Smile Assistance#prt::SmileHelper	92,{
@@ -100,7 +101,11 @@ aldebaran,136,135,4	duplicate(SmileHelper)	Smile Assistance#alde	92
 geffen,119,107,4	duplicate(SmileHelper)	Smile Assistance#gef	92
 alberta,113,53,4	duplicate(SmileHelper)	Smile Assistance#alb	92
 payon,186,104,5	duplicate(SmileHelper)	Smile Assistance#pay	92
-izlude,129,149,4	duplicate(SmileHelper)	Smile Assistance#iz	92
+izlude,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz	92
+izlude_a,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_a	92
+izlude_b,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_b	92
+izlude_c,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_c	92
+izlude_d,125,175,4	duplicate(SmileHelper)	Smile Assistance#iz_d	92
 
 //============================================================ 
 // Old changelog

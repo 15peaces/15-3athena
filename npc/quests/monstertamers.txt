@@ -465,7 +465,7 @@ aldeba_in,168,175,4	script	Monster Tamer#alde	125,{
 	}
 }
 
-izlude_in,129,64,4	script	Monster Tamer#izu	125,{
+izlude_in,55,105,4	script	Monster Tamer#izu	125,{
 	mes "[Shogo]";
 	mes "Are you pre-occupied with";
 	mes "gathering items for monsters";

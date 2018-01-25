@@ -3,12 +3,11 @@
 //===== By: ================================================== 
 //= Everybody mentioned in the comments
 //===== Current Version: ===================================== 
-//= 1.9
+//= 2.0
 //===== Compatible With: ===================================== 
-//= eAthena SVN
-//= 15-3athena rev. 1+
+//= 15-3athena Project
 //===== Description: ========================================= 
-//= [Aegis Conversion]
+//= [Official Conversion]
 //= Geffen Town NPCs
 //===== Additional Comments: ================================= 
 //= Fully working
@@ -23,6 +22,7 @@
 //= 1.7 Fixed bad NPC header data to comply with rev. 11603. [L0ne_W0lf]
 //= 1.8 Fixed character's name and swapped gender dialogues [Lupus]
 //= 1.9 Replaced effect numerics with constants. [Samuray22]
+//= 2.0 Bug fixes. Thanks to DeadlySilence. [15peaces] 
 //============================================================
 
 geffen,59,143,0	script	Meera	91,{
@@ -1056,7 +1056,7 @@ geffen_in,39,127,2	script	Psychic Advisor	704,{
 				mes "[Psychic Advisor]";
 				mes "You didn't let me finish my sentence. What I meant to say was...";
 				next;
-				mes "[Psychic Advisor]"				;
+				mes "[Psychic Advisor]";
 				if (sex)
 					mes "The girl that you";
 				else
@@ -1205,6 +1205,7 @@ geffen_in,39,127,2	script	Psychic Advisor	704,{
 		mes "Well, in any case, concentrating on your studies is tough, but it can be rewarding. I hope you do well in whatever you choose to do~";
 		close;
 	case 5:
+		mes "[Psychic Advisor]";
 		mes "The future? I thought it was implied that any fortune I tell you is about the future in the specific field that you choose.";
 		next;
 		mes "[Psychic Advisor]";
@@ -1266,6 +1267,7 @@ geffen_in,39,127,2	script	Psychic Advisor	704,{
 		mes "That's my prediction. Can you really argue with the wisdom of the spirit world?";
 		close;
 	case 6:
+		mes "[Psychic Advisor]";
 		mes "Fashion...?";
 		mes "What does that have to do with matters of the supernatural? Well, um, let me contact the spirits. Ah! Here we go...";
 		next;
