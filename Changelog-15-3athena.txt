@@ -5,6 +5,10 @@
 // 		- Details.
 //			--More Details.
 //========================================
+28/01/2017
+	r189 [15peaces]
+		*Fixed some item & monster DEF & MDEF values.
+
 25/01/2017
 	r188 [15peaces]
 		*Huge number of NPC & Database updates. (Thanks to @HerculesWS)

@@ -7046,7 +7046,7 @@
 15058,Rider_Suit,Rider Suit,5,20,,1000,0,4,0,1,75,7,2,16,,1,1,0,{ bonus bAgi,1+(getrefine()/2); },{},{}
 //15059,2011Love_Daddy,
 15060,Sky_Blue_Smock,Sky Blue Smock,5,20,,300,0,0,0,1,0xFFFFFFFF,63,2,16,,0,1,0,{},{},{}
-15061,Egir_Armor,Egir Armor,5,200000,,2600,,6,,1,0xFFFFFFFF,63,2,16,,110,1,0,{ bonus bAllStats,1; if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus2 bResEff,Eff_Silence,5000; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus2 bResEff,Eff_Stun,5000; },{},{}
+15061,Egir_Armor,Egir Armor,5,200000,,2600,,11,,1,0xFFFFFFFF,63,2,16,,110,1,0,{ bonus bAllStats,1; if(BaseClass==Job_Mage||BaseClass==Job_Archer||BaseClass==Job_Acolyte) bonus2 bResEff,Eff_Silence,5000; else if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief) bonus2 bResEff,Eff_Stun,5000; },{},{}
 //15062,TE_Woe_Coat,
 //15063,TE_Woe_Chain_Mail,
 //15064,TE_Woe_Mage_Coat,
@@ -7392,7 +7392,7 @@
 //18806,Black_Rabbit_Hat,
 //18807,Yellow_Yuzu_Hat,
 //18808,Wing_Form_Spectacle,
-18810,Hell_Pumpkin_Hat,Hell Pumpkin Hat,5,20,,500,,1,,0,0xFFFFFFFF,63,2,256,,0,1,717,{ bonus bMdef,12; bonus2 bSubRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; },{},{} 
+18810,Hell_Pumpkin_Hat,Hell Pumpkin Hat,5,20,,500,,3,,0,0xFFFFFFFF,63,2,256,,0,1,717,{ bonus bMdef,10; bonus2 bSubRace,RC_Demon,5; bonus2 bSubRace,RC_Undead,5; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_DemiHuman,5; },{},{} 
 //18814,Angel_School_Cap,
 //18815,Devil_School_Cap,
 //18816,Adv_Angel_School_Cap,
@@ -7402,10 +7402,10 @@
 //18820,Gray_Helmet,
 //18821,Rainbow_Feather_Deco,
 //18826,Woodie_Hat,
-18828,2012RMSCNO1,2013 RWC Winners Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,942,{ bonus bAllStats,5; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
-18829,2012RMSCNO2,2013 RWC Runners-Up Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,943,{ bonus bAllStats,4; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
-18830,2012RMSCNO3,2013 RWC 3rd Helmet,5,1000,,1000,,2,,1,0xFFFFFFFF,63,2,256,,60,1,944,{ bonus bAllStats,3; bonus bMdef,5; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
-18831,2012RMSCNO4,2012RMSCNO4,5,0,,1000,,2,,1,0xFFFFFFFF,63,2,256,,95,0,945,{ bonus bAllStats,2; bonus bMdef,5; bonus bSpeedAddRate,10; },{},{}
+18828,2012RMSCNO1,2013 RWC Winners Helmet,5,1000,,1000,,4,,1,0xFFFFFFFF,63,2,256,,60,1,942,{ bonus bAllStats,5; bonus bMdef,4; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18829,2012RMSCNO2,2013 RWC Runners-Up Helmet,5,1000,,1000,,4,,1,0xFFFFFFFF,63,2,256,,60,1,943,{ bonus bAllStats,4; bonus bMdef,4; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18830,2012RMSCNO3,2013 RWC 3rd Helmet,5,1000,,1000,,4,,1,0xFFFFFFFF,63,2,256,,60,1,944,{ bonus bAllStats,3; bonus bMdef,4; bonus bSpeedAddRate,10; skill "AL_TELEPORT",1; bonus bUnbreakableHelm,0; },{},{}
+18831,2012RMSCNO4,2012RMSCNO4,5,0,,1000,,4,,1,0xFFFFFFFF,63,2,256,,95,0,945,{ bonus bAllStats,2; bonus bMdef,4; bonus bSpeedAddRate,10; },{},{}
 18832,Rolf_Von_Gigue_666,Rolf Von Gigue 666,5,20,,300,,0,,0,0xFFFFFFFF,63,2,256,,0,1,946,{ bonus3 bAutoSpell,"BS_ADRENALINE",2,5; },{},{}
 //18833,Marin_Crown,
 //18834,Sakura_Hairband,
@@ -7430,7 +7430,7 @@
 //18857,Curupira_Hat,
 //18858,Pink_Angeling_Bubble,
 //18859,Angeling_Bubble,
-18860,Preschool_Hat,Preschool Hat,5,0,,100,,1,,1,0xFFFFFFFF,63,2,256,,1,,977,{},{},{}
+18860,Preschool_Hat,Preschool Hat,5,0,,100,,2,,1,0xFFFFFFFF,63,2,256,,1,,977,{},{},{}
 //18861,Zaha_Doll_Hat_J,
 //18863,Exorcist_Robe,
 //18864,Earth_Goddess_Flower_J,
