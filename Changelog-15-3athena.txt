@@ -5,11 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
-28/01/2017
+17/02/2018
+	r190 [15peaces]
+		*Merged missing changes from 3ceam rev. 635
+		*Fixed some item & monster DEF & MDEF values.
+		*Added some random items.
+		*re-added suppport for "bg_flee_penalty" config.
+			-this was removed by accident, sorry. ^^
+		*Removed some unneeded code from mmo.h
+		*Rearanged SC's to be more easy to find for 3rd job related stuff in status.c
+		*Added full support for all Genetic potions.
+			-The values for the status are official, but few I have to wonder if they should be set as + or %.
+			-Mysterious Powder is still a mystery and a temp code is added for now to prevent the item from stone cursing.
+		*Reordered all SC's tags and ID's for 3rd job related stuff.
+			-This was done since it was very difficult to find what ID each one was.
+
+01/28/2018
 	r189 [15peaces]
 		*Fixed some item & monster DEF & MDEF values.
 
-25/01/2017
+01/25/2018
 	r188 [15peaces]
 		*Huge number of NPC & Database updates. (Thanks to @HerculesWS)
 			-Lot's of possible bug fixes and stuff.
@@ -90,12 +105,12 @@
 			-Fixed some possible issues when using literal negative values in scripts.
 			-Thanks to @HerculesWS for the base.
 
-28/10/2017
+10/28/2017
 	r187 [15peaces]
 		*Added missing coma resistance for MD_MVP.
 			-follow-up to r186(@c51afab)
 		
-25/10/2017
+10/25/2017
 	r186 [15peaces]
 		*Added support for MD_MVP
 			-This is supposed to be the true "MVP"-mode. Some of my renewal-testing mobs are using this mode already.
@@ -107,7 +122,7 @@
 			--please note that MD_KNOCKBACK_IMMUNE is however not supported yet.
 			-Thanks to @rathena for the base.
 
-23/10/2017
+10/23/2017
 	r185 [15peaces]
 		*Merged missing changes from 3ceam rev. 634
 		*Added some missing champion monsters.
