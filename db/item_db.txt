@@ -7842,6 +7842,14 @@
 //
 20202,C_Deviruchi_Balloon,Costume Deviruchi Balloon,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1082,{},{},{}
 20203,C_Bandana,Costume Bandana,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,6,{},{},{}
+20204,C_Hunting_Cap,Costume Hunting Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,389,{},{},{}
+20205,C_Fancy_Flower,Costume Fancy Flower,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,4,{},{},{}
+20206,C_Chicken_Hat1,Costume Chicken Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,7186,,,,1296,{},{},{}
+20207,C_Striped_Hairband,Costume Striped Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,133,{},{},{}
+20208,C_Necktie,Costume Necktie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,443,{},{},{}
+//
+20210,C_Chicken_Hat2,Costume Chicken Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1297,{},{},{}
+20211,C_Chicken_Hat,Costume Chicken Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1298,{},{},{}
 //
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
 

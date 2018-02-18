@@ -6,6 +6,21 @@
 //			--More Details.
 //========================================
 18/02/2018
+	r192 [15peaces]
+		*Merged missing changes from 3ceam rev. 638 - 639
+		*Fixed AL_HOLYWATER behavior.
+			-Holy Water should not cast or consume SP when the player has no empty bottles, both in water (and water skills) and outside water.
+			-Thanks to @rathena!
+		*Updated Cultivation plant spawn formula
+			-Corrected level 2 Cultivation formula for spawning plants.
+			-Thanks to @rathena!
+		*Fixed some mapserver-errors related to summoner job.
+		*Added MOBID enum.
+		*Did some updates in the item database.
+		*Redid the entire crafting tables for all 3rd jobs to official.
+		*Added a few missing change material items to the code to allow making multiple ones at a time.
+
+18/02/2018
 	r191 [15peaces]
 		*Merged missing changes from 3ceam rev. 637
 		*fixed clif_process_message packet for 2015-10-29aRagexeRE.

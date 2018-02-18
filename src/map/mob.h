@@ -40,7 +40,16 @@
 //Used to determine default enemy type of mobs (for use in eachinrange calls)
 #define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM|BL_MER)
 
-#define MOBID_PORING 1002;
+enum MOBID {
+	MOBID_PORING			= 1002,
+	MOBID_RED_PLANT			= 1078,
+	MOBID_BLUE_PLANT,
+	MOBID_GREEN_PLANT,
+	MOBID_YELLOW_PLANT,
+	MOBID_WHITE_PLANT,
+	MOBID_SHINING_PLANT,
+	MOBID_BLACK_MUSHROOM	= 1084,
+};
 
 //Externals for the status effects. [Epoque]
 extern const int mob_manuk[8];

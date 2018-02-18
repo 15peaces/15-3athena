@@ -5520,6 +5520,12 @@ const char* job_name(int class_)
 
 	case JOB_REBELLION:
 		return msg_txt(656);
+
+	case JOB_SUMMONER:
+		return msg_txt(658);
+
+	case JOB_BABY_SUMMONER:
+		return msg_txt(659);
 	
 	default:
 		return msg_txt(699);

@@ -346,15 +346,7 @@
 20199,C_Evil_Marching_Hat,Costume Evil Marching Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,687,{},{},{}
 20200,C_Rabbit_Headdress,Costume Rabbit Headdress,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1095,{},{},{}
 20201,C_Banshee_Master_Kiss,Costume Banshee Master Kiss,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,959,{},{},{}
-
-20204,C_Hunting_Cap,Costume Hunting Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,389,{},{},{}
-20205,C_Fancy_Flower,Costume Fancy Flower,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,4,{},{},{}
-20206,C_Chicken_Hat1,Costume Chicken Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,7186,,,,1296,{},{},{}
-20207,C_Striped_Hairband,Costume Striped Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,133,{},{},{}
-20208,C_Necktie,Costume Necktie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,443,{},{},{}
 20209,C_Mermaid_Bubbles,Costume Mermaid Bubbles,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1299,{},{},{}
-20210,C_Chicken_Hat2,Costume Chicken Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1297,{},{},{}
-20211,C_Chicken_Hat,Costume Chicken Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,1298,{},{},{}
 20212,C_Loki_Nidhoggur_dolls,Costume Loki & Nidhoggur dolls,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1304,{},{},{}
 20213,C_Robot_Eyes,Costume Robot Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,345,{},{},{}
 20214,C_Evil_Marcher_Hat_J,Costume Evil Marcher Hat J,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1002,{},{},{}
@@ -362,6 +354,7 @@
 20216,C_Rideword_Hat,Costume Rideword Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,890,{},{},{}
 20217,C_Arabian_Veil,Costume Arabian Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1300,{},{},{}
 20218,C_Spell_Circuit,Costume Spell Circuit,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1301,{},{},{}
+
 20219,C_Angel_Marcher_Hat,Costume Angel Marcher Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1302,{},{},{}
 20220,C_Dark_Night_Veil,Costume Dark Night Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1303,{},{},{}
 20221,C_Ifrit_Eyes,Costume Ifrit Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,886,{},{},{}
@@ -2887,3 +2880,36 @@
 18819,Blue_Pencil_In_Mouth,Blue Pencil In Mouth,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,0,0,932,{ bonus bUnbreakableHelm,1; bonus bHit,3; },{},{}
 18820,Gray_Helmet,Helmet of Gray,5,10,,450,,35,,1,0xFFFFFFFF,63,2,256,,120,1,941,{ bonus2 bSubEle,Ele_Holy,3+getrefine()*2; },{},{}
 18821,Rainbow_Feather_Deco,Rainbow Feather Deco,5,20,,300,,5,,1,0xFFFFFFFF,63,2,256,,1,1,934,{ bonus2 bAddClass,Class_All,1; bonus bMatkRate,1; },{},{}
+
+// 3ceam stable
+// Rangar Waug Flute
+6124,Wolf's_Flute,Wolf's Flute,3,10,,0,,,,,,,,,,,,,{},{},{}
+// Warlock's Magic Spellbooks
+6189,Magic_Book_FB,Spell Book (Fire Bolt),3,0,,0,,,,,,,,,,,,,{},{},{}
+6190,Magic_Book_CB,Spell Book (Cold Bolt),3,0,,0,,,,,,,,,,,,,{},{},{}
+6191,Magic_Book_LB,Spell Book (Lightning Bolt),3,0,,0,,,,,,,,,,,,,{},{},{}
+6192,Magic_Book_SG,Spell Book (Storm Gust),3,0,,0,,,,,,,,,,,,,{},{},{}
+6193,Magic_Book_LOV,Spell Book (Lord Of Vermillion),3,0,,0,,,,,,,,,,,,,{},{},{}
+6194,Magic_Book_MS,Spell Book (Meteor Storm),3,0,,0,,,,,,,,,,,,,{},{},{}
+6195,Magic_Book_CM,Spell Book (Comet),3,0,,0,,,,,,,,,,,,,{},{},{}
+6196,Magic_Book_TV,Spell Book (Tetra Vortex),3,0,,0,,,,,,,,,,,,,{},{},{}
+6197,Magic_Book_TS,Spell Book (Thunder Storm),3,0,,0,,,,,,,,,,,,,{},{},{}
+6198,Magic_Book_JT,Spell Book (Jupitel Thunder),3,0,,0,,,,,,,,,,,,,{},{},{}
+6199,Magic_Book_WB,Spell Book (Water_Ball),3,0,,0,,,,,,,,,,,,,{},{},{}
+6200,Magic_Book_HD,Spell Book (Heaven's Drive),3,0,,0,,,,,,,,,,,,,{},{},{}
+6201,Magic_Book_ES,Spell Book (Earth Spike),3,0,,0,,,,,,,,,,,,,{},{},{}
+6202,Magic_Book_ES_,Spell Book (Earth Strain),3,0,,0,,,,,,,,,,,,,{},{},{}
+6203,Magic_Book_CL,Spell Book (Chain Lightning),3,0,,0,,,,,,,,,,,,,{},{},{}
+6204,Magic_Book_CR,Spell Book (Crimson_Rock),3,0,,0,,,,,,,,,,,,,{},{},{}
+6205,Magic_Book_DL,Spell Book (Drain Life),3,0,,0,,,,,,,,,,,,,{},{},{}
+// Arch Bishop Ancilla
+12333,Ancilla,Ancilla,0,0,,10,,,,,0x00000100,8,2,,,,,,{ percentheal 0,15; },{},{}
+// Guillotine Cross Poisons // Only Guillotines are allowed to consume these upon clicking the item???
+12717,Poison_Paralysis,Paralyze,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_PARALYSE,300000,0; },{},{}
+12718,Poison_Leech,Leech End,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_LEECHESEND,300000,0; },{},{}
+12719,Poison_Oblivion,Oblivion Curse,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_OBLIVIONCURSE,300000,0; },{},{}
+12720,Poison_Contamination,Disheart,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_DEATHHURT,300000,0; },{},{}
+12721,Poison_Numb,Toxin,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_TOXIN,300000,0; },{},{}
+12722,Poison_Fever,Pyrexia,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_PYREXIA,300000,0; },{},{}
+12723,Poison_Laughing,Magic Mushroom,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_MAGICMUSHROOM,300000,0; },{},{}
+12724,Poison_Fatigue,Venom Bleed,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_VENOMBLEED,15000,0; },{},{}

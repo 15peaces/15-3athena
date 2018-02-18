@@ -9570,8 +9570,31 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			if (rand()%100 < 50) {
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 			} else {
-				TBL_MOB* md = mob_once_spawn_sub(src, src->m, x, y, "--ja--",(skilllv < 2 ? 1084+rand()%2 : 1078+rand()%6),"");
-				if (!md) break;
+				TBL_MOB* md = NULL;
+				int mob_id;
+
+				if (skilllv == 1)
+					mob_id = MOBID_BLACK_MUSHROOM + rnd() % 2;
+				else {
+					int rand_val = rnd() % 100;
+
+					if (rand_val < 30)
+						mob_id = MOBID_GREEN_PLANT;
+					else if (rand_val < 55)
+						mob_id = MOBID_RED_PLANT;
+					else if (rand_val < 80)
+						mob_id = MOBID_YELLOW_PLANT;
+					else if (rand_val < 90)
+						mob_id = MOBID_WHITE_PLANT;
+					else if (rand_val < 98)
+						mob_id = MOBID_BLUE_PLANT;
+					else
+						mob_id = MOBID_SHINING_PLANT;
+				}
+
+				md = mob_once_spawn_sub(src, src->m, x, y, "--ja--", mob_id, "");
+				if (!md)
+					break;
 				if ((i = skill_get_time(skillid, skilllv)) > 0)
 				{
 					if( md->deletetimer != INVALID_TIMER )
@@ -11718,31 +11741,37 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	// perform skill-specific checks (and actions)
 	switch( skill )
 	{
-	case SA_CASTCANCEL:
-	case SO_SPELLFIST:
-		if( sd->ud.skilltimer == INVALID_TIMER) 
-		{
-			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
-			return 0;
-		}
-		break;
-	case AL_WARP:
-		if(!battle_config.duel_allow_teleport && sd->duel_group) { // duel restriction [LuzZza]
-			clif_displaymessage(sd->fd, "Duel: Can't use warp in duel.");
-			return 0;
-		}
-		break;
-	case MO_CALLSPIRITS:
-		{
-			if (sc && sc->data[SC_RAISINGDRAGON])
-				lv = sc->data[SC_RAISINGDRAGON]->val1 + lv;
-			if (sd->spiritball >= lv)
+		case SA_CASTCANCEL:
+		case SO_SPELLFIST:
+			if( sd->ud.skilltimer == INVALID_TIMER) 
 			{
-				clif_skill_fail(sd, skill, 0, 0, 0);
+				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 				return 0;
 			}
-		}
-		break;
+			break;
+		case AL_WARP:
+			if(!battle_config.duel_allow_teleport && sd->duel_group) { // duel restriction [LuzZza]
+				clif_displaymessage(sd->fd, "Duel: Can't use warp in duel.");
+				return 0;
+			}
+			break;
+		case AL_HOLYWATER:
+			if(pc_search_inventory(sd,ITEMID_EMPTY_BOTTLE) < 0) {
+				clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+				return false;
+			}
+			break;
+		case MO_CALLSPIRITS:
+			{
+				if (sc && sc->data[SC_RAISINGDRAGON])
+					lv = sc->data[SC_RAISINGDRAGON]->val1 + lv;
+				if (sd->spiritball >= lv)
+				{
+					clif_skill_fail(sd, skill, 0, 0, 0);
+					return 0;
+				}
+			}
+			break;
 	case MO_FINGEROFFENSIVE:
 	case GS_FLING:
 	case SR_RAMPAGEBLASTER:
@@ -15263,7 +15292,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 						qty *= 2; 
 						break;
 					// Throwable potions
-					case 13275: case 13276: case 13277: case 13278: case 13279: case 13280:
+					case 13275: case 13276: case 13277: case 13278: case 13279: case 13280: case 13281: case 13282: case 13283:
 						qty *= 10;
 						break;
 				}
