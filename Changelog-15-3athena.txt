@@ -5,9 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+18/02/2018
+	r191 [15peaces]
+		*Merged missing changes from 3ceam rev. 637
+		*fixed clif_process_message packet for 2015-10-29aRagexeRE.
+			-the chat system is now working fine.
+		*fixed new char creation.
+			-also added base-support for doram races.
+		*Improvments to the Masquarade success chance code.
+
 17/02/2018
 	r190 [15peaces]
-		*Merged missing changes from 3ceam rev. 635
+		*Merged missing changes from 3ceam rev. 635 - 636
 		*Fixed some item & monster DEF & MDEF values.
 		*Added some random items.
 		*re-added suppport for "bg_flee_penalty" config.

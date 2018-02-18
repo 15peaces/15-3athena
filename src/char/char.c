@@ -122,6 +122,8 @@ int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
 int start_zeny = 0;
 int start_weapon = 1201;
 int start_armor = 2301;
+int start_weapon_doram = 1681;
+int start_armor_doram = 2301;
 int guild_exp_rate = 100;
 
 //Custom limits for the fame lists. [Skotlex]
@@ -136,6 +138,7 @@ struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
 // Initial position (it's possible to set it in conf file)
 struct point start_point = { 0, 53, 111 };
+struct point start_point_doram = { 0, 47, 296 };
 
 // online players by [Yor]
 char online_txt_filename[1024] = "online.txt";
@@ -1294,8 +1297,11 @@ int check_char_name(char * name)
 // Function to create a new character
 //-----------------------------------
 #if PACKETVER >= 20120307
-int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style)
-{
+#if PACKETVER >= 20151029
+int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race) {
+#else
+int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
+#endif
 	int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1, status_point = 48;
 #else
 int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
@@ -1311,6 +1317,17 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	flag = check_char_name(name);
 	if( flag < 0 )
 		return flag;
+
+#if PACKETVER >= 20151029
+	// Checks race input.
+	// Race values are acturally sent by the client as the job ID the new character would start on.
+	// But to be safe, its best to have the server read what race was selected and then set the
+	// starting job itself rather then setting it to the value the client sent.
+	if ( race != RACE_HUMAN && race != RACE_DORAM ) {
+		ShowWarning("make_new_char: Detected character creation packet with invalid race type on account: %d.\n", sd->account_id);
+		return -2;
+	}
+#endif
 
 	//check other inputs
 #if PACKETVER >= 20120307
@@ -1357,7 +1374,47 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.account_id = sd->account_id;
 	char_dat[i].status.slot = slot;
 	safestrncpy(char_dat[i].status.name,name,NAME_LENGTH);
-	char_dat[i].status.class_ = 0;
+#if PACKETVER >= 20151029
+	// Race selection from 0xa39 packet.
+	// 0 = Human
+	// 4218 = Doram
+	if ( race == RACE_HUMAN || ALLOW_OTHER_RACES == 0)
+	{	// Human - Defaults
+		// Job = Novice
+		// Starting HP/SP = 40/11
+		// Weapon/Armor = Knife / Cotton Shirt
+		// Start/Save Point = new_1-1,53,111
+		char_dat[i].status.class_ = JOB_NOVICE;
+		char_dat[i].status.max_hp = 40 * (100 + char_dat[i].status.vit) / 100;
+		char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
+		char_dat[i].status.inventory[0].nameid = start_weapon;
+		char_dat[i].status.inventory[1].nameid = start_armor;
+		memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
+		memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
+	}
+	else
+	{	// Doram - Defaults
+		// Job = Summoner
+		// Starting HP/SP = 60/8
+		// Weapon/Armor = Short Foxtail Staff / Cotton Shirt
+		// Start/Save Point = lasa_fild01,47,296
+		char_dat[i].status.class_ = JOB_SUMMONER;
+		char_dat[i].status.max_hp = 60 * (100 + char_dat[i].status.vit) / 100;
+		char_dat[i].status.max_sp = 8 * (100 + char_dat[i].status.int_) / 100;
+		char_dat[i].status.inventory[0].nameid = start_weapon_doram;
+		char_dat[i].status.inventory[1].nameid = start_armor_doram;
+		memcpy(&char_dat[i].status.last_point, &start_point_doram, sizeof(start_point_doram));
+		memcpy(&char_dat[i].status.save_point, &start_point_doram, sizeof(start_point_doram));
+	}
+#else
+	char_dat[i].status.class_ = JOB_NOVICE;
+	char_dat[i].status.max_hp = 40 * (100 + char_dat[i].status.vit) / 100;
+	char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
+	char_dat[i].status.inventory[0].nameid = start_weapon;
+	char_dat[i].status.inventory[1].nameid = start_armor;
+	memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
+	memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
+#endif
 	char_dat[i].status.base_level = 1;
 	char_dat[i].status.job_level = 1;
 	char_dat[i].status.base_exp = 0;
@@ -1395,6 +1452,7 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.head_mid = 0;
 	char_dat[i].status.head_bottom = 0;
 	char_dat[i].status.robe = 0;
+	char_dat[i].status.body = 0;
 	memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
 	memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
 	char_num++;
@@ -1860,7 +1918,7 @@ int count_users(void)
 // Writes char data to the buffer in the format used by the client.
 // Used in packets 0x6b (chars info) and 0x6d (new char info)
 // Returns the size
-#define MAX_CHAR_BUF 150 //Max size (for WFIFOHEAD calls)
+#define MAX_CHAR_BUF 155 //Max size (for WFIFOHEAD calls)
 int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 {
 	unsigned short offset = 0;
@@ -4087,7 +4145,11 @@ int parse_char(int fd)
 		break;
 
 		// create new char (CH_MAKE_CHAR).
-#if PACKETVER >= 20120307
+#if PACKETVER >= 20151029
+		// S 0a39 <name>.24B <slot>.B <hair color>.W <hair style>.W <starting job ID>.W <Unknown>.(W or 2 B's)??? <sex>.B
+		case 0xa39:
+			FIFOSD_CHECK(36);
+#elif PACKETVER >= 20120307
 		// S 0970 <name>.24B <slot>.B <hair color>.W <hair style>.W
 		case 0x970:
 			FIFOSD_CHECK(31);
@@ -4100,7 +4162,9 @@ int parse_char(int fd)
 			if( !char_new ) //turn character creation on/off [Kevin]
 				i = -2;
 			else
-#if PACKETVER >= 20120307
+#if PACKETVER >= 20151029
+				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29),RFIFOW(fd,31));
+#elif PACKETVER >= 20120307
 				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 #else
 				i = make_new_char(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
@@ -4132,7 +4196,10 @@ int parse_char(int fd)
 				if( ch < MAX_CHARS )
 					sd->found_char[ch] = i; // position of the new char in the char_dat[] array
 			}
-#if PACKETVER >= 20120307
+
+#if PACKETVER >= 20151029
+			RFIFOSKIP(fd,36);
+#elif PACKETVER >= 20120307
 			RFIFOSKIP(fd,31);
 #else
 			RFIFOSKIP(fd,37);

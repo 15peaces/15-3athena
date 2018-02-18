@@ -133,6 +133,8 @@ int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
 int start_zeny = 0;
 int start_weapon = 1201;
 int start_armor = 2301;
+int start_weapon_doram = 1681;
+int start_armor_doram = 2301;
 int guild_exp_rate = 100;
 
 //Custom limits for the fame lists. [Skotlex]
@@ -156,6 +158,7 @@ unsigned int save_flag = 0;
 
 // Initial position (it's possible to set it in conf file)
 struct point start_point = { 0, 53, 111 };
+struct point start_point_doram = { 0, 47, 296 };
 
 int console = 0;
 
@@ -1528,12 +1531,19 @@ int check_char_name(char * name, char * esc_name)
 // Function to create a new character
 //-----------------------------------
 #if PACKETVER >= 20120307
-int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style)
-{
+#if PACKETVER >= 20151029
+int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race) {
+	short starting_job;
+	short starting_hp, starting_sp;
+	short starting_weapon, starting_armor;
+	const char *starting_point_map;
+	short starting_point_x, starting_point_y;
+#else
+int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
+#endif
 	int str = 1, agi = 1, vit = 1, int_ = 1, dex = 1, luk = 1, status_point = 48;
 #else
-int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style)
-{
+int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int agi, int vit, int int_, int dex, int luk, int slot, int hair_color, int hair_style) {
 	int status_point = 0;
 #endif
 	char name[NAME_LENGTH];
@@ -1547,6 +1557,17 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	flag = check_char_name(name,esc_name);
 	if( flag < 0 )
 		return flag;
+
+#if PACKETVER >= 20151029
+	// Checks race input.
+	// Race values are acturally sent by the client as the job ID the new character would start on.
+	// But to be safe, its best to have the server read what race was selected and then set the
+	// starting job itself rather then setting it to the value the client sent.
+	if ( race != RACE_HUMAN && race != RACE_DORAM ) {
+		ShowWarning("make_new_char: Detected character creation packet with invalid race type on account: %d.\n", sd->account_id);
+		return -2;
+	}
+#endif
 
 	//check other inputs
 #if PACKETVER >= 20120307
@@ -1581,13 +1602,62 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 			Sql_ShowDebug(sql_handle);
 	}
 
+#if PACKETVER >= 20151029
+	if ( race == RACE_HUMAN || ALLOW_OTHER_RACES == 0 )
+	{	// Human - Defaults
+		// Job = Novice
+		// Starting HP/SP = 40/11
+		// Weapon/Armor = Knife / Cotton Shirt
+		// Start/Save Point = new_1-1,53,111
+		starting_job = JOB_NOVICE;
+		starting_hp = 40 * (100 + vit) / 100;
+		starting_sp = 11 * (100 + vit) / 100;
+		starting_weapon = start_weapon;
+		starting_armor = start_armor;
+		starting_point_map = mapindex_id2name(start_point.map);
+		starting_point_x = start_point.x;
+		starting_point_y = start_point.y;
+	}
+	else
+	{	// Doram - Defaults
+		// Job = Summoner
+		// Starting HP/SP = 60/8
+		// Weapon/Armor = Short Foxtail Staff / Cotton Shirt
+		// Start/Save Point = lasa_fild01,47,296
+		starting_job = JOB_SUMMONER;
+		starting_hp = 60 * (100 + vit) / 100;
+		starting_sp = 8 * (100 + vit) / 100;
+		starting_weapon = start_weapon_doram;
+		starting_armor = start_armor_doram;
+		starting_point_map = mapindex_id2name(start_point_doram.map);
+		starting_point_x = start_point_doram.x;
+		starting_point_y = start_point_doram.y;
+	}
+
 	//Insert the new char entry to the database
-if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`, `str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
- 		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
-		"'%d', '%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
- 		char_db, sd->account_id , slot, esc_name, start_zeny, status_point, str, agi, vit, int_, dex, luk,
+	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `class`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
+		"'%d', '%d', '%s', '%d', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
+		char_db, sd->account_id , slot, esc_name, starting_job, start_zeny, 48, str, agi, vit, int_, dex, luk,
+		starting_hp, starting_hp, starting_sp, starting_sp, hair_style, hair_color,
+		starting_point_map, starting_point_x, starting_point_y, starting_point_map, starting_point_x, starting_point_y) )
+#elif PACKETVER >= 20120307
+	//Insert the new char entry to the database
+	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
+		"'%d', '%d', '%s', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
+		char_db, sd->account_id , slot, esc_name, start_zeny, 48, str, agi, vit, int_, dex, luk,
 		(40 * (100 + vit)/100) , (40 * (100 + vit)/100 ),  (11 * (100 + int_)/100), (11 * (100 + int_)/100), hair_style, hair_color,
 		mapindex_id2name(start_point.map), start_point.x, start_point.y, mapindex_id2name(start_point.map), start_point.x, start_point.y) )
+#else
+	//Insert the new char entry to the database
+	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
+		"'%d', '%d', '%s', '%d',  '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
+		char_db, sd->account_id , slot, esc_name, start_zeny, str, agi, vit, int_, dex, luk,
+		(40 * (100 + vit)/100) , (40 * (100 + vit)/100 ),  (11 * (100 + int_)/100), (11 * (100 + int_)/100), hair_style, hair_color,
+		mapindex_id2name(start_point.map), start_point.x, start_point.y, mapindex_id2name(start_point.map), start_point.x, start_point.y) )
+#endif
 	{
 		Sql_ShowDebug(sql_handle);
 		return -2; //No, stop the procedure!
@@ -1595,14 +1665,25 @@ if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_nu
 	//Retrieve the newly auto-generated char id
 	char_id = (int)Sql_LastInsertId(sql_handle);
 	//Give the char the default items
+#if PACKETVER >= 20151029
+	if (starting_weapon > 0) {
+		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, starting_weapon, 1, 1) )
+			Sql_ShowDebug(sql_handle);
+	}
+	if (starting_armor > 0) {
+		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, starting_armor, 1, 1) )
+			Sql_ShowDebug(sql_handle);
+	}
+#else
 	if (start_weapon > 0) { //add Start Weapon (Knife?)
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%hu', '%d', '%d')", inventory_db, char_id, start_weapon, 1, 1) )
+		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, start_weapon, 1, 1) )
 			Sql_ShowDebug(sql_handle);
 	}
 	if (start_armor > 0) { //Add default armor (cotton shirt?)
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%hu', '%d', '%d')", inventory_db, char_id, start_armor, 1, 1) )
+		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, start_armor, 1, 1) )
 			Sql_ShowDebug(sql_handle);
 	}
+#endif
 
 	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s\n", sd->account_id, char_id, slot, name);
 	return char_id;
@@ -1812,7 +1893,7 @@ int count_users(void)
 // Writes char data to the buffer in the format used by the client.
 // Used in packets 0x6b (chars info) and 0x6d (new char info)
 // Returns the size
-#define MAX_CHAR_BUF 150 //Max size (for WFIFOHEAD calls)
+#define MAX_CHAR_BUF 155 //Max size (for WFIFOHEAD calls)
 int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 {
 	unsigned short offset = 0;
@@ -1942,7 +2023,7 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 //----------------------------------------
 // Updated function for sending characters data to a player.
 // For 2013 clients and higher. (HC_ACCEPT_ENTER2)
-// Note: I assume this is a official way of coding this,
+// Note: Rytech assumes this is a official way of coding this,
 // but for some reason it won't display your characters
 // on the character selection screen. Its as if the client
 // is expecting additional info from another packet.
@@ -4339,7 +4420,11 @@ int parse_char(int fd)
 		break;
 
 		// create new char (CH_MAKE_CHAR).
-#if PACKETVER >= 20120307
+#if PACKETVER >= 20151029
+		// S 0a39 <name>.24B <slot>.B <hair color>.W <hair style>.W <starting job ID>.W <Unknown>.(W or 2 B's)??? <sex>.B
+		case 0xa39:
+			FIFOSD_CHECK(36);
+#elif PACKETVER >= 20120307
 		// S 0970 <name>.24B <slot>.B <hair color>.W <hair style>.W
 		case 0x970:
 			FIFOSD_CHECK(31);
@@ -4352,7 +4437,9 @@ int parse_char(int fd)
 			if( !char_new ) //turn character creation on/off [Kevin]
 				i = -2;
 			else
-#if PACKETVER >= 20120307
+#if PACKETVER >= 20151029
+				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29),RFIFOW(fd,31));
+#elif PACKETVER >= 20120307
 				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 #else
 				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
@@ -4389,7 +4476,9 @@ int parse_char(int fd)
 					sd->found_char[ch] = i; // the char_id of the new char
 			}
 
-#if PACKETVER >= 20120307
+#if PACKETVER >= 20151029
+			RFIFOSKIP(fd,36);
+#elif PACKETVER >= 20120307
 			RFIFOSKIP(fd,31);
 #else
 			RFIFOSKIP(fd,37);

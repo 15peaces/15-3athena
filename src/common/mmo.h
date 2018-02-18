@@ -87,6 +87,12 @@
 #define MAX_INVENTORY 100
 //Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 #define MAX_CHARS 12
+
+// Allow players to create more then just human characters?
+// Current Races Supported: Human / Doram.
+// Setting is 1 for yes and 0 for no.
+#define ALLOW_OTHER_RACES 1
+
 //Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 //Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size.
 #define MAX_SLOTS 4
@@ -873,6 +879,10 @@ enum e_job {
 
 	JOB_REBELLION = 4215,
 
+	JOB_SUMMONER = 4218,
+
+	JOB_BABY_SUMMONER = 4220,
+
 	JOB_MAX,
 };
 
@@ -903,6 +913,12 @@ struct clan {
 	short max_member, connect_member;
 	struct map_session_data *members[MAX_CLAN];
 	struct clan_alliance alliance[MAX_CLANALLIANCE];
+};
+
+// Race values sent by client for character creation.
+enum {
+	RACE_HUMAN = 0,
+	RACE_DORAM = 4218
 };
 
 // sanity checks...

@@ -9954,6 +9954,15 @@ static bool clif_process_message(struct map_session_data* sd, int format, char**
 		messagelen = textlen - NAME_LENGTH; // this should be the message length (w/ zero byte included)
 	}
 
+#if PACKETVER >= 20151029
+	// October 2015 and newer clients don't have the zero byte.
+	// But trying to adjust the entire chat system to work without it causes too many problems.
+	// Best to just add it onto the end of the incoming packet and adjust lengths in chat packets
+	// as needed to prevent breaking anything.
+	if( message[messagelen-1] != '\0' )
+		message[messagelen++] = '\0';
+#endif
+
 	if( messagelen != strnlen(message, messagelen)+1 )
 	{	// the declared length must match real length
 		ShowWarning("clif_process_message: Received malformed packet from player '%s' (length is incorrect)!\n", sd->status.name);
