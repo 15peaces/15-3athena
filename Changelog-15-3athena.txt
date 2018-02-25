@@ -7,6 +7,11 @@
 //========================================
 18/02/2018
 	r192 [15peaces]
+		*Some misc work in databases.
+			-Finally added working Old Glastheim monsters & skills.
+
+18/02/2018
+	r192 [15peaces]
 		*Merged missing changes from 3ceam rev. 638 - 639
 		*Fixed AL_HOLYWATER behavior.
 			-Holy Water should not cast or consume SP when the player has no empty bottles, both in water (and water skills) and outside water.

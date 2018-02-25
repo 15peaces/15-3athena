@@ -354,9 +354,9 @@
 20216,C_Rideword_Hat,Costume Rideword Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,890,{},{},{}
 20217,C_Arabian_Veil,Costume Arabian Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1300,{},{},{}
 20218,C_Spell_Circuit,Costume Spell Circuit,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1301,{},{},{}
-
 20219,C_Angel_Marcher_Hat,Costume Angel Marcher Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1302,{},{},{}
 20220,C_Dark_Night_Veil,Costume Dark Night Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1303,{},{},{}
+
 20221,C_Ifrit_Eyes,Costume Ifrit Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,886,{},{},{}
 20222,C_Blue_Santa_Hat,Costume Blue Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,395,{},{},{}
 20223,C_Romantic_Leaf,Costume Romantic Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,57,{},{},{}
@@ -2913,3 +2913,7 @@
 12722,Poison_Fever,Pyrexia,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_PYREXIA,300000,0; },{},{}
 12723,Poison_Laughing,Magic Mushroom,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_MAGICMUSHROOM,300000,0; },{},{}
 12724,Poison_Fatigue,Venom Bleed,2,2,,20,,,,,0x00001000,7,2,,,,,,{ if(rand(10000) < 10) sc_start SC_VENOMBLEED,15000,0; },{},{}
+
+// Old Glast Heim
+4605,UndeadKnightM_Card,Agony Of Royal Knight Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxHPrate,-44; bonus bHPGainValue,200+10*getrefine(); },{},{}
+4606,UndeadKnightF_Card,Grudge of Royal Knight Card,6,20,,10,,,,,,,,4,,,,,{ bonus bMaxSPrate,-44; bonus bSPGainValue,20+(getrefine()/2); },{},{ heal 0,-444; }
