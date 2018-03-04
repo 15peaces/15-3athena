@@ -5,8 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
-18/02/2018
-	r192 [15peaces]
+04/03/2018
+	r194 [15peaces]
+		*Some 2015 client updates, thanks to @rathena.
+			-Added V6 EquipPackets.
+				--a 2015-05-13 or newer client is needed to use these.
+				--some other misc. packet updates.
+			-Oneclick Itemidentify Packet Implemented
+				--New Feature for 2015-05-13 client or newer
+				--Request 1 Magnifier when use (ctrl + click right)
+
+25/02/2018
+	r193 [15peaces]
 		*Some misc work in databases.
 			-Finally added working Old Glastheim monsters & skills.
 

@@ -2049,19 +2049,21 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 //----------------------------------------
 // Updated function for sending characters data to a player.
 // For 2013 clients and higher. (HC_ACCEPT_ENTER2)
-// Note: I assume this is a official way of coding this,
+// Note: Rytech assumes this is a official way of coding this,
 // but for some reason it won't display your characters
 // on the character selection screen. Its as if the client
 // is expecting additional info from another packet.
-// Special Thanks to Rytech. [15peaces]
+// Special thanks to Rytech. [15peaces]
 //----------------------------------------
 /*int mmo_char_send082d(int fd, struct char_session_data* sd)
 {
-	int i, j, found_num = 0;
-	found_num = char_find_characters(sd);
+	int j = 0;
+ 	
+	if (save_log)
+		ShowInfo("Loading Char Data ("CL_BOLD"%d"CL_RESET")\n",sd->account_id);
 
 	j = 29;
-	WFIFOHEAD(fd,j + found_num*MAX_CHAR_BUF);
+	WFIFOHEAD(fd,j + MAX_CHARS*MAX_CHAR_BUF);
 	WFIFOW(fd,0) = 0x82d;
 	WFIFOB(fd,4) = MAX_CHARS; //NormalSlotNum - Number of slots open for normal service.
 	WFIFOB(fd,5) = 0; //PremiumSlotNum - Number of slots open for premium service.
@@ -2069,8 +2071,7 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 	WFIFOB(fd,7) = MAX_CHARS; //ProducibleSlotNum - Number of ValidSlotNum slots available.
 	WFIFOB(fd,8) = MAX_CHARS; //ValidSlotNum - Total number of slots.
 	memset(WFIFOP(fd,9), 0, 20);//m_extension - Unused bytes.
-	for(i = 0; i < found_num; i++)
-		j += mmo_char_tobuf(WFIFOP(fd,j), &char_dat[sd->found_char[i]].status);
+	j += mmo_chars_fromsql(sd, WFIFOP(fd,j));
 	WFIFOW(fd,2) = j; //PacketLength
 	WFIFOSET(fd,j);
 
@@ -2083,8 +2084,8 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 // Note: This is a hacked that allows logging in without
 // any known issues by sending the 82d packet, and then
 // sending the 6b packet. This isnt official and will be
-// reworked to a more official setup in the future.
-// Special Thanks to Rytech. [15peaces]
+// reworked to a more official setup in the future. 
+// Special thanks to Rytech. [15peaces]
 //----------------------------------------
 void mmo_char_send082d(int fd, struct char_session_data* sd)
 {

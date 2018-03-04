@@ -2724,6 +2724,17 @@ void mob_heal(struct mob_data *md,unsigned int heal)
 {
 	if (battle_config.show_mob_info&3)
 		clif_charnameack (0, &md->bl);
+#if PACKETVER >= 20120404
+	if( !(md->status.mode&MD_BOSS) && battle_config.monster_hp_bars_info){
+		int i;
+		for(i = 0; i < DAMAGELOG_SIZE; i++)// must show hp bar to all char who already hit the mob.
+			if( md->dmglog[i].id ) {
+				struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
+				if( sd && check_distance_bl(&md->bl, &sd->bl, AREA_SIZE) ) // check if in range
+					clif_monster_hp_bar(md, sd->fd);
+			}
+	}
+#endif
 }
 
 /*==========================================

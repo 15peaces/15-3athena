@@ -551,6 +551,7 @@ extern struct Battle_Config
 	int feature_banking;
 	int mvp_tomb_enabled;
 	int feature_roulette;
+	int monster_hp_bars_info;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

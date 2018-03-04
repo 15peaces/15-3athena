@@ -44,7 +44,7 @@ enum
 {// packet DB
 	MIN_PACKET_DB  = 0x064,
 	MAX_PACKET_DB  = 0xA40,
-	MAX_PACKET_VER = 37,
+	MAX_PACKET_VER = 38,
 	MAX_PACKET_POS = 20,
 };
 
@@ -924,6 +924,7 @@ void clif_open_search_store_info(struct map_session_data* sd);
 void clif_search_store_info_click_ack(struct map_session_data* sd, short x, short y);
 
 /// 15-3athena Added
+void clif_monster_hp_bar( struct mob_data* md, int fd );
 void clif_fast_movement(struct block_list *bl, short x, short y);
 void clif_showscript(struct block_list* bl, const char* message);
 void clif_efst_status_change(struct block_list *bl,int type,int64 tick, int val1, int val2, int val3);
@@ -960,4 +961,7 @@ void clif_disp_overheadcolor_self(int fd, uint32 color, const char *msg);
 void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *msg);
 
 void clif_broadcast_obtain_special_item(struct map_session_data* sd, const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname);
+
+void clif_dressing_room(struct map_session_data *sd, int view);
+
 #endif /* _CLIF_H_ */
