@@ -1846,7 +1846,6 @@ int map_quit(struct map_session_data *sd)
 	
 	// Return loot to owner
 	if( sd->pd ) pet_lootitem_drop(sd->pd, sd);
-	if( sd->state.storage_flag == 1 ) sd->state.storage_flag = 0; // No need to Double Save Storage on Quit.
 
 	if( sd->ed ) elemental_clean_effect(sd->ed);
 
@@ -4002,6 +4001,9 @@ int do_init(int argc, char *argv[])
 
 	map_config_read(MAP_CONF_NAME);
 	chrif_checkdefaultlogin();
+
+	if (save_settings == 0)
+		ShowWarning("Value of 'save_settings' is not set, player's data only will be saved every 'autosave_time' (%d seconds).\n", autosave_interval/1000);
 
 	if (!map_ip_set || !char_ip_set) {
 		char ip_str[16];

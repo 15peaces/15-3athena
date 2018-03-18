@@ -32,7 +32,11 @@ static int mail_fromsql(int char_id, struct mail_data* md)
 		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`,`bound`");
 	for (i = 0; i < MAX_SLOTS; i++)
 		StringBuf_Printf(&buf, ",`card%d`", i);
-
+	for (i = 0; i < MAX_ITEM_RDM_OPT; ++i) {
+		StringBuf_Printf(&buf, ", `option_id%d`", i);
+		StringBuf_Printf(&buf, ", `option_val%d`", i);
+		StringBuf_Printf(&buf, ", `option_parm%d`", i);
+	}
 	// I keep the `status` < 3 just in case someone forget to apply the sqlfix
 	StringBuf_Printf(&buf, " FROM `%s` WHERE `dest_id`='%d' AND `status` < 3 ORDER BY `id` LIMIT %d",
 		mail_db, char_id, MAIL_MAX_INBOX + 1);
@@ -68,6 +72,14 @@ static int mail_fromsql(int char_id, struct mail_data* md)
 		{
 			Sql_GetData(sql_handle, 16 + j, &data, NULL);
 			item->card[j] = atoi(data);
+		}
+		for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
+			Sql_GetData(sql_handle, 16 + MAX_SLOTS + j * 3, &data, NULL);
+			item->option[j].id = atoi(data);
+			Sql_GetData(sql_handle, 17 + MAX_SLOTS + j * 3, &data, NULL);
+			item->option[j].value = atoi(data);
+			Sql_GetData(sql_handle, 18 + MAX_SLOTS + j * 3, &data, NULL);
+			item->option[j].param = atoi(data);
 		}
 	}
 
@@ -110,10 +122,20 @@ int mail_savemessage(struct mail_message* msg)
 	StringBuf_Printf(&buf, "INSERT INTO `%s` (`send_name`, `send_id`, `dest_name`, `dest_id`, `title`, `message`, `time`, `status`, `zeny`, `amount`, `nameid`, `refine`, `attribute`, `identify`, `bound`", mail_db);
 	for (j = 0; j < MAX_SLOTS; j++)
 		StringBuf_Printf(&buf, ", `card%d`", j);
+	for (j = 0; j < MAX_ITEM_RDM_OPT; ++j) {
+		StringBuf_Printf(&buf, ", `option_id%d`", j);
+		StringBuf_Printf(&buf, ", `option_val%d`", j);
+		StringBuf_Printf(&buf, ", `option_parm%d`", j);
+	}
 	StringBuf_Printf(&buf, ") VALUES (?, '%d', ?, '%d', ?, ?, '%lu', '%d', '%d', '%d', '%hu', '%d', '%d', '%d', '%d'",
 		msg->send_id, msg->dest_id, (unsigned long)msg->timestamp, msg->status, msg->zeny, msg->item.amount, msg->item.nameid, msg->item.refine, msg->item.attribute, msg->item.identify, msg->item.bound);
 	for (j = 0; j < MAX_SLOTS; j++)
 		StringBuf_Printf(&buf, ", '%hu'", msg->item.card[j]);
+	for (j = 0; j < MAX_ITEM_RDM_OPT; ++j) {
+		StringBuf_Printf(&buf, ", '%d'", msg->item.option[j].id);
+		StringBuf_Printf(&buf, ", '%d'", msg->item.option[j].value);
+		StringBuf_Printf(&buf, ", '%d'", msg->item.option[j].param);
+	}
 	StringBuf_AppendStr(&buf, ")");
 
 	// prepare and execute query
@@ -148,6 +170,11 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg)
 		"`zeny`,`amount`,`nameid`,`refine`,`attribute`,`identify`,`bound`");
 	for( j = 0; j < MAX_SLOTS; j++ )
 		StringBuf_Printf(&buf, ",`card%d`", j);
+	for (j = 0; j < MAX_ITEM_RDM_OPT; ++j) {
+		StringBuf_Printf(&buf, ", `option_id%d`", j);
+		StringBuf_Printf(&buf, ", `option_val%d`", j);
+		StringBuf_Printf(&buf, ", `option_parm%d`", j);
+	}
 	StringBuf_Printf(&buf, " FROM `%s` WHERE `id` = '%d'", mail_db, mail_id);
 
 	if( SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf))
@@ -184,6 +211,14 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg)
 		{
 			Sql_GetData(sql_handle,16 + j, &data, NULL);
 			msg->item.card[j] = atoi(data);
+		}
+		for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
+			Sql_GetData(sql_handle, 16 + MAX_SLOTS + j * 3, &data, NULL);
+			msg->item.option[j].id = atoi(data);
+			Sql_GetData(sql_handle, 17 + MAX_SLOTS + j * 3, &data, NULL);
+			msg->item.option[j].value = atoi(data);
+			Sql_GetData(sql_handle, 18 + MAX_SLOTS + j * 3, &data, NULL);
+			msg->item.option[j].param = atoi(data);
 		}
 	}
 
@@ -238,6 +273,11 @@ static bool mail_DeleteAttach(int mail_id)
 	StringBuf_Printf(&buf, "UPDATE `%s` SET `zeny` = '0', `nameid` = '0', `amount` = '0', `refine` = '0', `attribute` = '0', `identify` = '0'", mail_db);
 	for (i = 0; i < MAX_SLOTS; i++)
 		StringBuf_Printf(&buf, ", `card%d` = '0'", i);
+	for (i = 0; i < MAX_ITEM_RDM_OPT; ++i) {
+		StringBuf_Printf(&buf, ", `option_id%d` = 0", i);
+		StringBuf_Printf(&buf, ", `option_val%d` = 0", i);
+		StringBuf_Printf(&buf, ", `option_parm%d` = 0", i);
+	}
 	StringBuf_Printf(&buf, " WHERE `id` = '%d'", mail_id);
 
 	if( SQL_ERROR == Sql_Query(sql_handle, StringBuf_Value(&buf)) )

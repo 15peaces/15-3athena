@@ -34,6 +34,8 @@
 #define MAX_RAGE 15 //Max number of rage balls a Royal Guard can have.
 #define MAX_SPELLBOOK 10 //Max number or spells a Warlock can preserve.
 
+#define equip_index_check(i) ( (i) >= EQI_ACC_L && (i) < EQI_MAX )
+
 struct weapon_data {
 	int atkmods[3];
 	// all the variables except atkmods get zero'ed in each call of status_calc_pc
@@ -202,6 +204,11 @@ struct map_session_data {
 	int packet_ver;  // 5: old, 6: 7july04, 7: 13july04, 8: 26july04, 9: 9aug04/16aug04/17aug04, 10: 6sept04, 11: 21sept04, 12: 18oct04, 13: 25oct04 ... 18
 	struct mmo_charstatus status;
 	struct registry save_reg;
+
+	// Item Storages
+	struct s_storage storage;
+	struct s_storage inventory;
+	struct s_storage cart;
 	
 	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[EQI_MAX];
@@ -706,13 +713,14 @@ bool pc_can_give_items(int level);
 bool pc_can_give_bounded_items(int level);
 
 int pc_setrestartvalue(struct map_session_data *sd,int type);
-int pc_makesavestatus(struct map_session_data *);
+void pc_makesavestatus(struct map_session_data *);
 void pc_respawn(struct map_session_data* sd, clr_type clrtype);
 int pc_setnewpc(struct map_session_data* sd, int account_id, int char_id, uint32 login_id1, unsigned int client_tick, char sex, int fd);
-bool pc_authok(struct map_session_data* sd, int, time_t, int gmlevel, struct mmo_charstatus* status);
+bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_time, int gmlevel, struct mmo_charstatus *st, bool changing_mapservers);
 void pc_authfail(struct map_session_data *);
 int pc_reg_received(struct map_session_data *sd);
 
+void pc_setequipindex(struct map_session_data *sd);
 int pc_isequip(struct map_session_data *sd,int n);
 int pc_equippoint(struct map_session_data *sd,int n);
 int pc_setinventorydata(struct map_session_data *sd);
@@ -970,6 +978,8 @@ int pc_bonus_script_timer(int tid, int64 tick, int id, intptr_t data);
 void pc_bonus_script(struct map_session_data *sd);
 struct s_bonus_script_entry *pc_bonus_script_add(struct map_session_data *sd, const char *script_str, uint32 dur, enum si_type icon, uint16 flag, uint8 type);
 void pc_bonus_script_clear(struct map_session_data *sd, uint16 flag);
+
+bool pc_is_same_equip_index(enum equip_index eqi, short *equip_index, short index);
 
 void pc_show_questinfo(struct map_session_data *sd);
 void pc_show_questinfo_reinit(struct map_session_data *sd);

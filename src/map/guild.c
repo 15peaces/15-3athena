@@ -1467,7 +1467,7 @@ int guild_broken(int guild_id, int flag)
 
 	guild_db->foreach(guild_db,guild_broken_sub,guild_id);
 	guild_castle_onguildbreak(guild_id);
-	guild_storage_delete(guild_id);
+	storage_guild_delete(guild_id);
 	idb_remove(guild_db,guild_id);
 	return 0;
 }

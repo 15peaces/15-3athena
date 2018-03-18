@@ -1440,14 +1440,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			wd.div_ = skill_get_num(GS_CHAINACTION,skill_lv);
 			wd.type = 0x08;
 		}
-		else if( sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW && (i = sd->equip_index[EQI_AMMO]) >= 0 && sd->inventory_data[i] && sd->status.inventory[i].amount > 1 )
+		else if( sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW && (i = sd->equip_index[EQI_AMMO]) >= 0 && sd->inventory_data[i] && sd->inventory.u.items_inventory[i].amount > 1 )
 		{
 			short rate[] = { 4, 4, 7, 9, 10 };
 			if( sc->data[SC_FEARBREEZE]->val1 > 0 && sc->data[SC_FEARBREEZE]->val1 < 6 && rand()%100 < rate[sc->data[SC_FEARBREEZE]->val1 - 1] )
 			{
 				wd.type = 0x08;
 				wd.div_ = 2 + (sc->data[SC_FEARBREEZE]->val1 > 2 ? rand()%(sc->data[SC_FEARBREEZE]->val1 - 2) : 0);
-				wd.div_ = min(wd.div_,sd->status.inventory[i].amount); // Reduce number of hits if you don't have enough arrows
+				wd.div_ = min(wd.div_,sd->inventory.u.items_inventory[i].amount); // Reduce number of hits if you don't have enough arrows
 				sd->state.fearbreeze = wd.div_ - 1;
 			}
 		}
@@ -2411,7 +2411,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						short index = sd->equip_index[EQI_HAND_R];
 						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 						{
-							skillratio += 100 * sd->status.inventory[index].refine;	// Increased by weapon refine.
+							skillratio += 100 * sd->inventory.u.items_inventory[index].refine;	// Increased by weapon refine.
 							skillratio *= sd->inventory_data[index]->wlv; // Increased by weapon level.
 						}
 					}
@@ -2949,7 +2949,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		{ //Refine bonus applies after cards and elements.
 			short index= sd->equip_index[EQI_HAND_L];
 			if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
-				ATK_ADD(10*sd->status.inventory[index].refine);
+				ATK_ADD(10*sd->inventory.u.items_inventory[index].refine);
 		}
 	} //if (sd)
 
@@ -5556,7 +5556,10 @@ static const struct _battle_data {
 	{ "feature.banking",                    &battle_config.feature_banking,                 1,      0,      1,              },
 	{ "mvp_tomb_enabled",					&battle_config.mvp_tomb_enabled,				1,      0,      1				}, 
 	{ "feature.roulette",                   &battle_config.feature_roulette,                1,      0,      1,              },
-	{ "monster_hp_bars_info",               &battle_config.monster_hp_bars_info,            1,      0,      1,              }, 
+	{ "monster_hp_bars_info",               &battle_config.monster_hp_bars_info,            1,      0,      1,              },
+	{ "min_body_style",                     &battle_config.min_body_style,                  0,      0,      SHRT_MAX,       },
+	{ "max_body_style",                     &battle_config.max_body_style,                  4,      0,      SHRT_MAX,       },
+	{ "save_body_style",                    &battle_config.save_body_style,                 0,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

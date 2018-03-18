@@ -125,6 +125,7 @@
 #define MAX_QUEST_DB 2540 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
+#define MAX_ITEM_RDM_OPT 5	 /// Max item random option [Napster] 
 #define MAX_CLAN 500
 #define MAX_CLANALLIANCE 6
 
@@ -253,6 +254,11 @@ struct item {
 	char refine;
 	char attribute;
 	unsigned short card[MAX_SLOTS];
+	struct {
+		short id;
+		short value;
+		char param;
+	} option[MAX_ITEM_RDM_OPT];		// max of 5 random options can be supported.
 	unsigned int expire_time;
 	unsigned char favorite;
 	unsigned char bound;
@@ -377,18 +383,26 @@ struct bonus_script_data {
 	uint8 type; ///< 0 - None, 1 - Buff, 2 - Debuff
 };
 
-struct storage_data {
-	int storage_amount;
-	struct item items[MAX_STORAGE];
+enum storage_type {
+	TABLE_INVENTORY,
+	TABLE_CART,
+	TABLE_STORAGE,
+	TABLE_GUILD_STORAGE,
 };
 
-struct guild_storage {
-	int dirty;
-	int guild_id;
-	short storage_status;
-	short storage_amount;
-	struct item items[MAX_GUILD_STORAGE];
-	unsigned short lock;
+struct s_storage {
+	bool dirty; ///< Dirty status, data needs to be saved
+	bool status; ///< Current status of storage (opened or closed)
+	int amount; ///< Amount of items in storage
+	bool lock; ///< If locked, can't use storage when item bound retrieval
+	uint32 id; ///< Account ID / Character ID / Guild ID (owner of storage)
+	enum storage_type type; ///< Type of storage (inventory, cart, storage, guild storage)
+	union { // Max for inventory, storage, cart, and guild storage are 1637 each without changing this struct and struct item [2014/10/27]
+		struct item items_inventory[MAX_INVENTORY];
+		struct item items_storage[MAX_STORAGE];
+		struct item items_cart[MAX_CART];
+		struct item items_guild[MAX_GUILD_STORAGE];
+	} u;
 };
 
 struct s_pet {
@@ -461,12 +475,12 @@ struct hotkey {
 #endif
 
 struct mmo_charstatus {
-	int char_id;
-	int account_id;
-	int partner_id;
-	int father;
-	int mother;
-	int child;
+	uint32 char_id;
+	uint32 account_id;
+	uint32 partner_id;
+	uint32 father;
+	uint32 mother;
+	uint32 child;
 
 	unsigned int base_exp,job_exp;
 	int zeny;
@@ -500,8 +514,6 @@ struct mmo_charstatus {
 	uint16 mapport;
 
 	struct point last_point, save_point, memo_point[MAX_MEMOPOINTS];
-	struct item inventory[MAX_INVENTORY], cart[MAX_CART];
-	struct storage_data storage;
 	struct s_skill skill[MAX_SKILL];
 
 	struct s_friend friends[MAX_FRIENDS]; //New friend system [Skotlex]
@@ -889,7 +901,18 @@ enum e_job {
 enum {
 	SEX_FEMALE = 0,
 	SEX_MALE,
-	SEX_SERVER
+	SEX_SERVER,
+	SEX_ACCOUNT = 99
+};
+
+/// Item Bound Type
+enum bound_type {
+	BOUND_NONE = 0, /// No bound
+	BOUND_ACCOUNT, /// 1- Account Bound
+	BOUND_GUILD, /// 2 - Guild Bound
+	BOUND_PARTY, /// 3 - Party Bound
+	BOUND_CHAR, /// 4 - Character Bound
+	BOUND_MAX,
 };
 
 enum e_party_member_withdraw {

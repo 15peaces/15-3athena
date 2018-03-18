@@ -1564,6 +1564,7 @@ extern int current_equip_item_index;
 extern int current_equip_card_id;
 
 extern int percentrefinery[5][MAX_REFINE+1]; //The last slot always has a 0% success chance [Skotlex]
+extern short current_equip_opt_index; 
 
 //Mode definitions to clear up code reading. [Skotlex]
 enum e_mode
@@ -1938,6 +1939,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl );
 #define status_calc_elemental(ed, first) status_calc_bl_(&(ed)->bl, SCB_ALL, first)
 #define status_calc_npc(nd, opt) status_calc_bl_(&(nd)->bl, SCB_ALL, opt)
 
+bool status_calc_weight(struct map_session_data *sd, uint8 flag); 
 void status_calc_bl_(struct block_list *bl, enum scb_flag flag, bool first);
 int status_calc_mob_(struct mob_data* md, bool first);
 int status_calc_pet_(struct pet_data* pd, bool first);

@@ -295,6 +295,11 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if(!chrif_isconnected())
 		return -1; //Character is saved on reconnect.
 
+	if (sd->state.storage_flag == 1)
+        intif_storage_save(sd,TABLE_STORAGE);
+    intif_storage_save(sd,TABLE_INVENTORY);
+    intif_storage_save(sd,TABLE_CART);
+
 	//For data sync
 	if (sd->state.storage_flag == 2)
 		storage_guild_storagesave(sd->status.account_id, sd->status.guild_id, flag);
@@ -623,12 +628,13 @@ void chrif_authok(int fd)
 	struct mmo_charstatus* status;
 	int char_id;
 	struct auth_node *node;
+	bool changing_mapservers;
 	TBL_PC* sd;
 
 	//Check if both servers agree on the struct's size
-	if( RFIFOW(fd,2) - 24 != sizeof(struct mmo_charstatus) )
+	if( RFIFOW(fd,2) - 25 != sizeof(struct mmo_charstatus) )
 	{
-		ShowError("chrif_authok: Data size mismatch! %d != %d\n", RFIFOW(fd,2) - 24, sizeof(struct mmo_charstatus));
+		ShowError("chrif_authok: Data size mismatch! %d != %d\n", RFIFOW(fd,2) - 25, sizeof(struct mmo_charstatus));
 		return;
 	}
 
@@ -637,7 +643,8 @@ void chrif_authok(int fd)
 	login_id2 = RFIFOL(fd,12);
 	expiration_time = (time_t)(int32)RFIFOL(fd,16);
 	gmlevel = RFIFOL(fd,20);
-	status = (struct mmo_charstatus*)RFIFOP(fd,24);
+	changing_mapservers = (RFIFOB(fd,24)) > 0;
+	status = (struct mmo_charstatus*)RFIFOP(fd,25);
 
 	char_id = status->char_id;
 
@@ -669,9 +676,13 @@ void chrif_authok(int fd)
 		node->char_id == char_id &&
 		node->login_id1 == login_id1 )
 	{ //Auth Ok
-		if (pc_authok(sd, login_id2, expiration_time, gmlevel, status))
+		if (pc_authok(sd, login_id2, expiration_time, gmlevel, status, changing_mapservers))
 			return;
 	} else { //Auth Failed
+		if(node->char_dat != NULL)
+			ShowError("chrif_authok: Auth Faild! node->char_dat is not empty! \n");
+		ShowError("chrif_authok: Auth Faild! runflag: %d, AID: %d, CID: %d, LoginID: %d \n", runflag, account_id, char_id, login_id1);
+		ShowError("chrif_authok: Node-Data: AID: %d, CID: %d, LoginID: %d \n", node->account_id, node->char_id, node->login_id1);
 		pc_authfail(sd);
 	}
 	chrif_char_offline(sd); //Set him offline, the char server likely has it set as online already.
@@ -679,29 +690,27 @@ void chrif_authok(int fd)
 }
 
 // client authentication failed
-void chrif_authfail(int fd)
+void chrif_authfail(int fd) /* HELLO WORLD. ip in RFIFOL 15 is not being used (but is available) */
 {
 	int account_id;
 	int char_id;
 	uint32 login_id1;
 	char sex;
-	uint32 ip;
+	//uint32 ip;
 	struct auth_node* node;
 
 	account_id = RFIFOL(fd,2);
 	char_id    = RFIFOL(fd,6);
 	login_id1  = RFIFOL(fd,10);
 	sex        = RFIFOB(fd,14);
-	ip         = ntohl(RFIFOL(fd,15));
+	//ip         = ntohl(RFIFOL(fd,15));
 
 	node = chrif_search(account_id);
 	if( node != NULL &&
 		node->account_id == account_id &&
 		node->char_id == char_id &&
 		node->login_id1 == login_id1 &&
-#if PACKETVER < 20141016
 		node->sex == sex &&
-#endif
 		node->state == ST_LOGIN )
 	{// found a match
 		clif_authfail_fd(node->fd, 0);
@@ -1009,7 +1018,7 @@ int chrif_divorceack(int char_id, int partner_id)
 	{
 		sd->status.partner_id = 0;
 		for(i = 0; i < MAX_INVENTORY; i++)
-			if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
+			if (sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F)
 				pc_delitem(sd, i, 1, 0, 0);
 	}
 
@@ -1017,7 +1026,7 @@ int chrif_divorceack(int char_id, int partner_id)
 	{
 		sd->status.partner_id = 0;
 		for(i = 0; i < MAX_INVENTORY; i++)
-			if (sd->status.inventory[i].nameid == WEDDING_RING_M || sd->status.inventory[i].nameid == WEDDING_RING_F)
+			if (sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F)
 				pc_delitem(sd, i, 1, 0, 0);
 	}
 	
@@ -1861,6 +1870,11 @@ int do_final_chrif(void)
  *------------------------------------------*/
 int do_init_chrif(void)
 {
+	if(sizeof(struct s_storage) > 0xFFFF) {
+		ShowError("s_storage size = %d is too big to be transmitted. (must be below 0xFFFF)\n", sizeof(struct s_storage));
+		exit(EXIT_FAILURE);
+	}
+
 	auth_db = idb_alloc(DB_OPT_BASE);
 	auth_db_ers = ers_new(sizeof(struct auth_node));
 

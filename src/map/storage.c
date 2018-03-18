@@ -70,9 +70,9 @@ void do_final_storage(void) // by [MC Cameri]
 static int storage_reconnect_sub(DBKey key,void *data,va_list ap)
 { //Parses storage and saves 'dirty' ones upon reconnect. [Skotlex]
 
-	struct guild_storage* stor = (struct guild_storage*) data;
-	if (stor->dirty && stor->storage_status == 0) //Save closed storages.
-		storage_guild_storagesave(0, stor->guild_id,0);
+	struct s_storage* stor = (struct s_storage*) data;
+	if (stor->dirty && stor->status == 0) //Save closed storages.
+		storage_guild_storagesave(0, stor->id, 0);
 
 	return 0;
 }
@@ -102,9 +102,9 @@ int storage_storageopen(struct map_session_data *sd)
 	}
 	
 	sd->state.storage_flag = 1;
-	storage_sortitem(sd->status.storage.items, ARRAYLENGTH(sd->status.storage.items));
-	clif_storagelist(sd, sd->status.storage.items, ARRAYLENGTH(sd->status.storage.items));
-	clif_updatestorageamount(sd, sd->status.storage.storage_amount, MAX_STORAGE);
+	storage_sortitem(sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
+	clif_storagelist(sd, sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
+	clif_updatestorageamount(sd, sd->storage.amount, MAX_STORAGE);
 	return 0;
 }
 
@@ -130,7 +130,7 @@ int compare_item(struct item *a, struct item *b)
  *------------------------------------------*/
 static int storage_additem(struct map_session_data* sd, struct item* item_data, int amount)
 {
-	struct storage_data* stor = &sd->status.storage;
+	struct s_storage* stor = &sd->storage;
 	struct item_data *data;
 	int i;
 
@@ -154,12 +154,12 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 	{//Stackable
 		for( i = 0; i < MAX_STORAGE; i++ )
 		{
-			if( compare_item(&stor->items[i], item_data) )
+			if( compare_item(&stor->u.items_storage[i], item_data) )
 			{// existing items found, stack them
-				if( amount > MAX_AMOUNT - stor->items[i].amount )
+				if( amount > MAX_AMOUNT - stor->u.items_storage[i].amount )
 					return 1;
-				stor->items[i].amount += amount;
-				clif_storageitemadded(sd,&stor->items[i],i,amount);
+				stor->u.items_storage[i].amount += amount;
+				clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
 				log_pick(&sd->bl, LOG_TYPE_STORAGE, item_data->nameid, -amount, item_data);
 				return 0;
 			}
@@ -167,16 +167,16 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 	}
 
 	// find free slot
-	ARR_FIND( 0, MAX_STORAGE, i, stor->items[i].nameid == 0 );
+	ARR_FIND( 0, MAX_STORAGE, i, stor->u.items_storage[i].nameid == 0 );
 	if( i >= MAX_STORAGE )
 		return 1;
 
 	// add item to slot
-	memcpy(&stor->items[i],item_data,sizeof(stor->items[0]));
-	stor->storage_amount++;
-	stor->items[i].amount = amount;
-	clif_storageitemadded(sd,&stor->items[i],i,amount);
-	clif_updatestorageamount(sd, stor->storage_amount, MAX_STORAGE);
+	memcpy(&stor->u.items_storage[i],item_data,sizeof(stor->u.items_storage[0]));
+	stor->amount++;
+	stor->u.items_storage[i].amount = amount;
+	clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
+	clif_updatestorageamount(sd, stor->amount, MAX_STORAGE);
 	log_pick(&sd->bl, LOG_TYPE_STORAGE, item_data->nameid, -amount, item_data);
 
 	return 0;
@@ -187,18 +187,18 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
  *------------------------------------------*/
 int storage_delitem(struct map_session_data* sd, int n, int amount)
 {
-	if( sd->status.storage.items[n].nameid == 0 || sd->status.storage.items[n].amount < amount )
+	if( sd->storage.u.items_storage[n].nameid == 0 || sd->storage.u.items_storage[n].amount < amount )
 		return 1;
 
-	sd->status.storage.items[n].amount -= amount;
+	sd->storage.u.items_storage[n].amount -= amount;
 
-	log_pick(&sd->bl, LOG_TYPE_STORAGE, sd->status.storage.items[n].nameid, amount, &sd->status.storage.items[n]);
+	log_pick(&sd->bl, LOG_TYPE_STORAGE, sd->storage.u.items_storage[n].nameid, amount, &sd->storage.u.items_storage[n]);
 
-	if( sd->status.storage.items[n].amount == 0 )
+	if( sd->storage.u.items_storage[n].amount == 0 )
 	{
-		memset(&sd->status.storage.items[n],0,sizeof(sd->status.storage.items[0]));
-		sd->status.storage.storage_amount--;
-		if( sd->state.storage_flag == 1 ) clif_updatestorageamount(sd, sd->status.storage.storage_amount, MAX_STORAGE);
+		memset(&sd->storage.u.items_storage[n],0,sizeof(sd->storage.u.items_storage[0]));
+		sd->storage.amount--;
+		if( sd->state.storage_flag == 1 ) clif_updatestorageamount(sd, sd->storage.amount, MAX_STORAGE);
 	}
 	if( sd->state.storage_flag == 1 ) clif_storageitemremoved(sd,n,amount);
 	return 0;
@@ -211,19 +211,19 @@ int storage_storageadd(struct map_session_data* sd, int index, int amount)
 {
 	nullpo_ret(sd);
 
-	if( sd->status.storage.storage_amount > MAX_STORAGE )
+	if( sd->storage.amount > MAX_STORAGE )
 		return 0; // storage full
 
 	if( index < 0 || index >= MAX_INVENTORY )
 		return 0;
 
-	if( sd->status.inventory[index].nameid <= 0 )
+	if( sd->inventory.u.items_inventory[index].nameid <= 0 )
 		return 0; // No item on that spot
 
-	if( amount < 1 || amount > sd->status.inventory[index].amount )
+	if( amount < 1 || amount > sd->inventory.u.items_inventory[index].amount )
   		return 0;
 
-	if( storage_additem(sd,&sd->status.inventory[index],amount) == 0 )
+	if( storage_additem(sd,&sd->inventory.u.items_inventory[index],amount) == 0 )
 		pc_delitem(sd,index,amount,0,4);
 
 	return 1;
@@ -239,13 +239,13 @@ int storage_storageget(struct map_session_data* sd, int index, int amount)
 	if( index < 0 || index >= MAX_STORAGE )
 		return 0;
 
-	if( sd->status.storage.items[index].nameid <= 0 )
+	if( sd->storage.u.items_storage[index].nameid <= 0 )
 		return 0; //Nothing there
 	
-	if( amount < 1 || amount > sd->status.storage.items[index].amount )
+	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
 		return 0;
 
-	if( (flag = pc_additem(sd,&sd->status.storage.items[index],amount)) == 0 )
+	if( (flag = pc_additem(sd,&sd->storage.u.items_storage[index],amount)) == 0 )
 		storage_delitem(sd,index,amount);
 	else
 		clif_additem(sd,0,0,flag);
@@ -260,19 +260,19 @@ int storage_storageaddfromcart(struct map_session_data* sd, int index, int amoun
 {
 	nullpo_ret(sd);
 
-	if( sd->status.storage.storage_amount > MAX_STORAGE )
+	if( sd->storage.amount > MAX_STORAGE )
   		return 0; // storage full / storage closed
 
 	if( index < 0 || index >= MAX_CART )
   		return 0;
 
-	if( sd->status.cart[index].nameid <= 0 )
+	if( sd->cart.u.items_cart[index].nameid <= 0 )
 		return 0; //No item there.
 	
-	if( amount < 1 || amount > sd->status.cart[index].amount )
+	if( amount < 1 || amount > sd->cart.u.items_cart[index].amount )
 		return 0;
 
-	if( storage_additem(sd,&sd->status.cart[index],amount) == 0 )
+	if( storage_additem(sd,&sd->cart.u.items_cart[index],amount) == 0 )
 		pc_cart_delitem(sd,index,amount,0);
 
 	return 1;
@@ -288,13 +288,13 @@ int storage_storagegettocart(struct map_session_data* sd, int index, int amount)
 	if( index < 0 || index >= MAX_STORAGE )
 		return 0;
 	
-	if( sd->status.storage.items[index].nameid <= 0 )
+	if( sd->storage.u.items_storage[index].nameid <= 0 )
 		return 0; //Nothing there.
 	
-	if( amount < 1 || amount > sd->status.storage.items[index].amount )
+	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
 		return 0;
 	
-	if( pc_cart_additem(sd,&sd->status.storage.items[index],amount) == 0 )
+	if( pc_cart_additem(sd,&sd->storage.u.items_storage[index],amount) == 0 )
 		storage_delitem(sd,index,amount);
 
 	return 1;
@@ -324,7 +324,7 @@ void storage_storage_quit(struct map_session_data* sd, int flag)
 	nullpo_retv(sd);
 	
 	if (save_settings&4)
-		chrif_save(sd, flag); //Invokes the storage saving as well.
+		chrif_save(sd, 0); //Invokes the storage saving as well.
 
 	sd->state.storage_flag = 0;
 }
@@ -332,33 +332,33 @@ void storage_storage_quit(struct map_session_data* sd, int flag)
 
 static void* create_guildstorage(DBKey key, va_list args)
 {
-	struct guild_storage *gs = NULL;
-	gs = (struct guild_storage *) aCallocA(sizeof(struct guild_storage), 1);
-	gs->guild_id=key.i;
+	struct s_storage *gs = NULL;
+	gs = (struct s_storage *) aCallocA(sizeof(struct s_storage), 1);
+	gs->type = TABLE_GUILD_STORAGE;
+	gs->id = key.i;
 	return gs;
 }
-struct guild_storage *guild2storage(int guild_id)
+struct s_storage *guild2storage(int guild_id)
 {
-	struct guild_storage *gs = NULL;
+	struct s_storage *gs = NULL;
 	if(guild_search(guild_id) != NULL)
-		gs=(struct guild_storage *) idb_ensure(guild_storage_db,guild_id,create_guildstorage);
+		gs=(struct s_storage *) idb_ensure(guild_storage_db,guild_id,create_guildstorage);
 	return gs;
 }
 
-struct guild_storage *guild2storage2(int guild_id)
+struct s_storage *guild2storage2(int guild_id)
 {	//For just locating a storage without creating one. [Skotlex]
-	return (struct guild_storage*)idb_get(guild_storage_db,guild_id);
+	return (struct s_storage*)idb_get(guild_storage_db,guild_id);
 }
 
-int guild_storage_delete(int guild_id)	
+void storage_guild_delete(int guild_id)	
 {
 	idb_remove(guild_storage_db,guild_id);
-	return 0;
 }
 
-int storage_guild_storageopen(struct map_session_data* sd)
+char storage_guild_storageopen(struct map_session_data* sd)
 {
-	struct guild_storage *gstor;
+	struct s_storage *gstor;
 
 	nullpo_ret(sd);
 
@@ -377,18 +377,21 @@ int storage_guild_storageopen(struct map_session_data* sd)
 		intif_request_guild_storage(sd->status.account_id,sd->status.guild_id);
 		return 0;
 	}
-	if(gstor->storage_status)
+	if(gstor->status)
 		return 1;
+
+	if( gstor->lock )
+ 		return 1;
 	
-	gstor->storage_status = 1;
+	gstor->status = true;
 	sd->state.storage_flag = 2;
-	storage_sortitem(gstor->items, ARRAYLENGTH(gstor->items));
-	clif_storagelist(sd, gstor->items, ARRAYLENGTH(gstor->items));
-	clif_updatestorageamount(sd, gstor->storage_amount, MAX_GUILD_STORAGE);
+	storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+	clif_storagelist(sd, gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+	clif_updatestorageamount(sd, gstor->amount, MAX_GUILD_STORAGE);
 	return 0;
 }
 
-int guild_storage_additem(struct map_session_data* sd, struct guild_storage* stor, struct item* item_data, int amount)
+bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, struct item* item_data, int amount)
 {
 	struct item_data *data;
 	int i;
@@ -398,183 +401,192 @@ int guild_storage_additem(struct map_session_data* sd, struct guild_storage* sto
 	nullpo_retr(1, item_data);
 
 	if(item_data->nameid == 0 || amount <= 0)
-		return 1;
+		return false;
 
 	data = itemdb_search(item_data->nameid);
 
 	if( !itemdb_canguildstore(item_data, pc_isGM(sd)) || item_data->expire_time )
 	{	//Check if item is storable. [Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(264));
-		return 1;
+		return false;
 	}
 
 	if( (item_data->bound == 1 || item_data->bound > 2) && !pc_can_give_bounded_items(sd->gmlevel) ) { 
 		clif_displaymessage(sd->fd, msg_txt(294)); 
-		return 1; 
+		return false; 
 	} 
 
 	if(itemdb_isstackable2(data)){ //Stackable
 		for(i=0;i<MAX_GUILD_STORAGE;i++){
-			if(compare_item(&stor->items[i], item_data)) {
-				if(stor->items[i].amount+amount > MAX_AMOUNT)
-					return 1;
-				stor->items[i].amount+=amount;
-				clif_storageitemadded(sd,&stor->items[i],i,amount);
+			if(compare_item(&stor->u.items_guild[i], item_data)) {
+				if(stor->u.items_guild[i].amount+amount > MAX_AMOUNT)
+					return false;
+				stor->u.items_guild[i].amount+=amount;
+				clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
 				stor->dirty = 1;
 				log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
-				return 0;
+				return true;
 			}
 		}
 	}
 	//Add item
-	for(i=0;i<MAX_GUILD_STORAGE && stor->items[i].nameid;i++);
+	for(i=0;i<MAX_GUILD_STORAGE && stor->u.items_guild[i].nameid;i++);
 	
 	if(i>=MAX_GUILD_STORAGE)
-		return 1;
+		return false;
 	
-	memcpy(&stor->items[i],item_data,sizeof(stor->items[0]));
-	stor->items[i].amount=amount;
-	stor->storage_amount++;
-	clif_storageitemadded(sd,&stor->items[i],i,amount);
-	clif_updatestorageamount(sd, stor->storage_amount, MAX_GUILD_STORAGE);
+	memcpy(&stor->u.items_guild[i],item_data,sizeof(stor->u.items_guild[0]));
+	stor->u.items_guild[i].amount=amount;
+	stor->amount++;
+	clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
+	clif_updatestorageamount(sd, stor->amount, MAX_GUILD_STORAGE);
 	stor->dirty = 1;
 	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
-	return 0;
+	return true;
 }
 
-int guild_storage_delitem(struct map_session_data* sd, struct guild_storage* stor, int n, int amount)
+bool storage_guild_delitem(struct map_session_data* sd, struct s_storage* stor, int n, int amount)
 {
 	nullpo_retr(1, sd);
 	nullpo_retr(1, stor);
 
-	if(stor->items[n].nameid==0 || stor->items[n].amount<amount)
-		return 1;
+	if(stor->u.items_guild[n].nameid==0 || stor->u.items_guild[n].amount<amount)
+		return false;
 
-	stor->items[n].amount-=amount;
-	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, stor->items[n].nameid, amount, &stor->items[n]);
-	if(stor->items[n].amount==0){
-		memset(&stor->items[n],0,sizeof(stor->items[0]));
-		stor->storage_amount--;
-		clif_updatestorageamount(sd, stor->storage_amount, MAX_GUILD_STORAGE);
+	stor->u.items_guild[n].amount-=amount;
+	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, stor->u.items_guild[n].nameid, amount, &stor->u.items_guild[n]);
+	if(stor->u.items_guild[n].amount==0){
+		memset(&stor->u.items_guild[n],0,sizeof(stor->u.items_guild[0]));
+		stor->amount--;
+		clif_updatestorageamount(sd, stor->amount, MAX_GUILD_STORAGE);
 	}
 	clif_storageitemremoved(sd,n,amount);
-	stor->dirty = 1;
-	return 0;
+	stor->dirty = true;
+	return true;
 }
 
-int storage_guild_storageadd(struct map_session_data* sd, int index, int amount)
+void storage_guild_storageadd(struct map_session_data* sd, int index, int amount)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 		
-	if( !stor->storage_status || stor->storage_amount > MAX_GUILD_STORAGE )
-		return 0;
+	if( !stor->status || stor->amount > MAX_GUILD_STORAGE )
+		return;
 	
 	if( index<0 || index>=MAX_INVENTORY )
-		return 0;
+		return;
 
-	if( sd->status.inventory[index].nameid == 0 )
-		return 0;
+	if( sd->inventory.u.items_inventory[index].nameid == 0 )
+		return;
 	
-	if( amount < 1 || amount > sd->status.inventory[index].amount )
-		return 0;
+	if( amount < 1 || amount > sd->inventory.u.items_inventory[index].amount )
+		return;
 
 //	log_tostorage(sd, index, 1);
-	if(guild_storage_additem(sd,stor,&sd->status.inventory[index],amount)==0)
+	if(storage_guild_additem(sd,stor,&sd->inventory.u.items_inventory[index],amount)==0)
 		pc_delitem(sd,index,amount,0,4);
 
-	return 1;
+	return;
 }
 
-int storage_guild_storageget(struct map_session_data* sd, int index, int amount)
+void storage_guild_storageget(struct map_session_data* sd, int index, int amount)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 	int flag;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 
-	if(!stor->storage_status)
-  		return 0;
+	if(!stor->status)
+  		return;
 	
 	if(index<0 || index>=MAX_GUILD_STORAGE)
-		return 0;
+		return;
 
-	if(stor->items[index].nameid == 0)
-		return 0;
+	if(stor->u.items_guild[index].nameid == 0)
+		return;
 	
-	if(amount < 1 || amount > stor->items[index].amount)
-	  	return 0;
+	if(amount < 1 || amount > stor->u.items_guild[index].amount)
+	  	return;
 
-	if((flag = pc_additem(sd,&stor->items[index],amount)) == 0)
-		guild_storage_delitem(sd,stor,index,amount);
+	if( stor->lock ) {
+		storage_guild_storageclose(sd);
+ 		return;
+ 	}
+
+	if((flag = pc_additem(sd,&stor->u.items_guild[index],amount)) == 0)
+		storage_guild_delitem(sd,stor,index,amount);
 	else
 		clif_additem(sd,0,0,flag);
 //	log_fromstorage(sd, index, 1);
 
-	return 0;
+	return;
 }
 
-int storage_guild_storageaddfromcart(struct map_session_data* sd, int index, int amount)
+void storage_guild_storageaddfromcart(struct map_session_data* sd, int index, int amount)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 
-	if( !stor->storage_status || stor->storage_amount > MAX_GUILD_STORAGE )
-		return 0;
+	if( !stor->status || stor->amount > MAX_GUILD_STORAGE )
+		return;
 
 	if( index < 0 || index >= MAX_CART )
-		return 0;
+		return;
 
-	if( sd->status.cart[index].nameid == 0 )
-		return 0;
+	if( sd->cart.u.items_cart[index].nameid == 0 )
+		return;
 	
-	if( amount < 1 || amount > sd->status.cart[index].amount )
-		return 0;
+	if( amount < 1 || amount > sd->cart.u.items_cart[index].amount )
+		return;
 
-	if(guild_storage_additem(sd,stor,&sd->status.cart[index],amount)==0)
+	if(!storage_guild_additem(sd,stor,&sd->cart.u.items_cart[index],amount)==0)
 		pc_cart_delitem(sd,index,amount,0);
+ 	else {
+ 		clif_storageitemremoved(sd,index,0);
+ 		clif_dropitem(sd,index,0);
+	}
 
-	return 1;
+	return;
 }
 
-int storage_guild_storagegettocart(struct map_session_data* sd, int index, int amount)
+void storage_guild_storagegettocart(struct map_session_data* sd, int index, int amount)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 
-	if(!stor->storage_status)
-	  	return 0;
+	if(!stor->status)
+	  	return;
 
 	if(index<0 || index>=MAX_GUILD_STORAGE)
-	  	return 0;
+	  	return;
 	
-	if(stor->items[index].nameid == 0)
-		return 0;
+	if(stor->u.items_guild[index].nameid == 0)
+		return;
 	
-	if(amount < 1 || amount > stor->items[index].amount)
-		return 0;
+	if(amount < 1 || amount > stor->u.items_guild[index].amount)
+		return;
 
-	if(pc_cart_additem(sd,&stor->items[index],amount)==0)
-		guild_storage_delitem(sd,stor,index,amount);
+	if(pc_cart_additem(sd,&stor->u.items_guild[index],amount)==0)
+		storage_guild_delitem(sd,stor,index,amount);
 
-	return 1;
+	return;
 }
 
-int storage_guild_storagesave(int account_id, int guild_id, int flag)
+bool storage_guild_storagesave(uint32 account_id, int guild_id, int flag)
 {
-	struct guild_storage *stor = guild2storage2(guild_id);
+	struct s_storage *stor = guild2storage2(guild_id);
 
 	if(stor)
 	{
 		if (flag) //Char quitting, close it.
-			stor->storage_status = 0;
+			stor->status = false;
 	 	if (stor->dirty)
 			intif_send_guild_storage(account_id,stor);
 		return 1;
@@ -582,66 +594,68 @@ int storage_guild_storagesave(int account_id, int guild_id, int flag)
 	return 0;
 }
 
-int storage_guild_storagesaved(int guild_id)
+void storage_guild_storagesaved(int guild_id)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
 	if((stor=guild2storage2(guild_id)) != NULL) {
-		if (stor->dirty && stor->storage_status == 0)
+		if (stor->dirty && !stor->status)
 		{	//Storage has been correctly saved.
-			stor->dirty = 0;
+			stor->dirty = false;
 		}
-		return 1;
+		return;
 	}
-	return 0;
+	return;
 }
 
-int storage_guild_storageclose(struct map_session_data* sd)
+void storage_guild_storageclose(struct map_session_data* sd)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 
 	clif_storageclose(sd);
-	if (stor->storage_status)
+	if (stor->status)
 	{
 		if (save_settings&4)
 			chrif_save(sd, 0); //This one also saves the storage. [Skotlex]
 		else
 			storage_guild_storagesave(sd->status.account_id, sd->status.guild_id,0);
-		stor->storage_status=0;
+		stor->status = false;
 	}
 	sd->state.storage_flag = 0;
 
-	return 0;
+	return;
 }
 
-int storage_guild_storage_quit(struct map_session_data* sd, int flag)
+void storage_guild_storage_quit(struct map_session_data* sd, int flag)
 {
-	struct guild_storage *stor;
+	struct s_storage *stor;
 
-	nullpo_ret(sd);
-	nullpo_ret(stor=guild2storage2(sd->status.guild_id));
+	nullpo_retv(sd);
+	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
 	
 	if(flag)
 	{	//Only during a guild break flag is 1 (don't save storage)
-		sd->state.storage_flag = 0;
-		stor->storage_status = 0;
 		clif_storageclose(sd);
+
 		if (save_settings&4)
 			chrif_save(sd,0);
-		return 0;
+
+		sd->state.storage_flag = 0;
+		stor->status = false;
+		return;
 	}
 
-	if(stor->storage_status) {
+	if(stor->status) {
 		if (save_settings&4)
 			chrif_save(sd,0);
 		else
 			storage_guild_storagesave(sd->status.account_id,sd->status.guild_id,1);
 	}
 	sd->state.storage_flag = 0;
-	stor->storage_status = 0;
+	stor->status = false;
 
-	return 0;
+	return;
 }

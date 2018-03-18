@@ -150,7 +150,7 @@ void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 			break;
 		}
 
-		if( sd->status.inventory[idx].amount+amount > BUYINGSTORE_MAX_AMOUNT )
+		if( sd->inventory.u.items_inventory[idx].amount+amount > BUYINGSTORE_MAX_AMOUNT )
 		{// too many items of same kind
 			break;
 		}
@@ -306,13 +306,13 @@ void buyingstore_trade(struct map_session_data* sd, int account_id, unsigned int
 			}
 		}
 
-		if( index < 0 || index >= ARRAYLENGTH(sd->status.inventory) || sd->inventory_data[index] == NULL || sd->status.inventory[index].nameid != nameid || sd->status.inventory[index].amount < amount )
+		if( index < 0 || index >= ARRAYLENGTH(sd->inventory.u.items_inventory) || sd->inventory_data[index] == NULL || sd->inventory.u.items_inventory[index].nameid != nameid || sd->inventory.u.items_inventory[index].amount < amount )
 		{// invalid input
 			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
 			return;
 		}
 
-		if( sd->status.inventory[index].expire_time || (sd->status.inventory[index].bound && !pc_can_give_bounded_items(sd->gmlevel)) || !itemdb_cantrade(&sd->status.inventory[index], pc_isGM(sd), pc_isGM(pl_sd)) || memcmp(sd->status.inventory[index].card, buyingstore_blankslots, sizeof(buyingstore_blankslots)) )
+		if( sd->inventory.u.items_inventory[index].expire_time || (sd->inventory.u.items_inventory[index].bound && !pc_can_give_bounded_items(sd->gmlevel)) || !itemdb_cantrade(&sd->inventory.u.items_inventory[index], pc_isGM(sd), pc_isGM(pl_sd)) || memcmp(sd->inventory.u.items_inventory[index].card, buyingstore_blankslots, sizeof(buyingstore_blankslots)) )
 		{// non-tradable item
 			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
 			return;
@@ -367,12 +367,12 @@ void buyingstore_trade(struct map_session_data* sd, int account_id, unsigned int
 		zeny = amount*pl_sd->buyingstore.items[listidx].price;
 
 		// log
-		log_pick(&sd->bl, LOG_TYPE_BUYING_STORE, nameid, -((int)amount), &sd->status.inventory[index]);
-		log_pick(&pl_sd->bl, LOG_TYPE_BUYING_STORE, nameid, amount, &sd->status.inventory[index]);
+		log_pick(&sd->bl, LOG_TYPE_BUYING_STORE, nameid, -((int)amount), &sd->inventory.u.items_inventory[index]);
+		log_pick(&pl_sd->bl, LOG_TYPE_BUYING_STORE, nameid, amount, &sd->inventory.u.items_inventory[index]);
 		log_zeny(sd, LOG_TYPE_BUYING_STORE, pl_sd, zeny);
 
 		// move item
-		pc_additem(pl_sd, &sd->status.inventory[index], amount);
+		pc_additem(pl_sd, &sd->inventory.u.items_inventory[index], amount);
 		pc_delitem(sd, index, amount, 1, 0);
 		pl_sd->buyingstore.items[listidx].amount-= amount;
 

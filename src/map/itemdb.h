@@ -149,11 +149,19 @@ enum {
 	ITEMID_STONEHARDSKIN,
 } rune_list;
 
+// Struct for item random option [Secret]
+struct s_random_opt_data
+{
+	unsigned short id;
+	struct script_code *script;
+};
+
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
 struct item_data* itemdb_load(unsigned short nameid);
 struct item_data* itemdb_search(unsigned short nameid);
 struct item_data* itemdb_exists(unsigned short nameid);
+struct s_random_opt_data* itemdb_randomopt_exists(short id);
 #define itemdb_name(n) itemdb_search(n)->name
 #define itemdb_jname(n) itemdb_search(n)->jname
 #define itemdb_type(n) itemdb_search(n)->type

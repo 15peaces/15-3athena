@@ -414,6 +414,12 @@ enum unitdata_npctypes {
 	UNPC_DMOTION,
 };
 
+enum random_option_attribute {
+	ROA_ID = 0,
+	ROA_VALUE,
+	ROA_PARAM,
+};
+
 const char* skip_space(const char* p);
 void script_error(const char* src, const char* file, int start_line, const char* error_msg, const char* error_pos);
 

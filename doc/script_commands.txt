@@ -4676,11 +4676,41 @@ database. If the name is not found, nothing will be deleted.
 
 ---------------------------------------
 
+*cartdelitem <item id>,<amount>{,<account ID>};
+*cartdelitem "<item name>",<amount>{,<account ID>};
+*storagedelitem <item id>,<amount>{,<account ID>};
+*storagedelitem "<item name>",<amount>{,<account ID>};
+*guildstoragedelitem <item id>,<amount>{,<account ID>};
+*guildstoragedelitem "<item name>",<amount>{,<account ID>};
+
+This command behaves identically to 'delitem', but deletes items from the player's
+cart or storage.
+
+If no cart is mounted, 'cartdelitem' will return -1.
+If player is not in a guild or storage is open, 'guildstoragedelitem' will return -1.
+
+---------------------------------------
+
 *delitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
 *delitem2 "<Item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
 
 This command will take a specified amount of items from the invoking/target character. 
 Check 'getitem2' to understand its expanded parameters.
+
+---------------------------------------
+
+*cartdelitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*cartdelitem2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*storagedelitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*storagedelitem2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*guildstoragedelitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+*guildstoragedelitem2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+
+This command behaves identically to 'delitem2', but deletes items from the player's
+cart or storage.
+
+If no cart is mounted, 'cartdelitem2' will return -1.
+If player is not in a guild or storage is open, 'guildstoragedelitem2' will return -1.
 
 ---------------------------------------
 
@@ -4706,6 +4736,21 @@ adding up strings:
     
 ---------------------------------------
 
+*cartcountitem(<item id>{,<accountID>})
+*cartcountitem("<item name>"{,<accountID>})
+*storagecountitem(<item id>{,<accountID>})
+*storagecountitem("<item name>"{,<accountID>})
+*guildstoragecountitem(<nameID>{,<accountID>})
+*guildstoragecountitem("<item name>"{,<accountID>})
+
+This command behaves identically to 'countitem', but counts items from the player's
+cart, storage or guild storage.
+
+If no cart is mounted, 'cartcountitem' will return -1.
+If player is not in a guild or storage is open, 'guildstoragecountitem' will return -1.
+
+---------------------------------------
+
 *countitem2(<item id>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>)
 *countitem2("<item name>",<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>)
 
@@ -4714,7 +4759,22 @@ Expanded version of 'countitem' function, used for created/carded/forged items.
 This function will return the number of items for the specified item ID and
 other parameters that the invoking character has in the inventory.
 Check 'getitem2' to understand the arguments of the function.
-    
+
+---------------------------------------
+
+*cartcountitem2(<item id>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<accountID>})
+*cartcountitem2("<item name>",<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<accountID>})
+*storagecountitem2(<item id>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<accountID>})
+*storagecountitem2("<item name>",<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<accountID>})
+*guildstoragecountitem2(<nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
+*guildstoragecountitem2("<item name>",<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
+
+This command behaves identically to 'countitem2', but counts items from the player's
+cart, storage or guild storage.
+
+If no cart is mounted, 'cartcountitem2' will return -1.
+If player is not in a guild or storage is open, 'guildstoragecountitem2' will return -1.
+
 ---------------------------------------
 
 *groupranditem <group id>;
@@ -8336,6 +8396,68 @@ If the character does not have a mercenary, the command returns ""
 for name and 0 for all other types.
 
 ----------------------------------------
+
+*opendressroom({<char_id>});
+
+This will open the Dress Room window on the client connected to the invoking character.
+
+    mes "Close this window to open the Dress Room window.";
+    close2;
+    opendressroom;
+    end;
+
+---------------------------------------
+
+*closedressroom({<char_id>});
+
+This will close an open Dress Room window on the client connected to the invoking character.
+
+    mes "Close this window to close the Dress Room window.";
+    close2;
+    closedressroom;
+    end;
+
+---------------------------------------
+
+*getrandomoptinfo(<type>);
+
+Returns value of an attribute of current random option.
+
+Valid attributes are:
+ROA_ID - ID of current option
+ROA_VALUE - Value field of current option
+ROA_PARAM - Param field of current option
+
+This script command is intended for using in random option scripts.
+
+---------------------------------------
+
+*getequiprandomoption(<equipment slot>,<index>,<type>{,<char id>});
+
+Returns value of an attribute of a random option on an equipped item.
+
+For valid equipment indices, see `getequipid` command reference.
+
+index parameter can be 0 to MAX_ITEM_RDM_OPT-1 (default 0-4).
+
+For valid attribute types, see `getrandomoptinfo` command reference.
+
+---------------------------------------
+
+*setrandomoption(<equipment slot>,<index>,<id>,<value>,<param>{,<char id>});
+
+Sets <index+1>th random option for equipment equipped at <equipment indice>
+to <id>, <value> and <param>.
+
+For valid equipment indices, see `getequipid` command reference.
+
+index parameter can be 0 to MAX_ITEM_RDM_OPT-1 (default 0-4).
+
+ID - ID of random option. See db/const.txt for constants.
+Value - Value of random option
+Param - Parameter of random option
+
+---------------------------------------
 
 Whew.
 That's about all of them.

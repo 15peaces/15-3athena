@@ -23,6 +23,7 @@
 
 static struct item_data* itemdb_array[MAX_ITEMDB];
 static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
+static DBMap *itemdb_randomopt; /// Random option DB
 
 static struct item_group itemgroup_db[MAX_ITEMGROUP];
 static struct item_package itempackage_db[MAX_ITEMPACKAGE];
@@ -1349,6 +1350,111 @@ static int itemdb_read_sqldb(void)
 }
 #endif /* not TXT_ONLY */
 
+/**
+* Retrieves random option data
+*/
+struct s_random_opt_data* itemdb_randomopt_exists(short id) {
+	return ((struct s_random_opt_data*)uidb_get(itemdb_randomopt, id));
+}
+
+/** Random option
+* <ID>,<{Script}>
+*/
+static bool itemdb_read_randomopt() {
+	uint32 lines = 0, count = 0;
+	char line[1024];
+
+	char path[256];
+	FILE* fp;
+
+	snprintf(path, 255, "%s/item_randomopt_db.txt", db_path);
+
+	if ((fp = fopen(path, "r")) == NULL) {
+		ShowError("itemdb_read_randomopt: File not found \"%s\".\n", path);
+		return false;
+	}
+
+	while (fgets(line, sizeof(line), fp)) {
+		char *str[2], *p;
+
+		lines++;
+
+		if (line[0] == '/' && line[1] == '/') // Ignore comments
+			continue;
+
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		p = trim(p);
+
+		if (*p == '\0')
+			continue;// empty line
+
+		if (!strchr(p, ','))
+		{
+			ShowError("itemdb_read_combos: Insufficient columns in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+
+		str[0] = p;
+		p = strchr(p, ',');
+		*p = '\0';
+		p++;
+
+		str[1] = p;
+
+		if (str[1][0] != '{') {
+			ShowError("itemdb_read_randomopt(#1): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+		/* no ending key anywhere (missing \}\) */
+		if (str[1][strlen(str[1]) - 1] != '}') {
+			ShowError("itemdb_read_randomopt(#2): Invalid format (Script column) in line %d of \"%s\", skipping.\n", lines, path);
+			continue;
+		}
+		else {
+			int id = -1;
+			struct s_random_opt_data *data;
+			struct script_code *code;
+
+			str[0] = trim(str[0]);
+			if (ISDIGIT(str[0][0])) {
+				id = atoi(str[0]);
+			}
+			else {
+				script_get_constant(str[0], &id);
+			}
+
+			if (id < 0) {
+				ShowError("itemdb_read_randomopt: Invalid Random Option ID '%s' in line %d of \"%s\", skipping.\n", str[0], lines, path);
+				continue;
+			}
+
+			if ((data = itemdb_randomopt_exists(id)) == NULL) {
+				CREATE(data, struct s_random_opt_data, 1);
+				uidb_put(itemdb_randomopt, id, data);
+			}
+			data->id = id;
+			if ((code = parse_script(str[1], path, lines, 0)) == NULL) {
+				ShowWarning("itemdb_read_randomopt: Invalid script on option ID #%d.\n", id);
+				continue;
+			}
+			if (data->script) {
+				script_free_code(data->script);
+				data->script = NULL;
+			}
+			data->script = code;
+		}
+		count++;
+	}
+	fclose(fp);
+
+	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, path);
+
+	return true;
+}
+
 /*====================================
  * read all item-related databases
  *------------------------------------*/
@@ -1363,6 +1469,7 @@ static void itemdb_read(void)
 
 	itemdb_read_itemgroup();
 	itemdb_read_itempackage();
+	itemdb_read_randomopt();
 	sv_readdb(db_path, "item_avail.txt",   ',', 2, 2, -1,             &itemdb_read_itemavail);
 	sv_readdb(db_path, "item_noequip.txt", ',', 2, 2, -1,             &itemdb_read_noequip);
 	sv_readdb(db_path, "item_trade.txt",   ',', 3, 3, -1,             &itemdb_read_itemtrade);
@@ -1404,6 +1511,18 @@ static int itemdb_final_sub(DBKey key,void *data,va_list ap)
 	return 0;
 }
 
+static int itemdb_randomopt_free(DBKey key, void *data, va_list ap) 
+{
+	struct s_random_opt_data *opt = (struct s_random_opt_data *)data;
+	if (!opt)
+		return 0;
+	if (opt->script)
+		script_free_code(opt->script);
+	opt->script = NULL;
+	aFree(opt);
+	return 1;
+}
+
 void itemdb_reload(void)
 {
 	struct s_mapiterator* iter;
@@ -1417,6 +1536,7 @@ void itemdb_reload(void)
 			destroy_item_data(itemdb_array[i]);
 
 	itemdb_other->clear(itemdb_other, itemdb_final_sub);
+	itemdb_randomopt->clear(itemdb_randomopt, itemdb_randomopt_free);
 
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
@@ -1445,6 +1565,7 @@ void itemdb_reload(void)
 void do_final_itemdb(void)
 {
 	itemdb_other->destroy(itemdb_other, itemdb_final_sub);
+	itemdb_randomopt->destroy(itemdb_randomopt, itemdb_randomopt_free);
 	destroy_item_data(dummy_item);
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
@@ -1457,6 +1578,7 @@ int do_init_itemdb(void)
 {
 	//memset(itemdb_array, 0, sizeof(itemdb_array));
 	itemdb_other = idb_alloc(DB_OPT_BASE); 
+	itemdb_randomopt = uidb_alloc(DB_OPT_BASE);
 	create_dummy_data(); //Dummy data item.
 	itemdb_read();
 

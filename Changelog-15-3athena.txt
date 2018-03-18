@@ -5,7 +5,41 @@
 // 		- Details.
 //			--More Details.
 //========================================
-04/03/2018
+03/18/2018
+	r195 [15peaces]
+		*Merged missing changes from 3ceam rev. 641
+		*Please note: Don't forget to import the upgrade_15-3athena_svn195.sql and the upgrade_15-3athena_svn195_log.sql file!
+		*Some 2015 client updates, thanks to @rathena.
+			-Added full support for body styles & dressing room.
+				--This feature require the client support before 2015-05-13 or newer
+				--Make sure you data&lub support for this
+			-Added basic support for random option system.
+		*Corrected the showscript packet, thanks to @rathena.
+			-The showscript packet was being sent to all players logged in which can be network intensive.
+		*Added a few new script commands thanks to @rathena!
+			-*countitem:
+				--Added cartcountitem
+				--Added storagecountitem
+				--Added cartcountitem2
+				--Added storagecountitem2
+				--Added a new param 'AccountID'
+			-*delitem:
+				--Added cartdelitem
+				--Added storagedelitem
+				--Added cartdelitem2
+				--Added storagedelitem2
+		*Added missing enum mob_ai.
+			-Follo up r78(@fd99a93)
+		*Optimized Inventory, Cart Inventory, and Storage usage
+			-These storage types now mimic Guild Storage and can be loaded/saved whenever needed.
+			-Relieves mmo_charstatus from having to send storage types and lets the char-server handle it.
+				--This was also needed to support random options since the packets where getting to large with it...
+			-All storage types now have an increased max amount.
+			-Refactored player weight calculation into its own function.
+			-Added script commands guildstoragecountitem[2] and guildstoragedelitem[2].
+			-Thanks to @rathena for the base!
+
+03/04/2018
 	r194 [15peaces]
 		*Some 2015 client updates, thanks to @rathena.
 			-Added V6 EquipPackets.
@@ -15,12 +49,12 @@
 				--New Feature for 2015-05-13 client or newer
 				--Request 1 Magnifier when use (ctrl + click right)
 
-25/02/2018
+02/25/2018
 	r193 [15peaces]
 		*Some misc work in databases.
 			-Finally added working Old Glastheim monsters & skills.
 
-18/02/2018
+02/18/2018
 	r192 [15peaces]
 		*Merged missing changes from 3ceam rev. 638 - 639
 		*Fixed AL_HOLYWATER behavior.
@@ -35,7 +69,7 @@
 		*Redid the entire crafting tables for all 3rd jobs to official.
 		*Added a few missing change material items to the code to allow making multiple ones at a time.
 
-18/02/2018
+02/18/2018
 	r191 [15peaces]
 		*Merged missing changes from 3ceam rev. 637
 		*fixed clif_process_message packet for 2015-10-29aRagexeRE.
@@ -44,7 +78,7 @@
 			-also added base-support for doram races.
 		*Improvments to the Masquarade success chance code.
 
-17/02/2018
+02/17/2018
 	r190 [15peaces]
 		*Merged missing changes from 3ceam rev. 635 - 636
 		*Fixed some item & monster DEF & MDEF values.

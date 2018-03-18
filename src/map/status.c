@@ -60,6 +60,7 @@ int current_equip_item_index; //Contains inventory index of an equipped item. To
 int current_equip_card_id; //To prevent card-stacking (from jA) [Skotlex]
 //we need it for new cards 15 Feb 2005, to check if the combo cards are insrerted into the CURRENT weapon only
 //to avoid cards exploits
+short current_equip_opt_index; /// Contains random option index of an equipped item. [Secret]
 
 unsigned int SCDisabled[SC_MAX]; /// List of disabled SC on map zones. [Cydh]
 static bool status_change_isDisabledOnMap_(sc_type type, bool mapIsVS, bool mapIsPVP, bool mapIsGVG, bool mapIsBG, unsigned int mapZone, bool mapIsTE);
@@ -2097,6 +2098,63 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	return cap_value((unsigned int)dmax,1,UINT_MAX);
 }
 
+/**
+ * Calculates player's weight
+ * @param sd: Player object
+ * @param flag: Calculation type
+ *   1 - Item weight
+ *   2 - Skill/Status/Configuration max weight bonus
+ * @return false - failed, true - success
+ */
+bool status_calc_weight(struct map_session_data *sd, uint8 flag)
+{
+	int b_weight, b_max_weight, skill, i;
+	struct status_change *sc;
+
+	nullpo_retr(false, sd);
+
+	sc = &sd->sc;
+	b_max_weight = sd->max_weight; // Store max weight for later comparison
+	b_weight = sd->weight; // Store current weight for later comparison
+	sd->max_weight = job_info[pc_class2idx(sd->status.class_)].max_weight_base + sd->status.str * 300; // Recalculate max weight
+
+	if (flag&1) {
+		sd->weight = 0; // Reset current weight
+
+		for(i = 0; i < MAX_INVENTORY; i++) {
+			if (!sd->inventory.u.items_inventory[i].nameid || sd->inventory_data[i] == NULL)
+				continue;
+			sd->weight += sd->inventory_data[i]->weight * sd->inventory.u.items_inventory[i].amount;
+		}
+	}
+
+	if (flag&2) {
+		// Skill/Status bonus weight increases
+		if((skill=pc_checkskill(sd,MC_INCCARRY))>0)
+			sd->max_weight += 2000*skill;
+		if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING)>0)
+			sd->max_weight += 10000;
+		if(sd->sc.option&OPTION_MADOGEAR)
+			sd->max_weight += 20000;
+		if(sc->data[SC_KNOWLEDGE])
+			sd->max_weight += sd->max_weight*sc->data[SC_KNOWLEDGE]->val1/10;
+		if(pc_isdragon(sd) && (skill=pc_checkskill(sd,RK_DRAGONTRAINING))>0)
+			sd->max_weight += 5000+2000*skill;
+		if((skill=pc_checkskill(sd,ALL_INCCARRY))>0)
+			sd->max_weight += 2000*skill;
+	}
+
+	// Update the client if the new weight calculations don't match
+	if (b_weight != sd->weight)
+		clif_updatestatus(sd, SP_WEIGHT);
+	if (b_max_weight != sd->max_weight) {
+		clif_updatestatus(sd, SP_MAXWEIGHT);
+		pc_updateweightstatus(sd);
+	}
+
+	return true;
+}
+
 //Calculates player data from scratch without counting SC adjustments.
 //Should be invoked whenever players raise stats, learn passive skills or change equipment.
 int status_calc_pc_(struct map_session_data* sd, bool first)
@@ -2105,7 +2163,6 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	struct status_data *status; // pointer to the player's base status
 	const struct status_change *sc = &sd->sc;
 	struct s_skill b_skill[MAX_SKILL]; // previous skill tree
-	unsigned int b_weight, b_max_weight; // previous weight
 	int i,index;
 	int skill,refinedef=0;
 
@@ -2114,12 +2171,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 	// remember player-specific values that are currently being shown to the client (for refresh purposes)
 	memcpy(b_skill, &sd->status.skill, sizeof(b_skill));
-	b_weight = sd->weight;
-	b_max_weight = sd->max_weight;
 
 	pc_calc_skilltree(sd);	// スキルツリ?の計算
-
-	sd->max_weight = job_info[pc_class2idx(sd->status.class_)].max_weight_base+sd->status.str * 300;
 
 	if(first) {
 		//Load Hp/SP from char-received data.
@@ -2127,18 +2180,15 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->battle_status.sp = sd->status.sp;
 		sd->regen.sregen = &sd->sregen;
 		sd->regen.ssregen = &sd->ssregen;
-		sd->weight=0;
-		for(i=0;i<MAX_INVENTORY;i++){
-			if(sd->status.inventory[i].nameid==0 || sd->inventory_data[i] == NULL)
-				continue;
-			sd->weight += sd->inventory_data[i]->weight*sd->status.inventory[i].amount;
-		}
+
+		status_calc_weight(sd, 1);
+
 		sd->cart_weight=0;
 		sd->cart_num=0;
 		for(i=0;i<MAX_CART;i++){
-			if(sd->status.cart[i].nameid==0)
+			if(sd->cart.u.items_cart[i].nameid==0)
 				continue;
-			sd->cart_weight+=itemdb_weight(sd->status.cart[i].nameid)*sd->status.cart[i].amount;
+			sd->cart_weight+=itemdb_weight(sd->cart.u.items_cart[i].nameid)*sd->cart.u.items_cart[i].amount;
 			sd->cart_num++;
 		}
 	}
@@ -2333,7 +2383,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			
 			if (wlv >= MAX_REFINE_BONUS) 
 				wlv = MAX_REFINE_BONUS - 1;
-			if(i == EQI_HAND_L && sd->status.inventory[index].equip == EQP_HAND_L) {
+			if(i == EQI_HAND_L && sd->inventory.u.items_inventory[index].equip == EQP_HAND_L) {
 				wd = &sd->left_weapon; // Left-hand weapon
 				wa = &status->lhw;
 			} else {
@@ -2341,7 +2391,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 				wa = &status->rhw;
 			}
 			wa->atk += sd->inventory_data[index]->atk;
-			wa->atk2 = (r=sd->status.inventory[index].refine)*refinebonus[wlv][0];
+			wa->atk2 = (r=sd->inventory.u.items_inventory[index].refine)*refinebonus[wlv][0];
 			if((r-=refinebonus[wlv][2])>0) //Overrefine bonus.
 				wd->overrefine = r*refinebonus[wlv][1];
 
@@ -2357,21 +2407,21 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 					return 1;
 			}
 
-			if(sd->status.inventory[index].card[0]==CARD0_FORGE)
+			if(sd->inventory.u.items_inventory[index].card[0]==CARD0_FORGE)
 			{	// Forged weapon
-				wd->star += (sd->status.inventory[index].card[1]>>8);
+				wd->star += (sd->inventory.u.items_inventory[index].card[1]>>8);
 				if(wd->star >= 15) wd->star = 40; // 3 Star Crumbs now give +40 dmg
-				if(pc_famerank(MakeDWord(sd->status.inventory[index].card[2],sd->status.inventory[index].card[3]) ,MAPID_BLACKSMITH))
+				if(pc_famerank(MakeDWord(sd->inventory.u.items_inventory[index].card[2],sd->inventory.u.items_inventory[index].card[3]) ,MAPID_BLACKSMITH))
 					wd->star += 10;
 				
 				if (!wa->ele) //Do not overwrite element from previous bonuses.
-					wa->ele = (sd->status.inventory[index].card[1]&0x0f);
+					wa->ele = (sd->inventory.u.items_inventory[index].card[1]&0x0f);
 			}
 		}
 		else if(sd->inventory_data[index]->type == IT_ARMOR) {
-			refinedef += sd->status.inventory[index].refine*refinebonus[0][0];
+			refinedef += sd->inventory.u.items_inventory[index].refine*refinebonus[0][0];
 			if(sd->inventory_data[index]->script) {
-				if( sd->status.inventory[index].equip == EQP_SHIELD )
+				if( sd->inventory.u.items_inventory[index].equip == EQP_SHIELD )
 					sd->special_state.checkshieldmdef = 1;
 				run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
 				if (!calculating) //Abort, run_script retriggered this. [Skotlex]
@@ -2420,10 +2470,10 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			struct item_data *data;
 
 			//Card script execution.
-			if(itemdb_isspecial(sd->status.inventory[index].card[0]))
+			if(itemdb_isspecial(sd->inventory.u.items_inventory[index].card[0]))
 				continue;
 			for(j=0;j<MAX_SLOTS;j++){ // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
-				current_equip_card_id= c= sd->status.inventory[index].card[j];
+				current_equip_card_id= c= sd->inventory.u.items_inventory[index].card[j];
 				if(!c)
 					continue;
 				data = itemdb_exists(c);
@@ -2449,7 +2499,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 					if(map[sd->bl.m].flag.battleground && data->flag.no_equip&8)
 						continue;
 				}
-				if(i == EQI_HAND_L && sd->status.inventory[index].equip == EQP_HAND_L)
+				if(i == EQI_HAND_L && sd->inventory.u.items_inventory[index].equip == EQP_HAND_L)
 				{	//Left hand status.
 					sd->state.lr_flag = 1;
 					run_script(data->script,0,sd->bl.id,0);
@@ -2463,7 +2513,46 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 	current_equip_card_id = 0; // Clear stored card ID [Secret]
 
-	if( sc->count && sc->data[SC_ITEMSCRIPT] )
+	// Parse random options
+	for (i = 0; i < EQI_MAX; i++) {
+		current_equip_item_index = index = sd->equip_index[i];
+		current_equip_opt_index = -1;
+		if (index < 0)
+			continue;
+		if (i == EQI_AMMO)
+			continue;
+		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
+			continue;
+		
+		if (sd->inventory_data[index]) {
+			int j;
+			struct s_random_opt_data *data;
+			for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
+				short opt_id = sd->inventory.u.items_inventory[index].option[j].id;
+
+				if (!opt_id)
+					continue;
+				current_equip_opt_index = j;
+				data = itemdb_randomopt_exists(opt_id);
+				if (!data || !data->script)
+					continue;
+				if (pc_isGM(sd) < battle_config.gm_allequip)
+					continue;
+				if (i == EQI_HAND_L && sd->inventory.u.items_inventory[index].equip == EQP_HAND_L) { // Left hand status.
+					sd->state.lr_flag = 1;
+					run_script(data->script, 0, sd->bl.id, 0);
+					sd->state.lr_flag = 0;
+				}
+				else
+					run_script(data->script, 0, sd->bl.id, 0);
+				if (!calculating)
+					return 1;
+			}
+		}
+		current_equip_opt_index = -1;
+	}
+
+	if (sc->count && sc->data[SC_ITEMSCRIPT])
 	{
 		struct item_data *data = itemdb_exists(sc->data[SC_ITEMSCRIPT]->val1);
 		if( data && data->script )
@@ -2793,18 +2882,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 // ----- MISC CALCULATIONS -----
 
 	// Weight
-	if((skill=pc_checkskill(sd,MC_INCCARRY))>0)
-		sd->max_weight += 2000*skill;
-	if(pc_isriding(sd) && pc_checkskill(sd,KN_RIDING)>0)
-		sd->max_weight += 10000;
-	if(sd->sc.option&OPTION_MADOGEAR)
-		sd->max_weight += 20000;
-	if(sc->data[SC_KNOWLEDGE])
-		sd->max_weight += sd->max_weight*sc->data[SC_KNOWLEDGE]->val1/10;
-	if(pc_isdragon(sd) && (skill=pc_checkskill(sd,RK_DRAGONTRAINING))>0)
-		sd->max_weight += 5000+2000*skill;
-	if((skill=pc_checkskill(sd,ALL_INCCARRY))>0)
-		sd->max_weight += 2000*skill;
+	status_calc_weight(sd, 2);
 
 	if (pc_checkskill(sd,SM_MOVINGRECOVERY)>0)
 		sd->regen.state.walk = 1;
@@ -2944,19 +3022,13 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 	if(memcmp(b_skill,sd->status.skill,sizeof(sd->status.skill)))
 		clif_skillupdateinfoblock(sd);
-	if(b_weight != sd->weight)
-		clif_updatestatus(sd,SP_WEIGHT);
-	if(b_max_weight != sd->max_weight) {
-		clif_updatestatus(sd,SP_MAXWEIGHT);
-		pc_updateweightstatus(sd);
-	}
 
 	calculating = 0;
 
 	return 0;
 }
 
-int status_calc_mercenary_(struct mercenary_data *md, bool first)
+int status_calc_mercenary_(struct mercenary_data *md, bool first) 
 {
 	struct status_data *status = &md->base_status;
 	struct s_mercenary *merc = &md->mercenary;
@@ -5628,9 +5700,10 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 				sd->vd.head_top = sd->status.head_top;
 				sd->vd.head_mid = sd->status.head_mid;
 				sd->vd.head_bottom = sd->status.head_bottom;
-				sd->vd.hair_style = sd->status.hair;
-				sd->vd.hair_color = sd->status.hair_color;
-				sd->vd.cloth_color = sd->status.clothes_color;
+ 				sd->vd.hair_style = cap_value(sd->status.hair,0,battle_config.max_hair_style);
+ 				sd->vd.hair_color = cap_value(sd->status.hair_color,0,battle_config.max_hair_color);
+ 				sd->vd.cloth_color = cap_value(sd->status.clothes_color,0,battle_config.max_cloth_color);
+				sd->vd.body_style = cap_value(sd->status.body,0,battle_config.max_body_style);
 				sd->vd.sex = sd->status.sex;
 				sd->vd.robe = sd->status.robe;
 			} else if (vd)
@@ -8039,6 +8112,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:type==SC_SUMMER?JOB_SUMMER:type==SC_HANBOK?JOB_HANBOK:JOB_OKTOBERFEST);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,val4);
+			clif_changelook(bl,LOOK_BODY2,0);
 			break;	
 		case SC_KAAHI:
 			val4 = INVALID_TIMER;
@@ -8281,6 +8355,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		}
 		calc_flag&=~SCB_DYE;
 	}
+
+	/*if (calc_flag&SCB_BODY)// Might be needed in the future. [Rytech]
+	{	//Reset body style
+		if (vd && vd->body_style)
+		{
+			val4 = vd->body_style;
+			clif_changelook(bl,LOOK_BODY2,0);
+		}
+		calc_flag&=~SCB_BODY;
+	}*/
 
 	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER ) ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
 		clif_status_change(bl,StatusIconChangeTable[type],1,tick,(val_flag&1)?val1:1,(val_flag&2)?val2:0,(val_flag&4)?val3:0);
@@ -9120,6 +9204,13 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		calc_flag&=~SCB_DYE;
 	}
 
+	/*if (calc_flag&SCB_BODY)// Might be needed in the future. [Rytech]
+	{	//Restore body style
+		if (vd && !vd->body_style && sce->val4)
+			clif_changelook(bl,LOOK_BODY2,sce->val4);
+		calc_flag&=~SCB_BODY;
+	}*/
+
 	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
 	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER || bl->type == BL_MOB) )
 		clif_status_change(bl,StatusIconChangeTable[type],0,0, 0, 0, 0);
@@ -9127,7 +9218,17 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		clif_status_load(bl,StatusIconChangeTable[type],0);
 
 	if(opt_flag)
+	{
 		clif_changeoption(bl);
+ 		if (sd && (opt_flag&0x4)) {
+ 			clif_changelook(bl,LOOK_BASE,sd->vd.class_);
+ 			clif_get_weapon_view(sd,&sd->vd.weapon,&sd->vd.shield);
+ 			clif_changelook(bl,LOOK_WEAPON,sd->vd.weapon);
+ 			clif_changelook(bl,LOOK_SHIELD,sd->vd.shield);
+ 			clif_changelook(bl,LOOK_CLOTHES_COLOR,cap_value(sd->status.clothes_color,0,battle_config.max_cloth_color));
+			clif_changelook(bl,LOOK_BODY2,cap_value(sd->status.body,0,battle_config.max_body_style));
+		}
+	}
 
 	if (calc_flag)
 		status_calc_bl(bl,calc_flag);

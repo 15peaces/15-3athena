@@ -1639,7 +1639,7 @@ static int npc_selllist_sub(struct map_session_data* sd, int n, unsigned short* 
 	{
 		idx = item_list[i*2]-2;
 
-		script_setarray_pc(sd, "@sold_nameid", i, (void*)(intptr_t)sd->status.inventory[idx].nameid, &key_nameid);
+		script_setarray_pc(sd, "@sold_nameid", i, (void*)(intptr_t)sd->inventory.u.items_inventory[idx].nameid, &key_nameid);
 		script_setarray_pc(sd, "@sold_quantity", i, (void*)(intptr_t)item_list[i*2+1], &key_amount);
 	}
 
@@ -1687,9 +1687,9 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 			return 1;
 		}
 
-		nameid = sd->status.inventory[idx].nameid;
+		nameid = sd->inventory.u.items_inventory[idx].nameid;
 
-		if( !nameid || !sd->inventory_data[idx] || sd->status.inventory[idx].amount < amount )
+		if( !nameid || !sd->inventory_data[idx] || sd->inventory.u.items_inventory[idx].amount < amount )
 		{
 			return 1;
 		}
@@ -1717,17 +1717,17 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 
 		idx    = item_list[i*2]-2;
 		amount = item_list[i*2+1];
-		nameid = sd->status.inventory[idx].nameid;
+		nameid = sd->inventory.u.items_inventory[idx].nameid;
 
 		//Logs items, Sold to NPC (S)hop [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_NPC, nameid, -amount, &sd->status.inventory[idx]);
+		log_pick(&sd->bl, LOG_TYPE_NPC, nameid, -amount, &sd->inventory.u.items_inventory[idx]);
 		//Logs
 
-		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->status.inventory[idx].card[0] == CARD0_PET )
+		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->inventory.u.items_inventory[idx].card[0] == CARD0_PET )
 		{
-			if( search_petDB_index(sd->status.inventory[idx].nameid, PET_EGG) >= 0 )
+			if( search_petDB_index(sd->inventory.u.items_inventory[idx].nameid, PET_EGG) >= 0 )
 			{
-				intif_delete_petdata(MakeDWord(sd->status.inventory[idx].card[1], sd->status.inventory[idx].card[2]));
+				intif_delete_petdata(MakeDWord(sd->inventory.u.items_inventory[idx].card[1], sd->inventory.u.items_inventory[idx].card[2]));
 			}
 		}
 

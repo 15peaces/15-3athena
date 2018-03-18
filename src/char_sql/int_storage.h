@@ -4,15 +4,14 @@
 #ifndef _INT_STORAGE_SQL_H_
 #define _INT_STORAGE_SQL_H_
 
-struct storage_data;
-struct guild_storage;
+struct s_storage;
 
-int inter_storage_sql_init(void);
+void inter_storage_sql_init(void);
 void inter_storage_sql_final(void);
-int inter_storage_delete(int account_id);
-int inter_guild_storage_delete(int guild_id);
+void inter_storage_delete(int account_id);
+void inter_guild_storage_delete(int guild_id);
 
-int inter_storage_parse_frommap(int fd);
+bool inter_storage_parse_frommap(int fd);
 
 //Exported for use in the TXT-SQL converter.
 int storage_fromsql(int account_id, struct storage_data* p);

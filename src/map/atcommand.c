@@ -1850,12 +1850,12 @@ ACMD_FUNC(itemreset)
 	nullpo_retr(-1, sd);
 
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->status.inventory[i].amount && sd->status.inventory[i].equip == 0) {
+		if (sd->inventory.u.items_inventory[i].amount && sd->inventory.u.items_inventory[i].equip == 0) {
 
 			//Logs (A)dmins items [Lupus]
-			log_pick(&sd->bl, LOG_TYPE_COMMAND, sd->status.inventory[i].nameid, -sd->status.inventory[i].amount, &sd->status.inventory[i]);
+			log_pick(&sd->bl, LOG_TYPE_COMMAND, sd->inventory.u.items_inventory[i].nameid, -sd->inventory.u.items_inventory[i].amount, &sd->inventory.u.items_inventory[i]);
 
-			pc_delitem(sd, i, sd->status.inventory[i].amount, 0, 0);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
 		}
 	}
 	clif_displaymessage(fd, msg_txt(20)); // All of your items have been removed.
@@ -2217,6 +2217,39 @@ ACMD_FUNC(model)
 			pc_changelook(sd, LOOK_HAIR, hair_style);
 			pc_changelook(sd, LOOK_HAIR_COLOR, hair_color);
 			pc_changelook(sd, LOOK_CLOTHES_COLOR, cloth_color);
+			clif_displaymessage(fd, msg_txt(36)); // Appearence changed.
+	} else {
+		clif_displaymessage(fd, msg_txt(37)); // An invalid number was specified.
+		return -1;
+	}
+
+	return 0;
+}
+
+/*==========================================
+ * @bodystyle [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(bodystyle)
+{
+	int body_style = 0;
+	nullpo_retr(-1, sd);
+
+	memset(atcmd_output, '\0', sizeof(atcmd_output));
+
+	// Limit body styles to certain jobs since not all of them are released yet.
+	if (!((sd->class_&MAPID_THIRDMASK) == MAPID_GUILLOTINE_CROSS || (sd->class_&MAPID_THIRDMASK) == MAPID_GENETIC)) {
+		clif_displaymessage(fd, msg_txt(741));	// This job has no alternate body styles.
+		return -1;
+	}
+
+	if (!message || !*message || sscanf(message, "%d", &body_style) < 1) {
+		sprintf(atcmd_output, msg_txt(740), MIN_BODY_STYLE, MAX_BODY_STYLE);		// Please enter a body style (usage: @bodystyle <body ID: %d-%d>).
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	if (body_style >= MIN_BODY_STYLE && body_style <= MAX_BODY_STYLE) {
+			pc_changelook(sd, LOOK_BODY2, body_style);
 			clif_displaymessage(fd, msg_txt(36)); // Appearence changed.
 	} else {
 		clif_displaymessage(fd, msg_txt(37)); // An invalid number was specified.
@@ -2901,15 +2934,15 @@ ACMD_FUNC(refine)
 		if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == i || sd->equip_index[EQI_COSTUME_HEAD_LOW] == i))
 			continue;
 
-		if(position && !(sd->status.inventory[i].equip & position))
+		if(position && !(sd->inventory.u.items_inventory[i].equip & position))
 			continue;
 
-		final_refine = cap_value(sd->status.inventory[i].refine + refine, 0, MAX_REFINE);
-		if (sd->status.inventory[i].refine != final_refine) {
-			sd->status.inventory[i].refine = final_refine;
-			current_position = sd->status.inventory[i].equip;
+		final_refine = cap_value(sd->inventory.u.items_inventory[i].refine + refine, 0, MAX_REFINE);
+		if (sd->inventory.u.items_inventory[i].refine != final_refine) {
+			sd->inventory.u.items_inventory[i].refine = final_refine;
+			current_position = sd->inventory.u.items_inventory[i].equip;
 			pc_unequipitem(sd, i, 3);
-			clif_refine(fd, 0, i, sd->status.inventory[i].refine);
+			clif_refine(fd, 0, i, sd->inventory.u.items_inventory[i].refine);
 			clif_delitem(sd, i, 1, 3);
 			clif_additem(sd, i, 1, 0);
 			pc_equipitem(sd, i, current_position);
@@ -5041,9 +5074,9 @@ ACMD_FUNC(repairall)
 
 	count = 0;
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->status.inventory[i].nameid && sd->status.inventory[i].attribute == 1) {
-			sd->status.inventory[i].attribute = 0;
-			clif_produceeffect(sd, 0, sd->status.inventory[i].nameid);
+		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].attribute == 1) {
+			sd->inventory.u.items_inventory[i].attribute = 0;
+			clif_produceeffect(sd, 0, sd->inventory.u.items_inventory[i].nameid);
 			count++;
 		}
 	}
@@ -6027,10 +6060,10 @@ ACMD_FUNC(dropall)
 	int i;
 	nullpo_retr(-1, sd);
 	for (i = 0; i < MAX_INVENTORY; i++) {
-	if (sd->status.inventory[i].amount) {
-		if(sd->status.inventory[i].equip != 0)
+	if (sd->inventory.u.items_inventory[i].amount) {
+		if(sd->inventory.u.items_inventory[i].equip != 0)
 			pc_unequipitem(sd, i, 3);
-			pc_dropitem(sd,  i, sd->status.inventory[i].amount);
+			pc_dropitem(sd,  i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	return 0;
@@ -6054,10 +6087,10 @@ ACMD_FUNC(storeall)
 	}
 
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->status.inventory[i].amount) {
-			if(sd->status.inventory[i].equip != 0)
+		if (sd->inventory.u.items_inventory[i].amount) {
+			if(sd->inventory.u.items_inventory[i].equip != 0)
 				pc_unequipitem(sd, i, 3);
-			storage_storageadd(sd,  i, sd->status.inventory[i].amount);
+			storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	storage_storageclose(sd);
@@ -6093,9 +6126,9 @@ ACMD_FUNC(storeit) {
 		}
 	}
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->status.inventory[i].amount) {
-			if(sd->status.inventory[i].equip == 0)
-				storage_storageadd(sd,  i, sd->status.inventory[i].amount);
+		if (sd->inventory.u.items_inventory[i].amount) {
+			if(sd->inventory.u.items_inventory[i].equip == 0)
+				storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	storage_storageclose(sd);
@@ -6365,13 +6398,13 @@ ACMD_FUNC(divorce)
 ACMD_FUNC(changelook)
 {
 	int type = 0, value = 0;//p = Position, v = Value.
-	int pos[6] = { LOOK_HEAD_TOP,LOOK_HEAD_MID,LOOK_HEAD_BOTTOM,LOOK_WEAPON,LOOK_SHIELD,LOOK_ROBE };
+	int pos[7] = { LOOK_HEAD_TOP,LOOK_HEAD_MID,LOOK_HEAD_BOTTOM,LOOK_WEAPON,LOOK_SHIELD,LOOK_ROBE,LOOK_BODY2};
 
 	if( sscanf(message, "%d %d", &type, &value) != 2 || type < 1 || type > 6 || value < 0)
 	{//If only 1 value is given, the position value is not between 1 - 6, or the view id value is below 0, it will fail.
 		clif_displaymessage(fd, "Usage: @changelook <position> <view id>");
 		clif_displaymessage(fd, "Position must be a number between 1 - 6 and view id must be 0 or higher.");
-		clif_displaymessage(fd, "Position: 1-Top Head 2-Middle Head 3-Bottom Head 4-Weapon 5-Shield 6-Robe");
+		clif_displaymessage(fd, "Position: 1-Top Head 2-Middle Head 3-Bottom Head 4-Weapon 5-Shield 6-Robe 7-Body");
 		return -1;
 	}//If the check passes, display the requested result on the character.
 	clif_changelook(&sd->bl,pos[type-1],value);
@@ -7331,7 +7364,7 @@ ACMD_FUNC(identify)
 	nullpo_retr(-1, sd);
 
 	for(i=num=0;i<MAX_INVENTORY;i++){
-		if(sd->status.inventory[i].nameid > 0 && sd->status.inventory[i].identify!=1){
+		if(sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].identify!=1){
 			num++;
 		}
 	}
@@ -9032,21 +9065,21 @@ ACMD_FUNC(itemlist)
 	if( strcmp(command+1, "storagelist") == 0 )
 	{
 		location = "Storage";
-		items = sd->status.storage.items;
+		items = sd->storage.u.items_storage;
 		size = MAX_STORAGE;
 	}
 	else
 	if( strcmp(command+1, "cartlist") == 0 )
 	{
 		location = "Cart";
-		items = sd->status.cart;
+		items = sd->cart.u.items_cart;
 		size = MAX_CART;
 	}
 	else
 	if( strcmp(command+1, "itemlist") == 0 )
 	{
 		location = "Inventory";
-		items = sd->status.inventory;
+		items = sd->inventory.u.items_inventory;
 		size = MAX_INVENTORY;
 	}
 	else
@@ -9289,15 +9322,15 @@ ACMD_FUNC(delitem)
 	// delete items
 	while( amount && ( idx = pc_search_inventory(sd, nameid) ) != -1 )
 	{
-		int delamount = ( amount < sd->status.inventory[idx].amount ) ? amount : sd->status.inventory[idx].amount;
+		int delamount = ( amount < sd->inventory.u.items_inventory[idx].amount ) ? amount : sd->inventory.u.items_inventory[idx].amount;
 
-		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->status.inventory[idx].card[0] == CARD0_PET )
+		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->inventory.u.items_inventory[idx].card[0] == CARD0_PET )
 		{// delete pet
-			intif_delete_petdata(MakeDWord(sd->status.inventory[idx].card[1], sd->status.inventory[idx].card[2]));
+			intif_delete_petdata(MakeDWord(sd->inventory.u.items_inventory[idx].card[1], sd->inventory.u.items_inventory[idx].card[2]));
 		}
 
 		//Logs (A)dmins items [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_COMMAND, nameid, -delamount, &sd->status.inventory[idx]);
+		log_pick(&sd->bl, LOG_TYPE_COMMAND, nameid, -delamount, &sd->inventory.u.items_inventory[idx]);
 
 		pc_delitem(sd, idx, delamount, 0, 0);
 
@@ -9463,6 +9496,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "gvgon",             40,40,     atcommand_gvgon },
 	{ "gpvpon",            40,40,     atcommand_gvgon },
 	{ "model",             20,20,     atcommand_model },
+	{ "bodystyle",         20,20,     atcommand_bodystyle },
 	{ "go",                10,10,     atcommand_go },
 	{ "monster",           50,50,     atcommand_monster },
 	{ "spawn",             50,50,     atcommand_monster },

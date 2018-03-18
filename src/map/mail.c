@@ -35,7 +35,7 @@ int mail_removeitem(struct map_session_data *sd, short flag)
 	{
 		if (flag)
 		{ // Item send
-			log_pick(&sd->bl, LOG_TYPE_MAIL, sd->mail.nameid, -sd->mail.amount, &sd->status.inventory[sd->mail.index]);
+			log_pick(&sd->bl, LOG_TYPE_MAIL, sd->mail.nameid, -sd->mail.amount, &sd->inventory.u.items_inventory[sd->mail.index]);
 
 			pc_delitem(sd, sd->mail.index, sd->mail.amount, 1, 0);
 		}
@@ -86,14 +86,14 @@ unsigned char mail_setitem(struct map_session_data *sd, int idx, int amount)
 
 		if( idx < 0 || idx >= MAX_INVENTORY )
 			return 1;
-		if( amount < 0 || amount > sd->status.inventory[idx].amount )
+		if( amount < 0 || amount > sd->inventory.u.items_inventory[idx].amount )
 			return 1;
-		if( !pc_candrop(sd, &sd->status.inventory[idx])  || sd->status.inventory[idx].expire_time  
-		|| (sd->status.inventory[idx].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
+		if( !pc_candrop(sd, &sd->inventory.u.items_inventory[idx])  || sd->inventory.u.items_inventory[idx].expire_time  
+		|| (sd->inventory.u.items_inventory[idx].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
 			return 1;
 
 		sd->mail.index = idx;
-		sd->mail.nameid = sd->status.inventory[idx].nameid;
+		sd->mail.nameid = sd->inventory.u.items_inventory[idx].nameid;
 		sd->mail.amount = amount;
 		
 		return 0;
@@ -113,16 +113,16 @@ bool mail_setattachment(struct map_session_data *sd, struct mail_message *msg)
 	n = sd->mail.index;
 	if( sd->mail.amount )
 	{
-		if( sd->status.inventory[n].nameid != sd->mail.nameid )
+		if( sd->inventory.u.items_inventory[n].nameid != sd->mail.nameid )
 			return false;
 
-		if( sd->status.inventory[n].amount < sd->mail.amount )
+		if( sd->inventory.u.items_inventory[n].amount < sd->mail.amount )
 			return false;
 
 		if( sd->weight > sd->max_weight )
 			return false;
 
-		memcpy(&msg->item, &sd->status.inventory[n], sizeof(struct item));
+		memcpy(&msg->item, &sd->inventory.u.items_inventory[n], sizeof(struct item));
 		msg->item.amount = sd->mail.amount;
 	}
 	else

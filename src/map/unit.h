@@ -57,9 +57,9 @@ struct view_data {
 		head_mid,
 		head_bottom,
 		hair_style,
-		body_style,
 		hair_color,
-		cloth_color;
+		cloth_color,
+		body_style;
 	uint8 sex;
 	unsigned dead_sit : 2;
 };

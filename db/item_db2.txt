@@ -926,7 +926,7 @@
 14619,INT_Biscuit_Stick,Bar Cookie Of Intelligence,18,1,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_INTFOOD,1800000,15; sc_start SC_INCMATKRATE,600000,rand(11,111); },{},{}
 14620,DEX_Biscuit_Stick,Bar Cookie Of Dexterity,18,1,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DEXFOOD,1800000,15; sc_start SC_HITFOOD,600000,rand(11,33); },{},{}
 14621,LUK_Biscuit_Stick,Bar Cookie Of Lucky,18,1,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_LUKFOOD,1800000,15; sc_start SC_CRIFOOD,600000,rand(11,33); },{},{}
-15116,Armor_Of_Airship,Armor Of Airship,5,10,,700,,100,,0,0xFFFFFFFF,63,2,16,,125,1,,{ bonus bMaxHP,1000; bonus bMaxSP,100; bonus bMdef,10; bonus bAllStats,1; },{},{}
+15116,Armor_Of_Airship,Armor Of Airship,5,10,,700,,100,,0,0xFFFFFFFF,63,2,16,,125,1,,{ bonus bMaxHP,1000; bonus bMaxSP,100; bonus bMdef,10; bonus bAllStats,1; if(isequipped(20743,22046)){bonus bMaxSPrate,25; bonus bMaxSPrate,25; bonus bSpeedAddRate,10;}},{},{}
 17270,STR_Biscuit_Stick_Box,Bar Cookie Of Strength Box,18,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 14616,20; },{},{}
 17271,VIT_Biscuit_Stick_Box,Bar Cookie Of Vitality Box,18,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 14617,20; },{},{}
 17272,AGI_Biscuit_Stick_Box,Bar Cookie Of Agility Box,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 14618,20; },{},{}

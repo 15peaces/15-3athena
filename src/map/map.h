@@ -324,6 +324,17 @@ enum {
 	ELE_MAX
 };
 
+enum mob_ai {
+	AI_NONE = 0,
+	AI_ATTACK,
+	AI_SPHERE,
+	AI_FLORA,
+	AI_ZANZOU,
+	AI_LEGION,
+	AI_FAW,
+	AI_MAX
+};
+
 enum auto_trigger_flag {
 	ATF_SELF=0x01,
 	ATF_TARGET=0x02,
@@ -458,6 +469,7 @@ enum _look {
 	LOOK_BODY,			//BODY - Purpose Unknown. Doesen't appear to do anything.
 	LOOK_RESET_COSTUMES,//RESET_COSTUMES - Makes all headgear sprites on player vanish when activated.
 	LOOK_ROBE,			//ROBE
+	LOOK_BODY2,
 };
 
 // used by map_setcell()

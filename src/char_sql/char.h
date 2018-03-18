@@ -12,17 +12,9 @@ struct mmo_charstatus;
 
 #define DEFAULT_AUTOSAVE_INTERVAL 300*1000
 
-enum {
-	TABLE_INVENTORY,
-	TABLE_CART,
-	TABLE_STORAGE,
-	TABLE_GUILD_STORAGE,
-};
-
 struct char_session_data {
 	bool auth; // whether the session is authed or not
-	int account_id;
-	uint32 login_id1, login_id2;
+	uint32 account_id, login_id1, login_id2;
 	uint8 sex;
 	int found_char[MAX_CHARS]; // ids of chars on this account
 	char email[40]; // e-mail (default: a@a.com) by [Yor]
@@ -34,6 +26,7 @@ struct char_session_data {
 	char birthdate[10+1];  // YYYY-MM-DD
 };
 
+int inventory_to_sql(const struct item items[], int max, int char_id); 
 int memitemdata_to_sql(const struct item items[], int max, int id, int tableswitch);
 
 int mapif_sendall(unsigned char *buf,unsigned int len);
@@ -86,6 +79,9 @@ extern int db_use_sqldbs; // added for sql item_db read for char server [Valaris
 
 extern int guild_exp_rate;
 extern int log_inter;
+
+//For use in packets that depend on an sd being present [Skotlex]
+#define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL || !sd->auth) { RFIFOSKIP(fd,rest); return 0; } }
 
 //Exported for use in the TXT-SQL converter.
 int mmo_char_tosql(int char_id, struct mmo_charstatus *p);

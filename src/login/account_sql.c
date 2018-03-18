@@ -487,7 +487,7 @@ static void account_db_sql_iter_destroy(AccountDBIterator* self)
 static bool account_db_sql_iter_next(AccountDBIterator* self, struct mmo_account* acc)
 {
 	AccountDBIterator_SQL* iter = (AccountDBIterator_SQL*)self;
-	AccountDB_SQL* db = (AccountDB_SQL*)iter->db;
+	AccountDB_SQL* db = iter->db;
 	Sql* sql_handle = db->accounts;
 	int account_id;
 	char* data;
@@ -544,10 +544,10 @@ static bool mmo_auth_fromsql(AccountDB_SQL* db, struct mmo_account* acc, int acc
 	Sql_GetData(sql_handle,  3, &data, NULL); acc->sex = data[0];
 	Sql_GetData(sql_handle,  4, &data, NULL); safestrncpy(acc->email, data, sizeof(acc->email));
 	Sql_GetData(sql_handle,  5, &data, NULL); acc->level = atoi(data);
-	Sql_GetData(sql_handle,  6, &data, NULL); acc->state = strtoul(data, NULL, 10);
+	Sql_GetData(sql_handle,  6, &data, NULL); acc->state = (unsigned int)strtoul(data, NULL, 10);
 	Sql_GetData(sql_handle,  7, &data, NULL); acc->unban_time = atol(data);
 	Sql_GetData(sql_handle,  8, &data, NULL); acc->expiration_time = atol(data);
-	Sql_GetData(sql_handle,  9, &data, NULL); acc->logincount = strtoul(data, NULL, 10);
+	Sql_GetData(sql_handle,  9, &data, NULL); acc->logincount = (unsigned int)strtoul(data, NULL, 10);
 	Sql_GetData(sql_handle, 10, &data, NULL); safestrncpy(acc->lastlogin, data, sizeof(acc->lastlogin));
 	Sql_GetData(sql_handle, 11, &data, NULL); safestrncpy(acc->last_ip, data, sizeof(acc->last_ip));
 	Sql_GetData(sql_handle, 12, &data, NULL); safestrncpy(acc->birthdate, data, sizeof(acc->birthdate));

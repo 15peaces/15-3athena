@@ -597,7 +597,7 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 		int j,i; 
 		j = pc_bound_chk(sd,3,idxlist); 
 		for(i=0;i<j;i++) 
-			pc_delitem(sd,idxlist[i],sd->status.inventory[idxlist[i]].amount,0,1);
+			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1);
 #endif
 		sd->status.party_id = 0;
 		clif_charnameupdate(sd); //Update name display [Skotlex]

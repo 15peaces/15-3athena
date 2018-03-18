@@ -134,7 +134,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 			return;
 
 		}
-		w += itemdb_weight(vsd->status.cart[idx].nameid) * amount;
+		w += itemdb_weight(vsd->cart.u.items_cart[idx].nameid) * amount;
 		if( w + sd->weight > sd->max_weight )
 		{
 			clif_buyvending(sd, idx, amount, 2); // you can not buy, because overweight
@@ -142,8 +142,8 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		}
 		
 		//Check to see if cart/vend info is in sync.
-		if( vending[j].amount > vsd->status.cart[idx].amount )
-			vending[j].amount = vsd->status.cart[idx].amount;
+		if( vending[j].amount > vsd->cart.u.items_cart[idx].amount )
+			vending[j].amount = vsd->cart.u.items_cart[idx].amount;
 		
 		// if they try to add packets (example: get twice or more 2 apples if marchand has only 3 apples).
 		// here, we check cumulative amounts
@@ -156,7 +156,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		
 		vending[j].amount -= amount;
 
-		switch( pc_checkadditem(sd, vsd->status.cart[idx].nameid, amount) ) {
+		switch( pc_checkadditem(sd, vsd->cart.u.items_cart[idx].nameid, amount) ) {
 		case ADDITEM_EXIST:
 			break;	//We'd add this item to the existing one (in buyers inventory)
 		case ADDITEM_NEW:
@@ -185,11 +185,11 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		z = 0.; // zeny counter
 
 		//Logs sold (V)ending items [Lupus]
-		log_pick(&vsd->bl, LOG_TYPE_VENDING, vsd->status.cart[idx].nameid, -amount, &vsd->status.cart[idx]);
-		log_pick( &sd->bl, LOG_TYPE_VENDING, vsd->status.cart[idx].nameid,  amount, &vsd->status.cart[idx]);
+		log_pick(&vsd->bl, LOG_TYPE_VENDING, vsd->cart.u.items_cart[idx].nameid, -amount, &vsd->cart.u.items_cart[idx]);
+		log_pick( &sd->bl, LOG_TYPE_VENDING, vsd->cart.u.items_cart[idx].nameid,  amount, &vsd->cart.u.items_cart[idx]);
 
 		// vending item
-		pc_additem(sd, &vsd->status.cart[idx], amount);
+		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount);
 		vsd->vending[vend_list[i]].amount -= amount;
 		z += ((double)vsd->vending[i].value * (double)amount);
 		pc_cart_delitem(vsd, idx, amount, 0);
@@ -287,11 +287,11 @@ void vending_openvending(struct map_session_data* sd, const char* message, bool 
 		if( index < 0 || index >= MAX_CART // invalid position
 		||  pc_cartitem_amount(sd, index, amount) < 0 // invalid item or insufficient quantity
 		//NOTE: official server does not do any of the following checks!
-		||  !sd->status.cart[index].identify // unidentified item
-		||  sd->status.cart[index].attribute == 1 // broken item
-		||  sd->status.cart[index].expire_time // It should not be in the cart but just in case
-		||  (sd->status.cart[index].bound && !pc_can_give_bounded_items(sd->gmlevel)) // can't trade account bound items and has no permission
-		||  !itemdb_cantrade(&sd->status.cart[index], pc_isGM(sd), pc_isGM(sd)) ) // untradeable item
+		||  !sd->cart.u.items_cart[index].identify // unidentified item
+		||  sd->cart.u.items_cart[index].attribute == 1 // broken item
+		||  sd->cart.u.items_cart[index].expire_time // It should not be in the cart but just in case
+		||  (sd->cart.u.items_cart[index].bound && !pc_can_give_bounded_items(sd->gmlevel)) // can't trade account bound items and has no permission
+		||  !itemdb_cantrade(&sd->cart.u.items_cart[index], pc_isGM(sd), pc_isGM(sd)) ) // untradeable item
 			continue;
 
 		sd->vending[i].index = index;
@@ -332,7 +332,7 @@ bool vending_search(struct map_session_data* sd, unsigned short nameid)
 		return false;
 	}
 
-	ARR_FIND( 0, sd->vend_num, i, sd->status.cart[sd->vending[i].index].nameid == (short)nameid );
+	ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)nameid );
 	if( i == sd->vend_num )
 	{// not found
 		return false;
@@ -357,12 +357,12 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 
 	for( idx = 0; idx < s->item_count; idx++ )
 	{
-		ARR_FIND( 0, sd->vend_num, i, sd->status.cart[sd->vending[i].index].nameid == (short)s->itemlist[idx] );
+		ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)s->itemlist[idx] );
 		if( i == sd->vend_num )
 		{// not found
 			continue;
 		}
-		it = &sd->status.cart[sd->vending[i].index];
+		it = &sd->cart.u.items_cart[sd->vending[i].index];
 
 		if( s->min_price && s->min_price > sd->vending[i].value )
 		{// too low price

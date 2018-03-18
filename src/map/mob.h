@@ -134,11 +134,7 @@ struct mob_data {
 	char name[NAME_LENGTH];
 	struct {
 		unsigned int size : 2; //Small/Big monsters.
-		unsigned int ai : 2; //Special ai for summoned monsters.
-							//0: Normal mob.
-							//1: Standard summon, attacks mobs.
-							//2: Alchemist Marine Sphere
-							//3: Alchemist Summon Flora
+		enum mob_ai ai;
 	} special_state; //Special mob information that does not needs to be zero'ed on mob respawn.
 	struct {
 		unsigned int aggressive : 1; //Signals whether the mob AI is in aggressive mode or reactive mode. [Skotlex]

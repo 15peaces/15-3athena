@@ -27,8 +27,8 @@ int intif_wis_message_to_gm(char *Wisp_name, int min_gm_level, char *mes);
 int intif_saveregistry(struct map_session_data *sd, int type);
 int intif_request_registry(struct map_session_data *sd, int flag);
 
-int intif_request_guild_storage(int account_id, int guild_id);
-int intif_send_guild_storage(int account_id, struct guild_storage *gstor);
+bool intif_request_guild_storage(uint32 account_id, int guild_id);
+bool intif_send_guild_storage(uint32 account_id, struct s_storage *gstor);
 
 
 bool intif_create_party(struct party_member* member, const char* name, int item, int item2);
@@ -115,6 +115,10 @@ int intif_clan_requestclans();
 int intif_clan_message(int clan_id, uint32 account_id, const char *mes, int len);
 int intif_clan_member_joined(int clan_id);
 int intif_clan_member_left(int clan_id);
+
+// STORAGE
+bool intif_storage_request(struct map_session_data *sd, enum storage_type type);
+bool intif_storage_save(struct map_session_data *sd, enum storage_type type);
 
 bool CheckForCharServer(void);
 
