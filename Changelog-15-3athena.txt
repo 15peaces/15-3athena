@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/25/2018
+	r196 [15peaces]
+		*Merged missing changes from 3ceam rev. 642
+		*Storage types optimization fixes
+			-Added expire_time to guild storage data.
+		*Updated ZLIB
+			-Upgraded from version 1.2.7 to the latest version 1.2.8
+			-Source: http://www.zlib.net/
+		*Updated list of statusses removable by Dispell and Clearance.
+			-Thanks to @3ceam.
+		*Renamed SC_BERKANA to SC_MILLENNIUMSHIELD.
+		-This is the last status of rune related skills where the rune name was used.
+		-Using the names of runes for these statusses made it confusing and hard to figure out which skill their used for.
+
 03/18/2018
 	r195 [15peaces]
 		*Merged missing changes from 3ceam rev. 641

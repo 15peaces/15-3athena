@@ -369,13 +369,13 @@ typedef enum sc_type {
 	SC_SUMMON4,
 	SC_SUMMON5,
 	SC_READING_SB, // From iROwiki : your SP slowly drains depending on the number of spells frozen
-	/*SC_SPELLBOOK1,
+	SC_SPELLBOOK1,
 	SC_SPELLBOOK2,
 	SC_SPELLBOOK3,
 	SC_SPELLBOOK4,
 	SC_SPELLBOOK5,
 	SC_SPELLBOOK6,
-	SC_SPELLBOOK7,*/
+	SC_SPELLBOOK7,
 	SC_FREEZE_SP = 339,
 	
 	//Ranger
@@ -698,7 +698,7 @@ typedef enum sc_type {
 	SC_SPHERE_4,
 	SC_SPHERE_5,
 	SC_GLOOMYDAY_SK,
-	SC_BERKANA,
+	SC_MILLENNIUMSHIELD,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

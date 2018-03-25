@@ -46,7 +46,7 @@ message( STATUS "Detecting external ZLIB - done" )
 
 function( CONFIGURE_WITH_ZLIB_EXTERNAL )
 	message( STATUS "Creating target external_zlib" )
-	set( _URL "${CMAKE_CURRENT_SOURCE_DIR}/zlib-1.2.7" )
+	set( _URL "${CMAKE_CURRENT_SOURCE_DIR}/zlib-1.2.8" )
 	set( _INSTALL_DIR "${CMAKE_BINARY_DIR}/external/zlib" )
 	set( _CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${_INSTALL_DIR}" )
 	set( _LIBRARY "${_INSTALL_DIR}/lib/zlibstatic.lib" )

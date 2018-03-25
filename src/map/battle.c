@@ -483,7 +483,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			}
 		}
 
-		if( sd && (sce = sc->data[SC_BERKANA]) && sce->val2 > 0 && damage > 0 )
+		if( sd && (sce = sc->data[SC_MILLENNIUMSHIELD]) && sce->val2 > 0 && damage > 0 )
 		{
 			clif_skill_nodamage(bl, bl, RK_MILLENNIUMSHIELD, 1, 1);
 			sce->val3 -= damage; // absorb damage
@@ -498,7 +498,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 					sce->val3 = 1000; // Next Shield
 				}
 				else
-					status_change_end(bl,SC_BERKANA,-1); // All shields down
+					status_change_end(bl,SC_MILLENNIUMSHIELD,-1); // All shields down
 			}
 			return 0;
 		}
