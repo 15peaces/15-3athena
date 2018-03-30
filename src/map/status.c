@@ -1527,7 +1527,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC__IGNORANCE] || // Target afflicted with this debuff cannot use skills or magic.
 				sc->data[SC_DEEPSLEEP] ||
 				sc->data[SC_SATURDAY_NIGHT_FEVER] ||
-				sc->data[SC_CURSEDCIRCLE_TARGET]
+				sc->data[SC_CURSEDCIRCLE_TARGET] ||
+				sc->data[SC_ALL_RIDING]
 			))
 				return 0;
 
@@ -8366,7 +8367,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		calc_flag&=~SCB_BODY;
 	}*/
 
-	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER ) ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
+	if( (vd && (pcdb_checkid(vd->class_))) || bl->type == BL_MER ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
 		clif_status_change(bl,StatusIconChangeTable[type],1,tick,(val_flag&1)?val1:1,(val_flag&2)?val2:0,(val_flag&4)?val3:0);
 	else if( sd ) //Send packet to self otherwise (disguised player?)
 		clif_status_load(bl,StatusIconChangeTable[type],1);

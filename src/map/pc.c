@@ -550,6 +550,8 @@ void pc_inventory_rentals(struct map_session_data *sd)
 		if( sd->inventory.u.items_inventory[i].expire_time <= time(NULL) )
 		{
 			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
+			if( sd->inventory.u.items_inventory[i].nameid == ITEMID_BOARDING_HALTER )
+				status_change_end(&sd->bl, SC_ALL_RIDING, -1);
 			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0);
 		}
 		else
@@ -1173,7 +1175,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 			/**
 			 * Fixes login-without-aura glitch (the screen won't blink at this point, don't worry :P)
 			 **/
-			clif_changemap(sd,sd->bl.m,sd->bl.x,sd->bl.y);
+			clif_changemap(sd, sd->mapindex, sd->bl.x, sd->bl.y);
 	}
 
 	// Check EXP overflow, since in previous revision EXP on Max Level can be more than 'official' Max EXP

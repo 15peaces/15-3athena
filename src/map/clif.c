@@ -51,7 +51,7 @@
 
 //#define DUMP_UNKNOWN_PACKET
 //#define DUMP_INVALID_PACKET
-#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
+//#define LOG_ALL_PACKETS // Show all packets (for Debugging) [15peaces]
 
 struct Clif_Config {
 	int packet_db_ver;	//Preferred packet version.
@@ -1456,6 +1456,8 @@ int clif_spawn(struct block_list *bl)
 				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_ALL_RIDING] )
+				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
 				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
@@ -4645,6 +4647,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MONSTER_TRANSFORM,1000,tsd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
+				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
 				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1000,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( tsd->sc.count && tsd->sc.data[SC_MOONSTAR] )
@@ -5988,7 +5992,7 @@ int clif_status_load(struct block_list *bl,int type, int flag)
 /// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
 /// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE3) (PACKETVER >= 20120618)
 /// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
-void clif_status_change(struct block_list *bl,int type,int flag,int64 tick, int val1, int val2, int val3)
+void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int val1, int val2, int val3)
 {
 	unsigned char buf[32];
 
@@ -11080,7 +11084,8 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 
 		// Can't attack
 		if( sd->sc.data[SC_BASILICA] || sd->sc.data[SC__SHADOWFORM] || (tsc && tsc->data[SC__MANHOLE]) ||
-			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) )
+			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) ||
+			sd->sc.data[SC_ALL_RIDING])
 			return;
 		
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {

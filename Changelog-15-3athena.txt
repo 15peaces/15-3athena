@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/30/2018
+	r197 [15peaces]
+		*Fixed some stuff from my last commits.
+			-Fixed some comments in zlib files.
+			-re-commented SC_SPELLBOOK status-ids. SC_SPELLBOOK7 conflicts with SC_FREEZE_SP, I'll need to change this later.
+				--However, this is not important yet, they where dummy values after all. ^^
+			-disabled LOG_ALL_PACKETS. Sorry. ^^
+			-fixed an issue where you where warped to the wrong place after login.
+				--Thanks to hikashin.
+		*Did some fixing related to rental mounts.
+			-you're unable to attack or use skills while mounted.
+			-The mount will be removed on logout.
+		*Fixed an issue where carts and rental mounts (and maybe other stuff) won't be displayed until client is refreshed.
+			-Follow up r175(@7ec89e3).
+
 03/25/2018
 	r196 [15peaces]
 		*Merged missing changes from 3ceam rev. 642

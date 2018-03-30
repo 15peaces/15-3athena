@@ -7534,9 +7534,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				/*case SC_DOHU_KOUKAI:*/	case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Dispell
 				case SC_SPHERE_1:		case SC_SPHERE_2:		case SC_SPHERE_3:		
-				case SC_SPHERE_4:		case SC_SPHERE_5:		case SC_SPELLBOOK1:		
+				case SC_SPHERE_4:		case SC_SPHERE_5:		/*case SC_SPELLBOOK1:		
 				case SC_SPELLBOOK2:		case SC_SPELLBOOK3:		case SC_SPELLBOOK4:		
-				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:
+				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:*/
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -9851,7 +9851,8 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_WHITEIMPRISON] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]
+		sd->sc.data[SC_SATURDAY_NIGHT_FEVER] ||
+		sd->sc.data[SC_ALL_RIDING]
 	 )) {
 		skill_failed(sd);
 		return 0;
