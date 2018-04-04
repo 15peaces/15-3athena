@@ -27,8 +27,8 @@ int intif_wis_message_to_gm(char *Wisp_name, int min_gm_level, char *mes);
 int intif_saveregistry(struct map_session_data *sd, int type);
 int intif_request_registry(struct map_session_data *sd, int flag);
 
-bool intif_request_guild_storage(uint32 account_id, int guild_id);
-bool intif_send_guild_storage(uint32 account_id, struct s_storage *gstor);
+bool intif_request_guild_storage(int account_id, int guild_id);
+bool intif_send_guild_storage(int account_id, struct s_storage *gstor);
 
 
 bool intif_create_party(struct party_member* member, const char* name, int item, int item2);
@@ -36,7 +36,7 @@ int intif_request_partyinfo(int party_id, int char_id);
 
 int intif_party_addmember(int party_id,struct party_member *member);
 int intif_party_changeoption(int party_id, int account_id, int exp, int item);
-int intif_party_leave(int party_id, uint32 account_id, uint32 char_id, char *name, enum e_party_member_withdraw type); 
+int intif_party_leave(int party_id, int account_id, int char_id, char *name, enum e_party_member_withdraw type); 
 int intif_party_changemap(struct map_session_data *sd, int online);
 int intif_break_party(int party_id);
 int intif_party_message(int party_id, int account_id, const char *mes,int len);
@@ -90,12 +90,13 @@ int intif_mercenary_save(struct s_mercenary *merc);
 
 #ifndef TXT_ONLY
 // MAIL SYSTEM
-int intif_Mail_requestinbox(int char_id, unsigned char flag);
+int intif_Mail_requestinbox(int char_id, unsigned char flag, enum mail_inbox_type type);
 int intif_Mail_read(int mail_id);
-int intif_Mail_getattach(int char_id, int mail_id);
+bool intif_mail_getattach( struct map_session_data* sd, struct mail_message *msg, enum mail_attachment_type type ); 
 int intif_Mail_delete(int char_id, int mail_id);
 int intif_Mail_return(int char_id, int mail_id);
 int intif_Mail_send(int account_id, struct mail_message *msg);
+bool intif_mail_checkreceiver(struct map_session_data* sd, char* name); 
 // AUCTION SYSTEM
 int intif_Auction_requestlist(int char_id, short type, int price, const char* searchtext, short page);
 int intif_Auction_register(struct auction_data *auction);
@@ -112,7 +113,7 @@ int intif_elemental_save(struct s_elemental *ele);
 
 // CLAN SYSTEM
 int intif_clan_requestclans();
-int intif_clan_message(int clan_id, uint32 account_id, const char *mes, int len);
+int intif_clan_message(int clan_id, int account_id, const char *mes, int len);
 int intif_clan_member_joined(int clan_id);
 int intif_clan_member_left(int clan_id);
 

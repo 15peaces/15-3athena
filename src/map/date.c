@@ -20,6 +20,7 @@ int date_get_month(void)
 	lt = localtime(&t);
 	return lt->tm_mon+1;
 }
+
 int date_get_day(void)
 {
 	time_t t;
@@ -53,6 +54,15 @@ int date_get_sec(void)
 	t = time(NULL);
 	lt = localtime(&t);
 	return lt->tm_sec;
+}
+
+int date_get_dayofyear(void)
+{
+	time_t t;
+	struct tm * lt;
+	t = time(NULL);
+	lt = localtime(&t);
+	return lt->tm_yday;
 }
 
 int is_day_of_sun(void)

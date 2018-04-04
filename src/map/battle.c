@@ -2398,9 +2398,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
 					i = distance_bl(src,target) / 2;
-					skillratio += 100 * skill_lv;
-					if( i < 4 ) skillratio += 100 * skill_lv;
-					if( i < 2 ) skillratio += 100;
+					if( i < 2 ) 
+						skillratio = 200 + 200 * skill_lv;
+					else if( i < 4 ) 
+						skillratio = 100 + 200 * skill_lv;
+					else
+						skillratio = 100 + 100 * skill_lv;
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					if( sstatus->rhw.ele == ELE_FIRE )	skillratio +=  skillratio / 2;	// Bonus by fire element endow.
 					break;
@@ -3465,17 +3468,12 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case WL_SOULEXPANSION:
-						{
-							struct status_change *tsc = status_get_sc(target);
-							skillratio = (skillratio + 300 + 100 * skill_lv + status_get_int(src));
-							if (s_level > 100) 
-								skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
- 							if (tsc && tsc->data[SC_WHITEIMPRISON])
- 								skillratio <<= 1;
-						}
+						skillratio += 300 + 100 * skill_lv + sstatus->int_;
+						if( s_level > 100 ) 
+							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 						break;
 					case WL_FROSTMISTY:
-						skillratio = skillratio + 100 + 100 * skill_lv;
+						skillratio += 100 + 100 * skill_lv;
 						if (s_level > 100)
 							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
@@ -3484,29 +3482,31 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							struct status_change *tsc = status_get_sc( target );
 							if (tsc && tsc->data[SC_FREEZING]) 
 							{
-								skillratio = (skillratio + 900 + 300 * skill_lv);
+								skillratio += 900 + 300 * skill_lv;
 								if (s_level > 100) 
 									skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 							}
 							else
-								skillratio = (int)((skillratio + 100 * skill_lv) * (1 + ((sd) ? s_job_level : 0) / 100. ));
-						}
+								skillratio += 400 + 100 * skill_lv;
+								if( s_level > 100 ) 
+									skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+ 						}
 						break;
 					case WL_DRAINLIFE:
-						skillratio += 400 + 100 * skill_lv * (1 + sstatus->int_/1000);
+						skillratio = 200 * skill_lv + sstatus->int_;
 						if (s_level > 100)
 							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
  						break;
 					case WL_CRIMSONROCK:
 						skillratio += 1200 + 300 * skill_lv;
-						if (s_level > 100)
-							skillratio += 15 * (s_level - 100);	// Base level bonus.
+						if( s_level > 100 )
+							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
  						break;
 					case WL_HELLINFERNO:
 						if( s_ele == ELE_FIRE )
-							skillratio += 60 * skill_lv - 100;
+							skillratio = 60 * skill_lv;
 						else
-							skillratio += 240 * skill_lv - 100;
+							skillratio = 240 * skill_lv;
 						if (s_level > 100)
 							skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 						break;
@@ -3540,9 +3540,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SUMMON_ATK_WATER:
 					case WL_SUMMON_ATK_WIND:
 					case WL_SUMMON_ATK_GROUND:
-						skillratio += 50 * skill_lv - 50;
-						if (s_level > 100)
-							skillratio += skillratio * (s_level - 100) / 100 + (s_job_level / 50);
+						skillratio = skill_lv * (s_level + s_job_level);// This is close to official, but lacking a little info to finalize. [Rytech]
+						if( s_level > 100 ) 
+							skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 						break;
 					case LG_RAYOFGENESIS:
 						skillratio = (skillratio + 200) * skill_lv;
@@ -5560,6 +5560,11 @@ static const struct _battle_data {
 	{ "min_body_style",                     &battle_config.min_body_style,                  0,      0,      SHRT_MAX,       },
 	{ "max_body_style",                     &battle_config.max_body_style,                  4,      0,      SHRT_MAX,       },
 	{ "save_body_style",                    &battle_config.save_body_style,                 0,      0,      1,              },
+	{ "mail_delay",                         &battle_config.mail_delay,                      1000,   1000,   INT_MAX,        },
+	{ "mail_daily_count",					&battle_config.mail_daily_count,				100,	0,		INT32_MAX,		},
+	{ "mail_zeny_fee",						&battle_config.mail_zeny_fee,					2,		0,		100,			},
+	{ "mail_attachment_price",				&battle_config.mail_attachment_price,			2500,	0,		INT32_MAX,		},
+	{ "mail_attachment_weight",				&battle_config.mail_attachment_weight,			2000,	0,		INT32_MAX,		},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

@@ -15,6 +15,9 @@
 /// EXPERIMENTAL FEATURE [15peaces]
 //#define PACKET_OBFUSCATION
 
+// Show all packets (for Debugging) [15peaces]
+//#define LOG_ALL_PACKETS
+
 enum SERVER_STATE
 {
 	SERVER_STATE_STOP,

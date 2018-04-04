@@ -557,6 +557,11 @@ extern struct Battle_Config
 	int min_body_style;
 	int max_body_style;
 	int save_body_style;
+	int mail_delay;
+	int mail_daily_count;
+	int mail_zeny_fee;
+	int mail_attachment_price;
+	int mail_attachment_weight;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

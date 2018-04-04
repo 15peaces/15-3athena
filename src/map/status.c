@@ -799,6 +799,9 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_CROSSBOWCLAN] = SI_CROSSBOWCLAN;
 	StatusIconChangeTable[SC_JUMPINGCLAN] = SI_JUMPINGCLAN;
 
+	// RODEX
+	StatusIconChangeTable[SC_DAILYSENDMAILCNT] = SI_DAILYSENDMAILCNT;
+
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] = SCB_ASPD;
@@ -916,6 +919,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_GOLDENMACECLAN] |= SCB_LUK|SCB_INT|SCB_MAXHP|SCB_MAXSP;
 	StatusChangeFlagTable[SC_CROSSBOWCLAN] |= SCB_DEX|SCB_AGI|SCB_MAXHP|SCB_MAXSP;
 	StatusChangeFlagTable[SC_JUMPINGCLAN] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
+
+	// RODEX
+	StatusChangeFlagTable[SC_DAILYSENDMAILCNT] |= SCB_NONE;
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
@@ -5917,7 +5923,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		tick = max(tick,6000); // Minimum Duration 6s.
 		break;
 	case SC_FREEZING:
-		tick -= 40*status->vit;
+		tick -= 1000 * ((status->vit + status->dex) / 20);
 		tick = max(tick,10000); // Minimum Duration 10s.
 		break;
 	case SC_OBLIVIONCURSE:
@@ -7810,8 +7816,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_BLOOD_SUCKER:
 			val4 = tick / 1000;
-			if( val4 < 1 )
-				val4 = 1;
 			tick = 1000;
 			break;
 		case SC_SWING:
@@ -8088,6 +8092,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1;
 			tick = -1;
 			status_change_start(bl, SC_CLAN_INFO, 10000, 0, val2, 0, 0, -1, flag);
+			break;
+		case SC_DAILYSENDMAILCNT:
+			val_flag |= 1|2;
+			tick = -1;
 			break;
 		case SC_MONSTER_TRANSFORM:
 		case SC_ACTIVE_MONSTER_TRANSFORM:
@@ -8538,6 +8546,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_GOLDENMACECLAN:
 				case SC_CROSSBOWCLAN:
 				case SC_JUMPINGCLAN:
+				case SC_DAILYSENDMAILCNT:
 					continue;
 			}
 
@@ -8551,6 +8560,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_GOLDENMACECLAN:
 				case SC_CROSSBOWCLAN:
 				case SC_JUMPINGCLAN:
+				case SC_DAILYSENDMAILCNT:
 					continue;
 			}
 

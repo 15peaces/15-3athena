@@ -700,6 +700,8 @@ typedef enum sc_type {
 	SC_GLOOMYDAY_SK,
 	SC_MILLENNIUMSHIELD,
 
+	SC_DAILYSENDMAILCNT,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 
@@ -1454,9 +1456,9 @@ enum si_type {
 	SI_MTF_MATK2 = 820,
 	SI_SHOW_NPCHPBAR = 821,
 	SI_FLOWERSMOKE = 822,
-	SI_FSTONE = 823,
+	SI_FSTONE = 823,*/
 	SI_DAILYSENDMAILCNT = 824,
-	SI_QSCARABA = 825,
+	/*SI_QSCARABA = 825,
 	SI_LJOSALFAR = 826,
 	SI_PAD_READER_KNIGHT = 827,
 	SI_PAD_READER_CRUSADER = 828,

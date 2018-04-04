@@ -18378,11 +18378,21 @@ BUILDIN_FUNC(showscript) {
 
 /*==========================================
  * Returns the episode the server is running on.
- * checkepisode();
+ * getepisode();
  *------------------------------------------*/
 BUILDIN_FUNC(getepisode)
 {
 	script_pushint(st,battle_config.feature_episode);
+	return 0;
+}
+
+/*==========================================
+ * Returns the PACKETVER the server is running on.
+ * getpacketver();
+ *------------------------------------------*/
+BUILDIN_FUNC(getpacketver)
+{
+	script_pushint(st,PACKETVER);
 	return 0;
 }
 
@@ -18808,6 +18818,25 @@ bool script_queue_clear(int idx)
 	VECTOR_CLEAR(queue->entries);
 
 	return true;
+}
+
+BUILDIN_FUNC(unloadnpc) {
+	const char *name;
+	struct npc_data* nd;
+
+	name = script_getstr(st, 2);
+	nd = npc_name2id(name);
+
+	if( nd == NULL ){
+		ShowError( "buildin_unloadnpc: npc '%s' was not found.\n", name );
+		return 1;
+	}
+
+	npc_unload_duplicates(nd);
+	npc_unload(nd);
+	npc_read_event_script();
+
+	return 0;
 }
 
 /// declarations that were supposed to be exported from npc_chat.c
@@ -19290,10 +19319,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(bonus_script_clear,"??"),
 	BUILDIN_DEF(showscript,"s?"),
 	BUILDIN_DEF(getepisode,""),
+	BUILDIN_DEF(getpacketver,""),
 	BUILDIN_DEF(freeloop,"?"),
 	BUILDIN_DEF(getrandomoptinfo, "i"),
 	BUILDIN_DEF(getequiprandomoption, "iii?"),
 	BUILDIN_DEF(setrandomoption,"iiiii?"),
+	BUILDIN_DEF(unloadnpc, "s"),
 	// Monster Transform [malufett/Hercules]
 	BUILDIN_DEF(jobcanentermap,"s?"),
 	BUILDIN_DEF2(montransform, "transform", "vi?????"),

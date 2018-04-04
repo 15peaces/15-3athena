@@ -499,6 +499,10 @@ int itemdb_canguildstore_sub(struct item_data* item, int gmlv, int unused)
 	return (item && (!(item->flag.trade_restriction&64) || gmlv >= item->gm_lv_trade_override));
 }
 
+int itemdb_canmail_sub(struct item_data* item, int gmlv, int unused) {
+	return (item && (!(item->flag.trade_restriction&128) || gmlv >= item->gm_lv_trade_override));
+}
+
 int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int))
 {
 	struct item_data* item_data = itemdb_search(item->nameid);

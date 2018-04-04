@@ -9,8 +9,16 @@
 struct mmo_charstatus;
 
 #define MAX_MAP_SERVERS 30
-
 #define DEFAULT_AUTOSAVE_INTERVAL 300*1000
+
+struct mmo_map_server {
+	int fd;
+	uint32 ip;
+	uint16 port;
+	int users;
+	unsigned short map[MAX_MAP_PER_SERVER];
+};
+extern struct mmo_map_server server[MAX_MAP_SERVERS];
 
 struct char_session_data {
 	bool auth; // whether the session is authed or not
@@ -25,6 +33,8 @@ struct char_session_data {
 	char new_name[NAME_LENGTH];
 	char birthdate[10+1];  // YYYY-MM-DD
 };
+
+unsigned int char_server_fd(int account_id);
 
 int inventory_to_sql(const struct item items[], int max, int char_id); 
 int memitemdata_to_sql(const struct item items[], int max, int id, int tableswitch);
@@ -72,6 +82,7 @@ extern char clan_alliance_db[256];
 extern char party_db[256];
 extern char pet_db[256];
 extern char mail_db[256];
+extern char mail_attachment_db[256];
 extern char auction_db[256];
 extern char quest_db[256];
 
@@ -79,6 +90,9 @@ extern int db_use_sqldbs; // added for sql item_db read for char server [Valaris
 
 extern int guild_exp_rate;
 extern int log_inter;
+
+extern int mail_return_days;
+extern int mail_delete_days;
 
 //For use in packets that depend on an sd being present [Skotlex]
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL || !sd->auth) { RFIFOSKIP(fd,rest); return 0; } }

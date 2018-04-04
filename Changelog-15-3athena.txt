@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+04/04/2018
+	r198 [15peaces]
+		*Merged missing changes from 3ceam rev. 643 - 644
+		*Please note: Don't forget to import the upgrade_15-3athena_svn198.sql file!
+		*Copying over brand no longer crash the client.
+		*AB_CLEARANCE no longer fail to work on linked people.
+		*Some minor cleanups.
+		*Fixed a wrong variable type in inventory_to_sql function.
+			-Thanks to hikashin.
+		*Moved LOG_ALL_PACKETS config to core.h file and extended it.
+			-it now also enables logging for inter_parse_frommap function.
+		*Added basic RODEX support
+			-Adds basic support for the new mail UI RODEX.
+			-Thanks to @rathena.
+		*Did a small redo with RK_IGNITIONBREAK damage ratio code to be easier to readand have no bugs on the outer damage zone.
+		*Fixed a issue where RK_FIGHTINGSPIRIT would give 40% ASPD boost if the player had maxed RK_RUNEMASTERY and was in a party. Since the code doesent support fixed ASPD boost, the percent was changed to a max possiable of
+			-10%, which gives the same effect of 4 ASPD boost.
+		*Updated WL_SOULEXPANSION, WL_JACKFROST, WL_DRAINLIFE, WL_COMET, WL_SUMMON_ATK_FIRE, WL_SUMMON_ATK_WIND, WL_SUMMON_ATK_WATER, and WL_SUMMON_ATK_GROUND damage formulas to official.
+			-The WL_SUMMON_ATK formulas are very close to official, but may be lacking a bit of info. Their also takeing WL_RELEASE's skill level when thorwing the spheres, which is a bug and will be corrected in a upcoming
+				-update.
+		*Updated WL_WHITEIMPRISON.
+			-Success chance to official, but resistance formula is still not fully official.
+			-It might be a duration reduction formula.
+		*Updated WL_SOULEXPANSION to no longer controls the double damage on White Imprisoned targets.
+			-SC_WHITEIMPRISON status should handle this since all ghost damage should do double damage on this status.
+		*Updated WL_FROSTMISTY's Freezing status duration reduction formula to official.
+		*Updated WL_JACKFROST to deal correct damage. Damage dealed depends on if the target is affected with SC_FREEZING status or not.
+		*Updated WL_SIENNAEXECRATE success chance and duration to official.
+			-Resistance is unknown, but might be the same as regular stone curse.
+		*Updated WL_DRAINLIFE damage formula, HP drain chance, and drain percent to official.
+			-Their's a issue where its not draining from the damage you do. This will be fixed in another update.
+		*Updated WL_EARTHSTRAIN strip chance to official.
+			-The formula found in the original desc states 50% at max level, but its probely out of date.
+			-Also added a unofficial resistance since players need a way to protect themselfs from the strip status.
+		*Updated WL_READING_SB and WL_FREEZE_SP preserve point gain formula to official.
+
 03/30/2018
 	r197 [15peaces]
 		*Fixed some stuff from my last commits.

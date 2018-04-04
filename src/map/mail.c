@@ -12,146 +12,284 @@
 #include "clif.h"
 #include "pc.h"
 #include "log.h"
+#include "date.h" // date_get_dayofyear
+#include "intif.h"
 
 #include <time.h>
 #include <string.h>
 
 void mail_clear(struct map_session_data *sd)
 {
-	sd->mail.nameid = 0;
-	sd->mail.index = 0;
-	sd->mail.amount = 0;
+	int i;
+
+	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
+		sd->mail.item[i].nameid = 0;
+		sd->mail.item[i].index = 0;
+		sd->mail.item[i].amount = 0;
+	}
 	sd->mail.zeny = 0;
 	sd->auction.amount = 0;
 
 	return;
 }
 
-int mail_removeitem(struct map_session_data *sd, short flag)
+int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount)
 {
+	int i;
+
 	nullpo_ret(sd);
 
-	if( sd->mail.amount )
-	{
-		if (flag)
-		{ // Item send
-			log_pick(&sd->bl, LOG_TYPE_MAIL, sd->mail.nameid, -sd->mail.amount, &sd->inventory.u.items_inventory[sd->mail.index]);
+	idx -= 2;
 
-			pc_delitem(sd, sd->mail.index, sd->mail.amount, 1, 0);
-		}
-		else
-			clif_additem(sd, sd->mail.index, sd->mail.amount, 0);
+	if( idx < 0 || idx >= MAX_INVENTORY )
+			return false;
+	if( amount <= 0 || amount > sd->inventory.u.items_inventory[idx].amount )
+			return false;
+
+	ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].index == idx && sd->mail.item[i].nameid > 0);
+
+	if( i == MAIL_MAX_ITEM ){
+		return false;
 	}
 
-	sd->mail.nameid = 0;
-	sd->mail.index = 0;
-	sd->mail.amount = 0;
+	if( flag ){
+		if( battle_config.mail_attachment_price > 0 ){
+			if( pc_payzeny( sd, battle_config.mail_attachment_price) ){
+				return false;
+			}
+		}
+
+#if PACKETVER < 20150513
+		// With client update packet
+		pc_delitem(sd, idx, amount, 1, 0);
+
+		// TODO: Logging...
+#else
+		// RODEX refreshes the client inventory from the ACK packet
+		pc_delitem(sd, idx, amount, 0, 0);
+
+		// TODO: Logging...
+#endif
+	}else{
+		for( ; i < MAIL_MAX_ITEM-1; i++ ){
+			if (sd->mail.item[i + 1].nameid == 0)
+				break;
+			sd->mail.item[i].index = sd->mail.item[i+1].index;
+			sd->mail.item[i].nameid = sd->mail.item[i+1].nameid;
+			sd->mail.item[i].amount = sd->mail.item[i+1].amount;
+		}
+
+		for( ; i < MAIL_MAX_ITEM; i++ ){
+			sd->mail.item[i].index = 0;
+			sd->mail.item[i].nameid = 0;
+			sd->mail.item[i].amount = 0;
+		}
+
+#if PACKETVER < 20150513
+		clif_additem(sd, idx, amount, 0);
+#else
+		clif_mail_removeitem(sd, true, idx + 2, amount);
+#endif
+	}
+
 	return 1;
 }
 
-int mail_removezeny(struct map_session_data *sd, short flag)
-{
-	nullpo_ret(sd);
+bool mail_removezeny( struct map_session_data *sd, bool flag ){
+	nullpo_retr( false, sd );
 
-	if (flag && sd->mail.zeny > 0)
-	{  //Zeny send
-		log_zeny(sd, LOG_TYPE_MAIL, sd, -sd->mail.zeny);
-
-		sd->status.zeny -= sd->mail.zeny;
+	if( sd->mail.zeny > 0 ){
+		//Zeny send
+		if( flag ){
+			if( pc_payzeny( sd, sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100) ){
+				log_zeny(sd, LOG_TYPE_MAIL, sd, -sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100);
+				return false;
+			}
+		}else{
+			// Update is called by pc_payzeny, so only call it in the else condition
+			clif_updatestatus(sd, SP_ZENY);
+		}
 	}
 	sd->mail.zeny = 0;
-	clif_updatestatus(sd, SP_ZENY);
 
-	return 1;
+	return true;
 }
 
-unsigned char mail_setitem(struct map_session_data *sd, int idx, int amount)
-{
-	if( idx == 0 )
-	{ // Zeny Transfer
-		if( amount < 0 || !pc_can_give_items(pc_isGM(sd)) )
-			return 1;
+/**
+ * Attempt to set item or zeny to a mail
+ * @param sd : player attaching the content
+ * @param idx 0 - Zeny; >= 2 - Inventory item
+ * @param amount : amout of zeny or number of item
+ * @return see enum mail_attach_result in mail.h
+ */
+enum mail_attach_result mail_setitem(struct map_session_data *sd, short idx, uint32 amount) {
+	if( pc_istrading(sd) )
+		return MAIL_ATTACH_ERROR;
 
+	if( idx == 0 ) { // Zeny Transfer
+		if( !pc_can_give_items(sd->gmlevel) )
+			return MAIL_ATTACH_UNTRADEABLE;
+
+#if PACKETVER < 20150513
 		if( amount > sd->status.zeny )
-			amount = sd->status.zeny;
+			amount = sd->status.zeny; // TODO: confirm this behavior for old mail system
+#else
+		if( ( amount + battle_config.mail_zeny_fee / 100 * amount ) > sd->status.zeny )
+			return MAIL_ATTACH_ERROR;
+#endif
 
 		sd->mail.zeny = amount;
-		// pc_onstatuschanged(sd, SP_ZENY);
-		return 0;
-	}
-	else
-	{ // Item Transfer
+		// clif_updatestatus(sd, SP_ZENY);
+		return MAIL_ATTACH_SUCCESS;
+	} else { // Item Transfer
+		int i, j, total = 0;
+
 		idx -= 2;
-		mail_removeitem(sd, 0);
 
 		if( idx < 0 || idx >= MAX_INVENTORY )
-			return 1;
-		if( amount < 0 || amount > sd->inventory.u.items_inventory[idx].amount )
-			return 1;
-		if( !pc_candrop(sd, &sd->inventory.u.items_inventory[idx])  || sd->inventory.u.items_inventory[idx].expire_time  
-		|| (sd->inventory.u.items_inventory[idx].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
-			return 1;
+			return MAIL_ATTACH_ERROR;
 
-		sd->mail.index = idx;
-		sd->mail.nameid = sd->inventory.u.items_inventory[idx].nameid;
-		sd->mail.amount = amount;
+#if PACKETVER < 20150513
+		i = 0;
+		// Remove existing item
+		mail_removeitem(sd, 0, sd->mail.item[i].index + 2, sd->mail.item[i].amount);
+#else
+		ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].index == idx && sd->mail.item[i].nameid > 0 );
 		
-		return 0;
+		// The same item had already been added to the mail
+		if( i < MAIL_MAX_ITEM ){
+			// Check if it is stackable
+			if( !itemdb_isstackable(sd->mail.item[i].nameid) ){
+				return MAIL_ATTACH_ERROR;
+			}
+
+			// Check if it exceeds the total amount
+			if( ( amount + sd->mail.item[i].amount ) > sd->inventory.u.items_inventory[idx].amount ){
+				return MAIL_ATTACH_ERROR;
+			}
+
+			// Check if it exceeds the total weight
+			if( battle_config.mail_attachment_weight ){
+				for( j = 0; j < i; j++ ){
+					total += sd->mail.item[j].amount * ( sd->inventory_data[sd->mail.item[j].index]->weight / 10 );
+				}
+
+				total += amount * sd->inventory_data[idx]->weight / 10;
+
+				if( total > battle_config.mail_attachment_weight ){
+					return MAIL_ATTACH_WEIGHT;
+				}
+			}
+
+			sd->mail.item[i].amount += amount;
+
+			return MAIL_ATTACH_SUCCESS;
+		}else{
+			ARR_FIND(0, MAIL_MAX_ITEM, i, sd->mail.item[i].nameid == 0);
+
+			if( i == MAIL_MAX_ITEM ){
+				return MAIL_ATTACH_SPACE;
+			}
+
+			// Check if it exceeds the total weight
+			if( battle_config.mail_attachment_weight ){
+				for( j = 0; j < i; j++ ){
+					total += sd->mail.item[j].amount * ( sd->inventory_data[sd->mail.item[j].index]->weight / 10 );
+				}
+
+				total += amount * sd->inventory_data[idx]->weight / 10;
+
+				if( total > battle_config.mail_attachment_weight ){
+					return MAIL_ATTACH_WEIGHT;
+				}
+			}
+		}
+#endif
+
+		if( amount > sd->inventory.u.items_inventory[idx].amount )
+			return MAIL_ATTACH_ERROR;
+		if( !pc_can_give_items(sd->gmlevel) || sd->inventory.u.items_inventory[idx].expire_time
+			|| !itemdb_available(sd->inventory.u.items_inventory[idx].nameid)
+			|| !itemdb_canmail(&sd->inventory.u.items_inventory[idx],sd->gmlevel)
+			|| (sd->inventory.u.items_inventory[idx].bound && !pc_can_give_bounded_items(sd->gmlevel)) )
+			return MAIL_ATTACH_UNTRADEABLE;
+
+		sd->mail.item[i].index = idx;
+		sd->mail.item[i].nameid = sd->inventory.u.items_inventory[idx].nameid;
+		sd->mail.item[i].amount = amount;
+		return MAIL_ATTACH_SUCCESS;
 	}
 }
 
 bool mail_setattachment(struct map_session_data *sd, struct mail_message *msg)
 {
-	int n;
+	int i, amount;
 	
 	nullpo_retr(false,sd);
 	nullpo_retr(false,msg);
 
-	if( sd->mail.zeny < 0 || sd->mail.zeny > sd->status.zeny )
-		return false;
+	for( i = 0, amount = 0; i < MAIL_MAX_ITEM; i++ ){
+		int index = sd->mail.item[i].index;
 
-	n = sd->mail.index;
-	if( sd->mail.amount )
-	{
-		if( sd->inventory.u.items_inventory[n].nameid != sd->mail.nameid )
+		if( sd->mail.item[i].nameid == 0 || sd->mail.item[i].amount == 0 ){
+			memset(&msg->item[i], 0x00, sizeof(struct item));
+			continue;
+		}
+
+		amount++;
+
+		if( sd->inventory.u.items_inventory[index].nameid != sd->mail.item[i].nameid )
 			return false;
 
-		if( sd->inventory.u.items_inventory[n].amount < sd->mail.amount )
+		if( sd->inventory.u.items_inventory[index].amount < sd->mail.item[i].amount )
 			return false;
 
-		if( sd->weight > sd->max_weight )
+		if( sd->weight > sd->max_weight ) // TODO: Why check something weird like this here?
 			return false;
 
-		memcpy(&msg->item, &sd->inventory.u.items_inventory[n], sizeof(struct item));
-		msg->item.amount = sd->mail.amount;
+		memcpy(&msg->item[i], &sd->inventory.u.items_inventory[index], sizeof(struct item));
+		msg->item[i].amount = sd->mail.item[i].amount;
 	}
-	else
-		memset(&msg->item, 0x00, sizeof(struct item));
+	if( sd->mail.zeny < 0 || ( sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100 + amount * battle_config.mail_attachment_price ) > sd->status.zeny )
+		return false;
 
 	msg->zeny = sd->mail.zeny;
 
 	// Removes the attachment from sender
-	mail_removeitem(sd,1);
-	mail_removezeny(sd,1);
+	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
+		if( sd->mail.item[i].nameid == 0 || sd->mail.item[i].amount == 0 ){
+			// Exit the loop on the first empty entry
+			break;
+		}
+
+		mail_removeitem(sd,1,sd->mail.item[i].index + 2,sd->mail.item[i].amount);
+	}
+	mail_removezeny(sd,true);
 
 	return true;
 }
 
-void mail_getattachment(struct map_session_data* sd, int zeny, struct item* item)
-{
-	if( item->nameid > 0 && item->amount > 0 )
-	{
-		pc_additem(sd, item, item->amount);
+void mail_getattachment(struct map_session_data* sd, struct mail_message* msg, int zeny, struct item* item){
+	int i;
+	bool item_received = false;
 
-		log_pick(&sd->bl, LOG_TYPE_MAIL, item->nameid, item->amount, item);
-
-		clif_Mail_getattachment(sd->fd, 0);
+	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
+		if( item->nameid > 0 && item->amount > 0 ){
+			pc_additem(sd, &item[i], item[i].amount);
+			log_pick(&sd->bl, LOG_TYPE_MAIL, item[i].nameid, item[i].amount, item);
+			item_received = true;
+		}	
 	}
 
-	if( zeny > 0 )
-	{  //Zeny recieve
+	if( item_received ){
+		clif_mail_getattachment( sd, msg, 0, MAIL_ATT_ITEM );
+	}
+
+	// Zeny receive
+	if( zeny > 0 ){
 		log_zeny(sd, LOG_TYPE_MAIL, sd, zeny);
 		pc_getzeny(sd, zeny);
+		clif_mail_getattachment( sd, msg, 0, MAIL_ATT_ZENY ); 
 	}
 }
 
@@ -167,41 +305,126 @@ int mail_openmail(struct map_session_data *sd)
 	return 1;
 }
 
-void mail_deliveryfail(struct map_session_data *sd, struct mail_message *msg)
-{
+void mail_deliveryfail(struct map_session_data *sd, struct mail_message *msg){
+	int i, zeny = 0;
+
 	nullpo_retv(sd);
 	nullpo_retv(msg);
 
-	if( msg->item.amount > 0 )
-	{
-		// Item recieve (due to failure)
-		log_pick(&sd->bl, LOG_TYPE_MAIL, msg->item.nameid, msg->item.amount, &msg->item);
-
-		pc_additem(sd, &msg->item, msg->item.amount);
+	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
+		if( msg->item[i].amount > 0 ){
+			// Item receive (due to failure)
+			log_pick(&sd->bl, LOG_TYPE_MAIL, msg->item[i].nameid, msg->item[i].amount, &msg->item[i]);
+			pc_additem(sd, &msg->item[i], msg->item[i].amount);
+			zeny += battle_config.mail_attachment_price;
+		}
 	}
 
 	if( msg->zeny > 0 )
 	{
 		//Zeny recieve (due to failure)
-		log_zeny(sd, LOG_TYPE_MAIL, sd, msg->zeny);
-
-		sd->status.zeny += msg->zeny;
-		clif_updatestatus(sd, SP_ZENY);
-	}
+		log_zeny(sd, LOG_TYPE_MAIL, sd, msg->zeny + msg->zeny*battle_config.mail_zeny_fee/100 + zeny);
+		pc_getzeny(sd,msg->zeny + msg->zeny*battle_config.mail_zeny_fee/100 + zeny);
+ 	}
 	
-	clif_Mail_send(sd->fd, true);
+	clif_Mail_send(sd, WRITE_MAIL_FAILED);
 }
 
 // This function only check if the mail operations are valid
 bool mail_invalid_operation(struct map_session_data *sd)
 {
+#if PACKETVER < 20150513
 	if( !map[sd->bl.m].flag.town && pc_isGM(sd) < get_atcommand_level(atcommand_mail) )
 	{
 		ShowWarning("clif_parse_Mail: char '%s' trying to do invalid mail operations.\n", sd->status.name);
 		return true;
 	}
+#endif
 
 	return false;
+}
+
+/**
+* Attempt to send mail
+* @param sd Sender
+* @param dest_name Destination name
+* @param title Mail title
+* @param body_msg Mail message
+* @param body_len Message's length
+*/
+void mail_send(struct map_session_data *sd, const char *dest_name, const char *title, const char *body_msg, int body_len) {
+	struct mail_message msg;
+
+	nullpo_retv(sd);
+
+	if( sd->state.trading )
+		return;
+
+	if( DIFF_TICK(sd->cansendmail_tick, gettick()) > 0 ) {
+		clif_displaymessage(sd->fd,msg_txt(742)); //"Cannot send mails too fast!!."
+		clif_Mail_send(sd, WRITE_MAIL_FAILED); // fail
+		return;
+	}
+
+	if( battle_config.mail_daily_count ){
+		mail_refresh_remaining_amount(sd);
+
+		// After calling mail_refresh_remaining_amount the status should always be there
+		if( sd->sc.data[SC_DAILYSENDMAILCNT] == NULL || sd->sc.data[SC_DAILYSENDMAILCNT]->val2 >= battle_config.mail_daily_count ){
+			clif_Mail_send(sd, WRITE_MAIL_FAILED_CNT);
+			return;
+		}else{
+			sc_start2( &sd->bl, SC_DAILYSENDMAILCNT, 100, date_get_dayofyear(), sd->sc.data[SC_DAILYSENDMAILCNT]->val2 + 1, -1 );
+		}
+	}
+
+	if( body_len > MAIL_BODY_LENGTH )
+		body_len = MAIL_BODY_LENGTH;
+
+	if( !mail_setattachment(sd, &msg) ) { // Invalid Append condition
+		int i;
+
+		clif_Mail_send(sd, WRITE_MAIL_FAILED); // fail
+		for( i = 0; i < MAIL_MAX_ITEM; i++ ){
+			mail_removeitem(sd,0,sd->mail.item[i].index + 2, sd->mail.item[i].amount);
+		}
+		mail_removezeny(sd,false);
+		return;
+	}
+
+	msg.id = 0; // id will be assigned by charserver
+	msg.send_id = sd->status.char_id;
+	msg.dest_id = 0; // will attempt to resolve name
+	safestrncpy(msg.send_name, sd->status.name, NAME_LENGTH);
+	safestrncpy(msg.dest_name, (char*)dest_name, NAME_LENGTH);
+	safestrncpy(msg.title, (char*)title, MAIL_TITLE_LENGTH);
+	msg.type = MAIL_INBOX_NORMAL;
+
+	if (msg.title[0] == '\0') {
+		return; // Message has no length and somehow client verification was skipped.
+	}
+
+	if (body_len)
+		safestrncpy(msg.body, (char*)body_msg, body_len + 1);
+	else
+		memset(msg.body, 0x00, MAIL_BODY_LENGTH);
+
+	msg.timestamp = time(NULL);
+	if( !intif_Mail_send(sd->status.account_id, &msg) )
+		mail_deliveryfail(sd, &msg);
+
+	sd->cansendmail_tick = gettick() + battle_config.mail_delay; // Flood Protection
+}
+
+void mail_refresh_remaining_amount( struct map_session_data* sd ){
+	int doy = date_get_dayofyear();
+
+	nullpo_retv(sd);
+
+	// If it was not yet started or it was started on another day
+	if( sd->sc.data[SC_DAILYSENDMAILCNT] == NULL || sd->sc.data[SC_DAILYSENDMAILCNT]->val1 != doy ){
+		sc_start2( &sd->bl, SC_DAILYSENDMAILCNT, 100, doy, 0, -1 );
+	}
 }
 
 #endif

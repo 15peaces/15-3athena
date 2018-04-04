@@ -1072,8 +1072,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		{
 			int rate = 0, i;
 			const int pos[5] = {EQP_WEAPON, EQP_HELM, EQP_SHIELD, EQP_ARMOR, EQP_ACC};
-			rate = (5 + skilllv) * skilllv * status_get_lv(src) / 100;
-			rate -= rate * tstatus->dex / 200; // Reduced by Target Dex
+			rate = 6 * skilllv + sstatus->dex / 10 + sd->status.job_level / 4 - tstatus->dex /5;// The tstatus->dex / 5 part is unofficial, but players gotta have some kind of way to have resistance. [Rytech]
+			//rate -= rate * tstatus->dex / 200; // Disabled until official resistance is found.
 
 			for( i = 0; i < skilllv; i++ )
 				skill_strip_equip(bl, pos[i], rate, skilllv, skill_get_time2(skillid, skilllv));
@@ -2253,6 +2253,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			case WM_SEVERE_RAINSTORM_MELEE:
 				copy_skill = WM_SEVERE_RAINSTORM;
 				break;
+		case LG_OVERBRAND_BRANDISH:
+		case LG_OVERBRAND_PLUSATK:
+			copy_skill = LG_OVERBRAND;
+			break;
 		}
 
 		if( can_copy(tsd,copy_skill,bl) && (!tsd->status.skill[copy_skill].id || tsd->status.skill[copy_skill].flag >= 13) ){
@@ -3907,11 +3911,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WL_DRAINLIFE:
 		{
 			int heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
-			int rate = 25 + 5 * skilllv;
-			if (sd)
-				rate = (int)( rate * (1 + s_job_level / 50. ));
+			int rate = 70 + 4 * skilllv + s_job_level / 5;// Is this int at the beginning really needed? [Rytech]
 
-			heal = heal * 8 * skilllv * status_get_lv(src) / 10000;
+			heal = 8 * skilllv;
+			if( status_get_lv(src) > 100 ) 
+				heal = heal * status_get_lv(src) / 100;	// Base level bonus.
 
 			if (bl->type == BL_SKILL)
 				heal = 0; // Don't absorb heal from Ice Walls or other skill units.
@@ -6180,6 +6184,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_DEADLYINFECT:	case SC_EARTHDRIVE:		case SC_VENOMIMPRESS:
 				case SC_FREEZING:		case SC_BLOOD_SUCKER:	case SC_MANDRAGORA:
 				case SC_STOMACHACHE:	case SC_MYSTERIOUS_POWDER:
+				case SC_DAILYSENDMAILCNT:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7216,7 +7221,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (flag&1)
 		{
 			if (src == bl)
-				sc_start2(bl, type, 100, skill_area_temp[5], 40 * (sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skillid, skilllv));
+				sc_start2(bl,type,100,skill_area_temp[5],10*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
 			else
 				sc_start(bl, type, 100, skill_area_temp[5] / 4, skill_get_time(skillid, skilllv));
 		}
@@ -7417,8 +7422,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (flag&1 || (i = skill_get_splash(skillid, skilllv)) < 1)
 		{ //As of the behavior in official server Clearance is just a super version of Dispell skill. [Jobbie]
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			if((dstsd && (dstsd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER)
-				|| (tsc && tsc->data[SC_SPIRIT]) || rand()%100 >= 30 + 10 * skilllv)			{
+			if((dstsd && (dstsd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER) || rand()%100 >= 30 + 10 * skilllv)
+			{
 				if (sd)
 					clif_skill_fail(sd,skillid,0,0,0);
 				break;
@@ -7438,7 +7443,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_INTFOOD:		case SC_DEXFOOD:		case SC_LUKFOOD:
 				case SC_HITFOOD:		case SC_FLEEFOOD:		case SC_BATKFOOD:
 				case SC_WATKFOOD:		case SC_MATKFOOD:		case SC_DANCING:
-				case SC_GUILDAURA:		case SC_EDP:			case SC_AUTOBERSERK:
+				case SC_GUILDAURA:		case SC_SPIRIT:			case SC_AUTOBERSERK:
 				case SC_CARTBOOST:		case SC_MELTDOWN:		case SC_SAFETYWALL:
 				case SC_SMA:			case SC_SPEEDUP0:		case SC_NOCHAT:
 				case SC_ANKLE:			case SC_SPIDERWEB:		case SC_JAILED:
@@ -7537,6 +7542,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_SPHERE_4:		case SC_SPHERE_5:		/*case SC_SPELLBOOK1:		
 				case SC_SPELLBOOK2:		case SC_SPELLBOOK3:		case SC_SPELLBOOK4:		
 				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:*/
+				case SC_DAILYSENDMAILCNT:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7611,19 +7617,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( tsc && tsc->data[SC_STONE] )
 				status_change_end(bl,SC_STONE,-1);
 			else
-				status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(7+2*skilllv)*1000,2);
+				status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(8+2*skilllv)*1000,2);
 		}
 		else
 		{
-			int rate = 40 + 8 * skilllv;
-			if (sd) 
-				rate = (int)( rate * (1 + s_job_level / 200.));
+			int rate = 40 + 8 * skilllv + s_job_level / 4;
 			// IroWiki says Rate should be reduced by target stats, but currently unknown
 			if (rand()%100 < rate)
 			{ // Success on First Target
 				rate = 0;
 				if (!tsc->data[SC_STONE])
-					rate = status_change_start(bl, SC_STONE, 10000, skilllv, 0, 0, 1000, (7 + 2 * skilllv) * 1000, 2);
+					rate = status_change_start(bl,SC_STONE,10000,skilllv,0,0,1000,(8+2*skilllv)*1000,2);
 				else
 				{
 					rate = 1;
@@ -7684,7 +7688,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case WL_READING_SB:
 		if( sd )
 		{
-			int i, preserved = 0, max_preserve = 5 + (4 + 4*pc_checkskill(sd,WL_FREEZE_SP)) + sd->status.base_level/15 + sstatus->int_/10;
+			int i, preserved = 0, max_preserve = 4 * pc_checkskill(sd,WL_FREEZE_SP) + sstatus->int_ / 10 + sd->status.base_level / 10;
 			ARR_FIND(0, MAX_SPELLBOOK, i, sd->rsb[i].skillid == 0); // Search for a Free Slot
 			if( i == MAX_SPELLBOOK )
 			{
@@ -15888,7 +15892,7 @@ int skill_spellbook (struct map_session_data *sd, int nameid)
 		return 0;
 	}
 
-	max_preserve = 5 + (4 + 4*pc_checkskill(sd,WL_FREEZE_SP)) + sd->status.base_level/15 + status_get_int(&sd->bl)/10;
+	max_preserve = 4 * pc_checkskill(sd,WL_FREEZE_SP) + status_get_int(&sd->bl) / 10 + sd->status.base_level / 10;
 	for( i = 0; i < MAX_SPELLBOOK && sd->rsb[i].skillid; i++ )
 		preserved += sd->rsb[i].points;
 

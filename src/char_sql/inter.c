@@ -51,7 +51,7 @@ int inter_recv_packet_length[] = {
 	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0,	// 3010-
 	-1,10,-1,14, 15+NAME_LENGTH,19, 6,-1, 14,14, 0, 0,  0, 0,  0, 0,	// 3020- Party
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 18,19,186,-1,	// 3030-
-	 5, 9, 0, 0,  0, 0, 0, 0,  7, 6,10,10, 10,-1,  0, 0,	// 3040-
+	 5, 9, 0, 0,  0, 0, 0, 0,  8, 6,11,10, 10,-1,6+NAME_LENGTH, 0,	// 3040-
 	-1,-1,10,10,  0,-1,12, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3050-  Auction System [Zephyrus]
 	 6,-1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3060-  Quest system [Kevin] [Inkfish]
 	-1,10, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0, -1,10,  6,-1,	// 3070-  Mercenary packets [Zephyrus], Elemental packets [pakpil]
@@ -725,6 +725,10 @@ int inter_parse_frommap(int fd)
 	// パケット長を調べる
 	if((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0)
 		return 2;
+
+#ifdef LOG_ALL_PACKETS
+	ShowDebug("inter_parse_frommap: Received packet 0x%04X (length %d), session #%d\n", cmd, len, fd);
+#endif
 
 	switch(cmd) {
 	case 0x3000: mapif_parse_broadcast(fd); break;

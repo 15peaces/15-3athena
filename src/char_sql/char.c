@@ -16,6 +16,7 @@
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
+#include "int_mail.h"
 #include "int_mercenary.h"
 #include "int_elemental.h"
 #include "int_party.h"
@@ -58,6 +59,7 @@ char clan_alliance_db[256] = "clan_alliance";
 char party_db[256] = "party";
 char pet_db[256] = "pet";
 char mail_db[256] = "mail"; // MAIL SYSTEM
+char mail_attachment_db[256] = "mail_attachments";
 char auction_db[256] = "auction"; // Auctions System
 char friend_db[256] = "friends";
 char hotkey_db[256] = "hotkey";
@@ -78,14 +80,7 @@ int save_log = 1;
 char db_path[1024] = "db";
 
 int db_use_sqldbs;
-
-struct mmo_map_server {
-	int fd;
-	uint32 ip;
-	uint16 port;
-	int users;
-	unsigned short map[MAX_MAP_PER_SERVER];
-} server[MAX_MAP_SERVERS];
+struct mmo_map_server server[MAX_MAP_SERVERS];
 
 int login_fd=-1, char_fd=-1;
 char userid[24];
@@ -116,6 +111,9 @@ int char_del_delay = 86400;
 
 int log_char = 1;	// loggin char or not [devil]
 int log_inter = 1;	// loggin inter or not [devil]
+
+int mail_return_days = 15;
+int mail_delete_days = 15;
 
 // Advanced subnet check [LuzZza]
 struct s_subnet {
@@ -177,25 +175,24 @@ struct auth_node {
 	unsigned changing_mapservers : 1;
 };
 
-static DBMap* auth_db; // int account_id -> struct auth_node*
-static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
-DBMap* char_get_authdb() { return auth_db; }
-DBMap* char_get_chardb() { return char_db_; }
-
 //-----------------------------------------------------
 // Online User Database
 //-----------------------------------------------------
-
 struct online_char_data {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	int fd;
 	int waiting_disconnect;
 	short server; // -2: unknown server, -1: not connected, 0+: id of server
 };
 
-static DBMap* online_char_db; // int account_id -> struct online_char_data*
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
+
+static DBMap* auth_db; // int account_id -> struct auth_node*
+static DBMap* online_char_db; // int account_id -> struct online_char_data*
+static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
+DBMap* char_get_authdb() { return auth_db; }
+DBMap* char_get_chardb() { return char_db_; }
 
 static void* create_online_char_data(DBKey key, va_list args)
 {
@@ -207,6 +204,16 @@ static void* create_online_char_data(DBKey key, va_list args)
 	character->fd = -1;
 	character->waiting_disconnect = INVALID_TIMER;
 	return character;
+}
+
+unsigned int char_server_fd(int account_id)
+{
+	struct online_char_data* character;
+
+	if( ( character = (struct online_char_data*)idb_get(online_char_db, account_id) ) != NULL && character->server >= 0 )
+		return server[character->server].fd;
+
+	return 0;
 }
 
 void set_char_charselect(int account_id)
@@ -905,7 +912,7 @@ int inventory_to_sql(const struct item items[], int max, int char_id) {
 	}
 	
 	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,       &item.id,          0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_SHORT,     &item.nameid,      0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,    &item.nameid,      0, NULL, NULL);
 	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,     &item.amount,      0, NULL, NULL);
 	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,      &item.equip,       0, NULL, NULL);
 	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,      &item.identify,    0, NULL, NULL);
@@ -1803,6 +1810,14 @@ int delete_char_sql(int char_id)
 	
 	/* delete skills */
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d'", skill_db, char_id) )
+		Sql_ShowDebug(sql_handle);
+
+	/* delete mail attachments (only received) */
+	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `id` IN ( SELECT `id` FROM `%s` WHERE `dest_id`='%d' )", mail_attachment_db, mail_db, char_id))
+		Sql_ShowDebug(sql_handle);
+	
+	/* delete mails (only received) */
+	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `dest_id`='%d'", mail_db, char_id))
 		Sql_ShowDebug(sql_handle);
 	
 #ifdef ENABLE_SC_SAVING
@@ -5284,6 +5299,8 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(pet_db, w2, sizeof(pet_db));
 		else if(!strcmpi(w1,"mail_db"))
 			safestrncpy(mail_db, w2, sizeof(mail_db));
+		else if (!strcmpi(w1, "mail_attachment_db"))
+			safestrncpy(mail_attachment_db, w2, sizeof(mail_attachment_db));
 		else if(!strcmpi(w1,"auction_db"))
 			safestrncpy(auction_db, w2, sizeof(auction_db));
 		else if(!strcmpi(w1,"friend_db"))
@@ -5450,6 +5467,10 @@ int char_config_read( const char* cfgName )
 			}
 		} else if (strcmpi(w1, "guild_exp_rate") == 0) {
 			guild_exp_rate = atoi(w2);
+		} else if (strcmpi(w1, "mail_return_days") == 0) {
+			mail_return_days = atoi(w2);
+		} else if (strcmpi(w1, "mail_delete_days") == 0) {
+			mail_delete_days = atoi(w2);
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
@@ -5585,6 +5606,14 @@ int do_init(int argc, char **argv)
 	// ???
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
 	add_timer_interval(gettick() + 1000, online_data_cleanup, 0, 0, 600 * 1000);
+
+	// periodically check if mails need to be returned to their sender
+	add_timer_func_list(mail_return_timer, "mail_return_timer");
+	add_timer_interval(gettick() + 1000, mail_return_timer, 0, 0, 5 * 60 * 1000); // every 5 minutes
+
+	// periodically check if mails need to be deleted completely
+	add_timer_func_list(mail_delete_timer, "mail_delete_timer");
+	add_timer_interval(gettick() + 1000, mail_delete_timer, 0, 0, 5 * 60 * 1000); // every 5 minutes
 
 	if( console )
 	{

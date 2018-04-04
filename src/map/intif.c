@@ -42,7 +42,7 @@ static const int packet_len_table[] = {
 	 0, 0, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
 	39,-1,15,15,15+NAME_LENGTH,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
-	 9, 9,-1,14,  0, 0, 0, 0, -1,74,-1,11, 11,-1,  0, 0, //0x3840
+	 9, 9,-1,14,  0, 0, 0, 0, -1,75,-1,11, 11,-1, 38, 0, //0x3840
 	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
 	-1, 7, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish]
 	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0, -1, 3,  3, 0, //0x3870  Mercenaries [Zephyrus] Elementals [pakpil]
@@ -70,7 +70,7 @@ bool CheckForCharServer(void)
  * @param char_id
  * @return sd Found sd or NULL if not found
  */
-struct map_session_data *inter_search_sd(uint32 account_id, uint32 char_id)
+struct map_session_data *inter_search_sd(int account_id, int char_id)
 {
 	struct map_session_data *sd = NULL;
 	struct auth_node *node = chrif_auth_check(account_id, char_id, ST_LOGIN);
@@ -370,7 +370,7 @@ int intif_request_registry(struct map_session_data *sd, int flag)
  * @param guild_id: Guild of player
  * @return false - error, true - message sent
  */
-bool intif_request_guild_storage(uint32 account_id,int guild_id)
+bool intif_request_guild_storage(int account_id, int guild_id)
 {
 	if (CheckForCharServer())
 		return false;
@@ -388,7 +388,7 @@ bool intif_request_guild_storage(uint32 account_id,int guild_id)
  * @param gstor: Guild storage struct to save
  * @return false - error, true - message sent
  */
-bool intif_send_guild_storage(uint32 account_id,struct s_storage *gstor)
+bool intif_send_guild_storage(int account_id,struct s_storage *gstor)
 {
 	if (CheckForCharServer())
 		return false;
@@ -459,7 +459,7 @@ int intif_party_changeoption(int party_id,int account_id,int exp,int item)
 	return 0;
 }
 // Ask the char-serv to make aid,cid quit party
-int intif_party_leave(int party_id, uint32 account_id, uint32 char_id, char *name, enum e_party_member_withdraw type) {
+int intif_party_leave(int party_id, int account_id, int char_id, char *name, enum e_party_member_withdraw type) {
 	if (CheckForCharServer())
 		return 0;
 	WFIFOHEAD(inter_fd,15+NAME_LENGTH);
@@ -1472,16 +1472,17 @@ int intif_quest_save(TBL_PC *sd)
  * Inbox Request
  * flag: 0 Update Inbox | 1 OpenMail
  *------------------------------------------*/
-int intif_Mail_requestinbox(int char_id, unsigned char flag)
+int intif_Mail_requestinbox(int char_id, unsigned char flag, enum mail_inbox_type type)
 {
 	if (CheckForCharServer())
 		return 0;
 
-	WFIFOHEAD(inter_fd,7);
+	WFIFOHEAD(inter_fd,8);
 	WFIFOW(inter_fd,0) = 0x3048;
 	WFIFOL(inter_fd,2) = char_id;
 	WFIFOB(inter_fd,6) = flag;
-	WFIFOSET(inter_fd,7);
+	WFIFOB(inter_fd,7) = type;
+	WFIFOSET(inter_fd,8);
 
 	return 0;
 }
@@ -1499,19 +1500,23 @@ int intif_parse_Mail_inboxreceived(int fd)
 		return 1;
 	}
 
-	if (RFIFOW(fd,2) - 9 != sizeof(struct mail_data))
+	if (RFIFOW(fd,2) - 10 != sizeof(struct mail_data))
 	{
-		ShowError("intif_parse_Mail_inboxreceived: data size error %d %d\n", RFIFOW(fd,2) - 9, sizeof(struct mail_data));
+		ShowError("intif_parse_Mail_inboxreceived: data size error %d %d\n", RFIFOW(fd,2) - 10, sizeof(struct mail_data));
 		return 1;
 	}
 
 	//FIXME: this operation is not safe [ultramage]
-	memcpy(&sd->mail.inbox, RFIFOP(fd,9), sizeof(struct mail_data));
+	memcpy(&sd->mail.inbox, RFIFOP(fd,10), sizeof(struct mail_data));
 	sd->mail.changed = false; // cache is now in sync
 
-	if (flag)
-		clif_Mail_refreshinbox(sd);
-	else if( battle_config.mail_show_status && ( battle_config.mail_show_status == 1 || sd->mail.inbox.unread ) )
+	if (flag){
+#if PACKETVER >= 20150513
+		// Refresh top right icon
+		clif_Mail_new(sd, 0, NULL, NULL);
+#endif
+		clif_Mail_refreshinbox(sd,RFIFOB(fd,9),0);
+	}else if( battle_config.mail_show_status && ( battle_config.mail_show_status == 1 || sd->mail.inbox.unread ) )
 	{
 		char output[128];
 		sprintf(output, msg_txt(510), sd->mail.inbox.unchecked, sd->mail.inbox.unread + sd->mail.inbox.unchecked);
@@ -1537,45 +1542,59 @@ int intif_Mail_read(int mail_id)
 /*------------------------------------------
  * Get Attachment
  *------------------------------------------*/
-int intif_Mail_getattach(int char_id, int mail_id)
-{
+bool intif_mail_getattach( struct map_session_data* sd, struct mail_message *msg, enum mail_attachment_type type){ 
 	if (CheckForCharServer())
-		return 0;
+		return false;
 
-	WFIFOHEAD(inter_fd,10);
+	WFIFOHEAD(inter_fd,11);
 	WFIFOW(inter_fd,0) = 0x304a;
-	WFIFOL(inter_fd,2) = char_id;
-	WFIFOL(inter_fd,6) = mail_id;
-	WFIFOSET(inter_fd, 10);
+	WFIFOL(inter_fd,2) = sd->status.char_id;
+	WFIFOL(inter_fd,6) = msg->id;
+	WFIFOB(inter_fd,10) = (uint8)type;
+	WFIFOSET(inter_fd, 11);
 
-	return 0;
+	return true;
 }
 
+/**
+ * Receive the attachment from char-serv of a mail
+ * @param fd : char-serv link
+ * @return 0=error, 1=sucess
+ */
 int intif_parse_Mail_getattach(int fd)
 {
 	struct map_session_data *sd;
-	struct item item;
-	int zeny = RFIFOL(fd,8);
+	struct item item[MAIL_MAX_ITEM];
+	int i, mail_id, zeny;
+
+	if (RFIFOW(fd, 2) - 16 != sizeof(struct item)*MAIL_MAX_ITEM)
+	{
+		ShowError("intif_parse_Mail_getattach: data size error %d %d\n", RFIFOW(fd, 2) - 16, sizeof(struct item));
+		return 0;
+	}
 
 	sd = map_charid2sd( RFIFOL(fd,4) );
 
 	if (sd == NULL)
 	{
 		ShowError("intif_parse_Mail_getattach: char not found %d\n",RFIFOL(fd,4));
-		return 1;
+		return 0;
 	}
 
-	if (RFIFOW(fd,2) - 12 != sizeof(struct item))
-	{
-		ShowError("intif_parse_Mail_getattach: data size error %d %d\n", RFIFOW(fd,2) - 16, sizeof(struct item));
-		return 1;
-	}
+	mail_id = RFIFOL(fd, 8);
 
-	memcpy(&item, RFIFOP(fd,12), sizeof(struct item));
+	ARR_FIND(0, MAIL_MAX_INBOX, i, sd->mail.inbox.msg[i].id == mail_id);
+	if (i == MAIL_MAX_INBOX)
+		return 0;
 
-	mail_getattachment(sd, zeny, &item);
-	return 0;
+	zeny = RFIFOL(fd, 12);
+
+	memcpy(item, RFIFOP(fd,16), sizeof(struct item)*MAIL_MAX_ITEM);
+
+	mail_getattachment(sd, &sd->mail.inbox.msg[i], zeny, item);
+	return 1;
 }
+
 /*------------------------------------------
  * Delete Message
  *------------------------------------------*/
@@ -1598,6 +1617,7 @@ int intif_parse_Mail_delete(int fd)
 	int char_id = RFIFOL(fd,2);
 	int mail_id = RFIFOL(fd,6);
 	bool failed = RFIFOB(fd,10);
+	enum mail_inbox_type type;
 
 	struct map_session_data *sd = map_charid2sd(char_id);
 	if (sd == NULL)
@@ -1612,15 +1632,16 @@ int intif_parse_Mail_delete(int fd)
 		ARR_FIND(0, MAIL_MAX_INBOX, i, sd->mail.inbox.msg[i].id == mail_id);
 		if( i < MAIL_MAX_INBOX )
 		{
+			clif_mail_delete(sd, &sd->mail.inbox.msg[i], !failed);
+			type = sd->mail.inbox.msg[i].type;
 			memset(&sd->mail.inbox.msg[i], 0, sizeof(struct mail_message));
 			sd->mail.inbox.amount--;
 		}
 
-		if( sd->mail.inbox.full )
-			intif_Mail_requestinbox(sd->status.char_id, 1); // Free space is available for new mails
+		if( sd->mail.inbox.full || sd->mail.inbox.unchecked > 0 )
+			intif_Mail_requestinbox(sd->status.char_id, 1, type); // Free space is available for new mails
 	}
 
-	clif_Mail_delete(sd->fd, mail_id, failed);
 	return 0;
 }
 /*------------------------------------------
@@ -1645,6 +1666,7 @@ int intif_parse_Mail_return(int fd)
 	struct map_session_data *sd = map_charid2sd(RFIFOL(fd,2));
 	int mail_id = RFIFOL(fd,6);
 	short fail = RFIFOB(fd,10);
+	enum mail_inbox_type type;
 
 	if( sd == NULL )
 	{
@@ -1658,12 +1680,13 @@ int intif_parse_Mail_return(int fd)
 		ARR_FIND(0, MAIL_MAX_INBOX, i, sd->mail.inbox.msg[i].id == mail_id);
 		if( i < MAIL_MAX_INBOX )
 		{
+			type = sd->mail.inbox.msg[i].type;
 			memset(&sd->mail.inbox.msg[i], 0, sizeof(struct mail_message));
 			sd->mail.inbox.amount--;
 		}
 
 		if( sd->mail.inbox.full )
-			intif_Mail_requestinbox(sd->status.char_id, 1); // Free space is available for new mails
+			intif_Mail_requestinbox(sd->status.char_id, 1, type); // Free space is available for new mails
 	}
 
 	clif_Mail_return(sd->fd, mail_id, fail);
@@ -1689,6 +1712,10 @@ int intif_Mail_send(int account_id, struct mail_message *msg)
 	return 1;
 }
 
+/**
+ * Received the ack of a mail send request
+ * @param fd L char-serv link
+ */
 static void intif_parse_Mail_send(int fd)
 {
 	struct mail_message msg;
@@ -1712,21 +1739,10 @@ static void intif_parse_Mail_send(int fd)
 			mail_deliveryfail(sd, &msg);
 		else
 		{
-			clif_Mail_send(sd->fd, false);
+			clif_Mail_send(sd, WRITE_MAIL_SUCCESS);
 			if( save_settings&16 )
 				chrif_save(sd, 0);
 		}
-	}
-
-	if( fail )
-		return;
-
-	// notify recipient (if online)
-	sd = map_charid2sd(msg.dest_id);
-	if( sd != NULL )
-	{
-		sd->mail.changed = true;
-		clif_Mail_new(sd->fd, msg.id, msg.send_name, msg.title);
 	}
 }
 
@@ -1741,7 +1757,46 @@ static void intif_parse_Mail_new(int fd)
 		return;
 
 	sd->mail.changed = true;
-	clif_Mail_new(sd->fd, mail_id, sender_name, title);
+	sd->mail.inbox.unread++;
+	clif_Mail_new(sd, mail_id, sender_name, title);
+#if PACKETVER >= 20150513
+	// Make sure the window gets refreshed when its open
+	intif_Mail_requestinbox(sd->status.char_id, 1, RFIFOB(fd,74));
+#endif
+}
+
+static void intif_parse_Mail_receiver( int fd ){
+	struct map_session_data *sd;
+
+	sd = map_charid2sd( RFIFOL( fd, 2 ) );
+
+	// Only f the player is online
+	if( sd ){
+		clif_Mail_Receiver_Ack( sd, RFIFOL( fd, 6 ), RFIFOW( fd, 10 ), RFIFOW( fd, 12 ), RFIFOCP( fd, 14 ) );
+	}
+}
+
+bool intif_mail_checkreceiver( struct map_session_data* sd, char* name ){
+	struct map_session_data *tsd;
+
+	tsd = map_nick2sd( name );
+
+	// If the target player is online on this map-server
+	if( tsd != NULL ){
+		clif_Mail_Receiver_Ack( sd, tsd->status.char_id, tsd->status.class_, tsd->status.base_level, name );
+		return true;
+	}
+
+	if( CheckForCharServer() )
+		return false;
+
+	WFIFOHEAD(inter_fd, 6 + NAME_LENGTH);
+	WFIFOW(inter_fd, 0) = 0x304e;
+	WFIFOL(inter_fd, 2) = sd->status.char_id;
+	safestrncpy(WFIFOCP(inter_fd, 6), name, NAME_LENGTH);
+	WFIFOSET(inter_fd, 6 + NAME_LENGTH);
+
+	return true;
 }
 
 /*==========================================
@@ -2157,7 +2212,7 @@ void intif_parse_clans(int fd)
 	clan_load_clandata((RFIFOW(fd, 2) - 4) / sizeof(struct clan), (struct clan*)RFIFOP(fd, 4));
 }
 
-int intif_clan_message(int clan_id, uint32 account_id, const char *mes, int len)
+int intif_clan_message(int clan_id, int account_id, const char *mes, int len)
 {
 	if (CheckForCharServer())
 		return 0;
@@ -2480,6 +2535,7 @@ int intif_parse(int fd)
 	case 0x384b:	intif_parse_Mail_delete(fd); break;
 	case 0x384c:	intif_parse_Mail_return(fd); break;
 	case 0x384d:	intif_parse_Mail_send(fd); break;
+	case 0x384e:	intif_parse_Mail_receiver(fd); break;
 // Auction System
 	case 0x3850:	intif_parse_Auction_results(fd); break;
 	case 0x3851:	intif_parse_Auction_register(fd); break;
