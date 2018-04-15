@@ -5487,20 +5487,25 @@ BUILDIN_FUNC(viewpoint)
 /// storagecountitem2 <nameID>,<Identified>,<Refine>,<Attribute>,<Card0>,<Card1>,<Card2>,<Card3>{,<accountID>})
 BUILDIN_FUNC(countitem)
 {
-	int i = 0, count = 0, aid = 3;
+	int i = 0, aid = 3;
 	struct item_data* id = NULL;
 	struct script_data* data;
 	char *command = (char *)script_getfuncname(st);
 	uint8 loc = 0;
-	uint16 size;
+	uint16 size, count = 0;
 	struct item *items;
 	TBL_PC *sd = NULL;
+	struct s_storage *gstor = NULL;
 
 	if( command[strlen(command)-1] == '2' ) {
 		i = 1;
 		aid = 10;
 	}
-	
+	else if (command[strlen(command)-1] == '3') {
+		i = 1;
+		aid = 13;
+	}
+
 	if( script_hasdata(st,aid) ) {
 		if( !(sd = map_id2sd( (aid = script_getnum(st, aid)) )) ) {
 			ShowError("buildin_%s: player not found (AID=%d).\n", command, aid);
@@ -5509,27 +5514,38 @@ BUILDIN_FUNC(countitem)
 		}
 	}
 	else {
-		if( !(sd = script_rid2sd(st)) )
+		if( !script_rid2sd(st) )
 			return 0;
 	}
-	
+
 	if( !strncmp(command, "cart", 4) ) {
-		loc = 1;
+		loc = TABLE_CART;
 		size = MAX_CART;
 		items = sd->cart.u.items_cart;
 	}
 	else if( !strncmp(command, "storage", 7) ) {
-		loc = 2;
+		loc = TABLE_STORAGE;
 		size = MAX_STORAGE;
 		items = sd->storage.u.items_storage;
 	}
-	//TODO: 3 - Guild Storage
+	else if( !strncmp(command, "guildstorage", 12) ) {
+		gstor = guild2storage2(sd->status.guild_id);
+
+		if (gstor && !sd->state.storage_flag) {
+			loc = TABLE_GUILD_STORAGE;
+			size = MAX_GUILD_STORAGE;
+			items = gstor->u.items_guild;
+		} else {
+			script_pushint(st, -1);
+			return 0;
+		}
+	}
 	else {
 		size = MAX_INVENTORY;
 		items = sd->inventory.u.items_inventory;
 	}
 
-	if( loc == 1 && !pc_iscarton(sd) ) {
+	if( loc == TABLE_CART && !pc_iscarton(sd) ) {
 		ShowError("buildin_%s: Player doesn't have cart (CID:%d).\n", command, sd->status.char_id);
 		script_pushint(st,-1);
 		return 0;
@@ -5549,33 +5565,60 @@ BUILDIN_FUNC(countitem)
 		return 1;
 	}
 
+	if (loc == TABLE_GUILD_STORAGE)
+		gstor->lock = true;
+
 	if( !i ) { // For count/cart/storagecountitem function
-		int nameid = id->nameid;
+		unsigned short nameid = id->nameid;
 		for( i = 0; i < size; i++ )
 			if( &items[i] && items[i].nameid == nameid )
 				count += items[i].amount;
 	}
 	else { // For count/cart/storagecountitem2 function
-		int nameid, iden, ref, attr, c1, c2, c3, c4;
+		struct item it;
+		bool check_randomopt = false;
+		memset(&it, 0, sizeof(it));
 
-		nameid = id->nameid;
-		iden = script_getnum(st,3);
-		ref  = script_getnum(st,4);
-		attr = script_getnum(st,5);
-		c1 = script_getnum(st,6);
-		c2 = script_getnum(st,7);
-		c3 = script_getnum(st,8);
-		c4 = script_getnum(st,9);
+		it.nameid = id->nameid;
+		it.identify = script_getnum(st,3);
+		it.refine  = script_getnum(st,4);
+		it.attribute = script_getnum(st,5);
+		it.card[0] = script_getnum(st,6);
+		it.card[1] = script_getnum(st,7);
+		it.card[2] = script_getnum(st,8);
+		it.card[3] = script_getnum(st,9);
 
-		for( i = 0; i < size; i++ )
-			if( &items[i] && items[i].nameid > 0 && items[i].nameid == nameid &&
-				items[i].amount > 0 && items[i].identify == iden &&
-				items[i].refine == ref && items[i].attribute == attr &&
-				items[i].card[0] == c1 && items[i].card[1] == c2 &&
-				items[i].card[2] == c3 && items[i].card[3] == c4 )
-			{
-				count += items[i].amount;
+		if (command[strlen(command)-1] == '3') {
+			int res = script_getitem_randomoption(st, &it, command, 10);
+			if (res != 0)
+				return 1;
+			check_randomopt = true;
+		}
+
+		for( i = 0; i < size; i++ ) {
+			struct item *itm = &items[i];
+			if (!itm || !itm->nameid || itm->amount < 1)
+				continue;
+			if (itm->nameid != it.nameid || itm->identify != it.identify || itm->refine != it.refine || itm->attribute != it.attribute)
+				continue;
+			if (memcmp(it.card, itm->card, sizeof(it.card)))
+				continue;
+			if (check_randomopt) {
+				uint8 j;
+				for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
+					if (itm->option[j].id != it.option[j].id || itm->option[j].value != it.option[j].value || itm->option[j].param != it.option[j].param)
+						break;
+				}
+				if (j != MAX_ITEM_RDM_OPT)
+					continue;
 			}
+			count += items[i].amount;
+		}
+	}
+
+	if (loc == TABLE_GUILD_STORAGE) {
+		storage_guild_storageclose(sd);
+		gstor->lock = false;
 	}
 
 	script_pushint(st, count);
@@ -6102,15 +6145,23 @@ static void buildin_delitem_delete(struct map_session_data* sd, int idx, int* am
 {
 	int delamount;
 	struct item *itm = NULL;
+	struct s_storage *gstor = NULL;
 
 	switch(loc) {
-		case 1:	// cart
+		case TABLE_CART:
 			itm = &sd->cart.u.items_cart[idx];
 			break;
-		case 2:	// storage
+		case TABLE_STORAGE:
 			itm = &sd->storage.u.items_storage[idx];
 			break;
-		default:	//inventory
+		case TABLE_GUILD_STORAGE:
+ 		{
+ 			gstor = guild2storage2(sd->status.guild_id);
+ 
+ 			itm = &gstor->u.items_guild[idx];
+ 		}
+ 			break;
+		default: // TABLE_INVENTORY
 			itm = &sd->inventory.u.items_inventory[idx];
 			break;
 	}
@@ -6124,13 +6175,19 @@ static void buildin_delitem_delete(struct map_session_data* sd, int idx, int* am
 			intif_delete_petdata(MakeDWord(itm->card[1], itm->card[2]));
 		}
 		switch(loc) {
-			case 1:
+			case TABLE_CART:
 				pc_cart_delitem(sd,idx,delamount,0);
 				break;
-			case 2:
+			case TABLE_STORAGE:
 				storage_delitem(sd,idx,delamount);
 				break;
-			default:
+			case TABLE_GUILD_STORAGE:
+				gstor->lock = true;
+				storage_guild_delitem(sd, gstor, idx, delamount);
+				storage_guild_storageclose(sd);
+				gstor->lock = false;
+				break;
+			default: // TABLE_INVENTORY
 				pc_delitem(sd, idx, delamount, 0, 0);
 				break;
 		}
@@ -6168,15 +6225,23 @@ static bool buildin_delitem_search(struct map_session_data* sd, struct item* it,
 	}
 
 	switch(loc) {
-		case 1:	// cart
+		case TABLE_CART:
 			size = MAX_CART;
 			items = sd->cart.u.items_cart;
 			break;
-		case 2:	// storage
+		case TABLE_STORAGE:
 			size = MAX_STORAGE;
 			items = sd->storage.u.items_storage;
 			break;
-		default:	//inventory
+		case TABLE_GUILD_STORAGE:
+		{
+			struct s_storage *gstor = guild2storage2(sd->status.guild_id);
+
+			size = MAX_GUILD_STORAGE;
+			items = gstor->u.items_guild;
+		}
+			break;
+		default: // TABLE_INVENTORY
 			size = MAX_INVENTORY;
 			items = sd->inventory.u.items_inventory;
 			break;
@@ -6296,10 +6361,11 @@ BUILDIN_FUNC(delitem)
 	char* command = (char*)script_getfuncname(st);
 
 	if(!strncmp(command, "cart", 4))
-		loc = 1;
+		loc = TABLE_CART;
 	else if(!strncmp(command, "storage", 7))
-		loc = 2;
-	//TODO: 3 - Guild Storage
+		loc = TABLE_STORAGE;
+ 	else if(!strncmp(command, "guildstorage", 12))
+		loc = TABLE_GUILD_STORAGE;
 
 	if( script_hasdata(st,4) )
 	{
@@ -6319,10 +6385,18 @@ BUILDIN_FUNC(delitem)
 			return 0;
 	}
 
-	if (loc == 1 && !pc_iscarton(sd)) {
+	if (loc == TABLE_CART && !pc_iscarton(sd)) {
 		ShowError("buildin_cartdelitem: player doesn't have cart (CID=%d).\n", sd->status.char_id);
 		return 1;
 	}
+	if (loc == TABLE_GUILD_STORAGE) {
+		struct s_storage *gstor = guild2storage2(sd->status.guild_id);
+
+		if (gstor == NULL || sd->state.storage_flag) {
+			script_pushint(st, -1);
+			return 1;
+		}
+}
 
 	data = script_getdata(st,2);
 	get_val(st,data);
@@ -6382,10 +6456,11 @@ BUILDIN_FUNC(delitem2)
 	char* command = (char*)script_getfuncname(st);
 
 	if(!strncmp(command, "cart", 4))
-		loc = 1;
+		loc = TABLE_CART;
 	else if(!strncmp(command, "storage", 7))
-		loc = 2;
-	//TODO: 3 - Guild Storage
+		loc = TABLE_STORAGE;
+	else if(!strncmp(command, "guildstorage", 12))
+		loc = TABLE_GUILD_STORAGE;
 
 	if( script_hasdata(st,11) )
 	{
@@ -6405,10 +6480,18 @@ BUILDIN_FUNC(delitem2)
 			return 0;
 	}
 
-	if (loc == 1 && !pc_iscarton(sd)) {
+	if (loc == TABLE_CART && !pc_iscarton(sd)) {
 		ShowError("buildin_cartdelitem: player doesn't have cart (CID=%d).\n", sd->status.char_id);
 		script_pushint(st,-1);
 		return 1;
+	}
+	if (loc == TABLE_GUILD_STORAGE) {
+		struct s_storage *gstor = guild2storage2(sd->status.guild_id);
+
+		if (gstor == NULL || sd->state.storage_flag) {
+			script_pushint(st, -1);
+			return 1;
+		}
 	}
 
 	data = script_getdata(st,2);

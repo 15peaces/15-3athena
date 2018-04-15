@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/15/2018
+	r199 [15peaces]
+		*Added Shadow Gears to item_db2.txt.
+		*One Click Identify feature adjustments
+			-In Official, you can also use Novice Magnifiers
+			-If you have both type of magnifiers in your inventory, it will always consume the normal magnifier first
+			-Follow up @c00289c
+		*Updated some script commands to also support guild storage.
 
 04/04/2018
 	r198 [15peaces]
