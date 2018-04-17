@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/17/2018
+	r200 [15peaces]
+		*Storage types optimization clean ups
+			-Removed inventory_to_sql and merged differences with memitemdata_to_sql.
+		*Fixed Cart save issues
+			-Follow up @c358792
+		*Added check if cart need to be saved first or not before vending
+		*Removed `id` from item struct when new item added to cart.
+			-The `id` value from inventory is never be used, on relog, `id`s for cart are always use 'real' value from table.
+			-0-ing the value also prevent wrong `id` number while inserting records to `vending_items`.
+			-Ordered by `id` whiel loading cart items from table.
+		*Initialize `sd->inventory`, `sd->inventory`, and `sd->storage` to 0 on `pc_authok`
+
 04/15/2018
 	r199 [15peaces]
 		*Added Shadow Gears to item_db2.txt.

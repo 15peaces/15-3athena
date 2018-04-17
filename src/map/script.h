@@ -9,6 +9,8 @@
 /// Composes the uid of a reference from the id and the index
 #define reference_uid(id,idx) ( (int32)((((uint32)(id)) & 0x00ffffff) | (((uint32)(idx)) << 24)) )
 
+#define script_getvarid(var) ( (int32)(int64)(var & 0xFFFFFFFF) )
+
 struct map_session_data;
 
 extern int potion_flag; //For use on Alchemist improved potions/Potion Pitcher. [Skotlex]

@@ -1082,7 +1082,10 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	if (!(battle_config.display_skill_fail&2))
 		sd->state.showdelay = 1;
 		
-	pc_setequipindex(sd); // required at the moment, to complete auth_ok [lighta]
+	memset(&sd->inventory, 0, sizeof(struct s_storage));
+	memset(&sd->cart, 0, sizeof(struct s_storage));
+	memset(&sd->storage, 0, sizeof(struct s_storage));
+	memset(&sd->equip_index, -1, sizeof(sd->equip_index));
 
 	status_change_init(&sd->bl);
 	if ((battle_config.atc_gmonly == 0 || pc_isGM(sd)) && (pc_isGM(sd) >= get_atcommand_level(atcommand_hide)))
@@ -4308,6 +4311,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 			return 1; // no room
 
 		memcpy(&sd->cart.u.items_cart[i],item_data,sizeof(sd->cart.u.items_cart[0]));
+		sd->cart.u.items_cart[i].id = 0;
 		sd->cart.u.items_cart[i].amount=amount;
 		sd->cart_num++;
 		clif_cart_additem(sd,i,amount,0);

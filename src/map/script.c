@@ -5576,7 +5576,7 @@ BUILDIN_FUNC(countitem)
 	}
 	else { // For count/cart/storagecountitem2 function
 		struct item it;
-		bool check_randomopt = false;
+		//bool check_randomopt = false;
 		memset(&it, 0, sizeof(it));
 
 		it.nameid = id->nameid;
@@ -5588,12 +5588,12 @@ BUILDIN_FUNC(countitem)
 		it.card[2] = script_getnum(st,8);
 		it.card[3] = script_getnum(st,9);
 
-		if (command[strlen(command)-1] == '3') {
+		/*if (command[strlen(command)-1] == '3') {
 			int res = script_getitem_randomoption(st, &it, command, 10);
 			if (res != 0)
 				return 1;
 			check_randomopt = true;
-		}
+		}*/
 
 		for( i = 0; i < size; i++ ) {
 			struct item *itm = &items[i];
@@ -5603,7 +5603,7 @@ BUILDIN_FUNC(countitem)
 				continue;
 			if (memcmp(it.card, itm->card, sizeof(it.card)))
 				continue;
-			if (check_randomopt) {
+			/*if (check_randomopt) {
 				uint8 j;
 				for (j = 0; j < MAX_ITEM_RDM_OPT; j++) {
 					if (itm->option[j].id != it.option[j].id || itm->option[j].value != it.option[j].value || itm->option[j].param != it.option[j].param)
@@ -5611,7 +5611,7 @@ BUILDIN_FUNC(countitem)
 				}
 				if (j != MAX_ITEM_RDM_OPT)
 					continue;
-			}
+			}*/
 			count += items[i].amount;
 		}
 	}

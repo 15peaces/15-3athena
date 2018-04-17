@@ -36,7 +36,6 @@ struct char_session_data {
 
 unsigned int char_server_fd(int account_id);
 
-int inventory_to_sql(const struct item items[], int max, int char_id); 
 int memitemdata_to_sql(const struct item items[], int max, int id, int tableswitch);
 
 int mapif_sendall(unsigned char *buf,unsigned int len);

@@ -2310,7 +2310,10 @@ static bool intif_parse_StorageReceived(int fd)
 	switch (type) { 
 		case TABLE_INVENTORY: stor = &sd->inventory; break;
 		case TABLE_STORAGE: stor = &sd->storage; break;
-		case TABLE_CART: stor = &sd->cart; break;
+		case TABLE_CART:
+		case TABLE_CART_:
+			stor = &sd->cart;
+			break;
 		default: return false;
 	}
 
@@ -2356,6 +2359,10 @@ static bool intif_parse_StorageReceived(int fd)
 				clif_parse_LoadEndAck(sd->fd, sd);
 			break;
 
+		case TABLE_CART_:
+			clif_openvendingreq(sd, sd->vend_skill_lv+2);
+			break;
+
 		case TABLE_STORAGE:
 			break;
 	}
@@ -2380,6 +2387,7 @@ static void intif_parse_StorageSaved(int fd)
 				//ShowInfo("Storage has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				break;
 			case TABLE_CART: // cart
+			case TABLE_CART_:
 				//ShowInfo("Cart has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				break;
 			default:
@@ -2428,13 +2436,14 @@ bool intif_storage_save(struct map_session_data *sd, enum storage_type type)
 		return false;
 
 	switch(type) {
-		case TABLE_INVENTORY: 
+		case TABLE_INVENTORY:
 			stor = &sd->inventory;
 			break;
-		case TABLE_STORAGE: 
+		case TABLE_STORAGE:
 			stor = &sd->storage;
 			break;
-		case TABLE_CART: 
+		case TABLE_CART:
+			case TABLE_CART_:
 			stor = &sd->cart;
 			break;
 		default:
