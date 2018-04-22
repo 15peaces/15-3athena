@@ -11036,7 +11036,7 @@ BUILDIN_FUNC(successremovecards)
 	}
 
 	if(cardflag == 1)
-	{	// カードを取り除いたアイテム所得
+	{	//if card was removed replace item with no card
 		int flag;
 		struct item item_tmp;
 		item_tmp.id			=0,item_tmp.nameid=sd->inventory.u.items_inventory[i].nameid;
@@ -11047,6 +11047,13 @@ BUILDIN_FUNC(successremovecards)
 			item_tmp.card[j]=0;
 		for (j = sd->inventory_data[i]->slot; j < MAX_SLOTS; j++)
 			item_tmp.card[j]=sd->inventory.u.items_inventory[i].card[j];
+
+		for (j = 0; j < MAX_ITEM_RDM_OPT; j++)
+		{
+			item_tmp.option[j].id=sd->inventory.u.items_inventory[i].option[j].id;
+			item_tmp.option[j].value=sd->inventory.u.items_inventory[i].option[j].value;
+			item_tmp.option[j].param=sd->inventory.u.items_inventory[i].option[j].param;
+		}
 
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->inventory.u.items_inventory[i].nameid, -1, &sd->inventory.u.items_inventory[i]);
@@ -11104,6 +11111,13 @@ BUILDIN_FUNC(failedremovecards)
 				item_tmp.attribute=0,item_tmp.expire_time=0;
 				for (j = 0; j < MAX_SLOTS; j++)
 					item_tmp.card[j]=0;
+
+				for (j = 0; j < MAX_ITEM_RDM_OPT; j++)
+				{
+					item_tmp.option[j].id=sd->inventory.u.items_inventory[i].option[j].id;
+					item_tmp.option[j].value=sd->inventory.u.items_inventory[i].option[j].value;
+					item_tmp.option[j].param=sd->inventory.u.items_inventory[i].option[j].param;
+				}
 
 				//Logs items, got from (N)PC scripts [Lupus]
 				log_pick(&sd->bl, LOG_TYPE_SCRIPT, item_tmp.nameid, 1, NULL);

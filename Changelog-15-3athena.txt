@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/22/2018
+	r201 [15peaces]
+		*Some fixing of random options
+			-Fixed a possible issue on 2015 clients with random options, if you define an amount less than 5, because the client expects that much.
+			-Fixed random options being removed on cardremoval.
+			-Merged storage loading into a single function.
+			-Follow up @c358792
+		*Fixed some vending bugs.
+			-Reverted a part of efdb739
+				--Wasted 11 bytes of network traffic to keep the code clean.
+				--Process:
+					---1) A player tries to open a vending store and is now in the pre-vend state.
+					---2) If all items in the cart are saved then he can proceed to opening the store.
+					---3) If not a request to save the cart data is sent to the inter server.
+					---4) If the acknowledgment packet from the inter server is received then check if the player is still online and in pre-vend state and open the vending dialog
+
 04/17/2018
 	r200 [15peaces]
 		*Storage types optimization clean ups
