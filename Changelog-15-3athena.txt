@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/23/2018
+	r202 [15peaces]
+		*Resolved some more inventory issues
+			-Resolved item bonuses not properly being given that get applied before the player's inventory is received.
+			-Resolved rental items that have Status Changes attached to them not getting removed if the timer expired when the player logs in.
+			-Moved storage type loading further up the chain to ensure data is loaded sooner.
+			-Resolved cart weight and cart count to update properly.
+			-Resolved item display index not displaying in the correct order when opening a Vending Shop.
+			-Thanks to @rathena!
+		*Refactored clif_charnameack
+			-Added support for ZC_ACK_REQNAMEALL2 which is used from 2015-05-13 and higher
+
 04/22/2018
 	r201 [15peaces]
 		*Some fixing of random options

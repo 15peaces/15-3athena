@@ -2187,17 +2187,6 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->battle_status.sp = sd->status.sp;
 		sd->regen.sregen = &sd->sregen;
 		sd->regen.ssregen = &sd->ssregen;
-
-		status_calc_weight(sd, 1);
-
-		sd->cart_weight=0;
-		sd->cart_num=0;
-		for(i=0;i<MAX_CART;i++){
-			if(sd->cart.u.items_cart[i].nameid==0)
-				continue;
-			sd->cart_weight+=itemdb_weight(sd->cart.u.items_cart[i].nameid)*sd->cart.u.items_cart[i].amount;
-			sd->cart_num++;
-		}
 	}
 
 	status = &sd->base_status;
@@ -6405,6 +6394,24 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if(sc->data[SC_POWER_OF_GAIA])
 				return 0;
 			break;
+
+		case SC_ON_PUSH_CART:
+			if (sd)
+			{
+				int i;
+
+				sd->cart_weight = 0; // Force a client refesh
+				sd->cart_num = 0;
+
+				for(i = 0; i < MAX_CART; i++)
+				{
+					if(sd->cart.u.items_cart[i].nameid==0)
+						continue;
+					sd->cart_weight+=itemdb_weight(sd->cart.u.items_cart[i].nameid)*sd->cart.u.items_cart[i].amount;
+					sd->cart_num++;
+				}
+			}
+			break;
 	}
 
 	//Check for BOSS resistances
@@ -6980,7 +6987,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ASPDPOTION3:
 			val2 = 50*(2+type-SC_ASPDPOTION0);
 			break;
-
 		case SC_WEDDING:
 		case SC_XMAS:
 		case SC_SUMMER:

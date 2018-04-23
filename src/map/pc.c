@@ -1308,6 +1308,10 @@ int pc_reg_received(struct map_session_data *sd)
 		return 0;
 	sd->state.active = 1;
 
+	intif_storage_request(sd,TABLE_INVENTORY); // Request inventory data
+	intif_storage_request(sd,TABLE_CART); // Request cart data
+	intif_storage_request(sd,TABLE_STORAGE); // Request storage data
+
 	if (sd->status.party_id)
 		party_member_joined(sd);
 	if (sd->status.guild_id)
@@ -1330,9 +1334,6 @@ int pc_reg_received(struct map_session_data *sd)
 	if (!chrif_auth_finished(sd))
 		ShowError("pc_reg_received: Failed to properly remove player %d:%d from logging db!\n", sd->status.account_id, sd->status.char_id);
 
-	status_calc_pc(sd, 1);
-	chrif_scdata_request(sd->status.account_id, sd->status.char_id);
-
 	chrif_bsdata_request(sd->status.char_id); // cydh bonus_script
 
 #ifndef TXT_ONLY
@@ -1346,10 +1347,6 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->state.connect_new = 1;
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
-
-	intif_storage_request(sd,TABLE_STORAGE); // Request storage data
-	intif_storage_request(sd,TABLE_CART); // Request cart data
-	intif_storage_request(sd,TABLE_INVENTORY); // Request inventory data
 
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);

@@ -119,7 +119,7 @@ int intif_clan_member_left(int clan_id);
 
 // STORAGE
 bool intif_storage_request(struct map_session_data *sd, enum storage_type type);
-bool intif_storage_save(struct map_session_data *sd, enum storage_type type);
+bool intif_storage_save(struct map_session_data *sd, struct s_storage *stor);
 
 bool CheckForCharServer(void);
 

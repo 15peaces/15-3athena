@@ -2297,34 +2297,45 @@ static bool intif_parse_StorageReceived(int fd)
 	struct s_storage *stor; //storage
 	size_t sz_stor = sizeof(struct s_storage);
 
-	if (!sd) {
+	if (!sd)
+	{
 		ShowError("intif_parse_StorageReceived: No player online for receiving inventory/cart/storage data (AID: %d)\n", account_id);
 		return false;
 	}
 
-	if (!RFIFOB(fd, 9)) {
+	if (!RFIFOB(fd, 9))
+	{
 		ShowError("intif_parse_StorageReceived: Failed to load! (AID: %d, type: %d)\n", account_id, type);
 		return false;
 	}
 
-	switch (type) { 
-		case TABLE_INVENTORY: stor = &sd->inventory; break;
-		case TABLE_STORAGE: stor = &sd->storage; break;
+	switch (type)
+	{ 
+		case TABLE_INVENTORY:
+			stor = &sd->inventory;
+			break;
+		case TABLE_STORAGE:
+			stor = &sd->storage;
+			break;
 		case TABLE_CART:
 			stor = &sd->cart;
 			break;
-		default: return false;
+		default: 
+			return false;
 	}
 
-	if (stor->status) { // Already open.. lets ignore this update
+	if (stor->status)
+	{ // Already open.. lets ignore this update
 		ShowWarning("intif_parse_StorageReceived: storage received for a client already open (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
 		return false;
 	}
-	if (stor->dirty) { // Already have storage, and it has been modified and not saved yet! Exploit!
+	if (stor->dirty)
+	{ // Already have storage, and it has been modified and not saved yet! Exploit!
 		ShowWarning("intif_parse_StorageReceived: received storage for an already modified non-saved storage! (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
 		return false;
 	}
-	if (RFIFOW(fd,2)-10 != sz_stor) {
+	if (RFIFOW(fd,2)-10 != sz_stor)
+	{
 		ShowError("intif_parse_StorageReceived: data size error %d %d\n",RFIFOW(fd,2)-10 , sz_stor);
 		stor->status = false;
 		return false;
@@ -2332,32 +2343,41 @@ static bool intif_parse_StorageReceived(int fd)
 
 	memcpy(stor, RFIFOP(fd,10), sz_stor); //copy the items data to correct destination
 
-	switch (type) {
-		case TABLE_INVENTORY: {
+	switch (type)
+	{
+		case TABLE_INVENTORY:
+			{
 #ifdef BOUND_ITEMS
-			int j, idxlist[MAX_INVENTORY];
+				int j, idxlist[MAX_INVENTORY];
 #endif
-			pc_setinventorydata(sd);
-			pc_setequipindex(sd);
+				pc_setinventorydata(sd);
+				pc_setequipindex(sd);
 #ifdef BOUND_ITEMS
-			// Party bound item check
-			if (sd->status.party_id == 0 && (j = pc_bound_chk(sd, BOUND_PARTY, idxlist))) { // Party was deleted while character offline
-				int i;
-				for (i = 0; i < j; i++)
-					pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 1);
+				// Party bound item check
+				if (sd->status.party_id == 0 && (j = pc_bound_chk(sd, BOUND_PARTY, idxlist))) 
+				{ // Party was deleted while character offline
+					int i;
+					for (i = 0; i < j; i++)
+						pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 1);
+				}
+#endif
+				//Set here because we need the inventory data for weapon sprite parsing.
+				status_set_viewdata(&sd->bl, sd->status.class_);
+				status_calc_pc(sd, (enum e_status_calc_opt)(SCO_FIRST|SCO_FORCE));
+				status_calc_weight(sd, 1|2); // Refresh item weight data
+				chrif_scdata_request(sd->status.account_id, sd->status.char_id);
+				break;
 			}
-#endif
-			//Set here because we need the inventory data for weapon sprite parsing.
-			status_set_viewdata(&sd->bl, sd->status.class_);
-			status_calc_weight(sd, 1|2); // Refresh item weight data
-			break;
-		}
 
 		case TABLE_CART:
 			if (sd->state.autotrade)
 				clif_parse_LoadEndAck(sd->fd, sd);
 			else if( sd->state.prevend )
+			{
+				clif_clearcart(sd->fd);
+				clif_cartlist(sd);
 				clif_openvendingreq(sd, sd->vend_skill_lv+2);
+			}
 			break;
 
 		case TABLE_STORAGE:
@@ -2384,6 +2404,7 @@ static void intif_parse_StorageSaved(int fd)
 				//ShowInfo("Storage has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				break;
 			case TABLE_CART: // cart
+				//ShowInfo("Cart has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				{
 					struct map_session_data *sd = map_id2sd(RFIFOL(fd, 2));
 
@@ -2391,7 +2412,6 @@ static void intif_parse_StorageSaved(int fd)
 						intif_storage_request(sd,TABLE_CART);
 					}
 				}
-				//ShowInfo("Cart has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				break;
 			default:
 				break;
@@ -2428,34 +2448,20 @@ bool intif_storage_request(struct map_session_data *sd, enum storage_type type)
  * @param type: Storage type
  * @ return false - error, true - message sent
  */
-bool intif_storage_save(struct map_session_data *sd, enum storage_type type)
+bool intif_storage_save(struct map_session_data *sd, struct s_storage *stor)
 {
 	int stor_size = sizeof(struct s_storage);
-	struct s_storage *stor;
 
 	nullpo_retr(false, sd);
+	nullpo_retr(false, stor);
 
 	if (CheckForCharServer())
 		return false;
 
-	switch(type) {
-		case TABLE_INVENTORY:
-			stor = &sd->inventory;
-			break;
-		case TABLE_STORAGE:
-			stor = &sd->storage;
-			break;
-		case TABLE_CART:
-			stor = &sd->cart;
-			break;
-		default:
-			return false;
-	}
-	
 	WFIFOHEAD(inter_fd, stor_size+13);
 	WFIFOW(inter_fd, 0) = 0x308b;
 	WFIFOW(inter_fd, 2) = stor_size+13;
-	WFIFOB(inter_fd, 4) = type;
+	WFIFOB(inter_fd, 4) = stor->type;
 	WFIFOL(inter_fd, 5) = sd->status.account_id;
 	WFIFOL(inter_fd, 9) = sd->status.char_id;
 	memcpy(WFIFOP(inter_fd, 13), stor, stor_size);

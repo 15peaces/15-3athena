@@ -296,9 +296,9 @@ int chrif_save(struct map_session_data *sd, int flag)
 		return -1; //Character is saved on reconnect.
 
 	if (sd->state.storage_flag == 1)
-        intif_storage_save(sd,TABLE_STORAGE);
-    intif_storage_save(sd,TABLE_INVENTORY);
-    intif_storage_save(sd,TABLE_CART);
+		intif_storage_save(sd,&sd->storage);
+	intif_storage_save(sd,&sd->inventory);
+	intif_storage_save(sd,&sd->cart);
 
 	//For data sync
 	if (sd->state.storage_flag == 2)
