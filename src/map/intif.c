@@ -2294,7 +2294,7 @@ static bool intif_parse_StorageReceived(int fd)
 	char type =  RFIFOB(fd,4);
 	uint32 account_id = RFIFOL(fd, 5);
 	struct map_session_data *sd = map_id2sd(account_id);
-	struct s_storage *stor; //storage
+	struct s_storage *stor, *p; //storage
 	size_t sz_stor = sizeof(struct s_storage);
 
 	if (!sd)
@@ -2341,7 +2341,9 @@ static bool intif_parse_StorageReceived(int fd)
 		return false;
 	}
 
-	memcpy(stor, RFIFOP(fd,10), sz_stor); //copy the items data to correct destination
+	p = (struct s_storage *)RFIFOP(fd,10);
+
+	memcpy(stor, p, sz_stor); //copy the items data to correct destination
 
 	switch (type)
 	{

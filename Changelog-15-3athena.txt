@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/27/2018
+	r203 [15peaces]
+		*Fixed remaining storage issues.
+			-Storages are fully working again.
+			-this splits up the clif_storagelist function up and adds a _v5 function.
+				--This will handle the storagelist for v5 and newer item packets now.
+			-Thanks to @3ceam for the base.
+			-Thanks to hikashin.
+			-follow up @c358792
+
 04/23/2018
 	r202 [15peaces]
 		*Resolved some more inventory issues

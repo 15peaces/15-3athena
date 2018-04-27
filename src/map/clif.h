@@ -576,6 +576,7 @@ void clif_tradeundo(struct map_session_data* sd);
 
 // storage
 void clif_storagelist(struct map_session_data* sd, struct item* items, int items_length);
+void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int items_length);
 void clif_updatestorageamount(struct map_session_data* sd, int amount, int max_amount);
 void clif_storageitemadded(struct map_session_data* sd, struct item* i, int index, int amount);
 void clif_storageitemremoved(struct map_session_data* sd, int index, int amount);

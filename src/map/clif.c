@@ -81,7 +81,6 @@ static inline int itemtype(int type)
 	return ( type == IT_PETEGG ) ? IT_WEAPON : type;
 }
 
-
 static inline void WBUFPOS(uint8* p, unsigned short pos, short x, short y, unsigned char dir)
 {
 	p += pos;
@@ -2457,12 +2456,13 @@ void clif_item_sub(unsigned char *buf, int n, struct item *i, struct item_data *
 // Equip is >= 0 for equippable items (holds the equip-point, is 0 for pet 
 // armor/egg) -1 for stackable items, -2 for stackable items where arrows must send in the equip-point.
 void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip) {
+	char normal = (equip < 0);
 	int offset = 0;
 
 	WBUFW(buf,n) = (id->view_id > 0) ? id->view_id : i->nameid;
 	WBUFB(buf,n+2) = itemtype(id->type);
 	
-	if (equip >= 0) 
+	if (!normal)
 	{ //Equippable item 
 		WBUFL(buf,n+3) = equip; //location
 		WBUFL(buf,n+7) = i->equip; //wear state
@@ -2630,93 +2630,140 @@ void clif_equiplist(struct map_session_data *sd) {
 	}
 }
 
-void clif_storagelist(struct map_session_data* sd, struct item* items, int items_length) {
-	static const int client_buf = 0x5000; // Max buffer to send
+void clif_storagelist(struct map_session_data* sd, struct item* items, int items_length)
+{
+#if PACKETVER >= 20131223
+	clif_storagelist_v5(sd, items, items_length);// Use V5 item packets.
+#else
 	struct item_data *id;
-	int i,n,ne,nn;
+	int i,n,ne;
 	unsigned char *buf;
 	unsigned char *bufe;
 #if PACKETVER < 5
-	const int s = 10; //Entry size.normal item
-	const int sidx=4; //start itemlist idx
-	const int cmd = 0xa5;
+	const int s = 10; //Entry size.
 #elif PACKETVER < 20080102
 	const int s = 18;
-	const int sidx=4;
-	const int cmd = 0x1f0;
-#elif PACKETVER < 20120925
-	const int s = 22;
-	const int sidx=4;
-	const int cmd = 0x2ea;
 #else
-	const int s = 24;
-	const int sidx = 4+24;
-	const int cmd = 0x995;
+	const int s = 22;
 #endif
 #if PACKETVER < 20071002
-	const int se = 20; //entry size equip
-	const int sidxe = 4; //start itemlist idx
-	const int cmde = 0xa6;
+	const int cmd = 20;
 #elif PACKETVER < 20100629
-	const int se = 26;
-	const int sidxe = 4;
-	const int cmde = 0x2d1;
-#elif PACKETVER < 20120925
-	const int se = 28;
-	const int sidxe = 4;
-	const int cmde = 0x2d1;
-#elif PACKETVER < 20150226
-	const int se = 31;
-	const int sidxe = 4+24;
-	const int cmde = 0x996;
+	const int cmd = 26;
 #else
-	const int se = 57;
-	const int sidxe = 4+24;
-	const int cmde = 0xa10;
+	const int cmd = 28;
 #endif
 
-	buf = (unsigned char*)aMalloc(items_length * s + sidx);
-	bufe = (unsigned char*)aMalloc(items_length * se + sidxe);
+	buf = (unsigned char*)aMallocA(items_length * s + 4);
+	bufe = (unsigned char*)aMallocA(items_length * cmd + 4);
 
 	for( i = 0, n = 0, ne = 0; i < items_length; i++ )
 	{
 		if( items[i].nameid <= 0 )
 			continue;
 		id = itemdb_search(items[i].nameid);
-		if( !itemdb_isstackable2(id) ) { //Equippable
-			WBUFW(buf,ne*se+sidxe)=i+1;
-			clif_item_sub(bufe, ne*se+sidxe, &items[i], id, id->equip);
+		if( !itemdb_isstackable2(id) )
+		{ //Equippable
+			WBUFW(bufe,ne*cmd+4)=i+1;
+			clif_item_sub(bufe, ne*cmd+6, &items[i], id, id->equip);
+#if PACKETVER >= 20071002
+			WBUFL(bufe,ne*cmd+24)=items[i].expire_time;
+			WBUFW(bufe,ne*cmd+28)=0; //Unknown
+#endif
 			ne++;
 		}
-		else { //Stackable
-			WBUFW(buf,n*s+sidx)=i+1;
-			clif_item_sub(buf, n*s+sidx, &items[i], id,-1);
+		else
+		{ //Stackable
+			WBUFW(buf,n*s+4)=i+1;
+			clif_item_sub(buf, n*s+6, &items[i], id,-1);
+#if PACKETVER >= 5
+#endif
+#if PACKETVER >= 20080102
+			WBUFL(buf,n*s+22)=items[i].expire_time;
+#endif
 			n++;
 		}
 	}
-	for (i = 0; i < n; i += nn) // Loop through non-equipable items
+	if( n )
 	{
-		nn = n - i < (client_buf - sidx)/s ? n - i : (client_buf - sidx)/s; // Split up non-equipable items
-		WFIFOHEAD(sd->fd,sidx+nn*s);
-		WFIFOW(sd->fd,0)=cmd;
-		WFIFOW(sd->fd,2)=sidx+nn*s;
-#if PACKETVER >= 20120925
-		memset((char*)WFIFOP(sd->fd,4),0,24); //storename
+#if PACKETVER < 5
+		WBUFW(buf,0)=0xa5;
+#elif PACKETVER < 20080102
+		WBUFW(buf,0)=0x1f0;
+#else
+		WBUFW(buf,0)=0x2ea;
 #endif
-		memcpy(WFIFOP(sd->fd,sidx),buf + sidx + i*s,nn*s);
-		WFIFOSET(sd->fd,WFIFOW(sd->fd,2));
+		WBUFW(buf,2)=4+n*s;
+		clif_send(buf, WBUFW(buf,2), &sd->bl, SELF);
 	}
-	for (i = 0; i < ne; i += nn) // Loop through equipable items
+	if( ne )
 	{
-		nn = ne - i < (client_buf - sidxe)/se ? ne - i : (client_buf - sidxe)/se; // Split up equipable items
-		WFIFOHEAD(sd->fd,sidxe+nn*se);
-		WFIFOW(sd->fd,0)=cmde;
-		WFIFOW(sd->fd,2)=sidxe+nn*se;
-#if PACKETVER >= 20120925
-		memset((char*)WFIFOP(sd->fd,4),0,24); //storename
+#if PACKETVER < 20071002
+		WBUFW(bufe,0)=0xa6;
+#else
+		WBUFW(bufe,0)=0x2d1;
 #endif
-		memcpy(WFIFOP(sd->fd,sidxe),bufe + sidxe + i*se,nn*se);
-		WFIFOSET(sd->fd,WFIFOW(sd->fd,2));
+		WBUFW(bufe,2)=4+ne*cmd;
+		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
+	}
+
+	if( buf ) aFree(buf);
+	if( bufe ) aFree(bufe);
+#endif
+}
+
+void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int items_length)
+{
+	struct item_data *id;
+	int i,n,ne;
+	unsigned char *buf;
+	unsigned char *bufe;
+
+	const int s = 24;// Packet length for stackable items V5.
+#if PACKETVER < 20150513
+	const int cmd = 31;// Packet length for equippable items V5.
+#else
+	const int cmd = 57;// Packet length for equippable items V6.
+#endif
+
+	buf = (unsigned char*)aMallocA(items_length * s + 28);
+	bufe = (unsigned char*)aMallocA(items_length * cmd + 28);
+
+	for( i = 0, n = 0, ne = 0; i < items_length; i++ )
+	{
+		if( items[i].nameid <= 0 )
+			continue;
+		id = itemdb_search(items[i].nameid);
+		if( !itemdb_isstackable2(id) )
+		{// Equippable Items (Not Stackable)
+			WBUFW(bufe,ne*cmd+28)=i+1;// index
+			clif_item_sub_v5(bufe, ne*cmd+30, &items[i], id, id->equip);
+			ne++;
+		}
+		else
+		{// Regular Items (Stackable)
+			WBUFW(buf,n*s+28)=i+1;// index
+			clif_item_sub_v5(buf, n*s+30, &items[i], id,-1);
+			n++;
+		}
+	}
+	if( n )
+	{// ZC_STORE_ITEMLIST_NORMAL_V5
+		WBUFW(buf,0)=0x995;
+		WBUFW(buf,2)=28+n*s;
+		memcpy(WBUFP(buf,4), "Storage", NAME_LENGTH);// StoreName
+		clif_send(buf, WBUFW(buf,2), &sd->bl, SELF);
+	}
+	if( ne )
+	{// ZC_STORE_ITEMLIST_EQUIP_V5
+#if PACKETVER < 20150513
+		WBUFW(bufe,0)=0x996;
+#else
+		WBUFW(bufe,0)=0xa10;
+#endif
+		WBUFW(bufe,2)=28+ne*cmd;
+		memcpy(WBUFP(bufe,4), "Storage", NAME_LENGTH);// StoreName
+		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
 	}
 
 	if( buf ) aFree(buf);
@@ -15857,7 +15904,7 @@ void clif_Mail_read(struct map_session_data *sd, int mail_id)
 /// 09ea <mail tab>.B <mail id>.Q (CZ_REQ_READ_MAIL)
 void clif_parse_Mail_read(int fd, struct map_session_data *sd){
 #if PACKETVER < 20150513
-	int mail_id = RFIFOL(fd,packet_db[RFIFOW(fd,0)].pos[0]);
+	int mail_id = RFIFOL(fd,packet_db[RFIFOW(fd,0)]->pos[0]);
 #else
 	//uint8 openType = RFIFOB(fd, 2);
 	int mail_id = (int)RFIFOQ(fd, 3);

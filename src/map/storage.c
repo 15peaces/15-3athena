@@ -102,8 +102,8 @@ int storage_storageopen(struct map_session_data *sd)
 	}
 	
 	sd->state.storage_flag = 1;
-	storage_sortitem(sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
-	clif_storagelist(sd, sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
+	storage_sortitem(sd->storage.u.items_storage, MAX_STORAGE);
+	clif_storagelist(sd, sd->storage.u.items_storage, MAX_STORAGE);
 	clif_updatestorageamount(sd, sd->storage.amount, MAX_STORAGE);
 	return 0;
 }

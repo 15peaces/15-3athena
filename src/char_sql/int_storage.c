@@ -407,12 +407,21 @@ bool mapif_parse_StorageLoad(int fd) {
 	memset(&stor, 0, sizeof(struct s_storage));
 
 	//ShowInfo("Loading storage for AID=%d.\n", aid);
-	switch (type) {
-		case TABLE_INVENTORY: res = inventory_fromsql(cid, &stor); break;
-		case TABLE_STORAGE:   res = storage_fromsql(aid, &stor);   break;
-		case TABLE_CART:      res = cart_fromsql(cid, &stor);      break;
-		default: return false;
+	switch (type) 
+	{
+		case TABLE_INVENTORY:
+			res = inventory_fromsql(cid, &stor);
+			break;
+		case TABLE_STORAGE:
+			res = storage_fromsql(aid, &stor);
+			break;
+		case TABLE_CART:
+			res = cart_fromsql(cid, &stor);
+			break;
+		default:
+			return false;
 	}
+
 	mapif_storage_data_loaded(fd, aid, type, stor, res);
 	return true;
 }
