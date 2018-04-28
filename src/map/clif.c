@@ -5294,15 +5294,19 @@ void clif_addskill(struct map_session_data *sd, int id)
 	nullpo_retv(sd);
 
 	fd = sd->fd;
-	if (!fd) return;
+	if (!fd)
+		return;
 
 	if( sd->status.skill[id].id <= 0 )
 		return;
+
+	ShowDebug("clif_addskill: id: %d  level: %d  flag: %d", id, sd->status.skill[id].lv, sd->status.skill[id].flag);
 
 	WFIFOHEAD(fd, packet_len(0x111));
 	WFIFOW(fd,0) = 0x111;
 	WFIFOW(fd,2) = id;
 	WFIFOL(fd,4) = skill_get_inf(id);
+	WFIFOW(fd,6) = 0;
 	WFIFOW(fd,8) = sd->status.skill[id].lv;
 	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[id].lv);
 	WFIFOW(fd,12)= skill_get_range2(&sd->bl, id,sd->status.skill[id].lv);

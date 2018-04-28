@@ -51,7 +51,7 @@
 #ifndef PACKETVER
 	//#define PACKETVER 20131223 //Stable client [15peaces]
 	//#define PACKETVER 20141022 //Stable client [15peaces]
-	//#define PACKETVER 20151029 //Experimental client [15peaces]
+	#define PACKETVER 20151029 //Experimental client [15peaces]
 
 #endif
 

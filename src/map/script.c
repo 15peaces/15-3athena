@@ -5514,8 +5514,12 @@ BUILDIN_FUNC(countitem)
 		}
 	}
 	else {
-		if( !script_rid2sd(st) )
+	
+		sd = script_rid2sd(st);
+		if (!sd) {
+			script_pushint(st,0);
 			return 0;
+		}
 	}
 
 	if( !strncmp(command, "cart", 4) ) {

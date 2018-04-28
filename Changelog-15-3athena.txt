@@ -5,6 +5,34 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/28/2018
+	r204 [15peaces]
+		*Merged missing changes from 3ceam rev. 645
+		*Fixed countitem script command.
+			-another follow up @c358792 ^^
+				--I hope I got all hidden bugs related to this commit now ^^
+		*Corrected Akaraje script
+			-Bonus should last for 20 minutes instead of 2 minutes.
+			-Thanks to @rathena!
+		*Made some adjustments in skill_unit_db.
+			-Changes made are for the Ranger's traps. More info about the changes listed below.
+		*Fixed a issue where Warlock spheres did damage depending on the level of Release used.
+			-Spheres will now correctly deal damage depending on the level of the summoned sphere.
+		*Fixed some obvious bugs with Ranger traps. The following now applies to all Ranger traps.
+			-All traps now have a 3x3 trigger area that sets the trap off if a enemy walks into it.
+			-All traps can no longer be stacked on top of one another.
+			-All traps can no longer be placed under a players feet.
+			-How long a trap stays on the ground for now increases in WoE areas.
+		*RA_WUGDASH, RA_CLUSTERBOMB, RA_FIRINGTRAP, RA_ICEBOUNDTRAP now have official formulas.
+			-Only thing not official is damage increase from base levels. Having a issue with the Ranger damage traps.
+			-How can I multiply something by 1.5 when its not letting me use decimals?
+		*HT_SPRINGTRAP no longer sets off Cluster Bomb traps.
+		*Fixed a issue with RA_CLUSTERBOMB where it dealed full damage on monsters with plant defense.
+			-Now deals 1 damage.
+		*WUG_RIDER now gives the correct movement speed bonus and is set by the used skill level.
+		*Fixed a issue where AB_ADORAMUS dealed incorrect damage.
+		*Other minor fixes and cleanups.
+
 04/27/2018
 	r203 [15peaces]
 		*Fixed remaining storage issues.
