@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/29/2018
+	r205 [15peaces]
+		*Corrected Fidelity Necklace slot count
+			-Thanks to @rathena!
+		*Some fixes related to my last commit.
+			-Sorry. ^^
+
 04/28/2018
 	r204 [15peaces]
 		*Merged missing changes from 3ceam rev. 645

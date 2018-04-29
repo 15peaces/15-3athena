@@ -5300,7 +5300,7 @@ void clif_addskill(struct map_session_data *sd, int id)
 	if( sd->status.skill[id].id <= 0 )
 		return;
 
-	ShowDebug("clif_addskill: id: %d  level: %d  flag: %d", id, sd->status.skill[id].lv, sd->status.skill[id].flag);
+	//ShowDebug("clif_addskill: id: %d  level: %d  flag: %d", id, sd->status.skill[id].lv, sd->status.skill[id].flag);
 
 	WFIFOHEAD(fd, packet_len(0x111));
 	WFIFOW(fd,0) = 0x111;

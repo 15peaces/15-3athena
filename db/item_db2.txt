@@ -356,9 +356,9 @@
 20218,C_Spell_Circuit,Costume Spell Circuit,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1301,{},{},{}
 20219,C_Angel_Marcher_Hat,Costume Angel Marcher Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1302,{},{},{}
 20220,C_Dark_Night_Veil,Costume Dark Night Veil,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1303,{},{},{}
-
 20221,C_Ifrit_Eyes,Costume Ifrit Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,886,{},{},{}
 20222,C_Blue_Santa_Hat,Costume Blue Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,395,{},{},{}
+
 20223,C_Romantic_Leaf,Costume Romantic Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,57,{},{},{}
 20224,C_Red_Tailed_Ribbon,Costume Red Tailed Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,167,{},{},{}
 20225,C_Pumpkin_Head,Costume Pumpkin Head,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,206,{},{},{}
@@ -2678,7 +2678,7 @@
 
 
 // Missing items (renewal)
-2959,Fidelity_Necklace,Fidelity Necklace,5,20,,300,,0,,0,0xFFFFFFFF,63,2,136,,50,0,0,{ bonus bAgi,2; bonus2 bSubRace,RC_Brute,3; },{},{}
+2959,Fidelity_Necklace,Fidelity Necklace,5,20,,300,,0,,1,0xFFFFFFFF,63,2,136,,50,0,0,{ bonus bAgi,2; bonus2 bSubRace,RC_Brute,3; },{},{}
 2960,Badge_Of_Manny,Badge Of Manny,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAllStats,1; },{},{}
 4488,Sealed_D_Lord_Card,Sealed Dark Lord Card,6,20,,10,,,,,,,,64,,,,,{ bonus3 bAutoSpellWhenHit,"WZ_METEOR",5,50; },{},{}
 4489,Sealed_Pharaoh_Card,Sealed Pharaoh Card,6,20,,10,,,,,,,,769,,,,,{ bonus bUseSPrate,-15; },{},{}
