@@ -7,6 +7,12 @@
 //========================================
 04/29/2018
 	r205 [15peaces]
+		*Merged missing changes from 3ceam rev. 646
+		*Fixed an issue where the Ripped Cabus doesn't give you the correct skill level of ALL_INCCARRY skill.
+		*Added a handful of missing status tags and ID's.
+
+04/29/2018
+	r205 [15peaces]
 		*Corrected Fidelity Necklace slot count
 			-Thanks to @rathena!
 		*Some fixes related to my last commit.
