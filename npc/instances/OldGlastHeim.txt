@@ -24,7 +24,7 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 	mes "Huh? You feel like you have seen me in different places? I see. What can I say?";
 	next;
 	set .@ghins_time, checkquest(12317,PLAYTIME);
-	if (!.@ghins_time) {
+	if (.@ghins_time == -1 || .@ghins_time == 0) {
 
 		set .@party_id, getcharid(1);
 		set .@p_name$, getpartyname(.@party_id);
@@ -86,8 +86,8 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 	} else {
 		mes "^0000ffOld Glast Heim access trail has been cleared. It is now possible to talk to Hugin.^000000";
 		erasequest 12317;
-		if (checkquest(12318)) erasequest 12318;
-		if (checkquest(12319)) erasequest 12319;
+		if (checkquest(12318) >= 0) erasequest 12318;
+		if (checkquest(12319) >= 0) erasequest 12319;
 		close;
 	}
 }
@@ -1219,7 +1219,7 @@ OnTalk6:
 
 1@gl_k,156,259,3	script	Varmunt#ghinstance3	654,{
 	if (checkquest(12318,HUNTING) == 2) {
-		if (!checkquest(12319,HUNTING)) {
+		if (checkquest(12319,HUNTING) == -1 || checkquest(12319,HUNTING) == 0) {
 			mes "[Varmunt]";
 			mes "There's something unusual about this thing's aura. Maybe someday we will be able to understand what is behind all of this.";
 			cutin "gl_barmund1",2;

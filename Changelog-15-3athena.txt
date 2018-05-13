@@ -5,8 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
-04/29/2018
-	r205 [15peaces]
+05/13/2018
+	r207 [15peaces]
+		*Added project files for Visual Studio 2013 (vs12)
+			-With this update 15-3athena won't support Visual Studio versions before 2008 (vs9 and older) anymore.
+			-Please prepare yourself to don't use Visual Studio 2008 anymore, the support will be ending soon now.
+		*Did some fixing in Old Glastheim instance.
+		*Some misc updating in monster databases.
+
+05/07/2018
+	r206 [15peaces]
 		*Merged missing changes from 3ceam rev. 646
 		*Fixed an issue where the Ripped Cabus doesn't give you the correct skill level of ALL_INCCARRY skill.
 		*Added a handful of missing status tags and ID's.
