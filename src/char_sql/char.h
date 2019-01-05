@@ -34,6 +34,17 @@ struct char_session_data {
 	char birthdate[10+1];  // YYYY-MM-DD
 };
 
+enum e_char_delete {
+	CHAR_DEL_EMAIL = 1,
+	CHAR_DEL_BIRTHDATE
+};
+
+enum e_char_delete_restriction {
+	CHAR_DEL_RESTRICT_PARTY = 1,
+	CHAR_DEL_RESTRICT_GUILD,
+	CHAR_DEL_RESTRICT_ALL
+};
+
 unsigned int char_server_fd(int account_id);
 
 int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch);

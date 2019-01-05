@@ -5,6 +5,98 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/05/2019
+	r208 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn208.sql file!
+		*Another big update of NPC folder.
+			-Updated the second entrance to Biolabs.
+			-Updated Blacksmith Thorn and Weapons Expert NPC.
+			-Fixed some variables issues and cleaned Instructor Boya and Michael.
+			-Other script changes:
+				--Adding Marriage Covenant item in marriage script.
+				--Minor updates to Kafra functions.
+				--Turned Cool Event Corp. scripts into a basic function.
+				--Turned Battleground badge rewards into basic functions.
+			-updated /guild2/ folder.
+				--Now the castles use a template file.
+			-Fixed an incorrect parameter in WOE FE guild disbanding event (since r188 (@9ccd178)).
+			-Cleaning of "Bunny Band Quest" script (quests\bunnyband.txt)
+			-Implemented Hall of Abyss:
+				--Added investment NPCs; times are currently unofficial. (/guild/invest_main.txt, /guild/invest_npc.txt)
+				--Added new guild mob spawns ; Classic spawns still remain the same.
+				--Added new warps. (warps/guildcastles.txt)
+				--Added new quest entry 7349. (db/quest_db.txt)
+			-Global_Function updates.
+				--Added the following functions:
+					---"F_InsertArticle" (returns 'a' or 'an' preceding word)
+					---"F_GetNumSuffix" (formats number with '-st', '-nd', '-rd', or '-th' suffix)
+				--Added and removed new functions where necessary. (incomplete)
+				--Added new types to "F_GetArmorType" function, and weapons will now pass to "F_GetWeaponType".
+			-Adjusting of official coordinates.
+			-Added missing Port Malaya field spawns.
+			-Replaced Lutie Guides file with a more recent rAthena version.
+			-Added warpers and missing duplicates for Izlude (izlude_[a-d]) and Prontera Field 8 (prt_fild08[a-d]) maps.
+			-Changed "Kelitula Academy" to "Cryptura Academy".
+			-Added new "Job Repair" script, which fixes potential errors with job data.
+			-Merged novice academie from rAthena rathena/rathena@cc8edaa
+				-> All Credit to Kisuka for this big work.
+			-Added new commands to alter questinfo conditions:
+				-setquestinfo_level : Add level range criteria for quest info with quest id 'quest_id'.
+				-setquestinfo_req : Add quest requirement for quest info with quest id 'quest_id'.
+					-> Player have / doesn't have the required quest.
+				-setquestinfo_job : To add additionnal job criteria.
+					->Credit to Cydh!
+			-Added 'repairall' script command.
+			-Added full support for cell_maelstrom and cell_icewall in scripts.
+			-npctalk & unittalk now have an optional hide_name parameter.
+				--enable it to don't show the units name in front of the message.
+			-Cleaned-up basic skill checks.
+			-Fixed wrong usages of specialeffect.
+			-Added support for the SEX_FEMALE / SEX_MALE constants.
+			-Removed extra semi-colons.
+			-Added several anti-hack checks to refine NPC.
+			-Corrected OnTouch/OnTouch_ in NPC scripts.
+			-Bugs fixes and some changes in custom/etc files. 
+			-Added a few missing 'changequest' commands to Alchemist job quest.
+				--also corrected variable typo.
+			-Revamped the official clothes dyer (merchants\clothes_dyer.txt)
+			-Optimized custom Berzebub Card quest (custom\quests\berzebub.txt)
+			-Updated to match official version & clean-up in quests_airship.txt.		
+			-Replaced hardcoded genders with constants
+				--Replaced hardcoded gender codes in npcs
+				--Fixed an inverted gender logic
+			-Fixes some bug in npc/cities folder and corrected syntax
+			-Corrected some npc view
+			-Fixed a few typos and language mistakes.
+			-Fixed friendship quest questlog
+				--Added a check if the quest was already added to the questlog.
+				--Additionally removed some AEGIS logic that was converted without thinking.
+			-Fixed some quest log issues.
+			-Fixed Regenschirm Guard Laboratory Permit issue.
+			-Thanks to @rAthena.
+		*Added Novice Academy to be accessible by @go.
+		*Cleaned up char deletion code.
+			-Added an enum for values.
+			-Resolved character deletion not working properly for clients 2015-10-01 and higher.
+			-Delete date should be sent as remaining time on some client versions.
+			-Adjusted some comments.
+			-Added empty/default birthdate deletion.
+			-Made email deletion case insensitive.
+			-Added a configuration for deletion restriction.
+			-Thanks to @rAthena for the base.
+		*Added automatic clan member removal.
+			-Thanks to @rAthena for the base.
+		*Implemented serverside navigation system start
+			-This feature was hidden in the client since 2011...
+			-Thanks to @rAthena.
+		*Added some missing scripts
+			-Old Glastheim Merchants
+			-official Kagerou/Oboro job quests
+			-Thanks to @rAthena.
+		*Updated / partly reworked whisper_sys document.
+		*Added many Renewal item scripts.
+		*Removed duplicated seal status npc.
+
 05/13/2018
 	r207 [15peaces]
 		*Added project files for Visual Studio 2013 (vs12)

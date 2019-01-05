@@ -1501,7 +1501,7 @@ ma_fild01,178,206,0	script	Black Bamboo#malaya	844,4,4,{
 	mes "[" + strcharinfo(0) + "]";
 	mes "I knew I could do this!";
 	close;
-OnTouch:
+OnTouch_:
 	if ((checkquest(7366) != -1) || (checkquest(7380) != -1)) {
 		specialeffect EF_LEVEL99_4;
 	}
@@ -3129,7 +3129,7 @@ ma_fild01,251,93,3	script	Lost Child#malaya01	576,{
 			next;
 			mes "[Little Kid]";
 			mes "Why~ Do I always go in circles here?";
-			mes "Do you why, " + ((Sex) ? "mister" : "ma'am") + "?";
+			mes "Do you why, " + ((Sex == SEX_MALE) ? "mister" : "ma'am") + "?";
 			mes "What's with this road?";
 			mes "Is somebody trying to trick me?";
 			close;
@@ -3569,6 +3569,7 @@ ma_fild01,238,198,4	script	Tikbalang Expert#malaya	582,{
 // Upgrade Boss Equipment :: malaya_mvpitem
 //============================================================
 ma_fild01,158,243,6	script	Tribe Blacksmith#malaya	582,{
+	disable_items;
 	mes "[Bayani]";
 	mes "I will upgrade your armor if you bring one that holds enormous power.";
 	next;
@@ -3747,7 +3748,9 @@ ma_fild01,158,243,6	script	Tribe Blacksmith#malaya	582,{
 		mes "[Bayani]";
 		mes "What is this! You said you wanted to upgrade " + getitemname(.@item) + " but why are you giving me this? You should be wearing " + getitemname(.@item) + ".";
 		close;
-	} else if (getequiprefinerycnt(.@part) < 9) {
+	}
+	set .@equip_refine, getequiprefinerycnt(.@part);
+	if (.@equip_refine < 9) {
 		mes "[Bayani]";
 		mes "No, the sturdiness of this item has not been tested yet. It'll have to be at least +9 refined for me to say, 'Oh this is pretty sturdy armor.";
 		close;
@@ -3788,7 +3791,7 @@ ma_fild01,158,243,6	script	Tribe Blacksmith#malaya	582,{
 	delitem 6499,20; //Ancient_Grudge
 
 	// anti-hack
-	if (callfunc("F_IsEquipIDHack", .@part, .@item))
+	if (callfunc("F_IsEquipIDHack", .@part, .@item) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine))
 		close;
 
 	delequip .@part;
@@ -4181,11 +4184,11 @@ ma_in01,47,101,3	script	Totoy#buwaya	577,7,7,{
 		mes "[Totoy]";
 		mes "Um... hey!";
 		next;
-		select("You are a " + ((Sex) ? "boy" : "girl") + ", aren't you?");
+		select("You are a " + ((Sex == SEX_MALE) ? "boy" : "girl") + ", aren't you?");
 		emotion e_omg,1;
 		mes "[Totoy]";
 		mes "Huh?";
-		if (!Sex) {
+		if (Sex == SEX_FEMALE) {
 			mes "Totoy is a girl, and you are a boy.";
 			mes "You're not a boy?";
 		} else {
@@ -4240,7 +4243,7 @@ ma_in01,47,101,3	script	Totoy#buwaya	577,7,7,{
 		mes "Would there be something awesome to surprise people with?";
 		close;
 	}
-OnTouch:
+OnTouch_:
 	emotion e_omg;
 	end;
 }
@@ -4331,7 +4334,7 @@ malaya,290,152,5	script	Master of Hunting#buwaya	578,{
 		mes "Try collecting 10 Animal Samples from where the kid saw the monster. I will look for traces of that monster from the samples.";
 		next;
 		mes "[Master of Hunting]";
-		mes (Sex) ? "It won't be pleasant but any brave man could easily do it, don't you agree?" : "I don't want the hands of a pretty girl to smell bad but I could care less with someone like you. Ha ha!";
+		mes (Sex == SEX_MALE) ? "It won't be pleasant but any brave man could easily do it, don't you agree?" : "I don't want the hands of a pretty girl to smell bad but I could care less with someone like you. Ha ha!";
 		set malaya_buwaya,7;
 		erasequest 2273;
 		setquest 2274;
@@ -4355,7 +4358,7 @@ malaya,290,152,5	script	Master of Hunting#buwaya	578,{
 		mes "Try collecting 10 Animal Samples from where the kid saw the monster. I will look for traces of that monster from the samples.";
 		next;
 		mes "[Master of Hunting]";
-		mes (Sex) ? "It won't be pleasant but any brave man could easily do it, don't you agree?" : "I don't want the hands of a pretty girl to smell bad but I could care less with someone like you. Ha ha!";
+		mes (Sex == SEX_MALE) ? "It won't be pleasant but any brave man could easily do it, don't you agree?" : "I don't want the hands of a pretty girl to smell bad but I could care less with someone like you. Ha ha!";
 		set malaya_buwaya,7;
 		erasequest 2273;
 		setquest 2274;
@@ -5431,7 +5434,7 @@ ma_fild01,165,237,4	script	Malaya Immigrant#bako2	582,{
 
 ma_fild01,171,235,0	script	#bako1	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona1 == 5) {
 		mes "The damage is so severe";
 		mes "that the record is unidentifiable.";
@@ -6143,7 +6146,7 @@ ma_fild01,54,253,4	script	Gruffy Worker#bako2	582,{
 
 ma_fild01,54,244,0	script	#bako2	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona2 == 9) {
 		mes "I should set up the trap";
 		mes "right about here.";
@@ -6212,7 +6215,7 @@ ma_fild01,236,119,5	script	Grumpy Worker#bako2	577,{
 
 ma_fild01,242,116,0	script	#bako3	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona2 == 10) {
 		mes "I should set up the trap";
 		mes "right about here.";
@@ -6285,7 +6288,7 @@ ma_scene01,177,89,4	script	Cowardly Worker#bako2	578,{
 
 ma_scene01,179,85,0	script	#bako4	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona2 == 11) {
 		mes "I should set up the trap";
 		mes "right about here.";
@@ -6355,7 +6358,7 @@ ma_scene01,141,118,4	script	Gloomy Worker#bako2	582,{
 
 ma_scene01,138,122,0	script	#bako5	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona2 == 12) {
 		mes "I should set up the trap";
 		mes "right about here.";
@@ -6422,7 +6425,7 @@ ma_scene01,175,170,5	script	Sentimental Worker#bako2	578,{
 
 ma_scene01,171,174,0	script	#bako6	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (malaya_bakona2 == 13) {
 		mes "I should set up the trap";
 		mes "right about here.";
@@ -7206,7 +7209,7 @@ malaya,55,72,4	script	Nurse#ma_n1	569,{
 		emotion e_what;
 		next;
 		mes "[???]";
-		mes "Hey "+((Sex)?"dude":"missy")+",";
+		mes "Hey "+((Sex == SEX_MALE)?"dude":"missy")+",";
 		mes "You're not getting in the hospital.";
 		next;
 		mes "["+strcharinfo(0)+"]";
@@ -7751,7 +7754,7 @@ malaya,53,68,4	script	Bushes#ma	844,{
 	if (malaya_bang == 13) {
 		mes "[???]";
 		mes "Don't come any closer!";
-		mes "Old "+((Sex)?"man":"lady")+"!";
+		mes "Old "+((Sex == SEX_MALE)?"man":"lady")+"!";
 		mes "How'd you know I was here?";
 		emotion e_omg;
 		next;
@@ -7835,7 +7838,7 @@ malaya,53,68,4	script	Bushes#ma	844,{
 	} else if (malaya_bang == 15) {
 		mes "[???]";
 		mes "Don't come any closer!";
-		mes "Old "+((Sex)?"man":"lady")+"!";
+		mes "Old "+((Sex == SEX_MALE)?"man":"lady")+"!";
 		mes "How'd you know I was here?";
 		emotion e_omg;
 		next;
@@ -8456,7 +8459,7 @@ ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
 		mes "Sigh... We are still short of materials to start the '^7A96E0Pintados Festival^000000'.";
 		close;
 	case 3:
-		set .@str$, (Sex)?"Bro":"Sis";
+		set .@str$, (Sex == SEX_MALE)?"Bro":"Sis";
 		break;
 	}
 	emotion e_lv;

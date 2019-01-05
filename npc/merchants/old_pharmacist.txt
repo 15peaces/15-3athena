@@ -11,7 +11,7 @@
 //============================================================
 //= Breakdown of arguments used
 //= arg(0): Herb required.
-//= arg(1): Zeny cost.
+//= arg(1): Zeny cost.L_Making:
 //= arg(2): Potion given.
 //===== Additional Comments: =================================
 //= 1.0 - Fully working. [DZeroX]
@@ -186,14 +186,17 @@ alberta_in,16,28,4	script	Pharmacist	61,{
 	}
 	
 L_Making:
+	set .@item_req, getarg(0);
+	set .@req_amount, getarg(1);
+
 	next;
 	mes "[Old Pharmacist]";
-	if ((countitem(getarg(0))/2) < countitem(713)) {
-		set .@max,countitem(getarg(0))/2;
+	if ((countitem(.@item_req)/2) < countitem(713)) {
+		set .@max,countitem(.@item_req)/2;
 	} else {
 		set .@max,countitem(713);
 	}
-	if ((countitem(getarg(0)) < 2) || (countitem(713) == 0)) {
+	if ((countitem(.@item_req) < 2) || (countitem(713) == 0)) {
 		mes "You rascal! What did you expect?! Coming here with nothing. Tsk!";
 		mes "Get lost!";
 		close;
@@ -207,13 +210,13 @@ L_Making:
 	switch(select("Make as many as I can.:I want to choose an amount.:Actually, I don't want anything.")) {
 	case 1:
 		next;
-		if ((countitem(getarg(0)) < .@max*2) || (countitem(713) < .@max) || (Zeny < .@max*getarg(1))) {
+		if ((countitem(.@item_req) < .@max*2) || (countitem(713) < .@max) || (Zeny < .@max*.@req_amount)) {
 			mes "[Old Pharmacist]";
 			mes "You rascal! You don't even have all the materials and you want me to make you potions?!";
 			close;
 		}
-		set Zeny,Zeny-(.@max*getarg(1));
-		delitem getarg(0),.@max*2;
+		set Zeny,Zeny-(.@max*.@req_amount);
+		delitem .@item_req,.@max*2;
 		delitem 713,.@max; //Empty_Bottle
 		getitem getarg(2),.@max; 
 		break;
@@ -233,13 +236,13 @@ L_Making:
 			mes "Are you deaf? I said less than 100!";
 			close;
 		}
-		if ((countitem(getarg(0)) < .@amount*2) || (countitem(713) < .@amount) || (Zeny < .@amount*getarg(1))) {
+		if ((countitem(.@item_req) < .@amount*2) || (countitem(713) < .@amount) || (Zeny < .@amount*.@req_amount)) {
 			mes "[Old Pharmacist]";
 			mes "You rascal! You don't even have all the materials and you want me to make you potions?!";
 			close;
 		}
-		set Zeny,Zeny-(.@amount*getarg(1));
-		delitem getarg(0),.@amount*2;
+		set Zeny,Zeny-(.@amount*.@req_amount);
+		delitem .@item_req,.@amount*2;
 		delitem 713,.@amount; //Empty_Bottle
 		getitem getarg(2),.@amount; 
 		break;

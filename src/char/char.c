@@ -85,6 +85,7 @@ char char_name_letters[1024] = ""; // list of letters/symbols allowed (or not) i
 int char_per_account = 0; //Maximum charas per account (default unlimited) [Sirius]
 int char_del_level = 0; //From which level u can delete character [Lupus]
 int char_del_delay = 86400;
+int char_del_restriction = CHAR_DEL_RESTRICT_ALL;
 
 int log_char = 1;	// loggin char or not [devil]
 int log_inter = 1;	// loggin inter or not [devil]
@@ -1987,7 +1988,7 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	offset += MAP_NAME_LENGTH_EXT;
 #endif
 #if PACKETVER >= 20100803
-#if PACKETVER > 20130000 && PACKETVER < 20141016 || PACKETVER >= 20150826 && PACKETVER < 20151001
+#if PACKETVER_CHAR_DELETEDATE
   	WBUFL(buf,124) = (p->delete_date?TOL(p->delete_date-time(NULL)):0);
  #else
 	WBUFL(buf,124) = TOL(p->delete_date);
@@ -3691,14 +3692,18 @@ int lan_subnetcheck(uint32 ip)
 ///     3 = (0x719) A database error occurred.
 ///     4 = (0x71a) To delete a character you must withdraw from the guild.
 ///     5 = (0x71b) To delete a character you must withdraw from the party.
-///     ? = (0x718) An unknown error has occurred.
+///     Any (0x718): An unknown error has occurred.
 void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
 {
 	WFIFOHEAD(fd,14);
 	WFIFOW(fd,0) = 0x828;
 	WFIFOL(fd,2) = char_id;
 	WFIFOL(fd,6) = result;
-	WFIFOL(fd,10) = TOL(delete_date);
+#if PACKETVER_CHAR_DELETEDATE
+	WFIFOL(fd, 10) = TOL(delete_date - time(NULL));
+#else
+	WFIFOL(fd, 10) = TOL(delete_date);
+#endif
 	WFIFOSET(fd,14);
 }
 
@@ -3738,6 +3743,37 @@ void char_delete2_cancel_ack(int fd, int char_id, uint32 result)
 	WFIFOSET(fd,10);
 }
 
+/**
+* Check char deletion code
+* @param sd
+* @param delcode E-mail or birthdate
+* @param flag Delete flag
+* @return true:Success, false:Failure
+**/
+static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint8 flag) {
+	// E-Mail check
+	if (flag&CHAR_DEL_EMAIL && (
+		!stricmp(delcode, sd->email) || //email does not match or
+		(
+		!stricmp("a@a.com", sd->email) && //it is default email and
+		!strcmp("", delcode) //user sent an empty email
+		))) {
+		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(E-Mail)"CL_RESET".\n");
+		return true;
+	}
+	// Birthdate (YYMMDD)
+	if (flag&CHAR_DEL_BIRTHDATE && (
+		!strcmp(sd->birthdate + 2, delcode) || // +2 to cut off the century
+		(
+		!strcmp("0000-00-00", sd->birthdate) && // it is default birthdate and
+		!strcmp("", delcode) // user sent an empty birthdate
+		))) {
+		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(Birthdate)"CL_RESET".\n");
+		return true;
+	}
+	return false;
+}
+
 
 /// Requests a timed deletion of a character (CH_DELETE_CHAR3_RESERVED).
 /// 0827 <char id>.L
@@ -3760,22 +3796,18 @@ static void char_delete2_req(int fd, struct char_session_data* sd)
 		return;
 	}
 
-/*
-	// Aegis imposes these checks probably to avoid dead member
-	// entries in guilds/parties, otherwise they are not required.
-	// TODO: Figure out how these are enforced during waiting.
-	if( cs->guild_id )
+	if (char_del_restriction&CHAR_DEL_RESTRICT_GUILD && cs->guild_id)
 	{// character in guild
 		char_delete2_ack(fd, char_id, 4, 0);
 		return;
 	}
 
-	if( cs->party_id )
+	if (char_del_restriction&CHAR_DEL_RESTRICT_PARTY && cs->party_id)
 	{// character in party
 		char_delete2_ack(fd, char_id, 5, 0);
 		return;
 	}
-*/
+
 
 	// success
 	cs->delete_date = time(NULL)+char_del_delay;
@@ -3821,8 +3853,7 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 		return;
 	}
 
-	if( strcmp(sd->birthdate+2, birthdate) )  // +2 to cut off the century
-	{// birth date is wrong
+	if (!char_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) { // Only check for birthdate
 		char_delete2_accept_ack(fd, char_id, 5);
 		return;
 	}
@@ -4288,7 +4319,10 @@ int parse_char(int fd)
 			cs = &char_dat[sd->found_char[i]].status;
 
 			//check for config char del condition [Lupus]
-			if( ( char_del_level > 0 && cs->base_level >= (unsigned int)char_del_level ) || ( char_del_level < 0 && cs->base_level <= (unsigned int)(-char_del_level) ) )
+			if( ( char_del_level > 0 && cs->base_level >= (unsigned int)char_del_level ) || 
+				( char_del_level < 0 && cs->base_level <= (unsigned int)(-char_del_level) ) ||
+				(char_del_restriction&CHAR_DEL_RESTRICT_GUILD && cs->guild_id) || // character is in guild
+				(char_del_restriction&CHAR_DEL_RESTRICT_PARTY && cs->party_id) ) // character is in party
 			{
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x70;
@@ -4869,6 +4903,9 @@ int char_config_read(const char *cfgName)
 			char_del_level = atoi(w2);
 		} else if (strcmpi(w1, "char_del_delay") == 0) {
 			char_del_delay = atoi(w2);
+		}
+		else if (strcmpi(w1, "char_del_restriction") == 0) {
+			char_del_restriction = atoi(w2);
 // online files options
 		} else if (strcmpi(w1, "online_txt_filename") == 0) {
 			safestrncpy(online_txt_filename, w2, sizeof(online_txt_filename));

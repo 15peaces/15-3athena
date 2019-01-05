@@ -25,7 +25,7 @@
 //= 1.9 Corrected NPC names to fall within proper restrictions. [L0ne_W0lf]
 //= 2.0 Rescripted Tom Yum Goong and Dungeon quest to Aegis [L0ne_W0lf]
 //=	10.3 standards.
-//= 2.0a Corrected a Typo error ";;". [Samuray22]
+//= 2.0a Corrected a Typo error ";". [Samuray22]
 //= 2.1 Added missing checkweights. [L0ne_W0lf]
 //= 2.2 Replaced effect numerics with constants. [L0ne_W0lf]
 //= 2.3 Replaced effect numerics with constants. [Samuray22]
@@ -277,7 +277,7 @@ ayothaya,233,105,3	script	Powerful-Looking Woman	838,2,2,{
 					mes "[Powerful-Looking Woman]";
 					mes "I see. Hmmm...";
 					mes "You're kind of my type.";
-					if(sex)
+					if(sex == SEX_MALE)
 					{
 						mes "No no, that doesn't mean I'm interested in you. Plus I'm";
 						mes "already engaged.";
@@ -436,7 +436,7 @@ ayothaya,233,105,3	script	Powerful-Looking Woman	838,2,2,{
 		}
 	}
 
-OnTouch:
+OnTouch_:
 	if(thai_find == 0)
 	{
 		mes "[Powerful-Looking Woman]";
@@ -576,7 +576,7 @@ if (!$@annonactive) {
 		close;
 	}
 
-OnTouch:
+OnTouch_:
 	if (thai_find == 12) {
 		if (!rand(0,2)) {
 			emotion e_gasp,1;
@@ -1018,7 +1018,7 @@ ayothaya,253,99,3	script	Fisherman	843,{
 }
 	
 ayo_dun01,255,62,0	script	AyoFootprint1	139,2,0,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 4)
 	{
 		if(rand(1,3) < 2)
@@ -1034,7 +1034,7 @@ OnTouch:
 }
 	
 ayo_dun01,74,142,0	script	AyoFootprint2	139,2,0,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 5)
 	{
 		if(rand(1,3) < 2)
@@ -1050,7 +1050,7 @@ OnTouch:
 }
 	
 ayo_dun01,244,256,2	script	AyoFootprint3	139,2,0,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 6)
 	{
 		if(rand(1,3) < 2)
@@ -1066,7 +1066,7 @@ OnTouch:
 }
 	
 ayo_dun01,17,257,0	script	AyoFootprint4	139,2,0,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 7)
 	{
 		if(rand(1,3) < 2)
@@ -1082,7 +1082,7 @@ OnTouch:
 }
 	
 ayo_dun02,145,120,0	script	AyoFootprint5	139,2,0,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 8)
 	{
 		if(rand(1,3) < 2)
@@ -1099,10 +1099,9 @@ OnTouch:
 	}
 	end;
 }
-	
-	
+
 ayo_dun02,135,168,0	script	AyoFootprint6	139,0,2,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 9)
 	{
 		if (rand(1,3) == 1)
@@ -1184,7 +1183,7 @@ OnTouch:
 }
 	
 ayo_dun02,77,213,0	script	AyoFootprint7	139,1,1,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 10)
 	{
 		if(rand(1,3) < 2)
@@ -1203,7 +1202,7 @@ OnTouch:
 }
 	
 ayo_dun02,86,254,0	script	AyoFootprint8	139,1,1,{
-OnTouch:
+OnTouch_:
 	if(thai_find == 11)
 	{
 		if(rand(1,3) < 2)
@@ -2012,7 +2011,7 @@ ayo_dun01,273,26,0	script	 #th_dun1_1_1::AyoTrap1	111,0,4,{
 	mes "^2F2F4Fyou might get killed.^000000";
 	close;
 
-OnTouch:
+OnTouch_:
 	mes "^3355FFYou look down and see a pool";
 	mes "of water in the distance. It looks like a long drop to the bottom.^000000";
 	next;
@@ -2028,7 +2027,7 @@ ayo_dun01,272,27,0	duplicate(AyoTrap1)	 #th_dun1_1_3	111,0,4
 ayo_dun01,272,26,0	duplicate(AyoTrap1)	 #th_dun1_1_4	111
 
 ayo_dun01,26,27,0	script	 #th_dun1_1::AyoTrap2	-1,1,1,{
-OnTouch:
+OnTouch_:
 	percentheal -100,0;
 	end;
 }
@@ -2047,7 +2046,7 @@ ayo_dun01,25,271,0	duplicate(AyoTrap2)	 #th_dun1_12	-1
 
 // Hints
 ayo_dun01,156,148,0	script	 #hint01::AyoHint	-1,0,4,{
-OnTouch:
+OnTouch_:
 	if (rand(1,100) > 60 && ayodunquest < 11) {
 		mes "^3355FFThe Holy Thread in your pocket suddenly began to glow. You feel that something is near you...^000000";
 		close2;
@@ -2772,7 +2771,7 @@ ayothaya,121,240,7	script	Mr. Jun#ayo	842,1,1,{
 	mes "...";
 	close;
 
-OnTouch:
+OnTouch_:
 	if (MaxWeight-Weight < 2000 || checkweight(1201,1) == 0) {
 		mes "- Wait a minute! -";
 		mes "- Currently you're carrying -";

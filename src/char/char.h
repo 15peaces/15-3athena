@@ -17,6 +17,17 @@ struct character_data {
 	struct global_reg global[GLOBAL_REG_NUM];
 };
 
+enum e_char_delete {
+	CHAR_DEL_EMAIL = 1,
+	CHAR_DEL_BIRTHDATE
+};
+
+enum e_char_delete_restriction {
+	CHAR_DEL_RESTRICT_PARTY = 1,
+	CHAR_DEL_RESTRICT_GUILD,
+	CHAR_DEL_RESTRICT_ALL
+};
+
 struct mmo_charstatus* search_character(int aid, int cid);
 struct mmo_charstatus* search_character_byname(char* character_name);
 int search_character_index(char* character_name);

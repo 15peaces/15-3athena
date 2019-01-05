@@ -3,11 +3,12 @@
 //===== By: ==================================================
 //= 15peaces
 //===== Current Version: =====================================
-//= 1.0
+//= 1.1
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
 //= 1.0 Added spawns based on kRO infos. Also added quest-drops. [15peaces]
+//= 1.1 Added duplicates and corrected quest id. [15peaces]
 //============================================================
 int_land,1,1,0	script	_int_land_mon	-1,{
 OnInit:
@@ -33,7 +34,12 @@ OnTimer600000:
 	end;
 
 OnMyMobDead:
-	if (checkquest(21002) == 1)
+	if (checkquest(21008) == 1)
 		getitem 6008,1; //Lumber
 	end;
 }
+
+int_land01,1,1,0	duplicate(_int_land_mon)	_int_land_mon#intro_spawn01	-1
+int_land02,1,1,0	duplicate(_int_land_mon)	_int_land_mon#intro_spawn02	-1
+int_land03,1,1,0	duplicate(_int_land_mon)	_int_land_mon#intro_spawn03	-1
+int_land04,1,1,0	duplicate(_int_land_mon)	_int_land_mon#intro_spawn04	-1

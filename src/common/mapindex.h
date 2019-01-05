@@ -35,6 +35,7 @@ extern char mapindex_cfgfile[80];
 #define MAP_VEINS "veins"
 #define MAP_JAIL "sec_pri"
 #define MAP_NOVICE "new_1-1"
+#define MAP_NOVICE_ACADEMY "iz_int"
 #define MAP_MOSCOVIA "moscovia"
 #define MAP_MIDCAMP "mid_camp"
 #define MAP_MANUK "manuk"

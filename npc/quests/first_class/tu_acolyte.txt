@@ -1245,7 +1245,7 @@ prt_monk,28,260,5	script	Hedrick	50,{
 // Weapon Merchant
 //============================================================
 prt_monk,136,261,0	script	Weapon Merchant#tu	139,9,9,{ 
-OnTouch:
+OnTouch_:
 	if(tu_acolyte01 != 20 || countitem(1081)==0) end;
 	mes "[Weapon Merchant]";
 	mes "The stuff I requested from the guild is finally here!";

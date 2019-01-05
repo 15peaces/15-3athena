@@ -139,6 +139,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `sex` ENUM('M','F','U') NOT NULL default 'U',
   `hotkey_rowshift` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   `clan_id` int(11) UNSIGNED NOT NULL default '0',
+  `last_login` datetime DEFAULT NULL,
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),

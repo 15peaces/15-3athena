@@ -2386,7 +2386,7 @@ ACMD_FUNC(go)
 		{ MAP_MOSCOVIA,		223, 184, "Moscovia" }, // 25
 		{ MAP_MIDCAMP,		180, 240, "Midgard Camp" }, // 26
 		{ MAP_MANUK,		282, 138, "Manuk" }, // 27
-		{ MAP_SPLENDIDE,	197, 176, "Splendide" }, // 28
+		{ MAP_SPLENDIDE,	201, 147, "Splendide" }, // 28
 		{ MAP_BRASILIS,		182, 239, "Brasilis" }, // 29
 		{ MAP_DICASTES,		198, 187, "El Dicastes" }, // 30
 		{ MAP_MORA,			 44, 151, "Mora" }, // 31
@@ -2394,6 +2394,7 @@ ACMD_FUNC(go)
 		{ MAP_MALANGDO,		140, 114, "Malangdo Island" }, // 33
 		{ MAP_MALAYA,		242, 211, "Malaya Port" }, // 34
 		{ MAP_ECLAGE,		110,  39, "Eclage" }, // 35
+		{ MAP_NOVICE_ACADEMY, 97, 90, "Novice Academy" }, // 36
 	};
 
 	static const struct {
@@ -2424,6 +2425,8 @@ ACMD_FUNC(go)
 		{ MAP_NOVICE,      "new_1-1" },
 		{ MAP_NOVICE,      "startpoint" },
 		{ MAP_NOVICE,      "begining" },
+		{ MAP_NOVICE_ACADEMY,"academy" },
+		{ MAP_NOVICE_ACADEMY,"iz_int" },
 		{ MAP_JAIL,        "sec_pri" },
 		{ MAP_JAIL,        "prison" },
 		{ MAP_JAIL,        "jails" },

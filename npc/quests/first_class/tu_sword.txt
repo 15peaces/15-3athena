@@ -16,7 +16,7 @@
 //= 1.3 Fixed experience gains to match upcoming rate adjustments. [SinSloth]
 //= 1.4 Misc. updates. Thanks to L0ne_W0lf. [15peaces]
 //= 1.5 Added Renewal Izlude coordinates.
-//= 1.6 Added 3rd class support. [15peaces] 
+//= 1.6 Added 3rd class support. [15peaces]
 //============================================================
 
 // Shurank
@@ -46,7 +46,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 	if(BaseClass == Job_Swordman && eaclass()&(EAJL_2|EAJL_UPPER|EAJL_THIRD)){
 		mes "From your raiment,";
 		mes "I see that you are";
-		if(Sex)
+		if(Sex == SEX_MALE)
 			mes "a man of the sword.";
 		else
 			mes "a woman of the sword.";
@@ -670,6 +670,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			set tu_swordman, 5;
 			next;
 		}
+		setquest 8215;
 		mes "[Shurank]";
 		mes "By now, I believe that you know enough about the Increase HP Recovery skill. Next time, I shall teach you what I know about the Provoke skill.";
 		close;
@@ -691,6 +692,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Here's a small prize in recognition of your efforts thus far. But don't relax yet! You still have a long way to go before grasping";
 			mes "all of the basics.";
 			set tu_swordman, 4;
+			changequest 8213,8214;
 			getexp 970,0;
 			getitem 2503,1; //Muffler
 			close;
@@ -726,6 +728,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Here's a little reward for all of your hard work. I hope you realize the importance of using Bash as";
 			mes "you grow stronger.";
 			set tu_swordman, 3;
+			changequest 8212,8213;
 			getexp 830,0;
 			close;
 		} else if(.@chk_bash == 10){
@@ -737,6 +740,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Here's a small prize in recognition of your efforts thus far. But don't relax yet! You still have a long way to go before grasping";
 			mes "all of the basics.";
 			set tu_swordman, 4;
+			changequest 8212,8214;
 			getexp 970,0;
 			getitem 2503,1; //Muffler
 			close;
@@ -772,6 +776,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Still, for your training efforts, let me give you a humble reward. But remember, we still have more";
 			mes "of the fundamentals to cover!";
 			set tu_swordman, 2;
+			changequest 8211,8212;
 			getexp 585,0;
 			close;
 		} else if((.@chk_bash > 4) && (.@chk_bash < 10)){
@@ -801,7 +806,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "[Shurank]";
 			mes "For your efforts and patience, I offer you this small reward. Please take it and grow even stronger...";
 			set tu_swordman, 3;
-			setquest 8211;
+			changequest 8211,8213;
 			getexp 830,0;
 			next;
 			mes "[Shurank]";
@@ -816,6 +821,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Here's a small prize in recognition of your efforts thus far. But don't relax yet! You still have a long way to go before grasping";
 			mes "all of the basics.";
 			set tu_swordman, 4;
+			changequest 8211,8214;
 			getexp 970,0;
 			getitem 2503,1; //Muffler
 			close;
@@ -873,7 +879,7 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Still, for your training efforts, let me give you a humble reward. But remember, we still have more";
 			mes "of the fundamentals to cover!";
 			set tu_swordman, 2;
-			changequest 8211,8212;
+			setquest 8213;
 			getexp 585,0;
 			close;
 		} else if((.@chk_bash > 4) && (.@chk_bash < 10)){
@@ -911,9 +917,9 @@ izlude_in,82,163,3	script	Shurank	733,{
 			mes "Here's a small prize in recognition of your efforts thus far. But don't relax yet! You still have a long way to go before grasping";
 			mes "all of the basics.";
 			set tu_swordman, 4;
-			completequest 8211;
-			completequest 8212;
-			completequest 8213;
+			// completequest 8211;
+			// completequest 8212;
+			// completequest 8213;
 			setquest 8214;
 			getexp 970,0;
 			getitem 2503,1; //Muffler

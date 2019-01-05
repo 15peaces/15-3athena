@@ -25,7 +25,8 @@
 //= 1.5 Added Malangdo Refiner "Holink". [15peaces]
 //= 1.5a Added 'disable_items' command. Thanks to Euphy. [15peaces]
 //= 1.5b Fixed coordinates. Thanks to Euphy. [15peaces] 
-//= 1.5c Some official script updates. Thanks to Euphy. [15peaces] 
+//= 1.5c Some official script updates. Thanks to Euphy. [15peaces]
+//= 1.6 Optimized. [15peaces]
 //============================================================
 
 payon,157,146,6	script	Suhnbi#cash	85,{ 
@@ -66,16 +67,19 @@ payon,157,146,6	script	Suhnbi#cash	85,{
 		mes "Hmm... someone perfected this already. I don't think I can work on it further.";
 		close;
 	}
+	
+	set .@refineitemid, getequipid(.@part); // save id of the item
+	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
 
 	// Make sure you have the neccessary items and Zeny to refine your items
 	// Determines chance of failure and verifies that you want to continue.
 	switch( getequipweaponlv(.@part) )
 	{
-		case 1: callsub S_RefineValidate,1,7620,50,.@part; break;
-		case 2: callsub S_RefineValidate,2,7620,200,.@part; break;
-		case 3: callsub S_RefineValidate,3,7620,5000,.@part; break;
-		case 4: callsub S_RefineValidate,4,7620,20000,.@part; break;
-		default: callsub S_RefineValidate,0,7619,2000,.@part; break;
+		case 1: callsub S_RefineValidate,1,7620,50,.@part,.@refineitemid,.@refinerycnt; break;
+		case 2: callsub S_RefineValidate,2,7620,200,.@part,.@refineitemid,.@refinerycnt; break;
+		case 3: callsub S_RefineValidate,3,7620,5000,.@part,.@refineitemid,.@refinerycnt; break;
+		case 4: callsub S_RefineValidate,4,7620,20000,.@part,.@refineitemid,.@refinerycnt; break;
+		default: callsub S_RefineValidate,0,7619,2000,.@part,.@refineitemid,.@refinerycnt; break;
 	}
 
 	mes "[Suhnbi]";
@@ -105,15 +109,21 @@ payon,157,146,6	script	Suhnbi#cash	85,{
 	close;
 
 S_RefineValidate:
+	set .@weapon_lvl, getarg(0);
+	set .@item_req, getarg(1);
+	set .@price, getarg(2);
+	set .@part, getarg(3);
+	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+
 	mes "[Suhnbi]";
-	if (getarg(0))
-		mes "You want to refine a level " + getarg(0) + " weapon?";
-	mes "To refine that, you'll need to have one ^ff9999" + getitemname(getarg(1)) + "^000000 and " + getarg(2) + " zeny.";
+	if (.@weapon_lvl)
+		mes "You want to refine a level " + .@weapon_lvl + " weapon?";
+	mes "To refine that, you'll need to have one ^ff9999" + getitemname(.@item_req) + "^000000 and " + .@price + " zeny.";
 	mes "Would you like to continue?";
 	next;
 	if(select("Yes:No") == 1) {
-		if (getequippercentrefinery(getarg(3)) < 100) {
-			if (getarg(0)) {
+		if (getequippercentrefinery(.@part) < 100) {
+			if (.@weapon_lvl) {
 				mes "[Suhnbi]";
 				mes "Wow!!";
 				mes "This weapon probably";
@@ -152,9 +162,21 @@ S_RefineValidate:
 				}
 			}
 		}
-		if (countitem(getarg(1)) > 0 && Zeny > getarg(2)) {
-			delitem getarg(1),1;
-			set Zeny, Zeny - getarg(2);
+		if (countitem(.@item_req) > 0 && Zeny > .@price) {
+			delitem .@item_req,1;
+			set Zeny, Zeny - .@price;
+			
+			// anti-hack
+			if (callfunc("F_IsEquipIDHack", .@part, getarg(4)) ||
+				callfunc("F_IsEquipRefineHack", .@part, getarg(5)) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3])) {
+				mes "[Holink]";
+				emotion e_an;
+				mes "Wait a second...";
+				mes "Do you think I'm stupid?!";
+				mes "You switched the item while I wasn't looking! Get out of here!";
+				close;
+			}
+			
 			return;
 		}
 		mes "[Suhnbi]";
@@ -228,6 +250,8 @@ malangdo,221,174,6	script	Holink#mal_cash	559,{
 		close;
 	}
 	mes "[Holink]";
+	set .@refineitemid, getequipid(.@part); // save id of the item
+	set .@refinerycnt, getequiprefinerycnt(.@part); //save refinery count
 	switch(getequipweaponlv(.@part)) {
 	default:
 	case 0: // Armor
@@ -269,7 +293,7 @@ malangdo,221,174,6	script	Holink#mal_cash	559,{
 	if(select("Yes!!:No!!") == 2) {
 		mes "[Holink]";
 		mes "Kyack!!";
-		mes "You don't belive in refine master Holink, meow?~";
+		mes "You don't believe in refine master Holink, meow?~";
 		close;
 	}
 	if (getequippercentrefinery(.@part) < 100) {
@@ -309,6 +333,18 @@ malangdo,221,174,6	script	Holink#mal_cash	559,{
 	}
 	delitem .@material,1;
 	set Zeny, Zeny-.@price;
+	
+	// anti-hack
+	if (callfunc("F_IsEquipIDHack", .@part, .@refineitemid) ||
+		callfunc("F_IsEquipRefineHack", .@part, .@refinerycnt)) {
+		mes "[Holink]";
+		emotion e_an;
+		mes "Wait a second...";
+		mes "Do you think I'm stupid?!";
+		mes "You switched the item while I wasn't looking! Get out of here!";
+		close;
+	}
+	
 	if (getequippercentrefinery(.@part) > rand(100) || getequippercentrefinery(.@part) > rand(100)) {
 		successrefitem .@part;
 		mes "[Holink]";

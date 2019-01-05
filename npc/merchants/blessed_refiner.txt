@@ -72,7 +72,10 @@
 		mes "This item cannot be refined.";
 		close;
 	}
+	set .@equip_id, getequipid(.@part);
 	set .@equip_refine, getequiprefinerycnt(.@part);
+	setarray .@card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
+	
 	if (.@equip_refine < 6 || .@equip_refine > 12) {
 		mes "[Blacksmith Dister]";
 		mes "This equipment has refined to "+.@equip_refine+". I only handle items with refine levels from +6 to +12!";
@@ -109,7 +112,7 @@
 	}
 	set .@ore$,"^ff9999Blessed "+.@type$+" Ore^000000";
 	mes "[Blacksmith Dister]";
-	mes "This "+.@type$+" has been refined to "+.@equip_refine+". To refine it, I need "+.@ore$+" and a "+(.@price/1000)+",000 zeny refining fee.";
+	mes "This "+.@type$+" has been refined to "+.@equip_refine+". To refine it, I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
 	mes "Do you want to proceed?";
 	next;
 	if(select("Yes:No") == 2) {
@@ -133,11 +136,16 @@
 	if (countitem(.@material) == 0 || Zeny < .@price) {
 		mes "[Blacksmith Dister]";
 		mes "Materials insufficient.";
-		mes "To refine "+((.@equip_lv)?"a level "+.@equip_lv+" weapon":"armor")+", I need "+.@ore$+" and a "+(.@price/1000)+",000 zeny refining fee.";
+		mes "To refine "+((.@equip_lv)?"a level "+.@equip_lv+" weapon":"armor")+", I need "+.@ore$+" and a "+callfunc("F_InsertComma",.@price)+" zeny refining fee.";
 		close;
 	}
 	delitem .@material,1;
 	set Zeny, Zeny-.@price;
+	
+	// anti-hack
+	if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipCardHack", .@part, .@card[0], .@card[1], .@card[2], .@card[3]) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine))
+		close;
+	
 	mes "[Blacksmith Dister]";
 	mes "Tac! Tac! Tac!";
 	if (getequippercentrefinery(.@part) > rand(100) || getequippercentrefinery(.@part) > rand(100)) {

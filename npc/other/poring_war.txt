@@ -1043,7 +1043,7 @@ OnDisable:
 	disablenpc "#wop_warp_a";
 	end;
 
-OnTouch:
+OnTouch_:
 	set wop_team,1;
 	warp "poring_w02",57,82;
 	end;
@@ -1065,7 +1065,7 @@ OnDisable:
 	disablenpc "#wop_warp_d";
 	end;
 
-OnTouch:
+OnTouch_:
 	set wop_team,2;
 	warp "poring_w02",140,82;
 	end;
@@ -1520,7 +1520,7 @@ OnDisable:
 	disablenpc "#aroom_ingate_wop";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "poring_w02",99,49;
 	end;
 }
@@ -1540,7 +1540,7 @@ OnDisable:
 	disablenpc "#aroom_outgate_wop";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "poring_w02",99,54;
 	end;
 }
@@ -1617,7 +1617,7 @@ OnDisable:
 	disablenpc "#droom_ingate_wop";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "poring_w02",98,116;
 	end;
 }
@@ -1637,7 +1637,7 @@ OnDisable:
 	disablenpc "#droom_outgate_wop";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "poring_w02",98,111;
 	end;
 }

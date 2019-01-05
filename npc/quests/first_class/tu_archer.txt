@@ -64,7 +64,7 @@ payon_in02,67,65,3	script	Bard Jet#tu	55,{
 		mes "up a joke~!";
 		emotion e_gg;
 		next;
-		if (Sex == 1) {
+		if (Sex == SEX_MALE) {
 			select("A joke, eh?");
 			specialeffect2 EF_TALK_FROSTJOKE;
 			mes "[Jet]";
@@ -107,7 +107,7 @@ payon_in02,67,65,3	script	Bard Jet#tu	55,{
 		mes "You're...!";
 		next;
 		specialeffect2 EF_TALK_FROSTJOKE;
-		//specialeffect EF_TALK_FROSTJOKE,"Bard Jet#tu";
+		//specialeffect EF_TALK_FROSTJOKE,AREA,"Bard Jet#tu";
 		emotion e_no1;
 		mes "[Jet]";
 		mes "Let's see...";
@@ -1116,11 +1116,11 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 // Seisner
 //============================================================
 pay_arche,84,139,3	script	Seisner	727,{
-	specialeffect EF_HIT2,"#Target";
+	specialeffect EF_HIT2,AREA,"#Target";
 	mes "[Seisner]";
 	mes "Aaaah!";
 	mes "Double Strafe!";
-	specialeffect EF_HIT2,"#Target";
+	specialeffect EF_HIT2,AREA,"#Target";
 	next;
 	mes "[Seisner]";
 	mes "I did it!";
@@ -1377,7 +1377,7 @@ pay_arche,76,135,3	script	#Target	111,{ end; }
 				mes "he already has a girlfriend...";
 				next;
 				mes "[Acolyte]";
-				if(Sex){
+				if(Sex == SEX_MALE){
 					mes "W-wait!";
 					mes "Y-you're a man!";
 					mes "D-d-d-don't tease me";

@@ -1,11 +1,11 @@
-//===== 15-3athena Script ==================================== 
+//===== 15-3athena Script ====================================
 //= Jawaii (The Lovers' Paradise) Town script
 //===== By: ==================================================
 //= jAthena (1.0)
 //= DNett123 (1.1 - 1.5)
 //= L0ne_w0lf
 //===== Current Version: =====================================
-//= 3.7
+//= 3.8
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -36,6 +36,7 @@
 //= 3.5 Replaced effect numerics with constants. [L0ne_W0lf]
 //= 3.6 Fixed bartender so he no longer hangs. [L0ne_W0lf]
 //= 3.7 Added correct Izlude RE coordinates. [15peaces]
+//= 3.8 Added Izlude duplicates. [15peaces] 
 //============================================================
 
 // Jawaii
@@ -175,7 +176,7 @@ jawaii,240,146,5	script	Jawaii Resident#desc1	724,{
 jawaii,168,247,5	script	Jawaii Resident#desc2	724,{
 	mes "[Waja Waja]";
 	mes "Ah, you must be a tourist.";
-	mes "If you're lost, just head West. Accomodations for newlyweds";
+	mes "If you're lost, just head West. Accommodations for newlyweds";
 	mes "are located in the western part of Jawaii. The lodging here is";
 	mes "pretty amazing.";
 	next;
@@ -271,7 +272,7 @@ jawaii,108,199,5	script	Employee#antroom	74,{
 	mes "young couples in this room.";
 	next;
 	mes "[Pine Oran]";
-	mes "All the rooms may have the same basic structure, but each of them has their own unqiue interior to suit the tastes of different people.";
+	mes "All the rooms may have the same basic structure, but each of them has their own unique interior to suit the tastes of different people.";
 	next;
 	mes "[Pine Oran]";
 	mes "If you would like to lodge here, it is required to pay a 1,000 zeny fee for each person before entering. Since you're here to make fond memories of your honeymoon,";
@@ -498,7 +499,7 @@ jawaii_in,25,98,0	script	Employee#jaw3	724,{
 		mes "Oh~";
 		mes "Look at you...";
 		mes "You look perfect";
-		if (sex)
+		if (sex == SEX_MALE)
 			mes "for your wife~";
 		else
 			mes "with your husband~";
@@ -512,7 +513,7 @@ jawaii_in,25,98,0	script	Employee#jaw3	724,{
 		mes "Hmm...?";
 		mes "You don't look like";
 		mes "you're married, are you?";
-		if (sex) {
+		if (sex == SEX_MALE) {
 			next;
 			mes "[Employee Buffy]";
 			mes "I'm pretty good";
@@ -689,7 +690,7 @@ OnSolo:
 }
 
 jawaii_in,28,96,0	script	jaw_em_order#Jawaii	-1,3,3,{
-OnTouch:
+OnTouch_:
 	if (getpartnerid()) {
 		donpcevent "Employee#jaw8::OnWelcome";
 		donpcevent "Employee#jaw7::OnWelcome";
@@ -834,9 +835,8 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 	mes "like to drink?";
 	next;
 	if (zeny < 99) {
-		set .@r_jaw,rand(1,100);
 		mes "[Bartender]";
-		if (.@r_jaw > 29) {
+		if (rand(1,100) > 29) {
 			mes "Hm, I'm sorry";
 			mes "but you do not";
 			mes "have enough";
@@ -861,7 +861,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 		percentheal -100,0;
 		end;
 	}
-	while (1) {
+	while(1) {
 		switch(select("Follow Bartender's Recommendation.:I want a Gunslinger.:I want a Cobo.:I want a Bomb.:I want a Boogieman.")) {
 		case 1:
 			set .@roof_jaw,.@roof_jaw+3;
@@ -995,7 +995,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 			}
 			break;
 		case 2:
-			callsub S_KillChar,2;
+			callsub S_KillChar,2,.@roof_jaw;
 			mes "When you want to look super cool, this will be the best drink for you. It's a strong drink with a particular scent, so people who drink Gunslingers are usually seen as having impressive of taste.";
 			next;
 			mes "^3355FFYou received a simple glass containing a gray liquid. Although it smells faintly sweet, it looks like industrial strength liquor. It's time to summon your courage and take a sip~";
@@ -1017,7 +1017,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 			break;
 
 		case 3:
-			callsub S_KillChar,2;
+			callsub S_KillChar,2,.@roof_jaw;
 			mes "People say that the more you drink a mixed Cobo, the tastier it will be. It grows on you, kind of like the company of an old friend. This is a nice drink to have with anyone at anytime.";
 			next;
 			mes "^3355FFThe Bartender brought a beautifully engraved glass holding a cobalt blue liquid and placed it in front of you. It smells pleasantly sweet and sour.";
@@ -1041,7 +1041,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 			break;
 
 		case 4:
-			callsub S_KillChar,2;
+			callsub S_KillChar,2,.@roof_jaw;
 			mes "This is for one who wants to relive wild, youthful days, honor those who have fought for justice and liberty, or just to drink alcohol until they vomit stomach acid.";
 			mes "for one who wants to remember people fighting for liberty...";
 			next;
@@ -1061,7 +1061,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 			break;
 
 		case 5:
-			callsub S_KillChar,1;
+			callsub S_KillChar,1,.@roof_jaw;
 			mes "There are not many people who like this drink. But the ones that do like this drink, love it.";
 			next;
 			mes "[Bartender]";
@@ -1069,7 +1069,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 			mes "of this.";
 			next;
 			mes "^3355FFYou receive a crooked glass";
-			mes "filled with purple fluid. Although it smells pleasnt, you have a strange feeling of disgust as you draw it closer to your face.";
+			mes "filled with purple fluid. Although it smells pleasant, you have a strange feeling of disgust as you draw it closer to your face.";
 			next;
 			mes "[Bartender]";
 			mes "If you don't want to drink it, tell me now. But it might be good to try it once, just to experience it.";
@@ -1091,6 +1091,7 @@ jawaii_in,28,124,0	script	Bartender#jaw	46,{
 	end;
 
 S_KillChar:
+	set .@roof_jaw, getarg(1);
 	if (.@roof_jaw > 8) {
 		mes "[Bartender]";
 		mes "It's on me.";
@@ -1112,9 +1113,9 @@ S_KillChar:
 }
 	
 jawaii_in,43,115,0	script	Customer#jaw_1	97,{
+	mes "[Buchi]";
 	if (!getpartnerid()) {
 		if (zeny > 99) {
-			mes "[Buchi]";
 			mes "Grrrr...";
 			mes "Damn! I don't";
 			mes "like this place!";
@@ -1128,8 +1129,8 @@ jawaii_in,43,115,0	script	Customer#jaw_1	97,{
 			mes "Grrrr...";
 			mes "Bartender!";
 			mes "Give me one more!";
+			close;
 		}
-		mes "[Buchi]";
 		mes "Hey, why aren't you drinking?";
 		mes "I guess you're all out of dough.";
 		mes "But I know how you feel. Disgusted with all the lovey dovey around this place, aren't you?";
@@ -1150,10 +1151,10 @@ jawaii_in,43,115,0	script	Customer#jaw_1	97,{
 		mes "the one who laughs last!";
 		next;
 		mes "^3355FFYou drank to your fill.^000000";
-		close;
+		close2;
 		percentheal -100,0;
+		end;
 	}
-	mes "[Buchi]";
 	mes "You look happy...";
 	mes "I hope you'll be";
 	mes "able to feel that";
@@ -1171,7 +1172,7 @@ jawaii_in,41,106,3	script	Customer#Cage	98,{
 		mes "After all, everyone knows marriage is a sham for desperate, lonely people!";
 		next;
 		mes "[Cage]";
-		if (sex) {
+		if (sex == SEX_MALE) {
 			mes "I don't trust anybody!";
 			mes "You're a fool for chaining";
 			mes "yourself to some gorgeous";
@@ -1245,18 +1246,17 @@ prt_in,173,13,4	script	Customer#SoloHan	86,{
 		mes "or not, right buddy? Right?!";
 		mes "Come on! Drink with me!!";
 		next;
-		mes "^3355FFSuddenly he treated me as a close friend. It's a little embarassing, but it's not a bad idea to accept";
+		mes "^3355FFSuddenly he treated me as a close friend. It's a little embarrassing, but it's not a bad idea to accept";
 		mes "a free drink...^000000";
 		next;
 		mes "^3355FF* Gulp Gulp Gulp *^000000";
 		percentheal -10,0;
 		next;
-		set .@jaw_roof,1;
 		mes "[SoloHan]";
 		mes "So, what do you say?";
 		mes "Let's go somewhere";
 		mes "with some real liquor.";
-		while (1) {
+		while(1) {
 			next;
 			if (select("...One more drink.:...What kind of place is it?") == 1) {
 				mes "[SoloHan]";
@@ -1301,8 +1301,7 @@ prt_in,173,13,4	script	Customer#SoloHan	86,{
 					mes "Man.";
 					mes "So, you spoil parties";
 					mes "like this all the time, eh?";
-					close2;
-					end;
+					close;
 				}
 			}
 			if (.@jaw_roof > 6) {
@@ -1354,7 +1353,7 @@ prt_in,173,13,4	script	Customer#SoloHan	86,{
 		mes "...Wha!?";
 		mes "Oh man!";
 		mes "Get outta my face!";
-		if (sex) {
+		if (sex == SEX_MALE) {
 			mes "You smell like,";
 			mes "whupped boyfriend";
 			mes "or something!";
@@ -1397,7 +1396,7 @@ prt_in,170,14,0	script	Customer#Bachewcca	89,{
 
 // Izlude
 //============================================================
-izlude,171,216,3	script	Honeymoon Helper#Izlude	71,{
+-	script	::Honeymoon_Helper_Izlude	-1,{
 	mes "[Helper]";
 	mes "Newlyweds and";
 	mes "long time couples...";
@@ -1449,3 +1448,9 @@ izlude,171,216,3	script	Honeymoon Helper#Izlude	71,{
 		close;
 	}
 }
+
+izlude,180,224,3	duplicate(Honeymoon_Helper_Izlude)	Honeymoon Helper#Izlude	71
+izlude_a,180,224,3	duplicate(Honeymoon_Helper_Izlude)	Honeymoon Helper#Iz_a	71
+izlude_b,180,224,3	duplicate(Honeymoon_Helper_Izlude)	Honeymoon Helper#Iz_b	71
+izlude_c,180,224,3	duplicate(Honeymoon_Helper_Izlude)	Honeymoon Helper#Iz_c	71
+izlude_d,180,224,3	duplicate(Honeymoon_Helper_Izlude)	Honeymoon Helper#Iz_d	71

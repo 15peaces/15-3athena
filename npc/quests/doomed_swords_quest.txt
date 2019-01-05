@@ -842,7 +842,7 @@ morocc,248,159,4	script	Young Man#magum1	86,{
 		mes "appreciate it, but this";
 		mes "pentagram has really good";
 		mes "craftsmanship! Now, if my";
-		mes "older brothers have already^FFFFFF ^000000 helped you, I shall do the same.";
+		mes "older brothers have already helped you, I shall do the same.";
 		next;
 		mes "[Huey]";
 		mes "My older brothers are even";
@@ -856,7 +856,7 @@ morocc,248,159,4	script	Young Man#magum1	86,{
 		mes "would have been for nothing.";
 		mes "And then... They might just";
 		mes "come looking for me. Morf";
-		mes "especially. Oh, right! Materials!^FFFFFF ^000000 I need these for the pentagram!";
+		mes "especially. Oh, right! Materials! I need these for the pentagram!";
 		next;
 		mes "[Huey]";
 		mes "Please bring me";
@@ -1055,15 +1055,16 @@ S_GetSword:
 		mes "space available. Then, we can finally claim your doomed sword.";
 		close;
 	}
+	set .@num, getarg(1);
 	mes "[Huey]";
-	if (getarg(1) == 0) {
+	if (.@num == 0) {
 		mes "Th-that's the Grimtooth!";
 		mes "Ever since I've been taught";
 		mes "the pentagram techniques by";
 		mes "those Dwarves, I've never once";
 		mes "imagined that I'd see that sword. Please use that weapon wisely.";
 	}
-	else if (getarg(1) == 1) {
+	else if (.@num == 1) {
 		mes "I don't believe it!";
 		mes "You... You've been found";
 		mes "worthy of the Mysteltainn?";
@@ -1071,7 +1072,7 @@ S_GetSword:
 		mes "its power overwhelm you.";
 		mes "Wield it only for just ends...";
 	}
-	else if (getarg(1) == 2) {
+	else if (.@num == 2) {
 		mes "Th-that's...!";
 		mes "The Executionier has";
 		mes "chosen you to wield it?";

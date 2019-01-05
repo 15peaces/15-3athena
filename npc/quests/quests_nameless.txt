@@ -1470,7 +1470,7 @@ OnTimer150000:
 
 nameless_n,145,162,0	script	AideAmi#Aru	139,2,2,{
 	end;
-OnTouch:
+OnTouch_:
 	if (aru_monas == 26) {
 		mes "[" + strcharinfo(0) + "]";
 		mes "There is a low wall here against the other wall, if I climb it I could reach the resting place of Tristan III...";
@@ -3158,7 +3158,7 @@ OnInit:
 	stopnpctimer;
 	end;
 
-OnTouch:
+OnTouch_:
 	if (aru_em == 22) {
 		initnpctimer;
 		disablenpc "#em_end";
@@ -3609,7 +3609,7 @@ alberta,127,143,3	script	Belder	85,{
 		next;
 		switch(select("I'll promote your loans!:Uh...")) {
 		case 1:
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "[Belder]";
 				mes "You? But you're a dude!";
 				mes "No sweaty, stinky, sleazy";
@@ -3693,7 +3693,7 @@ alberta,127,143,3	script	Belder	85,{
 	mes "you came from. Jerk.";
 	close;
 
-OnTouch:
+OnTouch_:
 	if (diamond_edq < 3) {
 		mes "[Belder]";
 		mes "Cash flow problems?";
@@ -4003,7 +4003,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 				close;
 			}
 		case 2:
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "[Dorian]";
 				mes "Ah, my apologies.";
 				mes "Too many have asked, so";
@@ -4222,7 +4222,7 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 		mes "Ah, so you failed to";
 		mes "fix the Mystic Dryer de";
 		mes "Elegance? That's expected:";
-		mes "I didn't really design it for the^FFFFFF ^000000 common user in mind. Well,";
+		mes "I didn't really design it for the common user in mind. Well,";
 		mes "why don't you try it again?";
 		erasequest 3106;
 		set diamond_edq,10;
@@ -4422,7 +4422,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 							mes "and vibrated violently";
 							mes "before coming to a sudden";
 							mes "stop. That was the wrong";
-							mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+							mes "switch. You'd better ask Dorian... ";
 							setquest 3106;
 							set diamond_edq,11;
 							close;
@@ -4448,7 +4448,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 								mes "and vibrated violently";
 								mes "before coming to a sudden";
 								mes "stop. That was the wrong";
-								mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+								mes "switch. You'd better ask Dorian... ";
 								setquest 3106;
 								set diamond_edq,11;
 								close;
@@ -4474,7 +4474,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 							mes "and vibrated violently";
 							mes "before coming to a sudden";
 							mes "stop. That was the wrong";
-							mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+							mes "switch. You'd better ask Dorian... ";
 							setquest 3106;
 							set diamond_edq,11;
 							close;
@@ -4500,7 +4500,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 								mes "and vibrated violently";
 								mes "before coming to a sudden";
 								mes "stop. That was the wrong";
-								mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+								mes "switch. You'd better ask Dorian... ";
 								setquest 3106;
 								set diamond_edq,11;
 								close;
@@ -4525,7 +4525,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 							mes "and vibrated violently";
 							mes "before coming to a sudden";
 							mes "stop. That was the wrong";
-							mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+							mes "switch. You'd better ask Dorian... ";
 							setquest 3106;
 							set diamond_edq,11;
 							close;
@@ -4551,7 +4551,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 								mes "and vibrated violently";
 								mes "before coming to a sudden";
 								mes "stop. That was the wrong";
-								mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+								mes "switch. You'd better ask Dorian... ";
 								setquest 3106;
 								set diamond_edq,11;
 								close;
@@ -4577,7 +4577,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 							mes "and vibrated violently";
 							mes "before coming to a sudden";
 							mes "stop. That was the wrong";
-							mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+							mes "switch. You'd better ask Dorian... ";
 							setquest 3106;
 							set diamond_edq,11;
 							close;
@@ -4603,7 +4603,7 @@ izlude_in,113,66,0	script	Strange Machine	111,{
 								mes "and vibrated violently";
 								mes "before coming to a sudden";
 								mes "stop. That was the wrong";
-								mes "switch. You'd better ask Dorian... ^FFFFFF ^000000";
+								mes "switch. You'd better ask Dorian... ";
 								setquest 3106;
 								set diamond_edq,11;
 								close;
@@ -5263,7 +5263,7 @@ alberta,102,80,3	script	Jhonnita	86,{
 				mes "I doubt you can afford them.";
 				mes "Jewels aren't cheap, you know?";
 				next;
-				if (Sex) {
+				if (Sex == SEX_MALE) {
 					mes "[Jhonnita]";
 					mes "Oh, I get it now. You want";
 					mes "to give one as a present to";
@@ -5859,7 +5859,7 @@ payon_in03,167,149,3	script	Wola	75,2,2,{
 			next;
 			switch(select("Will you go out with me?:Leblo's back medicine?")) {
 			case 1:
-				if (Sex) {
+				if (Sex == SEX_MALE) {
 					mes "[Wola]";
 					mes "^666666*Blush*^000000 But it's too";
 					mes "early for us to just go";
@@ -5948,7 +5948,7 @@ payon_in03,167,149,3	script	Wola	75,2,2,{
 		next;
 		switch(select("Will you go out with me?:Leblo's back medicine?")) {
 		case 1:
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "^666666*Blush*^000000 But it's too";
 				mes "early for us to just go";
 				mes "on a date. I'm sorry, it's...";
@@ -6965,7 +6965,7 @@ in_rogue,359,116,3	script	Marybell	747,{
 				mes "Can't tell what";
 				mes "you're saying exactly.";
 				next;
-				if (Sex) {
+				if (Sex == SEX_MALE) {
 					mes "[Marybell]";
 					mes "If this is some kind";
 					mes "of weird come-on, you'd";
@@ -7205,7 +7205,7 @@ in_rogue,359,116,3	script	Marybell	747,{
 		mes "[Marybell]";
 		mes "Oh, Gooho decoded everything?";
 		mes "Let's see... Something about";
-		mes "the Book of Forbidden Mystery...^FFFFFF ^000000 Ah. There we go! The location";
+		mes "the Book of Forbidden Mystery... Ah. There we go! The location";
 		mes "of the Z Gang's hideout!";
 		mes "Heh heh! We got 'em!";
 		next;
@@ -8078,8 +8078,8 @@ moc_ruins,90,67,3	script	Suspicious Man#1	99,2,2,{
 		mes "to get away from here.";
 		mes "Let's see what it says...";
 		next;
-		mes "^FFFFFF ^000000";
-		mes "^FFFFFF ^000000";
+		
+		
 		mes "^666666Kill " + strcharinfo(0) + ", meow.";
 		mes "That arrogant do-gooder";
 		mes "is looking into us too much.";
@@ -8246,7 +8246,7 @@ OnTimer30000:
 	set $@zdan,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	if ((zdan_edq == 9) && ($@zdan == 0)) {
 		set $@zdan,1;
 		initnpctimer;
@@ -8275,8 +8275,8 @@ OnTouch:
 		mes "to get away from here.";
 		mes "Let's see what it says...";
 		next;
-		mes "^FFFFFF ^000000";
-		mes "^FFFFFF ^000000";
+		
+		
 		mes "^666666Kill " + strcharinfo(0) + ", meow.";
 		mes "That arrogant do-gooder";
 		mes "is looking into us too much.";
@@ -8325,8 +8325,8 @@ moc_ruins,78,167,3	script	Suspicious Man#2	99,2,2,{
 		mes "to get away from here.";
 		mes "Let's see what it says...";
 		next;
-		mes "^FFFFFF ^000000";
-		mes "^FFFFFF ^000000";
+		
+		
 		mes "^666666Kill " + strcharinfo(0) + ", meow.";
 		mes "That arrogant do-gooder";
 		mes "is looking into us too much.";
@@ -8524,8 +8524,8 @@ OnTouch:
 		mes "to get away from here.";
 		mes "Let's see what it says...";
 		next;
-		mes "^FFFFFF ^000000";
-		mes "^FFFFFF ^000000";
+		
+		
 		mes "^666666Kill " + strcharinfo(0) + ", meow.";
 		mes "That arrogant do-gooder";
 		mes "is looking into us too much.";
@@ -8733,7 +8733,7 @@ OnTouch:
 }
 
 z_agit,98,44,0	script	EntranceCheck#1	-1,10,10,{
-OnTouch:
+OnTouch_:
 	if (((zdan_edq == 15) || (zdan_edq == 16)) && ($@monster_zgang == 0)) {
 		set $@monster_zgang,1;
 		donpcevent "#zdan_broad::OnEnable";
@@ -8762,7 +8762,7 @@ OnTouch:
 }
 
 z_agit,98,92,0	script	EntranceCheck#2	-1,10,10,{
-OnTouch:
+OnTouch_:
 	if (((zdan_edq == 15) || (zdan_edq == 16)) && ($@monster_zgang == 0)) {
 		set $@monster_zgang,1;
 		donpcevent "#zdan_broad::OnEnable";
@@ -9407,7 +9407,7 @@ morocc,143,63,3	script	Ragged Man#nd	929,{
 						mes "the hands of someone like";
 						mes "you than a rival treasure";
 						mes "hunter. This hunter that";
-						mes "stays north in town apparently^FFFFFF ^000000 confirmed the treasure's location.";
+						mes "stays north in town apparently confirmed the treasure's location.";
 						next;
 						mes "[Ragged Man]";
 						mes "Now, I hear that this guy";
@@ -9478,7 +9478,7 @@ morocc,143,63,3	script	Ragged Man#nd	929,{
 				mes "he hands of someone like";
 				mes "you than a rival treasure";
 				mes "hunter. This hunter that";
-				mes "stays north in town apparently^FFFFFF ^000000 confirmed the treasure's location.";
+				mes "stays north in town apparently confirmed the treasure's location.";
 				next;
 				mes "[Ragged Man]";
 				mes "Now, I hear that this guy";
@@ -9512,7 +9512,7 @@ morocc,143,63,3	script	Ragged Man#nd	929,{
 		mes "Ah, you must be having";
 		mes "trouble finding that guy";
 		mes "I was talking about. He's";
-		mes "just in the northern part of^FFFFFF ^000000 this town. It can't be that hard.";
+		mes "just in the northern part of this town. It can't be that hard.";
 		close;
 	}
 	else if (treasure_nd > 10) {
@@ -9537,7 +9537,7 @@ morocc,143,63,3	script	Ragged Man#nd	929,{
 		mes "So how's the treasure";
 		mes "hunt coming along? I hope";
 		mes "you have better luck than";
-		mes "I did. Still, I've got a pretty^FFFFFF ^000000 good feeling that you'll find it.";
+		mes "I did. Still, I've got a pretty good feeling that you'll find it.";
 		close;
 	}
 }
@@ -10340,7 +10340,7 @@ comodo,139,184,3	script	Scholar#zgang	742,{
 		mes "jewel came into a rich man's";
 		mes "possession. However, he lost";
 		mes "his fortune and was completely";
-		mes "ruined after obtaining it. Hence ^FFFFFF ^000000 the moniker, ''Unlucky Emerald.''";
+		mes "ruined after obtaining it. Hence  the moniker, ''Unlucky Emerald.''";
 		next;
 		mes "[Scholar]";
 		mes "Then the emerald came into";

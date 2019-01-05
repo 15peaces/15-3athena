@@ -941,19 +941,21 @@ turbo_room,106,117,3	script	Point Manager#tt	833,{
 	}
 
 S_ExchangePoints:
+	set .@points, getarg(1);
+	
 	if (tt_point > getarg(0)) {
 		mes "[Turbo Track Point Manager]";
 		mes "Unfortunately, your Turbo Track Points will exceed the maximum limit if we proceed with point conversion. Please spend more";
 		mes "of your Turbo Track Points before using this service. Thank you.";
 		close;
 	}
-	if (arena_point >= getarg(1)) {
+	if (arena_point >= .@points) {
 		mes "[Turbo Track Point Manager]";
 		mes "As requested,";
 		mes "2 Arena Points";
 		mes "have been converted";
 		mes "into 1 Turbo Track Point.";
-		set arena_point,arena_point-getarg(1);
+		set arena_point,arena_point-.@points;
 		set tt_point,tt_point+getarg(2);
 		next;
 		mes "[Turbo Track Point Manager]";

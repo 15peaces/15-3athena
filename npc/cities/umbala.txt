@@ -136,7 +136,7 @@ comodo,171,137,1	script	Haith#um	92,{
 	mes "[Haith]";
 	mes "Bah! Whatever~";
 	emotion e_hmm;
-	emotion e_hmm;
+	emotion e_hmm,0,"La Ed#um";
 	close;
 }
 
@@ -268,7 +268,7 @@ umbala,70,106,3	script	Utan Kid#um	781,{
 		mes "Can donate some money for";
 		mes "re-constructing my parents' house?";
 		mes "You Rune-Midgardians are all";
-		mes "richier than Utans! I beg you!";
+		mes "richer than Utans! I beg you!";
 		emotion e_heh;
 		next;
 		if (select("(Nod head):(Shake head)") == 1) {
@@ -1003,7 +1003,7 @@ um_in,158,71,3	script	Utan villager#um	787,{
 }
 
 umbala,140,197,1	script	Bungee Jump	-1,0,0,{
-OnTouch:
+OnTouch_:
 	switch(rand(1,3)) {
 	case 1:
 		percentheal -100,0;
@@ -1023,7 +1023,7 @@ OnTouch:
 }
 
 umbala,136,195,0	script	 #jump	-1,1,1,{
-OnTouch:
+OnTouch_:
 	warp "umbala",145,166;
 	end;
 }

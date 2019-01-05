@@ -18,7 +18,7 @@ set @cost,500;
 mes "[Banker]";
 mes "Welcome to the First Bank of Prontera. How can I help you today?";
 next;
-menu "I'd like to make a deposit.",Ldeposit,"I'd like to make a withdrawl.",Lwithdrawl,"What's my current balance?",Lbalance,"Cancel",Lcancel;
+menu "I'd like to make a deposit.",Ldeposit,"I'd like to make a withdrawal.",Lwithdrawal,"What's my current balance?",Lbalance,"Cancel",Lcancel;
 
 Ldeposit:
 	mes "[Banker]";
@@ -45,7 +45,7 @@ Ldepocont:
 	mes "Thank you very much... Your zeny is in good hands.";
 	close;
 
-Lwithdrawl:
+Lwithdrawal:
 	mes "[Banker]";
 	mes "Very well... How much would you like to withdraw? The maximum you can withdraw at one time is 999,999 Zeny";
 	next;
@@ -59,23 +59,23 @@ Lwithdrawl:
 		goto Lwithcont;
 
 Lwithcont:
-	input @withdrawl;
-	if (@withdrawl < 1) goto Lrealamount;
-	if (@withdrawl > #BANKVAULT) goto Lneedzeny3;
-	if ((@cost > Zeny) && ((Zeny + @withdrawl) > @cost)) goto Lcostask; 
+	input @withdrawal;
+	if (@withdrawal < 1) goto Lrealamount;
+	if (@withdrawal > #BANKVAULT) goto Lneedzeny3;
+	if ((@cost > Zeny) && ((Zeny + @withdrawal) > @cost)) goto Lcostask; 
 	if (@cost > Zeny) goto Lneedzeny2;
 	goto Lwithcont2;
 
 	Lcostask:
 		mes "[Banker]";
-		mes "You don't have the Zeny for the transaction fee right now. Would you like me to take the fee directly from your withdrawl?";
+		mes "You don't have the Zeny for the transaction fee right now. Would you like me to take the fee directly from your withdrawal?";
 		next;
 		menu "Yes please.",Lwithtake,"No thank you.",Lcancel;
 
 	Lwithtake:
 		mes "[Banker]";
 		mes "Ok then.";
-		set @withdrawl,@withdrawl - @cost;
+		set @withdrawal,@withdrawal - @cost;
 		set #BANKVAULT,#BANKVAULT - @cost;
 		set @cost,0;
 		next;
@@ -83,8 +83,8 @@ Lwithcont:
 
 Lwithcont2:
 	set Zeny,Zeny - @cost;
-	set Zeny,Zeny + @withdrawl;
-	set #BANKVAULT,#BANKVAULT - @withdrawl;
+	set Zeny,Zeny + @withdrawal;
+	set #BANKVAULT,#BANKVAULT - @withdrawal;
 	mes "[Banker]";
 	mes "There's your Zeny. Have a good day.";
 	close;

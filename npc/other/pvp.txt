@@ -283,9 +283,10 @@ payon_in01,140,53,4	duplicate(gkut)	Gate Keeper#gke5	83
 
 function	script	F_PVP_FSRS	{
 	if (getargcount()) {
-		if (BaseLevel < getarg(0) || BaseLevel > getarg(1)) {
+		setarray .@lvl[0], getarg(0), getarg(1);
+		if (BaseLevel < .@lvl[0] || BaseLevel > .@lvl[1]) {
 			mes "[PVP Fight Square Reception Staff]";
-			mes "Sorry, but you base level has to be between LV "+getarg(0)+" and LV "+getarg(1)+".";
+			mes "Sorry, but you base level has to be between LV "+ .@lvl[0] +" and LV "+ .@lvl[1] +".";
 			close;
 		}
 	}
@@ -470,7 +471,7 @@ pvp_room,86,85,4	duplicate(PVPSpectator)	Spectator's Entrance#4	105
 // Spectator Warps
 //============================================================
 -	script	Combat Square Staff#dum::PVPSpecWarp	-1,{
-OnTouch:
+OnTouch_:
 	mes "[Combat Square Staff]";
 	mes "May I help you?";
 	if (select("To the center viewer seat.:Leave Combat Square.") == 1) {
@@ -505,7 +506,7 @@ pvp_2vs2,40,40,0	script	Combat Square Staff#5	45,1,1,{
 // PVP Area Exit warp
 //============================================================
 pvp_room,51,19,0	script	out#eventpvp	45,4,2,{
-OnTouch:
+OnTouch_:
 	mes "[Combat Square Staff]";
 	mes "Did you have fun in Combat Square?";
 	mes "May I ask where you want to go?";

@@ -485,6 +485,7 @@ typedef enum {
 	CELL_NOCHAT,
 	CELL_PVP,	// Cell PVP [Napster]
 	CELL_MAELSTROM,
+	CELL_ICEWALL,
 } cell_t;
 
 // used by map_getcell()
@@ -526,7 +527,8 @@ struct mapcell
 		novending : 1,
 		nochat : 1,
 		pvp : 1,	// Cell PVP [Napster]
-		maelstrom : 1;
+		maelstrom : 1,
+		icewall: 1;
 
 #ifdef CELL_NOSTACK
 	unsigned char cell_bl; //Holds amount of bls in this cell.
@@ -760,7 +762,9 @@ struct map_session_data * map_nick2sd(const char*);
 struct mob_data * map_getmob_boss(int m);
 struct mob_data * map_id2boss(int id);
 
+static void map_free_questinfo(int m);
 struct questinfo *map_add_questinfo(int m, struct questinfo *qi);
+struct questinfo *map_has_questinfo(int m, struct npc_data *nd, int quest_id);
 
 /// Bitfield of flags for the iterator.
 enum e_mapitflags

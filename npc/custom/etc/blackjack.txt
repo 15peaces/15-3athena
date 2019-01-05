@@ -92,7 +92,7 @@ cmd_in02,188,89,1	script	Black Jack Dealer	57,{
 			mes "[Dealer]";
 			mes "The 'Double Down' option allows you to double your current bet,";
 			mes "but with the drawback that you will only be able to pull one";
-			mes "additional card.  This option is only available at the beggining of";
+			mes "additional card.  This option is only available at the beginning of";
 			mes "each round.";
 			next;
 			mes "[Dealer]";
@@ -119,8 +119,8 @@ cmd_in02,188,89,1	script	Black Jack Dealer	57,{
 			mes "point total over 21 and would have lost.";
 			next;
 			mes "[Dealer]";
-			mes "It is because of the flexibilty you have with the 'Ace' that makes";
-			mes "it the most powerfull card in the game.";
+			mes "It is because of the flexibility you have with the 'Ace' that makes";
+			mes "it the most powerful card in the game.";
 			goto sM_Menu0;
 	M_End:
 		mes "[Dealer]";

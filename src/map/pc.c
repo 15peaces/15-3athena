@@ -1114,6 +1114,9 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	for( i = 0; i < 3; i++ )
 		sd->hate_mob[i] = -1;
 
+	sd->qi_display = NULL;
+	sd->qi_count = 0;
+
 	//warp player
 	if ((i=pc_setpos(sd,sd->status.last_point.map, sd->status.last_point.x, sd->status.last_point.y, CLR_OUTSIGHT)) != 0) {
 		ShowError ("Last_point_map %s - id %d not found (error code %d)\n", mapindex_id2name(sd->status.last_point.map), sd->status.last_point.map, i);
@@ -5648,6 +5651,11 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 
 	if(sd->status.party_id)
 		party_send_levelup(sd);
+
+#if PACKETVER >= 20090218
+	pc_show_questinfo(sd);
+#endif
+
 	return 1;
 }
 
@@ -7553,6 +7561,10 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	pc_checkallowskill(sd);
 	pc_equiplookall(sd);
 	pc_update_job_and_level(sd);
+
+#if PACKETVER >= 20090218
+	pc_show_questinfo(sd);
+#endif
 
 	//if you were previously famous, not anymore.
 	if (fame_flag) {

@@ -1559,7 +1559,7 @@ if(quiz_rvl == 18) {
 								mes "^191970Grasshopper's Leg^000000 30";
 								mes "^191970Bear's Footskin^000000 30";
 								mes "^1919701Carat Diamond^000000 1";
-								mes "";
+								
 								next;
 								mes "^800000[Radeng]^000000";
 								mes "I'm sorry.";
@@ -1606,7 +1606,7 @@ if(quiz_rvl == 18) {
 								mes "Have passed all tests.";
 								mes "Congratulations";
 								mes "And this is your compensation ";
-								mes "";
+								
 								set quiz_rvl,18;
 								getitem 504,10;  //White_Potion
 								next;

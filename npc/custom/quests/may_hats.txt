@@ -18,7 +18,7 @@ gonryun,187,140,4	script	Yakima	850,{
  mes "[Yakima]";
  mes callfunc("F_Hi");
  mes "I can make some items for you.";
- mes "They are quite rare novadays...";
+ mes "They are quite rare nowadays...";
  specialeffect 417;
  next;
  menu "Bird Nest",-,"Lion Mask",M_2,"Skeleton Manteau",M_3,"Fashion Hip Sack",M_4,"Sales Banner",M_5,"Leave",M_EXIT;
@@ -106,33 +106,33 @@ M_3:
  close;
 
 M_4:
- mes "[Yakima]";
- mes "It's a fresh style! Ancessory and a bag all in one! You'd get +2 STR... It's different from that sabby nest!";
- mes "It fits to Merchant classonly.";
- emotion e_heh;
- next;
- mes "[Yakima]";
- mes "Now my stock is full of those bags... So I'll make it from 3 flower things and a rough piece of clothes:";
- mes "3 Romantic Flowers,";
- mes "3 Fancy Flowers,";
- mes "2 Flower Rings and";
- mes "3 Pirate Bandanas.";
- next;
- mes "[Yakima]";
- mes "Do you have all the items?";
- next;
- menu "Yeah.",-,"Nay.",M_EXIT;
+	mes "[Yakima]";
+	mes "It's a fresh style! Accessory and a bag all in one! You'd get +2 STR... It's different from that sabby nest!";
+	mes "It fits to Merchant class only.";
+	emotion e_heh;
+	next;
+	mes "[Yakima]";
+	mes "Now my stock is full of those bags... So I'll make it from 3 flower things and a rough piece of clothes:";
+	mes "3 Romantic Flowers,";
+	mes "3 Fancy Flowers,";
+	mes "2 Flower Rings and";
+	mes "3 Pirate Bandanas.";
+	next;
+	mes "[Yakima]";
+	mes "Do you have all the items?";
+	next;
+	menu "Yeah.",-,"Nay.",M_EXIT;
  
- if(countitem(2269) < 3 || countitem(2207) < 3 || countitem(2612) < 2 || countitem(2287)<3 ) GOTO L_NOITEM;//Items: Romantic_Flower, Fancy_Flower, Flower_Ring,
- delitem 2269,3;//Items: Romantic_Flower,
- delitem 2207,3;//Items: Fancy_Flower,
- delitem 2612,2;//Items: Flower_Ring,
- delitem 2287,3;//Items: Pirate_Bandana
- getitem 2641,1;//Items: Fashion_Hip_Sack,
- mes "[Yakima]";
- mes "Thank you very very much!";
- mes callfunc("F_Bye");
- close;
+	 if(countitem(2269) < 3 || countitem(2207) < 3 || countitem(2612) < 2 || countitem(2287)<3 ) GOTO L_NOITEM;//Items: Romantic_Flower, Fancy_Flower, Flower_Ring,
+	 delitem 2269,3;//Items: Romantic_Flower,
+	 delitem 2207,3;//Items: Fancy_Flower,
+	 delitem 2612,2;//Items: Flower_Ring,
+	 delitem 2287,3;//Items: Pirate_Bandana
+	 getitem 2641,1;//Items: Fashion_Hip_Sack,
+	 mes "[Yakima]";
+	 mes "Thank you very very much!";
+	 mes callfunc("F_Bye");
+	 close;
 
 M_5:
  mes "[Yakima]";

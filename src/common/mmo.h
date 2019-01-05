@@ -50,8 +50,8 @@
 
 #ifndef PACKETVER
 	//#define PACKETVER 20131223 //Stable client [15peaces]
-	#define PACKETVER 20141022 //Stable client [15peaces]
-	//#define PACKETVER 20151029 //Experimental client [15peaces]
+	//#define PACKETVER 20141022 //Stable client [15peaces]
+	#define PACKETVER 20151029 //Experimental client [15peaces]
 
 #endif
 
@@ -64,6 +64,9 @@
 #undef PACKETVER
 #define PACKETVER 20071106
 #endif
+
+/// Check if the client needs delete_date as remaining time and not the actual delete_date (actually it was tested for clients since 2013)
+#define PACKETVER_CHAR_DELETEDATE (PACKETVER > 20130000 && PACKETVER < 20141016) || PACKETVER >= 20150826
 
 //Remove/Comment this line to disable sc_data saving. [Skotlex]
 #define ENABLE_SC_SAVING 
@@ -122,7 +125,7 @@
 #define MAX_GUILDCASTLE 34	// Updated to include new entries for WoE:SE. [L0ne_W0lf]
 #define MAX_GUILDLEVEL 50
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
-#define MAX_QUEST_DB 2540 //Max quests that the server will load
+#define MAX_QUEST_DB 2680 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
 #define MAX_ITEM_RDM_OPT 5	 /// Max item random option [Napster] 

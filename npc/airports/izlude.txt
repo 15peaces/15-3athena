@@ -1,22 +1,23 @@
-//===== rAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Izlude Airport NPCs
 //===== By: ================================================== 
 //= rAthena Dev Team
+//===== Current Version: =====================================
+//= 1.1
 //===== Compatible With: ===================================== 
-//= rAthena SVN
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Izlude Airport NPCs
 //===== Additional Comments: ================================= 
-//= Official NPCs.
-//= Updated to match the new Izlude Map. [Masao]
-//= Updated to Official coordinates
+//= 1.0 Updated to match the new Izlude Map. [Masao]
+//= 1.1 Added Izlude duplicates. Thanks to Euphy. [15peaces]
 //============================================================ 
 
-izlude,202,75,3	script	Airship Staff#izlude	90,{
+-	script	::Airship_Staff_izlude	-1,{
 	mes "[Airship Staff]";
 	mes "Welcome! Would you like";
 	mes "to board the Airship that";
-	mes "departs on the flight wich stops";
+	mes "departs on the flight which stops";
 	mes "in Juno and Rachel?";
 	next;
 	if (select("Board the Airship to Juno/Rachel.:Cancel.") == 1) {
@@ -51,3 +52,9 @@ izlude,202,75,3	script	Airship Staff#izlude	90,{
 	mes "Have a good day~";
 	close;
 }
+
+izlude,202,75,3	duplicate(Airship_Staff_izlude)	Airship Staff#izlude	90
+izlude_a,202,75,3	duplicate(Airship_Staff_izlude)	Airship Staff#izlude_a	90
+izlude_b,202,75,3	duplicate(Airship_Staff_izlude)	Airship Staff#izlude_b	90
+izlude_c,202,75,3	duplicate(Airship_Staff_izlude)	Airship Staff#izlude_c	90
+izlude_d,202,75,3	duplicate(Airship_Staff_izlude)	Airship Staff#izlude_d	90

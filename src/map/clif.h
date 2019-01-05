@@ -131,6 +131,25 @@ enum BROADCASTING_SPECIAL_ITEM_OBTAIN {
 	ITEMOBTAIN_TYPE_NPC =  0x2,
 };
 
+typedef enum broadcast_flags {
+	BC_ALL = 0,
+	BC_MAP = 1,
+	BC_AREA = 2,
+	BC_SELF = 3,
+	BC_TARGET_MASK = 0x07,
+
+	BC_PC = 0x00,
+	BC_NPC = 0x08,
+	BC_SOURCE_MASK = 0x08, // BC_PC|BC_NPC
+
+	BC_YELLOW = 0x00,
+	BC_BLUE = 0x10,
+	BC_WOE = 0x20,
+	BC_COLOR_MASK = 0x30, // BC_YELLOW|BC_BLUE|BC_WOE
+
+	BC_DEFAULT = BC_ALL | BC_PC | BC_YELLOW
+} broadcast_flags;
+
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len
@@ -183,7 +202,7 @@ typedef enum emotion_type
 	E_LV,
 	E_SWT,
 	E_IC,
-	E_AN,
+	E_AN,			// ET_FRET
 	E_AG,
 	E_CASH,         // /$
 	E_DOTS,         // /...
@@ -585,7 +604,8 @@ void clif_storageclose(struct map_session_data* sd);
 int clif_insight(struct block_list *bl,va_list ap);	// map_forallinmovearea callback
 int clif_outsight(struct block_list *bl,va_list ap);	// map_forallinmovearea callback
 
-void clif_class_change(struct block_list *bl,int class_,int type);
+void clif_class_change_target(struct block_list *bl, int class_, int type, enum send_target target, struct map_session_data *sd);
+#define clif_class_change(bl, class_, type) clif_class_change_target(bl, class_, type, AREA, NULL)
 #define clif_mob_class_change(md, class_) clif_class_change(&md->bl, class_, 1)
 
 void clif_skillupdateinfoblock(struct map_session_data *sd);
@@ -974,5 +994,7 @@ void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *ms
 void clif_broadcast_obtain_special_item(struct map_session_data* sd, const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname);
 
 void clif_dressing_room(struct map_session_data *sd, int view);
+
+void clif_navigateTo(struct map_session_data *sd, const char* map, uint16 x, uint16 y, uint8 flag, bool hideWindow, uint16 mob_id);
 
 #endif /* _CLIF_H_ */

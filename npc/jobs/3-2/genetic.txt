@@ -47,7 +47,7 @@ alde_alche,35,186,5	script	Alchemist Union Member	805,{
 				mes "You are very knowledgeable. Do you think you might understand her work?";
 				next;
 				mes "[Alchemist Union Member]";
-				mes "Her study may help you gain the knowledge to help you make a Geneticist!";;
+				mes "Her study may help you gain the knowledge to help you make a Geneticist!";
 				next;
 				mes "[Alchemist Union Member]";
 				mes "How's that sound? Do you want to meet a Geneticist?";
@@ -1014,7 +1014,7 @@ job3_gen01,85,25,1	script	Opened Book#gen	111,{
 }
 
 job3_gen01,81,81,0	script	#dbroom	139,2,2,{
-OnTouch:
+OnTouch_:
 	mes "- It's a room that looks like a storehouse, thanks to so many parcels piled up in the room. -";
 	close;
 }

@@ -1,11 +1,11 @@
-//===== rAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= War of Emperium Guild Template File
 //===== By: ==================================================
 //= L0ne_W0lf
 //===== Current Version: =====================================
-//= 1.9
+//= 1.9a
 //===== Compatible With: =====================================
-//= rAthena SVN
+//= 15-3athena project
 //===== Description: =========================================
 //= [ Aegis Conversion]
 //= ----------------------------------------------------------
@@ -51,6 +51,7 @@
 //=     and added extended anouncement format for mapannounce.
 //= 1.8 Fixed a possible exploit in guild castle investment. [Brian]
 //= 1.9 Partially rewrote Script. [Masao]
+//= 1.9a Fixed incorrect setcastledata parameter. Thanks to Euphy. [15peaces]
 //============================================================
 
 // WoE : Main Functions
@@ -158,7 +159,7 @@ OnGuildBreak:
 	// Kill guardians, disable the Kafra, and set owner to 0.
 	killmonster strnpcinfo(2),"Guardian#"+strnpcinfo(2)+"::OnGuardianDied";
 	disablenpc "Kafra Staff#"+strnpcinfo(2);
-	SetCastleData strnpcinfo(2),0,0;
+	SetCastleData strnpcinfo(2),1,0;
 	// Wait before refreshing guild information.
 	sleep 7000;
 	Announce "Guild Base [" + GetCastleName(strnpcinfo(2)) + "] has been abandoned.",0;
@@ -347,7 +348,7 @@ OnRecvCastle:
 		next;
 		switch (select("Use Storage:Use Teleport Service:Rent a Pushcart:Cancel")) {
 		case 1:
-			if (getskilllv("NV_BASIC") < 6) {
+			if(!callfunc("F_CanOpenStorage")){
 				mes "[Kafra Employee]";
 				mes "I'm sorry, but you";
 				mes "need the Novice's";
@@ -384,7 +385,7 @@ OnRecvCastle:
 					end;
 				}
 				set Zeny, Zeny - 200;
-				set RESRVPTS,RESRVPTS+2;
+				set RESRVPTS,RESRVPTS+20;
 				close2;
 				warp .@destination$[1],.@coordinates[0],.@coordinates[1];
 				end;
@@ -434,7 +435,7 @@ OnRecvCastle:
 					cutin "",255;
 					end;
 				}
-				set RESRVPTS,RESRVPTS+8;
+				set RESRVPTS,RESRVPTS+80;
 				set Zeny, Zeny - 800;
 				setcart;
 				close2;

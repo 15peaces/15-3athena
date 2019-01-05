@@ -7053,6 +7053,36 @@ BUILDIN_FUNC(repair)
 }
 
 /*==========================================
+* repairall {<char_id>}
+*------------------------------------------*/
+BUILDIN_FUNC(repairall)
+{
+	int i, repaircounter = 0;
+	TBL_PC *sd;
+
+	if (!script_charid2sd(2, sd))
+		return 1;
+
+	for (i = 0; i < MAX_INVENTORY; i++)
+	{
+		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].attribute)
+		{
+			sd->inventory.u.items_inventory[i].attribute = 0;
+			clif_produceeffect(sd, 0, sd->inventory.u.items_inventory[i].nameid);
+			repaircounter++;
+		}
+	}
+
+	if (repaircounter)
+	{
+		clif_misceffect(&sd->bl, 3);
+		clif_equiplist(sd);
+	}
+
+	return 0;
+}
+
+/*==========================================
  * 装備チェック
  *------------------------------------------*/
 BUILDIN_FUNC(getequipisequiped)
@@ -11876,21 +11906,45 @@ BUILDIN_FUNC(undisguise)
 	return 0;
 }
 
-/*==========================================
- * NPCクラスチェンジ
- * classは変わりたいclass
- * typeは通常0なのかな？
- *------------------------------------------*/
+/**
+* Transform an NPC to another _class
+*
+* classchange(<view id>{,"<NPC name>","<flag>"});
+* @param flag: Specify target
+*   BC_AREA - Sprite is sent to players in the vicinity of the source (default).
+*   BC_SELF - Sprite is sent only to player attached.
+*/
 BUILDIN_FUNC(classchange)
 {
-	int _class,type;
-	struct block_list *bl=map_id2bl(st->oid);
+	int _class, type = 1;
+	struct npc_data* nd = NULL;
+	TBL_PC *sd = map_id2sd(st->rid);
+	send_target target = AREA;
 
-	if(bl==NULL) return 0;
+	_class = script_getnum(st, 2);
 
-	_class=script_getnum(st,2);
-	type=script_getnum(st,3);
-	clif_class_change(bl,_class,type);
+	if (script_hasdata(st, 3) && strlen(script_getstr(st, 3)) > 0)
+		nd = npc_name2id(script_getstr(st, 3));
+	else
+		nd = (struct npc_data *)map_id2bl(st->oid);
+
+	if (nd == NULL)
+		return 0;
+
+	if (script_hasdata(st, 4)) {
+		switch (script_getnum(st, 4)) {
+		case BC_SELF:	target = SELF;			break;
+		case BC_AREA:
+		default:		target = AREA;			break;
+		}
+	}
+	if (target != SELF)
+		clif_class_change(&nd->bl, _class, type);
+	else if (sd == NULL)
+		return 1;
+	else
+		clif_class_change_target(&nd->bl, _class, type, target, sd);
+
 	return 0;
 }
 
@@ -12757,23 +12811,39 @@ BUILDIN_FUNC(message)
 }
 
 /*==========================================
- * npctalk (sends message to surrounding area)
- *------------------------------------------*/
+* npctalk (sends message to surrounding area)
+* usage: npctalk("<message>"{, "<npc name>"{, <hide_name>}});
+*------------------------------------------*/
 BUILDIN_FUNC(npctalk)
 {
-	struct npc_data* nd = NULL;
-	const char* str = script_getstr(st,2);
+	struct npc_data* nd;
+	const char *str = script_getstr(st, 2);
+	bool hide_name = false;
 
-	if (script_hasdata(st, 3))
+	if (script_hasdata(st, 3)) {
 		nd = npc_name2id(script_getstr(st, 3));
-	else
-		nd = (struct npc_data *)map_id2bl(st->oid);
-	if (nd != NULL)
-	{
-		char message[256];
-		safesnprintf(message, sizeof(message), "%s", str);
+	}
+	else {
+		nd = map_id2nd(st->oid);
+	}
+
+	if (script_hasdata(st, 4)) {
+		hide_name = (script_getnum(st, 4) == 0) ? true : false;
+	}
+
+	if (nd != NULL) {
+		char name[NAME_LENGTH], message[256];
+		safestrncpy(name, nd->name, sizeof(name));
+		strtok(name, "#"); // discard extra name identifier if present
+		if (hide_name) {
+			safesnprintf(message, sizeof(message), "%s", str);
+		}
+		else {
+			safesnprintf(message, sizeof(message), "%s : %s", name, str);
+		}
 		clif_disp_overhead(&nd->bl, message);
 	}
+
 	return 0;
 }
 
@@ -16110,22 +16180,33 @@ BUILDIN_FUNC(unitstopwalk)
 
 /// Makes the unit say the given message.
 ///
-/// unittalk <unit_id>,"<message>";
+/// unittalk <unit_id>,"<message>"{,hide_name};
 BUILDIN_FUNC(unittalk)
 {
 	int unit_id;
 	const char* message;
 	struct block_list* bl;
+	bool hide_name = false;
 
 	unit_id = script_getnum(st,2);
 	message = script_getstr(st, 3);
+
+	if (script_hasdata(st, 4)) {
+		hide_name = (script_getnum(st, 4) == 0) ? true : false;
+	}
 
 	bl = map_id2bl(unit_id);
 	if( bl != NULL ) {
 		struct StringBuf sbuf;
 
 		StringBuf_Init(&sbuf);
-		StringBuf_Printf(&sbuf, "%s : %s", status_get_name(bl), message);
+
+		if (hide_name) {
+			StringBuf_Printf(&sbuf, "%s", message);
+		}
+		else {
+			StringBuf_Printf(&sbuf, "%s : %s", status_get_name(bl), message);
+		}
 		clif_disp_overhead(bl, StringBuf_Value(&sbuf));
 		if( bl->type == BL_PC )
 			clif_displaymessage(((TBL_PC*)bl)->fd, StringBuf_Value(&sbuf));
@@ -16753,6 +16834,11 @@ BUILDIN_FUNC(setquest)
 	TBL_PC * sd = script_rid2sd(st);
 
 	quest_add(sd, script_getnum(st, 2));
+
+#if PACKETVER >= 20120410
+	pc_show_questinfo(sd);
+#endif
+
 	return 0;
 }
 
@@ -16769,6 +16855,11 @@ BUILDIN_FUNC(completequest)
 	TBL_PC * sd = script_rid2sd(st);
 
 	quest_update_status(sd, script_getnum(st, 2), Q_COMPLETE);
+
+#if PACKETVER >= 20120410
+	pc_show_questinfo(sd);
+#endif
+
 	return 0;
 }
 
@@ -16777,6 +16868,11 @@ BUILDIN_FUNC(changequest)
 	TBL_PC * sd = script_rid2sd(st);
 
 	quest_change(sd, script_getnum(st, 2),script_getnum(st, 3));
+
+#if PACKETVER >= 20120410
+	pc_show_questinfo(sd);
+#endif
+
 	return 0;
 }
 
@@ -18940,6 +19036,127 @@ BUILDIN_FUNC(unloadnpc) {
 	return 0;
 }
 
+/**
+* Set the quest info of quest_id only showed on player in level range.
+* setquestinfo_level <quest_id>,<min_level>,<max_level>
+* @author [Cydh]
+**/
+BUILDIN_FUNC(setquestinfo_level) {
+	TBL_NPC* nd = map_id2nd(st->oid);
+	int quest_id = script_getnum(st, 2);
+	struct questinfo *qi = map_has_questinfo(nd->bl.m, nd, quest_id);
+
+	if (!qi) {
+		ShowError("buildin_setquestinfo_level: Quest with '%d' is not defined yet.\n", quest_id);
+		return 1;
+	}
+
+	qi->min_level = script_getnum(st, 3);
+	qi->max_level = script_getnum(st, 4);
+	if (!qi->max_level)
+		qi->max_level = MAX_LEVEL;
+
+	return 0;
+}
+
+/**
+* Set the quest info of quest_id only showed for player that has quest criteria
+* setquestinfo_req <quest_id>,<quest_req_id>,<state>{,<quest_req_id>,<state>,...};
+* @author [Cydh]
+**/
+BUILDIN_FUNC(setquestinfo_req) {
+	TBL_NPC* nd = map_id2nd(st->oid);
+	int quest_id = script_getnum(st, 2);
+	struct questinfo *qi = map_has_questinfo(nd->bl.m, nd, quest_id);
+	uint8 i = 0;
+	uint8 num = script_lastdata(st) + 1;
+
+	if (!qi) {
+		ShowError("buildin_setquestinfo_req: Quest with '%d' is not defined yet.\n", quest_id);
+		return 1;
+	}
+
+	if ((num + 1) % 2 != 0) {
+		ShowError("buildin_setquestinfo_req: Unmatched parameters. Num: '%d'\n", num);
+		return 1;
+	}
+
+	for (i = 3; i < num; i += 2) {
+		RECREATE(qi->req, struct questinfo_req, qi->req_count + 1);
+		qi->req[qi->req_count].quest_id = script_getnum(st, i);
+		qi->req[qi->req_count].state = (script_getnum(st, i + 1) >= 2) ? 2 : (script_getnum(st, i + 1) <= 0) ? 0 : 1;
+		qi->req_count++;
+	}
+
+	return 0;
+}
+
+/**
+* Set the quest info of quest_id only showed for player that has specified Job
+* setquestinfo_job <quest_id>,<job>{,<job>...};
+* @author [Cydh]
+**/
+BUILDIN_FUNC(setquestinfo_job) {
+	TBL_NPC* nd = map_id2nd(st->oid);
+	int quest_id = script_getnum(st, 2);
+	struct questinfo *qi = map_has_questinfo(nd->bl.m, nd, quest_id);
+	int job_id = 0;
+	uint8 i = 0;
+	uint8 num = script_lastdata(st) + 1;
+
+	if (!qi) {
+		ShowError("buildin_setquestinfo_job: Quest with '%d' is not defined yet.\n", quest_id);
+		return 1;
+	}
+
+	for (i = 3; i < num; i++) {
+		job_id = script_getnum(st, i);
+		if (!pcdb_checkid(job_id)) {
+			ShowError("buildin_setquestinfo_job: Invalid job with id '%d'.\n", job_id);
+			continue;
+		}
+
+		buildin_questinfo_setjob(qi, job_id);
+	}
+
+	return 0;
+}
+
+/**
+* navigateto("<map>"{,<x>,<y>,<flag>,<hide_window>,<monster_id>,<char_id>});
+*/
+BUILDIN_FUNC(navigateto){
+#if PACKETVER >= 20111010
+	TBL_PC* sd;
+	const char *map;
+	uint16 x = 0, y = 0, monster_id = 0;
+	uint8 flag = NAV_KAFRA_AND_AIRSHIP;
+	bool hideWindow = true;
+
+	map = script_getstr(st, 2);
+
+	if (script_hasdata(st, 3))
+		x = script_getnum(st, 3);
+	if (script_hasdata(st, 4))
+		y = script_getnum(st, 4);
+	if (script_hasdata(st, 5))
+		flag = (uint8)script_getnum(st, 5);
+	if (script_hasdata(st, 6))
+		hideWindow = script_getnum(st, 6) ? true : false;
+	if (script_hasdata(st, 7))
+		monster_id = script_getnum(st, 7);
+
+	if (!script_charid2sd(8, sd))
+		return 1;
+
+	clif_navigateTo(sd, map, x, y, flag, hideWindow, monster_id);
+
+	return 0;
+#else
+	return 1;
+#endif
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -19036,6 +19253,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getequipname,"i"),
 	BUILDIN_DEF(getbrokenid,"i"), // [Valaris]
 	BUILDIN_DEF(repair,"i"), // [Valaris]
+	BUILDIN_DEF(repairall, "?"),
 	BUILDIN_DEF(getequipisequiped,"i"),
 	BUILDIN_DEF(getequipisenableref,"i"),
 	BUILDIN_DEF(getequipisidentify,"i"),
@@ -19189,7 +19407,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getinventorylist,""),
 	BUILDIN_DEF(getskilllist,""),
 	BUILDIN_DEF(clearitem,""),
-	BUILDIN_DEF(classchange,"ii"),
+	BUILDIN_DEF(classchange,"i??"),
 	BUILDIN_DEF(misceffect,"i"),
 	BUILDIN_DEF(playBGM,"s"),
 	BUILDIN_DEF(playBGMall,"s?????"),
@@ -19216,7 +19434,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(charcommand,"s"), // [MouseJstr]
 	BUILDIN_DEF(movenpc,"sii?"), // [MouseJstr]
 	BUILDIN_DEF(message,"ss"), // [MouseJstr]
-	BUILDIN_DEF(npctalk,"s?"), // [Valaris]
+	BUILDIN_DEF(npctalk, "s??"), // [Valaris][Murilo BiO]
 	BUILDIN_DEF(mobcount,"ss"),
 	BUILDIN_DEF(getlook,"i"),
 	BUILDIN_DEF(getsavepoint,"i"),
@@ -19326,7 +19544,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(unitattack,"iv?"),
 	BUILDIN_DEF(unitstopattack,"i"),
 	BUILDIN_DEF(unitstopwalk,"i"),
-	BUILDIN_DEF(unittalk,"is"),
+	BUILDIN_DEF(unittalk,"is?"),
 	BUILDIN_DEF(unitemote,"ii"),
 	BUILDIN_DEF(unitskilluseid,"ivi??"), // originally by Qamera [Celest]
 	BUILDIN_DEF(unitskillusepos,"iviii?"), // [Celest]
@@ -19439,5 +19657,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getguildalliance,"ii"),
 	BUILDIN_DEF(opendressroom,"?"),
 	BUILDIN_DEF(closedressroom,"?"),
+	BUILDIN_DEF(setquestinfo_level, "iii"),
+	BUILDIN_DEF(setquestinfo_req, "iii*"),
+	BUILDIN_DEF(setquestinfo_job, "ii*"),
+	BUILDIN_DEF(navigateto, "s???????"),
 	{NULL,NULL,NULL},
 };

@@ -74,7 +74,7 @@ ein_in01,18,28,4	script	Guildsman#BLS	731,{
 	mes "and tools is truly a form of art!";
 	next;
 	if (BaseClass == Job_Novice) {
-		if (sex == 0) {
+		if (sex == SEX_FEMALE) {
 			mes "[Altiregen]";
 			mes "Oh~";
 			mes "what a very";

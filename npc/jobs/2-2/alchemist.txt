@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= nestor_zulueta (Fusion), converted by Darkchild
 //===== Current Version: ===================================== 
-//= 3.0
+//= 3.1
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -17,6 +17,7 @@
 //= 2.8 Fixed minor typo in test section. [L0ne_W0lf]
 //= 2.9 Added Quest Log commands. [Kisuka]
 //= 3.0 Removed the need for use of 'goto.' [L0ne_W0lf]
+//= 3.1 Added missing changequest commands. Thanks to Kisuka. [15peaces]
 //============================================================ 
 
 alde_alche,27,185,5	script	Alchemist Guildsman#am	744,{
@@ -288,7 +289,7 @@ alde_alche,27,185,5	script	Alchemist Guildsman#am	744,{
 		mes "Aren't you ready?";
 		mes "Like I said before,";
 		mes "you must bring";
-		mes "^551A8B"+.@items[1]+" "+getitemname(.@items[0])+"s^000000.";
+		mes "^551A8B"+callfunc("F_InsertPlural",.@items[1],getitemname(.@items[0]))+"^000000.";
 		next;
 		mes "[Parmy Gianino]";
 		mes "Come back when you";
@@ -442,7 +443,7 @@ alde_alche,175,107,3	script	Fastidious Alchemist#am	749,{
 				mes "Wait...";
 				mes "Maybe I've";
 				mes "misjudged you.";
-				if (sex == 1) {
+				if (sex == SEX_MALE) {
 					mes "You might be a pretty boy,";
 					mes "but I can tell you're smart";
 					mes "from your eyes.";
@@ -467,6 +468,7 @@ alde_alche,175,107,3	script	Fastidious Alchemist#am	749,{
 				mes "He'll teach you how to do the experiments. Just tell him that";
 				mes "I sent you.";
 				set ALCH_Q,6;
+				changequest 2031,2032;
 				close;
 			}
 			else {
@@ -716,7 +718,7 @@ alde_alche,175,107,3	script	Fastidious Alchemist#am	749,{
 			mes "you make from this sale?";
 			next;
 			input .@input;
-			if (.@input != 7680) set w_point,w_point+1;
+			if (.@input != 7680) set .@w_point,.@w_point+1;
 		}
 		if (.@w_point == 0) {
 			mes "[Raspuchin Gregory]";
@@ -1092,6 +1094,7 @@ alde_alche,13,15,7	script	Studying Man#am	750,{
 			mes "and cast away the last";
 			mes "vestiges of Merchant life!!";
 			set ALCH_Q,40;
+			changequest 2033,2034;
 			close;
 		}
 		else if (countitem(7134) > 2 && countitem(713) > 2 && countitem(507) > 0 && countitem(508) > 0 && countitem(509) > 0) {
@@ -1121,7 +1124,6 @@ alde_alche,13,15,7	script	Studying Man#am	750,{
 			mes "Now, make some medicine";
 			mes "using the simple procedure";
 			mes "I just explained to you.";
-			set w_point,0;
 			next;
 			switch(select("Prepare the Medicine Bowl.:Put the Medicine Bowl on your head.:Kick the Medicine Bowl.")) {
 			case 1:
@@ -1686,8 +1688,11 @@ alde_alche,101,184,4	script	Master Alchemist#am	122,{
 			cutin "",255;
 			end;
 		}
-		if(checkquest(2039) != -1) {
+		if (checkquest(2039) != -1) {
 			changequest 2039,2040;
+		}
+		if (checkquest(2034) != -1) {
+			changequest 2034,2040;
 		}
 		mes "Ah, well done.";
 		mes "I can see that you";

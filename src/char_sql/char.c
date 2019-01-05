@@ -66,6 +66,7 @@ char hotkey_db[256] = "hotkey";
 char quest_db[256] = "quest";
 char bonus_script_db[256] = "bonus_script"; // cydh bonus_script
 
+
 // show loading/saving messages
 #ifdef TXT_SQL_CONVERT
 int save_log = 0; //Have the logs be off by default when converting
@@ -108,12 +109,15 @@ char char_name_letters[1024] = ""; // list of letters/symbols allowed (or not) i
 int char_per_account = 0; //Maximum charas per account (default unlimited) [Sirius]
 int char_del_level = 0; //From which level u can delete character [Lupus]
 int char_del_delay = 86400;
+int char_del_restriction = CHAR_DEL_RESTRICT_ALL;
 
 int log_char = 1;	// loggin char or not [devil]
 int log_inter = 1;	// loggin inter or not [devil]
 
 int mail_return_days = 15;
 int mail_delete_days = 15;
+
+int clan_remove_inactive_days = 14;
 
 // Advanced subnet check [LuzZza]
 struct s_subnet {
@@ -142,6 +146,13 @@ int fame_list_size_taekwon = MAX_FAME_LIST;
 struct fame_list smith_fame_list[MAX_FAME_LIST];
 struct fame_list chemist_fame_list[MAX_FAME_LIST];
 struct fame_list taekwon_fame_list[MAX_FAME_LIST];
+
+// Set default char delete option by clientver. [15peaces]
+#if PACKETVER >= 20100803
+	char_del_option = CHAR_DEL_BIRTHDATE;
+#else
+	char_del_option = CHAR_DEL_EMAIL;
+#endif
 
 // cydh bonus_script
 int bonus_script_get(int fd);///Get bonus_script data
@@ -250,7 +261,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 	struct mmo_charstatus *cp;
 	
 	//Update DB
-	if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `online`='1' WHERE `char_id`='%d'", char_db, char_id) )
+	if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `online`='1', `last_login`=NOW() WHERE `char_id`='%d'", char_db, char_id) )
 		Sql_ShowDebug(sql_handle);
 
 	//Check to see for online conflicts
@@ -1016,7 +1027,7 @@ int mmo_char_tobuf(uint8* buf, struct mmo_charstatus* p);
  *
  * @retval SEX_MALE if the per-character sex is male
  * @retval SEX_FEMALE if the per-character sex is female
- * @retval 99 if the per-character sex is not defined or the current PACKETVER doesn't support it.
+ * @retval SEX_ACCOUNT if the per-character sex is not defined or the current PACKETVER doesn't support it.
  */
 int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charstatus *p, char sex)
 {
@@ -1029,7 +1040,7 @@ int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charsta
 			return SEX_FEMALE;
 		case 'U':
 		default:
-			return 99;
+			return SEX_ACCOUNT;
 	}
 #else
 	if (sex == 'M' || sex == 'F') {
@@ -1037,7 +1048,7 @@ int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charsta
 			// sd is not available, there isn't much we can do. Just return and print a warning.
 			ShowWarning("Character '%s' (CID: %d, AID: %d) has sex '%c', but PACKETVER does not support per-character sex. Defaulting to 'U'.\n",
 					p->name, p->char_id, p->account_id, sex);
-			return 99;
+			return SEX_ACCOUNT;
 		}
 		if ((sex == 'M' && sd->sex == SEX_FEMALE)
 		 || (sex == 'F' && sd->sex == SEX_MALE)) {
@@ -1050,7 +1061,7 @@ int char_mmo_gender(const struct char_session_data *sd, const struct mmo_charsta
 			Sql_ShowDebug(sql_handle);
 		}
 	}
-	return 99;
+	return SEX_ACCOUNT;
 #endif
 }
 
@@ -1696,6 +1707,17 @@ int delete_char_sql(int char_id)
 			return -1;
 	}
 
+	if (char_del_restriction&CHAR_DEL_RESTRICT_GUILD && guild_id) // character is in guild
+	{
+		ShowInfo("Char deletion aborted: %s, Guild ID: %i\n", name, guild_id);
+		return -1;
+	}
+	if (char_del_restriction&CHAR_DEL_RESTRICT_PARTY && party_id) // character is in party
+	{
+		ShowInfo("Char deletion aborted: %s, Party ID: %i\n", name, party_id);
+		return -1;
+	}
+
 	/* Divorce [Wizputer] */
 	if( partner_id )
 		divorce_char_sql(char_id, partner_id);
@@ -1912,7 +1934,7 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	offset += MAP_NAME_LENGTH_EXT;
 #endif
 #if PACKETVER >= 20100803
-#if PACKETVER > 20130000 && PACKETVER < 20141016 || PACKETVER >= 20150826 && PACKETVER < 20151001
+#if PACKETVER_CHAR_DELETEDATE
   	WBUFL(buf,124) = (p->delete_date?TOL(p->delete_date-time(NULL)):0);
  #else
 	WBUFL(buf,124) = TOL(p->delete_date);
@@ -3895,14 +3917,18 @@ int lan_subnetcheck(uint32 ip)
 ///     3 = (0x719) A database error occurred.
 ///     4 = (0x71a) To delete a character you must withdraw from the guild.
 ///     5 = (0x71b) To delete a character you must withdraw from the party.
-///     ? = (0x718) An unknown error has occurred.
+///     Any (0x718): An unknown error has occurred.
 void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
 {
 	WFIFOHEAD(fd,14);
 	WFIFOW(fd,0) = 0x828;
 	WFIFOL(fd,2) = char_id;
 	WFIFOL(fd,6) = result;
+#if PACKETVER_CHAR_DELETEDATE
+	WFIFOL(fd,10) = TOL(delete_date-time(NULL));
+#else
 	WFIFOL(fd,10) = TOL(delete_date);
+#endif
 	WFIFOSET(fd,14);
 }
 
@@ -3942,6 +3968,36 @@ void char_delete2_cancel_ack(int fd, int char_id, uint32 result)
 	WFIFOSET(fd,10);
 }
 
+/**
+* Check char deletion code
+* @param sd
+* @param delcode E-mail or birthdate
+* @param flag Delete flag
+* @return true:Success, false:Failure
+**/
+static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint8 flag) {
+	// E-Mail check
+	if (flag&CHAR_DEL_EMAIL && (
+		!stricmp(delcode, sd->email) || //email does not match or
+		(
+		!stricmp("a@a.com", sd->email) && //it is default email and
+		!strcmp("", delcode) //user sent an empty email
+		))) {
+		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(E-Mail)"CL_RESET".\n");
+		return true;
+	}
+	// Birthdate (YYMMDD)
+	if (flag&CHAR_DEL_BIRTHDATE && (
+		!strcmp(sd->birthdate + 2, delcode) || // +2 to cut off the century
+		(
+		!strcmp("0000-00-00", sd->birthdate) && // it is default birthdate and
+		!strcmp("", delcode) // user sent an empty birthdate
+		))) {
+		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(Birthdate)"CL_RESET".\n");
+		return true;
+	}
+	return false;
+}
 
 /// Requests a timed deletion of a character (CH_DELETE_CHAR3_RESERVED).
 /// 0827 <char id>.L
@@ -3977,22 +4033,18 @@ static void char_delete2_req(int fd, struct char_session_data* sd)
 		return;
 	}
 
-/*
-	// Aegis imposes these checks probably to avoid dead member
-	// entries in guilds/parties, otherwise they are not required.
-	// TODO: Figure out how these are enforced during waiting.
-	if( guild_id )
+	if (char_del_restriction&CHAR_DEL_RESTRICT_GUILD && guild_id)
 	{// character in guild
 		char_delete2_ack(fd, char_id, 4, 0);
 		return;
 	}
 
-	if( party_id )
+	if (char_del_restriction&CHAR_DEL_RESTRICT_PARTY && party_id)
 	{// character in party
 		char_delete2_ack(fd, char_id, 5, 0);
 		return;
 	}
-*/
+
 
 	// success
 	delete_date = time(NULL)+char_del_delay;
@@ -4056,8 +4108,7 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 		return;
 	}
 
-	if( strcmp(sd->birthdate+2, birthdate) )  // +2 to cut off the century
-	{// birth date is wrong
+	if (!char_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) { // Only check for birthdate
 		char_delete2_accept_ack(fd, char_id, 5);
 		return;
 	}
@@ -4610,12 +4661,7 @@ int parse_char(int fd)
 			memcpy(email, RFIFOP(fd,6), 40);
 			RFIFOSKIP(fd,( cmd == 0x68) ? 46 : 56);
 			
-			// Check if e-mail is correct 
-			if(strcmpi(email, sd->email) && //email does not matches and 
-			(
-				strcmp("a@a.com", sd->email) || //it is not default email, or
-				(strcmp("a@a.com", email) && strcmp("", email)) //email sent does not matches default
-			)) {	//Fail
+			if (!char_delchar_check(sd, email, char_del_option)) {
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x70;
 				WFIFOB(fd,2) = 0; // 00 = Incorrect Email address
@@ -5138,6 +5184,18 @@ static int online_data_cleanup(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
+static int char_clan_member_cleanup(int tid, int64 tick, int id, intptr_t data){
+	// Auto removal is disabled
+	if (clan_remove_inactive_days <= 0){
+		return 0;
+	}
+
+	if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `clan_id`='0' WHERE `online`='0' AND `clan_id`<>'0' AND `last_login` IS NOT NULL AND `last_login` <= NOW() - INTERVAL %d DAY", char_db, clan_remove_inactive_days)){
+		Sql_ShowDebug(sql_handle);
+	}
+	return 0;
+}
+
 //----------------------------------
 // Reading Lan Support configuration
 // Rewrote: Anvanced subnet check [LuzZza]
@@ -5405,6 +5463,8 @@ int char_config_read( const char* cfgName )
 			char_del_level = atoi(w2);
 		} else if (strcmpi(w1, "char_del_delay") == 0) {
 			char_del_delay = atoi(w2);
+		} else if (strcmpi(w1, "char_del_restriction") == 0) {
+			char_del_restriction = atoi(w2);
 		} else if(strcmpi(w1,"db_path")==0) {
 			safestrncpy(db_path, w2, sizeof(db_path));
 		} else if (strcmpi(w1, "console") == 0) {
@@ -5431,8 +5491,11 @@ int char_config_read( const char* cfgName )
 			guild_exp_rate = atoi(w2);
 		} else if (strcmpi(w1, "mail_return_days") == 0) {
 			mail_return_days = atoi(w2);
-		} else if (strcmpi(w1, "mail_delete_days") == 0) {
+		}
+		else if (strcmpi(w1, "mail_delete_days") == 0) {
 			mail_delete_days = atoi(w2);
+		} else if (strcmpi(w1, "clan_remove_inactive_days") == 0) {
+			clan_remove_inactive_days = atoi(w2);
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);
 		}
@@ -5562,10 +5625,10 @@ int do_init(int argc, char **argv)
 	add_timer_func_list(broadcast_user_count, "broadcast_user_count");
 	add_timer_interval(gettick() + 1000, broadcast_user_count, 0, 0, 5 * 1000);
 
-	// ???
+	// Timer to clear (online_char_db)
 	add_timer_func_list(chardb_waiting_disconnect, "chardb_waiting_disconnect");
 
-	// ???
+	// Online Data timers (checking if char still connected)
 	add_timer_func_list(online_data_cleanup, "online_data_cleanup");
 	add_timer_interval(gettick() + 1000, online_data_cleanup, 0, 0, 600 * 1000);
 
@@ -5576,6 +5639,10 @@ int do_init(int argc, char **argv)
 	// periodically check if mails need to be deleted completely
 	add_timer_func_list(mail_delete_timer, "mail_delete_timer");
 	add_timer_interval(gettick() + 1000, mail_delete_timer, 0, 0, 5 * 60 * 1000); // every 5 minutes
+
+	// periodically remove players that have not logged in for a long time from clans
+	add_timer_func_list(char_clan_member_cleanup, "clan_member_cleanup");
+	add_timer_interval(gettick() + 1000, char_clan_member_cleanup, 0, 0, 60 * 60 * 1000); // every 60 minutes
 
 	if( console )
 	{

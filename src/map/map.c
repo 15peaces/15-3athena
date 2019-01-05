@@ -2710,6 +2710,7 @@ void map_setcell(int m, int x, int y, cell_t cell, bool flag)
 		case CELL_NOCHAT:			map[m].cell[j].nochat = flag;			break;
 		case CELL_PVP:				map[m].cell[j].pvp = flag;				break; // Cell PVP [Napster]
 		case CELL_MAELSTROM:		map[m].cell[j].maelstrom = flag;		break;
+		case CELL_ICEWALL:			map[m].cell[j].icewall = flag;			break;
 		default:
 			ShowWarning("map_setcell: invalid cell type '%d'\n", (int)cell);
 			break;
@@ -3062,6 +3063,8 @@ void map_flags_init(void)
 		// adjustments
 		if( battle_config.pk_mode )
 			map[i].flag.pvp = 1; // make all maps pvp for pk_mode [Valaris]
+
+		map_free_questinfo(i);
 	}
 }
 
@@ -3641,6 +3644,37 @@ struct questinfo *map_add_questinfo(int m, struct questinfo *qi) {
 	return &map[m].qi_data[i];
 }
 
+static void map_free_questinfo(int m) {
+	unsigned short i;
+
+	for (i = 0; i < map[m].qi_count; i++) {
+		if (map[m].qi_data[i].jobid)
+			aFree(map[m].qi_data[i].jobid);
+		map[m].qi_data[i].jobid = NULL;
+		map[m].qi_data[i].jobid_count = 0;
+		if (map[m].qi_data[i].req)
+			aFree(map[m].qi_data[i].req);
+		map[m].qi_data[i].req = NULL;
+		map[m].qi_data[i].req_count = 0;
+	}
+	aFree(map[m].qi_data);
+	map[m].qi_data = NULL;
+	map[m].qi_count = 0;
+}
+
+struct questinfo *map_has_questinfo(int m, struct npc_data *nd, int quest_id) {
+	unsigned short i;
+
+	for (i = 0; i < map[m].qi_count; i++) {
+		struct questinfo *qi = &map[m].qi_data[i];
+		if (qi->nd == nd && qi->quest_id == quest_id) {
+			return qi;
+		}
+	}
+
+	return NULL;
+}
+
 #endif /* not TXT_ONLY */
 
 int map_db_final(DBKey k,void *d,va_list ap)
@@ -3763,6 +3797,7 @@ void do_final(void)
 			for (j=0; j<MAX_MOB_LIST_PER_MAP; j++)
 				if (map[i].moblist[j]) aFree(map[i].moblist[j]);
 		}
+		map_free_questinfo(i);
 	}
 
 	mapindex_final();

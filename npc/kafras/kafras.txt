@@ -238,7 +238,7 @@ payon,175,226,4	script	Kafra Employee::kaf_payon2	116,{
 	callfunc "F_KafEnd",0,1,"in the city of Payon";
 }
 
-pay_arche,55,123,0	script	Kafra Employee::kaf_payon3	115,{
+pay_arche,55,123,0	script	Kafra Employee::kaf_payon3	117,{
 	cutin "kafra_03",2;
 	callfunc "F_KafSet";
 	mes "[Kafra Employee]";
@@ -433,7 +433,7 @@ cmd_fild07,136,134,4	script	Kafra Employee::kaf_cmd_fild07	721,{
 //===================================================
 // Izlude
 //===================================================
-izlude,128,148,6	script	Kafra Employee::kaf_izlude	117,{
+-	script	::kaf_izlude	-1,{
 	cutin "kafra_01",2;
 	callfunc "F_KafSet";
 	mes "[Kafra Employee]";
@@ -446,6 +446,12 @@ izlude,128,148,6	script	Kafra Employee::kaf_izlude	117,{
 	savepoint "izlude",94,103;
 	callfunc "F_KafEnd",0,1,"in the city of Izlude";
 }
+
+izlude,128,148,6	duplicate(kaf_izlude)	Kafra Employee#iz	117
+izlude_a,128,148,6	duplicate(kaf_izlude)	Kafra Employee#iz_a	117
+izlude_b,128,148,6	duplicate(kaf_izlude)	Kafra Employee#iz_b	117
+izlude_c,128,148,6	duplicate(kaf_izlude)	Kafra Employee#iz_c	117
+izlude_d,128,148,6	duplicate(kaf_izlude)	Kafra Employee#iz_d	117
 
 // Port Malaya
 //============================================================
@@ -467,7 +473,7 @@ malaya,234,204,4	script	Kafra Employee::kaf_malaya2	581,{
 moscovia,223,191,3	script	Kafra Employee::kaf_mosk	114,{
 	cutin "kafra_04",2;
 	callfunc "F_Kafra",0,3,0,80,700;
-	savepoint "moscovia",221,194;;
+	savepoint "moscovia",221,194;
 	callfunc "F_KafEnd",0,3,"in the city of Moscovia";
 }
 
@@ -606,7 +612,7 @@ lhz_in02,237,284,4	script	Kafra Employee::kaf_lhz_in02	861,{
 //===================================================
 // Louyang
 //===================================================
-louyang,210,104,5	script	Kafra Employee::kaf_louyang	117,{
+louyang,210,104,5	script	Kafra Employee::kaf_louyang	116,{
 	cutin "kafra_01",2;
 	mes "[Kafra Employee]";
 	mes "Welcome to the";
@@ -668,7 +674,7 @@ job3_rune01,92,62,3	script	Kafra Employee::kaf_rune	114,{
 // Dungeons and Fields
 //===================================================
 // - Byalan Island
-izlu2dun,106,58,8	script	Kafra Employee::kaf_izlu2dun	115,{
+izlu2dun,106,58,8	script	Kafra Employee::kaf_izlu2dun	116,{
 	cutin "kafra_03",2;
 	if(BaseJob==Job_Novice && job_merchant_q2>0) callfunc "F_MercKafra";  //F_MercKafra found in merchant.txt
 	mes "[Kafra Employee]";

@@ -835,7 +835,7 @@ prt_in,228,26,5	script	Steward#sign	1,30,-1,55,{
 			close;
 		case 2:
 			mes "[Vandez]";
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "Very good, sir.";
 			}
 			else {
@@ -1044,7 +1044,7 @@ prt_in,248,23,0	script	Maid#sign2	1,30,-1,111,{
 		mes "Is there anything that";
 		mes "I can help you with?";
 		next;
-		if (Sex == 1) {
+		if (Sex == SEX_MALE) {
 			switch(select("You wanna have coffee sometime?:Tell me about Metz.")) {
 			case 1:
 				mes "[Elle]";
@@ -1821,7 +1821,7 @@ payon,154,170,3	script	Hagin#sign	1,30,-1,78,{
 		select("I'd like to meet this Daewoon.");
 		mes "[Hagin]";
 		mes "Oh, I see~";
-		if (Sex) {
+		if (Sex == SEX_MALE) {
 			mes "You plan to ask him";
 			mes "to show you some fighting";
 			mes "pointers, do you? You men";
@@ -1968,7 +1968,7 @@ payon_in03,11,31,4	script	Daewoon#sign	1,30,-1,808,{
 		mes "Oh, a visitor?";
 		mes "I'm sorry, but I believe";
 		mes "you're an uninvited guest~";
-		if (Sex) {
+		if (Sex == SEX_MALE) {
 			mes "You'll have to forgive me";
 			mes "if I wish to spend my time with maidens as opposed to men.";
 		}
@@ -2303,7 +2303,7 @@ payon_in03,11,31,4	script	Daewoon#sign	1,30,-1,808,{
 				mes "[Daewoon]";
 				mes "Hmm. You have a truly";
 				mes "strong will. Then again,";
-				if (Sex == 1) {
+				if (Sex == SEX_MALE) {
 					mes "perhaps you lack a true";
 					mes "appreciation for beauty.";
 					mes "Even in Emperium form, how";
@@ -3011,7 +3011,7 @@ aldeba_in,155,101,3	script	Sir Jore#sign	1,30,-1,805,7,7,{
 	}
 	close;
 
-OnTouch:
+OnTouch_:
 	if (rand(1,2) == 1) {
 		emotion e_ic;
 		specialeffect EF_PHARMACY_OK;
@@ -3168,7 +3168,7 @@ prt_maze02,57,151,1	script	Pleur#warp	1,30,-1,91,{
 }
 
 prt_maze02,58,150,0	script	#movesign	1,30,-1,-1,5,5,{
-OnTouch:
+OnTouch_:
 	mes "^3355FFYou catch a glimpse";
 	mes "of a girl heading directly";
 	mes "into a deep forest. You decide";
@@ -3189,13 +3189,13 @@ OnTouch:
 }
 
 prt_maze02,18,126,0	script	#mazewarp	1,30,-1,-1,3,3,{
-OnTouch:
+OnTouch_:
 	warp "prt_maze02",90,170;
 	end;
 }
 
 //prt_maze02,25,161,0	script	#music	-1,7,7,{
-//OnTouch:
+//OnTouch_:
 //	soundeffect "effect\\석양의 어쌔신.wav",1;
 //	end;
 //}
@@ -3548,7 +3548,7 @@ geffen_in,59,74,4	script	Jesqurienne#sign	1,30,-1,803,{
 			mes "[Jesqurienne]";
 			mes "Ahhhhhh~";
 			mes "Hm? Why hello there,";
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "you fine speciman of a man~";
 			}
 			else {
@@ -4503,7 +4503,7 @@ geffen_in,61,72,7	script	Aaron#sign	1,30,-1,754,{
 		mes "or you're the most gorgeous";
 		mes "woman I've seen in my life!";
 		next;
-		if (Sex == 1) {
+		if (Sex == SEX_MALE) {
 			select("Um, I'm a dude...");
 			emotion e_sob;
 			mes "[Aaron]";
@@ -5409,7 +5409,7 @@ Onreset:
 	set .s_up,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	soundeffect "effect\\sign_up.wav",1;
 	if (.s_up == 1) {
 		donpcevent "Examiner#sd::Onup";
@@ -5465,7 +5465,7 @@ Onreset:
 	set .s_down,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	soundeffect "effect\\sign_down.wav",1;
 	if (.s_down == 1) {
 		donpcevent "Examiner#sd::Onup";
@@ -5542,7 +5542,7 @@ Onreset:
 	set .s_left,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	soundeffect "effect\\sign_left.wav",1;
 	if (.s_left == 1) {
 		donpcevent "Examiner#sd::Onup";
@@ -5610,7 +5610,7 @@ Onreset:
 	set .s_right,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	soundeffect "effect\\sign_right.wav",1;
 	if (.s_right == 1) {
 		donpcevent "Examiner#sd::Onup";
@@ -5684,7 +5684,7 @@ Onreset:
 	set .s_center,0;
 	end;
 
-OnTouch:
+OnTouch_:
 	soundeffect "effect\\sign_center.wav",1;
 	if (.s_center == 1) {
 		donpcevent "Examiner#sd::Onup";
@@ -5714,7 +5714,7 @@ OnInit:
 	disablenpc "Examiner#sd";
 	end;
 
-OnTouch:
+OnTouch_:
 	if (.s_check < 30) {
 		if (sign_q == 30) {
 			set sign_q,32;
@@ -6401,7 +6401,7 @@ prt_castle,107,58,5	script	Soldier#s11	1,30,-1,105,{
 		mes "again for helping";
 		mes "out my sister, we";
 		mes "really appreciate it.";
-		if (Sex == 1) {
+		if (Sex == SEX_MALE) {
 			if (rand(1,5) == 5) {
 				next;
 				mes "[Maruin]";
@@ -7418,7 +7418,7 @@ geffen_in,171,42,3	script	Cute Girl	1,30,-1,703,{
 			mes "[Liana]";
 			mes "Oh, this?";
 			mes "It's a letter for my daddy.";
-			if (Sex == 0) {
+			if (Sex == SEX_FEMALE) {
 				mes "Mom said that some lady is gonna try to find my dad, so I'm making this so she can take it him~";
 			}
 			else {
@@ -7451,7 +7451,7 @@ geffen_in,171,42,3	script	Cute Girl	1,30,-1,703,{
 				case 1:
 					mes "[Brenda Howard]";
 					mes "Liana~";
-					if (Sex == 0) {
+					if (Sex == SEX_FEMALE) {
 						mes "This nice lady is going to look for your dad. Why don't you ask her to take your letter to him for you?";
 					}
 					else {
@@ -8697,7 +8697,7 @@ gef_fild07,182,241,0	script	#Valkyrie Warp	1,30,-1,111,1,1,{
 		close;
 	}
 
-OnTouch:
+OnTouch_:
 	if ((sign_q == 80) && (countitem(907) > 3) && (countitem(953) > 11) && (countitem(7013) > 364)) {
 		mes "["+strcharinfo(0)+"]";
 		mes "What the...?";
@@ -9675,7 +9675,7 @@ niflheim,313,70,4	script	Pleasant-Featured Lady#s	1,30,-1,90,{
 		mes "You're the one I'm looking";
 		mes "for, the one who's been on";
 		mes "a long journey to prove";
-		if (Sex == 1) {
+		if (Sex == SEX_MALE) {
 			mes "his courage.";
 		}
 		else {
@@ -11047,7 +11047,7 @@ que_sign01,122,141,4	script	Witch#s	1,30,-1,792,{
 }
 
 nif_in,186,168,1	script	#witch	1,30,-1,-1,1,1,{
-OnTouch:
+OnTouch_:
 	callfunc "F_UpdateSignVars";
 	if (sign_q == 83) {
 		if (sign_sq == 2) {
@@ -11463,7 +11463,7 @@ que_sign01,45,227,4	script	Queen of the Dead	1,30,-1,856,{
 			mes "^8C1717Yes, that's it!";
 			mes "I never expected a mortal";
 			mes "to have such an interesting^000000";
-			if (Sex == 1) {
+			if (Sex == SEX_MALE) {
 				mes "^8C1717artifact in his possession.^000000";
 			}
 			else {
@@ -12328,7 +12328,7 @@ niflheim,102,54,4	script	Mad Man#s	1,30,-1,739,{
 }
 
 niflheim,348,257,1	script	#Cursed Soul	1,30,-1,-1,1,1,{
-OnTouch:
+OnTouch_:
 	callfunc "F_UpdateSignVars";
 	if ((sign_q == 83) || (sign_q == 90)) {
 		if (sign_sq == 0) {
@@ -12443,7 +12443,7 @@ OnMyMobDead:
 }
 
 nif_in,102,81,1	script	#Crayu	1,30,-1,-1,1,1,{
-OnTouch:
+OnTouch_:
 	callfunc "F_UpdateSignVars";
 	if (sign_q < 75) {
 		end;
@@ -12542,7 +12542,7 @@ OnTouch:
 }
 
 nif_in,156,91,1	script	#kidniff	1,30,-1,-1,1,1,{
-OnTouch:
+OnTouch_:
 	callfunc "F_UpdateSignVars";
 	if (sign_q == 83) {
 		if (sign_sq == 0) {
@@ -14495,7 +14495,7 @@ OnInit:
 	disablenpc "Geffenia Warp";
 	end;
 
-OnTouch:
+OnTouch_:
 	set geffenia_warp,rand(1,4);
 	if (geffenia_warp == 1) {
 		warp "gefenia01",58,169;
@@ -14579,7 +14579,7 @@ geffen,119,48,0	script	Fountain#s	1,30,-1,111,{
 }
 
 que_sign01,196,44,0	script	Starter#serin	1,30,-1,-1,32,32,{
-OnTouch:
+OnTouch_:
 	donpcevent "Timer#serin::Onstart";
 	disablenpc "Starter#serin";
 	end;
@@ -14594,7 +14594,7 @@ OnInit:
 	disablenpc "Warp#serin";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "niflheim",30,156;
 	end;
 
@@ -14644,7 +14644,7 @@ Onreset:
 }
 
 que_sign01,197,195,0	script	Starter#witch	1,30,-1,-1,32,32,{
-OnTouch:
+OnTouch_:
 	donpcevent "Timer#witch::Onstart";
 	disablenpc "Starter#witch";
 	end;
@@ -14686,7 +14686,7 @@ OnDisable:
 	disablenpc "Warp#witch";
 	end;
 
-OnTouch:
+OnTouch_:
 	warp "niflheim",30,156;
 	end;
 }
@@ -14727,7 +14727,7 @@ que_sign02,0,0,0,0,1,30,-1	monster	Wraith	1475,15,0,0,0
 que_sign02,0,0,0,0,1,30,-1	monster	Wraith Dead	1566,8,0,0,0
 
 que_sign02,378,235,0	script	sign_w6	1,30,-1,45,1,1,{
-OnTouch:
+OnTouch_:
 	callfunc "F_UpdateSignVars";
 	if ((countitem(7313) == 1) && ((sign_q != 124) || (sign_q != 125) || (sign_q != 126))) {
 		warp "que_sign01",197,190;
@@ -14894,7 +14894,7 @@ function	script	F_UpdateSignVars	{
 		set sign_fail,0;
 		set gaananpoint,0;
 		set gaanantest,0;
-		set arianstest,0;
+		set ariantest,0;
 		set SignJore,0;
 		set ScareAlchSign,0;
 		set dearles_test,0;
@@ -14950,7 +14950,7 @@ function	script	F_UpdateSignVars	{
 //= 2.3 Made some adjustments in last event with dialogs/summoning and fixed a possible exploit earlier. [SinSloth]
 //= 2.4 Optimized/simplified some poorly written code; fixed wrong quiz answers [ultramage]
 //= 2.5 Updated to fall within proper name restrictions. [L0ne_W0lf]
-//= 2.5a Corrected a Typo error ";;". [Samuray22]
+//= 2.5a Corrected a Typo error ";". [Samuray22]
 //= 2.6 Fixed Engel giving back 7 Sobbing Starlight on failing to refine it, bugreport:1473 [Brainstorm]
 //= 2.7 Replaced effect numerics with constants. [Samuray22]
 //= 2.8 Fixed some bugs with itemids and leftover questitems [Fish0r]

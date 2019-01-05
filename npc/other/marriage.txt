@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= L0ne_W0lf
 //===== Current Version: ===================================== 
-//= 1.4
+//= 1.5
 //===== Compatible With: ===================================== 
 //= 15-3athena
 //===== Description: ========================================= 
@@ -22,10 +22,16 @@
 //= 1.3 Changed permanent global variables to temporary ones.
 //=     Added GM NPCs (commented).  Thanks to Euphy. [15peaces]
 //= 1.4 Added GM management function.  Thanks to Euphy. [15peaces]
+//= 1.5 Added Marriage Covenant item. [15peaces]
 //============================================================
 
 prt_church,97,100,4	script	Wedding Staff#w	71,{
 	cutin "wedding_marry01",2;
+	if (countitem(6026) == 0)
+		set .@covenant,0;
+	else
+		set .@covenant,1;
+
 	if (Upper == 2) {
 		mes "[Marry Happy]";
 		mes "Hello~";
@@ -93,7 +99,6 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 		mes "life with, you might want to pop the question. I hope everyone";
 		mes "finds their perfect match~";
 		break;
-
 	case 2:
 		mes "[Marry Happy]";
 		mes "The first part of the";
@@ -115,7 +120,7 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 		mes "speak to the Bishop and tell";
 		mes "him the name of her groom.";
 		mes "If these names are correctly";
-		mes "told to the Biship, they will";
+		mes "told to the Bishop, they will";
 		mes "be able to exchange rings.";
 		next;
 		mes "[Marry Happy]";
@@ -181,24 +186,33 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 		mes "submit your application.";
 		mes "I'll see you later, adventurer~";
 		break;
-
 	case 3:
 		cutin "wedding_marry02",2;
-		if (sex) {
+		if (sex == SEX_MALE) {
 			mes "[Marry Happy]";
 			mes "So you'd like to get married?";
 			mes "As a groom, you need to prepare";
-			mes "^3377FF1 Tuxedo^000000 and pay ^3377FF1,300,000 zeny^000000.";
-			mes "Brides have to provide their own Wedding Dresses and pay a fee";
-			mes "of 1,200,000 zeny.";
-		}
-		else {
+			if (.@covenant) {
+				mes "^3377FF1 Tuxedo^000000 and give me your ^3377FF1 Marriage Covenant^000000.";
+				mes "Brides have to provide their own Wedding Dresses and pay a fee";
+				mes "of 1,200,000 zeny or also bring a Marriage Covenant.";
+			} else {
+				mes "^3377FF1 Tuxedo^000000 and pay ^3377FF1,300,000 zeny^000000.";
+				mes "Brides have to provide their own Wedding Dresses and pay a fee";
+				mes "of 1,200,000 zeny.";
+			}
+		} else {
 			mes "[Marry Happy]";
 			mes "So you'd like to get married?";
 			mes "As a bride, you need to prepare";
-			mes "1 Wedding Dress and pay a fee";
-			mes "of 1,200,000 zeny. Grooms must";
-			mes "bring a Tuxedo and pay 1,300,000 zeny to get married.";
+			if (.@covenant) {
+				mes "^3377FF1 Wedding Dress^000000 and give me your ^3377FFMarriage Covenant^000000.";
+				mes "Grooms must bring a Tuxedo and pay";
+				mes "1,300,000 zeny or also bring a Marriage Covenant.";
+			} else {
+				mes "^3377FF1 Wedding Dress^000000 and pay a fee of 1,200,000 zeny. Grooms must";
+				mes "bring a Tuxedo and pay 1,300,000 zeny to get married.";
+			}
 		}
 		next;
 		mes "[Marry Happy]";
@@ -259,33 +273,13 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 				mes "back after you find it, okay?";
 				goto L_End;
 			}
-			else if (sex) {
-				if (zeny < 1300000) {
-					mes "[Marry Happy]";
-					mes "I'm sorry, but you don't";
-					mes "have the 1,300,000 zeny";
-					mes "that all grooms must pay";
-					mes "for the wedding ceremony.";
-					mes "Did you misplace your money?";
-					goto L_End;
-				}
-				else if (countitem(7170) < 1) {
-					mes "[Marry Happy]";
-					mes "Where's your Tuxedo?";
-					mes "You absolutely have to";
-					mes "wear it during the wedding";
-					mes "ceremony! Find it, bring it";
-					mes "to me, and then we can finally";
-					mes "begin the wedding, okay?";
-					goto L_End;
-				}
-			}
-			else if (sex == 0) {
-				if (zeny < 1200000) {
+			else if (sex == SEX_MALE) {
+				if (countitem(6026) == 0 && Zeny < 1200000) {
 					mes "[Marry Happy]";
 					mes "I'm sorry, but all brides";
 					mes "must pay the 1,200,000";
-					mes "zeny fee to proceed with the";
+					mes "zeny fee or bring a Marriage";
+					mes "Covenant to proceed with the";
 					mes "wedding ceremony. Perhaps";
 					mes "you could ask your partner";
 					mes "to help you with the funds?";
@@ -299,6 +293,28 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 					mes "bring it to me-- you";
 					mes "absolutely need it";
 					mes "for the wedding!";
+					goto L_End;
+				}
+			}
+			else if (Sex == SEX_MALE) {
+				if (countitem(6026) == 0 && Zeny < 1300000) {
+					mes "[Marry Happy]";
+					mes "I'm sorry, but you don't";
+					mes "have the 1,300,000 zeny";
+					mes "or the Marriage Covenant";
+					mes "that all grooms must pay";
+					mes "for the wedding ceremony.";
+					mes "Did you misplace your money?";
+					goto L_End;
+				}
+				else if (countitem(7170) < 1) {
+					mes "[Marry Happy]";
+					mes "Where's your Tuxedo?";
+					mes "You absolutely have to";
+					mes "wear it during the wedding";
+					mes "ceremony! Find it, bring it";
+					mes "to me, and then we can finally";
+					mes "begin the wedding, okay?";
 					goto L_End;
 				}
 			}
@@ -346,25 +362,31 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 			Emotion e_lv;
 			next;
 			mes "[Marry Happy]";
-			if (sex) {
-				mes "Since you're the groom,";
-				mes "you need to speak to the";
-				mes "Bishop first. When you're";
-				mes "finished, it will be your";
-				mes "bride's turn to speak to";
-				mes "Bishop Vomars.";
-				set zeny,zeny-1300000;
-				delitem 7170,1; //Tuxedo
-			}
-			else {
+			if (Sex == SEX_MALE) {
 				mes "Since you're the bride,";
 				mes "you need to wait for the";
 				mes "groom to speak to Bishop";
 				mes "Vomars first. When he's";
 				mes "finished, it'll be your turn";
 				mes "to speak to Bishop Vomars.";
-				set zeny,zeny-1200000;
+				if (.@covenant)
+					delitem 6026,1; //Marriage_Covenant
+				else
+					set Zeny, Zeny-1200000;
 				delitem 2338,1; //Wedding_Dress
+			}
+			else {
+				mes "Since you're the groom,";
+				mes "you need to speak to the";
+				mes "Bishop first. When you're";
+				mes "finished, it will be your";
+				mes "bride's turn to speak to";
+				mes "Bishop Vomars.";
+				if (.@covenant)
+					delitem 6026,1; //Marriage_Covenant
+				else
+					set Zeny, Zeny-1300000;
+				delitem 7170,1; //Tuxedo
 			}
 			delitem 2613,1; //Diamond_Ring
 			set wedding_sign,1;
@@ -378,7 +400,6 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 		mes "me so that you can apply,";
 		mes "okay? Have a good day~";
 		break;
-
 	case 4:
 		cutin "wedding_marry02",2;
 		donpcevent "Single Army#Prontera::OnEnable";
@@ -569,7 +590,7 @@ prt_church,100,128,4	script	Bishop#w	60,{
 				getpartymember(getcharid(1));
 				set .@partymembercount,$@partymembercount;
 				if (.@partymembercount == 2) {
-					if (sex) {
+					if (sex == SEX_MALE) {
 						set $@wedding,1;
 						initnpctimer;
 						mes "[Vomars]";
@@ -640,7 +661,7 @@ prt_church,100,128,4	script	Bishop#w	60,{
 				getpartymember(getcharid(1));
 				set .@partymembercount,$@partymembercount;
 				if (.@partymembercount == 2) {
-					if (sex == 0) {
+					if (sex == SEX_MALE) {
 						if (strcharinfo(0) == $@wed_bride$) {
 							mes "[Vomars]";
 							mes "Young lovers, please";
@@ -791,7 +812,7 @@ S_Busy:
 	mes "I'm conducting a wedding";
 	mes "for another couple now, so";
 	mes "please wait patiently for your";
-	mes "turn. Thanks for understanding... ^FFFFFF ^000000";
+	mes "turn. Thanks for understanding...";
 	goto L_End;
 
 OnStop:
@@ -880,7 +901,7 @@ prt_church,20,179,4	script	Divorce Staff	71,{
 	next;
 	switch(select("Drop 1 Wedding Ring.:Keep it.")) {
 	case 1:
-		set .@ring, (Sex)?2634:2635; //Bridegroom_Ring, Bride_Ring
+		set .@ring, (Sex == SEX_MALE)?2634:2635; //Bridegroom_Ring, Bride_Ring
 		if (countitem(.@ring)) {
 			delitem .@ring,1;
 			mes "[Bad Ending]";
@@ -935,7 +956,7 @@ prt_church,22,179,4	script	Remarry Staff	71,{
 	next;
 	switch(select("Make new Wedding Ring.:Cancel.")) {
 	case 1:
-		set .@ring, (Sex)?2634:2635; //Bridegroom_Ring, Bride_Ring
+		set .@ring, (Sex == SEX_MALE)?2634:2635; //Bridegroom_Ring, Bride_Ring
 		if (countitem(.@ring) || isequipped(.@ring)) {
 			mes "[Wedding Again]";
 			mes "Wait, wait...";

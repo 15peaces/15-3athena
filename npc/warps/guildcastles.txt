@@ -5,7 +5,7 @@
 //===== Current Version: =====================================
 //= 2.7
 //===== Compatible With: =====================================
-//= 15-3athena
+//= 15-3athena Project
 //===== Description: =========================================
 //= Warp Points for Al de Baran, Payon, Prontera, Geffen,
 //= and Juno Guild Castles
@@ -25,6 +25,7 @@
 //= 2.6 Fixed warp position between Juno and Schwaltzvalt Realm. [Gepard]
 //= 2.6a Added WoE:TE warps. [15peaces]
 //= 2.7 Updated WoE:FE warps. Thanks to Masao. [15peaces]
+//= 2.8 Added Hall of Abyss warps. [15peaces]
 //============================================================
 
 //Prontera Castle Map
@@ -370,7 +371,7 @@ aldeg_cas04,121,168,0	warp	aldeg-4-12_aldeg-4-11	1,1,aldeg_cas04,25,123
 aldeg_cas04,156,210,0	warp	aldeg-4-13_aldeg-4-5	1,1,aldeg_cas04,169,97
 aldeg_cas04,108,210,0	warp	aldeg-4-14_aldeg-4-4	1,1,aldeg_cas04,186,92
 aldeg_cas04,132,231,0	script	aldeg-4-15_aldeg-4-	45,1,1,{
-OnTouch:
+OnTouch_:
 	switch (rand(1,5)) {
 		case 1:	warp "aldeg_cas04",152,210; end;
 		case 2:	warp "aldeg_cas04",111,210; end;
@@ -821,3 +822,33 @@ teg_dun01,42,30,0	warp	teg_dun01b_prtg#te	1,1,te_prt_gld,63,66
 // aldebaran
 teg_dun02,20,160,0	warp	teg_dun02a_aldega#te	1,1,te_alde_gld,229,185
 teg_dun02,180,112,0	warp	teg_dun02b_aldegb#te	1,1,te_alde_gld,242,121
+
+// Hall of Abyss
+//============================================================
+gld2_prt,10,22,0	warp	dun2prt_to_gld	1,1,prt_gld,252,247
+gld2_prt,14,252,0	warp	dun2prt_to_gld#2	1,1,prt_gld,63,66
+gld2_prt,266,236,0	warp	dun2prt_to_gld#3	1,1,prt_gld,252,247
+gld2_prt,226,21,0	warp	dun2prt_to_gld#4	1,1,prt_gld,63,66
+gld2_prt,103,11,0	warp	dun2prt_to_gld#5	1,1,prt_gld,252,247
+gld_dun03_2,238,274,0	warp	gdun03a_prtg#abyss	1,1,prt_gld,252,247
+gld_dun03_2,42,30,0	warp	gdun03b_prtg#abyss	1,1,prt_gld,63,66
+gld2_pay,33,105,0	warp	dun2pay_to_gld	1,1,pay_gld,53,141
+gld2_pay,119,21,0	warp	dun2pay_to_gld#2	1,1,pay_gld,53,141
+gld2_pay,205,105,0	warp	dun2pay_to_gld#3	1,1,pay_gld,53,141
+gld2_pay,175,215,0	warp	dun2pay_to_gld#4	1,1,pay_gld,53,141
+gld2_pay,61,215,0	warp	dun2pay_to_gld#5	1,1,pay_gld,53,141
+gld_dun01_2,119,14,0	warp	gdun01_payg#abyss	1,1,pay_gld,53,141
+gld2_gef,28,205,0	warp	dun2gef_to_gld	1,1,gef_fild13,42,331
+gld2_gef,221,145,0	warp	dun2gef_to_gld#2	1,1,gef_fild13,373,62
+gld2_gef,175,198,0	warp	dun2gef_to_gld#3	1,1,gef_fild13,42,331
+gld2_gef,25,68,0	warp	dun2gef_to_gld#4	1,1,gef_fild13,373,62
+gld2_gef,111,35,0	warp	dun2gef_to_gld#5	1,1,gef_fild13,42,331
+gld_dun04_2,37,230,0	warp	gdun04_g13a#abyss	1,1,gef_fild13,42,331
+gld_dun04_2,110,20,0	warp	gdun04_g13b#abyss	1,1,gef_fild13,373,62
+gld2_ald,172,46,0	warp	dun2gef_to_gld#6	1,1,alde_gld,242,121
+gld2_ald,77,58,0	warp	dun2gef_to_gld#7	1,1,alde_gld,229,185
+gld2_ald,46,122,0	warp	dun2gef_to_gld#8	1,1,alde_gld,242,121
+gld2_ald,104,250,0	warp	dun2gef_to_gld#9	1,1,alde_gld,229,185
+gld2_ald,247,156,0	warp	dun2gef_to_gld#10	1,1,alde_gld,242,121
+gld_dun02_2,20,160,0	warp	gdun02a_aldega#abyss	1,1,alde_gld,229,185
+gld_dun02_2,180,112,0	warp	gdun02b_aldegb#abyss	1,1,alde_gld,242,121

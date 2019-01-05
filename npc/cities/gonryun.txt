@@ -1,22 +1,21 @@
-//===== 15-3athena Script ==================================== 
+//===== 15-3athena Script ====================================
 //= Kunlun Town
-//===== By: ================================================== 
+//===== By: ==================================================
 //= x[tsk], KarLaeda
-//===== Current Version: ===================================== 
+//===== Current Version: =====================================
 //= 1.4
-//===== Compatible With: ===================================== 
-//= eAthena SVN
-//= 15-3athena rev. 1+
-//===== Description: ========================================= 
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
 //= [Aegis Conversion]
 //= Kunlun Town Script
-//===== Additional Comments: ================================= 
+//===== Additional Comments: =================================
 //= 1.5 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
 //=	Moved Lost Knife mini-quest to quest file.
 //============================================================
 
 // Kunlun Transportation
-//============================================================ 
+//============================================================
 alberta,245,69,3	script	Kunlun Envoy#gon	776,{
 	mes "[Wa Bai Hu]";
 	mes "Good day~";
@@ -208,7 +207,7 @@ gonryun,268,88,3	script	Liang Zhun Bu#gon	776,{
 	mes "off every invasion! As long";
 	mes "as we believe in ourselves,";
 	mes "we shall never forget the";
-	mes "Trumphal Song that has helped us in our struggles.";
+	mes "Triumphal Song that has helped us in our struggles.";
 	close;
 }
 
@@ -288,7 +287,7 @@ gon_in,73,82,5	script	Ji Chung Zhe#gon	778,{
 		close;
 	}
 	if (nakha == 3) {
-		set cha,1;
+		// set cha,1; //unused
 		mes "[Ji Chung Zhe]";
 		mes "I am Ji Chung Zhe, a renown brewer";
 		mes "of teas. Everyday, I put all my";
@@ -409,9 +408,9 @@ gonryun,169,71,3	script	Guidev#gon	770,{
 	close;
 }
 
-//============================================================ 
+//============================================================
 // Old changelog
-//============================================================ 
+//============================================================
 // May be missing npc's and dialogue.
 //= 1.1 Fixed Typo’s [Nexon]
 //= 1.2 Removed Duplicates [Silent]

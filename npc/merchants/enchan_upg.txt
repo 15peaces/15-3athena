@@ -75,17 +75,17 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 		close;
 	}
 	setarray .@equip_card[0], getequipcardid(.@part,0), getequipcardid(.@part,1), getequipcardid(.@part,2), getequipcardid(.@part,3);
-	if (!getequipisequiped(.@part)) {
-		mes "It is dangerous to remove equipment during enchant process!";
-		close;
-	}
+	// if (!getequipisequiped(.@part)) {
+	// 	mes "It is dangerous to remove equipment during enchant process!";
+	// 	close;
+	// }
 	set .@equip_id, getequipid(.@part);
+	set .@equip_refine, getequiprefinerycnt(.@part);
 	set .@item$, "|1292|1394|1491|1585|2015|13071|13115|16019|18112|21000|";
 	if (!compare(.@item$,"|"+.@equip_id+"|")) {
 		mes "I don't want to touch your equipment now!";
 		close;
 	}
-	set .@equip_refine, getequiprefinerycnt(.@part);
 
 	if (.@select == 1) {
 		if (!countitem(6484)) {
@@ -224,6 +224,12 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 			mes "The slot ^9900004^000000 has been enchanted!";
 		}
 		delitem 6484,1; //Enchant_Book
+		
+		// anti-hack
+		if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine) || 
+		    callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+			close;
+		
 		delequip .@part;
 
 //		GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] .@enchant
@@ -232,7 +238,7 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 		if (.@lost_refine) {
 			next;
 			mes "[Devil Enchant Master]";
-			mes "The failure has reduced the refine by "+.@lost_refine+" level"+((.@lost_refine == 1)?"":"s")+"! Don't be depressed!";
+			mes "The failure has reduced the refine by "+callfunc("F_InsertPlural",.@lost_refine,"level")+"! Don't be depressed!";
 		}
 		close;
 	} else if (.@select == 2) {
@@ -251,6 +257,12 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 		specialeffect EF_REPAIRWEAPON;
 		mes "I initialized the enchant effects.";
 		set Zeny, Zeny - 100000;
+		
+		// anti-hack
+		if (callfunc("F_IsEquipIDHack", .@part, .@equip_id) || callfunc("F_IsEquipRefineHack", .@part, .@equip_refine) || 
+		    callfunc("F_IsEquipCardHack", .@part, .@equip_card[0], .@equip_card[1], .@equip_card[2], .@equip_card[3]))
+			close;
+		
 		delequip .@part;
 
 //		GetNonSlotItemSock2 .@equip_refine .@equip_id .@equip_card[0] .@equip_card[1] .@equip_card[2] 0

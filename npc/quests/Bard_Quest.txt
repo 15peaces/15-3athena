@@ -503,7 +503,7 @@ geffen,132,38,3	script	Bard#2	51,{
 		mes "At Nine, love is reborn.";
 		mes "At Ten, my Love is gone.";
 		mes "At Eleven I find out why.";
-		if (sex)
+		if (sex == SEX_MALE)
 			mes "At Twelve I see his new girlfriend?";
 		else
 			mes "At Twelve I see her new boyfriend?";
@@ -837,7 +837,7 @@ geffen,132,38,3	script	Bard#2	51,{
 		mes "At Nine, love is reborn.";
 		mes "At Ten, my Love is gone.";
 		mes "At Eleven I find out why.";
-		if (sex)
+		if (sex == SEX_MALE)
 			mes "At Twelve I see her new boyfriend?";
 		else
 			mes "At Twelve I see his new girlfriend?";
@@ -1105,8 +1105,9 @@ S_StorySong:
 		goto L_End;
 
 	case 2:
+		set .@num, getarg(0);
 		mes "[Errende]";
-		if(getarg(0) < 3)
+		if(.@num < 3)
 			mes "You recognize my talent, so you deserve to listen to my songs! Now, what would you like to hear? I can play anything you want, you know.";
 		else
 			mes "At last, I've met someone who recognizes my talent! You deserve to listen to my songs! Now, what would you like to hear? I can play anything you want, you know.";
@@ -1148,7 +1149,7 @@ S_StorySong:
 			mes "Okay, here we go~";
 			next;
 			//for 3 and 4 variants, we need higher chance
-			if(getarg(0) == 3 || getarg(0) == 4)
+			if(.@num == 3 || .@num == 4)
 				set @random,rand(1,5);
 			else
 				set @random,rand(1,3);
@@ -1188,7 +1189,7 @@ S_StorySong:
 				mes "and your spirit will be";
 				mes "led to Valhalla.^000000";
 				//Expanded version for 2nd variant
-				if(getarg(0) == 2){
+				if(.@num == 2){
 					next;
 					mes "[Errende]";
 					mes "...";
@@ -1239,9 +1240,9 @@ S_StorySong:
 
 			} else {
 				// For 3 and 4 cases we set more chance earlier on @random
-				if(getarg(0) == 3 || getarg(0) == 4){
+				if(.@num == 3 || .@num == 4){
 					mes "[Errende]";
-					if (sex)
+					if (sex == SEX_MALE)
 						mes "Heroic warrior,";
 					else
 						mes "My fair lady,";
@@ -2028,7 +2029,7 @@ morocc,134,111,3	script	Bard#3	741,{
 				}
 
 			} else {
-				if (sex) {
+				if (sex == SEX_MALE) {
 					mes "[Kino Kitty]";
 					mes "You're such a nice young man. I will remember your name. I would much appreciate it if you would also remember mine.";
 					next;
@@ -2894,7 +2895,7 @@ yuno_in04,33,119,3	script	Adventurer#1	828,{
 	mes "Err...?";
 	mes "What is it?";
 	next;
-	if (!sex) {
+	if (sex == SEX_FEMALE) {
 		emotion e_heh;
 		mes "[Energetic Young Man]";
 		mes "Oh...!";

@@ -1335,24 +1335,22 @@ static void clif_setdisguise(struct block_list *bl, unsigned char *buf,int len)
 	clif_send(buf, len, bl, SELF);
 }
 
-
 /// Changes sprite of an NPC object (ZC_NPCSPRITE_CHANGE).
 /// 01b0 <id>.L <type>.B <value>.L
 /// type:
 ///     unused
-void clif_class_change(struct block_list *bl,int class_,int type)
+void clif_class_change_target(struct block_list *bl, int class_, int type, enum send_target target, struct map_session_data *sd)
 {
-	unsigned char buf[16];
-
 	nullpo_retv(bl);
 
-	if(!pcdb_checkid(class_))
+	if (!pcdb_checkid(class_))
 	{// player classes yield missing sprites
-		WBUFW(buf,0)=0x1b0;
-		WBUFL(buf,2)=bl->id;
-		WBUFB(buf,6)=type;
-		WBUFL(buf,7)=class_;
-		clif_send(buf,packet_len(0x1b0),bl,AREA);
+		unsigned char buf[16];
+		WBUFW(buf, 0) = 0x1b0;
+		WBUFL(buf, 2) = bl->id;
+		WBUFB(buf, 6) = type;
+		WBUFL(buf, 7) = class_;
+		clif_send(buf, packet_len(0x1b0), (sd == NULL ? bl : &(sd->bl)), target);
 	}
 }
 
@@ -19308,6 +19306,45 @@ void clif_parse_Oneclick_Itemidentify(int fd, struct map_session_data *sd) {
     }
 
 	skill_identify(sd, idx);
+#endif
+}
+
+/// Starts navigation to the given target on client side
+void clif_navigateTo(struct map_session_data *sd, const char* map, uint16 x, uint16 y, uint8 flag, bool hideWindow, uint16 mob_id){
+#if PACKETVER >= 20111010
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, 27);
+	WFIFOW(fd, 0) = 0x08e2;
+
+	// How detailed will our navigation be?
+	if (mob_id > 0){
+		x = 0;
+		y = 0;
+		WFIFOB(fd, 2) = 3; // monster with destination field
+	}
+	else if (x > 0 && y > 0){
+		WFIFOB(fd, 2) = 0; // with coordinates
+	}
+	else{
+		x = 0;
+		y = 0;
+		WFIFOB(fd, 2) = 1; // without coordinates(will fail if you are already on the map)
+	}
+
+	// Which services can be used for transportation?
+	WFIFOB(fd, 3) = flag;
+	// If this flag is set, the navigation window will not be opened up
+	WFIFOB(fd, 4) = hideWindow;
+	// Target map
+	safestrncpy((char*)WFIFOP(fd, 5), map, MAP_NAME_LENGTH_EXT);
+	// Target x
+	WFIFOW(fd, 21) = x;
+	// Target y
+	WFIFOW(fd, 23) = y;
+	// Target monster ID
+	WFIFOW(fd, 25) = mob_id;
+	WFIFOSET(fd, 27);
 #endif
 }
 

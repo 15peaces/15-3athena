@@ -766,7 +766,7 @@ Date		Added
 	* Rev. 12654 Fixed escape problem in jobs/novice/novice.txt [Toms]
 2008/04/24
 	* Rev. 12646 Fixed hugel_bingo making an unneeded infinite loop bugreport:1349 [Toms]
-	* Rev. 12645 Corrected a typo error ";;" bugreport:919 [Toms]
+	* Rev. 12645 Corrected a typo error ";" bugreport:919 [Toms]
 2008/04/21
 	* Rev. 12629 Fixed yet another WoE SE Bug (Juno castle 3) [L0ne_W0lf]
 	* Rev. 12628 Fixed another WoE SE Bug. (wrong target for donpcevent) [L0ne_W0lf]
@@ -915,7 +915,7 @@ Date		Added
 	  and was apparently never meant to.
 2008/02/05
 	* Corrected a bad duplicate name in Kafra Bank (Custom). (bugeport:921) [Samuray22]
-	* Corrected a lot of ";;" Typo errors.
+	* Corrected a lot of ";" Typo errors.
 	-Some of this are in the bugreport:919
 	* Corrected a Cutin Problem in Cooking Quest and a Delitem. (bugreport:911)
 	* Corrected some typo error with "rouge". (bugreport:909)
