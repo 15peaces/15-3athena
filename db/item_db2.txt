@@ -359,7 +359,6 @@
 20221,C_Ifrit_Eyes,Costume Ifrit Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,886,{},{},{}
 20222,C_Blue_Santa_Hat,Costume Blue Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,395,{},{},{}
 20223,C_Romantic_Leaf,Costume Romantic Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,57,{},{},{}
-
 20224,C_Red_Tailed_Ribbon,Costume Red Tailed Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,167,{},{},{}
 20225,C_Pumpkin_Head,Costume Pumpkin Head,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,206,{},{},{}
 20226,C_Red_Comb,Costume Red Comb,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,445,{},{},{}
@@ -384,6 +383,7 @@
 20251,C_Rose_Cascade,Costume Rose Cascade,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,920,{},{},{}
 20252,C_Mage_Decoration,Costume Mage Decoration,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1150,{},{},{}
 20253,C_Drooping_Alicel,Costume Drooping Alicel,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,784,{},{},{}
+
 20254,C_Yellow_Ribbon,Costume Yellow Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,243,{},{},{}
 20255,C_Love_Cheeks,Costume Love Cheeks,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1318,{},{},{}
 20256,C_Honey_Pancake,Costume Honey Pancake,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1319,{},{},{}

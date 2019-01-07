@@ -855,8 +855,8 @@ int battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int dam
 		case PA_PRESSURE:
 		case HW_GRAVITATION:
 		case NJ_ZENYNAGE:
-		case RK_DRAGONBREATH:
-		case GN_HELLS_PLANT_ATK:
+		//case RK_DRAGONBREATH:
+		//case GN_HELLS_PLANT_ATK:
 			break;
 		default:
 			if (flag&BF_SKILL)
@@ -918,6 +918,8 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 	case PA_PRESSURE:
 	case HW_GRAVITATION:
 	case NJ_ZENYNAGE:
+	//case RK_DRAGONBREATH:
+	//case GN_HELLS_PLANT_ATK:
 		break;
 	default:
 		/* Uncomment if you want god-mode Emperiums at 100 defense. [Kisuka]
@@ -1033,8 +1035,8 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 		case W_2HMACE:
 			if((skill = pc_checkskill(sd,PR_MACEMASTERY)) > 0)
 				damage += (skill * 3);
-			if((skill = pc_checkskill(sd,NC_TRAININGAXE)) > 0)
-				damage += (skill * 5); //It works with axe also.
+			if ((skill = pc_checkskill(sd, NC_TRAININGAXE)) > 0)//Code shows it also works with Maces, but also shows maces is 4 instead of 5. Will recheck later. [Rytech]
+				damage += (skill * 5);//Reminder to also recheck the HIT for this skill on Maces as well when I do.
 			break;
 		case W_FIST:
 			if((skill = pc_checkskill(sd,TK_RUN)) > 0)
@@ -1697,19 +1699,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy ;
 					break;
 				}
-			case NC_AXEBOOMERANG:
-				//TODO: Need to get official value of weight % as addition to skill damage. [Jobbie]
-				if (sd) {
-					short index = sd->equip_index[EQI_HAND_R];
-					if (index >= 0 &&
-						sd->inventory_data[index] &&
-						sd->inventory_data[index]->type == IT_WEAPON)
-						wd.damage = sd->inventory_data[index]->weight/5;
-				} else
-					wd.damage = sstatus->rhw.atk2*2;
-				i=100+(40*(skill_lv-1));
-				ATK_ADDRATE(i);
-				break;
 			default:
 			{
 				i = (flag.cri?1:0)|
@@ -2131,7 +2120,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += skillratio * (s_level - 100) / 200; // Base level bonus.
 					break;
 				case NC_VULCANARM:
-					skillratio += 70 * skill_lv - 100 + sstatus->dex;
+					skillratio = 70 * skill_lv + sstatus->dex;
 					if (s_level > 100)
 						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
@@ -2148,9 +2137,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						case 2: skillratio += 100 + 300 * skill_lv; break;//large
 					}
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
+					//NOTE: Their's some other factors that affects damage, but not sure how exactly. Will recheck one day. [Rytech]
 					break;
 				case NC_AXEBOOMERANG:
 					skillratio += 60 + 40 * skill_lv;
+					if (sd)
+						{
+						short index = sd->equip_index[EQI_HAND_R];
+						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+							skillratio += sd->inventory_data[index]->weight / 10;// Weight is divided by 10 since 10 weight in coding make 1 whole actural weight. [Rytech]
+						}
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case NC_POWERSWING:
@@ -4005,7 +4001,10 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = md.damage + (5 * sstatus->int_) + (40 * pc_checkskill(sd,RA_RESEARCHTRAP));
 		break;
 	case NC_SELFDESTRUCTION:
-		md.damage = (sstatus->hp + sstatus->sp) * 50 * skill_lv / 100;
+		md.damage = pc_checkskill(sd, NC_MAINFRAME) * skill_lv * (status_get_sp(src) + sstatus->vit);
+		if (status_get_lv(src) > 100) md.damage = md.damage * s_level / 150;// Base level bonus.
+		if (sd) md.damage = md.damage + status_get_hp(src);
+		status_set_sp(src, 0, 0);
  		break;
 	case GN_THORNS_TRAP:
 		md.damage = 100 + 200 * skill_lv + sstatus->int_;

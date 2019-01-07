@@ -5,6 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/07/2019
+	r209 [15peaces]
+		*Merged missing changes from 3ceam rev. 647 - 650
+		*Changed Nightmare Scaraba Hole monsters to fit pre-renewal system.
+		*Added unit setting for Mutated Homunculus skills in the database.
+			-This is just a database update. The source code for them wasnt done yet and the skills wont work yet.
+		*Updated a few unit types to not stack and check for walls in skill_unit_db.
+			-Also updated EL_WATER_BARRIER, EL_ZEPHYR, and EL_POWER_OF_GAIA to have a 3x3 AoE.
+		*Fixed a issue where monster/clones using Earth Strain would cause a server crash.
+		*NC_SELFDESTRUCTION now ignores FLEE.
+		*Updated cast times and cooldowns on skills used by Magic Decoys to official.
+		*NC_DISJOINT now requires the player to have item 6186 (Monkey Wrench) in inventory to use.
+			-The item is not consumed on use.
+		*RK_DRAGONBREATH and GN_HELLS_PLANT damage is now lowered in GVG, WoE, and Battle Grounds area.
+			-If its not, then give me proof it is.
+		*Fixed a issue where the learned level of NC_MADOLICENCE would not affect your movement speed when in a mado.
+		*Updated NC_AXEBOOMERANG and NC_SELFDESTRUCTION damage formula's to official.
+		*Fixed a issue where NC_SELFDESTRUCTION would be applyed incorrectly.
+			-Damage should now properly show as skill damage with no animation delay issues.
+		*Fixed a issue where NC_SELFDESTRUCTION would remove all the caster's SP before checking and applying current amount of SP into the skill damage formula.
+		*Fixed a issue where NC_MAGICDECOY would summon incorrect monsters when summoning Wind or Earth type.
+
 01/05/2019
 	r208 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn208.sql file!

@@ -105,7 +105,8 @@
 
 670,0xc7,    ,  1, 4:7:10:13:16:19:22:25:28:31,1000,all,0x008	//NPC_EVILLAND
 
-2044,0xca,    ,  0, 3,1000,all,   0x000	//AB_EPICLESIS
+2032,0xe1,    ,  2, 0,1000,enemy, 0x018	//GC_POISONSMOKE
+2044,0xca,    ,  0, 3,1000,all,   0x018	//AB_EPICLESIS
 
 2214,0x86,    ,  0, 5, 100,enemy, 0x080	//WL_CHAINLIGHTNING
 
@@ -152,15 +153,18 @@
 2488,0xe9,    ,  0, 3,1000,enemy, 0x000	//GN_FIRE_EXPANSION_TEAR_GAS
 2490,0xea,    ,  0, 1,1000,all, 0x000	//GN_HELLS_PLANT
 
-//8020,0xf5,    ,  0, 3,1000,enemy,   0x010	//MH_POISON_MIST
-//8041,0xf6,    ,  3, 0,1000,enemy,   0x010	//MH_LAVA_SLIDE
-//8043,0xf7,    ,  3, 0,1000,enemy,   0x010	//MH_VOLCANIC_ASH
+8020,0xf5,    ,  0, 3,2300:2100:1900:1700:1500,enemy,   0x018	//MH_POISON_MIST
+8033,0x7e,    ,  0, 0,  -1,all,   0x003	//MH_STEINWAND - CHECK Is the use of safety wall's unit ID correct for this skills? [Rytech]
+8025,0x86,    ,  0, 2:2:3:3:4,1000,enemy, 0x018	//MH_XENO_SLASHER
+8041,0xf6,    ,  1:1:2:2:3, 0,1000,enemy,   0x018	//MH_LAVA_SLIDE CHECK - How often does this skill hit? [Rytech]
+8043,0xf7,    ,  0, 1,1000,enemy,   0x018	//MH_VOLCANIC_ASH
+
 8208,0x86,    ,  0, 2,1000,enemy, 0x080	//MA_SHOWER
 8209,0x90,    ,  0, 1,1000,enemy, 0x006	//MA_SKIDTRAP
 8210,0x93,    ,  0, 0,1000,enemy, 0x006	//MA_LANDMINE
 8211,0x95,    ,  0, 1,1000,enemy, 0x006	//MA_SANDMAN
 
-8403,0xed,    , -1, 1,1000,enemy, 0x010 //EL_FIRE_MANTLE
-8406,0xee,    ,  0, 0,  -1,friend,0x000	//EL_WATER_BARRIER
-8409,0xef,    ,  0, 0,  -1,friend,0x000	//EL_ZEPHYR
-8412,0xf0,    ,  0, 0,  -1,friend,0x000	//EL_POWER_OF_GAIA
+8403,0xed,    , -1, 1,1000,enemy, 0x018 //EL_FIRE_MANTLE
+8406,0xee,    ,  0, 1,  -1,friend,0x018	//EL_WATER_BARRIER
+8409,0xef,    ,  0, 1,  -1,friend,0x018	//EL_ZEPHYR
+8412,0xf0,    ,  0, 1,  -1,friend,0x018	//EL_POWER_OF_GAIA
