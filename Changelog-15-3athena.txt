@@ -5,6 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/31/2019
+	r210 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn210.sql file!
+		*Fixed some memory leaks.
+			-The clan database was not destroyed on shutdown.
+			-Data from bg_read_arenadb was not destroyed after usage.
+		*Added support for true / false constants.
+		*Extended LOG_ALL_PACKETS function.
+			-now also displays all intif_parse packets.			
+		*Initial release of the Achievement System.
+			-A 2015-05-13aRagexe or later is required.
+			-It's not yet working, but the base work (funtions, databases, etc.) is done. I'll finnish this in another commit.
+			-Information based on kRO patch notes.
+				-- http://ro.gnjoy.com/news/update/View.asp?seq=163&curpage=1
+			-Includes Title System which is integrated into the Achievement System.
+			-Includes RODEX integration for rewards.
+			-Added new atcommand reloadachievementdb.
+			-Added new script commands achievementinfo, achievementadd, achievementremove, achievementcomplete, and achievementexists.
+			-Thanks to @rathena for the base.
+
 01/07/2019
 	r209 [15peaces]
 		*Merged missing changes from 3ceam rev. 647 - 650

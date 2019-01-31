@@ -22,6 +22,7 @@
 #include "skill.h"
 #include "status.h"
 #include "itemdb.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -201,6 +202,9 @@ void party_created(int account_id, int char_id, int fail, int party_id, const ch
 	if( !fail ) {
 		sd->status.party_id = party_id;
 		clif_party_created(sd,0); //Success message
+
+		achievement_update_objective(sd, AG_PARTY, 1, 1);
+
 		//We don't do any further work here because the char-server sends a party info packet right after creating the party.
 	} else {
 		clif_party_created(sd,1); // "party name already exists"

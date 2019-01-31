@@ -126,6 +126,7 @@ static bool bg_read_arenadb(char* str[], int columns, int current)
 	bg_arena->queue_id = script_queue_create();
 
 	idb_put(bg_arena_db, bg_arena->bg_arena_id, bg_arena);
+	aFree(bg_arena);
 
 	return true;
 }

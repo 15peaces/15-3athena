@@ -1,4 +1,27 @@
 --
+-- Table structure for table `achievement`
+--
+
+CREATE TABLE IF NOT EXISTS `achievement` (
+  `char_id` int(11) unsigned NOT NULL default '0',
+  `id` bigint(11) unsigned NOT NULL,
+  `count1` mediumint(8) unsigned NOT NULL default '0',
+  `count2` mediumint(8) unsigned NOT NULL default '0',
+  `count3` mediumint(8) unsigned NOT NULL default '0',
+  `count4` mediumint(8) unsigned NOT NULL default '0',
+  `count5` mediumint(8) unsigned NOT NULL default '0',
+  `count6` mediumint(8) unsigned NOT NULL default '0',
+  `count7` mediumint(8) unsigned NOT NULL default '0',
+  `count8` mediumint(8) unsigned NOT NULL default '0',
+  `count9` mediumint(8) unsigned NOT NULL default '0',
+  `count10` mediumint(8) unsigned NOT NULL default '0',
+  `completed` datetime,
+  `rewarded` datetime,
+  PRIMARY KEY (`char_id`,`id`),
+  KEY `char_id` (`char_id`)
+) ENGINE=MyISAM;
+
+--
 -- Table structure for table `auction`
 --
 
@@ -140,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `hotkey_rowshift` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
   `clan_id` int(11) UNSIGNED NOT NULL default '0',
   `last_login` datetime DEFAULT NULL,
+  `title_id` INT(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),

@@ -146,6 +146,38 @@ typedef union DBKey {
 } DBKey;
 
 /**
+* Supported types of database data.
+* @param DB_DATA_INT Uses ints for data.
+* @param DB_DATA_UINT Uses unsigned ints for data.
+* @param DB_DATA_PTR Uses void pointers for data.
+* @public
+* @see #DBData
+*/
+typedef enum DBDataType {
+	DB_DATA_INT,
+	DB_DATA_UINT,
+	DB_DATA_PTR,
+} DBDataType;
+
+/**
+* Struct for data types used by the database.
+* @param type Type of data
+* @param u Union of available data types
+* @param u.i Data of int type
+* @param u.ui Data of unsigned int type
+* @param u.ptr Data of void* type
+* @public
+*/
+typedef struct DBData {
+	DBDataType type;
+	union {
+		int i;
+		unsigned int ui;
+		void *ptr;
+	} u;
+} DBData;
+
+/**
  * Format of funtions that create the data for the key when the entry doesn't 
  * exist in the database yet.
  * @param key Key of the database entry
@@ -728,6 +760,15 @@ DBKey db_ui2key(unsigned int key);
  * @public
  */
 DBKey db_str2key(const char *key);
+
+/**
+* Gets void* type data from struct DBData.
+* If data is not void* type, returns NULL.
+* @param data Data
+* @return Void* value of the data.
+* @public
+*/
+void* db_data2ptr(DBData *data);
 
 /**
  * Initialize the database system.

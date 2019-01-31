@@ -6,6 +6,8 @@
 #include "../common/nullpo.h"
 #include "../common/db.h"
 #include "../common/malloc.h"
+
+#include "achievement.h"
 #include "unit.h"
 #include "map.h"
 #include "path.h"
@@ -2353,6 +2355,13 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			}
 			sd->qi_count = 0;
 			break;
+
+			if (sd->achievement_data.achievements)
+				achievement_free(sd);
+
+			// Clearing...
+			if (sd->bonus_script.head)
+				pc_bonus_script_clear(sd, BSF_REM_ALL);
 		}
 		case BL_PET:
 		{

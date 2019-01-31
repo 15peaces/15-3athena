@@ -37,6 +37,7 @@
 #include "storage.h"
 #include "trade.h"
 #include "unit.h"
+#include "achievement.h"
 
 #ifndef TXT_ONLY
 #include "mail.h"
@@ -1899,6 +1900,8 @@ ACMD_FUNC(baselevelup)
 		sd->status.base_level += (unsigned int)level;
 		status_percent_heal(&sd->bl, 100, 100);
 		clif_misceffect(&sd->bl, 0);
+		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.base_level);
+		achievement_update_objective(sd, AG_GOAL_STATUS, 2, sd->status.base_level, sd->status.class_);
 		clif_displaymessage(fd, msg_txt(21)); // Base level raised.
 	}
 	else
@@ -1964,6 +1967,7 @@ ACMD_FUNC(joblevelup)
 		sd->status.job_level += (unsigned int)level;
 		sd->status.skill_point += level;
 		clif_misceffect(&sd->bl, 1);
+		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.job_level);
 		clif_displaymessage(fd, msg_txt(24)); // Job level raised.
 	} else {
 		if (sd->status.job_level == 1) {
@@ -2950,6 +2954,7 @@ ACMD_FUNC(refine)
 			clif_additem(sd, i, 1, 0);
 			pc_equipitem(sd, i, current_position);
 			clif_misceffect(&sd->bl, 3);
+			achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, sd->inventory_data[i]->wlv, sd->inventory.u.items_inventory[i].refine);
 			count++;
 		}
 	}
@@ -4607,6 +4612,18 @@ ACMD_FUNC(reloadscript)
 	npc_reload();
 
 	clif_displaymessage(fd, msg_txt(100)); // Scripts have been reloaded.
+
+	return 0;
+}
+
+/*==========================================
+* @reloadachievementdb - reloads achievements
+*------------------------------------------*/
+	ACMD_FUNC(reloadachievementdb)
+{
+	achievement_db_reload();
+
+	clif_displaymessage(fd, msg_txt(746)); // Achievement databases have been reloaded.
 
 	return 0;
 }
@@ -9566,6 +9583,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "reloadbattleconf",  99,99,     atcommand_reloadbattleconf },
 	{ "reloadstatusdb",    99,99,     atcommand_reloadstatusdb },
 	{ "reloadpcdb",        99,99,     atcommand_reloadpcdb },
+	{ "reloadachievementdb",99,99,    atcommand_reloadachievementdb },
 	{ "reloadmotd",        99,99,     atcommand_reloadmotd },
 	{ "mapinfo",           99,99,     atcommand_mapinfo },
 	{ "dye",               40,40,     atcommand_dye },

@@ -2487,6 +2487,21 @@ DBKey db_str2key(const char *key)
 }
 
 /**
+* Gets void* type data from struct DBData.
+* If data is not void* type, returns NULL.
+* @param data Data
+* @return Void* value of the data.
+* @public
+*/
+void* db_data2ptr(DBData *data)
+{
+	DB_COUNTSTAT(db_data2ptr);
+	if (data && DB_DATA_PTR == data->type)
+		return data->u.ptr;
+	return NULL;
+}
+
+/**
  * Initializes the database system.
  * @public
  * @see #db_final(void)

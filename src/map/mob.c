@@ -35,6 +35,7 @@
 #include "atcommand.h"
 #include "date.h"
 #include "quest.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2504,6 +2505,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				case BL_HOM: sd = ((TBL_HOM*)src)->master; break;
 				case BL_MER: sd = ((TBL_MER*)src)->master; break;
 			}
+
+		if (achievement_mobexists(md->class_))
+			achievement_update_objective(sd, AG_BATTLE, 1, md->class_);
 
 		if( sd && sd->md && src && src->type != BL_HOM && mob_db(md->class_)->lv > sd->status.base_level/2 )
 			mercenary_kills(sd->md);

@@ -326,6 +326,13 @@ uint64 SqlStmt_AffectedRows(SqlStmt* self);
 
 
 
+/// Returns the number of rows affected by the last query
+///
+/// @return Number of rows
+uint64 Sql_NumRowsAffected(Sql* self);
+
+
+
 /// Fetches the next row.
 /// All column bindings will be filled with data.
 ///

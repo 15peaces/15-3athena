@@ -106,6 +106,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\char_sql\char.c" />
+    <ClCompile Include="..\src\char_sql\int_achievement.c" />
     <ClCompile Include="..\src\char_sql\int_auction.c" />
     <ClCompile Include="..\src\char_sql\int_clan.c" />
 	<ClCompile Include="..\src\char_sql\int_elemental.c" />
@@ -121,6 +122,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\char_sql\char.h" />
+    <ClInclude Include="..\src\char_sql\int_achievement.h" />
     <ClInclude Include="..\src\char_sql\int_auction.h" />
     <ClInclude Include="..\src\char_sql\int_clan.h" />
 	<ClInclude Include="..\src\char_sql\int_elemental.h" />

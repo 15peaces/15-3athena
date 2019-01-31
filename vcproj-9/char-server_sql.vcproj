@@ -196,6 +196,14 @@
 			>
 		</File>
 		<File
+			RelativePath="..\src\char_sql\int_achievement.c"
+			>
+		</File>
+		<File
+			RelativePath="..\src\char_sql\int_achievement.h"
+			>
+		</File>
+		<File
 			RelativePath="..\src\char_sql\int_auction.c"
 			>
 		</File>

@@ -5,6 +5,7 @@
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
+
 #include "clif.h"
 #include "itemdb.h"
 #include "atcommand.h"
@@ -16,6 +17,7 @@
 #include "skill.h"
 #include "battle.h"
 #include "log.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -173,6 +175,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	log_zeny(vsd, LOG_TYPE_VENDING, sd, (int)z);
 
 	pc_payzeny(sd, (int)z);
+	achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
 	if( battle_config.vending_tax )
 		z -= z * (battle_config.vending_tax/10000.);
 	pc_getzeny(vsd, (int)z);

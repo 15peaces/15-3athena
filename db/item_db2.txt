@@ -754,7 +754,7 @@
 22860,November_Gift_Box,November Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem callfunc("F_Rand",2566,2856,2857,15023),1209600; },{},{}
 22861,December_Gift_Box,December Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22869,10; },{},{}
 22869,Lucky_Roulette_Tickets,Lucky Roulette Ticket,2,10,,100,,,,,0xFFFFFFFF,63,2,,,50,,,{ set RouletteBronze,RouletteBronze+1; },{},{}
-22876,Old_Money_Pocket,Old Money Pocket,3,0,,0,,,,,,,,,,,,,{},{},{}
+22876,Old_Money_Pocket,Old Money Pocket,3,0,,0,,,,,,,,,,,,,{set Zeny, Zeny + rand(500,550);},{},{}
 22883,September_Gift_Box,September Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{/*2 Lucky Eggs*/},{},{}
 22884,October_Gift_Box,October Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12529,5; },{},{}
 22885,November_Gift_Box,November Gift Box,2,10,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem callfunc("F_Rand",2566,2856,2857,15023),1209600; },{},{}

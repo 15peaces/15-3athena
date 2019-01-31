@@ -49,10 +49,9 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
-	//#define PACKETVER 20131223 //Stable client [15peaces]
 	//#define PACKETVER 20141022 //Stable client [15peaces]
-	#define PACKETVER 20151029 //Experimental client [15peaces]
-
+	#define PACKETVER 20151029 //Semi-Stable client [15peaces]
+	//#define PACKETVER 20161228 //next experimental client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -207,18 +206,15 @@
 #define EL_CLASS_BASE 2114
 #define EL_CLASS_MAX (EL_CLASS_BASE+MAX_ELEMENTAL_CLASS-1)
 
-//Expansion Skills
-//Remaps the player skills in the 5000 ID range to a lower range
-//in the skill ID index. This is a better way to handle these skills since
-//increasing the MAX_SKILL to a setting like 5020 would waste a lot of
-//memory.
-//#define EX_SKILLBASE 5001
-//#define MAX_EXPANSKILL 18
-//Note: Doing this didn't work. Will have to find another way in the future.
-
 //15-3athena
 //Will be needed in the future for keeping track of and saving cooldown times for skills. [15peaces]
 //#define MAX_SKILLCOOLDOWN 20
+
+//Achievement System
+#define MAX_ACHIEVEMENT_RANK 20 /// Maximum achievement level
+#define MAX_ACHIEVEMENT_OBJECTIVES 10 /// Maximum different objectives in achievement_db.txt
+#define MAX_ACHIEVEMENT_DEPENDENTS 20 /// Maximum different dependents in achievement_db.txt
+#define ACHIEVEMENT_NAME_LENGTH 50 /// Max Achievement Name length
 
 enum item_types {
 	IT_HEALING = 0,			//IT_HEAL		= 0x00
@@ -253,6 +249,15 @@ struct quest {
 	unsigned int time;
 	int count[MAX_QUEST_OBJECTIVES];
 	quest_state state;
+};
+
+/// Achievement log entry
+struct achievement {
+	int achievement_id;                    ///< Achievement ID
+	int count[MAX_ACHIEVEMENT_OBJECTIVES]; ///< Counters of each achievement objective
+	time_t completed;                      ///< Date completed
+	time_t rewarded;                       ///< Received reward?
+	int score;                             ///< Amount of points achievement is worth
 };
 
 struct item {
@@ -537,6 +542,7 @@ struct mmo_charstatus {
 	time_t delete_date;
 
 	unsigned char hotkey_rowshift;
+	unsigned long title_id;
 };
 
 typedef enum mail_status {

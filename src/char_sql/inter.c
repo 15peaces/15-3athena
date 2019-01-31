@@ -21,6 +21,7 @@
 #include "int_mail.h"
 #include "int_auction.h"
 #include "int_quest.h"
+#include "int_achievement.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -53,7 +54,7 @@ int inter_recv_packet_length[] = {
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 18,19,186,-1,	// 3030-
 	 5, 9, 0, 0,  0, 0, 0, 0,  8, 6,11,10, 10,-1,6+NAME_LENGTH, 0,	// 3040-
 	-1,-1,10,10,  0,-1,12, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3050-  Auction System [Zephyrus]
-	 6,-1, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3060-  Quest system [Kevin] [Inkfish]
+	 6,-1, 6,-1, 16 + NAME_LENGTH + ACHIEVEMENT_NAME_LENGTH, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 3060-  Quest system [Kevin] [Inkfish] / Achievements [Aleos]
 	-1,10, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0, -1,10,  6,-1,	// 3070-  Mercenary packets [Zephyrus], Elemental packets [pakpil]
 	48,14,-1, 6,  0, 0, 0, 0,  0, 0,11,-1,  0, 0,  0, 0,	// 3080-  Pet System, Storage
 	-1,10,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3090-  Homunculus packets [albator]
@@ -718,13 +719,21 @@ int inter_parse_frommap(int fd)
 	int cmd;
 	int len = 0;
 	cmd = RFIFOW(fd,0);
-	// inter鯖管轄かを調べる
-	if(cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length) || inter_recv_packet_length[cmd - 0x3000] == 0)
-		return 0;
 
-	// パケット長を調べる
-	if((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0)
+	ShowDebug("inter_parse_frommap: Received unchecked packet 0x%04X, session #%d\n", cmd, fd);
+
+
+	// Check is valid packet entry
+	if (cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length) || inter_recv_packet_length[cmd - 0x3000] == 0){
+		ShowDebug("inter_parse_frommap: Invalid packet 0x%04X, session #%d\n", cmd, fd);
+		return 0;
+	}
+
+	// Check packet length
+	if ((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0){
+		ShowDebug("inter_parse_frommap:invalid length %d for packet 0x%04X, session #%d\n", len, cmd, fd);
 		return 2;
+	}
 
 #ifdef LOG_ALL_PACKETS
 	ShowDebug("inter_parse_frommap: Received packet 0x%04X (length %d), session #%d\n", cmd, len, fd);
@@ -750,6 +759,7 @@ int inter_parse_frommap(int fd)
 		  || inter_auction_parse_frommap(fd)
 		  || inter_quest_parse_frommap(fd)
 		  || inter_clan_parse_frommap(fd)
+		  || inter_achievement_parse_frommap(fd)
 		   )
 			break;
 		else

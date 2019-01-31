@@ -34,6 +34,7 @@
 #include "guild.h"
 #include "date.h"
 #include "unit.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13631,6 +13632,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 				clif_refine(sd->fd,0,idx,item->refine);
 				clif_delitem(sd,idx,1,3);
 				clif_additem(sd,idx,1,0);
+				achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, ditem->wlv, item->refine);
 				if (ep)
 					pc_equipitem(sd,idx,ep);
 				clif_misceffect(&sd->bl,3);
@@ -13655,6 +13657,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 				if(item->equip)
 					pc_unequipitem(sd,idx,3);
 				clif_refine(sd->fd,1,idx,item->refine);
+				achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
 				pc_delitem(sd,idx,1,0,2);
 				clif_misceffect(&sd->bl,2);
 				clif_emotion(&sd->bl, E_OMG);

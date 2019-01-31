@@ -65,7 +65,7 @@ char friend_db[256] = "friends";
 char hotkey_db[256] = "hotkey";
 char quest_db[256] = "quest";
 char bonus_script_db[256] = "bonus_script"; // cydh bonus_script
-
+char achievement_table[256] = "achievement";
 
 // show loading/saving messages
 #ifdef TXT_SQL_CONVERT
@@ -474,7 +474,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->ele_id != cp->ele_id) || (p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->rename != cp->rename) ||
 		(p->delete_date != cp->delete_date) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
-		(p->clan_id != cp->clan_id )
+		(p->clan_id != cp->clan_id) || (p->title_id != cp->title_id)
 	)
 	{	//Save status
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `base_level`='%d', `job_level`='%d',"
@@ -484,7 +484,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',`elemental_id`='%d',"
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
-			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d'"
+			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -495,7 +495,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y,
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
-			p->robe, p->hotkey_rowshift, p->clan_id,
+			p->robe, p->hotkey_rowshift, p->clan_id, p->title_id,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
@@ -1090,7 +1090,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`body`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`sex`,`hotkey_rowshift`,`clan_id`"
+		"`robe`,`sex`,`hotkey_rowshift`,`title_id`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -1132,7 +1132,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 36, SQLDT_SHORT,  &p.robe, 0, NULL, NULL)
  	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL) 
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR,  &p.hotkey_rowshift, 0, NULL, NULL)
-	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_INT,    &p.clan_id, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_ULONG,	&p.title_id, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug( stmt );
@@ -1192,7 +1192,7 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`elemental_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`body`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
 		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`,`sex`,"
-		"`hotkey_rowshift`"
+		"`hotkey_rowshift`,`clan_id`,`title_id`"
 		" FROM `%s` WHERE `char_id`=? LIMIT 1", char_db)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
@@ -1250,7 +1250,9 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 51, SQLDT_UINT32, &p->delete_date, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 52, SQLDT_SHORT,  &p->robe, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 53, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL)
-	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UCHAR,  &p->hotkey_rowshift, 0, NULL, NULL) 
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UCHAR,  &p->hotkey_rowshift, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 55, SQLDT_INT,	&p->clan_id, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 56, SQLDT_ULONG,	&p->title_id, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1825,6 +1827,10 @@ int delete_char_sql(int char_id)
 			charlog_db, account_id, 0, char_id, esc_name) )
 			Sql_ShowDebug(sql_handle);
 	}
+
+	/* Achievement Data */
+	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", achievement_table, char_id))
+		Sql_ShowDebug(sql_handle);
 
 	/* delete character */
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d'", char_db, char_id) )
@@ -5331,6 +5337,8 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(quest_db,w2,sizeof(quest_db));
 		else if(!strcmpi(w1,"bonus_script_db"))
 			safestrncpy(bonus_script_db, w2, sizeof(bonus_script_db));
+		else if (!strcmpi(w1, "achievement_table"))
+			safestrncpy(achievement_table, w2, sizeof(achievement_table));
 		//support the import command, just like any other config
 		else if(!strcmpi(w1,"import"))
 			sql_config_read(w2);

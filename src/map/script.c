@@ -51,6 +51,7 @@
 #include "mail.h"
 #include "script.h"
 #include "quest.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1053,6 +1054,44 @@ static void parse_nextline(bool first, const char* p)
 	str_data[LABEL_NEXTLINE].label     = -1;
 }
 
+/*
+* Checks whether the gives string is a number literal
+*
+* Mainly necessary to differentiate between number literals and NPC name
+* constants, since several of those start with a digit.
+*
+* All this does is to check if the string begins with an optional + or - sign,
+* followed by a hexadecimal or decimal number literal literal and is NOT
+* followed by a underscore or letter.
+*
+* @author : Hercules.ws
+* @param p Pointer to the string to check
+* @return Whether the string is a number literal
+*/
+bool is_number(const char *p) {
+	const char *np;
+	if (!p)
+		return false;
+	if (*p == '-' || *p == '+')
+		p++;
+	np = p;
+	if (*p == '0' && p[1] == 'x') {
+		p += 2;
+		np = p;
+		// Hexadecimal
+		while (ISXDIGIT(*np))
+			np++;
+	}
+	else {
+		// Decimal
+		while (ISDIGIT(*np))
+			np++;
+	}
+	if (p != np && *np != '_' && !ISALPHA(*np)) // At least one digit, and next isn't a letter or _
+		return true;
+	return false;
+}
+
 /*==========================================
  * Analysis section
  *------------------------------------------*/
@@ -1979,6 +2018,20 @@ static void add_buildin_func(void)
 			str_data[n].func = buildin_func[i].func;
 		}
 	}
+}
+
+/// Retrieves the value of a constant parameter.
+bool script_get_parameter(const char* name, int* value)
+{
+	int n = search_str(name);
+
+	if (n == -1 || str_data[n].type != C_PARAM)
+	{// not found or not a parameter
+		return false;
+	}
+	value[0] = str_data[n].val;
+
+	return true;
 }
 
 /// Retrieves the value of a constant.
@@ -7253,6 +7306,7 @@ BUILDIN_FUNC(successrefitem)
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,3);
+		achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, sd->inventory_data[i]->wlv, sd->inventory.u.items_inventory[i].refine);
 		if(sd->inventory.u.items_inventory[i].refine == MAX_REFINE &&
 			sd->inventory.u.items_inventory[i].card[0] == CARD0_FORGE &&
 		  	sd->status.char_id == (int)MakeDWord(sd->inventory.u.items_inventory[i].card[2],sd->inventory.u.items_inventory[i].card[3])
@@ -7301,6 +7355,7 @@ BUILDIN_FUNC(failedrefitem)
 		pc_delitem(sd,i,1,0,2);
 		// ‘¼‚Ìl‚É‚àŽ¸”s‚ð’Ê’m
 		clif_misceffect(&sd->bl,2);
+		achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
 	}
 
 	return 0;
@@ -7342,6 +7397,7 @@ BUILDIN_FUNC(downrefitem) {
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep);
 		clif_misceffect(&sd->bl,2);
+		achievement_update_objective(sd, AG_REFINE_FAIL, 1, sd->inventory.u.items_inventory[i].refine);
 		script_pushint(st, sd->inventory.u.items_inventory[i].refine);
 		return 1;
 	}
@@ -19157,6 +19213,127 @@ BUILDIN_FUNC(navigateto){
 #endif
 }
 
+/**
+* Add an achievement to the player's log
+* achievementadd(<achievement ID>{,<char ID>});
+*/
+BUILDIN_FUNC(achievementadd) {
+	struct map_session_data *sd;
+	int achievement_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd)) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (achievement_search(achievement_id) == &achievement_dummy) {
+		ShowWarning("buildin_achievementadd: Achievement '%d' doesn't exist.\n", achievement_id);
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (achievement_add(sd, achievement_id))
+		script_pushint(st, true);
+	else
+		script_pushint(st, false);
+	return 0;
+}
+
+/**
+* Removes an achievement on a player.
+* achievementremove(<achievement ID>{,<char ID>});
+* Just for Atemo. ;)
+*/
+BUILDIN_FUNC(achievementremove) {
+	struct map_session_data *sd;
+	int achievement_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd)) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (achievement_search(achievement_id) == &achievement_dummy) {
+		ShowWarning("buildin_achievementremove: Achievement '%d' doesn't exist.\n", achievement_id);
+		script_pushint(st, false);
+		return 0;
+	}
+
+	if (achievement_remove(sd, achievement_id))
+		script_pushint(st, true);
+	else
+		script_pushint(st, false);
+	return 0;
+}
+
+/**
+* Returns achievement progress
+* achievementinfo(<achievement ID>,<type>{,<char ID>});
+*/
+BUILDIN_FUNC(achievementinfo) {
+	struct map_session_data *sd;
+	int achievement_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(4, sd)) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	script_pushint(st, achievement_check_progress(sd, achievement_id, script_getnum(st, 3)));
+	return 0;
+}
+
+/**
+* Award an achievement; Ignores requirements
+* achievementcomplete(<achievement ID>{,<char ID>});
+*/
+BUILDIN_FUNC(achievementcomplete) {
+	struct map_session_data *sd;
+	int i, achievement_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd)) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (achievement_search(achievement_id) == &achievement_dummy) {
+		ShowWarning("buildin_achievementcomplete: Achievement '%d' doesn't exist.\n", achievement_id);
+		script_pushint(st, false);
+		return 1;
+	}
+
+	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
+	if (i == sd->achievement_data.count)
+		achievement_add(sd, achievement_id);
+	achievement_update_achievement(sd, achievement_id, true);
+	script_pushint(st, true);
+	return 0;
+}
+
+/**
+* Checks if the achievement exists on player.
+* achievementexists(<achievement ID>{,<char ID>});
+*/
+BUILDIN_FUNC(achievementexists) {
+	struct map_session_data *sd;
+	int i, achievement_id = script_getnum(st, 2);
+
+	if (!script_charid2sd(3, sd)) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (achievement_search(achievement_id) == &achievement_dummy) {
+		ShowWarning("buildin_achievementexists: Achievement '%d' doesn't exist.\n", achievement_id);
+		script_pushint(st, false);
+		return 0;
+	}
+
+	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
+	script_pushint(st, i < sd->achievement_data.count ? true : false);
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -19661,5 +19838,11 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 	BUILDIN_DEF(navigateto, "s???????"),
+	// Achievement System
+	BUILDIN_DEF(achievementinfo, "ii?"),
+	BUILDIN_DEF(achievementadd, "i?"),
+	BUILDIN_DEF(achievementremove, "i?"),
+	BUILDIN_DEF(achievementcomplete, "i?"),
+	BUILDIN_DEF(achievementexists, "i?"),
 	{NULL,NULL,NULL},
 };

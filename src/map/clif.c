@@ -42,6 +42,7 @@
 #include "clif.h"
 #include "mail.h"
 #include "quest.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -293,6 +294,10 @@ static inline unsigned char clif_bl_type(struct block_list *bl) {
 	}
 }
 #endif
+
+static bool clif_session_isValid(struct map_session_data *sd) {
+	return (sd != NULL && session_isActive(sd->fd));
+}
 
 /*==========================================
  * clif_send‚ÅAREA*Žw’èŽž—p
@@ -9621,7 +9626,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 			}
 
 #if PACKETVER >= 20150513
-			WBUFL(buf,102) = 0; // Title ID
+			WBUFL(buf, 102) = sd->status.title_id; // Title ID
 #endif
 		}
 		break;
@@ -9649,7 +9654,11 @@ void clif_charnameack (int fd, struct block_list *bl)
 			memcpy(WBUFP(buf,6), md->name, NAME_LENGTH);
 			if( md->guardian_data && md->guardian_data->guild_id )
 			{
+#if PACKETVER >= 20150513
+				WBUFW(buf, 0) = cmd = 0xa30;
+#else
 				WBUFW(buf, 0) = cmd = 0x195;
+#endif
 				WBUFB(buf,30) = 0;
 				memcpy(WBUFP(buf,54), md->guardian_data->guild_name, NAME_LENGTH);
 				memcpy(WBUFP(buf,78), md->guardian_data->castle->castle_name, NAME_LENGTH);
@@ -9657,7 +9666,11 @@ void clif_charnameack (int fd, struct block_list *bl)
 			else if( battle_config.show_mob_info )
 			{
 				char mobhp[50], *str_p = mobhp;
+#if PACKETVER >= 20150513
+				WBUFW(buf, 0) = cmd = 0xa30;
+#else
 				WBUFW(buf, 0) = cmd = 0x195;
+#endif
 				if( battle_config.show_mob_info&4 )
 					str_p += sprintf(str_p, "Lv. %d | ", md->level);
 				if( battle_config.show_mob_info&1 )
@@ -9674,6 +9687,9 @@ void clif_charnameack (int fd, struct block_list *bl)
 					memcpy(WBUFP(buf,78), mobhp, NAME_LENGTH);
 				}
 			}
+#if PACKETVER >= 20150513
+			WBUFL(buf, 102) = 0; // Title ID
+#endif
 		}
 		break;
 	case BL_CHAT:	//FIXME: Clients DO request this... what should be done about it? The chat's title may not fit... [Skotlex]
@@ -10995,6 +11011,7 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 
 	// Chat logging type 'O' / Global Chat
 	log_chat(LOG_CHAT_GLOBAL, 0, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, message);
+	//achievement_update_objective(sd, AG_CHAT, 1, sd->bl.m); //! TODO: What's the official use of this achievement type?
 }
 
 
@@ -13932,6 +13949,174 @@ void clif_clan_leave(struct map_session_data* sd)
 #endif
 }
 
+/**
+* Acknowledge the client about change title result (ZC_ACK_CHANGE_TITLE).
+* 0A2F <result>.B <title_id>.L
+*/
+void clif_change_title_ack(struct map_session_data *sd, unsigned char result, unsigned long title_id)
+{
+#if PACKETVER >= 20150513
+	int fd;
+
+	nullpo_retv(sd);
+
+	if (!clif_session_isValid(sd))
+		return;
+	fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa2f));
+	WFIFOW(fd, 0) = 0xa2f;
+	WFIFOB(fd, 2) = result;
+	WFIFOL(fd, 3) = title_id;
+	WFIFOSET(fd, packet_len(0xa2f));
+#endif
+}
+
+/**
+* Parsing a request from the client change title (CZ_REQ_CHANGE_TITLE).
+* 0A2E <title_id>.L
+*/
+void clif_parse_change_title(int fd, struct map_session_data *sd)
+{
+	int title_id, i;
+
+	nullpo_retv(sd);
+
+	title_id = RFIFOL(fd, 2);
+
+	if (title_id == sd->status.title_id){
+		// It is exactly the same as the old one
+		return;
+	}
+	else if (title_id <= 0){
+		sd->status.title_id = 0;
+	}
+	else{
+		ARR_FIND(0, sd->titleCount, i, sd->titles[i] == title_id);
+		if (i == sd->titleCount){
+			clif_change_title_ack(sd, 1, title_id);
+			return;
+		}
+
+		sd->status.title_id = title_id;
+	}
+
+	clif_charnameack(sd->fd, &sd->bl);
+	clif_change_title_ack(sd, 0, title_id);
+}
+
+/// Achievement System
+/// Author: Luxuri, Aleos
+
+/**
+* Sends all achievement data to the client (ZC_ALL_AG_LIST).
+* 0a23 <packetType>.W <packetLength>.W <ACHCount>.L <ACHPoint>.L
+*/
+void clif_achievement_list_all(struct map_session_data *sd)
+{
+	int i, j, len, fd, *info;
+	uint16 count = 0;
+
+	nullpo_retv(sd);
+
+	if (!battle_config.feature_achievement) {
+		clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(747)); // Achievements are disabled.
+		return;
+	}
+
+	fd = sd->fd;
+	count = sd->achievement_data.count; // All achievements should be sent to the client
+	len = (50 * count) + 22;
+
+	if (len <= 22)
+		return;
+
+	info = achievement_level(sd, true);
+
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = 0xa23;
+	WFIFOW(fd, 2) = len;
+	WFIFOL(fd, 4) = count; // Amount of achievements the player has in their list (started/completed)
+	WFIFOL(fd, 8) = sd->achievement_data.total_score; // Top number
+	WFIFOW(fd, 12) = sd->achievement_data.level; // Achievement Level (gold circle)
+	WFIFOL(fd, 14) = info[0]; // Achievement EXP (left number in bar)
+	WFIFOL(fd, 18) = info[1]; // Achievement EXP TNL (right number in bar)
+
+	for (i = 0; i < count; i++) {
+		WFIFOL(fd, i * 50 + 22) = (uint32)sd->achievement_data.achievements[i].achievement_id;
+		WFIFOB(fd, i * 50 + 26) = (uint32)sd->achievement_data.achievements[i].completed > 0;
+		for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++)
+			WFIFOL(fd, (i * 50) + 27 + (j * 4)) = (uint32)sd->achievement_data.achievements[i].count[j];
+		WFIFOL(fd, i * 50 + 67) = (uint32)sd->achievement_data.achievements[i].completed;
+		WFIFOB(fd, i * 50 + 71) = sd->achievement_data.achievements[i].rewarded > 0;
+	}
+	WFIFOSET(fd, len);
+}
+
+/**
+* Sends a single achievement's data to the client (ZC_AG_UPDATE).
+* 0a24 <packetType>.W <ACHPoint>.L
+*/
+void clif_achievement_update(struct map_session_data *sd, struct achievement *ach, int count)
+{
+	int fd, i, *info;
+
+	nullpo_retv(sd);
+
+	if (!battle_config.feature_achievement) {
+		clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(747)); // Achievements are disabled.
+		return;
+	}
+
+	fd = sd->fd;
+	info = achievement_level(sd, true);
+
+	WFIFOHEAD(fd, packet_len(0xa24));
+	WFIFOW(fd, 0) = 0xa24;
+	WFIFOL(fd, 2) = sd->achievement_data.total_score; // Total Achievement Points (top of screen)
+	WFIFOW(fd, 6) = sd->achievement_data.level; // Achievement Level (gold circle)
+	WFIFOL(fd, 8) = info[0]; // Achievement EXP (left number in bar)
+	WFIFOL(fd, 12) = info[1]; // Achievement EXP TNL (right number in bar)
+	if (ach) {
+		WFIFOL(fd, 16) = ach->achievement_id; // Achievement ID
+		WFIFOB(fd, 20) = ach->completed > 0; // Is it complete?
+		for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
+			WFIFOL(fd, 21 + (i * 4)) = (uint32)ach->count[i]; // 1~10 pre-reqs
+		WFIFOL(fd, 61) = (uint32)ach->completed; // Epoch time
+		WFIFOB(fd, 65) = ach->rewarded > 0; // Got reward?
+	}
+	else
+		memset(WFIFOP(fd, 16), 0, 40);
+	WFIFOSET(fd, packet_len(0xa24));
+}
+
+/**
+* Checks if an achievement reward can be rewarded (CZ_REQ_AG_REWARD).
+* 0a25 <packetType>.W <achievementID>.L
+*/
+void clif_parse_AchievementCheckReward(int fd, struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+
+	if (sd->achievement_data.save)
+		intif_achievement_save(sd);
+
+	achievement_check_reward(sd, RFIFOL(fd, 2));
+}
+
+/**
+* Returns the result of achievement_check_reward (ZC_REQ_AG_REWARD_ACK).
+* 0a26 <packetType>.W <result>.W <achievementID>.L
+*/
+void clif_achievement_reward_ack(int fd, unsigned char result, int achievement_id)
+{
+	WFIFOHEAD(fd, packet_len(0xa26));
+	WFIFOW(fd, 0) = 0xa26;
+	WFIFOB(fd, 2) = result;
+	WFIFOL(fd, 3) = achievement_id;
+	WFIFOSET(fd, packet_len(0xa26));
+}
+
 /// Pet
 ///
 
@@ -14807,6 +14992,8 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 		memcpy(f_sd->status.friends[i].name, sd->status.name, NAME_LENGTH);
 		clif_friendslist_reqack(f_sd, sd, 0);
 
+		achievement_update_objective(f_sd, AG_ADD_FRIEND, 1, i + 1);
+
 		if (battle_config.friend_auto_add) {
 			// Also add f_sd to sd's friendlist.
 			for (i = 0; i < MAX_FRIENDS; i++) {
@@ -14824,6 +15011,8 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 			sd->status.friends[i].char_id = f_sd->status.char_id;
 			memcpy(sd->status.friends[i].name, f_sd->status.name, NAME_LENGTH);
 			clif_friendslist_reqack(sd, f_sd, 0);
+			
+			achievement_update_objective(sd, AG_ADD_FRIEND, 1, i + 1);
 		}
 	}
 }
@@ -19794,9 +19983,9 @@ void packetdb_readdb(void)
 	  269,  0,  0,  2,  6, 48,  6,  9, 26, 45, 47, 47, 56, -1, 14,  0,
 #endif
 		-1, 0,  0, 26, 10,  0,  0,  0, 14,  2, 23,  2, -1,  2,  3,  2,
-	   21,  3,  5,  0, 66,  0,  0,  8,  3,  0,  0,  0,  0, -1,  0,  0,
+	   21,  3,  5,  0, 66,  6,  0,  8,  3,  0,  0,  0,  0, -1,  6,  0,
  	  106,  0,  0,  0,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
- 	//#0x0A40
+ //#0x0A40
  		0,  0,  0, 85, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
@@ -19811,7 +20000,7 @@ void packetdb_readdb(void)
 		{clif_parse_TickSend,"ticksend"},
 		{clif_parse_WalkToXY,"walktoxy"},
 		{clif_parse_QuitGame,"quitgame"},
-		{clif_parse_GetCharNameRequest,"getcharnamerequest"},
+		{ clif_parse_GetCharNameRequest, "getcharnamerequest" },
 		{clif_parse_GlobalMessage,"globalmessage"},
 		{clif_parse_MapMove,"mapmove"},
 		{clif_parse_ChangeDir,"changedir"},
@@ -20038,6 +20227,8 @@ void packetdb_readdb(void)
 		{ clif_parse_HotkeyRowShift, "hotkeyrowshift"},
 		// Clan System
 		{clif_parse_clan_chat, "clanchat"},
+		{clif_parse_AchievementCheckReward, "pAchivementCheckReward" },
+		{clif_parse_change_title, "pChangeTitle" },
 		// Battleground Queue
 		{clif_parse_bgqueue_register, "pBGQueueRegister"},
 		{clif_parse_bgqueue_checkstate, "pBGQueueCheckState"},

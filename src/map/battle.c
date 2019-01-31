@@ -5570,6 +5570,7 @@ static const struct _battle_data {
 	{ "mail_zeny_fee",						&battle_config.mail_zeny_fee,					2,		0,		100,			},
 	{ "mail_attachment_price",				&battle_config.mail_attachment_price,			2500,	0,		INT32_MAX,		},
 	{ "mail_attachment_weight",				&battle_config.mail_attachment_weight,			2000,	0,		INT32_MAX,		},
+	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
@@ -5645,6 +5646,13 @@ void battle_adjust_conf()
 	if (battle_config.feature_roulette) {
 		ShowWarning("conf/battle/feature.conf roulette is enabled but it requires PACKETVER 2014-10-22 or newer, disabling...\n");
 		battle_config.feature_roulette = 0;
+	}
+#endif
+
+#if PACKETVER < 20150513
+	if (battle_config.feature_achievement) {
+		ShowWarning("conf/battle/feature.conf achievement is enabled but it requires PACKETVER 2015-05-13 or newer, disabling...\n");
+		battle_config.feature_achievement = 0;
 	}
 #endif
 

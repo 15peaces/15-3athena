@@ -48,6 +48,8 @@
 #ifndef TXT_ONLY
 #include "mail.h"
 #endif
+#include "achievement.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -3769,6 +3771,7 @@ void do_final(void)
 	do_final_battle();
 	do_final_chrif();
 	do_final_npc();
+	do_final_achievement();
 	do_final_script();
 	do_final_instance();
 	do_final_itemdb();
@@ -3786,6 +3789,7 @@ void do_final(void)
 	do_final_elemental();
 	do_final_duel();
 	do_final_cashshop();
+	do_final_clan();
 	
 	map_db->destroy(map_db, map_db_final);
 	
@@ -4115,6 +4119,7 @@ int do_init(int argc, char *argv[])
 	do_init_mercenary();
 	do_init_elemental();
 	do_init_quest();
+	do_init_achievement();
 	do_init_npc();
 	do_init_unit();
 	do_init_battleground();

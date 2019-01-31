@@ -27,6 +27,7 @@ struct clan;
 struct battleground_data;
 struct quest;
 struct party_booking_ad_info;
+struct achievement;
 
 #define P2PTR(fd) RFIFO2PTR(fd)
 
@@ -743,6 +744,12 @@ void clif_clan_basicinfo( struct map_session_data *sd );
 void clif_clan_message(struct clan *clan,const char *mes,int len);
 void clif_clan_onlinecount( struct clan* clan );
 void clif_clan_leave( struct map_session_data* sd );
+
+/// Achievement System
+void clif_achievement_list_all(struct map_session_data *sd);
+void clif_achievement_update(struct map_session_data *sd, struct achievement *ach, int count);
+void clif_pAchievementCheckReward(int fd, struct map_session_data *sd);
+void clif_achievement_reward_ack(int fd, unsigned char result, int ach_id);
 
 // Battleground
 void clif_bg_hp(struct map_session_data *sd);
