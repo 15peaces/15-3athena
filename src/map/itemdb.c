@@ -21,7 +21,7 @@
 #define MAX_ITEMDB 0x10000
 
 
-static struct item_data* itemdb_array[MAX_ITEMDB];
+//static struct item_data* itemdb_array[MAX_ITEMDB];
 static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
 static DBMap *itemdb_randomopt; /// Random option DB
 
@@ -64,7 +64,7 @@ static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
  *------------------------------------------*/
 struct item_data* itemdb_searchname(const char *str)
 {
-	/* Needed? [15peaces]
+	/* Old version. [15peaces]
 	struct item_data* item;
 	struct item_data* item2=NULL;
 	int i;
@@ -82,12 +82,13 @@ struct item_data* itemdb_searchname(const char *str)
 		//Second priority to Client displayed name.
 		if( strcasecmp(item->jname,str) == 0 )
 			item2 = item;
-	}*/
+	}
 
+	item = NULL;
+	*/
 	struct item_data* item = NULL;
 	struct item_data* item2 = NULL;
 
-	//item = NULL;
 	itemdb_other->foreach(itemdb_other,itemdb_searchname_sub,str,&item,&item2);
 	return item?item:item2;
 }
@@ -113,6 +114,18 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
  * @param str
  * @return Number of matches item
  *------------------------------------------*/
+int itemdb_searchname_array(struct item_data** data, int size, const char *str)
+{
+	DBData *db_data[MAX_SEARCH];
+	int i, count = 0, db_count;
+
+	db_count = itemdb_other->getall(itemdb_other, (void**)&db_data, size, itemdb_searchname_array_sub, str);
+	for (i = 0; i < db_count && count < size; i++)
+		data[count++] = (struct item_data*)db_data2ptr(db_data[i]);
+
+	return count;
+}
+/*Old version. [15peaces]
 int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 {
 	struct item_data* item;
@@ -146,7 +159,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 		size -= count;
 	}
 	return count + itemdb_other->getall(itemdb_other,(void**)data,size,itemdb_searchname_array_sub,str);
-}
+}*/
 
 void itemdb_package_item(struct map_session_data *sd, int packageid) 
 {
@@ -238,24 +251,11 @@ int itemdb_group_bonus(struct map_session_data* sd, int itemid)
 	return bonus;
 }
 
-/// Searches for the item_data. //old Version! [15peaces]
-/// Returns the item_data or NULL if it does not exist.
-/*struct item_data* itemdb_exists(unsigned short nameid)
-{
-	struct item_data* item;
-
-	if( nameid >= 0 && nameid < ARRAYLENGTH(itemdb_array) )
-		return itemdb_array[nameid];
-	item = (struct item_data*)idb_get(itemdb_other,nameid);
-	if( item == dummy_item )
-		return NULL;// dummy data, doesn't exist
-	return item;
-}*/
-
-/** Searches for the item_data. Use this to check if item exists or not.
+/*==========================================
+ * Searches for the item_data. Use this to check if item exists or not.
  * @param nameid
  * @return *item_data if item is exist, or NULL if not
- */
+ *------------------------------------------*/
 struct item_data* itemdb_exists(unsigned short nameid) {
 	return ((struct item_data*)idb_get(itemdb_other,nameid));
 }
@@ -359,9 +359,9 @@ static void itemdb_jobid2mapid(unsigned int *bclass, unsigned int jobmask)
 		bclass[1] |= 1<<MAPID_GUNSLINGER;
 }
 
-/**
+/*==========================================
  * Create dummy item data
- */
+ *------------------------------------------*/
 static void create_dummy_data(void)
 {
 	CREATE(dummy_item, struct item_data, 1);
@@ -792,7 +792,7 @@ static bool itemdb_read_itemtrade(char* str[], int columns, int current)
 
 	if( ( id = itemdb_exists(nameid) ) == NULL )
 	{
-		//ShowWarning("itemdb_read_itemtrade: Invalid item id %d.\n", nameid);
+		//ShowWarning("itemdb_read_itemtrade: Invalid item id %hu.\n", nameid);
 		//return false;
 		// FIXME: item_trade.txt contains items, which are commented in item database.
 		return true;
@@ -803,13 +803,13 @@ static bool itemdb_read_itemtrade(char* str[], int columns, int current)
 
 	if( flag < 0 || flag >= 128 )
 	{//Check range
-		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %hu for item id %hu.\n", flag, nameid);
+		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %d for item id %hu.\n", flag, nameid);
 		return false;
 	}
 
 	if( gmlv < 1 )
 	{
-		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %hu for item id %hu.\n", gmlv, nameid);
+		ShowWarning("itemdb_read_itemtrade: Invalid override GM level %d for item id %hu.\n", gmlv, nameid);
 		return false;
 	}
 
@@ -1021,7 +1021,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	unsigned short nameid;
 	struct item_data* id;
 	
-	nameid = atoi(str[0]);
+	//nameid = atoi(str[0]);
 	//if( nameid <= 0 )
 	if( atoi(str[0]) <= 0 || atoi(str[0]) >= MAX_ITEMID )
 	{
@@ -1532,12 +1532,14 @@ void itemdb_reload(void)
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
+	/*
 	int i;
 
 	// clear the previous itemdb data
 	for( i = 0; i < ARRAYLENGTH(itemdb_array); ++i )
 		if( itemdb_array[i] )
 			destroy_item_data(itemdb_array[i]);
+	*/
 
 	itemdb_other->clear(itemdb_other, itemdb_final_sub);
 	itemdb_randomopt->clear(itemdb_randomopt, itemdb_randomopt_free);
@@ -1545,7 +1547,7 @@ void itemdb_reload(void)
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
 
-	memset(itemdb_array, 0, sizeof(itemdb_array));
+	//memset(itemdb_array, 0, sizeof(itemdb_array));
 
 	// read new data
 	itemdb_read();

@@ -182,6 +182,7 @@ void mapif_save_guild_storage_ack(int fd,int account_id,int guild_id,int fail)
 void mapif_parse_LoadGuildStorage(int fd)
 {
 	mapif_load_guild_storage(fd,RFIFOL(fd,2),RFIFOL(fd,6),1);
+	return;
 }
 
 bool mapif_parse_SaveGuildStorage(int fd)

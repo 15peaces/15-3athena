@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/06/2019
+	r211 [15peaces]
+		*Fixed some leftovers from my last commits. ^^
+			-removed some unneeded code in itemdb.c
+				--Follow-up @33859af
+		*Fixed compiling in VS 2012 and older.
+
 01/31/2019
 	r210 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn210.sql file!

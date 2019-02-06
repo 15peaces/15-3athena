@@ -1096,6 +1096,8 @@ struct achievement_db *achievement_parse_dbrow(char** str, const char* source, i
  */
 void achievement_read_db(void)
 {
+	struct achievement_db *duplicate = NULL, *entry = NULL;
+
 	uint32 lines = 0, count = 0;
 	char line[1024];
 
@@ -1145,7 +1147,8 @@ void achievement_read_db(void)
 			}
 		}
 
-		struct achievement_db *duplicate = &achievement_dummy, *entry = achievement_parse_dbrow(str, file, lines);
+		duplicate = &achievement_dummy;
+		entry = achievement_parse_dbrow(str, file, lines);
 		if (!entry) {
 			ShowWarning("achievement_read_db: Failed to parse achievement entry %d.\n", count);
 			continue;
@@ -1225,6 +1228,8 @@ struct achievement_rewards *achievementrewards_parse_dbrow(char** str, const cha
 */
 void achievementrewards_read_db(void)
 {
+	struct achievement_rewards *duplicate = NULL, *entry = NULL;
+
 	uint32 lines = 0, count = 0;
 	char line[1024];
 
@@ -1282,7 +1287,8 @@ void achievementrewards_read_db(void)
 		}
 		str[5] = p;
 
-		struct achievement_rewards *duplicate = &achievement_reward_dummy, *entry = achievementrewards_parse_dbrow(str, file, lines);
+		duplicate = &achievement_reward_dummy;
+		entry = achievementrewards_parse_dbrow(str, file, lines);
 		if (!entry) {
 			ShowWarning("achievementrewards_parse_dbrow: Failed to parse achievement entry %d.\n", count);
 			continue;

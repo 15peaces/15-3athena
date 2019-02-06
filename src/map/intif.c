@@ -2641,8 +2641,6 @@ int intif_parse(int fd)
 	int packet_len, cmd;
 	cmd = RFIFOW(fd,0);
 
-	ShowDebug("intif_parse: Received unchecked packet 0x%04X, session #%d\n", cmd, fd);
-
 	// パケットのID確認
 	if(cmd<0x3800 || cmd>=0x3800+(sizeof(packet_len_table)/sizeof(packet_len_table[0])) ||
 	   packet_len_table[cmd-0x3800]==0){
@@ -2735,9 +2733,9 @@ int intif_parse(int fd)
 #endif
 
 // Achievement system
-	//case 0x3862:	intif_parse_achievements(fd); break;
-	//case 0x3863:	intif_parse_achievementsave(fd); break;
-	//case 0x3864:	intif_parse_achievementreward(fd); break;
+	case 0x3862:	intif_parse_achievements(fd); break;
+	case 0x3863:	intif_parse_achievementsave(fd); break;
+	case 0x3864:	intif_parse_achievementreward(fd); break;
 
 // Mercenary System
 	case 0x3870:	intif_parse_mercenary_received(fd); break;

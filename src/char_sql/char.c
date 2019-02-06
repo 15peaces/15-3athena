@@ -3825,8 +3825,8 @@ int parse_frommap(int fd)
 				WFIFOL(fd,15) = htonl(ip);
 				WFIFOSET(fd,19);
 			}
-		}
-		break;*/
+		}*/
+		break;
 
 		case 0x2736: // ip address update
 			if (RFIFOREST(fd) < 6) return 0;

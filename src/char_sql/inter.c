@@ -720,20 +720,13 @@ int inter_parse_frommap(int fd)
 	int len = 0;
 	cmd = RFIFOW(fd,0);
 
-	ShowDebug("inter_parse_frommap: Received unchecked packet 0x%04X, session #%d\n", cmd, fd);
-
-
 	// Check is valid packet entry
-	if (cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length) || inter_recv_packet_length[cmd - 0x3000] == 0){
-		ShowDebug("inter_parse_frommap: Invalid packet 0x%04X, session #%d\n", cmd, fd);
+	if (cmd < 0x3000 || cmd >= 0x3000 + ARRAYLENGTH(inter_recv_packet_length) || inter_recv_packet_length[cmd - 0x3000] == 0)
 		return 0;
-	}
 
 	// Check packet length
-	if ((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0){
-		ShowDebug("inter_parse_frommap:invalid length %d for packet 0x%04X, session #%d\n", len, cmd, fd);
+	if ((len = inter_check_length(fd, inter_recv_packet_length[cmd - 0x3000])) == 0)
 		return 2;
-	}
 
 #ifdef LOG_ALL_PACKETS
 	ShowDebug("inter_parse_frommap: Received packet 0x%04X (length %d), session #%d\n", cmd, len, fd);
