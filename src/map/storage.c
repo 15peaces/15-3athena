@@ -485,7 +485,7 @@ void storage_guild_storageadd(struct map_session_data* sd, int index, int amount
 		return;
 
 //	log_tostorage(sd, index, 1);
-	if(storage_guild_additem(sd,stor,&sd->inventory.u.items_inventory[index],amount)==0)
+	if(storage_guild_additem(sd,stor,&sd->inventory.u.items_inventory[index],amount))
 		pc_delitem(sd,index,amount,0,4);
 
 	return;

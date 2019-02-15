@@ -519,7 +519,7 @@ int *achievement_level(struct map_session_data *sd, bool flag)
  * Update achievement objectives.
  * @see DBApply
  */
-static int achievement_update_objectives(DBKey key, void *data, va_list ap)
+static int achievement_update_objectives(DBKey key, DBData *data, va_list ap)
 {
 	struct achievement_db *ad;
 	struct map_session_data *sd;

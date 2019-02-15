@@ -62,14 +62,11 @@ int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount
 #if PACKETVER < 20150513
 		// With client update packet
 		pc_delitem(sd, idx, amount, 1, 0);
-
-		// TODO: Logging...
 #else
 		// RODEX refreshes the client inventory from the ACK packet
 		pc_delitem(sd, idx, amount, 0, 0);
-
-		// TODO: Logging...
 #endif
+		log_pick(&sd->bl, LOG_TYPE_MAIL, sd->mail.item[i].nameid, -sd->mail.item[i].amount, &sd->inventory.u.items_inventory[idx]);
 	}else{
 		for( ; i < MAIL_MAX_ITEM-1; i++ ){
 			if (sd->mail.item[i + 1].nameid == 0)

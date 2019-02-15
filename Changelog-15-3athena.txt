@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/15/2019
+	r212 [15peaces]
+		*THIS UPDATE FIXES A CRITICAL ITEM-DUPLICATE BUG IN GUILD STORAGES! PLEASE UPDATE ASAP!
+		*Merged missing changes from 3ceam rev. 651 - 652
+		*Added some missing status ID's and tags that exist as of 11/2/2011
+
 02/06/2019
 	r211 [15peaces]
 		*Fixed some leftovers from my last commits. ^^
