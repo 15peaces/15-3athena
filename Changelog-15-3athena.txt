@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/18/2019
+	r213 [15peaces]
+		*Disabled debug function...
+			-Mistake from my last commit... sorry ^^
+		*Added support for 2015-10-01bRagexeRE.
+			-now you can choose between 3 stable 2015 clients.
+			-2016 client support will be added soon. ^^
+
 02/15/2019
 	r212 [15peaces]
 		*THIS UPDATE FIXES A CRITICAL ITEM-DUPLICATE BUG IN GUILD STORAGES! PLEASE UPDATE ASAP!

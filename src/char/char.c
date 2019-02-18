@@ -1297,7 +1297,7 @@ int check_char_name(char * name)
 // Function to create a new character
 //-----------------------------------
 #if PACKETVER >= 20120307
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race) {
 #else
 int make_new_char(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
@@ -1318,7 +1318,7 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	if( flag < 0 )
 		return flag;
 
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 	// Checks race input.
 	// Race values are acturally sent by the client as the job ID the new character would start on.
 	// But to be safe, its best to have the server read what race was selected and then set the
@@ -1374,7 +1374,7 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.account_id = sd->account_id;
 	char_dat[i].status.slot = slot;
 	safestrncpy(char_dat[i].status.name,name,NAME_LENGTH);
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 	// Race selection from 0xa39 packet.
 	// 0 = Human
 	// 4218 = Doram
@@ -4176,7 +4176,7 @@ int parse_char(int fd)
 		break;
 
 		// create new char (CH_MAKE_CHAR).
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 		// S 0a39 <name>.24B <slot>.B <hair color>.W <hair style>.W <starting job ID>.W <Unknown>.(W or 2 B's)??? <sex>.B
 		case 0xa39:
 			FIFOSD_CHECK(36);

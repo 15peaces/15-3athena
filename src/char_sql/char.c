@@ -1485,7 +1485,7 @@ int check_char_name(char * name, char * esc_name)
 // Function to create a new character
 //-----------------------------------
 #if PACKETVER >= 20120307
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race) {
 	short starting_job;
 	short starting_hp, starting_sp;
@@ -1512,7 +1512,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	if( flag < 0 )
 		return flag;
 
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 	// Checks race input.
 	// Race values are acturally sent by the client as the job ID the new character would start on.
 	// But to be safe, its best to have the server read what race was selected and then set the
@@ -1556,7 +1556,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 			Sql_ShowDebug(sql_handle);
 	}
 
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 	if ( race == RACE_HUMAN || ALLOW_OTHER_RACES == 0 )
 	{	// Human - Defaults
 		// Job = Novice
@@ -1619,7 +1619,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	//Retrieve the newly auto-generated char id
 	char_id = (int)Sql_LastInsertId(sql_handle);
 	//Give the char the default items
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 	if (starting_weapon > 0) {
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, starting_weapon, 1, 1) )
 			Sql_ShowDebug(sql_handle);
@@ -4587,7 +4587,7 @@ int parse_char(int fd)
 		*/
 
 		// create new char (CH_MAKE_CHAR).
-#if PACKETVER >= 20151029
+#if PACKETVER >= 20151001
 		// S 0a39 <name>.24B <slot>.B <hair color>.W <hair style>.W <starting job ID>.W <Unknown>.(W or 2 B's)??? <sex>.B
 		case 0xa39:
 			FIFOSD_CHECK(36);

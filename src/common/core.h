@@ -16,7 +16,7 @@
 //#define PACKET_OBFUSCATION
 
 // Show all packets (for Debugging) [15peaces]
-#define LOG_ALL_PACKETS
+//#define LOG_ALL_PACKETS
 
 enum SERVER_STATE
 {
