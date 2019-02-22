@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/22/2019
+	r214 [15peaces]
+		*Merged missing changes from 3ceam rev. 653 - 654
+		*Fixed a issue where Elemental Spirits would all have a view range of 1.
+			-It should now use range2 from the elemental_db.txt to set its view range.
+		*Added script command achievementupdate
+			-Updates the specified achievement's value.
+			-thanks to @rathena.
+
 02/18/2019
 	r213 [15peaces]
 		*Disabled debug function...
