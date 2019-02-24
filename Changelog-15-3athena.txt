@@ -6,6 +6,76 @@
 //			--More Details.
 //========================================
 02/24/2019
+	r216 [15peaces]
+		*Merged missing changes from 3ceam rev. 658
+		*Fixed achievement handling in OnPCStatCalcEvent.
+			-thanks to @rathena.
+		*Fixed memory leak in char-server.
+			-Allocated memory in various StringBuf instances was being cleared instead of freeing it completely.
+		*Did a little cleanup and organizing.
+		*Huge Rune Knight update has been applied.
+			-RK_ENCHANTBLADE
+				--Skill is now self casted only.
+				--Added MATK damage formula updated to official.
+			-RK_DEATHBOUND
+				--The amount of amplified damage the target takes has been reduced from 100% to 70%.
+				--The player that casted the skill will still take 30% of the damage.
+				--Mainly this means damage is split between enemy and player by 70%/30%.
+			-RK_HUNDREDSPEAR
+				--Cast range increased from 1 to 5 cells
+				--Cast time changed to 1 + 0.1 * SkillLV.
+				--Cooldown of 3 seconds added.
+				--Damage formula updated to official. Base ratio has been increased.
+				--Damage is affected by SkillLV, Spear Weight, and learned level of LK_SPIRALPIERCE.
+			-RK_IGNITIONBREAK
+				--Damage formula updated. Base ratio has been increased.
+				--Bonus damage gained from welding a fire element weapon changed to 500 * SkillLV.
+			-RK_DRAGONTRAINING
+				--Fixed a issue where mounting on a dragon while having a spear equipt wouldnt change the size modifier damage to 100%. Should now be 100%.
+			-RK_DRAGONBREATH
+				--Burning status duration increased from 5 to 10 seconds.
+			-RK_DRAGONHOWLING
+				--Updated the SP requirement. Requirement was lowered to 30.
+				--Cooldown lowered from 60 to 10 seconds.
+			-RK_MILLENNIUMSHIELD
+				--Skill duration lowered from 5 to 3 minutes.
+				--Will now stun the player when a shield breaks.
+				--Stun duration is set to 3 seconds until official is found. Reduceable by VIT.
+			-RK_CRUSHSTRIKE
+				--Damage formula updated to official.
+				--Damage is affected by the weapons ATK, Weapon Level, Refine Rate, and now its weight.
+				--Skill will be changed into a self casted buff in a future update.
+			-RK_REFRESH
+				--Duration increased from 30 to 60 seconds.
+				--Redid the entire list of debuffs it removes and grants immunity to.
+				--Removes and grants immunity to the following during the duration....
+					---Stun / Sleep / Curse / Petrification / Poison / Blind / Silence / Bleeding / Chaos / Frozen / Deep Sleep / Burning / Freezing / Crystallization / Toxin / Paralyze / Venombleed / Magic mushroom / Disheart /
+					---Pyrexia / Oblivion curse / Marsh of Abyss / Howling of Mandragora
+				--Leech End was added too as it should protect against all Guillotine poisons.
+				--Added White Imprison as it protected against this in the past. Need confirm if it still does.
+				--Added Decrease AGI and Quagmire since a tester confirmed it protected against these.
+			-RK_GIANTGROWTH
+				--Duration lowered from 5 to 3 minutes.
+				--Chance of dealing 3x damage per normal attack increased from 10% to 15%.
+				--Chance of breaking your weapon increased from 0.01% to 0.1%.
+			-RK_STONEHARDSKIN
+				--Duration lowered from 5 to 3 minutes.
+				--Amount of HP taken and turned into Stone Skin lowered from 25% to 20%.
+				--Now gives DEF/MDEF for as long as the buff is active.
+				--DEF/MDEF gain formula is (Job Level x RK_RUNEMASTERY ) / 4
+				--The above formula is divided by 10 at the end to balance the skill since we use the classic (Pre-renewal) game mechanics.
+				--Chance of breaking attacker's weapon on normal melee attacks increased from 25% to 30%.
+			-RK_VITALITYACTIVATION
+				--Duration lowered from 5 to 3 minutes.
+			-RK_STORMBLAST
+				--Aftercast removed.
+				--Damage formula updated to official. INT affect on damage is halved.
+			-RK_FIGHTINGSPIRIT
+				--Duration lowered from 5 to 3 minutes.
+			-RK_ABUNDANCE
+				--Duration lowered from 5 to 3 minutes.
+
+02/24/2019
 	r215 [15peaces]
 		*Merged missing changes from 3ceam rev. 655 - 657
 		*Fixed pre-increment and pre-decrement operators for achievement condition parsing.

@@ -653,7 +653,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if( (sce = sc->data[SC_STONEHARDSKIN]) && flag&BF_WEAPON && damage > 0 )
 		{
 			sce->val2 -= damage;
-			skill_break_equip(src,EQP_WEAPON,2500,BCT_SELF);
+			skill_break_equip(src, EQP_WEAPON, 3000, BCT_SELF);
 
 			if( sce->val2 <= 0 ) status_change_end(bl, SC_STONEHARDSKIN, INVALID_TIMER);
  		}
@@ -2370,21 +2370,20 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
 				case RK_HUNDREDSPEAR:
-					skillratio += 500 + 80 * skill_lv;
-					if( sd )
+					skillratio += 500 + 80 * skill_lv + 50 * (sd ? pc_checkskill(sd, LK_SPIRALPIERCE) : 5);
+					if (sd)
 					{
 						short index = sd->equip_index[EQI_HAND_R];
-						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON )
+						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 						{
 							short spearwbd = 1000 - sd->inventory_data[index]->weight / 10;// Spear Weight Bonus Damage.
-							// If weight of weapon is more then 1000, bonus is set to 0 to prevent negative value. [Rytech]
-							if ( spearwbd < 0 )
-								spearwbd = 0;
+							if (spearwbd < 0)
+								spearwbd = 0;// If weight of weapon is more then 1000, bonus is set to 0 to prevent negative value. [Rytech]
 							skillratio += spearwbd;
 						}
 					}
-					else
-						skillratio += 1000;//Add the entire bonus when casted by monsters.
+					else// If used by a monster or clone.
+						skillratio += 1000;
 					if( levels_effect == 1 && base_lv >= 100 )
 						skillratio += skillratio * (base_lv - 100) / 200;
 					skillratio += 50 * pc_checkskill(sd,LK_SPIRALPIERCE);//Bonus damage.
@@ -2397,34 +2396,38 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RK_IGNITIONBREAK: // Sugested formula from irowiki. 
 					i = distance_bl(src,target) / 2;
 					if( i < 2 ) 
-						skillratio = 200 + 200 * skill_lv;
+						skillratio = 300 * skill_lv;
 					else if( i < 4 ) 
-						skillratio = 100 + 200 * skill_lv;
+						skillratio = 250 * skill_lv;
 					else
-						skillratio = 100 + 100 * skill_lv;
-					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					if( sstatus->rhw.ele == ELE_FIRE )	skillratio +=  skillratio / 2;	// Bonus by fire element endow.
+					skillratio = 200 * skill_lv;
+					if( sstatus->rhw.ele == ELE_FIRE )
+						skillratio +=  100 * skill_lv;	// Bonus by fire element endow.
+					if( s_level > 100 )
+						skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					break;
-				case RK_CRUSHSTRIKE: // Sugested formula from irowiki.
-					skillratio += 550;
+				case RK_CRUSHSTRIKE:
 					if (sd)
 					{
+						signed char refinebonus = 0;
 						short index = sd->equip_index[EQI_HAND_R];
 						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 						{
-							skillratio += 100 * sd->inventory.u.items_inventory[index].refine;	// Increased by weapon refine.
-							skillratio *= sd->inventory_data[index]->wlv; // Increased by weapon level.
+							if (MAX_REFINE > 10)// +20 Refine Limit
+								refinebonus = sd->inventory.u.items_inventory[index].refine;
+							else// +10 Refine Limit
+								refinebonus = 2 * sd->inventory.u.items_inventory[index].refine;
+
+							skillratio = sd->inventory_data[index]->wlv * (refinebonus + 6) * 100 + sd->inventory_data[index]->atk - 100 + sd->inventory_data[index]->weight / 10;
 						}
 					}
 					break;
-
 				case RK_STORMBLAST:
-					skillratio += -100 + 100 * (sd ? pc_checkskill(sd,RK_RUNEMASTERY) : 1) +  100 * (sstatus->int_ / 4);
+					skillratio = 100 * sstatus->str / 8 + 100 * (sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10);
 					break;
-				case RK_PHANTOMTHRUST: // TODO: How much Spear Mastery affects?.
-					skillratio += 20 * (skill_lv - 1);
+				case RK_PHANTOMTHRUST:
+					skillratio = 50 * skill_lv + 10 * (sd ? pc_checkskill(sd, KN_SPEARMASTERY) : 10);
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
-					if( sd ) skillratio += pc_checkskill(sd, KN_SPEARMASTERY) * 10; // Temporary value.
 					break;
 				case SO_VARETYR_SPEAR: //Assumed Formula.
 					skillratio += -100 + 200 * ( sd ? pc_checkskill(sd, SA_LIGHTNINGLOADER) : 1 );
@@ -2454,18 +2457,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					}
 					break;
 				case KO_BAKURETSU:
-					skillratio = pc_checkskill(sd, NJ_TOBIDOUGU) * (10 * skill_lv);
+					skillratio = 10 * skill_lv * pc_checkskill(sd, NJ_TOBIDOUGU);
 					break;
 				case KO_HAPPOKUNAI:
 					if (sd)
 					{
 						short index = sd->equip_index[EQI_AMMO];
 						if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_AMMO)
-							skillratio = sd->inventory_data[index]->atk * (50 + 10 * skill_lv);
+							skillratio = (50 + 10 * skill_lv) * sd->inventory_data[index]->atk;
 					}
 					break;
 				case KO_HUUMARANKA:
-					skillratio += -100 + 150 * skill_lv + status_get_agi(src) + status_get_dex(src) + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 0);
+					skillratio = 150 * skill_lv + (sstatus->agi + sstatus->dex) * pc_checkskill(sd, NJ_HUUMA);
 					break;
 				// Physical Elemantal Spirits Attack Skills
 				case EL_CIRCLE_OF_FIRE:
@@ -4265,10 +4268,10 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			if (distance_bl(src,bl) <= 0 || !map_check_dir(dir, t_dir))
 			{
 				rd1 = min((*damage), max_damage) * sc->data[SC_DEATHBOUND]->val2 / 100; // Amplify damage.
-				(*damage) = rd1 * 30 / 100; // Received damge = 30% of amplifly damage.
+				(*damage) = rd1 * 30 / 100; // Player receives 30% of the amplified damage.
 				clif_skill_damage(src, bl, gettick(), status_get_amotion(src), 0, -30000, 1, RK_DEATHBOUND, sc->data[SC_DEATHBOUND]->val1, 6);
 				status_change_end(bl, SC_DEATHBOUND, INVALID_TIMER);
-				rdamage += rd1;
+				rdamage += rd1 * 70 / 100; // Target receives 70% of the amplified damage. [Rytech]
 			}
 		}
 		if (sc && sc->data[SC_REFLECTSHIELD]){

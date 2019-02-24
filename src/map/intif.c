@@ -1499,6 +1499,8 @@ void intif_parse_achievements(int fd)
 		if (sd->achievement_data.achievements) {
 			aFree(sd->achievement_data.achievements);
 			sd->achievement_data.achievements = NULL;
+			sd->achievement_data.incompleteCount = 0;
+			sd->achievement_data.count = 0;
 		}
 	}
 	else {
