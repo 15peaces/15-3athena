@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/24/2019
+	r215 [15peaces]
+		*Merged missing changes from 3ceam rev. 655 - 657
+		*Fixed pre-increment and pre-decrement operators for achievement condition parsing.
+			-thanks to @rathena.
+		*Fixed a memory leak in achievementremove and some other small fixes.
+			-thanks to @rathena.
+		*Added some Kagerou and Oboro skills.
+			-KO_YAMIKUMO/Dark Cloud, KO_RIGHT/Right-Hand Training, KO_LEFT/Left-Hand Training, KO_JYUMONJIKIRI/Cross Slasher, KO_SETSUDAN/Spirit Breaker, KO_BAKURETSU/Exploding Kunai, KO_HAPPOKUNAI/Spray Kunai, 
+			-KO_MUCHANAGE/Over Throw and KO_HUUMARANKA/Launch Huuma Shuriken.
+		*Fixed a bug where SR_RAMPAGEBLASTER wasnt being fully treated as self splash RoE.
+
 02/22/2019
 	r214 [15peaces]
 		*Merged missing changes from 3ceam rev. 653 - 654

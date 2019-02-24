@@ -1245,6 +1245,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			sd->itemid = -1;
 		}
 		break;
+	case KO_JYUMONJIKIRI:
+		sc_start(bl,SC_KO_JYUMONJIKIRI,100,skilllv,skill_get_time2(skillid,skilllv));
+		break;
+	case KO_SETSUDAN:
+		status_change_end(bl, SC_SPIRIT, INVALID_TIMER);//Remove Soul Link When Hit. [Rytech]
+		break;
 	case EL_WIND_SLASH:	// Non confirmed rate.
 		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -3268,13 +3274,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_HESPERUSLIT:
 	case SR_SKYNETBLOW:
 	case SR_FALLENEMPIRE:
-	case SR_RAMPAGEBLASTER:
 	case SR_CRESCENTELBOW_AUTOSPELL:
 	case SR_GATEOFHELL:
 	case SR_GENTLETOUCH_QUIET:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
 	case GN_SLINGITEM_RANGEMELEEATK:
+	case KO_SETSUDAN:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
@@ -3509,14 +3515,17 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_AXETORNADO:
 	case LG_MOONSLASHER:
 	case LG_EARTHDRIVE:
+	case SR_TIGERCANNON:
+	case SR_RAMPAGEBLASTER:
 	case SR_WINDMILL:
 	case SR_RIDEINLIGHTNING:
-	case SR_TIGERCANNON:
 	case WM_REVERBERATION:
 	case WM_SOUND_OF_DESTRUCTION:
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
+	case KO_BAKURETSU:
+	case KO_HAPPOKUNAI:
 		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3775,6 +3784,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_THORNS_TRAP:
 	case GN_BLOOD_SUCKER:
 	case GN_HELLS_PLANT_ATK:
+	case KO_MUCHANAGE:
 		skill_attack(BF_MISC, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
@@ -5315,6 +5325,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
 	case SR_HOWLINGOFLION:
+	case KO_HAPPOKUNAI:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
@@ -5486,6 +5497,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case TF_HIDING:
 	case ST_CHASEWALK:
+	case KO_YAMIKUMO:
 		if (tsce)
 		{
 			clif_skill_nodamage(src,bl,skillid,-1,status_change_end(bl, type, INVALID_TIMER)); //Hide skill-scream animation.
@@ -6172,7 +6184,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_EQC:			case SC_MAGMA_FLOW:		case SC_GRANITIC_ARMOR:
 				case SC_PYROCLASTIC:	case SC_VOLCANIC_ASH:
 				// Kagerou/Oboro
-				/*case SC_KAGEHUMI:		case SC_JYUMONJIKIRI:*/	case SC_MEIKYOUSISUI:
+				/*case SC_KAGEHUMI:		case SC_KO_JYUMONJIKIRI:*/	case SC_MEIKYOUSISUI:
 				case SC_KYOUGAKU:		case SC_IZAYOI:			case SC_ZENKAI:
 				// Rebellion - Need Confirm
 				case SC_B_TRAP:			case SC_C_MARKER:		case SC_H_MINE:
@@ -7537,7 +7549,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_EQC:			case SC_MAGMA_FLOW:		case SC_GRANITIC_ARMOR:
 				case SC_PYROCLASTIC:	case SC_VOLCANIC_ASH:
 				// Kagerou/Oboro
-				/*case SC_KAGEHUMI:		case SC_JYUMONJIKIRI:*/	case SC_MEIKYOUSISUI:
+				/*case SC_KAGEHUMI:		case SC_KO_JYUMONJIKIRI:*/	case SC_MEIKYOUSISUI:
 				case SC_KYOUGAKU:		case SC_IZAYOI:			case SC_ZENKAI:
 				// Rebellion - Need Confirm
 				case SC_B_TRAP:			case SC_C_MARKER:		case SC_H_MINE:
@@ -9535,6 +9547,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WATER_INSIGNIA:
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
+	case KO_HUUMARANKA:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
@@ -11911,7 +11924,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		case BS_MAXIMIZE:		case NV_TRICKDEAD:	case TF_HIDING:			case AS_CLOAKING:		case CR_AUTOGUARD:
 		case ML_AUTOGUARD:		case CR_DEFENDER:	case ML_DEFENDER:		case ST_CHASEWALK:		case PA_GOSPEL:
 		case CR_SHRINK:			case TK_RUN:		case GS_GATLINGFEVER:	case TK_READYCOUNTER:	case TK_READYDOWN:
-		case TK_READYSTORM:		case TK_READYTURN:	case SG_FUSION:
+		case TK_READYSTORM:		case TK_READYTURN:	case SG_FUSION:			case KO_YAMIKUMO:
 			if( sc && sc->data[status_skill2sc(skill)] )
 				return 1;
 	}
@@ -12200,6 +12213,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 
 	case NJ_ZENYNAGE:
+	case KO_MUCHANAGE:
 		if(sd->status.zeny < require.zeny) {
 			clif_skill_fail(sd,skill,USESKILL_FAIL_MONEY,0,0);
 			return 0;
@@ -12850,7 +12864,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	case BS_MAXIMIZE:		case NV_TRICKDEAD:	case TF_HIDING:			case AS_CLOAKING:		case CR_AUTOGUARD:
 	case ML_AUTOGUARD:		case CR_DEFENDER:	case ML_DEFENDER:		case ST_CHASEWALK:		case PA_GOSPEL:
 	case CR_SHRINK:			case TK_RUN:		case GS_GATLINGFEVER:	case TK_READYCOUNTER:	case TK_READYDOWN:
-	case TK_READYSTORM:		case TK_READYTURN:	case SG_FUSION:
+	case TK_READYSTORM:		case TK_READYTURN:	case SG_FUSION:			case KO_YAMIKUMO:
 		if( sc && sc->data[status_skill2sc(skill)] )
 			return req;
 	}

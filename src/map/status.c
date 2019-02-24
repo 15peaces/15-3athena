@@ -557,6 +557,9 @@ void initChangeTables(void)
 	set_sc( GN_FIRE_EXPANSION_TEAR_GAS		, SC_FIRE_EXPANSION_TEAR_GAS	, SI_FIRE_EXPANSION_TEAR_GAS	, SCB_NONE );
 	set_sc( GN_MANDRAGORA					, SC_MANDRAGORA					, SI_MANDRAGORA					, SCB_INT );
 
+	set_sc(KO_YAMIKUMO, SC_HIDING, SI_HIDING, SCB_NONE);
+	set_sc(KO_JYUMONJIKIRI, SC_KO_JYUMONJIKIRI, SI_KO_JYUMONJIKIRI, SCB_NONE);
+
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
 	set_sc( HFLI_FLEET           , SC_FLEET           , SI_BLANK           , SCB_ASPD|SCB_BATK|SCB_WATK );
@@ -1574,6 +1577,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			case RG_RAID:
 			case NJ_SHADOWJUMP:
 			case NJ_KIRIKAGE:
+			case KO_YAMIKUMO:
 				break;
 			default:
 				//Non players can use all skills while hidden.

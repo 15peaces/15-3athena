@@ -4,10 +4,6 @@
 #ifndef MAP_ACHIEVEMENTS_H
 #define MAP_ACHIEVEMENTS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "../common/mmo.h"
 #include "../common/db.h"
 
@@ -101,8 +97,6 @@ struct achievement_rewards {
 
 struct map_session_data;
 struct block_list;
-struct config_setting_t;
-enum _sp;
 
 struct achievement_db achievement_dummy;				///< Dummy entry for invalid achievement lookups
 struct achievement_rewards achievement_reward_dummy;	///< Dummy entry for invalid achievement lookups
