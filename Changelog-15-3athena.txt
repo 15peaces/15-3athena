@@ -5,6 +5,61 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/26/2019
+	r217 [15peaces]
+		*Merged missing changes from 3ceam rev. 659
+		*Adjusted the Achievement Chat Counter
+			-Moved the achievement objective update function before the NPC waiting room event trigger.
+			-Thanks to @rathena!
+		*Warlock 2011 update has been applied.
+			-A lot of the updates didnt make it into this revision update due to issues and will be done later. These skills will require a recode or major cleanup before updating.
+		*WL_FROSTMISTY
+			-Variable cast changed from 2 seconds to 1.5 + 0.5 * Skill Level.
+			-Freezing status chance changed to 25 + 5 * SkillLV
+			-Freezing status duration lowered from 40 to 13 seconds.
+			-Freezing status updated. More info below.
+		*WL_MARSHOFABYSS
+			-Status duration increased from 20 to 30 seconds.
+			-Status duration reduction formula will be added in a future update.
+		*WL_RADIUS
+			-Fixed cast reduction was changed into a formula.
+			-Formula is INT / 15 + BaseLV / 15 + Radius SkillLV x 5
+			-Reduction is in a percentage.
+		*WL_DRAINLIFE
+			-Fixed a issue where Drain Life wouldn't heal correctly.
+			-Draining success changed to 70 + 5 * SkillLV.
+			-Percent of damage drained changed to 5 + 5 * SkillLV
+		*WL_HELLINFERNO
+			-Burning status duration reduced to 15 seconds.
+		*WL_COMET
+			-Damage zone sizes changed.
+			-Damage in seprate zones increased.
+			-Zone 1 - 1x1 to 7x7 = 2500 + 500 * SkillLV
+			-Zone 2 - 9x9 to 11x11 = 2000 + 500 * SkillLV
+			-Zone 3 - 13x13 to 15x15 = 1500 + 500 * SkillLV
+			-Zone 4 - 17x17 to 19x19 = 1000 + 500 * SkillLV
+			-Burning status duration lowered to 15 seconds.
+			-Will recode ground placment code to use units soon to allow land protector to block it.
+		*WL_CHAINLIGHTNING
+			-Damage formula changed.
+			-Formula is not fully official since the bounce counter is not yet coded.
+			-A temp 500 was added to the end of the formula until the bounce code is completed.
+		*WL_EARTHSTRAIN
+			-Strip chance return to (5 + skillLV) * skillLV
+			-Chance is increased by caster DEX / 10
+			-Chance is reduced by enemy's DEX / 5
+			-Strip status duration decreased from 60 to 30 seconds.
+		*RK_DRAGONBREATH
+			-Chance of burning status changed to a fixed 15%
+		*SO_DIAMONDDUST
+			-Fixed a issue where the Crystalize status wouldnt show its status icon.
+			-Should now show the icon, as well as a snow flake looking thing over your head.
+		*Burning status was changed.
+			-Duration cannot be lower then 5 seconds.
+		*Freezing status effects was changed.
+			-Now gives -50% movement speed / -15% attack speed / +15% Variable Cast Time / -10% DEF
+			-Duration cannot be reduced any lower then 6 seconds.
+
 02/24/2019
 	r216 [15peaces]
 		*Merged missing changes from 3ceam rev. 658

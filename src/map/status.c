@@ -454,9 +454,14 @@ void initChangeTables(void)
 	// Warlock
 	add_sc( WL_WHITEIMPRISON    , SC_WHITEIMPRISON );
 	set_sc( WL_FROSTMISTY       , SC_FREEZING       , SI_FROSTMISTY			, SCB_ASPD|SCB_SPEED|SCB_DEF|SCB_DEF2 );
+	add_sc( WL_JACKFROST        , SC_FREEZE);
 	set_sc( WL_MARSHOFABYSS     , SC_MARSHOFABYSS   , SI_MARSHOFABYSS		, SCB_SPEED|SCB_FLEE|SCB_DEF|SCB_MDEF );
 	set_sc( WL_RECOGNIZEDSPELL  , SC_RECOGNIZEDSPELL, SI_RECOGNIZEDSPELL	, SCB_NONE );
+	add_sc( WL_SIENNAEXECRATE   , SC_STONE);
 	set_sc( WL_STASIS           , SC_STASIS         , SI_STASIS				, SCB_NONE );
+	add_sc( WL_CRIMSONROCK      , SC_STUN);
+	add_sc( WL_HELLINFERNO      , SC_BURNING);
+	add_sc( WL_COMET            , SC_BURNING);
 
 	// Ranger
 	set_sc(RA_FEARBREEZE		, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE);
@@ -543,6 +548,7 @@ void initChangeTables(void)
 	set_sc( SO_FIREWALK         , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
 	set_sc( SO_ELECTRICWALK     , SC_PROPERTYWALK	, SI_PROPERTYWALK	, SCB_NONE );
 	set_sc( SO_SPELLFIST        , SC_SPELLFIST      , SI_SPELLFIST      , SCB_NONE );
+	set_sc(SO_DIAMONDDUST       , SC_CRYSTALIZE     , SI_COLD           , SCB_NONE);//Will add flags in major balance update 8 [Rytech]
 	set_sc( SO_CLOUD_KILL       , SC_POISON			, SI_CLOUD_KILL		, SCB_NONE );
 	set_sc( SO_STRIKING         , SC_STRIKING       , SI_STRIKING       , SCB_WATK|SCB_CRI );
 	set_sc( SO_WARMER           , SC_WARMER         , SI_WARMER         , SCB_NONE );
@@ -4595,7 +4601,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if(sc->data[SC_STONEHARDSKIN])// Final DEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
 		def += sc->data[SC_STONEHARDSKIN]->val1;
 	if( sc->data[SC_FREEZING] )
-		def -= def * 3 / 10;
+		def -= def * 10 / 100;
 	if( sc->data[SC_MARSHOFABYSS] )
 		def -= def * ( 6 + 6 * sc->data[SC_MARSHOFABYSS]->val3/10 + (bl->type == BL_MOB ? 5 : 3) * sc->data[SC_MARSHOFABYSS]->val2/36 ) / 100;
  	if(sc->data[SC_ANALYZE])
@@ -4647,7 +4653,7 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 	if(sc->data[SC_FLING])
 		def2 -= def2 * (sc->data[SC_FLING]->val3)/100;
 	if( sc->data[SC_FREEZING] )
-		def2 -= def2 * 3 / 10;
+		def2 -= def2 * 10 / 100;
 	if(sc->data[SC_ANALYZE])
 		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC_ECHOSONG] )
@@ -4811,7 +4817,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				if( sc->data[SC_SWOO] )
 					val = max( val, 300 );
 				if( sc->data[SC_FREEZING] )
-					val = max( val, 70 );
+					val = max( val, 50 );
 				/* Enable this if Gravity reviewed the skill behavior.
 				   Currently the movement speed reduction does not work. (2010)
 				if( sc->data[SC_PARALYSE] )
@@ -5021,7 +5027,7 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 			aspd_rate += 100;
 	}
 	if( sc->data[SC_FREEZING] )
-		aspd_rate += 300;
+		aspd_rate += 150;
 	if( sc->data[SC_HALLUCINATIONWALK_POSTDELAY] )
 		aspd_rate += 500;
 	if( sc->data[SC_FIGHTINGSPIRIT] && sc->data[SC_FIGHTINGSPIRIT]->val2 )
@@ -5915,12 +5921,12 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		break;
 	case SC_BURNING:
 		// From iROwiki : http://forums.irowiki.org/showpost.php?p=577240&postcount=583
-		tick -= 50*status->luk + 60*status->int_ + 170*status->vit;
-		tick = max(tick,6000); // Minimum Duration 6s.
+		tick -= 50 * status->luk + 60 * status->int_ + 170 * status->vit;//Hoping to get the official resistance formula soon. [Rytech]
+		tick = max(tick, 5000); // Minimum Duration 10s.//2011 document for Warlock says min duration is 5. [Rytech]
 		break;
 	case SC_FREEZING:
 		tick -= 1000 * ((status->vit + status->dex) / 20);
-		tick = max(tick,10000); // Minimum Duration 10s.
+		tick = max(tick, 6000); // Minimum Duration 6s due to 2011 balance updates. [Rytech]
 		break;
 	case SC_OBLIVIONCURSE:
 		sc_def = status->int_*4/5; //FIXME: info said this is the formula of status chance. Check again pls. [Jobbie]
@@ -6164,8 +6170,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_FREEZING:
 			if (sc->opt1)
 				return 0; //Cannot override other opt1 status changes. [Skotlex]
-			if((type == SC_FREEZE || type == SC_FREEZING) && sc->data[SC_WARMER])
-				return 0; //Immune to Frozen and Freezing status if under Warmer status. [Jobbie]
+			if ((type == SC_FREEZE || type == SC_FREEZING || type == SC_CRYSTALIZE) && sc->data[SC_WARMER])
+				return 0; //Immune to Frozen and Freezing status if under Warmer status. [Jobbie] Added Crystalize status too. [Rytech]
 			break;
 		case SC_BURNING:
 			if(sc->data[SC_FREEZING] || sc->opt1)
@@ -10329,8 +10335,13 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 
 		switch( i )
 		{
-			//Debuffs that can be spreaded.
+			//Debuffs that can be spreaded through Deadly Infect
 			// NOTE: We'll add/delte SCs when we are able to confirm it.
+			//First we list the common status's that can be spreaded.
+			//case SC_STONE:
+			//case SC_FREEZE:
+			case SC_STUN:
+			//case SC_SLEEP:
 			case SC_POISON:
 			case SC_CURSE:
 			case SC_SILENCE:
@@ -10338,30 +10349,35 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 			case SC_BLIND:
 			case SC_BLEEDING:
 			case SC_DPOISON:
-			case SC_NOCHAT:
+			case SC_FEAR:
+			case SC_BURNING:
+			//case SC_IMPRISON:
+			//case SC_DEEPSLEEP:
+			case SC_FREEZING:
+			case SC_CRYSTALIZE:
+			//case SC_NOCHAT:
 			case SC_HALLUCINATION:
 			case SC_SIGNUMCRUCIS:
 			case SC_DECREASEAGI:
-			case SC_SLOWDOWN:
-			case SC_MINDBREAKER:
-			case SC_WINKCHARM:
-			case SC_STOP:
+			//case SC_SLOWDOWN:
+			//case SC_MINDBREAKER:
+			//case SC_WINKCHARM:
+			//case SC_STOP:
 			case SC_ORCISH:
-			case SC_STRIPWEAPON:
-			case SC_STRIPSHIELD:
-			case SC_STRIPARMOR:
-			case SC_STRIPHELM:
-			case SC_WUGBITE:
-			case SC_FREEZING:
-			case SC_BURNING:
-			case SC_FEAR:
-			case SC_PYREXIA:
-			case SC_PARALYSE:
-			case SC_DEATHHURT:
-			case SC_MAGICMUSHROOM:
-			case SC_VENOMBLEED:
+			//case SC_STRIPWEAPON://Omg I got infected and had the urge to strip myself physically.
+			//case SC_STRIPSHIELD://No this is stupid and shouldnt be spreadable at all.
+			//case SC_STRIPARMOR:// Disabled until I can confirm if it does or not. [Rytech]
+			//case SC_STRIPHELM:
+			//case SC__STRIPACCESSORY:
+			//case SC_BITE:
+			//Guillotine Cross Poisons
 			case SC_TOXIN:
-			case SC_OBLIVIONCURSE:
+			case SC_PARALYSE:
+			case SC_VENOMBLEED:
+			case SC_MAGICMUSHROOM:
+			case SC_DEATHHURT:
+			case SC_PYREXIA:
+			//case SC_OBLIVIONCURSE:
 			case SC_LEECHESEND:
 				if (sc->data[i]->timer != -1)
 				{

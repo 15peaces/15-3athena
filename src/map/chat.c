@@ -156,14 +156,14 @@ int chat_joinchat(struct map_session_data* sd, int chatid, const char* pass)
 
 	pc_setchatid(sd,cd->bl.id);
 
-	clif_joinchatok(sd,cd);	// 新たに参加した人には全員のリスト
-	clif_addchat(cd,sd);	// 既に中に居た人には追加した人の報告
-	clif_dispchat(cd,0);	// 周囲の人には人数変化報告
-
-	chat_triggerevent(cd); // Event
+	clif_joinchatok(sd,cd);	// To the person who newly joined the list of all
+	clif_addchat(cd,sd);	// Reports To the person who already in the chat
+	clif_dispchat(cd,0);	// Reported number of changes to the people around
 
 	if (cd->owner->type == BL_PC)
 		achievement_update_objective(map_id2sd(cd->owner->id), AG_CHAT_COUNT, 1, cd->users);
+
+	chat_triggerevent(cd); // Event
 	
 	return 0;
 }
