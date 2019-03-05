@@ -5,6 +5,42 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/05/2019
+	r218 [15peaces]
+		*Merged missing changes from 3ceam rev. 660
+		*Fixed some typos in achievements.txt
+			-Resolves some typos in the AG_ADVENTURE script resulting in some not being able to be completed.
+			-Thanks to @rathena
+		*Added NPC name to status_set_viewdata error message.
+		*Ranger 2011 update has been applied.
+			-Some updates didn't make it in yet.
+		*RA_ARROWSTORM
+			-Fixed a issue where damage would be applied entirely on each hit.
+			-Damage is now correctly applied through 3 sub-hits.
+			-Damage formula updated to official. The damage has been increased.
+		*RA_FEARBREEZE
+			-Trigger chance updated. Max chance increased from 10% to 30%
+		*RA_AIMEDBOLT
+			-Damage formula has been updated to official.
+		*RA_CLUSTERBOMB
+			-Damage formula fully recoded to official.
+		*RA_WUGDASH
+			-Damage formula has been updated to official. Now affected by player's weight.
+		*RA_WUGBITE
+			-Unmoveable status now affected by skill level.
+		*RA_RESEARCHTRAP
+			-Its effect on Ranger's trap damage has changed.
+		*RA_FIRINGTRAP
+			-Damage formula fully recoded to official.
+			-Now deals fire element damage.
+			-Chance of causing burning status increased.
+			-Burning status duration reduced to 15 seconds.
+		*RA_ICEBOUNDTRAP
+			-Damage formula fully recoded to official.
+			-Now deals water element damage.
+			-Chance of causing freezeing status increased.
+			-Burning status duration reduced to 20 seconds.
+
 02/26/2019
 	r217 [15peaces]
 		*Merged missing changes from 3ceam rev. 659

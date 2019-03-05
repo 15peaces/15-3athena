@@ -1099,7 +1099,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
-		sc_start(bl, (skillid == RA_FIRINGTRAP) ? SC_BURNING:SC_FREEZING, 40 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, (skillid == RA_FIRINGTRAP) ? SC_BURNING : SC_FREEZING, 50 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case NC_PILEBUNKER:
 		if (rand()%100 < 5 + 15*skilllv)
