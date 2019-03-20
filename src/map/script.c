@@ -11115,6 +11115,13 @@ BUILDIN_FUNC(successremovecards)
 			for (j = 0; j < MAX_SLOTS; j++)
 				item_tmp.card[j]=0;
 
+			for (j = 0; j < MAX_ITEM_RDM_OPT; j++)
+			{
+				item_tmp.option[j].id = 0;
+				item_tmp.option[j].value = 0;
+				item_tmp.option[j].param = 0;
+			}
+
 			//Logs items, got from (N)PC scripts [Lupus]
 			log_pick(&sd->bl, LOG_TYPE_SCRIPT, item_tmp.nameid, 1, NULL);
 

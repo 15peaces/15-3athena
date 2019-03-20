@@ -21,7 +21,7 @@
 #define MAX_ITEMDB 0x10000
 
 
-//static struct item_data* itemdb_array[MAX_ITEMDB];
+static struct item_data* itemdb_array[MAX_ITEMDB];
 static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
 static DBMap *itemdb_randomopt; /// Random option DB
 
@@ -109,12 +109,13 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
 
 /*==========================================
  * Founds up to N matches. Returns number of matches [Skotlex]
+ * New Version. It however causes crashes... disabled for now and re-enabled old version. [15peaces]
  * @param *data
  * @param size
  * @param str
  * @return Number of matches item
  *------------------------------------------*/
-int itemdb_searchname_array(struct item_data** data, int size, const char *str)
+/*int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 {
 	DBData *db_data[MAX_SEARCH];
 	int i, count = 0, db_count;
@@ -124,8 +125,8 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 		data[count++] = (struct item_data*)db_data2ptr(db_data[i]);
 
 	return count;
-}
-/*Old version. [15peaces]
+}*/
+// Old version. [15peaces]
 int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 {
 	struct item_data* item;
@@ -159,7 +160,7 @@ int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 		size -= count;
 	}
 	return count + itemdb_other->getall(itemdb_other,(void**)data,size,itemdb_searchname_array_sub,str);
-}*/
+}
 
 void itemdb_package_item(struct map_session_data *sd, int packageid) 
 {

@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/20/2019
+	r219 [15peaces]
+		*Fixed an issue where the guild position names didn't show correctly.
+		*Fixed an issue where 'defpattern' script command won't work with 2015 clients.
+			-missing zero byte in message.
+		*Fixed an issue where successremovecards will cause the cards beeing damaged and destroyed.
+			-Now zeroes the random options.
+		*Fixed an issue where itemdb_searchname_array causes map server crashes.
+
 03/05/2019
 	r218 [15peaces]
 		*Merged missing changes from 3ceam rev. 660

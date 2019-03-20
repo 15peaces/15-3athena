@@ -9617,7 +9617,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 				ARR_FIND(0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id); 
 			
 				safestrncpy((char*)WBUFP(buf,54), g->name,NAME_LENGTH);
-				safestrncpy((char*)WBUFP(buf,78), g->position[i].name, NAME_LENGTH);
+				safestrncpy((char*)WBUFP(buf,78), g->position[ps].name, NAME_LENGTH);
 			}
 			else
 			{ //Assume no guild.
