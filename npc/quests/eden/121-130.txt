@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Capuche
 //===== Current Version: =====================================
-//= 1.1
+//= 1.0a
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -11,12 +11,12 @@
 //= Repeatable quests for players between BaseLevel 121 - 130.
 //===== Additional Comments: =================================
 //= 1.0 First version.
-//= 1.1 Ported from rAthena to 15-3athena. [15peaces]
+//= 1.0a Ported from rAthena to 15-3athena. [15peaces]
 //============================================================
 
 moc_para01,44,81,3	script	Melody-Jack#1	648,8,8,{
 	mes "[Melody-Jack]";
-	if (countitem(6219) < 1) {// Para_Team_Mark
+	if (countitem(6219) < 1 && countitem(22508) < 1) {// Para_Team_Mark
 		mes "Who the hell are you? Get out of here!";
 		mes "I'm only talking to base level ^FF0000121-130^000000 adventurers.";
 	}
@@ -563,7 +563,7 @@ OnTouch_:
 
 moc_para01,17,77,5	script	Aigu#1	646,{
 	mes "[Aigu]";
-	if (countitem(6219) < 1) {// Para_Team_Mark
+	if (countitem(6219) < 1 && countitem(22508) < 1) {// Para_Team_Mark
 		mes "Oh, why aren't you a part of Eden Group?";
 		mes "I'm only talking to base level ^FF0000121-130^000000 adventurers.";
 	}

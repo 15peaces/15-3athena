@@ -11,13 +11,15 @@
 //= Repeatable quests for players between BaseLevel 131 - 140.
 //===== Additional Comments: =================================
 //= 1.0 First version.
-//= 1.1 Ported from rAthena to 15-3athena. [15peaces]
+//= 1.0a Ported from rAthena to 15-3athena. [15peaces]
+//= 1.1 Added support to Para_Team_Mark_ in Eden Group. Thanks
+//=     to Ragno. [15peaces]
 //============================================================
 
 moc_para01,41,76,3	script	Ragi#1	647,{
 	cutin "ragi01",0;
 	mes "[Ragi]";
-	if (countitem(6219) == 0) {// Para_Team_Mark
+	if (countitem(6219) == 0 && countitem(22508) == 0) {// Para_Team_Mark
 		mes "Only adventurers from Eden Group are welcome here.";
 		mes "I'm giving requests to base level ^FF0000130-140^000000 adventurers only.";
 	}

@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/23/2019
+	r220 [15peaces]
+		*Fixed some Eden group bugs.
+			-Thanks to @rathena .
+
 03/20/2019
 	r219 [15peaces]
 		*Fixed an issue where the guild position names didn't show correctly.
