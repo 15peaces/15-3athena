@@ -5,6 +5,37 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/26/2019
+	r221 [15peaces]
+		*Merged missing changes from 3ceam rev. 661
+		*Added full support to Para_Team_Mark_ in Eden Group.
+			-Follow up @3760838 .
+			-Thanks to @rathena .
+		*Arch Bishop 2011 update has been applied.
+			-Some updates didnt make it in yet.
+		*AB_ADORAMUS
+			-Status chance code changed to official and is now affected by skill level and job level.
+		*AB_CLEMENTIA
+			-STR, INT, and DEX increase now affected by AL_BLESSING level learned and caster's job level.
+		*AB_CANTO
+			-AGI increase now affected by AL_INCAGI level learned and caster's job level.
+		*AB_EPICLESIS
+			-HP/SP recovery is changed from every 1 second to every 3 seconds.
+		*AB_LAUDAAGNUS
+			-Increased status recovery chance.
+			-Now recovers from Frozen, Petrification, Blind, Freezing, Crystallization, and Burning
+		*AB_RENOVATIO
+			-Damage formula on undead monsters is now official.
+			-Supposed to be applied as a debuff on undead monsters and deal damage every 5 seconds, but will require a partal recode to allow this function.
+		*AB_HIGHNESSHEAL
+			-Heal modifier code upgraded to a full percentage range to ensure full accurate heal amount increase.
+		*AB_CLEARANCE
+			-Increased the success chance.
+		*AB_EXPIATIO
+			-Fixed a issue where it would enchant the player's weapon with holy element.
+			-Their's no info anywhere saying it enchants the player's weapon with holy element.
+			-It only allows you to bypass a player's defense.
+
 03/23/2019
 	r220 [15peaces]
 		*Fixed some Eden group bugs.
