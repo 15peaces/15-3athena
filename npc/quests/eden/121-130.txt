@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Capuche
 //===== Current Version: =====================================
-//= 1.0a
+//= 1.2
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -12,11 +12,13 @@
 //===== Additional Comments: =================================
 //= 1.0 First version.
 //= 1.0a Ported from rAthena to 15-3athena. [15peaces]
+//= 1.1 Added support to Para_Team_Mark_ in Eden Group. Thanks to Ragno. [15peaces]
+//= 1.2 Added use of F_HasEdenGroupMark function. Thanks to Ragno. [15peaces]
 //============================================================
 
 moc_para01,44,81,3	script	Melody-Jack#1	648,8,8,{
 	mes "[Melody-Jack]";
-	if (countitem(6219) < 1 && countitem(22508) < 1) {// Para_Team_Mark
+	if (!callfunc("F_HasEdenGroupMark")) {
 		mes "Who the hell are you? Get out of here!";
 		mes "I'm only talking to base level ^FF0000121-130^000000 adventurers.";
 	}
@@ -563,7 +565,7 @@ OnTouch_:
 
 moc_para01,17,77,5	script	Aigu#1	646,{
 	mes "[Aigu]";
-	if (countitem(6219) < 1 && countitem(22508) < 1) {// Para_Team_Mark
+	if (!callfunc("F_HasEdenGroupMark")) {
 		mes "Oh, why aren't you a part of Eden Group?";
 		mes "I'm only talking to base level ^FF0000121-130^000000 adventurers.";
 	}

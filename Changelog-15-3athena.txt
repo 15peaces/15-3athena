@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/31/2019
+	r222 [15peaces]
+		*Added use of F_HasEdenGroupMark function. 
+			-Thanks to @rathena .
+
 03/26/2019
 	r221 [15peaces]
 		*Merged missing changes from 3ceam rev. 661
