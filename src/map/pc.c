@@ -7484,7 +7484,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		if (!(sd->class_&JOBL_THIRD) )
 			sd->change_level[1] = sd->status.job_level;
 		else if (!sd->change_level[1])
-			sd->change_level[1] = (b_class&JOBL_UPPER)?70:50; // Assume 50 to Base 3rd jobs and 70 to Trans 3rd jobs
+			sd->change_level[1] = 50; // Assume 50 because this is the minimum change level to 3rd class. [15peaces]
 		pc_setglobalreg(sd, "jobchange_level2", sd->change_level[1]);
 	}
 	else if (b_class&JOBL_2) {

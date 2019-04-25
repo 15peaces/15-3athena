@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/25/2019
+	r223 [15peaces]
+		*Fixed an possible mapserver crash in pet_equipitem.
+		*Some other misc fixes.
+
 03/31/2019
 	r222 [15peaces]
 		*Added use of F_HasEdenGroupMark function. 
