@@ -3238,3 +3238,13 @@
 // New Usable items
 //===================================================================
 22508,Para_Team_Mark_,Eden Group Mark,2,0,,0,,,,0,0xFFFFFFFF,63,2,,,,,,{ warp "moc_para01",171,115; },{},{}
+
+// Kagerou/Oboro Exclusive Equips (3ceam stable)
+13075,Kurenai,Kurenai,4,5000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
+13076,Nachal_Sword,Nachal Sword,4,40000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
+13078,Mikacheuki,Mikacheuki,4,40000,,600,50,,1,1,0x20000000,7,2,2,4,100,1,1,{},{},{}
+13294,Explosive_Kunai,Explosive Kunai,10,100,,30,50,,,,0x20000000,7,2,32768,,100,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13313,Flower_Huuma_Shuriken,Flower Huuma Shuriken,4,100000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Fire; },{},{}
+13314,Wave_Huuma_Shuriken,Wave Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Water; },{},{}
+13315,Thunderstorm_Huuma_Shuriken,Thunderstorm Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Wind; },{},{}
+13316,Enhance_Huuma_Shuriken,Enhance Huuma Shuriken,4,20,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /* bonus bWeaponMatk,5*getrefine(); */ bonus bLongAtkRate,getrefine(); if(BaseLevel >= 70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}

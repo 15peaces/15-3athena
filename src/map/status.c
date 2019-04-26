@@ -2803,8 +2803,10 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		}
 	}
 
-	if( (sd->status.weapon == W_1HAXE || sd->status.weapon == W_2HAXE || sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE) && (skill = pc_checkskill(sd,NC_TRAININGAXE)) > 0 )
+	if ((sd->status.weapon == W_1HAXE || sd->status.weapon == W_2HAXE) && (skill = pc_checkskill(sd, NC_TRAININGAXE)) > 0)
 		status->hit += skill * 3;
+	if ((sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE) && (skill = pc_checkskill(sd, NC_TRAININGAXE)) > 0)
+		status->hit += skill * 2;
 
 // ----- FLEE CALCULATION -----
 
@@ -2825,7 +2827,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 
 	if( pc_ismadogear(sd) && (skill = pc_checkskill(sd,NC_MAINFRAME)) > 0 )
-		status->def += skill < 3 ? 1 + 3 * skill : 4 * skill - 1;
+		status->def += 2 + 2 * skill;
 
 	if (!battle_config.weapon_defense_type && status->def > battle_config.max_def)
 	{
@@ -2933,10 +2935,23 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->subrace[RC_DRAGON]+=skill;
 	}
 
-	if((skill=pc_checkskill(sd,NC_RESEARCHFE))>0){
-		sd->subele[ELE_FIRE] += skill*10;
-		sd->subele[ELE_EARTH] += skill*10;
+	if ((skill = pc_checkskill(sd, AB_EUCHARISTICA)) > 0)
+	{
+		sd->right_weapon.addrace[RC_DEMON] += skill;
+		sd->right_weapon.addele[ELE_DARK] += skill;
+		sd->left_weapon.addrace[RC_DEMON] += skill;
+		sd->left_weapon.addele[ELE_DARK] += skill;
+		sd->magic_addrace[RC_DEMON] += skill;
+		sd->magic_addele[ELE_DARK] += skill;
+		sd->subrace[RC_DEMON] += skill;
+		sd->subele[ELE_DARK] += skill;
 	}
+	if ((skill = pc_checkskill(sd, NC_RESEARCHFE)) > 0)
+	{
+		sd->subele[ELE_EARTH] += skill * 10;
+		sd->subele[ELE_FIRE] += skill * 10;
+	}
+
 
 	if(sc->count) {
      	if(sc->data[SC_CONCENTRATE])
@@ -4829,7 +4844,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				if( sc->data[SC__GROOMY] )
 					val = max( val, sc->data[SC__GROOMY]->val2);
 				if( sc->data[SC_STEALTHFIELD_MASTER] )
-					val = max( val, 30 );
+					val = max(val, 20);//Description says decreases casters movement speed by 20%. [Rytech]
 				if( sc->data[SC_BANDING_DEFENCE] )
 					val = max( val, sc->data[SC_BANDING_DEFENCE]->val1 );
 				if( sc->data[SC_ROCK_CRUSHER_ATK] )
@@ -5750,8 +5765,14 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 			TBL_NPC* nd = (TBL_NPC*)bl;
 			if (vd)
 				nd->vd = vd;
-			else
-				ShowError("status_set_viewdata (NPC): No view data for class %d (NPC name: %s)\n", class_, nd->exname);
+			else {
+				ShowError("status_set_viewdata (NPC): No view data for class %d\n", class_);
+				if (bl->m >= 0)
+					ShowDebug("Source (NPC): %s at %s (%d,%d)\n", nd->name, mapindex_id2name(map_id2index(bl->m)), bl->x, bl->y);
+				else
+					ShowDebug("Source (NPC): %s (invisible/not on a map)\n", nd->name);
+				break;
+			}
 		}
 	break;
 	case BL_HOM:		//[blackhole89]
@@ -10035,7 +10056,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			if( --(sce->val3) <= 0 )
 				break; // Time out
 			if( sce->val2 == bl->id ){
-				if( !status_charge(bl,0,14 + (3 * sce->val1)) )
+				if (!status_charge(bl, 0, 50))
 					break; // No more SP status should end, and in the next second will end for the other affected players
 			}else{
 				struct block_list *src = map_id2bl(sce->val2);

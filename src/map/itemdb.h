@@ -51,7 +51,7 @@ enum item_itemid
 #define itemdb_is_rune(n) (n >= ITEMID_REFRESH && n <= ITEMID_STONEHARDSKIN)
 #define itemdb_is_poison(n) (n >= 12717 && n <= 12724)
 #define itemdb_is_spellbook(n) (n >= 6188 && n <= 6205)
-#define itemdb_is_element(n) (n >= 990 && n <= 993)
+#define itemdb_is_element(n) (n >= 6360 && n <= 6363)
 #define itemdb_is_GNbomb(n) (n >= 13260 && n <= 13267)
 
 //The only item group required by the code to be known. See const.txt for the full list.

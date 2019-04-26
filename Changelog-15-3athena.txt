@@ -5,8 +5,71 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/26/2019
+	r224 [15peaces]
+		*Merged missing changes from 3ceam rev. 662 - 663
+		*Mechanic 2011 update has been applied.
+			-Some of the updates didnt make it into this revision update due to issues and will be done later.
+		*Added some Kagerou/Oboro equips.
+			-Entry's were taken from rAthena's renewal database and modified to be Kagerou/Oboro equiptable only as its exclusive for them.
+			-Other changes may have been made to suit the pre-renewal mechanics.
+			-Note: Explosive kunai weight and ATK fixed.
+		*NC_MADOLICENCE
+			-Amount of added attack damage per level changed.
+		*NC_PILEBUNKER
+			-Chance of removing defense buffs from the enemy changed.
+			-Remove's the following status by chance....
+			-Kyrie Eleison, Auto Guard, Reflect Shield, Defender, Steel Body, Assumptio, Millenium Shield, Reflect Damage, Prestige, Banding, 
+			-Gentle Touch: Change, Gentle Touch: Revitalize
+		*NC_VULCANARM
+			-Now deals damage in a 3x3 splash AoE around the target.
+		*NC_FLAMELAUNCHER
+			-Burning chance changed.
+		*NC_COLDSLOWER
+			-Updated Freezing and Frozen durations to official.
+		*NC_ARMSCANNON
+			-Range increase and is now affected by skill level.
+			-Skill level now affects required SP to cast.
+		*NC_MAINFRAME
+			-Amount of DEF given when mounted in a Mado changed.
+		*NC_SELFDESTRUCTION
+			-Damage formula changed to official.
+		*NC_SHAPESHIFT
+			-Now requires 3 element points of a selected element.
+		*NC_INFRAREDSCAN
+			-Fixed cast removed.
+			-Effect duration changed.
+			-Chance of inflecting status is now 100%.
+		*NC_NEUTRALBARRIER
+			-Now a 5x5 AoE.
+		*NC_STEALTHFIELD
+			-Now a 5x5 AoE.
+		*NC_TRAININGAXE
+			-Added ATK mastery and HIT with maces changed.
+		*NC_AXEBOOMERANG
+			-Skill range increased.
+			-Now a range skill for all levels.
+			-Damage formula changed to official.
+		*NC_POWERSWING
+			-Damage formula changed to official.
+		*NC_AXETORNADO
+			-Damage is now increased when using a wind element weapon.
+			-Splash AoE is now split into 2 zones.
+			-Damage dealt in 3x3 and 5x5 range is 100% of the final damage.
+			-Damage dealt in the 7x7 range is now 75% of the final damage.
+		*NC_SILVERSNIPER
+			-Duration of FAW increased.
+		*NC_MAGICDECOY
+			-Duration of FAW increased.
+			-Now requires element points.
+		*Added and updated several warning messages
+			-enablenpc / disablenpc / hideoffnpc / hideonnpc now display the npc source when the npc named doesn't exist
+			-Added more info to the NPC source warning to status_set_viewdata when no view data has been found
+			-Added a capvalue to UPET_HUNGER on setunitdata
+			-areamonster now checks if the monster ID exists
+
 04/25/2019
-	r223 [15peaces]
+ 	r223 [15peaces]
 		*Fixed an possible mapserver crash in pet_equipitem.
 		*Some other misc fixes.
 

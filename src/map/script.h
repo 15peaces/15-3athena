@@ -460,7 +460,8 @@ void script_run_autobonus(const char *autobonus,int id, int pos);
 
 bool script_get_parameter(const char* name, int* value);
 bool script_get_constant(const char* name, int* value);
-void script_set_constant(const char* name, int value, bool isparameter);
+void script_set_constant_(const char* name, int value, const char* constant_name, bool isparameter);
+#define script_set_constant(name, value, isparameter) script_set_constant_(name, value, NULL, isparameter)
 
 void script_cleararray_pc(struct map_session_data* sd, const char* varname, void* value);
 void script_setarray_pc(struct map_session_data* sd, const char* varname, uint8 idx, void* value, int* refcache);
