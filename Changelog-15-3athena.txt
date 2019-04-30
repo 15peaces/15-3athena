@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/30/2019
+	r225 [15peaces]
+		*Added some missing champion monsters, skills and spawns.
+		*Changed some renewal monsters to fit pre-renewal system.
+
 04/26/2019
 	r224 [15peaces]
 		*Merged missing changes from 3ceam rev. 662 - 663

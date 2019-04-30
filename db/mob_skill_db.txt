@@ -6569,3 +6569,11 @@
 2476,Amdarias@NPC_CURSEATTACK,attack,181,5,4000,0,3000,no,target,always,0,,,,,,,
 2476,Amdarias@NPC_STUNATTACK,attack,179,5,2000,0,3000,no,target,always,0,,,,,,,
 2476,Amdarias@SM_MAGNUM,attack,7,25,10000,500,5000,yes,self,always,0,,,,,,,
+// Champion Monsters
+2644,Furious Stalactic Golem@BS_HAMMERFALL,attack,110,5,500,1500,5000,no,target,always,,,,,,,,
+2644,Furious Stalactic Golem@CR_AUTOGUARD,attack,249,5,500,0,300000,yes,self,always,,,,,,,,
+2644,Furious Stalactic Golem@CR_AUTOGUARD,chase,249,5,2000,0,300000,yes,self,longrangeattacked,,,,,,,,
+2644,Furious Stalactic Golem@NPC_EMOTION,idle,197,1,200,0,30000,yes,self,always,,9,0x0091,,,,,
+2644,Furious Stalactic Golem@NPC_EMOTION_ON,attack,474,1,10000,0,30000,yes,self,always,,6,0x3885,,,,,
+2644,Furious Stalactic Golem@NPC_STUNATTACK,attack,179,4,500,1500,5000,no,target,always,,,,,,,6,
+2644,Furious Stalactic Golem@SM_ENDURE,chase,8,1,5000,0,10000,yes,self,longrangeattacked,,,,,,,6,

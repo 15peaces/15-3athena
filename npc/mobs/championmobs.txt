@@ -207,7 +207,7 @@ ma_dun01,0,0,0,0	monster	Manananggal Ringleader	2766,2,300000,0
 //bra_dun02,0,0,0,0	monster	Solid Iara	2795,2,300000,0
 //lou_dun02,0,0,0,0	monster	Yao Jun Ringleader	2796,2,300000,0
 //gef_dun00,0,0,0,0	monster	Furious Hunter Fly	2797,2,300000,0
-//prt_fild05,0,0,0,0	monster	Elusive Hornet	2798,2,300000,0
+prt_fild05,0,0,0,0	monster	Elusive Hornet	2798,2,300000,0
 dic_dun01,0,0,0,0	monster	Swift Uni-horn Scaraba	2799,2,300000,0
 pay_fild09,0,0,0,0	monster	Solid Horn	2800,2,300000,0
 ra_san03,0,0,0,0	monster	Hodremlin Ringleader	2801,2,300000,0
