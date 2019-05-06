@@ -1486,7 +1486,7 @@ int check_char_name(char * name, char * esc_name)
 //-----------------------------------
 #if PACKETVER >= 20120307
 #if PACKETVER >= 20151001
-int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race) {
+int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race, short unknown, int sex) {  // TODO: Unknown byte
 	short starting_job;
 	short starting_hp, starting_sp;
 	short starting_weapon, starting_armor;
@@ -1525,6 +1525,19 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 
 	//check other inputs
 #if PACKETVER >= 20120307
+#if PACKETVER >= 20151001
+	switch(sex) {
+	case SEX_FEMALE:
+		sex = 'F';
+		break;
+	case SEX_MALE:
+		sex = 'M';
+		break;
+	default:
+		sex = 'U';
+		break;
+	}
+#endif
 	if(slot >= MAX_CHARS)
 #else
 	if((slot >= MAX_CHARS) // slots
@@ -1590,11 +1603,11 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 
 	//Insert the new char entry to the database
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `class`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
-		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`) VALUES ("
-		"'%d', '%d', '%s', '%d', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d')",
+		"`max_sp`, `sp`, `hair`, `hair_color`, `last_map`, `last_x`, `last_y`, `save_map`, `save_x`, `save_y`, `sex`) VALUES ("
+		"'%d', '%d', '%s', '%d', '%d',  '%d','%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d','%d', '%d','%d', '%d', '%s', '%d', '%d', '%s', '%d', '%d', '%c')",
 		char_db, sd->account_id , slot, esc_name, starting_job, start_zeny, 48, str, agi, vit, int_, dex, luk,
 		starting_hp, starting_hp, starting_sp, starting_sp, hair_style, hair_color,
-		starting_point_map, starting_point_x, starting_point_y, starting_point_map, starting_point_x, starting_point_y) )
+		starting_point_map, starting_point_x, starting_point_y, starting_point_map, starting_point_x, starting_point_y, sex) )
 #elif PACKETVER >= 20120307
 	//Insert the new char entry to the database
 	if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`account_id`, `char_num`, `name`, `zeny`, `status_point`,`str`, `agi`, `vit`, `int`, `dex`, `luk`, `max_hp`, `hp`,"
@@ -4514,7 +4527,7 @@ int parse_char(int fd)
 				i = -2;
 			else
 #if PACKETVER >= 20151029
-				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29),RFIFOW(fd,31));
+				i = make_new_char_sql(sd, (char*)RFIFOP(fd, 2), RFIFOB(fd, 26), RFIFOW(fd, 27), RFIFOW(fd, 29), RFIFOW(fd, 31), RFIFOW(fd, 32), RFIFOB(fd, 35));
 #elif PACKETVER >= 20120307
 				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 #else

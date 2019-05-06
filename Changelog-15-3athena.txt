@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/06/2019
+	r226 [15peaces]
+		*Added full support to select gender while character creation.
+			-Forgot to enable this while adding support for 2015 clients. ^^
+		*Added many Doram related items.
+
 04/30/2019
 	r225 [15peaces]
 		*Added some missing champion monsters, skills and spawns.
