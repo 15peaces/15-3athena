@@ -3988,16 +3988,17 @@ void clif_changeoption(struct block_list* bl)
 	struct map_session_data* sd;
 
 	nullpo_retv(bl);
-	sc = status_get_sc(bl);
-	if (!sc) return; //How can an option change if there's no sc?
+	
+	if (!(sc = status_get_sc(bl)) && bl->type != BL_NPC) return; //How can an option change if there's no sc?
+	
 	sd = BL_CAST(BL_PC, bl);
 	
 #if PACKETVER >= 7
 	WBUFW(buf,0) = 0x229;
 	WBUFL(buf,2) = bl->id;
-	WBUFW(buf,6) = sc->opt1;
-	WBUFW(buf,8) = sc->opt2;
-	WBUFL(buf,10) = sc->option;
+	WBUFW(buf, 6) = (sc) ? sc->opt1 : 0;
+	WBUFW(buf, 8) = (sc) ? sc->opt2 : 0;
+	WBUFL(buf, 10) = (sc != NULL) ? sc->option : ((bl->type == BL_NPC) ? BL_UCCAST(BL_NPC, bl)->sc.option : 0);
 	WBUFB(buf,14) = (sd)? sd->status.karma : 0;
 	if(disguised(bl)) {
 		clif_send(buf,packet_len(0x229),bl,AREA_WOS);

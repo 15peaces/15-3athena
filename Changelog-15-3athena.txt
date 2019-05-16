@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/16/2019
+	r227 [15peaces]
+		*Some fixing and cleaning.
+		*Added some missing items.
+		*Some fixing and updating related to Old Glast Heim instance.
+			-Fixed OldGlastHeim instance not showing any npc.			
+			-adding missing glast heim Items/Quests entries
+			-corrected already existed glast heim npcs
+			-added Old Glast Heim Enchanter
+			-Changed .MyMobs to 'MyMobs
+			-thanks to @HerculesWS
+
 05/06/2019
 	r226 [15peaces]
 		*Added full support to select gender while character creation.

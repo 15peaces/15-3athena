@@ -186,12 +186,13 @@ bool npc_enable(const char* name, int flag)
 
 	if (flag&1)
 		nd->sc.option&=~OPTION_INVISIBLE;
-	else if (flag&2)
-		nd->sc.option&=~OPTION_HIDE;
-	else if (flag&4)
+	else if (flag & 2)
+		nd->sc.option &= ~OPTION_HIDE;
+	else if (flag & 4)
 		nd->sc.option|= OPTION_HIDE;
 	else	//Can't change the view_data to invisible class because the view_data for all npcs is shared! [Skotlex]
 		nd->sc.option|= OPTION_INVISIBLE;
+		clif_clearunit_area(&nd->bl, CLR_OUTSIGHT);  // Hack to trick maya purple card [Xazax]
 
 	if (nd->class_ == WARP_CLASS || nd->class_ == FLAG_CLASS)
 	{	//Client won't display option changes for these classes [Toms]

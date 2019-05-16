@@ -429,6 +429,15 @@ cmd_fild07,136,134,4	script	Kafra Employee::kaf_cmd_fild07	721,{
 	savepoint "cmd_fild07",127,134;
 	callfunc "F_KafEnd",0,1,"in Pyros Lighthouse";
 }
+//===================================================
+// Glastheim
+//===================================================
+glast_01,200,275,5	script	Kafra Employee::kaf_glast	115,{
+	cutin "kafra_03",2;
+	callfunc "F_Kafra",0,3,2,500,700;
+	savepoint "glast_01",200,272;
+	callfunc "F_KafEnd",0,1,"in Glast Heim";
+}
 
 //===================================================
 // Izlude

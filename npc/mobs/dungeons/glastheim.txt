@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Athena (1.0)
 //===== Current Version: =====================================
-//= 1.6
+//= 1.7
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Additional Comments: =================================
@@ -13,6 +13,7 @@
 //= 1.4 More accurate spawns [Playtester]
 //= 1.5 Corrected MVP spawn variance. [L0ne_W0lf]
 //= 1.6 Added Dark Priest spawn. [15peaces]
+//= 1.7 Added Nightmare Mode spawns. [15peaces]
 //============================================================
 
 //==================================================
@@ -232,3 +233,22 @@ gl_dun01,0,0,0,0	monster	Sting	1207,40,0,0,0
 //==================================================
 gl_dun02,0,0,0,0	monster	Majoruros	1310,45,0,0,0
 gl_dun02,0,0,0,0	monster	Gargoyle	1253,15,0,0,0
+
+//==================================================
+// gl_cas02_ - Nightmare Mode 2f
+//==================================================
+gl_cas02_,0,0,0,0	monster	Evil Druid (Nightmare)	2480,20,0,0,0
+gl_cas02_,0,0,0,0	monster	Chimera (Nightmare)	2485,10,0,0,0
+gl_cas02_,0,0,0,0	monster	Mimic (Nightmare)	2479,40,0,0,0
+gl_cas02_,0,0,0,0	monster	Rideword (Nightmare)	2478,40,0,0,0
+gl_cas02_,0,0,0,0	monster	Wanderer (Nightmare)	2477,120,0,0,0
+gl_cas02_,0,0,0,0	monster	Swift Wanderer	2734,2,180000,0,0
+gl_cas02_,0,0,0,0	monster	Baphomet (Nightmare)	2483,1,7200000,0,0
+
+//==================================================
+// gl_chyard_ - Nightmare Mode Churchyard
+//==================================================
+gl_chyard_,0,0,0,0	monster	Wraith Dead (Nightmare)	2481,200,0,0,0
+gl_chyard_,0,0,0,0	monster	Elusive Wraith Dead	2733,2,180000,0,0
+gl_chyard_,0,0,0,0	monster	Evil Druid (Nightmare)	2480,5,60000,0,0
+gl_chyard_,0,0,0,0	monster	Mimic (Nightmare)	2479,5,60000,0,0
