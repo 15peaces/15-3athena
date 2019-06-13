@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/13/2019
+	r228 [15peaces]
+		*Some fixing and cleaning.
+		*Added some missing items and monsters.
+		*Changed some monsters to fit pre-renewal system.
+
 05/16/2019
 	r227 [15peaces]
 		*Some fixing and cleaning.

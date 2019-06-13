@@ -90,6 +90,7 @@
 
 //Wrong info?
 19014,Gravekeeper_Blinker,Gravekeeper Blinker,5,0,,100,,1,,0,0xFFFFFFFF,63,2,512,,10,,1210,{},{},{}
+
 19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
 19027,Type-10_Glasses,Type-10 Glasses,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,10,,1237,{},{},{}
 19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
@@ -3373,3 +3374,8 @@
 22009,Temporal_Int_Boots_,Temporal Boots Of Intelligence,5,20,,600,,20,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
 22010,Temporal_Agi_Boots_,Temporal Boots Of Agility,5,20,,600,,25,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
 22011,Temporal_Luk_Boots_,Temporal Boots Of Luck,5,20,,600,,20,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
+
+// Costumes (remewal)
+31601,C_Under_Rim_Glasses_Blue,C Under Rim Glasses Blue,5,0,,,,0,,0,0xFFFFFFFF,63,2,2048,,1,,1805,{},{},{}
+31602,C_Midgarts_Glory,C Rune Midgarts Glory,5,0,,,,0,,0,0xFFFFFFFF,63,2,1024,,1,,1807,{},{},{}
+31609,C_Noble_Mask,C Noble Mask,5,0,,,,0,,0,0xFFFFFFFF,63,2,2048,,1,,1409,{},{},{}
