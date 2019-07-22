@@ -1,11 +1,11 @@
-//===== rAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= HD Refiners
 //===== By: ==================================================
 //= Euphy
 //===== Current Version: =====================================
 //= 1.0
 //===== Compatible With: =====================================
-//= rAthena Project
+//= 15-3athena
 //===== Description: =========================================
 //= [Official Conversion]
 //= Refiners that use HD ores to refine equipment. Upon
@@ -16,6 +16,7 @@
 //= - "Basta" only refines from +10 and up.
 //===== Additional Comments: =================================
 //= 1.0 First version. [Euphy]
+//= 1.0a Added a safe-limit at +10 to "Basta" (as it is on iRO). [15peaces]
 //============================================================
 
 // Blacksmith Mighty Hammer (+7~9) :: cash_smelting79
@@ -173,6 +174,8 @@ lhz_in02,280,19,3	duplicate(MightyHammer)	Mighty Hammer#lhz	826
 // Basta (+10 and up) :: cash_smelting
 //============================================================
 -	script	::Basta	-1,{
+	set .iRO, 1; // set this to 0 to disable +10 safe-limit or 1 to enable +10 safe-limit
+	
 	disable_items;
 	mes "[Basta]";
 	mes "I'm the best Blacksmith in the whole world, Basta.";
@@ -316,7 +319,11 @@ lhz_in02,280,19,3	duplicate(MightyHammer)	Mighty Hammer#lhz	826
 		mes "I really am the best blacksmith in the whole wide world!";
 		close;
 	}
-	downrefitem .@part;
+	if(getequiprefinerycnt(.@part) > 10)
+		downrefitem .@part;
+	else
+		if (.iRO == 0)
+			downrefitem .@part;
 	next;
 	emotion (!rand(5))?e_cash:e_omg;
 	mes "[Basta]";

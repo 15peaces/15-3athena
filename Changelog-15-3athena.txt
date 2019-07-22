@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/22/2019
+	r229 [15peaces]
+		*Merged missing changes from 3ceam rev. 664
+		*Added iRO like +10 safe limit to HD Bradium / HD Carnium refiners.
+			-it can be easily disabled by changing 1 variable.
+		*Guillotine Cross 2011 update has been applied.
+			-Some poison related updates has not been applied due to the complex coding and will be done on 
+			-another date sometime after quick updates are completed for the other remaining job.
+		*GC_CROSSIMPACT; GC_ROLLINGCUTTER; GC_CROSSRIPPERSLASHER
+			-Damage formulas updated.
+		*GC_DARKILLUSION
+			-Now usable in GvG maps.
+		*GC_COUNTERSLASH
+			-Now ignores enenmy's DEF.
+			-Damage formula updated.
+		*GC_POISONSMOKE
+			-AoE duration increased and is affected by skill level.
+			-No longer removes the applied poison from your weapon.
+			-Adjusted code to use the durations set in the skill requirement database.
+			-Chance to poison enemy targets updated to 50% per second.
+		*AB_EPICLESIS
+			-AoE size fixed to official 5x5.
+		*NC_ARMSCANNON
+			-Added missing damage formula update form @d263a96 (r224).
+
 06/13/2019
 	r228 [15peaces]
 		*Some fixing and cleaning.

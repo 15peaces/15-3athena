@@ -2056,7 +2056,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += ((skill_lv-1)%5+1)*100;
 					break;
 				case GC_CROSSIMPACT:
-					skillratio += 1050 + 50 * skill_lv;
+					skillratio += 900 + 100 * skill_lv;
+					if (s_level > 100) skillratio += skillratio * s_level / 120;
 					break;
 				case GC_PHANTOMMENACE:
 					skillratio += 200;
@@ -2072,12 +2073,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 200 + (100 * skill_lv) + sstatus->agi + status_get_lv(src) / 10;
 					break;
 				case GC_ROLLINGCUTTER:
-					skillratio += 20 * skill_lv;
+					skillratio = 50 + 50 * skill_lv;
+					if (s_level > 100) skillratio += skillratio * s_level / 100;
 					break;
 				case GC_CROSSRIPPERSLASHER:
-					skillratio += 60 + 40 * skill_lv;
+					skillratio += 300 + 80 * skill_lv;
 					if( sc && sc->data[SC_ROLLINGCUTTER] )
-						skillratio += 25 * sc->data[SC_ROLLINGCUTTER]->val1;
+						skillratio += sc->data[SC_ROLLINGCUTTER]->val1 * sstatus->agi;
 					break;
 				case AB_DUPLELIGHT_MELEE:
 					skillratio += 10 * skill_lv;
@@ -2134,9 +2136,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case NC_ARMSCANNON:
 					switch(tstatus->size) {
-						case 0: skillratio += 100 + 500 * skill_lv; break;//small
-						case 1: skillratio += 100 + 400 * skill_lv; break;//medium
-						case 2: skillratio += 100 + 300 * skill_lv; break;//large
+						case 0: skillratio += 200 + 400 * skill_lv; break;// Small
+						case 1: skillratio += 200 + 350 * skill_lv; break;// Medium
+						case 2: skillratio += 200 + 300 * skill_lv; break;// Large
 					}
 					if( s_level > 100 ) skillratio += skillratio * (s_level - 100) / 200;	// Base level bonus.
 					//NOTE: Their's some other factors that affects damage, but not sure how exactly. Will recheck one day. [Rytech]

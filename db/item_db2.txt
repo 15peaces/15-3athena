@@ -2413,7 +2413,6 @@
 18682,Teardrop,Teardrop,5,20,,100,,1,,0,0xFFFFFFFF,63,2,512,,1,1,828,{ bonus bMaxSP,15; },{},{}
 18683,Carrot_In_Mouth,Carrot In Mouth,5,20,,200,,1,,0,0xFFFFFFFF,63,2,1,,1,0,829,{ bonus2 bSubRace,RC_Plant,3; },{},{}
 18684,Showy_High_Cap,Showy High Cap,5,20,,200,,3,,1,0xFFFFFFFE,63,2,256,,1,1,830,{ bonus bStr,3; bonus bInt,2; bonus2 bAddItemHealRate,505,50; },{},{}
-18685,Stardust_Hairband,Stardust Hairband,4,20,,1000,,0,,0,0xFFFFFFFF,63,2,256,,10,0,831,{},{},{}
 18686,2011_RMSC_1,2011 RMSC 1,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,5; },{},{}
 18687,2011_RMSC_2,2011 RMSC 2,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,3; },{},{}
 18688,2011_RMSC_3,2011 RMSC 3,5,20,,2500,,20,,1,0xFFFFFFFF,63,2,256,,1,0,832,{ bonus bUnbreakableHelm,1; bonus bAllStats,1; },{},{}
