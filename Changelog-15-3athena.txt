@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/25/2019
+	r230 [15peaces]
+		*Merged missing changes from 3ceam rev. 665 - 667
+		*Faceworm Nest implementation
+			-Added support for a semi-official version of Faceworm Nest instance. Thanks to Alayne (herc.ws)
+				--Added missing items and monsters.
+		*Added missing monsters and items.
+			-Also changed some monsters to fit pre-renewal system.
+		*Added support for makeitem2 script command.
+		*Some fixing and cleaning.
+
 07/22/2019
 	r229 [15peaces]
 		*Merged missing changes from 3ceam rev. 664

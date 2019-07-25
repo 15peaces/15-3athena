@@ -90,11 +90,11 @@
 
 //Wrong info?
 19014,Gravekeeper_Blinker,Gravekeeper Blinker,5,0,,100,,1,,0,0xFFFFFFFF,63,2,512,,10,,1210,{},{},{}
-
 19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
 19027,Type-10_Glasses,Type-10 Glasses,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,10,,1237,{},{},{}
 19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,5,0,,300,,,,0,0xFFFFFFFF,63,2,256,,1,,1249,{bonus2 bAddRace,RC_Boss,15;},{},{}
+
 19605,C_Gang_Scarf,Costume Gang Scarf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,369,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
@@ -3378,3 +3378,13 @@
 31601,C_Under_Rim_Glasses_Blue,C Under Rim Glasses Blue,5,0,,,,0,,0,0xFFFFFFFF,63,2,2048,,1,,1805,{},{},{}
 31602,C_Midgarts_Glory,C Rune Midgarts Glory,5,0,,,,0,,0,0xFFFFFFFF,63,2,1024,,1,,1807,{},{},{}
 31609,C_Noble_Mask,C Noble Mask,5,0,,,,0,,0,0xFFFFFFFF,63,2,2048,,1,,1409,{},{},{}
+
+// Faceworm Nest (custom) (renewal)
+6649,Broken_Horn,Broken Horn,3,10,,10,,,,,,,,,,,,,{},{},{}
+6650,Shabby_Ring,Old Ring,3,10,,10,,,,,,,,,,,,,{},{},{}
+6651,Rusty_Bracelet,Rusty Bracelet,3,10,,10,,,,,,,,,,,,,{},{},{}
+6652,Old_Photo_Album,Old Photo Album,3,10,,10,,,,,,,,,,,,,{},{},{}
+6653,Shabby_Pill,Old Pill,3,10,,10,,,,,,,,,,,,,{},{},{}
+13089,FaceWorm_Leg,FaceWorm Leg,4,20,,500,110,,1,1,0x228F5EEF,,,2,3,,,1,{bonus bMatk,50; bonus bAtkEle,Ele_Poison; autobonus "{}",30,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; active_transform 2528,5000; }";},{},{}
+13090,FaceWormQueen_Leg,Faceworm Queen Leg,4,20,,500,180,,1,2,0x228F5EEF,,,2,4,,,1,{bonus bMatk,120; bonus bInt,3; autobonus "{ bonus3 bAutoSpell,\"NPC_EARTHQUAKE\",1,200; }",8,5000,BF_NORMAL,"{ specialeffect2 EF_POTION_BERSERK; active_transform 2529,5000; }";},{},{}
+22507,ShabbyOldScroll,Old Scroll,2,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ callfunc "F_22507"; },{},{}

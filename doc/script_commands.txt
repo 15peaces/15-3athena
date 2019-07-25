@@ -4421,6 +4421,33 @@ If the map name is given as "this", the map the invoking character is on will be
 
 ---------------------------------------
 
+*makeitem <item id>,<amount>,"<map name>",<X>,<Y>;
+*makeitem "<item name>",<amount>,"<map name>",<X>,<Y>;
+
+This command will create an item on the specified cell of a map.
+
+As with any dropped items, the items created with this command will disappear after
+a period of time. Using an amount greater than 1 will create a single stack of the
+given amount, not multiple stacks of 1.
+
+Like 'getitem', it also accepts an 'english name' field from the database and creates
+Apples if the name isn't found.
+If the map name is given as "this", the map the invoking character is on will be used.
+
+---------------------------------------
+
+*makeitem2 <item id>,<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+*makeitem2 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+
+This command will create an item on the specified cell of a map. See 'makeitem' for
+further details.
+
+See 'getitem2' for an explanation of the expanded parameters.
+
+
+---------------------------------------
+
+
 *searchitem <array name>,"<item name>";
 
 This command will fill the given array with the ID of items whose name matches the given one. It returns the number of items found. For performance reasons, the results array is limited to 10 items.

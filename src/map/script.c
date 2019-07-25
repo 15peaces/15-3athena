@@ -6195,6 +6195,80 @@ BUILDIN_FUNC(makeitem)
 	return 0;
 }
 
+/**
+* makeitem2 <item id>,<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+* makeitem2 "<item name>",<amount>,"<map name>",<X>,<Y>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>;
+*/
+BUILDIN_FUNC(makeitem2) {
+	uint16 nameid, amount, x, y;
+	const char *mapname;
+	int m;
+	struct item item_tmp;
+	struct item_data *id;
+	const char *funcname = script_getfuncname(st);
+
+	if (script_isstring(st, 2)){
+		const char *name = script_getstr(st, 2);
+		struct item_data *item_data = itemdb_searchname(name);
+
+		if (item_data)
+			nameid = item_data->nameid;
+		else
+			nameid = UNKNOWN_ITEM_ID;
+	}
+	else
+		nameid = script_getnum(st, 2);
+
+	amount = script_getnum(st, 3);
+	mapname = script_getstr(st, 4);
+	x = script_getnum(st, 5);
+	y = script_getnum(st, 6);
+
+	if (strcmp(mapname, "this") == 0) {
+		TBL_PC *sd;
+		sd = script_rid2sd(st);
+		if (!sd) return 0; //Failed...
+		m = sd->bl.m;
+	}
+	else
+		m = map_mapname2mapid(mapname);
+
+	if ((id = itemdb_search(nameid))) {
+		char iden, ref, attr;
+		memset(&item_tmp, 0, sizeof(item_tmp));
+		item_tmp.nameid = nameid;
+
+		iden = (char)script_getnum(st, 7);
+		ref = (char)script_getnum(st, 8);
+		attr = (char)script_getnum(st, 9);
+
+		if (id->type == IT_WEAPON || id->type == IT_ARMOR) {
+			if (ref > MAX_REFINE) ref = MAX_REFINE;
+		}
+		else if (id->type == IT_PETEGG) {
+			iden = 1;
+			ref = 0;
+		}
+		else {
+			iden = 1;
+			ref = attr = 0;
+		}
+
+		item_tmp.identify = iden;
+		item_tmp.refine = ref;
+		item_tmp.attribute = attr;
+		item_tmp.card[0] = script_getnum(st, 10);
+		item_tmp.card[1] = script_getnum(st, 11);
+		item_tmp.card[2] = script_getnum(st, 12);
+		item_tmp.card[3] = script_getnum(st, 13);
+
+		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4);
+	}
+	else
+		return 1;
+	return 0;
+}
+
 
 /// Counts / deletes the current item given by idx.
 /// Used by buildin_delitem_search
@@ -19451,6 +19525,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(grouprandomitem,"groupranditem","i"),
 	BUILDIN_DEF(getitempackage,"i"),
 	BUILDIN_DEF(makeitem,"visii"),
+	BUILDIN_DEF(makeitem2, "visiiiiiiiii"),
 	BUILDIN_DEF(delitem,"vi?"),
 	BUILDIN_DEF2(delitem,"storagedelitem","vi?"),
 	BUILDIN_DEF2(delitem,"cartdelitem","vi?"),
