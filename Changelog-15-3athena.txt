@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/30/2019
+	r231 [15peaces]
+		*Merged missing changes from 3ceam rev. 668
+		*Changed some monsters to fit pre-renewal system.
+		*Added 2 new configs to the battle files.
+			-player.conf now allows setting if a Mechanic player looses his/her mado upon death.
+			-skill.conf now allows setting  if Merchant, Blacksmith, and whitesmith skills can be used while in a mado.
+			-These config options have been long overdue.
+
 07/25/2019
 	r230 [15peaces]
 		*Merged missing changes from 3ceam rev. 665 - 667

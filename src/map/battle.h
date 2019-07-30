@@ -535,6 +535,8 @@ extern struct Battle_Config
 	int cashshop_price_rate;
 	int death_penalty_maxlv;
 	int renewal_statpoints;
+	int mado_skill_limit;
+	int mado_loss_on_death;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
 	int cellpvp_deathmatch_delay;
