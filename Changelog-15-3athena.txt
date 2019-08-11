@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/11/2019
+	r232 [15peaces]
+		*Added support hom_bonus_exp_from_master setting.
+			-It allows sharing of masters base exp to homunculus.
+			-This will be needed for newer clients but is already working.
+
 07/30/2019
 	r231 [15peaces]
 		*Merged missing changes from 3ceam rev. 668

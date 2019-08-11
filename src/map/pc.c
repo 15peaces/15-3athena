@@ -5858,6 +5858,13 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 	if(sd->state.showexp && (base_exp || job_exp))
 		pc_gainexp_disp(sd, base_exp, nextb, job_exp, nextj, false);
 
+	// Share master EXP to homunculus
+	if (sd->hd != NULL && battle_config.hom_bonus_exp_from_master > 0) {
+		
+
+		merc_hom_gainexp(sd->hd, (base_exp * battle_config.hom_bonus_exp_from_master / 100));
+	}
+
 	return 1;
 }
 

@@ -5639,6 +5639,7 @@ static const struct _battle_data {
 	{ "mail_attachment_price",				&battle_config.mail_attachment_price,			2500,	0,		INT32_MAX,		},
 	{ "mail_attachment_weight",				&battle_config.mail_attachment_weight,			2000,	0,		INT32_MAX,		},
 	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
+	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

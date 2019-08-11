@@ -565,6 +565,7 @@ extern struct Battle_Config
 	int mail_attachment_price;
 	int mail_attachment_weight;
 	int feature_achievement;
+	int hom_bonus_exp_from_master;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;
