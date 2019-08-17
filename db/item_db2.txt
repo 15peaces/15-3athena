@@ -94,9 +94,9 @@
 19027,Type-10_Glasses,Type-10 Glasses,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,10,,1237,{},{},{}
 19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,5,0,,300,,,,0,0xFFFFFFFF,63,2,256,,1,,1249,{bonus2 bAddRace,RC_Boss,15;},{},{}
-
 19605,C_Gang_Scarf,Costume Gang Scarf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,369,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
+
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
 20011,C_Lightning_Speed,Costume Lightning Speed,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1199,{},{},{}
@@ -2792,7 +2792,7 @@
 20242,C_Snownow_Hat,Costume Snownow Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1313,{},{},{}
 20243,C_Choco_Mint_Bonnet,Costume Choco Mint Bonnet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1314,{},{},{}
 20244,C_Zealotus_Mask,Costume Zealotus Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,1,1,200,{},{},{}
-// 20285,C_Dancing_Fallen_Sakura,Costume Dancing Fallen Sakura,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,1,1331,{ hateffect HAT_EF_BLOSSOM_FLUTTERING,true; },{},{ hateffect HAT_EF_BLOSSOM_FLUTTERING,false; }
+20285,C_Dancing_Fallen_Sakura,Costume Dancing Fallen Sakura,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,1,1331,{ hateffect HAT_EF_BLOSSOM_FLUTTERING,true; },{},{ hateffect HAT_EF_BLOSSOM_FLUTTERING,false; }
 20286,C_Under_Rim_Glasses_Red,Costume Under Rim Glasses Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,1,1332,{},{},{}
 20287,C_Mans_Medal(Gold),Costume Man's Medal(Gold),5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1333,{},{},{}
 20288,C_Bijou_Hat,Costume Bijou Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1334,{},{},{}
@@ -3388,3 +3388,10 @@
 13089,FaceWorm_Leg,FaceWorm Leg,4,20,,500,110,,1,1,0x228F5EEF,,,2,3,,,1,{bonus bMatk,50; bonus bAtkEle,Ele_Poison; autobonus "{}",30,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; active_transform 2528,5000; }";},{},{}
 13090,FaceWormQueen_Leg,Faceworm Queen Leg,4,20,,500,180,,1,2,0x228F5EEF,,,2,4,,,1,{bonus bMatk,120; bonus bInt,3; autobonus "{ bonus3 bAutoSpell,\"NPC_EARTHQUAKE\",1,200; }",8,5000,BF_NORMAL,"{ specialeffect2 EF_POTION_BERSERK; active_transform 2529,5000; }";},{},{}
 22507,ShabbyOldScroll,Old Scroll,2,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ callfunc "F_22507"; },{},{}
+
+//===================================================================
+// New Garments (renewal)
+//===================================================================
+20514,C_Thanatos_Sword,Costume Thanatos Sword,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,23,{},{},{}
+20515,Costume_Magic_Circle,Costume Magic Circle,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,0,{ hateffect(HAT_EF_MAGICCIRCLE,true); },{},{ hateffect(HAT_EF_MAGICCIRCLE,false); }
+20516,C_Wings_of_Michael,Costume Wings of Michael,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,24,{},{},{}

@@ -2162,6 +2162,8 @@ packet_keys: 0x62C86D09,0x75944F17,0x112C133D // [YomRawr]
 // OneClick Itemidentify
 0x0A35,4,oneclick_itemidentify,2	// CZ_REQ_ONECLICK_ITEMIDENTIFY
 
+0xA3B,-1 // ZC_HAT_EFFECT
+
 // Achievement System
 0x0A23,-1 // ZC_ALL_ACH_LIST
 0x0A24,66 // ZC_ACH_UPDATE

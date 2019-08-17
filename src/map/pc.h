@@ -554,6 +554,11 @@ struct map_session_data {
 		bool claimPrize;
 	} roulette;
 
+#if PACKETVER >= 20150513
+	uint32* hatEffectIDs;
+	uint8 hatEffectCount;
+#endif
+
 #ifdef PACKET_OBFUSCATION
 	unsigned int cryptKey; ///< Packet obfuscation key to be used for the next received packet
 #endif

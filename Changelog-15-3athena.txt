@@ -5,9 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/17/2019
+	r233 [15peaces]
+		*Added full support for hat effects.
+			-This adds support for the hateffect script command.
+			-A 2015-05-13aRagEXE or newer is required for this feature to work.
+
 08/11/2019
 	r232 [15peaces]
-		*Added support hom_bonus_exp_from_master setting.
+		*Added support for hom_bonus_exp_from_master setting.
 			-It allows sharing of masters base exp to homunculus.
 			-This will be needed for newer clients but is already working.
 

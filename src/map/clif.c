@@ -1458,6 +1458,7 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(bl,421,AREA);
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
+			clif_hat_effects(sd, bl, AREA);
 			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
 			//if ( sd->sc.count && sd->sc.data[SC_] )
 				// clif_efst_status_change(&sd->bl,SI_,1000,sd->sc.data[SC_]->val1,0,0);
@@ -4703,6 +4704,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
+			clif_hat_effects(sd, bl, SELF);
 			if( tsd->sc.count && tsd->sc.data[SC_BANDING] )
 				clif_display_banding(&sd->bl,&tsd->bl,tsd->sc.data[SC_BANDING]->val1);
 			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
@@ -19535,6 +19537,60 @@ void clif_navigateTo(struct map_session_data *sd, const char* map, uint16 x, uin
 	// Target monster ID
 	WFIFOW(fd, 25) = mob_id;
 	WFIFOSET(fd, 27);
+#endif
+}
+
+/// Send hat effects to the client (ZC_HAT_EFFECT).
+/// 0A3B <Length>.W <AID>.L <Status>.B { <HatEffectId>.W }
+void clif_hat_effects(struct map_session_data* sd, struct block_list* bl, enum send_target target){
+#if PACKETVER >= 20150513
+	unsigned char* buf;
+	int len, i;
+	struct map_session_data *tsd;
+	struct block_list* tbl;
+
+	if (target == SELF){
+		tsd = BL_CAST(BL_PC, bl);
+		tbl = &sd->bl;
+	}
+	else{
+		tsd = sd;
+		tbl = bl;
+	}
+
+	if (!tsd->hatEffectCount)
+		return;
+
+	len = 9 + tsd->hatEffectCount * 2;
+
+	buf = (unsigned char*)aMalloc(len);
+
+	WBUFW(buf, 0) = 0xa3b;
+	WBUFW(buf, 2) = len;
+	WBUFL(buf, 4) = tsd->bl.id;
+	WBUFB(buf, 8) = 1;
+
+	for (i = 0; i < tsd->hatEffectCount; i++){
+		WBUFW(buf, 9 + i * 2) = tsd->hatEffectIDs[i];
+	}
+
+	clif_send(buf, len, tbl, target);
+
+	aFree(buf);
+#endif
+}
+
+void clif_hat_effect_single(struct map_session_data* sd, uint16 effectId, bool enable){
+#if PACKETVER >= 20150513
+	unsigned char buf[13];
+
+	WBUFW(buf, 0) = 0xa3b;
+	WBUFW(buf, 2) = 13;
+	WBUFL(buf, 4) = sd->bl.id;
+	WBUFB(buf, 8) = enable;
+	WBUFL(buf, 9) = effectId;
+
+	clif_send(buf, 13, &sd->bl, AREA);
 #endif
 }
 

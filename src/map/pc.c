@@ -1189,6 +1189,11 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 			clif_changemap(sd, sd->mapindex, sd->bl.x, sd->bl.y);
 	}
 
+#if PACKETVER >= 20150513
+	sd->hatEffectIDs = NULL;
+	sd->hatEffectCount = 0;
+#endif
+
 	// Check EXP overflow, since in previous revision EXP on Max Level can be more than 'official' Max EXP
 	if (pc_is_maxbaselv(sd) && sd->status.base_exp > MAX_LEVEL_BASE_EXP) {
 		sd->status.base_exp = MAX_LEVEL_BASE_EXP;

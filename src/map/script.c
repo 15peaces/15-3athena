@@ -18883,6 +18883,59 @@ BUILDIN_FUNC(closedressroom)
 #endif
 }
 
+BUILDIN_FUNC(hateffect){
+#if PACKETVER >= 20150513
+	struct map_session_data* sd;
+	bool enable;
+	int i, effectID;
+
+	if (!(sd = script_rid2sd(st)))
+		return 1;
+
+	effectID = script_getnum(st, 2);
+	enable = script_getnum(st, 3) ? true : false;
+
+	if (effectID <= HAT_EF_MIN || effectID >= HAT_EF_MAX){
+		ShowError("buildin_hateffect: unsupported hat effect id %d\n", effectID);
+		return 1;
+	}
+
+	ARR_FIND(0, sd->hatEffectCount, i, sd->hatEffectIDs[i] == effectID);
+
+	if (enable){
+		if (i < sd->hatEffectCount){
+			return 0;
+		}
+
+		RECREATE(sd->hatEffectIDs, uint32, sd->hatEffectCount + 1);
+		sd->hatEffectIDs[sd->hatEffectCount] = effectID;
+		sd->hatEffectCount++;
+	}
+	else{
+		if (i == sd->hatEffectCount){
+			return 0;
+		}
+
+		for (; i < sd->hatEffectCount - 1; i++){
+			sd->hatEffectIDs[i] = sd->hatEffectIDs[i + 1];
+		}
+
+		sd->hatEffectCount--;
+
+		if (!sd->hatEffectCount){
+			aFree(sd->hatEffectIDs);
+			sd->hatEffectIDs = NULL;
+		}
+	}
+
+	if (!sd->state.connect_new){
+		clif_hat_effect_single(sd, effectID, enable);
+	}
+
+#endif
+	return 0;
+}
+
 /**
 * Retrieves param of current random option. Intended for random option script only.
 * getrandomoptinfo(<type>);
@@ -19963,6 +20016,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getequiprandomoption, "iii?"),
 	BUILDIN_DEF(setrandomoption,"iiiii?"),
 	BUILDIN_DEF(unloadnpc, "s"),
+	BUILDIN_DEF(hateffect, "ii"),
 	// Monster Transform [malufett/Hercules]
 	BUILDIN_DEF(jobcanentermap,"s?"),
 	BUILDIN_DEF2(montransform, "transform", "vi?????"),
