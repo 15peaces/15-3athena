@@ -2354,8 +2354,6 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->qi_display = NULL;
 			}
 			sd->qi_count = 0;
-			break;
-
 #if PACKETVER >= 20150513
 			if (sd->hatEffectCount > 0){
 				aFree(sd->hatEffectIDs);
@@ -2363,13 +2361,12 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->hatEffectCount = 0;
 			}
 #endif
-
 			if (sd->achievement_data.achievements)
 				achievement_free(sd);
-
 			// Clearing...
 			if (sd->bonus_script.head)
 				pc_bonus_script_clear(sd, BSF_REM_ALL);
+			break;
 		}
 		case BL_PET:
 		{

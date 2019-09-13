@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/13/2019
+	r234 [15peaces]
+		*Disabled refresh atcommand when talking with NPC.
+		*Added missing card drops
+		*Added some missing monsters.
+
 08/17/2019
 	r233 [15peaces]
 		*Added full support for hat effects.

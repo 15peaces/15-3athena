@@ -7369,6 +7369,10 @@ ACMD_FUNC(mute)
 ACMD_FUNC(refresh)
 {
 	nullpo_retr(-1, sd);
+
+	if (sd->npc_id > 0)
+		return 1;
+
 	clif_refresh(sd);
 	return 0;
 }
