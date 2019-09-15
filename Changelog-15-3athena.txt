@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/15/2019
+	r235 [15peaces]
+		*Merged missing changes from 3ceam rev. 669 - 670
+		*Updated Bloody Branch monster spawns and rates to latest pre-renewal state.
+			-This also adds Nidhoggur's Shadow to spawn list.
+		*Some clean-up related to a huge number of skills.
+			-removed leftovers from old configs.
+			-added support for renewal_level_effect_skills config.
+
 09/13/2019
 	r234 [15peaces]
 		*Disabled refresh atcommand when talking with NPC.

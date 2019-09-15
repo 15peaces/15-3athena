@@ -522,7 +522,7 @@ extern struct Battle_Config
 	int warg_can_falcon;
 	int transform_end_on_death;
 	int oktoberfest_ignorepalette;
-	int levels_effect_renewal_skills;
+	int renewal_level_effect_skills;
 	int base_level_skill_effect_limit;
 	int job_level_skill_effect_limit;
 	int renewal_edp;

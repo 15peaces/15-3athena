@@ -6074,7 +6074,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	struct status_data *status;
 	struct view_data *vd;
 	int opt_flag, calc_flag, undead_flag, val_flag = 0;
-	short levels_effect = battle_config.levels_effect_renewal_skills;//Base/Job level check config for renewal skills.
 	short base_lv = status_get_lv(bl);//Checks the casters base level for renewal skills.
 	short job_lv = status_get_job_lv(bl);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
@@ -6158,12 +6157,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	//Some skill formula's checks base/job levels. This caps the number of
 	//levels taken into the different formulas to prevent overpowering skill effects.
-	if (levels_effect == 1){//Skip base/job level limits check if set to not affect skills.
-		if ( base_lv > battle_config.base_level_skill_effect_limit )
-			base_lv = battle_config.base_level_skill_effect_limit;
-		if ( job_lv > battle_config.job_level_skill_effect_limit )
-			job_lv = battle_config.job_level_skill_effect_limit;
-	}
+	if ( base_lv > battle_config.base_level_skill_effect_limit )
+		base_lv = battle_config.base_level_skill_effect_limit;
+	if ( job_lv > battle_config.job_level_skill_effect_limit )
+		job_lv = battle_config.job_level_skill_effect_limit;
 
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
@@ -7677,7 +7674,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_ENCHANTBLADE://Added MATK Damage
 			val2 = 100 + 20 * val1;
-			if (levels_effect == 1 && base_lv >= 100)
+			if (base_lv >= 100)
 				val2 = val2 * base_lv / 150;
 			val2 = val2 + status->int_;
 			break;
@@ -7945,16 +7942,22 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_EXEEDBREAK:
-			val1 *= 150; // 150 * skill_lv
-			if( sd )
-			{	// Chars.
-				struct item_data *id = sd->inventory_data[sd->equip_index[EQI_HAND_R]];
-				if( id ) val1 += (id->weight/10 * id->wlv * status_get_lv(bl) / 100); // (weapon_weight * weapon_level * base_lvl)/100
-				val1 += 15 * sd->status.job_level; // 15 * job_lvl
+			val1 = 150 * val1; // 100 * SkillLv
+			if (sd)
+			{	// Players
+				short index = sd->equip_index[EQI_HAND_R];
+				if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+				{
+					if (battle_config.renewal_level_effect_skills == 1)
+						val1 += 15 * job_lv + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv * base_lv / 100;
+					else
+						val1 += 15 * job_lv + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv;
+				}
 			}
-			else	// Mobs
-				val1 += (400 * status_get_lv(bl) / 100) + (15 * (status_get_lv(bl) / 2));	// About 1138% at mob_lvl 99. Is an aproximation to a standard weapon. [pakpil] 
- 			break;
+			else	// Monster Use
+				val1 += 500;
+			break;
+
 		case SC_PRESTIGE:	// Bassed on suggested formula in iRO Wiki and some test, still need more test. [pakpil]
 			val2 = ((status->int_ + status->luk) / 6) + 5;	// Chance to evade magic damage.
 			val1 *= 15; // Defence added
