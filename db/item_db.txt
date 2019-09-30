@@ -7829,7 +7829,10 @@
 20120,C_Antenna,Costume Antenna,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,97,{},{},{}
 //
 20132,C_Subject_Aura,Costume Subject Aura,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1267,{},{},{}
-
+//
+20135,C_12th_Anniversary_Crown,Costume 12th Anniversary Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1117,{},{},{}
+20136,C_12th_Anniversary_Fairy_Ears,Costume 12th Anniversary Fairy Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,875,{},{},{}
+//
 20177,C_Drooping_Dorasuke,Costume Drooping Dorasuke,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1290,{},{},{}
 //
 20181,C_Mystic_Rose,Costume Mystic Rose,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,198,{},{},{}

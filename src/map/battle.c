@@ -1608,6 +1608,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case SC_FATALMENACE:
 					hitrate -= (35 - skill_lv * 5);
  					break;
+				case LG_BANISHINGPOINT:
+					hitrate += 3 * skill_lv;
+					break;
 			}
 
 			// Weaponry Research hidden bonus
@@ -1683,8 +1686,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				break;
 			case CR_SHIELDBOOMERANG:
 			case PA_SHIELDCHAIN:
-			case LG_SHIELDPRESS:
-			case LG_EARTHDRIVE:
 				wd.damage = sstatus->batk;
 				if (sd) {
 					short index = sd->equip_index[EQI_HAND_L];
@@ -1693,8 +1694,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						ATK_ADD(sd->inventory_data[index]->weight/10);
 				} else
 					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
-					if( sc && sc->data[SC_GLOOMYDAY_SK] )
-						ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
+				//	if( sc && sc->data[SC_GLOOMYDAY_SK] )
+				//		ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 				break;
 			case HFLI_SBR44:	//[orn]
 				if(src->type == BL_HOM) {
@@ -1738,12 +1739,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 					if(flag.cri && sd->crit_atk_rate)
 						ATK_ADDRATE(sd->crit_atk_rate);
-
-					// In the renewal system, skills have 40% more damage in critical hits. Uncomment it if you want add it.
-					/*
-					if(skill_num == LG_PINPOINTATTACK)
-						ATK_ADDRATE(40);
-					*/
 
 					if(sd->status.party_id && (skill=pc_checkskill(sd,TK_POWER)) > 0) {
 						if((i = party_foreachsamemap(party_sub_count, sd, 0)) > 1) // exclude the player himself [Inkfish]
@@ -2655,15 +2650,23 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (sd)
 						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
 					break;
-				case LG_RAYOFGENESIS:
-					if( sc && sc->data[SC_BANDING] )
-					{// Increase only if the RG is under Banding.
-						short lv = (short)skill_lv;
-						ATK_ADDRATE(190 * ((sd) ? skill_check_pc_partner(sd, (short)skill_num, &lv, skill_get_splash(skill_num, skill_lv), 0) : 1));
+				case LG_SHIELDPRESS:
+					if( sd )
+					{
+						short index = sd->equip_index[EQI_HAND_L];
+						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
+							ATK_ADD(sstatus->vit * sd->inventory.u.items_inventory[index].refine);
 					}
 					break;
+				//case LG_RAYOFGENESIS:
+				//	if( sc && sc->data[SC_BANDING] )
+				//	{// Increase only if the RG is under Banding.
+				//		short lv = (short)skill_lv;
+				//		ATK_ADDRATE( 190 * ((sd) ? skill_check_pc_partner(sd,(short)skill_num,&lv,skill_get_splash(skill_num,skill_lv),0) : 1));
+				//	}
+				//	break;
 				case SR_GATEOFHELL:
-					ATK_ADD (sstatus->max_hp - status_get_hp(src)); // Will have to add the consumed SP part to the formula in the future. [Rytech]
+					ATK_ADD(sstatus->max_hp - sstatus->hp);//Will have to add the consumed SP part to the formula in the future. [Rytech]
  					break;
 			}
 		}

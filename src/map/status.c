@@ -505,13 +505,13 @@ void initChangeTables(void)
 
 	// Royal Guard
 	set_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	, SI_LG_REFLECTDAMAGE	, SCB_NONE );
-	set_sc( LG_FORCEOFVANGUARD	, SC_FORCEOFVANGUARD	, SI_FORCEOFVANGUARD	, SCB_MAXHP|SCB_DEF );
+	set_sc( LG_FORCEOFVANGUARD	, SC_FORCEOFVANGUARD	, SI_FORCEOFVANGUARD	, SCB_MAXHP );
 	set_sc( LG_EXEEDBREAK       , SC_EXEEDBREAK			, SI_EXEEDBREAK			, SCB_NONE );
-	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF2 );
-	set_sc( LG_BANDING          , SC_BANDING			, SI_BANDING			, SCB_DEF2|SCB_WATK );// Renewal: atk2 & def2
+	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF );
+	set_sc( LG_BANDING			, SC_BANDING			, SI_BANDING			, SCB_WATK | SCB_DEF );
 	set_sc( LG_PIETY			, SC_BENEDICTIO			, SI_BENEDICTIO			, SCB_DEF_ELE );
 	set_sc( LG_EARTHDRIVE       , SC_EARTHDRIVE			, SI_EARTHDRIVE			, SCB_DEF|SCB_ASPD );
-	set_sc( LG_INSPIRATION      , SC_INSPIRATION		, SI_INSPIRATION		, SCB_MAXHP|SCB_WATK|SCB_HIT|SCB_VIT|SCB_AGI|SCB_STR|SCB_DEX|SCB_INT|SCB_LUK);
+	set_sc( LG_INSPIRATION		, SC_INSPIRATION		, SI_INSPIRATION		, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK | SCB_WATK | SCB_HIT | SCB_MAXHP );
 
 	// Sura
 	add_sc(SR_DRAGONCOMBO				, SC_STUN					);
@@ -4379,7 +4379,7 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 	if(sc->data[SC_INSPIRATION])
 		watk += sc->data[SC_INSPIRATION]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0 )
-		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * (sc->data[SC_BANDING]->val2);
+		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if( sc->data[SC_HEATER_OPTION] )
@@ -4484,8 +4484,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit -= hit * sc->data[SC__GROOMY]->val3 / 100;
 	if(sc->data[SC_FEAR])
 		hit -= hit * 20 / 100;
-	if(sc->data[SC_INSPIRATION])
-		hit += 5 * sc->data[SC_INSPIRATION]->val1;
+	if (sc->data[SC_INSPIRATION])//Unable to add job level check at this time with current coding. Will add later. [Rytech]
+		hit += 5 * sc->data[SC_INSPIRATION]->val1 + 25;
 
 	return (short)cap_value(hit,1,SHRT_MAX);
 }
@@ -4623,8 +4623,10 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC__BLOODYLUST] )
 		def -= def * 55 / 100;
-	if( sc->data[SC_FORCEOFVANGUARD] )
-		def += def * 2 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
+	if (sc->data[SC_PRESTIGE])
+		def += sc->data[SC_PRESTIGE]->val1;
+	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0)//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
+		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		def -= def * (10 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 	if(sc->data[SC_EARTHDRIVE])
@@ -4673,12 +4675,8 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC_ECHOSONG] )
 		def2 += def2 * sc->data[SC_ECHOSONG]->val2/100;
-	if( sc->data[SC_PRESTIGE] )
-		def2 += def2 * sc->data[SC_PRESTIGE]->val1 / 100;
 	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1 )
 		def2 += sc->data[SC_SHIELDSPELL_REF]->val2;
-	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0 )
-		def2 += (5 + sc->data[SC_BANDING]->val1) * (sc->data[SC_BANDING]->val2);
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 		def2 += def2 * ( 50 + 10 * sc->data[SC_GENTLETOUCH_REVITALIZE]->val1 ) / 100;
 
@@ -4750,7 +4748,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if( sd && sd->ud.skilltimer != -1 && ( sd->ud.skillid == LG_EXEEDBREAK || pc_checkskill(sd,SA_FREECAST) > 0) )
 	{
 		if( sd->ud.skillid == LG_EXEEDBREAK )
-			speed_rate = 100 + 60 - (sd->ud.skilllv * 10); // -50% at skilllv 1 -> -10% at skilllv 5
+			speed_rate = 160 - 10 * sd->ud.skilllv;// -50% at skilllv 1 -> -10% at skilllv 5
 		else
 			speed_rate = 175 - 5 * pc_checkskill(sd,SA_FREECAST);
 	}
@@ -5123,8 +5121,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * sc->data[SC_LERADS_DEW]->val3 / 100;
 	if(sc->data[SC_FORCEOFVANGUARD])
 		maxhp += maxhp * 3 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
-	if(sc->data[SC_INSPIRATION]) //Custom value.
-		maxhp += maxhp * 3 * sc->data[SC_INSPIRATION]->val1 / 100;
+	if (sc->data[SC_INSPIRATION])
+		maxhp += maxhp * 5 * sc->data[SC_INSPIRATION]->val1 / 100 + 600 * sc->data[SC_INSPIRATION]->val1;
 	if(sc->data[SC_RAISINGDRAGON])
 		maxhp += maxhp * (2 + sc->data[SC_RAISINGDRAGON]->val1) / 100;
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
@@ -6120,22 +6118,27 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX )
 			return 0; // Immune to status ailements
 		switch( type ){
-			case SC_DEEPSLEEP:
-			case SC_SATURDAY_NIGHT_FEVER:
-			case SC_PYREXIA:
-			case SC_DEATHHURT:
-			case SC_MAGICMUSHROOM:
-			case SC_VENOMBLEED:
+			case SC_BURNING:
+			case SC_FREEZING:
+			case SC_FEAR:
 			case SC_TOXIN:
+			case SC_PARALYSE:
+			case SC_VENOMBLEED:
+			case SC_MAGICMUSHROOM:
+			case SC_DEATHHURT:
+			case SC_PYREXIA:
 			case SC_OBLIVIONCURSE:
 			case SC_LEECHESEND:
-			case SC__ENERVATION:
-			case SC__GROOMY:
-			case SC__LAZINESS:
-			case SC__UNLUCKY:
-			case SC__WEAKNESS:
 			case SC__BODYPAINT:
-			case SC__IGNORANCE:
+			case SC_ENERVATION:
+			case SC_GROOMY:
+			case SC_IGNORANCE:
+			case SC_LAZINESS:
+			case SC_UNLUCKY:
+			case SC_WEAKNESS:
+			case SC_DEEPSLEEP:
+			case SC_CRYSTALIZE:
+			case SC_SATURDAY_NIGHT_FEVER:
 				return 0;
 		}
 	}
@@ -6684,6 +6687,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl,SC_SHIELDSPELL_MDEF,INVALID_TIMER);
 		status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
  		break;
+	case SC_BANDING:
+		status_change_end(bl, SC_PRESTIGE, INVALID_TIMER);
+		break;
 	case SC_GENTLETOUCH_ENERGYGAIN:
 	case SC_GENTLETOUCH_CHANGE:
 	case SC_GENTLETOUCH_REVITALIZE:
@@ -6757,7 +6763,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_ARMOR_ELEMENT_FIRE:
 			case SC_ARMOR_ELEMENT_WIND:
 			case SC_ARMOR_RESIST:
-			case SC_EXEEDBREAK:
 				break;
 			case SC_GOSPEL:
 				 //Must not override a casting gospel char.
@@ -7935,9 +7940,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_FORCEOFVANGUARD: // This is not the official way to handle it but I think we should use it. [pakpil]
-			val2 = 20 + 12 * (val1 - 1); // Chance
-			val3 = 5 + (2 * val1); // Max rage counters
-			tick = 6000;
+			val2 = 8 + 12 * val1; // Chance
+			val3 = 5 + 2 * val1; // Max rage counters
+			tick = 10000;
 			val_flag |= 1|2|4;
 			break;
 
@@ -7958,13 +7963,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val1 += 500;
 			break;
 
-		case SC_PRESTIGE:	// Bassed on suggested formula in iRO Wiki and some test, still need more test. [pakpil]
-			val2 = ((status->int_ + status->luk) / 6) + 5;	// Chance to evade magic damage.
-			val1 *= 15; // Defence added
-			if( sd )
-				val1 += 10 * pc_checkskill(sd,CR_DEFENDER);
+		case SC_PRESTIGE:
+			val2 = (status->int_ + status->luk) * val1 / 20;// Chance to evade magic damage.
+			if( status_get_lv(bl) >= 100 )
+				val2 = val2 * status_get_lv(bl) / 200;
+			val2 += val1;
+			val1 = 15 * val1 + 10 * pc_checkskill(sd,CR_DEFENDER);// Defence added
+			if( status_get_lv(bl) >= 100 )
+				val1 = val1 * status_get_lv(bl) / 100;
+			val1 = val1 / 10;//DEF divided to make skill balanced for pre-renewal mechanics.
 			val_flag |= 1|2;
-			break;
+ 			break;
 		case SC_BANDING:
 			tick = 5000;
 			val_flag |= 1;
@@ -7980,8 +7989,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
  			break;
 		case SC_INSPIRATION:
 			if( sd ){
-				val2 = (40 * val1) + (3 * sd->status.job_level); // ATK bonus
-				val3 = (sd->status.job_level / 10) * 2 + 12; // All stat bonus
+				val2 = 40 * val1 + 3 * sd->status.job_level; // ATK bonus
+				val3 = sd->status.base_level / 10 + sd->status.job_level / 5; // All stat bonus
 			}
 			val4 = tick / 1000;
 			tick = 1000;
@@ -10012,9 +10021,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_FORCEOFVANGUARD:
-		if( !status_charge(bl,0,20) )
+		if (!status_charge(bl, 0, 24 - 4 * sce->val1))
 			break;
-		sc_timer_next(6000 + tick, status_change_timer, bl->id, data);
+		sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 		return 0;
 
 	case SC_BANDING:
@@ -10074,8 +10083,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_INSPIRATION:
 		if(--(sce->val4) >= 0)
 		{
-			int hp = status->max_hp * (7-sce->val1) / 100;
-			int sp = status->max_sp * (9-sce->val1) / 100;
+			int hp = status->max_hp * (35 - 5 * sce->val1) / 1000;
+			int sp = status->max_sp * (45 - 5 * sce->val1) / 1000;
 			
 			if( !status_charge(bl,hp,sp) ) 
 				break;

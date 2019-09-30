@@ -5,6 +5,62 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/30/2019
+	r236 [15peaces]
+		*Merged missing changes from 3ceam rev. 671
+		*Some updates to item database.
+			-Moved some stable costumes to item_db.txt.
+			-Added missing Rebellion ammo to database & shops.
+			-Fixed a issue where the Chrome 2-Handed Sword could not be equipped by Knights or higher.
+		*Royal Guard 2011 update has been applied.
+			-Most of the skills have been updated, but a few skills couldn't be fully updated due to the complex coding, or other reasons. More updates will come in the future.
+		*LG_BANISHINGPOINT
+			-Now has a hit rate that increases with skill level.
+		*LG_SHIELDPRESS
+			-Stun duration updated.
+			-Damage formula updated.
+			-Stun chance formula updated.
+		*LG_PINPOINTATTACK
+			-SP requirements updated.
+			-Damage formula updated.
+			-Status / Equip Break chance formula updated.
+		*LG_FORCEOFVANGUARD
+			-Rage counters now last for 5 minutes.
+			-No longer increases caster's DEF since tests on official server shows it doesent increase DEF anymore.
+		*LG_RAGEBURST; LG_RAYOFGENESIS; LG_HESPERUSLIT
+			-Damage formulas updated.
+		*LG_EXEEDBREAK
+			-Attack boost formula updated.
+		*LG_OVERBRAND
+			-Corrected knockback to work on the LG_OVERBRAND_BRANDISH ID only as confirmed on official to only work on this ID.
+			-Damage formula updated.
+		*LG_PRESTIGE
+			-Fixed a issue where Prestige was stackable with Banding.
+			-SP consume timer is now every 10 seconds.
+			-Updated magic attack dodging formula.
+			-Corrected a issue where it was giving soft DEF instead of hard DEF.
+			-Updated the DEF increase formula.
+			-SP drain per second now affected by skill level.
+		*LG_BANDING
+			-Overawe status chance formula updated.
+			-Now correctly gives DEF when banding with another Royal Guard.
+			-Banding status will now end the Prestige status as their not supposed to stack.
+		*LG_EARTHDRIVE
+			-Damage formula updated.
+			-Shield break chance updated.
+		*LG_INSPIRATION
+			-Now requires 1% of the caster's exp to cast.
+			-Updated HIT increase formula.
+			-Note: HIT increase formula will temporarily give the max increase a players job level at level 50 can give until a fix for the complex system can be made.
+			-Updated MaxHP increase formula.
+			-Updated stat's increase formula.
+			-HP and SP drain per second is updated.
+			-Now make's the caster immune to the following status's
+				--Poison / Blind / Stun / Silence / Chaos / Petrification / Sleep / Bleeding / Curse / Burning / Freezing / Frozen / Crystalization / Fear / Toxin / Paralyze / Venombleed / Magic Mushroom / Disheart / Pyrexia / Oblivion Curse / Leech End / Deep Sleep / Saturday Night Fever / Paint Body
+				--Masquerade: Enervation, Gloomy, Ignorance, Laziness, Unlucky, Weakness.
+		*Changed a few HP checks in battle.c.
+		*Did many code cleanup's and optimizations.
+
 09/15/2019
 	r235 [15peaces]
 		*Merged missing changes from 3ceam rev. 669 - 670
