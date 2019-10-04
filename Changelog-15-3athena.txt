@@ -5,6 +5,87 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/04/2019
+	r237 [15peaces]
+		*Merged missing changes from 3ceam rev. 672 - 675
+		*Corrected some warp portal positions in yuno.
+			-Thanks to @rathena
+		*Added Library Mistake Quest
+			-Thanks to @HerculesWS
+		*Some misc cleaning
+		*WM_SOUND_OF_DESTRUCTION
+			-Damage formula updated.			
+		*Sorcerer 2011 update has been applied.
+			-A few parts of the skills wernt updated yet due to some issues and will be done later. Elemental spirit related stuff were not touched and will be worked on in a
+			-seprate update in the future.
+		*SO_FIREWALK; SO_ELECTRICWALK
+			-Updated damage ratio formula to official.
+		*SO_SPELLFIST
+			-Updated damage formula.
+		*SO_POISON_BUSTER
+			-Updated damage ratio formula.
+		*SO_STRIKING
+			-Fixed a issue where the skill wasnt increasing target's CRIT correctly.
+			-Updated added weapon attack damage formula.
+			-Corrected SP drain to official.
+		*SO_WARMER
+			-Updated the healing formula.
+		*SO_VARETYR_SPEAR
+			-Updated the stun duration.
+			-Updated damage ratio formula to official.
+		*EL_HEATER
+			-Increases the percentage SO_WARMER heals on players.
+		*Added a 2nd pass for the Royal Guard 2011 updates.
+			-This update fixes some critical balances and bugs issues that's existed for quite some time.
+		*CR_REFLECTSHIELD
+			-Fixed a issue where the amount of reflected damaged was capped to the caster's MaxHP.
+			-The skill now works the old original way it did before renewal existed.
+		*LG_REFLECTDAMAGE
+			-No longer reflects ranged and magic damage. Only melee damage is reflected now.
+			-Damage is now reflected by a percentage chance.
+			-Now reflects a set number of attacks before ending the status.
+			-SP drain has been updated.
+		*LG_SHIELDSPELL
+			-Ooooooooh my god there's so much done here its unreal. Get ready for a long list of changes.
+			-Fixed a issue where each of the 3 effects on each skill level had a uneven chance of being selected.
+			-Fixed a issue where the skill would sometimes not do anything after casting.
+			-Fixed a issue where status's wouldn't activate after their effect was selected by random.
+			-The following below is updates for each of the effects....
+				+Lv 1 / Effect 1 (Self Splash AoE Attack)
+					-Fixed a issue where shield DEF would increase the damage ratio more then it should.
+					-Updated damage formula to official.
+					-Now deals forced neutral element damage.
+					-Shield DEF now affects splash AoE size.
+				+Lv 1 / Effect 2 (Damage Reflection)
+					-Fixed a issue where shield DEF would add more reflection percentages then it should.
+					-Updated reflection percentage formula to official.
+					-Shield DEF now properly affects effect duration.
+				+Lv 1 / Effect 3 (Weapon Attack Increase)
+					-Fixed a issue where shield DEF would increase the weapon attack more then it should.
+					-Updated the weapon attack increase formula to official.
+					-Shield DEF now properly affects effect duration.
+				+Lv 2 / Effect 1 (Self Splash AoE Magic Attack)
+					-Updated damage formula to official.
+					-Now deals forced holy element damage.
+					-Shield MDEF now affects splash AoE size.
+					-No longer knocks enemys back.
+				+Lv 2 / Effect 2 (Self Splash AoE Lex Divina)
+					-Fixed a issue where the status icon would count in a negative value and remain on screen.
+					-Shield MDEF now affects splash AoE size.
+					-Changed how much shield MDEF affects duration.
+				+Lv 3 / Effect 1 (Status Resistance Increase)
+					-Made a place holder for this effect to code in a future update.
+					-The effect does nothing right now and will end other shield spell effects if triggered.
+				+Lv 3 / Effect 2 (DEF Increase)
+					-Changed code to assign effect as effect 2.
+					-Fixed a issue where effect wasn't properly giving DEF.
+					-Updated formula to a converted official formula for non-renewal mechanics.
+					-Shield refine rate now affects the amount of DEF increased.
+					-Shield refine rate now affects status duration.
+				+Lv 3 / Effect 3 (HP Recovery)
+					-Fixed a issue where the effect wouldn't end other shield spell status's and effects.
+					-Updated the heal formula to official.
+
 09/30/2019
 	r236 [15peaces]
 		*Merged missing changes from 3ceam rev. 671
@@ -56,7 +137,8 @@
 			-Updated stat's increase formula.
 			-HP and SP drain per second is updated.
 			-Now make's the caster immune to the following status's
-				--Poison / Blind / Stun / Silence / Chaos / Petrification / Sleep / Bleeding / Curse / Burning / Freezing / Frozen / Crystalization / Fear / Toxin / Paralyze / Venombleed / Magic Mushroom / Disheart / Pyrexia / Oblivion Curse / Leech End / Deep Sleep / Saturday Night Fever / Paint Body
+				--Poison / Blind / Stun / Silence / Chaos / Petrification / Sleep / Bleeding / Curse / Burning / Freezing / Frozen / Crystalization / Fear / Toxin / Paralyze
+				--Venombleed / Magic Mushroom / Disheart / Pyrexia / Oblivion Curse / Leech End / Deep Sleep / Saturday Night Fever / Paint Body
 				--Masquerade: Enervation, Gloomy, Ignorance, Laziness, Unlucky, Weakness.
 		*Changed a few HP checks in battle.c.
 		*Did many code cleanup's and optimizations.

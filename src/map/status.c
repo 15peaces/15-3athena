@@ -898,7 +898,7 @@ void initChangeTables(void)
 
 	// Royal Guard
 	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
-	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF2;
+	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF;
 	StatusChangeFlagTable[SC_BANDING_DEFENCE] |= SCB_SPEED;
 
 	// Genetic & Genetics New Food Items
@@ -4376,10 +4376,10 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_STRIKING]->val2;
 	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
 		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
+	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0)
+		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if(sc->data[SC_INSPIRATION])
 		watk += sc->data[SC_INSPIRATION]->val2;
-	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0 )
-		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if( sc->data[SC_HEATER_OPTION] )
@@ -4443,7 +4443,7 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 	if (sc->data[SC_CLOAKING])
 		critical += critical;
 	if (sc->data[SC_STRIKING])
-		critical += sc->data[SC_STRIKING]->val1;
+		critical += critical * sc->data[SC_STRIKING]->val1 / 100;
 	if (sc->data[SC__INVISIBILITY])
 		critical += critical * sc->data[SC__INVISIBILITY]->val3 / 100;
 	if (sc->data[SC_CAMOUFLAGE])
@@ -4623,6 +4623,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC__BLOODYLUST] )
 		def -= def * 55 / 100;
+	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
+		def += sc->data[SC_SHIELDSPELL_REF]->val2;
 	if (sc->data[SC_PRESTIGE])
 		def += sc->data[SC_PRESTIGE]->val1;
 	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0)//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
@@ -4675,8 +4677,6 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC_ECHOSONG] )
 		def2 += def2 * sc->data[SC_ECHOSONG]->val2/100;
-	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1 )
-		def2 += sc->data[SC_SHIELDSPELL_REF]->val2;
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
 		def2 += def2 * ( 50 + 10 * sc->data[SC_GENTLETOUCH_REVITALIZE]->val1 ) / 100;
 
@@ -7933,10 +7933,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		break;
 
 		case SC_LG_REFLECTDAMAGE:
-			val2 = 15 + 5 * val1;
-			val3 = (val1==5)?20:(val1+4)*2; // SP consumption
-			val4 = tick/10000;
-			tick = 10000;
+			val2 = 15 + 5 * val1;//Reflect Amount
+			val3 = 25 + 5 * val1; //Number of Reflects
+			val4 = tick/1000;
+			tick = 1000;
 			break;
 
 		case SC_FORCEOFVANGUARD: // This is not the official way to handle it but I think we should use it. [pakpil]
@@ -9937,7 +9937,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_STRIKING:
 		if( --(sce->val4) >= 0 )
 		{
-			if( !status_charge( bl,0, sce->val1 ) )
+			if( !status_charge(bl,0, 6 - sce->val1 ) )
 				break;
 			sc_timer_next( 1000 + tick, status_change_timer, bl->id, data );
 			return 0;
@@ -10038,9 +10038,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 	case SC_LG_REFLECTDAMAGE:
 		if( --(sce->val4) >= 0 ) {
-			if( !status_charge(bl,0,sce->val3) )
+			if (!status_charge(bl, 0, 10))
 				break;
-			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

@@ -269,6 +269,7 @@
 129018,AG_ADVENTURE,"Manuk Explorer","","",120096:120097:120098:120099:120100,0,0
 129019,AG_ADVENTURE,"Eclage Explorer","","",129017:129018,0,0
 129020,AG_ADVENTURE,"Localizing fields explorer","","",120101:120102:120103:120104:120105:120106:120107:120108:120109,0,0
+129021,AG_BATTLE,"Glastheim Challenge Mode","","",0,0,0
 // Talk to Prince NPC (npc/quests/quests_morocc.txt)
 130000,AG_CHATTING,"Socialite debut","","",0,0,0
 170000,AG_HEAR,"Song chamber is not an accident","","",0,0,0
@@ -305,35 +306,6 @@
 200029,AG_GOAL_STATUS,"Incarnation of Love and Hate"," BaseLevel == 99 && Class == JOB_NOVICE ","",0,0,0
 200030,AG_GOAL_STATUS,"I really love it!"," BaseLevel == 99 && (Class >= JOB_SWORDMAN && Class <= JOB_THIEF) ","",0,0,0
 200031,AG_JOB_CHANGE,"Reborn in Valhalla!"," BaseLevel == 99 && Class == JOB_NOVICE_HIGH ","",0,0,0
-230100,AG_TAMING,"Poring is Love","","",230101:230102:230103:230104,0,0
-230110,AG_TAMING,"Entomologist","","",230111:230112:230113:230114:230115:230116,0,0
-230120,AG_TAMING,"Animals are also our friend","","",230121:230122:230123:230124:230125:230126:230127:230128,0,0
-230140,AG_TAMING,"Monster Girls Unite!!","","",230141:230142:230143:230144:230145:230146:230147,0,0
-230101,AG_TAMING,"Poring - taming","","",0,1002,1
-230102,AG_TAMING,"Drops - taming","","",0,1113,1
-230103,AG_TAMING,"Poporing - taming","","",0,1031,1
-230104,AG_TAMING,"Novice Poring - taming","","",0,0,0
-230111,AG_TAMING,"Chonchon - taming","","",0,1011,1
-230112,AG_TAMING,"Steel Chonchon - taming","","",0,1042,1
-230113,AG_TAMING,"Hunter Fly - taming","","",0,1035,1
-230114,AG_TAMING,"Rocker - taming","","",0,1052,1
-230115,AG_TAMING,"Spore - taming","","",0,1014,1
-230116,AG_TAMING,"Poison Spore - taming","","",0,1077,1
-230121,AG_TAMING,"Lunatic - taming","","",0,1063,1
-230122,AG_TAMING,"Picky - taming","","",0,1049,1
-230123,AG_TAMING,"Savage Bebe - taming","","",0,1167,1
-230124,AG_TAMING,"Baby Desert Wolf - taming","","",0,1107,1
-230125,AG_TAMING,"Smokie - taming","","",0,1056,1
-230126,AG_TAMING,"Yoyo - taming","","",0,1057,1
-230127,AG_TAMING,"Peco Peco - taming","","",0,1019,1
-230128,AG_TAMING,"Petite - taming","","",0,1155,1
-230141,AG_TAMING,"Munak - taming","","",0,1026,1
-230142,AG_TAMING,"Isis - taming","","",0,1029,1
-230143,AG_TAMING,"Sohee - taming","","",0,1170,1
-230144,AG_TAMING,"Zherlthsh - taming","","",0,1200,1
-230145,AG_TAMING,"Alice - taming","","",0,1275,1
-230146,AG_TAMING,"Succubus - taming","","",0,1370,1
-230147,AG_TAMING,"Loli Ruri - taming","","",0,1505,1
 220000,AG_CHATTING_CREATE,"Community begin"," true ","",0,0,0
 220001,AG_CHATTING_DYING,"A mouth only moment"," true ","",0,0,0
 220002,AG_CHATTING_COUNT,"Admiring the chatter"," ARG0 == 20 ","",0,0,0
@@ -370,6 +342,37 @@
 220033,AG_GET_ZENY,"Rich King (4)"," ARG0 >= 10000000 ","",0,0,0
 220034,AG_GET_ZENY,"Rich King (5)"," ARG0 >= 100000000 ","",0,0,0
 220035,AG_GET_ZENY,"Rich King (6)"," ARG0 >= 1000000000 ","",0,0,0
+220036,AG_EAT,"The beginning of outdoor","","",0,0,0
+220037,AG_EAT,"The first step becoming a chef","","",0,0,0
+230100,AG_TAMING,"Poring is Love","","",230101:230102:230103:230104,0,0
+230110,AG_TAMING,"Entomologist","","",230111:230112:230113:230114:230115:230116,0,0
+230120,AG_TAMING,"Animals are also our friend","","",230121:230122:230123:230124:230125:230126:230127:230128,0,0
+230140,AG_TAMING,"Monster Girls Unite!!","","",230141:230142:230143:230144:230145:230146:230147,0,0
+230101,AG_TAMING,"Poring - taming","","",0,1002,1
+230102,AG_TAMING,"Drops - taming","","",0,1113,1
+230103,AG_TAMING,"Poporing - taming","","",0,1031,1
+230104,AG_TAMING,"Novice Poring - taming","","",0,0,0
+230111,AG_TAMING,"Chonchon - taming","","",0,1011,1
+230112,AG_TAMING,"Steel Chonchon - taming","","",0,1042,1
+230113,AG_TAMING,"Hunter Fly - taming","","",0,1035,1
+230114,AG_TAMING,"Rocker - taming","","",0,1052,1
+230115,AG_TAMING,"Spore - taming","","",0,1014,1
+230116,AG_TAMING,"Poison Spore - taming","","",0,1077,1
+230121,AG_TAMING,"Lunatic - taming","","",0,1063,1
+230122,AG_TAMING,"Picky - taming","","",0,1049,1
+230123,AG_TAMING,"Savage Bebe - taming","","",0,1167,1
+230124,AG_TAMING,"Baby Desert Wolf - taming","","",0,1107,1
+230125,AG_TAMING,"Smokie - taming","","",0,1056,1
+230126,AG_TAMING,"Yoyo - taming","","",0,1057,1
+230127,AG_TAMING,"Peco Peco - taming","","",0,1019,1
+230128,AG_TAMING,"Petite - taming","","",0,1155,1
+230141,AG_TAMING,"Munak - taming","","",0,1026,1
+230142,AG_TAMING,"Isis - taming","","",0,1029,1
+230143,AG_TAMING,"Sohee - taming","","",0,1170,1
+230144,AG_TAMING,"Zherlthsh - taming","","",0,1200,1
+230145,AG_TAMING,"Alice - taming","","",0,1275,1
+230146,AG_TAMING,"Succubus - taming","","",0,1370,1
+230147,AG_TAMING,"Loli Ruri - taming","","",0,1505,1
 230200,AG_BATTLE,"Poring seeker","","",230201:230202:230203,0,0
 230201,AG_BATTLE,"Exploring Poring's life (1)","","",0,1002:1113:1031:1242,10:10:10:10
 230202,AG_BATTLE,"Exploring Poring's life (2)","","",0,1090:1582:1096:1388:1120,1:1:1:1:1
@@ -395,5 +398,3 @@
 240018,AG_GOAL_ACHIEVE,"Reaching Level 18","","",240017,0,0
 240019,AG_GOAL_ACHIEVE,"Reaching Level 19","","",240018,0,0
 240020,AG_GOAL_ACHIEVE,"Reaching Level 20","","",240019,0,0
-220036,AG_EAT,"The beginning of outdoor","","",0,0,0
-220037,AG_EAT,"The first step becoming a chef","","",0,0,0

@@ -814,6 +814,7 @@
 5157,0,0,0,0,0,0,0,"Enchant tutorial (1)"
 5158,0,0,0,0,0,0,0,"Entchant tutorial (2)"
 5159,0,0,0,0,0,0,0,"Enchant tutorial (3)"
+5160,0,0,0,0,0,0,0,"Library Mistake"
 
 6000,0,0,0,0,0,0,0,"Job Change to Taekwon"
 6001,0,0,0,0,0,0,0,"Job Change to Taekwon"

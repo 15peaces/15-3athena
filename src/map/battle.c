@@ -2302,20 +2302,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio = skillratio * base_lv / 100;
 					break;
 				case LG_SHIELDSPELL:
-					if (wflag & 1)
+					if (sd && skill_lv == 1)
 					{
-						skillratio += 200;
-						if (sd)
-						{
-							struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
-							if (shield_data)
-								skillratio *= shield_data->def;
-						}
-						else
-							skillratio *= 9;
+						struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
+						if( shield_data )
+						if (level_effect_bonus == 1)
+								skillratio = 4 * base_lv + 100 * shield_data->def + 2 * sstatus->vit;
+							else
+								skillratio = 600 + 100 * shield_data->def + 2 * sstatus->vit;
 					}
 					else
-						skillratio += (sd) ? sd->shieldmdef * 20 : 1000;
+						skillratio = 0;//Prevents ATK damage from being done on LV 2 usage since LV 2 us MATK. [Rytech]
 					break;
 				case LG_OVERBRAND:
 					skillratio = 400 * skill_lv + 50 * (sd ? pc_checkskill(sd, CR_SPEARQUICKEN) : 10);
@@ -2496,6 +2493,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * base_lv / 100;
 					break;
+ 				case WM_SOUND_OF_DESTRUCTION:
+ 					skillratio += 400;
+ 					break;
 				case WM_GREAT_ECHO:
 					skillratio += 300 + 200 * skill_lv;
 
@@ -3483,7 +3483,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
-								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100; // val4 = used bolt level, val2 = used spellfist level. [Rytech]
+								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;//val2 = used spellfist level and val4 = used bolt level. [Rytech]
 								ad.div_ = 1; // ad mods, to make it work similar to regular hits [Xazax]
  								ad.flag = BF_WEAPON|BF_SHORT; // ad mods, to make it work similar to regular hits [Xazax]
 								ad.type = 0;
@@ -3502,7 +3502,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
-								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100;
+								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;
 								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
@@ -3516,7 +3516,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						{
 							if ( sc->data[SC_SPELLFIST] && (!sd || !sd->state.autocast))
 							{
-								skillratio += (sc->data[SC_SPELLFIST]->val4 * 100) + (sc->data[SC_SPELLFIST]->val2 * 100) - 100;
+								skillratio = sc->data[SC_SPELLFIST]->val2 * 50 + sc->data[SC_SPELLFIST]->val4 * 100;
 								ad.div_ = 1;
 								ad.flag = BF_WEAPON|BF_SHORT;
 								ad.type = 0;
@@ -3699,6 +3699,16 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * (200 + base_lv - 100) / 200;
 						break;
+					case LG_SHIELDSPELL:
+					if ( sd && skill_lv == 2 )
+						if (level_effect_bonus == 1)
+							skillratio = 4 * base_lv + 100 * sd->shieldmdef + 2 * sstatus->int_;
+						else
+							skillratio = 600 + 100 * sd->shieldmdef + 2 * sstatus->int_;
+							//skillratio = 100 * sd->shieldmdef;//Leaving here for testing on the next update.
+					else
+						skillratio = 0;//Prevents MATK damage from being done on LV 1 usage since LV 1 us ATK. [Rytech]
+					break;
 					case LG_RAYOFGENESIS:
 						skillratio = 300 * skill_lv;
 						if (sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
@@ -4365,15 +4375,10 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 
 	sd = BL_CAST(BL_PC, bl);
 
-	// Reflect Damage skill should reflect all damage types.
-	if( sc && sc->data[SC_LG_REFLECTDAMAGE] ) {
-		max_damage = max_damage * status_get_lv(bl) / 100;
-		rdamage = (*damage) * sc->data[SC_LG_REFLECTDAMAGE]->val2 / 100;
-		if( rdamage > max_damage ) rdamage = max_damage;
-	}
 
 	//Bounces back part of the damage.
-	else if( (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT ) {
+	if ((flag&(BF_SHORT | BF_MAGIC)) == BF_SHORT)
+	{
 		if (sd && sd->short_weapon_damage_return){
 			rdamage += (*damage) * sd->short_weapon_damage_return / 100;
 			rdamage = max(rdamage,1);
@@ -4393,7 +4398,18 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 		}
 		if (sc && sc->data[SC_REFLECTSHIELD]){
 			rdamage += (*damage) * sc->data[SC_REFLECTSHIELD]->val2 / 100;
-			rdamage = cap_value(rdamage,1,max_damage);
+			if (rdamage < 1) rdamage = 1;
+		}//Now only reflects short range damage only. Does not reflect magic anymore.
+		if (sc && sc->data[SC_LG_REFLECTDAMAGE] && rand() % 100 < 30 + 10 * sc->data[SC_LG_REFLECTDAMAGE]->val1)
+		{
+			if (battle_config.renewal_level_effect_skills == 1 && status_get_lv(src) >= 100)
+				max_damage = max_damage * status_get_lv(bl) / 100;
+			else
+				max_damage = max_damage * 150 / 100;
+			rdamage = (*damage) * sc->data[SC_LG_REFLECTDAMAGE]->val2 / 100;
+			if( rdamage > max_damage ) rdamage = max_damage;
+			if ((--sc->data[SC_LG_REFLECTDAMAGE]->val3) <= 0)
+				status_change_end(bl, SC_LG_REFLECTDAMAGE, INVALID_TIMER);
 		}
 		if( sc && sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 2 ){
 			rdamage += (*damage) * sc->data[SC_SHIELDSPELL_DEF]->val2 / 100;
