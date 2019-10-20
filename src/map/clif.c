@@ -5688,33 +5688,45 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 }
 */
 
-/// Non-damaging skill effect (ZC_USE_SKILL).
-/// 011a <skill id>.W <skill lv>.W <dst id>.L <src id>.L <result>.B
+/// Non-damaging skill effect.
+/// 011a <skill id>.W <skill lv>.W <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL)
+/// 09cb <skill id>.W <skill lv>.L <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL2)
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail)
 {
 	unsigned char buf[32];
+	short offset = 0;
+#if PACKETVER < 20131223
+	short packet_num = 0x11a;
+#else
+	short packet_num = 0x9cb;
+#endif
 
 	nullpo_ret(dst);
 
-	WBUFW(buf,0)=0x11a;
+	WBUFW(buf, 0) = packet_num;
 	WBUFW(buf,2)=skill_id;
+#if PACKETVER < 20131223
 	WBUFW(buf,4)=min(heal, INT16_MAX);
-	WBUFL(buf,6)=dst->id;
-	WBUFL(buf,10)=src?src->id:0;
-	WBUFB(buf,14)=fail;
+#else
+	WBUFL(buf,4)=min(heal, INT_MAX);
+	offset += 2;
+#endif
+	WBUFL(buf,6+offset)=dst->id;
+	WBUFL(buf,10+offset)=src?src->id:0;
+	WBUFB(buf,14+offset)=fail;
 
 	if (disguised(dst)) {
-		clif_send(buf,packet_len(0x11a),dst,AREA_WOS);
-		WBUFL(buf,6)=-dst->id;
-		clif_send(buf,packet_len(0x11a),dst,SELF);
+		clif_send(buf, packet_len(packet_num), dst, AREA_WOS);
+		WBUFL(buf, 6 + offset) = -dst->id;
+		clif_send(buf, packet_len(packet_num), dst, SELF);
 	} else
-		clif_send(buf,packet_len(0x11a),dst,AREA);
+		clif_send(buf, packet_len(packet_num), dst, AREA);
 
 	if(src && disguised(src)) {
-		WBUFL(buf,10)=-src->id;
+		WBUFL(buf, 10 + offset) = -src->id;
 		if (disguised(dst))
-			WBUFL(buf,6)=dst->id;
-		clif_send(buf,packet_len(0x11a),src,SELF);
+			WBUFL(buf, 6 + offset) = dst->id;
+		clif_send(buf, packet_len(packet_num), src, SELF);
 	}
 
 	return fail;
@@ -6609,8 +6621,9 @@ void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len)
 }
 
 
-/// Inform the player about the result of his whisper action (ZC_ACK_WHISPER).
-/// 0098 <result>.B
+/// Inform the player about the result of his whisper action.
+/// 0098 <result>.B (ZC_ACK_WHISPER)
+/// 09df <result>.B <ReceiverGID>.L (ZC_ACK_WHISPER02)
 /// result:
 ///     0 = success to send wisper
 ///     1 = target character is not loged in
@@ -6618,10 +6631,20 @@ void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len)
 ///     3 = everyone ignored by target
 void clif_wis_end(int fd, int flag)
 {
-	WFIFOHEAD(fd,packet_len(0x98));
-	WFIFOW(fd,0) = 0x98;
-	WFIFOW(fd,2) = flag;
-	WFIFOSET(fd,packet_len(0x98));
+#if PACKETVER < 20131223
+	short packet = 0x98;
+#else
+	short packet = 0x9df;
+#endif
+
+	WFIFOHEAD(fd, packet_len(packet));
+	WFIFOW(fd, 0) = packet;
+	WFIFOB(fd, 2) = flag;
+#if PACKETVER >= 20131223
+	WFIFOL(fd, 3) = 0;// Likely for the CCODE system. [Rytech]
+#endif
+	WFIFOSET(fd, packet_len(packet));
+	return;
 }
 
 
@@ -20029,7 +20052,7 @@ void packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
-		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23,  0,  0,  0,  0,  0,
+		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11,  0,
 		-1, 11, 12, 11,  0,  0,  0, 75, -1,143,  0,  0,  0, -1, -1, -1,

@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+20/10/2019
+	r238 [15peaces]
+		*Added packets for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.
+			-More support will be added in future updates.
+		*Fixed a compile error that was detected by the Travis CI system.
+			-This fix is for linux compilers basicly.
+		*Updated the skill_add_heal_rate config to support Highness Heal.
+		*ZC_USE_SKILL2; ZC_RECOVERY2
+			-Added full support for these packets.
+			-These packets allow the displaying of higher values through healing. Before the limit displayed was 32767. The new packets can display somewhere over 2 billion, but due
+			 to digit display limits in the client, the max displayed is 999999.
+			-A 2015-05-13aRagexe or newer is required to fully support both of them.
+		*Fixed a possible issue where the whisper chat may fail to work with clients older then the 2013-12-23.
+
 10/04/2019
 	r237 [15peaces]
 		*Merged missing changes from 3ceam rev. 672 - 675

@@ -2,7 +2,7 @@
 // For more information, see LICENCE in the main folder
 
 #ifndef _INTIF_H_
-#define _INFIF_H_
+#define _INTIF_H_
 
 #include "../common/cbasetypes.h" // bool
 
