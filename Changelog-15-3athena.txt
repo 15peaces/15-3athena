@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+26/10/2019
+	r239 [15peaces]
+		*Added support for 2016 clients
+			-Added packet keys for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.
+			-updated clif_authok to use ZC_ACCEPT_ENTER2 packet for 2016 clients.
+				--ZC_ACCEPT_ENTER3 is not used anymore...
+			-support seems to be almost stable.
+				--However, RODEX is currently crashing the client...
+
 20/10/2019
 	r238 [15peaces]
 		*Added packets for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.

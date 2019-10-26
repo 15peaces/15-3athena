@@ -2249,6 +2249,7 @@ packet_keys: 0x45B945B9,0x45B945B9,0x45B945B9
 
 //2016-02-03aRagexeRE
 packet_ver: 40
+packet_keys: 0x3E1411AF,0x6C744497,0x7CFA1BDE
 0x0369,7,actionrequest,2:6
 0x083C,10,useskilltoid,2:4:6
 0x0940,5,walktoxy,2
@@ -2286,6 +2287,7 @@ packet_ver: 40
 
 //2016-12-28aRagexeRE
 packet_ver: 41
+packet_keys: 0x09366971,0x005672F1,0x6F3712AE
 0x093D,7,actionrequest,2:6
 0x08A2,10,useskilltoid,2:4:6
 0x0886,5,walktoxy,2
