@@ -222,6 +222,7 @@ void guild_makemember(struct guild_member *m,struct map_session_data *sd)
 //	m->exp_payper	=0;
 	m->online		=1;
 	m->position		=MAX_GUILDPOSITION-1;
+	m->last_login = (int)time(NULL);
 	memcpy(m->name,sd->status.name,NAME_LENGTH);
 	return;
 }
@@ -820,14 +821,14 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 	return 0;
 }
 
-int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int online,int lv,int class_)
+void guild_recv_memberinfoshort(int guild_id, int account_id, int char_id, int online, int lv, int class_, int last_login)
 { // cleaned up [LuzZza]
 	
 	int i,alv,c,idx=-1,om=0,oldonline=-1;
 	struct guild *g = guild_search(guild_id);
 	
 	if(g == NULL)
-		return 0;
+		return;
 	
 	for(i=0,alv=0,c=0,om=0;i<g->max_member;i++){
 		struct guild_member *m=&g->member[i];
@@ -837,6 +838,7 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 			m->online=online;
 			m->lv=lv;
 			m->class_=class_;
+			m->last_login = (int)last_login;
 			idx=i;
 		}
 		alv+=m->lv;
@@ -853,7 +855,7 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 			sd->guild_emblem_id=0;
 		}
 		ShowWarning("guild: not found member %d,%d on %d[%s]\n",	account_id,char_id,guild_id,g->name);
-		return 0;
+		return;
 	}
 	
 	g->average_lv=alv/c;
@@ -866,7 +868,7 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 		clif_guild_memberlogin_notice(g, idx, online);
 	
 	if(!g->member[idx].sd)
-		return 0;
+		return;
 
 	//Send XY dot updates. [Skotlex]
 	//Moved from guild_send_memberinfoshort [LuzZza]
@@ -880,7 +882,7 @@ int guild_recv_memberinfoshort(int guild_id,int account_id,int char_id,int onlin
 		clif_guild_xy_single(g->member[i].sd->fd, g->member[idx].sd);
 	}
 
-	return 0;
+	return;
 }
 // ƒMƒ‹ƒh‰ï˜b‘—M
 int guild_send_message(struct map_session_data *sd,const char *mes,int len)

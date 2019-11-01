@@ -748,6 +748,7 @@ int pc_reg_received(struct map_session_data *sd);
 
 void pc_setequipindex(struct map_session_data *sd);
 int pc_isequip(struct map_session_data *sd,int n);
+int pc_equippoint_sub(struct map_session_data *sd, struct item_data* id);
 int pc_equippoint(struct map_session_data *sd,int n);
 int pc_setinventorydata(struct map_session_data *sd);
 

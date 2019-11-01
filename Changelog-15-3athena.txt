@@ -7,6 +7,32 @@
 //========================================
 26/10/2019
 	r239 [15peaces]
+		*Added the upgrade_15-3athena_svn240.sql file.
+			-Be sure to apply this update before running your server.
+		*Fixed a issue with 2016-12-28 and newer clients not properly showing player's vending list to other players viewing them.
+		*Fixed an issue where packets > 0xA80 where not read.
+			-Increased MAX_PACKET_DB to 0xB00.
+		*ZC_ITEM_PICKUP_ACK_V7; ZC_GUILD_INFO3; ZC_MEMBERMGR_INFO2
+			-Added support for these packets.
+			-Thanks to @3ceam
+			-This enables new features on 2016-12-28 and newer clients.
+			-Previewing headgears and garments on character when viewed from items in carts and items picked up.
+			-Guild member listing now shows the last date each member was online.
+		*Changing guild leaders is now possible through the guild window.
+			-If woE is active, the guild master is on a guild related map, or the targeted person to become the guild leader is not online, the change will fail.
+		*Updated the "changegm" command to fail if WoE is active.
+		*Added support for the guild member last login display.
+			-A 2016-12-28 or newer client is required to see this.
+			-
+			-WARNING!!!!
+			-This update will break and cause guild data on TXT servers to be lost. This is because there's no way to update the formatting the guild data is saved as in text files.
+			 Not that it matters since TXT should only be used for easy development and testing.
+			-
+			-SQL server's are safe from this issue since its easy to apply a simple update to your SQL database tables.
+		*Updated the main.sql file to add in the 'last_login' variable.
+
+26/10/2019
+	r239 [15peaces]
 		*Added support for 2016 clients
 			-Added packet keys for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.
 			-updated clif_authok to use ZC_ACCEPT_ENTER2 packet for 2016 clients.

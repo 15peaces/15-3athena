@@ -42,7 +42,7 @@ static const int packet_len_table[] = {
 	-1,-1,27,-1, -1, 0,37, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3800-0x380f
 	 0, 0, 0, 0,  0, 0, 0, 0, -1,11, 0, 0,  0, 0,  0, 0, //0x3810
 	39,-1,15,15,15+NAME_LENGTH,19, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
-	10,-1,15, 0, 79,19, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
+	10,-1,15, 0, 79,23, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0, -1,75,-1,11, 11,-1, 38, 0, //0x3840
 	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
 	-1, 7,-1, 7, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
@@ -1144,7 +1144,7 @@ int intif_parse_GuildMemberWithdraw(int fd)
 // ギルドメンバオンライン状態/Lv変更通知
 int intif_parse_GuildMemberInfoShort(int fd)
 {
-	guild_recv_memberinfoshort(RFIFOL(fd,2),RFIFOL(fd,6),RFIFOL(fd,10),RFIFOB(fd,14),RFIFOW(fd,15),RFIFOW(fd,17));
+	guild_recv_memberinfoshort(RFIFOL(fd, 2), RFIFOL(fd, 6), RFIFOL(fd, 10), RFIFOB(fd, 14), RFIFOW(fd, 15), RFIFOW(fd, 17), RFIFOL(fd, 19));
 	return 0;
 }
 // ギルド解散通知
@@ -1206,6 +1206,7 @@ int intif_parse_GuildMemberInfoChanged(int fd)
 	case GMI_GENDER:     g->member[idx].gender     = RFIFOW(fd,18); break;
 	case GMI_CLASS:      g->member[idx].class_     = RFIFOW(fd,18); break;
 	case GMI_LEVEL:      g->member[idx].lv         = RFIFOW(fd,18); break;
+	case GMI_LAST_LOGIN: g->member[idx].last_login = RFIFOL(fd,18); break;
 	}
 	return 0;
 }

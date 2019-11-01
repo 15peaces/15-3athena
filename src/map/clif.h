@@ -43,7 +43,7 @@ struct achievement;
 enum
 {// packet DB
 	MIN_PACKET_DB  = 0x064,
-	MAX_PACKET_DB  = 0xA80,
+	MAX_PACKET_DB  = 0xB00,
 	MAX_PACKET_VER = 41,
 	MAX_PACKET_POS = 20,
 };
