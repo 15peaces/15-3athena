@@ -49,8 +49,9 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
-	#define PACKETVER 20151029 //stable client [15peaces]
-	//#define PACKETVER 20161228 //experimental client [15peaces]
+	//#define PACKETVER 20151029 //stable client [15peaces]
+	#define PACKETVER 20161228 //stable client [15peaces]
+	//#define PACKETVER 20170906 //next experimental client (unsupported) [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9

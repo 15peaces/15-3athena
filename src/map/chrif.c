@@ -43,7 +43,7 @@ static const int packet_len_table[0x3d] =
 {								// U - used, F - free
 	60, 3,-1,27,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
 	 6,-1,18, 7,-1,35,30, 6,	// 2b00-2b07: U->2b00, U->2b01, U->2b02, U->2b03, U->2b04, U->2b05, U->2b06, U->2b07
-	 6,30, 0, 0,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, F->2b0a, F->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
+	 6,30, 0,-1,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, F->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	11,10,10, 0,11, 0,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, F->2b13, U->2b14, F->2b15, U->2b16, U->2b17
 	 2,10, 2,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
 	-1,10, 8, 2, 2,14,19,19,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, U->2b25, U->2b26, U->2b27
@@ -1685,10 +1685,10 @@ int chrif_parse(int fd)
 		cmd = RFIFOW(fd,0);
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x2af8] == 0)
 		{
-			int r = intif_parse(fd); // intifに渡す
+			int r = intif_parse(fd); // Passed on to the intif
 
-			if (r == 1) continue;	// intifで処理した
-			if (r == 2) return 0;	// intifで処理したが、データが足りない
+			if (r == 1) continue;	// Treated in intif
+			if (r == 2) return 0;	// Didn't have enough data (len==-1)
 
 			ShowWarning("chrif_parse: session #%d, intif_parse failed (unrecognized command 0x%.4x).\n", fd, cmd);
 			set_eof(fd);
@@ -1706,7 +1706,9 @@ int chrif_parse(int fd)
 		if ((int)RFIFOREST(fd) < packet_len)
 			return 0;
 
-		//ShowDebug("Received packet 0x%4x (%d bytes) from char-server (connection %d)\n", RFIFOW(fd,0), packet_len, fd);
+#ifdef LOG_ALL_PACKETS
+		ShowDebug("Received packet 0x%4x (%d bytes) from char-server (connection %d)\n", RFIFOW(fd,0), packet_len, fd);
+#endif
 
 		switch(cmd)
 		{

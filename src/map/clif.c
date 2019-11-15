@@ -15895,7 +15895,11 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 	int i, j, k, offset, titleLength;
 	uint8 mailType, amount, remaining;
 	uint32 now = (uint32)time(NULL);
+#if PACKETVER >= 20160601
+	int cmd = 0xa7d;
+#else
 	int cmd = 0x9f0;
+#endif
 
 	if( battle_config.mail_daily_count ){
 		mail_refresh_remaining_amount(sd);
@@ -16008,6 +16012,8 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 /// 09e8 <mail tab>.B <mail id>.Q (CZ_OPEN_MAILBOX)
 /// 09ee <mail tab>.B <mail id>.Q (CZ_REQ_NEXT_MAIL_LIST)
 /// 09ef <mail tab>.B <mail id>.Q (CZ_REQ_REFRESH_MAIL_LIST)
+/// 0ac0 <mail id>.Q <unknown>.16B (CZ_OPEN_MAILBOX2)
+/// 0ac1 <mail id>.Q <unknown>.16B (CZ_REQ_REFRESH_MAIL_LIST2)
 void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
 #if PACKETVER < 20150513
 	struct mail_data* md = &sd->mail.inbox;
@@ -16020,8 +16026,21 @@ void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
 	mail_removeitem(sd, 0, sd->mail.item[0].index, sd->mail.item[0].amount);
 	mail_removezeny(sd, false);
 #else
-	uint8 openType = RFIFOB(fd, 2);
-	uint64 mailId = RFIFOQ(fd, 3);
+	int cmd = RFIFOW(fd, 0);
+	uint8 openType;
+	uint64 mailId = RFIFOQ(fd, 2);
+	int i;
+
+	ARR_FIND(0, MAIL_MAX_INBOX, i, sd->mail.inbox.msg[i].id == mailId);
+
+	if (i == MAIL_MAX_INBOX){
+		openType = MAIL_INBOX_NORMAL;
+		mailId = 0;
+	}
+	else{
+		openType = sd->mail.inbox.msg[i].type;
+		mailId = 0;
+	}
 
 	switch( openType ){
 		case MAIL_INBOX_NORMAL:
@@ -16033,17 +16052,17 @@ void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
 			return;
 	}
 
-	if( sd->mail.changed || RFIFOW(fd,0) == 0x9ef ){
-		intif_Mail_requestinbox(sd->status.char_id, 1, openType);
+	if (sd->mail.changed || (cmd == 0x9ef || cmd == 0xac1)){
+		intif_Mail_requestinbox(sd->status.char_id, 1, (enum mail_inbox_type)openType);
 		return;
 	}
 
 	// If it is not a next page request
-	if( RFIFOW(fd,0) != 0x9ee ){
+	if (cmd != 0x9ee){
 		mailId = 0;
 	}
 
-	clif_Mail_refreshinbox(sd,(enum mail_inbox_type)openType,mailId);
+	clif_Mail_refreshinbox(sd, (enum mail_inbox_type)openType, mailId);
 #endif
 }
 
@@ -16480,6 +16499,7 @@ void clif_parse_Mail_winopen(int fd, struct map_session_data *sd)
 /// Request to send mail
 /// 0248 <packet len>.W <recipient>.24B <title>.40B <body len>.B <body>.?B (CZ_MAIL_SEND)
 /// 09ec <packet len>.W <recipient>.24B <sender>.24B <zeny>.Q <title length>.W <body length>.W <title>.?B <body>.?B (CZ_REQ_WRITE_MAIL)
+/// 0a6e <packet len>.W <recipient>.24B <sender>.24B <zeny>.Q <title length>.W <body length>.W <char id>.L <title>.?B <body>.?B (CZ_REQ_WRITE_MAIL2)
 void clif_parse_Mail_send(int fd, struct map_session_data *sd){
 #if PACKETVER < 20150513
 	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
@@ -16494,14 +16514,12 @@ void clif_parse_Mail_send(int fd, struct map_session_data *sd){
 
 	mail_send(sd, RFIFOCP(fd,info->pos[1]), RFIFOCP(fd,info->pos[2]), RFIFOCP(fd,info->pos[4]), RFIFOB(fd,info->pos[3]));
 #else
-	unsigned short length;
 	static char receiver[NAME_LENGTH];
-	static char sender[NAME_LENGTH];
+	//static char sender[NAME_LENGTH];
 	char *title;
 	char *text;
 	uint64 zeny;
-	uint16 titleLength;
-	uint16 textLength;
+	uint16 length, titleLength, textLength, realTitleLength, realTextLength;
 
 	length = RFIFOW(fd, 2);
 
@@ -16517,16 +16535,25 @@ void clif_parse_Mail_send(int fd, struct map_session_data *sd){
 	}
 
 	safestrncpy(receiver, RFIFOCP(fd, 4), NAME_LENGTH);
-	safestrncpy(sender, RFIFOCP(fd, 28), NAME_LENGTH);
+	//safestrncpy(sender, RFIFOCP(fd, 28), NAME_LENGTH);
 	zeny = RFIFOQ(fd, 52);
 	titleLength = RFIFOW(fd, 60);
 	textLength = RFIFOW(fd, 62);
 
-	title = (char*)aMalloc(titleLength);
-	text = (char*)aMalloc(textLength);
+	realTitleLength = min(titleLength, MAIL_TITLE_LENGTH);
+	realTextLength = min(textLength, MAIL_BODY_LENGTH);
 
-	safestrncpy(title, RFIFOCP(fd, 64), titleLength);
-	safestrncpy(text, RFIFOCP(fd, 64 + titleLength), textLength);
+	title = (char*)aMalloc(realTitleLength);
+	text = (char*)aMalloc(realTextLength);
+
+#if PACKETVER <= 20160330
+	safestrncpy(title, RFIFOCP(fd, 64), realTitleLength);
+	safestrncpy(text, RFIFOCP(fd, 64 + titleLength), realTextLength);
+#else
+	// 64 = <char id>.L
+	safestrncpy(title, RFIFOCP(fd, 68), realTitleLength);
+	safestrncpy(text, RFIFOCP(fd, 68 + titleLength), realTextLength);
+#endif
 
 	if( zeny > 0 ){
 		if( mail_setitem(sd,0,(uint32)zeny) != MAIL_ATTACH_SUCCESS ){
@@ -20057,7 +20084,7 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 #if PACKETVER < 20090617
 	    6,  2, -1,  4,  4,  4,  4,  8,  8,254,  6,  8,  6, 54, 30, 54,
-#else // 0x7d9 changed
+#else // 0x07d9 changed
 	    6,  2, -1,  4,  4,  4,  4,  8,  8,268,  6,  8,  6, 54, 30, 54,
 #endif
 	    0, 15,  8,  6, -1,  8,  8, 32, -1,  5,  0,  0,  0,  0,  0,  0,
@@ -20119,17 +20146,17 @@ void packetdb_readdb(void)
 		-1, 0,  0, 26, 10,  0,  0,  0, 14,  2, 23,  2, -1,  2,  3,  2,
 	   21,  3,  5,  0, 66,  6,  0,  8,  3,  0,  0,  0,  0, -1,  6,  0,
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
- //#0x0A40
+//#0x0A40
  		0,  0,  0, 85, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
- 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	//#0x0A80
+ 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
+//#0x0A80
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	//#0x0AC0
+//#0x0AC0
 	    0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

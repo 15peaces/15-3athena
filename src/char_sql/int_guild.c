@@ -266,6 +266,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 				Sql_EscapeStringLen(sql_handle, esc_name, m->name, strnlen(m->name, NAME_LENGTH));
 				if( SQL_ERROR == Sql_Query(sql_handle, "REPLACE INTO `%s` (`guild_id`,`account_id`,`char_id`,`hair`,`hair_color`,`gender`,`class`,`lv`,`exp`,`exp_payper`,`online`,`position`,`last_login`,`name`) "
 					"VALUES ('%d','%d','%d','%d','%d','%d','%d','%d','%"PRIu64"','%d','%d','%d','%d','%s')",
+					guild_member_db, g->guild_id, m->account_id, m->char_id,
 					m->hair, m->hair_color, m->gender,
 					m->class_, m->lv, m->exp, m->exp_payper, m->online, m->position, m->last_login, esc_name))
 					Sql_ShowDebug(sql_handle);

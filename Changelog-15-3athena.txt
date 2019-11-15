@@ -5,8 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
-26/10/2019
-	r239 [15peaces]
+11/15/2019
+	r241 [15peaces]
+		*Merged missing changes from 3ceam rev. 676
+		*With this release the default packetver is changed to 20161228.
+			-2016-12-28aRagexeRE is now the recommended and stable client to use.
+		*Fixed an issue related to char select process.
+			-Because of a missing packet length for inter server packet 0x2b02 (skillcooldown_load) the map server got disconnected from char server.
+			-This also caused an issue with RODEX mails. They where not refreshed on login.
+		*Fixed an issue where saving guilds would crash the char server.
+			-follow up @0c4cc1d (r240), sorry for this...
+		*RODEX is now fully working with 2016 area clients.
+		*Replaced all shield MDEF check coding with code from rAthena.
+			-The code is more stable, effective, and fixes a exploit with the skill below.
+		*LG_SHIELDSPELL
+			-Fixed a exploit where a player could constantly increase Lv 2's damage, effectiveness, and durations to extremely high values.
+
+11/01/2019
+	r240 [15peaces]
 		*Added the upgrade_15-3athena_svn240.sql file.
 			-Be sure to apply this update before running your server.
 		*Fixed a issue with 2016-12-28 and newer clients not properly showing player's vending list to other players viewing them.
@@ -31,7 +47,7 @@
 			-SQL server's are safe from this issue since its easy to apply a simple update to your SQL database tables.
 		*Updated the main.sql file to add in the 'last_login' variable.
 
-26/10/2019
+10/26/2019
 	r239 [15peaces]
 		*Added support for 2016 clients
 			-Added packet keys for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.
@@ -40,7 +56,7 @@
 			-support seems to be almost stable.
 				--However, RODEX is currently crashing the client...
 
-20/10/2019
+10/20/2019
 	r238 [15peaces]
 		*Added packets for 2016-02-03aRagexeRE and 2016-12-28aRagexeRE clients.
 			-More support will be added in future updates.
@@ -54,7 +70,7 @@
 			-A 2015-05-13aRagexe or newer is required to fully support both of them.
 		*Fixed a possible issue where the whisper chat may fail to work with clients older then the 2013-12-23.
 
-10/04/2019
+04/10/2019
 	r237 [15peaces]
 		*Merged missing changes from 3ceam rev. 672 - 675
 		*Corrected some warp portal positions in yuno.

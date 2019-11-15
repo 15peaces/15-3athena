@@ -15,8 +15,11 @@
 /// EXPERIMENTAL FEATURE [15peaces]
 //#define PACKET_OBFUSCATION
 
-// Show all packets (for Debugging) [15peaces]
+// Show all packets (for debugging) [15peaces]
 //#define LOG_ALL_PACKETS
+
+// Let inter server display more informations (for debugging) (old eAthena define)
+//#define NOISY
 
 enum SERVER_STATE
 {

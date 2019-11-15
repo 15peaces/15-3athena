@@ -7964,10 +7964,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
  		break;
 
 	case LG_SHIELDSPELL:
-		if( flag&1 ) {
-			int duration = (sd) ? sd->shieldmdef * 2000 : 10000;
-			sc_start(bl,SC_SILENCE,100,skilllv,duration);
-		} else if( sd ) {
+		if( flag&1 )
+			//iRO Document says duration is shield MDEF * 30 seconds. Doesent sound right. Must confirm first. [Rytech]
+			sc_start(bl, SC_SILENCE, 100, skilllv, sd->shieldmdef * 5000);
+		else if( sd ) {
 			int opt = skilllv;
 			int val;
 			switch( skilllv ) {
