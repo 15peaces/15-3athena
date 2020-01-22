@@ -28,6 +28,9 @@ enum e_char_delete_restriction {
 	CHAR_DEL_RESTRICT_ALL
 };
 
+int memitemdata_to_txt(const struct item items[], int max, int id, int fileswitch);
+int inventory_to_txt(const struct item items[], int max, int char_id);
+
 struct mmo_charstatus* search_character(int aid, int cid);
 struct mmo_charstatus* search_character_byname(char* character_name);
 int search_character_index(char* character_name);

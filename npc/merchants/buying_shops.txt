@@ -93,7 +93,7 @@ que_job01,68,84,1	script	Black Marketeer#Buying	881,{
 
 //== Purchasing Team (Learn Skill - Merchant Classes) ======
 alberta_in,58,52,4	script	Purchasing Team#Buying	59,{
-	if (checkweight(Knife,1) == 0 || MaxWeight - Weight < 2400) {
+	if (checkweight(1201,1) == 0 || MaxWeight - Weight < 2400) {
 		mes "- You cannot converse or perform the quest because you are carrying too many items. -";
 		close;
 	}

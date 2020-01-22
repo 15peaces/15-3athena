@@ -128,13 +128,13 @@
 20169,C_Long_Tongue,Costume Long Tongue,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,773,{},{},{}
 20170,C_Brown_Deviruchi_Cap,Costume Brown Deviruchi Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,273,{},{},{}
 20171,C_Sepia_Cap,Costume Sepia Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1280,{},{},{}
-
 20172,C_Pumpkin_Hat,Costume Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1281,{},{},{}
 20173,C_Lude_Hood,Costume Lude Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1282,{},{},{}
 20174,C_Orange_Halloween_Hat,Costume Orange Halloween Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1283,{},{},{}
 20175,C_Diabolic_Headphone,Costume Diabolic Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1284,{},{},{}
 20176,C_Happy_Pierrot_Mask,Costume Happy Pierrot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1288,{},{},{}
 20178,C_Puppy_Love,Costume Puppy Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,94,{},{},{}
+
 20179,C_Monkey_Fur_Hat,Costume Monkey Fur Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,858,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
@@ -3413,3 +3413,17 @@
 //===================================================================
 6586,Captured_Book,Captured Book,3,20,,10,,,,,,,,,,,,,{},{},{}
 25187,Slug_Bullet,Slug Bullet,3,1200,,1200,,,,,,,,,,,,,{},{},{}
+
+// Missing Gloves (renewal)
+2917,Str_Glove,Str Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bBaseAtk,(readparam(bStr)/10); if(readparam(bStr)>=110) bonus2 bAddClass,Class_All,1; },{},{}
+2918,Int_Glove,Int Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bMatk,(readparam(bInt)/10); if(readparam(bInt)>=110) bonus bMatkRate,1; },{},{}
+2919,Agi_Glove,Agi Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bFlee,(readparam(bAgi)/10); if(readparam(bAgi)>=110) bonus bFlee2,1; },{},{}
+2920,Vit_Glove,Vit Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bMaxHP,(readparam(bVit)/10)*50; if(readparam(bVit)>=110) bonus bMaxHPrate,1; },{},{}
+2921,Dex_Glove,Dex Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bHit,(readparam(bDex)/10); if(readparam(bDex)>=110) bonus bLongAtkRate,1; },{},{}
+2922,Luk_Glove,Luk Glove,5,75000,,100,,0,,0,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bCritical,(readparam(bLuk)/10); if(readparam(bLuk)>=110) bonus bCritAtkRate,1; },{},{}
+2923,Str_Glove_,Str Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bBaseAtk,(readparam(bStr)/10); if(readparam(bStr)>=110) bonus2 bAddClass,Class_All,1; },{},{}
+2924,Int_Glove_,Int Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bMatk,(readparam(bInt)/10); if(readparam(bInt)>=110) bonus bMatkRate,1; },{},{}
+2925,Agi_Glove_,Agi Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bFlee,(readparam(bAgi)/10); if(readparam(bAgi)>=110) bonus bFlee2,1; },{},{}
+2926,Vit_Glove_,Vit Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bMaxHP,(readparam(bVit)/10)*50; if(readparam(bVit)>=110) bonus bMaxHPrate,1; },{},{}
+2927,Dex_Glove_,Dex Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bHit,(readparam(bDex)/10); if(readparam(bDex)>=110) bonus bLongAtkRate,1; },{},{}
+2928,Luk_Glove_,Luk Glove,5,75000,,100,,0,,1,0xFFFFFFFF,63,2,136,,100,0,0,{ bonus bMaxHP,100; bonus bMaxSP,20; bonus bCritical,(readparam(bLuk)/10); if(readparam(bLuk)>=110) bonus bCritAtkRate,1; },{},{}

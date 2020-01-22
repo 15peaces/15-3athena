@@ -37,6 +37,10 @@
 char char_txt[1024] = "save/athena.txt";
 char friends_txt[1024] = "save/friends.txt";
 char hotkeys_txt[1024] = "save/hotkeys.txt";
+char inventory_txt[1024] = "save/inventory.txt";
+char cart_txt[1024] = "save/cart.txt";
+char storage_txt[1024] = "save/storage.txt";
+char guild_storage_txt[1024] = "save/guild_storage.txt";
 char char_log_filename[1024] = "log/char.log";
 
 // show loading/saving messages
@@ -164,9 +168,13 @@ struct auth_node {
 	uint8 sex;
 	time_t expiration_time; // # of seconds 1/1/1970 (timestamp): Validity limit of the account (0 = unlimited)
 	int gmlevel;
+	unsigned changing_mapservers : 1;
 };
 
 static DBMap* auth_db; // int account_id -> struct auth_node*
+static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
+DBMap* char_get_authdb() { return auth_db; }
+DBMap* char_get_chardb() { return char_db_; }
 
 //-----------------------------------------------------
 // Online User Database
@@ -178,6 +186,7 @@ struct online_char_data {
 	int fd;
 	int waiting_disconnect;
 	short server; // -2: unknown server, -1: not connected, 0+: id of server
+	struct s_storage inventory;
 };
 
 static DBMap* online_char_db; // int account_id -> struct online_char_data*
@@ -201,6 +210,8 @@ void set_char_charselect(int account_id)
 
 	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
 
+	inventory_totxt(character->char_id, character->inventory);
+
 	if( character->server > -1 )
 		if( server[character->server].users > 0 ) // Prevent this value from going negative.
 			server[character->server].users--;
@@ -212,6 +223,7 @@ void set_char_charselect(int account_id)
 		delete_timer(character->waiting_disconnect, chardb_waiting_disconnect);
 		character->waiting_disconnect = INVALID_TIMER;
 	}
+
 
 	if (login_fd > 0 && !session[login_fd]->flag.eof)
 	{
@@ -249,6 +261,8 @@ void set_char_online(int map_id, int char_id, int account_id)
 		character->waiting_disconnect = INVALID_TIMER;
 	}
 
+	inventory_fromtxt(char_id, character->inventory);
+
 	//Notify login server
 	if (login_fd > 0 && !session[login_fd]->flag.eof)
 	{	
@@ -279,6 +293,8 @@ void set_char_offline(int char_id, int account_id)
 			character->char_id = -1;
 			character->server = -1;
 		}
+
+		inventory_totxt(char_id, character->inventory);
 
 		//FIXME? Why Kevin free'd the online information when the char was effectively in the map-server?
 	}
@@ -523,7 +539,7 @@ int mmo_hotkeys_tostr(char *str, struct mmo_charstatus *p)
 //-------------------------------------------------
 int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, int reg_num)
 {
-	int i,j;
+	int i;
 	char *str_p = str;
 
 	str_p += sprintf(str_p,
@@ -532,7 +548,7 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 		"\t%d,%d,%d\t%d,%d,%d,%d" //Up to hom id
 		"\t%d,%d,%d\t%d,%d,%d,%d,%d,%d" //Up to robe
 		"\t%d,%d,%d\t%d,%d,%d" //last point + save point
-		",%d,%d,%d,%d,%d,%lu\t",	//Family info + delete date
+		",%d,%d,%d,%d,%d,%lu,%s,%d\t",	//Family info + delete date + hotkey_rowshift
 		p->char_id, p->account_id, p->slot, p->name, //
 		p->class_, p->base_level, p->job_level,
 		p->base_exp, p->job_exp, p->zeny,
@@ -545,33 +561,12 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 		p->weapon, p->shield, p->head_top, p->head_mid, p->head_bottom, p->robe,
 		p->last_point.map, p->last_point.x, p->last_point.y, //
 		p->save_point.map, p->save_point.x, p->save_point.y,
-		p->partner_id,p->father,p->mother,p->child,p->fame, //
-		(unsigned long)p->delete_date);  // FIXME: platform-dependent size
+		p->partner_id, p->father, p->mother, p->child, p->fame, //
+		(unsigned long)p->delete_date),  // FIXME: platform-dependent size
+		p->sex, p->hotkey_rowshift;
 	for(i = 0; i < MAX_MEMOPOINTS; i++)
 		if (p->memo_point[i].map) {
 			str_p += sprintf(str_p, "%d,%d,%d ", p->memo_point[i].map, p->memo_point[i].x, p->memo_point[i].y);
-		}
-	*(str_p++) = '\t';
-
-	for(i = 0; i < MAX_INVENTORY; i++)
-		if (p->inventory[i].nameid) {
-			str_p += sprintf(str_p,"%d,%d,%d,%d,%d,%d,%d",
-				p->inventory[i].id,p->inventory[i].nameid,p->inventory[i].amount,p->inventory[i].equip,
-				p->inventory[i].identify,p->inventory[i].refine,p->inventory[i].attribute);
-			for(j=0; j<MAX_SLOTS; j++)
-				str_p += sprintf(str_p,",%d",p->inventory[i].card[j]);
-			str_p += sprintf(str_p," ");
-		}
-	*(str_p++) = '\t';
-
-	for(i = 0; i < MAX_CART; i++)
-		if (p->cart[i].nameid) {
-			str_p += sprintf(str_p,"%d,%d,%d,%d,%d,%d,%d",
-				p->cart[i].id,p->cart[i].nameid,p->cart[i].amount,p->cart[i].equip,
-				p->cart[i].identify,p->cart[i].refine,p->cart[i].attribute);
-			for(j=0; j<MAX_SLOTS; j++)
-				str_p += sprintf(str_p,",%d",p->cart[i].card[j]);
-			str_p += sprintf(str_p," ");
 		}
 	*(str_p++) = '\t';
 
@@ -589,6 +584,91 @@ int mmo_char_tostr(char *str, struct mmo_charstatus *p, struct global_reg *reg, 
 	*str_p = '\0';
 	return 0;
 }
+
+//------------------------------------------------------------------
+// Saves an array of 'item' entries into the specified file.
+// Based on sql item handling. [15peaces]
+//------------------------------------------------------------------
+int char_memitemdata_to_txt(const struct item items[], int max, int id, int fileswitch)
+{
+	int i,j;
+	char *str_p;
+	char fbuf[1024];
+	const char *filename, *selectoption, *printname;
+	FILE *fp;
+
+	switch (fileswitch) {
+		case TABLE_INVENTORY:
+			printname = "Inventory";
+			filename = inventory_txt;
+			selectoption = "char_id";
+			break;
+		case TABLE_CART:
+			printname = "Cart";
+			filename = cart_txt;
+			selectoption = "char_id";
+			break;
+		case TABLE_STORAGE:
+			printname = "Storage";
+			filename = storage_txt;
+			selectoption = "account_id";
+			break;
+		case TABLE_GUILD_STORAGE:
+			printname = "Guild Storage";
+			filename = guild_storage_txt;
+			selectoption = "guild_id";
+			break;
+		default:
+			ShowError("Invalid table name!\n");
+			return 1;
+	}
+
+	fp = fopen(filename, "r");
+	if (fp)
+	{
+		// Find entries for id, write every lower id
+		// delete the entries for id
+		// write new entries for id
+		// write every higher id
+		ShowDebug("char_memitemdata_to_txt: Save changed item-data (todo)...");
+
+		fclose(fp);
+	}
+	else // create new file with current item data only.
+	{
+		ShowWarning("char_memitemdata_to_txt: File not found: %s... creating...\n", filename);
+		ShowInfo("Note: ignore this warning, if there should be no save data...\n");
+
+		fp = fopen(filename, "w");
+
+		for (i = 0; i < sizeof(items); i++)
+			if (items[i].nameid) 
+			{
+				str_p += sprintf(str_p, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+					id, items[i].id, items[i].nameid, items[i].amount, items[i].equip,
+					items[i].identify, items[i].refine, items[i].attribute, items[i].expire_time,
+					items[i].bound);
+				if (fileswitch == TABLE_INVENTORY)
+					str_p += sprintf(str_p, ",%d", items[i].favorite);
+
+				for (j = 0; j<MAX_SLOTS; j++)
+					str_p += sprintf(str_p, ",%d", items[i].card[j]);
+				for (j = 0; j < MAX_ITEM_RDM_OPT; j++)
+				{
+					str_p += sprintf(str_p, ",%d", items[i].option[j].id);
+					str_p += sprintf(str_p, ",%d", items[i].option[j].value);
+					str_p += sprintf(str_p, ",%d", items[i].option[j].param);
+				}
+				str_p += sprintf(str_p, " ");
+				fprintf(fp, "%s\n", str_p);
+			}
+
+			fclose(fp);
+	}
+
+		ShowInfo("Saved %s data for %s: %d\n", printname, selectoption, id);
+}
+
 #endif //TXT_SQL_CONVERT
 //-------------------------------------------------------------------------
 // Function to set the character from the line (at read of characters file)
@@ -598,12 +678,34 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	char tmp_str[3][128]; //To avoid deleting chars with too long names.
 	int tmp_int[256];
 	unsigned int tmp_uint[2]; //To read exp....
-	int next, len, i, j;
+	int next, len, i;
 	unsigned long tmp_ulong[1];
+	char sex[2];
 
 	// initilialise character
 	memset(p, '\0', sizeof(struct mmo_charstatus));
-	
+
+// Char structure of 15-3ahtnea version 242 (char-gender, hotkey_rowshift)
+	if (sscanf(str, "%d\t%d,%d\t%127[^\t]\t%d,%d,%d\t%u,%u,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
+		"\t%d,%d,%d\t%d,%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d,%d"
+		"\t%d,%d,%d\t%d,%d,%d,%d,%d,%d,%d,%d,%lu,%d,%d%n",
+		&tmp_int[0], &tmp_int[1], &tmp_int[2], tmp_str[0],
+		&tmp_int[3], &tmp_int[4], &tmp_int[5],
+		&tmp_uint[0], &tmp_uint[1], &tmp_int[8],
+		&tmp_int[9], &tmp_int[10], &tmp_int[11], &tmp_int[12],
+		&tmp_int[13], &tmp_int[14], &tmp_int[15], &tmp_int[16], &tmp_int[17], &tmp_int[18],
+		&tmp_int[19], &tmp_int[20],
+		&tmp_int[21], &tmp_int[22], &tmp_int[23], //
+		&tmp_int[24], &tmp_int[25], &tmp_int[26], &tmp_int[44],
+		&tmp_int[27], &tmp_int[28], &tmp_int[29],
+		&tmp_int[30], &tmp_int[31], &tmp_int[32], &tmp_int[33], &tmp_int[34], &tmp_int[47],
+		&tmp_int[45], &tmp_int[35], &tmp_int[36],
+		&tmp_int[46], &tmp_int[37], &tmp_int[38], &tmp_int[39],
+		&tmp_int[40], &tmp_int[41], &tmp_int[42], &tmp_int[43], &tmp_ulong[0], &sex[0],
+		&tmp_int[49], &next) != 52)
+	{
+		sex[0] = 'U';
+		tmp_int[49] = 0; // hotkey_rowshift
 // Char structure of version 14797 (robe)
 	if (sscanf(str, "%d\t%d,%d\t%127[^\t]\t%d,%d,%d\t%u,%u,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
 		"\t%d,%d,%d\t%d,%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d,%d"
@@ -768,6 +870,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}	// Char structure of version 1500 (homun + mapindex maps)
 	}	// Char structure of version 14700 (delete date)
 	}	// Char structure of version 14797 (robe)
+	}	// Char structure of 15 - 3ahtnea version 242 (char - gender, hotkey_rowshift)
 
 	safestrncpy(p->name, tmp_str[0], NAME_LENGTH); //Overflow protection [Skotlex]
 	p->char_id = tmp_int[0];
@@ -819,6 +922,8 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	p->save_point.map = tmp_int[46];
 	p->delete_date = tmp_ulong[0];
 	p->robe = tmp_int[47];
+	p->sex = char_mmo_gender(NULL, p, sex[0]);
+	p->hotkey_rowshift = tmp_int[49];
 
 #ifndef TXT_SQL_CONVERT
 	// Some checks
@@ -866,55 +971,6 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 		next += len;
 		if (str[next] == ' ')
 			next++;
-	}
-
-	next++;
-
-	for(i = 0; str[next] && str[next] != '\t'; i++) {
-		if(sscanf(str + next, "%d,%d,%d,%d,%d,%d,%d%[0-9,-]%n",
-		      &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
-		      &tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str[0], &len) == 8)
-		{
-			p->inventory[i].id = tmp_int[0];
-			p->inventory[i].nameid = tmp_int[1];
-			p->inventory[i].amount = tmp_int[2];
-			p->inventory[i].equip = tmp_int[3];
-			p->inventory[i].identify = tmp_int[4];
-			p->inventory[i].refine = tmp_int[5];
-			p->inventory[i].attribute = tmp_int[6];
-
-			for(j = 0; j < MAX_SLOTS && tmp_str[0][0] && sscanf(tmp_str[0], ",%d%[0-9,-]",&tmp_int[0], tmp_str[0]) > 0; j++)
-				p->inventory[i].card[j] = tmp_int[0];
-
-			next += len;
-			if (str[next] == ' ')
-				next++;
-		} else // invalid structure
-			return -4;
-	}
-	next++;
-
-	for(i = 0; str[next] && str[next] != '\t'; i++) {
-		if(sscanf(str + next, "%d,%d,%d,%d,%d,%d,%d%[0-9,-]%n",
-		      &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
-		      &tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str[0], &len) == 8)
-		{
-			p->cart[i].id = tmp_int[0];
-			p->cart[i].nameid = tmp_int[1];
-			p->cart[i].amount = tmp_int[2];
-			p->cart[i].equip = tmp_int[3];
-			p->cart[i].identify = tmp_int[4];
-			p->cart[i].refine = tmp_int[5];
-			p->cart[i].attribute = tmp_int[6];
-			
-			for(j = 0; j < MAX_SLOTS && tmp_str[0][0] && sscanf(tmp_str[0], ",%d%[0-9,-]",&tmp_int[0], tmp_str[0]) > 0; j++)
-				p->cart[i].card[j] = tmp_int[0];
-			
-			next += len;
-			if (str[next] == ' ')
-				next++;
-		} else // invalid structure
-			return -5;
 	}
 
 	next++;
@@ -1310,6 +1366,8 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 #endif
 	char name[NAME_LENGTH];
 	int i, flag;
+
+	struct item* inventory;
 	
 	safestrncpy(name, name_, NAME_LENGTH);
 	normalize_name(name,TRIM_CHARS);
@@ -1387,8 +1445,8 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 		char_dat[i].status.class_ = JOB_NOVICE;
 		char_dat[i].status.max_hp = 40 * (100 + char_dat[i].status.vit) / 100;
 		char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
-		char_dat[i].status.inventory[0].nameid = start_weapon;
-		char_dat[i].status.inventory[1].nameid = start_armor;
+		inventory[0].nameid = start_weapon;
+		inventory[1].nameid = start_armor;
 		memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
 		memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
 	}
@@ -1401,8 +1459,8 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 		char_dat[i].status.class_ = JOB_SUMMONER;
 		char_dat[i].status.max_hp = 60 * (100 + char_dat[i].status.vit) / 100;
 		char_dat[i].status.max_sp = 8 * (100 + char_dat[i].status.int_) / 100;
-		char_dat[i].status.inventory[0].nameid = start_weapon_doram;
-		char_dat[i].status.inventory[1].nameid = start_armor_doram;
+		inventory[0].nameid = start_weapon_doram;
+		inventory[1].nameid = start_armor_doram;
 		memcpy(&char_dat[i].status.last_point, &start_point_doram, sizeof(start_point_doram));
 		memcpy(&char_dat[i].status.save_point, &start_point_doram, sizeof(start_point_doram));
 	}
@@ -1440,12 +1498,12 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.hair = hair_style;
 	char_dat[i].status.hair_color = hair_color;
 	char_dat[i].status.clothes_color = 0;
-	char_dat[i].status.inventory[0].nameid = start_weapon; // Knife
-	char_dat[i].status.inventory[0].amount = 1;
-	char_dat[i].status.inventory[0].identify = 1;
-	char_dat[i].status.inventory[1].nameid = start_armor; // Cotton Shirt
-	char_dat[i].status.inventory[1].amount = 1;
-	char_dat[i].status.inventory[1].identify = 1;
+	inventory[0].nameid = start_weapon; // Knife
+	inventory[0].amount = 1;
+	inventory[0].identify = 1;
+	inventory[1].nameid = start_armor; // Cotton Shirt
+	inventory[1].amount = 1;
+	inventory[1].identify = 1;
 	char_dat[i].status.weapon = 0; // W_FIST
 	char_dat[i].status.shield = 0;
 	char_dat[i].status.head_top = 0;
@@ -1456,6 +1514,8 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
 	memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
 	char_num++;
+
+	char_memitemdata_to_txt(inventory, sizeof(inventory), char_dat[i].status.char_id, TABLE_INVENTORY);
 
 	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s\n", sd->account_id, i, slot, name);
 	mmo_char_sync();
@@ -2105,8 +2165,13 @@ void mmo_char_send082d(int fd, struct char_session_data* sd)
 // —£¥(charíœŽž‚ÉŽg—p)
 int char_divorce(struct mmo_charstatus *cs)
 {
+	struct online_char_data *character, *cs_character;
+
 	if (cs == NULL)
 		return 0;
+
+	character = (struct online_char_data*)idb_ensure(online_char_db, character->account_id, create_online_char_data);
+	cs_character = (struct online_char_data*)idb_ensure(online_char_db, cs->account_id, create_online_char_data);
 
 	if (cs->partner_id > 0){
 		int i, j;
@@ -2116,10 +2181,10 @@ int char_divorce(struct mmo_charstatus *cs)
 				char_dat[i].status.partner_id = 0;
 				for(j = 0; j < MAX_INVENTORY; j++)
 				{
-					if (char_dat[i].status.inventory[j].nameid == WEDDING_RING_M || char_dat[i].status.inventory[j].nameid == WEDDING_RING_F)
-						memset(&char_dat[i].status.inventory[j], 0, sizeof(char_dat[i].status.inventory[0]));
-					if (cs->inventory[j].nameid == WEDDING_RING_M || cs->inventory[j].nameid == WEDDING_RING_F)
-						memset(&cs->inventory[j], 0, sizeof(cs->inventory[0]));
+					if (character->inventory.u.items_inventory[j].nameid == WEDDING_RING_M || character->inventory.u.items_inventory[j].nameid == WEDDING_RING_F)
+						memset(&character->inventory.u.items_inventory[j], 0, sizeof(character->inventory.u.items_inventory[0]));
+					if (cs_character->inventory.u.items_inventory[j].nameid == WEDDING_RING_M || cs_character->inventory.u.items_inventory[j].nameid == WEDDING_RING_F)
+						memset(&cs_character->inventory.u.items_inventory[j], 0, sizeof(cs_character->inventory.u.items_inventory[0]));
 				}
 				return 0;
 			}

@@ -26,139 +26,95 @@ char guild_storage_txt[1024]="save/g_storage.txt";
 static DBMap* storage_db = NULL; // int account_id -> struct storage_data*
 static DBMap* guild_storage_db = NULL; // int guild_id -> struct guild_storage*
 
-// 倉庫データを文字列に変換
-bool storage_tostr(char* str, int account_id, struct storage_data* p)
+/**
+* Save inventory entries to TXT
+* @param char_id: Character ID to save
+* @param p: Inventory entries
+* @return 0 if success, or error count
+*/
+static int inventory_totxt(uint32 char_id, struct s_storage* p)
 {
-	int i,j;
-	char *str_p = str;
-	str_p += sprintf(str_p, "%d,%d\t", account_id, p->storage_amount);
-
-	for( i = 0; i < MAX_STORAGE; i++ )
-		if( p->items[i].nameid > 0 && p->items[i].amount > 0 )
-		{
-			str_p += sprintf(str_p, "%d,%d,%d,%d,%d,%d,%d",
-				p->items[i].id,p->items[i].nameid,p->items[i].amount,p->items[i].equip,
-				p->items[i].identify,p->items[i].refine,p->items[i].attribute);
-			for(j=0; j<MAX_SLOTS; j++)
-				str_p += sprintf(str_p,",%d",p->items[i].card[j]);
-			str_p += sprintf(str_p," ");
-		}
-
-	*(str_p++)='\t';
-
-	*str_p='\0';
-
-	return true;
+	return char_memitemdata_to_txt(p->u.items_inventory, MAX_INVENTORY, char_id, TABLE_INVENTORY);
 }
 
-// 文字列を倉庫データに変換
-bool storage_fromstr(char* str, int* account_id, struct storage_data* p)
+/**
+* Save storage entries to TXT
+* @param char_id: Character ID to save
+* @param p: Storage entries
+* @return 0 if success, or error count
+*/
+static int storage_totxt(uint32 account_id, struct s_storage* p)
 {
-	int tmp_int[256];
-	char tmp_str[256];
-	int next,len,i,j;
-
-	if( sscanf(str, "%d,%d%n", &tmp_int[0], &tmp_int[1], &next) != 2 )
-		return false;
-
-	*account_id = tmp_int[0];
-	p->storage_amount = tmp_int[1]; //FIXME: limit to MAX_STORAGE?
-
-	next++;
-	for( i = 0; str[next] && str[next]!='\t' && i < MAX_STORAGE; i++ )
-	{
-		if(sscanf(str + next, "%d,%d,%d,%d,%d,%d,%d%[0-9,-]%n",
-		      &tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
-		      &tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str, &len) != 8)
-			  return false;
-
-		p->items[i].id = tmp_int[0];
-		p->items[i].nameid = tmp_int[1];
-		p->items[i].amount = tmp_int[2];
-		p->items[i].equip = tmp_int[3];
-		p->items[i].identify = tmp_int[4];
-		p->items[i].refine = tmp_int[5];
-		p->items[i].attribute = tmp_int[6];
-			
-		for(j = 0; j < MAX_SLOTS && tmp_str[0] && sscanf(tmp_str, ",%d%[0-9,-]",&tmp_int[0], tmp_str) > 0; j++)
-			p->items[i].card[j] = tmp_int[0];
-			
-		next += len;
-		if (str[next] == ' ')
-			next++;
-	}
-
-	if( i >= MAX_STORAGE && str[next] && str[next] != '\t' )
-		ShowWarning("storage_fromstr: Found a storage line with more items than MAX_STORAGE (%d), remaining items have been discarded!\n", MAX_STORAGE);
-
-	return true;
-}
-
-int guild_storage_tostr(char *str,struct guild_storage *p)
-{
-	int i,j,f=0;
-	char *str_p = str;
-	str_p+=sprintf(str,"%d,%d\t",p->guild_id,p->storage_amount);
-
-	for(i=0;i<MAX_GUILD_STORAGE;i++)
-		if( (p->items[i].nameid) && (p->items[i].amount) ){
-			str_p += sprintf(str_p,"%d,%d,%d,%d,%d,%d,%d",
-				p->items[i].id,p->items[i].nameid,p->items[i].amount,p->items[i].equip,
-				p->items[i].identify,p->items[i].refine,p->items[i].attribute);
-			for(j=0; j<MAX_SLOTS; j++)
-				str_p += sprintf(str_p,",%d",p->items[i].card[j]);
-			str_p += sprintf(str_p," ");
-			f++;
-		}
-
-	*(str_p++)='\t';
-
-	*str_p='\0';
-	if(!f)
-		str[0]=0;
-	return 0;
-}
-
-int guild_storage_fromstr(char *str,struct guild_storage *p)
-{
-	int tmp_int[256];
-	char tmp_str[256];
-	int set,next,len,i,j;
-
-	set=sscanf(str,"%d,%d%n",&tmp_int[0],&tmp_int[1],&next);
-	p->storage_amount=tmp_int[1];
-
-	if(set!=2)
-		return 1;
-	if(str[next]=='\n' || str[next]=='\r')
-		return 0;
-	next++;
-	for(i=0;str[next] && str[next]!='\t' && i < MAX_GUILD_STORAGE;i++){
-		if(sscanf(str + next, "%d,%d,%d,%d,%d,%d,%d%[0-9,-]%n",
-			&tmp_int[0], &tmp_int[1], &tmp_int[2], &tmp_int[3],
-			&tmp_int[4], &tmp_int[5], &tmp_int[6], tmp_str, &len) == 8)
-		{
-			p->items[i].id = tmp_int[0];
-			p->items[i].nameid = tmp_int[1];
-			p->items[i].amount = tmp_int[2];
-			p->items[i].equip = tmp_int[3];
-			p->items[i].identify = tmp_int[4];
-			p->items[i].refine = tmp_int[5];
-			p->items[i].attribute = tmp_int[6];
-			for(j = 0; j < MAX_SLOTS && tmp_str[0] && sscanf(tmp_str, ",%d%[0-9,-]",&tmp_int[0], tmp_str) > 0; j++)
-				p->items[i].card[j] = tmp_int[0];
-			next += len;
-			if (str[next] == ' ')
-				next++;
-		}
-		else return 1;
-	}
-	if (i >= MAX_GUILD_STORAGE && str[next] && str[next]!='\t')
-		ShowWarning("guild_storage_fromstr: Found a storage line with more items than MAX_GUILD_STORAGE (%d), remaining items have been discarded!\n", MAX_GUILD_STORAGE);
-	return 0;
+	return char_memitemdata_to_txt(p->u.items_storage, MAX_STORAGE, account_id, TABLE_STORAGE);
 }
 
 #ifndef TXT_SQL_CONVERT
+/**
+* Save cart entries to TXT
+* @param char_id: Character ID to save
+* @param p: Cart entries
+* @return 0 if success, or error count
+*/
+static int cart_totxt(uint32 char_id, struct s_storage* p)
+{
+	return char_memitemdata_to_txt(p->u.items_cart, MAX_CART, char_id, TABLE_CART);
+}
+
+/**
+* Fetch inventory entries from TXT
+* @param char_id: Character ID to fetch
+* @param p: Inventory list to save the entries
+* @return True if success, False if failed
+*/
+static bool inventory_fromtxt(uint32 char_id, struct s_storage* p)
+{
+	return char_memitemdata_from_txt(p, MAX_INVENTORY, char_id, TABLE_INVENTORY);
+}
+
+/**
+* Fetch cart entries from TXT
+* @param char_id: Character ID to fetch
+* @param p: Cart list to save the entries
+* @return True if success, False if failed
+*/
+static bool cart_fromtxt(uint32 char_id, struct s_storage* p)
+{
+	return char_memitemdata_from_txt(p, MAX_CART, char_id, TABLE_CART);
+}
+
+/**
+* Fetch storage entries from TXT
+* @param char_id: Character ID to fetch
+* @param p: Storage list to save the entries
+* @return True if success, False if failed
+*/
+static bool storage_fromtxt(uint32 account_id, struct s_storage* p)
+{
+	return char_memitemdata_from_txt(p, MAX_STORAGE, account_id, TABLE_STORAGE);
+}
+
+/**
+* Save guild_storage data to TXT
+* @param guild_id: Character ID to save
+* @param p: Guild Storage list to save the entries
+* @return 0 if success, or error count
+*/
+bool guild_storage_totxt(int guild_id, struct s_storage* p)
+{
+	//ShowInfo("Guild Storage has been saved (GID: %d)\n", guild_id);
+	return char_memitemdata_to_txt(p->u.items_guild, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE);
+}
+
+/**
+* Fetch guild_storage entries from TXT
+* @param char_id: Character ID to fetch
+* @param p: Storage list to save the entries
+* @return True if success, False if failed
+*/
+bool guild_storage_fromtxt(int guild_id, struct s_storage* p)
+{
+	return char_memitemdata_from_sql(p, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE);
+}
 
 static void* create_storage(DBKey key, va_list args)
 {
@@ -453,16 +409,125 @@ int mapif_parse_SaveGuildStorage(int fd)
 	return 0;
 }
 
-// map server からの通信
-// ・１パケットのみ解析すること
-// ・パケット長データはinter.cにセットしておくこと
-// ・パケット長チェックや、RFIFOSKIPは呼び出し元で行われるので行ってはならない
-// ・エラーなら0(false)、そうでないなら1(true)をかえさなければならない
+/*==========================================
+* Storages (Inventory/Storage/Cart)
+*------------------------------------------*/
+
+/**
+* Sending inventory/cart/storage data to player
+* IZ 0x388a <size>.W <type>.B <account_id>.L <result>.B <inventory>.?B
+* @param fd
+* @param account_id
+* @param type
+* @param entries Inventory/cart/storage entries
+* @param result
+*/
+static void mapif_storage_data_loaded(int fd, uint32 account_id, char type, struct s_storage entries, bool result) {
+	uint16 size = sizeof(struct s_storage) + 10;
+
+	WFIFOHEAD(fd, size);
+	WFIFOW(fd, 0) = 0x388a;
+	WFIFOW(fd, 2) = size;
+	WFIFOB(fd, 4) = type;
+	WFIFOL(fd, 5) = account_id;
+	WFIFOB(fd, 9) = result;
+	memcpy(WFIFOP(fd, 10), &entries, sizeof(struct s_storage));
+	WFIFOSET(fd, size);
+}
+
+/**
+* Tells player if inventory/cart/storage is saved
+* IZ 0x388b <account_id>.L <result>.B <type>.B
+* @param fd
+* @param account_id
+* @param type
+*/
+void mapif_storage_saved(int fd, uint32 account_id, uint32 char_id, bool sucess, char type) {
+	WFIFOHEAD(fd, 8);
+	WFIFOW(fd, 0) = 0x388b;
+	WFIFOL(fd, 2) = account_id;
+	WFIFOB(fd, 6) = sucess;
+	WFIFOB(fd, 7) = type;
+	WFIFOSET(fd, 8);
+}
+
+/**
+* Requested inventory/cart/storage data for a player
+* ZI 0x308a <type>.B <account_id>.L <char_id>.L
+* @param fd
+*/
+bool mapif_parse_StorageLoad(int fd) {
+	uint32 aid, cid;
+	int type;
+	struct s_storage stor;
+	bool res = true;
+
+	RFIFOHEAD(fd);
+	type = RFIFOB(fd, 2);
+	aid = RFIFOL(fd, 3);
+	cid = RFIFOL(fd, 7);
+
+	memset(&stor, 0, sizeof(struct s_storage));
+
+	//ShowInfo("Loading storage for AID=%d.\n", aid);
+	switch (type)
+	{
+	case TABLE_INVENTORY:
+		res = inventory_fromtxt(cid, &stor);
+		break;
+	case TABLE_STORAGE:
+		res = storage_fromtxt(aid, &stor);
+		break;
+	case TABLE_CART:
+		res = cart_fromtxt(cid, &stor);
+		break;
+	default:
+		return false;
+	}
+
+	mapif_storage_data_loaded(fd, aid, type, stor, res);
+	return true;
+}
+
+/**
+* Asking to save player's inventory/cart/storage data
+* ZI 0x308b <size>.W <type>.B <account_id>.L <char_id>.L <entries>.?B
+* @param fd
+*/
+bool mapif_parse_StorageSave(int fd) {
+	int aid, cid, type;
+	struct s_storage stor;
+
+	RFIFOHEAD(fd);
+	type = RFIFOB(fd, 4);
+	aid = RFIFOL(fd, 5);
+	cid = RFIFOL(fd, 9);
+
+	memset(&stor, 0, sizeof(struct s_storage));
+	memcpy(&stor, RFIFOP(fd, 13), sizeof(struct s_storage));
+
+	//ShowInfo("Saving storage data for AID=%d.\n", aid);
+	switch (type){
+	case TABLE_INVENTORY:	inventory_totxt(cid, &stor); break;
+	case TABLE_STORAGE:		storage_totxt(aid, &stor); break;
+	case TABLE_CART:		cart_totxt(cid, &stor); break;
+	default: return false;
+	}
+	mapif_storage_saved(fd, aid, cid, true, type);
+	return false;
+}
+
+
+/*==========================================
+* Parse packet from map-server
+*------------------------------------------*/
 int inter_storage_parse_frommap(int fd)
 {
 	switch(RFIFOW(fd,0)){
 	case 0x3018: mapif_parse_LoadGuildStorage(fd); break;
 	case 0x3019: mapif_parse_SaveGuildStorage(fd); break;
+	case 0x308a: mapif_parse_StorageLoad(fd); break;
+	case 0x308b: mapif_parse_StorageSave(fd); break;
 	default:
 		return 0;
 	}
