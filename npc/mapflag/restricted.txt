@@ -119,6 +119,7 @@ umbala	mapflag	restricted	7
 veins	mapflag	restricted	7
 xmas	mapflag	restricted	7
 yuno	mapflag	restricted	7
+lasagna	mapflag	restricted	7
 
 // Restricted maps for WOE:TE Items ==
 teg_dun01	mapflag	restricted	8

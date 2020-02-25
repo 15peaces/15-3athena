@@ -48,3 +48,4 @@ louyang	mapflag	town
 hugel	mapflag	town
 rachel	mapflag	town
 veins	mapflag	town
+lasagna	mapflag	town

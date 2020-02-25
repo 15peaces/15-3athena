@@ -867,3 +867,11 @@ te_aldecas4	mapflag	nomemo
 te_aldecas5	mapflag	nomemo
 teg_dun01	mapflag	nomemo
 teg_dun02	mapflag	nomemo
+
+// Lasagna
+lasa_in01	mapflag	nomemo
+conch_in	mapflag	nomemo
+lasa_dun01	mapflag	nomemo
+lasa_dun02	mapflag	nomemo
+lasa_dun03	mapflag	nomemo
+lasa_dun_q	mapflag	nomemo

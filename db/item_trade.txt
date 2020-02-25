@@ -1492,6 +1492,33 @@
 18505,91,100 	// Umbala_Spirit
 18514,115,100	// Para_Team_Hat2
 18828,87,100	// 2012RMSCNO1
+19164,83,100	// Para_Team_Hat100
+19165,83,100	// Para_Team_Hat160
+//19169,1,100	//
+19189,91,100	// Racing_Cap_MC
+19190,91,100	// Racing_Cap_GN
+19191,91,100	// Racing_Cap_GC
+19192,91,100	// Racing_Cap_SC
+19193,91,100	// Racing_Cap_WL
+19194,91,100	// Racing_Cap_SO
+19195,91,100	// Racing_Cap_RK
+19196,91,100	// Racing_Cap_RG
+19197,91,100	// Racing_Cap_AB
+19198,91,100	// Racing_Cap_SR
+19199,91,100	// Racing_Cap_RA
+19200,91,100	// Racing_Cap_MI
+19201,91,100	// Racing_Cap_WA
+19202,91,100	// Racing_Cap_GS
+19203,91,100	// Racing_Cap_NJ
+19204,91,100	// Racing_Cap_SN
+19205,91,100	// Racing_Cap_SU
+//19256,91,100	//
+//19283,1,100	//
+//19284,1,100	//
+19396,91,100	// Racing_Cap_SG
+19397,91,100	// Racing_Cap_SL
+19507,1,100	// Fine_Sun
+19509,1,100	// Butterfly_Wing_Ear
 19999,59,100	// C_Mouse_Hat1
 20000,59,100	// C_Mouse_Hat2
 20001,59,100	// C_Mouse_Hat3

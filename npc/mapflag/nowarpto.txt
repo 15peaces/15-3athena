@@ -179,3 +179,11 @@ te_aldecas2	mapflag	nowarpto
 te_aldecas3	mapflag	nowarpto
 te_aldecas4	mapflag	nowarpto
 te_aldecas5	mapflag	nowarpto
+
+// Lasagna
+lasa_in01	mapflag	nowarpto
+conch_in	mapflag	nowarpto
+lasa_dun01	mapflag	nowarpto
+lasa_dun02	mapflag	nowarpto
+lasa_dun03	mapflag	nowarpto
+lasa_dun_q	mapflag	nowarpto

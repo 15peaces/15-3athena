@@ -291,3 +291,8 @@ bat_a02	mapflag	nopenalty
 
 // Poring War ==================
 poring_w02	mapflag	nopenalty
+
+// Lasagna
+lasagna	mapflag	nopenalty
+lasa_in01	mapflag	nopenalty
+conch_in	mapflag	nopenalty

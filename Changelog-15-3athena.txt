@@ -5,9 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/25/2020
+	r243 [15peaces]
+		*Added mapflags for Lasagna maps.
+			-NPCs will be added later...
+		*Some updates in item database.
+			-Added Racing Caps.
+			-Added some missing item combos.
+			-Moved some stable items to item_db.
+			-Re-Checked a huge number of items in item_db2. Really need to clean this database up...
+		*Updated the main.sql file to fix some errors while importing.
 
 01/22/2020
-	r241 [15peaces]
+	r242 [15peaces]
 		*Some fixes & updates to get back txt compilation support.
 			-Note: TXT mode is still broken. It will take some time to rewrite the whole inventory system on char servers side. But it's the only (and best) way to make the 
 			       char server compatible with the map server again.

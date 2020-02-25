@@ -685,7 +685,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	// initilialise character
 	memset(p, '\0', sizeof(struct mmo_charstatus));
 
-// Char structure of 15-3ahtnea version 242 (char-gender, hotkey_rowshift)
+// Char structure of 15-3athena version 242 (char-gender, hotkey_rowshift)
 	if (sscanf(str, "%d\t%d,%d\t%127[^\t]\t%d,%d,%d\t%u,%u,%d\t%d,%d,%d,%d\t%d,%d,%d,%d,%d,%d\t%d,%d"
 		"\t%d,%d,%d\t%d,%d,%d,%d\t%d,%d,%d\t%d,%d,%d,%d,%d,%d"
 		"\t%d,%d,%d\t%d,%d,%d,%d,%d,%d,%d,%d,%lu,%d,%d%n",
@@ -870,7 +870,7 @@ int mmo_char_fromstr(char *str, struct mmo_charstatus *p, struct global_reg *reg
 	}	// Char structure of version 1500 (homun + mapindex maps)
 	}	// Char structure of version 14700 (delete date)
 	}	// Char structure of version 14797 (robe)
-	}	// Char structure of 15 - 3ahtnea version 242 (char - gender, hotkey_rowshift)
+	}	// Char structure of 15-3athena version 242 (char - gender, hotkey_rowshift)
 
 	safestrncpy(p->name, tmp_str[0], NAME_LENGTH); //Overflow protection [Skotlex]
 	p->char_id = tmp_int[0];

@@ -477,3 +477,9 @@ te_aldecas2	mapflag	nobranch
 te_aldecas3	mapflag	nobranch
 te_aldecas4	mapflag	nobranch
 te_aldecas5	mapflag	nobranch
+
+// Lasagna
+lasagna	mapflag	nobranch
+lasa_in01	mapflag	nobranch
+conch_in	mapflag	nobranch
+lasa_dun_q	mapflag	nobranch
