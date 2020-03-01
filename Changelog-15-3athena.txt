@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/01/2020
+	r244 [15peaces]
+		*Fixed SG_FEEL dialog cancel.
+			-Fixes when you use SG_FEEL and click on the cancel button you will not be able to use skills anymore.
+
 02/25/2020
 	r243 [15peaces]
 		*Added mapflags for Lasagna maps.

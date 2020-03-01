@@ -12295,6 +12295,8 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	{
 		if( sd->menuskill_id == SA_TAMINGMONSTER )
 			sd->menuskill_id = sd->menuskill_val = 0; //Cancel pet capture.
+		else if( sd->menuskill_id == SG_FEEL )
+			sd->menuskill_id = sd->menuskill_val = 0; // Cancel selection
 		else if( sd->menuskill_id != SA_AUTOSPELL )
 			return; //Can't use skills while a menu is open.
 	}
@@ -12394,6 +12396,8 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	{
 		if( sd->menuskill_id == SA_TAMINGMONSTER )
 			sd->menuskill_id = sd->menuskill_val = 0; //Cancel pet capture.
+		else if( sd->menuskill_id == SG_FEEL )
+			sd->menuskill_id = sd->menuskill_val = 0; // Cancel selection
 		else if( sd->menuskill_id != SA_AUTOSPELL )
 			return; //Can't use skills while a menu is open.
 	}
