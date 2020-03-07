@@ -5,6 +5,10 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/07/2020
+	r244 [15peaces]
+		*Fixed an issue where the Old Glast Heim instance ignored it's cooldown time.
+
 03/01/2020
 	r244 [15peaces]
 		*Fixed SG_FEEL dialog cancel.
