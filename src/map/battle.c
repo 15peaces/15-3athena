@@ -1236,6 +1236,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
 	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
 	short job_lv = status_get_job_lv(src);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
+	int chorusbonus = 0;//Chorus bonus value for chorus skills. Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage wd;
@@ -1308,6 +1309,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		if ( job_lv > battle_config.job_level_skill_effect_limit )
 			job_lv = battle_config.job_level_skill_effect_limit;
 	}
+
+	// Minstrel/Wanderer number check for chorus skills.
+	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
+	if( sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 7)
+		chorusbonus = 5;//Maximum effect possiable from 7 or more Minstrel's/Wanderer's
+	else if( sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 2)
+		chorusbonus = party_foreachsamemap(party_sub_count_chorus, sd, 0) - 2;//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
 
 	if(sd)
 		wd.blewcount += battle_blewcount_bonus(sd, skill_num);
@@ -1663,6 +1671,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 					if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 						wd.damage = sd->inventory_data[index]->weight*8/100; //80% of weight
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						wd.damage += wd.damage * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 				} 
 				else
 					wd.damage = sstatus->rhw.atk2*8/10; //Else use Atk2
@@ -1671,8 +1681,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				i = sstatus->str/10;
 				i *= i;
 				ATK_ADD(i); // Add str bonus.
-				if (sc && sc->data[SC_GLOOMYDAY_SK] && skill_num == LK_SPIRALPIERCE)
-					ATK_ADDRATE(100 + 25 * (sc->data[SC_GLOOMYDAY_SK]->val1-1));
 				switch (tstatus->size) 
 				{ //Size-fix. Is this modified by weapon perfection?
 					case 0: //Small: 125%
@@ -1688,14 +1696,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case PA_SHIELDCHAIN:
 				wd.damage = sstatus->batk;
 				if (sd) {
+					int damagevalue = 0;
 					short index = sd->equip_index[EQI_HAND_L];
 
 					if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
-						ATK_ADD(sd->inventory_data[index]->weight/10);
+						damagevalue = sd->inventory_data[index]->weight/10;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						damagevalue += damagevalue * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
+					ATK_ADD(damagevalue);
 				} else
 					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
-				//	if( sc && sc->data[SC_GLOOMYDAY_SK] )
-				//		ATK_ADD(50 + 5 * sc->data[SC_GLOOMYDAY_SK]->val1);
 				break;
 			case HFLI_SBR44:	//[orn]
 				if(src->type == BL_HOM) {
@@ -1755,7 +1765,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				skillratio += sc->data[SC_OVERTHRUST]->val3;
 			if(sc->data[SC_MAXOVERTHRUST])
 				skillratio += sc->data[SC_MAXOVERTHRUST]->val2;
-			if(sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER])
+			if(sc->data[SC_BERSERK])
 				skillratio += 100;
 		}
 		if( !skill_num )
@@ -1813,8 +1823,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 50*skill_lv;
 					break;
 				case KN_BRANDISHSPEAR:
-					if( sc && sc->data[SC_GLOOMYDAY_SK] )
-						skillratio += 190 + 10 * sc->data[SC_GLOOMYDAY_SK]->val1;
 				case ML_BRANDISH:
 				{
 					int ratio = 100+20*skill_lv;
@@ -1825,6 +1833,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if(skill_lv>6 && wflag==2) skillratio += ratio/2;
 					if(skill_lv>9 && wflag==2) skillratio += ratio/4;
 					if(skill_lv>9 && wflag==3) skillratio += ratio/2;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += skillratio * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				}
 				case KN_BOWLINGBASH:
@@ -1887,10 +1897,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case CR_SHIELDCHARGE:
 					skillratio += 20*skill_lv;
 					if( sc && sc->data[SC_GLOOMYDAY_SK] )
-						skillratio += 190 + 10 * sc->data[SC_GLOOMYDAY_SK]->val1;
+						skillratio += skillratio * (15 + rand() % sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				case CR_SHIELDBOOMERANG:
 					skillratio += 30*skill_lv;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += skillratio * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				case NPC_DARKCROSS:
 				case CR_HOLYCROSS:
@@ -1972,6 +1984,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case PA_SHIELDCHAIN:
 					skillratio += 30*skill_lv;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += skillratio * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				case WS_CARTTERMINATION:
 					i = 10 * (16 - skill_lv);
@@ -2085,6 +2099,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 1000;
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * (200 + base_lv - 100) / 200;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += skillratio * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				case RK_WINDCUTTER:
 					skillratio += 50 * skill_lv;
@@ -2177,14 +2193,20 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RA_WUGDASH:
 					skillratio = 300;
+					if( sc && sc->data[SC_DANCE_WITH_WUG] )
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 					break;
 				case RA_WUGSTRIKE:
 					skillratio = 200 * skill_lv;
+					if (sc && sc->data[SC_DANCE_WITH_WUG])
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 					break;
 				case RA_WUGBITE:
 					skillratio += 300 + 200 * skill_lv;
 					if (skill_lv == 5)
 						skillratio += 100;
+					if (sc && sc->data[SC_DANCE_WITH_WUG])
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 					break;
 				case RA_SENSITIVEKEEN:
 					skillratio += 50 * skill_lv;
@@ -2290,6 +2312,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 250;
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * base_lv / 100;
+					if( sc && sc->data[SC_GLOOMYDAY_SK] )
+						skillratio += skillratio * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
 					break;
 				case LG_PINPOINTATTACK:
 					skillratio = 100 * skill_lv + 5 * sstatus->agi;
@@ -2498,6 +2522,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
  					break;
 				case WM_GREAT_ECHO:
 					skillratio += 300 + 200 * skill_lv;
+					if ( chorusbonus == 1 )//Chorus bonus dont count the first 2 Minstrel's/Wanderer's and only increases when their's 3 or more. [Rytech]
+					skillratio += 100;
+					else if ( chorusbonus == 2 )
+					skillratio += 200;
+					else if ( chorusbonus == 3 )
+					skillratio += 400;
+					else if ( chorusbonus == 4 )
+					skillratio += 800;
+					else if ( chorusbonus == 5 )
+					skillratio += 1600;
 
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * base_lv / 100;
@@ -2645,17 +2679,25 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_WUGDASH:
 					if (sd)
 						ATK_ADD(sd->weight / 8);//Dont need to divide weight here since official formula takes current weight * 10. [Rytech]
+					if( sc && sc->data[SC_DANCE_WITH_WUG] )
+						skillratio += 2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 				case RA_WUGSTRIKE:
 				case RA_WUGBITE:
 					if (sd)
 						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
+					if (sc && sc->data[SC_DANCE_WITH_WUG])
+						skillratio += 2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 					break;
 				case LG_SHIELDPRESS:
 					if( sd )
 					{
+						int damagevalue = 0;
 						short index = sd->equip_index[EQI_HAND_L];
 						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
-							ATK_ADD(sstatus->vit * sd->inventory.u.items_inventory[index].refine);
+						damagevalue = sstatus->vit * sd->inventory.u.items_inventory[index].refine;
+						if( sc && sc->data[SC_GLOOMYDAY_SK] )
+							damagevalue += damagevalue * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
+						ATK_ADD(damagevalue);
 					}
 					break;
 				//case LG_RAYOFGENESIS:
@@ -3083,9 +3125,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		
 		if( skill_num == CR_SHIELDBOOMERANG || skill_num == PA_SHIELDCHAIN )
 		{ //Refine bonus applies after cards and elements.
+			int damagevalue = 0;
 			short index= sd->equip_index[EQI_HAND_L];
 			if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
-				ATK_ADD(10*sd->inventory.u.items_inventory[index].refine);
+			damagevalue = 10 * sd->inventory.u.items_inventory[index].refine;
+			if( sc && sc->data[SC_GLOOMYDAY_SK] )
+				damagevalue += damagevalue * (15 + rand()%sc->data[SC_GLOOMYDAY_SK]->val3) / 100;
+			ATK_ADD(damagevalue);
 		}
 	} //if (sd)
 
@@ -4012,6 +4058,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
 	short base_lv = status_get_lv(src);//Checks the casters base level for renewal skills.
 	short job_lv = status_get_job_lv(src);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
+	int chorusbonus = 0;//Chorus bonus value for chorus skills. Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage md; //DO NOT CONFUSE with md of mob_data!
@@ -4042,6 +4089,14 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
+
+	// Minstrel/Wanderer number check for chorus skills.
+	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
+	if( sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 7)
+		chorusbonus = 5;//Maximum effect possiable from 7 or more Minstrel's/Wanderer's
+	else if( sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 2)
+		chorusbonus = party_foreachsamemap(party_sub_count_chorus, sd, 0) - 2;//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
+
 
 	//Some skill formula's checks base/job levels. This caps the number of
 	//levels taken into the different formulas to prevent overpowering skill effects.
@@ -4185,6 +4240,13 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		if (sd) md.damage = md.damage + status_get_hp(src);
 		status_set_sp(src, 0, 0);
  		break;
+	case WM_SOUND_OF_DESTRUCTION:
+		md.damage = 1000 * skill_lv + sstatus->int_ * pc_checkskill(sd,WM_LESSON);
+		md.damage += md.damage * ( 10 * chorusbonus ) / 100;
+		break;
+	//case WM_SATURDAY_NIGHT_FEVER://Test me in official if possiable.
+	//	md.damage = 9999;//To enable when I figure how it exactly applies the damage. For now clif damage will deal 9999 damage and display it. [Rytech]
+	//	break;
 	case GN_THORNS_TRAP:
 		md.damage = 100 + 200 * skill_lv + sstatus->int_;
 		break;

@@ -5,8 +5,138 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/08/2020
+	r246 [15peaces]
+		*Added the upgrade_15-3athena_svn246.sql file.
+			-Be sure to apply this update before running your server.
+		*Merged missing changes from 3ceam rev. 677
+		*Increased storage size of the counting columns in achievement tables to avoid overflows.
+		*Minstrel/Wanderer 2011 update has been applied.
+			-This updates bring the job a lot closer to official and improves performance due to the added system functions, some skill recoding, code optimizing, and other things found needed.
+			-Their's a few things that wernt touched to avoid risking breaking certain things and will be done on the 2nd or 3rd pass.
+			*Added 2 new system functions which are required for many Minstrel/Wanderer skills.
+				+party_sub_count_chorus is used to check the number of Minstrel's/Wanderer's in the party which is then used in a special check to create a value thats used by chorus skills to allow stronger skill effects and rates depending on the number in the
+				-party.
+				+status_fixed_revive is used resurrect players and recover a fixed amount of HP/SP. (Not a percentage like status_revive). This is used for the skill WM_DEADHILLHERE and could be used for other things in the future.
+			*Added a 3rd system function that is used for some Royal Guard skills.
+				+party_sub_count_banding is used to check the number of Royal Guards in the party. However the code is currently disabled since it wont be used until I update the skills that will use it. This will be used in the future for banding and other
+				-related things.
+			*Did a good bit of code cleanup.
+			*RA_CAMOUFLAGE
+				-CRIT is now doubled for the duration.
+				-This is partly official and will be updated later to add a variable that will make the crit go up every second.
+			*WA_SWING_DANCE
+				-Fixed a issue where the gold thief bug card would block this status.
+				-Walk speed and ASPD increase formula updated to official.
+			*WA_SYMPHONY_OF_LOVER
+				-MDEF increase formula updated to official.
+			*WA_MOONLIT_SERENADE
+				-No longer increases MATK by a percentage.
+				-Now increases MATK by a fixed amount.
+				-MATK increase formula updated to official.
+			*MI_RUSH_WINDMILL
+				-No longer increases ATK by a percentage.
+				-Now increases ATK by a fixed amount.
+				-ATK increase formula updated to official.
+			*MI_ECHOSONG
+				-Fixed a issue where the skill was giving VIT DEF instead of Equip DEF.
+				-DEF increase formula updated to official.
+			*WM_LESSON
+				-Amount of SP naturally recovered is now the same as Mages SP recovery.
+			*WM_METALICSOUND
+				-Updated SP drain formula to official.
+			*WM_REVERBERATION
+				-Fixed a issue where the skill damage would take the learned level of the skill instead of the casted level.
+			*WM_SEVERE_RAINSTORM
+				-Fixed a issue where the skill would deal 2 hits simultaneously on the first 2 or 3 seprate hits.
+				-Damage formula updated to official.
+			*WM_VOICEOFSIREN
+				-Updated success chance to official.
+			*WM_DEADHILLHERE
+				-Recoded the entire skill to official.
+				-Skill now drains a percentage of the dead player's SP before resurrecting.
+				-Skill level affects how much is drained before resurrecting.
+				-Once resurrected the player's remainning SP will be converted to HP.
+			*WM_LULLABY_DEEPSLEEP
+				-Added official success chance of inflecting the status.
+				-Deep sleep status duration is now officially reduced by your INT and base level.
+				-Status now recovers 3% of your MaxHP/MaxSP every 2 seconds.
+			*WM_SIRCLEOFNATURE
+				-No longer restricted to PvP areas.
+				-Now properly recovers the HP of party members.
+				-HP recovery and SP drain formula's are now official.
+			*WM_GLOOMYDAY
+				-SP requirements is now affected by skill level.
+				-Now properly gives a buff to players who learned one of the following skills....
+				-KN_BRANDISHSPEAR / CR_SHIELDCHARGE / CR_SHIELDBOOMERANG / LK_SPIRALPIERCE / PA_SHIELDCHAIN / RK_HUNDREDSPEAR / LG_SHIELDPRESS.
+				-The buff amplifies the damage for the above skills and how much the damage is amplified is randomized every time the player casts one of these skills.
+				-Players that dont know any of the above skills will instead receive a debuff.
+				-This skill can be used on yourself, allies, and enemys. So be careful how you use it.
+				-Updated Flee and ASPD reduction formula's to official.
+			=Chorus Type Skills
+				+The strength of the effect and the succes rate is now affected by the number of Minstrel's/Wanderer's in the party. The strength of the skills can be increased by up to 7 Minstrel's/Wanderer's and anything higher then that will not increase the
+				-strength and instead give out the effect of 7.
+				-Minstrel's and Wanderer's will be refered to as performers for the following notes below.
+			*WM_GREAT_ECHO
+				-Fixed a issue where the AoE would be placed where the caster is standing instead of the targeted area.
+				-Damage formula updated to official.
+				-The number of performers in the party now increases the damage.
+			*WM_SONG_OF_MANA
+				-Updated SP recovery formula to official.
+				-The amount of SP recovered is now further increase by the number of performers in the party.
+				-Recovery timers is now updated to recover every 5 seconds.
+			*WM_DANCE_WITH_WUG
+				-Now increases the damage of Ranger waug skills.
+				-Affected Ranger skills are RA_WUGDASH, RA_WUGSTRIKE, and RA_WUGBITE.
+				-ASPD and fixed cast time reduction formula updated to official.
+				-Ranger skill damage, ASPD increase, and fixed cast time reduction is now increased by the number of performers in the party.
+			*WM_SOUND_OF_DESTRUCTION
+				-Is now ground targeted.
+				-Skill now only works on enemys affected by Minstrel's/Wanderer's singing/chorus skills.
+				-Sucess rate updated.
+				-Now has a 100% unreduceable chance of stunning targets.
+				-The stun duration can be reduced by normal means.
+				-Now deals damage to enemy players affected by singing/chorus skills.
+				-Removes all singing/chorus status's from affected players.
+				-The damage is increased by the number of performers in the party.
+				-Now only usable in PvP and GvG (WoE) maps.
+			*WM_SATURDAY_NIGHT_FEVER
+				-Fixed a issue where the status would prevent players from using skills.
+				-Fixed a issue where the affected player's HP would be set to 100 when the status ended.
+				-Fixed a issue where the status would drain a percent of your current HP/SP instead of your MaxHP/MaxSP.
+				-Fixed a issue where the status would interfear with the berserk status.
+				-Status duration updated.
+				-Now only usable in PvP and GvG (WoE) maps.
+				-Success rate updated.
+				-Now applys both the status and deals 9999 damage when 8 or more enemy players are in the AoE.
+				-HP/SP drain, ATK increase, DEF reduction, and FLEE reduction formula's updated to official.
+			*WM_LERADS_DEW
+				-AoE size is now affected by skill level.
+				-No longer increases MaxHP by a percentage.
+				-Now increases MaxHP by a fixed amount.
+				-The MaxHP increase is further increased by the number of performers in the party.
+			*WM_MELODYOFSINK
+				-AoE size is now affected by skill level.
+				-Success rate updated.
+				-No longer increases MATK or lowers ATK.
+				-Now drains a percentage of SP every second.
+				-Now lowers affected players INT.
+				-The amount of SP drained and INT reduced can be increase by the number of performers in the party.
+			*WM_BEYOND_OF_WARCRY
+				-AoE size is now affected by skill level.
+				-Success rate updated.
+				-No longer increases ATK or lowers MATK.
+				-Now reduces affected enemy player's MaxHP by a percentage, but increases their STR and CRIT.
+				-The MaxHP reduction, STR and CRIT increases is further increased by the number of performers in the party.
+			*WM_UNLIMITED_HUMMING_VOICE
+				-Corrected a issue where it would affects enemy players instead of party members.
+				-AoE size is now affected by skill level.
+				-Cooldown is now affected by skill level.
+				-Status duration updated.
+				-The SP cost increase can be reduced by the number of performers in the party.
+
 03/07/2020
-	r244 [15peaces]
+	r245 [15peaces]
 		*Fixed an issue where the Old Glast Heim instance ignored it's cooldown time.
 
 03/01/2020
