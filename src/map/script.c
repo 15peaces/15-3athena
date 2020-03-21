@@ -5761,6 +5761,109 @@ BUILDIN_FUNC(checkweight) {
 	return 0;
 }
 
+BUILDIN_FUNC(checkweight2)
+{
+	//variable sub checkweight
+	unsigned short nameid, amount;
+	int i = 0, slots = 0, weight = 0;
+	short fail = 0;
+	unsigned short amount2 = 0;
+
+	//variable for array parsing
+	struct script_data* data_it;
+	struct script_data* data_nb;
+	const char* name_it;
+	const char* name_nb;
+	int32 id_it, id_nb;
+	int32 idx_it, idx_nb;
+	int nb_it, nb_nb; //array size
+
+	TBL_PC *sd;
+
+	if ((sd = script_rid2sd(st)) == NULL)
+		return 0;
+
+	data_it = script_getdata(st, 2);
+	data_nb = script_getdata(st, 3);
+
+	if (!data_isreference(data_it) || !data_isreference(data_nb)) {
+		ShowError("buildin_checkweight2: parameter not a variable\n");
+		script_pushint(st, 0);
+		return 1;// not a variable
+	}
+
+	id_it = reference_getid(data_it);
+	id_nb = reference_getid(data_nb);
+	idx_it = reference_getindex(data_it);
+	idx_nb = reference_getindex(data_nb);
+	name_it = reference_getname(data_it);
+	name_nb = reference_getname(data_nb);
+
+	if (is_string_variable(name_it) || is_string_variable(name_nb)) {
+		ShowError("buildin_checkweight2: illegal type, need int\n");
+		script_pushint(st, 0);
+		return 1;// not supported
+	}
+
+	nb_it = getarraysize(st, id_it, idx_it, 0, reference_getref(data_it));
+	nb_nb = getarraysize(st, id_nb, idx_nb, 0, reference_getref(data_nb));
+	if (nb_it != nb_nb) {
+		ShowError("buildin_checkweight2: Size mistmatch: nb_it=%d, nb_nb=%d\n", nb_it, nb_nb);
+		fail = 1;
+	}
+
+	slots = pc_inventoryblank(sd);
+	for (i = 0; i<nb_it; i++) {
+		nameid = (unsigned short)__64BPRTSIZE(get_val2(st, reference_uid(id_it, idx_it + i), reference_getref(data_it)));
+		script_removetop(st, -1, 0);
+		amount = (unsigned short)__64BPRTSIZE(get_val2(st, reference_uid(id_nb, idx_nb + i), reference_getref(data_nb)));
+		script_removetop(st, -1, 0);
+
+		if (fail)
+			continue; //cpntonie to depop rest
+
+		if (itemdb_exists(nameid) == NULL) {
+			ShowError("buildin_checkweight2: Invalid item '%d'.\n", nameid);
+			fail = 1;
+			continue;
+		}
+		if (amount < 0) {
+			ShowError("buildin_checkweight2: Invalid amount '%d'.\n", amount);
+			fail = 1;
+			continue;
+		}
+
+		weight += itemdb_weight(nameid)*amount;
+		if (weight + sd->weight > sd->max_weight) {
+			fail = 1;
+			continue;
+		}
+		switch (pc_checkadditem(sd, nameid, amount)) {
+		case ADDITEM_EXIST:
+			// item is already in inventory, but there is still space for the requested amount
+			break;
+		case ADDITEM_NEW:
+			if (itemdb_isstackable(nameid)) {// stackable
+				amount2++;
+				if (slots < amount2)
+					fail = 1;
+			}
+			else {// non-stackable
+				amount2 += amount;
+				if (slots < amount2) {
+					fail = 1;
+				}
+			}
+			break;
+		case ADDITEM_OVERAMOUNT:
+			fail = 1;
+		} //end switch
+	} //end loop DO NOT break it prematurly we need to depop all stack
+
+	fail ? script_pushint(st, 0) : script_pushint(st, 1);
+	return 0;
+}
+
 /*==========================================
  * getitem <item id>,<amount>{,<account ID>};
  * getitem "<item name>",<amount>{,<account ID>};

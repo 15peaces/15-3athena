@@ -3383,6 +3383,7 @@ aren't. You can also pass the char_id to check for both account and char id.
 
 *checkweight(<item id>,<amount>)
 *checkweight("<item name>",<amount>)
+*checkweight2(<id_array>, <amount_array>)
 
 This function will compute and return 1 if the total weight of a specified 
 number of specific items does not exceed the invoking character's carrying 
@@ -3390,9 +3391,13 @@ capacity, and 0 otherwise. It is important to see if a player can carry the
 items you expect to give them, failing to do that may open your script up to 
 abuse or create some very unfair errors.
 
+The second function will check an array of items and amounts, and also
+returns 1 on success and 0 on failure.
+
 This function, in addition to checking to see if the player is capable of
 holding a set amount of items, also ensures the player has room in their
 inventory for the item(s) they will be receiving.
+
 
 Like 'getitem', this function will also accept an 'english name' from the 
 database as an argument.

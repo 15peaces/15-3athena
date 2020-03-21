@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/21/2020
+	r247 [15peaces]
+		*Merged missing changes from 3ceam rev. 678
+		*Chorus Type Skills
+			-Fixed a issue where monsters and clones would cause the server to crash when attempting to use these skills.
+			-This also fixes an critical start-up crash.
+			-Please update ASAP!
+		*SO_STRIKING
+			-Fixed a issue where using the skill on a non-player character would crash the server.
+		*Added checkweight2 script command.
+			-It's the same as checkweight but for arrays.
+
 03/08/2020
 	r246 [15peaces]
 		*Added the upgrade_15-3athena_svn246.sql file.
