@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/02/2020
+	r248 [15peaces]
+		*Removed some unneeded code.
+		*Some updates to item-db.
+			-Added some new cards and drops to database.
+			-Added missing Skull Cap [1] item combos.
+		*Added packet lenghts for packets 0x0900 - 0x0906
+			-This should fix some unknown packet DCs related to 2011 and newer clients.
+
 03/21/2020
 	r247 [15peaces]
 		*Merged missing changes from 3ceam rev. 678

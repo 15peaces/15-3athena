@@ -869,7 +869,7 @@
 1612,Arc_Wand__,Arc Wand,4,45000,,400,60,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bInt,3; bonus bMatkRate,15; },{},{}
 1613,Mighty_Staff,Mighty Staff,4,20,,700,130,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bStr,10; bonus bMatkRate,15; bonus bSPDrainValue,-2; },{},{}
 1614,Blessed_Wand,Wand of Occult,4,20,,700,75,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bInt,3; bonus bMatkRate,15; },{},{}
-1615,Bone_Wand,Evil Bone Wand,4,20,,700,40,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bInt,4; bonus bAtkEle,Ele_Undead; bonus bMatkRate,15; },{},{}
+1615,Bone_Wand,Evil Bone Wand,4,20,,700,40,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bInt,4; bonus bAtkEle,Ele_Undead; bonus bMatkRate,15; if(isequipped(18539)){ bonus bMatk,10*getequiprefinerycnt(EQI_HAND_R); bonus bCastRate,-10; } },{},{}
 1616,Staff_Of_Wing,Wing Staff,4,20,,500,60,,1,0,0x00810204,7,2,2,4,40,1,10,{ bonus bMatkRate,15; bonus bCastrate,-5; },{},{}
 1617,Survival_Rod,Survivor's Rod,4,85000,,1000,50,,1,0,0x00818314,7,2,2,3,24,1,10,{ bonus bDex,2; bonus bMatkRate,15; bonus bMaxHP,300; },{},{}
 1618,Survival_Rod_,Survivor's Rod,4,85000,,1000,50,,1,1,0x00818314,7,2,2,3,24,1,10,{ bonus bDex,3; bonus bMatkRate,15; bonus bMaxHP,400; },{},{}
@@ -890,7 +890,7 @@
 1633,BF_Staff2,Warlock's Battle Wand,4,20,,0,70,,1,0,0x00818314,7,2,2,3,80,1,10,{ bonus bInt,3; bonus bDex,3; bonus bMatkRate,15; bonus2 bMagicAddRace,RC_DemiHuman,15; bonus3 bAddEff,Eff_Stun,500,ATF_SKILL; bonus bUnbreakableWeapon,0; },{},{}
 1634,BF_Staff3,Strong Recovery Wand,4,20,,0,70,,1,0,0x00818314,7,2,2,3,80,1,10,{ bonus bMatkRate,15; bonus bHealPower,14; bonus2 bSPRegenRate,5,10000; bonus bUnbreakableWeapon,0; },{},{}
 1635,BF_Staff4,Speedy Recovery Wand,4,20,,0,70,,1,0,0x00818314,7,2,2,3,80,1,10,{ bonus bInt,3; bonus bDex,2; bonus bMatkRate,15; bonus bDelayRate,-15; bonus2 bSPRegenRate,5,10000; bonus bUnbreakableWeapon,0; },{},{}
-1636,Thorn_Staff,Thorn Staff of Darkness,4,20,,700,60,,1,0,0x00018314,2,2,2,4,75,1,10,{ bonus bInt,3; bonus bDex,3; bonus bMatkRate,20; bonus bIgnoreMdefRate,getrefine(); bonus bDelayRate,-(getrefine()*3/2); },{},{}
+1636,Thorn_Staff,Thorn Staff of Darkness,4,20,,700,60,,1,0,0x00018314,2,2,2,4,75,1,10,{ bonus bInt,3; bonus bDex,3; bonus bMatkRate,20; bonus bIgnoreMdefRate,getrefine(); bonus bDelayRate,-(getrefine()*3/2); if(isequipped(18539)){ bonus bMatk,10*getequiprefinerycnt(EQI_HAND_R); bonus bCastRate,-10; } },{},{}
 1637,Eraser,Eraser,4,20,,500,80,,1,0,0x00018314,2,2,2,4,70,1,10,{ bonus bMatkRate,20; bonus bInt,3; bonus bDex,2; bonus bSPrecovRate,8; if( getrefine() > 9 ) bonus5 bAutoSpell,"NPC_WIDESOULDRAIN",3,5,BF_MAGIC,0; else bonus5 bAutoSpell,"NPC_WIDESOULDRAIN",1,5,BF_MAGIC,0; },{},{}
 1638,Healing_Staff_C,Staff Of Healing,4,20,,0,10,,1,0,0x00008110,7,2,2,3,1,0,10,{ bonus bAtkEle,Ele_Holy; bonus bMatkRate,15; bonus bHealPower,(getrefine()*3/2); },{},{}
 1639,N_Rod,Novice Rod,4,0,,0,15,,1,3,0x00818315,7,2,2,1,1,0,10,{ bonus bMatkRate,16; },{},{}
@@ -1277,7 +1277,7 @@
 2283,Ear_Mufs,Ear Muffs,5,20,,200,,3,,0,0xFFFFFFFF,7,2,256,,0,1,70,{ bonus2 bResEff,Eff_Curse,1000; },{},{}
 2284,Antler,Antlers,5,20,,500,,4,,0,0xFFFFFFFE,7,2,256,,0,1,71,{},{},{}
 2285,Apple_Of_Archer,Apple of Archer,5,20,,200,,0,,0,0xFFFFFFFE,7,2,256,,30,1,72,{ bonus bDex,3; },{},{}
-2286,Elven_Ears,Elven Ears,5,20,,100,,0,,0,0xFFFFFFFE,7,2,512,,70,0,73,{},{},{}
+2286,Elven_Ears,Elven Ears,5,20,,100,,0,,0,0xFFFFFFFE,7,2,512,,70,0,73,{if(isequipped(18539)){ bonus bUseSPrate,-3; }},{},{}
 2287,Pirate_Bandana,Pirate Bandana,5,20,,100,,3,,0,0xFFFFFFFE,7,2,256,,0,1,74,{ bonus bStr,1; },{},{}
 2288,Mr_Scream,Mr. Scream,5,20,,100,,1,,0,0xFFFFFFFE,7,2,513,,0,0,75,{},{},{}
 2289,Poo_Poo_Hat,Poo Poo Hat,5,20,,700,,0,,0,0xFFFFFFFF,7,2,256,,0,0,76,{ bonus2 bSubRace,RC_DemiHuman,10; },{},{}
@@ -7153,7 +7153,7 @@
 18503,Small_Horn_Of_Devil,Small Devil Horns,5,20,,100,,2,,0,0xFFFFFFFF,63,2,512,,1,0,562,{ bonus bAtkRate,5; bonus bMatkRate,5; bonus bMaxHPrate,10; bonus bMaxSPrate,10; },{},{}
 18505,Umbala_Spirit,Umbala Spirit,5,0,,200,,1,,1,0xFFFFFFFF,7,2,1,,30,0,675,{ bonus bVit,1; },{},{}
 18506,Hattah_Black,Hattah Black,5,12000,,4000,,2,,1,0xFFFFFFFF,7,2,769,,1,1,676,{},{},{}
-18507,Elven_Ears_,Elven Ears,5,20,,100,,0,,1,0xFFFFFFFE,7,2,512,,70,0,73,{},{},{}
+18507,Elven_Ears_,Elven Ears,5,20,,100,,0,,1,0xFFFFFFFE,7,2,512,,70,0,73,{if(isequipped(18539)){ bonus bUseSPrate,-3; }},{},{}
 //18508,Garuda_Hat,
 //18509,RWC2010_Indonesia,
 //18510,Blood_Angel_Hair_Band,

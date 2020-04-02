@@ -159,12 +159,6 @@ struct script_regstr {
 	char* data;
 };
 
-struct script_array {
-	unsigned int id;       ///< the first 32b of the 64b uid, aka the id
-	unsigned int size;     ///< how many members
-	unsigned int *members; ///< member list
-};
-
 enum script_parse_options {
 	SCRIPT_USE_LABEL_DB = 0x1,// records labels in scriptlabel_db
 	SCRIPT_IGNORE_EXTERNAL_BRACKETS = 0x2,// ignores the check for {} brackets around the script
