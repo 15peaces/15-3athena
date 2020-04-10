@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/10/2020
+	r249 [15peaces]
+		*Merged missing changes from 3ceam rev. 679
+		*Added missing checkweight2 command define.
+			-follow up @48f526e (r247).
+		*Added some more new cards and drops to database.
+		*Some fixes related to statpoint calculations.
+		*Added support for breakequip script command.
+		*WA_SWING_DANCE; WA_SYMPHONY_OF_LOVER; WA_MOONLIT_SERENADE; MI_RUSH_WINDMILL; MI_ECHOSONG
+			-Fixed a issue where the skill animation wouldnt appear on the caster when casted while not in a party.
+		*MI_RUSH_WINDMILL; WM_SATURDAY_NIGHT_FEVER
+			-Fixed a issue where the ATK bonus was being added as Base ATK instead of Weapon ATK.
+			-Anything adding a fixed amount of ATK is supposed to be added as Weapon ATK.
+		*MI_HARMONIZE
+			-Recoded the stat increase formula to be more balanced and feel more official like.
+			-The formula thats been in here for a long time was never official and well never know the official formula is since its effect changed on official server's. Gravity changed the effect due to it being overpowered. So the best that can be done here is
+			-to balance it.
+		*WM_VOICEOFSIREN; WM_LULLABY_DEEPSLEEP; WM_MELODYOFSINK; WM_BEYOND_OF_WARCRY
+			-Changed the success formula's to affect the success chance of casting the skills.
+			-It appears according to how the info sounded that it affects the chance of successful casting and not the chance of inflecting the status.
+		*All Minstrel/Wanderer Status Inflecting Skills
+			-Skill status's have been updated to be properly grouped in 2 different groups.
+			-All sex exclusive skill status's are now grouped in Group A.
+			-Other skill status's including the chorus type are now grouped in Group B.
+
 04/02/2020
 	r248 [15peaces]
 		*Removed some unneeded code.

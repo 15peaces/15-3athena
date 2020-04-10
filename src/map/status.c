@@ -528,7 +528,7 @@ void initChangeTables(void)
 	set_sc( WA_SWING_DANCE				, SC_SWING					, SI_SWING					, SCB_SPEED|SCB_ASPD );
 	set_sc( WA_SYMPHONY_OF_LOVER		, SC_SYMPHONY_LOVE			, SI_SYMPHONY_LOVE			, SCB_MDEF );
 	set_sc( WA_MOONLIT_SERENADE			, SC_MOONLIT_SERENADE		, SI_MOONLIT_SERENADE		, SCB_MATK );
-	set_sc( MI_RUSH_WINDMILL			, SC_RUSH_WINDMILL			, SI_RUSH_WINDMILL			, SCB_BATK );
+	set_sc(MI_RUSH_WINDMILL			, SC_RUSH_WINDMILL			, SI_RUSH_WINDMILL			, SCB_WATK );
 	set_sc( MI_ECHOSONG					, SC_ECHOSONG				, SI_ECHOSONG				, SCB_DEF );
 	set_sc( MI_HARMONIZE				, SC_HARMONIZE				, SI_HARMONIZE				, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
 	set_sc( WM_POEMOFNETHERWORLD		, SC_STOP					, SI_NETHERWORLD			, SCB_NONE );
@@ -538,7 +538,7 @@ void initChangeTables(void)
 	set_sc( WM_GLOOMYDAY				, SC_GLOOMYDAY				, SI_GLOOMYDAY				, SCB_FLEE|SCB_ASPD );
 	set_sc( WM_SONG_OF_MANA				, SC_SONG_OF_MANA			, SI_SONG_OF_MANA			, SCB_NONE );
 	set_sc( WM_DANCE_WITH_WUG			, SC_DANCE_WITH_WUG			, SI_DANCE_WITH_WUG			, SCB_ASPD );
-	set_sc( WM_SATURDAY_NIGHT_FEVER		, SC_SATURDAY_NIGHT_FEVER	, SI_SATURDAY_NIGHT_FEVER	, SCB_BATK | SCB_FLEE | SCB_DEF | SCB_REGEN);
+	set_sc( WM_SATURDAY_NIGHT_FEVER		, SC_SATURDAY_NIGHT_FEVER	, SI_SATURDAY_NIGHT_FEVER	, SCB_WATK | SCB_FLEE | SCB_DEF | SCB_REGEN );
 	set_sc( WM_LERADS_DEW				, SC_LERADS_DEW				, SI_LERADS_DEW				, SCB_MAXHP );
 	set_sc( WM_MELODYOFSINK				, SC_MELODYOFSINK			, SI_MELODYOFSINK			, SCB_INT );
 	set_sc(WM_BEYOND_OF_WARCRY			, SC_BEYOND_OF_WARCRY		, SI_BEYOND_OF_WARCRY		, SCB_STR | SCB_CRI | SCB_MAXHP);
@@ -4038,7 +4038,7 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 	if(sc->data[SC_GIANTGROWTH])
 		str += 30;
 	if(sc->data[SC_HARMONIZE])
-		str += sc->data[SC_HARMONIZE]->val2;
+		str += sc->data[SC_HARMONIZE]->val3;
 	if (sc->data[SC_BEYOND_OF_WARCRY])
 		str += sc->data[SC_BEYOND_OF_WARCRY]->val3;
 	if(sc->data[SC_SAVAGE_STEAK])
@@ -4093,7 +4093,7 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 	if(sc->data[SC_ADORAMUS])
 		agi -= sc->data[SC_ADORAMUS]->val2;
 	if(sc->data[SC_HARMONIZE])
-		agi += sc->data[SC_HARMONIZE]->val2;
+		agi += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_DROCERA_HERB_STEAMED])
 		agi += sc->data[SC_DROCERA_HERB_STEAMED]->val1;
 	if(sc->data[SC_INSPIRATION])
@@ -4136,7 +4136,7 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && vit < 50)
 		vit = 50;
 	if(sc->data[SC_HARMONIZE])
-		vit += sc->data[SC_HARMONIZE]->val2;
+		vit += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_MINOR_BBQ])
 		vit += sc->data[SC_MINOR_BBQ]->val1;
 	if(sc->data[SC_INSPIRATION])
@@ -4191,7 +4191,7 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 	if(sc->data[SC__STRIPACCESSARY])
 		int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
-		int_ += sc->data[SC_HARMONIZE]->val2;
+		int_ += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_MELODYOFSINK])
 		int_ -= sc->data[SC_MELODYOFSINK]->val3;
 	if(sc->data[SC_COCKTAIL_WARG_BLOOD])
@@ -4251,7 +4251,7 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 	if(sc->data[SC__STRIPACCESSARY])
 		dex -= dex * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
-		dex += sc->data[SC_HARMONIZE]->val2;
+		dex += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_SIROMA_ICE_TEA])
 		dex += sc->data[SC_SIROMA_ICE_TEA]->val1;
 	if(sc->data[SC_INSPIRATION])
@@ -4298,7 +4298,7 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 	if(sc->data[SC__STRIPACCESSARY])
 		luk -= luk * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_HARMONIZE])
-		luk += sc->data[SC_HARMONIZE]->val2;
+		luk += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_PUTTI_TAILS_NOODLES])
 		luk += sc->data[SC_PUTTI_TAILS_NOODLES]->val1;
 	if(sc->data[SC_INSPIRATION])
@@ -4351,10 +4351,6 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
 	if(sc->data[SC__BLOODYLUST])
 		batk += batk * 32 / 100;
-	if(sc->data[SC_RUSH_WINDMILL])
-		batk += sc->data[SC_RUSH_WINDMILL]->val3;
-	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
-		batk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 		batk += batk * sc->data[SC_GENTLETOUCH_CHANGE]->val3 / 100;
 	if(sc->data[SC_FULL_SWING_K])
@@ -4418,6 +4414,10 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if(sc->data[SC_INSPIRATION])
 		watk += sc->data[SC_INSPIRATION]->val2;
+	if (sc->data[SC_RUSH_WINDMILL])
+		watk += sc->data[SC_RUSH_WINDMILL]->val3;
+	if (sc->data[SC_SATURDAY_NIGHT_FEVER])
+		watk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if( sc->data[SC_HEATER_OPTION] )
@@ -6677,15 +6677,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	case SC_FIGHTINGSPIRIT:
 		status_change_end(bl, type, INVALID_TIMER); // Remove previous one.
 		break;
+	//Group A Status
 	case SC_SWING:
 	case SC_SYMPHONY_LOVE:
 	case SC_MOONLIT_SERENADE:
 	case SC_RUSH_WINDMILL:
 	case SC_ECHOSONG:
 	case SC_HARMONIZE:
-	case SC_SIREN:
-	case SC_DEEPSLEEP:
-	case SC_SIRCLEOFNATURE:
 		if (sc->data[type]) // Don't remove same sc.
 			break;
 		status_change_end(bl, SC_SWING, INVALID_TIMER);
@@ -6694,19 +6692,25 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_RUSH_WINDMILL, INVALID_TIMER);
 		status_change_end(bl, SC_ECHOSONG, INVALID_TIMER);
 		status_change_end(bl, SC_HARMONIZE, INVALID_TIMER);
-		status_change_end(bl, SC_SIREN, INVALID_TIMER);
-		status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
-		status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
-		if (type != MI_HARMONIZE) // Harmonize isn't stackable with other 3rd class dances and Chorus skills.
-			break;
+	//Group B Status
+	case SC_SIREN:
+	case SC_DEEPSLEEP:
+	case SC_SIRCLEOFNATURE:
+	case SC_GLOOMYDAY:
+	case SC_GLOOMYDAY_SK:
 	case SC_SONG_OF_MANA:
 	case SC_DANCE_WITH_WUG:
 	case SC_LERADS_DEW:
 	case SC_MELODYOFSINK:
 	case SC_BEYOND_OF_WARCRY:
 	case SC_UNLIMITED_HUMMING_VOICE:
-		if (sc->data[type]) // Don't remove same sc.
+		if( sc->data[type] )// Don't remove same sc.
 			break;
+		status_change_end(bl, SC_SIREN, INVALID_TIMER);
+		status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+		status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
+		status_change_end(bl, SC_GLOOMYDAY, INVALID_TIMER);
+		status_change_end(bl, SC_GLOOMYDAY_SK, INVALID_TIMER);
 		status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
 		status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
 		status_change_end(bl, SC_LERADS_DEW, INVALID_TIMER);
@@ -7921,8 +7925,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			else
 			val3 = 6 * val1 + val2 + 12;
 			break;		
-		case SC_HARMONIZE://Make a experimental code soon.
-			val2 = 3 + 2 * val1;
+		case SC_HARMONIZE:
+			val3 = val1 + val2 / 2;
 			break;
 		case SC_SIREN:
 			val4 = tick / 2000;

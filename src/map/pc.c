@@ -5987,30 +5987,73 @@ int pc_gets_status_point(int level)
 		return ((level+15) / 5);
 }
 
+int pc_status_point_cost(int low)
+{
+	int sp;
+
+	if (battle_config.renewal_statpoints && low >= 100)
+	{
+		sp = (16 + 4 * ((low - 100) / 5));
+	}
+	else
+	{
+		sp = (2 + (low - 1) / 10);
+	}
+	return sp;
+}
+
 /// Returns the number of stat points needed to change the specified stat by val.
 /// If val is negative, returns the number of stat points that would be needed to
 /// raise the specified stat from (current value - val) to current value.
 int pc_need_status_point(struct map_session_data* sd, int type, int val)
 {
-	int low, high, sp = 0;
+	int low, high, sp = 0, max = 0;
 
 	if ( val == 0 )
 		return 0;
 
 	low = pc_getstat(sd,type);
+	max = pc_maxparameter(sd);
+
+	if (low >= max && val > 0)
+		return 0; // Official servers show '0' when max is reached
+
 	high = low + val;
 
 	if ( val < 0 )
 		swap(low, high);
 
-	for ( ; low < high; low++ ){
-		if( battle_config.renewal_statpoints )
-			sp += (low < 100) ? (2 + (low - 1) / 10) : (16 + 4 * ((low - 100) / 5)); // Renewal machanic.
-		else
-			sp += ( 1 + (low + 9) / 10 ); // classic
-	}
+	for (; low < high; low++)
+		sp += pc_status_point_cost(low);
 
 	return sp;
+}
+
+/**
+* Returns the value the specified stat can be increased by with the current
+* amount of available status points for the current character's class.
+*
+* @param sd   The target character.
+* @param type Stat to verify.
+* @return Maximum value the stat could grow by.
+*/
+int pc_maxparameterincrease(struct map_session_data* sd, int type)
+{
+	int base, final_val, status_points, max_param;
+
+	nullpo_ret(sd);
+
+	base = final_val = pc_getstat(sd, type);
+	status_points = sd->status.status_point;
+	max_param = pc_maxparameter(sd);
+
+	while (final_val <= max_param && status_points >= 0) {
+		status_points -= pc_status_point_cost(final_val);
+		final_val++;
+	}
+	final_val--;
+
+	return (final_val > base ? final_val - base : 0);
 }
 
 /**
@@ -6039,7 +6082,7 @@ bool pc_statusup(struct map_session_data* sd, int type, int increase)
 
 	// check limits
 	current = pc_getstat(sd, type);
-	max_increase = pc_maxparameter(sd);
+	max_increase = pc_maxparameterincrease(sd, type);
 	increase = cap_value(increase, 0, max_increase); // cap to the maximum status points available
 	if (increase <= 0 || current + increase > pc_maxparameter(sd)) {
 		clif_statusupack(sd, type, 0, 0);

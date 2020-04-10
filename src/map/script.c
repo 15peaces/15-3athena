@@ -7617,6 +7617,34 @@ BUILDIN_FUNC(delequip) {
 	return 0;
 }
 
+/**
+* Break the item equipped at pos.
+* breakequip <equipment slot>{,<char_id>};
+**/
+BUILDIN_FUNC(breakequip) {
+	short i = -1;
+	int pos;
+	TBL_PC *sd;
+
+	pos = script_getnum(st, 2);
+	if (!script_charid2sd(3, sd))
+		return 1;
+
+	if (equip_index_check(pos))
+		i = pc_checkequip(sd, equip[pos-1]);
+	if (i >= 0) {
+		sd->inventory.u.items_inventory[i].attribute = 1;
+		pc_unequipitem(sd, i, 3);
+		clif_equiplist(sd);
+		script_pushint(st, 1);
+		return 0;
+	}
+
+	ShowError("buildin_breakequip: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, 0);
+	return 1;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -19703,6 +19731,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(countitem,"storagecountitem2","viiiiiii?"),
 	BUILDIN_DEF2(countitem,"cartcountitem2","viiiiiii?"),
 	BUILDIN_DEF(checkweight,"vi"),
+	BUILDIN_DEF(checkweight2, "rr"),
 	BUILDIN_DEF(readparam,"i?"),
 	BUILDIN_DEF(getcharid,"i?"),
 	BUILDIN_DEF(getnpcid,"i?"),
@@ -19739,6 +19768,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(failedrefitem,"i"),
 	BUILDIN_DEF(downrefitem,"i?"),
 	BUILDIN_DEF(delequip,"i?"),
+	BUILDIN_DEF(breakequip, "i?"),
 	BUILDIN_DEF(statusup,"i"),
 	BUILDIN_DEF(statusup2,"ii"),
 	BUILDIN_DEF(bonus,"iv"),
