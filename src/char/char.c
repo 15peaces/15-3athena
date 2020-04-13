@@ -2835,10 +2835,10 @@ int char_parse_Registry(int account_id, int char_id, unsigned char *buf, int buf
 	if(i >= char_num) //Character not found?
 		return 1;
 	for(j=0,p=0;j<GLOBAL_REG_NUM && p<buf_len;j++){
-		sscanf((char*)WBUFP(buf,p), "%31c%n",char_dat[i].global[j].str,&len);
+		sscanf((char*)WBUFP(buf, p), "%31s%n", char_dat[i].global[j].str, &len);
 		char_dat[i].global[j].str[len]='\0';
 		p +=len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)WBUFP(buf,p), "%255c%n",char_dat[i].global[j].value,&len);
+		sscanf((char*)WBUFP(buf, p), "%255s%n", char_dat[i].global[j].value, &len);
 		char_dat[i].global[j].value[len]='\0';
 		p +=len+1;
 	}

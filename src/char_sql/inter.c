@@ -621,10 +621,10 @@ int mapif_parse_Registry(int fd)
 		return 1;
 	}
 	for(j=0,p=13;j<max && p<RFIFOW(fd,2);j++){
-		sscanf((char*)RFIFOP(fd,p), "%31c%n",reg->reg[j].str,&len);
+		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg->reg[j].str, &len);
 		reg->reg[j].str[len]='\0';
 		p +=len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)RFIFOP(fd,p), "%255c%n",reg->reg[j].value,&len);
+		sscanf((char*)RFIFOP(fd, p), "%255s%n", reg->reg[j].value, &len);
 		reg->reg[j].value[len]='\0';
 		p +=len+1;
 	}

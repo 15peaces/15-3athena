@@ -223,11 +223,7 @@ static void          block_free(struct block* p);
 static size_t        memmgr_usage_bytes;
 
 #define memmgr_assert(v) do { if(!(v)) { ShowError("Memory manager: assertion '" #v "' failed!\n"); } } while(0)
-
-static inline struct unit_head* block2unit(struct block* p, unsigned short n)
-{
-	return (struct unit_head*)(&p->data[p->unit_size*n]);
-}
+#define block2unit(p, n) ((struct unit_head*)(&(p)->data[ p->unit_size * (n) ]))
 
 static inline void memmgr_usage_increase(size_t delta)
 {

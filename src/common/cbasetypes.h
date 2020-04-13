@@ -208,7 +208,9 @@ typedef uintptr_t uintptr;
 #define strcasecmp			stricmp
 #define strncasecmp			strnicmp
 #define strncmpi			strnicmp
+#if defined(_MSC_VER) && _MSC_VER < 1900
 #define snprintf			_snprintf
+#endif
 #if defined(_MSC_VER) && _MSC_VER < 1400
 #define vsnprintf			_vsnprintf
 #endif
@@ -221,12 +223,13 @@ typedef uintptr_t uintptr;
 #if defined(_MSC_VER) && _MSC_VER > 1200
 #define strtoull	_strtoui64
 #define strtoll     _strtoi64
-
 #endif
 
 // keyword replacement in windows
 #ifdef _MSC_VER
 #define inline __inline
+#define forceinline __forceinline
+#define ra_align(n) __declspec(align(n))
 #endif
 
 /////////////////////////////
@@ -234,14 +237,26 @@ typedef uintptr_t uintptr;
 #ifndef __cplusplus
 //////////////////////////////
 
-// boolean types for C
-typedef char bool;
-#define false	((bool)(1==0))
-#define true	((bool)(1==1))
-
 //////////////////////////////
 #endif // not __cplusplus
 //////////////////////////////
+
+// boolean types for C
+#if !defined(_MSC_VER) || _MSC_VER >= 1800
+// MSVC doesn't have stdbool.h yet as of Visual Studio 2012 (MSVC version 17.00)
+// but it will support it in Visual Studio 2013 (MSVC version 18.00)
+// http://blogs.msdn.com/b/vcblog/archive/2013/07/19/c99-library-support-in-visual-studio-2013.aspx
+// GCC and Clang are assumed to be C99 compliant
+#include <stdbool.h> // bool, true, false, __bool_true_false_are_defined
+#endif // ! defined(_MSC_VER) || _MSC_VER >= 1800
+
+#ifndef __bool_true_false_are_defined
+// If stdbool.h is not available or does not define this
+typedef char bool;
+#define false (1==0)
+#define true  (1==1)
+#define __bool_true_false_are_defined
+#endif // __bool_true_false_are_defined
 
 //////////////////////////////////////////////////////////////////////////
 // macro tools
@@ -270,6 +285,19 @@ static inline uint32 umax(uint32 a, uint32 b){ return (a > b) ? a : b; }
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
+
+//////////////////////////////////////////////////////////////////////////
+// Additional printf specifiers
+#if defined(_MSC_VER)
+#define PRIS_PREFIX "I"
+#else // gcc
+#define PRIS_PREFIX "z"
+#endif
+#define PRIdS PRIS_PREFIX "d"
+#define PRIxS PRIS_PREFIX "x"
+#define PRIuS PRIS_PREFIX "u"
+#define PRIXS PRIS_PREFIX "X"
+#define PRIoS PRIS_PREFIX "o"
 
 //////////////////////////////////////////////////////////////////////////
 // number of bits in a byte

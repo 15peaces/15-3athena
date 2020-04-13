@@ -4147,7 +4147,7 @@ void clif_dispchat(struct chat_data* cd, int fd)
 	     : 1;
 
 	WBUFW(buf, 0) = 0xd7;
-	WBUFW(buf, 2) = 17 + strlen(cd->title);
+	WBUFW(buf, 2) = 17 + (uint16)strlen(cd->title);
 	WBUFL(buf, 4) = cd->owner->id;
 	WBUFL(buf, 8) = cd->bl.id;
 	WBUFW(buf,12) = cd->limit;
@@ -4185,7 +4185,7 @@ void clif_changechatstatus(struct chat_data* cd)
 	     : 1;
 
 	WBUFW(buf, 0) = 0xdf;
-	WBUFW(buf, 2) = 17 + strlen(cd->title);
+	WBUFW(buf, 2) = 17 + (uint16)strlen(cd->title);
 	WBUFL(buf, 4) = cd->owner->id;
 	WBUFL(buf, 8) = cd->bl.id;
 	WBUFW(buf,12) = cd->limit;
@@ -6213,14 +6213,14 @@ void clif_efst_status_change_single(struct block_list *dst, struct block_list *b
 void clif_notify_chat(struct block_list* bl, const char* message, send_target target)
 {
 	uint8 buf[8 + CHAT_SIZE_MAX];
-	size_t length;
+	uint16 length;
 
 	if( !message[0] )
 	{// empty message
 		return;
 	}
 
-	length = strlen(message);
+	length = (uint16)strlen(message);
 
 	if( length > sizeof(buf)-9 )
 	{
@@ -6240,14 +6240,14 @@ void clif_notify_chat(struct block_list* bl, const char* message, send_target ta
 void clif_notify_playerchat(struct map_session_data* sd, const char* message)
 {
 	int fd = sd->fd;
-	size_t length;
+	uint16 length;
 
 	if( !message[0] )
 	{// don't send a void message (it's not displaying on the client chat). @help can send void line.
 		return;
 	}
 
-	length = strlen(message);
+	length = (uint16)strlen(message);
 
 	if( length > 255 )
 	{// message is limited to 255+1 characters by the client-side buffer
@@ -6304,9 +6304,9 @@ void clif_displaymessage(const int fd, const char* mes)
 		/** so we redirect to ZC_NPC_CHAT **/
 		clif_disp_overheadcolor_self(fd, COLOR_DEFAULT, mes);
 #else
-		size_t len;
+		uint16 len;
 
-		if ( ( len = strnlen(mes, 255) ) > 0 ) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
+		if ( ( len = (uint16)strnlen(mes, 255) ) > 0 ) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
 			WFIFOHEAD(fd, 5 + len);
 			WFIFOW(fd,0) = 0x8e;
 			WFIFOW(fd,2) = 5 + len; // 4 + len + NULL terminate
@@ -6321,7 +6321,7 @@ void clif_displaymessage(const int fd, const char* mes)
 void clif_displaymessagecolor(struct map_session_data *sd, const char* msg, unsigned long color)
 {
 	int fd;
-	unsigned short len = strlen(msg) + 1;
+	uint16 len = (uint16)strlen(msg) + 1;
 
 	if (sd==NULL) return;
 
@@ -9512,7 +9512,7 @@ void clif_specialeffect_value(struct block_list* bl, int effect_id, int num, sen
  */
 void clif_disp_overheadcolor_self(int fd, uint32 color, const char *msg)
 {
-	size_t msg_len = strlen(msg) + 1;
+	uint16 msg_len = (uint16)strlen(msg) + 1;
 
 	WFIFOHEAD(fd,msg_len + 12);
 	WFIFOW(fd,0) = 0x2C1;
@@ -9534,7 +9534,7 @@ void clif_disp_overheadcolor_self(int fd, uint32 color, const char *msg)
  */
 void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *msg)
 {
-	size_t msg_len = strlen(msg) + 1;
+	uint16 msg_len = (uint16)strlen(msg) + 1;
 	uint8 buf[256];
 
 	nullpo_retv(bl);
@@ -9863,11 +9863,11 @@ void clif_slide(struct block_list *bl, int x, int y)
 void clif_disp_overhead(struct block_list *bl, const char* mes)
 {
 	unsigned char buf[256]; //This should be more than sufficient, the theoretical max is CHAT_SIZE + 8 (pads and extra inserted crap)
-	size_t len_mes;
+	uint16 len_mes;
 
 	nullpo_retv(bl);
 	nullpo_retv(mes);
-	len_mes = strlen(mes)+1; //Account for \0
+	len_mes = (uint16)strlen(mes)+1; //Account for \0
 
 	if (len_mes > sizeof(buf)-8) {
 		ShowError("clif_disp_overhead: Message too long\n");
@@ -19137,13 +19137,13 @@ void clif_fast_movement(struct block_list *bl, short x, short y)
 /// [Ind/Hercules]
 void clif_showscript(struct block_list* bl, const char* message) {
 	char buf[256];
-	size_t len;
+	uint16 len;
 	nullpo_retv(bl);
 
 	if(!message)
 		return;
 
-	len = strlen(message)+1;
+	len = (uint16)strlen(message)+1;
 
 	if( len > sizeof(buf)-8 ) {
 		ShowWarning("clif_showscript: Truncating too long message '%s' (len=%d).\n", message, len);

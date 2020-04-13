@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/13/2020
+	r250 [15peaces]
+		*Added project files for Visual Studio 2015 (vs14)
+			-With this update 15-3athena won't support Visual Studio versions before 2010 (vs9 and older) anymore.
+			-Please prepare yourself to don't use Visual Studio 2010 anymore, the support will be ending soon now.
+			-I also did a bit of cleaning inside the project files and source code.
+				--Starting with the vs14 project files there will be no "common" projects anymore. All required files will be included directly into the main projects.
+				--Cleaned up the 3rdparty folder... no need to keep various versions of unused plugins.
+				--Older project files won't be touched more than needed, the only thing I did there was updating the changed paths of the 3rdparty folder.
+				--Did some fixing and updating inside the source files to ensure clean compiling without any warnings using Visual Studio 2015.
+
 04/10/2020
 	r249 [15peaces]
 		*Merged missing changes from 3ceam rev. 679

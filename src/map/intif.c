@@ -977,10 +977,10 @@ int intif_parse_Registers(int fd)
 			return 0;
 	}
 	for(j=0,p=13;j<max && p<RFIFOW(fd,2);j++){
-		sscanf((char*)RFIFOP(fd,p), "%31c%n", reg[j].str,&len);
+		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg[j].str, &len);
 		reg[j].str[len]='\0';
 		p += len+1; //+1 to skip the '\0' between strings.
-		sscanf((char*)RFIFOP(fd,p), "%255c%n", reg[j].value,&len);
+		sscanf((char*)RFIFOP(fd, p), "%255s%n", reg[j].value, &len);
 		reg[j].value[len]='\0';
 		p += len+1;
 	}

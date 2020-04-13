@@ -3328,7 +3328,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 
 	// w1=<map name>,<x>,<y>,<xs>,<ys>{,<episode_flag>,<min_episode>,<max_episode>}
 	// w4=<mob id>,<amount>,<delay1>,<delay2>,<event>
-	if( sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d,%d,%d", mapname, &x, &y, &xs, &ys, &episode_ident, &min_episode, &max_episode) == 8);
+	if( sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d,%d", mapname, &x, &y, &xs, &ys, &episode_ident, &min_episode, &max_episode) == 8);
 	else if( sscanf(w1, "%31[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) == 5);
 	else {
 		ShowError("npc_parse_mob: Invalid mob definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
