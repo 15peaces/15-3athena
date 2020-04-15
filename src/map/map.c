@@ -1811,7 +1811,6 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_WEIGHT50, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_WEIGHT90, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_ALL_RIDING, INVALID_TIMER);
-		status_change_end(&sd->bl ,SC_SATURDAY_NIGHT_FEVER, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_READING_SB, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);

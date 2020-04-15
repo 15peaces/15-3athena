@@ -260,6 +260,10 @@ int storage_storageaddfromcart(struct map_session_data* sd, int index, int amoun
 {
 	nullpo_ret(sd);
 
+	if (sd->state.prevend) {
+		return 0;
+	}
+
 	if( sd->storage.amount > MAX_STORAGE )
   		return 0; // storage full / storage closed
 
@@ -284,6 +288,10 @@ int storage_storageaddfromcart(struct map_session_data* sd, int index, int amoun
 int storage_storagegettocart(struct map_session_data* sd, int index, int amount)
 {
 	nullpo_ret(sd);
+
+	if (sd->state.prevend) {
+		return 0;
+	}
 
 	if( index < 0 || index >= MAX_STORAGE )
 		return 0;

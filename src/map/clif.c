@@ -12230,11 +12230,15 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	skillnum = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 	target_id = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[2]);
 
+	ShowDebug("clif_parse_UseSkillToId: skilllv: %d, skillnum: %d, target_id: %d\n", skilllv, skillnum, target_id);
+
 	if( skilllv < 1 ) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
 	tmp = skill_get_inf(skillnum);
-	if (tmp&INF_GROUND_SKILL || !tmp)
+	if (tmp&INF_GROUND_SKILL || !tmp) {
+		ShowDebug("clif_parse_UseSkillToId: INF_GROUND_SKILL!\n");
 		return; //Using a ground/passive skill on a target? WRONG.
+	}
 
 	if( skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
@@ -12256,8 +12260,12 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( pc_issit(sd) )
 		return;
 
+	ShowDebug("clif_parse_UseSkillToId: Char can act!\n");
+
 	if( skillnotok(skillnum, sd) )
 		return;
+
+	ShowDebug("clif_parse_UseSkillToId: Skill can be casted!\n");
 
 	if( sd->bl.id != target_id && tmp&INF_SELF_SKILL )
 		target_id = sd->bl.id; // never trust the client
@@ -12265,11 +12273,14 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( target_id < 0 && -target_id == sd->bl.id ) // for disguises [Valaris]
 		target_id = sd->bl.id;
 
+	ShowDebug("clif_parse_UseSkillToId: target_id now: %d\n", target_id);
+
 	if( sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id )
 		return;
 	
 	if( sd->ud.skilltimer != INVALID_TIMER )
 	{
+		ShowDebug("clif_parse_UseSkillToId: skilltimer active!\n");
 		if( skillnum != SA_CASTCANCEL )
 			return;
 	}
@@ -12285,6 +12296,8 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
 		return;
 
+	ShowDebug("clif_parse_UseSkillToId: No related sc.option active...\n");
+
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
 		return; // On basilica only caster can use Basilica again to stop it.
 
@@ -12293,6 +12306,7 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	
 	if( sd->menuskill_id )
 	{
+		ShowDebug("clif_parse_UseSkillToId: menuskill_id: %d\n", sd->menuskill_id);
 		if( sd->menuskill_id == SA_TAMINGMONSTER )
 			sd->menuskill_id = sd->menuskill_val = 0; //Cancel pet capture.
 		else if( sd->menuskill_id == SG_FEEL )
@@ -12331,6 +12345,8 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		if( skilllv > tmp )
 			skilllv = tmp;
 	}
+
+	ShowDebug("clif_parse_UseSkillToId:Finally: skilllv: %d, skillnum: %d, target_id: %d\n", skilllv, skillnum, target_id);
 
 	pc_delinvincibletimer(sd);
 	
@@ -13410,13 +13426,25 @@ void clif_parse_PurchaseReq2(int fd, struct map_session_data* sd) {
 ///     0 = canceled
 ///     1 = open
 void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
-	short len = (short)RFIFOW(fd,2) - 85;
-	const char* message = (char*)RFIFOP(fd,4);
-	bool flag = (bool)RFIFOB(fd,84);
-	const uint8* data = (uint8*)RFIFOP(fd,85);
+	int cmd = RFIFOW(fd, 0);
+	struct s_packet_db* info = &packet_db[sd->packet_ver][cmd];
+	short len = (short)RFIFOW(fd, info->pos[0]);
+	const char* message = RFIFOCP(fd, info->pos[1]);
+	const uint8* data = (uint8*)RFIFOP(fd, info->pos[3]);
 
-	if( !flag )
-		sd->state.workinprogress = WIP_DISABLE_NONE;
+	if (cmd == 0x12f) { // (CZ_REQ_OPENSTORE)
+		len -= 84;
+	}
+	else { //(CZ_REQ_OPENSTORE2)
+		bool flag;
+
+		len -= 85;
+		flag = RFIFOB(fd, info->pos[2]) != 0;
+		if (!flag) {
+			sd->state.prevend = 0;
+			sd->state.workinprogress = WIP_DISABLE_NONE;
+		}
+	}
 
 	if( sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOROOM )
 		return;
@@ -13431,7 +13459,7 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	if( message[0] == '\0' ) // invalid input
 		return;
 
-	vending_openvending(sd, message, flag, data, len/8);
+	vending_openvending(sd, message, data, len/8);
 }
 
 

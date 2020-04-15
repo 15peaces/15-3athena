@@ -251,15 +251,12 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
  * Open shop
  * data := {<index>.w <amount>.w <value>.l}[count]
  *------------------------------------------*/
-void vending_openvending(struct map_session_data* sd, const char* message, bool flag, const uint8* data, int count) {
+void vending_openvending(struct map_session_data* sd, const char* message, const uint8* data, int count) {
 	int i, j;
 	int vending_skill_lvl;
 	nullpo_retv(sd);
 
-	if( !flag ) // cancelled
-		return; // nothing to do
-
-	if (pc_isdead(sd) || pc_istrading(sd))
+	if (pc_isdead(sd) || !sd->state.prevend || pc_istrading(sd))
 		return; // can't open vendings lying dead || can't have 2 shops at once
 
 	vending_skill_lvl = pc_checkskill(sd, MC_VENDING);

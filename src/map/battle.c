@@ -697,7 +697,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 				status_change_end(bl, SC_KYRIE, INVALID_TIMER);
 		}
 
-		if ((sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 && rand()%100 < sce->val1)
+		if ((sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 && rand()%100 < sce->val2)
 		{
 			skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), 0);
 			d->div_ = ATK_DEF;
@@ -716,9 +716,14 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if (sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && flag&BF_WEAPON && rand()%100 < sce->val2)
 			pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD, sce->val1), sce->val3);
 
-		if( (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && flag&BF_WEAPON && rand()%100 < 10 + 5 * sce->val1 ){
-			int duration = skill_get_time2(MO_CALLSPIRITS, sce->val1);
-			if( sd ) pc_addspiritball(sd, duration, sce->val1);
+		if( sd && (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && flag&BF_WEAPON && rand()%100 < sce->val2 )
+		{
+			int spheremax = 0;
+			if ( sd && sc->data[SC_RAISINGDRAGON] )
+			spheremax = 5 + sc->data[SC_RAISINGDRAGON]->val1;
+			else
+			spheremax = 5;
+			if( sd ) pc_addspiritball(sd, skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1), spheremax);
 		}
 
 		if(sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * sc->data[SC__DEADLYINFECT]->val1)
@@ -2680,13 +2685,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (sd)
 						ATK_ADD(sd->weight / 8);//Dont need to divide weight here since official formula takes current weight * 10. [Rytech]
 					if( sc && sc->data[SC_DANCE_WITH_WUG] )
-						skillratio += 2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
+						ATK_ADD(2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus));
 				case RA_WUGSTRIKE:
 				case RA_WUGBITE:
 					if (sd)
 						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
 					if (sc && sc->data[SC_DANCE_WITH_WUG])
-						skillratio += 2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
+						ATK_ADD(2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus));
 					break;
 				case LG_SHIELDPRESS:
 					if( sd )
@@ -2707,6 +2712,23 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				//		ATK_ADDRATE( 190 * ((sd) ? skill_check_pc_partner(sd,(short)skill_num,&lv,skill_get_splash(skill_num,skill_lv),0) : 1));
 				//	}
 				//	break;
+				case SR_FALLENEMPIRE:
+					if (tsd)
+					{ //For Player's
+						ATK_ADD(((tstatus->size + 1) * 2 + (skill_lv - 1)) * sstatus->str + tsd->weight / 10 * sstatus->dex / 120);
+					} else
+					{ //For Monster's
+						ATK_ADD(((tstatus->size + 1) * 2 + (skill_lv - 1)) * sstatus->str + status_get_lv(target) * 50);
+					}
+					break;
+				case SR_TIGERCANNON:
+					if( sc && sc->data[SC_COMBO] )
+					{
+						ATK_ADD(500 * skill_lv + 40 * status_get_lv(target));
+					} else {
+						ATK_ADD(250 * skill_lv + 40 * status_get_lv(target));
+					}
+					break;
 				case SR_GATEOFHELL:
 					ATK_ADD(sstatus->max_hp - sstatus->hp);//Will have to add the consumed SP part to the formula in the future. [Rytech]
  					break;
@@ -2758,14 +2780,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if(sc && sc->data[SC_SPIRIT] &&
 					sc->data[SC_SPIRIT]->val2 == SL_CRUSADER)
 					ATK_ADDRATE(100);
-				break;
-			case SR_EARTHSHAKER:
-				if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CHASEWALK] || tsc->data[SC_CLOAKINGEXCEED]) )
-					ATK_ADDRATE(150+150*skill_lv);
-				break;
-			case SR_RIDEINLIGHTNING:
-				if( (sstatus->rhw.ele) == ELE_WIND || (sstatus->lhw.ele) == ELE_WIND )
-					ATK_ADDRATE(skill_lv * 5);
 				break;
 		}
 		
@@ -4482,7 +4496,8 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 		}
 		if (sc && sc->data[SC_CRESCENTELBOW] && !(flag&BF_SKILL) && !is_boss(src) && rand()%100 < sc->data[SC_CRESCENTELBOW]->val2)
 		{	// Stimated formula from test
-			rdamage += (int)((*damage) + (*damage) * status_get_hp(src) * 2.15 / 100000);
+			//rdamage += (int)((*damage) + (*damage) * status_get_hp(src) * 2.15 / 100000);//No longer used since its not official, but keeping for reference.
+			rdamage += (*damage) * (5 + sc->data[SC_CRESCENTELBOW]->val1) / 5;//Part of the official formula. Will code the rest later. [Rytech]
 			if (rdamage < 1)
 				rdamage = 1;
 		}
@@ -4710,9 +4725,13 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			//FIXME: invalid return type!
 			return (damage_lv)skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK]->val1,tick,0);
 		if( sc->data[SC_GENTLETOUCH_ENERGYGAIN] ) {
-			int duration = skill_get_time(MO_CALLSPIRITS, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1); 
-			if (sd && rand()%100 < 10 + 5 * sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1)
-				pc_addspiritball(sd, duration, sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1);
+			int spheremax = 0;
+			if ( sd && sc->data[SC_RAISINGDRAGON] )
+				spheremax = 5 + sc->data[SC_RAISINGDRAGON]->val1;
+			else
+				spheremax = 5;
+			if( sd && rand()%100 < sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val2)
+				pc_addspiritball(sd, skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1), spheremax);
 		}
 	}
 

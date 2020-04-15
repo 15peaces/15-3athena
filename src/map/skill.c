@@ -589,6 +589,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	int s_job_level = 50;
+	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
 
 	enum sc_type status;
 	int skill;
@@ -1153,22 +1154,23 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_EARTHDRIVE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SR_DRAGONCOMBO:
-		sc_start(bl, SC_STUN, 1 + 1 * skilllv, skilllv, skill_get_time(skillid, skilllv));
+		sc_start(bl, SC_STUN, 2 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SR_FALLENEMPIRE:
 		sc_start(bl, SC_STOP, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
-	case SR_TIGERCANNON:
-		status_percent_damage(src, bl, 0, 5+1*skilllv, false);
-		break;
 	case SR_WINDMILL:
 		if (dstsd)
-			skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, 0);
+			skill_addtimerskill(src, tick + 500, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, 0);
 		else if (dstmd && !is_boss(bl))
-			sc_start(bl, SC_STUN, 100, skilllv, 1000 + 1000 * (rand()%3));
+			sc_start(bl, SC_STUN, 100, skilllv, 1000 * rand() % 4);
 		break;
 	case SR_GENTLETOUCH_QUIET:
-		sc_start(bl, SC_SILENCE, 2 * skilllv, skilllv, skill_get_time(skillid, skilllv));
+		if(level_effect_bonus == 1)
+			rate = 5 * skilllv + ( sstatus->dex + status_get_lv(src) ) / 10;
+		else
+			rate = 5 * skilllv + ( sstatus->dex + 150 ) / 10;
+		sc_start(bl, SC_SILENCE, rate, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SR_HOWLINGOFLION:
 		sc_start(bl, SC_FEAR, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
@@ -2142,7 +2144,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
 	case WL_HELLINFERNO:
-	case SR_EARTHSHAKER:
+	//case SR_EARTHSHAKER:
 		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skillid, -2, 6);
 		break;
 	case WL_SOULEXPANSION:
@@ -2932,7 +2934,7 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					break;
 				case LG_OVERBRAND_BRANDISH:
 				case LG_OVERBRAND_PLUSATK:
-				case SR_KNUCKLEARROW:
+				//case SR_KNUCKLEARROW://Shouldnt be needed since its set as a weapon attack in another part of the source. Will disable for now. [Rytech]
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
 				case GN_SPORE_EXPLOSION:
@@ -3496,7 +3498,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_AXETORNADO:
 	case LG_MOONSLASHER:
 	case LG_EARTHDRIVE:
-	case SR_TIGERCANNON:
 	case SR_RAMPAGEBLASTER:
 	case SR_WINDMILL:
 	case SR_RIDEINLIGHTNING:
@@ -4174,40 +4175,56 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case SR_HOWLINGOFLION:
-		{
-			status_change_end(bl, SC_SWING, INVALID_TIMER);
-			status_change_end(bl, SC_SYMPHONY_LOVE, INVALID_TIMER);
-			status_change_end(bl, SC_MOONLIT_SERENADE, INVALID_TIMER);
-			status_change_end(bl, SC_RUSH_WINDMILL, INVALID_TIMER);
-			status_change_end(bl, SC_ECHOSONG, INVALID_TIMER);
-			status_change_end(bl, SC_HARMONIZE, INVALID_TIMER);
-			status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
-			status_change_end(bl, SC_SATURDAY_NIGHT_FEVER, INVALID_TIMER);
-			status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
-			status_change_end(bl, SC_LERADS_DEW, INVALID_TIMER);
-			status_change_end(bl, SC_MELODYOFSINK, INVALID_TIMER);
-			status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
-			status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
-			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-		}
+		status_change_end(bl, SC_SWING, INVALID_TIMER);
+		status_change_end(bl, SC_SYMPHONY_LOVE, INVALID_TIMER);
+		status_change_end(bl, SC_MOONLIT_SERENADE, INVALID_TIMER);
+		status_change_end(bl, SC_RUSH_WINDMILL, INVALID_TIMER);
+		status_change_end(bl, SC_ECHOSONG, INVALID_TIMER);
+		status_change_end(bl, SC_HARMONIZE, INVALID_TIMER);
+		status_change_end(bl, SC_SIREN, INVALID_TIMER);
+		status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+		status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
+		status_change_end(bl, SC_GLOOMYDAY, INVALID_TIMER);
+		status_change_end(bl, SC_GLOOMYDAY_SK, INVALID_TIMER);
+		status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
+		status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
+		status_change_end(bl, SC_SATURDAY_NIGHT_FEVER, INVALID_TIMER);
+		status_change_end(bl, SC_LERADS_DEW, INVALID_TIMER);
+		status_change_end(bl, SC_MELODYOFSINK, INVALID_TIMER);
+		status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
+		status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
+		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
 	case SR_EARTHSHAKER:
 		if( flag&1 ){
-			if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CHASEWALK] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED]) ){
-				status_change_end(bl, SC_HIDING, INVALID_TIMER);
-				status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
-				status_change_end(bl, SC_CHASEWALK, INVALID_TIMER);
-				status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
-				sc_start(bl,SC_STUN, 25 + 5 * skilllv,skilllv,skill_get_time(skillid,skilllv)); // Does it apply the stun chance to targets knocked out of hiding, or it applys allways? [Rytech]
-				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
- 			}
-			else
-				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			sc_start(bl,SC_STUN, 25 + 5 * skilllv,skilllv,skill_get_time(skillid,skilllv));
 		}
 		else
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
-		clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+		break;
+
+	case SR_TIGERCANNON:
+		if ( flag&1 )
+		{
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			status_zap(bl, 0, status_get_max_sp(bl) * 10 / 100);
+		}
+		else if ( sd )
+		{
+			int hpcost, spcost;
+			hpcost = 10 + 2 * skilllv;
+			spcost = 5 + 1 * skilllv;
+			if (!status_charge(src, status_get_max_hp(src) * hpcost / 100, status_get_max_sp(src) * spcost / 100)) {
+				if (sd)
+					clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+			status_zap(src, hpcost, spcost);
+		}
 		break;
 
 	case WM_SOUND_OF_DESTRUCTION:
@@ -4556,7 +4573,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						dstsd = sd;
 					}
 				} else
-				if (tsc->data[SC_BERSERK] || tsc->data[SC_SATURDAY_NIGHT_FEVER])
+				if (tsc->data[SC_BERSERK])
 					heal = 0; //Needed so that it actually displays 0 when healing.
 			}
 			if( dstsd && dstsd->sc.option&OPTION_MADOGEAR )
@@ -5791,16 +5808,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if ( !pc_can_give_items(pc_isGM(sd)) )
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 			else {
+				sd->state.prevend = 1;
 				sd->state.workinprogress = WIP_DISABLE_ALL;
 				sd->vend_skill_lv = skilllv;
 				ARR_FIND(0, MAX_CART, i, sd->cart.u.items_cart[i].nameid && sd->cart.u.items_cart[i].id == 0);
 				if (i < MAX_CART)
 					intif_storage_save(sd, &sd->cart);
 				else
-				{
-					sd->state.prevend = 1;
 					clif_openvendingreq(sd,2+skilllv);
-				}
 			}
 		}
 		break;
@@ -8160,7 +8175,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (sd)
 		{
 			short max = 5 + skilllv;
-			sc_start(bl, SC_EXPLOSIONSPIRITS, 100, skilllv, skill_get_time(skillid, skilllv));
+			if ( pc_checkskill(sd,MO_EXPLOSIONSPIRITS) > 0 )//Only starts the status at the highest learned level if you learned it.
+			sc_start(bl, SC_EXPLOSIONSPIRITS, 100, pc_checkskill(sd,MO_EXPLOSIONSPIRITS), skill_get_time(skillid, skilllv));
 			for (i = 0; i < max; i++) // Don't call more than max available spheres.
 				pc_addspiritball(sd, skill_get_time(skillid, skilllv), max);
 			clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv,skill_get_time(skillid, skilllv)));
@@ -8200,11 +8216,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SR_GENTLETOUCH_CURE:
-		if( status_isimmune(bl) ) {
-			clif_skill_nodamage(src,bl,skillid,skilllv,0);
-			break;
-		}
-		if( (tsc && tsc->opt1) && rand()%100 < 5 * skilllv ){
+		status_heal(bl, tstatus->max_hp * skilllv / 100 + 120 * skilllv, 0, 0);//It heals the target, but shows no heal animation or numbers.
+		if(rand()%100 < 5 * skilllv + (sstatus->dex + status_get_lv(src)) / 4 - rand()%10)
+		{
 			status_change_end(bl, SC_STONE, INVALID_TIMER);
 			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
 			status_change_end(bl, SC_STUN, INVALID_TIMER);
@@ -8212,9 +8226,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			status_change_end(bl, SC_SILENCE, INVALID_TIMER);
 			status_change_end(bl, SC_BLIND, INVALID_TIMER);
 			status_change_end(bl, SC_HALLUCINATION, INVALID_TIMER);
-			status_change_end(bl, SC_BURNING, INVALID_TIMER);
-			status_change_end(bl, SC_FREEZING, INVALID_TIMER);
-			skill_castend_nodamage_id(src, bl, AL_HEAL, skilllv, tick, flag);
 		}
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		break;
@@ -13105,10 +13116,6 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		case LG_RAGEBURST:
 			req.spiritball = sd->rageball?sd->rageball:1;
 			break;
-//		case SR_CRESCENTELBOW:// Remove later if found not needed. [Rytech]
-//			if( sd->spiritball <= 0 )
-//				req.spiritball = 0;	// Only consumes spirit spheres if these are pressent. Is a bug?
-//			break;
 		case SR_RAMPAGEBLASTER:
 			req.spiritball = sd->spiritball?sd->spiritball:15;
 			break;
@@ -13224,6 +13231,12 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//worn card, skill, or status will be used.
 	if (sd && fixed_time > 0)
 	{
+		// Fixed cast time reductions trough items. [15peaces]
+		fixed_time += sd->fixedcast;
+
+		if (fixed_time < 0)//Prevents negeative values from affecting the variable below.
+			fixed_time = 0;
+
 		int i;
 		if( sd->fixedcastrate != 100 )//Fixed cast reduction on all skills.
 			fixed_cast_rate = 100 - sd->fixedcastrate;

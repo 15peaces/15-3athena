@@ -16,7 +16,7 @@ struct s_vending {
 };
 
 void vending_closevending(struct map_session_data* sd);
-void vending_openvending(struct map_session_data* sd, const char* message, bool flag, const uint8* data, int count);
+void vending_openvending(struct map_session_data* sd, const char* message, const uint8* data, int count);
 void vending_vendinglistreq(struct map_session_data* sd, int id);
 void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const uint8* data, int count);
 bool vending_search(struct map_session_data* sd, unsigned short nameid);

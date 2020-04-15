@@ -121,6 +121,13 @@
 19807,C_Majestic_Helmet,Costume Majestic Helmet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1047,{},{},{}
 19808,C_Blazing_Sun,Costume Blazing Sun,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,654,{},{},{}
 19809,C_Purple_Cowboy_Hat,Costume Purple Cowboy Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,411,{},{},{}
+19810,C_Ifrits_Ear,Costume Ifrit's Ear,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,422,{},{},{}
+19811,C_Beer_Cap,Costume Beer Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,418,{},{},{}
+19812,C_Large_Hibiscus,Costume Large Hibiscus,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,333,{},{},{}
+19813,C_Icecream_Hat,Costume Icecream Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,488,{},{},{}
+19814,C_Shiny_Wig,Costume Shiny Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,306,{},{},{}
+19815,C_Lolita_Ten_Gallon_Hat,Costume Lolita Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1048,{},{},{}
+19816,C_Pecopeco_Cap,Costume Pecopeco Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1049,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -169,13 +176,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19810,C_Ifrits_Ear,Costume Ifrit's Ear,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,422,{},{},{}
-19811,C_Beer_Cap,Costume Beer Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,418,{},{},{}
-19812,C_Large_Hibiscus,Costume Large Hibiscus,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,333,{},{},{}
-19813,C_Icecream_Hat,Costume Icecream Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,488,{},{},{}
-19814,C_Shiny_Wig,Costume Shiny Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,306,{},{},{}
-19815,C_Lolita_Ten_Gallon_Hat,Costume Lolita Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1048,{},{},{}
-19816,C_Pecopeco_Cap,Costume Pecopeco Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1049,{},{},{}
 19817,C_Ifrits_Breath,Costume Ifrit's Breath,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1050,{},{},{}
 19818,C_Drooping_Morocc_Minion,Costume Drooping Morocc Minion,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,600,{},{},{}
 19820,C_Necromencer_Hood,Costume Necromencer Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,491,{},{},{}
@@ -3514,3 +3514,23 @@
 27164,Faceworm_Queen_Card,Faceworm Queen Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxHPrate,-10; set .@r, getrefine(); bonus bCritical,15 + .@r; bonus bCritAtkRate,.@r; },{},{}
 27165,Dark_Faceworm_Card,Dark Faceworm Card,6,20,,10,,,,,,,,136,,,,,{ bonus bVit,-1; bonus bInt,-1; bonus bDelayrate,-3; },{},{}
 27166,Faceworm_Egg_Card,Faceworm Egg Card,6,20,,10,,,,,,,,64,,,,,{ set .@r, getrefine(); set .@sub, 2+(.@r >= 9 ? 3 : .@r >= 7 ? 1 : 0); bonus bNearAtkDef,.@sub; bonus bMagicAtkDef,.@sub; },{},{}
+
+// Missing items (renewal)
+1680,Crimson_One-Handed_Staff,Crimson One-Handed Staff,4,10,,600,60:70,,1,2,0x00818315,63,2,2,3,70,1,10,{ set .@r, getrefine(); bonus bInt,4; bonus bMatk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bUnbreakableWeapon,1; },{},{}
+1681,Short_Foxtail_Staff,Short Foxtail Staff,4,20,,0,30,,1,0,0x80000000,7,2,2,1,1,1,10,{},{},{}
+1682,Shadow_Staff,Shadow Staff,4,0,,600,70:130,,1,2,0x00000200,56,2,2,4,90,1,10,{ set .@r, getrefine(); bonus2 bSkillAtk,"WL_HELLINFERNO",(getskilllv("WL_HELLINFERNO") >= 5 ? 100 : 0) + (.@r*10); bonus2 bIgnoreMdefRaceRate,RC_All,5; autobonus "{ bonus2 bVariableCastrate,\"WL_HELLINFERNO\",-30; }",.@r*20,5000,BF_MAGIC,"{ specialeffect2 EF_SPELLBREAKER; }"; },{},{}
+1683,Enriched_Foxtail_Staff,Enriched Foxtail Staff,4,20,,200,50:70,,1,1,0x80000000,7,2,2,2,12,1,10,{ bonus bMaxSP,50; },{},{}
+1684,Long_Foxtail_Staff,Long Foxtail Staff,4,20,,200,50,,2,1,0x80000000,7,2,2,2,12,1,10,{ bonus bLongAtkRate,5; bonus bMaxHP,200; },{},{}
+1685,Dragonfly_Sitting_Foxtail_Staff,Dragonfly Sitting Foxtail Staff,4,20,,300,70:100,,1,1,0x80000000,7,2,2,2,20,1,10,{ bonus bInt,1; bonus bMaxHP,100; bonus bMaxSP,150; },{},{}
+1686,Large_Foxtail_Staff,Large Foxtail Staff,4,20,,300,70,,1,1,0x80000000,7,2,2,2,20,1,10,{ bonus bLongAtkRate,8; bonus bDex,1; bonus bMaxHP,200; bonus bMaxSP,100; },{},{}
+1687,Beginner_Foxtail_Staff,Beginner Foxtail Staff,4,20,,100,40:15,,1,1,0x80000000,7,2,2,1,3,1,10,{ bonus bMaxHP,100; },{},{}
+1839,Crimson_Knuckles,Crimson Knuckles,4,20,,1000,100,,1,2,0x00008100,63,2,2,3,70,1,12,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bUnbreakableWeapon,1; },{},{}
+1995,Crimson_Whip,Crimson Whip,4,20,,800,80,,2,2,0x00080000,63,0,2,3,70,1,14,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
+1996,Wire_of_Vicious_Mind,Wire of Vicious Mind,4,20,,1300,130:50,,2,1,0x00080000,63,,2,4,160,1,14,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bMatk,pow(min(getrefine(),15),2)/2; },{},{}
+1997,Unity_Whip,Unity Whip,4,20,,76,40,,2,1,0x00080000,63,0,2,3,1,1,14,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}
+//===================================================================
+// Guns
+//===================================================================
+13127,Crimson_Revolver,Crimson Revolver,4,20,,1000,100,,7,2,0x41000000,63,2,34,3,70,1,17,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
+13128,Revolver_of_Vicious_Mind,Revolver of Vicious Mind,4,20,,1500,150,,7,1,0x41000000,63,2,34,4,160,1,17,{ bonus bAtk,pow(min(getrefine(),15),2); },{},{}
+13129,Unity_Revolver,Unity Revolver,4,20,,500,95,,7,1,0x41000000,63,2,34,3,1,1,17,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}

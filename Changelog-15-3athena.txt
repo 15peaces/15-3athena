@@ -7,6 +7,98 @@
 //========================================
 04/13/2020
 	r250 [15peaces]
+		*Merged missing changes from 3ceam rev. 680
+		*Fixed some issues related to vending system.
+		*Added some missing items.
+		*Added full support for bonus bFixedCast,t.
+			-This item bonus increases fixed cast time of all skills by 't' milliseconds (of course, decreasing is also possible).
+		*Sura 2011 update has been applied.
+			-This update bring nearly all the skills up-to-date and fixes a number of issues that were hidden.
+			-Due to the large number of updates, things like the combo system was left untouched due to its complex coding and will be fixed up in a future update.
+		*SR_DRAGONCOMBO
+			-Stun chance updated.
+		*SR_SKYNETBLOW
+			-Damage formula updated.
+			-Now deals more damage when comboed.
+		*SR_EARTHSHAKER
+			-Damage formula updated.
+			-Now deals triple the amount of damage on hidden enemys.
+			-Updated the stun chance formula.
+			-Now correctly stuns all enemys no matter if their in hiding or not.
+		*SR_FALLENEMPIRE
+			-Damage formula updated.
+			-Fixed a issue where the status ID wasnt being triggered.
+		*SR_TIGERCANNON
+			-HP and SP requirements are now handled by the source.
+			-Skill now fails and displays a fail message when the caster doesent have the required amount of HP and SP.
+			-Damage formula updated.
+			-Now deals more damage when comboed.
+			-Fixed a issue where the splash AoE was not being generated around the target.
+			-Now drains 10% of the target's MaxSP.
+		*SR_RAMPAGEBLASTER
+			-Damage formula updated.
+		*SR_CRESCENTELBOW
+			-Damage formula updated.
+			-Note: Only part of the official formula was coded in this update. The other part will be coded in a future update when the other ID for this skill is fixed.
+			-Updated the success chance.
+		*SR_CURSEDCIRCLE
+			-Now consumes a percent of the casters HP.
+		*SR_LIGHTNINGWALK
+			-Updated the success chance.
+		*SR_KNUCKLEARROW
+			-Damage formula updated.
+		*SR_WINDMILL
+			-Damage formula updated.
+			-Made a small adjustment to the forced sitting code.
+			-Updated the duration monsters are stuned for.
+		*SR_RAISINGDRAGON
+			-Fixed a issue where the level of critical explosion status that starts when going into raising dragon status would be the same as the casted level of the skill, allowing critical explosion status to give more crit then normal.
+			-Casting the skill now starts the learned level of critical explosion. If the player does not know the critical explosion skill, then the critical explosion status will not start.
+		*SR_GATEOFHELL
+			-Damage formula updated.
+			-Now deals more damage when comboed.
+		*SR_GENTLETOUCH_QUIET
+			-Damage formula updated.
+			-Updated the sucess chance for silenceing the target.
+		*SR_GENTLETOUCH_CURE
+			-Fixed a issue where the skill would not always work.
+			-Now heals the target at 100% chance.
+			-Healing formula updated.
+			-Chance of removing certain status has been updated.
+			-Updated the list of status thats removed on success.
+			-The following status that can be removed are:
+				--Petrification / Frozen / Stun / Poison / Silence / Blind / Hallucination
+		*SR_GENTLETOUCH_ENERGYGAIN
+			-Status duration updated.
+			-Sphere's now last for 10 minutes.
+			-Fixed a issue that could cause a possiable server crash if used by monsters or clones.
+			-Fixed a issue where the skill would generate only a skill level number of spheres max.
+			-The max number of sphere's gainable now increases when in raising dragon status.
+		*SR_GENTLETOUCH_CHANGE
+			-Status duration updated.
+			-Sphere requirement updated to require a skill level number of spheres.
+			-Fixed a issue where the ATK increase was not being applied as weapon ATK.
+			-Fixed a issue where the skill was affecting targets DEF.
+			-Now lowers the target's MaxHP.
+			-Updated the ATK increase, ASPD increase, MDEF decrease, and MaxHP decrease formula's.
+		*SR_GENTLETOUCH_REVITALIZE
+			-Status duration updated.
+			-Sphere requirement updated to require a skill level number of spheres.
+			-Fixed a issue where the skill was affecting targets attack speed and movement speed.
+			-Updated the VIT DEF increase, MaxHP increase, and Natural Regen increase formula's.
+		*SR_HOWLINGOFLION
+			-Damage formula updated.
+			-Now removes all singing/chorus buffs from enemys.
+		*SR_RIDEINLIGHTNING
+			-Damage formula updated.
+		*RA_WUGDASH, RA_WUGSTRIKE, RA_WUGBITE
+			-Fixed a issue where the Dance With A Waug status would increase damage more then it should.
+		*WM_SATURDAY_NIGHT_FEVER
+			-Fixed a issue where the status icon wouldn't show the remaining amount of time.
+			-Fixed a issue where players under this status wouldn't beable to see how much their healed when healed by other players.
+
+04/13/2020
+	r250 [15peaces]
 		*Added project files for Visual Studio 2015 (vs14)
 			-With this update 15-3athena won't support Visual Studio versions before 2010 (vs9 and older) anymore.
 			-Please prepare yourself to don't use Visual Studio 2010 anymore, the support will be ending soon now.

@@ -2260,6 +2260,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2)
 			sd->fixedcastrate+=val;
 		break;
+	case SP_FIXEDCAST:
+		if (sd->state.lr_flag != 2)
+			sd->fixedcast+=val;
+		break;
 	case SP_MAXHPRATE:
 		if(sd->state.lr_flag != 2)
 			sd->hprate+=val;
@@ -4373,8 +4377,8 @@ int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type)
 }
 
 /*==========================================
- * ƒJ?ƒg‚ÖƒAƒCƒeƒ€ˆÚ“®
- *------------------------------------------*/
+* Transfer item from inventory to cart.
+*------------------------------------------*/
 int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 {
 	struct item *item_data;
@@ -4382,17 +4386,17 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 	nullpo_ret(sd);
 
 	if (idx < 0 || idx >= MAX_INVENTORY) //Invalid index check [Skotlex]
-		return 1;
+		return 0;
 	
 	item_data = &sd->inventory.u.items_inventory[idx];
 
-	if( item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending )
-		return 1;
+	if( item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend )
+		return 0;
 
 	if( pc_cart_additem(sd,item_data,amount) == 0 )
 		return pc_delitem(sd,idx,amount,0,5);
 
-	return 1;
+	return 0;
 }
 
 /*==========================================
@@ -4412,8 +4416,8 @@ int pc_cartitem_amount(struct map_session_data* sd, int idx, int amount)
 }
 
 /*==========================================
- * ƒJ?ƒg‚©‚çƒAƒCƒeƒ€ˆÚ“®
- *------------------------------------------*/
+* Retrieve an item at index idx from cart.
+*------------------------------------------*/
 int pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 {
 	struct item *item_data;
@@ -4426,7 +4430,7 @@ int pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 	
 	item_data=&sd->cart.u.items_cart[idx];
 
-	if(item_data->nameid==0 || amount < 1 || item_data->amount<amount || sd->state.vending )
+	if(item_data->nameid==0 || amount < 1 || item_data->amount<amount || sd->state.vending || sd->state.prevend)
 		return 1;
 	if((flag = pc_additem(sd,item_data,amount)) == 0)
 		return pc_cart_delitem(sd,idx,amount,0);
