@@ -16,7 +16,7 @@
 //#define PACKET_OBFUSCATION
 
 // Show all packets (for debugging) [15peaces]
-#define LOG_ALL_PACKETS
+//#define LOG_ALL_PACKETS
 
 // Let inter server display more informations (for debugging) (old eAthena define)
 //#define NOISY

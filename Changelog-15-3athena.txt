@@ -5,8 +5,57 @@
 // 		- Details.
 //			--More Details.
 //========================================
-04/13/2020
-	r250 [15peaces]
+04/18/2020
+	r252 [15peaces]
+		*Merged missing changes from 3ceam rev. 681
+		*Removed/disabled some code I needed for some debugging... sorry.
+		*Fixed the "next" button in RODEX.
+			-Now it will show the next page correctly.
+		*Fixed an issue where you where unable to start the Umbala Domestic Dispute Quest.
+		*RK_MILLENNIUMSHIELD
+			-Recoded the shield amount generation chance.
+			-Now generates a rantom percentage between 1 to 100.
+			-The generated percentage will determine the number of shields that will be generated.
+			-Between 1 - 20 = 4 shields. 21 - 50 = 3 shields. 51 - 100 = 2 shields.
+			-This is based on the official chance of shields generated which is:
+				--20% for 4, 30% for 3, and 50% for 2. Add that together and its 100%.
+		*WL_CHAINLIGHTNING, WL_CHAINLIGHTNING_ATK
+			-Caster's ASPD no longer affects the delay between hits.
+			-Hit count delay is now set to a fixed 650ms delay between hits.
+		*WL_TETRAVORTEX
+			-Caster's ASPD no longer affects the delay between hits.
+			-Hit count delay is now set to a fixed 250ms delay between hits.
+		*WL_SUMMONATK_FIRE, WL_SUMMONATK_WATER, WL_SUMMONATK_WIND, WL_SUMMONATK_GROUND
+			-Updated damage formula to official. (Finally got that damn formula)
+		*RA_FEARBREEZE
+			-Recoded the entire skill.
+			-Fixed a issue where the status would prevent the caster from dealing critical hits.
+			-Now generates a rantom percentage between 1 to 100.
+			-The generated percentage will determine the number of hits that will be dealed.
+			-Between 1 - 3 = 5 hits, 4 - 9 = 4 hits, 10 - 18 = 3 hits, 19 - 30 = 2 hits.
+			-If between 31 - 100, it will fail and deal 1 hit.
+			-Critical hits are only possiable when dealing 1 hit. It works the same as Double Attack.
+			-This is based on the official chance of hits dealed which is:
+				--3% for 5, 6% for 4, 9% for 3, and 12% for 2. Add together and its 30%
+			-Skill level now determines the number of hits possiable and the chances of them happening.
+		*LG_SHIELDSPELL
+			-Fixed a issue where level 2 of the skill could be casted without a shield.
+			-Updated the random effect selection code.
+			-System now generates a random number between 1 - 3 on each cast.
+			-The number generated will determine which effect to use. This gives all 3 effects a equal chance of being selected.
+		*SR_CRESCENTELBOW
+			-Made a slight change to the formula to use a 1/100 scale to more accurately calculate damage.
+		*SR_GENTLETOUCH_CURE
+			-Fixed a issue where a piece of the formula for the random chance of cureing status's was missing.
+		*ALL_GUARDIAN_RECALL, ECLAGE_RECALL
+			-Added some place holding data that will be completed later as part of a upcoming update for the next revision.
+			-Note: Rytech broke the original code trying to update it and disabled it until the next revision.
+				--I didnt want to revert the change for certain reasons. It will be fixed on the next revision.
+			-Note: This is part of a upcoming major maps update.
+		*A few other changes made to make some skills use a little less coding and to improve performance.
+
+04/15/2020
+	r251 [15peaces]
 		*Merged missing changes from 3ceam rev. 680
 		*Fixed some issues related to vending system.
 		*Added some missing items.

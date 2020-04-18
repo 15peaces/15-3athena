@@ -4386,17 +4386,17 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 	nullpo_ret(sd);
 
 	if (idx < 0 || idx >= MAX_INVENTORY) //Invalid index check [Skotlex]
-		return 0;
+		return 1;
 	
 	item_data = &sd->inventory.u.items_inventory[idx];
 
 	if( item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend )
-		return 0;
+		return 1;
 
 	if( pc_cart_additem(sd,item_data,amount) == 0 )
 		return pc_delitem(sd,idx,amount,0,5);
 
-	return 0;
+	return 1;
 }
 
 /*==========================================

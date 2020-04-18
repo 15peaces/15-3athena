@@ -12230,13 +12230,10 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	skillnum = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 	target_id = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[2]);
 
-	ShowDebug("clif_parse_UseSkillToId: skilllv: %d, skillnum: %d, target_id: %d\n", skilllv, skillnum, target_id);
-
 	if( skilllv < 1 ) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
 	tmp = skill_get_inf(skillnum);
 	if (tmp&INF_GROUND_SKILL || !tmp) {
-		ShowDebug("clif_parse_UseSkillToId: INF_GROUND_SKILL!\n");
 		return; //Using a ground/passive skill on a target? WRONG.
 	}
 
@@ -12260,12 +12257,8 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( pc_issit(sd) )
 		return;
 
-	ShowDebug("clif_parse_UseSkillToId: Char can act!\n");
-
 	if( skillnotok(skillnum, sd) )
 		return;
-
-	ShowDebug("clif_parse_UseSkillToId: Skill can be casted!\n");
 
 	if( sd->bl.id != target_id && tmp&INF_SELF_SKILL )
 		target_id = sd->bl.id; // never trust the client
@@ -12273,14 +12266,11 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( target_id < 0 && -target_id == sd->bl.id ) // for disguises [Valaris]
 		target_id = sd->bl.id;
 
-	ShowDebug("clif_parse_UseSkillToId: target_id now: %d\n", target_id);
-
 	if( sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id )
 		return;
 	
 	if( sd->ud.skilltimer != INVALID_TIMER )
 	{
-		ShowDebug("clif_parse_UseSkillToId: skilltimer active!\n");
 		if( skillnum != SA_CASTCANCEL )
 			return;
 	}
@@ -12296,8 +12286,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
 		return;
 
-	ShowDebug("clif_parse_UseSkillToId: No related sc.option active...\n");
-
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
 		return; // On basilica only caster can use Basilica again to stop it.
 
@@ -12306,7 +12294,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	
 	if( sd->menuskill_id )
 	{
-		ShowDebug("clif_parse_UseSkillToId: menuskill_id: %d\n", sd->menuskill_id);
 		if( sd->menuskill_id == SA_TAMINGMONSTER )
 			sd->menuskill_id = sd->menuskill_val = 0; //Cancel pet capture.
 		else if( sd->menuskill_id == SG_FEEL )
@@ -12345,8 +12332,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 		if( skilllv > tmp )
 			skilllv = tmp;
 	}
-
-	ShowDebug("clif_parse_UseSkillToId:Finally: skilllv: %d, skillnum: %d, target_id: %d\n", skilllv, skillnum, target_id);
 
 	pc_delinvincibletimer(sd);
 	
@@ -15942,18 +15927,19 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 		ARR_FIND( 0, md->amount, i, md->msg[i].id == mailID );
 
 		// Unknown mail
-		if( i == md->amount ){
+		if( i > md->amount ){
 			// Ignore the request for now
 			return; // TODO: Should we just show the first page instead?
 		}
 
 		// It was actually the oldest/first mail, there is no further page
-		if( i == 0 ){
+		if( i < 0 ){
 			return;
 		}
 
 		// We actually want the next/older mail
-		i -= 1;
+		// Enabling ths will break the "next" Button if only one Mail would be on the next page... [15peaces]
+		//i -= 1;
 	}else{
 		i = md->amount;
 	}
@@ -15984,8 +15970,9 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 	WFIFOB(fd, 4) = type;
 	WFIFOB(fd, 5) = amount;
 	WFIFOB(fd, 6) = ( remaining < MAIL_PAGE_SIZE ); // last page
+	offset = 7;
 
-	for( offset = 7, amount = 0; i >= 0; i-- ){
+	for( amount = 0; i >= 0; i-- ){
 		msg = &md->msg[i];
 
 		if (msg->id < 1)
@@ -16059,20 +16046,27 @@ void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
 	mail_removezeny(sd, false);
 #else
 	int cmd = RFIFOW(fd, 0);
+#if PACKETVER < 20170419
+	uint8 openType = RFIFOB(fd, 2);
+	uint64 mailId = RFIFOQ(fd, 3);
+#else
 	uint8 openType;
 	uint64 mailId = RFIFOQ(fd, 2);
 	int i;
 
 	ARR_FIND(0, MAIL_MAX_INBOX, i, sd->mail.inbox.msg[i].id == mailId);
 
-	if (i == MAIL_MAX_INBOX){
+	if (i == MAIL_MAX_INBOX) {
 		openType = MAIL_INBOX_NORMAL;
 		mailId = 0;
 	}
-	else{
+	else {
 		openType = sd->mail.inbox.msg[i].type;
 		mailId = 0;
 	}
+#endif
+
+	ShowDebug("clif_parse_Mail_refreshinbox: openType: %d, mailID: %d\n", openType, mailId);
 
 	switch( openType ){
 		case MAIL_INBOX_NORMAL:
@@ -20167,7 +20161,7 @@ void packetdb_readdb(void)
 //#0x09C0
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
-		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11,  0,
+		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
 		-1, 11, 12, 11,  0,  0,  0, 75, -1,143,  0,  0,  0, -1, -1, -1,
 //#0x0A00
 #if PACKETVER >= 20141022
