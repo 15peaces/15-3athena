@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/19/2020
+	r253 [15peaces]
+		*Merged missing changes from 3ceam rev. 682
+		*Some item database updates.
+			-Added some missing items.
+			-Moved some stable costumes to item_db.
+			-Some cleaning.
+		*This update was specially focused on a area that didnt receive any attention for a long time.
+			-It greatly adds hand fulls of maps and other things for them as well as older maps updated.
+		*Nuber of map flag files have been updated.
+		*The maps_athena.conf and map_index.txt have been updated.
+		*skill_nocast_db.txt has been updated to add all the latest restrictions and work with updated map flags.
+		*RETURN_TO_ELDICASTES
+			-Support has been fully re-enabled.
+		*ALL_GUARDIANS_RECALL, ECLAGE_RECALL
+			-Added support for the skills. They now fully work.
+
 04/18/2020
 	r252 [15peaces]
 		*Merged missing changes from 3ceam rev. 681

@@ -16066,8 +16066,6 @@ void clif_parse_Mail_refreshinbox(int fd, struct map_session_data *sd){
 	}
 #endif
 
-	ShowDebug("clif_parse_Mail_refreshinbox: openType: %d, mailID: %d\n", openType, mailId);
-
 	switch( openType ){
 		case MAIL_INBOX_NORMAL:
 		case MAIL_INBOX_ACCOUNT:

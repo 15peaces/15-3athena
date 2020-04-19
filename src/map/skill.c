@@ -458,8 +458,8 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	switch (skillid) {
 		case AL_WARP:
 		case RETURN_TO_ELDICASTES:
-		//case ALL_GUARDIAN_RECALL:
-		//case ECLAGE_RECALL:
+		case ALL_GUARDIAN_RECALL:
+		case ECLAGE_RECALL:
 			if(map[m].flag.nowarp) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
@@ -8599,9 +8599,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	/*case RETURN_TO_ELDICASTES:
-	//case ALL_GUARDIAN_RECALL:
-	//case ECLAGE_RECALL:
+	case RETURN_TO_ELDICASTES:
+	case ALL_GUARDIAN_RECALL:
+	case ECLAGE_RECALL:
 		if( sd )
 		{
 			short x, y;// Destiny position.
@@ -8612,27 +8612,27 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				y = 187;
 				mapindex  = mapindex_name2id(MAP_DICASTES);
 			}
-			//else if ( skillid == ALL_GUARDIAN_RECALL )
-			//{
-			//	x = 44;
-			//	y = 151;
-			//	mapindex  = mapindex_name2id(MAP_MORA);
-			//}
-			//else if ( skillid == ECLAGE_RECALL )
-			//{
-			//	x = ???;
-			//	y = ???;
-			//	mapindex  = mapindex_name2id(MAP_ECLAGE);
-			//}
+			else if ( skillid == ALL_GUARDIAN_RECALL )
+			{
+				x = 44;
+				y = 151;
+				mapindex  = mapindex_name2id(MAP_MORA);
+			}
+			else if ( skillid == ECLAGE_RECALL )
+			{
+				x = 110;
+				y = 39;
+				mapindex  = mapindex_name2id(MAP_ECLAGE);
+			}
 			if( !mapindex )
 			{// If the map is not found, fail the skill to prevent warping the player to a non existing map.
-				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0);
+				clif_skill_fail(sd, skillid, 0, 0, 0);
 				map_freeblock_unlock();
 				return 0;
 			}
 			pc_setpos(sd, mapindex, x, y, CLR_TELEPORT);
 		}
-		break;*/
+		break;
 
 	case NPC_WIDESOULDRAIN:
 		if ( flag&1 )

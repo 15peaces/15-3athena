@@ -128,6 +128,12 @@
 19814,C_Shiny_Wig,Costume Shiny Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,306,{},{},{}
 19815,C_Lolita_Ten_Gallon_Hat,Costume Lolita Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1048,{},{},{}
 19816,C_Pecopeco_Cap,Costume Pecopeco Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1049,{},{},{}
+19817,C_Ifrits_Breath,Costume Ifrit's Breath,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1050,{},{},{}
+19818,C_Drooping_Morocc_Minion,Costume Drooping Morocc Minion,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,600,{},{},{}
+19820,C_Necromencer_Hood,Costume Necromencer Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,491,{},{},{}
+19821,C_Hyegun_Hat,Costume Hyegun Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,375,{},{},{}
+19822,C_Yellow_Bandana,Costume Yellow Bandana,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,309,{},{},{}
+19823,C_White_Cat_Hood,Costume White Cat Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,1052,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -176,16 +182,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19817,C_Ifrits_Breath,Costume Ifrit's Breath,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1050,{},{},{}
-19818,C_Drooping_Morocc_Minion,Costume Drooping Morocc Minion,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,600,{},{},{}
-19820,C_Necromencer_Hood,Costume Necromencer Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,491,{},{},{}
-19821,C_Hyegun_Hat,Costume Hyegun Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,375,{},{},{}
-19822,C_Yellow_Bandana,Costume Yellow Bandana,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,309,{},{},{}
-19823,C_White_Cat_Hood,Costume White Cat Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,1052,{},{},{}
-19824,C_Evil_Druid_Hat,Costume Evil Druid Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1053,{},{},{}
-19825,C_Vicious_Stop_Bandage,Costume Vicious Stop Bandage,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1054,{},{},{}
-19826,C_Ice_Wings_Ears,Costume Ice Wings Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,584,{},{},{}
-19827,C_Amistr_Cap,Costume Amistr Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,643,{},{},{}
 19828,C_Fedora,Costume Fedora,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,195,{},{},{}
 19830,C_Sunglasses,Costume Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,12,{},{},{}
 19831,C_Filir_Hat,Costume Filir Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,408,{},{},{}
@@ -3534,3 +3530,44 @@
 13127,Crimson_Revolver,Crimson Revolver,4,20,,1000,100,,7,2,0x41000000,63,2,34,3,70,1,17,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
 13128,Revolver_of_Vicious_Mind,Revolver of Vicious Mind,4,20,,1500,150,,7,1,0x41000000,63,2,34,4,160,1,17,{ bonus bAtk,pow(min(getrefine(),15),2); },{},{}
 13129,Unity_Revolver,Unity Revolver,4,20,,500,95,,7,1,0x41000000,63,2,34,3,1,1,17,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}
+//===================================================================
+// More 1-Handed Swords
+//===================================================================
+13454,Crimson_Saber,Crimson Saber,4,20,,850,85,,1,2,0x000654E3,63,2,2,3,70,1,2,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
+13455,Saber_of_Vicious_Mind,Saber of Vicious Mind,4,20,,1350,135,,1,1,0x000654E3,63,2,2,4,160,1,2,{ bonus bAtk,pow(min(getrefine(),15),2); },{},{}
+13456,Unity_Sword,Unity Sword,4,20,,420,80,,1,1,0x000654E3,56,2,2,3,1,1,2,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}
+13457,Unity_Dagger,Unity Dagger,4,20,,270,52,,1,1,0x028F5EEF,63,2,2,3,1,1,1,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}
+//===================================================================
+// More Maces
+//===================================================================
+16040,Crimson_Mace,Crimson Mace,4,20,,800,80,,1,2,0x0004C5B3,63,2,2,3,70,1,8,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
+16041,Mace_of_Vicious_Mind,Mace of Vicious Mind,4,20,,1300,130,,1,1,0x0004C5B3,63,2,2,4,160,1,8,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bUnbreakableWeapon,1; },{},{}
+16043,Meteor_Strike,Meteor Strike,4,0,,20000,1,,1,2,0x00000001,63,2,2,4,110,1,8,{ bonus bBaseAtk,10*getskilllv("BS_WEAPONRESEARCH"); bonus bBaseAtk,30*getskilllv("MO_IRONHAND"); set .@s, getskilllv("AM_AXEMASTERY"); bonus bBaseAtk,7*.@s; bonus bHit,5*.@s; bonus bBaseAtk,10*getrefine(); if (getskilllv("MC_PUSHCART") > 9) skill "MC_CARTREVOLUTION",1; if (getskilllv("SM_SWORD") > 0) skill "KN_BOWLINGBASH",1; set .@str, readparam(bStr); if (.@str > 119) bonus bUseSPrate,-30; else if (.@str > 107) bonus bUseSPrate,-20; },{},{}
+//===================================================================
+// More Bows
+//===================================================================
+18130,Crimson_Bow,Crimson Bow,4,20,,1200,120,,5,2,0x000A0848,63,2,34,3,70,1,11,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); },{},{}
+//===================================================================
+// New Shoes
+//===================================================================
+22034,Crimson_Gaiter,Crimson Gaiter,5,0,,500,,10,,0,0xFFFFFFFF,63,2,64,,50,1,,{ bonus bCritical,2; bonus bCritAtkRate,2; if(getrefine()>=7){ bonus bCritical,3; bonus bCritAtkRate,3; } },{},{}
+22035,Vet_Nepen_Heel,Heoric Nepenthes Shoes,5,10,,300,,10,,1,0xFFFFFFFF,63,2,64,,160,1,,{ set .@r, getrefine(); if (.@r>=8 && .@r<=10) set .@i,5+.@r; else if (.@r>=11 && .@r<=13) set .@i,5+(.@r*3); else if (.@r>13) set .@i,42; bonus bVariableCastrate,-10-.@i; },{},{}
+22036,Vet_SliverFox_Boots,Heroic Silver Fox Leather Boots,5,10,,300,,15,,1,0xFFFFFFFF,63,2,64,,160,1,,{ set .@r, getrefine(); if (.@r>=8 && .@r<=13) set .@i,.@r; else if (.@r>13) set .@i,13; bonus bLongAtkRate,5+.@i; },{},{}
+22037,Vet_Ungo_Boots,Heroic Ungoliant Upgrade Boots,5,10,,300,,10,,1,0xFFFFFFFF,63,2,64,,160,1,,{ set .@r, getrefine(); if (.@r>=8 && .@r<=13) set .@i,.@r; else if (.@r>13) set .@i,13; bonus bUseSPrate,-5-.@i; },{},{}
+22089,Crimson_Gaiter_,Crimson Gaiter,5,0,,500,,10,,1,0xFFFFFFFF,63,2,64,,50,1,,{ bonus bCritical,2; bonus bCritAtkRate,2; if(getrefine()>=7){ bonus bCritical,3; bonus bCritAtkRate,3; } },{},{}
+//===================================================================
+// New Axes
+//===================================================================
+28106,Crimson_Two-Handed_Axe,Crimson Two-Handed Axe,4,20,,2000,200,,1,2,0x000444A2,63,2,34,3,70,1,7,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bUnbreakableWeapon,1; },{},{}
+28107,Two_Handed_Axe_of_Vicious_Mind,Two Handed Axe of Vicious Mind,4,20,,2500,250,,1,1,0x000444A2,63,2,34,4,160,1,7,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bUnbreakableWeapon,1; },{},{}
+//===================================================================
+// More books
+//===================================================================
+28604,Crimson_Bible,Crimson Bible,4,20,,450,45,,1,2,0x00410100,63,2,2,3,70,1,15,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bMatk,(.@r<=15?(pow(.@r,2)/2):225); },{},{}
+28605,Book_of_Vicious_Mind,Book of Vicious Mind,4,20,,950,95,,1,1,0x00010100,63,2,2,4,160,1,15,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bMatk,pow(min(getrefine(),15),2); bonus bUnbreakableWeapon,1; },{},{}
+28606,Unity_Bible,Unity Bible,4,20,,220,42,,1,1,0x00410100,63,2,2,3,1,1,15,{ bonus bBaseAtk,pow(getrefine(),2)*125/100; },{},{}
+//===================================================================
+// More daggers
+//===================================================================
+28705,Crimson_Dagger,Crimson Dagger,4,20,,550,55,,1,2,0x028F5EEF,63,2,2,3,70,1,1,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bMatk,(.@r<=15?(pow(.@r,2)/2):225); },{},{}
+28706,Dagger_of_Vicious_Mind,Dagger of Vicious Mind,4,20,,1050,105:50,,1,1,0x028F5EEF,63,2,2,4,160,1,1,{ bonus bAtk,pow(min(getrefine(),15),2); bonus bMatk,pow(min(getrefine(),15),2)/2; },{},{}

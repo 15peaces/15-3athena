@@ -37,6 +37,52 @@ Oninit:
 		setmapflag "arug_que01" ,mf_noteleport;
 		setmapflag "man_in01"   ,mf_noteleport;
 		setmapflag "spl_in01"   ,mf_noteleport;
+		setmapflag "s_atelier"	,mf_noteleport;
+		setmapflag "bra_in01"	,mf_noteleport;
+		setmapflag "dic_in01"	,mf_noteleport;
+	}
+	
+	// Episode 14+
+	if(getepisode() >= 140){
+		setmapflag "1@mist"		,mf_noteleport;
+		setmapflag "1@mist"		,mf_monster_noteleport;
+		setmapflag "dew_in01"	,mf_noteleport;
+		setmapflag "mal_in01"	,mf_noteleport;
+		setmapflag "mal_in02"	,mf_noteleport;
+		setmapflag "1@cash"		,mf_noteleport;
+		setmapflag "1@cash"		,mf_monster_noteleport;
+		setmapflag "1@pump"		,mf_noteleport;
+		setmapflag "1@pump"		,mf_monster_noteleport;
+		setmapflag "2@pump"		,mf_noteleport;
+		setmapflag "2@pump"		,mf_monster_noteleport;
+		setmapflag "que_lhz"	,mf_noteleport;
+		setmapflag "que_lhz"	,mf_monster_noteleport;
+		setmapflag "1@lhz"		,mf_noteleport;
+		setmapflag "1@lhz"		,mf_monster_noteleport;
+		setmapflag "ma_scene01"	,mf_noteleport;
+		setmapflag "ma_in01"	,mf_noteleport;
+		setmapflag "1@ma_h"		,mf_noteleport;
+		setmapflag "1@ma_h"		,mf_monster_noteleport;
+		setmapflag "1@ma_c"		,mf_noteleport;
+		setmapflag "1@ma_c"		,mf_monster_noteleport;
+		setmapflag "1@ma_b"		,mf_noteleport;
+		setmapflag "1@ma_b"		,mf_monster_noteleport;
+		setmapflag "ma_zif01"	,mf_noteleport;
+		setmapflag "ma_zif02"	,mf_noteleport;
+		setmapflag "ma_zif03"	,mf_noteleport;
+		setmapflag "ma_zif04"	,mf_noteleport;
+		setmapflag "ma_zif05"	,mf_noteleport;
+		setmapflag "ma_zif06"	,mf_noteleport;
+		setmapflag "ma_zif07"	,mf_noteleport;
+		setmapflag "ma_zif08"	,mf_noteleport;
+		setmapflag "ma_zif09"	,mf_noteleport;
+		setmapflag "ecl_in01"	,mf_noteleport;
+		setmapflag "ecl_in02"	,mf_noteleport;
+		setmapflag "ecl_in03"	,mf_noteleport;
+		setmapflag "ecl_in04"	,mf_noteleport;
+		setmapflag "1@ecl"		,mf_noteleport;
+		setmapflag "1@ecl"		,mf_monster_noteleport;
+		setmapflag "ecl_hub01"	,mf_noteleport;
 	}
 	
 	end;

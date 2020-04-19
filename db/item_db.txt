@@ -7782,10 +7782,12 @@
 19785,C_Crunch_Toast,Costume Crunch Toast,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,188,{},{},{}
 19786,C_Crown_of_Mistress,Costume Crown of Mistress,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,165,{},{},{}
 //
-19826,C_Ice_Wing_Ear,Costume Ice Wing Ear,5,20,,10,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,584,{},{},{}
-19827,C_Amistr,Costume Amistr,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,,{},{},{}
+19824,C_Evil_Druid_Hat,Costume Evil Druid Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1053,{},{},{}
+19825,C_Vicious_Stop_Bandage,Costume Vicious Stop Bandage,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1054,{},{},{}
+19826,C_Ice_Wings_Ears,Costume Ice Wings Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,584,{},{},{}
+19827,C_Amistr_Cap,Costume Amistr Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,643,{},{},{}
 19829,C_Straw_Hat,Costume Straw Hat,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,0,0,146,{},{},{}
-
+//
 19853,C_Filir Wings,Costume Filir Wings,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,595,{ bonus2 bExpAddRace,RC_Boss,5; bonus2 bExpAddRace,RC_NonBoss,5; },{},{}
 // Costume Headgear's Using Status's To Appear -> sprites currently missing in kRO
 19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
