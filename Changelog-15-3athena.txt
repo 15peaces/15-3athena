@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/20/2020
+	r254 [15peaces]
+		*Added another missing item to database.
+		*Removed duplicated map entries from my last update.
+		*Rebuilt map cache (we now support 970+ maps).
+
 04/19/2020
 	r253 [15peaces]
 		*Merged missing changes from 3ceam rev. 682
