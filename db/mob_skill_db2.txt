@@ -2786,3 +2786,6 @@
 2541,Faceworm Larva@NPC_BLEEDING,attack,660,5,2000,1000,1000,yes,target,always,,,,,,,,
 2541,Faceworm Larva@NPC_POISON,attack,176,5,500,800,5000,no,target,always,,,,,,,,
 2541,Faceworm Larva@NPC_POISONATTACK,attack,188,10,2000,2000,2000,yes,target,always,,,,,,,,
+
+3026,Fire Pit@NPC_DEATHSUMMON,dead,718,3,10000,0,10000,no,self,always,0,3027,3027,3027,,,,
+

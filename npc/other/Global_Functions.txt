@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Lupus, kobra_k88
 //===== Current Version: ===================================== 
-//= 2.23 [15peaces]
+//= 2.25 [15peaces]
 //===== Compatible With: ===================================== 
 //= 15-3athena
 //===== Description: ========================================= 
@@ -47,6 +47,7 @@
 //= 2.22 Added "F_CanOpenStorage" and "F_CanChangeJob". [15peaces]
 //= 2.23 Renamed 'F_RandMes' to 'F_Rand' & removed useless 'getJobName' function. Thanks to Euphy. [15peaces]
 //= 2.24 Added "F_InsertArticle" and "F_GetNumSuffix". [15peaces]
+//= 2.25 Added "close3". Thanks to Capuche. [15peaces]
 //============================================================ 
 
 
@@ -595,3 +596,13 @@ function	script	F_CanOpenStorage	{
 function	script	F_CanChangeJob	{
 	return (!basicskillcheck() || getskilllv("NV_BASIC") > 8);
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+// Shortcut : close button and clear cutin.
+//////////////////////////////////////////////////////////////////////////////////
+function	script	close3	{
+	close2;
+	cutin "",255;
+	end;
+}
+

@@ -5,6 +5,81 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/25/2020
+	r255 [15peaces]
+		*Merged missing changes from 3ceam rev. 683
+		*Changed MOB_CLONE_START & MOB_CLONE_END defines to allow a real maximum of 4000 monsters in monster database.
+			-With this update we added the first monsters in 3k ID range...
+		*Added close3 global function.
+		*Initial release of dimensional travel quest (access to flame bassin)
+			-Include misc npcs related to ep14.3
+			-Implementation of NPC_DEATHSUMMON skill
+				--summons monsters at the location of master grave.
+		*Genetic 2011 update has been applied.
+			-This update brings the job a lot closer to official, but their's still a number of things still remaining to work on.
+			-Things like Crazy Weed, Fire Expansion Lv 3 and 4, certain bomb and item effects will be worked on in another update due to the complex nature of these features.
+		*GN_TRAINING_SWORD
+			-Fixed a issue where the skill would lower the player's attack speed.
+			-Skill no longer affects ASPD.
+		*GN_CART_TORNADO
+			-Updated damage formula.
+		*GN_CARTCANNON
+			-Fixed a typo in the SP requirements.
+			-Updated damage formula.
+		*GN_CARTBOOST
+			-Fixed a issue where bonus damage to cart skills was applied incorrectly.
+		*GN_THORNS_TRAP
+			-Updated the max number of placeable traps to 3.
+			-Trap is no longer placeable under enemy targets.
+			-Trap is no longer stackable on the same cell.
+		*GN_BLOOD_SUCKER
+			-Skill level now affects the amount of healing gained from damage.
+		*GN_SPORE_EXPLOSION
+			-Fixed a issue where the spore bomb would explode 1 second earlier then it should.
+			-Updated damage formula.
+		*GN_WALLOFTHORN
+			-Added damage formula.
+			-Walls HP formula updated.
+		*GN_DEMONIC_FIRE
+			-Corrected AoE size to official 5x5.
+		*GN_FIRE_EXPANSION
+			-Corrected AoE size to official 5x5.
+			-Rate at which smoke powder and tear gas hits is now 500ms.
+			-Note: The skill isnt triggering the smoke powder and tear gas AoE's properly and are only possiable using the skill ID themselfs.
+			-This will be fixed in a later update.
+			-Added smoke powder status to effect 3. Currently doesent trigger properly.
+			-Added part of tear gas status to effect 4. Also doesent trigger properly.
+			-Level 5 now casts level 5 Acid Demonstration if the player doesent know the skill or knows a level equal to or below 5. If the player knows a level higher then 5, then the learned level will be casted.
+		*GN_HELLS_PLANT
+			-Fixed a issue where stun and bleeding chances were crossed.
+			-Trap is no longer placeable under enemy targets.
+			-Trap is no longer stackable on the same cell.
+			-Updated damage formula.
+		*GN_MANDRAGORA
+			-AoE size updated.
+			-Status success change update. However the resistance is not yet coded.
+			-SP drain updated.
+			-INT reduction formula updated.
+		*GN_SLINGITEM
+			-Bombs and lumps damage formulas recoded to official.
+		*Genetic Made Items and Ammo
+			-The following below are Genetic made / useable item that have been udpated.
+			-Coconut Bomb
+				--Stun duration changed to 5 seconds
+				--Bleeding duration changed to 10 seconds.
+			-Melon Bomb
+				--Status duration changed to 60 seconds
+			-Banana Bomb
+				--LUK reduction status duration changed to 60 seconds.
+				--Added official force sitdown chance and reduction formula's.
+				--Changed force sitdown status duration to 1 second.
+		*RA_FEARBREEZE
+			-Fixed a issue where critical attacks would sometimes not trigger on lower levels.
+		*RA_WUGDASH
+			-Fixed a issue where bonus damage was being incorrectly applied.
+		*SO_POISON_BUSTER
+			-Fixed a issue where the damage was not being splashed around the target.
+
 04/20/2020
 	r254 [15peaces]
 		*Added another missing item to database.

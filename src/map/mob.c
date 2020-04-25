@@ -2836,7 +2836,7 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 		if (mobdb_checkid(data.class_) == 0)
 			continue;
 
-		if (map_search_freecell(&md2->bl, 0, &x, &y, MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE, 0)) {
+		if (skill_id != NPC_DEATHSUMMON && map_search_freecell(&md2->bl, 0, &x, &y, MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE, 0)) {
 			data.x = x;
 			data.y = y;
 		} else {
