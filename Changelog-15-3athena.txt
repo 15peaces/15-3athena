@@ -5,6 +5,104 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/26/2020
+	r256 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn256_log.sql file!
+		*Merged missing changes from 3ceam rev. 684 - 686
+		*Quest System Update
+			-Added support for the new quests that grant item drops from mobs.
+		*Added support for 2011-11-22aRagexeRE.
+			-This is an older client, but maybe there are still people using it. ^^
+		*Update/moro vol npcs
+			-Updated npcs from ep 14.3 (official conversion)
+			-added hero ring exchanger and enchant npcs
+				--Some texts and system are customs
+			-Thanks to rAthena!
+		*Added missing status Tags/ID's.
+		*WM_SATURDAY_NIGHT_FEVER
+			-Fixed an issue where inflecting the status on a player when using a skill level of 6 or higher would cause the server to crash.
+		*Shadow Chaser 2011 update has been applied.
+			-This update brings most of the skills to official status.
+			-However, complex skills like Reproduce and Deadly Infect will have to be completed later due to a list of skills/status that will have to be gone through. Also a few of the ground skills will have to be done in another update due to complex issues
+			-with them.
+		*SC_FATALMENACE
+			-Damage formula updated.
+		*SC_REPRODUCE
+			-Fixed a issue where the status wouldn't start draining SP until one minute after activating.
+			-Added a few skills to the list of Reproduceable skills. Will fully update in the future.
+			-Updated SP drain.
+		*SC_AUTOSHADOWSPELL
+			-Updated skill autocasting restrictions.
+			-Can now only autocast offensive Mage and Wizard magic skills, as well as Acolyte's Heal.
+			-Recoded autocast success formula. This corrects a small issue with the success chance.
+		*SC_SHADOWFORM
+			-Updated SP drain.
+			-The shadow link between the caster and the target can now stretch up to 10 cells.
+			-The caster can now be brought out of the status by a chance when around a player with Sight or Ruwach active. Both will attempt to end the Shadow Form status by a chance every 2 seconds.
+			-The chance of the caster being reviled every attempt is decreased with higher skill levels of Shadow Form.
+		*SC_TRIANGLESHOT
+			-Damage formula updated.
+		*SC_BODYPAINT
+			-Fixed a issue where the skill was only blinding hidden targets instead of all targets.
+			-Updated blind status duration to official.
+			-Updated ASPD reduction chance. Reduction only applies to hidden targets.
+			-Updated ASPD reduction formula.
+		*SC_INVISIBILITY
+			-Fixed a issue where the caster defense element would be Ghost 1 type when in the status.
+			-Fixed a issue where the status would drain a percent of the caster's current SP instead of MaxSP.
+			-Status is no longer ended when getting hit.
+			-Player is no longer reviled with detection skills.
+			-Updated SP drain.
+			-Removed some unneeded checks.
+		*SC_DEADLYINFECT
+			-Now only spreads status's to target when dealing melee damage or getting hit with melee damage.
+			-Updated the list of spreadable status's. All common status's can be spreaded except ones that naturally end when the player is hit. Strip status's and Oblivions Curse can no longer be spreaded.
+			-Will further updated the list later.
+			-Success chance updated.
+		*All Masquerade Skills
+			-Fixed a issue where the caster's job level would increase the success chance more then it should.
+			-Fixed a issue where the target's weight was not reducing the success chance properly.
+			-Status's are no longer blockable by Gold Thief Bug card since these skills are not magic types.
+			-Combined base code for all Masquerade skills into 1 code.
+		*SC_ENERVATION
+			-Fixed a issue where the status didn't properly reduce the affected target's ATK.
+		*SC_GROOMY
+			-Fixed a issue where the status would reduce the target's movement speed.
+			-Fixed a suspected issue where the skill would strip a target's Mercenary.
+			-Should only strip animals as the info says.
+		*SC_IGNORANCE
+			-Updated SP drain and recovery amount.
+		*SC_LAZINESS
+			-Fixed a issue where the status was only increasing fixed cast instead of the entire cast time.
+			-Updated SP requirement increase.
+			-Status now reduces the target's movement speed.
+		*SC_UNLUCKY
+			-Now gives the target a random status along with the Unlucky status.
+			-The random status's are Poison, Silence, and Blind. Only 1 is randomly given and ignores all resistance, meaning it cant be avoided and the duration is as long as the Unlucky status.
+			-Updated zeny requirement.
+		*SC_WEAKNESS
+			-Removed a unneeded FLEE2 flag.
+		*SC_MANHOLE
+			-Fixed a issue where trap and status duration for level 2 was incorrectly set.
+			-Fixed a issue where the traps would sometimes work on allies.
+			-Added a missing trap type mask to the skill database.
+		*SC_CHAOSPANIC
+			-Confusion status duration updated.
+		*SC_FEINTBOMB
+			-Fixed a issue where the damage would be delayed after exploding depending on casters ASPD.
+			-Fixed a issue where the explosion animation would display twice.
+			-Skill level now affects how far you back slide.
+			-Caster will now go into hiding status after back sliding.
+			-The learned level of hiding affects the activated level of hiding.
+			-Damage formula updated.
+		*MG_SIGHT; AL_RUWACH
+			-Will now reveal targets in Shadow Form status by a percentage chance every 2 seconds.
+			-The success chance is affected by the targets used level of Shadow Form.
+		*RG_PLAGIARISM
+			-Kagerou/Oboro skills can no longer be copied through Plagiarism.
+		*SR_CURSEDCIRCLE
+			-Fixed a issue where using the skill would heal the caster a little instead of taking a required percent of HP.
+
 04/25/2020
 	r255 [15peaces]
 		*Merged missing changes from 3ceam rev. 683

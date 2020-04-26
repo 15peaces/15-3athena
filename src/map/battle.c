@@ -734,7 +734,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			if( sd ) pc_addspiritball(sd, skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1), spheremax);
 		}
 
-		if(sc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * sc->data[SC__DEADLYINFECT]->val1)
+		if (sc->data[SC__DEADLYINFECT] && flag&BF_SHORT && damage > 0 && rand() % 100 < 30 + 10 * sc->data[SC__DEADLYINFECT]->val1)
 			status_change_spread(bl, src); // Deadly infect attacked side
 	}
 
@@ -777,7 +777,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 		if (tsc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < tsc->data[SC_POISONINGWEAPON]->val3)
 			sc_start(bl, (sc_type)tsc->data[SC_POISONINGWEAPON]->val2, 100, tsc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, tsc->data[SC_POISONINGWEAPON]->val1));
-		if (tsc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * tsc->data[SC__DEADLYINFECT]->val1)
+		if (tsc->data[SC__DEADLYINFECT] && flag&BF_SHORT && damage > 0 && rand() % 100 < 30 + 10 * tsc->data[SC__DEADLYINFECT]->val1)
 			status_change_spread(src, bl);
 	}
 
@@ -1633,7 +1633,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					hitrate += 10 + 4 * skill_lv;
 					break;
 				case SC_FATALMENACE:
-					hitrate -= (35 - skill_lv * 5);
+					hitrate -= 35 - 5 * skill_lv;
  					break;
 				case LG_BANISHINGPOINT:
 					hitrate += 3 * skill_lv;
@@ -2296,7 +2296,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio = skillratio * base_lv / 100;
 					break;
 				case SC_TRIANGLESHOT:
-					skillratio += 300 + (skill_lv - 1) * sstatus->agi / 2; //nyanRO
+					skillratio += 200 + (skill_lv - 1) * sstatus->agi / 2;
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * base_lv / 120;
 					break;
@@ -4999,30 +4999,27 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if( sd && wd.flag&BF_SHORT && sc && sc->data[SC__AUTOSHADOWSPELL] && rand()%100 < sc->data[SC__AUTOSHADOWSPELL]->val3 &&
 		sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id != 0 && sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].flag == 13 ) {
 		int r_skill = sd->status.skill[sc->data[SC__AUTOSHADOWSPELL]->val1].id,
-			r_lv = sc->data[SC__AUTOSHADOWSPELL]->val2;
-
-			skill_consume_requirement( sd, r_skill, r_lv, 3 );
-		if (r_skill != AL_HOLYLIGHT && r_skill != PR_MAGNUS)
+		r_lv = sc->data[SC__AUTOSHADOWSPELL]->val2;
+		
+		skill_consume_requirement( sd, r_skill, r_lv, 3 );
+		switch (skill_get_casttype(r_skill))
 		{
-			switch (skill_get_casttype(r_skill))
-			{
-				case CAST_GROUND:
-					skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
-					break;
-				case CAST_NODAMAGE:
-					skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
-					break;
-				case CAST_DAMAGE:
-					skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
-					break;
-			}
-
-			sd->ud.canact_tick = tick + skill_delayfix(src, r_skill, r_lv);
-			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, r_skill, r_lv), 0, 0, 1);
+			case CAST_GROUND:
+				skill_castend_pos2(src, target->x, target->y, r_skill, r_lv, tick, flag);
+				break;
+			case CAST_DAMAGE:
+				skill_castend_damage_id(src, target, r_skill, r_lv, tick, flag);
+				break;
+			case CAST_NODAMAGE:
+				skill_castend_nodamage_id(src, target, r_skill, r_lv, tick, flag);
+				break;
 		}
 
-			sd->ud.canact_tick = tick + skill_delayfix( src, r_skill, r_lv );
-			clif_status_change( src, SI_ACTIONDELAY, 1, skill_delayfix( src, r_skill, r_lv ), 0, 0, 1 );
+		sd->ud.canact_tick = tick + skill_delayfix(src, r_skill, r_lv);
+		clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, r_skill, r_lv), 0, 0, 1);
+		
+		sd->ud.canact_tick = tick + skill_delayfix( src, r_skill, r_lv );
+		clif_status_change( src, SI_ACTIONDELAY, 1, skill_delayfix( src, r_skill, r_lv ), 0, 0, 1 );
 	}
 	if( sd && sc && ( sc->data[SC_TROPIC_OPTION] || sc->data[SC_CHILLY_AIR_OPTION] || sc->data[SC_WILD_STORM_OPTION] || sc->data[SC_UPHEAVAL_OPTION] ) )
 	{	// Autocast one Bolt depending on status change.

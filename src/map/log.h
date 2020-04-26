@@ -46,6 +46,7 @@ typedef enum e_log_pick_type
 	LOG_TYPE_BUYING_STORE     = 0x08000,
 	LOG_TYPE_BANK             = 0x10000,
 	LOG_TYPE_ROULETTE         = 0x20000,
+	LOG_TYPE_QUEST            = 0x40000,
 	// combinations
 	LOG_TYPE_LOOT             = LOG_TYPE_PICKDROP_MONSTER|LOG_TYPE_CONSUME,
 	// all

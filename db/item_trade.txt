@@ -431,6 +431,7 @@
 6276,123,100	// Clear_Reagent
 6277,123,100	// Red_Reagent
 6278,123,100	// Black_Reagent
+6392,123,100	// Bradium_Box
 6397,123,100	// PR_Team_Ticket
 6442,123,100	// Octopus_Hunt_Stick
 6443,123,100	// Sillit_Pong_Bottle
@@ -451,8 +452,16 @@
 6507,123,100	// Evil_Bone
 6519,123,100	// Collected_Samples
 6520,123,100	// Lost_Belongings
+6708,123,100	// Mana_crystal
+6709,123,100	// Crisp_Silk
+6710,123,100	// Tied_Snake
+6713,123,100	// Heart_of_Soul
+6714,123,100	// Sheenas_Soul
+6715,123,100	// Gods_Soul_Piece
+6715,123,100	// P_Of_Evil_Soul
 6847,91,100		// Very_Small_Box
 6848,91,100 	// Light_Box
+6684,91,100		// TokenOfHero
 6904,123,100	// Piece_Of_Soul_Snake
 6907,123,100	// Piece_Of_Soul_Horse
 7025,91,100		// Lucifer's_Lament
@@ -1531,6 +1540,7 @@
 20110,123,100 	// C_Coiledup_Snake
 20139,123,100	// C_Horse_Hairpin
 20140,123,100	// C_Horse_Hairpin
+22567,123,100	// Squad_Prize
 22760,123,100	// Argiope_Transportin
 22761,123,100	// Luciola_Vespa_Transportin
 22762,123,100	// Centipede_Transportin

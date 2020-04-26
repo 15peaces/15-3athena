@@ -1771,14 +1771,19 @@
 6251,Black_Charcoal,Black Charcoal,3,300,,10,,,,,,,,,,,,,{},{},{}
 6682,Bag_Of_Selling_Goods,Bag Of Selling Goods,3,20,,10,,,,,,,,,,,,,{},{},{}
 6683,Dried_Flower,Dried Flower,3,10,,10,,,,,,,,,,,,,{},{},{}
-6684,Proof_of_The_Heroic,Proof of The Heroic,3,10,,0,,,,,,,,,,,,,{},{},{}
+6684,TokenOfHero,Token Of Hero,3,10,,0,,,,,,,,,,,,,{},{},{}
 6685,Morocc_Certification,Morocc Certification,3,10,,0,,,,,,,,,,,,,{},{},{}
 6686,Brick,Brick,3,10,,2000,,,,,,,,,,,,,{},{},{}
 6687,Rope__,Rope,3,10,,2000,,,,,,,,,,,,,{},{},{}
 6688,Wood_,Wood,3,10,,2000,,,,,,,,,,,,,{},{},{}
-6689,Fire_Beetle_Shell,Fire Beetle Shell,3,10,,0,,,,,,,,,,,,,{},{},{}
-6690,Delicious_Stem,Delicious Stem,3,10,,0,,,,,,,,,,,,,{},{},{}
-6691,Fire_Feather,Fire Feather,3,10,,0,,,,,,,,,,,,,{},{},{}
+6689,BurningSkin,Burning Bug Skin,3,10,,0,,,,,,,,,,,,,{},{},{}
+6690,YummyStem,Yummy Stem,3,10,,0,,,,,,,,,,,,,{},{},{}
+6691,BurningFeather,Burning Feather,3,10,,0,,,,,,,,,,,,,{},{},{}
+6692,PatrolLog,Patrol Log,3,10,,1,,,,,,,,,,,,,{},{},{}
+6693,Stone_Of_Blessing,Stone Of Blessing,3,10,,10,,,,,,,,,,,,,{},{},{}
+6694,Monster_Blood,Monster Blood,3,10,,10,,,,,,,,,,,,,{},{},{}
+6695,ToothOfFlameGolem,Golem's Fiery Stone Tooth,3,10,,100,,,,,,,,,,,,,{},{},{}
+6696,ToothOfFlameFrilldora,Frilldora's Fiery Nape,3,10,,10,,,,,,,,,,,,,{},{},{}
 // Genetic Created Bombs And Lumps
 13260,Apple_Bomb,Apple Bomb,17,10,,1,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
 13261,Coconut_Bomb,Coconut Bomb,17,1,,10,100,,,,0xFFFFFFFF,8,2,32768,,1,,9,{},{},{}
@@ -1940,11 +1945,6 @@
 6610,Glast_Horrendous_Mouth,Glast Horrendous Mouth,3,390,,10,,,,,,,,,,,,,{},{},{}
 6612,Gold_Coin_Basket,Gold Coin Basket,3,20,,200,,,,,,,,,,,,,{},{},{}
 6613,Flashy_Brooch,Flashy Brooch,3,20,,10,,,,,,,,,,,,,{},{},{}
-6692,Patrol_Journal,Patrol Journal,3,10,,1,,,,,,,,,,,,,{},{},{}
-6693,Stone_Blessing,Stone Blessing,3,10,,10,,,,,,,,,,,,,{},{},{}
-6694,Blood_of_The_Monster,Blood of The Monster,3,10,,10,,,,,,,,,,,,,{},{},{}
-6695,Tooth_Rock_Of_Fire_Golem,Tooth Rock Of Fire Golem,3,10,,100,,,,,,,,,,,,,{},{},{}
-6696,Fire_Frill,Fire Frill,3,10,,10,,,,,,,,,,,,,{},{},{}
 6698,Wooden_Axe,Wooden Axe,3,10,,1000,,,,,,,,,,,,,{},{},{}
 6699,Faith_Silence,Faith Silence,3,10,,0,,,,,,,,,,,,,{},{},{}
 6700,White_Snake_Scale,White Snake Scale,3,10,,0,,,,,,,,,,,,,{},{},{}
@@ -1955,9 +1955,13 @@
 6705,Warrior_Certificate,Warrior Certificate,3,10,,0,,,,,,,,,,,,,{},{},{}
 6706,Guardian_Flowers,Guardian Flowers,3,10,,0,,,,,,,,,,,,,{},{},{}
 6707,Jeremy_Beauty_Coupon,Jeremy Beauty Coupon,3,10,,10,,,,,,,,,,,,,{},{},{}
-6708,Magic_Crystal,Magic Crystal,3,10,,,,,,,,,,,,,,,{},{},{}
+6708,Mana_crystal,Mana Crystal,3,10,,,,,,,,,,,,,,,{},{},{}
 6709,Crisp_Silk,Crisp Silk,3,10,,0,,,,,,,,,,,,,{},{},{}
 6710,Tied_Snake,Tied Snake,3,10,,0,,,,,,,,,,,,,{},{},{}
+6712,Lovely_Stick,Lovely Stick,3,0,,0,,,,,,,,,,,,,{},{},{}
+6713,Heart_of_Soul,Heart of Soul,3,0,,0,,,,,,,,,,,,,{},{},{}
+6714,Sheenas_Soul,Sheena's Soul,3,20,,0,,,,,,,,,,,,,{},{},{}
+6715,P_Of_Evil_Soul,Darklord Soulpiece,3,20,,0,,,,,,,,,,,,,{},{},{}
 6750,Failed_Engine,Failed Engine,3,10,,10,,,,,,,,,,,,,{},{},{}
 6751,Crushed_Can_Iron_Plate,Crushed Can Iron Plate,3,10,,10,,,,,,,,,,,,,{},{},{}
 6752,Charleston_Parts,Charleston Parts,3,10,,10,,,,,,,,,,,,,{},{},{}

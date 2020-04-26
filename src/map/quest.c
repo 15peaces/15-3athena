@@ -7,10 +7,12 @@
 #include "../common/malloc.h"
 #include "../common/version.h"
 #include "../common/nullpo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
 
+#include "itemdb.h"
 #include "map.h"
 #include "pc.h"
 #include "npc.h"
@@ -26,6 +28,7 @@
 #include "quest.h"
 #include "intif.h"
 #include "chrif.h"
+#include "intif.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,7 +38,6 @@
 
 
 struct s_quest_db quest_db[MAX_QUEST_DB];
-
 
 int quest_search_db(int quest_id)
 {
@@ -190,26 +192,30 @@ int quest_delete(TBL_PC * sd, int quest_id)
 int quest_update_objective_sub(struct block_list *bl, va_list ap)
 {
 	struct map_session_data * sd;
-	int mob, party;
+	int mob_id, party_id;
 
 	nullpo_ret(bl);
 	nullpo_ret(sd = (struct map_session_data *)bl);
 
-	party = va_arg(ap,int);
-	mob = va_arg(ap,int);
+	party_id = va_arg(ap, int);
+	mob_id = va_arg(ap, int);
 
 	if( !sd->avail_quests )
 		return 0;
-	if( sd->status.party_id != party )
+	if( sd->status.party_id != party_id )
 		return 0;
 
-	quest_update_objective(sd, mob);
+	quest_update_objective(sd, mob_id);
 
 	return 1;
 }
 
-
-void quest_update_objective(TBL_PC * sd, int mob)
+/**
+* Updates the quest objectives for a character after killing a monster, including the handling of quest-granted drops.
+* @param sd : Character's data
+* @param mob_id : Monster ID
+*/
+void quest_update_objective(TBL_PC * sd, int mob_id)
 {
 	int i,j;
 
@@ -218,13 +224,46 @@ void quest_update_objective(TBL_PC * sd, int mob)
 		if( sd->quest_log[i].state != Q_ACTIVE )
 			continue;
 
-		for( j = 0; j < MAX_QUEST_OBJECTIVES; j++ )
-			if( quest_db[sd->quest_index[i]].mob[j] == mob && sd->quest_log[i].count[j] < quest_db[sd->quest_index[i]].count[j] ) 
+		for( j = 0; j < quest_db[sd->quest_index[i]].objectives_count; j++ )
+			if( quest_db[sd->quest_index[i]].objectives[j].mob == mob_id && sd->quest_log[i].count[j] < quest_db[sd->quest_index[i]].objectives[j].count)
 			{
 				sd->quest_log[i].count[j]++;
 				sd->save_quest = true;
 				clif_quest_update_objective(sd,&sd->quest_log[i],sd->quest_index[i]);
 			}
+
+		// process quest-granted extra drop bonuses
+		for (j = 0; j < quest_db[sd->quest_index[i]].dropitem_count; j++) {
+			struct quest_dropitem *dropitem = &quest_db[sd->quest_index[i]].dropitem[j];
+			struct item item;
+			int temp;
+
+			if (dropitem->mob_id != 0 && dropitem->mob_id != mob_id)
+				continue;
+			// TODO: Should this be affected by server rates?
+			if (dropitem->rate < 10000 && rnd() % 10000 >= dropitem->rate)
+				continue;
+			if (!itemdb_exists(dropitem->nameid))
+				continue;
+
+			memset(&item, 0, sizeof(item));
+			item.nameid = dropitem->nameid;
+			item.identify = itemdb_isidentified(dropitem->nameid);
+			item.amount = dropitem->count;
+#ifdef BOUND_ITEMS
+			item.bound = dropitem->bound;
+#endif
+			temp = pc_additem(sd, &item, 1);
+			log_pick(&sd->bl, LOG_TYPE_QUEST, dropitem->nameid, 1, &item);
+			if (temp != 0) // Failed to obtain the item
+				clif_additem(sd, 0, 0, temp);
+			else if (dropitem->isAnnounced) {
+				char output[CHAT_SIZE_MAX];
+
+				sprintf(output, msg_txt(717), sd->status.name, itemdb_jname(item.nameid), StringBuf_Value(&quest_db[sd->quest_index[i]].name));
+				intif_broadcast(output, strlen(output) + 1, BC_DEFAULT);
+			}
+		}
 	}
 }
 
@@ -245,7 +284,7 @@ int quest_update_status(TBL_PC * sd, int quest_id, quest_state status)
 
 	if( status < Q_COMPLETE )
 	{
-		clif_quest_update_status(sd, quest_id, (bool)status);
+		clif_quest_update_status(sd, quest_id, status == Q_ACTIVE ? true : false);
 		return 0;
 	}
 
@@ -282,8 +321,8 @@ int quest_check(TBL_PC * sd, int quest_id, quest_check_type type)
 	case HUNTING:
 		{
 			int j;
-			ARR_FIND(0, MAX_QUEST_OBJECTIVES, j, sd->quest_log[i].count[j] < quest_db[sd->quest_index[i]].count[j]);
-			if( j == MAX_QUEST_OBJECTIVES )
+			ARR_FIND(0, quest_db[sd->quest_index[i]].objectives_count, j, sd->quest_log[i].count[j] < quest_db[sd->quest_index[i]].objectives[j].count);
+			if( j == quest_db[sd->quest_index[i]].objectives_count )
 				return 2;
 			if( sd->quest_log[i].time < (unsigned int)time(NULL) )
 				return 1;
@@ -297,12 +336,16 @@ int quest_check(TBL_PC * sd, int quest_id, quest_check_type type)
 	return -1;
 }
 
+/**
+* Loads quests from the quest db.txt
+* @return Number of loaded quests, or -1 if the file couldn't be read.
+*/
 int quest_read_db(void)
 {
 	FILE *fp;
 	char line[1024];
-	int i,j,k = 0;
-	char *str[20],*p,*np;
+	uint32 count = 0;
+	uint32 ln = 0;
 
 	sprintf(line, "%s/quest_db.txt", db_path);
 	if( (fp=fopen(line,"r"))==NULL ){
@@ -312,51 +355,86 @@ int quest_read_db(void)
 	
 	while(fgets(line, sizeof(line), fp))
 	{
-		if (k == MAX_QUEST_DB) {
+		char *str[19], *p;
+		uint16 quest_id = 0;
+		uint8 i;
+
+		if (count == MAX_QUEST_DB) {
 			ShowError("quest_read_db: Too many entries specified in %s/quest_db.txt!\n", db_path);
 			break;
 		}
-		if(line[0]=='/' && line[1]=='/')
+		
+		++ln;
+		if (line[0] == '\0' || (line[0] == '/' && line[1] == '/'))
 			continue;
-		memset(str,0,sizeof(str));
+		
+		p = trim(line);
 
-		for( j = 0, p = line; j < 8;j++ )
+		if (*p == '\0')
+			continue; // empty line
+
+		memset(str, 0, sizeof(str));
+
+		for( i = 0, p = line; i < 18 && p; i++)
 		{
-			if((np=strchr(p,','))!=NULL)
-			{
-				str[j] = p;
-				*np = 0;
-				p = np + 1;
-			}
-			else if (str[0] == NULL)
-				continue;
-			else
-			{
-				ShowError("quest_read_db: insufficient columns in line %s\n", line);
-				continue;
-			}
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p)
+				*p++ = 0;
 		}
-		if(str[0]==NULL)
+		if (str[0] == NULL)
 			continue;
+		if (i < 18) 
+		{
+			ShowError("quest_read_db: Insufficient columns in line %d (%d of %d)\n", ln, i, 18);
+			continue;
+		}
 
-		memset(&quest_db[k], 0, sizeof(quest_db[0]));
+		quest_id = atoi(str[0]);
 
-		quest_db[k].id = atoi(str[0]);
-		quest_db[k].time = atoi(str[1]);
+		if (quest_id < 0 || quest_id >= INT_MAX) {
+			ShowError("quest_read_db: Invalid quest ID '%d' in line '%s' (min: 0, max: %d.)\n", quest_id, ln, INT_MAX);
+			continue;
+		}
+
+		memset(&quest_db[count], 0, sizeof(quest_db[0]));
+
+		quest_db[count].id = quest_id;
+		quest_db[count].time = atoi(str[1]);
+
 		for( i = 0; i < MAX_QUEST_OBJECTIVES; i++ )
 		{
-			quest_db[k].mob[i] = atoi(str[2*i+2]);
-			quest_db[k].count[i] = atoi(str[2*i+3]);
+			uint16 mob_id = (uint16)mobdb_checkid(atoi(str[2 * i + 2]));
 
-			if( !quest_db[k].mob[i] || !quest_db[k].count[i] )
-				break;
+			memset(&quest_db[count].objectives[i], 0, sizeof(quest_db[count].objectives[0]));
+			quest_db[count].objectives[i].mob = mob_id;
+			quest_db[count].objectives[i].count = atoi(str[2*i+3]);
+			quest_db[count].objectives_count++;
 		}
-		quest_db[k].num_objectives = i;
-		//memcpy(quest_db[k].name, str[8], sizeof(str[8]));
-		k++;
+
+		for (i = 0; i < MAX_QUEST_DROPS; i++)
+		{
+			uint16 mob_id = (uint16)mobdb_checkid(atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 2)]));
+			uint16 nameid = (uint16)atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 3)]);
+			if (!nameid)
+				nameid = 0;
+			else if (!itemdb_exists(nameid)) {
+				ShowWarning("quest_read_db: Invalid item reward '%d' (mob %d, optional) in line %d.\n", nameid, mob_id, ln);
+			}
+
+			memset(&quest_db[count].dropitem[i], 0, sizeof(quest_db[count].dropitem[0]));
+			quest_db[count].dropitem[i].mob_id = mob_id;
+			quest_db[count].dropitem[i].nameid = nameid;
+			quest_db[count].dropitem[i].rate = atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 4)]);
+			quest_db[count].dropitem_count++;
+		}
+
+		//StringBuf_Printf(&quest_db[count].name, "%s", str[17]);
+		//ShowDebug("quest_read_db: ID: %d, time: %d, obj1: %d(%d), drop1: %d(%d)\n", quest_db[count].id, quest_db[count].time, quest_db[count].objectives[0].mob, quest_db[count].objectives[0].count, quest_db[count].dropitem[0].nameid, quest_db[count].dropitem[0].rate);
+		count++;
 	}
 	fclose(fp);
-	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", k, "quest_db.txt");
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, "quest_db.txt");
 	return 0;
 }
 
