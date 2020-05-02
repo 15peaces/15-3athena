@@ -207,6 +207,7 @@ ex: if your NPC is named 'Hunter#hunter1', it will be displayed as 'Hunter'
 ** Define a warp point
 
 <from map name>,<fromX>,<fromY>,<facing>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
+<from map name>,<fromX>,<fromY>,<facing>%TAB%warp2%TAB%<warp name>%TAB%<spanx>,<spany>,<to map name>,<toX>,<toY>
 
 This will define a warp NPC that will warp a player between maps, and while most 
 arguments of that are obvious, some deserve special mention.
@@ -221,6 +222,8 @@ with 'enablenpc'/'disablenpc'
 
 Facing of a warp object is irrelevant, it is not used in the code and all 
 current scripts have a zero in there.
+
+Unlike 'warp', 'warp2' will also be triggered by hidden player.
 
 ** Define an NPC object.
 
@@ -328,7 +331,7 @@ NOTES:
 
 ** Define an warp/shop/cashshop/NPC duplicate.
 
-warp: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<spanx>,<spany>
+warp/warp2: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<spanx>,<spany>
 shop/cashshop/npc: -%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>
 shop/cashshop/npc: <map name>,<x>,<y>,<facing>%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>
 npc: -%TAB%duplicate(<label>)%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>
@@ -7437,6 +7440,17 @@ Example:
 
 ---------------------------------------
 
+*sscanf(<string>,<format>[,param[,param[,...]]])
+
+C style sscanf. All C format specifiers are supported.
+More info: sscanf @ www.cplusplus.com. The number of params is only limited
+by rA's script engine.
+
+Example:
+	sscanf("This is a test: 42 foobar", "This is a test: %d %s", .@num, .@str$);
+	dispbottom(.@num + " " + .@str$); //prints "42 foobar"
+
+---------------------------------------
 *replacestr(<input>, <search>, <replace>{, <usecase>{, <count>}})
 
 Replaces all instances of a search string in the input with the specified

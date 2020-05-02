@@ -1,5 +1,11 @@
-//===== rAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Flame Basin Monster Spawn Script
+//===== By: ==================================================
+//= Capuche
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= 15-3athena Project
 //===== Description: =========================================
 //= Spawns monsters on Flame Basin.
 //===== Additional Comments: =================================
@@ -18,6 +24,3 @@ moro_vol,0,0,0,0	monster	Fire Sandman	3021,30,0,0,0
 moro_vol,0,0,0,0	monster	Fire Frilldora	3022,30,0,0,0
 moro_vol,0,0,0,0	monster	Fire Golem	3023,30,0,0,0
 moro_vol,0,0,0,0	monster	Fire Bug	3027,10,0,0,0
-moro_vol,0,0,0,0	monster	Blazing Morocc Reincarnation	3039,1,0,0,0
-moro_vol,0,0,0,0	monster	Distorted Morocc Reincarnation	3040,1,0,0,0
-moro_vol,0,0,0,0	monster	Freezing Morocc Reincarnation	3041,1,0,0,0

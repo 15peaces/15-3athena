@@ -78,6 +78,12 @@ Oninit:
 		setmapflag "louyang"   ,mf_noicewall;
 	}
 	
+	// Episode 15
+	if(getepisode() >= 150){
+		setmapflag "1@lab"    ,mf_noicewall;
+		setmapflag "1@uns"  ,mf_noicewall;
+	}
+	
 	end;
 }
 

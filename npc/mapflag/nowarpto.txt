@@ -40,6 +40,14 @@ Oninit:
 		setmapflag "spl_in01"   ,mf_nowarpto;
 	}
 	
+	// Episode 15
+	if(getepisode() >= 150){
+		setmapflag "1@lab"   ,mf_nowarpto;
+		setmapflag "1@uns"   ,mf_nowarpto;
+		setmapflag "un_bk_q" ,mf_nowarpto;
+		setmapflag "un_myst" ,mf_nowarpto;
+	}
+	
 	end;
 }
 

@@ -5919,7 +5919,7 @@ static const struct _battle_data {
 	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
 	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
 	//Episode System [15peaces]
-	{ "feature.episode",					&battle_config.feature_episode,		           143,     1,      143,            },
+	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
 };
 

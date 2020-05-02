@@ -895,7 +895,7 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 	}
 	switch(map[m].npc[i]->subtype) {
 		case NPCTYPE_WARP:
-			if( pc_ishiding(sd) )
+			if ((!map[m].npc[i]->trigger_on_hidden && (pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]))) || pc_isdead(sd))
 				break; // hidden chars cannot use warps
 			pc_setpos(sd,map[m].npc[i]->u.warp.mapindex,map[m].npc[i]->u.warp.x,map[m].npc[i]->u.warp.y,CLR_OUTSIGHT);
 			break;
@@ -907,7 +907,7 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 
 				if ((sd->bl.x >= (map[m].npc[j]->bl.x - map[m].npc[j]->u.warp.xs) && sd->bl.x <= (map[m].npc[j]->bl.x + map[m].npc[j]->u.warp.xs)) &&
 					(sd->bl.y >= (map[m].npc[j]->bl.y - map[m].npc[j]->u.warp.ys) && sd->bl.y <= (map[m].npc[j]->bl.y + map[m].npc[j]->u.warp.ys))) {
-					if( pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]) || pc_isdead(sd) )
+					if ((!map[m].npc[i]->trigger_on_hidden && (pc_ishiding(sd) || (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE]))) || pc_isdead(sd))
 						break; // hidden or dead chars cannot use warps
 					pc_setpos(sd,map[m].npc[j]->u.warp.mapindex,map[m].npc[j]->u.warp.x,map[m].npc[j]->u.warp.y,CLR_OUTSIGHT);
 					found_warp = 1;
@@ -2234,6 +2234,7 @@ struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, shor
 	nd->u.warp.ys = xs;
 	nd->bl.type = BL_NPC;
 	nd->subtype = NPCTYPE_WARP;
+	nd->trigger_on_hidden = false;
 	npc_setcells(nd);
 	map_addblock(&nd->bl);
 	status_set_viewdata(&nd->bl, nd->class_);
@@ -2294,6 +2295,10 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 	npc_warp++;
 	nd->bl.type = BL_NPC;
 	nd->subtype = NPCTYPE_WARP;
+	if (strcasecmp("warp2", w2) == 0)
+		nd->trigger_on_hidden = true;
+	else
+		nd->trigger_on_hidden = false;
 	npc_setcells(nd);
 	map_addblock(&nd->bl);
 	status_set_viewdata(&nd->bl, nd->class_);
@@ -2911,6 +2916,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		nd->u.warp.mapindex = dnd->u.warp.mapindex;
 		nd->u.warp.x = dnd->u.warp.x;
 		nd->u.warp.y = dnd->u.warp.y;
+		nd->trigger_on_hidden = dnd->trigger_on_hidden;
 		break;
 	}
 
@@ -3038,6 +3044,7 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 		wnd->u.warp.ys = snd->u.warp.ys;
 		wnd->bl.type = BL_NPC;
 		wnd->subtype = NPCTYPE_WARP;
+		wnd->trigger_on_hidden = snd->trigger_on_hidden;
 		npc_setcells(wnd);
 		map_addblock(&wnd->bl);
 		status_set_viewdata(&wnd->bl, wnd->class_);
@@ -3886,7 +3893,7 @@ void npc_parsesrcfile(const char* filepath)
 			}
 		}
 
-		if( strcasecmp(w2,"warp") == 0 && count > 3 )
+		if ((strcasecmp(w2, "warp") == 0 || strcasecmp(w2, "warp2") == 0) && count > 3)
 		{
 			p = npc_parse_warp(w1,w2,w3,w4, p, buffer, filepath);
 		}

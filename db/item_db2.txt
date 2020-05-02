@@ -3579,3 +3579,33 @@
 // More Guns
 //===================================================================
 32302,Crimson_Rose,Crimson Rose,4,20,,700,150,,7,2,0x40000000,63,2,34,4,100,1,17,{ set .@r, getrefine(); bonus bBaseAtk,10*(.@r/2); bonus bAspdRate,3*(.@r/3); if (.@r >= 7) { bonus bAspd,1; bonus2 bAddClass,Class_All,5; if (.@r >= 9) { bonus bCritAtkRate,20; if (.@r >= 11) { autobonus3 "{ bonus bCritical,20; bonus bLongAtkRate,15; }",1000,60000,"RL_HEAT_BARREL"; } } } },{},{}
+
+// EP 15 items (renewal)
+6749,Operation_Control_Device,Operation Control Device,3,10,,0,,,,,,,,,,,,,{},{},{}
+6750,Failed_Engine,Failed Engine,3,10,,10,,,,,,,,,,,,,{},{},{}
+6751,Crushed_Can_Iron_Plate,Crushed Can Iron Plate,3,10,,10,,,,,,,,,,,,,{},{},{}
+6752,Charleston_Parts,Charleston Parts,3,10,,10,,,,,,,,,,,,,{},{},{}
+6753,Token_Of_Destruction,Token Of Destruction,3,10,,0,,,,,,,,,,,,,{},{},{}
+6754,Collected_Medicinal_Herbs,Collected Medicinal Herbs,3,10,,0,,,,,,,,,,,,,{},{},{}
+6755,Contaminated_Magic,Contaminated Magic,3,20,,10,,,,,,,,,,,,,{},{},{}
+6756,Cohesive_Energy,Cohesive Energy,3,20,,0,,,,,,,,,,,,,{},{},{}
+6757,The_Memory_Recorder,The Memory Recorder,3,20,,0,,,,,,,,,,,,,{},{},{}
+6826,Fresh_Grapes,Fresh Grapes,3,10,,100,,,,,,,,,,,,,{},{},{}
+6827,Complete_Machine_Parts,Complete Machine Parts,3,10,,0,,,,,,,,,,,,,{},{},{}
+6828,Gravity_Safety_Device,Gravity Safety Device,3,10,,100,,,,,,,,,,,,,{},{},{}
+6961,Huge_Metal_Scrap,Huge Metal Scrap,3,10,0,1000,,,,,,,,,,,,,{},{},{}
+6962,Old_Fuel,Old Fuel,3,10,0,100,,,,,,,,,,,,,{},{},{}
+18997,Riot_Chip,Runaway Chip,5,10,,300,,,,1,0xFFFFFFFF,63,2,256,,100,1,1201,{ bonus bHit,50; bonus bFlee,50; bonus bMaxSPrate,-50; },{},{}
+22687,Fragments_Vicious_Mind,Fragments Vicious Mind,3,10,,1,,,,0,0xFFFFFFFF,63,2,,,,,,{ /*TODO*/ },{},{}
+22691,Record_Fragment1,Record Fragment,0,,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "un_bk_q",98,143; if (callfunc("F_time_limit_recorder") == 1) { set recorder_quest_type, 1; } },{},{}
+22692,Record_Fragment2,Record Fragment,0,,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "un_bk_q",45,276; if (callfunc("F_time_limit_recorder") == 1) { set recorder_quest_type, 2; } },{},{}
+22693,Record_Fragment3,Record Fragment,0,,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "un_bk_q",217,346; if (callfunc("F_time_limit_recorder") == 1) { set recorder_quest_type, 3; } },{},{}
+22694,Record_Fragment4,Record Fragment,0,,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "un_bk_q",273,235; if (callfunc("F_time_limit_recorder") == 1) { set recorder_quest_type, 4; } },{},{}
+22695,Record_Fragment5,Record Fragment,0,,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "un_bk_q",275,290; if (callfunc("F_time_limit_recorder") == 1) { set recorder_quest_type, 5; } },{},{}
+27014,Green_Cenere_Card,Green Cenere Card,6,20,,10,,,,,0xFFFFFFFF,63,2,64,,,,,{ bonus bMaxHPrate,2; autobonus2 "{ bonus2 bHPRegenRate,1000,1000; }",30,5000; },{},{}
+27015,Repair_Robot_Turbo_Card,Repair Robot Turbo Card,6,20,,10,,,,,0xFFFFFFFF,63,2,769,,,,,{ bonus bHPrecovRate,25; bonus bSPrecovRate,25; set .@r, getrefine(); bonus bHPGainValue,30+((.@r>=7)*10); bonus bSPGainValue,3+((.@r>=7)*3); },{},{}
+27016,Exploration_Rover_Turbo_Card,Exploration Rover Turbo Card,6,20,,10,,,,,0xFFFFFFFF,63,2,2,,,,,{ bonus2 bCriticalAddRace,RC_Formless,30; },{},{}
+27017,Scrap_Robots_Card,Scrap Robots Card,6,20,,10,,,,,0xFFFFFFFF,63,2,4,,,,,{ bonus2 bSubRace,RC_Formless,10*((getrefine()>=7)*5); /* TODO: Has a chance to gain accessories when a monster is killed. */ },{},{}
+27018,GC109_Card,GC109 Card,6,20,,10,,,,,0xFFFFFFFF,63,2,136,,,,,{ bonus bDelayrate,-(1+(BaseLevel>=90)+(BaseLevel>=120)); },{},{}
+27019,DR815_Card,DR815 Card,6,20,,10,,,,,0xFFFFFFFF,63,2,136,,,,,{ bonus bHit,1+(BaseLevel>=90)+(BaseLevel>=120); },{},{}
+27020,T_W_O_Card,T W O Card,6,20,,10,,,,,0xFFFFFFFF,63,2,2,,,,,{ bonus2 bAddClass,Class_All,10; bonus3 bAutoSpell,"NPC_WIDESOULDRAIN",2,50+((getrefine()/3)*10); },{},{}

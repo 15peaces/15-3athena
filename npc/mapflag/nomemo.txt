@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 2.3
+//= 2.4
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -21,6 +21,7 @@
 //= 2.1 Updated and ported from rAthena. [15peaces]
 //= 2.2 Added support for episode mapflags [15peaces]
 //= 2.3 Added GVG TE Maps. [15peaces]
+//= 2.4 Added EP 15 & dali02 maps. [15peaces]
 //============================================================
 
 //============================================================
@@ -174,6 +175,14 @@ Oninit:
 		setmapflag "ecl_hub01"  ,mf_nomemo;
 		setmapflag "moc_prydn1" ,mf_nomemo;
 		setmapflag "moc_prydn2" ,mf_nomemo;
+	}
+
+	// Episode 15
+	if(getepisode() >= 150){
+		setmapflag "1@lab"   ,mf_nomemo;
+		setmapflag "1@uns"   ,mf_nomemo;
+		setmapflag "un_bk_q" ,mf_nomemo;
+		setmapflag "un_myst" ,mf_nomemo;
 	}
 	
 	end;
@@ -853,6 +862,7 @@ gl_cas02_	mapflag	nomemo
 1@sara	mapflag	nomemo
 1@gef_in	mapflag	nomemo
 dali	mapflag	nomemo
+dali02	mapflag	nomemo
 
 // WOE:TE Maps ===================
 te_prtcas01	mapflag	nomemo

@@ -5,6 +5,34 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/03/2020
+	r257 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn257.sql file!
+		*Added support for unitdata constants.
+		*Added support for sscanf script command.
+		*14.3 quests update
+			-Updated Hero Token Exchanger npc to match official npc
+			-Updated Dimensional Travel Quest to match official script
+			-Dimensional Travel Quest now uses the official variable for future reference and to fill the missing sequence
+			-Moved the npcs from dimensional travel quest to separate custom npcs from official conversion of npcs
+			-Added official system to spawn the mini-boss on moro_vol map
+			-Added Flaming Basin and Doom Prayers quests
+			-Updated the aegis name and english name of the items from moro_vol map
+			-Thanks to rAthena.			
+		*Added 'warp2' NPC
+			-Unlike 'warp', 'warp2' NPC will also be triggered by hidden player.
+			-Thanks to rAthena!
+			-Replace script using OnTouch:([\r\n\t]+)warp by warp2
+		*Initial release of Phantasmagorika Quests containing
+			-Phantasmagorika Quests ep 15.1 and 15.2
+			-New monsters around verus (credits divine-pride.net)
+			-Thanks to rAthena!
+		*Initial Release of Dimensional Gap (dali) NPCs
+			-Thanks to rAthena!
+		*Some cleaning and correction in some npc files.
+		*Changed default and max episode to 15.2 (152).
+			-Also changed min episode to 1.0 (10).
+
 04/26/2020
 	r256 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn256_log.sql file!

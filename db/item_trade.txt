@@ -459,6 +459,8 @@
 6714,123,100	// Sheenas_Soul
 6715,123,100	// Gods_Soul_Piece
 6715,123,100	// P_Of_Evil_Soul
+6756,123,100	// Cohesive_Energy
+6757,123,100	// The_Memory_Recorder
 6847,91,100		// Very_Small_Box
 6848,91,100 	// Light_Box
 6684,91,100		// TokenOfHero

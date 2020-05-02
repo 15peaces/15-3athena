@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 2.2
+//= 2.4
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -20,6 +20,7 @@
 //= 2.1 Updated and ported from rAthena. [15peaces]
 //= 2.2 Added support for episode mapflags [15peaces]
 //= 2.3 Added WOE:TE maps [15peaces]
+//= 2.4 Added EP 15 & Heroes' Trail Part 1 maps. [15peaces]
 //============================================================
 
 //============================================================
@@ -122,6 +123,12 @@ Oninit:
 		setmapflag "1@ecl"     ,mf_nobranch;
 		setmapflag "ecl_hub01" ,mf_nobranch;
 		setmapflag "que_avan01",mf_nobranch;
+	}
+	
+	// Episode 15
+	if(getepisode() >= 150){
+		setmapflag "1@lab"    ,mf_nobranch;
+		setmapflag "1@uns"  ,mf_nobranch;
 	}
 	
 	end;
@@ -463,6 +470,15 @@ izlude_a	mapflag	nobranch
 izlude_b	mapflag	nobranch
 izlude_c	mapflag	nobranch
 izlude_d	mapflag	nobranch
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	nobranch
+1@face	mapflag	nobranch
+1@gef	mapflag	nobranch
+1@gef_in	mapflag	nobranch
+1@ge_st	mapflag	nobranch
+dali	mapflag	nobranch
+dali02	mapflag	nobranch
 
 // WOE:TE Maps ===================
 te_alde_gld	mapflag	nobranch

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.2
+//= 1.3
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -11,6 +11,7 @@
 //===== Additional Comments: ================================= 
 //= 1.1 Added support for episode mapflags [15peaces]
 //= 1.2 Added WOE:TE maps [15peaces]
+//= 1.3 Added EP 15 & Heroes' Trail Part 1 maps. [15peaces]
 //============================================================
 
 //============================================================
@@ -83,6 +84,18 @@ Oninit:
 		setmapflag "1@ecl"		,mf_noteleport;
 		setmapflag "1@ecl"		,mf_monster_noteleport;
 		setmapflag "ecl_hub01"	,mf_noteleport;
+	}
+	
+	// Episode 15
+	if(getepisode() >= 150){
+		setmapflag "1@lab"   ,mf_noteleport;
+		setmapflag "1@uns"   ,mf_noteleport;
+		setmapflag "un_bk_q" ,mf_noteleport;
+		setmapflag "un_myst" ,mf_noteleport;
+		setmapflag "verus04" ,mf_noteleport;
+		setmapflag "1@lab"   ,mf_monster_noteleport;
+		setmapflag "1@uns"   ,mf_monster_noteleport;
+		setmapflag "un_bk_q" ,mf_monster_noteleport;
 	}
 	
 	end;
@@ -482,6 +495,18 @@ nyd_dun02	mapflag	noteleport
 poring_w01	mapflag	noteleport
 poring_w02	mapflag	noteleport
 poring_w02	mapflag	monster_noteleport
+
+// Heroes' Trails - Part 1 =======
+1@gef	mapflag	noteleport
+1@gef	mapflag	monster_noteleport
+1@face	mapflag	noteleport
+1@face	mapflag	monster_noteleport
+1@sara	mapflag	noteleport
+1@sara	mapflag	monster_noteleport
+1@gef_in	mapflag	noteleport
+1@gef_in	mapflag	monster_noteleport
+dali	mapflag	noteleport
+dali02	mapflag	noteleport
 
 // WOE:TE Maps ===================
 te_prtcas01	mapflag	noteleport

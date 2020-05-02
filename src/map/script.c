@@ -14272,6 +14272,117 @@ BUILDIN_FUNC(sprintf)
 	return 0;
 }
 
+//=======================================================
+// sscanf(<str>, <format>, ...);
+// Implements C sscanf.
+//-------------------------------------------------------
+BUILDIN_FUNC(sscanf) {
+	unsigned int argc, arg = 0, len;
+	struct script_data* data;
+	struct map_session_data* sd = NULL;
+	const char* str;
+	const char* format;
+	const char* p;
+	const char* q;
+	char* buf = NULL;
+	char* buf_p;
+	char* ref_str = NULL;
+	int ref_int;
+
+	// Get data
+	str = script_getstr(st, 2);
+	format = script_getstr(st, 3);
+	argc = script_lastdata(st) - 3;
+
+	len = strlen(format);
+
+
+	if (len != 0 && strlen(str) == 0) {
+		// If the source string is empty but the format string is not, we return -1
+		// according to the C specs. (if the format string is also empty, we shall
+		// continue and return 0: 0 conversions took place out of the 0 attempted.)
+		script_pushint(st, -1);
+		return 0;
+	}
+
+	CREATE(buf, char, len * 2 + 1);
+
+	// Issue sscanf for each parameter
+	*buf = 0;
+	q = format;
+	while ((p = strchr(q, '%'))) {
+		if (p != q) {
+			strncat(buf, q, (size_t)(p - q));
+			q = p;
+		}
+		p = q + 1;
+		if (*p == '*' || *p == '%') {  // Skip
+			strncat(buf, q, 2);
+			q += 2;
+			continue;
+		}
+		if (arg >= argc) {
+			ShowError("buildin_sscanf: Not enough arguments passed!\n");
+			script_pushint(st, -1);
+			if (buf) aFree(buf);
+			if (ref_str) aFree(ref_str);
+			return 1;
+		}
+		if ((p = strchr(q + 1, '%')) == NULL) {
+			p = strchr(q, 0);  // EOS
+		}
+		len = p - q;
+		strncat(buf, q, len);
+		q = p;
+
+		// Validate output
+		data = script_getdata(st, arg + 4);
+		if (!data_isreference(data) || !reference_tovariable(data)) {
+			ShowError("buildin_sscanf: Target argument is not a variable!\n");
+			script_pushint(st, -1);
+			if (buf) aFree(buf);
+			if (ref_str) aFree(ref_str);
+			return 1;
+		}
+		buf_p = reference_getname(data);
+		if (not_server_variable(*buf_p) && !script_rid2sd(st)) {
+			script_pushint(st, -1);
+			if (buf) aFree(buf);
+			if (ref_str) aFree(ref_str);
+			return 0;
+		}
+
+		// Save value if any
+		if (buf_p[strlen(buf_p) - 1] == '$') {  // String
+			if (ref_str == NULL) {
+				CREATE(ref_str, char, strlen(str) + 1);
+			}
+			if (sscanf(str, buf, ref_str) == 0) {
+				break;
+			}
+			set_reg(st, sd, reference_uid(reference_getid(data), reference_getindex(data)), buf_p, (void*)ref_str, reference_getref(data));
+		}
+		else {  // Number
+			if (sscanf(str, buf, &ref_int) == 0) {
+				break;
+			}
+			set_reg(st, sd, reference_uid(reference_getid(data), reference_getindex(data)), buf_p, (void*)ref_int, reference_getref(data));
+		}
+		arg++;
+
+		// Disable used format (%... -> %*...)
+		buf_p = strchr(buf, 0);
+		memmove(buf_p - len + 2, buf_p - len + 1, len);
+		*(buf_p - len + 1) = '*';
+	}
+
+	script_pushint(st, arg);
+	if (buf) aFree(buf);
+	if (ref_str) aFree(ref_str);
+
+	return 0;
+}
+
 //===============================================================
 // replacestr <input>, <search>, <replace>{, <usecase>{, <count>}}
 //
@@ -19992,6 +20103,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(explode, "rss"),
 	BUILDIN_DEF(implode, "r?"),
 	BUILDIN_DEF(sprintf,"s*"),  // Thanks to Mirei [15peaces]
+	BUILDIN_DEF(sscanf, "ss*"),  // Thanks to Mirei [15peaces]
 	BUILDIN_DEF(replacestr,"sss??"),
 	BUILDIN_DEF(countstr,"ss?"),
 	BUILDIN_DEF(setnpcdisplay,"sv??"),
