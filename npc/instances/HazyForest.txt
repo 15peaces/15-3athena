@@ -31,7 +31,7 @@ bif_fild01,158,340,5	script	Laphine Soldier#mist	447,{
 	}
 	set .@playtime, checkquest(7211,PLAYTIME);
 	if (getcharid(0) == getpartyleader(.@party_id,2)) {
-		if (.@playtime == 1) {
+		if (.@playtime == 0 || .@playtime == 1) {
 			mes "[Laphine Soldier]";
 			mes "...Are you sure you're not doing too much?";
 			mes "I think you'd better get some rest.";
@@ -86,7 +86,7 @@ bif_fild01,158,340,5	script	Laphine Soldier#mist	447,{
 				mes "Hmm...";
 				next;
 				mes "[Laphine Soldier]";
-				if (!.@playtime)
+				if (.@playtime == -1)
 					mes "It's dangerous in the forest.";
 				else
 					mes "The atmosphere is somewhat tense in the forest.";
@@ -114,7 +114,7 @@ bif_fild01,158,340,5	script	Laphine Soldier#mist	447,{
 		case 2:
 			mes "[Laphine Soldier]";
 			mes "Well, you've made the right decision.";
-			if (!.@playtime)
+			if (.@playtime == -1)
 				mes "That's what's good for you.";
 			close;
 		}
@@ -144,8 +144,9 @@ bif_fild01,161,355,0	script	Log Tunnel	844,{
 	next;
 	if(select("Enter the tunnel.:Give up.") == 2)
 		close;
+	set .@playtime, checkquest(7211,PLAYTIME);
 	if (has_instance("1@mist") == "") {
-		if (checkquest(7211,PLAYTIME) == 1) {
+		if (.@playtime == 0 || .@playtime == 1) {
 			mes "You try to crawl into the log, but some mysterious power pushes you back with a gush of wind.";
 			mes "It seems like you can't force your way into the forest.";
 			close;
@@ -155,7 +156,7 @@ bif_fild01,161,355,0	script	Log Tunnel	844,{
 		close;
 	} else {
 		if (checkquest(7211,PLAYTIME) == 2) erasequest 7211;
-		if (!checkquest(7211,PLAYTIME)) setquest 7211;
+		if (checkquest(7211,PLAYTIME) == -1) setquest 7211;
 		mapannounce "bif_fild01",getpartyname(getcharid(1))+" party's "+strcharinfo(0)+" member is entering the Mistwood Maze.",bc_map,"0x00ff99"; //FW_NORMAL 12 0 0
 		warp "1@mist",89,29;
 		close;
@@ -1017,7 +1018,7 @@ bif_fild01,38,374,0	script	Mysterious Flower#ep14_1	844,{
 1@mist,109,70,0	script	a1_a2	45,1,1,{
 	end;
 OnTouch:
-	if (!checkquest(7211,PLAYTIME))
+	if (checkquest(7211,PLAYTIME) == -1)
 		setquest 7211;
 	warp instance_mapname("1@mist"),116,40;
 	end;

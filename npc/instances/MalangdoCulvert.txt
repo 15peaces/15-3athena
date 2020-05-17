@@ -57,7 +57,7 @@ mal_in01,172,28,2	script	Albo#mal	561,{
 		"General Culvert Weekly Service","^990000Hard Culvert Weekly Service^000000";
 	set .@menu$, "Why are doing this job?:";
 	for(set .@i,0; .@i<4; set .@i,.@i+1) {
-		if (checkquest(.@quests[.@i],PLAYTIME)) {
+		if (checkquest(.@quests[.@i],PLAYTIME) > -1) {
 			set .@status[.@i], 2;
 			set .@menu$, .@menu$ + "^aaaaaa- There is no new task -^000000:";
 		} else if (.@i%2 && BaseLevel < 140) {
@@ -259,7 +259,7 @@ mal_in01,172,26,2	script	Madeca#mal	544,{
 
 L_EraseQuest:
 	for(set .@j, 0; .@j<getargcount(); set .@j,.@j+1) {
-		if (checkquest(getarg(.@j)))
+		if (checkquest(getarg(.@j)) > -1)
 			erasequest getarg(.@j);
 	}
 	mes "[Madeca]";
@@ -391,12 +391,12 @@ mal_in01,160,34,4	script	Missing, the Cleaner	545,{
 		set in_canal_n, 1;
 		close;
 	}
-	if (countitem(Ptotection_Seagod) == 0) {
+	if (countitem(6436) == 0) {
 		mes "[Missing, the Cleaner]";
 		mes "You don't look like you have Seagod Protection. I can't open door at the moment!";
 		close;
 	}
-	set .@party_id, getcharid(CHAR_ID_PARTY);
+	set .@party_id, getcharid(1);
 	set .@md_name$, "Culvert";
 	if (!.@party_id) {
 		mes "^0000ffYou have to organize a party of";
@@ -405,8 +405,8 @@ mal_in01,160,34,4	script	Missing, the Cleaner	545,{
 		close;
 	}
 	set .@playtime, checkquest(12254,PLAYTIME);
-	if (!.@playtime) {
-		if (getcharid(CHAR_ID_CHAR) == getpartyleader(.@party_id,2)) {
+	if (.@playtime == -1) {
+		if (getcharid(0) == getpartyleader(.@party_id,2)) {
 			mes "[Missing, the Cleaner]";
 			mes "Ummm? What's up? Tell me the password if you're the leader!";
 			next;
@@ -442,7 +442,7 @@ mal_in01,160,34,4	script	Missing, the Cleaner	545,{
 		if(select("Enter Culvert", "Cancel") == 2)
 			end;
 		callsub L_Enter,1;
-	} else if (.@playtime == 1) {
+	} else if (.@playtime == 0 || .@playtime == 1) {
 		mes "You can enter the Culvert if the gate is open.";
 		next;
 		if(select("Enter Culvert", "Cancel") == 2)
@@ -456,7 +456,7 @@ mal_in01,160,34,4	script	Missing, the Cleaner	545,{
 	end;
 L_Enter:
 	if (has_instance("1@pump") == "") {
-		if (checkquest(12254,PLAYTIME) == 1) {
+		if (checkquest(12254,PLAYTIME) == 0 || checkquest(12254,PLAYTIME) == 1) {
 			mes "The gate to the Culvert is still closed.";
 			mes "You must wait until you are able to enter or find a party leader who can create the instance.";
 			close;
@@ -466,14 +466,14 @@ L_Enter:
 		close;
 	}
 	mapannounce "mal_in01", strcharinfo(PC_NAME)+" of the party "+getpartyname(.@party_id)+" is entering the Culvert.",bc_map,"0x00ff99";
-	if (!checkquest(12254)) setquest 12254;
+	if (checkquest(12254) == -1) setquest 12254;
 	warp "1@pump",63,98;
 	end;
 }
 
 //== Instance: Common Scripts ==============================
 1@pump,63,100,4	script	Missing, the Cleaner#0	545,{
-	if (getcharid(CHAR_ID_CHAR) != getpartyleader(getcharid(CHAR_ID_PARTY),2)) {
+	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
 		mes "[Missing, the Cleaner]";
 		mes "I am trying to have a conversation with your leader now. Please don't disturb and wait!";
 		close;
@@ -494,7 +494,7 @@ L_Enter:
 			mes "Huh? Not ready yet? Talk to me again when you're ready.";
 			close;
 		}
-		set 'party_id, getcharid(CHAR_ID_PARTY);
+		set 'party_id, getcharid(1);
 		mapannounce instance_mapname("1@pump"),"Missing: Move toward the 3 o'clock direction and wait for my next order!",bc_map,"0xff88ff",FW_NORMAL,15;
 		disablenpc instance_npcname("Missing, the Cleaner#0");
 		enablenpc instance_npcname("Missing, the Cleaner#n");
@@ -516,7 +516,7 @@ L_Enter:
 			mes "Hmm? Talk to me again when you're ready.";
 			close;
 		}
-		set 'party_id, getcharid(CHAR_ID_PARTY);
+		set 'party_id, getcharid(1);
 		mapannounce instance_mapname("1@pump"),"Missing: I'll go in first, so follow me! I'll open up a gate at the 3 o'clock direction!",bc_map,"0xff88ff",FW_NORMAL,15;
 		disablenpc instance_npcname("Missing, the Cleaner#0");
 		enablenpc instance_npcname("Culvert Entrance#i");
@@ -563,7 +563,7 @@ function	script	F_mal_missing	{
 	mes "[Missing, the Cleaner]";
 	mes "I don't care if you get help from your friends or not. I want you to clean up all culverts! Don't forget! I will watch you and give you instructions. Just do what I said!!";
 	next;
-	if (getcharid(CHAR_ID_CHAR) != getpartyleader(getcharid(CHAR_ID_PARTY),2)) {
+	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
 		mes "[Missing, the Cleaner]";
 		mes "Once your leader finishes preparing, it will begin, so get your hearts ready for it!!";
 		close;
@@ -591,7 +591,7 @@ function	script	F_mal_missing	{
 	mes "[Missing, the Cleaner]";
 	mes "I see seaweed everywhere because you're wiggling! All the culverts will be blocked with seaweed!";
 	next;
-	if (getcharid(CHAR_ID_CHAR) != getpartyleader(getcharid(CHAR_ID_PARTY),2)) {
+	if (getcharid(0) != getpartyleader(getcharid(1),2)) {
 		mes "[Missing, the Cleaner]";
 		mes "Once your leader finishes preparing, settlement will be decided so get your hearts ready for it!!";
 		close;

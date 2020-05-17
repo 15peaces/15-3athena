@@ -3194,11 +3194,11 @@ OnTouch_:
 	end;
 }
 
-//prt_maze02,25,161,0	script	#music	-1,7,7,{
-//OnTouch_:
-//	soundeffect "effect\\석양의 어쌔신.wav",1;
-//	end;
-//}
+prt_maze02,25,161,0	script	#music	1,30,-1,-1,7,7,{
+OnTouch:
+	soundeffect "effect\\석양의 어쌔신.wav",1;
+	end;
+}
 
 prt_maze02,132,132,0	script	#skill	1,30,-1,-1,{
 OnEnable:

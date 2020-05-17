@@ -1,9 +1,11 @@
-//===== Hercules Script ======================================
+//===== 15-3athena Script ====================================
 //= El Dicastes Quest NPCs
 //===== By: ==================================================
 //= Gennosuke Kouga, Muad_Dib
 //===== Current Version: =====================================
-//= 2.3
+//= 2.5
+//===== Compatible With: ===================================== 
+//= 15-3athena Project
 //===== Description: =========================================
 //= [Official Conversion]
 //= Quest NPCs related to Dewata:
@@ -31,6 +33,8 @@
 //= 2.1 Added reset option to "Kareka". [Euphy]
 //= 2.2 Added Izlude duplicates. [Euphy]
 //= 2.3 Added GM management NPCs. [Euphy]
+//= 2.4 Corrected NPC Location. Thanks to Dastgir. [15peaces]
+//= 2.5 Fixed Incorrect variable. Thanks to Frost. [15peaces]
 //============================================================
 
 // Entrance
@@ -354,7 +358,7 @@ OnEnable:
 		mes "- Cannot communicate with him. -";
 		close;	
 	}
-	if (ep13_3_invite < 4) {
+	if (ep13_3_invite < 5) {
 		mes "[Capital City Guard]";
 		mes "Access to the city is restricted from other races without permits.";
 		mes "Please go back.";
@@ -691,7 +695,7 @@ dic_in01,51,270,7	script	Supply Dept. 1 Manager	449,{
 	close;
 }
 
-dic_in01,48,273,8	script	Supply Dept. 2 Manager	449,{
+dic_in01,48,273,1	script	Supply Dept. 2 Manager	449,{
 	if (!checkweight(1201,1)) {
 		mes "You have too many kinds of items. Let's try again after you reduce the number of items.";
 		close;
@@ -1138,7 +1142,7 @@ function	script	unknown_d	{
 	}
 	close;
 }
-prt_fild03,144,95,0	script	Tree Roots	844,{ callfunc ("unknown_d",12166,902); }
+pay_fild03,144,95,0	script	Tree Roots	844,{ callfunc ("unknown_d",12166,902); }
 prt_fild09,371,255,0	script	Reptile Tongues	844,{ callfunc ("unknown_d",12167,903); }
 prt_fild09,352,241,0	script	Scorpion Tails	844,{ callfunc ("unknown_d",12168,904); }
 pay_fild02,177,108,0	script	Stems	844,{ callfunc ("unknown_d",12169,905); }

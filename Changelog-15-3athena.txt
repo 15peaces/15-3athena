@@ -5,7 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
-04/03/2020
+05/17/2020
+	r258 [15peaces]
+		*Fixed some wrong constant usages in instances.
+		*Fixed some wrong quest checks.
+		*Questlog fixes for these quests:
+			-Lost Child
+			-Muff's Loan
+			-Peace For Arunafeltz
+		*Fixed some bugs in El Dicastes quests.
+		*Corrected some NPC facing directions
+		*Added Somotology Laboratory F4 quest & Wolfchev's Laboratory Instance (Thanks to @HerculesWS).
+			-Updated quest_db with Somotology Laboratory F4 entries (5113-5125 are placeholders, may be incorrect).
+		*Removed a duplicate item in custom Item Mall script.
+		*Added base entries for new pets; bonuses are currently not properly implemented.
+		*Fixed some items.
+		*Documented OnTouch_ label.
+
+05/03/2020
 	r257 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn257.sql file!
 		*Added support for unitdata constants.

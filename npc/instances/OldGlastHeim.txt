@@ -70,7 +70,8 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 	mes("[Hugin]");
 	mes("Umm? Did you see me at another place? I don't think so. What about this time?");
 	next;
-	if (checkquest(12317, PLAYTIME) == -1) {
+	set .@ghins_time, checkquest(12317,PLAYTIME);
+	if (.@ghins_time == -1) {
 		set .@party_id, getcharid(1);
 		set .@p_name$, getpartyname(.@party_id);
 		set .@md_name$, "Old Glast Heim";
@@ -119,7 +120,7 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 		case 3:
 			close;
 		}
-	} else if (checkquest(12317, PLAYTIME) == 1) {
+	} else if (.@ghins_time == 0 || .@ghins_time == 1) {
 		mes("[Hugin]");
 		mes("Oh, my... You still have after-effects of time travel. You can't travel in this condition.");
 			if (checkquest(12322) == 1) {
@@ -132,10 +133,8 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 	} else {
 		mes("^0000FFAll trace of access to Old Glast Heim have been removed. Now you can talk with Hugin again.^000000");
 		erasequest 12317;
-		if (checkquest(12318)>0)
-			erasequest 12318;
-		if (checkquest(12319)>0)
-			erasequest 12319;
+		if (checkquest(12318) > -1) erasequest 12318;
+		if (checkquest(12319) > -1) erasequest 12319;
 		close;
 	}
 }

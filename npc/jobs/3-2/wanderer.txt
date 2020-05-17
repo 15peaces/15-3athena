@@ -880,7 +880,7 @@ hu_fild05,342,130,5	script	Dancer Kim#fild	879,{
 		close;
 	}
 	if (job_wan == 7) {
-		if (checkquest(2221,PLAYTIME) == 1) {
+		if (checkquest(2221,PLAYTIME) == 0 || checkquest(2221,PLAYTIME) == 1) {
 			if (checkquest(2221,HUNTING) == 2) {
 				mes "[Dancer Kim]";
 				mes "Whew!";

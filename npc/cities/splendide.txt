@@ -420,7 +420,7 @@ spl_in01,281,329,3	script	Splendide Guard#tre	447,{
 	}
 	else {
 		mes "[Splendide Guard]";
-		mes "AnduVeldRe Ko VeldReFulo So LomaurDu So	So ";
+		mes "AnduVeldRe Ko VeldReFulo So LomaurDu SoSo";
 		close;
 	}
 }

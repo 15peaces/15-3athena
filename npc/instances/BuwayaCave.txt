@@ -62,9 +62,9 @@ ma_fild02,312,317,5	script	Guard#buwaya_cave	570,{
 				break;
 			case 2:
 				set .@playtime, checkquest(4229,PLAYTIME);
-				if (!.@playtime) {
+				if (.@playtime == -1) {
 					// fall through
-				} else if (.@playtime == 1) {
+				} else if (.@playtime == 0 || .@playtime == 1) {
 					mes "[Guard]";
 					mes "Buwaya is still hiding.";
 					mes "Even if you enter now, Buwaya will not come out. ";
@@ -120,9 +120,9 @@ OnTouch:
 		close;
 	}
 	set .@playtime, checkquest(4229,PLAYTIME);
-	if (!.@playtime) {
+	if (.@playtime == -1) {
 		// fall through
-	} else if (.@playtime == 1) {
+	} else if (.@playtime == 0 || .@playtime == 1) {
 		mes "[Guard]";
 		mes "Buwaya is still hiding.";
 		mes "Even if you enter now, Buwaya will not come out.";

@@ -11529,7 +11529,7 @@ OnStop:
 	end;
 }
 
-izlude,172,73,6	script	Scamp	853,{
+-	script	::Scamp	-1,{
 
 	if(lhz_rekenber > 21)
 	{
@@ -11711,6 +11711,12 @@ izlude,172,73,6	script	Scamp	853,{
 	mes "enjoy sitting around here.";
 	close;
 }
+izlude,172,73,6	duplicate(Scamp)	Scamp#izlude	853
+izlude_a,172,73,6	duplicate(Scamp)	Scamp#izlude_a	853
+izlude_b,172,73,6	duplicate(Scamp)	Scamp#izlude_b	853
+izlude_c,172,73,6	duplicate(Scamp)	Scamp#izlude_c	853
+izlude_d,172,73,6	duplicate(Scamp)	Scamp#izlude_d	853
+
 
 airplane_01,1,1,1	script	#bully1	-1,{
 
