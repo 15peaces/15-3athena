@@ -107,7 +107,7 @@ OnAgitStart:
 	end;
 OnAgitBreak:
 	callfunc "F_AgitBreak","nguild_alde","N01";
-	goto OnAgitEliminate;
+	callsub OnAgitEliminate;
 	end;
 OnGuildBreak:
 	callfunc "F_GuildBreak","nguild_alde","N01";
@@ -134,7 +134,7 @@ OnAgitStart:
 	end;
 OnAgitBreak:
 	callfunc "F_AgitBreak","nguild_gef","N02";
-	goto OnAgitEliminate;
+	callsub OnAgitEliminate;
 	end;
 OnGuildBreak:
 	callfunc "F_GuildBreak","nguild_gef","N02";
@@ -161,7 +161,7 @@ OnAgitStart:
 	end;
 OnAgitBreak:
 	callfunc "F_AgitBreak","nguild_pay","N03";
-	goto OnAgitEliminate;
+	callsub OnAgitEliminate;
 	end;
 OnGuildBreak:
 	callfunc "F_GuildBreak","nguild_pay","N03";
@@ -188,7 +188,7 @@ OnAgitStart:
 	end;
 OnAgitBreak:
 	callfunc "F_AgitBreak","nguild_prt","N04";
-	goto OnAgitEliminate;
+	callsub OnAgitEliminate;
 	end;
 OnGuildBreak:
 	callfunc "F_GuildBreak","nguild_prt","N04";

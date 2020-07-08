@@ -443,11 +443,13 @@ mora,140,186,3	script	Raffle Philosopher	517,{
 		mes "[Raffle Philosopher]";
 		mes "So you don't want to hear a quote, eh?";
 		close;
-	} else if (.@input < 100 || .@input > 1000000) {
+	}
+	if (.@input < 100 || .@input > 1000000) {
 		mes "[Raffle Philosopher]";
 		mes "You can pay between ^FF0000100 and 1000000^000000.";
 		close;
-	} else if (Zeny < .@input) {
+	}
+	if (Zeny < .@input) {
 		mes "[Raffle Philosopher]";
 		mes "So you think this is what my time is worth?";
 		close;

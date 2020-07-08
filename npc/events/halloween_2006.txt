@@ -600,19 +600,19 @@ nif_fild01,165,115,3	script	Chicken Masta#06_hw	794,{
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Chicken Masta]";
 				mes "You don't have to buy it, if you don't need it.";
 				close;
 			}
-			else if (@input > 3) {
+			if (@input > 3) {
 				mes "[Chicken Masta]";
 				mes "What did I tell you.";
 				mes "I'm going to sell only three eggs.";
 				next;
+				continue;
 			}
-			else
-				break;
+			break;
 		}
 		set .@hw_egg, .@input * 1000;
 		if (Zeny < @hw_egg) {

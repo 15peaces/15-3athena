@@ -1286,7 +1286,7 @@ OnTouch_:
 			mes "^3355FFPlease enter a combination of four numbers.^000000";
 		close;
 	}
-	else if (.@input == 3019) {
+	if (.@input == 3019) {
 		if (ROGUE_Q == 12) {
 			mes "^3355FFThe door";
 			mes "has opened.^000000";
@@ -1304,11 +1304,9 @@ OnTouch_:
 			close;
 		}
 	}
-	else {
-		mes "^3355FFThe door";
-		mes "is still locked.^000000";
-		close;
-	}
+	mes "^3355FFThe door";
+	mes "is still locked.^000000";
+	close;
 }
 
 in_rogue,200,389,0	script	gen_ro#1	-1,3,3,{

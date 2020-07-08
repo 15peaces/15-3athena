@@ -259,7 +259,7 @@ OnTouch_:
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Suspicious Guy]";
 				if (sex == SEX_MALE)
 					mes "Ah duuuuuude~ You're breakin' my heart! I mean, at these prices, I'm practically performing charity!";
@@ -267,14 +267,14 @@ OnTouch_:
 					mes "W-waaaait! You didn't let me tell you the part about how Red Potions help you lose and gain weight in all the right places! Waaaaait!";
 				close;
 			}
-			else if (.@input > 100) {
+			if (.@input > 100) {
 				mes "[Suspicious Guy]";
 				mes "Whoa...";
 				mes "I can't let you buy that many. I mean, it's not like, you know, there's a trace impurity in these Potions or anything like that...";
 				next;
+				continue;
 			}
-			else
-				break;
+			break;
 		}
 		set .@Red_potion_hap,.@input * 500;
 		if (Zeny < .@Red_potion_hap) {
@@ -329,7 +329,7 @@ OnTouch_:
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Suspicious Guy]";
 				mes "Man, how many chances of a lifetime have you passed up? Man, I hope you win the lottery...";
 				mes "You'd probably";
@@ -337,14 +337,14 @@ OnTouch_:
 				close;
 
 			}
-			else if (.@input > 100) {
+			if (.@input > 100) {
 				mes "[Suspicious Guy]";
 				mes "Whoa!";
 				mes "I can't sell that many Daggers! That'll attract the Prontera Chiv--I mean, um, I was gonna donate some Daggers to... Hungry children?";
 				next;
+				continue;
 			}
-			else
-				break;
+			break;
 		}
 		set .@Main_gauche_hap,.@input * 9400;
 		if (Zeny < .@Main_gauche_hap) {	
@@ -383,20 +383,20 @@ OnTouch_:
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Suspicious Guy]";
 				mes "Awww...";
 				mes "It wasn't because of the whole drawstrings thing, was it?";
 				close;
 			}
-			else if (.@input > 100) {
+			if (.@input > 100) {
 				mes "[Suspicious Guy]";
 				mes "Whoa~!";
 				mes "I can't sell you that many! What are you trying to do, take advantage of me?";
 				next;
+				continue;
 			}
-			else
-				break;
+			break;
 		}
 		set .@Hood__hap,.@input * 930;
 		if (zeny < .@Hood__hap) {

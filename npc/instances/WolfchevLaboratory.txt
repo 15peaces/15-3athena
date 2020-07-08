@@ -566,7 +566,7 @@ lighthalzen,342,291,4	script	Weird old man#Bio4Reward	847,{
 					break;
 				case 4:
 					mes "<<Ygnus Stale[1]>>";
-					mes "When doing short distance attack, cast ¹ßÈ­ to the player and to the enemy with a certain chance.";
+					mes "When doing short distance attack, Chance of inflicting or receiving Burn status when dealing physical damage.";
 					mes "Two-Handed Axe / ATK 250 / Weight 190 / Fire Property / Weapon Lv 4 / Required Lv 95 / Socket 1 / for High Swordman/Merchant Classes";
 					callsub L_Reward, 1392, 50, 100, 35;
 					break;
@@ -958,7 +958,7 @@ lhz_cube,233,24,4	script	Sorcerer#Bio4Reward	786,{
 	} else if(.@equip_item== 2160 || .@equip_item == 2161 || .@equip_item == 2162 ||
 		.@equip_item == 2582 || .@equip_item == 2892 || .@equip_item == 15044 || 
 		.@equip_item == 18570) {
-		.@type = 4;
+		set .@type, 4;
 		if(.@equip_item == 2582 || .@equip_item == 18570)
 			set .@lhz_max_num, 4200;
 	} else {
@@ -3212,7 +3212,7 @@ lhz_dun04,147,279,0	script	Laboratory Entrance#memo	844,{
 				mapannounce .@map$,"Wooooo.. everyone got defeated.....??",bc_map,"0xFD3B02";
 			else if(strnpcinfo(0) == "Celia Alde#boss10")
 				mapannounce .@map$,"No..... this experiment is.....dang...",bc_map,"0xFD3B02";
-			else if(strnpcinfo(0) == "Kathryne Keyron#boss11") {
+			else if(strnpcinfo(0) == "Kathryne Keyron#boss11")
 				mapannounce .@map$,"awww.. is everyone Ok....?",bc_map,"0xFD3B02";
 			else if(strnpcinfo(0) == "Margaretha Sorin#boss12")
 				mapannounce .@map$,"My good boy.. Don't cry... ah.... our Great Odin.. please save us...",bc_map,"0xFD3B02";

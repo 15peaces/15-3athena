@@ -6794,11 +6794,9 @@ thor_camp,159,74,3	script	Colonel Vito#3	1,30,-1,946,{
 				next;
 				break;
 			}
-			else {
-				mes "[Colonel Vito]";
-				mes "Wrong! Try again!";
-				next;
-			}
+			mes "[Colonel Vito]";
+			mes "Wrong! Try again!";
+			next;
 		}
 		while(1) {
 			mes "[Colonel Vito]";
@@ -6815,11 +6813,9 @@ thor_camp,159,74,3	script	Colonel Vito#3	1,30,-1,946,{
 				next;
 				break;
 			}
-			else {
-				mes "[Colonel Vito]";
-				mes "Wrong! Try again!";
-				next;
-			}
+			mes "[Colonel Vito]";
+			mes "Wrong! Try again!";
+			next;
 		}
 		while(1) {
 			mes "[Colonel Vito]";
@@ -6834,11 +6830,9 @@ thor_camp,159,74,3	script	Colonel Vito#3	1,30,-1,946,{
 				next;
 				break;
 			}
-			else {
-				mes "[Colonel Vito]";
-				mes "Wrong! Try again!";
-				next;
-			}
+			mes "[Colonel Vito]";
+			mes "Wrong! Try again!";
+			next;
 		}
 		while(1) {
 			mes "[Colonel Vito]";
@@ -6856,11 +6850,9 @@ thor_camp,159,74,3	script	Colonel Vito#3	1,30,-1,946,{
 				next;
 				break;
 			}
-			else {
-				mes "[Colonel Vito]";
-				mes "Wrong! Try again!";
-				next;
-			}
+			mes "[Colonel Vito]";
+			mes "Wrong! Try again!";
+			next;
 		}
 		while(1) {
 			mes "[Colonel Vito]";

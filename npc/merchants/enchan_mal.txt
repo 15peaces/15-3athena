@@ -70,7 +70,7 @@ malangdo,213,167,4	script	Mayomayo#mal	555,{
 		close;
 	}
 	set @mal_equip_id, getequipid(EQI_HAND_R);
-	set .@equip_type, getiteminfo(@mal_equip_id,11);
+	set .@equip_type, getiteminfo(@mal_equip_id, ITEMINFO_SUBTYPE);
 
 	//callsub L_Socket,<cost multiplier>,<4-x enchants possible>;
 	switch(.@equip_type) { // Check weapon type first to speed up the checks.

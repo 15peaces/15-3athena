@@ -3928,16 +3928,14 @@ cmd_fild01,55,160,0	script	Heap of Earth	844,{
 						set diamond_edq,9;
 						close;
 					}
-					else {
-						mes "[Dorian]";
-						mes "Oh? You sound dissatisfied";
-						mes "with my explanation. Well...";
-						mes "I surely can't let you use the";
-						mes "machine unless you fathom";
-						mes "how it works. Otherwise,";
-						mes "you just might break it.";
-						close;
-					}
+					mes "[Dorian]";
+					mes "Oh? You sound dissatisfied";
+					mes "with my explanation. Well...";
+					mes "I surely can't let you use the";
+					mes "machine unless you fathom";
+					mes "how it works. Otherwise,";
+					mes "you just might break it.";
+					close;
 				case 2:
 					mes "[Dorian]";
 					mes "Were you too bored while";

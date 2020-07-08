@@ -2140,10 +2140,10 @@ This command will execute a custom atcommand on the attached RID from a script.
 This function will return either the name, party name or guild name for the 
 invoking character. Whatever it returns is determined by type.
 
- 0 - Character's name.
- 1 - The name of the party they're in if any.
- 2 - The name of the guild they're in if any.
- 3 - The name of the map the character is in.
+(0) PC_NAME  - Character's name.
+(1) PC_PARTY - The name of the party they're in if any.
+(2) PC_GUILD - The name of the guild they're in if any.
+(3) PC_MAP   - The name of the map the character is in.
  
 If a character is not a member of any party or guild, an empty string will be 
 returned when requesting that information.
@@ -2155,11 +2155,11 @@ returned when requesting that information.
 This function will return the various parts of the name of the calling NPC.
 Whatever it returns is determined by type.
 
- 0 - The NPC's display name (visible#hidden)
- 1 - The visible part of the NPC's display name
- 2 - The hidden part of the NPC's display name
- 3 - The NPC's unique name (::name)
- 4 - The name of the map the NPC is in.
+(0) NPC_NAME	     - The NPC's display name (visible#hidden)
+(1) NPC_NAME_VISIBLE - The visible part of the NPC's display name
+(2) NPC_NAME_HIDDEN  - The hidden part of the NPC's display name
+(3) NPC_NAME_UNIQUE  - The NPC's unique name (::name)
+(4) NPC_MAP		     - The name of the map the NPC is in.
 
 ---------------------------------------
 
@@ -2736,20 +2736,40 @@ Example(s):
 ---------------------------------------
 
 *getiteminfo(<item ID>,<type>)
+*setiteminfo(<item ID>, <type>, <value>)
 
 This function will look up the item with the specified ID number in the database 
 and return the info set by TYPE argument.
 It will return -1 if there is no such item.
 
 Valid types are:
-	0 - Buy Price; 1 - Sell Price; 2 - Item Type;
-	3 - maxchance (Max drop chance of this item e.g. 1 = 0.01% , etc..
+	 0 - ITEMINFO_BUYPRICE   - Buy Price
+	 1 - ITEMINFO_SELLPRICE  - Sell Price
+	 2 - ITEMINFO_TYPE       - Item Type
+	 3 - ITEMINFO_MAXCHANCE  - Max drop chance of this item e.g. 1 = 0.01% , etc..
 		if = 0, then monsters don't drop it at all (rare or a quest item)
 		if = 10000, then this item is sold in NPC shops only
-	4 - sex; 5 - equip; 6 - weight; 7 - atk; 8 - def; 9 - range;
-	10 - slot; 11 - look; 12 - elv; 13 - wlv; 14 - view id
+	 4 - ITEMINFO_SEX        - Sex
+	 5 - ITEMINFO_LOC        - Equip location
+	 6 - ITEMINFO_WEIGHT     - Weight (note: 1/10 of unit)
+	 7 - ITEMINFO_ATK        - Attack
+	 8 - ITEMINFO_DEF        - Defense
+	 9 - ITEMINFO_RANGE      - Range
+	10 - ITEMINFO_SLOTS      - Slots
+	11 - ITEMINFO_SUBTYPE    - Subtype, for weapons and ammunitions
+	11 - ITEMINFO_VIEWSPRITE - ViewSprite, for other item types (NOT AVAILABLE YET)
+	12 - ITEMINFO_ELV        - Equip min. level
+	13 - ITEMINFO_WLV        - Weapon level
+	14 - ITEMINFO_VIEWID     - View ID
 
 Check sample in nps\sample\getiteminfo.txt
+
+The setiteminfo function will, instead, set the item's parameters. It returns
+the new value on success, or -1 on failure (item_id not found).
+
+Example:
+
+	setiteminfo(7049, ITEMINFO_WEIGHT, 9990); // Stone now weighs 999.0
 
 ---------------------------------------
 
@@ -7243,25 +7263,6 @@ Returns the escaped form of the given value.
 Example 1:
 	set .@str$, "John's Laptop";
 	set .@esc_str$, escape_sql(.@name$);	// Escaped string: John\'s Laptop
-
----------------------------------------
-
-*setiteminfo(<item id>,<type>,<value>)
-
-This function will set some value of an item.
-Returns the new value on success, or -1 on fail (item_id not found or invalid type).
-
-Valid types are:
-	0 - Buy Price; 1 - Sell Price; 2 - Item Type;
-	3 - maxchance (Max drop chance of this item e.g. 1 = 0.01% , etc..
-		if = 0, then monsters don't drop it at all (rare or a quest item)
-		if = 10000, then this item is sold in NPC shops only
-	4 - sex; 5 - equip; 6 - weight; 7 - atk; 8 - def; 9 - range;
-	10 - slot; 11 - look; 12 - elv; 13 - wlv; 14 - view id
-
-Example:
-
-setiteminfo 7049,6,9990; // Stone now weighs 999.0
 
 ---------------------------------------
 

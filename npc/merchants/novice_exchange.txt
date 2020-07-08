@@ -339,8 +339,8 @@ function	script	F_PotExchange	{
 			mes "mind, just enter '0' to cancel.";
 			next;
 			while(1) {
-				input .@input,0,101;
-				if (.@input == 0) {
+				input(.@input);
+				if (.@input <= 0) {
 					mes "[Merchant]";
 					mes "What...?";
 					mes "Why the hell do you";
@@ -348,17 +348,16 @@ function	script	F_PotExchange	{
 					mes "Pretty indecisive, aren't you?";
 					close;
 				}
-				else if (.@input > 100) {
+				if (.@input > 100) {
 					mes "[Merchant]";
 					mes "I can't give you more";
 					mes "than 100 Red Potions";
 					mes "at once. Let's try";
 					mes "this again.";
 					next;
+					continue;
 				}
-				else {
-					break;
-				}
+				break;
 			}
 			set .@put_out_item,.@input * .@req_amount;
 			if (countitem(.@item_req) < .@put_out_item) {

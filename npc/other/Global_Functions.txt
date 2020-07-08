@@ -267,7 +267,7 @@ function	script	F_Load2Skills	{
 // *** Function "F_GetWeaponType": Determine weapon type by view
 //////////////////////////////////////////////////////////////////////////////////
 function	script	F_GetWeaponType	{
-	switch(getiteminfo(getarg(0),11)) {
+	switch(getiteminfo(getarg(0), ITEMINFO_SUBTYPE)) {
 		case 1: return "Dagger"; break;
 		case 2: return "One-handed Sword"; break;
 		case 3: return "Two-handed Sword"; break;
@@ -299,7 +299,7 @@ function	script	F_GetWeaponType	{
 // *** Function "F_GetArmorType": Determine equipment type by equip location
 //////////////////////////////////////////////////////////////////////////////////
 function	script	F_GetArmorType	{
-	switch(getiteminfo(getarg(0),5)) {
+	switch(getiteminfo(getarg(0), ITEMINFO_LOC)) {
 		case 001: return "Lower Headgear"; break;
 		case 2: return "Weapon"; break;
 		case 4: return "Garment"; break;

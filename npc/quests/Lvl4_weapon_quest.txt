@@ -2096,14 +2096,12 @@ niflheim,240,193,3	script	Kayron#lv4	794,{
 			set lv4_weapon,24;
 			close;
 		}
-		else {
-			mes "[Kayron]";
-			mes "Huh...?";
-			mes "What did you just say?";
-			mes "I'm sorry, I'm trying to remember something my father always used";
-			mes "to say...";
-			close;
-		}
+		mes "[Kayron]";
+		mes "Huh...?";
+		mes "What did you just say?";
+		mes "I'm sorry, I'm trying to remember something my father always used";
+		mes "to say...";
+		close;
 	}
 	if (lv4_weapon == 22) {
 		mes "[Kayron]";
@@ -2546,14 +2544,12 @@ niflheim,99,268,5	script	Reyghema#lv4	794,{
 			set lv4_weapon,33;
 			close;
 		}
-		else {
-			mes "[Reyghema]";
-			mes "What...?";
-			mes "You playin' games";
-			mes "with me or what?";
-			mes "Get outta my face~";
-			close;
-		}
+		mes "[Reyghema]";
+		mes "What...?";
+		mes "You playin' games";
+		mes "with me or what?";
+		mes "Get outta my face~";
+		close;
 	}
 	if (lv4_weapon == 31) {
 		mes "[Reyghema]";
@@ -3001,14 +2997,12 @@ niflheim,187,280,3	script	Hein#lv4	795,{
 			mes "of a deal... Right?";
 			close;
 		}
-		else {
-			mes "[Hein]";
-			mes "Wha...?";
-			mes "What are you talking about?";
-			mes "What was I going to say?";
-			mes "Oww... My head hurts!";
-			close;
-		}
+		mes "[Hein]";
+		mes "Wha...?";
+		mes "What are you talking about?";
+		mes "What was I going to say?";
+		mes "Oww... My head hurts!";
+		close;
 	}
 	if (lv4_weapon == 40) {
 		mes "[Hein]";
@@ -3445,14 +3439,12 @@ niflheim,331,72,3	script	Waltboughst#lv4	795,{
 			mes "It seems that being deceased has impaired my rententive faculties. Give me some time to remember the things I'll need to conduct my experiment. We shall talk later.";
 			close;
 		}
-		else {
 			mes "[Waltboughst]";
-			mes "What...?";
-			mes "No, no. That";
-			mes "wasn't it at all...";
-			mes "Hmmm.";
-			close;
-		}
+		mes "What...?";
+		mes "No, no. That";
+		mes "wasn't it at all...";
+		mes "Hmmm.";
+		close;
 	}
 	if (lv4_weapon == 49) {
 		mes "[Waltboughst]";

@@ -478,7 +478,8 @@ dewata,89,191,6	script	Small Shrine#dew1	844,{
 		if (.@input < 1000) {
 			mes "- Cancelled. -";
 			close;
-		} else if (.@input <= 50000)
+		} 
+		if (.@input <= 50000)
 			set .@good_luck, rand(1,10000);
 		else
 			set .@good_luck, rand(1,5000);

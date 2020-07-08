@@ -1,22 +1,23 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Gemstone trader
-//===== By: ================================================== 
+//===== By: ==================================================
 //= L0ne_W0lf
-//===== Current Version: ===================================== 
-//= 1.2
-//===== Compatible With: ===================================== 
-//= eAhena SVN
-//===== Description: ========================================= 
-//= [Aegis Conversion]
+//===== Current Version: =====================================
+//= 1.3
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
+//= [Official Conversion]
 //= Trade various colors of gemstones for other color gemstones.
-//===== Additional Comments: ================================= 
+//===== Additional Comments: =================================
 //= 1.0 Rescripted to Aegis 10.3 standards. [L0ne_W0lf]
-//=	Any notes pertaining to the prior trader may be found
-//=	in the cities/payon.txt
+//=	    Any notes pertaining to the prior trader may be found
+//=	    in the cities/payon.txt
 //= 1.1 Corrected NPC names to fall within proper restrictions. [L0ne_W0lf]
 //= 1.2 Updated input with min/max values. [L0ne_W0lf]
-//=	Added a checkweight. 
-//============================================================ 
+//=	    Added a checkweight. 
+//= 1.3 Fixed checks. [Euphy]
+//============================================================
 
 payon,173,238,5	script	Jade#pay	754,{
 	if (checkweight(1201,1) == 0) {
@@ -62,13 +63,7 @@ S_TradeGems:
 		case 1:
 			delitem .@item_req,.@gems * 2;
 			getitem .@item_id,.@gems;
-			mes "[Jade]";
-			mes "There you go.";
-			mes "Feel free to come";
-			mes "back any time.";
-			mes "Hm, what's that look for?";
-			mes "Is there something on my face?";
-			close;
+			break;
 		case 2:
 			mes "[Jade]";
 			mes "So how many";
@@ -77,43 +72,49 @@ S_TradeGems:
 			mes "that you can enter is 100.";
 			next;
 			while(1) {
-				input .@input,0,101;
-				if (.@input == 0) {
+				input(.@input);
+				if (.@input <= 0) {
 					mes "[Jade]";
 					mes "None at all?";
 					mes "I guess you";
 					mes "changed your mind...";
 					close;
 				}
-				else if (.@input > 100) {
+				if (.@input > 100) {
 					mes "[Jade]";
 					mes "Errm...";
 					mes "I asked you to enter";
 					mes "an amount no greater";
 					mes "than 100, remember...?";
 					next;
+					continue;
 				}
-				else {
-					break;
+				if (.@gems < .@input) {
+					// Custom dialogue
+					mes "[Jade]";
+					mes "Errm...";
+					mes "You don't have that";
+					mes "many gems to trade...";
+					next;
+					continue;
 				}
+				break;
 			}
-
-			if (.@gems > .@input) {
-				delitem .@item_req,.@input * 2;
-				getitem .@item_id,.@input;
-				mes "[Jade]";
-				mes "There you go.";
-				mes "Feel free to come";
-				mes "back any time.";
-				mes "Hm, what's that look for?";
-				mes "Is there something on my face?";
-			}
-			close;
+			delitem .@item_req,.@input * 2;
+			getitem .@item_id,.@input;
+			break;
 		case 3:
 			mes "[Jade]";
 			mes "Sure, no problem.";
 			mes "Come back any time.";
 			close;
 		}
+		mes "[Jade]";
+		mes "There you go.";
+		mes "Feel free to come";
+		mes "back any time.";
+		mes "Hm, what's that look for?";
+		mes "Is there something on my face?";
+		close;
 	}
 }

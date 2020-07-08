@@ -321,7 +321,7 @@ yuno_in03,154,35,4	script	Staff of the Academy#a	742,{
 				next;
 				select(strcharinfo(0));
 				mes "[Metheus Sylphe]";
-				mes "Your name is ... " + strcharinfo(0) + ". It's a very nice name.";
+				mes "Your name is ... " + strcharinfo(PC_NAME) + ". It's a very nice name.";
 				next;
 				if (JobLevel == 50) {
 					mes "[Metheus Sylphe]";
@@ -402,7 +402,7 @@ yuno_in03,154,35,4	script	Staff of the Academy#a	742,{
 					next;
 					select(strcharinfo(0));
 					mes "[Metheus Sylphe]";
-					mes "Your name is ... " + strcharinfo(0) + ". It's a very nice name.";
+					mes "Your name is ... " + strcharinfo(PC_NAME) + ". It's a very nice name.";
 					next;
 					mes "[Metheus Sylphe]";
 					mes "Yes, everything's ready.";
@@ -588,9 +588,9 @@ yuno_in03,154,35,4	script	Staff of the Academy#a	742,{
 		select(strcharinfo(0));
 		mes "[Metheus Sylphe]";
 		switch (.@SAGE_Q_T) {
-		case 1: mes "Your name is ... " + strcharinfo(0) + ". It's a very nice name."; break;
-		case 2: mes "Your name is ... " + strcharinfo(0) + ". It sounds very sagacious."; break;
-		case 3: mes "Your name is ... " + strcharinfo(0) + ". Interesting name."; break;
+		case 1: mes "Your name is ... " + strcharinfo(PC_NAME) + ". It's a very nice name."; break;
+		case 2: mes "Your name is ... " + strcharinfo(PC_NAME) + ". It sounds very sagacious."; break;
+		case 3: mes "Your name is ... " + strcharinfo(PC_NAME) + ". Interesting name."; break;
 		}
 		next;
 		mes "[Metheus Sylphe]";
@@ -694,22 +694,36 @@ yuno_in03,105,177,5	script	Written Test Professor#s	754,{
 		mes "Come again when you finish the application.";
 		close;
 	}
-	else if (SAGE_Q == 4) {
-		mes "Welcome to the Schweicherbil Magic Academy.";
-		mes "You applied for this test already, didn't you?";
-		next;
-		mes "[Claytos Verdo]";
-		mes "Let's see, your name is " + strcharinfo(0) + "...";
-		mes "Okay, let's get started!";
-		next;
-		mes "[Claytos Verdo]";
-		mes "The test that I am going to give you will test your knowledge on all of the academic subjects in the world.";
-		mes "I will give you 20 questions, with each question being worth 5 points. When you earn a grade of 80 points, you will pass the test.";
-		next;
-		mes "[Claytos Verdo]";
-		mes "Okay, there's no need to wait. Let's start right away";
-		mes "Oh, and if you don't answer immediately, the test will be cancelled.";
-L_AskQuestions:
+	else if (SAGE_Q == 4 || SAGE_Q == 5) {
+		if (SAGE_Q == 4) {
+			mes "Welcome to the Schweicherbil Magic Academy.";
+			mes "You applied for this test already, didn't you?";
+			next;
+			mes "[Claytos Verdo]";
+			mes "Let's see, your name is " + strcharinfo(PC_NAME) + "...";
+			mes "Okay, let's get started!";
+			next;
+			mes "[Claytos Verdo]";
+			mes "The test that I am going to give you will test your knowledge on all of the academic subjects in the world.";
+			mes "I will give you 20 questions, with each question being worth 5 points. When you earn a grade of 80 points, you will pass the test.";
+			next;
+			mes "[Claytos Verdo]";
+			mes "Okay, there's no need to wait. Let's start right away";
+			mes "Oh, and if you don't answer immediately, the test will be cancelled.";
+		} else if (SAGE_Q == 5) {
+			mes "Welcome back.";
+			mes "So, did you study harder this time?";
+			next;
+			mes "[Claytos Verdo]";
+			mes "You will take the written test under the same conditions as the test you took before. I'll give you 20 questions.";
+			mes "Each correct answer will give you 5 points. When your score reaches 80 points, you pass the test.";
+			next;
+			set sage_m2, rand(1,3);
+			mes "[Claytos Verdo]";
+			mes "Okay, there's no need to wait.";
+			mes "Answer immediately, or I'll fail you again.";
+			set SAGE_Q, 5;
+		}
 		next;
 		switch(rand(1,3)) {
 		case 1:
@@ -1014,22 +1028,6 @@ L_AskQuestions:
 		}
 		close;
 	}
-	else if (SAGE_Q == 5) {
-		mes "Welcome back.";
-		mes "So, did you study harder this time?";
-		next;
-		mes "[Claytos Verdo]";
-		mes "You will take the written test under the same conditions as the test you took before. I'll give you 20 questions.";
-		mes "Each correct answer will give you 5 points. When your score reaches 80 points, you pass the test.";
-		next;
-		set sage_m2,rand(1,3);
-		mes "[Claytos Verdo]";
-		mes "Okay, there's no need to wait.";
-		mes "Answer immediately, or I'll fail you again.";
-		set SAGE_Q,5;
-		goto L_AskQuestions;
-		end;
-	}
 	else if (SAGE_Q == 6) {
 		mes "What else do you want?! Do you want to take this test again?";
 		mes "You've already passed!";
@@ -1298,7 +1296,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 	}
 	if (SAGE_Q == 9) {
 		if (SAGE_Q2 == 0) {
-			mes "Welcome, " + strcharinfo(0) + ". I am glad to meet you.";
+			mes "Welcome, " + strcharinfo(PC_NAME) + ". I am glad to meet you.";
 			mes "My name is Saphien Layless, I will be in charge of your class for a while.";
 			next;
 			mes "[Saphien Layless]";
@@ -1314,7 +1312,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 				switch(select("It's a name of a health item.:It's the source of life in the world.:Suckah, I lied.")) {
 				case 1:
 					mes "[Saphien Layless]";
-					mes "Wrong. " + strcharinfo(0) + ", you got - 10 points.";
+					mes "Wrong. " + strcharinfo(PC_NAME) + ", you got - 10 points.";
 					mes "That's just one of the gifts from Yggdrasil.";
 					next;
 					mes "[Saphien Layless]";
@@ -1328,7 +1326,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 				case 3:
 					mes "[Saphien Layless]";
 					mes "Great Schott...If you don't know, just say so.";
-					mes "By the way, " + strcharinfo(0) + ", you just got - 10 points for lying and for being wrong.";
+					mes "By the way, " + strcharinfo(PC_NAME) + ", you just got - 10 points for lying and for being wrong.";
 					break;
 				}
 				next;
@@ -1383,7 +1381,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 				next;
 				mes "[Saphien Layless]";
 				mes "You can purchase this item from the town of Al De Baran! You didn't show any effort.";
-				mes "So, I must give you - 10 points, " + strcharinfo(0) + ".";
+				mes "So, I must give you - 10 points, " + strcharinfo(PC_NAME) + ".";
 				next;
 				mes "[Saphien Layless]";
 				mes "Okay, now I am starting the class.";
@@ -1573,7 +1571,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 			next;
 			if (.@w_point > 0) {
 				mes "[Saphien Layless]";
-				mes "..." + strcharinfo(0) + ", have you lost your mind?";
+				mes "..." + strcharinfo(PC_NAME) + ", have you lost your mind?";
 				mes "Your work is too poor to be considered as a thesis!";
 				next;
 				mes "[Saphien Layless]";
@@ -1639,7 +1637,7 @@ yuno_in03,62,176,2	script	History Professor#sa	109,{
 			next;
 			if (.@w_point > 0) {
 				mes "[Saphien Layless]";
-				mes "..." + strcharinfo(0) + ", have you lost your mind?";
+				mes "..." + strcharinfo(PC_NAME) + ", have you lost your mind?";
 				mes "Your work is too poor to be considered as a thesis!";
 				next;
 				mes "[Saphien Layless]";
@@ -2613,7 +2611,7 @@ OnReset:
 OnMyMobDead:
 	set .MyMobs,.MyMobs-1;
 	if (.MyMobs < 1) {
-		mapannounce "job_sage"," " + strcharinfo(0) + ", successfully defeat all the monsters.",bc_map;
+		mapannounce "job_sage"," " + strcharinfo(PC_NAME) + ", successfully defeat all the monsters.",bc_map;
 		donpcevent "Arena#2::OnEnable";
 		stopnpctimer;
 	}
@@ -2719,7 +2717,7 @@ OnReset:
 OnMyMobDead:
 	set .MyMobs,.MyMobs-1;
 	if (.MyMobs < 1) {
-		mapannounce "job_sage"," " + strcharinfo(0) + ", successfully defeat all the monsters.",bc_map;
+		mapannounce "job_sage"," " + strcharinfo(PC_NAME) + ", successfully defeat all the monsters.",bc_map;
 		donpcevent "Arena#Doorkeeper::OnEnable";
 		donpcevent "Arena#3::OnEnable";
 		stopnpctimer;
@@ -2804,7 +2802,7 @@ OnDisable:
 OnMyMobDead:
 	set .MyMobs,.MyMobs-1;
 	if (.MyMobs < 1) {
-		mapannounce "job_sage","Congratulations, " + strcharinfo(0) + ". You passed the test.",bc_map;
+		mapannounce "job_sage","Congratulations, " + strcharinfo(PC_NAME) + ". You passed the test.",bc_map;
 		set SAGE_Q,8;
 		donpcevent "Test Helper#sg::OnEnable";
 		disablenpc "Arena#Doorkeeper";

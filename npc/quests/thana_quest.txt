@@ -258,7 +258,7 @@ tha_t01,149,78,4	script	Guide	90,{
 				mes "to access the higher levels";
 				mes "here in Thanatos Tower.";
 				next;
-				goto L_Contract;
+				break;
 			case 3:
 				mes "[Ditze]";
 				mes "To develop the floors above";
@@ -269,6 +269,7 @@ tha_t01,149,78,4	script	Guide	90,{
 				mes "for us under a temp contract?";
 				close;
 			}
+			break;
 		case 2:
 			mes "[Ditze]";
 			mes "You may have already heard";
@@ -284,7 +285,7 @@ tha_t01,149,78,4	script	Guide	90,{
 			mes "to access the higher levels";
 			mes "here in Thanatos Tower.";
 			next;
-			goto L_Contract;
+			break;
 		case 3:
 			mes "[Ditze]";
 			mes "Well, if you have any";
@@ -293,16 +294,15 @@ tha_t01,149,78,4	script	Guide	90,{
 			mes "Ditze Lappa. Have a good day!";
 			close;
 		}
+	} else {
+		mes "[Ditze]";
+		mes "For more detailed information";
+		mes "about monster exterminations,";
+		mes "please ask the 2nd Floor Guide";
+		mes "and the Guide next to me. Well,";
+		mes "we hope you enjoy your experience working with Rekenber Corporation~";
+		close;
 	}
-	mes "[Ditze]";
-	mes "For more detailed information";
-	mes "about monster exterminations,";
-	mes "please ask the 2nd Floor Guide";
-	mes "and the Guide next to me. Well,";
-	mes "we hope you enjoy your experience working with Rekenber Corporation~";
-	close;
-
-L_Contract:
 	switch(select("Maybe next time:Sure, I'd like to work for you.")) {
 	case 1:
 		mes "[Ditze]";
@@ -923,7 +923,6 @@ tha_t03,67,70,0	script	Rune Device#tt1	111,4,4,{
 				mes "field fizzles out with a soft,";
 				mes "gentle ''pzzzzzh'' sound.^000000";
 				next;
-				goto L_Key;
 			}
 			else if (getequipweaponlv(EQI_HAND_R) == 4) {
 				mes "^3355FFWith your "+getequipname(EQI_HAND_R)+" in";
@@ -932,7 +931,6 @@ tha_t03,67,70,0	script	Rune Device#tt1	111,4,4,{
 				mes "field fizzles out with a soft,";
 				mes "gentle ''pzzzzzh'' sound.^000000";
 				next;
-				goto L_Key;
 			}
 			else {
 				mes "^3355FFYou smash the energy";
@@ -944,21 +942,16 @@ tha_t03,67,70,0	script	Rune Device#tt1	111,4,4,{
 				mes "powerful weapon...^000000";
 				close;
 			}
+			break;
 		case 2:
 			mes "^3355FFYou decide to leave";
 			mes "the machine alone.^000000";
 			close;
 		}
+	} else {
+		mes "You've acquired everything you need from this rune device.";
+		close;
 	}
-	mes "You've acquired everything you need from this rune device.";
-	close;
-
-OnTouch_:
-	if ((countitem(7421) == 0) && (countitem(7426) == 0))
-		specialeffect EF_LEVEL99_4;
-	end;
-
-L_Key:
 	specialeffect EF_BRANDISH2;
 	mes "After breaking the device, the exterior shatters.";
 	mes "The energy field begins to disappear,";
@@ -1017,6 +1010,11 @@ L_Key:
 		specialeffect2 EF_COMBOATTACK1;
 		close;
 	}
+
+OnTouch:
+	if ((countitem(Key_Red) == 0) && (countitem(Magic_Gem_Red) == 0))
+		specialeffect EF_LEVEL99_4;
+	end;
 }
 
 tha_t04,195,195,0	script	Rune Device#tt2	111,3,3,{

@@ -21,6 +21,7 @@
 //= 1.0 Merged and cleaned up Kafras. [Joseph]
 //= 1.1 Added Dewata and Brasilis Kafras. [15peaces]
 //= 1.1a Fixed some leftovers. [15peaces]
+//= 1.1b Enabled saving in Izlude duplicates. [Euphy]
 //= 1.2 Added some missing renewal Kafras. [15peaces]
 //============================================================ 
 
@@ -452,7 +453,7 @@ glast_01,200,275,5	script	Kafra Employee::kaf_glast	115,{
 	mes "are always on your side.";
 	mes "How may I assist you?";
 	callfunc "F_Kafra",5,0,1,40,820;
-	savepoint "izlude",94,103;
+	savepoint strnpcinfo(4),94,103;
 	callfunc "F_KafEnd",0,1,"in the city of Izlude";
 }
 

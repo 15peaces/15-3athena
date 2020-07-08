@@ -1,0 +1,351 @@
+//===== Hercules Script ====================================== 
+//= Ninja Weapon and Armor
+//===== By: ================================================== 
+//= Dastgir
+//===== Current Version: ===================================== 
+//= 1.0
+//===== Description: ========================================= 
+//= Ninja Armor and Weapon Craftsman
+//===== Additional Comments: ================================= 
+//= 1.0 Official Conversion. [Dastgir]
+//============================================================ 
+que_ng,21,72,6	script	Master Craftsman Gyo#arm	934,{
+	mes "[Gyo]";
+	mes "How would you define victory?";
+	mes "To fell the enemy...";
+	mes "However, the most important thing is...";
+	mes "Never to fall yourself!";
+	next;
+	mes "[Gyo]";
+	mes "For that, you must better protect yourself.";
+	mes "You cannot protect 'others' while you hinder your 'own' protection.";
+	next;
+	if (select("Combine armor.:End conversation.") == 2) {
+		mes "[Gyo]";
+		mes "Prudence is also an important virtue in battle.";
+		close;
+	}
+	switch (select("Wolf Armguard:Crescent Armguard:Ninja Scale Armor:Shadow King's Armor:Quit.")) {
+		case 1:
+			mes "[Gyo]";
+			mes "Wolf Armguard... One beastly piece of armor.";
+			next;
+			callsub L_Menu,2172;
+			close;
+		case 2:
+			mes "[Gyo]";
+			mes "Crescent Armguard... A thing of beauty and strength... With none the lesser.";
+			next;
+			callsub L_Menu,2173;
+			close;
+		case 3:
+			mes "[Gyo]";
+			mes "Ninja Scale Armor... It's said that a legendary Ninja once wore it.";
+			next;
+			callsub L_Menu,15054;
+			close;
+		case 4:
+			mes "[Gyo]";
+			mes "Shadow King's Armor... It was made to protect others.";
+			next;
+			callsub L_Menu,15055;
+			close;
+		case 5:
+			mes "[Gyo]";
+			mes "Looks like you need more time to decide.";
+			close;
+	}
+		
+L_Menu:
+	set .@item_make, getarg(0);
+	while(1){
+		switch(select("Check Ingredients.:Check Stats.:Combine.:Quit.")){
+			case 1:
+				mes "[Gyo]";
+				mes "To make a ^ff0000"+getitemname(.@item_make)+", "+callsub(L_Ingredients,.@item_make)+".^000000";
+				if (.@item_make==2172)
+					mes "Can you feel it? The throbbing of the wolf blood・";
+				else if (.@item_make==2173)
+					mes "A crescent as beautiful and clear as a crystal will be engraved on it.";
+				else if (.@item_make==15054)
+					mes "You can feel its legendary powers.";
+				else if (.@item_make==15055)
+					mes "With the darkness it erases existence itself...";
+				break;
+			case 2:
+				mes "["+ getitemname(getarg(0)) +"]";
+				if (.@item_make == 2172){
+					mes "Chance to have 5 sec. of ATK +100, FLEE -50 upon melee attack.";
+					mes "Shield Type, Defense 45, Slot 1";
+					mes "Required Level 100, Ninja Type Only";
+				}
+				else if (.@item_make == 2173){
+					mes "Decreases post skill delay for 2% for every enhancement.";
+      				mes "Shield Type, Defense 70, Slot 1";
+      				mes "Required Level 100, Ninja Type Only";
+				}
+				else if (.@item_make == 15054){
+      				mes "MHP+15%, MSP-30%.";
+      				mes "Armor Type, Defense 90, Slot 1";
+      				mes "Required Level 100, Ninja Type Only";
+				}
+				else if (.@item_make == 15055){
+					mes "Chance to activate Lvl. 1 Illusion - Shadow when attacked by melee attacks.";
+      				mes "Armor Type, Defense 60, Slot 1";
+      				mes "Required Level 100, Ninja Type Only";
+				}
+				break;
+			case 3:
+				mes "[Gyo]";
+        		mes "Make sure that ^ff0000you have the correct ingredients and equipment at hand.^000000";
+        		mes "No use crying over it later.";
+        		next;
+        		if (select("Combine.:Quit.") == 2) {
+					mes "[Gyo]";
+					mes "Looks like you need more time to decide.";
+					close;
+				}
+                if (checkweight(1201,1) == 0 || (MaxWeight - Weight) < 2000) {
+					mes "- Hold on!! -";
+					mes "- You cannot receive items -";
+					mes "- because you carry too much. -";
+					mes "- Please try again -";
+					mes "- after lightening your burden. -";
+					close;
+                }
+				mes "[Gyo]";
+				switch(.@item_make){
+					case 2172:	//Wolf_Armguard
+						if (countitem(2171) && countitem(6252) > 9) {
+							delitem 2171,1; //Fox_Armguard
+							delitem 6252,10; //Wolf_Blood
+							getitem 2172,1; //Wolf_Armguard
+							mes "Can you feel the wolfish instinct?";
+							mes "Wild, but beautiful・";
+						}
+						else {
+							mes "You don't have enough ingredients.";
+							mes "Look again......";
+						}
+						break;
+					case 2173: //Crescent_Armguard
+						if (countitem(2171) && countitem(7321) > 99) {
+							 delitem 2171,1; //Fox_Armguard
+							 delitem 7321,100; //Fragment_Of_Crystal
+							 getitem 2173,1; //Crescent_Armguard
+							 mes "B-e-a-utiful......";
+							 mes "Feel the overwhelming magic within.";
+						 }
+						 else {
+							mes "You don't have enough ingredients.";
+							mes "Look again......";
+						 }
+						 break;
+					case 15054:	//Ninja_Scale_Armor
+						if (countitem(7451) > 29 && countitem(7562) > 29 && countitem(6091) > 29) {
+							delitem 7451,30; //Scale_Of_Red_Dragon
+							delitem 7562,30; //Ice_Scale
+							delitem 6091,30; //Dark_Red_Scale
+							getitem 15054,1; //Ninja_Scale_Armor
+							mes "This armor holds a legend...";
+							mes "Though I don't believe in them...";
+						}
+						else {
+							mes "You don't have enough ingredients.";
+							mes "Look again......";
+						}
+						break;
+					case 15055:	//Tenebris_Latitantes
+						if (countitem(15056) && countitem(6089) > 9) {
+							delitem 15056,1; //Special_Ninja_Suit_
+							delitem 6089,10; //Piece_Of_Darkness
+							getitem 15055,1; //Tenebris_Latitantes
+							mes "How about it?";
+							mes "It looks like two sets of them, doesn't it?";
+						}
+						else {
+							mes "You don't have enough ingredients.";
+							mes "Look again......";
+						}
+						break;
+				}
+				close;
+			case 4:
+				mes "[Gyo]";
+				mes "Looks like you need more time to decide.";
+				close;
+		}
+		next;
+	}
+	
+L_Ingredients:
+	switch(getarg(0)){
+		case 2172:	//Wolf_Armguard
+			return "you need 1 Fox Armguard and 10 Blood of Wolf";
+		case 2173: //Crescent_Armguard
+			return "you need 1 Fox Armguard and 100 Crystal Fragments";
+		case 15054:	//Ninja_Scale_Armor
+			return "you need 30 Fire Dragon Scales, 30 Ice Scales and 30 Darkred Scale Pieces";
+		case 15055: //Tenebris_Latitantes
+			return "you'll need a Special Ninja Suit with a slot and 10 Dark Pieces";
+	}
+	end;
+	
+}
+
+que_ng,23,70,6	script	Master Craftsman Ki#weap	939,{
+	mes "[Ki]";
+	mes "To attack is the best means of defense.";
+	mes "A powerful weapon will make you truly complete.";
+	next;
+	mes "[Ki]";
+	mes "Of course, it would be better to have something special at hand.";
+	next;
+	if (select("Combine weapon.:End conversation.") == 2) {
+		mes "[Ki]";
+		mes "Being too careful could sometimes be lethal.";
+		close;
+	}
+	switch (select("Raksasa Dagger:Mikatsuki:Petal Shuriken:Quit.")) {
+		case 1:
+			mes "[Ki]";
+			mes "Raksasa Dagger can only be used after plenty of training.";
+			next;
+			callsub L_Menu,13076;
+			close;
+		case 2:
+			mes "[Ki]";
+			mes "Mikatsuki... A beautiful curve like the crescent moon...";
+			mes "There aren't many who can make them.";
+			next;
+			callsub L_Menu,13078;
+			close;
+		case 3:
+			mes "[Ki]";
+			mes "Petal Shuriken... Have you every seen petals swirl?";
+			next;
+			callsub L_Menu,13313;
+			close;
+		case 4:
+			mes "[Ki]";
+			mes "Think carefully~~";
+			close;
+	}
+		
+L_Menu:
+	set .@item_make, getarg(0);
+	while(1){
+		switch(select("Check Ingredients.:Check Stats.:Combine.:Quit.")){
+			case 1:
+				mes "[Ki]";
+				mes "To make a ^ff0000"+getitemname(.@item_make)+", "+callsub(L_Ingredients,.@item_make)+".^000000";
+				if (.@item_make==13076)
+					mes "The garnet gives the Raksasa Dagger its unique color.";
+				else if (.@item_make==13078)
+					mes "The opal is what gives off the translucent glow.";
+				else if (.@item_make==13313)
+					mes "It may seem like too many shurikens are needed... But it is essential for the beautiful fluttering effect.";
+				break;
+			case 2:
+				mes "["+ getitemname(getarg(0)) +"]";
+				if (.@item_make == 13076){
+					mes "INT+3 MATK+100.";
+      				mes "Dagger Type, ATK 120, Slot 1";
+      				mes "Required Level 110, Ninja Type Only";
+				}
+				else if (.@item_make == 13078){
+					mes "MATK + 120, Fluctuated Casting and SP use decreased by 5% upon skill use.";
+      				mes "Dagger Type, ATK 50, Weapon Lvl. 4";
+      				mes "Slot 1";
+      				mes "Required Level 100, Ninja Type Only";
+				}
+				else if (.@item_make == 13313){
+      				mes "MATK + 50, Petal Shuriken  skill damage increased by 20%.";
+      				mes "Shuriken Type, ATK 150";
+      				mes "Weapon Lvl. 3, Slot 2";
+      				mes "Required Level 110, Ninja Type Only";
+				}
+				break;
+			case 3:
+				mes "[Ki]";
+        		mes "Make sure that ^ff0000you have the correct ingredients and equipment at hand.^000000";
+        		mes "No use crying over it later.";
+        		next;
+        		if (select("Combine.:Quit.") == 2) {
+					mes "[Ki]";
+					mes "Think carefully~~";
+					close;
+				}
+                if (checkweight(1201,1) == 0 || (MaxWeight - Weight) < 2000) {
+					mes "- Hold on!! -";
+					mes "- You cannot receive items -";
+					mes "- because you carry too much. -";
+					mes "- Please try again -";
+					mes "- after lightening your burden. -";
+					close;
+                }
+				mes "[Ki]";
+				switch(.@item_make){
+					case 13076:	//Nachal_Sword
+						 if (countitem(13013) && countitem(718)) {
+                                delitem 13013,1; //Murasame_
+                                delitem 718,1; //Dark_Red_Jewel
+                                getitem 13076,1; //Nachal_Sword
+                                mes "Oh yes...";
+                                mes "It is a beautiful glow...";
+                            }
+                            else {
+                            	mes "Hmm... You do not have enough to make a Raksasa Dagger.";
+                            	mes "Why don't you check again?";
+                            	mes "Some just can't give up what they hold.";
+                            }
+						break;
+					case 13078: //Mikatsuki
+						 if (countitem(13015) && countitem(727)) {
+                                delitem 13015,1; //Hakujin_
+                                delitem 727,1; //White_Jewel
+                                getitem 13078,1; //Mikatsuki
+                                mes "Splendid・";
+                                mes "It is always mesmerizing to look upon such a beautiful weapon・";
+                            }
+                            else {
+                                mes "Hmm... You do not have enough to make a Mikatsuki.";
+                                mes "Why don't you check again?";
+                                mes "Some just can't give up what they hold.";
+                            }
+						 break;
+					case 13313:	//Flower_Huuma_Shuriken
+						 if (countitem(13304) && countitem(7156) > 99) {
+                                delitem 13304,1; //Huuma_Calm_Mind
+                                delitem 7156,100; //Broken_Shuriken
+                                getitem 13313,1; //Flower_Huuma_Shuriken
+                                mes "Swirling Petal!!";
+                            }
+                            else {
+                                mes "Hmm... You do not have enough to make Petal Shurikens.";
+                                mes "Why don't you check again?";
+                                mes "Some just can't give up what they hold.";
+                            }
+						break;
+				}
+				close;
+			case 4:
+				mes "[Ki]";
+				mes "Looks like you need more time to decide.";
+				close;
+		}
+		next;
+	}
+	
+L_Ingredients:
+	switch(getarg(0)){
+		case 13076:	//Nachal_Sword
+			return "you need 1 Murasame with 2 sockets and 1 Garnet";
+		case 13078: //Mikatsuki
+			return "you need a Hakujin with a Slot and an Opal";
+		case 13313:	//Flower_Huuma_Shuriken
+			return "you need one Huuma Calm Mind Shuriken and 100 Broken Shurikens";
+	}
+	end;
+	
+}

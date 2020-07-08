@@ -22,10 +22,10 @@
 	setarray .@name$, 	"Spear", 			"Sword", 			"Bow";
 	setarray .@faith$, 	"SPEAR_MERC_GUILD",	"SWORD_MERC_GUILD",	"ARCH_MERC_GUILD";
 	setarray .@item, 	12182,				12172,				12162;
-	set .@faith_lancer, mercenary_get_faith(getd(.@faith$[.@type]));
 	set .@npc$, strnpcinfo(2);
 	for (set .@size, getarraysize(.@name$); .@i < .@size; set .@i, .@i + 1)
 		if (.@npc$ == .@name$[.@i]) set .@type, .@i;
+	set .@faith_merc, mercenary_get_faith(getd(.@faith$[.@type]));
 	mes "[Mercenary Manager]";
 	mes "Welcome to the";
 	mes .@npc$ + " Mercenary Guild.";
@@ -241,7 +241,7 @@ izlude_d,47,170,4	duplicate(Mercenary Manager#main)	Mercenary Manager#Swo_d	734
 	mes "How many would you like?";
 	next;
 	input .@input;
-	if (!.@input) {
+	if (.@input <= 0) {
 		mes "[Mercenary Goods Merchant]";
 		mes "You changed your mind?";
 		mes "Alright, feel free to come";
@@ -249,7 +249,7 @@ izlude_d,47,170,4	duplicate(Mercenary Manager#main)	Mercenary Manager#Swo_d	734
 		mes "to buy any Mercenary Potions.";
 		close;
 	}
-	else if( .@input < 0 || .@input > 10000 )
+	if(.@input > 10000 )
 	{
 		mes "[Mercenary Goods Merchant]";
 		mes "I'm sorry, but you";
@@ -259,7 +259,7 @@ izlude_d,47,170,4	duplicate(Mercenary Manager#main)	Mercenary Manager#Swo_d	734
 		mes "a number from 1 to 10,000.";
 		close;
 	}
-	else if (set(.@total_po, .@input * .@cost[.@m]) > Zeny) {
+	if (set(.@total_po, .@input * .@cost[.@m]) > Zeny) {
 		mes "[Mercenary Goods Merchant]";
 		mes "I'm sorry, but you don't";
 		mes "have enough zeny for this";
@@ -269,7 +269,7 @@ izlude_d,47,170,4	duplicate(Mercenary Manager#main)	Mercenary Manager#Swo_d	734
 		mes "for your Mercenaries.";
 		close;
 	}
-	else if (!checkweight(.@item[.@m], .@input)) {
+	if (!checkweight(.@item[.@m], .@input)) {
 		mes "[Mercenary Goods Merchant]";
 		mes "If I gave you that many";
 		mes "potions, you wouldn't be";

@@ -211,44 +211,38 @@ prontera,153,286,4	script	Memorial Plaque#Memorial	857,{
 		next;
 		set Memorial08,9;
 		getexp 93750,43750;
-		goto L_CleanPlaque;
 	}
-	
-	else if(Memorial08 >= 9) {
-		goto L_CleanPlaque;
+
+	mes "- You see a message from the cleaned plaque.-";
+	next;
+	mes "-Although no sculptured marble should rise to their memory,-";
+	mes "-nor engraved stone bear record of their deeds,-";
+	mes "-yet will their remembrance be as lasting as the land they honored.-";
+	mes "-Daniel Webster-";
+	if(Memorial08 == 9) {
+		getexp 93750,43750;
 	}
-	
-	L_CleanPlaque:
-		mes "- You see a message from the cleaned plaque.-";
-		next;
-		mes "-Although no sculptured marble should rise to their memory,-";
-		mes "-nor engraved stone bear record of their deeds,-";
-		mes "-yet will their remembrance be as lasting as the land they honored.-";
-		mes "-Daniel Webster-";
-		if(Memorial08 == 9) {
-			getexp 93750,43750;
-		}
-		next;
-		mes "-There's another message.-";
-		next;
-		mes "-I may not have gone where I intended to go,-";
-		mes "-but I think I have ended up where I needed to be.-";
-		mes "- Douglas Adams.-";
-		if(Memorial08 == 9) { 
-			getexp 93750,43750;
-		}
-		next;
-		mes "-This is the last message.-";
-		next;
-		mes "-True heroism is remarkably sober, very undramatic.-";
-		mes "-It is not the urge to surpass all others at whatever cost,-";
-		mes "- but the urge to serve others at whatever cost. -";
-		mes "- Arthur Ashe -";
-		if(Memorial08 == 9) { 
-			getexp 93750,43750;
-			set Memorial08,10;
-		}
-		close;
+	next;
+	mes "-There's another message.-";
+	next;
+	mes "-I may not have gone where I intended to go,-";
+	mes "-but I think I have ended up where I needed to be.-";
+	mes "- Douglas Adams.-";
+	if(Memorial08 == 9) { 
+		getexp 93750,43750;
+	}
+	next;
+	mes "-This is the last message.-";
+	next;
+	mes "-True heroism is remarkably sober, very undramatic.-";
+	mes "-It is not the urge to surpass all others at whatever cost,-";
+	mes "- but the urge to serve others at whatever cost. -";
+	mes "- Arthur Ashe -";
+	if(Memorial08 == 9) { 
+		getexp 93750,43750;
+		set Memorial08,10;
+	}
+	close;
 }
 
 
@@ -293,9 +287,9 @@ prontera,150,270,4	script	Grast#Memorial	900,{
 			mes "I can provide you all the materials.";
 			next;
 			if (select("I'll gather the rest.:Give me the materials.") == 2) {
-				goto L_GiveUp;
+				callsub L_GiveUp;
 			}
-			goto L_Continue;
+			callsub L_Continue;
 		}else{
 			mes "[Grast]";
 			mes "Oh, you've brought the materials I asked.";
@@ -323,9 +317,9 @@ prontera,150,270,4	script	Grast#Memorial	900,{
 			mes "If you feel too burdened to gather them all, I can provide you all the materials.";
 			next;
 			if (select("I'll gather the rest.:Give me the materials.") == 2) {
-				goto L_GiveUp;
+				callsub L_GiveUp;
 			}
-			goto L_Continue;
+			callsub L_Continue;
 		}else{
 			mes "[Grast]";
 			mes "Oh, you've brought everything I asked.";
@@ -354,9 +348,9 @@ prontera,150,270,4	script	Grast#Memorial	900,{
 			mes "It's your call, " + strcharinfo(0) + ".";
 			next;
 			if (select("I'll gather the rest.:Give me the materials.") == 2) {
-				goto L_GiveUp;
+				callsub L_GiveUp;
 			}
-			goto L_Continue;
+			callsub L_Continue;
 		}else{
 			mes "[Grast]";
 			mes "Have you brought the materials I asked?";

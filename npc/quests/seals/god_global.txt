@@ -94,7 +94,7 @@ L_Number:
 	}
 
 L_Var:
-	input .@input;
+	input .@input, 0;
 	setd getarg(0),.@input;
 	next;
 	mes "[Check]";

@@ -83,7 +83,7 @@ function	script	Func_Casing	{
 	mes "want to receive. If you want to cancel, then just enter ''0.''";
 	next;
 	input .@amount;
-	if(.@amount > 50 || .@amount == 0) {
+	if(.@amount > 50 || .@amount <= 0) {
 		mes "[Kenny]";
 		mes "Hey, I can't give you";
 		mes "that many Magazines.";

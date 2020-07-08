@@ -232,7 +232,7 @@ payon_in01,56,12,7	script	Young man#12	89,{
 		mes "[Young man]";
 		mes "Huh? So you already know what I specialize in, eh? I suppose there's no need for the usual secrecy. Tell me what you want.";
 		next;
-		switch(select("Helm of Angel.:Deviruchi cap.:I will come next time.")) {
+		switch(select("Helm of Angel.:Deviruchi Cap.:I will come next time.")) {
 		case 1:
 			mes "[Young man]";
 			mes "1 Helm (with slot).";

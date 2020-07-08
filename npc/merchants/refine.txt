@@ -135,19 +135,18 @@ geffen_in,110,172,0	script	Christopher#1	63,{
 			next;
 			while(1) {
 				input .@input;
-				if (.@input == 0) {
+				if (.@input <= 0) {
 					mes "[Christopher Guillenrow]";
 					mes "Aye, the deal is canceled. Fare ye well.";
 					close;
 				}
-				else if ((.@input < 0) || (.@input > 500)) {
+				if (.@input > 500) {
 					mes "[Christopher Guillenrow]";
 					mes "Ye can buy 500, er less.";
 					next;
+					continue;
 				}
-				else {
-					break;
-				}
+				break;
 			}
 			set .@sell,.@input * 150;
 			if (Zeny < .@sell) {
@@ -214,21 +213,20 @@ geffen_in,110,172,0	script	Christopher#1	63,{
 			next;
 			while(1) {
 				input .@input;
-				if (.@input == 0) {
+				if (.@input <= 0) {
 					mes "[Christopher Guillenrow]";
 					mes "Deal has";
 					mes "been canceled.";
 					mes "Fare ye well.";
 					close;
 				}
-				else if ((.@input < 0) || (.@input > 500)) {
+				if (.@input > 500) {
 					mes "[Christopher Guillenrow]";
 					mes "Ye can buy 500, er less.";
 					next;
+					continue;
 				}
-				else {
-					break;
-				}
+				break;
 			}
 			set .@sell,.@input * 200;
 			if (Zeny < .@sell) {
@@ -252,21 +250,19 @@ geffen_in,110,172,0	script	Christopher#1	63,{
 			next;
 			while(1) {
 				input .@input;
-				if (.@input == 0) {
+				if (.@input <= 0) {
 					mes "[Christopher Guillenrow]";
 					mes "Deal has";
 					mes "been canceled.";
 					mes "Fare ye well.";
 					close;
 				}
-				else if ((.@input < 0) || (.@input > 500)) {
+				if (.@input > 500) {
 					mes "[Christopher Guillenrow]";
 					mes "Ye can buy 500, er less.";
 					next;
 				}
-				else {
-					break;
-				}
+				break;
 			}
 			set .@sell,.@input * 1000;
 			if (Zeny < .@sell) {
@@ -441,19 +437,18 @@ ein_in01,38,29,0	script	Paul Spanner	63,{
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Paul Spanner]";
 				mes "You have canceled the trade. If you need anything, just let me know.";
 				close;
 			}
-			else if ((.@input < 0) || (.@input > 500)) {
+			if (.@input > 500) {
 				mes "[Paul Spanner]";
 				mes "You can only buy 500 or less at a time.";
 				next;
+				continue;
 			}
-			else {
-				break;
-			}
+			break;
 		}
 		set .@sell,.@input * .@item_cost;
 		if (zeny < .@sell) {
@@ -495,19 +490,18 @@ ein_in01,38,29,0	script	Paul Spanner	63,{
 		next;
 		while(1) {
 			input .@input;
-			if (.@input == 0) {
+			if (.@input <= 0) {
 				mes "[Paul Spanner]";
 				mes "The trade has been canceled. If you need anything, just let me know.";
 				close;
 			}
-			else if ((.@input < 0) || (.@input > 500)) {
+			if (.@input > 500) {
 				mes "[Paul Spanner]";
 				mes "You can buy 500 or less at a time.";
 				next;
+				continue;
 			}
-			else {
-				break;
-			}
+			break;
 		}
 		set .@sell,.@input * .@item_price;
 		if (zeny < .@sell) {
@@ -979,23 +973,22 @@ function	script	phramain	{
 	next;
 	while(1) {
 		input .@input;
-		if (.@input == 0) {
+		if (.@input <= 0) {
 			mes "["+ .@npc_name$ +"]";
 			mes "The deal has";
 			mes "been cancelled.";
 			close;
 		}
-		else if (.@input < 0 || .@input > 500) {
+		if (.@input > 500) {
 			mes "["+ .@npc_name$ +"]";
 			mes "Alright, you can";
 			mes "puchase up to 500.";
 			mes "No more than that,";
 			mes "got it? Good.";
 			next;
+			continue;
 		}
-		else {
-			break;
-		}
+		break;
 	}
 	set .@sell,.@input * .@price;
 	if (Zeny < .@sell) {

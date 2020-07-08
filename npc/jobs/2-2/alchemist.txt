@@ -11,7 +11,7 @@
 //= Job quest for Alchemist classes
 //===== Additional Comments: ================================= 
 //= 2.5 Rescripted to Aegis 10.3 stadards. [L0ne_W0lf]
-//=	No longer uses function "F_BlockHigh"
+//=	    No longer uses function "F_BlockHigh"
 //= 2.6 Corrected a bug in advanced class checking. [L0ne_W0lf]
 //= 2.7 Added missing checkweights. [L0ne_W0lf]
 //= 2.8 Fixed minor typo in test section. [L0ne_W0lf]

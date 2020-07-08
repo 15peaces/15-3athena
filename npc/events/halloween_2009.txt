@@ -333,7 +333,7 @@ prontera,220,72,5	duplicate(09Treats)	Trick or Treater#iRO8	706,2,2
 				mes "How many Fabrics or Jack o' Pumpkins do you want to use? Don't go over 100 because that is the max amount that I can use.";
 				next;
 				input .@input;
-				if (.@input == 0) {
+				if (.@input <= 0) {
 					mes "[Halloween Wizard]";
 					mes "You have no definite idea.";
 					mes "It's not a big deal.";
@@ -341,91 +341,89 @@ prontera,220,72,5	duplicate(09Treats)	Trick or Treater#iRO8	706,2,2
 					next;
 					break;
 				}
-				else if (.@input > 100) {
+				if (.@input > 100) {
 					mes "[Halloween Wizard]";
 					mes "I told you that it must be between 1 to 100!";
 					mes "You didn't pay attention!";
 					next;
 					break;
 				}
-				else {
-					set .@fabric,countitem(1059);
-					set .@jack,countitem(1062);
-					set .@worn,countitem(6299);
-					set .@crushed,countitem(6298);
-					set .@whispers,0;
-					set .@darklords,0;
+				set .@fabric,countitem(1059);
+				set .@jack,countitem(1062);
+				set .@worn,countitem(6299);
+				set .@crushed,countitem(6298);
+				set .@whispers,0;
+				set .@darklords,0;
 
-					set .@total,.@fabric + .@jack + .@worn + .@crushed;
+				set .@total,.@fabric + .@jack + .@worn + .@crushed;
 
-					if(.@total < .@input) {
-						mes "[Halloween Wizard]";
-						mes "Recount the number of items you have and tell me the total.";
-						mes "Huhuhuhuhuhu...";
-						next;
-						break;
-					}
-
-					if(.@fabric > 0) {
-						if(.@fabric >= .@input) {
-							delitem 1059,.@input;
-							set .@whispers,.@whispers+.@input;
-							set .@input,0;
-						}
-						else{
-							delitem 1059,.@fabric;
-							set .@input,.@input - .@fabric;
-							set .@whispers,.@whispers+.@fabric;
-						}
-					}
-					if(.@worn > 0 && .@input != 0) {
-						if(.@worn >= .@input) {
-							delitem 6299,.@input;
-							set .@whispers,.@whispers+.@input;
-							set .@input,0;
-						}
-						else{
-							delitem 6299,.@worn;
-							set .@input,.@input - .@worn;
-							set .@whispers,.@whispers+.@worn;
-						}
-					}
-					if(.@jack > 0 && .@input != 0) {
-						if(.@jack >= .@input) {
-							delitem 1062,.@input;
-							set .@darklords,.@darklords+.@input;
-							set .@input,0;
-						}
-						else{
-							delitem 1062,.@jack;
-							set .@input,.@input - .@jack;
-							set .@darklords,.@darklords+.@jack;
-						}
-					}
-					if(.@crushed > 0 && .@input != 0) {
-						if(.@crushed >= .@input) {
-							delitem 6298,.@input;
-							set .@darklords,.@darklords+.@input;
-							set .@input,0;
-						}
-						else{
-							delitem 6298,.@crushed;
-							set .@input,.@input - .@crushed;
-							set .@darklords,.@darklords+.@crushed;
-						}
-					}
-					if (.@input > 0) {
-						mes "Theres a problem.";
-						close;
-					}
-					monster ""+.@HallowTowns$[.@HallowTown]+"",0,0,"Halloween Whisper",3014,.@whispers;
-					monster ""+.@HallowTowns$[.@HallowTown]+"",0,0,"Halloween Dark Lord",3015,.@darklords;
+				if(.@total < .@input) {
 					mes "[Halloween Wizard]";
-					mes "Here's what you wanted.";
-					mes "Imagine what the people must be thinking in the other villages?";
-					mes "Muahahaha";
+					mes "Recount the number of items you have and tell me the total.";
+					mes "Huhuhuhuhuhu...";
+					next;
+					break;
+				}
+
+				if(.@fabric > 0) {
+					if(.@fabric >= .@input) {
+						delitem 1059,.@input;
+						set .@whispers,.@whispers+.@input;
+						set .@input,0;
+					}
+					else{
+						delitem 1059,.@fabric;
+						set .@input,.@input - .@fabric;
+						set .@whispers,.@whispers+.@fabric;
+					}
+				}
+				if(.@worn > 0 && .@input != 0) {
+					if(.@worn >= .@input) {
+						delitem 6299,.@input;
+						set .@whispers,.@whispers+.@input;
+						set .@input,0;
+					}
+					else{
+						delitem 6299,.@worn;
+						set .@input,.@input - .@worn;
+						set .@whispers,.@whispers+.@worn;
+					}
+				}
+				if(.@jack > 0 && .@input != 0) {
+					if(.@jack >= .@input) {
+						delitem 1062,.@input;
+						set .@darklords,.@darklords+.@input;
+						set .@input,0;
+					}
+					else{
+						delitem 1062,.@jack;
+						set .@input,.@input - .@jack;
+						set .@darklords,.@darklords+.@jack;
+					}
+				}
+				if(.@crushed > 0 && .@input != 0) {
+					if(.@crushed >= .@input) {
+						delitem 6298,.@input;
+						set .@darklords,.@darklords+.@input;
+						set .@input,0;
+					}
+					else{
+						delitem 6298,.@crushed;
+						set .@input,.@input - .@crushed;
+						set .@darklords,.@darklords+.@crushed;
+					}
+				}
+				if (.@input > 0) {
+					mes "Theres a problem.";
 					close;
 				}
+				monster ""+.@HallowTowns$[.@HallowTown]+"",0,0,"Halloween Whisper",3014,.@whispers;
+				monster ""+.@HallowTowns$[.@HallowTown]+"",0,0,"Halloween Dark Lord",3015,.@darklords;
+				mes "[Halloween Wizard]";
+				mes "Here's what you wanted.";
+				mes "Imagine what the people must be thinking in the other villages?";
+				mes "Muahahaha";
+				close;
 			case 3:
 				mes "[Halloween Wizard]";
 				mes "If you change your mind, come back here...";

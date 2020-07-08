@@ -832,33 +832,31 @@ lhz_in01,132,259,5	script	Sikaiz#1	868,{
 			mes "Write it again.";
 			close;
 		}
-		else {
-			mes "[Sikaiz]";
-			mes "Ok. I got your name, " + strcharinfo(0) + ". Great name! Registration is done!";
-			mes "You've become a member of the three kingdoms!";
-			next;
-			mes "[Sikaiz]";
-			mes "All done.";
-			mes "Go to the field Officer of Schwartzvalt. He should be in the banquet hall of this building downstairs.";
-			next;
-			mes "[Sikaiz]";
-			mes "Only thing left for you is to go to the Officer to say that you are leaving now.";
-			next;
-			mes "[Sikaiz]";
-			mes "As soon as you tell him,";
-			mes "come back to me again.";
-			mes "You are not the only one expecting this great challenge. I am too.";
-			next;
-			mes "[Sikaiz]";
-			mes "I believe you can do it!";
-			mes "It would bear watching you.";
-			next;
-			changequest 10073,10074;
-			set ep13_ryu,18;
-			mes "[Sikaiz]";
-			mes "See you then.";
-			close;
-		}
+		mes "[Sikaiz]";
+		mes "Ok. I got your name, " + strcharinfo(0) + ". Great name! Registration is done!";
+		mes "You've become a member of the three kingdoms!";
+		next;
+		mes "[Sikaiz]";
+		mes "All done.";
+		mes "Go to the field Officer of Schwartzvalt. He should be in the banquet hall of this building downstairs.";
+		next;
+		mes "[Sikaiz]";
+		mes "Only thing left for you is to go to the Officer to say that you are leaving now.";
+		next;
+		mes "[Sikaiz]";
+		mes "As soon as you tell him,";
+		mes "come back to me again.";
+		mes "You are not the only one expecting this great challenge. I am too.";
+		next;
+		mes "[Sikaiz]";
+		mes "I believe you can do it!";
+		mes "It would bear watching you.";
+		next;
+		changequest 10073,10074;
+		set ep13_ryu,18;
+		mes "[Sikaiz]";
+		mes "See you then.";
+		close;
 	}
 	if (ep13_ryu == 16) {
 		mes "[Sikaiz]";
@@ -4184,12 +4182,10 @@ mid_camp,188,254,3	script	Monster Scholar#ep13	883,{
 						next;
 						break;
 					}
-					else {
-						next;
-						mes "["+strcharinfo(0)+"]";
-						mes ""+.@input$+"...? I don't think that was the name...";
-						next;
-					}
+					next;
+					mes "["+strcharinfo(0)+"]";
+					mes ""+.@input$+"...? I don't think that was the name...";
+					next;
 				}
 				mes "["+strcharinfo(0)+"]";
 				mes "The size of Tatacho is about...";
@@ -8479,10 +8475,9 @@ sec_in02,80,171,0	script	Piece of crack#sec	406,{
 		mes "Cat trading Point adjust";
 		mes "You can enter the number between 1~3000.";
 		close;
-	} else {
-		set ep13_yong1,.@input;
-		close;
 	}
+	set ep13_yong1,.@input;
+	close;
 	*/
 }
 

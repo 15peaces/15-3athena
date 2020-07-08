@@ -237,20 +237,19 @@ payon_in03,188,146,5	script	Marx Hansen#juice	86,{
 				next;
 				while(1) {
 					input .@input;
-					if (.@input == 0) {
+					if (.@input <= 0) {
 						mes "[Merchant Marx Hansen]";
 						mes "Well then...";
 						mes "Come again.";
 						close;
 					}
-					else if (.@input > 100) {
+					if (.@input > 100) {
 						mes "[Merchant Marx Hansen]";
 						mes "More than 100 bottles is impossible. Choose a different amount.";
 						next;
+						continue;
 					}
-					else {
-						break;
-					}
+					break;
 				}
 				set .@make,.@input;
 				break;

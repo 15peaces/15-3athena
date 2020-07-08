@@ -641,7 +641,7 @@ turbo_room,93,117,5	script	Point Exchange Helper	125,{
 						getexp 9000,0;
 					else if (BaseLevel < 90)
 						getexp 10000,0;
-					else if (BaseLevel < 100)
+					else if (BaseLevel < 151)
 						getexp 30000,0;
 					mes "[Item Exchange Helper]";
 					mes "Thank you, your";

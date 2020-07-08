@@ -1628,15 +1628,13 @@ kh_school,178,180,4	script	Elly	895,{
 				set KielHyreQuest,34;
 				close;
 			}
-			else {
-				mes "[Elly]";
-				mes "......";
-				mes ".........";
-				mes "............";
-				next;
-				mes "^3355FFElly's not responding...^000000";
-				close;
-			}
+			mes "[Elly]";
+			mes "......";
+			mes ".........";
+			mes "............";
+			next;
+			mes "^3355FFElly's not responding...^000000";
+			close;
 		case 3:
 			mes "^3355FFAlright...";
 			mes "But sooner or later,";
@@ -1907,19 +1905,15 @@ yuno_fild08,71,170,0	script	Grave#kh	111,{
 					set KielHyreQuest,38;
 					close;
 				}
-				else {
-					mes "[Security System]";
-					mes "Incorrect password.";
-					mes "Please try again.";
-					close;
-				}
-			}
-			else {
-				mes "^3355FFWhatever you're trying";
-				mes "to insert into the slot";
-				mes "isn't working at all...^000000";
+				mes "[Security System]";
+				mes "Incorrect password.";
+				mes "Please try again.";
 				close;
 			}
+			mes "^3355FFWhatever you're trying";
+			mes "to insert into the slot";
+			mes "isn't working at all...^000000";
+			close;
 		}
 	}
 	else if ((KielHyreQuest >= 38) && (KielHyreQuest < 106)) {
@@ -3228,14 +3222,12 @@ kh_vila,185,68,0	script	Test Tube::TestTubeKHQ2	111,{
 				set KielHyreQuest,30;
 				close;
 			}
-			else {
-				mes "[???]";
-				mes "No... No...";
-				mes "That's not right.";
-				mes "I don't think we";
-				mes "were friends. No...";
-				close;
-			}
+			mes "[???]";
+			mes "No... No...";
+			mes "That's not right.";
+			mes "I don't think we";
+			mes "were friends. No...";
+			close;
 		case 2:
 			mes "^3355FFLet's investigate";
 			mes "this area a little";
@@ -3309,13 +3301,11 @@ kh_dun01,235,48,0	script	Heavy Door#kh1::HeavyDoorKHQ1	111,{
 				warp "kh_school",119,144;
 				end;
 			}
-			else {
-				mes "^3355FFYou try to push the";
-				mes "door open with all";
-				mes "your might, but fail";
-				mes "to make it budge.^000000";
-				close;
-			}
+			mes "^3355FFYou try to push the";
+			mes "door open with all";
+			mes "your might, but fail";
+			mes "to make it budge.^000000";
+			close;
 		case 2:
 			mes "^3355FFYou decided to leave";
 			mes "this door alone until";
@@ -3679,10 +3669,8 @@ kh_dun01,166,223,0	script	Mechanical Device#kh::KHKeyardReader	111,{
 			warp "kh_dun01",170,227;
 			end;
 		}
-		else {
-			mes "^3355FFNothing happened.^000000";
-			close;
-		}
+		mes "^3355FFNothing happened.^000000";
+		close;
 	}
 }
 
@@ -3787,42 +3775,38 @@ kh_dun01,44,203,0	script	Entrance Device#khd2::KHAccess	111,{
 		mes "correct keycard into the slot.^000000";
 		close;
 	}
-	else {
-		mes "^3355FFYou encounter";
-		mes "a mechanical device.";
-		mes "It looks like it can be";
-		mes "operated by inserting the";
-		mes "correct keycard into the slot.^000000";
+	mes "^3355FFYou encounter";
+	mes "a mechanical device.";
+	mes "It looks like it can be";
+	mes "operated by inserting the";
+	mes "correct keycard into the slot.^000000";
+	next;
+	input(.@KHInput$);
+	if (.@KHInput$ == "Luxurious Keycard") {
+		mes "^3355FFAs you insert the";
+		mes "Luxurious Keycard";
+		mes "into the keycard slot,";
+		mes "the door swings open";
+		mes "to reveal a long flight";
+		mes "of descending stairs.^000000";
 		next;
-		input .@KHInput$;
-		if (.@KHInput$ == "Luxurious Keycard") {
-			mes "^3355FFAs you insert the";
-			mes "Luxurious Keycard";
-			mes "into the keycard slot,";
-			mes "the door swings open";
-			mes "to reveal a long flight";
-			mes "of descending stairs.^000000";
-			next;
-			switch(select("Descend Stairs:Cancel")) {
-			case 1:
-				warp "kh_dun02",41,198;
-				end;
-			case 2:
-				mes "^3355FFIt looks like this door";
-				mes "has automatically closed";
-				mes "after the preprogrammed";
-				mes "time limit has elapsed.^000000";
-				close;
-			}
-		}
-		else {
-			mes "^3355FFYou try to push the";
-			mes "door open with all";
-			mes "your might, but fail";
-			mes "to make it budge.^000000";
+		switch(select("Descend Stairs", "Cancel")) {
+		case 1:
+			warp "kh_dun02",41,198;
+			end;
+		case 2:
+			mes "^3355FFIt looks like this door";
+			mes "has automatically closed";
+			mes "after the preprogrammed";
+			mes "time limit has elapsed.^000000";
 			close;
 		}
 	}
+	mes "^3355FFYou try to push the";
+	mes "door open with all";
+	mes "your might, but fail";
+	mes "to make it budge.^000000";
+	close;
 }
 
 kh_dun01,36,195,0	duplicate(KHAccess)	Entrance Device#khd1	111
@@ -6038,23 +6022,17 @@ kh_kiehl01,19,25,0	script	Box#kh1	111,{
 				getitem 7505,1; //Toy_Key
 				close;
 			}
-			else {
-				mes "^3355FFNothing happened.^000000";
-				close;
-			}
-		}
-		else {
-			mes "^3355FFThis is where you";
-			mes "found the Toy key^000000";
+			mes "^3355FFNothing happened.^000000";
 			close;
 		}
-	}
-	else{
-		mes "^3355FFThe box is wide";
-		mes "open, and there";
-		mes "is nothing in it.^000000";
+		mes "^3355FFThis is where you";
+		mes "found the Toy key^000000";
 		close;
 	}
+	mes "^3355FFThe box is wide";
+	mes "open, and there";
+	mes "is nothing in it.^000000";
+	close;
 }
 
 //----------------------------------------------------------------------------
@@ -6090,11 +6068,8 @@ kh_kiehl01,44,33,0	script	Big Door#BigDoorKHQ1	111,{
 		mes "to make it budge.^000000";
 		close;
 	}
-
-	else {
-		mes "^3355FFThe door is open.^000000";
-		close;
-	}
+	mes "^3355FFThe door is open.^000000";
+	close;
 }
 
 kh_kiehl01,43,33,0	script	Big_Door_1_Warp	45,1,1,{
@@ -6151,10 +6126,8 @@ kh_kiehl01,174,40,0	script	Big Door#BigDoorKHQ2	111,{
 		mes "to make it budge.^000000";
 		close;
 	}
-	else {
-		mes "^3355FFThe door is open.^000000";
-		close;
-	}
+	mes "^3355FFThe door is open.^000000";
+	close;
 }
 
 kh_kiehl01,173,39,0	script	Big_Door_2_Warp	45,1,1,{

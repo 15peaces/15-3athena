@@ -5,6 +5,52 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/08/2020
+	r259 [15peaces]
+		*Added Ninja Weapon and Armor Craftman NPC's.
+			-Added missing Ninja Fuuma Shurikens.
+		*Corrected some translation/text encoding issues in scripts.
+		*Removed use of 'menu' from official (non-custom) scripts
+			-Some scripts were partly refactored/rewritten to use a more modern coding style (and to fix some issues)
+		*strnpcinfo and getiteminfo/setiteminfo now support constants. (strcharinfo does as well, forgot to mention it...)
+			-These are easier to read and since it's not a big thing, why not? ^^
+			-Constants for strnpcinfo are:
+				--NPC_NAME for the whole npc name including hidden part
+				--NPC_NAME_VISIBLE for the visible part of the npc name
+				--NPC_NAME_HIDDEN for the hidden part of the npc name
+				--NPC_NAME_UNIQUE for the npc unique name
+				--NPC_MAP for npc map
+			-Constants for strcharinfo are:							
+				--PC_NAME for Character's name.
+				--PC_PARTY for the name of the party they're in if any.
+				--PC_GUILD for the name of the guild they're in if any.
+				--PC_MAP for the name of the map the character is in.
+			-Constants for getiteminfo/setiteminfo are:
+				--ITEMINFO_BUYPRICE   - Buy Price
+				--ITEMINFO_SELLPRICE  - Sell Price
+				--ITEMINFO_TYPE       - Item Type
+				--ITEMINFO_MAXCHANCE  - Max drop chance of this item e.g. 1 = 0.01% , etc..
+				--ITEMINFO_SEX        - Sex
+				--ITEMINFO_LOC        - Equip location
+				--ITEMINFO_WEIGHT     - Weight (note: 1/10 of unit)
+				--ITEMINFO_ATK        - Attack
+				--ITEMINFO_DEF        - Defense
+				--ITEMINFO_RANGE      - Range
+				--ITEMINFO_SLOTS      - Slots
+				--ITEMINFO_SUBTYPE    - Subtype, for weapons and ammunitions
+				--ITEMINFO_VIEWSPRITE - ViewSprite, for other item types (NOT AVAILABLE YET)
+				--ITEMINFO_ELV        - Equip min. level
+				--ITEMINFO_WLV        - Weapon level
+				--ITEMINFO_VIEWID     - View ID			
+		*Optimization of Hugel's "Monster Race" script, 4000+ lines removed.
+			-fixed some issues in Dual Race.
+		*Fixed an issue in the Eden Tutorial script "Tutorial Goal", where ITEMINFO_ATK was accidentally used instead of ITEMINFO_WEIGHT.
+		*Some other misc. cleaning of script files.
+		*Removed the usage of command goto from some npc scripts.
+		*Added missing Rare Diamond Merchants.
+		*Sanitize handling of the input() values.
+			-avoid potential hacks for old scripts that use `input()` script commands.
+
 05/17/2020
 	r258 [15peaces]
 		*Fixed some wrong constant usages in instances.

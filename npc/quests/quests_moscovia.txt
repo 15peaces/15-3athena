@@ -3975,7 +3975,7 @@ moscovia,208,182,7	script	Acorn Dealer#mos	967,{
 	mes "I'll bet you that they are very fresh!";
 	mes "How many acorns do you need?";
 	next;
-	while(.@input <= 0 || .@input > 500) {
+	while(true) {
 		input .@input;
 		if (.@input <= 0) {
 			mes "[Acorn Dealer]";
@@ -3986,8 +3986,9 @@ moscovia,208,182,7	script	Acorn Dealer#mos	967,{
 			mes "[Acorn Dealer]";
 			mes "You can't buy more than 500.";
 			next;
+			continue;
 		}
-		
+		break;
 	}
 	if (!checkweight(1026, .@input)) {
 		mes "[Acorn Dealer]";
@@ -5347,7 +5348,7 @@ mosk_in,221,43,0	script	#bowl	111,{
 					set .@maho,.@maho+1;
 					set .@nankai,.@nankai+1;
 					next;
-				} else if (!.@input) {
+				} else if (.@input <= 0) {
 					mes "-I won't stir it up.-";
 					next;
 				} else if (.@input > 100) {
@@ -5449,7 +5450,7 @@ mosk_in,221,43,0	script	#bowl	111,{
 						set .@maho,.@maho+1;
 						set .@nankai,.@nankai+1;
 						next;
-					} else if (.@input == 0) {
+					} else if (.@input <= 0) {
 						mes "-I won't stir it up.-";
 						next;
 					} else if (.@input > 100) {
@@ -10163,18 +10164,21 @@ mosk_dun02,48,214,5	script	Baba Yaga#rus32	970,{
 					next;
 					while(1) {
 						input .@input;
-						if (!.@input) {
+						if (.@input <= 0) {
 							mes "[Baba Yaga]";
 							mes "You don't want it?";
 							next;
 							mes "[Baba Yaga]";
 							mes "I don't understand you. What do you want? Kehehehehe.";
 							close;
-						} else if (.@input > 100) {
+						} 
+						if (.@input > 100) {
 							mes "[Baba Yaga]";
 							mes "I said no more then 100 at a time. Kehehehehe.";
 							next;
-						} else break;
+							continue;
+						}
+						break;
 					}
 					set .@redpotion_send,.@input;
 					set .@redtube_send,.@input;
@@ -10250,18 +10254,21 @@ mosk_dun02,48,214,5	script	Baba Yaga#rus32	970,{
 					next;
 					while(1) {
 						input .@input;
-						if (!.@input) {
+						if (.@input <= 0) {
 							mes "[Baba Yaga]";
 							mes "You don't want it?";
 							next;
 							mes "[Baba Yaga]";
 							mes "I don't understand you. What do you want? Kehehehehe.";
 							close;
-						} else if (.@input > 100) {
+						} 
+						if (.@input > 100) {
 							mes "[Baba Yaga]";
 							mes "I said no more then 100 at a time. Kehehehehe.";
 							next;
-						} else break;
+							continue;
+						}
+						break;
 					}
 					set .@yellpotion_send,.@input;
 					set .@yelltube_send,.@input;

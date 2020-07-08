@@ -17,7 +17,7 @@
 //= 1.4 Removed "Fastidious Old Man" duplicate. [L0ne_W0lf]
 //= 1.5 Updated to match AEGIS script. [Kisuka]
 //= 1.6 Added correct Izlude RE coordinates. [15peaces]
- //= 1.7 Bug fixes and syntax. Thanks to Capuche. [15peaces]
+//= 1.7 Bug fixes and syntax. Thanks to Capuche. [15peaces]
 //============================================================
 alberta,97,51,0	script	Fabian	84,{
 	mes "[Fabian]";
@@ -377,7 +377,7 @@ alberta,190,173,4	script	Phelix	85,{
 					input .@amount;
 					next;
 					mes "[Phelix]";
-					if (.@amount == 0) {
+					if (.@amount <= 0) {
 						mes "Alright then, see you next time.";
 						close;
 					}

@@ -28,21 +28,19 @@ xmas_in,100,96,4	script	Father Christmas::Santa2	718,{
 //For Lutie & Bard quest
 	if(xmas_npc==0) set xmas_npc, 1;
 //
-	if(#event_xmas > 0 && #event_xmas < 30 ) goto L_Start;
-	mes "Merry Christmas!";
-	if(Class==0 || #event_xmas>=30 ) close; //anti exploit protection
-	mes "I have a gift for you! Ho Ho Ho!";
-	getitem rand(664,667),1; //gives one of 4 gift boxes
-	set #event_xmas,#event_xmas+1;
-	close;
-
-L_Start:
+	if(#event_xmas <= 0 || #event_xmas >= 30 ) {
+		mes "Merry Christmas!";
+		if(Class==0 || #event_xmas>=30 ) close; //anti exploit protection
+		mes "I have a gift for you! Ho Ho Ho!";
+		getitem rand(664,667),1; //gives one of 4 gift boxes
+		set #event_xmas,#event_xmas+1;
+		close;
+	}
 	mes "I'm having a bit of a problem...";
 	mes "Do you care to listen?";
 	next;
-	menu "Listen to Santa Claus.",M_0, "Give Santa Claus proof.",M_1, "Cancel.",M_End;
-
-	M_0:
+	switch (select("Listen to Santa Claus.","Give Santa Claus proof.","Cancel.")) {
+	case 1: // Listen
 		mes "[Santa Claus]";
 		mes "My problem is this.";
 		mes "There seems to be a man out there";
@@ -81,9 +79,14 @@ L_Start:
 		mes "lab. It spits out random presents";
 		mes "and saves me a ton of work.";
 		close;
-	M_1:
+	case 2: // Give proof
 		mes "[Santa Claus]";
-		if(countitem(7034) < 3) goto L_NotEnuf;
+		if(countitem(7034) < 3) {
+			mes "You don't have enough socks as proof.";
+			mes "Go take down those evil Santas";
+			mes "and get more for me and I'll reward you.";
+			close;
+		}
 		delitem 7034,3;
 		mes "Seems you've been doing a";
 		mes "good job of taking down those";
@@ -96,17 +99,12 @@ L_Start:
 		mes "If you get 3 more, I'll give you another.";
 		mes "Hope you get a good item.";
 		close;
-	
-		L_NotEnuf:
-			mes "You don't have enough socks as proof.";
-			mes "Go take down those evil Santas";
-			mes "and get more for me and I'll reward you.";
-			close;
-	M_End:
+	default: // Cancel
 		mes "[Santa Claus]";
 		mes "I see. Well, at the very least";
 		mes "we shall meet again on Christmas morning.";
 		close;
+	}
 
 OnInit:
 	disablenpc "Santa1";

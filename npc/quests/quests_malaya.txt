@@ -2057,12 +2057,13 @@ malaya,119,217,3	script	Blacksmith Pandoi	538,{
 				mes "I can make up to 50 at a time.";
 				next;
 				input .@amount;
-				if (.@amount == 0) {
+				if (.@amount <= 0) {
 					mes "[Pandoi]";
 					mes "Don't need Silver Crosses?";
 					mes "Well, I can take a rest then. Ha ha ha ha~";
 					close;
-				} else if (.@amount > 50) {
+				}
+				if (.@amount > 50) {
 					mes "[Pandoi]";
 					mes "A maximum of 50 at a time!";
 					close;
@@ -2390,64 +2391,61 @@ malaya,326,68,2	script	Pedro the Sailor	100,{
 				end;
 			} else if (.@playtime == 2) {
 				erasequest 7401;
-				goto L_SetQuest;
 			} else {
 				if (checkquest(7403) == -1) {
-					if (checkquest(7402) == -1) {
-						goto L_SetQuest;
+					if (checkquest(7402) > -1) {
+						mes "[Pedro the Sailor]";
+						mes "You know what to do.";
+						mes "Gather the flowers and take it to Mumbaki to get an Offering Bouquet made.";
+						next;
+						mes "[Pedro the Sailor]";
+						mes "Give the Bouquet to Miss Diwata to cheer her up.";
+						mes "....Thank you.";
+						close;
 					}
+				} else {
 					mes "[Pedro the Sailor]";
-					mes "You know what to do.";
-					mes "Gather the flowers and take it to Mumbaki to get an Offering Bouquet made.";
+					mes "Diwata is calm!";
+					mes "I can even feel the difference out here.";
+					mes "I am always in your debt.";
 					next;
 					mes "[Pedro the Sailor]";
-					mes "Give the Bouquet to Miss Diwata to cheer her up.";
-					mes "....Thank you.";
+					mes "You know what? Why don't you do this on a more regular basis?";
+					mes "I think you kind of like doing it.";
+					setquest 7401;
+					erasequest 7403;
+						getitem 6497, 2; // Lesser_Agimat
+					getexp 2000000,2000000;
+					if (!rand(3))
+						set $malayaNames$[0], strcharinfo(PC_NAME);
 					close;
 				}
+			}
+			mes "[Pedro the Sailor]";
+			mes "Ah, the thing is...";
+			mes "We can't go right now..";
+			mes "You see, the ghosts are back...";
+			mes "I'm fed up with nuisance.";
+			next;
+			mes "[Pedro the Sailor]";
+			mes "I mean... Miss Diwata... Isn't feeling very well and, even with the Spiritual Protection";
+			mes "a normal person can't stand it.";
+			next;
+			if (select("I see. Take care then.", "How about a Floral Tribute?") == 1) {
 				mes "[Pedro the Sailor]";
-				mes "Diwata is calm!";
-				mes "I can even feel the difference out here.";
-				mes "I am always in your debt.";
-				next;
-				mes "[Pedro the Sailor]";
-				mes "You know what? Why don't you do this on a more regular basis?";
-				mes "I think you kind of like doing it.";
-				setquest 7401;
-				erasequest 7403;
-				getitem 6497, 1; // Lesser_Agimat
-				getexp 200000,200000;
-				if (!rand(3))
-					set $malayaNames$[0], strcharinfo(0);
+				mes "I'm glad you understand.";
+				mes "Sigh...";
 				close;
 			}
+			mes "[Pedro the Sailor]";
+			mes "Hmmm. That would be nice.";
+			mes "If she can be soothed with flowers...!";
+			mes "Good luck.";
+			setquest 7402;
+			close;
 		}
 	}
 	end;
-
-L_SetQuest:
-	mes "[Pedro the Sailor]";
-	mes "Ah, the thing is...";
-	mes "We can't go right now..";
-	mes "You see, the ghosts are back...";
-	mes "I'm fed up with nuisance.";
-	next;
-	mes "[Pedro the Sailor]";
-	mes "I mean... Miss Diwata... Isn't feeling very well and, even with the Spiritual Protection";
-	mes "a normal person can't stand it.";
-	next;
-	if (select("I see. Take care then.:How about a Floral Tribute?") == 1) {
-		mes "[Pedro the Sailor]";
-		mes "I'm glad you understand.";
-		mes "Sigh...";
-		close;
-	}
-	mes "[Pedro the Sailor]";
-	mes "Hmmm. That would be nice.";
-	mes "If she can be soothed with flowers...!";
-	mes "Good luck.";
-	setquest 7402;
-	close;
 }
 
 ma_in01,125,107,3	script	Ghost Diwata	1761,4,4,{

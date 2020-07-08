@@ -3609,3 +3609,12 @@
 27018,GC109_Card,GC109 Card,6,20,,10,,,,,0xFFFFFFFF,63,2,136,,,,,{ bonus bDelayrate,-(1+(BaseLevel>=90)+(BaseLevel>=120)); },{},{}
 27019,DR815_Card,DR815 Card,6,20,,10,,,,,0xFFFFFFFF,63,2,136,,,,,{ bonus bHit,1+(BaseLevel>=90)+(BaseLevel>=120); },{},{}
 27020,T_W_O_Card,T W O Card,6,20,,10,,,,,0xFFFFFFFF,63,2,2,,,,,{ bonus2 bAddClass,Class_All,10; bonus3 bAutoSpell,"NPC_WIDESOULDRAIN",2,50+((getrefine()/3)*10); },{},{}
+
+//===================================================================
+// Ninja Fuuma Shurikens (renewal)
+//===================================================================
+13313,Huuma_Swirling_Petal,Flower Huuma Shuriken,4,100000,,1500,150:50,,1,2,0x02000000,63,2,34,3,110,1,22,{ bonus2 bSkillAtk,"KO_HUUMARANKA",20; },{},{}
+13314,Huuma_Fluttering_Snow,Wave Huuma Shuriken,4,100000,,1500,200:50,,1,0,0x02000000,63,2,34,4,110,1,22,{ bonus bAtkEle,Ele_Water; bonus3 bAutoSpell,"NJ_HYOUSYOURAKU",max(getskilllv("NJ_HYOUSYOURAKU"),1),30; },{},{}
+13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,100000,,1500,200:50,,1,0,0x02000000,63,2,34,4,110,1,22,{ bonus bAtkEle,Ele_Wind; bonus3 bAutoSpell,"NJ_RAIGEKISAI",max(getskilllv("NJ_RAIGEKISAI"),1),30; },{},{}
+13316,Upg_Huuma_Shuriken,Upg Huuma Shuriken,4,20,,1500,55,,1,1,0x02000000,63,2,34,3,1,1,22,{ set .@r, getrefine(); bonus bBaseAtk,(.@r*10); bonus bMatk,(.@r*5); bonus bLongAtkRate,(.@r); if(BaseLevel>70) bonus bBaseAtk,(((BaseLevel-70)/10)*5); },{},{}
+13317,TE_Woe_Huuma,TE Woe Huuma,4,0,,0,80:100,,1,0,0x22000000,63,2,2,3,40,1,22,{ bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Bleeding,3000; },{},{}

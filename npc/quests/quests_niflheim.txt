@@ -127,15 +127,13 @@ nif_in,105,81,3	script	Crayu#nif	794,{
 			mes "you have done for me.";
 			close;
 		}
-		else {
-			mes "[Crayu]";
-			mes "*Sigh*... If you had only";
-			mes "listened to me, it would";
-			mes "have been easy to answer.";
-			mes "Try to remember the line";
-			mes "and try again!";
-			close;
-		}
+		mes "[Crayu]";
+		mes "*Sigh*... If you had only";
+		mes "listened to me, it would";
+		mes "have been easy to answer.";
+		mes "Try to remember the line";
+		mes "and try again!";
+		close;
 	}
 	next;
 	mes "[Crayu]";

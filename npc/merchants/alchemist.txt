@@ -86,12 +86,12 @@ S_SellManual:
 	mes "How many of these books would you like to purchase?";
 	next;
 	input .@amount;
-	if (.@amount == 0) {
+	if (.@amount <= 0) {
 		mes "[Craft Book Salesman]";
 		mes "Would you like to see some different books?";
 		close;
 	}
-	if (.@amount < 1 || .@amount > 99 ){
+	if (.@amount > 99) {
 		mes "[Craft Book Salesman]";
 		mes "You cannot purchase more than 100 at a time.";
 		close;
@@ -153,22 +153,21 @@ alde_alche,24,188,3	script	Guild Dealer	740,{
 			mes "Enter '0' if you want to quit.";
 			next;
 			while(1) {
-				input .@input,0,2001;
-				if (.@input == 0) {
+				input .@input,0;
+				if (.@input <= 0) {
 					mes "[Gever Al Sharp]";
 					mes "The deal was cancelled.";
 					mes "Come again next time.";
 					close;
 				}
-				else if (.@input < 1 || .@input > 2000) {
+				if (.@input > 2000) {
 					mes "[Gever Al Sharp]";
 					mes "The number must";
 					mes "be less than 2000.";
 					next;
+					continue;
 				}
-				else {
-					break;
-				}
+				break;
 			}
 			set .@sell,.@input * 8;
 			set .@item_weight,.@input * 10;

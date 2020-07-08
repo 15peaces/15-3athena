@@ -2919,14 +2919,12 @@ aldeba_in,155,101,3	script	Sir Jore#sign	1,30,-1,805,7,7,{
 				mes ""+ strcharinfo(0) +". Farewell~";
 				close;
 			}
-			else {
-				mes "[Sir Jore]";
-				mes "Err...?";
-				mes "I don't think";
-				mes "I quite understood";
-				mes "you. What did you say?";
-				close;
-			}
+			mes "[Sir Jore]";
+			mes "Err...?";
+			mes "I don't think";
+			mes "I quite understood";
+			mes "you. What did you say?";
+			close;
 		}
 		else if (sign_q == 20) {
 			mes "[Sir Jore]";
@@ -7295,23 +7293,21 @@ geffen_in,159,48,5	script	Lonely-looking Woman	1,30,-1,711,{
 			emotion e_ho;
 			close;
 		}
-		else {
-			mes "[Brenda Howard]";
-			mes "Ah... I see.";
-			mes "You're looking for my husband.";
-			mes "My husband, my daughter and";
-			mes "I just moved to Geffen from";
-			mes "Prontera a while ago.";
-			next;
-			mes "[Brenda Howard]";
-			mes "We moved to Geffen for the sake of my husband's business. Apparently, this town is closest to something he really seems to need. Whatever it is, it must be really important to his smithing work.";
-			next;
-			mes "[Brenda Howard]";
-			mes "Oh, and if you're going to look";
-			mes "for my husband, please talk to my daughter before you go. I think she has something that she wants to give to her father...";
-			set sign_q,55;
-			close;
-		}
+		mes "[Brenda Howard]";
+		mes "Ah... I see.";
+		mes "You're looking for my husband.";
+		mes "My husband, my daughter and";
+		mes "I just moved to Geffen from";
+		mes "Prontera a while ago.";
+		next;
+		mes "[Brenda Howard]";
+		mes "We moved to Geffen for the sake of my husband's business. Apparently, this town is closest to something he really seems to need. Whatever it is, it must be really important to his smithing work.";
+		next;
+		mes "[Brenda Howard]";
+		mes "Oh, and if you're going to look";
+		mes "for my husband, please talk to my daughter before you go. I think she has something that she wants to give to her father...";
+		set sign_q,55;
+		close;
 	}
 	else if (sign_q < 57) {
 		mes "[Brenda Howard]";
@@ -8265,15 +8261,13 @@ gef_tower,118,36,4	script	Annoyed Man	1,30,-1,64,{
 			emotion e_pif;
 			close;
 		}
-		else {
-			mes "[Dhota]";
-			mes "Say what...?";
-			mes "I have no idea what";
-			mes "you're talking about!";
-			mes "If you've got nothing";
-			mes "to say, then leave me alone!";
-			close;
-		}
+		mes "[Dhota]";
+		mes "Say what...?";
+		mes "I have no idea what";
+		mes "you're talking about!";
+		mes "If you've got nothing";
+		mes "to say, then leave me alone!";
+		close;
 	}
 	else {
 		mes "[Dhota]";

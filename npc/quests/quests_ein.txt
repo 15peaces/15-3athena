@@ -5986,14 +5986,12 @@ ein_in01,31,138,3	script	Calla#ein	90,{
 			changequest 8079,808;
 			close;
 		}
-		else {
-			mes "[Calla]";
-			mes "I'm sorry...";
-			mes "I didn't catch that.";
-			mes "Would you please tell";
-			mes "me your name again?";
-			close;
-		}	
+		mes "[Calla]";
+		mes "I'm sorry...";
+		mes "I didn't catch that.";
+		mes "Would you please tell";
+		mes "me your name again?";
+		close;
 	}
 	if (EIN_LOVERQ == 4) {
 		mes "[Calla]";
@@ -6306,18 +6304,16 @@ ein_in01,200,101,5	script	Klitzer#ein	854,{
 			mes "time, why don't you talk";
 			mes "to my mother? She always";
 			mes "likes meeting my friends.";
-			close;	
-		}
-		else {
-			mes "[Klitzer]";
-			mes "Hm...?";
-			mes "Oh, don't be";
-			mes "so nervous~";
-			mes "But would you please";
-			mes "tell me your name again?";
-			mes "I couldn't hear you...";
 			close;
 		}
+		mes "[Klitzer]";
+		mes "Hm...?";
+		mes "Oh, don't be";
+		mes "so nervous~";
+		mes "But would you please";
+		mes "tell me your name again?";
+		mes "I couldn't hear you...";
+		close;
 	}
 	if (EIN_LOVERQ == 5) {
 		mes "[Klitzer]";
@@ -6650,14 +6646,12 @@ ein_in01,31,151,3	script	Satra#ein	850,{
 			mes "occasion. Ho ho ho ho ho~";
 			close;
 		}
-		else {
-			mes "[Satra]";
-			mes "I beg your pardon?";
-			mes .@input$ + "? Oh my...";
-			mes "I believe I may have";
-			mes "misheard you. Ho ho ho ho~";
-			close;
-		}
+		mes "[Satra]";
+		mes "I beg your pardon?";
+		mes .@input$ + "? Oh my...";
+		mes "I believe I may have";
+		mes "misheard you. Ho ho ho ho~";
+		close;
 	}
 	if (EIN_LOVERQ == 12) {
 		mes "[Satra]";
