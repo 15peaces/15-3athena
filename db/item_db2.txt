@@ -182,11 +182,8 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19828,C_Fedora,Costume Fedora,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,195,{},{},{}
-19830,C_Sunglasses,Costume Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,12,{},{},{}
-19831,C_Filir_Hat,Costume Filir Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,408,{},{},{}
-19832,C_Poring_Hat,Costume Poring Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,120,{},{},{}
-19833,C_Cute_Ribbon,Costume Cute Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,34,{},{},{}
+
+
 19834,C_Baseball_Cap,Costume Baseball Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,216,{},{},{}
 19835,C_Lif_Doll_Hat,Costume Lif Doll Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,297,{},{},{}
 19836,C_Large_Majestic_Horns,Costume Large Majestic Horns,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,380,{},{},{}
@@ -3618,3 +3615,17 @@
 13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,100000,,1500,200:50,,1,0,0x02000000,63,2,34,4,110,1,22,{ bonus bAtkEle,Ele_Wind; bonus3 bAutoSpell,"NJ_RAIGEKISAI",max(getskilllv("NJ_RAIGEKISAI"),1),30; },{},{}
 13316,Upg_Huuma_Shuriken,Upg Huuma Shuriken,4,20,,1500,55,,1,1,0x02000000,63,2,34,3,1,1,22,{ set .@r, getrefine(); bonus bBaseAtk,(.@r*10); bonus bMatk,(.@r*5); bonus bLongAtkRate,(.@r); if(BaseLevel>70) bonus bBaseAtk,(((BaseLevel-70)/10)*5); },{},{}
 13317,TE_Woe_Huuma,TE Woe Huuma,4,0,,0,80:100,,1,0,0x22000000,63,2,2,3,40,1,22,{ bonus2 bAddRace,RC_Player,40; bonus2 bAddEff,Eff_Bleeding,3000; },{},{}
+
+//===================================================================
+// Costume System (renewal)
+//===================================================================
+19509,Butterfly_Wing_Ear,Butterfly Wing Ears,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,695,{ bonus bUnbreakableHelm,1; },{},{}
+19510,Nut_On_Head,Screw Stuck in Head,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,696,{ bonus bUnbreakableHelm,1; },{},{}
+19511,Heart_Eye_Patch1,Heart Eye Patch 1,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,697,{ bonus bUnbreakableHelm,1; },{},{}
+19512,Heart_Eye_Patch2,Heart Eye Patch 2,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,698,{ bonus bUnbreakableHelm,1; },{},{}
+19513,Chicken_Beak,Chicken Bill,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,699,{ bonus bUnbreakableHelm,1; },{},{}
+19514,Charlie_Beard,Charlies Beard,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,700,{ bonus bUnbreakableHelm,1; },{},{}
+19515,Yellow_Hat,Yellow Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,701,{ bonus bUnbreakableHelm,1; },{},{}
+19516,Singing_Bird,Singing Bird,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,702,{ bonus bUnbreakableHelm,1; },{},{}
+19517,Cocks_Comb,Chicken Crest,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,703,{ bonus bUnbreakableHelm,1; },{},{}
+19518,Rainbow,Rainbow,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,704,{ bonus bUnbreakableHelm,1; },{},{}

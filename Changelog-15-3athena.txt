@@ -5,6 +5,38 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/11/2020
+	r260 [15peaces]
+		*Merged missing changes from 3ceam rev. 688
+		*Some item database updates.
+			-Added some missing costumes.
+			-Moved some stable costumes.
+		*WL_MARSHOFABYSS
+			-Fixed a issue where the skill would lower the targets DEF, MDEF, and Flee.
+			-Now properly reduces target AGI, DEX, and movement speed by a percent.
+			-Duration reduction formula added.
+			-Skill completely recoded.
+		*WL_RECOGNIZEDSPELL
+			-No longer dispellable.
+		*WL_STASIS
+			-Fixed a issue where the skill would block the use of skills that shouldnt be blocked.
+			-Now only blocks the use of Song, Dance, Ensemble, Chorus, and all magic skills.
+			-Duration reduction formula added.
+			-Skill mostly recoded.
+		*SC_IGNORANCE
+			-Fixed a issue where the caster would only recover SP half to the targets base level when using on a monster.
+		*LG_SHIELDSPELL
+		-Fixed a issue where skill level 2's MDEF check was checking the caster's entire hard MDEF instead of just the MDEF given from a shield.
+		*LG_OVERBRAND; LG_OVERBRAND_BRANDISH; LG_OVERBRAND_PLUSATK
+			-Fixed a issue where LG_OVERBRAND and LG_OVERBRAND_BRANDISH AoE's were switched.
+			-Fixed a issue where LG_OVERBRAND_BRANDISH AoE was not knocking back targets.
+			-Fixed a issue where LG_OVERBRAND_PLUSATK was missing on targets that were knocked back into a wall or obstacle.
+			-Updated LG_OVERBRAND_PLUSATK damage formula.
+		*GN_MANDRAGORA
+			-Fixed a issue where affected targets would yell the skill name and show the skill cast animation.
+			-Fixed a issue where the skill animation wouldnt appear on the caster when casted.
+			-Added resistance formula.
+
 07/08/2020
 	r259 [15peaces]
 		*Added Ninja Weapon and Armor Craftman NPC's.
@@ -99,7 +131,7 @@
 04/26/2020
 	r256 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn256_log.sql file!
-		*Merged missing changes from 3ceam rev. 684 - 686
+		*Merged missing changes from 3ceam rev. 684 - 687
 		*Quest System Update
 			-Added support for the new quests that grant item drops from mobs.
 		*Added support for 2011-11-22aRagexeRE.

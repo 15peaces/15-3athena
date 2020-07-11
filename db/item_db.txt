@@ -7786,7 +7786,12 @@
 19825,C_Vicious_Stop_Bandage,Costume Vicious Stop Bandage,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1054,{},{},{}
 19826,C_Ice_Wings_Ears,Costume Ice Wings Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,584,{},{},{}
 19827,C_Amistr_Cap,Costume Amistr Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,643,{},{},{}
+19828,C_Fedora,Costume Fedora,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,195,{},{},{}
 19829,C_Straw_Hat,Costume Straw Hat,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,0,0,146,{},{},{}
+19830,C_Sunglasses,Costume Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,12,{},{},{}
+19831,C_Filir_Hat,Costume Filir Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,408,{},{},{}
+19832,C_Poring_Hat,Costume Poring Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,120,{},{},{}
+19833,C_Cute_Ribbon,Costume Cute Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,34,{},{},{}
 //
 19853,C_Filir Wings,Costume Filir Wings,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,595,{ bonus2 bExpAddRace,RC_Boss,5; bonus2 bExpAddRace,RC_NonBoss,5; },{},{}
 // Costume Headgear's Using Status's To Appear -> sprites currently missing in kRO

@@ -2165,7 +2165,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		}
 
 		if (sd->state.lr_flag == 3)
-			sd->shieldmdef += bonus;
+			sd->shieldmdef = val;
 		break;
 	case SP_MDEF2:
 		if(sd->state.lr_flag != 2) {

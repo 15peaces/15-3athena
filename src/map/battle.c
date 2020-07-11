@@ -747,7 +747,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			damage += damage * 75 / 100;
 		if (sc->data[SC_POISONINGWEAPON] && skill_num != GC_VENOMPRESSURE && (flag&BF_WEAPON) && damage > 0 && rand()%100 < sc->data[SC_POISONINGWEAPON]->val3)
 			sc_start(bl, (sc_type)sc->data[SC_POISONINGWEAPON]->val2, 100, sc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, sc->data[SC_POISONINGWEAPON]->val1));
-		if (tsc->data[SC__DEADLYINFECT] && damage > 0 && rand()%100 < 65 + 5 * skill_lv)
+		if (tsc->data[SC__DEADLYINFECT] && flag&BF_SHORT && damage > 0 && rand() % 100 < 30 + 10 * tsc->data[SC__DEADLYINFECT]->val1)
 			status_change_spread(src, bl);
  	}
 

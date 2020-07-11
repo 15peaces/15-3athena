@@ -2373,7 +2373,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 					skill_addtimerskill(src, tick + 300 * ((flag&2) ? 1 : 2), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|4);	
 			}
 		}
-		if (skillid == LG_OVERBRAND)
+		if (skillid == LG_OVERBRAND_BRANDISH)
 		{
 			if (skill_blown(dsrc, bl, dmg.blewcount, direction, 0))
 			{
@@ -7684,16 +7684,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		break;
 
-	case WL_STASIS:
-		if( flag&1 )
-			sc_start2(bl,type,100,skilllv,src->id,skill_get_time(skillid,skilllv));
-		else
-		{
-			map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid, skilllv),BL_CHAR,src,skillid,skilllv,tick,(map_flag_vs(src->m)?BCT_ALL:BCT_ENEMY|BCT_SELF)|flag|1,skill_castend_nodamage_id);
-			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-		}
-		break;
-
 	case WL_WHITEIMPRISON:
 		if( (src == bl || battle_check_target(src, bl, BCT_ENEMY)) ){
 			if( tsc && tsc->data[type] ){ // Fails if the Status is already on the target
@@ -7722,9 +7712,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WL_MARSHOFABYSS:
-		// Should marsh of abyss still apply half reduction to players after the 28/10 patch? [LimitLine]
-		clif_skill_nodamage(src, bl, skillid, skilllv, sc_start4(bl, type, 100, skilllv, status_get_int(src), sd ? s_job_level : 0, 0,//Whats this get int and job level thing for?
-			skill_get_time(skillid, skilllv)));
+		{
+		int timereduct = skill_get_time(skillid, skilllv) - (tstatus->int_ + tstatus->dex) / 20 * 1000;
+		if ( timereduct < 5000 )
+			timereduct = 5000;//Duration cant go below 5 seconds.
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		sc_start(bl, type, 100, skilllv, timereduct);
+		}
 		break;
 
 	case WL_SIENNAEXECRATE:
@@ -7764,6 +7758,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 			else if (sd) // Failure on Rate
 				clif_skill_fail(sd, skillid, 0, 0, 0);
+		}
+		break;
+
+	case WL_STASIS:
+		if( flag&1 )
+		{
+		int timereduct = skill_get_time(skillid, skilllv) - (tstatus->vit + tstatus->dex) / 20 * 1000;
+		if ( timereduct < 5000 )
+			timereduct = 5000;//Duration cant go below 5 seconds.
+			sc_start(bl,type,100,skilllv,timereduct);
+		}
+		else
+		{
+			map_foreachinrange(skill_area_sub,src,skill_get_splash(skillid, skilllv),BL_CHAR,src,skillid,skilllv,tick,(map_flag_vs(src->m)?BCT_ALL:BCT_ENEMY|BCT_SELF)|flag|1,skill_castend_nodamage_id);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 		}
 		break;
 
@@ -8006,7 +8015,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if ( tsc && tsc->data[SC__IGNORANCE] && skillid == SC_IGNORANCE)//If the target was successfully inflected with the Ignorance status, drain some of the targets SP.
 			{
 				int sp = 100 * skilllv;
-				if( dstmd ) sp = dstmd->level;
+				if (dstmd) sp = dstmd->level * 2;
 				if( status_zap(bl,0,sp) )
 					status_heal(src,0,sp/2,3);//What does flag 3 do? [Rytech]
 			}
@@ -8572,12 +8581,20 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case GN_MANDRAGORA:
 		if( flag & 1 )
 		{
-			if ( clif_skill_nodamage( bl, src, skillid, skilllv, 
-				sc_start(bl, type, 25 + 10 * skilllv, skilllv, skill_get_time(skillid, skilllv))))
-				status_zap(bl, 0, status_get_max_sp(bl) * (25 + 5 * skilllv) / 100);
+			int chance = 25 + 10 * skilllv - (tstatus->vit + tstatus->luk) / 5;
+			if ( chance < 10 )
+				chance = 10;//Minimal chance is 10%.
+			if ( rand()%100 < chance )
+			{//Coded to both inflect the status and drain the target's SP only when successful. [Rytech]
+			sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
+			status_zap(bl, 0, status_get_max_sp(bl) * (25 + 5 * skilllv) / 100);
+			}
 		}
-		else
-			map_foreachinrange( skill_area_sub, bl, skill_get_splash( skillid, skilllv ), BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id );
+		else if ( sd )
+		{
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			clif_skill_nodamage(bl, src, skillid, skilllv, 1);
+		}
 		break;
 
 	case GN_SLINGITEM:
@@ -9459,18 +9476,22 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		sc_start(src,SC_HIDING,100,pc_checkskill(sd,TF_HIDING),skill_get_time(TF_HIDING,pc_checkskill(sd,TF_HIDING)));
 		break;
 
-	/* LG_OVERBRAND_BRANDISH iterated first, because even if an enemy was knocked back from the area of LG_OVERBRAND_BRANDISH because of LG_OVERBRAND should receive the damage.
-	LG_OVERBRAND_BRANDISH has delayed damage, so LG_OVERBRAND's damage will apply first anyways. */
 	case LG_OVERBRAND:
 		{
 			int dir = map_calc_dir(src, x, y);
 			struct s_skill_nounit_layout  *layout;
+
+			//The main ID LG_OVERBRAND takes action first to generate its AoE and deal damage.
+			layout = skill_get_nounit_layout(skillid,skilllv,src,x,y,dir);
+			for( i = 0; i < layout->count; i++ )
+				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
+
+			//The LG_OVERBRAND_BRANDISH ID is triggered right after LG_OVERBRAND, but is delayed by the casters ASPD value.
+			// It then generates its AoE to deal damage and also knock back targets that were hit. Any target hitting a obstacle will receive damage from a third ID.
+
 			layout = skill_get_nounit_layout(LG_OVERBRAND_BRANDISH, skilllv, src, x, y, dir);
 			for (i = 0; i < layout->count; i++)
 				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, LG_OVERBRAND_BRANDISH, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
-			layout = skill_get_nounit_layout(skillid, skilllv, src, x, y, dir);
-			for (i = 0; i < layout->count; i++)
-				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
  		}
 		break;
 
@@ -10002,6 +10023,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_BASILICA] ||
 		sd->sc.data[SC_MARIONETTE] ||
 		sd->sc.data[SC_WHITEIMPRISON] ||
+		sd->sc.data[SC_STASIS] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
 		sd->sc.data[SC_ALL_RIDING]
@@ -10762,8 +10784,6 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 		 //Needed to check when a dancer/bard leaves their ensemble area.
 		if( sg->src_id == bl->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 			return skillid;
-		if( ssc && ssc->data[SC_STASIS] )
-			return 0; // Under Stasis, the caster's song don't do buffs
 		if( !sce )
 			sc_start4(bl,type,100,sg->skill_lv,sg->val1,sg->val2,0,sg->limit);
 		break;
@@ -10777,8 +10797,6 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_SERVICEFORYOU:
 		if( sg->src_id == bl->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 			return 0;
-		if( ssc && ssc->data[SC_STASIS] )
-			return 0; // Under Stasis, the caster's song don't do buffs
 		if( !sc )
 			return 0;
 		if( !sce )
@@ -11123,21 +11141,16 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		case UNT_LULLABY:
 			if( ss->id == bl->id )
 				break;
-			if( ssc && ssc->data[SC_STASIS] )
-				break;
 			skill_additional_effect(ss, bl, sg->skill_id, sg->skill_lv, BF_LONG|BF_SKILL|BF_MISC, ATK_DEF, tick);
 			break;
 
 		case UNT_UGLYDANCE:	//Ugly Dance [Skotlex]
-			if( ssc && ssc->data[SC_STASIS] )
-				break;
 			if( ss->id != bl->id )
 				skill_additional_effect(ss, bl, sg->skill_id, sg->skill_lv, BF_LONG|BF_SKILL|BF_MISC, ATK_DEF, tick);
 			break;
 
 		case UNT_DISSONANCE:
-			if( !(ssc && ssc->data[SC_STASIS]) )
-				skill_attack(BF_MISC, ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+			skill_attack(BF_MISC, ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
 			break;
 
 		case UNT_APPLEIDUN: //Apple of Idun [Skotlex]
@@ -11145,8 +11158,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			int heal;
 			if( sg->src_id == bl->id && !(tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 				break; // affects self only when soullinked
-			if( ssc && ssc->data[SC_STASIS] )
-				break;
 			heal = skill_calc_heal(ss,bl,sg->skill_id, sg->skill_lv, true);
 			clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
 			status_heal(bl, heal, 0, 0);
@@ -11159,8 +11170,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			break;
 
 		case UNT_GOSPEL:
-			if( ssc && ssc->data[SC_STASIS] )
-				break;
 			if( rand()%100 > sg->skill_lv*10 || ss == bl )
 				break;
 			if( battle_check_target(ss,bl,BCT_PARTY) > 0 )
@@ -16728,198 +16737,235 @@ void skill_init_unit_layout (void)
 
 }
 
-void skill_init_nounit_layout (void){
+void skill_init_nounit_layout(void)
+{
 	int i, pos = 0;
 
-	memset(skill_nounit_layout,0,sizeof(skill_nounit_layout));
+	memset(skill_nounit_layout, 0, sizeof(skill_nounit_layout));
 
 	windcutter_nounit_pos = pos;
-	for( i = 0; i < 8; i++ ){
-		if( i&1 ){
+	for (i = 0; i < 8; i++)
+	{
+		if (i & 1)
+		{
 			skill_nounit_layout[pos].count = 13;
-			if( i&0x2 ){
-				int dx[] = {-2,-2,-1,-1,-1, 0, 0, 0, 1, 1, 1, 2, 2};
-				int dy[] = { 2, 1, 2, 1, 0, 1, 0,-1, 0,-1,-2,-1,-2};
-				memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-			}else{
-				int dx[] = { 2, 2, 1, 1, 1, 0, 0, 0,-1,-1,-1,-2,-2};
-				int dy[] = { 2, 1, 2, 1, 0, 1, 0,-1, 0,-1,-2,-1,-2};
-				memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+			if (i & 0x2)
+			{
+				int dx[] = { -2,-2,-1,-1,-1, 0, 0, 0, 1, 1, 1, 2, 2 };
+				int dy[] = { 2, 1, 2, 1, 0, 1, 0,-1, 0,-1,-2,-1,-2 };
+				memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+				memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 			}
-		} else {
+			else
+			{
+				int dx[] = { 2, 2, 1, 1, 1, 0, 0, 0,-1,-1,-1,-2,-2 };
+				int dy[] = { 2, 1, 2, 1, 0, 1, 0,-1, 0,-1,-2,-1,-2 };
+				memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+				memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+			}
+		}
+		else {
 			skill_nounit_layout[pos].count = 15;
-			if( i%4 == 0 ){
-				int dx[] = {-2,-2,-2,-1,-1,-1, 0, 0, 0, 1, 1, 1, 2, 2, 2};
-				int dy[] = { 1, 0,-1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1};
-				memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-			}else{
-				int dx[] = {-1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
-				int dy[] = { 2, 1, 0,-1,-2, 2, 1, 0,-1,-2, 2, 1, 0,-1,-2};
-				memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-				memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+			if (i % 4 == 0)
+			{
+				int dx[] = { -2,-2,-2,-1,-1,-1, 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+				int dy[] = { 1, 0,-1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1 };
+				memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+				memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+			}
+			else
+			{
+				int dx[] = { -1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1 };
+				int dy[] = { 2, 1, 0,-1,-2, 2, 1, 0,-1,-2, 2, 1, 0,-1,-2 };
+				memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+				memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 			}
 		}
 		pos++;
 	}
 
 	overbrand_nounit_pos = pos;
-	for( i = 0; i < 8; i++ ){
-		if( i&1 ){
-			skill_nounit_layout[pos].count = 74;
-			if( i&2 ){
-				if( i&4 )
-				{	// 7
-					int dx[] = {-2,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,
-								-3,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,-3,-2,-1,-0, 1, 2, 3, 4, 5, 6,
-								-4,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,-4,-3,-2,-1,-0, 1, 2, 3, 4, 5,
-								-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5};
-					int dy[] = { 8, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,
-								 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,
-								 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,
-								 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 3
-					int dx[] = { 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,-8, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,
-								 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,
-								 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,
-								 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5};
-					int dy[] = {-8,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,
-								-7,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,
-								-6,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,
-								-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}
-			}else{
-				if( i&4 )
-				{	// 5
-					int dx[] = { 8, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,
-								 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,
-								 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,
-								 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5};
-					int dy[] = { 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,-8, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,
-								 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,
-								 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,
-								 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 1
-					int dx[] = {-8,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,
-								-7,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,
-								-6,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,
-								-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5};
-					int dy[] = {-2,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,
-								-3,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,
-								-4,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,
-								-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}
-			}
-		}else{
-			skill_nounit_layout[pos].count = 44;
-			if( i&2 ){
-				if( i&4 )
-				{	// 6
-					int dx[] = { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3};
-					int dy[] = { 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,-1,-1,-1,-1,-2,-2,-2,-2,-3,-3,-3,-3,-4,-4,-4,-4,-5,-5,-5,-5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 2
-					int dx[] = {-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0};
-					int dy[] = { 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,-1,-1,-1,-1,-2,-2,-2,-2,-3,-3,-3,-3,-4,-4,-4,-4,-5,-5,-5,-5};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}
-			}else{
-				if( i&4 )
-				{	// 4
-					int dx[] = { 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5};
-					int dy[] = {-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 0
-					int dx[] = {-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5};
-					int dy[] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}
-			}
-		}
-		pos++;
-	}
-
-	overbrand_nounit_pos = pos;
-	for( i = 0; i < 8; i++ ){
-		if( i&1 ){
+	for (i = 0; i < 8; i++)
+	{
+		if (i & 1)
+		{
 			skill_nounit_layout[pos].count = 33;
-			if( i&2 ){
-				if( i&4 )
+			if (i & 2)
+			{
+				if (i & 4)
 				{	// 7
-					int dx[] = { 5, 6, 7, 5, 6, 4, 5, 6, 4, 5, 3, 4, 5, 3, 4, 2, 3, 4, 2, 3, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1,-1, 0, 1};
-					int dy[] = { 7, 6, 5, 6, 5, 6, 5, 4, 5, 4, 5, 4, 3, 4, 3, 4, 3, 2, 3, 2, 3, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1, 0,-1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 3
-					int dx[] = {-5,-6,-7,-5,-6,-4,-5,-6,-4,-5,-3,-4,-5,-3,-4,-2,-3,-4,-2,-3,-1,-2,-3,-1,-2, 0,-1,-2, 0,-1, 1, 0,-1};
-					int dy[] = {-7,-6,-5,-6,-5,-6,-5,-4,-5,-4,-5,-4,-3,-4,-3,-4,-3,-2,-3,-2,-3,-2,-1,-2,-1,-2,-1, 0,-1, 0,-1, 0, 1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+					int dx[] = { 5, 6, 7, 5, 6, 4, 5, 6, 4, 5, 3, 4, 5, 3, 4, 2, 3, 4, 2, 3, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1,-1, 0, 1 };
+					int dy[] = { 7, 6, 5, 6, 5, 6, 5, 4, 5, 4, 5, 4, 3, 4, 3, 4, 3, 2, 3, 2, 3, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1, 0,-1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 				}
-			}else{
-				if( i&4 )
-				{	// 5
-					int dx[] = { 7, 6, 5, 6, 5, 6, 5, 4, 5, 4, 5, 4, 3, 4, 3, 4, 3, 2, 3, 2, 3, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1, 0,-1};
-					int dy[] = {-5,-6,-7,-5,-6,-4,-5,-6,-4,-5,-3,-4,-5,-3,-4,-2,-3,-4,-2,-3,-1,-2,-3,-1,-2, 0,-1,-2, 0,-1, 1, 0,-1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
-				{	// 1
-					int dx[] = {-7,-6,-5,-6,-5,-6,-5,-4,-5,-4,-5,-4,-3,-4,-3,-4,-3,-2,-3,-2,-3,-2,-1,-2,-1,-2,-1, 0,-1, 0,-1, 0, 1};
-					int dy[] = { 5, 6, 7, 5, 6, 4, 5, 6, 4, 5, 3, 4, 5, 3, 4, 2, 3, 4, 2, 3, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1,-1, 0, 1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+				else
+				{	// 3
+					int dx[] = { -5,-6,-7,-5,-6,-4,-5,-6,-4,-5,-3,-4,-5,-3,-4,-2,-3,-4,-2,-3,-1,-2,-3,-1,-2, 0,-1,-2, 0,-1, 1, 0,-1 };
+					int dy[] = { -7,-6,-5,-6,-5,-6,-5,-4,-5,-4,-5,-4,-3,-4,-3,-4,-3,-2,-3,-2,-3,-2,-1,-2,-1,-2,-1, 0,-1, 0,-1, 0, 1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 				}
 			}
-		}else{
+			else
+			{
+				if (i & 4)
+				{	// 5
+					int dx[] = { 7, 6, 5, 6, 5, 6, 5, 4, 5, 4, 5, 4, 3, 4, 3, 4, 3, 2, 3, 2, 3, 2, 1, 2, 1, 2, 1, 0, 1, 0, 1, 0,-1 };
+					int dy[] = { -5,-6,-7,-5,-6,-4,-5,-6,-4,-5,-3,-4,-5,-3,-4,-2,-3,-4,-2,-3,-1,-2,-3,-1,-2, 0,-1,-2, 0,-1, 1, 0,-1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
+				{	// 1
+					int dx[] = { -7,-6,-5,-6,-5,-6,-5,-4,-5,-4,-5,-4,-3,-4,-3,-4,-3,-2,-3,-2,-3,-2,-1,-2,-1,-2,-1, 0,-1, 0,-1, 0, 1 };
+					int dy[] = { 5, 6, 7, 5, 6, 4, 5, 6, 4, 5, 3, 4, 5, 3, 4, 2, 3, 4, 2, 3, 1, 2, 3, 1, 2, 0, 1, 2, 0, 1,-1, 0, 1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+			}
+		}
+		else
+		{
 			skill_nounit_layout[pos].count = 21;
-			if( i&2 ){
-				if( i&4 )
+			if (i & 2)
+			{
+				if (i & 4)
 				{	// 6
-					int dx[] = { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6};
-					int dy[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,-1,-1,-1,-1,-1,-1,-1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+					int dx[] = { 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6 };
+					int dy[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,-1,-1,-1,-1,-1,-1,-1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 				}
 				else
 				{	// 2
-					int dx[] = {-6,-5,-4,-3,-2,-1, 0,-6,-5,-4,-3,-2,-1, 0,-6,-5,-4,-3,-2,-1, 0};
-					int dy[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,-1,-1,-1,-1,-1,-1,-1};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+					int dx[] = { -6,-5,-4,-3,-2,-1, 0,-6,-5,-4,-3,-2,-1, 0,-6,-5,-4,-3,-2,-1, 0 };
+					int dy[] = { 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0,-1,-1,-1,-1,-1,-1,-1 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 				}
-			}else{
-				if( i&4 )
+			}
+			else
+			{
+				if (i & 4)
 				{	// 4
-					int dx[] = {-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1};
-					int dy[] = { 0, 0, 0,-1,-1,-1,-2,-2,-2,-3,-3,-3,-4,-4,-4,-5,-5,-5,-6,-6,-6};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
-				}else
+					int dx[] = { -1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1 };
+					int dy[] = { 0, 0, 0,-1,-1,-1,-2,-2,-2,-3,-3,-3,-4,-4,-4,-5,-5,-5,-6,-6,-6 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
 				{	// 0
-					int dx[] = {-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1};
-					int dy[] = { 6, 6, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0};
-					memcpy(skill_nounit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_nounit_layout[pos].dy,dy,sizeof(dy));
+					int dx[] = { -1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1,-1, 0, 1 };
+					int dy[] = { 6, 6, 6, 5, 5, 5, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1, 1, 1, 0, 0, 0 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+			}
+		}
+		pos++;
+	}
+
+	overbrand_brandish_nounit_pos = pos;
+	for (i = 0; i < 8; i++)
+	{
+		if (i & 1)
+		{
+			skill_nounit_layout[pos].count = 74;
+			if (i & 2)
+			{
+				if (i & 4)
+				{	// 7
+					int dx[] = { -2,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,
+						-3,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,-3,-2,-1,-0, 1, 2, 3, 4, 5, 6,
+						-4,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,-4,-3,-2,-1,-0, 1, 2, 3, 4, 5,
+						-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5 };
+					int dy[] = { 8, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,
+						7, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,
+						6, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,
+						5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
+				{	// 3
+					int dx[] = { 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,-8, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,
+						3, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,
+						4, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,
+						5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5 };
+					int dy[] = { -8,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,
+						-7,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,
+						-6,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,
+						-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+			}
+			else
+			{
+				if (i & 4)
+				{	// 5
+					int dx[] = { 8, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2, 7, 6, 5, 4, 3, 2, 1, 0,-1,-2,
+						7, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3, 6, 5, 4, 3, 2, 1, 0,-1,-2,-3,
+						6, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,
+						5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5 };
+					int dy[] = { 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,-8, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7,
+						3, 2, 1, 0,-1,-2,-3,-4,-5,-6,-7, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6,
+						4, 3, 2, 1, 0,-1,-2,-3,-4,-5,-6, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5,
+						5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
+				{	// 1
+					int dx[] = { -8,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,-7,-6,-5,-4,-3,-2,-1, 0, 1, 2,
+						-7,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,-6,-5,-4,-3,-2,-1, 0, 1, 2, 3,
+						-6,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4,
+						-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5 };
+					int dy[] = { -2,-1, 0, 1, 2, 3, 4, 5, 6, 7, 8,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,
+						-3,-2,-1, 0, 1, 2, 3, 4, 5, 6, 7,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,
+						-4,-3,-2,-1, 0, 1, 2, 3, 4, 5, 6,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,
+						-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+			}
+		}
+		else
+		{
+			skill_nounit_layout[pos].count = 44;
+			if (i & 2)
+			{
+				if (i & 4)
+				{	// 6
+					int dx[] = { 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3 };
+					int dy[] = { 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,-1,-1,-1,-1,-2,-2,-2,-2,-3,-3,-3,-3,-4,-4,-4,-4,-5,-5,-5,-5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
+				{	// 2
+					int dx[] = { -3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0,-3,-2,-1, 0 };
+					int dy[] = { 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0,-1,-1,-1,-1,-2,-2,-2,-2,-3,-3,-3,-3,-4,-4,-4,-4,-5,-5,-5,-5 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+			}
+			else
+			{
+				if (i & 4)
+				{	// 4
+					int dx[] = { 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5, 5, 4, 3, 2, 1, 0,-1,-2,-3,-4,-5 };
+					int dy[] = { -3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-3,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
+				}
+				else
+				{	// 0
+					int dx[] = { -5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5,-5,-4,-3,-2,-1, 0, 1, 2, 3, 4, 5 };
+					int dy[] = { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+					memcpy(skill_nounit_layout[pos].dx, dx, sizeof(dx));
+					memcpy(skill_nounit_layout[pos].dy, dy, sizeof(dy));
 				}
 			}
 		}
