@@ -972,7 +972,9 @@ void clif_efst_status_change_single(struct block_list *dst, struct block_list *b
 void clif_map_type2(struct block_list *bl,enum send_target target);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
 void clif_millenniumshield(struct map_session_data *sd, short shields );
-int clif_display_banding(struct block_list *dst, struct block_list *bl, int val1);
+
+// Displays 3rd job and other newer status's.
+void clif_status_change_single(struct block_list *dst, struct block_list *bl, int type, int flag, unsigned int tick, int val1, int val2, int val3);
 
 // V5 Item Packet
 void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip);

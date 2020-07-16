@@ -134,6 +134,8 @@
 19821,C_Hyegun_Hat,Costume Hyegun Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,375,{},{},{}
 19822,C_Yellow_Bandana,Costume Yellow Bandana,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,309,{},{},{}
 19823,C_White_Cat_Hood,Costume White Cat Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,1052,{},{},{}
+19834,C_Baseball_Cap,Costume Baseball Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,216,{},{},{}
+19835,C_Lif_Doll_Hat,Costume Lif Doll Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,297,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -184,11 +186,6 @@
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
 
 
-19834,C_Baseball_Cap,Costume Baseball Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,216,{},{},{}
-19835,C_Lif_Doll_Hat,Costume Lif Doll Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,297,{},{},{}
-19836,C_Large_Majestic_Horns,Costume Large Majestic Horns,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,380,{},{},{}
-19837,C_Asara_Fairy_Hat,Costume Asara Fairy Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,492,{},{},{}
-19838,C_Fox_Hatt,Costume Fox Hatt,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,403,{},{},{}
 19839,C_Vanilmirth_Hat,Costume Vanilmirth Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,317,{},{},{}
 19841,C_Dragonhelm_Copper,Costume Dragonhelm Copper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,454,{},{},{}
 19842,C_Puppy_Hat,Costume Puppy Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,234,{},{},{}
@@ -3629,3 +3626,13 @@
 19516,Singing_Bird,Singing Bird,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,702,{ bonus bUnbreakableHelm,1; },{},{}
 19517,Cocks_Comb,Chicken Crest,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,703,{ bonus bUnbreakableHelm,1; },{},{}
 19518,Rainbow,Rainbow,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,704,{ bonus bUnbreakableHelm,1; },{},{}
+19530,C_Wild_Rose,Costume Wild Rose,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,541,{ bonus bUnbreakableHelm; bonus bBaseAtk,2; bonus bMatk,2; },{},{}
+19531,C_Cube_Mask,Costume Cube Mask,5,0,,0,,0,,0,0xFFFFFFFF,63,2,6144,,0,0,472,{ bonus bUnbreakableHelm; bonus bFlee,1; },{},{}
+19532,C_Red_Bunny_Band,Red Bunny Band,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,640,{ bonus bUnbreakableHelm; bonus bDex,1; },{},{}
+19533,C_Spore_Hat,Costume Spore Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,114,{ bonus bUnbreakableHelm; bonus bVit,1; bonus2 bExpAddRace,RC_All,1; },{},{}
+19534,C_Tha_Despero_Mask,Costume Thanatos Despero Mask,5,20,,0,,0,,0,0xFFFFFFFF,63,2,6144,,1,0,693,{ bonus2 bAddClass,Class_All,1; bonus bMatkRate,1; bonus bHealPower,1; },{},{}
+19535,C_Sinsuncho_Hat,Costume Sinsuncho Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,730,{ bonus bUnbreakableHelm; bonus bStr,1; bonus2 bExpAddRace,RC_All,1; },{},{}
+19536,C_Rose_Corsage,Costume Rose Corsage,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,533,{ bonus bUnbreakableHelm; bonus bInt,1; },{},{}
+19537,C_Gryphon_Hat,Costume Gryphon Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,591,{ bonus bUnbreakableHelm; },{},{}
+19538,Full_Moon,Full Moon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,780,{ autobonus "{ bonus bBaseAtk,50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus "{ bonus bMatk,50; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; /* showscript */ }"; },{},{}
+19539,C_Reginleif_Hairband,Costume Hairband Of Reginleif,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,468,{ bonus bAllStats,1; },{},{}

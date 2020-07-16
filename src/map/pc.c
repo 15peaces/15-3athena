@@ -553,7 +553,7 @@ void pc_inventory_rentals(struct map_session_data *sd)
 			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
 			if( sd->inventory.u.items_inventory[i].nameid == ITEMID_BOARDING_HALTER )
 				status_change_end(&sd->bl, SC_ALL_RIDING, -1);
-			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
 		}
 		else
 		{

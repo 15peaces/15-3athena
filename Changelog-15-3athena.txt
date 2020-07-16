@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/16/2020
+	r261 [15peaces]
+		*Merged missing changes from 3ceam rev. 689
+		*Some item database updates
+			-Added some missing items.
+			-Moved some stable items.
+			-Fixed Parade Hat script.
+		*Fixed an potential issue where expired rental items are not deleted.
+		*The clif_display_banding function was recoded to clif_status_change_single.
+			-The clif_display_banding function was used to display the banding status on players that would walk onto other players screens with the status active.
+			-This is because 3rd job status's and other new status's dont use the older SHOW_EFST system (OPT3 in Athena programs) and instead use a newer setup on the official server. Knowing this, the function was recoded to clif_status_change_single
+			-to not only handle the banding status like this, but also handle other newer status's the same way.
+
 07/11/2020
 	r260 [15peaces]
 		*Merged missing changes from 3ceam rev. 688
