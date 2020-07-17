@@ -9463,6 +9463,48 @@ ACMD_FUNC(produceeffect)
 	return 0;
 }
 
+/**
+* Adopt a character.
+* Usage: @adopt <char name>
+*/
+ACMD_FUNC(adopt)
+{
+	TBL_PC *b_sd;
+	enum adopt_responses response;
+
+	nullpo_retr(-1, sd);
+
+	memset(atcmd_output, '\0', sizeof(atcmd_output));
+	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
+
+	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
+		sprintf(atcmd_output, msg_txt(sd, 435), command); // Please enter a player name (usage: %s <char name>).
+		clif_displaymessage(fd, atcmd_output);
+		return -1;
+	}
+
+	if ((b_sd = map_nick2sd((char *)atcmd_player_name)) == NULL) {
+		clif_displaymessage(fd, msg_txt(sd, 3)); // Character not found.
+		return -1;
+	}
+
+	response = pc_try_adopt(sd, map_charid2sd(sd->status.partner_id), b_sd);
+
+	if (response == ADOPT_ALLOWED) {
+		TBL_PC *p_sd = map_charid2sd(sd->status.partner_id);
+
+		b_sd->adopt_invite = sd->status.account_id;
+		clif_Adopt_request(b_sd, sd, p_sd->status.account_id);
+		return 0;
+	}
+
+	if (response < ADOPT_MORE_CHILDREN) { // No displaymessage for client-type responses
+		sprintf(atcmd_output, msg_txt(sd, 748 + response - 1));
+		clif_displaymessage(fd, atcmd_output);
+	}
+	return -1;
+}
+
 /*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
@@ -9775,6 +9817,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "produceeffect",     99,99,     atcommand_produceeffect },
 	{ "agitstart3",        60,60,     atcommand_agitstart3 },
 	{ "agitend3",          60,60,     atcommand_agitend3 },
+	{ "adopt",              1,1,      atcommand_adopt },	
 };
 
 

@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/17/2020
+	r262 [15peaces]
+		*Implemented new adoption methods
+			-Implemented atcommand adopt.
+			-Implemented script command adopt.
+			-Circumvents adoption issues with 2013-08+ clients.
+				--the client sided adoption is currently broken for these clients.
+			-Thanks to @rathena
+
 07/16/2020
 	r261 [15peaces]
 		*Merged missing changes from 3ceam rev. 689
