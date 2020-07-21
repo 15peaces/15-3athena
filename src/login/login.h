@@ -70,6 +70,11 @@ struct Login_Config {
 	char dnsbl_servs[1024];                         // comma-separated list of dnsbl servers
 
 	char account_engine[256];                       // name of the engine to use (defaults to auto, for the first available engine)
+
+	bool usercount_disable;							/// Disable colorization and description in general?
+	int usercount_low;								/// Amount of users that will display in green
+	int usercount_medium;							/// Amount of users that will display in yellow
+	int usercount_high;								/// Amount of users that will display in red
 };
 
 #define sex_num2str(num) ( (num ==  SEX_FEMALE  ) ? 'F' : (num ==  SEX_MALE  ) ? 'M' : 'S' )

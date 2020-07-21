@@ -7472,7 +7472,16 @@ void clif_party_created(struct map_session_data *sd,int result)
 ///     1 = disconnected
 void clif_party_member_info(struct party_data *p, int member_id, send_target type)
 {
+#if PACKETVER < 20170906
 	unsigned char buf[81];
+	short packet_num = 0x1e9;
+	unsigned char offset = 0;
+#else
+	unsigned char buf[85];
+	short packet_num = 0xa43;
+	unsigned char offset = 4;
+#endif
+
 	struct map_session_data* sd;
 	struct party_member* m;
 
@@ -7487,18 +7496,22 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 	if( sd == NULL )
 		return;// not online
 
-	WBUFW(buf, 0) = 0x1e9;
+	WBUFW(buf, 0) = packet_num;
 	WBUFL(buf, 2) = m->account_id;
 	WBUFL(buf, 6) = ( m->leader ) ? 0 : 1;// role: 0-leader 1-member
-	WBUFW(buf,10) = p->data[member_id].x;
-	WBUFW(buf,12) = p->data[member_id].y;
-	WBUFB(buf,14) = ( m->online ) ? 0 : 1;// state: 0-online 1-offline
-	memcpy(WBUFP(buf,15), p->party.name, NAME_LENGTH);
-	memcpy(WBUFP(buf,39), m->name, NAME_LENGTH);
-	mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,63));
-	WBUFB(buf,79) = (p->party.item&1)?1:0;
-	WBUFB(buf,80) = (p->party.item&2)?1:0;
-	clif_send(buf,packet_len(0x1e9),&sd->bl,type);
+#if PACKETVER >= 20170906
+	WBUFW(buf,10) = sd->status.class_;
+	WBUFW(buf,12) = sd->status.base_level;
+#endif
+	WBUFW(buf,10 + offset) = p->data[member_id].x;
+	WBUFW(buf,12 + offset) = p->data[member_id].y;
+	WBUFB(buf,14 + offset) = ( m->online ) ? 0 : 1;// state: 0-online 1-offline
+	memcpy(WBUFP(buf,15 + offset), p->party.name, NAME_LENGTH);
+	memcpy(WBUFP(buf,39 + offset), m->name, NAME_LENGTH);
+	mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,63 + offset));
+	WBUFB(buf,79 + offset) = (p->party.item&1)?1:0;
+	WBUFB(buf,80 + offset) = (p->party.item&2)?1:0;
+	clif_send(buf,packet_len(packet_num),&sd->bl,type);
 }
 
 
@@ -7512,13 +7525,24 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 ///     1 = disconnected
 void clif_party_info(struct party_data* p, struct map_session_data *sd)
 {
+	unsigned char party_info = 2+2+NAME_LENGTH;
+#if PACKETVER < 20170906
+	short packet_num = 0xfb;
+	unsigned char member_info = 4+NAME_LENGTH+MAP_NAME_LENGTH_EXT+1+1;
+	unsigned char extra_info = 0;
 	unsigned char buf[2+2+NAME_LENGTH+(4+NAME_LENGTH+MAP_NAME_LENGTH_EXT+1+1)*MAX_PARTY];
+#else
+	short packet_num = 0xa44;
+	unsigned char member_info = 4+NAME_LENGTH+MAP_NAME_LENGTH_EXT+1+1+2+2;
+	unsigned char extra_info = 1+1+4;
+	unsigned char buf[2+2+NAME_LENGTH+(4+NAME_LENGTH+MAP_NAME_LENGTH_EXT+1+1+2+2)*MAX_PARTY+1+1+4];
+#endif
 	struct map_session_data* party_sd = NULL;
 	int i, c;
 
 	nullpo_retv(p);
 
-	WBUFW(buf,0) = 0xfb;
+	WBUFW(buf, 0) = packet_num;
 	memcpy(WBUFP(buf,4), p->party.name, NAME_LENGTH);
 	for(i = 0, c = 0; i < MAX_PARTY; i++)
 	{
@@ -7527,14 +7551,23 @@ void clif_party_info(struct party_data* p, struct map_session_data *sd)
 
 		if(party_sd == NULL) party_sd = p->data[i].sd;
 
-		WBUFL(buf,28+c*46) = m->account_id;
-		memcpy(WBUFP(buf,28+c*46+4), m->name, NAME_LENGTH);
-		mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,28+c*46+28));
-		WBUFB(buf,28+c*46+44) = (m->leader) ? 0 : 1;
-		WBUFB(buf,28+c*46+45) = (m->online) ? 0 : 1;
+		WBUFL(buf,party_info+c*member_info) = m->account_id;
+		memcpy(WBUFP(buf,party_info+c*member_info+4), m->name, NAME_LENGTH);
+		mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,party_info+c*member_info+28));
+		WBUFB(buf,party_info+c*member_info+44) = (m->leader) ? 0 : 1;
+		WBUFB(buf,party_info+c*member_info+45) = (m->online) ? 0 : 1;
+#if PACKETVER >= 20170906
+		WBUFW(buf,party_info+c*member_info+46) = m->class_;
+		WBUFW(buf,party_info+c*member_info+48) = m->lv;
+#endif
 		c++;
 	}
-	WBUFW(buf,2) = 28+c*46;
+#if PACKETVER >= 20170906
+	WBUFB(buf,party_info+c*member_info) = (p->party.item&1) ? 1 :0;
+	WBUFB(buf,party_info+c*member_info+1) = (p->party.item&2) ? 1 : 0;
+	WBUFL(buf,party_info+c*member_info+2) = 0;
+#endif
+	WBUFW(buf,2) = party_info+c*member_info+extra_info;
 
 	if(sd) { // send only to self
 		clif_send(buf, WBUFW(buf,2), &sd->bl, SELF);
@@ -7803,6 +7836,22 @@ void clif_party_hp(struct map_session_data *sd)
 	WBUFL(buf,10) = sd->battle_status.max_hp;
 #endif
 	clif_send(buf,packet_len(cmd),&sd->bl,PARTY_AREA_WOS);
+}
+
+/// Updates job and level info of a party member.
+/// 0abd <account id>.L <job>.W <level>.W (ZC_)
+int clif_party_job_and_level(struct map_session_data *sd)
+{
+	unsigned char buf[10];
+
+	nullpo_ret(sd);
+
+	WBUFW(buf,0)=0xabd;
+	WBUFL(buf,2)=sd->status.account_id;
+	WBUFW(buf,6)=sd->status.class_;
+	WBUFW(buf,8)=sd->status.base_level;
+	clif_send(buf,packet_len(0xabd),&sd->bl,PARTY_AREA_WOS);
+	return 0;
 }
 
 
@@ -10338,6 +10387,10 @@ static int clif_guess_PacketVer(int fd, int get_previous, int *error)
 	packet_ver = clif_config.packet_db_ver;
 	cmd = clif_parse_cmd(fd, NULL);
 	packet_len = RFIFOREST(fd);
+
+#ifdef LOG_ALL_PACKETS
+	ShowDebug("clif_guess_PacketVer: packet_ver: %d cmd: 0x%04X len: %d\n", packet_ver, cmd, packet_len);
+#endif
 
 #define SET_ERROR(n) \
 	if( err == 1 )\
@@ -20180,9 +20233,9 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 //#0x0AC0
-	    0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+		0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

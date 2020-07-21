@@ -51,7 +51,7 @@
 #ifndef PACKETVER
 	//#define PACKETVER 20151029 //stable client [15peaces]
 	#define PACKETVER 20161228 //stable client [15peaces]
-	//#define PACKETVER 20170906 //next experimental client (unsupported) [15peaces]
+	//#define PACKETVER 20170614 //experimental client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9

@@ -1894,10 +1894,21 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 
 	buf = WBUFP(buffer,0);
 	WBUFL(buf,0) = p->char_id;
-	WBUFL(buf,4) = min(p->base_exp, INT32_MAX);
-	WBUFL(buf,8) = p->zeny;
-	WBUFL(buf,12) = min(p->job_exp, INT32_MAX);
-	WBUFL(buf,16) = p->job_level;
+#if PACKETVER < 20170906
+	WBUFL(buf, 4) = min(p->base_exp, INT32_MAX);
+#else
+	WBUFQ(buf, 4) = min(p->base_exp, INT32_MAX);
+	offset += 4;
+	buf = WBUFP(buffer, offset);
+#endif
+	WBUFL(buf, 8) = p->zeny;
+#if PACKETVER < 20170906
+	WBUFL(buf, 12) = min(p->job_exp, INT32_MAX);
+#else
+	WBUFL(buf, 12) = min(p->job_exp, INT32_MAX);
+	offset += 4;
+	buf = WBUFP(buffer, offset);
+#endif
 	WBUFL(buf,20) = 0; // probably opt1
 	WBUFL(buf,24) = 0; // probably opt2
 	WBUFL(buf,28) = p->option;
@@ -4222,14 +4233,25 @@ int char_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 		}
 
 		//Send player to map
-		WFIFOHEAD(fd,28);
-		WFIFOW(fd,0) = 0x71;
+#if PACKETVER >= 20170315
+		int cmd = 0xAC5;
+		int size = 156;
+#else
+		int cmd = 0x71;
+		int size = 28;
+#endif
+
+		WFIFOHEAD(fd,size);
+		WFIFOW(fd,0) = cmd;
 		WFIFOL(fd,2) = cd->char_id;
 		mapindex_getmapname_ext(mapindex_id2name(cd->last_point.map), WFIFOCP(fd,6));
 		subnet_map_ip = lan_subnetcheck(ipl); // Advanced subnet check [LuzZza]
 		WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : server[i].ip);
 		WFIFOW(fd,26) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
-		WFIFOSET(fd,28);
+#if PACKETVER >= 20170315
+		memset(WFIFOP(fd, 28), 0, 128); // Unknown
+#endif
+		WFIFOSET(fd,size);
 
 		// create temporary auth entry
 		CREATE(node, struct auth_node, 1);

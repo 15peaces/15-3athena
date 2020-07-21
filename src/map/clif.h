@@ -44,7 +44,7 @@ enum
 {// packet DB
 	MIN_PACKET_DB  = 0x064,
 	MAX_PACKET_DB  = 0xB00,
-	MAX_PACKET_VER = 42,
+	MAX_PACKET_VER = 44,
 	MAX_PACKET_POS = 20,
 };
 
@@ -716,6 +716,7 @@ void clif_party_hp(struct map_session_data *sd);
 void clif_hpmeter_single(int fd, int id, unsigned int hp, unsigned int maxhp);
 int clif_hpmeter(struct map_session_data *sd);
 int clif_hpmeter_sub(struct block_list *bl, va_list ap);
+int clif_party_job_and_level(struct map_session_data *sd);
 
 // guild
 void clif_guild_created(struct map_session_data *sd,int flag);

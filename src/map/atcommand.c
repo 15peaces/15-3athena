@@ -8082,52 +8082,6 @@ ACMD_FUNC(whereis)
 	return 0;
 }
 
-/*==========================================
- * @adopt by [Veider]
- * adopt a novice
- *------------------------------------------*/
-ACMD_FUNC(adopt)
-{
-	struct map_session_data *pl_sd1, *pl_sd2, *pl_sd3;
-	char player1[NAME_LENGTH], player2[NAME_LENGTH], player3[NAME_LENGTH];
-	char output[CHAT_SIZE_MAX];
-
-	nullpo_retr(-1, sd);
-
-	if (!message || !*message || sscanf(message, "%23[^,],%23[^,],%23[^\r\n]", player1, player2, player3) < 3) {
-		clif_displaymessage(fd, "usage: @adopt <father>,<mother>,<child>.");
-		return -1;
-	}
-
-	if (battle_config.etc_log)
-		ShowInfo("Adopting: --%s--%s--%s--\n",player1,player2,player3);
-
-	if((pl_sd1=map_nick2sd((char *) player1)) == NULL) {
-		sprintf(output, "Cannot find player %s online", player1);
-		clif_displaymessage(fd, output);
-		return -1;
-	}
-
-	if((pl_sd2=map_nick2sd((char *) player2)) == NULL) {
-		sprintf(output, "Cannot find player %s online", player2);
-		clif_displaymessage(fd, output);
-		return -1;
-	}
- 
-	if((pl_sd3=map_nick2sd((char *) player3)) == NULL) {
-		sprintf(output, "Cannot find player %s online", player3);
-		clif_displaymessage(fd, output);
-		return -1;
-	}
-
-	if( !pc_adoption(pl_sd1, pl_sd2, pl_sd3) ) {
-		return -1;
-	}
-	
-	clif_displaymessage(fd, "They are family... wish them luck");
-	return 0;
-}
-
 ACMD_FUNC(version)
 {
 	const char * revision;
@@ -9478,13 +9432,13 @@ ACMD_FUNC(adopt)
 	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
 
 	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
-		sprintf(atcmd_output, msg_txt(sd, 435), command); // Please enter a player name (usage: %s <char name>).
+		sprintf(atcmd_output, msg_txt(435), command); // Please enter a player name (usage: %s <char name>).
 		clif_displaymessage(fd, atcmd_output);
 		return -1;
 	}
 
 	if ((b_sd = map_nick2sd((char *)atcmd_player_name)) == NULL) {
-		clif_displaymessage(fd, msg_txt(sd, 3)); // Character not found.
+		clif_displaymessage(fd, msg_txt(3)); // Character not found.
 		return -1;
 	}
 
@@ -9499,7 +9453,7 @@ ACMD_FUNC(adopt)
 	}
 
 	if (response < ADOPT_MORE_CHILDREN) { // No displaymessage for client-type responses
-		sprintf(atcmd_output, msg_txt(sd, 748 + response - 1));
+		sprintf(atcmd_output, msg_txt(748 + response - 1));
 		clif_displaymessage(fd, atcmd_output);
 	}
 	return -1;

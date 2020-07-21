@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/21/2020
+	r263 [15peaces]
+		*Some item database updates
+			-Added some missing items.
+			-Moved some stable items.
+		*Fixed an issue in mora enchant npc "Artifact Researcher"
+			-Removed an duplicate anti-hack check that was always positive...
+		*Removed some unneeded code related to @adopt command.
+		*Added basic support for 2017 clients.
+			-Added packets for 2017-06-14dRagexeRE & 2017-09-06cRagexeRE clients.
+			-Added support for AC_ACCEPT_LOGIN3 packet which is used by these and newer clients.
+			-Added support for ZC_ADD_MEMBER_TO_GROUP3 and ZC_GROUP_LIST2 packets.
+				--A 2017-09-06cRagexeRE client is reqired for these packets.
+				--Thanks to 3ceam.
+			-Added support for user count colorization on login window (requires PACKETVER >= 20170726).
+			-As always, the support is experimental for now, not all features are working right now and some might dc you...
+		
 07/17/2020
 	r262 [15peaces]
 		*Implemented new adoption methods

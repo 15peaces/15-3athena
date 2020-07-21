@@ -7796,9 +7796,20 @@
 19836,C_Large_Majestic_Horns,Costume Large Majestic Horns,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,380,{},{},{}
 19837,C_Asara_Fairy_Hat,Costume Asara Fairy Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,492,{},{},{}
 19838,C_Fox_Hatt,Costume Fox Hatt,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,403,{},{},{}
+19839,C_Vanilmirth_Hat,Costume Vanilmirth Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,317,{},{},{}
+//
+19841,C_Dragonhelm_Copper,Costume Dragonhelm Copper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,454,{},{},{}
+19842,C_Puppy_Hat,Costume Puppy Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,234,{},{},{}
+19843,C_Kitty_Band,Costume Kitty Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,2,{},{},{}
+19844,C_Turban,Costume Turban,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,7,{},{},{}
+19845,C_Bao_Bao,Costume Bao Bao,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,127,{},{},{}
 //
 19853,C_Filir Wings,Costume Filir Wings,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,595,{ bonus2 bExpAddRace,RC_Boss,5; bonus2 bExpAddRace,RC_NonBoss,5; },{},{}
-// Costume Headgear's Using Status's To Appear -> sprites currently missing in kRO
+//
+19860,C_School_Criatura_Hat,Costume School Criatura Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,872,{},{},{}
+19861,C_Heart_Hairpin,Costume Heart Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,126,{},{},{}
+19862,C_Succubus_Horn,Costume Succubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,150,{},{},{}
+// Costume Headgear's Using Status's To Appear
 19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
 
 19878,C_Evolved_Drooping_Bunny,Costume Evolved Drooping Bunny,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,249,{},{},{}

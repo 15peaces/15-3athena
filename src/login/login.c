@@ -1084,6 +1084,28 @@ int mmo_auth(struct login_session_data* sd)
 	return -1; // account OK
 }
 
+int login_get_usercount(int users) {
+#if PACKETVER >= 20170726
+	if (login_config.usercount_disable) {
+		return 4; // Removes count and colorization completely
+	}
+	else if (users <= login_config.usercount_low) {
+		return 0; // Green => Smooth
+	}
+	else if (users <= login_config.usercount_medium) {
+		return 1; // Yellow => Normal
+	}
+	else if (users <= login_config.usercount_high) {
+		return 2; // Red => Busy
+	}
+	else {
+		return 3; // Purple => Crowded
+	}
+#else
+	return users;
+#endif
+}
+
 void login_auth_ok(struct login_session_data* sd)
 {
 	int fd = sd->fd;
@@ -1093,6 +1115,16 @@ void login_auth_ok(struct login_session_data* sd)
 	uint32 subnet_char_ip;
 	struct auth_node* node;
 	int i;
+
+#if PACKETVER < 20170315
+	int cmd = 0x69; // AC_ACCEPT_LOGIN
+	int header = 47;
+	int size = 32;
+#else
+	int cmd = 0xac4; // AC_ACCEPT_LOGIN3
+	int header = 64;
+	int size = 160;
+#endif
 
 	if( runflag != SERVER_STATE_RUN )
 	{
@@ -1167,13 +1199,13 @@ void login_auth_ok(struct login_session_data* sd)
 	else
 		ShowStatus("Connection of the account '%s' accepted.\n", sd->userid);
 
-	WFIFOHEAD(fd,47+32*server_num);
-	WFIFOW(fd,0) = 0x69;
-	WFIFOW(fd,2) = 47+32*server_num;
-	WFIFOL(fd,4) = sd->login_id1;
-	WFIFOL(fd,8) = sd->account_id;
-	WFIFOL(fd,12) = sd->login_id2;
-	WFIFOL(fd,16) = 0; // in old version, that was for ip (not more used)
+	WFIFOHEAD(fd, header + size*server_num);
+	WFIFOW(fd, 0) = cmd;
+	WFIFOW(fd, 2) = header + size*server_num;
+	WFIFOL(fd, 4) = sd->login_id1;
+	WFIFOL(fd, 8) = sd->account_id;
+	WFIFOL(fd, 12) = sd->login_id2;
+	WFIFOL(fd, 16) = 0; // in old version, that was for ip (not more used)
 	//memcpy(WFIFOP(fd,20), sd->lastlogin, 24); // in old version, that was for name (not more used)
 	memset(WFIFOP(fd,20), 0, 24);
 	WFIFOW(fd,44) = 0; // unknown
@@ -1184,15 +1216,18 @@ void login_auth_ok(struct login_session_data* sd)
 			continue;
 
 		subnet_char_ip = lan_subnetcheck(ip); // Advanced subnet check [LuzZza]
-		WFIFOL(fd,47+n*32) = htonl((subnet_char_ip) ? subnet_char_ip : server[i].ip);
-		WFIFOW(fd,47+n*32+4) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
-		memcpy(WFIFOP(fd,47+n*32+6), server[i].name, 20);
-		WFIFOW(fd,47+n*32+26) = server[i].users;
-		WFIFOW(fd,47+n*32+28) = server[i].type;
-		WFIFOW(fd,47+n*32+30) = server[i].new_;
+		WFIFOL(fd,header+n*size) = htonl((subnet_char_ip) ? subnet_char_ip : server[i].ip);
+		WFIFOW(fd,header+n*size+4) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
+		memcpy(WFIFOP(fd,header+n*size+6), server[i].name, 20);
+		WFIFOW(fd, header + n*size + 26) = login_get_usercount(server[i].users);
+		WFIFOW(fd,header+n*size+28) = server[i].type;
+		WFIFOW(fd,header+n*size+30) = server[i].new_;
+#if PACKETVER >= 20170315
+		memset(WFIFOP(fd, header+n*size+32), 0, 128); // Unknown
+#endif
 		n++;
 	}
-	WFIFOSET(fd,47+32*server_num);
+	WFIFOSET(fd, header + size*server_num);
 
 	// create temporary auth entry
 	CREATE(node, struct auth_node, 1);
@@ -1315,6 +1350,10 @@ int parse_login(int fd)
 	{
 		uint16 command = RFIFOW(fd,0);
 
+#ifdef LOG_ALL_PACKETS
+		ShowDebug("parse_login: Received packet 0x%04X, session #%d\n", command, fd);
+#endif
+
 		switch( command )
 		{
 
@@ -1342,6 +1381,10 @@ int parse_login(int fd)
 		case 0x0825: // S 0825 <packetsize>.W <version>.L <clienttype>.B <userid>.24B <password>.27B <mac>.17B <ip>.15B <token>.(packetsize - 0x5C)B
 		{
 			size_t packet_len = RFIFOREST(fd);
+
+#ifdef LOG_ALL_PACKETS
+			ShowDebug("parse_login: Login packet 0x%04X (length %d), session #%d\n", command, packet_len, fd);
+#endif
 
 			if( (command == 0x0064 && packet_len < 55)
 			||  (command == 0x0277 && packet_len < 84)
@@ -1615,6 +1658,14 @@ int login_config_read(const char* cfgName)
 			login_config.ipban_cleanup_interval = (unsigned int)atoi(w2);
 		else if(!strcmpi(w1, "ip_sync_interval"))
 			login_config.ip_sync_interval = (unsigned int)1000*60*atoi(w2); //w2 comes in minutes.
+		else if (!strcmpi(w1, "usercount_disable"))
+			login_config.usercount_disable = config_switch(w2);
+		else if (!strcmpi(w1, "usercount_low"))
+			login_config.usercount_low = atoi(w2);
+		else if (!strcmpi(w1, "usercount_medium"))
+			login_config.usercount_medium = atoi(w2);
+		else if (!strcmpi(w1, "usercount_high"))
+			login_config.usercount_high = atoi(w2);
 		else if(!strcmpi(w1, "import"))
 			login_config_read(w2);
 		else

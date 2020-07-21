@@ -1989,9 +1989,21 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 
 	buf = WBUFP(buffer,0);
 	WBUFL(buf,0) = p->char_id;
+#if PACKETVER < 20170906
 	WBUFL(buf,4) = min(p->base_exp, INT32_MAX);
+#else
+	WBUFQ(buf,4) = min(p->base_exp, INT32_MAX);
+	offset+=4;
+	buf = WBUFP(buffer,offset);
+#endif
 	WBUFL(buf,8) = p->zeny;
+#if PACKETVER < 20170906
 	WBUFL(buf,12) = min(p->job_exp, INT32_MAX);
+#else
+	WBUFL(buf,12) = min(p->job_exp, INT32_MAX);
+	offset+=4;
+	buf = WBUFP(buffer,offset);
+#endif
 	WBUFL(buf,16) = p->job_level;
 	WBUFL(buf,20) = 0; // probably opt1
 	WBUFL(buf,24) = 0; // probably opt2
