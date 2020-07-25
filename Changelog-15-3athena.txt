@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/24/2020
+	r264 [15peaces]
+		*Fixed an issue where the job level was not displayed probably.
+			-Follow up @f6cbd4f (r263).
+			-I removed a line by mistake, sorry... ^^"
+		*Some more updates related to 2017 clients.
+			-Added full support for the new party window.
+			-Changed some stuff to make the RODEX system work.
+				--Still needs another review...
+			-As far as I can see, all basic features are working fine now. The only features missing right now are RODEX and the equip swap feature.
+
 07/21/2020
 	r263 [15peaces]
 		*Some item database updates

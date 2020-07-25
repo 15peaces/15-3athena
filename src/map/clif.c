@@ -7464,6 +7464,7 @@ void clif_party_created(struct map_session_data *sd,int result)
 ///     ignores position fields // TODO check on different clients [flaviojs]
 /// 0104 <account id>.L <role>.L <x>.W <y>.W <state>.B <party name>.24B <char name>.24B <map name>.16B (ZC_ADD_MEMBER_TO_GROUP)
 /// 01e9 <account id>.L <role>.L <x>.W <y>.W <state>.B <party name>.24B <char name>.24B <map name>.16B <item pickup rule>.B <item share rule>.B (ZC_ADD_MEMBER_TO_GROUP2)
+/// 0a43 <account id>.L <role>.L <class>.W <base level>.W <x>.W <y>.W <state>.B <party name>.24B <char name>.24B <map name>.16B <item pickup rule>.B <item share rule>.B (ZC_ADD_MEMBER_TO_GROUP3)
 /// role:
 ///     0 = leader
 ///     1 = normal
@@ -7472,7 +7473,7 @@ void clif_party_created(struct map_session_data *sd,int result)
 ///     1 = disconnected
 void clif_party_member_info(struct party_data *p, int member_id, send_target type)
 {
-#if PACKETVER < 20170906
+#if PACKETVER < 20170502
 	unsigned char buf[81];
 	short packet_num = 0x1e9;
 	unsigned char offset = 0;
@@ -7499,7 +7500,7 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 	WBUFW(buf, 0) = packet_num;
 	WBUFL(buf, 2) = m->account_id;
 	WBUFL(buf, 6) = ( m->leader ) ? 0 : 1;// role: 0-leader 1-member
-#if PACKETVER >= 20170906
+#if PACKETVER >= 20170502
 	WBUFW(buf,10) = sd->status.class_;
 	WBUFW(buf,12) = sd->status.base_level;
 #endif
@@ -7523,10 +7524,11 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 /// state:
 ///     0 = connected
 ///     1 = disconnected
+/// 0a44 <packet len>.W <party name>.24B { <account id>.L <nick>.24B <map name>.16B <role>.B <state>.B <class>.W <base level>.W }* <item pickup rule>.B <item share rule>.B <unknown>.L
 void clif_party_info(struct party_data* p, struct map_session_data *sd)
 {
 	unsigned char party_info = 2+2+NAME_LENGTH;
-#if PACKETVER < 20170906
+#if PACKETVER < 20170502
 	short packet_num = 0xfb;
 	unsigned char member_info = 4+NAME_LENGTH+MAP_NAME_LENGTH_EXT+1+1;
 	unsigned char extra_info = 0;
@@ -7552,17 +7554,17 @@ void clif_party_info(struct party_data* p, struct map_session_data *sd)
 		if(party_sd == NULL) party_sd = p->data[i].sd;
 
 		WBUFL(buf,party_info+c*member_info) = m->account_id;
-		memcpy(WBUFP(buf,party_info+c*member_info+4), m->name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,party_info+c*member_info+4), m->name, NAME_LENGTH);
 		mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,party_info+c*member_info+28));
 		WBUFB(buf,party_info+c*member_info+44) = (m->leader) ? 0 : 1;
 		WBUFB(buf,party_info+c*member_info+45) = (m->online) ? 0 : 1;
-#if PACKETVER >= 20170906
+#if PACKETVER >= 20170502
 		WBUFW(buf,party_info+c*member_info+46) = m->class_;
 		WBUFW(buf,party_info+c*member_info+48) = m->lv;
 #endif
 		c++;
 	}
-#if PACKETVER >= 20170906
+#if PACKETVER >= 20170502
 	WBUFB(buf,party_info+c*member_info) = (p->party.item&1) ? 1 :0;
 	WBUFB(buf,party_info+c*member_info+1) = (p->party.item&2) ? 1 : 0;
 	WBUFL(buf,party_info+c*member_info+2) = 0;
@@ -15925,6 +15927,8 @@ void clif_Mail_window(int fd, int flag)
 ///		{ <mail id>.Q <read>.B <type>.B <sender>.24B <received>.L <expires>.L <title length>.W <title>.?B }*
 /// 0a7d <packet len>.W <type>.B <amount>.B <last page>.B (ZC_ACK_MAIL_LIST2)
 ///		{ <mail id>.Q <read>.B <type>.B <sender>.24B <received>.L <expires>.L <title length>.W <title>.?B }*
+/// 0ac2 <packet len>.W <unknown>.B (ZC_ACK_MAIL_LIST3)
+///		{ <type>.B <mail id>.Q <read>.B <type>.B <sender>.24B <expires>.L <title length>.W <title>.?B }*
 void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type type,int64 mailID){
 #if PACKETVER < 20150513
 	int fd = sd->fd;
@@ -15966,7 +15970,9 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 	int i, j, k, offset, titleLength;
 	uint8 mailType, amount, remaining;
 	uint32 now = (uint32)time(NULL);
-#if PACKETVER >= 20160601
+#if PACKETVER >= 20170419
+	int cmd = 0xac2;
+#elif PACKETVER >= 20160601
 	int cmd = 0xa7d;
 #else
 	int cmd = 0x9f0;
@@ -15976,6 +15982,10 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 		mail_refresh_remaining_amount(sd);
 	}
 
+#if PACKETVER >= 20170419
+	// Always send all
+	i = md->amount;
+#else
 	// If a starting mail id was sent
 	if( mailID != 0 ){
 		ARR_FIND( 0, md->amount, i, md->msg[i].id == mailID );
@@ -15997,6 +16007,7 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 	}else{
 		i = md->amount;
 	}
+#endif
 	
 	// Count the remaining mails from the starting mail or the beginning
 	// Only count mails of the target type and those that should not have been deleted already
@@ -16005,36 +16016,56 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 
 		if (msg->id < 1)
 			continue;
+#if PACKETVER < 20170419
 		if (msg->type != type)
 			continue;
+#endif
 		if (msg->scheduled_deletion > 0 && msg->scheduled_deletion <= now)
 			continue;
 
 		remaining++;
 	}
 
-	if( remaining > MAIL_PAGE_SIZE ){
+#if PACKETVER >= 20170419
+	// Always send all
+	amount = remaining;
+#else
+	if (remaining > MAIL_PAGE_SIZE) {
 		amount = MAIL_PAGE_SIZE;
-	}else{
+	}
+	else {
 		amount = remaining;
 	}
+#endif
 
 	WFIFOHEAD(fd, 7 + ((44 + MAIL_TITLE_LENGTH) * amount));
 	WFIFOW(fd, 0) = cmd;
+#if PACKETVER >= 20170419
+	WFIFOB(fd, 4) = 1; // Unknown
+	offset = 5;
+#else
 	WFIFOB(fd, 4) = type;
 	WFIFOB(fd, 5) = amount;
 	WFIFOB(fd, 6) = ( remaining < MAIL_PAGE_SIZE ); // last page
 	offset = 7;
+#endif
 
 	for( amount = 0; i >= 0; i-- ){
 		msg = &md->msg[i];
 
 		if (msg->id < 1)
 			continue;
+#if PACKETVER < 20170419
 		if (msg->type != type)
 			continue;
+#endif
 		if (msg->scheduled_deletion > 0 && msg->scheduled_deletion <= now)
 			continue;
+
+#if PACKETVER >= 20170419
+		WFIFOB(fd, offset) = msg->type;
+		offset += 1;
+#endif
 
 		WFIFOQ(fd, offset + 0) = (uint64)msg->id;
 		WFIFOB(fd, offset + 8) = (msg->status != MAIL_UNREAD);
@@ -16052,28 +16083,38 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 			}
 		}
 
+#if PACKETVER >= 20170419
+		// If it came from an npc?
+		if (!msg->send_id) {
+			mailType |= MAIL_TYPE_NPC;
+		}
+#endif
+
 		// If it came from an npc?
 		//mailType |= MAIL_TYPE_NPC;
 
 		WFIFOB(fd, offset + 9) = mailType;
 		safestrncpy(WFIFOCP(fd, offset + 10), msg->send_name, NAME_LENGTH);
 
+#if PACKETVER < 20170419
 		// How much time has passed since you received the mail
 		WFIFOL(fd, offset + 34 ) = now - (uint32)msg->timestamp;
+		offset += 4;
+#endif
 
 		// If automatic return/deletion of mails is enabled, notify the client when it will kick in
 		if( msg->scheduled_deletion > 0 ){
-			WFIFOL(fd, offset + 38) = (uint32)msg->scheduled_deletion - now;
+			WFIFOL(fd, offset + 34) = (uint32)msg->scheduled_deletion - now;
 		}else{
 			// Fake the scheduled deletion to one year in the future
 			// Sadly the client always displays the scheduled deletion after 24 hours no matter how high this value gets [Lemongrass]
-			WFIFOL(fd, offset + 38) = 365 * 24 * 60 * 60;
+			WFIFOL(fd, offset + 34) = 365 * 24 * 60 * 60;
 		}
 
-		WFIFOW(fd, offset + 42) = titleLength = (int16)(strlen(msg->title) + 1);
-		safestrncpy(WFIFOCP(fd, offset + 44), msg->title, titleLength);
+		WFIFOW(fd, offset + 38) = titleLength = (int16)(strlen(msg->title) + 1);
+		safestrncpy(WFIFOCP(fd, offset + 40), msg->title, titleLength);
 
-		offset += 44 + titleLength;
+		offset += 40 + titleLength;
 	}
 	WFIFOW(fd, 2) = (int16)offset;
 	WFIFOSET(fd, offset);

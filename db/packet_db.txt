@@ -2412,6 +2412,9 @@ packet_keys: 0x5ed10a48,0x667f4301,0x2e5d761f
 0x0AC4,-1//AC_ACCEPT_LOGIN3
 0x0AC5,156//HC_NOTIFY_ZONESVR2
 
+0x0a43,85 //ZC_ADD_MEMBER_TO_GROUP3
+0x0a44,-1
+
 //2017-09-06cRagexeRE
 packet_ver: 44
 packet_keys: 0x7def7677,0x351f36e6,0x52303485
@@ -2445,8 +2448,6 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 0x091E,5,hommenu,4
 0x0281,36,storagepassword,0
 
-0x0a43,85
-0x0a44,-1
 0x0abd,10
 
 0x0acb,12

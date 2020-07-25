@@ -1909,6 +1909,7 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 	offset += 4;
 	buf = WBUFP(buffer, offset);
 #endif
+	WBUFL(buf,16) = p->job_level;
 	WBUFL(buf,20) = 0; // probably opt1
 	WBUFL(buf,24) = 0; // probably opt2
 	WBUFL(buf,28) = p->option;
