@@ -5,6 +5,63 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/30/2020
+	r265 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn265.sql file!
+		*Merged missing changes from 3ceam rev. 690 - 697
+		*Some changes to pc_setstand to allow to force standing in some cases.
+		*Added missing features for the 2017 clients.
+			-They are now stable and ready for public use.
+			-changed default PACKETVER to 20170614
+			-Added full support for RODEX system in 2017 clients.
+			-Added full support for the equip swap feature.
+			-changed clif_equipitemack function to use the correct results. This was made since the new equip swap functions use the same result table.
+		*Newer status animations will now be properly displayed on players that walk onto other players screens. Monster's however dont support the feature yet.
+			-Note: Status like Minstrel/Wanderer Chorus buff status's wasnt added but may be added soon if confirmed to display their glowy buff aura on every screen entrence and not just upon getting the buff. Also Millennium Shield 
+			-and Force of Vanguard will not properly their shields or rage balls yet on refresh.
+			-This will be fixed in a future update.
+		*renamed the all_riding_speed config to rental_mount_speed_boost.
+			-The function is still the same, I just decided to remame it for some reasons.
+			-This allows you to set how much of a speed boost rental mounts will give.
+			-By default, rental mounts will give a 25% movement speed increase.
+			-Some may feel thats too small and want to increase it.
+		*Boss monsters are now immune to Vacuum Extreme and Crystalize status's.
+		*AB_EPICLESIS
+			-Fixed a issue where the skill didnt reveal players that were in Cloaking Exceed status.
+		*RA_CAMOUFLAGE
+			-Most of the skill was reworked to official.
+			-Level 1 requires being next to a wall to use. Level 2 and higher doesent require a wall.
+			-Level 1 and 2 prevents the caster from moving. level 3 allows 50% movement, level 4 allows 75% movement, and level 5 allows 100% movement.
+			-Caster will appear as transparent but not completely invisiable to other players.
+			-The caster will not be visable to other monster's except insect and demon types.
+			-The caster will not be normally clickable by other players, but can still get knocked out of the status with offensive skill damage, splash damage, or AoE damage.
+			-For every second that passes while in the camouflage status, ATK will increase by +30, Critical will increase by 10% and DEF will decrease by 5%.
+			-Due to a issue with the coding for the per second increase part, the skill will be temporarly coded to increase ATK and Critical and decrease DEF to half of the max values the buff can give for the entire duration.
+		*SC_BODYPAINT
+			-Fixed a issue where the skill would revel players out of the Chase Walk status.
+		*WL_STASIS
+			-Fixed a issue where the status would block the use of all skills.
+		*SC_SHADOWFORM
+			-Fixed a issue where the server would randomly crash when the reveal check happens.
+		*WL_TETRAVORTEX
+			-Updated the skill animation.
+		*GN_CHANGEMATERIAL
+			-The number of crafting recepies was greatly increased.
+			-Crafting the following throwable potions will now produce 5 Boost500, Full SwingK, Mana Plus, Cure Free, Stamina Up M, and Digestive F.		
+		*RK_STONEHARDSKIN
+			-Updated a check on the DEF/MDEF increase.
+		*RK_FIGHTINGSPIRIT
+			-Fixed a issue where the caster's ASPD would not increase when not in a party.
+			-Fixed a issue where the ATK increase bonus would not work.
+		*GC_COUNTERSLASH; GC_ROLLINGCUTTER; GC_CROSSRIPPERSLASHER
+			-EDP's damage increase on these skills are now disabled due to balance issues and will later be renabled when a secondary EDP code can be added. The secondary code will be used to increase the damage for these skills in a renewal way.
+		*SR_GENTLETOUCH_CHANGE
+			-Fixed a issue where using the skill while having 0 INT would crash the server.
+		*Some item database updates
+			-Added some missing items.
+		*Updated the produce_db to add in new items craftable through the Change Material skill.
+			-Increased the MAX_SKILL_PRODUCE_DB to 270.
+
 07/24/2020
 	r264 [15peaces]
 		*Fixed an issue where the job level was not displayed probably.

@@ -440,6 +440,9 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	if( skillid == AL_TELEPORT && sd->skillitem == skillid && sd->skillitemlv > 2 )
 		return 0; // Teleport lv 3 bypasses this check.[Inkfish]
 
+	if (skillid == ALL_EQSWITCH)
+		return 0;
+
 	if( skill_blockpc_get(sd,skillid) != -1 )
 		return 1;
 
@@ -1550,7 +1553,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	 	!(skill_get_inf(skillid)&(INF_GROUND_SKILL|INF_SELF_SKILL)) &&
 		(rate=pc_checkskill(sd,HW_SOULDRAIN))>0
 	){	//Soul Drain should only work on targetted spells [Skotlex]
-		if (pc_issit(sd)) pc_setstand(sd); //Character stuck in attacking animation while 'sitting' fix. [Skotlex]
+		if (pc_issit(sd)) pc_setstand(sd, true); //Character stuck in attacking animation while 'sitting' fix. [Skotlex]
 		clif_skill_nodamage(src,bl,HW_SOULDRAIN,rate,1);
 		status_heal(src, 0, status_get_lv(bl)*(95+15*rate)/100, 2);
 	}
@@ -2160,7 +2163,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case WL_TETRAVORTEX_WATER:
 	case WL_TETRAVORTEX_WIND:
 	case WL_TETRAVORTEX_GROUND:
-		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,1,WL_TETRAVORTEX_FIRE,-2,type);
+		clif_skill_nodamage(src, bl, skillid, -2, 1);
+		clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5);
 		break;
 	case SC_FEINTBOMB:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -1, 5);
@@ -3702,6 +3706,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_HELLINFERNO:
+	case WL_TETRAVORTEX_FIRE:
+	case WL_TETRAVORTEX_WATER:
+	case WL_TETRAVORTEX_WIND:
+	case WL_TETRAVORTEX_GROUND:
 	case WM_METALICSOUND:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -3961,7 +3969,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				positions[5] = {-1,-1,-1,-1,-1 },
 				i, j = 0, k, subskill = 0;
 
-			for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
+			for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
 				if( sc && sc->data[i] )
 				{
 					spheres[j] = i;
@@ -4058,7 +4066,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				int spheres[5] = { 0, 0, 0, 0, 0 },
 					positions[5] = {-1,-1,-1,-1,-1 };
 
-				for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
+				for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
 					if( sc && sc->data[i] )
 					{
 						spheres[j] = i;
@@ -5064,6 +5072,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_DUPLELIGHT:
 	case AB_SECRAMENT:
 	case RA_FEARBREEZE:
+	case RA_CAMOUFLAGE:
 	case NC_ACCELERATION:
 	case NC_HOVERING:
 	case NC_SHAPESHIFT:
@@ -5599,7 +5608,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case AS_CLOAKING:
 	case GC_CLOAKINGEXCEED:
-	case RA_CAMOUFLAGE:
 	case LG_FORCEOFVANGUARD:
 	case SC_REPRODUCE:
 		if (tsce){
@@ -7333,25 +7341,24 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case RK_FIGHTINGSPIRIT:
-		if (flag&1)
 		{
-			if (src == bl)
-				sc_start2(bl,type,100,skill_area_temp[5],10*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
-			else
-				sc_start(bl, type, 100, skill_area_temp[5] / 4, skill_get_time(skillid, skilllv));
-		}
-		else if (sd && pc_checkskill(sd, RK_RUNEMASTERY) >= 5)
-		{
-			if (sd->status.party_id)
+			int atkbonus = 7 * party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,BCT_PARTY,skill_area_sub_count);
+			if( flag&1 )
 			{
-				i = party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, BCT_PARTY, skill_area_sub_count);
-				skill_area_temp[5] = 7 * i; // ATK
-				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+				if( src == bl )
+					sc_start2(bl,type,100,atkbonus,10*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
+				else
+					sc_start(bl,type,100,atkbonus / 4,skill_get_time(skillid,skilllv));
 			}
-			else
-				sc_start2(bl, type, 100, 7, 5,skill_get_time(skillid, skilllv));
+			else if( sd && pc_checkskill(sd,RK_RUNEMASTERY) >= 5 )
+			{
+				if( sd->status.party_id )
+					party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+				else
+					sc_start2(bl,type,100,7,10*(sd?pc_checkskill(sd,RK_RUNEMASTERY):10),skill_get_time(skillid,skilllv));
+				clif_skill_nodamage(src,bl,skillid,1,1);
+			}
 		}
-		clif_skill_nodamage(src, bl, skillid, 1, 1);
 		break;
 
 	case GC_ROLLINGCUTTER:
@@ -7658,8 +7665,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				//case SC_KAHU_ENTEN:		case SC_HYOUHU_HUBUKI:	case SC_KAZEHU_SEIRAN:	
 				/*case SC_DOHU_KOUKAI:*/	case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Dispell
-				case SC_SPHERE_1:		case SC_SPHERE_2:		case SC_SPHERE_3:		
-				case SC_SPHERE_4:		case SC_SPHERE_5:		/*case SC_SPELLBOOK1:		
+				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
+				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
 				case SC_SPELLBOOK2:		case SC_SPELLBOOK3:		case SC_SPELLBOOK4:		
 				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:*/
 				case SC_DAILYSENDMAILCNT:
@@ -7786,7 +7793,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( !sc ) 
 				break;
 	
-			for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
+			for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
 			{
 				if( !sctype && !sc->data[i] )
 					sctype = i; // Take the free SC
@@ -7974,11 +7981,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SC_BODYPAINT:
 		if (flag&1)
 		{
-			if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CHASEWALK] || tsc->data[SC_CLOAKINGEXCEED]))
+			if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED]))
 			{
 				status_change_end(bl, SC_HIDING, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
-				status_change_end(bl, SC_CHASEWALK, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 				sc_start(bl,type,20 + 5 * skilllv,skilllv,skill_get_time(skillid,skilllv));
 			}
@@ -8714,6 +8720,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( sd )
 		{// players only, skill allows 5 buying slots
 			clif_skill_nodamage(src, bl, skillid, skilllv, buyingstore_setup(sd, MAX_BUYINGSTORE_SLOTS));
+		}
+		break;
+
+	case ALL_EQSWITCH:
+		if (sd) {
+			clif_equipswitch_reply(sd, false);
+
+			for (int i = 0, position = 0; i < EQI_MAX; i++) {
+				if (sd->equip_switch_index[i] >= 0 && !(position & equip[i])) {
+					position |= pc_equipswitch(sd, sd->equip_switch_index[i]);
+				}
+			}
 		}
 		break;
 
@@ -10023,7 +10041,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_BASILICA] ||
 		sd->sc.data[SC_MARIONETTE] ||
 		sd->sc.data[SC_WHITEIMPRISON] ||
-		sd->sc.data[SC_STASIS] ||
+		//sd->sc.data[SC_STASIS] ||//Not sure if this is needed. Does as it should without it, but leaving here for now. [Rytech]
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
 		sd->sc.data[SC_ALL_RIDING]
@@ -11335,6 +11353,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					// TODO: check if other hidden status can be removed.
 					status_change_end(bl,SC_HIDING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
+					status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 				}
 			}
 			/* Enable this if kRO fix the current skill. Currently no damage on undead and demon monster. [Jobbie]
@@ -12415,8 +12434,8 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case WL_SUMMONSTONE:
 		if( sc )
 		{
-			ARR_FIND(SC_SPHERE_1,SC_SPHERE_5+1,i,!sc->data[i]);
-			if( i == SC_SPHERE_5+1 )
+			ARR_FIND(SC_SUMMON1,SC_SUMMON5+1,i,!sc->data[i]);
+			if( i == SC_SUMMON5+1 )
 			{ // No more free slots
 				clif_skill_fail(sd,skill,USESKILL_FAIL_SPELLBOOK_PRESERVATION_POINT,0,0);
 				return 0;
@@ -13781,7 +13800,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 				clif_additem(sd,idx,1,0);
 				achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, ditem->wlv, item->refine);
 				if (ep)
-					pc_equipitem(sd,idx,ep);
+					pc_equipitem(sd,idx,ep,false);
 				clif_misceffect(&sd->bl,3);
 				if(item->refine == MAX_REFINE &&
 					item->card[0] == CARD0_FORGE &&
@@ -14452,14 +14471,8 @@ bool skill_check_camouflage(struct block_list *bl, struct status_change_entry *s
 	{
 		if( !wall )
 		{
-			if( sce->val1 < 3 ) //End camouflage.
-				status_change_end(bl, SC_CAMOUFLAGE, -1);
-			else
-				if( sce->val3&1 )
-				{ //Remove wall bonus
-					sce->val3&=~1;
-					status_calc_bl(bl,SCB_SPEED);
-				}
+			if (sce->val1 < 2) //End camoflage.
+				status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 		}
 	}
 
@@ -15626,6 +15639,9 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 						qty *= 2; 
 						break;
 					// Throwable potions
+					case 13269: case 13270: case 13271: case 13272: case 13273: case 13284:
+						qty *= 5;
+						break;
 					case 13275: case 13276: case 13277: case 13278: case 13279: case 13280: case 13281: case 13282: case 13283:
 						qty *= 10;
 						break;

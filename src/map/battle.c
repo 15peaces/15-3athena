@@ -512,8 +512,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if(sc->data[SC_DODGE] && !sc->opt1 &&
 			(flag&BF_LONG || sc->data[SC_SPURT])
 		&& rand()%100 < 20) {
-			if (sd && pc_issit(sd) && !sc->data[SC_SITDOWN_FORCE]) pc_setstand(sd); //Stand it to dodge.
-				clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
+			if (sd && pc_issit(sd))
+				pc_setstand(sd, false); //Stand it to dodge. rAthena forces it, should it really ignore SC_SITDOWN_FORCE? [15peaces]
+			clif_skill_nodamage(bl,bl,TK_DODGE,1,1);
 			if (!sc->data[SC_COMBO])
 				sc_start4(bl, SC_COMBO, 100, TK_JUMPKICK, src->id, 1, 0, 2000);
 			return 0;
@@ -2820,6 +2821,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					case AS_SPLASHER:
 					case AS_VENOMKNIFE:
 					case ASC_BREAKER:
+					case GC_COUNTERSLASH:
+					case GC_ROLLINGCUTTER:
+					case GC_CROSSRIPPERSLASHER:
 						break;
 					case AS_GRIMTOOTH: // Grimtooth skill no longer takes the effect of Enchant Deadly Poison.
 					// Skill effects nerfed, don't add EDP effects.
@@ -2828,7 +2832,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							ATK_ADDRATE(sc->data[SC_EDP]->val3);
 						break;
 					case GC_CROSSIMPACT:
-					case GC_COUNTERSLASH:
 						if( !(battle_config.renewal_edp&2) )
 							ATK_ADDRATE(sc->data[SC_EDP]->val3);
 						break;
@@ -5870,7 +5873,7 @@ static const struct _battle_data {
 	{ "max_baby_parameter_renewal_jobs",	&battle_config.max_baby_parameter_renewal_jobs, 108,	10,		10000,			},
 	{ "max_aspd_renewal_jobs",				&battle_config.max_aspd_renewal_jobs,			193,	100,	199,			},
 	{ "hanbok_ignorepalette",				&battle_config.hanbok_ignorepalette,			0,		0,		1,				},
-	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,		25,		100,			},
+	{ "rental_mount_speed_boost",           &battle_config.rental_mount_speed_boost,        25,     0,      100,            },
 	{ "warg_can_falcon",                    &battle_config.warg_can_falcon,                  0,     0,      1,		        },
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,              },
@@ -5918,6 +5921,7 @@ static const struct _battle_data {
 	{ "mail_attachment_weight",				&battle_config.mail_attachment_weight,			2000,	0,		INT32_MAX,		},
 	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
 	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
+	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
@@ -6000,6 +6004,13 @@ void battle_adjust_conf()
 	if (battle_config.feature_achievement) {
 		ShowWarning("conf/battle/feature.conf achievement is enabled but it requires PACKETVER 2015-05-13 or newer, disabling...\n");
 		battle_config.feature_achievement = 0;
+	}
+#endif
+
+#if PACKETVER < 20170208
+	if (battle_config.feature_equipswitch) {
+		ShowWarning("conf/battle/feature.conf equip switch is enabled but it requires PACKETVER 2017-02-08 or newer, disabling...\n");
+		battle_config.feature_equipswitch = 0;
 	}
 #endif
 

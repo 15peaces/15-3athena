@@ -434,6 +434,17 @@ enum useskill_fail_cause
 	USESKILL_FAIL_NEED_MORE_BULLET = 84,
 };
 
+enum clif_messages {
+	// clif_equipitemack flags
+	ITEM_EQUIP_ACK_OK = 0,
+	ITEM_EQUIP_ACK_FAIL = 1,
+	ITEM_EQUIP_ACK_FAILLEVEL = 2,
+	/* -end- */
+
+	// Unofficial names
+	C_ITEM_EQUIP_SWITCH = 0xbc7,
+};
+
 enum CASH_SHOP_TABS {
 	CASHSHOP_TAB_NEW = 0,
 	CASHSHOP_TAB_POPULAR = 1,
@@ -1015,5 +1026,11 @@ void clif_broadcast_obtain_special_item(struct map_session_data* sd, const char 
 void clif_dressing_room(struct map_session_data *sd, int view);
 
 void clif_navigateTo(struct map_session_data *sd, const char* map, uint16 x, uint16 y, uint8 flag, bool hideWindow, uint16 mob_id);
+
+/// Equip Switch System
+void clif_equipswitch_list(struct map_session_data* sd);
+void clif_equipswitch_add(struct map_session_data* sd, uint16 index, uint32 pos, uint8 flag);
+void clif_equipswitch_remove(struct map_session_data* sd, uint16 index, uint32 pos, bool failed);
+void clif_equipswitch_reply(struct map_session_data* sd, bool failed);
 
 #endif /* _CLIF_H_ */

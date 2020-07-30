@@ -194,10 +194,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-
-
-
-
 19863,C_Incubus_Horn,Costume Incubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,156,{},{},{}
 19864,C_Dokebis_Wig,Costume Dokebi's Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,302,{},{},{}
 19865,C_Joker_Jester,Costume Joker Jester,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,89,{},{},{}
@@ -3667,3 +3663,13 @@
 19657,C_Captain_Hat,Costume Captain Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,236,{},{},{}
 19658,C_Vacation_Hat,Costume Vacation Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,315,{},{},{}
 19659,C_Brown_Beanie,Costume Brown Beanie,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,279,{},{},{}
+19787,C_Devoted_Eyes,Costume Devoted Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,1021,{},{},{}
+19788,C_Heart_Eyebandage,Costume Heart Eyebandage,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,779,{},{},{}
+19789,C_Sweet_Gents,Costume Sweet Gent,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,29,{},{},{}
+19790,C_Wedding_Veil,Costume Wedding Veil,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,44,{},{},{}
+19791,C_Alarm_Mask,Costume Alarm Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,170,{},{},{}
+19792,C_Goblin_Mask_01,Costume Poker Face,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,171,{},{},{}
+19793,C_Goblin_Mask_02,Costume Surprised Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,172,{},{},{}
+19794,C_Goblin_Mask_03,Costume Annoyed Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,173,{},{},{}
+19795,C_Lord_Circlet,Costume Grand Circlet,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,93,{},{},{}
+19796,C_Bone_Helm,Costume Bone Helm,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,103,{},{},{}

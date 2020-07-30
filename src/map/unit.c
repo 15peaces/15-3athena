@@ -2144,10 +2144,9 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		if(sd->duel_group > 0)
 			duel_leave(sd->duel_group, sd);
 
-		if(pc_issit(sd)) {
-			pc_setstand(sd);
-			skill_sit(sd,0);
-		}
+		if (pc_issit(sd) && pc_setstand(sd, false))
+			skill_sit(sd, 0);
+
 		party_send_dot_remove(sd);//minimap dot fix [Kevin]
 		guild_send_dot_remove(sd);
 		bg_send_dot_remove(sd);

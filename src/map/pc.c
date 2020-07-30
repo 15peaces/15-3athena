@@ -774,8 +774,10 @@ void pc_setequipindex(struct map_session_data *sd)
 
 	nullpo_retv(sd);
 
-	for(i=0;i<EQI_MAX;i++)
+	for (i = 0; i < EQI_MAX; i++) {
 		sd->equip_index[i] = -1;
+		sd->equip_switch_index[i] = -1;
+	}
 
 	for(i=0;i<MAX_INVENTORY;i++) {
 		if(sd->inventory.u.items_inventory[i].nameid <= 0)
@@ -799,6 +801,13 @@ void pc_setequipindex(struct map_session_data *sd)
 					sd->weapontype2 = sd->inventory_data[i]->look;
 				else
 					sd->weapontype2 = 0;
+			}
+		}
+		if (sd->inventory.u.items_inventory[i].equipSwitch) {
+			for (uint8 j = 0; j < EQI_MAX; j++) {
+				if (sd->inventory.u.items_inventory[i].equipSwitch & equip_pos[j]) {
+					sd->equip_switch_index[j] = i;
+				}
 			}
 		}
 	}
@@ -1109,6 +1118,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	memset(&sd->cart, 0, sizeof(struct s_storage));
 	memset(&sd->storage, 0, sizeof(struct s_storage));
 	memset(&sd->equip_index, -1, sizeof(sd->equip_index));
+	memset(&sd->equip_switch_index, -1, sizeof(sd->equip_switch_index));
 
 	status_change_init(&sd->bl);
 	if ((battle_config.atc_gmonly == 0 || pc_isGM(sd)) && (pc_isGM(sd) >= get_atcommand_level(atcommand_hide)))
@@ -3856,6 +3866,8 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 			sd->inventory.u.items_inventory[i].equip = 0;
 		if( item_data->favorite )
 			sd->inventory.u.items_inventory[i].favorite = 0;
+		if (item_data->equipSwitch)
+			sd->inventory.u.items_inventory[i].equipSwitch = 0;
 
 		sd->inventory.u.items_inventory[i].amount = amount;
 		sd->inventory_data[i] = data;
@@ -3865,7 +3877,7 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 	sd->weight += w;
 	clif_updatestatus(sd,SP_WEIGHT);
 	//Auto-equip
-	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip);
+	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip, false);
 
 	achievement_update_objective(sd, AG_GET_ITEM, 1, data->value_sell);
 
@@ -3917,6 +3929,9 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 		sd->state.trading || sd->state.vending ||
 		!sd->inventory_data[n] //pc_delitem would fail on this case.
 		)
+		return 0;
+
+	if (sd->inventory.u.items_inventory[n].equipSwitch)
 		return 0;
 
 	if( map[sd->bl.m].flag.nodrop )
@@ -4359,6 +4374,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 	}
 
 	sd->cart.u.items_cart[i].favorite = 0;/* clear */
+	sd->cart.u.items_cart[i].equipSwitch = 0;
 
 	sd->cart_weight += w;
 	clif_updatestatus(sd,SP_CARTINFO);
@@ -4407,6 +4423,11 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 
 	if( item_data->nameid == 0 || amount < 1 || item_data->amount < amount || sd->state.vending || sd->state.prevend )
 		return 1;
+
+	if (item_data->equipSwitch) {
+		clif_msg(sd, C_ITEM_EQUIP_SWITCH);
+		return 1;
+	}
 
 	if( pc_cart_additem(sd,item_data,amount) == 0 )
 		return pc_delitem(sd,idx,amount,0,5);
@@ -4609,7 +4630,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 
 	if( pc_isdead(sd) )
 	{ //Revive dead people before warping them
-		pc_setstand(sd);
+		pc_setstand(sd, true);
 		pc_setrestartvalue(sd,1);
 	}
 
@@ -5016,17 +5037,25 @@ int pc_checkallowskill(struct map_session_data *sd)
 }
 
 /*==========================================
- * ? ”õ•i‚Ìƒ`ƒFƒbƒN
- *------------------------------------------*/
-int pc_checkequip(struct map_session_data *sd,int pos)
+* Return equipped index of item on player sd at pos
+* Return
+* -1 : Nothing equipped
+* idx : (this index could be used in inventory to found item_data)
+*------------------------------------------*/
+int pc_checkequip(struct map_session_data *sd,int pos, bool checkall)
 {
 	int i;
 
 	nullpo_retr(-1, sd);
 
 	for(i=0;i<EQI_MAX;i++){
-		if(pos & equip_pos[i])
+		if (pos & equip_pos[i]) {
+			if (checkall && (pos&~equip_pos[i]) != 0 && sd->equip_index[i] == -1) {
+				// Check all if any match is found
+				continue;
+			}
 			return sd->equip_index[i];
+		}
 	}
 
 	return -1;
@@ -6657,7 +6686,7 @@ void pc_respawn(struct map_session_data* sd, clr_type clrtype)
 	if( sd->bg_id && bg_member_respawn(sd) )
 		return; // member revived by battleground
 
-	pc_setstand(sd);
+	pc_setstand(sd, true);
 	pc_setrestartvalue(sd,3);
 	if( pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, clrtype) )
 		clif_resurrection(&sd->bl, 1); //If warping fails, send a normal stand up packet.
@@ -6697,7 +6726,7 @@ void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
 			y = rand() % (map[sd->bl.m].ys - 2) + 1;
 		} while( !map_getcell(sd->bl.m, x, y, CELL_CHKPVP) );
 
-		pc_setstand(sd);
+		pc_setstand(sd, false);
 		pc_setrestartvalue(sd,3);
 		status_percent_heal(&sd->bl, battle_config.deathmatch_hp_rate, battle_config.deathmatch_sp_rate);
 
@@ -6744,7 +6773,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 
 	if (pc_issit(sd))
 	{
-		pc_setstand(sd);
+		pc_setstand(sd, true);
 		skill_sit(sd, 0);
 		clif_standing(&sd->bl, true); // To sincronize client and server.
 	}
@@ -6937,7 +6966,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		if( exp && get_percentage(sd->status.base_exp,exp) >= 99 && !map_flag_gvg(sd->bl.m) )
 		{
 			sd->state.snovice_dead_flag = 1;
-			pc_setstand(sd);
+			pc_setstand(sd, false);
 			status_percent_heal(&sd->bl, 100, 100);
 			clif_resurrection(&sd->bl, 1);
 			if(battle_config.pc_invincible_time)
@@ -7108,7 +7137,7 @@ void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp)
 	if(hp) clif_updatestatus(sd,SP_HP);
 	if(sp) clif_updatestatus(sd,SP_SP);
 
-	pc_setstand(sd);
+	pc_setstand(sd, true);
 	if(battle_config.pc_invincible_time > 0)
 		pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
 }
@@ -8593,92 +8622,137 @@ int pc_cleareventtimer(struct map_session_data *sd)
 	return 0;
 }
 
-//
-// ? ”õ•¨
-//
 /*==========================================
- * ƒAƒCƒeƒ€‚ð?”õ‚·‚é
- *------------------------------------------*/
-int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
+* Equip item on player sd at req_pos from inventory index n
+* return: false - fail; true - success
+*------------------------------------------*/
+int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswitch)
 {
 	int i,pos,flag=0;
 	struct item_data *id;
+	short* equip_index;
 
 	nullpo_ret(sd);
 
 	if( n < 0 || n >= MAX_INVENTORY ) {
-		clif_equipitemack(sd,0,0,0);
+		if (equipswitch) {
+			clif_equipswitch_add(sd, n, req_pos, ITEM_EQUIP_ACK_OK);
+		}
+		else {
+			clif_equipitemack(sd, 0, 0, ITEM_EQUIP_ACK_FAIL);
+		}
 		return 0;
 	}
 
 	if( DIFF_TICK(sd->canequip_tick,gettick()) > 0 )
 	{
-		clif_equipitemack(sd,n,0,0);
+		if (equipswitch) {
+			clif_equipswitch_add(sd, n, req_pos, ITEM_EQUIP_ACK_OK);
+		}
+		else {
+			clif_equipitemack(sd, n, 0, ITEM_EQUIP_ACK_FAIL);
+		}
 		return 0;
 	}
 
 	id = sd->inventory_data[n];
 	pos = pc_equippoint(sd,n); //With a few exceptions, item should go in all specified slots.
 
-	if(battle_config.battle_log)
+	if(battle_config.battle_log && !equipswitch)
 		ShowInfo("equip %hu(%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
 	if(!pc_isequip(sd,n) || !(pos&req_pos) || sd->inventory.u.items_inventory[n].equip != 0 || sd->inventory.u.items_inventory[n].attribute==1 ) { // [Valaris]
-		// FIXME: pc_isequip: equip level failure uses 2 instead of 0
-		clif_equipitemack(sd,n,0,0);	// fail
+		if (equipswitch) {
+			clif_equipswitch_add(sd, n, req_pos, true);
+		}
+		else {
+			clif_equipitemack(sd, n, 0, ITEM_EQUIP_ACK_FAIL);
+		}
+		return false;
+	}
+
+	if (equipswitch && id->type == IT_AMMO) {
+		clif_equipswitch_add(sd, n, req_pos, true);
 		return 0;
 	}
 
 	if( sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAY_NIGHT_FEVER] )
 	{
-		clif_equipitemack(sd,n,0,0);	// fail
+		if (equipswitch) {
+			clif_equipswitch_add(sd, n, req_pos, true);
+		}
+		else {
+			clif_equipitemack(sd, n, 0, ITEM_EQUIP_ACK_FAIL);
+		}
 		return 0;
 	}
+
+	equip_index = equipswitch ? sd->equip_switch_index : sd->equip_index;
 
 	if(pos == EQP_ACC) { //Accesories should only go in one of the two,
 		pos = req_pos&EQP_ACC;
 		if (pos == EQP_ACC) //User specified both slots.. 
-			pos = sd->equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R;
+			pos = equip_index[EQI_ACC_R] >= 0 ? EQP_ACC_L : EQP_ACC_R;
 	}
 
 	if(pos == EQP_SHADOW_ACC) { //Accesories should only go in one of the two,
 		pos = req_pos&EQP_SHADOW_ACC;
 		if (pos == EQP_SHADOW_ACC) //User specified both slots.. 
-			pos = sd->equip_index[EQI_SHADOW_ACC_R] >= 0 ? EQP_SHADOW_ACC_L : EQP_SHADOW_ACC_R;
+			pos = equip_index[EQI_SHADOW_ACC_R] >= 0 ? EQP_SHADOW_ACC_L : EQP_SHADOW_ACC_R;
 	}
 
 	if(pos == EQP_ARMS && id->equip == EQP_HAND_R)
 	{	//Dual wield capable weapon.
 	  	pos = (req_pos&EQP_ARMS);
 		if (pos == EQP_ARMS) //User specified both slots, pick one for them.
-			pos = sd->equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R;
+			pos = equip_index[EQI_HAND_R] >= 0 ? EQP_HAND_L : EQP_HAND_R;
 	}
 
 	if (pos&EQP_HAND_R && battle_config.use_weapon_skill_range&BL_PC)
 	{	//Update skill-block range database when weapon range changes. [Skotlex]
-		i = sd->equip_index[EQI_HAND_R];
+		i = equip_index[EQI_HAND_R];
 		if (i < 0 || !sd->inventory_data[i]) //No data, or no weapon equipped
 			flag = 1;
 		else
 			flag = id->range != sd->inventory_data[i]->range;
 	}
 
-	for(i=0;i<EQI_MAX;i++) {
-		if(pos & equip_pos[i]) {
-			if(sd->equip_index[i] >= 0) //Slot taken, remove item from there.
-				pc_unequipitem(sd,sd->equip_index[i],2);
+	if (equipswitch) {
+		for (i = 0; i < EQI_MAX; i++) {
+			if (pos&equip_pos[i]) {
+				// If there was already an item assigned to this slot
+				if (sd->equip_switch_index[i] >= 0) {
+					pc_equipswitch_remove(sd, sd->equip_switch_index[i]);
+				}
 
-			sd->equip_index[i] = n;
+				// Assign the new index to it
+				sd->equip_switch_index[i] = n;
+			}
 		}
+		sd->inventory.u.items_inventory[n].equipSwitch = pos;
+		clif_equipswitch_add(sd, n, pos, false);
+		return true;
 	}
+	else {
+		for (i = 0; i<EQI_MAX; i++) {
+			if (pos & equip_pos[i]) {
+				if (sd->equip_index[i] >= 0) //Slot taken, remove item from there.
+					pc_unequipitem(sd, sd->equip_index[i], 2 | 4);
 
-	if(pos==EQP_AMMO){
-		clif_arrowequip(sd,n);
-		clif_arrow_fail(sd,3);
+				sd->equip_index[i] = n;
+			}
+		}
+
+		pc_equipswitch_remove(sd, n);
+
+		if (pos == EQP_AMMO) {
+			clif_arrowequip(sd, n);
+			clif_arrow_fail(sd, 3);
+		}
+		else
+			clif_equipitemack(sd, n, pos, ITEM_EQUIP_ACK_OK);
+
+		sd->inventory.u.items_inventory[n].equip = pos;
 	}
-	else
-		clif_equipitemack(sd,n,pos,1);
-
-	sd->inventory.u.items_inventory[n].equip=pos;
 
 	if(pos & EQP_HAND_R) {
 		if(id)
@@ -8707,21 +8781,21 @@ int pc_equipitem(struct map_session_data *sd,int n,int req_pos)
 	}
 	//Added check to prevent sending the same look on multiple slots ->
 	//causes client to redraw item on top of itself. (suggested by Lupus)
-	if(pos & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW) == -1) {
+	if(pos & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW, false) == -1) {
 		if(id && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID)))
 			sd->status.head_bottom = id->look;
 		else
 			sd->status.head_bottom = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
-	if(pos & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP) == -1) {
+	if(pos & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP, false) == -1) {
 		if(id)
 			sd->status.head_top = id->look;
 		else
 			sd->status.head_top = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	}
-	if(pos & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID) == -1) {
+	if(pos & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID, false) == -1) {
 		if(id && !(pos&EQP_HEAD_TOP))
 			sd->status.head_mid = id->look;
 		else
@@ -8834,30 +8908,30 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_SHIELD,sd->status.shield);
 	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW) == -1 ) {
+	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW, false) == -1 ) {
 		sd->status.head_bottom = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP) == -1 ) {
+	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP, false) == -1 ) {
 		sd->status.head_top = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID) == -1 ) {
+	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID, false) == -1 ) {
 		sd->status.head_mid = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_SHOES)
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_TOP) {
-		sd->status.head_top = ( pc_checkequip(sd,EQP_HEAD_TOP) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_TOP)]->look : 0;
+		sd->status.head_top = ( pc_checkequip(sd,EQP_HEAD_TOP, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_TOP, false)]->look : 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_MID) {
-		sd->status.head_mid = ( pc_checkequip(sd,EQP_HEAD_MID) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_MID)]->look : 0;
+		sd->status.head_mid = ( pc_checkequip(sd,EQP_HEAD_MID, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_MID, false)]->look : 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_LOW) {
-		sd->status.head_bottom = ( pc_checkequip(sd,EQP_HEAD_LOW) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_LOW)]->look : 0;
+		sd->status.head_bottom = ( pc_checkequip(sd,EQP_HEAD_LOW, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_LOW, false)]->look : 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_GARMENT) {
@@ -8909,6 +8983,116 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	}
 
 	return 0;
+}
+
+int pc_equipswitch(struct map_session_data* sd, int index) {
+	// Get the target equip mask
+	int position = sd->inventory.u.items_inventory[index].equipSwitch;
+
+	// Get the currently equipped item
+	short equippedItem = pc_checkequip(sd, position, true);
+
+	ShowDebug("pc_equipswitch: currently equiped: %d\n", equippedItem);
+
+	// No item equipped at the target
+	if (equippedItem == -1) {
+		// Remove it from the equip switch
+		pc_equipswitch_remove(sd, index);
+
+		pc_equipitem(sd, index, position, false);
+
+		return position;
+	}
+	else {
+		int unequipped_pos[EQI_MAX];
+		int unequipped_idx[EQI_MAX];
+		int unequipped_position = 0;
+		int all_position;
+
+		// Unequip all items that interfere
+		for (int i = 0; i < EQI_MAX; i++) {
+			int unequip_index = sd->equip_index[i];
+			ShowDebug("pc_equipswitch: Unequip Index: %d\n", unequip_index);
+
+			if (unequip_index >= 0 && position & equip_pos[i]) {
+				struct item* unequip_item = &sd->inventory.u.items_inventory[unequip_index];
+
+				// Store the unequipped index and position mask for later
+				unequipped_pos[i] = unequip_item->equip;
+				unequipped_idx[i] = unequip_index;
+
+				// Keep the position for later
+				unequipped_position |= unequip_item->equip;
+
+				all_position = position | unequipped_position;
+
+				// Unequip the item
+				ShowDebug("pc_equipswitch: Unequipping item %d from index %d...\n", unequip_item->nameid, unequip_index);
+				pc_unequipitem(sd, unequip_index, 0);
+				ShowDebug("pc_equipswitch: Unequipped...\n");
+			}
+		}
+
+		// Equip everything that is hit by the mask
+		for (int i = 0; i < EQI_MAX; i++) {
+			int exchange_index = sd->equip_switch_index[i];
+			ShowDebug("pc_equipswitch: Exchange Index: %d\n", exchange_index);
+
+			if (exchange_index >= 0 && all_position & equip_pos[i]) {
+				struct item* exchange_item = &sd->inventory.u.items_inventory[exchange_index];
+
+				ShowDebug("pc_equipswitch: Target position for switch: %d\n", exchange_item->equipSwitch);
+				// Store the target position
+				int exchange_position = exchange_item->equipSwitch;
+
+
+				ShowDebug("pc_equipswitch: Remove item %d (index %d) from switch...\n", exchange_item->nameid, exchange_index);
+				// Remove the item from equip switch
+				pc_equipswitch_remove(sd, exchange_index);
+
+				// Equip the item at the destinated position
+				ShowDebug("pc_equipswitch: Equipping item %d to index %d...\n", exchange_item->nameid, exchange_index);
+				pc_equipitem(sd, exchange_index, exchange_position, false);
+				ShowDebug("pc_equipswitch: Equipped...\n");
+			}
+		}
+
+		// Place all unequipped items into the equip switch window
+		for (int i = 0; i < EQI_MAX; i++) {
+			if (unequipped_pos[i] >= 0 && unequipped_idx[i] >= 0) {
+				sd->equip_switch_index[i] = unequipped_idx[i];
+
+				// Set the correct position mask
+				sd->inventory.u.items_inventory[unequipped_idx[i]].equipSwitch = unequipped_pos[i];
+
+				// Notify the client
+				clif_equipswitch_add(sd, unequipped_idx[i], unequipped_pos[i], ITEM_EQUIP_ACK_OK);
+			}
+		}
+
+		return all_position;
+	}
+}
+
+void pc_equipswitch_remove(struct map_session_data* sd, int index) {
+	struct item* item = &sd->inventory.u.items_inventory[index];
+
+	if (!item->equipSwitch) {
+		return;
+	}
+
+	for (int i = 0; i < EQI_MAX; i++) {
+		// If a match is found
+		if (sd->equip_switch_index[i] == index) {
+			// Remove it from the slot
+			sd->equip_switch_index[i] = -1;
+		}
+	}
+
+	// Send out one packet for all slots using the current item's mask
+	clif_equipswitch_remove(sd, index, item->equipSwitch, false);
+
+	item->equipSwitch = 0;
 }
 
 /*==========================================
@@ -8980,6 +9164,29 @@ int pc_checkitem(struct map_session_data *sd)
 				pc_unequipitem(sd, i, 2);
 				calc_flag = 1;
 			}
+		}
+	}
+
+
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		it = sd->inventory_data[i];
+
+		if (sd->inventory.u.items_inventory[i].nameid == 0)
+			continue;
+		if (!sd->inventory.u.items_inventory[i].equipSwitch)
+			continue;
+		if (sd->inventory.u.items_inventory[i].equipSwitch&~pc_equippoint(sd, i)) 
+		{
+
+			for (int j = 0; j < EQI_MAX; j++) {
+				if (sd->equip_switch_index[j] == i) {
+					sd->equip_switch_index[j] = -1;
+				}
+			}
+
+			sd->inventory.u.items_inventory[i].equipSwitch = 0;
+
+			continue;
 		}
 	}
 
@@ -9327,14 +9534,28 @@ int map_night_timer(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
-void pc_setstand(struct map_session_data *sd){
-	nullpo_retv(sd);
+/**
+* Attempt to stand up a player
+* @param sd
+* @param force Ignore the check, ask player to stand up. Used in some cases like pc_damage(), pc_revive(), etc
+* @return True if success, Fals if failed
+*/
+bool pc_setstand(struct map_session_data *sd, bool force){
+	nullpo_ret(sd);
+
+	// Cannot stand yet
+	if (!force && (sd->sc.data[SC_SITDOWN_FORCE] || sd->sc.data[SC_BANANA_BOMB_SITDOWN_POSTDELAY]))
+		return false;
 
 	status_change_end(&sd->bl, SC_TENSIONRELAX, INVALID_TIMER);
+	clif_status_load(&sd->bl, SI_SIT, 0);
+	clif_standing(&sd->bl, true); //Inform area PC is standing
 
 	//Reset sitting tick.
 	sd->ssregen.tick.hp = sd->ssregen.tick.sp = 0;
 	sd->state.dead_sit = sd->vd.dead_sit = 0;
+
+	return true;
 }
 
 int pc_split_str(char *str,char **val,int num)

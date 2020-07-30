@@ -2407,13 +2407,24 @@ packet_keys: 0x5ed10a48,0x667f4301,0x2e5d761f
 0x0364,5,hommenu,4
 0x0437,36,storagepassword,0
 
-0x0AC0,26
+0x0AC0,26,mailrefresh,2:10
+0x0AC1,26,mailrefresh,2:10
 
 0x0AC4,-1//AC_ACCEPT_LOGIN3
 0x0AC5,156//HC_NOTIFY_ZONESVR2
 
 0x0a43,85 //ZC_ADD_MEMBER_TO_GROUP3
 0x0a44,-1
+
+// Equip switch
+0x0A97,8,equipswitch_add,2,4
+0x0A98,10
+0x0A99,4,equipswitch_remove,2,4
+0x0A9A,10
+0x0A9B,-1
+0x0A9C,2,equipswitch_request,0
+0x0A9D,4
+0x0ACE,4,equipswitch_request_single,0
 
 //2017-09-06cRagexeRE
 packet_ver: 44

@@ -467,7 +467,7 @@ void initChangeTables(void)
 	set_sc(RA_FEARBREEZE		, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE);
 	set_sc(RA_ELECTRICSHOCKER	, SC_ELECTRICSHOCKER	, SI_ELECTRICSHOCKER, SCB_NONE);
 	set_sc(RA_WUGDASH			, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED);
-	set_sc(RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE		, SCB_CRI|SCB_SPEED);
+	set_sc(RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE		, SCB_WATK | SCB_CRI | SCB_DEF | SCB_SPEED);
 	add_sc(RA_MAGENTATRAP		, SC_ELEMENTALCHANGE	);
 	add_sc(RA_COBALTTRAP		, SC_ELEMENTALCHANGE	);
 	add_sc(RA_MAIZETRAP			, SC_ELEMENTALCHANGE	);
@@ -771,11 +771,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_EXTRACT_SALAMINE_JUICE] = SI_EXTRACT_SALAMINE_JUICE;
 
 	// Warlock Spheres
-	StatusIconChangeTable[SC_SPHERE_1] = SI_SUMMON1;
-	StatusIconChangeTable[SC_SPHERE_2] = SI_SUMMON2;
-	StatusIconChangeTable[SC_SPHERE_3] = SI_SUMMON3;
-	StatusIconChangeTable[SC_SPHERE_4] = SI_SUMMON4;
-	StatusIconChangeTable[SC_SPHERE_5] = SI_SUMMON5;
+	StatusIconChangeTable[SC_SUMMON1] = SI_SUMMON1;
+	StatusIconChangeTable[SC_SUMMON2] = SI_SUMMON2;
+	StatusIconChangeTable[SC_SUMMON3] = SI_SUMMON3;
+	StatusIconChangeTable[SC_SUMMON4] = SI_SUMMON4;
+	StatusIconChangeTable[SC_SUMMON5] = SI_SUMMON5;
 
 	// Minstrel / Wanderer status change icons
 	StatusIconChangeTable[SC_GLOOMYDAY_SK] = SI_GLOOMYDAY;
@@ -1574,7 +1574,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_BERSERK] ||
 				sc->data[SC_OBLIVIONCURSE] ||
 				sc->data[SC_WHITEIMPRISON] ||
-				sc->data[SC_STASIS] ||
+				sc->data[SC_STASIS] && skill_stasis_check(src, skill_num) ||
 				sc->data[SC__INVISIBILITY] ||
 				sc->data[SC_CRYSTALIZE] ||
 				sc->data[SC__IGNORANCE] ||
@@ -4406,6 +4406,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_MERC_ATKUP]->val2;
 	if(sc->data[SC_FIGHTINGSPIRIT])
 		watk += sc->data[SC_FIGHTINGSPIRIT]->val1;
+	if (sc->data[SC_CAMOUFLAGE])
+		watk += 150/*30 * sc->data[SC_CAMOUFLAGE]->val2*/;
 	if(sc->data[SC__ENERVATION])
 		watk -= watk * sc->data[SC__ENERVATION]->val2 / 100;
 	if(sc->data[SC__BLOODYLUST])
@@ -4485,7 +4487,7 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 	if (sc->data[SC_CLOAKING])
 		critical += critical;
 	if(sc->data[SC_CAMOUFLAGE])
-		critical += critical;
+		critical += critical * 50 / 100/*critical * ( 10 * sc->data[SC_CAMOUFLAGE]->val2 ) / 100*/;
 	if(sc->data[SC__INVISIBILITY])
 		critical += critical * sc->data[SC__INVISIBILITY]->val2 / 100;
 	if(sc->data[SC__UNLUCKY])
@@ -4665,6 +4667,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_STONEHARDSKIN]->val1;
 	if( sc->data[SC_FREEZING] )
 		def -= def * 10 / 100;
+	if (sc->data[SC_CAMOUFLAGE])
+		def -= def * 25 / 100/*def * ( 5 * sc->data[SC_CAMOUFLAGE]->val2 ) / 100*/;
  	if(sc->data[SC_ANALYZE])
 		def -= def * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if( sc->data[SC__BLOODYLUST] )
@@ -4810,7 +4814,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = 25;
 			else
 			if( sc->data[SC_ALL_RIDING] )
-				val = battle_config.all_riding_speed;
+				val = battle_config.rental_mount_speed_boost;
 			else
 			if( sd && pc_isriding(sd) )
 				val = 25;
@@ -4883,8 +4887,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, 50 );*/
 				if( sc->data[SC_MARSHOFABYSS] )
 					val = max(val, sc->data[SC_MARSHOFABYSS]->val3);
-				if( sc->data[SC_CAMOUFLAGE] && (sc->data[SC_CAMOUFLAGE]->val3&1) == 0 )
-					val = max( val, sc->data[SC_CAMOUFLAGE]->val1 < 3 ? 300 : 25 * (6 - sc->data[SC_CAMOUFLAGE]->val1) );
+				if (sc->data[SC_CAMOUFLAGE] && sc->data[SC_CAMOUFLAGE]->val1 > 2)
+					val = max(val, 25 * (5 - sc->data[SC_CAMOUFLAGE]->val1));
 				if( sc->data[SC_STEALTHFIELD_MASTER] )
 					val = max(val, 20);//Description says decreases casters movement speed by 20%. [Rytech]
 				if (sc->data[SC__LAZINESS])
@@ -6383,7 +6387,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				return 0; // Stats only for Mercenaries
 		break;
 		case SC_CAMOUFLAGE:
-			if( sd && pc_checkskill(sd, RA_CAMOUFLAGE) < 3 && !skill_check_camouflage(bl,NULL) )
+			if (sd && pc_checkskill(sd, RA_CAMOUFLAGE) < 2 && !skill_check_camouflage(bl, NULL))
 				return 0;
 			break;
 		case SC_STRFOOD:
@@ -6504,6 +6508,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_WUGBITE:
 			case SC_ELECTRICSHOCKER:
 			case SC_MAGNETICFIELD:
+
+			// Other Effects
+			case SC_VACUUM_EXTREME:
+			case SC_CRYSTALIZE:
 				return 0;
 		}
 	}
@@ -7690,7 +7698,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 500 + 100 * val1;
 			break;
 		case SC_STONEHARDSKIN:// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-			val1 = sd->status.job_level * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10; //DEF/MDEF Increase
+			if (level_effect_bonus && base_lv >= 100)
+				val1 = sd->status.job_level * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10; //DEF/MDEF Increase
+			else
+				val1 = 50 * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10;
 			break;
 		case SC_FIGHTINGSPIRIT:
 			val_flag |= 1 | 2;
@@ -7808,7 +7819,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_CAMOUFLAGE:
-			val3 |= battle_config.pc_camouflage_check_type&7;
+			val4 = tick / 1000;
 			tick = 1000;
 			break;
 		case SC__REPRODUCE:
@@ -8082,9 +8093,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 10 + 5 * val1;//Sphere gain chance.
 			break;
 		case SC_GENTLETOUCH_CHANGE:
-			val2 = (status->str / 2 + status->dex / 4) * val1 / 5;//Fixed amount of weapon attack increase.
-			val3 = status_get_agi(bl) * val1 / 60;//ASPD increase.
-			val4 = 200 / status->int_ * val1;//MDEF decrease.
+			{
+				int casterint = status->int_;
+				if (casterint <= 0)
+					casterint = 1;//Prevents dividing by 0 since its possiable to reduce players stats to 0; [Rytech]
+				val2 = (status->str / 2 + status->dex / 4) * val1 / 5;//Fixed amount of weapon attack increase.
+				val3 = status_get_agi(bl) * val1 / 60;//ASPD increase.
+				val4 = 200 / status->int_ * val1;//MDEF decrease.
+			}
 			break;
 		case SC_GENTLETOUCH_REVITALIZE:
 			val2 = status->vit / 4 * val1;//VIT defense increase.
@@ -8283,7 +8299,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_STONE:
 		case SC_DEEPSLEEP:
 			if (sd && pc_issit(sd)) //Avoid sprite sync problems.
-				pc_setstand(sd);
+				pc_setstand(sd, true);
 		case SC_TRICKDEAD:
 			unit_stop_attack(bl);
 			status_change_end(bl, SC_DANCING, INVALID_TIMER);
@@ -8299,6 +8315,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SPIDERWEB:
 		case SC_ELECTRICSHOCKER:
 		case SC_WUGBITE:
+		case SC_CAMOUFLAGE:
 		case SC_THORNSTRAP:
 		case SC__MANHOLE:
 		case SC_CRYSTALIZE:
@@ -8312,7 +8329,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CLOAKING:
 		case SC_CHASEWALK:
 		case SC_WEIGHT90:
-		case SC_CAMOUFLAGE:
 		case SC_SIREN:
 		case SC_CLOAKINGEXCEED:
 		case SC_ALL_RIDING:
@@ -9160,11 +9176,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			sc_start(bl,SC_SITDOWN_FORCE,100,sce->val1,skill_get_time2(WM_SATURDAY_NIGHT_FEVER,sce->val1));
 			break;
 		case SC_SITDOWN_FORCE:
-			if( sd && pc_issit(sd) )
-			{
-				pc_setstand(sd);
-				clif_standing(bl,true);
-			}
+		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
+			if (sd && pc_issit(sd) && pc_setstand(sd, false))
+				skill_sit(sd, false);
 			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
@@ -9943,11 +9957,11 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
-	case SC_SPHERE_1:
-	case SC_SPHERE_2:
-	case SC_SPHERE_3:
-	case SC_SPHERE_4:
-	case SC_SPHERE_5:
+	case SC_SUMMON1:
+	case SC_SUMMON2:
+	case SC_SUMMON3:
+	case SC_SUMMON4:
+	case SC_SUMMON5:
 		if( --(sce->val4) >= 0 )
 		{
 			if( !status_charge(bl, 0, 1) )
@@ -9973,10 +9987,14 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_CAMOUFLAGE:
-		if (!status_charge(bl, 0, 7 - sce->val1))
-			break;
-		sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
-		return 0;
+		if( --(sce->val4) >= 0 )
+		{
+			if( !status_charge(bl, 0, 7 - sce->val1) )
+				break;
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
 
 	case SC__REPRODUCE:
 		if( --(sce->val4) >= 0 )
@@ -10240,12 +10258,12 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	switch( type )
 	{
 	case SC_SIGHT:	/* ƒTƒCƒg */
-		if ( sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rand()%100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
+		if (sce && sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rand() % 100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
 		{//Attempt to remove Shadow Form status by chance every 2 seconds. [Rytech]
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			sce->val4 = 0;
 		}
-		else if ( sce->val4 >= 2000 )//Reset check to 0 seconds only if above condition fails.
+		else if (sce && sce->val4 >= 2000)//Reset check to 0 seconds only if above condition fails.
 			sce->val4 = 0;//No break after this since other invisiable character status's are removed as well.
 	case SC_CONCENTRATE:
 		status_change_end(bl, SC_HIDING, INVALID_TIMER);
@@ -10254,14 +10272,14 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 		status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 		break;
 	case SC_RUWACH:	/* At */
-		if ( sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rand()%100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
+		if (sce && sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rand() % 100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
 		{//Attempt to remove Shadow Form status by chance every 2 seconds. [Rytech]
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 			if(battle_check_target( src, bl, BCT_ENEMY ) > 0)
 				skill_attack(BF_MAGIC,src,src,bl,AL_RUWACH,1,tick,0);
 			sce->val4 = 0;
 		}
-		else if ( sce->val4 >= 2000 )//Reset check to 0 seconds only if above condition fails.
+		else if ( sce && sce->val4 >= 2000 )//Reset check to 0 seconds only if above condition fails.
 			sce->val4 = 0;//No break after this since other invisiable character status's are removed as well.
 		if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED] ||
 			tsc->data[SC_CAMOUFLAGE])) {

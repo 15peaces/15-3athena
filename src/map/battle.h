@@ -518,7 +518,7 @@ extern struct Battle_Config
 	int max_baby_parameter_renewal_jobs;
 	int max_aspd_renewal_jobs;
 	int hanbok_ignorepalette;
-	int all_riding_speed;
+	int rental_mount_speed_boost;
 	int warg_can_falcon;
 	int transform_end_on_death;
 	int oktoberfest_ignorepalette;
@@ -566,6 +566,7 @@ extern struct Battle_Config
 	int mail_attachment_weight;
 	int feature_achievement;
 	int hom_bonus_exp_from_master;
+	int feature_equipswitch;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

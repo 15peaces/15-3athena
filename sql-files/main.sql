@@ -536,7 +536,8 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
   `expire_time` int(11) unsigned NOT NULL default '0',
   `favorite` TINYINT unsigned NOT NULL DEFAULT '0',
-  `bound` tinyint(3) unsigned NOT NULL default '0', 
+  `bound` tinyint(3) unsigned NOT NULL default '0',
+  `equip_switch` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)
 ) ENGINE=MyISAM;

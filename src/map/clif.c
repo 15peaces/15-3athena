@@ -1459,17 +1459,55 @@ int clif_spawn(struct block_list *bl)
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
 			clif_hat_effects(sd, bl, AREA);
-			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
-			//if ( sd->sc.count && sd->sc.data[SC_] )
-				// clif_efst_status_change(&sd->bl,SI_,1000,sd->sc.data[SC_]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_DUPLELIGHT] )
-				clif_efst_status_change(&sd->bl,SI_DUPLELIGHT,1000,sd->sc.data[SC_DUPLELIGHT]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_ALL_RIDING] )
-				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
+			//if( sd->sc.count && sd->sc.data[SC_] )
+			//	clif_status_change(&sd->bl,SI_,1,9999,sd->sc.data[SC_]->val1,0,0);
+			if (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE])
+				clif_status_change(&sd->bl, SI_CAMOUFLAGE, 1, 9999, sd->sc.data[SC_CAMOUFLAGE]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_ORATIO])
+				clif_status_change(&sd->bl, SI_ORATIO, 1, 9999, sd->sc.data[SC_ORATIO]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_DUPLELIGHT])
+				clif_status_change(&sd->bl, SI_DUPLELIGHT, 1, 9999, sd->sc.data[SC_DUPLELIGHT]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SUMMON1])
+				clif_status_change(&sd->bl, SI_SUMMON1, 1, 9999, sd->sc.data[SC_SUMMON1]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SUMMON2])
+				clif_status_change(&sd->bl, SI_SUMMON2, 1, 9999, sd->sc.data[SC_SUMMON2]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SUMMON3])
+				clif_status_change(&sd->bl, SI_SUMMON3, 1, 9999, sd->sc.data[SC_SUMMON3]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SUMMON4])
+				clif_status_change(&sd->bl, SI_SUMMON4, 1, 9999, sd->sc.data[SC_SUMMON4]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SUMMON5])
+				clif_status_change(&sd->bl, SI_SUMMON5, 1, 9999, sd->sc.data[SC_SUMMON5]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_FREEZING])
+				clif_status_change(&sd->bl, SI_FROSTMISTY, 1, 9999, sd->sc.data[SC_FREEZING]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_VENOMIMPRESS])
+				clif_status_change(&sd->bl, SI_VENOMIMPRESS, 1, 9999, sd->sc.data[SC_VENOMIMPRESS]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_HALLUCINATIONWALK])
+				clif_status_change(&sd->bl, SI_HALLUCINATIONWALK, 1, 9999, sd->sc.data[SC_HALLUCINATIONWALK]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_ROLLINGCUTTER])
+				clif_status_change(&sd->bl, SI_ROLLINGCUTTER, 1, 9999, sd->sc.data[SC_ROLLINGCUTTER]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_BANDING])
+				clif_status_change(&sd->bl, SI_BANDING, 1, 9999, sd->sc.data[SC_BANDING]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_CRYSTALIZE])
+				clif_status_change(&sd->bl, SI_COLD, 1, 9999, sd->sc.data[SC_CRYSTALIZE]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_DEEPSLEEP])
+				clif_status_change(&sd->bl, SI_DEEP_SLEEP, 1, 9999, sd->sc.data[SC_DEEPSLEEP]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_CURSEDCIRCLE_ATKER])
+				clif_status_change(&sd->bl, SI_CURSEDCIRCLE_ATKER, 1, 9999, sd->sc.data[SC_CURSEDCIRCLE_ATKER]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_CURSEDCIRCLE_TARGET])
+				clif_status_change(&sd->bl, SI_CURSEDCIRCLE_TARGET, 1, 9999, sd->sc.data[SC_CURSEDCIRCLE_TARGET]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_BLOOD_SUCKER])
+				clif_status_change(&sd->bl, SI_BLOOD_SUCKER, 1, 9999, sd->sc.data[SC_BLOOD_SUCKER]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC__SHADOWFORM])
+				clif_status_change(&sd->bl, SI_SHADOWFORM, 1, 9999, sd->sc.data[SC__SHADOWFORM]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC__MANHOLE])
+				clif_status_change(&sd->bl, SI_MANHOLE, 1, 9999, sd->sc.data[SC__MANHOLE]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_ALL_RIDING])
+				clif_status_change(&sd->bl, SI_ALL_RIDING, 1, 9999, sd->sc.data[SC_ALL_RIDING]->val1, 0, 0);
+			//if( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
+			//	clif_status_change(&sd->bl,SI_ON_PUSH_CART,1,9999,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_ALL_RIDING] )
-				clif_efst_status_change(&sd->bl,SI_ALL_RIDING,1000,sd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
 				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
@@ -1480,8 +1518,6 @@ int clif_spawn(struct block_list *bl)
 				clif_efst_status_change(&sd->bl,SI_SUPER_STAR,1000,sd->sc.data[SC_SUPER_STAR]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_DECORATION_OF_MUSIC] )
 				clif_efst_status_change(&sd->bl,SI_DECORATION_OF_MUSIC,1000,sd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_BANDING] )
-				clif_status_change(&sd->bl,SI_BANDING,1,9999,sd->sc.data[SC_BANDING]->val1,0,0);
 		}
 		break;
 	case BL_MOB:
@@ -1930,14 +1966,15 @@ void clif_selllist(struct map_session_data *sd)
 			if( !itemdb_cansell(&sd->inventory.u.items_inventory[i], pc_isGM(sd)) )
 				continue;
 
-			if( sd->inventory.u.items_inventory[i].expire_time )
-				continue; // Cannot Sell Rental Items
-
 			if( sd->inventory.u.items_inventory[i].expire_time || (sd->inventory.u.items_inventory[i].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
 				continue; // Cannot Sell Rental Items or Account Bounded Items 
 	 
 			if( sd->inventory.u.items_inventory[i].bound && !pc_can_give_bounded_items(sd->gmlevel)) 
 				continue; // Don't allow sale of bound items
+
+			if (sd->inventory.u.items_inventory[i].equipSwitch)
+				continue;
+
 			val=sd->inventory_data[i]->value_sell;
 			if( val < 0 )
 				continue;
@@ -3885,17 +3922,15 @@ void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 ok) {
 
 #if PACKETVER < 20131223
 	packet_num = 0xaa;
-#else
-	// Converts the result value normally used by packet 0xaa to the correct one used by the 0x999 packet.
-	// Packet 0x999 appears to have the same results table, but the result numbers are different.
-	// Note: Currently no message displays when you cant equip a item. How do I fix this? Is this normal? [Rytech]
-	packet_num = 0x999;
+
 	if (ok == 0)
-		ok = 2;
-	else if (ok == 1)
-		ok = 0;
-	else if (ok == 2)
 		ok = 1;
+	else if (ok == 1)
+		ok = 2;
+	else if (ok == 2)
+		ok = 0;
+#else
+	packet_num = 0x999;
 #endif
 
 	WFIFOHEAD(fd,packet_len(packet_num));
@@ -4712,29 +4747,66 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
 			clif_hat_effects(sd, bl, SELF);
+			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
+			//if( tsd->sc.count && tsd->sc.data[SC_] )
+			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_,1,9999,tsd->sc.data[SC_]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_CAMOUFLAGE] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_CAMOUFLAGE,1,9999,tsd->sc.data[SC_CAMOUFLAGE]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_ORATIO] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_ORATIO,1,9999,tsd->sc.data[SC_ORATIO]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_DUPLELIGHT] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_DUPLELIGHT,1,9999,tsd->sc.data[SC_DUPLELIGHT]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SUMMON1] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON1,1,9999,tsd->sc.data[SC_SUMMON1]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SUMMON2] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON2,1,9999,tsd->sc.data[SC_SUMMON2]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SUMMON3] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON3,1,9999,tsd->sc.data[SC_SUMMON3]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SUMMON4] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON4,1,9999,tsd->sc.data[SC_SUMMON4]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SUMMON5] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON5,1,9999,tsd->sc.data[SC_SUMMON5]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_FREEZING] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_FROSTMISTY,1,9999,tsd->sc.data[SC_FREEZING]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_VENOMIMPRESS] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_VENOMIMPRESS,1,9999,tsd->sc.data[SC_VENOMIMPRESS]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_HALLUCINATIONWALK] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_HALLUCINATIONWALK,1,9999,tsd->sc.data[SC_HALLUCINATIONWALK]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_ROLLINGCUTTER] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_ROLLINGCUTTER,1,9999,tsd->sc.data[SC_ROLLINGCUTTER]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_BANDING] )
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_BANDING, 1, 9999, tsd->sc.data[SC_BANDING]->val1, tsd->sc.data[SC_BANDING]->val2, tsd->sc.data[SC_BANDING]->val3);
-			//EFST Refreshing For SI's That Dont Use OPT's or OPTION's
-			//if ( tsd->sc.count && tsd->sc.data[SC_] )
-				// clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_,1000,tsd->sc.data[SC_]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_DUPLELIGHT] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_DUPLELIGHT,1000,tsd->sc.data[SC_DUPLELIGHT]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MONSTER_TRANSFORM,1000,tsd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_BANDING,1,9999,tsd->sc.data[SC_BANDING]->val1,tsd->sc.data[SC_BANDING]->val2,tsd->sc.data[SC_BANDING]->val3);
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_BANDING,1,9999,tsd->sc.data[SC_BANDING]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_CRYSTALIZE] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_COLD,1,9999,tsd->sc.data[SC_CRYSTALIZE]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_DEEPSLEEP] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_DEEP_SLEEP,1,9999,tsd->sc.data[SC_DEEPSLEEP]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_CURSEDCIRCLE_ATKER] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_CURSEDCIRCLE_ATKER,1,9999,tsd->sc.data[SC_CURSEDCIRCLE_ATKER]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_CURSEDCIRCLE_TARGET] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_CURSEDCIRCLE_TARGET,1,9999,tsd->sc.data[SC_CURSEDCIRCLE_TARGET]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_BLOOD_SUCKER] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_BLOOD_SUCKER,1,9999,tsd->sc.data[SC_BLOOD_SUCKER]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC__SHADOWFORM] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SHADOWFORM,1,9999,tsd->sc.data[SC__SHADOWFORM]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC__MANHOLE] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_MANHOLE,1,9999,tsd->sc.data[SC__MANHOLE]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1000,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1000,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_MOONSTAR] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_MOONSTAR,1000,tsd->sc.data[SC_MOONSTAR]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_STRANGELIGHTS,1000,tsd->sc.data[SC_STRANGELIGHTS]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_SUPER_STAR] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_SUPER_STAR,1000,tsd->sc.data[SC_SUPER_STAR]->val1,0,0);
-			if ( tsd->sc.count && tsd->sc.data[SC_DECORATION_OF_MUSIC] )
-				clif_efst_status_change_single(&sd->bl,&tsd->bl,SI_DECORATION_OF_MUSIC,1000,tsd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1,9999,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
+			//if( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
+			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1,9999,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
+			if (tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MONSTER_TRANSFORM, 1000, tsd->sc.data[SC_MONSTER_TRANSFORM]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_ON_PUSH_CART, 1000, tsd->sc.data[SC_ON_PUSH_CART]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_STRANGELIGHTS, 1000, tsd->sc.data[SC_STRANGELIGHTS]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_SUPER_STAR])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_SUPER_STAR, 1000, tsd->sc.data[SC_SUPER_STAR]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_DECORATION_OF_MUSIC])
+				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_DECORATION_OF_MUSIC, 1000, tsd->sc.data[SC_DECORATION_OF_MUSIC]->val1, 0, 0);
 		}
 		break;
 	case BL_MER: // Devotion Effects
@@ -9612,6 +9684,7 @@ void clif_refresh(struct map_session_data *sd)
 
 	clif_changemap(sd,sd->mapindex,sd->bl.x,sd->bl.y);
 	clif_inventorylist(sd);
+	clif_equipswitch_list(sd);
 	if(pc_iscarton(sd)) {
 		clif_cartlist(sd);
 		clif_updatestatus(sd,SP_CARTINFO);
@@ -10575,6 +10648,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// item
 	clif_inventorylist(sd);  // inventory list first, otherwise deleted items in pc_checkitem show up as 'unknown item'
 	pc_checkitem(sd);
+	clif_equipswitch_list(sd);
 	
 	// cart
 	if(pc_iscarton(sd)) {
@@ -11329,9 +11403,6 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			break;
 		}
 
-		if (sd->sc.data[SC_SITDOWN_FORCE])
-			return;
-
 		if (pc_issit(sd))
 		{
 			//Bugged client? Just refresh them.
@@ -11353,20 +11424,17 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		clif_sitting(&sd->bl, true);
 		clif_status_load(&sd->bl, SI_SIT, 1);
 	break;
-	case 0x03: // standup
-		if( sd->sc.data[SC_SITDOWN_FORCE] )
-			return;
-		
+	case 0x03: // standup		
 		if (!pc_issit(sd))
 		{
 			//Bugged client? Just refresh them.
 			clif_standing(&sd->bl, false);
 			return;
 		}
-		pc_setstand(sd);
-		skill_sit(sd,0); 
-		clif_standing(&sd->bl, true);
-		clif_status_load(&sd->bl, SI_SIT, 0);
+		if (pc_setstand(sd, false)) {
+			skill_sit(sd, 0);
+			clif_standing(&sd->bl, true);
+		}
 	break;
 	}
 }
@@ -11712,6 +11780,8 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 	int index;
 	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
 
+	ShowDebug("clif_parse_EquipItem: Called...\n");
+
 	if(pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl,CLR_DEAD);
 		return;
@@ -11729,7 +11799,7 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 		return;
 
 	if(!sd->inventory.u.items_inventory[index].identify) {
-		clif_equipitemack(sd,index,0,1);	// fail
+		clif_equipitemack(sd,index,0, ITEM_EQUIP_ACK_FAIL);
 		return;
 	}
 
@@ -11740,10 +11810,10 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 		pet_equipitem(sd,index);
 		return;
 	}
-	
+
 	//Client doesn't send the position for ammo.
 	if( sd->inventory_data[index]->type == IT_AMMO )
-		pc_equipitem(sd,index,EQP_AMMO);
+		pc_equipitem(sd,index,EQP_AMMO,false);
 	else {
 	int req_pos;
 
@@ -11752,7 +11822,9 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 #else
 		req_pos = (int)RFIFOW(fd,info->pos[1]);
 #endif
-		pc_equipitem(sd,index,req_pos);
+
+		ShowDebug("clif_parse_EquipItem: Calling pc_equipitem (req_pos: %d)...\n", req_pos);
+		pc_equipitem(sd,index,req_pos,false);
 	}
 }
 
@@ -12272,19 +12344,10 @@ static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct
 }
 
 
-/// Request to use a targeted skill.
-/// 0113 <skill lv>.W <skill id>.W <target id>.L (CZ_USE_SKILL)
-/// 0438 <skill lv>.W <skill id>.W <target id>.L (CZ_USE_SKILL2)
-/// There are various variants of this packet, some of them have padding between fields.
-void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
+void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 skilllv, int target_id)
 {
-	short skillnum, skilllv;
-	int tmp, target_id;
+	int tmp;
 	int64 tick = gettick();
-
-	skilllv = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[0]);
-	skillnum = RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
-	target_id = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[2]);
 
 	if( skilllv < 1 ) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
@@ -12384,15 +12447,30 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd)
 	}
 	else
 	{
-		tmp = pc_checkskill(sd, skillnum);
-		if( skilllv > tmp )
-			skilllv = tmp;
+		if (skillnum != ALL_EQSWITCH) {
+			skilllv = min(pc_checkskill(sd, skillnum), skilllv); //never trust client
+		}
 	}
 
 	pc_delinvincibletimer(sd);
-	
+
 	if( skilllv )
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
+}
+
+/// Request to use a targeted skill.
+/// 0113 <skill lv>.W <skill id>.W <target id>.L (CZ_USE_SKILL)
+/// 0438 <skill lv>.W <skill id>.W <target id>.L (CZ_USE_SKILL2)
+/// There are various variants of this packet, some of them have padding between fields.
+void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
+	short skilllv, skillnum;
+	int target_id;
+	
+	skilllv = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[0]);
+	skillnum = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[1]);
+	target_id = RFIFOL(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[2]);
+
+	clif_parse_skill_toid(sd, skillnum, skilllv, target_id);
 }
 
  /*==========================================
@@ -12905,6 +12983,10 @@ void clif_parse_MoveToKafra(int fd, struct map_session_data *sd)
 	item_amount = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 	if (item_index < 0 || item_index >= MAX_INVENTORY || item_amount < 1)
 		return;
+	if (sd->inventory.u.items_inventory[item_index].equipSwitch) {
+		clif_msg(sd, C_ITEM_EQUIP_SWITCH);
+		return;
+	}
 
 	if (sd->state.storage_flag == 1)
 		storage_storageadd(sd, item_index, item_amount);
@@ -12942,11 +13024,21 @@ void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd)
 	if (!pc_iscarton(sd))
 		return;
 
+	int idx = RFIFOW(fd, 2) - 2;
+	int amount = RFIFOL(fd, 4);
+
+	if (idx < 0 || idx >= MAX_INVENTORY || amount < 1)
+		return;
+	if (sd->inventory.u.items_inventory[idx].equipSwitch) {
+		clif_msg(sd, C_ITEM_EQUIP_SWITCH);
+		return;
+	}
+
 	if (sd->state.storage_flag == 1)
-		storage_storageaddfromcart(sd, RFIFOW(fd,2) - 2, RFIFOL(fd,4));
+		storage_storageaddfromcart(sd, idx, amount);
 	else
 	if (sd->state.storage_flag == 2)
-		storage_guild_storageaddfromcart(sd, RFIFOW(fd,2) - 2, RFIFOL(fd,4));
+		storage_guild_storageaddfromcart(sd, idx, amount);
 }
 
 
@@ -16574,7 +16666,12 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd)
 		return;
 
 	flag = mail_setitem(sd, idx, amount);
-	clif_Mail_setattachment(sd,idx,amount,flag);
+	if (flag == MAIL_ATTACH_EQUIPSWITCH) {
+		clif_msg(sd, C_ITEM_EQUIP_SWITCH);
+	}
+	else {
+		clif_Mail_setattachment(sd, idx, amount, flag);
+	}
 }
 
 /// Remove an item from a mail
@@ -19817,6 +19914,198 @@ void clif_hat_effect_single(struct map_session_data* sd, uint16 effectId, bool e
 #endif
 }
 
+/// Send the full list of items in the equip switch window
+/// 0a9b <length>.W { <index>.W <position>.L }*
+void clif_equipswitch_list(struct map_session_data* sd) {
+#if PACKETVER >= 20170208
+	int fd = sd->fd;
+	int offset, i, position;
+
+	WFIFOW(fd, 0) = 0xa9b;
+	for (i = 0, offset = 4, position = 0; i < EQI_MAX; i++) {
+		short index = sd->equip_switch_index[i];
+
+		if (index >= 0 && !(position & equip[i])) {
+			WFIFOW(fd, offset) = index + 2;
+			WFIFOL(fd, offset + 2) = sd->inventory.u.items_inventory[index].equipSwitch;
+			position |= sd->inventory.u.items_inventory[index].equipSwitch;
+			offset += 6;
+		}
+	}
+	WFIFOW(fd, 2) = offset;
+	WFIFOSET(fd, offset);
+#endif
+}
+
+/// Acknowledgement for removing an equip to the equip switch window
+/// 0a9a <index>.W <position.>.L <failure>.W
+void clif_equipswitch_remove(struct map_session_data* sd, uint16 index, uint32 pos, bool failed) {
+#if PACKETVER >= 20170208
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa9a));
+	WFIFOW(fd, 0) = 0xa9a;
+	WFIFOW(fd, 2) = index + 2;
+	WFIFOL(fd, 4) = pos;
+	WFIFOW(fd, 8) = failed;
+	WFIFOSET(fd, packet_len(0xa9a));
+#endif
+}
+
+/// Request to remove an equip from the equip switch window
+/// 0a99 <index>.W <position>.L <= 20170502
+/// 0a99 <index>.W
+void clif_parse_equipswitch_remove(int fd, struct map_session_data* sd) {
+#if PACKETVER >= 20170208
+	uint16 index = RFIFOW(fd, 2) - 2;
+	bool removed = false;
+
+	if (!battle_config.feature_equipswitch) {
+		return;
+	}
+
+	// Check if the index is valid
+	if (index >= MAX_INVENTORY) {
+		return;
+	}
+
+	pc_equipswitch_remove(sd, index);
+#endif
+}
+
+/// Acknowledgement for adding an equip to the equip switch window
+/// 0a98 <index>.W <position.>.L <failure>.L  <= 20170502
+/// 0a98 <index>.W <position.>.L <failure>.W
+void clif_equipswitch_add(struct map_session_data* sd, uint16 index, uint32 pos, uint8 flag) {
+#if PACKETVER >= 20170208
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa98));
+	WFIFOW(fd, 0) = 0xa98;
+	WFIFOW(fd, 2) = index + 2;
+	WFIFOL(fd, 4) = pos;
+#if PACKETVER <= 20170502
+	WFIFOL(fd, 8) = flag;
+#else
+	WFIFOW(fd, 8) = flag;
+#endif
+	WFIFOSET(fd, packet_len(0xa98));
+#endif
+}
+
+/// Request to add an equip to the equip switch window
+/// 0a97 <index>.W <position>.L
+void clif_parse_equipswitch_add(int fd, struct map_session_data* sd) {
+#if PACKETVER >= 20170208
+	uint16 index = RFIFOW(fd, 2) - 2;
+	uint32 position = RFIFOL(fd, 4);
+
+	if (!battle_config.feature_equipswitch) {
+		return;
+	}
+
+	if (index >= MAX_INVENTORY || sd->inventory_data[index] == NULL) {
+		return;
+	}
+
+	if (sd->state.trading || sd->npc_shopid) {
+		clif_equipswitch_add(sd, index, position, true);
+		return;
+	}
+
+	if (sd->inventory_data[index]->type == IT_AMMO) {
+		position = EQP_AMMO;
+	}
+
+	pc_equipitem(sd, index, position, true);
+#endif
+}
+
+/// Acknowledgement packet for the full equip switch
+/// 0a9d <failed>.W
+void clif_equipswitch_reply(struct map_session_data* sd, bool failed) {
+#if PACKETVER >= 20170208
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa9d));
+	WFIFOW(fd, 0) = 0xa9d;
+	WFIFOW(fd, 2) = failed;
+	WFIFOSET(fd, packet_len(0xa9d));
+#endif
+}
+
+/// Request to do a full equip switch
+/// 0a9c
+void clif_parse_equipswitch_request(int fd, struct map_session_data* sd) {
+#if PACKETVER >= 20170208
+	int i;
+	int64 tick = gettick();
+	uint16 skill_id = ALL_EQSWITCH, skill_lv = 1;
+
+	if (DIFF_TICK(tick, sd->equipswitch_tick) < 0) {
+		// Client will not let you send a request
+		return;
+	}
+
+	sd->equipswitch_tick = tick + skill_get_cooldown(skill_id, skill_lv);
+
+	if (!battle_config.feature_equipswitch) {
+		return;
+	}
+
+	ARR_FIND(0, EQI_MAX, i, sd->equip_switch_index[i] >= 0);
+
+	if (i == EQI_MAX) {
+		// client will show: "There is no item to replace." and should not even come here
+		clif_equipswitch_reply(sd, false);
+		return;
+	}
+
+	if (pc_issit(sd) && !pc_setstand(sd, false)) {
+		return;
+	}
+
+	clif_parse_skill_toid(sd, skill_id, skill_lv, sd->bl.id);
+#endif
+}
+
+/// Request to do a single equip switch
+/// 0ace <index>.W
+void clif_parse_equipswitch_request_single(int fd, struct map_session_data* sd) {
+#if PACKETVER >= 20170502
+	uint16 index = RFIFOW(fd, 2) - 2;
+
+	if (!battle_config.feature_equipswitch) {
+		return;
+	}
+
+	// Check if the index is valid
+	if (index >= MAX_INVENTORY) {
+		return;
+	}
+
+	// Check if the item was already added to equip switch
+	if (sd->inventory.u.items_inventory[index].equipSwitch) {
+		if (sd->npc_id) {
+#ifdef RENEWAL
+			if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM)) {
+				clif_msg(sd, WORK_IN_PROGRESS);
+				return;
+			}
+#endif
+			if (!sd->npc_item_flag) {
+				return;
+			}
+		}
+
+		pc_equipswitch(sd, index);
+	}
+	else {
+		pc_equipitem(sd, index, pc_equippoint(sd, index), true);
+	}
+#endif
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -20272,11 +20561,11 @@ void packetdb_readdb(void)
  		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
 //#0x0A80
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 //#0x0AC0
-		0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
+		26,26,  0,  0, -1,  0,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -20526,6 +20815,11 @@ void packetdb_readdb(void)
 		{clif_parse_bgqueue_battlebegin_ack, "pBGQueueBattleBeginAck"},
 		// OneClick Item Identify
 		{ clif_parse_Oneclick_Itemidentify, "oneclick_itemidentify" },
+		// Equip switch
+		{clif_parse_equipswitch_add, "equipswitch_add"},
+		{clif_parse_equipswitch_remove, "equipswitch_remove"},
+		{clif_parse_equipswitch_request, "equipswitch_request"},
+		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
 		{NULL,NULL}
 	};
 

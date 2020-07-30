@@ -2952,7 +2952,7 @@ ACMD_FUNC(refine)
 			clif_refine(fd, 0, i, sd->inventory.u.items_inventory[i].refine);
 			clif_delitem(sd, i, 1, 3);
 			clif_additem(sd, i, 1, 0);
-			pc_equipitem(sd, i, current_position);
+			pc_equipitem(sd, i, current_position, false);
 			clif_misceffect(&sd->bl, 3);
 			achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, sd->inventory_data[i]->wlv, sd->inventory.u.items_inventory[i].refine);
 			count++;
@@ -4330,7 +4330,7 @@ ACMD_FUNC(recallall)
 
 		if( pc_isdead(pl_sd) )
 		{// wake them up
-			pc_setstand(pl_sd);
+			pc_setstand(pl_sd, true);
 			pc_setrestartvalue(pl_sd,1);
 		}
 
@@ -6084,9 +6084,10 @@ ACMD_FUNC(dropall)
 	int i;
 	nullpo_retr(-1, sd);
 	for (i = 0; i < MAX_INVENTORY; i++) {
-	if (sd->inventory.u.items_inventory[i].amount) {
-		if(sd->inventory.u.items_inventory[i].equip != 0)
-			pc_unequipitem(sd, i, 3);
+		if (sd->inventory.u.items_inventory[i].amount) {
+			if(sd->inventory.u.items_inventory[i].equip != 0)
+				pc_unequipitem(sd, i, 3);
+			pc_equipswitch_remove(sd, i);
 			pc_dropitem(sd,  i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
@@ -6114,6 +6115,7 @@ ACMD_FUNC(storeall)
 		if (sd->inventory.u.items_inventory[i].amount) {
 			if(sd->inventory.u.items_inventory[i].equip != 0)
 				pc_unequipitem(sd, i, 3);
+			pc_equipswitch_remove(sd, i);
 			storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}

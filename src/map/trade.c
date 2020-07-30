@@ -383,6 +383,11 @@ void trade_tradeadditem(struct map_session_data *sd, short index, short amount)
 		return; 
 	}
 
+	if (item->equipSwitch) {
+		clif_msg(sd, C_ITEM_EQUIP_SWITCH);
+		return;
+	}
+
 	//Locate a trade position
 	ARR_FIND( 0, 10, trade_i, sd->deal.item[trade_i].index == index || sd->deal.item[trade_i].amount == 0 );
 	if( trade_i == 10 ) //No space left

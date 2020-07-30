@@ -213,6 +213,7 @@ struct map_session_data {
 	
 	struct item_data* inventory_data[MAX_INVENTORY]; // direct pointers to itemdb entries (faster than doing item_id lookups)
 	short equip_index[EQI_MAX];
+	short equip_switch_index[EQI_MAX];
 	unsigned int weight,max_weight;
 	int cart_weight,cart_num;
 	int fd;
@@ -260,6 +261,7 @@ struct map_session_data {
 	int64 cansendmail_tick; // [Mail System Flood Protection]
 	int64 ks_floodprotect_tick; // [Kill Steal Protection]
 	int64 pvpcan_walkout_tick; // Cell PVP [Napster]
+	int64 equipswitch_tick; // Equip switch
 	
 	struct {
 		unsigned short nameid;
@@ -671,6 +673,8 @@ enum equip_pos {
 	EQP_SHADOW_ACC_L	= 0x200000,
 };
 
+extern unsigned int equip[EQI_MAX];
+
 #define EQP_WEAPON EQP_HAND_R
 #define EQP_SHIELD EQP_HAND_L
 #define EQP_ARMS (EQP_HAND_R|EQP_HAND_L)
@@ -767,7 +771,7 @@ int pc_setinventorydata(struct map_session_data *sd);
 int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 int pc_checkskill(struct map_session_data *sd,int skill_id);
 int pc_checkallowskill(struct map_session_data *sd);
-int pc_checkequip(struct map_session_data *sd,int pos);
+int pc_checkequip(struct map_session_data *sd,int pos, bool checkall);
 
 int pc_calc_skilltree(struct map_session_data *sd);
 int pc_calc_skilltree_normalize_job(struct map_session_data *sd);
@@ -857,8 +861,10 @@ int pc_resetstate(struct map_session_data*);
 int pc_resetskill(struct map_session_data*, int);
 int pc_resetfeel(struct map_session_data*);
 int pc_resethate(struct map_session_data*);
-int pc_equipitem(struct map_session_data*,int,int);
+int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswitch);
 int pc_unequipitem(struct map_session_data*,int,int);
+int pc_equipswitch(struct map_session_data* sd, int index);
+void pc_equipswitch_remove(struct map_session_data* sd, int index);
 int pc_checkitem(struct map_session_data*);
 int pc_useitem(struct map_session_data*,int);
 
@@ -930,7 +936,7 @@ struct map_session_data *pc_get_child(struct map_session_data *sd);
 void pc_bleeding (struct map_session_data *sd, int64 diff_tick);
 void pc_regen (struct map_session_data *sd, int64 diff_tick);
 
-void pc_setstand(struct map_session_data *sd);
+bool pc_setstand(struct map_session_data *sd, bool force);
 int pc_split_atoi(char* str, int* val, char sep, int max);
 int pc_candrop(struct map_session_data *sd,struct item *item);
 

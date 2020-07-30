@@ -49,9 +49,8 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
-	//#define PACKETVER 20151029 //stable client [15peaces]
-	#define PACKETVER 20161228 //stable client [15peaces]
-	//#define PACKETVER 20170614 //experimental client [15peaces]
+	//#define PACKETVER 20161228 //stable client [15peaces]
+	#define PACKETVER 20170614 //stable client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -104,7 +103,7 @@
 #define MAX_BANK_ZENY SINT32_MAX
 #define MAX_FAME 1000000000
 #define MAX_CART 100
-#define MAX_SKILL 5016
+#define MAX_SKILL 5068
 #define GLOBAL_REG_NUM 256
 #define ACCOUNT_REG_NUM 64
 #define ACCOUNT_REG2_NUM 16
@@ -278,11 +277,13 @@ struct item {
 	unsigned int expire_time;
 	unsigned char favorite;
 	unsigned char bound;
+	unsigned int equipSwitch; // location(s) where item is equipped for equip switching (using enum equip_pos for bitmasking)
 };
 
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
 //where the arrows are equipped)
 enum equip_index {
+	EQI_COMPOUND_ON = -1,
 	EQI_ACC_L = 0,
 	EQI_ACC_R,
 	EQI_SHOES,
