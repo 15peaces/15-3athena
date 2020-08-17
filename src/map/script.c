@@ -390,6 +390,7 @@ enum {
 	MF_RESET,
 	MF_GVG_TE_CASTLE,
 	MF_GVG_TE,
+	MF_NOSUNMOONSTARMIRACLE,
 };
 
 const char* script_op2name(int op)
@@ -10621,6 +10622,7 @@ BUILDIN_FUNC(getmapflag)
 			case MF_RESET:				script_pushint(st,map[m].flag.reset); break;
 			case MF_GVG_TE_CASTLE:		script_pushint(st,map[m].flag.gvg_te_castle); break;
 			case MF_GVG_TE:				script_pushint(st,map[m].flag.gvg_te); break;
+			case MF_NOSUNMOONSTARMIRACLE: script_pushint(st, map[m].flag.nosunmoonstarmiracle); break;
 		}
 	}
 
@@ -10699,6 +10701,7 @@ BUILDIN_FUNC(setmapflag)
 				map[m].flag.gvg_te = 1;
 				clif_map_property_mapall(m, MAPPROPERTY_AGITZONE);
 				break;
+			case MF_NOSUNMOONSTARMIRACLE: map[m].flag.nosunmoonstarmiracle = 1; break;
 		}
 	}
 
@@ -10780,6 +10783,7 @@ BUILDIN_FUNC(removemapflag)
 				map[m].flag.gvg_te = 0;
 				clif_map_property_mapall(m, MAPPROPERTY_NOTHING);
 				break;
+			case MF_NOSUNMOONSTARMIRACLE: map[m].flag.nosunmoonstarmiracle = 0; break;
 		}
 	}
 

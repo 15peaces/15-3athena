@@ -4811,6 +4811,8 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "PartyLock | ");
 	if (map[m_id].flag.guildlock)
 		strcat(atcmd_output, "GuildLock | ");
+	if (map[m_id].flag.nosunmoonstarmiracle)
+		strcat(atcmd_output, "NoSunMoonStarMiracle | ");
 	clif_displaymessage(fd, atcmd_output);
 
 	switch (list) {
@@ -6927,8 +6929,7 @@ ACMD_FUNC(npctalk)
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
-		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2) ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]))
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if(!ifcolor) {
@@ -6974,8 +6975,7 @@ ACMD_FUNC(pettalk)
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
-		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2) ||
-				sd->sc.data[SC_SATURDAY_NIGHT_FEVER]))
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%99[^\n]", mes) < 1) {
@@ -7796,8 +7796,7 @@ ACMD_FUNC(homtalk)
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
-		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2) ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]))
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if ( !merc_is_hom_active(sd->hd) ) {
@@ -8179,8 +8178,7 @@ ACMD_FUNC(me)
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] ||
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT) ||
-		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2) ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]))
+		(sd->sc.data[SC_DEEPSLEEP] && sd->sc.data[SC_DEEPSLEEP]->val2)))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%199[^\n]", tempmes) < 0) {
@@ -8305,7 +8303,7 @@ ACMD_FUNC(mapflag)
 				clif_displaymessage(fd, "fog            nozenypenalty    fireworks  sakura      leaves");
 				clif_displaymessage(fd, "rain           nightenabled     nogo       noexp       nobaseexp");
 				clif_displaymessage(fd, "nojobexp       noloot           nomvploot  restricted  loadevent");
-				clif_displaymessage(fd, "nochat         partylock        guildlock");
+				clif_displaymessage(fd, "nochat         partylock        guildlock  nosunmoonstarmiracle");
 				clif_displaymessage(fd, "");
 				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-8) to set a zone, 0 to turn off all zones for the map");
 				return -1;
@@ -8552,6 +8550,9 @@ ACMD_FUNC(mapflag)
 	}
 	else if (!strcmpi(map_flag,"guildlock")) {
 		map[m].flag.guildlock=state;
+	}
+	else if (!strcmpi(map_flag, "nosunmoonstarmiracle")) {
+		map[m].flag.nosunmoonstarmiracle = state;
 	}
 	else
 	{

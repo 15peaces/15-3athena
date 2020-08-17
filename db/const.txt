@@ -385,6 +385,7 @@ mf_battleground	51
 mf_reset	52
 mf_gvg_te_castle	53
 mf_gvg_te	54
+mf_nosunmoonstarmiracle	55
 
 cell_walkable		0
 cell_shootable		1

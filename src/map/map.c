@@ -4145,8 +4145,7 @@ int map_pvp_area(struct map_session_data* sd, bool flag)
 	switch(flag) 
 	{
 		case 1:
-			clif_map_property(sd, MAPPROPERTY_FREEPVPZONE);
-			clif_map_type2(&sd->bl,SELF);
+			clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF);
 			if (sd->pvp_timer == INVALID_TIMER) {
 				map[sd->bl.m].cell_pvpuser++;
  

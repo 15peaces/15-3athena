@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/17/2020
+	r266 [15peaces]
+		*Merged missing changes from 3ceam rev. 698
+		*Removed some leftover debug messages...
+		*Partly rewrote the way the map properties are send to the client.
+			-Reduced the ammount of functions needed to one.
+			-updated to reflect the latest changes made on the supported map flags.
+			-added support for the nosunmoonstarmiracle map flag.
+			-fixed an issue where the client always displayed the "effect of Mirace of Sun and Moon nullified" message.
+		*RK_RUNEMASTERY
+			-Fixed a issue where level 5 would only create a max of 1 rune.
+		*GC_RESEARCHNEWPOISON
+			-Updated the min/max number of poisons made per crafting.
+			-Higher skill levels increase the min/max number of poisons created per crafting.
+		*CREATENEWPOISON
+			-Recoded the entire crafting success formula.
+			-Success chance is now affected by the learned skill level of GC_RESEARCHNEWPOISON, DEX, LUK, and job level.
+		*SC_GROOMY
+			-Fixed a suspected issue where the status could prevent a affected player from summoning a mercenary.
+		*LG_SHIELDSPELL
+			-Fixed a issue where unequipping a shield didn't end the status.
+		*WM_SATURDAY_NIGHT_FEVER
+			-Fixed a issue where player's affected with the status couldn't chat in any kind of way.
+			-Fixed a issue where player's affected with the status couldn't equipt or unequip equips.
+
 07/30/2020
 	r265 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn265.sql file!

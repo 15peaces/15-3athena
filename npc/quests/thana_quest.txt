@@ -1012,7 +1012,7 @@ tha_t03,67,70,0	script	Rune Device#tt1	111,4,4,{
 	}
 
 OnTouch:
-	if ((countitem(Key_Red) == 0) && (countitem(Magic_Gem_Red) == 0))
+	if ((countitem(7421) == 0) && (countitem(7426) == 0))
 		specialeffect EF_LEVEL99_4;
 	end;
 }

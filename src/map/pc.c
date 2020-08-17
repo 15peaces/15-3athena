@@ -543,6 +543,9 @@ void pc_inventory_rentals(struct map_session_data *sd)
 
 	for( i = 0; i < MAX_INVENTORY; i++ )
 	{ // Check for Rentals on Inventory
+
+		ShowDebug("pc_inventory_rentals: item %d, expires %d\n", sd->inventory.u.items_inventory[i].nameid, sd->inventory.u.items_inventory[i].expire_time);
+
 		if( sd->inventory.u.items_inventory[i].nameid == 0 )
 			continue; // Nothing here
 		if( sd->inventory.u.items_inventory[i].expire_time == 0 )
@@ -1399,7 +1402,8 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->state.connect_new = 1;
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
-
+	for (int x = 0; x < MAX_INVENTORY; x++)
+		ShowDebug("Inventory: item %d\n", sd->inventory.u.items_inventory[x].nameid);
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);
 #endif
@@ -5009,7 +5013,10 @@ int pc_checkallowskill(struct map_session_data *sd)
 		SC_AUTOGUARD,
 		SC_DEFENDER,
 		SC_REFLECTSHIELD,
-		SC_LG_REFLECTDAMAGE
+		SC_LG_REFLECTDAMAGE,
+		SC_SHIELDSPELL_DEF,
+		SC_SHIELDSPELL_MDEF,
+		SC_SHIELDSPELL_REF
 	};
 	int i;
 	nullpo_ret(sd);
@@ -8675,7 +8682,7 @@ int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswit
 		return 0;
 	}
 
-	if( sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAY_NIGHT_FEVER] )
+	if(sd->sc.data[SC_BERSERK])
 	{
 		if (equipswitch) {
 			clif_equipswitch_add(sd, n, req_pos, true);
@@ -8879,7 +8886,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	}
 
 	// if player is berserk then cannot unequip
-	if( !(flag&2) && sd->sc.count && (sd->sc.data[SC_BERSERK] || sd->sc.data[SC_SATURDAY_NIGHT_FEVER]) )
+	if( !(flag&2) && sd->sc.count && (sd->sc.data[SC_BERSERK]))
 	{
 		clif_unequipitemack(sd,n,0,0);
 		return 0;
@@ -8992,8 +8999,6 @@ int pc_equipswitch(struct map_session_data* sd, int index) {
 	// Get the currently equipped item
 	short equippedItem = pc_checkequip(sd, position, true);
 
-	ShowDebug("pc_equipswitch: currently equiped: %d\n", equippedItem);
-
 	// No item equipped at the target
 	if (equippedItem == -1) {
 		// Remove it from the equip switch
@@ -9012,7 +9017,6 @@ int pc_equipswitch(struct map_session_data* sd, int index) {
 		// Unequip all items that interfere
 		for (int i = 0; i < EQI_MAX; i++) {
 			int unequip_index = sd->equip_index[i];
-			ShowDebug("pc_equipswitch: Unequip Index: %d\n", unequip_index);
 
 			if (unequip_index >= 0 && position & equip_pos[i]) {
 				struct item* unequip_item = &sd->inventory.u.items_inventory[unequip_index];
@@ -9027,33 +9031,25 @@ int pc_equipswitch(struct map_session_data* sd, int index) {
 				all_position = position | unequipped_position;
 
 				// Unequip the item
-				ShowDebug("pc_equipswitch: Unequipping item %d from index %d...\n", unequip_item->nameid, unequip_index);
 				pc_unequipitem(sd, unequip_index, 0);
-				ShowDebug("pc_equipswitch: Unequipped...\n");
 			}
 		}
 
 		// Equip everything that is hit by the mask
 		for (int i = 0; i < EQI_MAX; i++) {
 			int exchange_index = sd->equip_switch_index[i];
-			ShowDebug("pc_equipswitch: Exchange Index: %d\n", exchange_index);
 
 			if (exchange_index >= 0 && all_position & equip_pos[i]) {
 				struct item* exchange_item = &sd->inventory.u.items_inventory[exchange_index];
 
-				ShowDebug("pc_equipswitch: Target position for switch: %d\n", exchange_item->equipSwitch);
 				// Store the target position
 				int exchange_position = exchange_item->equipSwitch;
 
-
-				ShowDebug("pc_equipswitch: Remove item %d (index %d) from switch...\n", exchange_item->nameid, exchange_index);
 				// Remove the item from equip switch
 				pc_equipswitch_remove(sd, exchange_index);
 
 				// Equip the item at the destinated position
-				ShowDebug("pc_equipswitch: Equipping item %d to index %d...\n", exchange_item->nameid, exchange_index);
 				pc_equipitem(sd, exchange_index, exchange_position, false);
-				ShowDebug("pc_equipswitch: Equipped...\n");
 			}
 		}
 

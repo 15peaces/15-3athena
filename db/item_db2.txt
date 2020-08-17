@@ -3673,3 +3673,15 @@
 19794,C_Goblin_Mask_03,Costume Annoyed Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,173,{},{},{}
 19795,C_Lord_Circlet,Costume Grand Circlet,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,93,{},{},{}
 19796,C_Bone_Helm,Costume Bone Helm,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,103,{},{},{}
+
+// missing items
+6541,Avant_Research_Data,Avant Research Data,3,0,,0,,,,,,,,,,,,,{},{},{}
+6542,Star_Shape_Mushroom,Star Shape Mushroom,3,20,,100,,,,,,,,,,,,,{},{},{}
+6543,Lv110_Achieved_Coin,Lv110 Achieved Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6544,Lv120_Achieved_Coin,Lv120 Achieved Coin,3,0,,0,,,,,,,,,,,,,{},{},{}
+6545,Firm_Hair,Firm Hair,3,0,,0,,,,,,,,,,,,,{},{},{}
+6546,Younger_Bro_Letter,Younger Bro Letter,3,0,,0,,,,,,,,,,,,,{},{},{}
+6547,Stained_Research_Book,Stained Research Book,3,0,,0,,,,,,,,,,,,,{},{},{}
+6548,Piece_Of_Lapine_Wing,Piece Of Lapine Wing,3,0,,0,,,,,,,,,,,,,{},{},{}
+6549,Courtesy_Ticket,Courtesy Ticket,3,0,,0,,,,,,,,,,,,,{},{},{}
+6550,Brownie_Ticket,Brownie Ticket,3,20,,0,,,,,,,,,,,,,{},{},{}

@@ -1545,7 +1545,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		break;
 	}
 
-	if(sd && (sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR &&
+	if(sd && (sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR && map[bl->m].flag.nosunmoonstarmiracle == 0 && 
 		rand()%10000 < battle_config.sg_miracle_skill_ratio)	//SG_MIRACLE [Komurka]
 		sc_start(src,SC_MIRACLE,100,1,battle_config.sg_miracle_skill_duration);
 
@@ -15471,7 +15471,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	{
 		skill_lv = pc_checkskill(sd,skill_id);
 		if( skill_lv == 10 ) temp_qty = 1 + rand()%3;
-		else if( skill_lv > 5 ) temp_qty = 1 + rand()%2;
+		else if (skill_lv >= 5) temp_qty = 1 + rand() % 2;
 		else temp_qty = 1;
 		for( i = 0; i < MAX_INVENTORY; i++ )
 		{
@@ -15617,9 +15617,9 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				qty = temp_qty;
 				break;
 			case GC_CREATENEWPOISON:
-				skill_lv = pc_checkskill(sd,GC_RESEARCHNEWPOISON);
-				make_per = 3000 + 500 * skill_lv;
-				qty = rand()%(skill_lv+1);
+				make_per = 3000 + 500 * pc_checkskill(sd,GC_RESEARCHNEWPOISON) // Base success rate and success rate increase from learned Research New Poison level.
+				+ status->dex / 3 * 10 + status->luk * 10 + s_job_level * 10;// Success increase from DEX, LUK, and job level.
+				qty = rnd_value( (3 + pc_checkskill(sd,GC_RESEARCHNEWPOISON)) / 2, (8 + pc_checkskill(sd,GC_RESEARCHNEWPOISON)) / 2 );
 				break;
 			case GN_MIX_COOKING:
 				make_per = 3000; //As I can see this is not affectd by dex or int
