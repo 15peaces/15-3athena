@@ -2163,6 +2163,26 @@ void map_foreachiddb(int (*func)(struct block_list* bl, va_list args), ...)
 	dbi_destroy(iter);
 }
 
+/**
+* Returns the equivalent bitmask to the given race ID.
+*
+* @param race A race identifier (@see enum Race)
+*
+* @return The equivalent race bitmask.
+*/
+uint32 map_race_id2mask(int race)
+{
+	if (race >= RC_FORMLESS && race < RC_MAX)
+		return 1 << race;
+
+	if (race == RC_ALL)
+		return RCMASK_ALL;
+
+	ShowWarning("map_race_id2mask: Invalid race: %d\n", race);
+
+	return RCMASK_NONE;
+}
+
 /// Iterator.
 /// Can filter by bl type.
 struct s_mapiterator

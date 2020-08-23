@@ -271,7 +271,7 @@ enum npc_subtype {
 	NPCTYPE_MARKETSHOP, 
 };
 
-enum {
+enum Race {
 	RC_FORMLESS=0,		//NOTHING
 	RC_UNDEAD,			//UNDEAD
 	RC_BRUTE,			//ANIMAL
@@ -284,8 +284,34 @@ enum {
 	RC_DRAGON,			//DRAGON
 	RC_BOSS,			//PLAYER - In Aegis this ID is marked as PLAYER. Not sure why its BOSS here.
 	RC_NONBOSS,			//LAST - Race ID 11 officially marked as LAST to mark the end of the race ID list.
-	RC_NONDEMIHUMAN,	//Race ID 12 doesn't officially exist. 11 and 12 are custom made for eAthena's coding.
-	RC_MAX
+	RC_MAX,
+	RC_NONDEMIHUMAN,
+
+	RC_ALL = 0xFF,     ///< Every race (implemented as equivalent to RC_BOSS and RC_NONBOSS)
+};
+
+/**
+* Race type bitmasks.
+*
+* Used by several bonuses internally, to simplify handling of race combinations.
+*/
+enum RaceMask {
+	RCMASK_NONE = 0,
+	RCMASK_FORMLESS = 1 << RC_FORMLESS,
+	RCMASK_UNDEAD = 1 << RC_UNDEAD,
+	RCMASK_BRUTE = 1 << RC_BRUTE,
+	RCMASK_PLANT = 1 << RC_PLANT,
+	RCMASK_INSECT = 1 << RC_INSECT,
+	RCMASK_FISH = 1 << RC_FISH,
+	RCMASK_DEMON = 1 << RC_DEMON,
+	RCMASK_DEMIHUMAN = 1 << RC_DEMIHUMAN,
+	RCMASK_ANGEL = 1 << RC_ANGEL,
+	RCMASK_DRAGON = 1 << RC_DRAGON,
+	RCMASK_BOSS = 1 << RC_BOSS,
+	RCMASK_NONBOSS = 1 << RC_NONBOSS,
+	RCMASK_NONDEMIPLAYER = RCMASK_FORMLESS | RCMASK_UNDEAD | RCMASK_BRUTE | RCMASK_PLANT | RCMASK_INSECT | RCMASK_FISH | RCMASK_DEMON | RCMASK_ANGEL | RCMASK_DRAGON,
+	RCMASK_NONPLAYER = RCMASK_NONDEMIPLAYER | RCMASK_DEMIHUMAN,
+	RCMASK_ALL = RCMASK_BOSS | RCMASK_NONBOSS,
 };
 
 enum e_classAE {
@@ -766,6 +792,8 @@ struct mob_data * map_id2boss(int id);
 static void map_free_questinfo(int m);
 struct questinfo *map_add_questinfo(int m, struct questinfo *qi);
 struct questinfo *map_has_questinfo(int m, struct npc_data *nd, int quest_id);
+
+uint32 map_race_id2mask(int race);
 
 /// Bitfield of flags for the iterator.
 enum e_mapitflags

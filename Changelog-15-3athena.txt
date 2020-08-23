@@ -5,6 +5,10 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/23/2020
+	r267 [15peaces]
+		*Finally added full support for RC_All in item bonusses.
+
 08/17/2020
 	r266 [15peaces]
 		*Merged missing changes from 3ceam rev. 698

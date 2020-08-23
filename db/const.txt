@@ -665,7 +665,8 @@ RC_Angel	8
 RC_Dragon	9
 RC_Boss	10
 RC_NonBoss	11
-RC_NonDemiHuman	12
+RC_NonDemiHuman	13
+RC_All	255
 
 RC2_None	0
 RC2_Goblin	1
