@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/06/2020
+	r268 [15peaces]
+		*Merged missing changes from 3ceam rev. 699
+		*Replaced vs10 project files with vs15 files.
+			-With this files we fully support Visual Studio 2017.
+				-Target platform is now windows 10, windows server 2016 or compatible. If you're using an older version of windows you should use the vs14 files or change the SDK version to 8.1.
+			-You can still use the vs10 files (just get them from an older rev.) if you want to compile with an older compiler version, they will be working for now. However I won't give any support for them anymore.
+		*KO_JYUMONJIKIRI / Cross Slash
+			-Cross Wound status now lasts for 3 seconds.
+			-Damage bonus from Cross Wound status is now double damage.
+		*Added the KG_KAGEMUSYA / Shadow Warrior skill.
+			-The success chance of double attacking will take higher priority over the Thief's Double Attack skill, but only if Shadow Warrior's success chance is higher then Double Attack's success chance. Thats if the player has learned the Double Attack skill.
+		*ECLAGE_RECALL
+			-The map and cords the skill warps the caster to is now official.
+
 08/23/2020
 	r267 [15peaces]
 		*Finally added full support for RC_All in item bonusses.

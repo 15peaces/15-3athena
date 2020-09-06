@@ -1453,9 +1453,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	if( sd && !skill_num )
 	{	//Check for double attack.
 		if( ( ( skill_lv = pc_checkskill(sd,TF_DOUBLE) ) > 0 && sd->weapontype1 == W_DAGGER )
-			|| ( sd->double_rate > 0 && sd->weapontype1 != W_FIST ) ) //Will fail bare-handed 
+			|| ( sd->double_rate > 0 && sd->weapontype1 != W_FIST ) //Will fail bare-handed
+			|| ( sc && sc->data[SC_KAGEMUSYA] && sd->weapontype1 == W_DAGGER ) )//Need a confirm if its limited to daggers only.
 		{	//Success chance is not added, the higher one is used [Skotlex]
-			if( rand()%100 < ( 5*skill_lv > sd->double_rate ? 5*skill_lv : sd->double_rate ) )
+			if (rand() % 100 < (sc && sc->data[SC_KAGEMUSYA] && sc->data[SC_KAGEMUSYA]->val2 >= 5 * skill_lv ? sc->data[SC_KAGEMUSYA]->val2 : 5 * skill_lv > sd->double_rate ? 5 * skill_lv : sd->double_rate))
 			{
 				wd.div_ = skill_get_num(TF_DOUBLE,skill_lv?skill_lv:1);
 				wd.type = 0x08;
