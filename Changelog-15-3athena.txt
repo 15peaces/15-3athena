@@ -7,6 +7,22 @@
 //========================================
 09/06/2020
 	r268 [15peaces]
+		*Merged missing changes from 3ceam rev. 700 - 701
+		*Fixed an issue where the wrong map property was set on map entering.
+		*Removed some unneeded debug messages.
+		*Added missing Shield Of Death combo script.
+		*WL_COMET
+			-Is now blockable by Land Protector
+		*NC_SELFDESTRUCTION
+			-Fixed a issue where the damage wasnt being reduced by the enemy's DEF and VIT DEF Skill changed to weapon type attack. This change was needed to allow damage to be reduceable by DEF and VIT DEF. Even tho its set as weapon type, ATK will not affect the
+			-damage. Skill was also changed to forced neutral element due to its high possible damage. Its very likely forced neutral on official.
+		*NC_NEUTRALBARRIER
+			-Fixed a issue where the status would give a HIT increase and interfere with the HIT increase from other skills.
+			-Now increases DEF / MDEF.
+			-Now fully blocks ranged attacks.
+
+09/06/2020
+	r268 [15peaces]
 		*Merged missing changes from 3ceam rev. 699
 		*Replaced vs10 project files with vs15 files.
 			-With this files we fully support Visual Studio 2017.

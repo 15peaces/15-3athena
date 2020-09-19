@@ -543,9 +543,6 @@ void pc_inventory_rentals(struct map_session_data *sd)
 
 	for( i = 0; i < MAX_INVENTORY; i++ )
 	{ // Check for Rentals on Inventory
-
-		ShowDebug("pc_inventory_rentals: item %d, expires %d\n", sd->inventory.u.items_inventory[i].nameid, sd->inventory.u.items_inventory[i].expire_time);
-
 		if( sd->inventory.u.items_inventory[i].nameid == 0 )
 			continue; // Nothing here
 		if( sd->inventory.u.items_inventory[i].expire_time == 0 )
@@ -1402,8 +1399,6 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->state.connect_new = 1;
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
-	for (int x = 0; x < MAX_INVENTORY; x++)
-		ShowDebug("Inventory: item %d\n", sd->inventory.u.items_inventory[x].nameid);
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);
 #endif
@@ -4797,13 +4792,13 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 				return 1; //You may not get out!
 			status_change_end(&sd->bl, SC_BOSSMAPINFO, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_WARM, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_NEUTRALBARRIER_MASTER, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_NEUTRALBARRIER, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_STEALTHFIELD, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_SUN_COMFORT, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_MOON_COMFORT, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STAR_COMFORT, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_NEUTRALBARRIER_MASTER, INVALID_TIMER);//Will later check if this is needed. [Rytech]
+			status_change_end(&sd->bl, SC_NEUTRALBARRIER, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STEALTHFIELD, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_MIRACLE, INVALID_TIMER);
 			if (sd->sc.data[SC_KNOWLEDGE]) {
 				struct status_change_entry *sce = sd->sc.data[SC_KNOWLEDGE];

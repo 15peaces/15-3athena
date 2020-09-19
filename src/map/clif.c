@@ -6631,14 +6631,12 @@ void clif_pvpset(struct map_session_data *sd,int pvprank,int pvpnum,int type)
 void clif_map_property_mapall(int map, enum map_property property)
 {
 	struct block_list bl;
-	unsigned char buf[16];
 
 	bl.id = 0;
 	bl.type = BL_NUL;
 	bl.m = map;
-	WBUFW(buf,0)=0x199;
-	WBUFW(buf,2)=property;
-	clif_send(buf,packet_len(0x199),&bl,ALL_SAMEMAP);
+
+	clif_map_property(&bl, property, ALL_SAMEMAP);
 }
 
 
@@ -10708,12 +10706,12 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	// set flag, if it's a duel [LuzZza]
 	if(sd->duel_group)
 		clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF);
-
-	if (map[sd->bl.m].flag.gvg_dungeon)
+	else if (map[sd->bl.m].flag.gvg_dungeon)
 		clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF); //TODO: Figure out the real packet to send here.
-
-	if( map_flag_gvg(sd->bl.m) )
+	else if( map_flag_gvg(sd->bl.m) )
 		clif_map_property(&sd->bl, MAPPROPERTY_AGITZONE, SELF);
+	else
+		clif_map_property(&sd->bl, MAPPROPERTY_NOTHING, SELF);
 
 	// info about nearby objects
 	// must use foreachinarea (CIRCULAR_AREA interferes with foreachinrange)

@@ -1175,7 +1175,7 @@
 2174,Lumiere_Shield,Lumiere Shield,5,20,,1300,,10,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2175,Esprit_Shield,Spirit Shield,5,20,,1300,,10,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2176,Dark_Book,Black Book,5,20,,500,,15,,1,0xFFFFFFFF,63,2,32,,65,1,5,{ bonus bMdef,4; set .@r, getrefine(); if (.@r<=6) set .@rate,10; else if (.@r<=8) set .@rate,20; else set .@rate,30; bonus3 bAutoSpellWhenHit,"NPC_DRAGONFEAR",1,.@rate; },{},{}
-2177,Shield_Of_Death,Shield Of Death,5,20,,2000,,25,,1,0xFFFFFFFF,63,2,32,,90,1,3,{ bonus2 bAddRace,RC_Boss,2; bonus2 bMagicAddRace,RC_Boss,2; bonus2 bAddRace,RC_NonBoss,10; bonus2 bMagicAddRace,RC_NonBoss,10; },{},{}
+2177,Shield_Of_Death,Shield Of Death,5,20,,2000,,25,,1,0xFFFFFFFF,63,2,32,,90,1,3,{ bonus2 bAddRace,RC_Boss,2; bonus2 bMagicAddRace,RC_Boss,2; bonus2 bAddRace,RC_NonBoss,10; bonus2 bMagicAddRace,RC_NonBoss,10; if(isequipped(18574)){ bonus2 bAddRace,RC_Boss,5; bonus2 bMagicAddRace,RC_Boss,5; if (getequiprefinerycnt(EQI_HEAD_TOP) > 7) { bonus2 bAddRace,RC_Boss,5; bonus2 bMagicAddRace,RC_Boss,5; }}},{},{}
 //2178,TE_Woe_Buckler
 //2179,TE_Woe_Shield
 //2180,TE_Woe_Magic_Guard
