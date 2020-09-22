@@ -5,8 +5,27 @@
 // 		- Details.
 //			--More Details.
 //========================================
-09/06/2020
-	r268 [15peaces]
+
+09/22/2020
+	r270 [15peaces]
+		*Merged missing changes from 3ceam rev. 702
+		*Kagerou/Oboro Skills
+			-Skill unit configs were updated, but are not being used at this time.
+		*KO_BAKURETSU,Exploding Kunai; KO_HAPPOKUNAI,Spray Kunai
+			-Now ignores flee.
+		*KO_MUCHANAGE,Over Throw
+			-Now ignores flee and ignores elemental adjustments.
+			-Damage is now divided between the number of targets hit. (May not be working. Recheck later.)
+		*KO_HUUMARANKA,Launch Huuma Shuriken
+			-No longer uses dummy units. Damage is now dealed through splash AoE.
+			-Damage is now divided between the number of targets hit. (May not be working. Recheck later.)
+		*KG_KAGEMUSYA,Shadow Warrior
+			-Double attack chance now works with all weapons.
+			-Will not work if no weapon is equipped.
+			-These changes are based on tested from a player from the official RuRO server.
+
+09/19/2020
+	r269 [15peaces]
 		*Merged missing changes from 3ceam rev. 700 - 701
 		*Fixed an issue where the wrong map property was set on map entering.
 		*Removed some unneeded debug messages.

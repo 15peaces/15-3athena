@@ -2179,6 +2179,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case GN_SLINGITEM_RANGEMELEEATK:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,GN_SLINGITEM,-2,6);
 		break;
+	case KO_HUUMARANKA:
+		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 8);
+		break;
 	case LG_OVERBRAND_BRANDISH:
 	case LG_OVERBRAND_PLUSATK:
 	case EL_FIRE_BOMB:
@@ -3294,6 +3297,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_GREAT_ECHO:
 	case GN_SLINGITEM_RANGEMELEEATK:
 	case KO_SETSUDAN:
+	case KO_BAKURETSU:
+	case KO_HUUMARANKA:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
@@ -3537,7 +3542,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
-	case KO_BAKURETSU:
 	case KO_HAPPOKUNAI:
 		if (flag&1)
 		{	//Recursive invocation
@@ -9408,6 +9412,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RK_DRAGONBREATH:
 	case WM_GREAT_ECHO:
 	case WM_SOUND_OF_DESTRUCTION:
+	case KO_BAKURETSU:
+	case KO_MUCHANAGE:
+	case KO_HUUMARANKA:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | 1, skill_castend_damage_id);
 		break;
@@ -9723,7 +9730,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WATER_INSIGNIA:
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
-	case KO_HUUMARANKA:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
@@ -13361,7 +13367,11 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//Fixed cast time percentage reduction from radius if learned.
 	if( sd && pc_checkskill(sd, WL_RADIUS) > 0 && skill_id >= WL_WHITEIMPRISON && skill_id <= WL_FREEZE_SP && fixed_time > 0 )
 	{
-		int radiusbonus = 5 + 5 * pc_checkskill(sd, WL_RADIUS);
+		int radiusbonus = 0;
+		if (battle_config.renewal_level_effect_skills == 1)
+			radiusbonus = 5 * pc_checkskill(sd, WL_RADIUS) + status_get_int(bl) / 15 + status_get_lv(bl) / 15;
+		else
+			radiusbonus = 5 * pc_checkskill(sd, WL_RADIUS) + status_get_int(bl) / 15 + 10;
 		if ( radiusbonus > fixed_cast_rate )
 			fixed_cast_rate = radiusbonus;
 	}
