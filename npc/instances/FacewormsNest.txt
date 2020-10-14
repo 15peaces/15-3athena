@@ -2375,7 +2375,7 @@ OnInstanceInit:
 		set .@d_item, 20718;	// FaceWorm_Skin_
 	else
 		set .@d_item, 20717;	// FaceWorm_Skin
-	makeitem2 .@d_item,1,'map_name$,.@x,.@y,0,.@refine,0,0,.@en_name_2,.@en_name_3,.@en_name_4;
+	makeitem2 .@d_item,1,'map_name$,.@x,.@y,1,.@refine,0,0,.@en_name_2,.@en_name_3,.@en_name_4;
 	end;
 OnStart:
 	initnpctimer;

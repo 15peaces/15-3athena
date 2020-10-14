@@ -6,6 +6,28 @@
 //			--More Details.
 //========================================
 
+10/14/2020
+	r271 [15peaces]
+		*Merged missing changes from 3ceam rev. 703
+		*Added missing quest_db entries for Sara's Memory instance.
+		*Some item updates
+			-Added some missing items
+			-Moved some stable items	
+		*Added all Kagerou/Oboro items and exclusive equips.
+			-Equip's defense were balanced out for pre-renewal mechanics.
+			-Not all bonuses are coded in yet. Precoded bonuses were taken from rAthena.
+			-Prices on equips is temporarly.
+			-Special Shirukens and Kunais were added as well.
+		*GC_DARKILLUSION; GC_WEAPONCRUSH; GC_VENOMPRESSURE; GC_PHANTOMMENACE
+			-Damage increase from EDP has been disabled for these skills. This adds on to the other few skills that had their effect with EDP disabled due to balance issues.
+			-Once the side part for EDP is coded, these skills will be enabled to allow EDP to increase their damage again, but in a renewal way.
+		*WM_VOICEOFSIREN
+			-Fixed a issue where the caster could still be attacked by targets inflected with the status.
+		*SO_ARRULLO
+			-Updated the success and resistance formula.
+			-Added the duration reduction formula.
+		*Fixed an issue where the Giant Faceworm Snake Skin drop in Faceworm's Nest was not identified.
+
 09/22/2020
 	r270 [15peaces]
 		*Merged missing changes from 3ceam rev. 702

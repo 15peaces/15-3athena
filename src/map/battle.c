@@ -2577,8 +2577,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case GN_CART_TORNADO:
 					{
-						int strbonus = 0;
-						strbonus = sstatus->str;//Supposed to take only base STR, but current code wont allow that. So well just take STR for now. [Rytech]
+					int strbonus = sstatus->str;//Supposed to take only base STR, but current code wont allow that. So well just take STR for now. [Rytech]
 						if ( strbonus > 120 )//Max base stat limit on official is 120. So well allow no higher then 120 STR here. This limit prevents
 							strbonus = 120;//the division from going any lower then 30 so the server wont divide by 0 if someone has 150 STR.
 						skillratio = 50 * skill_lv + sd->cart_weight / 10 / (150 - strbonus) + 50 * pc_checkskill(sd, GN_REMODELING_CART);
@@ -2833,7 +2832,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					case AS_SPLASHER:
 					case AS_VENOMKNIFE:
 					case ASC_BREAKER:
-					case GC_COUNTERSLASH:
+					case GC_COUNTERSLASH://Non-EDPable.
+					case GC_DARKILLUSION:
+					case GC_WEAPONCRUSH:
+					case GC_VENOMPRESSURE:
+					case GC_PHANTOMMENACE:
 					case GC_ROLLINGCUTTER:
 					case GC_CROSSRIPPERSLASHER:
 						break;

@@ -1851,10 +1851,10 @@
 2856,Half_Megin,Half Megingjard,5,20,,0,,1,,0,0xFFFFFFFF,7,2,136,,47,0,0,{ bonus bStr,20; bonus bMdef,3; },{},{}
 2857,Half_Brysing,Half Brisingamen,5,20,,0,,1,,0,0xFFFFFFFF,7,2,136,,47,0,0,{ bonus bStr,3; bonus bInt,5; bonus bVit,3; bonus bDex,3; bonus bAgi,3; bonus bLuk,5; bonus bMdef,2; },{},{}
 2858,Pendant_Of_Guardian,Guardian Pendant,5,0,,0,,0,,0,0xFFFFFFFF,7,2,136,,70,0,0,{},{},{}
-2859,Golden_Rod_Orb,Golden Rod Orb,5,20,,200,,2,,1,0x00000000,7,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
-2860,Aqua_Orb,Aqua Orb,5,20,,200,,2,,1,0x00000000,7,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
-2861,Crimson_Orb,Crismon Orb,5,20,,200,,2,,1,0x00000000,7,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
-2862,Forest_Orb,Forest Orb,5,20,,200,,2,,1,0x00000000,7,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
+2859,Golden_Rod_Orb,Golden Rod Orb,5,20,,200,,2,,1,0x00000200,63,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
+2860,Aqua_Orb,Aqua Orb,5,20,,200,,2,,1,0x00000200,63,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
+2861,Crimson_Orb,Crismon Orb,5,20,,200,,2,,1,0x00000200,63,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
+2862,Forest_Orb,Forest Orb,5,20,,200,,2,,1,0x00000200,63,2,136,,100,0,0,{ bonus bInt,1; bonus bMdef,2; },{},{}
 2863,Ring_Of_Valkyrie,Ring Of Valkyrie,5,0,,0,,2,,0,0xFFFFFFFF,7,2,136,,1,0,0,{},{},{}
 2864,Light_Of_Cure,Liht Of Cure,5,20,,0,,0,,0,0x00000000,7,2,136,,110,0,0,{ bonus bVit,2; },{},{}
 2865,Seal_Of_Cathedral,Seal Of Cathedral,5,20,,0,,0,,0,0x00000000,7,2,136,,110,0,0,{ bonus bInt,2; },{},{}
@@ -7809,6 +7809,13 @@
 19860,C_School_Criatura_Hat,Costume School Criatura Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,872,{},{},{}
 19861,C_Heart_Hairpin,Costume Heart Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,126,{},{},{}
 19862,C_Succubus_Horn,Costume Succubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,150,{},{},{}
+19863,C_Incubus_Horn,Costume Incubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,156,{},{},{}
+19864,C_Dokebis_Wig,Costume Dokebi's Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,302,{},{},{}
+19865,C_Joker_Jester,Costume Joker Jester,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,89,{},{},{}
+19866,C_Blue_Pajamas,Costume Blue Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
+19867,C_Red_Pajamas,Costume Red Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
+19868,C_Showy_High_Cap,Costume Showy High Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,830,{},{},{}
+19869,C_Boss_Beret,Costume Boss Beret,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1134,{},{},{}
 // Costume Headgear's Using Status's To Appear
 19871,C_Decoration_Of_Music,Decoration of Music,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,0,0,1074,{},{ sc_start SC_DECORATION_OF_MUSIC,-1,0; },{ sc_end SC_DECORATION_OF_MUSIC; }
 

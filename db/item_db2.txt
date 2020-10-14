@@ -146,6 +146,17 @@
 19857,C_Crayfish_Hat,Costume Crayfish Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,728,{},{},{}
 19858,C_Smokie_Leaf,Costume Smokie Leaf,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,148,{},{},{}
 19859,C_Flying_Angel,Costume Flying Angel,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,264,{},{},{}
+19873,C_Carnival_Hat,Costume Carnival Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,505,{},{},{}
+19874,C_Carnival_Circlet,Costume Carnival Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,506,{},{},{}
+19875,C_Love_Rabbit_Hood,Costume Love Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,549,{},{},{}
+19876,C_Rabbit_Ear_Hat,Costume Rabbit Ear Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,384,{},{},{}
+19877,C_Eyes_Of_Darkness,Costume Eyes Of Darkness,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,467,{},{},{}
+19878,C_Drooping_Bunny,Costume Drooping Bunny,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,249,{},{},{}
+19879,C_Black_Bunny_Band,Costume Black Bunny Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,267,{},{},{}
+19880,C_Golden_Tiara,Costume Golden Tiara,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,232,{},{},{}
+19881,C_Pretty_Rabbit_Hood,Costume Pretty Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1085,{},{},{}
+19882,C_Flowerpot_Mask,Costume Flowerpot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1086,{},{},{}
+19893,C_Ordinary_Black_Magician_Hat,Costume Ordinary Black Magician Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,912,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -194,24 +205,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19863,C_Incubus_Horn,Costume Incubus Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,156,{},{},{}
-19864,C_Dokebis_Wig,Costume Dokebi's Wig,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,302,{},{},{}
-19865,C_Joker_Jester,Costume Joker Jester,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,89,{},{},{}
-19866,C_Blue_Pajamas,Costume Blue Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
-19867,C_Red_Pajamas,Costume Red Pajamas,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,501,{},{},{}
-19868,C_Showy_High_Cap,Costume Showy High Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,830,{},{},{}
-19869,C_Boss_Beret,Costume Boss Beret,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1134,{},{},{}
-19873,C_Carnival_Hat,Costume Carnival Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,505,{},{},{}
-19874,C_Carnival_Circlet,Costume Carnival Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,506,{},{},{}
-19875,C_Love_Rabbit_Hood,Costume Love Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,549,{},{},{}
-19876,C_Rabbit_Ear_Hat,Costume Rabbit Ear Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,384,{},{},{}
-19877,C_Eyes_Of_Darkness,Costume Eyes Of Darkness,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,467,{},{},{}
-19878,C_Drooping_Bunny,Costume Drooping Bunny,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,249,{},{},{}
-19879,C_Black_Bunny_Band,Costume Black Bunny Band,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,267,{},{},{}
-19880,C_Golden_Tiara,Costume Golden Tiara,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,232,{},{},{}
-19881,C_Pretty_Rabbit_Hood,Costume Pretty Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1085,{},{},{}
-19882,C_Flowerpot_Mask,Costume Flowerpot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1086,{},{},{}
-19893,C_Ordinary_Black_Magician_Hat,Costume Ordinary Black Magician Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,912,{},{},{}
 19894,C_Shrine_Maiden_Hat,Costume Shrine Maiden Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,908,{},{},{}
 19895,C_Magicians_Night_Cap,Costume Magician's Night Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,911,{},{},{}
 19896,C_PRO_10th_Cap,Costume PRO 10th Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1094,{},{},{}
@@ -3203,15 +3196,38 @@
 //===================================================================
 22508,Para_Team_Mark_,Eden Group Mark,2,0,,0,,,,0,0xFFFFFFFF,63,2,,,,,,{ warp "moc_para01",171,115; },{},{}
 
-// Kagerou/Oboro Exclusive Equips (3ceam stable)
-13075,Kurenai,Kurenai,4,5000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
-13076,Nachal_Sword,Nachal Sword,4,40000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
-13078,Mikacheuki,Mikacheuki,4,40000,,600,50,,1,1,0x20000000,7,2,2,4,100,1,1,{},{},{}
-13294,Explosive_Kunai,Explosive Kunai,10,100,,30,50,,,,0x20000000,7,2,32768,,100,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
-13313,Flower_Huuma_Shuriken,Flower Huuma Shuriken,4,100000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Fire; },{},{}
-13314,Wave_Huuma_Shuriken,Wave Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Water; },{},{}
-13315,Thunderstorm_Huuma_Shuriken,Thunderstorm Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /* bonus bWeaponMatk,50; */ bonus bAtkEle,Ele_Wind; },{},{}
-13316,Enhance_Huuma_Shuriken,Enhance Huuma Shuriken,4,20,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /* bonus bWeaponMatk,5*getrefine(); */ bonus bLongAtkRate,getrefine(); if(BaseLevel >= 70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
+// Kagerou/Oboro Exclusive Equips (3ceam stable, pre-re)
+// Armguards
+2171,Fox_Armguard,Fox Armguard,5,80000,,200,,5,,1,0x20000000,7,2,32,,100,1,1,{ bonus bFlee,5; },{},{}
+2172,Wolf_Armguard,Wolf Armguard,5,80000,,250,,7,,1,0x20000000,7,2,32,,100,1,1,{ autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; },{},{}
+2173,Crescent_Moon_Armguard,Crescent Moon Armguard,5,80000,,250,,5,,1,0x20000000,7,2,32,,100,1,1,{ bonus bDelayRate,-2; },{},{}
+// Makibishi
+6493,Makibishi,Makibishi,3,30,,1,,,,,,,,,,,,,{},{},{}
+// Talismans
+6512,Talisman_of_Fire,Fire Talisman,3,100,,1,,,,,,,,,,,,,{},{},{}
+6513,Talisman_of_Ice,Ice Talisman,3,100,,1,,,,,,,,,,,,,{},{},{}
+6514,Talisman_of_Wind,Wind Talisman,3,100,,1,,,,,,,,,,,,,{},{},{}
+6515,Talisman_of_Earth,Earth Talisman,3,100,,1,,,,,,,,,,,,,{},{},{}
+// Daggers
+13075,Kurenai,Kurenai,4,50000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
+13076,Kodachi,Kodachi,4,50000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
+13078,Mikazuki,Mikazuki,4,50000,,600,50,,1,1,0x02000000,7,2,2,4,100,1,1,{},{},{}
+// Shurikens / Kunais
+13291,Starfish_Shuriken,Starfish Shuriken,10,100,,5,110,,,,0x02000000,7,2,32768,,50,,6,{},{},{}
+13292,Kunai_Of_Dried_Squid,Dried Squid Kunai,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13293,Kunai_Of_Flying_Fish,Flying Fish Kunai,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13295,Light_Shuriken,Light Shuriken,10,4,,5,5,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
+// Huuma Shurikens
+13311,Advanced_Huuma_Shuriken,Advanced Huuma Shuriken,4,120000,,1500,170,,1,0,0x20000000,7,2,34,3,99,1,22,{ bonus bStr,3; },{},{}
+13313,Flower_Huuma_Shuriken,Flower Petal Huuma Shuriken,4,150000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /*bonus bEquipmentMatk,50;*/ },{},{}
+13314,Ice_Huuma_Shuriken,Ice Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Water; },{},{}
+13315,Storm_Huuma_Shuriken,Storm Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Wind; },{},{}
+13316,Enhance_Huuma_Shuriken,Enhance Huuma Shuriken,4,200000,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /*bonus bEquipmentMatk,5*getrefine();*/ bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
+// Armors
+15053,Special_Ninja_Suit,Special Ninja Suit,5,100000,,1200,,10,,0,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
+15054,Ninja_Scale_Armor,Ninja Scale Armor,5,100000,,1800,,13,,1,0x20000000,7,2,16,,100,1,0,{ bonus bMaxHPRate,15; bonus bMaxSPRate,-30; },{},{}
+15055,Special_Alloy_Armor,Special Alloy Armor,5,100000,,1500,,8,,1,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1; },{},{}
+15056,Special_Ninja_Suit_,Special Ninja Suit,5,100000,,1200,,10,,1,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
 
 // Doram items (renewal)
 1681,Short_Foxtail_Staff,Short Foxtail Staff,4,20,,0,30,,1,0,0x80000000,7,2,2,1,1,1,10,{},{},{}
@@ -3685,3 +3701,28 @@
 6548,Piece_Of_Lapine_Wing,Piece Of Lapine Wing,3,0,,0,,,,,,,,,,,,,{},{},{}
 6549,Courtesy_Ticket,Courtesy Ticket,3,0,,0,,,,,,,,,,,,,{},{},{}
 6550,Brownie_Ticket,Brownie Ticket,3,20,,0,,,,,,,,,,,,,{},{},{}
+
+//Faceworm Nest (renewal)
+20717,FaceWorm_Skin,Gigant Snake Skin,5,10,,400,,38,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,10; },{},{}
+20718,FaceWorm_Skin_,Gigant Snake Skin,5,10,,400,,38,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,10; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
+
+//===================================================================
+// New Garments
+//===================================================================
+20502,C_Devil_Wing,Costume Little Devil Wings,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,12,{},{},{}
+// more costumes
+20761,C_Wing_Of_Happiness,Costume Happiness Wings,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,9,{},{},{}
+20762,C_GreatDevilWing,Costume Great Devil Wings,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,10,{},{},{}
+20763,C_Amistr_Bag,Costume Amistr Bag,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,4,{},{},{}
+20764,C_Fallen_Angel_Wing,Costume Fallen Angel Wing,5,0,,0,,0,,0,0xFFFFFFFF,63,2,8192,,1,0,3,{},{},{}
+20765,C_Archangel_Wing,Costume Archangel Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,1,0,1,{},{},{}
+31123,C_Ghostring_Tall_Hat,Costume Ghostring Tall Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1551,{},{},{}
+31124,C_Ribbon_Chef_Hat,Costume Ribbon Chief Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,785,{},{},{}
+31125,C_QueenAnzRevenge,Costume Queen Anne's Revenge,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1360,{},{},{}
+31126,C_Nestea_Hat,Costume Nestea Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,756,{},{},{}
+31127,C_Flag_Cap,Costume Flag Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,482,{},{},{}
+31128,C_Bride_Mask,Costume Bride Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,223,{},{},{}
+31129,C_Munchs_Scream,Costume Scratch Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,1,0,75,{},{},{}
+31130,C_Indian_Hairband,Costume Indian Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,96,{},{},{}
+31131,C_Monk_Hat,Costume Monk Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,35,{},{},{}
+31132,C_Christmas_Wreath,Costume Christmas Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1554,{},{},{}

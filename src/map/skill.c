@@ -8274,9 +8274,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_GENTLETOUCH_CURE:
 		status_heal(bl, tstatus->max_hp * skilllv / 100 + 120 * skilllv, 0, 0);//It heals the target, but shows no heal animation or numbers.
 		if(level_effect_bonus == 1 && status_get_lv(src) >= 100 )
-			rate = (5 * skilllv + (sstatus->dex + status_get_lv(src)) / 4) - rand()%10;
+			rate = (5 * skilllv + (sstatus->dex + status_get_lv(src)) / 4) - rnd_value(1, 10);
 		else
-			rate = (5 * skilllv + (sstatus->dex + 150) / 4) - rand()%10;
+			rate = (5 * skilllv + (sstatus->dex + 150) / 4) - rnd_value(1, 10);
 		if(rand()%100 < rate)
 		{
 			status_change_end(bl, SC_STONE, INVALID_TIMER);
@@ -8359,7 +8359,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case WM_VOICEOFSIREN:
 		if( flag&1 )
-			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+			sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid, skilllv));
 		else if ( sd )
 		{
 			if (level_effect_bonus == 1)
@@ -8496,7 +8496,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case SO_ARRULLO:
 		if (flag & 1)
-			sc_start2(bl, type, 88 + 2 * skilllv, skilllv, 1, skill_get_time(skillid, skilllv));
+		{	
+			if( level_effect_bonus == 1 && status_get_lv(src) >= 100 )
+			{
+				rate = 15 + 5 * skilllv + sstatus->int_ / 5 + sd->status.job_level / 5 - tstatus->int_ / 6 - tstatus->luk / 10;
+				tick = status_get_lv(bl) / 20 + tstatus->int_ / 40;
+			}
+			else
+			{
+				rate = 15 + 5 * skilllv + sstatus->int_ / 5 + 10 - tstatus->int_ / 6 - tstatus->luk / 10;
+				tick = 7 + tstatus->int_ / 40;
+			}
+			sc_start(bl, type, rate, skilllv, skill_get_time(skillid, skilllv) - 1000 * (int)tick);
+		}
 		else
 		{
 			clif_skill_nodamage(src, bl, skillid, 0, 1);

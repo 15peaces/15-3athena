@@ -1476,7 +1476,7 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
  * @param *item_list List of item will be bought
  * @return result code for clif_parse_NpcBuyListSend/clif_npc_market_purchase_ack
  **/
-uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *item_list) {
+uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* item_list) {
 	struct npc_data* nd;
 	struct npc_item_list *shop = NULL;
 	double z;

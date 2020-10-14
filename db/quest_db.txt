@@ -2571,6 +2571,10 @@
 15000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Experiencing abnormal statuses"
 15001,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Hold your breath"
 
+// Memorial dungeon: Sara's Memory
+15002,72000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Memorial dungeon: Sara's Memory"
+15003,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Adventurer leon"
+
 16000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Metz Brayde's Notice"
 16001,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"First examination"
 16002,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fetching Items for Arian -1"
