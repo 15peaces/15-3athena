@@ -525,7 +525,6 @@ extern struct Battle_Config
 	int renewal_level_effect_skills;
 	int base_level_skill_effect_limit;
 	int job_level_skill_effect_limit;
-	int renewal_edp;
 	int max_highlvl_nerf; // [Pinky]
 	int max_joblvl_nerf; // [Pinky]
 	int max_joblvl_nerf_misc; // [Pinky]
@@ -537,6 +536,10 @@ extern struct Battle_Config
 	int renewal_statpoints;
 	int mado_skill_limit;
 	int mado_loss_on_death;
+	// Renewal EDP Formula Config For Guillotine Cross Skills
+	int gc_skill_edp_boost_formula_a;
+	int gc_skill_edp_boost_formula_b;
+	int gc_skill_edp_boost_formula_c;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
 	int cellpvp_deathmatch_delay;
@@ -552,6 +555,7 @@ extern struct Battle_Config
 	int guild_disable_invite;
 	int guild_disable_expel;
 	//Other (renewal) Features
+	int feature_auction;
 	int feature_banking;
 	int mvp_tomb_enabled;
 	int feature_roulette;
@@ -567,6 +571,7 @@ extern struct Battle_Config
 	int feature_achievement;
 	int hom_bonus_exp_from_master;
 	int feature_equipswitch;
+	int mvp_exp_reward_message;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

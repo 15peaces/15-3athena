@@ -1453,39 +1453,45 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	}
 
 	if( sd && !skill_num )
-	{	//Check for double attack.
-		if( ( ( skill_lv = pc_checkskill(sd,TF_DOUBLE) ) > 0 && sd->weapontype1 == W_DAGGER )
-			|| ( sd->double_rate > 0 && sd->weapontype1 != W_FIST ) //Will fail bare-handed
-			|| (sc && sc->data[SC_KAGEMUSYA] && sd->weapontype1 != W_FIST))//A player tested on the official Russin RO server and said it works with all weapons. If found to not be true on kRO, then itl be changed. [Rytech]
-		{	//Success chance is not added, the higher one is used [Skotlex]
-			if (rand() % 100 < (sc && sc->data[SC_KAGEMUSYA] && sc->data[SC_KAGEMUSYA]->val2 >= 5 * skill_lv ? sc->data[SC_KAGEMUSYA]->val2 : 5 * skill_lv > sd->double_rate ? 5 * skill_lv : sd->double_rate))
-			{
-				wd.div_ = skill_get_num(TF_DOUBLE,skill_lv?skill_lv:1);
-				wd.type = 0x08;
-			}
-		}
-		else if( sd->weapontype1 == W_REVOLVER && (skill_lv = pc_checkskill(sd,GS_CHAINACTION)) > 0 && rand()%100 < 5*skill_lv )
+	{
+		short dachance = 0;//Success chance of double attacking. If player is in fear breeze status and generated number is within fear breeze's range, this will be ignored.
+		short hitnumber = 0;//Used for setting how many hits will hit.
+		short gendetect[] = { 12, 12, 21, 27, 30 };//If generated number is outside this value while in fear breeze status, it will check if their's a chance for double attacking.
+		short generate = rand()%100 + 1;//Generates a random number between 1 - 100 which is then used to determine if fear breeze or double attacking will happen.
+
+		// First we go through a number of checks to see if their's any chance of double attacking a target. Only the highest success chance is taken.
+		if ( sd->double_rate > 0 && sd->weapontype1 != W_FIST )
+			dachance = sd->double_rate;
+
+		if ( sc && sc->data[SC_KAGEMUSYA] && 10 * sc->data[SC_KAGEMUSYA]->val1 > dachance && sd->weapontype1 != W_FIST )
+			dachance = 10 * sc->data[SC_KAGEMUSYA]->val1;
+
+		if ( 5 * pc_checkskill(sd,TF_DOUBLE) > dachance && sd->weapontype1 == W_DAGGER )
+			dachance = 5 * pc_checkskill(sd,TF_DOUBLE);
+
+		if ( 5 * pc_checkskill(sd,GS_CHAINACTION) > dachance && sd->weapontype1 == W_REVOLVER )
+			dachance = 5 * pc_checkskill(sd,GS_CHAINACTION);
+
+		// This checks if the generated value is within fear breeze's success chance range for the level used as set by gendetect.
+		if ( sc && sc->data[SC_FEARBREEZE] && generate <= gendetect[sc->data[SC_FEARBREEZE]->val1 - 1] && sd->weapontype1 == W_BOW )
 		{
-			wd.div_ = skill_get_num(GS_CHAINACTION,skill_lv);
-			wd.type = 0x08;
+				if ( generate >= 1 && generate <= 12 )//12% chance to deal 2 hits.
+					hitnumber = 2;
+				else if ( generate >= 13 && generate <= 21 )//9% chance to deal 3 hits.
+					hitnumber = 3;
+				else if ( generate >= 22 && generate <= 27 )//6% chance to deal 4 hits.
+					hitnumber = 4;
+				else if ( generate >= 28 && generate <= 30 )//3% chance to deal 5 hits.
+					hitnumber = 5;
 		}
-		else if( sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW && (i = sd->equip_index[EQI_AMMO]) >= 0 )
-		{
-			short generate = 0;
-			short shotnumber = 0;
-			generate = rand()%100 + 1;//Generates a random number between 1 - 100 which is then used to determine how many hits will be applied.
-			if ( sc->data[SC_FEARBREEZE]->val1 >= 5 && generate >= 1 && generate <= 3 )//3% chance to deal 5 hits.
-				shotnumber = 5;
-			else if ( sc->data[SC_FEARBREEZE]->val1 >= 4 && generate >= 4 && generate <= 9 )//6% chance to deal 4 hits.
-				shotnumber = 4;
-			else if ( sc->data[SC_FEARBREEZE]->val1 >= 3 && generate >= 10 && generate <= 18 )//9% chance to deal 3 hits.
-				shotnumber = 3;
-			else if ( sc->data[SC_FEARBREEZE]->val1 >= 1 && generate >= 19 && generate <= 30 )//12% chance to deal 2 hits.
-				shotnumber = 2;
-			if (shotnumber > 1)//Needed to allow critical attacks to hit when not hitting more then once.
-				{wd.div_ = shotnumber;
-				wd.type = 0x08;}
-		}
+		// If the generated value is higher then Fear Breeze's success chance range, but not higher then the player's double attack success chance,
+		// then allow a double attack to happen.
+		else if ( generate < dachance )
+			hitnumber = 2;
+
+		if ( hitnumber > 1 )//Needed to allow critical attacks to hit when not hitting more then once.
+			{wd.div_ = hitnumber;
+			wd.type = 0x08;}
 	}
 
 	//Check for critical
@@ -1776,6 +1782,26 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 				//Add any bonuses that modify the base baseatk+watk (pre-skills)
 				if(sd) {
+					// Guillotine Cross skills that have their damage boosted by EDP should be handled in a renewal way.
+					// Note: This is as close to a renewal handleing as I can do for these skills.
+					if (sc && sc->data[SC_EDP] && (skill_num == GC_CROSSIMPACT || skill_num == GC_DARKILLUSION || skill_num == GC_COUNTERSLASH || skill_num == GC_WEAPONCRUSH ||
+						skill_num == GC_VENOMPRESSURE || skill_num == GC_PHANTOMMENACE || skill_num == GC_ROLLINGCUTTER || skill_num == GC_CROSSRIPPERSLASHER))
+					{
+						int edpva = battle_config.gc_skill_edp_boost_formula_a;
+						int edpvb = battle_config.gc_skill_edp_boost_formula_b;
+						int atk_rate;
+						if ( battle_config.gc_skill_edp_boost_formula_c == 1 )
+							atk_rate = edpva + edpvb * sc->data[SC_EDP]->val1;
+						else
+							atk_rate = edpva - edpvb * sc->data[SC_EDP]->val1;
+
+						if (skill_num == GC_CROSSIMPACT || skill_num == GC_COUNTERSLASH) {
+							ATK_ADDRATE(atk_rate / 2);
+						} else {
+							ATK_ADDRATE(atk_rate);
+						}
+					}
+
 					if (sd->atk_rate)
 						ATK_ADDRATE(sd->atk_rate);
 
@@ -2709,22 +2735,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 			}
 
-			// Some skill under EDP status have been nerfed.
-			if( battle_config.renewal_edp && sc && sc->data[SC_EDP] ){
-				switch( skill_num ){
-					case AS_SONICBLOW:
-					case ASC_BREAKER:
-						if( battle_config.renewal_edp&1 )
-							skillratio >>= 1;
-						break;
-					case GC_CROSSIMPACT:
-					case GC_COUNTERSLASH:
-						if( battle_config.renewal_edp&2 )
-							skillratio >>= 1;// Half skillratio.
-						break;
-				}
-			}
-
 			ATK_RATE(skillratio);
 
 			//Constant/misc additions from skills
@@ -2826,35 +2836,20 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			if(sc->data[SC_TRUESIGHT])
 				ATK_ADDRATE(2*sc->data[SC_TRUESIGHT]->val1);
 
-			if(sc->data[SC_EDP] ){
-				switch( skill_num ){	
-					case ASC_METEORASSAULT:
-					case AS_SPLASHER:
-					case AS_VENOMKNIFE:
-					case ASC_BREAKER:
-					case GC_COUNTERSLASH://Non-EDPable.
-					case GC_DARKILLUSION:
-					case GC_WEAPONCRUSH:
-					case GC_VENOMPRESSURE:
-					case GC_PHANTOMMENACE:
-					case GC_ROLLINGCUTTER:
-					case GC_CROSSRIPPERSLASHER:
-						break;
-					case AS_GRIMTOOTH: // Grimtooth skill no longer takes the effect of Enchant Deadly Poison.
-					// Skill effects nerfed, don't add EDP effects.
-					case AS_SONICBLOW:
-						if( !(battle_config.renewal_edp&1) )
-							ATK_ADDRATE(sc->data[SC_EDP]->val3);
-						break;
-					case GC_CROSSIMPACT:
-						if( !(battle_config.renewal_edp&2) )
-							ATK_ADDRATE(sc->data[SC_EDP]->val3);
-						break;
-					default:
-						ATK_ADDRATE(sc->data[SC_EDP]->val3);
-						break;
-				}
-			}
+			if(sc->data[SC_EDP] &&
+			  	skill_num != ASC_BREAKER &&
+				skill_num != ASC_METEORASSAULT &&
+				skill_num != AS_SPLASHER &&
+				skill_num != AS_VENOMKNIFE &&
+				skill_num != GC_CROSSIMPACT &&//EDP does not increase the final damage on Guillotine Cross skills. It instead
+				skill_num != GC_DARKILLUSION &&//increase the player's ATK (BATK and WATK) only during the brief moment certain
+				skill_num != GC_COUNTERSLASH &&//offensive Guillotine Cross skills are being used to give a renewal feeling. [Rytech]
+				skill_num != GC_WEAPONCRUSH &&
+				skill_num != GC_VENOMPRESSURE &&
+				skill_num != GC_PHANTOMMENACE &&
+				skill_num != GC_ROLLINGCUTTER &&
+				skill_num != GC_CROSSRIPPERSLASHER)
+				ATK_ADDRATE(sc->data[SC_EDP]->val3);
 		}
 
 		switch (skill_num) {
@@ -5889,7 +5884,6 @@ static const struct _battle_data {
 	{ "renewal_level_effect_skills",		&battle_config.renewal_level_effect_skills,		1,		0,		1,				},
 	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
 	{ "job_level_skill_effect_limit",		&battle_config.job_level_skill_effect_limit,	50,		50,		1000,			},
-	{ "renewal_edp",                        &battle_config.renewal_edp,                     0,      0,      3,				},
 	{ "max_highlvl_nerf",                   &battle_config.max_highlvl_nerf,                100,    0,      INT_MAX,        },
 	{ "max_joblvl_nerf",                    &battle_config.max_joblvl_nerf,                 100,    0,      INT_MAX,        },
 	{ "max_joblvl_nerf_misc",               &battle_config.max_joblvl_nerf_misc,            100,    0,      INT_MAX,        },
@@ -5901,6 +5895,9 @@ static const struct _battle_data {
 	{ "renewal_statpoints",					&battle_config.renewal_statpoints,				0,		0,		1,				},
 	{ "mado_skill_limit",                   &battle_config.mado_skill_limit,                1,      0,      1,              },
 	{ "mado_loss_on_death",                 &battle_config.mado_loss_on_death,              1,      0,      1,              },
+	{ "gc_skill_edp_boost_formula_a",       &battle_config.gc_skill_edp_boost_formula_a,    0,      0,      1000,			},
+	{ "gc_skill_edp_boost_formula_b",       &battle_config.gc_skill_edp_boost_formula_b,    20,     0,      1000,			},
+	{ "gc_skill_edp_boost_formula_c",       &battle_config.gc_skill_edp_boost_formula_c,    1,      0,      1,				},
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },
@@ -5916,6 +5913,7 @@ static const struct _battle_data {
 	{ "disable_invite",                     &battle_config.guild_disable_invite,           -1,     -1,      15,             },
 	{ "disable_expel",                      &battle_config.guild_disable_expel,            -1,     -1,      15,             },
 	//Other (renewal) Features
+	{ "feature.auction",                    &battle_config.feature_auction,                 0,      0,      2,				},
 	{ "feature.banking",                    &battle_config.feature_banking,                 1,      0,      1,              },
 	{ "mvp_tomb_enabled",					&battle_config.mvp_tomb_enabled,				1,      0,      1				}, 
 	{ "feature.roulette",                   &battle_config.feature_roulette,                1,      0,      1,              },
@@ -5931,6 +5929,7 @@ static const struct _battle_data {
 	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
 	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
 	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
+	{ "mvp_exp_reward_message",             &battle_config.mvp_exp_reward_message,          0,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
@@ -5995,6 +5994,20 @@ void battle_adjust_conf()
 	if (battle_config.night_duration && battle_config.night_duration < 60000) // added by [Yor]
 		battle_config.night_duration = 60000;
 	
+#if PACKETVER > 20120000 && PACKETVER < 20130515 /* Exact date (when it started) not known */
+	if (battle_config.feature_auction) {
+		ShowWarning("conf/battle/feature.conf:feature.auction is enabled but it is not stable on PACKETVER " EXPAND_AND_QUOTE(PACKETVER) ", disabling...\n");
+		ShowWarning("conf/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
+		battle_config.feature_auction = 0;
+}
+#elif PACKETVER >= 20141112
+	if (battle_config.feature_auction) {
+		ShowWarning("conf/battle/feature.conf:feature.auction is enabled but it is not available for clients from 2014-11-12 on, disabling...\n");
+		ShowWarning("conf/battle/feature.conf:feature.auction change value to '2' to silence this warning and maintain it enabled\n");
+		battle_config.feature_auction = 0;
+	}
+#endif
+
 #if PACKETVER < 20130724
 	if( battle_config.feature_banking ) {
 		ShowWarning("conf/battle/feature.conf banking is enabled but it requires PACKETVER 2013-07-24 or newer, disabling...\n");

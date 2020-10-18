@@ -471,6 +471,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 		case AL_TELEPORT:
 		case SC_FATALMENACE:
 		case SC_DIMENSIONDOOR:
+		case ALL_ODINS_RECALL:
 			if(map[m].flag.noteleport) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
@@ -5092,6 +5093,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case GN_CARTBOOST:
 	case WL_RECOGNIZEDSPELL:
 	case AB_RENOVATIO:
+	case ALL_ODINS_POWER:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
 		break;
 
@@ -5882,6 +5884,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case AL_TELEPORT:
+	case ALL_ODINS_RECALL:
 		if(sd)
 		{
 			if (map[bl->m].flag.noteleport && skilllv <= 2) {
@@ -5903,7 +5906,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			if( skilllv == 1 )
+			if( skilllv == 1 && skillid != ALL_ODINS_RECALL )
 				clif_skill_warppoint(sd,skillid,skilllv, (unsigned short)-1,0,0,0);
 			else
 				clif_skill_warppoint(sd,skillid,skilllv, (unsigned short)-1,sd->status.save_point.map,0,0);
@@ -7319,7 +7322,34 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int heal = status_get_max_hp(bl) * 25 / 100;
 			clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
 			status_heal(bl, heal, 0, 1);
-			status_change_clear_buffs(bl, 2);
+			status_change_end(bl, SC_STONE, INVALID_TIMER);
+			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+			status_change_end(bl, SC_STUN, INVALID_TIMER);
+			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+			status_change_end(bl, SC_POISON, INVALID_TIMER);
+			status_change_end(bl, SC_CURSE, INVALID_TIMER);
+			status_change_end(bl, SC_SILENCE, INVALID_TIMER);
+			status_change_end(bl, SC_CONFUSION, INVALID_TIMER);
+			status_change_end(bl, SC_BLIND, INVALID_TIMER);
+			status_change_end(bl, SC_BLEEDING, INVALID_TIMER);
+			status_change_end(bl, SC_DPOISON, INVALID_TIMER);
+			status_change_end(bl, SC_QUAGMIRE, INVALID_TIMER);
+			status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
+			status_change_end(bl, SC_BURNING, INVALID_TIMER);
+			status_change_end(bl, SC_FREEZING, INVALID_TIMER);
+			status_change_end(bl, SC_WHITEIMPRISON, INVALID_TIMER);
+			status_change_end(bl, SC_MARSHOFABYSS, INVALID_TIMER);
+			status_change_end(bl, SC_TOXIN, INVALID_TIMER);
+			status_change_end(bl, SC_PARALYSE, INVALID_TIMER);
+			status_change_end(bl, SC_VENOMBLEED, INVALID_TIMER);
+			status_change_end(bl, SC_MAGICMUSHROOM, INVALID_TIMER);
+			status_change_end(bl, SC_DEATHHURT, INVALID_TIMER);
+			status_change_end(bl, SC_PYREXIA, INVALID_TIMER);
+			status_change_end(bl, SC_OBLIVIONCURSE, INVALID_TIMER);
+			status_change_end(bl, SC_LEECHESEND, INVALID_TIMER);
+			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
+			status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+			status_change_end(bl, SC_MANDRAGORA, INVALID_TIMER);
 		}
 	break;
 
@@ -8728,6 +8758,42 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case ECL_SNOWFLIP:
+	case ECL_PEONYMAMY:
+	case ECL_SADAGUI:
+	case ECL_SEQUOIADUST:
+		if ( skillid == ECL_SNOWFLIP )
+		{
+			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+			status_change_end(bl, SC_BLEEDING, INVALID_TIMER);
+			status_change_end(bl, SC_BURNING, INVALID_TIMER);
+			status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+		}
+		else if ( skillid == ECL_PEONYMAMY )
+		{
+			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+			status_change_end(bl, SC_FREEZING, INVALID_TIMER);
+			status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
+		}
+		else if ( skillid == ECL_SADAGUI )
+		{
+			status_change_end(bl, SC_STUN, INVALID_TIMER);
+			status_change_end(bl, SC_CONFUSION, INVALID_TIMER);
+			status_change_end(bl, SC_HALLUCINATION, INVALID_TIMER);
+			status_change_end(bl, SC_FEAR, INVALID_TIMER);
+		}
+		else if ( skillid == ECL_SEQUOIADUST )
+		{
+			status_change_end(bl, SC_STONE, INVALID_TIMER);
+			status_change_end(bl, SC_POISON, INVALID_TIMER);
+			status_change_end(bl, SC_CURSE, INVALID_TIMER);
+			status_change_end(bl, SC_BLIND, INVALID_TIMER);
+			status_change_end(bl, SC_ORCISH, INVALID_TIMER);
+		}
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
+		break;
+
 	case NPC_WIDESOULDRAIN:
 		if ( flag&1 )
 			status_percent_damage( src, bl, 0, ( (skilllv - 1)%5 + 1 ) * 20, false );
@@ -10096,9 +10162,10 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 	switch(skill_num)
 	{
 	case AL_TELEPORT:
+	case ALL_ODINS_RECALL:
 		if(strcmp(map,"Random")==0)
 			pc_randomwarp(sd,CLR_TELEPORT);
-		else if (sd->menuskill_val > 1) //Need lv2 to be able to warp here.
+		else if (sd->menuskill_val > 1 || skill_num == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
 			pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
 		break;
 
@@ -10370,16 +10437,16 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case HT_FREEZINGTRAP:
 	case MA_FREEZINGTRAP:
 	case HT_BLASTMINE:
-	case RA_ELECTRICSHOCKER:
-	case RA_CLUSTERBOMB:
-	case RA_MAGENTATRAP:
-	case RA_COBALTTRAP:
-	case RA_MAIZETRAP:
-	case RA_VERDURETRAP:
-	case RA_FIRINGTRAP:
-	case RA_ICEBOUNDTRAP:
-	case GN_THORNS_TRAP:
-	case GN_HELLS_PLANT:
+	//case RA_ELECTRICSHOCKER:
+	//case RA_CLUSTERBOMB:
+	//case RA_MAGENTATRAP:
+	//case RA_COBALTTRAP:
+	//case RA_MAIZETRAP:
+	//case RA_VERDURETRAP:
+	//case RA_FIRINGTRAP:
+	//case RA_ICEBOUNDTRAP:
+	//case GN_THORNS_TRAP:
+	//case GN_HELLS_PLANT:
 		if( map_flag_gvg(src->m) || map[src->m].flag.battleground )
 			limit *= 4; // longer trap times in WOE [celest]
 		if( battle_config.vs_traps_bctall && map_flag_vs(src->m) && (src->type&battle_config.vs_traps_bctall) )

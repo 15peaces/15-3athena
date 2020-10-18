@@ -62,6 +62,7 @@ enum item_itemid
 #define itemdb_is_spellbook(n) (n >= 6188 && n <= 6205)
 #define itemdb_is_element(n) (n >= 6360 && n <= 6363)
 #define itemdb_is_GNbomb(n) (n >= 13260 && n <= 13267)
+#define itemdb_is_eclage_cures(n) (n >= ITEMID_SNOWFLIP && n <= ITEMID_SEQUOIADUST)
 
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6
@@ -147,7 +148,7 @@ struct item_package {
 	unsigned short max_rand;
 };
 
-enum {
+enum rune_stones {
 	ITEMID_REFRESH = 12725,
 	ITEMID_REUSE_CRUSHSTRIKE,
 	ITEMID_REUSE_MILLENNIUMSHIELD,
@@ -157,7 +158,14 @@ enum {
 	ITEMID_GIANTGROWTH,
 	ITEMID_REUSE_REFRESH,
 	ITEMID_STONEHARDSKIN,
-} rune_list;
+};
+
+enum eclage_cures {
+	ITEMID_SNOWFLIP = 12812,
+	ITEMID_PEONYMAMY,
+	ITEMID_SADAGUI,
+	ITEMID_SEQUOIADUST,
+};
 
 // Struct for item random option [Secret]
 struct s_random_opt_data

@@ -4230,7 +4230,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		case 12243: // Mercenary's Berserk Potion
 			if( sd->md == NULL || sd->md->db == NULL )
 				return 0;
-			if( sd->md->sc.data[SC_BERSERK] || sd->md->sc.data[SC_SATURDAY_NIGHT_FEVER])
+			if( sd->md->sc.data[SC_BERSERK] )
 				return 0;
 			if( nameid == 12242 && sd->md->db->lv < 40 )
 				return 0;
@@ -4317,21 +4317,66 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	{
 		switch(sd->inventory.u.items_inventory[n].nameid)
 		{
-			switch(sd->inventory.u.items_inventory[n].nameid)
-			{
-				case ITEMID_REFRESH:
-					if( skill_blockpc_get(sd,RK_REFRESH) != -1 )
+			case ITEMID_REFRESH:
+				if( skill_blockpc_get(sd,RK_REFRESH) != -1 )
+					return 0;
+				break;
+			case ITEMID_REUSE_CRUSHSTRIKE:
+				if( skill_blockpc_get(sd,RK_CRUSHSTRIKE) != -1 )
+					return 0;
+				break;
+			case ITEMID_REUSE_MILLENNIUMSHIELD:
+				if( skill_blockpc_get(sd,RK_MILLENNIUMSHIELD) != -1 )
+				return 0;
+				break;
+			case ITEMID_VITALITYACTIVATION:
+				if( skill_blockpc_get(sd,RK_VITALITYACTIVATION) != -1 )
+					return 0;
+				break;
+			case ITEMID_FIGHTINGSPIRIT:
+				if( skill_blockpc_get(sd,RK_FIGHTINGSPIRIT) != -1 )
+					return 0;
+				break;
+			case ITEMID_URUZ:
+				if( skill_blockpc_get(sd,RK_ABUNDANCE) != -1 )
+					return 0;
+				break;
+			case ITEMID_GIANTGROWTH:
+				if( skill_blockpc_get(sd,RK_GIANTGROWTH) != -1 )
+					return 0;
+				break;
+			case ITEMID_REUSE_REFRESH:
+				if( skill_blockpc_get(sd,RK_STORMBLAST) != -1 )
+					return 0;
+				break;
+			case ITEMID_STONEHARDSKIN:
+				if( skill_blockpc_get(sd,RK_STONEHARDSKIN) != -1 )
+					return 0;
+				break;
+		}
+	}
+
+	// Eclage status cure items must each be tied to their own cooldowns.
+	if( itemdb_is_eclage_cures(sd->inventory.u.items_inventory[n].nameid))
+	{
+		switch(sd->inventory.u.items_inventory[n].nameid)
+		{
+			case ITEMID_SNOWFLIP:
+				if( skill_blockpc_get(sd,ECL_SNOWFLIP) != -1 )
+					return 0;
+				break;
+			case ITEMID_PEONYMAMY:
+				if( skill_blockpc_get(sd,ECL_PEONYMAMY) != -1 )
+					return 0;
+				break;
+			case ITEMID_SADAGUI:
+				if( skill_blockpc_get(sd,ECL_SADAGUI) != -1 )
+					return 0;
+				break;
+			case ITEMID_SEQUOIADUST:
+				if( skill_blockpc_get(sd,ECL_SEQUOIADUST) != -1 )
 						return 0;
 					break;
-				case ITEMID_REUSE_CRUSHSTRIKE:
-					if( skill_blockpc_get(sd,RK_CRUSHSTRIKE) != -1 )
-						return 0;
-					break;
-				case ITEMID_REUSE_MILLENNIUMSHIELD:
-					if( skill_blockpc_get(sd,RK_MILLENNIUMSHIELD) != -1 )
-						return 0;
-					break;
-			}
 		}
 	}
 
@@ -8074,7 +8119,7 @@ int pc_setcart(struct map_session_data *sd,int type)
 	if( type < 0 || type > maxcarts )
 		return 1;// Never trust the values sent by the client! [Skotlex]
 
-	if( pc_checkskill(sd,MC_PUSHCART) <= 0 )
+	if( pc_checkskill(sd,MC_PUSHCART) <= 0 && type != 0 )
 		return 1;// Push cart is required
 
 	//If the date of the client used is older then 2012-04-10, OPTIONS for carts will be used.

@@ -8957,6 +8957,11 @@ ACMD_FUNC(auction)
 {
 	nullpo_ret(sd);
 
+	if (!battle_config.feature_auction) {
+		clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(517));
+		return 0;
+	}
+
 #ifndef TXT_ONLY
 	clif_Auction_openwindow(sd);
 #endif

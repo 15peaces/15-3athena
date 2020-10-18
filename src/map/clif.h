@@ -37,6 +37,7 @@ struct achievement;
 
 #define COLOR_RED     0xff0000U
 #define COLOR_GREEN   0x00ff00U
+#define COLOR_CYAN    0x00FFFFU
 #define COLOR_WHITE   0xffffffU
 #define COLOR_DEFAULT COLOR_GREEN
 
@@ -658,6 +659,7 @@ void clif_skillunit_update(struct block_list* bl);
 void clif_autospell(struct map_session_data *sd,int skilllv);
 void clif_devotion(struct block_list *src, struct map_session_data *tsd);
 void clif_spiritball(struct map_session_data *sd);
+int clif_spiritball_attribute(struct map_session_data *sd);
 void clif_combo_delay(struct block_list *bl,int wait);
 void clif_bladestop(struct block_list *src, int dst_id, int active);
 void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target target);

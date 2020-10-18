@@ -1372,6 +1372,31 @@ static void clif_spiritball_single(int fd, struct map_session_data *sd)
 	WFIFOSET(fd, packet_len(0x1e1));
 }
 
+/*==========================================
+ * ZC_SPIRITS_ATTRIBUTE =  0x8cf
+ * this+0x0 / short PacketType
+ * this+0x2 / unsigned long AID
+ * this+0x6 / short SpritsType
+ * this+0x8 / short Num
+ *
+ * SpiritsType
+ * SPIRITS_TYPE_NONE =  0x0
+ * SPIRITS_TYPE_CHARM_WATER =  0x1
+ * SPIRITS_TYPE_CHARM_LAND =  0x2
+ * SPIRITS_TYPE_CHARM_FIRE =  0x3
+ * SPIRITS_TYPE_CHARM_WIND =  0x4
+ * SPIRTIS_TYPE_SPHERE =  0x5
+ *------------------------------------------*/
+static void clif_spiritball_attribute_single(int fd, struct map_session_data *sd)
+{
+    WFIFOHEAD(fd, packet_len(0x08cf));
+    WFIFOW(fd,0)=0x08cf;
+    WFIFOL(fd,2)=sd->bl.id;
+    WFIFOW(fd,6)=sd->spiritballtype;
+    WFIFOW(fd,8)=sd->spiritballnumber;
+    WFIFOSET(fd, packet_len(0x08cf));
+}
+
 
 /*==========================================
  *
@@ -8412,6 +8437,13 @@ void clif_mvp_item(struct map_session_data *sd, unsigned short nameid)
 /// 010b <exp>.L
 void clif_mvp_exp(struct map_session_data *sd, unsigned int exp)
 {
+#if PACKETVER >= 20131223		// Kro remove this packet [Napster]
+	if (battle_config.mvp_exp_reward_message) {
+		char e_msg[CHAT_SIZE_MAX];
+		sprintf(e_msg, msg_txt(743), exp);
+		clif_disp_overheadcolor_self(sd->fd, COLOR_CYAN, e_msg);	// Congratulations! You are the MVP! Your reward EXP Points are %u !!
+	}
+#else
 	int fd;
 
 	nullpo_retv(sd);
@@ -8421,6 +8453,7 @@ void clif_mvp_exp(struct map_session_data *sd, unsigned int exp)
 	WFIFOW(fd,0)=0x10b;
 	WFIFOL(fd,2)=cap_value(exp,0,INT32_MAX);
 	WFIFOSET(fd,packet_len(0x10b));
+#endif
 }
 
 
@@ -16792,6 +16825,9 @@ void clif_Auction_openwindow(struct map_session_data *sd)
 	if( sd->state.storage_flag || sd->state.vending || sd->state.buyingstore || sd->state.trading )
 		return;
 
+	if (!battle_config.feature_auction)
+		return;
+
 	WFIFOHEAD(fd,packet_len(0x25f));
 	WFIFOW(fd,0) = 0x25f;
 	WFIFOL(fd,2) = 0;
@@ -16883,6 +16919,9 @@ void clif_parse_Auction_setitem(int fd, struct map_session_data *sd)
 	int amount = RFIFOL(fd,4); // Always 1
 	struct item_data *item;
 
+	if (!battle_config.feature_auction)
+		return;
+
 	if( sd->auction.amount > 0 )
 		sd->auction.amount = 0;
 
@@ -16959,6 +16998,9 @@ void clif_parse_Auction_register(int fd, struct map_session_data *sd)
 {
 	struct auction_data auction;
 	struct item_data *item;
+
+	if (!battle_config.feature_auction)
+		return;
 
 	auction.price = RFIFOL(fd,2);
 	auction.buynow = RFIFOL(fd,6);
@@ -17103,6 +17145,9 @@ void clif_parse_Auction_search(int fd, struct map_session_data* sd)
 	short type = RFIFOW(fd,2), page = RFIFOW(fd,32);
 	int price = RFIFOL(fd,4);  // FIXME: bug #5071
 
+	if (!battle_config.feature_auction)
+		return;
+
 	clif_parse_Auction_cancelreg(fd, sd);
 	
 	safestrncpy(search_text, (char*)RFIFOP(fd,8), sizeof(search_text));
@@ -17118,6 +17163,10 @@ void clif_parse_Auction_search(int fd, struct map_session_data* sd)
 void clif_parse_Auction_buysell(int fd, struct map_session_data* sd)
 {
 	short type = RFIFOW(fd,2) + 6;
+
+	if (!battle_config.feature_auction)
+		return;
+
 	clif_parse_Auction_cancelreg(fd, sd);
 
 	intif_Auction_requestlist(sd->status.char_id, type, 0, "", 1);
@@ -18680,6 +18729,18 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index)
 	WFIFOSET(fd,packet_len(0x2bb));
 #endif
 }
+
+/*==========================================
+ * ZC_MILLENNIUMSHIELD =  0x440
+ * this+0x0 / short PacketType
+ * this+0x2 / unsigned long AID
+ * this+0x6 / short num
+ * this+0x8 / short state
+ *
+ * State - How the heck does the state work?
+ * MILLENNIUMSHIELD_STATE_STAND =  0x0
+ * MILLENNIUMSHIELD_STATE_MOVE =  0x1
+ *-----------------------------------------*/
 void clif_millenniumshield(struct map_session_data *sd, short shields )
 {
 #if PACKETVER >= 20081217

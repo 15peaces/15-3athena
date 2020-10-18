@@ -1,3 +1,3 @@
 // Internal default is limited to 128 lines.  If you need more, you will need to modify the MOTD_LINE_SIZE definition in pc.c
 Welcome to 15-3athena SVN Version! Enjoy! Please report any bugs you find.
-Homepage: http://15peaces.com
+Homepage: https://15peaces.com

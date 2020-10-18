@@ -5,6 +5,71 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/18/2020
+	r272 [15peaces]
+		*Merged missing changes from 3ceam rev. 704 - 707
+		*Added support for the feature.auction config.
+			-The auction system became unstable on clients 2012 onwards (exact date not known).
+			-It has been fixed on clients 2013-05-15 onwards.
+			-It was removed on clients 2014-11-12 and later.
+			-The server will also auto-disable it on unsupported clients.
+		*Fixed an issue where the MVP EXP reward message was not shown correctly on clients 20131223 and newer.
+			-The ZC_MVP_GETTING_SPECIAL_EXP packet was removed on these clients so it is disabled now.
+			-Added mvp_exp_reward_message config to allow re-enabling this message in an custom way.
+			-Thanks to rAthena.
+		*Removed the renewal_edp setting from the skill battle file.
+			-A lot was learned about EDP's effect on Assassin and Guillotine Cross since the day the setting was added in the past and with all that has changed with EDP and the adding of another EDP update in this revision, the setting has become obsolete.
+		*Added the EDP formula config settings for Guillotine Cross skills to the skill battle file.
+			-The formula is set through 3 values which allows flexable adjustments for balancing.
+			-The damage boost through these settings only affect all Guillotine Cross skills and the damage is increased in a renewal EDP way. This doesn't affect assassin skills in any way.
+			-Guillotine Cross skills that have their damage boosted by EDP should be handled in a renewal way.
+		*Did a small cleanup.
+		*Recoded the entire multi-hit system code used for regular attacking.
+			-The old system was limited and had a bug with Chain Action and Fear Breeze that couldn't be resolved. The new code replaces the old code with a cleaner, more efficient code that minimizes required CPU usage. This brings the behavior to official and
+			-follows a set of rules.
+				--1. If a required condition for double attacking is met, a success chance value is generated depending on the conditions that affect the success chance.
+				--2. If more then 1 of the main conditions is met, a success chance value will be generated at the end of each of those conditions. The highest success chance value will then be taken and used for double attacking. The values will not stack.
+				--3. If the player has Fear Breeze status active, it will take priority over a percentage of the double attack's success change. The percentage depends on the level of Fear Breeze.
+				--4. When Fear Breeze has the priority, itl check if its success chance is triggered. If so, then itl deal a number of hits depending on the skill level used and the success chance.
+				--5. If Fear Breeze's success chance is missed and the player has a double attacking success chance higher then Fear Breeze's success chance, the remaining double attacking success chance will attempt to trigger.
+				--6. Fear Breeze and Double Attack will not trigger on the same attack. If Fear Breeze success chance is triggered, then the chance of double attacking through the double attack code will be ignored.
+			-Example: A Ranger has Fear Breeze level 5 active with a bow equipt and also has Shadow Warrior status level 5. This means his Fear Breeze has a 30% chance of triggering and Shadow Warrior's Double Attack would normally be 50% chance, but Fear Breeze
+			-will overlap the first 30% of the Double Attack success chance. If the success trigger number generated on a single attack is between 1 to 30 percent, Fear Breeze will trigger. If the success trigger generated is outside that range, but between 31 to
+			-50 percent, double attack will trigger. If the success trigger is between 51 to 100, the chance of dealing a multi-hitting attack will fail.	
+		*Added and updated some items.
+			-Corrected the weight on Light of El Dicastes and Guardian's Pendant.
+			-Added complete support for the 5 Eclage items that give or use skills.
+			-Added the Promise Bible's Vol's 1 and 2. DEF is balanced out for pre-renewal as usual.
+			-Odin's Recall ring now gives the Odin's Recall skill.
+			-Ahura Mazdah now gives access to the Eclage status cures skills on the skill window.
+		*Added a enum table in for the Eclage status cure items.
+		*All rune stones are now assigned to the cooldown of the skills they cast.
+			-This is in case of any future changes that require adding cooldowns to them.
+		*Eclage status cure items are coded to have a reuse delay equal to the cooldown of the skill each one of them casts.
+		*Added support for the ZC_SPIRITS_ATTRIBUTE packet.
+			-This isnt being used yet, but will be needed later for Kagerou/Oboro talisman spheres.
+		*RK_REFRESH
+			-Fixed a issue where some of the debuffs weren't being removed.
+			-Reworked the debuff removal coding.
+			-Note: Their's still a bug where you can't use the runes while in stun, stone, frozen, sleep, etc. status.
+		*All offensive Guillotine Cross skills
+			-EDP now affects damage depending on the settings for the EDP formula config settings for Guillotine Cross skills.
+		*WM_SATURDAY_NIGHT_FEVER
+			-Fixed a suspected issue where the status would prevent use of Mercenary potions.
+			-Status should prevent use of items on yourself or others, but don't know about mercenary's.
+		*RK_STORMBLAST
+			-The rune used to cast the skill is now properly set to follow Storm Blast's cooldown.
+		*RA_CAMOUFLAGE
+			-Enemy players and monsters can no longer use player targeted skills on targets with the Camouflage status active.
+		*ALL_ODINS_RECALL; ALL_ODINS_POWER; ECL_SNOWFLIP; ECL_PEONYMAMY; ECL_SADAGUI; ECL_SEQUOIADUST
+			-Added full support for these skills.
+			-Odin's Recall appears on the skill window when Odin's Recall is worn.
+			-Odin's Power appears on the skill window when Bible Of Promise Vol1 or Vol2 is worn.
+			-Snow Flip, Peony Mamy, Sadagui, and Sequoia Dust are item skills triggered by using their items.
+			-Ahura Mazdah is customized to give access to these 4 item skills in the skill window.
+		*Ranger and Genetic traps will no longer hurt allies in WoE areas.
+			-They will also no longer have their duration times increased in WoE areas.
+		*Added info for ZC_MILLENNIUMSHIELD.
 
 10/14/2020
 	r271 [15peaces]

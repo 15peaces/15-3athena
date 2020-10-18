@@ -1836,7 +1836,7 @@
 2841,Caracas_Ring,Caracas Ring,5,0,,0,,2,,0,0xFFFFFFFE,7,2,136,,99,0,0,{ bonus bInt,2; bonus bDex,2; bonus bMdef,2; },{},{}
 2842,F_Earing_C,Earring,5,1,,0,,0,,0,0xFFFFFFFE,7,2,136,,1,0,0,{ bonus bInt,3; },{},{}
 2843,Gold_Trickle,Gold Trickle,5,20,,0,,0,,0,0xFFFFFFFF,7,2,136,,75,0,0,{},{},{}
-2844,El_Dicastes_Light,Light of El Dicastes,5,20,,100,,0,,0,0xFFFFFFFF,31,2,136,,80,0,0,{ skill "RETURN_TO_ELDICASTES",1; },{},{}
+2844,El_Dicastes_Light,Light of El Dicastes,5,10,,100,,0,,0,0xFFFFFFFF,31,2,136,,80,0,0,{ skill "RETURN_TO_ELDICASTES",1; },{},{}
 2845,No_Fear_Belt,No Fear Belt,5,0,,0,,2,,0,0xFFFFFFFF,7,2,136,,20,0,0,{ bonus bMdef,2; },{},{}
 2846,E_All_In_One_Ring,All In One Ring,5,20,,0,,0,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bAllStats,1; },{},{}
 2847,E_Critical_Ring_C,Critical Ring,5,1,,0,,0,,0,0xFFFFFFFE,7,2,136,,1,0,0,{ bonus bCritical,10; },{},{}

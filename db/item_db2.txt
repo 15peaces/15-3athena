@@ -157,6 +157,10 @@
 19881,C_Pretty_Rabbit_Hood,Costume Pretty Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1085,{},{},{}
 19882,C_Flowerpot_Mask,Costume Flowerpot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1086,{},{},{}
 19893,C_Ordinary_Black_Magician_Hat,Costume Ordinary Black Magician Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,912,{},{},{}
+19894,C_Shrine_Maiden_Hat,Costume Shrine Maiden Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,908,{},{},{}
+19895,C_Magicians_Night_Cap,Costume Magician's Night Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,911,{},{},{}
+19896,C_PRO_10th_Cap,Costume PRO 10th Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1094,{},{},{}
+19897,C_RPC13_1ST_Wreath,Costume RPC13 1ST Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,3; bonus bMdef,3;},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -205,10 +209,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19894,C_Shrine_Maiden_Hat,Costume Shrine Maiden Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,908,{},{},{}
-19895,C_Magicians_Night_Cap,Costume Magician's Night Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,911,{},{},{}
-19896,C_PRO_10th_Cap,Costume PRO 10th Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1094,{},{},{}
-19897,C_RPC13_1ST_Wreath,Costume RPC13 1ST Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,3; bonus bMdef,3;},{},{}
 19898,C_RPC13_2ND_Wreath,Costume RPC13 2ND Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,2; bonus bMdef,2;},{},{}
 19899,C_RPC13_3RD_Wreath,Costume RPC13 3RD Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,1; bonus bMdef,1;},{},{}
 19902,C_Cigarette,Costume Cigarette,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,54,{},{},{}
@@ -1093,7 +1093,7 @@
 2579,Magic_Stole,Magic Stole,5,20,,700,,8,,1,0xFFFFFFFF,63,2,4,,0,1,0,{ bonus bMdef,3; bonus bUseSPrate,-5; bonus bMaxSPrate,((getrefine()>=4)?6:3); },{},{}
 2580,White_Wing_Manteau,White Wing Manteau,5,20,,200,,15,,0,0x00000800,63,2,4,,100,1,0,{ bonus bAgi,2; bonus bFlee,10; autobonus2 "{ bonus bFlee,20; }",20,7000,BF_LONG,"{ specialeffect2 EF_CHAINCOMBO; }"; },{},{}
 2581,Black_Wing_Manteau,Black Wing Manteau,5,20,,200,,15,,0,0x00000800,56,2,4,,100,1,0,{ set .@r, getrefine(); bonus bInt,2; if(.@r>6) bonus bFlee2,.@r-6; },{},{}
-2858,Pendant_Of_Guardian,Pendant Of Guardian,5,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,70,0,0,{ skill "ALL_GUARDIAN_RECALL",1; },{},{}
+2858,Pendant_Of_Guardian,Pendant Of Guardian,5,10,,0,,0,,0,0xFFFFFFFF,63,2,136,,70,0,0,{ skill "ALL_GUARDIAN_RECALL",1; },{},{}
 2859,Golden_Rod_Orb,Golden Rod Orb,5,20,,200,,2,,0,0x00000200,63,2,136,,100,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bSubEle,Ele_Wind,15; bonus3 bAutoSpellWhenHit,"WZ_JUPITEL",3,30; },{},{}
 2860,Aqua_Orb,Aqua Orb,5,20,,200,,2,,0,0x00000200,63,2,136,,100,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bSubEle,Ele_Water,15; bonus3 bAutoSpellWhenHit,"WZ_FROSTNOVA",3,30; },{},{}
 2861,Crimson_Orb,Crismon Orb,5,20,,200,,2,,0,0x00000200,63,2,136,,100,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bSubEle,Ele_Fire,15; bonus3 bAutoSpellWhenHit,"WZ_SIGHTRASHER",3,30; },{},{}
@@ -2626,10 +2626,10 @@
 2853,Telekinetic_Orb,Telekinetic Orb,5,20,10,200,,2,,0,0xFFFFFFFE,8,2,136,,110,0,0,{ bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10; bonus bMaxSP,30; bonus bInt,3; bonus bMdef,1; },{},{}
 //Extra Items With Skill Enabled Bonuses
 //1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; skill "GM_SANDMAN",1; },{},{}
-//2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
-2438,Paw_Of_Cat,Paw Of Cat,5,20,,300,,0,,0,0xFFFFFFFF,7,2,64,,80,1,0,{ bonus bFlee,5; bonus bAgi,1; skill "ALL_CATCRY",1; },{},{}
+2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER",10; skill "ECL_SNOWFLIP",1; skill "ECL_PEONYMAMY",1; skill "ECL_SADAGUI",1; skill "ECL_SEQUOIADUST",1; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }2438,Paw_Of_Cat,Paw Of Cat,5,20,,300,,0,,0,0xFFFFFFFF,7,2,64,,80,1,0,{ bonus bFlee,5; bonus bAgi,1; skill "ALL_CATCRY",1; },{},{}
 2750,Summer_Night_Dream,Summer Night Dream,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ skill "ALL_DREAM_SUMMERNIGHT",1; },{},{}
 2784,Oh_Holy_Night,Christmas Musicbox,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ skill "ALL_WEWISH",1; },{},{}
+2833,Odin's_Recall,Odin's Recall,5,0,,0,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ bonus bAllStats,1; skill "ALL_ODINS_RECALL",1; },{},{}
 //12310,Spray_Of_Flowers,Spray Of Flowers,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill ALL_PARTYFLEE,5; },{},{}
 //12347,Acorn_Jelly,Acorn Jelly,2,11,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ALL_REVERSEORCISH",1; },{},{}
 
@@ -3726,3 +3726,13 @@
 31130,C_Indian_Hairband,Costume Indian Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,96,{},{},{}
 31131,C_Monk_Hat,Costume Monk Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,35,{},{},{}
 31132,C_Christmas_Wreath,Costume Christmas Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1554,{},{},{}
+
+// Eclage Items That Give / Use Skills (3ceam stable)
+2916,Elven_Wing,Elven Wing,5,10,,0,,0,,0,0xFFFFFFFF,7,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
+12812,Snow_Flip,Snow Flip,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SNOWFLIP",1; },{},{}
+12813,Peony_Mamy,Peony Mamy,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_PEONYMAMY",1; },{},{}
+12814,Sadagui,Sadagui,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SADAGUI",1; },{},{}
+12815,Sequoia_Dust,Sequoia Dust,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SEQUOIADUST",1; },{},{}
+// Arch Bishop Promise Bible's
+2156,Bible_Of_Promise1,Bible Of Promise Vol1,5,20,,500,,1,,1,0x00000100,8,2,32,,110,1,5,{ bonus bMdef,2; skill "ALL_ODINS_POWER",1; },{},{}
+2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,20,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
