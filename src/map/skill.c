@@ -4383,6 +4383,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
+	case KO_KAIHOU:
+		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
+		pc_delspiritball_attribute(sd,sd->spiritballnumber,0);
+		break;
+
 	case EL_FIRE_BOMB:
 	case EL_FIRE_WAVE:
 	case EL_WATER_SCREW:
@@ -5094,11 +5099,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case WL_RECOGNIZEDSPELL:
 	case AB_RENOVATIO:
 	case ALL_ODINS_POWER:
+	case KO_MEIKYOUSISUI:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
 		break;
 
+	case KO_IZAYOI:
+	case KG_KYOMU:
 	case KG_KAGEMUSYA:
-		if ( bl->type != BL_PC ) 
+	case OB_ZANGETSU:
+	case OB_OBOROGENSOU:
+	case OB_AKAITSUKI:
+		if ( bl->type != BL_PC && skillid == KG_KAGEMUSYA )
 		{
 			clif_skill_fail(sd,skillid,0,0,0);
 			break;
@@ -5106,6 +5117,40 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
 		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+
+	/*case KO_KYOUGAKU:
+		if ( bl->type != BL_PC )
+		{
+			clif_skill_fail(sd,skillid,0,0,0);
+			break;
+		}
+		//Used skill level must be used in val2 since val1 sets the ID of the monster the target will turn into. [Rytech]
+		//For now the monster ID for Poring will be used until more info is gained about what mob's it changes you into.
+		sc_start2(bl,type,100,1002,skilllv,skill_get_time(skillid,skilllv));
+		break;*/
+
+	case KG_KAGEHUMI:
+		if( flag&1 )
+		{
+			if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || 
+				tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC__SHADOWFORM]) )
+			{
+				status_change_end(bl, SC_HIDING, INVALID_TIMER);
+				status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
+				status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
+				status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
+				status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+			}
+		}
+		else
+		{
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
+				src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+		}
 		break;
 
 	case SO_STRIKING:
@@ -8723,6 +8768,22 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case KO_KAHU_ENTEN:
+	case KO_HYOUHU_HUBUKI:
+	case KO_KAZEHU_SEIRAN:
+	case KO_DOHU_KOUKAI:
+		if(sd)
+		{
+			if (tsc && !tsc->data[type])
+			{
+				pc_delspiritball_attribute(sd, sd->spiritballnumber, 1);
+				sc_start2(bl, type, 100, skilllv, 0, skill_get_time2(skillid, skilllv));
+			}
+			pc_addspiritball_attribute(sd,skill_get_time(skillid,skilllv),10);
+			sc_start2(bl, type, 100, skilllv, sd->spiritballnumber, skill_get_time2(skillid, skilllv));
+		}
+		break;
+
 	case RETURN_TO_ELDICASTES:
 	case ALL_GUARDIAN_RECALL:
 	case ECLAGE_RECALL:
@@ -9808,6 +9869,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WATER_INSIGNIA:
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
+	case KO_ZENKAI:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
@@ -10142,6 +10204,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		//sd->sc.data[SC_STASIS] ||//Not sure if this is needed. Does as it should without it, but leaving here for now. [Rytech]
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
+		sd->sc.data[SC_MEIKYOUSISUI] ||
 		sd->sc.data[SC_ALL_RIDING]
 	 )) {
 		skill_failed(sd);
@@ -12701,6 +12764,23 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
+	case KO_KAHU_ENTEN:
+	case KO_HYOUHU_HUBUKI:
+	case KO_KAZEHU_SEIRAN:
+	case KO_DOHU_KOUKAI:
+		if (sd->spiritballnumber >= 10)
+		{
+			clif_skill_fail(sd,skill,0,0,0);
+			return 0;
+		}
+		break;
+	case KO_KAIHOU:
+		if(!sd->spiritballnumber > 0)
+		{
+			clif_skill_fail(sd, skill, 0, 0, 0);
+			return 0;
+		}
+		break;
 	}
 
 	switch(require.state) {
@@ -13409,8 +13489,8 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 		}
 		if (sc->data[SC_SLOWCAST])
 			time += time * sc->data[SC_SLOWCAST]->val2 / 100;
-		//if (sc->data[SC_IZAYOI])
-			// time -= time * 50 / 100;
+		if (sc->data[SC_IZAYOI] && skill_id >= NJ_TOBIDOUGU && skill_id <= NJ_ISSEN)
+			time -= time * 50 / 100;
 	}
 	
 	//These status's adjust the fixed cast time by a fixed amount. Fixed adjustments stack and can increase or decrease the time.

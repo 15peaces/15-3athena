@@ -976,6 +976,8 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_VACUUM_EXTREME]
 			|| sc->data[SC_CURSEDCIRCLE_ATKER]
 			|| sc->data[SC_CURSEDCIRCLE_TARGET]
+			|| sc->data[SC_MEIKYOUSISUI]
+			|| sc->data[SC_KG_KAGEHUMI]
 		))
 			return 0;
 	}
@@ -2325,6 +2327,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			pc_inventory_rental_clear(sd);
 			if( sd->bg_id ) bg_team_leave(sd,1);
 			pc_delspiritball(sd,sd->spiritball,1);
+			pc_delspiritball_attribute(sd, sd->spiritballnumber, 1);
 			skill_blockpc_clear(sd);
 
 			if( sd->reg )

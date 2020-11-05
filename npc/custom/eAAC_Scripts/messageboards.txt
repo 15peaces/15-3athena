@@ -1,3 +1,17 @@
+//===== 15-3athena Script ====================================
+//= Message Man
+//===== By: ==================================================
+//= Vicious
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
+//= a message board where you can post and read messages
+//===== Additional Comments: =================================
+//= 
+//============================================================
+
 geffen,122,102,4	script	Message Man	774,{
 mes "[Robert]";
 mes "Hello, I am here to serve you. Enjoy my service. ^_-";

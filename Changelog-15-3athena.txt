@@ -5,6 +5,37 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/05/2020
+	r273 [15peaces]
+		*Merged missing changes from 3ceam rev. 708 - 710
+		*Some random cleaning in npc/custom/ folder.
+		*Added pre-support to a number of Kagerou/Oboro skills.
+			-This support makes casting, skill, and status animations work and sets the base needed for these kinds of skills. This doesen't mean the skills do their effects yet.
+		*Added support for the attribute spheres system.
+			-This system is a copy of the regular sphere system, but uses different declarations, a different packet, and some special checks to set what spirit type to show on screen.
+			-The system was copied to be dedicated to itself to avoid any possible conflicts due to the additional features.
+		*KO_HAPPOKUNAI / Spray Kunai
+			-Damage formula changed to a fixed damage formula.
+			-The previous formula is for sure not official because using explosive kunai or flying fish gives 5000% ATK at max skill level. A AoE Gate of Hell like damage skill is just overpowered.
+			-Hopefully this will work out better.
+		*KO_MEIKYOUSISUI / Clear Meditation; KO_IZAYOI / 16th Night; KG_KAGEHUMI / Shadow Hold
+			-Added full support for these skills.
+		*KO_KAHU_ENTEN / Fire Seal - Scorching Fire; KO_HYOUHU_HUBUKI / Water Seal - Snow Storm; KO_KAZEHU_SEIRAN / Wind Seal - Turbulent Wind; KO_DOHU_KOUKAI / Earth Seal - Steel
+			-Added pre-support and additional coding.
+		*RA_CAMOUFLAGE
+			-Due to a balancing issue, single target skills will be temporarily allowed to hit players in the camouflage status.
+			-According to a bug fix note on official servers at the end of August 2012, a bug was fixed that prevented a player from using the skill again to turn off the camouflage.
+			-This skill will be fixed later.
+		*NC_SILVERSNIPER; NC_MAGICDECOY
+			-HP for the FAW's have been greatly increased.
+			-The change is temp and is set to be the HP given by a level 150 Mechanic, with 120 stats, job level 50, and using the max skill level with nothing equipt. This is calculated using HP formula's found in official iRO documents.
+		*KO_KAIHOU / Release Seals
+			-Added full support for the skill.
+		*KO_ZENKAI / Spread Seals
+			-Added a test code for the skill.
+			-Note: The skill is usable without sphere's and currently only places water seals.
+			-Currently its just for animation testing.
+
 10/18/2020
 	r272 [15peaces]
 		*Merged missing changes from 3ceam rev. 704 - 707

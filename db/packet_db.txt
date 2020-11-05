@@ -1762,10 +1762,11 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0945,-1,itemlistwindowselected,2:4:8
 0x094B,19,wanttoconnection,2:6:10:14:18
 0x0961,36,storagepassword,0
-0x8d2,10 //Fast Movement
-0x90f,-1 //ZC_NOTIFY_NEWENTRY7
-0x914,-1 //ZC_NOTIFY_MOVEENTRY9
-0x915,-1 //ZC_NOTIFY_STANDENTRY8
+0x08CF,10 //Attribute Sphere
+0x08d2,10 //Fast Movement
+0x090f,-1 //ZC_NOTIFY_NEWENTRY7
+0x0914,-1 //ZC_NOTIFY_MOVEENTRY9
+0x0915,-1 //ZC_NOTIFY_STANDENTRY8
 
 // 2012-05-02aRagexeRE
 0x097d,288 // ZC_ACK_RANKING

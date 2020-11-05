@@ -1389,12 +1389,14 @@ static void clif_spiritball_single(int fd, struct map_session_data *sd)
  *------------------------------------------*/
 static void clif_spiritball_attribute_single(int fd, struct map_session_data *sd)
 {
-    WFIFOHEAD(fd, packet_len(0x08cf));
-    WFIFOW(fd,0)=0x08cf;
-    WFIFOL(fd,2)=sd->bl.id;
-    WFIFOW(fd,6)=sd->spiritballtype;
-    WFIFOW(fd,8)=sd->spiritballnumber;
-    WFIFOSET(fd, packet_len(0x08cf));
+	int spirittype = 0;
+
+	WFIFOHEAD(fd, packet_len(0x08cf));
+	WFIFOW(fd,0)=0x08cf;
+	WFIFOL(fd,2)=sd->bl.id;
+	WFIFOW(fd,6)=spirittype;
+	WFIFOW(fd,8)=sd->spiritballnumber;
+	WFIFOSET(fd, packet_len(0x08cf));
 }
 
 
@@ -1477,6 +1479,8 @@ int clif_spawn(struct block_list *bl)
 			TBL_PC *sd = ((TBL_PC*)bl);
 			if (sd->spiritball > 0)
 				clif_spiritball(sd);
+			if (sd->spiritballnumber > 0)
+				clif_spiritball_attribute(sd);
 			if(sd->state.size==2) // tiny/big players [Valaris]
 				clif_specialeffect(bl,423,AREA);
 			else if(sd->state.size==1)
@@ -1529,8 +1533,20 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_MANHOLE, 1, 9999, sd->sc.data[SC__MANHOLE]->val1, 0, 0);
 			if( sd->sc.count && sd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change(&sd->bl,SI_KO_JYUMONJIKIRI,1,9999,sd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_MEIKYOUSISUI] )
+				clif_status_change(&sd->bl,SI_MEIKYOUSISUI,1,9999,sd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
+			//if( sd->sc.count && sd->sc.data[SC_KYOUGAKU] )
+			//	clif_status_change(&sd->bl,SI_KYOUGAKU,1,9999,sd->sc.data[SC_KYOUGAKU]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_KYOMU] )
+				clif_status_change(&sd->bl,SI_KYOMU,1,9999,sd->sc.data[SC_KYOMU]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_KAGEMUSYA] )
 				clif_status_change(&sd->bl,SI_KAGEMUSYA,1,9999,sd->sc.data[SC_KAGEMUSYA]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_ZANGETSU] )
+				clif_status_change(&sd->bl,SI_ZANGETSU,1,9999,sd->sc.data[SC_ZANGETSU]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_GENSOU] )
+				clif_status_change(&sd->bl,SI_GENSOU,1,9999,sd->sc.data[SC_GENSOU]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_AKAITSUKI] )
+				clif_status_change(&sd->bl,SI_AKAITSUKI,1,9999,sd->sc.data[SC_AKAITSUKI]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_ALL_RIDING])
 				clif_status_change(&sd->bl, SI_ALL_RIDING, 1, 9999, sd->sc.data[SC_ALL_RIDING]->val1, 0, 0);
 			//if( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -4727,6 +4743,9 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 	if(dstsd->spiritball > 0)
 		clif_spiritball_single(sd->fd, dstsd);
 
+	if (dstsd->spiritballnumber > 0)
+		clif_spiritball_attribute_single(sd->fd, dstsd);
+
 	if( (sd->status.party_id && dstsd->status.party_id == sd->status.party_id) || //Party-mate, or hpdisp setting.
 		(sd->bg_id && sd->bg_id == dstsd->bg_id) || //BattleGround
 		(battle_config.disp_hpmeter && (gmlvl = pc_isGM(sd)) >= battle_config.disp_hpmeter && gmlvl >= pc_isGM(dstsd)) )
@@ -4822,8 +4841,20 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_MANHOLE,1,9999,tsd->sc.data[SC__MANHOLE]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KO_JYUMONJIKIRI,1,9999,tsd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_MEIKYOUSISUI] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_MEIKYOUSISUI,1,9999,tsd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
+			//if( tsd->sc.count && tsd->sc.data[SC_KYOUGAKU] )
+			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_KYOUGAKU,1,9999,tsd->sc.data[SC_KYOUGAKU]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_KYOMU] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_KYOMU,1,9999,tsd->sc.data[SC_KYOMU]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_KAGEMUSYA] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KAGEMUSYA,1,9999,tsd->sc.data[SC_KAGEMUSYA]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_ZANGETSU] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_ZANGETSU,1,9999,tsd->sc.data[SC_ZANGETSU]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_GENSOU] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_GENSOU,1,9999,tsd->sc.data[SC_GENSOU]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_AKAITSUKI] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_AKAITSUKI,1,9999,tsd->sc.data[SC_AKAITSUKI]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1,9999,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
 			//if( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
@@ -8364,6 +8395,35 @@ void clif_spiritball(struct map_session_data *sd)
 	clif_send(buf,packet_len(0x1d0),&sd->bl,AREA);
 }
 
+/*==========================================
+ * ZC_SPIRITS_ATTRIBUTE =  0x8cf
+ * this+0x0 / short PacketType
+ * this+0x2 / unsigned long AID
+ * this+0x6 / short SpritsType
+ * this+0x8 / short Num
+ *
+ * SpiritsType
+ * SPIRITS_TYPE_NONE =  0x0
+ * SPIRITS_TYPE_CHARM_WATER =  0x1
+ * SPIRITS_TYPE_CHARM_LAND =  0x2
+ * SPIRITS_TYPE_CHARM_FIRE =  0x3
+ * SPIRITS_TYPE_CHARM_WIND =  0x4
+ * SPIRTIS_TYPE_SPHERE =  0x5
+ *------------------------------------------*/
+int clif_spiritball_attribute(struct map_session_data *sd)
+{
+	unsigned char buf[16];
+	int spirittype = 0;
+
+	nullpo_ret(sd);
+
+	WBUFW(buf,0)=0x08cf;
+	WBUFL(buf,2)=sd->bl.id;
+	WBUFW(buf,6)=spirittype;
+	WBUFW(buf,8)=sd->spiritballnumber;
+	clif_send(buf,packet_len(0x08cf),&sd->bl,AREA);
+	return 0;
+}
 
 /// Notifies clients in area of a character's combo delay (ZC_COMBODELAY).
 /// 01d2 <account id>.L <delay>.L
@@ -9730,6 +9790,8 @@ void clif_refresh(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_LUK);
 	if (sd->spiritball)
 		clif_spiritball_single(sd->fd, sd);
+	if (sd->spiritballnumber)
+		clif_spiritball_attribute_single(sd->fd, sd);
 	if (sd->vd.cloth_color)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
 	if (sd->vd.body_style)

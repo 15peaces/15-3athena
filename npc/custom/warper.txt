@@ -1,4 +1,4 @@
-//===== 15-3athena Script ==================================== 
+//===== 15-3athena Script ====================================
 //= Warper Script
 //===== By: ==================================================
 //= Darkchild
@@ -26,7 +26,6 @@
 //= 2.0 Fixed warp for AntHell and Yuno. [Kisuka]
 //= 2.1 Moved AntHell warp agent to the new anthell entrance. [brianluau]
 //= 2.2 Updated Script with newest towns. Thanks to Masao. [15peaces]
-//============================================================
 //============================================================
 //= To allow selecting the Level of the Dungeon you want to
 //= Warp to set the @lvlselect variable to 1 (Not implemented yet!)

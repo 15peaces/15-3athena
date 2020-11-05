@@ -1,4 +1,16 @@
-//This quest is custom. Don't use it.
+//===== 15-3athena Script ====================================
+//= Lord Kaho's Horns Quest
+//===== By: ==================================================
+//= 
+//===== Current Version: =====================================
+//= 1.0
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Description: =========================================
+//= 
+//===== Additional Comments: =================================
+//= This quest is custom. Don't use it.
+//============================================================
 
 geffen,115,107,5	script	Lord Kaho's Servant	61,{
 	mes "[Lord Kaho's Servant]";
