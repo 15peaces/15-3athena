@@ -5,6 +5,39 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/28/2020
+	r274 [15peaces]
+		*Merged missing changes from 3ceam rev. 711
+		*Some item updates
+			-added some shadow gears
+			-moved some stable items
+			-some cleaning
+		*Fixed an issue where it was not possible to start the Sara's Memory Quest.	
+		*Fixed an issue where no OnTouch: or OnTouch_: labels where triggered if the episode system was active.
+		*Guillotine Cross poison system updated.
+			-Fixed a issue where all skills would give a chance of inflecting the poison on the target.
+			-Fixed a issue where poison durations weren't being reduced by players VIT or LUK.
+			-Fixed a issue where Oblivion's Curse's success chance wasn't being applied properly.
+			-Fixed a issue where Oblivion's Curse duration was being incorrectly reduced.
+			-Fixed a issue where Oblivion's Curse duration timer was incorrectly displayed.
+			-Fixed a issue where poisons were stackable on enemy's.
+			-Fixed a issue where poisons durations were resetable / extendable.
+			-
+			-The Guillotine Cross poisons will now follow these behaviors....
+			-Guillotine Cross poisons can now only infect a enemy though regular attacks, or using the skills Venom Pressure or Poison Smoke. Other skills will not infect enemys with poisons.
+			-The caster can now replace the old poison on his weapon with a new one through poisoning weapon.
+			-Duration for the poisons are now all 300 seconds and can now be reduced with VIT and LUK.
+			-Sucess chance of infecting targets with the poison depends on if your regular attacking or using the skill Venom Pressure or Poison Smoke.
+			-If using Oblivion Curse poison, a 2nd success chance will be applied if the 1st success chance triggers. Oblivion's Curse's success is reduceable with INT.
+			-Poisons are no longer stackable on a enemy target. A enemy can only be infected with one poison at a time and can't be infected with another until the old poison wears out.
+			-Poison durations can't be extend and will continue to count down until it wears off.
+		*GC_POISONINGWEAPON
+			-Fixed a issue where trying to apply a new poison wouldn't replace the old poison with the new one.
+		*NC_SELFDESTRUCT; KO_HAPPOKUNAI
+			-Fixed a issue where the damage was affected by the caster's weapon, elemental, and race cards.
+		*SC_INVISIBILITY; KO_KAHU_ENTEN / Fire Seal - Scorching Fire; KO_HYOUHU_HUBUKI / Water Seal - Snow Storm; KO_KAZEHU_SEIRAN / Wind Seal - Turbulent Wind; KO_DOHU_KOUKAI,Earth Seal - Steel
+			-Fixed a issue where unequipting a weapon would end the status.
+
 11/05/2020
 	r273 [15peaces]
 		*Merged missing changes from 3ceam rev. 708 - 710

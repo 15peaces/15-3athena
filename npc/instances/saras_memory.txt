@@ -147,7 +147,7 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 	} else if (.@sara_time == 2) {
 		erasequest 15002;
 		end;
-	} else if (!.@sara_time) {
+	} else if (.@sara_time == -1 || .@sara_time == 0) {
 		set .@party_id, getcharid(1);
 		set .@p_name$, getpartyname(.@party_id);
 		set .@md_name$, "Sara's Memory";

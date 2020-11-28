@@ -7831,7 +7831,24 @@
 19890,C_Mage_Hat,Costume Mage Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,112,{},{},{}
 19891,C_Magnolia_Hat,Costume Magnolia Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,373,{},{},{}
 19892,C_Night_Sparrow_Hat,Costume Night Sparrow Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,913,{},{},{}
-
+//
+19903,C_Witch's_Pumpkin_Hat,Costume Witch's Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,717,{},{},{}
+19904,C_Skull_Cap,Costume Skull Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,713,{},{},{}
+19905,C_Secret_Society_Hood,Costume Secret Society Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,806,{},{},{}
+19906,C_Screw_stuck_in_head,Costume Screw stuck in head,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,696,{},{},{}
+19907,C_Fascinating_Phantom_Mask,Costume Fascinating Phantom Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,710,{},{},{}
+19908,C_Flag_Crown_Hat,Costume Flag Crown Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,219,{},{},{}
+19909,C_White_Deviruchi_Hat,Costume White Deviruchi Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,272,{},{},{}
+//
+19914,C_Tarlocks_Hat,Costume Tarlock's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1101,{},{},{}
+//
+19917,C_Dark_Pumpkin_Hat,Costume Dark Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,691,{},{},{}
+19918,C_Lude_Mask,Costume Lude Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,802,{},{},{}
+19919,C_Quve_Mask,Costume Quve Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,472,{},{},{}
+19920,C_Evolved_Whisper_Mask,Costume Evolved Whisper Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,458,{},{},{}
+//
+19922,C_Noah's_Hat,Costume Noah's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,636,{},{},{}
+//
 19934,C_Flaming_Ten_Gallon_Hat,Costume Flaming Ten Gallon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1075,{},{},{}
 19935,C_Hunting_Cap_Of_Gust,Costume Hunting Cap Of Gust,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,1076,{},{},{}
 19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1077,{},{},{}

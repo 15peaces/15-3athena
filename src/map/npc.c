@@ -2666,12 +2666,15 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	//Episode System [15peaces]
 	if( sscanf(w4, "%d,%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6 ); // OnTouch area defined
 	else if( sscanf(w4, "%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &class_) == 4 ); // no OnTouch area
-	else {// no OnTouch area & no episode
-		class_ = atoi(w4);
-		xs = -1;
-		ys = -1;
+	else {// no episode
 		min_episode = 0;
 		max_episode = 0;
+		if (sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3); // OnTouch area
+		else { // no OnTouch area
+			class_ = atoi(w4);
+			xs = -1;
+			ys = -1;
+		}
 	}
 
 	//Check Episode
@@ -2866,6 +2869,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	if( type == NPCTYPE_WARP && sscanf(w4, "%d,%d,%d,%d,%d", &episode_ident, &min_episode, &max_episode, &xs, &ys) == 5 );// <ep_identifier>,<min_ep>,<max_ep>,<spanx>,<spany>
 	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_, &xs, &ys) == 6);// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>,<triggerX>,<triggerY>
 	else if( type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d,%d",&episode_ident, &min_episode, &max_episode, &class_) == 4);// <ep_identifier>,<min_ep>,<max_ep>,<sprite id>
+	else if (type == NPCTYPE_SCRIPT && sscanf(w4, "%d,%d,%d", &class_, &xs, &ys) == 3);// <sprite id>,<triggerX>,<triggerY>
 	else if( type != NPCTYPE_WARP ) class_ = atoi(w4);// <sprite id>
 	else {
 		ShowError("npc_parse_duplicate: Invalid span format for duplicate warp in file '%s', line '%d'. Skipping line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);

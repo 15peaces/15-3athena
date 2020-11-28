@@ -161,6 +161,23 @@
 19895,C_Magicians_Night_Cap,Costume Magician's Night Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,911,{},{},{}
 19896,C_PRO_10th_Cap,Costume PRO 10th Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1094,{},{},{}
 19897,C_RPC13_1ST_Wreath,Costume RPC13 1ST Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,3; bonus bMdef,3;},{},{}
+19898,C_RPC13_2ND_Wreath,Costume RPC13 2ND Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,2; bonus bMdef,2;},{},{}
+19899,C_RPC13_3RD_Wreath,Costume RPC13 3RD Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,1; bonus bMdef,1;},{},{}
+19902,C_Cigarette,Costume Cigarette,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,54,{},{},{}
+19913,C_Poo_Poo_Hat,Costume Poo Poo Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,76,{},{},{}
+19925,C_Monocle,Costume Monocle,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,23,{},{},{}
+19928,C_Gothic_Heart_Wing,Costume Gothic Heart Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1111,{},{},{}
+19929,C_Classical_Ribbon,Costume Classical Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1112,{},{},{}
+19930,C_Angel_Mini_Silk_Hat,Costume Angel Mini Silk Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1113,{},{},{}
+19931,C_Lazy_Smokie,Costume Lazy Smokie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,168,{},{},{}
+19932,C_Model_Training_Hat,Costume Model Training Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,157,{},{},{}
+19938,C_Love_Bunny_Hood,Costume Love Bunny Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,549,{},{},{}
+19939,C_Antlers,Costume Antlers,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,71,{},{},{}
+19941,C_Ear_Muffs,Costume Ear Muffs,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,70,{},{},{}
+19949,C_RWC2013_Japan_Hat,Costume RWC2013 Japan Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1136,{},{},{}
+19952,C_Bubble_Gum_in_Mouth,Costume Bubble Gum in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,572,{},{},{}
+19953,C_Parade_Cap,Costume Parade Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,465,{},{},{}
+19954,C_3D_Glasses,Costume 3D Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,661,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -207,41 +224,11 @@
 18934,Fox_Ears_Drop_Ribbon,Fox Ears Drop Ribbon,5,0,,400,,4,,0,0xFFFFFFFF,63,2,256,,50,,1070,{},{},{}
 18937,Memories_of_Lover,Memories of Lover,5,0,,100,,0,,0,0xFFFFFFFF,63,2,256,,1,,1072,{},{},{}
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
-
-//Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19898,C_RPC13_2ND_Wreath,Costume RPC13 2ND Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,2; bonus bMdef,2;},{},{}
-19899,C_RPC13_3RD_Wreath,Costume RPC13 3RD Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,1; bonus bMdef,1;},{},{}
-19902,C_Cigarette,Costume Cigarette,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,54,{},{},{}
-19903,C_Witch's_Pumpkin_Hat,Costume Witch's Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,717,{},{},{}
-19904,C_Skull_Cap,Costume Skull Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,713,{},{},{}
-19905,C_Secret_Society_Hood,Costume Secret Society Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,806,{},{},{}
-19906,C_Screw_stuck_in_head,Costume Screw stuck in head,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,696,{},{},{}
-19907,C_Fascinating_Phantom_Mask,Costume Fascinating Phantom Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,710,{},{},{}
-19908,C_Flag_Crown_Hat,Costume Flag Crown Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,219,{},{},{}
-19909,C_White_Deviruchi_Hat,Costume White Deviruchi Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,272,{},{},{}
 19910,C_Halloween_Hat,Costume Halloween Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1098,{},{},{}
 19911,C_Triangle_Roof_Hat,Costume Triangle Roof Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1099,{},{},{}
 19912,C_Cat_Eye,Costume Cat Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1100,{},{},{}
-19913,C_Poo_Poo_Hat,Costume Poo Poo Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,76,{},{},{}
-19914,C_Tarlocks_Hat,Costume Tarlock's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1101,{},{},{}
-19917,C_Dark_Pumpkin_Hat,Costume Dark Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,691,{},{},{}
-19918,C_Lude_Mask,Costume Lude Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,802,{},{},{}
-19919,C_Quve_Mask,Costume Quve Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,472,{},{},{}
-19920,C_Evolved_Whisper_Mask,Costume Evolved Whisper Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,7168,,,,458,{},{},{}
-19922,C_Noah's_Hat,Costume Noah's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,636,{},{},{}
-19925,C_Monocle,Costume Monocle,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,23,{},{},{}
-19928,C_Gothic_Heart_Wing,Costume Gothic Heart Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1111,{},{},{}
-19929,C_Classical_Ribbon,Costume Classical Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1112,{},{},{}
-19930,C_Angel_Mini_Silk_Hat,Costume Angel Mini Silk Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1113,{},{},{}
-19931,C_Lazy_Smokie,Costume Lazy Smokie,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,168,{},{},{}
-19932,C_Model_Training_Hat,Costume Model Training Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,157,{},{},{}
-19938,C_Love_Bunny_Hood,Costume Love Bunny Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,549,{},{},{}
-19939,C_Antlers,Costume Antlers,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,71,{},{},{}
-19941,C_Ear_Muffs,Costume Ear Muffs,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,70,{},{},{}
-19949,C_RWC2013_Japan_Hat,Costume RWC2013 Japan Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1136,{},{},{}
-19952,C_Bubble_Gum_in_Mouth,Costume Bubble Gum in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,572,{},{},{}
-19953,C_Parade_Cap,Costume Parade Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,465,{},{},{}
-19954,C_3D_Glasses,Costume 3D Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,661,{},{},{}
+
+//Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
 19955,C_Mini_Tree,Costume Mini Tree,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,727,{},{},{}
 19956,C_Soldier_Hat,Costume Soldier Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,420,{},{},{}
 19957,C_Scooter_Hat,Costume Scooter Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,588,{},{},{}
@@ -2622,7 +2609,7 @@
 13431,Chrome_Metal_Sword,Chrome Metal Sword,4,20,10,2200,180,,1,0,0x00044502,8,2,2,3,110,1,2,{ bonus bAgi,1; bonus bMaxHPrate,-5; bonus bUnbreakableWeapon,0; },{},{}
 16010,Red_Ether_Bag,Red Ether Bag,4,20,10,1000,15,,1,1,0x00040000,8,2,2,3,102,1,8,{ /*bonus bMatk,100;*/ if(getrefine()>=7){ bonus2 bSkillAtk,"GN_CRAZYWEED",20+((getrefine()-6)*2); bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20+((getrefine()-6)*2); } else { bonus2 bSkillAtk,"GN_CRAZYWEED",20; bonus2 bSkillAtk,"GN_DEMONIC_FIRE",20; } },{},{}
 18103,Mystic_Bow,Mystic Bow,4,20,10,1700,75,,5,0,0x00080808,8,2,34,3,105,1,11,{ bonus bInt,4; /*bonus bMatk,100;*/ bonus2 bUseSPrate,10,"WM_SEVERE_RAINSTORM"; },{},{}
-2465,Dance_Shoes,Dance Shoes,5,20,10,300,,15,,0,0x00080000,8,0,64,,105,1,0,{ bonus bAgi,1; bonus bAspdRate,2; bonus2 bUseSPrate,32,"WA_SWING_DANCE"; },{},{} //Reduces SwingDance by 32SP. - 32 percent added since only percentage reduce found
+2465,Dance_Shoes,Dance Shoes,5,20,10,300,,15,,1,0x00080000,8,0,64,,105,1,0,{ bonus bAgi,1; bonus bAspdRate,2; bonus2 bUseSPrate,32,"WA_SWING_DANCE"; },{},{} //Reduces SwingDance by 32SP. - 32 percent added since only percentage reduce found
 2853,Telekinetic_Orb,Telekinetic Orb,5,20,10,200,,2,,0,0xFFFFFFFE,8,2,136,,110,0,0,{ bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10; bonus bMaxSP,30; bonus bInt,3; bonus bMdef,1; },{},{}
 //Extra Items With Skill Enabled Bonuses
 //1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; skill "GM_SANDMAN",1; },{},{}
@@ -3736,3 +3723,46 @@
 // Arch Bishop Promise Bible's
 2156,Bible_Of_Promise1,Bible Of Promise Vol1,5,20,,500,,1,,1,0x00000100,8,2,32,,110,1,5,{ bonus bMdef,2; skill "ALL_ODINS_POWER",1; },{},{}
 2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,20,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
+
+// Shadow Gears (renewal)
+24293,Sura_Shadow_Weapon,Sura Shadow Weapon,5,10,,0,,0,,0,0x00008000,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillCooldown,"SR_RAMPAGEBLASTER",-1*(2000+500*.@r); },{},{}
+24294,Guillotine_Cross_Shadow_Weapon,Guillotine Cross Shadow Weapon,5,10,,0,,0,,0,0x00001000,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillUseSPrate,"GC_DARKILLUSION",(20+(.@r*3)); },{},{}
+24295,Shadow_Chaser_Shadow_Weapon,Shadow Chaser Shadow Weapon,5,10,,0,,0,,0,0x00020000,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"SC_TRIANGLESHOT",20+.@r*5; },{},{}
+24296,Warlock_Shadow_Weapon,Warlock Shadow Weapon,5,10,,0,,0,,0,0x00000200,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"WL_DRAINLIFE",20+.@r*5; },{},{}
+24297,Sorcerer_Shadow_Weapon,Sorcerer Shadow Weapon,5,10,,0,,0,,0,0x00010000,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillCooldown,"SO_DIAMONDDUST",-1*((300*.@r)+1000); },{},{}
+24341,S_All_Race_Shoes,All Race Shadow Shoes,5,0,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); if (.@r >= 9) { set .@val, 5; } else if (.@r >= 7) { set .@val, 3; } else { set .@val, 2; } bonus2 bAddRace,RC_All,.@val; bonus2 bMagicAddRace,RC_All,.@val; },{},{}
+24342,S_All_Race_Shield,All Race Shadow Shield,5,0,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,1,,{ set .@r, getrefine(); if (.@r >= 9) { set .@val, 3; } else if (.@r >= 7) { set .@val, 2; } else { set .@val, 1; } bonus2 bSubRace,RC_All,.@val; },{},{}
+24343,S_Blitz_Weapon,Blitz Shadow Weapon,5,0,,0,,,,0,0xFFFFFFFF,63,2,131072,,1,1,,{ set .@r, getrefine(); bonus bAspdRate,5+.@r/2; if (.@r >= 7) { bonus bAspd,1; if (.@r >= 9) { bonus bDelayrate,-1; } } },{},{}
+24344,S_Blitz_Armor,Blitz Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus bDef,25+5*(.@r/2); if (.@r >= 7) { bonus bAspd,1; if (.@r >= 9) { bonus bDelayrate,-1; } } },{},{}
+24345,S_Tempest_Shield,Tempest Shadow Shield,5,0,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,1,,{ bonus2 bIgnoreMdefClassRate,Class_Normal,5+(getrefine()/2); },{},{}
+24346,S_Tempest_Shoes,Tempest Shadow Shoes,5,0,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,1,,{ bonus2 bIgnoreMdefClassRate,Class_Normal,5+(getrefine()/2); },{},{}
+24347,S_Magic_Executioner_Holy_Water_Armor,Magic Executioner Holy Water Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_DemiHuman,.@val; bonus2 bIgnoreMdefRaceRate,RC_Undead,.@val; },{},{}
+24348,S_Magic_Exorcist_Corrupted_Armor,Magic Exorcist Corrupted Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_Demon,.@val; bonus2 bIgnoreMdefRaceRate,RC_Angel,.@val; },{},{}
+24349,S_Magic_Vibration_Dragon_Killer_Armor,Magic Vibration Dragon Killer Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_Formless,.@val; bonus2 bIgnoreMdefRaceRate,RC_Dragon,.@val; },{},{}
+24350,S_Magic_Scissor_Hunting_Armor,Magic Scissor Hunting Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_Plant,.@val; bonus2 bIgnoreMdefRaceRate,RC_Brute,.@val; bonus2 bIgnoreMdefRaceRate,RC_Player_Doram,.@val; },{},{}
+24259,Alchemist_Shadow_Shoes,Alchemist Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); if (BaseJob==Job_Alchemist) bonus bHealPower,30+7*.@r; },{},{}
+24260,Priest_Shadow_Shoes,Priest Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); set .@val, 20+(3*.@r); bonus2 bSkillUseSPrate,"PR_KYRIE",.@val; bonus2 bSkillUseSPrate,"PR_LEXAETERNA",.@val; },{},{}
+24261,Monk_Shadow_Shoes,Monk Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"MO_CHAINCOMBO",20+.@r*5; },{},{}
+24262,Assassin_Shadow_Shoes,Assassin Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"AS_GRIMTOOTH",20+.@r*5; },{},{}
+24263,Rogue_Shadow_Shoes,Rogue Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@a, getskilllv("SM_SWORD"); set .@r, max(getrefine(),6); bonus bBaseAtk,.@a+((.@r-6)*.@a); },{},{}
+24264,Wizard_Shadow_Shoes,Wizard Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); bonus2 bVariableCastrate,"WZ_STORMGUST",-1*(20+(3*.@r)); bonus2 bVariableCastrate,"WZ_VERMILION",-1*(20+(3*.@r)); bonus2 bVariableCastrate,"WZ_METEOR",-1*(20+(3*.@r)); },{},{}
+24265,Sage_Shadow_Shoes,Sage Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"WZ_HEAVENDRIVE",20+.@r*5; },{},{}
+24266,Hunter_Shadow_Shoes,Hunter Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"HT_BLITZBEAT",20+.@r*5; },{},{}
+24267,Bard_Shadow_Shoes,Bard Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@a, getskilllv("BA_MUSICALLESSON"); set .@r, max(getrefine(),6); bonus bBaseAtk,.@a+((.@r-6)*.@a); },{},{}
+24268,Dancer_Shadow_Shoes,Dancer Shadow Shoes,5,,,0,,,,,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@a, getskilllv("DC_DANCINGLESSON"); set .@r, max(getrefine(),6); bonus bBaseAtk,.@a+((.@r-6)*.@a); },{},{}
+24272,Alchemist_Shadow_Armor,Alchemist Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@a, getskilllv("AM_LEARNINGPOTION"); set .@r, max(getrefine(),6); bonus bBaseAtk,.@a+((.@r-6)*.@a); },{},{}
+24273,Priest_Shadow_Armor,Priest Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"PR_MAGNUS",20+.@r*5; },{},{}
+24274,Monk_Shadow_Armor,Monk Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"MO_FINGEROFFENSIVE",20+.@r*5; bonus2 bSkillAtk,"MO_INVESTIGATE",20+.@r*5; },{},{}
+24275,Assassin_Shadow_Armor,Assassin Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus2 bSkillUseSPrate,"AS_SONICBLOW",(20+(.@r*3)); },{},{}
+24276,Rogue_Shadow_Armor,Rogue Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"RG_BACKSTAP",20+.@r*5; },{},{}
+24277,Wizard_Shadow_Armor,Wizard Shadow Armor,5,10,,0,,,,,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"WZ_JUPITEL",20+.@r*5; },{},{}
+24339,S_Almighty_Earring,Almighty Shadow Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ bonus bAllStats,getrefine(); },{},{}
+24340,S_Almighty_Pendant,Almighty Shadow Pendant,5,0,,0,,,,0,0xFFFFFFFF,63,2,2097152,,1,1,,{ bonus bAllStats,getrefine(); },{},{}
+24341,S_All_Race_Shoes,All Race Shadow Shoes,5,0,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,1,,{ set .@r, getrefine(); if (.@r >= 9) { set .@val, 5; } else if (.@r >= 7) { set .@val, 3; } else { set .@val, 2; } bonus2 bAddRace,RC_All,.@val; bonus2 bMagicAddRace,RC_All,.@val; },{},{}
+24342,S_All_Race_Shield,All Race Shadow Shield,5,0,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,1,,{ set .@r, getrefine(); if (.@r >= 9) { set .@val, 3; } else if (.@r >= 7) { set .@val, 2; } else { set .@val, 1; } bonus2 bSubRace,RC_All,.@val; },{},{}
+24343,S_Blitz_Weapon,Blitz Shadow Weapon,5,0,,0,,,,0,0xFFFFFFFF,63,2,131072,,1,1,,{ set .@r, getrefine(); bonus bAspdRate,5+.@r/2; if (.@r >= 7) { bonus bAspd,1; if (.@r >= 9) { bonus bDelayrate,-1; } } },{},{}
+24344,S_Blitz_Armor,Blitz Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@r, getrefine(); bonus bDef,25+5*(.@r/2); if (.@r >= 7) { bonus bAspd,1; if (.@r >= 9) { bonus bDelayrate,-1; } } },{},{}
+24345,S_Tempest_Shield,Tempest Shadow Shield,5,0,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,1,,{ bonus2 bIgnoreMdefClassRate,Class_Normal,5+(getrefine()/2); },{},{}
+24346,S_Tempest_Shoes,Tempest Shadow Shoes,5,0,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,1,,{ bonus2 bIgnoreMdefClassRate,Class_Normal,5+(getrefine()/2); },{},{}
+24347,S_Magic_Executioner_Holy_Water_Armor,Magic Executioner Holy Water Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_DemiHuman,.@val; bonus2 bIgnoreMdefRaceRate,RC_Undead,.@val; },{},{}
+24348,S_Magic_Exorcist_Corrupted_Armor,Magic Exorcist Corrupted Shadow Armor,5,0,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,1,,{ set .@val, 5 + (getrefine()/2); bonus2 bIgnoreMdefRaceRate,RC_Demon,.@val; bonus2 bIgnoreMdefRaceRate,RC_Angel,.@val; },{},{}
