@@ -247,7 +247,7 @@ packet_ver: 5
 0x012c,3
 0x012d,4
 0x012e,2,closevending,0
-0x012f,-1
+0x012f,-1,openvending,2:4:0:84
 0x0130,6,vendinglistreq,2
 0x0131,86
 0x0132,6

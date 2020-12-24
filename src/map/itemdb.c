@@ -187,7 +187,6 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 				{
 					if( itempackage_db[packageid].announced[i] )
 					{
-						ShowDebug("itemdb_package_item: Announced item!\n");
 						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
 					}
 					clif_additem(sd, 0, 0, flag);
@@ -207,7 +206,6 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 					{
 						if( itempackage_db[packageid].announced[i] )
 						{
-							ShowDebug("itemdb_package_item: Announced item!\n");
 							clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
 						}
 						clif_additem(sd, 0, 0, flag);

@@ -743,6 +743,9 @@ int npc_settimerevent_tick(struct npc_data* nd, int newtimer)
 
 int npc_event_sub(struct map_session_data* sd, struct event_data* ev, const char* eventname)
 {
+	nullpo_retr(2, sd);
+	nullpo_retr(2, eventname);
+
 	if ( sd->npc_id != 0 )
 	{
 		//Enqueue the event trigger.

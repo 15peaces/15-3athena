@@ -40,6 +40,7 @@ void vending_closevending(struct map_session_data* sd)
 	if( sd->state.vending )
 	{
 		sd->state.vending = false;
+		sd->vender_id = 0;
 		clif_closevendingboard(&sd->bl, 0);
 	}
 }
@@ -85,7 +86,6 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	if( vsd->vender_id != uid )
 	{// shop has changed
 		clif_buyvending(sd, 0, 0, 6);  // store information was incorrect
-		ShowDebug("vending_purchasereq: store information was incorrect (vender_id: %i <> uid: %i)", vsd->vender_id, uid);
 		return;
 	}
 
@@ -256,8 +256,9 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	int vending_skill_lvl;
 	nullpo_retv(sd);
 
-	if (pc_isdead(sd) || !sd->state.prevend || pc_istrading(sd))
-		return; // can't open vendings lying dead || can't have 2 shops at once
+	if (pc_isdead(sd) || !sd->state.prevend || pc_istrading(sd)) {
+		return; // can't open vendings lying dead || didn't use via the skill (wpe/hack) || can't have 2 shops at once
+	}
 
 	vending_skill_lvl = pc_checkskill(sd, MC_VENDING);
 	// skill level and cart check
@@ -301,8 +302,8 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 		i++; // item successfully added
 	}
 
-	if( i != j )
-		clif_displaymessage (sd->fd, msg_txt(266)); //"Some of your items cannot be vended and were removed from the shop."
+	if (i != j)
+		clif_displaymessage(sd->fd, msg_txt(266)); //"Some of your items cannot be vended and were removed from the shop."
 
 	if( i == 0 )
 	{	// no valid item found
@@ -320,6 +321,8 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	pc_stop_walking(sd,1);
 	clif_openvending(sd,sd->bl.id,sd->vending);
 	clif_showvendingboard(&sd->bl,message,0);
+
+	return;
 }
 
 

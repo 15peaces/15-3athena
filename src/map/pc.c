@@ -8003,7 +8003,9 @@ int pc_equiplookall(struct map_session_data *sd)
 	clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
+#if PACKETVER >= 20111122
 	clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
+#endif
 
 	return 0;
 }

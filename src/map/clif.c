@@ -7503,9 +7503,11 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 	fd = sd->fd;
 	count = sd->vend_num;
 
-	WFIFOHEAD(fd, 8+count*item_length);
+	int len = 8 + count * item_length;
+
+	WFIFOHEAD(fd, len);
 	WFIFOW(fd,0) = 0x136;
-	WFIFOW(fd,2) = 8+count*item_length;
+	WFIFOW(fd,2) = len;
 	WFIFOL(fd,4) = id;
 	for( i = 0; i < count; i++ )
 	{
@@ -7524,7 +7526,7 @@ void clif_openvending(struct map_session_data* sd, int id, struct s_vending* ven
 		clif_add_random_options(WFIFOP(fd,30+i*item_length), &sd->cart.u.items_cart[index]);
 #endif
 	}
-	WFIFOSET(fd,WFIFOW(fd,2));
+	WFIFOSET(fd, len);
 
 #if PACKETVER >= 20140625
 	///     0 = Successed
@@ -13649,7 +13651,7 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	short len = (short)RFIFOW(fd, info->pos[0]);
 	const char* message = RFIFOCP(fd, info->pos[1]);
 	const uint8* data = (uint8*)RFIFOP(fd, info->pos[3]);
-
+	
 	if (cmd == 0x12f) { // (CZ_REQ_OPENSTORE)
 		len -= 84;
 	}
@@ -13657,15 +13659,16 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 		bool flag;
 
 		len -= 85;
-		flag = RFIFOB(fd, info->pos[2]) != 0;
+		flag = (bool)RFIFOB(fd, info->pos[2]);
 		if (!flag) {
 			sd->state.prevend = 0;
 			sd->state.workinprogress = WIP_DISABLE_NONE;
 		}
 	}
 
-	if( sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOROOM )
+	if (sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOROOM) {
 		return;
+	}
 	if( map[sd->bl.m].flag.novending ) {
 		clif_displaymessage (sd->fd, msg_txt(276)); // "You can't open a shop on this map"
 		return;
@@ -13674,8 +13677,9 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 		clif_displaymessage (sd->fd, msg_txt(204)); // "You can't open a shop on this cell."
 		return;
 	}
-	if( message[0] == '\0' ) // invalid input
+	if (message[0] == '\0') {// invalid input
 		return;
+	}
 
 	vending_openvending(sd, message, data, len/8);
 }
@@ -20319,8 +20323,14 @@ static int clif_parse(int fd)
 			return 0;
 		}
 	}
-	if ((int)RFIFOREST(fd) < packet_len)
+	if ((int)RFIFOREST(fd) < packet_len) {
+		ShowWarning("clif_parse: Received packet 0x%04x with expected packet length %d, but only %d bytes remaining, disconnecting session #%d.\n", cmd, packet_len, RFIFOREST(fd), fd);
+#ifdef DUMP_INVALID_PACKET
+		ShowDump(RFIFOP(fd, 0), RFIFOREST(fd));
+#endif
+		set_eof(fd);
 		return 0; // not enough data received to form the packet
+	}
 
 #ifdef PACKET_OBFUSCATION
 	RFIFOW(fd, 0) = cmd;

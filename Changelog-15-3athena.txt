@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/24/2020
+	r275 [15peaces]
+		*Merged missing changes from 3ceam rev. 712 - 715
+		*Fixed some potential nullpointer crashes in npc_event_sub function.
+		*Some more cleaning related to the vending system.
+		*Some item updates
+			-added official database names for a number of items
+			-added 3 costume robes
+				--Costume robes equip in the costume robe equip slot and will display a sprite on the players back. Bonuses were not coded yet.
+			-added the Naqsh item
+				--According to official item information, it appears to be a new GM item equitable in the accessory slot. Bonuses are not coded yet, but will be added in a future update.
+			-Revered GM items Angra Manyu and Ahura Mazda
+			-added some costume items
+			-some cleaning
+		*Ninja merchants and quest scripts updated to recognize the Kagerou and Oboro jobs.
+		*PF_SPIDERWEB
+			-Fixed an issue where this skill was not auto-castable.
+
 11/28/2020
 	r274 [15peaces]
 		*Merged missing changes from 3ceam rev. 711
