@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/25/2020
+	r276 [15peaces]
+		*Merged missing changes from 3ceam rev. 716
+		*Updated MySQL database converters to support all added tables.
+		*Some item updates & fixes
+			-Light Of Cure & Seal Of Cathedral can now be equipped by the Priest class.
+			-Renamed a bunch of items to their official database names.
+			-Added 2 skills to the Ahura Mazdah. This update is semi official.
+			-Added skills to the Naqsh item as it is in official.
+		*KO_JYUMONJIKIRI / Cross Slasher; KO_SETSUDAN / Spirit Breaker; KO_BAKURETSU / Exploding Kunai; KO_MUCHANAGE / Over Throw; KO_HUUMARANKA / Launch Huuma Shuriken; KO_KAIHOU / Release Seals
+			-Damage formula updated to official.
+		*A few others adjustments made for the preparing to add support for more Kagerou / Oboro skills.
+
 12/24/2020
 	r275 [15peaces]
 		*Merged missing changes from 3ceam rev. 712 - 715

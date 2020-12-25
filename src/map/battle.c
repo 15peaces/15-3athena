@@ -6,6 +6,7 @@
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
 #include "../common/showmsg.h"
+#include "../common/random.h"
 #include "../common/ers.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -1762,7 +1763,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					short index = sd->equip_index[EQI_AMMO];
 					wd.damage = 0;
 					if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_AMMO )
-						ATK_ADD((50 + 10 * skill_lv) * sd->inventory_data[index]->atk);
+						ATK_ADD((3 * (sstatus->batk + sstatus->rhw.atk + sd->inventory_data[index]->atk)) * (skill_lv + 5) / 5);
 				}
 				else
 					ATK_ADD(5000);
@@ -2717,7 +2718,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 500;
 					break;
 				case KO_HUUMARANKA:
-					skillratio = 150 * skill_lv + (sstatus->agi + sstatus->dex) * pc_checkskill(sd, NJ_HUUMA);
+					skillratio = 150 * skill_lv + sstatus->agi + sstatus->dex + 100 * pc_checkskill(sd, NJ_HUUMA);
 					break;
 				// Physical Elemantal Spirits Attack Skills
 				case EL_CIRCLE_OF_FIRE:
@@ -3756,6 +3757,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio += 60 + 40*skill_lv;
 						break;
 					case NJ_KAMAITACHI:
+						skillratio += 100 * skill_lv;
+						break;
 					case NPC_ENERGYDRAIN:
 						skillratio += 100*skill_lv;
 						break;
@@ -3967,8 +3970,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						else// Normal Demonic Fire Damage
 							skillratio += 10 + 20 * skill_lv;
 						break;
-					case KO_KAIHOU://Temporarly until official formula is found. [Rytech]
-						skillratio = 300 * sd->spiritballnumber;
+					case KO_KAIHOU:
+						skillratio = 200 * sd->spiritballnumber;
+						if(level_effect_bonus == 1 && s_level >= 100 )
+							skillratio = skillratio * s_level / 100;
 						break;
 
 					// Magical Elemental Spirits Attack Skills
@@ -4369,9 +4374,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			md.damage = (( skill_lv * 150 * 10 ) + sstatus->int_ * 7 / 2 * ( 18 + 50 / 4 )) * 5 / ( 10 - pc_checkskill(sd,AM_CANNIBALIZE) );
  		break;
 	case KO_MUCHANAGE:
-		md.damage = skill_get_zeny(skill_num ,skill_lv) / 2;
+		md.damage = skill_get_zeny(skill_num, skill_lv);
 		if (!md.damage) md.damage = 10;
-		md.damage =  md.damage + rand()%md.damage;
+		md.damage = md.damage * rnd_value(50, 100) / 100;
 		if (is_boss(target) || (tsd))
 			md.damage = md.damage / 2;
  		break;

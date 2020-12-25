@@ -1078,8 +1078,6 @@
 2861,Crimson_Orb,Crismon Orb,5,20,,200,,2,,0,0x00000200,63,2,136,,100,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bSubEle,Ele_Fire,15; bonus3 bAutoSpellWhenHit,"WZ_SIGHTRASHER",3,30; },{},{}
 2862,Forest_Orb,Forest Orb,5,20,,200,,2,,0,0x00000200,63,2,136,,100,0,0,{ bonus bMdef,2; bonus bInt,1; bonus2 bSubEle,Ele_Earth,15; bonus3 bAutoSpellWhenHit,"WZ_QUAGMIRE",3,30; },{},{}
 2863,Ring_Of_Valkyrie,Ring Of Valkyrie,5,0,,0,,2,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus2 bExpAddClass,Class_All,5; },{},{}
-2864,Light_Of_Cure,Light Of Cure,5,20,,0,,0,,0,0x00000100,63,2,136,,110,0,0,{ bonus bVit,2; bonus bHealPower,2; },{},{}
-2865,Seal_Of_Cathedral,Seal Of Cathedral,5,20,,0,,0,,0,0x00000100,63,2,136,,110,0,0,{ bonus bInt,2; bonus bHealPower,2; },{},{}
 2866,Ring_Of_Archbishop,Ring Of Archbishop,5,20,,0,,0,,0,0x00000100,63,2,136,,110,0,0,{ bonus bDex,2; bonus bHealPower,2; },{},{}
 6380,Mora_Coin,Mora Coin,3,20,,0,,,,,,,,,,,,,{},{},{}
 6381,Field_Shovel,Field Shovel,3,20,,10,,,,,,,,,,,,,{},{},{}
@@ -2603,7 +2601,8 @@
 2853,Telekinetic_Orb,Telekinetic Orb,5,20,10,200,,2,,0,0xFFFFFFFE,8,2,136,,110,0,0,{ bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10; bonus bMaxSP,30; bonus bInt,3; bonus bMdef,1; },{},{}
 //Extra Items With Skill Enabled Bonuses
 //1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; skill "GM_SANDMAN",1; },{},{}
-2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER",10; skill "ECL_SNOWFLIP",1; skill "ECL_PEONYMAMY",1; skill "ECL_SADAGUI",1; skill "ECL_SEQUOIADUST",1; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }2438,Paw_Of_Cat,Paw Of Cat,5,20,,300,,0,,0,0xFFFFFFFF,7,2,64,,80,1,0,{ bonus bFlee,5; bonus bAgi,1; skill "ALL_CATCRY",1; },{},{}
+2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER",10; skill "ECL_SNOWFLIP",1; skill "ECL_PEONYMAMY",1; skill "ECL_SADAGUI",1; skill "ECL_SEQUOIADUST",1; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
+2438,Paw_Of_Cat,Paw Of Cat,5,20,,300,,0,,0,0xFFFFFFFF,7,2,64,,80,1,0,{ bonus bFlee,5; bonus bAgi,1; skill "ALL_CATCRY",1; },{},{}
 2750,Summer_Night_Dream,Summer Night Dream,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ skill "ALL_DREAM_SUMMERNIGHT",1; },{},{}
 2784,Oh_Holy_Night,Christmas Musicbox,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ skill "ALL_WEWISH",1; },{},{}
 2833,Odin's_Recall,Odin's Recall,5,0,,0,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ bonus bAllStats,1; skill "ALL_ODINS_RECALL",1; },{},{}
@@ -3181,21 +3180,21 @@
 6493,Makibishi,Makibishi,3,30,,1,,,,,,,,,,,,,{},{},{}
 // Daggers
 13075,Kurenai,Kurenai,4,50000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
-13076,Raksasa_Dagger,Kodachi,4,50000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
+13076,Raksasa_Dagger,Raksasa Dagger,4,50000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
 //13077,Kagekiri
 13078,Mikatsuki,Mikazuki,4,50000,,600,50,,1,1,0x02000000,7,2,2,4,100,1,1,{},{},{}
 // Shurikens / Kunais
-13291,Starfish,Starfish Shuriken,10,100,,5,110,,,,0x02000000,7,2,32768,,50,,6,{},{},{}
-13292,Dried_Squid,Dried Squid Kunai,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
-13293,Flying_Fish,Flying Fish Kunai,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
-//13295,Light_Shuriken,Light Shuriken,10,4,,5,5,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
+13291,Starfish,Starfish,10,100,,5,110,,,,0x02000000,7,2,32768,,50,,6,{},{},{}
+13292,Dried_Squid,Dried Squid,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13293,Flying_Fish,Flying Fish,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13295,Light_Shuriken,Light Shuriken,10,4,,5,5,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
 // Huuma Shurikens
-13311,Huuma_Shadow,Advanced Huuma Shuriken,4,120000,,1500,170,,1,0,0x20000000,7,2,34,3,99,1,22,{ bonus bStr,3; },{},{}
+13311,Huuma_Shadow,Shadow Huuma Shuriken,4,120000,,1500,170,,1,0,0x20000000,7,2,34,3,99,1,22,{ bonus bStr,3; },{},{}
 //13312,Huuma_Job_Test
-13313,Huuma_Swirling_Petal,Flower Petal Huuma Shuriken,4,150000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /*bonus bEquipmentMatk,50;*/ },{},{}
-13314,Huuma_Fluttering_Snow,Ice Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Water; },{},{}
-13315,Huuma_Thunderstorm,Storm Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Wind; },{},{}
-13316,Upg_Huuma_Shuriken,Enhance Huuma Shuriken,4,200000,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /*bonus bEquipmentMatk,5*getrefine();*/ bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
+13313,Huuma_Swirling_Petal,Swirling Petal Huuma Shuriken,4,150000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /*bonus bEquipmentMatk,50;*/ },{},{}
+13314,Huuma_Fluttering_Snow,Fluttering Snow Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Water; },{},{}
+13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Wind; },{},{}
+13316,Upg_Huuma_Shuriken,Upgraded Huuma Shuriken,4,200000,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /*bonus bEquipmentMatk,5*getrefine();*/ bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
 // Armors
 15053,Special_Ninja_Suit,Special Ninja Suit,5,100000,,1200,,10,,0,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
 15054,Ninja_Scale_Armor,Ninja Scale Armor,5,100000,,1800,,13,,1,0x20000000,7,2,16,,100,1,0,{ bonus bMaxHPRate,15; bonus bMaxSPRate,-30; },{},{}
@@ -3705,7 +3704,7 @@
 31444,C_Bongun_Hat_,C Bongun Hat Upper,4,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,139,{},{},{}
 
 // Eclage Items That Give / Use Skills (3ceam stable)
-2916,Fairy_Wing,Elven Wing,5,10,,0,,0,,0,0xFFFFFFFF,7,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
+2916,Fairy_Wing,Fairy Wing,5,10,,0,,0,,0,0xFFFFFFFF,7,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
 12812,Snow_Flip,Snow Flip,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SNOWFLIP",1; },{},{}
 12813,Peony_Mommy,Peony Mamy,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_PEONYMAMY",1; },{},{}
 12814,Slapping_Herb,Sadagui,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SADAGUI",1; },{},{}
@@ -3771,6 +3770,10 @@
 2589,Fallen_Angel_Wing,Fallen Angel Wing,5,20,,100,,0,,0,0xFFFFFFFF,7,2,8192,,1,0,3,{},{},{}
 // GM Equips
 1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; /*skill "GM_SANDMAN",1;*/ },{},{}
-2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
+2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; Skill "AB_CLEARANCE", 5; Skill "SR_GENTLETOUCH_CURE", 5; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
 // New GM Equip? It gives access to a hand full of skills.
-2904,Naqsh,Naqsh,5,20,,0,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{},{},{}
+2904,Naqsh,Naqsh,5,20,,0,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ Skill "BS_MAXIMIZE",5; Skill "BS_WEAPONPERFECT",5; Skill "WL_RECOGNIZEDSPELL",5; Skill "ECL_SNOWFLIP",1; Skill "ECL_PEONYMAMY",1; Skill "ECL_SADAGUI",1; Skill "ECL_SEQUOIADUST",1; },{},{}
+// Items With Effects For Ninja Class Updated To Support Kagerou / Oboro
+5592,Sigrun's_Wings,Sigrun's Wings,5,20,,100,,2,,0,0xFFFFFFFF,7,2,512,,80,0,568,{ if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief||(BaseJob==Job_Taekwon&&Class!=Job_Soul_Linker)) bonus bStr,1; else if(BaseClass==Job_Mage||BaseClass==Job_Acolyte||BaseClass==Job_Ninja||class==Job_Soul_Linker) bonus bInt,1; else if(BaseClass==Job_Archer||BaseClass==Job_Gunslinger) bonus bDex,1; else if (BaseJob==Job_Novice||BaseJob==Job_SuperNovice) { bonus bMaxHP,80; bonus bMaxSP,30; } },{},{}
+13036,BF_Dagger1,Brave Assassin's Damascus,4,20,,0,120,,1,0,0xFE9F7EEF,7,2,2,3,80,1,1,{ bonus bStr,1; bonus bAgi,1; bonus2 bAddRace,RC_DemiHuman,75; bonus2 bIgnoreDefRate,RC_DemiHuman,20; bonus bUnbreakableWeapon,0; if (BaseClass == Job_Ninja || Class == Job_Rogue || Class == Job_Stalker) bonus bMatkRate,15; },{},{}
+13037,BF_Dagger2,Valorous Assassin's Damascus,4,20,,0,120,,1,0,0xFE9F7EEF,7,2,2,3,80,1,1,{ bonus bStr,1; bonus bAgi,1; bonus2 bAddRace,RC_DemiHuman,75; bonus bUnbreakableWeapon,0; autobonus "{ bonus bDefRatioAtkRace,RC_Boss; bonus bDefRatioAtkRace,RC_NonBoss; }",10,6000,BF_WEAPON,"{ specialeffect2 EF_HASTEUP; }"; if (BaseClass == Job_Ninja || Class == Job_Rogue || Class == Job_Stalker) bonus bMatkRate,15; },{},{}

@@ -1594,7 +1594,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_DEEPSLEEP] ||
 				sc->data[SC_CURSEDCIRCLE_TARGET] ||
 				sc->data[SC__SHADOWFORM] ||
-				sc->data[SC_MEIKYOUSISUI] ||
 				sc->data[SC_ALL_RIDING]
 			))
 				return 0;
@@ -8158,7 +8157,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_IZAYOI:
-			val2 = 30 * val1;// MATK Increase. This value is temporarly until new official value is found. [Rytech]
+			val2 = 25 * val1;// MATK Increase.
 			break;
 		case SC_KAGEMUSYA:
 			val4 = tick / 1000;
