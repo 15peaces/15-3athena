@@ -5,6 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/15/2021
+	r277 [15peaces]
+		*Merged missing changes from 3ceam rev. 717
+		*Complete rewrite of the achievement system.
+			-This update disables the broken implementation of this system. (Ignore the compile warnings for now)
+			--It adds in the new database files and the new source files with the basic support.
+			--Everything else will be added and re-enabled in the next update(s).
+			-Time to finally fix this system! ^^
+			-Thanks to @HerculesWS for the base.
+		*Some item updates
+			-added some costumes
+			-moved some stable items
+			-some cleaning
+		*KO_MUCHANAGE / Over Throw
+			-Damage is now split between targets.
+			-Now has a success chance of hitting or missing.
+		*KO_MAKIBISHI / Makibishi; KO_KYOUGAKU / Illusion - Shock; KO_JYUSATSU / Illusion - Killing Curse; KO_GENWAKU / Illusion - Attraction
+			-Added full support for these skills.
+		*KO_ZANZOU / Illusion - After Image
+			-Added some support for this skill.
+			-Only the back sliding part works.
+			-Clone summoning code will be added later.
+
 12/25/2020
 	r276 [15peaces]
 		*Merged missing changes from 3ceam rev. 716

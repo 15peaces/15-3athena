@@ -1496,7 +1496,7 @@ void intif_parse_achievements(int fd)
 	if (!sd) // User not online anymore
 		return;
 
-	if (num_received == 0) {
+	/*if (num_received == 0) {
 		if (sd->achievement_data.achievements) {
 			aFree(sd->achievement_data.achievements);
 			sd->achievement_data.achievements = NULL;
@@ -1536,11 +1536,18 @@ void intif_parse_achievements(int fd)
 				memmove(&sd->achievement_data.achievements[k], &sd->achievement_data.achievements[sd->achievement_data.incompleteCount], sizeof(struct achievement) * (num_received - k));
 			sd->achievement_data.achievements = (struct achievement *)aRealloc(sd->achievement_data.achievements, sizeof(struct achievement) * sd->achievement_data.count);
 		}
-		achievement_level(sd, false); // Calculate level info but don't give any AG_GOAL_ACHIEVE achievements
-		achievement_get_titles(sd->status.char_id); // Populate the title list for completed achievements
-		clif_achievement_update(sd, NULL, 0);
-		clif_achievement_list_all(sd);
 	}
+
+	// Check all conditions and counters on login
+	for (int group = AG_NONE + 1; group < AG_MAX; group++) {
+		achievement_update_objective(sd, group, 0);
+	}
+
+
+	achievement_level(sd, false); // Calculate level info but don't give any AG_GOAL_ACHIEVE achievements
+	achievement_get_titles(sd->status.char_id); // Populate the title list for completed achievements*/
+	clif_achievement_update(sd, NULL);
+	clif_achievement_list_all(sd);
 }
 
 /**
@@ -1568,7 +1575,7 @@ void intif_parse_achievementsave(int fd)
 */
 int intif_achievement_save(struct map_session_data *sd)
 {
-	int len = sizeof(struct achievement) * sd->achievement_data.count + 8;
+	/*int len = sizeof(struct achievement) * sd->achievement_data.count + 8;
 
 	if (CheckForCharServer())
 		return 0;
@@ -1581,44 +1588,7 @@ int intif_achievement_save(struct map_session_data *sd)
 		memcpy(WFIFOP(inter_fd, 8), sd->achievement_data.achievements, sizeof(struct achievement) * sd->achievement_data.count);
 	WFIFOSET(inter_fd, len);
 
-	sd->achievement_data.save = false;
-
-	return 1;
-}
-
-/**
-* Parses the reply of the reward claiming for a achievement from the inter server.
-* @see intif_parse
-* @param fd : char-serv link
-*/
-void intif_parse_achievementreward(int fd){
-	struct map_session_data *sd = map_charid2sd(RFIFOL(fd, 2));
-
-	// User not online anymore
-	if (!sd){
-		return;
-	}
-
-	achievement_get_reward(sd, RFIFOL(fd, 6), RFIFOL(fd, 10));
-}
-
-/**
-* Request the achievement rewards from the inter server.
-*/
-int intif_achievement_reward(struct map_session_data *sd, struct achievement_db *adb, struct achievement_rewards *ardb) {
-	if (CheckForCharServer()){
-		return 0;
-	}
-
-	WFIFOHEAD(inter_fd, 16 + NAME_LENGTH + ACHIEVEMENT_NAME_LENGTH);
-	WFIFOW(inter_fd, 0) = 0x3064;
-	WFIFOL(inter_fd, 2) = sd->status.char_id;
-	WFIFOL(inter_fd, 6) = adb->achievement_id;
-	WFIFOW(inter_fd, 10) = ardb->nameid;
-	WFIFOL(inter_fd, 12) = ardb->amount;
-	safestrncpy(WFIFOCP(inter_fd, 16), sd->status.name, NAME_LENGTH);
-	safestrncpy(WFIFOCP(inter_fd, 16 + NAME_LENGTH), adb->name, ACHIEVEMENT_NAME_LENGTH);
-	WFIFOSET(inter_fd, 16 + NAME_LENGTH + ACHIEVEMENT_NAME_LENGTH);
+	sd->achievement_data.save = false;*/
 
 	return 1;
 }
@@ -2738,7 +2708,6 @@ int intif_parse(int fd)
 // Achievement system
 	case 0x3862:	intif_parse_achievements(fd); break;
 	case 0x3863:	intif_parse_achievementsave(fd); break;
-	case 0x3864:	intif_parse_achievementreward(fd); break;
 
 // Mercenary System
 	case 0x3870:	intif_parse_mercenary_received(fd); break;

@@ -4,6 +4,11 @@
 #ifndef _INT_ACHIEVEMENT_SQL_H_
 #define _INT_ACHIEVEMENT_SQL_H_
 
+struct achievement;
+struct char_achievements;
+
+struct DBMap *char_achievements;
+
 int inter_achievement_parse_frommap(int fd);
 
 #endif /* _INT_ACHIEVEMENT_SQL_H_ */

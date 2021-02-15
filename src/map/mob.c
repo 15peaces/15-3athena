@@ -58,7 +58,6 @@
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
-struct mob_db *mob_dummy = NULL;	//Dummy mob to be returned when a non-existant one is requested.
 
 struct mob_db *mob_db(int index) { if (index < 0 || index > MAX_MOB_DB || mob_db_data[index] == NULL) return mob_dummy; return mob_db_data[index]; }
 
@@ -2506,8 +2505,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				case BL_MER: sd = ((TBL_MER*)src)->master; break;
 			}
 
-		if (achievement_mobexists(md->class_))
-			achievement_update_objective(sd, AG_BATTLE, 1, md->class_);
+		//if (achievement_mobexists(md->class_))
+			//achievement_update_objective(sd, AG_BATTLE, 1, md->class_);
 
 		if( sd && sd->md && src && src->type != BL_HOM && mob_db(md->class_)->lv > sd->status.base_level/2 )
 			mercenary_kills(sd->md);
@@ -4470,6 +4469,7 @@ int do_init_mob(void)
 {	//Initialize the mob database
 	memset(mob_db_data,0,sizeof(mob_db_data)); //Clear the array
 	mob_db_data[0] = (struct mob_db*)aCalloc(1, sizeof (struct mob_db));	//This mob is used for random spawns
+	mob_dummy = NULL;
 	mob_makedummymobdb(0); //The first time this is invoked, it creates the dummy mob
 	item_drop_ers = ers_new(sizeof(struct item_drop));
 	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));

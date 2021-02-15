@@ -1815,6 +1815,7 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);
 		status_change_end(&sd->bl,SC_RAISINGDRAGON, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_KYOUGAKU, INVALID_TIMER);//Not official, but needed since logging back in crashes the client. Will fix later. [Rytech
 		if (battle_config.debuff_on_logout&1) 
 		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);

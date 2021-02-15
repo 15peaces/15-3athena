@@ -8,6 +8,7 @@
 #include "../common/socket.h"
 #include "../common/sql.h"
 #include "../common/strlib.h"
+#include "../common/nullpo.h"
 
 #include "char.h"
 #include "inter.h"
@@ -15,122 +16,93 @@
 #include "int_mail.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 
 /**
- * Load achievements for a character.
- * @param char_id: Character ID
- * @param count: Pointer to return the number of found entries.
- * @return Array of found entries. It has *count entries, and it is care of the caller to aFree() it afterwards.
+ * Saves changed achievements for a character.
+ * @param[in]   char_id     character identifier.
+ * @param[out]  cp          pointer to loaded achievements.
+ * @param[in]   p           pointer to map-sent character achievements.
+ * @return number of achievements saved.
  */
-struct achievement *mapif_achievements_fromsql(uint32 char_id, int *count)
+static int inter_achievement_tosql(int char_id, struct char_achievements *cp, const struct char_achievements *p)
 {
-	struct achievement *achievelog = NULL;
-	struct achievement tmp_achieve;
-	SqlStmt *stmt;
 	StringBuf buf;
-	int i;
+	int i = 0, rows = 0;
 
-	if (!count)
-		return NULL;
-
-	memset(&tmp_achieve, 0, sizeof(tmp_achieve));
+	nullpo_ret(cp);
+	nullpo_ret(p);
+	Assert_ret(char_id > 0);
 
 	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`, COALESCE(UNIX_TIMESTAMP(`completed`),0), COALESCE(UNIX_TIMESTAMP(`rewarded`),0)");
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
-		StringBuf_Printf(&buf, ", `count%d`", i + 1);
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id` = '%u'", achievement_table, char_id);
+	StringBuf_Printf(&buf, "REPLACE INTO `%s` (`char_id`, `id`, `completed`, `rewarded`", achievement_table);
+	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
+		StringBuf_Printf(&buf, ", `count%d`", i);
+	StringBuf_AppendStr(&buf, ") VALUES ");
 
-	stmt = SqlStmt_Malloc(sql_handle);
-	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf))
-	||  SQL_ERROR == SqlStmt_Execute(stmt) )
-	{
-		SqlStmt_ShowDebug(stmt);
-		SqlStmt_Free(stmt);
-		StringBuf_Destroy(&buf);
-		*count = 0;
-		return NULL;
-	}
+	for (i = 0; i < (int)VECTOR_LENGTH(*p); i++) {
+		int j = 0;
+		bool save = false;
+		struct achievement *pa = &VECTOR_INDEX(*p, i), *cpa = NULL;
 
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,  &tmp_achieve.achievement_id, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_INT,  &tmp_achieve.completed, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_INT,  &tmp_achieve.rewarded, 0, NULL, NULL);
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
-		SqlStmt_BindColumn(stmt, 3 + i, SQLDT_INT, &tmp_achieve.count[i], 0, NULL, NULL);
+		ARR_FIND(0, (int)VECTOR_LENGTH(*cp), j, ((cpa = &VECTOR_INDEX(*cp, j)) && cpa->id == pa->id));
 
-	*count = (int)SqlStmt_NumRows(stmt);
-	if (*count > 0) {
-		i = 0;
+		if (j == VECTOR_LENGTH(*cp))
+			save = true;
+		else if (memcmp(cpa, pa, sizeof(struct achievement)) != 0)
+			save = true;
 
-		achievelog = (struct achievement *)aCalloc(*count, sizeof(struct achievement));
-		while (SQL_SUCCESS == SqlStmt_NextRow(stmt)) {
-			if (i >= *count) // Sanity check, should never happen
-				break;
-			memcpy(&achievelog[i++], &tmp_achieve, sizeof(tmp_achieve));
-		}
-		if (i < *count) {
-			// Should never happen. Compact array
-			*count = i;
-			achievelog = (struct achievement *)aRealloc(achievelog, sizeof(struct achievement) * i);
+		if (save) {
+			StringBuf_Printf(&buf, "%s('%d', '%d', '%"PRId64"', '%"PRId64"'", rows ? ", " : "", char_id, pa->id, (int64)pa->completed, (int64)pa->rewarded);
+			for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++)
+				StringBuf_Printf(&buf, ", '%d'", pa->objective[j]);
+			StringBuf_AppendStr(&buf, ")");
+			rows++;
 		}
 	}
 
-	SqlStmt_Free(stmt);
+	if (rows > 0 && SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf))) {
+		Sql_ShowDebug(sql_handle);
+		StringBuf_Destroy(&buf); // Destroy the buffer.
+		return 0;
+	}
+	// Destroy the buffer.
 	StringBuf_Destroy(&buf);
 
-	ShowInfo("achievement load complete from DB - id: %d (total: %d)\n", char_id, *count);
+	if (rows) {
+		ShowInfo("achievements saved for char %d (total: %d, saved: %d)\n", char_id, VECTOR_LENGTH(*p), rows);
 
-	return achievelog;
-}
-
-/**
- * Deletes an achievement from a character's achievementlog.
- * @param char_id: Character ID
- * @param achievement_id: Achievement ID
- * @return false in case of errors, true otherwise
- */
-bool mapif_achievement_delete(uint32 char_id, int achievement_id)
-{
-	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `id` = '%d' AND `char_id` = '%u'", achievement_table, achievement_id, char_id)) {
-		Sql_ShowDebug(sql_handle);
-		return false;
+		/* Sync with inter-db acheivements. */
+		VECTOR_CLEAR(*cp);
+		VECTOR_ENSURE(*cp, VECTOR_LENGTH(*p), 1);
+		VECTOR_PUSHARRAY(*cp, VECTOR_DATA(*p), VECTOR_LENGTH(*p));
 	}
 
-	return true;
+	return rows;
 }
 
 /**
- * Adds an achievement to a character's achievementlog.
- * @param char_id: Character ID
- * @param ad: Achievement data
- * @return false in case of errors, true otherwise
+ * Retrieves all achievements of a character.
+ * @param[in]  char_id  character identifier.
+ * @param[out] cp       pointer to character achievements structure.
+ * @return true on success, false on failure.
  */
-bool mapif_achievement_add(uint32 char_id, struct achievement ad)
+static bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
 {
 	StringBuf buf;
-	int i;
+	char *data;
+	int i = 0, num_rows = 0;
 
+	nullpo_ret(cp);
+
+	Assert_ret(char_id > 0);
+
+	// char_achievements (`char_id`, `ach_id`, `completed_at`, `rewarded_at`, `obj_0`, `obj_2`, ...`obj_9`)
 	StringBuf_Init(&buf);
-	StringBuf_Printf(&buf, "INSERT INTO `%s` (`char_id`, `id`, `completed`, `rewarded`", achievement_table);
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
-		StringBuf_Printf(&buf, ", `count%d`", i + 1);
-	StringBuf_AppendStr(&buf, ")");
-	StringBuf_Printf(&buf, " VALUES ('%u', '%d',", char_id, ad.achievement_id, (uint32)ad.completed, (uint32)ad.rewarded);
-	if( ad.completed ){
-		StringBuf_Printf(&buf, "FROM_UNIXTIME('%u'),", (uint32)ad.completed);
-	}else{
-		StringBuf_AppendStr(&buf, "NULL,");
-	}
-	if( ad.rewarded ){
-		StringBuf_Printf(&buf, "FROM_UNIXTIME('%u')", (uint32)ad.rewarded);
-	}else{
-		StringBuf_AppendStr(&buf, "NULL");
-	}
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
-		StringBuf_Printf(&buf, ", '%d'", ad.count[i]);
-	StringBuf_AppendStr(&buf, ")");
+	StringBuf_AppendStr(&buf, "SELECT `id`, `completed`, `rewarded`");
+	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
+		StringBuf_Printf(&buf, ", `count%d`", i);
+	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id` = '%d' ORDER BY `id`", achievement_table, char_id);
 
 	if (SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf))) {
 		Sql_ShowDebug(sql_handle);
@@ -138,211 +110,212 @@ bool mapif_achievement_add(uint32 char_id, struct achievement ad)
 		return false;
 	}
 
-	StringBuf_Destroy(&buf);
+	VECTOR_CLEAR(*cp);
 
-	return true;
-}
+	if ((num_rows = (int)Sql_NumRows(sql_handle)) != 0) {
+		int j = 0;
 
-/**
- * Updates an achievement in a character's achievementlog.
- * @param char_id: Character ID
- * @param ad: Achievement data
- * @return false in case of errors, true otherwise
- */
-bool mapif_achievement_update(uint32 char_id, struct achievement ad)
-{
-	StringBuf buf;
-	int i;
+		VECTOR_ENSURE(*cp, (size_t)num_rows, 1);
 
-	StringBuf_Init(&buf);
-	StringBuf_Printf(&buf, "UPDATE `%s` SET ", achievement_table);
-	if( ad.completed ){
-		StringBuf_Printf(&buf, "`completed` = FROM_UNIXTIME('%u'),", (uint32)ad.completed);
-	}else{
-		StringBuf_AppendStr(&buf, "`completed` = NULL,");
-	}
-	if( ad.rewarded ){
-		StringBuf_Printf(&buf, "`rewarded` = FROM_UNIXTIME('%u')", (uint32)ad.rewarded);
-	}else{
-		StringBuf_AppendStr(&buf, "`rewarded` = NULL");
-	}
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
-		StringBuf_Printf(&buf, ", `count%d` = '%d'", i + 1, ad.count[i]);
-	StringBuf_Printf(&buf, " WHERE `id` = %d AND `char_id` = %u", ad.achievement_id, char_id);
-
-	if (SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf))) {
-		Sql_ShowDebug(sql_handle);
-		StringBuf_Destroy(&buf);
-		return false;
-	}
-
-	StringBuf_Destroy(&buf);
-
-	return true;
-}
-
-/**
- * Notifies the map-server of the result of saving a character's achievementlog.
- */
-void mapif_achievement_save( int fd, uint32 char_id, bool success ){
-	WFIFOHEAD(fd, 7);
-	WFIFOW(fd, 0) = 0x3863;
-	WFIFOL(fd, 2) = char_id;
-	WFIFOB(fd, 6) = success;
-	WFIFOSET(fd, 7);
-}
-
-/**
- * Handles the save request from mapserver for a character's achievementlog.
- * Received achievements are saved, and an ack is sent back to the map server.
- * @see inter_parse_frommap
- */
-int mapif_parse_achievement_save(int fd)
-{
-	int i, j, k, old_n, new_n = (RFIFOW(fd, 2) - 8) / sizeof(struct achievement);
-	uint32 char_id = RFIFOL(fd, 4);
-	struct achievement *old_ad = NULL, *new_ad = NULL;
-	bool success = true;
-
-	if (new_n > 0)
-		new_ad = (struct achievement *)RFIFOP(fd, 8);
-
-	old_ad = mapif_achievements_fromsql(char_id, &old_n);
-
-	for (i = 0; i < new_n; i++) {
-		ARR_FIND(0, old_n, j, new_ad[i].achievement_id == old_ad[j].achievement_id);
-		if (j < old_n) { // Update existing achievements
-			// Only counts, complete, and reward are changable.
-			ARR_FIND(0, MAX_ACHIEVEMENT_OBJECTIVES, k, new_ad[i].count[k] != old_ad[j].count[k]);
-			if (k != MAX_ACHIEVEMENT_OBJECTIVES || new_ad[i].completed != old_ad[j].completed || new_ad[i].rewarded != old_ad[j].rewarded) {
-				if ((success = mapif_achievement_update(char_id, new_ad[i])) == false)
-					break;
+		for (i = 0; i < num_rows && SQL_SUCCESS == Sql_NextRow(sql_handle); i++) {
+			struct achievement t_ach = { 0 };
+			Sql_GetData(sql_handle, 0, &data, NULL); t_ach.id = atoi(data);
+			Sql_GetData(sql_handle, 1, &data, NULL); t_ach.completed = atoi(data);
+			Sql_GetData(sql_handle, 2, &data, NULL); t_ach.rewarded = atoi(data);
+			/* Objectives */
+			for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++) {
+				Sql_GetData(sql_handle, j + 3, &data, NULL);
+				t_ach.objective[j] = atoi(data);
 			}
-
-			if (j < (--old_n)) {
-				// Compact array
-				memmove(&old_ad[j], &old_ad[j + 1], sizeof(struct achievement) * (old_n - j));
-				memset(&old_ad[old_n], 0, sizeof(struct achievement));
-			}
-		} else { // Add new achievements
-			if (new_ad[i].achievement_id) {
-				if ((success = mapif_achievement_add(char_id, new_ad[i])) == false)
-					break;
-			}
+			/* Add Entry */
+			VECTOR_PUSH(*cp, t_ach);
 		}
 	}
 
-	for (i = 0; i < old_n; i++) { // Achievements not in new_ad but in old_ad are to be erased.
-		if ((success = mapif_achievement_delete(char_id, old_ad[i].achievement_id)) == false)
-			break;
-	}
+	Sql_FreeResult(sql_handle);
 
-	if (old_ad)
-		aFree(old_ad);
+	StringBuf_Destroy(&buf);
 
-	mapif_achievement_save(fd, char_id, success);
+	if (num_rows > 0)
+		ShowInfo("achievements loaded for char %d (total: %d)\n", char_id, num_rows);
 
-	return 0;
+	return true;
 }
 
 /**
- * Sends the achievementlog of a character to the map-server.
+ * Sends achievement data of a character to the map server.
+ * @packet[out] 0x3862  <packet_id>.W <payload_size>.W <char_id>.L <char_achievements[]>.P
+ * @param[in]  fd      socket descriptor.
+ * @param[in]  char_id Character ID.
+ * @param[in]  cp      Pointer to character's achievement data vector.
  */
-void mapif_achievement_load( int fd, uint32 char_id ){
-	struct achievement *tmp_achievementlog = NULL;
-	int num_achievements = 0;
+static void inter_send_achievements_to_map(int fd, int char_id, const struct char_achievements *cp)
+{
+	int i = 0;
+	int data_size = 0;
 
-	tmp_achievementlog = mapif_achievements_fromsql(char_id, &num_achievements);
+	nullpo_retv(cp);
 
-	WFIFOHEAD(fd, num_achievements * sizeof(struct achievement) + 8);
+	data_size = sizeof(struct achievement) * VECTOR_LENGTH(*cp);
+
+	/* Send to the map server. */
+	WFIFOHEAD(fd, (8 + data_size));
 	WFIFOW(fd, 0) = 0x3862;
-	WFIFOW(fd, 2) = num_achievements * sizeof(struct achievement) + 8;
+	WFIFOW(fd, 2) = (8 + data_size);
 	WFIFOL(fd, 4) = char_id;
-
-	if (num_achievements > 0)
-		memcpy(WFIFOP(fd, 8), tmp_achievementlog, sizeof(struct achievement) * num_achievements);
-
-	WFIFOSET(fd, num_achievements * sizeof(struct achievement) + 8);
-
-	if (tmp_achievementlog)
-		aFree(tmp_achievementlog);
+	for (i = 0; i < (int)VECTOR_LENGTH(*cp); i++)
+		memcpy(WFIFOP(fd, 8 + i * sizeof(struct achievement)), &VECTOR_INDEX(*cp, i), sizeof(struct achievement));
+	WFIFOSET(fd, 8 + data_size);
 }
 
 /**
- * Sends achievementlog to the map server
- * NOTE: Achievements sent to the player are only completed ones
- * @see inter_parse_frommap
+ * This function ensures idb's entry.
  */
-int mapif_parse_achievement_load(int fd)
+static void* inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
 {
-	mapif_achievement_load( fd, RFIFOL(fd, 2) );
+	struct char_achievements *ca = NULL;
 
-	return 0;
+	CREATE(ca, struct char_achievements, 1);
+	VECTOR_INIT(*ca);
+
+	return ca;
 }
 
 /**
- * Notify the map-server if claiming the reward has succeeded.
+ * Loads achievements and sends to the map server.
+ * @param[in] fd       socket descriptor
+ * @param[in] char_id  character Id.
  */
-void mapif_achievement_reward( int fd, uint32 char_id, int32 achievement_id, time_t rewarded ){
-	WFIFOHEAD(fd, 14);
-	WFIFOW(fd, 0) = 0x3864;
-	WFIFOL(fd, 2) = char_id;
-	WFIFOL(fd, 6) = achievement_id;
-	WFIFOL(fd, 10) = (uint32)rewarded;
-	WFIFOSET(fd, 14);
+static void inter_achievement_load(int fd, int char_id)
+{
+	struct char_achievements *cp = NULL;
+
+	/* Ensure data exists */
+	cp = (struct char_achievements *)idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+
+	/* Load storage for char-server. */
+	inter_achievement_fromsql(char_id, cp);
+
+	/* Send Achievements to map server. */
+	inter_send_achievements_to_map(fd, char_id, cp);
 }
 
 /**
- * Request of the map-server that a player claimed his achievement rewards.
- * @see inter_parse_frommap
+ * Parse achievement load request from the map server
+ * @param[in] fd  socket descriptor.
  */
-int mapif_parse_achievement_reward(int fd){
-	time_t current = time(NULL);
-	uint32 char_id = RFIFOL(fd, 2);
-	int32 achievement_id = RFIFOL(fd, 6);
+static void inter_parse_load_achievements(int fd)
+{
+	int char_id = 0;
 
-	if( Sql_Query( sql_handle, "UPDATE `%s` SET `rewarded` = FROM_UNIXTIME('%u') WHERE `char_id`='%u' AND `id` = '%d' AND `completed` IS NOT NULL AND `rewarded` IS NULL", achievement_table, (uint32)current, char_id, achievement_id ) == SQL_ERROR ||
-		Sql_NumRowsAffected(sql_handle) <= 0 ){
-		current = 0;
-	}else if( RFIFOW(fd,10) > 0 ){ // Do not send a mail if no item reward
-		char mail_sender[NAME_LENGTH];
-		char mail_receiver[NAME_LENGTH];
-		char mail_title[MAIL_TITLE_LENGTH];
-		char mail_text[MAIL_BODY_LENGTH];
-		struct item item;
+	/* Read received information from map-server. */
+	RFIFOHEAD(fd);
+	char_id = RFIFOL(fd, 2);
 
-		memset(&item, 0, sizeof(struct item));
-		item.nameid = RFIFOW(fd, 10);
-		item.amount = RFIFOL(fd, 12);
-		item.identify = 1;
+	/* Load and send achievements to map */
+	inter_achievement_load(fd, char_id);
+}
 
-		safesnprintf(mail_sender, NAME_LENGTH, "GM");
-		safestrncpy(mail_receiver, RFIFOCP(fd,16), NAME_LENGTH);
-		safesnprintf(mail_title, MAIL_TITLE_LENGTH, "Achievement Reward Mail");
-		safesnprintf(mail_text, MAIL_BODY_LENGTH, "[%s] Achievement Reward.", RFIFOCP(fd, 16 + NAME_LENGTH));
+/**
+ * Handles inter-server achievement db ensuring
+ * and saves current achievements to sql.
+ * @param[in]  char_id      character identifier.
+ * @param[out] p            pointer to character achievements vector.
+ */
+static void inter_achievement_save(int char_id, struct char_achievements *p)
+{
+	struct char_achievements *cp = NULL;
 
-		if( !mail_sendmail(0, mail_sender, char_id, mail_receiver, mail_title, mail_text, 0, &item, 1) ){
-			current = 0;
-		}
+	nullpo_retv(p);
+
+	/* Get loaded achievements. */
+	cp = (struct char_achievements *)idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+
+	if (VECTOR_LENGTH(*p)) /* Save current achievements. */
+		inter_achievement_tosql(char_id, cp, p);
+}
+
+/**
+ * Handles achievement request and saves data from map server.
+ * @packet[in] 0x3863 <packet_size>.W <char_id>.L <char_achievement>.P
+ * @param[in]  fd     session socket descriptor.
+ */
+static void inter_parse_save_achievements(int fd)
+{
+	int size = 0, char_id = 0, payload_count = 0, i = 0;
+	struct char_achievements p = { 0 };
+
+	RFIFOHEAD(fd);
+	size = RFIFOW(fd, 2);
+	char_id = RFIFOL(fd, 4);
+
+	payload_count = (size - 8) / sizeof(struct achievement);
+
+	VECTOR_INIT(p);
+	VECTOR_ENSURE(p, (size_t)payload_count, 1);
+
+	for (i = 0; i < payload_count; i++) {
+		struct achievement ach = { 0 };
+		memcpy(&ach, RFIFOP(fd, 8 + i * sizeof(struct achievement)), sizeof(struct achievement));
+		VECTOR_PUSH(p, ach);
 	}
 
-	mapif_achievement_reward(fd, char_id, achievement_id, current);
+	inter_achievement_save(char_id, &p);
 
-	return 0;
+	VECTOR_CLEAR(p);
 }
 
 /**
- * Parses achievementlog related packets from the map server.
- * @see inter_parse_frommap
+ * Handles checking of map server packets and calls appropriate functions.
+ * @param fd   socket descriptor.
+ * @return 0 on failure, 1 on succes.
  */
 int inter_achievement_parse_frommap(int fd)
 {
+	RFIFOHEAD(fd);
+
 	switch (RFIFOW(fd, 0)) {
-		case 0x3062: mapif_parse_achievement_load(fd); break;
-		case 0x3063: mapif_parse_achievement_save(fd); break;
-		case 0x3064: mapif_parse_achievement_reward(fd); break;
-		default:
-			return 0;
+	case 0x3862:
+		inter_parse_load_achievements(fd);
+		break;
+	case 0x3863:
+		inter_parse_save_achievements(fd);
+		break;
+	default:
+		return 0;
 	}
+
 	return 1;
 }
+
+/**
+ * Initialization function
+ */
+static int inter_achievement_sql_init(void)
+{
+	// Initialize the loaded db storage.
+	// used as a comparand against map-server achievement data before saving.
+	char_achievements = idb_alloc(DB_OPT_RELEASE_DATA);
+	return 1;
+}
+
+/**
+ * Cleaning function called through db_destroy()
+ */
+static int inter_achievement_char_achievements_clear(union DBKey key, struct DBData *data, va_list args)
+{
+	struct char_achievements *ca = db_data2ptr(data);
+
+	VECTOR_CLEAR(*ca);
+
+	return 0;
+}
+
+/**
+ * Finalization function.
+ */
+static void inter_achievement_sql_final(void)
+{
+	char_achievements->destroy(char_achievements, inter_achievement_char_achievements_clear);
+}
+

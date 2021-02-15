@@ -4,133 +4,204 @@
 #ifndef MAP_ACHIEVEMENTS_H
 #define MAP_ACHIEVEMENTS_H
 
-#include "../common/mmo.h"
 #include "../common/db.h"
+#include "map.h" // enum status_point_types
 
-enum e_achievement_group {
-	AG_NONE = 0,
-	AG_ADD_FRIEND,
-	AG_ADVENTURE,
-	AG_BABY,
-	AG_BATTLE,
-	AG_CHAT,
-	AG_CHAT_COUNT,
-	AG_CHAT_CREATE,
-	AG_CHAT_DYING,
-	AG_EAT,
-	AG_GET_ITEM,
-	AG_GET_ZENY,
-	AG_GOAL_ACHIEVE,
-	AG_GOAL_LEVEL,
-	AG_GOAL_STATUS,
-	AG_HEAR,
-	AG_JOB_CHANGE,
-	AG_MARRY,
-	AG_PARTY,
-	AG_REFINE_FAIL,
-	AG_REFINE_SUCCESS,
-	AG_SEE,
-	AG_SPEND_ZENY,
-	AG_TAMING,
-	AG_MAX
+#define ACHIEVEMENT_NAME_LENGTH 50
+#define OBJECTIVE_DESCRIPTION_LENGTH 100
+
+struct achievement;
+struct map_session_data;
+struct char_achievements;
+
+/**
+ * Achievement Types
+ */
+enum achievement_types {
+	// Quest
+	ACH_QUEST, // achievement and objective specific
+	// PC Kills
+	ACH_KILL_PC_TOTAL,
+	ACH_KILL_PC_JOB,
+	ACH_KILL_PC_JOBTYPE,
+	// Mob Kills
+	ACH_KILL_MOB_CLASS,
+	// PC Damage
+	ACH_DAMAGE_PC_MAX,
+	ACH_DAMAGE_PC_TOTAL,
+	ACH_DAMAGE_PC_REC_MAX,
+	ACH_DAMAGE_PC_REC_TOTAL,
+	// Mob Damage
+	ACH_DAMAGE_MOB_MAX,
+	ACH_DAMAGE_MOB_TOTAL,
+	ACH_DAMAGE_MOB_REC_MAX,
+	ACH_DAMAGE_MOB_REC_TOTAL,
+	// Job
+	ACH_JOB_CHANGE,
+	// Status
+	ACH_STATUS,
+	ACH_STATUS_BY_JOB,
+	ACH_STATUS_BY_JOBTYPE,
+	// Chatroom
+	ACH_CHATROOM_CREATE_DEAD,
+	ACH_CHATROOM_CREATE,
+	ACH_CHATROOM_MEMBERS,
+	// Friend
+	ACH_FRIEND_ADD,
+	// Party
+	ACH_PARTY_CREATE,
+	ACH_PARTY_JOIN,
+	// Marriage
+	ACH_MARRY,
+	// Adoption
+	ACH_ADOPT_BABY,
+	ACH_ADOPT_PARENT,
+	// Zeny
+	ACH_ZENY_HOLD,
+	ACH_ZENY_GET_ONCE,
+	ACH_ZENY_GET_TOTAL,
+	ACH_ZENY_SPEND_ONCE,
+	ACH_ZENY_SPEND_TOTAL,
+	// Equipment
+	ACH_EQUIP_REFINE_SUCCESS,
+	ACH_EQUIP_REFINE_FAILURE,
+	ACH_EQUIP_REFINE_SUCCESS_TOTAL,
+	ACH_EQUIP_REFINE_FAILURE_TOTAL,
+	ACH_EQUIP_REFINE_SUCCESS_WLV,
+	ACH_EQUIP_REFINE_FAILURE_WLV,
+	ACH_EQUIP_REFINE_SUCCESS_ID,
+	ACH_EQUIP_REFINE_FAILURE_ID,
+	// Items
+	ACH_ITEM_GET_COUNT,
+	ACH_ITEM_GET_COUNT_ITEMTYPE,
+	ACH_ITEM_GET_WORTH,
+	ACH_ITEM_SELL_WORTH,
+	// Monsters
+	ACH_PET_CREATE,
+	// Achievement
+	ACH_ACHIEVE,
+	ACH_ACHIEVEMENT_RANK,
+	ACH_TYPE_MAX
 };
 
-enum e_achievement_info {
-	ACHIEVEINFO_COUNT1 = 1,
-	ACHIEVEINFO_COUNT2,
-	ACHIEVEINFO_COUNT3,
-	ACHIEVEINFO_COUNT4,
-	ACHIEVEINFO_COUNT5,
-	ACHIEVEINFO_COUNT6,
-	ACHIEVEINFO_COUNT7,
-	ACHIEVEINFO_COUNT8,
-	ACHIEVEINFO_COUNT9,
-	ACHIEVEINFO_COUNT10,
-	ACHIEVEINFO_COMPLETE,
-	ACHIEVEINFO_COMPLETEDATE,
-	ACHIEVEINFO_GOTREWARD,
-	ACHIEVEINFO_LEVEL,
-	ACHIEVEINFO_SCORE,
-	ACHIEVEINFO_MAX,
+enum unique_criteria_types {
+	CRITERIA_UNIQUE_NONE,
+	CRITERIA_UNIQUE_ACHIEVE_ID,
+	CRITERIA_UNIQUE_ITEM_ID,
+	CRITERIA_UNIQUE_MOB_ID,
+	CRITERIA_UNIQUE_JOB_ID,
+	CRITERIA_UNIQUE_STATUS_TYPE,
+	CRITERIA_UNIQUE_ITEM_TYPE,
+	CRITERIA_UNIQUE_WEAPON_LV,
 };
 
-struct achievement_mob {
-	int mod_id;
+/**
+ * Achievement Objective Structure
+ *
+ * @see achievement_type_requires_criteria()
+ * @see achievement_criteria_mobid()
+ * @see achievement_criteria_jobid()
+ * @see achievement_criteria_itemid()
+ * @see achievement_criteria_stattype()
+ * @see achievement_criteria_itemtype()
+ * @see achievement_criteria_weaponlv()
+ */
+struct achievement_objective {
+	int goal;
+	char description[OBJECTIVE_DESCRIPTION_LENGTH];
+	/**
+	 * Those criteria that do not make sense if stacked together.
+	 * union identifier is set in unique_type. (@see unique_criteria_type)
+	 */
+	union {
+		int achieve_id;
+		unsigned short itemid;
+		enum status_point_types status_type;
+		int weapon_lv;
+	} unique;
+	enum unique_criteria_types unique_type;
+	/* */
+	uint32 item_type;
+	int mobid;
+	VECTOR_DECL(int) jobid;
 };
 
-struct achievement_target {
-	int mob;
-	int count;
-};
-
-struct achievement_dependent {
-	int achievement_id;
-};
-
-struct av_condition {
-	int op;
-	struct av_condition *left;
-	struct av_condition *right;
-	long long value;
-};
-
-struct achievement_db {
-	int achievement_id;
-	char name[ACHIEVEMENT_NAME_LENGTH];
-	enum e_achievement_group group;
-	uint8 target_count;
-	struct achievement_target *targets;
-	uint8 dependent_count;
-	struct achievement_dependent *dependents;
-	struct av_condition *condition;
-	int16 mapindex;
-	int has_dependent; // Used for quick updating of achievements that depend on others - this is their ID
+struct achievement_reward_item {
+	int id, amount;
 };
 
 struct achievement_rewards {
-	int achievement_id;
-	unsigned short nameid, amount;
-	struct script_code *script;
 	int title_id;
-	int score;
+	struct script_code *bonus;
+	VECTOR_DECL(struct achievement_reward_item) item;
 };
 
-struct map_session_data;
-struct block_list;
+/**
+ * Achievement Data Structure
+ */
+struct achievement_data {
+	int id;
+	int points;
+	char name[ACHIEVEMENT_NAME_LENGTH];
+	enum achievement_types type;
+	VECTOR_DECL(struct achievement_objective) objective;
+	struct achievement_rewards rewards;
+};
 
-struct achievement_db achievement_dummy;				///< Dummy entry for invalid achievement lookups
-struct achievement_rewards achievement_reward_dummy;	///< Dummy entry for invalid achievement lookups
+// Achievements types that use Mob ID as criteria.
+#define achievement_criteria_mobid(t) ( \
+		   (t) == ACH_KILL_MOB_CLASS \
+		|| (t) == ACH_PET_CREATE )
 
-struct achievement_db *achievement_search(int achievement_id);
-struct achievement_rewards *achievement_reward_search(int achievement_id);
-bool achievement_mobexists(int mob_id);
-void achievement_get_reward(struct map_session_data *sd, int achievement_id, time_t rewarded);
-struct achievement *achievement_add(struct map_session_data *sd, int achievement_id);
-bool achievement_remove(struct map_session_data *sd, int achievement_id);
-bool achievement_update_achievement(struct map_session_data *sd, int achievement_id, bool complete);
-void achievement_check_reward(struct map_session_data *sd, int achievement_id);
-void achievement_free(struct map_session_data *sd);
-int achievement_check_progress(struct map_session_data *sd, int achievement_id, int type);
-int *achievement_level(struct map_session_data *sd, bool flag);
-void achievement_get_titles(uint32 char_id);
-void achievement_update_objective(struct map_session_data *sd, enum e_achievement_group group, uint8 arg_count, ...);
-void achievement_read_db(void);
-void achievement_db_reload(void);
-void achievement_reward_db_reload(void);
+// Achievements types that use JobID vector as criteria.
+#define achievement_criteria_jobid(t) ( \
+		   (t) == ACH_KILL_PC_JOB \
+		|| (t) == ACH_KILL_PC_JOBTYPE \
+		|| (t) == ACH_JOB_CHANGE \
+		|| (t) == ACH_STATUS_BY_JOB \
+		|| (t) == ACH_STATUS_BY_JOBTYPE )
 
-void achievement_removeChar(char *str, char garbage);
+// Achievements types that use Item ID as criteria.
+#define achievement_criteria_itemid(t) ( \
+		   (t) == ACH_ITEM_GET_COUNT \
+		|| (t) == ACH_EQUIP_REFINE_SUCCESS_ID \
+		|| (t) == ACH_EQUIP_REFINE_FAILURE_ID )
+
+// Achievements types that use status type parameter as criteria.
+#define achievement_criteria_stattype(t) ( \
+		   (t) == ACH_STATUS \
+		|| (t) == ACH_STATUS_BY_JOB \
+		|| (t) == ACH_STATUS_BY_JOBTYPE )
+
+// Achievements types that use item type mask as criteria.
+#define achievement_criteria_itemtype(t) ( \
+		   (t) == ACH_ITEM_GET_COUNT_ITEMTYPE )
+
+// Achievements types that use weapon level as criteria.
+#define achievement_criteria_weaponlv(t) ( \
+		   (t) == ACH_EQUIP_REFINE_SUCCESS_WLV \
+		|| (t) == ACH_EQUIP_REFINE_FAILURE_WLV )
+
+// Valid status types for objective criteria.
+#define achievement_valid_status_types(s) ( \
+		   (s) ==  SP_STR \
+		|| (s) ==  SP_AGI \
+		|| (s) ==  SP_VIT \
+		|| (s) ==  SP_INT \
+		|| (s) ==  SP_DEX \
+		|| (s) ==  SP_LUK \
+		|| (s) ==  SP_BASELEVEL || (s) ==  SP_JOBLEVEL )
+
+
+struct DBMap *achievement_db; // int id -> struct achievement_data *
+/* */
+VECTOR_DECL(int) rank_exp; // Achievement Rank Exp Requirements
+VECTOR_DECL(int) category[ACH_TYPE_MAX]; /* A collection of Ids per type for faster processing. */
+
+void achievement_validate_achieve(struct map_session_data *sd, int achid);
+void achievement_validate_item_sell(struct map_session_data *sd, int nameid, int amount);
 
 void do_init_achievement(void);
 void do_final_achievement(void);
-
-// Parser
-const char *av_parse_subexpr(const char *p,int limit, struct av_condition *parent);
-const char *av_parse_simpleexpr(const char *p, struct av_condition *parent);
-long long achievement_check_condition(struct av_condition *condition, struct map_session_data *sd, int *count);
-void achievement_script_free(struct av_condition *condition);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* MAP_ACHIEVEMENTS_H */

@@ -5,6 +5,7 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
+#include "../common/random.h"
 #include "../common/malloc.h"
 #include "../common/utils.h"
 #include "../common/ers.h"
@@ -570,7 +571,7 @@ void initChangeTables(void)
 	set_sc( KO_YAMIKUMO          , SC_HIDING          , SI_HIDING          , SCB_NONE);
 	set_sc( KO_JYUMONJIKIRI      , SC_KO_JYUMONJIKIRI , SI_KO_JYUMONJIKIRI , SCB_NONE);
 	set_sc( KO_MEIKYOUSISUI      , SC_MEIKYOUSISUI    , SI_MEIKYOUSISUI    , SCB_NONE );
-	set_sc( KO_KYOUGAKU          , SC_KYOUGAKU        , SI_KYOUGAKU        , SCB_NONE );
+	set_sc( KO_KYOUGAKU          , SC_KYOUGAKU        , SI_KYOUGAKU        , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
 	set_sc( KO_ZENKAI            , SC_ZENKAI          , SI_ZENKAI          , SCB_NONE );
 	set_sc( KO_IZAYOI            , SC_IZAYOI          , SI_IZAYOI          , SCB_MATK );
 	set_sc( KG_KAGEHUMI          , SC_KG_KAGEHUMI     , SI_KG_KAGEHUMI     , SCB_NONE );
@@ -4064,6 +4065,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		str -= sc->data[SC_STOMACHACHE]->val1;
+	if (sc->data[SC_KYOUGAKU])
+		str -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_SWORDCLAN])
 		str += 1;
 	if(sc->data[SC_JUMPINGCLAN])
@@ -4119,6 +4122,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		agi -= sc->data[SC_STOMACHACHE]->val1;
+	if (sc->data[SC_KYOUGAKU])
+		agi -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_CROSSBOWCLAN])
 		agi += 1;
 	if(sc->data[SC_JUMPINGCLAN])
@@ -4162,6 +4167,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		vit -= sc->data[SC_STOMACHACHE]->val1;
+	if (sc->data[SC_KYOUGAKU])
+		vit -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_SWORDCLAN])
 		vit += 1;
 	if(sc->data[SC_JUMPINGCLAN])
@@ -4219,6 +4226,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_COCKTAIL_WARG_BLOOD]->val1;
 	if(sc->data[SC_STOMACHACHE])
 		int_ -= sc->data[SC_STOMACHACHE]->val1;
+	if (sc->data[SC_KYOUGAKU])
+		int_ -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_ARCWANDCLAN])
 		int_ += 1;
 	if(sc->data[SC_GOLDENMACECLAN])
@@ -4279,6 +4288,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_INSPIRATION]->val3;
 	if(sc->data[SC_STOMACHACHE])
 		dex -= sc->data[SC_STOMACHACHE]->val1;
+	if (sc->data[SC_KYOUGAKU])
+		dex -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_ARCWANDCLAN])
 		dex += 1;
 	if(sc->data[SC_CROSSBOWCLAN])
@@ -4328,6 +4339,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk -= sc->data[SC_STOMACHACHE]->val1;
 	if(sc->data[SC_BANANA_BOMB])
 		luk -= luk * sc->data[SC_BANANA_BOMB]->val1 / 100;
+	if (sc->data[SC_KYOUGAKU])
+		luk -= sc->data[SC_KYOUGAKU]->val2;
 	if(sc->data[SC_GOLDENMACECLAN])
 		luk += 1;
 	if(sc->data[SC_JUMPINGCLAN])
@@ -8155,6 +8168,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_MEIKYOUSISUI:
 			val4 = tick / 1000;
 			tick = 1000;
+			break;
+		case SC_KYOUGAKU:
+			val2 = rnd_value( 2 * val1, 3 * val1);
+			val1 = 1002;
+			val_flag |= 1;
 			break;
 		case SC_IZAYOI:
 			val2 = 25 * val1;// MATK Increase.

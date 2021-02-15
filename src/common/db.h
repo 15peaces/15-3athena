@@ -647,6 +647,7 @@ struct DBMap {
  *  db_alloc           - Allocate a new database.                            *
  *  db_i2key           - Manual cast from 'int' to 'DBKey'.                  *
  *  db_ui2key          - Manual cast from 'unsigned int' to 'DBKey'.         *
+ *  db_ptr2data        - Manual cast from `void*` to `struct DBData`.        *
  *  db_str2key         - Manual cast from 'unsigned char *' to 'DBKey'.      *
  *  db_init            - Initialise the database system.                     *
  *  db_final           - Finalise the database system.                       *
@@ -760,6 +761,14 @@ DBKey db_ui2key(unsigned int key);
  * @public
  */
 DBKey db_str2key(const char *key);
+
+/**
+ * Manual cast from 'void *' to the struct DBData.
+ * @param data Data to be casted
+ * @return The data as a DBData struct
+ * @public
+ */
+DBData db_ptr2data(void *data);
 
 /**
 * Gets void* type data from struct DBData.

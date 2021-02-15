@@ -1228,6 +1228,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case KO_SETSUDAN:
 		status_change_end(bl, SC_SPIRIT, INVALID_TIMER);//Remove Soul Link When Hit. [Rytech]
 		break;
+	case KO_MAKIBISHI:
+		sc_start(bl, SC_STUN, 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		break;
 	case EL_WIND_SLASH:	// Non confirmed rate.
 		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -3532,12 +3535,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_JUDEX:
 	case WL_SOULEXPANSION:
 	case WL_CRIMSONROCK:
-	//case WL_COMET:
 	case WL_JACKFROST:
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
 	case NC_VULCANARM:
-	//case NC_ARMSCANNON:
 	case NC_SELFDESTRUCTION:
 	case NC_AXETORNADO:
 	case LG_MOONSLASHER:
@@ -3550,6 +3551,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
 	case KO_HAPPOKUNAI:
+	case KO_MUCHANAGE:
 		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3815,7 +3817,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_THORNS_TRAP:
 	case GN_BLOOD_SUCKER:
 	case GN_HELLS_PLANT_ATK:
-	case KO_MUCHANAGE:
 		skill_attack(BF_MISC, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
@@ -5125,7 +5126,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 
-	/*case KO_KYOUGAKU:
+	case KO_ZANZOU:
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		skill_blown(src,bl,skill_get_blewcount(skillid,skilllv),unit_getdir(bl),0);
+		break;
+
+	case KO_KYOUGAKU:
 		if ( bl->type != BL_PC )
 		{
 			clif_skill_fail(sd,skillid,0,0,0);
@@ -5133,8 +5139,48 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		//Used skill level must be used in val2 since val1 sets the ID of the monster the target will turn into. [Rytech]
 		//For now the monster ID for Poring will be used until more info is gained about what mob's it changes you into.
-		sc_start2(bl,type,100,1002,skilllv,skill_get_time(skillid,skilllv));
-		break;*/
+		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+
+	case KO_JYUSATSU:
+		rate = 45 + 10 * skilllv - tstatus->int_ / 2;
+		if ( rate < 5 )
+			rate = 5;
+		sc_start(bl,SC_CURSE,rate,skilllv,skill_get_time(skillid,skilllv));
+		if ( status_get_lv(src) >= status_get_lv(bl) && bl->type == BL_PC)
+			status_change_start(bl,SC_COMA,10 * skilllv,skilllv,0,0,0,0,0);
+		break;
+
+	case KO_GENWAKU:
+		rate = 45 + 5 * skilllv - tstatus->int_ / 10;
+		if ( rate < 5 )
+			rate = 5;
+		if ( rand()%100 < rate )
+		{
+			int caster_x = src->x;
+			int caster_y = src->y;
+			int target_x = bl->x;
+			int target_y = bl->y;
+			if ( !is_boss(bl) )
+			{
+				clif_skill_nodamage(bl,bl,skillid,skilllv,1);// Caster
+				unit_movepos(src,target_x,target_y,0,0);
+				clif_slide(src,target_x,target_y) ;
+				clif_skill_nodamage(src,src,skillid,skilllv,1);// Target
+				unit_movepos(bl,caster_x,caster_y,0,0);
+				clif_slide(bl,caster_x,caster_y) ;
+				sc_start(src,SC_CONFUSION,25,skilllv,skill_get_time(skillid,skilllv));
+				sc_start(bl,SC_CONFUSION,75,skilllv,skill_get_time(skillid,skilllv));
+			}
+			else
+			{// Caster will warp up to the target if monster is boss type, but the targeted monster will not change position. [Rytech]
+				clif_skill_nodamage(bl,bl,skillid,skilllv,1);
+				unit_movepos(src,target_x,target_y,0,0);
+				clif_slide(src,target_x,target_y) ;
+				sc_start(src,SC_CONFUSION,25,skilllv,skill_get_time(skillid,skilllv));
+			}
+		}
+		break;
 
 	case KG_KAGEHUMI:
 		if( flag&1 )
@@ -9558,7 +9604,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case WM_GREAT_ECHO:
 	case WM_SOUND_OF_DESTRUCTION:
 	case KO_BAKURETSU:
-	case KO_MUCHANAGE:
 	case KO_HUUMARANKA:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | 1, skill_castend_damage_id);
@@ -9875,6 +9920,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WATER_INSIGNIA:
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
+	case KO_MAKIBISHI:
 	case KO_ZENKAI:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
@@ -9908,11 +9954,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_graffitiremover,src->m,x-i,y-i,x+i,y+i,BL_SKILL);
 		break;
-	case SO_CLOUD_KILL:
-	case SO_WARMER:
-		flag|=(skillid == SO_WARMER)?8:4;
-		skill_unitsetting(src,skillid,skilllv,x,y,0);
- 		break;
 
 	case WZ_METEOR:
 		{
@@ -10156,6 +10197,21 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			}
 		}
 		break;
+
+	case KO_MUCHANAGE:
+	{
+		struct status_data *sstatus;
+		int rate = 0;
+		sstatus = status_get_status_data(src);
+		i = skill_get_splash(skillid,skilllv);
+		rate = (100 - (1000 / (sstatus->dex + sstatus->luk) * 5)) * (skilllv / 2 + 5) / 10;
+		if ( rate < 0 )
+			rate = 0;
+		skill_area_temp[0] = map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i, BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
+		if ( rand()%100 < rate )
+			map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
+	}
+	break;
 
 	default:
 		ShowWarning("skill_castend_pos2: Unknown skill used:%d\n",skillid);
@@ -13994,7 +14050,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 				clif_refine(sd->fd,0,idx,item->refine);
 				clif_delitem(sd,idx,1,3);
 				clif_additem(sd,idx,1,0);
-				achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, ditem->wlv, item->refine);
+				//achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, ditem->wlv, item->refine);
 				if (ep)
 					pc_equipitem(sd,idx,ep,false);
 				clif_misceffect(&sd->bl,3);
@@ -14019,7 +14075,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 				if(item->equip)
 					pc_unequipitem(sd,idx,3);
 				clif_refine(sd->fd,1,idx,item->refine);
-				achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
+				//achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
 				pc_delitem(sd,idx,1,0,2);
 				clif_misceffect(&sd->bl,2);
 				clif_emotion(&sd->bl, E_OMG);
@@ -16838,6 +16894,15 @@ void skill_init_unit_layout (void)
 					static const int dx[] = {-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2, 2, 2, 1, 0};
 					static const int dy[] = { 2, 2, 1, 0,-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2};
 					skill_unit_layout[pos].count = 16;
+					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
+					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
+					break;
+				}
+				case KO_MAKIBISHI:
+				{
+					static const int dx[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+					static const int dy[] = { 1, 1, 1, 0, 0,-1,-1,-1};
+					skill_unit_layout[pos].count = 8;
 					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 					break;

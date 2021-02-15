@@ -26,11 +26,36 @@
 /// Returns 0 in case of a NULL pointer.
 #define nullpo_ret(t)       if( nullpo_chk(NLP_MARK, (void *)(t), #t) ) { return(0); }
 
+/**
+ * Returns 0 if the given assertion fails.
+ *
+ * @param t statement to check
+ */
+#define Assert_ret(t) \
+	do { if (Assert_chk(t)) return(0); } while(0)
+
 /// Returns from a 'void' function in case of a NULL pointer.
 #define nullpo_retv(t)      if( nullpo_chk(NLP_MARK, (void *)(t), #t) ) { return; }
 
+/**
+ * Returns void if the given assertion fails.
+ *
+ * @param t statement to check
+ */
+#define Assert_retv(t) \
+	do { if (Assert_chk(t)) return; } while(0)
+
 /// Returns given value in case of a NULL pointer.
 #define nullpo_retr(ret, t) if( nullpo_chk(NLP_MARK, (void *)(t), #t) ) { return(ret); }
+
+/**
+ * Returns the given value if the given assertion fails.
+ *
+ * @param ret value to return
+ * @param t   statement to check
+ */
+#define Assert_retr(ret, t) \
+	do { if (Assert_chk(t)) return(ret); } while(0)
 
 /// Breaks out of a loop/switch in case of a NULL pointer.
 #define nullpo_retb(t)      if( nullpo_chk(NLP_MARK, (void *)(t), #t) ) { break; }
@@ -49,14 +74,6 @@ void nullpo_assert_report(const char *file, int line, const char *func, const ch
 ///     1 = NULL
 /// @note   Prefer using NLP_MARK for file, line, func.
 int nullpo_chk(const char* file, int line, const char* func, const void* target, const char* targetname);
-
-/**
- * Returns void if the given assertion fails.
- *
- * @param t statement to check
- */
-#define Assert_retv(t) \
-	do { if (Assert_chk(t)) return; } while(0)
 
 
 #else /* NULLPO_CHECK */

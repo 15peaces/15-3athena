@@ -175,7 +175,7 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	log_zeny(vsd, LOG_TYPE_VENDING, sd, (int)z);
 
 	pc_payzeny(sd, (int)z);
-	achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
+	//achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
 	if( battle_config.vending_tax )
 		z -= z * (battle_config.vending_tax/10000.);
 	pc_getzeny(vsd, (int)z);

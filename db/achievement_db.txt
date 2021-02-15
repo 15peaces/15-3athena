@@ -1,400 +1,446 @@
 // 15-3athena Achievement Database
 //
 // Structure of Database:
-// ID,Group,Name,Condition,Map,Dependent1:Dependent2...,Target1:Target2...,TargetCount1:TargetCount2...
+// ID,Name,Type,ObjectiveDescription1;ObjectiveDescription2...,ObjectiveCriteria1:ObjectiveCriteria2...,CriteriaID1:CriteriaID2...,Goal,Score,TitleID,ItemID,Amount,Script
 //
-// 01. ID			Unique achievement ID.
-// 02. Group		Achievement group type. Each achievement type calls a specific objective check.
-// 03. Name			Achievement name. Used when sending rewards through RODEX.
-// 04. Condition	A conditional statement that must be met for the achievement to be considered complete.
-// 05. Map			A map name that is used for the AG_CHATTING type which increments the counter based on the player's map.
-// 06. Dependent	A list of achievement IDs that need to be completed before this achievement is considered complete.
-// 07. Target 		A list of monster ID that the achievement requires. The target count can also be used for achievements that keep a counter while not being related to monster kills (set to -1).
-// 					Capped at MAX_ACHIEVEMENT_OBJECTIVES.
-// 08. TargetCount	A list of count values that the achievement requires. The count can also be used for achievements that keep a counter while not being related to monster kills.
-// 					Capped at MAX_ACHIEVEMENT_OBJECTIVES.
-//
-// Note: Valid groups:
-//	 	AG_ADD_FRIEND
-//	 	AG_ADVENTURE
-// 		AG_BABY
-//		AG_BATTLE
-//		AG_CHATTING
-//		AG_CHATTING_COUNT
-//		AG_CHATTING_CREATE
-//		AG_CHATTING_DYING
-//		AG_EAT
-//		AG_GET_ITEM
-//		AG_GET_ZENY
-//		AG_GOAL_ACHIEVE
-//		AG_GOAL_LEVEL
-//		AG_GOAL_STATUS
-//		AG_HEAR
-//		AG_JOB_CHANGE
-//		AG_MARRY
-//		AG_PARTY
-//		AG_ENCHANT_FAIL
-//		AG_ENCHANT_SUCCESS
-//		AG_SEE
-//		AG_SPEND_ZENY
-//		AG_TAMING
+//	Id: 					Unique ID of the achievement representing it's client-side equivalent.
+//	Name:					Name/Title of the Achievement.
+//	Type:					Validation type for the achievement.
+//		Note: Valid types:
+//			ACH_QUEST:                          Specific achievement objective update (Script).
+//			ACH_KILL_PC_TOTAL:                  (Accumulative) Total kill count. (Player kill)
+//			ACH_KILL_PC_JOB:                    Kill a player of the specified job. (Player Kill)
+//			ACH_KILL_PC_JOBTYPE:                Kill a player of the specified job type. (Player Kill)
+//			ACH_KILL_MOB_CLASS:                 Kill a particular mob class. (Mob Kill)
+//			ACH_DAMAGE_PC_MAX:                  Maximum damage caused on a player. (Player Damage)
+//			ACH_DAMAGE_PC_TOTAL:                (Accumulative) Damage on players. (Player Damage)
+//			ACH_DAMAGE_PC_REC_MAX:              Maximum damage received by a player. (Receive Player Damage)
+//			ACH_DAMAGE_PC_REC_TOTAL:            (Accumulative) Damage received by players. (Receive Player Damage)
+//			ACH_DAMAGE_MOB_MAX:                 Maximum damage caused on a monster. (Monster Damage)
+//			ACH_DAMAGE_MOB_TOTAL:               (Accumulative) Damage caused on monsters. (Monster Damage)
+//			ACH_DAMAGE_MOB_REC_MAX:             Maximum damage received by a monster. (Receive Monster Damage)
+//			ACH_DAMAGE_MOB_REC_TOTAL:           (Accumulative) Damage received by monsters. (Receive Monster Damage)
+//			ACH_JOB_CHANGE:                     Change to a specific job. (Job Change)
+//			ACH_STATUS:                         Acquire a specific amount of a particular status type. (Stat Change)
+//			ACH_STATUS_BY_JOB:                  Acquire a specific amount of a status type as a job class. (Stat Change)
+//			ACH_STATUS_BY_JOBTYPE:              Acquire a specific amount of a status type as a job type. (Stat Change)
+//			ACH_CHATROOM_CREATE_DEAD:           (Accumulative) Create a chatroom when dead. (Chatroom Creation)
+//			ACH_CHATROOM_CREATE:                (Accumulative) Create a chatroom. (Chatroom Creation)
+//			ACH_CHATROOM_MEMBERS:               Gather 'n' members in a chatroom. (Chatroom Join)
+//			ACH_FRIEND_ADD:                     Add a specific number of friends. (Friend Addition)
+//			ACH_PARTY_CREATE:                   (Accumulative) Create a specific number of parties. (Party Creation)
+//			ACH_PARTY_JOIN:                     (Accumulative) Join a specific number of parties. (Party Join)
+//			ACH_MARRY:                          (Accumulative) Marry a specified number of times. (Marriage)
+//			ACH_ADOPT_BABY:                     (Accumulative) Get Adopted. (Adoption)
+//			ACH_ADOPT_PARENT:                   (Accumulative) Adopt a Baby. (Adoption)
+//			ACH_ZENY_HOLD:                      Hold a specific amount of zeny in your inventory. (Gain Zeny)
+//			ACH_ZENY_GET_ONCE:                  Gain a specific amount of zeny in one transaction. (Gain Zeny)
+//			ACH_ZENY_GET_TOTAL:                 (Accumulative) Gain a specific amount of zeny in total. (Gain Zeny)
+//			ACH_ZENY_SPEND_ONCE:                Spend a specific amount of zeny in one transaction. (Pay Zeny)
+//			ACH_ZENY_SPEND_TOTAL:               (Accumulative) Spend a specific amount of zeny in total. (Pay Zeny)
+//			ACH_EQUIP_REFINE_SUCCESS:           Refine an item to +N. (Successful Refine)
+//			ACH_EQUIP_REFINE_FAILURE:           Fail to refine an item of +N refine. (Failed Refine)
+//			ACH_EQUIP_REFINE_SUCCESS_TOTAL:     (Accumulative) Refine an item successfully N times. (Success Refine)
+//			ACH_EQUIP_REFINE_FAILURE_TOTAL:     (Accumulative) Fail to refine an item N times. (Failed Refine)
+//			ACH_EQUIP_REFINE_SUCCESS_WLV:       Refine a Weapon of a particular Level to +N. (Success Refine)
+//			ACH_EQUIP_REFINE_FAILURE_WLV:       Fail to refine a Weapon of a particular level from +N. (Failed Refine)
+//			ACH_EQUIP_REFINE_SUCCESS_ID:        Refine a particular Item successfully to +N. (Success Refine)
+//			ACH_EQUIP_REFINE_FAILURE_ID:        Fail to refine a particular item successfully from +N. (Failed Refine)
+//			ACH_ITEM_GET_COUNT:                 Acquire N amount of an item of a particular ID. (Acquire Item)
+//			ACH_ITEM_GET_COUNT_ITEMTYPE:        Acquire N amount of items of a particular type mask. (Acquire Item)
+//			ACH_ITEM_GET_WORTH:                 Acquire an item of buy value N. (Acquire Item)
+//			ACH_ITEM_SELL_WORTH:                Sell an item of sell value N. (NPC Sell Item)
+//			ACH_PET_CREATE:                     Successfully tame a pet of a particular mob class. (Successful Pet Tame)
+//			ACH_ACHIEVE:                        Achieve an Achievement. (Achievement Completion)
+//			ACH_ACHIEVEMENT_RANK:               Achieve an Achievement Rank. (Achievement Rank Increase)
+//	ObjectiveDescription:	Description of a particular objective.
+//	ObjectiveCriteria:		Identifier for the criteria that must be met. If only one idetifier is set, it will be used for all CriteriaIDs.
+//		Note: Valid identifiers:
+//			ACH_C_ACHIEVE:		Checks if an achievement is achieved. Set CriteriaID to the achievement id.
+//			ACH_C_ITEMID:		Checks for a special item, set CriteriaID to a itemID
+//			ACH_C_MOBID:		Checks for a monster, set CriteriaID to a monsterID
+//			ACH_C_JOBID:		Checks a special job to start this, set CriteriaID to a jobID
+//			ACH_C_STATUSTYPE:	Checks for a status point, etc. Set the CriteriaID to a status type (SP_STR, SP_AGI,...,SP_BASELEVEL,SP_JOBLEVEL)
+//			ACH_C_ITEMTYPE:		Checks for a item type. Set the CriteriaID to a item type.
+//			ACH_C_WEAPONLV:		Checks for the weapon level. Set CriteriaID to the weapon level (Eg. 0, 1, 2, 3 or 4).
+//	Goal:					Target amount to be met for the completion of the objective. Default is 1.
+//  Score					Achievement points that are given on completion.
+//  TitleID					Reward Title ID
+//  ItemID 					Reward ItemID
+//  Amount					Amount of Item ID (default 1)
+//  Script					Reward Bonus Script
 
-110000,AG_EAT,"At this time I live to eat","","",0,0,0
-110001,AG_SEE,"A fan of this polarity","","",0,0,0
-120001,AG_ADVENTURE,"North Prontera Field Exploration(1)","","",0,0,0
-120002,AG_ADVENTURE,"North Prontera Field Exploration(2)","","",0,0,0
-120003,AG_ADVENTURE,"North Prontera Field Exploration(3)","","",0,0,0
-120004,AG_ADVENTURE,"West Prontera Field Exploration(1)","","",0,0,0
-120005,AG_ADVENTURE,"West Prontera Field Exploration(2)","","",0,0,0
-120006,AG_ADVENTURE,"East Prontera Field Exploration","","",0,0,0
-120007,AG_ADVENTURE,"South Prontera Field Exploration(1)","","",0,0,0
-120008,AG_ADVENTURE,"South Prontera Field Exploration(2)","","",0,0,0
-120009,AG_ADVENTURE,"South Prontera Field Exploration(3)","","",0,0,0
-120010,AG_ADVENTURE,"South Prontera Field Exploration(4)","","",0,0,0
-120011,AG_ADVENTURE,"East Geffen Field Exploration","","",0,0,0
-120012,AG_ADVENTURE,"Southeast Geffen Field Exploration","","",0,0,0
-120013,AG_ADVENTURE,"Northwest Geffen Field Exploration(1)","","",0,0,0
-120014,AG_ADVENTURE,"Northwest Geffen Field Exploration(2)","","",0,0,0
-120015,AG_ADVENTURE,"Northwest Geffen Field Exploration(3)","","",0,0,0
-120016,AG_ADVENTURE,"South Geffen Field Exploration(1)","","",0,0,0
-120017,AG_ADVENTURE,"South Geffen Field Exploration(2)","","",0,0,0
-120018,AG_ADVENTURE,"Sograt Desert Field Exploration(1)","","",0,0,0
-120019,AG_ADVENTURE,"Sograt Desert Field Exploration(2)","","",0,0,0
-120020,AG_ADVENTURE,"Sograt Desert Field Exploration(3)","","",0,0,0
-120021,AG_ADVENTURE,"Sograt Desert Field Exploration(4)","","",0,0,0
-120022,AG_ADVENTURE,"Sograt Desert Field Exploration(5)","","",0,0,0
-120023,AG_ADVENTURE,"Sograt Desert Field Exploration(6)","","",0,0,0
-120024,AG_ADVENTURE,"Southwest Payon Field Exploration(1)","","",0,0,0
-120025,AG_ADVENTURE,"Southwest Payon Field Exploration(2)","","",0,0,0
-120026,AG_ADVENTURE,"Southwest Payon Field Exploration(3)","","",0,0,0
-120027,AG_ADVENTURE,"Southwest Payon Field Exploration(4)","","",0,0,0
-120028,AG_ADVENTURE,"East Payon Field Exploration(1)","","",0,0,0
-120029,AG_ADVENTURE,"East Payon Field Exploration(2)","","",0,0,0
-120030,AG_ADVENTURE,"East Payon Field Exploration(3)","","",0,0,0
-120031,AG_ADVENTURE,"East Payon Field Exploration(4)","","",0,0,0
-120032,AG_ADVENTURE,"North Mjolnir Field Exploration(1)","","",0,0,0
-120033,AG_ADVENTURE,"North Mjolnir Field Exploration(2)","","",0,0,0
-120034,AG_ADVENTURE,"North Mjolnir Field Exploration(3)","","",0,0,0
-120035,AG_ADVENTURE,"North Mjolnir Field Exploration(4)","","",0,0,0
-120036,AG_ADVENTURE,"North Mjolnir Field Exploration(5)","","",0,0,0
-120037,AG_ADVENTURE,"South Mjolnir Field Exploration(1)","","",0,0,0
-120038,AG_ADVENTURE,"South Mjolnir Field Exploration(2)","","",0,0,0
-120039,AG_ADVENTURE,"South Mjolnir Field Exploration(3)","","",0,0,0
-120040,AG_ADVENTURE,"South Mjolnir Field Exploration(4)","","",0,0,0
-120041,AG_ADVENTURE,"South Mjolnir Field Exploration(5)","","",0,0,0
-120042,AG_ADVENTURE,"South Mjolnir Field Exploration(6)","","",0,0,0
-120043,AG_ADVENTURE,"South Aldebaran Field Exploration","","",0,0,0
-120044,AG_ADVENTURE,"Comodo Field Exploration(1)","","",0,0,0
-120045,AG_ADVENTURE,"Comodo Field Exploration(2)","","",0,0,0
-120046,AG_ADVENTURE,"Comodo Field Exploration(3)","","",0,0,0
-120047,AG_ADVENTURE,"Comodo Field Exploration(4)","","",0,0,0
-120048,AG_ADVENTURE,"Comodo Field Exploration(5)","","",0,0,0
-120049,AG_ADVENTURE,"Comodo Field Exploration(6)","","",0,0,0
-120050,AG_ADVENTURE,"Comodo Field Exploration(7)","","",0,0,0
-120051,AG_ADVENTURE,"Comodo Field Exploration(8)","","",0,0,0
-120052,AG_ADVENTURE,"Border Checkpoint Field Exploration(1)","","",0,0,0
-120053,AG_ADVENTURE,"Border Checkpoint Field Exploration(2)","","",0,0,0
-120054,AG_ADVENTURE,"Kiel Hyre Mansion Field Exploration","","",0,0,0
-120055,AG_ADVENTURE,"El Mes Plateau Field Exploration(1)","","",0,0,0
-120056,AG_ADVENTURE,"El Mes Plateau Field Exploration(2)","","",0,0,0
-120057,AG_ADVENTURE,"El Mes Plateau Field Exploration(3)","","",0,0,0
-120058,AG_ADVENTURE,"El Mes Gorge Field Exploration","","",0,0,0
-120059,AG_ADVENTURE,"Kiel Hyre Academy Field Exploration","","",0,0,0
-120060,AG_ADVENTURE,"Guard Camp Field Exploration","","",0,0,0
-120061,AG_ADVENTURE,"Yuno Field Exploration","","",0,0,0
-120062,AG_ADVENTURE,"Front of Thanatos Tower Field Exploration","","",0,0,0
-120063,AG_ADVENTURE,"Hugel Field Exploration(1)","","",0,0,0
-120064,AG_ADVENTURE,"Hugel Field Exploration(2)","","",0,0,0
-120065,AG_ADVENTURE,"Hugel Field Exploration(3)","","",0,0,0
-120066,AG_ADVENTURE,"Abyss Lake Field Exploration(1)","","",0,0,0
-120067,AG_ADVENTURE,"Einbroch Field Exploration(1)","","",0,0,0
-120068,AG_ADVENTURE,"Einbroch Field Exploration(2)","","",0,0,0
-120069,AG_ADVENTURE,"Einbroch Field Exploration(3)","","",0,0,0
-120070,AG_ADVENTURE,"Einbroch Field Exploration(4)","","",0,0,0
-120071,AG_ADVENTURE,"Einbroch Field Exploration(5)","","",0,0,0
-120072,AG_ADVENTURE,"Einbroch Field Exploration(6)","","",0,0,0
-120073,AG_ADVENTURE,"Einbroch Field Exploration(7)","","",0,0,0
-120074,AG_ADVENTURE,"Einbroch Field Exploration(8)","","",0,0,0
-120075,AG_ADVENTURE,"Lighthalzen Field Exploration(1)","","",0,0,0
-120076,AG_ADVENTURE,"Lighthalzen Field Exploration(2)","","",0,0,0
-120077,AG_ADVENTURE,"Lighthalzen Field Exploration(3)","","",0,0,0
-120078,AG_ADVENTURE,"Rachel Audhumbla Plains Field Exploration(1)","","",0,0,0
-120079,AG_ADVENTURE,"Rachel Plains Field Exploration(1)","","",0,0,0
-120080,AG_ADVENTURE,"Rachel Plains Field Exploration(2)","","",0,0,0
-120081,AG_ADVENTURE,"Rachel Plains Field Exploration(3)","","",0,0,0
-120082,AG_ADVENTURE,"Rachel Audhumbla Grassland Field Exploration(1)","","",0,0,0
-120083,AG_ADVENTURE,"Rachel Audhumbla Grassland Field Exploration(2)","","",0,0,0
-120084,AG_ADVENTURE,"Portus Luna Field Exploration","","",0,0,0
-120085,AG_ADVENTURE,"Veins Field Exploration(1)","","",0,0,0
-120086,AG_ADVENTURE,"Veins Field Exploration(2)","","",0,0,0
-120087,AG_ADVENTURE,"Veins Field Exploration(3)","","",0,0,0
-120088,AG_ADVENTURE,"Veins Field Exploration(4)","","",0,0,0
-120089,AG_ADVENTURE,"Veins Field Exploration(5)","","",0,0,0
-120090,AG_ADVENTURE,"Eclage Field Exploration","","",0,0,0
-120091,AG_ADVENTURE,"North Bitfrost Field Exploration(1)","","",0,0,0
-120092,AG_ADVENTURE,"South Bitfrost Field Exploration(1)","","",0,0,0
-120093,AG_ADVENTURE,"Splendide Field Exploration(1)","","",0,0,0
-120094,AG_ADVENTURE,"Splendide Field Exploration(2)","","",0,0,0
-120095,AG_ADVENTURE,"Splendide Field Exploration(3)","","",0,0,0
-120096,AG_ADVENTURE,"Manuk Field Exploration(1)","","",0,0,0
-120097,AG_ADVENTURE,"Manuk Field Exploration(2)","","",0,0,0
-120098,AG_ADVENTURE,"Manuk Field Exploration(3)","","",0,0,0
-120099,AG_ADVENTURE,"Outskirts of Kamidal Field Exploration(1)","","",0,0,0
-120100,AG_ADVENTURE,"Outskirts of Kamidal Field Exploration(2)","","",0,0,0
-120101,AG_ADVENTURE,"Amatsu Field Exploration","","",0,0,0
-120102,AG_ADVENTURE,"Kunlun Field Exploration","","",0,0,0
-120103,AG_ADVENTURE,"Gonryun Field Exploration","","",0,0,0
-120104,AG_ADVENTURE,"Ayothaya Field Exploration","","",0,0,0
-120105,AG_ADVENTURE,"Moscovia Field Exploration","","",0,0,0
-120106,AG_ADVENTURE,"Brasilis Field Exploration","","",0,0,0
-120107,AG_ADVENTURE,"Dewata Field Exploration","","",0,0,0
-120108,AG_ADVENTURE,"Malaya Field Exploration(1)","","",0,0,0
-120109,AG_ADVENTURE,"Malaya Field Exploration(2)","","",0,0,0
-120110,AG_ADVENTURE,"Abbey Underground Dungeon Exploration","","",0,0,0
-120111,AG_ADVENTURE,"Abyss Lake Dungeon Exploration","","",0,0,0
-120112,AG_ADVENTURE,"Clock Tower Dungeon Exploration","","",0,0,0
-120113,AG_ADVENTURE,"Amatsu Dungeon Exploration","","",0,0,0
-120114,AG_ADVENTURE,"Ant Hell Dungeon Exploration","","",0,0,0
-120115,AG_ADVENTURE,"Ayothaya Dungeon Exploration","","",0,0,0
-120116,AG_ADVENTURE,"Comodo Dungeon Exploration","","",0,0,0
-120117,AG_ADVENTURE,"Brasilis Dungeon Exploration","","",0,0,0
-120118,AG_ADVENTURE,"Clock Tower Dungeon Exploration","","",0,0,0
-120119,AG_ADVENTURE,"Istana Dungeon Exploration","","",0,0,0
-120120,AG_ADVENTURE,"Scaraba Hole Dungeon Exploration","","",0,0,0
-120121,AG_ADVENTURE,"Bitfrost Dungeon Exploration","","",0,0,0
-120122,AG_ADVENTURE,"Einbroch Dungeon Exploration","","",0,0,0
-120123,AG_ADVENTURE,"Geffen Underground Dungeon Exploration","","",0,0,0
-120124,AG_ADVENTURE,"Glastheim Dungeon Exploration(1)","","",0,0,0
-120125,AG_ADVENTURE,"Glastheim Dungeon Exploration(2)","","",0,0,0
-120126,AG_ADVENTURE,"Glastheim Dungeon Exploration(3)","","",0,0,0
-120127,AG_ADVENTURE,"Glastheim Dungeon Exploration(4)","","",0,0,0
-120128,AG_ADVENTURE,"Kunlun Dungeon Exploration","","",0,0,0
-120129,AG_ADVENTURE,"Rachel Dungeon Exploration","","",0,0,0
-120130,AG_ADVENTURE,"Sphinx Dungeon Exploration","","",0,0,0
-120131,AG_ADVENTURE,"Izlude Dungeon Exploration","","",0,0,0
-120132,AG_ADVENTURE,"Robot Factory Dungeon Exploration","","",0,0,0
-120133,AG_ADVENTURE,"Bio Lab Dungeon Exploration","","",0,0,0
-120134,AG_ADVENTURE,"Gonryun Dungeon Exploration","","",0,0,0
-120135,AG_ADVENTURE,"Nogg Road Dungeon Exploration","","",0,0,0
-120136,AG_ADVENTURE,"Coal Mine Dungeon Exploration","","",0,0,0
-120137,AG_ADVENTURE,"Pyramid Dungeon Exploration","","",0,0,0
-120138,AG_ADVENTURE,"Orc Dungeon Exploration","","",0,0,0
-120139,AG_ADVENTURE,"Payon Dungeon Exploration","","",0,0,0
-120140,AG_ADVENTURE,"Labyrinth Dungeon Exploration","","",0,0,0
-120141,AG_ADVENTURE,"Undersea Tunnel Dungeon Exploration","","",0,0,0
-120142,AG_ADVENTURE,"Thanatos Tower Dungeon Exploration","","",0,0,0
-120143,AG_ADVENTURE,"Thor Volcano Dungeon Exploration","","",0,0,0
-120144,AG_ADVENTURE,"Sunken Ship Dungeon Exploration","","",0,0,0
-120145,AG_ADVENTURE,"Turtle Dungeon Exploration","","",0,0,0
-120146,AG_ADVENTURE,"Toy Factory Dungeon Exploration","","",0,0,0
-127001,AG_CHATTING,"Prontera Contribution","","prontera",0,0,0
-127002,AG_CHATTING,"Geffen Contribution","","geffen",0,0,0
-127003,AG_CHATTING,"Morocc Contribution","","morocc",0,0,0
-127004,AG_CHATTING,"Payon Contribution","","payon",0,0,0
-127005,AG_CHATTING,"Yuno Contribution","","yuno",0,0,0
-127006,AG_CHATTING,"Lighthalzen Contribution","","lighthalzen",0,0,0
-127007,AG_CHATTING,"Einbroch Contribution","","einbroch",0,0,0
-127008,AG_CHATTING,"Rachel Contribution","","rachel",0,0,0
-127009,AG_CHATTING,"Veins Contribution","","veins",0,0,0
-128000,AG_BATTLE,"Uninvited Guest","","",0,0,0
-128001,AG_BATTLE,"Strange Guest","","",0,0,0
-128002,AG_BATTLE,"Get along with map...","","",0,0,0
-128003,AG_BATTLE,"Welcomed Guest","","",0,0,0
-128004,AG_BATTLE,"Kimmy's best friend","","",0,0,0
-128005,AG_BATTLE,"Novice Angler","","",0,0,0
-128006,AG_BATTLE,"Juicy Hunter","","",0,0,0
-128007,AG_BATTLE,"Rhythm Master","","",0,0,0
-128008,AG_BATTLE,"Bold Adventurer","","",0,1929,1
-128009,AG_BATTLE,"Baphomet Hatred","","",0,1929,10
-128010,AG_BATTLE,"Goat's Nemesis","","",0,1929,50
-128011,AG_BATTLE,"Ordinary Tourist","","",0,0,0
-128012,AG_BATTLE,"Backcountry Expert","","",0,0,0
-128013,AG_BATTLE,"Able to eat more like this","","",0,0,0
-128014,AG_BATTLE,"Digest hard meat","","",0,0,0
-128015,AG_BATTLE,"Master of Escape","","",0,0,0
-128016,AG_BATTLE,"Immortal Hunter","","",0,0,0
-128017,AG_BATTLE,"Stood up and overcame despair","","",0,0,0
-128018,AG_BATTLE,"Ember of Hope","","",0,0,0
-128019,AG_BATTLE,"Pouring Aurora","","",0,0,0
-128020,AG_BATTLE,"Who is desperate? I am hopeless!","","",0,0,0
-128021,AG_BATTLE,"I know god will save the world","","",0,0,0
-128022,AG_BATTLE,"There was mercy in Morocc army","","",0,0,0
-128023,AG_BATTLE,"There was fear in Morocc army","","",0,0,0
-128024,AG_BATTLE,"Guard of weak army","","",0,0,0
-128025,AG_BATTLE,"Audience with the queen","","",0,0,0
-128026,AG_BATTLE,"Warm earth","","",0,0,0
-128027,AG_BATTLE,"Water is very good exactly","","",0,0,0
-128028,AG_BATTLE,"Pleasant breeze","","",0,0,0
-128029,AG_BATTLE,"Visitor of old castle","","",0,0,0
-128030,AG_BATTLE,"Lord of old castle","","",0,0,0
-128031,AG_BATTLE,"Conqueror of old castle","","",0,0,0
-128032,AG_BATTLE,"Haggard sucker","","",0,0,0
-128033,AG_BATTLE,"Hope of the Knight","","",0,0,0
-128034,AG_BATTLE,"Guardian of the Dawn","","",0,0,0
-128035,AG_BATTLE,"Time Traveler","","",0,0,0
-128036,AG_BATTLE,"Restore ancient relic","","",0,0,0
-128037,AG_BATTLE,"Master of relic transport","","",0,0,0
-128038,AG_BATTLE,"Show Jailbreak to the captain","","",0,0,0
-128039,AG_BATTLE,"Show Jailbreak to the weak captain","","",0,0,0
-128040,AG_BATTLE,"Riot on board","","",0,0,0
-128041,AG_BATTLE,"Turmoil on board","","",0,0,0
-128042,AG_BATTLE,"Rebellion on board","","",0,0,0
-128043,AG_BATTLE,"Revolt of Riot","","",0,0,0
-128044,AG_BATTLE,"Magic tournament champion","","",0,0,0
-128045,AG_BATTLE,"Gladiator of Coliseum","","",0,0,0
-128046,AG_BATTLE,"Slayer of Colosseum","","",0,0,0
-128047,AG_BATTLE,"Endless Tower challenger","","",0,1956,1
-128048,AG_BATTLE,"Endless Tower Slayer","","",0,1956,10
-128049,AG_BATTLE,"Lord of the tower","","",0,1956,50
-128050,AG_BATTLE,"Novice Exorcist","","",0,0,0
-128051,AG_BATTLE,"Experienced Exorcist","","",0,0,0
-128052,AG_BATTLE,"Legendary Exorcist","","",0,0,0
-129001,AG_ADVENTURE,"Prontera Explorer","","",120001:120002:120003:120004:120005:120006:120007:120008:120009:120010,0,0
-129002,AG_ADVENTURE,"Geffen Explorer","","",120011:120012:120013:120014:120015:120016:120017,0,0
-129003,AG_ADVENTURE,"Sograt Desert Explorer","","",120018:120019:120020:120021:120022:120023,0,0
-129004,AG_ADVENTURE,"Payon Explorer","","",120025:120026:120027:120028:120029:120030:120031,0,0
-129005,AG_ADVENTURE,"North Mjolnir Explorer","","",120032:120033:120034:120035:120036,0,0
-129006,AG_ADVENTURE,"South Mjolnir Explorer","","",120037:120038:120039:120040:120041:120042:120043,0,0
-129007,AG_ADVENTURE,"Comodo Explorer","","",120044:120045:120046:120047:120048:120049:120050:120051,0,0
-129008,AG_ADVENTURE,"Rune Midgard Explorer","","",129001:129002:129003:129004:129005:129006:129007,0,0
-129009,AG_ADVENTURE,"Yuno Explorer","","",120052:120053:120054:120055:120056:120057:120058:120059:120060:120061,0,0
-129010,AG_ADVENTURE,"Hugel Explorer","","",120062:120063:120064:120065:120066,0,0
-129011,AG_ADVENTURE,"Einbroch Explorer","","",120067:120068:120069:120070:120071:120072:120073:120074,0,0
-129012,AG_ADVENTURE,"Lighthalzen Explorer","","",120075:120076:120077,0,0
-129013,AG_ADVENTURE,"Schwarzwald Explorer","","",129009:129010:129011:129012,0,0
-129014,AG_ADVENTURE,"Rachel Explorer","","",120078:120079:120080:120081:120082:120083:120084,0,0
-129015,AG_ADVENTURE,"Veins Explorer","","",120085:120086:120087:120088:120089,0,0
-129016,AG_ADVENTURE,"Arunafeltz Explorer","","",129014:129015,0,0
-129017,AG_ADVENTURE,"Laphine Explorer","","",120090:120091:120092:120093:120094:120095,0,0
-129018,AG_ADVENTURE,"Manuk Explorer","","",120096:120097:120098:120099:120100,0,0
-129019,AG_ADVENTURE,"Eclage Explorer","","",129017:129018,0,0
-129020,AG_ADVENTURE,"Localizing fields explorer","","",120101:120102:120103:120104:120105:120106:120107:120108:120109,0,0
-129021,AG_BATTLE,"Glastheim Challenge Mode","","",0,0,0
-// Talk to Prince NPC (npc/quests/quests_morocc.txt)
-130000,AG_CHATTING,"Socialite debut","","",0,0,0
-170000,AG_HEAR,"Song chamber is not an accident","","",0,0,0
-190000,AG_CHATTING,"Alliance workers of merchant city","","",0,0,0
-200000,AG_GOAL_LEVEL,"Acquire the first aura!"," BaseLevel >= 99 ","",0,0,0
-200001,AG_GOAL_LEVEL,"Acquire the second aura!"," BaseLevel >= 150 ","",200000,0,0
-200002,AG_GOAL_LEVEL,"Acquire the third aura!"," BaseLevel >= 175 ","",200001,0,0
-200003,AG_GOAL_LEVEL,"Master Job level!"," JobLevel >= 50 ","",0,0,0
-200004,AG_GOAL_LEVEL,"Grandmaster Job level!"," JobLevel >= 70 ","",200003,0,0
-200005,AG_JOB_CHANGE,"Official Adventurer"," Class >= JOB_SWORDMAN && Class <= JOB_THIEF ","",0,0,0
-200006,AG_JOB_CHANGE,"First step of job change!"," Class >= JOB_SWORDMAN && Class <= JOB_THIEF ","",0,0,0
-200007,AG_JOB_CHANGE,"Veteran Adventurer! (1)"," Class >= JOB_KNIGHT && Class <= JOB_ASSASSIN ","",0,0,0
-200008,AG_JOB_CHANGE,"Veteran Adventurer! (2)"," Class >= JOB_CRUSADER && Class <= JOB_DANCER ","",0,0,0
-200009,AG_JOB_CHANGE,"Warrior (1)"," Class >= JOB_LORD_KNIGHT && Class <= JOB_ASSASSIN_CROSS ","",0,0,0
-200010,AG_JOB_CHANGE,"Warrior (2)"," Class >= JOB_PALADIN && Class <= JOB_GYPSY ","",0,0,0
-200011,AG_JOB_CHANGE,"Elite Adventurer! (1)"," Class >= JOB_RUNE_KNIGHT && Class <= JOB_GUILLOTINE_CROSS ","",0,0,0
-200012,AG_JOB_CHANGE,"Transcendentaler! (1)"," Class >= JOB_RUNE_KNIGHT_T && Class <= JOB_GUILLOTINE_CROSS_T ","",0,0,0
-200013,AG_JOB_CHANGE,"Elite Adventurer! (2)"," Class >= JOB_ROYAL_GUARD && Class <= JOB_SHADOW_CHASER ","",0,0,0
-200014,AG_JOB_CHANGE,"Transcendentaler! (2)"," Class >= JOB_ROYAL_GUARD_T && Class <= JOB_SHADOW_CHASER_T ","",0,0,0
-200015,AG_JOB_CHANGE,"The way of exceptional character"," Class == JOB_SUPERNOVICE || Class == JOB_GUNSLINGER || Class == JOB_NINJA || Class == JOB_TAEKWON ","",0,0,0
-200016,AG_JOB_CHANGE,"This is My way!"," Class == JOB_STAR_GLADIATOR || Class == JOB_SOUL_LINKER || Class == JOB_KAGEROU || Class == JOB_OBORO || Class == JOB_REBELLION ","",0,0,0
-200017,AG_GOAL_STATUS,"Bearish Power!"," bStr >= 90 ","",0,0,0
-200018,AG_GOAL_STATUS,"Overflowing Magic!"," bInt >= 90 ","",0,0,0
-200019,AG_GOAL_STATUS,"Healthy Body and Mental Health!"," bVit >= 90 ","",0,0,0
-200020,AG_GOAL_STATUS,"Speed of Light"," bAgi >= 90 ","",0,0,0
-200021,AG_GOAL_STATUS,"Hawk Eyes"," bDex >= 90 ","",0,0,0
-200022,AG_GOAL_STATUS,"Maximum Luck"," bLuk >= 90 ","",0,0,0
-200023,AG_GOAL_STATUS,"Dragonlike Power!"," bStr >= 125 ","",0,0,0
-200024,AG_GOAL_STATUS,"Magic Insanity"," bInt >= 125 ","",0,0,0
-200025,AG_GOAL_STATUS,"Rock Alloy"," bVit >= 125 ","",0,0,0
-200026,AG_GOAL_STATUS,"Speed of Light"," bAgi >= 125 ","",0,0,0
-200027,AG_GOAL_STATUS,"Falcon's Eyes"," bDex >= 125 ","",0,0,0
-200028,AG_GOAL_STATUS,"Lucky Fever"," bLuk >= 125 ","",0,0,0
-200029,AG_GOAL_STATUS,"Incarnation of Love and Hate"," BaseLevel == 99 && Class == JOB_NOVICE ","",0,0,0
-200030,AG_GOAL_STATUS,"I really love it!"," BaseLevel == 99 && (Class >= JOB_SWORDMAN && Class <= JOB_THIEF) ","",0,0,0
-200031,AG_JOB_CHANGE,"Reborn in Valhalla!"," BaseLevel == 99 && Class == JOB_NOVICE_HIGH ","",0,0,0
-220000,AG_CHATTING_CREATE,"Community begin"," true ","",0,0,0
-220001,AG_CHATTING_DYING,"A mouth only moment"," true ","",0,0,0
-220002,AG_CHATTING_COUNT,"Admiring the chatter"," ARG0 == 20 ","",0,0,0
-220003,AG_ADD_FRIEND,"My friend's friend~"," ARG0 >= 1 ","",0,0,0
-220004,AG_ADD_FRIEND,"A competition of popularity"," ARG0 >= 10 ","",0,0,0
-220005,AG_PARTY,"Let's Party~"," true ","",0,0,0
-220006,AG_MARRY,"Married with who..?"," true ","",0,0,0
-220007,AG_BABY,"Can you grow?"," ARG0 == 1 ","",0,0,0
-220008,AG_BABY,"Being a parent"," ARG0 == 2 ","",0,0,0
-220009,AG_SPEND_ZENY,"Activating the market economy (1)"," ARG0 >= 10000 ","",0,-1,10000
-220010,AG_SPEND_ZENY,"Activating the market economy (2)"," ARG0 >= 100000 ","",0,0,0
-220011,AG_SPEND_ZENY,"Activating the market economy (3)"," ARG0 >= 500000 ","",0,-1,500000
-220012,AG_SPEND_ZENY,"Activating the market economy (4)"," ARG0 >= 1000000 ","",0,-1,1000000
-220013,AG_SPEND_ZENY,"Activating the market economy (5)"," ARG0 >= 5000000 ","",0,-1,5000000
-220014,AG_ENCHANT_SUCCESS,"I can't quit from refining! (1)"," ARG0 == 1 && ARG1 >= 7 ","",0,0,0
-220015,AG_ENCHANT_SUCCESS,"I can't quit from refining! (2)"," ARG0 == 1 && ARG1 >= 12 ","",0,0,0
-220016,AG_ENCHANT_SUCCESS,"I can't quit from refining! (3)"," ARG0 == 2 && ARG1 >= 7 ","",0,0,0
-220017,AG_ENCHANT_SUCCESS,"I can't quit from refining! (4)"," ARG0 == 2 && ARG1 >= 12 ","",0,0,0
-220018,AG_ENCHANT_SUCCESS,"I can't quit from refining! (5)"," ARG0 == 3 && ARG1 >= 7 ","",0,0,0
-220019,AG_ENCHANT_SUCCESS,"I can't quit from refining! (6)"," ARG0 == 3 && ARG1 >= 12 ","",0,0,0
-220020,AG_ENCHANT_SUCCESS,"I can't quit from refining! (7)"," ARG0 == 4 && ARG1 >= 7 ","",0,0,0
-220021,AG_ENCHANT_SUCCESS,"I can't quit from refining! (8)"," ARG0 == 4 && ARG1 >= 12 ","",0,0,0
-220022,AG_ENCHANT_FAIL,"Human's greed has no ending.."," true ","",0,0,0
-220023,AG_GET_ITEM,"I found it! (1)"," ARG0 >= 100 ","",0,0,0
-220024,AG_GET_ITEM,"I found it! (2)"," ARG0 >= 1000 ","",0,0,0
-220025,AG_GET_ITEM,"I found it! (3)"," ARG0 >= 5000 ","",0,0,0
-220026,AG_GET_ITEM,"I found it! (4)"," ARG0 >= 10000 ","",0,0,0
-220027,AG_GET_ITEM,"I found it! (5)"," ARG0 >= 50000 ","",0,0,0
-220028,AG_GET_ITEM,"I found it! (6)"," ARG0 >= 100000 ","",0,0,0
-220029,AG_GET_ITEM,"I found it! (7)"," ARG0 >= 150000 ","",0,0,0
-220030,AG_GET_ZENY,"Rich King (1)"," ARG0 >= 10000 ","",0,0,0
-220031,AG_GET_ZENY,"Rich King (2)"," ARG0 >= 100000 ","",0,0,0
-220032,AG_GET_ZENY,"Rich King (3)"," ARG0 >= 1000000 ","",0,0,0
-220033,AG_GET_ZENY,"Rich King (4)"," ARG0 >= 10000000 ","",0,0,0
-220034,AG_GET_ZENY,"Rich King (5)"," ARG0 >= 100000000 ","",0,0,0
-220035,AG_GET_ZENY,"Rich King (6)"," ARG0 >= 1000000000 ","",0,0,0
-220036,AG_EAT,"The beginning of outdoor","","",0,0,0
-220037,AG_EAT,"The first step becoming a chef","","",0,0,0
-230100,AG_TAMING,"Poring is Love","","",230101:230102:230103:230104,0,0
-230110,AG_TAMING,"Entomologist","","",230111:230112:230113:230114:230115:230116,0,0
-230120,AG_TAMING,"Animals are also our friend","","",230121:230122:230123:230124:230125:230126:230127:230128,0,0
-230140,AG_TAMING,"Monster Girls Unite!!","","",230141:230142:230143:230144:230145:230146:230147,0,0
-230101,AG_TAMING,"Poring - taming","","",0,1002,1
-230102,AG_TAMING,"Drops - taming","","",0,1113,1
-230103,AG_TAMING,"Poporing - taming","","",0,1031,1
-230104,AG_TAMING,"Novice Poring - taming","","",0,0,0
-230111,AG_TAMING,"Chonchon - taming","","",0,1011,1
-230112,AG_TAMING,"Steel Chonchon - taming","","",0,1042,1
-230113,AG_TAMING,"Hunter Fly - taming","","",0,1035,1
-230114,AG_TAMING,"Rocker - taming","","",0,1052,1
-230115,AG_TAMING,"Spore - taming","","",0,1014,1
-230116,AG_TAMING,"Poison Spore - taming","","",0,1077,1
-230121,AG_TAMING,"Lunatic - taming","","",0,1063,1
-230122,AG_TAMING,"Picky - taming","","",0,1049,1
-230123,AG_TAMING,"Savage Bebe - taming","","",0,1167,1
-230124,AG_TAMING,"Baby Desert Wolf - taming","","",0,1107,1
-230125,AG_TAMING,"Smokie - taming","","",0,1056,1
-230126,AG_TAMING,"Yoyo - taming","","",0,1057,1
-230127,AG_TAMING,"Peco Peco - taming","","",0,1019,1
-230128,AG_TAMING,"Petite - taming","","",0,1155,1
-230141,AG_TAMING,"Munak - taming","","",0,1026,1
-230142,AG_TAMING,"Isis - taming","","",0,1029,1
-230143,AG_TAMING,"Sohee - taming","","",0,1170,1
-230144,AG_TAMING,"Zherlthsh - taming","","",0,1200,1
-230145,AG_TAMING,"Alice - taming","","",0,1275,1
-230146,AG_TAMING,"Succubus - taming","","",0,1370,1
-230147,AG_TAMING,"Loli Ruri - taming","","",0,1505,1
-230200,AG_BATTLE,"Poring seeker","","",230201:230202:230203,0,0
-230201,AG_BATTLE,"Exploring Poring's life (1)","","",0,1002:1113:1031:1242,10:10:10:10
-230202,AG_BATTLE,"Exploring Poring's life (2)","","",0,1090:1582:1096:1388:1120,1:1:1:1:1
-230203,AG_BATTLE,"Exploring Poring's life (3)","","",0,1613:1977:1836,5:5:5
-240000,AG_GOAL_LEVEL,"Complete challenges after first introduction","","",0,0,0
-240001,AG_GOAL_ACHIEVE,"Reaching Level 1","","",0,0,0
-240002,AG_GOAL_ACHIEVE,"Reaching Level 2","","",240001,0,0
-240003,AG_GOAL_ACHIEVE,"Reaching Level 3","","",240002,0,0
-240004,AG_GOAL_ACHIEVE,"Reaching Level 4","","",240003,0,0
-240005,AG_GOAL_ACHIEVE,"Reaching Level 5","","",240004,0,0
-240006,AG_GOAL_ACHIEVE,"Reaching Level 6","","",240005,0,0
-240007,AG_GOAL_ACHIEVE,"Reaching Level 7","","",240006,0,0
-240008,AG_GOAL_ACHIEVE,"Reaching Level 8","","",240007,0,0
-240009,AG_GOAL_ACHIEVE,"Reaching Level 9","","",240008,0,0
-240010,AG_GOAL_ACHIEVE,"Reaching Level 10","","",240009,0,0
-240011,AG_GOAL_ACHIEVE,"Reaching Level 11","","",240010,0,0
-240012,AG_GOAL_ACHIEVE,"Reaching Level 12","","",240011,0,0
-240013,AG_GOAL_ACHIEVE,"Reaching Level 13","","",240012,0,0
-240014,AG_GOAL_ACHIEVE,"Reaching Level 14","","",240013,0,0
-240015,AG_GOAL_ACHIEVE,"Reaching Level 15","","",240014,0,0
-240016,AG_GOAL_ACHIEVE,"Reaching Level 16","","",240015,0,0
-240017,AG_GOAL_ACHIEVE,"Reaching Level 17","","",240016,0,0
-240018,AG_GOAL_ACHIEVE,"Reaching Level 18","","",240017,0,0
-240019,AG_GOAL_ACHIEVE,"Reaching Level 19","","",240018,0,0
-240020,AG_GOAL_ACHIEVE,"Reaching Level 20","","",240019,0,0
+110000,"At this time I live to eat",ACH_QUEST,"Bring the food to Bigfoot at this hour",,,,10,0,0,0,{}
+110001,"A fan of this polarity",ACH_QUEST,"Lady of the house":"Beautiful fine anak":"Mistress in ambience":"Beautiful wife and children":"Down town Bachelor":"Great act ability anak":"Great attack power bachelor",,,,10,0,0,0,{}
+
+120001,"North Prontera Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding north prontera field",,,,10,0,0,0,{}
+120002,"North Prontera Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding north prontera field",,,,10,0,0,0,{}
+120003,"North Prontera Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding north prontera field",,,,10,0,0,0,{}
+120004,"West Prontera Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding west prontera field",,,,10,0,0,0,{}
+120005,"West Prontera Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding west prontera field",,,,10,0,0,0,{}
+120006,"East Prontera Field Exploration",ACH_QUEST,"Discover the treasure surrounding east prontera field",,,,10,0,0,0,{}
+120007,"South Prontera Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding south prontera field",,,,10,0,0,0,{}
+120008,"South Prontera Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding south prontera field",,,,10,0,0,0,{}
+120009,"South Prontera Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding south prontera field",,,,10,0,0,0,{}
+120010,"South Prontera Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding south prontera field",,,,10,0,0,0,{}
+120011,"East Geffen Field Exploration",ACH_QUEST,"Discover the treasure surrounding east geffen field",,,,10,0,0,0,{}
+120012,"Southeast Geffen Field Exploration",ACH_QUEST,"Discover the treasure surrounding southeast geffen field",,,,10,0,0,0,{}
+120013,"Northwest Geffen Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding northwest geffen field",,,,10,0,0,0,{}
+120014,"Northwest Geffen Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding northwest geffen field",,,,10,0,0,0,{}
+120015,"Northwest Geffen Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding northwest geffen field",,,,10,0,0,0,{}
+120016,"South Geffen Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding south geffen field",,,,10,0,0,0,{}
+120017,"South Geffen Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding south geffen field",,,,10,0,0,0,{}
+120018,"Sograt Desert Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120019,"Sograt Desert Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120020,"Sograt Desert Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120021,"Sograt Desert Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120022,"Sograt Desert Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120023,"Sograt Desert Field Exploration(6)",ACH_QUEST,"Discover the treasure surrounding sograt desert field",,,,10,0,0,0,{}
+120024,"Southwest Payon Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding southwest payon field",,,,10,0,0,0,{}
+120025,"Southwest Payon Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding southwest payon field",,,,10,0,0,0,{}
+120026,"Southwest Payon Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding southwest payon field",,,,10,0,0,0,{}
+120027,"Southwest Payon Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding southwest payon field",,,,10,0,0,0,{}
+120028,"East Payon Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding east payon field",,,,10,0,0,0,{}
+120029,"East Payon Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding east payon field",,,,10,0,0,0,{}
+120030,"East Payon Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding east payon field",,,,10,0,0,0,{}
+120031,"East Payon Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding east payon field",,,,10,0,0,0,{}
+120032,"North Mjolnir Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding north mjolnir field",,,,10,0,0,0,{}
+120033,"North Mjolnir Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding north mjolnir field",,,,10,0,0,0,{}
+120034,"North Mjolnir Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding north mjolnir field",,,,10,0,0,0,{}
+120035,"North Mjolnir Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding north mjolnir field",,,,10,0,0,0,{}
+120036,"North Mjolnir Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding north mjolnir field",,,,10,0,0,0,{}
+120037,"South Mjolnir Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120038,"South Mjolnir Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120039,"South Mjolnir Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120040,"South Mjolnir Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120041,"South Mjolnir Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120042,"South Mjolnir Field Exploration(6)",ACH_QUEST,"Discover the treasure surrounding south mjolnir field",,,,10,0,0,0,{}
+120043,"South Aldebaran Field Exploration",ACH_QUEST,"Discover the treasure surrounding south aldebaran field",,,,10,0,0,0,{}
+120044,"Comodo Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120045,"Comodo Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120046,"Comodo Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120047,"Comodo Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120048,"Comodo Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120049,"Comodo Field Exploration(6)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120050,"Comodo Field Exploration(7)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120051,"Comodo Field Exploration(8)",ACH_QUEST,"Discover the treasure surrounding comodo field",,,,10,0,0,0,{}
+120052,"Border Checkpoint Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding border checkpoint field",,,,10,0,0,0,{}
+120053,"Border Checkpoint Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding border checkpoint field",,,,10,0,0,0,{}
+120054,"Kiel Hyre Mansion Field Exploration",ACH_QUEST,"Discover the treasure surrounding kiel hyre mansion field",,,,10,0,0,0,{}
+120055,"El Mes Plateau Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding el mes plateau field",,,,10,0,0,0,{}
+120056,"El Mes Plateau Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding el mes plateau field",,,,10,0,0,0,{}
+120057,"El Mes Plateau Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding el mes plateau field",,,,10,0,0,0,{}
+120058,"El Mes Gorge Field Exploration",ACH_QUEST,"Discover the treasure surrounding el mes gorge field",,,,10,0,0,0,{}
+120059,"Kiel Hyre Academy Field Exploration",ACH_QUEST,"Discover the treasure surrounding kiel hyre academy field",,,,10,0,0,0,{}
+120060,"Guard Camp Field Exploration",ACH_QUEST,"Discover the treasure surrounding guard camp field",,,,10,0,0,0,{}
+120061,"Yuno Field Exploration",ACH_QUEST,"Discover the treasure surrounding yuno field",,,,10,0,0,0,{}
+120062,"Front of Thanatos Tower Field Exploration",ACH_QUEST,"Discover the treasure surrounding front of thanatos tower field",,,,10,0,0,0,{}
+120063,"Hugel Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding hugel field",,,,10,0,0,0,{}
+120064,"Hugel Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding hugel field",,,,10,0,0,0,{}
+120065,"Hugel Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding hugel field",,,,10,0,0,0,{}
+120066,"Abyss Lake Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding abyss lake field",,,,10,0,0,0,{}
+120067,"Einbroch Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120068,"Einbroch Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120069,"Einbroch Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120070,"Einbroch Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120071,"Einbroch Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120072,"Einbroch Field Exploration(6)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120073,"Einbroch Field Exploration(7)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120074,"Einbroch Field Exploration(8)",ACH_QUEST,"Discover the treasure surrounding Einbroch field",,,,10,0,0,0,{}
+120075,"Lighthalzen Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding lighthalzen field",,,,10,0,0,0,{}
+120076,"Lighthalzen Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding lighthalzen field",,,,10,0,0,0,{}
+120077,"Lighthalzen Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding lighthalzen field",,,,10,0,0,0,{}
+120078,"Rachel Audhumbla Plains Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding rachel audhumbla plains field",,,,10,0,0,0,{}
+120079,"Rachel Plains Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding rachel plains field",,,,10,0,0,0,{}
+120080,"Rachel Plains Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding rachel plains field",,,,10,0,0,0,{}
+120081,"Rachel Plains Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding rachel plains field",,,,10,0,0,0,{}
+120082,"Rachel Audhumbla Grassland Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding rachel audhumbla grassland field",,,,10,0,0,0,{}
+120083,"Rachel Audhumbla Grassland Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding rachel audhumbla grassland field",,,,10,0,0,0,{}
+120084,"Portus Luna Field Exploration",ACH_QUEST,"Discover the treasure surrounding portus luna field",,,,10,0,0,0,{}
+120085,"Veins Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding veins field",,,,10,0,0,0,{}
+120086,"Veins Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding veins field",,,,10,0,0,0,{}
+120087,"Veins Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding veins field",,,,10,0,0,0,{}
+120088,"Veins Field Exploration(4)",ACH_QUEST,"Discover the treasure surrounding veins field",,,,10,0,0,0,{}
+120089,"Veins Field Exploration(5)",ACH_QUEST,"Discover the treasure surrounding veins field",,,,10,0,0,0,{}
+120090,"Eclage Field Exploration",ACH_QUEST,"Discover the treasure surrounding eclage field",,,,10,0,0,0,{}
+120091,"North Bitfrost Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding north bitfrost field",,,,10,0,0,0,{}
+120092,"South Bitfrost Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding south bitfrost field",,,,10,0,0,0,{}
+120093,"Splendide Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding splendide field",,,,10,0,0,0,{}
+120094,"Splendide Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding splendide field",,,,10,0,0,0,{}
+120095,"Splendide Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding splendide field",,,,10,0,0,0,{}
+120096,"Manuk Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding manuk field",,,,10,0,0,0,{}
+120097,"Manuk Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding manuk field",,,,10,0,0,0,{}
+120098,"Manuk Field Exploration(3)",ACH_QUEST,"Discover the treasure surrounding manuk field",,,,10,0,0,0,{}
+120099,"Outskirts of Kamidal Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding outskirts of kamidal field",,,,10,0,0,0,{}
+120100,"Outskirts of Kamidal Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding outskirts of kamidal field",,,,10,0,0,0,{}
+120101,"Amatsu Field Exploration",ACH_QUEST,"Discover the treasure surrounding amatsu field",,,,10,0,0,0,{}
+120102,"Kunlun Field Exploration",ACH_QUEST,"Discover the treasure surrounding kunlun field",,,,10,0,0,0,{}
+120103,"Gonryun Field Exploration",ACH_QUEST,"Discover the treasure surrounding gonryun field",,,,10,0,0,0,{}
+120104,"Ayothaya Field Exploration",ACH_QUEST,"Discover the treasure surrounding ayothaya field",,,,10,0,0,0,{}
+120105,"Moscovia Field Exploration",ACH_QUEST,"Discover the treasure surrounding moscovia field",,,,10,0,0,0,{}
+120106,"Brasilis Field Exploration",ACH_QUEST,"Discover the treasure surrounding brasilis field",,,,10,0,0,0,{}
+120107,"Dewata Field Exploration",ACH_QUEST,"Discover the treasure surrounding dewata field",,,,10,0,0,0,{}
+120108,"Malaya Field Exploration(1)",ACH_QUEST,"Discover the treasure surrounding malaya field",,,,10,0,0,0,{}
+120109,"Malaya Field Exploration(2)",ACH_QUEST,"Discover the treasure surrounding malaya field",,,,10,0,0,0,{}
+120110,"Abbey Underground Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding abbey underground dungeon",,,,20,0,0,0,{}
+120111,"Abyss Lake Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding abyss lake dungeon",,,,20,0,0,0,{}
+120112,"Clock Tower Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding clock tower dungeon",,,,20,0,0,0,{}
+120113,"Amatsu Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding amatsu dungeon",,,,20,0,0,0,{}
+120114,"Ant Hell Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding ant hell dungeon",,,,20,0,0,0,{}
+120115,"Ayothaya Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding ayothaya dungeon",,,,20,0,0,0,{}
+120116,"Comodo Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding comodo dungeon",,,,20,0,0,0,{}
+120117,"Brasilis Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding brasilis dungeon",,,,20,0,0,0,{}
+120118,"Clock Tower Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding clock tower dungeon",,,,20,0,0,0,{}
+120119,"Istana Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding istana dungeon",,,,20,0,0,0,{}
+120120,"Scaraba Hole Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding scaraba hole dungeon",,,,20,0,0,0,{}
+120121,"Bitfrost Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding bitfrost dungeon",,,,20,0,0,0,{}
+120122,"Einbroch Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding einbroch dungeon",,,,20,0,0,0,{}
+120123,"Geffen Underground Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding geffen underground dungeon",,,,20,0,0,0,{}
+120124,"Glastheim Dungeon Exploration(1)",ACH_QUEST,"Discover the treasure surrounding glastheim dungeon",,,,20,0,0,0,{}
+120125,"Glastheim Dungeon Exploration(2)",ACH_QUEST,"Discover the treasure surrounding glastheim dungeon",,,,20,0,0,0,{}
+120126,"Glastheim Dungeon Exploration(3)",ACH_QUEST,"Discover the treasure surrounding glastheim dungeon",,,,20,0,0,0,{}
+120127,"Glastheim Dungeon Exploration(4)",ACH_QUEST,"Discover the treasure surrounding glastheim dungeon",,,,20,0,0,0,{}
+120128,"Kunlun Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding Kunlun dungeon",,,,20,0,0,0,{}
+120129,"Rachel Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding rachel dungeon",,,,20,0,0,0,{}
+120130,"Sphinx Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding sphinx dungeon",,,,20,0,0,0,{}
+120131,"Izlude Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding izlude dungeon",,,,20,0,0,0,{}
+120132,"Robot Factory Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding robot factory dungeon",,,,20,0,0,0,{}
+120133,"Bio Lab Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding bio lab dungeon",,,,20,0,0,0,{}
+120134,"Gonryun Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding gonryun dungeon",,,,20,0,0,0,{}
+120135,"Nogg Road Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding nogg road dungeon",,,,20,0,0,0,{}
+120136,"Coal Mine Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding Coal mine dungeon",,,,20,0,0,0,{}
+120137,"Pyramid Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding pyramid dungeon",,,,20,0,0,0,{}
+120138,"Orc Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding orc dungeon",,,,20,0,0,0,{}
+120139,"Payon Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding payon dungeon",,,,20,0,0,0,{}
+120140,"Labyrinth Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding labyrinth dungeon",,,,20,0,0,0,{}
+120141,"Undersea Tunnel Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding undersea tunnel dungeon",,,,20,0,0,0,{}
+120142,"Thanatos Tower Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding thanatos tower dungeon",,,,20,0,0,0,{}
+120143,"Thor Volcano Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding thor volcano dungeon",,,,20,0,0,0,{}
+120144,"Sunken Ship Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding sunken ship dungeon",,,,20,0,0,0,{}
+120145,"Turtle Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding turtle dungeon",,,,20,0,0,0,{}
+120146,"Toy Factory Dungeon Exploration",ACH_QUEST,"Discover the treasure surrounding toy factory dungeon",,,,20,0,0,0,{}
+
+127001,"Prontera Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127002,"Geffen Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127003,"Morocc Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127004,"Payon Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127005,"Yuno Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127006,"Lighthalzen Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127007,"Einbroch Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127008,"Rachel Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+127009,"Veins Contribution",ACH_QUEST,"Stranger":"Village Freshman":"Neighbor":"Celebrity":"City Dictator",,,3000:6000:12000:20000:1000,10,0,0,0,{}
+
+128000,"Uninvited Guest",ACH_KILL_MOB_CLASS,"Eliminate 1 Celine Kimmy",ACH_C_MOBID,2996,1,10,0,0,0,{}
+128001,"Strange Guest",ACH_KILL_MOB_CLASS,"Eliminate 10 Celine Kimmy",ACH_C_MOBID,2996,10,10,0,0,0,{}
+128002,"Get along with map...",ACH_KILL_MOB_CLASS,"Eliminate 25 Celine Kimmy",ACH_C_MOBID,2996,25,20,0,0,0,{}
+128003,"Welcomed Guest",ACH_KILL_MOB_CLASS,"Eliminate 50 Celine Kimmy",ACH_C_MOBID,2996,50,30,0,0,0,{}
+128004,"Kimmy's best friend",ACH_KILL_MOB_CLASS,"Eliminate 100 Celine Kimmy",ACH_C_MOBID,2996,100,50,0,0,0,{}
+128005,"Novice Angler",ACH_KILL_MOB_CLASS,"Eliminate 1 Bakonawa",ACH_C_MOBID,2320,1,10,0,0,0,{}
+128006,"Juicy Hunter",ACH_KILL_MOB_CLASS,"Eliminate 10 Bakonawa",ACH_C_MOBID,2320,10,20,0,0,0,{}
+128007,"Rhythm Master",ACH_KILL_MOB_CLASS,"Eliminate 50 Bakonawa",ACH_C_MOBID,2320,50,50,0,0,0,{}
+128008,"Bold Adventurer",ACH_KILL_MOB_CLASS,"Eliminate 1 Baphomet",ACH_C_MOBID,1039,1,10,0,0,0,{}
+128009,"Baphomet Hatred",ACH_KILL_MOB_CLASS,"Eliminate 10 Baphomet",ACH_C_MOBID,1039,10,20,0,0,0,{}
+128010,"Goat's Nemesis",ACH_KILL_MOB_CLASS,"Eliminate 50 Baphomet",ACH_C_MOBID,1039,50,50,0,0,0,{}
+128011,"Ordinary Tourist",ACH_KILL_MOB_CLASS,"Eliminate 1 Grim Reaper Ankou",ACH_C_MOBID,3029,1,10,0,0,0,{}
+128012,"Backcountry Expert",ACH_KILL_MOB_CLASS,"Eliminate 10 Grim Reaper Ankou",ACH_C_MOBID,3029,10,20,0,0,0,{}
+128013,"Able to eat more like this",ACH_KILL_MOB_CLASS,"Eliminate 50 Grim Reaper Ankou",ACH_C_MOBID,3029,50,50,0,0,0,{}
+128014,"Digest hard meat",ACH_KILL_MOB_CLASS,"Eliminate 1 Buwaya",ACH_C_MOBID,2319,1,0,0,0,0,{}
+128015,"Master of Escape",ACH_KILL_MOB_CLASS,"Eliminate 10 Buwaya",ACH_C_MOBID,2319,10,20,0,0,0,{}
+128016,"Immortal Hunter",ACH_KILL_MOB_CLASS,"Eliminate 50 Buwaya",ACH_C_MOBID,2319,50,50,0,0,0,{}
+//128017,"Stood up and overcame despair",ACH_KILL_MOB_CLASS,"Eliminate 1 God of Despair Morocc",ACH_C_MOBID,3097,1,10,0,0,0,{}
+//128018,"Ember of Hope",ACH_KILL_MOB_CLASS,"Eliminate 10 God of Despair Morocc",ACH_C_MOBID,3097,10,10,0,0,0,{}
+//128019,"Pouring Aurora",ACH_KILL_MOB_CLASS,"Eliminate 25 God of Despair Morocc",ACH_C_MOBID,3097,25,20,0,0,0,{}
+//128020,"Who is desperate? I am hopeless!",ACH_KILL_MOB_CLASS,"Eliminate 50 God of Despair Morocc",ACH_C_MOBID,3097,50,30,0,0,0,{}
+//128021,"I know god will save the world",ACH_KILL_MOB_CLASS,"Eliminate 100 God of Despair Morocc",ACH_C_MOBID,3097,100,50,0,0,0,{}
+//128022,"There was mercy in Morocc army",ACH_KILL_MOB_CLASS,"Eliminate 1 Morocc necromancer",ACH_C_MOBID,3000,1,10,0,0,0,{}
+//128023,"There was fear in Morocc army",ACH_KILL_MOB_CLASS,"Eliminate Morocc 10 necromancer",ACH_C_MOBID,3000,10,20,0,0,0,{}
+//128024,"Guard of weak army",ACH_KILL_MOB_CLASS,"Eliminate Morocc 50 necromancer",ACH_C_MOBID,3000,50,50,0,0,0,{}
+128025,"Audience with the queen",ACH_KILL_MOB_CLASS,"Eliminate 1 Faceworm Queen",ACH_C_MOBID,2529,1,10,0,0,0,{}
+128026,"Warm earth",ACH_KILL_MOB_CLASS,"Eliminate 1 Earth Faceworm Queen",ACH_C_MOBID,2533,1,10,0,0,0,{}
+128027,"Water is very good exactly",ACH_KILL_MOB_CLASS,"Eliminate 1 Water Faceworm Queen",ACH_C_MOBID,2534,1,10,0,0,0,{}
+128028,"Pleasant breeze",ACH_KILL_MOB_CLASS,"Eliminate 1 Wind Faceworm Queen",ACH_C_MOBID,2535,1,10,0,0,0,{}
+128029,"Visitor of old castle",ACH_KILL_MOB_CLASS,"Eliminate 1 Amdarais",ACH_C_MOBID,2476,1,10,0,0,0,{}
+128030,"Lord of old castle",ACH_KILL_MOB_CLASS,"Eliminate 10 Amdarais",ACH_C_MOBID,2476,10,20,0,0,0,{}
+128031,"Conqueror of old castle",ACH_KILL_MOB_CLASS,"Eliminate 50 Amdarais",ACH_C_MOBID,2476,50,50,0,0,0,{}
+//128032,"Haggard sucker",ACH_KILL_MOB_CLASS,"Eliminate 1 Amdarais (Superior)",ACH_C_MOBID,????,1,10,0,0,0,{}
+//128033,"Hope of the Knight",ACH_KILL_MOB_CLASS,"Eliminate 10 Amdarais (Superior)",ACH_C_MOBID,????,10,20,0,0,0,{}
+//128034,"Guardian of the Dawn",ACH_KILL_MOB_CLASS,"Eliminate 50 Amdarais (Superior)",ACH_C_MOBID,????,50,50,0,0,0,{}
+128035,"Time Traveler",ACH_KILL_MOB_CLASS,"Eliminate 1 Sarah Irene",ACH_C_MOBID,3190,1,10,0,0,0,{}
+128036,"Restore ancient relic",ACH_KILL_MOB_CLASS,"Eliminate 10 Sarah Irene",ACH_C_MOBID,3190,10,20,0,0,0,{}
+128037,"Master of relic transport",ACH_KILL_MOB_CLASS,"Eliminate 50 Sarah Irene",ACH_C_MOBID,3190,50,50,0,0,0,{}
+128038,"Show Jailbreak to the captain",ACH_KILL_MOB_CLASS,"Eliminate 1 Ferlock",ACH_C_MOBID,3181,1,10,0,0,0,{}
+//128039,"Show Jailbreak to the weak captain",ACH_KILL_MOB_CLASS,"Eliminate 1 Ferlock",ACH_C_MOBID,????,1,10,0,0,0,{}
+128040,"Riot on board",ACH_KILL_MOB_CLASS,"Eliminate 10 Ferlock",ACH_C_MOBID,3181,10,20,0,0,0,{}
+128041,"Turmoil on board",ACH_KILL_MOB_CLASS,"Eliminate 10 Ferlock",ACH_C_MOBID,3181,10,20,0,0,0,{}
+128042,"Rebellion on board",ACH_KILL_MOB_CLASS,"Eliminate 50 Ferlock",ACH_C_MOBID,3181,50,50,0,0,0,{}
+//128043,"Revolt of Riot",ACH_KILL_MOB_CLASS,"Eliminate 50 Ferlock",ACH_C_MOBID,????,50,0,0,0,0,{}
+128044,"Magic tournament champion",ACH_KILL_MOB_CLASS,"Eliminate 1 Fenrir",ACH_C_MOBID,2564,1,10,0,0,0,{}
+128045,"Gladiator of Coliseum",ACH_KILL_MOB_CLASS,"Eliminate 10 Fenrir",ACH_C_MOBID,2564,10,20,0,0,0,{}
+128046,"Slayer of Colosseum",ACH_KILL_MOB_CLASS,"Eliminate 50 Fenrir",ACH_C_MOBID,2564,50,50,0,0,0,{}
+128047,"Endless Tower challenger",ACH_KILL_MOB_CLASS,"Eliminate 1 Naght Sieger",ACH_C_MOBID,1956,1,10,0,0,0,{}
+128048,"Endless Tower Slayer",ACH_KILL_MOB_CLASS,"Eliminate 10 Naght Sieger",ACH_C_MOBID,1956,10,20,0,0,0,{}
+128049,"Lord of the tower",ACH_KILL_MOB_CLASS,"Eliminate 50 Naght Sieger",ACH_C_MOBID,1956,50,50,0,0,0,{}
+128050,"Novice Exorcist",ACH_KILL_MOB_CLASS,"Eliminate 1 Bangungot Doll",ACH_C_MOBID,2327,1,10,0,0,0,{}
+128051,"Experienced Exorcist",ACH_KILL_MOB_CLASS,"Eliminate 10 Bangungot Doll",ACH_C_MOBID,2327,10,20,0,0,0,{}
+128052,"Legendary Exorcist",ACH_KILL_MOB_CLASS,"Eliminate 50 Bangungot Doll",ACH_C_MOBID,2327,50,50,0,0,0,{}
+
+129001,"Prontera Explorer",ACH_QUEST,"North Prontera Field Exploration(1) completed":"North Prontera Field Exploration(2) completed":"North Prontera Field Exploration(3) completed":"West Prontera Field Exploration(1) completed":"West Prontera Field Exploration(2) completed""East Prontera Field Exploration(1) completed":"South Prontera Field Exploration(1) completed":"South Prontera Field Exploration(2) completed":"South Prontera Field Exploration(3) completed":"South Prontera Field Exploration(4) completed",ACH_C_ACHIEVE,120001:120002:120003:120004:120005:120006:120007:120008:120009:120010,,20,0,644,1,{}
+129002,"Geffen Explorer",ACH_QUEST,"East Geffen Field Exploration(1) completed":"Southeast Geffen Field Exploration(1) completed":"Northwest Geffen Field Exploration(1) completed":"Northwest Geffen Field Exploration(2) completed":"Northwest Geffen Field Exploration(3) completed":"South Geffen Field Exploration(1) completed":"South Geffen Field Exploration(2) completed",ACH_C_ACHIEVE,120011:120012:120013:120014:120015:120016:120017,,20,0,644,1,{}
+129003,"Sograt Desert Explorer",ACH_QUEST,"Sograt Desert Field Exploration(1) completed":"Sograt Desert Field Exploration(2) completed":"Sograt Desert Field Exploration(3) completed":"Sograt Desert Field Exploration(4) completed":"Sograt Desert Field Exploration(5) completed":"Sograt Desert Field Exploration(6) completed",ACH_C_ACHIEVE,120018:120019:120020:120021:120022:120023,,20,0,644,1,{}
+129004,"Payon Explorer",ACH_QUEST,"Southwest Payon Field Exploration(1) completed":"Southwest Payon Field Exploration(2) completed":"Southwest Payon Field Exploration(3) completed":"Southwest Payon Field Exploration(4) completed":"East Payon Field Exploration(1) completed":"East Payon Field Exploration(2) completed":"East Payon Field Exploration(3) completed":"East Payon Field Exploration(4) completed",ACH_C_ACHIEVE,120024:120025:120026:120027:120028:120029:120030:120031,,20,0,644,1,{}
+129005,"North Mjolnir Explorer",ACH_QUEST,"North Mjolnir Field Exploration(1) completed":"North Mjolnir Field Exploration(2) completed":"North Mjolnir Field Exploration(3) completed":"North Mjolnir Field Exploration(4) completed":"North Mjolnir Field Exploration(5) completed",ACH_C_ACHIEVE,120032:120033:120034:120035:120036,,20,0,644,1,{}
+129006,"South Mjolnir Explorer",ACH_QUEST,"South Mjolnir Field Exploration(1) completed":"South Mjolnir Field Exploration(2) completed":"South Mjolnir Field Exploration(3) completed":"South Mjolnir Field Exploration(4) completed":"South Mjolnir Field Exploration(5) completed":"South Mjolnir Field Exploration(6) completed":"South Aldebaran Field Exploration(1) completed",ACH_C_ACHIEVE,120037:120038:120039:120040:120041:120042:120043,,20,0,644,1,{}
+129007,"Comodo Explorer",ACH_QUEST,"Comodo Field Exploration(1) completed":"Comodo Field Exploration(2) completed":"Comodo Field Exploration(3) completed":"Comodo Field Exploration(4) completed":"Comodo Field Exploration(5) completed":"Comodo Field Exploration(6) completed":"Comodo Field Exploration(7) completed":"Comodo Field Exploration(8) completed",ACH_C_ACHIEVE,120044:120045:120046:120047:120048:120049:120050:120051,,20,0,644,1,{}
+129008,"Rune Midgard Explorer",ACH_QUEST,"Prontera Explorer":"Geffen Explorer":"Sograt Desert Explorer":"Payon Explorer":"North Mjolnir Explorer":"South Mjolnir Explorer":"Comodo Explorer",ACH_C_ACHIEVE,129001:129002:129003:129004:129005:129006:129007,,50,0,617,1,{}
+129009,"Yuno Explorer",ACH_QUEST,"Border Checkpoint Field Exploration(1) completed":"Border Checkpoint Field Exploration(2) completed":"Kiel Hyre Mansion Field Exploration(1) completed":"El Mes Plateau Field Exploration(1) completed":"El Mes Plateau Field Exploration(2) completed":"El Mes Plateau Field Exploration(3) completed":"El Mes Gorge Field Exploration(1) completed":"Kiel Hyre Academy Field Exploration(1) completed":"Guard Camp Field Exploration(1) completed":"Yuno Field Exploration(1) completed",ACH_C_ACHIEVE,120052:120053:120054:120055:120056:120057:120058:120059:120060:120061,,20,0,644,1,{}
+129010,"Hugel Explorer",ACH_QUEST,"Front of Thanatos Tower Field Exploration(1) completed":"Hugel Field Exploration(1) completed":"Hugel Field Exploration(2) completed":"Hugel Field Exploration(3) completed":"Abyss Lake Field Exploration(1) completed",ACH_C_ACHIEVE,120062:120063:120064:120065:120066,,20,0,644,1,{}
+129011,"Einbroch Explorer",ACH_QUEST,"Einbroch Field Exploration(1) completed":"Einbroch Field Exploration(2) completed":"Einbroch Field Exploration(3) completed":"Einbroch Field Exploration(4) completed":"Einbroch Field Exploration(5) completed":"Einbroch Field Exploration(6) completed":"Einbroch Field Exploration(7) completed":"Einbroch Field Exploration(8) completed",ACH_C_ACHIEVE,120067:120068:120069:120070:120071:120072:120073:120074,,20,0,644,1,{}
+129012,"Lighthalzen Explorer",ACH_QUEST,"Lighthalzen Field Exploration(1) completed":"Lighthalzen Field Exploration(2) completed":"Lighthalzen Field Exploration(3) completed",ACH_C_ACHIEVE,120075:120076:120077,,20,0,644,1,{}
+129013,"Schwarzwald Explorer",ACH_QUEST,"Yuno Explorer":"Hugel Explorer":"Einbroch Explorer":"Lighthalzen Explorer",ACH_C_ACHIEVE,129009:129010:129011:129012,,50,0,617,1,{}
+129014,"Rachel Explorer",ACH_QUEST,"Rachel Audhumbla Plains Field Exploration(1) completed":"Rachel Plains Field Exploration(1) completed":"Rachel Plains Field Exploration(2) completed":"Rachel Plains Field Exploration(3) completed":"Rachel Audhumbla Grassland Field Exploration(1) completed":"Rachel Audhumbla Grassland Field Exploration(2) completed":"Portus Luna Field Exploration(1) completed",ACH_C_ACHIEVE,120078:120079:120080:120081:120082:120083:120084,,20,0,644,1,{}
+129015,"Veins Explorer",ACH_QUEST,"Veins Field Exploration(1) completed":"Veins Field Exploration(2) completed":"Veins Field Exploration(3) completed":"Veins Field Exploration(4) completed":"Veins Field Exploration(5) completed",ACH_C_ACHIEVE,120085:120086:120087:120088:120089,,20,0,644,1,{}
+129016,"Arunafeltz Explorer",ACH_QUEST,"Rachel Explorer":"Veins Explorer",ACH_C_ACHIEVE,129014:129015,,50,0,617,1,{}
+129017,"Laphine Explorer",ACH_QUEST,"Eclage Field Exploration(1) completed":"North Bitfrost Field Exploration(1) completed":"South Bitfrost Field Exploration(1) completed":"Splendide Field Exploration(1) completed":"Splendide Field Exploration(2) completed":"Splendide Field Exploration(3) completed",ACH_C_ACHIEVE,120090:120091:120092:120093:120094:120095,,20,0,644,1,{}
+129018,"Manuk Explorer",ACH_QUEST,"Manuk Field Exploration(1) completed":"Manuk Field Exploration(2) completed":"Manuk Field Exploration(3) completed":"Outskirts of Kamidal Field Exploration(1) completed":"Outskirts of Kamidal Field Exploration(2) completed",ACH_C_ACHIEVE,120096:120097:120098:120099:120100,,20,0,644,1,{}
+129019,"Eclage Explorer",ACH_QUEST,"Laphine Explorer":"Manuk Explorer",ACH_C_ACHIEVE,129017:129018,,50,0,617,1,{}
+129020,"Localizing fields explorer",ACH_QUEST,"Amatsu Field Exploration(1) completed":"Kunlun Field Exploration(1) completed":"Gonryun Field Exploration(1) completed":"Ayothaya Field Exploration(1) completed":"Moscovia Field Exploration(1) completed":"Brasilis Field Exploration(1) completed":"Dewata Field Exploration(1) completed":"Malaya Field Exploration(1) completed":"Malaya Field Exploration(2) completed",ACH_C_ACHIEVE,120101:120102:120103:120104:120105:120106:120107:120108:120109,,50,0,617,1,{}
+//129021"????",ACH_,"????",ACH_C_,,,,10,1045,0,0,{}
+
+130000,"Socialite debut",ACH_QUEST,"Visit Heine Royal Family and start conversation":"Visit Nerius Royal Family and start conversation":"Visit Walter Royal Family and start conversation":"Visit Wigner Royal Family and start conversation":"Visit Richard Royal Family and start conversation":"Visit Gaebolg Royal Family and start conversation":"Visit Lugenburg Royal Family and start conversation",,,,10,1034,0,0,{}
+
+170000,"Song chamber is not an accident",ACH_QUEST,"Listen the secret song of five recomended court musician",,,,10,0,0,0,{}
+
+190000,"Alliance workers of merchant city",ACH_QUEST,"Novice Amethyst class":"Expert Sardonyx class":"Competence Person Aquamarine class":"Sparkling Diamond class",,,1:10:30:100,50,0,0,0,{}
+
+200000,"Acquire the first aura!",ACH_STATUS,"Base level 99",ACH_C_STATUSTYPE,"SP_BASELEVEL",99,50,1000,12549,1,{ specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200001,"Acquire the second aura!",ACH_STATUS,"Base level 150",ACH_C_STATUSTYPE,"SP_BASELEVEL",150,60,1001,5364,1,{ specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200002,"Acquire the third aura!",ACH_STATUS,"Base level 175",ACH_C_STATUSTYPE,"SP_BASELEVEL",175,70,1002,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200003,"Master Job level!",ACH_STATUS,"Job level 50",ACH_C_STATUSTYPE,"SP_JOBLEVEL",50,30,1003,617,1,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200004,"Grandmaster Job level!",ACH_STATUS,"Job level 70",ACH_C_STATUSTYPE,"SP_JOBLEVEL",70,50,1004,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200005,"Official Adventurer",ACH_JOB_CHANGE,"Job change to first class",ACH_C_JOBID,"Job_Swordman||Job_Mage||Job_Archer||Job_Acolyte||Job_Merchant||Job_Thief",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200006,"First step of job change!",ACH_QUEST,"First step of job change",,,,20,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200007,"Veteran Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 2-1 classes",ACH_C_JOBID,"Job_Knight||Job_Priest||Job_Wizard||Job_Blacksmith||Job_Hunter||Job_Assassin",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200008,"Veteran Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 2-2 classes",ACH_C_JOBID,"Job_Crusader||Job_Sage||Job_Bard||Job_Dancer||Job_Alchemist||Job_Rogue",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200009,"Warrior (1)",ACH_JOB_CHANGE,"Job change to transcendent 2-1 classes",ACH_C_JOBID,"Job_Lord_Knight||Job_High_Wizard||Job_Sniper||Job_High_Priest||Job_Whitesmith||Job_Assassin_Cross",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200010,"Warrior (2)",ACH_JOB_CHANGE,"Job change to transcendent 2-2 classes",ACH_C_JOBID,"Job_Paladin||Job_Professor||Job_Clown||Job_Gypsy||Job_Champion||Job_Creator||Job_Stalker",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200011,"Elite Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes",ACH_C_JOBID,"Job_Rune_Knight||Job_Warlock||Job_Ranger||Job_Arch_Bishop||Job_Mechanic||Job_Guillotine_Cross",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200012,"Transcendentaler! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes after transcendent",ACH_C_JOBID,"Job_Rune_Knight_T||Job_Warlock_T||Job_Ranger_T||Job_Arch_Bishop_T||Job_Mechanic_T||Job_Guillotine_Cross_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200013,"Elite Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes",ACH_C_JOBID,"Job_Royal_Guard||Job_Sorcerer||Job_Minstrel||Job_Wanderer||Job_Sura||Job_Genetic||Job_Shadow_Chaser",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200014,"Transcendentaler! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes after transcendent",ACH_C_JOBID,"Job_Royal_Guard_T||Job_Sorcerer_T||Job_Minstrel_T||Job_Wanderer_T||Job_Sura_T||Job_Genetic_T||Job_Shadow_Chaser_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200015,"The way of exceptional character",ACH_JOB_CHANGE,"Job change to expanded classes",ACH_C_JOBID,"Job_Taekwon||Job_Gunslinger||Job_Ninja||Job_Summoner",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200016,"This is My way!",ACH_JOB_CHANGE,"Expanded 2nd classes",ACH_C_JOBID,"Job_Star_Gladiator||Job_Soul_Linker||Job_Rebellion||Job_Kagerou||Job_Oboro",,20,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200017,"Bearish Power!",ACH_STATUS,"Achieve base STR 90",ACH_C_STATUSTYPE,"SP_STR",90,10,0,0,0,{}
+200018,"Overflowing Magic!",ACH_STATUS,"Achieve base INT 90",ACH_C_STATUSTYPE,"SP_INT",90,10,0,0,0,{}
+200019,"Healthy Body and Mental Health!",ACH_STATUS,"Achieve base VIT 90",ACH_C_STATUSTYPE,"SP_VIT",90,10,0,0,0,{}
+200020,"Speed of Light",ACH_STATUS,"Achieve base AGI 90",ACH_C_STATUSTYPE,"SP_AGI",90,10,0,0,0,{}
+200021,"Hawk Eyes",ACH_STATUS,"Achieve base DEX 90",ACH_C_STATUSTYPE,"SP_DEX",90,10,0,0,0,{}
+200022,"Maximum Luck",ACH_STATUS,"Achieve base LUK 90",ACH_C_STATUSTYPE,"SP_LUK",90,10,0,0,0,{}
+200023,"Dragonlike Power!",ACH_STATUS,"Achieve base STR 125",ACH_C_STATUSTYPE,"SP_STR",125,20,0,0,0,{sc_start SC_GIANTGROWTH,180000,1; }
+200024,"Magic Insanity",ACH_STATUS,"Achieve base INT 125",ACH_C_STATUSTYPE,"SP_INT",125,20,0,0,0,{specialeffect2 EF_HASTEUP; bonus_script "{ bonus2 bHPLossRate,100,10000; bonus bBaseAtk,20; bonus bAspdRate,25; }",60,0,0,SI_STEAMPACK; }
+200025,"Rock Alloy",ACH_STATUS,"Achieve base VIT 125",ACH_C_STATUSTYPE,"SP_VIT",125,20,0,0,0,{specialeffect2 EF_HEAL3; sc_start2 SC_S_LIFEPOTION,600000,-5,5; }
+200026,"Speed of Light",ACH_STATUS,"Achieve base AGI 125",ACH_C_STATUSTYPE,"SP_AGI",125,20,0,0,0,{specialeffect2 EF_STEAL; sc_start SC_INCFLEE2,60000,20; }
+200027,"Falcon's Eyes",ACH_STATUS,"Achieve base DEX 125",ACH_C_STATUSTYPE,"SP_DEX",125,20,0,0,0,{specialeffect2 EF_MAGICALATTHIT; sc_start SC_INCCRI,300000,30; }
+200028,"Lucky Fever",ACH_STATUS,"Achieve base LUK 125",ACH_C_STATUSTYPE,"SP_LUK",125,20,0,0,0,{specialeffect2 EF_GLORIA; sc_start SC_GLORIA,15000,0; }
+200029,"Incarnation of Love and Hate",ACH_STATUS_BY_JOB,"Achieve 99 base level as Novice",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"Job_Novice",99:1,30,0,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200030,"I really love it!",ACH_STATUS_BY_JOBTYPE,"Achieve 99 base level as 1st classes",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"Job_Swordman||Job_Mage||Job_Archer||Job_Acolyte||Job_Merchant||Job_Thief",99:1,30,0,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200031,"Reborn in Valhalla!",ACH_JOB_CHANGE,"Job change to transcendent Novice",ACH_C_JOBID,"Job_Novice_High",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+//200032,"Start of Another Adventure",ACH_STATUS_BY_JOB,"Achieve Base Level 100",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"",99:1,0,0,0,0,{} // Rebirth?
+
+220000,"Community begin",ACH_CHATROOM_CREATE,"Create a chatroom",,,,10,0,0,0,{}
+220001,"A mouth only moment",ACH_CHATROOM_CREATE_DEAD,"Create a chatroom when KO'ed",,,,10,0,0,0,{}
+220002,"Admiring the chatter",ACH_CHATROOM_MEMBERS,"Fill the chatroom with 20 people",,,,10,0,0,0,{}
+220003,"My friend's friend~",ACH_FRIEND_ADD,"Add 1 person as a friend",,,,10,0,0,0,{}
+220004,"A competition of popularity",ACH_FRIEND_ADD,"Add 10 person as a friend",,,,10,0,0,0,{}
+220005,"Let's Party~",ACH_PARTY_CREATE,"Create a party",,,,10,0,0,0,{}
+220006,"Married with who..?",ACH_MARRY,"Succeed on marriage",,,,20,1022,0,0,{}
+220007,"Can you grow?",ACH_ADOPT_PARENT,"Adopted by parents",,,,20,1032,0,0,{}
+220008,"Being a parent",ACH_ADOPT_BABY,"Adopt a child",,,,20,1033,0,0,{}
+220009,"Activating the market economy (1)",ACH_ZENY_SPEND_TOTAL,"Spend 10000 zeny on vending merchant",,,10000,10,0,0,0,{}
+220010,"Activating the market economy (2)",ACH_ZENY_SPEND_TOTAL,"Spend 100000 zeny on vending merchant",,,1000000,15,0,0,0,{}
+220011,"Activating the market economy (3)",ACH_ZENY_SPEND_TOTAL,"Spend 500000 zeny on vending merchant",,,5000000,15,0,0,0,{}
+220012,"Activating the market economy (4)",ACH_ZENY_SPEND_TOTAL,"Spend 1.000000 zeny on vending merchant",,,100000000,30,0,0,0,{}
+220013,"Activating the market economy (5)",ACH_ZENY_SPEND_TOTAL,"Spend 5.000000 zeny on vending merchant",,,500000000,50,0,0,0,{}
+220014,"I can't quit from refining! (1)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 1 weapon to +7",ACH_C_WEAPONLV,1,7,10,0,0,0,{}
+220015,"I can't quit from refining! (2)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 1 weapon to +12",ACH_C_WEAPONLV,1,12,15,0,0,0,{}
+220016,"I can't quit from refining! (3)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 2 weapon to +7",ACH_C_WEAPONLV,2,7,10,0,0,0,{}
+220017,"I can't quit from refining! (4)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 2 weapon to +12",ACH_C_WEAPONLV,2,12,15,0,0,0,{}
+220018,"I can't quit from refining! (5)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 3 weapon to +7",ACH_C_WEAPONLV,3,7,15,0,0,0,{}
+220019,"I can't quit from refining! (6)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 3 weapon to +12",ACH_C_WEAPONLV,3,12,20,0,0,0,{}
+220020,"I can't quit from refining! (7)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 4 weapon to +7",ACH_C_WEAPONLV,4,7,20,0,0,0,{}
+220021,"I can't quit from refining! (8)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 4 weapon to +12",ACH_C_WEAPONLV,4,12,30,0,0,0,{}
+220022,"Human's greed has no ending..",ACH_EQUIP_REFINE_FAILURE_TOTAL,"Experience the fail of refining",ACH_C_ITEMTYPE,"IT_WEAPON||IT_ARMOR",,10,0,0,0,{}
+220023,"I found it! (1)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 100 zeny",,,100,10,0,0,0,{}
+220024,"I found it! (2)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 1000 zeny",,,1000,10,0,0,0,{}
+220025,"I found it! (3)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 5000 zeny",,,5000,15,0,0,0,{}
+220026,"I found it! (4)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 10000 zeny",,,10000,15,0,0,0,{}
+220027,"I found it! (5)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 50000 zeny",,,50000,20,0,0,0,{}
+220028,"I found it! (6)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 100000 zeny",,,100000,20,0,0,0,{}
+220029,"I found it! (7)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 150000 zeny",,,150000,30,0,0,0,{}
+220030,"Rich King (1)",ACH_ZENY_HOLD,"Hold more than 10000 zeny in pocket",,,10000,10,0,0,0,{}
+220031,"Rich King (2)",ACH_ZENY_HOLD,"Hold more than 100000 zeny in pocket",,,100000,15,0,0,0,{}
+220032,"Rich King (3)",ACH_ZENY_HOLD,"Hold more than 1000000 zeny in pocket",,,1000000,20,0,0,0,{}
+220033,"Rich King (4)",ACH_ZENY_HOLD,"Hold more than 10000000 zeny in pocket",,,10000000,25,0,0,0,{}
+220034,"Rich King (5)",ACH_ZENY_HOLD,"Hold more than 100000000 zeny in pocket",,,100000000,30,0,0,0,{}
+220035,"Rich King (6)",ACH_ZENY_HOLD,"Hold more than 1000000000 zeny in pocket",,,1000000000,40,0,0,0,{}
+//220036"????",ACH_,"????",ACH_C_,,,,20,0,0,0,{}
+//220037"????",ACH_,"????",ACH_C_,,,,20,0,0,0,{}
+
+230100,"Poring is Love",ACH_ACHIEVE,"Complete 'Poring - taming' challenge":"Complete 'Drops - taming' challenge":"Complete 'Poporing - taming' challenge":"Complete 'Novice Poring - taming' challenge",ACH_C_ACHIEVE,230101:230102:230103:230104,,50,1025,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+230101,"Poring - taming",ACH_PET_CREATE,"Succeed on Taming Poring",ACH_C_MOBID,1002,1,10,0,0,0,{}
+230102,"Drops - taming",ACH_PET_CREATE,"Succeed on Taming Drops",ACH_C_MOBID,1113,1,10,0,0,0,{}
+230103,"Poporing - taming",ACH_PET_CREATE,"Succeed on Taming Poporing",ACH_C_MOBID,1031,1,10,0,0,0,{}
+230104,"Novice Poring - taming",ACH_PET_CREATE,"Succeed on Taming Novice Poring",ACH_C_MOBID,2398,1,10,0,0,0,{}
+
+230110,"Entomologist",ACH_ACHIEVE,"Complete 'Chonchon - taming' challenge":"Complete 'Steel Chonchon - taming' challenge":"Complete 'Hunter Fly - taming' challenge":"Complete 'Rocker - taming' challenge":"Complete 'Spore - taming' challenge":"Complete 'Poison Spore - taming' challenge",ACH_C_ACHIEVE,230111:230112:230113:230114:230115:230116,,50,1026,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+230111,"Chonchon - taming",ACH_PET_CREATE,"Succeed on Taming Chonchon",ACH_C_MOBID,1011,1,10,0,0,0,{}
+230112,"Steel Chonchon - taming",ACH_PET_CREATE,"Succeed on Taming Steel Chonchon",ACH_C_MOBID,1042,1,10,0,0,0,{}
+230113,"Hunter Fly - taming",ACH_PET_CREATE,"Succeed on Taming Hunter Fly",ACH_C_MOBID,1035,1,10,0,0,0,{}
+230114,"Rocker - taming",ACH_PET_CREATE,"Succeed on Taming Rocker",ACH_C_MOBID,1052,1,10,0,0,0,{}
+230115,"Spore - taming",ACH_PET_CREATE,"Succeed on Taming Spore",ACH_C_MOBID,1014,1,10,0,0,0,{}
+230116,"Poison Spore - taming",ACH_PET_CREATE,"Succeed on Taming Poison Spore",ACH_C_MOBID,1077,1,10,0,0,0,{}
+
+230120,"Animals are also our friend",ACH_ACHIEVE,"Complete 'Lunatic - taming' challenge":"Complete 'Picky - taming' challenge":"Complete 'Savage Bebe - taming' challenge":"Complete 'Baby Desert Wolf - taming' challenge":"Complete 'Smokie - taming' challenge":"Complete 'Yoyo - taming' challenge":"Complete 'Peco Peco - taming' challenge":"Complete 'Petite - taming' challenge",ACH_C_ACHIEVE,230121:230122:230123:230124:230125:230126:230127:230128,,50,1027,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+230121,"Lunatic - taming",ACH_PET_CREATE,"Succeed on Taming Lunatic",ACH_C_MOBID,1063,1,10,0,0,0,{}
+230122,"Picky - taming",ACH_PET_CREATE,"Succeed on Taming Picky",ACH_C_MOBID,1049,1,10,0,0,0,{}
+230123,"Savage Bebe - taming",ACH_PET_CREATE,"Succeed on Taming Savage Bebe",ACH_C_MOBID,1167,1,10,0,0,0,{}
+230124,"Baby Desert Wolf - taming",ACH_PET_CREATE,"Succeed on Taming Baby Desert Wolf",ACH_C_MOBID,2034,1,10,0,0,0,{}
+230125,"Smokie - taming",ACH_PET_CREATE,"Succeed on Taming Smokie",ACH_C_MOBID,1056,1,10,0,0,0,{}
+230126,"Yoyo - taming",ACH_PET_CREATE,"Succeed on Taming Yoyo",ACH_C_MOBID,1057,1,10,0,0,0,{}
+230127,"Peco Peco - taming",ACH_PET_CREATE,"Succeed on Taming Peco Peco",ACH_C_MOBID,1019,1,10,0,0,0,{}
+230128,"Petite - taming",ACH_PET_CREATE,"Succeed on Taming Petite",ACH_C_MOBID,1155,1,10,0,0,0,{}
+
+230140,"Monster Girls Unite!!",ACH_ACHIEVE,"Complete 'Munak - taming' challenge":"Complete 'Isis - taming' challenge":"Complete 'Sohee - taming' challenge":"Complete 'Zherlthsh - taming' challenge":"Complete 'Alice - taming' challenge":"Complete 'Succubus - taming' challenge":"Complete 'Loli Ruri - taming' challenge",ACH_C_ACHIEVE,230141:230142:230143:230144:230145:230146:230147,,50,1029,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+230141,"Munak - taming",ACH_PET_CREATE,"Succeed on Taming Munak",ACH_C_MOBID,1026,1,10,0,0,0,{}
+230142,"Isis - taming",ACH_PET_CREATE,"Succeed on Taming Isis",ACH_C_MOBID,1029,1,10,0,0,0,{}
+230143,"Sohee - taming",ACH_PET_CREATE,"Succeed on Taming Sohee",ACH_C_MOBID,1170,1,10,0,0,0,{}
+230144,"Zherlthsh - taming",ACH_PET_CREATE,"Succeed on Taming Zherlthsh",ACH_C_MOBID,1200,1,10,0,0,0,{}
+230145,"Alice - taming",ACH_PET_CREATE,"Succeed on Taming Alice",ACH_C_MOBID,1275,1,10,0,0,0,{}
+230146,"Succubus - taming",ACH_PET_CREATE,"Succeed on Taming Succubus",ACH_C_MOBID,1370,1,10,0,0,0,{}
+230147,"Loli Ruri - taming",ACH_PET_CREATE,"Succeed on Taming Loli Ruri",ACH_C_MOBID,1505,1,10,0,0,0,{}
+
+230200,"Poring seeker",ACH_ACHIEVE,"Complete 'Exploring Poring's life (1)' challenge":"Complete 'Exploring Poring's life (2)' challenge":"Complete 'Exploring Poring's life (3)' challenge",ACH_C_ACHIEVE,230201:230202:230203,,10,0,0,0,{}
+230201,"Exploring Poring's life (1)",ACH_KILL_MOB_CLASS,"Hunt 10 Poring":"Hunt 10 Novice Poring":"Hunt 10 Drops":"Hunt 10 Poporing":"Hunt 10 Marin",ACH_C_MOBID,1002:2398:1113:1031:1242,10:10:10:10:10,10,0,0,0,{}
+230202,"Exploring Poring's life (2)",ACH_KILL_MOB_CLASS,"Hunt 1 Mastering":"Hunt 1 Devilring":"Hunt 1 Angelring":"Hunt 1 Arch Angelring":"Hunt 1 Ghostring",ACH_C_MOBID,1090:1582:1096:1388:1120,1:1:1:1:1,15,0,0,0,{}
+230203,"Exploring Poring's life (3)",ACH_KILL_MOB_CLASS,"Hunt 5 Metalring":"Hunt 5 Heavy Metalring":"Hunt 5 Magmaring",ACH_C_MOBID,1613:1977:1836,5:5:5,20,0,0,0,{}
+
+240000,"Complete challenges after first introduction",ACH_QUEST,"Complete challenges after first introduction",,,1,10,0,0,0,{}
+240001,"Achieve Level 1",ACH_ACHIEVEMENT_RANK,"Achieving Rank 1",,,1,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240002,"Achieve Level 2",ACH_ACHIEVEMENT_RANK,"Achieving Rank 2",,,2,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240003,"Achieve Level 3",ACH_ACHIEVEMENT_RANK,"Achieving Rank 3",,,3,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240004,"Achieve Level 4",ACH_ACHIEVEMENT_RANK,"Achieving Rank 4",,,4,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240005,"Achieve Level 5",ACH_ACHIEVEMENT_RANK,"Achieving Rank 5",,,5,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240006,"Achieve Level 6",ACH_ACHIEVEMENT_RANK,"Achieving Rank 6",,,6,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240007,"Achieve Level 7",ACH_ACHIEVEMENT_RANK,"Achieving Rank 7",,,7,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240008,"Achieve Level 8",ACH_ACHIEVEMENT_RANK,"Achieving Rank 8",,,8,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240009,"Achieve Level 9",ACH_ACHIEVEMENT_RANK,"Achieving Rank 9",,,9,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240010,"Achieve Level 10",ACH_ACHIEVEMENT_RANK,"Achieving Rank 10",,,10,10,1023,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240011,"Achieve Level 11",ACH_ACHIEVEMENT_RANK,"Achieving Rank 11",,,11,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240012,"Achieve Level 12",ACH_ACHIEVEMENT_RANK,"Achieving Rank 12",,,12,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240013,"Achieve Level 13",ACH_ACHIEVEMENT_RANK,"Achieving Rank 13",,,13,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240014,"Achieve Level 14",ACH_ACHIEVEMENT_RANK,"Achieving Rank 14",,,14,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240015,"Achieve Level 15",ACH_ACHIEVEMENT_RANK,"Achieving Rank 15",,,15,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240016,"Achieve Level 16",ACH_ACHIEVEMENT_RANK,"Achieving Rank 16",,,16,10,10,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240017,"Achieve Level 17",ACH_ACHIEVEMENT_RANK,"Achieving Rank 17",,,17,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240018,"Achieve Level 18",ACH_ACHIEVEMENT_RANK,"Achieving Rank 18",,,18,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240019,"Achieve Level 19",ACH_ACHIEVEMENT_RANK,"Achieving Rank 19",,,19,10,0,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+240020,"Achieve Level 20",ACH_ACHIEVEMENT_RANK,"Achieving Rank 20",,,20,10,1024,644,1,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }

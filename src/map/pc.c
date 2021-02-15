@@ -1056,9 +1056,9 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 		pc_skill(p1_sd, WE_CALLBABY, 1, 0);
 		pc_skill(p2_sd, WE_CALLBABY, 1, 0);
 
-		achievement_update_objective(b_sd, AG_BABY, 1, 1);
-		achievement_update_objective(p1_sd, AG_BABY, 1, 2);
-		achievement_update_objective(p2_sd, AG_BABY, 1, 2);
+		//achievement_update_objective(b_sd, AG_BABY, 1, 1);
+		//achievement_update_objective(p1_sd, AG_BABY, 1, 2);
+		//achievement_update_objective(p2_sd, AG_BABY, 1, 2);
 		
 		return true;
 	}
@@ -1485,7 +1485,7 @@ int pc_reg_received(struct map_session_data *sd)
 	intif_request_questlog(sd);
 #endif
 
-	if (battle_config.feature_achievement) {
+	/*if (battle_config.feature_achievement) {
 		sd->achievement_data.total_score = 0;
 		sd->achievement_data.level = 0;
 		sd->achievement_data.save = false;
@@ -1494,7 +1494,7 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->achievement_data.incompleteCount = 0;
 		sd->achievement_data.achievements = NULL;
 		intif_request_achievements(sd->status.char_id);
-	}
+	}*/
 
 	if (sd->state.connect_new == 0 && sd->fd)
 	{	//Character already loaded map! Gotta trigger LoadEndAck manually.
@@ -4005,7 +4005,7 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 		clif_disp_onlyself(sd,output,strlen(output));
 	}
 
-	achievement_update_objective(sd, AG_GET_ZENY, 1, sd->status.zeny);
+	//achievement_update_objective(sd, AG_GET_ZENY, 1, sd->status.zeny);
 
 	return 0;
 }
@@ -4099,7 +4099,8 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 	//Auto-equip
 	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip, false);
 
-	achievement_update_objective(sd, AG_GET_ITEM, 1, data->value_sell);
+	//achievement_update_objective(sd, AG_GET_ITEM, 1, data->value_sell);
+	pc_show_questinfo(sd);
 
 	return 0;
 }
@@ -5947,6 +5948,9 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 
 	if (!next || sd->status.base_exp < next || pc_is_maxbaselv(sd))
 		return 0;
+
+	uint32 base_level = sd->status.base_level;
+
 	do {
 		sd->status.base_exp -= next;
 		//Kyoki pointed out that the max overcarry exp is the exp needed for the previous level -1. [Skotlex]
@@ -5994,8 +5998,10 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	pc_show_questinfo(sd);
 #endif
 
-	achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.base_level);
-	achievement_update_objective(sd, AG_GOAL_STATUS, 2, sd->status.base_level, sd->status.class_);
+	/*for (; base_level <= sd->status.base_level; base_level++) {
+		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, base_level);
+		achievement_update_objective(sd, AG_GOAL_STATUS, 2, base_level, sd->status.class_);
+	}*/
 
 	return 1;
 }
@@ -6007,6 +6013,8 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 	nullpo_ret(sd);
 	if(!next || sd->status.job_exp < next || pc_is_maxjoblv(sd))
 		return 0;
+
+	uint32 job_level = sd->status.job_level;
 
 	do {
 		sd->status.job_exp -= next;
@@ -6029,7 +6037,12 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 		clif_status_change(&sd->bl,SI_DEVIL, 1, 0, 0, 0, 0); //Permanent blind effect from SG_DEVIL.
 
 	npc_script_event(sd, NPCE_JOBLVUP);
-	achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.job_level);
+	/*for (; job_level <= sd->status.job_level; job_level++)
+		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, job_level);*/
+
+#if PACKETVER >= 20090218
+	pc_show_questinfo(sd);
+#endif
 	return 1;
 }
 
@@ -6429,7 +6442,7 @@ bool pc_statusup(struct map_session_data* sd, int type, int increase)
 	if( final_value > 255 )
 		clif_updatestatus(sd, type); // send after the 'ack' to override the truncated value
 
-	achievement_update_objective(sd, AG_GOAL_STATUS, 1, final_value);
+	//achievement_update_objective(sd, AG_GOAL_STATUS, 1, final_value);
 
 	return 0;
 }
@@ -6468,7 +6481,7 @@ int pc_statusup2(struct map_session_data* sd, int type, int val)
 	if( val > 255 )
 		clif_updatestatus(sd,type); // send after the 'ack' to override the truncated value
 
-	achievement_update_objective(sd, AG_GOAL_STATUS, 1, val);
+	//achievement_update_objective(sd, AG_GOAL_STATUS, 1, val);
 
 	return 0;
 }
@@ -7810,12 +7823,14 @@ int pc_percentheal(struct map_session_data *sd,int hp,int sp)
 	return 0;
 }
 
-/*==========================================
- * E?X
- * ˆø?	job E‹Æ 0`23
- *		upper ’Êí 0, ?¶ 1, —{Žq 2, ‚»‚Ì‚Ü‚Ü -1
+/**
+ * Called when player changes job
  * Rewrote to make it tidider [Celest]
- *------------------------------------------*/
+ * @param sd
+ * @param job JOB ID. See enum e_job
+ * @param upper 1 - JOBL_UPPER; 2 - JOBL_BABY
+ * @return True if success, false if failed
+ **/
 int pc_jobchange(struct map_session_data *sd,int job, int upper)
 {
 	int i, fame_flag=0;
@@ -7961,7 +7976,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	pc_equiplookall(sd);
 	pc_update_job_and_level(sd);
 
-	achievement_update_objective(sd, AG_JOB_CHANGE, 2, sd->status.base_level, job);
+	//achievement_update_objective(sd, AG_JOB_CHANGE, 2, sd->status.base_level, job);
 
 #if PACKETVER >= 20090218
 	pc_show_questinfo(sd);
@@ -9538,8 +9553,8 @@ int pc_marriage(struct map_session_data *sd,struct map_session_data *dstsd)
 	sd->status.partner_id = dstsd->status.char_id;
 	dstsd->status.partner_id = sd->status.char_id;
 
-	achievement_update_objective(sd, AG_MARRY, 1, 1);
-	achievement_update_objective(dstsd, AG_MARRY, 1, 1);
+	//achievement_update_objective(sd, AG_MARRY, 1, 1);
+	//achievement_update_objective(dstsd, AG_MARRY, 1, 1);
 
 	return 0;
 }

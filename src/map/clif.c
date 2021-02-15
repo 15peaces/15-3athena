@@ -1535,8 +1535,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl,SI_KO_JYUMONJIKIRI,1,9999,sd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_MEIKYOUSISUI] )
 				clif_status_change(&sd->bl,SI_MEIKYOUSISUI,1,9999,sd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
-			//if( sd->sc.count && sd->sc.data[SC_KYOUGAKU] )
-			//	clif_status_change(&sd->bl,SI_KYOUGAKU,1,9999,sd->sc.data[SC_KYOUGAKU]->val1,0,0);
+			if (sd->sc.count && sd->sc.data[SC_KYOUGAKU])
+				clif_status_change(&sd->bl, SI_KYOUGAKU, 1, 9999, sd->sc.data[SC_KYOUGAKU]->val1, 0, 0);
 			if( sd->sc.count && sd->sc.data[SC_KYOMU] )
 				clif_status_change(&sd->bl,SI_KYOMU,1,9999,sd->sc.data[SC_KYOMU]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_KAGEMUSYA] )
@@ -1549,8 +1549,6 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl,SI_AKAITSUKI,1,9999,sd->sc.data[SC_AKAITSUKI]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_ALL_RIDING])
 				clif_status_change(&sd->bl, SI_ALL_RIDING, 1, 9999, sd->sc.data[SC_ALL_RIDING]->val1, 0, 0);
-			//if( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
-			//	clif_status_change(&sd->bl,SI_ON_PUSH_CART,1,9999,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -4843,8 +4841,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KO_JYUMONJIKIRI,1,9999,tsd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_MEIKYOUSISUI] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_MEIKYOUSISUI,1,9999,tsd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
-			//if( tsd->sc.count && tsd->sc.data[SC_KYOUGAKU] )
-			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_KYOUGAKU,1,9999,tsd->sc.data[SC_KYOUGAKU]->val1,0,0);
+			if (tsd->sc.count && tsd->sc.data[SC_KYOUGAKU])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_KYOUGAKU, 1, 9999, tsd->sc.data[SC_KYOUGAKU]->val1, 0, 0);
 			if( tsd->sc.count && tsd->sc.data[SC_KYOMU] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KYOMU,1,9999,tsd->sc.data[SC_KYOMU]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_KAGEMUSYA] )
@@ -4857,8 +4855,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_AKAITSUKI,1,9999,tsd->sc.data[SC_AKAITSUKI]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1,9999,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
-			//if( tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART] )
-			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_ON_PUSH_CART,1,9999,tsd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
 			if (tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM])
 				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MONSTER_TRANSFORM, 1000, tsd->sc.data[SC_MONSTER_TRANSFORM]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART])
@@ -14359,7 +14355,7 @@ void clif_achievement_list_all(struct map_session_data *sd)
 	}
 
 	fd = sd->fd;
-	count = sd->achievement_data.count; // All achievements should be sent to the client
+	/*count = sd->achievement_data.count; // All achievements should be sent to the client
 	len = (50 * count) + 22;
 
 	if (len <= 22)
@@ -14384,14 +14380,14 @@ void clif_achievement_list_all(struct map_session_data *sd)
 		WFIFOL(fd, i * 50 + 67) = (uint32)sd->achievement_data.achievements[i].completed;
 		WFIFOB(fd, i * 50 + 71) = sd->achievement_data.achievements[i].rewarded > 0;
 	}
-	WFIFOSET(fd, len);
+	WFIFOSET(fd, len);*/
 }
 
 /**
 * Sends a single achievement's data to the client (ZC_AG_UPDATE).
 * 0a24 <packetType>.W <ACHPoint>.L
 */
-void clif_achievement_update(struct map_session_data *sd, struct achievement *ach, int count)
+void clif_achievement_update(struct map_session_data *sd, const struct achievement_data *ad)
 {
 	int fd, i, *info;
 
@@ -14403,7 +14399,7 @@ void clif_achievement_update(struct map_session_data *sd, struct achievement *ac
 	}
 
 	fd = sd->fd;
-	info = achievement_level(sd, true);
+	/*info = achievement_level(sd, true);
 
 	WFIFOHEAD(fd, packet_len(0xa24));
 	WFIFOW(fd, 0) = 0xa24;
@@ -14421,7 +14417,7 @@ void clif_achievement_update(struct map_session_data *sd, struct achievement *ac
 	}
 	else
 		memset(WFIFOP(fd, 16), 0, 40);
-	WFIFOSET(fd, packet_len(0xa24));
+	WFIFOSET(fd, packet_len(0xa24));*/
 }
 
 /**
@@ -14432,10 +14428,10 @@ void clif_parse_AchievementCheckReward(int fd, struct map_session_data *sd)
 {
 	nullpo_retv(sd);
 
-	if (sd->achievement_data.save)
+	/*if (sd->achievement_data.save)
 		intif_achievement_save(sd);
 
-	achievement_check_reward(sd, RFIFOL(fd, 2));
+	achievement_check_reward(sd, RFIFOL(fd, 2));*/
 }
 
 /**
@@ -15326,7 +15322,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 		memcpy(f_sd->status.friends[i].name, sd->status.name, NAME_LENGTH);
 		clif_friendslist_reqack(f_sd, sd, 0);
 
-		achievement_update_objective(f_sd, AG_ADD_FRIEND, 1, i + 1);
+		//achievement_update_objective(f_sd, AG_ADD_FRIEND, 1, i + 1);
 
 		if (battle_config.friend_auto_add) {
 			// Also add f_sd to sd's friendlist.
@@ -15346,7 +15342,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 			memcpy(sd->status.friends[i].name, f_sd->status.name, NAME_LENGTH);
 			clif_friendslist_reqack(sd, f_sd, 0);
 			
-			achievement_update_objective(sd, AG_ADD_FRIEND, 1, i + 1);
+			//achievement_update_objective(sd, AG_ADD_FRIEND, 1, i + 1);
 		}
 	}
 }

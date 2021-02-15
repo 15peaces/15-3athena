@@ -1,0 +1,16 @@
+// 15-3athena Achievement Rank Database
+//
+// Structure of Database:
+// rank#,exp required
+
+1,18
+2,31
+3,49
+4,73
+5,135
+6,104
+7,140
+8,214
+9,305
+10,257
+11,300

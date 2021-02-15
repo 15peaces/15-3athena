@@ -5,6 +5,7 @@
 #define	_MMO_H_
 
 #include "cbasetypes.h"
+#include "../common/db.h" // VECTORS
 #include <time.h>
 
 // server->client protocol version
@@ -207,15 +208,15 @@
 #define EL_CLASS_BASE 2114
 #define EL_CLASS_MAX (EL_CLASS_BASE+MAX_ELEMENTAL_CLASS-1)
 
+// Achievements [Smokexyz/Hercules]
+#define MAX_ACHIEVEMENT_DB 360          // Maximum number of achievements
+#define MAX_ACHIEVEMENT_OBJECTIVES 10   // Maximum number of achievement objectives
+#define MAX_ACHIEVEMENT_RANKS 20 // Achievement Ranks
+#define MAX_ACHIEVEMENT_ITEM_REWARDS 10 // Achievement Rewards
+
 //15-3athena
 //Will be needed in the future for keeping track of and saving cooldown times for skills. [15peaces]
 //#define MAX_SKILLCOOLDOWN 20
-
-//Achievement System
-#define MAX_ACHIEVEMENT_RANK 20 /// Maximum achievement level
-#define MAX_ACHIEVEMENT_OBJECTIVES 10 /// Maximum different objectives in achievement_db.txt
-#define MAX_ACHIEVEMENT_DEPENDENTS 20 /// Maximum different dependents in achievement_db.txt
-#define ACHIEVEMENT_NAME_LENGTH 50 /// Max Achievement Name length
 
 enum item_types {
 	IT_HEALING = 0,			//IT_HEAL		= 0x00
@@ -254,12 +255,13 @@ struct quest {
 
 /// Achievement log entry
 struct achievement {
-	int achievement_id;                    ///< Achievement ID
-	int count[MAX_ACHIEVEMENT_OBJECTIVES]; ///< Counters of each achievement objective
+	int id;                    ///< Achievement ID
+	int objective[MAX_ACHIEVEMENT_OBJECTIVES]; ///< Counters of each achievement objective
 	time_t completed;                      ///< Date completed
 	time_t rewarded;                       ///< Received reward?
-	int score;                             ///< Amount of points achievement is worth
 };
+
+VECTOR_STRUCT_DECL(char_achievements, struct achievement);
 
 struct item {
 	int id;

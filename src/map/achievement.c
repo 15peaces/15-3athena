@@ -1,1319 +1,949 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include "../common/cbasetypes.h"
+#include "achievement.h"
+
+#include "itemdb.h"
+#include "mob.h"
+#include "party.h"
+#include "pc.h"
+#include "script.h"
+
+#include "../common/db.h"
 #include "../common/malloc.h"
 #include "../common/nullpo.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
-#include "../common/utils.h"
-
-#include "achievement.h"
-#include "chrif.h"
-#include "clif.h"
-#include "intif.h"
-#include "itemdb.h"
-#include "map.h"
-#include "pc.h"
-#include "script.h"
-#include "status.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <setjmp.h>
-
-static jmp_buf     av_error_jump;
-static char*       av_error_msg;
-static const char* av_error_pos;
-static int         av_error_report;
-
-static DBMap *achievement_db = NULL; // int achievement_id -> struct achievement_db *
-static DBMap *achievementrewards_db = NULL; // int achievement_id -> struct achievementrewards_db *
-static DBMap *achievementmobs_db = NULL; // Avoids checking achievements on every mob killed
-static void achievement_db_free_sub(struct achievement_db *achievement, bool free);
-static void achievementrewards_db_free_sub(struct achievement_rewards *rewards, bool free);
 
 /**
- * Searches an achievement by ID
- * @param achievement_id: ID to lookup
- * @return Achievement entry (equals to &achievement_dummy if the ID is invalid)
+ * Retrieve an achievement via it's ID.
+ * @param aid as the achievement ID.
+ * @return NULL or pointer to the achievement data.
  */
-struct achievement_db *achievement_search(int achievement_id)
+static const struct achievement_data *achievement_get(int aid)
 {
-	struct achievement_db *achievement = (struct achievement_db *)idb_get(achievement_db, achievement_id);
-
-	if (!achievement)
-		return &achievement_dummy;
-	return achievement;
+	return (struct achievement_data *) idb_get(achievement_db, aid);
 }
 
 /**
-* Searches an achievement reward by ID
-* @param achievement_id: ID to lookup
-* @return Achievement reward entry (equals to &achievement_reward_dummy if the ID is invalid)
-*/
-struct achievement_rewards *achievement_reward_search(int achievement_id)
-{
-	struct achievement_rewards *achievement_reward = (struct achievement_rewards *)idb_get(achievementrewards_db, achievement_id);
-
-	if (!achievement_reward)
-		return &achievement_reward_dummy;
-	return achievement_reward;
-}
-
-/**
- * Searches for an achievement by monster ID
- * @param mob_id: Monster ID to lookup
- * @return True on success, false on failure
+ * Searches the provided achievement data for an achievement,
+ * optionally creates a new one if no key exists.
+ * @param[in] sd       a pointer to map_session_data.
+ * @param[in] aid      ID of the achievement provided as key.
+ * @param[in] create   new key creation flag.
+ * @return pointer to the session's achievement data.
  */
-bool achievement_mobexists(int mob_id)
+static struct achievement *achievement_ensure(struct map_session_data *sd, const struct achievement_data *ad)
 {
-	if (!battle_config.feature_achievement)
-		return false;
-	return idb_exists(achievementmobs_db, mob_id);
-}
-
-/**
- * Add an achievement to the player's log
- * @param sd: Player data
- * @param achievement_id: Achievement to add
- * @return NULL on failure, achievement data on success
- */
-struct achievement *achievement_add(struct map_session_data *sd, int achievement_id)
-{
-	struct achievement_db *adb = &achievement_dummy;
-	struct achievement_rewards *ardb = &achievement_reward_dummy;
-
-	int i, index;
+	struct achievement *s_ad = NULL;
+	int i = 0;
 
 	nullpo_retr(NULL, sd);
+	nullpo_retr(NULL, ad);
 
-	if ((adb = achievement_search(achievement_id)) == &achievement_dummy) {
-		ShowError("achievement_add: Achievement %d not found in DB.\n", achievement_id);
-		return NULL;
+	/* Lookup for achievement entry */
+	ARR_FIND(0, VECTOR_LENGTH(sd->achievement), i, (s_ad = &VECTOR_INDEX(sd->achievement, i)) && s_ad->id == ad->id);
+
+	if (i == VECTOR_LENGTH(sd->achievement)) {
+		struct achievement ta = { 0 };
+		ta.id = ad->id;
+
+		VECTOR_ENSURE(sd->achievement, 1, 1);
+		VECTOR_PUSH(sd->achievement, ta);
+
+		s_ad = &VECTOR_LAST(sd->achievement);
 	}
 
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i < sd->achievement_data.count) {
-		ShowError("achievement_add: Character %d already has achievement %d.\n", sd->status.char_id, achievement_id);
-		return NULL;
-	}
-
-	index = sd->achievement_data.incompleteCount;
-
-	sd->achievement_data.count++;
-	sd->achievement_data.incompleteCount++;
-	RECREATE(sd->achievement_data.achievements, struct achievement, sd->achievement_data.count);
-
-	// The character has some completed achievements, make room before them so that they will stay at the end of the array
-	if (sd->achievement_data.incompleteCount != sd->achievement_data.count)
-		memmove(&sd->achievement_data.achievements[index + 1], &sd->achievement_data.achievements[index], sizeof(struct achievement) * (sd->achievement_data.count - sd->achievement_data.incompleteCount));
-
-	memset(&sd->achievement_data.achievements[index], 0, sizeof(struct achievement));
-
-	sd->achievement_data.achievements[index].achievement_id = achievement_id;
-	sd->achievement_data.achievements[index].score = ardb->score;
-	sd->achievement_data.save = true;
-
-	clif_achievement_update(sd, &sd->achievement_data.achievements[index], sd->achievement_data.count - sd->achievement_data.incompleteCount);
-
-	return &sd->achievement_data.achievements[index];
+	return s_ad;
 }
 
 /**
- * Removes an achievement from a player's log
- * @param sd: Player's data
- * @param achievement_id: Achievement to remove
- * @return True on success, false on failure
+ * Calculates the achievement's totals via reference.
+ * @param[in] sd               pointer to map_session_data
+ * @param[out] tota_points      pointer to total points var
+ * @param[out] completed        pointer to total var
+ * @param[out] rank             pointer to completed var
+ * @param[out] curr_rank_points pointer to achievement rank var
  */
-bool achievement_remove(struct map_session_data *sd, int achievement_id)
+static void achievement_calculate_totals(const struct map_session_data *sd, int *total_points, int *completed, int *rank, int *curr_rank_points)
 {
-	struct achievement dummy;
+	const struct achievement *a = NULL;
+	const struct achievement_data *ad = NULL;
+	int tmp_curr_points = 0;
+	int tmp_total_points = 0;
+	int tmp_total_completed = 0;
+	int tmp_rank = 0;
+	int i = 0;
+
+	nullpo_retv(sd);
+
+	for (i = 0; i < VECTOR_LENGTH(sd->achievement); i++) {
+		a = &VECTOR_INDEX(sd->achievement, i);
+
+		if ((ad = achievement_get(a->id)) == NULL)
+			continue;
+
+		if (a->completed != 0) {
+			tmp_total_points += ad->points;
+			tmp_total_completed++;
+		}
+	}
+
+	if (tmp_total_points > 0) {
+		tmp_curr_points = tmp_total_points;
+		for (i = 0; i < MAX_ACHIEVEMENT_RANKS
+			&& tmp_curr_points >= VECTOR_INDEX(rank_exp, i)
+			&& i < VECTOR_LENGTH(rank_exp); i++) {
+			tmp_curr_points -= VECTOR_INDEX(rank_exp, i);
+			tmp_rank++;
+		}
+	}
+
+	if (total_points != NULL)
+		*total_points = tmp_total_points;
+
+	if (completed != NULL)
+		*completed = tmp_total_completed;
+
+	if (rank != NULL)
+		*rank = tmp_rank;
+
+	if (curr_rank_points != NULL)
+		*curr_rank_points = tmp_curr_points;
+}
+
+/**
+ * Checks whether all objectives of the achievement are completed.
+ * @param[in] sd       as the map_session_data pointer
+ * @param[in] ad       as the achievement_data pointer
+ * @return true if complete, false if not.
+ */
+static bool achievement_check_complete(struct map_session_data *sd, const struct achievement_data *ad)
+{
 	int i;
+	struct achievement *ach = NULL;
 
 	nullpo_retr(false, sd);
+	nullpo_retr(false, ad);
 
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowError("achievement_delete: Achievement %d not found in DB.\n", achievement_id);
+	if ((ach = achievement_ensure(sd, ad)) == NULL)
 		return false;
-	}
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count) {
-		ShowError("achievement_delete: Character %d doesn't have achievement %d.\n", sd->status.char_id, achievement_id);
-		return false;
-	}
-
-	if (!sd->achievement_data.achievements[i].completed)
-		sd->achievement_data.incompleteCount--;
-
-	if (i != sd->achievement_data.count - 1)
-		memmove(&sd->achievement_data.achievements[i], &sd->achievement_data.achievements[i + 1], sizeof(struct achievement) * (sd->achievement_data.count - 1 - i));
-
-	sd->achievement_data.count--;
-	if (sd->achievement_data.count == 0){
-		aFree(sd->achievement_data.achievements);
-		sd->achievement_data.achievements = NULL;
-	}
-	else{
-		RECREATE(sd->achievement_data.achievements, struct achievement, sd->achievement_data.count);
-	}
-	sd->achievement_data.save = true;
-
-	// Send a removed fake achievement
-	memset(&dummy, 0, sizeof(struct achievement));
-	dummy.achievement_id = achievement_id;
-	clif_achievement_update(sd, &dummy, sd->achievement_data.count - sd->achievement_data.incompleteCount);
+	for (i = 0; i < VECTOR_LENGTH(ad->objective); i++)
+		if (ach->objective[i] < VECTOR_INDEX(ad->objective, i).goal)
+			return false;
 
 	return true;
 }
 
 /**
- * Checks to see if an achievement has a dependent, and if so, checks if that dependent is complete
- * @param sd: Player data
- * @param achievement_id: Achievement to check if it has a dependent
- * @return False on failure or not complete, true on complete or no dependents
+ * Compares the progress of an objective against it's goal.
+ * Increments the progress of the objective by the specified amount, towards the goal.
+ * @param sd         [in] as a pointer to map_session_data
+ * @param ad         [in] as a pointer to the achievement_data
+ * @param obj_idx    [in] as the index of the objective.
+ * @param progress   [in] as the progress of the objective to be added.
  */
-bool achievement_check_dependent(struct map_session_data *sd, int achievement_id)
+static void achievement_progress_add(struct map_session_data *sd, const struct achievement_data *ad, unsigned int obj_idx, int progress)
 {
-	struct achievement_db *adb = &achievement_dummy;
-
-	nullpo_retr(false, sd);
-
-	adb = achievement_search(achievement_id);
-
-	if (adb == &achievement_dummy)
-		return false;
-
-	// Check if the achievement has a dependent
-	// If so, then do a check on all dependents to see if they're complete
-	if (adb->dependent_count) {
-		int i;
-
-		for (i = 0; i < adb->dependent_count; i++) {
-			struct achievement_db *adb_dep = achievement_search(adb->dependents[i].achievement_id);
-			int j;
-
-			if (adb_dep == &achievement_dummy)
-				return false;
-
-			ARR_FIND(0, sd->achievement_data.count, j, sd->achievement_data.achievements[j].achievement_id == adb->dependents[i].achievement_id && sd->achievement_data.achievements[j].completed > 0);
-			if (j == sd->achievement_data.count)
-				return false; // One of the dependent is not complete!
-		}
-	}
-
-	return true;
-}
-
-/**
- * Check achievements that only have dependents and no other requirements
- * @return True if successful, false if not
- */
-static int achievement_check_groups(DBKey key, void *data, va_list ap)
-{
-	struct achievement_db *ad;
-	struct map_session_data *sd;
-	int i;
-
-	ad = (struct achievement_db *)db_data2ptr(data);
-	sd = va_arg(ap, struct map_session_data *);
-
-	if (ad == &achievement_dummy || sd == NULL)
-		return 0;
-
-	if (ad->group != AG_BATTLE && ad->group != AG_TAMING && ad->group != AG_ADVENTURE)
-		return 0;
-
-	if (ad->dependent_count == 0 || ad->condition)
-		return 0;
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == ad->achievement_id);
-	if (i == sd->achievement_data.count) { // Achievment isn't in player's log
-		if (achievement_check_dependent(sd, ad->achievement_id) == true) {
-			achievement_add(sd, ad->achievement_id);
-			achievement_update_achievement(sd, ad->achievement_id, true);
-		}
-	}
-
-	return 1;
-}
-
-/**
- * Update an achievement
- * @param sd: Player to update
- * @param achievement_id: Achievement ID of the achievement to update
- * @param complete: Complete state of an achievement
- * @return True if successful, false if not
- */
-bool achievement_update_achievement(struct map_session_data *sd, int achievement_id, bool complete)
-{
-	struct achievement_db *adb = &achievement_dummy;
-	int i;
-
-	nullpo_retr(false, sd);
-
-	adb = achievement_search(achievement_id);
-
-	if (adb == &achievement_dummy)
-		return false;
-
-	ARR_FIND(0, sd->achievement_data.incompleteCount, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.incompleteCount)
-		return false;
-
-	if (sd->achievement_data.achievements[i].completed > 0)
-		return false;
-
-	// Finally we send the updated achievement to the client
-	if (complete) {
-		if (adb->target_count) { // Make sure all the objective targets are at their respective total requirement
-			int k;
-
-			for (k = 0; k < adb->target_count; k++)
-				sd->achievement_data.achievements[i].count[k] = adb->targets[k].count;
-
-			for (k = 1; k < adb->dependent_count; k++) {
-				sd->achievement_data.achievements[i].count[k] = max(1, sd->achievement_data.achievements[i].count[k]);
-			}
-		}
-
-		sd->achievement_data.achievements[i].completed = time(NULL);
-
-		if (i < (--sd->achievement_data.incompleteCount)) { // The achievement needs to be moved to the completed achievements block at the end of the array
-			struct achievement tmp_ach;
-
-			memcpy(&tmp_ach, &sd->achievement_data.achievements[i], sizeof(struct achievement));
-			memcpy(&sd->achievement_data.achievements[i], &sd->achievement_data.achievements[sd->achievement_data.incompleteCount], sizeof(struct achievement));
-			memcpy(&sd->achievement_data.achievements[sd->achievement_data.incompleteCount], &tmp_ach, sizeof(struct achievement));
-		}
-
-		achievement_level(sd, true); // Re-calculate achievement level
-		// Check dependents
-		achievement_db->foreach(achievement_db, achievement_check_groups, sd);
-		ARR_FIND(sd->achievement_data.incompleteCount, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id); // Look for the index again, the position most likely changed
-	}
-
-	clif_achievement_update(sd, &sd->achievement_data.achievements[i], sd->achievement_data.count - sd->achievement_data.incompleteCount);
-	sd->achievement_data.save = true; // Flag to save with the autosave interval
-
-	if (sd->achievement_data.sendlist) {
-		clif_achievement_list_all(sd);
-		sd->achievement_data.sendlist = false;
-	}
-
-	return true;
-}
-
-/**
- * Get the reward of an achievement
- * @param sd: Player getting the reward
- * @param achievement_id: Achievement to get reward data
- */
-void achievement_get_reward(struct map_session_data *sd, int achievement_id, time_t rewarded)
-{
-	struct achievement_rewards *ardb = achievement_reward_search(achievement_id);
-	int i;
+	struct achievement *ach = NULL;
 
 	nullpo_retv(sd);
+	nullpo_retv(ad);
 
-	if( rewarded == 0 ){
-		clif_achievement_reward_ack(sd->fd, 0, achievement_id);
+	Assert_retv(progress != 0);
+	Assert_retv(obj_idx < VECTOR_LENGTH(ad->objective));
+
+	if ((ach = achievement_ensure(sd, ad)) == NULL)
 		return;
+
+	if (ach->completed)
+		return; // ignore the call if the achievement is completed.
+
+	// Check and increment the objective count.
+	if (!ach->objective[obj_idx] || ach->objective[obj_idx] < VECTOR_INDEX(ad->objective, obj_idx).goal) {
+		ach->objective[obj_idx] = min(progress + ach->objective[obj_idx], VECTOR_INDEX(ad->objective, obj_idx).goal);
+
+		// Check if the Achievement is complete.
+		if (achievement_check_complete(sd, ad)) {
+			achievement_validate_achieve(sd, ad->id);
+			ach->completed = time(NULL);
+		}
+
+		// update client.
+		clif_achievement_update(sd, ad);
 	}
-
-	if (ardb == &achievement_reward_dummy) {
-		ShowError("achievement_reward: Inter server sent a reward claim for achievement %d not found in DB.\n", achievement_id);
-		return;
-	}
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-
-	if (i == sd->achievement_data.count) {
-		return;
-	}
-
-	// Only update in the cache, db was updated already
-	sd->achievement_data.achievements[i].rewarded = rewarded;
-
-	run_script(ardb->script, 0, sd->bl.id, fake_nd->bl.id);
-	if (ardb->title_id) {
-		RECREATE(sd->titles, int, sd->titleCount + 1);
-		sd->titles[sd->titleCount] = ardb->title_id;
-		sd->titleCount++;
-		sd->achievement_data.sendlist = true;
-	}
-
-	clif_achievement_reward_ack(sd->fd, 1, achievement_id);
-	clif_achievement_update(sd, &sd->achievement_data.achievements[i], sd->achievement_data.count - sd->achievement_data.incompleteCount);
 }
 
 /**
- * Check if player has recieved an achievement's reward
- * @param sd: Player to get reward
- * @param achievement_id: Achievement to get reward data
+ * Compare an absolute progress value against the goal of an objective.
+ * Does not add/increase progress.
+ * @param sd          [in] pointer to map-server session data.
+ * @param ad          [in] pointer to achievement data.
+ * @param obj_idx     [in] index of the objective in question.
+ * @param progress  progress of the objective in question.
  */
-void achievement_check_reward(struct map_session_data *sd, int achievement_id)
+static void achievement_progress_set(struct map_session_data *sd, const struct achievement_data *ad, unsigned int obj_idx, int progress)
 {
-	int i;
-	struct achievement_db *adb = achievement_search(achievement_id);
-	struct achievement_rewards *ardb = achievement_reward_search(achievement_id);
+	struct achievement *ach = NULL;
 
 	nullpo_retv(sd);
+	nullpo_retv(ad);
 
-	if (adb == &achievement_dummy || ardb == &achievement_reward_dummy) {
-		ShowError("achievement_reward: Trying to reward achievement %d not found in DB.\n", achievement_id);
-		clif_achievement_reward_ack(sd->fd, 0, achievement_id);
-		return;
-	}
+	Assert_retv(progress != 0);
+	Assert_retv(obj_idx < VECTOR_LENGTH(ad->objective));
 
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count) {
-		clif_achievement_reward_ack(sd->fd, 0, achievement_id);
-		return;
-	}
+	if (progress >= VECTOR_INDEX(ad->objective, obj_idx).goal) {
 
-	if (sd->achievement_data.achievements[i].rewarded > 0 || sd->achievement_data.achievements[i].completed == 0) {
-		clif_achievement_reward_ack(sd->fd, 0, achievement_id);
-		return;
-	}
-
-	if( !intif_achievement_reward(sd,adb,ardb) ){
-		clif_achievement_reward_ack(sd->fd, 0, achievement_id);
-	}
-}
-
-/**
- * Return all titles to a player based on completed achievements
- * @param char_id: Character ID requesting
- */
-void achievement_get_titles(uint32 char_id)
-{
-	struct map_session_data *sd = map_charid2sd(char_id);
-
-	if (sd) {
-		sd->titles = NULL;
-		sd->titleCount = 0;
-
-		if (sd->achievement_data.count) {
-			int i;
-
-			for (i = 0; i < sd->achievement_data.count; i++) {
-				struct achievement_rewards *ardb = achievement_reward_search(sd->achievement_data.achievements[i].achievement_id);
-
-				if (ardb && ardb->title_id && sd->achievement_data.achievements[i].completed > 0) { // If the achievement has a title and is complete, give it to the player
-					RECREATE(sd->titles, int, sd->titleCount + 1);
-					sd->titles[sd->titleCount] = ardb->title_id;
-					sd->titleCount++;
-				}
-			}
-		}
-	}
-}
-
-/**
- * Frees the player's data for achievements and titles
- * @param sd: Player's session
- */
-void achievement_free(struct map_session_data *sd)
-{
-	nullpo_retv(sd);
-
-	if (sd->titleCount) {
-		aFree(sd->titles);
-		sd->titles = NULL;
-		sd->titleCount = 0;
-	}
-
-	if (sd->achievement_data.count) {
-		aFree(sd->achievement_data.achievements);
-		sd->achievement_data.achievements = NULL;
-		sd->achievement_data.count = sd->achievement_data.incompleteCount = 0;
-	}
-}
-
-/**
- * Get an achievement's progress information
- * @param sd: Player to check achievement progress
- * @param achievement_id: Achievement progress to check
- * @param type: Type to return
- * @return The type's data, -1 if player doesn't have achievement, -2 on failure/incorrect type
- */
-int achievement_check_progress(struct map_session_data *sd, int achievement_id, int type)
-{
-	int i;
-
-	nullpo_retr(-2, sd);
-
-	// Achievement ID is not needed so skip the lookup
-	if (type == ACHIEVEINFO_LEVEL)
-		return sd->achievement_data.level;
-	else if (type == ACHIEVEINFO_SCORE)
-		return sd->achievement_data.total_score;
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count)
-		return -1;
-
-	if (type >= ACHIEVEINFO_COUNT1 && type <= ACHIEVEINFO_COUNT10)
-		return sd->achievement_data.achievements[i].count[type - 1];
-	else if (type == ACHIEVEINFO_COMPLETE)
-		return sd->achievement_data.achievements[i].completed > 0;
-	else if (type == ACHIEVEINFO_COMPLETEDATE)
-		return (int)sd->achievement_data.achievements[i].completed;
-	else if (type == ACHIEVEINFO_GOTREWARD)
-		return sd->achievement_data.achievements[i].rewarded > 0;
-	return -2;
-}
-
-/**
- * Calculate a player's achievement level
- * @param sd: Player to check achievement level
- * @param flag: If the call should attempt to give the AG_GOAL_ACHIEVE achievement
- */
-int *achievement_level(struct map_session_data *sd, bool flag)
-{
-	static int info[2];
-	int i, old_level;
-	const int score_table[MAX_ACHIEVEMENT_RANK] = { 18, 31, 49, 73, 135, 104, 140, 178, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000 }; //! TODO: Figure out the EXP required to level up from 8-20
-
-	nullpo_retr(0, sd);
-
-	sd->achievement_data.total_score = 0;
-	old_level = sd->achievement_data.level;
-
-	for (i = 0; i < sd->achievement_data.count; i++) {
-		if (sd->achievement_data.achievements[i].completed > 0)
-			sd->achievement_data.total_score += sd->achievement_data.achievements[i].score;
-	}
-
-	info[0] = 0;
-	info[1] = 0;
-
-	for (i = 0; i < MAX_ACHIEVEMENT_RANK; i++) {
-		info[0] = info[1];
-			
-		if (i < ARRAYLENGTH(score_table))
-			info[1] = score_table[i];
-		else {
-			info[0] = info[1];
-			info[1] = info[1] + 500;
-		}
-
-		if (sd->achievement_data.total_score < info[1])
-			break;
-	}
-
-	if (i == MAX_ACHIEVEMENT_RANK)
-		i = 0;
-
-	info[1] = info[1] - info[0]; // Right number
-	info[0] = sd->achievement_data.total_score - info[0]; // Left number
-	sd->achievement_data.level = i;
-
-	if (flag == true && old_level != sd->achievement_data.level) {
-		int achievement_id = 240000 + sd->achievement_data.level;
-
-		if (achievement_add(sd, achievement_id)){
-			achievement_update_achievement(sd, achievement_id, true);
-		}
-	}
-
-	return info;
-}
-
-/**
- * Update achievement objectives.
- * @see DBApply
- */
-static int achievement_update_objectives(DBKey key, DBData *data, va_list ap)
-{
-	struct achievement_db *ad;
-	struct map_session_data *sd;
-	enum e_achievement_group group;
-	struct achievement *entry = NULL;
-	bool isNew = false, changed = false, complete = false;
-	int i, k = 0, objective_count[MAX_ACHIEVEMENT_OBJECTIVES], update_count[MAX_ACHIEVEMENT_OBJECTIVES];
-
-	ad = (struct achievement_db *)db_data2ptr(data);
-	sd = va_arg(ap, struct map_session_data *);
-	group = (enum e_achievement_group)va_arg(ap, int);
-	memcpy(update_count, (int *)va_arg(ap, int *), sizeof(update_count));
-
-	if (ad == NULL || sd == NULL)
-		return 0;
-
-	if (group <= AG_NONE || group >= AG_MAX)
-		return 0;
-
-	if (group != ad->group)
-		return 0;
-
-	memset(objective_count, 0, sizeof(objective_count)); // Current objectives count
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == ad->achievement_id);
-	if (i == sd->achievement_data.count) { // Achievment isn't in player's log
-		if (achievement_check_dependent(sd, ad->achievement_id) == false) // Check to see if dependents are complete before adding to player's log
-			return 0;
-		isNew = true;
-	} else {
-		entry = &sd->achievement_data.achievements[i];
-
-		if (entry->completed > 0) // Player has completed the achievement
-			return 0;
-
-		memcpy(objective_count, entry->count, sizeof(objective_count));
-	}
-
-	switch (group) {
-		case AG_ADD_FRIEND:
-		case AG_BABY:
-		case AG_CHAT_COUNT:
-		case AG_CHAT_CREATE:
-		case AG_CHAT_DYING:
-		case AG_GET_ITEM:
-		case AG_GET_ZENY:
-		case AG_GOAL_LEVEL:
-		case AG_GOAL_STATUS:
-		case AG_JOB_CHANGE:
-		case AG_MARRY:
-		case AG_PARTY:
-		case AG_REFINE_FAIL:
-		case AG_REFINE_SUCCESS:
-		case AG_SPEND_ZENY:
-			if (group == AG_SPEND_ZENY) { // Achievement type is cummulative
-				objective_count[0] += update_count[0];
-				changed = true;
-			}
-
-			if (!ad->condition || achievement_check_condition(ad->condition, sd, update_count)) {
-				changed = true;
-				complete = true;
-			}
-
-			if (changed == false)
-				break;
-
-			if (isNew) {
-				if ((entry = achievement_add(sd, ad->achievement_id)) == NULL)
-					return 0; // Failed to add achievement, fall out
-			}
-			break;
-		case AG_CHAT:
-			if (!ad->target_count)
-				break;
-
-			if (ad->condition && !achievement_check_condition(ad->condition, sd, update_count)) // Parameters weren't met
-				break;
-
-			if (ad->mapindex > -1 && sd->bl.m != ad->mapindex)
-				break;
-
-			for (i = 0; i < ad->target_count; i++) {
-				if (objective_count[i] < ad->targets[i].count)
-					objective_count[i] += update_count[0];
-			}
-
-			changed = true;
-
-			ARR_FIND(0, ad->target_count, k, objective_count[k] < ad->targets[k].count);
-			if (k == ad->target_count)
-				complete = true;
-
-			if (isNew) {
-				if ((entry = achievement_add(sd, ad->achievement_id)) == NULL)
-					return 0; // Failed to add achievement, fall out
-			}
-			break;
-		case AG_BATTLE:
-		case AG_TAMING:
-			ARR_FIND(0, ad->target_count, k, ad->targets[k].mob == update_count[0]);
-			if (k == ad->target_count)
-				break; // Mob wasn't found
-
-			for (k = 0; k < ad->target_count; k++) {
-				if (ad->targets[k].mob == update_count[0] && objective_count[k] < ad->targets[k].count) {
-					objective_count[k]++;
-					changed = true;
-				}
-			}
-
-			ARR_FIND(0, ad->target_count, k, objective_count[k] < ad->targets[k].count);
-			if (k == ad->target_count)
-				complete = true;
-
-			if (isNew) {
-				if ((entry = achievement_add(sd, ad->achievement_id)) == NULL)
-					return 0; // Failed to add achievement, fall out
-			}
-			break;
-	}
-
-	if (changed) {
-		memcpy(entry->count, objective_count, sizeof(objective_count));
-		achievement_update_achievement(sd, ad->achievement_id, complete);
-	}
-
-	return 1;
-}
-
-/**
- * Update achievement objective count.
- * @param sd: Player data
- * @param group: Achievement enum type
- * @param sp_value: SP parameter value
- * @param arg_count: va_arg count
- */
-void achievement_update_objective(struct map_session_data *sd, enum e_achievement_group group, uint8 arg_count, ...)
-{
-	if (sd) {
-		va_list ap;
-		int i, count[MAX_ACHIEVEMENT_OBJECTIVES];
-
-		if (!battle_config.feature_achievement)
+		if ((ach = achievement_ensure(sd, ad)) == NULL)
 			return;
 
-		memset(count, 0, sizeof(count)); // Clear out array before setting values
+		if (ach->completed)
+			return;
 
-		va_start(ap, arg_count);
-		for (i = 0; i < arg_count; i++)
-			count[i] = va_arg(ap, int);
-		va_end(ap);
+		ach->objective[obj_idx] = VECTOR_INDEX(ad->objective, obj_idx).goal;
 
-		switch(group) {
-			case AG_CHAT: //! TODO: Not sure how this works officially
-			case AG_GOAL_ACHIEVE:
-				// These have no objective use right now.
-				break;
-			default:
-				achievement_db->foreach(achievement_db, achievement_update_objectives, sd, (int)group, count);
-				break;
+		if (achievement_check_complete(sd, ad)) {
+			achievement_validate_achieve(sd, ad->id);
+			ach->completed = time(NULL);
 		}
+
+		clif_achievement_update(sd, ad);
 	}
 }
-
-/*==========================================
- * Achievement condition parsing section
- *------------------------------------------*/
-static void disp_error_message2(const char *mes,const char *pos,int report)
-{
-	av_error_msg = aStrdup(mes);
-	av_error_pos = pos;
-	av_error_report = report;
-	longjmp(av_error_jump, 1);
-}
-#define disp_error_message(mes,pos) disp_error_message2(mes,pos,1)
 
 /**
- * Checks the condition of an achievement.
- * @param condition: Achievement condition
- * @param sd: Player data
- * @param count: Script arguments
- * @return The result of the condition.
- */
-long long achievement_check_condition(struct av_condition *condition, struct map_session_data *sd, int *count)
+* Checks if the given criteria satisfies the achievement's objective.
+* @param objective   [in] pointer to the achievement's objectives data.
+* @param criteria    [in] pointer to the current session's criteria as a comparand.
+* @return true if all criteria are satisfied, else false.
+*/
+static bool achievement_check_criteria(const struct achievement_objective *objective, const struct achievement_objective *criteria)
 {
-	long long left = 0;
-	long long right = 0;
+	int i = 0, j = 0;
 
-	// Reduce the recursion, almost all calls will be C_PARAM, C_NAME or C_ARG
-	if (condition->left) {
-		if (condition->left->op == C_NAME || condition->left->op == C_INT)
-			left = condition->left->value;
-		else if (condition->left->op == C_PARAM)
-			left = pc_readparam(sd, (int)condition->left->value);
-		else if (condition->left->op == C_ARG && condition->left->value < MAX_ACHIEVEMENT_OBJECTIVES)
-			left = count[condition->left->value];
+	nullpo_retr(false, objective);
+	nullpo_retr(false, criteria);
+
+	/* Item Id */
+	if (objective->unique_type == CRITERIA_UNIQUE_ITEM_ID && objective->unique.itemid != criteria->unique.itemid)
+		return false;
+	/* Weapon Level */
+	else if (objective->unique_type == CRITERIA_UNIQUE_WEAPON_LV && objective->unique.weapon_lv != criteria->unique.weapon_lv)
+		return false;
+	/* Status Types */
+	else if (objective->unique_type == CRITERIA_UNIQUE_STATUS_TYPE && objective->unique.status_type != criteria->unique.status_type)
+		return false;
+	/* Achievement Id */
+	else if (objective->unique_type == CRITERIA_UNIQUE_ACHIEVE_ID && objective->unique.achieve_id != criteria->unique.achieve_id)
+		return false;
+
+	/* Monster Id */
+	if (objective->mobid > 0 && objective->mobid != criteria->mobid)
+		return false;
+
+	/* Item Type */
+	if (objective->item_type > 0 && (objective->item_type & (2 << criteria->item_type)) == 0)
+		return false;
+
+	/* Job Ids */
+	for (i = 0; i < VECTOR_LENGTH(objective->jobid); i++) {
+		ARR_FIND(0, VECTOR_LENGTH(criteria->jobid), j, VECTOR_INDEX(criteria->jobid, j) != VECTOR_INDEX(objective->jobid, i));
+		if (j < VECTOR_LENGTH(criteria->jobid))
+			return false;
+	}
+
+	return true;
+}
+
+/**
+ * Validates an Achievement Objective of similar types.
+ * @param[in] sd         as a pointer to the map session data.
+ * @param[in] type       as the type of the achievement.
+ * @param[in] criteria   as the criteria of the objective (mob id, job id etc.. 0 for no criteria).
+ * @param[in] progress   as the current progress of the objective.
+ * @return total number of updated achievements on success, 0 on failure.
+ */
+static int achievement_validate_type(struct map_session_data *sd, enum achievement_types type, const struct achievement_objective *criteria, bool additive)
+{
+	int i = 0, total = 0;
+	struct achievement *ach = NULL;
+
+	nullpo_ret(sd);
+	nullpo_ret(criteria);
+
+	Assert_ret(criteria->goal != 0);
+
+	if (type == ACH_QUEST) {
+		ShowError("achievement_validate_type: ACH_QUEST is not handled by this function. (use achievement_validate())\n");
+		return 0;
+	}
+	else if (type >= ACH_TYPE_MAX) {
+		ShowError("achievement_validate_type: Invalid Achievement Type %d! (min: %d, max: %d)\n", (int)type, (int)ACH_QUEST, (int)ACH_TYPE_MAX - 1);
+		return 0;
+	}
+
+	/* Loop through all achievements of the type, checking for possible matches. */
+	for (i = 0; i < VECTOR_LENGTH(category[type]); i++) {
+		int j = 0;
+		bool updated = false;
+		const struct achievement_data *ad = NULL;
+
+		if ((ad = achievement_get(VECTOR_INDEX(category[type], i))) == NULL)
+			continue;
+
+		for (j = 0; j < VECTOR_LENGTH(ad->objective); j++) {
+			// Check if objective criteria matches.
+			if (achievement_check_criteria(&VECTOR_INDEX(ad->objective, j), criteria) == false)
+				continue;
+			// Ensure availability of the achievement.
+			if ((ach = achievement_ensure(sd, ad)) == NULL)
+				return false;
+			// Criteria passed, check if not completed and update progress.
+			if ((ach->completed == 0 && ach->objective[j] < VECTOR_INDEX(ad->objective, j).goal)) {
+				if (additive == true)
+					achievement_progress_add(sd, ad, j, criteria->goal);
+				else
+					achievement_progress_set(sd, ad, j, criteria->goal);
+				updated = true;
+			}
+		}
+
+		if (updated == true)
+			total++;
+	}
+
+	return total;
+}
+
+/**
+ * Validates any achievement's specific objective index.
+ * @param[in] sd         pointer to the session data.
+ * @param[in] aid        ID of the achievement.
+ * @param[in] index      index of the objective.
+ * @param[in] progress   progress to be added towards the goal.
+ */
+static bool achievement_validate(struct map_session_data *sd, int aid, unsigned int obj_idx, int progress, bool additive)
+{
+	const struct achievement_data *ad = NULL;
+	struct achievement *ach = NULL;
+
+	nullpo_retr(false, sd);
+	Assert_retr(false, progress > 0);
+	Assert_retr(false, obj_idx < MAX_ACHIEVEMENT_OBJECTIVES);
+
+	if ((ad = achievement_get(aid)) == NULL) {
+		ShowError("achievement_validate: Invalid Achievement %d provided.", aid);
+		return false;
+	}
+
+	// Ensure availability of the achievement.
+	if ((ach = achievement_ensure(sd, ad)) == NULL)
+		return false;
+
+	// Check if not completed and update progress.
+	if ((!ach->completed && ach->objective[obj_idx] < VECTOR_INDEX(ad->objective, obj_idx).goal)) {
+		if (additive == true)
+			achievement_progress_add(sd, ad, obj_idx, progress);
 		else
-			left = achievement_check_condition(condition->left, sd, count);
+			achievement_progress_set(sd, ad, obj_idx, progress);
 	}
 
-	if (condition->right) {
-		if (condition->right->op == C_NAME || condition->right->op == C_INT)
-			right = condition->right->value;
-		else if (condition->right->op == C_PARAM)
-			right = pc_readparam(sd, (int)condition->right->value);
-		else if (condition->right->op == C_ARG && condition->right->value < MAX_ACHIEVEMENT_OBJECTIVES)
-			right = count[condition->right->value];
-		else
-			right = achievement_check_condition(condition->right, sd, count);
+	return true;
+}
+
+/**
+ * Validates monster kill type objectives.
+ * @type ACH_KILL_MOB_CLASS
+ * @param[in] sd          pointer to session data.
+ * @param[in] mob_id      (criteria) class of the monster checked for.
+ * @param[in] progress    (goal) progress to be added.
+ * @see achievement_vaildate_type()
+ */
+static void achievement_validate_mob_kill(struct map_session_data *sd, int mob_id)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+	Assert_retv(mob_id > 0 && mob_db(mob_id) != NULL);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.mobid = mob_id;
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_KILL_MOB_CLASS, &criteria, true);
+}
+
+/**
+ * Validate monster damage type objectives.
+ * @types ACH_DAMAGE_MOB_REC_MAX
+ *        ACH_DAMAGE_MOB_REC_TOTAL
+ * @param[in] sd       pointer to session data.
+ * @param[in] damage   amount of damage received/dealt.
+ * @param received received/dealt boolean switch.
+ */
+static void achievement_validate_mob_damage(struct map_session_data *sd, unsigned int damage, bool received)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+	Assert_retv(damage > 0);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = (int)damage;
+
+	if (received) {
+		achievement_validate_type(sd, ACH_DAMAGE_MOB_REC_MAX, &criteria, false);
+		achievement_validate_type(sd, ACH_DAMAGE_MOB_REC_TOTAL, &criteria, true);
+	}
+	else {
+		achievement_validate_type(sd, ACH_DAMAGE_MOB_MAX, &criteria, false);
+		achievement_validate_type(sd, ACH_DAMAGE_MOB_TOTAL, &criteria, true);
 	}
 
-	switch(condition->op) {
-		case C_NOP:
-			return false;
-		case C_NAME:
-		case C_INT:
-			return condition->value;
-		case C_PARAM:
-			return pc_readparam(sd, (int)condition->value);
-		case C_LOR: 
-			return left || right;
-		case C_LAND:
-			return left && right;
-		case C_LE:
-			return left <= right;
-		case C_LT:
-			return left < right;
-		case C_GE:
-			return left >= right;
-		case C_GT:
-			return left > right;
-		case C_EQ:
-			return left == right;
-		case C_NE:
-			return left != right;
-		case C_XOR:
-			return left ^ right;
-		case C_OR:
-			return left || right;
-		case C_AND:
-			return left & right;
-		case C_ADD:
-			return left + right;
-		case C_SUB:
-			return left - right;
-		case C_MUL:
-			return left * right;
-		case C_DIV:
-			return left / right;
-		case C_MOD:
-			return left % right;
-		case C_NEG:
-			return -left;
-		case C_LNOT:
-			return !left;
-		case C_NOT:
-			return ~left;
-		case C_R_SHIFT:
-			return left >> right;
-		case C_L_SHIFT:
-			return left << right;
-		case C_ARG:
-			if (condition->value < MAX_ACHIEVEMENT_OBJECTIVES)
-				return count[condition->value];
+}
 
-			return false;
-		default:
-			ShowError("achievement_check_condition: unexpected operator: %d\n", condition->op);
-			return false;
+/**
+ * Validate player kill (PVP) achievements.
+ * @types ACH_KILL_PC_TOTAL
+ *        ACH_KILL_PC_JOB
+ *        ACH_KILL_PC_JOBTYPE
+ * @param[in] sd         pointer to killed player's session data.
+ * @param[in] dstsd      pointer to killer's session data.
+ */
+static void achievement_validate_pc_kill(struct map_session_data *sd, struct map_session_data *dstsd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+	nullpo_retv(dstsd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+
+	/* */
+	achievement_validate_type(sd, ACH_KILL_PC_TOTAL, &criteria, true);
+
+	/* */
+	VECTOR_INIT(criteria.jobid);
+	VECTOR_ENSURE(criteria.jobid, 1, 1);
+	VECTOR_PUSH(criteria.jobid, dstsd->status.class_);
+
+	/* Job class */
+	achievement_validate_type(sd, ACH_KILL_PC_JOB, &criteria, true);
+	/* Job Type */
+	achievement_validate_type(sd, ACH_KILL_PC_JOBTYPE, &criteria, true);
+
+	VECTOR_CLEAR(criteria.jobid);
+}
+
+/**
+ * Validate player kill (PVP) achievements.
+ * @types ACH_DAMAGE_PC_MAX
+ *        ACH_DAMAGE_PC_TOTAL
+ *        ACH_DAMAGE_PC_REC_MAX
+ *        ACH_DAMAGE_PC_REC_TOTAL
+ * @param[in] sd         pointer to source player's session data.
+ * @param[in] dstsd      pointer to target player's session data.
+ * @param[in] damage     amount of damage dealt / received.
+ */
+static void achievement_validate_pc_damage(struct map_session_data *sd, struct map_session_data *dstsd, unsigned int damage)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	if (damage == 0)
+		return;
+
+	criteria.goal = (int)damage;
+
+	/* */
+	achievement_validate_type(sd, ACH_DAMAGE_PC_MAX, &criteria, false);
+	achievement_validate_type(sd, ACH_DAMAGE_PC_TOTAL, &criteria, true);
+
+	/* */
+	achievement_validate_type(dstsd, ACH_DAMAGE_PC_REC_MAX, &criteria, false);
+	achievement_validate_type(dstsd, ACH_DAMAGE_PC_REC_TOTAL, &criteria, true);
+}
+
+/**
+ * Validates job change objectives.
+ * @type ACH_JOB_CHANGE
+ * @param[in] sd         pointer to session data.
+ * @see achivement_validate_type()
+ */
+static void achievement_validate_jobchange(struct map_session_data *sd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	VECTOR_INIT(criteria.jobid);
+	VECTOR_ENSURE(criteria.jobid, 1, 1);
+	VECTOR_PUSH(criteria.jobid, sd->status.class_);
+
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_JOB_CHANGE, &criteria, false);
+
+	VECTOR_CLEAR(criteria.jobid);
+}
+
+/**
+ * Validates stat type objectives.
+ * @types ACH_STATUS
+ *        ACH_STATUS_BY_JOB
+ *        ACH_STATUS_BY_JOBTYPE
+ * @param[in] sd         pointer to session data.
+ * @param[in] stat_type  (criteria) status point type. (see status_point_types)
+ * @param[in] progress   (goal) amount of absolute progress to check.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_stats(struct map_session_data *sd, enum status_point_types stat_type, int progress)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+	Assert_retv(progress > 0);
+
+	if (sd->achievements_received == false)
+		return;
+
+	if (!achievement_valid_status_types(stat_type)) {
+		ShowError("achievement_validate_stats: Invalid status type %d given.\n", (int)stat_type);
+		return;
 	}
+
+	criteria.unique.status_type = stat_type;
+
+	criteria.goal = progress;
+
+	achievement_validate_type(sd, ACH_STATUS, &criteria, false);
+
+	VECTOR_INIT(criteria.jobid);
+	VECTOR_ENSURE(criteria.jobid, 1, 1);
+	VECTOR_PUSH(criteria.jobid, sd->status.class_);
+
+	/* Stat and Job class */
+	achievement_validate_type(sd, ACH_STATUS_BY_JOB, &criteria, false);
+
+	/* Stat and Job Type */
+	achievement_validate_type(sd, ACH_STATUS_BY_JOBTYPE, &criteria, false);
+
+	VECTOR_CLEAR(criteria.jobid);
+}
+
+/**
+ * Validates chatroom creation type objectives.
+ * @types ACH_CHATROOM_CREATE
+ *        ACH_CHATROOM_CREATE_DEAD
+ * @param[in] sd    pointer to session data.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_chatroom_create(struct map_session_data *sd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+
+	if (pc_isdead(sd)) {
+		achievement_validate_type(sd, ACH_CHATROOM_CREATE_DEAD, &criteria, true);
+		return;
+	}
+
+	achievement_validate_type(sd, ACH_CHATROOM_CREATE, &criteria, true);
+}
+
+/**
+ * Validates chatroom member count type objectives.
+ * @type ACH_CHATROOM_MEMBERS
+ * @param[in] sd         pointer to session data.
+ * @param[in] progress   (goal) amount of progress to be added.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_chatroom_members(struct map_session_data *sd, int progress)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(progress > 0);
+
+	criteria.goal = progress;
+
+	achievement_validate_type(sd, ACH_CHATROOM_MEMBERS, &criteria, false);
+}
+
+/**
+ * Validates friend add type objectives.
+ * @type ACH_FRIEND_ADD
+ * @param[in] sd        pointer to session data.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_friend_add(struct map_session_data *sd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_FRIEND_ADD, &criteria, true);
+}
+
+/**
+ * Validates party creation type objectives.
+ * @type ACH_PARTY_CREATE
+ * @param[in] sd        pointer to session data.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_party_create(struct map_session_data *sd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+	achievement_validate_type(sd, ACH_PARTY_CREATE, &criteria, true);
+}
+
+/**
+ * Validates marriage type objectives.
+ * @type ACH_MARRY
+ * @param[in] sd        pointer to session data.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_marry(struct map_session_data *sd)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_MARRY, &criteria, true);
+}
+
+/**
+ * Validates adoption type objectives.
+ * @types ACH_ADOPT_PARENT
+ *        ACH_ADOPT_BABY
+ * @param[in] sd        pointer to session data.
+ * @param[in] parent    (type) boolean value to indicate if parent (true) or baby (false).
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_adopt(struct map_session_data *sd, bool parent)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	criteria.goal = 1;
+
+	if (parent)
+		achievement_validate_type(sd, ACH_ADOPT_PARENT, &criteria, true);
+	else
+		achievement_validate_type(sd, ACH_ADOPT_BABY, &criteria, true);
+}
+
+/**
+ * Validates zeny type objectives.
+ * @types ACH_ZENY_HOLD
+ *        ACH_ZENY_GET_ONCE
+ *        ACH_ZENY_GET_TOTAL
+ *        ACH_ZENY_SPEND_ONCE
+ *        ACH_ZENY_SPEND_TOTAL
+ * @param[in] sd        pointer to session data.
+ * @param[in] amount    (goal) amount of zeny earned or spent.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_zeny(struct map_session_data *sd, int amount)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(amount != 0);
+
+	if (amount > 0) {
+		criteria.goal = sd->status.zeny;
+		achievement_validate_type(sd, ACH_ZENY_HOLD, &criteria, false);
+		criteria.goal = amount;
+		achievement_validate_type(sd, ACH_ZENY_GET_ONCE, &criteria, false);
+		achievement_validate_type(sd, ACH_ZENY_GET_TOTAL, &criteria, true);
+	}
+	else {
+		criteria.goal = amount;
+		achievement_validate_type(sd, ACH_ZENY_SPEND_ONCE, &criteria, false);
+		achievement_validate_type(sd, ACH_ZENY_SPEND_TOTAL, &criteria, true);
+	}
+}
+
+/**
+ * Validates equipment refinement type objectives.
+ * @types ACH_EQUIP_REFINE_SUCCESS
+ *        ACH_EQUIP_REFINE_FAILURE
+ *        ACH_EQUIP_REFINE_SUCCESS_TOTAL
+ *        ACH_EQUIP_REFINE_FAILURE_TOTAL
+ *        ACH_EQUIP_REFINE_SUCCESS_WLV
+ *        ACH_EQUIP_REFINE_FAILURE_WLV
+ *        ACH_EQUIP_REFINE_SUCCESS_ID
+ *        ACH_EQUIP_REFINE_FAILURE_ID
+ * @param[in] sd         pointer to session data.
+ * @param[in] idx        Inventory index of the item.
+ * @param[in] success    (type) boolean switch for failure / success.
+ * @see achievement_validate_type()
+ */
+static void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, bool success)
+{
+	struct achievement_objective criteria = { 0 };
+	struct item_data *id = NULL;
+
+	nullpo_retv(sd);
+	Assert_retv(idx < MAX_INVENTORY);
+
+	id = itemdb_exists(sd->inventory.u.items_inventory[idx].nameid);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(idx < MAX_INVENTORY);
+	Assert_retv(id != NULL);
+
+	criteria.goal = sd->inventory.u.items_inventory[idx].refine;
+
+	/* Universal */
+	achievement_validate_type(sd,
+		success ? ACH_EQUIP_REFINE_SUCCESS : ACH_EQUIP_REFINE_FAILURE,
+		&criteria, false);
+
+	/* Total */
+	criteria.goal = 1;
+	achievement_validate_type(sd,
+		success ? ACH_EQUIP_REFINE_SUCCESS_TOTAL : ACH_EQUIP_REFINE_FAILURE_TOTAL,
+		&criteria, true);
+
+	/* By Weapon Level */
+	if (id->type == IT_WEAPON) {
+		criteria.item_type = id->type;
+		criteria.unique.weapon_lv = id->wlv;
+		criteria.goal = sd->inventory.u.items_inventory[idx].refine;
+		achievement_validate_type(sd,
+			success ? ACH_EQUIP_REFINE_SUCCESS_WLV : ACH_EQUIP_REFINE_FAILURE_WLV,
+			&criteria, false);
+		criteria.item_type = 0;
+		criteria.unique.weapon_lv = 0; // cleanup
+	}
+
+	/* By NameId */
+	criteria.unique.itemid = id->nameid;
+	criteria.goal = sd->inventory.u.items_inventory[idx].refine;
+	achievement_validate_type(sd,
+		success ? ACH_EQUIP_REFINE_SUCCESS_ID : ACH_EQUIP_REFINE_FAILURE_ID,
+		&criteria, false);
+	criteria.unique.itemid = 0; // cleanup
+}
+
+/**
+ * Validates item received type objectives.
+ * @types ACH_ITEM_GET_COUNT
+ *        ACH_ITEM_GET_WORTH
+ *        ACH_ITEM_GET_COUNT_ITEMTYPE
+ * @param[in] sd         pointer to session data.
+ * @param[in] nameid     (criteria) ID of the item.
+ * @param[in] amount     (goal) amount of the item collected.
+ */
+static void achievement_validate_item_get(struct map_session_data *sd, int nameid, int amount)
+{
+	struct item_data *it = itemdb_exists(nameid);
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(amount > 0);
+	nullpo_retv(it);
+
+	criteria.unique.itemid = it->nameid;
+	criteria.goal = amount;
+	achievement_validate_type(sd, ACH_ITEM_GET_COUNT, &criteria, false);
+	criteria.unique.itemid = 0; // cleanup
+
+	/* Item Buy Value*/
+	criteria.goal = max(it->value_buy, 1);
+	achievement_validate_type(sd, ACH_ITEM_GET_WORTH, &criteria, false);
+
+	/* Item Type */
+	criteria.item_type = it->type;
+	criteria.goal = 1;
+	achievement_validate_type(sd, ACH_ITEM_GET_COUNT_ITEMTYPE, &criteria, false);
+	criteria.item_type = 0; // cleanup
+}
+
+/**
+ * Validates item sold type objectives.
+ * @type ACH_ITEM_SELL_WORTH
+ * @param[in] sd         pointer to session data.
+ * @param[in] nameid     Item Id in question.
+ * @param[in] amount     amount of item in question.
+ */
+void achievement_validate_item_sell(struct map_session_data *sd, int nameid, int amount)
+{
+	struct item_data *it = itemdb_exists(nameid);
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(amount > 0);
+	nullpo_retv(it);
+
+	criteria.unique.itemid = it->nameid;
+
+	criteria.goal = max(it->value_sell, 1);
+
+	achievement_validate_type(sd, ACH_ITEM_SELL_WORTH, &criteria, false);
+}
+
+/**
+ * Validates achievement type objectives.
+ * @type ACH_ACHIEVE
+ * @param[in] sd        pointer to session data.
+ * @param[in] achid     (criteria) achievement id.
+ */
+void achievement_validate_achieve(struct map_session_data *sd, int achid)
+{
+	const struct achievement_data *ad = achievement_get(achid);
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+	nullpo_retv(ad);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(achid > 0);
+
+	criteria.unique.achieve_id = ad->id;
+
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_ACHIEVE, &criteria, false);
+}
+
+/**
+ * Validates taming type objectives.
+ * @type ACH_PET_CREATE
+ * @param[in] sd        pointer to session data.
+ * @param[in] class     (criteria) class of the monster tamed.
+ */
+static void achievement_validate_taming(struct map_session_data *sd, int class)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(class > 0);
+	Assert_retv(mob_db(class) != mob_dummy);
+
+	criteria.mobid = class;
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_PET_CREATE, &criteria, true);
+}
+
+/**
+ * Validated achievement rank type objectives.
+ * @type ACH_ACHIEVEMENT_RANK
+ * @param[in] sd         pointer to session data.
+ * @param[in] rank       (goal) rank of earned.
+ */
+static void achievement_validate_achievement_rank(struct map_session_data *sd, int rank)
+{
+	struct achievement_objective criteria = { 0 };
+
+	nullpo_retv(sd);
+
+	if (sd->achievements_received == false)
+		return;
+
+	Assert_retv(rank >= 0 && rank <= VECTOR_LENGTH(rank_exp));
+
+	criteria.goal = 1;
+
+	achievement_validate_type(sd, ACH_ACHIEVEMENT_RANK, &criteria, false);
+}
+
+/**
+ * Verifies if an achievement type requires a criteria field.
+ * @param[in] type       achievement type in question.
+ * @return true if required, false if not.
+ */
+static bool achievement_type_requires_criteria(enum achievement_types type)
+{
+	if (type == ACH_KILL_PC_JOB
+		|| type == ACH_KILL_PC_JOBTYPE
+		|| type == ACH_KILL_MOB_CLASS
+		|| type == ACH_JOB_CHANGE
+		|| type == ACH_STATUS
+		|| type == ACH_STATUS_BY_JOB
+		|| type == ACH_STATUS_BY_JOBTYPE
+		|| type == ACH_EQUIP_REFINE_SUCCESS_WLV
+		|| type == ACH_EQUIP_REFINE_FAILURE_WLV
+		|| type == ACH_EQUIP_REFINE_SUCCESS_ID
+		|| type == ACH_EQUIP_REFINE_FAILURE_ID
+		|| type == ACH_ITEM_GET_COUNT
+		|| type == ACH_PET_CREATE
+		|| type == ACH_ACHIEVE)
+		return true;
 
 	return false;
-}
-
-static const char *skip_word(const char *p)
-{
-	while (ISALNUM(*p) || *p == '_')
-		++p;
-
-	if (*p == '$') // String
-		p++;
-
-	return p;
-}
-
-const char *av_parse_simpleexpr(const char *p, struct av_condition *parent)
-{
-	long long i;
-
-	p = skip_space(p);
-
-	if (*p == ';' || *p == ',')
-		disp_error_message("av_parse_simpleexpr: unexpected character.", p);
-
-	if(*p == '(') {
-		p = av_parse_subexpr(p + 1, -1, parent);
-		p = skip_space(p);
-
-		if (*p != ')')
-			disp_error_message("av_parse_simpleexpr: unmatched ')'", p);
-		++p;
-	} else if(is_number(p)) {
-		char *np;
-
-		while(*p == '0' && ISDIGIT(p[1]))
-			p++;
-		i = strtoll(p, &np, 0);
-
-		if (i < INT_MIN) {
-			i = INT_MIN;
-			disp_error_message("av_parse_simpleexpr: underflow detected, capping value to INT_MIN.", p);
-		} else if (i > INT_MAX) {
-			i = INT_MAX;
-			disp_error_message("av_parse_simpleexpr: underflow detected, capping value to INT_MAX.", p);
-		}
-
-		parent->op = C_INT;
-		parent->value = i;
-		p = np;
-	} else {
-		int v, len;
-		char * word;
-
-		if (skip_word(p) == p)
-			disp_error_message("av_parse_simpleexpr: unexpected character.", p);
-
-		len = skip_word(p) - p;
-
-		if (len == 0)
-			disp_error_message("av_parse_simpleexpr: invalid word. A word consists of undercores and/or alphanumeric characters.", p);
-
-		word = (char*)aMalloc(len + 1);
-		memcpy(word, p, len);
-		word[len] = 0;
-
-		if (script_get_parameter(word, &v))
-			parent->op = C_PARAM;
-		else if (script_get_constant(word, &v)) {
-			if (word[0] == 'b' && ISUPPER(word[1])) // Consider b* variables as parameters (because they... are?)
-				parent->op = C_PARAM;
-			else
-				parent->op = C_NAME;
-		} else {
-			if (word[0] == 'A' && word[1] == 'R' && word[2] == 'G' && ISDIGIT(word[3])) { // Special constants used to set temporary variables
-				parent->op = C_ARG;
-				v = atoi(word + 3);
-			} else {
-				aFree(word);
-				disp_error_message("av_parse_simpleexpr: invalid constant.", p);
-			}
-		}
-
-		aFree(word);
-		parent->value = v;
-		p = skip_word(p);
-	}
-
-	return p;
-}
-
-const char* av_parse_subexpr(const char* p, int limit, struct av_condition *parent)
-{
-	int op, opl, len;
-
-	p = skip_space(p);
-
-	CREATE(parent->left, struct av_condition, 1);
-
-	if ((op = C_NEG, *p == '-') || (op = C_LNOT, *p == '!') || (op = C_NOT, *p == '~')) { // Unary - ! ~ operators
-		p = av_parse_subexpr(p + 1, 11, parent->left);
-		parent->op = op;
-	} else
-		p = av_parse_simpleexpr(p, parent->left);
-
-	p = skip_space(p);
-
-	while((
-			((op = C_ADD, opl = 9, len = 1, *p == '+') && p[1] != '+') ||
-			((op = C_SUB, opl = 9, len = 1, *p == '-') && p[1] != '-') ||
-			(op=C_MUL,opl=10,len=1,*p=='*') ||
-			(op=C_DIV,opl=10,len=1,*p=='/') ||
-			(op=C_MOD,opl=10,len=1,*p=='%') ||
-			(op=C_LAND,opl=2,len=2,*p=='&' && p[1]=='&') ||
-			(op=C_AND,opl=5,len=1,*p=='&') ||
-			(op=C_LOR,opl=1,len=2,*p=='|' && p[1]=='|') ||
-			(op=C_OR,opl=3,len=1,*p=='|') ||
-			(op=C_XOR,opl=4,len=1,*p=='^') ||
-			(op=C_EQ,opl=6,len=2,*p=='=' && p[1]=='=') ||
-			(op=C_NE,opl=6,len=2,*p=='!' && p[1]=='=') ||
-			(op=C_R_SHIFT,opl=8,len=2,*p=='>' && p[1]=='>') ||
-			(op=C_GE,opl=7,len=2,*p=='>' && p[1]=='=') ||
-			(op=C_GT,opl=7,len=1,*p=='>') ||
-			(op=C_L_SHIFT,opl=8,len=2,*p=='<' && p[1]=='<') ||
-			(op=C_LE,opl=7,len=2,*p=='<' && p[1]=='=') ||
-			(op=C_LT,opl=7,len=1,*p=='<')) && opl>limit) {
-		p += len;
-
-		if (parent->right) { // Chain conditions
-			struct av_condition *condition = NULL;
-			CREATE(condition, struct av_condition, 1);
-			condition->op = parent->op;
-			condition->left = parent->left;
-			condition->right = parent->right;
-			parent->left = condition;
-			parent->right = NULL;
-		}
-
-		CREATE(parent->right, struct av_condition, 1);
-		p = av_parse_subexpr(p, opl, parent->right);
-		parent->op = op;
-		p = skip_space(p);
-	}
-
-	if (parent->op == C_NOP && parent->right == NULL) { // Move the node up
-		struct av_condition *temp = parent->left;
-
-		parent->right = parent->left->right;
-		parent->op = parent->left->op;
-		parent->value = parent->left->value;
-		parent->left = parent->left->left;
-
-		aFree(temp);
-	}
-
-	return p;
-}
-
-/**
- * Parses a condition from a script.
- * @param p: The script buffer.
- * @param file: The file being parsed.
- * @param line: The current achievement line number.
- * @return The parsed achievement condition.
- */
-struct av_condition *parse_condition(const char *p, const char *file, int line)
-{
-	struct av_condition *condition = NULL;
-
-	if (setjmp(av_error_jump) != 0) {
-		if (av_error_report)
-			script_error(p,file,line,av_error_msg,av_error_pos);
-		aFree(av_error_msg);
-		if (condition)
-			achievement_script_free(condition);
-		return NULL;
-	}
-
-	switch(*p) {
-		case ')': case ';': case ':': case '[': case ']': case '}':
-			disp_error_message("parse_condition: unexpected character.", p);
-	}
-
-	condition = (struct av_condition *) aCalloc(1, sizeof(struct av_condition));
-	av_parse_subexpr(p, -1, condition);
-
-	return condition;
-}
-
-
-/*==========================================
-* processes one achievement db entry
-*------------------------------------------*/
-struct achievement_db *achievement_parse_dbrow(char** str, const char* source, int line)
-{
-	/*
-	+----+-------+------+-----------+-----+------------+---------+-------------+
-	| 00 |   01  |  02  |     03    |  04 |     05     |    06   |      07     |
-	+----+-------+------+-----------+-----+------------+---------+-------------+
-	| id | Group | Name | Condition | Map | Dependents | Targets | TargetCount |
-	+----+-------+------+-----------+-----+------------+---------+-------------+
-	*/
-	
-	struct achievement_db* entry = NULL;
-	int i, targets_tcount, achievement_id = 0;
-	enum e_achievement_group group = AG_NONE;
-	int dependents[MAX_ACHIEVEMENT_DEPENDENTS];
-	int targets[MAX_ACHIEVEMENT_OBJECTIVES];
-	int targets_count[MAX_ACHIEVEMENT_OBJECTIVES];
-	char group_char[50], mapname[50], condition[256];
-
-	achievement_id = atoi(str[0]);
-	if (achievement_id < 1 || achievement_id > INT_MAX) {
-		ShowWarning("achievement_parse_dbrow: Invalid achievement ID %d in \"%s\" (min: 1, max: %d), skipping.\n", achievement_id, source, INT_MAX);
-		return NULL;
-	}
-
-	//ID,Group,Name,Condition,Map,Dependent1:Dependent2...,Target1:Target2...,TargetCount1:TargetCount2...
-
-	CREATE(entry, struct achievement_db, 1);
-
-	entry->achievement_id = achievement_id;
-
-	safestrncpy(group_char, str[1], sizeof(group_char));
-	script_get_constant(group_char, (int *)&group);
-	if (group < AG_NONE || group > AG_MAX) {
-		ShowWarning("achievement_parse_dbrow: Invalid achievement group %d in \"%s\" (min: %d, max: %d), skipping.\n", achievement_id, source, AG_NONE, AG_MAX);
-		return NULL;
-	}
-	entry->group = group;
-
-	safestrncpy(entry->name, str[2], sizeof(entry->name));
-	safestrncpy(condition, str[3], sizeof(condition));
-	achievement_removeChar(condition, '\"');
-
-	entry->mapindex = -1;
-	safestrncpy(mapname, str[4], sizeof(mapname));
-	achievement_removeChar(mapname, '\"');
-	if (strcmp(mapname, "") != 0) {
-		if (entry->group != AG_CHAT)
-			ShowWarning("achievement_parse_dbrow: The map (%s) argument can only be used with the group AG_CHATTING (achievement %d in \"%s\"), defaulting.\n", mapname, achievement_id, source);
-		else {
-			entry->mapindex = map_mapname2mapid(mapname);
-
-			if (entry->mapindex == -1)
-				ShowWarning("achievement_parse_dbrow: Invalid map name %s for achievement %d in \"%s\".\n", mapname, achievement_id, source);
-		}
-	}
-
-	entry->dependent_count = pc_split_atoi(str[5], dependents, ':', MAX_ACHIEVEMENT_DEPENDENTS);
-	for (i = 0; i < MAX_ACHIEVEMENT_DEPENDENTS; i++) {
-		if (dependents[i] > 0){
-			RECREATE(entry->dependents, struct achievement_dependent, i + 1);
-			entry->dependents[i].achievement_id = dependents[i];
-		}
-	}
-
-	if (atoi(str[6]) != 0)
-	{
-		entry->target_count = pc_split_atoi(str[6], targets, ':', MAX_ACHIEVEMENT_OBJECTIVES);
-		targets_tcount = pc_split_atoi(str[7], targets_count, ':', MAX_ACHIEVEMENT_OBJECTIVES);
-
-		for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++) {
-			int mobid = 0, count = 0;
-
-			if (mobid == 0) // no more targets, skip remaining fields.
-				break;
-
-			if (mobid != -1 && !mobdb_checkid(mobid)) { // The mob ID field is not required
-				ShowError("achievement_parse_dbrow: Invalid mob ID %d for achievement %d in \"%s\", skipping.\n", mobid, achievement_id, source);
-				continue;
-			}
-			count = targets_count[i];
-			if (count <= 0) {
-				ShowError("achievement_parse_dbrow: Invalid count %d for achievement %d in \"%s\", skipping.\n", count, achievement_id, source);
-				continue;
-			}
-			if (mobid && entry->group == AG_BATTLE && !idb_exists(achievementmobs_db, mobid)) {
-				struct achievement_mob *entrymob = NULL;
-
-				CREATE(entrymob, struct achievement_mob, 1);
-				idb_put(achievementmobs_db, mobid, entrymob);
-			}
-
-			RECREATE(entry->targets, struct achievement_target, i + 1);
-			entry->targets[i].mob = mobid;
-			entry->targets[i].count = count;
-		}
-	}
-	else // no targets, skip whole fields.
-	{
-		entry->target_count = 0;
-		entry->targets = NULL;
-	}
-
-	if (strcmp(condition, "") != 0)
-		entry->condition = parse_condition(condition, source, line);
-
-	return entry;
-}
-
-/**
- * Loads achievements from the achievement db.
- */
-void achievement_read_db(void)
-{
-	struct achievement_db *duplicate = NULL, *entry = NULL;
-
-	uint32 lines = 0, count = 0;
-	char line[1024];
-
-	char file[256];
-	FILE* fp;
-
-	sprintf(file, "db/achievement_db.txt");
-	fp = fopen(file, "r");
-	if (fp == NULL)
-	{
-		ShowWarning("achievement_read_db: File not found \"%s\", skipping.\n", file);
-		return;
-	}
-
-	// process rows one by one
-	while (fgets(line, sizeof(line), fp))
-	{
-		char *str[32], *p;
-		int i;
-
-		lines++;
-		if (line[0] == '/' && line[1] == '/')
-			continue;
-		memset(str, 0, sizeof(str));
-
-		p = line;
-
-		while (ISSPACE(*p))
-			++p;
-
-		if (*p == '\0')
-			continue;// empty line
-
-		for (i = 0; i < 8; ++i)
-		{
-			str[i] = p;
-			p = strchr(p, ',');
-			if (p == NULL)
-				break;// comma not found
-			*p = '\0';
-			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("achievement_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
-				return;
-			}
-		}
-
-		duplicate = &achievement_dummy;
-		entry = achievement_parse_dbrow(str, file, lines);
-		if (!entry) {
-			ShowWarning("achievement_read_db: Failed to parse achievement entry %d.\n", count);
-			continue;
-		}
-		if ((duplicate = achievement_search(entry->achievement_id)) != &achievement_dummy) {
-				ShowWarning("achievement_read_db: Duplicate achievement %d.\n", entry->achievement_id);
-				achievement_db_free_sub(entry, false);
-				continue;
-		}
-
-		idb_put(achievement_db, entry->achievement_id, entry);
-		count++;
-	}
-
-	fclose(fp);
-
-	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, file);
-}
-
-struct achievement_rewards *achievementrewards_parse_dbrow(char** str, const char* source, int line)
-{
-	/*
-	+----+-------+---------+---------+-------------+--------+
-	| 00 |   01  |    02   |    03   |      04     |   05   |
-	+----+-------+---------+---------+-------------+--------+
-	| id | Score | TitleID | ItemIDs | ItemAmounts | Script |
-	+----+-------+---------+---------+-------------+--------+
-	*/
-
-	struct achievement_rewards* entry = NULL;
-	int achievement_id = 0, nameid = 0, amount = 0;
-	char script_char[256];
-
-	achievement_id = atoi(str[0]);
-	if (achievement_id < 1 || achievement_id > INT_MAX) {
-		ShowWarning("achievementrewards_parse_dbrow: Invalid achievement ID %d in \"%s\" (min: 1, max: %d), skipping.\n", achievement_id, source, INT_MAX);
-		return NULL;
-	}
-
-	//ID,Score,TitleID,ItemID1:ItemID2...,Amount1:Amount2,Script
-
-	CREATE(entry, struct achievement_rewards, 1);
-
-	entry->achievement_id = achievement_id;
-	entry->score = atoi(str[1]);
-	entry->title_id = atoi(str[2]);
-
-	nameid = atoi(str[3]);
-	amount = atoi(str[4]);
-	if (nameid > 0) {
-		if (itemdb_exists(nameid)) {
-			entry->nameid = nameid;
-			entry->amount = 1; // Default the amount to 1
-		}
-		else
-		{
-			ShowWarning("achievementrewards_parse_dbrow: Invalid reward item ID %hu for achievement %d in \"%s\". Setting to 0.\n", nameid, achievement_id, source);
-			entry->nameid = nameid = 0;
-		}
-		if (amount > 0 && nameid > 0)
-			entry->amount = amount;
-	}
-	else
-	{
-		entry->nameid = 0;
-		entry->amount = 0;
-	}
-	
-	safestrncpy(script_char, str[5], sizeof(script_char));
-	entry->script = parse_script(script_char, source, achievement_id, 0);
-
-	return entry;
-}
-
-/**
-* Loads achievements from the achievement db.
-*/
-void achievementrewards_read_db(void)
-{
-	struct achievement_rewards *duplicate = NULL, *entry = NULL;
-
-	uint32 lines = 0, count = 0;
-	char line[1024];
-
-	char file[256];
-	FILE* fp;
-
-	sprintf(file, "db/achievement_reward_db.txt");
-	fp = fopen(file, "r");
-	if (fp == NULL)
-	{
-		ShowWarning("achievementrewards_read_db: File not found \"%s\", skipping.\n", file);
-		return;
-	}
-
-	// process rows one by one
-	while (fgets(line, sizeof(line), fp))
-	{
-		char *str[32], *p;
-		int i;
-
-		lines++;
-		if (line[0] == '/' && line[1] == '/')
-			continue;
-		memset(str, 0, sizeof(str));
-
-		p = line;
-
-		while (ISSPACE(*p))
-			++p;
-
-		if (*p == '\0')
-			continue;// empty line
-
-		for (i = 0; i < 5; ++i)
-		{
-			str[i] = p;
-			p = strchr(p, ',');
-			if (p == NULL)
-				break;// comma not found
-			*p = '\0';
-			++p;
-
-			if (str[i] == NULL)
-			{
-				ShowError("achievementrewards_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
-				return;
-			}
-		}
-
-		// Script (last column)
-		if (*p != '{')
-		{
-			ShowError("achievementrewards_read_db: Invalid format (Script column) in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
-			continue;
-		}
-		str[5] = p;
-
-		duplicate = &achievement_reward_dummy;
-		entry = achievementrewards_parse_dbrow(str, file, lines);
-		if (!entry) {
-			ShowWarning("achievementrewards_parse_dbrow: Failed to parse achievement entry %d.\n", count);
-			continue;
-		}
-		if ((duplicate = achievement_reward_search(entry->achievement_id)) != &achievement_reward_dummy) {
-			ShowWarning("achievementrewards_parse_dbrow: Duplicate achievement %d.\n", entry->achievement_id);
-			achievementrewards_db_free_sub(entry, false);
-			continue;
-		}
-
-		idb_put(achievementrewards_db, entry->achievement_id, entry);
-		count++;
-	}
-
-	fclose(fp);
-
-	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, file);
 }
 
 void achievement_removeChar(char *str, char garbage) {
@@ -1327,124 +957,523 @@ void achievement_removeChar(char *str, char garbage) {
 }
 
 /**
- * Recursive method to free an achievement condition
- * @param condition: Condition to clear
+ * Parses achievement objective entries of the current achievement db entry being parsed.
+ * @param[in]  conf       config pointer.
+ * @param[out] entry      pointer to the achievement db entry being parsed.
+ * @return false on failure, true on success.
  */
-void achievement_script_free(struct av_condition *condition) 
+static bool achievement_readdb_objectives(char** str, struct achievement_data *entry)
 {
-	if (condition->left) {
-		achievement_script_free(condition->left);
-		condition->left = NULL;
+	nullpo_retr(false, entry);
+
+	int i, j, val;
+	int tcount = 0;
+	char split = NULL;
+	char descriptions[MAX_ACHIEVEMENT_OBJECTIVES];
+	char criteriaIDs[MAX_ACHIEVEMENT_OBJECTIVES];
+	int criterias[MAX_ACHIEVEMENT_OBJECTIVES], goals[MAX_ACHIEVEMENT_OBJECTIVES];
+
+	// Initialize the buffer objective vector.
+	VECTOR_INIT(entry->objective);
+
+	// get the data, split & count them
+	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
+	{
+		tcount++;
+		descriptions[i] = str[3];
+		str[3] = strchr(str[3], ':');
+		if (str[3] == NULL)
+			break;// : not found
+		*str[3] = '\0';
+		++str[3];
+
+		if (descriptions[i] == NULL)
+		{
+			ShowError("achievement_readdb_objectives: Insufficient values in description of achievement with id %d), skipping.\n", entry->id);
+			return false;
+		}
+	}
+	for (i = 0; i < tcount; ++i)
+	{
+		criteriaIDs[i] = str[5];
+		str[5] = strchr(str[5], ':');
+		if (str[5] == NULL)
+			break;
+		*str[5] = '\0';
+		++str[5];
+
+		if (criteriaIDs[i] == NULL)
+		{
+			ShowError("achievement_readdb_objectives: Insufficient values in criteria IDs of achievement with id %d), skipping.\n", entry->id);
+			return false;
+		}
+	}
+	pc_split_atoi(str[4], criterias, ':', tcount);
+	pc_split_atoi(str[6], goals, ':', tcount);
+
+	// put the data into the struct.
+	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
+	{
+		struct achievement_objective obj = { 0 };
+
+		obj.unique_type = criterias[i];
+		switch (obj.unique_type)
+		{
+			case CRITERIA_UNIQUE_ACHIEVE_ID:
+				obj.unique.achieve_id = atoi(criteriaIDs[i]);
+				break;
+			case CRITERIA_UNIQUE_ITEM_ID:
+				val = atoi(criteriaIDs[i]);
+				if (itemdb_exists(val) == NULL) {
+					ShowError("achievement_readdb_objectives: Invalid ItemID %d provided (Achievement: %d, Objective: %d). Skipping...\n", criteriaIDs[i], entry->id, i);
+					return false;
+				}
+				obj.unique.itemid = val;
+				break;
+			case CRITERIA_UNIQUE_MOB_ID:
+				val = atoi(criteriaIDs[i]);
+				if (mob_db(val) == NULL) {
+					ShowError("achievement_readdb_objectives: Non-existant monster with ID %id provided (Achievement: %d, Objective: %d). Skipping...\n", criteriaIDs[i], entry->id, i);
+					return false;
+				}
+				obj.mobid = val;
+				break;
+			case CRITERIA_UNIQUE_JOB_ID:
+				for (j = 0; j < sizeof(criteriaIDs[i]); ++j)
+				{
+					split = criteriaIDs[i];
+					criteriaIDs[i] = strchr(criteriaIDs[i], '||');
+					if (criteriaIDs[i] == NULL)
+						break;// : not found
+					criteriaIDs[i] = '\0';
+					++criteriaIDs[i];
+
+					if (split == NULL)
+					{
+						ShowError("achievement_readdb_objectives: Insufficient JobID in defined in achievement with id %d), skipping.\n", entry->id);
+						return false;
+					}
+
+					if (script_get_constant(split, &val) == false) {
+						ShowError("achievement_readdb_objectives: Invalid JobId %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
+						return false;
+					}
+
+					VECTOR_INIT(obj.jobid);
+					VECTOR_ENSURE(obj.jobid, 1, 1);
+					VECTOR_PUSH(obj.jobid, val);
+				}
+			case CRITERIA_UNIQUE_STATUS_TYPE:
+				if (strcmp(criteriaIDs[i], "SP_STR") == 0)		      val = SP_STR;
+				else if (strcmp(criteriaIDs[i], "SP_AGI") == 0)       val = SP_AGI;
+				else if (strcmp(criteriaIDs[i], "SP_VIT") == 0)       val = SP_VIT;
+				else if (strcmp(criteriaIDs[i], "SP_INT") == 0)       val = SP_INT;
+				else if (strcmp(criteriaIDs[i], "SP_DEX") == 0)       val = SP_DEX;
+				else if (strcmp(criteriaIDs[i], "SP_LUK") == 0)       val = SP_LUK;
+				else if (strcmp(criteriaIDs[i], "SP_BASELEVEL") == 0) val = SP_BASELEVEL;
+				else if (strcmp(criteriaIDs[i], "SP_JOBLEVEL") == 0)  val = SP_JOBLEVEL;
+				else val = SP_NONE;
+				obj.unique.status_type = (enum status_point_types) val;
+				break;
+			case CRITERIA_UNIQUE_ITEM_TYPE:
+				for (j = 0; j < sizeof(criteriaIDs[i]); ++j)
+				{
+					split = criteriaIDs[i];
+					criteriaIDs[i] = strchr(criteriaIDs[i], '||');
+					if (criteriaIDs[i] == NULL)
+						break;// : not found
+					criteriaIDs[i] = '\0';
+					++criteriaIDs[i];
+
+					if (split == NULL)
+					{
+						ShowError("achievement_readdb_objectives: Insufficient item type in defined in achievement with id %d), skipping.\n", entry->id);
+						return false;
+					}
+
+					if (!script_get_constant(split, &val) || val < IT_HEALING || val > IT_MAX) {
+						ShowError("achievement_readdb_validate_criteria_itemtype: Invalid ItemType %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
+						return false;
+					}
+
+					if (val == IT_MAX) {
+						obj.item_type |= (2 << val) - 1;
+					}
+					else {
+						obj.item_type |= (2 << val);
+					}
+				}
+				break;
+			case CRITERIA_UNIQUE_WEAPON_LV:
+				val = atoi(criteriaIDs[i]);
+
+				if (val < 1 || val > 4) {
+					ShowError("achievement_readdb_validate_criteria_weaponlv: Invalid WeaponLevel %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
+					return false;
+				}
+				obj.unique.weapon_lv = val;
+				break;
+			default:
+				break;
+		}
+
+		if (achievement_type_requires_criteria(entry->type)) {
+			ShowError("achievement_readdb_objective: No criteria field added (Achievement: %d)! Skipping...\n", entry->id);
+			return false;
+		}
+
+		obj.goal = goals[i] ? goals[i] : 1;
+
+		/* Ensure size and allocation */
+		VECTOR_ENSURE(entry->objective, 1, 1);
+
+		/* Push buffer */
+		VECTOR_PUSH(entry->objective, obj);
 	}
 
-	if (condition->right) {
-		achievement_script_free(condition->right);
-		condition->right = NULL;
-	}
-
-	aFree(condition);
+	return true;
 }
 
 /**
- * Clear achievement single entry
- * @param achievement: Achievement to clear
- * @param free: Will free achievement from memory
+ * Parses the Achievement Rewards.
+ * @read db/achievement_reward_db.txt
  */
-void achievement_db_free_sub(struct achievement_db *achievement, bool free)
+static bool achievement_readdb_rewards(char** str, struct achievement_data *entry)
 {
-	if (achievement->targets) {
-		aFree(achievement->targets);
-		achievement->targets = NULL;
-		achievement->target_count = 0;
+	nullpo_retr(false, entry);
+
+	struct achievement_reward_item item = { 0 };
+	int amount = 0;
+	int val = 0;
+	unsigned short nameid;
+
+	/* Title Id */
+	// @TODO Check Title ID against title DB!
+	entry->rewards.title_id = atoi(str[8]);
+
+	/* Items */
+	VECTOR_INIT(entry->rewards.item);
+
+	nameid = atoi(str[9]);
+	amount = atoi(str[10]);
+
+	/* Ensure size and allocation */
+	VECTOR_ENSURE(entry->rewards.item, 1, 1);
+
+	if (itemdb_exists(nameid)) {
+		item.id = nameid;
+		item.amount = (amount > 0) ? amount : 1;
 	}
-	if (achievement->condition) {
-		achievement_script_free(achievement->condition);
-		achievement->condition = NULL;
-	}
-	if (achievement->dependents) {
-		aFree(achievement->dependents);
-		achievement->dependents = NULL;
-		achievement->dependent_count = 0;
+	else {
+		item.id = 0;
+		item.amount = 0;
 	}
 
-	if (free)
-		aFree(achievement);
+	/* push buffer */
+	VECTOR_PUSH(entry->rewards.item, item);
+
+	/* Buff/Bonus Script Code */
+	entry->rewards.bonus = str[11] ? parse_script(str[11], "achievement_db", entry->id, 0) : NULL;
+
+	return true;
 }
 
-void achievementrewards_db_free_sub(struct achievement_rewards *achievementrewards, bool free)
+/*==========================================
+* processes one achievement db entry
+*------------------------------------------*/
+static bool achievement_parse_dbrow(char** str, const char* source, int line, struct achievement_data* tentry)
 {
-	if (achievementrewards->script) {
-		script_free_code(achievementrewards->script);
-		achievementrewards->script = NULL;
+	/*
+	+----+------+------+--------------+-----------+-------------+-------+-------+---------+--------+--------+--------+
+	| 00 |  01  |  02  |      03      |     04    |      05     |   06  |   07  |    08   |   09   |   10   |   11   |
+	+----+------+------+--------------+-----------+-------------+-------+-------+---------+--------+--------+--------+
+	| ID | Name | Type | Descriptions | Criterias | CriteriaIDs | Goals | Score | TitleID | ItemID | Amount | Script |
+	+----+------+------+--------------+-----------+-------------+-------+-------+---------+--------+--------+--------+
+	*/
+
+	char type_char[50];
+
+	/* Achievement ID */
+	tentry->id = atoi(str[0]);
+	if (tentry->id < 1 || tentry->id > INT32_MAX) {
+		ShowWarning("achievement_parse_dbrow: Invalid achievement ID %d in \"%s\" (min: 1, max: %d), skipping.\n", tentry->id, source, INT32_MAX);
+		return false;
 	}
-	if (free)
-		aFree(achievementrewards);
+
+	/* Achievement Name */
+	safestrncpy(tentry->name, str[1], ACHIEVEMENT_NAME_LENGTH);
+
+	/* Achievement Type */
+	safestrncpy(type_char, str[2], sizeof(type_char));
+	script_get_constant(type_char, (int *)&tentry->type);
+
+	if (tentry->type < ACH_QUEST || tentry->type > ACH_TYPE_MAX) {
+		ShowWarning("achievement_parse_dbrow: Invalid achievement group %d in \"%s\" (min: %d, max: %d), skipping.\n", tentry->id, source, ACH_QUEST, ACH_TYPE_MAX);
+		return false;
+	}
+
+	/* Achievement Objectives */
+	achievement_readdb_objectives(str, &tentry);
+
+	/* Achievement Rewards */
+	achievement_readdb_rewards(str, &tentry);
+
+	/* Achievement Points */
+	tentry->points = atoi(str[7]);
+
+	return true;
 }
 
 /**
- * Clears the achievement database for shutdown or reload.
+ * Loads achievements from the achievement db.
  */
-static int achievement_db_free(DBKey key, void *data, va_list ap)
+static void achievement_readdb()
 {
-	struct achievement_db *achievement = (struct achievement_db *)db_data2ptr(data);
+	uint32 lines = 0, count = 0;
+	char line[1024];
 
-	if (!achievement)
-		return 0;
+	VECTOR_DECL(int) duplicate;
 
-	achievement_db_free_sub(achievement, true);
-	return 1;
-}
+	char file[256];
+	FILE* fp;
 
-static int achievementmobs_db_free(DBKey key, void *data, va_list ap)
-{
-	struct achievementmobs_db *achievement = (struct achievementmobs_db *)db_data2ptr(data);
-
-	if (!achievement)
-		return 0;
-
-	aFree(achievement);
-	return 1;
-}
-
-static int achievementrewards_db_free(DBKey key, void *data, va_list ap)
-{
-	struct achievement_rewards *achievementrewards = (struct achievement_rewards *)db_data2ptr(data);
-
-	if (!achievementrewards)
-		return 0;
-
-	achievementrewards_db_free_sub(achievementrewards, true);
-	return 1;
-}
-
-void achievement_db_reload(void)
-{
-	if (!battle_config.feature_achievement)
+	sprintf(file, "db/achievement_db.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("achievement_read_db: File not found \"%s\", skipping.\n", file);
 		return;
-	achievementmobs_db->clear(achievementmobs_db, achievementmobs_db_free);
-	achievement_db->clear(achievement_db, achievement_db_free);
-	achievementrewards_db->clear(achievementrewards_db, achievementrewards_db_free);
-	achievement_read_db();
-	achievementrewards_read_db();
+	}
+
+	VECTOR_INIT(duplicate);
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i;
+
+		struct achievement_data t_ad = {0}, *p_ad = NULL;
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 11; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("achievement_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
+				continue;
+			}
+		}
+
+		if (p == NULL)
+		{
+			ShowError("achievement_read_db: Insufficient columns in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
+			continue;
+		}
+
+		// Script (last column)
+		if (*p != '{')
+		{
+			ShowError("achievement_read_db: Invalid format (Script column) in line %d of \"%s\" (achievement with id %d), skipping.\n", lines, file, atoi(str[0]));
+			continue;
+		}
+		str[10] = p;
+
+		achievement_parse_dbrow(str, file, lines, &t_ad);
+
+		ARR_FIND(0, VECTOR_LENGTH(duplicate), i, VECTOR_INDEX(duplicate, i) == t_ad.id);
+		if (i != VECTOR_LENGTH(duplicate)) {
+			ShowError("achievement_read_db: Duplicate Id %d in line %d. Skipping...\n", t_ad.id, lines);
+			continue;
+		}
+
+		/* Allocate memory for data. */
+		CREATE(p_ad, struct achievement_data, 1);
+		*p_ad = t_ad;
+
+		/* Place in the database. */
+		idb_put(achievement_db, p_ad->id, p_ad);
+
+		/* Put achievement key in categories. */
+		VECTOR_ENSURE(category[p_ad->type], 1, 1);
+		VECTOR_PUSH(category[p_ad->type], p_ad->id);
+
+		/* Qualify for duplicate Id checks */
+		VECTOR_ENSURE(duplicate, 1, 1);
+		VECTOR_PUSH(duplicate, t_ad.id);
+		count++;
+	}
+
+	VECTOR_CLEAR(duplicate);
+
+	fclose(fp);
+
+	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, file);
 }
 
+/**
+ * Parses the Achievement Ranks.
+ * @read db/achievement_rank_db.txt
+ */
+static void achievement_readdb_ranks(void)
+{
+
+	uint32 lines = 0, entry = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	sprintf(file, "db/achievement_rank_db.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("achievement_readdb_ranks: File not found \"%s\", skipping.\n", file);
+		return;
+	}
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i;
+		int rank, exp;
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 2; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("achievement_readdb_ranks: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				return;
+			}
+		}
+
+		if (entry > MAX_ACHIEVEMENT_RANKS)
+			ShowWarning("achievement_rankdb_ranks: Maximum number of achievement ranks exceeded. Skipping all after entry %d...\n", entry);
+
+		rank = atoi(str[0]);
+		exp = atoi(str[1]);
+
+		if (exp <= 0) {
+			ShowError("achievement_readdb_ranks: Invalid value provided for %s in '%s'.\n", rank, file);
+			continue;
+		}
+
+		if (rank == entry) {
+			VECTOR_ENSURE(rank_exp, 1, 1);
+			VECTOR_PUSH(rank_exp, exp);
+		}
+		else {
+			ShowWarning("achievement_readdb_ranks: Ranks are not in order! Ignoring all ranks after Rank %d...\n", entry);
+			break; // break if elements are not in order.
+		}
+		entry++;
+	}
+
+	if (entry == 1) {
+		ShowError("achievement_readdb_ranks: No ranks provided in '%s'!\n", file);
+		return;
+	}
+
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entry-1, file);
+}
+
+/**
+ * On server initiation.
+ */
 void do_init_achievement(void)
 {
-	if (!battle_config.feature_achievement)
-		return;
-	memset(&achievement_dummy, 0, sizeof(achievement_dummy));
-	achievement_db = idb_alloc(DB_OPT_BASE);
-	achievementmobs_db = idb_alloc(DB_OPT_BASE);
-	achievementrewards_db = idb_alloc(DB_OPT_BASE);
-	achievement_read_db();
-	achievementrewards_read_db();
+	int i = 0;
+
+	/* DB Initialization */
+	achievement_db = idb_alloc(DB_OPT_RELEASE_DATA);
+
+	for (i = 0; i < ACH_TYPE_MAX; i++)
+		VECTOR_INIT(category[i]);
+
+	VECTOR_INIT(rank_exp);
+
+	/* Read database files */
+	achievement_readdb();
+	achievement_readdb_ranks();
+
+	//aFree(rewards); // Not needed anymore.
 }
 
+/**
+ * Cleaning function called through achievement_db->destroy()
+ */
+static int achievement_db_finalize(union DBKey key, struct DBData *data, va_list args)
+{
+	int i = 0;
+	struct achievement_data *ad = db_data2ptr(data);
+
+	for (i = 0; i < VECTOR_LENGTH(ad->objective); i++)
+		VECTOR_CLEAR(VECTOR_INDEX(ad->objective, i).jobid);
+
+	VECTOR_CLEAR(ad->objective);
+	VECTOR_CLEAR(ad->rewards.item);
+
+	// Free the script
+	if (ad->rewards.bonus != NULL) {
+		script_free_code(ad->rewards.bonus);
+		ad->rewards.bonus = NULL;
+	}
+
+	return 0;
+}
+
+/**
+ * On server finalizing.
+ */
 void do_final_achievement(void)
 {
-	if (!battle_config.feature_achievement)
-		return;
-	achievementmobs_db->destroy(achievementmobs_db, achievementmobs_db_free);
-	achievement_db->destroy(achievement_db, achievement_db_free);
-	achievementrewards_db->destroy(achievementrewards_db, achievementrewards_db_free);
+	int i = 0;
+
+	achievement_db->destroy(achievement_db, achievement_db_finalize);
+
+	for (i = 0; i < ACH_TYPE_MAX; i++)
+		VECTOR_CLEAR(category[i]);
+
+	VECTOR_CLEAR(rank_exp);
 }
+

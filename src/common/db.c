@@ -2502,6 +2502,22 @@ void* db_data2ptr(DBData *data)
 }
 
 /**
+ * Manual cast from 'void *' to the struct DBData.
+ * @param data Data to be casted
+ * @return The data as a DBData struct
+ * @public
+ */
+DBData db_ptr2data(void *data)
+{
+	DBData ret;
+
+	DB_COUNTSTAT(db_ptr2data);
+	ret.type = DB_DATA_PTR;
+	ret.u.ptr = data;
+	return ret;
+}
+
+/**
  * Initializes the database system.
  * @public
  * @see #db_final(void)

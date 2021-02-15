@@ -7853,7 +7853,11 @@
 19935,C_Hunting_Cap_Of_Gust,Costume Hunting Cap Of Gust,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,1076,{},{},{}
 19936,C_Knit_Cap_Of_Water,Costume Knit Cap Of Water,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1077,{},{},{}
 19937,C_Silk_Hat_of_Earth,Costume Silk Hat of Earth,5,0,,0,,,,,0xFFFFFFFF,63,2,1024,,1,,,{},{},{}
-
+//
+19962,C_Mitra,Costume Mitra,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,624,{},{},{}
+19963,C_Driver_Band_Red,Costume Driver Band Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,626,{},{},{}
+19964,C_Driver_Band_Yellow,Costume Driver Band Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,637,{},{},{}
+//
 19974,C_Camouflage_Rabbit_Hood,Costume Camouflage Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1142,{},{},{}
 
 20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}

@@ -183,6 +183,8 @@
 19957,C_Scooter_Hat,Costume Scooter Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,588,{},{},{}
 19958,C_Choir_Hat,Costume Choir Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1137,{},{},{}
 19959,C_Drooping_Argiope,Costume Drooping Argiope,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1138,{},{},{}
+19960,C_Chain_Puppet,Costume Chain Puppet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1139,{},{},{}
+19961,C_Rune_Circlet,Costume Rune Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,623,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat3,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat4,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
@@ -234,11 +236,8 @@
 19912,C_Cat_Eye,Costume Cat Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1100,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19960,C_Chain_Puppet,Costume Chain Puppet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1139,{},{},{}
-19961,C_Rune_Circlet,Costume Rune Circlet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,623,{},{},{}
-19962,C_Mitra,Costume Mitra,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,624,{},{},{}
-19963,C_Driver_Band_Red,Costume Driver Band Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,626,{},{},{}
-19964,C_Driver_Band_Yellow,Costume Driver Band Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,637,{},{},{}
+
+
 19965,C_Shadow_Handicraft,Costume Shadow Handicraft,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,627,{},{},{}
 19966,C_Minstrel_Songs_Hat,Costume Minstrel Song's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,628,{},{},{}
 19967,C_Midas_Whisper,Costume Midas Whisper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,629,{},{},{}
@@ -3777,3 +3776,17 @@
 5592,Sigrun's_Wings,Sigrun's Wings,5,20,,100,,2,,0,0xFFFFFFFF,7,2,512,,80,0,568,{ if(BaseClass==Job_Swordman||BaseClass==Job_Merchant||BaseClass==Job_Thief||(BaseJob==Job_Taekwon&&Class!=Job_Soul_Linker)) bonus bStr,1; else if(BaseClass==Job_Mage||BaseClass==Job_Acolyte||BaseClass==Job_Ninja||class==Job_Soul_Linker) bonus bInt,1; else if(BaseClass==Job_Archer||BaseClass==Job_Gunslinger) bonus bDex,1; else if (BaseJob==Job_Novice||BaseJob==Job_SuperNovice) { bonus bMaxHP,80; bonus bMaxSP,30; } },{},{}
 13036,BF_Dagger1,Brave Assassin's Damascus,4,20,,0,120,,1,0,0xFE9F7EEF,7,2,2,3,80,1,1,{ bonus bStr,1; bonus bAgi,1; bonus2 bAddRace,RC_DemiHuman,75; bonus2 bIgnoreDefRate,RC_DemiHuman,20; bonus bUnbreakableWeapon,0; if (BaseClass == Job_Ninja || Class == Job_Rogue || Class == Job_Stalker) bonus bMatkRate,15; },{},{}
 13037,BF_Dagger2,Valorous Assassin's Damascus,4,20,,0,120,,1,0,0xFE9F7EEF,7,2,2,3,80,1,1,{ bonus bStr,1; bonus bAgi,1; bonus2 bAddRace,RC_DemiHuman,75; bonus bUnbreakableWeapon,0; autobonus "{ bonus bDefRatioAtkRace,RC_Boss; bonus bDefRatioAtkRace,RC_NonBoss; }",10,6000,BF_WEAPON,"{ specialeffect2 EF_HASTEUP; }"; if (BaseClass == Job_Ninja || Class == Job_Rogue || Class == Job_Stalker) bonus bMatkRate,15; },{},{}
+
+//===================================================================
+// More Costumes
+//===================================================================
+31448,C_Stings_Silk_Ribbon,C Stings Silk Ribbon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1457,{},{},{}
+31449,C_Blue_Rose_Eyepatch,C Blue Rose Eyepatch,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1712,{},{},{}
+31450,C_Lolita_Two_Side_Up,C Lolita Two Side Up,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,1713,{},{},{}
+31451,C_Blue_Frill_Ribbon,C Blue Frill Ribbon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1714,{},{},{}
+31452,C_White_Cat,C White Cat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1715,{},{},{}
+31453,C_L_RibbonMuff_Black,C Large Ribbon Muffler Black,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,1716,{},{},{}
+31454,C_Love_Feelings,C Love Feelings,5,0,,,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,1717,{},{},{}
+31455,C_Enchanted_Dog,C Super Cute Dog,5,0,,0,,0,,0,0xFFFFFFFF,63,2,6144,,1,0,1718,{},{},{}
+31456,C_Baby_Leopard_Cat,C Baby Leopard Cat,5,0,,,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1719,{},{},{}
+31457,C_Laughing_Wonderful_Wolf_Hat,C Laughing Wonderful Wolf Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1016,{},{},{}
