@@ -5,10 +5,40 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/07/2021
+	r278 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn278.sql file!
+		*Merged missing changes from 3ceam rev. 718
+		*Complete rewrite of the achievement system (part 2).
+			-With this update the achievement system is finally working. However, there are still more things to do, but the basic support is finally done.
+			-Resolved a huge number of issues related to achievement database loading.
+			-complete rewrite of achievement related code based on hercules version.
+			-Replaced old script commands by:
+				--achievement_progress(<ach_id>,<obj_idx>,<progress>,<incremental?>{,<char_id>});
+			-Does not include the title system yet.
+			-A big thanks to @HerculesWS
+		*Some item updates.
+			-added some missing items.
+			-fixed some items.
+		*Did a little organizing in the skill.c file.
+		*RK_CRUSHSTRIKE
+			-Now a self casted skill.
+			-Crush Strike is now a buff that will deal its damage once upon doing a regular attack.
+			-Weapon break chance is now a official 20 percent due to the new behavior.
+		*NC_SILVERSNIPER; NC_MAGICDECOY
+			-Fixed a suspected issue where the summoned FAW's wouldn't have the correct amount of HP.
+			-Updated the Silver Sniper's ATK to official.
+		*KO_ZANZOU / Illusion - After Image
+			-Now summons a shadow clone.
+		*KO_ZENKAI / Spread Seal; KG_KYOMU / Shadow Void
+			-Added Full Support For These Skills.
+		*KO_IZAYOI / 16th Night
+			-Fixed cast time removal and variable cast reductions now apply to all skills.
+
 02/15/2021
 	r277 [15peaces]
 		*Merged missing changes from 3ceam rev. 717
-		*Complete rewrite of the achievement system.
+		*Complete rewrite of the achievement system (part 1).
 			-This update disables the broken implementation of this system. (Ignore the compile warnings for now)
 			--It adds in the new database files and the new source files with the basic support.
 			--Everything else will be added and re-enabled in the next update(s).

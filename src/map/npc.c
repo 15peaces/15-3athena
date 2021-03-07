@@ -27,6 +27,7 @@
 #include "unit.h"
 #include "npc.h"
 #include "chat.h"
+#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1736,6 +1737,9 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 		}
 
 		pc_delitem(sd, idx, amount, 0, 6);
+
+		// Achievements [Smokexyz/Hercules]
+		achievement_validate_item_sell(sd, sd->inventory.u.items_inventory[idx].nameid, amount);
 	}
 
 	if (z + sd->status.zeny > MAX_ZENY && nd->master_nd == NULL)

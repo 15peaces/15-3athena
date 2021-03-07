@@ -7453,7 +7453,7 @@ BUILDIN_FUNC(getequippercentrefinery)
 }
 
 /*==========================================
- * ¸˜B¬Œ÷
+ * Refine +1 item at pos and log and display refine
  *------------------------------------------*/
 BUILDIN_FUNC(successrefitem)
 {
@@ -7485,7 +7485,11 @@ BUILDIN_FUNC(successrefitem)
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep,false);
 		clif_misceffect(&sd->bl,3);
-		//achievement_update_objective(sd, AG_REFINE_SUCCESS, 2, sd->inventory_data[i]->wlv, sd->inventory.u.items_inventory[i].refine);
+
+		achievement_validate_refine(sd, i, true); // Achievements [Smokexyz/Hercules]
+
+		/* The following check is exclusive to characters (possibly only whitesmiths)
+		 * that create equipments and refine them to level 10. */
 		if(sd->inventory.u.items_inventory[i].refine == MAX_REFINE &&
 			sd->inventory.u.items_inventory[i].card[0] == CARD0_FORGE &&
 		  	sd->status.char_id == (int)MakeDWord(sd->inventory.u.items_inventory[i].card[2],sd->inventory.u.items_inventory[i].card[3])
@@ -7523,6 +7527,9 @@ BUILDIN_FUNC(failedrefitem)
 	if (num > 0 && num <= ARRAYLENGTH(equip))
 		i=pc_checkequip(sd,equip[num-1],false);
 	if(i >= 0) {
+		// Call before changing refine to 0.
+		achievement_validate_refine(sd, i, false);
+
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->inventory.u.items_inventory[i].nameid, -1, &sd->inventory.u.items_inventory[i]);
 
@@ -7534,7 +7541,6 @@ BUILDIN_FUNC(failedrefitem)
 		pc_delitem(sd,i,1,0,2);
 		// ‘¼‚Ìl‚É‚àŽ¸”s‚ð’Ê’m
 		clif_misceffect(&sd->bl,2);
-		//achievement_update_objective(sd, AG_REFINE_FAIL, 1, 1);
 	}
 
 	return 0;
@@ -7575,8 +7581,8 @@ BUILDIN_FUNC(downrefitem) {
 
 		clif_additem(sd,i,1,0);
 		pc_equipitem(sd,i,ep,false);
+		achievement_validate_refine(sd, i, false); // Achievements [Smokexyz/Hercules]
 		clif_misceffect(&sd->bl,2);
-		//achievement_update_objective(sd, AG_REFINE_FAIL, 1, sd->inventory.u.items_inventory[i].refine);
 		script_pushint(st, sd->inventory.u.items_inventory[i].refine);
 		return 1;
 	}
@@ -19608,175 +19614,77 @@ BUILDIN_FUNC(navigateto){
 #endif
 }
 
-/**
-* Add an achievement to the player's log
-* achievementadd(<achievement ID>{,<char ID>});
-*/
-BUILDIN_FUNC(achievementadd) {
-/*	struct map_session_data *sd;
-	int achievement_id = script_getnum(st, 2);
+/*==========================================
+ * Achievement System [Smokexyz/Hercules]
+ *-----------------------------------------*/
+ /**
+  * Validates an objective index for the given achievement.
+  * Can be used for any achievement type.
+  * @command achievement_progress(<ach_id>,<obj_idx>,<progress>,<incremental?>{,<char_id>});
+  * @param aid         - achievement ID
+  * @param obj_idx     - achievement objective index.
+  * @param progress    - objective progress towards goal.
+  * @Param incremental - (boolean) true to add the progress towards the goal,
+  *                      false to use the progress only as a comparand.
+  * @param account_id  - (optional) character ID to perform on.
+  * @return true on success, false on failure.
+  * @push 1 on success, 0 on failure.
+  */
+BUILDIN_FUNC(achievement_progress)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	int aid = script_getnum(st, 2);
+	int obj_idx = script_getnum(st, 3);
+	int progress = script_getnum(st, 4);
+	int incremental = script_getnum(st, 5);
+	int account_id = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	const struct achievement_data *ad = NULL;
 
-	if (!script_charid2sd(3, sd)) {
-		script_pushint(st, false);
-		return 1;
+	if ((ad = achievement_get(aid)) == NULL) {
+		ShowError("buildin_achievement_progress: Invalid achievement ID %d received.\n", aid);
+		script_pushint(st, 0);
+		return false;
 	}
 
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowWarning("buildin_achievementadd: Achievement '%d' doesn't exist.\n", achievement_id);
-		script_pushint(st, false);
-		return 1;
+	if (obj_idx <= 0 || obj_idx > VECTOR_LENGTH(ad->objective)) {
+		ShowError("buildin_achievement_progress: Invalid objective index %d received. (min: %d, max: %d)\n", obj_idx, 0, VECTOR_LENGTH(ad->objective));
+		script_pushint(st, 0);
+		return false;
 	}
 
-	if (achievement_add(sd, achievement_id))
-		script_pushint(st, true);
+	obj_idx--; // convert to array index.
+
+	if (progress <= 0 || progress > VECTOR_INDEX(ad->objective, obj_idx).goal) {
+		ShowError("buildin_achievement_progress: Progress exceeds goal limit for achievement id %d.\n", aid);
+		script_pushint(st, 0);
+		return false;
+	}
+
+	if (incremental < 0 || incremental > 1) {
+		ShowError("buildin_achievement_progress: Argument 4 expects boolean (0/1). provided value: %d\n", incremental);
+		script_pushint(st, 0);
+		return false;
+	}
+
+	if (script_hasdata(st, 6)) {
+		if (account_id <= 0) {
+			ShowError("buildin_achievement_progress: Invalid Account id %d provided.\n", account_id);
+			script_pushint(st, 0);
+			return false;
+		}
+		else if ((sd = map_id2sd(account_id)) == NULL) {
+			ShowError("buildin_achievement_progress: Account with id %d was not found.\n", account_id);
+			script_pushint(st, 0);
+			return false;
+		}
+	}
+
+	if (achievement_validate(sd, aid, obj_idx, progress, incremental ? true : false))
+		script_pushint(st, progress);
 	else
-		script_pushint(st, false);*/
-	return 0;
-}
+		script_pushint(st, 0);
 
-/**
-* Removes an achievement on a player.
-* achievementremove(<achievement ID>{,<char ID>});
-* Just for Atemo. ;)
-*/
-BUILDIN_FUNC(achievementremove) {
-	/*struct map_session_data *sd;
-	int achievement_id = script_getnum(st, 2);
-
-	if (!script_charid2sd(3, sd)) {
-		script_pushint(st, false);
-		return 1;
-	}
-
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowWarning("buildin_achievementremove: Achievement '%d' doesn't exist.\n", achievement_id);
-		script_pushint(st, false);
-		return 0;
-	}
-
-	if (achievement_remove(sd, achievement_id))
-		script_pushint(st, true);
-	else
-		script_pushint(st, false);*/
-	return 0;
-}
-
-/**
-* Returns achievement progress
-* achievementinfo(<achievement ID>,<type>{,<char ID>});
-*/
-BUILDIN_FUNC(achievementinfo) {
-	/*struct map_session_data *sd;
-	int achievement_id = script_getnum(st, 2);
-
-	if (!script_charid2sd(4, sd)) {
-		script_pushint(st, false);
-		return 1;
-	}
-
-	script_pushint(st, achievement_check_progress(sd, achievement_id, script_getnum(st, 3)));*/
-	return 0;
-}
-
-/**
-* Award an achievement; Ignores requirements
-* achievementcomplete(<achievement ID>{,<char ID>});
-*/
-BUILDIN_FUNC(achievementcomplete) {
-	/*struct map_session_data *sd;
-	int i, achievement_id = script_getnum(st, 2);
-
-	if (!script_charid2sd(3, sd)) {
-		script_pushint(st, false);
-		return 1;
-	}
-
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowWarning("buildin_achievementcomplete: Achievement '%d' doesn't exist.\n", achievement_id);
-		script_pushint(st, false);
-		return 1;
-	}
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count)
-		achievement_add(sd, achievement_id);
-	achievement_update_achievement(sd, achievement_id, true);
-	script_pushint(st, true);*/
-	return 0;
-}
-
-/**
-* Checks if the achievement exists on player.
-* achievementexists(<achievement ID>{,<char ID>});
-*/
-BUILDIN_FUNC(achievementexists) {
-	/*struct map_session_data *sd;
-	int i, achievement_id = script_getnum(st, 2);
-
-	if (!script_charid2sd(3, sd)) {
-		script_pushint(st, false);
-		return 1;
-	}
-
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowWarning("buildin_achievementexists: Achievement '%d' doesn't exist.\n", achievement_id);
-		script_pushint(st, false);
-		return 0;
-	}
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	script_pushint(st, i < sd->achievement_data.count ? true : false);*/
-	return 0;
-}
-
-/**
-* Updates an achievement's value.
-* achievementupdate(<achievement ID>,<type>,<value>{,<char ID>});
-*/
-BUILDIN_FUNC(achievementupdate) {
-	/*struct map_session_data *sd;
-	int i, achievement_id, type, value;
-
-	achievement_id = script_getnum(st, 2);
-	type = script_getnum(st, 3);
-	value = script_getnum(st, 4);
-
-	if (!script_charid2sd(5, sd)) {
-		script_pushint(st, false);
-		return 1;
-	}
-
-	if (achievement_search(achievement_id) == &achievement_dummy) {
-		ShowWarning("buildin_achievementupdate: Achievement '%d' doesn't exist.\n", achievement_id);
-		script_pushint(st, false);
-		return 1;
-	}
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count)
-		achievement_add(sd, achievement_id);
-
-	ARR_FIND(0, sd->achievement_data.count, i, sd->achievement_data.achievements[i].achievement_id == achievement_id);
-	if (i == sd->achievement_data.count) {
-		script_pushint(st, false);
-		return 0;
-	}
-
-	if (type >= ACHIEVEINFO_COUNT1 && type <= ACHIEVEINFO_COUNT10)
-		sd->achievement_data.achievements[i].count[type - 1] = value;
-	else if (type == ACHIEVEINFO_COMPLETE || type == ACHIEVEINFO_COMPLETEDATE)
-		sd->achievement_data.achievements[i].completed = value;
-	else if (type == ACHIEVEINFO_GOTREWARD)
-		sd->achievement_data.achievements[i].rewarded = value;
-	else {
-		ShowWarning("buildin_achievementupdate: Unknown type '%d'.\n", type);
-		script_pushint(st, false);
-		return 1;
-	}
-
-	achievement_update_achievement(sd, achievement_id, false);
-	script_pushint(st, true);*/
-	return 0;
+	return true;
 }
 
 /**
@@ -20365,13 +20273,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 	BUILDIN_DEF(navigateto, "s???????"),
-	// Achievement System
-	BUILDIN_DEF(achievementinfo, "ii?"),
-	BUILDIN_DEF(achievementadd, "i?"),
-	BUILDIN_DEF(achievementremove, "i?"),
-	BUILDIN_DEF(achievementcomplete, "i?"),
-	BUILDIN_DEF(achievementexists, "i?"),
-	BUILDIN_DEF(achievementupdate, "iii?"),
+	// Achievements [Smokexyz/Hercules]
+	BUILDIN_DEF(achievement_progress, "iiii?"),
 	BUILDIN_DEF(adopt, "vv"),
 	{NULL,NULL,NULL},
 };

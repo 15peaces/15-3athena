@@ -715,87 +715,6 @@ extern char charhelp_txt[];
 
 extern char wisp_server_name[];
 
-// 鯖全体情報
-void map_setusers(int);
-int map_getusers(void);
-int map_usercount(void);
-// block削除関連
-int map_freeblock(struct block_list *bl);
-int map_freeblock_lock(void);
-int map_freeblock_unlock(void);
-// block関連
-int map_addblock(struct block_list* bl);
-int map_delblock(struct block_list* bl);
-int map_moveblock(struct block_list *, int, int, int64);
-int map_foreachinrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
- 	int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int max, int ignore_id, int type, ...);
-int map_foreachinshootrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int type, ...);
-int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
-int map_forcountinrange(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int count, int type, ...);
-int map_forcountinarea(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int count, int type, ...);
-int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int dx, int dy, int type, ...);
-int map_foreachincell(int (*func)(struct block_list*,va_list), int m, int x, int y, int type, ...);
-int map_foreachinpath(int (*func)(struct block_list*,va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
-int map_foreachinmap(int (*func)(struct block_list*,va_list), int m, int type, ...);
-int map_foreachininstance(int (*func)(struct block_list*, va_list), int16 instance_id, int type, ...);
-//block関連に追加
-int map_count_oncell(int m,int x,int y,int type);
-struct skill_unit *map_find_skill_unit_oncell(struct block_list *,int x,int y,int skill_id,struct skill_unit *,int flag);
-// 一時的object関連
-int map_get_new_object_id(void);
-int map_search_freecell(struct block_list *src, int m, short *x, short *y, int rx, int ry, int flag);
-//
-int map_quit(struct map_session_data *);
-// npc
-bool map_addnpc(int,struct npc_data *);
-
-// 床アイテム関連
-int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data);
-int map_removemobs_timer(int tid, int64 tick, int id, intptr_t data);
-#define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
-int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags);
-
-// キャラid＝＞キャラ名 変換関連
-void map_addnickdb(int charid, const char* nick);
-void map_delnickdb(int charid, const char* nick);
-void map_reqnickdb(struct map_session_data* sd,int charid);
-const char* map_charid2nick(int charid);
-struct map_session_data* map_charid2sd(int charid);
-
-struct map_session_data * map_id2sd(int id);
-struct mob_data * map_id2md(int id);
-struct npc_data * map_id2nd(int id);
-struct homun_data* map_id2hd(int id);
-struct mercenary_data* map_id2mc(int id);
-struct pet_data* map_id2pd(int id);
-struct elemental_data* map_id2ed(int id);
-struct chat_data* map_id2cd(int id);
-struct block_list * map_id2bl(int id);
-
-#define map_id2index(id) map[(id)].index
-int map_mapindex2mapid(unsigned short mapindex);
-int map_mapname2mapid(const char* name);
-int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
-int map_setipport(unsigned short map, uint32 ip, uint16 port);
-int map_eraseipport(unsigned short map, uint32 ip, uint16 port);
-int map_eraseallipport(void);
-void map_addiddb(struct block_list *);
-void map_deliddb(struct block_list *bl);
-void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...);
-void map_foreachmob(int (*func)(struct mob_data* md, va_list args), ...);
-void map_foreachnpc(int (*func)(struct npc_data* nd, va_list args), ...);
-void map_foreachregen(int (*func)(struct block_list* bl, va_list args), ...);
-void map_foreachiddb(int (*func)(struct block_list* bl, va_list args), ...);
-struct map_session_data * map_nick2sd(const char*);
-struct mob_data * map_getmob_boss(int m);
-struct mob_data * map_id2boss(int id);
-
-static void map_free_questinfo(int m);
-struct questinfo *map_add_questinfo(int m, struct questinfo *qi);
-struct questinfo *map_has_questinfo(int m, struct npc_data *nd, int quest_id);
-
-uint32 map_race_id2mask(int race);
-
 /// Bitfield of flags for the iterator.
 enum e_mapitflags
 {
@@ -871,11 +790,40 @@ typedef struct elemental_data   TBL_ELEM;
 * object is passed to BL_UCAST. It's declared as static inline to let the
 * compiler optimize out the function call overhead.
 */
-static inline const struct block_list *BL_UCCAST_(const struct block_list *bl) __attribute__((unused));
-static inline const struct block_list *BL_UCCAST_(const struct block_list *bl)
+inline const struct block_list *BL_UCCAST_(const struct block_list *bl) __attribute__((unused));
+inline const struct block_list *BL_UCCAST_(const struct block_list *bl)
 {
 	return bl;
 }
+
+/**
+ * Helper function for `BL_UCAST`.
+ *
+ * @warning
+ *   This function shouldn't be called on it own.
+ *
+ * The purpose of this function is to produce a compile-timer error if a non-bl
+ * object is passed to BL_UCAST. It's declared as static inline to let the
+ * compiler optimize out the function call overhead.
+ */
+static inline struct block_list *BL_UCAST_(struct block_list *bl) __attribute__((unused));
+static inline struct block_list *BL_UCAST_(struct block_list *bl)
+{
+	return bl;
+}
+
+/**
+ * Casts a block list to a specific type, without performing any type checks.
+ *
+ * @remark
+ *   The `bl` argument is guaranteed to be evaluated once and only once.
+ *
+ * @param type_ The block list type (using symbols from enum bl_type).
+ * @param bl    The source block list to cast.
+ * @return The block list, cast to the correct type.
+ */
+#define BL_UCAST(type_, bl) \
+	((T ## type_ *)BL_UCAST_(bl))
 
 /**
 * Casts a const block list to a specific type, without performing any type checks.
@@ -910,6 +858,87 @@ extern char market_table[32];
 extern char db_roulette_table[32];
 
 #endif /* not TXT_ONLY */
+
+// 鯖全体情報
+void map_setusers(int);
+int map_getusers(void);
+int map_usercount(void);
+// block削除関連
+int map_freeblock(struct block_list *bl);
+int map_freeblock_lock(void);
+int map_freeblock_unlock(void);
+// block関連
+int map_addblock(struct block_list* bl);
+int map_delblock(struct block_list* bl);
+int map_moveblock(struct block_list *, int, int, int64);
+int map_foreachinrange(int(*func)(struct block_list*, va_list), struct block_list* center, int range, int type, ...);
+int map_pickrandominrange(int(*func)(struct block_list*, va_list), struct block_list* center, int range, int max, int ignore_id, int type, ...);
+int map_foreachinshootrange(int(*func)(struct block_list*, va_list), struct block_list* center, int range, int type, ...);
+int map_foreachinarea(int(*func)(struct block_list*, va_list), int m, int x0, int y0, int x1, int y1, int type, ...);
+int map_forcountinrange(int(*func)(struct block_list*, va_list), struct block_list* center, int range, int count, int type, ...);
+int map_forcountinarea(int(*func)(struct block_list*, va_list), int m, int x0, int y0, int x1, int y1, int count, int type, ...);
+int map_foreachinmovearea(int(*func)(struct block_list*, va_list), struct block_list* center, int range, int dx, int dy, int type, ...);
+int map_foreachincell(int(*func)(struct block_list*, va_list), int m, int x, int y, int type, ...);
+int map_foreachinpath(int(*func)(struct block_list*, va_list), int m, int x0, int y0, int x1, int y1, int range, int length, int type, ...);
+int map_foreachinmap(int(*func)(struct block_list*, va_list), int m, int type, ...);
+int map_foreachininstance(int(*func)(struct block_list*, va_list), int16 instance_id, int type, ...);
+//block関連に追加
+int map_count_oncell(int m, int x, int y, int type);
+struct skill_unit *map_find_skill_unit_oncell(struct block_list *, int x, int y, int skill_id, struct skill_unit *, int flag);
+// 一時的object関連
+int map_get_new_object_id(void);
+int map_search_freecell(struct block_list *src, int m, short *x, short *y, int rx, int ry, int flag);
+//
+int map_quit(struct map_session_data *);
+// npc
+bool map_addnpc(int, struct npc_data *);
+
+// 床アイテム関連
+int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data);
+int map_removemobs_timer(int tid, int64 tick, int id, intptr_t data);
+#define map_clearflooritem(id) map_clearflooritem_timer(0,0,id,1)
+int map_addflooritem(struct item *item_data, int amount, int m, int x, int y, int first_charid, int second_charid, int third_charid, int flags);
+
+// キャラid＝＞キャラ名 変換関連
+void map_addnickdb(int charid, const char* nick);
+void map_delnickdb(int charid, const char* nick);
+void map_reqnickdb(struct map_session_data* sd, int charid);
+const char* map_charid2nick(int charid);
+struct map_session_data* map_charid2sd(int charid);
+
+struct map_session_data * map_id2sd(int id);
+struct mob_data * map_id2md(int id);
+struct npc_data * map_id2nd(int id);
+struct homun_data* map_id2hd(int id);
+struct mercenary_data* map_id2mc(int id);
+struct pet_data* map_id2pd(int id);
+struct elemental_data* map_id2ed(int id);
+struct chat_data* map_id2cd(int id);
+struct block_list * map_id2bl(int id);
+
+#define map_id2index(id) map[(id)].index
+int map_mapindex2mapid(unsigned short mapindex);
+int map_mapname2mapid(const char* name);
+int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port);
+int map_setipport(unsigned short map, uint32 ip, uint16 port);
+int map_eraseipport(unsigned short map, uint32 ip, uint16 port);
+int map_eraseallipport(void);
+void map_addiddb(struct block_list *);
+void map_deliddb(struct block_list *bl);
+void map_foreachpc(int(*func)(struct map_session_data* sd, va_list args), ...);
+void map_foreachmob(int(*func)(struct mob_data* md, va_list args), ...);
+void map_foreachnpc(int(*func)(struct npc_data* nd, va_list args), ...);
+void map_foreachregen(int(*func)(struct block_list* bl, va_list args), ...);
+void map_foreachiddb(int(*func)(struct block_list* bl, va_list args), ...);
+struct map_session_data * map_nick2sd(const char*);
+struct mob_data * map_getmob_boss(int m);
+struct mob_data * map_id2boss(int id);
+
+static void map_free_questinfo(int m);
+struct questinfo *map_add_questinfo(int m, struct questinfo *qi);
+struct questinfo *map_has_questinfo(int m, struct npc_data *nd, int quest_id);
+
+uint32 map_race_id2mask(int race);
 
 void do_shutdown(void);
 

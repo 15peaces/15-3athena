@@ -5,7 +5,7 @@
 #define MAP_ACHIEVEMENTS_H
 
 #include "../common/db.h"
-#include "map.h" // enum status_point_types
+#include "map.h" // enum _sp
 
 #define ACHIEVEMENT_NAME_LENGTH 50
 #define OBJECTIVE_DESCRIPTION_LENGTH 100
@@ -116,7 +116,7 @@ struct achievement_objective {
 	union {
 		int achieve_id;
 		unsigned short itemid;
-		enum status_point_types status_type;
+		enum _sp status_type;
 		int weapon_lv;
 	} unique;
 	enum unique_criteria_types unique_type;
@@ -198,8 +198,32 @@ struct DBMap *achievement_db; // int id -> struct achievement_data *
 VECTOR_DECL(int) rank_exp; // Achievement Rank Exp Requirements
 VECTOR_DECL(int) category[ACH_TYPE_MAX]; /* A collection of Ids per type for faster processing. */
 
+const struct achievement_data *achievement_get(int aid);
+struct achievement *achievement_ensure(struct map_session_data *sd, const struct achievement_data *ad);
+
+void achievement_calculate_totals(const struct map_session_data *sd, int *total_points, int *completed, int *rank, int *curr_rank_points);
+bool achievement_check_complete(struct map_session_data *sd, const struct achievement_data *ad);
+
+bool achievement_validate(struct map_session_data *sd, int aid, unsigned int obj_idx, int progress, bool additive);
 void achievement_validate_achieve(struct map_session_data *sd, int achid);
 void achievement_validate_item_sell(struct map_session_data *sd, int nameid, int amount);
+void achievement_validate_item_get(struct map_session_data *sd, int nameid, int amount);
+void achievement_validate_stats(struct map_session_data *sd, enum _sp stat_type, int progress);
+void achievement_validate_chatroom_create(struct map_session_data *sd);
+void achievement_validate_chatroom_members(struct map_session_data *sd, int progress);
+void achievement_validate_friend_add(struct map_session_data *sd);
+void achievement_validate_achievement_rank(struct map_session_data *sd, int rank);
+void achievement_validate_pc_damage(struct map_session_data *sd, struct map_session_data *dstsd, unsigned int damage);
+void achievement_validate_pc_kill(struct map_session_data *sd, struct map_session_data *dstsd);
+void achievement_validate_mob_damage(struct map_session_data *sd, unsigned int damage, bool received);
+void achievement_validate_mob_kill(struct map_session_data *sd, int mob_id);
+void achievement_validate_party_create(struct map_session_data *sd);
+void achievement_validate_marry(struct map_session_data *sd);
+void achievement_validate_adopt(struct map_session_data *sd, bool parent);
+void achievement_validate_zeny(struct map_session_data *sd, int amount);
+void achievement_validate_jobchange(struct map_session_data *sd);
+void achievement_validate_taming(struct map_session_data *sd, int class);
+void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, bool success);
 
 void do_init_achievement(void);
 void do_final_achievement(void);

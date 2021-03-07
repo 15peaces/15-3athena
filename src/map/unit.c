@@ -2364,8 +2364,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->hatEffectCount = 0;
 			}
 #endif
-			//if (sd->achievement_data.achievements)
-				//achievement_free(sd);
+			VECTOR_CLEAR(sd->achievement); // Achievement [Smokexyz/Hercules]
 			// Clearing...
 			if (sd->bonus_script.head)
 				pc_bonus_script_clear(sd, BSF_REM_ALL);

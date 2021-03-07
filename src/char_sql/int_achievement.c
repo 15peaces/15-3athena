@@ -25,7 +25,7 @@
  * @param[in]   p           pointer to map-sent character achievements.
  * @return number of achievements saved.
  */
-static int inter_achievement_tosql(int char_id, struct char_achievements *cp, const struct char_achievements *p)
+int inter_achievement_tosql(int char_id, struct char_achievements *cp, const struct char_achievements *p)
 {
 	StringBuf buf;
 	int i = 0, rows = 0;
@@ -35,8 +35,8 @@ static int inter_achievement_tosql(int char_id, struct char_achievements *cp, co
 	Assert_ret(char_id > 0);
 
 	StringBuf_Init(&buf);
-	StringBuf_Printf(&buf, "REPLACE INTO `%s` (`char_id`, `id`, `completed`, `rewarded`", achievement_table);
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
+	StringBuf_Printf(&buf, "REPLACE INTO `%s` (`char_id`, `id`, `completed`, `rewarded`", achievement_db);
+	for (i = 1; i <= MAX_ACHIEVEMENT_OBJECTIVES; i++)
 		StringBuf_Printf(&buf, ", `count%d`", i);
 	StringBuf_AppendStr(&buf, ") VALUES ");
 
@@ -54,7 +54,7 @@ static int inter_achievement_tosql(int char_id, struct char_achievements *cp, co
 
 		if (save) {
 			StringBuf_Printf(&buf, "%s('%d', '%d', '%"PRId64"', '%"PRId64"'", rows ? ", " : "", char_id, pa->id, (int64)pa->completed, (int64)pa->rewarded);
-			for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++)
+			for (j = 1; j <= MAX_ACHIEVEMENT_OBJECTIVES; j++)
 				StringBuf_Printf(&buf, ", '%d'", pa->objective[j]);
 			StringBuf_AppendStr(&buf, ")");
 			rows++;
@@ -87,7 +87,7 @@ static int inter_achievement_tosql(int char_id, struct char_achievements *cp, co
  * @param[out] cp       pointer to character achievements structure.
  * @return true on success, false on failure.
  */
-static bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
+bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
 {
 	StringBuf buf;
 	char *data;
@@ -100,9 +100,9 @@ static bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
 	// char_achievements (`char_id`, `ach_id`, `completed_at`, `rewarded_at`, `obj_0`, `obj_2`, ...`obj_9`)
 	StringBuf_Init(&buf);
 	StringBuf_AppendStr(&buf, "SELECT `id`, `completed`, `rewarded`");
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
+	for (i = 1; i <= MAX_ACHIEVEMENT_OBJECTIVES; i++)
 		StringBuf_Printf(&buf, ", `count%d`", i);
-	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id` = '%d' ORDER BY `id`", achievement_table, char_id);
+	StringBuf_Printf(&buf, " FROM `%s` WHERE `char_id` = '%d' ORDER BY `id`", achievement_db, char_id);
 
 	if (SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf))) {
 		Sql_ShowDebug(sql_handle);
@@ -171,7 +171,7 @@ static void inter_send_achievements_to_map(int fd, int char_id, const struct cha
 /**
  * This function ensures idb's entry.
  */
-static void* inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
+void* inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
 {
 	struct char_achievements *ca = NULL;
 
@@ -275,10 +275,10 @@ int inter_achievement_parse_frommap(int fd)
 	RFIFOHEAD(fd);
 
 	switch (RFIFOW(fd, 0)) {
-	case 0x3862:
+	case 0x3062:
 		inter_parse_load_achievements(fd);
 		break;
-	case 0x3863:
+	case 0x3063:
 		inter_parse_save_achievements(fd);
 		break;
 	default:
@@ -291,7 +291,7 @@ int inter_achievement_parse_frommap(int fd)
 /**
  * Initialization function
  */
-static int inter_achievement_sql_init(void)
+int inter_achievement_sql_init(void)
 {
 	// Initialize the loaded db storage.
 	// used as a comparand against map-server achievement data before saving.
@@ -314,7 +314,7 @@ static int inter_achievement_char_achievements_clear(union DBKey key, struct DBD
 /**
  * Finalization function.
  */
-static void inter_achievement_sql_final(void)
+void inter_achievement_sql_final(void)
 {
 	char_achievements->destroy(char_achievements, inter_achievement_char_achievements_clear);
 }

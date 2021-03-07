@@ -1,0 +1,2 @@
+ALTER TABLE `achievement` MODIFY `completed` INT UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `achievement` MODIFY `rewarded` INT UNSIGNED NOT NULL DEFAULT '0';

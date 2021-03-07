@@ -24,7 +24,7 @@
  * @param aid as the achievement ID.
  * @return NULL or pointer to the achievement data.
  */
-static const struct achievement_data *achievement_get(int aid)
+const struct achievement_data *achievement_get(int aid)
 {
 	return (struct achievement_data *) idb_get(achievement_db, aid);
 }
@@ -37,7 +37,7 @@ static const struct achievement_data *achievement_get(int aid)
  * @param[in] create   new key creation flag.
  * @return pointer to the session's achievement data.
  */
-static struct achievement *achievement_ensure(struct map_session_data *sd, const struct achievement_data *ad)
+struct achievement *achievement_ensure(struct map_session_data *sd, const struct achievement_data *ad)
 {
 	struct achievement *s_ad = NULL;
 	int i = 0;
@@ -69,7 +69,7 @@ static struct achievement *achievement_ensure(struct map_session_data *sd, const
  * @param[out] rank             pointer to completed var
  * @param[out] curr_rank_points pointer to achievement rank var
  */
-static void achievement_calculate_totals(const struct map_session_data *sd, int *total_points, int *completed, int *rank, int *curr_rank_points)
+void achievement_calculate_totals(const struct map_session_data *sd, int *total_points, int *completed, int *rank, int *curr_rank_points)
 {
 	const struct achievement *a = NULL;
 	const struct achievement_data *ad = NULL;
@@ -122,7 +122,7 @@ static void achievement_calculate_totals(const struct map_session_data *sd, int 
  * @param[in] ad       as the achievement_data pointer
  * @return true if complete, false if not.
  */
-static bool achievement_check_complete(struct map_session_data *sd, const struct achievement_data *ad)
+bool achievement_check_complete(struct map_session_data *sd, const struct achievement_data *ad)
 {
 	int i;
 	struct achievement *ach = NULL;
@@ -326,7 +326,7 @@ static int achievement_validate_type(struct map_session_data *sd, enum achieveme
  * @param[in] index      index of the objective.
  * @param[in] progress   progress to be added towards the goal.
  */
-static bool achievement_validate(struct map_session_data *sd, int aid, unsigned int obj_idx, int progress, bool additive)
+bool achievement_validate(struct map_session_data *sd, int aid, unsigned int obj_idx, int progress, bool additive)
 {
 	const struct achievement_data *ad = NULL;
 	struct achievement *ach = NULL;
@@ -363,7 +363,7 @@ static bool achievement_validate(struct map_session_data *sd, int aid, unsigned 
  * @param[in] progress    (goal) progress to be added.
  * @see achievement_vaildate_type()
  */
-static void achievement_validate_mob_kill(struct map_session_data *sd, int mob_id)
+void achievement_validate_mob_kill(struct map_session_data *sd, int mob_id)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -387,7 +387,7 @@ static void achievement_validate_mob_kill(struct map_session_data *sd, int mob_i
  * @param[in] damage   amount of damage received/dealt.
  * @param received received/dealt boolean switch.
  */
-static void achievement_validate_mob_damage(struct map_session_data *sd, unsigned int damage, bool received)
+void achievement_validate_mob_damage(struct map_session_data *sd, unsigned int damage, bool received)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -418,7 +418,7 @@ static void achievement_validate_mob_damage(struct map_session_data *sd, unsigne
  * @param[in] sd         pointer to killed player's session data.
  * @param[in] dstsd      pointer to killer's session data.
  */
-static void achievement_validate_pc_kill(struct map_session_data *sd, struct map_session_data *dstsd)
+void achievement_validate_pc_kill(struct map_session_data *sd, struct map_session_data *dstsd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -456,7 +456,7 @@ static void achievement_validate_pc_kill(struct map_session_data *sd, struct map
  * @param[in] dstsd      pointer to target player's session data.
  * @param[in] damage     amount of damage dealt / received.
  */
-static void achievement_validate_pc_damage(struct map_session_data *sd, struct map_session_data *dstsd, unsigned int damage)
+void achievement_validate_pc_damage(struct map_session_data *sd, struct map_session_data *dstsd, unsigned int damage)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -485,7 +485,7 @@ static void achievement_validate_pc_damage(struct map_session_data *sd, struct m
  * @param[in] sd         pointer to session data.
  * @see achivement_validate_type()
  */
-static void achievement_validate_jobchange(struct map_session_data *sd)
+void achievement_validate_jobchange(struct map_session_data *sd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -511,11 +511,11 @@ static void achievement_validate_jobchange(struct map_session_data *sd)
  *        ACH_STATUS_BY_JOB
  *        ACH_STATUS_BY_JOBTYPE
  * @param[in] sd         pointer to session data.
- * @param[in] stat_type  (criteria) status point type. (see status_point_types)
+ * @param[in] stat_type  (criteria) status point type. (see _sp)
  * @param[in] progress   (goal) amount of absolute progress to check.
  * @see achievement_validate_type()
  */
-static void achievement_validate_stats(struct map_session_data *sd, enum status_point_types stat_type, int progress)
+void achievement_validate_stats(struct map_session_data *sd, enum _sp stat_type, int progress)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -556,7 +556,7 @@ static void achievement_validate_stats(struct map_session_data *sd, enum status_
  * @param[in] sd    pointer to session data.
  * @see achievement_validate_type()
  */
-static void achievement_validate_chatroom_create(struct map_session_data *sd)
+void achievement_validate_chatroom_create(struct map_session_data *sd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -582,7 +582,7 @@ static void achievement_validate_chatroom_create(struct map_session_data *sd)
  * @param[in] progress   (goal) amount of progress to be added.
  * @see achievement_validate_type()
  */
-static void achievement_validate_chatroom_members(struct map_session_data *sd, int progress)
+void achievement_validate_chatroom_members(struct map_session_data *sd, int progress)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -604,7 +604,7 @@ static void achievement_validate_chatroom_members(struct map_session_data *sd, i
  * @param[in] sd        pointer to session data.
  * @see achievement_validate_type()
  */
-static void achievement_validate_friend_add(struct map_session_data *sd)
+void achievement_validate_friend_add(struct map_session_data *sd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -624,7 +624,7 @@ static void achievement_validate_friend_add(struct map_session_data *sd)
  * @param[in] sd        pointer to session data.
  * @see achievement_validate_type()
  */
-static void achievement_validate_party_create(struct map_session_data *sd)
+void achievement_validate_party_create(struct map_session_data *sd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -643,7 +643,7 @@ static void achievement_validate_party_create(struct map_session_data *sd)
  * @param[in] sd        pointer to session data.
  * @see achievement_validate_type()
  */
-static void achievement_validate_marry(struct map_session_data *sd)
+void achievement_validate_marry(struct map_session_data *sd)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -665,7 +665,7 @@ static void achievement_validate_marry(struct map_session_data *sd)
  * @param[in] parent    (type) boolean value to indicate if parent (true) or baby (false).
  * @see achievement_validate_type()
  */
-static void achievement_validate_adopt(struct map_session_data *sd, bool parent)
+void achievement_validate_adopt(struct map_session_data *sd, bool parent)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -693,7 +693,7 @@ static void achievement_validate_adopt(struct map_session_data *sd, bool parent)
  * @param[in] amount    (goal) amount of zeny earned or spent.
  * @see achievement_validate_type()
  */
-static void achievement_validate_zeny(struct map_session_data *sd, int amount)
+void achievement_validate_zeny(struct map_session_data *sd, int amount)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -733,7 +733,7 @@ static void achievement_validate_zeny(struct map_session_data *sd, int amount)
  * @param[in] success    (type) boolean switch for failure / success.
  * @see achievement_validate_type()
  */
-static void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, bool success)
+void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, bool success)
 {
 	struct achievement_objective criteria = { 0 };
 	struct item_data *id = NULL;
@@ -792,7 +792,7 @@ static void achievement_validate_refine(struct map_session_data *sd, unsigned in
  * @param[in] nameid     (criteria) ID of the item.
  * @param[in] amount     (goal) amount of the item collected.
  */
-static void achievement_validate_item_get(struct map_session_data *sd, int nameid, int amount)
+void achievement_validate_item_get(struct map_session_data *sd, int nameid, int amount)
 {
 	struct item_data *it = itemdb_exists(nameid);
 	struct achievement_objective criteria = { 0 };
@@ -880,7 +880,7 @@ void achievement_validate_achieve(struct map_session_data *sd, int achid)
  * @param[in] sd        pointer to session data.
  * @param[in] class     (criteria) class of the monster tamed.
  */
-static void achievement_validate_taming(struct map_session_data *sd, int class)
+void achievement_validate_taming(struct map_session_data *sd, int class)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -904,7 +904,7 @@ static void achievement_validate_taming(struct map_session_data *sd, int class)
  * @param[in] sd         pointer to session data.
  * @param[in] rank       (goal) rank of earned.
  */
-static void achievement_validate_achievement_rank(struct map_session_data *sd, int rank)
+void achievement_validate_achievement_rank(struct map_session_data *sd, int rank)
 {
 	struct achievement_objective criteria = { 0 };
 
@@ -956,6 +956,31 @@ void achievement_removeChar(char *str, char garbage) {
 	*dst = '\0';
 }
 
+int split_string(const char *txt, char delim, char ***tokens)
+{
+	int *tklen, *t, count = 1;
+	char **arr, *p = (char *)txt;
+
+	while (*p != '\0') if (*p++ == delim) count += 1;
+	t = tklen = calloc(count, sizeof(int));
+	for (p = (char *)txt; *p != '\0'; p++) *p == delim ? *t++ : (*t)++;
+	*tokens = arr = malloc(count * sizeof(char *));
+	t = tklen;
+	p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+	while (*txt != '\0')
+	{
+		if (*txt == delim)
+		{
+			p = *arr++ = calloc(*(t++) + 1, sizeof(char *));
+			txt++;
+		}
+		else *p++ = *txt++;
+	}
+	free(tklen);
+	return count;
+}
+
+
 /**
  * Parses achievement objective entries of the current achievement db entry being parsed.
  * @param[in]  conf       config pointer.
@@ -966,12 +991,15 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 {
 	nullpo_retr(false, entry);
 
-	int i, j, val;
+	int c, i, j, val;
+	enum unique_criteria_types type[MAX_ACHIEVEMENT_OBJECTIVES];
 	int tcount = 0;
-	char split = NULL;
-	char descriptions[MAX_ACHIEVEMENT_OBJECTIVES];
-	char criteriaIDs[MAX_ACHIEVEMENT_OBJECTIVES];
-	int criterias[MAX_ACHIEVEMENT_OBJECTIVES], goals[MAX_ACHIEVEMENT_OBJECTIVES];
+	char **arr = NULL;
+	char *tmpchar = NULL;
+	char *typechar[MAX_ACHIEVEMENT_OBJECTIVES];
+	char *descriptions[MAX_ACHIEVEMENT_OBJECTIVES];
+	char *criteriaIDs[MAX_ACHIEVEMENT_OBJECTIVES];
+	int goals[MAX_ACHIEVEMENT_OBJECTIVES];
 
 	// Initialize the buffer objective vector.
 	VECTOR_INIT(entry->objective);
@@ -979,7 +1007,6 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 	// get the data, split & count them
 	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
 	{
-		tcount++;
 		descriptions[i] = str[3];
 		str[3] = strchr(str[3], ':');
 		if (str[3] == NULL)
@@ -992,13 +1019,33 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 			ShowError("achievement_readdb_objectives: Insufficient values in description of achievement with id %d), skipping.\n", entry->id);
 			return false;
 		}
+		tcount++;
 	}
-	for (i = 0; i < tcount; ++i)
+	for (i = 0; i <= tcount; ++i)
+	{
+		typechar[i] = tmpchar = str[4];
+		str[4] = strchr(str[4], ':');
+		if (str[4] == NULL) {
+			if (i == 0)
+				script_get_constant(tmpchar, (int *)&type[0]); // : not found, use the complete string.
+			break; // : not found.
+		}
+		*str[4] = '\0';
+		++str[4];
+
+		if (typechar[i] == NULL)
+		{
+			ShowError("achievement_readdb_objectives: Insufficient values in criterias of achievement with id %d), skipping.\n", entry->id);
+			return false;
+		}
+		script_get_constant(typechar[i], (int *)&type[i]);
+	}
+	for (i = 0; i <= tcount; ++i)
 	{
 		criteriaIDs[i] = str[5];
 		str[5] = strchr(str[5], ':');
 		if (str[5] == NULL)
-			break;
+			break; // : not found
 		*str[5] = '\0';
 		++str[5];
 
@@ -1008,15 +1055,21 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 			return false;
 		}
 	}
-	pc_split_atoi(str[4], criterias, ':', tcount);
-	pc_split_atoi(str[6], goals, ':', tcount);
+	pc_split_atoi(str[6], goals, ':', tcount+1);
+
 
 	// put the data into the struct.
-	for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; ++i)
+	for (i = 0; i <= tcount; ++i)
 	{
 		struct achievement_objective obj = { 0 };
 
-		obj.unique_type = criterias[i];
+		safestrncpy(obj.description, descriptions[i], OBJECTIVE_DESCRIPTION_LENGTH);
+
+		if (type[i] < 0 && i>0)
+			type[i] = type[i - 1];
+
+		obj.unique_type = type[i]>0?type[i]:CRITERIA_UNIQUE_NONE;
+
 		switch (obj.unique_type)
 		{
 			case CRITERIA_UNIQUE_ACHIEVE_ID:
@@ -1039,23 +1092,19 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				obj.mobid = val;
 				break;
 			case CRITERIA_UNIQUE_JOB_ID:
-				for (j = 0; j < sizeof(criteriaIDs[i]); ++j)
-				{
-					split = criteriaIDs[i];
-					criteriaIDs[i] = strchr(criteriaIDs[i], '||');
-					if (criteriaIDs[i] == NULL)
-						break;// : not found
-					criteriaIDs[i] = '\0';
-					++criteriaIDs[i];
+				achievement_removeChar(criteriaIDs[i], '"');
+				c = split_string(criteriaIDs[i], '|', &arr);
 
-					if (split == NULL)
+				for (j = 0; j < c; ++j)
+				{
+					if (arr[j] == NULL)
 					{
 						ShowError("achievement_readdb_objectives: Insufficient JobID in defined in achievement with id %d), skipping.\n", entry->id);
 						return false;
 					}
 
-					if (script_get_constant(split, &val) == false) {
-						ShowError("achievement_readdb_objectives: Invalid JobId %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
+					if (script_get_constant(arr[j], &val) == false) {
+						ShowError("achievement_readdb_objectives: Invalid JobId %d (const: %s) provided (Achievement: %d, Objective: %d). Skipping...\n", val, arr[j], entry->id, i);
 						return false;
 					}
 
@@ -1063,7 +1112,9 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 					VECTOR_ENSURE(obj.jobid, 1, 1);
 					VECTOR_PUSH(obj.jobid, val);
 				}
+				break;
 			case CRITERIA_UNIQUE_STATUS_TYPE:
+				achievement_removeChar(criteriaIDs[i], '"');
 				if (strcmp(criteriaIDs[i], "SP_STR") == 0)		      val = SP_STR;
 				else if (strcmp(criteriaIDs[i], "SP_AGI") == 0)       val = SP_AGI;
 				else if (strcmp(criteriaIDs[i], "SP_VIT") == 0)       val = SP_VIT;
@@ -1073,25 +1124,21 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				else if (strcmp(criteriaIDs[i], "SP_BASELEVEL") == 0) val = SP_BASELEVEL;
 				else if (strcmp(criteriaIDs[i], "SP_JOBLEVEL") == 0)  val = SP_JOBLEVEL;
 				else val = SP_NONE;
-				obj.unique.status_type = (enum status_point_types) val;
+				obj.unique.status_type = (enum _sp) val;
 				break;
 			case CRITERIA_UNIQUE_ITEM_TYPE:
-				for (j = 0; j < sizeof(criteriaIDs[i]); ++j)
-				{
-					split = criteriaIDs[i];
-					criteriaIDs[i] = strchr(criteriaIDs[i], '||');
-					if (criteriaIDs[i] == NULL)
-						break;// : not found
-					criteriaIDs[i] = '\0';
-					++criteriaIDs[i];
+				achievement_removeChar(criteriaIDs[i], '"');
+				c = split_string(criteriaIDs[i], '|', &arr);
 
-					if (split == NULL)
+				for (j = 0; j < c; ++j)
+				{
+					if (arr[j] == NULL)
 					{
 						ShowError("achievement_readdb_objectives: Insufficient item type in defined in achievement with id %d), skipping.\n", entry->id);
 						return false;
 					}
 
-					if (!script_get_constant(split, &val) || val < IT_HEALING || val > IT_MAX) {
+					if (!script_get_constant(arr[j], &val) || val < IT_HEALING || val > IT_MAX) {
 						ShowError("achievement_readdb_validate_criteria_itemtype: Invalid ItemType %d provided (Achievement: %d, Objective: %d). Skipping...\n", val, entry->id, i);
 						return false;
 					}
@@ -1114,15 +1161,14 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 				obj.unique.weapon_lv = val;
 				break;
 			default:
+				if (achievement_type_requires_criteria(entry->type)) {
+					ShowError("achievement_readdb_objectives: No criteria field added (Achievement: %d, Type: %d)! Skipping...\n", entry->id, entry->type);
+					return false;
+				}
 				break;
 		}
 
-		if (achievement_type_requires_criteria(entry->type)) {
-			ShowError("achievement_readdb_objective: No criteria field added (Achievement: %d)! Skipping...\n", entry->id);
-			return false;
-		}
-
-		obj.goal = goals[i] ? goals[i] : 1;
+		obj.goal = goals[i]>0 ? goals[i] : 1;
 
 		/* Ensure size and allocation */
 		VECTOR_ENSURE(entry->objective, 1, 1);
@@ -1213,10 +1259,10 @@ static bool achievement_parse_dbrow(char** str, const char* source, int line, st
 	}
 
 	/* Achievement Objectives */
-	achievement_readdb_objectives(str, &tentry);
+	achievement_readdb_objectives(str, tentry);
 
 	/* Achievement Rewards */
-	achievement_readdb_rewards(str, &tentry);
+	achievement_readdb_rewards(str, tentry);
 
 	/* Achievement Points */
 	tentry->points = atoi(str[7]);

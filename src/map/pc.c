@@ -1056,9 +1056,11 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 		pc_skill(p1_sd, WE_CALLBABY, 1, 0);
 		pc_skill(p2_sd, WE_CALLBABY, 1, 0);
 
-		//achievement_update_objective(b_sd, AG_BABY, 1, 1);
-		//achievement_update_objective(p1_sd, AG_BABY, 1, 2);
-		//achievement_update_objective(p2_sd, AG_BABY, 1, 2);
+
+		// Achievements [Smokexyz/Hercules]
+		achievement_validate_adopt(p1_sd, true); // Parent 1
+		achievement_validate_adopt(p2_sd, true); // Parent 2
+		achievement_validate_adopt(b_sd, false); // Baby
 		
 		return true;
 	}
@@ -1239,6 +1241,8 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->bg_queue.ready = 0;
 	sd->bg_queue.client_has_bg_data = 0;
 	sd->bg_queue.type = BGQT_INVALID;
+
+	VECTOR_INIT(sd->achievement); // Achievements [Smokexyz/Hercules]
 
 	// Event Timers
 	for( i = 0; i < MAX_EVENTTIMER; i++ )
@@ -1485,17 +1489,6 @@ int pc_reg_received(struct map_session_data *sd)
 	intif_request_questlog(sd);
 #endif
 
-	/*if (battle_config.feature_achievement) {
-		sd->achievement_data.total_score = 0;
-		sd->achievement_data.level = 0;
-		sd->achievement_data.save = false;
-		sd->achievement_data.sendlist = false;
-		sd->achievement_data.count = 0;
-		sd->achievement_data.incompleteCount = 0;
-		sd->achievement_data.achievements = NULL;
-		intif_request_achievements(sd->status.char_id);
-	}*/
-
 	if (sd->state.connect_new == 0 && sd->fd)
 	{	//Character already loaded map! Gotta trigger LoadEndAck manually.
 		sd->state.connect_new = 1;
@@ -1504,6 +1497,10 @@ int pc_reg_received(struct map_session_data *sd)
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);
 #endif
+
+	// Achievements [Smokexyz/Hercules]
+	intif_request_achievements(sd->status.char_id);
+
 	return 1;
 }
 
@@ -3889,6 +3886,8 @@ int pc_payzeny(struct map_session_data *sd,int zeny)
 	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
+	achievement_validate_zeny(sd, -zeny); // Achievements [Smokexyz/Hercules]
+
 	return 0;
 }
 /*==========================================
@@ -4005,7 +4004,7 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 		clif_disp_onlyself(sd,output,strlen(output));
 	}
 
-	//achievement_update_objective(sd, AG_GET_ZENY, 1, sd->status.zeny);
+	achievement_validate_zeny(sd, zeny); // Achievements [Smokexyz/Hercules]
 
 	return 0;
 }
@@ -4094,12 +4093,12 @@ int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
 		clif_additem(sd,i,amount,0);
 	}
 
+	achievement_validate_item_get(sd, sd->inventory.u.items_inventory[i].nameid, sd->inventory.u.items_inventory[i].amount); // Achievements [Smokexyz/Hercules]
+
 	sd->weight += w;
 	clif_updatestatus(sd,SP_WEIGHT);
 	//Auto-equip
 	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip, false);
-
-	//achievement_update_objective(sd, AG_GET_ITEM, 1, data->value_sell);
 	pc_show_questinfo(sd);
 
 	return 0;
@@ -5998,10 +5997,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	pc_show_questinfo(sd);
 #endif
 
-	/*for (; base_level <= sd->status.base_level; base_level++) {
-		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, base_level);
-		achievement_update_objective(sd, AG_GOAL_STATUS, 2, base_level, sd->status.class_);
-	}*/
+	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.base_level);
 
 	return 1;
 }
@@ -6037,12 +6033,13 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 		clif_status_change(&sd->bl,SI_DEVIL, 1, 0, 0, 0, 0); //Permanent blind effect from SG_DEVIL.
 
 	npc_script_event(sd, NPCE_JOBLVUP);
-	/*for (; job_level <= sd->status.job_level; job_level++)
-		achievement_update_objective(sd, AG_GOAL_LEVEL, 1, job_level);*/
 
 #if PACKETVER >= 20090218
 	pc_show_questinfo(sd);
 #endif
+
+	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.job_level);
+
 	return 1;
 }
 
@@ -6303,6 +6300,8 @@ static int pc_setstat(struct map_session_data* sd, int type, int val)
 	default:
 		return -1;
 	}
+
+	achievement_validate_stats(sd, type, val); // Achievements [Smokexyz/Hercules]
 
 	return val;
 }
@@ -7069,6 +7068,14 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 		elemental_set_target(sd, src);
 
 	sd->canlog_tick = gettick();
+
+	// Achievements [Smokexyz/Hercules]
+	if (src != NULL) {
+		if (src->type == BL_PC)
+			achievement_validate_pc_damage(BL_UCAST(BL_PC, src), sd, hp);
+		else if (src->type == BL_MOB)
+			achievement_validate_mob_damage(sd, hp, true);
+	}
 }
 
 int pc_dead(struct map_session_data *sd,struct block_list *src)
@@ -7197,6 +7204,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		struct map_session_data *ssd = (struct map_session_data *)src;
 		pc_setparam(ssd, SP_KILLEDRID, sd->bl.id);
 		npc_script_event(ssd, NPCE_KILLPC);
+
+		achievement_validate_pc_kill(ssd, sd); // Achievements [Smokexyz/Hercules]
 
 		if (battle_config.pk_mode&2) {
 			ssd->status.manner -= 5;
@@ -7997,6 +8006,8 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 			break;
 		}
 	}
+
+	achievement_validate_jobchange(sd); // Achievements [Smokexyz/Hercules]
 
 	return 0;
 }
@@ -9553,8 +9564,10 @@ int pc_marriage(struct map_session_data *sd,struct map_session_data *dstsd)
 	sd->status.partner_id = dstsd->status.char_id;
 	dstsd->status.partner_id = sd->status.char_id;
 
-	//achievement_update_objective(sd, AG_MARRY, 1, 1);
-	//achievement_update_objective(dstsd, AG_MARRY, 1, 1);
+
+	// Achievements [Smokexyz/Hercules]
+	achievement_validate_marry(sd);
+	achievement_validate_marry(dstsd);
 
 	return 0;
 }

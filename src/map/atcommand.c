@@ -1900,8 +1900,6 @@ ACMD_FUNC(baselevelup)
 		sd->status.base_level += (unsigned int)level;
 		status_percent_heal(&sd->bl, 100, 100);
 		clif_misceffect(&sd->bl, 0);
-		//achievement_update_objective(sd, AG_GOAL_LEVEL, 1, sd->status.base_level);
-		//achievement_update_objective(sd, AG_GOAL_STATUS, 2, sd->status.base_level, sd->status.class_);
 		clif_displaymessage(fd, msg_txt(21)); // Base level raised.
 	}
 	else
@@ -1935,6 +1933,10 @@ ACMD_FUNC(baselevelup)
 	clif_updatestatus(sd, SP_BASELEVEL);
 	clif_updatestatus(sd, SP_BASEEXP);
 	clif_updatestatus(sd, SP_NEXTBASEEXP);
+
+	// achievements
+	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.base_level);
+
 	status_calc_pc(sd, 0);
 	if(sd->status.party_id)
 		party_send_levelup(sd);
@@ -3302,6 +3304,7 @@ ACMD_FUNC(param)
 		clif_updatestatus(sd, SP_USTR + i);
 		status_calc_pc(sd, 0);
 		clif_displaymessage(fd, msg_txt(42)); // Stat changed.
+		achievement_validate_stats(sd, SP_STR + i, new_value); // Achievements [Smokexyz/Hercules]
 	} else {
 		if (value < 0)
 			clif_displaymessage(fd, msg_txt(41)); // Unable to decrease the number/value.

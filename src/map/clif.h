@@ -496,6 +496,14 @@ struct cash_item_db {
 	uint32 count;
 };
 
+struct ach_list_info {
+	uint32 ach_id;
+	uint8 completed;
+	uint32 objective[MAX_ACHIEVEMENT_OBJECTIVES];
+	uint32 completed_at;
+	uint8 reward;
+};
+
 //CashShop
 struct cash_item_db cash_shop_items[CASHSHOP_TAB_MAX];
 

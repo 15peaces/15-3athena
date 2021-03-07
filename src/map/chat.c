@@ -1,20 +1,22 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include "../common/cbasetypes.h"
-#include "../common/malloc.h"
-#include "../common/nullpo.h"
-#include "../common/showmsg.h"
-#include "../common/strlib.h"
-#include "../common/mmo.h"
-#include "atcommand.h" // msg_txt()
+#include "chat.h"
+
+#include "atcommand.h" // msg_sd(sd,)
 #include "battle.h" // struct battle_config
 #include "clif.h"
 #include "map.h"
 #include "npc.h" // npc_event_do()
 #include "pc.h"
-#include "chat.h"
+#include "skill.h" // ext_skill_unit_onplace()
 #include "achievement.h"
+#include "../common/cbasetypes.h"
+#include "../common/malloc.h"
+#include "../common/mmo.h"
+#include "../common/nullpo.h"
+#include "../common/showmsg.h"
+#include "../common/strlib.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -101,10 +103,7 @@ int chat_createpcchat(struct map_session_data* sd, const char* title, const char
 		clif_createchat(sd,0);
 		clif_dispchat(cd,0);
 
-		/*if (status_isdead(&sd->bl))
-			achievement_update_objective(sd, AG_CHAT_DYING, 1, 1);
-		else
-			achievement_update_objective(sd, AG_CHAT_CREATE, 1, 1);*/
+		achievement_validate_chatroom_create(sd); // Achievements [Smokexyz/Hercules]
 	}
 	else
 		clif_createchat(sd,1);
@@ -160,8 +159,8 @@ int chat_joinchat(struct map_session_data* sd, int chatid, const char* pass)
 	clif_addchat(cd,sd);	// Reports To the person who already in the chat
 	clif_dispchat(cd,0);	// Reported number of changes to the people around
 
-	//if (cd->owner->type == BL_PC)
-		//achievement_update_objective(map_id2sd(cd->owner->id), AG_CHAT_COUNT, 1, cd->users);
+	if (cd->owner->type == BL_PC)
+		achievement_validate_chatroom_members(BL_UCAST(BL_PC, cd->owner), cd->users);
 
 	chat_triggerevent(cd); // Event
 	

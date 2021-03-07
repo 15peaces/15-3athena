@@ -45,7 +45,7 @@ static const int packet_len_table[] = {
 	10,-1,15, 0, 79,23, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	 9, 9,-1,14,  0, 0, 0, 0, -1,75,-1,11, 11,-1, 38, 0, //0x3840
 	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
-	-1, 7,-1, 7, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
+	-1, 7,-1, 0, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
 	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0, -1, 3,  3, 0, //0x3870  Mercenaries [Zephyrus] Elementals [pakpil]
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0,-1, 8,  0, 0,  0, 0, //0x3880  Pet System,  Storages
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
@@ -1485,112 +1485,73 @@ void intif_request_achievements(uint32 char_id)
 }
 
 /**
-* Receive a character's achievements
-* @param fd: char-serv link
-*/
-void intif_parse_achievements(int fd)
+ * Handles reception of achievement data for a character from the inter-server.
+ * @packet [in] 0x3810 <packet_len>.W <char_id>.L <char_achievements[]>.P
+ * @param fd socket descriptor.
+ */
+void intif_parse_achievements_load(int fd)
 {
-	uint32 char_id = RFIFOL(fd, 4), num_received = (RFIFOW(fd, 2) - 8) / sizeof(struct achievement);
+	int size = RFIFOW(fd, 2);
+	int char_id = RFIFOL(fd, 4);
+	int payload_count = (size - 8) / sizeof(struct achievement);
 	struct map_session_data *sd = map_charid2sd(char_id);
+	int i = 0;
 
-	if (!sd) // User not online anymore
+	if (sd == NULL) {
+		ShowError("intif_parse_achievements_load: Parse request for achievements received but character is offline!\n");
 		return;
-
-	/*if (num_received == 0) {
-		if (sd->achievement_data.achievements) {
-			aFree(sd->achievement_data.achievements);
-			sd->achievement_data.achievements = NULL;
-			sd->achievement_data.incompleteCount = 0;
-			sd->achievement_data.count = 0;
-		}
-	}
-	else {
-		struct achievement *received = (struct achievement *)RFIFOP(fd, 8);
-		int i, k = num_received;
-
-		if (sd->achievement_data.achievements)
-			RECREATE(sd->achievement_data.achievements, struct achievement, num_received);
-		else
-			CREATE(sd->achievement_data.achievements, struct achievement, num_received);
-
-		for (i = 0; i < num_received; i++) {
-			struct achievement_db *adb = achievement_search(received[i].achievement_id);
-			struct achievement_rewards *ardb = achievement_reward_search(received[i].achievement_id);
-
-			if (!adb || !ardb) {
-				ShowError("intif_parse_achievementlog: Achievement %d not found in DB.\n", received[i].achievement_id);
-				continue;
-			}
-
-			received[i].score = ardb->score;
-
-			if (received[i].completed == 0) // Insert at the beginning
-				memcpy(&sd->achievement_data.achievements[sd->achievement_data.incompleteCount++], &received[i], sizeof(struct achievement));
-			else // Insert at the end
-				memcpy(&sd->achievement_data.achievements[--k], &received[i], sizeof(struct achievement));
-			sd->achievement_data.count++;
-		}
-		if (sd->achievement_data.incompleteCount < k) {
-			// sd->achievement_data.incompleteCount and k didn't meet in the middle: some entries were skipped
-			if (k < num_received) // Move the entries at the end to fill the gap
-				memmove(&sd->achievement_data.achievements[k], &sd->achievement_data.achievements[sd->achievement_data.incompleteCount], sizeof(struct achievement) * (num_received - k));
-			sd->achievement_data.achievements = (struct achievement *)aRealloc(sd->achievement_data.achievements, sizeof(struct achievement) * sd->achievement_data.count);
-		}
 	}
 
-	// Check all conditions and counters on login
-	for (int group = AG_NONE + 1; group < AG_MAX; group++) {
-		achievement_update_objective(sd, group, 0);
+	if (VECTOR_LENGTH(sd->achievement) > 0) {
+		ShowError("intif_parse_achievements_load: Achievements already loaded! Possible multiple calls from the inter-server received.\n");
+		return;
 	}
 
+	VECTOR_ENSURE(sd->achievement, payload_count, 1);
 
-	achievement_level(sd, false); // Calculate level info but don't give any AG_GOAL_ACHIEVE achievements
-	achievement_get_titles(sd->status.char_id); // Populate the title list for completed achievements*/
-	clif_achievement_update(sd, NULL);
+	for (i = 0; i < payload_count; i++) {
+		struct achievement t_ach = { 0 };
+
+		memcpy(&t_ach, RFIFOP(fd, 8 + i * sizeof(struct achievement)), sizeof(struct achievement));
+
+		if (achievement_get(t_ach.id) == NULL) {
+			ShowError("intif_parse_achievements_load: Invalid Achievement %d received from character %d. Ignoring...\n", t_ach.id, char_id);
+			continue;
+		}
+
+		VECTOR_PUSH(sd->achievement, t_ach);
+	}
+
 	clif_achievement_list_all(sd);
+	sd->achievements_received = true;
 }
 
 /**
-* Parses the achievement log save ack for a character from the inter server.
-* Received in reply to the requests made by intif_achievement_save.
-* @see intif_parse
-* @param fd : char-serv link
-*/
-void intif_parse_achievementsave(int fd)
+ * Send character's achievement data to the inter-server.
+ * @packet 0x3063 <packet_len>.W <char_id>.L <achievements[]>.P
+ * @param sd pointer to map session data.
+ */
+void intif_achievements_save(struct map_session_data *sd)
 {
-	int cid = RFIFOL(fd, 2);
-	struct map_session_data *sd = map_charid2sd(cid);
+	int packet_len = 0, payload_size = 0, i = 0;
 
-	if (!sd) // User not online anymore
+	nullpo_retv(sd);
+	/* check for character server. */
+	if (CheckForCharServer())
+		return;
+	/* Return if no data. */
+	if (!(payload_size = VECTOR_LENGTH(sd->achievement) * sizeof(struct achievement)))
 		return;
 
-	if (!RFIFOB(fd, 6))
-		ShowError("intif_parse_achievementsave: Failed to save achievement(s) for character %s (%d)!\n", sd->status.name, cid);
-}
+	packet_len = payload_size + 8;
 
-/**
-* Requests to the inter server to save a character's achievement log entries.
-* @param sd: Character's data
-* @return 0 in case of success, nonzero otherwise
-*/
-int intif_achievement_save(struct map_session_data *sd)
-{
-	/*int len = sizeof(struct achievement) * sd->achievement_data.count + 8;
-
-	if (CheckForCharServer())
-		return 0;
-
-	WFIFOHEAD(inter_fd, len);
+	WFIFOHEAD(inter_fd, packet_len);
 	WFIFOW(inter_fd, 0) = 0x3063;
-	WFIFOW(inter_fd, 2) = len;
+	WFIFOW(inter_fd, 2) = packet_len;
 	WFIFOL(inter_fd, 4) = sd->status.char_id;
-	if (sd->achievement_data.count)
-		memcpy(WFIFOP(inter_fd, 8), sd->achievement_data.achievements, sizeof(struct achievement) * sd->achievement_data.count);
-	WFIFOSET(inter_fd, len);
-
-	sd->achievement_data.save = false;*/
-
-	return 1;
+	for (i = 0; i < VECTOR_LENGTH(sd->achievement); i++)
+		memcpy(WFIFOP(inter_fd, 8 + i * sizeof(struct achievement)), &VECTOR_INDEX(sd->achievement, i), sizeof(struct achievement));
+	WFIFOSET(inter_fd, packet_len);
 }
 
 /*==========================================
@@ -2706,8 +2667,7 @@ int intif_parse(int fd)
 #endif
 
 // Achievement system
-	case 0x3862:	intif_parse_achievements(fd); break;
-	case 0x3863:	intif_parse_achievementsave(fd); break;
+	case 0x3862:	intif_parse_achievements_load(fd); break;
 
 // Mercenary System
 	case 0x3870:	intif_parse_mercenary_received(fd); break;

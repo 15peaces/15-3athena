@@ -2026,6 +2026,10 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 		}
 		//Log damage
 		if (src) mob_log_damage(md, src, damage);
+
+		// Achievements [Smokexyz/Hercules]
+		if (src != NULL && src->type == BL_PC)
+			achievement_validate_mob_damage(BL_UCAST(BL_PC, src), damage, false);
 	}
 
 	if (battle_config.show_mob_info&3)
@@ -2269,6 +2273,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 			if(zeny) // zeny from mobs [Valaris]
 				pc_getzeny(tmpsd[i], zeny);
+
+			achievement_validate_mob_kill(tmpsd[i], md->class_); // Achievements [Smokexyz/Hercules]
 		}
 	}
 	
@@ -2504,9 +2510,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				case BL_HOM: sd = ((TBL_HOM*)src)->master; break;
 				case BL_MER: sd = ((TBL_MER*)src)->master; break;
 			}
-
-		//if (achievement_mobexists(md->class_))
-			//achievement_update_objective(sd, AG_BATTLE, 1, md->class_);
 
 		if( sd && sd->md && src && src->type != BL_HOM && mob_db(md->class_)->lv > sd->status.base_level/2 )
 			mercenary_kills(sd->md);

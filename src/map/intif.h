@@ -120,8 +120,7 @@ int intif_clan_member_left(int clan_id);
 
 // ACHIEVEMENT SYSTEM
 void intif_request_achievements(uint32 char_id);
-int intif_achievement_save(struct map_session_data *sd);
-int intif_achievement_reward(struct map_session_data *sd, struct achievement_db *adb, struct achievement_rewards *ardb);
+void intif_achievements_save(struct map_session_data *sd);
 
 // STORAGE
 bool intif_storage_request(struct map_session_data *sd, enum storage_type type);

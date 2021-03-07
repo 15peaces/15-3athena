@@ -8,6 +8,8 @@
 #include "../common/showmsg.h"
 #include "../common/socket.h"
 #include "../common/timer.h"
+#include "../common/nullpo.h"
+
 #include "char.h"
 #include "inter.h"
 #include "int_party.h"
@@ -313,6 +315,7 @@ int inter_init_sql(const char *file)
 	inter_mail_sql_init();
 	inter_auction_sql_init();
 	inter_clan_init();
+	inter_achievement_sql_init();
 
 #endif //TXT_SQL_CONVERT
 	return 0;
@@ -334,6 +337,7 @@ void inter_final(void)
 	inter_mail_sql_final();
 	inter_auction_sql_final();
 	inter_clan_final();
+	inter_achievement_sql_final();
 	
 	if (accreg_pt) aFree(accreg_pt);
 	return;
@@ -691,6 +695,119 @@ int mapif_parse_NameChangeRequest(int fd)
 	//name allowed.
 	mapif_namechange_ack(fd, account_id, char_id, type, 1, name);
 	return 0;
+}
+
+// Achievement System
+
+/**
+ * Sends achievement data of a character to the map server.
+ * @packet[out] 0x3810  <packet_id>.W <payload_size>.W <char_id>.L <char_achievements[]>.P
+ * @param[in]  fd      socket descriptor.
+ * @param[in]  char_id Character ID.
+ * @param[in]  cp      Pointer to character's achievement data vector.
+ */
+static void mapif_send_achievements_to_map(int fd, int char_id, const struct char_achievements *cp)
+{
+	unsigned int i = 0;
+	int data_size = 0;
+
+	nullpo_retv(cp);
+
+	data_size = sizeof(struct achievement) * VECTOR_LENGTH(*cp);
+
+	/* Send to the map server. */
+	WFIFOHEAD(fd, (8 + data_size));
+	WFIFOW(fd, 0) = 0x3810;
+	WFIFOW(fd, 2) = (8 + data_size);
+	WFIFOL(fd, 4) = char_id;
+	for (i = 0; i < VECTOR_LENGTH(*cp); i++)
+		memcpy(WFIFOP(fd, 8 + i * sizeof(struct achievement)), &VECTOR_INDEX(*cp, i), sizeof(struct achievement));
+	WFIFOSET(fd, 8 + data_size);
+}
+
+/**
+ * Loads achievements and sends to the map server.
+ * @param[in] fd       socket descriptor
+ * @param[in] char_id  character Id.
+ */
+static void mapif_achievement_load(int fd, int char_id)
+{
+	struct char_achievements *cp = NULL;
+
+	/* Ensure data exists */
+	cp = idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+
+	/* Load storage for char-server. */
+	inter_achievement_fromsql(char_id, cp);
+
+	/* Send Achievements to map server. */
+	mapif_send_achievements_to_map(fd, char_id, cp);
+}
+
+/**
+ * Parse achievement load request from the map server
+ * @param[in] fd  socket descriptor.
+ */
+static void mapif_parse_load_achievements(int fd)
+{
+	int char_id = 0;
+
+	/* Read received information from map-server. */
+	RFIFOHEAD(fd);
+	char_id = RFIFOL(fd, 2);
+
+	/* Load and send achievements to map */
+	mapif_achievement_load(fd, char_id);
+}
+
+/**
+ * Handles inter-server achievement db ensuring
+ * and saves current achievements to sql.
+ * @param[in]  char_id      character identifier.
+ * @param[out] p            pointer to character achievements vector.
+ */
+static void mapif_achievement_save(int char_id, struct char_achievements *p)
+{
+	struct char_achievements *cp = NULL;
+
+	nullpo_retv(p);
+
+	/* Get loaded achievements. */
+	cp = idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+
+	if (VECTOR_LENGTH(*p)) /* Save current achievements. */
+		inter_achievement_tosql(char_id, cp, p);
+}
+
+/**
+ * Handles achievement request and saves data from map server.
+ * @packet[in] 0x3013 <packet_size>.W <char_id>.L <char_achievement>.P
+ * @param[in]  fd     session socket descriptor.
+ */
+static void mapif_parse_save_achievements(int fd)
+{
+	int size = 0, char_id = 0;
+	unsigned int payload_count = 0, i = 0;
+	struct char_achievements p = { 0 };
+
+	RFIFOHEAD(fd);
+	size = RFIFOW(fd, 2);
+	char_id = RFIFOL(fd, 4);
+
+	payload_count = (size - 8) / sizeof(struct achievement);
+
+	VECTOR_INIT(p);
+	VECTOR_ENSURE(p, payload_count, 1);
+
+	for (i = 0; i < payload_count; i++) {
+		struct achievement ach = { 0 };
+		memcpy(&ach, RFIFOP(fd, 8 + i * sizeof(struct achievement)), sizeof(struct achievement));
+		VECTOR_PUSH(p, ach);
+	}
+
+	mapif_achievement_save(char_id, &p);
+
+	VECTOR_CLEAR(p);
 }
 
 //--------------------------------------------------------

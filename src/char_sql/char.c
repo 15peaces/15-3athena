@@ -20,6 +20,7 @@
 #include "int_mercenary.h"
 #include "int_elemental.h"
 #include "int_party.h"
+#include "int_achievement.h"
 #include "char.h"
 
 #include <sys/types.h>
@@ -65,7 +66,7 @@ char friend_db[256] = "friends";
 char hotkey_db[256] = "hotkey";
 char quest_db[256] = "quest";
 char bonus_script_db[256] = "bonus_script"; // cydh bonus_script
-char achievement_table[256] = "achievement";
+char achievement_db[256] = "achievement";
 
 // show loading/saving messages
 #ifdef TXT_SQL_CONVERT
@@ -312,9 +313,17 @@ void set_char_offline(int char_id, int account_id)
 	else
 	{
 		struct mmo_charstatus* cp = (struct mmo_charstatus*)idb_get(char_db_,char_id);
+		/* Character Achievements */
+		struct char_achievements *c_ach = (struct char_achievements*)idb_get(char_achievements, char_id);
+
 		inter_guild_CharOffline(char_id, cp?cp->guild_id:-1);
-		if (cp)
+		if (cp != NULL)
 			idb_remove(char_db_,char_id);
+
+		if (c_ach != NULL) {
+			VECTOR_CLEAR(*c_ach);
+			idb_remove(char_achievements, char_id);
+		}
 
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `online`='0' WHERE `char_id`='%d'", char_db, char_id) )
 			Sql_ShowDebug(sql_handle);
@@ -1846,7 +1855,7 @@ int delete_char_sql(int char_id)
 	}
 
 	/* Achievement Data */
-	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", achievement_table, char_id))
+	if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", achievement_db, char_id))
 		Sql_ShowDebug(sql_handle);
 
 	/* delete character */
@@ -5286,8 +5295,8 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(quest_db,w2,sizeof(quest_db));
 		else if(!strcmpi(w1,"bonus_script_db"))
 			safestrncpy(bonus_script_db, w2, sizeof(bonus_script_db));
-		else if (!strcmpi(w1, "achievement_table"))
-			safestrncpy(achievement_table, w2, sizeof(achievement_table));
+		else if (!strcmpi(w1, "achievement_db"))
+			safestrncpy(achievement_db, w2, sizeof(achievement_db));
 		//support the import command, just like any other config
 		else if(!strcmpi(w1,"import"))
 			sql_config_read(w2);

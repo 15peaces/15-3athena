@@ -317,18 +317,18 @@
 200002,"Acquire the third aura!",ACH_STATUS,"Base level 175",ACH_C_STATUSTYPE,"SP_BASELEVEL",175,70,1002,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
 200003,"Master Job level!",ACH_STATUS,"Job level 50",ACH_C_STATUSTYPE,"SP_JOBLEVEL",50,30,1003,617,1,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
 200004,"Grandmaster Job level!",ACH_STATUS,"Job level 70",ACH_C_STATUSTYPE,"SP_JOBLEVEL",70,50,1004,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
-200005,"Official Adventurer",ACH_JOB_CHANGE,"Job change to first class",ACH_C_JOBID,"Job_Swordman||Job_Mage||Job_Archer||Job_Acolyte||Job_Merchant||Job_Thief",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200005,"Official Adventurer",ACH_JOB_CHANGE,"Job change to first class",ACH_C_JOBID,"Job_Swordman|Job_Mage|Job_Archer|Job_Acolyte|Job_Merchant|Job_Thief",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
 200006,"First step of job change!",ACH_QUEST,"First step of job change",,,,20,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200007,"Veteran Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 2-1 classes",ACH_C_JOBID,"Job_Knight||Job_Priest||Job_Wizard||Job_Blacksmith||Job_Hunter||Job_Assassin",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200008,"Veteran Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 2-2 classes",ACH_C_JOBID,"Job_Crusader||Job_Sage||Job_Bard||Job_Dancer||Job_Alchemist||Job_Rogue",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200009,"Warrior (1)",ACH_JOB_CHANGE,"Job change to transcendent 2-1 classes",ACH_C_JOBID,"Job_Lord_Knight||Job_High_Wizard||Job_Sniper||Job_High_Priest||Job_Whitesmith||Job_Assassin_Cross",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200010,"Warrior (2)",ACH_JOB_CHANGE,"Job change to transcendent 2-2 classes",ACH_C_JOBID,"Job_Paladin||Job_Professor||Job_Clown||Job_Gypsy||Job_Champion||Job_Creator||Job_Stalker",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200011,"Elite Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes",ACH_C_JOBID,"Job_Rune_Knight||Job_Warlock||Job_Ranger||Job_Arch_Bishop||Job_Mechanic||Job_Guillotine_Cross",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200012,"Transcendentaler! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes after transcendent",ACH_C_JOBID,"Job_Rune_Knight_T||Job_Warlock_T||Job_Ranger_T||Job_Arch_Bishop_T||Job_Mechanic_T||Job_Guillotine_Cross_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200013,"Elite Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes",ACH_C_JOBID,"Job_Royal_Guard||Job_Sorcerer||Job_Minstrel||Job_Wanderer||Job_Sura||Job_Genetic||Job_Shadow_Chaser",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200014,"Transcendentaler! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes after transcendent",ACH_C_JOBID,"Job_Royal_Guard_T||Job_Sorcerer_T||Job_Minstrel_T||Job_Wanderer_T||Job_Sura_T||Job_Genetic_T||Job_Shadow_Chaser_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200015,"The way of exceptional character",ACH_JOB_CHANGE,"Job change to expanded classes",ACH_C_JOBID,"Job_Taekwon||Job_Gunslinger||Job_Ninja||Job_Summoner",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
-200016,"This is My way!",ACH_JOB_CHANGE,"Expanded 2nd classes",ACH_C_JOBID,"Job_Star_Gladiator||Job_Soul_Linker||Job_Rebellion||Job_Kagerou||Job_Oboro",,20,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200007,"Veteran Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 2-1 classes",ACH_C_JOBID,"Job_Knight|Job_Priest|Job_Wizard|Job_Blacksmith|Job_Hunter|Job_Assassin",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200008,"Veteran Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 2-2 classes",ACH_C_JOBID,"Job_Crusader|Job_Sage|Job_Bard|Job_Dancer|Job_Alchemist|Job_Rogue",,25,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200009,"Warrior (1)",ACH_JOB_CHANGE,"Job change to transcendent 2-1 classes",ACH_C_JOBID,"Job_Lord_Knight|Job_High_Wizard|Job_Sniper|Job_High_Priest|Job_Whitesmith|Job_Assassin_Cross",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200010,"Warrior (2)",ACH_JOB_CHANGE,"Job change to transcendent 2-2 classes",ACH_C_JOBID,"Job_Paladin|Job_Professor|Job_Clown|Job_Gypsy|Job_Champion|Job_Creator|Job_Stalker",,30,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200011,"Elite Adventurer! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes",ACH_C_JOBID,"Job_Rune_Knight|Job_Warlock|Job_Ranger|Job_Arch_Bishop|Job_Mechanic|Job_Guillotine_Cross",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200012,"Transcendentaler! (1)",ACH_JOB_CHANGE,"Job change to 3-1 classes after transcendent",ACH_C_JOBID,"Job_Rune_Knight_T|Job_Warlock_T|Job_Ranger_T|Job_Arch_Bishop_T|Job_Mechanic_T|Job_Guillotine_Cross_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200013,"Elite Adventurer! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes",ACH_C_JOBID,"Job_Royal_Guard|Job_Sorcerer|Job_Minstrel|Job_Wanderer|Job_Sura|Job_Genetic|Job_Shadow_Chaser",,50,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200014,"Transcendentaler! (2)",ACH_JOB_CHANGE,"Job change to 3-2 classes after transcendent",ACH_C_JOBID,"Job_Royal_Guard_T|Job_Sorcerer_T|Job_Minstrel_T|Job_Wanderer_T|Job_Sura_T|Job_Genetic_T|Job_Shadow_Chaser_T",,60,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200015,"The way of exceptional character",ACH_JOB_CHANGE,"Job change to expanded classes",ACH_C_JOBID,"Job_Taekwon|Job_Gunslinger|Job_Ninja|Job_Summoner",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
+200016,"This is My way!",ACH_JOB_CHANGE,"Expanded 2nd classes",ACH_C_JOBID,"Job_Star_Gladiator|Job_Soul_Linker|Job_Rebellion|Job_Kagerou|Job_Oboro",,20,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
 200017,"Bearish Power!",ACH_STATUS,"Achieve base STR 90",ACH_C_STATUSTYPE,"SP_STR",90,10,0,0,0,{}
 200018,"Overflowing Magic!",ACH_STATUS,"Achieve base INT 90",ACH_C_STATUSTYPE,"SP_INT",90,10,0,0,0,{}
 200019,"Healthy Body and Mental Health!",ACH_STATUS,"Achieve base VIT 90",ACH_C_STATUSTYPE,"SP_VIT",90,10,0,0,0,{}
@@ -342,7 +342,7 @@
 200027,"Falcon's Eyes",ACH_STATUS,"Achieve base DEX 125",ACH_C_STATUSTYPE,"SP_DEX",125,20,0,0,0,{specialeffect2 EF_MAGICALATTHIT; sc_start SC_INCCRI,300000,30; }
 200028,"Lucky Fever",ACH_STATUS,"Achieve base LUK 125",ACH_C_STATUSTYPE,"SP_LUK",125,20,0,0,0,{specialeffect2 EF_GLORIA; sc_start SC_GLORIA,15000,0; }
 200029,"Incarnation of Love and Hate",ACH_STATUS_BY_JOB,"Achieve 99 base level as Novice",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"Job_Novice",99:1,30,0,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
-200030,"I really love it!",ACH_STATUS_BY_JOBTYPE,"Achieve 99 base level as 1st classes",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"Job_Swordman||Job_Mage||Job_Archer||Job_Acolyte||Job_Merchant||Job_Thief",99:1,30,0,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
+200030,"I really love it!",ACH_STATUS_BY_JOBTYPE,"Achieve 99 base level as 1st classes",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"Job_Swordman|Job_Mage|Job_Archer|Job_Acolyte|Job_Merchant|Job_Thief",99:1,30,0,0,0,{specialeffect2 EF_BLESSING; sc_start SC_BLESSING,30000,10; }
 200031,"Reborn in Valhalla!",ACH_JOB_CHANGE,"Job change to transcendent Novice",ACH_C_JOBID,"Job_Novice_High",,10,0,0,0,{specialeffect2 EF_INCAGILITY; sc_start SC_INCREASEAGI,30000,10; }
 //200032,"Start of Another Adventure",ACH_STATUS_BY_JOB,"Achieve Base Level 100",ACH_C_STATUSTYPE:ACH_C_JOBID,"SP_BASELEVEL":"",99:1,0,0,0,0,{} // Rebirth?
 
@@ -368,7 +368,7 @@
 220019,"I can't quit from refining! (6)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 3 weapon to +12",ACH_C_WEAPONLV,3,12,20,0,0,0,{}
 220020,"I can't quit from refining! (7)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 4 weapon to +7",ACH_C_WEAPONLV,4,7,20,0,0,0,{}
 220021,"I can't quit from refining! (8)",ACH_EQUIP_REFINE_SUCCESS_WLV,"Succeed on refining level 4 weapon to +12",ACH_C_WEAPONLV,4,12,30,0,0,0,{}
-220022,"Human's greed has no ending..",ACH_EQUIP_REFINE_FAILURE_TOTAL,"Experience the fail of refining",ACH_C_ITEMTYPE,"IT_WEAPON||IT_ARMOR",,10,0,0,0,{}
+220022,"Human's greed has no ending..",ACH_EQUIP_REFINE_FAILURE_TOTAL,"Experience the fail of refining",ACH_C_ITEMTYPE,"IT_WEAPON|IT_ARMOR",,10,0,0,0,{}
 220023,"I found it! (1)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 100 zeny",,,100,10,0,0,0,{}
 220024,"I found it! (2)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 1000 zeny",,,1000,10,0,0,0,{}
 220025,"I found it! (3)",ACH_ITEM_GET_WORTH,"Obtain an item with worth of more than 5000 zeny",,,5000,15,0,0,0,{}

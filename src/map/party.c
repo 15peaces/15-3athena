@@ -180,6 +180,9 @@ bool party_create(struct map_session_data* sd, const char* name, int item, int i
 	party_fill_member(&leader, sd, 1);
 
 	sd->party_creating = intif_create_party(&leader,name,item,item2);
+
+	achievement_validate_party_create(sd); //Achievements (Smokexyz)
+
 	return sd->party_creating;
 }
 

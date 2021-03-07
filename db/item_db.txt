@@ -908,7 +908,6 @@
 1651,P_Staff2,Eden Staff II,4,0,,0,60,,1,0,0x00818314,7,2,2,2,40,0,10,{ /* bonus bMAtk,150; */ bonus bInt,3; },{},{}
 1652,Tourist_Staff,Tourist Staff,4,0,,500,35,,1,0,0x00818315,7,2,2,1,1,0,10,{ bonus bInt,2; bonus bAgi,1; },{},{}
 1653,Staff_Of_Healing_C,Staff of Healing,4,20,,0,10,,1,0,0x00008110,7,2,2,3,1,0,10,{ /* bonus bMAtk,100; */ bonus bAtkEle,Ele_Holy; },{},{}
-1654,Mental_Stick,Mental Stick,4,20,,500,40,,1,1,0x00818315,7,2,2,3,102,1,10,{ /* bonus bMAtk,170; */ if (getrefine() > 5) { /* bonus bSkillAtk,"SO_PSYCHIC_WAVE",(getrefine()-5)*2; */ bonus bMaxHPRate,-(getrefine()-5)*2; } /* bonus2 bVariableCastTime,"SO_PSYCHIC_WAVE",-3000; bonus2 bUseSPAmount,"SO_PSYCHIC_WAVE",-60; */ },{},{ itemheal 0,-100; }
 // Bows
 1701,Bow,Bow,4,1000,,500,15,,5,3,0x000A0848,7,2,34,1,4,1,11,{},{},{}
 1702,Bow_,Bow,4,1000,,500,15,,5,4,0x000A0848,7,2,34,1,4,1,11,{},{},{}
@@ -5892,7 +5891,7 @@
 13059,E_Asura_C,Asura,4,1,,0,120,,1,0,0x02000000,7,2,2,1,1,0,1,{},{},{}
 13060,E_Counter_Dagger_C,Counter Dagger,4,1,,0,209,,1,0,0x00810204,7,2,2,4,1,0,1,{},{},{}
 13061,Black_Wing,Black Wing,4,20,,600,142,,1,1,124,7,2,2,3,102,1,1,{},{},{}
-13062,Ancient_Dagger,Ancient Dagger,4,20,,600,107,,0,0,0x028F5EEE,2,2,2,4,120,1,1,{ /* bonus bMAtk,120; */ },{},{}
+13062,Ancient_Dagger,Ancient Dagger,4,20,,600,107,,0,0,0x000F5EEE,2,2,2,4,120,1,1,{ /* bonus bMAtk,120; */ },{},{}
 // Guns
 13100,Six_Shooter,Six Shooter,4,4500,,400,30,,7,1,0x01000000,7,2,34,1,10,1,17,{ bonus bHit,-10; },{},{}
 13101,Six_Shooter_,Six Shooter,4,4500,,400,30,,7,2,0x01000000,7,2,34,1,10,1,17,{ bonus bHit,-10; },{},{}

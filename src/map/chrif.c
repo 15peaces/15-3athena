@@ -336,8 +336,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if( sd->save_quest )
 		intif_quest_save(sd);
 #endif
-	//if (sd->achievement_data.save)
-		//intif_achievement_save(sd);
+	if (VECTOR_LENGTH(sd->achievement) > 0)
+		intif_achievements_save(sd);
 
 	return 0;
 }

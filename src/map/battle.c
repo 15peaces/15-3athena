@@ -4616,6 +4616,8 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage = max(rdamage,1);
 		}
 	}
+	if (sc && sc->data[SC_KYOMU])//If under shadow void status, damage will not be reflected.
+		rdamage = 0;
 	return rdamage;
 }
 
@@ -4838,6 +4840,12 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				spheremax = 5;
 			if( sd && rand()%100 < sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val2)
 				pc_addspiritball(sd, skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sc->data[SC_GENTLETOUCH_ENERGYGAIN]->val1), spheremax);
+		}
+		if ( sc->data[SC_CRUSHSTRIKE] )
+		{
+			skill_attack(BF_WEAPON,src,src,target,RK_CRUSHSTRIKE,sc->data[SC_CRUSHSTRIKE]->val1,tick,flag);
+			status_change_end(src, SC_CRUSHSTRIKE, INVALID_TIMER);
+			return ATK_MISS;
 		}
 	}
 
