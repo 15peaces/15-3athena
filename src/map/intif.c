@@ -1523,6 +1523,7 @@ void intif_parse_achievements_load(int fd)
 	}
 
 	clif_achievement_list_all(sd);
+	achievement_init_titles(sd);
 	sd->achievements_received = true;
 }
 

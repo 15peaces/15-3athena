@@ -9864,7 +9864,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 				safestrncpy((char*)WBUFP(buf,6), sd->fakename, NAME_LENGTH);
 				WBUFB(buf,30) = WBUFB(buf,54) = WBUFB(buf,78) = 0;
 #if PACKETVER >= 20150513
-				WBUFL(buf,102) = 0; // Title ID
+				WBUFL(buf,102) = sd->status.title_id; // Title ID
 #endif
 				break;
 			}
@@ -14279,62 +14279,6 @@ void clif_clan_leave(struct map_session_data* sd)
 #endif
 }
 
-/**
-* Acknowledge the client about change title result (ZC_ACK_CHANGE_TITLE).
-* 0A2F <result>.B <title_id>.L
-*/
-void clif_change_title_ack(struct map_session_data *sd, unsigned char result, unsigned long title_id)
-{
-#if PACKETVER >= 20150513
-	int fd;
-
-	nullpo_retv(sd);
-
-	if (!clif_session_isValid(sd))
-		return;
-	fd = sd->fd;
-
-	WFIFOHEAD(fd, packet_len(0xa2f));
-	WFIFOW(fd, 0) = 0xa2f;
-	WFIFOB(fd, 2) = result;
-	WFIFOL(fd, 3) = title_id;
-	WFIFOSET(fd, packet_len(0xa2f));
-#endif
-}
-
-/**
-* Parsing a request from the client change title (CZ_REQ_CHANGE_TITLE).
-* 0A2E <title_id>.L
-*/
-void clif_parse_change_title(int fd, struct map_session_data *sd)
-{
-	int title_id, i;
-
-	nullpo_retv(sd);
-
-	title_id = RFIFOL(fd, 2);
-
-	if (title_id == sd->status.title_id){
-		// It is exactly the same as the old one
-		return;
-	}
-	else if (title_id <= 0){
-		sd->status.title_id = 0;
-	}
-	else{
-		ARR_FIND(0, sd->titleCount, i, sd->titles[i] == title_id);
-		if (i == sd->titleCount){
-			clif_change_title_ack(sd, 1, title_id);
-			return;
-		}
-
-		sd->status.title_id = title_id;
-	}
-
-	clif_charnameack(sd->fd, &sd->bl);
-	clif_change_title_ack(sd, 0, title_id);
-}
-
 /// Achievement System
 /// Author: Luxuri, Aleos
 
@@ -14508,38 +14452,7 @@ void clif_parse_AchievementCheckReward(int fd, struct map_session_data *sd)
 		return;
 
 	if (achievement_check_complete(sd, ad) && ach->completed && ach->rewarded == 0) {
-		int i = 0;
-		/* Buff */
-		if (ad->rewards.bonus != NULL)
-			run_script(ad->rewards.bonus, 0, sd->bl.id, 0);
-
-		/* Give Items */
-		for (i = 0; i < VECTOR_LENGTH(ad->rewards.item); i++) {
-			struct item it = { 0 };
-			int total = 0;
-
-			it.nameid = VECTOR_INDEX(ad->rewards.item, i).id;
-			total = VECTOR_INDEX(ad->rewards.item, i).amount;
-
-			it.identify = 1;
-
-			//Check if it's stackable.
-			if (!itemdb_isstackable(it.nameid)) {
-				int j = 0;
-				for (j = 0; j < total; ++j)
-					pc_additem(sd, &it, (it.amount = 1));
-			}
-			else {
-				pc_additem(sd, &it, (it.amount = total));
-			}
-		}
-
-		/* @TODO TitleId */
-		ach->rewarded = time(NULL);
-
-		clif_achievement_update(sd, ad); // send update.
-
-		clif_achievement_reward_ack(fd, 1, ach->id);
+		achievement_get_rewards(sd, ad);
 	}
 #endif
 }
@@ -14557,6 +14470,52 @@ void clif_achievement_reward_ack(int fd, unsigned char result, int achievement_i
 	WFIFOL(fd, 3) = achievement_id;
 	WFIFOSET(fd, packet_len(0xa26));
 #endif
+}
+
+/**
+ * [clif_change_title_ack description]
+ * @packet [out] 0x0A2F <packet_id>.W <Result>.B <title_id>.L
+ */
+static void clif_change_title_ack(int fd, struct map_session_data *sd, int title_id)
+{
+#if PACKETVER >= 20141016
+	unsigned char failed = 0;
+
+	if (!achievement_check_title(sd, title_id)) {
+		clif_displaymessage(fd, "Title is not yet earned.");
+		failed = 1;
+	}
+
+	sd->status.title_id = title_id;
+
+	WFIFOHEAD(fd, packet_len(0xa2f));
+	WFIFOW(fd, 0) = 0xa2f;
+	WFIFOB(fd, 2) = failed;
+	WFIFOL(fd, 3) = sd->status.title_id;
+	WFIFOSET(fd, packet_len(0xa2f));
+
+	// Update names
+	clif_charnameack(fd, &sd->bl);
+	clif_charnameack(0, &sd->bl);
+#endif
+}
+
+/**
+ * Sends achievement reward collection acknowledgement to the client.
+ * @packet[in] 0x0A2E <packet_id>.W <title_id>.L
+ */
+static void clif_parse_change_title(int fd, struct map_session_data *sd)
+{
+	int title_id = RFIFOL(fd, 2);
+
+	if (title_id == sd->status.title_id) { // Same Title
+		return;
+	}
+	else if (title_id < 0) {
+		title_id = 0;
+	}
+
+	clif_change_title_ack(fd, sd, title_id);
 }
 
 /// Pet
@@ -20783,7 +20742,7 @@ void packetdb_readdb(void)
 	  269,  0,  0,  2,  6, 48,  6,  9, 26, 45, 47, 47, 56, -1, 14,  0,
 #endif
 		-1, 0,  0, 26, 10,  0,  0,  0, 14,  2, 23,  2, -1,  2,  3,  2,
-	   21,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  0,
+	   21,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  7,
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
 //#0x0A40
  		0,  0,  0, 85, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

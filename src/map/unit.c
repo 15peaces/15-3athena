@@ -2365,6 +2365,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			}
 #endif
 			VECTOR_CLEAR(sd->achievement); // Achievement [Smokexyz/Hercules]
+			VECTOR_CLEAR(sd->title_ids); // Title [Dastgir/Hercules]
 			// Clearing...
 			if (sd->bonus_script.head)
 				pc_bonus_script_clear(sd, BSF_REM_ALL);

@@ -501,9 +501,8 @@ struct map_session_data {
 	struct char_achievements achievement;
 	bool achievements_received;
 
-	// Title system
-	int *titles;
-	uint8 titleCount;
+	// Title
+	VECTOR_DECL(int) title_ids;
 
 	// Questinfo Cache
 	bool *qi_display;

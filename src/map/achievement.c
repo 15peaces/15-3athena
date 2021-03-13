@@ -712,7 +712,7 @@ void achievement_validate_zeny(struct map_session_data *sd, int amount)
 		achievement_validate_type(sd, ACH_ZENY_GET_TOTAL, &criteria, true);
 	}
 	else {
-		criteria.goal = amount;
+		criteria.goal = -amount;
 		achievement_validate_type(sd, ACH_ZENY_SPEND_ONCE, &criteria, false);
 		achievement_validate_type(sd, ACH_ZENY_SPEND_TOTAL, &criteria, true);
 	}
@@ -944,6 +944,106 @@ static bool achievement_type_requires_criteria(enum achievement_types type)
 		return true;
 
 	return false;
+}
+
+/**
+ * Stores all the title ID that has been earned by player
+ * @param[in] sd        pointer to session data.
+ */
+void achievement_init_titles(struct map_session_data *sd)
+{
+	int i;
+	nullpo_retv(sd);
+
+	VECTOR_INIT(sd->title_ids);
+	/* Browse through the session's achievement list and gather their values. */
+	for (i = 0; i < VECTOR_LENGTH(sd->achievement); i++) {
+		struct achievement *a = &VECTOR_INDEX(sd->achievement, i);
+		const struct achievement_data *ad = NULL;
+
+		/* Sanity check for nonull pointers. */
+		if (a == NULL || (ad = achievement_get(a->id)) == NULL)
+			continue;
+
+		if (a->completed > 0 && a->rewarded > 0 && ad->rewards.title_id > 0) {
+			VECTOR_ENSURE(sd->title_ids, 1, 1);
+			VECTOR_PUSH(sd->title_ids, ad->rewards.title_id);
+		}
+	}
+}
+
+/**
+ * Validates whether player has earned the title.
+ * @param[in]  sd              pointer to session data.
+ * @param[in]  title_id        Title ID
+ * @return true, if title has been earned, else false
+ */
+bool achievement_check_title(struct map_session_data *sd, int title_id) {
+	int i;
+
+	nullpo_retr(false, sd);
+
+	if (title_id == 0)
+		return true;
+
+	for (i = 0; i < VECTOR_LENGTH(sd->title_ids); i++) {
+		if (VECTOR_INDEX(sd->title_ids, i) == title_id) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Achievement rewards are given to player
+ * @param  sd        session data
+ * @param  ad        achievement data
+ */
+void achievement_get_rewards(struct map_session_data *sd, const struct achievement_data *ad) {
+	int i = 0;
+	struct achievement *ach = NULL;
+
+	nullpo_retv(sd);
+	nullpo_retv(ad);
+
+	if ((ach = achievement_ensure(sd, ad)) == NULL)
+		return;
+
+	/* Buff */
+	if (ad->rewards.bonus != NULL)
+		run_script(ad->rewards.bonus, 0, sd->bl.id, 0);
+
+	/* Give Items */
+	for (i = 0; i < VECTOR_LENGTH(ad->rewards.item); i++) {
+		struct item it = { 0 };
+		int total = 0;
+
+		it.nameid = VECTOR_INDEX(ad->rewards.item, i).id;
+		total = VECTOR_INDEX(ad->rewards.item, i).amount;
+
+		it.identify = 1;
+
+		//Check if it's stackable.
+		if (!itemdb_isstackable(it.nameid)) {
+			int j = 0;
+			for (j = 0; j < total; ++j)
+				pc_additem(sd, &it, (it.amount = 1));
+		} else {
+			pc_additem(sd, &it, (it.amount = total));
+		}
+	}
+
+	ach->rewarded = time(NULL);
+
+	if (ad->rewards.title_id > 0) { // Add Title
+		VECTOR_ENSURE(sd->title_ids, 1, 1);
+		VECTOR_PUSH(sd->title_ids, ad->rewards.title_id);
+		clif_achievement_list_all(sd);
+	} else {
+		clif_achievement_reward_ack(sd->fd, 1, ad->id);
+		clif_achievement_update(sd, ad); // send update.
+	}
 }
 
 void achievement_removeChar(char *str, char garbage) {
@@ -1241,8 +1341,8 @@ static bool achievement_parse_dbrow(char** str, const char* source, int line, st
 
 	/* Achievement ID */
 	tentry->id = atoi(str[0]);
-	if (tentry->id < 1 || tentry->id > INT32_MAX) {
-		ShowWarning("achievement_parse_dbrow: Invalid achievement ID %d in \"%s\" (min: 1, max: %d), skipping.\n", tentry->id, source, INT32_MAX);
+	if (tentry->id < 1) {
+		ShowWarning("achievement_parse_dbrow: Invalid achievement ID %d in \"%s\", skipping.\n", tentry->id, source);
 		return false;
 	}
 

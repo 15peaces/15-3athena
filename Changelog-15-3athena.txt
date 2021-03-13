@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/13/2021
+	r279 [15peaces]
+		*Merged missing changes from 3ceam rev. 719 - 721
+		*Complete rewrite of the achievement system (part 3).
+			-Added full suport for the title system.
+			-Some cleaning.
+			-Fixed an bug where ACH_ZENY_SPEND_* achievements were recording zeny in negative values.
+				-Thanks to @HerculesWS
+		*Mutated Homunculus
+			-Added support for the Mutated Homunculus.
+				--The support is not entirely complete but its good enough to allow them to be playable for testing purposes. Currently their only accessible by using the @makehomun command.
+				--DO NOT MAKE THEM ACCESSABLE TO PLAYERS!!!! Stat growth settings and mutation procedures still need to be coded and if allowed to be player accessible their homunculus's growth will be below what it should be.
+			-Added needed parts of the system to allow them to be stable and playable for testing purposes.
+				--Entry's for them were added to the homunculus database.
+				--The homunculus database now uses 51 columns. The FoodID (4th column) and all other columns after it was shifted up 1. The 4th column now sets the max level for the homunculus.
+				--The homunculus exp table was expanded to support 150 levels. However, levels 100 to 150 are all set to require 10 million exp. A balanced exp table will be made later.
+				--Homunculus in the 100 - 150 level range will receive 1 skill point for every 2 levels.
+				--Homunculus in the 1 - 99 level range will still receive the usual 1 skill point every 3 levels.
+				--Added support for mutated homunculus ID's range checks. This is required for certain things like checks, indexing, and making sure only all homunculus ID's are taken.
+					---This helps prevent mercenary ID's from being mixed into the homunculus system which could cause conflicts and other issues.
+				--Skill range for homunculus is now expanded to support the mutated homunculus skills.
+				--Added skill tree entry's for mutated homunculus.
+				--Base level requirements for unlocking their skills is now working.
+				--Note: Any skills recently unlocked will not show until you rest and call out the homunculus.
+
 03/07/2021
 	r278 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn278.sql file!
