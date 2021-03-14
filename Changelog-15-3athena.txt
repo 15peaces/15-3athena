@@ -5,11 +5,78 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/14/2021
+	r280 [15peaces]
+		*Merged missing changes from 3ceam rev. 722 - 724
+		*Fixed a issue where the zenkai unit coding would leak into other coding following it when certain conditions are met. Because of this issue, its critically recommend users running a server revision between 278 - 279 (the last two updates) update to this
+		 revision ASAP to get the issue fixed.
+		*Complete rewrite of the achievement system (part 4).
+			-Fixed achievement reward packet.
+			-Fixed getting achievement reward packets order & split achievement reward function to parts.
+			-Fixed an Assertion Error when refine is failed.
+			-Some more fixing & cleaning.
+			-Thanks to @HerculesWS
+		*This update focuses to bring HP/SP drain timers, unit invervals, some formula's, resistance, and other misc. stuff to official.
+			-This update along with the past few revisions brings a lot of this inaccurately coded stuff to official, as well as updated some once unknown values to official.
+		*Burnning status mechanic's updated to official.
+			-Now deals damage equal to 3 percent of your MaxHP plus a added 1000.
+			-Damage is dealed every 3 seconds.
+		*Added clif_parse_UseSkillToPos_homun function.
+			-This function allows a homunculus to be able to use ground targeted skills.
+			-A number of mutated homunculus skills requires this function to work.
+		*NC_ARMSCANNON
+			-Updated source code to work with the new target type.
+			-Now targets enemy's.
+		*SO_CLOUD_KILL; SO_WARMER
+			-Fixed a issue where the AoE would not generate when casted.
+		*SO_ARRULLO
+			-Updated source code to work with the new target type.
+			-Now targets the ground.			
+		*GC_WEAPONBLOCKING
+			-SP drain timer updated to every 5 seconds.
+		*GC_HALLUCINATIONWALK
+			-Now requires a percentage of your MaxHP to cast.
+			-HP percentage needed is affected by skill level.
+		*AB_PRAEFATIO
+			-The HP of the kyrie barrier generated through this skill is no longer affected by the learned level of Kyrie Eleison. It is now entirely affected by the used level of this skill.
+			-This is official and interesting as this skill can set a higher HP then regular kyrie can.
+		*WL_WHITEIMPRISON
+			-Removed a piece of code thats no longer needed.
+		*WL_RADIUS
+			-Fixed cast time formula reduction updated to official. The real official this time.
+			-Not that bullshit made up formula that was in that iRO document.
+		*WL_READING_SB
+			-SP drain timer updated to every 10 seconds.
+		*RA_WUGBITE
+			-Fixed a issue where RA_TOOTHOFWUG increased the duration twice as much as it should.
+			-Success chance updated to official. This also adds the resistance formula as well.
+		*NC_COLDSLOWER
+			-Status are now applied through a special check.
+			-It will first try to freeze any enemy that is hit.
+			-It will then try to give frost misty status to any enemy it fails to freeze.
+		*NC_STEALTHFIELD
+			-Now drains 1 percent of SP between every 3 to 5 seconds depending on the skill level used.
+		*LG_REFLECTDAMAGE
+			-SP drain timer updated to every 10 seconds.
+			-SP drain amount per drain updated.
+		*LG_INSPIRATION
+			-HP and SP drain timer updated to every 5 seconds.
+		*WM_SATURDAY_NIGHT_FEVER
+			-HP and SP drain timers updated to every 3 seconds.
+		*SO_DIAMONDDUST
+			-Status duration reduction formula added.
+		*SO_VACUUM_EXTREME; GN_WALLOFTHORN; GN_DEMONIC_FIRE
+			-Unit inverval updated to official.
+		*SO_VARETYR_SPEAR
+			-Small change to the code.
+		*MH_POISON_MIST
+			-Added full support for this skill.
+
 03/13/2021
 	r279 [15peaces]
 		*Merged missing changes from 3ceam rev. 719 - 721
 		*Complete rewrite of the achievement system (part 3).
-			-Added full suport for the title system.
+			-Added full support for the title system.
 			-Some cleaning.
 			-Fixed an bug where ACH_ZENY_SPEND_* achievements were recording zeny in negative values.
 				-Thanks to @HerculesWS

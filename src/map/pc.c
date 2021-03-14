@@ -4035,7 +4035,7 @@ int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
  *   4 = no free place found
  *   5 = max amount reached
  *------------------------------------------*/
-int pc_additem(struct map_session_data *sd,struct item *item_data,int amount)
+int pc_additem(struct map_session_data *sd,const struct item *item_data,int amount)
 {
 	struct item_data *data;
 	int i;

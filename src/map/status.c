@@ -589,6 +589,8 @@ void initChangeTables(void)
 	set_sc( HAMI_DEFENCE         , SC_DEFENCE         , SI_BLANK           , SCB_DEF );
 	set_sc( HAMI_BLOODLUST       , SC_BLOODLUST       , SI_BLANK           , SCB_BATK|SCB_WATK );
 
+	add_sc( MH_POISON_MIST       , SC_BLIND );
+
 	add_sc( MER_CRASH            , SC_STUN            );
 	set_sc( MER_PROVOKE          , SC_PROVOKE         , SI_PROVOKE         , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
 	add_sc( MS_MAGNUM            , SC_WATK_ELEMENT    );
@@ -7755,8 +7757,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_BURNING:
-			val4 = tick / 2000; // Total Ticks to Burn!!
-			tick = 2000; // Each 2 Seconds
+			val4 = tick / 3000;
+			tick = 3000; // Deals damage every 3 seconds.
 			break;
 		case SC_DEATHBOUND: // 3ceam v1.
 			val2 = 500 + 100 * val1;
@@ -7803,8 +7805,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_WEAPONBLOCKING:
 			val2 = 10 + 2 * val1; // Chance
-			val4 = tick / 3000;
-			tick = 3000;
+			val4 = tick / 5000;
+			tick = 5000;
 			val_flag |= 1|2;
 			break;
 		case SC_TOXIN:
@@ -7864,7 +7866,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
  			break;
 		case SC_READING_SB:
 			// val2 = sp reduction per second
-			tick = 1000;
+			tick = 10000;
+			break;
+		case SC_STEALTHFIELD_MASTER:
+			val3 = 2000 + 1000 * val1;
+			val4 = tick / val3;
+			tick = val4;
 			break;
 		case SC_SHAPESHIFT:
 			switch( val1 )
@@ -8034,11 +8041,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = 20 + 10 * val2;//Fixed Cast Time Reduction
 			break;
 		case SC_SATURDAY_NIGHT_FEVER:
-			val2 = 12000 - 2000 * val1;//HP/SP Drain Timer
+			/*val2 = 12000 - 2000 * val1;//HP/SP Drain Timer
 			if (val2 < 1000)
 				val2 = 1000;//Added to prevent val3 from dividing by 0 when using level 6 or higher through commands. [Rytech]
 			val3 = tick/val2;
-			tick = val2;
+			tick = val2;*/
+			val3 = tick / 3000;
+			tick = 3000;
 			break;
 		case SC_LERADS_DEW:
 			val3 = 200 * val1 + 300 * val2;//MaxHP Increase
@@ -8072,8 +8081,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_LG_REFLECTDAMAGE:
 			val2 = 15 + 5 * val1;//Reflect Amount
 			val3 = 25 + 5 * val1; //Number of Reflects
-			val4 = tick/1000;
-			tick = 1000;
+			val4 = tick/ 10000;
+			tick = 10000;
 			break;
 		case SC_FORCEOFVANGUARD:// This is not the official way to handle it but I think we should use it. [pakpil]
 			val2 = 8 + 12 * val1;//Chance Of Getting A Rage Counter
@@ -8127,8 +8136,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 40 * val1 + 3 * sd->status.job_level; // ATK bonus
 				val3 = sd->status.base_level / 10 + sd->status.job_level / 5; // All stat bonus
 			}
-			val4 = tick / 1000;
-			tick = 1000;
+			val4 = tick / 5000;
+			tick = 5000;
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
 			break;
 		case SC_SPELLFIST:
@@ -10022,7 +10031,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		if( --(sce->val4) >= 0 )
 		{
 			struct block_list *src = map_id2bl(sce->val3);
-			int flag, damage = 3 * status_get_max_hp(bl) / 100; // Non Elemental Damage
+			int flag, damage = 1000 + 3 * status_get_max_hp(bl) / 100; // Non Elemental Damage
 			if( status )
 				damage += battle_attr_fix(NULL, bl, sce->val2, ELE_FIRE, status->def_ele, status->ele_lv);
 
@@ -10031,7 +10040,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			flag = !sc->data[type];
 			map_freeblock_unlock();
 			if( !flag )	// Target still lives. [LimitLine]
-				sc_timer_next(2000 + tick, status_change_timer, bl->id, data);
+				sc_timer_next(3000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -10063,7 +10072,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_READING_SB:
 		if (!status_charge(bl, 0, sce->val2))
 			break;
-		sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+		sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 		return 0;
 
 	case SC_ELECTRICSHOCKER:
@@ -10183,7 +10192,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{
 			if( !status_charge(bl, status->max_hp * 1 / 100, status->max_sp * 1 / 100) )
 			break;
-			sc_timer_next(sce->val2+tick, status_change_timer, bl->id, data);
+			//sc_timer_next(sce->val2+tick, status_change_timer, bl->id, data);
+			sc_timer_next(3000+tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -10222,9 +10232,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 	case SC_LG_REFLECTDAMAGE:
 		if( --(sce->val4) >= 0 ) {
-			if (!status_charge(bl, 0, 10))
+			if (!status_charge(bl, 0, 20 + 10 * sce->val1))
 				break;
-			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -10264,6 +10274,15 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC_STEALTHFIELD_MASTER:
+		if( --(sce->val4) >= 0 ) {
+			if( !status_charge(bl,0,status->max_sp / 100) )
+				break;
+			sc_timer_next(2000 + 1000 * sce->val1 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
 	case SC_INSPIRATION:
 		if(--(sce->val4) >= 0)
 		{
@@ -10273,7 +10292,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			if( !status_charge(bl,hp,sp) ) 
 				break;
 
-			sc_timer_next(1000+tick,status_change_timer,bl->id, data);
+			sc_timer_next(5000+tick,status_change_timer,bl->id, data);
 			return 0;
 		}
 		break;

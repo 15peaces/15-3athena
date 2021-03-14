@@ -786,7 +786,7 @@ int pc_checkadditem(struct map_session_data*,unsigned short,int);
 int pc_inventoryblank(struct map_session_data*);
 int pc_search_inventory(struct map_session_data *sd,unsigned short item_id);
 int pc_payzeny(struct map_session_data*,int);
-int pc_additem(struct map_session_data*,struct item*,int);
+int pc_additem(struct map_session_data*,const struct item*,int);
 int pc_getzeny(struct map_session_data*,int);
 int pc_delitem(struct map_session_data*,int,int,int,short);
 

@@ -170,6 +170,8 @@ static void achievement_progress_add(struct map_session_data *sd, const struct a
 		// Check if the Achievement is complete.
 		if (achievement_check_complete(sd, ad)) {
 			achievement_validate_achieve(sd, ad->id);
+			if ((ach = achievement_ensure(sd, ad)) == NULL)
+				return;
 			ach->completed = time(NULL);
 		}
 
@@ -208,6 +210,8 @@ static void achievement_progress_set(struct map_session_data *sd, const struct a
 
 		if (achievement_check_complete(sd, ad)) {
 			achievement_validate_achieve(sd, ad->id);
+			if ((ach = achievement_ensure(sd, ad)) == NULL)
+				return;
 			ach->completed = time(NULL);
 		}
 
@@ -277,6 +281,9 @@ static int achievement_validate_type(struct map_session_data *sd, enum achieveme
 
 	Assert_ret(criteria->goal != 0);
 
+	if (battle_config.feature_achievement == 0)
+		return 0;
+
 	if (type == ACH_QUEST) {
 		ShowError("achievement_validate_type: ACH_QUEST is not handled by this function. (use achievement_validate())\n");
 		return 0;
@@ -334,6 +341,10 @@ bool achievement_validate(struct map_session_data *sd, int aid, unsigned int obj
 	nullpo_retr(false, sd);
 	Assert_retr(false, progress > 0);
 	Assert_retr(false, obj_idx < MAX_ACHIEVEMENT_OBJECTIVES);
+
+
+	if (battle_config.feature_achievement == 0)
+		return false;
 
 	if ((ad = achievement_get(aid)) == NULL) {
 		ShowError("achievement_validate: Invalid Achievement %d provided.", aid);
@@ -751,6 +762,10 @@ void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, 
 
 	criteria.goal = sd->inventory.u.items_inventory[idx].refine;
 
+	// achievement should not trigger if refine is 0
+	if (criteria.goal == 0)
+		return;
+
 	/* Universal */
 	achievement_validate_type(sd,
 		success ? ACH_EQUIP_REFINE_SUCCESS : ACH_EQUIP_REFINE_FAILURE,
@@ -995,44 +1010,56 @@ bool achievement_check_title(struct map_session_data *sd, int title_id) {
 	return false;
 }
 
+static void achievement_get_rewards_buffs(struct map_session_data *sd, const struct achievement_data *ad)
+{
+	nullpo_retv(sd);
+	nullpo_retv(ad);
+
+	if (ad->rewards.bonus != NULL)
+		run_script(ad->rewards.bonus, 0, sd->bl.id, 0);
+}
+
+// TODO: kro send items by rodex
+static void achievement_get_rewards_items(struct map_session_data *sd, const struct achievement_data *ad)
+{
+	nullpo_retv(sd);
+	nullpo_retv(ad);
+
+	struct item it = { 0 };
+	it.identify = 1;
+
+	for (int i = 0; i < VECTOR_LENGTH(ad->rewards.item); i++) {
+		it.nameid = VECTOR_INDEX(ad->rewards.item, i).id;
+		int total = VECTOR_INDEX(ad->rewards.item, i).amount;
+
+		//Check if it's stackable.
+		if (!itemdb_isstackable(it.nameid)) {
+			it.amount = 1;
+			for (int j = 0; j < total; ++j)
+				pc_additem(sd, &it, 1);
+		} else {
+			it.amount = total;
+			pc_additem(sd, &it, total);
+		}
+	}
+}
+
 /**
  * Achievement rewards are given to player
  * @param  sd        session data
  * @param  ad        achievement data
  */
-void achievement_get_rewards(struct map_session_data *sd, const struct achievement_data *ad) {
-	int i = 0;
-	struct achievement *ach = NULL;
+bool achievement_get_rewards(struct map_session_data *sd, const struct achievement_data *ad)
+{
+	nullpo_retr(false, sd);
+	nullpo_retr(false, ad);
 
-	nullpo_retv(sd);
-	nullpo_retv(ad);
-
-	if ((ach = achievement_ensure(sd, ad)) == NULL)
-		return;
+	struct achievement *ach = achievement_ensure(sd, ad);
+	if (ach == NULL)
+		return false;
 
 	/* Buff */
-	if (ad->rewards.bonus != NULL)
-		run_script(ad->rewards.bonus, 0, sd->bl.id, 0);
-
-	/* Give Items */
-	for (i = 0; i < VECTOR_LENGTH(ad->rewards.item); i++) {
-		struct item it = { 0 };
-		int total = 0;
-
-		it.nameid = VECTOR_INDEX(ad->rewards.item, i).id;
-		total = VECTOR_INDEX(ad->rewards.item, i).amount;
-
-		it.identify = 1;
-
-		//Check if it's stackable.
-		if (!itemdb_isstackable(it.nameid)) {
-			int j = 0;
-			for (j = 0; j < total; ++j)
-				pc_additem(sd, &it, (it.amount = 1));
-		} else {
-			pc_additem(sd, &it, (it.amount = total));
-		}
-	}
+	achievement_get_rewards_buffs(sd, ad);
 
 	ach->rewarded = time(NULL);
 
@@ -1041,9 +1068,14 @@ void achievement_get_rewards(struct map_session_data *sd, const struct achieveme
 		VECTOR_PUSH(sd->title_ids, ad->rewards.title_id);
 		clif_achievement_list_all(sd);
 	} else {
-		clif_achievement_reward_ack(sd->fd, 1, ad->id);
 		clif_achievement_update(sd, ad); // send update.
+		clif_achievement_reward_ack(sd->fd, 0, ad->id);
 	}
+
+	/* Give Items */
+	achievement_get_rewards_items(sd, ad);
+
+	return true;
 }
 
 void achievement_removeChar(char *str, char garbage) {

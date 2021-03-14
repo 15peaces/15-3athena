@@ -225,7 +225,7 @@ void achievement_validate_jobchange(struct map_session_data *sd);
 void achievement_validate_taming(struct map_session_data *sd, int class);
 void achievement_validate_refine(struct map_session_data *sd, unsigned int idx, bool success);
 
-void achievement_get_rewards(struct map_session_data *sd, const struct achievement_data *ad);
+bool achievement_get_rewards(struct map_session_data *sd, const struct achievement_data *ad);
 void achievement_init_titles(struct map_session_data *sd);
 bool achievement_check_title(struct map_session_data *sd, int title_id);
 

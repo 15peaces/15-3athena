@@ -1083,10 +1083,14 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 	case WL_JACKFROST:
+		//Note: Official data shows its applied as 200%. Dont know if sc_start can handle that much. Should I apply this? Recheck soon.
 		sc_start(bl, SC_FREEZE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case RA_WUGBITE:
-		sc_start(bl, SC_WUGBITE, 70, skilllv, skill_get_time(skillid, skilllv) + (sd ? pc_checkskill(sd,RA_TOOTHOFWUG) * 1000 : 0)); // Need official chance.
+		rate = 50 + 10 * skilllv + 2 * pc_checkskill(sd,RA_TOOTHOFWUG) - tstatus->agi / 4;
+		if ( rate < 50 )
+			rate = 50;
+		sc_start(bl, SC_WUGBITE, rate, skilllv, skill_get_time(skillid, skilllv) + (sd ? pc_checkskill(sd,RA_TOOTHOFWUG) * 500 : 0));
 		break;
 	case RA_SENSITIVEKEEN:
 		if (rand()%100 < 8 * skilllv)
@@ -1124,8 +1128,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start4(bl, SC_BURNING, 20 + 10 * skilllv, skilllv, 1000, src->id, 0, skill_get_time2(skillid, skilllv));
 		break;
 	case NC_COLDSLOWER:
+		//Status chances are applied officially through a check.
+		//The skill first trys to give the frozen status to targets that are hit.
 		sc_start(bl, SC_FREEZE, 10 * skilllv, skilllv, skill_get_time(skillid, skilllv));
-		sc_start(bl, SC_FREEZING, 20 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		//If it fails to give the frozen status, it will attempt to give the freezing status.
+		if ( tsc && !tsc->data[SC_FREEZE] )
+			sc_start(bl, SC_FREEZING, 20 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case NC_POWERSWING:
 		sc_start(bl, SC_STUN, 10, skilllv, skill_get_time(skillid, skilllv));
@@ -1189,7 +1197,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		rate = 5 + 5 * skilllv;
 		if( sc && sc->data[SC_COOLER_OPTION] )
 			rate += rate * sc->data[SC_COOLER_OPTION]->val2 / 100;
-		sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv) - 1000 * tstatus->vit / 10);
 		break;
 	case SO_CLOUD_KILL:
 		sc_start(bl, SC_POISON, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
@@ -1197,7 +1205,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skilllv, skilllv, 5, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
 		break;
 	case SO_VARETYR_SPEAR:
-		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		sc_start(bl, SC_STUN, 5 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case GN_HELLS_PLANT_ATK:
 		sc_start(bl, SC_STUN, 20 + 10 * skilllv, skilllv, skill_get_time(skillid, skilllv));
@@ -1230,6 +1238,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case KO_MAKIBISHI:
 		sc_start(bl, SC_STUN, 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		break;
+	case MH_POISON_MIST:
+		sc_start(bl, SC_BLIND, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid,skilllv));
 		break;
 	case EL_WIND_SLASH:	// Non confirmed rate.
 		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
@@ -3316,7 +3327,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_PILEBUNKER:
 	//case NC_VULCANARM:
 	case NC_COLDSLOWER:
-	case NC_ARMSCANNON:
 		// Heat of the mado
 		if (sd)
 			pc_overheat(sd, 1);
@@ -3539,6 +3549,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
 	case NC_VULCANARM:
+	case NC_ARMSCANNON:
 	case NC_SELFDESTRUCTION:
 	case NC_AXETORNADO:
 	case LG_MOONSLASHER:
@@ -7466,7 +7477,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case GC_HALLUCINATIONWALK:
 		{
-			int heal = status_get_max_hp(bl) / 10;
+			int heal = status_get_max_hp(bl) * (18 - 2 * skilllv) / 100;
 			if( status_get_hp(bl) < heal )
 			{ // if you haven't enough HP skill fail.
 				if( sd )
@@ -8520,25 +8531,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SO_ARRULLO:
-		if (flag & 1)
-		{	
-			if( level_effect_bonus == 1 && status_get_lv(src) >= 100 )
-			{
-				rate = 15 + 5 * skilllv + sstatus->int_ / 5 + sd->status.job_level / 5 - tstatus->int_ / 6 - tstatus->luk / 10;
-				tick = status_get_lv(bl) / 20 + tstatus->int_ / 40;
-			}
-			else
-			{
-				rate = 15 + 5 * skilllv + sstatus->int_ / 5 + 10 - tstatus->int_ / 6 - tstatus->luk / 10;
-				tick = 7 + tstatus->int_ / 40;
-			}
-			sc_start(bl, type, rate, skilllv, skill_get_time(skillid, skilllv) - 1000 * (int)tick);
+		if( level_effect_bonus == 1 && status_get_lv(src) >= 100 )
+		{
+			rate = 15 + 5 * skilllv + sstatus->int_ / 5 + sd->status.job_level / 5 - tstatus->int_ / 6 - tstatus->luk / 10;
+			tick = status_get_lv(bl) / 20 + tstatus->int_ / 40;
 		}
 		else
 		{
-			clif_skill_nodamage(src, bl, skillid, 0, 1);
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+			rate = 15 + 5 * skilllv + sstatus->int_ / 5 + 10 - tstatus->int_ / 6 - tstatus->luk / 10;
+			tick = 7 + tstatus->int_ / 40;
 		}
+		clif_skill_nodamage(src, bl, skillid, 0, 1);
+		sc_start(bl, type, rate, skilllv, skill_get_time(skillid, skilllv) - 1000 * (int)tick);
 		break;
 
 	case SO_SUMMON_AGNI:
@@ -9573,6 +9577,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 
 	case BS_HAMMERFALL:
+	case SO_ARRULLO:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea (skill_area_sub,
 			src->m, x-i, y-i, x+i, y+i, BL_CHAR,
@@ -9608,7 +9613,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 
 	case NC_COLDSLOWER:
-	case NC_ARMSCANNON:
 	case RK_DRAGONBREATH:
 	case WM_GREAT_ECHO:
 	case WM_SOUND_OF_DESTRUCTION:
@@ -9664,7 +9668,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 					case 6: sx = src->x + i; break;
 				}
 				skill_addtimerskill(src,gettick() + (200 * i),0,sx,sy,skillid,skilllv,dir,flag&2); // Temp code until animation is replaced. [15peaces]
-				//skill_addtimerskill(src,gettick() + (150 * i),0,sx,sy,skillid,skilllv,dir,flag&2); // Official steping timer, but disabled due to too much noise.
+				//skill_addtimerskill(src,gettick() + (140 * i),0,sx,sy,skillid,skilllv,dir,flag&2); // Official steping timer, but disabled due to too much noise.
 			}
 		}
 		break;
@@ -9930,6 +9934,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
 	case KO_MAKIBISHI:
+	case MH_POISON_MIST:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
@@ -9962,7 +9967,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_graffitiremover,src->m,x-i,y-i,x+i,y+i,BL_SKILL);
 		break;
-
+	case SO_CLOUD_KILL:
+	case SO_WARMER:
+		flag|=(skillid == SO_WARMER)?8:4;
+		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		break;
 	case WZ_METEOR:
 		{
 			int flag = 0, area = skill_get_splash(skillid, skilllv);
@@ -10804,6 +10813,9 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 			}
 			break;
 		}
+	case MH_POISON_MIST:
+		interval = 2500 - 200 * skilllv;
+		break;
 	}
 
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skillid,skilllv,skill_get_unit_id(skillid,flag&1)+subunt, limit, interval));
@@ -11820,6 +11832,11 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			}
 			else
 				sc_start(bl, type, 100, sg->skill_lv, 1000);
+			break;
+
+		case UNT_POISON_MIST:
+			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+			break;
 		}
 
 	if (sg->state.magic_power && sc && !sc->data[SC_MAGICPOWER])
@@ -13682,11 +13699,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//Fixed cast time percentage reduction from radius if learned.
 	if( sd && pc_checkskill(sd, WL_RADIUS) > 0 && skill_id >= WL_WHITEIMPRISON && skill_id <= WL_FREEZE_SP && fixed_time > 0 )
 	{
-		int radiusbonus = 0;
-		if (battle_config.renewal_level_effect_skills == 1)
-			radiusbonus = 5 * pc_checkskill(sd, WL_RADIUS) + status_get_int(bl) / 15 + status_get_lv(bl) / 15;
-		else
-			radiusbonus = 5 * pc_checkskill(sd, WL_RADIUS) + status_get_int(bl) / 15 + 10;
+		int radiusbonus = 5 + 5 * pc_checkskill(sd, WL_RADIUS);
 		if ( radiusbonus > fixed_cast_rate )
 			fixed_cast_rate = radiusbonus;
 	}
