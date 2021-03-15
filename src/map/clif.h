@@ -575,6 +575,7 @@ void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 ok);	// s
 void clif_unequipitemack(struct map_session_data *sd,int n,int pos,int ok);	// self
 void clif_misceffect(struct block_list* bl,int type);	// area
 void clif_changeoption(struct block_list* bl);	// area
+void clif_changeoption_target(struct block_list *bl, struct block_list *target_bl, enum send_target target);
 void clif_changeoption2(struct block_list* bl);	// area
 void clif_useitemack(struct map_session_data *sd,int index,int amount,bool ok);	// self
 void clif_GlobalMessage(struct block_list* bl, const char* message);

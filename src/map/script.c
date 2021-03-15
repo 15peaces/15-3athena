@@ -9812,6 +9812,59 @@ BUILDIN_FUNC(hideonnpc)
 	return 1;
 }
 
+/*==========================================
+ *------------------------------------------*/
+BUILDIN_FUNC(cloakonnpc)
+{
+	struct npc_data *nd = npc_name2id(script_getstr(st, 2));
+	if (nd == NULL) {
+		ShowError("buildin_cloakonnpc: invalid npc name '%s'.\n", script_getstr(st, 2));
+		return 1;
+	}
+
+	if (script_hasdata(st, 3)) {
+		struct map_session_data *sd = map_id2sd(script_getnum(st, 3));
+		if (sd == NULL)
+			return 1;
+
+		uint32 val = nd->sc.option;
+		nd->sc.option |= OPTION_CLOAK;
+		clif_changeoption_target(&nd->bl, &sd->bl, SELF);
+		nd->sc.option = val;
+	}
+	else {
+		nd->sc.option |= OPTION_CLOAK;
+		clif_changeoption(&nd->bl);
+	}
+	return 0;
+}
+/*==========================================
+ *------------------------------------------*/
+BUILDIN_FUNC(cloakoffnpc)
+{
+	struct npc_data *nd = npc_name2id(script_getstr(st, 2));
+	if (nd == NULL) {
+		ShowError("buildin_cloakoffnpc: invalid npc name '%s'.\n", script_getstr(st, 2));
+		return 1;
+	}
+
+	if (script_hasdata(st, 3)) {
+		struct map_session_data *sd = map_id2sd(script_getnum(st, 3));
+		if (sd == NULL)
+			return 1;
+
+		uint32 val = nd->sc.option;
+		nd->sc.option &= ~OPTION_CLOAK;
+		clif_changeoption_target(&nd->bl, &sd->bl, SELF);
+		nd->sc.option = val;
+	}
+	else {
+		nd->sc.option &= ~OPTION_CLOAK;
+		clif_changeoption(&nd->bl);
+	}
+	return 0;
+}
+
 /// Starts a status effect on the target unit or on the attached player.
 ///
 /// sc_start <effect_id>,<duration>,<val1>{,<unit_id>};
@@ -19617,6 +19670,24 @@ BUILDIN_FUNC(navigateto){
 /*==========================================
  * Achievement System [Smokexyz/Hercules]
  *-----------------------------------------*/
+
+BUILDIN_FUNC(achievement_iscompleted)
+{
+	struct map_session_data *sd = script_hasdata(st, 3) ? map_id2sd(script_getnum(st, 3)) : script_rid2sd(st);
+	if (sd == NULL)
+		return 1;
+
+	int aid = script_getnum(st, 2);
+	const struct achievement_data *ad = achievement_get(aid);
+	if (ad == NULL) {
+		ShowError("buildin_achievement_iscompleted: Invalid Achievement %d provided.\n", aid);
+		return 1;
+	}
+
+	script_pushint(st, achievement_check_complete(sd, ad));
+	return 0;
+}
+
  /**
   * Validates an objective index for the given achievement.
   * Can be used for any achievement type.
@@ -19643,13 +19714,13 @@ BUILDIN_FUNC(achievement_progress)
 	if ((ad = achievement_get(aid)) == NULL) {
 		ShowError("buildin_achievement_progress: Invalid achievement ID %d received.\n", aid);
 		script_pushint(st, 0);
-		return false;
+		return 1;
 	}
 
 	if (obj_idx <= 0 || obj_idx > VECTOR_LENGTH(ad->objective)) {
 		ShowError("buildin_achievement_progress: Invalid objective index %d received. (min: %d, max: %d)\n", obj_idx, 0, VECTOR_LENGTH(ad->objective));
 		script_pushint(st, 0);
-		return false;
+		return 1;
 	}
 
 	obj_idx--; // convert to array index.
@@ -19657,25 +19728,25 @@ BUILDIN_FUNC(achievement_progress)
 	if (progress <= 0 || progress > VECTOR_INDEX(ad->objective, obj_idx).goal) {
 		ShowError("buildin_achievement_progress: Progress exceeds goal limit for achievement id %d.\n", aid);
 		script_pushint(st, 0);
-		return false;
+		return 1;
 	}
 
 	if (incremental < 0 || incremental > 1) {
 		ShowError("buildin_achievement_progress: Argument 4 expects boolean (0/1). provided value: %d\n", incremental);
 		script_pushint(st, 0);
-		return false;
+		return 1;
 	}
 
 	if (script_hasdata(st, 6)) {
 		if (account_id <= 0) {
 			ShowError("buildin_achievement_progress: Invalid Account id %d provided.\n", account_id);
 			script_pushint(st, 0);
-			return false;
+			return 1;
 		}
 		else if ((sd = map_id2sd(account_id)) == NULL) {
 			ShowError("buildin_achievement_progress: Account with id %d was not found.\n", account_id);
 			script_pushint(st, 0);
-			return false;
+			return 1;
 		}
 	}
 
@@ -19684,7 +19755,7 @@ BUILDIN_FUNC(achievement_progress)
 	else
 		script_pushint(st, 0);
 
-	return true;
+	return 0;
 }
 
 /**
@@ -19953,6 +20024,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(disablenpc,"s"),
 	BUILDIN_DEF(hideoffnpc,"s"),
 	BUILDIN_DEF(hideonnpc,"s"),
+	BUILDIN_DEF(cloakonnpc, "s?"),
+	BUILDIN_DEF(cloakoffnpc, "s?"),
 	BUILDIN_DEF(sc_start,"iii?"),
 	BUILDIN_DEF(sc_start2,"iiii?"),
 	BUILDIN_DEF(sc_start4,"iiiiii?"),
@@ -20274,6 +20347,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 	BUILDIN_DEF(navigateto, "s???????"),
 	// Achievements [Smokexyz/Hercules]
+	BUILDIN_DEF(achievement_iscompleted, "i?"),
 	BUILDIN_DEF(achievement_progress, "iiii?"),
 	BUILDIN_DEF(adopt, "vv"),
 	{NULL,NULL,NULL},

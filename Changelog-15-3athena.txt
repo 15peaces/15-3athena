@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/15/2021
+	r281 [15peaces]
+		*Complete rewrite of the achievement system (part 5).
+			-This update should complete the achievement system and all it features.
+			-Added script command achievement_iscompleted to check for achievement status.
+			-Added new script commands cloakonnpc/cloakoffnpc.
+			-Added exploration achievements npcs.
+			-Add a function to send PACKET_ZC_STATE_CHANGE to a single target.
+			-Thanks to @HerculesWS
+
 03/14/2021
 	r280 [15peaces]
 		*Merged missing changes from 3ceam rev. 722 - 724
