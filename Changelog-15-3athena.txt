@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/20/2021
+	r282 [15peaces]
+		*Merged missing changes from 3ceam rev. 725 - 727
+		*Some updates to item database.
+			-Added some missing item set bonuses.
+			-Made Tare_Pope_ refinable.
+		*Fixed an issue where the skill_castfix function crashes the map server.
+		*Fixed a issue where the server would go into a infinite loop when a regular or evolved homunculus would reach level 99 with more then enough exp needed.
+		*This update completes the main support for the mutated homunculus and is now ready for public testing. Their's a few things to know when testing....
+			-1. A homunculus can only be mutated when its level 99 and in its evolved form.
+			-2. Mutation's function requires a ID value to know which form to mutate the homunculus into.
+			-3. When making your NPC script, be sure to have it check if the player is a Genetic. Official server's requries the player to be one. The mutation function will not check the player's job.
+			-4. The homunculus will remember the skills from its previous form when its mutated, but only the ones that were unlocked (opened for leveling up) or leveled. Any skills that arnt unlocked before mutation will no longer be learnable. The same goes for 
+				the evolved loyalty skill.
+			-Be sure to warn players about this in the NPC script to avoid complaints and confusion.
+			-5. All of the mutation skills except Poison Mist currently doesn't work. Their usable, but will not do anything. These skills will be coded soon in the near future.
+			-6. The system was tested up and down to make sure its stable, bug free, and safe to use, however I can't promise its entirely bug free. GM's can safely mess with them through commands and test NPC scripts. Its your choice if you want to allow them to 
+				be accessible to your players.
+		*Updated the makehomun command.
+			-Typing a unsupported ID or not typing any ID will make a list of homunculus and their ID's display on the chat window. Its very similar to how the list in the jobchange command is. Currently lists regular, evolved, and mutated homunculus.
+		*Added the hommutation command.
+			-This command allows you to mutate your homunculus and choose what form to mutate into.
+			-To use it, your homunculus must be level 99 and in its evolved form for it to work.
+			-The command also works through hommutate.
+		*Added the merc_hom_mutation function.
+			-This function control's the process for mutating a homunculus.
+			-The homunculus must be level 99 and in its evolved form for it to mutate the homunculus.
+		*Added the hommutation script command.
+			-This is used to mutate a player's homunculus through a NPC or item script.
+			-Information on how to use it can be found in the script_commands document.
+		*Homunculus bonuses gained through evolution are now official.
+			-It appears the dev that coded the bonuses in put temporarily values and never updated them after. Getting a MaxHP increase of between 1 to 10 just showed it wasnt correct.
+		*Added official growth stats for mutated homunculus.
+		*KO_HAPPOKUNAI
+			-Modified the damage formula to be more official like for pre-renewal mechanics.
+			-In renewal, base ATK deals double the damage. With Spray Kunai dealing a fixed amount of damage instead of a percentage, it should take double the base ATK.
+
 03/15/2021
 	r281 [15peaces]
 		*Complete rewrite of the achievement system (part 5).

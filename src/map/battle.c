@@ -1763,7 +1763,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					short index = sd->equip_index[EQI_AMMO];
 					wd.damage = 0;
 					if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_AMMO )
-						ATK_ADD((3 * (sstatus->batk + sstatus->rhw.atk + sd->inventory_data[index]->atk)) * (skill_lv + 5) / 5);
+						ATK_ADD((3 * (2 * sstatus->batk + sstatus->rhw.atk + sd->inventory_data[index]->atk)) * (skill_lv + 5) / 5);
 				}
 				else
 					ATK_ADD(5000);

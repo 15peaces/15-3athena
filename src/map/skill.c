@@ -13675,23 +13675,26 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 			fixed_time -= 1000;
 	}
 
-	// Fixed cast time adjustments by a fixed amount trough items. [15peaces]
-	fixed_time += sd->fixedcast;
-
-	//Fixed cast time reductions in a percentage starts here where reductions from any worn equips and cards that give fixed cast
-	//reductions are calculated. Percentage reductions do not stack and the highest reduction value found on any worn equip,
-	//worn card, skill, or status will be used.
-	if (sd && fixed_time > 0)
+	if(sd) 
 	{
-		int i;
-		if( sd->fixedcastrate != 100 )//Fixed cast reduction on all skills.
-			fixed_cast_rate = 100 - sd->fixedcastrate;
-		for( i = 0; i < ARRAYLENGTH(sd->fixedskillcast) && sd->fixedskillcast[i].id; i++ )
+		// Fixed cast time adjustments by a fixed amount trough items. [15peaces]
+		fixed_time += sd->fixedcast;
+
+		//Fixed cast time reductions in a percentage starts here where reductions from any worn equips and cards that give fixed cast
+		//reductions are calculated. Percentage reductions do not stack and the highest reduction value found on any worn equip,
+		//worn card, skill, or status will be used.
+		if (fixed_time > 0)
 		{
-			if( sd->fixedskillcast[i].id == skill_id )
-			{ //Fixed cast reduction for a set skill.
-				fixed_cast_rate -= sd->fixedskillcast[i].val;
-				break;
+			int i;
+			if( sd->fixedcastrate != 100 )//Fixed cast reduction on all skills.
+				fixed_cast_rate = 100 - sd->fixedcastrate;
+			for( i = 0; i < ARRAYLENGTH(sd->fixedskillcast) && sd->fixedskillcast[i].id; i++ )
+			{
+				if( sd->fixedskillcast[i].id == skill_id )
+				{ //Fixed cast reduction for a set skill.
+					fixed_cast_rate -= sd->fixedskillcast[i].val;
+					break;
+				}
 			}
 		}
 	}

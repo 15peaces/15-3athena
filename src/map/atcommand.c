@@ -7705,6 +7705,35 @@ ACMD_FUNC(homevolution)
 }
 
 /*==========================================
+ * Homunculus Mutation [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(hommutation)
+{
+	int homunid = atoi(message);
+	nullpo_retr(-1, sd);
+
+	if ( !merc_is_hom_active(sd->hd) ) {
+		clif_displaymessage(fd, "You do not have a homunculus.");
+		return -1;
+	}
+
+	if ( !(homunid >=  MH_CLASS_BASE && homunid <= MH_CLASS_MAX )) {
+		clif_displaymessage(fd, "Please enter a proper mutation ID.");
+		clif_displaymessage(fd, "----- Mutated Homunculus -----");
+		clif_displaymessage(fd, "6048 Eira             6049 Bayeri           6050 Sera");
+		clif_displaymessage(fd, "6051 Dieter           6052 Eleanor");
+		return -1;
+	}
+
+	if ( !merc_hom_mutation(sd->hd, homunid) ) {
+		clif_displaymessage(fd, "Your homunculus must be level 99, evolved, and is not already mutated.");
+		return -1;
+	}
+
+	return 0;
+}
+
+/*==========================================
  * call choosen homunculus [orn]
  *------------------------------------------*/
 ACMD_FUNC(makehomun)
@@ -7718,14 +7747,32 @@ ACMD_FUNC(makehomun)
 	}
 
 	if (!message || !*message) {
-		clif_displaymessage(fd, "Please, enter a homunculus id: (usage: @makehomun <homunculus id>.");
+		clif_displaymessage(fd, "Please, enter a homunculus ID: (usage: @makehomun <homunculus id>.");
+		clif_displaymessage(fd, "----- Homunculus -----");
+		clif_displaymessage(fd, "6001 Lif              6002 Amistr           6003 Filir            6004 Vanilmirth");
+		clif_displaymessage(fd, "6005 Lif 2            6006 Amistr 2         6007 Filir 2          6008 Vanilmirth 2");
+		clif_displaymessage(fd, "----- Evolved Homunculus -----");
+		clif_displaymessage(fd, "6009 Lif              6010 Amistr           6011 Filir            6012 Vanilmirth");
+		clif_displaymessage(fd, "6013 Lif 2            6014 Amistr 2         6015 Filir 2          6016 Vanilmirth 2");
+		clif_displaymessage(fd, "----- Mutated Homunculus -----");
+		clif_displaymessage(fd, "6048 Eira             6049 Bayeri           6050 Sera             6051 Dieter");
+		clif_displaymessage(fd, "6052 Eleanor");
 		return -1;
 	}
 
 	homunid = atoi(message);
 	if (!(homunid >= HM_CLASS_BASE && homunid <= HM_CLASS_MAX || homunid >= MH_CLASS_BASE && homunid <= MH_CLASS_MAX))
 	{
-		clif_displaymessage(fd, "Invalid Homunculus id.");
+		clif_displaymessage(fd, "Invalid homunculus ID.");
+		clif_displaymessage(fd, "----- Homunculus -----");
+		clif_displaymessage(fd, "6001 Lif              6002 Amistr           6003 Filir            6004 Vanilmirth");
+		clif_displaymessage(fd, "6005 Lif 2            6006 Amistr 2         6007 Filir 2          6008 Vanilmirth 2");
+		clif_displaymessage(fd, "----- Evolved Homunculus -----");
+		clif_displaymessage(fd, "6009 Lif              6010 Amistr           6011 Filir            6012 Vanilmirth");
+		clif_displaymessage(fd, "6013 Lif 2            6014 Amistr 2         6015 Filir 2          6016 Vanilmirth 2");
+		clif_displaymessage(fd, "----- Mutated Homunculus -----");
+		clif_displaymessage(fd, "6048 Eira             6049 Bayeri           6050 Sera             6051 Dieter");
+		clif_displaymessage(fd, "6052 Eleanor");
 		return -1;
 	}
 
@@ -9752,6 +9799,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "homlevel",          60,60,     atcommand_homlevel },
 	{ "homevolve",         60,60,     atcommand_homevolution },
 	{ "homevolution",      60,60,     atcommand_homevolution },
+	{ "hommutate",         60,60,     atcommand_hommutation },
+	{ "hommutation",       60,60,     atcommand_hommutation },
 	{ "makehomun",         60,60,     atcommand_makehomun },
 	{ "homfriendly",       60,60,     atcommand_homfriendly },
 	{ "homhungry",         60,60,     atcommand_homhungry },
