@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/21/2021
+	r283 [15peaces]
+		*Merged missing changes from 3ceam rev. 728 - 729
+		*Fixed an issue where the Banding status crashed the map server.
+		*Fixed vendinglist packet structures & lenghts.
+		*Added a hand full of missing status tags & skill placeholders from the EP14.3 Part 2 Update.
+
 03/20/2021
 	r282 [15peaces]
 		*Merged missing changes from 3ceam rev. 725 - 727

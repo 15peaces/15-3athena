@@ -4867,7 +4867,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 			if( tsd->sc.count && tsd->sc.data[SC_ROLLINGCUTTER] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_ROLLINGCUTTER,1,9999,tsd->sc.data[SC_ROLLINGCUTTER]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_BANDING] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_BANDING,1,9999,tsd->sc.data[SC_BANDING]->val1,tsd->sc.data[SC_BANDING]->val2,tsd->sc.data[SC_BANDING]->val3);
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_BANDING,1,9999,tsd->sc.data[SC_BANDING]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_CRYSTALIZE] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_COLD,1,9999,tsd->sc.data[SC_CRYSTALIZE]->val1,0,0);
@@ -7427,9 +7426,17 @@ void clif_closevendingboard(struct block_list* bl, int fd)
 /// R 0800 <packet len>.W <owner id>.L <unique id>.L { <price>.L <amount>.W <index>.W <type>.B <name id>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W }* (ZC_PC_PURCHASE_ITEMLIST_FROMMC2)
 void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* vending)
 {
-	int i,fd,cmd = 0x133,offset = 0;
+	int i, fd;
 	int count;
 	struct map_session_data* vsd;
+
+#if PACKETVER < 20100105
+	const int cmd = 0x133;
+	const int offset = 8;
+#else
+	const int cmd = 0x800;
+	const int offset = 12;
+#endif
 
 #if PACKETVER < 20150226
 	const int item_length = 22;
@@ -7447,33 +7454,28 @@ void clif_vendinglist(struct map_session_data* sd, int id, struct s_vending* ven
 
 	count = vsd->vend_num;
 
-#if PACKETVER >= 20100105
-	cmd = 0x800;
-	offset = 4;
-#endif
-
-	WFIFOHEAD(fd, 8+count*item_length);
+	WFIFOHEAD(fd, offset+count*item_length);
 	WFIFOW(fd,0) = cmd;
-	WFIFOW(fd,2) = 12+count*item_length;
+	WFIFOW(fd,2) = offset+count*item_length;
 	WFIFOL(fd,4) = id;
 #if PACKETVER >= 20100105
-	WFIFOL(fd,offset + 4) = vsd->vender_id;
+	WFIFOL(fd,8) = vsd->vender_id;
 #endif
 	for( i = 0; i < count; i++ )
 	{
 		int index = vending[i].index;
 		struct item_data* data = itemdb_search(vsd->cart.u.items_cart[index].nameid);
-		WFIFOL(fd,offset + 8+i*item_length) = vending[i].value;
-		WFIFOW(fd,offset + 12+i*item_length) = vending[i].amount;
-		WFIFOW(fd,offset + 14+i*item_length) = vending[i].index + 2;
-		WFIFOB(fd,offset + 16+i*item_length) = itemtype(data->type);
-		WFIFOW(fd,offset + 17+i*item_length) = ( data->view_id > 0 ) ? data->view_id : vsd->cart.u.items_cart[index].nameid;
-		WFIFOB(fd,offset + 19+i*item_length) = vsd->cart.u.items_cart[index].identify;
-		WFIFOB(fd,offset + 20+i*item_length) = vsd->cart.u.items_cart[index].attribute;
-		WFIFOB(fd,offset + 21+i*item_length) = vsd->cart.u.items_cart[index].refine;
-		clif_addcards(WFIFOP(fd, offset + 22+i*item_length), &vsd->cart.u.items_cart[index]);
+		WFIFOL(fd, offset + 0 + i * item_length) = vending[i].value;
+		WFIFOW(fd, offset + 4 + i * item_length) = vending[i].amount;
+		WFIFOW(fd, offset + 6 + i * item_length) = vending[i].index + 2;
+		WFIFOB(fd, offset + 8 + i * item_length) = itemtype(data->type);
+		WFIFOW(fd, offset + 9 + i * item_length) = ( data->view_id > 0 ) ? data->view_id : vsd->cart.u.items_cart[index].nameid;
+		WFIFOB(fd, offset +11 + i * item_length) = vsd->cart.u.items_cart[index].identify;
+		WFIFOB(fd, offset +12 + i * item_length) = vsd->cart.u.items_cart[index].attribute;
+		WFIFOB(fd, offset +13 + i * item_length) = vsd->cart.u.items_cart[index].refine;
+		clif_addcards(WFIFOP(fd, offset + 14+i*item_length), &vsd->cart.u.items_cart[index]);
 #if PACKETVER >= 20150226
-		clif_add_random_options(WFIFOP(fd,offset+30+i*item_length), &vsd->cart.u.items_cart[index]);
+		clif_add_random_options(WFIFOP(fd,offset+22+i*item_length), &vsd->cart.u.items_cart[index]);
 #if PACKETVER >= 20160921
 		WFIFOL(fd, offset + 47 + i*item_length) = pc_equippoint_sub(sd, data);
 		WFIFOW(fd, offset + 51 + i*item_length) = data->look;
