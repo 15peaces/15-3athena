@@ -413,7 +413,7 @@ int can_copy (struct map_session_data *sd, int skillid, struct block_list* bl)
 	if( sd )
 	{
 		// Couldn't preserve 3rd Class skills except only when using Reproduce skill. [Jobbie]
-		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= KO_YAMIKUMO && skillid <= OB_AKAITSUKI)))
+		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= KO_YAMIKUMO && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= NC_MAGMA_ERUPTION_DOTDAMAGE)))
 			return 0;
 		// Reproduce will only copy skills according on the list. [Jobbie]
 		if( sd->sc.data[SC__REPRODUCE] && !id )
@@ -1197,7 +1197,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		rate = 5 + 5 * skilllv;
 		if( sc && sc->data[SC_COOLER_OPTION] )
 			rate += rate * sc->data[SC_COOLER_OPTION]->val2 / 100;
-		sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv) - 1000 * tstatus->vit / 10);
+		sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv));
+		//sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv) - 1000 * tstatus->vit / 10);
 		break;
 	case SO_CLOUD_KILL:
 		sc_start(bl, SC_POISON, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv)); // Need official rate. [LimitLine]
@@ -1239,8 +1240,20 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case KO_MAKIBISHI:
 		sc_start(bl, SC_STUN, 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
+	case RK_DRAGONBREATH_WATER:
+		sc_start4(bl,SC_FREEZING,15,skilllv,1000,src->id,0,skill_get_time(skillid,skilllv));
+		break;
+	case MH_NEEDLE_OF_PARALYZE:
+		sc_start(bl, SC_NEEDLE_OF_PARALYZE, 100, skilllv, skill_get_time(skillid,skilllv));
+		break;
 	case MH_POISON_MIST:
 		sc_start(bl, SC_BLIND, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid,skilllv));
+		break;
+	case MH_XENO_SLASHER:
+		sc_start(bl, SC_BLEEDING, 1 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+		break;
+	case MH_STAHL_HORN:
+		sc_start(bl, SC_STUN, 16 + 4 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
 	case EL_WIND_SLASH:	// Non confirmed rate.
 		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
@@ -2168,6 +2181,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		break;
 	case WL_HELLINFERNO:
 	//case SR_EARTHSHAKER:
+	case MH_MAGMA_FLOW:
 		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skillid, -2, 6);
 		break;
 	case WL_SOULEXPANSION:
@@ -2193,6 +2207,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		break;
 	case WM_SEVERE_RAINSTORM_MELEE:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,WM_SEVERE_RAINSTORM,-2,6);
+		break;
+	case GN_CRAZYWEED_ATK:
+		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid, -2, 6);
 		break;
 	case GN_SLINGITEM_RANGEMELEEATK:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,GN_SLINGITEM,-2,6);
@@ -3020,6 +3037,16 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					// skl->type = original direction, to avoid change it if caster walks in the waves progress.
 					skill_unitsetting(src, skl->skill_id, skl->skill_lv, skl->x, skl->y, (skl->type<<16)|skl->flag);
 					break;
+				case GN_CRAZYWEED:
+					if( skl->type >= 0 )
+					{
+						int x = skl->type>>16, y = skl->type&0xFFFF;
+						if( path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL) )
+							skill_castend_pos2(src, x, y, GN_CRAZYWEED_ATK, skl->skill_lv, tick, flag);
+					}
+					else if( path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL) )
+						skill_castend_pos2(src, skl->x, skl->y, GN_CRAZYWEED_ATK, skl->skill_lv, tick, flag);
+					break;
 			}
 		}
 	} while (0);
@@ -3296,6 +3323,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_HELLPOWER:
 	case RK_SONICWAVE:
 	case RK_HUNDREDSPEAR:
+	case RK_WINDCUTTER:
+	case RK_DRAGONBREATH:
 	case GC_CROSSIMPACT:
 	case GC_VENOMPRESSURE:
 	case AB_DUPLELIGHT_MELEE:
@@ -3316,10 +3345,18 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SR_GENTLETOUCH_QUIET:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
+	case GN_CRAZYWEED_ATK:
 	case GN_SLINGITEM_RANGEMELEEATK:
 	case KO_SETSUDAN:
 	case KO_BAKURETSU:
 	case KO_HUUMARANKA:
+	case RK_DRAGONBREATH_WATER:
+	case MH_NEEDLE_OF_PARALYZE:
+	case MH_SONIC_CRAW:
+	//case MH_SILVERVEIN_RUSH:
+	//case MH_MIDNIGHT_FRENZY:
+	case MH_STAHL_HORN:
+	case MH_TINDER_BREAKER:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
@@ -3563,6 +3600,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_CARTCANNON:
 	case KO_HAPPOKUNAI:
 	case KO_MUCHANAGE:
+	case MH_HEILIGE_STANGE:
 		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -3735,6 +3773,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WL_TETRAVORTEX_WIND:
 	case WL_TETRAVORTEX_GROUND:
 	case WM_METALICSOUND:
+	case MH_ERASER_CUTTER:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
@@ -3824,7 +3863,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_SMOKING:
 	case GS_FLING:
 	case NJ_ZENYNAGE:
-	case RK_DRAGONBREATH:
 	case GN_THORNS_TRAP:
 	case GN_BLOOD_SUCKER:
 	case GN_HELLS_PLANT_ATK:
@@ -4339,41 +4377,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
-	case GN_CRAZYWEED:
-		if( rand()%100 < 75 ){
-			if( bl->type == BL_SKILL ) {
-				struct skill_unit *su = (struct skill_unit *)bl;
-				if( !su )
-					break;
-				if( skill_get_inf2(su->group->skill_id)&INF2_TRAP )
-				{	// Still need confirm it.
-					skill_delunit(su);
-					break;
-				}
-
-				switch( su->group->skill_id )
-				{	// Unconfirmed list, based on info from irowiki.
-					case GN_WALLOFTHORN:
-					case GN_THORNS_TRAP:
-					case SC_BLOODYLUST:
-					case SC_CONFUSIONPANIC:
-					case SC_MAELSTROM:
-					case WZ_FIREPILLAR:
-					case SA_LANDPROTECTOR:
-					case SA_VOLCANO:
-					case SA_DELUGE:
-					case SA_VIOLENTGALE:
-					case MG_SAFETYWALL:
-					case AL_PNEUMA:
-						skill_delunit(su);
-						break;
-				}
-				break;
-			}else
-				skill_attack(BF_WEAPON,src,src,bl,GN_CRAZYWEED_ATK,skilllv,tick,flag);
- 		}
- 		break;
-
 	case KO_JYUMONJIKIRI:
 		{
 			short x, y;
@@ -4398,6 +4401,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case KO_KAIHOU:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		pc_delspiritball_attribute(sd,sd->spiritballnumber,0);
+		break;
+
+	case MH_MAGMA_FLOW:
+		if (flag & 1)
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		else if (sd)
+			map_foreachinrange(skill_area_sub, bl, 3/*skill_get_splash(skillid, skilllv)*/, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
 		break;
 
 	case EL_FIRE_BOMB:
@@ -7259,6 +7269,21 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			skill_blockhomun_start(hd, skillid, skill_get_time2(skillid,skilllv));
 		break;
 
+	case MH_MAGMA_FLOW:
+		{
+			struct status_change* sc = status_get_sc(src);
+			if ( sc && sc->data[SC_MAGMA_FLOW] )
+				clif_skill_nodamage(src,bl,skillid,skilllv,flag);
+			else
+			{
+				clif_skill_nodamage(src,bl,skillid,skilllv,
+				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+				if (hd)
+					skill_blockhomun_start(hd, skillid, skill_get_time2(skillid,skilllv));
+			}
+		}
+		break;
+
 	case NPC_DRAGONFEAR:
 		if (flag&1) {
 			const enum sc_type sc[] = { SC_STUN, SC_SILENCE, SC_CONFUSION, SC_BLEEDING };
@@ -9618,6 +9643,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case WM_SOUND_OF_DESTRUCTION:
 	case KO_BAKURETSU:
 	case KO_HUUMARANKA:
+	case RK_DRAGONBREATH_WATER:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | 1, skill_castend_damage_id);
 		break;
@@ -9765,10 +9791,36 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		break;
 
 	case GN_CRAZYWEED:
-		i = skill_get_splash(skillid,skilllv);
-		map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR|BL_SKILL,
-			src,skillid,skilllv,tick,flag|BCT_ENEMY|1,
-			skill_castend_damage_id);
+		{
+			int flag = 0, area = skill_get_splash(skillid, skilllv);
+			short tmpx = 0, tmpy = 0, x1 = 0, y1 = 0;
+
+			for( i = 0; i < 3 + (skilllv>>1); i++ )
+			{
+				// Creates a random Cell in the Splash Area
+				tmpx = x - area + rand()%(area * 2 + 1);
+				tmpy = y - area + rand()%(area * 2 + 1);
+
+				if( i > 0 )
+					skill_addtimerskill(src,tick+i*250,0,tmpx,tmpy,GN_CRAZYWEED,skilllv,(x1<<16)|y1,flag);
+
+				x1 = tmpx;
+				y1 = tmpy;
+			}
+
+			skill_addtimerskill(src,tick+i*250,0,tmpx,tmpy,GN_CRAZYWEED,skilllv,-1,flag);
+		}
+		break;
+
+	case GN_CRAZYWEED_ATK:
+		{
+			int dummy = 1;
+			//Enable if any unique animation gets added to this skill ID in the future. [Rytech]
+			//clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
+			i = skill_get_splash(skillid, skilllv);
+			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, skillid, &dummy, src);
+			map_foreachinarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+		}
 		break;
 
 	case GN_FIRE_EXPANSION:
@@ -9935,6 +9987,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_EARTH_INSIGNIA:
 	case KO_MAKIBISHI:
 	case MH_POISON_MIST:
+	case MH_XENO_SLASHER:
+	case MH_LAVA_SLIDE:
 	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
@@ -11810,23 +11864,32 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			if ( battle_check_target(&src->bl,bl,BCT_ENEMY) > 0 )
 			{
 				switch ( sg->unit_id )
-				{//Need to confirm if 1 random or all status attempt to inflect for each 500ms.
+				{
 					case UNT_ZENKAI_WATER://Success chances and durations needed. [Rytech]
-						sc_start(bl, SC_FREEZE, 25, sg->skill_lv, 10000);
-						sc_start(bl, SC_FREEZING, 25, sg->skill_lv, 10000);
-						sc_start(bl, SC_CRYSTALIZE, 25, sg->skill_lv, 10000);
+						switch ( rand()%3+1 )
+						{
+							case 1: sc_start(bl, SC_FREEZE, 25, sg->skill_lv, 10000); break;
+							case 2: sc_start(bl, SC_FREEZING, 25, sg->skill_lv, 10000); break;
+							case 3: sc_start(bl, SC_CRYSTALIZE, 25, sg->skill_lv, 10000); break;
+						}
 						break;
 					case UNT_ZENKAI_LAND:
-						sc_start(bl, SC_STONE, 25, sg->skill_lv, 10000);
-						sc_start(bl, SC_POISON, 25, sg->skill_lv, 10000);
+						switch ( rand()%2+1 )
+						{
+							case 1: sc_start(bl, SC_STONE, 25, sg->skill_lv, 10000); break;
+							case 2: sc_start(bl, SC_POISON, 25, sg->skill_lv, 10000); break;
+						}
 						break;
 					case UNT_ZENKAI_FIRE:
 						sc_start(bl, SC_BURNING, 25, sg->skill_lv, 10000);
 						break;
 					case UNT_ZENKAI_WIND:
-						sc_start(bl, SC_SLEEP, 25, sg->skill_lv, 10000);
-						sc_start(bl, SC_SILENCE, 25, sg->skill_lv, 10000);
-						sc_start(bl, SC_DEEPSLEEP, 25, sg->skill_lv, 10000);
+						switch ( rand()%3+1 )
+						{
+							case 1: sc_start(bl, SC_SLEEP, 25, sg->skill_lv, 10000); break;
+							case 2: sc_start(bl, SC_SILENCE, 25, sg->skill_lv, 10000); break;
+							case 3: sc_start(bl, SC_DEEPSLEEP, 25, sg->skill_lv, 10000); break;
+						}
 						break;
 				}
 			}
@@ -11836,6 +11899,11 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 
 		case UNT_POISON_MIST:
 			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+			break;
+
+		case UNT_LAVA_SLIDE:
+			skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
+			sc_start(bl, SC_BURNING, 10 * sg->skill_lv, sg->skill_lv, 15000);
 			break;
 		}
 
@@ -13605,7 +13673,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	// Calculates regular and variable cast time.
 	if( !(skill_get_castnodex(skill_id, skill_lv)&1) )
 	{ //If renewal casting is enabled, all renewal skills will follow the renewal cast time formula.
-		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= NC_MAGMA_ERUPTION_DOTDAMAGE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= ALL_FULL_THROTTLE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		{
 			time -= time * (status_get_dex(bl) * 2 + status_get_int(bl)) / 530;
 			if ( time < 0 ) time = 0;// No return of 0 since were adding the fixed_time later.
@@ -13730,7 +13798,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 
 	//Only add variable and fixed times when renewal casting for renewal skills are on. Without this check,
 	//it will add the 2 together during the above phase and then readd the fixed time.
-	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= NC_MAGMA_ERUPTION_DOTDAMAGE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= ALL_FULL_THROTTLE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		final_time = time + fixed_time;
 	else
 		final_time = time;
@@ -14592,6 +14660,7 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 			break;
 		case HW_GANBANTEIN:
 		case LG_EARTHDRIVE:
+		case GN_CRAZYWEED_ATK:
 			if( !(unit->group->state.song_dance&0x1) )
 			{// Don't touch song/dance.
 				skill_delunit(unit);

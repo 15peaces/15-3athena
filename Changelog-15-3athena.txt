@@ -5,6 +5,45 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/27/2021
+	r285 [15peaces]
+		*Merged missing changes from 3ceam rev. 730 - 732
+		*Added some configs which fixes some monster behaviors to official.
+			-Added a config for slave teleporting to master.
+				--This adds a battle config to toggle the ability for slaves to teleport back to their master when they are too far away.
+				--Officially, players can drag slaves away from the master without them teleporting back.
+				--Determined that slaves don't become completely stuck but rather immobile until a target comes in range again.
+			-Added a config for respawn time variance.
+				--By default the respawn time variance only applies to boss monsters on official servers.
+			-Thanks to @rathena!
+		*Corrected the bonuses homunculus gain through evolution.
+		*Homunculus are now allowed to be renamed a 2nd time when mutated.
+		*Mutated homunculus now have their official size ,race, and base stats.
+		*Skills for mutated homunculus should now appear on the skill list when unlocked through leveling. However their's still a bug where they appear 1 level after the one their unlocked on. This fix is temporarily and will be improved on in the future.
+		*Expanded the range of skills copyable through Reproduce to prepare for the adding of the new 3rd class skills.
+		*Updated the skill cast time system to check for the ranges of the new 3rd job skills.
+		*Added a special Gunslinger bullet that was found in the official files.
+		*SO_DIAMONDDUST
+			-Reverted a change that messed up the duration resistance.
+		*MH_NEEDLE_OF_PARALYZE; MH_POISON_MIST; MH_ERASER_CUTTER; MH_XENO_SLASHER; MH_SONIC_CRAW; MH_STAHL_HORN; MH_HEILIGE_STANGE; MH_TINDER_BREAKER; MH_MAGMA_FLOW; MH_LAVA_SLIDE
+			-Added support for these skills.
+			-Not all of them are completely working since some of them only currently have the damage coded, but its enough to give players some new damage dealing skills. 2 for each mutated homunculus.
+		*Added pre-support for mutated homunculus skills.
+			-This support assigns the SC ID's and enables the SI's needed for them, as well as add the needed stuff to the status file.
+		*RK_DRAGONBREATH
+			-Recoded the entire skill.
+			-It was found that the skill deals weapon type damage even tho your ATK doesen't affect the damage at all. Its basicly like how Mechanic's Self Destruction works.
+			-This recode should fix bugs that existed in the past and also adds in the official balance behaviors added to official server's from March of 2013.
+		*GN_CRAZYWEED; GN_CRAZYWEED_ATK
+			-Recoded the entire skill.
+			-The skill still has a small animation bug where the caster will act on each vine sprout and yell a non-existing name. This will be fixed one day when im up for it.
+		*KO_ZENKAI
+			-Now only attempts to inflect one status every hit instead of every status for that AoE.
+		*RK_DRAGONBREATH_WATER
+			-Added full support for the skill.
+			-Note: This skill is currently only usable through the useskill command.
+		*Added some pre-support for the new 3rd job skills to prepare for future coding.
+
 03/21/2021
 	r283 [15peaces]
 		*Merged missing changes from 3ceam rev. 728 - 729

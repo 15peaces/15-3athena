@@ -6,6 +6,9 @@
 
 #include "cbasetypes.h"
 
+// if need disable nullpo checks this line can be commented
+#define NULLPO_CHECK
+
 /// enabled by default on debug builds
 #if defined(DEBUG) && !defined(NULLPO_CHECK)
 	#define NULLPO_CHECK

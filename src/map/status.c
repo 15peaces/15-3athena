@@ -582,6 +582,20 @@ void initChangeTables(void)
 	set_sc( OB_OBOROGENSOU       , SC_GENSOU          , SI_GENSOU          , SCB_NONE );
 	set_sc( OB_AKAITSUKI         , SC_AKAITSUKI       , SI_AKAITSUKI       , SCB_NONE );
 
+	//Adjust SCB flags as support for these skills are added. [Rytech]
+	set_sc( GC_DARKCROW           , SC_DARKCROW           , SI_DARKCROW           , SCB_NONE );
+	set_sc( RA_UNLIMIT            , SC_UNLIMIT            , SI_UNLIMIT            , SCB_NONE );
+	set_sc( GN_ILLUSIONDOPING     , SC_HALLUCINATION      , SI_HALLUCINATION      , SCB_NONE );
+	add_sc( RK_DRAGONBREATH_WATER , SC_FREEZING           );
+	add_sc( NC_MAGMA_ERUPTION     , SC_BURNING            );
+	set_sc( WM_FRIGG_SONG         , SC_FRIGG_SONG         , SI_FRIGG_SONG         , SCB_NONE );
+	set_sc( SR_FLASHCOMBO         , SC_FLASH_COMBO_ATK    , SI_BLANK              , SCB_NONE );
+	add_sc( SC_ESCAPE             , SC_ANKLE              );
+	set_sc( AB_OFFERTORIUM        , SC_OFFERTORIUM        , SI_OFFERTORIUM        , SCB_NONE );
+	set_sc( WL_TELEKINESIS_INTENSE, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE );
+	set_sc( LG_KINGS_GRACE        , SC_KINGS_GRACE        , SI_KINGS_GRACE        , SCB_NONE );
+	set_sc( ALL_FULL_THROTTLE     , SC_FULL_THROTTLE      , SI_FULL_THROTTLE      , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
 	set_sc( HFLI_FLEET           , SC_FLEET           , SI_BLANK           , SCB_ASPD|SCB_BATK|SCB_WATK );
@@ -589,7 +603,28 @@ void initChangeTables(void)
 	set_sc( HAMI_DEFENCE         , SC_DEFENCE         , SI_BLANK           , SCB_DEF );
 	set_sc( HAMI_BLOODLUST       , SC_BLOODLUST       , SI_BLANK           , SCB_BATK|SCB_WATK );
 
+	// Mutanted Homunculus
+	set_sc(MH_NEEDLE_OF_PARALYZE , SC_NEEDLE_OF_PARALYZE, SI_NEEDLE_OF_PARALYZE, SCB_NONE);
 	add_sc( MH_POISON_MIST       , SC_BLIND );
+	set_sc( MH_PAIN_KILLER       , SC_PAIN_KILLER       , SI_PAIN_KILLER       , SCB_NONE );
+	set_sc( MH_LIGHT_OF_REGENE   , SC_LIGHT_OF_REGENE   , SI_LIGHT_OF_REGENE   , SCB_NONE );
+	set_sc( MH_OVERED_BOOST      , SC_OVERED_BOOST      , SI_OVERED_BOOST      , SCB_NONE );
+	add_sc( MH_XENO_SLASHER      , SC_BLEEDING );
+	set_sc( MH_SILENT_BREEZE     , SC_SILENT_BREEZE     , SI_SILENT_BREEZE     , SCB_NONE );
+	set_sc( MH_STYLE_CHANGE      , SC_STYLE_CHANGE      , SI_STYLE_CHANGE      , SCB_NONE );
+	add_sc( MH_SILVERVEIN_RUSH   , SC_STUN );
+	add_sc( MH_MIDNIGHT_FRENZY   , SC_FEAR );
+	add_sc( MH_STAHL_HORN        , SC_STUN );
+	set_sc( MH_GOLDENE_FERSE     , SC_GOLDENE_FERSE     , SI_GOLDENE_FERSE     , SCB_NONE );
+	set_sc( MH_ANGRIFFS_MODUS    , SC_ANGRIFFS_MODUS    , SI_ANGRIFFS_MODUS    , SCB_NONE );
+	set_sc( MH_TINDER_BREAKER    , SC_TINDER_BREAKER    , SI_TINDER_BREAKER    , SCB_NONE );
+	set_sc( MH_CBC               , SC_CBC               , SI_CBC               , SCB_NONE );
+	set_sc( MH_EQC               , SC_EQC               , SI_EQC               , SCB_NONE );
+	set_sc( MH_MAGMA_FLOW        , SC_MAGMA_FLOW        , SI_MAGMA_FLOW        , SCB_NONE );
+	set_sc( MH_GRANITIC_ARMOR    , SC_GRANITIC_ARMOR    , SI_GRANITIC_ARMOR    , SCB_NONE );
+	add_sc( MH_LAVA_SLIDE        , SC_BURNING );
+	set_sc( MH_PYROCLASTIC       , SC_PYROCLASTIC       , SI_PYROCLASTIC       , SCB_NONE );
+	set_sc( MH_VOLCANIC_ASH      , SC_VOLCANIC_ASH      , SI_VOLCANIC_ASH      , SCB_NONE );
 
 	add_sc( MER_CRASH            , SC_STUN            );
 	set_sc( MER_PROVOKE          , SC_PROVOKE         , SI_PROVOKE         , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
@@ -726,6 +761,7 @@ void initChangeTables(void)
 	// Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusIconChangeTable[SC_ALL_RIDING] = SI_ALL_RIDING;
 	StatusIconChangeTable[SC_ON_PUSH_CART] = SI_ON_PUSH_CART;
+	StatusIconChangeTable[SC_REBOUND] = SI_REBOUND;
 	StatusIconChangeTable[SC_MONSTER_TRANSFORM] = SI_MONSTER_TRANSFORM;
 	StatusIconChangeTable[SC_ACTIVE_MONSTER_TRANSFORM] = SI_ACTIVE_MONSTER_TRANSFORM;
 	// Headgears with special animations through status
@@ -894,6 +930,7 @@ void initChangeTables(void)
 	// Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusChangeFlagTable[SC_ALL_RIDING] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ON_PUSH_CART] |= SCB_SPEED;
+	StatusChangeFlagTable[SC_REBOUND] |= SCB_SPEED;//Recheck later.
 	StatusChangeFlagTable[SC_MONSTER_TRANSFORM] |= SCB_NONE;
 
 	// Headgears with special animations through status.

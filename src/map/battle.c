@@ -752,6 +752,11 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			sc_start(bl, (sc_type)sc->data[SC_POISONINGWEAPON]->val2, 100, sc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, sc->data[SC_POISONINGWEAPON]->val1));
 		if (tsc->data[SC__DEADLYINFECT] && flag&BF_SHORT && damage > 0 && rand() % 100 < 30 + 10 * tsc->data[SC__DEADLYINFECT]->val1)
 			status_change_spread(src, bl);
+		if (sc->data[SC_MAGMA_FLOW] && rand() % 100 < 3 * sc->data[SC_MAGMA_FLOW]->val1)
+		{
+			skill_castend_damage_id(bl, src, MH_MAGMA_FLOW, sc->data[SC_MAGMA_FLOW]->val1, 0, flag);
+			skill_castend_nodamage_id(bl, src, MH_MAGMA_FLOW, sc->data[SC_MAGMA_FLOW]->val1, 0, flag);
+		}
  	}
 
 	if (tsc && tsc->count)
@@ -1375,7 +1380,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case PA_SHIELDCHAIN:
 			case LG_SHIELDPRESS:
 			case LG_EARTHDRIVE:
+			case RK_DRAGONBREATH:
 			case NC_SELFDESTRUCTION:
+			case RK_DRAGONBREATH_WATER:
 				flag.weapon = 0;
 				break;
 
@@ -1744,6 +1751,20 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					ATK_ADD(damagevalue);
 				} else
 					ATK_ADD(sstatus->rhw.atk2); //Else use Atk2
+				break;
+			case RK_DRAGONBREATH:
+			case RK_DRAGONBREATH_WATER:
+				{
+					int damagevalue = 0;
+ 					if( battle_config.skillsbonus_maxhp_RK && sstatus->hp > battle_config.skillsbonus_maxhp_RK ) // [Pinky]
+						damagevalue = ((battle_config.skillsbonus_maxhp_RK / 50) + (status_get_max_sp(src) / 4)) * skill_lv;
+ 					else
+						damagevalue = ((sstatus->hp / 50) + (status_get_max_sp(src) / 4)) * skill_lv;
+					if (level_effect_bonus == 1 && s_level >= 100 )
+						damagevalue = damagevalue * s_level / 150;// Base level bonus.
+					if (sd) damagevalue = damagevalue * (100 + 5 * (pc_checkskill(sd,RK_DRAGONTRAINING) - 1)) / 100;
+					ATK_ADD(damagevalue);
+				}
 				break;
 			case NC_SELFDESTRUCTION:
 				{
@@ -2722,6 +2743,43 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case KO_MAKIBISHI:
 					skillratio = 20 * skill_lv;
+					break;
+				case MH_NEEDLE_OF_PARALYZE:
+					skillratio = 700 + 100 * skill_lv;
+					break;
+				case MH_SONIC_CRAW:
+					skillratio = 40 * skill_lv;
+					if(level_effect_bonus == 1 && s_level >= 100 )
+						skillratio = skillratio * s_level / 100;	// Need confirm.
+					break;
+				case MH_TINDER_BREAKER:
+					skillratio = 100 * skill_lv + 3 * sstatus->str;
+					if(level_effect_bonus == 1 && s_level >= 100 )
+						skillratio = skillratio * s_level / 120;
+					break;
+				case MH_STAHL_HORN:
+					skillratio = 500 + 100 * skill_lv;
+					if(level_effect_bonus == 1 && s_level >= 100 )
+						skillratio = skillratio * s_level / 100;	// Need confirm.
+					break;
+				case MH_MAGMA_FLOW:
+					skillratio = 100 * skill_lv;
+					if(level_effect_bonus == 1 && s_level >= 100 )
+					{
+						skillratio += 3 * s_level;
+						skillratio = skillratio * s_level / 120;
+					}
+					else
+						skillratio += 450;
+					break;
+				case MH_LAVA_SLIDE:
+					if(level_effect_bonus == 1 && s_level >= 100 )
+					{
+						skillratio = 20 * skill_lv + 2 * s_level;
+						skillratio = skillratio * s_level / 100;
+					}
+					else
+						skillratio = 20 * skill_lv + 300;
 					break;
 				// Physical Elemantal Spirits Attack Skills
 				case EL_CIRCLE_OF_FIRE:
@@ -3978,7 +4036,30 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if(level_effect_bonus == 1 && s_level >= 100 )
 							skillratio = skillratio * s_level / 100;
 						break;
-
+					case MH_POISON_MIST:
+						skillratio = 40 * skill_lv;
+						if(level_effect_bonus == 1 && s_level >= 100 )
+							skillratio = skillratio * s_level / 100;
+						break;
+					//Lv 1 - 600, Lv 2 - 1000, Lv 3 - 800, Lv 4 1200, Lv 5 - 1000
+					case MH_ERASER_CUTTER:
+						if ( skill_lv % 2 == 0 )//Even levels 2, 4, 6, 8, etc.
+							skillratio = 800 + 100 * skill_lv;
+						else//Odd levels 1, 3, 5, 7, etc.
+							skillratio = 500 + 100 * skill_lv;
+						break;
+					//Lv 1 - 500, Lv 2 - 700, Lv 3 - 600, Lv 4 900, Lv 5 - 700
+					case MH_XENO_SLASHER:
+						if ( skill_lv % 2 == 0 )//Even levels 2, 4, 6, 8, etc.
+							skillratio = 500 + 100 * skill_lv;
+						else//Odd levels 1, 3, 5, 7, etc.
+							skillratio = 450 + 50 * skill_lv;
+						break;
+					case MH_HEILIGE_STANGE:
+						skillratio = 500 + 250 * skill_lv;
+						if(level_effect_bonus == 1 && s_level >= 100 )
+							skillratio = skillratio * s_level / 150;
+						break;
 					// Magical Elemental Spirits Attack Skills
 					case EL_FIRE_MANTLE:
 					case EL_WATER_SCREW:
@@ -4337,16 +4418,6 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	case NPC_EVILLAND:
 		md.damage = skill_calc_heal(src,target,skill_num,skill_lv,false);
 		break;
-	case RK_DRAGONBREATH:
-		if( battle_config.skillsbonus_maxhp_RK && status_get_hp(src) > battle_config.skillsbonus_maxhp_RK ) // [Pinky]
-			md.damage = ((battle_config.skillsbonus_maxhp_RK * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
-		else
-			md.damage = ((status_get_hp(src) * 16 / 1000) + (status_get_sp(src) * 192 / 1000)) * skill_lv;
-		if (sd) 
-			md.damage += md.damage * 5 * (pc_checkskill(sd,RK_DRAGONTRAINING) -1) / 100; // Damaged is increased if you know Dragon Training [Rytech]
-		if (status_get_lv(src) > 100) 
-			md.damage += md.damage * (s_level - 100) / 200; // Base level bonus.
- 		break;
 	case RA_CLUSTERBOMB:
 	case RA_FIRINGTRAP:
 	case RA_ICEBOUNDTRAP:
@@ -5233,7 +5304,6 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					case MS_MAGNUM:
 					case RA_DETONATOR:
 					case RA_SENSITIVEKEEN:
-					case GN_CRAZYWEED:
 						state |= BCT_ENEMY;
 						strip_enemy = 0;
 						break;
@@ -5931,6 +6001,8 @@ static const struct _battle_data {
 	{ "gc_skill_edp_boost_formula_a",       &battle_config.gc_skill_edp_boost_formula_a,    0,      0,      1000,			},
 	{ "gc_skill_edp_boost_formula_b",       &battle_config.gc_skill_edp_boost_formula_b,    20,     0,      1000,			},
 	{ "gc_skill_edp_boost_formula_c",       &battle_config.gc_skill_edp_boost_formula_c,    1,      0,      1,				},
+	{ "mob_spawn_variance",                 &battle_config.mob_spawn_variance,              1,      0,      3,              },
+	{ "slave_stick_with_master",            &battle_config.slave_stick_with_master,         0,      0,      1,              },
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },

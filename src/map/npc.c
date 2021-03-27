@@ -3435,6 +3435,12 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		mob.delay2 = mob.delay2/100*battle_config.mob_spawn_delay;
 	}
 
+	// Check if monsters should have variance applied to their respawn time
+	if (((battle_config.mob_spawn_variance & 1) == 0 && mob.state.boss) || ((battle_config.mob_spawn_variance & 2) == 0 && !mob.state.boss)) {
+		// Remove the variance
+		mob.delay2 = 0;
+	}
+
 	if(mob.delay1>0xfffffff || mob.delay2>0xfffffff) {
 		ShowError("npc_parse_mob: Invalid spawn delays %u %u (file '%s', line '%d').\n", mob.delay1, mob.delay2, filepath, strline(buffer,start-buffer));
 		return strchr(start,'\n');// skip and continue
