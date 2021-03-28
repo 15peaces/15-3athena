@@ -1075,7 +1075,7 @@
 2269,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		NC_EMERGENCYCOOL,Emergency Cool
 2270,0,6,4,0,0x3,7,1,1,no,0,0,0,none,0,		NC_INFRAREDSCAN,Infrared Scan
 2271,9,6,1,0,0x1,0,3,1,yes,0,0,0,none,0,	NC_ANALYZE,Analyze
-2272,0,6,4,0,0x3,2,3,1,no,0,0,0,none,0,		NC_MAGNETICFIELD,Magnetic Field//Cast times are gone officially? Likely so since their gone for the 2 skills below as well.
+2272,0,6,4,0,0x3,2,3,1,no,0,0,0,none,0,		NC_MAGNETICFIELD,Magnetic Field
 2273,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,		NC_NEUTRALBARRIER,Neutral Barrier
 2274,0,6,4,0,0x1,0,3,1,no,0,0,0,none,0,		NC_STEALTHFIELD,Stealth Field
 2275,5:6:7:8:9,6,16,0,0x1,0,5,1,yes,0,0,0,none,0,	NC_REPAIR,Repair//Check the healing and item requirements.

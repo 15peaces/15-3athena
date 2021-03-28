@@ -5,6 +5,27 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/28/2021
+	r286 [15peaces]
+		*Merged missing changes from 3ceam rev. 733 - 734
+		*Added addrid script command.
+			-This command will attach other RIDs to the current script without detaching the invoking RID.
+			-Thanks to @rathena!
+		*RK_MILLENNIUMSHIELD
+			-Fixed a issue where getting hit while the status is active will display the skill animation.
+			-Fixed a issue where the caster would get stunned randomly when hit while the status is active.
+			-Added a missing skill mechanic that stuns the caster when a shield is broke.
+			-The base stun chance is 100% (yes its official) and can be reduced with VIT and other stun reductions, but the duration is fixed to 1 second and cant be reduced.
+		*WM_RANDOMIZESPELL
+			-Updated the skill list to official.
+			-Updated the rates for the skills to official.
+		*RA_CAMOUFLAGE
+			-Now properly adjusts WATK, Critical, and DEF during the duration.
+			-Credit goes to Nevelis for this fix.
+		*Mechanic Skills; Minstrel/Wanderer Skills
+			-Skills requirements have been updated to the latest official.
+			-Their updates on needed equipped weapons and required items.
+
 03/27/2021
 	r285 [15peaces]
 		*Merged missing changes from 3ceam rev. 730 - 732

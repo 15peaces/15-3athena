@@ -1082,6 +1082,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				skill_strip_equip(bl, pos[i], rate, skilllv, skill_get_time2(skillid, skilllv));
 		}
 		break;
+	case WL_FROSTMISTY:
+		sc_start(bl,SC_FREEZING, 25 + 5 * skilllv,skilllv,skill_get_time(skillid,skilllv));
+		break;
 	case WL_JACKFROST:
 		//Note: Official data shows its applied as 200%. Dont know if sc_start can handle that much. Should I apply this? Recheck soon.
 		sc_start(bl, SC_FREEZE, 100, skilllv, skill_get_time(skillid, skilllv));
@@ -5444,6 +5447,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ASC_METEORASSAULT:
 	case GS_SPREADATTACK:
 	case RK_STORMBLAST:
+	case WL_FROSTMISTY:
 	case NC_AXETORNADO:
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
@@ -7779,11 +7783,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				sc_start2(bl,type,(50+3*skilllv)*(1+((sd)?sd->status.job_level:0)/100),skilllv,src->id,
  				(src == bl)?skill_get_time2(skillid,skilllv):skill_get_time(skillid, skilllv)));
 		}
-		break;
-
-	case WL_FROSTMISTY:
-		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR|BL_SKILL, src, skillid, skilllv, tick, flag|BCT_ENEMY, skill_castend_damage_id);
 		break;
 
 	case WL_JACKFROST:
