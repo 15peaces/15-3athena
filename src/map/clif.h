@@ -39,6 +39,7 @@ struct achievement;
 #define COLOR_GREEN   0x00ff00U
 #define COLOR_CYAN    0x00FFFFU
 #define COLOR_WHITE   0xffffffU
+#define COLOR_YELLOW  0xffff00U
 #define COLOR_DEFAULT COLOR_GREEN
 
 enum
@@ -441,6 +442,9 @@ enum clif_messages {
 	ITEM_EQUIP_ACK_FAIL = 1,
 	ITEM_EQUIP_ACK_FAILLEVEL = 2,
 	/* -end- */
+
+	//! NOTE: These values below need client version validation
+	ITEM_REUSE_LIMIT = 0x746,
 
 	// Unofficial names
 	C_ITEM_EQUIP_SWITCH = 0xbc7,

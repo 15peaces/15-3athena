@@ -699,7 +699,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				skill_castend_damage_id(src,bl,HT_BLITZBEAT,(skill<rate)?skill:rate,tick,SD_LEVEL);
 			}
 			// Automatic trigger of Warg Strike [Jobbie]
-			if( pc_iswug(sd) && (sd->status.weapon == W_BOW || sd->status.weapon == W_FIST) && (skill=pc_checkskill(sd,RA_WUGSTRIKE)) > 0 && rand()%1000 <= sstatus->luk*10/3+1 )
+			if (pc_iswug(sd) && sd->status.weapon == W_BOW && (skill = pc_checkskill(sd, RA_WUGSTRIKE)) > 0 && rand() % 1000 <= sstatus->luk * 10 / 3 + 1)
 				skill_castend_damage_id(src,bl,RA_WUGSTRIKE,skill,tick,0);
 			// Gank
 			if(dstmd && sd->status.weapon != W_BOW &&
@@ -1170,6 +1170,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		skill_break_equip(src, EQP_SHIELD, 100 * skilllv, BCT_SELF);
 		sc_start(bl, SC_EARTHDRIVE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
+	case LG_HESPERUSLIT:
+		if( sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 3 )
+			status_change_start(bl, SC_STUN, 10000, skilllv, 0, 0, 0, rnd_value( 4000, 8000), 2);
+		if( pc_checkskill(sd,LG_PINPOINTATTACK) > 0 && sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 5 )
+			skill_castend_damage_id(src,bl,LG_PINPOINTATTACK,rnd_value( 1, pc_checkskill(sd,LG_PINPOINTATTACK)),tick,0);
+		break;
 	case SR_DRAGONCOMBO:
 		sc_start(bl, SC_STUN, 2 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
@@ -1514,7 +1520,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	int rate;
 	struct map_session_data *sd=NULL;
 	struct map_session_data *dstsd=NULL;
-	struct status_change *tsc;
+	struct status_change *sc, *tsc;
 
 	nullpo_ret(src);
 	nullpo_ret(bl);
@@ -1522,6 +1528,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	if(skillid < 0) return 0;
 	if(skillid > 0 && skilllv <= 0) return 0;	// don't forget auto attacks! - celest
 
+	sc = status_get_sc(src);
 	tsc = status_get_sc(bl);
 	if (tsc && !tsc->count)
 		tsc = NULL;
@@ -1576,6 +1583,15 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	case CR_GRANDCROSS:
 	case NPC_GRANDDARKNESS:
 		attack_type |= BF_WEAPON;
+		break;
+
+	case LG_HESPERUSLIT:
+		if ( sc && sc->data[SC_FORCEOFVANGUARD] && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 6 )
+		{
+			char i;
+			for( i = 0; i < sc->data[SC_FORCEOFVANGUARD]->val3; i++ )
+				pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD,1),sc->data[SC_FORCEOFVANGUARD]->val3);
+		}
 		break;
 	}
 
@@ -6335,6 +6351,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FREEZING:		case SC_BLOOD_SUCKER:	case SC_MANDRAGORA:
 				case SC_STOMACHACHE:	case SC_MYSTERIOUS_POWDER:
 				case SC_DAILYSENDMAILCNT:
+				case SC_ATTHASTE_CASH:	case SC_REUSE_REFRESH:
+				case SC_REUSE_LIMIT_A:	case SC_REUSE_LIMIT_B:	case SC_REUSE_LIMIT_C:
+				case SC_REUSE_LIMIT_D:	case SC_REUSE_LIMIT_E:	case SC_REUSE_LIMIT_F:
+				case SC_REUSE_LIMIT_G:	case SC_REUSE_LIMIT_H:	case SC_REUSE_LIMIT_MTF:
+				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
+				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -7751,6 +7773,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_SPELLBOOK2:		case SC_SPELLBOOK3:		case SC_SPELLBOOK4:		
 				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:*/
 				case SC_DAILYSENDMAILCNT:
+				case SC_ATTHASTE_CASH:	case SC_REUSE_REFRESH:
+				case SC_REUSE_LIMIT_A:	case SC_REUSE_LIMIT_B:	case SC_REUSE_LIMIT_C:
+				case SC_REUSE_LIMIT_D:	case SC_REUSE_LIMIT_E:	case SC_REUSE_LIMIT_F:
+				case SC_REUSE_LIMIT_G:	case SC_REUSE_LIMIT_H:	case SC_REUSE_LIMIT_MTF:
+				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
+				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
@@ -11849,6 +11877,13 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					sc_start(bl, SC_BANDING_DEFENCE, sd->status.base_level / 5 + 5 * sg->skill_lv - tstatus->agi / 10, 90, skill_get_time2(sg->skill_id, sg->skill_lv));
 				else
 					sc_start(bl, SC_BANDING_DEFENCE, 30 + 5 * sg->skill_lv - tstatus->agi / 10, 90, skill_get_time2(sg->skill_id, sg->skill_lv));
+			break;
+
+		case UNT_FIRE_INSIGNIA:
+		case UNT_WATER_INSIGNIA:
+		case UNT_WIND_INSIGNIA:
+		case UNT_EARTH_INSIGNIA:
+			sc_start(bl, type, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
 			break;
 
 		case UNT_FIRE_MANTLE:

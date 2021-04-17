@@ -558,6 +558,10 @@ void initChangeTables(void)
 	set_sc( SO_WARMER           , SC_WARMER         , SI_WARMER         , SCB_NONE );
 	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME	, SI_VACUUM_EXTREME	, SCB_NONE );
 	set_sc( SO_ARRULLO			, SC_DEEPSLEEP		, SI_DEEP_SLEEP		, SCB_NONE );
+	set_sc( SO_FIRE_INSIGNIA    , SC_FIRE_INSIGNIA  , SI_FIRE_INSIGNIA  , SCB_NONE );
+	set_sc( SO_WATER_INSIGNIA   , SC_WATER_INSIGNIA , SI_WATER_INSIGNIA , SCB_NONE );
+	set_sc( SO_WIND_INSIGNIA    , SC_WIND_INSIGNIA  , SI_WIND_INSIGNIA  , SCB_NONE );
+	set_sc( SO_EARTH_INSIGNIA   , SC_EARTH_INSIGNIA , SI_EARTH_INSIGNIA , SCB_NONE );
 
 	// Genetic
 	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED );
@@ -752,6 +756,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SPCOST_RATE] = SI_ATKER_BLOOD;
 	StatusIconChangeTable[SC_COMMONSC_RESIST] = SI_TARGET_BLOOD;
 	StatusIconChangeTable[SC_MOVESLOW_POTION] = SI_MOVESLOW_POTION;
+	StatusIconChangeTable[SC_ATTHASTE_CASH] = SI_ATTHASTE_CASH;
 	// Mercenary Bonus Effects
 	StatusIconChangeTable[SC_MERC_FLEEUP] = SI_MERC_FLEEUP;
 	StatusIconChangeTable[SC_MERC_ATKUP] = SI_MERC_ATKUP;
@@ -865,6 +870,23 @@ void initChangeTables(void)
 	// RODEX
 	StatusIconChangeTable[SC_DAILYSENDMAILCNT] = SI_DAILYSENDMAILCNT;
 
+	// Item Reuse Limits
+	StatusIconChangeTable[SC_REUSE_REFRESH] = SI_REUSE_REFRESH;
+	StatusIconChangeTable[SC_REUSE_LIMIT_A] = SI_REUSE_LIMIT_A;
+	StatusIconChangeTable[SC_REUSE_LIMIT_B] = SI_REUSE_LIMIT_B;
+	StatusIconChangeTable[SC_REUSE_LIMIT_C] = SI_REUSE_LIMIT_C;
+	StatusIconChangeTable[SC_REUSE_LIMIT_D] = SI_REUSE_LIMIT_D;
+	StatusIconChangeTable[SC_REUSE_LIMIT_E] = SI_REUSE_LIMIT_E;
+	StatusIconChangeTable[SC_REUSE_LIMIT_F] = SI_REUSE_LIMIT_F;
+	StatusIconChangeTable[SC_REUSE_LIMIT_G] = SI_REUSE_LIMIT_G;
+	StatusIconChangeTable[SC_REUSE_LIMIT_H] = SI_REUSE_LIMIT_H;
+	StatusIconChangeTable[SC_REUSE_LIMIT_MTF] = SI_REUSE_LIMIT_MTF;
+	StatusIconChangeTable[SC_REUSE_LIMIT_ASPD_POTION] = SI_REUSE_LIMIT_ASPD_POTION;
+	StatusIconChangeTable[SC_REUSE_MILLENNIUMSHIELD] = SI_MILLENNIUMSHIELD;
+	StatusIconChangeTable[SC_REUSE_CRUSHSTRIKE] = SI_REUSE_CRUSHSTRIKE;
+	StatusIconChangeTable[SC_REUSE_STORMBLAST] = SI_REUSE_STORMBLAST;
+	StatusIconChangeTable[SC_ALL_RIDING_REUSE_LIMIT] = SI_ALL_RIDING_REUSE_LIMIT;
+
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] = SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] = SCB_ASPD;
@@ -920,6 +942,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_FOOD_DEX_CASH] |= SCB_DEX;
 	StatusChangeFlagTable[SC_FOOD_INT_CASH] |= SCB_INT;
 	StatusChangeFlagTable[SC_FOOD_LUK_CASH] |= SCB_LUK;
+	StatusChangeFlagTable[SC_ATTHASTE_CASH] |= SCB_ASPD;
 	// Mercenary Bonus Effects
 	StatusChangeFlagTable[SC_MERC_FLEEUP] |= SCB_FLEE;
 	StatusChangeFlagTable[SC_MERC_ATKUP] |= SCB_WATK;
@@ -4488,7 +4511,7 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_STRIKING]->val2;
 	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
 		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
-	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0)
+	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
 		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if(sc->data[SC_INSPIRATION])
 		watk += sc->data[SC_INSPIRATION]->val2;
@@ -4757,7 +4780,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_SHIELDSPELL_REF]->val2;
 	if (sc->data[SC_PRESTIGE])
 		def += sc->data[SC_PRESTIGE]->val1;
-	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 0)//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
+	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
 		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
 	if( sc->data[SC_ECHOSONG] )
 		def += def * sc->data[SC_ECHOSONG]->val3 / 100;
@@ -5153,6 +5176,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		sc->data[i=SC_ASPDPOTION1] ||
 		sc->data[i=SC_ASPDPOTION0])
 		aspd_rate -= sc->data[i]->val2;
+	if (sc->data[SC_ATTHASTE_CASH])
+		aspd_rate -= sc->data[SC_ATTHASTE_CASH]->val2;
 	if(sc->data[SC_DONTFORGETME])
 		aspd_rate += 10 * sc->data[SC_DONTFORGETME]->val2;
 	if(sc->data[SC_LONGING])
@@ -6892,6 +6917,21 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC__LAZINESS:
 			case SC__WEAKNESS:
 			case SC__UNLUCKY:
+			case SC_REUSE_REFRESH:
+			case SC_REUSE_LIMIT_A:
+			case SC_REUSE_LIMIT_B:
+			case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:
+			case SC_REUSE_LIMIT_E:
+			case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:
+			case SC_REUSE_LIMIT_H:
+			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ASPD_POTION:
+			case SC_REUSE_MILLENNIUMSHIELD:
+			case SC_REUSE_CRUSHSTRIKE:
+			case SC_REUSE_STORMBLAST:
+			case SC_ALL_RIDING_REUSE_LIMIT:
 				return 0;
 			case SC_COMBO: 
 			case SC_DANCING:
@@ -6908,6 +6948,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_ARMOR_ELEMENT_FIRE:
 			case SC_ARMOR_ELEMENT_WIND:
 			case SC_ARMOR_RESIST:
+			case SC_ATTHASTE_CASH:
 				break;
 			case SC_GOSPEL:
 				 //Must not override a casting gospel char.
@@ -7175,6 +7216,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl,LOOK_BASE,type==SC_WEDDING?JOB_WEDDING:type==SC_XMAS?JOB_XMAS:type==SC_SUMMER?JOB_SUMMER:type==SC_HANBOK?JOB_HANBOK:JOB_OKTOBERFEST);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
+			break;
+		case SC_ATTHASTE_CASH:
+			val2 = 50 * val1; // Just custom for pre-re
 			break;
 		case SC_NOCHAT:
 			tick = 60000;
@@ -8819,6 +8863,22 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_CROSSBOWCLAN:
 				case SC_JUMPINGCLAN:
 				case SC_DAILYSENDMAILCNT:
+				case SC_ATTHASTE_CASH:
+				case SC_REUSE_REFRESH:
+				case SC_REUSE_LIMIT_A:
+				case SC_REUSE_LIMIT_B:
+				case SC_REUSE_LIMIT_C:
+				case SC_REUSE_LIMIT_D:
+				case SC_REUSE_LIMIT_E:
+				case SC_REUSE_LIMIT_F:
+				case SC_REUSE_LIMIT_G:
+				case SC_REUSE_LIMIT_H:
+				case SC_REUSE_LIMIT_MTF:
+				case SC_REUSE_LIMIT_ASPD_POTION:
+				case SC_REUSE_MILLENNIUMSHIELD:
+				case SC_REUSE_CRUSHSTRIKE:
+				case SC_REUSE_STORMBLAST:
+				case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
 			}
 
@@ -10555,6 +10615,22 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_VITALITYACTIVATION:
 			case SC_FIGHTINGSPIRIT:
 			case SC_ABUNDANCE:
+			case SC_ATTHASTE_CASH:
+			case SC_REUSE_REFRESH:
+			case SC_REUSE_LIMIT_A:
+			case SC_REUSE_LIMIT_B:
+			case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:
+			case SC_REUSE_LIMIT_E:
+			case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:
+			case SC_REUSE_LIMIT_H:
+			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ASPD_POTION:
+			case SC_REUSE_MILLENNIUMSHIELD:
+			case SC_REUSE_CRUSHSTRIKE:
+			case SC_REUSE_STORMBLAST:
+			case SC_ALL_RIDING_REUSE_LIMIT:
 			// Extra large skills cooldowns
 			case SC_SAVAGE_STEAK:
 			case SC_COCKTAIL_WARG_BLOOD:

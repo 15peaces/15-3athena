@@ -10007,7 +10007,27 @@ BUILDIN_FUNC(sc_end)
 	{
 		struct status_change *sc = status_get_sc(bl);
 		struct status_change_entry *sce = sc?sc->data[type]:NULL;
-		if (!sce) return 0;
+		if (!sce)
+			return 0;
+
+		switch (type) {
+			case SC_WEIGHT50:
+			case SC_WEIGHT90:
+			case SC_NOCHAT:
+			case SC_ALL_RIDING:
+			case SC_STYLE_CHANGE:
+			case SC_MONSTER_TRANSFORM:
+			case SC_ATTHASTE_CASH:
+			case SC_REUSE_LIMIT_A:				case SC_REUSE_LIMIT_B:			case SC_REUSE_LIMIT_C:
+			case SC_REUSE_LIMIT_D:				case SC_REUSE_LIMIT_E:			case SC_REUSE_LIMIT_F:
+			case SC_REUSE_LIMIT_G:				case SC_REUSE_LIMIT_H:			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
+			case SC_REUSE_STORMBLAST:			case SC_ALL_RIDING_REUSE_LIMIT:	case SC_REUSE_REFRESH:
+			return 0;
+		default:
+			break;
+		}
+
 		//This should help status_change_end force disabling the SC in case it has no limit.
 		sce->val1 = sce->val2 = sce->val3 = sce->val4 = 0;
 		status_change_end(bl, (sc_type)type, INVALID_TIMER);

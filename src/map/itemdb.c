@@ -822,7 +822,7 @@ static bool itemdb_read_itemtrade(char* str[], int columns, int current)
  * Reads item delay amounts [Paradox924X]
  *------------------------------------------*/
 static bool itemdb_read_itemdelay(char* str[], int columns, int current)
-{// <nameid>,<delay>
+{// <nameid>,<delay>{,<delay sc group>}
 	unsigned short nameid;
 	int delay;
 	struct item_data *id;
@@ -844,6 +844,21 @@ static bool itemdb_read_itemdelay(char* str[], int columns, int current)
 	}
 
 	id->delay = delay;
+
+	if (columns == 2)
+		id->delay_sc = SC_NONE;
+	else if (ISDIGIT(str[2][0]))
+		id->delay_sc = (sc_type)atoi(str[2]);
+	else { // Try read sc group id from const db
+		int constant;
+
+		if (!script_get_constant(trim(str[2]), &constant)) {
+			ShowWarning("itemdb_read_itemdelay: Invalid sc group \"%s\" for item id %hu.\n", str[2], nameid);
+			return false;
+		}
+
+		id->delay_sc = (short)constant;
+	}
 
 	return true;
 }
@@ -1476,7 +1491,7 @@ static void itemdb_read(void)
 	sv_readdb(db_path, "item_avail.txt",   ',', 2, 2, -1,             &itemdb_read_itemavail);
 	sv_readdb(db_path, "item_noequip.txt", ',', 2, 2, -1,             &itemdb_read_noequip);
 	sv_readdb(db_path, "item_trade.txt",   ',', 3, 3, -1,             &itemdb_read_itemtrade);
-	sv_readdb(db_path, "item_delay.txt",   ',', 2, 2, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
+	sv_readdb(db_path, "item_delay.txt",   ',', 2, 3, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
 	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,         &itemdb_read_buyingstore);
 	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,             &itemdb_read_cashshop);
 }

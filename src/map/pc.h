@@ -862,6 +862,8 @@ int pc_equipswitch(struct map_session_data* sd, int index);
 void pc_equipswitch_remove(struct map_session_data* sd, int index);
 int pc_checkitem(struct map_session_data*);
 int pc_useitem(struct map_session_data*,int);
+uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);
+uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);
 
 int pc_skillatk_bonus(struct map_session_data *sd, int skill_num);
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_num);

@@ -13,7 +13,7 @@
 //25129
 //25130
 //25131
-//22687
+22687	//Pieces_Of_Sentiment
 //23016
 //23080
 //4671
@@ -741,7 +741,6 @@
 11597	//Iron_Worm
 22699	//Test_Reagent
 22679	//Death_Bin
-22687	//Fragments_Vicious_Mind
 //6615
 //--- 2013 / 08 / 02
 6750	//Failed_Engine

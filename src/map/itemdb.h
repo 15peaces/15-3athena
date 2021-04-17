@@ -12,7 +12,7 @@
 #define MAX_RANDITEM	11000
 
 // The maximum number of item delays
-#define MAX_ITEMDELAYS	9
+#define MAX_ITEMDELAYS	28
 
 #define MAX_ROULETTE_LEVEL 7 /** client-defined value **/
 #define MAX_ROULETTE_COLUMNS 9 /** client-defined value **/
@@ -131,6 +131,7 @@ struct item_data {
 		unsigned buyingstore : 1;
 	} flag;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
+	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]
 };
 
 struct item_group {

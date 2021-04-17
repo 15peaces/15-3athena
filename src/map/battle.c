@@ -1417,6 +1417,13 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				if (!sd) wd.flag=(wd.flag&~(BF_RANGEMASK|BF_WEAPONMASK))|BF_LONG|BF_MISC;
 				break;
 
+			//The number of hits is set to 3 by default for use in Inspiration status.
+			//When in banding, the number of hits is equal to the number of Royal Guards in banding.
+			case LG_HESPERUSLIT:
+				if( sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 3 )
+					wd.div_ = sc->data[SC_BANDING]->val2;
+				break;
+
 			case EL_STONE_RAIN:
 				if (!(wflag&1))
 					wd.div_ = 1;

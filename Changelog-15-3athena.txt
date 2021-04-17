@@ -5,8 +5,30 @@
 // 		- Details.
 //			--More Details.
 //========================================
-03/28/2021
+04/17/2021
 	r286 [15peaces]
+		*Merged missing changes from 3ceam rev. 735
+		*Fixed some item bonusses.
+		*Prepared some stuff for upcomming Nightmare Biolabs release.
+			-Added some missing items.
+		*Introducing item reuse limit groups
+			-Expanded the current item_delay.txt's function to implement official item reuse limit groups.
+			-There's the 3rd optional column, put SC ID value to add reuse limit. The reuse delay will be acknowledged as status change. Ignoring this column will use 'normal' item delay.
+			-Added some items to their reuse limit group.
+			-Also added some missing entries to the item delay database.
+			-Thanks to @rathena for the base.
+		*RA_WUGSTRIKE
+			-Fixed a issue where auto Warg Strike would activate by chance when having no weapon equipped.
+		*LG_BANDING
+			-Fixed a issue where the status didn't include the caster himself.
+			-This is done according to info found here and there saying "Per Royal Guard".
+			-Its still required to have 2 or more Royal Guards in banding before any effect happens.
+		*SO_FIRE_INSIGNIA; SO_WATER_INSIGNIA; SO_WIND_INSIGNIA; SO_EARTH_INSIGNIA
+			-Added in the basic structure to start the status when walking in the AoE.
+			-This is to prepare for the insignia update and currently doesn't do anything.
+
+03/28/2021
+	r285 [15peaces]
 		*Merged missing changes from 3ceam rev. 733 - 734
 		*Added addrid script command.
 			-This command will attach other RIDs to the current script without detaching the invoking RID.
@@ -27,7 +49,7 @@
 			-Their updates on needed equipped weapons and required items.
 
 03/27/2021
-	r285 [15peaces]
+	r284 [15peaces]
 		*Merged missing changes from 3ceam rev. 730 - 732
 		*Added some configs which fixes some monster behaviors to official.
 			-Added a config for slave teleporting to master.
