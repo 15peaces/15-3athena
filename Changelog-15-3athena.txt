@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/24/2021
+	r287 [15peaces]
+		*Merged missing changes from 3ceam rev. 736
+		*Fixed visual studio version in 15-3athena-15.sln.
+		*Another update to Item Delay Database
+			-Added Emergency Scrolls (12968, 12969, 12970) to the new SC_REUSE_LIMIT_RECALL group.
+			-Added ASPD Potion (12684) to the SC_REUSE_LIMIT_ASPD_POTION group.
+			-Added Eclage items (12812, 12913, 12814, 12815) to the new SC_REUSE_LIMIT_ECL group.
+			-Updated Eden Group Mark (22508) from 120 minutes to 20 minutes.
+
 04/17/2021
 	r286 [15peaces]
 		*Merged missing changes from 3ceam rev. 735

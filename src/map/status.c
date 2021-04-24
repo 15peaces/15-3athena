@@ -881,6 +881,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_REUSE_LIMIT_G] = SI_REUSE_LIMIT_G;
 	StatusIconChangeTable[SC_REUSE_LIMIT_H] = SI_REUSE_LIMIT_H;
 	StatusIconChangeTable[SC_REUSE_LIMIT_MTF] = SI_REUSE_LIMIT_MTF;
+	StatusIconChangeTable[SC_REUSE_LIMIT_ECL] = SI_REUSE_LIMIT_ECL;
+	StatusIconChangeTable[SC_REUSE_LIMIT_RECALL] = SI_REUSE_LIMIT_RECALL;
 	StatusIconChangeTable[SC_REUSE_LIMIT_ASPD_POTION] = SI_REUSE_LIMIT_ASPD_POTION;
 	StatusIconChangeTable[SC_REUSE_MILLENNIUMSHIELD] = SI_MILLENNIUMSHIELD;
 	StatusIconChangeTable[SC_REUSE_CRUSHSTRIKE] = SI_REUSE_CRUSHSTRIKE;
@@ -6927,6 +6929,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_REUSE_LIMIT_G:
 			case SC_REUSE_LIMIT_H:
 			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ECL:
+			case SC_REUSE_LIMIT_RECALL:
 			case SC_REUSE_LIMIT_ASPD_POTION:
 			case SC_REUSE_MILLENNIUMSHIELD:
 			case SC_REUSE_CRUSHSTRIKE:
@@ -8874,6 +8878,8 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_REUSE_LIMIT_G:
 				case SC_REUSE_LIMIT_H:
 				case SC_REUSE_LIMIT_MTF:
+				case SC_REUSE_LIMIT_ECL:
+				case SC_REUSE_LIMIT_RECALL:
 				case SC_REUSE_LIMIT_ASPD_POTION:
 				case SC_REUSE_MILLENNIUMSHIELD:
 				case SC_REUSE_CRUSHSTRIKE:
@@ -10626,6 +10632,8 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_REUSE_LIMIT_G:
 			case SC_REUSE_LIMIT_H:
 			case SC_REUSE_LIMIT_MTF:
+			case SC_REUSE_LIMIT_ECL:
+			case SC_REUSE_LIMIT_RECALL:
 			case SC_REUSE_LIMIT_ASPD_POTION:
 			case SC_REUSE_MILLENNIUMSHIELD:
 			case SC_REUSE_CRUSHSTRIKE:
