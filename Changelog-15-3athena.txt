@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/27/2021
+	r288 [15peaces]
+		*Merged missing changes from 3ceam rev. 737
+		*Updated Byorgue summon slave delay
+			-prevent potential farming exploit.
+			-Gravity seem to increased it long time ago before renewal.
+		*Corrected St. Patrick's Hat.
+			-The bonus should be granted from +8 or higher refine.
+		*Updated some packet lengths.
+
 04/24/2021
 	r287 [15peaces]
 		*Merged missing changes from 3ceam rev. 736
