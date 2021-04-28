@@ -12,7 +12,7 @@
 #define MAX_RANDITEM	11000
 
 // The maximum number of item delays
-#define MAX_ITEMDELAYS	32
+#define MAX_ITEMDELAYS	33
 
 #define MAX_ROULETTE_LEVEL 7 /** client-defined value **/
 #define MAX_ROULETTE_COLUMNS 9 /** client-defined value **/

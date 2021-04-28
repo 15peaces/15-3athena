@@ -7,6 +7,15 @@
 //========================================
 04/27/2021
 	r288 [15peaces]
+		*Merged missing changes from 3ceam rev. 738
+		*Changed CZ_REQ_DISCONNECT packet.
+			-Send disconnect packet and flush socket before correct client disconnect.
+		*Some misc cleaning.
+		*Fixed a issue where a Baby Guillotine Cross would die from drinking a poison bottle.
+		*Fixed a issue where 3rd jobs and baby 3rd jobs were not getting trans job bonuses from items. 3rd jobs are of a higher class over trans and should receive all bonuses from items that were normally for trans jobs only.
+
+04/27/2021
+	r288 [15peaces]
 		*Merged missing changes from 3ceam rev. 737
 		*Updated Byorgue summon slave delay
 			-prevent potential farming exploit.

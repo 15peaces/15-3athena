@@ -11253,8 +11253,9 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 		!sd->sc.data[SC_CHASEWALK] && !sd->sc.data[SC_CLOAKINGEXCEED] && !sd->sc.data[SC__INVISIBILITY] &&
 		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
 	{
-		set_eof(fd);
 		clif_disconnect_ack(sd, 0);
+		flush_fifo(fd);
+		set_eof(fd);
 	} else {
 		clif_disconnect_ack(sd, 1);
 	}

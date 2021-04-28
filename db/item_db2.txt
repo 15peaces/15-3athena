@@ -3885,3 +3885,16 @@
 29121,Goddess_of_Justice_A,Goddess of Justice A,6,10,,0,,,,,,,,,,,,,{ bonus bAtk,20; bonus bHit,2; bonus bMaxHP,300; },{},{}
 29122,Goddess_of_Justice_S,Goddess of Justice S,6,10,,0,,,,,,,,,,,,,{ bonus bAtk,40; bonus bHit,4; bonus bMaxHP,600; },{},{}
 29123,Goddess_of_Mercy_A,Goddess of Mercy A,6,10,,0,,,,,,,,,,,,,{ bonus bMatk,20; bonus bHealPower,4; bonus bMaxSP,20; },{},{}
+//===================================================================
+// New Usable items
+//===================================================================
+22550,Cookie_Bag_B,Sweets Pocket,2,10,,70,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22551,Sesame_Pastry_B,Teacake,2,10,,70,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22552,Honey_Pastry_B,Fried Pastry,2,10,,70,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22553,Rainbow_Cake_B,Rainbow Bread,2,10,,70,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22554,First_Aid_Box,First Aid Box,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_FirstAid),1; getitem groupranditem(IG_FirstAid),1; getitem groupranditem(IG_FirstAid),1; getitem groupranditem(IG_FirstAid),1; getitem groupranditem(IG_FirstAid),1; },{},{}
+22555,Gourmet_Chocolate,Gourmet Chocolate,0,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22556,Luxury_Chocolate,Luxury Chocolate,0,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22557,Masterpieces_of_Artisan_Chocolate,Masterpieces of Artisan Chocolate,0,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22558,Lucky_Bag,Lucky Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Lucky_Bag),1; },{},{}
+22559,Mock_Strawberry,Mock Strawberry,11,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 50,50; itemskill "SM_ENDURE",3; },{},{}

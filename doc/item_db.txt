@@ -2,7 +2,7 @@
 =ID
 The ID number for the item.
 All items are assigned to a ID number and no 2 items can use the same ID.
-Highest possiable ID number is 32767.
+Highest possiable ID number is 65534.
 
 =Aegis Name
 The name of the item as it is in Aegis's database.

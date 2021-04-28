@@ -413,7 +413,7 @@ int can_copy (struct map_session_data *sd, int skillid, struct block_list* bl)
 	if( sd )
 	{
 		// Couldn't preserve 3rd Class skills except only when using Reproduce skill. [Jobbie]
-		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= KO_YAMIKUMO && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= NC_MAGMA_ERUPTION_DOTDAMAGE)))
+		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= RL_GLITTERING_GREED && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= NC_MAGMA_ERUPTION_DOTDAMAGE)))
 			return 0;
 		// Reproduce will only copy skills according on the list. [Jobbie]
 		if( sd->sc.data[SC__REPRODUCE] && !id )
@@ -8331,7 +8331,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (flag&1)
 		{
 			i = 0;
-			if (dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && (dstsd->class_&MAPID_BASEMASK) != MAPID_GUNSLINGER)
+			if (dstsd && dstsd->spiritball && (sd == dstsd || map_flag_vs(src->m)) && ((dstsd->class_&MAPID_BASEMASK) != MAPID_GUNSLINGER || (dstsd->class_&MAPID_UPPERMASK) != MAPID_REBELLION))
 			{
 				i = dstsd->spiritball; //1%sp per spiritball.
 				pc_delspiritball(dstsd, dstsd->spiritball, 0);
@@ -13707,7 +13707,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	// Calculates regular and variable cast time.
 	if( !(skill_get_castnodex(skill_id, skill_lv)&1) )
 	{ //If renewal casting is enabled, all renewal skills will follow the renewal cast time formula.
-		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= ALL_FULL_THROTTLE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= NC_MAGMA_ERUPTION_DOTDAMAGE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		{
 			time -= time * (status_get_dex(bl) * 2 + status_get_int(bl)) / 530;
 			if ( time < 0 ) time = 0;// No return of 0 since were adding the fixed_time later.
@@ -13832,7 +13832,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 
 	//Only add variable and fixed times when renewal casting for renewal skills are on. Without this check,
 	//it will add the 2 together during the above phase and then readd the fixed time.
-	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= ALL_FULL_THROTTLE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= NC_MAGMA_ERUPTION_DOTDAMAGE || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		final_time = time + fixed_time;
 	else
 		final_time = time;
