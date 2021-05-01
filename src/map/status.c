@@ -573,6 +573,18 @@ void initChangeTables(void)
 
 	set_sc(ALL_ODINS_POWER, SC_ODINS_POWER, SI_ODINS_POWER, SCB_WATK | SCB_MATK | SCB_DEF | SCB_MDEF);
 
+	set_sc( RL_B_TRAP		, SC_B_TRAP				, SI_B_TRAP				, SCB_NONE );
+	set_sc( RL_E_CHAIN		, SC_E_CHAIN			, SI_E_CHAIN			, SCB_NONE );
+	//set_sc( RL_E_CHAIN	, SC_E_QD_SHOT_READY	, SI_E_QD_SHOT_READY	, SCB_NONE );
+	set_sc( RL_C_MARKER		, SC_C_MARKER			, SI_C_MARKER			, SCB_NONE );
+	set_sc( RL_H_MINE		, SC_H_MINE				, SI_H_MINE				, SCB_NONE );
+	//set_sc( RL_H_MINE		, SC_H_MINE_SPLASH		, SI_H_MINE_SPLASH		, SCB_NONE );
+	set_sc( RL_P_ALTER		, SC_P_ALTER			, SI_P_ALTER			, SCB_NONE );
+	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_NONE );
+	//set_sc( RL_HEAT_BARREL, SC_HEAT_BARREL_AFTER	, SI_HEAT_BARREL_AFTER	, SCB_NONE );
+	set_sc( RL_AM_BLAST     , SC_ANTI_M_BLAST		, SI_ANTI_M_BLAST		, SCB_NONE );
+	set_sc( RL_SLUGSHOT		, SC_SLUGSHOT			, SI_SLUGSHOT			, SCB_NONE );
+
 	set_sc( KO_YAMIKUMO          , SC_HIDING          , SI_HIDING          , SCB_NONE);
 	set_sc( KO_JYUMONJIKIRI      , SC_KO_JYUMONJIKIRI , SI_KO_JYUMONJIKIRI , SCB_NONE);
 	set_sc( KO_MEIKYOUSISUI      , SC_MEIKYOUSISUI    , SI_MEIKYOUSISUI    , SCB_NONE );
@@ -587,18 +599,18 @@ void initChangeTables(void)
 	set_sc( OB_AKAITSUKI         , SC_AKAITSUKI       , SI_AKAITSUKI       , SCB_NONE );
 
 	//Adjust SCB flags as support for these skills are added. [Rytech]
-	set_sc( GC_DARKCROW           , SC_DARKCROW           , SI_DARKCROW           , SCB_NONE );
-	set_sc( RA_UNLIMIT            , SC_UNLIMIT            , SI_UNLIMIT            , SCB_NONE );
-	set_sc( GN_ILLUSIONDOPING     , SC_HALLUCINATION      , SI_HALLUCINATION      , SCB_NONE );
-	add_sc( RK_DRAGONBREATH_WATER , SC_FREEZING           );
-	add_sc( NC_MAGMA_ERUPTION     , SC_BURNING            );
-	set_sc( WM_FRIGG_SONG         , SC_FRIGG_SONG         , SI_FRIGG_SONG         , SCB_NONE );
-	set_sc( SR_FLASHCOMBO         , SC_FLASH_COMBO_ATK    , SI_BLANK              , SCB_NONE );
-	add_sc( SC_ESCAPE             , SC_ANKLE              );
-	set_sc( AB_OFFERTORIUM        , SC_OFFERTORIUM        , SI_OFFERTORIUM        , SCB_NONE );
-	set_sc( WL_TELEKINESIS_INTENSE, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE );
-	set_sc( LG_KINGS_GRACE        , SC_KINGS_GRACE        , SI_KINGS_GRACE        , SCB_NONE );
-	set_sc( ALL_FULL_THROTTLE     , SC_FULL_THROTTLE      , SI_FULL_THROTTLE      , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+	set_sc(GC_DARKCROW				, SC_DARKCROW			, SI_DARKCROW			, SCB_NONE);
+	set_sc(RA_UNLIMIT				, SC_UNLIMIT			, SI_UNLIMIT			, SCB_NONE);
+	set_sc(GN_ILLUSIONDOPING		, SC_ILLUSIONDOPING		, SI_ILLUSIONDOPING		, SCB_NONE);
+	add_sc(RK_DRAGONBREATH_WATER	, SC_FREEZING			);
+	add_sc(NC_MAGMA_ERUPTION		, SC_BURNING			);
+	set_sc(WM_FRIGG_SONG			, SC_FRIGG_SONG			, SI_FRIGG_SONG			, SCB_NONE);
+	set_sc(SR_FLASHCOMBO			, SC_FLASHCOMBO			, SI_FLASHCOMBO			, SCB_NONE);
+	add_sc(SC_ESCAPE				, SC_ANKLE				);
+	set_sc(AB_OFFERTORIUM			, SC_OFFERTORIUM		, SI_OFFERTORIUM		, SCB_NONE);
+	set_sc(WL_TELEKINESIS_INTENSE	, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE);
+	set_sc(LG_KINGS_GRACE			, SC_KINGS_GRACE		, SI_KINGS_GRACE		, SCB_NONE);
+	set_sc(ALL_FULL_THROTTLE		, SC_FULL_THROTTLE		, SI_FULL_THROTTLE		, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -2724,6 +2736,12 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		//same as versus large size.
 		sd->right_weapon.atkmods[1] = sd->right_weapon.atkmods[2];
 		sd->left_weapon.atkmods[1] = sd->left_weapon.atkmods[2];
+		//Damage from players mounted on a dragon will have no penaltys on all sizes.
+		if (pc_isdragon(sd))
+		{//Makes damage to small size become the same as large size.
+			sd->right_weapon.atkmods[0] = sd->right_weapon.atkmods[2];
+			sd->left_weapon.atkmods[0] = sd->left_weapon.atkmods[2];
+		}
 	}
 
 // ----- STATS CALCULATION -----
@@ -4935,11 +4953,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			else
 			if( sd && pc_iswugrider(sd) )
 				val = 15 + 5 * pc_checkskill(sd, RA_WUGRIDER);
-			if( sd && pc_ismadogear(sd) ){
-				val = -10 * (5 - pc_checkskill(sd,NC_MADOLICENCE));
-				if( sc->data[SC_ACCELERATION] )
-					val += 25;
-			}
+			if (sd && pc_iswugrider(sd))
+				val = 10 * pc_checkskill(sd, RA_WUGRIDER);//10% increase per level. This should do. [Rytech]
 
 			speed_rate -= val;
 		}
@@ -5046,6 +5061,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 75 );
 			if( sc->data[SC_CLOAKINGEXCEED] )
 				val = max( val, sc->data[SC_CLOAKINGEXCEED]->val3);
+			if( sc->data[SC_ACCELERATION] )
+				val = max( val, 25 );
 			if( sc->data[SC_HOVERING] )
 				val = max( val, 10 );
 			if( sc->data[SC_GN_CARTBOOST] )
@@ -5072,6 +5089,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	{
 		if( sd && pc_iscarton(sd) )
 			speed += speed * (50 - 5 * pc_checkskill(sd,MC_PUSHCART)) / 100;
+		if( sd && pc_ismadogear(sd) )
+			speed += speed * (50 - 10 * pc_checkskill(sd,NC_MADOLICENCE)) / 100;
 		if( speed_rate != 100 )
 			speed = speed * speed_rate / 100;
 		if( sc->data[SC_STEELBODY] )
@@ -5749,12 +5768,7 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 				if (sd->sc.option&OPTION_OKTOBERFEST)
 					class_ = JOB_OKTOBERFEST;
 				else
-				if (sd->sc.option&OPTION_RIDING 
-					|| sd->sc.option&(OPTION_DRAGON1) 
-					|| sd->sc.option&(OPTION_DRAGON2) 
-					|| sd->sc.option&(OPTION_DRAGON3) 
-					|| sd->sc.option&(OPTION_DRAGON4) 
-					|| sd->sc.option&(OPTION_DRAGON5)) //Need to check all Dragons [15peaces]
+				if (sd->sc.option&OPTION_RIDING)
 					switch (class_)
 					{	//Adapt class to a Mounted one.
 						case JOB_KNIGHT:

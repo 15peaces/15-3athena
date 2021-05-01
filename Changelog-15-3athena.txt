@@ -5,8 +5,41 @@
 // 		- Details.
 //			--More Details.
 //========================================
-04/27/2021
-	r288 [15peaces]
+05/01/2021
+	r289 [15peaces]
+		*Merged missing changes from 3ceam rev. 739 - 740
+		*Some fixing related to the mount system.
+		*Updated the Gong_Bug item weight to official.
+			-Description said in the past the weight was 0.5, but official show a different weight.
+		*Changed the name of a few of the ST status checks for skills.
+			-They were changed to have the same name as the mount options they check for.
+		*Fixed a issue where the cart's speed penalty wasn't being applied.
+		*RK_DRAGONTRAINING
+			-Skill level no longer affects mastery bonus from KN_SPEARMASTERY.
+			-Mastery ATK is now 10 * KN_SPEARMASTERY level learned.
+			-Now deals 100% damage to all target sizes when a spear is equipped.
+			-ASPD penaly formula updated to official.
+		*RA_WUGRIDER
+			-Fixed a issue where the speed increase percentage was incorrect.
+		*NC_MADOLICENCE
+			-Added a missing skill level check for the ATK increase.
+			-Fixed a issue where the speed penalty wasn't being applied properly.
+		*NC_ACCELERATION
+			-Fixed a issue where the speed increase would stack with other speed increasing status's from other skills.
+		*NC_SELFDESTRUCTION
+			-Fixed a issue where the caster would be unmounted from the mado before the attack is done.
+		*NC_REPAIR
+			-Heal percentage is updated to official.
+			-Before: 6,9,12,15,18
+			-After: 4,7,13,17,23
+		*Rebellion Skills
+			-Pre-added some support for the status's activated by certain skills.
+			-They won't activate yet as the skills aren't coded and no durations are in.
+		*Added GD_ITEMEMERGENCYCALL and GD_GUILD_STORAGE to the guild_skill_tree.
+			-Note: These are disabled until their functions are coded in.
+
+04/28/2021
+	r289 [15peaces]
 		*Merged missing changes from 3ceam rev. 738
 		*Changed CZ_REQ_DISCONNECT packet.
 			-Send disconnect packet and flush socket before correct client disconnect.

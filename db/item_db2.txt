@@ -3801,7 +3801,7 @@
 1654,Mental_Stick,Mental Stick,4,20,,500,40,,1,1,0x00818315,63,2,2,3,102,1,10,{bonus bAddMatk,170; set .@r, getrefine(); if(.@r>5) { bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",(.@r-5)*2; bonus bMaxHPrate,-(.@r-5)*2; } bonus2 bCastrate,"SO_PSYCHIC_WAVE",-3000; bonus2 bSkillUseSP,"SO_PSYCHIC_WAVE",-60; },{},{ itemheal 0,-100; }
 
 // Serect Gunslinger Bullet??? (3ceam)
-13208,Gong_Bug,Gong Bug,10,1,,5,50,,,,0x01000000,7,2,32768,,50,,3,{},{},{}
+13208,Gong_Bug,Gong Bug,10,1,,20,50,,,,0x01000000,7,2,32768,,50,,3,{},{},{}
 
 // Nightmare Biolab & more (renewal)
 6820,Particles_Of_Energy,Energy Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}

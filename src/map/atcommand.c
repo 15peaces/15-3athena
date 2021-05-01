@@ -5702,7 +5702,7 @@ ACMD_FUNC(disguise)
 		return -1;
 	}
 
-	if(pc_isriding(sd))
+	if (pc_isriding(sd) || pc_isdragon(sd) || pc_iswugrider(sd) || pc_ismadogear(sd))
 	{
 		//FIXME: wrong message [ultramage]
 		//clif_displaymessage(fd, msg_txt(227)); // Character cannot wear disguise while riding a PecoPeco.

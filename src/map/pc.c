@@ -8312,7 +8312,7 @@ int pc_setcart(struct map_session_data *sd,int type)
 	if( type < 0 || type > maxcarts )
 		return 1;// Never trust the values sent by the client! [Skotlex]
 
-	if( pc_checkskill(sd,MC_PUSHCART) <= 0 && type != 0 )
+	if (pc_checkskill(sd, MC_PUSHCART) <= 0)
 		return 1;// Push cart is required
 
 	//If the date of the client used is older then 2012-04-10, OPTIONS for carts will be used.
@@ -8348,14 +8348,10 @@ int pc_setcart(struct map_session_data *sd,int type)
  *------------------------------------------*/
 int pc_setfalcon(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
-	if( flag )
-	{ // You cannot get falcon while riding warg or while you have warg.
-		if( pc_checkskill(sd,HT_FALCON)>0 && !(sd->sc.option&OPTION_WUGRIDER || sd->sc.option&OPTION_WUG) ) // t@R}X^?XL
+	if( flag ){
+		if( pc_checkskill(sd,HT_FALCON)>0 )	// ファルコンマスタリ?スキル所持
 			pc_setoption(sd,sd->sc.option|OPTION_FALCON);
-	} else if( pc_isfalcon(sd) ){
+	}else if (pc_isfalcon(sd)) {
 		pc_setoption(sd,sd->sc.option&~OPTION_FALCON); // remove falcon
 	}
 
@@ -8367,11 +8363,8 @@ int pc_setfalcon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setriding(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
 	if( flag ){
-		if( pc_checkskill(sd,KN_RIDING) > 0 ) // ƒ‰ƒCƒfƒBƒ“ƒOƒXƒLƒ‹ŠŽ
+		if( pc_checkskill(sd,KN_RIDING) > 0 ) // ライディングスキル所持
 			pc_setoption(sd, sd->sc.option|OPTION_RIDING);
 	} else if( pc_isriding(sd) ){
 		pc_setoption(sd, sd->sc.option&~OPTION_RIDING);
@@ -8385,9 +8378,6 @@ int pc_setriding(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setdragon(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
 	if( flag ){
 		if( pc_checkskill(sd,RK_DRAGONTRAINING) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_DRAGON1);
@@ -8403,9 +8393,6 @@ int pc_setdragon(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwug(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
 	if( flag ){
 		if( pc_checkskill(sd,RA_WUGMASTERY)>0 )
 			pc_setoption(sd,sd->sc.option|OPTION_WUG);
@@ -8421,9 +8408,6 @@ int pc_setwug(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setwugrider(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
 	if( flag ){
 		if( pc_checkskill(sd,RA_WUGRIDER) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_WUGRIDER);
@@ -8439,9 +8423,6 @@ int pc_setwugrider(TBL_PC* sd, int flag)
  *------------------------------------------*/
 int pc_setmadogear(TBL_PC* sd, int flag)
 {
-	if( sd->sc.data[SC__GROOMY] )
-		return 0;
-
 	if( flag ){
 		if( pc_checkskill(sd,NC_MADOLICENCE) > 0 )
 			pc_setoption(sd, sd->sc.option|OPTION_MADOGEAR);

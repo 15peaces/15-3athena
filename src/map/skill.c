@@ -8009,9 +8009,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NC_SELFDESTRUCTION:
 		if( sd )
 		{
-			pc_setoption(sd, sd->sc.option&~OPTION_MADOGEAR);
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			skill_castend_damage_id(src, src, skillid, skilllv, tick, flag);
+			pc_setoption(sd, sd->sc.option&~OPTION_MADOGEAR);
 		}
 		break;
 
@@ -8040,12 +8040,24 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case NC_REPAIR:
 		if( sd ){
+			short percent;
 			int heal;
-			if( dstsd && pc_ismadogear(dstsd) ){
-				heal = dstsd->status.max_hp * (3+3*skilllv) / 100;
+
+			switch (skilllv)
+			{
+				case 1: percent = 4;
+				case 2: percent = 7;
+				case 3: percent = 13;
+				case 4: percent = 17;
+				case 5: percent = 23;
+			}
+
+			if( dstsd && pc_ismadogear(dstsd) )
+			{
+				heal = dstsd->status.max_hp * percent / 100;
 				status_heal(bl,heal,0,2);
 			}else{
-				heal = sd->status.max_hp * (3+3*skilllv) / 100;
+				heal = sd->status.max_hp * percent / 100;
 				status_heal(src,heal,0,2);
 			}
 			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
@@ -13083,12 +13095,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
-	case ST_RIDINGDRAGON:
-		if(!pc_isdragon(sd)) {
-			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
-			return 0;
-		}
-		break;
 	case ST_FALCON:
 		if(!pc_isfalcon(sd)) {
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
@@ -13146,15 +13152,21 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			break;
 		clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 		return 0;
-	case ST_WUG:
-		if(!pc_iswug(sd)) {
+	case ST_DRAGON:
+		if (!pc_isdragon(sd)) {
 			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 			return 0;
 		}
 		break;
-	case ST_RIDINGWUG:
+	case ST_WUG:
+		if (!pc_iswug(sd)) {
+			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+			return 0;
+		}
+		break;
+	case ST_WUGRIDER:
 		if(!pc_iswugrider(sd) && !pc_iswug(sd)){
-			clif_skill_fail(sd,skill,0,0,0);
+			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 			return 0;
 		}
 		break;
@@ -17616,9 +17628,9 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if( strcmpi(split[10],"recover_weight_rate")==0 ) skill_db[i].state = ST_RECOV_WEIGHT_RATE;
 	else if( strcmpi(split[10],"move_enable")==0 ) skill_db[i].state = ST_MOVE_ENABLE;
 	else if( strcmpi(split[10],"water")==0 ) skill_db[i].state = ST_WATER;
-	else if( strcmpi(split[10],"dragon")==0 ) skill_db[i].state = ST_RIDINGDRAGON;
+	else if( strcmpi(split[10],"dragon")==0 ) skill_db[i].state = ST_DRAGON;
 	else if( strcmpi(split[10],"warg")==0 ) skill_db[i].state = ST_WUG;
-	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_RIDINGWUG;
+	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_WUGRIDER;
 	else if( strcmpi(split[10],"mado")==0 ) skill_db[i].state = ST_MADOGEAR;
 	else if( strcmpi(split[10],"elementalspirit")==0 ) skill_db[i].state = ST_ELEMENTALSPIRIT;
 	else skill_db[i].state = ST_NONE;

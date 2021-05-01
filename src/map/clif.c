@@ -11507,13 +11507,10 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 	case 0x00: // once attack
 	case 0x07: // continuous attack
 
-		if( pc_cant_act(sd) || sd->sc.option&OPTION_HIDE )
+		if (pc_cant_act(sd) || sd->sc.option&OPTION_HIDE || sd->sc.option&OPTION_WUGRIDER)
 			return;
 
 		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST) )
-			return;
-
-		if( sd->sc.option&OPTION_WUGRIDER && sd->weapontype1 )
 			return;
 
 		// Can't attack
@@ -12342,7 +12339,7 @@ void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
 /// 012a
 void clif_parse_RemoveOption(int fd,struct map_session_data *sd)
 {
-	//Can only remove Cart/Riding/Falcon.
+	//Can only remove Cart/Riding/Falcon/Dragon/Warg/Mado.
 	pc_setoption(sd,sd->sc.option&~(OPTION_CART|OPTION_RIDING|OPTION_FALCON|OPTION_DRAGON|OPTION_MADOGEAR));
 	if (sd->sc.data[SC_ON_PUSH_CART])
 		pc_setcart(sd,0);
@@ -20804,7 +20801,7 @@ void packetdb_readdb(void)
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		0,	0,	0,	0,	0,	0,	0, 14,	6, 50, -1,	0,	0,	0,	0,	0,
+		0,	0,	0,	0,	0,	0,	0, 14,	6, 50, -1,	0,	4,288, 12,	0,
 //#0x0980
 		0,  0,  0, 29, 28,  0,  0,  0,  6,  2, -1,  0,  0, -1, -1,  0,
 		31, 0,  0,  0,  0,  0,  0, -1,  8, 11,  9,  8,  0,  0,  0, 22,
