@@ -595,7 +595,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	int s_job_level = 50;
-	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
+	bool level_effect_bonus = battle_config.renewal_casting_renewal_skills;// Base/Job level effect on formula's.
 
 	enum sc_type status;
 	int skill;
@@ -4552,7 +4552,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	struct status_change *tsc;
 	struct status_change_entry *tsce;
 
-	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
+	bool level_effect_bonus = battle_config.renewal_casting_renewal_skills;// Base/Job level effect on formula's.
 	int i, s_job_level = 50;
 	int rate = 0;
 	int chorusbonus = 0;//Chorus bonus value for chorus skills. Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
@@ -8262,7 +8262,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 								break;
 							case 3:
 								sc_start(bl,SC_SHIELDSPELL_REF,100,opt,-1);//HP Recovery
-								if (battle_config.renewal_level_effect_skills == 1 && status_get_lv(src) >= 100)
+								if (battle_config.renewal_casting_renewal_skills == 1 && status_get_lv(src) >= 100)
 									val = sstatus->max_hp * (status_get_lv(src) / 10 + shield->refine) / 100;
 								else
 									val = sstatus->max_hp * (15 + shield->refine) / 100;

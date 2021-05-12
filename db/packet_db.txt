@@ -1847,11 +1847,11 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 0x99b,8 // ZC_MAPPROPERTY_R2
 0x099f,22 // ZC_SKILL_ENTRY4
 	
-0x0844,2,CashShopOpen,2
-0x084a,2,CashShopClose,2
+0x0844,2,pCashShopOpen,0
+0x084a,2,pCashShopClose,0
 0x0846,4,CashShopReqTab,2
-0x08c9,2,CashShopSchedule,0
-0x0848,-1,CashShopBuy,2
+0x08c9,2,pCashShopSchedule,0
+0x0848,-1,pCashShopBuy,0
 
 //2013-07-17 Ragexe
 packet_ver: 32
@@ -1951,10 +1951,6 @@ packet_keys: 0x631C511C,0x111C111C,0x111C111C // [Shakto]
 0x07ec,8,movetokafra,2:4
 0x0802,26,partyinvite2,2
 0x083c,10,useskilltoid,2:4:6
-0x0844,2,pCashShopOpen,0
-0x084a,2,pCashShopClose,0
-0x08c9,2,pCashShopSchedule,0
-0x0848,-1,pCashShopBuy,0
 0x096a,6,getcharnamerequest,2
 0x09cb,17//ZC_USE_SKILL2
 0x09D4,2,npcshopclosed,0
@@ -2464,6 +2460,46 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 
 0x0acb,12
 0x0acc,18
+
+// Note: Clients after 2018-03-07bRagexeRE do not obfuscate packets anymore!
+
+//2018-06-21aRagexeRE
+packet_ver: 45
+0x0437,7,actionrequest,2:6
+0x0438,10,useskilltoid,2:4:6
+0x035F,5,walktoxy,2
+0x0360,6,ticksend,2
+0x0361,5,changedir,2:4
+0x0362,6,takeitem,2
+0x0363,6,dropitem,2:4
+0x0364,8,movetokafra,2:4
+0x0365,8,movefromkafra,2:4
+//0x0366,10,useskilltopos,2:4:6:8
+0x0367,90,useskilltoposmoreinfo,2:4:6:8:10
+0x0368,6,getcharnamerequest,2
+0x0369,6,solvecharname,2
+0x083C,12,searchstoreinfolistitemclick,2:6:10
+0x0838,2,searchstoreinfonextpage,0
+0x0835,-1,searchstoreinfo,2:4:5:9:13:14:15
+0x0819,-1,reqtradebuyingstore,2:4:8:12
+0x0817,6,reqclickbuyingstore,2
+0x0815,2,reqclosebuyingstore,0
+0x0811,-1,reqopenbuyingstore,2:4:8:9:89
+0x0802,18,partybookingregisterreq,2:4
+0x07EC,8
+0x07E4,-1,itemlistwindowselected,2:4:8
+0x0436,19,wanttoconnection,2:6:10:14:18
+0x02C4,26,partyinvite2,2
+0x0281,4
+0x0202,26,friendslistadd,2
+0x022D,5,hommenu,4
+0x023B,36,storagepassword,0
+
+0x099d,-1//HC_ACK_CHARINFO_PER_PAGE
+0x09a0,6//HC_CHARLIST_NOTIFY
+0x09a1,2//CH_CHARLIST_REQ
+
+0x0AF4,11,useskilltopos,2:4:6:8:10
 
 //Add new packets here
 //packet_ver: 45

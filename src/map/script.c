@@ -8704,7 +8704,7 @@ BUILDIN_FUNC(setcashmount)
 		if (sd->sc.data[SC_ALL_RIDING]) {
 			status_change_end(&sd->bl, SC_ALL_RIDING, INVALID_TIMER);
 		} else {
-			sc_start(&sd->bl, SC_ALL_RIDING, 100, battle_config.rental_mount_speed_boost, -1);
+			sc_start(&sd->bl, SC_ALL_RIDING, 100, battle_config.all_riding_speed, -1);
 		}
 		script_pushint(st, 1); // In both cases, return 1.
 	}

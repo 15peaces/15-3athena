@@ -708,6 +708,7 @@ typedef enum sc_type {
 	SC_REUSE_REFRESH,
 	SC_REUSE_LIMIT_ECL,
 	SC_REUSE_LIMIT_RECALL,
+	SC_SUMMER2,
 	
 	// only temp and for testing
 	SC_FREEZING,
@@ -716,7 +717,6 @@ typedef enum sc_type {
 	SC_THORNSTRAP,
 	SC_GLOOMYDAY_SK,
 	SC_MILLENNIUMSHIELD,
-	SC_FLASH_COMBO_ATK,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

@@ -5,8 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/12/2021
+	r291 [15peaces]
+		*Merged missing changes from 3ceam rev. 741 - 743
+		*Implemented the new "login-failed" packet.
+		*Added base support for 2018-06-21aRagexeRE.
+			-You can login, walk and chat, but support is not stable yet.
+		*Some item fixes.
+		*Changed the name of rental_mount_speed_boost battle config to better reflect what it does.
+			-Be sure to update your config files to avoid issues.
+			-
+			-rental_mount_speed_boost --> all_riding_speed
+		*Added the ranking_type enum table.
+			-This is used to set ranking types for the ranking system.
+			-Only the Blacksmith, Alchemist, and Taekwon rankings work and newer rankings will be coded in the future.
+		*Added support for the Summer2 costume outfit.
+			-It likely requires a late July 2014 client or newer to work.
+		*Added config for summer2_ignorepalette to the client.conf file.
+		*Updated the enum table for status tags and ID's.
+		*Updated the const.txt.
+			
 05/01/2021
-	r289 [15peaces]
+	r290 [15peaces]
 		*Merged missing changes from 3ceam rev. 739 - 740
 		*Some fixing related to the mount system.
 		*Updated the Gong_Bug item weight to official.

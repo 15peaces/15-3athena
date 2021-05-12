@@ -2003,7 +2003,7 @@
 12607,Lolli_Pop_Box,Delicious Lollipop Box,11,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12608,Splendid_Box2,Splendid Box2,11,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12613,High_Coin_Pocket,Improved Coin Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IG_High_Coin_Pocket); },{},{}
-12675,Sg_Weapon_Supply_Box,WoE Weapon Supply Box,2,20,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IG_Sg_Weapon_Supply_Box); },{},{}
+12675,Sg_Weapon_Supply_Box,WoE Weapon Supply Box,2,20,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Sg_Weapon_Supply_Box); },{},{}
 12676,Sg_Violet_Potion_Box,Siege Violet Potion Box,2,20,,500,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 11547,50; },{},{}
 12677,Siege_Arrow_Quiver_S,Siege Arrow Quiver S,2,2,,100,,,,,0xFFFFFFFF,63,2,,,130,,,{ getitem 1776,200; },{},{}
 12678,Siege_Arrow_Quiver_A,Siege Arrow Quiver A,2,2,,100,,,,,0xFFFFFFFF,63,2,,,95,,,{ getitem 1775,200; },{},{}
@@ -3898,3 +3898,22 @@
 22557,Masterpieces_of_Artisan_Chocolate,Masterpieces of Artisan Chocolate,0,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22558,Lucky_Bag,Lucky Bag,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Lucky_Bag),1; },{},{}
 22559,Mock_Strawberry,Mock Strawberry,11,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 50,50; itemskill "SM_ENDURE",3; },{},{}
+
+// missing items (renewal)
+24305,Archbishop_Shadow_Shield,Archbishop Shadow Shield,5,10,,0,,0,,0,0x00000100,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"AB_ADORAMUS",20+.@r*5; },{},{}
+24306,Sura_Shadow_Shield,Sura Shadow Shield,5,10,,0,,0,,0,0x00008000,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"SR_SKYNETBLOW",20+.@r*5; },{},{}
+24307,Guillotine_Cross_Shadow_Shield,Guillotine Cross Shadow Shield,5,10,,0,,0,,0,0x00001000,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillCooldown,"GC_DARKCROW",-(10000+(2000*.@r)); },{},{}
+24308,Shadow_Chaser_Shadow_Shield,Shadow Chaser Shadow Shield,5,10,,0,,0,,0,0x00020000,56,2,262144,,99,1,,{ autobonus3 "{ set .@r, getrefine(); if (.@r>=9) { bonus bAspd,2; } else if (.@r>=7) { bonus bAspd,1; } bonus bAspdRate,.@r; }",1000,50000,"SC_AUTOSHADOWSPELL"; },{},{}
+24309,Warlock_Shadow_Shield,Warlock Shadow Shield,5,10,,0,,0,,0,0x00000200,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillAtk,"WL_EARTHSTRAIN",20+.@r*5; },{},{}
+24310,Sorcerer_Shadow_Shield,Sorcerer Shadow Shield,5,10,,0,,0,,0,0x00010000,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillCooldown,"SO_EARTHGRAVE",-1*((300*.@r)+1000); },{},{}
+24311,Ranger_Shadow_Shield,Ranger Shadow Shield,5,10,,0,,0,,0,0x00000800,56,2,262144,,99,1,,{ set .@r, getrefine(); bonus2 bSkillUseSPrate,"RA_AIMEDBOLT",(20+(5*.@r)); },{},{}
+24312,Minstrel_Shadow_Shield,Minstrel Shadow Shield,5,10,,0,,0,,0,0x00080000,56,1,262144,,99,1,,{ set .@r, getrefine(); bonus bMaxSPrate,3; bonus bMdef,.@r*(getskilllv("MI_HARMONIZE")+getskilllv("MI_RUSH_WINDMILL")+getskilllv("MI_ECHOSONG"))/5; },{},{}
+24313,Wanderer_Shadow_Shield,Wanderer Shadow Shield,5,10,,0,,0,,0,0x00080000,56,0,262144,,99,1,,{ set .@r, getrefine(); bonus bMaxSPrate,3; bonus bMdef,.@r*(getskilllv("WA_SWING_DANCE")+getskilllv("WA_SYMPHONY_OF_LOVER")+getskilllv("WA_MOONLIT_SERENADE"))/5; },{},{}
+24314,Ninja_Shadow_Shield,Ninja Shadow Shield,5,10,,0,,0,,0,0x02000000,63,2,262144,,1,1,,{ set .@r, getrefine(); bonus bAspd,1; bonus bBaseAtk,(3*getskilllv("NJ_TOBIDOUGU")); autobonus3 "{ bonus bAspd,1; }",1000,50000,"NJ_NEN"; set .@val, 4 * .@r; if (.@r >= 7) { set .@val, .@val + 10; if (.@r >= 9) { set .@val,  .@val + 10; } } bonus2 bIgnoreDefClassRate,Class_Normal,.@val; bonus2 bIgnoreMdefClassRate,Class_Normal,.@val; },{},{}
+27167,Faceworm_Larva_Card,Faceworm Larva Card,6,20,,10,,,,,,,,4,,,,,{ bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Water,getrefine()*3; },{},{}
+27168,Irene_High_Elder_Card,Irene High Elder Card,6,20,,10,,,,,,,,4,,,,,{ bonus bHit,10 + 5 * (getrefine()/3); },{},{}
+27169,Payon_Soldier_Card,Payon Soldier Card,6,20,,10,,,,,,,,2,,,,,{ set .@atk, 5; set .@r, getrefine(); if(getiteminfo(getequipid(EQI_HAND_R),11) == W_SPEAR && .@r >= 10){ set .@atk, .@atk + 20; if(.@r >= 14){ set .@atk, .@atk + 20; } } bonus bAtk,.@atk; bonus bMatk,.@atk; },{},{}
+27170,Shotgun_Buffalo_Bandit_Card,Shotgun Buffalo Bandit Card,6,20,,10,,,,,,,,128,,,,,{ bonus bAgi,7; bonus bHit,7; },{},{}
+27171,Revolver_Buffalo_Bandit_Card,Revolver Buffalo Bandit Card,6,20,,10,,,,,,,,8,,,,,{ bonus bStr,4; bonus2 bAddClass,Class_All,4; },{},{}
+28391,S_Thief_Earring,Thief Shadow Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bFlee,.@val; }",200,5000,"TF_THROWSTONE","{ specialeffect2 EF_ENHANCE; }"; },{},{}
+28392,S_Archer_Earring,Archer Shadow Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bHit,.@val; }",200,5000,"AC_DOUBLE","{ specialeffect2 EF_ENHANCE; }"; },{},{}

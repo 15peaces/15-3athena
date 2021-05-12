@@ -907,7 +907,7 @@ void clif_clearunit_delayed(struct block_list* bl, int64 tick)
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand)
 {
-	if(sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
+	if (sd->sc.option&(OPTION_WEDDING | OPTION_XMAS | OPTION_SUMMER | OPTION_HANBOK | OPTION_OKTOBERFEST | OPTION_SUMMER2))
 	{
 		*rhand = *lhand = 0;
 		return;
@@ -3459,20 +3459,21 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		case LOOK_BASE:
 			vd->class_ = val;
 			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER ||
-				vd->class_ == JOB_HANBOK || vd->class_ == JOB_OKTOBERFEST)
+				vd->class_ == JOB_HANBOK || vd->class_ == JOB_OKTOBERFEST || vd->class_ == JOB_SUMMER2)
 				vd->weapon = vd->shield = 0;
 			if (vd->cloth_color && (
 				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
 				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
 				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
-				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette) ||
+				(vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
 			))
 				clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
 			if (vd->body_style && (
 				sd->sc.option&OPTION_WEDDING || sd->sc.option&OPTION_XMAS ||
 				sd->sc.option&OPTION_SUMMER || sd->sc.option&OPTION_HANBOK ||
-				sd->sc.option&OPTION_OKTOBERFEST))
+				sd->sc.option&OPTION_OKTOBERFEST || sd->sc.option&OPTION_SUMMER2))
 				vd->body_style = 0;
 		break;
 		case LOOK_HAIR:
@@ -3496,7 +3497,9 @@ void clif_changelook(struct block_list *bl,int type,int val)
 				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
 				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
 				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
-				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette) ||
+				(vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
+
 			))
 				val = 0;
 			vd->cloth_color = val;
@@ -11510,7 +11513,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if (pc_cant_act(sd) || sd->sc.option&OPTION_HIDE || sd->sc.option&OPTION_WUGRIDER)
 			return;
 
-		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST) )
+		if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST|OPTION_SUMMER2) )
 			return;
 
 		// Can't attack
@@ -12555,7 +12558,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		}
 	}
 
-	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST))
+	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_OKTOBERFEST|OPTION_SUMMER2))
 		return;
 
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
@@ -12677,7 +12680,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 		}
 	}
 
-	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK) )
+	if( sd->sc.option&(OPTION_WEDDING|OPTION_XMAS|OPTION_SUMMER|OPTION_HANBOK|OPTION_SUMMER2) )
 		return;
 
 	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
@@ -15561,10 +15564,10 @@ void clif_ranklist_sub(unsigned char *buf, int type) {
 	int i;
 	
 	switch( type ) {
-		case 0: list = smith_fame_list; break;
-		case 1: list = chemist_fame_list; break;
-		case 3: list = taekwon_fame_list; break;
-		default: return; // Unsupported
+		case RANKING_BLACKSMITH:	list = smith_fame_list; break;
+		case RANKING_ALCHEMIST:		list = chemist_fame_list; break;
+		case RANKING_TAEKWON:		list = taekwon_fame_list; break;
+		default:					return; // Unsupported
 	}
 
 	// Packet size limits this list to 10 elements. [Skotlex]
@@ -15597,9 +15600,9 @@ void clif_ranklist(struct map_session_data *sd, int type) {
 	WFIFOW(fd, 2) = type;
 	clif_ranklist_sub(WFIFOP(fd,4), type);
 
-	if( (upperMask == MAPID_BLACKSMITH && type == 0)
-		|| (upperMask == MAPID_ALCHEMIST && type == 1)
-		|| (upperMask == MAPID_TAEKWON && type == 2)
+	if( (upperMask == MAPID_BLACKSMITH && type == RANKING_BLACKSMITH)
+		|| (upperMask == MAPID_ALCHEMIST && type == RANKING_ALCHEMIST)
+		|| (upperMask == MAPID_TAEKWON && type == RANKING_TAEKWON)
 	) {
 		mypoint = sd->status.fame;
 	} else {
@@ -15616,9 +15619,9 @@ void clif_parse_ranklist(int fd, struct map_session_data *sd) {
 	int16 type = RFIFOW(fd, 2); //type
 
 	switch( type ) {
-		case 0:
-		case 1:
-		case 2:
+		case RANKING_BLACKSMITH:
+		case RANKING_ALCHEMIST:
+		case RANKING_TAEKWON:
 			clif_ranklist(sd, type); // pk_list unsupported atm
 		break;
 	}
@@ -15629,9 +15632,9 @@ void clif_update_rankingpoint(struct map_session_data *sd, int type, int points)
 {
 #if PACKETVER < 20120502
 	switch( type ) {
-		case 0: clif_fame_blacksmith(sd,points); break;
-		case 1: clif_fame_alchemist(sd,points); break;
-		case 2: clif_fame_taekwon(sd,points); break;
+		case RANKING_BLACKSMITH:	clif_fame_blacksmith(sd,points); break;
+		case RANKING_ALCHEMIST:		clif_fame_alchemist(sd,points); break;
+		case RANKING_TAEKWON:		clif_fame_taekwon(sd,points); break;
 	}
 #else
 	int fd = sd->fd;
