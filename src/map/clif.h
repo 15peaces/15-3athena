@@ -1071,4 +1071,8 @@ void clif_equipswitch_add(struct map_session_data* sd, uint16 index, uint32 pos,
 void clif_equipswitch_remove(struct map_session_data* sd, uint16 index, uint32 pos, bool failed);
 void clif_equipswitch_reply(struct map_session_data* sd, bool failed);
 
+void clif_crimson_marker_xy(struct map_session_data *sd);
+void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd);
+void clif_crimson_marker_xy_remove(struct map_session_data *sd);
+
 #endif /* _CLIF_H_ */

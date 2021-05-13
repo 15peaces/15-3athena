@@ -70,24 +70,6 @@
 // Rune Knight's 10th Rune -- Skill not supported yet
 22540,Runstone_Luxanima,Lux Anima Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 
-//Shadow Equipment - Currently unsupported!
-//24180,Bearer's_Shadow_Armor,Bearer's Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus bMdef,1+(getrefine()/2); },{},{}
-//24181,Bearer's_Shadow_Shoes,Bearer's Shadow Shoes,12,10,,0,,,,0,0xFFFFFFFF,63,2,524288,,1,,,{ bonus bMaxSP,50+(5*(getrefine()/2)); },{},{}
-//24182,Bearer's_Shadow_Shield,Bearer's Shadow Shield,12,10,,0,,,,0,0xFFFFFFFF,63,2,262144,,1,,,{ bonus bDef,5+(getrefine()/2); },{},{}
-//24183,Bearer's_Shadow_Weapon,Bearer's Shadow Weapon,12,10,,0,,,,0,0xFFFFFFFF,63,2,131072,,1,1,,{ bonus bMaxHP,100+(10*(getrefine()/2)); },{},{}
-//24184,Bearer's_Shadow_Earring,Bearer's Shadow Earring,12,10,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,,,{ bonus bMatk,5+(getrefine()/2); },{},{}
-//24185,Bearer's_Shadow_Pendant,Bearer's Shadow Pendant,12,10,,0,,,,0,0xFFFFFFFF,63,2,2097152,,1,,,{ bonus bBaseAtk,5+(getrefine()/2); },{},{}
-//24186,Basis_Shadow_Armor,Basis Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Neutral,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Neutral,1+(getrefine()/2); },{},{}
-//24187,Hallowed_Shadow_Armor,Hallowed Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Dark,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Dark,1+(getrefine()/2); },{},{}
-//24188,Underneith_Shadow_Armor,Underneith Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Water,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Water,1+(getrefine()/2); },{},{}
-//24189,Underneath_Shadow_Armor,Underneath Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Earth,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Earth,1+(getrefine()/2); },{},{}
-//24190,Flame_Shadow_Armor,Flame Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Fire,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Fire,1+(getrefine()/2); },{},{}
-//24191,Windy_Shadow_Armor,Windy Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Wind,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Wind,1+(getrefine()/2); },{},{}
-//24192,Envenom_Shadow_Armor,Envenom Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Poison,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Poison,1+(getrefine()/2); },{},{}
-//24193,Damned_Shadow_Armor,Damned Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Holy,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Holy,1+(getrefine()/2); },{},{}
-//24194,Exorcism_Shadow_Armor,Exorcism Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Ghost,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Ghost,1+(getrefine()/2); },{},{}
-//24195,Divine_Shadow_Armor,Divine Shadow Armor,12,10,,0,,,,0,0xFFFFFFFF,63,2,65536,,1,,,{ bonus2 bAddEle,Ele_Undead,1+(getrefine()/2); bonus2 bMagicAddEle,Ele_Undead,1+(getrefine()/2); },{},{}
-
 // needs updated item info...
 2895,Medal_Of_Valor1,Medal Of Valor1,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bCastrate,-2; },{},{}
 2896,Medal_Of_Valor2,Medal Of Valor2,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; },{},{}
@@ -2211,7 +2193,7 @@
 18592,Nestea_Hat,Nestea Hat,4,20,,200,,5,,0,0xFFFFFFFF,63,2,256,,0,1,756,{ bonus bMdef,5; },{},{}
 18593,Fancy_Mini_Crown,Fancy Mini Crown,4,20,,100,,2,,1,0xFFFFFFFF,63,2,256,,30,1,707,{ bonus bInt,1; bonus bMdef,5; bonus bVariableCastRate,-3; bonus bHealPower,3; bonus bSkillUseSP,-3; set .@r, getrefine(); bonus bMatkRate,(.@r>6)?(5):((.@r>4)?(4):(3)); },{},{}
 18594,Magni_Cap_,Magni Cap,4,30000,,1000,,9,,1,0xFFFFFFFE,63,2,256,,0,1,250,{ bonus bStr,2; },{},{}
-18595,Horn_Of_Ancient,Horn of Ancient,4,40,,200,,8,,1,0xFFFFFFFF,63,2,256,,50,1,757,{ bonus2 bSubClass,Class_Boss,10; bonus2 bAddClass,Class_Boss,10; set .@r, getrefine(); if (.@r > 6) { autobonus "{ bonus bBaseAtk,100; }",10,10000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; } if (.@r > 8) { bonus2 bSubClass,Class_Boss,10; bonus2 bAddClass,Class_Boss,10; } },{},{}
+18595,Horn_Of_Ancient,Horn of Ancient,4,40,,200,,8,,1,0xFFFFFFFF,63,2,256,,50,1,757,{ bonus2 bSubRace,RC_Boss,10; bonus2 bAddClass,Class_Boss,10; set .@r, getrefine(); if (.@r > 6) { autobonus "{ bonus bBaseAtk,100; }",10,10000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; } if (.@r > 8) { bonus2 bSubRace,RC_Boss,10; bonus2 bAddClass,Class_Boss,10; } },{},{}
 18596,Sprout_Hat,Sprout Hat,4,20,,200,,4,,0,0xFFFFFFFF,63,2,256,,70,1,758,{ skill "WZ_HEAVENDRIVE",3; },{},{}
 18597,Mercury_Riser,Mercury Riser,4,40,,200,,10,,1,0xFFFFFFFF,63,2,256,,0,1,759,{ bonus2 bSubRace,RC_DemiHuman,10; bonus2 bAddRace,RC_DemiHuman,10; bonus bAspdRate,3; bonus bDelayrate,-3; set .@r, getrefine(); if(.@r >= 7) { bonus bAspdRate,2; bonus bDelayrate,-2; } if(.@r >= 9) { bonus bAspdRate,2; bonus bDelayrate,-2; }},{},{}
 18598,Mini_Tree_J,Mini Tree J,4,20,,50,,0,,1,0xFFFFFFFF,63,2,256,,0,0,727,{ bonus bMdef,20; },{},{}
@@ -3917,3 +3899,15 @@
 27171,Revolver_Buffalo_Bandit_Card,Revolver Buffalo Bandit Card,6,20,,10,,,,,,,,8,,,,,{ bonus bStr,4; bonus2 bAddClass,Class_All,4; },{},{}
 28391,S_Thief_Earring,Thief Shadow Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bFlee,.@val; }",200,5000,"TF_THROWSTONE","{ specialeffect2 EF_ENHANCE; }"; },{},{}
 28392,S_Archer_Earring,Archer Shadow Earring,5,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bHit,.@val; }",200,5000,"AC_DOUBLE","{ specialeffect2 EF_ENHANCE; }"; },{},{}
+
+// more costumes (renewal)
+31394,C_Magician_White_Hat,C Magician White Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,283,{},{},{}
+31395,C_Book_Of_Magic,C Book of Magic,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,1691,{},{},{}
+31396,C_Sorcerer_Hood,C Sorcerer Hood,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1692,{},{},{}
+31397,C_Pope_Sitting_Head,C Sitting Pope,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1553,{},{},{}
+31398,C_Blinking_Thin_Eyes,C Blinking Thin Eyes,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1693,{},{},{}
+31399,C_Darkness_Veil,C Darkness Veil,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1694,{},{},{}
+31400,C_Ribbon,C Ribbon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,17,{},{},{}
+31401,C_Nuns_Veil,C Nuns Veil,5,0,,0,,0,,0,0xFFFFFFFF,63,2,3072,,1,0,176,{},{},{}
+31402,C_Idun_Green_Apple,C Iduns Green Apple,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1698,{},{},{}
+31403,C_Wall,C Wall,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1699,{},{},{}

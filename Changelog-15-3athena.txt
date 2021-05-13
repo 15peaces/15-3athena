@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/13/2021
+	r292 [15peaces]
+		*Merged missing changes from 3ceam rev. 744
+		*Some updates in item database
+			-Added some missing costume items.
+			-Some item fixes.
+		*Rebuilt the map cache.
+			-Some clone maps no longer exist and have been disabled.
+		*Added support for the ZC_C_MARKERINFO packet.
+			-Its coded in, but not used at the moment.
+		*RL_RICHS_COIN; RL_MASS_SPIRAL; RL_C_MARKER; RL_E_CHAIN
+			-Added support for these skills.
+			-Note: Some of these skills are not fully coded and will have bugs.
+
 05/12/2021
 	r291 [15peaces]
 		*Merged missing changes from 3ceam rev. 741 - 743

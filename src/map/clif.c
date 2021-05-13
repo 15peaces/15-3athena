@@ -8031,7 +8031,6 @@ int clif_party_job_and_level(struct map_session_data *sd)
 	return 0;
 }
 
-
 /*==========================================
  * Sends HP bar to a single fd. [Skotlex]
  *------------------------------------------*/
@@ -8169,7 +8168,6 @@ void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short name
 		WFIFOW(fd, 4)=nameid;
 	WFIFOSET(fd,packet_len(0x18f));
 }
-
 
 /// Initiates the pet taming process (ZC_START_CAPTURE).
 /// 019e
@@ -20369,6 +20367,40 @@ void clif_parse_equipswitch_request_single(int fd, struct map_session_data* sd) 
 #endif
 }
 
+void clif_crimson_marker_xy(struct map_session_data *sd)
+{
+	unsigned char buf[16];
+
+	nullpo_retv(sd);
+
+	WBUFW(buf, 0) = 0x9c1;
+	WBUFL(buf, 2) = sd->status.account_id;
+	WBUFW(buf, 6) = sd->bl.x;
+	WBUFW(buf, 8) = sd->bl.y;
+	clif_send(buf, packet_len(0x9c1), &sd->bl, PARTY_SAMEMAP_WOS);
+}
+
+void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd)
+{
+	WFIFOHEAD(fd, packet_len(0x9c1));
+	WFIFOW(fd, 0) = 0x9c1;
+	WFIFOL(fd, 2) = sd->status.account_id;
+	WFIFOW(fd, 6) = sd->bl.x;
+	WFIFOW(fd, 8) = sd->bl.y;
+	WFIFOSET(fd, packet_len(0x9c1));
+}
+
+void clif_crimson_marker_xy_remove(struct map_session_data *sd)
+{
+	unsigned char buf[16];
+	nullpo_retv(sd);
+	WBUFW(buf, 0) = 0x9c1;
+	WBUFL(buf, 2) = sd->status.account_id;
+	WBUFW(buf, 6) = -1;
+	WBUFW(buf, 8) = -1;
+	clif_send(buf, packet_len(0x9c1), &sd->bl, PARTY_SAMEMAP_WOS);
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -20811,7 +20843,7 @@ void packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
-		0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
+		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
 		-1, 11, 12, 11,  0,  0,  0, 75, -1,143,  0,  0,  0, -1, -1, -1,
