@@ -5,6 +5,33 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/15/2021
+	r293 [15peaces]
+		*Merged missing changes from 3ceam rev. 745
+		*Some more updates related to 2018 clients.
+			-Update HC_ACCEPT_ENTER2 packet.
+			-HC_ACK_CHARINFO_PER_PAGE; HC_CHARLIST_NOTIFY; CH_CHARLIST_REQ
+				--Added support for these packets to better support the new character select.
+				--These are currently setup for 2018-06-20 and newer clients since we don't want to risk breaking things with older clients.
+				--This might be changed later once the support is stable.
+			-Thanks to @3CeAM
+		*Updated Bloody Branch spawn list & rates.
+		*Did a number of updates in the item database.
+			-Removed some duplicated entries.
+			-Updated some items.
+			-Moved some stable items.
+			-The Lux Anima Rune skill tag is now used.
+			-Gong Bug ammo now has a chance of stunning the target.
+			-Kagerou/Oboro items now have official prices.
+			-Added Rebellion weapons and ammo. Bonuses for weapons are not yet added.
+		*RL_B_TRAP
+			-Added some coding support for it, but its not complete.
+			-Trap limit reduced to 1.
+		*RL_C_MARKER
+			-Fixed a issue where the skill wouldn't play its sound.
+		*RL_H_MINE; RL_SLUGSHOT
+			-Added full support for these skills.
+
 05/13/2021
 	r292 [15peaces]
 		*Merged missing changes from 3ceam rev. 744

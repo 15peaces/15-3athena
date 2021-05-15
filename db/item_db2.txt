@@ -67,7 +67,7 @@
 
 // Job Related Items - 15-3athena
 //=============================================================
-// Rune Knight's 10th Rune -- Skill not supported yet
+// Rune Knight's 10th Rune (skill not coded in yet)
 22540,Runstone_Luxanima,Lux Anima Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 
 // needs updated item info...
@@ -218,22 +218,6 @@
 19912,C_Cat_Eye,Costume Cat Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1100,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-19965,C_Shadow_Handicraft,Costume Shadow Handicraft,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,627,{},{},{}
-19966,C_Minstrel_Songs_Hat,Costume Minstrel Song's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,628,{},{},{}
-19967,C_Midas_Whisper,Costume Midas Whisper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,629,{},{},{}
-19968,C_Magic_Stone_Hat,Costume Magic Stone Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,630,{},{},{}
-19969,C_Blazing_Soul,Costume Blazing Soul,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,631,{},{},{}
-19970,C_Wind_Whisper,Costume Wind Whisper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,633,{},{},{}
-19971,C_Dying_Swan,Costume Dying Swan,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,635,{},{},{}
-19972,C_Protect_Of_Crown,Costume Protect Of Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1140,{},{},{}
-19973,C_Circlet_Of_Bones,Costume Circlet Of Bones,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1141,{},{},{}
-19976,C_Cat_Santa_Hat,Costume Cat Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1144,{},{},{}
-19977,C_Golden_Exclamation_Mark,Costume Golden Exclamation Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1145,{},{},{}
-19978,C_Silver_Exclamation_Mark,Costume Silver Exclamation Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1146,{},{},{}
-19979,C_Golden_Question_Mark,Costume Golden Question Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1147,{},{},{}
-19980,C_Silver_Question_Mark,Costume Silver Question Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1148,{},{},{}
-19982,C_Santa_Hat,Costume Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,727,{},{},{}
-19983,C_Flower_Hairpin,Costume Flower Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,145,{},{},{}
 19984,C_Winter_Hat,Costume Winter Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,196,{},{},{}
 19985,C_Aura_Quartz,Costume Aura Quartz,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,866,{},{},{}
 19986,C_Lunatic_Hat,Costume Lunatic Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,521,{},{},{}
@@ -497,7 +481,6 @@
 1661,Mental_Destroyer,Mental Destroyer,4,20,,1400,100:50,,1,0,0x00000200,63,2,2,4,95,1,10,{ bonus bInt,10; bonus bUnbreakableWeapon,1; bonus bUseSPrate,100; bonus bMdef,20; bonus2 bSPVanishRate,10000,5; if(getrefine()>5) { bonus2 bSPVanishRate,10000,5; } },{},{}
 2160,Giant_Shield,Giant Shield,5,56000,,2800,,130,,1,0x00004082,63,2,32,,100,1,3,{ bonus2 bSubSize,Size_Large,5; if(getrefine()>=9){ bonus2 bSubSize,Size_Large,5; } },{},{}
 2161,Geffenia_Book_Water,Geffenia Tomb of Water,5,56000,,1000,,30,,1,0x00000200,63,2,32,,100,1,5,{ bonus bMdef,2; bonus bInt,1; if(readparam(bInt)>=120){ bonus bMatk,10; bonus bMaxHP,800; } },{},{}
-2162,Bible_Of_Promise2,Bible of Promise(2nd Vol.),5,20,,500,,20,,1,0x00000100,63,2,32,,140,1,5,{ bonus bMdef,5; skill "ALL_ODINS_POWER",2; bonus bHealPower,5; },{},{}
 2163,Flow_Shield,Floor Shield,5,20,,1300,,50,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2164,Sombre_Shield,Bull Son Shield,5,20,,1300,,50,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
 2165,Sol_Shield,Sol Shield,5,20,,1300,,50,,1,0xFFFFFFFF,63,2,32,,65,1,3,{},{},{}
@@ -540,7 +523,6 @@
 13072,Velum_Damascus,Vellum Damascus,4,20,,1000,180,,1,0,0x3E9F7EEF,63,2,2,4,95,1,1,{ bonus4 bSetDefRace,RC_DemiHuman,10000,5000,1; bonus4 bSetMDefRace,RC_DemiHuman,10000,5000,1; bonus bAspdRate,getrefine(); },{},{}
 13073,Counter_Dagger_,Counter Dagger,4,120000,,550,140,,1,1,0x00810204,63,2,2,4,55,1,1,{},{},{}
 13074,Ninja_Cutter,Ninja Sword Prototype,4,0,,0,0,,1,0,0x02000000,63,2,2,4,99,1,1,{},{},{}
-13075,Kurenai,Kurenai,4,5000,,700,130,,1,0,0x02000000,63,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
 13077,Kagekiri,Kagekiri,4,40000,,600,50:120,,1,0,74,7,2,2,4,100,1,1,{},{},{}
 15044,Green_Operation_Coat,Green Surgical Gown,5,56000,,660,,66,,1,0x00040000,63,2,16,,100,1,0,{ bonus bDex,1; bonus bMaxSP,30; },{},{}
 15045,Armor_Of_Valor,Armor Of Valor,5,0,,0,,4,,0,0xFFFFFFFF,63,2,16,,0,0,0,{ bonus bHPrecovRate,10; },{},{}
@@ -2014,7 +1996,6 @@
 12782,100T_Zeny_Check,100T Zeny Check,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12783,10000_Zeny_Check,10000 Zeny Check,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12784,1000_Zeny_Check,1000 Zeny Check,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
-13294,Explosive_Kunai,Explosive Kunai,10,100,,30,50,,,,0x02000000,63,2,32768,,100,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
 13295,Light_Shuriken,Light Shuriken,10,0,,5,5,,,,0xFFFFFFFF,63,2,32768,,,,0,{},{},{}
 21001,Velum_Claymore,Vellum Claymore,4,20,,3500,260,,1,0,0x00004082,63,2,34,4,95,1,3,{ bonus2 bAddRace,RC_Player,80; bonus2 bIgnoreDefRaceRate,RC_Player,30; set .@r, getrefine(); if(.@r>=6) { bonus2 bAddRace,RC_Player,40; } if(.@r>=9) { autobonus2 "{ bonus bShortWeaponDamageReturn,20; bonus bMagicDamageReturn,20; }",6000,2000,BF_WEAPON,"{ specialeffect2 EF_REFLECTSHIELD; }"; } },{},{}
 21002,Velum_Katzbalger,Vellum Katzbalger,4,20,,2500,100,,1,0,0x00004082,63,2,34,4,95,1,3,{ bonus3 bHPVanishRaceRate,RC_Player,10000,8; },{},{}
@@ -3150,31 +3131,35 @@
 
 // Kagerou/Oboro Exclusive Equips (3ceam stable, pre-re)
 // Armguards
-2171,Fox_Armguard,Fox Armguard,5,80000,,200,,5,,1,0x20000000,7,2,32,,100,1,1,{ bonus bFlee,5; },{},{}
-2172,Wolf_Armguard,Wolf Armguard,5,80000,,250,,7,,1,0x20000000,7,2,32,,100,1,1,{ autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; },{},{}
+2171,Fox_Armguard,Fox Armguard,5,40000,,200,,5,,1,0x20000000,7,2,32,,100,1,0,{ bonus bFlee,5; },{},{}
+2172,Wolf_Armguard,Wolf Armguard,5,45000,,250,,7,,1,0x20000000,7,2,32,,100,1,0,{ autobonus "{ bonus bBaseAtk,100; bonus bFlee,-50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; },{},{}
+2173,Crescent_Armguard,Crescent Armguard,5,45000,,250,,5,,1,0x20000000,7,2,32,,100,1,0,{ bonus bDelayRate,-2; },{},{}
 // Makibishi
 6493,Makibishi,Makibishi,3,30,,1,,,,,,,,,,,,,{},{},{}
 // Daggers
-13075,Kurenai,Kurenai,4,50000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
-13076,Raksasa_Dagger,Raksasa Dagger,4,50000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
-//13077,Kagekiri
-13078,Mikatsuki,Mikazuki,4,50000,,600,50,,1,1,0x02000000,7,2,2,4,100,1,1,{},{},{}
+//13074,Ninja_Cutter,Ninja_Cutter,4,10,,0,0,,1,0,0x20000000,7,2,2,4,99,1,1,{},{},{}
+13075,Kurenai,Kurenai,4,5000,,700,130,,1,0,0x20000000,7,2,2,3,99,1,1,{ bonus bInt,3; },{},{}
+13076,Raksasa_Dagger,Raksasa Dagger,4,40000,,600,120,,1,1,0x20000000,7,2,2,3,110,1,1,{ bonus bInt,3; },{},{}
+//13077,Kagekiri,Kagekiri,4,40000,,600,50,,1,0,0x02000000,7,2,2,4,100,1,1,{},{},{}
+13078,Mikatsuki,Mikazuki,4,40000,,600,50,,1,1,0x02000000,7,2,2,4,100,1,1,{},{},{}
 // Shurikens / Kunais
-13291,Starfish,Starfish,10,100,,5,110,,,,0x02000000,7,2,32768,,50,,6,{},{},{}
-13292,Dried_Squid,Dried Squid,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
-13293,Flying_Fish,Flying Fish,10,100,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
-13295,Light_Shuriken,Light Shuriken,10,4,,5,5,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
+13291,Starfish,Starfish,10,10,,5,110,,,,0x02000000,7,2,32768,,50,,6,{},{},{}
+13292,Dried_Squid,Dried Squid,10,10,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13293,Flying_Fish,Flying Fish,10,10,,20,50,,,,0x02000000,7,2,32768,,50,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13294,Explosive_Kunai,Explosive Kunai,10,100,,30,50,,,,0x20000000,7,2,32768,,100,,7,{ bonus bAtkEle,Ele_Neutral; },{},{}
+13295,Light_Shuriken,Light Shuriken,10,10,,5,5,,,,0x02000000,7,2,32768,,1,,6,{},{},{}
 // Huuma Shurikens
-13311,Huuma_Shadow,Shadow Huuma Shuriken,4,120000,,1500,170,,1,0,0x20000000,7,2,34,3,99,1,22,{ bonus bStr,3; },{},{}
-//13312,Huuma_Job_Test
-13313,Huuma_Swirling_Petal,Swirling Petal Huuma Shuriken,4,150000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /*bonus bEquipmentMatk,50;*/ },{},{}
-13314,Huuma_Fluttering_Snow,Fluttering Snow Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Water; },{},{}
-13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,150000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Wind; },{},{}
-13316,Upg_Huuma_Shuriken,Upgraded Huuma Shuriken,4,200000,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /*bonus bEquipmentMatk,5*getrefine();*/ bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
+13311,Huuma_Shadow,Shadow Huuma Shuriken,4,5000,,1500,170,,1,0,0x20000000,7,2,34,4,99,1,22,{ bonus bStr,3; },{},{}
+//13312,Huuma_Job_Test,Huuma Job Test,4,90000,,3000,0,,1,0,0x20000000,7,2,34,4,99,1,22,{},{},{}
+13313,Huuma_Swirling_Petal,Swirling Petal Huuma Shuriken,4,100000,,1500,150,,1,2,0x20000000,7,2,34,3,110,1,22,{ /*bonus bEquipmentMatk,50;*/ },{},{}
+13314,Huuma_Fluttering_Snow,Fluttering Snow Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Water; },{},{}
+13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,100000,,1500,200,,1,0,0x20000000,7,2,34,4,110,1,22,{ /*bonus bEquipmentMatk,50;*/ bonus bAtkEle,Ele_Wind; },{},{}
+13316,Upg_Huuma_Shuriken,Upgraded Huuma Shuriken,4,20,,1500,55,,1,1,0x20000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); /*bonus bEquipmentMatk,5*getrefine();*/ bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) { bonus bBaseAtk,5*((BaseLevel-60)/10); } },{},{}
 // Armors
-15053,Special_Ninja_Suit,Special Ninja Suit,5,100000,,1200,,10,,0,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
-15054,Ninja_Scale_Armor,Ninja Scale Armor,5,100000,,1800,,13,,1,0x20000000,7,2,16,,100,1,0,{ bonus bMaxHPRate,15; bonus bMaxSPRate,-30; },{},{}
-15056,Special_Ninja_Suit_,Special Ninja Suit,5,100000,,1200,,10,,1,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
+15053,Special_Ninja_Suit,Special Ninja Suit,5,10000,,1200,,10,,0,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
+15054,Ninja_Scale_Armor,Ninja Scale Armor,5,10000,,1800,,13,,1,0x20000000,7,2,16,,100,1,0,{ bonus bMaxHPRate,15; bonus bMaxSPRate,-30; },{},{}
+15055,Tenebris_Latitantes,Tenebris Latitantes,5,10000,,1500,,9,,1,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1; },{},{}
+15056,Special_Ninja_Suit_,Special Ninja Suit,5,10000,,1200,,10,,1,0x20000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); },{},{}
 
 // Doram items (renewal)
 1681,Short_Foxtail_Staff,Short Foxtail Staff,4,20,,0,30,,1,0,0x80000000,7,2,2,1,1,1,10,{},{},{}
@@ -3692,14 +3677,14 @@
 31444,C_Bongun_Hat_,C Bongun Hat Upper,4,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,139,{},{},{}
 
 // Eclage Items That Give / Use Skills (3ceam stable)
-2916,Fairy_Wing,Fairy Wing,5,10,,0,,0,,0,0xFFFFFFFF,7,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
+2916,Fairy_Wing,Fairy Wing,5,10,,10,,0,,0,0xFFFFFFFF,7,2,136,,90,0,0,{ skill "ECLAGE_RECALL",1; },{},{}
 12812,Snow_Flip,Snow Flip,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SNOWFLIP",1; },{},{}
 12813,Peony_Mommy,Peony Mamy,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_PEONYMAMY",1; },{},{}
 12814,Slapping_Herb,Sadagui,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SADAGUI",1; },{},{}
 12815,Yggdrasil_Dust,Sequoia Dust,11,100,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ECL_SEQUOIADUST",1; },{},{}
 // Arch Bishop Promise Bible's
 2156,Bible_Of_Promise1,Bible Of Promise Vol1,5,20,,500,,1,,1,0x00000100,8,2,32,,110,1,5,{ bonus bMdef,2; skill "ALL_ODINS_POWER",1; },{},{}
-2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,20,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
+2162,Bible_Of_Promise2,Bible Of Promise Vol2,5,56000,,500,,2,,1,0x00000100,8,2,32,,140,1,5,{ bonus bMdef,5; bonus bHealPower,5; skill "ALL_ODINS_POWER",2; },{},{}
 
 // Shadow Gears (renewal)
 24293,Sura_Shadow_Weapon,Sura Shadow Weapon,5,10,,0,,0,,0,0x00008000,56,2,131072,,99,1,,{ set .@r, getrefine(); bonus2 bSkillCooldown,"SR_RAMPAGEBLASTER",-1*(2000+500*.@r); },{},{}
@@ -3783,7 +3768,7 @@
 1654,Mental_Stick,Mental Stick,4,20,,500,40,,1,1,0x00818315,63,2,2,3,102,1,10,{bonus bAddMatk,170; set .@r, getrefine(); if(.@r>5) { bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",(.@r-5)*2; bonus bMaxHPrate,-(.@r-5)*2; } bonus2 bCastrate,"SO_PSYCHIC_WAVE",-3000; bonus2 bSkillUseSP,"SO_PSYCHIC_WAVE",-60; },{},{ itemheal 0,-100; }
 
 // Serect Gunslinger Bullet??? (3ceam)
-13208,Gong_Bug,Gong Bug,10,1,,20,50,,,,0x01000000,7,2,32768,,50,,3,{},{},{}
+13208,Gong_Bug,Gong Bug,10,1,,20,50,,,,0x01000000,7,2,32768,,50,,3,{ bonus2 bAddEff,Eff_Stun,1000; },{},{}
 
 // Nightmare Biolab & more (renewal)
 6820,Particles_Of_Energy,Energy Fragment,3,0,,10,,,,,,,,,,,,,{},{},{}
@@ -3911,3 +3896,52 @@
 31401,C_Nuns_Veil,C Nuns Veil,5,0,,0,,0,,0,0xFFFFFFFF,63,2,3072,,1,0,176,{},{},{}
 31402,C_Idun_Green_Apple,C Iduns Green Apple,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1698,{},{},{}
 31403,C_Wall,C Wall,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,1699,{},{},{}
+
+// Rebellion Weapons (3ceam stable)
+// Handgun
+13120,Heavens_Feather_And_Hells_Fire,Heavens Feather & Hells Fire,4,50000,,800,150,,7,1,0x40000000,7,2,34,3,99,1,17,{},{},{}
+//13121
+13122,Altair_And_Ares,Altair & Ares,4,50000,,1000,200,,7,0,0x40000000,7,2,34,3,140,1,17,{},{},{}
+//13123
+13124,Altair_And_Ares_,Altair & Ares,4,50000,,1000,200,,7,1,0x40000000,7,2,34,3,140,1,17,{},{},{}
+// Rifle
+13189,Color_Scope,Color Scope,4,5000,,1200,240,,9,2,0x40000000,7,2,34,3,105,1,18,{},{},{}
+13190,RAG203,RAG203,4,5000,,1300,260,,9,1,0x40000000,7,2,34,3,140,1,18,{},{},{}
+//
+13195,RAG203_,RAG203,4,5000,,1300,260,,9,0,0x40000000,7,2,34,3,140,1,18,{},{},{}
+// Gatling
+13197,Mini_Mei,Mini Mei,4,5000,,2500,220,,9,2,0x40000000,7,2,34,2,106,1,19,{},{},{}
+13198,Tempest,Tempest,4,5000,,2500,250,,9,0,0x40000000,7,2,34,4,140,1,19,{},{},{}
+13199,Tempest_,Tempest,4,5000,,2500,250,,9,1,0x40000000,7,2,34,4,140,1,19,{},{},{}
+// Shotgun
+13192,Death_Fire,Death Fire,4,5000,,2000,400,,5,1,0x40000000,7,2,34,3,108,1,20,{},{},{}
+13193,Rolling_Thunder,Rolling Thunder,4,5000,,1800,280,,9,1,0x40000000,7,2,34,3,120,1,20,{},{},{}
+13194,Peace_Breaker,Peace Breaker,4,5000,,1400,250,,9,0,0x40000000,7,2,34,3,140,1,20,{},{},{}
+//
+13196,Peace_Breaker_,Peace Breaker,4,5000,,1400,250,,9,1,0x40000000,7,2,34,3,140,1,20,{},{},{}
+// Grenade
+28200,End_Of_Horizon,End of Horizon,4,5000,,2400,410,,9,1,0x40000000,7,2,34,3,110,1,21,{},{},{}
+28201,Southern_Cross,Southern Cross,4,5000,,2000,480,,9,0,0x40000000,7,2,34,3,141,1,21,{},{},{}
+28202,Southern_Cross_,Southern Cross,4,5000,,2000,480,,9,1,0x40000000,7,2,34,3,141,1,21,{},{},{}
+// Rebellion Slug Ammo
+13210,Slug_Ammo_L,Slug Ammo L,10,25,,250,30,,,,0x40000000,7,2,32768,,99,,3,{},{},{}
+13211,Slug_Ammo_M,Slug Ammo M,10,50,,500,30,,,,0x40000000,7,2,32768,,99,,3,{},{},{}
+13212,Slug_Ammo_H,Slug Ammo H,10,75,,750,30,,,,0x40000000,7,2,32768,,99,,3,{},{},{}
+13213,Slug_Ammo_SH,Slug Ammo SH,10,100,,1000,30,,,,0x40000000,7,2,32768,,99,,3,{},{},{}
+13214,Slug_Ammo_XH,Slug Ammo XH,10,120,,1200,30,,,,0x40000000,7,2,32768,,99,,3,{},{},{}
+// Rebellion Ammo
+//Note: 13221 - 13227 are copys of the gunslinger bullets and spheres. Why?
+13215,Armor-Piercing_Bullet,Armor-Piercing Bullet,10,50,,2,50,,,,0x40000000,7,2,32768,,100,,3,{},{},{}
+13216,Scorching_Bullet,Scorching Bullet,10,40,,2,40,,,,0x40000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
+13217,Freezing_Bullet,Freezing Bullet,10,40,,2,40,,,,0x40000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Water; },{},{}
+13218,Lightning_Bullet,Lightning Bullet,10,40,,2,40,,,,0x40000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
+13219,Manastone_Bullet,Manastone Bullet,10,40,,2,40,,,,0x40000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
+13220,Purification_Bullet,Purification Bullet,10,40,,2,40,,,,0x40000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
+// Rebellion Bullet Cases
+//Note: 22737 - 22743 are copys of the gunslingers bullet and sphere cases. Why?
+22744,Bullet_Case_Armor-Piercing,Armor-Piercing Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13215,500; },{},{}
+22745,Bullet_Case_Scorching,Scorching Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13216,500; },{},{}
+22746,Bullet_Case_Freezing,Freezing Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13217,500; },{},{}
+22747,Bullet_Case_Lightning,Lightning Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13218,500; },{},{}
+22748,Bullet_Case_Manastone,Manastone Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13219,500; },{},{}
+22749,Bullet_Case_Purification,Purification Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13220,500; },{},{}

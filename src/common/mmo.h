@@ -89,6 +89,8 @@
 #define MAX_MAP_PER_SERVER 1500 // Increased to allow creation of Instance Maps
 #define MAX_INVENTORY 100
 //Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
+//April 2010 and newer clients don't need to be haxed. Setting server side is enough.
+//Keep this setting at a multiple of 3.
 #define MAX_CHARS 12
 
 // Allow players to create more then just human characters?

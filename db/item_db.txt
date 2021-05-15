@@ -7856,9 +7856,26 @@
 19962,C_Mitra,Costume Mitra,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,624,{},{},{}
 19963,C_Driver_Band_Red,Costume Driver Band Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,626,{},{},{}
 19964,C_Driver_Band_Yellow,Costume Driver Band Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,637,{},{},{}
-//
+19965,C_Shadow_Handicraft,Costume Shadow Handicraft,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,627,{},{},{}
+19966,C_Minstrel_Songs_Hat,Costume Minstrel Song's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,628,{},{},{}
+19967,C_Midas_Whisper,Costume Midas Whisper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,629,{},{},{}
+19968,C_Magic_Stone_Hat,Costume Magic Stone Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,630,{},{},{}
+19969,C_Blazing_Soul,Costume Blazing Soul,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,631,{},{},{}
+19970,C_Wind_Whisper,Costume Wind Whisper,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,633,{},{},{}
+19971,C_Dying_Swan,Costume Dying Swan,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,635,{},{},{}
+19972,C_Protect_Of_Crown,Costume Protect Of Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1140,{},{},{}
+19973,C_Circlet_Of_Bones,Costume Circlet Of Bones,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1141,{},{},{}
 19974,C_Camouflage_Rabbit_Hood,Costume Camouflage Rabbit Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1142,{},{},{}
-
+//
+19976,C_Cat_Santa_Hat,Costume Cat Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1144,{},{},{}
+19977,C_Golden_Exclamation_Mark,Costume Golden Exclamation Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1145,{},{},{}
+19978,C_Silver_Exclamation_Mark,Costume Silver Exclamation Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1146,{},{},{}
+19979,C_Golden_Question_Mark,Costume Golden Question Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1147,{},{},{}
+19980,C_Silver_Question_Mark,Costume Silver Question Mark,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1148,{},{},{}
+//
+19982,C_Santa_Hat,Costume Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,727,{},{},{}
+19983,C_Flower_Hairpin,Costume Flower Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,145,{},{},{}
+//
 20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}
 20086,C_Dragon_Cintamani_Hat1,Costume Dragon Cintamani Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1245,{},{},{}
 20087,C_Dragon_Cintamani_Hat2,Costume Dragon Cintamani Hat2,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1246,{},{},{}
@@ -7933,9 +7950,9 @@
 
 22514,Candy_Holder,Candy Holder,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; },{},{}
 // Hanbok Outfit
-22538,Hanbok_Pocket,Hanbok Pocket,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
+22538,Hanbok_Pocket,Hanbok Pocket,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
 // Oktoberfest Outfit
-22625,Oktoberfest_Bag,Oktoberfest Bag,2,0,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_OKTOBERFEST,600000,0; },{},{}
+22625,Oktoberfest_Bag,Oktoberfest Bag,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_OKTOBERFEST,600000,0; },{},{}
 
 22777,Gift_Buff_Set,Gift Buff Set,2,10,,100,,,,,,,,,,,,,{ getitem groupranditem(IG_Gift_Buff_Set),1; },{},{}
 

@@ -103,6 +103,7 @@ int quest_add(TBL_PC * sd, int quest_id)
 	sd->save_quest = true;
 
 	clif_quest_add(sd, &sd->quest_log[i], sd->quest_index[i]);
+	clif_quest_update_objective(sd, &sd->quest_log[i], sd->quest_index[i]);
 
 	if( save_settings&64 )
 		chrif_save(sd,0);

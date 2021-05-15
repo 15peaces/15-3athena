@@ -1240,6 +1240,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			sd->itemid = -1;
 		}
 		break;
+	case RL_H_MINE:
+		sc_start(bl,SC_H_MINE,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
 	case KO_JYUMONJIKIRI:
 		sc_start(bl,SC_KO_JYUMONJIKIRI,100,skilllv,skill_get_time2(skillid,skilllv));
 		break;
@@ -3367,6 +3370,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_CRAZYWEED_ATK:
 	case GN_SLINGITEM_RANGEMELEEATK:
 	//case RL_MASS_SPIRAL://<--Enable once skill effect file is fixed. [Rytech]
+	case RL_H_MINE:
+	case RL_SLUGSHOT:
 	case KO_SETSUDAN:
 	case KO_BAKURETSU:
 	case KO_HUUMARANKA:
@@ -5147,7 +5152,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_RENOVATIO:
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
-	case RL_C_MARKER:
 	case KO_MEIKYOUSISUI:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
 		break;
@@ -8889,6 +8893,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case OB_ZANGETSU:
 	case OB_OBOROGENSOU:
 	case OB_AKAITSUKI:
+	case RL_C_MARKER:
 		if ( bl->type != BL_PC && skillid == KG_KAGEMUSYA )
 		{
 			clif_skill_fail(sd,skillid,0,0,0);
@@ -10041,11 +10046,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_WATER_INSIGNIA:
 	case SO_WIND_INSIGNIA:
 	case SO_EARTH_INSIGNIA:
+	case RL_B_TRAP:
 	case KO_MAKIBISHI:
 	case MH_POISON_MIST:
 	case MH_XENO_SLASHER:
 	case MH_LAVA_SLIDE:
-	case RL_B_TRAP:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
