@@ -619,6 +619,7 @@ bSubSkill	2077
 bSubDefEle	2078
 
 bFixedCastRate	2101
+bMatk	2102
 
 EQI_HEAD_TOP	1
 EQI_ARMOR	2

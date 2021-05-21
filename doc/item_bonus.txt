@@ -1,9 +1,9 @@
-//===== Athena Doc ========================================
-//= eAthena Item Bonuses List
+//===== 15-3athena Documentation ==========================
+//= 15-3athena Item Bonuses List
 //===== By ================================================
 //= Developers
 //===== Version ===========================================
-//= 1.1.20140526
+//= 1.1.20210521
 //=========================================================
 //= 1.0 - Standardized doc file
 //= 1.1.20080612 - skill command and bonuses (bAutoSpell, bSkillAtk, 
@@ -27,6 +27,7 @@
 //=   bAddEffOnSkill, bNoMiscDamage, bLongAtkRate, bUnstripable,
 //=   bHPDrainValueRace, bMagicSPGainValue and bMagicHPGainValue. [Ai4rei]
 //= 1.1.20140526 - Added bFixedCastTime, thanks to Rytech. [15peaces]
+//= 1.1.20210521 - Added bMatk, thanks to Rytech. [15peaces]
 //===== Description =======================================
 //= List of script instructions used in item bonuses,
 //= mainly bonus/bonus2/bonus3/bonus4/bonus5 arguments
@@ -446,3 +447,4 @@ bonus bFixedCastrate,-n;		Skill fixed cast time reduction in percentage. n is th
 bonus2 bFixedCastrate,x,-n;		Skill fixed cast time reduction for a certain skill. x is the skill ID. n is the percentage value and must be set as a negeative value.
 bonus bFixedCast,t;				Increases fixed cast time of all skills by t milliseconds.
 bonus2 bSkillCooldown,sk,t;		Increases cooldown of skill sk by t milliseconds
+bonus bMatk,n;		Magical attack power + n

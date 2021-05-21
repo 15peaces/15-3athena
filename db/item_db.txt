@@ -1567,7 +1567,7 @@
 2573,Archangel_Wing,Archangel Wings,5,20,,100,,0,,1,0xFFFFFFFF,63,2,4,,1,0,1,{},{},{}
 //2574,Ur_Manteau
 //2575,Peuz_Manteau
-2576,Bravery_Bag,Adventurer's Backpack,5,0,,200,,4,,1,0xFFFFFFFF,63,2,4,,0,1,2,{ skill "BS_GREED",1; set .@r, getrefine(); if(.@r>6) { if(readparam(bStr)>=90){ bonus bBaseAtk,20; } if(readparam(bInt)>=90){ bonus bAddMatk,30; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,10; } if(readparam(bAgi)>=90){ bonus bAspdRate,8; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,10; } } if(.@r>8) { if(readparam(bStr)>=90){ bonus bBaseAtk,10; } if(readparam(bInt)>=90){ bonus bAddMatk,20; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,5; } if(readparam(bAgi)>=90){ bonus bAspd,1; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,5; } } },{},{}
+2576,Bravery_Bag,Adventurer's Backpack,5,0,,200,,4,,1,0xFFFFFFFF,63,2,4,,0,1,2,{ skill "BS_GREED",1; set .@r, getrefine(); if(.@r>6) { if(readparam(bStr)>=90){ bonus bBaseAtk,20; } if(readparam(bInt)>=90){ bonus bMatk,30; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,10; } if(readparam(bAgi)>=90){ bonus bAspdRate,8; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,10; } } if(.@r>8) { if(readparam(bStr)>=90){ bonus bBaseAtk,10; } if(readparam(bInt)>=90){ bonus bMatk,20; } if(readparam(bVit)>=90){ bonus2 bSubEle,Ele_Neutral,5; } if(readparam(bAgi)>=90){ bonus bAspd,1; } if(readparam(bDex)>=90){ bonus bLongAtkRate,5; } if(readparam(bLuk)>=90){ bonus bCritAtkRate,5; } } },{},{}
 //2577,Sabah_Hood
 //2578,Nab_Hood
 //2579,Magic_Stole
@@ -7875,6 +7875,15 @@
 //
 19982,C_Santa_Hat,Costume Santa Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,727,{},{},{}
 19983,C_Flower_Hairpin,Costume Flower Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,145,{},{},{}
+19984,C_Winter_Hat,Costume Winter Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,196,{},{},{}
+19985,C_Aura_Quartz,Costume Aura Quartz,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,866,{},{},{}
+19986,C_Lunatic_Hat,Costume Lunatic Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,521,{},{},{}
+19987,C_Blue_Fur_Hat,Costume Blue Fur Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,280,{},{},{}
+19988,C_Elder_Crown,Costume Elder Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,933,{},{},{}
+//
+19990,C_Rabbit_Knit_Hat,Costume Rabbit Knit Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1157,{},{},{}
+//
+19992,C_Chilly_Breath,Costume Chilly Breath,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,885,{},{},{}
 //
 20085,C_St_Patricks_Hat,Costume St Patrick's Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,735,{},{},{}
 20086,C_Dragon_Cintamani_Hat1,Costume Dragon Cintamani Hat1,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1245,{},{},{}

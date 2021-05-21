@@ -5462,7 +5462,12 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 		if( (id = sd->status.skill[i].id) != 0 )
 		{
 			WFIFOW(fd,len)   = id;
-			WFIFOL(fd,len+2) = skill_get_inf(id);
+			if ((id == MO_EXTREMITYFIST && sd->state.combo & 1) || (id == TK_JUMPKICK && sd->state.combo & 2) ||
+				(id == SR_DRAGONCOMBO && sd->state.combo & 1) || (id == SR_TIGERCANNON && sd->state.combo & 1) ||
+				(id == SR_GATEOFHELL && sd->state.combo & 1))
+				WFIFOL(fd, len + 2) = INF_SELF_SKILL;
+			else
+				WFIFOL(fd, len + 2) = skill_get_inf(id);
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,sd->status.skill[i].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->bl, id,sd->status.skill[i].lv);
@@ -5498,7 +5503,12 @@ void clif_addskill(struct map_session_data *sd, int id)
 	WFIFOHEAD(fd, packet_len(0x111));
 	WFIFOW(fd,0) = 0x111;
 	WFIFOW(fd,2) = id;
-	WFIFOL(fd,4) = skill_get_inf(id);
+	if ((id == MO_EXTREMITYFIST && sd->state.combo & 1) || (id == TK_JUMPKICK && sd->state.combo & 2) ||
+		(id == SR_DRAGONCOMBO && sd->state.combo & 1) || (id == SR_TIGERCANNON && sd->state.combo & 1) ||
+		(id == SR_GATEOFHELL && sd->state.combo & 1))
+		WFIFOL(fd, 4) = INF_SELF_SKILL;
+	else
+		WFIFOL(fd, 4) = skill_get_inf(id);
 	WFIFOW(fd,8) = sd->status.skill[id].lv;
 	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[id].lv);
 	WFIFOW(fd,12)= skill_get_range2(&sd->bl, id,sd->status.skill[id].lv);
@@ -20401,6 +20411,18 @@ void clif_crimson_marker_xy_remove(struct map_session_data *sd)
 	clif_send(buf, packet_len(0x9c1), &sd->bl, PARTY_SAMEMAP_WOS);
 }
 
+void clif_parse_changedress(int fd,struct map_session_data *sd)
+{
+	// Removes body costumes.
+	// Wedding / Santa / Summer / Hanbok / Oktoberfest / Summer 2
+	status_change_end(&sd->bl, SC_WEDDING, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_XMAS, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_SUMMER, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_HANBOK, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_OKTOBERFEST, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_SUMMER2, INVALID_TIMER);
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -20869,7 +20891,7 @@ void packetdb_readdb(void)
 //#0x0AC0
 		26,26,  0,  0, -1,  0,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	};
 	struct {
@@ -21122,6 +21144,7 @@ void packetdb_readdb(void)
 		{clif_parse_equipswitch_remove, "equipswitch_remove"},
 		{clif_parse_equipswitch_request, "equipswitch_request"},
 		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
+		{ clif_parse_changedress,"changedress" },
 		{NULL,NULL}
 	};
 

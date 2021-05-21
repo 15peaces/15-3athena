@@ -5,6 +5,46 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/21/2021
+	r294 [15peaces]
+		*Merged missing changes from 3ceam rev. 746
+		*Did a number of updates in the item database.
+			-Added some missing items.
+			-Moved some stable items.
+		*Some more updates related to 2018 clients.
+			-HC_ACK_CHARINFO_PER_PAGE
+				+Recoded the packet to work as it officially should.
+					--The packet is supposed to divide all the character's on a account to be sent by 3 per packet and no higher. It turns out that sending all the characters in onepacket leads to issues, like noticeable delays when character select loads,
+					--long delay when going from map to character select on character's saved in a high slot number, and in certain cases none of the character's will appear in character select if you have certain numbers of character's on a account.
+					--Overall, this greatly improves the stability and performance client side.
+			-changedress; nocosplay
+				--Added support for these client commands.
+				--These remove body costume outfits like xmas, summer, hanbok, oktoberfest, etc.
+			-Thanks to @3CeAM
+			-Char select & char creation are working fine now.
+			-Changed MAX_CHARS to 15 to fill the first page of the new char select window.
+				--You can set it as you want to, there is no client sided limit anymore.
+				--Just keep in mind to set it to a multible of 3 to avoid issues.
+		*Added window titles (windows bats only).
+		*Added support for the bMatk item bonus.
+			-This allows a item to add a fixed amount of MATK when equipped.
+			-The added Matk is applied to both the player's min and max MATK.
+		*Added full support for the Sura's combo system.
+			-Skills used at the end of a combo will deal higher damage then what they would do when normally used.
+			-The following combo's are possible:
+				--Triple Attack --> Dragon Combo --> Skynet Blow
+				--Triple Attack --> Dragon Combo --> Fallen Empire --> Tiger Cannon
+				--Triple Attack --> Dragon Combo --> Fallen Empire --> Gate of Hell
+		*SR_DRAGONCOMBO; SR_FALLENEMPIRE
+			-Range adjusted to 1.
+		*SR_TIGERCANNON
+			-Fixed a issue where the skill couldn't be used in a combo.
+			-Range adjusted to 1.
+			-Can now be instant casted when used in a combo.
+		*SR_GATEOFHELL
+			-Fixed a issue where the skill couldn't be used in a combo.
+			-Can now be instant casted when used in a combo.
+
 05/15/2021
 	r293 [15peaces]
 		*Merged missing changes from 3ceam rev. 745

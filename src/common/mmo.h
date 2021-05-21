@@ -88,10 +88,20 @@
 
 #define MAX_MAP_PER_SERVER 1500 // Increased to allow creation of Instance Maps
 #define MAX_INVENTORY 100
+
 //Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
-//April 2010 and newer clients don't need to be haxed. Setting server side is enough.
+//April 2010 and newer clients don't need to be hexed. Setting server side is enough.
 //Keep this setting at a multiple of 3.
-#define MAX_CHARS 12
+#if PACKETVER >= 20180620
+	//Set to 15 to fill the first page of the new char select window.
+	#define MAX_CHARS 15
+#elif PACKETVER >= 20100401
+	//Default was 12 here.
+	#define MAX_CHARS 12
+#else
+	//Default was 9 here, can't go higher without client hexing!
+	#define MAX_CHARS 9
+#endif
 
 // Allow players to create more then just human characters?
 // Current Races Supported: Human / Doram.

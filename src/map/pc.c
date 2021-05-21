@@ -2473,6 +2473,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag == 0)
 			sd->double_add_rate += val;
 		break;
+	case SP_MATK:
+		if(sd->state.lr_flag != 2)
+			sd->matk+=val;
+		break;
 	case SP_MATK_RATE:
 		if(sd->state.lr_flag != 2)
 			sd->matk_rate += val;

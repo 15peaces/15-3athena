@@ -374,7 +374,7 @@ struct map_session_data {
 	int castrate,delayrate,hprate,sprate,dsprate;
 	int fixedcastrate; //Renewal fixed cast time adjustment, Thanks to Rytech. [15peaces]
 	int hprecov_rate,sprecov_rate;
-	int matk_rate;
+	int matk, matk_rate;
 	int critical_rate,hit_rate,flee_rate,flee2_rate,def_rate,def2_rate,mdef_rate,mdef2_rate;
 
 	int itemid;
