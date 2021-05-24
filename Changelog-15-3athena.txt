@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/24/2021
+	r295 [15peaces]
+		*Fixed an issue where the bMatk bonus didn't work correctly in some cases.
+			-Follow up @a6a0893 (r293)
+		*Did a number of updates in the item database.
+			-Added some missing items.
+			-Added missing item combo to Gigant Snake Skin.
+
 05/21/2021
 	r294 [15peaces]
 		*Merged missing changes from 3ceam rev. 746

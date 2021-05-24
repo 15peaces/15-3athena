@@ -10920,7 +10920,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	if(sd->state.connect_new) {
 		int lv;
-		sd->state.connect_new = 0;
 		clif_skillupdateinfoblock(sd);
 		clif_hotkeys_send(sd);
 		clif_updatestatus(sd,SP_BASEEXP);
@@ -11025,7 +11024,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 		status_change_clear_onChangeMap(&sd->bl, &sd->sc);
 		map_iwall_get(sd); // Updates Walls Info on this Map to Client
-		sd->state.changemap = false;
 	}
 	
 #ifndef TXT_ONLY
@@ -11076,6 +11074,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_Mail_new(sd, 0, NULL, NULL);
 	}
 #endif
+	sd->state.connect_new = 0;
+	sd->state.changemap = false;
 }
 
 

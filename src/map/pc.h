@@ -357,6 +357,7 @@ struct map_session_data {
 	int itemhealrate2; // [Epoque] Increase heal rate of all healing items.
 	int shieldmdef;
 	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
+	int matk; //For equips that adds a fixed amount of MATK. [15peaces]
 	int fixedcast; //Renewal fixed cast time adjustment. [15peaces]
 	
 	short splash_range, splash_add_range;
@@ -374,7 +375,7 @@ struct map_session_data {
 	int castrate,delayrate,hprate,sprate,dsprate;
 	int fixedcastrate; //Renewal fixed cast time adjustment, Thanks to Rytech. [15peaces]
 	int hprecov_rate,sprecov_rate;
-	int matk, matk_rate;
+	int matk_rate;
 	int critical_rate,hit_rate,flee_rate,flee2_rate,def_rate,def2_rate,mdef_rate,mdef2_rate;
 
 	int itemid;
