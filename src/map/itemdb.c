@@ -1026,14 +1026,15 @@ static int itemdb_gendercheck(struct item_data *id)
 static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scriptopt)
 {
 	/*
-		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
-		| 00 |      01      |       02      |  03  |     04    |     05     |   06   |   07   |    08   |   09  |   10  |     11     |      12     |       13      |        14       |      15      |      16     |     17     |  18  |   19   |      20      |        21      |
-		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
-		| id | name_english | name_japanese | type | price_buy | price_sell | weight | attack | defence | range | slots | equip_jobs | equip_upper | equip_genders | equip_locations | weapon_level | equip_level | refineable | view | script | equip_script | unequip_script |
-		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-------------+------------+------+--------+--------------+----------------+
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-----------------------------+------------+------+--------+--------------+----------------+
+		| 00 |      01      |       02      |  03  |     04    |     05     |   06   |   07   |    08   |   09  |   10  |     11     |      12     |       13      |        14       |      15      |               16            |     17     |  18  |   19   |      20      |        21      |
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-----------------------------+------------+------+--------+--------------+----------------+
+		| id | name_english | name_japanese | type | price_buy | price_sell | weight | attack | defence | range | slots | equip_jobs | equip_upper | equip_genders | equip_locations | weapon_level | equip_level:equip_level_max | refineable | view | script | equip_script | unequip_script |
+		+----+--------------+---------------+------+-----------+------------+--------+--------+---------+-------+-------+------------+-------------+---------------+-----------------+--------------+-----------------------------+------------+------+--------+--------------+----------------+
 	*/
 	unsigned short nameid;
 	struct item_data* id;
+	int tmp[2];
 	
 	//nameid = atoi(str[0]);
 	//if( nameid <= 0 )
@@ -1044,7 +1045,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	}
 	nameid = atoi(str[0]);
 
-	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV,refineable,View
+	//ID,Name,Jname,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Job Upper,Gender,Loc,wLV,eLV:eLV_max,refineable,View
 	//id = itemdb_load(nameid);
 	if (!(id = itemdb_exists(nameid)))
 		CREATE(id, struct item_data, 1);
@@ -1114,7 +1115,9 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	}
 
 	id->wlv = atoi(str[15]);
-	id->elv = atoi(str[16]);
+	pc_split_atoi(str[16], tmp, ':', 2);
+	id->elv = tmp[0];
+	id->elv_max = tmp[1] > 0 ? tmp[1] : MAX_LEVEL;
 	id->flag.no_refine = atoi(str[17]) ? 0 : 1; //FIXME: verify this
 	id->look = atoi(str[18]);
 

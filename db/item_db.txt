@@ -1,7 +1,7 @@
 // 15-3athena Main Items Database
 //
 // Structure of Database:
-// ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV,Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
+// ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV{:eLV_max},Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
 //
 // Healing Items
 //=============================================================
@@ -3373,7 +3373,7 @@
 //5819,Carnival_Circlet,Carnival Circlet,5,0,,0,,6,,0,0xFFFFFFFF,7,2,256,,0,1,506,{ bonus bAllStats,3; },{},{}
 //5820,Black_Elven_Ears,Black Elven Ears,5,10,,100,,2,,0,0xFFFFFFFF,7,2,512,,0,0,498,{},{},{}
 //5821,Gold_Tulip_Hairpin,Gold Tulip Hairpin,5,10,,100,,2,,0,0xFFFFFFFF,7,2,256,,0,1,499,{},{},{}
-5822,Love_Chick_Hat,Love Chick Hat,5,10000,,100,,4,,0,0xFFFFFFFF,7,2,256,,0,1,500,{ bonus bLuk,4; },{},{}
+5822,Love_Chick_Hat,Love Chick Hat,5,10000,,100,,4,,0,0xFFFFFFFF,7,2,256,,0,1,500,{ bonus bLuk,4; bonus bMaxHP,100; bonus bMaxSP,100; bonus2 bSubRace,RC_DemiHuman,7; bonus2 bSubRace,RC_Player,7; bonus2 bSubRace,RC_Undead,7; },{},{}
 5823,Love_Arrow,Love Arrow,5,5000,,100,,1,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bDex,5; bonus bAgi,5; },{},{}
 5824,Fools_Day_Hat,Fools Day Hat,5,20,,300,,6,,1,0xFFFFFFFF,7,2,256,,30,1,265,{},{},{}
 //5825,Badge_Of_Order_Grace,Badge Of Order Grace,5,0,,0,,1,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bMdef,1; },{},{}

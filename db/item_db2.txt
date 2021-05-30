@@ -1,7 +1,7 @@
 // 15-3athena Items Additional Database - Custom Items go here
 //
 // Structure of Database:
-// ID,Name,Name,Type,Price,Sell,Weight,ATK,DEF,Range,Slot,Job,Upper,Gender,Loc,wLV,eLV,Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
+// ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV{:eLV_max},Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
 //
 // THQ Quest Items
 //=============================================================
@@ -170,6 +170,14 @@
 20001,C_Mouse_Hat3,Costume Mouse Hat 3,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat 4,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1196,{},{},{}
 20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
+20003,C_Mouse_Hat5,Costume Mouse Hat 5,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1197,{},{},{}
+20004,C_Big_Golden_Bell,Costume Big Golden Bell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,175,{},{},{}
+20005,C_Sigrun_Wing,Costume Sigrun Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,568,{},{},{}
+20006,C_Dark_Knight_Mask,Costume Dark Knight Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,479,{},{},{}
+20007,C_Horned_Hat,Costume Horned Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,322,{},{},{}
+20008,C_Dragon_General_Helm,Costume Dragon General Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,729,{},{},{}
+20009,C_Dragon_Skull_Hat,Costume Dragon Skull Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,319,{},{},{}
+20010,C_Rainbow_Ears_Feather,Costume Rainbow Ears Feather,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1198,{},{},{}
 20011,C_Lightning_Speed,Costume Lightning Speed,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1199,{},{},{}
 20021,C_Heart_Ribbon_Hairband,Costume Heart Ribbon Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,708,{},{},{}
 20022,C_Love_Fragment,Costume Love Fragment,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,734,{},{},{}
@@ -223,14 +231,6 @@
 19999,C_Mouse_Hat1,Costume Mouse Hat 1,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1193,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
-20003,C_Mouse_Hat5,Costume Mouse Hat 5,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1197,{},{},{}
-20004,C_Big_Golden_Bell,Costume Big Golden Bell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,175,{},{},{}
-20005,C_Sigrun_Wing,Costume Sigrun Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,568,{},{},{}
-20006,C_Dark_Knight_Mask,Costume Dark Knight Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,479,{},{},{}
-20007,C_Horned_Hat,Costume Horned Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,322,{},{},{}
-20008,C_Dragon_General_Helm,Costume Dragon General Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,729,{},{},{}
-20009,C_Dragon_Skull_Hat,Costume Dragon Skull Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,319,{},{},{}
-20010,C_Rainbow_Ears_Feather,Costume Rainbow Ears Feather,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1198,{},{},{}
 20012,C_Double_Horn_Helm,Costume Double Horn Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1200,{},{},{}
 20013,C_Chef_Hat,Costume Chef Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,111,{},{},{}
 20014,C_Lincoln_Hat,Costume Lincoln Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1204,{},{},{}
@@ -1319,7 +1319,7 @@
 4950,Delay_After_Skill_Lv3,Delay After Skill Lv3,6,10,,,,,,,,,,,,,,,{ bonus bDelayrate,-6; },{},{}
 
 //Testing new SC and other missing items (renewal)
-2885,Mother_Heart,Mother Heart,5,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bBaseAtk,30; bonus bMatk,30; bonus2 bExpAddRace,RC_Boss,15; bonus2 bExpAddRace,RC_NonBoss,15; skill "CR_AUTOGUARD",3; skill "AL_CURE",1;},{},{}
+2885,Mother_Heart,Mother Heart,5,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,0:120,0,0,{ bonus bBaseAtk,30; bonus bMatk,30; bonus2 bExpAddRace,RC_Boss,15; bonus2 bExpAddRace,RC_NonBoss,15; skill "CR_AUTOGUARD",3; skill "AL_CURE",1;},{},{}
 2886,Sabah_Ring,Sapha Ring,5,20,,100,,0,,0,0x00001000,63,2,136,,100,0,0,{ bonus bCritical,3; bonus2 bSkillUseSP,"GC_DARKILLUSION",5; },{},{}
 2887,Nab_Ring,Nab Ring,5,20,,100,,0,,0,0x00001000,63,2,136,,100,0,0,{ bonus bBaseAtk,10; bonus bMatk,20; },{},{}
 2888,School_Bag,School Bag,5,20,,1000,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; bonus bVariableCastrate,-3; if(BaseLevel<80){ bonus bMaxHP,200; bonus bMaxSP,100; } },{},{}
@@ -1542,7 +1542,6 @@
 // Missing Mora Equip & Co. - renewal
 2883,Ur_Seal,Ur's Seal,5,20,,200,,4,,1,0x00000080,56,2,136,,100,0,0,{ bonus bMaxHPrate,2; bonus2 bSkillUseSP,"LK_SPIRALPIERCE",5; bonus2 bSkillUseSP,"RK_HUNDREDSPEAR",5; },{},{}
 2884,Peuz_Seal,Peuz's Seal,5,20,,200,,3,,1,0x00000080,56,2,136,,100,0,0,{ bonus bBaseAtk,20; bonus bMaxSP,20; },{},{}
-2885,Mother_Heart,Mother Heart,5,0,,0,,0,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bBaseAtk,15; bonus bMatk,15; bonus2 bExpAddClass,Class_All,15; },{},{}
 2886,Sabah_Ring,Sapha Ring,5,20,,100,,0,,0,0x00001000,63,2,136,,100,0,0,{ bonus bCritical,3; bonus2 bSkillUseSP,"GC_DARKILLUSION",5; },{},{}
 2887,Nab_Ring,Nab Ring,5,20,,100,,0,,0,0x00001000,63,2,136,,100,0,0,{ bonus bBaseAtk,10; bonus bMatk,20; },{},{}
 2888,School_Bag,School Bag,5,20,,1000,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; bonus bVariableCastrate,-3; if(BaseLevel<80){ bonus bMaxHP,200; bonus bMaxSP,100; } },{},{}
@@ -3934,7 +3933,7 @@
 22749,Bullet_Case_Purification,Purification Cartridge,2,2,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13220,500; },{},{}
 
 // missing equip (renewal)
-15283,Mighty_Black_Threaded_Armor,Mighty Black Threaded Armor,5,20,,800,,60,,1,0xFFFFFFFF,63,2,16,,100,1,0,{ set .@r, getrefine(); bonus bBaseAtk,10; bonus2 bIgnoreDefClassRate,Class_All,10; if (.@r>=7) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; } if (.@r>=8) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; bonus bUnbreakableArmor; } if (.@r>=9) { bonus bBaseAtk,30; bonus2 bIgnoreDefClassRate,Class_All,20; } },{},{}
+15283,Mighty_Black_Threaded_Armor,Mighty Black Threaded Armor,5,20,,800,,60,,1,0xFFFFFFFF,63,2,16,,100,1,0,{ set .@r, getrefine(); bonus bBaseAtk,10; bonus2 bIgnoreDefClassRate,Class_All,10; if (.@r>=7) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; } if (.@r>=8) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; bonus bUnbreakableArmor,0; } if (.@r>=9) { bonus bBaseAtk,30; bonus2 bIgnoreDefClassRate,Class_All,20; } },{},{}
 19138,Seraphim_Coronet,Seraphim Coronet,5,20,,300,,0,,0,0xFFFFFFFF,63,2,512,,70,0,1487,{ bonus bStr,2; set .@int, readparam(bInt); bonus bBaseAtk,(.@int/8)*5; bonus bHealPower,.@int/8; bonus bVariableCastrate,.@int/8; if ((.@int>=108)) { bonus bBaseAtk,50; bonus bHealPower,5; bonus bVariableCastrate,4; } if ((.@int>=120)) { bonus bBaseAtk,125; bonus bHealPower,10; bonus bVariableCastrate,6; } },{},{}
 19139,SurviveOrb,Survive Orb,5,0,,300,,,,0,0xFFFFFFFF,63,2,1,,50,0,1488,{ skill "TF_HIDING",1; bonus2 bAddClass,Class_All,2; bonus bMatkRate,2; bonus bVariableCastrate,-3; },{},{}
 19140,Squirrel_Ear_Hat,Squirrel Ear Hat,5,0,,200,,10,,1,0xFFFFFFFF,63,2,256,,100,1,1486,{ set .@r, getrefine(); bonus bAspd,1; bonus bCriticalLong,5; bonus bCritAtkRate,10; bonus2 bIgnoreDefRaceRate,RC_All,10; if (.@r > 4) { bonus bAspd,1; bonus bCriticalLong,10; bonus bCritAtkRate,2; bonus2 bIgnoreDefRaceRate,RC_All,20; } if (.@r > 6) { bonus bAspd,1; bonus bCriticalLong,15; bonus bCritAtkRate,6; bonus2 bIgnoreDefRaceRate,RC_All,30; } if (.@r > 8) { bonus bAspd,1; bonus bCriticalLong,20; bonus bCritAtkRate,12; bonus2 bIgnoreDefRaceRate,RC_All,40; autobonus "{ bonus bCritAtkRate,100; }",70,5000; } },{},{}
@@ -3978,3 +3977,21 @@
 31316,C_C_FlutterButterfly_BL,C Black Fluttering Butterfly,5,0,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,1665,{ hateffect(HAT_EF_C_FLUTTERBUTTERFLY_BL,true); },{},{ hateffect(HAT_EF_C_FLUTTERBUTTERFLY_BL,false); }
 31317,C_15th_Anniversary_Wing,C 15th Anniversary Wing,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1660,{},{},{}
 31318,C_Gerhard_Von_Devi,Costume Gerhard Von Devi,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1092,{},{},{}
+
+//new boxes
+17000,Wander_Man_Box5,Wander Man Box5,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12626,5; },{},{}
+17001,Wander_Man_Box10,Wander Man Box10,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12626,10; },{},{}
+17002,Wicked_Nymph_Box5,Wicked Nymph Box5,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12627,5; },{},{}
+17003,Wicked_Nymph_Box10,Wicked Nymph Box10,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12627,10; },{},{}
+17004,Kasa_Scroll_Box5,Kasa Scroll Box5,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12628,5; },{},{}
+17005,Kasa_Scroll_Box10,Kasa Scroll Box10,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12628,10; },{},{}
+17006,Salamander_Box5,Salamander Box5,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12629,5; },{},{}
+17007,Salamander_Box10,Salamander Box10,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12629,10; },{},{}
+17008,Teddy_Bear_Box5,Teddy Bear Box5,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12630,5; },{},{}
+17009,Teddy_Bear_Box10,Teddy Bear Box10,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12630,10; },{},{}
+17113,Pisces_Scroll,Pisces Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17114,Horn_Of_Ancient_Box,Horn Of Ancient Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 18595,1; },{},{}
+17115,Sprout_Hat_Box,Sprout Hat Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 18596,1; },{},{}
+17116,Mercury_Helm_Box,Mercury Helm Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 18597,1; },{},{}
+17117,Aries_Scroll,Aries Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+17118,ASPD_Potion_Box10,ASPD Enhanced Potion Box,18,20,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12684,10; },{},{}

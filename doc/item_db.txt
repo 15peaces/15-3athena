@@ -270,11 +270,13 @@ The level of the weapon generally affects how much bonus ATK a weapon will give 
 refined. The level can also have a affect on a number of different things, like certain
 cards and skills. The weapon level can be set to a value between 1 - 4.
 
-=eLV
+=eLV{:eLV_max}
 Sets the required base level to use the item or equip.
 This is required for weapon, armor, and usable type items.
 A number of 1 or higher can be set as the base level requirement.
 The number set is the minimal level a player must be or higher to beable to use the item.
+If eLV_max is set, the item cannot be equipped if the base level goes higher than
+this value.
 
 =Refineable
 Sets if the item can be refined.

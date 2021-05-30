@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/30/2021
+	r296 [15peaces]
+		*Did a number of updates in the item database.
+			-Added some missing items.
+			-Fixed Love Chick Hat
+			-Added an optional parameter eLV_max which allows you to define a max level to equip an item.
+		*Some more updates related to 2018 clients.
+			-Fixed a issue where having friends on your friends list would soft lock or crash the client. This fix is for the 2018-06-20/21 client.
+			-Thanks to @3CeAM
+
 05/24/2021
 	r295 [15peaces]
 		*Fixed an issue where the bMatk bonus didn't work correctly in some cases.

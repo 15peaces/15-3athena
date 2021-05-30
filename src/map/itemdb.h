@@ -106,7 +106,7 @@ struct item_data {
 	int range;
 	int slot;
 	int look;
-	int elv;
+	int elv,elv_max;
 	int wlv;
 	int view_id;
 	int delay;
