@@ -17958,7 +17958,7 @@ static void clif_quest_len(int def_len, int info_len, int avail_quests, int *lim
 /// Sends list of all quest states (ZC_ALL_QUEST_LIST).
 /// 02b1 <packet len>.W <num>.L { <quest id>.L <active>.B }*num
 /// 097a <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <mob_id>.L <killed>.W <total>.W <mob name>.24B }*count }*num (ZC_ALL_QUEST_LIST2)
-/// 09f8 <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <mob_id>.L <killed>.W <total>.W <mob name>.24B }*count }*num (ZC_ALL_QUEST_LIST3)	// TODO!
+/// 09f8 <packet len>.W <num>.L { <quest id>.L <active>.B <remaining time>.L <time>.L <count>.W { <hunt identification>.L <mob type>.L <mob_id>.L <min level>.W <max level>.W <killed>.W <total>.W <mob name>.24B }*count }*num  (ZC_ALL_QUEST_LIST3)
 void clif_quest_send_list(struct map_session_data *sd)
 {
 	int fd = sd->fd;
@@ -17967,9 +17967,18 @@ void clif_quest_send_list(struct map_session_data *sd)
 	int limit = 0;
 
 #if PACKETVER >= 20141022
-	clif_quest_len(offset, 15 + ((10 + NAME_LENGTH) * MAX_QUEST_OBJECTIVES), sd->avail_quests, &limit, &i);
+#if PACKETVER >= 20150513
+	int size = 22 + NAME_LENGTH;
+#else
+	int size = 10 + NAME_LENGTH;
+#endif
+	clif_quest_len(offset, 15 + (size * MAX_QUEST_OBJECTIVES), sd->avail_quests, &limit, &i);
 	WFIFOHEAD(fd,i);
+#if PACKETVER >= 20150513
+	WFIFOW(fd, 0) = 0x9f8;
+#else
 	WFIFOW(fd, 0) = 0x97a;
+#endif
 	WFIFOL(fd, 4) = limit;
 
 	for (i = 0; i < limit; i++) {
@@ -17991,13 +18000,34 @@ void clif_quest_send_list(struct map_session_data *sd)
 			for( j = 0; j < quest_db[sd->quest_index[i]].objectives_count; j++ ){
 				mob = mob_db(quest_db[sd->quest_index[i]].objectives[j].mob);
 
-				WFIFOL(fd, offset) = quest_db[sd->quest_index[i]].objectives[j].mob;
+				// Dummy data for now...
+				int8 race = quest_db[sd->quest_index[i]].objectives[j].race;
+				int8 size = quest_db[sd->quest_index[i]].objectives[j].size;
+				int8 element = quest_db[sd->quest_index[i]].objectives[j].element;
+
+#if PACKETVER >= 20150513
+				WFIFOL(fd, offset) = sd->quest_log[i].quest_id * 1000 + j;
 				offset += 4;
+				WFIFOL(fd, offset) = (race ? race : (size ? size : (element ? element : 0)));
+				offset += 4;
+#endif
+
+				WFIFOL(fd, offset) = (quest_db[sd->quest_index[i]].objectives[j].mob)>0? quest_db[sd->quest_index[i]].objectives[j].mob : MOBID_PORING;
+				offset += 4;
+#if PACKETVER >= 20150513
+				WFIFOW(fd, offset) = quest_db[sd->quest_index[i]].objectives[j].min_level;
+				offset += 2;
+				WFIFOW(fd, offset) = quest_db[sd->quest_index[i]].objectives[j].max_level;
+				offset += 2;
+#endif
 				WFIFOW(fd, offset) = sd->quest_log[i].count[j];
 				offset += 2;
 				WFIFOW(fd, offset) = quest_db[sd->quest_index[i]].objectives[j].count;
 				offset += 2;
-				safestrncpy((char*)WFIFOP(fd, offset), mob->jname, NAME_LENGTH);
+				if (mob && quest_db[sd->quest_index[i]].objectives[j].mob > 0)
+					safestrncpy((char *)WFIFOP(fd, offset), mob->jname, NAME_LENGTH);
+				else
+					safestrncpy((char *)WFIFOP(fd, offset), "", NAME_LENGTH);
 				offset += NAME_LENGTH;
 			}
 		}
@@ -18057,31 +18087,83 @@ void clif_quest_send_mission(struct map_session_data * sd)
 }
 
 
-/// Notification about a new quest (ZC_ADD_QUEST).
-/// 02b3 <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W { <mob id>.L <mob count>.W <mob name>.24B }*3
+/// Notification about a new quest.
+/// 02b3 <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W { <mob id>.L <mob count>.W <mob name>.24B }*3 (ZC_ADD_QUEST)
+/// 08fe <packet len>.W  { <quest id>.L <mob id>.L <total count>.W <current count>.W }*3 (ZC_HUNTING_QUEST_INFO)
+/// 09f9 <quest id>.L <active>.B <start time>.L <expire time>.L <mobs>.W { <hunt identification>.L <mob type>.L <mob id>.L <min level>.W <max level>.W <mob count>.W <mob name>.24B }*3 (ZC_ADD_QUEST_EX)
 void clif_quest_add(struct map_session_data * sd, struct quest * qd, int index)
 {
+	nullpo_retv(sd);
+	nullpo_retv(qd);
+
 	int fd = sd->fd;
-	int i;
 	struct mob_db *mob;
 
-	WFIFOHEAD(fd, packet_len(0x2b3));
-	WFIFOW(fd, 0) = 0x2b3;
+#if PACKETVER >= 20150513
+	int cmd = 0x9f9;
+#else
+	int cmd = 0x2b3;
+#endif
+
+	WFIFOHEAD(fd, packet_len(cmd));
+	WFIFOW(fd, 0) = cmd;
 	WFIFOL(fd, 2) = qd->quest_id;
 	WFIFOB(fd, 6) = qd->state;
 	WFIFOB(fd, 7) = qd->time - quest_db[index].time;
 	WFIFOL(fd, 11) = qd->time;
 	WFIFOW(fd, 15) = quest_db[index].objectives_count;
 
-	for( i = 0; i < quest_db[index].objectives_count; i++ )
+	for(int i = 0, offset = 17; i < quest_db[index].objectives_count; i++ )
 	{
-		WFIFOL(fd, i*30+17) = quest_db[index].objectives[i].mob;
-		WFIFOW(fd, i*30+21) = qd->count[i];
-		mob = mob_db(quest_db[index].objectives[i].mob);
-		memcpy(WFIFOP(fd, i*30+23), mob?mob->jname:"NULL", NAME_LENGTH);
+		mob = mob_db(quest_db[sd->quest_index[index]].objectives[i].mob);
+
+		// Dummy data for now...
+		int8 race = quest_db[sd->quest_index[index]].objectives[i].race;
+		int8 size = quest_db[sd->quest_index[index]].objectives[i].size;
+		int8 element = quest_db[sd->quest_index[index]].objectives[i].element;
+
+#if PACKETVER >= 20150513
+		WFIFOL(fd, offset) = qd->quest_id * 1000 + i;
+		offset += 4;
+		WFIFOL(fd, offset) = (race ? race : (size ? size : (element ? element : 0)));	// effect ?
+		offset += 4;
+#endif
+		WFIFOL(fd, offset) = (quest_db[sd->quest_index[index]].objectives[i].mob) > 0 ? quest_db[sd->quest_index[index]].objectives[i].mob : MOBID_PORING;	// 0 can't be used as it displays "Novice" job regardless of the clif_mobtype_name
+		offset += 4;
+#if PACKETVER >= 20150513
+		WFIFOW(fd, offset) = quest_db[sd->quest_index[index]].objectives[i].min_level;
+		offset += 2;
+		WFIFOW(fd, offset) = quest_db[sd->quest_index[index]].objectives[i].max_level;
+		offset += 2;
+#endif
+		WFIFOW(fd, offset) = qd->count[i];
+		offset += 2;
+		if (mob && quest_db[sd->quest_index[index]].objectives[i].mob > 0)
+			safestrncpy((char *)WFIFOP(fd, offset), mob->jname, NAME_LENGTH);
+		else
+			safestrncpy((char *)WFIFOP(fd, offset), "", NAME_LENGTH);
+		offset += NAME_LENGTH;
 	}
 
-	WFIFOSET(fd, packet_len(0x2b3));
+	WFIFOSET(fd, packet_len(cmd));
+
+#if PACKETVER >= 20150513
+	int len = 4 + quest_db[index].objectives_count * 12;
+
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = 0x8fe;
+	WFIFOW(fd, 2) = len;
+
+	for (int i = 0, offset = 4; i < quest_db[index].objectives_count; i++, offset += 12) {
+		WFIFOL(fd, offset) = qd->quest_id * 1000 + i;
+		WFIFOL(fd, offset + 4) = quest_db[sd->quest_index[index]].objectives[i].mob;
+		WFIFOW(fd, offset + 10) = quest_db[sd->quest_index[index]].objectives[i].count;
+		WFIFOW(fd, offset + 12) = qd->count[i];
+	}
+
+	WFIFOSET(fd, len);
+
+#endif
 }
 
 
@@ -18098,27 +18180,44 @@ void clif_quest_delete(struct map_session_data * sd, int quest_id)
 }
 
 
-/// Notification of an update to the hunting mission counter (ZC_UPDATE_MISSION_HUNT).
-/// 02b5 <packet len>.W <mobs>.W { <quest id>.L <mob id>.L <total count>.W <current count>.W }*3
+/// Notification of an update to the hunting mission counter.
+/// 02b5 <packet len>.W <mobs>.W { <quest id>.L <mob id>.L <total count>.W <current count>.W }*3 (ZC_UPDATE_MISSION_HUNT)
+/// 09fa <packet len>.W <mobs>.W { <quest id>.L <hunt identification>.L <total count>.W <current count>.W }*3 (ZC_UPDATE_MISSION_HUNT_EX)
 void clif_quest_update_objective(struct map_session_data * sd, struct quest * qd, int index)
 {
 	int fd = sd->fd;
+	int offset = 6;
 	int i;
 	int len = quest_db[index].objectives_count*12+6;
 
+#if PACKETVER >= 20150513
+	int cmd = 0x9fa;
+#else
+	int cmd = 0x2b5;
+#endif
+
 	WFIFOHEAD(fd, len);
-	WFIFOW(fd, 0) = 0x2b5;
-	WFIFOW(fd, 2) = len;
+	WFIFOW(fd, 0) = cmd;
 	WFIFOW(fd, 4) = quest_db[index].objectives_count;
 
 	for( i = 0; i < quest_db[index].objectives_count; i++ )
 	{
-		WFIFOL(fd, i*12+6) = qd->quest_id;
-		WFIFOL(fd, i*12+10) = quest_db[index].objectives[i].mob;
-		WFIFOW(fd, i*12+14) = quest_db[index].objectives[i].count;
-		WFIFOW(fd, i*12+16) = qd->count[i];
+		WFIFOL(fd, offset) = qd->quest_id;
+		offset += 4;
+#if PACKETVER >= 20150513
+		WFIFOL(fd, offset) = qd->quest_id * 1000 + i;
+		offset += 4;
+#else
+		WFIFOL(fd, offset) = quest_db[index].objectives[i].mob;
+		offset += 4;
+#endif
+		WFIFOW(fd, offset) = quest_db[index].objectives[i].count;
+		offset += 2;
+		WFIFOW(fd, offset) = qd->count[i];
+		offset += 2;
 	}
 
+	WFIFOW(fd, 2) = offset;
 	WFIFOSET(fd, len);
 }
 
@@ -20885,7 +20984,7 @@ void packetdb_readdb(void)
 		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
-		-1, 11, 12, 11,  0,  0,  0, 75, -1,143,  0,  0,  0, -1, -1, -1,
+	   -1, 11, 12, 11,  0,  0,  0, 75, -1,143, -1,  0,  0, -1, -1, -1,
 //#0x0A00
 #if PACKETVER >= 20141022
 	  269,  3,  4,  2,  6, 49,  6,  9, 26, 45, 47, 47, 56, -1, 14, -1,
@@ -20906,7 +21005,7 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 //#0x0AC0
-		26,26,  0,  0, -1,  0,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
+		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,

@@ -5,6 +5,40 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/06/2021
+	r297 [15peaces]
+		*Merged missing changes from 3ceam rev. 747
+		*Some more updates related to 2018 clients.
+			-ZC_ALL_QUEST_LIST3; ZC_ADD_QUEST_EX; ZC_UPDATE_MISSION_HUNT_EX; HC_NOTIFY_ZONESVR2
+				--Added support for these packets.
+			-With this update the quest window is fully working, support for some missing values (monster race, element, size & base/job-exp rewards) will be added in later as soon as the quest system supports it.
+		*Added all equip bonuses for Kagerou/Oboro equips.
+			-Starfish shurikens now stun by chance.
+			-Dried Squid kunai now stun by chance.
+			-Flying Fish kunai now cause bleeding by chance.
+		*Added 3 new pile bunkers for Mechanics.
+		*Added the Falcon Flute.
+			-Using it will fall a falcon if you know the Falcon Mastery skill.
+				--Will not work if you have a warg with you.
+		*Ranger
+			-Updated the list of skills usable while mounted on a warg.
+				--Skills Usable While On Warg: All Hunter and Ranger traps, Greed, Detonator, Warg Rider/Dash/Strike, and Full Throttle.
+		*Mechanic
+			-Updated list of status's that are removed when mounting/unmounting a mado. When mounting on a mado, it will remove all status's given by Merchant, Blacksmith, and Whitesmith skills. When unmounting it will remove all status's given by Mechanic skills.
+			-Updated the list of skills usable while mounted on a mado.
+				--Skills Usable While On Mado: All Mechanic skills, Greed, and Full Throttle.
+		*NC_NEUTRALBARRIER; NC_STEALTHFIELD
+			-Fixed a issue where the AoE wouldn't be removed when unmounting from a mado.
+		*LG_OVERBRAND_BRANDISH
+			-Fixed a issue where the caster's ASPD incorrectly affected the damage sequence. It will now affect it directly.
+		*GN_HELLS_PLANT; GN_HELLS_PLANT_ATK
+			-Updated the damage formula to the real official formula.
+				--The 2011 balance document listed one part of the formula incorrectly.
+				--The skill damage is no longer affected by your base level. It is now affected by the enemy's base level. This was tested on a official server.
+		*RL_SLUGSHIT
+			-Is now forced neutral.
+				--The forced neutral part is unofficial, but due to its very high damage its best to set it like this until I can confirm if it takes weapon/ammo element.
+
 05/30/2021
 	r296 [15peaces]
 		*Did a number of updates in the item database.

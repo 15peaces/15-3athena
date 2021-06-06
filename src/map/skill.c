@@ -4265,7 +4265,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case LG_OVERBRAND_BRANDISH:
-		skill_addtimerskill(src, tick + status_get_amotion(src)*8/10, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL);
+		skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag | SD_LEVEL);
 		break;
 
 	case SR_KNUCKLEARROW:

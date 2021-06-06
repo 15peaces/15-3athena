@@ -15810,6 +15810,9 @@ BUILDIN_FUNC(pcstopfollow)
 	return 0;
 }
 
+// <--- [zBuffer] List of player cont commands
+// [zBuffer] List of unit control commands --->
+
 /// Checks to see if the unit exists.
 ///
 /// unitexists <unit id>;
@@ -15825,9 +15828,6 @@ BUILDIN_FUNC(unitexists) {
 
 	return 0;
 }
-
-// <--- [zBuffer] List of player cont commands
-// [zBuffer] List of unit control commands --->
 
 /// Gets specific live information of a bl.
 ///
@@ -16457,7 +16457,7 @@ BUILDIN_FUNC(setunitdata) {
 		break;
 
 	case BL_NPC:
-		if (!md) {
+		if (!nd) {
 			ShowWarning("buildin_setunitdata: Error in finding object BL_NPC!\n");
 			script_pushint(st, -1);
 			return 1;

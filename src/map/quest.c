@@ -410,6 +410,11 @@ int quest_read_db(void)
 			memset(&quest_db[count].objectives[i], 0, sizeof(quest_db[count].objectives[0]));
 			quest_db[count].objectives[i].mob = mob_id;
 			quest_db[count].objectives[i].count = atoi(str[2*i+3]);
+			quest_db[count].objectives[i].min_level = 0;
+			quest_db[count].objectives[i].max_level = 0;
+			quest_db[count].objectives[i].race = RC_ALL;
+			quest_db[count].objectives[i].size = 3;
+			quest_db[count].objectives[i].element = ELE_ALL;
 			quest_db[count].objectives_count++;
 		}
 

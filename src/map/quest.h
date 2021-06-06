@@ -16,6 +16,10 @@ struct quest_dropitem {
 struct quest_objective {
 	uint16 mob;
 	uint16 count;
+	uint16 min_level, max_level;
+	int8 race;
+	int8 size;
+	int8 element;
 };
 
 struct s_quest_db {

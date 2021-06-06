@@ -4481,10 +4481,10 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = 200 + 100 * skill_lv + sstatus->int_;
 		break;
 	case GN_HELLS_PLANT_ATK:
-		if (level_effect_bonus == 1 && s_level >= 100 )
-			md.damage = (( skill_lv * s_level * 10 ) + sstatus->int_ * 7 / 2 * ( 18 + sd->status.job_level / 4 )) * 5 / ( 10 - pc_checkskill(sd,AM_CANNIBALIZE) );
+		if (level_effect_bonus == 1)
+			md.damage = ((skill_lv * status_get_lv(target) * 10) + sstatus->int_ * 7 / 2 * (18 + sd->status.job_level / 4)) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
 		else
-			md.damage = (( skill_lv * 150 * 10 ) + sstatus->int_ * 7 / 2 * ( 18 + 50 / 4 )) * 5 / ( 10 - pc_checkskill(sd,AM_CANNIBALIZE) );
+			md.damage = ((skill_lv * status_get_lv(target) * 10) + sstatus->int_ * 7 / 2 * (18 + 50 / 4)) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
  		break;
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);

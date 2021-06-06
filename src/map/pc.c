@@ -8361,7 +8361,9 @@ int pc_setcart(struct map_session_data *sd,int type)
 int pc_setfalcon(TBL_PC* sd, int flag)
 {
 	if( flag ){
-		if( pc_checkskill(sd,HT_FALCON)>0 )	// ファルコンマスタリ?スキル所持
+		if ( pc_iswug(sd) || pc_iswugrider(sd) )
+			return 0;//Can't have a falcon and warg at the same time.
+		else if( pc_checkskill(sd,HT_FALCON)>0 )	// ファルコンマスタリ?スキル所持
 			pc_setoption(sd,sd->sc.option|OPTION_FALCON);
 	}else if (pc_isfalcon(sd)) {
 		pc_setoption(sd,sd->sc.option&~OPTION_FALCON); // remove falcon
