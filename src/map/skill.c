@@ -1056,7 +1056,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl,SC_FEAR,3+2*skilllv,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case RK_DRAGONBREATH:
-		sc_start4(bl, SC_BURNING, 15, skilllv, 1000, src->id, 0, skill_get_time(skillid, skilllv));
+		sc_start(bl, SC_BURNING, 15, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case GC_WEAPONCRUSH:// Rate is handled later.
 		skill_castend_nodamage_id(src,bl,skillid,skilllv,tick,BCT_ENEMY);
@@ -1252,8 +1252,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case KO_MAKIBISHI:
 		sc_start(bl, SC_STUN, 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
-	case RK_DRAGONBREATH_WATER:
-		sc_start4(bl,SC_FREEZING,15,skilllv,1000,src->id,0,skill_get_time(skillid,skilllv));
+	case GC_DARKCROW:
+		sc_start(bl,SC_DARKCROW,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+	case RK_DRAGONBREATH_WATER://jRO says success chance is 15%. [Rytech]
+		sc_start(bl,SC_FREEZING,15,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case MH_NEEDLE_OF_PARALYZE:
 		sc_start(bl, SC_NEEDLE_OF_PARALYZE, 100, skilllv, skill_get_time(skillid,skilllv));
@@ -3368,6 +3371,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case KO_SETSUDAN:
 	case KO_BAKURETSU:
 	case KO_HUUMARANKA:
+	case GC_DARKCROW:
 	case RK_DRAGONBREATH_WATER:
 	case MH_NEEDLE_OF_PARALYZE:
 	case MH_SONIC_CRAW:
@@ -5140,6 +5144,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
 	case KO_MEIKYOUSISUI:
+	case RA_UNLIMIT:
+	case ALL_FULL_THROTTLE:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
 		break;
 	case SO_STRIKING:

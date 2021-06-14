@@ -5,6 +5,41 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/14/2021
+	r298 [15peaces]
+		*Merged missing changes from 3ceam rev. 748
+		*Added some missing items.
+		*Some Bug fixing & cleaning in some npc files.
+			-clean-up in comodo_gambling.txt
+			-clean-up in quests/first_class folder
+			-Replaced occurrence of PcName and clean-up in tu_magician01.txt
+			-Thanks to @rathena	
+		*Added the latest tags and ID's to the enum tables for sprite display, skills, and status.
+		*Fixed the stats increase/decrease calculations given by status's.
+			-This was a mess and had to be redone after realizing the order of the calculations made a difference and were wrong. This is in response to the adding of the skill ALL_FULL_THROTTLE which could of increased the player's stats a lot more if this wasn't
+			-fixed.
+			-The rules of the calculations are as follow and as they should be....
+				--1. Current stats are taken. Base + Bonus Stats (from job level bonus and equips)
+				--1.5. If a status that reduces the stat down to 0 is active, the calculations ends.
+				--2. Stats increases by a percentage are calculated.
+				--3. Stats increases by a fixed amount are calculated.
+				--4. Stats decreases by a percentage are calculated.
+				--5. Stats decreases by a fixed amount are calculated.
+				--6. Stats increase/decrease from the skill CG_MARIONETTE are calculated.
+				--7. If rebirth soul link is active and a stat is below 50, it will be fixed to 50.
+		*All Renewal Jobs
+			-Updated the weight for all renewal introduced jobs to use their official values.
+			--It doesn't matter if the game mechanics are classic or renewal. The weight limits would be the same. Its confirmed that the weight on all of the classic jobs are exactly the same on renewal as they were on classic. So the same rule would apply for
+			--renewal jobs having the same weight in classic.
+		*RK_DRAGONBREATH
+			-Fixed a suspected issue where level 9 AoE size was incorrect.
+				--This is due to the said AoE for RK_DRAGONBREATH_WATER on jRO's site.
+			-Skill level 9's AoE is now 7x7.
+		*GC_DARKCROW; RA_UNLIMIT; RK_DRAGONBREATH_WATER; ALL_FULL_THROTTLE
+			-Added support for these skills.
+			-Note: ALL_FULL_THROTTLE is not complete and only increases the player's stats.
+				--The rest of the mechanics for the skill will be coded in the next update.
+
 06/06/2021
 	r297 [15peaces]
 		*Merged missing changes from 3ceam rev. 747

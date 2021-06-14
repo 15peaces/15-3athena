@@ -575,9 +575,6 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			status_change_end(bl,SC_DEEPSLEEP, INVALID_TIMER);
 		}
 
-		if( sc->data[SC_SIREN] && damage > 0)
-			status_change_end(bl,SC_SIREN,INVALID_TIMER);
-
 		if( sc->data[SC_DEVOTION] ) {
 			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
 			struct block_list *d_bl = map_id2bl(sce_d->val1);
@@ -593,6 +590,12 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 					damage -= damage * d_sc->data[SC_DEFENDER]->val2 / 100;
 			}
 		}
+
+		if (sc->data[SC_SIREN] && damage > 0)
+			status_change_end(bl, SC_SIREN, INVALID_TIMER);
+
+		if (sc->data[SC_DARKCROW] && (flag&(BF_SHORT | BF_WEAPON)) == (BF_SHORT | BF_WEAPON))
+			damage += damage * sc->data[SC_DARKCROW]->val2 / 100;
 
 		//Finally damage reductions....
 		if( sc->data[SC_ASSUMPTIO] )
@@ -2783,6 +2786,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case KO_MAKIBISHI:
 					skillratio = 20 * skill_lv;
 					break;
+				case GC_DARKCROW:
+					skillratio = 100 * skill_lv;
+					break;
 				case MH_NEEDLE_OF_PARALYZE:
 					skillratio = 700 + 100 * skill_lv;
 					break;
@@ -2963,8 +2969,23 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				skill_num != GC_VENOMPRESSURE &&
 				skill_num != GC_PHANTOMMENACE &&
 				skill_num != GC_ROLLINGCUTTER &&
-				skill_num != GC_CROSSRIPPERSLASHER)
+				skill_num != GC_CROSSRIPPERSLASHER &&
+				skill_num != GC_DARKCROW)//Unknown if Dark Claw is affected by EDP. Best to make it not until confirm. [Rytech]
 				ATK_ADDRATE(sc->data[SC_EDP]->val3);
+
+			if(sc->data[SC_UNLIMIT] && (wd.flag&(BF_LONG|BF_WEAPON)) == (BF_LONG|BF_WEAPON) &&
+				(!skill_num ||//For regular attacks with bows.
+				skill_num == AC_DOUBLE ||
+				skill_num == AC_SHOWER ||
+				skill_num == AC_CHARGEARROW ||
+				skill_num == SN_SHARPSHOOTING ||
+				skill_num == HT_POWER ||
+				skill_num == HT_PHANTASMIC ||
+				skill_num == RA_ARROWSTORM ||
+				skill_num == RA_AIMEDBOLT ||
+				skill_num == WM_SEVERE_RAINSTORM ||
+				skill_num == WM_SEVERE_RAINSTORM_MELEE))
+				ATK_ADDRATE(sc->data[SC_UNLIMIT]->val2);
 		}
 
 		switch (skill_num) {

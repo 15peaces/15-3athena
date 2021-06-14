@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Fix up by Jukka
 //===== Current Version: ===================================== 
-//= 2.0
+//= 3.0
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -22,7 +22,8 @@
 //= 1.9 Misc. updates. Thanks to L0ne_W0lf. [15peaces]
 //= 1.9a Added 'npcskill' command. Thanks to Euphy. [15peaces] 
 //= 2.0 Updated to match the official script. Thanks to Euphy. [15peaces]
-//============================================================ 
+//= 3.0 Clean-up. Thanks to Capuche. [15peaces]
+//============================================================
 
 // Bard Jet
 //============================================================
@@ -35,7 +36,7 @@ payon_in02,67,65,3	script	Bard Jet#tu	55,{
 	mes "Goddess of immortality.";
 	next;
 	mes "[Jet]";
-	if(Class == Job_Archer || Class == Job_Baby_Archer || Class == Job_Archer_High){
+	if (BaseJob == Job_Archer){
 		mes "Ooh, you're an Archer?";
 		mes "There was a time when I too";
 		mes "was an Archer. But I've changed jobs, so now I entertain the masses with my songs and humor.";
@@ -101,8 +102,7 @@ payon_in02,67,65,3	script	Bard Jet#tu	55,{
 		mes "everything and change";
 		mes "jobs so that you can";
 		mes "come play with me!";
-		close;
-	} else if(Class == Job_Bard || Class == Job_Clown || Class == Job_Baby_Bard){	//CHECK
+	} else if (BaseJob == Job_Bard){
 		mes "Ooh...!";
 		mes "You're...!";
 		next;
@@ -128,15 +128,13 @@ payon_in02,67,65,3	script	Bard Jet#tu	55,{
 		mes "and the word Mammonite";
 		mes "sounds-- wait. It's not funny";
 		mes "if I have to explain it, huh?";
-		close;
-	} else if(Class == Job_Dancer || Class == Job_Gypsy || Class == Job_Baby_Dancer){
+	} else if (BaseJob == Job_Dancer){
 		mes "Ooh...!";
 		mes "Hello, hello!";
 		mes "Wouldn't it be";
 		mes "nice if we could";
 		mes "perform together";
 		mes "one of these days?";
-		close;
 	} else {
 		mes "You look bored...";
 		mes "Is life really that";
@@ -198,7 +196,7 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 		mes "The members of our guild are those who not only wish to be brave, but to reach out for our dreams like Icarus did. Our members are aspiring Archers, former Archers and current Archers.";
 		next;
 		mes "[Master Kavaruk]";
-		if(Class == Job_Novice || Class == Job_Baby){
+		if (Class == Job_Novice){
 			mes "If you'd like to become an Archer, why don't you go around and learn";
 			mes "a few things about the profession? I'm sure you'll be able to hear plenty of stories around here.";
 			close;
@@ -206,17 +204,13 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 		} else if(Class == Job_Archer){
 			mes "Since you're an Archer, you might";
 			mes "benefit from going around and listening to everyone else's battle experiences. Becoming familiar with different fight scenarios will help you in the future.";
-			close;
-
-		} else if(Class == Job_Hunter || Class == Job_Sniper || Class == Job_Baby_Hunter){	//CHECK
+		} else if (BaseJob == Job_Hunter){
 			mes "[Master Kavaruk]";
 			mes "Arpesto is waiting";
 			mes "outside. Since he's a";
 			mes "veteran hunter, he can";
 			mes "be of great help to you.";
-			close;
-
-		} else if(Class == Job_Dancer || Class == Job_Gypsy || Class == Job_Baby_Dancer){	//CHECK
+		} else if (BaseJob == Job_Dancer){
 			mes "In fact, a few of our";
 			mes "members specialize in";
 			mes "capturing the fascination";
@@ -228,24 +222,22 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 			mes "any of them around here right now. They never seem to remain in one";
 			mes "place for very long. Still, I'm sure of them will turn up here";
 			mes "one of these days.";
-			close;
-
-		} else if(Class == Job_Bard || Class == Job_Clown || Class == Job_Baby_Bard){	//CHECK
+		} else if (BaseJob == Job_Bard){
 			mes "In fact, a few of our members";
 			mes "are highly skilled in singing and entertaining their allies, much in the same way you do.";
 			next;
 			mes "[Master Kavaruk]";
 			mes "...But I don't seem to see any of them around here right now. They always wander wherever the wind takes them, but I'm sure one of them will wander back here one";
 			mes "of these days.";
-			close;
 		}
-		mes "They happen to know a lot of information about jobs related to Archers. Why don't you speak to them and learn more about";
-		mes "these other jobs?";
+		else {
+			mes "They happen to know a lot of information about jobs related to Archers. Why don't you speak to them and learn more about";
+			mes "these other jobs?";
+		}
 		close;
-		break;
 	case 2:
 		mes "[Master Kavaruk]";
-		if(Class == Job_Archer || Class == Job_Baby_Archer || Class == Job_Archer_High){
+		if (BaseJob == Job_Archer) {
 			if(tu_archer02 == 0){
 				mes "Oh, it's a good thing";
 				mes "you're here, "+strcharinfo(0)+".";
@@ -266,8 +258,6 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 				mes "[Master Kavaruk]";
 				mes "If you're interested, it would probably be best to speak to the Alchemist Guild member who is waiting to hear from us at the ^3131FFshop next to the road south of Icarus^000000.";
 				set tu_archer02,1;
-				close;
-
 			} else if(tu_archer02 == 1){
 				mes "Hmmm...";
 				mes "..........";
@@ -292,23 +282,19 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 				mes "Please find out if he is all right and help him with whatever he";
 				mes "may need. In the meantime, I will be waiting to hear from you. Thank you very much.";
 				set tu_archer02, 2;
-				close;
-
 			} else if(tu_archer02 == 2){
 				mes "Find Arthail";
 				mes "of the Wind for me.";
 				mes "He must be somewhere";
 				mes "in Prontera...";
-				close;
-
 			} else if(tu_archer02 == 9){
 				mes "Hmmm, I see. Thank you";
 				mes "for bringing me the news. As Arthail has said, I shall wait until he has more news for me.";
 				mes "You should also train and prepare for the future as well.";
 				set tu_archer02, 10;
 				getexp 2000,1000;
-				close;
 			}
+			close;
 		}
 		mes "I don't know...";
 		mes "Recently, I haven't heard any noteworthy news. For now, the warmth of the sun seems to be protecting the peace here.";
@@ -318,8 +304,6 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 		mes "any interesting rumors,";
 		mes "I will let you know.";
 		close;
-		break;
-
 	case 3:
 		mes "[Master Kavaruk]";
 		if(tu_archer01 < 1){
@@ -328,21 +312,18 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 				mes "So are you";
 				mes "interested in";
 				mes "becoming an Archer?";
-
-			} else if(BaseClass == Job_Archer){
+			} else if (Class == Job_Archer_High || BaseJob == Job_Dancer || BaseJob == Job_Bard){
 				mes "Although I can't deny that you're an expert, I suppose it is a good idea to review the basics of archery from time to time. Would you like to try some refresher training?";
-			} else if(Class == Job_Hunter || Class == Job_Sniper){	//CHECK
+			} else if (BaseJob == Job_Hunter){
 				mes "[Master Kavaruk]";
 				mes "Arpesto is waiting";
 				mes "outside. Since he's a";
 				mes "veteran hunter, he can";
 				mes "be of great help to you.";
 				close;
-
 			} else if(Class == Job_Archer || Class == Job_Baby_Archer){
 				mes "As an Archer, I can see that you'd want to make sure that you have a strong grasp on the fundamentals";
 				mes "of our job. Would you like some specialized instruction?";
-
 			} else {
 				mes "Although you may not be able";
 				mes "to directly apply archery related knowledge, it's a good idea to understand the capabilities of";
@@ -386,13 +367,12 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 			mes "hills west of Icarus and";
 			mes "talk to ^3131FFSeisner^000000 to begin your special training.";
 			close;
-
 		} else if(tu_archer01 == 3){
 			mes "So "+strcharinfo(0)+",";
 			mes "Did you have a good experience? Learning theory alone is never too enjoyable, but it is necessary.";
 			next;
 			mes "[Master Kavaruk]";
-			if(Class == Job_Archer || Class == Job_Archer_High || Class == Job_Baby_Archer){
+			if (BaseJob == Job_Archer){
 				mes "Now it is time to experience the principles you've just learned firsthand. Go speak to ^3131FFReidin Corse^000000, who is just outside of this building, and he'll tell you about the different skills.";
 				set tu_archer01, 4;
 			} else {
@@ -400,11 +380,9 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 				mes "in that.";
 			}
 			close;
-
-		} else if(tu_archer01 == 4){
+		} else if(tu_archer01 == 4 && BaseJob == Job_Archer) {
 			mes "Reidin Corse is just outside of this building. Didn't you see him on your way in?";
 			close;
-
 		}
 	}
 	mes "You're great";
@@ -417,6 +395,12 @@ payon_in02,47,13,3	script	Master Kavaruk	55,{
 //============================================================
 pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 	mes "[Reidin Corse]";
+	if (checkweight(1201,1) == 0) {
+		mes "[Reidin Corse]";
+		mes "Why are you carrying";
+		mes "so much stuff? You better put everything you don't need into Kafra Storage.";
+		close;
+	}
 	if(MaxWeight - Weight < 2000){
 		mes "Hey, you're carrying an";
 		mes "awful lot of stuff. You ought";
@@ -424,7 +408,7 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 		mes "into Kafra Storage...";
 		close;
 	}
-	if(tu_archer01 > 0){
+	if(tu_archer01 > 0 && (BaseJob != Job_Hunter && BaseJob != Job_Bard && BaseJob != Job_Dancer || Upper == 2)){
 		if(tu_archer01 == 4){
 			mes "Ah, what is it?";
 			mes "Can I help you";
@@ -488,17 +472,15 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 			mes "^3355FFReidin Corse narrows his experienced eyes and sizes you up.^000000";
 			next;
 			mes "[Reidin Corse]";
-			if(JobLevel > 39){
+			if(JobLevel > 39)
 				mes "Hey! You're ready to change jobs, aren't you? Don't waste time here and just get a new job already! Eh, or you can ask Master Kavaruk for something to do.";
-				close;
-			} else if(JobLevel < 5){
+			else if(JobLevel < 5){
 				mes "Alright! We got a fresh Archer here! You're lucky you came to me, I'm the best teacher you can find! But let me warn you, I teach at a really fast pace, so try to keep";
 				mes "up. Okay? Good.";
 				next;
 				set tu_archer01, 5;
 				mes "[Reidin Corse]";
 				mes "Okay, I'm ready to begin the lessons! Come back over here once you've got your bow and arrows and everything else ready, got it?";
-				close;
 			} else {
 				mes "Okay. It looks like you know";
 				mes "some stuff. But even if you're";
@@ -507,8 +489,8 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 				set tu_archer01, 5;
 				mes "[Reidin Corse]";
 				mes "Well, I'm ready to teach whenever you're ready to learn. Come back once your bow and arrows and everything else is ready, alright?";
-				close;
 			}
+			close;
 		} else if(tu_archer01 == 5){
 			mes "You ready? I think it's fair to remind you that I won't tolerate any complaining! Just do what";
 			mes "I say and you'll be the second best Archer in the world! After me, of course~";
@@ -721,15 +703,14 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 					mes "You've got plenty of arrows";
 					mes "for that, so go for it!";
 					set tu_archer01, 8;
-					next;
 				} else {
 					next;
 					mes "[Reidin Corse]";
 					mes "Here's a little something to encourage you. Since Mandagora are Earth property monsters, these Fire Arrows will work really well.";
 					set tu_archer01, 8;
 					getitem 1752, 300;
-					next;
 				}
+				next;
 				mes "[Reidin Corse]";
 				mes "Alright~";
 				mes "Ready to go?";
@@ -844,7 +825,7 @@ pay_arche,103,165,5	script	Reidin Corse#tu	832,{
 				next;
 				if(.@eagle == 0){
 					specialeffect2 EF_WIND;
-					set tu_archer01, 10;
+					//set tu_archer01, 10;
 					getexp 0,500;
 				}
 				emotion e_no1;
@@ -1142,8 +1123,8 @@ pay_arche,84,139,3	script	Seisner	727,{
 		mes "So Master Kavaruk";
 		mes "wants me to teach you";
 		mes "about Archers and Archery? Alright, what would you like to know more about?";
-		next;
 		while(1){
+			next;
 			switch(select("About Archers.:Stats for Archers:End Conversation.")){
 			case 1:
 				mes "[Seisner]";
@@ -1170,7 +1151,6 @@ pay_arche,84,139,3	script	Seisner	727,{
 				mes "[Seisner]";
 				mes "Hunters can ultimately transcend into ^3131FFSnipers^000000, Bards into ^3131FFMinstrels^000000, and Dancers into ^3131FFGypsies^000000. I know that's pretty complex.";
 				if(tu_archer01 == 1) set tu_archer01, 2;
-				next;  
 				break;
 			case 2:
 				mes "[Seisner]";
@@ -1197,7 +1177,7 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "that any character can carry. So if you have more STR, you can carry around more arrows.";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 2:
 						mes "[Seisner]";
 						mes "^FF3131AGI^000000 as you know, ";
@@ -1208,7 +1188,7 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "One of the drawbacks of being an Archer is having weaker strength and lower Dodge Rate. However, the Dodge Rate disadvantage is lessened by increasing your ^FF3131AGI^000000.";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 3:
 						mes "[Seisner]";
 						mes "^3131FFVIT^000000 will increase";
@@ -1224,7 +1204,7 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "depending on how you use it. Still, I wouldn't recommend focusing too much on increasing your VIT if you're an Archer.";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 4:
 						mes "[Seisner]";
 						mes "^FF0000INT^000000 is more";
@@ -1240,7 +1220,7 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "For Hunters, one of the Second Job Classes for Archers, having higher INT will increase the damage inflicted by ^3131FFFalcons^000000.";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 5:
 						mes "[Seisner]";
 						mes "Now DEX is almost";
@@ -1259,7 +1239,7 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "Just like any other class, ^FF3131DEX^000000 increases ^3131FFAccuracy (HIT)^000000 and slightly enhances Attack Speed (ASPD).";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 6:
 						mes "[Seisner]";
 						mes "^FF0000LUK^000000 affects your";
@@ -1270,17 +1250,15 @@ pay_arche,84,139,3	script	Seisner	727,{
 						mes "For Hunters, one of the Second Classes for the Archer, LUK increases the chance of ^3131FFBlitz Beat^000000 occurring automatically. So Hunters who rely on their Falcons might want to invest in LUK.";
 						next;
 						if(tu_archer01 == 1) set tu_archer01, 2;
-						break;
+						continue;
 					case 7:
 						mes "[Seisner]";
 						mes "So is there";
 						mes "anything else that";
 						mes "you want to ask me?";
-						next;
-						set .@exitwhile,1;
 						break;
 					}
-					if (.@exitwhile) break;
+					break;
 				}
 				break;
 			case 3:
@@ -1382,8 +1360,6 @@ pay_arche,76,135,3	script	#Target	111,{ end; }
 					mes "Y-you're a man!";
 					mes "D-d-d-don't tease me";
 					mes "like that! I'm serious!";
-					set tu_archer01, 15;
-					close;
 				} else {
 					mes "And he's so brave";
 					mes "and funny and smart.";
@@ -1394,11 +1370,10 @@ pay_arche,76,135,3	script	#Target	111,{ end; }
 					mes "^333333*Sniffle*^000000";
 					mes "I'll d-do my best to help you!";
 					mes "I wish you both happiness! (Waaaaaah~!)";
-					set tu_archer01, 15;
-					close;
 				}
+				set tu_archer01, 15;
+				close;
 			}
-			end;
 		} else {
 			mes "^666666Zzzzz...^000000";
 			mes "Wh-wha...?";
@@ -1413,7 +1388,6 @@ pay_arche,76,135,3	script	#Target	111,{ end; }
 				case 0: npcskill "AL_HEAL",3,90,62; break;
 				case 1: npcskill "AL_HEAL",9,90,62; break;
 				case 2: npcskill "AL_HEAL",8,90,62; break;
-				case 3: break;
  			}
 			switch(rand(3)) {
 				case 0: npcskill "AL_INCAGI",1,0,0; break;
@@ -1454,7 +1428,6 @@ pay_arche,76,135,3	script	#Target	111,{ end; }
 			case 0: npcskill "AL_HEAL",3,90,62; break;
 			case 1: npcskill "AL_HEAL",10,90,62; break;
 			case 2: npcskill "AL_HEAL",8,90,62; break;
-			case 3: break;
 		}
 		switch(rand(3)) {
 			case 0: npcskill "AL_INCAGI",1,0,0; break;
@@ -1508,20 +1481,14 @@ pay_arche,130,113,3	script	Alchemist Guildmember#tu	740,{
 				mes "Flora field! I really";
 				mes "appreciate your help~";
 
-				set .@alche_f,countitem(1032);// Blossom_Of_Maneater
-				set .@alche_s,countitem(905);// Stem
-				set .@f_zeny, .@alche_f * 130;
-				set .@s_zeny, .@alche_s * 30;
-				set .@total_zeny, .@f_zeny + .@s_zeny;
-				if(countitem(1032) == 0){
-					delitem 905, .@alche_s;
-				} else if(countitem(905) == 0){
+				set .@alche_f, countitem(1032); // Blossom_Of_Maneater
+				set .@alche_s, countitem(905); // Stem
+				set .@total_zeny, .@alche_f * 130 + .@alche_s * 30;
+				if (countitem(1032))
 					delitem 1032, .@alche_f;
-				} else {
-					delitem 1032, .@alche_f;
+				if (countitem(905))
 					delitem 905, .@alche_s;
-				}
-				set Zeny,Zeny+.@total_zeny;
+				set Zeny, Zeny+.@total_zeny;
 				close;
 			case 2:
 				mes "[Alchemist Guildmember]";
@@ -1609,13 +1576,10 @@ prontera,126,335,5	script	Arthail	51,{
 			mes "Would you please go and see if there's any news being spread around in that area for me?";
 			set tu_archer02, 3;
 		}
-		close;
 	} else if(tu_archer02 == 3){
 		mes "I'm ashamed to ask,";
 		mes "but would you go the fountain in Prontera's central plaza and see";
 		mes "if there's any news?";
-		close;
-
 	} else if(tu_archer02 == 4){
 		mes "I see...";
 		mes "Nothing much.";
@@ -1696,13 +1660,9 @@ prontera,126,335,5	script	Arthail	51,{
 		mes "I'd better go check";
 		mes "this out on my own.";
 		set tu_archer02, 5;
-		close;
-
-	} else if(tu_archer02 > 4 && tu_archer02 < 7){
+	} else if(tu_archer02 > 4 && tu_archer02 < 7)
 		mes "^333333Zzzzz...^000000";
-		close;
-
-	} else if(tu_archer02 == 8){
+	else if(tu_archer02 == 8){
 		mes "Where did you go?";
 		mes "I thought you might have been kidnapped since you weren't";
 		mes "here when I woke up.";
@@ -1727,10 +1687,11 @@ prontera,126,335,5	script	Arthail	51,{
 		mes "have a song that";
 		mes "I can share with you.";
 		set tu_archer02, 9;
-		close;
 	}
-	mes "...";
-	mes "......";
+	else {
+		mes "...";
+		mes "......";
+	}
 	close;
 }
 
@@ -1807,13 +1768,11 @@ prt_castle,76,165,6	script	Minister#tu	55,{
 		mes "[Minister]";
 		mes "Ah, there are a few stray cats running around, those Wild Roses, so those noises you heard must have been them. Everything is fine here in the palace.";
 		set tu_archer02, 6;
-		close;
 	} else if(tu_archer02 == 7){
 		next;
 		mes "^3355FFThe urgency that the Minister expressed earlier has been";
 		mes "replaced with a stone cold feeling of sternness. He probably won't tell you much more information,";
 		mes "no matter how much you ask him.";
-		close;
 	} else if(tu_acolyte01 == 25){
 		next;
 		mes "["+strcharinfo(0)+"]";
@@ -1841,7 +1800,7 @@ prt_castle,76,165,6	script	Minister#tu	55,{
 		next;
 		mes "[Minister]";
 		mes "As a holy servant, I'm sure that you'll find plenty of other people who have need of your help and abilities outside of the palace.";
-	} 
+	}
 	close;
 }
 
@@ -1875,8 +1834,7 @@ monk_in,19,43,1	script	Bishop Maugins	60,{
 		mes "charge of that area. So";
 		mes "how may I help you?";
 		next;
-		switch(select("Has something happened to the Kingdom?:Nothing.")) {
-		case 1:
+		if (select("Has something happened to the Kingdom?:Nothing.") == 1) {
 			mes "[Bishop Maugins]";
 			mes "...!!";
 			next;
@@ -1890,7 +1848,6 @@ monk_in,19,43,1	script	Bishop Maugins	60,{
 			mes "The king and I regularly write to each other, but I haven't heard of anything in particular. Please don't worry yourself.";
 			next;
 			set tu_archer02, 8;
-			break;
 		}
 		mes "[Bishop Maugins]";
 		mes "Good luck on";

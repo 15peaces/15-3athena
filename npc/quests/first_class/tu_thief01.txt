@@ -3,7 +3,7 @@
 //===== By: ================================================== 
 //= Fix up by Jukka
 //===== Current Version: ===================================== 
-//= 1.5
+//= 2.0
 //===== Compatible With: ===================================== 
 //= 15-3athena Project
 //===== Description: ========================================= 
@@ -16,6 +16,7 @@
 //= 1.3 Fixed a few minor mistakes [Playtester]
 //= 1.4 Misc. updates. Thanks to L0ne_W0lf. [15peaces]
 //= 1.5 Some cleaning. [15peaces]
+//= 2.0 Fixed a wrong exp value & clean-up. Thanks to Capuche. [15peaces]
 //============================================================ 
 
 // Thief Trainer
@@ -35,21 +36,20 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 		mes "I might add--come and talk to me. I'll show you the ropes!";
 		close;
 
-	} else if(Class == Job_Thief || Class == Job_Thief_High || Class == Job_Assassin || Class ==Job_Assassin_Cross || Class == Job_Rogue || Class == Job_Stalker){
-		if(Class == Job_Thief_High || Class == Job_Assassin || Class == Job_Assassin_Cross || Class == Job_Rogue || Class == Job_Stalker){
-			if(tu_thief01 < 8){
-				mes "Whaaaat are you";
-				mes "doin' here? There's";
-				mes "nothing I can teach you!";
-				mes "You're waaay beyond me!";
-				next;
-				mes "[Yierhan]";
-				mes "In fact, I think";
-				mes "you're qualified";
-				mes "to teach me some stuff!";
-				mes "Come on! I need new moves!";
-				close;
-			}
+	}
+	else if (BaseClass == Job_Thief && Upper != 2) {
+		if (Class != Job_Thief && tu_thief01 < 8) {
+			mes "Whaaaat are you";
+			mes "doin' here? There's";
+			mes "nothing I can teach you!";
+			mes "You're waaay beyond me!";
+			next;
+			mes "[Yierhan]";
+			mes "In fact, I think";
+			mes "you're qualified";
+			mes "to teach me some stuff!";
+			mes "Come on! I need new moves!";
+			close;
 		}
 		if(tu_thief01 == 0){
 			mes "Heya pal.";
@@ -88,10 +88,8 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 				next;
 				mes "[Yierhan]";
 				mes "So if you're feeling like the damage you're making is pretty weak, you might want more stat points in ^2F4F2FSTR^000000. How high your raise your own STR is really up to you.";
-				set tu_thief01, 1;
 				getexp 200,100;
-				specialeffect2 EF_HIT5;
-				close;
+				break;
 			case 2:
 				mes "[Yierhan]";
 				mes "Yeah, that's right! If you wanna increase your damage, you need";
@@ -104,10 +102,8 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 				mes "[Yierhan]";
 				mes "Sure, ^23238EDEX^000000 and LUK can";
 				mes "also increase your attack damage, but they're insignificant compared to STR. I repeat: ^660000insignificant^000000.";
-				set tu_thief01, 1;
 				getexp 400,200;
-				specialeffect2 EF_HIT5;
-				close;
+				break;
 			case 3:
 				mes "[Yierhan]";
 				mes "Say whaaat? ^23238EDEX^000000 affects";
@@ -119,12 +115,14 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 				next;
 				mes "[Yierhan]";
 				mes "So if you're feeling like the damage you're making is pretty weak, you might want more stat points in ^2F4F2FSTR^000000. How high your raise your own STR is really up to you.";
-				set tu_thief01, 1;
 				getexp 200,100;
-				specialeffect2 EF_HIT5;
-				close;
+				break;
 			}
-		} else if(tu_thief01 == 1){
+			set tu_thief01, 1;
+			specialeffect2 EF_HIT5;
+			close;
+		}
+		else if(tu_thief01 == 1){
 			mes "Alright, enough about stats.";
 			mes "You know what? I think I'll just talk to you about the skills that we Thieves use.";
 			next;
@@ -147,82 +145,81 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 				mes "[Yierhan]";
 				mes "You haven't learned any skills yet? Come on, it's your skills that'll set you apart from Novices and everyone else!";
 				close;
-			} else {
-				if(.@chk_th_skill1 > 0){
-					mes "[Yierhan]";
-					mes "Ah, so you've learned";
-					mes "Level "+.@chk_th_skill1+" Double Attack.";
-					mes "Nice! This skill gives you the chance to attack twice in one";
-					mes "attack. Wicked!";
-					next;
-					mes "[Yierhan]";
-					mes "It's a Passive skill, so it's always in effect and won't have to use any SP to use it. The higher your Double Attack skill level, the more double attacks you'll do.";
-					next;
-				}
-				if(.@chk_th_skill2 > 0){
-					mes "[Yierhan]";
-					mes "Let's see...";
-					mes "Level "+.@chk_th_skill2+" Increase Dodge?";
-					mes "That increases your Flee Rate, meaning you've got a better chance of dodging attacks from your enemies.";
-					next;
-					mes "[Yierhan]";
-					mes "Just like the Double Attack skill, Increase Dodge is a Passive skill. It won't use SP and it's always in";
-					mes "effect. If you don't like to bruise, this is your skill.";
-					next;
-				}
-				if(.@chk_th_skill3 > 0){
-					mes "[Yierhan]";
-					mes "Whoa, so you've";
-					mes "got Level "+.@chk_th_skill3+" Steal~";
-					mes "Now that's the skill which gives our job its name! You can't use";
-					mes "it against people, though...";
-					next;
-					mes "[Yierhan]";
-					mes "But you can use Steal to take items from monsters. If you're lucky, you can get some good items that way. Oh, and Steal doesn't affect monster drop rates.";
-					next;
-				}
-				if(.@chk_th_skill4 > 0){
-					mes "[Yierhan]";
-					mes "You've learned";
-					mes "Level "+.@chk_th_skill4+" Hiding?";
-					mes "Let's see, you can only learn";
-					mes "that after learning the Steal skill up to a certain level.";
-					next;
-					mes "[Yierhan]";
-					mes "Of course, you use ";
-					mes "the Hiding skill to hide underground in an emergency, like when you're surrounded by tough enemies. Be careful though...";
-					next;
-					mes "[Yierhan]";
-					mes "Certain monsters will still be able to find you, no matter how well you hide. There are even a few monsters that can flush you out of hiding!";
-					next;
-				}
-				if(.@chk_th_skill5 > 0){
-					mes "[Yierhan]";
-					mes "Alright, I see that you";
-					mes "know Level "+.@chk_th_skill5+" Envenom.";
-					mes "You like being dangerous,";
-					mes "don't you?";
-					next;
-					mes "[Yierhan]";
-					mes "This attack skill has the chance";
-					mes "to poison your enemy for a set amount of time. While poisoned, an enemy will constantly lose its HP and will have decreased defense.";
-					next;
-					mes "[Yierhan]";
-					mes "Eh, but remember.";
-					mes "If the monster's too strong for you, you might not be able to poison it. So don't go crazy.";
-					next;
-				}
-				if(.@chk_th_skill6 > 0){
-					mes "[Yierhan]";
-					mes "Level "+.@chk_th_skill6+" Detoxify.";
-					mes "If you took the trouble to learn that, you must be the cautious";
-					mes "type or something.";
-					next;
-					mes "[Yierhan]";
-					mes "You can only learn Detoxify";
-					mes "after you learn the Envenom skill. Detoxify allows you to counteract the effects of poison on a target.";
-					next;
-				}
+			}
+			if(.@chk_th_skill1 > 0){
+				mes "[Yierhan]";
+				mes "Ah, so you've learned";
+				mes "Level "+.@chk_th_skill1+" Double Attack.";
+				mes "Nice! This skill gives you the chance to attack twice in one";
+				mes "attack. Wicked!";
+				next;
+				mes "[Yierhan]";
+				mes "It's a Passive skill, so it's always in effect and won't have to use any SP to use it. The higher your Double Attack skill level, the more double attacks you'll do.";
+				next;
+			}
+			if(.@chk_th_skill2 > 0){
+				mes "[Yierhan]";
+				mes "Let's see...";
+				mes "Level "+.@chk_th_skill2+" Increase Dodge?";
+				mes "That increases your Flee Rate, meaning you've got a better chance of dodging attacks from your enemies.";
+				next;
+				mes "[Yierhan]";
+				mes "Just like the Double Attack skill, Increase Dodge is a Passive skill. It won't use SP and it's always in";
+				mes "effect. If you don't like to bruise, this is your skill.";
+				next;
+			}
+			if(.@chk_th_skill3 > 0){
+				mes "[Yierhan]";
+				mes "Whoa, so you've";
+				mes "got Level "+.@chk_th_skill3+" Steal~";
+				mes "Now that's the skill which gives our job its name! You can't use";
+				mes "it against people, though...";
+				next;
+				mes "[Yierhan]";
+				mes "But you can use Steal to take items from monsters. If you're lucky, you can get some good items that way. Oh, and Steal doesn't affect monster drop rates.";
+				next;
+			}
+			if(.@chk_th_skill4 > 0){
+				mes "[Yierhan]";
+				mes "You've learned";
+				mes "Level "+.@chk_th_skill4+" Hiding?";
+				mes "Let's see, you can only learn";
+				mes "that after learning the Steal skill up to a certain level.";
+				next;
+				mes "[Yierhan]";
+				mes "Of course, you use ";
+				mes "the Hiding skill to hide underground in an emergency, like when you're surrounded by tough enemies. Be careful though...";
+				next;
+				mes "[Yierhan]";
+				mes "Certain monsters will still be able to find you, no matter how well you hide. There are even a few monsters that can flush you out of hiding!";
+				next;
+			}
+			if(.@chk_th_skill5 > 0){
+				mes "[Yierhan]";
+				mes "Alright, I see that you";
+				mes "know Level "+.@chk_th_skill5+" Envenom.";
+				mes "You like being dangerous,";
+				mes "don't you?";
+				next;
+				mes "[Yierhan]";
+				mes "This attack skill has the chance";
+				mes "to poison your enemy for a set amount of time. While poisoned, an enemy will constantly lose its HP and will have decreased defense.";
+				next;
+				mes "[Yierhan]";
+				mes "Eh, but remember.";
+				mes "If the monster's too strong for you, you might not be able to poison it. So don't go crazy.";
+				next;
+			}
+			if(.@chk_th_skill6 > 0){
+				mes "[Yierhan]";
+				mes "Level "+.@chk_th_skill6+" Detoxify.";
+				mes "If you took the trouble to learn that, you must be the cautious";
+				mes "type or something.";
+				next;
+				mes "[Yierhan]";
+				mes "You can only learn Detoxify";
+				mes "after you learn the Envenom skill. Detoxify allows you to counteract the effects of poison on a target.";
+				next;
 			}
 			mes "[Yierhan]";
 			mes "Alright, I guess";
@@ -240,8 +237,8 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 			mes "explained or is this";
 			mes "pretty much stuff you";
 			mes "already know?";
-			next;
 			while(1){
+				next;
 				switch(select("Double Attack:Increase Dodge:Steal:Hiding:Envenom:Detoxify:I know enough.")) {
 				case 1:
 					mes "[Yierhan]";
@@ -251,7 +248,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "[Yierhan]";
 					mes "It's a Passive skill, so it's always in effect and won't have to use any SP to use it. The higher your Double Attack skill level, the more double attacks you'll do.";
 					set .@read_d, 1;
-					next;
 					break;
 				case 2:
 					mes "[Yierhan]";
@@ -266,7 +262,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "Just like the Double Attack skill, Increase Dodge is a Passive skill. It won't use SP and it's always in";
 					mes "effect. If you don't like to bruise, this is your skill.";
 					set .@read_f, 1;
-					next;
 					break;
 				case 3:
 					mes "[Yierhan]";
@@ -277,7 +272,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "[Yierhan]";
 					mes "But you can use Steal to take items from monsters! If you're lucky, you can get some good items that way. Oh, and Steal doesn't affect monster drop rates.";
 					set .@read_s, 1;
-					next;
 					break;
 				case 4:
 					mes "[Yierhan]";
@@ -290,7 +284,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "[Yierhan]";
 					mes "Certain monsters will still be able to find you, no matter how well you hide. There are even a few monsters that can flush you out of hiding!";
 					set .@read_p, 1;
-					next;
 					break;
 				case 5:
 					mes "[Yierhan]";
@@ -301,7 +294,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "to poison your enemy for a set amount of time. While poisoned, an enemy will constantly lose its HP and will have decreased defense.";
 					mes "Remember that.";
 					set .@read_h, 1;
-					next;
 					break;
 				case 6:
 					mes "[Yierhan]";
@@ -317,7 +309,6 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					set .@read_r, 1;
 					next;
 					specialeffect2 EF_DETOXICATION;
-					next;
 					break;
 				case 7:
 					mes "[Yierhan]";
@@ -329,12 +320,9 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 					mes "Now that you're such an expert on skills, I want you to level up your skills and come back, got it?";
 					set tu_thief01, 4;
 					specialeffect2 EF_HIT5;
-					if(.@read_d) getexp 300,100;
-					if(.@read_f) getexp 300,100;
-					if(.@read_s) getexp 300,100;
-					if(.@read_p) getexp 300,100;
-					if(.@read_h) getexp 300,100;
-					if(.@read_r) getexp 300,100;
+					set .@total, .@read_d + .@read_f + .@read_s + .@read_p + .@read_h + .@read_r;
+					if (.@total)
+						getexp (.@total*300),(.@total*100);
 					close;
 				}
 			}
@@ -436,17 +424,18 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 							mes "you so much, kid,";
 							mes "you can have this.";
 							mes "Take it, it's yours!";
+							getexp 500,200;
 							break;
 						case 2:
 							mes "[Yierhan]";
 							mes "Good!";
 							mes "Less work for me!";
 							mes "Alright, you better get stronger the next time I see you. Oh, and you can have this stuff. You know, since you're so gangster and all.";
+							getexp 50,20;
 							break;
 					}
 					set tu_thief01, 7;
 					getitem 1207,1; //Main_Gauche
-					getexp 500,200;
 					specialeffect2 EF_HIT5;
 					close;
 				}
@@ -589,7 +578,8 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 			mes "I just like telling people to follow their dreams. So do it. Life without anything to look forward to is pretty boring, doncha think?";
 			close;
 		}
-	} else if(Class == Job_Mage || Class == Job_Mage_High || Class == Job_Wizard || Class == Job_High_Wizard || Class == Job_Sage || Class == Job_Professor){
+	} 
+	else if (BaseClass == Job_Mage && Upper != 2){
 		if(tu_magician01 < 7){
 			mes "[Yierhan]";
 			mes "Heya.";
@@ -605,25 +595,24 @@ moc_ruins,66,164,4	script	Thief Trainer#T	84,{
 			mes "Thieves hang around this joint. What's someone like you doing";
 			mes "here? Unless...";
 			next;
-			switch(select("I'm here on behalf of 'Mana.'")) {
-			case 1:
-				mes "[Yierhan]";
-				mes "Right, you must be the help that Mana sent! You came just at the right time. You see, we found something weird in South Morroc.";
-				next;
-				mes "[Yierhan]";
-				mes "Basically, we found traces of poison that were used in a fight. We were going to investigate it, but we've been swamped with all this other work.";
-				next;
-				mes "[Yierhan]";
-				mes "That's why we've been asking";
-				mes "for help from the Mage Guild. Fortunately, I'm pals with Mana, so...";
-				next;
-				mes "[Yierhan]";
-				mes "Anyway, head over to";
-				mes "South Morroc since it seems to be a good place to start investigating. You'll see what we found right outside the South Morroc gate.";
-				set tu_magician01, 8;
-				break;
-			}
-		} else if(tu_magician01 < 26){
+			select("I'm here on behalf of 'Mana.'");
+			mes "[Yierhan]";
+			mes "Right, you must be the help that Mana sent! You came just at the right time. You see, we found something weird in South Morroc.";
+			next;
+			mes "[Yierhan]";
+			mes "Basically, we found traces of poison that were used in a fight. We were going to investigate it, but we've been swamped with all this other work.";
+			next;
+			mes "[Yierhan]";
+			mes "That's why we've been asking";
+			mes "for help from the Mage Guild. Fortunately, I'm pals with Mana, so...";
+			next;
+			mes "[Yierhan]";
+			mes "Anyway, head over to";
+			mes "South Morroc since it seems to be a good place to start investigating. You'll see what we found right outside the South Morroc gate.";
+			set tu_magician01, 8;
+			close;
+		}
+		else if(tu_magician01 < 26){
 			mes "I heard there was";
 			mes "this one Assassin";
 			mes "that went on a mission";
