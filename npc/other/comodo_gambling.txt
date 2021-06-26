@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Reddozen, Cypress, Zefris
 //===== Current Version: =====================================
-//= 1.4v
+//= 1.4c
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -28,7 +28,7 @@
 //= 1.4c Another clean-up. Thanks to Capuche. [15peaces]
 //============================================================ 
 
-comodo,219,158,6	script	Kachua	91,{
+comodo,219,158,6	script	Kachua	1,30,-1,91,{
 	if (checkweight(1201,1) == 0) {
 		mes "^3355FFWait a second! Right now, you're carrying too many items with you. Please come back after putting some of your things into Kafra Storage.^000000";
 		close;
@@ -385,7 +385,7 @@ comodo,219,158,6	script	Kachua	91,{
 	end;
 }
 
-comodo,204,148,7	script	Devellin	90,{
+comodo,204,148,7	script	Devellin	1,30,-1,90,{
 	mes "[Devellin]";
 	mes "It seems some traveller showed";
 	mes "a huge diamond to Kachua a while ago. Ever since then, all she's been talking about is diamonds and how much she wants them.";
@@ -398,7 +398,7 @@ comodo,204,148,7	script	Devellin	90,{
 	close;
 }
 
-comodo,210,154,2	script	Suspicious Guy#cmd	118,{
+comodo,210,154,2	script	Suspicious Guy#cmd	1,30,-1,118,{
 	if (BaseClass == Job_Thief){
 		mes "[Cain]";
 		mes "Heeeey...";
@@ -480,7 +480,7 @@ comodo,210,154,2	script	Suspicious Guy#cmd	118,{
 	}
 }
 
-mjolnir_02,85,362,3	script	Blacksmith Miner	726,{
+mjolnir_02,85,362,3	script	Blacksmith Miner	1,30,-1,726,{
 	if (checkweight(1201,1) == 0) {
 		mes "^3355FFWait a second! Right now, you're carrying too many items with you. Please come back after putting some of your things into Kafra Storage.^000000";
 		close;

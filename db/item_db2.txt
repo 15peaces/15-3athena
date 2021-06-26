@@ -4010,3 +4010,7 @@
 26160,Dust_Grave,Dust Grave,4,20,,800,120,,1,2,0x00010000,8,2,2,4,170,1,10,{bonus bMatk, 180; set .@r, getrefine(); if (.@r >= 11){set .@val, 50; } else if (.@r >= 9) {set .@val, 30;} bonus2 bSkillAtk,"SO_DIAMONDDUST",.@val; bonus2 bSkillAtk,"SO_EARTHGRAVE",.@val; bonus bMatk,4*.@r; bonus bUnbreakableWeapon,0; bonus2 bMagicAtkEle,Ele_Water,5; bonus2 bMagicAtkEle,Ele_Earth,5;},{},{}
 26161,Penitentia,Penitentia,4,20,,700,100,,1,2,0x00000100,8,2,2,4,170,1,10,{bonus bMatk, 175; set .@r, getrefine(); bonus bMatk,4*.@r; bonus bUnbreakableWeapon,0; bonus2 bMagicAtkEle,Ele_Holy,5; if (.@r >= 9) { bonus2 bSkillAtk,"PR_MAGNUS",(.@r>=11) ? 50 : 30; bonus2 bSkillAtk,"AB_JUDEX",30; }},{},{}
 26162,Ein_1HWAND,Welding Wand,4,10,,1200,160,,1,2,0x00810204,1,2,2,4,170,1,10,{set .@r, getrefine(); bonus bMatk,200; bonus bUnbreakableWeapon,0; bonus2 bMagicAtkEle,Ele_Neutral,7; bonus2 bMagicAtkEle,Ele_Fire,7; bonus2 bMagicAtkEle,Ele_Water,7; if (.@r>=7) { bonus bVariableCastrate,-10; bonus bMatk,40; } if (.@r>=9) { bonus2 bMagicAtkEle,Ele_Neutral,8; bonus2 bMagicAtkEle,Ele_Fire,8; bonus2 bMagicAtkEle,Ele_Water,8; autobonus "{ bonus2 bMagicAddSize,Size_All,15; }",1,10000,BF_MAGIC; } if (.@r>=11) { bonus bDelayrate,-20; }},{},{}
+
+// Private Airship
+6909,Actinidia_Cat_Fruit,Actinidia Cat Fruit,3,10,,0,,,,,,,,,,,,,{},{},{}
+25464,World_Moving_Rights,World Moving Rights,3,20,,0,,,,,,,,,,,,,{},{},{}

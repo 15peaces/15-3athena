@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/26/2021
+	r299 [15peaces]
+		*follow-up @6187336 (r298)
+			-re-added episode related code to comodo_gambling.txt
+		*Added full support for Private AirShip feature.
+			-A 2018-06-21aRagexeRE will be required for this feature to work.
+
 06/14/2021
 	r298 [15peaces]
 		*Merged missing changes from 3ceam rev. 748

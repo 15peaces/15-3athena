@@ -391,6 +391,8 @@ enum {
 	MF_GVG_TE_CASTLE,
 	MF_GVG_TE,
 	MF_NOSUNMOONSTARMIRACLE,
+	MF_PAIRSHIP_STARTABLE,
+	MF_PAIRSHIP_ENDABLE,
 };
 
 const char* script_op2name(int op)
@@ -10835,6 +10837,8 @@ BUILDIN_FUNC(getmapflag)
 			case MF_GVG_TE_CASTLE:		script_pushint(st,map[m].flag.gvg_te_castle); break;
 			case MF_GVG_TE:				script_pushint(st,map[m].flag.gvg_te); break;
 			case MF_NOSUNMOONSTARMIRACLE: script_pushint(st, map[m].flag.nosunmoonstarmiracle); break;
+			case MF_PAIRSHIP_STARTABLE: script_pushint(st, map[m].flag.pairship_startable); break;
+			case MF_PAIRSHIP_ENDABLE:   script_pushint(st, map[m].flag.pairship_endable); break;
 		}
 	}
 
@@ -10914,6 +10918,8 @@ BUILDIN_FUNC(setmapflag)
 				clif_map_property_mapall(m, MAPPROPERTY_AGITZONE);
 				break;
 			case MF_NOSUNMOONSTARMIRACLE: map[m].flag.nosunmoonstarmiracle = 1; break;
+			case MF_PAIRSHIP_STARTABLE: map[m].flag.pairship_startable = 1; break;
+			case MF_PAIRSHIP_ENDABLE:   map[m].flag.pairship_endable = 1; break;
 		}
 	}
 
@@ -19821,6 +19827,23 @@ BUILDIN_FUNC(navigateto){
 #endif
 }
 
+BUILDIN_FUNC(airship_respond)
+{
+	struct map_session_data *sd = map_id2sd(st->rid);
+	int32 flag = script_getnum(st, 2);
+
+	if (sd == NULL)
+		return false;
+
+	if (flag < P_AIRSHIP_NONE || flag > P_AIRSHIP_ITEM_INVALID) {
+		ShowWarning("buildin_airship_respond: invalid flag %d has been given.", flag);
+		return false;
+	}
+
+	clif_private_airship_response(sd, flag);
+	return true;
+}
+
 /*==========================================
  * Achievement System [Smokexyz/Hercules]
  *-----------------------------------------*/
@@ -20502,6 +20525,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setquestinfo_req, "iii*"),
 	BUILDIN_DEF(setquestinfo_job, "ii*"),
 	BUILDIN_DEF(navigateto, "s???????"),
+	BUILDIN_DEF(airship_respond, "i"),
 	// Achievements [Smokexyz/Hercules]
 	BUILDIN_DEF(achievement_iscompleted, "i?"),
 	BUILDIN_DEF(achievement_progress, "iiii?"),

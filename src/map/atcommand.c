@@ -4816,6 +4816,10 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "GuildLock | ");
 	if (map[m_id].flag.nosunmoonstarmiracle)
 		strcat(atcmd_output, "NoSunMoonStarMiracle | ");
+	if (map[m_id].flag.pairship_startable)
+		strcat(atcmd_output, "PrivateAirshipStartable | ");
+	if (map[m_id].flag.pairship_endable)
+		strcat(atcmd_output, "PrivateAirshipEndable | ");
 	clif_displaymessage(fd, atcmd_output);
 
 	switch (list) {

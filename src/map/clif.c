@@ -20535,6 +20535,107 @@ void clif_parse_changedress(int fd,struct map_session_data *sd)
 	status_change_end(&sd->bl, SC_SUMMER2, INVALID_TIMER);
 }
 
+/// Parses a request for a private airship
+/// 0A49 <mapname>.16B <itemid>.W
+void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20180321
+	// Check if the player is allowed to warp from the source map
+	if (!map[sd->bl.m].flag.pairship_startable) {
+		clif_private_airship_response(sd, P_AIRSHIP_INVALID_START_MAP);
+		return;
+	}
+
+	char* map_name;
+	uint16 ItemID;
+
+	map_name = (char*)RFIFOP(fd, 2);
+	map_name[MAP_NAME_LENGTH_EXT - 1] = '\0';
+	ItemID = RFIFOW(fd, 18);
+
+	int16 mapindex = mapindex_name2id(map_name);
+
+	// Check if we know the mapname
+	if (mapindex < 0) {
+		clif_private_airship_response(sd, P_AIRSHIP_INVALID_END_MAP);
+		return;
+	}
+
+	int16 mapid = map_mapindex2mapid(mapindex);
+
+	// Check if the map is available on this server
+	if (mapid < 0) {
+		// TODO: add multi map-server support, cant validate the mapflags of the other server
+		return;
+	}
+
+	// Check if the player tried to warp to the map he is on
+	if (sd->bl.m == mapid) {
+		// This is blocked by the client, but just to be sure
+		return;
+	}
+
+	// This can only be a hack, so we prevent it
+	if (map[sd->bl.m].instance_id) {
+		// Ignore requests to warp directly into a running instance
+		return;
+	}
+
+	// Check if the player is allowed to warp to the target map
+	if (!map[mapid].flag.pairship_endable) {
+		clif_private_airship_response(sd, P_AIRSHIP_INVALID_END_MAP);
+		return;
+	}
+
+	// Check if the item sent by the client is known to us
+	if (!itemdb_exists(ItemID)) {
+		clif_private_airship_response(sd, P_AIRSHIP_ITEM_INVALID);
+		return;
+	}
+
+	int idx = pc_search_inventory(sd, ItemID);
+
+	// Check if the player has the item at all
+	if (idx < 0) {
+		clif_private_airship_response(sd, P_AIRSHIP_ITEM_NOT_ENOUGH);
+		return;
+	}
+
+	// Delete the chosen item
+	if (pc_delitem(sd, idx, 1, 0, 0)) {
+		clif_private_airship_response(sd, P_AIRSHIP_RETRY);
+		return;
+	}
+
+	// Warp the player to a random spot on the destination map
+	pc_setpos(sd, mapindex, 0, 0, CLR_TELEPORT);
+#else
+	ShowWarning("clif_parse_private_airship_request: private airship is not supported in this client version, possible packet manipulation.");
+#endif
+}
+
+/// Send out the response to a private airship request
+/// 0A4A <response>.L
+void clif_private_airship_response(struct map_session_data *sd, uint32 flag)
+{
+#if PACKETVER >= 20180321
+	nullpo_retv(sd);
+	int fd = sd->fd;
+
+	if (flag > P_AIRSHIP_ITEM_INVALID) {
+		ShowError("clif_private_airship_response: invalid flag given '%d', defaulting to 0.\n", flag);
+		flag = 0;
+	}
+
+	WFIFOHEAD(fd, packet_len(0xA4A));
+	WFIFOW(fd, 0) = 0xA4A;
+	WFIFOL(fd, 2) = flag;
+	WFIFOSET(fd, packet_len(0xA4A));
+#else
+	ShowWarning("clif_private_airship_response: private airship works only for clients >= 20180321.");
+#endif
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -20995,7 +21096,7 @@ void packetdb_readdb(void)
 	   21,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  7,
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
 //#0x0A40
- 		0,  0,  0, 85, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+ 		0,  0,  0, 85, -1,  0,  0,  0,  0, 20,  6,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
  		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
@@ -21261,6 +21362,7 @@ void packetdb_readdb(void)
 		{clif_parse_equipswitch_request, "equipswitch_request"},
 		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
 		{ clif_parse_changedress,"changedress" },
+		{ clif_parse_private_airship_request, "pPrivateAirshipRequest" },
 		{NULL,NULL}
 	};
 

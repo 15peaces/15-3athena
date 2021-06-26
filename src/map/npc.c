@@ -89,14 +89,6 @@ int npc_get_new_npc_id(void)
 	}
 }
 
-static DBMap* ev_db; // const char* event_name -> struct event_data*
-DBMap* npcname_db; // const char* npc_name -> struct npc_data*
-
-struct event_data {
-	struct npc_data *nd;
-	int pos;
-};
-
 static struct eri *timer_event_ers; //For the npc timer data. [Skotlex]
 
 //For holding the view data of npc classes. [Skotlex]
@@ -3795,6 +3787,10 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.src4instance = (state) ? 1 : 0;
 	else if (!strcmpi(w3, "nosunmoonstarmiracle"))
 		map[m].flag.nosunmoonstarmiracle = state;
+	else if (!strcmpi(w3, "pairship_startable"))
+		map[m].flag.pairship_startable = (state) ? 1 : 0;
+	 else if (!strcmpi(w3, "pairship_endable"))
+		map[m].flag.pairship_endable = (state) ? 1 : 0;
 	else
 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 

@@ -2504,6 +2504,8 @@ packet_ver: 45
 0x09a0,6//HC_CHARLIST_NOTIFY
 0x09a1,2//CH_CHARLIST_REQ
 
+0x0a49,20,pPrivateAirshipRequest,0
+0x0A4A,6
 0x0ade,6//ZC_OVERWEIGHT_PERCENT
 0x0ae8,2,changedress,0
 0x0af4,11,useskilltopos,2:4:6:8:10//CZ_USE_SKILL_TOGROUND2

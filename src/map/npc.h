@@ -18,6 +18,7 @@ struct view_data;
 #else
 	#define __64BPRTSIZE(y) y
 #endif
+DBMap* npcname_db; // const char* npc_name -> struct npc_data*
 
 struct npc_timerevent_list {
 	int timer,pos;
@@ -97,7 +98,11 @@ struct npc_data {
 	} u;
 };
 
-
+struct event_data {
+	struct npc_data *nd;
+	int pos;
+};
+static DBMap* ev_db; // const char* event_name -> struct event_data*
 
 #define START_NPC_NUM 110000000
 

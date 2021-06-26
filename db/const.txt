@@ -388,6 +388,8 @@ mf_reset	52
 mf_gvg_te_castle	53
 mf_gvg_te	54
 mf_nosunmoonstarmiracle	55
+mf_pairship_startable	56
+mf_pairship_endable	57
 
 cell_walkable		0
 cell_shootable		1
@@ -5263,3 +5265,11 @@ MHP3	4867
 MHP4	4868
 SP25	4870
 SP75	4871
+
+// Private Airship Responds
+P_AIRSHIP_NONE	0
+P_AIRSHIP_RETRY	1
+P_AIRSHIP_INVALID_START_MAP	2
+P_AIRSHIP_INVALID_END_MAP	3
+P_AIRSHIP_ITEM_NOT_ENOUGH	4
+P_AIRSHIP_ITEM_INVALID	5

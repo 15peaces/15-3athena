@@ -159,6 +159,18 @@ enum e_adopt_reply {
 	ADOPT_REPLY_MARRIED,
 };
 
+/**
+* Private Airship Responds
+**/
+enum private_airship {
+	P_AIRSHIP_NONE,
+	P_AIRSHIP_RETRY,
+	P_AIRSHIP_ITEM_NOT_ENOUGH,
+	P_AIRSHIP_INVALID_END_MAP,
+	P_AIRSHIP_INVALID_START_MAP,
+	P_AIRSHIP_ITEM_INVALID
+};
+
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len
@@ -1078,5 +1090,7 @@ void clif_equipswitch_reply(struct map_session_data* sd, bool failed);
 void clif_crimson_marker_xy(struct map_session_data *sd);
 void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd);
 void clif_crimson_marker_xy_remove(struct map_session_data *sd);
+
+void clif_private_airship_response(struct map_session_data *sd, uint32 flag);
 
 #endif /* _CLIF_H_ */
