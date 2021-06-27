@@ -8296,6 +8296,12 @@ BUILDIN_FUNC(checkdragon)
 /// <flag> defaults to 1
 ///
 /// setdragon <flag>;
+/// <type>=0 : Removes Dragon
+/// <type>=1 : Green Dragon
+/// <type>=2 : Black Dragon
+/// <type>=3 : White Dragon
+/// <type>=4 : Blue Dragon
+/// <type>=5 : Red Dragon
 /// setdragon;
 BUILDIN_FUNC(setdragon)
 {

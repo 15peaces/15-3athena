@@ -2928,7 +2928,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					{
 						ATK_ADD(500 * skill_lv + 40 * status_get_lv(target));
 					} else {
-						ATK_ADD(250 * skill_lv + 40 * status_get_lv(target));
+						ATK_ADD(240 * skill_lv + 40 * status_get_lv(target));
 					}
 					break;
 				case SR_GATEOFHELL:
@@ -3458,37 +3458,33 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		{	//Dual-wield
 			if (wd.damage)
 			{
-				if ((sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN)
-				{
-					skill = pc_checkskill(sd, AS_RIGHT);
-					wd.damage = wd.damage * (50 + (skill * 10))/100;
-					if(wd.damage < 1) 
-						wd.damage = 1;
-				}
-				else
+				if ((sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO)
 				{
 					skill = pc_checkskill(sd,KO_RIGHT);
 					wd.damage = wd.damage * (70 + (skill * 10)) / 100;
-					if( wd.damage < 1 )
-						wd.damage = 1;
-				}
-			}
-			if (wd.damage2)
-			{
-				if ((sd->class_&MAPID_UPPERMASK) == MAPID_ASSASSIN)
-				{
-					skill = pc_checkskill(sd, AS_LEFT);
-					wd.damage2 = wd.damage2 * (30 + (skill * 10))/100;
-					if(wd.damage2 < 1)
-					wd.damage2 = 1;
 				}
 				else
 				{
+					skill = pc_checkskill(sd, AS_RIGHT);
+					wd.damage = wd.damage * (50 + (skill * 10))/100;
+				}
+				if(wd.damage < 1)
+					wd.damage = 1;
+			}
+			if (wd.damage2)
+			{
+				if ((sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO)
+				{
 					skill = pc_checkskill(sd,KO_LEFT);
 					wd.damage2 = wd.damage2 * (50 + (skill * 10)) / 100;
-					if( wd.damage2 < 1 )
-						wd.damage2 = 1;
 				}
+				else
+				{
+					skill = pc_checkskill(sd, AS_LEFT);
+					wd.damage2 = wd.damage2 * (30 + (skill * 10))/100;
+				}
+				if(wd.damage2 < 1)
+					wd.damage2 = 1;
 			}
 		} else if(sd->status.weapon == W_KATAR && !skill_num)
 		{ //Katars (offhand damage only applies to normal attacks, tested on Aegis 10.2)
@@ -6043,7 +6039,7 @@ static const struct _battle_data {
 	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,				},
 	{ "summer2_ignorepalette",				&battle_config.summer2_ignorepalette,			0,		0,		1,				},
 	{ "all_riding_speed",					&battle_config.all_riding_speed,				25,     0,      100,            },
-	{ "warg_can_falcon",                    &battle_config.warg_can_falcon,                  0,     0,      1,		        },
+	{ "falcon_and_wug",                     &battle_config.falcon_and_wug,                  0,      0,      1,              },
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 	{ "renewal_level_effect_skills",		&battle_config.renewal_level_effect_skills,		1,		0,		1,				},
 	{ "base_level_skill_effect_limit",		&battle_config.base_level_skill_effect_limit,	160,	99,		1000,			},
@@ -6057,8 +6053,9 @@ static const struct _battle_data {
 	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	{ "death_penalty_maxlv",                &battle_config.death_penalty_maxlv,             0,      0,      3,              }, 
 	{ "renewal_statpoints",					&battle_config.renewal_statpoints,				0,		0,		1,				},
-	{ "mado_skill_limit",                   &battle_config.mado_skill_limit,                1,      0,      1,              },
+	{ "mado_skill_limit",                   &battle_config.mado_skill_limit,                0,      0,      1,              },
 	{ "mado_loss_on_death",                 &battle_config.mado_loss_on_death,              1,      0,      1,              },
+	{ "marionette_renewal_jobs",            &battle_config.marionette_renewal_jobs,         0,      0,      1,              },
 	{ "gc_skill_edp_boost_formula_a",       &battle_config.gc_skill_edp_boost_formula_a,    0,      0,      1000,			},
 	{ "gc_skill_edp_boost_formula_b",       &battle_config.gc_skill_edp_boost_formula_b,    20,     0,      1000,			},
 	{ "gc_skill_edp_boost_formula_c",       &battle_config.gc_skill_edp_boost_formula_c,    1,      0,      1,				},

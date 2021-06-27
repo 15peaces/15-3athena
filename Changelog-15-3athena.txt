@@ -5,9 +5,80 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/27/2021
+	r300 [15peaces]
+		*Merged missing changes from 3ceam rev. 749 - 750
+		*Some changes/updates related to the episode system.
+			-added episode.c/.h files.
+			-added a new function episode_sv_readdb. 
+				--This will call sv_readdb but will search for a episode database before. If there is one, this file will be loaded.
+				--For now only castle_db and create_arrow_db will be read using this function. 
+			-added create_arrow_db_ep50 database, also added support for episode specific create arrow dbs.
+		*Fixed a issue where NPC's would not stay hidden when hidden.
+			-They would reappear on client refresh or re-entering the view radius.
+				--The server will no longer send any info about the existence of these hidden NPC's since its pointless to do so. Its hidden and the client doesn't need to know this. Its also one less packet to send.
+		*GC_DARKCROW
+			-Fixed a issue where the animation would vanish on refresh.
+		*RA_UNLIMIT
+			-Fixed a issue where the animation would vanish on refresh.
+			-Now no longer usable in PvP areas and on turbo track map.
+				--Im guessing this applies to GvG since its PvP too.
+				--This is according to jRO's info. Plus its damage is very powerful and unbalanced for PvP use.
+		*LG_KINGS_GRACE
+			-Added some pre-support for the skill.
+			-Currently only displays its AoE animation and does nothing else.
+		*ALL_FULL_THROTTLE
+			-Updated the mechanics of the skill.
+			-Full Throttle status now fully restores HP and increases movement speed.
+			-Full Throttle status now drains a percent of SP each second.
+			-Rebound status now activates when Full Throttle status ends.
+			-Rebound status reduces movement speed, disables natural HP/SP regeneration, and displays the sweat emotion.
+		*Added the dragon, falcon, and cart commands.
+			-The dragon command allows you to mount on a dragon and choose what color dragon you want. Basicly gives a different sprite.
+			-The falcon and cart commands does what it says. Gives a falcon or a cart. All commands require a GM level of 20 by default.
+		*Changed the name of the warg_can_falcon config to falcon_and_wug.
+			-It was confusing and needed to be changed.
+		*Added the marionette_renewal_jobs config.
+			-This allows the skill Marionette to have a higher stat increase cap on renewal type jobs. The stat increase cap is whatever max_parameter_renewal_job is set to.
+		*Added the BaseThird script const.
+			-This allow checking for a certain 3rd job class in general.
+			-For example, instead of doing a "Class" check for every existing Rune Knight job seprate, you can use BaseThird to check for all at once and it'll pass as long as the player is a Rune Knight.
+			-Note: This should not be used for Kagerou/Oboro or Rebellion since their 2nd jobs. Use BaseJob for that.
+			-Example:
+				--Before - Check for all 3 are seprate.
+					if (Class == Job_Rune_Knight || Class == Job_Rune_Knight_T || Class == Job_Baby_Rune)
+				--After - Checks for all 3 in 1. Regular, Trans, and Baby versions.
+					if (BaseThird == Job_Rune_Knight)
+			-Check the npc/custom/breeder.txt file to see a example of it used in scripts.
+			-I replaced it by the 3ceam version, it now supports all 3rd job mounts.
+		*Updated the skill files with new place holders.
+		*Added the 3ceam breeder script.
+			-This is a rental npc script made to allow the renting of pecos falcons, carts, dragons (all 5 colors), mado gears, and gryphons.
+			-All the coding in it uses the latest proper check and set functions, as well as the new BaseThird checks which allows for a small, clean, and optomized script. This should give a good example on how to use the BaseThird check.
+		*Recoded the duel welding damage formula code.
+			-Now cleaner and a little less coding.
+		*Added SP_BASETHIRD.
+			-This is used to check for the base of a 3rd job in general in NPC scripts.
+		*Updated the pc_setfalcon, pc_setwug, and pc_wugrider functions.
+			-They now do checks for falcons and wargs to prevent a player from having both when done through rental NPC's, unless the falcon_and_wug is set to allow it.
+		*Updated the pc_setdragon function to now allow mounting players to different colored dragons through NPC scripts. Baby Rune Knights however will be mounted to a green on no matter what since they only have a green dragon sprite.
+		*Corrected some possible glitch issues done by forced sitting.
+		*MO_COMBOFINISH; CH_TIGERFIST; CH_CHAINCRUSH
+			-Fixed a issue where the delays were smaller then they should be.
+			-In official, the delay for each combo skill is 1 second and reduceable by AGI and DEX. (Bug is in eAthena)
+			-Note: Need to find out if Sura combo skills are the same.
+		*SR_TIGERCANNON
+			-No longer ignores FLEE.
+			-Fixed a issue where the added-on damage formula was incorrect.
+			-Note: No proof has been shown that it ignores FLEE except from a early test when Sura's were recently added to kRO's sakray server. So a lot could of changed from then to now.
+		*SR_RIDEINLIGHTNING
+			-Fixed a issue where the casting was not interruptable.
+		*Updated the script_commands file.
+			-Info for the setdragon script command has been udpated for dragon color selection.
+
 06/26/2021
 	r299 [15peaces]
-		*follow-up @6187336 (r298)
+		*follow-up @618733 (r298)
 			-re-added episode related code to comodo_gambling.txt
 		*Added full support for Private AirShip feature.
 			-A 2018-06-21aRagexeRE will be required for this feature to work.

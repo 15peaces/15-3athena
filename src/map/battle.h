@@ -521,7 +521,7 @@ extern struct Battle_Config
 	int oktoberfest_ignorepalette;
 	int summer2_ignorepalette;
 	int all_riding_speed;
-	int warg_can_falcon;
+	int falcon_and_wug;
 	int transform_end_on_death;
 	int renewal_level_effect_skills;
 	int base_level_skill_effect_limit;
@@ -537,6 +537,7 @@ extern struct Battle_Config
 	int renewal_statpoints;
 	int mado_skill_limit;
 	int mado_loss_on_death;
+	int marionette_renewal_jobs;
 	// Renewal EDP Formula Config For Guillotine Cross Skills
 	int gc_skill_edp_boost_formula_a;
 	int gc_skill_edp_boost_formula_b;

@@ -5015,6 +5015,148 @@ ACMD_FUNC(mount)
 }
 
 /*==========================================
+ * Dragon mounting command for Rune Knight
+ * that allows selecting a dragon color. [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(dragon)
+{
+	int color = 0;
+	nullpo_retr(-1, sd);
+
+	if (!message || !*message || sscanf(message, "%d", &color) < 1 || color < 1 || color > 5)
+	{
+		clif_displaymessage(fd, "Please enter a color number (usage: @dragon <color number>).");
+		clif_displaymessage(fd, "1 Green    2 Black    3 White    4 Blue     5 Red");
+		return -1;
+	}
+
+	if (sd->disguise)
+	{	// Check to see if the player is in disguise. If yes, then don't bother continuing. [Rytech]
+		clif_displaymessage(fd, msg_txt(700));// You can't mount while in disguise.
+		return -1;
+	}
+
+	// Checks for Rune Knight, Trans Rune Knight, and Baby Rune Knight
+	if ((sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT || (sd->class_&MAPID_THIRDMASK) == MAPID_RUNE_KNIGHT_T || 
+		(sd->class_&MAPID_THIRDMASK) == MAPID_BABY_RUNE)
+		if (!pc_isdragon(sd))// If not on a Dragon, check for required skill and mount if possiable.
+		{
+			if (!pc_checkskill(sd, RK_DRAGONTRAINING))
+			{
+				clif_displaymessage(fd, msg_txt(705));// You must learn the Dragon Training skill to mount with your current job.
+				return -1;
+			}
+
+			if ((sd->class_&MAPID_THIRDMASK) == MAPID_BABY_RUNE && color != 1)
+			{
+				clif_displaymessage(fd, msg_txt(753));// Baby Rune Knights can only mount on green dragons.
+				return -1;
+			}
+
+			switch ( color )// Sets player to the requested dragon color.
+			{
+				case 1:// Green Dragon
+					pc_setoption(sd, sd->sc.option | OPTION_DRAGON1);
+				case 2:// Black Dragon
+					pc_setoption(sd, sd->sc.option | OPTION_DRAGON2);
+				case 3:// White Dragon
+					pc_setoption(sd, sd->sc.option | OPTION_DRAGON3);
+				case 4:// Blue Dragon
+					pc_setoption(sd, sd->sc.option | OPTION_DRAGON4);
+				case 5:// Red Dragon
+					pc_setoption(sd, sd->sc.option | OPTION_DRAGON5);
+			}
+
+			clif_displaymessage(fd, msg_txt(706));// You mounted on a Dragon.
+		} 
+		else
+		{
+			clif_displaymessage(fd, msg_txt(707));// Your already mounted on a Dragon.
+			return -1;
+		}
+
+	// If the player's job is a job that doesen't have a class mount, then its not possiable to mount.
+	else
+		clif_displaymessage(fd, msg_txt(701));// You can't mount with your current job.
+
+	return 0;
+}
+
+/*==========================================
+ * Falcon command for all jobs that can
+ * have a falcon by their side. [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(falcon)
+{
+	nullpo_retr(-1, sd);
+
+	// Checks for Hunter, Sniper, Ranger, Trans Ranger, and Baby Ranger
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_HUNTER)
+		if (battle_config.falcon_and_wug == 0 && (pc_iswug(sd) || pc_iswugrider(sd)))
+		{	// Check to see if the player has a warg. If yes, then don't give a falcon. [Rytech]
+			clif_displaymessage(fd, msg_txt(754));// You can't have a falcon and a warg at the same time.
+			return -1;
+		}
+		else if (!pc_isfalcon(sd))// If player has no falcon, check for required skill and give one if possiable.
+		{
+			if (!pc_checkskill(sd, HT_FALCON))
+			{
+				clif_displaymessage(fd, msg_txt(755));// You must learn the Falcon Mastery skill to have a falcon.
+				return -1;
+			}
+
+			pc_setoption(sd, sd->sc.option | OPTION_FALCON);
+			clif_displaymessage(fd, msg_txt(756));// You got a falcon.
+		} 
+		else
+		{
+			clif_displaymessage(fd, msg_txt(757));// You already have a falcon.
+			return -1;
+		}
+
+	// If the player's job is a job that can't have a falcon.
+	else
+		clif_displaymessage(fd, msg_txt(758));// You can't have a falcon with your current job.
+
+	return 0;
+}
+
+/*==========================================
+ * Cart command for all jobs that can
+ * have a push cart. [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(cart)
+{
+	nullpo_retr(-1, sd);
+
+	// Checks for all Marchant and Super Novice types
+	if ((sd->class_&MAPID_BASEMASK) == MAPID_MERCHANT || (sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE)
+		if (!pc_iscarton(sd))// If player has no cart, check for required skill and give one if possiable.
+		{
+			if (!pc_checkskill(sd, MC_PUSHCART))
+			{
+				clif_displaymessage(fd, msg_txt(759));// You must learn the Push Cart skill to have a falcon.
+				return -1;
+			}
+
+			//pc_setoption(sd, sd->sc.option | OPTION_CART1);
+			pc_setcart(sd, 1);
+			clif_displaymessage(fd, msg_txt(760));// You got a cart.
+		} 
+		else
+		{
+			clif_displaymessage(fd, msg_txt(761));// Your already have a cart.
+			return -1;
+		}
+
+	// If the player's job is a job that can't have a falcon.
+	else
+		clif_displaymessage(fd, msg_txt(762));// You can't have a cart with your current job.
+
+	return 0;
+}
+
+/*==========================================
  *Spy Commands by Syrus22
  *------------------------------------------*/
 ACMD_FUNC(guildspy)
@@ -9681,6 +9823,9 @@ AtCommandInfo atcommand_info[] = {
 	{ "charunban",         60,60,     atcommand_char_unban },
 	{ "charunbanish",      60,60,     atcommand_char_unban },
 	{ "mount",             20,20,     atcommand_mount },
+	{ "dragon",            20,20,     atcommand_dragon },
+	{ "falcon",            20,20,     atcommand_falcon },
+	{ "cart",              20,20,     atcommand_cart },
 	{ "guildspy",          60,60,     atcommand_guildspy },
 	{ "partyspy",          60,60,     atcommand_partyspy },
 	{ "repairall",         60,60,     atcommand_repairall },

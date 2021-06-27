@@ -35,6 +35,7 @@
 #include "date.h"
 #include "unit.h"
 #include "achievement.h"
+#include "episode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -3012,13 +3013,15 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					break;
 				case LG_MOONSLASHER:
 				case SR_WINDMILL:
-					if( target->type == BL_PC )
+					if (target->type == BL_PC)
 					{
 						struct map_session_data *tsd = BL_CAST(BL_PC, target);
 						if (tsd && !pc_issit(tsd))
 						{
+							pc_setsit(tsd);
 							skill_sit(tsd, 1);
 							clif_sitting(&tsd->bl, true);
+							clif_status_load(&tsd->bl, SI_SIT, 1);
 						}
 					}
 					break;
@@ -10040,6 +10043,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_EARTH_INSIGNIA:
 	case RL_B_TRAP:
 	case KO_MAKIBISHI:
+	case LG_KINGS_GRACE:
 	case MH_POISON_MIST:
 	case MH_XENO_SLASHER:
 	case MH_LAVA_SLIDE:
@@ -12951,7 +12955,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		}
 		break;
 	case RA_WUGMASTERY:
-		if ((pc_isfalcon(sd) && !battle_config.warg_can_falcon) || sc && sc->data[SC__GROOMY])
+		if ((pc_isfalcon(sd) && !battle_config.falcon_and_wug) || sc && sc->data[SC__GROOMY])
 		{
 			clif_skill_fail(sd,skill,USESKILL_FAIL,0,0);
 			return 0;
@@ -17935,7 +17939,7 @@ static void skill_readdb(void)
 	skill_init_unit_layout();
 	skill_init_nounit_layout();
 	sv_readdb(db_path, "produce_db.txt"        , ',',   4,  4+2*MAX_PRODUCE_RESOURCE, MAX_SKILL_PRODUCE_DB, skill_parse_row_producedb);
-	sv_readdb(db_path, "create_arrow_db.txt"   , ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
+	episode_sv_readdb(db_path, "create_arrow_db", ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
 	sv_readdb(db_path, "abra_db.txt"           , ',',   4,  4, MAX_SKILL_ABRA_DB, skill_parse_row_abradb);
 	sv_readdb(db_path, "spellbook_db.txt"      , ',',   3,  3, MAX_SKILL_SPELLBOOK_DB, skill_parse_row_spellbookdb);
 	sv_readdb(db_path, "improvise_db.txt"      , ',',   2,  2, MAX_SKILL_IMPROVISE_DB, skill_parse_row_improvisedb);

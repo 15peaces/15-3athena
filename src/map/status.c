@@ -600,7 +600,7 @@ void initChangeTables(void)
 
 	//Adjust SCB flags as support for these skills are added. [Rytech]
 	set_sc(GC_DARKCROW				, SC_DARKCROW			, SI_DARKCROW			, SCB_NONE);
-	set_sc(RA_UNLIMIT				, SC_UNLIMIT			, SI_UNLIMIT			, SCB_DEF | SCB_DEF2 | SCB_MDEF | SCB_MDEF2);
+	set_sc(RA_UNLIMIT				, SC_UNLIMIT			, SI_UNLIMIT			, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2);
 	set_sc(GN_ILLUSIONDOPING		, SC_ILLUSIONDOPING		, SI_ILLUSIONDOPING		, SCB_NONE);
 	add_sc(RK_DRAGONBREATH_WATER	, SC_FREEZING			);
 	add_sc(NC_MAGMA_ERUPTION		, SC_BURNING			);
@@ -610,7 +610,7 @@ void initChangeTables(void)
 	set_sc(AB_OFFERTORIUM			, SC_OFFERTORIUM		, SI_OFFERTORIUM		, SCB_NONE);
 	set_sc(WL_TELEKINESIS_INTENSE	, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE);
 	set_sc(LG_KINGS_GRACE			, SC_KINGS_GRACE		, SI_KINGS_GRACE		, SCB_NONE);
-	set_sc(ALL_FULL_THROTTLE		, SC_FULL_THROTTLE		, SI_FULL_THROTTLE		, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK);
+	set_sc(ALL_FULL_THROTTLE		, SC_FULL_THROTTLE		, SI_FULL_THROTTLE		, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK|SCB_SPEED);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -967,7 +967,7 @@ void initChangeTables(void)
 	// Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusChangeFlagTable[SC_ALL_RIDING] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ON_PUSH_CART] |= SCB_SPEED;
-	StatusChangeFlagTable[SC_REBOUND] |= SCB_SPEED;//Recheck later.
+	StatusChangeFlagTable[SC_REBOUND] |= SCB_SPEED|SCB_REGEN;//Recheck later.
 	StatusChangeFlagTable[SC_MONSTER_TRANSFORM] |= SCB_NONE;
 
 	// Headgears with special animations through status.
@@ -980,7 +980,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_STEALTHFIELD_MASTER] |= SCB_SPEED;
 
 	// Guillotine Cross
-	StatusChangeFlagTable[SC_PARALYSE] |= SCB_FLEE | SCB_SPEED | SCB_ASPD;
+	StatusChangeFlagTable[SC_PARALYSE] |= SCB_FLEE | SCB_SPEED|SCB_ASPD;
 	StatusChangeFlagTable[SC_OBLIVIONCURSE] |= SCB_REGEN;
 	StatusChangeFlagTable[SC_DEATHHURT] |= SCB_REGEN;
 	StatusChangeFlagTable[SC_PYREXIA] |= SCB_HIT | SCB_FLEE;
@@ -3554,6 +3554,7 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		|| sc->data[SC_MAGICMUSHROOM]
 		|| sc->data[SC_RAISINGDRAGON]
 		|| sc->data[SC_SATURDAY_NIGHT_FEVER]
+		|| sc->data[SC_REBOUND]
 	)	//No regen
 		regen->flag = 0;
 
@@ -5068,6 +5069,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, sc->data[SC_POWER_OF_GAIA]->val2 );
 				if( sc->data[SC_MELON_BOMB] )
 					val = max( val, sc->data[SC_MELON_BOMB]->val1 );
+				if (sc->data[SC_REBOUND])
+					val = max(val, 25);
 
 				if( sd && sd->speed_rate + sd->speed_add_rate > 0 ) // permanent item-based speedup
 					val = max( val, sd->speed_rate + sd->speed_add_rate );
@@ -5110,6 +5113,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
 			if( sc->data[SC_SWING] )
 				val = max( val, sc->data[SC_SWING]->val3 );
+			if (sc->data[SC_FULL_THROTTLE])
+				val = max(val, 25);
 			if( sc->data[SC_WIND_STEP_OPTION] )
 				val = max( val, sc->data[SC_WIND_STEP_OPTION]->val2 );
 
@@ -7463,6 +7468,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			{
 				pc_setsit(sd);
 				clif_sitting(&sd->bl, true);
+				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			val2 = 12; //SP cost
 			val4 = 10000; //Decrease at 10secs intervals.
@@ -7530,7 +7536,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 			val3 = 0;
 			val4 = 0;
-			max_stat = battle_config.max_parameter; //Cap to 99 (default)
+			if ( sd && battle_config.marionette_renewal_jobs == 1 &&
+				((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT ||
+				(sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
+				(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO ||
+				(sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+				max_stat = battle_config.max_parameter_renewal_jobs;//Custom cap for renewal jobs.
+			else
+				max_stat = battle_config.max_parameter; //Cap to 99 (default)
 			stat = (psce->val3 >>16)&0xFF; stat = min(stat, max_stat - status->str ); val3 |= cap_value(stat,0,0xFF)<<16;
 			stat = (psce->val3 >> 8)&0xFF; stat = min(stat, max_stat - status->agi ); val3 |= cap_value(stat,0,0xFF)<<8;
 			stat = (psce->val3 >> 0)&0xFF; stat = min(stat, max_stat - status->vit ); val3 |= cap_value(stat,0,0xFF);
@@ -8221,7 +8234,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			{
 				pc_setsit(sd);
 				skill_sit(sd, 1);
-				clif_sitting(bl, true);
+				clif_sitting(&sd->bl, true);
+				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			break;
 		case SC_LG_REFLECTDAMAGE:
@@ -8346,6 +8360,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_UNLIMIT:
 			val2 = 50 * val1;// Physical Ranged Damage Increase
+			break;
+		case SC_FULL_THROTTLE:
+			val2 = tick/1000;
+			tick = 1000;
+			break;
+		case SC_REBOUND:
+			val2 = tick/2000;
+			tick = 2000;
+			clif_emotion(bl,E_SWT);
 			break;
 		case SC_PYROTECHNIC_OPTION:
 			val2 = 60;	// Watk TODO: Renewal (Atk2)
@@ -8818,6 +8841,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			clif_bossmapinfo(sd->fd, map_id2boss(sce->val1), 0); // First Message
 			break;
 		case SC_MERC_HPUP:
+		case SC_FULL_THROTTLE:
 			status_percent_heal(bl, 100, 0); // Recover Full HP
 			break;
 		case SC_MERC_SPUP:
@@ -9448,6 +9472,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
 			if (sd && pc_issit(sd) && pc_setstand(sd, false))
 				skill_sit(sd, false);
+			break;
+		case SC_FULL_THROTTLE:
+			sc_start(bl,SC_REBOUND,100,sce->val1,skill_get_time2(ALL_FULL_THROTTLE, sce->val1));
 			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
@@ -10491,6 +10518,22 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC_STOMACHACHE:
+		if (--(sce->val4) > 0)
+		{
+			status_charge(bl, 0, sce->val2); // Reduce 8 every 10 seconds.
+			if (sd && !pc_issit(sd)) // Force to sit every 10 seconds.
+			{
+				pc_stop_walking(sd, 1 | 4);
+				pc_stop_attack(sd);
+				pc_setsit(sd);
+				clif_sitting(&sd->bl, true);
+				clif_status_load(&sd->bl, SI_SIT, 1);
+			}
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+		}
+		break;
+
 	case SC_KAGEMUSYA:
 		if (--(sce->val4) >= 0)
 		{
@@ -10501,21 +10544,24 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
-
-	case SC_STOMACHACHE:
-		if( --(sce->val4) > 0 )
+	case SC_FULL_THROTTLE:
+		if( --(sce->val2) >= 0 )
 		{
-			status_charge(bl,0,sce->val2); // Reduce 8 every 10 seconds.
-			if (sd && !pc_issit(sd)) // Force to sit every 10 seconds.
-			{
-				pc_stop_walking(sd, 1|4);
-				pc_stop_attack(sd);
-				pc_setsit(sd);
-				clif_sitting(bl, true);
-			}
-			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			if( !status_charge(bl, 0, status->max_sp * ( 6 - sce->val1 ) / 100) )
+				break;
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
 		}
 		break;
+
+	case SC_REBOUND:
+		if(--(sce->val2)>0)
+		{
+			clif_emotion(bl,E_SWT);
+			sc_timer_next(2000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+	break;
 
 	case SC_CIRCLE_OF_FIRE:
 	case SC_FIRE_CLOAK:

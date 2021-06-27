@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= 15-3athena Dev Team
 //===== Last Updated: ========================================
-//= 20161001
+//= 20210626
 //===== Description: =========================================
 //= Explanation of the episode system
 //============================================================
@@ -65,6 +65,7 @@ Currently not all database-files are supported.
 
 Supported episode-specific database-files:
 	*castle_db.txt
+	*create_arrow_db.txt
 	*item_db.txt
 	
 	

@@ -66,7 +66,7 @@ struct item_data;
 //for filtering and quick checking.
 #define MAPID_BASEMASK 0x00ff //Checking 1st Jobs.
 #define MAPID_UPPERMASK 0x0fff //Checking 2nd Jobs. Not related to JOBL_UPPER.
-#define MAPID_THIRDMASK 0xffff //Checking 3rd Jobs.
+#define MAPID_THIRDMASK 0x4fff //Checking 3rd Jobs.
 
 // ‹É—Í static‚Åƒ?ƒJƒ‹‚É?‚ß‚é
 static DBMap* id_db=NULL; // int id -> struct block_list*
@@ -423,13 +423,8 @@ enum _sp {
 	SP_CARTINFO=99,	// 99
 
 	SP_BASEJOB=119,	// 100+19 - celest
-	SP_BASECLASS=120,	//Hmm.. why 100+19? I just use the next one... [Skotlex]
-	SP_KILLERRID=121,
-	SP_KILLEDRID=122,
-	SP_BANK_VAULT=123,
-	SP_ROULETTE_BRONZE = 124,
-	SP_ROULETTE_SILVER = 125,
-	SP_ROULETTE_GOLD = 126,
+	SP_BASECLASS, SP_KILLERRID, SP_KILLEDRID, SP_BANK_VAULT, SP_ROULETTE_BRONZE, SP_ROULETTE_SILVER, // 120-125
+	SP_ROULETTE_GOLD,SP_BASETHIRD, // 126-127
 
 	// Mercenaries
 	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,

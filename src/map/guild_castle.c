@@ -10,6 +10,8 @@
 #include "mob.h" // struct mob_data, mob_guardian_guildchange()
 #include "npc.h" // npc_event_do()
 #include "status.h" // status_calc_mob()
+#include "episode.h"
+
 #include "../common/cbasetypes.h"
 #include "../common/db.h"
 #include "../common/malloc.h"
@@ -371,16 +373,9 @@ void guild_castle_guardian_updateemblem(int guild_id, int emblem_id)
 
 void do_init_guild_castle(void)
 {
-	char file[256];
-	sprintf(file, "castle_db_ep%i.txt", battle_config.feature_episode);
-
 	castle_db = idb_alloc(DB_OPT_BASE);
 	guild_castleinfoevent_db = idb_alloc(DB_OPT_BASE);
-	if(battle_config.episode_readdb && EpisodeDBExists(db_path, file))
-		sprintf(file, "episode/castle_db_ep%i.txt", battle_config.feature_episode);
-	else
-		sprintf(file, "castle_db.txt");
-	sv_readdb(db_path, file, ',', 4, 5, -1, &guild_read_castledb);
+	episode_sv_readdb(db_path, "castle_db", ',', 4, 5, -1, &guild_read_castledb);
 }
 
 void do_final_guild_castle(void)

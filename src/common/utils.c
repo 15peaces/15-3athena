@@ -293,18 +293,3 @@ unsigned int get_percentage(const unsigned int A, const unsigned int B)
 	return (unsigned int)floor(result);
 }
 
-/// Check if episode specific db-file exists [15peaces]
-bool EpisodeDBExists(const char* dbpath, const char* filename) {
-	FILE* tfp;
-	char tpath[256];
-	
-	sprintf(tpath, "%s/episode/%s", dbpath, filename);
-	tfp = fopen(tpath, "r");
-
-	if( tfp == NULL ) {
-		ShowWarning("EpisodeDBExists: File not found \"%s\", skipping.\n", tpath);
-		ShowWarning("EpisodeDBExists: Please create episode specific file or disable episode.readdb. Loading default database...\n");
-		return false;
-	}
-	return true;
-}

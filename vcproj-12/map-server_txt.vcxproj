@@ -116,6 +116,7 @@
     <ClCompile Include="..\src\map\date.c" />
     <ClCompile Include="..\src\map\duel.c" />
     <ClCompile Include="..\src\map\elemental.c" />
+    <ClCompile Include="..\src\map\episode.c" />
     <ClCompile Include="..\src\map\guild.c" />
     <ClCompile Include="..\src\map\guild_castle.c" />
     <ClCompile Include="..\src\map\guild_expcache.c" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\src\map\date.h" />
     <ClInclude Include="..\src\map\duel.h" />
     <ClInclude Include="..\src\map\elemental.h" />
+    <ClInclude Include="..\src\map\episode.h" />
     <ClInclude Include="..\src\map\guild.h" />
     <ClInclude Include="..\src\map\guild_castle.h" />
     <ClInclude Include="..\src\map\guild_expcache.h" />

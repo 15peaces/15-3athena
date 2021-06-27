@@ -189,7 +189,7 @@ EAJL_THIRD	0x4000
 
 EAJ_BASEMASK	0x00ff
 EAJ_UPPERMASK	0x0fff
-EAJ_THIRDMASK	0xffff
+EAJ_THIRDMASK	0x4fff
 
 EAJ_NOVICE 0x00
 EAJ_SWORDMAN 0x01
@@ -445,7 +445,8 @@ killerrid	121 1
 killedrid	122 1
 RouletteBronze	124	1
 RouletteSilver	125	1
-RouletteGold	126	1 
+RouletteGold	126	1
+BaseThird	127	1
 
 bMaxHP	6
 bMaxSP	8
