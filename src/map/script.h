@@ -89,7 +89,7 @@ struct script_retinfo {
 struct script_data {
 	enum c_op type;
 	union script_data_val {
-		int num;
+		int64 num;
 		char *str;
 		struct script_retinfo* ri;
 	} u;
@@ -150,12 +150,12 @@ struct script_state {
 };
 
 struct script_reg {
-	int index;
-	int data;
+	int64 index;
+	int64 data;
 };
 
 struct script_regstr {
-	int index;
+	int64 index;
 	char* data;
 };
 

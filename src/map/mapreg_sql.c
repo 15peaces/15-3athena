@@ -22,19 +22,19 @@ static bool mapreg_dirty = false;
 
 
 /// Looks up the value of an integer variable using its uid.
-int mapreg_readreg(int uid)
+int64 mapreg_readreg(int64 uid)
 {
-	return (int)(intptr_t)idb_get(mapreg_db, uid);
+	return (int64)(intptr_t)i64db_get(mapreg_db, uid);
 }
 
 /// Looks up the value of a string variable using its uid.
-char* mapreg_readregstr(int uid)
+char* mapreg_readregstr(int64 uid)
 {
-	return (char*)idb_get(mapregstr_db, uid);
+	return (char*)i64db_get(mapregstr_db, uid);
 }
 
 /// Modifies the value of an integer variable.
-bool mapreg_setreg(int uid, int val)
+bool mapreg_setreg(int64 uid, int64 val)
 {
 	int num = (uid & 0x00ffffff);
 	int i   = (uid & 0xff000000) >> 24;
@@ -42,7 +42,7 @@ bool mapreg_setreg(int uid, int val)
 
 	if( val != 0 )
 	{
-		if( idb_put(mapreg_db,uid,(void*)(intptr_t)val) )
+		if(i64db_put(mapreg_db,uid,(void*)(intptr_t)val) )
 			mapreg_dirty = true; // already exists, delay write
 		else if(name[1] != '@')
 		{// write new wariable to database
@@ -54,7 +54,7 @@ bool mapreg_setreg(int uid, int val)
 	}
 	else // val == 0
 	{
-		idb_remove(mapreg_db,uid);
+		i64db_remove(mapreg_db,uid);
 
 		if( name[1] != '@' )
 		{// Remove from database because it is unused.
@@ -67,7 +67,7 @@ bool mapreg_setreg(int uid, int val)
 }
 
 /// Modifies the value of a string variable.
-bool mapreg_setregstr(int uid, const char* str)
+bool mapreg_setregstr(int64 uid, const char* str)
 {
 	int num = (uid & 0x00ffffff);
 	int i   = (uid & 0xff000000) >> 24;
@@ -79,11 +79,11 @@ bool mapreg_setregstr(int uid, const char* str)
 			if( SQL_ERROR == Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE `varname`='%s' AND `index`='%d'", mapreg_table, name, i) )
 				Sql_ShowDebug(mmysql_handle);
 		}
-		idb_remove(mapregstr_db,uid);
+		i64db_remove(mapregstr_db,uid);
 	}
 	else
 	{
-		if (idb_put(mapregstr_db,uid, aStrdup(str)))
+		if (i64db_put(mapregstr_db,uid, aStrdup(str)))
 			mapreg_dirty = true;
 		else if(name[1] != '@') { //put returned null, so we must insert.
 			// Someone is causing a database size infinite increase here without name[1] != '@' [Lance]

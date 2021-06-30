@@ -462,6 +462,8 @@ enum clif_messages {
 	//! NOTE: These values below need client version validation
 	ITEM_REUSE_LIMIT = 0x746,
 
+	MSG_ATTENDANCE_UNAVAILABLE = 0xd92, ///< Attendance Check failed. Please try again later.
+
 	// Unofficial names
 	C_ITEM_EQUIP_SWITCH = 0xbc7,
 };
@@ -529,6 +531,15 @@ enum ranking_type
 	RANKING_SURA,
 	RANKING_KAGEROU,
 	RANKING_OBORO,
+};
+
+/// Attendance System
+enum in_ui_type {
+	IN_UI_ATTENDANCE = 5
+};
+
+enum out_ui_type {
+	OUT_UI_ATTENDANCE = 7
 };
 
 struct cash_item_data {
@@ -934,8 +945,6 @@ void clif_quest_update_objective(struct map_session_data * sd, struct quest * qd
 void clif_quest_show_event(struct map_session_data *sd, struct block_list *bl, short state, short color);
 void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest, bool lost);
 
-void clif_msgtable(int fd, int line);
-void clif_msgtable_num(int fd, int line, int num);
 int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
 int do_init_clif(void);
 
@@ -1092,5 +1101,8 @@ void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd);
 void clif_crimson_marker_xy_remove(struct map_session_data *sd);
 
 void clif_private_airship_response(struct map_session_data *sd, uint32 flag);
+
+void clif_open_ui_req_sub(int fd, struct map_session_data* sd, enum out_ui_type ui_type);
+bool clif_attendance_timediff(struct map_session_data *sd);
 
 #endif /* _CLIF_H_ */

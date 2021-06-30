@@ -2510,7 +2510,7 @@ void get_val(struct script_state* st, struct script_data* data)
 	return;
 }
 
-struct script_data* push_val2(struct script_stack* stack, enum c_op type, int val, struct linkdb_node** ref);
+struct script_data* push_val2(struct script_stack* stack, enum c_op type, int64 val, struct linkdb_node** ref);
 
 /// Retrieves the value of a reference identified by uid (variable, constant, param)
 /// The value is left in the top of the stack and needs to be removed manually.
@@ -2527,7 +2527,7 @@ void* get_val2(struct script_state* st, int uid, struct linkdb_node** ref)
  * Stores the value of a script variable
  * Return value is 0 on fail, 1 on success.
  *------------------------------------------*/
-static int set_reg(struct script_state* st, TBL_PC* sd, int num, const char* name, const void* value, struct linkdb_node** ref)
+static int set_reg(struct script_state* st, TBL_PC* sd, int64 num, const char* name, const void* value, struct linkdb_node** ref)
 {
 	char prefix = name[0];
 
@@ -2569,7 +2569,7 @@ static int set_reg(struct script_state* st, TBL_PC* sd, int num, const char* nam
 	}
 	else
 	{// integer variable
-		int val = (int)value;
+		int64 val = (int64)value;
 		if(str_data[num&0x00ffffff].type == C_PARAM)
 		{
 			if( pc_setparam(sd, str_data[num&0x00ffffff].val, val) == 0 )
@@ -2643,7 +2643,7 @@ const char* conv_str(struct script_state* st, struct script_data* data)
 	else if( data_isint(data) )
 	{// int -> string
 		CREATE(p, char, ITEM_NAME_LENGTH);
-		snprintf(p, ITEM_NAME_LENGTH, "%d", data->u.num);
+		snprintf(p, ITEM_NAME_LENGTH, "%" PRId64 "", data->u.num);
 		p[ITEM_NAME_LENGTH-1] = '\0';
 		data->type = C_STR;
 		data->u.str = p;
@@ -2669,7 +2669,7 @@ const char* conv_str(struct script_state* st, struct script_data* data)
 int conv_num(struct script_state* st, struct script_data* data)
 {
 	char* p;
-	long num;
+	int64 num;
 
 	get_val(st, data);
 	if( data_isint(data) )
@@ -2681,21 +2681,21 @@ int conv_num(struct script_state* st, struct script_data* data)
 		// ex: 999999999999 is capped to INT_MAX (2147483647)
 		p = data->u.str;
 		errno = 0;
-		num = strtol(data->u.str, NULL, 10);// change radix to 0 to support octal numbers "o377" and hex numbers "0xFF"
+		num = strtoll(data->u.str, NULL, 10);// change radix to 0 to support octal numbers "o377" and hex numbers "0xFF"
 		if( errno == ERANGE
-#if LONG_MAX > INT_MAX
-			|| num < INT_MIN || num > INT_MAX
+#if LONG_MAX > INT64_MAX
+			|| num < INT64_MIN || num > INT64_MAX
 #endif
 			)
 		{
-			if( num <= INT_MIN )
+			if( num <= INT64_MIN)
 			{
-				num = INT_MIN;
+				num = INT64_MIN;
 				ShowError("script:conv_num: underflow detected, capping to %ld\n", num);
 			}
 			else//if( num >= INT_MAX )
 			{
-				num = INT_MAX;
+				num = INT64_MAX;
 				ShowError("script:conv_num: overflow detected, capping to %ld\n", num);
 			}
 			script_reportdata(data);
@@ -2704,7 +2704,7 @@ int conv_num(struct script_state* st, struct script_data* data)
 		if( data->type == C_STR )
 			aFree(p);
 		data->type = C_INT;
-		data->u.num = (int)num;
+		data->u.num = (int64)num;
 	}
 #if 0
 	// FIXME this function is being used to retrieve the position of labels and 
@@ -2718,7 +2718,7 @@ int conv_num(struct script_state* st, struct script_data* data)
 		data->u.num = 0;
 	}
 #endif
-	return data->u.num;
+	return (int)data->u.num;
 }
 
 //
@@ -2739,7 +2739,7 @@ void stack_expand(struct script_stack* stack)
 #define push_val(stack,type,val) push_val2(stack, type, val, NULL)
 
 /// Pushes a value into the stack (with reference)
-struct script_data* push_val2(struct script_stack* stack, enum c_op type, int val, struct linkdb_node** ref)
+struct script_data* push_val2(struct script_stack* stack, enum c_op type, int64 val, struct linkdb_node** ref)
 {
 	if( stack->sp >= stack->sp_max )
 		stack_expand(stack);
@@ -2960,7 +2960,7 @@ int get_num(unsigned char *script,int *pos)
 /*==========================================
  * スタックから値を取り出す
  *------------------------------------------*/
-int pop_val(struct script_state* st)
+int64 pop_val(struct script_state* st)
 {
 	if(st->stack->sp<=0)
 		return 0;
@@ -2984,7 +2984,7 @@ void op_3(struct script_state* st, int op)
 	if( data_isstring(data) )
 		flag = data->u.str[0];// "" -> false
 	else if( data_isint(data) )
-		flag = data->u.num;// 0 -> false
+		flag = (int)data->u.num;// 0 -> false
 	else
 	{
 		ShowError("script:op_3: invalid data for the ternary operator test\n");
@@ -3041,9 +3041,9 @@ void op_2str(struct script_state* st, int op, const char* s1, const char* s2)
 
 /// Binary number operators
 /// i OP i -> i
-void op_2num(struct script_state* st, int op, int i1, int i2)
+void op_2num(struct script_state* st, int op, int64 i1, int64 i2)
 {
-	int ret;
+	int64 ret;
 	double ret_double;
 
 	switch( op )
@@ -3065,7 +3065,7 @@ void op_2num(struct script_state* st, int op, int i1, int i2)
 	case C_MOD:
 		if( i2 == 0 )
 		{
-			ShowError("script:op_2num: division by zero detected op=%s i1=%d i2=%d\n", script_op2name(op), i1, i2);
+			ShowError("script:op_2num: division by zero detected op=%s i1=%" PRId64 " i2=%" PRId64 "\n", script_op2name(op), i1, i2);
 			script_reportsrc(st);
 			script_pushnil(st);
 			st->state = END;
@@ -3083,22 +3083,22 @@ void op_2num(struct script_state* st, int op, int i1, int i2)
 		case C_SUB: ret = i1 - i2; ret_double = (double)i1 - (double)i2; break;
 		case C_MUL: ret = i1 * i2; ret_double = (double)i1 * (double)i2; break;
 		default:
-			ShowError("script:op_2num: unexpected number operator %s i1=%d i2=%d\n", script_op2name(op), i1, i2);
+			ShowError("script:op_2num: unexpected number operator %s i1=%" PRId64 " i2=%" PRId64 "\n", script_op2name(op), i1, i2);
 			script_reportsrc(st);
 			script_pushnil(st);
 			return;
 		}
-		if( ret_double < (double)INT_MIN )
+		if( ret_double < (double)INT64_MIN )
 		{
-			ShowWarning("script:op_2num: underflow detected op=%s i1=%d i2=%d\n", script_op2name(op), i1, i2);
+			ShowWarning("script:op_2num: underflow detected op=%s i1=%" PRId64 " i2=%" PRId64 "\n", script_op2name(op), i1, i2);
 			script_reportsrc(st);
-			ret = INT_MIN;
+			ret = INT64_MIN;
 		}
-		else if( ret_double > (double)INT_MAX )
+		else if( ret_double > (double)INT64_MAX )
 		{
-			ShowWarning("script:op_2num: overflow detected op=%s i1=%d i2=%d\n", script_op2name(op), i1, i2);
+			ShowWarning("script:op_2num: overflow detected op=%s i1=%" PRId64 " i2=%" PRId64 "\n", script_op2name(op), i1, i2);
 			script_reportsrc(st);
-			ret = INT_MAX;
+			ret = INT64_MAX;
 		}
 	}
 	script_pushint(st, ret);
@@ -3138,8 +3138,8 @@ void op_2(struct script_state *st, int op)
 	}
 	else if( data_isint(left) && data_isint(right) )
 	{// ii => op_2num
-		int i1 = left->u.num;
-		int i2 = right->u.num;
+		int64 i1 = left->u.num;
+		int64 i2 = right->u.num;
 		script_removetop(st, -2, 0);
 		op_2num(st, op, i1, i2);
 	}
@@ -3162,7 +3162,7 @@ void op_2(struct script_state *st, int op)
 void op_1(struct script_state* st, int op)
 {
 	struct script_data* data;
-	int i1;
+	int64 i1;
 
 	data = script_getdatatop(st, -1);
 	get_val(st, data);
@@ -3308,7 +3308,7 @@ int run_func(struct script_state *st)
 
 	data = &st->stack->stack_data[st->start];
 	if( data->type == C_NAME && str_data[data->u.num].type == C_FUNC ){
-		func = data->u.num;
+		func = (int)data->u.num;
 		st->funcname = reference_getname(data);
 	}else{
 		ShowError("script:run_func: not a buildin command.\n");
@@ -4965,7 +4965,7 @@ BUILDIN_FUNC(input)
 {
 	TBL_PC* sd;
 	struct script_data* data;
-	int uid;
+	int64 uid;
 	const char* name;
 	int min;
 	int max;
@@ -5023,7 +5023,7 @@ BUILDIN_FUNC(set)
 {
 	TBL_PC* sd = NULL;
 	struct script_data* data;
-	int num;
+	int64 num;
 	const char* name;
 	char prefix;
 
@@ -8706,7 +8706,7 @@ BUILDIN_FUNC(setcashmount)
 		return true;
 
 	if (pc_hasmount(sd)) {
-		clif_msgtable(sd->fd, 1931);
+		clif_msg(sd, 1931);
 		script_pushint(st, 0); // Can't mount with one of these
 	} else {
 		if (sd->sc.data[SC_ALL_RIDING]) {
@@ -13481,7 +13481,7 @@ BUILDIN_FUNC(getmapxy)
 	struct block_list *bl = NULL;
 	TBL_PC *sd=NULL;
 
-	int num;
+	int64 num;
 	const char *name;
 	char prefix;
 
@@ -15854,7 +15854,7 @@ BUILDIN_FUNC(getunitdata) {
 	TBL_PET* pd = NULL;
 	TBL_ELEM* ed = NULL;
 	TBL_NPC* nd = NULL;
-	int num;
+	int64 num;
 	char* name;
 	struct script_data *data = script_getdata(st, 3);
 

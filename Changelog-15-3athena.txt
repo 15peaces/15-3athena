@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/30/2021
+	r301 [15peaces]
+		*Removed some duplicated clif_functions.
+			-Fixed some other functions and did some clean-up.
+		*Changed a huge number of functions to support int64 values.
+			-Needed to probably handle timestamps and more...
+		*Implementation of Attendance system.
+			-added battle/attendance.conf configuration file.
+			-Make sure to also edit your system/CheckAttendance.lub file with the same values as you added server-sided for this to be displayed probably ingame.
+			-A 2018-06-21aRagexeRE will be required for this feature to work.
+
 06/27/2021
 	r300 [15peaces]
 		*Merged missing changes from 3ceam rev. 749 - 750

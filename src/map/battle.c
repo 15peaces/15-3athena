@@ -6093,6 +6093,10 @@ static const struct _battle_data {
 	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
 	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
 	{ "mvp_exp_reward_message",             &battle_config.mvp_exp_reward_message,          0,      0,      1,				},
+	{ "attendance_system",					&battle_config.feature_attendance_system,		1,		0,      1,				},
+	{ "attendance_show_window",				&battle_config.attendance_show_window,			1,		0,      1,				},
+	{ "attendance_starttime",				&battle_config.attendance_starttime,			1,      0,      99999999,		},
+	{ "attendance_endtime",					&battle_config.attendance_endtime,				1,      0,      99999999,		},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

@@ -1476,6 +1476,94 @@ static bool itemdb_read_randomopt() {
 	return true;
 }
 
+void itemdb_parse_attendance_db(void)
+{
+	uint32 lines = 0, cnt = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	VECTOR_CLEAR(attendance_data);
+
+	sprintf(file, "db/attendance_db.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("itemdb_parse_attendance_db: File not found \"%s\", skipping.\n", file);
+		return;
+	}
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i;
+		int day, id, amt;
+
+		struct attendance_entry entry = { 0 };
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 3; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("itemdb_parse_attendance_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				continue;
+			}
+		}
+
+		day = atoi(str[0]);
+		id = atoi(str[1]);
+		amt = atoi(str[2]);
+
+		if (day <= 0) {
+			ShowError("itemdb_parse_attendance_db: Day value cannot be < 1 in line %d.\n", lines);
+			continue;
+		}
+
+		if (!itemdb_exists(id)) {
+			ShowWarning("itemdb_parse_attendance_db: unknown item %d, line #%d, skipping.\n", id, lines);
+			continue;
+		}
+
+		if (amt < 1) {
+			ShowWarning("itemdb_parse_attendance_db: amount cannot be < 1 in line %d, defaulting to 1...\n", lines);
+			amt = 1;
+		}
+
+		entry.day = day;
+		entry.nameid = id;
+		entry.qty = amt;
+
+		VECTOR_ENSURE(attendance_data, 1, 1);
+		VECTOR_PUSH(attendance_data, entry);
+
+		cnt++;
+	}
+
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
+}
+
 /*====================================
  * read all item-related databases
  *------------------------------------*/
@@ -1592,6 +1680,7 @@ void do_final_itemdb(void)
 	destroy_item_data(dummy_item);
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
+	VECTOR_CLEAR(attendance_data);
 }
 
 /**
@@ -1607,6 +1696,9 @@ int do_init_itemdb(void)
 
 	if (battle_config.feature_roulette)
 		itemdb_parse_roulette_db();
+
+	VECTOR_INIT(attendance_data);
+	itemdb_parse_attendance_db();
 
 	return 0;
 }

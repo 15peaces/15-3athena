@@ -1405,12 +1405,12 @@ int pc_reg_received(struct map_session_data *sd)
 	}
 
 	if (battle_config.feature_banking)
-		sd->bank_vault = pc_readreg2(sd, BANK_VAULT_VAR);
+		sd->bank_vault = (int)pc_readreg2(sd, BANK_VAULT_VAR);
 
 	if (battle_config.feature_roulette) {
-		sd->roulette_point.bronze = pc_readreg2(sd, ROULETTE_BRONZE_VAR);
-		sd->roulette_point.silver = pc_readreg2(sd, ROULETTE_SILVER_VAR);
-		sd->roulette_point.gold = pc_readreg2(sd, ROULETTE_GOLD_VAR);
+		sd->roulette_point.bronze = (int)pc_readreg2(sd, ROULETTE_BRONZE_VAR);
+		sd->roulette_point.silver = (int)pc_readreg2(sd, ROULETTE_SILVER_VAR);
+		sd->roulette_point.gold = (int)pc_readreg2(sd, ROULETTE_GOLD_VAR);
 	}
 	sd->roulette.prizeIdx = -1;
 
@@ -4067,7 +4067,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
 					return 5;
 				if( itemdb_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {
-					clif_msgtable(sd->fd,1418);
+					clif_msg(sd,1418);
 					return 1;
 				}
 				sd->inventory.u.items_inventory[i].amount += amount;
@@ -6620,14 +6620,14 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 		if( sd->status.skill_point >= sd->status.job_level && (sd->change_level[0] > 0 ? ( skill_point < sd->change_level[0] + 8 ) : (skill_point < 58)) )
 		{	// 1st job skills are not used.	
 			i = (sd->change_level[0] > 0 ? sd->change_level[0] + 8 : 58) - skill_point;
-			clif_msgtable_num(sd->fd,MSG_UPGRADESKER_FIRSTJOB,i);
+			clif_msg_value(sd,MSG_UPGRADESKER_FIRSTJOB,i);
 			return 0;
 		}//May need to update in the future to include new 3rd job skills from the 5000 range. [Rytech]
 		if( sd->class_&JOBL_THIRD && (skill_num >= RK_ENCHANTBLADE && skill_num <= LG_OVERBRAND_PLUSATK || skill_num >= GC_DARKCROW && skill_num <= NC_MAGMA_ERUPTION_DOTDAMAGE) &&
 			skill_point < (sd->change_level[1] > 0 ? sd->change_level[0] + sd->change_level[1] + 7 : (sd->class_&JOBL_UPPER) ? 127 : 107) )
 		{	// 2nd job skill not usd.
 			i = (sd->change_level[1] > 0 ? sd->change_level[0] + sd->change_level[1] + 7 : (sd->class_&JOBL_UPPER) ? 127 : 107) - skill_point;
-			clif_msgtable_num(sd->fd,MSG_UPGRADESKER_SECONDJOB, i);
+			clif_msg_value(sd,MSG_UPGRADESKER_SECONDJOB, i);
 			return 0;
 		}
 	}
@@ -7578,11 +7578,13 @@ int pc_readparam(struct map_session_data* sd,int type)
 /*==========================================
  * script—pPCƒXƒe?ƒ^ƒXÝ’è
  *------------------------------------------*/
-int pc_setparam(struct map_session_data *sd,int type,int val)
+int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 {
 	int i = 0, statlimit;
 
 	nullpo_ret(sd);
+
+	int val = (int)val_;
 
 	switch(type){
 	case SP_BASELEVEL:
@@ -7777,7 +7779,7 @@ int pc_setparam(struct map_session_data *sd,int type,int val)
 		ShowError("pc_setparam: Attempted to set unknown parameter '%d'.\n", type);
 		return 0;
 	}
-	clif_updatestatus(sd,type);
+	clif_updatestatus(sd,(int)type);
 
 	return 1;
 }
@@ -8485,7 +8487,7 @@ int pc_candrop(struct map_session_data *sd,struct item *item)
 /*==========================================
  * script—p??‚Ì’l‚ð?‚Þ
  *------------------------------------------*/
-int pc_readreg(struct map_session_data* sd, int reg)
+int64 pc_readreg(struct map_session_data* sd, int64 reg)
 {
 	int i;
 
@@ -8497,7 +8499,7 @@ int pc_readreg(struct map_session_data* sd, int reg)
 /*==========================================
  * script—p??‚Ì’l‚ðÝ’è
  *------------------------------------------*/
-int pc_setreg(struct map_session_data* sd, int reg, int val)
+int pc_setreg(struct map_session_data* sd, int64 reg, int64 val)
 {
 	int i;
 
@@ -8525,7 +8527,7 @@ int pc_setreg(struct map_session_data* sd, int reg, int val)
 /*==========================================
  * script—p•¶Žš—ñ??‚Ì’l‚ð?‚Þ
  *------------------------------------------*/
-char* pc_readregstr(struct map_session_data* sd, int reg)
+char* pc_readregstr(struct map_session_data* sd, int64 reg)
 {
 	int i;
 
@@ -8537,7 +8539,7 @@ char* pc_readregstr(struct map_session_data* sd, int reg)
 /*==========================================
  * script—p•¶Žš—ñ??‚Ì’l‚ðÝ’è
  *------------------------------------------*/
-int pc_setregstr(struct map_session_data* sd, int reg, const char* str)
+int pc_setregstr(struct map_session_data* sd, int64 reg, const char* str)
 {
 	int i;
 
@@ -8574,7 +8576,7 @@ int pc_setregstr(struct map_session_data* sd, int reg, const char* str)
 		sd->regstr_num++;
 		RECREATE(sd->regstr, struct script_regstr, sd->regstr_num);
 	}
-	sd->regstr[i].index = reg;
+	sd->regstr[i].index = (int)reg;
 	sd->regstr[i].data = aStrdup(str);
 
 	return 1;
@@ -8646,7 +8648,7 @@ char* pc_readregistry_str(struct map_session_data *sd,const char *reg,int type)
 	return ( i < max ) ? sd_reg[i].value : NULL;
 }
 
-int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
+int pc_setregistry(struct map_session_data *sd,const char *reg,int64 val,int type)
 {
 	struct global_reg *sd_reg;
 	int i,*max, regmax;
@@ -8659,14 +8661,14 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 		if( !strcmp(reg,"PC_DIE_COUNTER") && sd->die_counter != val )
 		{
 			i = (!sd->die_counter && ((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E));
-			sd->die_counter = val;
+			sd->die_counter = (int)val;
 			if( i )
 				status_calc_pc(sd,0); // Lost the bonus.
 		}
 		else if( !strcmp(reg,"COOK_MASTERY") && sd->cook_mastery != val )
 		{
 			val = cap_value(val, 0, 1999);
-			sd->cook_mastery = val;
+			sd->cook_mastery = (int)val;
 		}
 		sd_reg = sd->save_reg.global;
 		max = &sd->save_reg.global_num;
@@ -8676,12 +8678,12 @@ int pc_setregistry(struct map_session_data *sd,const char *reg,int val,int type)
 		if( !strcmp(reg,"#CASHPOINTS") && sd->cashPoints != val )
 		{
 			val = cap_value(val, 0, MAX_ZENY);
-			sd->cashPoints = val;
+			sd->cashPoints = (int)val;
 		}
 		else if( !strcmp(reg,"#KAFRAPOINTS") && sd->kafraPoints != val )
 		{
 			val = cap_value(val, 0, MAX_ZENY);
-			sd->kafraPoints = val;
+			sd->kafraPoints = (int)val;
 		}
 		sd_reg = sd->save_reg.account;
 		max = &sd->save_reg.account_num;
@@ -8821,7 +8823,7 @@ int pc_setregistry_str(struct map_session_data *sd,const char *reg,const char *v
  * @param value
  * @return True if success, false if failed.
  **/
-bool pc_setreg2(struct map_session_data *sd, const char *reg, int val) {
+bool pc_setreg2(struct map_session_data *sd, const char *reg, int64 val) {
 	char prefix = reg[0];
 
 	nullpo_retr(false, sd);
@@ -8856,7 +8858,7 @@ bool pc_setreg2(struct map_session_data *sd, const char *reg, int val) {
  * @param reg Variable name
  * @return Variable value or 0 if failed.
  **/
-int pc_readreg2(struct map_session_data *sd, const char *reg) {
+int64 pc_readreg2(struct map_session_data *sd, const char *reg) {
 	char prefix = reg[0];
 
 	nullpo_ret(sd);

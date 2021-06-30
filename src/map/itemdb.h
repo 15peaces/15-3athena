@@ -175,6 +175,14 @@ struct s_random_opt_data
 	struct script_code *script;
 };
 
+/* attendance data */
+struct attendance_entry {
+	int day;
+	int nameid;
+	int qty;
+};
+VECTOR_DECL(struct attendance_entry) attendance_data;
+
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
 struct item_data* itemdb_load(unsigned short nameid);

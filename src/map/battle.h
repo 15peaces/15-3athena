@@ -576,6 +576,10 @@ extern struct Battle_Config
 	int hom_bonus_exp_from_master;
 	int feature_equipswitch;
 	int mvp_exp_reward_message;
+	int feature_attendance_system;
+	int attendance_show_window;
+	int attendance_starttime;
+	int attendance_endtime;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

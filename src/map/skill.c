@@ -15973,7 +15973,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			{
 				if( temp_qty > MAX_RUNE - sd->inventory.u.items_inventory[i].amount )
 				{
-					clif_msgtable(sd->fd,SKMSG_RUNESTONE_OVERCOUNT);
+					clif_msg(sd,SKMSG_RUNESTONE_OVERCOUNT);
 					return 0;
 				}
 			}

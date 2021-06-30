@@ -27,6 +27,8 @@
 #define ROULETTE_BRONZE_VAR "RouletteBronze"
 #define ROULETTE_SILVER_VAR "RouletteSilver"
 #define ROULETTE_GOLD_VAR "RouletteGold"
+#define ATTENDANCE_TIMER_VAR "#AttendanceTimer"
+#define ATTENDANCE_COUNT_VAR "#AttendanceCounter"
 
 //15-3athena
 //These may be needed in the future. [15peaces]
@@ -889,11 +891,11 @@ int pc_changelook(struct map_session_data *,int,int);
 int pc_equiplookall(struct map_session_data *sd);
 
 int pc_readparam(struct map_session_data*,int);
-int pc_setparam(struct map_session_data*,int,int);
-int pc_readreg(struct map_session_data*,int);
-int pc_setreg(struct map_session_data*,int,int);
-char *pc_readregstr(struct map_session_data *sd,int reg);
-int pc_setregstr(struct map_session_data *sd,int reg,const char *str);
+int pc_setparam(struct map_session_data*,int64,int64);
+int64 pc_readreg(struct map_session_data*,int64);
+int pc_setreg(struct map_session_data*,int64,int64);
+char *pc_readregstr(struct map_session_data *sd,int64 reg);
+int pc_setregstr(struct map_session_data *sd,int64 reg,const char *str);
 
 #define pc_readglobalreg(sd,reg) pc_readregistry(sd,reg,3)
 #define pc_setglobalreg(sd,reg,val) pc_setregistry(sd,reg,val,3)
@@ -908,12 +910,12 @@ int pc_setregstr(struct map_session_data *sd,int reg,const char *str);
 #define pc_readaccountreg2str(sd,reg) pc_readregistry_str(sd,reg,1)
 #define pc_setaccountreg2str(sd,reg,val) pc_setregistry_str(sd,reg,val,1)
 int pc_readregistry(struct map_session_data*,const char*,int);
-int pc_setregistry(struct map_session_data*,const char*,int,int);
+int pc_setregistry(struct map_session_data*,const char*,int64,int);
 char *pc_readregistry_str(struct map_session_data*,const char*,int);
 int pc_setregistry_str(struct map_session_data*,const char*,const char*,int);
 
-bool pc_setreg2(struct map_session_data *sd, const char *reg, int val);
-int pc_readreg2(struct map_session_data *sd, const char *reg);
+bool pc_setreg2(struct map_session_data *sd, const char *reg, int64 val);
+int64 pc_readreg2(struct map_session_data *sd, const char *reg);
 
 int pc_addeventtimer(struct map_session_data *sd,int tick,const char *name);
 int pc_deleventtimer(struct map_session_data *sd,const char *name);

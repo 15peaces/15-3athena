@@ -2506,8 +2506,12 @@ packet_ver: 45
 
 0x0a49,20,pPrivateAirshipRequest,0
 0x0A4A,6
+0x0a68,3,pOpenUIRequest,0
 0x0ade,6//ZC_OVERWEIGHT_PERCENT
+0x0ae2,7
 0x0ae8,2,changedress,0
+0x0aef,2,pAttendanceRewardRequest,0
+0x0af0,10
 0x0af4,11,useskilltopos,2:4:6:8:10//CZ_USE_SKILL_TOGROUND2
 
 //Add new packets here

@@ -1514,7 +1514,6 @@ static void achievement_readdb()
  */
 static void achievement_readdb_ranks(void)
 {
-
 	uint32 lines = 0, entry = 1;
 	char line[1024];
 

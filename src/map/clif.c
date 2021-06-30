@@ -10428,7 +10428,6 @@ void clif_msg(struct map_session_data* sd, unsigned short id)
 	WFIFOSET(fd, packet_len(0x291));
 }
 
-
 /// Display msgstringtable.txt string and fill in a valid for %d format (ZC_MSG_VALUE).
 /// 0x7e2 <message>.W <value>.L
 void clif_msg_value(struct map_session_data* sd, unsigned short id, int value)
@@ -10459,32 +10458,25 @@ void clif_msg_skill(struct map_session_data* sd, unsigned short skill_id, int ms
 	WFIFOSET(fd, packet_len(0x7e6));
 }
 
-// msgstringtable.txt
-// 0x291 <line>.W
-void clif_msgtable(int fd, int line) {
-	WFIFOHEAD(fd, packet_len(0x291));
-	WFIFOW(fd, 0) = 0x291;
-	WFIFOW(fd, 2) = line;
-	WFIFOSET(fd, packet_len(0x291));
-}
+/// Displays msgstringtable.txt string in a color. (ZC_MSG_COLOR).
+/// 09cd <msg id>.W <color>.L
+void clif_msg_color(struct map_session_data *sd, uint16 msg_id, uint32 color) {
+	nullpo_retv(sd);
 
-// msgstringtable.txt
-// 0x7e2 <line>.W <value>.L
-void clif_msgtable_num(int fd, int line, int num) {
-#if PACKETVER >= 20090805
-	WFIFOHEAD(fd, packet_len(0x7e2));
-	WFIFOW(fd, 0) = 0x7e2;
-	WFIFOW(fd, 2) = line;
-	WFIFOL(fd, 4) = num;
-	WFIFOSET(fd, packet_len(0x7e2));
-#endif
-}
+	int fd = sd->fd;
 
+	WFIFOHEAD(fd, packet_len(0x9cd));
+	WFIFOW(fd, 0) = 0x9cd;
+	WFIFOW(fd, 2) = msg_id;
+	WFIFOL(fd, 4) = RGB2BGR(color);
+
+	WFIFOSET(fd, packet_len(0x9cd));
+}
 
 /// View player equip request denied
 void clif_viewequip_fail(struct map_session_data* sd)
 {
-	clif_msgtable(sd->fd, 1357);
+	clif_msg(sd, 1357);
 }
 
 
@@ -10974,6 +10966,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 		// Notify everyone that this char logged in [Skotlex].
 		map_foreachpc(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 1);
+
+#if PACKETVER >= 20180307
+		if (battle_config.feature_attendance_system != 0 && battle_config.attendance_show_window != 0 && clif_attendance_timediff(sd) == true)
+			clif_open_ui_req_sub(sd->fd, sd, IN_UI_ATTENDANCE);
+#endif
 
 		//Login Event
 		npc_script_event(sd, NPCE_LOGIN);
@@ -16449,9 +16446,6 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 		}
 #endif
 
-		// If it came from an npc?
-		//mailType |= MAIL_TYPE_NPC;
-
 		WFIFOB(fd, offset + 9) = mailType;
 		safestrncpy(WFIFOCP(fd, offset + 10), msg->send_name, NAME_LENGTH);
 
@@ -18454,7 +18448,7 @@ void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 * 1269 = Your mercenary soldier has ran away.
 *------------------------------------------*/
 void clif_mercenary_message(struct map_session_data* sd, int message) {
-	clif_msgtable(sd->fd, MSG_MER_FINISH + message);
+	clif_msg(sd, MSG_MER_FINISH + message);
 }
 
 /*==========================================
@@ -20647,6 +20641,152 @@ void clif_private_airship_response(struct map_session_data *sd, uint32 flag)
 #endif
 }
 
+bool clif_attendance_timediff(struct map_session_data *sd)
+{
+	int64 timediff;
+
+	nullpo_retr(false, sd);
+
+	timediff = (time(NULL) / (60 * 60 * 24)) - (pc_readreg2(sd, ATTENDANCE_TIMER_VAR) / (60 * 60 * 24));
+
+	if (timediff <= 0)
+		return false;
+	return true;
+}
+
+time_t clif_attendance_gettime(int time)
+{
+	time_t timestamp;
+	struct tm tmtime = { 0 };
+	int year = 0, month = 0, day = 0;
+	char timestring[9];
+
+	sprintf(timestring, "%8d", time);
+	sscanf(timestring, "%4d%2d%2d", &year, &month, &day);
+
+	tmtime.tm_year = year - 1900;
+	tmtime.tm_mon = month - 1;
+	tmtime.tm_mday = day;
+
+	timestamp = mktime(&tmtime);
+
+	return timestamp;
+}
+time_t clif_attendance_getstarttime(void) { return(clif_attendance_gettime(battle_config.attendance_starttime)); }
+time_t clif_attendance_getendtime(void) { return(clif_attendance_gettime(battle_config.attendance_endtime)); }
+
+/// Opens an UI window of the given type and initializes it with the given data
+/// 0AE2 <type>.B <data>.L
+void clif_ui_open(struct map_session_data *sd, enum out_ui_type ui_type, int32 data) {
+	nullpo_retv(sd);
+
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xae2));
+	WFIFOW(fd, 0) = 0xae2;
+	WFIFOB(fd, 2) = ui_type;
+	WFIFOL(fd, 3) = data;
+	WFIFOSET(fd, packet_len(0xae2));
+}
+
+void clif_open_ui_req_sub(int fd, struct map_session_data* sd, enum out_ui_type ui_type) {
+#if PACKETVER >= 20180307
+	int claimed = 0;
+
+	switch (ui_type) {
+	case IN_UI_ATTENDANCE:
+		if (battle_config.feature_attendance_system == 1) {
+			if (clif_attendance_timediff(sd) != true)
+				++claimed;
+			else if (pc_readreg2(sd, ATTENDANCE_COUNT_VAR) >= VECTOR_LENGTH(attendance_data))
+				pc_setreg2(sd, ATTENDANCE_COUNT_VAR, 0);
+
+			clif_ui_open(sd, OUT_UI_ATTENDANCE, (int)pc_readreg2(sd, ATTENDANCE_COUNT_VAR) * 10 + claimed);
+		}
+		else {
+			clif_msg_color(sd, MSG_ATTENDANCE_UNAVAILABLE, COLOR_RED);
+		}
+		break;
+	}
+#else
+	ShowWarning("Attendance System available only for PACKETVER >= 20180307.\n");
+#endif
+}
+
+/// Request to open an UI window of the given type
+/// 0A68 <type>.B
+void clif_parse_open_ui_request(int fd, struct map_session_data *sd) {
+#if PACKETVER >= 20180307
+	clif_open_ui_req_sub(fd, sd, RFIFOB(fd, 2));
+#endif
+}
+
+/// Response for attedance request
+/// 0AF0 <type>.L <data>.L
+void clif_ui_action(struct map_session_data *sd, int32 type, int32 data) {
+	nullpo_retv(sd);
+
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xAF0));
+	WFIFOW(fd, 0) = 0xAF0;
+	WFIFOL(fd, 2) = type;
+	WFIFOL(fd, 6) = data;
+	WFIFOSET(fd, packet_len(0xAF0));
+}
+
+/// Request from the client to retrieve today's attendance reward
+/// 0AEF
+void clif_parse_attendance_reward_request(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20180307
+	struct mail_message msg = { 0 };
+	struct attendance_entry *entry;
+	char title[MAIL_TITLE_LENGTH], body[MAIL_BODY_LENGTH];
+
+	int attendance_count = (int)pc_readreg2(sd, ATTENDANCE_COUNT_VAR);
+
+	if (clif_attendance_getstarttime() > time(NULL) || clif_attendance_getendtime() < time(NULL)) {
+		clif_msg_color(sd, MSG_ATTENDANCE_UNAVAILABLE, COLOR_RED);
+		return;
+	}
+
+	if (battle_config.feature_attendance_system != 1)
+		return;
+
+	if (clif_attendance_timediff(sd) != true)
+		return;
+
+	if (attendance_count >= VECTOR_LENGTH(attendance_data))
+		attendance_count = 0;
+
+	++attendance_count;
+	pc_setreg2(sd, ATTENDANCE_TIMER_VAR, time(NULL));
+
+	msg.dest_id = sd->status.char_id;
+	sprintf(title, msg_txt(544), attendance_count + 1);
+	sprintf(body, msg_txt(545), attendance_count + 1);
+
+	entry = &VECTOR_INDEX(attendance_data, attendance_count);
+	msg.item[0].nameid = entry->nameid;
+	msg.item[0].amount = entry->qty;
+	msg.item[0].identify = 1;
+	msg.type = MAIL_INBOX_NORMAL;
+
+	safestrncpy(msg.send_name, msg_txt(544), NAME_LENGTH);
+	safestrncpy(msg.title, title, MAIL_TITLE_LENGTH);
+	safestrncpy(msg.body, body, MAIL_BODY_LENGTH);
+	msg.timestamp = time(NULL);
+
+	pc_setreg2(sd, ATTENDANCE_COUNT_VAR, attendance_count);
+
+	intif_Mail_send(0, &msg);
+	clif_ui_action(sd, 0, attendance_count);
+#else
+	ShowWarning("Attendance System available only for PACKETVER >= 20180307.\n");
+#endif
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -21093,7 +21233,7 @@ void packetdb_readdb(void)
 		6,  2,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
-		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  0,  0,  0,
+		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  8,  0,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
 	   -1, 11, 12, 11,  0,  0,  0, 75, -1,143, -1,  0,  0, -1, -1, -1,
@@ -21109,7 +21249,7 @@ void packetdb_readdb(void)
 //#0x0A40
  		0,  0,  0, 85, -1,  0,  0,  0,  0, 20,  6,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
+		0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0, -1,  0,  0,
  		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
 //#0x0A80
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -21119,8 +21259,8 @@ void packetdb_readdb(void)
 //#0x0AC0
 		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  7,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  2,
+	   10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	};
 	struct {
 		void (*func)(int, struct map_session_data *);
@@ -21372,8 +21512,10 @@ void packetdb_readdb(void)
 		{clif_parse_equipswitch_remove, "equipswitch_remove"},
 		{clif_parse_equipswitch_request, "equipswitch_request"},
 		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
-		{ clif_parse_changedress,"changedress" },
-		{ clif_parse_private_airship_request, "pPrivateAirshipRequest" },
+		{clif_parse_changedress,"changedress"},
+		{clif_parse_private_airship_request, "pPrivateAirshipRequest"},
+		{ clif_parse_open_ui_request, "pOpenUIRequest"},
+		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
 		{NULL,NULL}
 	};
 

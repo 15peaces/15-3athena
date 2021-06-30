@@ -143,6 +143,7 @@ typedef union DBKey {
 	int i;
 	unsigned int ui;
 	const char *str;
+	int64 i64;
 } DBKey;
 
 /**
@@ -157,6 +158,7 @@ typedef enum DBDataType {
 	DB_DATA_INT,
 	DB_DATA_UINT,
 	DB_DATA_PTR,
+	DB_DATA_I64
 } DBDataType;
 
 /**
@@ -174,6 +176,7 @@ typedef struct DBData {
 		int i;
 		unsigned int ui;
 		void *ptr;
+		int64 i64;
 	} u;
 } DBData;
 
@@ -601,16 +604,21 @@ struct DBMap {
 #define idb_get(db,k)   ( (db)->get((db),db_i2key(k)) )
 #define uidb_get(db,k)  ( (db)->get((db),db_ui2key(k)) )
 #define strdb_get(db,k) ( (db)->get((db),db_str2key(k)) )
+#define i64db_get(db,k)  ( (db)->get((db),db_i642key(k)) )
+
 
 #define db_put(db,k,d)    ( (db)->put((db),(k),(d)) )
 #define idb_put(db,k,d)   ( (db)->put((db),db_i2key(k),(d)) )
 #define uidb_put(db,k,d)  ( (db)->put((db),db_ui2key(k),(d)) )
 #define strdb_put(db,k,d) ( (db)->put((db),db_str2key(k),(d)) )
+#define i64db_put(db,k,d)  ( (db)->put((db),db_i642key(k),(d)) )
+
 
 #define db_remove(db,k)    ( (db)->remove((db),(k)) )
 #define idb_remove(db,k)   ( (db)->remove((db),db_i2key(k)) )
 #define uidb_remove(db,k)  ( (db)->remove((db),db_ui2key(k)) )
 #define strdb_remove(db,k) ( (db)->remove((db),db_str2key(k)) )
+#define i64db_remove(db,k)  ( (db)->remove((db),db_i642key(k)) )
 
 //These are discarding the possible vargs you could send to the function, so those
 //that require vargs must not use these defines.
@@ -761,6 +769,14 @@ DBKey db_ui2key(unsigned int key);
  * @public
  */
 DBKey db_str2key(const char *key);
+
+/**
+ * Manual cast from 'int64' to the union DBKey.
+ * @param key Key to be casted
+ * @return The key as a DBKey union
+ * @public
+ */
+DBKey db_i642key(int64 key);
 
 /**
  * Manual cast from 'void *' to the struct DBData.

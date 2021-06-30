@@ -2487,6 +2487,21 @@ DBKey db_str2key(const char *key)
 }
 
 /**
+ * Manual cast from 'int64' to the union DBKey.
+ * @param key Key to be casted
+ * @return The key as a DBKey union
+ * @public
+ */
+DBKey db_i642key(int64 key)
+{
+	DBKey ret;
+
+	DB_COUNTSTAT(db_i642key);
+	ret.i64 = key;
+	return ret;
+}
+
+/**
 * Gets void* type data from struct DBData.
 * If data is not void* type, returns NULL.
 * @param data Data
