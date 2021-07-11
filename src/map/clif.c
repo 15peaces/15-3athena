@@ -15252,7 +15252,7 @@ void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd)
 			if (!sd->state.rest)
 				break;
 		case MAPID_SUPER_NOVICE:
-		case MAPID_SUPER_NOVICE_E:
+		//case MAPID_SUPER_NOVICE_E:
 			sd->state.doridori=1;
 			break;
 	}
@@ -15269,7 +15269,7 @@ void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd)
 ///       "Help me out~ Please~ T_T"
 void clif_parse_NoviceExplosionSpirits(int fd, struct map_session_data *sd)
 {
-	if( (( sd->class_&MAPID_BASEMASK ) == MAPID_SUPER_NOVICE || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) )
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
 	{
 		unsigned int next = pc_nextbaseexp(sd);
 

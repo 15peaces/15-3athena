@@ -7,6 +7,39 @@
 //========================================
 06/30/2021
 	r301 [15peaces]
+		*Merged missing changes from 3ceam rev. 751 - 752
+		*Super Novice and Expanded Super Novice changes:
+			-Its been found that aegis does in fact treat Super Novices as a 2nd job of the Novice. Also some inheriting issues may have existed. The change to treat them as 1st job was mainly done to fix some issues with the Expanded Super Novice, but now we 
+			-know the real and best way to fix them.
+		*3ceam rental script
+			-Fixed a issue where the dragon color selection code was missing needed breaks.
+		*Fixed a issue where the dragon command and pc_setdragon function were missing needed breaks in the dragon color selection code.
+		*Did some updates in the item_db.
+			-Fixed a issue where some bonuses were not working for certain jobs.
+			-Cleaned up some checks to reduce script sizes.
+		*Cleaned up a lot of code that checks for certain jobs.
+			-Now that MAPID_UPPERMASK works and with the finalized and now fully working MAPID_THIRDMASK, I was able to redo a lot of checks to use a lot less coding and make higher jobs more compatible with checks made for lower jobs. Things are also more 
+			-reliable because of this.
+		*Fixed a issue where the "dragon" command wasn't properly checking for Baby Rune Knights.
+		*Fixed a issue where the pc_setdragon functions wasn't properly checking for Baby Rune Knights
+		*Novice; High Novice; Baby Novice
+			-Now have stat bonuses.
+		*RA_UNLIMIT
+			-Cast time updated to official.
+		*RA_WUGRIDER
+			-Updated the speed increase formula to official.
+			-Yes its official for sure this time. Fully tested and confirmed.
+		*LG_PINPOINTATTACK
+			-Fixed a issue where the success chance formula for breaking equips was incorrect.
+			-Confirmed that base 30 percent does not exist.
+			-Fixed a issue where the success chance was not applied correctly to equip breaking.
+			-Updated the bleeding status duration to official.
+		*SR_TIGERCANNON
+			-Skill now ignores flee.
+			-Tests on official confirms it ignores flee.
+
+06/30/2021
+	r301 [15peaces]
 		*Removed some duplicated clif_functions.
 			-Fixed some other functions and did some clean-up.
 		*Changed a huge number of functions to support int64 values.

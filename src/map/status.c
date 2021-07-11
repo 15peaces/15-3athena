@@ -2773,7 +2773,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 
 	// If a Super Novice has never died and is at least joblv 70, he gets all stats +10
-	if(((sd->class_&MAPID_BASEMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
+	if (((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_THIRDMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
 		status->str += 10;
 		status->agi += 10;
 		status->vit += 10;
@@ -3017,7 +3017,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	status->amotion = cap_value(i,battle_config.max_aspd,2000);
 
 	// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
-	if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
+	if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
 	(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
 		status->amotion = cap_value(i,battle_config.max_aspd_renewal_jobs,2000);
 
@@ -3904,7 +3904,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 				amotion = amotion*status->aspd_rate/1000;
 			
 			// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
-			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT || (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
+			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
 			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
 				status->amotion = cap_value(amotion,battle_config.max_aspd_renewal_jobs,2000);
 			else
@@ -4995,8 +4995,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 			if( sd && pc_isdragon(sd) )
 				val = 25;
 			else
-			if (sd && pc_iswugrider(sd))
-				val = 10 * pc_checkskill(sd, RA_WUGRIDER);//10% increase per level. This should do. [Rytech]
+			if( sd && pc_iswugrider(sd) )//Formula confirmed from testing and finalized. Do not touch. [Rytech]
+				val = 15 + 5 * pc_checkskill(sd, RA_WUGRIDER);
 
 			speed_rate -= val;
 		}
@@ -7222,7 +7222,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 0;
 			break;
 		case SC_SUITON:
-			if (!val2 || (sd && ((sd->class_&MAPID_UPPERMASK) == MAPID_NINJA || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO))) {
+			if (!val2 || (sd && (sd->class_&MAPID_BASEMASK) == MAPID_NINJA)) {
 				//No penalties.
 				val2 = 0; //Agi penalty
 				val3 = 0; //Walk speed penalty
@@ -7537,10 +7537,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = 0;
 			val4 = 0;
 			if ( sd && battle_config.marionette_renewal_jobs == 1 &&
-				((sd->class_&MAPID_THIRDMASK) >= MAPID_RUNE_KNIGHT ||
-				(sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE_E ||
-				(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO ||
-				(sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+				((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
+				(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
 				max_stat = battle_config.max_parameter_renewal_jobs;//Custom cap for renewal jobs.
 			else
 				max_stat = battle_config.max_parameter; //Cap to 99 (default)
