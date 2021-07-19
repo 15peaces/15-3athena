@@ -1182,7 +1182,6 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->status.body = cap_value(sd->status.body,MIN_BODY_STYLE,MAX_BODY_STYLE);
 
 	//Initializations to null/0 unneeded since map_session_data was filled with 0 upon allocation.
-	if(!sd->status.hp) pc_setdead(sd);
 	sd->state.connect_new = 1;
 
 	sd->followtimer = INVALID_TIMER; // [MouseJstr]
@@ -1454,6 +1453,7 @@ int pc_reg_received(struct map_session_data *sd)
 	if (sd->state.active)
 		return 0;
 	sd->state.active = 1;
+	sd->state.pc_loaded = false; // Ensure inventory data and status data is loaded before we calculate player stats
 
 	intif_storage_request(sd,TABLE_INVENTORY); // Request inventory data
 	intif_storage_request(sd,TABLE_CART); // Request cart data
@@ -1497,6 +1497,13 @@ int pc_reg_received(struct map_session_data *sd)
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);
 #endif
+
+	sd->state.pc_loaded = true;
+
+	if (sd->state.connect_new == 0 && sd->fd) { // Character already loaded map! Gotta trigger LoadEndAck manually.
+		sd->state.connect_new = 1;
+		clif_parse_LoadEndAck(sd->fd, sd);
+	}
 
 	// Achievements [Smokexyz/Hercules]
 	intif_request_achievements(sd->status.char_id);
@@ -7809,7 +7816,7 @@ void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int ty
  *------------------------------------------*/
 int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 {
-	int i, bonus;
+	int i, bonus, penalty;
 
 	if(hp) {
 		bonus = 100 + (sd->battle_status.vit<<1)
@@ -7847,19 +7854,29 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 			sp = sp * bonus / 100;
 	}
 
-	bonus = 0;
-	if( sd->sc.data[SC_CRITICALWOUND] )
-		bonus += sd->sc.data[SC_CRITICALWOUND]->val2;
-	if( sd->sc.data[SC_DEATHHURT] )
-		bonus += 20;
+	if( sd->sc.data[SC_EXTRACT_WHITE_POTION_Z] )
+		hp += hp * sd->sc.data[SC_EXTRACT_WHITE_POTION_Z]->val1 / 100;// 20% Increase on HP recovery
 
-	hp -= hp * bonus / 100;
-	sp -= sp * bonus / 100;
+	if( sd->sc.data[SC_VITATA_500] )
+		sp += sp * sd->sc.data[SC_VITATA_500]->val1 / 100;// 20% Increase on SP recovery
 
 	if( sd->sc.data[SC_VITALITYACTIVATION] )
 	{
-		hp += hp / 2; // 1.5 times
-		sp -= sp / 2;
+		hp += hp * 50 / 100;// 50% Increase on HP recovery
+		sp -= sp * 50 / 100;// 50% Decrease on SP recovery
+	}
+
+	// Critical Wound and Death Hurt stacks with each other.
+	penalty = 0;
+	if( sd->sc.data[SC_CRITICALWOUND] )
+		penalty += sd->sc.data[SC_CRITICALWOUND]->val2;
+	if( sd->sc.data[SC_DEATHHURT] )
+		penalty += 20;
+	// Apply a penalty to recovery if there is one.
+	if (penalty > 0)
+	{
+		hp -= hp * penalty / 100;
+		sp -= sp * penalty / 100;
 	}
 
 	return status_heal(&sd->bl, hp, sp, 1);

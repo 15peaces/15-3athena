@@ -42,8 +42,8 @@ typedef enum sc_type {
 	SC_FROSTMISTY,
 	SC_COLD,//Crystalize. Another not so common status, but officially treated as one.
 	SC_NORECOVER,
-	//SC_ICEEXPLO,//ICEEXPLO and ILLUSION are also listed as common treated,
-	//SC_ILLUSION,//but not yet confirmed in the zone.
+	//SC_ICEEXPLO,//ICEEXPLO and NEW_POISON are also listed as common treated,
+	//SC_NEW_POISON,//but not yet confirmed in the zone.
 	SC_COMMON_MAX = 17, // end
 	
 	//Next up, we continue on 20, to leave enough room for additional "common" ailments in the future.
@@ -1204,8 +1204,8 @@ enum si_type {
 	SI_MYSTERIOUS_POWDER = 477,
 	SI_MELON_BOMB = 478,
 	SI_BANANA_BOMB_SITDOWN_POSTDELAY = 479,
-	/*SI_PROMOTE_HEALTH_RESERCH = 480,
-	SI_ENERGY_DRINK_RESERCH = 481,*/
+	SI_PROMOTE_HEALTH_RESERCH = 480,
+	SI_ENERGY_DRINK_RESERCH = 481,
 	SI_EXTRACT_WHITE_POTION_Z = 482,
 	SI_VITATA_500 = 483,
 	SI_EXTRACT_SALAMINE_JUICE = 484,

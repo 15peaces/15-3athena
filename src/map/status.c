@@ -823,11 +823,9 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_BANANA_BOMB] = SI_BANANA_BOMB;
 	StatusIconChangeTable[SC_BANANA_BOMB_SITDOWN_POSTDELAY] = SI_BANANA_BOMB_SITDOWN_POSTDELAY;
 	StatusIconChangeTable[SC_MYSTERIOUS_POWDER] = SI_MYSTERIOUS_POWDER;
-	StatusIconChangeTable[SC_BOOST500] |= SI_BOOST500;
-	StatusIconChangeTable[SC_FULL_SWING_K] |= SI_FULL_SWING_K;
-	StatusIconChangeTable[SC_MANA_PLUS] |= SI_MANA_PLUS;
-	StatusIconChangeTable[SC_MUSTLE_M] |= SI_MUSTLE_M;
-	StatusIconChangeTable[SC_LIFE_FORCE_F] |= SI_LIFE_FORCE_F;
+	StatusIconChangeTable[SC_PROMOTE_HEALTH_RESERCH] = SI_PROMOTE_HEALTH_RESERCH;
+	StatusIconChangeTable[SC_ENERGY_DRINK_RESERCH] = SI_ENERGY_DRINK_RESERCH;
+	StatusIconChangeTable[SC_EXTRACT_WHITE_POTION_Z] |= SI_EXTRACT_WHITE_POTION_Z;
 	StatusIconChangeTable[SC_SAVAGE_STEAK] = SI_SAVAGE_STEAK;
 	StatusIconChangeTable[SC_COCKTAIL_WARG_BLOOD] = SI_COCKTAIL_WARG_BLOOD;
 	StatusIconChangeTable[SC_MINOR_BBQ] = SI_MINOR_BBQ;
@@ -835,9 +833,13 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_DROCERA_HERB_STEAMED] = SI_DROCERA_HERB_STEAMED;
 	StatusIconChangeTable[SC_PUTTI_TAILS_NOODLES] = SI_PUTTI_TAILS_NOODLES;
 	StatusIconChangeTable[SC_STOMACHACHE] = SI_STOMACHACHE;
-	StatusIconChangeTable[SC_EXTRACT_WHITE_POTION_Z] |= SI_EXTRACT_WHITE_POTION_Z;
 	StatusIconChangeTable[SC_VITATA_500] |= SI_VITATA_500;
-	StatusIconChangeTable[SC_EXTRACT_SALAMINE_JUICE] = SI_EXTRACT_SALAMINE_JUICE;
+	StatusIconChangeTable[SC_EXTRACT_SALAMINE_JUICE] |= SI_EXTRACT_SALAMINE_JUICE;
+	StatusIconChangeTable[SC_BOOST500] |= SI_BOOST500;
+	StatusIconChangeTable[SC_FULL_SWING_K] |= SI_FULL_SWING_K;
+	StatusIconChangeTable[SC_MANA_PLUS] |= SI_MANA_PLUS;
+	StatusIconChangeTable[SC_MUSTLE_M] |= SI_MUSTLE_M;
+	StatusIconChangeTable[SC_LIFE_FORCE_F] |= SI_LIFE_FORCE_F;
 
 	// Warlock Spheres
 	StatusIconChangeTable[SC_SUMMON1] = SI_SUMMON1;
@@ -998,19 +1000,21 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_BANANA_BOMB] = SCB_LUK;
 	StatusChangeFlagTable[SC_MYSTERIOUS_POWDER] |= SCB_MAXHP;
 	StatusChangeFlagTable[SC_BOOST500] |= SCB_ASPD;
-	StatusChangeFlagTable[SC_FULL_SWING_K] |= SCB_BATK;
+	StatusChangeFlagTable[SC_FULL_SWING_K] |= SCB_WATK;
 	StatusChangeFlagTable[SC_MANA_PLUS] |= SCB_MATK;
 	StatusChangeFlagTable[SC_MUSTLE_M] |= SCB_MAXHP;
 	StatusChangeFlagTable[SC_LIFE_FORCE_F] |= SCB_MAXSP;
-	StatusChangeFlagTable[SC_EXTRACT_WHITE_POTION_Z] |= SCB_REGEN;
+	StatusChangeFlagTable[SC_PROMOTE_HEALTH_RESERCH] |= SCB_MAXHP;
+	StatusChangeFlagTable[SC_ENERGY_DRINK_RESERCH] |= SCB_MAXSP;
+	//StatusChangeFlagTable[SC_EXTRACT_WHITE_POTION_Z] |= SCB_REGEN;
 	StatusChangeFlagTable[SC_SAVAGE_STEAK] |= SCB_STR;
 	StatusChangeFlagTable[SC_COCKTAIL_WARG_BLOOD] |= SCB_INT;
 	StatusChangeFlagTable[SC_MINOR_BBQ] |= SCB_VIT;
 	StatusChangeFlagTable[SC_SIROMA_ICE_TEA] |= SCB_DEX;
 	StatusChangeFlagTable[SC_DROCERA_HERB_STEAMED] |= SCB_AGI;
 	StatusChangeFlagTable[SC_PUTTI_TAILS_NOODLES] |= SCB_LUK;
-	StatusChangeFlagTable[SC_STOMACHACHE] |= SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK;
-	StatusChangeFlagTable[SC_VITATA_500] |= SCB_REGEN | SCB_MAXSP;
+	StatusChangeFlagTable[SC_STOMACHACHE] |= SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK;
+	StatusChangeFlagTable[SC_VITATA_500] |= SCB_MAXSP;
 	StatusChangeFlagTable[SC_EXTRACT_SALAMINE_JUICE] |= SCB_ASPD;
 
 	// Clan System
@@ -3590,17 +3594,8 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		} else
 			regen->flag&=~sce->val4; //Remove regen as specified by val4
 	}
-	if( sc->data[SC_DEATHHURT] )
-	{
-		regen->rate.hp -= 1;
-		regen->rate.sp -= 1;
-	}
 	if( sc->data[SC_VITALITYACTIVATION] )
 		regen->flag &=~RGN_SP;
-	if(sc->data[SC_EXTRACT_WHITE_POTION_Z])
-		regen->rate.hp += regen->rate.hp * sc->data[SC_EXTRACT_WHITE_POTION_Z]->val1/100;
-	if (sc->data[SC_VITATA_500])
-		regen->rate.sp += regen->rate.sp * sc->data[SC_VITATA_500]->val1 / 100;
 }
 
 /// Recalculates parts of an object's battle status according to the specified flags.
@@ -4421,6 +4416,11 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 	return (unsigned short)cap_value(dex,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static unsigned short status_calc_luk(struct block_list *bl, struct status_change *sc, int luk)
 {
 	if(!sc || !sc->count)
@@ -4428,6 +4428,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 
 	if(sc->data[SC_CURSE])
 		return 0;
+	if (sc->data[SC_FULL_THROTTLE])
+		luk += luk * 20 / 100;
 	if(sc->data[SC_INCALLSTATUS])
 		luk += sc->data[SC_INCALLSTATUS]->val1;
 	if(sc->data[SC_INCLUK])
@@ -4448,10 +4450,14 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_PUTTI_TAILS_NOODLES]->val1;
 	if(sc->data[SC_INSPIRATION])
 		luk += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_GOLDENMACECLAN])
+		luk += 1;
+	if (sc->data[SC_JUMPINGCLAN])
+		luk += 1;
 	if(sc->data[SC__STRIPACCESSARY])
 		luk -= luk * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_BANANA_BOMB])
-		luk -= luk * sc->data[SC_BANANA_BOMB]->val1 / 100;
+		luk -= 77;
 	if(sc->data[SC_STOMACHACHE])
 		luk -= sc->data[SC_STOMACHACHE]->val1;
 	if(sc->data[SC_KYOUGAKU])
@@ -4462,14 +4468,15 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_MARIONETTE2]->val4&0xFF;
 	if(sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH && luk < 50)
 		luk = 50;
-	if(sc->data[SC_GOLDENMACECLAN])
-		luk += 1;
-	if(sc->data[SC_JUMPINGCLAN])
-		luk += 1;
 
 	return (unsigned short)cap_value(luk,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static unsigned short status_calc_batk(struct block_list *bl, struct status_change *sc, int batk)
 {
 	if(!sc || !sc->count)
@@ -4479,6 +4486,10 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += sc->data[SC_ATKPOTION]->val1;
 	if(sc->data[SC_BATKFOOD])
 		batk += sc->data[SC_BATKFOOD]->val1;
+	if(sc->data[SC_GATLINGFEVER])
+		batk += sc->data[SC_GATLINGFEVER]->val3;
+	if(sc->data[SC_MADNESSCANCEL])
+		batk += 100;
 	if(sc->data[SC_INCATKRATE])
 		batk += batk * sc->data[SC_INCATKRATE]->val1/100;
 	if(sc->data[SC_PROVOKE])
@@ -4489,6 +4500,10 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += batk * 3;
 	if(sc->data[SC_BLOODLUST])
 		batk += batk * sc->data[SC_BLOODLUST]->val2/100;
+	if(sc->data[SC_FLEET])
+		batk += batk * sc->data[SC_FLEET]->val3/100;
+	if(sc->data[SC__BLOODYLUST])
+		batk += batk * 32 / 100;
 	if(sc->data[SC_JOINTBEAT] && sc->data[SC_JOINTBEAT]->val2&BREAK_WAIST)
 		batk -= batk * 25/100;
 	if(sc->data[SC_CURSE])
@@ -4496,22 +4511,17 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 //Curse shouldn't effect on this?  <- Curse OR Bleeding??
 //	if(sc->data[SC_BLEEDING])
 //		batk -= batk * 25/100;
-	if(sc->data[SC_FLEET])
-		batk += batk * sc->data[SC_FLEET]->val3/100;
-	if(sc->data[SC_GATLINGFEVER])
-		batk += sc->data[SC_GATLINGFEVER]->val3;
-	if(sc->data[SC_MADNESSCANCEL])
-		batk += 100;
 	if(sc->data[SC__ENERVATION])
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
-	if(sc->data[SC__BLOODYLUST])
-		batk += batk * 32 / 100;
-	if(sc->data[SC_FULL_SWING_K])
-		batk += sc->data[SC_FULL_SWING_K]->val1;
 
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static unsigned short status_calc_watk(struct block_list *bl, struct status_change *sc, int watk)
 {
 	if(!sc || !sc->count)
@@ -4525,6 +4535,30 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_DRUMBATTLE]->val2;
 	if(sc->data[SC_VOLCANO])
 		watk += sc->data[SC_VOLCANO]->val2;
+	if(sc->data[SC_MERC_ATKUP])
+		watk += sc->data[SC_MERC_ATKUP]->val2;
+	if(sc->data[SC_FIGHTINGSPIRIT])
+		watk += sc->data[SC_FIGHTINGSPIRIT]->val1;
+	if(sc->data[SC_CAMOUFLAGE])
+		watk += 30 * sc->data[SC_CAMOUFLAGE]->val2;
+	if(sc->data[SC_STRIKING])
+		watk += sc->data[SC_STRIKING]->val2;
+	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
+		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
+	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )
+		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
+	if(sc->data[SC_INSPIRATION])
+		watk += sc->data[SC_INSPIRATION]->val2;
+	if(sc->data[SC_GENTLETOUCH_CHANGE])
+		watk += sc->data[SC_GENTLETOUCH_CHANGE]->val2;
+	if(sc->data[SC_RUSH_WINDMILL])
+		watk += sc->data[SC_RUSH_WINDMILL]->val3;
+	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
+		watk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
+	if(sc->data[SC_ODINS_POWER])
+		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
+	if(sc->data[SC_FULL_SWING_K])
+		watk += sc->data[SC_FULL_SWING_K]->val1;
 	if(sc->data[SC_INCATKRATE])
 		watk += watk * sc->data[SC_INCATKRATE]->val1/100;
 	if(sc->data[SC_PROVOKE])
@@ -4547,36 +4581,15 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_BLOODLUST]->val2/100;
 	if(sc->data[SC_FLEET])
 		watk += watk * sc->data[SC_FLEET]->val3/100;
+	if(sc->data[SC__BLOODYLUST])
+		watk += watk * 32 / 100;
 	if(sc->data[SC_CURSE])
 		watk -= watk * 25/100;
 	if(sc->data[SC_STRIPWEAPON])
 		watk -= watk * sc->data[SC_STRIPWEAPON]->val2/100;
-	if(sc->data[SC_MERC_ATKUP])
-		watk += sc->data[SC_MERC_ATKUP]->val2;
-	if(sc->data[SC_FIGHTINGSPIRIT])
-		watk += sc->data[SC_FIGHTINGSPIRIT]->val1;
-	if (sc->data[SC_CAMOUFLAGE])
-		watk += 30 * sc->data[SC_CAMOUFLAGE]->val2;
 	if(sc->data[SC__ENERVATION])
 		watk -= watk * sc->data[SC__ENERVATION]->val2 / 100;
-	if(sc->data[SC__BLOODYLUST])
-		watk += watk * 32 / 100;
-	if(sc->data[SC_STRIKING])
-		watk += sc->data[SC_STRIKING]->val2;
-	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
-		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
-	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
-		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
-	if(sc->data[SC_INSPIRATION])
-		watk += sc->data[SC_INSPIRATION]->val2;
-	if (sc->data[SC_GENTLETOUCH_CHANGE])
-		watk += sc->data[SC_GENTLETOUCH_CHANGE]->val2;
-	if (sc->data[SC_RUSH_WINDMILL])
-		watk += sc->data[SC_RUSH_WINDMILL]->val3;
-	if (sc->data[SC_SATURDAY_NIGHT_FEVER])
-		watk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
-	if (sc->data[SC_ODINS_POWER])
-		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if( sc->data[SC_HEATER_OPTION] )
@@ -4591,6 +4604,11 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 	return (unsigned short)cap_value(watk,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static unsigned short status_calc_matk(struct block_list *bl, struct status_change *sc, int matk)
 {
 	if(!sc || !sc->count)
@@ -4600,20 +4618,21 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += sc->data[SC_MATKPOTION]->val1;
 	if(sc->data[SC_MATKFOOD])
 		matk += sc->data[SC_MATKFOOD]->val1;
+	if(sc->data[SC_MOONLIT_SERENADE])
+		matk += sc->data[SC_MOONLIT_SERENADE]->val3;
+	if(sc->data[SC_MANA_PLUS])
+		matk += sc->data[SC_MANA_PLUS]->val1;
+	if(sc->data[SC_ODINS_POWER])
+		matk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
+	if(sc->data[SC_IZAYOI])//Recheck the MATK increase please. [Rytech]
+		matk += sc->data[SC_IZAYOI]->val2;
 	if(sc->data[SC_MAGICPOWER])
 		matk += matk * sc->data[SC_MAGICPOWER]->val3/100;
 	if(sc->data[SC_MINDBREAKER])
 		matk += matk * sc->data[SC_MINDBREAKER]->val2/100;
 	if(sc->data[SC_INCMATKRATE])
 		matk += matk * sc->data[SC_INCMATKRATE]->val1/100;
-	if(sc->data[SC_MOONLIT_SERENADE])
-		matk += sc->data[SC_MOONLIT_SERENADE]->val3;
-	if(sc->data[SC_MANA_PLUS])
-		matk += sc->data[SC_MANA_PLUS]->val1;
-	if (sc->data[SC_ODINS_POWER])
-		matk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
-	if (sc->data[SC_IZAYOI])
-		matk += sc->data[SC_IZAYOI]->val2;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_AQUAPLAY_OPTION])
 		matk += sc->data[SC_AQUAPLAY_OPTION]->val2;
 	if(sc->data[SC_CHILLY_AIR_OPTION])
@@ -4624,6 +4643,11 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	return (unsigned short)cap_value(matk,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed short status_calc_critical(struct block_list *bl, struct status_change *sc, int critical)
 {
 	if(!sc || !sc->count)
@@ -4641,20 +4665,25 @@ static signed short status_calc_critical(struct block_list *bl, struct status_ch
 		critical += sc->data[SC_TRUESIGHT]->val2;
 	if (sc->data[SC_CLOAKING])
 		critical += critical;
+	if(sc->data[SC_BEYOND_OF_WARCRY])// Recheck. May be incorrect.
+		critical += 10 * sc->data[SC_BEYOND_OF_WARCRY]->val3;
 	if(sc->data[SC_CAMOUFLAGE])
 		critical += critical * (10 * sc->data[SC_CAMOUFLAGE]->val2) / 100;
 	if(sc->data[SC__INVISIBILITY])
 		critical += critical * sc->data[SC__INVISIBILITY]->val2 / 100;
 	if(sc->data[SC__UNLUCKY])
 		critical -= critical * sc->data[SC__UNLUCKY]->val2 / 100;
-	if(sc->data[SC_BEYOND_OF_WARCRY])
-		critical += 10 * sc->data[SC_BEYOND_OF_WARCRY]->val3;
 	if (sc->data[SC_STRIKING])
 		critical += critical * sc->data[SC_STRIKING]->val1 / 100;
 
 	return (short)cap_value(critical, 10, SHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed short status_calc_hit(struct block_list *bl, struct status_change *sc, int hit)
 {
 	
@@ -4671,28 +4700,35 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit += sc->data[SC_HUMMING]->val2;
 	if(sc->data[SC_CONCENTRATION])
 		hit += sc->data[SC_CONCENTRATION]->val3;
-	if(sc->data[SC_INCHITRATE])
-		hit += hit * sc->data[SC_INCHITRATE]->val1/100;
-	if(sc->data[SC_BLIND] || sc->data[SC_PYREXIA])
-		hit -= hit * 25/100;
-	if(sc->data[SC_ADJUSTMENT])
-		hit -= 30;
 	if(sc->data[SC_INCREASING])
 		hit += 20; // RockmanEXE; changed based on updated [Reddozen]
 	if(sc->data[SC_MERC_HITUP])
 		hit += sc->data[SC_MERC_HITUP]->val2;
+	if(sc->data[SC_INSPIRATION])//Unable to add job level check at this time with current coding. Will add later. [Rytech]
+		hit += 5 * sc->data[SC_INSPIRATION]->val1 + 25;
+	if(sc->data[SC_INCHITRATE])
+		hit += hit * sc->data[SC_INCHITRATE]->val1/100;
+	if(sc->data[SC_ADJUSTMENT])
+		hit -= 30;
+	if(sc->data[SC_BLIND])
+		hit -= hit * 25/100;
+	if(sc->data[SC_PYREXIA])
+		hit -= hit * 25/100;
 	if(sc->data[SC__GROOMY])
 		hit -= hit * sc->data[SC__GROOMY]->val2 / 100;
 	if(sc->data[SC_FEAR])
 		hit -= hit * 20 / 100;
-	if (sc->data[SC_INSPIRATION])//Unable to add job level check at this time with current coding. Will add later. [Rytech]
-		hit += 5 * sc->data[SC_INSPIRATION]->val1 + 25;
 	if (sc->data[SC_FIRE_EXPANSION_TEAR_GAS])
 		hit -= hit * 50 / 100;
 
 	return (short)cap_value(hit,1,SHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed short status_calc_flee(struct block_list *bl, struct status_change *sc, int flee)
 {
 	if( bl->type == BL_PC )
@@ -4714,48 +4750,51 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += sc->data[SC_WHISTLE]->val2;
 	if(sc->data[SC_WINDWALK])
 		flee += sc->data[SC_WINDWALK]->val2;
-	if(sc->data[SC_INCFLEERATE])
-		flee += flee * sc->data[SC_INCFLEERATE]->val1/100;
 	if(sc->data[SC_VIOLENTGALE])
 		flee += sc->data[SC_VIOLENTGALE]->val2;
 	if(sc->data[SC_MOON_COMFORT]) //SG skill [Komurka]
 		flee += sc->data[SC_MOON_COMFORT]->val2;
 	if(sc->data[SC_CLOSECONFINE])
 		flee += 10;
-	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
-		flee -= flee * 50/100;
-	if(sc->data[SC_BERSERK])
-		flee -= flee * 50/100;
-	if(sc->data[SC_BLIND] || sc->data[SC_PYREXIA])
-		flee -= flee * 25/100;
 	if(sc->data[SC_ADJUSTMENT])
 		flee += 30;
-	if(sc->data[SC_GATLINGFEVER])
-		flee -= sc->data[SC_GATLINGFEVER]->val4;
 	if(sc->data[SC_SPEED])
 		flee += 10 + sc->data[SC_SPEED]->val1 * 10;
 	if(sc->data[SC_MERC_FLEEUP])
 		flee += sc->data[SC_MERC_FLEEUP]->val2;
-	if(sc->data[SC_FEAR])
-		flee -= flee * 20 / 100;
-	if(sc->data[SC_PARALYSE])
-		flee -= flee / 10; // 10% Flee reduction
 	if( sc->data[SC_HALLUCINATIONWALK] )
 		flee += sc->data[SC_HALLUCINATIONWALK]->val2;
- 	if(sc->data[SC_INFRAREDSCAN])
+	if(sc->data[SC_INCFLEERATE])
+		flee += flee * sc->data[SC_INCFLEERATE]->val1/100;
+	if ( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
+		flee += flee * 20 / 100;
+	if(sc->data[SC_GATLINGFEVER])
+		flee -= sc->data[SC_GATLINGFEVER]->val4;
+	if( sc->data[SC_GLOOMYDAY] )
+		flee -= sc->data[SC_GLOOMYDAY]->val2;
+	if ( sc->data[SC_C_MARKER] )
+		flee -= 10;
+	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
+		flee -= flee * 50/100;
+	if(sc->data[SC_BERSERK])
+		flee -= flee * 50/100;
+	if (sc->data[SC_BLIND])
+		flee -= flee * 25/100;
+	if (sc->data[SC_FEAR])
+		flee -= flee * 20 / 100;
+	if (sc->data[SC_PYREXIA])
+		flee -= flee * 25 / 100;
+	if (sc->data[SC_PARALYSE])
+		flee -= flee / 10; // 10% Flee reduction
+	if (sc->data[SC_INFRAREDSCAN])
 		flee -= flee * 30 / 100;
 	if( sc->data[SC__LAZINESS] )
 		flee -= flee * sc->data[SC__LAZINESS]->val2 / 100;
-	if( sc->data[SC_GLOOMYDAY] )
-		flee -= sc->data[SC_GLOOMYDAY]->val2;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		flee -= flee * (40 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
-	if (sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER])
-		flee += flee * 20 / 100;
 	if (sc->data[SC_FIRE_EXPANSION_TEAR_GAS])
 		flee -= flee * 50 / 100;
-	if ( sc->data[SC_C_MARKER] )
-		flee -= 10;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_WATER_BARRIER] )
 		flee -= sc->data[SC_WATER_BARRIER]->val3;
 	if( sc->data[SC_WIND_STEP_OPTION] )
@@ -4766,6 +4805,11 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 	return (short)cap_value(flee,1,SHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed short status_calc_flee2(struct block_list *bl, struct status_change *sc, int flee2)
 {
 	if(!sc || !sc->count)
@@ -4781,6 +4825,11 @@ static signed short status_calc_flee2(struct block_list *bl, struct status_chang
 	return (short)cap_value(flee2,10,SHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed char status_calc_def(struct block_list *bl, struct status_change *sc, int def)
 {
 	if(!sc || !sc->count)
@@ -4803,9 +4852,23 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if(sc->data[SC_DRUMBATTLE])
 		def += sc->data[SC_DRUMBATTLE]->val3;
 	if(sc->data[SC_DEFENCE])	//[orn]
-		def += sc->data[SC_DEFENCE]->val2 ;
+		def += sc->data[SC_DEFENCE]->val2;
+	if(sc->data[SC_STONEHARDSKIN])// Final DEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
+		def += sc->data[SC_STONEHARDSKIN]->val1;
+	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
+		def += sc->data[SC_SHIELDSPELL_REF]->val2;
+	if( sc->data[SC_PRESTIGE] )
+		def += sc->data[SC_PRESTIGE]->val1;
+	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
+		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
 	if(sc->data[SC_INCDEFRATE])
 		def += def * sc->data[SC_INCDEFRATE]->val1/100;
+	if( sc->data[SC_NEUTRALBARRIER] )
+		def += def * ( 10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1 ) / 100;
+	if( sc->data[SC_ECHOSONG] )
+		def += def * sc->data[SC_ECHOSONG]->val3 / 100;
+	if(sc->data[SC_ODINS_POWER])
+		def -= 2 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 		def >>=1;
 	if(sc->data[SC_FREEZE])
@@ -4822,32 +4885,19 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * sc->data[SC_STRIPSHIELD]->val2/100;
 	if (sc->data[SC_FLING])
 		def -= def * (sc->data[SC_FLING]->val2)/100;
-	if(sc->data[SC_STONEHARDSKIN])// Final DEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-		def += sc->data[SC_STONEHARDSKIN]->val1;
 	if( sc->data[SC_FREEZING] )
 		def -= def * 10 / 100;
 	if (sc->data[SC_CAMOUFLAGE])
 		def -= def * (5 * sc->data[SC_CAMOUFLAGE]->val2) / 100;
  	if(sc->data[SC_ANALYZE])
 		def -= def * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
-	if (sc->data[SC_NEUTRALBARRIER])
-		def += def * (10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1) / 100;
 	if( sc->data[SC__BLOODYLUST] )
 		def -= def * 55 / 100;
-	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
-		def += sc->data[SC_SHIELDSPELL_REF]->val2;
-	if (sc->data[SC_PRESTIGE])
-		def += sc->data[SC_PRESTIGE]->val1;
-	if (sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
-		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
-	if( sc->data[SC_ECHOSONG] )
-		def += def * sc->data[SC_ECHOSONG]->val3 / 100;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		def -= def * (10 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 	if(sc->data[SC_EARTHDRIVE])
 		def -= def * 25 / 100;
-	if (sc->data[SC_ODINS_POWER])
-		def -= 2 * sc->data[SC_ODINS_POWER]->val1;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_ROCK_CRUSHER] )
 		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
 	if( sc->data[SC_POWER_OF_GAIA] )
@@ -4856,6 +4906,11 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	return (signed char)cap_value(def,CHAR_MIN,CHAR_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed short status_calc_def2(struct block_list *bl, struct status_change *sc, int def2)
 {
 	if(!sc || !sc->count)
@@ -4869,6 +4924,8 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		return 1;
 	if(sc->data[SC_SUN_COMFORT])
 		def2 += sc->data[SC_SUN_COMFORT]->val2;
+	if (sc->data[SC_GENTLETOUCH_REVITALIZE])
+		def2 += sc->data[SC_GENTLETOUCH_REVITALIZE]->val2;
 	if(sc->data[SC_ANGELUS])
 		def2 += def2 * sc->data[SC_ANGELUS]->val2/100;
 	if(sc->data[SC_CONCENTRATION])
@@ -4890,12 +4947,15 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		def2 -= def2 * 10 / 100;
 	if(sc->data[SC_ANALYZE])
 		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
-	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )
-		def2 += sc->data[SC_GENTLETOUCH_REVITALIZE]->val2;
 
 	return (short)cap_value(def2,1,SHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static signed char status_calc_mdef(struct block_list *bl, struct status_change *sc, int mdef)
 {
 	if(!sc || !sc->count)
@@ -4911,20 +4971,18 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		return 90;
 	if (sc->data[SC_UNLIMIT])
 		return 1;
+	if (sc->data[SC_ENDURE] && sc->data[SC_ENDURE]->val4 == 0)
+		mdef += sc->data[SC_ENDURE]->val1;
+	if (sc->data[SC_CONCENTRATION])
+		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
 	if(sc->data[SC_ARMORCHANGE])
 		mdef += sc->data[SC_ARMORCHANGE]->val3;
+	if (sc->data[SC_STONEHARDSKIN])// Final MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
+		mdef += sc->data[SC_STONEHARDSKIN]->val1;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 		mdef += 25*mdef/100;
 	if(sc->data[SC_FREEZE])
 		mdef += 25*mdef/100;
-	if(sc->data[SC_ENDURE] && sc->data[SC_ENDURE]->val4 == 0)
-		mdef += sc->data[SC_ENDURE]->val1;
-	if(sc->data[SC_CONCENTRATION])
-		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
-	if(sc->data[SC_STONEHARDSKIN])// Final MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-		mdef += sc->data[SC_STONEHARDSKIN]->val1;
-	if(sc->data[SC_ANALYZE])
-		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if (sc->data[SC_NEUTRALBARRIER])
 		mdef += mdef * (10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1) / 100;
 	if(sc->data[SC_SYMPHONY_LOVE])
@@ -4937,6 +4995,9 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	}
 	if (sc->data[SC_ODINS_POWER])
 		mdef -= 2 * sc->data[SC_ODINS_POWER]->val1;
+	if(sc->data[SC_ANALYZE])
+		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_WATER_BARRIER])
 		mdef += sc->data[SC_WATER_BARRIER]->val2;
 
@@ -5019,9 +5080,9 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				if( sd && sc->data[SC_DANCING] )
 					val = max( val, 500 - (40 + 10 * (sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER)) * pc_checkskill(sd,(sd->status.sex?BA_MUSICALLESSON:DC_DANCINGLESSON)) );
 
-				if( sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS] )
+				if (sc->data[SC_DECREASEAGI])
 					val = max( val, 25 );
-				if( sc->data[SC_QUAGMIRE] || sc->data[SC_HALLUCINATIONWALK_POSTDELAY] /*|| sc->data[SC_PARALYSE]*/ )
+				if (sc->data[SC_QUAGMIRE])
 					val = max( val, 50 );
 				if( sc->data[SC_DONTFORGETME] )
 					val = max( val, sc->data[SC_DONTFORGETME]->val3 );
@@ -5047,12 +5108,14 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, sc->data[SC_SUITON]->val3 );
 				if( sc->data[SC_SWOO] )
 					val = max( val, 300 );
+				if( sc->data[SC_ADORAMUS] )
+					val = max( val, 25 );
+				if( sc->data[SC_HALLUCINATIONWALK_POSTDELAY] )
+					val = max( val, 50 );
 				if( sc->data[SC_FREEZING] )
 					val = max( val, 50 );
-				/* Enable this if Gravity reviewed the skill behavior.
-				   Currently the movement speed reduction does not work. (2010)
 				if( sc->data[SC_PARALYSE] )
-					val = max( val, 50 );*/
+					val = max( val, 50 );
 				if( sc->data[SC_MARSHOFABYSS] )
 					val = max(val, sc->data[SC_MARSHOFABYSS]->val3);
 				if (sc->data[SC_CAMOUFLAGE] && sc->data[SC_CAMOUFLAGE]->val1 > 2)
@@ -5063,12 +5126,13 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max(val, 25);
 				if( sc->data[SC_BANDING_DEFENCE] )
 					val = max( val, sc->data[SC_BANDING_DEFENCE]->val1 );
+				//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 				if( sc->data[SC_ROCK_CRUSHER_ATK] )
 					val = max( val, sc->data[SC_ROCK_CRUSHER_ATK]->val2 );
 				if( sc->data[SC_POWER_OF_GAIA] )
 					val = max( val, sc->data[SC_POWER_OF_GAIA]->val2 );
 				if( sc->data[SC_MELON_BOMB] )
-					val = max( val, sc->data[SC_MELON_BOMB]->val1 );
+					val = max( val, sc->data[SC_MELON_BOMB]->val2 );
 				if (sc->data[SC_REBOUND])
 					val = max(val, 25);
 
@@ -5103,18 +5167,18 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max( val, 10 * sc->data[SC_AVOID]->val1 );
 			if( sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 				val = max( val, 75 );
+			if (sc->data[SC_ACCELERATION])
+				val = max(val, 25);
 			if( sc->data[SC_CLOAKINGEXCEED] )
 				val = max( val, sc->data[SC_CLOAKINGEXCEED]->val3);
-			if( sc->data[SC_ACCELERATION] )
+			if (sc->data[SC_SWING])
 				val = max( val, 25 );
-			if( sc->data[SC_HOVERING] )
-				val = max( val, 10 );
 			if( sc->data[SC_GN_CARTBOOST] )
 				val = max( val, sc->data[SC_GN_CARTBOOST]->val2 );
-			if( sc->data[SC_SWING] )
-				val = max( val, sc->data[SC_SWING]->val3 );
+			//I can only guess Full Throttles placement and speed increase right now. [Rytech]
 			if (sc->data[SC_FULL_THROTTLE])
-				val = max(val, 25);
+				val = max( val, 100 );
+			//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 			if( sc->data[SC_WIND_STEP_OPTION] )
 				val = max( val, sc->data[SC_WIND_STEP_OPTION]->val2 );
 
@@ -5232,10 +5296,21 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= max;
 
 	  	//These stack with the rest of bonuses.
+		max = 0;
 		if (sc->data[SC_BERSERK])
 			aspd_rate -= 300;
-		else if (sc->data[SC_MADNESSCANCEL])
-			aspd_rate -= 200;
+			max = 300;
+
+		if( sc->data[SC_MADNESSCANCEL] && max < 200 )
+			max = 200;
+
+		if( sc->data[SC_SWING] && max < (10 * sc->data[SC_SWING]->val3) )
+			max = 10 * sc->data[SC_SWING]->val3;
+
+		if( sc->data[SC_DANCE_WITH_WUG] && max < (10 * sc->data[SC_DANCE_WITH_WUG]->val3) )
+			max = 10 * sc->data[SC_DANCE_WITH_WUG]->val3;
+
+		aspd_rate -= max;
 	}
 
 	if(sc->data[i=SC_ASPDPOTION3] ||
@@ -5243,6 +5318,14 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		sc->data[i=SC_ASPDPOTION1] ||
 		sc->data[i=SC_ASPDPOTION0])
 		aspd_rate -= sc->data[i]->val2;
+	if( sc->data[SC_FIGHTINGSPIRIT] )
+		aspd_rate -= 10 * sc->data[SC_FIGHTINGSPIRIT]->val2;
+	if( sc->data[SC_GENTLETOUCH_CHANGE] )
+		aspd_rate -= 10 * sc->data[SC_GENTLETOUCH_CHANGE]->val3;
+	if( sc->data[SC_BOOST500] )
+		aspd_rate -= 10 * sc->data[SC_BOOST500]->val1;
+	if(sc->data[SC_EXTRACT_SALAMINE_JUICE])
+		aspd_rate -= 10 * sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
 	if (sc->data[SC_ATTHASTE_CASH])
 		aspd_rate -= sc->data[SC_ATTHASTE_CASH]->val2;
 	if(sc->data[SC_DONTFORGETME])
@@ -5269,32 +5352,20 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate += 150;
 	if( sc->data[SC_HALLUCINATIONWALK_POSTDELAY] )
 		aspd_rate += 500;
-	if( sc->data[SC_FIGHTINGSPIRIT] && sc->data[SC_FIGHTINGSPIRIT]->val2 )
-		aspd_rate -= sc->data[SC_FIGHTINGSPIRIT]->val2;
 	if( sc->data[SC_PARALYSE] )
 		aspd_rate += 100;
 	if( sc->data[SC__BODYPAINT] )
-		aspd_rate += aspd_rate * (5 * sc->data[SC__BODYPAINT]->val1) / 100;
+		aspd_rate += 10 * (5 * sc->data[SC__BODYPAINT]->val1);
 	if( sc->data[SC__INVISIBILITY] )
-		aspd_rate += aspd_rate * sc->data[SC__INVISIBILITY]->val3 / 100;
+		aspd_rate += 10 * sc->data[SC__INVISIBILITY]->val3;
 	if( sc->data[SC__GROOMY] )
-		aspd_rate += aspd_rate * sc->data[SC__GROOMY]->val3 / 100;
-	if( sc->data[SC_SWING] )
-		aspd_rate -= aspd_rate * sc->data[SC_SWING]->val3 / 100;
+		aspd_rate += 10 * sc->data[SC__GROOMY]->val3;
 	if( sc->data[SC_GLOOMYDAY] )
-		aspd_rate += aspd_rate * sc->data[SC_GLOOMYDAY]->val3 / 100;
-	if( sc->data[SC_DANCE_WITH_WUG] )
-		aspd_rate -= aspd_rate * sc->data[SC_DANCE_WITH_WUG]->val3 / 100;
+		aspd_rate += 10 * sc->data[SC_GLOOMYDAY]->val3;
 	if( sc->data[SC_EARTHDRIVE] )
-		aspd_rate += aspd_rate * 25 / 100;
-	if( sc->data[SC_GENTLETOUCH_CHANGE] )
-		aspd_rate -= aspd_rate * sc->data[SC_GENTLETOUCH_CHANGE]->val3 / 100;
+		aspd_rate += 250;
 	if( sc->data[SC_MELON_BOMB] )
-		aspd_rate += aspd_rate * sc->data[SC_MELON_BOMB]->val1 / 100;
-	if( sc->data[SC_BOOST500] )
-		aspd_rate -= aspd_rate * sc->data[SC_BOOST500]->val1/100;
-	if(sc->data[SC_EXTRACT_SALAMINE_JUICE])
-		aspd_rate -= aspd_rate * sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1/100;
+		aspd_rate += 10 * sc->data[SC_MELON_BOMB]->val3;
 
 	return (short)cap_value(aspd_rate,0,SHRT_MAX);
 }
@@ -5314,11 +5385,28 @@ static unsigned short status_calc_dmotion(struct block_list *bl, struct status_c
 	return (unsigned short)cap_value(dmotion,0,USHRT_MAX);
 }
 
+// Calculation order (for all except SPEED and ASPD)
+// - 1. Calculate increases by a fixed amount.
+// - 2. Calculate increases by a percentage.
+// - 3. Calculate decreases by a fixed amount.
+// - 4. Calculate decreases by a percentage.
 static unsigned int status_calc_maxhp(struct block_list *bl, struct status_change *sc, unsigned int maxhp)
 {
 	if(!sc || !sc->count)
 		return cap_value(maxhp,1,UINT_MAX);
 
+	if(sc->data[SC_LERADS_DEW])
+		maxhp += sc->data[SC_LERADS_DEW]->val3;
+	if(sc->data[SC_PROMOTE_HEALTH_RESERCH])
+		maxhp += sc->data[SC_PROMOTE_HEALTH_RESERCH]->val4;
+	if (sc->data[SC_SWORDCLAN])
+		maxhp += 30;
+	if (sc->data[SC_ARCWANDCLAN])
+		maxhp += 30;
+	if (sc->data[SC_GOLDENMACECLAN])
+		maxhp += 30;
+	if (sc->data[SC_CROSSBOWCLAN])
+		maxhp += 30;
 	if(sc->data[SC_INCMHPRATE])
 		maxhp += maxhp * sc->data[SC_INCMHPRATE]->val1/100;
 	if(sc->data[SC_APPLEIDUN])
@@ -5327,47 +5415,37 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * sc->data[SC_DELUGE]->val2/100;
 	if(sc->data[SC_BERSERK])
 		maxhp += maxhp * 2;
-	if(sc->data[SC_MARIONETTE])
-		maxhp -= 1000;
-
 	if(sc->data[SC_MERC_HPUP])
 		maxhp += maxhp * sc->data[SC_MERC_HPUP]->val2/100;
 	if(sc->data[SC_EPICLESIS])
 		maxhp += maxhp * 5 * sc->data[SC_EPICLESIS]->val1 / 100;
+	if(sc->data[SC_FORCEOFVANGUARD])
+		maxhp += maxhp * 3 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
+	if(sc->data[SC_RAISINGDRAGON])
+		maxhp += maxhp * (2 + sc->data[SC_RAISINGDRAGON]->val1) / 100;
+	if(sc->data[SC_GENTLETOUCH_REVITALIZE])
+		maxhp += maxhp * (2 * sc->data[SC_GENTLETOUCH_REVITALIZE]->val1) / 100;
+	if(sc->data[SC_MUSTLE_M])
+		maxhp += maxhp * sc->data[SC_MUSTLE_M]->val1/100;
+	if(sc->data[SC_INSPIRATION])//Snce it gives a percentage and fixed amount, should be last on percentage calculations list. [Rytech]
+		maxhp += maxhp * 5 * sc->data[SC_INSPIRATION]->val1 / 100 + 600 * sc->data[SC_INSPIRATION]->val1;
+	if(sc->data[SC_MARIONETTE])
+		maxhp -= 1000;
 	if(sc->data[SC_VENOMBLEED])
 		maxhp -= maxhp * 15 / 100;
 	if(sc->data[SC__WEAKNESS])
 		maxhp -= maxhp * sc->data[SC__WEAKNESS]->val2 / 100;
-	if(sc->data[SC_FORCEOFVANGUARD])
-		maxhp += maxhp * 3 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
-	if (sc->data[SC_INSPIRATION])
-		maxhp += maxhp * 5 * sc->data[SC_INSPIRATION]->val1 / 100 + 600 * sc->data[SC_INSPIRATION]->val1;
-	if(sc->data[SC_RAISINGDRAGON])
-		maxhp += maxhp * (2 + sc->data[SC_RAISINGDRAGON]->val1) / 100;
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 		maxhp -= maxhp * (4 * sc->data[SC_GENTLETOUCH_CHANGE]->val1) / 100;
-	if(sc->data[SC_GENTLETOUCH_REVITALIZE])
-		maxhp += maxhp * (2 * sc->data[SC_GENTLETOUCH_REVITALIZE]->val1) / 100;
-	if(sc->data[SC_LERADS_DEW])
-		maxhp += sc->data[SC_LERADS_DEW]->val3;
 	if(sc->data[SC_BEYOND_OF_WARCRY])
 		maxhp -= maxhp * sc->data[SC_BEYOND_OF_WARCRY]->val4 / 100;
-	if(sc->data[SC_MUSTLE_M])
-		maxhp += maxhp * sc->data[SC_MUSTLE_M]->val1/100;
+	if(sc->data[SC_MYSTERIOUS_POWDER])
+		maxhp -= maxhp * sc->data[SC_MYSTERIOUS_POWDER]->val1 / 100;
+	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_SOLID_SKIN_OPTION])
 		maxhp += 2000;// Fix amount.
 	if(sc->data[SC_POWER_OF_GAIA])
 		maxhp += 3000;
-	if(sc->data[SC_SWORDCLAN])
-		maxhp += 30;
-	if(sc->data[SC_ARCWANDCLAN])
-		maxhp += 30;
-	if(sc->data[SC_GOLDENMACECLAN])
-		maxhp += 30;
-	if(sc->data[SC_CROSSBOWCLAN])
-		maxhp += 30;
-	if(sc->data[SC_MYSTERIOUS_POWDER])
-		maxhp -= sc->data[SC_MYSTERIOUS_POWDER]->val1 / 100;
 
 	return cap_value(maxhp,1,UINT_MAX);
 }
@@ -5387,7 +5465,9 @@ static unsigned int status_calc_maxsp(struct block_list *bl, struct status_chang
 		maxsp += maxsp * (2 + sc->data[SC_RAISINGDRAGON]->val1) / 100;
 	if(sc->data[SC_LIFE_FORCE_F])
 		maxsp += maxsp * sc->data[SC_LIFE_FORCE_F]->val1/100;
-	if (sc->data[SC_VITATA_500])
+	if(sc->data[SC_ENERGY_DRINK_RESERCH])
+		maxsp += maxsp * sc->data[SC_ENERGY_DRINK_RESERCH]->val4 / 100;
+	if(sc->data[SC_VITATA_500])
 		maxsp += maxsp * sc->data[SC_VITATA_500]->val2 / 100;
 
 	return cap_value(maxsp, 1, UINT_MAX);
@@ -6302,9 +6382,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		{
 			case SC_QUAGMIRE://Tester said it protects against this and decrease agi.
 			case SC_DECREASEAGI:
-			case SC_BURNING:
-			case SC_FREEZING:
-			case SC_WHITEIMPRISON://Need confirm. Protected against this in the past. [Rytech]
 			case SC_MARSHOFABYSS:
 			case SC_TOXIN:
 			case SC_PARALYSE:
@@ -6314,8 +6391,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_PYREXIA:
 			case SC_OBLIVIONCURSE:
 			case SC_LEECHESEND://Need confirm. If it protects against nearly every Guillotine poison, it should work on this too right? [Rytech]
-			case SC_CRYSTALIZE:
-			case SC_DEEPSLEEP:
 			case SC_MANDRAGORA:
 				return 0;
 		}
@@ -6325,9 +6400,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX )
 			return 0; // Immune to status ailements
 		switch( type ){
-			case SC_BURNING:
-			case SC_FREEZING:
-			case SC_FEAR:
 			case SC_TOXIN:
 			case SC_PARALYSE:
 			case SC_VENOMBLEED:
@@ -6343,8 +6415,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_LAZINESS:
 			case SC_UNLUCKY:
 			case SC_WEAKNESS:
-			case SC_DEEPSLEEP:
-			case SC_CRYSTALIZE:
 			case SC_SATURDAY_NIGHT_FEVER:
 				return 0;
 		}
@@ -8139,7 +8209,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
 			break;
 		case SC_SWING:
-			val3 = 5 * val1 + val2;//Movement Speed And ASPD Increase
+			val3 = 5 * val1 + val2;//ASPD Increase
 			break;
 		case SC_SYMPHONY_LOVE:
 			if (level_effect_bonus == 1)
@@ -8467,14 +8537,34 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_POWER_OF_GAIA:
 			val2 = 33;
 			break;
-		case SC_MELON_BOMB:
-		case SC_BANANA_BOMB:
-			val1 = 15;
-			break;
 		case SC_STOMACHACHE:
 			val2 = 8;	// SP consume.
 			val4 = tick / 10000;
 			tick = 10000;
+			break;
+		case SC_PROMOTE_HEALTH_RESERCH:
+			//Val1: 1 = Regular Potion, 2 = Thrown Potion
+			//Val2: 1 = Small Potion, 2 = Medium Potion, 3 = Large Potion
+			//Val3: BaseLV of Thrower For Thrown Potions
+			//Val4: MaxHP Increase By Fixed Amount
+			if (val1 == 1)// If potion was normally used, take the user's BaseLv.
+				val4 = (1000 * val2 - 500) + (status_get_lv(bl) * 10 / 3);
+			else if (val1 == 2)// If potion was thrown at someone, take the thrower's BaseLv.
+				val4 = (1000 * val2 - 500) + (val3 * 10 / 3);
+			if (val4 <= 0)//Prevents a negeative value from happening.
+				val4 = 0;
+			break;
+		case SC_ENERGY_DRINK_RESERCH:
+			//Val1: 1 = Regular Potion, 2 = Thrown Potion
+			//Val2: 1 = Small Potion, 2 = Medium Potion, 3 = Large Potion
+			//Val3: BaseLV of Thrower For Thrown Potions
+			//Val4: MaxSP Increase By Percentage Amount
+			if (val1 == 1)// If potion was normally used, take the user's BaseLv.
+				val4 = status_get_lv(bl) / 10 + (5 * val2 - 10);
+			else if (val1 == 2)// If potion was thrown at someone, take the thrower's BaseLv.
+				val4 = val3 / 10 + (5 * val2 - 10);
+			if (val4 <= 0)//Prevents a negeative value from happening.
+				val4 = 0;
 			break;
 		case SC_CLAN_INFO:
  			val_flag |= 1|2;

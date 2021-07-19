@@ -5,8 +5,55 @@
 // 		- Details.
 //			--More Details.
 //========================================
-06/30/2021
-	r301 [15peaces]
+07/19/2021
+	r303 [15peaces]
+		*Merged missing changes from 3ceam rev. 753 - 754
+		*Changed default PACKETVER to 20180621.
+			-2018-06-21aRagexeRE client and its features are now fully working and stable.
+		*Added some missing items.
+		*Resolved some login issues.
+			-Resolves players at login attempting to calculate their statuses who haven't been fully loaded.
+			-This was also causing players to get stuck in a fake "dead" state.
+			-Added a new state flag to make sure inventory and status data is loaded before player's statuses are calculated.
+			-Thanks to @rathena!
+		*Fixed the order of calculations done through status's for BATK, WATK, MATK, CRIT, HIT, FLEE, P-DODGE, H-DEF, S-DEF, H-MDEF, S-MDEF, SPEED, ASPD, MAXHP, and MAXSP.
+			-This update fixes all the 3rd job and other newer jobs related status to have their effects properly calculated in their proper order as follow....
+				--Calculations For All Except SPEED and ASPD
+				--1. Calculate increases by a fixed amount.
+				--2. Calculate increases by a percentage.
+				--3. Calculate decreases by a fixed amount.
+				--4. Calculate decreases by a percentage.
+				--SPEED only had a few values for a few status's fixed.
+				--ASPD calculations now properly increase/decreases as they should.
+				--They will also follow their stacking rules as they should.
+		*Paralyse poison status now properly reduces movement speed.
+		*This update also focuses on the reviewing of the Genetic skill Sling Item.
+			-The skill and its ammo items were all entirely redone to get it to work officially and allow checking of base and job levels. All the items were also fully updated to their latest versions as it was long overdue. 
+			-The scripts used in the throwable items have been removed from the items themselves and merged into the source since some items checks for the caster's base and job levels, as well as the targets base level. 
+			-Some potions detects the consumers or throwers base level depending on if potion was consumed or thrown.
+			-
+			-Damage formulas, status, sucess chances and durations formulas, effect values, and many other things are now fully official.
+			-The code for the skill and the items have been fully tested.
+		*Guillotine Cross poisons now show a animation when consumed.
+			-They also now give their poison status if consumed by a Guillotine Cross.
+		*Updated the skill restrictions file.
+		*Corrected the spell book item ID range.
+		*Cleaned up some code.
+		*NC_HOVERING
+			-No longer increases movement speed.
+			-Tested and conformed on official.
+		*WA_SWING_DANCE
+			-Movement speed increase updated to official.
+		*SR_DRAGONCOMBO; SR_FALLENEMPIRE
+			-Now have their proper aftercast delay as needed by the combo system.
+		*GN_SLINGITEM; GN_SLINGITEM_RANGEMELEEATK
+			-Fully recoded these skills.
+		*ALL_FULL_THROTTLE
+			-Fixed a issue where the status wasn't increasing the caster's LUK.
+			-Movement speed updated to be closer to official.
+
+07/11/2021
+	r302 [15peaces]
 		*Merged missing changes from 3ceam rev. 751 - 752
 		*Super Novice and Expanded Super Novice changes:
 			-Its been found that aegis does in fact treat Super Novices as a 2nd job of the Novice. Also some inheriting issues may have existed. The change to treat them as 1st job was mainly done to fix some issues with the Expanded Super Novice, but now we 
