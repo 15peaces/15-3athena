@@ -8,6 +8,17 @@
 #include <time.h>
 
 enum sd_state { ST_LOGIN, ST_LOGOUT, ST_MAPCHANGE };
+
+enum e_chrif_save_opt {
+	CSAVE_NORMAL = 0x00,		/// Normal
+	CSAVE_QUIT = 0x01,				/// Character quitting
+	CSAVE_CHANGE_MAPSERV = 0x02,	/// Character changing map server
+	CSAVE_AUTOTRADE = 0x04,		/// Character entering autotrade state
+	CSAVE_INVENTORY = 0x08,		/// Inventory data changed
+	CSAVE_CART = 0x10,				/// Cart data changed
+	CSAVE_QUITTING = CSAVE_QUIT | CSAVE_CHANGE_MAPSERV | CSAVE_AUTOTRADE,
+};
+
 struct auth_node {
 	int account_id, char_id;
 	uint32 login_id1, login_id2;

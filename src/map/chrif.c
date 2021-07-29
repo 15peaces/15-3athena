@@ -269,16 +269,23 @@ int chrif_isconnected(void)
 
 /*==========================================
  * Saves character data.
- * Flag = 1: Character is quitting
- * Flag = 2: Character is changing map-servers
+  * @param flag: Save flag types:
+ *  CSAVE_NORMAL: Normal save
+ *  CSAVE_QUIT: Character is quitting
+ *  CSAVE_CHANGE_MAPSERV: Character is changing map-servers
+ *  CSAVE_AUTOTRADE: Character used @autotrade
+ *  CSAVE_INVENTORY: Character changed inventory data
+ *  CSAVE_CART: Character changed cart data
  *------------------------------------------*/
 int chrif_save(struct map_session_data *sd, int flag)
 {
+	uint16 mmo_charstatus_len = 0;
+
 	nullpo_retr(-1, sd);
 
 	pc_makesavestatus(sd);
 
-	if (flag && sd->state.active) //Store player data which is quitting.
+	if ((flag&CSAVE_QUITTING) && sd->state.active) //Store player data which is quitting.
 	{
 		//FIXME: SC are lost if there's no connection at save-time because of the way its related data is cleared immediately after this function. [Skotlex]
 		if (chrif_isconnected())
@@ -288,23 +295,25 @@ int chrif_save(struct map_session_data *sd, int flag)
 			chrif_skillcooldown_save(sd);
 #endif
 		}
-		if (!chrif_auth_logout(sd, flag==1?ST_LOGOUT:ST_MAPCHANGE))
+		if (!(flag&CSAVE_AUTOTRADE) && !chrif_auth_logout(sd, (flag&CSAVE_QUIT) ? ST_LOGOUT : ST_MAPCHANGE))
 			ShowError("chrif_save: Failed to set up player %d:%d for proper quitting!\n", sd->status.account_id, sd->status.char_id);
 	}
 
 	if(!chrif_isconnected())
 		return -1; //Character is saved on reconnect.
 
-	if (sd->state.storage_flag == 1)
-		intif_storage_save(sd,&sd->storage);
-	intif_storage_save(sd,&sd->inventory);
-	intif_storage_save(sd,&sd->cart);
+	if (sd->storage.dirty)
+		intif_storage_save(sd, &sd->storage);
+	if (flag&CSAVE_INVENTORY)
+		intif_storage_save(sd, &sd->inventory);
+	if (flag&CSAVE_CART)
+		intif_storage_save(sd, &sd->cart);
 
 	//For data sync
 	if (sd->state.storage_flag == 2)
 		storage_guild_storagesave(sd->status.account_id, sd->status.guild_id, flag);
 
-	if (flag)
+	if (flag&CSAVE_QUITTING)
 		sd->state.storage_flag = 0; //Force close it.
 
 	//Saving of registry values. 
@@ -315,13 +324,14 @@ int chrif_save(struct map_session_data *sd, int flag)
 	if (sd->state.reg_dirty&1)
 		intif_saveregistry(sd, 1); //Save account2 regs
 
-	WFIFOHEAD(char_fd, sizeof(sd->status) + 13);
+	mmo_charstatus_len = sizeof(sd->status) + 13;
+	WFIFOHEAD(char_fd, mmo_charstatus_len);
 	WFIFOW(char_fd,0) = 0x2b01;
-	WFIFOW(char_fd,2) = sizeof(sd->status) + 13;
+	WFIFOW(char_fd,2) = mmo_charstatus_len;
 	WFIFOL(char_fd,4) = sd->status.account_id;
 	WFIFOL(char_fd,8) = sd->status.char_id;
-	WFIFOB(char_fd,12) = (flag==1)?1:0; //Flag to tell char-server this character is quitting.
-	memcpy(WFIFOP(char_fd,13), &sd->status, sizeof(sd->status));
+	WFIFOB(char_fd, 12) = (flag&CSAVE_QUIT) ? 1 : 0; //Flag to tell char-server this character is quitting.
+	memcpy(WFIFOP(char_fd,13), &sd->status, sizeof(struct mmo_charstatus));
 	WFIFOSET(char_fd, WFIFOW(char_fd,2));
 
 	if( sd->status.pet_id > 0 && sd->pd )
@@ -507,7 +517,7 @@ static int chrif_reconnect(DBKey key, void *data, va_list ap)
 			break;
 		case ST_LOGOUT:
 			//Re-send final save
-			chrif_save(node->sd, 1);
+			chrif_save(node->sd, CSAVE_QUIT | CSAVE_INVENTORY | CSAVE_CART);
 			break;
 		case ST_MAPCHANGE:
 			{	//Re-send map-change request.
@@ -732,7 +742,7 @@ int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 		case ST_LOGOUT:
 			//Re-save attempt (->sd should never be null here).
 			node->node_created = gettick(); //Refresh tick (avoid char-server load if connection is really bad)
-			chrif_save(node->sd, 1);
+			chrif_save(node->sd, CSAVE_QUIT | CSAVE_INVENTORY | CSAVE_CART);
 			break;
 		default:
 			//Clear data. any connected players should have timed out by now.

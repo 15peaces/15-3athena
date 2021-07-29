@@ -169,23 +169,26 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 
 	nullpo_retv(sd);
 
-	for( i = 0; i < itempackage_db[packageid].qty; i++ ) 
+	struct item it;
+	memset(&it, 0, sizeof(it));
+
+	// "Must"-Items
+	for (i = 0; i < itempackage_db[packageid].qty; i++)
 	{
-		struct item it;
-		memset(&it, 0, sizeof(it));
+		if (itempackage_db[packageid].isrand[i] == 0)
+		{ 
 
-		it.nameid = itempackage_db[packageid].nameid[i];
-		it.identify = 1;
-		get_count = itemdb_isstackable(it.nameid) ? itempackage_db[packageid].amount[i] : 1;
-		it.amount = get_count == 1 ? 1 : get_count;
+			it.nameid = itempackage_db[packageid].nameid[i];
+			it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
+			get_count = itemdb_isstackable(it.nameid) ? itempackage_db[packageid].amount[i] : 1;
+			it.amount = get_count == 1 ? 1 : get_count;
+			it.expire_time = (itempackage_db[packageid].duration[i]) ? (unsigned int)(time(NULL) + itempackage_db[packageid].duration[i] * 60) : 0;
 
-		if( itempackage_db[packageid].isrand[i] == 0 ) 
-		{ // "Must"-Item
-			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) 
+			for (j = 0; j < itempackage_db[packageid].amount[i]; j += get_count)
 			{
-				if ( ( flag = pc_additem(sd, &it, get_count) ) )
+				if ((flag = pc_additem(sd, &it, get_count)))
 				{
-					if( itempackage_db[packageid].announced[i] )
+					if (itempackage_db[packageid].announced[i])
 					{
 						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
 					}
@@ -193,24 +196,47 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 				}
 			}
 		}
-		else
-		{ // Random item.
-			if(itempackage_db[packageid].max_rand > 1)
-				rand_group = rnd()%itempackage_db[packageid].max_rand;
+	}
 
-			for( j = 0; j < itempackage_db[packageid].amount[i]; j += get_count ) 
-			{ 
-				if( itempackage_db[packageid].isrand[i] == rand_group && rnd()%10000 <= itempackage_db[packageid].prob[i] )
+	// Random Items
+	for (int cur_rand = 1; cur_rand <= itempackage_db[packageid].max_rand; cur_rand++)
+	{
+		struct item_package tmp_package = {0};
+
+		// First, get the current random group separated
+		for (i = 0; i < itempackage_db[packageid].qty; i++)
+		{
+			if (itempackage_db[packageid].isrand[i] == cur_rand)
+			{
+				for (int j = 0; j < itempackage_db[packageid].prob[i]; j++)
 				{
-					if ( ( flag = pc_additem(sd, &it, get_count) ) )
-					{
-						if( itempackage_db[packageid].announced[i] )
-						{
-							clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
-						}
-						clif_additem(sd, 0, 0, flag);
-					}
+					tmp_package.nameid[tmp_package.qty] = itempackage_db[packageid].nameid[i];
+					tmp_package.amount[tmp_package.qty] = itempackage_db[packageid].amount[i];
+					tmp_package.duration[tmp_package.qty] = itempackage_db[packageid].duration[i];
+					tmp_package.announced[tmp_package.qty] = itempackage_db[packageid].announced[i];
+					tmp_package.prob[tmp_package.qty] = itempackage_db[packageid].prob[i];
+					tmp_package.qty++;
 				}
+			}
+		}
+
+		// Now we'll get an random item of the current group.
+		uint16 r = rnd() % tmp_package.qty;
+		it.nameid = tmp_package.nameid[r];
+		it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
+		get_count = itemdb_isstackable(it.nameid) ? tmp_package.amount[r] : 1;
+		it.amount = get_count == 1 ? 1 : get_count;
+		it.expire_time = (tmp_package.duration[r]) ? (unsigned int)(time(NULL) + tmp_package.duration[r] * 60) : 0;
+
+		for (j = 0; j < tmp_package.amount[r]; j += get_count)
+		{
+			if ((flag = pc_additem(sd, &it, get_count)))
+			{
+				if (tmp_package.announced[r])
+				{
+					clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
+				}
+				clif_additem(sd, 0, 0, flag);
 			}
 		}
 	}
@@ -645,18 +671,18 @@ static void itemdb_read_itemgroup(void)
 
 /*==========================================
  * read item package data
- * Structure: PackageID,ItemID,Rate{,Amount,isMust}
+ * Structure: PackageID,ItemID,Rate{,Amount,Random,isAnnounced,Duration}
  *------------------------------------------*/
 static void itemdb_read_itempackage_sub(const char* filename)
 {
 	FILE *fp;
 	char line[1024];
 	int ln=0;
-	unsigned short nameid, announced=0;
+	unsigned short nameid, announced = 0, duration = 0;
 	int packageid,amt,j;
 	int prob = 1;
 	uint8 rand_package = 1;
-	char *str[6],*p;
+	char *str[7],*p;
 	char w1[1024], w2[1024];
 	
 	if( (fp=fopen(filename,"r"))==NULL ){
@@ -677,7 +703,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			}
 		}
 		memset(str,0,sizeof(str));
-		for(j=0,p=line;j<6 && p;j++){
+		for(j=0,p=line;j<7 && p;j++){
 			str[j]=p;
 			p=strchr(p,',');
 			if(p) *p++=0;
@@ -713,7 +739,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 
 		if (str[4] != NULL)
 			rand_package = atoi(str[4]);
-		if (rand_package < 0 || rand_package > MAX_RANDITEM) {
+		if (rand_package < 0 || rand_package > MAX_RANDGROUP) {
 			ShowWarning("itemdb_read_itempackage: Invalid sub group '%d' for package '%s' in %s:%d\n", rand_package, str[0], filename, ln);
 			continue;
 		}
@@ -725,21 +751,29 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			announced = 0;
 			continue;
 		}
+
+		if (str[6] != NULL)
+			duration = atoi(str[6]);
+		if (duration < 0) {
+			ShowWarning("itemdb_read_itempackage: Invalid duration '%d' for package '%s' in %s:%d. Defaulting to 0.\n", duration, str[0], filename, ln);
+			duration = 0;
+			continue;
+		}
+
 		if (rand_package != 0 && prob < 1) {
 			ShowWarning("itemdb_read_itempackage: Random item must has probability. Package '%s' in %s:%d\n", str[0], filename, ln);
 			continue;
 		}
 
-		//for(j=0;j<prob;j++){
-			itempackage_db[packageid].nameid[itempackage_db[packageid].qty] = nameid;
-			itempackage_db[packageid].prob[itempackage_db[packageid].qty] = prob;
-			itempackage_db[packageid].amount[itempackage_db[packageid].qty] = amt;
-			itempackage_db[packageid].isrand[itempackage_db[packageid].qty] = rand_package;
-			itempackage_db[packageid].announced[itempackage_db[packageid].qty] = announced;
-			itempackage_db[packageid].qty++;
-			if(rand_package > itempackage_db[packageid].max_rand)
-				itempackage_db[packageid].max_rand = rand_package;
-		//}
+		itempackage_db[packageid].nameid[itempackage_db[packageid].qty] = nameid;
+		itempackage_db[packageid].prob[itempackage_db[packageid].qty] = prob;
+		itempackage_db[packageid].amount[itempackage_db[packageid].qty] = amt;
+		itempackage_db[packageid].isrand[itempackage_db[packageid].qty] = rand_package;
+		itempackage_db[packageid].announced[itempackage_db[packageid].qty] = announced;
+		itempackage_db[packageid].duration[itempackage_db[packageid].qty] = duration;
+		itempackage_db[packageid].qty++;
+		if (rand_package > itempackage_db[packageid].max_rand)
+			itempackage_db[packageid].max_rand = rand_package;
 	}
 	fclose(fp);
 	return;

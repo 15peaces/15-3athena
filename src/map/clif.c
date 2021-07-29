@@ -2309,8 +2309,10 @@ static void clif_addcards(unsigned char* buf, struct item* item)
 	if( item->card[0] == CARD0_PET ) { //pet eggs
 		WBUFW(buf,0) = 0;
 		WBUFW(buf,2) = 0;
-		WBUFW(buf,4) = 0;
-		WBUFW(buf,6) = item->card[3]; //Pet renamed flag.
+		// Pet intimacy
+		// No idea when this was added exactly, but older clients have no problem if we send it anyway
+		WBUFW(buf,4) = item->card[3] >> 1;
+		WBUFW(buf,6) = item->card[3] & 1; //Pet renamed flag.
 		return;
 	}
 	if( item->card[0] == CARD0_FORGE || item->card[0] == CARD0_CREATE ) { //Forged/created items
@@ -3767,7 +3769,7 @@ int clif_poison_list(struct map_session_data *sd, int skill_lv)
 
 	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ )
 	{
-		if( itemdb_is_poison(sd->inventory.u.items_inventory[i].nameid) )
+		if( itemid_is_guillotine_poison(sd->inventory.u.items_inventory[i].nameid) )
 		{ 
 			WFIFOW(fd, c * 2 + 4) = sd->inventory.u.items_inventory[i].nameid;
 			c ++;
@@ -3805,7 +3807,7 @@ int clif_magicdecoy_list(struct map_session_data *sd, short x, short y)
 	WFIFOW(fd,0) = 0x1ad; // This is the official packet. [pakpil]
 
 	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ ){
-		if( itemdb_is_element(sd->inventory.u.items_inventory[i].nameid) ){ 
+		if( itemid_is_element_point(sd->inventory.u.items_inventory[i].nameid) ){
 			WFIFOW(fd, c * 2 + 4) = sd->inventory.u.items_inventory[i].nameid;
 			c ++;
 		}
@@ -3838,7 +3840,7 @@ int clif_spellbook_list(struct map_session_data *sd){
 	WFIFOW(fd,0) = 0x1ad;	// This is the official packet. [pakpil]
 
 	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ ){
-		if( itemdb_is_spellbook(sd->inventory.u.items_inventory[i].nameid) ){ 
+		if( itemid_is_spell_book(sd->inventory.u.items_inventory[i].nameid) ){
 			WFIFOW(fd, c * 2 + 4) = sd->inventory.u.items_inventory[i].nameid;
 			c ++;
 		}

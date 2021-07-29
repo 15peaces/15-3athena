@@ -725,14 +725,15 @@ void pc_makesavestatus(struct map_session_data *sd) {
   	//Only copy the Cart/Peco/Falcon options, the rest are handled via 
 	//status change load/saving. [Skotlex]
 	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
-		
+	
+	// Note: Don't save 0HP/0SP characters, they will be in an fake-dead state on relog. [15peaces]
 	if (sd->sc.data[SC_JAILED])
 	{	//When Jailed, do not move last point.
 		if(pc_isdead(sd)){
 			pc_setrestartvalue(sd,0);
 		} else {
-			sd->status.hp = sd->battle_status.hp;
-			sd->status.sp = sd->battle_status.sp;
+			sd->status.hp = sd->battle_status.hp > 0 ? sd->battle_status.hp : 1;
+			sd->status.sp = sd->battle_status.sp > 0 ? sd->battle_status.sp : 1;
 		}
 		sd->status.last_point.map = sd->mapindex;
 		sd->status.last_point.x = sd->bl.x;
@@ -744,8 +745,8 @@ void pc_makesavestatus(struct map_session_data *sd) {
 		pc_setrestartvalue(sd,0);
 		memcpy(&sd->status.last_point,&sd->status.save_point,sizeof(sd->status.last_point));
 	} else {
-		sd->status.hp = sd->battle_status.hp;
-		sd->status.sp = sd->battle_status.sp;
+		sd->status.hp = sd->battle_status.hp > 0 ? sd->battle_status.hp : 1;
+		sd->status.sp = sd->battle_status.sp > 0 ? sd->battle_status.sp : 1;
 		sd->status.last_point.map = sd->mapindex;
 		sd->status.last_point.x = sd->bl.x;
 		sd->status.last_point.y = sd->bl.y;
@@ -1489,11 +1490,6 @@ int pc_reg_received(struct map_session_data *sd)
 	intif_request_questlog(sd);
 #endif
 
-	if (sd->state.connect_new == 0 && sd->fd)
-	{	//Character already loaded map! Gotta trigger LoadEndAck manually.
-		sd->state.connect_new = 1;
-		clif_parse_LoadEndAck(sd->fd, sd);
-	}
 #ifndef TXT_ONLY
 	pc_inventory_rentals(sd);
 #endif
@@ -4074,7 +4070,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 			if( sd->inventory.u.items_inventory[i].nameid == item_data->nameid && sd->inventory.u.items_inventory[i].bound == item_data->bound && memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 ) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
 					return 5;
-				if( itemdb_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {
+				if(	itemid_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {
 					clif_msg(sd,1418);
 					return 1;
 				}
@@ -4111,6 +4107,20 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 	clif_updatestatus(sd,SP_WEIGHT);
 	//Auto-equip
 	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip, false);
+
+	/* rental item check */
+	if (item_data->expire_time) {
+		if (time(NULL) > item_data->expire_time) {
+			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0);
+		}
+		else {
+			unsigned int seconds = (unsigned int)(item_data->expire_time - time(NULL));
+			clif_rental_time(sd->fd, sd->inventory.u.items_inventory[i].nameid, seconds);
+			pc_inventory_rental_add(sd, seconds);
+		}
+	}
+
 	pc_show_questinfo(sd);
 
 	return 0;
@@ -4427,67 +4437,70 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		return 0;
 
 	// In this case these sc are OFFICIALS cooldowns for these skills
-	if( itemdb_is_rune(sd->inventory.u.items_inventory[n].nameid) )
+	if( itemid_is_rune(sd->inventory.u.items_inventory[n].nameid) )
 	{
 		switch(sd->inventory.u.items_inventory[n].nameid)
 		{
-			case ITEMID_REFRESH:
+			case ITEMID_NAUTHIZ_RUNE:
 				if( skill_blockpc_get(sd,RK_REFRESH) != -1 )
 					return 0;
 				break;
-			case ITEMID_REUSE_CRUSHSTRIKE:
+			case ITEMID_RAIDO_RUNE:
 				if( skill_blockpc_get(sd,RK_CRUSHSTRIKE) != -1 )
 					return 0;
 				break;
-			case ITEMID_REUSE_MILLENNIUMSHIELD:
+			case ITEMID_BERKANA_RUNE:
 				if( skill_blockpc_get(sd,RK_MILLENNIUMSHIELD) != -1 )
 				return 0;
 				break;
-			case ITEMID_VITALITYACTIVATION:
+			case ITEMID_ISA_RUNE:
 				if( skill_blockpc_get(sd,RK_VITALITYACTIVATION) != -1 )
 					return 0;
 				break;
-			case ITEMID_FIGHTINGSPIRIT:
+			case ITEMID_EIHWAZ_RUNE:
 				if( skill_blockpc_get(sd,RK_FIGHTINGSPIRIT) != -1 )
 					return 0;
 				break;
-			case ITEMID_URUZ:
+			case ITEMID_URUZ_RUNE:
 				if( skill_blockpc_get(sd,RK_ABUNDANCE) != -1 )
 					return 0;
 				break;
-			case ITEMID_GIANTGROWTH:
+			case ITEMID_THURISAZ_RUNE:
 				if( skill_blockpc_get(sd,RK_GIANTGROWTH) != -1 )
 					return 0;
 				break;
-			case ITEMID_REUSE_REFRESH:
+			case ITEMID_PERTHRO_RUNE:
 				if( skill_blockpc_get(sd,RK_STORMBLAST) != -1 )
 					return 0;
 				break;
-			case ITEMID_STONEHARDSKIN:
+			case ITEMID_HAGALAZ_RUNE:
 				if( skill_blockpc_get(sd,RK_STONEHARDSKIN) != -1 )
 					return 0;
 				break;
+			case ITEMID_LUX_ANIMA_RUNE:
+				if( skill_blockpc_get(sd,RK_LUXANIMA) != -1 )
+					return 0;
 		}
 	}
 
 	// Eclage status cure items must each be tied to their own cooldowns.
-	if( itemdb_is_eclage_cures(sd->inventory.u.items_inventory[n].nameid))
+	if(itemid_is_eclage_cures(sd->inventory.u.items_inventory[n].nameid))
 	{
 		switch(sd->inventory.u.items_inventory[n].nameid)
 		{
-			case ITEMID_SNOWFLIP:
+			case ITEMID_SNOW_FLIP:
 				if( skill_blockpc_get(sd,ECL_SNOWFLIP) != -1 )
 					return 0;
 				break;
-			case ITEMID_PEONYMAMY:
+			case ITEMID_PEONY_MOMMY:
 				if( skill_blockpc_get(sd,ECL_PEONYMAMY) != -1 )
 					return 0;
 				break;
-			case ITEMID_SADAGUI:
+			case ITEMID_SLAPPING_HERB:
 				if( skill_blockpc_get(sd,ECL_SADAGUI) != -1 )
 					return 0;
 				break;
-			case ITEMID_SEQUOIADUST:
+			case ITEMID_YGGDRASIL_DUST:
 				if( skill_blockpc_get(sd,ECL_SEQUOIADUST) != -1 )
 						return 0;
 					break;
@@ -4509,7 +4522,6 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		sd->sc.data[SC_TRICKDEAD] ||
 		sd->sc.data[SC_HIDING] ||
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
-		sd->sc.data[SC_WHITEIMPRISON] ||
 		sd->sc.data[SC__SHADOWFORM] ||
 		sd->sc.data[SC__INVISIBILITY] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
@@ -5071,7 +5083,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		sd->bl.x=x;
 		sd->bl.y=y;
 		pc_clean_skilltree(sd);
-		chrif_save(sd,2);
+		chrif_save(sd, CSAVE_CHANGE_MAPSERV | CSAVE_INVENTORY | CSAVE_CART);
 		chrif_changemapserver(sd, ip, (short)port);
 
 		//Free session data from this map server [Kevin]
@@ -8079,17 +8091,16 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	pc_show_questinfo(sd);
 #endif
 
+	chrif_save(sd, CSAVE_NORMAL);
 	//if you were previously famous, not anymore.
-	if (fame_flag) {
-		chrif_save(sd,0);
+	if (fame_flag)
 		chrif_buildfamelist();
-	} else if (sd->status.fame > 0) {
+	else if (sd->status.fame > 0) {
 		//It may be that now they are famous?
  		switch (sd->class_&MAPID_UPPERMASK) {
 			case MAPID_BLACKSMITH:
 			case MAPID_ALCHEMIST:
 			case MAPID_TAEKWON:
-				chrif_save(sd,0);
 				chrif_buildfamelist();
 			break;
 		}
@@ -8365,9 +8376,14 @@ int pc_setcart(struct map_session_data *sd,int type)
 	}
 	else
 	{
-	if ( sd->sc.data[SC_ON_PUSH_CART] )//Needed for when changing to a lower type value. [Rytech]
-		status_change_end(&sd->bl,SC_ON_PUSH_CART,INVALID_TIMER);
-		sc_start(&sd->bl, SC_ON_PUSH_CART, 100, type, -1);
+		if ( sd->sc.data[SC_ON_PUSH_CART] )
+		{	//If player already has a cart, chances are were changing the cart's look.
+			sd->sc.data[SC_ON_PUSH_CART]->val1 = type;
+			clif_status_change(&sd->bl, SI_ON_PUSH_CART, 1, 9999, sd->sc.data[SC_ON_PUSH_CART]->val1, 0, 0);
+		}
+		else
+			sc_start(&sd->bl, SC_ON_PUSH_CART, 100, type, -1);
+
 		clif_cartlist(sd);
 		clif_updatestatus(sd, SP_CARTINFO);
 	}
@@ -9862,7 +9878,7 @@ int pc_autosave(int tid, int64 tick, int id, intptr_t data)
 		last_save_id = sd->bl.id;
 		save_flag = 2;
 
-		chrif_save(sd,0);
+		chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
 		break;
 	}
 	mapit_free(iter);
@@ -10438,7 +10454,7 @@ enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int mone
 	sd->bank_vault += money;
 	pc_setreg2(sd, BANK_VAULT_VAR, sd->bank_vault);
 	
-	chrif_save(sd,0);
+	chrif_save(sd, CSAVE_NORMAL);
 	return BDA_SUCCESS;
 }
 
@@ -10466,7 +10482,7 @@ enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int mo
 	sd->bank_vault -= money;
 	pc_setreg2(sd, BANK_VAULT_VAR, sd->bank_vault);
 	
-	chrif_save(sd,0);
+	chrif_save(sd, CSAVE_NORMAL);
 	return BWA_SUCCESS;
 }
 

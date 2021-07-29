@@ -1,7 +1,7 @@
 // Item Package Database
 //
 // Structure of Database:
-// PackageID,ItemID,Rate{,Amount,Random,isAnnounced}
+// PackageID,ItemID,Rate{,Amount,Random,isAnnounced,Duration}
 
 // IP_New_Year_Scroll
 1,12903,1500,1,1,0	// 1x Str_Dish_Box
@@ -327,3 +327,10 @@
 21,22067,1,1,0,0 	// 1x Witch Shoes
 21,22669,5,1,0,0 	// 1x October Spooky Trade Box
 21,22670,1,1,0,0	// 1x DARK INVITATION
+
+//IP_Noive_Box
+22,2136,1,1,1,0,10080	// 1x Cracked_Buckler
+22,2392,1,1,1,0,10080	// 1x Old_Pant
+22,2442,1,1,1,0,10080	// 1x Boots_Perforated
+22,2547,1,1,1,0,10080	// 1x Cheap_Running_Shirts
+22,5408,1,1,1,0,10080	// 1x Old_Bandanna

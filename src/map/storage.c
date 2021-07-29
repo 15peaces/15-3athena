@@ -159,6 +159,7 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 				if( amount > MAX_AMOUNT - stor->u.items_storage[i].amount )
 					return 1;
 				stor->u.items_storage[i].amount += amount;
+				stor->dirty = true;
 				clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
 				log_pick(&sd->bl, LOG_TYPE_STORAGE, item_data->nameid, -amount, item_data);
 				return 0;
@@ -175,6 +176,7 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 	memcpy(&stor->u.items_storage[i],item_data,sizeof(stor->u.items_storage[0]));
 	stor->amount++;
 	stor->u.items_storage[i].amount = amount;
+	stor->dirty = true;
 	clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
 	clif_updatestorageamount(sd, stor->amount, MAX_STORAGE);
 	log_pick(&sd->bl, LOG_TYPE_STORAGE, item_data->nameid, -amount, item_data);
@@ -191,6 +193,7 @@ int storage_delitem(struct map_session_data* sd, int n, int amount)
 		return 1;
 
 	sd->storage.u.items_storage[n].amount -= amount;
+	sd->storage.dirty = true;
 
 	log_pick(&sd->bl, LOG_TYPE_STORAGE, sd->storage.u.items_storage[n].nameid, amount, &sd->storage.u.items_storage[n]);
 
@@ -316,12 +319,17 @@ void storage_storageclose(struct map_session_data* sd)
 {
 	nullpo_retv(sd);
 
-	clif_storageclose(sd);
+	if (sd->storage.dirty) {
+		if (save_settings&4)
+			chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
+		else
+			intif_storage_save(sd, &sd->storage);
+	}
 
-	if( save_settings&4 )
-		chrif_save(sd,0); //Invokes the storage saving as well.
-
-	sd->state.storage_flag = 0;
+	if (sd->state.storage_flag == 1) {
+		sd->state.storage_flag = 0;
+		clif_storageclose(sd);
+	}
 }
 
 /*==========================================
@@ -332,9 +340,9 @@ void storage_storage_quit(struct map_session_data* sd, int flag)
 	nullpo_retv(sd);
 	
 	if (save_settings&4)
-		chrif_save(sd, 0); //Invokes the storage saving as well.
-
-	sd->state.storage_flag = 0;
+		chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
+	else
+		intif_storage_save(sd, &sd->storage);
 }
 
 
@@ -431,7 +439,7 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 					return false;
 				stor->u.items_guild[i].amount+=amount;
 				clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
-				stor->dirty = 1;
+				stor->dirty = true;
 				log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
 				return true;
 			}
@@ -448,7 +456,7 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 	stor->amount++;
 	clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
 	clif_updatestorageamount(sd, stor->amount, MAX_GUILD_STORAGE);
-	stor->dirty = 1;
+	stor->dirty = true;
 	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
 	return true;
 }
@@ -627,7 +635,7 @@ void storage_guild_storageclose(struct map_session_data* sd)
 	if (stor->status)
 	{
 		if (save_settings&4)
-			chrif_save(sd, 0); //This one also saves the storage. [Skotlex]
+			chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART); //This one also saves the storage. [Skotlex]
 		else
 			storage_guild_storagesave(sd->status.account_id, sd->status.guild_id,0);
 		stor->status = false;
@@ -649,7 +657,7 @@ void storage_guild_storage_quit(struct map_session_data* sd, int flag)
 		clif_storageclose(sd);
 
 		if (save_settings&4)
-			chrif_save(sd,0);
+			chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
 
 		sd->state.storage_flag = 0;
 		stor->status = false;
@@ -658,7 +666,7 @@ void storage_guild_storage_quit(struct map_session_data* sd, int flag)
 
 	if(stor->status) {
 		if (save_settings&4)
-			chrif_save(sd,0);
+			chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
 		else
 			storage_guild_storagesave(sd->status.account_id,sd->status.guild_id,1);
 	}

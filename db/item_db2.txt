@@ -73,6 +73,7 @@
 15059,2011Love_Daddy,2011Love Daddy,4,20,,100,0,80,0,1,0xFFFFFFFF,63,2,16,,0,1,0,{},{},{}
 19014,Gravekeeper_Blinker,Gravekeeper Blinker,5,0,,100,,1,,0,0xFFFFFFFF,63,2,512,,10,,1210,{},{},{}
 19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
+//
 19027,Type-10_Glasses,Type-10 Glasses,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,10,,1237,{},{},{}
 19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,5,0,,300,,,,0,0xFFFFFFFF,63,2,256,,1,,1249,{bonus2 bAddRace,RC_Boss,15;},{},{}
@@ -232,7 +233,7 @@
 19997,C_Bomb_Hat,Costume Bomb Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1191,{},{},{}
 19999,C_Mouse_Hat1,Costume Mouse Hat 1,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1193,{},{},{}
 
-//Currently not working / Client Files missing in kRO (renewal versions) -> RE-CHECK
+//Currently not working / Client Files missing in kRO (renewal versions)
 20014,C_Lincoln_Hat,Costume Lincoln Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1204,{},{},{}
 20015,C_Lincoln_Beard,Costume Lincoln Beard,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1205,{},{},{}
 20016,C_Cool_Dinner_Hat,Costume Cool Dinner Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1206,{},{},{}
@@ -4035,7 +4036,7 @@
 12721,Poison_Numb,Toxin,2,2,,20,,,,,0x00001000,7,2,,,,,,{ specialeffect2 EF_ENCHANTPOISON; sc_start SC_TOXIN,300000,0; },{},{}
 12722,Poison_Fever,Pyrexia,2,2,,20,,,,,0x00001000,7,2,,,,,,{ specialeffect2 EF_ENCHANTPOISON; sc_start SC_PYREXIA,300000,0; },{},{}
 12723,Poison_Laughing,Magic Mushroom,2,2,,20,,,,,0x00001000,7,2,,,,,,{ specialeffect2 EF_ENCHANTPOISON; sc_start SC_MAGICMUSHROOM,300000,0; },{},{}
-12724,Poison_Fatigue,Venom Bleed,2,2,,20,,,,,0x00001000,7,2,,,,,,{ specialeffect2 EF_ENCHANTPOISON; sc_start SC_VENOMBLEED,15000,0; },{},{}
+12724,Poison_Fatigue,Venom Bleed,2,2,,20,,,,,0x00001000,7,2,,,,,,{ specialeffect2 EF_ENCHANTPOISON; sc_start SC_VENOMBLEED,300000,0; },{},{}
 13268,Mysterious_Powder,Mysterious Powder,10,100,,10,0,,,,0x00040000,8,2,32768,,99,,9,{},{},{}
 13269,Boost500_To_Throw,Throwing Boost 500,10,100,,10,0,,,,0x00040000,8,2,32768,,99,,9,{},{},{}
 13270,Full_SwingK_To_Throw,Throwing Full Swing K,10,100,,50,0,,,,0x00040000,8,2,32768,,99,,9,{},{},{}
@@ -4071,3 +4072,17 @@
 12635,Macro_Stone_A2,Macro Stone A2,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
 12636,Malang_Sp_Can,Malangdo Canned Specialties,2,20,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ warp "malangdo",140,114; },{},{}
 12637,Gong_Bug_Pocket,Sow Bug Pocket,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13208,200; },{},{}
+
+// missing equip (renewal)
+18858,Pink_Angeling_Bubble,Pink Angeling Bubble,5,10,,50,,5,,0,0xFFFFFFFF,63,2,1,,1,,975,{ bonus bMaxHP,200; bonus bAspdRate,1; },{},{}
+18859,Angeling_Bubble,Angeling Bubble,5,10,,50,,5,,0,0xFFFFFFFF,63,2,1,,1,,976,{ bonus bDex,1; bonus bMatkRate,2; bonus bMaxHP,100; },{},{}
+18860,Red_Flower_Hat,Red Flower Hat,5,10,,200,,10,,1,0xFFFFFFFF,63,2,256,,50,1,1033,{ bonus bDex,5; bonus2 bSubDefEle,Ele_Earth,3; bonus2 bSubRace,RC_DemiHuman,10; bonus2 bSubRace,RC_Player_Human,10; if (getrefine() >= 12) { bonus bShortWeaponDamageReturn,5; } },{},{}
+18861,Zaha_Doll_Hat_J,Zaha Doll J Hat,5,10,,100,,,,1,0xFFFFFFFF,63,2,256,,50,1,461,{ bonus bHealPower,15; bonus bUseSPrate,15; },{},{}
+18908,Isabella_Red_Ear,Isabella Red Ear,5,10,,300,,8,,1,0xFFFFFFFF,63,2,256,,1,1,1030,{ bonus bStr,5; bonus bMaxHPrate,5; bonus2 bSubDefEle,Ele_Fire,10; set .@r, getrefine(); if(.@r>=9) bonus bAspd,1+(.@r-9)/2; },{},{}
+18909,Isabella_Brown_Ear,Isabella Brown Ear,5,10,,300,,8,,1,0xFFFFFFFF,63,2,256,,1,1,1031,{ bonus bMaxHPrate,10; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bSubRace,RC_Player_Human,5; bonus bMatk,getrefine()*2; },{},{}
+18910,Isabella_Blue_Ear,Isabella Blue Ear,5,10,,300,,8,,1,0xFFFFFFFF,63,2,256,,1,1,1032,{ bonus bMaxHPrate,10; bonus2 bSubRace,RC_DemiHuman,5; bonus2 bAddSize,Size_Medium,10; if(getrefine()>=12){ bonus bShortWeaponDamageReturn,5; } },{},{}
+
+// pre-re
+18857,Curupira_Hat,Curupira Hat,5,10,,100,,4,,1,0xFFFFFFFF,63,2,256,,1,1,974,{ bonus bDex,3; bonus2 bAddEffWhenHit,Eff_Confusion,500; },{},{}
+22653,Wet_Card_Album,Wet Card Album,2,10000,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
+22654,Golden_Seal_Card,Golden Seal Card,3,20,,50,,,,,,,,,,,,,{},{},{}

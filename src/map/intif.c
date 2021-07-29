@@ -1833,7 +1833,7 @@ static void intif_parse_Mail_send(int fd)
 		{
 			clif_Mail_send(sd, WRITE_MAIL_SUCCESS);
 			if( save_settings&16 )
-				chrif_save(sd, 0);
+				chrif_save(sd, CSAVE_INVENTORY);
 		}
 	}
 }
@@ -1963,7 +1963,7 @@ static void intif_parse_Auction_register(int fd)
 	{
 		clif_Auction_message(sd->fd, 1); // Confirmation Packet ??
 		if( save_settings&32 )
-			chrif_save(sd,0);
+			chrif_save(sd, CSAVE_INVENTORY);
 	}
 	else
 	{
@@ -2496,15 +2496,12 @@ static void intif_parse_StorageSaved(int fd)
 				break;
 			case TABLE_STORAGE: //storage
 				//ShowInfo("Storage has been saved (AID: %d).\n", RFIFOL(fd, 2));
+				sd->storage.dirty = false;
 				break;
 			case TABLE_CART: // cart
 				//ShowInfo("Cart has been saved (AID: %d).\n", RFIFOL(fd, 2));
-				{
-					struct map_session_data *sd = map_id2sd(RFIFOL(fd, 2));
-
-					if( sd && sd->state.prevend ){
-						intif_storage_request(sd,TABLE_CART);
-					}
+				if( sd && sd->state.prevend ){
+					intif_storage_request(sd,TABLE_CART);
 				}
 				break;
 			default:

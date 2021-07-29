@@ -7,6 +7,75 @@
 //========================================
 07/19/2021
 	r303 [15peaces]
+		*Merged missing changes from 3ceam rev. 755 - 756
+		*Some item updates.
+			-Added some missing items.
+			-Added full support for the IP_NOIVE_BOX item package.
+			-Item package system updates:
+				--Added support for rental items.
+				--changed random group item creation to official algorythm.
+			-pc_additem will now probably check for rental items and inform the player.
+			-updated clif_addcards to support sending pet intimacy.
+			-Fixed a issue where the Venom Bleed poison had the wrong duration.
+		*Updated char saving to increase performance.
+			-It's not needed to always save everything...
+			-Also added full support for storage dirty checks as already done in guild storages.
+		*Added another safe-check to prevent characters from beeing saved with 0 HP / 0 SP.
+			-This also causes the character to get stuck in an fake-dead state after re-login.
+		*Fixed a issue where using the skill Change Cart didn't update the look of the cart properly after selecting.
+		*Reworked part of the code for the pc_setcart function to work a little more efficent.
+		*Burning and White Imprison corrected to not override other OPT1 (BODYSTATE) statuses.
+		*Freezing status now makes you immune to the burning status.
+		*Fixed a issue where burning, freezing, deep sleep, and crystalize status would be reapplied to a target, causing duration reset.
+			-This means something like burning can't be re-inflected to a enemy that is already in burning.
+		*Did a few other fixes to some common status's that should prevent some visual glitches and minor issues from happening.
+		*Cleaned up some code.
+		*PR_STRECOVERY
+			-Now removes the White Imprison and Stasis status.
+		*MG_NAPALMBEAT; MG_SOULSTRIKE; HW_NAPALMVULCAN; WL_SOULEXPANSION
+			-Now deals double damage on targets in white imprison status.
+		*RK_REFRESH
+			-Now removes the fear status.
+			-Can now be casted while in a status that blocks skill usage.
+			-Note: Runes in official is said to be usable while silenced and needs a confirm. But the Refresh rune in August 2012 in kRO was changed to be usable while in any common status that prevents skill use, like stone, freeze, etc. This will be applied in 
+			-a future update.
+		*WL_WHITEIMPRISON
+			-Recoded the entire skill and its status.
+			-Monsters stats now reduce the duration of the status.
+			-Duration on monsters can't be reduced below 10 seconds.
+			-Duration on players is now fixed and not reduceable.
+			-Success chance is affected by the skill level and casters job level.
+			-Natural immunity reworked. STR now gives natural immunity.
+			-(The immunity is based on a April 2010 update on kRO. Test needed.)
+			-Immunity and duration reduction does not apply with casted on self.
+			-Casting on self is now 100% success with a fixed 5 second duration.
+			-Ghost element attacks will destroy the white imprison status.
+			-White Imprison status now makes certain skills deal double damage.
+		*WL_RADIUS
+			-Now increases the casting range of Earth Strain.
+		*WL_STASIS
+			-Minimal duration is now a official 10 seconds.
+			-Duration reduction from VIT and DEX is now more flexable.
+		*WL_READING_SB
+			-Fixed a possible issue where the mind point count would glitch.
+			-Max number of spells that can be sealed up is now capped at 7.
+			-This is due to the number of status's that exist for the skill.
+			-Their's 7 total of the same thing, all numbered. So 7 slots total.
+		*LG_RAYOFGENESIS
+			-Reviewed and updated the damage formula to official.
+			-Inspiration now increase the magic damage by that of 3 Royal Guards in banding.
+		*SO_WARMER
+			-Fixed a issue where the status didn't make you immunie to crystalize.
+		*GN_WALLOFTHORN
+			-Fixed a issue where the skill wasn't dealing any damage.
+			-Seems that the official value I put for the repeated effect broke it. Might have to recode part of it later to get it official.
+		*GN_SLINGITEM
+			-Banana bombs LUK reduction have been temporarly disabled until more testing can be done.
+		*KO_JYUMONJIKIRI
+			-Now instant moves the caster next to the targets location.
+
+07/19/2021
+	r303 [15peaces]
 		*Merged missing changes from 3ceam rev. 753 - 754
 		*Changed default PACKETVER to 20180621.
 			-2018-06-21aRagexeRE client and its features are now fully working and stable.
