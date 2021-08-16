@@ -44,6 +44,10 @@
 1@pump	mapflag	partylock
 2@pump	mapflag	partylock
 
+// Old Glast Heim ===========
+1@gl_k	mapflag	partylock
+2@gl_k	mapflag	partylock
+
 // Somatology Laboratory ===========
 1@lhz	mapflag	partylock
 
@@ -65,3 +69,9 @@
 // Central Laboratory Memorial ====
 1@lab	mapflag	partylock
 1@uns	mapflag	partylock
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	partylock
+
+// Ghost Palace ===========
+1@spa	mapflag	partylock

@@ -80,24 +80,23 @@ mal_dun01,151,235,5	script	Starfish	551,{
 				mes "Please come back later.";
 				close;
 			}
-			if (.@playtime == 2) erasequest 4197;
+			if (.@playtime == 2)
+				erasequest 4197;
 			if (countitem(6442) > 0) {
 				set .@instance, instance_create(.@md_name$,.@party_id);
-				if (.@instance < 0) {
-					mes "[Starfish]";
-					mes "Party name is... "+getpartyname(.@party_id)+".";
-					mes "Party leader is... "+strcharinfo(0)+".";
-					mes "^0000ff"+.@md_name$+"^000000, I cannot open now, hehe.";
-					mes "Now is not the time, please wait.";
-					close;
+				if (.@instance >= 0) {
+					if (instance_attachmap("1@cash", .@instance) == "") {
+						mes "[Starfish]";
+						mes "Party name is... "+getpartyname(.@party_id)+".";
+						mes "Party leader is... "+strcharinfo(PC_NAME)+".";
+						mes "^0000FF"+.@md_name$+"^000000, I cannot open now, hehe.";
+						mes "Now is not the time, please wait.";
+						instance_destroy(.@instance);
+						close();
+					}
+					instance_set_timeout(3600, 300, .@instance);
+					instance_init(.@instance);
 				}
-				if (instance_attachmap("1@cash",.@instance) == "") {
-					mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
-					instance_destroy(.@instance);
-					close;
-				}
-				instance_set_timeout 3600,300,.@instance;
-				instance_init(.@instance);
 
 				mes "[Starfish]";
 				mes "I will open the gate for a while to ^0000ff"+.@md_name$+"^000000.";

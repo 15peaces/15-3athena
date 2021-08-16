@@ -123,6 +123,8 @@ Oninit:
 		setmapflag "1@ecl"     ,mf_nobranch;
 		setmapflag "ecl_hub01" ,mf_nobranch;
 		setmapflag "que_avan01",mf_nobranch;
+		// Ghost Palace ===========
+		setmapflag "1@spa",mf_nobranch;
 	}
 	
 	// Episode 15
@@ -499,3 +501,7 @@ lasagna	mapflag	nobranch
 lasa_in01	mapflag	nobranch
 conch_in	mapflag	nobranch
 lasa_dun_q	mapflag	nobranch
+
+// Old Glast Heim ===========
+1@gl_k	mapflag	nobranch
+2@gl_k	mapflag	nobranch

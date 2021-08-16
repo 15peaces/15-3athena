@@ -6591,3 +6591,12 @@
 2715,Solid Petite@NPC_GROUNDATTACK,attack,185,3,500,500,5000,no,target,always,,,,,,,6,
 2715,Solid Petite@NPC_TELEKINESISATTACK,chase,191,5,500,0,5000,yes,target,always,,,,,,,,
 2715,Solid Petite@SM_BASH,attack,5,5,500,0,5000,yes,target,always,,,,,,,,
+//
+2722,Furious Orc Warrior@NPC_EMOTION,follow,197,1,200,0,5000,yes,self,always,,19,0x0081,,,,,
+2722,Furious Orc Warrior@NPC_EMOTION,chase,197,1,200,0,5000,yes,self,always,,19,0x0081,,,,,
+2722,Furious Orc Warrior@NPC_EMOTION,idle,197,1,2000,0,5000,yes,self,always,,32,0x3885,,,,,
+2722,Furious Orc Warrior@NPC_EMOTION,follow,197,1,2000,0,5000,yes,self,always,,27,,,,,,
+2722,Furious Orc Warrior@NPC_EMOTION,chase,197,1,2000,0,5000,yes,self,always,,,,,,,,
+2722,Furious Orc Warrior@NPC_GROUNDATTACK,angry,185,2,500,500,5000,no,target,always,,,,,,,6,
+2722,Furious Orc Warrior@NPC_GROUNDATTACK,attack,185,2,500,500,5000,no,target,always,,,,,,,6,
+2722,Furious Orc Warrior@NPC_SMOKING,idle,195,1,500,0,36000000,yes,self,always,,,,,,,9,

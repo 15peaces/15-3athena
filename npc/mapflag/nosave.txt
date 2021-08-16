@@ -17,9 +17,14 @@
 	-	script	_ep_mf_nosave	-1,{
 Oninit:
 	// after Episode 5
-	if(getepisode() > 50)
+	if(getepisode() > 50){
 		setmapflagnosave "monk_in","SavePoint",0,0;
+	}
 
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflagnosave "1@spa","SavePoint",0,0;
+	}
 	end;
 }
 //============================================================
@@ -331,7 +336,7 @@ arug_dun01	mapflag	nosave	SavePoint
 1@nyd	mapflag	nosave	SavePoint
 2@nyd	mapflag	nosave	SavePoint
 
-// Misty Forest Labyrinth ===========
+// Misty Forest Labyrinth ========
 1@mist	mapflag	nosave	SavePoint
 
 // Octopus Cave ===========
@@ -356,6 +361,13 @@ que_lhz	mapflag	nosave	SavePoint
 
 // Inside Eclage ===========
 1@ecl	mapflag	nosave	SavePoint
+
+// Old Glast Heim ===========
+1@gl_k	mapflag	nosave	SavePoint
+2@gl_k	mapflag	nosave	SavePoint
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	nosave	SavePoint
 
 //evt_zombie	mapflag	nosave	SavePoint
 

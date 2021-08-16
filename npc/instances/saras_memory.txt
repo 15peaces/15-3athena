@@ -134,8 +134,8 @@ dali,130,107,5	script	Leon the Adventurer#Sara	945,{ // instance CD check only a
 
 dali,138,118,0	script	Dimensional Device#dimen	10007,{
 	if (checkquest(15003) == -1) {
-		mes("[Leon the Adventurer]");
-		mes("Before you go playing around with that. Why don't you come over here and talk to me?");
+		mes "[Leon the Adventurer]";
+		mes "Before you go playing around with that. Why don't you come over here and talk to me?";
 		close;
 	}
 	set .@sara_time, checkquest(15002, PLAYTIME);
@@ -166,20 +166,18 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 			if (getcharid(0) != getpartyleader(.@party_id, 2))
 				end;
 			set .@instance, instance_create(.@md_name$, .@party_id);
-			if (.@instance < 0) {
-				mes sprintf("Party Name: %s", .@p_name$);
-				mes sprintf("Party Leader: %s", strcharinfo(0));
-				mes sprintf("^0000FF%s^000000 - Reservation Failed!", .@md_name$);
-				close;
+			if (.@instance >= 0) {
+				if (instance_attachmap("1@sara", .@instance) == "") {
+					mes "Party Name: "+.@p_name$;
+					mes "Party Leader: "+strcharinfo(PC_NAME);
+					mes "^0000FF"+.@md_name$+"^000000 - Reservation Failed!";
+					instance_destroy(.@instance);
+					close;
+				}
+				instance_set_timeout(3600, 300, .@instance);
+				instance_init(.@instance);
 			}
-			if (instance_attachmap("1@sara", .@instance) == "") {
-				mes sprintf("^0000FF%s^000000 - Reservation Failed!", .@md_name$);
-				instance_destroy(.@instance);
-				close;
-			}
-			instance_set_timeout(3600, 300, .@instance);
-			instance_init(.@instance);
-			mes("^FF0000The dimensional boots up cleanly. Use the device to enter the crack in space and time.^000000");
+			mes "^FF0000The dimensional boots up cleanly. Use the device to enter the crack in space and time.^000000";
 			close;
 		case 2:
 			if (has_instance("1@sara") == "") {

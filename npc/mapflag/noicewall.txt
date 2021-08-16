@@ -78,6 +78,11 @@ Oninit:
 		setmapflag "louyang"   ,mf_noicewall;
 	}
 	
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "1@spa",mf_noicewall;
+	}
+	
 	// Episode 15
 	if(getepisode() >= 150){
 		setmapflag "1@lab"    ,mf_noicewall;
@@ -170,6 +175,10 @@ nguild_gef	mapflag	noicewall
 nguild_pay	mapflag	noicewall
 nguild_prt	mapflag	noicewall
 
+//Sealed Shrine ==================
+1@cata	mapflag	noicewall
+2@cata	mapflag	noicewall
+
 //Endless Tower ==================
 1@tower	mapflag	noicewall
 2@tower	mapflag	noicewall
@@ -196,6 +205,10 @@ nguild_prt	mapflag	noicewall
 1@pump	mapflag	noicewall
 2@pump	mapflag	noicewall
 
+// Old Glast Heim ===========
+1@gl_k	mapflag	noicewall
+2@gl_k	mapflag	noicewall
+
 // Somatology Laboratory ===========
 1@lhz	mapflag	noicewall
 
@@ -210,6 +223,9 @@ nguild_prt	mapflag	noicewall
 
 // Inside Eclage ===========
 1@ecl	mapflag	noicewall
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	noicewall
 
 // Poring War ====================
 poring_w01	mapflag	noicewall

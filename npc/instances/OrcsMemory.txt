@@ -59,23 +59,20 @@ gef_fild10,242,202,0	script	Dimensional Gorge Piece	406,{
 			switch(select("Reserve the "+.@md_name$+":Enter the Dungeon:Cancel")) {
 			case 1:
 				set .@instance,instance_create(.@md_name$,.@party_id);
-				if (.@instance < 0) {
-					mes "Party Name: "+.@p_name$;
-					mes "Party Leader: "+strcharinfo(0);
-					mes "^0000ff"+.@md_name$+" ^000000 - Reservation Failed.";
-					close;
+				if (.@instance >= 0) {
+					for (set .@i, 1; .@i <= 2; set .@i,.@i+1) {
+						if (instance_attachmap(.@i + "@orcs", .@instance) == "") {
+							mes "Party Name: "+.@p_name$;
+							mes "Party Leader: "+strcharinfo(PC_NAME);
+							mes "^0000ff"+.@md_name$+" ^000000 - Reservation Failed.";
+							instance_destroy(.@instance);
+							close();
+						}
+					}
+					instance_set_timeout(7200, 300, .@instance);
+					instance_init(.@instance);
 				}
 				mes "^0000ff"+.@md_name$+"^000000- Attempting to book an entrance";
-				for( set .@i, 1; .@i <= 2; set .@i, .@i + 1 ) {
-					if( instance_attachmap(.@i + "@orcs", .@instance) == "" )
-						break;
-				}
-				if( .@i < 2 ) {
-					instance_destroy(.@instance);
-					close;
-				}
-				instance_set_timeout 7200,300,.@instance;
-				instance_init(.@instance);
 				mes "After making a reservation, you have to select 'Enter the Dungeon' from the menu if you wish to enter the "+.@md_name$+".";
 				close;
 			case 2:

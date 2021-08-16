@@ -124,7 +124,11 @@
 1238,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Shop guide"
 1239,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Shop guide"
 1240,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Shop guide"
-
+//  Episode 14.2 Eclage, Memorial Dungeon: Ghost Palace
+1260,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Cursed Swordman"
+1261,82800,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Cursed Swordman"
+1262,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Cursed Swordman"
+1263,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Cursed Swordman"
 1264,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Flaming Basin and Doom Prayers"
 1265,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,"Flaming Basin and Doom Prayers"
 // Note: Rate1 is unknown

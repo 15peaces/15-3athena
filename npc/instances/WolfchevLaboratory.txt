@@ -1,15 +1,16 @@
-//===== Hercules Script ========================================================
+//===== 15-3athena Script ====================================
 //= Wolfchev's Laboratory
-//===== By: ====================================================================
+//===== By: ==================================================
 //= Kisuka (1.0)
-//===== Current Version: =======================================================
+//===== Current Version: =====================================
 //= 1.0.1
-//===== Description: ===========================================================
+//===== Description: =========================================
 //= Defeat Wolfchev's human experimentations.
-//===== Additional Comments: ===================================================
+//===== Additional Comments: =================================
 //= 1.0.0 Initial Release. [Kisuka]
 //= 1.0.1 Some Clean-Up and Fixes. [Euphy]
-//==============================================================================
+//= 1.1 Updated to hercules v. 1.0.2 [15peaces]
+//============================================================
 
 1@lhz	mapflag	src4instance
 
@@ -619,7 +620,7 @@ lighthalzen,342,291,4	script	Weird old man#Bio4Reward	847,{
 					callsub L_Reward, 16017, 50, 100, 40;
 					break;
 				case 13:
-					mes "<<18109[2]>>";
+					mes "<<Thief Crossbow[2]>>";
 					mes "Increases ATK % of 'Triangle Shot' equivalent to 2 times Refine Lv, Also SP consumption from the skill increased.";
 					mes "Bow / ATK 150 / Weight 110 / Weapon Lv 4 / Required Lv 100 / Socket 2 / for Shadow Chaser";
 					callsub L_Reward, 18109, 50, 100, 35;
@@ -789,7 +790,7 @@ lhz_cube,233,24,4	script	Sorcerer#Bio4Reward	786,{
 			case 2:
 				mes "< Armor List >";
 				mes "Giant Shield[1]";
-				mes "Acient Book of Geffenia-Water[1]";
+				mes "Ancient Book of Geffenia-Water[1]";
 				mes "Bible of Promise(2nd Vol.)[1]";
 				mes "Salvage Cape[0]";
 				mes "Assassin's Handcuffs[1]";
@@ -1828,7 +1829,7 @@ lhz_dun04,151,276,3	script	Researcher#memo	865,{
 	}
 	set .@killed_bosses, true;
 	for(set .@quest_id, 5113; .@quest_id <= 5125; set .@quest_id,.@quest_id+1) {
-		if(checkquest(.@quest_id, HUNTING) <= 1) {
+		if(checkquest(.@quest_id, HUNTING) != 2) {
 			set .@killed_bosses, false;
 			break;
 		}
@@ -1918,12 +1919,12 @@ lhz_dun04,151,276,3	script	Researcher#memo	865,{
 				close;
 			case 2:
 				set .@quest_time, checkquest(5112, PLAYTIME);
-				if (.@quest_time == 0) {
+				if (.@quest_time == 0 || .@quest_time == 1) {
 					mes "[Wolfchev]";
 					mes "I'm sorry, but it seems you still cannot enter to the laboratory yet. Will you come back later? The system is kind of tricky you know.";
 					close;
 				} else {
-					if (.@quest_time >= 0)
+					if (.@quest_time == 2)
 						erasequest 5112;
 					if (!.@killed_bosses) {
 						if (lght_duk01 == 9) {
@@ -1991,29 +1992,28 @@ lhz_dun04,151,276,3	script	Researcher#memo	865,{
 				}
 				if (getpartyleader(getcharid(1),2) == getcharid(0)) {
 					set .@instance, instance_create("Worsef", getcharid(1));
-					if (.@instance < 0) {
-						mes "[Wolfchev]";
-						mes "Hmm.. Lab entering system is a bit weird. Would wait for me to check the system?";
-					} else {
-						mes "[Wolfchev]";
-						mes "Please hold on..";
-						next;
-						mes "Wolfchev starts to control certain gear.";
-						next;
-						progressbar "FF00FF", 2;
-						if (instance_attachmap("1@lhz", .@instance) != "") {
-							instance_set_timeout 14400, 300, .@instance;
-							instance_init(.@instance);
+					if (.@instance >= 0) {
+						if (instance_attachmap("1@lhz", .@instance) == "") {
 							mes "[Wolfchev]";
-							mes "Alright! I have marked lan entering system code as";
-							mes "^0000ff"+ strcharinfo(1) +"^000000 party leader's name ^0000ff"+ strcharinfo(PC_NAME) +"^000000!!.";
-							next;
-							mes "[Wolfchev]";
-							mes "Now, your party is free to pass the entrance.";
-						} else {
+							mes "Hmm.. Lab entering system is a bit weird. Would wait for me to check the system?";
 							instance_destroy(.@instance);
-						}					
+							close;
+						}
+						instance_set_timeout 14400, 300, .@instance;
+						instance_init(.@instance);						
 					}
+					mes "[Wolfchev]";
+					mes "Please hold on..";
+					next;
+					mes "Wolfchev starts to control certain gear.";
+					next;
+					progressbar("FF00FF", 2);
+					mes "[Wolfchev]";
+					mes "Alright! I have marked lan entering system code as";
+					mes "^0000ff"+strcharinfo(PC_PARTY)+"^000000 party leader's name ^0000ff"+strcharinfo(PC_NAME)+"^000000!!.";
+					next;
+					mes "[Wolfchev]";
+					mes "Now, your party is free to pass the entrance.";
 					close;
 				} else {
 					mes "[Wolfchev]";

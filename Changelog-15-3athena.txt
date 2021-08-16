@@ -5,8 +5,55 @@
 // 		- Details.
 //			--More Details.
 //========================================
-07/19/2021
-	r303 [15peaces]
+08/16/2021
+	r305 [15peaces]
+		*Merged missing changes from 3ceam rev. 757
+		*Some instance fixes:
+			-Fixed some questlog issues in Bakonawa Lake instance.
+			-Added some missing mapflags.
+			-Some fixes in Sealed Shrine instance.
+				--Fixed instance trying to change quest without checking it.
+				--Fixed incorrect condition checks in attaching maps of the instance.
+				--Fixed trying to disable wrong NPCs.
+				--Fixed not enabling all Bobbing Torches.
+			-Some fixes in Wolfchev Laboratory instance.
+				--Fixed the entering the instance.
+				--Some typo fixes.
+			-Implementation of Ghost palace instance (based on iRO) (Thanks to @HerculesWS)
+				-Added ghost palace instance script
+				-Add needed monster, item and quest database entries (& more)
+				-Added mapflags for instance map (1@spa)
+			-Update instance scripts to follow official behaviour 
+		*Some cleaning in databases.
+		*Fixed episode mapflags for pvp off zones.
+		*This update focuses heavly on fixing the balance issues with the homunculus in general. This is a response to the major balance issues with them, mainly the mutated ones.
+			-
+			-The update applys a number of official behaviors and handling for the homunculus system like limits on HP and stats, how homunculus stats are calculated through mutations, and other things.
+			-
+			-WARNING!!!!
+			-HOMUNCULUS MADE BEFORE THIS UPDATE WILL NOT BE AFFECTED.
+			-YOU MUST WIPE (DELETE) ALL EXISTING HOMUNCULUS FROM YOUR SAVE FILES!!!! FAILURE TO DO SO WILL ALLOW PLAYERS TO USE PRE-EXISTING HOMUNCULUS TO BE USED TO EXPLOIT THINGS!!!!
+		*Added the "max_homunculus_hp", max_homunculus_sp, and "max_homunculus_parameter" config settings.
+			-You can find them in the homunc.conf battle file.
+		*Added the merc_hom_stats_cap_check function.
+			-This function checks a homunculus MaxHP, MaxSP, and stats to see if they are above a set cap. If they are, it sets them to the cap limit set in the homunc.conf battle file.
+		*Fixed a issue where skills that are unlocked by a mutated homunculus base level wouldn't appear in the skill window when the needed level is reached.
+		*Corrected some of Lif's and Amistr's base stats.
+		*Added race, element, and base stats to all mutated homunculus.
+		*Homunculus now have cap limits on their MaxHP, MaxSP, and stats.
+			-The default limits are...
+			-MaxHP: 32767
+			-MaxSP: 32767
+			-Stats: 150
+			-
+			-These limits are official, but can be changed in the config files if desired.
+		*Mutation behavior updated.
+			-Homunculus that are mutated have their base MaxHP, base MaxSP and base stats replaced with the ones of their new form. Each of the 5 mutation forms have their own unique base and are higher then those of regular/evolved homunculus. 
+			-Randomized mutation bonuses are still given and are given after the base stats are changed.
+			-Mutating a homunculus will now also reset its intimacy to hate.
+
+07/29/2021
+	r304 [15peaces]
 		*Merged missing changes from 3ceam rev. 755 - 756
 		*Some item updates.
 			-Added some missing items.

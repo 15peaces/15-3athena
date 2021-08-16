@@ -40,6 +40,11 @@ Oninit:
 		setmapflag "spl_in01"   ,mf_nowarpto;
 	}
 	
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "1@spa",mf_nowarpto;
+	}
+	
 	// Episode 15
 	if(getepisode() >= 150){
 		setmapflag "1@lab"   ,mf_nowarpto;
@@ -171,6 +176,35 @@ bat_a02	mapflag	nowarpto
 // Nidhoggr's Instance ===========
 1@nyd	mapflag	nowarpto
 2@nyd	mapflag	nowarpto
+
+// Bangungot Hospital F2 ===========
+1@ma_h	mapflag	nowarpto
+
+// Buwaya Cave ===========
+1@ma_c	mapflag	nowarpto
+
+// Bakonawa Hideout ===========
+1@ma_b	mapflag	nowarpto
+
+// Misty Forest Labyrinth ========
+1@mist	mapflag	nowarpto
+
+// Drain ===========
+1@pump	mapflag	nowarpto
+2@pump	mapflag	nowarpto
+
+// Old Glast Heim ===========
+1@gl_k	mapflag	nowarpto
+2@gl_k	mapflag	nowarpto
+
+// Somatology Laboratory ===========
+1@lhz	mapflag	nowarpto
+
+// Octopus Cave ===========
+1@cash	mapflag	nowarpto
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	nowarpto
 
 // Poring War ====================
 poring_w01	mapflag	nowarpto

@@ -86,6 +86,12 @@ Oninit:
 		setmapflag "ecl_hub01"	,mf_noteleport;
 	}
 	
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "1@spa",mf_noteleport;
+		setmapflag "1@spa",mf_monster_noteleport;
+	}
+	
 	// Episode 15
 	if(getepisode() >= 150){
 		setmapflag "1@lab"   ,mf_noteleport;
@@ -488,6 +494,12 @@ nyd_dun02	mapflag	noteleport
 1@nyd	mapflag	monster_noteleport
 2@nyd	mapflag	noteleport
 2@nyd	mapflag	monster_noteleport
+
+// Old Glast Heim ===========
+1@gl_k	mapflag	noteleport
+2@gl_k	mapflag	noteleport
+1@gl_k	mapflag	monster_noteleport
+2@gl_k	mapflag	monster_noteleport
 
 //evt_zombie	mapflag	noteleport
 

@@ -75,22 +75,19 @@ ma_fild02,312,317,5	script	Guard#buwaya_cave	570,{
 					// fall through
 				}
 				set .@instance, instance_create(.@md_name$,.@party_id);
-				if (.@instance < 0) {
-					mes "[Guard]";
-					mes "Party name is... "+getpartyname(.@party_id)+".";
-					mes "Party leader is... "+strcharinfo(0);
-					mes "^0000ff"+.@md_name$+"^000000 cannot be opened now.";
-					mes "Please try a moment later.";
-					close;
+				if (.@instance >= 0) {
+					if (instance_attachmap("1@ma_c", .@instance) == "") {
+						mes "[Guard]";
+						mes "Party name is... "+getpartyname(.@party_id);
+						mes "Party leader is... "+strcharinfo(PC_NAME);
+						mes "^0000ff"+.@md_name$+"^000000 cannot be opened now.";
+						mes "Please try a moment later.";
+						instance_destroy(.@instance);
+						close;
+					}
+					instance_set_timeout(3600, 300, .@instance);
+					instance_init(.@instance);
 				}
-				if (instance_attachmap("1@ma_c",.@instance) == "") {
-					mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
-					instance_destroy(.@instance);
-					close;
-				}
-				instance_set_timeout 3600,300,.@instance;
-				instance_init(.@instance);
-
 				mes "[Guard]";
 				mes "I will open up the tunnel to ^0000ff"+.@md_name$+"^000000.";
 				mes "I wish you good luck.";

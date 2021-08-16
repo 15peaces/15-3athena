@@ -1,39 +1,16 @@
-//================= Hercules Script =======================================
-//=       _   _                     _
-//=      | | | |                   | |
-//=      | |_| | ___ _ __ ___ _   _| | ___  ___
-//=      |  _  |/ _ \ '__/ __| | | | |/ _ \/ __|
-//=      | | | |  __/ | | (__| |_| | |  __/\__ \
-//=      \_| |_/\___|_|  \___|\__,_|_|\___||___/
-//================= License ===============================================
-//= This file is part of Hercules.
-//= http://herc.ws - http://github.com/HerculesWS/Hercules
-//=
-//= Copyright (C) 2013-2015  Hercules Dev Team
-//= Copyright (C)  Joseph
-//= Copyright (C)  Euphy
-//=
-//= Hercules is free software: you can redistribute it and/or modify
-//= it under the terms of the GNU General Public License as published by
-//= the Free Software Foundation, either version 3 of the License, or
-//= (at your option) any later version.
-//=
-//= This program is distributed in the hope that it will be useful,
-//= but WITHOUT ANY WARRANTY; without even the implied warranty of
-//= MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//= GNU General Public License for more details.
-//=
-//= You should have received a copy of the GNU General Public License
-//= along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//=========================================================================
+//===== 15-3athena Script ====================================
 //= Malangdo Culvert
-//================= Description ===========================================
+//===== By: ==================================================
+//= hercules
+//===== Current Version: =====================================
+//= 1.1
+//===== Description: =========================================
 //= Clean the culverts and defeat the Coelacanth.
 //= Daily and weekly quests are available.
 //= Contains a normal mode and hard mode.
-//================= Current Version =======================================
-//= 1.1
-//=========================================================================
+//===== Additional Comments: =================================
+//= 1.1 Ported from hercules to 15-3athena. [15peaces]
+//============================================================
 
 //== Quest NPCs ============================================
 mal_in01,172,28,2	script	Albo#mal	561,{
@@ -417,20 +394,19 @@ mal_in01,160,34,4	script	Missing, the Cleaner	545,{
 				close;
 			case 2:
 				set .@instance, instance_create(.@md_name$,.@party_id);
-				if (.@instance < 0) {
-					mes "Party name: "+getpartyname(.@party_id);
-					mes "Party leader: "+strcharinfo(PC_NAME);
-					mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
-					close;
+				if (.@instance >= 0) {
+					for (set .@i, 1; .@i <= 2; set .@i,.@i+1) {
+						if (instance_attachmap(.@i + "@pump", .@instance) == "") {
+							mes "Party name: "+getpartyname(.@party_id);
+							mes "Party leader: "+strcharinfo(PC_NAME);
+							mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
+							instance_destroy(.@instance);
+							close;
+						}
+					}
+					instance_set_timeout(3600, 300, .@instance);
+					instance_init(.@instance);
 				}
-				if (instance_attachmap("1@pump",.@instance) == "" || instance_attachmap("2@pump",.@instance) == "") {
-					mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
-					instance_destroy(.@instance);
-					close;
-				}
-				instance_set_timeout 3600,300,.@instance;
-				instance_init(.@instance);
-
 				mes "^3333FF"+.@md_name$+"^000000 - Reserving";
 				mes "After making the reservation, you";
 				mes "have to select Enter the Culvert.";

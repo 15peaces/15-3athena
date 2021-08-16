@@ -19,16 +19,21 @@
 Oninit:
 	// Episode 3+
 	if(getepisode() >= 30){
-		pvpoff "cmd_in01";
-		pvpoff "cmd_in02";
-		pvpoff "comodo";
+		removemapflag "cmd_in01",mf_pvp;
+		removemapflag "cmd_in02",mf_pvp;
+		removemapflag "comodo"	,mf_pvp;
 	}
 
 	// Episode 5
 	if(getepisode() == 50){
-		pvpoff "sword_1-1";
-		pvpoff "sword_2-1";
-		pvpoff "sword_3-1";
+		removemapflag "sword_1-1",mf_pvp;
+		removemapflag "sword_2-1",mf_pvp;
+		removemapflag "sword_3-1",mf_pvp;
+	}
+
+	// Episode 14.2
+	if(getepisode() >= 142){
+		removemapflag "1@spa",mf_pvp;
 	}
 	
 	end;
@@ -107,6 +112,13 @@ yuno	mapflag	pvp	off
 1@ma_c	mapflag	pvp	off
 1@ma_b	mapflag	pvp	off
 1@ecl	mapflag	pvp	off
+
+// Old Glast Heim ===========
+1@gl_k	mapflag	pvp	off
+2@gl_k	mapflag	pvp	off
+
+// Heroes' Trail Part 1 ========
+1@sara	mapflag	pvp	off
 
 bat_a01	mapflag	pvp	off
 bat_a02	mapflag	pvp	off

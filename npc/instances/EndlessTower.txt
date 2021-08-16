@@ -227,23 +227,21 @@ e_tower,81,105,0	script	Tower Protection Stone	406,{
 			switch(select("Generate dungeon "+.@md_name$+":Enter the dungeon:Return to Alberta:Cancel")) {
 			case 1:
 				set .@instance, instance_create(.@md_name$,.@party_id);
-				if (.@instance < 0) {
-					mes "Party Name: "+.@p_name$;
-					mes "Party Leader: "+strcharinfo(0);
-					mes "^0000ff"+.@md_name$+" ^000000- Reservation Failed!";
-					close;
+				if (.@instance >= 0) {
+					for (set .@i, 1; .@i <= 6; set .@i,.@i+1) {
+						if (instance_attachmap(.@i + "@tower", .@instance) == "") {
+							mes "Party Name: "+.@p_name$;
+							mes "Party Leader: "+strcharinfo(PC_NAME);
+							mes "^0000ff"+.@md_name$+" ^000000- Reservation Failed!";
+							instance_destroy(.@instance);
+							close();
+						}
+					}
+					instance_set_timeout(14400, 300, .@instance);
+					instance_init(.@instance);
 				}
 				mes "^0000ff"+.@md_name$+"^000000 - Try to reserve";
 				mes "After making a reservation, you have to talk to NPC behind and select the menu 'Enter the Dungeon' to enter the dungeon.";
-				for( set .@i, 1; .@i <= 6; set .@i, .@i + 1 ) {
-					if( instance_attachmap(.@i + "@tower", .@instance) == "" ) {
-						mes "^0000ff"+.@md_name$+" ^000000- Reservation Failed!";
-						instance_destroy(.@instance);
-						close;
-					}
-				}
-				instance_set_timeout 14400,300,.@instance;
-				instance_init(.@instance);
 				close;
 			case 2:
 				callsub L_Enter,0,1;

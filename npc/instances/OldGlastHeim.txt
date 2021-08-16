@@ -91,19 +91,19 @@ glast_01,204,273,6	script	Hugin#ghinstance	755,{
 			if (getcharid(0) != getpartyleader(.@party_id, 2))
 				end;
 			set .@instance, instance_create(.@md_name$, .@party_id);
-			if (.@instance < 0) {
-				mes("Party Name: "+.@p_name$);
-				mes("Party Leader: "+strcharinfo(0));
-				mes("^0000ff"+.@md_name$+"^000000 - Reservation Failed!");
-				close;
+			if (.@instance >= 0) {
+				for (set .@i, 1; .@i <= 2; set .@i,.@i+1) {
+					if (instance_attachmap(.@i + "@gl_k", .@instance) == "") {
+						mes "Party Name: "+.@p_name$;
+						mes "Party Leader: "+strcharinfo(PC_NAME);
+						mes "^0000ff"+.@md_name$+"^000000 - Reservation Failed!";
+						instance_destroy(.@instance);
+						close;
+					}
+				}
+				instance_set_timeout(3600, 300, .@instance);
+				instance_init(.@instance);
 			}
-			if (instance_attachmap("1@gl_k", .@instance) == "" || instance_attachmap("2@gl_k", .@instance) == "") {
-				mes("^0000FF"+.@md_name$+"^000000 - Reservation Failed!");
-				instance_destroy(.@instance);
-				close;
-			}
-			instance_set_timeout(3600, 300, .@instance);
-			instance_init(.@instance);
 			mes("[Hugin]");
 			mes("The time gap was created. When you're ready, talk to me again.");
 			close;

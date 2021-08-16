@@ -176,6 +176,11 @@ Oninit:
 		setmapflag "moc_prydn1" ,mf_nomemo;
 		setmapflag "moc_prydn2" ,mf_nomemo;
 	}
+	
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "1@spa",mf_nomemo;
+	}
 
 	// Episode 15
 	if(getepisode() >= 150){

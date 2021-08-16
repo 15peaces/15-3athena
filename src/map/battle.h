@@ -573,6 +573,9 @@ extern struct Battle_Config
 	int mail_attachment_price;
 	int mail_attachment_weight;
 	int feature_achievement;
+	int max_homunculus_hp;
+	int max_homunculus_sp;
+	int max_homunculus_parameter;
 	int hom_bonus_exp_from_master;
 	int feature_equipswitch;
 	int mvp_exp_reward_message;

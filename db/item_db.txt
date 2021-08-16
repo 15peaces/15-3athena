@@ -7617,7 +7617,7 @@
 19602,C_Invisible_Cap,Costume Invisible Cap,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,0,{},{},{}
 19603,C_Invisible_Sunglasses,Costume Invisible Sunglasses,5,0,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,0,{},{},{}
 19604,C_Invisible_Mask,Brawler's Supply Crate,18,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(12208,4); getitem(12072,6); getitem(12082,6); getitem(12087,6); getitem(11502,30); },{},{}
-//
+19605,C_Gang_Scarf,Costume Gang Scarf,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,369,{},{},{}
 19606,C_Ninja_Scroll,Costume Ninja Scroll,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,370,{},{},{}
 19607,C_Love_Chick_Hat,Costume Chicken Love Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,500,{},{},{}
 19608,C_Chick_Hat,Costume Chick Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,311,{},{},{}
