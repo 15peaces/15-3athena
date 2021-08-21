@@ -8136,6 +8136,21 @@ ACMD_FUNC(homshuffle)
 	return 0;
 }
 
+ACMD_FUNC(hommax)
+{
+	nullpo_retr(-1, sd);
+
+	if(!sd->hd)
+		return -1; // nothing to do
+
+	if(!merc_hom_max(sd->hd))
+		return -1;
+
+	clif_displaymessage(sd->fd, "[Homunculus MaxHP, MaxSP, And Stats Maxed]");
+	atcommand_homstats(fd, sd, command, message);
+	return 0;
+}
+
 /*==========================================
  * Show Items DB Info   v 1.0
  * originally by [Lupus] eAthena
@@ -9982,7 +9997,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "produceeffect",     99,99,     atcommand_produceeffect },
 	{ "agitstart3",        60,60,     atcommand_agitstart3 },
 	{ "agitend3",          60,60,     atcommand_agitend3 },
-	{ "adopt",              1,1,      atcommand_adopt },	
+	{ "adopt",              1,1,      atcommand_adopt },
+	{ "hommax",            60,60,     atcommand_hommax },
 };
 
 

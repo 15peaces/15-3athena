@@ -6227,7 +6227,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		tick = max(tick, 5000); // Minimum Duration 10s.//2011 document for Warlock says min duration is 5. [Rytech]
 		break;
 	case SC_WHITEIMPRISON:// A 2010 kRO sakray update says its natural immunity stat is STR. But I want a official test soon. [Rytech]
-		sc_def = 3 + status->str;
+		sc_def = 3 + (status->str + status->vit) / 2;// Set to require combined 200 STR and VIT for immunity until I can get more official info.
 		break;
 	case SC_DEEPSLEEP:
 		tick_def = status->int_ / 20 + status_get_lv(bl) / 20; //Reduces duration by 1 second for every 20 INT and 20 BaseLv's
@@ -6378,46 +6378,34 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	if( !sc )
 		return 0; //Unable to receive status changes
 
-	if( sc->data[SC_REFRESH] ){
-		if (type >= SC_COMMON_MIN && type <= SC_COMMON_MAX) // Confirmed.
-			return 0; // Inmune
+	if( sc->data[SC_REFRESH] )
+	{// Immune to all common status's as well as Guillotine Cross poisons.
+		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX || 
+			type >= SC_NEW_POISON_MIN && type <= SC_NEW_POISON_MAX )
+			return 0;
 		switch( type )
-		{
-			case SC_QUAGMIRE://Tester said it protects against this and decrease agi.
-			case SC_DECREASEAGI:
+		{// Additional status immunity's.
 			case SC_MARSHOFABYSS:
-			case SC_TOXIN:
-			case SC_PARALYSE:
-			case SC_VENOMBLEED:
-			case SC_MAGICMUSHROOM:
-			case SC_DEATHHURT:
-			case SC_PYREXIA:
-			case SC_OBLIVIONCURSE:
-			case SC_LEECHESEND://Need confirm. If it protects against nearly every Guillotine poison, it should work on this too right? [Rytech]
 			case SC_MANDRAGORA:
 				return 0;
 		}
 	}
 
-	if( sc->data[SC_INSPIRATION] ){
-		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX )
-			return 0; // Immune to status ailements
-		switch( type ){
-			case SC_TOXIN:
-			case SC_PARALYSE:
-			case SC_VENOMBLEED:
-			case SC_MAGICMUSHROOM:
-			case SC_DEATHHURT:
-			case SC_PYREXIA:
-			case SC_OBLIVIONCURSE:
-			case SC_LEECHESEND:
+	if( sc->data[SC_INSPIRATION] )
+	{// Immune to all common status's as well as Guillotine Cross poisons.
+		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX || 
+			type >= SC_NEW_POISON_MIN && type <= SC_NEW_POISON_MAX )
+				return 0;
+
+		switch( type )
+			{// Additional status immunity's.
 			case SC__BODYPAINT:
-			case SC_ENERVATION:
-			case SC_GROOMY:
-			case SC_IGNORANCE:
-			case SC_LAZINESS:
-			case SC_UNLUCKY:
-			case SC_WEAKNESS:
+			case SC__ENERVATION:
+			case SC__GROOMY:
+			case SC__IGNORANCE:
+			case SC__LAZINESS:
+			case SC__UNLUCKY:
+			case SC__WEAKNESS:
 			case SC_SATURDAY_NIGHT_FEVER:
 				return 0;
 		}
@@ -6479,6 +6467,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			// Burning makes you immune to freezing.
 			if ( type == SC_FREEZING && sc->data[SC_BURNING] || sc->data[SC_WARMER] )
 				return 0;
+			break;
 		case SC_SIGNUMCRUCIS:
 			//Only affects demons and undead element (but not players)
 			if((!undead_flag && status->race!=RC_DEMON) || bl->type == BL_PC)
@@ -6738,7 +6727,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	//Check for BOSS resistances
 	if(status->mode&MD_BOSS && !(flag&1)) {
-		 if (type>=SC_COMMON_MIN && type <= SC_COMMON_MAX)
+		if (type >= SC_COMMON_MIN && type <= SC_COMMON_MAX ||
+			type >= SC_NEW_POISON_MIN && type <= SC_NEW_POISON_MAX)
 			 return 0;
 		 switch (type) {
 			case SC_BLESSING:
@@ -6754,17 +6744,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_FOGWALL:
 			case SC_MARSHOFABYSS:
 			case SC_ADORAMUS:
-
-			// Exploit prevention - kRO Fix
-			// Soon to replace with NEW_POISON SC range.
-			case SC_PARALYSE:
-			case SC_LEECHESEND:
-			case SC_OBLIVIONCURSE:
-			case SC_DEATHHURT:
-			case SC_TOXIN:
-			case SC_PYREXIA:
-			case SC_MAGICMUSHROOM:
-			case SC_VENOMBLEED:
 
 			// Ranger Effects
 			case SC_WUGBITE:
@@ -10856,7 +10835,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_REUSE_CRUSHSTRIKE:
 			case SC_REUSE_STORMBLAST:
 			case SC_ALL_RIDING_REUSE_LIMIT:
-			// Extra large skills cooldowns
 			case SC_SAVAGE_STEAK:
 			case SC_COCKTAIL_WARG_BLOOD:
 			case SC_MINOR_BBQ:
@@ -10885,8 +10863,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_WUGBITE:
 			case SC_ADORAMUS:
 			case SC_VACUUM_EXTREME:
-			case SC_BURNING:
-			case SC_FEAR:
 			case SC_MAGNETICFIELD:
 				if (!(type&2))
 					continue;

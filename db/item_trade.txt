@@ -414,6 +414,9 @@
 6082,123,100	// Spirit_Of_Alfheim
 6084,123,100	// Bradium_Fragments
 6085,123,100	// Shaggy_Muffler
+6121,123,100	//Makeover_Brush
+6122,123,100	//Paint_brush
+6124,123,100	//Wolf's_Flute
 6151,115,100	// Peice_Of_Great_Bradium
 6152,115,100	// Glittering_Crystal
 6153,123,100	// Special_Exchange_Coupon
@@ -795,7 +798,7 @@
 12388,123,100	// Runstone_Crush
 12389,123,100	// Runstone_Storm
 12390,123,100	// Runstone_Millennium
-12622,91,100 	// Boarding_Halter
+12622,123,100 	// Boarding_Halter
 12704,91,100	// Elixir_Of_Life
 12705,91,100	// Noble_Nameplate
 12714,83,100	// Easter_Scroll
@@ -1542,6 +1545,7 @@
 20110,123,100 	// C_Coiledup_Snake
 20139,123,100	// C_Horse_Hairpin
 20140,123,100	// C_Horse_Hairpin
+22540,91,100	// Runstone_Luxanima
 22567,123,100	// Squad_Prize
 22760,123,100	// Argiope_Transportin
 22761,123,100	// Luciola_Vespa_Transportin

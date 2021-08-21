@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/21/2021
+	r306 [15peaces]
+		*Merged missing changes from 3ceam rev. 758 - 759
+		*Added the "hommax" command.
+			-This command allows you to max all your homunculus's MaxHP, MaxSP and stats to the server's set limit.
+		*Added the "banana_bomb_sit_duration" config to the skill.conf file.
+			-If you or players find the official duration formula to be overpowered, then you can disable this to allow a affected player to stand up right away.
+		*Corrected how forced sitting status's prevents sitting and standing actions.
+		*Fixed a issue where COSTUME_HEAD_LOW and COSTUME_HEAD_TOP were switched in the equip_index, making them be incorrectly assigned to the wrong equip_pos in the array.
+		*Fixed a issue where the Freezing and Crystalize status's didn't work.
+		*Added the NEW_POISON status's range.
+			-This range is used to mimic aegis's NEW_POISON handling of things.
+			-Its supposed to make all guillotine poisons handled as common status but am currently using it just for optomizing things for now. Future updates will make more use of it.
+		*Added official prices for the Rebellion's weapons, ammos, and skill required items.
+		*Updated the item_trade restrictions for 3rd job related stuff.
+		*Updated the homunculus data.
+			-Sera is now poison element.
+			-Eleanor is now neutral element.
+		*RK_IGNITIONBREAK
+			-Recoded part of the skill to use a experimental code that prevents the skill animation from being spammed by the number of players hit. This will get rid of the framerate lag it can cause in heavy populated areas like WoE and also fix the 
+			-stupidly loud sound it makes with it. This means the animation will now happen once and only once.
+			-Since the client acts retarded and normal eAthena coding techniques cant control the animation, I made a special code to keep the animation in check. Other skills suffering from animation spam issues will follow soon.
+		*RK_REFRESH
+			-Recoded part of the skill.
+			-No longer gives immunity to Quagmire and Decrease AGI.
+			-The code that removes status's was entirely redone and uses a lot less coding and is very efficent. Other skills that removes massive numbers of status's will soon be updated to use this coding as well for these reasons.
+		*WL_WHITEIMPRISON
+			-Immunity formula updated.
+			-Now required a combined STR and VIT of 200.
+			-This isnt official, but it allows a better chance of success.
+		*LG_INSPIRATION
+			-Fixed a issue where the status didn't give immunity to Masquerade skills.
+			-Recoded some parts to use less codeing.
+		*MH_MAGMA_FLOW
+			-Recoded the skill to fix a number of issues.
+			-It now works 100% official.
+
 08/16/2021
 	r305 [15peaces]
 		*Merged missing changes from 3ceam rev. 757
