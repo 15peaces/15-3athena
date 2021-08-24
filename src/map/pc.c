@@ -5352,7 +5352,8 @@ int pc_checkallowskill(struct map_session_data *sd)
 		SC_ADRENALINE,
 		SC_ADRENALINE2,
 		SC_DANCING,
-		SC_GATLINGFEVER
+		SC_GATLINGFEVER,
+		SC_EXEEDBREAK
 	};
 	const enum sc_type scs_list[] = {
 		SC_AUTOGUARD,

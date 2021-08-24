@@ -558,10 +558,11 @@ void initChangeTables(void)
 	set_sc( SO_WARMER           , SC_WARMER         , SI_WARMER         , SCB_NONE );
 	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME	, SI_VACUUM_EXTREME	, SCB_NONE );
 	set_sc( SO_ARRULLO			, SC_DEEPSLEEP		, SI_DEEP_SLEEP		, SCB_NONE );
-	set_sc( SO_FIRE_INSIGNIA    , SC_FIRE_INSIGNIA  , SI_FIRE_INSIGNIA  , SCB_NONE );
-	set_sc( SO_WATER_INSIGNIA   , SC_WATER_INSIGNIA , SI_WATER_INSIGNIA , SCB_NONE );
-	set_sc( SO_WIND_INSIGNIA    , SC_WIND_INSIGNIA  , SI_WIND_INSIGNIA  , SCB_NONE );
-	set_sc( SO_EARTH_INSIGNIA   , SC_EARTH_INSIGNIA , SI_EARTH_INSIGNIA , SCB_NONE );
+	set_sc( SO_FIRE_INSIGNIA	, SC_FIRE_INSIGNIA  , SI_FIRE_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_MATK|SCB_ATK_ELE );
+	set_sc( SO_WATER_INSIGNIA	, SC_WATER_INSIGNIA , SI_WATER_INSIGNIA , SCB_BATK|SCB_WATK|SCB_ATK_ELE );
+	set_sc( SO_WIND_INSIGNIA	, SC_WIND_INSIGNIA  , SI_WIND_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_ASPD|SCB_ATK_ELE );
+	set_sc( SO_EARTH_INSIGNIA	, SC_EARTH_INSIGNIA , SI_EARTH_INSIGNIA , SCB_MAXHP|SCB_MAXSP|SCB_BATK|SCB_WATK|SCB_DEF|SCB_MDEF|SCB_ATK_ELE );
+
 
 	// Genetic
 	set_sc( GN_CARTBOOST					, SC_GN_CARTBOOST				, SI_GN_CARTBOOST				, SCB_SPEED );
@@ -620,27 +621,27 @@ void initChangeTables(void)
 	set_sc( HAMI_BLOODLUST       , SC_BLOODLUST       , SI_BLANK           , SCB_BATK|SCB_WATK );
 
 	// Mutanted Homunculus
-	set_sc(MH_NEEDLE_OF_PARALYZE , SC_NEEDLE_OF_PARALYZE, SI_NEEDLE_OF_PARALYZE, SCB_NONE);
-	add_sc( MH_POISON_MIST       , SC_BLIND );
-	set_sc( MH_PAIN_KILLER       , SC_PAIN_KILLER       , SI_PAIN_KILLER       , SCB_NONE );
-	set_sc( MH_LIGHT_OF_REGENE   , SC_LIGHT_OF_REGENE   , SI_LIGHT_OF_REGENE   , SCB_NONE );
-	set_sc( MH_OVERED_BOOST      , SC_OVERED_BOOST      , SI_OVERED_BOOST      , SCB_NONE );
-	add_sc( MH_XENO_SLASHER      , SC_BLEEDING );
-	set_sc( MH_SILENT_BREEZE     , SC_SILENT_BREEZE     , SI_SILENT_BREEZE     , SCB_NONE );
-	set_sc( MH_STYLE_CHANGE      , SC_STYLE_CHANGE      , SI_STYLE_CHANGE      , SCB_NONE );
-	add_sc( MH_SILVERVEIN_RUSH   , SC_STUN );
-	add_sc( MH_MIDNIGHT_FRENZY   , SC_FEAR );
-	add_sc( MH_STAHL_HORN        , SC_STUN );
-	set_sc( MH_GOLDENE_FERSE     , SC_GOLDENE_FERSE     , SI_GOLDENE_FERSE     , SCB_NONE );
-	set_sc( MH_ANGRIFFS_MODUS    , SC_ANGRIFFS_MODUS    , SI_ANGRIFFS_MODUS    , SCB_NONE );
-	set_sc( MH_TINDER_BREAKER    , SC_TINDER_BREAKER    , SI_TINDER_BREAKER    , SCB_NONE );
-	set_sc( MH_CBC               , SC_CBC               , SI_CBC               , SCB_NONE );
-	set_sc( MH_EQC               , SC_EQC               , SI_EQC               , SCB_NONE );
-	set_sc( MH_MAGMA_FLOW        , SC_MAGMA_FLOW        , SI_MAGMA_FLOW        , SCB_NONE );
-	set_sc( MH_GRANITIC_ARMOR    , SC_GRANITIC_ARMOR    , SI_GRANITIC_ARMOR    , SCB_NONE );
-	add_sc( MH_LAVA_SLIDE        , SC_BURNING );
-	set_sc( MH_PYROCLASTIC       , SC_PYROCLASTIC       , SI_PYROCLASTIC       , SCB_NONE );
-	set_sc( MH_VOLCANIC_ASH      , SC_VOLCANIC_ASH      , SI_VOLCANIC_ASH      , SCB_NONE );
+	set_sc(MH_NEEDLE_OF_PARALYZE, SC_NEEDLE_OF_PARALYZE	, SI_NEEDLE_OF_PARALYZE	, SCB_NONE);
+	add_sc( MH_POISON_MIST		, SC_BLIND				);
+	set_sc( MH_PAIN_KILLER		, SC_PAIN_KILLER		, SI_PAIN_KILLER		, SCB_NONE );
+	set_sc( MH_LIGHT_OF_REGENE	, SC_LIGHT_OF_REGENE	, SI_LIGHT_OF_REGENE	, SCB_NONE );
+	set_sc(MH_OVERED_BOOST		, SC_OVERED_BOOST		, SI_OVERED_BOOST		, SCB_FLEE | SCB_DEF | SCB_ASPD);
+	add_sc( MH_XENO_SLASHER		, SC_BLEEDING			);
+	set_sc( MH_SILENT_BREEZE	, SC_SILENT_BREEZE		, SI_SILENT_BREEZE		, SCB_NONE );
+	set_sc( MH_STYLE_CHANGE		, SC_STYLE_CHANGE		, SI_STYLE_CHANGE		, SCB_NONE );
+	add_sc( MH_SILVERVEIN_RUSH	, SC_STUN				);
+	add_sc( MH_MIDNIGHT_FRENZY	, SC_FEAR				);
+	add_sc( MH_STAHL_HORN		, SC_STUN				);
+	set_sc( MH_GOLDENE_FERSE	, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_NONE );
+	set_sc( MH_ANGRIFFS_MODUS	, SC_ANGRIFFS_MODUS		, SI_ANGRIFFS_MODUS		, SCB_NONE );
+	set_sc( MH_TINDER_BREAKER	, SC_TINDER_BREAKER		, SI_TINDER_BREAKER		, SCB_NONE );
+	set_sc( MH_CBC				, SC_CBC				, SI_CBC				, SCB_NONE );
+	set_sc( MH_EQC				, SC_EQC				, SI_EQC				, SCB_NONE );
+	set_sc( MH_MAGMA_FLOW		, SC_MAGMA_FLOW			, SI_MAGMA_FLOW			, SCB_NONE );
+	set_sc( MH_GRANITIC_ARMOR	, SC_GRANITIC_ARMOR		, SI_GRANITIC_ARMOR		, SCB_NONE );
+	add_sc( MH_LAVA_SLIDE		, SC_BURNING			);
+	set_sc( MH_PYROCLASTIC		, SC_PYROCLASTIC		, SI_PYROCLASTIC		, SCB_NONE );
+	set_sc( MH_VOLCANIC_ASH		, SC_VOLCANIC_ASH		, SI_VOLCANIC_ASH		, SCB_NONE );
 
 	add_sc( MER_CRASH            , SC_STUN            );
 	set_sc( MER_PROVOKE          , SC_PROVOKE         , SI_PROVOKE         , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
@@ -1301,6 +1302,22 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 		status_change_clear(target,0);
 		clif_skill_nodamage(target,target,ALL_RESURRECTION,1,1);
 		sc_start(target,status_skill2sc(PR_KYRIE),100,10,time);
+
+		if( target->type == BL_MOB ) 
+			((TBL_MOB*)target)->state.rebirth = 1;
+
+		return hp+sp;
+	}
+
+	if( !(flag&8) && sc && sc->data[SC_LIGHT_OF_REGENE] )
+	{ //flag&8 = Disable Light of Regeneration
+		//Look for Osiris Card's bonus effect on the character and revive 100% or revive normally
+		if ( target->type == BL_PC && BL_CAST(BL_PC,target)->special_state.restart_full_recover == 1 )
+			status_revive(target, 100, 100);
+		else
+			status_revive(target, sc->data[SC_LIGHT_OF_REGENE]->val2, 0);
+		status_change_clear(target,0);
+		clif_skill_nodamage(target,target,ALL_RESURRECTION,1,1);
 
 		if( target->type == BL_MOB ) 
 			((TBL_MOB*)target)->state.rebirth = 1;
@@ -4506,6 +4523,11 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk += batk * sc->data[SC_FLEET]->val3/100;
 	if(sc->data[SC__BLOODYLUST])
 		batk += batk * 32 / 100;
+	if((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
+		batk += batk * 10 / 100;
 	if(sc->data[SC_JOINTBEAT] && sc->data[SC_JOINTBEAT]->val2&BREAK_WAIST)
 		batk -= batk * 25/100;
 	if(sc->data[SC_CURSE])
@@ -4557,6 +4579,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_RUSH_WINDMILL]->val3;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		watk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
+	if (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2)
+		watk += 50;
 	if(sc->data[SC_ODINS_POWER])
 		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_FULL_SWING_K])
@@ -4585,6 +4609,11 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_FLEET]->val3/100;
 	if(sc->data[SC__BLOODYLUST])
 		watk += watk * 32 / 100;
+	if((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) ||
+		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
+		watk += watk * 10 / 100;
 	if(sc->data[SC_CURSE])
 		watk -= watk * 25/100;
 	if(sc->data[SC_STRIPWEAPON])
@@ -4624,6 +4653,8 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += sc->data[SC_MOONLIT_SERENADE]->val3;
 	if(sc->data[SC_MANA_PLUS])
 		matk += sc->data[SC_MANA_PLUS]->val1;
+	if (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 3)
+		matk += 50;
 	if(sc->data[SC_ODINS_POWER])
 		matk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_IZAYOI])//Recheck the MATK increase please. [Rytech]
@@ -4744,6 +4775,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 	if(!sc || !sc->count)
 		return cap_value(flee,1,SHRT_MAX);
 
+	if (sc->data[SC_OVERED_BOOST])
+		return sc->data[SC_OVERED_BOOST]->val2;
 	if(sc->data[SC_INCFLEE])
 		flee += sc->data[SC_INCFLEE]->val1;
 	if(sc->data[SC_FLEEFOOD])
@@ -4863,6 +4896,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_PRESTIGE]->val1;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
 		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
+	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2)
+		def += 5;
 	if(sc->data[SC_INCDEFRATE])
 		def += def * sc->data[SC_INCDEFRATE]->val1/100;
 	if( sc->data[SC_NEUTRALBARRIER] )
@@ -4899,6 +4934,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * (10 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 	if(sc->data[SC_EARTHDRIVE])
 		def -= def * 25 / 100;
+	if(sc->data[SC_OVERED_BOOST])
+		def -= def * 50 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_ROCK_CRUSHER] )
 		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
@@ -4981,6 +5018,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += sc->data[SC_ARMORCHANGE]->val3;
 	if (sc->data[SC_STONEHARDSKIN])// Final MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
 		mdef += sc->data[SC_STONEHARDSKIN]->val1;
+	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
+		mdef += 5;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 		mdef += 25*mdef/100;
 	if(sc->data[SC_FREEZE])
@@ -5324,6 +5363,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= 10 * sc->data[SC_FIGHTINGSPIRIT]->val2;
 	if( sc->data[SC_GENTLETOUCH_CHANGE] )
 		aspd_rate -= 10 * sc->data[SC_GENTLETOUCH_CHANGE]->val3;
+	if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2)
+		aspd_rate -= 100;
 	if( sc->data[SC_BOOST500] )
 		aspd_rate -= 10 * sc->data[SC_BOOST500]->val1;
 	if(sc->data[SC_EXTRACT_SALAMINE_JUICE])
@@ -5399,6 +5440,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 
 	if(sc->data[SC_LERADS_DEW])
 		maxhp += sc->data[SC_LERADS_DEW]->val3;
+	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2)
+		maxhp += 500;
 	if(sc->data[SC_PROMOTE_HEALTH_RESERCH])
 		maxhp += sc->data[SC_PROMOTE_HEALTH_RESERCH]->val4;
 	if (sc->data[SC_SWORDCLAN])
@@ -5457,6 +5500,8 @@ static unsigned int status_calc_maxsp(struct block_list *bl, struct status_chang
 	if(!sc || !sc->count)
 		return cap_value(maxsp,1,UINT_MAX);
 
+	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
+		maxsp += 50;
 	if(sc->data[SC_INCMSPRATE])
 		maxsp += maxsp * sc->data[SC_INCMSPRATE]->val1/100;
 	if(sc->data[SC_SERVICE4U])
@@ -5524,13 +5569,13 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 		return element;
 	if(sc->data[SC_ENCHANTARMS])
 		return sc->data[SC_ENCHANTARMS]->val2;
-	if(sc->data[SC_WATERWEAPON])
+	if (sc->data[SC_WATERWEAPON] || (sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2))
 		return ELE_WATER;
-	if(sc->data[SC_EARTHWEAPON])
+	if (sc->data[SC_EARTHWEAPON] || (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
 		return ELE_EARTH;
-	if(sc->data[SC_FIREWEAPON])
+	if(sc->data[SC_FIREWEAPON] || (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2))
 		return ELE_FIRE;
-	if(sc->data[SC_WINDWEAPON])
+	if(sc->data[SC_WINDWEAPON] || (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2))
 		return ELE_WIND;
 	if(sc->data[SC_ENCPOISON])
 		return ELE_POISON;
@@ -6356,6 +6401,7 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
 {
 	struct map_session_data *sd = NULL;
+	struct homun_data *hd;
 	struct status_change* sc;
 	struct status_change_entry* sce;
 	struct status_data *status;
@@ -6425,6 +6471,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	sd = BL_CAST(BL_PC, bl);
+	hd = BL_CAST(BL_HOM, bl);
 
 	//Some skill formula's checks base/job levels. This caps the number of
 	//levels taken into the different formulas to prevent overpowering skill effects.
@@ -6752,6 +6799,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 			// Other Effects
 			case SC_VACUUM_EXTREME:
+			case SC_SILENT_BREEZE:
 				return 0;
 		}
 	}
@@ -8385,6 +8433,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = status->vit / 4 * val1;//VIT defense increase.
 			val3 = 50 + 30 * val1;//Natural HP recovery rate increase.
 			break;
+		case SC_FIRE_INSIGNIA:
+		case SC_WATER_INSIGNIA:
+		case SC_WIND_INSIGNIA:
+		case SC_EARTH_INSIGNIA:
+			val4 = tick / 5000;
+			tick = 5000;
+			break;
 		case SC_MEIKYOUSISUI:
 			val4 = tick / 1000;
 			tick = 1000;
@@ -8415,6 +8470,24 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = tick/2000;
 			tick = 2000;
 			clif_emotion(bl,E_SWT);
+			break;
+		case SC_LIGHT_OF_REGENE:
+			val2 = 20 * val1;// Percent of HP recovered when resurrected.
+			break;
+		case SC_OVERED_BOOST:
+			// Hunger and SP reduction if skill is recasted while status is active.
+			if (sc && sc->data[SC_OVERED_BOOST])
+				if (hd)
+				{// Homunculus hunger is reduced by 50% of max hunger.
+					short hunger = hd->homunculus.hunger - 50;
+					if (hunger < 1)// Hunger isnt reduced below 1.
+						hunger = 1;
+					hd->homunculus.hunger = hunger;
+				}
+				else if (sd)// Master's SP is reduced by 50% of MaxSP
+					status_zap(bl,0,status->max_sp * 50 / 100);
+			val2 = 300 + 40 * val1;//Fixed FLEE
+			val3 = 179 + 2 * val1;//Fixed ASPD //Currently not working. Fixed ASPD function needed. [Rytech]
 			break;
 		case SC_PYROTECHNIC_OPTION:
 			val2 = 60;	// Watk TODO: Renewal (Atk2)
@@ -9099,6 +9172,7 @@ int status_change_clear(struct block_list* bl, int type)
 int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const char* file, int line)
 {
 	struct map_session_data *sd;
+	struct homun_data *hd;
 	struct status_change *sc;
 	struct status_change_entry *sce;
 	struct status_data *status;
@@ -9114,6 +9188,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		return 0;
 
 	sd = BL_CAST(BL_PC,bl);
+	hd = BL_CAST(BL_HOM, bl);
 
 	if (sce->timer != tid && tid != INVALID_TIMER)
 		return 0;
@@ -9541,6 +9616,17 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
 			if (sd && pc_issit(sd) && pc_setstand(sd, false))
 				skill_sit(sd, false);
+			break;
+		case SC_OVERED_BOOST:
+			if (hd)
+			{// Homunculus hunger is reduced by 50% of max hunger.
+				short hunger = hd->homunculus.hunger - 50;
+				if (hunger < 1)// Hunger isnt reduced below 1.
+					hunger = 1;
+				hd->homunculus.hunger = hunger;
+			}
+			else if (sd)// Master's SP is reduced by 50% of MaxSP
+				status_zap(bl,0,status->max_sp * 50 / 100);
 			break;
 		case SC_FULL_THROTTLE:
 			sc_start(bl,SC_REBOUND,100,sce->val1,skill_get_time2(ALL_FULL_THROTTLE, sce->val1));
@@ -10585,6 +10671,54 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		if( --(sce->val3)>0 && status_charge(bl, sce->val2, 0) ){
 			if( !sc->data[type] ) return 0;
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_FIRE_INSIGNIA:
+		if(--(sce->val4) >= 0)
+		{
+			if (status->def_ele == ELE_FIRE)
+				status_heal(bl, status->max_hp / 100, 0, 1);
+			else if (status->def_ele == ELE_EARTH)
+				status_zap(bl, status->max_hp / 100, 0);
+			sc_timer_next(5000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_WATER_INSIGNIA:
+		if(--(sce->val4) >= 0)
+		{
+			if (status->def_ele == ELE_WATER)
+				status_heal(bl, status->max_hp / 100, 0, 1);
+			else if (status->def_ele == ELE_FIRE)
+				status_zap(bl, status->max_hp / 100, 0);
+			sc_timer_next(5000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_WIND_INSIGNIA:
+		if(--(sce->val4) >= 0)
+		{
+			if (status->def_ele == ELE_WIND)
+				status_heal(bl, status->max_hp / 100, 0, 1);
+			else if (status->def_ele == ELE_WATER)
+				status_zap(bl, status->max_hp / 100, 0);
+			sc_timer_next(5000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_EARTH_INSIGNIA:
+		if(--(sce->val4) >= 0)
+		{
+			if (status->def_ele == ELE_EARTH)
+				status_heal(bl, status->max_hp / 100, 0, 1);
+			else if (status->def_ele == ELE_WIND)
+				status_zap(bl, status->max_hp / 100, 0);
+			sc_timer_next(5000+tick, status_change_timer,bl->id, data);
 			return 0;
 		}
 		break;

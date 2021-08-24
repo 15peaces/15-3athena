@@ -375,6 +375,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 				hp += hp * sc->data[SC_INCHEALRATE]->val1/100;
 			if( sc->data[SC_EXTRACT_WHITE_POTION_Z] )
 				hp += hp * sc->data[SC_EXTRACT_WHITE_POTION_Z]->val1 / 100;
+			if ( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2 )
+				hp += hp * 10 / 100;
 		}
 		//Critical Wound and Death Hurt stacks. Need to fix when I fix the bugs in this heal code. [Rytech]
 		if( sc->data[SC_CRITICALWOUND] && heal ) // Critical Wound has no effect on offensive heal. [Inkfish]
@@ -2847,6 +2849,13 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 				if( hd->homunculus.intimacy < (unsigned int)battle_config.hvan_explosion_intimate )
 					return 0;
 				break;
+			case MH_LIGHT_OF_REGENE:
+				// Zone data shows it needs a intimacy 901.
+				// But description says it needs to be loyal, which would requie 911.
+				// Best to set it to loyal requirements to be accurate to the description.
+				if( hd->homunculus.intimacy <= 91000 )
+					return 0;
+				break;
 		}
 	}
 
@@ -5202,12 +5211,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case NPC_ANTIMAGIC:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start2( bl, type, 100, skilllv, skillid, skill_get_time( skillid, skilllv ) ) );
 		break;
-	case HLIF_AVOID:
-	case HAMI_DEFENCE:
-		i = skill_get_time(skillid,skilllv);
-		clif_skill_nodamage(bl,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,i)); // Master
-		clif_skill_nodamage(src,src,skillid,skilllv,sc_start(src,type,100,skilllv,i)); // Homunc
-		break;
 	case NJ_BUNSINJYUTSU:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
@@ -7325,6 +7328,48 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		if (hd)
 			skill_blockhomun_start(hd, skillid, skill_get_time2(skillid,skilllv));
+		break;
+
+	//Homunculus buffs that affects both the homunculus and its master.
+	case HLIF_AVOID:
+	case HAMI_DEFENCE:
+	case MH_OVERED_BOOST:
+		i = skill_get_time(skillid,skilllv);
+		clif_skill_nodamage(bl,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,i)); // Master
+		clif_skill_nodamage(src,src,skillid,skilllv,sc_start(src,type,100,skilllv,i)); // Homunc
+		break;
+
+	//Homunculus buffs that affects only its master.
+	case MH_LIGHT_OF_REGENE:
+		if (hd)
+		{// Homunculus intimact is set to a random value in the cordial range.
+			hd->homunculus.intimacy = rnd_value(75100 , 85000);
+			if (hd->master)
+				clif_send_homdata(hd->master,SP_INTIMATE,hd->homunculus.intimacy/100);
+		}
+		clif_skill_nodamage(bl,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		break;
+
+	case MH_SILENT_BREEZE:
+		{// If skill is used by anything not a homunculus, hunger value will be treated as max possible.
+			short hunger = 100;
+			if (hd)// Checks hunger when used by a homunculus.
+				hunger = hd->homunculus.hunger;
+			clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+			if ( tsc )
+			{// Status's the skill cures.
+				const enum sc_type scs[] = { SC_DEEPSLEEP, SC_HALLUCINATION, SC_HARMONIZE, SC_SIREN, SC_MANDRAGORA };
+				for (i = 0; i < ARRAYLENGTH(scs); i++)
+					if (tsc->data[scs[i]])
+						status_change_end(bl, scs[i], INVALID_TIMER);
+			}
+			sc_start(bl,SC_SILENCE,100,skilllv,skill_get_time(skillid,skilllv));
+			status_heal(bl,5 * (hunger + status_get_lv(src)),0,2);
+			//Its said that the homunculus is silenced too, but I need a confirm on that first.
+			//clif_skill_nodamage(src,src,skillid,skilllv,sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv)));
+			if (hd)// Skill cooldown directed to the homunculus.
+				skill_blockhomun_start(hd, skillid, skill_get_cooldown(skillid,skilllv));
+		}
 		break;
 
 	case MH_MAGMA_FLOW:
@@ -11176,6 +11221,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 			break;
 		}
 
+		// This animation hack should only work if val2 is not already in use for anything.
+		if (skill_get_unit_flag(skillid)&UF_SINGLEANIMATION && i == (layout->count / 2) && val2 == 0)
+			val2 |= UF_SINGLEANIMATION;
+
 		if( range <= 0 )
 			map_foreachincell(skill_cell_overlap,src->m,ux,uy,BL_SKILL,skillid,&alive, src);
 		if( !alive )
@@ -11318,6 +11367,10 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_VOLCANO:
 	case UNT_DELUGE:
 	case UNT_VIOLENTGALE:
+	case UNT_FIRE_INSIGNIA:
+	case UNT_WATER_INSIGNIA:
+	case UNT_WIND_INSIGNIA:
+	case UNT_EARTH_INSIGNIA:
 	case UNT_WATER_BARRIER:
 	case UNT_ZEPHYR:
 	case UNT_POWER_OF_GAIA:
@@ -12049,13 +12102,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					sc_start(bl, SC_BANDING_DEFENCE, 30 + 5 * sg->skill_lv - tstatus->agi / 10, 90, skill_get_time2(sg->skill_id, sg->skill_lv));
 			break;
 
-		case UNT_FIRE_INSIGNIA:
-		case UNT_WATER_INSIGNIA:
-		case UNT_WIND_INSIGNIA:
-		case UNT_EARTH_INSIGNIA:
-			sc_start(bl, type, 100, sg->skill_lv, skill_get_time2(sg->skill_id,sg->skill_lv));
-			break;
-
 		case UNT_FIRE_MANTLE:
 			if( battle_check_target(&src->bl, bl, BCT_ENEMY) )
 				skill_attack(BF_MAGIC,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
@@ -12252,6 +12298,10 @@ int skill_unit_onleft (uint16 skill_id, struct block_list *bl, int64 tick)
 		case NJ_SUITON:
 		case SC_MAELSTROM:
 		case SC_BLOODYLUST:
+		case SO_FIRE_INSIGNIA:
+		case SO_WATER_INSIGNIA:
+		case SO_WIND_INSIGNIA:
+		case SO_EARTH_INSIGNIA:
 		case EL_WATER_BARRIER:
 		case EL_ZEPHYR:
 		case EL_POWER_OF_GAIA:
@@ -13721,8 +13771,19 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	}
 
 	for( i = 0; i < MAX_SKILL_ITEM_REQUIRE; i++ )
-	{
-		if( (skill == AM_POTIONPITCHER || skill == CR_SLIMPITCHER || skill == CR_CULTIVATION) && i != lv%11 - 1 )
+	{// Skills that have different item requirements on each level.
+		if((skill == AM_POTIONPITCHER ||
+			skill == CR_SLIMPITCHER ||
+			skill == CR_CULTIVATION ||
+			skill == SO_SUMMON_AGNI ||
+			skill == SO_SUMMON_AQUA ||
+			skill == SO_SUMMON_VENTUS ||
+			skill == SO_SUMMON_TERA ||
+			skill == SO_FIRE_INSIGNIA ||
+			skill == SO_WATER_INSIGNIA ||
+			skill == SO_WIND_INSIGNIA ||
+			skill == SO_EARTH_INSIGNIA)
+			&& i != lv%11 - 1 )
 			continue;
 
 		switch( skill )
@@ -13735,7 +13796,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			if (lv <= 5)	// no gems required at level 1-5
 				continue;
 			break;
-		case NC_SHAPESHIFT:
+		case NC_SHAPESHIFT://FIX ME
 			if ( i < 4 )
 				continue;
 			break;
@@ -13746,7 +13807,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			if( i < 3 )
 				continue;
 			break;
-		case GN_FIRE_EXPANSION:
+		case GN_FIRE_EXPANSION://CHECK ME
 			if( i < 5 )
 				continue;
 			break;
@@ -13776,8 +13837,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		)	// Not consume it
 			req.itemid[i] = req.amount[i] = 0;
 	}
-	if( skill == NC_SHAPESHIFT || skill == GN_FIRE_EXPANSION || skill == SO_SUMMON_AGNI ||
-		skill == SO_SUMMON_AQUA || skill == SO_SUMMON_VENTUS || skill == SO_SUMMON_TERA ) {
+	if (skill == NC_SHAPESHIFT || skill == GN_FIRE_EXPANSION)
+	{
 		req.itemid[lv-1] = skill_db[j].itemid[lv-1];
 		req.amount[lv-1] = skill_db[j].amount[lv-1];
 	}
@@ -13942,19 +14003,22 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 			if ((sc->data[SC_MEMORIZE]->val2) <= 0)
 				status_change_end(bl, SC_MEMORIZE, -1);
 		}
-		if (sc->data[SC_SLOWCAST])
-			time += time * sc->data[SC_SLOWCAST]->val2 / 100;
+		if (sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 &&
+			skill_get_ele(skill_id, skill_lv) == ELE_WATER && skill_get_type(skill_id) == BF_MAGIC)
+			time -= time * 30 / 100;
 		if (sc->data[SC_IZAYOI])
 			time -= time * 50 / 100;
+		if (sc->data[SC_SLOWCAST])
+			time += time * sc->data[SC_SLOWCAST]->val2 / 100;
 	}
 	
 	//These status's adjust the fixed cast time by a fixed amount. Fixed adjustments stack and can increase or decrease the time.
 	if (sc && sc->count)
 	{
+		if (sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION])
+			fixed_time -= 1000;
 		if( sc->data[SC_MANDRAGORA] )
 			fixed_time += 500 * sc->data[SC_MANDRAGORA]->val1;
-		if( sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION] )
-			fixed_time -= 1000;
 	}
 
 	if(sd) 
@@ -14132,6 +14196,10 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 				time -= time * sc->data[SC_POEMBRAGI]->val3 / 100;
 		}
 	}
+
+	if (sc && sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 3 &&
+		skill_get_ele(skill_id, skill_lv) == ELE_WIND && skill_get_type(skill_id) == BF_MAGIC)
+		time -= time * 50 / 100;
 
 	if( !(delaynodex&4) && sd && sd->delayrate != 100 )
 		time = time * sd->delayrate / 100;
@@ -14759,6 +14827,10 @@ struct skill_unit_group *skill_locate_element_field(struct block_list *bl)
 			case NJ_SUITON:
 			case SO_WARMER:
 			case SO_CLOUD_KILL:
+			case SO_FIRE_INSIGNIA:
+			case SO_WATER_INSIGNIA:
+			case SO_WIND_INSIGNIA:
+			case SO_EARTH_INSIGNIA:
 				return ud->skillunit[i];
 		}
 	}

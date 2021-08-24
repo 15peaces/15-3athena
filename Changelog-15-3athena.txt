@@ -5,6 +5,42 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/24/2021
+	r307 [15peaces]
+		*Merged missing changes from 3ceam rev. 760 - 761
+		*Some lighthalzen quest fixes & uodates.
+			-add cutins for Friendship Quest.
+			-Fixed an issue where the player get stuck in Rekenber Job quest
+		*Added the latest tags and ID's status's.
+		*Updated the const and Global_Functions files to support the costume equips. Should now be possible to check for equips in these equip slots in NPC scripts.
+		*Added the UF_SINGLEANIMATION flag to the skill_unit_db.
+			-This is a special hack used to display a animation only on the center cell of a AoE when using unit layouts for skills that needs them instead of a set radius. Original code was taken from rAthena.
+		*Fixed the order of calculations for status's that affects variable and fixed cast times.
+		*Lowered the MAX_SKILL_IMPROVE_DB to 16.
+		*Corrected the VAR's in the const file.
+			-Also added the robe to the list.
+		*Fixed a number of items in the item db.
+			-Items that give a fixed amount of MATK now properly give it.
+			-Corrected bonuses from refines for Kagerou/Oboro and newer pile bunkers.
+		*SL_KAIZEL
+			-Fixed a issue where the Kyrie barrier duration after resurraction was incorrect.
+		*LG_EXEEDBREAK
+			-Switching or unequipping weapons will now end the status.
+		*SO_CLOUD_KILL
+			-Updated poison status duration to official.
+		*SO_SUMMON_AGNI; SO_SUMMON_AQUA; SO_SUMMON_VENTUS; SO_SUMMON_TERA
+			-Cleaned up the item requirement code.
+		*SO_FIRE_INSIGNIA; SO_WATER_INSIGNIA; SO_WIND_INSIGNIA; SO_EARTH_INSIGNIA
+			-Added support for these skills.
+			-Fixed a issue where the item requirements were bugged above lv 1.
+			-Note: Everything work except for the bonus effects for level 1 which is the elemental buffs. I don't plan on coding these in until I work on the major update for the elementals to get them official. The effects that works on all levels do work 
+			-for level 1 which is the HP heal/damage thing and 1.5x damage thingy. So it still has a good use.
+		*MH_LIGHT_OF_REGENE; MH_OVERED_BOOST; MH_SILENT_BREEZE
+			-Added full support for these skills.
+			-Note: MH_OVERED_BOOST curretly doesnt give its fixed ASPD effect since their's no way to fix one's ASPD to something at the moment. Will need to make a new function to do this in the future.
+		*MH_XENO_SLASHER
+			-Fixed a issue where the bleeding status duration was incorrect.
+
 08/21/2021
 	r306 [15peaces]
 		*Merged missing changes from 3ceam rev. 758 - 759
