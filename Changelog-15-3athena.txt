@@ -5,6 +5,25 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/31/2021
+	r308 [15peaces]
+		*Merged missing changes from 3ceam rev. 762 - 764
+		*Added the rest of the stuff for the shadow equips support.
+			-This updates the refine and itemlist commands as well.
+		*Garment equips can now give a robe sprite on the character using the view value in the item database. Costume garment equips with a view ID value will take priority on robe sprites.
+			-Updated the item_db file to show shadow equips are supported.
+			-Also added that the view value works for robe items now.
+		*Fixed the gm_all_skill config.
+			-Its now possible to use this feature again, but a 2013-12-23Ragexe or newer client is required due to the size of the packet the server sends to the client being too big for older clients to handle.
+		*Added the INF2_SUB_SKILL.
+			-This is used to tell the server if a skill is a sub-skill.
+			-A sub-skill is a skill thats used as part of a main skill which is a skill that uses more then 1 skill ID to work. These skills with this setting stops the server from adding these skills to the skill list when using the gm_all_skill feature to 
+			-prevent client error messages from appearing.
+		*Added info for the sub-skill inf2 setting and set all sub-skills to use this setting.
+		*MH_XENO_SLASHER
+			-Fixed a issue where the AoE would remain and deal repeated hits.
+			-Fixed a issue where the bleeding status wasn't being applied.
+
 08/24/2021
 	r307 [15peaces]
 		*Merged missing changes from 3ceam rev. 760 - 761

@@ -1588,7 +1588,14 @@ int pc_calc_skilltree(struct map_session_data *sd)
 	{
 		for( i = 0; i < MAX_SKILL; i++ )
 		{
-			if( skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL) )
+			if( skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL|INF2_SUB_SKILL) ||
+				i==SM_SELFPROVOKE ||
+				i==SL_DEATHKNIGHT ||
+				i==SL_COLLECTOR ||
+				i==SL_NINJA ||
+				i==SL_GUNNER ||
+				i==ALL_ODINS_RECALL ||
+				i==RK_LUXANIMA)
 				continue; //Only skills you can't have are npc/guild ones
 			if( skill_get_max(i) > 0 )
 				sd->status.skill[i].id = i;
@@ -6702,7 +6709,17 @@ int pc_allskillup(struct map_session_data *sd)
 	{	//Get ALL skills except npc/guild ones. [Skotlex]
 		//and except SG_DEVIL [Komurka] and MO_TRIPLEATTACK and RG_SNATCHER [ultramage]
 		for(i=0;i<MAX_SKILL;i++){
-			if(!(skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL)) && i!=SG_DEVIL && i!=MO_TRIPLEATTACK && i!=RG_SNATCHER)
+			if(!(skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL|INF2_SUB_SKILL)) &&
+				i!=RG_SNATCHER &&
+				i!=MO_TRIPLEATTACK &&
+				i!=SG_DEVIL &&
+				i!=SM_SELFPROVOKE &&
+				i!=SL_DEATHKNIGHT &&
+				i!=SL_COLLECTOR &&
+				i!=SL_NINJA &&
+				i!=SL_GUNNER &&
+				i!=ALL_ODINS_RECALL &&
+				i!=RK_LUXANIMA)
 				sd->status.skill[i].lv=skill_get_max(i); //Nonexistant skills should return a max of 0 anyway.
 		}
 	}
@@ -9223,6 +9240,13 @@ int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswit
 	}
 	if(pos & EQP_SHOES)
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
+	if(pos & EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT, false) == -1) {
+		if(id)
+			sd->status.robe = id->look;
+		else
+			sd->status.robe = 0;
+		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
+	}
 	if(pos & EQP_COSTUME_HEAD_TOP) {
 		if(id){
 			sd->status.head_top = id->look;
@@ -9341,6 +9365,11 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_SHOES)
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
+	if(sd->inventory.u.items_inventory[n].equip & EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT, false) == -1 )
+	{
+		sd->status.robe = 0;
+		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
+	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_TOP) {
 		sd->status.head_top = ( pc_checkequip(sd,EQP_HEAD_TOP, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_TOP, false)]->look : 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
