@@ -5,6 +5,34 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/11/2021
+	r309 [15peaces]
+		*Merged missing changes from 3ceam rev. 765 - 768
+		*Changed the land_skill_limit config so that homunculus will follow the maxcount limits set on certain skills. This is a response to a issue with Lava Slide.
+		*Fixed a issue where certain item bonuses didn't work with items equipped on the SHADOW_ACC_L equip slot.
+			-It appears the equip_index handles AMMO in a special way and needs it at the end of the index table. So I had to also change its placement in the equip_pos to the very end. This issue also happened with equips in the COSTUME_FLOOR, 
+			-but vanished when I added the shadow equips support.
+		*Some random updates in atcommand help file.
+		*Some random cleaning.
+		*Fixed monster hp bars to official behaviour.
+		*Updated the const file with all the latest effect tags and ID's.
+		*Fixed Staff Of Light item bonus.
+		*Added the shadow equips promtion set.
+			-These are shadow equip items that were used in a event to promote the shadow equip system to give players a taste of what it does.
+			-I added these items so they can be used as a example of how to add these kind of equips. The only thing I did unofficial to them is make them not refineable since it would cause balance issues in a pre-renewal server.
+		*PR_STRECOVERY
+			-Now cures the Netherworld status.
+		*WM_REVERBERATION; WM_DOMINION_IMPULSE; WM_POEMOFNETHERWORLD
+			-Recoded parts of the skills to fix bugs and make things more official.
+		*WM_SEVERE_RAINSTORM
+			-Fixed a issue where hitting enemies would cause the caster to studder.
+			-This issue happens in official, but its something that shouldn't happen at all. If it did, then stuff like Storm Gust would do this too when you hit someone. Its a bug that shouldn't exist at all.
+		*WM_UNLIMITED_HUMMING_VOICE
+			-Fixed a issue where the status didn't give the cast interruption protection. It gives it now, but it will not work in WoE and battleground areas.
+		*MH_LAVA_SLIDE
+			-Fixed a issue where it would give the burning status to enemies when not hit by the skill.
+			-Burning duration updated.
+
 08/31/2021
 	r308 [15peaces]
 		*Merged missing changes from 3ceam rev. 762 - 764

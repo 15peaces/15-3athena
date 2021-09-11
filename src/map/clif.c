@@ -1181,7 +1181,7 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 
 /// Prepares 'unit walking' packet (ZC_NOTIFY_MOVEENTRY).
 /// Currently supports up to v11.
-static int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer)
+ int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer)
 {
 	struct map_session_data* sd;
 	struct status_change* sc = status_get_sc(bl);
@@ -4952,14 +4952,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,423,sd->fd);
 			else if(md->special_state.size==1)
 				clif_specialeffect_single(bl,421,sd->fd);
-#if PACKETVER >= 20120404
-			if( !(md->status.mode&MD_BOSS) && battle_config.monster_hp_bars_info){
-				int i;
-				for(i = 0; i < DAMAGELOG_SIZE; i++)// must show hp bar to all char who already hit the mob.
-					if( md->dmglog[i].id == sd->status.char_id )
-						clif_monster_hp_bar(md, sd->fd);
-			}
-#endif
 		}
 		break;
 	case BL_PET:

@@ -1315,7 +1315,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	flag.rh = 1;
 	flag.weapon = 1;
 	flag.infdef =(tstatus->mode&MD_PLANT) ? 1 : 0;
-	if( !flag.infdef && (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION) )
+	
+	if (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION)
 		flag.infdef = 1; // Reberberation takes 1 damage
 
 	//Initial Values
@@ -3668,7 +3669,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	//Skill Range Criteria
 	ad.flag |= battle_range_type(src, target, skill_num, skill_lv);
 	flag.infdef = (tstatus->mode&MD_PLANT ? 1 : 0);
-	if(!flag.infdef && (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION))
+	
+	if (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION)
 		flag.infdef = 1; // Reberberation takes 1 damage
 		
 	switch(skill_num)
@@ -4678,6 +4680,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	else if(md.damage && tstatus->mode&MD_PLANT)
 		md.damage = 1;
 
+	if (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION)
+		md.damage = 1; // Reberberation takes 1 damage
+
 	if(!(nk&NK_NO_ELEFIX))
 		md.damage=battle_attr_fix(src, target, md.damage, s_ele, tstatus->def_ele, tstatus->ele_lv);
 
@@ -5430,7 +5435,8 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					default:
 						return 0;
 				}
-			} else if (su->group->skill_id==WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN || su->group->skill_id == WM_REVERBERATION)
+			}
+			else if (su->group->skill_id == WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN)
 			{
 				state |= BCT_ENEMY;
 				strip_enemy = 0;

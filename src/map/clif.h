@@ -1105,4 +1105,6 @@ void clif_private_airship_response(struct map_session_data *sd, uint32 flag);
 void clif_open_ui_req_sub(int fd, struct map_session_data* sd, enum out_ui_type ui_type);
 bool clif_attendance_timediff(struct map_session_data *sd);
 
+int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
+
 #endif /* _CLIF_H_ */

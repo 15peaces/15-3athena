@@ -543,7 +543,7 @@ lighthalzen,342,291,4	script	Weird old man#Bio4Reward	847,{
 					""+.@weapon$[9]+"Aztoe Nail^000000",
 					""+.@weapon$[10]+"Scarletto Nail^000000",
 					""+.@weapon$[11]+"Bloody Cross^000000",
-					""+.@weapon$[12]+"18109^000000",
+					""+.@weapon$[12]+"Thief Crossbow^000000",
 					""+.@weapon$[13]+"Big CrossBow^000000",
 					""+.@weapon$[14]+"Creeper Bow^000000"
 				)) {
