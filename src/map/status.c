@@ -2589,7 +2589,9 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			}
 		}
 		else if(sd->inventory_data[index]->type == IT_ARMOR) {
-			refinedef += sd->inventory.u.items_inventory[index].refine*refinebonus[0][0];
+			if (!((battle_config.costume_refine_def != 1 && i >= EQI_COSTUME_HEAD_LOW && i <= EQI_COSTUME_FLOOR) ||
+				(battle_config.shadow_refine_def != 1 && i >= EQI_SHADOW_ARMOR && i <= EQI_SHADOW_ACC_L)))
+				refinedef += sd->inventory.u.items_inventory[index].refine * refinebonus[0][0];
 			if(sd->inventory_data[index]->script) {
 				if (i == EQI_HAND_L) //Shield
 					sd->state.lr_flag = 3;
@@ -6072,6 +6074,7 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 				sd->vd.body_style = cap_value(sd->status.body,0,battle_config.max_body_style);
 				sd->vd.sex = sd->status.sex;
 				sd->vd.robe = sd->status.robe;
+				sd->vd.body_style = sd->status.body;
 			} else if (vd)
 				memcpy(&sd->vd, vd, sizeof(struct view_data));
 			else
@@ -6157,6 +6160,11 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 		|| (vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
 	))
 		vd->cloth_color = 0;
+	if (vd && vd->body_style && (
+		vd->class_==JOB_WEDDING || vd->class_==JOB_XMAS ||
+		vd->class_==JOB_SUMMER || vd->class_==JOB_HANBOK ||
+		vd->class_==JOB_OKTOBERFEST || vd->class_==JOB_SUMMER2))
+		vd->body_style = 0;
 }
 
 /// Returns the status_change data of bl or NULL if it doesn't exist.
@@ -7392,6 +7400,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl, LOOK_BASE, type == SC_WEDDING ? JOB_WEDDING : type == SC_XMAS ? JOB_XMAS : type == SC_SUMMER ? JOB_SUMMER : type == SC_HANBOK ? JOB_HANBOK : type == SC_OKTOBERFEST ? JOB_OKTOBERFEST : JOB_SUMMER2);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
+			clif_changelook(bl, LOOK_BODY2, 0);
 			break;
 		case SC_ATTHASTE_CASH:
 			val2 = 50 * val1; // Just custom for pre-re
@@ -9249,6 +9258,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
 			clif_changelook(bl,LOOK_SHIELD,vd->shield);
+			clif_changelook(bl,LOOK_BODY2,vd->body_style);
 			if(sd) clif_skillupdateinfoblock(sd);
 		break;
 		case SC_RUN:

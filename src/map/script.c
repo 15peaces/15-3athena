@@ -13422,7 +13422,7 @@ BUILDIN_FUNC(getlook)
 		case LOOK_COSTUMEBODY: break; //10
 		//case LOOK_RESET_COSTUMES: break; //11 - Not sure what exactly this is used for.
 		case LOOK_ROBE: val=sd->status.robe; break; //12
-		case LOOK_BODY2: break; //13
+		case LOOK_BODY2: val = sd->status.body; break; //13
         }
 
         script_pushint(st,val);
@@ -17091,9 +17091,12 @@ BUILDIN_FUNC(openmail)
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;
-
+#if PACKETVER < 20150513
 #ifndef TXT_ONLY
 	mail_openmail(sd);
+#endif
+#else
+	ShowError("buildin_openmail: This command is not supported for PACKETVER 2015-05-13 or newer.\n");
 #endif
 	return 0;
 }

@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/18/2021
+	r310 [15peaces]
+		*Merged missing changes from 3ceam rev. 769 - 771
+		*Added an error message to openmail script command for newer packetvers.
+		*Added missing warps from dali to dali02, dali02 to dali.
+		*Added the "costume_refine_def" and "shadow_refine_def" configs.
+			-These configs set if DEF bonuses are gained from refines on costumes and shadow armor equips. This makes it possible to add bonuses that are affected by refining without worry of balance issues like a player getting too much DEF.
+			-The promotion shadow equips set are now refineable and have thier proper bonuses.
+
 09/11/2021
 	r309 [15peaces]
 		*Merged missing changes from 3ceam rev. 765 - 768
