@@ -1510,6 +1510,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_SUMMON5, 1, 9999, sd->sc.data[SC_SUMMON5]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_FREEZING])
 				clif_status_change(&sd->bl, SI_FROSTMISTY, 1, 9999, sd->sc.data[SC_FREEZING]->val1, 0, 0);
+			if( sd->sc.count && sd->sc.data[SC_STEALTHFIELD] )
+				clif_status_change(&sd->bl,SI_STEALTHFIELD,1,9999,sd->sc.data[SC_STEALTHFIELD]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_VENOMIMPRESS])
 				clif_status_change(&sd->bl, SI_VENOMIMPRESS, 1, 9999, sd->sc.data[SC_VENOMIMPRESS]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_HALLUCINATIONWALK])
@@ -4872,6 +4874,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON5,1,9999,tsd->sc.data[SC_SUMMON5]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_FREEZING] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_FROSTMISTY,1,9999,tsd->sc.data[SC_FREEZING]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_STEALTHFIELD] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_STEALTHFIELD,1,9999,tsd->sc.data[SC_STEALTHFIELD]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_VENOMIMPRESS] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_VENOMIMPRESS,1,9999,tsd->sc.data[SC_VENOMIMPRESS]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_HALLUCINATIONWALK] )
@@ -8237,8 +8241,6 @@ void clif_sendegg(struct map_session_data *sd)
 		clif_displaymessage(fd, "Pets are not allowed in Guild Wars.");
 		return;
 	}
-	if( sd->sc.data[SC__GROOMY] )
-		return;
 
 	WFIFOHEAD(fd, MAX_INVENTORY * 2 + 4);
 	WFIFOW(fd,0)=0x1a6;
@@ -21234,7 +21236,7 @@ void packetdb_readdb(void)
 		6,  2,  0,  0,  0,  0, 12, 10, 14, 10, 14,  6,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  6,  4,  6,  4,  0,  0,  0,  0,  0,  0, 
 //#0x09C0
-		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  8,  0,  0,
+		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  8,102,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
 	   -1, 11, 12, 11,  0,  0,  0, 75, -1,143, -1,  0,  0, -1, -1, -1,

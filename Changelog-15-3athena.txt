@@ -5,6 +5,33 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/26/2021
+	r311 [15peaces]
+		*Merged missing changes from 3ceam rev. 772 - 776
+		*Fixed a issue where robe sprites wouldn't show in the equip wondow for equips worn in the robe slot (not the costume one).
+		*CZ_ITEM_CREATE_EX
+			-Added support for this packet.
+			-This fixes a issue where commands like /item, /monster, and /sp would cause disconnects. Note that /sp does nothing at the moment.
+			-This fix applies to the 2013-12-23 and newer clients.
+		*Added the "mado_cast_skill_on_limit" config.
+			-This sets if a few certain skills are usable on players mounted on mado's. More info below.
+		*Mechanic
+			-The following skills will fell to cast on player's mounted in a mado.
+				--Heal / Increase AGI / Decrease AGI / Renovatio / Highness Heal
+			-This is confirmed official.
+		*SO_CLOUD_KILL
+			-Updated the skill animation.
+			-Note: The animation only properly shows with newer clients, like the 2015+. If using a older client, go into the skill_unit_db.txt file, enable the old line and disable the new one.
+		*GC_DARKILLUSION
+			-Is now usable in siege and GvG areas.
+		*NC_NEUTRALBARRIER; NC_STEALTHFIELD
+			-Recoded everything.
+			-Now affects everyone in the AoE, including enemys.
+			-Status is now given for as long as the person stands in the AoE instead of repeating every 500ms.
+			-No longer adds heat to the mado when used. (This is to prepare for a future update)
+			-Fixed a issue where monsters in stealth fields could still be targeted with skills.
+			-Cleaned up some code.
+
 09/18/2021
 	r310 [15peaces]
 		*Merged missing changes from 3ceam rev. 769 - 771

@@ -537,6 +537,7 @@ extern struct Battle_Config
 	int renewal_statpoints;
 	int mado_skill_limit;
 	int mado_loss_on_death;
+	int mado_cast_skill_on_limit;
 	int marionette_renewal_jobs;
 	int banana_bomb_sit_duration;
 	// Renewal EDP Formula Config For Guillotine Cross Skills
