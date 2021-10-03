@@ -1662,7 +1662,10 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 		WBUFW(buf,57+offset)=status->max_sp;
 	}
 	WBUFL(buf,59+offset)=hd->homunculus.exp;
-	WBUFL(buf,63+offset)=hd->exp_next;
+	if (hd->homunculus.level >= hd->homunculusDB->maxlevel)
+		WBUFL(buf,63+offset) = 0;
+	else
+		WBUFL(buf,63+offset) = hd->exp_next;
 	WBUFW(buf,67+offset)=hd->homunculus.skillpts;
 	WBUFW(buf,69+offset)=status_get_range(&hd->bl);
 	clif_send(buf,packet_len(cmd),&sd->bl,SELF);

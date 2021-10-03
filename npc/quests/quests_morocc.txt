@@ -1118,7 +1118,7 @@ moc_fild20,200,21,7	duplicate(MocConGuard)	Continental Guard#06	707,3,3
 moc_fild20,203,336,5	duplicate(MocConGuard)	Continental Guard#07	707,3,3
 moc_fild20,215,336,3	duplicate(MocConGuard)	Continental Guard#08	707,3,3
 
-prontera,164,304,3	script	Continental Messenger#01::ConMessenger	997,3,3,{
+-	script	Continental Messenger#00::ConMessenger	997,3,3,{
 	set .@area$,strnpcinfo(2);
 	if (.@area$ == "01") { set .@area$,"Prontera"; }
 	else if (.@area$ == "02") { set .@area$,"Geffen"; }
@@ -1203,6 +1203,7 @@ OnTouch_:
 	end;
 }
 
+prontera,164,304,3	duplicate(ConMessenger)	Continental Messenger#01	997,3,3
 geffen,128,90,3	duplicate(ConMessenger)	Continental Messenger#02	997,3,3
 payon,200,113,3	duplicate(ConMessenger)	Continental Messenger#03	997,3,3
 alberta,127,64,3	duplicate(ConMessenger)	Continental Messenger#04	998,3,3
@@ -2113,7 +2114,7 @@ moc_ruins,137,70,3	script	Book-Touching Man#garas	48,{
 		if (barmunt_crow == 0) {
 			mes "^660000Morroc, the City of the Desert, has been completely devastated by Satan Morroc.^000000";
 			next;
-			mes "^660000The people of Morroc were resilient enough to endure the region’s harsh weather, but their toughness to the weather could not prepare them enough as they witnessed the destruction brought down upon the city by Satan Morroc.^000000";
+			mes "^660000The people of Morroc were resilient enough to endure the region's harsh weather, but their toughness to the weather could not prepare them enough as they witnessed the destruction brought down upon the city by Satan Morroc.^000000";
 			next;
 			mes "^660000This man, who looks as dry and thin as a fish dried up under the sun, still has a smile that reminds you of a benevolent god, and is touching a book in his hand.^000000";
 			next;
@@ -3078,7 +3079,7 @@ yuno_in04,117,102,3	script	Old News Scrapbook	844,{
 				mes "- Culture Page -";
 				mes "- Please Save My Water -";
 				mes " ";
-				mes "¡¡A recently acclaimed young author,";
+				mes "A recently acclaimed young author,";
 				mes "Jean Cadoc's new series";
 				mes "'Please Save My Water' has been ranked at the top";
 				mes "for the most checked-out book in libraries.";

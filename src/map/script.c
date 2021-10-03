@@ -12,6 +12,7 @@
 #include "../common/md5calc.h"
 #include "../common/lock.h"
 #include "../common/nullpo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/timer.h"
@@ -47,7 +48,6 @@
 #include "atcommand.h"
 #include "log.h"
 #include "unit.h"
-#include "pet.h"
 #include "mail.h"
 #include "script.h"
 #include "quest.h"
@@ -10116,17 +10116,102 @@ BUILDIN_FUNC(homunculus_evolution)
 	return 0;
 }
 
-// [Rytech]
+// [Rytech] [15peaces]
 BUILDIN_FUNC(homunculus_mutation)
 {
+	int homun_id, i;
 	TBL_PC *sd;
 
 	sd=script_rid2sd(st);
 	if( sd == NULL )
 		return 0;
 
-	if(merc_is_hom_active(sd->hd))
-		merc_hom_mutation(sd->hd, script_getnum(st,2));
+	if (script_hasdata(st, 2))
+		homun_id = script_getnum(st, 2);
+	else
+		homun_id = 6048 + (rnd() % 4);
+
+	if (sd->hd->homunculus.vaporize == 2) {
+
+		i = pc_search_inventory(sd, ITEMID_STRANGE_EMBRYO);
+
+		if (i >= 0) {
+			sd->hd->homunculus.vaporize = 1; // Remove morph state.
+			merc_call_homunculus(sd); // Respawn homunculus.
+			merc_hom_mutation(sd->hd, homun_id);
+			pc_delitem(sd, i, 1, 0, 0);
+			script_pushint(st, 1);
+			return 0;
+		}
+	}
+
+	script_pushint(st, 0);
+	return 0;
+}
+
+/*==========================================
+ * Puts homunculus into morph state
+ * and gives ITEMID_STRANGE_EMBRYO.
+ *------------------------------------------*/
+BUILDIN_FUNC(morphembryo)
+{
+	struct item item_tmp;
+	int i;
+	TBL_PC *sd;
+
+	sd = script_rid2sd(st);
+	if (sd == NULL)
+		return 0;
+
+	if (merc_is_hom_active(sd->hd)) {
+
+		if (sd->hd->homunculus.level >= 99 && (sd->hd->homunculus.class_ >= 6009 && sd->hd->homunculus.class_ <= 6016)) {
+			memset(&item_tmp, 0, sizeof(item_tmp));
+			item_tmp.nameid = ITEMID_STRANGE_EMBRYO;
+			item_tmp.identify = 1;
+
+			if (item_tmp.nameid == 0 || (i = pc_additem(sd, &item_tmp, 1))) {
+				clif_additem(sd, 0, 0, i);
+				clif_emotion(&sd->bl, E_SWT); // Fail to avoid item drop exploit.
+			}
+			else {
+				merc_hom_vaporize(sd, 2);
+				script_pushint(st, 1);
+				return 0;
+			}
+		}
+		else
+			clif_emotion(&sd->bl, E_SWT);
+	}
+	else
+		clif_emotion(&sd->bl, E_SWT);
+
+	script_pushint(st, 0);
+
+	return 0;
+}
+
+/*==========================================
+ * Check for homunculus state.
+ * Return: -1 = No homunculus
+ *          0 = Homunculus is vaporized (rest)
+ *          1 = Homunculus is in morph state
+ *          2 = Homunculus is active
+ *------------------------------------------*/
+BUILDIN_FUNC(checkhomcall)
+{
+	TBL_PC *sd = script_rid2sd(st);
+	TBL_HOM *hd;
+
+	if (sd == NULL)
+		return 0;
+
+	hd = sd->hd;
+
+	if (!hd)
+		script_pushint(st, -1);
+	else
+		script_pushint(st, hd->homunculus.vaporize);
 
 	return 0;
 }
@@ -13107,7 +13192,7 @@ BUILDIN_FUNC(gethominfo)
 	int type=script_getnum(st,2);
 
 	hd = sd?sd->hd:NULL;
-	if(!merc_is_hom_active(hd))
+	if(!hd)
 	{
 		if (type == 2)
 			script_pushconststr(st,"null");
@@ -20426,7 +20511,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getvariableofnpc,"rs"),
 	BUILDIN_DEF(warpportal,"iisii"),
 	BUILDIN_DEF2(homunculus_evolution,"homevolution",""),	//[orn]
-	BUILDIN_DEF2(homunculus_mutation, "hommutation", "i"),//[Rytech]
+	BUILDIN_DEF2(homunculus_mutation, "hommutate", "?"),//[Rytech] [15peaces]
+	BUILDIN_DEF(morphembryo, ""),
+	BUILDIN_DEF(checkhomcall, ""),
 	BUILDIN_DEF2(homunculus_shuffle,"homshuffle",""),	//[Zephyrus]
 	BUILDIN_DEF(eaclass,"?"),	//[Skotlex]
 	BUILDIN_DEF(roclass,"i?"),	//[Skotlex]

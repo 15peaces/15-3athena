@@ -436,6 +436,7 @@
 6278,123,100	// Black_Reagent
 6392,123,100	// Bradium_Box
 6397,123,100	// PR_Team_Ticket
+6415,123,100	// Strange Embryo
 6442,123,100	// Octopus_Hunt_Stick
 6443,123,100	// Sillit_Pong_Bottle
 6444,123,100	// Emperium_G

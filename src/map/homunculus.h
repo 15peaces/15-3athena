@@ -53,7 +53,7 @@ struct homun_data {
 #define homdb_checkid(id) (id >= HM_CLASS_BASE && id <= HM_CLASS_MAX || id >= MH_CLASS_BASE && id <= MH_CLASS_MAX)
 
 // merc_is_hom_alive(struct homun_data *)
-#define merc_is_hom_active(x) (x && x->homunculus.vaporize != 1 && x->battle_status.hp > 0)
+#define merc_is_hom_active(x) (x && x->homunculus.vaporize == 0 && x->battle_status.hp > 0)
 int do_init_merc(void);
 int merc_hom_recv_data(int account_id, struct s_homunculus *sh, int flag); //albator
 struct view_data* merc_get_hom_viewdata(int class_);

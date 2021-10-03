@@ -909,6 +909,10 @@ OnTouch_:
 Similar to OnTouch, but will only run one instance. Another character is
 chosen once the triggering character leaves the area.
 
+OnTouchNPC:
+
+Similar to OnTouch, but will only trigger for monsters.
+
 OnPCLoginEvent:
 OnPCLogoutEvent:
 OnPCBaseLvUpEvent:
@@ -1023,6 +1027,8 @@ will show up as an empty line.
 
     mes "Text that will appear in the box";
 
+Colors
+------
 Inside the string you may put color codes, which will alter the color of the 
 text printed after them. The color codes are all '^<R><G><B>' and contain three 
 hexadecimal numbers representing colors as if they were HTML colors - ^FF0000 is 
@@ -3231,7 +3237,10 @@ currently has active. Valid types are:
 
 *gethominfo(<type>)
 
-This function works as a direct counterpart of 'getpetinfo':
+This function will return Homunculus information for the Homunculus of the
+invoking character, regardless of its vaporize state. It returns zero or
+"null" if the player does not own a Homunculus.
+
  0 - Homunculus Game ID
  1 - Homunculus Class
  2 - Homunculus Name
@@ -5753,9 +5762,22 @@ the homunculus must have above 91000 intimacy with it's owner.
 
 ---------------------------------------
 
-*hommutation;
-Use: hommutation ID#;
-Example: hommutation 6048;// Mutates homunculus into Eira.
+*hommutate {<ID>};
+
+This command will try to mutate the invoking player's Homunculus into
+a Homunculus S. The Strange Embryo (ID 6415) is deleted upon success.
+
+The command will fail if the invoking player does not have an evolved
+Homunculus at level 99 or above, if it is not in the embryo state
+(from the 'morphembryo' command), or if the invoking player does not
+possess a Strange Embryo. The /swt emotion is shown upon failure.
+
+To mutate a homunculus, the invoking player must have an evolved
+homunculus and it must be at least level 99.
+
+If the optional parameter <ID> is set, the invoking player's homunculus will
+change into the given homunculus ID. Otherwise, a random Homunculus S
+will be chosen.
 
 Mutation ID's....
 6048 Eira
@@ -5764,13 +5786,35 @@ Mutation ID's....
 6051 Dieter
 6052 Eleanor
 
-This command will attempt to mutate the current player's homunculus.
-If it fails, the /swt emotion will appear.
-
-To mutate a homunculus, the player must have a homunculus, it
-must be level 99, and it must be in its evolved form.
+Returns 1 upon success and 0 for all failures.
 
 ---------------------------------------
+
+*morphembryo;
+
+This command will try to put the invoking player's Homunculus in an
+uncallable state, required for mutation into a Homunculus S. The player
+will also receive a Strange Embryo (ID 6415) in their inventory if
+successful, which is deleted upon mutation.
+
+The command will fail if the invoking player does not have an evolved
+Homunculus at level 99 or above. The /swt emotion is shown upon failure.
+
+Returns 1 upon success and 0 for all failures.
+
+---------------------------------------
+
+*checkhomcall()
+
+This function checks if the attached player's Homunculus is active,
+and will return the following values:
+ -1: The player has no Homunculus.
+  0: The player's Homunculus is active.
+  1: The player's Homunculus is vaporized.
+  2: The player's Homunculus is in morph state.
+  
+---------------------------------------
+
 
 *unitwalk <GID>,<x>,<y>;
 *unitwalk <GID>,<mapid>;

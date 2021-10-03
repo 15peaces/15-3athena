@@ -189,9 +189,8 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 				if ((flag = pc_additem(sd, &it, get_count)))
 				{
 					if (itempackage_db[packageid].announced[i])
-					{
 						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
-					}
+
 					clif_additem(sd, 0, 0, flag);
 				}
 			}
@@ -201,6 +200,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 	// Random Items
 	for (int cur_rand = 1; cur_rand <= itempackage_db[packageid].max_rand; cur_rand++)
 	{
+		uint16 r = 0;
 		struct item_package tmp_package = {0};
 
 		// First, get the current random group separated
@@ -221,7 +221,9 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 		}
 
 		// Now we'll get an random item of the current group.
-		uint16 r = rnd() % tmp_package.qty;
+		if(tmp_package.qty > 0)
+			r = rnd() % tmp_package.qty;
+		
 		it.nameid = tmp_package.nameid[r];
 		it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
 		get_count = itemdb_isstackable(it.nameid) ? tmp_package.amount[r] : 1;
@@ -233,9 +235,8 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 			if ((flag = pc_additem(sd, &it, get_count)))
 			{
 				if (tmp_package.announced[r])
-				{
 					clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
-				}
+
 				clif_additem(sd, 0, 0, flag);
 			}
 		}

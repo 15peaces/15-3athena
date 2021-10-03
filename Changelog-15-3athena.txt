@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/03/2021
+	r312 [15peaces]
+		*Some misc cleaning in npc folder.
+			-Fixed a bunch of bugs and typos, and made some little optimizations in various quests.
+			-Merged other/turbotrack into one template.
+			-Updated EXP in some scripts.
+			-replaced some 'menu' commands in scripts.
+			-Fixed some variables issues.
+			-Added missing dewata monster spawns.
+			-Thanks to @rathena.
+		*Fixed the Sign Quest issues.
+			-Corrected the Level Requirements for 'Standby Room'.
+			-Massive cleaning/optimization.
+			-Thanks to @rathena.
+		*Fixed an issue where opening an item package would cause an map crash in some cases.
+		*Added documentation for "OnTouchNPC" in the special labels section.
+		*Updates to homunculus s support
+			-Updated script command hommutate to make the parameter optional.
+				--If no parameter is given, it will choose a random homunculus s id.
+			-Added 'checkhomcall' & 'morphembryo' commands as required by the Hom-S quest.
+			-Modified 'gethominfo' to work for Homunculi in 'rest' state, also needed for the Hom-S quest to run properly.
+			-Updated homun_exp.txt table with (better custom) values from Lvl. 99 to 150 for Homnunculus S.
+			-Updated script_commands.txt with description of the new and updated script commands.
+			-Added Homunculus S Quest.
+
 09/26/2021
 	r311 [15peaces]
 		*Merged missing changes from 3ceam rev. 772 - 776
