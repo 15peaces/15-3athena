@@ -75,6 +75,7 @@
 19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
 19027,Type-10_Glasses,Type-10 Glasses,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,10,,1237,{},{},{}
 19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
+//
 19029,Alice_Friesinger_Hat_69,Alice Friesinger Hat 69,5,0,,300,,,,0,0xFFFFFFFF,63,2,256,,1,,1249,{bonus2 bAddRace,RC_Boss,15;},{},{}
 19766,C_Yggdrasil_Hat,Costume Yggdrasil Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,997,{},{},{}
 19767,C_Home_Cherry_Blossom,Costume Home Cherry Blossom,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,602,{},{},{}
@@ -4193,3 +4194,20 @@
 24015,S_Promotion_Shield,Promotion Shadow Shield,5,20,,0,,0,,0,0xFFFFFFFF,7,2,262144,,1,1,0,{ bonus bVit,1; bonus bMaxHP,10*getrefine(); },{},{}
 24016,S_Promotion_Earring,Promotion Shadow Earring,5,20,,0,,0,,0,0xFFFFFFFF,7,2,1048576,,1,1,0,{ bonus bInt,1; bonus bMaxHP,10*getrefine(); },{},{}
 24017,S_Promotion_Pendant,Promotion Shadow Pendant,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2097152,,1,1,0,{ bonus bStr,1; bonus bMaxHP,10*getrefine(); },{},{}
+
+// missing equip (renewal)
+19272,Garden_of_Eden,Garden of Eden,5,20,,400,,5,,1,0xFFFFFFFF,63,2,256,,100,1,1653,{ set .@r, getrefine(); bonus bInt,5; bonus bDex,5; bonus2 bIgnoreMdefRaceRate,RC_All,20; bonus2 bMagicAtkEle,Ele_All,10; if (.@r>=7) { bonus2 bIgnoreMdefRaceRate,RC_All,30; bonus2 bMagicAtkEle,Ele_All,15; } if (.@r>=9) { bonus2 bIgnoreMdefRaceRate,RC_All,50; bonus bVariableCastrate,-15; } },{},{ sc_end SC_TELEKINESIS_INTENSE; }
+19273,Gemini_Red_Eyes,Gemini Red Eyes,5,20,,100,,0,,0,0xFFFFFFFF,63,2,512,,100,0,1654,{ set .@val, 100*(readparam(bVit)>89?50:10); bonus2 bResEff,Eff_Sleep,.@val; bonus2 bResEff,Eff_Stone,.@val; },{},{}
+19274,Open_Air_Headset,Open Air Headset,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1,,90,0,1655,{ bonus bDelayrate,-5; bonus bUseSPrate,-5; bonus bSPGainValue,5; bonus bMagicSPGainValue,5; bonus bLongSPGainValue,5; },{},{}
+20142,C_Machoman_Glasses,Costume Machoman Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,92,{},{},{}
+20143,C_Candy_Cane_In_Mouth,Costume Candy Cane In Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,665,{},{},{}
+20144,C_Ancient_Elven_Ear,Costume Ancient Elven Ear,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,665,{},{},{}
+20145,C_Robo_Eye,Costume Robo Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,345,{},{},{}
+20146,C_Angel_Spirit,Costume Angel of Ghost,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,394,{},{},{}
+20147,C_Bell_Pigeon,Costume Bell of Piegon,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,1034,{},{},{}
+20148,C_Musketeer_Hat,Costume Musketeer Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,466,{},{},{}
+20149,C_Hexagon_Spectacles,Costume Hexagon Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,822,{},{},{}
+20150,C_Wind_Fan,Costume Wind Fan,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1051,{},{},{}
+20151,C_Poison_Spore_Hat,Costume Poison Spore Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,899,{},{},{}
+31833,C_Halloween_CatShort,C Halloween Short Haired Cat Ears,5,0,,,,,,,0xFFFFFFFF,63,2,4096,,1,0,1939,{},{},{}
+31834,C_Halloween_Cat_Long,C Halloween Long Haired Cat Ears,5,0,,,,,,,0xFFFFFFFF,63,2,4096,,1,0,1940,{},{},{}

@@ -168,7 +168,7 @@ int npc_globalmessage(const char* name,const char* mes);
 void npc_setcells(struct npc_data* nd);
 void npc_unsetcells(struct npc_data* nd);
 void npc_movenpc(struct npc_data* nd, int x, int y);
-bool npc_enable(const char* name, int flag);
+bool npc_enable(struct npc_data* nd, int flag);
 void npc_setdisplayname(struct npc_data* nd, const char* newname);
 void npc_setclass(struct npc_data* nd, short class_);
 struct npc_data* npc_name2id(const char* name);

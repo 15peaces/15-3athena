@@ -20481,12 +20481,10 @@ void clif_parse_equipswitch_request_single(int fd, struct map_session_data* sd) 
 	// Check if the item was already added to equip switch
 	if (sd->inventory.u.items_inventory[index].equipSwitch) {
 		if (sd->npc_id) {
-#ifdef RENEWAL
 			if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM)) {
 				clif_msg(sd, WORK_IN_PROGRESS);
 				return;
 			}
-#endif
 			if (!sd->npc_item_flag) {
 				return;
 			}

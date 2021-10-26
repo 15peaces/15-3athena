@@ -2461,7 +2461,7 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 
 // Note: Clients after 2018-03-07bRagexeRE do not obfuscate packets anymore!
 
-//2018-06-21aRagexeRE
+//2018-06-21aRagexeRE ~ 2018-09-19aRagexe
 packet_ver: 45
 0x0437,7,actionrequest,2:6
 0x0438,10,useskilltoid,2:4:6

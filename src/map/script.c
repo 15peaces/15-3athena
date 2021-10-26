@@ -9775,102 +9775,43 @@ BUILDIN_FUNC(getareadropitem) {
 }
 
 /*==========================================
- * NPCの有効化
+ * enable, disable, (un)hide or (un)cloak npcs.
  *------------------------------------------*/
 BUILDIN_FUNC(enablenpc)
 {
-	const char *str = script_getstr(st, 2);
-	if (npc_enable(str, 1))
-		return 0;
+	struct npc_data* nd;
+	int flag = 0;
+	const char* command = script_getfuncname(st);
 
-	return 1;
-}
-/*==========================================
- * NPCの無効化
- *------------------------------------------*/
-BUILDIN_FUNC(disablenpc)
-{
-	const char *str = script_getstr(st, 2);
-	if (npc_enable(str, 0))
-		return 0;
+	if (script_hasdata(st, 2))
+		nd = npc_name2id(script_getstr(st, 2));
+	else
+		nd = map_id2nd(st->oid);
 
-	return 1;
-}
+	if (!strcmp(command, "enablenpc"))
+		flag = 1;
+	else if (!strcmp(command, "disablenpc"))
+		flag = 0;
+	else if (!strcmp(command, "hideoffnpc"))
+		flag = 2;
+	else if (!strcmp(command, "hideonnpc"))
+		flag = 4;
+	else if (!strcmp(command, "cloakoffnpc"))
+		flag = 8;
+	else if (!strcmp(command, "cloakonnpc"))
+		flag = 16;
 
-/*==========================================
- * 隠れているNPCの表示
- *------------------------------------------*/
-BUILDIN_FUNC(hideoffnpc)
-{
-	const char *str = script_getstr(st, 2);
-	if (npc_enable(str, 2))
-		return 0;
-
-	return 1;
-}
-/*==========================================
- * NPCをハイディング
- *------------------------------------------*/
-BUILDIN_FUNC(hideonnpc)
-{
-	const char *str = script_getstr(st, 2);
-	if (npc_enable(str, 4))
-		return 0;
-
-	return 1;
-}
-
-/*==========================================
- *------------------------------------------*/
-BUILDIN_FUNC(cloakonnpc)
-{
-	struct npc_data *nd = npc_name2id(script_getstr(st, 2));
-	if (nd == NULL) {
-		ShowError("buildin_cloakonnpc: invalid npc name '%s'.\n", script_getstr(st, 2));
+	if (!nd) {
+		if (script_hasdata(st, 2))
+			ShowError("buildin_%s: Attempted to %s a non-existing NPC '%s' (flag=%d).\n", (flag & 11) ? "show" : "hide", command, script_getstr(st, 2), flag);
+		else
+			ShowError("buildin_%s: Attempted to %s a non-existing NPC (flag=%d).\n", (flag & 11) ? "show" : "hide", command, flag);
 		return 1;
 	}
+	if (npc_enable(nd, flag))
+		return 0;
 
-	if (script_hasdata(st, 3)) {
-		struct map_session_data *sd = map_id2sd(script_getnum(st, 3));
-		if (sd == NULL)
-			return 1;
-
-		uint32 val = nd->sc.option;
-		nd->sc.option |= OPTION_CLOAK;
-		clif_changeoption_target(&nd->bl, &sd->bl, SELF);
-		nd->sc.option = val;
-	}
-	else {
-		nd->sc.option |= OPTION_CLOAK;
-		clif_changeoption(&nd->bl);
-	}
-	return 0;
-}
-/*==========================================
- *------------------------------------------*/
-BUILDIN_FUNC(cloakoffnpc)
-{
-	struct npc_data *nd = npc_name2id(script_getstr(st, 2));
-	if (nd == NULL) {
-		ShowError("buildin_cloakoffnpc: invalid npc name '%s'.\n", script_getstr(st, 2));
-		return 1;
-	}
-
-	if (script_hasdata(st, 3)) {
-		struct map_session_data *sd = map_id2sd(script_getnum(st, 3));
-		if (sd == NULL)
-			return 1;
-
-		uint32 val = nd->sc.option;
-		nd->sc.option &= ~OPTION_CLOAK;
-		clif_changeoption_target(&nd->bl, &sd->bl, SELF);
-		nd->sc.option = val;
-	}
-	else {
-		nd->sc.option &= ~OPTION_CLOAK;
-		clif_changeoption(&nd->bl);
-	}
-	return 0;
+	return 1;
 }
 
 /// Starts a status effect on the target unit or on the attached player.
@@ -20292,11 +20233,12 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getareausers,"siiii"),
 	BUILDIN_DEF(getareadropitem,"siiiiv"),
 	BUILDIN_DEF(enablenpc,"s"),
-	BUILDIN_DEF(disablenpc,"s"),
-	BUILDIN_DEF(hideoffnpc,"s"),
-	BUILDIN_DEF(hideonnpc,"s"),
-	BUILDIN_DEF(cloakonnpc, "s?"),
-	BUILDIN_DEF(cloakoffnpc, "s?"),
+	BUILDIN_DEF(enablenpc, "?"),
+	BUILDIN_DEF2(enablenpc, "disablenpc", "?"),
+	BUILDIN_DEF2(enablenpc, "hideoffnpc", "?"),
+	BUILDIN_DEF2(enablenpc, "hideonnpc", "?"),
+	BUILDIN_DEF2(enablenpc, "cloakoffnpc", "??"),
+	BUILDIN_DEF2(enablenpc, "cloakonnpc", "??"),
 	BUILDIN_DEF(sc_start,"iii?"),
 	BUILDIN_DEF(sc_start2,"iiii?"),
 	BUILDIN_DEF(sc_start4,"iiiiii?"),

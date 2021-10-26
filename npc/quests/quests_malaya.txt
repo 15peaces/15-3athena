@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Euphy
 //===== Current Version: =====================================
-//= 1.4
+//= 1.5
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -24,7 +24,8 @@
 //= 1.1 Added GM management function and NPC. [Euphy]
 //= 1.2 Added VIP features. [Euphy]
 //= 1.3 Ported from rAthena to 15-3athena. [15peaces]
-//= 1.4 Added item Lost_Belongings to Tiyanak mob [15peaces]
+//= 1.4 Added item Lost_Belongings to Tiyanak mob. [15peaces]
+//= 1.5 Fixed Pintados Festival never ends. Thanks to Capuche. [15peaces]
 //============================================================
 
 // Cautious Village & Daily Quests :: hi_malaya
@@ -1463,7 +1464,7 @@ malaya,62,274,0	script	Sand Trap#malaya	557,{
 	mes "someone scattered on the sea water.";
 	close2;
 	progressbar "0xffff00", 5;
-	disablenpc strnpcinfo(0);
+	disablenpc;
 	initnpctimer;
 	getitem 6501, 1; // Salt_Bag
 	mes "[" + strcharinfo(0) + "]";
@@ -1471,7 +1472,7 @@ malaya,62,274,0	script	Sand Trap#malaya	557,{
 	close;
 
 OnTimer30000:
-	enablenpc strnpcinfo(0);
+	enablenpc;
 	stopnpctimer;
 	end;
 }
@@ -1495,7 +1496,7 @@ ma_fild01,178,206,0	script	Black Bamboo#malaya	844,4,4,{
 	mes "If some of it is cut off and sharpened, I think it will suffice for the Sharpened Bamboo Imelda wanted.";
 	close2;
 	progressbar "0xffff00", 3;
-	disablenpc strnpcinfo(0);
+	disablenpc;
 	initnpctimer;
 	getitem 6500, 1; //Sharp_Bamboo
 	mes "[" + strcharinfo(0) + "]";
@@ -1507,7 +1508,7 @@ OnTouch_:
 	}
 	end;
 OnTimer30000:
-	enablenpc strnpcinfo(0);
+	enablenpc;
 	stopnpctimer;
 	end;
 }
@@ -3103,7 +3104,7 @@ ma_fild01,251,93,3	script	Lost Child#malaya01	576,{
 		setquest 7389;
 		erasequest 7388;
 		close2;
-		disablenpc strnpcinfo(0);
+		disablenpc;
 		if (strnpcinfo(0) == "Lost Child#malaya01") {
 			enablenpc "Lost Child#malaya02";
 		} else if (strnpcinfo(0) == "Lost Child#malaya01") {
@@ -3137,7 +3138,7 @@ ma_fild01,251,93,3	script	Lost Child#malaya01	576,{
 	
 OnInit:
 	if (strnpcinfo(0) != "Lost Child#malaya01")
-		disablenpc strnpcinfo(0);
+		disablenpc;
 }
 ma_fild01,114,141,3	duplicate(Lost Child#malaya01)	Lost Child#malaya02	576
 ma_fild01,130,314,3	duplicate(Lost Child#malaya01)	Lost Child#malaya03	576
@@ -3327,6 +3328,7 @@ ma_fild01,166,214,6	script	Old Man in Dilemma#GA	575,{
 					specialeffect2 EF_CONE;
 					specialeffect EF_FORESTLIGHT2;
 					set Zeny, Zeny-1000;
+					delitem 6497,3; //Lesser_Agimat
 					getitem 12775,1; //Ancient_Spirit_Agimat
 				} else {
 					mes "[Old Man in Dilemma]";
@@ -3495,9 +3497,10 @@ ma_fild01,238,198,4	script	Tikbalang Expert#malaya	582,{
 			mes "[Tikbalang Expert]";
 			mes "The '^F80835Tikbalang Belt^000000' is used to capture Tikbalangs without the hassle. But that doesn't mean it's 100% successful. Interested? Do you want me to make one for you?";
 			next;
-			switch(select("Yes, Im interested.:No, I can capture one myself.")) {
+			switch(select("Yes, I'm interested.:No, I can capture one myself.")) {
 			case 1:
 				delitem 6496,3; //Tikbalang_Thick_Spine
+				delitem 6497,5; //Lesser_Agimat
 				getitem 12699,1; //Tikbalang_Belt
 				mes "[Tikbalang Expert]";
 				mes "Yiiiiiiiiiiii! Yap!";
@@ -4510,13 +4513,13 @@ OnInit:
 		mes "[" + strcharinfo(0) + "]";
 		mes "It's warm as a mother's bosom.";
 		getitem 6519,1; //Collected_Sample
-		disablenpc strnpcinfo(0);
+		disablenpc;
 		initnpctimer;
 		close;
 	}
 	end;
 OnTimer20000:
-	enablenpc strnpcinfo(0);
+	enablenpc;
 	stopnpctimer;
 	end;
 }
@@ -4541,15 +4544,15 @@ malaya,290,340,3	script	Guard Leader#buwaya	571,{
 		mes "- Look at you warily while whispering to each other. -";
 		close;
 	}
-	if (malaya_buwaya <= 10) {
+	if (malaya_buwaya < 10) {
 		mes "[Guard Leader]";
 		mes "We are busy as hell because of Bangungots servants attacking the hospital.";
 		next;
 		mes "[Guard Leader]";
 		mes "We are doing our best in securing the safety of our village so please enjoy your stay in Port Malaya.";
+		next;
 	}
 	if (malaya_buwaya == 10) {
-		next;
 		if (select("Tell him about Buwaya.:Done with conversation.") == 2) {
 			close;
 		}
@@ -7925,15 +7928,15 @@ malaya,59,84,4	duplicate(MalayaStick)	Suspicious Wooden Stick::MalayaStick10	858
 -	script	Tent#ma	-1,{ //557
 	end;
 OnInit:
-	disablenpc strnpcinfo(0);
+	disablenpc;
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc;
 	initnpctimer;
 	end;
 OnDisable:
 	stopnpctimer;
-	disablenpc strnpcinfo(0);
+	disablenpc;
 	end;
 OnTimer1000:
 	donpcevent "MalayaStick"+replacestr(strnpcinfo(1),"Tent","")+"::OnDisable";
@@ -8301,16 +8304,16 @@ ma_fild01,1,1,4	script	Pintados Manager#pin	894,{
 	end;
 
 // Moved to individual NPCs for smoother processing.
-//OnInit:
-//	if ($malaya_pintados_00 > 0)
-//		donpcevent "Pintados Manager#pin::OnEnableNPC";
-//	end;
+OnInit:
+	if ($malaya_pintados_00 > 0) {
+		// donpcevent "Pintados Manager#pin::OnEnableNPC";
+		initnpctimer;// unoffical fix
+	}
+	end;
 
 OnTimer1800000:
-	set $malaya_pintados_00, $malaya_pintados_00;
 	if ($malaya_pintados_00 > 0 && $malaya_pintados_00 < 344) {
 		set $malaya_pintados_00,$malaya_pintados_00+1;
-		stopnpctimer;
 		initnpctimer;
 	} else {
 		set $malaya_pintados_00,0;
@@ -8536,7 +8539,7 @@ ma_fild01,179,260,2	script	Festival Helper Boy#pin	577,{
 			close;
 		}
 		mes "[Isco]";
-		mes .@str$+"! How many Scarlet Dyestuffs can you give me from the "+countitem(.@item)+" you have?";
+		mes .@str$+"! How many "+ getitemname(.@item) +" can you give me from the "+countitem(.@item)+" you have?";
 		next;
 		switch(select("Enter Quantity:All")) {
 		case 1:
@@ -9087,13 +9090,13 @@ ma_fild01,164,231,6	script	Beat Catching Boy#pin10	577,{
 	close;
 OnInit:
 	if (!$malaya_pintados_00)
-		disablenpc strnpcinfo(0);
+		disablenpc;
 	end;
 OnEnable:
-	enablenpc strnpcinfo(0);
+	enablenpc;
 	end;
 OnDisable:
-	disablenpc strnpcinfo(0);
+	disablenpc;
 	end;
 }
 ma_fild01,170,228,4	duplicate(Beat Catching Boy#pin10)	Beat Catching Boy#pin11	577

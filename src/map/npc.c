@@ -167,25 +167,24 @@ int npc_enable_sub(struct block_list *bl, va_list ap)
 	return 0;
 }
 
-bool npc_enable(const char* name, int flag)
+bool npc_enable(struct npc_data* nd, int flag)
 {
-	struct npc_data* nd = npc_name2id(name);
+	nullpo_ret(nd);
 
-	if (nd==NULL)
+	if (flag & 1)
 	{
-		ShowError("npc_enable: Attempted to %s a non-existing NPC '%s' (flag=%d).\n", (flag&3) ? "show" : "hide", name, flag);
-		return false;
+		nd->sc.option &= ~OPTION_INVISIBLE;
+		clif_spawn(&nd->bl);
 	}
-
-	if (flag&1)
-		nd->sc.option&=~OPTION_INVISIBLE;
 	else if (flag & 2)
 		nd->sc.option &= ~OPTION_HIDE;
 	else if (flag & 4)
 		nd->sc.option|= OPTION_HIDE;
 	else	//Can't change the view_data to invisible class because the view_data for all npcs is shared! [Skotlex]
-		nd->sc.option|= OPTION_INVISIBLE;
-		clif_clearunit_area(&nd->bl, CLR_OUTSIGHT);  // Hack to trick maya purple card [Xazax]
+	{
+		nd->sc.option |= OPTION_INVISIBLE;
+		clif_clearunit_area(&nd->bl, CLR_OUTSIGHT);
+	}
 
 	if (nd->class_ == WARP_CLASS || nd->class_ == FLAG_CLASS)
 	{	//Client won't display option changes for these classes [Toms]

@@ -6042,8 +6042,8 @@ Example:
 
 ---------------------------------------
 
-*disablenpc "<NPC object name>";
-*enablenpc "<NPC object name>";
+*disablenpc {"<NPC object name>"};
+*enablenpc {"<NPC object name>"};
 
 These two commands will disable and enable, respectively, an NPC object 
 specified by name. The disabled NPC will disappear from sight and will no longer 
@@ -6060,8 +6060,8 @@ copies, and then disable all except one.
 
 ---------------------------------------
 
-*hideonnpc "<NPC object name>";
-*hideoffnpc "<NPC object name>";
+*hideonnpc {"<NPC object name>"};
+*hideoffnpc {"<NPC object name>"};
 
 These commands will make the NPC object specified display as hidden/visible, 
 even though not actually disabled per se. Hidden as in thief Hide skill, but 
@@ -6075,8 +6075,8 @@ while hidden then revealing.... you can wonder around =P
 
 ---------------------------------------
 
-*cloakonnpc("<NPC object name>"{, <account_id>})
-*cloakoffnpc("<NPC object name>"{, <account_id>})
+*cloakonnpc {"<NPC object name>"{, <account_id>}}
+*cloakoffnpc {"<NPC object name>"{, <account_id>}}
 
 These commands are used to apply the cloaking effect on npcs
 this is a visual effect only and it does NOT stop the player

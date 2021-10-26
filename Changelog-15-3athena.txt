@@ -5,6 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/26/2021
+	r312 [15peaces]
+		*Merged missing changes from 3ceam rev. 777
+		*Fixed a issue where a hidden NPC won't appear in a player's view range when renabled. This should also fix issues with a number of quest NPC's, including job quest NPC's.
+		*Some updates & cleaning in databases.
+			-Added some missing items.
+			-Fixed Orc Lord should drop a slotted Ring...
+		*Some small fixes in equip switch system.
+		*Another small fix in the sign quest.
+		*Added support for the 2018-09-19aRagexe client.
+			-It seems to be working fine without changing anything an it's needed for another feature I'm currently working on.
+			-As far as I can see there are no problems with this client so it should be fine to be used for your server...
+		*Some Port Malaya fixes.
+			-Fixed Pintados Festival never ends.
+			-Corrected Lesser Agimat not getting removed from Old Man in Dilemma and Tikbalang Expert.
+			-Corrected a Buwaya Guard not continuing with the proper conversation.
+			-Fixed a next script error for Guard Leader in the Buwaya Quests.
+			-Thanks to @rathena.
+		*The required NPC name parameter is now optional for the following script commands:
+			-enablenpc, disablenpc, hideonnpc, hideoffnpc, cloakonnpc, cloakoffnpc
+			-Also updated docs and cleaned up the code.
+			-Thanks to @rathena.
+			
 10/03/2021
 	r312 [15peaces]
 		*Some misc cleaning in npc folder.

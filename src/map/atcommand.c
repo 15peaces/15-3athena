@@ -5358,8 +5358,10 @@ ACMD_FUNC(shownpc)
 		return -1;
 	}
 
-	if (npc_name2id(NPCname) != NULL) {
-		npc_enable(NPCname, 1);
+	struct npc_data* nd = npc_name2id(NPCname);
+
+	if (nd) {
+		npc_enable(nd, 1);
 		clif_displaymessage(fd, msg_txt(110)); // Npc Enabled.
 	} else {
 		clif_displaymessage(fd, msg_txt(111)); // This NPC doesn't exist.
@@ -5384,12 +5386,14 @@ ACMD_FUNC(hidenpc)
 		return -1;
 	}
 
-	if (npc_name2id(NPCname) == NULL) {
+	struct npc_data* nd = npc_name2id(NPCname);
+
+	if (!nd) {
 		clif_displaymessage(fd, msg_txt(111)); // This NPC doesn't exist.
 		return -1;
 	}
 
-	npc_enable(NPCname, 0);
+	npc_enable(nd, 0);
 	clif_displaymessage(fd, msg_txt(112)); // Npc Disabled.
 	return 0;
 }

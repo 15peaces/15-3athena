@@ -461,6 +461,7 @@ enum clif_messages {
 
 	//! NOTE: These values below need client version validation
 	ITEM_REUSE_LIMIT = 0x746,
+	WORK_IN_PROGRESS = 0x783,
 
 	MSG_ATTENDANCE_UNAVAILABLE = 0xd92, ///< Attendance Check failed. Please try again later.
 
