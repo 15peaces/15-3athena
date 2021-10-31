@@ -5808,6 +5808,7 @@ static const struct _battle_data {
 	{ "pet_max_atk1",                       &battle_config.pet_max_atk1,                    750,    0,      INT_MAX,        },
 	{ "pet_max_atk2",                       &battle_config.pet_max_atk2,                    1000,   0,      INT_MAX,        },
 	{ "pet_disable_in_gvg",                 &battle_config.pet_no_gvg,                      0,      0,      1,              },
+	{ "pet_autofeed",						&battle_config.pet_autofeed,					1,      0,      1,				},
 	{ "skill_min_damage",                   &battle_config.skill_min_damage,                2|4,    0,      1|2|4,          },
 	{ "finger_offensive_type",              &battle_config.finger_offensive_type,           0,      0,      1,              },
 	{ "heal_exp",                           &battle_config.heal_exp,                        0,      0,      INT_MAX,        },

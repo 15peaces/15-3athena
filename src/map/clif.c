@@ -1460,7 +1460,7 @@ int clif_spawn(struct block_list *bl)
 
 	vd = status_get_viewdata(bl);
 	if (!vd || vd->class_ == INVISIBLE_CLASS ||
-		bl->type == BL_NPC && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
+		bl->type == BL_NPC && !((TBL_NPC*)bl)->chat_id && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
 		return 0;
 
 	len = clif_set_unit_idle(bl, buf,true);
@@ -1832,7 +1832,7 @@ void clif_move(struct unit_data *ud)
 
 	vd = status_get_viewdata(bl);
 	if (!vd || vd->class_ == INVISIBLE_CLASS ||
-		bl->type == BL_NPC && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
+		bl->type == BL_NPC && !((TBL_NPC*)bl)->chat_id && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
 		return; //This performance check is needed to keep GM-hidden objects from being notified to bots.
 	
 	if (ud->state.speed_changed) {
@@ -4831,7 +4831,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 	
 	vd = status_get_viewdata(bl);
 	if (!vd || vd->class_ == INVISIBLE_CLASS ||
-		bl->type == BL_NPC && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
+		bl->type == BL_NPC && !((TBL_NPC*)bl)->chat_id && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
 		return;
 
 	ud = unit_bl2ud(bl);
@@ -10313,21 +10313,21 @@ void clif_feel_hate_reset(struct map_session_data *sd)
 }
 
 
-/// Equip window (un)tick ack (ZC_CONFIG).
+/// Send configurations (ZC_CONFIG).
 /// 02d9 <type>.L <value>.L
 /// type:
 ///     0 = open equip window
 ///     value:
 ///         0 = disabled
 ///         1 = enabled
-void clif_equiptickack(struct map_session_data* sd, int flag) {
+void clif_zc_config(struct map_session_data* sd, enum CZ_CONFIG type, int flag) {
 	int fd;
 	nullpo_retv(sd);
 	fd = sd->fd;
 
 	WFIFOHEAD(fd, packet_len(0x2d9));
 	WFIFOW(fd, 0) = 0x2d9;
-	WFIFOL(fd, 2) = 0;
+	WFIFOL(fd, 2) = type;
 	WFIFOL(fd, 6) = flag;
 	WFIFOSET(fd, packet_len(0x2d9));
 }
@@ -12133,7 +12133,7 @@ void clif_parse_NpcSellListSend(int fd,struct map_session_data *sd)
 ///     1 = public
 void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 {
-	int len = RFIFOW(fd,2)-15;
+	int len = (int)RFIFOW(fd,2)-15;
 	int limit = RFIFOW(fd,4);
 	bool pub = (RFIFOB(fd,6) != 0);
 	const char* password = (char*)RFIFOP(fd,7); //not zero-terminated
@@ -12176,7 +12176,7 @@ void clif_parse_ChatAddMember(int fd, struct map_session_data* sd)
 ///     1 = public
 void clif_parse_ChatRoomStatusChange(int fd, struct map_session_data* sd)
 {
-	int len = RFIFOW(fd,2)-15;
+	int len = (int)RFIFOW(fd,2)-15;
 	int limit = RFIFOW(fd,4);
 	bool pub = (RFIFOB(fd,6) != 0);
 	const char* password = (char*)RFIFOP(fd,7); // not zero-terminated
@@ -13749,6 +13749,9 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	const char* message = RFIFOCP(fd, info->pos[1]);
 	const uint8* data = (uint8*)RFIFOP(fd, info->pos[3]);
 	
+	if (len < 0)
+		return;
+
 	if (cmd == 0x12f) { // (CZ_REQ_OPENSTORE)
 		len -= 84;
 	}
@@ -17934,18 +17937,42 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd) {
 }
 
 
-/// Request to change equip window tick (CZ_CONFIG).
+/// Receive configurations (CZ_CONFIG).
 /// 02d8 <type>.L <value>.L
 /// type:
 ///     0 = open equip window
+///     2 = pet autofeeding
 ///     value:
 ///         0 = disabled
 ///         1 = enabled
-void clif_parse_EquipTick(int fd, struct map_session_data* sd)
+void clif_parse_cz_config(int fd, struct map_session_data *sd)
 {
-	bool flag = (bool)RFIFOL(fd,6);
-	sd->status.show_equip = flag;
-	clif_equiptickack(sd, flag);
+	if (pc_isdead(sd) || pc_istrading(sd))
+		return;
+	
+	enum CZ_CONFIG type = RFIFOL(fd, 2);
+	int flag = RFIFOL(fd, 6);
+
+	switch (type) {
+		case CZ_CONFIG_OPEN_EQUIPMENT_WINDOW:
+			sd->status.show_equip = flag;
+			break;
+		case CZ_CONFIG_PET_AUTOFEEDING: 
+		{
+			struct pet_data *pd = sd->pd;
+			nullpo_retv(pd);
+			if (pd->petDB->autofeed == 0) {
+				clif_displaymessage(fd, msg_txt(205)); // "Autofeed is disabled for this pet."
+				return;
+			}
+			pd->pet.autofeed = flag;
+			break;
+		}
+		default:
+			ShowWarning("clif_parse_cz_config: Unsupported type has been received (%u).\n", type);
+			return;
+	}
+	clif_zc_config(sd, type, flag);
 }
 
 
@@ -21452,7 +21479,7 @@ void packetdb_readdb(void)
 		{clif_parse_CashShopListSend,"cashshopbuy"},
 #endif
 		{clif_parse_ViewPlayerEquip,"viewplayerequip"},
-		{clif_parse_EquipTick,"equiptickbox"},
+		{clif_parse_cz_config,"p_cz_config"},
 		{clif_parse_BattleChat,"battlechat"},
 		{clif_parse_mercenary_action,"mermenu"},
 		{clif_parse_progressbar,"progressbar"},

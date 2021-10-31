@@ -534,6 +534,16 @@ enum ranking_type
 	RANKING_OBORO,
 };
 
+/**
+* Receive configuration types
+**/
+enum CZ_CONFIG {
+	CZ_CONFIG_OPEN_EQUIPMENT_WINDOW = 0,
+	CZ_CONFIG_CALL = 1,
+	CZ_CONFIG_PET_AUTOFEEDING = 2,
+	CZ_CONFIG_HOMUNCULUS_AUTOFEEDING = 3,
+};
+
 /// Attendance System
 enum in_ui_type {
 	IN_UI_ATTENDANCE = 5
@@ -927,7 +937,7 @@ void clif_homskillup(struct map_session_data *sd, int skill_num);	//[orn]
 int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int state, int param);	//[orn]
 
-void clif_equiptickack(struct map_session_data* sd, int flag);
+void clif_zc_config(struct map_session_data* sd, enum CZ_CONFIG type, int flag);
 void clif_viewequip_ack(struct map_session_data* sd, struct map_session_data* tsd);
 void clif_viewequip_fail(struct map_session_data* sd);
 void clif_equipcheckbox(struct map_session_data* sd);

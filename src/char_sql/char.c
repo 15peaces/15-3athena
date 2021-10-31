@@ -1628,7 +1628,7 @@ int check_char_name(char * name, char * esc_name)
 //-----------------------------------
 #if PACKETVER >= 20120307
 #if PACKETVER >= 20151001
-int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, short race, short unknown, int sex) {  // TODO: Unknown byte
+int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, int race, uint8 sex) {
 	short starting_job;
 	short starting_hp, starting_sp;
 	short starting_weapon, starting_armor;
@@ -1659,7 +1659,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	// Race values are acturally sent by the client as the job ID the new character would start on.
 	// But to be safe, its best to have the server read what race was selected and then set the
 	// starting job itself rather then setting it to the value the client sent.
-	if ( race != RACE_HUMAN && race != RACE_DORAM ) {
+	if (race != RACE_HUMAN && race != RACE_DORAM ) {
 		ShowWarning("make_new_char: Detected character creation packet with invalid race type on account: %d.\n", sd->account_id);
 		return -2;
 	}
@@ -1712,7 +1712,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	}
 
 #if PACKETVER >= 20151001
-	if ( race == RACE_HUMAN || ALLOW_OTHER_RACES == 0 )
+	if (race == RACE_HUMAN || ALLOW_OTHER_RACES == 0 )
 	{	// Human - Defaults
 		// Job = Novice
 		// Starting HP/SP = 40/11
@@ -4665,7 +4665,7 @@ int parse_char(int fd)
 				i = -2;
 			else
 #if PACKETVER >= 20151029
-				i = make_new_char_sql(sd, (char*)RFIFOP(fd, 2), RFIFOB(fd, 26), RFIFOW(fd, 27), RFIFOW(fd, 29), RFIFOW(fd, 31), RFIFOW(fd, 32), RFIFOB(fd, 35));
+				i = make_new_char_sql(sd, (char*)RFIFOP(fd, 2), RFIFOB(fd, 26), RFIFOW(fd, 27), RFIFOW(fd, 29), RFIFOL(fd, 31), RFIFOB(fd, 35));
 #elif PACKETVER >= 20120307
 				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOW(fd,27),RFIFOW(fd,29));
 #else

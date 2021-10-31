@@ -740,6 +740,7 @@ CREATE TABLE IF NOT EXISTS `pet` (
   `hungry` smallint(9) unsigned NOT NULL default '0',
   `rename_flag` tinyint(4) unsigned NOT NULL default '0',
   `incuvate` int(11) unsigned NOT NULL default '0',
+  `autofeed` TINYINT(2) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY  (`pet_id`)
 ) ENGINE=MyISAM;
 

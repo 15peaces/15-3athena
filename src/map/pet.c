@@ -214,6 +214,13 @@ static int pet_hungry(int tid, int64 tick, int id, intptr_t data)
 		return 1; //You lost the pet already, the rest is irrelevant.
 	
 	pd->pet.hungry--;
+	/* Pet Autofeed */
+	if (battle_config.pet_autofeed != 0) {
+		if (pd->petDB->autofeed == 1 && pd->pet.autofeed == 1 && pd->pet.hungry <= 25) {
+			pet_food(sd, pd);
+		}
+	}
+
 	if( pd->pet.hungry < 0 )
 	{
 		pet_stop_attack(pd);
@@ -734,7 +741,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 	return 0;
 }
 
-static int pet_food(struct map_session_data *sd, struct pet_data *pd)
+int pet_food(struct map_session_data *sd, struct pet_data *pd)
 {
 	int i,k;
 
@@ -1246,7 +1253,7 @@ int read_petdb()
 		lines = entries = 0;
 		while( fgets(line, sizeof(line), fp) && j < MAX_PET_DB )
 		{			
-			char *str[22], *p;
+			char *str[23], *p;
 			lines++;
 
 			if(line[0] == '/' && line[1] == '/')
@@ -1257,7 +1264,7 @@ int read_petdb()
 				++p;
 			if( *p == '\0' )
 				continue; // empty line
-			for( k = 0; k < 20; ++k )
+			for( k = 0; k < 21; ++k )
 			{
 				str[k] = p;
 				p = strchr(p,',');
@@ -1280,7 +1287,7 @@ int read_petdb()
 				continue;
 			}
 
-			str[20] = p;
+			str[21] = p;
 			p = strstr(p+1,"},");
 			if( p == NULL )
 			{
@@ -1296,7 +1303,7 @@ int read_petdb()
 				ShowError("read_petdb: Invalid format (Equip Script column) in line %d, skipping.\n", lines);
 				continue;
 			}
-			str[21] = p;
+			str[22] = p;
 
 			if( (nameid = atoi(str[0])) <= 0 )
 				continue;
@@ -1329,13 +1336,14 @@ int read_petdb()
 			pet_db[j].attack_rate=atoi(str[17]);
 			pet_db[j].defence_attack_rate=atoi(str[18]);
 			pet_db[j].change_target_rate=atoi(str[19]);
+			pet_db[j].autofeed = atoi(str[20]);
 			pet_db[j].pet_script = NULL;
 			pet_db[j].equip_script = NULL;
 
-			if( *str[20] )
-				pet_db[j].pet_script = parse_script(str[20], filename[i], lines, 0);
 			if( *str[21] )
-				pet_db[j].equip_script = parse_script(str[21], filename[i], lines, 0);
+				pet_db[j].pet_script = parse_script(str[21], filename[i], lines, 0);
+			if( *str[22] )
+				pet_db[j].equip_script = parse_script(str[22], filename[i], lines, 0);
 
 			j++;
 			entries++;

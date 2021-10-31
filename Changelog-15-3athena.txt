@@ -5,8 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/31/2021
+	r314 [15peaces]
+		*Merged missing changes from 3ceam rev. 778
+		*Please don't forget to add the upgrade_15-3athena_svn314.sql file!
+		*Changed default PACKETVER to 20180919
+			-The 2018-09-19aRagexe client is stable.
+			-This client is recommended if you want to use pet autofeeding.
+		*clif_parse_OpenVending will now fail with an empty item list.
+		*Added some missing packets for 2018 clients.
+		*Updated new char creation.
+			-The race field is supposed to be an int value, so there is no unknown byte in this packet. ^^
+		*Implemented Pet Autofeeding.
+			-We will need this soon to get the Pet Evolution System working.
+		*Fixed a issue where NPC chat rooms would fail to appear in certain conditions. Mainly with job quests.
+
 10/26/2021
-	r312 [15peaces]
+	r313 [15peaces]
 		*Merged missing changes from 3ceam rev. 777
 		*Fixed a issue where a hidden NPC won't appear in a player's view range when renabled. This should also fix issues with a number of quest NPC's, including job quest NPC's.
 		*Some updates & cleaning in databases.

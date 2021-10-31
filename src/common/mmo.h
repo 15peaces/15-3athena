@@ -51,8 +51,8 @@
 
 #ifndef PACKETVER
 	//#define PACKETVER 20170614 //stable client [15peaces]
-	#define PACKETVER 20180621 //stable client [15peaces]
-	//#define PACKETVER 20180919 //(semi-)stable client [15peaces]
+	//#define PACKETVER 20180621 //stable client [15peaces]
+	#define PACKETVER 20180919 //stable client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -457,6 +457,7 @@ struct s_pet {
 	char name[NAME_LENGTH];
 	char rename_flag;
 	char incuvate;
+	int autofeed;
 };
 
 struct s_homunculus {	//[orn]

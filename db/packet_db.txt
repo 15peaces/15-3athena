@@ -1067,7 +1067,7 @@ packet_ver: 22
 0x02d5,2
 0x02d6,6,viewplayerequip,2
 0x02d7,-1
-0x02d8,10,equiptickbox,6
+0x02d8,10,p_cz_config,6
 0x02d9,10
 0x02da,3
 0x02db,-1,battlechat,2:4
@@ -2463,6 +2463,7 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 
 //2018-06-21aRagexeRE ~ 2018-09-19aRagexe
 packet_ver: 45
+packet_keys: 0x00000000,0x00000000,0x00000000
 0x0437,7,actionrequest,2:6
 0x0438,10,useskilltoid,2:4:6
 0x035F,5,walktoxy,2
@@ -2507,6 +2508,10 @@ packet_ver: 45
 0x0aef,2,pAttendanceRewardRequest,0
 0x0af0,10
 0x0af4,11,useskilltopos,2:4:6:8:10//CZ_USE_SKILL_TOGROUND2
+// new packets
+0x0afd,155
+0x0afe,-1
+0x0aff,-1
 
 //Add new packets here
 //packet_ver: 45

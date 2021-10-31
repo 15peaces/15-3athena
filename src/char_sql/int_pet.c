@@ -30,10 +30,10 @@ int inter_pet_tosql(int pet_id, struct s_pet* p)
 	if( pet_id == -1 )
 	{// New pet.
 		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` "
-			"(`class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`) "
-			"VALUES ('%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
+			"(`class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`,`autofeed`) "
+			"VALUES ('%d', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
 			pet_db, p->class_, esc_name, p->account_id, p->char_id, p->level, p->egg_id,
-			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate) )
+			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate, p->autofeed) )
 		{
 			Sql_ShowDebug(sql_handle);
 			return 0;
@@ -42,9 +42,9 @@ int inter_pet_tosql(int pet_id, struct s_pet* p)
 	}
 	else
 	{// Update pet.
-		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class`='%d',`name`='%s',`account_id`='%d',`char_id`='%d',`level`='%d',`egg_id`='%d',`equip`='%d',`intimate`='%d',`hungry`='%d',`rename_flag`='%d',`incuvate`='%d' WHERE `pet_id`='%d'",
+		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `class`='%d',`name`='%s',`account_id`='%d',`char_id`='%d',`level`='%d',`egg_id`='%d',`equip`='%d',`intimate`='%d',`hungry`='%d',`rename_flag`='%d',`incuvate`='%d', `autofeed`='%d' WHERE `pet_id`='%d'",
 			pet_db, p->class_, esc_name, p->account_id, p->char_id, p->level, p->egg_id,
-			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate, p->pet_id) )
+			p->equip, p->intimate, p->hungry, p->rename_flag, p->incuvate, p->autofeed, p->pet_id) )
 		{
 			Sql_ShowDebug(sql_handle);
 			return 0;
@@ -66,9 +66,9 @@ int inter_pet_fromsql(int pet_id, struct s_pet* p)
 #endif
 	memset(p, 0, sizeof(struct s_pet));
 
-	//`pet` (`pet_id`, `class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`)
+	//`pet` (`pet_id`, `class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`,`autofeed`)
 
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `pet_id`, `class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate` FROM `%s` WHERE `pet_id`='%d'", pet_db, pet_id) )
+	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `pet_id`, `class`,`name`,`account_id`,`char_id`,`level`,`egg_id`,`equip`,`intimate`,`hungry`,`rename_flag`,`incuvate`,`autofeed` FROM `%s` WHERE `pet_id`='%d'", pet_db, pet_id) )
 	{
 		Sql_ShowDebug(sql_handle);
 		return 0;
@@ -88,6 +88,7 @@ int inter_pet_fromsql(int pet_id, struct s_pet* p)
 		Sql_GetData(sql_handle,  9, &data, NULL); p->hungry = atoi(data);
 		Sql_GetData(sql_handle, 10, &data, NULL); p->rename_flag = atoi(data);
 		Sql_GetData(sql_handle, 11, &data, NULL); p->incuvate = atoi(data);
+		Sql_GetData(sql_handle, 12, &data, NULL); p->autofeed = atoi(data);
 
 		Sql_FreeResult(sql_handle);
 
