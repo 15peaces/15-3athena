@@ -8,6 +8,9 @@
 // By default, we recover/remove Guild/Party Bound items automatically 
 #define BOUND_ITEMS
 
+/// Max number of items on @autolootid list
+#define AUTOLOOTITEM_SIZE 10
+
 /// Comment to disable the official packet obfuscation support.
 /// When enabled, make sure there is value for 'packet_keys' of used packet version or
 /// defined 'packet_keys_use' in db/packet_db.txt.

@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/26/2021
+	r315 [15peaces]
+		*Merged missing changes from 3ceam rev. 779
+		*Fixed some item bonusses.
+		*Updated the aegis->athena slot position conversion table.
+			-This should also fix some issues with the equip swap feature.
+		*Updated Faceworm Nest monsters to more official versions.
+		*Updated @alootid atcommand to the latest rAthena/hercules version.
+			-It now by default supports autoloting up to 10 items.
+			-You can add or remove single items without re-adding everything.
+			-You can reset the whole list by typing "@alootid reset".
+		*Fixed a issue where using the skill Change Cart would make the number of items in the cart glitch on clients 2012-04-10 and newer.
+			-This is in response to a suspected dupe exploit, but is confirmed to only be a visual glitch and no actural item duping was possible.
+
 10/31/2021
 	r314 [15peaces]
 		*Merged missing changes from 3ceam rev. 778

@@ -174,7 +174,8 @@ struct map_session_data {
 		unsigned int callshop : 1; // flag to indicate that a script used callshop; on a shop
 		short pmap; // Previous map on Map Change
 		unsigned short autoloot;
-		unsigned short autolootid; // [Zephyrus]
+		int autolootid[AUTOLOOTITEM_SIZE]; // [Zephyrus]
+		unsigned int autolooting : 1; //performance-saver, autolooting state for @alootid
 		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
 		unsigned improv_flag : 1;
 		unsigned magicmushroom_flag : 1;
@@ -748,7 +749,7 @@ static inline bool pc_hasprogress(struct map_session_data *sd, enum e_wip_block 
 
 int pc_class2idx(int class_);
 int pc_isGM(struct map_session_data *sd);
-int pc_getrefinebonus(int lv,int type);
+bool pc_isautolooting(struct map_session_data *sd, int nameid);
 bool pc_can_give_items(int level);
 bool pc_can_give_bounded_items(int level);
 

@@ -1823,7 +1823,7 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	if( sd == NULL ) sd = map_charid2sd(dlist->third_charid);
 
 	if( sd
-		&& (drop_rate <= sd->state.autoloot || ditem->item_data.nameid == sd->state.autolootid)
+		&& (drop_rate <= sd->state.autoloot || pc_isautolooting(sd, ditem->item_data.nameid))
 		&& (battle_config.idle_no_autoloot == 0 || DIFF_TICK(last_tick, sd->idletime) < battle_config.idle_no_autoloot)
 		&& (battle_config.homunculus_autoloot?1:!flag)
 #ifdef AUTOLOOT_DISTANCE
@@ -3787,6 +3787,9 @@ static bool mob_parse_dbrow(char** str)
 		if( db->dropitem[i].p && (class_ < 1324 || class_ > 1363) && (class_ < 1938 || class_ > 1946) )
 		{ //Skip treasure chests.
 			id = itemdb_search(db->dropitem[i].nameid);
+			if (id->nameid == 500) {
+				ShowWarning("mob_parse_dbrow: Dummy drop on mob %d, slot %d (item %d).\n", class_, i, db->dropitem[i].nameid);
+			}
 			if (id->maxchance == -1 || (id->maxchance < db->dropitem[i].p) ) {
 				id->maxchance = db->dropitem[i].p; //item has bigger drop chance or sold in shops
 			}
