@@ -1802,7 +1802,7 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
 	
 	skill_point = pc_calc_skillpoint(sd); // Current Used Points
 
-	if( pc_checkskill(sd, NV_BASIC) < 9 )
+	if( pc_checkskill(sd, NV_BASIC) < 9 && (sd->class_&MAPID_BASEMASK) != MAPID_SUMMONER )
 		c = MAPID_NOVICE; // Consider Novice Tree when you don't have NV_BASIC maxed.
 
 	//Do not send S. Novices to first class (Novice)
@@ -5465,6 +5465,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_HANBOK:			return MAPID_HANBOK;
 		case JOB_OKTOBERFEST:		return MAPID_OKTOBERFEST;
 		case JOB_SUMMER2:			return MAPID_SUMMER2;
+		case JOB_SUMMONER:			return MAPID_SUMMONER;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:		return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:			return MAPID_KNIGHT;
@@ -5610,6 +5611,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_HANBOK:					return JOB_HANBOK;
 		case MAPID_OKTOBERFEST:				return JOB_OKTOBERFEST;
 		case MAPID_SUMMER2:					return JOB_SUMMER2;
+		case MAPID_SUMMONER:				return JOB_SUMMONER;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:			return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:					return JOB_KNIGHT;
@@ -10189,8 +10191,8 @@ static unsigned int pc_calc_basehp(uint16 level, uint16 class_)
 
 	for (i = 2; i <= level; i++)
 		base_hp += floor(((job_info[idx].hp_factor/100.) * i) + 0.5); //Don't have round()
-	/*if (class_ == JOB_SUMMONER)
-		base_hp += floor((base_hp / 2) + 0.5);*/
+	if (class_ == JOB_SUMMONER)
+		base_hp += floor((base_hp / 2) + 0.5);
 	return (unsigned int)base_hp;
 }
 
@@ -10220,9 +10222,9 @@ static unsigned int pc_calc_basesp(uint16 level, uint16 class_)
 			else
 				base_sp = 9 + 3*level;
 			break;
-		/*case JOB_SUMMONER:
+		case JOB_SUMMONER:
 			base_sp -= floor(base_sp / 2);
-			break;*/
+			break;
 	}
 
 	return (unsigned int)base_sp;

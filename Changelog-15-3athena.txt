@@ -5,6 +5,69 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/09/2022
+	r316 [15peaces]
+		*Merged missing changes from 3ceam rev. 780 - 784
+		*Fixed mora entchant npc.
+		*Re-Added missing Super Novice hp bonusses.
+		*Added the latest tags and ID's for skills and status.
+		*Added a basic foxtail staff item to the item database.
+			-This is to test the equip mask for the Summoner job.
+		*Did a lot of cleanup and recoding on the job equip mask functions.
+			-Due to running out of usable masks for equippable items job masks, I had to rework part of the system to free up masks that were not needed.
+			-NOTICE!!!!
+				--If you have any items for the following jobs, be sure to update the job equip masks for these items. Below is info for each one.
+				--Gangsi (Bongun/Munak): No longer has its own mask.
+				--Now uses the same mask as the Acolyte which is 0x00000010
+				--
+				--Death Knight: No longer has its own mask.
+				--Now uses the same mask as the Knight which is 0x00000080
+				--
+				--Dark Collector: No longer has its own mask.
+				--Now uses the same mask as the Sage which is 0x00010000
+				--
+				--Kagerou/Oboro: No longer has its own mask.
+				--Now uses the same mask as the Ninja which is 0x02000000
+				--Aegis officially groups these 2 jobs under the same job bit and equips requiring a base level higher then 99 would end up requiring you to be a Kagerou/Oboro due to Ninja's original base level cap.
+				--
+				--Rebellion: No longer has its own mask.
+				--Now uses the same mask as the Gunslinger which is 0x01000000
+				--Aegis likely does the same job bit grouping with these 2 jobs like it does with Ninja/Kagerou/Oboro. So I assume its the same here with equips requiring a base level higher then 99 will require you to be a Rebellion due to Gunslingers original
+				--base level cap.
+				--
+				--Summoners: Job equip mask is changed to 0x04000000 due to the removal of 5 other masks.
+			-Please adjust your equip's job masks as needed to avoid issues.
+		*Added new tags and skills to the skill database files.
+		*Updated Kagerou/Oboro, Rebellion, and Summoner equips with the new job equip masks.
+		*Updated the item_db document to list the latest job masks.
+		*Merchant Type Jobs
+			-Added the Cart Decorate skill to the skill tree.
+		*Summoner
+			-Added basic support for the job.
+			-Added base and job exp table support.
+			-Added official max weight, MaxHP/MaxSP pools, and ASPD.
+			-Added some temp bonus stats.
+			-Added skills to skill tree.
+			-Added job equip mask for items.
+		*NC_REPAIR
+			-Added item requirements.
+		*LG_SHIELDSPELL
+			-Redid most of the main part of the code.
+			-Code is now cleaner and more efficent.
+			-Code now only sets splash range when needed to save on cpu use.
+			-Required DEF for Level 1's 7x7 AoE size reduced from 10 to 9.
+			-Level 2 effect 2's Lex Divina effect code redone.
+			-Fixed a issue where the Lex Divina effect didn't remove the silence status from targets already in silence.
+			-Shields MDEF now affects the level of Lex Divina used on targets.
+			-Max level of Lex Divina that can be casted is 10.
+			-A animation is now displayed on all affected by the Lex Divina effect.
+			-Level 3 effect 1's effect "Status Resistance" is now fully working.
+		*MC_CARTDECORATE
+			-Added some basic support for the skill.
+			-Its castable but does nothing. Will finish it in a future update.
+		*SU_BASIC_SKILL
+			-Added full support for the skill.
+
 12/26/2021
 	r315 [15peaces]
 		*Merged missing changes from 3ceam rev. 779

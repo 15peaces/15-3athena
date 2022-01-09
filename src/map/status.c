@@ -2268,6 +2268,7 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned int stat, bool isHP) 
 {
 	double dmax = 0;
+	double equip_bonus = 0, item_bonus = 0;
 	uint16 idx, level, job_id;
 
 	nullpo_ret(sd);
@@ -2276,10 +2277,16 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	idx = pc_class2idx(job_id);
 	level = umax(sd->status.base_level,1);
 
-	if (isHP) //Calculates MaxHP
-		dmax = job_info[idx].base_hp[level-1] * (1 + (umax(stat,1) * 0.01)) * ((sd->class_&JOBL_UPPER)?1.25:(pc_is_taekwon_ranker(sd))?3:1);
+	if (isHP) {//Calculates MaxHP
+		dmax = job_info[idx].base_hp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
+
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
+		dmax += 2000; // Supernovice lvl99 hp bonus.
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 150)
+		dmax += 2000; // Supernovice lvl150 hp bonus.
+	}
 	else //Calculates MaxSP
-		dmax = job_info[idx].base_sp[level-1] * (1 + (umax(stat,1) * 0.01)) * ((sd->class_&JOBL_UPPER)?1.25:(pc_is_taekwon_ranker(sd))?3:1);
+		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 
 	//Make sure it's not negative before casting to unsigned int
 	if(dmax < 1)
@@ -6368,6 +6375,8 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 			sc_def += sc->data[SC_SCRESIST]->val1; //Status resist
 		else if (sc->data[SC_SIEGFRIED])
 			sc_def += sc->data[SC_SIEGFRIED]->val3; //Status resistance.
+		if (sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1)
+			sc_def += sc->data[SC_SHIELDSPELL_REF]->val2;
 	}
 
 	//When no tick def, reduction is the same for both.
