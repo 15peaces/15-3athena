@@ -4551,7 +4551,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		sd->sc.data[SC__INVISIBILITY] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC_DEEPSLEEP] ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER]
+		sd->sc.data[SC_SATURDAY_NIGHT_FEVER] ||
+		sd->sc.data[SC_SUHIDE]
 	))
 		return 0;
 
@@ -5427,8 +5428,8 @@ int pc_checkequip(struct map_session_data *sd,int pos, bool checkall)
 	nullpo_retr(-1, sd);
 
 	for(i=0;i<EQI_MAX;i++){
-		if (pos & equip_pos[i]) {
-			if (checkall && (pos&~equip_pos[i]) != 0 && sd->equip_index[i] == -1) {
+		if (pos & equip[i]) {
+			if (checkall && (pos&~equip[i]) != 0 && sd->equip_index[i] == -1) {
 				// Check all if any match is found
 				continue;
 			}
@@ -6948,6 +6949,9 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 
 		if( sd->sc.data[SC_ON_PUSH_CART] && pc_checkskill(sd, MC_PUSHCART))
 			pc_setcart(sd, 0);
+
+		if ((sd->sc.data[SC_SPRITEMABLE] && pc_checkskill(sd, SU_SPRITEMABLE)))
+			status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
 	}
 
 	for( i = 1; i < MAX_SKILL; i++ )
@@ -8114,6 +8118,9 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 
 	if( sd->sc.data[SC_ON_PUSH_CART] && !pc_checkskill(sd, MC_PUSHCART))
 			pc_setcart(sd, 0);
+
+	if (sd->sc.data[SC_SPRITEMABLE] && !pc_checkskill(sd, SU_SPRITEMABLE))
+		status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
 	
 	if(sd->status.manner < 0)
 		clif_changestatus(&sd->bl,SP_MANNER,sd->status.manner);

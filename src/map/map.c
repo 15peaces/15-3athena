@@ -397,7 +397,11 @@ int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 		status_change_end(bl, SC_TATAMIGAESHI, INVALID_TIMER);
 		status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
 		status_change_end(bl, SC_ROLLINGCUTTER, INVALID_TIMER);
-		status_change_end(bl, SC_PROPERTYWALK, INVALID_TIMER);
+		status_change_end(bl, SC_SU_STOOP, INVALID_TIMER);
+		if (sc->data[SC_PROPERTYWALK] &&
+			sc->data[SC_PROPERTYWALK]->val3 >= skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2))
+			status_change_end(bl, SC_PROPERTYWALK, INVALID_TIMER);
+
 	} else
 	if (bl->type == BL_NPC)
 		npc_unsetcells((TBL_NPC*)bl);
@@ -1815,7 +1819,8 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_OVERHEAT, INVALID_TIMER);
 		status_change_end(&sd->bl,SC_RAISINGDRAGON, INVALID_TIMER);
-		status_change_end(&sd->bl, SC_KYOUGAKU, INVALID_TIMER);//Not official, but needed since logging back in crashes the client. Will fix later. [Rytech
+		status_change_end(&sd->bl, SC_KYOUGAKU, INVALID_TIMER);//Not official, but needed since logging back in crashes the client. Will fix later. [Rytech]
+		status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
 		if (battle_config.debuff_on_logout&1) 
 		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);

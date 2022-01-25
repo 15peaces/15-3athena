@@ -2157,6 +2157,16 @@ void script_error(const char* src, const char* file, int start_line, const char*
 	StringBuf_Destroy(&buf);
 }
 
+/**
+ * Sets source-end constants for NPC scripts to access.
+ **/
+void script_hardcoded_constants(void)
+{
+	/* added for testing */
+	script_set_constant("SEX_FEMALE", SEX_FEMALE, false);
+	script_set_constant("SEX_MALE", SEX_MALE, false);
+}
+
 /*==========================================
  * スクリプトの解析
  *------------------------------------------*/
@@ -2176,6 +2186,7 @@ struct script_code* parse_script(const char *src,const char *file,int line,int o
 	if(first){
 		add_buildin_func();
 		read_constdb();
+		script_hardcoded_constants();
 		first=0;
 	}
 
@@ -7483,7 +7494,7 @@ BUILDIN_FUNC(getequippercentrefinery)
  *------------------------------------------*/
 BUILDIN_FUNC(successrefitem)
 {
-	int i=-1,num,ep;
+	short i=-1,num,ep;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
@@ -7498,6 +7509,11 @@ BUILDIN_FUNC(successrefitem)
 
 		//Logs items, got from (N)PC scripts [Lupus]
 		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->inventory.u.items_inventory[i].nameid, -1, &sd->inventory.u.items_inventory[i]);
+
+		if (sd->inventory.u.items_inventory[i].refine >= MAX_REFINE) {
+			script_pushint(st, MAX_REFINE);
+			return 0;
+		}
 
 		sd->inventory.u.items_inventory[i].refine++;
 		pc_unequipitem(sd,i,2); // status calc will happen in pc_equipitem() below
@@ -7532,9 +7548,13 @@ BUILDIN_FUNC(successrefitem)
 					break;
 	 	 	 }
 		}
+		script_pushint(st, sd->inventory.u.items_inventory[i].refine);
+		return 0;
 	}
 
-	return 0;
+	ShowError("buildin_successrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", num, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, -1);
+	return 1;
 }
 
 /*==========================================
@@ -7542,7 +7562,7 @@ BUILDIN_FUNC(successrefitem)
  *------------------------------------------*/
 BUILDIN_FUNC(failedrefitem)
 {
-	int i=-1,num;
+	short i=-1,num;
 	TBL_PC *sd;
 
 	num=script_getnum(st,2);
@@ -7560,16 +7580,20 @@ BUILDIN_FUNC(failedrefitem)
 		log_pick(&sd->bl, LOG_TYPE_SCRIPT, sd->inventory.u.items_inventory[i].nameid, -1, &sd->inventory.u.items_inventory[i]);
 
 		sd->inventory.u.items_inventory[i].refine = 0;
-		pc_unequipitem(sd,i,3);
-		// 精錬失敗エフェクトのパケット
+		pc_unequipitem(sd,i,3); //recalculate bonus
 		clif_refine(sd->fd,1,i,sd->inventory.u.items_inventory[i].refine);
 
 		pc_delitem(sd,i,1,0,2);
-		// 他の人にも失敗を通知
+		// display failure effect
 		clif_misceffect(&sd->bl,2);
+
+		script_pushint(st, 1);
+		return 0;
 	}
 
-	return 0;
+	ShowError("buildin_failedrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", num, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, 0);
+	return 1;
 }
 
 /*==========================================
@@ -7610,12 +7634,12 @@ BUILDIN_FUNC(downrefitem) {
 		achievement_validate_refine(sd, i, false); // Achievements [Smokexyz/Hercules]
 		clif_misceffect(&sd->bl,2);
 		script_pushint(st, sd->inventory.u.items_inventory[i].refine);
-		return 1;
+		return 0;
 	}
 
 	ShowError("buildin_downrefitem: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
 	script_pushint(st, -1);
-	return 0;
+	return 1;
 }
 
 /**
@@ -13930,19 +13954,25 @@ BUILDIN_FUNC(day)
 //-------------------------------------------------------
 BUILDIN_FUNC(unequip)
 {
-	int i;
-	size_t num;
+	int num;
 	TBL_PC *sd;
 
+	if (!(sd = script_rid2sd(st)))
+		return 0;
+
 	num = script_getnum(st,2);
-	sd = script_rid2sd(st);
-	if( sd != NULL && num >= 1 && num <= ARRAYLENGTH(equip) )
-	{
-		i = pc_checkequip(sd,equip[num-1],false);
-		if (i >= 0)
-			pc_unequipitem(sd,i,1|2);
+	if (num >= 1 && num <= ARRAYLENGTH(equip)) {
+		short i = pc_checkequip(sd, equip[num - 1], false);
+		if (i >= 0) {
+			pc_unequipitem(sd, i, 1 | 2);
+			script_pushint(st, 1);
+			return 0;
+		}
+
 	}
-	return 0;
+	ShowError("buildin_unequip: No item equipped at pos %d (CID=%d/AID=%d).\n", num, sd->status.char_id, sd->status.account_id);
+	script_pushint(st, 0);
+	return 1;
 }
 
 BUILDIN_FUNC(equip)
@@ -13952,19 +13982,21 @@ BUILDIN_FUNC(equip)
 	TBL_PC *sd;
 	struct item_data *item_data;
 
-	sd = script_rid2sd(st);
+	if (!(sd = script_rid2sd(st)))
+		return 0;
 
-	nameid=script_getnum(st,2);
-	if((item_data = itemdb_exists(nameid)) == NULL)
-	{
-		ShowError("wrong item ID : equipitem(%hu)\n",nameid);
-		return 1;
+	nameid = script_getnum(st, 2);
+	if ((item_data = itemdb_exists(nameid))) {
+		ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == nameid);
+		if (i < MAX_INVENTORY) {
+			pc_equipitem(sd, i, item_data->equip, false);
+			script_pushint(st, 1);
+			return 0;
+		}
 	}
-	ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == nameid );
-	if( i < MAX_INVENTORY )
-		pc_equipitem(sd,i,item_data->equip,false);
-
-	return 0;
+	ShowError("buildin_equip: Item %hu cannot be equipped\n", nameid);
+	script_pushint(st, 0);
+	return 1;
 }
 
 BUILDIN_FUNC(autoequip)

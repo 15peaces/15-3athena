@@ -80,7 +80,6 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 	// 	close;
 	// }
 	set .@equip_id, getequipid(.@part);
-	set .@equip_refine, getequiprefinerycnt(.@part);
 	set .@item$, "|1292|1394|1491|1585|2015|13071|13115|16019|18112|21000|";
 	if (!compare(.@item$,"|"+.@equip_id+"|")) {
 		mes "I don't want to touch your equipment now!";
@@ -214,6 +213,7 @@ prt_in,28,73,3	script	Devil Enchant Master#prq	63,{
 			mes "Are you listening to me? I will only do for you if you bring the Enchant Book!";
 			close;
 		}
+		set .@equip_refine, getequiprefinerycnt(.@part);
 		if (.@enchant == 0) {
 			specialeffect EF_SHIELDCHARGE;
 			mes "Oh! Unbelievable!! It failed!! Please come again!";

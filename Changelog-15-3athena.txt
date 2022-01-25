@@ -5,6 +5,40 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/25/2022
+	r317 [15peaces]
+		*Merged missing changes from 3ceam rev. 785
+		*Updated the Summoner skills range to use renewal cast times.
+		*Corrected Costume Ramen Hat sprite.
+		*Added script_hardcoded_constants function.
+			-In this function you can define constants directly in source. This way you won't need to add them into the const.txt file.
+			-I've added the SEX_ constants for testing purposes. More will be moved later.
+		*Updated script_commands document to reflect some changes I made in past.
+		*Enabled NPC logging through 'logmes' by default.
+			-Commented some unnecessary log messages & updated others.
+		*Corrected M_DOPPELGANGER HP.	
+		*Another clean-up/fixing/updating in npc folder:
+			-Added official Valentine's Day 2012 event.
+			-Fixed some npcs which used hardcoded EQI_ values
+			-Changed some npcs to use F_getpositionname instead of hardcoded values.
+			-Cleaned and edited "Item Signer" script for general use (custom\item_signer.txt)
+			-Implemented the Paramarket shops.
+			-Added script checks against swapping items using third-party hacks.
+				--Added error messages for some script commands.
+				--Halt script if no item equipped for 'delequip' just like 'delitem' does.
+			-Some other fixes.
+			-Huge thanks to @rathena for the base.
+		*Summoner
+			-Is now small size character.
+			-Is now brute race type character.
+		*RA_ARROWSTORM
+			-Fixed a issue where the skill was hitting enemys in hiding status.
+			-It may work like that according to the wiki, but why let a splash skill like this hit? Has to be a bug. Other splash skills can't do that. Only earth element skills can hit enemys in hiding.
+		*NC_INFRAREDSCAN
+			-Changed to reveal hidden targets first before applying the status.
+		*SU_BITE; SU_HIDE; SU_SCRATCH; SU_STOOP; SU_LOPE; SU_SPRITEMABLE
+			-Added full support for these skills.
+
 01/09/2022
 	r316 [15peaces]
 		*Merged missing changes from 3ceam rev. 780 - 784

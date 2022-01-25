@@ -4213,3 +4213,14 @@
 
 // Summoner Weapons And Equips (3ceam)
 1681,Short_Foxtail_Staff,Short Foxtail Staff,4,20,,0,30,,1,0,0x04000000,7,2,2,1,1,1,10,{},{},{}
+
+// missing items
+22566,Frost_Crystal,Last Year's Frost,3,20,,0,,,,,,,,,,,,,{},{},{}
+22567,Squad_Prize,Expedition Award Box,0,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+22568,Nyd_Summon_Scroll,Nidhoggur Summon Scroll,0,20,,100,,,,,0xFFFFFFFF,63,,2,,,,,{},{},{}
+22569,Gift_New_start,Gift New start,18,10,,100,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
+25231,Suspicious_Bottle,Suspicious Bottle,3,1000,,10,,,,,,,,,,,,,{},{},{}
+25232,Cheap_Lubricant,Cheap Lubricant,3,1000,,10,,,,,,,,,,,,,{},{},{}
+25233,Cotton_Tufts,Cotton Tufts,3,1000,,10,,,,,,,,,,,,,{},{},{}
+22658,Cow_Steamed_Ribs,Cow Steamed Ribs,0,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ bonus_script "{ bonus bVariableCastrate,5; bonus bUseSPrate,-3; }",180; },{},{}
+22659,Pig_Steamed_Ribs,Pig Steamed Ribs,0,20,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ bonus_script "{ bonus bAspdRate,5; bonus bUseSPrate,-2; }",180; },{},{}

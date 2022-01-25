@@ -978,6 +978,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_NETHERWORLD]
 			|| sc->data[SC_MEIKYOUSISUI]
 			|| sc->data[SC_KG_KAGEHUMI]
+			|| sc->data[SC_SUHIDE]
 		))
 			return 0;
 	}
@@ -1291,7 +1292,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 		}
 	break;	
 	case GD_EMERGENCYCALL: //Emergency Call double cast when the user has learned Leap [Daegaladh]
-		if( sd && pc_checkskill(sd,TK_HIGHJUMP) )
+		if (sd && (pc_checkskill(sd, TK_HIGHJUMP) || pc_checkskill(sd, SU_LOPE) >= 3))
 			casttime *= 2;
 		break;
 	case RK_ENCHANTBLADE:
@@ -2100,6 +2101,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			status_change_end(bl, SC__MANHOLE, INVALID_TIMER);
 			status_change_end(bl, SC_NETHERWORLD, INVALID_TIMER);
 			status_change_end(bl, SC_VACUUM_EXTREME, INVALID_TIMER);
+			status_change_end(bl, SC_SUHIDE, INVALID_TIMER);
 
 	}
 

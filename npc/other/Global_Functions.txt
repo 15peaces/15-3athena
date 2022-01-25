@@ -138,7 +138,7 @@ function	script	F_ClearGarbage	{
 
 function	script	Job_Change	{
 	jobchange getarg(0),Upper; //Jobchange based on Upper
-	logmes "CLASS CHANGE: " +strcharinfo(0)+ " become a "+jobname(Class);
+//	logmes "CLASS CHANGE: " +strcharinfo(0)+ " become a "+jobname(Class);
 	return;
 }
 

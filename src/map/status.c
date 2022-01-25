@@ -586,18 +586,18 @@ void initChangeTables(void)
 	set_sc( RL_AM_BLAST     , SC_ANTI_M_BLAST		, SI_ANTI_M_BLAST		, SCB_NONE );
 	set_sc( RL_SLUGSHOT		, SC_SLUGSHOT			, SI_SLUGSHOT			, SCB_NONE );
 
-	set_sc( KO_YAMIKUMO          , SC_HIDING          , SI_HIDING          , SCB_NONE);
-	set_sc( KO_JYUMONJIKIRI      , SC_KO_JYUMONJIKIRI , SI_KO_JYUMONJIKIRI , SCB_NONE);
-	set_sc( KO_MEIKYOUSISUI      , SC_MEIKYOUSISUI    , SI_MEIKYOUSISUI    , SCB_NONE );
-	set_sc( KO_KYOUGAKU          , SC_KYOUGAKU        , SI_KYOUGAKU        , SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
-	set_sc( KO_ZENKAI            , SC_ZENKAI          , SI_ZENKAI          , SCB_NONE );
-	set_sc( KO_IZAYOI            , SC_IZAYOI          , SI_IZAYOI          , SCB_MATK );
-	set_sc( KG_KAGEHUMI          , SC_KG_KAGEHUMI     , SI_KG_KAGEHUMI     , SCB_NONE );
-	set_sc( KG_KYOMU             , SC_KYOMU           , SI_KYOMU           , SCB_NONE );
-	set_sc( KG_KAGEMUSYA         , SC_KAGEMUSYA       , SI_KAGEMUSYA       , SCB_NONE);
-	set_sc( OB_ZANGETSU          , SC_ZANGETSU        , SI_ZANGETSU        , SCB_NONE );
-	set_sc( OB_OBOROGENSOU       , SC_GENSOU          , SI_GENSOU          , SCB_NONE );
-	set_sc( OB_AKAITSUKI         , SC_AKAITSUKI       , SI_AKAITSUKI       , SCB_NONE );
+	set_sc(KO_YAMIKUMO		, SC_HIDING				, SI_HIDING				, SCB_SPEED);
+	set_sc( KO_JYUMONJIKIRI	, SC_KO_JYUMONJIKIRI	, SI_KO_JYUMONJIKIRI	, SCB_NONE);
+	set_sc( KO_MEIKYOUSISUI	, SC_MEIKYOUSISUI		, SI_MEIKYOUSISUI		, SCB_NONE );
+	set_sc( KO_KYOUGAKU		, SC_KYOUGAKU			, SI_KYOUGAKU			, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+	set_sc( KO_ZENKAI		, SC_ZENKAI				, SI_ZENKAI				, SCB_NONE );
+	set_sc( KO_IZAYOI		, SC_IZAYOI				, SI_IZAYOI				, SCB_MATK );
+	set_sc( KG_KAGEHUMI		, SC_KG_KAGEHUMI		, SI_KG_KAGEHUMI		, SCB_NONE );
+	set_sc( KG_KYOMU		, SC_KYOMU				, SI_KYOMU				, SCB_NONE );
+	set_sc( KG_KAGEMUSYA	, SC_KAGEMUSYA			, SI_KAGEMUSYA			, SCB_NONE);
+	set_sc( OB_ZANGETSU		, SC_ZANGETSU			, SI_ZANGETSU			, SCB_NONE );
+	set_sc( OB_OBOROGENSOU	, SC_GENSOU				, SI_GENSOU				, SCB_NONE );
+	set_sc( OB_AKAITSUKI	, SC_AKAITSUKI			, SI_AKAITSUKI			, SCB_NONE );
 
 	//Adjust SCB flags as support for these skills are added. [Rytech]
 	set_sc(GC_DARKCROW				, SC_DARKCROW			, SI_DARKCROW			, SCB_NONE);
@@ -612,6 +612,9 @@ void initChangeTables(void)
 	set_sc(WL_TELEKINESIS_INTENSE	, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE);
 	set_sc(LG_KINGS_GRACE			, SC_KINGS_GRACE		, SI_KINGS_GRACE		, SCB_NONE);
 	set_sc(ALL_FULL_THROTTLE		, SC_FULL_THROTTLE		, SI_FULL_THROTTLE		, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK|SCB_SPEED);
+
+	set_sc(SU_HIDE	, SC_SUHIDE		, SI_SUHIDE		, SCB_SPEED);
+	set_sc(SU_STOOP	, SC_SU_STOOP	, SI_SU_STOOP	, SCB_NONE);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -851,6 +854,9 @@ void initChangeTables(void)
 
 	// Minstrel / Wanderer status change icons
 	StatusIconChangeTable[SC_GLOOMYDAY_SK] = SI_GLOOMYDAY;
+
+	// Summoner
+	StatusIconChangeTable[SC_SPRITEMABLE] = SI_SPRITEMABLE;
 
 	// Elemental Spirit's 'side' status change icons.
 	StatusIconChangeTable[SC_CIRCLE_OF_FIRE] = SI_CIRCLE_OF_FIRE;
@@ -1196,6 +1202,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			status_change_end(target, SC_CAMOUFLAGE, INVALID_TIMER);
 			status_change_end(target, SC_MEIKYOUSISUI, INVALID_TIMER);
 			//status_change_end(target, SC_DEEPSLEEP, INVALID_TIMER);//May be needed in a future update. [15peaces]
+			status_change_end(target, SC_SUHIDE, INVALID_TIMER);
 			if ((sce=sc->data[SC_ENDURE]) && !sce->val4) {
 				//Endure count is only reduced by non-players on non-gvg maps.
 				//val4 signals infinite endure. [Skotlex]
@@ -1628,6 +1635,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			|| ((sc->data[SC_AUTOCOUNTER] || sc->data[SC_DEATHBOUND]) && !flag)
 			|| (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_num != PA_GOSPEL)
 			|| (sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF && flag != 2)
+			|| (sc->data[SC_SUHIDE] && skill_num != SU_HIDE)
 		)
 			return 0;
 
@@ -2268,7 +2276,6 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned int stat, bool isHP) 
 {
 	double dmax = 0;
-	double equip_bonus = 0, item_bonus = 0;
 	uint16 idx, level, job_id;
 
 	nullpo_ret(sd);
@@ -2436,7 +2443,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	//Give them all modes except these (useful for clones)
 	status->mode = MD_MASK&~(MD_BOSS|MD_PLANT|MD_DETECTOR|MD_ANGRY|MD_TARGETWEAK);
 
-	status->size = (sd->class_&JOBL_BABY)?0:1;
+	status->size = (sd->class_&JOBL_BABY || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? 0 : 1;
 	if (battle_config.character_size && (pc_isriding(sd)||pc_isdragon(sd)||pc_iswugrider(sd)||pc_ismadogear(sd))) { //[Lupus]
 		if (sd->class_&JOBL_BABY) {
 			if (battle_config.character_size&2)
@@ -2448,7 +2455,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	status->aspd_amount = 0;
 	status->aspd_rate = 1000;
 	status->ele_lv = 1;
-	status->race = RC_DEMIHUMAN;
+	status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? RC_BRUTE : RC_DEMIHUMAN;
 
 	//zero up structures...
 	memset(&sd->autospell,0,sizeof(sd->autospell)
@@ -2871,6 +2878,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		status->max_hp += skill*200;
 	if( (skill = pc_checkskill(sd,WM_LESSON)) > 0 )
 		status->max_sp += 30 * skill;
+	if ((skill = pc_checkskill(sd, SU_SPRITEMABLE)) > 0)
+		status->max_hp += 1000;
 
 	// Apply relative modifiers from equipment
 	if(sd->hprate < 0)
@@ -2902,6 +2911,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		status->max_sp += status->max_sp * 2*skill/100;
 	if((skill=pc_checkskill(sd,RA_RESEARCHTRAP))>0)
 		status->max_sp += 200 + 20*skill;
+	if((skill = pc_checkskill(sd, SU_SPRITEMABLE)) > 0)
+		status->max_sp += 100;
 
 	// Apply relative modifiers from equipment
 	if(sd->sprate < 0)
@@ -3244,6 +3255,13 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	}
 	if(memcmp(b_skill,sd->status.skill,sizeof(sd->status.skill)))
 		clif_skillupdateinfoblock(sd);
+
+	// Spirit Marble status activates automatically for a infinite
+	// amount of time when the skill is learned. Felt this was the
+	// best place to put this. [Rytech]
+	if ((skill = pc_checkskill(sd, SU_SPRITEMABLE)) > 0)
+		sc_start(&sd->bl, SC_SPRITEMABLE, 100, 1, -1);
+
 
 	calculating = 0;
 
@@ -7546,6 +7564,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_READYCOUNTER:
 		case SC_READYTURN:
 		case SC_DODGE:
+		case SC_SPRITEMABLE:
 		case SC_ALL_RIDING:
 		case SC_MOONSTAR:
 		case SC_STRANGELIGHTS:
@@ -8763,6 +8782,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SIREN:
 		case SC_CLOAKINGEXCEED:
 		case SC_ALL_RIDING:
+		case SC_SUHIDE:
 			unit_stop_attack(bl);
 		break;
 		case SC_SILENCE:
@@ -9125,6 +9145,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_STRANGELIGHTS:
 				case SC_SUPER_STAR:
 				case SC_DECORATION_OF_MUSIC:
+				case SC_SPRITEMABLE:
 				// Clans
 				case SC_CLAN_INFO:
 				case SC_SWORDCLAN:
@@ -11005,6 +11026,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_PUTTI_TAILS_NOODLES:
 			case SC_CURSEDCIRCLE_ATKER:
 			case SC_CURSEDCIRCLE_TARGET:
+			case SC_SPRITEMABLE:
 				continue;
 				
 			//Debuffs that can be removed.
