@@ -5398,8 +5398,10 @@ int clif_outsight(struct block_list *bl,va_list ap)
 
 	if (tsd && tsd->fd)
 	{	//tsd has lost sight of the bl object.
+		nullpo_ret(bl);
 		switch(bl->type) {
 		case BL_PC:
+			nullpo_ret(sd);
 			if (sd->vd.class_ != INVISIBLE_CLASS)
 				clif_clearunit_single(bl->id,CLR_OUTSIGHT,tsd->fd);
 			if(sd->chatID){
@@ -5427,6 +5429,7 @@ int clif_outsight(struct block_list *bl,va_list ap)
 	}
 	if (sd && sd->fd)
 	{	//sd is watching tbl go out of view.
+		nullpo_ret(tbl);
 		if ((vd=status_get_viewdata(tbl)) && vd->class_ != INVISIBLE_CLASS)
 			clif_clearunit_single(tbl->id,CLR_OUTSIGHT,sd->fd);
 	}

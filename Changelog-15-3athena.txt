@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/18/2022
+	r318 [15peaces]
+		*Merged missing changes from 3ceam rev. 786 - 789
+		*Moved a few more constants to script_hardcoded_constants function.
+		*Added some missing nullpo checks in clif_outsight.
+		*Added missing Lutie Kafra.
+		*Added some missing NPC id tags.
+		*Initial release of Rock Ridge scripts.
+			-Thanks to @rathena for the base.
+		*Rebellion
+			-Added official variable casts, fixed casts, aftercasts, and cooldowns to all skills for this job.
+
 01/25/2022
 	r317 [15peaces]
 		*Merged missing changes from 3ceam rev. 785

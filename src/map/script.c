@@ -2162,7 +2162,14 @@ void script_error(const char* src, const char* file, int start_line, const char*
  **/
 void script_hardcoded_constants(void)
 {
-	/* added for testing */
+	/* misc */
+	script_set_constant("BF_WEAPON", BF_WEAPON, false);
+	script_set_constant("BF_MAGIC", BF_MAGIC, false);
+	script_set_constant("BF_MISC", BF_MISC, false);
+	script_set_constant("BF_SHORT", BF_SHORT, false);
+	script_set_constant("BF_LONG", BF_LONG, false);
+	script_set_constant("BF_SKILL", BF_SKILL, false);
+	script_set_constant("BF_NORMAL", BF_NORMAL, false);
 	script_set_constant("SEX_FEMALE", SEX_FEMALE, false);
 	script_set_constant("SEX_MALE", SEX_MALE, false);
 }
