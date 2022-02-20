@@ -4100,7 +4100,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += 10 + 20 * (skill_lv - 20) + 10 * sstatus->int_;
 						else if ( skill_lv > 10 )// Fire Expansion Level 1
 							if(level_effect_bonus == 1 && s_level >= 100 )
-							skillratio += 10 + 20 * (skill_lv - 10) + sstatus->int_ + s_job_level;
+							skillratio += 10 + 20 * (skill_lv - 10) + sstatus->int_ + status_get_job_lv(src);
 							else
 							skillratio += 10 + 20 * (skill_lv - 10) + sstatus->int_ + 50;
 						else// Normal Demonic Fire Damage
@@ -4574,9 +4574,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case GN_HELLS_PLANT_ATK:
 		if (level_effect_bonus == 1)
-			md.damage = ((skill_lv * status_get_lv(target) * 10) + sstatus->int_ * 7 / 2 * (18 + sd->status.job_level / 4)) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
+			md.damage = 10 * skill_lv * status_get_lv(target) + 7 * sstatus->int_ / 2 * (status_get_job_lv(src) / 4 + 18) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
 		else
-			md.damage = ((skill_lv * status_get_lv(target) * 10) + sstatus->int_ * 7 / 2 * (18 + 50 / 4)) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
+			md.damage = 10 * skill_lv * status_get_lv(target) + 7 * sstatus->int_ / 2 * 30 * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
  		break;
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);

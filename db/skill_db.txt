@@ -1399,8 +1399,23 @@
 5039,9,6,16,0,0,0,5,1,yes,0,0,0,none,0,		SU_TUNAPARTY,Tuna Party
 5040,0,6,4,0,0,0,5,1,yes,0,0,0,none,0,		SU_BUNCHOFSHRIMP,Bunch of Shrimp
 5041,9,6,16,0,0,0,5,1,yes,0,0,0,none,0,		SU_FRESHSHRIMP,Fresh Shrimp
-5042,0,6,2,0,0,0,5,1,yes,0,0x4000,0,magic,0,	SU_CN_METEOR_ATK,
-5043,0,6,1,0,0,0,5,1,yes,0,0x4000,0,weapon,0,	SU_LUNATICCARROTBEAT_ATK,
+5042,0,6,2,0,0,0,5,1,yes,0,0x4000,0,magic,0,	SU_CN_METEOR2,Catnip Meteor 2
+5043,0,6,1,0,0,0,5,1,yes,0,0x4000,0,weapon,0,	SU_LUNATICCARROTBEAT2,Lunatic Carrot Beat 2
+
+// New Summoner Skills
+//5044,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SOULATTACK,
+//5045,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_POWEROFFLOCK,
+//5046,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SVG_SPIRIT,
+//5047,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_HISS,
+//5048,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_NYANGGRASS,
+//5049,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_GROOMING,
+//5050,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_PURRING,
+//5051,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SHRIMPARTY,
+//5052,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SPIRITOFLIFE,
+//5053,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_MEOWMEOW,
+//5054,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SPIRITOFLAND,
+//5055,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_CHATTERING,
+//5056,0,0,0,0,0,0,??,0,no,0,0,0,none,0,		SU_SPIRITOFSEA,
 
 5067,0,0,4,0,0x1,0,1,0,no,0,0,0,none,0,		ALL_EQSWITCH,Equip Switch
 

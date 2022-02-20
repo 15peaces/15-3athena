@@ -5,6 +5,39 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/20/2022
+	r319 [15peaces]
+		*Merged missing changes from 3ceam rev. 790 - 793
+		*Some misc fixes in quest_lighthalzen.txt
+		*Added some missing monsters & fixed others.
+		*This update fixes issues with clones that can cause the server to crash. The crash happens when a clones uses certain 3rd job or other newer skills that checks for one's job level, clones (monsters) don't have one. Now a fake job level of 50 is given.
+		*Added latest tags and ID's for skills.
+		*Did some code cleanup.
+		*Fixed a issue where typed strings in NPC message input boxes wouldn't be properly sent to NPC's.
+		*Updated the skill_db.
+			-Updated the names of Summoner sub-skills.
+			-Added place holders for upcoming 2nd wave of Summoner skills.
+		*Minstrel/Wanderer
+			-Fixed a issue where the caster's job level didn't affect some statusses directly when casted on others.
+		*3rd Job Level Expansion Skills
+			-Added official cast time, fixed cast, aftercast, and cooldowns.
+		*WM_VOICEOFSIREN
+			-Fixed a issue where the learned level of WM_LESSON didn't affect the success chance of the skill as much as its supposed to.
+			-Duration formula updated to official. Is now reduced by the enemy's base and job (players only) levels. Duration can't be reduced below 10 seconds.
+		*GN_HELLS_PLANT; GN_HELLS_PLANT_ATK
+			-Fixed a issue where the learned level of AM_CANNIBALIZE affected more of the damage formula then its supposed to.
+		*MAX_HAIR_COLOR; MAX_HAIR_STYLE; MAX_CLOTH_COLOR; MAX_BODY_STYLE
+			-Added to script_hardcoded_constants function.
+			-This is used by a NPC to detect the current max dyes/styles settings on the server. The new custom stylist NPC uses this.
+			-Better then having to adjust things in the NPC script along with the settings.
+		*Added 3ceams custom super stylist script to the custom NPC folder.
+			-This NPC allows access to the dressing room, body styles, and even detects a server's set max dyes/styles settings.
+			-Finally, it auto adjusts the max's depending on the player's job.
+		*GD_GUILD_STORAGE
+			-Enabled the skill in the skill tree.
+			-Added official skill requirements.
+			-Note: Currently does nothing but look pretty but will tie in the guild storage to it soon as a requirement to use guild storage.
+
 02/18/2022
 	r318 [15peaces]
 		*Merged missing changes from 3ceam rev. 786 - 789

@@ -4615,7 +4615,7 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 		watk += sc->data[SC_GENTLETOUCH_CHANGE]->val2;
 	if(sc->data[SC_RUSH_WINDMILL])
-		watk += sc->data[SC_RUSH_WINDMILL]->val3;
+		watk += sc->data[SC_RUSH_WINDMILL]->val4;
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		watk += 100 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1;
 	if (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2)
@@ -4689,7 +4689,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	if(sc->data[SC_MATKFOOD])
 		matk += sc->data[SC_MATKFOOD]->val1;
 	if(sc->data[SC_MOONLIT_SERENADE])
-		matk += sc->data[SC_MOONLIT_SERENADE]->val3;
+		matk += sc->data[SC_MOONLIT_SERENADE]->val4;
 	if(sc->data[SC_MANA_PLUS])
 		matk += sc->data[SC_MANA_PLUS]->val1;
 	if (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 3)
@@ -4942,7 +4942,7 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 	if( sc->data[SC_NEUTRALBARRIER] )
 		def += def * ( 10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1 ) / 100;
 	if( sc->data[SC_ECHOSONG] )
-		def += def * sc->data[SC_ECHOSONG]->val3 / 100;
+		def += def * sc->data[SC_ECHOSONG]->val4 / 100;
 	if(sc->data[SC_ODINS_POWER])
 		def -= 2 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
@@ -5066,7 +5066,7 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	if (sc->data[SC_NEUTRALBARRIER])
 		mdef += mdef * (10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1) / 100;
 	if(sc->data[SC_SYMPHONY_LOVE])
-		mdef += mdef * sc->data[SC_SYMPHONY_LOVE]->val3 / 100;
+		mdef += mdef * sc->data[SC_SYMPHONY_LOVE]->val4 / 100;
 	if(sc->data[SC_GENTLETOUCH_CHANGE])
 	{
 		mdef -= sc->data[SC_GENTLETOUCH_CHANGE]->val4;
@@ -8077,7 +8077,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_STONEHARDSKIN:// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
 			if (level_effect_bonus && base_lv >= 100)
-				val1 = sd->status.job_level * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10; //DEF/MDEF Increase
+				val1 = status_get_job_lv(bl) * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10; //DEF/MDEF Increase
 			else
 				val1 = 50 * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10;
 			break;
@@ -8288,22 +8288,22 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_SYMPHONY_LOVE:
 			if (level_effect_bonus == 1)
-			val3 = 12 * val1 + val2 + sd->status.job_level / 4;//MDEF Increase In %
+				val4 = 12 * val1 + val2 + val3 / 4;//MDEF Increase In %
 			else
-			val3 = 12 * val1 + val2 + 12;
+				val4 = 12 * val1 + val2 + 12;
 			break;
 		case SC_MOONLIT_SERENADE://MATK Increase
 		case SC_RUSH_WINDMILL://ATK Increase
 			if (level_effect_bonus == 1)
-			val3 = 6 * val1 + val2 + sd->status.job_level / 5;
+				val4 = 6 * val1 + val2 + val3 / 5;
 			else
-			val3 = 6 * val1 + val2 + 10;
+				val4 = 6 * val1 + val2 + 10;
 			break;
 		case SC_ECHOSONG:
 			if (level_effect_bonus == 1)
-			val3 = 6 * val1 + val2 + sd->status.job_level / 4;//DEF Increase In %
+				val4 = 6 * val1 + val2 + val3 / 4;//DEF Increase In %
 			else
-			val3 = 6 * val1 + val2 + 12;
+				val4 = 6 * val1 + val2 + 12;
 			break;		
 		case SC_HARMONIZE:
 			val3 = val1 + val2 / 2;
@@ -8430,9 +8430,18 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
  			break;
 		case SC_INSPIRATION:
-			if( sd ){
-				val2 = 40 * val1 + 3 * sd->status.job_level; // ATK bonus
-				val3 = sd->status.base_level / 10 + sd->status.job_level / 5; // All stat bonus
+			if( sd )
+			{
+				if (level_effect_bonus == 1 && status_get_lv(bl) >= 100)
+				{// val2 = ATK Bonus, val3 = All Stats Bonus
+					val2 = 40 * val1 + 3 * status_get_job_lv(bl);
+					val3 = status_get_lv(bl) / 10 + status_get_job_lv(bl) / 5;
+				}
+				else
+				{
+					val2 = 40 * val1 + 3 * 50;
+					val3 = status_get_lv(bl) / 10 + 50 / 5;
+				}
 			}
 			val4 = tick / 5000;
 			tick = 5000;
@@ -8444,14 +8453,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_CRESCENTELBOW:
 			if(level_effect_bonus == 1)
-				val2 = 50 + 5 * val1 + sd->status.job_level / 2;
+				val2 = 50 + 5 * val1 + status_get_job_lv(bl) / 2;
 			else
 				val2 = 50 + 5 * val1 + 25;
 			val_flag |= 1|2;
 			break;
 		case SC_LIGHTNINGWALK:
 			if (level_effect_bonus == 1)
-				val2 = 40 + 5 * val1 + sd->status.job_level / 2;
+				val2 = 40 + 5 * val1 + status_get_job_lv(bl) / 2;
 			else
 				val2 = 40 + 5 * val1 + 25;
 			val_flag |= 1;

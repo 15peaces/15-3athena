@@ -2162,6 +2162,12 @@ void script_error(const char* src, const char* file, int start_line, const char*
  **/
 void script_hardcoded_constants(void)
 {
+	/* config settings */
+	script_set_constant("MAX_HAIR_COLOR", MAX_HAIR_COLOR, false);
+	script_set_constant("MAX_HAIR_STYLE", MAX_HAIR_STYLE, false);
+	script_set_constant("MAX_CLOTH_COLOR", MAX_CLOTH_COLOR, false);
+	script_set_constant("MAX_BODY_STYLE", MAX_BODY_STYLE, false);
+
 	/* misc */
 	script_set_constant("BF_WEAPON", BF_WEAPON, false);
 	script_set_constant("BF_MAGIC", BF_MAGIC, false);
