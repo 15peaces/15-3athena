@@ -5,6 +5,51 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/22/2022
+	r320 [15peaces]
+		*Merged missing changes from 3ceam rev. 794 - 795
+		*Added the "skillfailmsg" command.
+			-Its a debug command for testing skill fail messages.
+		*Added support for homunculus spirit spheres.
+			-This is needed for future updates for Eleanor's skills.
+			-Note: Officially the spirit sphere's are supposed to last for 600 seconds (10 minutes) for each one, but due to techanical issues I gave up and decided to not have any timers on them for now.
+			-This makes them last forever until the homunculus dies, is vaporized, player logs out, or the spheres are used by skills.
+			-Honestly, I don't think anyone will care.
+		*Added 2 new state checks.
+			-ST_FIGHTER is used to check if a homunculus is in fighter mode.
+			-ST_GRAPPLER is used to check if a homunculus is in grappler mode.
+			-These state checks are used for Eleanor's skills.
+		*clif_hom_spiritball_single; clif_hom_spiritball
+		*merc_hom_addspiritball; merc_hom_delspiritball
+			-Added these functions.
+		*clif_hom_skillupdateinfo
+			-Added this function as needed to make it possible to combo the skill Sonic Claw after Midnight Frenzy.
+		*Its now possible for homunculus skills to have cooldowns.
+			-Cooldown's for homunculus skills are not saved on logout since its not really needed.
+		*Cleaned up some code.
+		*Eleanor
+			-Can now generate spirit sphere's when the Style Change skill is learned. A max of 10 sphere's can be gained and each one adds +3 ATK to the homunculus damage.
+			-All of Eleanor's offensive skills now check if she's in fighter or grappler mode.
+		*SR_DRAGONCOMBO
+			-Made it easier to start a combo.
+			-Basicly, using this skill will no longer stop your character's normal attacking which allows you to combo after use. But you have to be in the middle of normal attacking when used for it to work. Its not 100% official but its the best I can do.
+		*MH_STYLE_CHANGE
+			-Added full support.
+		*MH_SONIC_CRAW
+			-Updated damage formula.
+			-Removed variable cast.
+			-Added cooldown.
+			-The number of hits it deals is now affected by the number of sphere's the homunculus has when casted.
+			-Can now be comboed after Midnight Frenzy.
+			-Note: The aftercast change is unofficial but when looking at the ones for the grapple skills and the amount of time you get to combo Silvervein Rush after Sonic Claw's aftercast, its clearly stupid to have a 1 second aftercast. A cooldown clearly
+			-does the job better for a combo skill.
+		*MH_CBC
+			-Corrected timer settings to prepare for future support.
+		*MH_STAHL_HORN
+			-Fixed a issue where the skill didn't apply a duration for stun.
+		*MH_SILVERVEIN_RUSH; MH_MIDNIGHT_FRENZY
+			-Added support for these skills.
+
 02/20/2022
 	r319 [15peaces]
 		*Merged missing changes from 3ceam rev. 790 - 793

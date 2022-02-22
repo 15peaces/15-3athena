@@ -602,6 +602,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 {
 	struct map_session_data *sd, *dstsd;
 	struct mob_data *md, *dstmd;
+	struct homun_data *hd;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	int s_job_level = 50;
@@ -622,6 +623,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 	sd = BL_CAST(BL_PC, src);
 	md = BL_CAST(BL_MOB, src);
+	hd = BL_CAST(BL_HOM, src);
 	dstsd = BL_CAST(BL_PC, bl);
 	dstmd = BL_CAST(BL_MOB, bl);
 
@@ -1330,6 +1332,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case MH_XENO_SLASHER:
 		sc_start(bl, SC_BLEEDING, 1 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
+	case MH_SILVERVEIN_RUSH:
+		sc_start(bl, SC_STUN, 20 + 5 * skilllv, skilllv, skill_get_time(skillid,skilllv));
+		break;
+	case MH_MIDNIGHT_FRENZY:
+		sc_start(bl, SC_FEAR, (10 + 2 * skilllv) * hd->hom_spiritball_old, skilllv, skill_get_time(skillid,skilllv));
+		break;
 	case MH_STAHL_HORN:
 		sc_start(bl, SC_STUN, 16 + 4 * skilllv, skilllv, skill_get_time(skillid,skilllv));
 		break;
@@ -1652,11 +1660,19 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 				clif_send_homdata(hd->master,SP_INTIMATE,hd->homunculus.intimacy/100);
 		}
 		break;
+	case MH_SONIC_CRAW:
+		sc_start(src,SC_SONIC_CLAW_POSTDELAY,100,skilllv,2000);
+		break;
+	case MH_SILVERVEIN_RUSH:
+		sc_start(src,SC_SILVERVEIN_RUSH_POSTDELAY,100,skilllv,2000);
+		break;
+	case MH_MIDNIGHT_FRENZY:
+		sc_start2(src,SC_MIDNIGHT_FRENZY_POSTDELAY,100,skilllv,bl->id,2000);
+		break;
 	case CR_GRANDCROSS:
 	case NPC_GRANDDARKNESS:
 		attack_type |= BF_WEAPON;
 		break;
-
 	case LG_HESPERUSLIT:
 		if ( sc && sc->data[SC_FORCEOFVANGUARD] && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 6 )
 		{
@@ -2817,8 +2833,9 @@ int skill_guildaura_sub (struct map_session_data* sd, int id, int strvit, int ag
 static int skill_check_condition_mercenary(struct block_list *bl, int skill, int lv, int type)
 {
 	struct status_data *status;
+	struct status_change *sc;
 	struct map_session_data *sd = NULL;
-	int i, j, hp, sp, hp_rate, sp_rate, state, mhp;
+	int i, j, hp, sp, hp_rate, sp_rate, state, mhp, spiritball;
 	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[ARRAYLENGTH(itemid)],index[ARRAYLENGTH(itemid)];
 
 	if( lv < 1 || lv > MAX_SKILL_LEVEL )
@@ -2832,6 +2849,11 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 	}
 
 	status = status_get_status_data(bl);
+	sc = status_get_sc(bl);
+
+	if( sc && !sc->count )
+		sc = NULL;
+
 	if( (j = skill_get_index(skill)) == 0 )
 		return 0;
 
@@ -2846,6 +2868,7 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 	hp_rate = skill_db[j].hp_rate[lv-1];
 	sp_rate = skill_db[j].sp_rate[lv-1];
 	state = skill_db[j].state;
+	spiritball = skill_db[j].spiritball[lv - 1];
 	if( (mhp = skill_db[j].mhp[lv-1]) > 0 )
 		hp += (status->max_hp * mhp) / 100;
 	if( hp_rate > 0 )
@@ -2877,6 +2900,65 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 				if( hd->homunculus.intimacy <= 91000 )
 					return 0;
 				break;
+			case MH_SONIC_CRAW:
+				// Requires at least 1 spirit sphere even
+				// tho it doesn't take any on skill use.
+				if ( hd->hom_spiritball < 1 )
+				{
+					clif_skill_fail(sd,skill,USESKILL_FAIL_SPIRITS,1,0);
+					return 0;
+				}
+				else
+					hd->hom_spiritball_old = hd->hom_spiritball;
+				break;
+			case MH_SILVERVEIN_RUSH:
+				if(!(sc && sc->data[SC_SONIC_CLAW_POSTDELAY]))
+				{
+					clif_skill_fail(sd,skill,USESKILL_FAIL_COMBOSKILL,MH_SONIC_CRAW,0);
+					return 0;
+				}
+				break;
+			case MH_MIDNIGHT_FRENZY:
+				if(!(sc && sc->data[SC_SILVERVEIN_RUSH_POSTDELAY]))
+				{
+					clif_skill_fail(sd,skill,USESKILL_FAIL_COMBOSKILL,MH_SILVERVEIN_RUSH,0);
+					return 0;
+				}
+				break;
+		}
+
+		// Homunculus Status Checks
+		switch ( state )
+		{
+			case ST_FIGHTER:
+				if( !(sc && sc->data[SC_STYLE_CHANGE] && sc->data[SC_STYLE_CHANGE]->val1 == FIGHTER_STYLE) )
+				{
+					clif_skill_fail(sd,skill,USESKILL_FAIL_STYLE_CHANGE_FIGHTER,0,0);
+					return 0;
+				}
+				break;
+			case ST_GRAPPLER:
+				if( !(sc && sc->data[SC_STYLE_CHANGE] && sc->data[SC_STYLE_CHANGE]->val1 == GRAPPLER_STYLE) )
+				{
+					clif_skill_fail(sd,skill,USESKILL_FAIL_STYLE_CHANGE_GRAPPLER,0,0);
+					return 0;
+				}
+				break;
+		}
+
+		// Homunculus Spirit Sphere's Check
+		if ( spiritball > 0 )
+		{
+			if ( hd->hom_spiritball < spiritball )
+			{
+				clif_skill_fail(sd,skill,USESKILL_FAIL_SPIRITS,spiritball,0);
+				return 0;
+			}
+			else
+			{
+				hd->hom_spiritball_old = hd->hom_spiritball;
+				merc_hom_delspiritball(hd,spiritball);
+			}
 		}
 	}
 
@@ -3444,8 +3526,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RK_DRAGONBREATH_WATER:
 	case MH_NEEDLE_OF_PARALYZE:
 	case MH_SONIC_CRAW:
-	//case MH_SILVERVEIN_RUSH:
-	//case MH_MIDNIGHT_FRENZY:
+	case MH_SILVERVEIN_RUSH:
+	case MH_MIDNIGHT_FRENZY:
 	case MH_STAHL_HORN:
 	case MH_TINDER_BREAKER:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
@@ -5419,6 +5501,29 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				pc_addspiritball(sd, skill_get_time(skillid, skilllv), skilllv + rd_lvl);
 			}
 			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		}
+		break;
+
+	case MH_STYLE_CHANGE:
+		if(hd)
+		{// Fighter <---> Grappler style switch.
+			if ( hd->sc.data[SC_STYLE_CHANGE] )
+			{
+				if ( hd->sc.data[SC_STYLE_CHANGE]->val1 == FIGHTER_STYLE )
+				{// Change from fighter to grappler style.
+					status_change_end(bl,type,INVALID_TIMER);
+					sc_start(bl,type,100,GRAPPLER_STYLE,-1);
+				}
+				else if ( hd->sc.data[SC_STYLE_CHANGE]->val1 == GRAPPLER_STYLE )
+				{// Change from grappler to fighter style.
+					status_change_end(bl,type,INVALID_TIMER);
+					sc_start(bl,type,100,FIGHTER_STYLE,-1);
+				}
+			}
+			else// If for some reason no style is active, start in fighter style.
+				sc_start(bl,type,100,FIGHTER_STYLE,-1);
+
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
 
@@ -7397,8 +7502,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			status_heal(bl,5 * (hunger + status_get_lv(src)),0,2);
 			//Its said that the homunculus is silenced too, but I need a confirm on that first.
 			//clif_skill_nodamage(src,src,skillid,skilllv,sc_start(src,type,100,skilllv,skill_get_time(skillid,skilllv)));
-			if (hd)// Skill cooldown directed to the homunculus.
-				skill_blockhomun_start(hd, skillid, skill_get_cooldown(skillid,skilllv));
 		}
 		break;
 
@@ -7413,8 +7516,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			else if ( !flag )
 			{// Using the skill normally only starts the status. It does not trigger a splash AoE attack this way.
 				clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
-				if (hd)// Skill cooldown directed to the homunculus.
-					skill_blockhomun_start(hd, skillid, skill_get_cooldown(skillid,skilllv));
 			}
 		}
 		break;
@@ -9380,6 +9481,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 	struct block_list *target, *src;
 	struct map_session_data *sd;
 	struct mob_data *md;
+	struct homun_data *hd;
 	struct unit_data *ud;
 	struct status_change *sc = NULL;
 	int inf,inf2,flag = 0;
@@ -9400,6 +9502,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 
 	sd = BL_CAST(BL_PC,  src);
 	md = BL_CAST(BL_MOB, src);
+	hd = BL_CAST(BL_HOM, src);
 
 	if( src->prev == NULL ) {
 		ud->skilltimer = INVALID_TIMER;
@@ -9560,12 +9663,12 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		if (ud->walktimer != INVALID_TIMER && ud->skillid != TK_RUN && ud->skillid != RA_WUGDASH)
 			unit_stop_walking(src,1);
 
+		if (sd && skill_get_cooldown(ud->skillid, ud->skilllv) > 0) // Skill cooldown. [LimitLine]
+			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
+		if (hd && skill_get_cooldown(ud->skillid, ud->skilllv))
+			skill_blockhomun_start(hd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv); //Tests show wings don't overwrite the delay but skill scrolls do. [Inkfish]
-		if (sd) { //Cooldown application
-			int cooldown = pc_get_skillcooldown(sd,ud->skillid, ud->skilllv); // Increases/Decreases cooldown of a skill by item/card bonuses.
-			if(cooldown) skill_blockpc_start(sd, ud->skillid, cooldown);
-		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
 		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )
@@ -9694,11 +9797,13 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 	struct map_session_data *sd;
 	struct unit_data *ud = unit_bl2ud(src);
 	struct mob_data *md;
+	struct homun_data *hd;
 
 	nullpo_ret(ud);
 
 	sd = BL_CAST(BL_PC , src);
 	md = BL_CAST(BL_MOB, src);
+	hd = BL_CAST(BL_HOM, src);
 
 	if( src->prev == NULL ) {
 		ud->skilltimer = INVALID_TIMER;
@@ -9790,12 +9895,12 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 		if (ud->walktimer != INVALID_TIMER)
 			unit_stop_walking(src,1);
 
+		if (sd && skill_get_cooldown(ud->skillid, ud->skilllv) > 0) // Skill cooldown. [LimitLine]
+			skill_blockpc_start(sd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
+		if (hd && skill_get_cooldown(ud->skillid, ud->skilllv))
+			skill_blockhomun_start(hd, ud->skillid, skill_get_cooldown(ud->skillid, ud->skilllv));
 		if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 			ud->canact_tick = tick + skill_delayfix(src, ud->skillid, ud->skilllv);
-		if (sd) { //Cooldown application
-			int cooldown = pc_get_skillcooldown(sd,ud->skillid, ud->skilllv);
-			if(cooldown) skill_blockpc_start(sd, ud->skillid, cooldown);
-		}
 		if( battle_config.display_status_timers && sd )
 			clif_status_change(src, SI_ACTIONDELAY, 1, skill_delayfix(src, ud->skillid, ud->skilllv), 0, 0, 0);
 		if( sd && (sd->skillitem != ud->skillid || skill_get_cooldown(ud->skillid,ud->skilllv)) )
@@ -17939,6 +18044,8 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_WUGRIDER;
 	else if( strcmpi(split[10],"mado")==0 ) skill_db[i].state = ST_MADOGEAR;
 	else if( strcmpi(split[10],"elementalspirit")==0 ) skill_db[i].state = ST_ELEMENTALSPIRIT;
+	else if (strcmpi(split[10], "fighter") == 0) skill_db[i].state = ST_FIGHTER;
+	else if (strcmpi(split[10], "grappler") == 0) skill_db[i].state = ST_GRAPPLER;
 	else skill_db[i].state = ST_NONE;
 
 	skill_split_atoi(split[11],skill_db[i].spiritball);

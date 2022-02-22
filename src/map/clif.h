@@ -706,6 +706,7 @@ void clif_class_change_target(struct block_list *bl, int class_, int type, enum 
 void clif_skillupdateinfoblock(struct map_session_data *sd);
 void clif_skillup(struct map_session_data *sd,int skill_num);
 void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int range);
+int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type, int range);
 void clif_addskill(struct map_session_data *sd, int id);
 void clif_deleteskill(struct map_session_data *sd, int id);
 
@@ -1117,5 +1118,7 @@ void clif_open_ui_req_sub(int fd, struct map_session_data* sd, enum out_ui_type 
 bool clif_attendance_timediff(struct map_session_data *sd);
 
 int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
+
+void clif_hom_spiritball(struct homun_data *hd);
 
 #endif /* _CLIF_H_ */

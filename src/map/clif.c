@@ -1363,14 +1363,17 @@ void clif_class_change_target(struct block_list *bl, int class_, int type, enum 
 /// Notifies the client of an object's spirits.
 /// 01d0 <id>.L <amount>.W (ZC_SPIRITS)
 /// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
-static void clif_spiritball_single(int fd, struct map_session_data *sd)
+static void clif_spiritball_single_sub(int fd, int id, int amount)
 {
 	WFIFOHEAD(fd, packet_len(0x1e1));
 	WFIFOW(fd,0)=0x1e1;
-	WFIFOL(fd,2)=sd->bl.id;
-	WFIFOW(fd,6)=sd->spiritball;
+	WFIFOL(fd,2)=id;
+	WFIFOW(fd,6)=amount;
 	WFIFOSET(fd, packet_len(0x1e1));
 }
+
+#define clif_spiritball_single(fd, sd)	clif_spiritball_single_sub(fd, sd->bl.id, sd->spiritball)
+#define clif_hom_spiritball_single(fd, hd)	clif_spiritball_single_sub(fd, hd->bl.id, hd->hom_spiritball)
 
 /*==========================================
  * ZC_SPIRITS_ATTRIBUTE =  0x8cf
@@ -1821,6 +1824,13 @@ static void clif_move2(struct block_list *bl, struct view_data *vd, struct unit_
 		if( vd->head_bottom )
 		{// needed to display pet equip properly
 			clif_pet_equip_area((TBL_PET*)bl); 
+		}
+		break;
+	case BL_HOM:
+		{
+			TBL_HOM *hd = ((TBL_HOM*)bl);
+			if (hd->hom_spiritball > 0)
+				clif_hom_spiritball(hd);
 		}
 		break;
 	}
@@ -4977,6 +4987,13 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 		if (vd->head_bottom)
 			clif_pet_equip(sd, (TBL_PET*)bl); // needed to display pet equip properly
 		break;
+	case BL_HOM:
+		{
+			TBL_HOM* hd = (TBL_HOM*)bl;
+			if (hd->hom_spiritball > 0)
+				clif_hom_spiritball_single(sd->fd,hd);
+		}
+		break;
 	}
 }
 
@@ -5623,6 +5640,49 @@ void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int r
 	else
 		WFIFOB(fd,14+offs) = 0;
 	WFIFOSET(fd,packet_len(cmd));
+}
+
+/*==========================================
+ * Updates settings for homunculus skills.
+ * Needed for Midnight Frenzy -> Sonic Claw
+ * combo.
+ *------------------------------------------*/
+int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type, int range)
+{
+	struct homun_data *hd;
+	int fd, id, skill_num;
+
+	nullpo_ret(sd);
+
+	fd = sd->fd;
+	hd = sd->hd;
+
+	skill_num = skillid - HM_SKILLBASE;
+
+	if ((id = hd->homunculus.hskill[skill_num].id) <= 0)
+		return 0;
+
+	WFIFOHEAD(fd, packet_len(0x7e1));
+	WFIFOW(fd, 0) = 0x7e1;
+	WFIFOW(fd, 2) = id;
+	if (type)
+		WFIFOL(fd, 4) = type;
+	else
+		WFIFOL(fd, 4) = skill_get_inf(id);
+	WFIFOW(fd, 8) = hd->homunculus.hskill[skill_num].lv;
+	WFIFOW(fd, 10) = skill_get_sp(id, hd->homunculus.hskill[skill_num].lv);
+	if (range)
+		WFIFOW(fd, 12) = range;
+	else
+		WFIFOW(fd, 12) = skill_get_range2(&hd->bl, id, hd->homunculus.hskill[skill_num].lv);
+
+	if (hd->homunculus.hskill[id - HM_SKILLBASE].flag == 0)
+		WFIFOB(fd, 14) = (hd->homunculus.hskill[skill_num].lv < merc_skill_tree_get_max(id, hd->homunculus.class_)) ? 1 : 0;
+	else
+		WFIFOB(fd, 14) = 0;
+	WFIFOSET(fd, packet_len(0x7e1));
+
+	return 0;
 }
 
 /// Notifies clients in area, that an object is about to use a skill.
@@ -8481,6 +8541,21 @@ void clif_spiritball(struct map_session_data *sd)
 	WBUFL(buf,2)=sd->bl.id;
 	WBUFW(buf,6)=sd->spiritball;
 	clif_send(buf,packet_len(0x1d0),&sd->bl,AREA);
+}
+
+/*==========================================
+ * Homunculus Spirit Spheres
+ *------------------------------------------*/
+void clif_hom_spiritball(struct homun_data *hd)
+{
+	unsigned char buf[16];
+
+	nullpo_retv(hd);
+
+	WBUFW(buf,0)=0x1d0;
+	WBUFL(buf,2)=hd->bl.id;
+	WBUFW(buf,6)=hd->hom_spiritball;
+	clif_send(buf,packet_len(0x1d0),&hd->bl,AREA);
 }
 
 /*==========================================
