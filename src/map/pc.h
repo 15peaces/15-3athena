@@ -720,7 +720,8 @@ extern unsigned int equip[EQI_MAX];
 #define pc_is50overweight(sd) ( (sd)->weight*100 >= (sd)->max_weight*battle_config.natural_heal_weight_rate )
 #define pc_is90overweight(sd) ( (sd)->weight*10 >= (sd)->max_weight*9 )
 #define pc_maxparameter(sd) ( \
-	(sd)->class_ == MAPID_KAGEROUOBORO || (sd)->class_ == MAPID_REBELLION || (sd)->class_&JOBL_THIRD ? \
+	((sd)->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || ((sd)->class_&MAPID_UPPERMASK) == MAPID_REBELLION || \
+	((sd)->class_&MAPID_BASEMASK) == MAPID_SUMMONER || (sd)->class_&JOBL_THIRD ? \
 	(sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter_renewal_jobs : battle_config.max_parameter_renewal_jobs : \
 	(sd)->class_&JOBL_BABY ? battle_config.max_baby_parameter : battle_config.max_parameter \
 )

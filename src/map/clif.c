@@ -11997,14 +11997,19 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 void clif_parse_UseItem(int fd, struct map_session_data *sd)
 {
 	int n;
+	int index = RFIFOW(fd, 2) - 2;
 
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
 		return;
 	}
 
-	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
+	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING && 
+		sd->inventory.u.items_inventory[index].nameid != ITEMID_NAUTHIZ_RUNE)
+	{
+		clif_useitemack(sd,index,0,false);
 		return;
+	}
 	
 	//This flag enables you to use items while in an NPC. [Skotlex]
 	if (sd->npc_id) {
@@ -12643,8 +12648,9 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	// Whether skill fails or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
 
-	if( pc_cant_act(sd) && skillnum != SR_GENTLETOUCH_CURE )
+	if (pc_cant_act(sd) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE)
 		return;
+
 	if( pc_issit(sd) )
 		return;
 

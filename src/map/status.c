@@ -628,18 +628,18 @@ void initChangeTables(void)
 	add_sc( MH_POISON_MIST		, SC_BLIND				);
 	set_sc( MH_PAIN_KILLER		, SC_PAIN_KILLER		, SI_PAIN_KILLER		, SCB_NONE );
 	set_sc( MH_LIGHT_OF_REGENE	, SC_LIGHT_OF_REGENE	, SI_LIGHT_OF_REGENE	, SCB_NONE );
-	set_sc(MH_OVERED_BOOST		, SC_OVERED_BOOST		, SI_OVERED_BOOST		, SCB_FLEE | SCB_DEF | SCB_ASPD);
+	set_sc( MH_OVERED_BOOST		, SC_OVERED_BOOST		, SI_OVERED_BOOST		, SCB_FLEE | SCB_DEF | SCB_ASPD);
 	add_sc( MH_XENO_SLASHER		, SC_BLEEDING			);
 	set_sc( MH_SILENT_BREEZE	, SC_SILENT_BREEZE		, SI_SILENT_BREEZE		, SCB_NONE );
 	set_sc( MH_STYLE_CHANGE		, SC_STYLE_CHANGE		, SI_STYLE_CHANGE		, SCB_NONE );
 	add_sc( MH_SILVERVEIN_RUSH	, SC_STUN				);
 	add_sc( MH_MIDNIGHT_FRENZY	, SC_FEAR				);
+	set_sc( MH_TINDER_BREAKER	, SC_TINDER_BREAKER		, SI_TINDER_BREAKER		, SCB_FLEE);
+	set_sc( MH_CBC				, SC_CBC				, SI_CBC				, SCB_NONE);
+	set_sc( MH_EQC				, SC_EQC				, SI_EQC				, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_DEF | SCB_DEF2);
 	add_sc( MH_STAHL_HORN		, SC_STUN				);
 	set_sc( MH_GOLDENE_FERSE	, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_NONE );
 	set_sc( MH_ANGRIFFS_MODUS	, SC_ANGRIFFS_MODUS		, SI_ANGRIFFS_MODUS		, SCB_NONE );
-	set_sc( MH_TINDER_BREAKER	, SC_TINDER_BREAKER		, SI_TINDER_BREAKER		, SCB_NONE );
-	set_sc( MH_CBC				, SC_CBC				, SI_CBC				, SCB_NONE );
-	set_sc( MH_EQC				, SC_EQC				, SI_EQC				, SCB_NONE );
 	set_sc( MH_MAGMA_FLOW		, SC_MAGMA_FLOW			, SI_MAGMA_FLOW			, SCB_NONE );
 	set_sc( MH_GRANITIC_ARMOR	, SC_GRANITIC_ARMOR		, SI_GRANITIC_ARMOR		, SCB_NONE );
 	add_sc( MH_LAVA_SLIDE		, SC_BURNING			);
@@ -1621,7 +1621,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		return 0;
 
 	//Should fail when used on top of Land Protector [Skotlex]
-	if (src && (skill_num == AL_TELEPORT || skill_num == ALL_ODINS_POWER) && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR)
+	if (src && (skill_num == AL_TELEPORT || skill_num == ALL_ODINS_RECALL) && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR)
 		&& !(status->mode&MD_BOSS) && (src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_num) )
  		return 0;
 
@@ -3079,8 +3079,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	status->amotion = cap_value(i,battle_config.max_aspd,2000);
 
 	// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
-	if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
-	(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+	if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER))
 		status->amotion = cap_value(i,battle_config.max_aspd_renewal_jobs,2000);
 
 	// Relative modifiers from passive skills
@@ -3964,8 +3963,7 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 				amotion = amotion*status->aspd_rate/1000;
 			
 			// Config for setting seprate ASPD cap for 3rd jobs and other jobs released in renewal.
-			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
-			(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER))
 				status->amotion = cap_value(amotion,battle_config.max_aspd_renewal_jobs,2000);
 			else
 				status->amotion = cap_value(amotion,battle_config.max_aspd,2000);
@@ -4583,6 +4581,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 //		batk -= batk * 25/100;
 	if(sc->data[SC__ENERVATION])
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
+	if(sc->data[SC_EQC])
+		batk -= batk * sc->data[SC_EQC]->val3 / 100;
 
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
@@ -4666,6 +4666,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk -= watk * sc->data[SC_STRIPWEAPON]->val2/100;
 	if(sc->data[SC__ENERVATION])
 		watk -= watk * sc->data[SC__ENERVATION]->val2 / 100;
+	if(sc->data[SC_EQC])
+		watk -= watk * sc->data[SC_EQC]->val3 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
@@ -4821,6 +4823,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 	if(!sc || !sc->count)
 		return cap_value(flee,1,SHRT_MAX);
 
+	if (sc->data[SC_TINDER_BREAKER])
+		return 0;
 	if (sc->data[SC_OVERED_BOOST])
 		return sc->data[SC_OVERED_BOOST]->val2;
 	if(sc->data[SC_INCFLEE])
@@ -4982,6 +4986,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * 25 / 100;
 	if(sc->data[SC_OVERED_BOOST])
 		def -= def * 50 / 100;
+	if(sc->data[SC_EQC])
+		def -= def * sc->data[SC_EQC]->val3 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_ROCK_CRUSHER] )
 		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
@@ -5032,6 +5038,8 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		def2 -= def2 * 10 / 100;
 	if(sc->data[SC_ANALYZE])
 		def2 -= def2 * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
+	if(sc->data[SC_EQC])
+		def2 -= def2 * sc->data[SC_EQC]->val3 / 100;
 
 	return (short)cap_value(def2,1,SHRT_MAX);
 }
@@ -5532,6 +5540,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp -= maxhp * sc->data[SC_BEYOND_OF_WARCRY]->val4 / 100;
 	if(sc->data[SC_MYSTERIOUS_POWDER])
 		maxhp -= maxhp * sc->data[SC_MYSTERIOUS_POWDER]->val1 / 100;
+	if(sc->data[SC_EQC])
+		maxhp -= maxhp * sc->data[SC_EQC]->val2 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_SOLID_SKIN_OPTION])
 		maxhp += 2000;// Fix amount.
@@ -7712,8 +7722,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = 0;
 			val4 = 0;
 			if ( sd && battle_config.marionette_renewal_jobs == 1 &&
-				((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER ||
-				(sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION))
+				((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER))
 				max_stat = battle_config.max_parameter_renewal_jobs;//Custom cap for renewal jobs.
 			else
 				max_stat = battle_config.max_parameter; //Cap to 99 (default)
@@ -8570,8 +8579,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			else
 				val2 = 0;
 			break;
-		case SC_MIDNIGHT_FRENZY_POSTDELAY:
+		case SC_MIDNIGHT_FRENZY_POSTDELAY: // Allows Sonic Claw to auto target in the combo.
 			clif_hom_skillupdateinfo(hd->master, MH_SONIC_CRAW, INF_SELF_SKILL, 1);
+			break;
+		case SC_CBC:
+			val1 = 0;// Prepares for tracking seconds in timer script.
+			val4 = tick/1000;
+			tick = 1000;
+			break;
+		case SC_EQC:
+			val2 = 2 * val1;// MaxHP Reduction
+			val3 = 5 * val1;// ATK/DEF Reduction
 			break;
 		case SC_PYROTECHNIC_OPTION:
 			val2 = 60;	// Watk TODO: Renewal (Atk2)
@@ -8813,6 +8831,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CURSEDCIRCLE_TARGET:
 		case SC_NETHERWORLD:
 		case SC_MEIKYOUSISUI:
+		case SC_TINDER_BREAKER:
 			unit_stop_walking(bl,1);
 		break;
 		case SC_HIDING:
@@ -10858,7 +10877,28 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			sc_timer_next(2000+tick, status_change_timer,bl->id, data);
 			return 0;
 		}
-	break;
+		break;
+
+	case SC_CBC:
+		if(--(sce->val4)>0)
+		{// Val1 is used to count the number of seconds that passed.
+			sce->val1 += 1;
+
+			if ( sce->val1 % 2 == 0 )// Loose HP every 2 seconds.
+				if ( sce->val3 > 0 )// SPdamage value higher then 0 signals target is not a monster.
+				{// HP loss for players and other non monster entitys.
+					if( !status_charge(bl, sce->val2, 0))
+						break;
+				}// If its a monster then use this to remove HP since status_charge won't work.
+				else if (!status_damage(NULL, bl, sce->val2, 0, 0, 3))
+
+			if ( sce->val1 % 3 == 0 )// Loose SP every 3 seconds.
+				status_charge(bl, 0, sce->val3);
+
+			sc_timer_next(1000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;
 
 	case SC_CIRCLE_OF_FIRE:
 	case SC_FIRE_CLOAK:

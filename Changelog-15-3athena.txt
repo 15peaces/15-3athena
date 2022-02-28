@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/28/2022
+	r321 [15peaces]
+		*Merged missing changes from 3ceam rev. 796 - 798
+		*This update finishes full support for Eleanor and her skills.
+		-Big thanks to @3ceam
+		*The bodystyle command now works for all 3rd jobs.
+		*Updated the pc_maxparameter code.
+			-The update optomizes checks for certain jobs to inherit certain maxes.
+			-Example being the Summoner job has a max stats of 120. A 2nd job for Summoner will likely happen soon and the code will pass the max onto the 2nd job version once added.
+		*skill_castfix function update to prepare for 2nd wave Summoner skills.
+		*Summoner
+			-Added official bonus stats from job levels.
+			-Max stats is now set by max_parameter_renewal_jobs (Default: 120).
+			-Skill cast times now follow the renewal variable/fixed cast system.
+			-Max ASPD is now set by max_aspd_renewal_jobs (Default: 193).
+			-marionette_renewal_jobs setting now affects them.
+		*MH_STAHL_HORN
+			-Now warps the caster to the target.
+		*MH_TINDER_BREAKER; MH_CBC; MH_EQC
+			-Added full support for these skills.
+		*RK_REFRESH/NAUTHIZ_RUNE
+			-Now usable while in the following status's: Stone / Frozen / Stun / Sleep / Silence / Deep Sleep / Crystalize
+		*ALL_ODINS_POWER
+			-Fixed a issue where the skill would fail when standing on a Land Protector area.
+
 02/22/2022
 	r320 [15peaces]
 		*Merged missing changes from 3ceam rev. 794 - 795
