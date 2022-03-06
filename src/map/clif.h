@@ -171,6 +171,17 @@ enum private_airship {
 	P_AIRSHIP_ITEM_INVALID
 };
 
+/** Pet Evolution Results */
+enum pet_evolution_result {
+	PET_EVOL_UNKNOWN = 0x0,
+	PET_EVOL_NO_CALLPET = 0x1,
+	PET_EVOL_NO_PETEGG = 0x2,
+	PET_EVOL_NO_RECIPE = 0x3,
+	PET_EVOL_NO_MATERIAL = 0x4,
+	PET_EVOL_RG_FAMILIAR = 0x5,
+	PET_EVOL_SUCCESS = 0x6,
+};
+
 // packet_db[SERVER] is reserved for server use
 #define SERVER 0
 #define packet_len(cmd) packet_db[SERVER][cmd].len
@@ -532,6 +543,10 @@ enum ranking_type
 	RANKING_SURA,
 	RANKING_KAGEROU,
 	RANKING_OBORO,
+	// Rebellion isnt confirmed on the ranking list yet,
+	// but if Kagerou and Oboro are on here, Rebellion
+	// should be too.
+	RANKING_REBELLION,
 };
 
 /**
@@ -902,6 +917,7 @@ void clif_send_petdata(struct map_session_data* sd, struct pet_data* pd, int typ
 #define clif_pet_performance(pd, param) clif_send_petdata(NULL, pd, 4, param)
 void clif_pet_emotion(struct pet_data *pd,int param);
 void clif_pet_food(struct map_session_data *sd,int foodid,int fail);
+void clif_pet_evolution_result(int fd, enum pet_evolution_result result);
 
 //friends list
 int clif_friendslist_toggle_sub(struct map_session_data *sd,va_list ap);

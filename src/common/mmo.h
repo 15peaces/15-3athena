@@ -51,8 +51,8 @@
 
 #ifndef PACKETVER
 	//#define PACKETVER 20170614 //stable client [15peaces]
-	//#define PACKETVER 20180621 //stable client [15peaces]
-	#define PACKETVER 20180919 //stable client [15peaces]
+	#define PACKETVER 20180621 //stable client [15peaces]
+	//#define PACKETVER 20180919 //stable client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9

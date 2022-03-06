@@ -87,6 +87,8 @@ enum item_itemid
 	ITEMID_PEONY_MOMMY				,
 	ITEMID_SLAPPING_HERB			,
 	ITEMID_YGGDRASIL_DUST			,
+	ITEMID_SILVER_BULLET			= 13201,
+	ITEMID_PURIFICATION_BULLET		= 13220,
 	// Genetic Created Bombs And Lumps
 	ITEMID_APPLE_BOMB				= 13260,
 	ITEMID_COCONUT_BOMB				,
@@ -132,6 +134,7 @@ enum item_itemid
 #define itemid_is_eclage_cures(id) ((id) >= ITEMID_SNOW_FLIP && (id) <= ITEMID_YGGDRASIL_DUST)
 #define itemid_is_sling_atk(id) ((id) >= ITEMID_APPLE_BOMB && (id) <= ITEMID_VERY_HARD_DARK_LUMP)
 #define itemid_is_sling_buff(id) ((id) >= ITEMID_MYSTERIOUS_POWDER && (id) <= ITEMID_THROW_OVERDONE_FOOD)
+#define itemid_is_holy_bullet(id) ( (id) == ITEMID_SILVER_BULLET || (id) == ITEMID_PURIFICATION_BULLET )
 
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6

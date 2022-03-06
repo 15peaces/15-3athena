@@ -11632,6 +11632,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 
 		// Can't attack
 		if( sd->sc.data[SC_BASILICA] || sd->sc.data[SC__SHADOWFORM] || (tsc && tsc->data[SC__MANHOLE]) ||
+			sd->sc.data[SC_HEAT_BARREL_AFTER] ||
 			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) ||
 			sd->sc.data[SC_ALL_RIDING])
 			return;
@@ -14803,6 +14804,113 @@ void clif_parse_ChangePetName(int fd, struct map_session_data *sd)
 	pet_change_name(sd,(char*)RFIFOP(fd,2));
 }
 
+/// Request to Evolve the pet (CZ_PET_EVOLUTION) [Dastgir/Hercules]
+/// 09fb <Length>.W <EvolvedPetEggID>.W {<index>.W <amount>.W}*items
+void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
+{
+	int i = 0, idx, petIndex;
+
+	int16 EvolvedPetEggID = RFIFOW(fd,4);
+
+	if (sd->status.pet_id == 0) {
+		clif_pet_evolution_result(fd, PET_EVOL_NO_CALLPET);
+		return;
+	}
+
+	ARR_FIND(0, MAX_INVENTORY, idx, sd->inventory.u.items_inventory[idx].card[0] == CARD0_PET &&
+		sd->status.pet_id == MakeDWord(sd->inventory.u.items_inventory[idx].card[1], sd->inventory.u.items_inventory[idx].card[2]));
+
+	if (idx == MAX_INVENTORY) {
+		clif_pet_evolution_result(fd, PET_EVOL_NO_PETEGG);
+		return;
+	}
+
+	// Not Loyal Yet
+	if (sd->pd == NULL || sd->pd->pet.intimate < 900) {
+		clif_pet_evolution_result(fd, PET_EVOL_RG_FAMILIAR);
+		return;
+	}
+
+	ARR_FIND(0, MAX_PET_DB, petIndex, pet_db[petIndex].class_ == sd->pd->pet.class_);
+
+	if (petIndex == MAX_PET_DB) {
+		// Which error?
+		clif_pet_evolution_result(fd, PET_EVOL_UNKNOWN);
+		return;
+	}
+
+	// Client side validation is not done as it is insecure.
+	for (i = 0; i < VECTOR_LENGTH(pet_db[petIndex].evolve_data); i++) {
+		struct pet_evolve_data *ped = &VECTOR_INDEX(pet_db[petIndex].evolve_data, i);
+		if (ped->petEggId == EvolvedPetEggID) {
+			int j;
+			int pet_id;
+
+			if (VECTOR_LENGTH(ped->items) == 0) {
+				clif_pet_evolution_result(fd, PET_EVOL_NO_RECIPE);
+				return;
+			}
+			for (j = 0; j < VECTOR_LENGTH(ped->items); j++) {
+				struct pet_itemlist_entry *list = &VECTOR_INDEX(ped->items, j);
+				int n = pc_search_inventory(sd, list->id);
+
+				if (n == -1) {
+					clif_pet_evolution_result(fd, PET_EVOL_NO_MATERIAL);
+					return;
+				}
+			}
+
+			for (j = 0; j < VECTOR_LENGTH(ped->items); j++) {
+				struct pet_itemlist_entry *list = &VECTOR_INDEX(ped->items, j);
+				int n = pc_search_inventory(sd, list->id);
+
+				if (pc_delitem(sd, n, list->amount, 0, 0) == 1) {
+					clif_pet_evolution_result(fd, PET_EVOL_NO_MATERIAL);
+					return;
+				}
+			}
+
+			// Return to Egg
+			pet_return_egg(sd, sd->pd);
+
+			if (pc_delitem(sd, idx, 1, 0, 0) == 1) {
+				clif_pet_evolution_result(fd, PET_EVOL_NO_PETEGG);
+				return;
+			}
+
+			pet_id = search_petDB_index(ped->petEggId, PET_EGG);
+			if (pet_id >= 0) {
+				sd->catch_target_class = pet_db[pet_id].class_;
+
+				intif_create_pet(
+					sd->status.account_id, sd->status.char_id,
+					(short)pet_db[pet_id].class_, (short)mob_db(pet_db[pet_id].class_)->lv,
+					(short)pet_db[pet_id].EggID, 0, (short)pet_db[pet_id].intimate,
+					100, 0, 1, pet_db[pet_id].jname);
+				clif_pet_evolution_result(fd, PET_EVOL_SUCCESS);
+			}
+			else {
+				clif_pet_evolution_result(fd, PET_EVOL_UNKNOWN);
+			}
+			return;
+		}
+	}
+
+	clif_pet_evolution_result(fd, PET_EVOL_UNKNOWN);
+}
+
+/**
+ * Result of Pet Evolution (ZC_PET_EVOLUTION_RESULT)
+ * 0x9fc <Result>.L
+ */
+void clif_pet_evolution_result(int fd, enum pet_evolution_result result) {
+#if PACKETVER >= 20140122
+	WFIFOHEAD(fd, packet_len(0x9fc));
+	WFIFOW(fd, 0) = 0x9fc;
+	WFIFOL(fd, 2) = result;
+	WFIFOSET(fd, packet_len(0x9fc));
+#endif
+}
 
 /// /kill (CZ_DISCONNECT_CHARACTER).
 /// Request to disconnect a character.
@@ -21650,8 +21758,9 @@ void packetdb_readdb(void)
 		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
 		{clif_parse_changedress,"changedress"},
 		{clif_parse_private_airship_request, "pPrivateAirshipRequest"},
-		{ clif_parse_open_ui_request, "pOpenUIRequest"},
+		{clif_parse_open_ui_request, "pOpenUIRequest"},
 		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
+		{ clif_parse_pet_evolution, "petevolution"},
 		{NULL,NULL}
 	};
 

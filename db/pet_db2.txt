@@ -1,7 +1,7 @@
 // Pet Additional Database - Custom Pets
 //
 // Structure of Database:
-// MobID,Name,JName,LureID,EggID,EquipID,FoodID,Fullness,HungryDelay,R_Hungry,R_Full,Intimate,Die,Capture,Speed,S_Performance,talk_convert_class,attack_rate,defence_attack_rate,change_target_rate,pet_script,loyal_script
+// MobID,Name,JName,LureID,EggID,EquipID,FoodID,Fullness,HungryDelay,R_Hungry,R_Full,Intimate,Die,Capture,Speed,S_Performance,talk_convert_class,attack_rate,defence_attack_rate,change_target_rate,AutoFeed,pet_script,loyal_script
 //
 // 01. MobID			Monster ID of the pet.
 // 02. Name				Name of the monster as defined in the database.

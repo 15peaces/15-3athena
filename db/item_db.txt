@@ -2918,7 +2918,7 @@
 5364,Dark_Snake_Lord_Hat,Evil Snake Lord Hat,5,20,,500,,2,,1,0xFFFFFFFF,7,2,256,,60,1,372,{ bonus bStr,1; bonus bInt,1; bonus bAgi,2; },{},{}
 5365,Fried_Egg,Magnolia Hat,5,20,,100,,3,,1,0xFFFFFFFF,7,2,256,,1,0,373,{ bonus2 bResEff,Eff_Stun,500; skill "HT_FLASHER",1; },{},{}
 //5366,Hat_0f_King,Love Dad Bandana,5,20,,200,,3,,0,0xFFFFFFFF,7,2,256,,0,1,374,{ bonus bAllStats,5; },{},{}
-//5367,Hyegun_Hat,Hyegun Hat,5,20,,100,,5,,1,0xFFFFFFFF,7,2,769,,10,0,375,{ bonus bMdef,3; bonus2 bSubRace,RC_Demon,10; },{},{}
+5367,Hyegun_Hat,Hyegun Hat,5,20,,100,,5,,1,0xFFFFFFFF,7,2,769,,10,0,375,{ bonus bMdef,3; bonus2 bSubRace,RC_Demon,10; },{},{}
 5368,White_Wing,White Wing,5,20,,100,,2,,0,0xFFFFFFFF,7,2,256,,0,1,38,{ bonus2 bAddMonsterDropItem,12280,300; },{},{}
 5369,Dark_Wing,Dark Wing,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,1,39,{ bonus2 bAddMonsterDropItem,12279,300; },{},{}
 //5370,Orchid_Hairband,Orchid Hairband,5,20,,200,,1,,0,0xFFFFFFFF,7,2,256,,0,1,376,{ bonus bInt,1; },{},{}

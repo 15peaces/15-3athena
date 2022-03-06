@@ -2009,6 +2009,7 @@ packet_keys: 0x4FC83479,0x3AB04D1F,0x477B4010
 0x089B,26,friendslistadd,2
 0x0965,5,hommenu,2:4
 0x0941,36,storagepassword,0
+0x09fb,-1,petevolution,0 // CZ_PET_EVOLUTION
 
 // 2014-06-25aRagexeRE
 0x0A28,3 // ZC_ACK_OPENSTORE2
@@ -2223,7 +2224,6 @@ packet_keys: 0x62C86D09,0x75944F17,0x112C133D // [YomRawr]
 0x0A30,106	// ZC_ACK_REQNAMEALL2
 
 // Pet Evolution System
-0x09FB,-1	// CZ_PET_EVOLUTION
 0x09FC,6		// ZC_PET_EVOLUTION_RESULT
 
 //2015-10-01bRagexeRE

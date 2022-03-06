@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/06/2022
+	r322 [15peaces]
+		*Merged missing changes from 3ceam rev. 799 - 800
+		*Implemented Pet Evolution System.
+			-Thanks to @HerculesWS for the base.
+			-Currently not all of the evolutions are working. I'll add them in later.
+			-Added missing pets & items to test the pet evolution system.
+		*Updated the ranking type table.
+		*Added the itemid_is_holy_bullet check.
+			-This checks for equipped holy bullets.
+		*Rebellion
+			-All skills with a cast time are now interruptible.
+			-Added weapon, ammo, coin (sphere), and item requirements for skills.
+		*RL_MASS_SPIRAL
+			-Damage formula updated.
+			-Now deal piercing damage (Ice Pick / Thanatos Card).
+			-Is now forced neutral.
+			-Now ignores FLEE.
+			-Now has a chance of causing bleeding.
+		*RL_BANISHING_BUSTER
+			-Added support.
+			-Does not remove buffs yet. Will be added in another update due to the mechanics of the skill being complex.
+		*RL_R_TRIP; RL_P_ALTER; RL_HEAT_BARREL
+		-Added support for these skills.
+
 02/28/2022
 	r321 [15peaces]
 		*Merged missing changes from 3ceam rev. 796 - 798

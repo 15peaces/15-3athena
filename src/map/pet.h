@@ -5,7 +5,19 @@
 #define _PET_H_
 
 #define MAX_PET_DB	300
+#define MAX_PETEVOLVE_ITEMS	5
 #define MAX_PETLOOT_SIZE	30
+
+/** Pet Evolution [Dastgir/Hercules] */
+struct pet_itemlist_entry {
+	int id;       ///< Item ID or (inventory) index
+	int16 amount; ///< Amount
+};
+
+struct pet_evolve_data {
+	int petEggId;
+	VECTOR_DECL(struct pet_itemlist_entry) items;
+};
 
 struct s_pet_db {
 	short class_;
@@ -30,6 +42,9 @@ struct s_pet_db {
 	int autofeed;
 	struct script_code *equip_script;
 	struct script_code *pet_script;
+
+	/* Pet Evolution */
+	VECTOR_DECL(struct pet_evolve_data) evolve_data;
 };
 extern struct s_pet_db pet_db[MAX_PET_DB];
 
@@ -102,6 +117,7 @@ struct pet_data {
 
 
 int pet_create_egg(struct map_session_data *sd, unsigned short item_id);
+int pet_return_egg(struct map_session_data *sd, struct pet_data *pd);
 int pet_hungry_val(struct pet_data *pd);
 void pet_set_intimate(struct pet_data *pd, int value);
 int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type);

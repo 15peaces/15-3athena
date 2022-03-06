@@ -1305,6 +1305,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			}
 		}
 		break;
+	case RL_MASS_SPIRAL:
+		sc_start(bl, SC_BLEEDING, 50, skilllv, skill_get_time(skillid, skilllv));
+		break;
 	case RL_H_MINE:
 		sc_start(bl,SC_H_MINE,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
@@ -2325,6 +2328,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
 	case RK_IGNITIONBREAK:
+	case RL_BANISHING_BUSTER:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,NV_BASIC,-1,5);
 		break;
 	case WL_HELLINFERNO:
@@ -3576,7 +3580,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_GREAT_ECHO:
 	case GN_CRAZYWEED_ATK:
 	case GN_SLINGITEM_RANGEMELEEATK:
-	//case RL_MASS_SPIRAL://<--Enable once skill effect file is fixed. [Rytech]
 	case RL_H_MINE:
 	case RL_SLUGSHOT:
 	case KO_SETSUDAN:
@@ -3835,6 +3838,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
+	case RL_BANISHING_BUSTER:
+	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
 	case KO_MUCHANAGE:
 	case MH_HEILIGE_STANGE:
@@ -3862,7 +3867,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			if (skillid == NJ_BAKUENRYU || skillid == LG_EARTHDRIVE || skillid == GN_CARTCANNON ||skillid == SU_SCRATCH)
 				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-			if (skillid == LG_MOONSLASHER)
+			if (skillid == LG_MOONSLASHER || skillid == RL_BANISHING_BUSTER)
 				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 
 			skill_area_temp[0] = 0;
@@ -5347,6 +5352,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AB_RENOVATIO:
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
+	case RL_P_ALTER:
+	case RL_HEAT_BARREL:
 	case KO_MEIKYOUSISUI:
 	case RA_UNLIMIT:
 	case ALL_FULL_THROTTLE:
@@ -5702,6 +5709,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
 	case SR_HOWLINGOFLION:
+	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -10845,6 +10853,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_DEEPSLEEP] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
+		sd->sc.data[SC_HEAT_BARREL_AFTER] ||
 		sd->sc.data[SC_ALL_RIDING]
 	 )) {
 		skill_failed(sd);
@@ -13022,6 +13031,14 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case GS_FLING:
 	case SR_RAMPAGEBLASTER:
 	case SR_RIDEINLIGHTNING:
+	case RL_P_ALTER:
+		if ( skill == RL_P_ALTER && !itemid_is_holy_bullet(sd->inventory.u.items_inventory[sd->equip_index[EQI_AMMO]].nameid) )
+		{
+			clif_skill_fail(sd,skill,0,0,0);
+			return 0;
+		}
+	case RL_HEAT_BARREL:
+	case RL_HAMMER_OF_GOD:
 		if( sd->spiritball > 0 && sd->spiritball < require.spiritball )
 			sd->spiritball_old = require.spiritball = sd->spiritball;
 		else
@@ -14298,6 +14315,8 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 			fixed_cast_rate = sc->data[SC_DANCE_WITH_WUG]->val4;
 		if( sc->data[SC_AB_SECRAMENT] && sc->data[SC_AB_SECRAMENT]->val2 > fixed_cast_rate)
 			fixed_cast_rate = sc->data[SC_AB_SECRAMENT]->val2;
+		if (sc->data[SC_HEAT_BARREL] && sc->data[SC_HEAT_BARREL]->val2 > fixed_cast_rate)
+			fixed_cast_rate = sc->data[SC_HEAT_BARREL]->val2;
 		if (sc->data[SC_IZAYOI])
 			fixed_cast_rate = 100;
 	}

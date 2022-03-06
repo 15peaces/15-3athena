@@ -4283,3 +4283,78 @@
 28721,Monokage,Monokage,4,10,,800,100,,1,2,0x20000000,63,2,2,3,100,1,1,{ set .@r, getrefine(); bonus2 bSkillAtk,"KO_BAKURETSU",getskilllv("NJ_TOBIDOUGU"); if (.@r>=9) { bonus bLongAtkRate,5; } else if (.@r>=7) { bonus bLongAtkRate,2; } },{},{}
 31140,C_Cowboy_Hat_,Costume Black Cowboy Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1569,{},{},{}
 31141,C_Rose_Corsage_,Costume Cactus Flower Corsage,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1570,{},{},{}
+
+// New Pet Eggs & missing items (renewal)
+4659,Eggring_Card,Eggring Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,2; bonus bMaxHP,50; },{},{}
+4660,Scout_Basilisk_Card,Scout Basilisk Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bSubSize,Size_Small,5; bonus2 bSubSize,Size_Medium,5; },{},{}
+4661,Charge_Basilisk_Card,Charge Basilisk Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bSubSize,Size_Medium,20; bonus2 bSubSize,Size_Large,20; bonus2 bSubSize,Size_Small,-15; },{},{}
+4662,Big_Eggring_Card,Big Eggring Card,6,20,,10,,,,,,,,4,,,,,{ bonus bAtk,25-5*min(readParam(bStr)/10,5); bonus bMatk,25-5*min(readParam(bInt)/10,5); bonus bAspdRate,10-2*min(readParam(bAgi)/10,5); bonus bMaxHP,1000-200*min(readParam(bVit)/10,5); bonus bLongAtkRate,5-1*min(readParam(bDex)/10,5); bonus bCritAtkRate,10-2*min(readParam(bLuk)/10,5); },{},{}
+4663,Leaf_Lunatic_Card,Leaf Lunatic Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxSP,5; },{},{}
+4664,Grass_Fabre_Card,Grass Fabre Card,6,20,,10,,,,,,,,16,,,,,{ bonus bLuk,1; bonus bMaxHP,100; },{},{}
+4665,Wild_Hornet_Card,Wild Hornet Card,6,20,,10,,,,,,,,2,,,,,{ bonus bAtk,5; },{},{}
+4666,Sweet_Roda_Frog_Card,Sweet Roda Frog Card,6,20,,10,,,,,,,,16,,,,,{ bonus bMaxSP,10; bonus bMaxHP,300; },{},{}
+4667,Hunter_Wolf_Card,Hunter Wolf Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxSP,30; },{},{}
+4668,Trance_Spore_Card,Trance Spore Card,6,20,,10,,,,,,,,769,,,,,{ bonus bVit,1; bonus bInt,1; },{},{}
+9057,Egg_Of_Tiny,Egg Of Tiny,7,20,,0,,,,,,,,,,,,,{},{},{}
+9058,Snow_Rabbit_Egg,Christmas Snow Rabbit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9059,Tikbalang_Pet,Tikbalang Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9060,Brownie_Egg,Domovoi Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9061,Marin_Egg,Marin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9062,Novice_Poring_Egg,Novice Poring Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9063,Woodie_Egg,Woodie Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9064,Elephant_Egg,Elephant Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9065,Gorilla_Egg,Gorilla Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9066,Lion_Egg,Lion Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9067,Rhino_Egg,Rhino Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9068,Blue_Unicorn_Egg,Blue Unicorn Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9069,Mastering_Egg,Mastering Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9070,Savage_Egg,Savage Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9071,Grand_Peco_Peco_Egg,Grand Peco Peco Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9072,Orc_Hero_Egg,Orc Hero Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9073,Orc_Lord_Egg,Orc Lord Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9074,Rubylit_Egg,Rubylit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9075,Sapphilit_Egg,Sapphilit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9076,Emelit_Egg,Emelit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9077,Topalit_Egg,Topalit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9078,Amelit_Egg,Amelit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9079,Mythlit_Egg,Mythlit Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9080,Tamadora_Egg,Tamadora Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9087,High_Orc_Egg,High Orc Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9088,Angeling_Egg,Angeling Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9089,Am_Mut_Egg,Am Mut Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9090,Little_Isis_Egg,Little Isis Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9091,Choco_Egg,Choco Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9092,Eggring_Egg,Eggring Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9093,Hyegun_Egg,Hyegun Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9094,Dr_Lunatic_Egg,Leaf Lunatic Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9095,Nine_Tail_Egg,Nine Tail Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9096,Cat_o_Nine_Tail_Egg,Cat o Nine Tail Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9097,Diabolic_2_Egg,Diabolic Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9098,Fire_Deleter_Egg,Fire Deleter Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9099,Teddy_Bear_Egg,Teddy Bear Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9100,Gremlin_Egg,Gremlin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9101,Scatletoncarrier,Scatleton's Cage,7,20,,0,,,,,,,,,,,,,{},{},{}
+9102,Mummy_Egg,Mummy Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9103,Willow_Egg,Willow Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9104,Roween_Egg,Roween Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9105,Hodremlin_Egg,Hodremlin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9106,Metaller_Egg,Metaller Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9107,Ancient_Mummy_Egg,Ancient Mummy Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9108,Xm_Teddy_Bear_Egg,Xmas Teddy Bear Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9109,Sweet_Drops_Egg,Sweet Drops Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9111,Phreeoni_Egg,Phreeoni Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9112,Moonlight_Egg,Moonlight Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9113,Roost_Of_Skelion,Roost Of Skelion,7,20,,0,,,,,,,,,,,,,{},{},{}
+9114,Pouring_Egg,Pouring Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9115,Bacsojin2_Egg_,Bacsojin Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9116,Rigid_Nightmare_Terror_Egg,Rigid Nightmare Terror Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9117,Contaminated_Wanderer_Egg,Contaminated Wanderer Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9118,Aliot_Egg,Aliot Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9119,Alicel_Egg,Alicel Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9120,Aliza_Egg,Aliza Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9121,Orc_Hero_Egg_,Orc Hero Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9122,Gloom_Under_Egg,Gloom Under Night Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9123,Ep_17_2_C_Admin1_Egg,Child Admin Beta Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+9124,Ep_17_2_C_Admin2_Egg,Child Admin Alpha Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+23188,Unprocessed_Parts,Unprocessed Parts,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 1632; },{},{}
+23189,Small_Needle_Kit,Small Needle Kit,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 1622; },{},{}

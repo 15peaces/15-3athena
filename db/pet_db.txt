@@ -1,7 +1,7 @@
 // Pet Database
 //
 // Structure of Database:
-// MobID,Name,JName,LureID,EggID,EquipID,FoodID,Fullness,HungryDelay,R_Hungry,R_Full,Intimate,Die,Capture,Speed,S_Performance,talk_convert_class,attack_rate,defence_attack_rate,change_target_rate,pet_script,loyal_script
+// MobID,Name,JName,LureID,EggID,EquipID,FoodID,Fullness,HungryDelay,R_Hungry,R_Full,Intimate,Die,Capture,Speed,S_Performance,talk_convert_class,attack_rate,defence_attack_rate,change_target_rate,AutoFeed,pet_script,loyal_script
 //
 // 01. MobID			Monster ID of the pet.
 // 02. Name				Name of the monster as defined in the database.
@@ -76,6 +76,7 @@
 1057,YOYO,Yoyo,634,9016,10018,532,80,60,20,100,250,20,1000,150,1,0,300,800,400,0,{ petloot 20; },{ bonus bCritical,3; bonus bLuk,-1; }
 1063,LUNATIC,Lunatic,622,9004,10007,534,80,60,40,100,250,20,1500,150,0,0,300,300,1000,0,{ petskillbonus bLuk,3,10,50; },{ bonus bCritical,2; bonus bAtk,2; }
 1077,POISON_SPORE,Poison Spore,631,9013,10017,537,80,60,20,100,250,20,1000,150,0,0,600,200,400,0,{ petskillattack "NPC_POISON",20,0,10; },{ bonus bStr,1; bonus bInt,1; }
+1090,MASTERING,Mastering,0,9069,0,0,80,60,10,100,250,20,10000,150,0,0,300,300,800,1,{},{ bonus(bLuk, 3); bonus(bCritical, 3); }
 1101,BAPHOMET_,Baphomet Jr.,642,9024,10001,518,80,60,10,100,250,20,200,150,0,0,1000,100,200,0,{ petskillattack2 "NPC_DARKNESSATTACK",1776,4,0,5; },{ bonus bDef,1; bonus bMdef,1; bonus2 bResEff,Eff_Stun,-100; }
 1107,DESERT_WOLF_B,Baby Desert Wolf,628,9010,10003,537,80,60,40,100,250,20,1000,150,0,0,400,400,400,0,{ petskillattack "SM_PROVOKE",1,0,5;},{ bonus bInt,1; bonus bMaxSP,50; }
 1109,DEVIRUCHI,Deviruchi,641,9023,10004,711,80,60,10,100,250,20,500,150,0,0,800,200,100,0,{ petskillbonus bAgiDexStr,6,20,40; },{ bonus bMatkRate,1; bonus bAtkRate,1; bonus bMaxHPrate,-3; bonus bMaxSPrate,-3; }
@@ -110,7 +111,9 @@
 1513,CIVIL_SERVANT,Mao Guai,12358,9040,10022,6095,80,60,10,100,250,20,500,150,0,0,300,300,800,0,{},{ bonus bMaxSP,10; }
 1519,CHUNG_E,Green Maiden,12395,9030,0,6115,80,60,50,100,250,20,2000,150,0,0,300,300,800,0,{ petskillattack "CR_SHIELDCHARGE",5,5,5; },{ bonus bDef,1; bonus2 bSubRace,RC_DemiHuman,1; }
 1586,LEAF_CAT,Leaf Cat,12359,9041,10023,6096,80,60,20,100,250,20,200,150,0,0,300,300,800,0,{},{ bonus2 bSubRace,RC_Brute,3; }
+1622,TEDDY_BEAR,Teddy Bear,SmallDoll_Needle,9099,0,25233,80,60,10,100,520,20,10000,150,0,0,300,300,800,0,{},{ bonus(bMaxSP, 100); }
 1630,BACSOJIN_,White Lady,12357,9039,10021,6094,80,60,10,100,250,20,2000,150,0,0,300,300,800,0,{},{}
+1632,GREMLIN,Gremlin,23188,9100,0,25232,80,60,10,100,250,20,10000,150,0,0,300,300,800,0,{},{ bonus(bDex, 2); bonus(bHit, 1); }
 1815,EVENT_RICECAKE,Rice Cake,0,9028,0,511,80,60,50,100,250,20,2000,150,1,0,500,500,200,0,{ petskillsupport "CR_DEFENDER",3,240,50,100; },{ bonus2 bSubEle,Ele_Neutral,1; bonus bMaxHPrate,-1; }
 1837,IMP,Fire Imp,12374,9056,10038,6114,80,60,10,100,250,20,200,150,0,0,300,300,800,0,{},{ bonus2 bSubEle,Ele_Fire,2; bonus2 bAddEle,Ele_Fire,2; }
 1879,ECLIPSE_P,Spring Rabbit,0,9031,0,7766,80,60,50,100,250,20,2000,150,0,0,300,300,800,0,{ petskillattack "TF_THROWSTONE",1,5,5; },{}
