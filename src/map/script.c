@@ -7786,6 +7786,7 @@ BUILDIN_FUNC(bonus)
 	case SP_FIXEDCASTRATE:
 	case SP_SKILL_COOLDOWN:
 	case SP_ADDEFF_ONSKILL:
+	case SP_SPRATE:
 		// these bonuses support skill names
 		val1 = ( script_isstring(st,3) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3) );
 		break;

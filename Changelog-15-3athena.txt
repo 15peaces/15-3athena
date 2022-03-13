@@ -5,9 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/13/2022
+	r323 [15peaces]
+		*Merged missing changes from 3ceam rev. 802 - 803
+		*Fixed all cooldowns related to Rockridge quests.
+			-They should be 16 hours (source: iRO Wiki).
+			-Also, the database entries where in wrong format, causing the cooldowns to be 4 sec. only...
+		*Some updates to better support item random options.
+		*update private airship map list to match main kRO servers
+			-Thanks to @HerculesWS
+		*Added some missing packets.
+		*start_point_doram; start_weapon_doram; start_armor_doram
+			-Added these configs to the char_athera.conf file.
+		*Added bonus2 support for bUseSPrate item bonus.
+		*Updated job equip masks on daggers to not equip on Summoners.
+		*Updated job equip masks on rods to equip on Summoners.
+			-Note: This applies to most rods but not all.
+		*Items using the bUseSPrate on bonus2 setting in the item_db have been corrected to the proper format.
+		*Summoner
+			-New Summoner characters now start with their official starter wepaon, the short foxtail staff.
+
 03/06/2022
 	r322 [15peaces]
-		*Merged missing changes from 3ceam rev. 799 - 800
+		*Merged missing changes from 3ceam rev. 799 - 801
 		*Implemented Pet Evolution System.
 			-Thanks to @HerculesWS for the base.
 			-Currently not all of the evolutions are working. I'll add them in later.

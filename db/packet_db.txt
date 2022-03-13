@@ -2512,6 +2512,8 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x0afd,155
 0x0afe,-1
 0x0aff,-1
+0x0b00,8
+0x0b01,40
 
 //Add new packets here
 //packet_ver: 45

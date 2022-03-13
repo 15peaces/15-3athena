@@ -280,6 +280,12 @@ struct achievement {
 
 VECTOR_STRUCT_DECL(char_achievements, struct achievement);
 
+struct item_option {
+	int16 id;
+	int16 value;
+	uint8 param;
+};
+
 struct item {
 	int id;
 	unsigned short nameid;
@@ -289,11 +295,7 @@ struct item {
 	char refine;
 	char attribute;
 	unsigned short card[MAX_SLOTS];
-	struct {
-		short id;
-		short value;
-		char param;
-	} option[MAX_ITEM_RDM_OPT];		// max of 5 random options can be supported.
+	struct item_option option[MAX_ITEM_RDM_OPT];		// max of 5 random options can be supported.
 	unsigned int expire_time;
 	unsigned char favorite;
 	unsigned char bound;

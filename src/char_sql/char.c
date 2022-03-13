@@ -5508,10 +5508,6 @@ int char_config_read( const char* cfgName )
 				ShowError("Specified start_point %s not found in map-index cache.\n", map);
 			start_point.x = x;
 			start_point.y = y;
-		} else if (strcmpi(w1, "start_zeny") == 0) {
-			start_zeny = atoi(w2);
-			if (start_zeny < 0)
-				start_zeny = 0;
 		} else if (strcmpi(w1, "start_weapon") == 0) {
 			start_weapon = atoi(w2);
 			if (start_weapon < 0)
@@ -5520,6 +5516,28 @@ int char_config_read( const char* cfgName )
 			start_armor = atoi(w2);
 			if (start_armor < 0)
 				start_armor = 0;
+		} else if (strcmpi(w1, "start_point_doram") == 0) {
+			char map[MAP_NAME_LENGTH_EXT];
+			int x, y;
+			if (sscanf(w2, "%15[^,],%d,%d", map, &x, &y) < 3)
+				continue;
+			start_point_doram.map = mapindex_name2id(map);
+			if (!start_point_doram.map)
+				ShowError("Specified start_point %s not found in map-index cache.\n", map);
+			start_point_doram.x = x;
+			start_point_doram.y = y;
+		} else if (strcmpi(w1, "start_weapon_doram") == 0) {
+			start_weapon_doram = atoi(w2);
+			if (start_weapon_doram < 0)
+				start_weapon_doram = 0;
+		} else if (strcmpi(w1, "start_armor_doram") == 0) {
+			start_armor_doram = atoi(w2);
+			if (start_armor_doram < 0)
+				start_armor_doram = 0;
+		} else if (strcmpi(w1, "start_zeny") == 0) {
+			start_zeny = atoi(w2);
+			if (start_zeny < 0)
+				start_zeny = 0;
 		} else if(strcmpi(w1,"log_char")==0) {		//log char or not [devil]
 			log_char = atoi(w2);
 		} else if (strcmpi(w1, "unknown_char_name") == 0) {

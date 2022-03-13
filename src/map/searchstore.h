@@ -28,6 +28,7 @@ struct s_search_store_info_item
 	unsigned int price;
 	unsigned short card[MAX_SLOTS];
 	unsigned char refine;
+	struct item_option option[MAX_ITEM_RDM_OPT];
 };
 
 struct s_search_store_info
@@ -52,6 +53,6 @@ void searchstore_close(struct map_session_data* sd);
 void searchstore_click(struct map_session_data* sd, int account_id, int store_id, unsigned short nameid);
 bool searchstore_queryremote(struct map_session_data* sd, int account_id);
 void searchstore_clearremote(struct map_session_data* sd);
-bool searchstore_result(struct map_session_data* sd, int store_id, int account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine);
+bool searchstore_result(struct map_session_data* sd, int store_id, int account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine, const struct item_option* option);
 
 #endif  // _SEARCHSTORE_H_

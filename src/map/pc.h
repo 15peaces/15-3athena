@@ -310,8 +310,7 @@ struct map_session_data {
 	struct s_skill_bonus { //skillatk raises bonus dmg% of skills, skillheal increases heal%, skillblown increases bonus blewcount for some skills.
 		unsigned short id;
 		short val;
-	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS]
-		, skillusesp[MAX_PC_BONUS];
+	} skillatk[MAX_PC_BONUS], skillheal[5], skillheal2[5], skillblown[MAX_PC_BONUS], skillusesp[MAX_PC_BONUS], skillsprate[MAX_PC_BONUS];
 	struct s_skill_bonus_i32 { // Copy of s_skill_bonus struct but for larger values [15peaces]
 		uint16 id;
 		int32 val;

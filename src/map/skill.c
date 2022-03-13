@@ -13980,6 +13980,10 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	if( sd->dsprate!=100 )
 		req.sp = req.sp * sd->dsprate / 100;
 
+	ARR_FIND(0, ARRAYLENGTH(sd->skillsprate), i, sd->skillsprate[i].id == skill);
+	if( i < ARRAYLENGTH(sd->skillsprate))
+		req.sp -= req.sp * sd->skillsprate[i].val / 100;
+
 	ARR_FIND(0, ARRAYLENGTH(sd->skillusesp), i, sd->skillusesp[i].id == skill);
 	if( i < ARRAYLENGTH(sd->skillusesp) )
 		req.sp -= sd->skillusesp[i].val;

@@ -448,3 +448,4 @@ bonus2 bFixedCastrate,x,-n;		Skill fixed cast time reduction for a certain skill
 bonus bFixedCast,t;				Increases fixed cast time of all skills by t milliseconds.
 bonus2 bSkillCooldown,sk,t;		Increases cooldown of skill sk by t milliseconds
 bonus bMatk,n;		Magical attack power + n
+bonus2 bUseSPrate,n,x;		Decrease SP consumption of skill n by x% (supports skill names)

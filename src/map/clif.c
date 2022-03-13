@@ -20859,7 +20859,7 @@ void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
 	// Warp the player to a random spot on the destination map
 	pc_setpos(sd, mapindex, 0, 0, CLR_TELEPORT);
 #else
-	ShowWarning("clif_parse_private_airship_request: private airship is not supported in this client version, possible packet manipulation.");
+	ShowWarning("clif_parse_private_airship_request: private airship is not supported in this client version, possible packet manipulation.\n");
 #endif
 }
 
@@ -20872,7 +20872,7 @@ void clif_private_airship_response(struct map_session_data *sd, uint32 flag)
 	int fd = sd->fd;
 
 	if (flag > P_AIRSHIP_ITEM_INVALID) {
-		ShowError("clif_private_airship_response: invalid flag given '%d', defaulting to 0.\n", flag);
+		ShowError("clif_private_airship_response: invalid flag given '%u', defaulting to 0.\n", flag);
 		flag = 0;
 	}
 
@@ -21491,7 +21491,7 @@ void packetdb_readdb(void)
 	   21,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  7,
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
 //#0x0A40
- 		0,  0,  0, 85, -1,  0,  0,  0,  0, 20,  6,  0,  0,  0,  0,  0,
+ 		0,  0,  0, 85, -1,  0, 14,  3,  2, 20,  6,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0, -1,  0,  0,
  		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,

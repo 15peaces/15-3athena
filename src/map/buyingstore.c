@@ -35,6 +35,7 @@ enum e_buyingstore_failure
 
 static unsigned int buyingstore_nextid = 0;
 static const short buyingstore_blankslots[MAX_SLOTS] = { 0 };  // used when checking whether or not an item's card slots are blank
+static const struct item_option buyingstore_blankoptions[MAX_ITEM_RDM_OPT] = { 0 };  // used when checking whether or not an item's random options are blank
 
 
 /// Returns unique buying store id
@@ -468,7 +469,8 @@ bool buyingstore_searchall(struct map_session_data* sd, const struct s_search_st
 			;
 		}
 
-		if( !searchstore_result(s->search_sd, sd->buyer_id, sd->status.account_id, sd->message, it->nameid, it->amount, it->price, buyingstore_blankslots, 0) )
+		// TODO: add support for cards and options
+		if( !searchstore_result(s->search_sd, sd->buyer_id, sd->status.account_id, sd->message, it->nameid, it->amount, it->price, buyingstore_blankslots, 0, buyingstore_blankoptions) )
 		{// result set full
 			return false;
 		}

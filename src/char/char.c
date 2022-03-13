@@ -1484,8 +1484,6 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.int_ = int_;
 	char_dat[i].status.dex = dex;
 	char_dat[i].status.luk = luk;
-	char_dat[i].status.max_hp = 40 * (100 + char_dat[i].status.vit) / 100;
-	char_dat[i].status.max_sp = 11 * (100 + char_dat[i].status.int_) / 100;
 	char_dat[i].status.hp = char_dat[i].status.max_hp;
 	char_dat[i].status.sp = char_dat[i].status.max_sp;
 	char_dat[i].status.status_point = status_point;
@@ -1498,10 +1496,8 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.hair = hair_style;
 	char_dat[i].status.hair_color = hair_color;
 	char_dat[i].status.clothes_color = 0;
-	inventory[0].nameid = start_weapon; // Knife
 	inventory[0].amount = 1;
 	inventory[0].identify = 1;
-	inventory[1].nameid = start_armor; // Cotton Shirt
 	inventory[1].amount = 1;
 	inventory[1].identify = 1;
 	char_dat[i].status.weapon = 0; // W_FIST
@@ -1511,8 +1507,6 @@ int make_new_char(struct char_session_data* sd, char* name_, int str, int agi, i
 	char_dat[i].status.head_bottom = 0;
 	char_dat[i].status.robe = 0;
 	char_dat[i].status.body = 0;
-	memcpy(&char_dat[i].status.last_point, &start_point, sizeof(start_point));
-	memcpy(&char_dat[i].status.save_point, &start_point, sizeof(start_point));
 	char_num++;
 
 	char_memitemdata_to_txt(inventory, sizeof(inventory), char_dat[i].status.char_id, TABLE_INVENTORY);
@@ -4988,10 +4982,6 @@ int char_config_read(const char *cfgName)
 				ShowError("Specified start_point %s not found in map-index cache.\n", map);
 			start_point.x = x;
 			start_point.y = y;
-		} else if (strcmpi(w1, "start_zeny") == 0) {
-			start_zeny = atoi(w2);
-			if (start_zeny < 0)
-				start_zeny = 0;
 		} else if (strcmpi(w1, "start_weapon") == 0) {
 			start_weapon = atoi(w2);
 			if (start_weapon < 0)
@@ -5000,6 +4990,28 @@ int char_config_read(const char *cfgName)
 			start_armor = atoi(w2);
 			if (start_armor < 0)
 				start_armor = 0;
+		} else if (strcmpi(w1, "start_point_doram") == 0) {
+			char map[MAP_NAME_LENGTH_EXT];
+			int x, y;
+			if (sscanf(w2, "%15[^,],%d,%d", map, &x, &y) < 3)
+				continue;
+			start_point_doram.map = mapindex_name2id(map);
+			if (!start_point_doram.map)
+				ShowError("Specified start_point %s not found in map-index cache.\n", map);
+			start_point_doram.x = x;
+			start_point_doram.y = y;
+		} else if (strcmpi(w1, "start_weapon_doram") == 0) {
+			start_weapon_doram = atoi(w2);
+			if (start_weapon_doram < 0)
+				start_weapon_doram = 0;
+		} else if (strcmpi(w1, "start_armor_doram") == 0) {
+			start_armor_doram = atoi(w2);
+			if (start_armor_doram < 0)
+				start_armor_doram = 0;
+		} else if (strcmpi(w1, "start_zeny") == 0) {
+			start_zeny = atoi(w2);
+			if (start_zeny < 0)
+				start_zeny = 0;
 		} else if(strcmpi(w1,"log_char")==0) {		//log char or not [devil]
 			log_char = atoi(w2);
 		} else if (strcmpi(w1, "unknown_char_name") == 0) {
