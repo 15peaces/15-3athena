@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/19/2022
+	r324 [15peaces]
+		*Merged missing changes from 3ceam rev. 804
+		*Added clif_auth_error function.
+			-The map server will now also send the correct version of this packet.
+		*Fixed clif_parse_RouletteInfo for 2018+ clients.
+		*Added a new confirmed skill unit tag and ID.
+		*RK_DRAGONBREATH; RK_DRAGONBREATH_WATER
+			-Fixed a issue where the ice pick effect was affecting the damage.
+		*SU_ARCLOUSEDASH; SU_TUNAPARTY; SU_BUNCHOFSHRIMP; SU_FRESHSHRIMP
+			-Added full support for these skills.
+
 03/13/2022
 	r323 [15peaces]
 		*Merged missing changes from 3ceam rev. 802 - 803

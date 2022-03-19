@@ -400,7 +400,7 @@ bool searchstore_result(struct map_session_data* sd, int store_id, int account_i
 	ssitem->price = price;
 	memcpy(ssitem->card, card, sizeof(ssitem->card));
 	ssitem->refine = refine;
-	memcpy(ssitem->card, option, sizeof(ssitem->option));
+	memcpy(ssitem->option, option, sizeof(ssitem->option));
 
 	return true;
 }

@@ -1291,7 +1291,7 @@ void login_auth_failed(struct login_session_data* sd, int result)
 	if( result == 1 && login_config.dynamic_pass_failure_ban )
 		ipban_log(ip); // log failed password attempt
 
-#if PACKETVER >= 20120000 /* not sure when this started */
+#if PACKETVER >= 20101123
 	WFIFOHEAD(fd, 26);
 	WFIFOW(fd, 0) = 0x83e;
 	WFIFOL(fd, 2) = result;

@@ -5357,6 +5357,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KO_MEIKYOUSISUI:
 	case RA_UNLIMIT:
 	case ALL_FULL_THROTTLE:
+	case SU_ARCLOUSEDASH:
+	case SU_FRESHSHRIMP:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
 		break;
 	// Works just like the above list of skills, except animation caused by
@@ -5799,6 +5801,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case CASH_BLESSING:
 	case CASH_INCAGI:
 	case CASH_ASSUMPTIO:
+	case SU_BUNCHOFSHRIMP:
 		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
 			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		else if( sd )
@@ -9431,6 +9434,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+
+	case SU_TUNAPARTY:// MaxHP of the caster affects the tuna's HP.
+		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		sc_start2(bl,type,100,skilllv,sstatus->max_hp,skill_get_time(skillid,skilllv));
 		break;
 
 	case NPC_WIDESOULDRAIN:

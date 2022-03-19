@@ -1,0 +1,40 @@
+// 15-3athena Pet Evolution Database
+//
+// Structure of Database:
+// MobID,EvolveID,ItemID1:ItemID2...ItemID5,ItemAmt1:ItemAmt2...ItemAmt5
+//
+// 01. MobID			Monster ID of the pet.
+// 02. EvolveID			Egg ID of the evolved pet.
+// 03. ItemID			Item(s) needed for evolution.
+// 04. ItemAmt			Item ammount(s) needed for evolution.
+
+//1002,9069,610:619,10:3
+//1019,9071,537:632:7101:4031:522,10:3:300:1:10
+//1023,9087,635:1124:931:2267:4066,3:1:500:1:1
+//1029,9090,639:Queens_Hair_Ornament:954:732,3:1:300:6
+//1041,9107,Elixir_Bandage:7511:969:4248,3:200:30:1
+//1052,9106,707:Grasshoppers_Leg:508:4057,3:777:200:1
+//1057,9091,634:753:7182:4051,3:2:300:1
+//1063,Leaf_Lunatic_Egg,Great_Leaf:Clover:Four_Leaf_Clover:Leaf_Lunatic_Card,100:250:30:1
+1090,9088,503:2282:509:909,20:1:50:200
+//1109,Diabolic_Egg_,Contracts_In_Shadow:Petite_DiablOfs_Wing:1009:Deviruchi_Card,3:250:30:1
+//1110,9089,637:981:1021:969,3:3:300:3
+//1113,9092,7032:7031:531:4659,20:10:3:1
+//1113,9109,Sweets_Coin:529:530:4004,500:50:50:1
+//1155,Earth_Deleter_Egg,Shining_Stone:Petti_Tail:Aloebera:Deleter_Card,3:100:150:1
+//1167,9070,537:627:517:949,10:3:100:50
+//1188,9093,5367:7277:7014:4328,1:100:50:1
+//1208,9117,7005:1009:1059:4210,500:50:100:1
+//1213,9121,968:4066:Orc_Baby_Card_Card:Mightysoul_Essence,10:10:10:30
+//1275,9120,Alices_Apron:511:985:4253,500:200:30:1
+//1379,9116,7120:510:935:4166,500:100:100:1
+//1416,9115,Mightysoul_Essence:4202:4265:4272,30:10:10:10
+//1180,Cat_o_Nine_Tails_Egg,Sap_Jelly:Fox_Tail:Punisher:Nine_Tail_Card,3:999:1:1
+//1307,Moonlight_Flower_Egg,Mightysoul_Essence:Nine_Tail_Card:Sohee_Card:Munak_Card,30:10:10:10
+//1622,Abandoned_Teddy_Bear_Egg,SmallDoll_Needle:Cursed_Seal:Cardinal_Jewel_:4340,3:300:50:1
+1622,9118,7317:518:727:4340,500:100:10:1
+1622,9119,7317:518:7449:4340,500:100:50:1
+1632,9105,23188:6100:7340:4413,3:50:200:1
+//1773,Gloom_Under_Night_Egg,4413:Isilla_Card:Agav_Card:Mightysoul_Essence,10:10:10:30
+//3731,Skelion_Egg,Memory_Of_Gyol:Yummy_Meat:Cookie_Bat,2:100:100
+//20696,Child_Admin_Alpha_Egg,Barmil_Ticket:Broken_Steel_Piece:Mystery_Piece,500:50:10

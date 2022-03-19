@@ -1565,6 +1565,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl,SI_SU_STOOP,1,9999,sd->sc.data[SC_SU_STOOP]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_SPRITEMABLE] )
 				clif_status_change(&sd->bl,SI_SPRITEMABLE,1,9999,sd->sc.data[SC_SPRITEMABLE]->val1,0,0);
+			if (sd->sc.count && sd->sc.data[SC_TUNAPARTY])
+				clif_status_change(&sd->bl, SI_TUNAPARTY, 1, 9999, sd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -4949,6 +4951,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SU_STOOP,1,9999,tsd->sc.data[SC_SU_STOOP]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_SPRITEMABLE] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SPRITEMABLE,1,9999,tsd->sc.data[SC_SPRITEMABLE]->val1,0,0);
+			if (tsd->sc.count && tsd->sc.data[SC_TUNAPARTY])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_TUNAPARTY, 1, 9999, tsd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
 				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
@@ -10763,6 +10767,25 @@ static int clif_guess_PacketVer(int fd, int get_previous, int *error)
 // ------------
 // パケット読み取って色々操作
 
+/// Refuse login.
+/// 006a <error code>.B <block date>.20B (ZC_REFUSE_LOGIN)
+/// 083e <error code>.L <block date>.20B (ZC_REFUSE_LOGIN2)
+void clif_auth_error(int fd, int errorCode)
+{
+#if PACKETVER >= 20101123
+	WFIFOHEAD(fd, 26);
+	WFIFOW(fd, 0) = 0x83e;
+	WFIFOL(fd, 2) = errorCode;
+	memset(WFIFOP(fd, 6), '\0', 20);
+	WFIFOSET(fd, 26);
+#else
+	WFIFOHEAD(fd, 23);
+	WFIFOW(fd, 0) = 0x6a;
+	WFIFOB(fd, 2) = (uint8)errorCode;
+	memset(WFIFOP(fd, 3), '\0', 20);
+	WFIFOSET(fd, 23);
+#endif
+}
 
 /// Request to connect to map-server.
 /// 0072 <account id>.L <char id>.L <auth code>.L <client time>.L <gender>.B (CZ_ENTER)
@@ -10798,10 +10821,7 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 			(packet_ver > 9 && (battle_config.packet_ver_flag & 1<<(packet_ver-9)) == 0)) // version not allowed
 	{// packet version rejected
 		ShowInfo("Rejected connection attempt, forbidden packet version (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"', Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%s"CL_RESET"').\n", account_id, char_id, packet_ver, ip2str(session[fd]->client_addr, NULL));
-		WFIFOHEAD(fd,packet_len(0x6a));
-		WFIFOW(fd,0) = 0x6a;
-		WFIFOB(fd,2) = 5; // Your Game's EXE file is not the latest version
-		WFIFOSET(fd,packet_len(0x6a));
+		clif_auth_error(fd, 5); // Your Game's EXE file is not the latest version
 		set_eof(fd);
 		return;
 	}
@@ -10816,10 +10836,7 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 	bl = map_id2bl(account_id);
 	if(bl && bl->type != BL_PC) {
 		ShowError("clif_parse_WantToConnection: a non-player object already has id %d, please increase the starting account number\n", account_id);
-		WFIFOHEAD(fd,packet_len(0x6a));
-		WFIFOW(fd,0) = 0x6a;
-		WFIFOB(fd,2) = 3; // Rejected by server
-		WFIFOSET(fd,packet_len(0x6a));
+		clif_auth_error(fd, 3);  // Rejected by server
 		set_eof(fd);
 		return;
 	}
@@ -20116,6 +20133,9 @@ void clif_parse_RouletteInfo(int fd, struct map_session_data* sd)
 			WFIFOW(fd,8 * count + 10) = j;
 			WFIFOW(fd,8 * count + 12) = rd.nameid[i][j];
 			WFIFOW(fd,8 * count + 14) = rd.qty[i][j];
+#if PACKETVER >= 20180523  // unknown real version
+			WFIFOW(fd, 8 * count + 16) = 0; // unused
+#endif
 			count++;
 		}
 	}
