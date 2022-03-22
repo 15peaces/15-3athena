@@ -269,14 +269,14 @@ function	script	F_Load2Skills	{
 function	script	F_GetWeaponType	{
 	switch(getiteminfo(getarg(0), ITEMINFO_SUBTYPE)) {
 		case 1: return "Dagger"; break;
-		case 2: return "One-handed Sword"; break;
-		case 3: return "Two-handed Sword"; break;
-		case 4: return "One-handed Spear"; break;
-		case 5: return "Two-handed Spear"; break;
-		case 6: return "One-handed Axe"; break;
-		case 7: return "Two-handed Axe"; break;
+		case 2: return "One-Handed Sword"; break;
+		case 3: return "Two-Handed Sword"; break;
+		case 4: return "One-Handed Spear"; break;
+		case 5: return "Two-Handed Spear"; break;
+		case 6: return "One-Handed Axe"; break;
+		case 7: return "Two-Handed Axe"; break;
 		case 8: return "Mace"; break;
-		//case 9: return "Unused"; break;
+		case 9: return "Two-Handed Mace"; break;
 		case 10: return "Staff"; break;
 		case 11: return "Bow"; break;
 		case 12: return "Knuckle"; break;
@@ -286,10 +286,11 @@ function	script	F_GetWeaponType	{
 		case 16: return "Katar"; break;
 		case 17: return "Revolver"; break;
 		case 18: return "Rifle"; break;
-		case 19: return "Gatling gun"; break;
+		case 19: return "Gatling Gun"; break;
 		case 20: return "Shotgun"; break;
 		case 21: return "Grenade Launcher"; break;
-		case 22: return "Shuriken"; break;
+		case 22: return "Huuma Shuriken"; break;
+		case 23: return "Two-Handed Staff"; break;
 		default: return "Unable to Determine Equip Type"; break;
 	}
 	end;
@@ -300,7 +301,7 @@ function	script	F_GetWeaponType	{
 //////////////////////////////////////////////////////////////////////////////////
 function	script	F_GetArmorType	{
 	switch(getiteminfo(getarg(0), ITEMINFO_LOC)) {
-		case 001: return "Lower Headgear"; break;
+		case 1: return "Lower Headgear"; break;
 		case 2: return "Weapon"; break;
 		case 4: return "Garment"; break;
 		case 8: return "Accessory"; break;

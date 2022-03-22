@@ -1345,10 +1345,18 @@ int parse_login(int fd)
 		{
 			ShowStatus("Connection refused: IP isn't authorised (deny/allow, ip: %s).\n", ip);
 			login_log(ipl, "unknown", -3, "ip banned");
-			WFIFOHEAD(fd,23);
-			WFIFOW(fd,0) = 0x6a;
-			WFIFOB(fd,2) = 3; // 3 = Rejected from Server
-			WFIFOSET(fd,23);
+
+#if PACKETVER >= 20101123
+			WFIFOHEAD(fd, 26);
+			WFIFOW(fd, 0) = 0x83e;
+			WFIFOL(fd, 2) = 3; // Rejected by server
+			WFIFOSET(fd, 26);
+#else
+			WFIFOHEAD(fd, 23);
+			WFIFOW(fd, 0) = 0x6a;
+			WFIFOB(fd, 2) = 3; // Rejected by server
+			WFIFOSET(fd, 23);
+#endif
 			set_eof(fd);
 			return 0;
 		}

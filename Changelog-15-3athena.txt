@@ -5,6 +5,53 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/22/2022
+	r325 [15peaces]
+		*Merged missing changes from 3ceam rev. 806 - 811
+		*Updated item and monster sql databases to add all new stable database entries.
+			-Also set the equip_locations as int(11) as its needed to properly store the equip location values for shadow equips.
+		*Fixed novending cause player gets stuck if you try to use a vending skill.
+		*The mount command no longer mounts Ranger's on a warg.
+			-This command was mat to be used for quickly mounting onto things to make testing earier without needing rental NPC's and only be used by GM's. 
+			-But since some server's want to allow player's to use it, I had to remove wargs to prevent exploits. Plus its pointless to have wargs in there when Ranger's can just use their skills to summon and mount onto a warg.
+			-Its now safe for player use.
+		*Fixed a issue where the Cursed Circle status would not end on targets hit with the skill Push Palm Strike.
+		*Fixed a issue where the cursed circle status was not removed from target's that warp/teleport away.
+		*Updated the Global_Functions weapon and armor values.
+		*Updated the item_db document.	
+		*Added the player_baselv_req_skill config.
+			-This set if the new 2nd wave of skills for the Summoners requires the players to have a certain base level to unlock them.
+		*Added the latest tags and ID's for status and skills.
+		*Summoner
+			-Updated the skill tree with newest skills.
+			-Added the Call Baby skill to the skill tree.
+			-Note: Doram's should beable to marry and adopt too.
+		*Updated the entrys for the 2nd wave of Summoner skills.
+			-Their now learnable but not yet usable.
+
+03/19/2022
+	r324 [15peaces]
+		*Merged missing changes from 3ceam rev. 805
+		*Some cleaning & packet fixing.
+			-ZC_ACK_WHISPER02 will now correctly send the GID.
+		*Fixed a issue where the HealPower and HealPower2 item bonus didn't work for Highness Heal.
+		*Cleaned up and fixed some issues with the skill_calc_heal function.
+		*RK_HUNDREDSPEAR; RK_PHANTOMTHRUST
+			-Fixed a issue where the error message at the end of casting would be incorrect.
+		*AB_HIGHNESSHEAL
+			-Fixed a issue where cards and equips that boosted healing power didn't affect the healing of this skill.
+		*NC_PILEBUNKER
+			-Required pile bunker for skill use is now coded in the source.
+			-This allows using the skill while having any of the 4 existing pile bunkers in your inventory. No longer do you have to keep the original one in your inventory to use.
+		*NC_EMERGENCYCOOL
+			-Required cooling device for skill use is now coded in the source.
+			-This allows using the skill while having any of the 3 existing cooling devices in your inventory. Its no longer restricted to the original one.
+		*WM_FRIGG_SONG; AB_OFFERTORIUM; SU_POWEROFSEA; SU_TUNABELLY
+			-Added support for these skills.
+		*SC_FRESHSHRIMP
+			-Updated to April 2016 behavior.
+			-This increases its healing percentage by 4x.
+
 03/19/2022
 	r324 [15peaces]
 		*Merged missing changes from 3ceam rev. 804

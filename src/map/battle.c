@@ -6255,6 +6255,7 @@ static const struct _battle_data {
 	{ "attendance_show_window",				&battle_config.attendance_show_window,			1,		0,      1,				},
 	{ "attendance_starttime",				&battle_config.attendance_starttime,			1,      0,      99999999,		},
 	{ "attendance_endtime",					&battle_config.attendance_endtime,				1,      0,      99999999,		},
+	{ "player_baselv_req_skill",            &battle_config.player_baselv_req_skill,         1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

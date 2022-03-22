@@ -1651,6 +1651,11 @@ int pc_calc_skilltree(struct map_session_data *sd)
 						}
 					}
 				}
+				// Some Summoner skills requires the player to reach a cetain base level to unlock.
+				if( battle_config.player_baselv_req_skill == 1 && sd->status.base_level < 100 && 
+					skill_tree[c][i].id >= SU_POWEROFFLOCK && skill_tree[c][i].id <= SU_SPIRITOFSEA )
+					f = 0;
+				// Some skills require the player to reach a certain job level to unlock.
 				if( sd->status.job_level < skill_tree[c][i].joblv )
 					f = 0; // job level requirement wasn't satisfied
 			}
@@ -1754,6 +1759,9 @@ static void pc_check_skilltree(struct map_session_data *sd, int skill)
 				}
 			}
 			if( !f )
+				continue;
+			if (battle_config.player_baselv_req_skill == 1 && sd->status.base_level < 100 &&
+				skill_tree[c][i].id >= SU_POWEROFFLOCK && skill_tree[c][i].id <= SU_SPIRITOFSEA)
 				continue;
 			if( sd->status.job_level < skill_tree[c][i].joblv )
 				continue;
@@ -6724,8 +6732,8 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 	{
 		sd->status.skill[skill_num].lv++;
 		sd->status.skill_point--;
-		if( !skill_get_inf(skill_num) ) 
-			status_calc_pc(sd,0); // Only recalculate for passive skills.
+		if( !skill_get_inf(skill_num) || skill_num >= SU_TUNABELLY && skill_num <= SU_FRESHSHRIMP ) 
+			status_calc_pc(sd,0); // Only recalculate for passive skills. Must also recalculate on Summoner's Sea skills for SU_POWEROFSEA's bonuses.
 		else if( sd->status.skill_point == 0 && (sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON) )
 			pc_calc_skilltree(sd); // Required to grant all TK Ranger skills.
 		else
@@ -7105,6 +7113,7 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 		case AM_POTIONPITCHER:	if( !(battle_config.skill_add_heal_rate&4) ) bonus = 0; break;
 		case CR_SLIMPITCHER:	if( !(battle_config.skill_add_heal_rate&8) ) bonus = 0; break;
 		case BA_APPLEIDUN:		if( !(battle_config.skill_add_heal_rate&16) ) bonus = 0; break;
+		case AB_HIGHNESSHEAL:	if( !(battle_config.skill_add_heal_rate&32) ) bonus = 0; break;
 		}
 	}
 

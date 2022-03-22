@@ -33,6 +33,10 @@ enum item_itemid
 	ITEMID_RED_GEMSTONE				,
 	ITEMID_BLUE_GEMSTONE			,
 	ITEMID_TRAP						= 1065,
+	ITEMID_PILE_BUNKER				= 1549,
+	ITEMID_COOLING_DEVICE			= 2804,
+	ITEMID_HIGH_QUALITY_COOLER		= 2809,
+	ITEMID_SPECIAL_COOLER			,
 	ITEMID_FACE_PAINT				= 6120,
 	ITEMID_MAKEOVER_BRUSH			,
 	ITEMID_PAINT_BRUSH				,
@@ -121,6 +125,9 @@ enum item_itemid
 	ITEMID_THROW_DROCERA_HERB_STEAMED,
 	ITEMID_THROW_PUTTI_TAILS_NOODLES,
 	ITEMID_THROW_OVERDONE_FOOD		,
+	ITEMID_PILE_BUNKER_S = 16030,
+	ITEMID_PILE_BUNKER_T,
+	ITEMID_PILE_BUNKER_P,
 	ITEMID_LUX_ANIMA_RUNE			= 22540,
 };
 
@@ -129,6 +136,8 @@ enum item_itemid
 
 #define itemid_is_rune(id) ((id) >= ITEMID_NAUTHIZ_RUNE && (id) <= ITEMID_HAGALAZ_RUNE || (id) == ITEMID_LUX_ANIMA_RUNE)
 #define itemid_is_spell_book(id) ((id) >= ITEMID_MAGICBOOK_FIREBOLT && (id) <= ITEMID_MAGICBOOK_DRAINLIFE)
+#define itemid_is_pile_bunker(id) ((id) == ITEMID_PILE_BUNKER || (id) >= ITEMID_PILE_BUNKER_S && (id) <= ITEMID_PILE_BUNKER_P)
+#define itemid_is_cooling_system(id) ((id) == ITEMID_COOLING_DEVICE || (id) == ITEMID_HIGH_QUALITY_COOLER || (id) == ITEMID_SPECIAL_COOLER)
 #define itemid_is_guillotine_poison(id) ((id) >= ITEMID_PARALYSIS_POISON && (id) <= ITEMID_FATIGUE_POISON)
 #define itemid_is_element_point(id) ((id) >= ITEMID_SCARLETT_POINT && (id) <= ITEMID_LIME_GREEN_POINT)
 #define itemid_is_eclage_cures(id) ((id) >= ITEMID_SNOW_FLIP && (id) <= ITEMID_YGGDRASIL_DUST)

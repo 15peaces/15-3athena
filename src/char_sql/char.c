@@ -4365,7 +4365,7 @@ int char_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 		WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : server[i].ip);
 		WFIFOW(fd,26) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
 #if PACKETVER >= 20170315
-		memset(WFIFOP(fd, 28), 0, 128); // Unknown
+		memset(WFIFOP(fd, 28), 0, 128); // DNS Host (unused)
 #endif
 		WFIFOSET(fd,size);
 

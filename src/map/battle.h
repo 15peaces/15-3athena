@@ -588,6 +588,7 @@ extern struct Battle_Config
 	int attendance_show_window;
 	int attendance_starttime;
 	int attendance_endtime;
+	int player_baselv_req_skill;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

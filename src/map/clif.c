@@ -711,7 +711,7 @@ void clif_authok(struct map_session_data *sd)
 	WFIFOSET(fd,packet_len(cmd));
 }
 
-
+/// [4144] Packet not using error_code anymore. Works for fixed error only (MsgString: 9 - Rejected from Server)
 /// Notifies the client, that it's connection attempt was refused (ZC_REFUSE_ENTER).
 /// 0074 <error code>.B
 /// error code:
@@ -1919,7 +1919,6 @@ void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 	WFIFOW(fd,20) = y;
 	WFIFOSET(fd,packet_len(0x91));
 }
-
 
 /// Notifies the client of a position change to coordinates on given map, which is on another map-server (ZC_NPCACK_SERVERMOVE).
 /// 0092 <map name>.16B <x>.W <y>.W <ip>.L <port>.W
@@ -6538,7 +6537,7 @@ void clif_notify_playerchat(struct map_session_data* sd, const char* message)
 
 	if( length > 255 )
 	{// message is limited to 255+1 characters by the client-side buffer
-		ShowWarning("clif_notify_playerchat: Truncated message '%s' (len=%u, max=%u, char_id=%d).\n", message, length, 255, sd->status.char_id);
+		ShowWarning("clif_notify_playerchat: Truncated message '%s' (len=%u, max=%d, char_id=%d).\n", message, length, 255, sd->status.char_id);
 		length = 255;
 	}
 
@@ -6914,11 +6913,13 @@ void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len)
 ///     1 = target character is not loged in
 ///     2 = ignored by target
 ///     3 = everyone ignored by target
+///     other = target character is not logged in
 void clif_wis_end(int fd, int flag)
 {
 #if PACKETVER < 20131223
 	short packet = 0x98;
 #else
+	struct map_session_data *sd = session_isValid(fd) ? session[fd]->session_data : NULL;
 	short packet = 0x9df;
 #endif
 
@@ -6926,7 +6927,7 @@ void clif_wis_end(int fd, int flag)
 	WFIFOW(fd, 0) = packet;
 	WFIFOB(fd, 2) = flag;
 #if PACKETVER >= 20131223
-	WFIFOL(fd, 3) = 0;// Likely for the CCODE system. [Rytech]
+	WFIFOL(fd, 3) = sd->bl.id;
 #endif
 	WFIFOSET(fd, packet_len(packet));
 	return;
@@ -21112,10 +21113,7 @@ static int clif_parse(int fd)
 				*/
 				err == 6 ? ", possibly for having an invalid sex." :
 				". ERROR invalid error code"));
-			WFIFOHEAD(fd,packet_len(0x6a));
-			WFIFOW(fd,0) = 0x6a;
-			WFIFOB(fd,2) = 3; // Rejected from Server
-			WFIFOSET(fd,packet_len(0x6a));
+				clif_auth_error(fd, 3);  // Rejected by server
 #ifdef DUMP_INVALID_PACKET
 			ShowDump(RFIFOP(fd,0), RFIFOREST(fd));
 #endif

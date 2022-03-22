@@ -333,46 +333,84 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 	int skill, hp;
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct map_session_data *tsd = BL_CAST(BL_PC, target);
-	struct status_data *status = status_get_status_data(src);
-	struct status_change* sc = status_get_sc(target);
+	struct status_change* sc;
 
 	switch( skill_id )
 	{
-	case BA_APPLEIDUN:
-		hp = 30 + 5 * skill_lv + 5 * (status->vit/10); // HP recovery
-		if( sd )
-			hp += 5*pc_checkskill(sd,BA_MUSICALLESSON);
-		break;
-	case PR_SANCTUARY:
-		hp = (skill_lv>6)?777:skill_lv*100;
-		break;
-	case NPC_EVILLAND:
-		hp = (skill_lv > 6) ? 666 : skill_lv * 100;
-		break;
-	default:
-		if (skill_lv >= battle_config.max_heal_lv)
-			return battle_config.max_heal;
+		case BA_APPLEIDUN:
+			hp = 30 + 5 * skill_lv + 5 * (status_get_vit(src) / 10); // HP recovery
+			if( sd )
+				hp += 5*pc_checkskill(sd,BA_MUSICALLESSON);
+			break;
+		case PR_SANCTUARY:
+			hp = (skill_lv>6)?777:skill_lv*100;
+			break;
+		case NPC_EVILLAND:
+			hp = (skill_lv > 6) ? 666 : skill_lv * 100;
+			break;
+		case SU_TUNABELLY:// Is this affected by heal bonuses?
+			hp = status_get_max_hp(target) * ( 20 * skill_lv - 10 ) / 100;
+			break;
+		default:
+			if (skill_lv >= battle_config.max_heal_lv)
+				return battle_config.max_heal;
 
-		hp = ( status_get_lv(src) + status->int_ ) / 8 * (4 + ( skill_id == AB_HIGHNESSHEAL ? ( sd ? pc_checkskill(sd,AL_HEAL) : 10 ) : skill_lv ) * 8);
-		if( sd && ((skill = pc_checkskill(sd, HP_MEDITATIO)) > 0) )
-			hp += hp * skill * 2 / 100;
-		else if( src->type == BL_HOM && (skill = merc_hom_checkskill(((TBL_HOM*)src), HLIF_BRAIN)) > 0 )
-			hp += hp * skill * 2 / 100;
-		break;
+			// 1st half of heal's formula.
+			hp = ( status_get_lv(src) + status_get_int(src) ) / 8;
+
+			// 2nd half of heal's formula.
+			// Must check for learned level of heal when Highness Heal is used
+			// so the highest level of heal usable is taken into the calculations.
+			if ( skill_id == AB_HIGHNESSHEAL )
+				hp = hp * ( 4 + (sd? pc_checkskill(sd, AL_HEAL) : 10) * 8 );
+			else
+				hp = hp * ( 4 + skill_lv * 8 );
+
+			if( sd && ((skill = pc_checkskill(sd, HP_MEDITATIO)) > 0) )
+				hp += hp * skill * 2 / 100;
+			else if( sd && (pc_checkskill(sd, SU_POWEROFSEA) > 0) )
+			{
+				short sea_heal = 10;
+
+				if ( (pc_checkskill(sd,SU_TUNABELLY) + pc_checkskill(sd,SU_TUNAPARTY) + 
+					pc_checkskill(sd,SU_BUNCHOFSHRIMP) + pc_checkskill(sd,SU_FRESHSHRIMP)) >= 20 )
+					sea_heal += 20;
+
+				hp += hp * sea_heal / 100;
+			}
+			else if( src->type == BL_HOM && (skill = merc_hom_checkskill(((TBL_HOM*)src), HLIF_BRAIN)) > 0 )
+				hp += hp * skill * 2 / 100;
+			break;
 	}
 
-	if( sd && (skill = pc_skillheal_bonus(sd,skill_id)) )
+	// Highness Heal increases healing by a percentage.
+	if ( skill_id == AB_HIGHNESSHEAL )
+		hp += hp * ( 70 + 30 * skill_lv ) / 100;
+
+	if( ( (target && target->type == BL_MER) || !heal ) && skill_id != NPC_EVILLAND )
+		hp >>= 1;
+
+	if( sd && (skill = pc_skillheal_bonus(sd, skill_id)) )
 		hp += hp * skill / 100;
 		
 	if( tsd && (skill = pc_skillheal2_bonus(tsd,skill_id)) )
 		hp += hp * skill / 100;
 
+	sc = status_get_sc(src);
+	if( sc && sc->count )
+	{
+			if( sc->data[SC_OFFERTORIUM] )
+				hp += hp * sc->data[SC_OFFERTORIUM]->val2 / 100;
+	}
+
+	sc = status_get_sc(target);
+
 	if( sc && sc->count )
 	{
 		if ( skill_id != NPC_EVILLAND && skill_id != BA_APPLEIDUN )
 		{
-			if( sc->data[SC_INCHEALRATE] )
-				hp += hp * sc->data[SC_INCHEALRATE]->val1/100;
+			if (sc->data[SC_INCHEALRATE])// Only affects Heal, Sanctuary and PotionPitcher.(like bHealPower) [Inkfish]
+				hp += hp * sc->data[SC_INCHEALRATE]->val1 / 100;// Highness Heal too. [Rytech]
 			if( sc->data[SC_EXTRACT_WHITE_POTION_Z] )
 				hp += hp * sc->data[SC_EXTRACT_WHITE_POTION_Z]->val1 / 100;
 			if ( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2 )
@@ -384,12 +422,6 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 		if( sc->data[SC_DEATHHURT] )
 			hp -= hp * 20 / 100;
 	}
-
-	if( skill_id == AB_HIGHNESSHEAL )
-		hp = (hp * (200 + 30 * (skill_lv - 1))) / 100;
-
-	if( ( (target && target->type == BL_MER) || !heal ) && skill_id != NPC_EVILLAND )
-		hp >>= 1;
 
 	return hp;
 }
@@ -3980,6 +4012,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 	case CH_PALMSTRIKE: //	Palm Strike takes effect 1sec after casting. [Skotlex]
 	//	clif_skill_nodamage(src,bl,skillid,skilllv,0); //Can't make this one display the correct attack animation delay :/
+		status_change_end(bl, SC_CURSEDCIRCLE_TARGET, INVALID_TIMER);// Needed to end cursed circle on target since skill effect is delayed . [Rytech]
 		clif_damage(src,bl,tick,status_get_amotion(src),0,-1,1,4,0, false); //Display an absorbed damage attack.
 		skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag);
 		break;
@@ -4856,6 +4889,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	{
 	case HLIF_HEAL:	//[orn]
 	case AL_HEAL:
+	case AB_HIGHNESSHEAL:
+	case SU_TUNABELLY:
 		{
 			int heal = skill_calc_heal(src, bl, skillid, skilllv, true);
 			int heal_get_jobexp;
@@ -5356,6 +5391,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RL_HEAT_BARREL:
 	case KO_MEIKYOUSISUI:
 	case RA_UNLIMIT:
+	case AB_OFFERTORIUM:
 	case ALL_FULL_THROTTLE:
 	case SU_ARCLOUSEDASH:
 	case SU_FRESHSHRIMP:
@@ -8725,15 +8761,26 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case WA_MOONLIT_SERENADE:
 	case MI_RUSH_WINDMILL:
 	case MI_ECHOSONG:
-			if( flag&1 )
-				sc_start4(bl, type, 100, skilllv, pc_checkskill(sd, WM_LESSON), status_get_job_lv(src), 0, skill_get_time(skillid, skilllv));
-			else if( sd )
-			{
-				party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
-				sc_start4(bl, type, 100, skilllv, pc_checkskill(sd, WM_LESSON), status_get_job_lv(src), 0, skill_get_time(skillid, skilllv));
-				clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			}
-			break;
+		if( flag&1 )
+			sc_start4(bl,type,100,skilllv,pc_checkskill(sd,WM_LESSON),status_get_job_lv(src),0,skill_get_time(skillid,skilllv));
+		else if( sd )
+		{
+			party_foreachsamemap(skill_area_sub,sd,skill_get_splash(skillid,skilllv),src,skillid,skilllv,tick,flag|BCT_PARTY|1,skill_castend_nodamage_id);
+			sc_start4(bl,type,100,skilllv,pc_checkskill(sd,WM_LESSON),status_get_job_lv(src),0,skill_get_time(skillid,skilllv));
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
+
+	case WM_FRIGG_SONG:
+		if( flag&1 )
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		else if( sd )
+		{
+			map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv),BL_PC, src, skillid, skilllv, tick, flag|BCT_NOENEMY|1, skill_castend_nodamage_id);
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+		}
+		break;
 
 	case MI_HARMONIZE:
 		clif_skill_nodamage(src,bl,skillid,skilllv,sc_start2(bl,type,100,skilllv,pc_checkskill(sd,WM_LESSON),skill_get_time(skillid,skilllv)));
@@ -13004,6 +13051,19 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	// perform skill-specific checks (and actions)
 	switch( skill )
 	{
+		case MC_VENDING:
+		case ALL_BUYING_STORE:
+			if (map[sd->bl.m].flag.novending) {
+				clif_displaymessage(sd->fd, msg_txt(276)); // "You can't open a shop on this map"
+				clif_skill_fail(sd, skill, USESKILL_FAIL_LEVEL, 0, 0);
+				return 0;
+			}
+			if (map_getcell(sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKNOVENDING)) {
+				clif_displaymessage(sd->fd, msg_txt(204)); // "You can't open a shop on this cell."
+				clif_skill_fail(sd, skill, USESKILL_FAIL_LEVEL, 0, 0);
+				return 0;
+			}
+			break;
 		case SA_CASTCANCEL:
 		case SO_SPELLFIST:
 			if( sd->ud.skilltimer == INVALID_TIMER) 
@@ -13320,7 +13380,8 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 	case RK_HUNDREDSPEAR:
 	case RK_PHANTOMTHRUST://Well make this skill ask for a spear even tho its not official. It does require a spear type.
-		if( require.weapon && !pc_check_weapontype(sd,require.weapon) ) {
+		if( require.weapon && !pc_check_weapontype(sd,require.weapon) ) 
+		{
 			clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_EQUIPPED_WEAPON_CLASS,4,0);//Spear required.
 			return 0;
 		}
@@ -13755,14 +13816,14 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 		case PR_BENEDICTIO:
 			skill_check_pc_partner(sd, skill, &lv, 1, 1);
 			break;
-	case AB_ADORAMUS:
-		if( skill_check_pc_partner(sd,skill,&lv, 1, 2) )
-			sd->state.no_gemstone = 1; // Mark this skill as it don't consume ammo because partners gives SP
-		break;
-	case WL_COMET:
-		if( skill_check_pc_partner(sd,skill,&lv, 1, 0) )
-			sd->state.no_gemstone = 1; // No need to consume 2 Red Gemstones if there are partners near
- 		break;
+		case AB_ADORAMUS:
+			if( skill_check_pc_partner(sd,skill,&lv, 1, 2) )
+				sd->state.no_gemstone = 1; // Mark this skill as it don't consume ammo because partners gives SP
+			break;
+		case WL_COMET:
+			if( skill_check_pc_partner(sd,skill,&lv, 1, 0) )
+				sd->state.no_gemstone = 1; // No need to consume 2 Red Gemstones if there are partners near
+ 			break;
 		case AM_CANNIBALIZE:
 		case AM_SPHEREMINE:
 		{
@@ -13790,28 +13851,43 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 				return 0;
 			}
 			break;
-
-	case NC_SILVERSNIPER:
-	case NC_MAGICDECOY:
-		{
-			int c = 0, j;
-			int maxcount = skill_get_maxcount(skill,lv);
-			int mob_class = 2042;
-			if( skill == NC_MAGICDECOY )
-				mob_class = 2043;
-			if( battle_config.land_skill_limit && maxcount > 0 && ( battle_config.land_skill_limit&BL_PC ) ){
-				if( skill == NC_MAGICDECOY ){
-					for( j = mob_class; j <= 2046; j++ )
-						i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, j, skill, &c);
-				}else
-					i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, mob_class, skill, &c);
- 				if( c >= maxcount ){
-					clif_skill_fail(sd , skill, 0, 0, 0);
-					return 0;
+		case NC_PILEBUNKER:// As of April 2016 there's only 4 pile bunkers in existance.
+			if ( !((pc_search_inventory(sd,ITEMID_PILE_BUNKER) + pc_search_inventory(sd,ITEMID_PILE_BUNKER_S) + 
+				pc_search_inventory(sd,ITEMID_PILE_BUNKER_T) + pc_search_inventory(sd,ITEMID_PILE_BUNKER_P)) >= 1) )
+			{
+				clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_ITEM,0,ITEMID_PILE_BUNKER);
+				return 0;
+			}
+			break;
+		case NC_EMERGENCYCOOL:
+			if ( !((pc_search_inventory(sd,ITEMID_COOLING_DEVICE) + pc_search_inventory(sd,ITEMID_HIGH_QUALITY_COOLER) + 
+				pc_search_inventory(sd,ITEMID_SPECIAL_COOLER)) >= 1) )
+			{
+				clif_skill_fail(sd,skill,USESKILL_FAIL_NEED_ITEM,0,ITEMID_COOLING_DEVICE);
+				return 0;
+			}
+			break;
+		case NC_SILVERSNIPER:
+		case NC_MAGICDECOY:
+			{
+				int c = 0, j;
+				int maxcount = skill_get_maxcount(skill,lv);
+				int mob_class = 2042;
+				if( skill == NC_MAGICDECOY )
+					mob_class = 2043;
+				if( battle_config.land_skill_limit && maxcount > 0 && ( battle_config.land_skill_limit&BL_PC ) ){
+					if( skill == NC_MAGICDECOY ){
+						for( j = mob_class; j <= 2046; j++ )
+							i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, j, skill, &c);
+					}else
+						i = map_foreachinmap(skill_check_condition_mob_master_sub, sd->bl.m, BL_MOB, sd->bl.id, mob_class, skill, &c);
+ 					if( c >= maxcount ){
+						clif_skill_fail(sd , skill, 0, 0, 0);
+						return 0;
+					}
 				}
 			}
-		}
-		break;
+			break;
 	}
 
 	status = &sd->battle_status;
@@ -14003,6 +14079,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			req.sp += sc->data[SC__LAZINESS]->val1 * 10;
 		if( sc->data[SC_UNLIMITED_HUMMING_VOICE] )
 			req.sp += req.sp * sc->data[SC_UNLIMITED_HUMMING_VOICE]->val3 / 100;
+		if (sc->data[SC_OFFERTORIUM])
+			req.sp += req.sp * sc->data[SC_OFFERTORIUM]->val3 / 100;
 	}
 
 	req.zeny = skill_db[j].zeny[lv-1];
