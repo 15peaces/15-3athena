@@ -65,7 +65,7 @@
 // Job Related Items - 15-3athena
 //=============================================================
 // Rune Knight's 10th Rune (skill not coded in yet)
-22540,Runstone_Luxanima,Lux Anima Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
+22540,Runstone_Lux,Lux Anima Rune,11,2,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 
 // needs updated item info...
 2895,Medal_Of_Valor1,Medal Of Valor1,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bCastrate,-2; },{},{}
@@ -3910,27 +3910,35 @@
 28201,Southern_Cross,Southern Cross,4,2800000,,2000,480,,9,0,0x01000000,7,2,34,3,141,1,21,{},{},{}
 28202,Southern_Cross_,Southern Cross,4,10,,2000,480,,9,1,0x01000000,7,2,34,3,141,1,21,{},{},{}
 // Rebellion Slug Ammo
-13210,Slug_Ammo_L,Slug Ammo L,10,25,,250,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
-13211,Slug_Ammo_M,Slug Ammo M,10,50,,500,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
-13212,Slug_Ammo_H,Slug Ammo H,10,75,,750,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
-13213,Slug_Ammo_SH,Slug Ammo SH,10,100,,1000,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
-13214,Slug_Ammo_XH,Slug Ammo XH,10,120,,1200,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
+13210,Slug_Bullet_1,Slug Ammo L,10,250,,250,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
+13211,Slug_Bullet_2,Slug Ammo M,10,500,,500,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
+13212,Slug_Bullet_3,Slug Ammo H,10,750,,750,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
+13213,Slug_Bullet_4,Slug Ammo SH,10,1000,,1000,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
+13214,Slug_Bullet_5,Slug Ammo XH,10,1200,,1200,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
 // Rebellion Ammo
 //Note: 13221 - 13227 are copys of the gunslinger bullets and spheres. Why?
-13215,Armor-Piercing_Bullet,Armor-Piercing Bullet,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
-13216,Scorching_Bullet,Scorching Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
+13215,AP_Ammo,Armor-Piercing Bullet,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13216,Blaze_Bullet,Blaze Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
 13217,Freezing_Bullet,Freezing Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Water; },{},{}
-13218,Lightning_Bullet,Lightning Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
-13219,Manastone_Bullet,Manastone Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
-13220,Purification_Bullet,Purification Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
++13218,Electric_Shock_Bullet,Electric Shock Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
++13219,Magical_Stone_Bullet,Magical Stone Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
++13220,Sanctified_Bullet,Sanctified Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
+// Universal Ammo??? These replace the sphere's ammo and are usable with all gun types. Prices are correct.
+13228,Unknown_Ammo_1,Unknown Ammo 1,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13229,Unknown_Ammo_2,Unknown Ammo 2,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13230,Unknown_Ammo_3,Unknown Ammo 3,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13231,Unknown_Ammo_4,Unknown Ammo 4,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13232,Unknown_Ammo_5,Unknown Ammo 5,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
 // Rebellion Bullet Cases
 //Note: 22737 - 22743 are copys of the gunslingers bullet and sphere cases. Why?
-22744,Bullet_Case_Armor-Piercing,Armor-Piercing Cartridge,2,25000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13215,500; },{},{}
-22745,Bullet_Case_Scorching,Scorching Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13216,500; },{},{}
-22746,Bullet_Case_Freezing,Freezing Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13217,500; },{},{}
-22747,Bullet_Case_Lightning,Lightning Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13218,500; },{},{}
-22748,Bullet_Case_Manastone,Manastone Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13219,500; },{},{}
-22749,Bullet_Case_Purification,Purification Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13220,500; },{},{}
+//The copied bullet cases were made since prices for bullets were reduced, but didn't want to change them
+//directly on the old bullet case ID's to prevent accidently changing case prices on other servers outside kRO.
+22744,Bullet_Case_AP,Armor-Piercing Cartridge,2,25000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13215,500; },{},{}
+22745,Bullet_Case_Blaze,Blaze Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13216,500; },{},{}
+22746,Bullet_Case_Fleeze,Freezing Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13217,500; },{},{}
+22747,Bullet_Case_Electric,Electric Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13218,500; },{},{}
+22748,Bullet_Case_Stone,Stone Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13219,500; },{},{}
+22749,Sanctified_Bullet_Case,Sanctified Cartridge,2,20000,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 13220,500; },{},{}
 
 // missing equip (renewal)
 15283,Mighty_Black_Threaded_Armor,Mighty Black Threaded Armor,5,20,,800,,60,,1,0xFFFFFFFF,63,2,16,,100,1,0,{ set .@r, getrefine(); bonus bBaseAtk,10; bonus2 bIgnoreDefClassRate,Class_All,10; if (.@r>=7) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; } if (.@r>=8) { bonus bBaseAtk,20; bonus2 bIgnoreDefClassRate,Class_All,20; bonus bUnbreakableArmor,0; } if (.@r>=9) { bonus bBaseAtk,30; bonus2 bIgnoreDefClassRate,Class_All,20; } },{},{}
@@ -3998,9 +4006,9 @@
 
 // 3ceam stable
 // New Mechanic Pile Bunkers
-16030,Pilebuncker_S,Pile Bunker S,4,250000,,3000,400,,1,1,0x00000400,8,2,2,4,130,1,8,{ bonus bAspdRate,getrefine()/2; },{},{}
-16031,Pilebuncker_P,Pile Bunker P,4,250000,,4000,450,,1,0,0x00000400,8,2,2,4,130,1,8,{ bonus bBaseAtk,getrefine()*5; },{},{}
-16032,Pilebuncker_T,Pile Bunker T,4,250000,,3500,400,,1,1,0x00000400,8,2,2,4,130,1,8,{ bonus bUseSPrate,getrefine()*1; },{},{}
+16030,Pilebuncker_S,Pile Bunker S,4,30000,,3000,400,,1,1,0x00000400,8,2,2,4,130,1,8,{ bonus bAspdRate,getrefine()/2; },{},{}
+16031,Pilebuncker_P,Pile Bunker P,4,30000,,4000,450,,1,0,0x00000400,8,2,2,4,130,1,8,{ bonus bBaseAtk,getrefine()*5; },{},{}
+16032,Pilebuncker_T,Pile Bunker T,4,30000,,3500,400,,1,1,0x00000400,8,2,2,4,130,1,8,{ bonus bUseSPrate,getrefine()*1; },{},{}
 // Hunter's Falcon Flute
 12848,Falcon_Flute,Falcon Flute,11,10000,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ setfalcon 1; },{},{}
 
@@ -4212,7 +4220,7 @@
 31834,C_Halloween_Cat_Long,C Halloween Long Haired Cat Ears,5,0,,,,,,,0xFFFFFFFF,63,2,4096,,1,0,1940,{},{},{}
 
 // Summoner Weapons And Equips (3ceam)
-1681,Short_Foxtail_Staff,Short Foxtail Staff,4,20,,0,30,,1,0,0x04000000,7,2,2,1,1,1,10,{},{},{}
+1681,Short_Foxtail_Staff,Short Foxtail Staff,4,0,,0,30,,1,0,0x04000000,7,2,2,1,1,1,10,{},{},{}
 
 // missing items
 22566,Frost_Crystal,Last Year's Frost,3,20,,0,,,,,,,,,,,,,{},{},{}
@@ -4356,5 +4364,22 @@
 9122,Gloom_Under_Egg,Gloom Under Night Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
 9123,Ep_17_2_C_Admin1_Egg,Child Admin Beta Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
 9124,Ep_17_2_C_Admin2_Egg,Child Admin Alpha Egg,7,20,,0,,,,,,,,,,,,,{},{},{}
+20446,C_Bunny_Eggshell,Costume Bunny Eggshell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1339,{},{},{}
+20447,C_Small_Poring_Band,Costume Small Porings Headband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,955,{},{},{}
+20448,C_Cons_Of_Water,Costume Water Spellcaster,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1451,{},{},{}
+20449,C_White_Black_Temp,Costume White and Black Temptation,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1452,{},{},{}
+20450,C_Gram_Peony,Costume Gram Peony,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1453,{},{},{}
+20451,C_Sky_of_Memory,Costume Sky of Memory,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1454,{},{},{}
+20452,C_Crown_of_Strawberry_Prince,Costume Crown of Strawberry Prince,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1455,{},{},{}
 23188,Unprocessed_Parts,Unprocessed Parts,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 1632; },{},{}
 23189,Small_Needle_Kit,Small Needle Kit,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ pet 1622; },{},{}
+31092,C_Rabbit_Ribbon_Hat,Costume Bunny Ribbon Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,845,{},{},{}
+31093,C_Under_Lamp,Costume Under Lamp,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1531,{},{},{}
+31094,C_Dice_Hat,Costume Dice Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,494,{},{},{}
+31095,C_JP_EV01,Costume Mythical Baphomet Horns,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1532,{},{},{}
+31096,C_JP_EV02,Costume Dog Ears of Bau Alma,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,0,1533,{},{},{}
+31097,C_JP_EV03,Costume Bunny Ears of Minnie Doe Alma,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1534,{},{},{}
+31098,C_JP_EV04,Costume Fox Ears of Tamamo Loa,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1535,{},{},{}
+31099,C_JP_EV05,Costume Headdress of Ontama Aria,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1536,{},{},{}
+31100,C_JP_EV06,Costume Hat of Dumpty Alma,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1537,{},{},{}
+31101,C_JP_EV07,Costume Taini Hat Blue,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1538,{},{},{}

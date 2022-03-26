@@ -7959,7 +7959,7 @@
 
 22514,Candy_Holder,Candy Holder,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; getitem groupranditem(IG_Candy_Holder),1; },{},{}
 // Hanbok Outfit
-22538,Hanbok_Pocket,Hanbok Pocket,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
+22538,Hanbok_Bag,Hanbok Bag,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_HANBOK,600000,0; },{},{}
 // Oktoberfest Outfit
 22625,Oktoberfest_Bag,Oktoberfest Bag,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_OKTOBERFEST,600000,0; },{},{}
 

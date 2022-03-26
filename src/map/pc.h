@@ -629,6 +629,23 @@ enum adopt_responses {
 	ADOPT_MARRIED,
 };
 
+enum e_chkitem_result {
+	CHKADDITEM_EXIST,
+	CHKADDITEM_NEW,
+	CHKADDITEM_OVERAMOUNT
+};
+
+enum e_additem_result {
+	ADDITEM_SUCCESS,
+	ADDITEM_INVALID,
+	ADDITEM_OVERWEIGHT,
+	ADDITEM_ITEM,
+	ADDITEM_OVERITEM,
+	ADDITEM_OVERAMOUNT,
+	ADDITEM_REFUSED_TIME,
+	ADDITEM_STACKLIMIT
+};
+
 struct {
 	unsigned int base_hp[MAX_LEVEL], base_sp[MAX_LEVEL]; //Storage for the first calculation with hp/sp factor and multiplicator
 	int hp_factor, hp_multiplicator, sp_factor;
@@ -739,8 +756,10 @@ extern unsigned int equip[EQI_MAX];
 	|| ( (class_) >= JOB_RUNE_KNIGHT	&& (class_) <= JOB_BABY_MECHANIC2 ) \
 	|| ( (class_) >= JOB_SUPER_NOVICE_E && (class_) <= JOB_SUPER_BABY_E ) \
 	|| ( (class_) >= JOB_KAGEROU		&& (class_) <= JOB_OBORO ) \
-||	  (class_) == JOB_REBELLION      || (class_) == JOB_SUMMONER         \
-||    (class_) == JOB_BABY_SUMMONER \
+	||	 (class_) == JOB_REBELLION      || (class_) == JOB_SUMMONER         \
+	||   (class_) == JOB_BABY_SUMMONER \
+	|| ( (class_) >= JOB_BABY_NINJA     && (class_) <= JOB_BABY_REBELLION ) \
+	||   (class_) == JOB_BABY_STAR_GLADIATOR2 \
 )
 
 static inline bool pc_hasprogress(struct map_session_data *sd, enum e_wip_block progress) {
@@ -990,12 +1009,6 @@ extern unsigned int statp[MAX_LEVEL + 1];
 void pc_readdb(void);
 int do_init_pc(void);
 void do_final_pc(void);
-
-enum {
-	ADDITEM_EXIST,
-	ADDITEM_NEW,
-	ADDITEM_OVERAMOUNT
-};
 
 // timer for night.day
 extern int day_timer_tid;

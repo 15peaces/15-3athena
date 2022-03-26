@@ -7201,7 +7201,7 @@ void clif_item_skill(struct map_session_data *sd,int skillid,int skilllv)
 /// 0124 <index>.W <amount>.L <name id>.W <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_CART)
 /// 01c5 <index>.W <amount>.L <name id>.W <type>.B <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_CART2)
 /// 0a0b <index>.W <amount>.L <name id>.W <type>.B <identified>.B <damaged>.B <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W (ZC_ADD_ITEM_TO_CART3)
-void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
+void clif_cart_additem(struct map_session_data *sd,int n,int amount)
 {
 #if PACKETVER < 5
 	const int cmd = 0x124;
@@ -7242,6 +7242,26 @@ void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail)
 	clif_add_random_options(WBUFP(buf,21+offset), &sd->cart.u.items_cart[n]);
 #endif
 	WFIFOSET(fd,packet_len(cmd));
+}
+
+// [Ind/Hercules] - Data Thanks to Yommy (ZC_ACK_ADDITEM_TO_CART)
+/* Acknowledge an item have been added to cart
+ * 012c <result>B
+ * result :
+ * 0 = ADDITEM_TO_CART_FAIL_WEIGHT
+ * 1 = ADDITEM_TO_CART_FAIL_COUNT
+ */
+void clif_cart_additem_ack(struct map_session_data *sd, uint8 flag)
+{
+	int fd;
+	unsigned char *buf;
+	nullpo_retv(sd);
+
+	fd = sd->fd;
+	buf = WFIFOP(fd, 0);
+	WBUFW(buf, 0) = 0x12c;
+	WBUFB(buf, 2) = flag;
+	clif_send(buf, packet_len(0x12c), &sd->bl, SELF);
 }
 
 // 09B7 <unknow data> (ZC_ACK_OPEN_BANKING) 
@@ -17056,10 +17076,10 @@ void clif_parse_Mail_getattach( int fd, struct map_session_data *sd ){
 					continue;
 
 				switch( pc_checkadditem(sd, item->nameid, item->amount) ){
-					case ADDITEM_NEW:
+					case CHKADDITEM_NEW:
 						new_++;
 						break;
-					case ADDITEM_OVERAMOUNT:
+					case CHKADDITEM_OVERAMOUNT:
 						clif_mail_getattachment(sd, msg, 2, MAIL_ATT_ITEM);
 						return;
 				}

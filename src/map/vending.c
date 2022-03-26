@@ -159,14 +159,14 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		vending[j].amount -= amount;
 
 		switch( pc_checkadditem(sd, vsd->cart.u.items_cart[idx].nameid, amount) ) {
-		case ADDITEM_EXIST:
+		case CHKADDITEM_EXIST:
 			break;	//We'd add this item to the existing one (in buyers inventory)
-		case ADDITEM_NEW:
+		case CHKADDITEM_NEW:
 			new_++;
 			if (new_ > blank)
 				return; //Buyer has no space in his inventory
 			break;
-		case ADDITEM_OVERAMOUNT:
+		case CHKADDITEM_OVERAMOUNT:
 			return; //too many items
 		}
 	}

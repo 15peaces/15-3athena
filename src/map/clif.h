@@ -464,6 +464,11 @@ enum useskill_fail_cause
 };
 
 enum clif_messages {
+	/* Constant values */
+	// clif_cart_additem_ack flags
+	ADDITEM_TO_CART_FAIL_WEIGHT = 0x0,
+	ADDITEM_TO_CART_FAIL_COUNT = 0x1,
+
 	// clif_equipitemack flags
 	ITEM_EQUIP_ACK_OK = 0,
 	ITEM_EQUIP_ACK_FAIL = 1,
@@ -772,8 +777,9 @@ void clif_insert_card(struct map_session_data *sd,int idx_equip,int idx_card,int
 void clif_inventorylist(struct map_session_data *sd);
 void clif_equiplist(struct map_session_data *sd);
 
-void clif_cart_additem(struct map_session_data *sd,int n,int amount,int fail);
+void clif_cart_additem(struct map_session_data *sd,int n,int amount);
 void clif_cart_delitem(struct map_session_data *sd,int n,int amount);
+void clif_cart_additem_ack(struct map_session_data *sd, uint8 flag);
 void clif_cartlist(struct map_session_data *sd);
 void clif_clearcart(int fd);
 

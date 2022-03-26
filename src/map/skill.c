@@ -455,7 +455,7 @@ int can_copy (struct map_session_data *sd, int skillid, struct block_list* bl)
 	if( sd )
 	{
 		// Couldn't preserve 3rd Class skills except only when using Reproduce skill. [Jobbie]
-		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= RL_GLITTERING_GREED && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= SU_FRESHSHRIMP)))
+		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= RL_GLITTERING_GREED && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= SU_SPIRITOFSEA)))
 			return 0;
 		// Reproduce will only copy skills according on the list. [Jobbie]
 		if( sd->sc.data[SC__REPRODUCE] && !id )
@@ -4863,7 +4863,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 					return 0;
 				}
-				return skill_castend_damage_id (src, bl, skillid, skilllv, tick, flag);
+				return skill_castend_damage_id(src, bl, skillid == AB_HIGHNESSHEAL ? AL_HEAL : skillid, skilllv, tick, flag);
 			}
 			break;
 		case NPC_SMOKING: //Since it is a self skill, this one ends here rather than in damage_id. [Skotlex]
@@ -4901,6 +4901,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if (sd && dstsd && sd->status.partner_id == dstsd->status.char_id && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.sex == 0)
 				heal = heal*2;
 
+			if (dstsd && dstsd->sc.option&OPTION_MADOGEAR)
+				heal = 0;//Mado's cant be healed. Only Repair can heal them.
+
 			if( tsc && tsc->count )
 			{
 				if( tsc->data[SC_KAITE] && !(sstatus->mode&MD_BOSS) )
@@ -4913,12 +4916,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						bl = src;
 						dstsd = sd;
 					}
-				} else
-				if (tsc->data[SC_BERSERK])
+				} else if (tsc->data[SC_BERSERK])
 					heal = 0; //Needed so that it actually displays 0 when healing.
+				else if (tsc->data[SC_AKAITSUKI] && ( skillid == AL_HEAL || skillid == AB_HIGHNESSHEAL ))
+				{
+					skill_akaitsuki_damage(src, bl, heal, skillid, skilllv, tick);
+					break;
+				}
 			}
-			if( dstsd && dstsd->sc.option&OPTION_MADOGEAR )
-				heal = 0;
 			heal_get_jobexp = status_heal(bl,heal,0,0);
 			clif_skill_nodamage (src, bl, skillid, heal, 1);
 
@@ -7357,7 +7362,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SL_NINJA:
 	case SL_GUNNER:
 		//NOTE: here, 'type' has the value of the associated MAPID, not of the SC_SPIRIT constant.
-		if (sd && !(dstsd && ((dstsd->class_&MAPID_UPPERMASK) == type ||
+		if (sd && !(dstsd && ((dstsd->class_&MAPID_UPPERMASK) == type || // Can below code be optomized??? [Rytech]
 			(skillid == SL_NINJA && (dstsd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO) ||
 			(skillid == SL_GUNNER && (dstsd->class_&MAPID_UPPERMASK) == MAPID_REBELLION)))) {
 			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
@@ -9355,7 +9360,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KO_IZAYOI:
 	case KG_KYOMU:
 	case KG_KAGEMUSYA:
-	case OB_ZANGETSU:
 	case OB_OBOROGENSOU:
 	case OB_AKAITSUKI:
 	case RL_C_MARKER:
@@ -9390,6 +9394,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
 				src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
+		break;
+
+	case OB_ZANGETSU:
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
+		sc_start2(bl, type, 100, skilllv, status_get_lv(src), skill_get_time(skillid, skilllv));
 		break;
 
 	case RL_RICHS_COIN:
@@ -10539,6 +10549,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
 		break;
+	// Group these skills under their own flags so reusing the skill replaces its own field.
+	case SO_CLOUD_KILL:
+	case SO_WARMER:
+		flag|=(skillid == SO_CLOUD_KILL)?4:8;
+		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		break;
 	case RG_GRAFFITI:			/* Graffiti [Valaris] */
 		skill_clear_unitgroup(src);
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
@@ -10565,11 +10581,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RG_CLEANER: // [Valaris]
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea(skill_graffitiremover,src->m,x-i,y-i,x+i,y+i,BL_SKILL);
-		break;
-	case SO_CLOUD_KILL:
-	case SO_WARMER:
-		flag|=(skillid == SO_WARMER)?8:4;
-		skill_unitsetting(src,skillid,skilllv,x,y,0);
 		break;
 	case WZ_METEOR:
 		{
@@ -11900,8 +11911,13 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					break;
 				if( status_isimmune(bl) )
 					heal = 0;
-				clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
-				status_heal(bl, heal, 0, 0);
+				if( tsc && tsc->data[SC_AKAITSUKI] )
+					skill_akaitsuki_damage(&src->bl, bl, heal, sg->skill_id, sg->skill_lv, tick);
+				else
+				{
+					clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
+					status_heal(bl, heal, 0, 0);
+				}
 				if( diff >= 500 )
 					sg->val1--;
 			}
@@ -12096,8 +12112,13 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			if( sg->src_id == bl->id && !(tsc && tsc->data[SC_SPIRIT] && tsc->data[SC_SPIRIT]->val2 == SL_BARDDANCER) )
 				break; // affects self only when soullinked
 			heal = skill_calc_heal(ss,bl,sg->skill_id, sg->skill_lv, true);
-			clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
-			status_heal(bl, heal, 0, 0);
+			if( tsc && tsc->data[SC_AKAITSUKI] )
+				skill_akaitsuki_damage(&src->bl, bl, heal, sg->skill_id, sg->skill_lv, tick);
+			else
+			{
+				clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
+				status_heal(bl, heal, 0, 0);
+			}
 			break;
 		}
 
@@ -12377,16 +12398,21 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
  			break;
 
 		case UNT_WARMER:
-			if (bl->type == BL_PC && !battle_check_undead(tstatus->race, tstatus->def_ele) && tstatus->race != RC_DEMON)
 			{
-				int hp = 0;
+				int heal = tstatus->max_hp * sg->skill_lv / 100;
+
 				if (ssc && ssc->data[SC_HEATER_OPTION])
-					hp = tstatus->max_hp * 3 * sg->skill_lv / 100;
+					heal = tstatus->max_hp * 3 * sg->skill_lv / 100;
+
+				if( tsc && tsc->data[SC_AKAITSUKI] )
+					skill_akaitsuki_damage(&src->bl, bl, heal, sg->skill_id, sg->skill_lv, tick);
 				else
-					hp = tstatus->max_hp * sg->skill_lv / 100;
-				status_heal(bl, hp, 0, 0);
-				if (tstatus->hp != tstatus->max_hp)
-					clif_skill_nodamage(&src->bl, bl, AL_HEAL, hp, 0);
+				{
+					if ( battle_config.warmer_show_heal == 1 )
+						clif_skill_nodamage(&src->bl, bl, AL_HEAL, heal, 1);
+
+					status_heal(bl, heal, 0, 0);
+				}
 					sc_start(bl, SC_WARMER, 100, sg->skill_lv, skill_get_time2(sg->skill_id, sg->skill_lv));
 			}
 			break;
@@ -12490,35 +12516,32 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, int64 tick)
 	{
 		case UNT_SAFETYWALL:
 		case UNT_PNEUMA:
-			if (sce)
-				status_change_end(bl, type, INVALID_TIMER);
-			break;
-
-		case UNT_DISSONANCE:
-		case UNT_UGLYDANCE: //Used for updating timers in song overlap instances
-			{
-				short i;
-				for(i = BA_WHISTLE; i <= DC_SERVICEFORYOU; i++){
-					if(skill_get_inf2(i)&(INF2_SONG_DANCE)){
-						type = status_skill2sc(i);
-						sce = (sc && type != -1)?sc->data[type]:NULL;
-						if(sce)
-							return i;
-					}
-				}
-			}
-
-		case UNT_BASILICA:
-			if( sce && sce->val4 == src->bl.id )
-				status_change_end(bl, type, INVALID_TIMER);
-			break;
-
 		case UNT_EPICLESIS:
 		case UNT_WARMER:
 		case UNT_WATER_BARRIER:
 		case UNT_ZEPHYR:
-			if( sce ) status_change_end(bl,type,-1);
+		if (sce)
+			status_change_end(bl, type, INVALID_TIMER);
+		break;
+
+	case UNT_BASILICA:
+		if( sce && sce->val4 == src->bl.id )
+			status_change_end(bl, type, INVALID_TIMER);
 			break;
+
+		case UNT_DISSONANCE:
+		case UNT_UGLYDANCE: //Used for updating timers in song overlap instances
+		{
+			short i;
+			for (i = BA_WHISTLE; i <= DC_SERVICEFORYOU; i++) {
+				if (skill_get_inf2(i)&(INF2_SONG_DANCE)) {
+					type = status_skill2sc(i);
+					sce = (sc && type != -1) ? sc->data[type] : NULL;
+					if (sce)
+						return i;
+				}
+			}
+		}
 
 		case UNT_HERMODE:	//Clear Hermode if the owner moved.
 			if (sce && sce->val3 == BCT_SELF && sce->val4 == sg->group_id)
@@ -17321,6 +17344,14 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 	return 0;
 }
 
+int skill_akaitsuki_damage(struct block_list* src, struct block_list *bl, int damage, int skillid, int skilllv, int64 tick)
+{	// Deals damage to the affected target if healed from one of the following skills....
+	// AL_HEAL, PR_SANCTUARY, BA_APPLEIDUN, AB_RENOVATIO, AB_HIGHNESSHEAL, SO_WARMER
+	damage = damage / 2;// Damage is half of the heal amount.
+	clif_skill_damage(src, bl, tick, status_get_amotion(src), status_get_dmotion(bl), damage, 1, skillid == AB_HIGHNESSHEAL ? AL_HEAL : skillid, skilllv, 6);
+	status_zap(bl, damage, 0);
+	return 0;
+}
 
 /*==========================================
  *

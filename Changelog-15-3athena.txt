@@ -5,6 +5,47 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/26/2022
+	r326 [15peaces]
+		*Merged missing changes from 3ceam rev. 812 - 813
+		*Fixed some issues related to moving items.
+			-Dragging an item into a full/overweighted inventory or cart caused the item to get stuck until relog.
+			-This update is fixing this and also adds an overweight message.
+			-Also added support for the ZC_ACK_ADDITEM_TO_CART packet to send the correct response to the client.
+		*Added the "warmer_show_heal" config to skill config.
+		*Did some updateing, cleaning, and organizing to the "jobchange" command to make job changing by typed words more easy.
+		*Added a new unit tag and ID.
+		*Added the skill_akaitsuki_damage function.
+			-Added for use with the Akaitsuki skill
+		*The "jobchange" command is updated.
+			-Updated the listing of jobs and ID's.
+			-All expanded jobs for babys are now listed in its own group.
+		*Updated item database.
+			-Added some missing items.
+			-Updated some item names with official names.
+			-Added official prices for the 3 special pile bunkers.
+			-Updated item price for short foxtail staff.
+		*Baby Summoner; Baby Ninja; Baby Kagerou; Baby Oboro; Baby Taekwon; Baby Star Gladiator; Baby Soul Linker; Baby Gunslinger; Baby Rebellion
+			-Added full support for these jobs.
+			-Note: A 2016-12-07 or newer client (2016-12-28aRagexeRE or newer on 15-3athena) is needed to view these jobs.
+		*Summoner
+			-Updating the SP cost of some skills.
+			-Updated the target types for the 2nd wave of skills.
+			-Note: Just getting things prepaired for coding.
+		*AB_HIGHNESSHEAL
+			-Fixed a issue where a animation didn't appear when damaging the undead.
+		*SO_CLOUD_KILL
+			-Skill effect is no longer stackable.
+		*SO_WARMER
+			-Recoded the skill.
+			-Skill effect is no longer stackable.
+			-Now affects player's and monster's.
+			-Now affects both allies and enemies.
+		*OB_ZANGETSU / Distorted Crescent Moon; OB_AKAITSUKI / Ominous Crimson Moonlight
+			-Added support for these skills.
+		*SU_BITE; SU_SCRATCH
+			-Updated the skill range.
+
 03/22/2022
 	r325 [15peaces]
 		*Merged missing changes from 3ceam rev. 806 - 811

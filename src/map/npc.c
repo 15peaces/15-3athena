@@ -1409,14 +1409,14 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 
 		switch( pc_checkadditem(sd,nameid,amount) )
 		{
-			case ADDITEM_EXIST:
+			case CHKADDITEM_EXIST:
 				break;
 
-			case ADDITEM_NEW:
+			case CHKADDITEM_NEW:
 				new_++;
 				break;
 
-			case ADDITEM_OVERAMOUNT:
+			case CHKADDITEM_OVERAMOUNT:
 				return 9;
 		}
 

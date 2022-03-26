@@ -237,8 +237,6 @@ int storage_storageadd(struct map_session_data* sd, int index, int amount)
  *------------------------------------------*/
 int storage_storageget(struct map_session_data* sd, int index, int amount)
 {
-	int flag;
-
 	if( index < 0 || index >= MAX_STORAGE )
 		return 0;
 
@@ -248,10 +246,14 @@ int storage_storageget(struct map_session_data* sd, int index, int amount)
 	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
 		return 0;
 
-	if( (flag = pc_additem(sd,&sd->storage.u.items_storage[index],amount)) == 0 )
+	enum e_additem_result flag = pc_additem(sd, &sd->storage.u.items_storage[index], amount);
+
+	if (flag == ADDITEM_SUCCESS)
 		storage_delitem(sd,index,amount);
-	else
-		clif_additem(sd,0,0,flag);
+	else {
+		clif_storageitemremoved(sd, index, 0);
+		clif_additem(sd, 0, 0, flag);
+	}
 
 	return 1;
 }
@@ -304,9 +306,15 @@ int storage_storagegettocart(struct map_session_data* sd, int index, int amount)
 	
 	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
 		return 0;
+
+	enum e_additem_result flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount);
 	
-	if( pc_cart_additem(sd,&sd->storage.u.items_storage[index],amount) == 0 )
+	if (flag == ADDITEM_SUCCESS)
 		storage_delitem(sd,index,amount);
+	else {
+		clif_storageitemremoved(sd, index, 0);
+		clif_cart_additem_ack(sd, (flag == 1) ? ADDITEM_TO_CART_FAIL_WEIGHT : ADDITEM_TO_CART_FAIL_COUNT);
+	}
 
 	return 1;
 }
@@ -510,7 +518,6 @@ void storage_guild_storageadd(struct map_session_data* sd, int index, int amount
 void storage_guild_storageget(struct map_session_data* sd, int index, int amount)
 {
 	struct s_storage *stor;
-	int flag;
 
 	nullpo_retv(sd);
 	nullpo_retv(stor=guild2storage2(sd->status.guild_id));
@@ -532,10 +539,15 @@ void storage_guild_storageget(struct map_session_data* sd, int index, int amount
  		return;
  	}
 
-	if((flag = pc_additem(sd,&stor->u.items_guild[index],amount)) == 0)
-		storage_guild_delitem(sd,stor,index,amount);
-	else
-		clif_additem(sd,0,0,flag);
+	enum e_additem_result flag = pc_additem(sd, &stor->u.items_guild[index], amount);
+
+	if (flag == ADDITEM_SUCCESS)
+		storage_guild_delitem(sd, stor, index, amount);
+	else {
+		clif_storageitemremoved(sd, index, 0);
+		clif_additem(sd, 0, 0, flag);
+	}
+
 //	log_fromstorage(sd, index, 1);
 
 	return;
@@ -589,8 +601,14 @@ void storage_guild_storagegettocart(struct map_session_data* sd, int index, int 
 	if(amount < 1 || amount > stor->u.items_guild[index].amount)
 		return;
 
-	if(pc_cart_additem(sd,&stor->u.items_guild[index],amount)==0)
+	enum e_additem_result flag = pc_cart_additem(sd, &stor->u.items_guild[index], amount);
+
+	if (flag == ADDITEM_SUCCESS)
 		storage_guild_delitem(sd,stor,index,amount);
+	else {
+		clif_storageitemremoved(sd, index, 0);
+		clif_cart_additem_ack(sd, (flag == 1) ? ADDITEM_TO_CART_FAIL_WEIGHT : ADDITEM_TO_CART_FAIL_COUNT);
+	}
 
 	return;
 }
