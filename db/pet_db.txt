@@ -12,10 +12,10 @@
 // 07. FoodID			Pet Food ID.
 // 08. Fullness			The amount Hunger is decreased every [HungryDelay] seconds.
 // 09. HungryDelay		The amount of time it takes for hunger to decrease after feeding. (Default: 60 seconds)
-// 10. R_Hungry			Amount of Intimacy that is increased when fed.
-// 11. R_Full			Amount of Intimacy that is decreased when over-fed.
-// 12. Intimate			Amount of Intimacy the pet starts with.
-// 13. Die				Amount of Intimacy that is decreased when the pet owner dies.
+// 10. R_Hungry			Amount of Intimacy that is increased when fed. (Default: 20)
+// 11. R_Full			Amount of Intimacy that is decreased when over-fed. (Default: 100)
+// 12. Intimate			Amount of Intimacy the pet starts with. (Default: 250)
+// 13. Die				Amount of Intimacy that is decreased when the pet owner dies. (Default: 20)
 // 14. Capture			Capture succes rate (10000 = 100%)
 // 15. Speed			Pet's walk speed. (Defaul: 150)
 // 16. S_Performance		Special Performance. (Yes = 1, No = 0)
@@ -76,7 +76,7 @@
 1057,YOYO,Yoyo,634,9016,10018,532,80,60,20,100,250,20,1000,150,1,0,300,800,400,0,{ petloot 20; },{ bonus bCritical,3; bonus bLuk,-1; }
 1063,LUNATIC,Lunatic,622,9004,10007,534,80,60,40,100,250,20,1500,150,0,0,300,300,1000,0,{ petskillbonus bLuk,3,10,50; },{ bonus bCritical,2; bonus bAtk,2; }
 1077,POISON_SPORE,Poison Spore,631,9013,10017,537,80,60,20,100,250,20,1000,150,0,0,600,200,400,0,{ petskillattack "NPC_POISON",20,0,10; },{ bonus bStr,1; bonus bInt,1; }
-1090,MASTERING,Mastering,0,9069,0,0,80,60,10,100,250,20,10000,150,0,0,300,300,800,1,{},{ bonus(bLuk, 3); bonus(bCritical, 3); }
+1090,MASTERING,Mastering,0,9069,0,537,80,60,10,100,250,20,10000,150,0,0,300,300,800,1,{},{ bonus(bLuk, 3); bonus(bCritical, 3); }
 1101,BAPHOMET_,Baphomet Jr.,642,9024,10001,518,80,60,10,100,250,20,200,150,0,0,1000,100,200,0,{ petskillattack2 "NPC_DARKNESSATTACK",1776,4,0,5; },{ bonus bDef,1; bonus bMdef,1; bonus2 bResEff,Eff_Stun,-100; }
 1107,DESERT_WOLF_B,Baby Desert Wolf,628,9010,10003,537,80,60,40,100,250,20,1000,150,0,0,400,400,400,0,{ petskillattack "SM_PROVOKE",1,0,5;},{ bonus bInt,1; bonus bMaxSP,50; }
 1109,DEVIRUCHI,Deviruchi,641,9023,10004,711,80,60,10,100,250,20,500,150,0,0,800,200,100,0,{ petskillbonus bAgiDexStr,6,20,40; },{ bonus bMatkRate,1; bonus bAtkRate,1; bonus bMaxHPrate,-3; bonus bMaxSPrate,-3; }
@@ -97,6 +97,7 @@
 1245,GOBLINE_XMAS,Christmas Goblin,12225,9029,0,911,80,60,50,100,250,20,2000,150,0,0,300,300,800,0,{ petskillattack "MG_SIGHT",5,5,5; },{ bonus bMaxHP,30; bonus2 bSubEle,Ele_Water,1; }
 1275,ALICE,Alice,661,9027,0,504,80,60,20,100,250,20,800,150,0,0,100,1000,200,0,{ petskillsupport "AL_HEAL",5,60,25,100; },{ bonus bMdef,1; bonus2 bSubRace,RC_DemiHuman,1; }
 1299,GOBLIN_LEADER,Goblin Leader,12364,9046,10028,6104,80,60,10,100,250,20,50,150,0,0,300,300,800,0,{},{ bonus2 bAddRace,RC_DemiHuman,3; }
+1369,GRAND_PECO,Grand Peco,0,9071,0,537,20,120,15,100,250,20,0,150,0,0,300,300,800,1,{},{ bonus bMaxHP,400; }
 1370,SUCCUBUS,Succubus,12373,9055,10037,6113,80,60,10,100,250,20,200,150,0,0,300,300,800,0,{},{ bonus2 bHpDrainRate,50,5; }
 1374,INCUBUS,Incubus,12370,9052,10034,6110,80,60,10,100,250,20,50,150,0,0,300,300,800,0,{bonus bMaxSPRate,3; bonus3 bSPDrainRate,10,1,0;},{ bonus bMaxSPRate,5; bonus3 bSPDrainRate,30,1,0; }
 1379,NIGHTMARE_TERROR,Nightmare Terror,12372,9054,10036,6112,80,60,10,100,250,20,200,150,0,0,300,300,800,0,{},{ bonus2 bResEff,Eff_Sleep,10000; }

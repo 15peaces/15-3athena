@@ -723,9 +723,18 @@ typedef enum sc_type {
 	SC_TUNAPARTY,
 	SC_SHRIMP,
 	SC_FRESHSHRIMP,
+
+	// 2nd Wave of Summoner Skills
+	// List may be incomplete. Need to do some packet captures. [Rytech]
+	// Add to const.txt once list is complete.
+	SC_HISS,
+	SC_NYANGGRASS,
+	SC_CHATTERING,
+	SC_GROOMING,
+	SC_PROTECTIONOFSHRIMP,
 	
 	// only temp and for testing
-	SC_FREEZING,
+	SC_FREEZING = 700,
 	SC_CRYSTALIZE,
 	SC_WHITEIMPRISON,
 	SC_THORNSTRAP,
@@ -1723,6 +1732,16 @@ enum si_type {
 //	SI_GLOOM_CARD = 988,
 //	SI_PHARAOH_CARD = 989,
 //	SI_KIEL_CARD = 990,
+//	SI_ = 991,
+//	SI_CHEERUP = 992,
+//	SI_ = 993,
+//	SI_ = 994,
+//	SI_S_MANAPOTION = 995,
+//	SI_M_DEFSCROLL = 996,
+//	SI_ = 997,
+//	SI_ = 998,
+//	SI_ = 999,
+//	SI_AS_RAGGED_GOLEM_CARD = 1000,
 	SI_MAX,
 };
 

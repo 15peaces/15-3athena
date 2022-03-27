@@ -8374,6 +8374,7 @@ void clif_sendegg(struct map_session_data *sd)
 ///     3 = accessory
 ///     4 = performance (data = 1~3: normal, 4: special)
 ///     5 = hairstyle
+///     6 = close egg selection ui and update egg in inventory (PACKETVER >= 20180704)
 ///
 /// If sd is null, the update is sent to nearby objects, otherwise it is sent only to that player.
 void clif_send_petdata(struct map_session_data* sd, struct pet_data* pd, int type, int param)
@@ -14880,6 +14881,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 	// Client side validation is not done as it is insecure.
 	for (i = 0; i < VECTOR_LENGTH(pet_db[petIndex].evolve_data); i++) {
 		struct pet_evolve_data *ped = &VECTOR_INDEX(pet_db[petIndex].evolve_data, i);
+
 		if (ped->petEggId == EvolvedPetEggID) {
 			int j;
 			int pet_id;
@@ -14935,6 +14937,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 	}
 
 	clif_pet_evolution_result(fd, PET_EVOL_UNKNOWN);
+	ShowDebug("clif_pet_evolution_result: No evolution data found...\n");
 }
 
 /**
@@ -21518,7 +21521,7 @@ void packetdb_readdb(void)
 		0, 10,  0,  0,  0,  0,  0,  0,  0,  0, 23, 17,  0,  8,102,  0,
 		0,  0,  0,  0,  2,  0, -1, -1,  2,  0,  0, -1, -1, -1,  0,  7,
 		0,  0,  0,  0,  0, 18, 22,  3, 11,  0, 11, -1,  0,  3, 11, 11,
-	   -1, 11, 12, 11,  0,  0,  0, 75, -1,143, -1,  0,  0, -1, -1, -1,
+	   -1, 11, 12, 11,  0,  0,  0, 75, -1,143, -1,  0,  6, -1, -1, -1,
 //#0x0A00
 #if PACKETVER >= 20141022
 	  269,  3,  4,  2,  6, 49,  6,  9, 26, 45, 47, 47, 56, -1, 14, -1,

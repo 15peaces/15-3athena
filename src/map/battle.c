@@ -6257,6 +6257,8 @@ static const struct _battle_data {
 	{ "attendance_endtime",					&battle_config.attendance_endtime,				1,      0,      99999999,		},
 	{ "player_baselv_req_skill",            &battle_config.player_baselv_req_skill,         1,      0,      1,              },
 	{ "warmer_show_heal",                   &battle_config.warmer_show_heal,                0,      0,      1,              },
+	{ "baby_hp_sp_penalty",                 &battle_config.baby_hp_sp_penalty,              1,      0,      1,              },
+	{ "baby_crafting_penalty",              &battle_config.baby_crafting_penalty,           1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

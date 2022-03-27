@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/27/2022
+	r327 [15peaces]
+		*Merged missing changes from 3ceam rev. 814
+		*Some more pet updates.
+			-Updated ZC_CHANGESTATE_PET packet to properly close egg selection gui on newer clients.
+			-Added Grand Peco pet.
+			-Fixed a wrong packet size in pet evolution process.
+			-Fixed some remaining issues with the pet evolution system.
+			-You can now evolve two pets (more will be added later):
+				--Poring --> Mastering
+				--PecoPeco --> Grand Peco
+			-Autofeeding is now working and can be enabled for Mastering (using Pet Food).
+		*Re-added the missing 30% HP/SP penalty for baby jobs.
+			-also dded the "baby_hp_sp_penalty" and "baby_crafting_penalty" settings.
+		*Updated the descriptions of some config settings.
+		*Added latest tags and ID's for skills and status.
+		*Updated and optomized the sex change code which fixes some issues.
+			-Baby Kagerou / Baby Oboro jobs are added to the checks.
+			-Due to how range checking is done, the amount of code needed for checking for certain skills was recuded by half.
+		*Increased MAX_SKILL to 5066 to include the new 3rd set of wedding skills.
+		*Fixed a issue where Baby Taekwon's and Baby Star Gladiator's were not being detected in cetain party checks.
+		*Fixed a issue where Baby Soul Linker's were not immune to the debuffing nature of Flying Side Kick.
+		*Added entry's for the 3rd set of wedding skills.
+			-They don't work yet but they will hopefully be coded in soon.
+
 03/26/2022
 	r326 [15peaces]
 		*Merged missing changes from 3ceam rev. 812 - 813

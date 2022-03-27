@@ -2315,6 +2315,10 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	else //Calculates MaxSP
 		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 
+	// Baby classes get a 30% hp/sp penalty
+	if (battle_config.baby_hp_sp_penalty == 1 && sd->class_&JOBL_BABY)
+		dmax -= dmax * 30 / 100;
+
 	//Make sure it's not negative before casting to unsigned int
 	if(dmax < 1)
 		dmax = 1;

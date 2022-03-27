@@ -2603,7 +2603,8 @@ int parse_fromlogin(int fd)
 						jobclass == JOB_MINSTREL || jobclass == JOB_WANDERER ||
 						jobclass == JOB_MINSTREL_T || jobclass == JOB_WANDERER_T ||
 						jobclass == JOB_BABY_MINSTREL || jobclass == JOB_BABY_WANDERER ||
-						jobclass == JOB_KAGEROU || jobclass == JOB_OBORO) {
+						jobclass == JOB_KAGEROU || jobclass == JOB_OBORO ||
+						jobclass == JOB_BABY_KAGEROU || jobclass == JOB_BABY_OBORO) {
 						// job modification
 						if (jobclass == JOB_BARD || jobclass == JOB_DANCER) {
 							char_dat[i].status.class_ = (sex) ? JOB_BARD : JOB_DANCER;
@@ -2619,49 +2620,27 @@ int parse_fromlogin(int fd)
 							char_dat[i].status.class_ = (sex) ? JOB_BABY_MINSTREL : JOB_BABY_WANDERER;
 						} else if (jobclass == JOB_KAGEROU || jobclass == JOB_OBORO) {
 							char_dat[i].status.class_ = (sex) ? JOB_KAGEROU : JOB_OBORO;
+						} else if (jobclass == JOB_BABY_KAGEROU || jobclass == JOB_BABY_OBORO) {
+							char_dat[i].status.class_ = (sex) ? JOB_BABY_KAGEROU : JOB_BABY_OBORO;
 						}
-						// Removes Bard, Clown, and Baby Bard sex exclusive skills.
-						for(j = 315; j <= 322; j++) {
+						// Removes Bard/Dancer gender exclusive skills.
+						for(j = 315; j <= 330; j++) {
 							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
 								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
 								char_dat[i].status.skill[j].id = 0;
 								char_dat[i].status.skill[j].lv = 0;
 							}
 						}
-						// Removes Dancer, Gypsy, and Baby Dancer sex exclusive skills.
-						for(j = 323; j <= 330; j++) {
+						// Removes Minstrel/Wanderer gender exclusive skills.
+						for(j = 2350; j <= 2383; j++) {
 							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
 								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
 								char_dat[i].status.skill[j].id = 0;
 								char_dat[i].status.skill[j].lv = 0;
 							}
 						}
-						// Removes Minstrel (Base), Minstrel (Trans) and Baby Minstrel sex exclusive skills.
-						for(j = 2381; j <= 2383; j++) {
-							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
-								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
-								char_dat[i].status.skill[j].id = 0;
-								char_dat[i].status.skill[j].lv = 0;
-							}
-						}
-						// Removes Wanderer (Base), Wanderer (Trans) and Baby Wanderer sex exclusive skills.
-						for(j = 2350; j <= 2352; j++) {
-							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
-								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
-								char_dat[i].status.skill[j].id = 0;
-								char_dat[i].status.skill[j].lv = 0;
-							}
-						}
-						// Removes Kagerou sex exclusive skills.
-						for(j = 3023; j <= 3025; j++) {
-							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
-								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
-								char_dat[i].status.skill[j].id = 0;
-								char_dat[i].status.skill[j].lv = 0;
-							}
-						}
-						// Removes Oboro sex exclusive skills.
-						for(j = 3026; j <= 3029; j++) {
+						// Removes Kagerou/Oboro gender exclusive skills.
+						for(j = 3023; j <= 3029; j++) {
 							if (char_dat[i].status.skill[j].id > 0 && char_dat[i].status.skill[j].flag == SKILL_FLAG_PERMANENT) {
 								char_dat[i].status.skill_point += char_dat[i].status.skill[j].lv;
 								char_dat[i].status.skill[j].id = 0;
@@ -2978,8 +2957,9 @@ void char_read_fame_list(void)
 	}
 	// Build Taekwon ranking list
 	for (i = 0, j = 0; i < char_num && j < fame_list_size_taekwon; i++) {
-		if (char_dat[id[i]].status.fame &&
-			char_dat[id[i]].status.class_ == JOB_TAEKWON)
+		if (char_dat[id[i]].status.fame && (
+			char_dat[id[i]].status.class_ == JOB_TAEKWON ||
+			char_dat[id[i]].status.class_ == JOB_BABY_TAEKWON))
 		{
 			fame_item.id = char_dat[id[i]].status.char_id;
 			fame_item.fame = char_dat[id[i]].status.fame;

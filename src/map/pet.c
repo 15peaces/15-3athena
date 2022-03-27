@@ -325,6 +325,10 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 		sd->inventory.u.items_inventory[i].bound = BOUND_NONE;
 	}
 
+#if PACKETVER >= 20180704
+	clif_send_petdata(sd, pd, 6, 0);
+#endif
+
 	pd->pet.incuvate = 1;
 	unit_free(&pd->bl,CLR_OUTSIGHT);
 
@@ -432,6 +436,11 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet)
 		clif_spawn(&sd->pd->bl);
 		clif_send_petdata(sd,sd->pd, 0,0);
 		clif_send_petdata(sd,sd->pd, 5,battle_config.pet_hair_style);
+
+#if PACKETVER >= 20180704
+		clif_send_petdata(sd, sd->pd, 6, 1);
+#endif
+
 		clif_pet_equip_area(sd->pd);
 		clif_send_petstatus(sd);
 	}
@@ -1379,7 +1388,7 @@ void read_petevolve_db()
 {
 	char* filename = "pet_evolve_db.txt";
 	FILE *fp;
-	unsigned short mobid;
+	unsigned short mobid, eggid;
 	int nameids[MAX_PETEVOLVE_ITEMS];
 	int item_amts[MAX_PETEVOLVE_ITEMS];
 	int i;
@@ -1435,6 +1444,15 @@ void read_petevolve_db()
 			continue;
 		}
 
+		if ((eggid = atoi(str[1])) <= 0)
+			continue;
+
+		if (!itemdb_exists(eggid))
+		{
+			ShowWarning("read_petevolve_db: Invalid egg id %hu, skipping...\n", mobid);
+			continue;
+		}
+
 		pc_split_atoi(str[2], nameids, ':', MAX_PETEVOLVE_ITEMS);
 		pc_split_atoi(str[3], item_amts, ':', MAX_PETEVOLVE_ITEMS);
 
@@ -1449,10 +1467,10 @@ void read_petevolve_db()
 
 			struct pet_evolve_data ped;
 
-			ped.petEggId = pet_db[db_id].EggID;
+			ped.petEggId = eggid;
 			VECTOR_INIT(ped.items);
 
-			for (i = 0; i < ARRAYLENGTH(nameids); i++) {
+			for (i = 0; i < ARRAYLENGTH(nameids) && nameids[i] > 0; i++) {
 				struct pet_itemlist_entry list = { 0 };
 
 				list.id = nameids[i];
