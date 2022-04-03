@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+04/03/2022
+	r328 [15peaces]
+		*Merged missing changes from 3ceam rev. 815 - 820
+		*Added the latest status tags and ID's.
+		*Adjusted some Rebellion skills in the databases to prepare for future updates and update them according to the awakening update.
+		*Some item updates
+			-Fixed some item effects.
+			-Added some items.
+		*Some fixes in Rachel quests.
+			-Fixed common misspelled place names.
+			-Fixed some changequest/setquest errors.
+			-Added missing quests logs.
+		*RL_MASS_SPIRAL
+			-Cooldown time reduced.
+		*RL_BANISHING_BUSTER
+			-No longer deals splash damage.
+		*RL_FALLEN_ANGEL
+			-Max level changed to 1.
+		*RL_D_TAIL; RL_HAMMER_OF_GOD
+			-Element is now forced neutral.
+		*RL_AM_BLAST
+			-Attack ranged increased.
+		*Updated SP requirements for all Rebellion skills.
+		*Mechanic
+			-Updated the mado code with official March 2017 update changes.
+			-The follow changes applies to the mados....
+				--The base movement speed of mado's is now the same as Peco's, but the movement speed penalty still applies and is reduced with the Mado License skill.
+				--Natural HP recovery is increased. Its doubled for now until the official info is learned.
+				--Mado's now have a max weight increase of 1500.
+				--The Teleport skill can now be used.
+				--Mado's are now immune to equipment stripping.
+		*Rebellion
+			-Updated the skill tree to the awakening update version.
+			-Gunslinger skill requirements will not be changed since this is a pre-renewal emulator.
+			-Note: You may want to offer your players a free skill reset due to the changes to the skill tree.
+
 03/27/2022
 	r327 [15peaces]
 		*Merged missing changes from 3ceam rev. 814

@@ -3097,7 +3097,7 @@
 //5543,Freyja_SCirclet90,Freyja SCirclet90,5,20,,700,,8,,0,0xFFFFFFFF,7,2,256,,20,0,18,{ bonus bStr,1; bonus bInt,1; bonus bDex,1; },{},{}
 5544,Time_Keeper_Hat,Time Keeper Hat,5,30000,,0,,6,,0,0xFFFFFFFF,7,2,256,,1,1,240,{ bonus bInt,2; bonus bMaxSP,50; },{},{}
 5545,Aries_Diadem,Aries Diadem,5,20,,400,,3,,0,0xFFFFFFFF,7,2,256,,70,1,531,{ bonus bVit,2; bonus2 bSubEle,Ele_fire,5; if(getrefine()>6) { bonus bDef,1; bonus bVit,1; } },{},{}
-5546,Aries_Crown,Aries Crown,5,20,,400,,3,,0,0xFFFFFFFF,7,2,256,,70,1,532,{ bonus bVit,2; bonus2 bSubEle,Ele_fire,5; if(getrefine()>6) { bonus bDef,1; bonus bVit,1; } },{},{}
+5546,Aries_Crown,Aries Crown,5,20,,400,,3,,0,0xFFFFFFFF,7,2,256,,70,1,532,{ bonus bLuk,2; bonus2 bSubEle,Ele_fire,5; if(getrefine()>6) { bonus bDef,1; bonus bLuk,1; } },{},{}
 //5547,RJC_Katusa,RJC Katusa Flower,5,20,,200,,1,,1,0xFFFFFFFF,7,2,256,,0,1,533,{ bonus2 bSkillAtk,"WZ_HEAVENDRIVE",15+getequiprefinerycnt(EQI_HAND_R); bonus2 bSkillAtk,"WZ_HEAVENDRIVE",15+getequiprefinerycnt(EQI_HAND_R); bonus bCastRate,-25; },{},{}
 5548,Scarlet_Rose,Scarlet Rose,5,20,,100,,0,,0,0xFFFFFFFF,7,2,256,,50,1,534,{ bonus bLuk,1; if(isequipped(5766)){set .@r, getequiprefinerycnt(EQI_HEAD_TOP); bonus bBaseAtk,(.@r>10?10:.@r); bonus bMatk,(.@r>10?10:.@r); }},{},{}
 5549,Taurus_Diadem,Taurus Diadem,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,535,{ bonus bDex,2; bonus bDelayRate,-2; bonus2 bSubEle,Ele_earth,5; if(getrefine()>6) { bonus bDex,1; bonus bMatkRate,1; } },{},{}
@@ -5450,7 +5450,7 @@
 12396,Fools_Day_Box,Gift Box?,11,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ if(rand(1,10)==1) itemskill "AL_TELEPORT",1; else if(rand(1,10)==2) itemskill "AL_TELEPORT",3; else if(rand(1,10)==3) percentheal 50,0; else if(rand(1,10)==4) percentheal 0,50; else if(rand(1,10)==5) end; else if(rand(1,10)==6) getitem 512,1; else if(rand(1,10)==7) itemskill "ALL_REVERSEORCISH",1; else if(rand(1,10)==8) specialeffect2 247; else if(rand(1,10)==9) specialeffect2 338; else specialeffect2 10; },{},{}
 12397,Fools_Day_Box2,Gift Box?,11,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ if(rand(1,10)==1) itemskill "TF_DETOXIFY",1; else if(rand(1,10)==2) itemskill "TF_PICKSTONE",1; else if(rand(1,10)==3) itemskill "BA_FROSTJOKER",1; else if(rand(1,10)==4) itemskill "DC_SCREAM",1; else if(rand(1,10)==5) end; else if(rand(1,10)==6) getitem 909,1; else if(rand(1,10)==7) itemskill "AL_RUWACH",1; else if(rand(1,10)==8) specialeffect2 328; else if(rand(1,10)==9) specialeffect2 68; else specialeffect2 196; },{},{}
 12398,PCBang_Gift_Box,PCBang Gift Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
-12399,Castle_Treasure_Box,Castle Treasure Box,2,20,,1000,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12399,Castle_Treasure_Box,Castle Treasure Box,2,20,,1000,,,,,0xFFFFFFFF,63,2,,,,,,{ set Zeny, Zeny + rand(50000,100000); },{},{}
 12400,Water_Of_Blessing_,Water Of Blessing ,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12401,Rune_Kn_Test_Int,Rune Kn Test Int,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_INCINT,300000,40; },{},{}
 12402,29Fruit,29Fruit,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}

@@ -1988,6 +1988,8 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 	const enum sc_type sc_atk[5] = {SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM, SC__STRIPACCESSARY};
 	const enum sc_type sc_def[5] = {SC_CP_WEAPON, SC_CP_SHIELD, SC_CP_ARMOR, SC_CP_HELM, 0};
 	int i;
+	TBL_PC *sd;
+	sd = BL_CAST(BL_PC, bl);
 
 	if (rand()%100 >= rate)
 		return 0;
@@ -1995,6 +1997,12 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 	sc = status_get_sc(bl);
 	if (!sc)
 		return 0;
+
+	if (sd)
+	{// Mado's are immune to stripping.
+		if (pc_ismadogear(sd))
+			return 0;
+	}
 
 	for (i = 0; i < ARRAYLENGTH(pos); i++) {
 		if (where&pos[i] && sc->data[sc_def[i]])
