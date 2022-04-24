@@ -732,6 +732,8 @@ typedef enum sc_type {
 	SC_CHATTERING,
 	SC_GROOMING,
 	SC_PROTECTIONOFSHRIMP,
+
+	SC_FALLEN_ANGEL,
 	
 	// only temp and for testing
 	SC_FREEZING = 700,

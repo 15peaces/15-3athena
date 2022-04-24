@@ -1398,6 +1398,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						wd.div_ = sd->spiritball_old;
 				}
 				break;
+			case RL_QD_SHOT:
+				wd.div_ = 1 + status_get_job_lv(src) / 20;
+				break;
 			case HT_PHANTASMIC:
 				//Since these do not consume ammo, they need to be explicitly set as arrow attacks.
 				flag.arrow = 1;
@@ -1432,9 +1435,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				wd.blewcount=0;
 				break;
 
-			case RL_R_TRIP:// Knock's back target out of skill range.
-				wd.blewcount = wd.blewcount - distance_bl(src,target);
-				break;
+			// Disabled until I can reconfirm if this is still a thing. [Rytech]
+			//case RL_R_TRIP:// Knock's back target out of skill range.
+			//	wd.blewcount = wd.blewcount - distance_bl(src,target);
+			//	break;
 
 			case KN_AUTOCOUNTER:
 				wd.flag=(wd.flag&~BF_SKILLMASK)|BF_NORMAL;
@@ -1522,6 +1526,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		short hitnumber = 0;//Used for setting how many hits will hit.
 		short gendetect[] = { 12, 12, 21, 27, 30 };//If generated number is outside this value while in fear breeze status, it will check if their's a chance for double attacking.
 		short generate = rand()%100 + 1;//Generates a random number between 1 - 100 which is then used to determine if fear breeze or double attacking will happen.
+		short quick_draw_active = 0;// Flag used to tell if quick draw shot can be comboed. Active if chain combo or eternal chain has the higher double attack chance.
 
 		// First we go through a number of checks to see if their's any chance of double attacking a target. Only the highest success chance is taken.
 
@@ -1538,12 +1543,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			dachance = 5 * pc_checkskill(sd,TF_DOUBLE);
 
 		// Eternal Chain - Buff Skill
-		if ( sc && sc->data[SC_E_CHAIN] && 5 * sc->data[SC_E_CHAIN]->val1 > dachance && sd->weapontype1 != W_FIST )
+		if (sc && sc->data[SC_E_CHAIN] && 5 * sc->data[SC_E_CHAIN]->val1 > dachance && sd->weapontype1 != W_FIST)
+		{
 			dachance = 5 * sc->data[SC_E_CHAIN]->val1;
+			quick_draw_active = 1;
+		}
 
 		// Chain Action - Passive Skill
-		if ( 5 * pc_checkskill(sd,GS_CHAINACTION) > dachance && sd->weapontype1 == W_REVOLVER )
-			dachance = 5 * pc_checkskill(sd,GS_CHAINACTION);
+		if (5 * pc_checkskill(sd, GS_CHAINACTION) > dachance && sd->weapontype1 == W_REVOLVER)
+		{
+			dachance = 5 * pc_checkskill(sd, GS_CHAINACTION);
+			quick_draw_active = 1;
+		}
 
 		// Fear Breeze - Buff Skill
 		// This checks if the generated value is within fear breeze's success chance range for the level used as set by gendetect.
@@ -1562,6 +1573,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		// then allow a double attack to happen.
 		else if ( generate < dachance )
 			hitnumber = 2;
+
+		// Allow use of Quick Draw Shot if Chain Action or Eternal Chain triggered the double attack.
+		if ( pc_checkskill(sd, RL_QD_SHOT) && quick_draw_active == 1 && hitnumber == 2 )
+			sc_start4(src, SC_COMBO, 100, RL_QD_SHOT, target->id, 1, 0, 2000);
 
 		if ( hitnumber > 1 )//Needed to allow critical attacks to hit when not hitting more then once.
 			{wd.div_ = hitnumber;
@@ -2202,6 +2217,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case GS_DESPERADO:
 					skillratio += 50*(skill_lv-1);
+					if (sc && sc->data[SC_FALLEN_ANGEL])
+						skillratio *= 2;
 					break;
 				case GS_DUST:
 					skillratio += 50*skill_lv;
@@ -2780,11 +2797,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RL_BANISHING_BUSTER:
 					skillratio = 1000 + 200 * skill_lv;
 					break;
+				case RL_FIREDANCE:
+					skillratio = 200 * skill_lv + 50 * pc_checkskill(sd,GS_DESPERADO);
+					break;
 				case RL_H_MINE:
 					skillratio = 200 + 200 * skill_lv;
 					break;
 				case RL_R_TRIP:
-					skillratio = (10 + 3 * skill_lv) * sstatus->dex / 2;
+					skillratio = 1000 + 300 * skill_lv;
+					break;
+				case RL_D_TAIL:
+					skillratio = 4000 + 1000 * skill_lv;
 					break;
 				case RL_SLUGSHOT:
 					if (sd)
@@ -2795,6 +2818,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio = 10 * sd->inventory_data[index]->weight;
 					}
  					break;
+				case RL_R_TRIP_PLUSATK:// Need to confirm if level 5 is really 2700% and not a typo. [Rytech]
+					skillratio = 500 + 100 * skill_lv;
+					break;
 				case KO_JYUMONJIKIRI:
 					skillratio = 150 * skill_lv;
 					if( level_effect_bonus == 1 )
@@ -3035,6 +3061,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				ATK_ADDRATE(sc->data[SC_EDP]->val3);
 
 			// Heated Barrel increases damage of regular attacks.
+			// Note: Its said that damage increase is tacked on after skill calculations. How so???
+			// I must know the official formula before updating the code to avoid skill overpower issues. [Rytech]
 			if(sc->data[SC_HEAT_BARREL] && (wd.flag&(BF_LONG|BF_WEAPON)) == (BF_LONG|BF_WEAPON) && (!skill_num))
 				ATK_ADDRATE(sc->data[SC_HEAT_BARREL]->val3);
 
@@ -5274,15 +5302,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			}			
 		}
 	}
-
-	wd.dmotion = clif_damage(src, target, tick, wd.amotion, wd.dmotion, wd.damage, wd.div_ , wd.type, wd.damage2, wd.isspdamage);
-
-	if (sd && sd->splash_range > 0 && damage > 0)
-		skill_castend_damage_id(src, target, 0, 1, tick, 0);
-
-	map_freeblock_lock();
-
-	battle_delay_damage(tick, wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion);
 
 	if (sc && sc->data[SC_AUTOSPELL] && rand()%100 < sc->data[SC_AUTOSPELL]->val4) {
 		int sp = 0;

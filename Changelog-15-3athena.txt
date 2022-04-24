@@ -5,6 +5,47 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/24/2022
+	r329 [15peaces]
+		*Merged missing changes from 3ceam rev. 821 - 825
+		*Fixed some wrong values in main.sql file.
+		*Fixed an nullpo message caused by the achievement system.
+			-The achievement_validate_item_sell function must be called before the item is removed from inventory. ^^"
+		*Also some other fixing here and there...
+		*Changed some default values in quest db loading to fix some display issues with ZC_ADD_QUEST_EX packet.
+		*Added the "effect2" command.
+			-Works just like "effect", but allows for a 2nd value.
+		*Rebellion
+			-Updated all skill requirements and timer data.
+			-Timers like cast times, cooldowns, etc.
+		*WM_SOUND_OF_DESTRUCTION
+			-Can now remove Frigg Song status.
+		*RL_QD_SHOT; RL_FIREDANCE; RL_FALLEN_ANGEL; RL_D_TAIL; RL_R_TRIP_PLUSATK
+			-Fully supported.
+		*RL_C_MARKER
+			-Recoded the skill.
+			-Duration increased.
+			-Now requires 1 coin to use.
+			-A max of 3 targets can be marked at a time.
+			-Note: Marked targets won't appear on the minimap yet.
+			-That will be added in a future update.
+		*RL_HEAT_BARREL
+			-No longer reduces FLEE.
+			-Now reduces HIT.
+			-No longer applies the 10 second penalty after status ends.
+		*RL_H_MINE
+			-Fully recoded the skill.
+			-A max of 5 targets can be tagged at a time.
+			-Duration is increased.
+			-Damage formula updated.
+			-
+			-Note: Flicker is currently not coded which is needed to detonate the grenades on the tagged targets. Its working are a bit complex and will be done in a later update.
+		*RL_R_TRIP
+			-Now deals ranged damage.
+			-AoE size for level 1 is now 7x7.
+			-Knockback is now a fixed 3 cells.
+			-Damage formula updated.
+			-Now deals added damage if target is knocked back into a wall.
 
 04/03/2022
 	r328 [15peaces]

@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS `achievement` (
   `count8` int unsigned NOT NULL default '0',
   `count9` int unsigned NOT NULL default '0',
   `count10` int unsigned NOT NULL default '0',
-  `completed` datetime,
-  `rewarded` datetime,
+  `completed` int unsigned NOT NULL default '0',
+  `rewarded` int unsigned NOT NULL default '0',
   PRIMARY KEY (`char_id`,`id`),
   KEY `char_id` (`char_id`)
 ) ENGINE=MyISAM;

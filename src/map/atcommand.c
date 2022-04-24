@@ -6089,6 +6089,25 @@ ACMD_FUNC(effect)
 }
 
 /*==========================================
+ * @effect2 by Rytech
+ * Works like @effect but with a 2nd value.
+ *------------------------------------------*/
+ACMD_FUNC(effect2)
+{
+	int type = 0, value = 0, flag = 0;
+	nullpo_retr(-1, sd);
+
+	if (!message || !*message || sscanf(message, "%d %d", &type, &value) < 1) {
+		clif_displaymessage(fd, "Please enter an effect number (usage: @effect <effect number> <value>).");
+		return -1;
+	}
+
+	clif_specialeffect_value(&sd->bl, type, value, (send_target)flag);
+	clif_displaymessage(fd, msg_txt(229)); // Your effect has changed.
+	return 0;
+}
+
+/*==========================================
  * @killer by MouseJstr
  * enable killing players even when not in pvp
  *------------------------------------------*/
@@ -9975,6 +9994,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "undisguise",        20,20,     atcommand_undisguise },
 	{ "email",              1,1,      atcommand_email },
 	{ "effect",            40,40,     atcommand_effect },
+	{ "effect2",           40,40,     atcommand_effect2 },
 	{ "follow",            20,20,     atcommand_follow },
 	{ "addwarp",           60,60,     atcommand_addwarp },
 	{ "skillon",           80,80,     atcommand_skillon },

@@ -581,7 +581,9 @@ void initChangeTables(void)
 	set_sc( RL_C_MARKER		, SC_C_MARKER			, SI_C_MARKER			, SCB_FLEE );
 	set_sc( RL_H_MINE		, SC_H_MINE				, SI_H_MINE				, SCB_NONE );
 	//set_sc( RL_H_MINE		, SC_H_MINE_SPLASH		, SI_H_MINE_SPLASH		, SCB_NONE );
-	set_sc( RL_P_ALTER		, SC_P_ALTER			, SI_P_ALTER			, SCB_WATK );
+	set_sc( RL_P_ALTER		, SC_P_ALTER			, SI_P_ALTER			, SCB_WATK);
+	set_sc( RL_FALLEN_ANGEL	, SC_FALLEN_ANGEL		, SI_FALLEN_ANGEL		, SCB_NONE);
+	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_HIT | SCB_ASPD );
 	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_FLEE | SCB_ASPD );
 	//set_sc( RL_HEAT_BARREL, SC_HEAT_BARREL_AFTER	, SI_HEAT_BARREL_AFTER	, SCB_NONE );
 	set_sc( RL_AM_BLAST     , SC_ANTI_M_BLAST		, SI_ANTI_M_BLAST		, SCB_NONE );
@@ -4851,6 +4853,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit += hit * sc->data[SC_INCHITRATE]->val1/100;
 	if(sc->data[SC_ADJUSTMENT])
 		hit -= 30;
+	if(sc->data[SC_HEAT_BARREL])
+		hit -= sc->data[SC_HEAT_BARREL]->val4;
 	if(sc->data[SC_BLIND])
 		hit -= hit * 25/100;
 	if(sc->data[SC_PYREXIA])
@@ -4919,8 +4923,6 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee -= sc->data[SC_GLOOMYDAY]->val2;
 	if ( sc->data[SC_C_MARKER] )
 		flee -= 10;
-	if (sc->data[SC_HEAT_BARREL])
-		flee -= sc->data[SC_HEAT_BARREL]->val4;
 	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
 		flee -= flee * 50/100;
 	if(sc->data[SC_BERSERK])
@@ -7280,6 +7282,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_ARMOR_ELEMENT_FIRE:
 			case SC_ARMOR_ELEMENT_WIND:
 			case SC_ARMOR_RESIST:
+			case SC_C_MARKER:
+			case SC_H_MINE:
 			case SC_ATTHASTE_CASH:
 				break;
 			case SC_GOSPEL:
@@ -8614,7 +8618,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if (sd)
 				val2 = 5 * sd->spiritball_old;// Fixed Cast Reduction
 			val3 = 40 * val1;// ATK Multiplier For Regular Attacks. Temp Formula.
-			val4 = 75 - 5 * val1;// FLEE Reduction
+			val4 = 25 + 5 * val1;// HIT Reduction
 			break;
 		case SC_MEIKYOUSISUI:
 			val4 = tick / 1000;
@@ -9564,6 +9568,28 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 
+		case SC_C_MARKER:
+			{
+				struct block_list *d_bl = map_id2bl(sce->val1);
+				if( d_bl )
+				{
+					if( d_bl->type == BL_PC )
+						((TBL_PC*)d_bl)->crimson_mark[sce->val2] = 0;
+				}
+			}
+			break;
+
+		case SC_H_MINE:
+			{
+				struct block_list *d_bl = map_id2bl(sce->val1);
+				if( d_bl )
+				{
+					if( d_bl->type == BL_PC )
+						((TBL_PC*)d_bl)->howl_mine[sce->val2] = 0;
+				}
+			}
+			break;
+
 		case SC_BLADESTOP:
 			if(sce->val4)
 			{
@@ -9876,9 +9902,9 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_MIDNIGHT_FRENZY_POSTDELAY:
 			clif_hom_skillupdateinfo(hd->master, MH_SONIC_CRAW, INF_ATTACK_SKILL, 1);
 			break;
-		case SC_HEAT_BARREL:
-			sc_start(bl,SC_HEAT_BARREL_AFTER,100,sce->val1,skill_get_time2(RL_HEAT_BARREL, sce->val1));
-			break;
+		//case SC_HEAT_BARREL:
+		//	sc_start(bl,SC_HEAT_BARREL_AFTER,100,sce->val1,skill_get_time2(RL_HEAT_BARREL, sce->val1));
+		//	break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -10388,6 +10414,17 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+
+	// Needed for updating the enemy's position on the mini map.
+	// Not up for doing this right now. Code it in later. [Rytech]
+	/*case SC_C_MARKER:
+		if(--(sce->val4)>0){  
+			struct map_session_data *sd = map_id2sd(account_id),*sd;
+			clif_crimson_marker_xy(sd);
+			sc_timer_next(1000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;*/
 
 	case SC_BERSERK:
 		// 5% every 10 seconds [DracoRPG]

@@ -1167,6 +1167,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 			break;
 		case NPCTYPE_TOMB:
 			run_tomb(sd,nd);
+			break;
 	}
 
 	return 0;
@@ -1727,10 +1728,10 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 			}
 		}
 
-		pc_delitem(sd, idx, amount, 0, 6);
-
 		// Achievements [Smokexyz/Hercules]
 		achievement_validate_item_sell(sd, sd->inventory.u.items_inventory[idx].nameid, amount);
+
+		pc_delitem(sd, idx, amount, 0, 6);
 	}
 
 	if (z + sd->status.zeny > MAX_ZENY && nd->master_nd == NULL)

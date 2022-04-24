@@ -1537,6 +1537,10 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_SHADOWFORM, 1, 9999, sd->sc.data[SC__SHADOWFORM]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC__MANHOLE])
 				clif_status_change(&sd->bl, SI_MANHOLE, 1, 9999, sd->sc.data[SC__MANHOLE]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_C_MARKER])
+				clif_status_change(&sd->bl, SI_C_MARKER, 1, 9999, sd->sc.data[SC_C_MARKER]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_H_MINE])
+				clif_status_change(&sd->bl, SI_H_MINE, 1, 9999, sd->sc.data[SC_H_MINE]->val1, 0, 0);
 			if( sd->sc.count && sd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change(&sd->bl,SI_KO_JYUMONJIKIRI,1,9999,sd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_MEIKYOUSISUI] )
@@ -4918,6 +4922,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SHADOWFORM,1,9999,tsd->sc.data[SC__SHADOWFORM]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC__MANHOLE] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_MANHOLE,1,9999,tsd->sc.data[SC__MANHOLE]->val1,0,0);
+			if (tsd->sc.count && tsd->sc.data[SC_C_MARKER])
+				 clif_status_change_single(&sd->bl, &tsd->bl, SI_C_MARKER, 1, 9999, tsd->sc.data[SC_C_MARKER]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_H_MINE])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_H_MINE, 1, 9999, tsd->sc.data[SC_H_MINE]->val1, 0, 0);
 			if( tsd->sc.count && tsd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KO_JYUMONJIKIRI,1,9999,tsd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_MEIKYOUSISUI] )
@@ -20803,6 +20811,21 @@ void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd)
 	WFIFOW(fd, 6) = sd->bl.x;
 	WFIFOW(fd, 8) = sd->bl.y;
 	WFIFOSET(fd, packet_len(0x9c1));
+}
+
+/// Crimson Marker mini map tracking (ZC_C_MARKERINFO).
+/// 09c1 <AID>.L <xPos>.W <yPos>.W
+void clif_crimson_marker_xy_all(struct map_session_data *sd, struct block_list *bl, short mark)
+{
+	unsigned char buf[10];
+
+	nullpo_retv(sd);
+
+	WBUFW(buf,0)=0x9c1;// ZC_C_MARKERINFO
+	WBUFL(buf,2)=sd->status.account_id;// AID
+	WBUFW(buf,6)=sd->bl.x;// xPos
+	WBUFW(buf,8)=sd->bl.y;// yPos
+	clif_send(buf,packet_len(0x9c1),&sd->bl,SELF);
 }
 
 void clif_crimson_marker_xy_remove(struct map_session_data *sd)

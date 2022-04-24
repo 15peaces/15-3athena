@@ -1132,6 +1132,7 @@ void clif_equipswitch_reply(struct map_session_data* sd, bool failed);
 
 void clif_crimson_marker_xy(struct map_session_data *sd);
 void clif_crimson_marker_xy_single(int fd, struct map_session_data *sd);
+void clif_crimson_marker_xy_all(struct map_session_data *sd, struct block_list *bl, short mark);
 void clif_crimson_marker_xy_remove(struct map_session_data *sd);
 
 void clif_private_airship_response(struct map_session_data *sd, uint32 flag);

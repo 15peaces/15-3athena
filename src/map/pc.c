@@ -7307,6 +7307,22 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		sd->devotion[k] = 0;
 	}
 
+	for(k = 0; k < MAX_CRIMSON_MARKS; k++)
+	if (sd->crimson_mark[k]){
+		struct map_session_data *cmarksd = map_id2sd(sd->crimson_mark[k]);
+		if (cmarksd)
+			status_change_end(&cmarksd->bl, SC_C_MARKER, INVALID_TIMER);
+		sd->crimson_mark[k] = 0;
+	}
+
+	for(k = 0; k < MAX_HOWL_MINES; k++)
+	if (sd->howl_mine[k]){
+		struct map_session_data *hminesd = map_id2sd(sd->howl_mine[k]);
+		if (hminesd)
+			status_change_end(&hminesd->bl, SC_H_MINE, INVALID_TIMER);
+		sd->howl_mine[k] = 0;
+	}
+
 	if( sd->shadowform_id )
 	{
 		struct block_list *s_bl = map_id2bl(sd->shadowform_id);

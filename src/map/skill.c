@@ -1340,9 +1340,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	case RL_MASS_SPIRAL:
 		sc_start(bl, SC_BLEEDING, 50, skilllv, skill_get_time(skillid, skilllv));
 		break;
-	case RL_H_MINE:
-		sc_start(bl,SC_H_MINE,100,skilllv,skill_get_time(skillid,skilllv));
-		break;
 	case KO_JYUMONJIKIRI:
 		sc_start(bl,SC_KO_JYUMONJIKIRI,100,skilllv,skill_get_time2(skillid,skilllv));
 		break;
@@ -2491,6 +2488,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		case GN_SLINGITEM_RANGEMELEEATK:
 			copy_skill = GN_SLINGITEM;
 			break;
+		case RL_R_TRIP_PLUSATK:
+			copy_skill = RL_R_TRIP;
+			break;
 		}
 
 		if( can_copy(tsd,copy_skill,bl) && (!tsd->status.skill[copy_skill].id || tsd->status.skill[copy_skill].flag >= 13) ){
@@ -2617,6 +2617,30 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			else
 				skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, LG_OVERBRAND_PLUSATK, skilllv, BF_WEAPON, flag);
  		}
+		else if (skillid == RL_R_TRIP)
+		{
+			struct mob_data* tmd = BL_CAST(BL_MOB, bl);
+			static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1 };
+			static int dy[] = { -1, 0, 1,  0, -1, -1, 1,  1 };
+			bool wall_damage = true;
+			int i = 0;
+
+			// Knock back the target first if possible before we do a wall check.
+			skill_blown(dsrc, bl, dmg.blewcount, direction, 0);
+
+			// Check if the target will receive wall damage.
+			// Targets that can be knocked back will receive wall damage if pushed next to a wall.
+			// Player's with anti-knockback and boss monsters will always receive wall damage.
+			if (!((tsd && tsd->special_state.no_knockback) || (tmd && is_boss(bl))))
+			{// Is there a wall next to the target?
+				ARR_FIND(0, 8, i, map_getcell(bl->m, bl->x + dx[i], bl->y + dy[i], CELL_CHKNOPASS) != 0);
+				if (i == 8)// No wall detected.
+					wall_damage = false;
+			}
+
+			if (wall_damage == true)// Deal wall damage if the above check detected a wall or the target has anti-knockback.
+				skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, RL_R_TRIP_PLUSATK, skilllv, BF_WEAPON, flag);
+		}
 		else
 			skill_blown(dsrc, bl, dmg.blewcount, direction, 0);
 	}
@@ -3449,6 +3473,7 @@ static int skill_destroy_trap( struct block_list *bl, va_list ap )
 int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int skillid, int skilllv, int64 tick, int flag)
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
+	struct mob_data *md = NULL, *tmd = NULL;
 	struct status_data *tstatus;
 	struct status_change *sc, *tsc;
 	int s_job_level;
@@ -3466,7 +3491,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		return 1;
 
 	sd = BL_CAST(BL_PC, src);
+	md = BL_CAST(BL_MOB, src);
+
 	tsd = BL_CAST(BL_PC, bl);
+	tmd = BL_CAST(BL_MOB, bl);
 
 	// Minstrel/Wanderer number check for chorus skills.
 	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
@@ -3620,8 +3648,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_GREAT_ECHO:
 	case GN_CRAZYWEED_ATK:
 	case GN_SLINGITEM_RANGEMELEEATK:
-	case RL_H_MINE:
 	case RL_SLUGSHOT:
+	case RL_R_TRIP_PLUSATK:
 	case KO_SETSUDAN:
 	case KO_BAKURETSU:
 	case KO_HUUMARANKA:
@@ -3639,6 +3667,71 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SU_BITE:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+		break;
+
+	case RL_H_MINE:
+		{// Max allowed targets to be tagged with a mine.
+			short count = MAX_HOWL_MINES;
+			int i = 0, hm_damage = 0;
+
+			// Only players and monsters can be tagged....I think??? [Rytech]
+			// Lets only allow players and monsters to use this skill for safety reasons.
+			if( (!tsd && !tmd) || !sd && !md )
+			{
+				if( sd )
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+				break;
+			}
+
+			// Check if the target is already tagged by another source.
+			if( (tsd && tsd->sc.data[SC_H_MINE] && tsd->sc.data[SC_H_MINE]->val1 != src->id) || // Cant tag a player that was already tagged from another source.
+				(tmd && tmd->sc.data[SC_H_MINE] && tmd->sc.data[SC_H_MINE]->val1 != src->id) )// Same as the above check, but for monsters.
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 1;
+			}
+
+			if( sd )
+			{// Tagging the target.
+				ARR_FIND(0, count, i, sd->howl_mine[i] == bl->id );
+				if( i == count )
+				{
+					ARR_FIND(0, count, i, sd->howl_mine[i] == 0 );
+					if( i == count )
+					{// Max number of targets tagged. Fail the skill.
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+						map_freeblock_unlock();
+						return 1;
+					}
+				}
+				// Attack the target and return the damage result for the upcoming check.
+				hm_damage = skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+				// Tag the target only if damage was done. If it deals no damage, it counts as a miss and won't tag.
+				// Note: Not sure if it works like this in official but you can't stick a explosive on something you can't
+				// hit, right? For now well just use this logic until we can get a confirm on if it does this or not. [Rytech]
+				if ( hm_damage > 0 )
+				{// Add the ID of the tagged target to the player's tag list and start the status on the target.
+					sd->howl_mine[i] = bl->id;
+
+					// Val3 flags if the status was applied by a player or a monster.
+					// This will be important for other skills that work together with this one.
+					// 1 = Player, 2 = Monster.
+					// Note: Because the attacker's ID and the slot number is handled here, we have to
+					// apply the status here. We can't pass this data to skill_additional_effect.
+					sc_start4(bl, SC_H_MINE, 100, src->id, i, 1, 0, skill_get_time(skillid, skilllv));
+				}
+			}
+			else if ( md )// Monster's cant track with this skill. Just give the status.
+			{
+				hm_damage = skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+				if ( hm_damage > 0 )
+					sc_start4(bl, SC_H_MINE, 100, 0, 0, 2, 0, skill_get_time(skillid, skilllv));
+			}
+		}
 		break;
 
 	case NC_BOOSTKNUCKLE:
@@ -3879,6 +3972,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
 	case RL_BANISHING_BUSTER:
+	case RL_FIREDANCE:
 	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
 	case KO_MUCHANAGE:
@@ -3943,6 +4037,51 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				if( bl->type == BL_MER )
 					skill_blockmerc_start((TBL_MER*)bl, skillid, skill_get_time(skillid, skilllv));
 			}
+		}
+		break;
+
+	case RL_QD_SHOT:
+		if( flag&1 )
+		{
+			if ( sd )
+			{// If a player used the skill it will search for targets marked by that player. 
+				if ( tsc && tsc->data[SC_C_MARKER]->val3 == 1 )// Mark placed by a player.
+				{
+					short i = 0;
+					ARR_FIND( 0, MAX_CRIMSON_MARKS, i, sd->crimson_mark[i] == bl->id);
+					if ( i < MAX_CRIMSON_MARKS )
+						clif_skill_nodamage(src,bl,skillid,skilllv,skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag));
+				}
+			}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
+			else if ( tsc && tsc->data[SC_C_MARKER]->val3 == 2 )// Mark placed by a monster.
+					clif_skill_nodamage(src,bl,skillid,skilllv,skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag));
+		}
+		else
+		{// Attack the main target you triggered Chain Action / Eternal Chain on first and then do a area search for other's with a mark.
+			clif_skill_nodamage(src,bl,skillid,skilllv,skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag));
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+		}
+		break;
+
+	case RL_D_TAIL:
+		if( flag&1 )
+		{
+			if ( sd )
+			{// If a player used the skill it will search for targets marked by that player. 
+				if ( tsc && tsc->data[SC_C_MARKER]->val3 == 1 )// Mark placed by a player.
+				{
+					short i = 0;
+					ARR_FIND( 0, MAX_CRIMSON_MARKS, i, sd->crimson_mark[i] == bl->id);
+					if ( i < MAX_CRIMSON_MARKS )
+						skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+				}
+			}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
+			else if ( tsc && tsc->data[SC_C_MARKER]->val3 == 2 )// Mark placed by a monster.
+				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		}
+		else
+		{
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 		}
 		break;
 
@@ -4607,7 +4746,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		tsc->data[SC_SIREN] || tsc->data[SC_DEEPSLEEP] || tsc->data[SC_SIRCLEOFNATURE] ||
 		tsc->data[SC_GLOOMYDAY] || tsc->data[SC_GLOOMYDAY_SK] || tsc->data[SC_SONG_OF_MANA] || 
 		tsc->data[SC_DANCE_WITH_WUG] || tsc->data[SC_SATURDAY_NIGHT_FEVER] || tsc->data[SC_LERADS_DEW] || 
-		tsc->data[SC_MELODYOFSINK] || tsc->data[SC_BEYOND_OF_WARCRY] || tsc->data[SC_UNLIMITED_HUMMING_VOICE] ) && 
+		tsc->data[SC_MELODYOFSINK] || tsc->data[SC_BEYOND_OF_WARCRY] || tsc->data[SC_UNLIMITED_HUMMING_VOICE] || tsc->data[SC_FRIGG_SONG]) &&
 		rand()%100 < 4 * skilllv + 2 * pc_checkskill(sd,WM_LESSON) + 10 * chorusbonus)
 		{
 			skill_attack(BF_MISC,src,src,bl,skillid,skilllv,tick,flag);
@@ -4630,6 +4769,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_MELODYOFSINK, INVALID_TIMER);
 			status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
 			status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
+			status_change_end(bl, SC_FRIGG_SONG, INVALID_TIMER);
 		}
 		break;
 
@@ -5623,6 +5763,58 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case RL_C_MARKER:
+		{// Max allowed targets to be marked.
+			short count = MAX_CRIMSON_MARKS;
+
+			// Only players and monsters can be marked....I think??? [Rytech]
+			// Lets only allow players and monsters to use this skill for safety reasons.
+			if( (!dstsd && !dstmd) || !sd && !md )
+			{
+				if( sd )
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+				break;
+			}
+
+			// Check if the target is already marked by another source.
+			if( (dstsd && dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id) || // Cant mark a player that was already marked from another source.
+				(dstmd && dstmd->sc.data[type] && dstmd->sc.data[type]->val1 != src->id) )// Same as the above check, but for monsters.
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 1;
+			}
+
+			i = 0;
+			if( sd )
+			{// Marking the target.
+				ARR_FIND(0, count, i, sd->crimson_mark[i] == bl->id );
+				if( i == count )
+				{
+					ARR_FIND(0, count, i, sd->crimson_mark[i] == 0 );
+					if( i == count )
+					{// Max number of targets marked. Fail the skill.
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+						map_freeblock_unlock();
+						return 1;
+					}
+				}
+				// Add the ID of the marked target to the player's marking list.
+				sd->crimson_mark[i] = bl->id;
+
+				// Val3 flags if the status was applied by a player or a monster.
+				// This will be important for other skills that work together with this one.
+				// 1 = Player, 2 = Monster.
+				clif_skill_nodamage(src, bl, skillid, skilllv,
+					sc_start4(bl, type, 100, src->id, i, 1, 1000, skill_get_time(skillid, skilllv)));
+			}
+			else if ( md )// Monster's cant track with this skill. Just give the status.
+				clif_skill_nodamage(src, bl, skillid, skilllv,
+					sc_start4(bl, type, 100, 0, 0, 2, 0, skill_get_time(skillid, skilllv)));
+		}
+		break;
+
 	case MO_CALLSPIRITS:
 		if (sd)
 		{
@@ -5760,7 +5952,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
 	case SR_HOWLINGOFLION:
+	case RL_FIREDANCE:
 	case RL_R_TRIP:
+	case RL_D_TAIL:
 	case KO_HAPPOKUNAI:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -9370,7 +9564,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KG_KAGEMUSYA:
 	case OB_OBOROGENSOU:
 	case OB_AKAITSUKI:
-	case RL_C_MARKER:
 		if ( bl->type != BL_PC && skillid == KG_KAGEMUSYA )
 		{
 			clif_skill_fail(sd,skillid,0,0,0);
@@ -10649,6 +10842,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		status_change_end(src, SC_HIDING, INVALID_TIMER);
 		break;
 
+	case RL_FALLEN_ANGEL:
 	case SU_LOPE:
 		{
 			if( map[src->m].flag.noteleport && !(map[src->m].flag.battleground || map_flag_gvg2(src->m) ))
@@ -10656,7 +10850,18 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 				x = src->x;
 				y = src->y;
 			}
-			clif_skill_nodamage(src,src,SU_LOPE,skilllv,1);
+
+			if ( skillid == RL_FALLEN_ANGEL )
+			{// Note: There's supposed to be a animation with feathers appearing where you land. Can't trigger it. [Rytech]
+				clif_skill_nodamage(src,src,RL_FALLEN_ANGEL,skilllv,1);
+				sc_start(src, type, 100, 1, 2000);// Doubles the damage of GS_DESPERADO.
+				// Note: Because of how Desperado's mechanics work and how its coded, its
+				// not possible to just end it after using it once. Doing so will make the
+				// double damage end on the first hit. All I can do is let the status run
+				// the full 2 seconds.
+			}
+			else
+				clif_skill_nodamage(src,src,SU_LOPE,skilllv,1);
 			if(!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB) && map_getcell(src->m,x,y,CELL_CHKREACH))
 			{
 				clif_slide(src,x,y);
@@ -13275,6 +13480,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 
 	case HT_POWER:
+	case RL_QD_SHOT:
 		if(!(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill))
 			return 0;
 		break;

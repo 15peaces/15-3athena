@@ -232,11 +232,8 @@ int map_freeblock_unlock (void)
 	return block_free_lock;
 }
 
-// map_freeblock_lock() ‚ðŒÄ‚ñ‚Å map_freeblock_unlock() ‚ðŒÄ‚Î‚È‚¢
-// ŠÖ”‚ª‚ ‚Á‚½‚Ì‚ÅA’èŠú“I‚Éblock_free_lock‚ðƒŠƒZƒbƒg‚·‚é‚æ‚¤‚É‚·‚éB
-// ‚±‚ÌŠÖ”‚ÍAdo_timer() ‚ÌƒgƒbƒvƒŒƒxƒ‹‚©‚çŒÄ‚Î‚ê‚é‚Ì‚ÅA
-// block_free_lock ‚ð’¼Ú‚¢‚¶‚Á‚Ä‚àŽxá–³‚¢‚Í‚¸B
-
+// Timer function to check if there some remaining lock and remove them if so.
+// Called each 1s
 int map_freeblock_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	if (block_free_lock > 0) {
