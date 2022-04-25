@@ -207,116 +207,162 @@ int storage_delitem(struct map_session_data* sd, int n, int amount)
 	return 0;
 }
 
+/**
+ * Check if item can be added to storage
+ * @param stor Storage data
+ * @param idx Index item from inventory/cart
+ * @param items List of items from inventory/cart
+ * @param amount Amount of item will be added
+ * @param max_num Max inventory/cart
+ * @return @see enum e_storage_add
+ **/
+static enum e_storage_add storage_canAddItem(struct map_session_data* sd, int idx, struct item items[], int amount, int max_num) {
+	if( sd->storage.amount > MAX_STORAGE )
+		return STORAGE_ADD_NOROOM; // storage full
+
+	if (idx < 0 || idx >= max_num)
+		return STORAGE_ADD_INVALID;
+
+	if (items[idx].nameid <= 0)
+		return STORAGE_ADD_INVALID; // No item on that spot
+
+	if (amount < 1 || amount > items[idx].amount)
+		return STORAGE_ADD_INVALID;
+
+	if (itemdb_ishatched_egg(&items[idx]))
+		return STORAGE_ADD_INVALID;
+
+	return STORAGE_ADD_OK;
+}
+
+/**
+ * Check if item can be moved from storage
+ * @param stor Storage data
+ * @param idx Index from storage
+ * @param amount Number of item
+ * @return @see enum e_storage_add
+ **/
+static enum e_storage_add storage_canGetItem(struct map_session_data *sd, int idx, int amount) {
+	if (idx < 0 || idx >= MAX_STORAGE)
+		return STORAGE_ADD_INVALID;
+
+	if (sd->storage.u.items_storage[idx].nameid <= 0)
+		return STORAGE_ADD_INVALID; //Nothing there
+
+	if (amount < 1 || amount > sd->storage.u.items_storage[idx].amount)
+		return STORAGE_ADD_INVALID;
+
+	return STORAGE_ADD_OK;
+}
+
 /*==========================================
  * Add an item to the storage from the inventory.
  *------------------------------------------*/
-int storage_storageadd(struct map_session_data* sd, int index, int amount)
+void storage_storageadd(struct map_session_data* sd, int index, int amount)
 {
-	nullpo_ret(sd);
+	enum e_storage_add result;
 
-	if( sd->storage.amount > MAX_STORAGE )
-		return 0; // storage full
+	nullpo_retv(sd);
 
-	if( index < 0 || index >= MAX_INVENTORY )
-		return 0;
+	result = storage_canAddItem(sd, index, sd->inventory.u.items_inventory, amount, MAX_INVENTORY);
+	if (result == STORAGE_ADD_INVALID)
+		return;
+	else if (result == STORAGE_ADD_OK) {
+		switch( storage_additem(sd, &sd->inventory.u.items_inventory[index], amount) ){
+			case 0:
+				pc_delitem(sd,index,amount,0,4);
+				return;
+			case 1:
+				break;
+			case 2:
+				result = STORAGE_ADD_NOROOM;
+				break;
+		}
+	}
 
-	if( sd->inventory.u.items_inventory[index].nameid <= 0 )
-		return 0; // No item on that spot
-
-	if( amount < 1 || amount > sd->inventory.u.items_inventory[index].amount )
-  		return 0;
-
-	if( storage_additem(sd,&sd->inventory.u.items_inventory[index],amount) == 0 )
-		pc_delitem(sd,index,amount,0,4);
-
-	return 1;
+	clif_storageitemremoved(sd,index,0);
+	clif_dropitem(sd,index,0);
 }
 
 /*==========================================
  * Retrieve an item from the storage.
  *------------------------------------------*/
-int storage_storageget(struct map_session_data* sd, int index, int amount)
-{
-	if( index < 0 || index >= MAX_STORAGE )
-		return 0;
+void storage_storageget(struct map_session_data* sd, int index, int amount)
+{	
+	unsigned char flag = 0;
+	enum e_storage_add result;
 
-	if( sd->storage.u.items_storage[index].nameid <= 0 )
-		return 0; //Nothing there
-	
-	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
-		return 0;
+	nullpo_retv(sd);
 
-	enum e_additem_result flag = pc_additem(sd, &sd->storage.u.items_storage[index], amount);
+	result = storage_canGetItem(sd, index, amount);
+	if (result != STORAGE_ADD_OK)
+		return;
 
-	if (flag == ADDITEM_SUCCESS)
-		storage_delitem(sd,index,amount);
+	if ((flag = pc_additem(sd, &sd->storage.u.items_storage[index], amount)) == ADDITEM_SUCCESS)
+		storage_delitem(sd, index, amount);
 	else {
 		clif_storageitemremoved(sd, index, 0);
 		clif_additem(sd, 0, 0, flag);
 	}
-
-	return 1;
 }
 
 /*==========================================
  * Move an item from cart to storage.
  *------------------------------------------*/
-int storage_storageaddfromcart(struct map_session_data* sd, int index, int amount)
+void storage_storageaddfromcart(struct map_session_data* sd, int index, int amount)
 {
-	nullpo_ret(sd);
+	enum e_storage_add result;
+
+	nullpo_retv(sd);
 
 	if (sd->state.prevend) {
-		return 0;
+		return;
 	}
 
-	if( sd->storage.amount > MAX_STORAGE )
-  		return 0; // storage full / storage closed
+	result = storage_canAddItem(sd, index, sd->cart.u.items_cart, amount, MAX_CART);
+	if (result == STORAGE_ADD_INVALID)
+		return;
+	else if (result == STORAGE_ADD_OK) {
+		switch (storage_additem(sd, &sd->cart.u.items_cart[index], amount)) {
+		case 0:
+			pc_cart_delitem(sd, index, amount, 0);
+			return;
+		case 1:
+			break;
+		case 2:
+			result = STORAGE_ADD_NOROOM;
+			break;
+		}
+	}
 
-	if( index < 0 || index >= MAX_CART )
-  		return 0;
-
-	if( sd->cart.u.items_cart[index].nameid <= 0 )
-		return 0; //No item there.
-	
-	if( amount < 1 || amount > sd->cart.u.items_cart[index].amount )
-		return 0;
-
-	if( storage_additem(sd,&sd->cart.u.items_cart[index],amount) == 0 )
-		pc_cart_delitem(sd,index,amount,0);
-
-	return 1;
+	clif_storageitemremoved(sd, index, 0);
+	clif_dropitem(sd, index, 0);
 }
 
 /*==========================================
  * Get from Storage to the Cart
  *------------------------------------------*/
-int storage_storagegettocart(struct map_session_data* sd, int index, int amount)
+void storage_storagegettocart(struct map_session_data* sd, int index, int amount)
 {
-	nullpo_ret(sd);
+	unsigned char flag = 0;
+	enum e_storage_add result;
+
+	nullpo_retv(sd);
 
 	if (sd->state.prevend) {
-		return 0;
+		return;
 	}
 
-	if( index < 0 || index >= MAX_STORAGE )
-		return 0;
-	
-	if( sd->storage.u.items_storage[index].nameid <= 0 )
-		return 0; //Nothing there.
-	
-	if( amount < 1 || amount > sd->storage.u.items_storage[index].amount )
-		return 0;
+	result = storage_canGetItem(sd, index, amount);
+	if (result != STORAGE_ADD_OK)
+		return;
 
-	enum e_additem_result flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount);
-	
-	if (flag == ADDITEM_SUCCESS)
-		storage_delitem(sd,index,amount);
+	if ((flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount)) == 0)
+		storage_delitem(sd, index, amount);
 	else {
 		clif_storageitemremoved(sd, index, 0);
 		clif_cart_additem_ack(sd, (flag == 1) ? ADDITEM_TO_CART_FAIL_WEIGHT : ADDITEM_TO_CART_FAIL_COUNT);
 	}
-
-	return 1;
 }
 
 

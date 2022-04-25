@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/25/2022
+	r330 [15peaces]
+		*Merged missing changes from 3ceam rev. 826
+		*Fixed some more issues related to moving items.
+			-Follow-up @4d02103
+			-Also added a new function to check if an item is an hatched egg.
+			-Thanks to @rathena	
+		*Fixed 2 critical issues where a improper status check can happen and cause the server to crash. Sorry about that.
+		*RL_MASS_SPIRAL
+			-Updated bleeding chance.
+			-Doesn't send a no-damage packet anymore.
+			-Note: Gravity dev's seemed to have screwed up on how the animaions are triggered. For a offensive skill it should trigger when dealing damage but it doesnt.
+		*RL_BANISHING_BUSTER
+			-Recoded the entire skill.
+			-No longer deals splash damage.
+			-Damage formula updated.
+			-Now dispells if the target is damaged.
+			-Note: Its said it works just like dispell. So I just copied dispells code and edited it for offensive attacks.
+		*RL_SLUGSHOT
+			-Recoded the entire skill.
+			-Damage formula updated.
+			-No longer uses equippable slug ammo.
+			-Now requires Slug Bullet.
+			-Now reduces hit by a percentage beyond a 3 cell distance.
+
 04/24/2022
 	r329 [15peaces]
 		*Merged missing changes from 3ceam rev. 821 - 825

@@ -3919,9 +3919,9 @@
 13215,AP_Ammo,Armor-Piercing Bullet,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
 13216,Blaze_Bullet,Blaze Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
 13217,Freezing_Bullet,Freezing Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Water; },{},{}
-+13218,Electric_Shock_Bullet,Electric Shock Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
-+13219,Magical_Stone_Bullet,Magical Stone Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
-+13220,Sanctified_Bullet,Sanctified Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
+13218,Electric_Shock_Bullet,Electric Shock Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
+13219,Magical_Stone_Bullet,Magical Stone Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
+13220,Sanctified_Bullet,Sanctified Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
 // Universal Ammo??? These replace the sphere's ammo and are usable with all gun types. Prices are correct.
 13228,Unknown_Ammo_1,Unknown Ammo 1,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
 13229,Unknown_Ammo_2,Unknown Ammo 2,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
@@ -4388,12 +4388,12 @@
 // 3ceam stable
 13138,Dark_Rose,Dark Rose,4,20,,1800,150,,7,2,0x01000000,7,2,34,3,120,1,17,{},{},{}
 // Rebellion Ammo
-13215,AP_Ammo,Armor-Piercing Bullet			,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
-13216,Blaze_Bullet,Blaze Bullet				,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
-13217,Freezing_Bullet,Freezing Bullet			,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Water; },{},{}
-13218,Electric_Shock_Bullet,Electric Shock Bullet	,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
-13219,Magical_Stone_Bullet,Magical Stone Bullet		,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
-13220,Sanctified_Bullet,Sanctified Bullet		,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
+13215,AP_Ammo,Armor-Piercing Bullet,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}
+13216,Blaze_Bullet,Blaze Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Fire; },{},{}
+13217,Freezing_Bullet,Freezing Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Water; },{},{}
+13218,Electric_Shock_Bullet,Electric Shock Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Wind; },{},{}
+13219,Magical_Stone_Bullet,Magical Stone Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Earth; },{},{}
+13220,Sanctified_Bullet,Sanctified Bullet,10,40,,2,40,,,,0x01000000,7,2,32768,,100,,3,{ bonus bAtkEle,Ele_Holy; },{},{}
 // Whats the status ID for this? Its said to stack with regular battle manuals and bubble gums. So it can't be the same ID.
 //14799,Battle_Manual_Bubble_Gum,Battle Manual & Bubble Gum,2,10000,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ sc_start SC_EXPBOOST,1800000,100; },{},{}
 // Universal Bullets - Usable with all guns, including grenade launchers.
