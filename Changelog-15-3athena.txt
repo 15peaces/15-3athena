@@ -5,6 +5,47 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/01/2022
+	r331 [15peaces]
+		*Merged missing changes from 3ceam rev. 827 - 828
+		*Updated the mobinfo command to add a divider line between each of the listed monster entrys to help keep the info for each monster seprate for easier viewing.
+		*Updated the iteminfo command.
+			-This is a big update which adds additional info for item types that are weapon, armor, or ammo type. Info like the type of weapon/armor/ammo, the ATK/DEF, equip level, etc..
+			-Also added a divider line between each of the listed item entrys to help keep the info for each item seprate for easier viewing.
+		*itemdb_weapon_typename; itemdb_armor_typename; itemdb_ammo_typename
+			-Added these functions for use with the iteminfo command.
+			-These work just like itemdb_typename, but for weapons/armor/ammo.
+		*Added a bunch of EQP masks for headgear combinations.
+			-Used with the item_db_armor_itemtype function for slot checks.
+		*Updated renewal cast system to support new wedding skills.
+			-These don't work yet. Just preparing for them.
+		*LG_PINPOINTATTACK
+			-Fixed a possible issue where it wouldn't break certain headgears if its equipped in the upper and middle/lower equip slots.
+		*RL_MASS_SPIRAL; RL_BANISHING_BUSTER; RL_SLUGSHOT
+			-Corrected the handling of the animations.
+		*RL_S_STORM; RL_AM_BLAST; SU_SOULATTACK
+			-Added full support for these skills.
+		*RL_E_CHAIN
+			-Can now be removed through dispell methods.
+		*RL_P_ALTER
+			-Can now be removed through dispell methods.
+			-Now forms a barrier around the caster.
+			-Barrier is basicly a Kyrie barrier but uses its own formula for this skill to set its HP and number of hits blocked.
+		*RL_HEAT_BARREL
+			-Can now be removed through dispell methods.
+			-Damage increase mechanics recoded.
+			-Damage is now applied in the same way as the damage added from summoned coin spheres.
+		*RA_FIRINGTRAP
+			-Fixed a issue where the trap's detonation animation didn't show.
+		*LG_FORCEOFVANGUARD
+			-Now increases DEF....again.
+			-Confirmed it does increase hard DEF but it doesn't show in the display. And yes it also still increases MaxHP.
+		*SR_FLASHCOMBO; SC_ESCAPE; WL_TELEKINESIS_INTENSE; LG_KINGS_GRACE
+			-Added support for these skills.
+		*AB_OFFERTORIUM
+			-Fixed a issue where the status animation wouldn't stay displayed.
+			-Can no longer be removed by dispelling methods.
+
 04/25/2022
 	r330 [15peaces]
 		*Merged missing changes from 3ceam rev. 826

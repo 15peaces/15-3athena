@@ -1493,6 +1493,7 @@ int clif_spawn(struct block_list *bl)
 				clif_sendbgemblem_area(sd);
 			clif_hat_effects(sd, bl, AREA);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
+			// Note: This was supposed to be just a temp thing but its getting out of hand. Need to redo this. [Rytech]
 			//if( sd->sc.count && sd->sc.data[SC_] )
 			//	clif_status_change(&sd->bl,SI_,1,9999,sd->sc.data[SC_]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE])
@@ -1541,6 +1542,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_C_MARKER, 1, 9999, sd->sc.data[SC_C_MARKER]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_H_MINE])
 				clif_status_change(&sd->bl, SI_H_MINE, 1, 9999, sd->sc.data[SC_H_MINE]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_ANTI_M_BLAST])
+				clif_status_change(&sd->bl, SI_ANTI_M_BLAST, 1, 9999, sd->sc.data[SC_ANTI_M_BLAST]->val1, 0, 0);
 			if( sd->sc.count && sd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change(&sd->bl,SI_KO_JYUMONJIKIRI,1,9999,sd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_MEIKYOUSISUI] )
@@ -1563,6 +1566,10 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_DARKCROW, 1, 9999, sd->sc.data[SC_DARKCROW]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_UNLIMIT])
 				clif_status_change(&sd->bl, SI_UNLIMIT, 1, 9999, sd->sc.data[SC_UNLIMIT]->val1, 0, 0);
+			if( sd->sc.count && sd->sc.data[SC_OFFERTORIUM] )
+				clif_status_change(&sd->bl,SI_OFFERTORIUM,1,9999,sd->sc.data[SC_OFFERTORIUM]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_TELEKINESIS_INTENSE] )
+				clif_status_change(&sd->bl,SI_TELEKINESIS_INTENSE,1,9999,sd->sc.data[SC_TELEKINESIS_INTENSE]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_SUHIDE] )
 				clif_status_change(&sd->bl,SI_SUHIDE,1,9999,sd->sc.data[SC_SUHIDE]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_SU_STOOP] )
@@ -1571,6 +1578,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl,SI_SPRITEMABLE,1,9999,sd->sc.data[SC_SPRITEMABLE]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_TUNAPARTY])
 				clif_status_change(&sd->bl, SI_TUNAPARTY, 1, 9999, sd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
+			if (sd->sc.count && sd->sc.data[SC_SOULATTACK])
+				clif_status_change(&sd->bl, SI_SOULATTACK, 1, 9999, sd->sc.data[SC_SOULATTACK]->val1, 0, 0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -4878,6 +4887,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_sendbgemblem_single(sd->fd,tsd);
 			clif_hat_effects(sd, bl, SELF);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
+			// This was supposed to be just a temp thing but this is getting out of hand. Needs to recode this. [Rytech]
 			//if( tsd->sc.count && tsd->sc.data[SC_] )
 			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_,1,9999,tsd->sc.data[SC_]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_CAMOUFLAGE] )
@@ -4926,6 +4936,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				 clif_status_change_single(&sd->bl, &tsd->bl, SI_C_MARKER, 1, 9999, tsd->sc.data[SC_C_MARKER]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_H_MINE])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_H_MINE, 1, 9999, tsd->sc.data[SC_H_MINE]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_ANTI_M_BLAST])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_ANTI_M_BLAST, 1, 9999, tsd->sc.data[SC_ANTI_M_BLAST]->val1, 0, 0);
 			if( tsd->sc.count && tsd->sc.data[SC_KO_JYUMONJIKIRI] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_KO_JYUMONJIKIRI,1,9999,tsd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_MEIKYOUSISUI] )
@@ -4952,6 +4964,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_DARKCROW, 1, 9999, tsd->sc.data[SC_DARKCROW]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_UNLIMIT])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_UNLIMIT, 1, 9999, tsd->sc.data[SC_UNLIMIT]->val1, 0, 0);
+			if( tsd->sc.count && tsd->sc.data[SC_OFFERTORIUM] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_OFFERTORIUM,1,9999,tsd->sc.data[SC_OFFERTORIUM]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_TELEKINESIS_INTENSE] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_TELEKINESIS_INTENSE,1,9999,tsd->sc.data[SC_TELEKINESIS_INTENSE]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_SUHIDE] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUHIDE,1,9999,tsd->sc.data[SC_SUHIDE]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_SU_STOOP] )
@@ -4960,6 +4976,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SPRITEMABLE,1,9999,tsd->sc.data[SC_SPRITEMABLE]->val1,0,0);
 			if (tsd->sc.count && tsd->sc.data[SC_TUNAPARTY])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_TUNAPARTY, 1, 9999, tsd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_SOULATTACK])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_SOULATTACK, 1, 9999, tsd->sc.data[SC_SOULATTACK]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
 				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
@@ -11649,8 +11667,8 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 	if (sd->sc.count &&
 		(sd->sc.data[SC_TRICKDEAD] ||
 		sd->sc.data[SC_AUTOCOUNTER] ||
-		sd->sc.data[SC_DEATHBOUND] ||
 		sd->sc.data[SC_BLADESTOP] ||
+		sd->sc.data[SC_DEATHBOUND] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC_DEEPSLEEP] ||
 		sd->sc.data[SC__MANHOLE] ||
@@ -11678,10 +11696,15 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 
 		// Can't attack
-		if( sd->sc.data[SC_BASILICA] || sd->sc.data[SC__SHADOWFORM] || (tsc && tsc->data[SC__MANHOLE]) ||
+		if (sd->sc.data[SC_BASILICA] ||
+			sd->sc.data[SC__SHADOWFORM] ||
 			sd->sc.data[SC_HEAT_BARREL_AFTER] ||
+			sd->sc.data[SC_KINGS_GRACE] ||
 			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) ||
 			sd->sc.data[SC_ALL_RIDING])
+			return;
+
+		if ( tsc && (tsc->data[SC__MANHOLE] || tsc->data[SC_KINGS_GRACE]))
 			return;
 		
 		if (!battle_config.sdelay_attack_enable && pc_checkskill(sd, SA_FREECAST) <= 0) {

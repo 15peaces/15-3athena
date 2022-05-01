@@ -4580,6 +4580,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		(sd->sc.data[SC_DEEPSLEEP] || sd->sc.data[SC_CRYSTALIZE]) && sd->inventory.u.items_inventory[n].nameid != ITEMID_NAUTHIZ_RUNE ||
 		sd->sc.data[SC_SATURDAY_NIGHT_FEVER] ||
 		sd->sc.data[SC_HEAT_BARREL_AFTER] ||
+		sd->sc.data[SC_FLASHCOMBO] ||
+		sd->sc.data[SC_KINGS_GRACE] ||
 		sd->sc.data[SC_SUHIDE]
 	))
 		return 0;
@@ -7038,6 +7040,9 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 
 		if ((sd->sc.data[SC_SPRITEMABLE] && pc_checkskill(sd, SU_SPRITEMABLE)))
 			status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
+
+		if ((sd->sc.data[SC_SOULATTACK] && pc_checkskill(sd, SU_SOULATTACK)))
+			status_change_end(&sd->bl, SC_SOULATTACK, INVALID_TIMER);
 	}
 
 	for( i = 1; i < MAX_SKILL; i++ )
@@ -8224,6 +8229,9 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 
 	if (sd->sc.data[SC_SPRITEMABLE] && !pc_checkskill(sd, SU_SPRITEMABLE))
 		status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
+
+	if (sd->sc.data[SC_SOULATTACK] && !pc_checkskill(sd, SU_SOULATTACK))
+		status_change_end(&sd->bl, SC_SOULATTACK, INVALID_TIMER);
 	
 	if(sd->status.manner < 0)
 		clif_changestatus(&sd->bl,SP_MANNER,sd->status.manner);

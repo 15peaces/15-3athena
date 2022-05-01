@@ -508,7 +508,7 @@ void initChangeTables(void)
 
 	// Royal Guard
 	set_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	, SI_LG_REFLECTDAMAGE	, SCB_NONE );
-	set_sc( LG_FORCEOFVANGUARD	, SC_FORCEOFVANGUARD	, SI_FORCEOFVANGUARD	, SCB_MAXHP );
+	set_sc( LG_FORCEOFVANGUARD  , SC_FORCEOFVANGUARD    , SI_FORCEOFVANGUARD    , SCB_MAXHP | SCB_DEF);
 	set_sc( LG_EXEEDBREAK       , SC_EXEEDBREAK			, SI_EXEEDBREAK			, SCB_NONE );
 	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF );
 	set_sc( LG_BANDING			, SC_BANDING			, SI_BANDING			, SCB_WATK | SCB_DEF );
@@ -609,7 +609,7 @@ void initChangeTables(void)
 	add_sc(RK_DRAGONBREATH_WATER	, SC_FREEZING			);
 	add_sc(NC_MAGMA_ERUPTION		, SC_BURNING			);
 	set_sc(WM_FRIGG_SONG			, SC_FRIGG_SONG			, SI_FRIGG_SONG			, SCB_MAXHP);
-	set_sc(SR_FLASHCOMBO			, SC_FLASHCOMBO			, SI_FLASHCOMBO			, SCB_NONE);
+	set_sc(SR_FLASHCOMBO            , SC_FLASHCOMBO         , SI_FLASHCOMBO         , SCB_WATK);
 	add_sc(SC_ESCAPE				, SC_ANKLE				);
 	set_sc(AB_OFFERTORIUM			, SC_OFFERTORIUM		, SI_OFFERTORIUM		, SCB_NONE);
 	set_sc(WL_TELEKINESIS_INTENSE	, SC_TELEKINESIS_INTENSE, SI_TELEKINESIS_INTENSE, SCB_NONE);
@@ -863,10 +863,12 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_GLOOMYDAY_SK] = SI_GLOOMYDAY;
 
 	StatusIconChangeTable[SC_REBOUND] = SI_REBOUND;
+	StatusIconChangeTable[SC_H_MINE_SPLASH] = SI_H_MINE_SPLASH;
 	StatusIconChangeTable[SC_HEAT_BARREL_AFTER] = SI_HEAT_BARREL_AFTER;
 
 	// Summoner
 	StatusIconChangeTable[SC_SPRITEMABLE] = SI_SPRITEMABLE;
+	StatusIconChangeTable[SC_SOULATTACK] = SI_SOULATTACK;
 
 	// Mutanted Homunculus
 	StatusIconChangeTable[SC_SONIC_CLAW_POSTDELAY] = SI_SONIC_CLAW_POSTDELAY;
@@ -1719,6 +1721,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC__SHADOWFORM] ||
 				sc->data[SC_HEAT_BARREL_AFTER] ||
 				(sc->data[SC_KYOMU] && rand() % 100 < 5 * sc->data[SC_KYOMU]->val1) ||
+				sc->data[SC_FLASHCOMBO] ||
+				sc->data[SC_KINGS_GRACE] ||
 				sc->data[SC_ALL_RIDING]
 			))
 				return 0;
@@ -3058,7 +3062,11 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			status->rhw.range += skill;
 		}
 	}
-
+	if( (pc_checkskill(sd,SU_SOULATTACK)) > 0 )
+	{// Range with rod type weapons increased to a fixed 14.
+		if( sd->status.weapon == W_STAFF )
+			status->rhw.range = 14;
+	}
 	if ((sd->status.weapon == W_1HAXE || sd->status.weapon == W_2HAXE) && (skill = pc_checkskill(sd, NC_TRAININGAXE)) > 0)
 		status->hit += skill * 3;
 	if ((sd->status.weapon == W_MACE || sd->status.weapon == W_2HMACE) && (skill = pc_checkskill(sd, NC_TRAININGAXE)) > 0)
@@ -3304,6 +3312,9 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	if ((skill = pc_checkskill(sd, SU_SPRITEMABLE)) > 0)
 		sc_start(&sd->bl, SC_SPRITEMABLE, 100, 1, -1);
 
+	// Same as above, but for Soul Attack.
+	if( (skill = pc_checkskill(sd,SU_SOULATTACK)) > 0 )
+		sc_start(&sd->bl,SC_SOULATTACK,100,1,-1);
 
 	calculating = 0;
 
@@ -4681,6 +4692,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += sc->data[SC_P_ALTER]->val2;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val3 == 1)
 		watk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
+	if (sc->data[SC_FLASHCOMBO])
+		watk += sc->data[SC_FLASHCOMBO]->val2;
 	if(sc->data[SC_FULL_SWING_K])
 		watk += sc->data[SC_FULL_SWING_K]->val1;
 	if(sc->data[SC_INCATKRATE])
@@ -5016,6 +5029,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += def * sc->data[SC_INCDEFRATE]->val1/100;
 	if( sc->data[SC_NEUTRALBARRIER] )
 		def += def * ( 10 + 5 * sc->data[SC_NEUTRALBARRIER]->val1 ) / 100;
+	if (sc->data[SC_FORCEOFVANGUARD])
+		def += def * (2 * sc->data[SC_FORCEOFVANGUARD]->val1) / 100;
 	if( sc->data[SC_ECHOSONG] )
 		def += def * sc->data[SC_ECHOSONG]->val4 / 100;
 	if(sc->data[SC_ODINS_POWER])
@@ -7386,12 +7401,17 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = val1*20; //SP gained
 			break;
 		case SC_KYRIE:
-			if ( val4 )
-			{// Formula's for Praefatio
+			if ( val4 == RL_P_ALTER )
+			{// Platinum Alter's Formula
+				val2 = status->max_hp * (val1 * 5) / 100; //%Max HP to absorb
+				val3 = 3 + val1; //Hits
+			}
+			else if ( val4 == AB_PRAEFATIO )
+			{// Praefatio's Formula
 				val2 = status->max_hp * (val1 * 2 + 16) / 100; //%Max HP to absorb
 				val3 = 6 + val1; //Hits
 			} else
-			{// Formula's for Kyrie Eleison
+			{// Kyrie Eleison's Formula
 				val2 = status->max_hp * (val1 * 2 + 10) / 100; //%Max HP to absorb
 				val3 = (val1 / 2 + 5); //Hits
 			}
@@ -7679,6 +7699,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_READYTURN:
 		case SC_DODGE:
 		case SC_SPRITEMABLE:
+		case SC_SOULATTACK:
 		case SC_ALL_RIDING:
 		case SC_MOONSTAR:
 		case SC_STRANGELIGHTS:
@@ -8616,9 +8637,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_HEAT_BARREL:
 			if (sd)
+			{
 				val2 = 5 * sd->spiritball_old;// Fixed Cast Reduction
-			val3 = 40 * val1;// ATK Multiplier For Regular Attacks. Temp Formula.
+				val3 = 20 * sd->spiritball_old;// ATK Increase.
+			}
+			else// If monster has this buff.
+				val3 = 200;
 			val4 = 25 + 5 * val1;// HIT Reduction
+			break;
+		case SC_ANTI_M_BLAST:
+			val2 = 10 * val1;// Player Damage Resistance Reduction.
 			break;
 		case SC_MEIKYOUSISUI:
 			val4 = tick / 1000;
@@ -8664,9 +8692,21 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = tick / 1000;
 			tick = 1000;
 			break;
+		case SC_FLASHCOMBO:
+			val2 = 20 + 20 * val1;// ATK Increase
+			break;
 		case SC_OFFERTORIUM:
 			val2 = 30 * val1;// Heal Power Increase
 			val3 = 100 + 20 * val1;// SP Requirement Increase
+			break;
+		case SC_TELEKINESIS_INTENSE:
+			val2 = 40 * val1;// Damage Increase To Ghost Element Skills
+			val3 = 10 * val1;// Variable Cast Time Reduction
+			val4 = 10 * val1;// SP Cost Reduction
+			break;
+		case SC_KINGS_GRACE:
+			val2 = tick / 1000;
+			tick = 1000;
 			break;
 		case SC_FULL_THROTTLE:
 			val2 = tick/1000;
@@ -8986,6 +9026,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if (battle_config.sc_castcancel&bl->type)
 				unit_skillcastcancel(bl, 0);
 		break;
+		// Stops everything your doing.
+		case SC_KINGS_GRACE:
+			unit_stop_walking(bl,1);
+			unit_stop_attack(bl);
+			unit_skillcastcancel(bl, 0);
+		break;
 	}
 
 	// Set option as needed.
@@ -9172,7 +9218,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}*/
 
 	if( (vd && (pcdb_checkid(vd->class_))) || bl->type == BL_MER ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
-		clif_status_change(bl,StatusIconChangeTable[type],1,tick,(val_flag&1)?val1:1,(val_flag&2)?val2:0,(val_flag&4)?val3:0);
+		clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val1 > 0) ? val1 : 1, (val2 > 0) ? val2 : 0, (val3 > 0) ? val3 : 0);
 	else if( sd ) //Send packet to self otherwise (disguised player?)
 		clif_status_load(bl,StatusIconChangeTable[type],1);
 
@@ -9343,6 +9389,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_SUPER_STAR:
 				case SC_DECORATION_OF_MUSIC:
 				case SC_SPRITEMABLE:
+				case SC_SOULATTACK:
 				// Clans
 				case SC_CLAN_INFO:
 				case SC_SWORDCLAN:
@@ -11043,6 +11090,15 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC_KINGS_GRACE:
+		if( --(sce->val2) >= 0 )
+		{
+			status_heal(bl, status->max_hp * (3 + sce->val1) / 100, 0, 2);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
 	case SC_FULL_THROTTLE:
 		if( --(sce->val2) >= 0 )
 		{
@@ -11302,6 +11358,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_CURSEDCIRCLE_ATKER:
 			case SC_CURSEDCIRCLE_TARGET:
 			case SC_SPRITEMABLE:
+			case SC_SOULATTACK:
 				continue;
 				
 			//Debuffs that can be removed.
