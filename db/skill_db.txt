@@ -1109,9 +1109,9 @@
 2298,3,6,1,0,0x1,0,5,1,yes,0,0,0,none,0,	SC_STRIPACCESSARY,Strip Accessory
 2299,7,6,2,0,0x1,0,3,1,yes,0,0x80,3,magic,0,	SC_MANHOLE,Man Hole
 2300,7,6,2,0,0x1,0,3,1,yes,0,0,1,magic,0,	SC_DIMENSIONDOOR,Dimension Door
-2301,7,6,2,0,0x1,0,3,1,yes,0,0,1,magic,0,	SC_CHAOSPANIC,Chaos Panic
-2302,7,6,2,0,0x1,0,3,1,yes,0,0,1,magic,0,	SC_MAELSTROM,Maelstrom
-2303,7,6,2,0,0x1,0,3,1,yes,0,0,1,magic,0,	SC_BLOODYLUST,Bloody Lust
+2301,7,6,2,0,0x1,2,3,1,yes,0,0,0,magic,0,	SC_CHAOSPANIC,Chaos Panic
+2302,7,6,2,0,0x1,2,3,1,yes,0,0,1,magic,0,	SC_MAELSTROM,Maelstrom
+2303,7,6,2,0,0x1,3,3,1,yes,0,0,1,magic,0,	SC_BLOODYLUST,Bloody Lust
 2304,0,6,4,-1,0,0,3,1,no,0,0,0,weapon,0,	SC_FEINTBOMB,Feint Bomb
 
 // Royal Guard
@@ -1416,10 +1416,10 @@
 5055,0,0,4,0,0,0,5,0,no,0,0,0,none,0,		SU_CHATTERING,Chattering
 5056,0,0,0,0,0,0,1,0,no,0,0,0,none,0,		SU_SPIRITOFSEA,Spirit of Sea
 
-// Wedding Skills 3 - Not Yet Working
-5063,0,6,4,0,0x1,0,1,1,yes,0,0x4,0,none,0,	WE_CALLALLFAMILY,Call Family
-5064,3,6,16,0,0x1,0,1,1,yes,0,0x4,0,none,0,	WE_ONEFOREVER,One For Ever
-5065,0,6,4,0,0x1,3,1,1,yes,0,0x4,0,none,0,	WE_CHEERUP,Cheer Up
+// Wedding Skills 3
+5063,0,6,4,0,0x1,0,1,1,yes,0,0x4,0,none,0,	WE_CALLALLFAMILY,Call All Family
+5064,3,6,16,0,0x1,0,1,1,yes,0,0x4,0,none,0,	WE_ONEFOREVER,One Forever
+5065,0,6,4,0,0x3,3,1,1,yes,0,0x4,0,none,0,	WE_CHEERUP,Cheer Up
 
 5067,0,0,4,0,0x1,0,1,0,no,0,0,0,none,0,		ALL_EQSWITCH,Equip Switch
 

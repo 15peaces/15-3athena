@@ -504,7 +504,9 @@ void initChangeTables(void)
 	set_sc( SC_STRIPACCESSARY	, SC__STRIPACCESSARY	, SI_STRIPACCESSARY	, SCB_INT | SCB_DEX | SCB_LUK);
 	set_sc( SC_MANHOLE			, SC__MANHOLE			, SI_MANHOLE		, SCB_NONE );
 	add_sc( SC_CONFUSIONPANIC	, SC_CONFUSION			);
-	set_sc( SC_BLOODYLUST       , SC__BLOODYLUST        , SI_BLOODYLUST     , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
+	// Old Bloody Lust data is left here in case old behavior is wanted.
+	//set_sc( SC_BLOODYLUST		, SC__BLOODYLUST		, SI_BLOODYLUST		, SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
+	set_sc( SC_BLOODYLUST		, SC__BLOODYLUST_BK		, SI_BLOODYLUST		, SCB_NONE );
 
 	// Royal Guard
 	set_sc( LG_REFLECTDAMAGE	, SC_LG_REFLECTDAMAGE	, SI_LG_REFLECTDAMAGE	, SCB_NONE );
@@ -622,6 +624,8 @@ void initChangeTables(void)
 	set_sc(SU_TUNAPARTY		, SC_TUNAPARTY		, SI_TUNAPARTY		, SCB_NONE);
 	set_sc(SU_BUNCHOFSHRIMP	, SC_SHRIMP			, SI_SHRIMP			, SCB_BATK | SCB_WATK | SCB_MATK);
 	set_sc(SU_FRESHSHRIMP	, SC_FRESHSHRIMP	, SI_FRESHSHRIMP	, SCB_NONE);
+
+	set_sc(WE_CHEERUP, SC_CHEERUP, SI_CHEERUP, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -4283,6 +4287,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_SAVAGE_STEAK]->val1;
 	if(sc->data[SC_INSPIRATION])
 		str += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_CHEERUP])
+		str += 3;
 	if(sc->data[SC_STOMACHACHE])
 		str -= sc->data[SC_STOMACHACHE]->val1;
 	if (sc->data[SC_KYOUGAKU])
@@ -4335,6 +4341,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_INSPIRATION]->val3;
 	if (sc->data[SC_ARCLOUSEDASH])
 		agi += sc->data[SC_ARCLOUSEDASH]->val2;
+	if (sc->data[SC_CHEERUP])
+		agi += 3;
 	if(sc->data[SC_MARSHOFABYSS])// Must confirm if stat reductions are done by percentage first. [Rytech]
 		agi -= agi * sc->data[SC_MARSHOFABYSS]->val2 / 100;
 	if(sc->data[SC_DECREASEAGI])
@@ -4390,6 +4398,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_MINOR_BBQ]->val1;
 	if(sc->data[SC_INSPIRATION])
 		vit += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_CHEERUP])
+		vit += 3;
 	if (sc->data[SC_STRIPARMOR])
 		vit -= vit * sc->data[SC_STRIPARMOR]->val2 / 100;
 	if(sc->data[SC_STOMACHACHE])
@@ -4441,6 +4451,8 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_NEN]->val1;
 	if(sc->data[SC_INSPIRATION])
 		int_ += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_CHEERUP])
+		int_ += 3;
 	if(sc->data[SC_HARMONIZE])
 		int_ += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_COCKTAIL_WARG_BLOOD])
@@ -4510,6 +4522,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_SIROMA_ICE_TEA]->val1;
 	if(sc->data[SC_INSPIRATION])
 		dex += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_CHEERUP])
+		dex += 3;
 	if(sc->data[SC_MARSHOFABYSS])
 		dex -= dex * sc->data[SC_MARSHOFABYSS]->val2 / 100;
 	if(sc->data[SC__STRIPACCESSARY])
@@ -4570,6 +4584,8 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += sc->data[SC_PUTTI_TAILS_NOODLES]->val1;
 	if(sc->data[SC_INSPIRATION])
 		luk += sc->data[SC_INSPIRATION]->val3;
+	if (sc->data[SC_CHEERUP])
+		luk += 3;
 	if (sc->data[SC_GOLDENMACECLAN])
 		luk += 1;
 	if (sc->data[SC_JUMPINGCLAN])
@@ -6919,11 +6935,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	//Check for BOSS resistances
-	if(status->mode&MD_BOSS && !(flag&1)) {
-		if (type >= SC_COMMON_MIN && type <= SC_COMMON_MAX ||
-			type >= SC_NEW_POISON_MIN && type <= SC_NEW_POISON_MAX)
-			 return 0;
-		 switch (type) {
+	if(status->mode&MD_BOSS && !(flag&1))
+	{
+		if( type >= SC_COMMON_MIN && type <= SC_COMMON_MAX || 
+			type >= SC_NEW_POISON_MIN && type <= SC_NEW_POISON_MAX )
+			return 0;
+
+		switch( type )
+		{
 			case SC_BLESSING:
 			  if (!undead_flag && status->race!=RC_DEMON)
 				  break;
@@ -6937,18 +6956,19 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_FOGWALL:
 			case SC_MARSHOFABYSS:
 			case SC_ADORAMUS:
-
-			// Ranger Effects
 			case SC_WUGBITE:
 			case SC_ELECTRICSHOCKER:
 			case SC_MAGNETICFIELD:
-
-			// Other Effects
 			case SC_VACUUM_EXTREME:
 			case SC_SILENT_BREEZE:
 			case SC_NETHERWORLD:
+			case SC_BANDING_DEFENCE:
+			case SC_SV_ROOTTWIST:
+			case SC_BITESCAR:
 				return 0;
 		}
+		if (type == SC__BLOODYLUST_BK && battle_config.allow_bloody_lust_on_boss == 0)
+			return 0;
 	}
 
 	// Check for mvp resistance // atm only those who OS
@@ -8333,6 +8353,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val4 = tick / 1000;
 			tick = 1000;
 			break;
+		case SC__AUTOSHADOWSPELL:
+			//Val1: Auto Shadow Spell LV
+			//Val2: Skill ID To Autocast
+			//Val3: Skill LV To Autocast
+			//Val4: Autocast Chance
+			if ( val1 >= 10 )
+				val4 = 15;// Autocast fixed to 15 if LV is 10 or higher.
+			else
+				val4 = 30 - 2 * val1;
+			break;
 		case SC__SHADOWFORM:
 			{
 				struct map_session_data * s_sd = map_id2sd(val2);
@@ -8391,6 +8421,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC__BLOODYLUST:
 			val_flag |= 1|2;
+			break;
+		case SC__BLOODYLUST_BK:// 200ms added to berserk so the HP penalty can be disabled before berserk ends.
+			sc_start4(bl, SC_BERSERK, 100, 1, 0, 0, tick+200, tick+200);
 			break;
 		case SC_GN_CARTBOOST:
 			if( val1 < 3 )
@@ -9895,6 +9928,13 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				if( !s_sd )
 					break;
 				s_sd->shadowform_id = 0;
+			}
+			break;
+		case SC__BLOODYLUST_BK:
+			if ( sc->data[SC_BERSERK] )
+			{// Remove HP penalty before ending the status.
+				sc->data[SC_BERSERK]->val2 = 0;
+				status_change_end(bl, SC_BERSERK, INVALID_TIMER);
 			}
 			break;
 		case SC_BANDING:

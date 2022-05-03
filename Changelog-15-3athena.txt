@@ -5,6 +5,78 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/03/2022
+	r332 [15peaces]
+		*Merged missing changes from 3ceam rev. 829 - 830
+		*Gunslinger, Ninja, Taekwon, and Summoner jobs can now be adopted.
+		*MAX_SKILL_TREE increased to 85.
+		*MAX_GUILD_STORAGE lowered to 500.
+			-This is to prepare for future support for the guild warehouse.		
+		*plag_renewal_expanded_skills; plag_doram_skills; allow_bloody_lust_on_boss; allow_bloody_lust_on_warp
+			-Added these battle config settings.
+		*Homunculus now take the name of their new form when mutated.
+		*Fixed a bunch of item effects.
+		*Updated the wedding rings to support the 2016 wedding skills.
+		*Removed the skill_reproduce_db as its no longer needed.
+		*Baby Jobs
+			-Can now access the WE_CHEERUP skill if adopted.
+			-Note: Due to how the system works, the skill may not appear on baby players adopted before this update.
+			-Expanded baby jobs and baby summoners can now access all baby wedding skills when adopted.
+		*SR_FALLENEMPIRE
+			-Corrected the damage formula for when attacking monsters.
+		*WE_CALLALLFAMILY; WE_ONEFOREVER; WE_CHEERUP
+			-Added support for these skills.
+		*SC_REPRODUCE
+			-Recoded the skill.
+			-No longer restricted to the skill_reproduce_db as its removed.
+			-Can now freely copy offensive skills like how Plagiarism does.
+			-Is now able to copy Kagerou/Oboro/Rebellion/Summoner skills.
+			-Also able to copy 3rd job expansion skills.
+			-Skills copied through Reproduce now have a 30% SP cost increase.
+			-Fixed a issue where the same skill could be copied to both Plagiarism and Reproduce copy slots, causing copy glitch.
+		*SC_AUTOSHADOWSPELL
+			-Recoded the skill.
+			-Now follows the rules and mechanics of autocasting like it should.
+			-Max skill level that can be autocasted has been increased.
+			-You can't autocast a level higher then the max player learnable.
+			-Example is waterball will not autocast above level 5.
+			-Can now trigger the autocasting with melee and ranged attacks.
+			-This is limited to physical attacks only.
+			-Now handles autocast's aftercast and cooldowns correctly.
+			-Fixed a issue where autocasting would still happen even if you didn't have the needed SP.
+		*SC_CHAOSPANIC
+			-Recoded the skill.
+			-Now a working 5x5 AoE.
+			-Now has a success chance of casting and is affected by level.
+			-Can no longer be placed under players/monsters feet.
+			-Can no longer be placed on or near warps.
+			-Can now replace the AoE by casting another one.
+			-Fixed the duration for the chaos status.
+		*SC_MAELSTROM
+			-AoE size corrected to 5x5.
+			-Can no longer be placed on or near warps.
+			-Due to new information on how this skill works, it will
+			-be recoded in a later update.
+		*SC_BLOODYLUST
+			-Recoded the skill.
+			-AoE size is updated to 7x7.
+			-Now gives anyone in the AoE the berserk status (except caster).
+			-By set default for balance reasons, can't be placed on or
+			-near warps and does not affect boss/mvp monsters.
+			-This can be disabled in the skill battle config file if desired.
+		*LG_EXEEDBREAK
+			-Updated the damage formula.
+		*LG_BANDING
+			-Speed reduction on enemy's no longer affects boss/mvp's.
+		*SU_LOPE
+			-No longer usable in GvG, battle ground, jail, and other WoE area's.
+		*EL_TROPIC; EL_CHILLY_AIR; EL_WILD_STORM; EL_UPHEAVAL
+			-Autocast chance increased.
+			-Bolt level autocasted changed.
+			-Both of the above are supposed to be affected by the master's job level but I don't want to recode these right now. Just wanted to set these to the max possible for a player at job level 50.
+			-Now handles autocast's aftercast and cooldowns correctly.
+			-Fixed a issue where autocasting would still happen even if you didn't have the needed SP.
+
 05/01/2022
 	r331 [15peaces]
 		*Merged missing changes from 3ceam rev. 827 - 828

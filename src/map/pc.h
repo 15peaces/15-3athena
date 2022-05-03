@@ -567,8 +567,8 @@ struct map_session_data {
 #endif
 };
 
-//Update this max as necessary. 84 is the value needed for the Expanded Super Baby.
-#define MAX_SKILL_TREE 84
+//Update this max as necessary. 85 is the value needed for the Expanded Super Baby.
+#define MAX_SKILL_TREE 85
 //Total number of classes (for data storage)
 #define CLASS_COUNT (JOB_MAX - JOB_NOVICE_HIGH + JOB_MAX_BASIC)
 

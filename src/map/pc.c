@@ -1032,7 +1032,8 @@ enum adopt_responses pc_try_adopt(struct map_session_data *p1_sd, struct map_ses
 		return ADOPT_MARRIED;
 	}
 
-	if( !( ( b_sd->status.class_ >= JOB_NOVICE && b_sd->status.class_ <= JOB_THIEF ) || b_sd->status.class_ == JOB_SUPER_NOVICE ) )
+	if( !( ( b_sd->status.class_ >= JOB_NOVICE && b_sd->status.class_ <= JOB_THIEF ) || b_sd->status.class_ == JOB_SUPER_NOVICE 
+		|| b_sd->status.class_ == JOB_GUNSLINGER || b_sd->status.class_ == JOB_NINJA || b_sd->status.class_ == JOB_TAEKWON || b_sd->status.class_ == JOB_SUMMONER ) )
 		return ADOPT_NOT_NOVICE;
 
 	return ADOPT_ALLOWED;
@@ -1070,6 +1071,7 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 		// Baby Skills
 		pc_skill(b_sd, WE_BABY, 1, 0);
 		pc_skill(b_sd, WE_CALLPARENT, 1, 0);
+		pc_skill(b_sd, WE_CHEERUP, 1, 0);
 
 		// Parents Skills
 		pc_skill(p1_sd, WE_CALLBABY, 1, 0);
@@ -6883,8 +6885,8 @@ int pc_resetlvl(struct map_session_data* sd,int type)
 		if(sd->status.class_ == JOB_NOVICE_HIGH) {
 			sd->status.status_point=100;	// not 88 [celest]
 			// give platinum skills upon changing
-			pc_skill(sd,142,1,0);
-			pc_skill(sd,143,1,0);
+			pc_skill(sd, NV_FIRSTAID, 1, 0);
+			pc_skill(sd, NV_TRICKDEAD, 1, 0);
 		}
 	}
 

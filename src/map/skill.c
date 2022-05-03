@@ -69,7 +69,6 @@ struct s_skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 struct s_skill_spellbook_db skill_spellbook_db[MAX_SKILL_SPELLBOOK_DB];
 struct s_skill_improvise_db skill_improvise_db[MAX_SKILL_IMPROVISE_DB];
 struct s_skill_magicmushroom_db skill_magicmushroom_db[MAX_SKILL_MAGICMUSHROOM_DB];
-struct s_skill_reproduce_db skill_reproduce_db[MAX_SKILL_DB];
 
 struct s_skill_unit_layout skill_unit_layout[MAX_SKILL_UNIT_LAYOUT];
 int firewall_unit_pos;
@@ -426,18 +425,14 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 	return hp;
 }
 
-// Making plagiarize check its own function [Aru]
+// Making plagiarize/reproduce check its own function [Aru]
 int can_copy (struct map_session_data *sd, int skillid, struct block_list* bl)
 {
-	int id;
-
-	id = skill_reproduce_db[skillid].reproduce;
-
 	// Never copy NPC/Wedding Skills
 	if (skill_get_inf2(skillid)&(INF2_NPC_SKILL|INF2_WEDDING_SKILL))
 		return 0;
 
-	// High-class skills
+	// Transcendent Skills
 	if((skillid >= LK_AURABLADE && skillid <= ASC_CDP) || (skillid >= ST_PRESERVE && skillid <= CR_CULTIVATION))
 	{
 		if(battle_config.copyskill_restrict == 2)
@@ -452,15 +447,29 @@ int can_copy (struct map_session_data *sd, int skillid, struct block_list* bl)
 		skillid == MER_INCAGI || skillid == MER_BLESSING))
 		return 0;
 
-	if( sd )
-	{
-		// Couldn't preserve 3rd Class skills except only when using Reproduce skill. [Jobbie]
-		if (!(sd->sc.data[SC__REPRODUCE]) && ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || (skillid >= RL_GLITTERING_GREED && skillid <= OB_AKAITSUKI) || (skillid >= GC_DARKCROW && skillid <= SU_SPIRITOFSEA)))
+	// Other known skills that can't be copied
+	if ((skillid >= RK_MILLENNIUMSHIELD && skillid <= RK_ABUNDANCE) || skillid == RK_LUXANIMA || // Can't copy rune skills
+		(skillid >= WL_SUMMONFB && skillid <= WL_SUMMONSTONE) || // Cant copy Warlock's spheres
+		skillid == ITEM_OPTION_SPLASH_ATTACK)// Don't copy this.
 			return 0;
-		// Reproduce will only copy skills according on the list. [Jobbie]
-		if( sd->sc.data[SC__REPRODUCE] && !id )
+
+	// 3rd Job Skills - Only learnable through Reproduce
+	if ((skillid >= RK_ENCHANTBLADE && skillid <= LG_OVERBRAND_PLUSATK) || 
+		(skillid >= GC_DARKCROW && skillid <= NC_MAGMA_ERUPTION_DOTDAMAGE))
+		if (!(sd->sc.count && sd->sc.data[SC__REPRODUCE]))
 			return 0;
-	}
+
+	// Kagerou/Oboro/Rebellion Skills
+	if (skillid >= RL_GLITTERING_GREED && skillid <= OB_AKAITSUKI)
+		if (battle_config.plag_renewal_expanded_skills == 0)
+			if (!(sd->sc.count && sd->sc.data[SC__REPRODUCE]))
+				return 0;
+
+	// Summoner Skills
+	if (skillid >= SU_BASIC_SKILL && skillid <= SU_SPIRITOFSEA)
+		if (battle_config.plag_doram_skills == 0)
+			if (!(sd->sc.count && sd->sc.data[SC__REPRODUCE]))
+				return 0;
 
 	return 1;
 }
@@ -514,6 +523,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 		case SC_FATALMENACE:
 		case SC_DIMENSIONDOOR:
 		case ALL_ODINS_RECALL:
+		case WE_CALLALLFAMILY:
 			if(map[m].flag.noteleport) {
 				clif_skill_teleportmessage(sd,0);
 				return 1;
@@ -2598,97 +2608,150 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	map_freeblock_lock();
 
 	// Skill Copy Process
-	if( damage > 0 && dmg.flag&BF_SKILL && tsd && damage < tsd->battle_status.hp ){
-		int copy_skill = skillid, copy_level = skilllv, skill;
-		switch( skillid )
-		{ // Skills that uses subskills to do damage
-		case AB_DUPLELIGHT_MELEE:
-		case AB_DUPLELIGHT_MAGIC:
-			copy_skill = AB_DUPLELIGHT;
+	if(damage > 0 && dmg.flag&BF_SKILL && tsd && (unsigned int)damage < tsd->battle_status.hp)
+	{// Updated to not be able to copy skills if the blow will kill you. [Skotlex]
+		short copy_skillid = skillid;
+
+		// If damage is dealt through a sub-skill ID, copy the original skill ID that triggered it.
+		switch (skillid)
+		{
+			case AB_DUPLELIGHT_MELEE:
+			case AB_DUPLELIGHT_MAGIC:
+				copy_skillid = AB_DUPLELIGHT;
 				break;
 			case WL_CHAINLIGHTNING_ATK:
-				copy_skill = WL_CHAINLIGHTNING;
+				copy_skillid = WL_CHAINLIGHTNING;
 				break;
-		case WL_TETRAVORTEX_FIRE:
-		case WL_TETRAVORTEX_WATER:
-		case WL_TETRAVORTEX_WIND:
-		case WL_TETRAVORTEX_GROUND:
-			copy_skill = WL_TETRAVORTEX;
-			break;
-		case WL_SUMMON_ATK_FIRE:
-			copy_skill = WL_SUMMONFB;
-			break;
-		case WL_SUMMON_ATK_WIND:
-			copy_skill = WL_SUMMONBL;
-			break;
-		case WL_SUMMON_ATK_WATER:
-			copy_skill = WL_SUMMONWB;
-			break;
-		case WL_SUMMON_ATK_GROUND:
-			copy_skill = WL_SUMMONSTONE;
-			break;
-		case LG_OVERBRAND_BRANDISH:
-		case LG_OVERBRAND_PLUSATK:
-			copy_skill = LG_OVERBRAND;
-			break;
-		case WM_REVERBERATION_MELEE:
-		case WM_REVERBERATION_MAGIC:
-			copy_skill = WM_REVERBERATION;
-			break;
-		case WM_SEVERE_RAINSTORM_MELEE:
-			copy_skill = WM_SEVERE_RAINSTORM;
-			break;
-		case GN_CRAZYWEED_ATK:
-			copy_skill = GN_CRAZYWEED;
-			break;
-		case GN_HELLS_PLANT_ATK:
-			copy_skill = GN_HELLS_PLANT;
-			break;
-		case GN_SLINGITEM_RANGEMELEEATK:
-			copy_skill = GN_SLINGITEM;
-			break;
-		case RL_R_TRIP_PLUSATK:
-			copy_skill = RL_R_TRIP;
-			break;
+			case WL_TETRAVORTEX_FIRE:
+			case WL_TETRAVORTEX_WATER:
+			case WL_TETRAVORTEX_WIND:
+			case WL_TETRAVORTEX_GROUND:
+				copy_skillid = WL_TETRAVORTEX;
+				break;
+			case WL_SUMMON_ATK_FIRE:
+				copy_skillid = WL_SUMMONFB;
+				break;
+			case WL_SUMMON_ATK_WIND:
+				copy_skillid = WL_SUMMONBL;
+				break;
+			case WL_SUMMON_ATK_WATER:
+				copy_skillid = WL_SUMMONWB;
+				break;
+			case WL_SUMMON_ATK_GROUND:
+				copy_skillid = WL_SUMMONSTONE;
+				break;
+			case LG_OVERBRAND_BRANDISH:
+			case LG_OVERBRAND_PLUSATK:
+				copy_skillid = LG_OVERBRAND;
+				break;
+			case SR_CRESCENTELBOW_AUTOSPELL:
+				copy_skillid = SR_CRESCENTELBOW;
+				break;
+			case WM_REVERBERATION_MELEE:
+			case WM_REVERBERATION_MAGIC:
+				copy_skillid = WM_REVERBERATION;
+				break;
+			case WM_SEVERE_RAINSTORM_MELEE:
+				copy_skillid = WM_SEVERE_RAINSTORM;
+				break;
+			case GN_CRAZYWEED_ATK:
+				copy_skillid = GN_CRAZYWEED;
+				break;
+			case GN_FIRE_EXPANSION_SMOKE_POWDER:
+			case GN_FIRE_EXPANSION_TEAR_GAS:
+			case GN_FIRE_EXPANSION_ACID:
+				copy_skillid = GN_FIRE_EXPANSION;
+				break;
+			case GN_HELLS_PLANT_ATK:
+				copy_skillid = GN_HELLS_PLANT;
+				break;
+			case GN_SLINGITEM_RANGEMELEEATK:
+				copy_skillid = GN_SLINGITEM;
+				break;
+			case RL_GLITTERING_GREED_ATK:
+				copy_skillid = RL_GLITTERING_GREED;
+				break;
+			case RL_R_TRIP_PLUSATK:
+				copy_skillid = RL_R_TRIP;
+				break;
+			// Find out if this is needed for anything.
+			//case RL_B_FLICKER_ATK:
+			//	copy_skillid = ;
+			//	break;
+			case OB_OBOROGENSOU_TRANSITION_ATK:
+				copy_skillid = OB_OBOROGENSOU;
+				break;
+			case NC_MAGMA_ERUPTION_DOTDAMAGE:
+				copy_skillid = NC_MAGMA_ERUPTION;
+				break;
+			case SU_CN_METEOR2:
+				copy_skillid = SU_CN_METEOR;
+				break;
+			case SU_SV_ROOTTWIST_ATK:
+				copy_skillid = SU_SV_ROOTTWIST;
+				break;
+			case SU_PICKYPECK_DOUBLE_ATK:
+				copy_skillid = SU_PICKYPECK;
+				break;
+			case SU_LUNATICCARROTBEAT2:
+				copy_skillid = SU_LUNATICCARROTBEAT;
+				break;
 		}
 
-		if( can_copy(tsd,copy_skill,bl) && (!tsd->status.skill[copy_skill].id || tsd->status.skill[copy_skill].flag >= 13) ){
-			copy_level = cap_value(copy_level,1,10);
-			if( sc && sc->data[SC__REPRODUCE] && (skill = sc->data[SC__REPRODUCE]->val1) ){
-				//Level dependent and limitation.
-				copy_level = min(skill,skill_get_max(copy_skill));
-				if( tsd->reproduceskill_id && tsd->status.skill[tsd->reproduceskill_id].flag == 13 ){
+		if ( pc_checkskill(tsd,SC_REPRODUCE) && sc && sc->data[SC__REPRODUCE] )
+		{
+			if ((tsd->status.skill[copy_skillid].id == 0 || tsd->status.skill[copy_skillid].flag == 13) &&
+				can_copy(tsd,copy_skillid,bl) && tsd->status.skill[tsd->cloneskill_id].id != copy_skillid)
+			{
+				int lv = pc_checkskill(tsd,SC_REPRODUCE);
+
+				if (tsd->reproduceskill_id && tsd->status.skill[tsd->reproduceskill_id].flag == 13)
+				{
 					tsd->status.skill[tsd->reproduceskill_id].id = 0;
 					tsd->status.skill[tsd->reproduceskill_id].lv = 0;
 					tsd->status.skill[tsd->reproduceskill_id].flag = 0;
 					clif_deleteskill(tsd,tsd->reproduceskill_id);
 				}
 
-				tsd->reproduceskill_id = copy_skill;
-				pc_setglobalreg(tsd, "REPRODUCE_SKILL", copy_skill);
-				pc_setglobalreg(tsd, "REPRODUCE_SKILL_LV", copy_level);
+				if ((type = skill_get_max(copy_skillid)) < lv)
+					lv = type;
 
-				tsd->status.skill[copy_skill].id = copy_skill;
-				tsd->status.skill[copy_skill].lv = copy_level;
-				tsd->status.skill[copy_skill].flag = 13;
-				clif_addskill(tsd,copy_skill);
-			}else if( (skill = pc_checkskill(tsd,RG_PLAGIARISM)) > 0 && (!sc || !sc->data[SC_PRESERVE]) ){
-				copy_level = min(copy_level,skill);
-				if( tsd->cloneskill_id && tsd->status.skill[tsd->cloneskill_id].flag == 13 ){
+				tsd->reproduceskill_id = copy_skillid;
+				pc_setglobalreg(tsd, "REPRODUCE_SKILL", copy_skillid);
+				pc_setglobalreg(tsd, "REPRODUCE_SKILL_LV", lv);
+
+				tsd->status.skill[copy_skillid].id = copy_skillid;
+				tsd->status.skill[copy_skillid].lv = lv;
+				tsd->status.skill[copy_skillid].flag = 13;
+				clif_addskill(tsd,copy_skillid);
+			}
+		}
+		else if ( pc_checkskill(tsd,RG_PLAGIARISM) && (!sc || !sc->data[SC_PRESERVE]) )
+		{// Split all the check into their own function [Aru]
+			if ((tsd->status.skill[copy_skillid].id == 0 || tsd->status.skill[copy_skillid].flag == 13) &&
+				can_copy(tsd,copy_skillid,bl) && tsd->status.skill[tsd->reproduceskill_id].id != copy_skillid)
+			{
+				int lv = skilllv;
+
+				if (tsd->cloneskill_id && tsd->status.skill[tsd->cloneskill_id].flag == 13)
+				{
 					tsd->status.skill[tsd->cloneskill_id].id = 0;
 					tsd->status.skill[tsd->cloneskill_id].lv = 0;
 					tsd->status.skill[tsd->cloneskill_id].flag = 0;
 					clif_deleteskill(tsd,tsd->cloneskill_id);
 				}
 
-				tsd->cloneskill_id = copy_skill;
-				pc_setglobalreg(tsd, "CLONE_SKILL", copy_skill);
-				pc_setglobalreg(tsd, "CLONE_SKILL_LV", copy_level);
+				if ((type = pc_checkskill(tsd,RG_PLAGIARISM)) < lv)
+					lv = type;
 
-				tsd->status.skill[copy_skill].id = copy_skill;
-				tsd->status.skill[copy_skill].lv = copy_level;
-				tsd->status.skill[copy_skill].flag = 13;
-				clif_addskill(tsd,copy_skill);
+				tsd->cloneskill_id = copy_skillid;
+				pc_setglobalreg(tsd, "CLONE_SKILL", copy_skillid);
+				pc_setglobalreg(tsd, "CLONE_SKILL_LV", lv);
+
+				tsd->status.skill[copy_skillid].id = copy_skillid;
+				tsd->status.skill[copy_skillid].lv = lv;
+				tsd->status.skill[copy_skillid].flag = 13;
+				clif_addskill(tsd,copy_skillid);
 			}
 		}
 	}
@@ -5150,7 +5213,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	else if (sd)
 		s_job_level = sd->status.job_level;
 
-	if (src != bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO && skillid != NPC_WIDESOULDRAIN && skillid != WM_DEADHILLHERE)
+	if (src != bl && status_isdead(bl) && skillid != ALL_RESURRECTION && skillid != PR_REDEMPTIO && skillid != NPC_WIDESOULDRAIN && skillid != WM_DEADHILLHERE && skillid != WE_ONEFOREVER)
 		return 1;
 
 	tstatus = status_get_status_data(bl);
@@ -7403,6 +7466,99 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case WE_CALLALLFAMILY:
+		if(sd)
+		{
+			struct map_session_data *p_sd = pc_get_partner(sd);
+			struct map_session_data *c_sd = pc_get_child(sd);
+
+			// Fail if no family members are found.
+			if(!p_sd && !c_sd)
+			{
+				clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 0;
+			}
+
+			// Partner must be on the same map and in same party as the caster.
+			if ( p_sd  && !status_isdead(&p_sd->bl) && p_sd->mapindex == sd->mapindex && p_sd->status.party_id == sd->status.party_id )
+				pc_setpos(p_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_TELEPORT);
+
+			// Child must be on the same map and in same party as the caster.
+			if ( c_sd && !status_isdead(&c_sd->bl) && c_sd->mapindex == sd->mapindex && c_sd->status.party_id == sd->status.party_id )
+				pc_setpos(c_sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_TELEPORT);
+		}
+		break;
+
+	case WE_ONEFOREVER:
+		if (sd)
+		{
+			struct map_session_data *p_sd = pc_get_partner(sd);
+			struct map_session_data *c_sd = pc_get_child(sd);
+
+			// Fail if no family members are found.
+			if(!p_sd && !c_sd)
+			{
+				clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 0;
+			}
+
+			if(sd && (map_flag_gvg(bl->m) || map[bl->m].flag.battleground))
+			{	//No reviving in WoE grounds!
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+
+			if (!status_isdead(bl))
+				break;
+			{
+				int per = 30, sper = 0;
+
+				if (battle_check_undead(tstatus->race,tstatus->def_ele))
+					break;
+
+				if (tsc && tsc->data[SC_HELLPOWER])
+					break;
+
+				if (map[bl->m].flag.pvp && dstsd && dstsd->pvp_point < 0)
+					break;
+
+				if(dstsd && dstsd->special_state.restart_full_recover)
+					per = sper = 100;
+
+				// Can only revive family members.
+				if ( dstsd && ( dstsd->status.char_id == sd->status.partner_id || dstsd->status.char_id == sd->status.child ) )
+					if (status_revive(bl, per, sper))
+						clif_skill_nodamage(src,bl,WE_ONEFOREVER,skilllv,1);
+			}
+		}
+		break;
+
+	case WE_CHEERUP:
+		if(sd)
+		{
+			struct map_session_data *f_sd = pc_get_father(sd);
+			struct map_session_data *m_sd = pc_get_mother(sd);
+
+			// Fail if no parents are found.
+			if(!f_sd && !m_sd)
+			{
+				clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 0;
+			}
+
+			if(flag&1)
+			{// Buff can only be given to parents in 7x7 AoE around baby.
+				if ( dstsd && ( dstsd->status.char_id == sd->status.father || dstsd->status.char_id == sd->status.mother ) )
+					clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+			}
+			else if( sd )
+				map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_PC, src, skillid, skilllv, tick, flag|BCT_ALL|1, skill_castend_nodamage_id);
+		}
+		break;
+
 	case PF_HPCONVERSION:
 		{
 			int hp, sp;
@@ -8824,7 +8980,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	
 	case SC_AUTOSHADOWSPELL:
 		if( sd ){
-			if( sd->status.skill[sd->reproduceskill_id].id || sd->status.skill[sd->cloneskill_id].id ){
+			if (sd->status.skill[sd->cloneskill_id].id || sd->status.skill[sd->reproduceskill_id].id) {
 				sc_start(src,SC_STOP,100,skilllv,-1);
 				clif_skill_select_request(sd);
 				clif_skill_nodamage(src,bl,skillid,1,1);
@@ -10516,6 +10672,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		case MO_BODYRELOCATION:
 		case CR_CULTIVATION:
 		case HW_GANBANTEIN:
+		case SC_CONFUSIONPANIC:
+		case SC_BLOODYLUST:
+		case SC_MAELSTROM:
 		case LG_EARTHDRIVE:
 			break; //Effect is displayed on respective switch case.
 		default:
@@ -10902,9 +11061,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RA_ICEBOUNDTRAP:
 	case SC_MANHOLE:
 	case SC_DIMENSIONDOOR:
-	case SC_CONFUSIONPANIC:
-	case SC_BLOODYLUST:
-	case SC_MAELSTROM:
 	case WM_REVERBERATION:
 	case WM_SEVERE_RAINSTORM:
 	case WM_POEMOFNETHERWORLD:
@@ -10931,6 +11087,29 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		break;
+	case SC_CONFUSIONPANIC:
+	case SC_MAELSTROM:
+	case SC_BLOODYLUST:
+		if((skillid == SC_CONFUSIONPANIC || skillid == SC_MAELSTROM || (skillid == SC_BLOODYLUST && battle_config.allow_bloody_lust_on_warp == 0)) &&
+			npc_check_areanpc(1,src->m,x,y,skill_get_splash(skillid, skilllv)))
+		{// Can't be placed near warp NPC's.
+			if (sd)
+				clif_skill_fail(sd,skillid,USESKILL_FAIL_POS,0,0);
+			return 0;
+		}
+
+		if ( (skillid == SC_CONFUSIONPANIC && rand()%100 < (35 + 15 * skilllv)) || skillid == SC_MAELSTROM || skillid == SC_BLOODYLUST )
+		{// Chaos Panic Has a success chance for placing the AoE.
+			clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
+			skill_unitsetting(src,skillid,skilllv,x,y,0);
+		}
+		else
+		{
+			if (sd)
+				clif_skill_fail(sd,skillid,USESKILL_FAIL,0,0);
+			return 0;
+		}
 		break;
 	// Group these skills under their own flags so reusing the skill replaces its own field.
 	case SO_CLOUD_KILL:
@@ -11738,6 +11917,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		val2 = (skilllv+1)/2 + 4;
 		break;
 	case NJ_SUITON:
+	case SC_CONFUSIONPANIC:
 		skill_clear_group(src, 1);
 		break;
 
@@ -12046,12 +12226,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,sg->group_id,0,sg->limit);
 		break;
 
-	case UNT_BLOODYLUST:
-		if( sg->src_id == bl->id )
-			break; //Does not affect the caster.
 	case UNT_PNEUMA:
-	case UNT_CHAOSPANIC:
-	case UNT_MAELSTROM:
 		if (!sce)
 			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,0,0,sg->limit);
 		break;
@@ -12093,6 +12268,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_VIOLENTGALE:
 	case UNT_NEUTRALBARRIER:
 	case UNT_STEALTHFIELD:
+	case UNT_BLOODYLUST:
 	case UNT_FIRE_INSIGNIA:
 	case UNT_WATER_INSIGNIA:
 	case UNT_WIND_INSIGNIA:
@@ -12100,10 +12276,15 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_WATER_BARRIER:
 	case UNT_ZEPHYR:
 	case UNT_POWER_OF_GAIA:
-		if (sg->src_id == bl->id && sg->unit_id == UNT_STEALTHFIELD)
+		if (sg->src_id == bl->id && (sg->unit_id == UNT_STEALTHFIELD || sg->unit_id == UNT_BLOODYLUST))
 			return 0;// Can't be affected by your own stealth field.
 		if(!sce)
 			sc_start(bl,type,100,sg->skill_lv,sg->limit);
+		break;
+
+	case UNT_CHAOSPANIC:
+		if (!sce)
+			sc_start(bl,type,100,sg->skill_lv,skill_get_time2(sg->skill_id,sg->skill_lv));
 		break;
 
 	case UNT_KINGS_GRACE:
@@ -12735,20 +12916,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			else if (bl->type == BL_MOB && battle_config.mob_warp&8)
 				unit_warp(bl, -1, -1, -1, CLR_TELEPORT);
 			break;
-
-		/*case UNT_CHAOSPANIC:
-			sc_start(bl,type, 35 + 15 * sg->skill_lv,sg->skill_lv,skill_get_time2(sg->skill_id,sg->skill_lv));
-			break;
-
-		case UNT_MAELSTROM:
-		case UNT_BLOODYLUST:
-			//sc_start4(bl,type,100,sg->skill_lv,sg->group_id,0,0,sg->limit);
-			sc_start(bl,type,100,sg->skill_lv,skill_get_time2(sg->skill_id,sg->skill_lv));
-			break;
-
-		//case UNT_BLOODYLUST:
-		//	if( sg->src_id == bl->id )
-		//	break; //Does not affect the caster.*/
 
 		case UNT_SEVERE_RAINSTORM:
 			if (battle_check_target(&src->bl, bl, BCT_ENEMY))
@@ -14501,6 +14668,8 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 	req.sp = skill_db[j].sp[lv-1];
 	if((sd->skillid_old == BD_ENCORE) && skill == sd->skillid_dance)
 		req.sp /= 2;
+	if (skill == sd->status.skill[sd->reproduceskill_id].id)
+		req.sp += req.sp * 30 / 100;
 	sp_rate = skill_db[j].sp_rate[lv-1];
 	if(sp_rate > 0)
 		req.sp += (status->sp * sp_rate)/100;
@@ -15581,6 +15750,7 @@ int skill_clear_group (struct block_list *bl, int flag)
 			case SA_LANDPROTECTOR:
 			case NJ_SUITON:
 			case NJ_KAENSIN:
+			case SC_CONFUSIONPANIC:
 				if( flag&1 )
 					group[count++]= ud->skillunit[i];
 				break;
@@ -17620,28 +17790,43 @@ int skill_spellbook (struct map_session_data *sd, int nameid)
 
 int skill_select_menu(struct map_session_data *sd,int flag,int skill_id)
 {
-	int id, lv, prob, aslvl = 0;
-	nullpo_ret(sd);
-	if (sd->sc.data[SC_STOP])
-	{
-		aslvl = sd->sc.data[SC_STOP]->val1;
-		status_change_end(&sd->bl,SC_STOP,-1);
-	}
+	short autoshadowlv;
+	short autocastid;
+	short autocastlv;
+	short maxlv = skill_get_max(skill_id);
 
-	if( (id = sd->status.skill[skill_id].id) == 0 || sd->status.skill[skill_id].flag != 13 || !( skill_id >= MG_NAPALMBEAT && skill_id <=MG_THUNDERSTORM || 
-		skill_id == AL_HEAL || skill_id >= WZ_FIREPILLAR && skill_id <= WZ_HEAVENDRIVE ))
+	nullpo_ret(sd);
+
+	if (sd->sc.count && sd->sc.data[SC_STOP])
+	{
+		autoshadowlv = sd->sc.data[SC_STOP]->val1;
+		status_change_end(&sd->bl,SC_STOP,INVALID_TIMER);
+	}
+	else
+		autoshadowlv = 10;// Safety.
+
+	// First check to see if skill is a copied skill to protect against forged packets.
+	// Then check to see if its a skill that can be autocasted through auto shadow spell.
+	if ((skill_id != sd->status.skill[sd->cloneskill_id].id && skill_id != sd->status.skill[sd->reproduceskill_id].id) || 
+		!(skill_id == MG_NAPALMBEAT || 
+		skill_id >= MG_SOULSTRIKE && skill_id <= MG_FROSTDIVER || 
+		skill_id >= MG_FIREBALL && skill_id <= MG_THUNDERSTORM || 
+		skill_id == AL_HEAL || skill_id == WZ_FIREPILLAR || skill_id == WZ_SIGHTRASHER || 
+		skill_id >= WZ_METEOR && skill_id <= WZ_WATERBALL || 
+		skill_id >= WZ_FROSTNOVA && skill_id <= WZ_HEAVENDRIVE))
 	{
 		clif_skill_fail(sd,SC_AUTOSHADOWSPELL,USESKILL_FAIL_LEVEL,0,0);
 		return 0;
 	}
 
-	lv = (aslvl + 1) / 2;// The level the skill will be autocasted.
-	lv = min(lv,sd->status.skill[skill_id].lv);
-	if ( aslvl >= 10 )//If level 10 or higher is casted, set to a fixed 15%.
-		prob = 15;
-	else
-		prob = 30 - 2 * aslvl;//If below level 10, follow this formula.
-	sc_start4(&sd->bl,SC__AUTOSHADOWSPELL,100,id,lv,prob,0,skill_get_time(SC_AUTOSHADOWSPELL,aslvl));
+	autocastid = skill_id;// The skill that will be autocasted.
+	autocastlv = (autoshadowlv + 5) / 2;// The level the skill will be autocasted.
+
+	// Don't allow autocasting level's higher then the max possible for players.
+	if ( autocastlv > maxlv )
+		autocastlv = maxlv;
+
+	sc_start4(&sd->bl,SC__AUTOSHADOWSPELL,100,autoshadowlv,autocastid,autocastlv,0,skill_get_time(SC_AUTOSHADOWSPELL,autoshadowlv));
 	return 0;
 }
 
@@ -18758,19 +18943,6 @@ static bool skill_parse_row_nocastdb(char* split[], int columns, int current)
 	return true;
 }
 
-static bool skill_parse_row_reproducedb(char* split[], int column, int current)
-{
-	int skillid = atoi(split[0]);
-	
-	skillid = skill_get_index(skillid);
-	if( !skillid )
-		return false;
-
-	skill_reproduce_db[skillid].reproduce |= atoi(split[1]);
-
-	return true;
-}
-
 static bool skill_parse_row_unitdb(char* split[], int columns, int current)
 {// ID,unit ID,unit ID 2,layout,range,interval,target,flag
 	int i = atoi(split[0]);
@@ -18954,7 +19126,6 @@ static void skill_readdb(void)
 	memset(skill_abra_db,0,sizeof(skill_abra_db));
 	memset(skill_improvise_db,0,sizeof(skill_improvise_db));
 	memset(skill_magicmushroom_db,0,sizeof(skill_magicmushroom_db));
-	memset(skill_reproduce_db,0,sizeof(skill_reproduce_db));
 
 	// load skill databases
 	safestrncpy(skill_db[0].name, "UNKNOWN_SKILL", sizeof(skill_db[0].name));
@@ -18974,7 +19145,6 @@ static void skill_readdb(void)
 	sv_readdb(db_path, "spellbook_db.txt"      , ',',   3,  3, MAX_SKILL_SPELLBOOK_DB, skill_parse_row_spellbookdb);
 	sv_readdb(db_path, "improvise_db.txt"      , ',',   2,  2, MAX_SKILL_IMPROVISE_DB, skill_parse_row_improvisedb);
 	sv_readdb(db_path, "magicmushroom_db.txt"  , ',',   1,  1, MAX_SKILL_MAGICMUSHROOM_DB, skill_parse_row_magicmushroomdb);
-	sv_readdb(db_path, "skill_reproduce_db.txt", ',',   2,  2, MAX_SKILL_DB, skill_parse_row_reproducedb);
 }
 
 void skill_reload (void)
