@@ -4419,3 +4419,15 @@
 // Updated Wedding Rings - Supports New 2016 Wedding Skills (3ceam)
 2634,Bridegroom_Ring,Wedding Ring,5,0,,0,,0,,0,0xFFFFFFFF,7,1,136,,0,0,0,{ skill "WE_MALE",1; skill "WE_FEMALE",1; skill "WE_CALLPARTNER",1; skill "WE_CALLALLFAMILY",1; skill "WE_ONEFOREVER",1; },{},{}
 2635,Bride_Ring,Wedding Ring,5,0,,0,,0,,0,0xFFFFFFFF,7,0,136,,0,0,0,{ skill "WE_MALE",1; skill "WE_FEMALE",1; skill "WE_CALLPARTNER",1; skill "WE_CALLALLFAMILY",1; skill "WE_ONEFOREVER",1; },{},{}
+
+// Costumes
+20348,C_Sunday_Hat,Costume Sunday Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,117,{},{},{}
+20349,C_FlyingGalapago,Costume Flying Galapago,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1358,{},{},{}
+20350,C_Cowlick_YL,Costume Bouncing Hair Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1382,{},{},{}
+20351,C_Cowlick_GN,Costume Bouncing Hair Green,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1383,{},{},{}
+20352,C_Cowlick_PP,Costume Bouncing Hair Purple,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1384,{},{},{}
+20353,C_Cowlick_RD,Costume Bouncing Hair Red,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1385,{},{},{}
+20354,C_Cowlick_OM,Costume Bouncing Hair Crimson,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1386,{},{},{}
+20355,C_Cowlick_BU,Costume Bouncing Hair Blue,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1387,{},{},{}
+20356,C_Cowlick_WH,Costume Bouncing Hair White,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1388,{},{},{}
+20357,C_Straight_Pony_YL,Costume Straight Pony Yellow,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,1,0,1389,{},{},{}

@@ -649,13 +649,14 @@ void initChangeTables(void)
 	set_sc( MH_CBC				, SC_CBC				, SI_CBC				, SCB_NONE);
 	set_sc( MH_EQC				, SC_EQC				, SI_EQC				, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_DEF | SCB_DEF2);
 	add_sc( MH_STAHL_HORN		, SC_STUN				);
-	set_sc( MH_GOLDENE_FERSE	, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_NONE );
-	set_sc( MH_ANGRIFFS_MODUS	, SC_ANGRIFFS_MODUS		, SI_ANGRIFFS_MODUS		, SCB_NONE );
+	set_sc( MH_GOLDENE_FERSE	, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_FLEE | SCB_ASPD);
+	add_sc( MH_STEINWAND		, SC_SAFETYWALL			);
+	set_sc( MH_ANGRIFFS_MODUS, SC_ANGRIFFS_MODUS, SI_ANGRIFFS_MODUS, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_FLEE | SCB_DEF);
 	set_sc( MH_MAGMA_FLOW		, SC_MAGMA_FLOW			, SI_MAGMA_FLOW			, SCB_NONE );
 	set_sc( MH_GRANITIC_ARMOR	, SC_GRANITIC_ARMOR		, SI_GRANITIC_ARMOR		, SCB_NONE );
 	add_sc( MH_LAVA_SLIDE		, SC_BURNING			);
-	set_sc( MH_PYROCLASTIC		, SC_PYROCLASTIC		, SI_PYROCLASTIC		, SCB_NONE );
-	set_sc( MH_VOLCANIC_ASH		, SC_VOLCANIC_ASH		, SI_VOLCANIC_ASH		, SCB_NONE );
+	set_sc(MH_PYROCLASTIC		, SC_PYROCLASTIC		, SI_PYROCLASTIC		, SCB_WATK | SCB_ATK_ELE);
+	set_sc(MH_VOLCANIC_ASH		, SC_VOLCANIC_ASH		, SI_VOLCANIC_ASH		, SCB_BATK | SCB_WATK | SCB_HIT | SCB_FLEE | SCB_DEF);
 
 	add_sc( MER_CRASH            , SC_STUN            );
 	set_sc( MER_PROVOKE          , SC_PROVOKE         , SI_PROVOKE         , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
@@ -1724,7 +1725,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_CURSEDCIRCLE_TARGET] ||
 				sc->data[SC__SHADOWFORM] ||
 				sc->data[SC_HEAT_BARREL_AFTER] ||
-				(sc->data[SC_KYOMU] && rand() % 100 < 5 * sc->data[SC_KYOMU]->val1) ||
 				sc->data[SC_FLASHCOMBO] ||
 				sc->data[SC_KINGS_GRACE] ||
 				sc->data[SC_ALL_RIDING]
@@ -4658,6 +4658,8 @@ static unsigned short status_calc_batk(struct block_list *bl, struct status_chan
 		batk -= batk * sc->data[SC__ENERVATION]->val2 / 100;
 	if(sc->data[SC_EQC])
 		batk -= batk * sc->data[SC_EQC]->val3 / 100;
+	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_element(bl) == ELE_WATER)
+		batk -= batk * 50 / 100;
 
 	return (unsigned short)cap_value(batk,0,USHRT_MAX);
 }
@@ -4710,6 +4712,10 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_FLASHCOMBO])
 		watk += sc->data[SC_FLASHCOMBO]->val2;
+	if (sc->data[SC_ANGRIFFS_MODUS])
+		watk += 50 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1;
+	if (sc->data[SC_PYROCLASTIC])
+		watk += sc->data[SC_PYROCLASTIC]->val2;
 	if(sc->data[SC_FULL_SWING_K])
 		watk += sc->data[SC_FULL_SWING_K]->val1;
 	if(sc->data[SC_INCATKRATE])
@@ -4753,6 +4759,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk -= watk * sc->data[SC__ENERVATION]->val2 / 100;
 	if(sc->data[SC_EQC])
 		watk -= watk * sc->data[SC_EQC]->val3 / 100;
+	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_element(bl) == ELE_WATER)
+		watk -= watk * 50 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_TROPIC_OPTION] )
 		watk += sc->data[SC_TROPIC_OPTION]->val2;
@@ -4894,6 +4902,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit -= hit * 20 / 100;
 	if (sc->data[SC_FIRE_EXPANSION_TEAR_GAS])
 		hit -= hit * 50 / 100;
+	if (sc->data[SC_VOLCANIC_ASH])
+		hit -= hit * 50 / 100;
 
 	return (short)cap_value(hit,1,SHRT_MAX);
 }
@@ -4942,6 +4952,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += sc->data[SC_MERC_FLEEUP]->val2;
 	if( sc->data[SC_HALLUCINATIONWALK] )
 		flee += sc->data[SC_HALLUCINATIONWALK]->val2;
+	if (sc->data[SC_GOLDENE_FERSE])
+		flee += sc->data[SC_GOLDENE_FERSE]->val2;
 	if(sc->data[SC_INCFLEERATE])
 		flee += flee * sc->data[SC_INCFLEERATE]->val1/100;
 	if ( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
@@ -4952,6 +4964,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee -= sc->data[SC_GLOOMYDAY]->val2;
 	if ( sc->data[SC_C_MARKER] )
 		flee -= 10;
+	if (sc->data[SC_ANGRIFFS_MODUS])
+		flee -= 40 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1;
 	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
 		flee -= flee * 50/100;
 	if(sc->data[SC_BERSERK])
@@ -4971,6 +4985,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 	if(sc->data[SC_SATURDAY_NIGHT_FEVER])
 		flee -= flee * (40 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 	if (sc->data[SC_FIRE_EXPANSION_TEAR_GAS])
+		flee -= flee * 50 / 100;
+	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_element(bl) == ELE_WATER)
 		flee -= flee * 50 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_WATER_BARRIER] )
@@ -5049,6 +5065,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += def * (2 * sc->data[SC_FORCEOFVANGUARD]->val1) / 100;
 	if( sc->data[SC_ECHOSONG] )
 		def += def * sc->data[SC_ECHOSONG]->val4 / 100;
+	if (sc->data[SC_ANGRIFFS_MODUS])// Fixed decrease. Divided by 10 to keep it balanced for classic mechanics.
+		def -= (30 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1) / 10;
 	if(sc->data[SC_ODINS_POWER])
 		def -= 2 * sc->data[SC_ODINS_POWER]->val1;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
@@ -5083,6 +5101,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * 50 / 100;
 	if(sc->data[SC_EQC])
 		def -= def * sc->data[SC_EQC]->val3 / 100;
+	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_race(bl) == RC_PLANT)
+		def -= def * 50 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if( sc->data[SC_ROCK_CRUSHER] )
 		def -= def * sc->data[SC_ROCK_CRUSHER]->val2 / 100;
@@ -5515,6 +5535,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate -= 10 * sc->data[SC_GENTLETOUCH_CHANGE]->val3;
 	if (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2)
 		aspd_rate -= 100;
+	if (sc->data[SC_GOLDENE_FERSE])
+		aspd_rate -= sc->data[SC_GOLDENE_FERSE]->val3;
 	if( sc->data[SC_BOOST500] )
 		aspd_rate -= 10 * sc->data[SC_BOOST500]->val1;
 	if(sc->data[SC_EXTRACT_SALAMINE_JUICE])
@@ -5624,6 +5646,8 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 		maxhp += maxhp * sc->data[SC_FRIGG_SONG]->val2 / 100;
 	if(sc->data[SC_MUSTLE_M])
 		maxhp += maxhp * sc->data[SC_MUSTLE_M]->val1/100;
+	if (sc->data[SC_ANGRIFFS_MODUS])
+		maxhp += maxhp * (5 * sc->data[SC_ANGRIFFS_MODUS]->val1) / 100;
 	if(sc->data[SC_INSPIRATION])//Snce it gives a percentage and fixed amount, should be last on percentage calculations list. [Rytech]
 		maxhp += maxhp * 5 * sc->data[SC_INSPIRATION]->val1 / 100 + 600 * sc->data[SC_INSPIRATION]->val1;
 	if(sc->data[SC_MARIONETTE])
@@ -5727,7 +5751,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 		return ELE_WATER;
 	if (sc->data[SC_EARTHWEAPON] || (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
 		return ELE_EARTH;
-	if(sc->data[SC_FIREWEAPON] || (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2))
+	if(sc->data[SC_FIREWEAPON] || (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) || sc->data[SC_PYROCLASTIC])
 		return ELE_FIRE;
 	if(sc->data[SC_WINDWEAPON] || (sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2))
 		return ELE_WIND;
@@ -7223,6 +7247,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_TINDER_BREAKER_POSTDELAY, INVALID_TIMER);
 		status_change_end(bl, SC_CBC_POSTDELAY, INVALID_TIMER);
 		break;
+	case SC_GOLDENE_FERSE:
+	case SC_ANGRIFFS_MODUS:
+		if ( sc->data[type] )
+			break;
+		status_change_end(bl, SC_GOLDENE_FERSE, INVALID_TIMER);
+		status_change_end(bl, SC_ANGRIFFS_MODUS, INVALID_TIMER);
+		break;
 	}
 
 	//Check for overlapping fails
@@ -8693,6 +8724,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_IZAYOI:
 			val2 = 25 * val1;// MATK Increase.
 			break;
+		case SC_KYOMU:
+			val2 = 5 * val1;// Skill Fail Chance
+			break;
 		case SC_KAGEMUSYA:
 			val4 = tick / 1000;
 			tick = 1000;
@@ -8792,6 +8826,15 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_MIDNIGHT_FRENZY_POSTDELAY: // Allows Sonic Claw to auto target in the combo.
 			clif_hom_skillupdateinfo(hd->master, MH_SONIC_CRAW, INF_SELF_SKILL, 1);
 			break;
+		case SC_GOLDENE_FERSE:
+			val2 = 10 + 10 * val1;// FLEE Increase
+			val3 = 60 + 40 * val1;// ASPD Increase In Percent
+			val4 = 2 + 2 * val1;// Chance of Holy Property For Regular Attack
+			break;
+		case SC_ANGRIFFS_MODUS:
+			val2 = tick/1000;
+			tick = 1000;
+			break;
 		case SC_CBC:
 			val1 = 0;// Prepares for tracking seconds in timer script.
 			val4 = tick/1000;
@@ -8800,6 +8843,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_EQC:
 			val2 = 2 * val1;// MaxHP Reduction
 			val3 = 5 * val1;// ATK/DEF Reduction
+			break;
+		case SC_GRANITIC_ARMOR:
+			val2 = 5 * val1;// Damage Reduction In % - Skill desc says its 2 * SkillLV, but that appears to be wrong.
+			val3 = 6 * val1;// HP Loss On End
+			break;
+		case SC_PYROCLASTIC:
+			val2 = 10 * val1 + val2;// Attack Increase - Val2 = Homunculus's Level.
+			val3 = 2 * val1;// Autocast Chance
 			break;
 		case SC_PYROTECHNIC_OPTION:
 			val2 = 60;	// Watk TODO: Renewal (Atk2)
@@ -9992,6 +10043,13 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		//case SC_HEAT_BARREL:
 		//	sc_start(bl,SC_HEAT_BARREL_AFTER,100,sce->val1,skill_get_time2(RL_HEAT_BARREL, sce->val1));
 		//	break;
+		case SC_GRANITIC_ARMOR:
+			status_percent_damage(NULL, bl, -sce->val3, 0, false);
+			break;
+		case SC_PYROCLASTIC:
+			if ( sd && battle_config.pyroclastic_breaks_weapon == 1 )
+				skill_break_equip(bl, EQP_WEAPON, 10000, BCT_SELF);
+			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -11163,6 +11221,20 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{
 			status_heal(bl, status->max_hp * 4 / 100, 0, 2);
 			sc_timer_next(sce->val2 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_ANGRIFFS_MODUS:
+		if( --(sce->val2) >= 0 )
+		{// Homunculus can die from this status. Let it drain HP until it does.
+			status_charge(bl, 100, 0);
+
+			// The status does end if the homunculus runs out of SP.
+			if( !status_charge(bl, 0, 20))
+				break;
+
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

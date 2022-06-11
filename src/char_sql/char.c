@@ -3608,7 +3608,12 @@ int parse_frommap(int fd)
 			WFIFOHEAD(fd,30);
 			WFIFOW(fd,0) = 0x2b09;
 			WFIFOL(fd,2) = RFIFOL(fd,2);
+#if PACKETVER >= 20180307
+			if (char_loadName((int)RFIFOL(fd, 2), (char*)WFIFOP(fd, 6)) == 0)
+				WFIFOL(fd, 6) = 0;
+#else
 			char_loadName((int)RFIFOL(fd,2), (char*)WFIFOP(fd,6));
+#endif
 			WFIFOSET(fd,30);
 
 			RFIFOSKIP(fd,6);

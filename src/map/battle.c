@@ -305,15 +305,15 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 		if(sc->data[SC_FIRE_CLOAK_OPTION] && atk_elem == ELE_FIRE)
 			damage += damage * sc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
 	}
-	if( atk_elem == ELE_FIRE && tsc && tsc->count && tsc->data[SC_SPIDERWEB] )
-	{
-		tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
-		if( tsc->data[SC_SPIDERWEB]->val2-- > 0 )
-			damage <<= 1; // double damage
-		if( tsc->data[SC_SPIDERWEB]->val2 == 0 )
-			status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
-	}
 	if( tsc && tsc->count ) {
+		if ( tsc->data[SC_SPIDERWEB] && atk_elem == ELE_FIRE)
+		{
+			tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
+			if( tsc->data[SC_SPIDERWEB]->val2-- > 0 )
+				damage <<= 1; // double damage
+			if( tsc->data[SC_SPIDERWEB]->val2 == 0 )
+				status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
+		}
 		if(tsc->data[SC_VENOMIMPRESS] && atk_elem == ELE_POISON)
 			ratio += tsc->data[SC_VENOMIMPRESS]->val2;
 		if(tsc->data[SC_ORATIO] && atk_elem == ELE_HOLY )
@@ -325,6 +325,8 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			ratio += 50;
 		if(tsc->data[SC_THORNSTRAP] && atk_elem == ELE_FIRE)
 			status_change_end(target, SC_THORNSTRAP, INVALID_TIMER);
+		if (tsc->data[SC_VOLCANIC_ASH] && atk_elem == ELE_FIRE)
+			damage += damage * 50 / 100;
 		if (tsc->data[SC_FIRE_CLOAK_OPTION] && atk_elem == ELE_FIRE)
 			damage -= damage * tsc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
 	}
@@ -652,6 +654,9 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 
 		if ( sc->data[SC_SU_STOOP] )
 			damage -= damage * 90 / 100;
+
+		if (sc->data[SC_GRANITIC_ARMOR])
+			damage -= damage * sc->data[SC_GRANITIC_ARMOR]->val2 / 100;
 
 		// Compressed code, fixed by map.h [Epoque]
 		if (src->type == BL_MOB) {
@@ -1508,13 +1513,32 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		s_ele = s_ele_ = status_get_attack_sc_element(src,sc);
 	else if( s_ele == -3 ) //Use random element
 		s_ele = s_ele_ = rand()%ELE_MAX;
+
+	if ( sc )
+	{// Chance of doing a holy element attack when doing regular attacks.
+		if ( sc->data[SC_GOLDENE_FERSE] && !skill_num && rand()%100 < sc->data[SC_GOLDENE_FERSE]->val4 )
+		{
+			s_ele = s_ele_ = ELE_HOLY;
+			if (hd) n_ele = false;// Allows the homunculus to have a weapon element for the attack.
+		}
+
+		if ( hd && sc->data[SC_PYROCLASTIC] && !skill_num )
+			n_ele = false;// Lets the homunculus attack element get endowed with fire.
+	}
+
 	switch( skill_num )
 	{
 		case GS_GROUNDDRIFT:
 			s_ele = s_ele_ = wflag; //element comes in flag.
 			break;
+
 		case LK_SPIRALPIERCE:
 			if (!sd) n_ele = false; //forced neutral for monsters
+			break;
+
+		case MH_STAHL_HORN:
+			if ( sc && sc->data[SC_GOLDENE_FERSE] )
+				s_ele = s_ele_ = ELE_HOLY;
 			break;
 	}
 
@@ -1860,7 +1884,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						damagevalue = damagevalue * s_level / 100;// Base level bonus.
 					damagevalue += sstatus->hp;
 					ATK_ADD(damagevalue);
-					if (sd) status_set_sp(src, 0, 0);
 				}
 				break;
 			case KO_HAPPOKUNAI:
@@ -3710,8 +3733,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 	//Initial Values
 	ad.damage = 1;
+	ad.div_ = skill_get_num(skill_num, skill_lv);
 	ad.amotion=skill_get_inf(skill_num)&INF_GROUND_SKILL?0:sstatus->amotion; //Amotion should be 0 for ground skills.
 	ad.dmotion=tstatus->dmotion;
+	ad.blewcount = skill_get_blewcount(skill_num, skill_lv);
 	ad.flag=BF_MAGIC|BF_SKILL;
 	ad.dmg_lv=ATK_DEF;
 	nk = skill_get_nk(skill_num);
@@ -3731,38 +3756,56 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			job_lv = battle_config.job_level_skill_effect_limit;
 	}
 
-	// Skill Element Definition
-	if( skill_num == WL_HELLINFERNO ) {
-		if( skill_lv >= 0 )
-			s_ele = ELE_FIRE;
-		else {
-			s_ele = ELE_DARK;
-			skill_lv = -skill_lv;
-		}
-	} else if ( skill_num == LG_HESPERUSLIT && sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 4 )
-			s_ele = ELE_HOLY;
-	else if( sc && (sc->data[SC_HEATER_OPTION] || sc->data[SC_COOLER_OPTION] ||
-		sc->data[SC_BLAST_OPTION] || sc->data[SC_CURSED_SOIL_OPTION]) && skill_num == SO_PSYCHIC_WAVE )
-	{	// Status change from Elemental Spirits that change Psychic Wave damage element.
-		if( sc->data[SC_HEATER_OPTION] )
-			s_ele = sc->data[SC_HEATER_OPTION]->val4;
-		else if( sc->data[SC_COOLER_OPTION] )
-			s_ele = sc->data[SC_COOLER_OPTION]->val4;
-		else if( sc->data[SC_BLAST_OPTION] )
-			s_ele = sc->data[SC_BLAST_OPTION]->val3;
-		else if( sc->data[SC_CURSED_SOIL_OPTION] )
-			s_ele = sc->data[SC_CURSED_SOIL_OPTION]->val4;
-	} else if ( skill_num == KO_KAIHOU )
-		//If a GM character trys to use the skill with no sphere's, one of the four status will likely not be active.
-		s_ele = ELE_NEUTRAL; // We'll use neutral element for now. [15peaces]
-	else {
-		s_ele = skill_get_ele(skill_num, skill_lv);
-		if( s_ele == -1 )
-			s_ele = sstatus->rhw.ele;
-		else if( s_ele == -2 )
-			s_ele = status_get_attack_sc_element(src,sc);
-		else if( s_ele == -3 ) //Use random element
-			s_ele = rand()%ELE_MAX;
+	//Initialize variables that will be used afterwards
+	s_ele = skill_get_ele(skill_num, skill_lv);
+
+	if (s_ele == -1) // pl=-1 : the skill takes the weapon's element
+		s_ele = sstatus->rhw.ele;
+	else if (s_ele == -2) //Use status element
+		s_ele = status_get_attack_sc_element(src,status_get_sc(src));
+	else if( s_ele == -3 ) //Use random element
+		s_ele = rand()%ELE_MAX;
+
+	switch (skill_num)
+	{// I dont understand why were checking for skill level here. [Rytech]
+		case WL_HELLINFERNO:
+			if( skill_lv >= 0 )
+				s_ele = ELE_FIRE;
+			else
+			{
+				s_ele = ELE_DARK;
+				skill_lv = -skill_lv;
+			}
+			break;
+
+		case LG_HESPERUSLIT:
+			if ( sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 4 )
+				s_ele = ELE_HOLY;
+			break;
+
+		case SO_PSYCHIC_WAVE:
+			if ( sc )
+				if ( SC_HEATER_OPTION )
+					s_ele = ELE_FIRE;
+				else if ( SC_COOLER_OPTION )
+					s_ele = ELE_WATER;
+				else if ( SC_BLAST_OPTION )
+					s_ele = ELE_WIND;
+				else if ( SC_CURSED_SOIL_OPTION )
+					s_ele = ELE_EARTH;
+			break;
+
+		case KO_KAIHOU:
+/*			if ( sc )
+				if ( sc->data[SC_KAHU_ENTEN] )
+					s_ele = ELE_FIRE;
+				else if ( sc->data[SC_HYOUHU_HUBUKI] )
+					s_ele = ELE_WATER;
+				else if ( sc->data[SC_KAZEHU_SEIRAN] )
+					s_ele = ELE_WIND;
+				else if ( sc->data[SC_DOHU_KOUKAI] )
+					s_ele = ELE_EARTH;*/
+			break;
 	}
 	
 	//Set miscellaneous data that needs be filled
@@ -4684,6 +4727,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = skill_get_zeny(skill_num, skill_lv);
 		if (!md.damage) md.damage = 10;
 		md.damage = md.damage * rnd_value(50, 100) / 100;
+		if (pc_checkskill(sd, NJ_TOBIDOUGU) < 10)
+			md.damage = md.damage / 2;// Damage halved if Throwing Mastery is not mastered.
 		if (is_boss(target) || (tsd))
 			md.damage = md.damage / 2;
  		break;
@@ -4872,6 +4917,9 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 
 	sd = BL_CAST(BL_PC, bl);
 
+	// Shadow Void stops all damage reflections.
+	if (sc && sc->data[SC_KYOMU])
+		return 0;
 
 	//Bounces back part of the damage.
 	if ((flag&(BF_SHORT | BF_MAGIC)) == BF_SHORT)
@@ -4932,8 +4980,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage = max(rdamage,1);
 		}
 	}
-	if (sc && sc->data[SC_KYOMU])//If under shadow void status, damage will not be reflected.
-		rdamage = 0;
+
 	return rdamage;
 }
 
@@ -5379,8 +5426,36 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				if( DIFF_TICK(ud->canact_tick, tick + delay) < 0 )
 				{
 					ud->canact_tick = tick+delay;
-					if( sd && skill_get_cooldown(skillid,skilllv) > 0 )
-						skill_blockpc_start(sd, skillid, skill_get_cooldown(skillid, skilllv));
+					// Enable the cooldown code below if you add any skills that have a cooldown.
+					//if( sd && skill_get_cooldown(skillid,skilllv) > 0 )
+					//	skill_blockpc_start(sd, skillid, skill_get_cooldown(skillid, skilllv));
+					if ( battle_config.display_status_timers && sd && skill_get_delay(skillid, skilllv))
+						clif_status_change(src, SI_ACTIONDELAY, 1, delay, 0, 0, 1);
+				}
+			}
+		}
+		if (sd) sd->state.autocast = 0;
+	}
+
+	if ((sd || hd && battle_config.homunculus_pyroclastic_autocast == 1) && wd.flag&BF_SHORT && sc && sc->data[SC_PYROCLASTIC] && rand()%100 < sc->data[SC_PYROCLASTIC]->val3)
+	{
+		struct unit_data *ud;
+		short skillid = BS_HAMMERFALL;
+		short skilllv = sc->data[SC_PYROCLASTIC]->val1;
+		int delay;
+
+		if (sd) sd->state.autocast = 1;
+		if (status_charge(src, 0, skill_get_sp(skillid,skilllv)))
+		{
+			skill_castend_pos2(src, target->x, target->y, skillid, skilllv, tick, flag);
+
+			ud = unit_bl2ud(src);
+			if (ud)
+			{
+				delay = skill_delayfix(src, skillid, skilllv);
+				if( DIFF_TICK(ud->canact_tick, tick + delay) < 0 )
+				{
+					ud->canact_tick = tick+delay;
 					if ( battle_config.display_status_timers && sd && skill_get_delay(skillid, skilllv))
 						clif_status_change(src, SI_ACTIONDELAY, 1, delay, 0, 0, 1);
 				}
@@ -5417,8 +5492,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				if( DIFF_TICK(ud->canact_tick, tick + delay) < 0 )
 				{
 					ud->canact_tick = tick+delay;
-					if( sd && skill_get_cooldown(skillid,5) > 0 )
-						skill_blockpc_start(sd, skillid, skill_get_cooldown(skillid, 5));
 					if ( battle_config.display_status_timers && sd && skill_get_delay(skillid, 5))
 						clif_status_change(src, SI_ACTIONDELAY, 1, delay, 0, 0, 1);
 				}
@@ -6339,6 +6412,8 @@ static const struct _battle_data {
 	{ "plag_doram_skills",                  &battle_config.plag_doram_skills,               1,      0,      1,              },
 	{ "allow_bloody_lust_on_boss",          &battle_config.allow_bloody_lust_on_boss,       1,      0,      1,              },
 	{ "allow_bloody_lust_on_warp",          &battle_config.allow_bloody_lust_on_warp,       1,      0,      1,              },
+	{ "homunculus_pyroclastic_autocast",    &battle_config.homunculus_pyroclastic_autocast, 0,      0,      1,              },
+	{ "pyroclastic_breaks_weapon",          &battle_config.pyroclastic_breaks_weapon,       1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

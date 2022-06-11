@@ -1580,6 +1580,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_TUNAPARTY, 1, 9999, sd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_SOULATTACK])
 				clif_status_change(&sd->bl, SI_SOULATTACK, 1, 9999, sd->sc.data[SC_SOULATTACK]->val1, 0, 0);
+			if( sd->sc.count && sd->sc.data[SC_VOLCANIC_ASH] )
+				clif_status_change(&sd->bl,SI_VOLCANIC_ASH,1,9999,sd->sc.data[SC_VOLCANIC_ASH]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -4982,6 +4984,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_TUNAPARTY, 1, 9999, tsd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_SOULATTACK])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_SOULATTACK, 1, 9999, tsd->sc.data[SC_SOULATTACK]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_VOLCANIC_ASH])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_VOLCANIC_ASH, 1, 9999, tsd->sc.data[SC_VOLCANIC_ASH]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
 				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
@@ -6966,13 +6970,23 @@ void clif_wis_end(int fd, int flag)
 
 /// Returns character name requested by char_id (ZC_ACK_REQNAME_BYGID).
 /// 0194 <char id>.L <name>.24B
+/// 0af7 <flag>.W <char id>.L <name>.24B
 void clif_solved_charname(int fd, int charid, const char* name)
 {
+	nullpo_retv(name);
+#if PACKETVER > 20180307
+	WFIFOHEAD(fd, packet_len(0x0af7));
+	WFIFOW(fd, 0) = 0xaf7;
+	WFIFOW(fd, 2) = name[0] ? 3 : 2;
+	WFIFOL(fd, 4) = charid;
+	WFIFOSET(fd, packet_len(0x0af7));
+#else
 	WFIFOHEAD(fd,packet_len(0x194));
 	WFIFOW(fd,0)=0x194;
 	WFIFOL(fd,2)=charid;
 	safestrncpy((char*)WFIFOP(fd,6), name, NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x194));
+#endif
 }
 
 
@@ -21595,7 +21609,7 @@ void packetdb_readdb(void)
 		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  7,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  2,
-	   10,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	   10,  0,  0,  0,  0,  0,  0, 32,  0,  0,  0,  0,  0,  0,  0,  0,
 	};
 	struct {
 		void (*func)(int, struct map_session_data *);

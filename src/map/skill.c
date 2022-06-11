@@ -3030,8 +3030,9 @@ static int skill_check_unit_range_sub (struct block_list *bl, va_list ap)
 	{
 		case MG_SAFETYWALL:
 		case AL_PNEUMA:
-		case SC_MAELSTROM:
-			if(g_skillid != MG_SAFETYWALL && g_skillid != AL_PNEUMA && g_skillid != SC_MAELSTROM)
+		case SC_MAELSTROM:// Shouldn't be here.
+		case MH_STEINWAND:
+			if (g_skillid != MG_SAFETYWALL && g_skillid != AL_PNEUMA && g_skillid != SC_MAELSTROM && g_skillid != MH_STEINWAND)
 				return 0;
 			break;
 		case AL_WARP:
@@ -8128,6 +8129,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case HFLI_FLEET:
 	case HFLI_SPEED:
 	case HLIF_CHANGE:
+	case MH_GOLDENE_FERSE:
+	case MH_ANGRIFFS_MODUS:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		if (hd)
@@ -8138,6 +8141,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case HLIF_AVOID:
 	case HAMI_DEFENCE:
 	case MH_OVERED_BOOST:
+	case MH_GRANITIC_ARMOR:
 		i = skill_get_time(skillid,skilllv);
 		clif_skill_nodamage(bl,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,i)); // Master
 		clif_skill_nodamage(src,src,skillid,skilllv,sc_start(src,type,100,skilllv,i)); // Homunc
@@ -8174,6 +8178,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	// This was to allow placing a safety wall on both the master and the homunculus
+	// but because this bypasses skill_castend_pos, important checks are skipped which
+	// are supposed to prevent stacking the AoE's, placing them on top of pneuma's,
+	// spawning more then a set number of AoE's (1 pair in this case), other things.
+	// For now ill leave this disabled until i can find a way to pass this through
+	// the correct functions for doing the checks. [Rytech]
+	//case MH_STEINWAND:
+	//	{
+	//		skill_castend_pos2(src, src->x, src->y, skillid, skilllv, tick, flag);
+	//		skill_castend_pos2(src, bl->x, bl->y, skillid, skilllv, tick, flag);
+	//	}
+	//	break;
+
 	case MH_MAGMA_FLOW:
 		{
 			if ( flag&2 )
@@ -8187,6 +8204,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 			}
 		}
+		break;
+
+	case MH_PYROCLASTIC:
+		i = skill_get_time(skillid,skilllv);
+		clif_skill_nodamage(bl,bl,skillid,skilllv,sc_start2(bl,type,100,skilllv,status_get_lv(src),i)); // Master
+		clif_skill_nodamage(src,src,skillid,skilllv,sc_start2(src,type,100,skilllv,status_get_lv(src),i)); // Homunc
 		break;
 
 	case NPC_DRAGONFEAR:
@@ -8919,16 +8942,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case NC_ANALYZE:
-		if( !clif_skill_nodamage(src, bl, skillid, skilllv,
-			sc_start2(bl, type, 40 + skilllv * 10, skilllv, src->id, skill_get_time(skillid, skilllv))) )
-		{
-
-			if( sd )
-				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0,0);
-			return 0;
-		}
 		clif_skill_damage(src,src,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		sc_start(bl, type, 30 + 12 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 		if( sd ) pc_overheat(sd,1);
 		break;
 
@@ -8938,7 +8953,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_damage(src,src,tick,status_get_amotion(src),0,-30000,1,skillid,skilllv,6);
 			pc_overheat(sd,1);
 		}
-		clif_skill_nodamage(src,src,skillid,skilllv,i);
 		break;
 
 	case NC_REPAIR:
@@ -8963,7 +8977,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				heal = sd->status.max_hp * percent / 100;
 				status_heal(src,heal,0,2);
 			}
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
 			clif_skill_nodamage(src, bl, skillid, skilllv, heal);
 		}
 	break;
@@ -10244,6 +10257,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 				ud->skilltimer=tid;
 				return skill_castend_pos(tid,tick,id,data);
 			case GN_WALLOFTHORN:
+			case MH_STEINWAND:// FIX ME - I need to spawn 2 AoE's. One on the master and the homunculus.
 				ud->skillx = target->x;
 				ud->skilly = target->y;
 				ud->skilltimer=tid;
@@ -10303,12 +10317,28 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 			} else if( ud->skillid != SC_SHADOWFORM && inf && battle_check_target(src, target, inf) <= 0 )
 				break;
 
-			if(inf&BCT_ENEMY && (sc = status_get_sc(target)) &&
-				sc->data[SC_FOGWALL] &&
-				rand()%100 < 75)
-		  	{	//Fogwall makes all offensive-type targetted skills fail at 75%
-				if (sd) clif_skill_fail(sd,ud->skillid,USESKILL_FAIL_LEVEL,0,0);
-				break;
+			if (sc = status_get_sc(src))
+			{
+				if(sc && sc->data[SC_KYOMU] && rand()%100 < sc->data[SC_KYOMU]->val2)
+		  		{// Shadow Void makes all skills fail by 5 * SkillLV % Chance.
+					if (sd) clif_skill_fail(sd,ud->skillid,0,0,0);
+					break;
+				}
+
+				if(sc && sc->data[SC_VOLCANIC_ASH] && rand()%100 < 50)
+		  		{// Volcanic Ash makes all skills fail at 50%
+					if (sd) clif_skill_fail(sd,ud->skillid,0,0,0);
+					break;
+				}
+			}
+
+			if (sc = status_get_sc(target))
+			{
+				if(inf&BCT_ENEMY && sc->data[SC_FOGWALL] && rand()%100 < 75)
+		  		{	//Fogwall makes all offensive-type targetted skills fail at 75%
+					if (sd) clif_skill_fail(sd,ud->skillid,0,0,0);
+					break;
+				}
 			}
 		}
 
@@ -10480,11 +10510,12 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 {
 	struct block_list* src = map_id2bl(id);
-	int maxcount;
 	struct map_session_data *sd;
-	struct unit_data *ud = unit_bl2ud(src);
 	struct mob_data *md;
 	struct homun_data *hd;
+	struct unit_data *ud = unit_bl2ud(src);
+	struct status_change *sc = NULL;
+	int maxcount;
 
 	nullpo_ret(ud);
 
@@ -10541,6 +10572,21 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 			}
 			if( maxcount <= 0 )
 			{
+				if (sd) clif_skill_fail(sd,ud->skillid,USESKILL_FAIL_LEVEL,0,0);
+				break;
+			}
+		}
+
+		if (sc = status_get_sc(src))
+		{
+			if(sc && sc->data[SC_KYOMU] && rand()%100 < sc->data[SC_KYOMU]->val2)
+		  	{// Shadow Void makes all skills fail by 5 * SkillLV % Chance.
+				if (sd) clif_skill_fail(sd,ud->skillid,USESKILL_FAIL_LEVEL,0,0);
+				break;
+			}
+
+			if(sc && sc->data[SC_VOLCANIC_ASH] && rand()%100 < 50)
+		  	{// Volcanic Ash makes all skills fail at 50%
 				if (sd) clif_skill_fail(sd,ud->skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
@@ -11083,7 +11129,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case LG_KINGS_GRACE:
 	case MH_POISON_MIST:
 	case MH_XENO_SLASHER:
+	case MH_STEINWAND:
 	case MH_LAVA_SLIDE:
+	case MH_VOLCANIC_ASH:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
@@ -12016,6 +12064,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case MH_POISON_MIST:
 		interval = 2500 - 200 * skilllv;
 		break;
+
+	case MH_STEINWAND:
+		val2=skilllv+4;
+		break;
 	}
 
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skillid,skilllv,skill_get_unit_id(skillid,flag&1)+subunt, limit, interval));
@@ -12283,6 +12335,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 		break;
 
 	case UNT_CHAOSPANIC:
+	case UNT_VOLCANIC_ASH:
 		if (!sce)
 			sc_start(bl,type,100,sg->skill_lv,skill_get_time2(sg->skill_id,sg->skill_lv));
 		break;
@@ -13210,6 +13263,7 @@ int skill_unit_onleft (uint16 skill_id, struct block_list *bl, int64 tick)
 		case SO_WATER_INSIGNIA:
 		case SO_WIND_INSIGNIA:
 		case SO_EARTH_INSIGNIA:
+		case MH_STEINWAND:
 		case EL_WATER_BARRIER:
 		case EL_ZEPHYR:
 		case EL_POWER_OF_GAIA:

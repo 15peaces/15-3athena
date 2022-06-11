@@ -2509,6 +2509,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x0af0,10
 0x0af4,11,useskilltopos,2:4:6:8:10//CZ_USE_SKILL_TOGROUND2
 // new packets
+0x0af7,32
 0x0afd,155
 0x0afe,-1
 0x0aff,-1

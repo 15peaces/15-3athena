@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/11/2022
+	r333 [15peaces]
+		*Merged missing changes from 3ceam rev. 831 - 832
+		*Fixed some packets for 2018 clients.
+		*Added some missing costume items.
+		*homunculus_pyroclastic_autocast; pyroclastic_breaks_weapon
+			-Added these config settings.
+		*Cleaned up and optomized some code to improve performance.
+		*Removed some unneeded packets from a few Mechanic skills.
+		*NC_SELFDESTRUCTION
+			-Fixed a issue where damage based on the SP consumed would only apply to a single enemy instead of all enemy's hit.
+		*KO_MUCHANAGE (Over Throw)
+			-Damage is now halved if Throwing Mastery is not maxed.
+		*KG_KYOMU (Shadow Void)
+			-Recoded most of the skill.
+			-Skill casting fail behavior is now handled correctly.
+			-Failure will now happen after casting the skill and will now display a skill fail message when it does.
+		*MH_STAHL_HORN
+			-Now deals holy damage when the "goldene ferse" status is active.
+		*MH_GOLDENE_FERSE; MH_STEINWAND; MH_ANGRIFFS_MODUS; MH_GRANITIC_ARMOR; MH_PYROCLASTIC; MH_VOLCANIC_ASH
+			-Added support for these skills.
+			-Note: With current coding, its not possible to make Steinwand cast the AoE on both the master and homunculus unless I code it to bypass important checks which prevents exploiting.
+				--For now it will only place the AoE on the master and a max of 2 can be placed (should be 1 pair limit).
+				--Will come back to recode this one in the future.
+
 05/03/2022
 	r332 [15peaces]
 		*Merged missing changes from 3ceam rev. 829 - 830
