@@ -1210,6 +1210,12 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 		id->type = IT_ETC;
 	}
 
+	// Correct item types (backward compatibility, should be changed in databases in future...) [15peaces]
+	if (id->type == IT_WEAPON)
+		id->type = IT_ARMOR;
+	else if (id->type == IT_ARMOR)
+		id->type = IT_WEAPON;
+
 	if (id->type == IT_DELAYCONSUME)
 	{	//Items that are consumed only after target confirmation
 		id->type = IT_USABLE;

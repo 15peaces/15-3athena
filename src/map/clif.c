@@ -1491,6 +1491,8 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(bl,421,AREA);
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
+			if (sd->sc.count && sd->sc.data[SC_MILLENNIUMSHIELD])
+				clif_millenniumshield(sd, sd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 			clif_hat_effects(sd, bl, AREA);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
 			// Note: This was supposed to be just a temp thing but its getting out of hand. Need to redo this. [Rytech]
@@ -4891,6 +4893,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
+			if (tsd->sc.count && tsd->sc.data[SC_MILLENNIUMSHIELD])
+				clif_millenniumshield(tsd, tsd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 			clif_hat_effects(sd, bl, SELF);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
 			// This was supposed to be just a temp thing but this is getting out of hand. Needs to recode this. [Rytech]
@@ -10025,6 +10029,8 @@ void clif_refresh(struct map_session_data *sd)
 		clif_spiritball_single(sd->fd, sd);
 	if (sd->spiritballnumber)
 		clif_spiritball_attribute_single(sd->fd, sd);
+	if (sd->sc.count && sd->sc.data[SC_MILLENNIUMSHIELD])
+		clif_millenniumshield(sd, sd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 	if (sd->vd.cloth_color)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
 	if (sd->vd.body_style)

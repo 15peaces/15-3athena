@@ -32,7 +32,7 @@
 
 //15-3athena
 //These may be needed in the future. [15peaces]
-#define MAX_RUNE 20 //Max number of runes a Rune Knight can carry of each type.
+#define MAX_RUNE 60 //Max number of runes a Rune Knight can carry of each type.
 #define MAX_RAGE 15 //Max number of rage balls a Royal Guard can have.
 #define MAX_SPELLBOOK 7 //Max number or spells a Warlock can preserve.
 

@@ -7,6 +7,46 @@
 //========================================
 06/11/2022
 	r333 [15peaces]
+		*Merged missing changes from 3ceam rev. 833
+		*Corrected item types to their official values.
+			-The item database still uses the old values (4 = wapon / 5 = armor) for now. It is switched while loading the database for now.
+				--I did this to keep backward compatibility for now.
+			-This will fix client sided issues like the switched tabs in storages.
+		*giant_growth_behavior
+			-Added this new config.
+		*Max runes of each type you can carry is now 60.
+		*Some fixes in Izlude Academy.
+			-Removed duplicated warps.
+			-Fixed the warps and npc locations for new academy map.
+		*Added a missing Guide to Alberta. 
+			-Since this is a renewal only guide I decided to add the renewal version.
+		*RK_RUNEMASTERY
+			-Level 10 now allows crafting the Lux Anima rune.
+			-This is also the required level to use Lux Anima runes.
+		*RK_MILLENNIUMSHIELD
+			-Recoded part of the skill.
+			-Fixed a issue where the shields visual effects wouldn't appear if you changed maps, refreshed, relogged, or appear for anyone seeing you come in their view range.
+		*RK_CRUSHSTRIKE
+			-Updated damage formula.
+		*RK_GIANTGROWTH
+			-The random damage increase is now 2x the damage.
+			-Now gives a increase in physical melee damage.
+			-250% increase normally (125% increase if in PvP/GvG maps).
+			-This can be set to use the older pre-2017 behavior by changing the "giant_growth_behavior" setting if desired.
+		*RK_STONEHARDSKIN
+			-Recoded part of the skill.
+			-Weapon breaking chance now only applies to physical melee attacks.
+		*RK_STORMBLAST
+			-Updated damage formula.
+			-No longer affected by INT. Its now affected by STR.
+		*RK_FIGHTINGSPIRIT
+			-Recoded the skill.
+			-Party members now get half of the ATK increase.
+		*RK_LUXANIMA
+			-Added support for the skill.
+
+06/11/2022
+	r333 [15peaces]
 		*Merged missing changes from 3ceam rev. 831 - 832
 		*Fixed some packets for 2018 clients.
 		*Added some missing costume items.

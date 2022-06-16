@@ -241,8 +241,8 @@ enum item_types {
 	IT_UNKNOWN,		//1		//IT_SCHANGE	= 0x01
 	IT_USABLE,		//2		//IT_SPECIAL	= 0x02
 	IT_ETC,			//3		//IT_EVENT		= 0x03
-	IT_WEAPON,		//4		//IT_ARMOR		= 0x04
-	IT_ARMOR,		//5		//IT_WEAPON		= 0x05
+	IT_ARMOR,		//4		//IT_ARMOR		= 0x04
+	IT_WEAPON,		//5		//IT_WEAPON		= 0x05
 	IT_CARD,		//6		//IT_CARD		= 0x06
 	IT_PETEGG,		//7		//IT_QUEST		= 0x07
 	IT_PETARMOR,	//8		//IT_BOW		= 0x08

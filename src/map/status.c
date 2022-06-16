@@ -417,19 +417,19 @@ void initChangeTables(void)
 	add_sc( SA_ELEMENTWIND       , SC_ELEMENTALCHANGE );
 	
 	// Rune Knight
-	set_sc( RK_ENCHANTBLADE			, SC_ENCHANTBLADE		, SI_ENCHANTBLADE      , SCB_NONE );
-	set_sc( RK_DEATHBOUND			, SC_DEATHBOUND			, SI_DEATHBOUND        , SCB_NONE );
-	set_sc( RK_WINDCUTTER			, SC_FEAR				, SI_BLANK             , SCB_FLEE|SCB_HIT );
+	set_sc( RK_ENCHANTBLADE			, SC_ENCHANTBLADE		, SI_ENCHANTBLADE		, SCB_NONE );
+	set_sc( RK_DEATHBOUND			, SC_DEATHBOUND			, SI_DEATHBOUND			, SCB_NONE );
+	set_sc( RK_WINDCUTTER			, SC_FEAR				, SI_BLANK				, SCB_FLEE|SCB_HIT );
 	add_sc( RK_DRAGONBREATH			, SC_BURNING			);
-	set_sc( RK_DRAGONHOWLING		, SC_FEAR				, SI_BLANK             , SCB_FLEE|SCB_HIT );
-	add_sc( RK_MILLENNIUMSHIELD		, SC_MILLENNIUMSHIELD	);
-	set_sc( RK_CRUSHSTRIKE			, SC_CRUSHSTRIKE		, SI_CRUSHSTRIKE       , SCB_NONE );
-	set_sc( RK_REFRESH				, SC_REFRESH			, SI_REFRESH           , SCB_NONE );
-	set_sc( RK_GIANTGROWTH			, SC_GIANTGROWTH		, SI_GIANTGROWTH       , SCB_STR );
-	set_sc( RK_STONEHARDSKIN		, SC_STONEHARDSKIN		, SI_STONEHARDSKIN     , SCB_DEF | SCB_MDEF);
-	set_sc( RK_VITALITYACTIVATION	, SC_VITALITYACTIVATION	, SI_VITALITYACTIVATION, SCB_REGEN );
-	set_sc( RK_FIGHTINGSPIRIT		, SC_FIGHTINGSPIRIT		, SI_FIGHTINGSPIRIT    , SCB_WATK|SCB_ASPD );
-	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE			, SI_ABUNDANCE         , SCB_NONE );
+	set_sc( RK_DRAGONHOWLING		, SC_FEAR				, SI_BLANK				, SCB_FLEE|SCB_HIT );
+	set_sc( RK_MILLENNIUMSHIELD		, SC_MILLENNIUMSHIELD	, SI_BLANK				, SCB_NONE);
+	set_sc( RK_CRUSHSTRIKE			, SC_CRUSHSTRIKE		, SI_CRUSHSTRIKE		, SCB_NONE );
+	set_sc( RK_REFRESH				, SC_REFRESH			, SI_REFRESH			, SCB_NONE );
+	set_sc( RK_GIANTGROWTH			, SC_GIANTGROWTH		, SI_GIANTGROWTH		, SCB_STR );
+	set_sc( RK_STONEHARDSKIN		, SC_STONEHARDSKIN		, SI_STONEHARDSKIN		, SCB_DEF | SCB_MDEF);
+	set_sc( RK_VITALITYACTIVATION	, SC_VITALITYACTIVATION	, SI_VITALITYACTIVATION	, SCB_REGEN );
+	set_sc( RK_FIGHTINGSPIRIT		, SC_FIGHTINGSPIRIT		, SI_FIGHTINGSPIRIT		, SCB_WATK|SCB_ASPD );
+	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE			, SI_ABUNDANCE			, SCB_NONE );
 
 	// Guillotine Cross
 	set_sc( GC_VENOMIMPRESS      , SC_VENOMIMPRESS		, SI_VENOMIMPRESS       , SCB_NONE );
@@ -5047,8 +5047,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_DRUMBATTLE]->val3;
 	if(sc->data[SC_DEFENCE])	//[orn]
 		def += sc->data[SC_DEFENCE]->val2;
-	if(sc->data[SC_STONEHARDSKIN])// Final DEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-		def += sc->data[SC_STONEHARDSKIN]->val1;
+	if (sc->data[SC_STONEHARDSKIN])
+		def += sc->data[SC_STONEHARDSKIN]->val2;
 	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
 		def += sc->data[SC_SHIELDSPELL_REF]->val2;
 	if( sc->data[SC_PRESTIGE] )
@@ -5185,8 +5185,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
 	if(sc->data[SC_ARMORCHANGE])
 		mdef += sc->data[SC_ARMORCHANGE]->val3;
-	if (sc->data[SC_STONEHARDSKIN])// Final MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-		mdef += sc->data[SC_STONEHARDSKIN]->val1;
+	if (sc->data[SC_STONEHARDSKIN])
+		mdef += sc->data[SC_STONEHARDSKIN]->val2;
 	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
 		mdef += 5;
 	if(sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
@@ -8260,11 +8260,52 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_DEATHBOUND: // 3ceam v1.
 			val2 = 500 + 100 * val1;
 			break;
-		case SC_STONEHARDSKIN:// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
-			if (level_effect_bonus && base_lv >= 100)
-				val1 = status_get_job_lv(bl) * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10; //DEF/MDEF Increase
-			else
-				val1 = 50 * pc_checkskill(sd, RK_RUNEMASTERY) / 4 / 10;
+		case SC_MILLENNIUMSHIELD:
+			{
+				unsigned char generate = rand()%100 + 1;//Generates a number between 1 - 100 which is used to determine how many shields it will generate.
+				unsigned char shieldnumber = 1;
+
+				if ( generate >= 1 && generate <= 50 )//50% chance for 2 shields.
+					shieldnumber = 2;
+				else if ( generate >= 51 && generate <= 80 )//30% chance for 3 shields.
+					shieldnumber = 3;
+				else if ( generate >= 81 && generate <= 100 )//20% chance for 4 shields.
+					shieldnumber = 4;
+
+				val2 = shieldnumber;// Number of Shields
+				val3 = 1000;// Shield HP
+				clif_millenniumshield(sd,shieldnumber);
+			}
+			break;
+		case SC_REFRESH:
+			{
+				short i = 0;
+
+				if ( sc )
+				{
+					const enum sc_type scs[] = { SC_MARSHOFABYSS, SC_MANDRAGORA };
+					// Checking for common status's.
+					for (i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++)
+						if (sc->data[i])
+							status_change_end(bl, (sc_type)i, INVALID_TIMER);
+					// Checking for Guillotine poisons.
+					for (i = SC_NEW_POISON_MIN; i <= SC_NEW_POISON_MAX; i++)
+						if (sc->data[i])
+							status_change_end(bl, (sc_type)i, INVALID_TIMER);
+					// Checking for additional status's.
+					for (i = 0; i < ARRAYLENGTH(scs); i++)
+						if (sc->data[scs[i]])
+							status_change_end(bl, scs[i], INVALID_TIMER);
+				}
+
+				status_heal(bl,status_get_max_hp(bl) * 25 / 100,0,1);
+			}
+			break;
+		case SC_STONEHARDSKIN:
+			// Final DEF/MDEF increase divided by 10 since were using classic (pre-renewal) mechanics. [Rytech]
+			val2 = val2 / 4 / 10;// DEF/MDEF Increase
+			val3 = 20 * status_get_hp(bl) / 100;// Stone Skin HP
+			status_zap(bl, val3, 0);
 			break;
 		case SC_FIGHTINGSPIRIT:
 			val_flag |= 1 | 2;

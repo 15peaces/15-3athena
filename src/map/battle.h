@@ -598,6 +598,7 @@ extern struct Battle_Config
 	int allow_bloody_lust_on_warp;
 	int homunculus_pyroclastic_autocast;
 	int pyroclastic_breaks_weapon;
+	int giant_growth_behavior;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;
