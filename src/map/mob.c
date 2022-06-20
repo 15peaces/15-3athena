@@ -1396,8 +1396,13 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		return false;
 
 	// Abnormalities
-	if( (md->sc.opt1 > 0 && md->sc.opt1 != OPT1_STONEWAIT && md->sc.opt1 != OPT1_BURNING) || md->sc.data[SC_BLADESTOP] || md->sc.data[SC__MANHOLE] ||
-		md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CURSEDCIRCLE_TARGET] )
+	if( (md->sc.opt1 > 0 && md->sc.opt1 != OPT1_STONEWAIT && md->sc.opt1 != OPT1_BURNING) ||
+		md->sc.data[SC_BLADESTOP] ||
+		md->sc.data[SC_DEEPSLEEP] ||
+		md->sc.data[SC_CRYSTALIZE] ||
+		md->sc.data[SC__MANHOLE] ||
+		md->sc.data[SC_FALLENEMPIRE] ||
+		md->sc.data[SC_CURSEDCIRCLE_TARGET] )
   	{	//Should reset targets.
 		md->target_id = md->attacked_id = 0;
 		return false;
@@ -1442,10 +1447,9 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		{	//Rude attacked check.
 			if( !battle_check_range(&md->bl, tbl, md->status.rhw.range)
 			&&  ( //Can't attack back and can't reach back.
-			      (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
-				  || md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
-				  || md->sc.data[SC__MANHOLE]))
-			      || !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
+				(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
+					md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
+				|| !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
 			    )
 			&&  md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
 			&&  !mobskill_use(md, tick, MSC_RUDEATTACKED) // If can't rude Attack
@@ -1455,7 +1459,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				return true;
 			}
 		}
-		else if( (abl = map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode)) || (md->sc.count && md->sc.data[SC_CONFUSION]))
+		else if ((abl = map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode)))
 		{
 			if( md->bl.m != abl->m || abl->prev == NULL
 				|| (dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE // Attacker longer than visual area
@@ -1464,9 +1468,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				|| (battle_config.mob_ai&0x2 && !status_check_skilluse(&md->bl, abl, 0, 0, 0)) // Cannot normal attack back to Attacker
 				|| (!battle_check_range(&md->bl, abl, md->status.rhw.range) // Not on Melee Range and ...
 				&& ( // Reach check
-					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai&0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1)
-					|| md->sc.data[SC_WUGBITE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_THORNSTRAP]
-					|| md->sc.data[SC__MANHOLE]))
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
+						md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
 					|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
 				)
 				) )
@@ -4186,6 +4189,14 @@ static bool mob_parse_row_mobskilldb(char** str, int columns, int current)
 		{	"silence",		SC_SILENCE		},
 		{	"confusion",	SC_CONFUSION	},
 		{	"blind",		SC_BLIND		},
+		{	"bleeding",		SC_BLEEDING		},
+		{	"dpoison",		SC_DPOISON		},
+		{	"fear",			SC_FEAR			},
+		{	"burning",		SC_BURNING		},
+		{	"imprison",		SC_IMPRISON		},
+		{	"deepsleep",	SC_DEEPSLEEP	},
+		{	"frost",		SC_FROST		},
+		{	"crystalize",	SC_CRYSTALIZE	},
 		{	"hiding",		SC_HIDING		},
 		{	"sight",		SC_SIGHT		},
 	}, target[] = {

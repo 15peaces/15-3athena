@@ -5,6 +5,120 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/20/2022
+	r334 [15peaces]
+		*Merged missing changes from 3ceam rev. 834
+		*Fixed an uninitialized variable error in skill_additional_effect function.
+		*Fixed an packet size overflow in clif_quest_add function.
+		*This update also focuses heavly on fixing all the common status's that were introduced during renewal and is a follow up for r291 and r306 that is long overdue. Resistance for success and duration are now official and items/equips should work better 
+			-with them.
+			-Of corse a few other things were done in this update as well.
+		*Changed the name of a few status's to be easier to refer to.
+			-whiteimprison -> imprison / freezing -> frost.
+			-Note: The confusion between freeze and freezing was annoying.
+			-So its best to refer to freezing as frost.
+		*Did some code cleanup and optomize for the initChangeTables entrys for some status's.
+		*Corrected the immunity for pre-re common status's.
+			-Its been proven that the 97 stat immunity isn't real.
+			-The real immunity is with 100 of a certain stat.
+			-97 is high enough to bring success chances so low, the chance of getting affected by that certain status for some skills is near impossible.
+		*Updated the const file with needed Effect and SC's.
+			-Should allow items and NPC's to better refer to the commons.
+		*Updated the exp requirements for levels 100 to 150 for mutated homunculus to be more well balanced. This is due to the big 2017 homunculus update on official which they switched back to the old exp table and extended it to level 175.
+		*Updated the mob_skill_db's with info on the new status's conditions.
+		*RK_WINDCUTTER; RK_DRAGONBREATH; WL_COMET; RA_FIRINGTRAP; RA_ICEBOUNDTRAP; NC_COLDSLOWER
+			-The duration for the status these skills give are updated to the REAL official durations.
+		*RK_GIANTGROWTH
+			-Weapon break chance now only happens when the 2x/3x damage burst happens.
+		*RK_FIGHTINGSPIRIT
+			-Updated the ATK increase formula.
+			-Officially its now 70 + 7 * Party Members.
+		*WL_WHITEIMPRISON
+			-Skill now fails if casted on a boss/mvp monster.
+			-Corrected the duration reduction.
+			-Players reduce it with natural immunity which is by a percentage.
+			-Monsters reduce the duration by a fixed amount.
+		*WM_DANCE_WITH_WUG
+			-Adjusted the damage bonus on Ranger's Wug skills.
+			-Turns out a actural ATK bonus is given to Ranger/Minstrel/Wanderer players. I'll have to code this in later on a future update.
+		*SR_HOWLINGOFLION
+			-Fear duration updated to official.
+			-Now only removes solo/chorus music buffs when hit.
+		*SO_PSYCHIC_WAVE
+			-Fixed a issue where the element was always fire.
+		*SO_ARRULLO
+			-Updated the duration reduction formula to follow the official formula.
+			-Skill animation now only appears on players affected successfully.
+		*NC_MAGMA_ERUPTION; NC_MAGMA_ERUPTION_DOTDAMAGE
+			-Added support for these skills.
+		*Boss/MVP's are immune to these status....
+			-Fear,Burning,Imprison,Deep Sleep, Frost, Crystalize.
+			-They are also immune to Guillotine Coss poisons.
+			-All common and new poison status's can't overlap (restart).
+		*Bite and Manhole status no longer overlaps.
+		*Fixed a few status's to properly stop current attacks / movement.
+		*Updated list of status's on MVP's that are treated as rude attack.
+		*Boss/MVP's are now immune to Shadow Chaster's Masquerade skills.
+		*Updated the list of status's monster's can detect.
+			-They can now detect enemy's in bleeding, deadly poison, fear, burning, imprison, deep sleep, frost, and crystalize.
+		*Fear
+			-Unable to move for the first 2 seconds of duration.
+			-The first 2 seconds act as a ankle snared status with hit/flee reduction. The remaining duration allows movement.
+			-Reduces HIT/FLEE by 20%.
+			-Removes blind status and makes you immune to blind.
+			-Resistance formula updated.
+			-Formula: ( INT + BaseLV + LUK/2 ) / 5
+			-Resistance reduces success chance and duration by percentage.
+			-Duration can't be reduced below 2 seconds.
+		*Burning
+			-Fixed a issue where the status would make all incoming attacks hit, ignoring accuracy checks. Also fixed a issue where the status wouldn't end on death sometimes.
+			-Deals 3% MaxHP + 1000 damage every 3 seconds.
+			-Makes you immune to frost status.
+			-Resistance formula updated.
+			-Formula: ( AGI + BaseLV + LUK/2 ) / 5
+			-Resistance reduces success chance and duration by percentage.
+			-Duration can't be reduced below 10 seconds.
+		*Imprison
+			-Can't move, attack, or use skills.
+			-Blocks all attacks except for ghost element.
+			-Ghost attacks deal extra damage and ends the status.
+			-Deals 400 * SkillLV damage when the status ends.
+			-Resistance formula updated.
+			-Formula: ( STR + BaseLV + LUK/2 ) / 5
+			-Resistance reduces success chance and duration by percentage.
+			-Duration can't be reduced below 10 seconds on monsters.
+		*Deep Sleep
+			-Can't talk, move, attack, or use skills while active.
+			-Damage taken from the next hit is increased by 50%.
+			-Recovers 3% MaxHP/MaxSP every 2 seconds.
+			-Status ends when hit.
+			-Resistance formula updated.
+			-Only duration is reduceable and by a fixed amount.
+			-Duration: Time - 1000ms * ( INT / 40 + BaseLV / 20 )
+		*Frost
+			-Reduces DEF by 30%. (10% if on a monster.)
+			-Reduces movement speed by 70%.
+			-Reduces ASPD by 30%
+			-Increases variable cast time by 50%
+			-Makes you immune to burning status.
+			-Duration can't be reduced below 10 seconds.
+			-Resistance formula updated.
+			-Only duration is reduceable and by a fixed amount.
+			-Duration: Time - 1000ms * (( VIT + DEX ) / 20)
+			-Duration can't be reduced below 10 seconds.
+			-Note: iRO was right about one thing. The 10% reduction on DEF, but it never said it was on monster's only while players got 30%.
+		*Crystalize
+			-Can't move, attack, use skills, or use items while active.
+			-Damage taken from wind attack is increased by 50%.
+			-Damage taken from daggers, swords, and bows is reduced by 50%.
+			-Damage taken from axes and maces is increased by 50%
+			-Fire attacks now remove the status.
+			-Takes 2% of your MaxHP and 1% of your MaxSP every second.
+			-The status will end if current SP goes below 1% MaxSP.
+			-Resistance formula updated.
+			-Only duration is reduceable and by a fixed amount.
+			-Duration: Time - 1000ms * VIT / 10
+
 06/11/2022
 	r333 [15peaces]
 		*Merged missing changes from 3ceam rev. 833

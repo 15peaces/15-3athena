@@ -306,6 +306,13 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			damage += damage * sc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
 	}
 	if( tsc && tsc->count ) {
+		if ( tsc->data[SC_CRYSTALIZE] )
+		{
+			if ( atk_elem == ELE_FIRE )
+				status_change_end(target, SC_CRYSTALIZE, INVALID_TIMER);
+			else if ( atk_elem == ELE_WIND )
+				damage += damage * 50 / 100;
+		}
 		if ( tsc->data[SC_SPIDERWEB] && atk_elem == ELE_FIRE)
 		{
 			tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
@@ -323,8 +330,8 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			(tsc->data[SC_WIND_INSIGNIA] && atk_elem == ELE_EARTH) ||
 			(tsc->data[SC_EARTH_INSIGNIA] && atk_elem == ELE_FIRE))
 			ratio += 50;
-		if(tsc->data[SC_THORNSTRAP] && atk_elem == ELE_FIRE)
-			status_change_end(target, SC_THORNSTRAP, INVALID_TIMER);
+		if(tsc->data[SC_THORNS_TRAP] && atk_elem == ELE_FIRE)
+			status_change_end(target, SC_THORNS_TRAP, INVALID_TIMER);
 		if (tsc->data[SC_VOLCANIC_ASH] && atk_elem == ELE_FIRE)
 			damage += damage * 50 / 100;
 		if (tsc->data[SC_FIRE_CLOAK_OPTION] && atk_elem == ELE_FIRE)
@@ -352,12 +359,6 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 			}
 		}
 	}
-	if( atk_elem == ELE_FIRE && tsc && tsc->count && tsc->data[SC_CRYSTALIZE] )
-	{ //FIXTHIS: is this right to be an accurate way to remove Crystalize status when hitted by fire element? [Jobbie]
-		tsc->data[SC_CRYSTALIZE]->val1 = 0;
-		if( tsc->data[SC_CRYSTALIZE]->val2 == 0 )
-			status_change_end(target,SC_CRYSTALIZE,INVALID_TIMER);
- 	}
 	return damage*ratio/100;
 }
 
@@ -574,13 +575,13 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 				status_change_end(bl, SC_AETERNA, INVALID_TIMER); //Shouldn't end until Breaker's non-weapon part connects.
 		}
 
-		if( sc->data[SC_WHITEIMPRISON] )
+		if( sc->data[SC_IMPRISON] )
 		{
 			if ( element == ELE_GHOST )
 			{
 				if( skill_num == MG_NAPALMBEAT || skill_num == MG_SOULSTRIKE || skill_num == HW_NAPALMVULCAN || skill_num == WL_SOULEXPANSION )
 					damage <<= 1;// Deals double damage with Napalm Beat, Soul Strike, Napalm Vulcan, and Soul Expansion
-				status_change_end(bl, SC_WHITEIMPRISON, INVALID_TIMER);
+				status_change_end(bl, SC_IMPRISON, INVALID_TIMER);
 			}
 			else
 			{
@@ -590,9 +591,16 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		}
 
 		if( sc->data[SC_DEEPSLEEP] )
+			damage += damage / 2;// 1.5 times more damage while in Deep Sleep.
+
+		if ( sc->data[SC_CRYSTALIZE] && flag&BF_WEAPON )
 		{
-			damage += damage / 2; // 1.5 times more damage while in Deep Sleep.
-			status_change_end(bl,SC_DEEPSLEEP, INVALID_TIMER);
+			if ( ((TBL_PC *)src)->status.weapon == W_DAGGER || ((TBL_PC *)src)->status.weapon == W_1HSWORD ||
+				((TBL_PC *)src)->status.weapon == W_2HSWORD || ((TBL_PC *)src)->status.weapon == W_BOW )
+				damage -= damage * 50 / 100;
+			else if ( ((TBL_PC *)src)->status.weapon == W_1HAXE || ((TBL_PC *)src)->status.weapon == W_2HAXE ||
+				((TBL_PC *)src)->status.weapon == W_MACE || ((TBL_PC *)src)->status.weapon == W_2HMACE )
+				damage += damage * 50 / 100;
 		}
 
 		if( sc->data[SC_DEVOTION] ) {
@@ -610,9 +618,6 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 					damage -= damage * d_sc->data[SC_DEFENDER]->val2 / 100;
 			}
 		}
-
-		if (sc->data[SC_SIREN] && damage > 0)
-			status_change_end(bl, SC_SIREN, INVALID_TIMER);
 
 		if (sc->data[SC_DARKCROW] && (flag&(BF_SHORT | BF_WEAPON)) == (BF_SHORT | BF_WEAPON))
 			damage += damage * sc->data[SC_DARKCROW]->val2 / 100;
@@ -2417,7 +2422,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
 					break;
 				case RA_WUGBITE:
-					skillratio += 300 + 200 * skill_lv;
+					skillratio = 400 + 200 * skill_lv;
 					if (skill_lv == 5)
 						skillratio += 100;
 					if (sc && sc->data[SC_DANCE_WITH_WUG])
@@ -2901,6 +2906,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case GC_DARKCROW:
 					skillratio = 100 * skill_lv;
 					break;
+				case NC_MAGMA_ERUPTION:
+					skillratio = 450 + 50 * skill_lv;
+					break;
 				case SU_BITE:
 					skillratio = 200;
 					break;
@@ -3013,15 +3021,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_WUGDASH:
 					if (sd)
 						ATK_ADD(sd->weight / 8);//Dont need to divide weight here since official formula takes current weight * 10. [Rytech]
-					if( sc && sc->data[SC_DANCE_WITH_WUG] )
-						ATK_ADD(2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus));
 					break;
 				case RA_WUGSTRIKE:
 				case RA_WUGBITE:
 					if (sd)
 						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
-					if (sc && sc->data[SC_DANCE_WITH_WUG])
-						ATK_ADD(2 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus));
 					break;
 				case LG_SHIELDPRESS:
 					if( sd )
@@ -3791,13 +3795,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 
 		case SO_PSYCHIC_WAVE:
 			if ( sc )
-				if ( SC_HEATER_OPTION )
+				if (sc->data[SC_HEATER_OPTION])
 					s_ele = ELE_FIRE;
-				else if ( SC_COOLER_OPTION )
+				else if (sc->data[SC_COOLER_OPTION])
 					s_ele = ELE_WATER;
-				else if ( SC_BLAST_OPTION )
+				else if (sc->data[SC_BLAST_OPTION])
 					s_ele = ELE_WIND;
-				else if ( SC_CURSED_SOIL_OPTION )
+				else if (sc->data[SC_CURSED_SOIL_OPTION])
 					s_ele = ELE_EARTH;
 			break;
 
@@ -4076,7 +4080,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio = skillratio * base_lv / 100;
 						break;
 					case WL_JACKFROST:
-						if (tsc && tsc->data[SC_FREEZING])
+						if (tsc && tsc->data[SC_FROST])
 						{
 							skillratio += 900 + 300 * skill_lv;
 							if (level_effect_bonus == 1)
@@ -4750,6 +4754,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 				md.damage -= totaldef;
 		}
 		break;
+	case NC_MAGMA_ERUPTION_DOTDAMAGE:
+		md.damage = 800 + 200 * skill_lv;
+		break;
 	case MH_EQC:
 		md.damage = tstatus->hp - sstatus->hp;
 		// Officially, if damage comes out <= 0,
@@ -5251,6 +5258,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			wd.damage *= 2;// Double Damage - 2017 Behavior
 		else
 			wd.damage *= 3;// Triple Damage - Pre 2017 Behavior
+		
+		// 0.1% Chance of breaking with each damage burst.
+		skill_break_equip(src, EQP_WEAPON, 10, BCT_SELF);
 	}
 
 	if (sd && sd->state.arrow_atk) //Consume arrow.

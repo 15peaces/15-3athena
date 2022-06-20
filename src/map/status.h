@@ -35,12 +35,12 @@ typedef enum sc_type {
 	SC_BLIND,
 	SC_BLEEDING,
 	SC_DPOISON, //10
-	SC_BURNING,
-	SC_IMPRISON,//White Imprison. Not really common, but aegis treats it as one.
 	SC_FEAR,
+	SC_BURNING,
+	SC_IMPRISON,// White Imprison. Not really common, but aegis treats it as one.
 	SC_DEEPSLEEP,
-	SC_FROSTMISTY,
-	SC_COLD,//Crystalize. Another not so common status, but officially treated as one.
+	SC_FROST,//FROSTMISTY
+	SC_CRYSTALIZE,//Crystalize. Another not so common status, but officially treated as one.
 	SC_NORECOVER,
 	//SC_ICEEXPLO,//ICEEXPLO and NEW_POISON are also listed as common treated,
 	//SC_NEW_POISON,//but not yet confirmed in the zone.
@@ -739,11 +739,7 @@ typedef enum sc_type {
 	SC__BLOODYLUST_BK,
 	
 	// only temp and for testing
-	SC_FREEZING = 700,
-	SC_CRYSTALIZE,
-	SC_WHITEIMPRISON,
-	SC_THORNSTRAP,
-	SC_GLOOMYDAY_SK,
+	SC_GLOOMYDAY_SK = 700,
 	SC_MILLENNIUMSHIELD,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
