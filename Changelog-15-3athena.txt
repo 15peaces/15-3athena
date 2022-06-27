@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/27/2022
+	r335 [15peaces]
+		*Eden Group Marks will now stay in your inventory after usage.
+		*Fixed an issue where normal shops could never sell items discounted.
+
 06/20/2022
 	r334 [15peaces]
 		*Merged missing changes from 3ceam rev. 834

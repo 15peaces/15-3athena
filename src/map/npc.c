@@ -2467,8 +2467,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		return strchr(start,'\n');// continue
 	}
 
-	if (type != NPCTYPE_SHOP)
-		nd->u.shop.discount = is_discount;
+	nd->u.shop.discount = is_discount;
 
 	nd->bl.prev = nd->bl.next = NULL;
 	nd->bl.m = m;

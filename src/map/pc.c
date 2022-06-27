@@ -4322,6 +4322,9 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 	return 1;
 }
 
+/*==========================================
+ * Check if item is usable.
+ *------------------------------------------*/
 int pc_isUseitem(struct map_session_data *sd,int n)
 {
 	struct item_data *item;
@@ -4615,8 +4618,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	if( sd->inventory_data[n]->flag.delay_consume )
 		clif_useitemack(sd,n,amount,true);
 	else
-	{ //Don't delete boarding halters. [Rytech]
-		if( sd->inventory.u.items_inventory[n].expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER)
+	{ // Don't delete boarding halters & Eden Group Marks. [15peaces]
+		if( sd->inventory.u.items_inventory[n].expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER && sd->itemid != ITEMID_PARA_TEAM_MARK)
 		{
 			clif_useitemack(sd,n,amount-1,true);
 
