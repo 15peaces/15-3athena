@@ -1989,6 +1989,7 @@ int npc_unload(struct npc_data* nd)
 {
 	nullpo_ret(nd);
 
+	status_change_clear(&nd->bl, 1);
 	npc_remove_map(nd);
 	map_deliddb(&nd->bl);
 	strdb_remove(npcname_db, nd->exname);

@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/23/2022
+	r336 [15peaces]
+		*Added some missing eden quests to quest db.
+		*Updated sc_start2 script command to allow a 2nd value to be passed.
+			-With this done the clan status is starting correctly.
+		*Some other fixing related to clan system.
+			-The clan emblems should also be shown on the clan leader npcs. How ever I was not able to get this working correctly. I will fix this later.
+
 06/27/2022
 	r335 [15peaces]
 		*Eden Group Marks will now stay in your inventory after usage.

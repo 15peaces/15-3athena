@@ -9915,22 +9915,24 @@ BUILDIN_FUNC(sc_start)
 
 /// Starts a status effect on the target unit or on the attached player.
 ///
-/// sc_start2 <effect_id>,<duration>,<val1>,<percent chance>{,<unit_id>};
+/// sc_start2 <effect_id>,<duration>,<val1>,<val2>{<rate>{,<unit_id>}};
 BUILDIN_FUNC(sc_start2)
 {
 	struct block_list* bl;
 	enum sc_type type;
 	int tick;
-	int val1;
+	int val1,val2;
 	int val4 = 0;
 	int rate;
 
 	type = (sc_type)script_getnum(st,2);
 	tick = script_getnum(st,3);
 	val1 = script_getnum(st,4);
-	rate = script_getnum(st,5);
-	if( script_hasdata(st,6) )
-		bl = map_id2bl(script_getnum(st,6));
+	val2 = script_getnum(st,5);
+	rate = script_hasdata(st, 6) ? min(script_getnum(st, 6), 10000) : 10000;
+
+	if( script_hasdata(st,7) )
+		bl = map_id2bl(script_getnum(st,7));
 	else
 		bl = map_id2bl(st->rid);
 
@@ -9947,7 +9949,7 @@ BUILDIN_FUNC(sc_start2)
 	}
 
 	if( bl )
-		status_change_start(bl, type, rate, val1, 0, 0, val4, tick, 2);
+		status_change_start(bl, type, rate, val1, val2, 0, val4, tick, 2);
 
 	return 0;
 }
@@ -19091,6 +19093,30 @@ BUILDIN_FUNC(clan_leave)
 }
 
 /**
+ * Show clan emblem next to npc name
+ */
+static BUILDIN_FUNC(clan_master)
+{
+	struct npc_data *nd = map_id2nd(st->oid);
+	int clan_id = script_getnum(st, 2);
+
+	if (nd == NULL) {
+		script_pushint(st, false);
+		return 1;
+	}
+	else if (clan_id <= 0) {
+		script_pushint(st, false);
+		ShowError("buildin_clan_master: Received Invalid Clan ID %d\n", clan_id);
+		return 1;
+	}
+
+	clif_status_change(&nd->bl, SI_CLAN_INFO, 1, 9999, 0, clan_id, 0);
+
+	script_pushint(st, true);
+	return 0;
+}
+
+/**
  * Turns a player into a monster and optionally can grant a SC attribute effect.
  * montransform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
  * active_transform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
@@ -20209,6 +20235,7 @@ struct script_function buildin_func[] = {
 	// Clan system
 	BUILDIN_DEF(clan_join,"i?"),
 	BUILDIN_DEF(clan_leave,"?"),
+	BUILDIN_DEF(clan_master,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
 	BUILDIN_DEF(strnpcinfo,"i"),
 	BUILDIN_DEF(getequipid,"i"),
@@ -20310,7 +20337,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(enablenpc, "cloakoffnpc", "??"),
 	BUILDIN_DEF2(enablenpc, "cloakonnpc", "??"),
 	BUILDIN_DEF(sc_start,"iii?"),
-	BUILDIN_DEF(sc_start2,"iiii?"),
+	BUILDIN_DEF(sc_start2,"iiii??"),
 	BUILDIN_DEF(sc_start4,"iiiiii?"),
 	BUILDIN_DEF(sc_end,"i?"),
 	BUILDIN_DEF(getscrate,"ii?"),

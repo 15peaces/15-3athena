@@ -1584,6 +1584,8 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl, SI_SOULATTACK, 1, 9999, sd->sc.data[SC_SOULATTACK]->val1, 0, 0);
 			if( sd->sc.count && sd->sc.data[SC_VOLCANIC_ASH] )
 				clif_status_change(&sd->bl,SI_VOLCANIC_ASH,1,9999,sd->sc.data[SC_VOLCANIC_ASH]->val1,0,0);
+			if (sd->sc.count && sd->sc.data[SC_CLAN_INFO])
+				clif_status_change(&sd->bl, SI_CLAN_INFO, 1, 9999, 0, sd->sc.data[SC_CLAN_INFO]->val2, 0);
 			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
 				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
 			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
@@ -1614,6 +1616,9 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(&nd->bl,423,AREA);
 			else if( nd->size == 1 )
 				clif_specialeffect(&nd->bl,421,AREA);
+			// Added to display clan emblems on npcs. [15peaces]
+			if (nd->sc.count && nd->sc.data[SC_CLAN_INFO])
+				clif_status_change(&nd->bl, SI_CLAN_INFO, 1, 9999, 0, nd->sc.data[SC_CLAN_INFO]->val2, 0);
 		}
 		break;
 	case BL_PET:
@@ -4990,6 +4995,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_SOULATTACK, 1, 9999, tsd->sc.data[SC_SOULATTACK]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_VOLCANIC_ASH])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_VOLCANIC_ASH, 1, 9999, tsd->sc.data[SC_VOLCANIC_ASH]->val1, 0, 0);
+			if (tsd->sc.count && tsd->sc.data[SC_CLAN_INFO])
+				clif_status_change_single(&sd->bl, &tsd->bl, SI_CLAN_INFO, 1, 9999, 0, tsd->sc.data[SC_CLAN_INFO]->val2, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
 				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
