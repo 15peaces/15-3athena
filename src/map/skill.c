@@ -2561,8 +2561,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,NV_BASIC,-1,5);
 		break;
 	case WL_HELLINFERNO:
-	//case SR_EARTHSHAKER:
-		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, 1, skillid, -2, 6);
+		if ( flag&4 )// Show animation for fire damage part.
+			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,skilllv,type);
+		else// Only display damage for the shadow hit.
+			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,0,-2,5);
 		break;
 	case WL_SOULEXPANSION:
 	case WL_COMET:
@@ -2585,6 +2587,12 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	case WM_REVERBERATION_MAGIC:
 	case WM_SEVERE_RAINSTORM_MELEE:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,65534,6);
+		break;
+	case GN_SPORE_EXPLOSION:
+		if( flag&SD_ANIMATION )// The surrounding targets show no animaion. Only damage.
+			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, 0, -2, 5);
+		else// Display animation only on the source.
+			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5);
 		break;
 	case GN_CRAZYWEED_ATK:// FIX ME
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid, -2, 6);
@@ -2808,8 +2816,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			skill_counter_additional_effect(src,bl,skillid,skilllv,dmg.flag,tick);
 	}
 
-	// Hell Inferno burning status only starts if Fire part hits.
-	if( skillid == WL_HELLINFERNO && dmg.damage > 0 )
+	// Hell Inferno has a chance of giving burning status when the fire damage hits.
+	if (!status_isdead(bl) && skillid == WL_HELLINFERNO && flag & 4 && dmg.damage > 0)
 		sc_start(bl, SC_BURNING, 55 + 5 * skilllv, skilllv, skill_get_time(skillid, skilllv));
 
 
@@ -3475,6 +3483,15 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 						}
 					}
 					break;
+				case WL_HELLINFERNO:
+					{
+						struct status_change *sc = status_get_sc(src);
+						if( !status_isdead(target) )
+							skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
+						if(sc)
+							status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
+					}
+					break;
 				case WL_CHAINLIGHTNING_ATK:
 					{
 						struct block_list *nbl = NULL; // Next Target of Chain
@@ -3555,9 +3572,6 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 				case LG_OVERBRAND_PLUSATK:
 				//case SR_KNUCKLEARROW://Shouldnt be needed since its set as a weapon attack in another part of the source. Will disable for now. [Rytech]
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
-					break;
-				case GN_SPORE_EXPLOSION:
-					map_foreachinrange(skill_area_sub, target, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR, src, skl->skill_id, skl->skill_lv, 0, skl->flag|1|BCT_ENEMY, skill_castend_damage_id);
 					break;
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
@@ -4226,6 +4240,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SO_VARETYR_SPEAR:
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
+	case GN_SPORE_EXPLOSION:
 	case RL_S_STORM:
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
@@ -4274,7 +4289,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			//SD_LEVEL -> Forced splash damage for Auto Blitz-Beat -> count targets
 			//special case: Venom Splasher uses a different range for searching than for splashing
 			if(flag&SD_LEVEL || skill_get_nk(skillid)&NK_SPLASHSPLIT)
-				skill_area_temp[0] = map_foreachinrange(skill_area_sub, bl, (skillid == AS_SPLASHER)?1:skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
+				skill_area_temp[0] = map_foreachinrange(skill_area_sub, bl, (skillid == AS_SPLASHER || skillid == GN_SPORE_EXPLOSION) ? 1 : skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
@@ -4446,7 +4461,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_RENOVATIO:
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
-	case WL_HELLINFERNO:
 	case WL_TETRAVORTEX_FIRE:
 	case WL_TETRAVORTEX_WATER:
 	case WL_TETRAVORTEX_WIND:
@@ -4454,6 +4468,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WM_METALICSOUND:
 	case MH_ERASER_CUTTER:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
+		break;
+
+	case WL_HELLINFERNO:
+		// Flag 4 signals the fire attack. Flag 8 signals the shadow attack.
+		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag|4);
+		skill_addtimerskill(src, tick+200, bl->id, 0, 0, skillid, skilllv, BF_MAGIC, flag|8);
 		break;
 
 	case NPC_MAGICALATTACK:
@@ -5019,16 +5039,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			}
 			else
 				clif_skill_fail(sd, skillid, 0, 0, 0);
-		}
-		break;
-
-	case GN_SPORE_EXPLOSION:
-		if( flag & 1 )
-			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-		else
-		{
-			clif_skill_nodamage(src, bl, skillid, 0, 1);
-			skill_addtimerskill(src, gettick() + skill_get_time(skillid, skilllv), bl->id, 0, 0, skillid, skilllv, 0, 0);
 		}
 		break;
 
@@ -5776,12 +5786,29 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RL_HEAT_BARREL:
 	case KO_MEIKYOUSISUI:
 	case RA_UNLIMIT:
-	case AB_OFFERTORIUM:
 	case WL_TELEKINESIS_INTENSE:
 	case ALL_FULL_THROTTLE:
 	case SU_ARCLOUSEDASH:
 	case SU_FRESHSHRIMP:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
+		break;
+
+	case AB_OFFERTORIUM:
+		clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+
+		if ( sc )
+		{
+			const enum sc_type scs[] = { SC_POISON, SC_CURSE, SC_CONFUSION, SC_BLIND, SC_BLEEDING, SC_BURNING, SC_FROST, SC_HALLUCINATION, SC_MANDRAGORA };
+
+			// Checking for Guillotine poisons.
+			for (i = SC_NEW_POISON_MIN; i <= SC_NEW_POISON_MAX; i++)
+				if (sc->data[i])
+					status_change_end(bl, (sc_type)i, INVALID_TIMER);
+			// Checking for additional status's.
+			for (i = 0; i < ARRAYLENGTH(scs); i++)
+				if (sc->data[scs[i]])
+					status_change_end(bl, scs[i], INVALID_TIMER);
+		}
 		break;
 
 	case SC_ESCAPE:
@@ -7674,6 +7701,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start4(bl,type,100,skilllv,skillid,src->id,skill_get_time(skillid,skilllv),1000));
 		if (sd) skill_blockpc_start (sd, skillid, skill_get_time(skillid, skilllv)+3000);
+		break;
+
+	case GN_SPORE_EXPLOSION:
+		clif_skill_nodamage(src,bl,skillid,skilllv,sc_start4(bl,type,100,skilllv,skillid,src->id,skill_get_time(skillid,skilllv),1000));
 		break;
 
 	case PF_MINDBREAKER:
@@ -9696,8 +9727,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				chance = 10;//Minimal chance is 10%.
 			if ( rand()%100 < chance )
 			{//Coded to both inflect the status and drain the target's SP only when successful. [Rytech]
-			sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
-			status_zap(bl, 0, status_get_max_sp(bl) * (25 + 5 * skilllv) / 100);
+				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
+				status_zap(bl, 0, status_get_max_sp(bl) * (25 + 5 * skilllv) / 100);
 			}
 		}
 		else if ( sd )
@@ -10475,7 +10506,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 
 		if(sc && sc->count) {
 		  	if(sc->data[SC_MAGICPOWER] &&
-				ud->skillid != HW_MAGICPOWER && ud->skillid != WZ_WATERBALL && ud->skillid != WL_TETRAVORTEX)
+				ud->skillid != HW_MAGICPOWER && ud->skillid != WZ_WATERBALL && ud->skillid != WL_HELLINFERNO && ud->skillid != WL_TETRAVORTEX)
 				status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
 			if(sc->data[SC_SPIRIT] &&
 				sc->data[SC_SPIRIT]->val2 == SL_WIZARD &&
@@ -10753,6 +10784,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	}
 
 	switch (skillid) { //Skill effect.
+		// Skills listed here will not display their animation.
+		// This is for special cases where the animation should
+		// only show under certain coditions which is set elsewhere.
 		case WZ_METEOR:
 		case MO_BODYRELOCATION:
 		case CR_CULTIVATION:
@@ -13110,7 +13144,18 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 
 
 		case UNT_VACUUM_EXTREME:
-			sc_start(bl, SC_VACUUM_EXTREME, 100, sg->skill_lv, sg->limit);
+			if ( tsc )
+			{
+				if ( !(tsc->data[SC_HALLUCINATIONWALK] || tsc->data[SC_HOVERING] || tsc->data[SC_VACUUM_EXTREME]) )
+					sc_start(bl, SC_VACUUM_EXTREME, 100, sg->skill_lv, sg->limit - DIFF_TICK32(gettick(),sg->tick));
+
+				// Move affected enemy's to the center of the AoE and make sure they stay there until status ends.
+				if ( tsc->data[SC_VACUUM_EXTREME] && (bl->x != src->bl.x || bl->y != src->bl.y))
+				{
+					unit_movepos(bl, src->bl.x, src->bl.y, 0, 0);
+					clif_fixpos(bl);
+				}
+			}
 			break;
 
 		case UNT_BANDING:

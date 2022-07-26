@@ -5,6 +5,46 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/26/2022
+	r337 [15peaces]
+		*Merged missing changes from 3ceam rev. 835
+		*Partial rewrite of the chat system.
+			-Thanks to rAthena.
+			-This replaces the old temp-fix for 2015+ clients with the missing zero termination.
+			-This should also fix some random dcs and visual glitches related to some chat messages (aka random text at the end of some messages)
+		*Fixed an issue where the attr_fix database was not read correctly, causing element calculations to be wrong.
+		*Gold Thief Bug card / Wand of Hermode now blocks the following status's....
+			-Adoramus / Imprison / Manhole / Chaos (Chaos Panic) / Bloody Lust / Insignia's / Blood Sucker.	
+		*WL_HELLINFERNO
+			-Recoded the skill.
+			-Now deals 2 seprate hits of damage.
+			-The first hit is fire damage and the 2nd hit is shadow damage.
+			-Chance of burning now only applies to the fire damage.
+			-Magic Power status now properly increases the damage of both hits.
+		*RA_ELECTRICSHOCKER
+			-Official duration reduction formula added.
+		*SR_FALLENEMPIRE
+			-Now uses its official status and prevents regular attacking and movement.
+		*WM_DANCE_WITH_WUG
+			-Now gives a ATK bonus to Ranger/Minstrel/Wanderer type jobs.
+		*SO_VACUUM_EXTREME
+			-Recoded the skill.
+			-Affected enemy's will now be pulled to the center of the AoE.
+			-Duration of status is now that of the AoE's remaining active time.
+			-Duration reduction formula updated to official.
+			-No longer affects those in Hallucination Walk or Hovering status.
+			-Note: The durations basicly act as strength power.
+			-The Vacuum's strength is affected by skill level and weakens over time as the AoE is active. The higher your STR, the stronger the vacuum's suction strength you can resist. 120 STR for example lets you resist a vacuum that has a duration or 6 
+			-seconds or less remaining.
+		*GN_SPORE_EXPLOSION
+			-Recoded the skill.
+			-Countdown now handled the same way like Venom Splasher.
+			-Target carrying the spore bomb will always be hit by the explosion.
+			-The explosion animation will now only appear on the exploading target.
+		*AB_OFFERTORIUM
+			-Now removes the following status's from the caster....
+			-Poison / Curse / Confusion / Blind / Bleeding / Burning / Frost / Hallucination / Mandragora / Guillotine Cross Poisons (Except Oblivion).
+
 07/23/2022
 	r336 [15peaces]
 		*Added some missing eden quests to quest db.

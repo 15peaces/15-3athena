@@ -12094,9 +12094,14 @@ static bool status_readdb_refine(char* fields[], int columns, int current)
 static bool status_readdb_attrfix(const char *basedir)
 {
 	FILE *fp;
-	char line[512], path[512];
-	int entries = 0;
+	char line[512], path[512], *p;
+	int i, j, k, entries = 0;
 
+	// attr_fix.txt
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < ELE_ALL; j++)
+			for (k = 0; k < ELE_ALL; k++)
+				attr_fix_table[i][j][k] = 100;
 
 	sprintf(path, "%s/attr_fix.txt", basedir);
 	fp = fopen(path,"r");
@@ -12104,36 +12109,45 @@ static bool status_readdb_attrfix(const char *basedir)
 		ShowError("Can't read %s\n", path);
 		return 1;
 	}
-	while (fgets(line, sizeof(line), fp)) {
-		int lv, i, j;
+
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *split[10];
+		int lv, n;
 		if (line[0] == '/' && line[1] == '/')
 			continue;
+		for (j = 0, p = line; j < 3 && p; j++) {
+			split[j] = p;
+			p = strchr(p, ',');
+			if (p) *p++ = 0;
+		}
+		if (j < 2)
+			continue;
 
-		lv = atoi(line);
+		lv = atoi(split[0]);
+		n = atoi(split[1]);
 
-		for (i = 0; i < ELE_ALL;) {
-			char *p;
+		for (i = 0; i < n && i < ELE_MAX;) {
 			if (!fgets(line, sizeof(line), fp))
 				break;
-			if (line[0]=='/' && line[1]=='/')
+			if (line[0] == '/' && line[1] == '/')
 				continue;
 
-			for (j = 0, p = line; j < ELE_ALL && p; j++) {
-				while (*p == 32) //skipping space (32=' ')
+			for (j = 0, p = line; j < n && j < ELE_MAX && p; j++) {
+				while (*p == 32 && *p > 0)
 					p++;
-                                //TODO seem unsafe to continue without check
-				attr_fix_table[lv-1][i][j] = atoi(p);
-				if (battle_config.attr_recover == 0 && attr_fix_table[lv-1][i][j] < 0)
-					attr_fix_table[lv-1][i][j] = 0;
-				p = strchr(p,',');
-				if(p)
-					*p++=0;
+				attr_fix_table[lv - 1][i][j] = atoi(p);
+				if (battle_config.attr_recover == 0 && attr_fix_table[lv - 1][i][j] < 0)
+					attr_fix_table[lv - 1][i][j] = 0;
+				p = strchr(p, ',');
+				if (p) *p++ = 0;
 			}
 
 			i++;
 		}
 		entries++;
 	}
+
 	fclose(fp);
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, path);
 	return true;
@@ -12151,7 +12165,7 @@ static bool status_readdb_attrfix(const char *basedir)
  */
 int status_readdb(void)
 {
-	int i, j, k;
+	int i, j;
 
 	memset(SCDisabled, 0, sizeof(SCDisabled));
 
@@ -12169,12 +12183,6 @@ int status_readdb(void)
 		refinebonus[i][1]=0;  // stats after safe-limit
 		refinebonus[i][2]=10;  // safe limit
 	}
-
-	// attr_fix.txt
-	for(i=0;i<4;i++)
-		for(j=0;j<ELE_ALL;j++)
-			for(k=0;k<ELE_ALL;k++)
-				attr_fix_table[i][j][k]=100;
 
 	// read databases
 	//
