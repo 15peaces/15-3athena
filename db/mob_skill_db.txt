@@ -47,6 +47,9 @@
 //	afterskill		after the mob used certain skill.
 //	casttargeted		when a target is in cast range.
 //	rudeattacked		when a target is rude attacked
+//	masterhpltmaxrate	when the mob's master's hp drops to a certain %
+//	masterattacked		when the mob's master's is attacked
+//	alchemist		unknown
 //
 // The character's state which can be specified to be a condition value by the statuson/statusoff system
 //	anybad		any type of state change
@@ -5710,30 +5713,12 @@
 2027,Dark Shadow@NPC_FIREATTACK,attack,186,3,500,500,5000,no,target,always,0,,,,,,,
 2027,Dark Shadow@NPC_DARKNESSBREATH,attack,658,1,500,1000,5000,no,target,always,0,,,,,,,
 
-// Mechanic Fixed Autonomous Weapon Platforms
-2042,Silver Sniper@AL_HEAL,chase,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2042,Silver Sniper@AL_HEAL,idle,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2042,Silver Sniper@AL_HEAL,attack,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2043,Magic Decoy Fire@MG_FIREBOLT,attack,19,10,10000,800,3500,no,target,always,0,,,,,,,
-2043,Magic Decoy Fire@MG_FIREBOLT,chase,19,10,10000,800,3500,no,target,always,0,,,,,,,
-2043,Magic Decoy Fire@AL_HEAL,chase,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2043,Magic Decoy Fire@AL_HEAL,idle,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2043,Magic Decoy Fire@AL_HEAL,attack,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2044,Magic Decoy Water@MG_COLDBOLT,attack,14,10,10000,800,3500,no,target,always,0,,,,,,,
-2044,Magic Decoy Water@MG_COLDBOLT,chase,14,10,10000,800,3500,no,target,always,0,,,,,,,
-2044,Magic Decoy Water@AL_HEAL,chase,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2044,Magic Decoy Water@AL_HEAL,idle,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2044,Magic Decoy Water@AL_HEAL,attack,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2045,Magic Decoy Earth@WZ_EARTHSPIKE,attack,90,10,10000,800,3500,no,target,always,0,,,,,,,
-2045,Magic Decoy Earth@WZ_EARTHSPIKE,chase,90,10,10000,800,3500,no,target,always,0,,,,,,,
-2045,Magic Decoy Earth@AL_HEAL,chase,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2045,Magic Decoy Earth@AL_HEAL,idle,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2045,Magic Decoy Earth@AL_HEAL,attack,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2046,Magic Decoy Wind@MG_LIGHTNINGBOLT,attack,20,10,10000,800,3500,no,target,always,0,,,,,,,
-2046,Magic Decoy Wind@MG_LIGHTNINGBOLT,chase,20,10,10000,800,3500,no,target,always,0,,,,,,,
-2046,Magic Decoy Wind@AL_HEAL,chase,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2046,Magic Decoy Wind@AL_HEAL,idle,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
-2046,Magic Decoy Wind@AL_HEAL,attack,28,10,10000,0,1000,no,self,myhpltmaxrate,99,,,,,,,
+// Mechanic Fixed Automatic Weapon Platforms
+2042,Silver Sniper@NPC_REVENGE,idle,333,1,10000,0,0,yes,target,masterattacked,,,,,,,,
+2043,Magic Decoy Fire@MG_FIREBOLT,attack,19,10,10000,500,5000,yes,target,always,0,,,,,,,
+2044,Magic Decoy Water@MG_COLDBOLT,attack,14,10,10000,500,5000,yes,target,always,0,,,,,,,
+2045,Magic Decoy Earth@WZ_EARTHSPIKE,attack,90,10,10000,500,5000,yes,target,always,0,,,,,,,
+2046,Magic Decoy Wind@MG_LIGHTNINGBOLT,attack,20,10,10000,500,5000,yes,target,always,0,,,,,,,
 // Brasilis
 2068,Boitata@AL_TELEPORT,idle,26,1,10000,0,0,yes,self,rudeattacked,0,,,,,,,
 2068,Boitata@MG_FIREBALL,idle,17,5,10000,0,5000,yes,randomtarget,always,0,,,,,,,

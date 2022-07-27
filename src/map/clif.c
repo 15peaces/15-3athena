@@ -3847,27 +3847,29 @@ int clif_magicdecoy_list(struct map_session_data *sd, short x, short y)
 	nullpo_retr(0, sd);
 
 	fd = sd->fd;
-	WFIFOHEAD(fd, 8 * 8 + 8);
-	WFIFOW(fd,0) = 0x1ad; // This is the official packet. [pakpil]
+	WFIFOHEAD(fd, 4*2+4);// Were only listing the 4 elemental points.
+	WFIFOW(fd,0) = 0x1ad;
 
-	for( i = 0, c = 0; i < MAX_INVENTORY; i ++ ){
+	for (i = 0, c = 0; i < MAX_INVENTORY; i++)
+	{
 		if( itemid_is_element_point(sd->inventory.u.items_inventory[i].nameid) ){
 			WFIFOW(fd, c * 2 + 4) = sd->inventory.u.items_inventory[i].nameid;
 			c ++;
 		}
 	}
-	if( c > 0 ){
+	if( c > 0 )
+	{
+		WFIFOW(fd, 2) = c * 2 + 4;
+		WFIFOSET(fd, WFIFOW(fd, 2));
 		sd->menuskill_id = NC_MAGICDECOY;
 		sd->menuskill_val = c;
-		sd->menuskill_itemused = (x<<16)|y;
-		WFIFOW(fd,2) = c * 2 + 4;
-		WFIFOSET(fd, WFIFOW(fd, 2));
+		sd->menuskill_val2 = (x << 16) | y;
 	}else{
 		clif_skill_fail(sd,NC_MAGICDECOY,0x2b,0,0);
 		return 0;
 	}
 
-	return 1;
+	return 0;
 }
 
 /*==========================================
@@ -13233,12 +13235,14 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 /// 01ae <name id>.W
 void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 {
-	switch( sd->menuskill_id ){
+	switch( sd->menuskill_id )
+	{
 		case AC_MAKINGARROW:
-		case WL_READING_SB:
 		case GC_POISONINGWEAPON:
+		case WL_READING_SB:
 		case NC_MAGICDECOY:
 			break;
+
 		default:
 			return;
 	}
@@ -13250,15 +13254,16 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 		return;
 	}
 
-	switch( sd->menuskill_id ){
+	switch( sd->menuskill_id )
+	{
 		case AC_MAKINGARROW:
 			skill_arrow_create(sd,RFIFOW(fd,2));
 			break;
-		case WL_READING_SB:
-			skill_spellbook(sd,RFIFOW(fd,2));
-			break;
 		case GC_POISONINGWEAPON:
 			skill_poisoningweapon(sd,RFIFOW(fd,2));
+			break;
+		case WL_READING_SB:
+			skill_spellbook(sd,RFIFOW(fd,2));
 			break;
 		case NC_MAGICDECOY:
 			skill_magicdecoy(sd,RFIFOW(fd,2));

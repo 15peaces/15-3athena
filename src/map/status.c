@@ -618,7 +618,7 @@ void initChangeTables(void)
 	// EP 14.3 Part 2 3rd Job Skills
 	set_sc(GC_DARKCROW					, SC_DARKCROW			, SI_DARKCROW			, SCB_NONE);
 	set_sc(RA_UNLIMIT					, SC_UNLIMIT			, SI_UNLIMIT			, SCB_DEF|SCB_DEF2|SCB_MDEF|SCB_MDEF2);
-	set_sc(GN_ILLUSIONDOPING			, SC_ILLUSIONDOPING		, SI_ILLUSIONDOPING		, SCB_NONE);
+	set_sc(GN_ILLUSIONDOPING			, SC_ILLUSIONDOPING		, SI_ILLUSIONDOPING		, SCB_HIT);
 	add_sc(RK_DRAGONBREATH_WATER		, SC_FROST				);
 	add_sc(NC_MAGMA_ERUPTION			, SC_STUN				);
 	set_sc(WM_FRIGG_SONG				, SC_FRIGG_SONG			, SI_FRIGG_SONG			, SCB_MAXHP);
@@ -647,28 +647,28 @@ void initChangeTables(void)
 	set_sc( HAMI_BLOODLUST       , SC_BLOODLUST       , SI_BLANK           , SCB_BATK|SCB_WATK );
 
 	// Mutanted Homunculus
-	set_sc(MH_NEEDLE_OF_PARALYZE, SC_NEEDLE_OF_PARALYZE	, SI_NEEDLE_OF_PARALYZE	, SCB_NONE);
-	add_sc( MH_POISON_MIST		, SC_BLIND				);
-	set_sc( MH_PAIN_KILLER		, SC_PAIN_KILLER		, SI_PAIN_KILLER		, SCB_NONE );
-	set_sc( MH_LIGHT_OF_REGENE	, SC_LIGHT_OF_REGENE	, SI_LIGHT_OF_REGENE	, SCB_NONE );
-	set_sc( MH_OVERED_BOOST		, SC_OVERED_BOOST		, SI_OVERED_BOOST		, SCB_FLEE | SCB_DEF | SCB_ASPD);
-	add_sc( MH_XENO_SLASHER		, SC_BLEEDING			);
-	set_sc( MH_SILENT_BREEZE	, SC_SILENT_BREEZE		, SI_SILENT_BREEZE		, SCB_NONE );
-	set_sc( MH_STYLE_CHANGE		, SC_STYLE_CHANGE		, SI_STYLE_CHANGE		, SCB_NONE );
-	add_sc( MH_SILVERVEIN_RUSH	, SC_STUN				);
-	add_sc( MH_MIDNIGHT_FRENZY	, SC_FEAR				);
-	set_sc( MH_TINDER_BREAKER	, SC_TINDER_BREAKER		, SI_TINDER_BREAKER		, SCB_FLEE);
-	set_sc( MH_CBC				, SC_CBC				, SI_CBC				, SCB_NONE);
-	set_sc( MH_EQC				, SC_EQC				, SI_EQC				, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_DEF | SCB_DEF2);
-	add_sc( MH_STAHL_HORN		, SC_STUN				);
-	set_sc( MH_GOLDENE_FERSE	, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_FLEE | SCB_ASPD);
-	add_sc( MH_STEINWAND		, SC_SAFETYWALL			);
-	set_sc( MH_ANGRIFFS_MODUS, SC_ANGRIFFS_MODUS, SI_ANGRIFFS_MODUS, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_FLEE | SCB_DEF);
-	set_sc( MH_MAGMA_FLOW		, SC_MAGMA_FLOW			, SI_MAGMA_FLOW			, SCB_NONE );
-	set_sc( MH_GRANITIC_ARMOR	, SC_GRANITIC_ARMOR		, SI_GRANITIC_ARMOR		, SCB_NONE );
-	add_sc( MH_LAVA_SLIDE		, SC_BURNING			);
-	set_sc(MH_PYROCLASTIC		, SC_PYROCLASTIC		, SI_PYROCLASTIC		, SCB_WATK | SCB_ATK_ELE);
-	set_sc(MH_VOLCANIC_ASH		, SC_VOLCANIC_ASH		, SI_VOLCANIC_ASH		, SCB_BATK | SCB_WATK | SCB_HIT | SCB_FLEE | SCB_DEF);
+	set_sc( MH_NEEDLE_OF_PARALYZE	, SC_NEEDLE_OF_PARALYZE	, SI_NEEDLE_OF_PARALYZE	, SCB_DEF | SCB_MDEF);
+	add_sc( MH_POISON_MIST			, SC_BLIND				);
+	set_sc( MH_PAIN_KILLER			, SC_PAIN_KILLER		, SI_PAIN_KILLER		, SCB_ASPD);
+	set_sc( MH_LIGHT_OF_REGENE		, SC_LIGHT_OF_REGENE	, SI_LIGHT_OF_REGENE	, SCB_NONE );
+	set_sc( MH_OVERED_BOOST			, SC_OVERED_BOOST		, SI_OVERED_BOOST		, SCB_FLEE | SCB_DEF | SCB_ASPD);
+	add_sc( MH_XENO_SLASHER			, SC_BLEEDING			);
+	set_sc( MH_SILENT_BREEZE		, SC_SILENT_BREEZE		, SI_SILENT_BREEZE		, SCB_NONE );
+	set_sc( MH_STYLE_CHANGE			, SC_STYLE_CHANGE		, SI_STYLE_CHANGE		, SCB_NONE );
+	add_sc( MH_SILVERVEIN_RUSH		, SC_STUN				);
+	add_sc( MH_MIDNIGHT_FRENZY		, SC_FEAR				);
+	set_sc( MH_TINDER_BREAKER		, SC_TINDER_BREAKER		, SI_TINDER_BREAKER		, SCB_FLEE);
+	set_sc( MH_CBC					, SC_CBC				, SI_CBC				, SCB_NONE);
+	set_sc( MH_EQC					, SC_EQC				, SI_EQC				, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_DEF | SCB_DEF2);
+	add_sc( MH_STAHL_HORN			, SC_STUN				);
+	set_sc( MH_GOLDENE_FERSE		, SC_GOLDENE_FERSE		, SI_GOLDENE_FERSE		, SCB_FLEE | SCB_ASPD);
+	add_sc( MH_STEINWAND			, SC_SAFETYWALL			);
+	set_sc( MH_ANGRIFFS_MODUS		, SC_ANGRIFFS_MODUS, SI_ANGRIFFS_MODUS, SCB_MAXHP | SCB_BATK | SCB_WATK | SCB_FLEE | SCB_DEF);
+	set_sc( MH_MAGMA_FLOW			, SC_MAGMA_FLOW			, SI_MAGMA_FLOW			, SCB_NONE );
+	set_sc( MH_GRANITIC_ARMOR		, SC_GRANITIC_ARMOR		, SI_GRANITIC_ARMOR		, SCB_NONE );
+	add_sc( MH_LAVA_SLIDE			, SC_BURNING			);
+	set_sc( MH_PYROCLASTIC			, SC_PYROCLASTIC		, SI_PYROCLASTIC		, SCB_WATK | SCB_ATK_ELE);
+	set_sc( MH_VOLCANIC_ASH			, SC_VOLCANIC_ASH		, SI_VOLCANIC_ASH		, SCB_BATK | SCB_WATK | SCB_HIT | SCB_FLEE | SCB_DEF);
 
 	add_sc( MER_CRASH            , SC_STUN            );
 	set_sc( MER_PROVOKE          , SC_PROVOKE         , SI_PROVOKE         , SCB_DEF|SCB_DEF2|SCB_BATK|SCB_WATK );
@@ -2153,10 +2153,43 @@ int status_calc_mob_(struct mob_data* md, bool first)
 				status->mode|= MD_CANATTACK|MD_AGGRESSIVE;
 			}
 			else if( ud->skillid == NC_SILVERSNIPER )
-				status->rhw.atk = status->rhw.atk2 = 200 * ud->skilllv;
-			else if ( ud->skillid == KO_ZANZOU )//How can I add the caster's MaxSP to the calculation? [Rytech]
-				//status->max_hp = 3000 + 3000 * ud->skilllv + ud->;
-				status->max_hp = md->status.max_hp;
+			{
+				short atkbonus[5] = { 0, 200, 400, 800, 1000 };
+
+				status->rhw.atk = status->rhw.atk2 += atkbonus[ud->skilllv-1];
+				status->max_hp = 1000 * ud->skilllv + 12 * status_get_lv(mbl) + status_get_max_hp(mbl) / 3;
+			}
+			// Disabled since MaxHP and MATK values are set elsewhere since it won't work here.
+			//else if ( ud->skillid == NC_MAGICDECOY )
+			//{
+			//	status->matk_min = status->matk_max = 250 + 50 * ud->skilllv;
+			//	status->max_hp = 1000 * ud->skilllv + 12 * status_get_lv(mbl) + 4 * status_get_max_sp(mbl);
+			//}
+			else if ( ud->skillid == KO_ZANZOU )
+				status->max_hp = 3000 + 3000 * ud->skilllv + status_get_max_sp(mbl);
+			/*else if ( ud->skillid == MH_SUMMON_LEGION )// Disabled until I can confirm this stuff is really used.
+			{
+				short summon_def = 10 + 5 * ud->skilllv;
+				//short summon_aspd = 10 * (2 * (20 - ud->skilllv) - status_get_lv(mbl) / 10);
+
+				status->max_hp = 10 * (100 * (2 + ud->skilllv) + status_get_lv(mbl));
+
+				status->rhw.atk2 = 100 * (ud->skilllv + 5) / 2;
+
+				// RE to Pre-RE conversion gives a DEF of 15/20/25/30/33.
+				if ( summon_def > 90 )
+					status->def = 90;// Avoid having a DEF over 90 if too high of a skill level is used for balance reasons.
+				else if ( ud->skilllv == 5 )
+					status->def = 33;// Lv 5 33 DEF.
+				else
+					status->def = (unsigned char)summon_def;
+
+				// Currently OP. The formula is correct but clearly OP. Need to see official in-game behavior. [Rytech]
+				//if ( summon_aspd < 100 )
+				//	status->adelay = 100;
+				//else
+				//	status->adelay = 10 * (2 * (20 - ud->skilllv) - status_get_lv(mbl) / 10);
+			}*/
 			status->hp = status->max_hp;
 		}
 	}
@@ -4906,6 +4939,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit -= 30;
 	if(sc->data[SC_HEAT_BARREL])
 		hit -= sc->data[SC_HEAT_BARREL]->val4;
+	if (sc->data[SC_ILLUSIONDOPING])
+		hit -= 50;
 	if(sc->data[SC_BLIND])
 		hit -= hit * 25/100;
 	if (sc->data[SC_FEAR])
@@ -5114,6 +5149,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * (10 + 10 * sc->data[SC_SATURDAY_NIGHT_FEVER]->val1) / 100;
 	if(sc->data[SC_EARTHDRIVE])
 		def -= def * 25 / 100;
+	if (sc->data[SC_NEEDLE_OF_PARALYZE])
+		def -= def * sc->data[SC_NEEDLE_OF_PARALYZE]->val2 / 100;
 	if(sc->data[SC_OVERED_BOOST])
 		def -= def * 50 / 100;
 	if(sc->data[SC_EQC])
@@ -5224,6 +5261,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	//	mdef -= mdef * 25 / 100;
 	if(sc->data[SC_ANALYZE])
 		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
+	if (sc->data[SC_NEEDLE_OF_PARALYZE])
+		mdef -= mdef * sc->data[SC_NEEDLE_OF_PARALYZE]->val2 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_WATER_BARRIER])
 		mdef += sc->data[SC_WATER_BARRIER]->val2;
@@ -5596,6 +5635,8 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 		aspd_rate += 10 * sc->data[SC_GLOOMYDAY]->val3;
 	if( sc->data[SC_EARTHDRIVE] )
 		aspd_rate += 250;
+	if (sc->data[SC_PAIN_KILLER])
+		aspd_rate += 10 * sc->data[SC_PAIN_KILLER]->val3;
 	if( sc->data[SC_MELON_BOMB] )
 		aspd_rate += 10 * sc->data[SC_MELON_BOMB]->val3;
 
@@ -6395,10 +6436,13 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 
 	nullpo_ret(bl);
 
+	if (rate <= 0)
+		rate = 0;
+
 	//Status that are blocked by Golden Thief Bug card or Wand of Hermod
 	if (status_isimmune(bl))
 	switch (type)
-	{// Note: Please update me with status's from 3rd job and newer skills. [Rytech]
+	{
 	case SC_DECREASEAGI:
 	case SC_SILENCE:
 	case SC_COMA:
@@ -8858,6 +8902,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_UNLIMIT:
 			val2 = 50 * val1;// Physical Ranged Damage Increase
 			break;
+		case SC_ILLUSIONDOPING:
+			sc_start(bl, SC_HALLUCINATION, 100, val1, tick);
+			break;
 		case SC_FRIGG_SONG:
 			val2 = 5 * val1;// MaxHP Increase
 			val3 = tick / 1000;
@@ -8900,6 +8947,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 1000;// Best to not let the heal interval go below 1 second.
 			val3 = tick / val2;
 			tick = val2;
+			break;
+		case SC_NEEDLE_OF_PARALYZE:
+			val2 = 5 * val1;// DEF/MDEF  Reduction
+			// Need a confirm on if it increases cast time by variable cast, fixed cast, or overall cast and by how much. [Rytech]
+			val3 = 5 * val1;// Overall Cast Time Increase.
+			break;
+		case SC_PAIN_KILLER:
+			val3 = 10 * val1;// ASPD Reduction
+			val4 = 200 * val1 * val2 / 150;// Damage Reduction.
+			sc_start(bl, SC_ENDURE, 100, 1, tick);
 			break;
 		case SC_LIGHT_OF_REGENE:
 			val2 = 20 * val1;// Percent of HP recovered when resurrected.

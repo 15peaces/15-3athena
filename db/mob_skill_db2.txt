@@ -41,6 +41,9 @@
 //	afterskill		after the mob used certain skill.
 //	casttargeted		when a target is in cast range.
 //	rudeattacked		when a target is rude attacked
+//	masterhpltmaxrate	when the mob's master's hp drops to a certain %
+//	masterattacked		when the mob's master's is attacked
+//	alchemist		unknown
 //
 // The character's state which can be specified to be a condition value by the statuson/statusoff system
 //	anybad		any type of state change
@@ -2835,3 +2838,19 @@
 2959,Torturous Redeemer@NPC_FIREATTACK,attack,186,3,1000,0,200000,yes,target,always,,,,,,,,
 2959,Torturous Redeemer@WZ_FIREPILLAR,attack,80,5,500,0,10000,no,around2,always,,,,,,,,
 2959,Torturous Redeemer@SM_MAGNUM,attack,7,5,500,0,10000,no,self,always,,,,,,,,
+
+// Sera's Legion Insects
+2158,Hornet@NPC_PIERCINGATT,attack,158,3,500,0,5000,yes,target,always,0,,,,,,6,
+2158,Hornet@NPC_POISONATTACK,attack,188,1,2000,500,5000,no,target,always,0,,,,,,,
+2158,Hornet@NPC_WINDATTACK,attack,187,1,2000,0,5000,yes,target,always,0,,,,,,,
+2159,Giant Hornet@NPC_PIERCINGATT,attack,158,4,500,0,5000,yes,target,always,0,,,,,,6,
+2159,Giant Hornet@NPC_POISONATTACK,attack,188,2,2000,500,5000,no,target,always,0,,,,,,,
+2159,Giant Hornet@NPC_SILENCEATTACK,chase,178,3,500,700,5000,no,target,always,0,,,,,,,
+2159,Giant Hornet@NPC_STUNATTACK,attack,179,3,500,1500,5000,no,target,always,0,,,,,,6,
+2159,Giant Hornet@NPC_WINDATTACK,attack,187,2,500,500,5000,no,target,always,0,,,,,,6,
+2159,Giant Hornet@NPC_BLEEDING,attack,660,2,200,0,3000,yes,target,always,0,,,,,,32,
+2160,Luciola Vespa@NPC_PIERCINGATT,attack,158,5,500,0,5000,yes,target,always,0,,,,,,6,
+2160,Luciola Vespa@NPC_POISONATTACK,attack,188,3,2000,500,5000,no,target,always,0,,,,,,,
+2160,Luciola Vespa@NPC_PULSESTRIKE,attack,661,1,1000,0,30000,yes,self,always,0,,,,,,32,
+2160,Luciola Vespa@NPC_COMBOATTACK,attack,171,1,3000,0,5000,yes,target,always,0,,,,,,,
+2160,Luciola Vespa@NPC_BLEEDING,attack,660,3,200,0,3000,yes,target,always,0,,,,,,32,

@@ -5,6 +5,37 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/27/2022
+	r338 [15peaces]
+		*Merged missing changes from 3ceam rev. 836
+		*Corrected some prontera warps.
+		*Added the "menuskill_val2" value.
+			-Using menuskill_itemused for certain things just lost me too easly.
+		*Added the "skill_check_condition_mob_master_mer_sub" function.
+			-Works just like the skill_check_condition_mob_master_sub, but for homunculus and mercenary's.
+		*Added a safety check to prevent the chance of a status activating from going below 0.
+		*Updated the map cache.
+		*Updated listing for conditions.
+			-Felt they should be listed here even tho their rarely used.
+		*NC_SILVERSNIPER
+			-Recoded the skill.
+			-Updated the monster's database entry.
+			-Updated the skill entry's for silver sniper.
+			-No longer able to heal itself.
+			-Updated the ATK bonus from used skill level.
+			-MaxHP now affected by skill level and caster's BaseLV/MaxHP.
+		*NC_MAGICDECOY
+			-Recoded the skill.
+			-Updated the monster's database entrys.
+			-Updated the skill entry's for the magic decoys.
+			-No longer able to heal itself.
+			-MaxHP now affected by skill level and caster's BaseLV/MaxSP.
+		*KO_ZANZOU
+			-Updated the monster's database entry.
+			-Corrected the AI type on the spawning of shadow clones.
+		*GN_ILLUSIONDOPING; MH_SUMMON_LEGION; MH_NEEDLE_OF_PARALYZE; MH_PAIN_KILLER
+			-Added support for these skills.
+
 07/26/2022
 	r337 [15peaces]
 		*Merged missing changes from 3ceam rev. 835
