@@ -525,13 +525,8 @@ extern struct Battle_Config
 	int falcon_and_wug;
 	int transform_end_on_death;
 	int renewal_level_effect_skills;
-	int base_level_skill_effect_limit;
-	int job_level_skill_effect_limit;
-	int max_highlvl_nerf; // [Pinky]
-	int max_joblvl_nerf; // [Pinky]
-	int max_joblvl_nerf_misc; // [Pinky]
-	int skillsbonus_maxhp_RK; // [Pinky]
-	int skillsbonus_maxhp_SR; // [Pinky]
+	int base_lv_skill_effect_limit;
+	int job_lv_skill_effect_limit;
 	int metallicsound_spburn_rate;
 	int cashshop_price_rate;
 	int death_penalty_maxlv;

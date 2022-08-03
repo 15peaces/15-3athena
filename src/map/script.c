@@ -8811,7 +8811,8 @@ BUILDIN_FUNC(makepet)
 	return 0;
 }
 /*==========================================
- * NPCÇ≈åoå±ílè„Ç∞ÇÈ
+ * Give player exp base,job * quest_exp_rate/100
+ * getexp <base xp>,<job xp>;
  *------------------------------------------*/
 BUILDIN_FUNC(getexp)
 {

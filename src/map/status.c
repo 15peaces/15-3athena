@@ -588,19 +588,19 @@ void initChangeTables(void)
 	set_sc(ALL_ODINS_POWER, SC_ODINS_POWER, SI_ODINS_POWER, SCB_WATK | SCB_MATK | SCB_DEF | SCB_MDEF);
 
 	add_sc( RL_MASS_SPIRAL	, SC_BLEEDING			);
-	set_sc( RL_B_TRAP		, SC_B_TRAP				, SI_B_TRAP				, SCB_NONE );
+	set_sc( RL_B_TRAP		, SC_B_TRAP				, SI_B_TRAP				, SCB_SPEED );
 	set_sc( RL_E_CHAIN		, SC_E_CHAIN			, SI_E_CHAIN			, SCB_NONE );
 	//set_sc( RL_E_CHAIN	, SC_E_QD_SHOT_READY	, SI_E_QD_SHOT_READY	, SCB_NONE );
 	set_sc( RL_C_MARKER		, SC_C_MARKER			, SI_C_MARKER			, SCB_FLEE );
 	set_sc( RL_H_MINE		, SC_H_MINE				, SI_H_MINE				, SCB_NONE );
 	//set_sc( RL_H_MINE		, SC_H_MINE_SPLASH		, SI_H_MINE_SPLASH		, SCB_NONE );
-	set_sc( RL_P_ALTER		, SC_P_ALTER			, SI_P_ALTER			, SCB_WATK);
-	set_sc( RL_FALLEN_ANGEL	, SC_FALLEN_ANGEL		, SI_FALLEN_ANGEL		, SCB_NONE);
-	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_HIT | SCB_ASPD );
-	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_FLEE | SCB_ASPD );
+	set_sc( RL_P_ALTER		, SC_P_ALTER			, SI_P_ALTER			, SCB_WATK );
+	set_sc( RL_FALLEN_ANGEL	, SC_FALLEN_ANGEL		, SI_FALLEN_ANGEL		, SCB_NONE );
+	set_sc( RL_HEAT_BARREL	, SC_HEAT_BARREL		, SI_HEAT_BARREL		, SCB_HIT|SCB_ASPD );
 	//set_sc( RL_HEAT_BARREL, SC_HEAT_BARREL_AFTER	, SI_HEAT_BARREL_AFTER	, SCB_NONE );
-	set_sc( RL_AM_BLAST     , SC_ANTI_M_BLAST		, SI_ANTI_M_BLAST		, SCB_NONE );
+	set_sc( RL_AM_BLAST		, SC_ANTI_M_BLAST		, SI_ANTI_M_BLAST		, SCB_NONE );
 	set_sc( RL_SLUGSHOT		, SC_SLUGSHOT			, SI_SLUGSHOT			, SCB_NONE );
+	add_sc( RL_HAMMER_OF_GOD, SC_STUN );
 
 	set_sc(KO_YAMIKUMO		, SC_HIDING				, SI_HIDING				, SCB_SPEED);
 	set_sc( KO_JYUMONJIKIRI	, SC_KO_JYUMONJIKIRI	, SI_KO_JYUMONJIKIRI	, SCB_NONE);
@@ -5389,6 +5389,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max(val, 25);
 				if( sc->data[SC_BANDING_DEFENCE] )
 					val = max( val, sc->data[SC_BANDING_DEFENCE]->val1 );
+				if (sc->data[SC_B_TRAP])
+					val = max(val, 90);
 				//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 				if( sc->data[SC_ROCK_CRUSHER_ATK] )
 					val = max( val, sc->data[SC_ROCK_CRUSHER_ATK]->val2 );
@@ -5904,6 +5906,77 @@ int status_get_job_lv(struct block_list *bl) {
 			return 50;
 	}
 	return 1;
+}
+
+// Special base level check for use with skill related stuff.
+// This sets a limit on the highest a base level will affect the skill.
+int status_get_base_lv_effect(struct block_list *bl)
+{
+	short base_lv = 1;
+
+	nullpo_ret(bl);
+	switch (bl->type)
+	{
+		case BL_PC:
+			base_lv = ((TBL_PC*)bl)->status.base_level;
+			break;
+		case BL_MOB:
+			base_lv = ((TBL_MOB*)bl)->level;
+			break;
+		case BL_PET:
+			base_lv = ((TBL_PET*)bl)->pet.level;
+			break;
+		case BL_HOM:
+			base_lv = ((TBL_HOM*)bl)->homunculus.level;
+			break;
+		case BL_MER:
+			base_lv = ((TBL_MER*)bl)->db->lv;
+			break;
+		case BL_ELEM:
+			base_lv = ((TBL_ELEM*)bl)->db->lv;
+			break;
+	}
+
+	// Base level limiter. Config setting limits how high
+	// of a base level is allowed. Anything higher is set
+	// to the max allowed.
+	if ( base_lv > battle_config.base_lv_skill_effect_limit )
+		base_lv = battle_config.base_lv_skill_effect_limit;
+
+	return base_lv;
+}
+
+// Special job level check for use with skill related stuff.
+// This sets a limit on the highest a job level will affect the skill.
+int status_get_job_lv_effect(struct block_list *bl)
+{
+	short job_lv = 1;
+
+	nullpo_ret(bl);
+	switch (bl->type)
+	{
+		case BL_PC:
+			job_lv = ((TBL_PC*)bl)->status.job_level;
+			break;
+		//Non-Player characters don't have job levels. Well just send the most common max job level.
+		//This will allow skills and status's that take job levels into formula's to have max effectiveness
+		//for non-player characters using them. [Rytech]
+		case BL_MOB:
+		case BL_PET:
+		case BL_HOM:
+		case BL_MER:
+		case BL_ELEM:
+			job_lv = 50;
+			break;
+	}
+
+	// Job level limiter. Config setting limits how high
+	// of a job level is allowed. Anything higher is set
+	// to the max allowed.
+	if ( job_lv > battle_config.job_lv_skill_effect_limit )
+		job_lv = battle_config.job_lv_skill_effect_limit;
+
+	return job_lv;
 }
 
 struct regen_data *status_get_regen_data(struct block_list *bl) {
@@ -6686,9 +6759,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	struct status_data *status;
 	struct view_data *vd;
 	int opt_flag, calc_flag, undead_flag, val_flag = 0;
-	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
-	short base_lv = status_get_lv(bl);//Checks the casters base level for renewal skills.
-	short job_lv = status_get_job_lv(bl);//Checks the casters job level for renewal skills. Returns 50 if caster is not a player.
 
 	nullpo_ret(bl);
 	sc = status_get_sc(bl);
@@ -6751,13 +6821,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	sd = BL_CAST(BL_PC, bl);
 	hd = BL_CAST(BL_HOM, bl);
-
-	//Some skill formula's checks base/job levels. This caps the number of
-	//levels taken into the different formulas to prevent overpowering skill effects.
-	if ( base_lv > battle_config.base_level_skill_effect_limit )
-		base_lv = battle_config.base_level_skill_effect_limit;
-	if ( job_lv > battle_config.job_level_skill_effect_limit )
-		job_lv = battle_config.job_level_skill_effect_limit;
 
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
@@ -7424,6 +7487,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC__WEAKNESS:
 			case SC__UNLUCKY:
 			case SC__MANHOLE:
+			case SC_CONFUSIONPANIC:
+			case SC_B_TRAP:
 			case SC_REUSE_REFRESH:
 			case SC_REUSE_LIMIT_A:
 			case SC_REUSE_LIMIT_B:
@@ -8439,8 +8504,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_ENCHANTBLADE://Added MATK Damage
 			val2 = 100 + 20 * val1;
-			if (base_lv >= 100)
-				val2 = val2 * base_lv / 150;
+			val2 = val2 * status_get_base_lv_effect(bl) / 150;
 			val2 = val2 + status->int_;
 			break;
 		case SC_GIANTGROWTH:
@@ -8637,23 +8701,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = 5 * val1 + val2;//ASPD Increase
 			break;
 		case SC_SYMPHONY_LOVE:
-			if (level_effect_bonus == 1)
-				val4 = 12 * val1 + val2 + val3 / 4;//MDEF Increase In %
-			else
-				val4 = 12 * val1 + val2 + 12;
+			val4 = 12 * val1 + val2 + val3 / 4;//MDEF Increase In %
 			break;
 		case SC_MOONLIT_SERENADE://MATK Increase
 		case SC_RUSH_WINDMILL://ATK Increase
-			if (level_effect_bonus == 1)
-				val4 = 6 * val1 + val2 + val3 / 5;
-			else
-				val4 = 6 * val1 + val2 + 10;
+			val4 = 6 * val1 + val2 + val3 / 5;
 			break;
 		case SC_ECHOSONG:
-			if (level_effect_bonus == 1)
-				val4 = 6 * val1 + val2 + val3 / 4;//DEF Increase In %
-			else
-				val4 = 6 * val1 + val2 + 12;
+			val4 = 6 * val1 + val2 + val3 / 4;//DEF Increase In %
 			break;		
 		case SC_HARMONIZE:
 			val3 = val1 + val2 / 2;
@@ -8741,10 +8796,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				short index = sd->equip_index[EQI_HAND_R];
 				if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
 				{
-					if (level_effect_bonus == 1)
-						val1 += 15 * job_lv + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv * base_lv / 100;
+					if( battle_config.renewal_level_effect_skills == 1 )
+						val1 += 15 * status_get_job_lv_effect(bl) + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv * status_get_base_lv_effect(bl) / 100;
 					else
-						val1 += 15 * job_lv + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv;
+						val1 += 15 * status_get_job_lv_effect(bl) + sd->inventory_data[index]->weight / 10 * sd->inventory_data[index]->wlv;
 				}
 			}
 			else	// Monster Use
@@ -8752,10 +8807,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_PRESTIGE:
-			val2 = (status->int_ + status->luk) * val1 / 20;// Chance to evade magic damage.
-			if( status_get_lv(bl) >= 100 )
-				val2 = val2 * status_get_lv(bl) / 200;
-			val2 += val1;
+			val2 = ((status->int_ + status->luk) * val1 / 20) * status_get_base_lv_effect(bl) / 200 + val1;// Chance to evade magic damage.
 			val1 = 15 * val1 + 10 * pc_checkskill(sd,CR_DEFENDER);// Defence added
 			if( status_get_lv(bl) >= 100 )
 				val1 = val1 * status_get_lv(bl) / 100;
@@ -8776,19 +8828,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			tick = 1000;
  			break;
 		case SC_INSPIRATION:
-			if( sd )
-			{
-				if (level_effect_bonus == 1 && status_get_lv(bl) >= 100)
-				{// val2 = ATK Bonus, val3 = All Stats Bonus
-					val2 = 40 * val1 + 3 * status_get_job_lv(bl);
-					val3 = status_get_lv(bl) / 10 + status_get_job_lv(bl) / 5;
-				}
-				else
-				{
-					val2 = 40 * val1 + 3 * 50;
-					val3 = status_get_lv(bl) / 10 + 50 / 5;
-				}
-			}
+			val2 = 40 * val1 + 3 * status_get_job_lv_effect(bl);// ATK Bonus
+			val3 = status_get_base_lv_effect(bl) / 10 + status_get_job_lv_effect(bl) / 5;// All Stats Bonus
 			val4 = tick / 5000;
 			tick = 5000;
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
@@ -8798,17 +8839,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 		case SC_CRESCENTELBOW:
-			if(level_effect_bonus == 1)
-				val2 = 50 + 5 * val1 + status_get_job_lv(bl) / 2;
-			else
-				val2 = 50 + 5 * val1 + 25;
+			val2 = 50 + 5 * val1 + status_get_job_lv_effect(bl) / 2;
 			val_flag |= 1|2;
 			break;
 		case SC_LIGHTNINGWALK:
-			if (level_effect_bonus == 1)
-				val2 = 40 + 5 * val1 + status_get_job_lv(bl) / 2;
-			else
-				val2 = 40 + 5 * val1 + 25;
+			val2 = 40 + 5 * val1 + status_get_job_lv_effect(bl) / 2;
 			val_flag |= 1;
 			break;
 		case SC_RAISINGDRAGON:
@@ -9123,7 +9158,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			//Val3: BaseLV of Thrower For Thrown Potions
 			//Val4: MaxHP Increase By Fixed Amount
 			if (val1 == 1)// If potion was normally used, take the user's BaseLv.
-				val4 = (1000 * val2 - 500) + (status_get_lv(bl) * 10 / 3);
+				val4 = (1000 * val2 - 500) + (status_get_base_lv_effect(bl) * 10 / 3);
 			else if (val1 == 2)// If potion was thrown at someone, take the thrower's BaseLv.
 				val4 = (1000 * val2 - 500) + (val3 * 10 / 3);
 			if (val4 <= 0)//Prevents a negeative value from happening.
@@ -9135,7 +9170,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			//Val3: BaseLV of Thrower For Thrown Potions
 			//Val4: MaxSP Increase By Percentage Amount
 			if (val1 == 1)// If potion was normally used, take the user's BaseLv.
-				val4 = status_get_lv(bl) / 10 + (5 * val2 - 10);
+				val4 = status_get_base_lv_effect(bl) / 10 + (5 * val2 - 10);
 			else if (val1 == 2)// If potion was thrown at someone, take the thrower's BaseLv.
 				val4 = val3 / 10 + (5 * val2 - 10);
 			if (val4 <= 0)//Prevents a negeative value from happening.

@@ -5,6 +5,39 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/03/2022
+	r339 [15peaces]
+		*Merged missing changes from 3ceam rev. 837 - 839
+		*Added a few more checks on baselevel-up.
+			-This should fix an issue where the base level could go over the jobs max-level in some cases.
+			-Also it will now check the equip max-level and unequip if needed.
+			-The questinfo will now re-send after level-up.			
+		*max_highlvl_nerf; max_joblvl_nerf; max_joblvl_nerf_misc; skillsbonus_maxhp_SR; skillsbonus_maxhp_RK
+			-Removed these config settings as they are not kept up and also not needed anymore. Some of them existed since the early days when unofficial formulas and timers were coded in which caused balance issues to appear. Now that everything is official 
+			-they mostly arnt needed anymore.
+		*base_lv_skill_effect_limit; job_lv_skill_effect_limit
+			-These config settings where renamed for some reasons but they still work the same as before. This was made to let you know that the code-base was rewritten and optimized.
+			-The limiter system for them was completely replaced with a more efficent and better handled system that can work with damage and status formula and also uses less cpu cycles and memory as well as reduces the amount of code needed significantly. 
+			-Overall huge improvement.
+		*status_get_base_lv_effect; status_get_job_lv_effect
+			-Added these functions.
+			-These function similar to status_get_lv and status_get_job_lv except they are designed to return a value no higher then a limit set by base_lv_skill_effect_limit and job_lv_skill_effect_limit settings in the config files. This is for limiting 
+			-the power of many skills that have their damage/effects affected by the base/job levels of the caster and target.
+		*Increased MAX_SKILL_UNIT_LAYOUT to 60.
+		*Added error message to appear of the number of pos's exceeds the max set by MAX_SKILL_UNIT_LAYOUT.
+		*Rebellion
+			-Updated bonus stats to official.
+			-Note: Bonus stats for job level 51 to 60 are added as well.
+			-Will update the bonus stats for other jobs soon.
+			-Updated all Rebellion weapons and added item bonus scripts for them.
+		*RL_QD_SHOT
+			-Updated the animation.
+			-Note: Shouldn't see that white flash on the caster anymore.
+		*RL_FIRE_RAIN; RL_HAMMER_OF_GOD; RL_B_TRAP; RL_FLICKER
+			-Added support for these skills.
+		*RL_H_MINE
+			-Mines stuck to enemy's can now be detonated with the Flicker skill.
+
 07/27/2022
 	r338 [15peaces]
 		*Merged missing changes from 3ceam rev. 836

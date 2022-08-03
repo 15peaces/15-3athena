@@ -6168,9 +6168,13 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 		if(!battle_config.multi_level_up && sd->status.base_exp > next-1)
 			sd->status.base_exp = next-1;
 
-		next = pc_gets_status_point(sd->status.base_level);
+		sd->status.status_point += pc_gets_status_point(sd->status.base_level);
 		sd->status.base_level++;
-		sd->status.status_point += next;
+
+		if (pc_is_maxbaselv(sd)) {
+			sd->status.base_exp = min(sd->status.base_exp, MAX_LEVEL_BASE_EXP);
+			break;
+		}
 
 	} while ((next=pc_nextbaseexp(sd)) > 0 && sd->status.base_exp >= next);
 
@@ -6204,6 +6208,14 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 
 	if(sd->status.party_id)
 		party_send_levelup(sd);
+
+	for (uint8 i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0 && sd->inventory_data[sd->equip_index[i]]) {
+			if (sd->inventory_data[sd->equip_index[i]]->elv_max && sd->status.base_level > (unsigned int)sd->inventory_data[sd->equip_index[i]]->elv_max)
+				pc_unequipitem(sd, sd->equip_index[i], 3);
+		}
+	}
+	pc_show_questinfo(sd);
 
 #if PACKETVER >= 20090218
 	pc_show_questinfo(sd);
