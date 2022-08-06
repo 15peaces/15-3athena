@@ -1402,6 +1402,27 @@ static void clif_spiritball_attribute_single(int fd, struct map_session_data *sd
 	WFIFOSET(fd, packet_len(0x08cf));
 }
 
+/*==========================================
+ * ZC_MILLENNIUMSHIELD =  0x440
+ * this+0x0 / short PacketType
+ * this+0x2 / unsigned long AID
+ * this+0x6 / short num
+ * this+0x8 / short state
+ *
+ * State - How the heck does the state work?
+ * MILLENNIUMSHIELD_STATE_STAND =  0x0
+ * MILLENNIUMSHIELD_STATE_MOVE =  0x1
+ *-----------------------------------------*/
+static void clif_millenniumshield_single(int fd, struct map_session_data *sd, short shield_count)
+{
+	WFIFOHEAD(fd, packet_len(0x440));
+	WFIFOW(fd,0)=0x440;
+	WFIFOL(fd,2)=sd->bl.id;
+	WFIFOW(fd,6)=shield_count;
+	WFIFOW(fd,8)=0;
+	WFIFOSET(fd, packet_len(0x440));
+}
+
 
 /*==========================================
  *
@@ -1483,6 +1504,8 @@ int clif_spawn(struct block_list *bl)
 			TBL_PC *sd = ((TBL_PC*)bl);
 			if (sd->spiritball > 0)
 				clif_spiritball(sd);
+			if (sd->rageball > 0)
+				clif_millenniumshield(sd, sd->rageball);
 			if (sd->spiritballnumber > 0)
 				clif_spiritball_attribute(sd);
 			if(sd->state.size==2) // tiny/big players [Valaris]
@@ -8627,6 +8650,31 @@ void clif_spiritball(struct map_session_data *sd)
 }
 
 /*==========================================
+ * ZC_MILLENNIUMSHIELD =  0x440
+ * this+0x0 / short PacketType
+ * this+0x2 / unsigned long AID
+ * this+0x6 / short num
+ * this+0x8 / short state
+ *
+ * State - How the heck does the state work?
+ * MILLENNIUMSHIELD_STATE_STAND =  0x0
+ * MILLENNIUMSHIELD_STATE_MOVE =  0x1
+ *-----------------------------------------*/
+int clif_millenniumshield(struct map_session_data *sd, short shield_count )
+{
+	unsigned char buf[10];
+
+	nullpo_ret(sd);
+
+	WBUFW(buf,0) = 0x440;
+	WBUFL(buf,2) = sd->bl.id;
+	WBUFW(buf,6) = shield_count;
+	WBUFW(buf,8) = 0;
+	clif_send(buf,packet_len(0x440),&sd->bl,AREA);
+	return 0;
+}
+
+/*==========================================
  * Homunculus Spirit Spheres
  *------------------------------------------*/
 void clif_hom_spiritball(struct homun_data *hd)
@@ -10036,6 +10084,8 @@ void clif_refresh(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_LUK);
 	if (sd->spiritball)
 		clif_spiritball_single(sd->fd, sd);
+	if (sd->rageball)
+		clif_millenniumshield_single(sd->fd, sd, sd->rageball);
 	if (sd->spiritballnumber)
 		clif_spiritball_attribute_single(sd->fd, sd);
 	if (sd->sc.count && sd->sc.data[SC_MILLENNIUMSHIELD])
@@ -19368,31 +19418,6 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index)
 	WFIFOW(fd,2) = equip_index;
 	WFIFOL(fd,4) = sd->bl.id;
 	WFIFOSET(fd,packet_len(0x2bb));
-#endif
-}
-
-/*==========================================
- * ZC_MILLENNIUMSHIELD =  0x440
- * this+0x0 / short PacketType
- * this+0x2 / unsigned long AID
- * this+0x6 / short num
- * this+0x8 / short state
- *
- * State - How the heck does the state work?
- * MILLENNIUMSHIELD_STATE_STAND =  0x0
- * MILLENNIUMSHIELD_STATE_MOVE =  0x1
- *-----------------------------------------*/
-void clif_millenniumshield(struct map_session_data *sd, short shields )
-{
-#if PACKETVER >= 20081217
-	unsigned char buf[10];
-	int fd = sd->fd;
-
-	WBUFW(buf,0) = 0x440;
-	WBUFL(buf,2) = sd->bl.id;
-	WBUFW(buf,6) = shields;
-	WBUFW(buf,8) = 0;
-	clif_send(buf,packet_len(0x440),&sd->bl,AREA);
 #endif
 }
 

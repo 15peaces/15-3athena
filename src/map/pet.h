@@ -50,6 +50,17 @@ extern struct s_pet_db pet_db[MAX_PET_DB];
 
 enum { PET_CLASS,PET_CATCH,PET_EGG,PET_EQUIP,PET_FOOD };
 
+/** Pet intimacy level **/
+enum e_pet_intimacy_level {
+	PET_INTIMACY_NONE = 0,
+	PET_INTIMACY_AWKWARD = 1,
+	PET_INTIMACY_SHY = 100,
+	PET_INTIMACY_NEUTRAL = 250,
+	PET_INTIMACY_CORDIAL = 750,
+	PET_INTIMACY_LOYAL = 900,
+	PET_INTIMACY_MAX = 1000
+};
+
 struct pet_recovery { //Stat recovery
 	enum sc_type type;	//Status Change id
 	unsigned short delay; //How long before curing (secs).
@@ -119,6 +130,7 @@ struct pet_data {
 int pet_create_egg(struct map_session_data *sd, unsigned short item_id);
 int pet_return_egg(struct map_session_data *sd, struct pet_data *pd);
 int pet_hungry_val(struct pet_data *pd);
+int pet_get_card4_value(int rename_flag, int intimacy);
 void pet_set_intimate(struct pet_data *pd, int value);
 int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type);
 int pet_unlocktarget(struct pet_data *pd);

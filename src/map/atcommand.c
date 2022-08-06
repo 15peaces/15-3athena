@@ -3605,6 +3605,15 @@ ACMD_FUNC(petrename)
 	}
 
 	pd->pet.rename_flag = 0;
+
+	int i;
+
+	ARR_FIND(0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].card[0] == CARD0_PET &&
+		pd->pet.pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]));
+
+	if (i != MAX_INVENTORY)
+		sd->inventory.u.items_inventory[i].card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
+
 	intif_save_petdata(sd->status.account_id, &pd->pet);
 	clif_send_petstatus(sd);
 	clif_displaymessage(fd, msg_txt(187)); // You can now rename your pet.
@@ -4093,6 +4102,29 @@ ACMD_FUNC(spiritball)
 		pc_delspiritball(sd, sd->spiritball, 1);
 	sd->spiritball = number;
 	clif_spiritball(sd);
+	// no message, player can look the difference
+
+	return 0;
+}
+
+ACMD_FUNC(rageball)
+{
+	int max_rageballs = min(ARRAYLENGTH(sd->rage_timer), 0x7FFF);
+	int number;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message || (number = atoi(message)) < 0 || number > max_rageballs )
+	{
+		char msg[CHAT_SIZE_MAX];
+		safesnprintf(msg, sizeof(msg), "Usage: @rageball <number: 0-%d>", max_rageballs);
+		clif_displaymessage(fd, msg);
+		return -1;
+	}
+
+	if( sd->rageball > 0 )
+		pc_delrageball(sd, sd->rageball, 1);
+	sd->rageball = number;
+	clif_millenniumshield(sd, sd->rageball);
 	// no message, player can look the difference
 
 	return 0;
@@ -9966,6 +9998,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "questskill",        40,40,     atcommand_questskill },
 	{ "lostskill",         40,40,     atcommand_lostskill },
 	{ "spiritball",        40,40,     atcommand_spiritball },
+	{ "rageball",          40,40,     atcommand_rageball },
 	{ "party",              1,1,      atcommand_party },
 	{ "guild",             50,50,     atcommand_guild },
 	{ "breakguild",        50,50,     atcommand_breakguild },

@@ -1088,7 +1088,6 @@ void clif_showscript(struct block_list* bl, const char* message);
 void clif_efst_status_change(struct block_list *bl,int type,int64 tick, int val1, int val2, int val3);
 void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,int64 tick, int val1, int val2, int val3);
 void clif_equip_damaged(struct map_session_data *sd, int equip_index);
-void clif_millenniumshield(struct map_session_data *sd, short shields );
 
 // Displays 3rd job and other newer status's.
 void clif_status_change_single(struct block_list *dst, struct block_list *bl, int type, int flag, unsigned int tick, int val1, int val2, int val3);
@@ -1144,5 +1143,6 @@ bool clif_attendance_timediff(struct map_session_data *sd);
 int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
 
 void clif_hom_spiritball(struct homun_data *hd);
+int clif_millenniumshield(struct map_session_data *sd, short shield_count);
 
 #endif /* _CLIF_H_ */

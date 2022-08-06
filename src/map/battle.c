@@ -790,10 +790,10 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 		if ((sce=sc->data[SC_BLOODLUST]) && flag&BF_WEAPON && damage > 0 && rand()%100 < sce->val3)
 			status_heal(src, damage*sce->val4/100, 0, 3);
 
-		if (sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && flag&BF_WEAPON && rand()%100 < sce->val2)
-			pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD, sce->val1), sce->val3);
+		if( sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && rand()%100 < sce->val2 )
+			pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD,sce->val1), sce->val3);
 
-		if( sd && (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && flag&BF_WEAPON && rand()%100 < sce->val2 )
+		if( sd && (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && rand()%100 < sce->val2 )
 		{
 			short spheremax = 5;
 
@@ -1274,20 +1274,27 @@ void battle_consume_ammo(TBL_PC*sd, int skill, int lv)
 	sd->state.arrow_atk = 0;
 }
 
-static int battle_range_type(
-	struct block_list *src, struct block_list *target,
-	int skill_num, int skill_lv)
+static int battle_range_type(struct block_list *src, struct block_list *target, int skill_num, int skill_lv)
 {	//Skill Range Criteria
-	if (battle_config.skillrange_by_distance &&
-		(src->type&battle_config.skillrange_by_distance)
-	) { //based on distance between src/target [Skotlex]
+	if (battle_config.skillrange_by_distance &&(src->type&battle_config.skillrange_by_distance)) 
+	{ //based on distance between src/target [Skotlex]
 		if (check_distance_bl(src, target, 5))
 			return BF_SHORT;
+
 		return BF_LONG;
 	}
-	//based on used skill's range
+	
+	// Forces damage to ranged no matter the set skill range.
+	// Ground targeted skills must be placed here since NK settings don't work with them.
+	if (skill_get_nk(skill_num)&NK_FORCE_RANGED_DAMAGE ||
+		//skill_num == RL_R_TRIP ||// Set to deal ranged damage in official? Is this a bug?
+		skill_num == RL_FIRE_RAIN)
+		return BF_LONG;
+
+	// Based on used skill's range
 	if (skill_get_range2(src, skill_num, skill_lv) < 5)
 		return BF_SHORT;
+
 	return BF_LONG;
 }
 
@@ -1320,7 +1327,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	int i, nk;
 	bool n_ele = false; // non-elemental
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
-	int chorusbonus = 0;//Chorus bonus value for chorus skills. Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
+	bool rebel_level_effect = battle_config.rebel_base_lv_skill_effect;// Base level effect on Rebellion skills.
 
 	struct map_session_data *sd, *tsd;
 	struct homun_data *hd;
@@ -1382,13 +1389,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
 	hd = BL_CAST(BL_HOM, src);
-
-	// Minstrel/Wanderer number check for chorus skills.
-	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
-	if( sd && sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 7)
-		chorusbonus = 5;//Maximum effect possiable from 7 or more Minstrel's/Wanderer's
-	else if( sd && sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 2)
-		chorusbonus = party_foreachsamemap(party_sub_count_chorus, sd, 0) - 2;//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
 
 	if(sd)
 		wd.blewcount += battle_blewcount_bonus(sd, skill_num);
@@ -1875,7 +1875,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (level_effect_bonus == 1)
 						damagevalue = damagevalue * status_get_base_lv_effect(src) / 150;
 					if (sd)
-						damagevalue = damagevalue * (100 + 5 * (pc_checkskill(sd,RK_DRAGONTRAINING) - 1)) / 100;
+						damagevalue = damagevalue * (100 + 5 * ((sd ? pc_checkskill(sd, RK_DRAGONTRAINING) : 5) - 1)) / 100;
 					ATK_ADD(damagevalue);
 				}
 				break;
@@ -1883,7 +1883,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				{
 					int damagevalue = 0;
 					wd.damage = 0;
-					damagevalue = (1 + skill_lv) * (8 + pc_checkskill(sd,NC_MAINFRAME)) * (status_get_sp(src) + sstatus->vit);
+					damagevalue = (1 + skill_lv) * (8 + (sd ? pc_checkskill(sd, NC_MAINFRAME) : 4)) * (status_get_sp(src) + sstatus->vit);
 					if (level_effect_bonus == 1)
 						damagevalue = damagevalue * status_get_base_lv_effect(src) / 100;
 					damagevalue += sstatus->hp;
@@ -2421,19 +2421,19 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RA_WUGDASH:
 					skillratio = 300;
 					if( sc && sc->data[SC_DANCE_WITH_WUG] )
-						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + sc->data[SC_DANCE_WITH_WUG]->val2);
 					break;
 				case RA_WUGSTRIKE:
 					skillratio = 200 * skill_lv;
 					if (sc && sc->data[SC_DANCE_WITH_WUG])
-						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + sc->data[SC_DANCE_WITH_WUG]->val2);
 					break;
 				case RA_WUGBITE:
 					skillratio = 400 + 200 * skill_lv;
 					if (skill_lv == 5)
 						skillratio += 100;
 					if (sc && sc->data[SC_DANCE_WITH_WUG])
-						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + chorusbonus);
+						skillratio += 10 * sc->data[SC_DANCE_WITH_WUG]->val1 * (2 + sc->data[SC_DANCE_WITH_WUG]->val2);
 					break;
 				case RA_SENSITIVEKEEN:
 					skillratio += 50 * skill_lv;
@@ -2682,10 +2682,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					{
 						if (tsd)//Players have weight. Monster's dont.
 							skillratio = 150 * skill_lv + 1000 * (tsd->weight / 10) / tsd->max_weight + 5 * status_get_base_lv_effect(target);
-						else//Knockback damage on mosnters. Need official formula for mobs since they have no weight.
-							skillratio = 150 * skill_lv + 1000 + 5 * status_get_base_lv_effect(target);
+						else//Knockback damage on mosnters.
+							skillratio = 150 * skill_lv;
 						if (level_effect_bonus == 1)
-							skillratio = skillratio * status_get_base_lv_effect(src) / 150;
+							skillratio += 5 * status_get_base_lv_effect(target) * status_get_base_lv_effect(src) / 150;
+						else
+							skillratio += 5 * status_get_base_lv_effect(target);
 					}
 					else
 					{//Main damage from skill use.
@@ -2742,16 +2744,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
  					break;
 				case WM_GREAT_ECHO:
 					skillratio += 300 + 200 * skill_lv;
-					if ( chorusbonus == 1 )//Chorus bonus dont count the first 2 Minstrel's/Wanderer's and only increases when their's 3 or more. [Rytech]
-					skillratio += 100;
-					else if ( chorusbonus == 2 )
-					skillratio += 200;
-					else if ( chorusbonus == 3 )
-					skillratio += 400;
-					else if ( chorusbonus == 4 )
-					skillratio += 800;
-					else if ( chorusbonus == 5 )
-					skillratio += 1600;
+					if ( skill_chorus_count(sd) == 1 )//Chorus bonus dont count the first 2 Minstrel's/Wanderer's and only increases when their's 3 or more. [Rytech]
+						skillratio += 100;
+					else if ( skill_chorus_count(sd) == 2 )
+						skillratio += 200;
+					else if ( skill_chorus_count(sd) == 3 )
+						skillratio += 400;
+					else if ( skill_chorus_count(sd) == 4 )
+						skillratio += 800;
+					else if ( skill_chorus_count(sd) == 5 )
+						skillratio += 1600;
 
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * status_get_base_lv_effect(src) / 100;
@@ -2765,14 +2767,14 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case GN_CART_TORNADO:
 					{
-					int strbonus = sstatus->str;//Supposed to take only base STR, but current code wont allow that. So well just take STR for now. [Rytech]
-						if ( strbonus > 120 )//Max base stat limit on official is 120. So well allow no higher then 120 STR here. This limit prevents
-							strbonus = 120;//the division from going any lower then 30 so the server wont divide by 0 if someone has 150 STR.
-						skillratio = 50 * skill_lv + sd->cart_weight / 10 / (150 - strbonus) + 50 * pc_checkskill(sd, GN_REMODELING_CART);
+						int strbonus = sstatus->str;//Supposed to take only base STR, but current code wont allow that. So well just take STR for now. [Rytech]
+						if ( strbonus > 130 )//Max base stat limit on official is 130. So well allow no higher then 120 STR here. This limit prevents
+							strbonus = 130;//the division from going any lower then 20 so the server wont divide by 0 if someone has 150 STR.
+						skillratio = 50 * skill_lv + (sd?sd->cart_weight/10:105000) / (150 - strbonus) + 50 * (sd?pc_checkskill(sd, GN_REMODELING_CART):5);
 					}
 					break;
 				case GN_CARTCANNON:
-					skillratio = 60 * skill_lv + 50 * pc_checkskill(sd, GN_REMODELING_CART) * sstatus->int_ / 40;
+					skillratio = 60 * skill_lv + 50 * (sd ? pc_checkskill(sd, GN_REMODELING_CART) : 5) * sstatus->int_ / 40;
 					break;
 				case GN_SPORE_EXPLOSION:
 					// Hint shows that damage on surrounding enemys might be 75% of the full damage. Need a confirm on this. [Rytech]
@@ -2827,21 +2829,37 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio += 100 *(skill_lv-1);
 					break;
 				case RL_MASS_SPIRAL:
-					//Deals additional damage depending on targets DEF.
-					//Skill desc says 200%*LV + Additional Damage from DEF
-					//The additional damage is confirmed ice pick type.
-					//Need a test and confirm on formula. [Rytech]
-					skillratio = 200 * skill_lv;
-					flag.pdef = flag.pdef2 = 1;
+					{
+						short target_def = tstatus->def;
+
+						// Damage increase from target's DEF is capped.
+						// By default its 500 in renewal. Setting of 0 disables the limit.
+						if ( battle_config.mass_spiral_max_def != 0 && target_def > battle_config.mass_spiral_max_def)
+							target_def = battle_config.mass_spiral_max_def;
+
+						// Official formula.
+						// Formula found is correct and weapon type is used. So does DEF reduce the damage?
+						// If it does, target's DEF affects the damage ratio so strongly that the ratio out weight's the damage reduction.
+						// Target's DEF multiplied by 10 to balance it out for pre-re mechanics. In Renewal its just straight DEF.
+						// With this, thanatos (ice pick) effect might work but no confirm on this yet.
+						// Still need to test if it works like the Monk's Investigate. [Rytech]
+						skillratio = (200 + 10 * target_def) * skill_lv;
+					}
 					break;
 				case RL_BANISHING_BUSTER:
-					skillratio = 2000 + 300 * skill_lv;
+					if ( rebel_level_effect == 1 )
+						skillratio = 1000 + 200 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 2000 + 300 * skill_lv;
 					break;
 				case RL_S_STORM:
-					skillratio = 1700 + 200 * skill_lv;
+					if ( rebel_level_effect == 1 )
+						skillratio = 1000 + 100 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 1700 + 200 * skill_lv;
 					break;
 				case RL_FIREDANCE:
-					skillratio = 200 * skill_lv + 50 * pc_checkskill(sd,GS_DESPERADO);
+					skillratio = 200 * skill_lv + 50 * (sd ? pc_checkskill(sd, GS_DESPERADO) : 10);
 					break;
 				case RL_H_MINE:
 					if ( wflag&8 )
@@ -2853,13 +2871,22 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio = 1000 + 300 * skill_lv;
 					break;
 				case RL_D_TAIL:
-					skillratio = 4000 + 1000 * skill_lv;
+					if ( rebel_level_effect == 1 )
+						skillratio = 2500 + 500 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 4000 + 1000 * skill_lv;
 					break;
 				case RL_FIRE_RAIN:
-					skillratio = 3500 + 300 * skill_lv;
+					if ( rebel_level_effect == 1 )// Switched out caster's DEX for a fixed amount to keep ratio around newer formula.
+						skillratio = 2000 + 160 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 3500 + 300 * skill_lv;
 					break;
 				case RL_AM_BLAST:
-					skillratio = 3500 + 300 * skill_lv;
+					if ( rebel_level_effect == 1 )
+						skillratio = 2000 + 200 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 3500 + 300 * skill_lv;
 					break;
 				case RL_SLUGSHOT:
 					if ( tsd )// Damage on players.
@@ -2870,7 +2897,10 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					skillratio *= 2 + tstatus->size;
  					break;
 				case RL_HAMMER_OF_GOD:
-					skillratio = 2800 + 1400 * skill_lv;
+					if ( rebel_level_effect == 1 )
+						skillratio = 1600 + 800 * skill_lv * status_get_base_lv_effect(src) / 100;
+					else
+						skillratio = 2800 + 1400 * skill_lv;
 					if ( tsc && tsc->data[SC_C_MARKER] )
 						skillratio += 100 * sd->spiritball_old;
 					else
@@ -2910,7 +2940,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += 500;
 					break;
 				case KO_HUUMARANKA:
-					skillratio = 150 * skill_lv + sstatus->agi + sstatus->dex + 100 * pc_checkskill(sd, NJ_HUUMA);
+					skillratio = 150 * skill_lv + sstatus->agi + sstatus->dex + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 5);
 					break;
 				case KO_MAKIBISHI:
 					skillratio = 20 * skill_lv;
@@ -3032,12 +3062,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case RA_WUGDASH:
 					if (sd)
-						ATK_ADD(sd->weight / 8);//Dont need to divide weight here since official formula takes current weight * 10. [Rytech]
+						ATK_ADD((sd ? sd->weight : 32000) / 8 + 30 * (sd ? pc_checkskill(sd, RA_TOOTHOFWUG) : 10));
 					break;
 				case RA_WUGSTRIKE:
 				case RA_WUGBITE:
 					if (sd)
-						ATK_ADD(30 * pc_checkskill(sd, RA_TOOTHOFWUG));
+						ATK_ADD(30 * (sd ? pc_checkskill(sd, RA_TOOTHOFWUG) : 10));
 					break;
 				case LG_SHIELDPRESS:
 					if( sd )
@@ -3160,7 +3190,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			// This does not adjust damage by a percent depending on elements and race.
 			// To make it simple, if a skill is not affected by the ice pick effect, add it here.
 			if (skill_num != PA_SACRIFICE && skill_num != MO_INVESTIGATE && skill_num != CR_GRANDCROSS && skill_num != NPC_GRANDDARKNESS && skill_num != PA_SHIELDCHAIN && skill_num != RK_DRAGONBREATH && skill_num != NC_SELFDESTRUCTION && skill_num != KO_HAPPOKUNAI && 
-				skill_num != RL_MASS_SPIRAL && skill_num != RL_B_TRAP && skill_num != RK_DRAGONBREATH_WATER && !flag.cri)
+				skill_num != RL_B_TRAP && skill_num != RK_DRAGONBREATH_WATER && !flag.cri)
 			{ //Elemental/Racial adjustments
 				if( sd->right_weapon.def_ratio_atk_ele & (1<<tstatus->def_ele) ||
 					sd->right_weapon.def_ratio_atk_race & (1<<tstatus->race) ||
@@ -3285,7 +3315,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		}
 
 		//Refine bonus
-		if( sd && flag.weapon && skill_num != MO_INVESTIGATE && skill_num != MO_EXTREMITYFIST && skill_num != RL_MASS_SPIRAL )
+		if (sd && flag.weapon && skill_num != MO_INVESTIGATE && skill_num != MO_EXTREMITYFIST)
 		{ // Counts refine bonus multiple times
 			if( skill_num == MO_FINGEROFFENSIVE )
 			{
@@ -3302,8 +3332,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		if (sd && flag.weapon &&
 			skill_num != MO_INVESTIGATE &&
 		  	skill_num != MO_EXTREMITYFIST &&
-			skill_num != CR_GRANDCROSS &&
-			skill_num != RL_MASS_SPIRAL)
+			skill_num != CR_GRANDCROSS)
 		{	//Add mastery damage
 			if(skill_num != ASC_BREAKER && sd->status.weapon == W_KATAR &&
 				(skill=pc_checkskill(sd,ASC_KATAR)) > 0)
@@ -4522,7 +4551,6 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	short i, nk;
 	short s_ele;
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
-	int chorusbonus = 0;//Chorus bonus value for chorus skills. Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
 
 	struct map_session_data *sd, *tsd;
 	struct Damage md; //DO NOT CONFUSE with md of mob_data!
@@ -4553,13 +4581,6 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	
 	sd = BL_CAST(BL_PC, src);
 	tsd = BL_CAST(BL_PC, target);
-
-	// Minstrel/Wanderer number check for chorus skills.
-	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
-	if( sd && sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 7)
-		chorusbonus = 5;//Maximum effect possiable from 7 or more Minstrel's/Wanderer's
-	else if( sd && sd->status.party_id && party_foreachsamemap(party_sub_count_chorus, sd, 0) > 2)
-		chorusbonus = party_foreachsamemap(party_sub_count_chorus, sd, 0) - 2;//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
 	
 	if(sd) {
 		sd->state.arrow_atk = 0;
@@ -4651,7 +4672,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			md.damage=md.damage/2;
 		break;
 	case GS_FLING:
-		md.damage = status_get_job_lv_effect(src);
+		md.damage = status_get_job_lv(src);
 		break;
 	case HVAN_EXPLOSION:	//[orn]
 		md.damage = sstatus->max_hp * (50 + 50 * skill_lv) / 100 ;
@@ -4678,8 +4699,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = md.damage * (20 * (sd ? pc_checkskill(sd, RA_RESEARCHTRAP) : 5)) / 50;
 		break;
 	case WM_SOUND_OF_DESTRUCTION:
-		md.damage = 1000 * skill_lv + sstatus->int_ * pc_checkskill(sd,WM_LESSON);
-		md.damage += md.damage * ( 10 * chorusbonus ) / 100;
+		md.damage = 1000 * skill_lv + sstatus->int_ * (sd ? pc_checkskill(sd, WM_LESSON) : 10);
+		md.damage += md.damage * ( 10 * skill_chorus_count(sd)) / 100;
 		break;
 	//case WM_SATURDAY_NIGHT_FEVER://Test me in official if possiable.
 	//	md.damage = 9999;//To enable when I figure how it exactly applies the damage. For now clif damage will deal 9999 damage and display it. [Rytech]
@@ -4691,13 +4712,13 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage = 200 + 100 * skill_lv + sstatus->int_;
 		break;
 	case GN_HELLS_PLANT_ATK:
-		md.damage = 10 * skill_lv * status_get_base_lv_effect(target) + 7 * sstatus->int_ / 2 * (status_get_job_lv_effect(src) / 4 + 18) * 5 / (10 - pc_checkskill(sd, AM_CANNIBALIZE));
- 		break;
+		md.damage = 10 * skill_lv * status_get_base_lv_effect(target) + 7 * sstatus->int_ / 2 * (status_get_job_lv_effect(src) / 4 + 18) * 5 / (10 - (sd ? pc_checkskill(sd, AM_CANNIBALIZE) : 5));
+		break;
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);
 		if (!md.damage) md.damage = 10;
-		md.damage = md.damage * rnd_value(50, 100) / 100;
-		if (pc_checkskill(sd, NJ_TOBIDOUGU) < 10)
+			md.damage = md.damage * rnd_value(50, 100) / 100;
+		if ((sd ? pc_checkskill(sd, NJ_TOBIDOUGU) : 10) < 10)
 			md.damage = md.damage / 2;// Damage halved if Throwing Mastery is not mastered.
 		if (is_boss(target) || (tsd))
 			md.damage = md.damage / 2;
@@ -6388,6 +6409,8 @@ static const struct _battle_data {
 	{ "homunculus_pyroclastic_autocast",    &battle_config.homunculus_pyroclastic_autocast, 0,      0,      1,              },
 	{ "pyroclastic_breaks_weapon",          &battle_config.pyroclastic_breaks_weapon,       1,      0,      1,              },
 	{ "giant_growth_behavior",              &battle_config.giant_growth_behavior,           1,      0,      1,              },
+	{ "mass_spiral_max_def",                &battle_config.mass_spiral_max_def,             50,     0,      SHRT_MAX,       },
+	{ "rebel_base_lv_skill_effect",         &battle_config.rebel_base_lv_skill_effect,      1,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

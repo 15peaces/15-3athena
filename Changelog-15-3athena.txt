@@ -5,6 +5,79 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/06/2022
+	r340 [15peaces]
+		*Merged missing changes from 3ceam rev. 840 - 841
+		*Fixed some more pet issues.
+			-The pet egg will now be hidden if the pet is hatched and will be re-shown if the pet is sent back to the egg.
+			-Also the pet friendly rate is now correctly shown in the egg description.
+		*Added the "NK_FORCE_RANGED_DAMAGE" setting for skills.
+			-This forces the skill to deal ranged damage at ranges below 5.
+		*Recoded the handling of Minstrel/Wanderer party checks for chorus skills to only be called on when needed. This should further save on cpu cycles used on skill use.
+		*skill_chorus_count
+			-Added this function for counting performers in a party.
+		*mass_spiral_max_def; rebel_base_lv_skill_effect
+			-Added these config settings to the skill battle config.
+		*Added the "rageball" command.
+			-It does what it sounds like. Summons Royal Guard's rage spheres.
+		*Fixed a number of issues caused by monsters/clones when they use 3rd job and other renewal era skills. This should stop crashes from happening on skills with casters weight / cart weight checks and spirit sphere checks. It also fixes issues with 
+			-learned skill level checks for them so they will use the skill's highest possible level to maximize the skill's damage/effects as if a player used it.
+		*Recoded the ZC_MILLENNIUMSHIELD packet.
+		*Recoded the entire rage sphere system.
+			-This fixed a few issues that existed for far too long.
+			-Now the sphere's will display properly on screen refresh, appear to players walking within range of another player with rage spheres, and players who warp to another map.
+			-It also fixes invalid/lost timer issues caused by unknown means.
+			-Finally it also fixes the handling of the spheres on GM's during skill use.
+		*Added a few status tags.	
+		*RK_DRAGONBREATH; RK_DRAGONBREATH_WATER
+			-Corrected the AoE for level 9 to be 9x9.
+		*RA_WUGRIDER
+			-Fixed an issue where the options where set wrong.
+		*RA_WUGBITE
+			-Corrected a issue where the damage increase from Dance With Wug wasn't counting the chorus bonus correctly.
+		*RA_WUGDASH
+			-Corrected a issue where the damage increase from Dance With Wug wasn't counting the chorus bonus correctly.
+			-Fixed a issue where the caster's weight affected the damage formula incorrectly.
+			-Fixed a issue where the bonus damage from Tooth of Wug was not being applied.
+		*RA_WUGSTRIKE
+			-Corrected a issue where the damage increase from Dance With Wug wasn't counting the chorus bonus correctly.
+			-Skill name is no longer yelled out when autocasted through regular attacks.
+		*NC_POWERSWING
+			-Fixed a issue where it autocasted Axe Boomerang when you don't have it learned.
+		*LG_FORCEOFVANGUARD
+			-Chance of getting rage spheres now applies to all damage types.
+		*LG_RAGEBURST
+			-Recoded the skill.
+		*SR_RAMPAGEBLASTER
+			-Is now treated as a ranged attack.
+			-Damage formula updated.
+		*SR_KNUCKLEARROW
+			-Damage formula updated to official for use on players and monsters.
+		*SR_GENTLETOUCH_ENERGYGAIN
+			-Chance of getting spirit spheres now applies to all damage types.
+		*WM_DEADHILLHERE
+			-Now flagged as a magic skill.
+		*GN_CART_TORNADO
+			-Increased caster's STR effect limit to 130.
+		*RL_MASS_SPIRAL
+			-Damage formula updated.
+			-No longer ignores the target's flee.
+		*RL_S_STORM
+			-Updated the equip break chance formula to official.
+		*RL_H_MINE
+			-Grenade explosion AoE is now 5x5.
+		*RL_FIRE_RAIN
+			-Is now treated as a ranged attack.
+			-AoE stepping speed adjusted to official.
+		*RL_HAMMER_OF_GOD
+			-AoE for the random strike area on unmarked target's is now 15x15
+		*RA_UNLIMIT; GN_ILLUSIONDOPING; WM_FRIGG_SONG; AB_OFFERTORIUM
+			-Corrected a issue where the casting of these skills were not interruptable.
+		*RK_LUXANIMA
+			-Added cooldown time.
+		*GD_GUILD_STORAGE
+			-Now requires level 10 Guild Extension.
+
 08/03/2022
 	r339 [15peaces]
 		*Merged missing changes from 3ceam rev. 837 - 839

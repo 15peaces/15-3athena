@@ -57,6 +57,36 @@ int pet_hungry_val(struct pet_data *pd)
 		return 0;
 }
 
+/**
+ * Calculates the value to store in a pet egg's 4th card slot
+ * based on the passed rename flag and intimacy value.
+ *
+ * @param rename_flag The pet's rename flag.
+ * @param intimacy The pet's intimacy value.
+ * @return The value to store in the pet egg's 4th card slot. (Defaults to 0 in case of error.)
+ *
+ **/
+int pet_get_card4_value(int rename_flag, int intimacy)
+{
+	Assert_ret(rename_flag == 0 || rename_flag == 1);
+	Assert_ret(intimacy >= PET_INTIMACY_NONE && intimacy <= PET_INTIMACY_MAX);
+
+	int card4 = rename_flag;
+
+	if (intimacy <= PET_INTIMACY_SHY)
+		card4 |= (1 << 1);
+	else if (intimacy <= PET_INTIMACY_NEUTRAL)
+		card4 |= (2 << 1);
+	else if (intimacy <= PET_INTIMACY_CORDIAL)
+		card4 |= (3 << 1);
+	else if (intimacy <= PET_INTIMACY_LOYAL)
+		card4 |= (4 << 1);
+	else
+		card4 |= (5 << 1);
+
+	return card4;
+}
+
 void pet_set_intimate(struct pet_data *pd, int value)
 {
 	int intimate;
@@ -321,10 +351,27 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 		pd->pet.pet_id == MakeDWord(sd->inventory.u.items_inventory[i].card[1], sd->inventory.u.items_inventory[i].card[2]));
 
 	if (i != MAX_INVENTORY) {
-		sd->inventory.u.items_inventory[i].identify = 1;
+		sd->inventory.u.items_inventory[i].attribute = 0;
 		sd->inventory.u.items_inventory[i].bound = BOUND_NONE;
-	}
+		sd->inventory.u.items_inventory[i].card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
+		sd->inventory.dirty = true;
+		clif_inventorylist(sd);
+	} else {
+		// The pet egg wasn't found: it was probably hatched with the old system that deleted the egg.
+		struct item tmp_item = {0};
+		int flag;
 
+		tmp_item.nameid = pd->petDB->EggID;
+		tmp_item.identify = 1;
+		tmp_item.card[0] = CARD0_PET;
+		tmp_item.card[1] = GetWord(pd->pet.pet_id, 0);
+		tmp_item.card[2] = GetWord(pd->pet.pet_id, 1);
+		tmp_item.card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
+		if ((flag = pc_additem(sd, &tmp_item, 1)) != 0) {
+			clif_additem(sd, 0, 0, flag);
+			map_addflooritem(&tmp_item, 1, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
+		}
+	}
 #if PACKETVER >= 20180704
 	clif_send_petdata(sd, pd, 6, 0);
 #endif
@@ -474,14 +521,16 @@ int pet_recv_petdata(int account_id,struct s_pet *p,int flag)
 
 		if (!pet_birth_process(sd, p)) {
 			// Pet Evolution, Hide the egg by setting identify to 0 [Dastgir/Hercules]
-			sd->inventory.u.items_inventory[i].identify = 0;
+			sd->inventory.u.items_inventory[i].attribute = 1;
 			// bind the egg to the character to avoid moving it via forged packets [Asheraf]
 			sd->inventory.u.items_inventory[i].bound = BOUND_CHAR;
 		}
 	} else {
 		pet_data_init(sd,p);
 		if(sd->pd && sd->bl.prev != NULL) {
-			map_addblock(&sd->pd->bl);
+			if (map_addblock(&sd->pd->bl))
+				return 1;
+
 			clif_spawn(&sd->pd->bl);
 			clif_send_petdata(sd,sd->pd,0,0);
 			clif_send_petdata(sd,sd->pd,5,battle_config.pet_hair_style);
@@ -600,7 +649,7 @@ int pet_get_egg(int account_id,int pet_id,int flag)
 	tmp_item.card[0] = CARD0_PET;
 	tmp_item.card[1] = GetWord(pet_id,0);
 	tmp_item.card[2] = GetWord(pet_id,1);
-	tmp_item.card[3] = 0; //New pets are not named.
+	tmp_item.card[3] = pet_get_card4_value(0, pet_db[i].intimate);
 	if((ret = pc_additem(sd,&tmp_item,1))) {
 		clif_additem(sd,0,0,ret);
 		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
