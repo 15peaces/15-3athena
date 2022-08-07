@@ -24,7 +24,6 @@
 1192,115,100	// P_Slayer1
 1193,115,100	// P_Slayer2
 1197,115,100	// P_Slayer3
-1243,91,100 	//Novice_Knife
 1267,91,100		// Infiltrator_C
 1272,91,100		// Scratcher
 1273,91,100		// Bloody_Roar_C
@@ -114,10 +113,8 @@
 1981,83,100		// Krieger_Whip1
 1982,123,100	// Phenomena_Whip
 1986,115,100	// P_Tail1
-2112,91,100 	// Novice_Guard
 2127,91,100		// Secular_Mission
 2132,91,100		// Shelter_Resistance
-2352,91,100	 	// Novice_Plate
 2358,91,100		// Dress_Of_Angel
 2368,83,100		// Golden_Armor
 2370,91,100		// Used_Mage_Coat
@@ -134,7 +131,6 @@
 2394,83,100		// Krieger_Suit1
 2395,83,100		// Krieger_Suit2
 2396,83,100		// Krieger_Suit3
-2414,91,100 	// Novice_Boots
 2427,83,100		// Golden_Shoes
 2429,115,100	// Iron_Boots01
 2430,115,100	// Iron_Boots02
@@ -151,7 +147,6 @@
 2457,115,100	// Para_Team_Boots2
 2458,115,100	// Para_Team_Boots3
 2473,115,100	// Para_Team_Boots4
-2510,91,100 	// Novice_Hood
 2534,91,100		// Ruffler
 2535,91,100		// Cloak_Of_Survival_C
 2538,83,100		// Commander_Manteau

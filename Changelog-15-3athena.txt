@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/07/2022
+	r341 [15peaces]
+		*Merged missing changes from 3ceam rev. 842 - 843
+		*Added the "charmball" command.
+			-It allows you to summon the Kagerou/Oboro charm spheres and select a type.
+		*Added the "shieldball"command.
+			-It allows you to summon Rune Knight's millennium shield's shield spheres and set the amount of HP for them.
+		*Added the charm sphere system.
+			-Its refered to as charms or charmballs.
+			-This allows a proper way of controling the charm types and how to apply their effects.
+		*Millennium shield now manages its shields in its own unqie sphere system.
+			-They are refered to as shieldball and are handled this way since this is how its officially handled and allows better handling of its animation packets. Tho it still needs a server side status ID to signal when its active.
+		*Added the "millennium_shield_health" config to the skill config file.
+		*Fixed a issue where having more then 127 DEF/MDEF of equips equipped would cause a overflow and bring the DEF value below negeative, bypassing the "max_def" setting.
+		*Fixed a issue where DEF/MDEF increases through status's would allow DEF/MDEF to go past 99. This is now capped to what the "max_def" config setting is set to.
+		*Updated the packet's sent for player's that have millennium shields active.
+		*Removed Novice equipment from item_trade database.
+			-They should not be restricted on pre-re.
+		*Fixed some item types for some random items.
+		*RK_MILLENNIUMSHIELD
+			-Recoded the skill.
+			-Kyrie, Parry, and Auto Guard now take higher priority over the shields.
+		*WM_GLOOMYDAY
+			-Recoded the skill.
+			-The FLEE/ASPD reductions now apply to all targets no matter what skills are learned.
+			-Now has a small chance of giving the super gloomy status.
+				--The super gloomy status reduces movement speed by 50% and dismounts the player from its peco/gryphin/dragon. Does not dismount player's from warg or mado.
+			-Now increase the damage of certain skills properly.
+			-The formula for how much the damage is increased and how its applied is now official.
+		*KO_KAHU_ENTEN// Fire Charm; KO_HYOUHU_HUBUKI// Ice Charm; KO_KAZEHU_SEIRAN// Wind Charm; KO_DOHU_KOUKAI// Earth Charm
+			-Added full support for these skills.
+			-Charms give a element resistance to the element that of the summoned charms.
+			-Resistance: 2% * Charm Count. This does not reduce resistance to other elements.
+			-Having 10 or more charms changes the weapon element directly to the element of the charm.
+			-Damage increase from fire charms for Crimson Fire Formation is 10% per charm.
+			-Weapon ATK increase from earth charms is 10% per charm.
+
 08/06/2022
 	r340 [15peaces]
 		*Merged missing changes from 3ceam rev. 840 - 841

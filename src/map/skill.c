@@ -1176,12 +1176,13 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_DEFENDER, INVALID_TIMER);
 			status_change_end(bl, SC_STEELBODY, INVALID_TIMER);
 			status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
-			status_change_end(bl, SC_MILLENNIUMSHIELD, INVALID_TIMER);
 			status_change_end(bl, SC_LG_REFLECTDAMAGE, INVALID_TIMER);
 			status_change_end(bl, SC_PRESTIGE, INVALID_TIMER);
 			status_change_end(bl, SC_BANDING, INVALID_TIMER);
 			status_change_end(bl, SC_GENTLETOUCH_CHANGE, INVALID_TIMER);
 			status_change_end(bl, SC_GENTLETOUCH_REVITALIZE, INVALID_TIMER);
+			if (dstsd)
+				pc_delshieldball(dstsd, dstsd->shieldball, 0);
 		}
 		break;
 	case NC_FLAMELAUNCHER:
@@ -1273,7 +1274,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
 		status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
 		status_change_end(bl, SC_GLOOMYDAY, INVALID_TIMER);
-		status_change_end(bl, SC_GLOOMYDAY_SK, INVALID_TIMER);
 		status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
 		status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
 		status_change_end(bl, SC_SATURDAY_NIGHT_FEVER, INVALID_TIMER);
@@ -1416,7 +1416,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_WARMER:			case SC_READING_SB:		case SC_GN_CARTBOOST:
 				case SC_THORNS_TRAP:		case SC_SPORE_EXPLOSION:	case SC_DEMONIC_FIRE:
 				case SC_FIRE_EXPANSION_SMOKE_POWDER:	case SC_FIRE_EXPANSION_TEAR_GAS:		case SC_VACUUM_EXTREME:
-				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:
+				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:	case SC_MILLENNIUMSHIELD:
 					// Genetic Potions
 				case SC_SAVAGE_STEAK:	case SC_COCKTAIL_WARG_BLOOD:	case SC_MINOR_BBQ:
 				case SC_SIROMA_ICE_TEA:	case SC_DROCERA_HERB_STEAMED:	case SC_PUTTI_TAILS_NOODLES:
@@ -1464,8 +1464,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				//case SC_KAHU_ENTEN:		case SC_HYOUHU_HUBUKI:	case SC_KAZEHU_SEIRAN:	
-				/*case SC_DOHU_KOUKAI:*/	case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:		case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -4514,6 +4513,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case WL_TETRAVORTEX_WIND:
 	case WL_TETRAVORTEX_GROUND:
 	case WM_METALICSOUND:
+	case KO_KAIHOU:
 	case MH_ERASER_CUTTER:
 		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -5044,7 +5044,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if (tsc && (tsc->data[SC_SWING] || tsc->data[SC_SYMPHONY_LOVE] || tsc->data[SC_MOONLIT_SERENADE] ||
 		tsc->data[SC_RUSH_WINDMILL] || tsc->data[SC_ECHOSONG] || tsc->data[SC_HARMONIZE] || 
 		tsc->data[SC_SIREN] || tsc->data[SC_DEEPSLEEP] || tsc->data[SC_SIRCLEOFNATURE] ||
-		tsc->data[SC_GLOOMYDAY] || tsc->data[SC_GLOOMYDAY_SK] || tsc->data[SC_SONG_OF_MANA] || 
+		tsc->data[SC_GLOOMYDAY] || tsc->data[SC_SONG_OF_MANA] || 
 		tsc->data[SC_DANCE_WITH_WUG] || tsc->data[SC_SATURDAY_NIGHT_FEVER] || tsc->data[SC_LERADS_DEW] || 
 		tsc->data[SC_MELODYOFSINK] || tsc->data[SC_BEYOND_OF_WARCRY] || tsc->data[SC_UNLIMITED_HUMMING_VOICE] || tsc->data[SC_FRIGG_SONG]) &&
 		rand() % 100 < 4 * skilllv + 2 * (sd ? pc_checkskill(sd, WM_LESSON) : 10) + 10 * skill_chorus_count(sd))
@@ -5061,7 +5061,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
 			status_change_end(bl, SC_SIRCLEOFNATURE, INVALID_TIMER);
 			status_change_end(bl, SC_GLOOMYDAY, INVALID_TIMER);
-			status_change_end(bl, SC_GLOOMYDAY_SK, INVALID_TIMER);
 			status_change_end(bl, SC_SONG_OF_MANA, INVALID_TIMER);
 			status_change_end(bl, SC_DANCE_WITH_WUG, INVALID_TIMER);
 			status_change_end(bl, SC_SATURDAY_NIGHT_FEVER, INVALID_TIMER);
@@ -5088,11 +5087,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			else
 				clif_skill_fail(sd, skillid, 0, 0, 0);
 		}
-		break;
-
-	case KO_KAIHOU:
-		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
-		pc_delspiritball_attribute(sd,sd->spiritballnumber,0);
 		break;
 
 	case MH_STAHL_HORN:
@@ -7122,7 +7116,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_WARMER:			case SC_READING_SB:		case SC_GN_CARTBOOST:
 				case SC_THORNS_TRAP:		case SC_SPORE_EXPLOSION:	case SC_DEMONIC_FIRE:
 				case SC_FIRE_EXPANSION_SMOKE_POWDER:	case SC_FIRE_EXPANSION_TEAR_GAS:		case SC_VACUUM_EXTREME:
-				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:
+				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:	case SC_MILLENNIUMSHIELD:
 				// Genetic Potions
 				case SC_SAVAGE_STEAK:	case SC_COCKTAIL_WARG_BLOOD:	case SC_MINOR_BBQ:
 				case SC_SIROMA_ICE_TEA:	case SC_DROCERA_HERB_STEAMED:	case SC_PUTTI_TAILS_NOODLES:
@@ -7170,8 +7164,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				//case SC_KAHU_ENTEN:		case SC_HYOUHU_HUBUKI:	case SC_KAZEHU_SEIRAN:	
-				/*case SC_DOHU_KOUKAI:*/	case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:		case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -8380,7 +8373,30 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			else if (skillid == RK_MILLENNIUMSHIELD)
 				lv = 9;
 			if (pc_checkskill(sd, RK_RUNEMASTERY) >= lv)
-				if ( skillid == RK_STONEHARDSKIN )
+				if ( skillid == RK_MILLENNIUMSHIELD )
+				{
+					if ( sd )
+					{
+						unsigned char generate = rand()%100 + 1;//Generates a number between 1 - 100 which is used to determine how many shields it will generate.
+						unsigned char shieldnumber = 1;
+
+						if ( generate >= 1 && generate <= 50 )//50% chance for 2 shields.
+							shieldnumber = 2;
+						else if ( generate >= 51 && generate <= 80 )//30% chance for 3 shields.
+							shieldnumber = 3;
+						else if ( generate >= 81 && generate <= 100 )//20% chance for 4 shields.
+							shieldnumber = 4;
+
+						// Remove old shields if any exist.
+						pc_delshieldball(sd, sd->shieldball, 1);
+
+						clif_skill_nodamage(src,bl,skillid,skilllv,1);
+						for (i = 0; i < shieldnumber; i++)
+							pc_addshieldball(sd, skill_get_time(skillid,skilllv), shieldnumber, battle_config.millennium_shield_health);
+					}
+
+				}
+				else if ( skillid == RK_STONEHARDSKIN )
 					clif_skill_nodamage(src, bl, skillid, skilllv, sc_start2(bl, type, 100, skilllv, status_get_job_lv_effect(src)*(sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skillid, skilllv)));
 				else
 					clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
@@ -8432,10 +8448,38 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					rune_buff = 5;
 
 				if ( src == bl )// Sacrificed your rune buff.
-					status_change_end(bl, scs[rune_buff], INVALID_TIMER);
+				{
+					if ( i == LUX_MILLENNIUMSHIELD )
+						pc_delshieldball(sd, sd->shieldball, 0);
+					else
+						status_change_end(bl, scs[rune_buff], INVALID_TIMER);
+				}
 				else
 				{// Buff surrounding party members with sacrificed rune buff.
-					if ( i == LUX_STONEHARDSKIN )
+					if ( i == LUX_MILLENNIUMSHIELD )
+					{
+						if ( dstsd )
+						{
+							unsigned char generate = rand()%100 + 1;//Generates a number between 1 - 100 which is used to determine how many shields it will generate.
+							unsigned char shieldnumber = 1;
+
+							if ( generate >= 1 && generate <= 50 )//50% chance for 2 shields.
+								shieldnumber = 2;
+							else if ( generate >= 51 && generate <= 80 )//30% chance for 3 shields.
+								shieldnumber = 3;
+							else if ( generate >= 81 && generate <= 100 )//20% chance for 4 shields.
+								shieldnumber = 4;
+
+							// Remove old shields if any exist.
+							pc_delshieldball(dstsd, dstsd->shieldball, 1);
+
+							clif_skill_nodamage(bl,bl,RK_MILLENNIUMSHIELD,1,1);
+							for (i = 0; i < shieldnumber; i++)
+								pc_addshieldball(dstsd, skill_get_time(skillid,skilllv), shieldnumber, battle_config.millennium_shield_health);
+						}
+
+					}
+					else if ( i == LUX_STONEHARDSKIN )
 						clif_skill_nodamage(bl, bl, rune_effect[rune_buff], skilllv, sc_start2(bl, scs[rune_buff], 100, skilllv, status_get_job_lv_effect(src)*(sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skillid, skilllv)));
 					else
 						clif_skill_nodamage(bl, bl, rune_effect[rune_buff], skilllv, sc_start(bl,scs[rune_buff],100,skilllv,skill_get_time(skillid,skilllv)));
@@ -8743,7 +8787,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_WARMER:			case SC_READING_SB:		case SC_GN_CARTBOOST:
 				case SC_THORNS_TRAP:		case SC_SPORE_EXPLOSION:	case SC_DEMONIC_FIRE:
 				case SC_FIRE_EXPANSION_SMOKE_POWDER:	case SC_FIRE_EXPANSION_TEAR_GAS:		case SC_VACUUM_EXTREME:
-				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:
+				case SC_BANDING_DEFENCE:	case SC_LG_REFLECTDAMAGE:	case SC_MILLENNIUMSHIELD:
 				// Genetic Potions
 				case SC_SAVAGE_STEAK:	case SC_COCKTAIL_WARG_BLOOD:	case SC_MINOR_BBQ:
 				case SC_SIROMA_ICE_TEA:	case SC_DROCERA_HERB_STEAMED:	case SC_PUTTI_TAILS_NOODLES:
@@ -8791,8 +8835,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				//case SC_KAHU_ENTEN:		case SC_HYOUHU_HUBUKI:	case SC_KAZEHU_SEIRAN:	
-				/*case SC_DOHU_KOUKAI:*/	case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Dispell
 				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
 				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
@@ -9541,17 +9584,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WM_GLOOMYDAY:
-		if( dstsd ) {
-			if( pc_checkskill(dstsd,KN_BRANDISHSPEAR) || pc_checkskill(dstsd,CR_SHIELDCHARGE) || 
-			pc_checkskill(dstsd,CR_SHIELDBOOMERANG) || pc_checkskill(dstsd,LK_SPIRALPIERCE) || 
-			pc_checkskill(dstsd,PA_SHIELDCHAIN) || pc_checkskill(dstsd,RK_HUNDREDSPEAR) || 
-			pc_checkskill(dstsd,LG_SHIELDPRESS) )
-				sc_start2(bl, SC_GLOOMYDAY_SK, 100, skilllv, (sd ? pc_checkskill(sd, WM_LESSON) : 10), skill_get_time(skillid, skilllv));
-			else
-				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		} else
-			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		sc_start4(bl, type, 100, skilllv, 0, 0, (sd ? pc_checkskill(sd, WM_LESSON) : 10), skill_get_time(skillid, skilllv));
 		break;
 
 	case WM_SONG_OF_MANA:
@@ -9969,19 +10003,28 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KO_HYOUHU_HUBUKI:
 	case KO_KAZEHU_SEIRAN:
 	case KO_DOHU_KOUKAI:
-		if(sd)
+		if ( sd )
 		{
-			if (tsc && !tsc->data[type])
+			short charm_type = 0;
+
+			switch (skillid)
 			{
-				pc_delspiritball_attribute(sd, sd->spiritballnumber, 1);
-				sc_start2(bl, type, 100, skilllv, 0, skill_get_time2(skillid, skilllv));
+				case KO_KAHU_ENTEN:
+					charm_type = CHARM_FIRE;
+					break;
+				case KO_HYOUHU_HUBUKI:
+					charm_type = CHARM_WATER;
+					break;
+				case KO_KAZEHU_SEIRAN:
+					charm_type = CHARM_WIND;
+					break;
+				case KO_DOHU_KOUKAI:
+					charm_type = CHARM_EARTH;
+					break;
 			}
-			//Lets allow GM's to have some fun with charms. =P [Rytech]
-			//if( battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond )
-			//	pc_addspiritball_attribute(sd,skill_get_time(skillid,skilllv),20);
-			//else
-				pc_addspiritball_attribute(sd,skill_get_time(skillid,skilllv),10);
-			sc_start2(bl, type, 100, skilllv, sd->spiritballnumber, skill_get_time2(skillid, skilllv));
+
+			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+			pc_addcharmball(sd,skill_get_time(skillid,skilllv),10,charm_type);
 		}
 		break;
 
@@ -11296,6 +11339,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RL_HAMMER_OF_GOD:
 	case KO_MAKIBISHI:
 	case LG_KINGS_GRACE:
+	case KO_ZENKAI:
 	case MH_POISON_MIST:
 	case MH_XENO_SLASHER:
 	case MH_STEINWAND:
@@ -11652,15 +11696,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
 	}
 	break;
-
-	case KO_ZENKAI:
-		skill_unitsetting(src,skillid,skilllv,x,y,0);
-		pc_delspiritball_attribute(sd,sd->spiritballnumber,0);
-		//status_change_end(src, SC_KAHU_ENTEN, INVALID_TIMER);
-		//status_change_end(src, SC_HYOUHU_HUBUKI, INVALID_TIMER);
-		//status_change_end(src, SC_KAZEHU_SEIRAN, INVALID_TIMER);
-		//status_change_end(src, SC_DOHU_KOUKAI, INVALID_TIMER);
-		break;
 
 	case MH_SUMMON_LEGION:
 		{
@@ -12220,36 +12255,27 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 
 	case KO_ZENKAI:
 		{
-			/*if ( sc )
-			{
-				if ( sc->data[SC_KAHU_ENTEN] )
-					val1 = ELE_FIRE;
-				else if ( sc->data[SC_HYOUHU_HUBUKI] )
-					val1 = ELE_WATER;
-				else if ( sc->data[SC_KAZEHU_SEIRAN] )
-					val1 = ELE_WIND;
-				else if ( sc->data[SC_DOHU_KOUKAI] )
-					val1 = ELE_EARTH;
-			}*/
+			if (sd)// Charm type affects what AoE will be placed.
+				val1 = sd->charmball_type;
 
-			if (!val1)
+			if (!val1 || !(val1 >= CHARM_WATER && val1 <= CHARM_WIND))
 				val1 = rand()%4+1;
 
 			//AoE's duration is 6 seconds * Number of Summoned Charms. [Rytech]
-			if ( sd->spiritballnumber > 0 )
-				limit = 6000 * sd->spiritballnumber;
+			if (sd->charmball_old > 0)
+				limit = 6000 * sd->charmball_old;
 			else
 				limit = 60000;
 
 			switch (val1)
 			{
-				case ELE_WIND:
+				case CHARM_WIND:
 					subunt++;
-				case ELE_FIRE:
+				case CHARM_FIRE:
 					subunt++;
-				case ELE_EARTH:
+				case CHARM_EARTH:
 					subunt++;
-				case ELE_WATER:
+				case CHARM_WATER:
 					break;
 				default:
 					subunt=rand()%4+1;
@@ -13852,6 +13878,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		sd->state.arrow_atk = skill_get_ammotype(skill)?1:0; //Need to do arrow state check.
 		sd->spiritball_old = sd->spiritball; //Need to do Spiritball check.
 		sd->rageball_old = sd->rageball;// Needed for Rageball check.
+		sd->charmball_old = sd->charmball;// Needed for Charmball check.
 		return 1;
 	}
 
@@ -14480,19 +14507,40 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case KO_HYOUHU_HUBUKI:
 	case KO_KAZEHU_SEIRAN:
 	case KO_DOHU_KOUKAI:
-		if (sd->spiritballnumber >= 10)
 		{
-			clif_skill_fail(sd,skill,0,0,0);
-			return 0;
+			short charm_type = 0;
+
+			switch (skill)
+			{
+				case KO_KAHU_ENTEN:
+					charm_type = CHARM_FIRE;
+					break;
+				case KO_HYOUHU_HUBUKI:
+					charm_type = CHARM_WATER;
+					break;
+				case KO_KAZEHU_SEIRAN:
+					charm_type = CHARM_WIND;
+					break;
+				case KO_DOHU_KOUKAI:
+					charm_type = CHARM_EARTH;
+					break;
+			}
+
+			// Summoning a different type resets your charmball count.
+			// Can't have more then 10 of the same type.
+			if(sd->charmball_type == charm_type && sd->charmball >= 10)
+			{
+				clif_skill_fail(sd,skill,0,0,0);
+				return 0;
+			}
 		}
 		break;
 	case KO_KAIHOU:
 	case KO_ZENKAI:
-		if(!sd->spiritballnumber > 0)
-		{
-			clif_skill_fail(sd, skill, 0, 0, 0);
-			return 0;
-		}
+		if (sd->charmball > 0 && sd->charmball < require.spiritball)
+			sd->charmball_old = require.spiritball = sd->charmball;
+		else
+			sd->charmball_old = require.spiritball;
 		break;
 	}
 
@@ -14644,6 +14692,16 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 				}
 				break;
 
+			// Skills that require charm spheres.
+			case KO_KAIHOU:
+			case KO_ZENKAI:
+				if ( sd->charmball < require.spiritball )
+				{
+					clif_skill_fail(sd,skill,0,0,0);
+					return 0;
+				}
+				break;
+
 			default:// Skills that require spirit/coin spheres.
 				if ( sd->spiritball < require.spiritball )
 				{
@@ -14674,6 +14732,7 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 		sd->state.arrow_atk = skill_get_ammotype(skill)?1:0; //Need to do arrow state check.
 		sd->spiritball_old = sd->spiritball; //Need to do Spiritball check.
 		sd->rageball_old = sd->rageball;// Needed for Rageball check.
+		sd->charmball_old = sd->charmball;// Needed for Charmball check.
 		return 1;
 	}
 
@@ -14903,6 +14962,12 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 			{// Skills that require rage spheres.
 				case LG_RAGEBURST:
 					pc_delrageball(sd,req.spiritball,0);
+					break;
+
+				// Skills that require charm spheres.
+				case KO_KAIHOU:
+				case KO_ZENKAI:
+					pc_delcharmball(sd,req.spiritball,0);
 					break;
 
 				default:// Skills that require spirit/coin spheres.

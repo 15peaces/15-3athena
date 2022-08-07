@@ -1392,13 +1392,11 @@ static void clif_spiritball_single_sub(int fd, int id, int amount)
  *------------------------------------------*/
 static void clif_spiritball_attribute_single(int fd, struct map_session_data *sd)
 {
-	int spirittype = 0;
-
 	WFIFOHEAD(fd, packet_len(0x08cf));
-	WFIFOW(fd,0)=0x08cf;
-	WFIFOL(fd,2)=sd->bl.id;
-	WFIFOW(fd,6)=spirittype;
-	WFIFOW(fd,8)=sd->spiritballnumber;
+	WFIFOW(fd,0) = 0x08cf;
+	WFIFOL(fd,2) = sd->bl.id;
+	WFIFOW(fd, 6) = sd->charmball_type;
+	WFIFOW(fd, 8) = sd->charmball;
 	WFIFOSET(fd, packet_len(0x08cf));
 }
 
@@ -1504,9 +1502,11 @@ int clif_spawn(struct block_list *bl)
 			TBL_PC *sd = ((TBL_PC*)bl);
 			if (sd->spiritball > 0)
 				clif_spiritball(sd);
+			if (sd->shieldball > 0)
+				clif_millenniumshield(sd, sd->shieldball);
 			if (sd->rageball > 0)
 				clif_millenniumshield(sd, sd->rageball);
-			if (sd->spiritballnumber > 0)
+			if (sd->charmball > 0)
 				clif_spiritball_attribute(sd);
 			if(sd->state.size==2) // tiny/big players [Valaris]
 				clif_specialeffect(bl,423,AREA);
@@ -1514,8 +1514,6 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(bl,421,AREA);
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
-			if (sd->sc.count && sd->sc.data[SC_MILLENNIUMSHIELD])
-				clif_millenniumshield(sd, sd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 			clif_hat_effects(sd, bl, AREA);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
 			// Note: This was supposed to be just a temp thing but its getting out of hand. Need to redo this. [Rytech]
@@ -4871,7 +4869,13 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 	if(dstsd->spiritball > 0)
 		clif_spiritball_single(sd->fd, dstsd);
 
-	if (dstsd->spiritballnumber > 0)
+	if (dstsd->shieldball > 0)
+		clif_millenniumshield_single(sd->fd, dstsd, dstsd->shieldball);
+
+	if (dstsd->rageball > 0)
+		clif_millenniumshield_single(sd->fd, dstsd, dstsd->rageball);
+
+	if (dstsd->charmball > 0)
 		clif_spiritball_attribute_single(sd->fd, dstsd);
 
 	if( (sd->status.party_id && dstsd->status.party_id == sd->status.party_id) || //Party-mate, or hpdisp setting.
@@ -4923,8 +4927,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
-			if (tsd->sc.count && tsd->sc.data[SC_MILLENNIUMSHIELD])
-				clif_millenniumshield(tsd, tsd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 			clif_hat_effects(sd, bl, SELF);
 			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
 			// This was supposed to be just a temp thing but this is getting out of hand. Needs to recode this. [Rytech]
@@ -8706,16 +8708,15 @@ void clif_hom_spiritball(struct homun_data *hd)
  *------------------------------------------*/
 int clif_spiritball_attribute(struct map_session_data *sd)
 {
-	unsigned char buf[16];
-	int spirittype = 0;
+	unsigned char buf[10];
 
 	nullpo_ret(sd);
 
-	WBUFW(buf,0)=0x08cf;
-	WBUFL(buf,2)=sd->bl.id;
-	WBUFW(buf,6)=spirittype;
-	WBUFW(buf,8)=sd->spiritballnumber;
-	clif_send(buf,packet_len(0x08cf),&sd->bl,AREA);
+	WBUFW(buf, 0) = 0x08cf;
+	WBUFL(buf, 2) = sd->bl.id;
+	WBUFW(buf, 6) = sd->charmball_type;
+	WBUFW(buf, 8) = sd->charmball;
+	clif_send(buf, packet_len(0x08cf),&sd->bl,AREA);
 	return 0;
 }
 
@@ -10084,12 +10085,12 @@ void clif_refresh(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_LUK);
 	if (sd->spiritball)
 		clif_spiritball_single(sd->fd, sd);
+	if (sd->shieldball)
+		clif_millenniumshield_single(sd->fd, sd, sd->shieldball);
 	if (sd->rageball)
 		clif_millenniumshield_single(sd->fd, sd, sd->rageball);
-	if (sd->spiritballnumber)
+	if (sd->charmball)
 		clif_spiritball_attribute_single(sd->fd, sd);
-	if (sd->sc.count && sd->sc.data[SC_MILLENNIUMSHIELD])
-		clif_millenniumshield(sd, sd->sc.data[SC_MILLENNIUMSHIELD]->val2);
 	if (sd->vd.cloth_color)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
 	if (sd->vd.body_style)

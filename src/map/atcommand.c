@@ -4107,6 +4107,32 @@ ACMD_FUNC(spiritball)
 	return 0;
 }
 
+ACMD_FUNC(shieldball)
+{
+	int max_shieldballs = min(ARRAYLENGTH(sd->shield_timer), 0x7FFF);
+	int number, health;
+	nullpo_retr(-1, sd);
+
+	if( !message || !*message || sscanf(message, "%d %d", &number, &health) < 1 || number > max_shieldballs || health < 1 || health > 1000000000 )
+	{
+		char msg[CHAT_SIZE_MAX];
+		safesnprintf(msg, sizeof(msg), "Usage: @shieldball <number: 0-%d> <health: 1-1000000000>", max_shieldballs);
+		clif_displaymessage(fd, msg);
+		return -1;
+	}
+
+	if( sd->shieldball > 0 )
+		pc_delshieldball(sd, sd->shieldball, 1);
+	sd->shieldball = number;
+	sd->shieldball_health = sd->shieldball_set_health = health;
+	if ( sd->shieldball > 0 )
+		sc_start(&sd->bl, SC_MILLENNIUMSHIELD, 100, 0, 0);
+	clif_millenniumshield(sd, sd->shieldball);
+	// no message, player can look the difference
+
+	return 0;
+}
+
 ACMD_FUNC(rageball)
 {
 	int max_rageballs = min(ARRAYLENGTH(sd->rage_timer), 0x7FFF);
@@ -4125,6 +4151,32 @@ ACMD_FUNC(rageball)
 		pc_delrageball(sd, sd->rageball, 1);
 	sd->rageball = number;
 	clif_millenniumshield(sd, sd->rageball);
+	// no message, player can look the difference
+
+	return 0;
+}
+
+ACMD_FUNC(charmball)
+{
+	int max_charmballs = min(ARRAYLENGTH(sd->charm_timer), 0x7FFF);
+	int number, type;
+	nullpo_retr(-1, sd);
+
+	if (!message || !*message || sscanf(message, "%d %d", &number, &type) < 1 || number > max_charmballs || type < 1 || type > 4)
+	{
+		char msg[CHAT_SIZE_MAX];
+		safesnprintf(msg, sizeof(msg), "Usage: @charmball <number: 0-%d> <charm type>", max_charmballs);
+		clif_displaymessage(fd, msg);
+		clif_displaymessage(fd, "Charm Types: 1: Water, 2: Earth, 3: Fire, 4: Wind");
+		return -1;
+	}
+
+	if (sd->charmball > 0)
+		pc_delcharmball(sd, sd->charmball, 3);
+	sd->charmball = number;
+	sd->charmball_type = type;
+	status_calc_bl(&sd->bl, SCB_WATK | SCB_DEF);// For earth charm bonus.
+	clif_spiritball_attribute(sd);
 	// no message, player can look the difference
 
 	return 0;
@@ -9998,7 +10050,9 @@ AtCommandInfo atcommand_info[] = {
 	{ "questskill",        40,40,     atcommand_questskill },
 	{ "lostskill",         40,40,     atcommand_lostskill },
 	{ "spiritball",        40,40,     atcommand_spiritball },
+	{ "shieldball",        40,40,     atcommand_shieldball },
 	{ "rageball",          40,40,     atcommand_rageball },
+	{ "charmball",         40,40,     atcommand_charmball },
 	{ "party",              1,1,      atcommand_party },
 	{ "guild",             50,50,     atcommand_guild },
 	{ "breakguild",        50,50,     atcommand_breakguild },

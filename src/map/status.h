@@ -739,8 +739,7 @@ typedef enum sc_type {
 	SC__BLOODYLUST_BK,
 	
 	// only temp and for testing
-	SC_GLOOMYDAY_SK = 700,
-	SC_MILLENNIUMSHIELD,
+	SC_MILLENNIUMSHIELD = 700,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
@@ -1969,7 +1968,7 @@ struct status_data {
 	unsigned char
 		def_ele, ele_lv,
 		size, race, class_;
-	signed char
+	signed short
 		def, mdef;
 	struct weapon_atk rhw, lhw; //Right Hand/Left Hand Weapon.
 };
