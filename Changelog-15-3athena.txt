@@ -5,6 +5,55 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/12/2022
+	r342 [15peaces]
+		*Merged missing changes from 3ceam rev. 844 - 845
+		*Added support for IT_SHADOWGEAR item type.
+			-also changed the way the itemtype function is working to probably support it.
+				--Thanks to @rathena
+		*Added the "hesperuslit_bonus_stack" config.
+			-This sets if the effect bonuses requires a banding count to be equal or be equal to or higher then the effect number.
+		*party_sub_count_banding; skill_banding_count
+			-Added these functions.
+			-These functions calculate the banding count for the number of Royal Guards in banding around the caster, as well as the average HP of the banding group, sets the HP for each banding player, and maxes out the rage spheres for those in 
+			-banding with  force of vanguard active when requirements are met.
+		*Made the code for chorus count checks more efficent.
+		*Added the "load_custom_exp_tables" config setting in the exp battle file.
+			-This sets if the server should load the official exp tables (exp.txt) or custom exp tables (exp2.txt). No more do you have to rename the exp2 file to exp to use it.
+		*The "renewal_statpoints" config is renamed to "renewal_stats_handling".
+			-The function of the config is still the same. Just want to name to better reflect what it does. It is also now on by default for balance reasons. Read the description for the config for more info on what all it does.
+		*The following battle config settings defaults are changed....
+			-max_homunculus_parameter: Changed from 150 to 175.
+			-max_parameter_renewal_jobs: Changed from 120 to 130.
+			-max_baby_parameter_renewal_jobs: Changed from 108 to 117.
+			-base_lv_skill_effect_limit: Changed from 150 to 175.
+			-job_lv_skill_effect_limit: Changed from 50 to 60.
+			-These are official limits for players (RE Era Jobs) and homunculus for the 175/60 cap.
+		*Renewal Era Jobs (Jobs introduced during RE era)
+			-Canged all limits to fit the 175/60 level cap.
+		*Disabled Crystalized_Teardrop in item_trade database.
+			-It is a normal etc item in renewal (on kRO) an can be traded.
+		*Corrected the max level for CG_MOONLIT in the skill database.
+		*Updated the exp_homun file with official exp tables for up to level 175.
+		*Mutated Homunculus
+			-The following caps have been increased....
+			-Base Level: 175
+			-Max Stats: 175
+		*Fixed a issue where mutated homunculus were getting a extra skill point.
+		*Chorus Skills
+			-The chorus count check is now limited to counting Minstrel's/Wanderer's that are within a 31x31 AoE around the player casting a chorus skill.
+		*LG_BANDING
+			-Recoded the skill.
+			-The AoE's of each Royal Guard now work seprate from each other.
+			-The main 7x7 AoE that moves around with the caster now only affects enemies and gives the status that reduces movement speed. The status is removed if the enemy moves out of the AoE or the AoE vanishes. This AoE doesn't require banding with 
+			-other's to make it work. It will work for a player alone.
+			-A 2nd AoE is now used with the skill which generates a 7x7 splash AoE around the caster every 5 seconds to check for other Royal Guards near the player that are also in banding status and are in the same party. This is when the stored banding 
+			-count is updated, along with the caster's ATK/DEF and also calculates the HP share.
+		*LG_HESPERUSLIT
+			-Fixed a issue where the element didn't turn to holy when banding requirement's were met.
+			-Now maxes out the rage sphere's for all in banding when the banding count is 7.
+			-Bonus effects no longer stack.
+
 08/07/2022
 	r341 [15peaces]
 		*Merged missing changes from 3ceam rev. 842 - 843

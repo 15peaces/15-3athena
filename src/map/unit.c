@@ -95,8 +95,6 @@ int unit_walktoxy_sub(struct block_list *bl)
 	{
 		((TBL_PC *)bl)->head_dir = 0;
 		clif_walkok((TBL_PC*)bl);
-		if (ud->walktimer == INVALID_TIMER && ((TBL_PC *)bl)->sc.data[SC_BANDING])
-			clif_status_change(bl, SI_BANDING, 1, 9999, ((TBL_PC *)bl)->sc.data[SC_BANDING]->val1, 0, 0);
 	}
 	clif_move(ud);
 
@@ -977,7 +975,6 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_NETHERWORLD]
 			|| sc->data[SC_VACUUM_EXTREME]
 			|| sc->data[SC_THORNS_TRAP]
-			|| sc->data[SC_MEIKYOUSISUI]
 			|| sc->data[SC_KG_KAGEHUMI]
 			|| sc->data[SC_KINGS_GRACE]
 			|| sc->data[SC_SUHIDE]
@@ -2116,6 +2113,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		status_change_end(bl, SC_NEUTRALBARRIER, INVALID_TIMER);
 		status_change_end(bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
 		status_change_end(bl, SC_STEALTHFIELD, INVALID_TIMER);
+		status_change_end(bl, SC_BANDING, INVALID_TIMER);
 		status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
 		status_change_end(bl, SC__MANHOLE, INVALID_TIMER);
 		status_change_end(bl, SC_CURSEDCIRCLE_TARGET, INVALID_TIMER);

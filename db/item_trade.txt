@@ -400,7 +400,7 @@
 6052,123,100	// Ornamental_Hairpin
 6060,115,100	// Moon_Admin_Ticket
 6074,123,100	// Bazett's_Order
-6075,91,100		// Crystalized_Teardrop
+//6075,91,100		// Crystalized_Teardrop
 6076,123,100	// Portable_Toolbox
 6077,123,100	// Rough_Mineral
 6079,123,100	// Flower_Of_Alfheim

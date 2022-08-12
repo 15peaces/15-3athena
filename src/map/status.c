@@ -522,7 +522,7 @@ void initChangeTables(void)
 	set_sc( LG_FORCEOFVANGUARD  , SC_FORCEOFVANGUARD    , SI_FORCEOFVANGUARD    , SCB_MAXHP | SCB_DEF);
 	set_sc( LG_EXEEDBREAK       , SC_EXEEDBREAK			, SI_EXEEDBREAK			, SCB_NONE );
 	set_sc( LG_PRESTIGE			, SC_PRESTIGE			, SI_PRESTIGE			, SCB_DEF );
-	set_sc( LG_BANDING			, SC_BANDING			, SI_BANDING			, SCB_WATK | SCB_DEF );
+	set_sc( LG_BANDING			, SC_BANDING_DEFENCE	, SI_BANDING_DEFENCE	, SCB_SPEED);
 	set_sc( LG_PIETY			, SC_BENEDICTIO			, SI_BENEDICTIO			, SCB_DEF_ELE );
 	set_sc( LG_EARTHDRIVE       , SC_EARTHDRIVE			, SI_EARTHDRIVE			, SCB_DEF|SCB_ASPD );
 	set_sc( LG_INSPIRATION		, SC_INSPIRATION		, SI_INSPIRATION		, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK | SCB_WATK | SCB_HIT | SCB_MAXHP );
@@ -601,16 +601,16 @@ void initChangeTables(void)
 	set_sc( RL_SLUGSHOT		, SC_SLUGSHOT			, SI_SLUGSHOT			, SCB_NONE );
 	add_sc( RL_HAMMER_OF_GOD, SC_STUN );
 
-	set_sc(KO_YAMIKUMO		, SC_HIDING				, SI_HIDING				, SCB_SPEED);
-	set_sc( KO_JYUMONJIKIRI	, SC_KO_JYUMONJIKIRI	, SI_KO_JYUMONJIKIRI	, SCB_NONE);
+	add_sc( KO_YAMIKUMO		, SC_HIDING				);
+	set_sc( KO_JYUMONJIKIRI	, SC_KO_JYUMONJIKIRI	, SI_KO_JYUMONJIKIRI	, SCB_NONE );
 	set_sc( KO_MEIKYOUSISUI	, SC_MEIKYOUSISUI		, SI_MEIKYOUSISUI		, SCB_NONE );
 	set_sc( KO_KYOUGAKU		, SC_KYOUGAKU			, SI_KYOUGAKU			, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
-	set_sc( KO_ZENKAI		, SC_ZENKAI				, SI_ZENKAI				, SCB_NONE );// Where's my WATK Increase??? [Rytech]
+	set_sc( KO_ZENKAI		, SC_ZENKAI				, SI_ZENKAI				, SCB_WATK );
 	set_sc( KO_IZAYOI		, SC_IZAYOI				, SI_IZAYOI				, SCB_MATK );
 	set_sc( KG_KAGEHUMI		, SC_KG_KAGEHUMI		, SI_KG_KAGEHUMI		, SCB_NONE );
 	set_sc( KG_KYOMU		, SC_KYOMU				, SI_KYOMU				, SCB_NONE );
-	set_sc( KG_KAGEMUSYA	, SC_KAGEMUSYA			, SI_KAGEMUSYA			, SCB_NONE);
-	set_sc(OB_ZANGETSU		, SC_ZANGETSU			, SI_ZANGETSU			, SCB_WATK | SCB_MATK);
+	set_sc( KG_KAGEMUSYA	, SC_KAGEMUSYA			, SI_KAGEMUSYA			, SCB_NONE );
+	set_sc( OB_ZANGETSU		, SC_ZANGETSU			, SI_ZANGETSU			, SCB_WATK | SCB_MATK );
 	set_sc( OB_OBOROGENSOU	, SC_GENSOU				, SI_GENSOU				, SCB_NONE );
 	set_sc( OB_AKAITSUKI	, SC_AKAITSUKI			, SI_AKAITSUKI			, SCB_NONE );
 
@@ -840,7 +840,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
 	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
-	StatusIconChangeTable[SC_BANDING_DEFENCE] = SI_BANDING_DEFENCE;
+	StatusIconChangeTable[SC_BANDING] = SI_BANDING;
 
 	// Sura status change icons
 	StatusIconChangeTable[SC_CURSEDCIRCLE_ATKER] = SI_CURSEDCIRCLE_ATKER;
@@ -1032,7 +1032,7 @@ void initChangeTables(void)
 	// Royal Guard
 	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
 	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF;
-	StatusChangeFlagTable[SC_BANDING_DEFENCE] |= SCB_SPEED;
+	StatusChangeFlagTable[SC_BANDING] |= SCB_WATK | SCB_DEF | SCB_REGEN;
 
 	// Genetic & Genetics New Food Items
 	StatusChangeFlagTable[SC_MELON_BOMB] |= SCB_SPEED|SCB_ASPD;
@@ -1235,7 +1235,6 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			status_change_end(target, SC_CAMOUFLAGE, INVALID_TIMER);
 			status_change_end(target, SC_SIREN,INVALID_TIMER);
 			//status_change_end(target, SC_MAGNETICFIELD,INVALID_TIMER);// Skill description says it ends of you take damage.
-			status_change_end(target, SC_MEIKYOUSISUI, INVALID_TIMER);
 			status_change_end(target, SC_SUHIDE, INVALID_TIMER);
 			if ((sce=sc->data[SC_ENDURE]) && !sce->val4) {
 				//Endure count is only reduced by non-players on non-gvg maps.
@@ -1671,6 +1670,13 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			|| (sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF && flag != 2)
 			|| (sc->data[SC_SUHIDE] && skill_num != SU_HIDE)
 		)
+			return 0;
+
+		// Shadow Hold prevent's use of skills that hides the player. This doesn't apply to Chase Walk due to its immunity to detection.
+		// Also prevent's the use of fly wings and butterfly wings (teleporting).
+		if ( sc->data[SC_KG_KAGEHUMI] && (skill_num == AL_TELEPORT || 
+			skill_num == TF_HIDING || skill_num == AS_CLOAKING || skill_num == GC_CLOAKINGEXCEED || 
+			skill_num == RA_CAMOUFLAGE || skill_num == SC_SHADOWFORM || skill_num == KO_YAMIKUMO) )
 			return 0;
 
 		if (sc->data[SC_WINKCHARM] && target && !flag)
@@ -3750,6 +3756,10 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 		regen->rate.hp += 1;
 		regen->rate.sp += 1;
 	}
+
+	if (sc->data[SC_BANDING])
+		regen->rate.hp += 1;// Should be 50% increase, not 100%. How do I do that??? [Rytech]
+
 	if (sc->data[SC_REGENERATION])
 	{
 		const struct status_change_entry *sce = sc->data[SC_REGENERATION];
@@ -4753,6 +4763,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
 	if (sc->data[SC_P_ALTER])
 		watk += sc->data[SC_P_ALTER]->val2;
+	if (sc->data[SC_ZENKAI])
+		 watk += sc->data[SC_ZENKAI]->val2;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val3 == 1)
 		watk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_FLASHCOMBO])
@@ -4845,7 +4857,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += 50;
 	if(sc->data[SC_ODINS_POWER])
 		matk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
-	if(sc->data[SC_IZAYOI])//Recheck the MATK increase please. [Rytech]
+	if(sc->data[SC_IZAYOI])
 		matk += sc->data[SC_IZAYOI]->val2;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val4 == 1)
 		matk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
@@ -5393,7 +5405,7 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				if (sc->data[SC__LAZINESS])
 					val = max(val, 25);
 				if( sc->data[SC_BANDING_DEFENCE] )
-					val = max( val, sc->data[SC_BANDING_DEFENCE]->val1 );
+					val = max(val, 90);
 				if (sc->data[SC_GLOOMYDAY] && sc->data[SC_GLOOMYDAY]->val1 == 2)
 					val = max(val, 50);
 				if (sc->data[SC_B_TRAP])
@@ -7484,6 +7496,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_OBLIVIONCURSE:
 			case SC_LEECHESEND:
 			case SC_WUGBITE:
+			case SC_VACUUM_EXTREME:
+			case SC_BANDING_DEFENCE:
 			//case SC__INVISIBILITY:
 			case SC__ENERVATION:
 			case SC__GROOMY:
@@ -8810,9 +8824,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val1 = val1 / 10;//DEF divided to make skill balanced for pre-renewal mechanics.
 			val_flag |= 1|2;
  			break;
-		case SC_BANDING:
+		case SC_BANDING:// val1 = Skill LV, val4 = Skill Group AoE ID.
+			val2 = skill_banding_count(sd);// Royal Guard's In Banding Count
+			val3 = tick / 5000;
 			tick = 5000;
-			val_flag |= 1;
 			break;
 		case SC_SHIELDSPELL_DEF:
 		case SC_SHIELDSPELL_MDEF:
@@ -8891,16 +8906,34 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val2 = 10 * val1;// Player Damage Resistance Reduction.
 			break;
 		case SC_MEIKYOUSISUI:
+			if (sd) {
+				pc_setsit(sd);
+				clif_sitting(&sd->bl,true);
+				clif_status_load(&sd->bl, SI_SIT, 1);
+			}
+			val2 = 10 * val1;// Chance of nulling the attack.
 			val4 = tick / 1000;
 			tick = 1000;
 			break;
 		case SC_KYOUGAKU:
-			val2 = rnd_value( 2 * val1, 3 * val1);
+			val2 = rnd_value(2 * val1, 3 * val1);// Stats decrease.
 			val1 = 1002;
-			val_flag |= 1;
+			break;
+		case SC_ZENKAI:
+			if ( sd )
+			{
+				struct status_data *sstatus = status_get_status_data(bl);
+
+				if ( sstatus->rhw.ele == val2 )
+					val2 = status_get_base_lv_effect(bl) + status_get_job_lv_effect(bl);
+				else
+					val2 = 0;
+			}
+			else// Monsters
+				val2 = 0;
 			break;
 		case SC_IZAYOI:
-			val2 = 25 * val1;// MATK Increase.
+			val2 = val1 * (status_get_job_lv_effect(bl) / 2);// MATK Increase.
 			break;
 		case SC_KYOMU:
 			val2 = 5 * val1;// Skill Fail Chance
@@ -9218,13 +9251,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_KAAHI:
 			val4 = INVALID_TIMER;
 			break;
-		case SC_BANDING:
-			{
-				struct skill_unit_group *sg;
-				if( (sg = skill_unitsetting(bl,LG_BANDING,val1,bl->x,bl->y,0)) != NULL )
-					val4 = sg->group_id;
-			}
- 			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -9284,7 +9310,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_NETHERWORLD:
 		case SC_VACUUM_EXTREME:
 		case SC_THORNS_TRAP:
-		case SC_MEIKYOUSISUI:
+		case SC_KG_KAGEHUMI:
 		case SC_NEEDLE_OF_PARALYZE:
 		case SC_TINDER_BREAKER:
 			unit_stop_walking(bl,1);
@@ -10085,6 +10111,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			if (vd) vd->dead_sit = 0;
 			break;
 		case SC_WARM:
+		case SC_BANDING:
 		case SC__MANHOLE:
 			if (sce->val4) 
 			{ //Clear the group.
@@ -10183,16 +10210,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			{// Remove HP penalty before ending the status.
 				sc->data[SC_BERSERK]->val2 = 0;
 				status_change_end(bl, SC_BERSERK, INVALID_TIMER);
-			}
-			break;
-		case SC_BANDING:
-			{
-				struct skill_unit_group *group;
-				if(sce->val4){
-					group = skill_id2group(sce->val4);
-					sce->val4 = 0;
-					skill_delunitgroup(group);
-				}
 			}
 			break;
 		case SC_CURSEDCIRCLE_ATKER:
@@ -11209,13 +11226,18 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			break;
 		sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 		return 0;
+		break;
 
 	case SC_BANDING:
-		if (status_charge(bl, 0, 7 - sce->val1))
-		{
-			if (sd)
-				pc_banding(sd, sce->val1);
-			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+		if(--(sce->val3)>0){
+
+			if(!status_charge(bl, 0, 7 - sce->val1))
+				break;
+
+			sce->val2 = skill_banding_count(sd);// Recheck around you to update the banding count.
+			status_calc_bl(bl, SCB_WATK|SCB_DEF);// Update ATK/DEF bonuses after updating the banding count.
+
+			sc_timer_next(5000+tick, status_change_timer,bl->id, data);
 			return 0;
 		}
 		break;
@@ -11634,6 +11656,11 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_VITALITYACTIVATION:
 			case SC_FIGHTINGSPIRIT:
 			case SC_ABUNDANCE:
+			case SC_NEUTRALBARRIER_MASTER:
+			case SC_NEUTRALBARRIER:
+			case SC_STEALTHFIELD_MASTER:
+			case SC_STEALTHFIELD:
+			case SC_BANDING:
 			case SC_ATTHASTE_CASH:
 			case SC_REUSE_REFRESH:
 			case SC_REUSE_LIMIT_A:

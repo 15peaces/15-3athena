@@ -531,6 +531,12 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			return 0;
 		}
 
+		if((sce=sc->data[SC_MEIKYOUSISUI]) && rand()%100 < sce->val2)
+		{// Animation is unofficial, but it allows players to know when the nullify chance was successful. [Rytech]
+			clif_specialeffect(bl, 462, AREA);
+			return 0;
+		}
+
 		if( flag&BF_MAGIC && (sce=sc->data[SC_PRESTIGE]) && rand()%100 < sce->val2)
 		{
 			clif_specialeffect(bl, 462, AREA); // Still need confirm it.
@@ -944,7 +950,7 @@ int battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int dam
 		case NJ_ZENYNAGE:
 		//case RK_DRAGONBREATH:
 		//case GN_HELLS_PLANT_ATK:
-		//case KO_MUCHANAGE:
+		case KO_MUCHANAGE:
 			break;
 		default:
 			if (flag&BF_SKILL)
@@ -1008,7 +1014,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 	case NJ_ZENYNAGE:
 	//case RK_DRAGONBREATH:
 	//case GN_HELLS_PLANT_ATK:
-	//case KO_MUCHANAGE:
+	case KO_MUCHANAGE:
 		break;
 	default:
 		/* Uncomment if you want god-mode Emperiums at 100 defense. [Kisuka]
@@ -1548,6 +1554,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			if (!sd) n_ele = false; //forced neutral for monsters
 			break;
 
+		case LG_HESPERUSLIT:
+			if ( sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 5 || sc->data[SC_BANDING]->val2 == 5) )
+				s_ele = s_ele_ = ELE_HOLY;
+				break;
+
 		case MH_STAHL_HORN:
 			if ( sc && sc->data[SC_GOLDENE_FERSE] )
 				s_ele = s_ele_ = ELE_HOLY;
@@ -1870,7 +1881,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case RK_DRAGONBREATH_WATER:
 				{
 					int damagevalue = 0;
-					wd.damage = 0;
+					wd.damage = wd.damage2 = 0;
 					damagevalue = ((sstatus->hp / 50) + (status_get_max_sp(src) / 4)) * skill_lv;
 					if (level_effect_bonus == 1)
 						damagevalue = damagevalue * status_get_base_lv_effect(src) / 150;
@@ -1882,7 +1893,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			case NC_SELFDESTRUCTION:
 				{
 					int damagevalue = 0;
-					wd.damage = 0;
+					wd.damage = wd.damage2 = 0;
 					damagevalue = (1 + skill_lv) * (8 + (sd ? pc_checkskill(sd, NC_MAINFRAME) : 4)) * (status_get_sp(src) + sstatus->vit);
 					if (level_effect_bonus == 1)
 						damagevalue = damagevalue * status_get_base_lv_effect(src) / 100;
@@ -1893,7 +1904,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		case RL_B_TRAP:
 			{
 				int damagevalue = 0;
-				wd.damage = 0;
+				wd.damage = wd.damage2 = 0;
 				damagevalue = 3 * skill_lv * tstatus->hp / 100;
 				if (tstatus->mode&MD_BOSS)// HP damage dealt is 1/10 the amount on boss monsters.
 					damagevalue = damagevalue / 10;
@@ -1901,20 +1912,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				ATK_ADD(damagevalue);
 			}
 			break;
-			case KO_HAPPOKUNAI:
-				if( sd )
-				{
-					short index = sd->equip_index[EQI_AMMO];
-					wd.damage = 0;
-					if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_AMMO )
-						ATK_ADD((3 * (2 * sstatus->batk + sstatus->rhw.atk + sd->inventory_data[index]->atk)) * (skill_lv + 5) / 5);
-				}
-				else
-					ATK_ADD(5000);
-				break;
 			case HFLI_SBR44:	//[orn]
 				if(src->type == BL_HOM) {
-					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy ;
+					wd.damage = ((TBL_HOM*)src)->homunculus.intimacy;
 					break;
 				}
 			default:
@@ -2590,7 +2590,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (sc && sc->data[SC_BANDING])
 					{
 						skillratio += 200 * sc->data[SC_BANDING]->val2;
-						if (sc->data[SC_BANDING]->val2 >= 6 || sc->data[SC_BANDING]->val2 == 6)
+						if ( (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 6 || sc->data[SC_BANDING]->val2 == 6) )
 							skillratio = skillratio * 150 / 100;
 					}
 					if (sc && sc->data[SC_INSPIRATION])
@@ -2908,15 +2908,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio += 150 * skill_lv;
 					break;
 				case KO_SETSUDAN:
-					{
-						struct status_change_entry *sce;
-						skillratio = 100 * skill_lv;
-						if (level_effect_bonus == 1)
-							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
-						if ( tsc && (sce=tsc->data[SC_SPIRIT]))// Bonus damage added when target is soul linked.
-							skillratio += 200 * sce->val1;// Deals higher damage depending on level of soul link.
-					}
- 					break;
+					skillratio = 100 * skill_lv;
+					if (level_effect_bonus == 1)
+						skillratio = skillratio * status_get_base_lv_effect(src) / 100;
+					if (tsc && tsc->data[SC_SPIRIT])// Bonus damage added when target is soul linked. [Rytech]
+						skillratio += 200 * tsc->data[SC_SPIRIT]->val1;// Deals higher damage depending on level of soul link.
+					break;
 				case KO_BAKURETSU:
 					skillratio = (50 + sstatus->dex / 4) * skill_lv * (sd?pc_checkskill(sd, NJ_TOBIDOUGU):10) * 4 / 10;
 					if (level_effect_bonus == 1)
@@ -2926,6 +2923,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					}
 					else
 						skillratio += 500;
+					break;
+				case KO_HAPPOKUNAI:
+					skillratio = 300 * (skill_lv + 5) / 5;
 					break;
 				case KO_HUUMARANKA:
 					skillratio = 150 * skill_lv + sstatus->agi + sstatus->dex + 100 * (sd ? pc_checkskill(sd, NJ_HUUMA) : 5);
@@ -3183,8 +3183,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			// This is for piercing defense depending on the targets defense element and race.
 			// This does not adjust damage by a percent depending on elements and race.
 			// To make it simple, if a skill is not affected by the ice pick effect, add it here.
-			if (skill_num != PA_SACRIFICE && skill_num != MO_INVESTIGATE && skill_num != CR_GRANDCROSS && skill_num != NPC_GRANDDARKNESS && skill_num != PA_SHIELDCHAIN && skill_num != RK_DRAGONBREATH && skill_num != NC_SELFDESTRUCTION && skill_num != KO_HAPPOKUNAI && 
-				skill_num != RL_B_TRAP && skill_num != RK_DRAGONBREATH_WATER && !flag.cri)
+			if (skill_num != PA_SACRIFICE && skill_num != MO_INVESTIGATE && skill_num != CR_GRANDCROSS && skill_num != NPC_GRANDDARKNESS && skill_num != PA_SHIELDCHAIN && skill_num != RK_DRAGONBREATH && skill_num != NC_SELFDESTRUCTION && skill_num != RL_B_TRAP &&
+				skill_num != RK_DRAGONBREATH_WATER && !flag.cri)
 			{ //Elemental/Racial adjustments
 				if( sd->right_weapon.def_ratio_atk_ele & (1<<tstatus->def_ele) ||
 					sd->right_weapon.def_ratio_atk_race & (1<<tstatus->race) ||
@@ -3793,11 +3793,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		case WL_HELLINFERNO:
 			if (mflag & 8)// 2nd Hit - The shadow damage.
 				s_ele = ELE_DARK;
-			break;
-
-		case LG_HESPERUSLIT:
-			if ( sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 4 )
-				s_ele = ELE_HOLY;
 			break;
 
 		case SO_PSYCHIC_WAVE:
@@ -4720,10 +4715,10 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);
 		if (!md.damage) md.damage = 10;
-			md.damage = md.damage * rnd_value(50, 100) / 100;
-		if ((sd ? pc_checkskill(sd, NJ_TOBIDOUGU) : 10) < 10)
+			md.damage =  md.damage * rnd_value( 50, 100) / 100;// Random damage should be calculated on skill use and then sent here. But can't do so through the flag due to the split damage flag.
+		if ( (sd?pc_checkskill(sd, NJ_TOBIDOUGU):10) < 10 )// Best to just do all the damage calculations here for now and figure it out later. [Rytech]
 			md.damage = md.damage / 2;// Damage halved if Throwing Mastery is not mastered.
-		if (is_boss(target) || (tsd))
+		if (is_boss(target))// Data shows damage is halved on boss monsters but not on players.
 			md.damage = md.damage / 2;
  		break;
 	case KO_HAPPOKUNAI:
@@ -6334,9 +6329,10 @@ static const struct _battle_data {
 // 15-3athena
 	{ "renewal_casting_renewal_skills",		&battle_config.renewal_casting_renewal_skills,	1,		0,		1,				},
 	{ "castrate_dex_scale_renewal_jobs",	&battle_config.castrate_dex_scale_renewal_jobs,	150,	1,		INT_MAX,		},
-	{ "max_parameter_renewal_jobs",			&battle_config.max_parameter_renewal_jobs,		120,	10,		10000,			},
-	{ "max_baby_parameter_renewal_jobs",	&battle_config.max_baby_parameter_renewal_jobs, 108,	10,		10000,			},
-	{ "max_aspd_renewal_jobs",				&battle_config.max_aspd_renewal_jobs,			193,	100,	199,			},
+	{ "max_parameter_renewal_jobs",         &battle_config.max_parameter_renewal_jobs,      130,    10,     10000,          },
+	{ "max_baby_parameter_renewal_jobs",    &battle_config.max_baby_parameter_renewal_jobs, 117,    10,     10000,          },
+	{ "renewal_stats_handling",             &battle_config.renewal_stats_handling,          1,      0,      1,              },
+	{ "max_aspd_renewal_jobs",              &battle_config.max_aspd_renewal_jobs,           193,    100,    199,            },
 	{ "hanbok_ignorepalette",				&battle_config.hanbok_ignorepalette,			0,		0,		1,				},
 	{ "oktoberfest_ignorepalette",          &battle_config.oktoberfest_ignorepalette,       0,      0,      1,				},
 	{ "summer2_ignorepalette",				&battle_config.summer2_ignorepalette,			0,		0,		1,				},
@@ -6344,12 +6340,12 @@ static const struct _battle_data {
 	{ "falcon_and_wug",                     &battle_config.falcon_and_wug,                  0,      0,      1,              },
 	{ "transform_end_on_death",             &battle_config.transform_end_on_death,          1,      0,      1,              },
 	{ "renewal_level_effect_skills",		&battle_config.renewal_level_effect_skills,		1,		0,		1,				},
-	{ "base_lv_skill_effect_limit",         &battle_config.base_lv_skill_effect_limit,      150,    1,      SHRT_MAX,       },
-	{ "job_lv_skill_effect_limit",          &battle_config.job_lv_skill_effect_limit,       50,     1,      SHRT_MAX,       },
+	{ "load_custom_exp_tables",             &battle_config.load_custom_exp_tables,          0,      0,      1,              },
+	{ "base_lv_skill_effect_limit",         &battle_config.base_lv_skill_effect_limit,      175,    1,      SHRT_MAX,       },
+	{ "job_lv_skill_effect_limit",          &battle_config.job_lv_skill_effect_limit,       60,     1,      SHRT_MAX,       },
 	{ "metallicsound_spburn_rate",          &battle_config.metallicsound_spburn_rate,       100,    0,      INT_MAX,        },
 	{ "cashshop_price_rate",                &battle_config.cashshop_price_rate,             100,    0,      INT_MAX,        },
 	{ "death_penalty_maxlv",                &battle_config.death_penalty_maxlv,             0,      0,      3,              }, 
-	{ "renewal_statpoints",					&battle_config.renewal_statpoints,				0,		0,		1,				},
 	{ "mado_skill_limit",                   &battle_config.mado_skill_limit,                0,      0,      1,              },
 	{ "mado_loss_on_death",                 &battle_config.mado_loss_on_death,              1,      0,      1,              },
 	{ "mado_cast_skill_on_limit",           &battle_config.mado_cast_skill_on_limit,        0,      0,      1,              },
@@ -6393,7 +6389,7 @@ static const struct _battle_data {
 	{ "feature.achievement",				&battle_config.feature_achievement,				1,		0,		1,				},
 	{ "max_homunculus_hp",                  &battle_config.max_homunculus_hp,               32767,  100,    INT_MAX,        },
 	{ "max_homunculus_sp",                  &battle_config.max_homunculus_sp,               32767,  100,    INT_MAX,        },
-	{ "max_homunculus_parameter",           &battle_config.max_homunculus_parameter,        150,    10,     SHRT_MAX,       },
+	{ "max_homunculus_parameter",           &battle_config.max_homunculus_parameter,        175,    10,     SHRT_MAX,       },
 	{ "hom_bonus_exp_from_master",          &battle_config.hom_bonus_exp_from_master,       10,     0,      100,            },
 	{ "feature.equipswitch",                &battle_config.feature_equipswitch,             1,      0,      1,              },
 	{ "mvp_exp_reward_message",             &battle_config.mvp_exp_reward_message,          0,      0,      1,				},
@@ -6415,6 +6411,7 @@ static const struct _battle_data {
 	{ "giant_growth_behavior",              &battle_config.giant_growth_behavior,           1,      0,      1,              },
 	{ "mass_spiral_max_def",                &battle_config.mass_spiral_max_def,             50,     0,      SHRT_MAX,       },
 	{ "rebel_base_lv_skill_effect",         &battle_config.rebel_base_lv_skill_effect,      1,      0,      1,              },
+	{ "hesperuslit_bonus_stack",            &battle_config.hesperuslit_bonus_stack,         0,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

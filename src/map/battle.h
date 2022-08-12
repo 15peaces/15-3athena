@@ -513,10 +513,12 @@ extern struct Battle_Config
 	int bg_queue_maximum_afk_seconds;
 
 	// 15-3athena
+	int load_custom_exp_tables;
 	int renewal_casting_renewal_skills;
 	int castrate_dex_scale_renewal_jobs;
 	int max_parameter_renewal_jobs;
 	int max_baby_parameter_renewal_jobs;
+	int renewal_stats_handling;
 	int max_aspd_renewal_jobs;
 	int hanbok_ignorepalette;
 	int oktoberfest_ignorepalette;
@@ -530,7 +532,6 @@ extern struct Battle_Config
 	int metallicsound_spburn_rate;
 	int cashshop_price_rate;
 	int death_penalty_maxlv;
-	int renewal_statpoints;
 	int mado_skill_limit;
 	int mado_loss_on_death;
 	int mado_cast_skill_on_limit;
@@ -597,6 +598,7 @@ extern struct Battle_Config
 	int giant_growth_behavior;
 	int mass_spiral_max_def;
 	int rebel_base_lv_skill_effect;
+	int hesperuslit_bonus_stack;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

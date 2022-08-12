@@ -1242,9 +1242,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_EARTHDRIVE, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case LG_HESPERUSLIT:
-		if( sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 3 )
+		if (sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 4 || sc->data[SC_BANDING]->val2 == 4))
 			status_change_start(bl, SC_STUN, 10000, skilllv, 0, 0, 0, rnd_value( 4000, 8000), 2);
-		if ((sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5) > 0 && sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 5)
+		if ((sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5) > 0 && sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 6 || sc->data[SC_BANDING]->val2 == 6))
 			skill_castend_damage_id(src, bl, LG_PINPOINTATTACK, rnd_value(1, (sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5)), tick, 0);
 		break;
 	case SR_DRAGONCOMBO:
@@ -1529,7 +1529,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		status_change_end(bl, SC_SPIRIT, INVALID_TIMER);//Remove Soul Link When Hit. [Rytech]
 		break;
 	case KO_MAKIBISHI:
-		sc_start(bl, SC_STUN, 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
+		status_change_start(bl, SC_STUN, 1000 * skilllv, skilllv, 0, 0, 0, skill_get_time2(skillid, skilllv), 2);
 		break;
 	case GC_DARKCROW:
 		sc_start(bl,SC_DARKCROW,100,skilllv,skill_get_time(skillid,skilllv));
@@ -1947,13 +1947,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	case NPC_GRANDDARKNESS:
 		attack_type |= BF_WEAPON;
 		break;
-	case LG_HESPERUSLIT:
-		if ( sc && sc->data[SC_FORCEOFVANGUARD] && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 6 )
-		{
-			char i;
-			for( i = 0; i < sc->data[SC_FORCEOFVANGUARD]->val3; i++ )
-				pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD,1),sc->data[SC_FORCEOFVANGUARD]->val3);
-		}
+	case LG_HESPERUSLIT:// Generates rage spheres for all Royal Guards in banding that has Force of Vanguard active.
+		if (sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 7 || sc->data[SC_BANDING]->val2 == 7))
+			party_foreachsamemap(party_sub_count_banding, sd, 3, 2);
 		break;
 	}
 
@@ -3780,7 +3776,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 {
 	struct map_session_data *sd = NULL, *tsd = NULL;
 	struct mob_data *md = NULL, *tmd = NULL;
-	struct status_data *tstatus;
+	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 
 	if (skillid > 0 && skilllv <= 0) return 0; // Wrong skill level.
@@ -3820,6 +3816,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		tsc = NULL;
 
 	tstatus = status_get_status_data(bl);
+	sstatus = status_get_status_data(src);
 
 	map_freeblock_lock();
 
@@ -4291,7 +4288,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
-	case KO_MUCHANAGE:
 	case GN_ILLUSIONDOPING:
 	case MH_HEILIGE_STANGE:
 	case MH_MAGMA_FLOW:
@@ -4614,6 +4610,16 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GN_BLOOD_SUCKER:
 	case GN_HELLS_PLANT_ATK:
 		skill_attack(BF_MISC, src, src, bl, skillid, skilllv, tick, flag);
+		break;
+
+	case KO_MUCHANAGE:
+		{
+			int rate = (1000 - (10000 / (sstatus->dex + sstatus->luk) * 5)) * (skilllv / 2 + 5) / 100;
+			if ( rate < 0 )
+				rate = 0;
+			if ( rand()%100 < rate )// Success chance of hitting is applied to each enemy seprate.
+				skill_attack(BF_MISC,src,src,bl,skillid,skilllv,tick,skill_area_temp[0]&0xFFF);
+		}
 		break;
 
 	case HVAN_EXPLOSION:
@@ -5836,13 +5842,57 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
 	case RL_HEAT_BARREL:
-	case KO_MEIKYOUSISUI:
+	case KO_IZAYOI:
 	case RA_UNLIMIT:
 	case WL_TELEKINESIS_INTENSE:
 	case ALL_FULL_THROTTLE:
 	case SU_ARCLOUSEDASH:
 	case SU_FRESHSHRIMP:
 		clif_skill_nodamage( src, bl, skillid, skilllv, sc_start( bl, type, 100, skilllv, skill_get_time( skillid, skilllv ) ) );
+		break;
+
+	case KO_MEIKYOUSISUI:
+		{
+			const enum sc_type scs[] = { SC_POISON, SC_CURSE, SC_SILENCE, SC_BLIND, SC_FEAR, SC_BURNING, SC_FROST, SC_CRYSTALIZE };
+			signed char remove_attempt = 100;// Safety to prevent infinite looping in the randomizer.
+			bool debuff_active = false;// Flag if debuff is found to be active.
+			bool debuff_removed = false;// Flag when a debuff was removed.
+
+			i = 0;
+
+			// Don't send the ZC_USE_SKILL packet or it will lock up the player's sprite when the forced sitting happens.
+			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+
+			// Remove a random debuff.
+			if (sc)
+			{// Check if any of the listed passable debuffs are active.
+				for (i = 0; i < ARRAYLENGTH(scs); i++)
+				{
+					if (sc->data[scs[i]])
+					{// If a debuff is found, mark true.
+						debuff_active = true;
+						break;// End the check.
+					}
+				}
+
+				// Debuff found? 1 or more of them are likely active.
+				if ( debuff_active )
+					while ( debuff_removed == false && remove_attempt > 0 )
+					{// Randomly select a possible debuff and see if its active.
+						i = rand()%8;
+
+						// Selected debuff active? If yes then remove it and mark it was removed.
+						if (sc->data[scs[i]])
+						{
+							status_change_end(bl, scs[i], INVALID_TIMER);
+							debuff_removed = true;
+						}
+						else// Failed to remove.
+							remove_attempt--;
+					}
+			}
+
+		}
 		break;
 
 	case AB_OFFERTORIUM:
@@ -9982,20 +10032,47 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case KO_KYOUGAKU:
+		{
+			int duration = skill_get_time(skillid,skilllv) - 1000 * tstatus->int_ / 20;
+			rate = 45 + 5 * skilllv - tstatus->int_ / 10;
+
+			// Min rate is 5%.
+			if ( rate < 5 )
+				rate = 5;
+
+			// Min duration is 1 second.
+			if ( duration < 1000 )
+				duration = 1000;
+
+			// Usable only in siege areas tho its not fully clear if this is also allow in battlegrounds.
+			// Also only usable on enemy players not in the this skill status or in monster form.
+			if ( (!map_flag_gvg(src->m) && !map[src->m].flag.battleground) || bl->type != BL_PC ||
+				(tsc && (tsc->data[SC_KYOUGAKU] || tsc->data[SC_MONSTER_TRANSFORM])) )
+			{
+				clif_skill_fail(sd,skillid,0,0,0);
+				break;
+			}
+
+			clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,type,rate,skilllv,duration));
+		}
+		break;
+
+	case KO_JYUSATSU:
+		rate = 45 + 10 * skilllv - tstatus->int_ / 2;
+
+		if ( rate < 5 )
+			rate = 5;
+
 		if ( bl->type != BL_PC )
 		{
 			clif_skill_fail(sd,skillid,0,0,0);
 			break;
 		}
-		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-		break;
 
-	case KO_JYUSATSU:
-		rate = 45 + 10 * skilllv - tstatus->int_ / 2;
-		if ( rate < 5 )
-			rate = 5;
-		sc_start(bl,SC_CURSE,rate,skilllv,skill_get_time(skillid,skilllv));
-		if ( status_get_lv(src) >= status_get_lv(bl) && bl->type == BL_PC)
+		// Attempt to give the curse stats and then reduces target's current HP if curse chance is successful.
+		if ( clif_skill_nodamage(src,bl,skillid,skilllv,sc_start(bl,SC_CURSE,rate,skilllv,skill_get_time(skillid,skilllv))) );
+			status_zap(bl, 5 * skilllv * tstatus->hp / 100, 0);
+		if ( status_get_lv(src) >= status_get_lv(bl) )
 			status_change_start(bl,SC_COMA,10 * skilllv,skilllv,0,0,0,0,0);
 		break;
 
@@ -10059,7 +10136,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case KO_IZAYOI:
 	case KG_KYOMU:
 	case KG_KAGEMUSYA:
 	case OB_OBOROGENSOU:
@@ -10069,14 +10145,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_fail(sd,skillid,0,0,0);
 			break;
 		}
-		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
+		//clif_skill_nodamage(src,bl,skillid,skilllv,1);// Its stupid that the skill animation doesn't trigger on this but it does on the damage one even tho its not a damage skill.
+		clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);// No flash / No Damage Sound / Displays Miss
+		//clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, -2, 6);// No Flash / Damage Sound / No Miss Display
 		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
 		break;
 
 	case KG_KAGEHUMI:
 		if( flag&1 )
-		{
+		{// Chase walk is not placed here since its immune to detection skills.
 			if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || 
 				tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC__SHADOWFORM]) )
 			{
@@ -10091,15 +10168,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		else
 		{
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
 				src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		}
 		break;
 
 	case OB_ZANGETSU:
-		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		//clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, 0, 1, skillid, -2, 6);
+		//clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, -2, 6);
 		sc_start2(bl, type, 100, skilllv, status_get_base_lv_effect(src), skill_get_time(skillid, skilllv));
 		break;
 
@@ -10406,6 +10483,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 				ud->skilltimer=tid;
 				return skill_castend_pos(tid,tick,id,data);
 			case GN_WALLOFTHORN:
+			case KO_MAKIBISHI:
 			case RL_B_TRAP:
 			case MH_SUMMON_LEGION:
 			case MH_STEINWAND:// FIX ME - I need to spawn 2 AoE's. One on the master and the homunculus.
@@ -10900,6 +10978,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		case SC_MAELSTROM:
 		case LG_EARTHDRIVE:
 		case RL_FIRE_RAIN:
+		//case KO_MAKIBISHI:// Enable once I figure out how to prevent movement stopping. [Rytech]
 			break; //Effect is displayed on respective switch case.
 		default:
 			if(skill_get_inf(skillid)&INF_SELF_SKILL)
@@ -10930,13 +11009,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|2,
 			skill_castend_nodamage_id);
 		break;
-	case SO_ARRULLO:
-		i = skill_get_splash(skillid, skilllv);
-		map_foreachinarea (skill_area_sub,
-			src->m, x-i, y-i, x+i, y+i, BL_CHAR,
-			src, skillid, skilllv, tick, flag|BCT_ENEMY|1,
-			skill_castend_nodamage_id);
-		break;
 
 	case HT_DETECTING:
 		i = skill_get_splash(skillid, skilllv);
@@ -10948,10 +11020,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			src->m, x-i, y-i, x+i,y+i,BL_SKILL);
 		break;
 
-	case SR_RIDEINLIGHTNING:
+	case SO_ARRULLO:
 		i = skill_get_splash(skillid, skilllv);
-		map_foreachinarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, 
-			src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
+		map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | 1, skill_castend_nodamage_id);
 		break;
 
 	//Offensive Ground Targeted Splash AoE's.
@@ -10969,10 +11040,14 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RK_DRAGONBREATH:
 	case WM_GREAT_ECHO:
 	case WM_SOUND_OF_DESTRUCTION:
+	case SR_RIDEINLIGHTNING:
 	case KO_BAKURETSU:
+	case KO_MUCHANAGE:
 	case KO_HUUMARANKA:
 	case RK_DRAGONBREATH_WATER:
 		i = skill_get_splash(skillid, skilllv);
+		if ( skillid == KO_MUCHANAGE )// Count the number of enemys in the AoE to prepare for the diving of damage.
+			skill_area_temp[0] = map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i, BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
 		map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skillid, skilllv, tick, flag | BCT_ENEMY | 1, skill_castend_damage_id);
 		break;
 
@@ -11114,18 +11189,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			for (i = 0; i < layout->count; i++)
 				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, LG_OVERBRAND_BRANDISH, skilllv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
  		}
-		break;
-
-	case LG_BANDING:
-		if (sc && sc->data[SC_BANDING])
-			status_change_end(src, SC_BANDING, INVALID_TIMER);
-		else if( (sg = skill_unitsetting(src, skillid, skilllv, src->x, src->y, 0)) != NULL)
-		{
-			sc_start4(src, SC_BANDING, 100, skilllv, 0, 0, sg->group_id, skill_get_time(skillid, skilllv));
-			if (sd)
-				pc_banding(sd, skilllv);
-		}
-		clif_skill_nodamage(src, src, skillid, skilllv, 1);
 		break;
 
 	case LG_RAYOFGENESIS:
@@ -11337,7 +11400,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case SO_EARTH_INSIGNIA:
 	case RL_B_TRAP:
 	case RL_HAMMER_OF_GOD:
-	case KO_MAKIBISHI:
 	case LG_KINGS_GRACE:
 	case KO_ZENKAI:
 	case MH_POISON_MIST:
@@ -11349,6 +11411,32 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
 		break;
+
+	case KO_MAKIBISHI:
+		{
+			short area = skill_get_splash(skillid, skilllv);
+			short castx = x, casty = y;// Player's location on skill use.
+			short placex = 0, placey = 0;// Where to place the makibishi.
+			unsigned char attempts = 0;// Number of attempts to place the makibishi. Prevents infinite loops.
+
+			for( i = 0; i < 2 + skilllv; i++ )
+			{
+				// Select a random cell.
+				placex = x - area + rand()%(area * 2 + 1);
+				placey = y - area + rand()%(area * 2 + 1);
+
+				// Only place the makibishi if its not on the cell where the player is standing and its not on top of another.
+				if ( !((placex == castx && placey == casty) || skill_check_unit_range(src,placex,placey,skillid,skilllv)) )
+					skill_unitsetting(src,skillid,skilllv,placex,placey,0);
+				else if ( attempts < 20 )// 20 attempts is enough. Very rarely do we hit this limit.
+				{// If it tried to place on a spot where the player was standing or where another makibishi is, make another attempt.
+					attempts++;
+					i--;// Mark down. The makibishi placement was unsuccessful.
+				}
+			}
+		}
+		break;
+
 	case NC_MAGMA_ERUPTION:
 		i = skill_get_splash(skillid, skilllv);
 		map_foreachinarea (skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
@@ -11650,6 +11738,13 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		flag|=1;
 		break;
 
+	case LG_BANDING:
+		if ( sc && sc->data[SC_BANDING] )
+			skill_clear_unitgroup(src);
+		else if ((sg = skill_unitsetting(src,skillid,skilllv,src->x,src->y,0)))
+			sc_start4(src,SC_BANDING,100,skilllv,0,0,sg->group_id,skill_get_time(skillid,skilllv));
+		break;
+
 	case PA_GOSPEL:
 		if (sce && sce->val4 == BCT_SELF)
 		{
@@ -11681,21 +11776,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			}
 		}
 		break;
-
-	case KO_MUCHANAGE:
-	{
-		struct status_data *sstatus;
-		int rate = 0;
-		sstatus = status_get_status_data(src);
-		i = skill_get_splash(skillid,skilllv);
-		rate = (100 - (1000 / (sstatus->dex + sstatus->luk) * 5)) * (skilllv / 2 + 5) / 10;
-		if ( rate < 0 )
-			rate = 0;
-		skill_area_temp[0] = map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i, BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
-		if ( rand()%100 < rate )
-			map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-	}
-	break;
 
 	case MH_SUMMON_LEGION:
 		{
@@ -12236,10 +12316,6 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		limit = skill_get_time(skillid, skilllv);
 		break;
 
-	case LG_BANDING:
-		limit = -1;
-		break;
-
 	case SO_CLOUD_KILL:
 		skill_clear_group(src, 4);
 		break;
@@ -12263,7 +12339,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 
 			//AoE's duration is 6 seconds * Number of Summoned Charms. [Rytech]
 			if (sd->charmball_old > 0)
-				limit = 6000 * sd->charmball_old;
+				limit = limit * sd->charmball_old;// By default its 6 seconds * charm count.
 			else
 				limit = 60000;
 
@@ -12553,9 +12629,14 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_ZEPHYR:
 	case UNT_POWER_OF_GAIA:
 		if (sg->src_id == bl->id && (sg->unit_id == UNT_STEALTHFIELD || sg->unit_id == UNT_BLOODYLUST))
-			return 0;// Can't be affected by your own stealth field.
+			return 0;// Can't be affected by your own AoE.
 		if(!sce)
 			sc_start(bl,type,100,sg->skill_lv,sg->limit);
+		break;
+
+	case UNT_BANDING:
+		if(!sce)
+			sc_start(bl,type,5*sg->skill_lv+status_get_base_lv_effect(ss)/5-status_get_agi(bl)/10,sg->skill_lv,skill_get_time2(sg->skill_id,sg->skill_lv));
 		break;
 
 	case UNT_CHAOSPANIC:
@@ -13299,18 +13380,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			}
 			break;
 
-		case UNT_BANDING:
-			{
-				int rate = 0;
-
-				if( battle_check_target(ss,bl,BCT_ENEMY) > 0 && !(status_get_mode(bl)&MD_BOSS) && !(tsc && tsc->data[SC_BANDING_DEFENCE]) )
-				{
-					rate = status_get_base_lv_effect(bl) / 5 + 5 * sg->skill_lv - tstatus->agi / 10;
-					sc_start(bl,SC_BANDING_DEFENCE,rate,90,skill_get_time2(sg->skill_id,sg->skill_lv));
-				}
-			}
-			break;
-
 		case UNT_FIRE_MANTLE:
 			if( battle_check_target(&src->bl, bl, BCT_ENEMY) )
 				skill_attack(BF_MAGIC,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
@@ -13331,37 +13400,57 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			if ( battle_check_target(&src->bl,bl,BCT_ENEMY) > 0 )
 			{
 				switch ( sg->unit_id )
-				{
-					case UNT_ZENKAI_WATER://Success chances and durations needed. [Rytech]
-						switch ( rand()%3+1 )
+				 {// Success change is 100% with default durations. But success is reduceable with stats.
+					case UNT_ZENKAI_WATER:// However, there's no way to reduce success for deep sleep, frost, and crystalize. So its 100% for them always??? [Rytech]
+						switch (rand() % 3 + 1)
 						{
-							case 1: sc_start(bl, SC_FREEZE, 25, sg->skill_lv, 10000); break;
-							case 2: sc_start(bl, SC_FROST, 25, sg->skill_lv, 10000); break;
-							case 3: sc_start(bl, SC_CRYSTALIZE, 25, sg->skill_lv, 10000); break;
+							case 1: sc_start(bl, SC_FREEZE, 100, sg->skill_lv, 30000); break;
+							case 2: sc_start(bl, SC_FROST, 100, sg->skill_lv, 40000); break;
+							case 3: sc_start(bl, SC_CRYSTALIZE, 100, sg->skill_lv, 20000); break;
 						}
 						break;
 					case UNT_ZENKAI_LAND:
 						switch ( rand()%2+1 )
 						{
-							case 1: sc_start(bl, SC_STONE, 25, sg->skill_lv, 10000); break;
-							case 2: sc_start(bl, SC_POISON, 25, sg->skill_lv, 10000); break;
+							case 1: sc_start(bl, SC_STONE, 100, sg->skill_lv, 20000); break;
+							case 2: sc_start(bl, SC_POISON, 100, sg->skill_lv, 20000); break;
 						}
 						break;
 					case UNT_ZENKAI_FIRE:
-						sc_start(bl, SC_BURNING, 25, sg->skill_lv, 10000);
+						sc_start(bl, SC_BURNING, 100, sg->skill_lv, 20000);
 						break;
 					case UNT_ZENKAI_WIND:
 						switch ( rand()%3+1 )
 						{
-							case 1: sc_start(bl, SC_SLEEP, 25, sg->skill_lv, 10000); break;
-							case 2: sc_start(bl, SC_SILENCE, 25, sg->skill_lv, 10000); break;
-							case 3: sc_start(bl, SC_DEEPSLEEP, 25, sg->skill_lv, 10000); break;
+							case 1: sc_start(bl, SC_SLEEP, 100, sg->skill_lv, 20000); break;
+							case 2: sc_start(bl, SC_SILENCE, 100, sg->skill_lv, 20000); break;
+							case 3: sc_start(bl, SC_DEEPSLEEP, 100, sg->skill_lv, 20000); break;
 						}
 						break;
 				}
 			}
 			else
-				sc_start(bl, type, 100, sg->skill_lv, 1000);
+			{
+				signed char element = 0;// For weapon element check.
+
+				switch ( sg->unit_id )
+				{
+					case UNT_ZENKAI_WATER:
+						element = ELE_WATER;
+						break;
+					case UNT_ZENKAI_LAND:
+						element = ELE_EARTH;
+						break;
+					case UNT_ZENKAI_FIRE:
+						element = ELE_FIRE;
+						break;
+					case UNT_ZENKAI_WIND:
+						element = ELE_WIND;
+						break;
+				}
+
+				sc_start2(bl, type, 100, sg->skill_lv, element, skill_get_time2(sg->skill_id,sg->skill_lv));
+			}
 			break;
 
 		case UNT_MAGMA_ERUPTION:
@@ -13512,6 +13601,7 @@ int skill_unit_onleft (uint16 skill_id, struct block_list *bl, int64 tick)
 		case NC_STEALTHFIELD:
 		case SC_MAELSTROM:
 		case SC_BLOODYLUST:
+		case LG_BANDING:
 		case SO_FIRE_INSIGNIA:
 		case SO_WATER_INSIGNIA:
 		case SO_WIND_INSIGNIA:
@@ -13732,7 +13822,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 		}
 		case LG_RAYOFGENESIS:
 		{
-			if (tsd->status.party_id == sd->status.party_id && (tsd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD && tsd->sc.data[SC_BANDING])
+			if (sd->status.party_id == tsd->status.party_id && (tsd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD && tsd->sc.data[SC_BANDING])
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}
@@ -16862,24 +16952,28 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 				sc->data[SC_WARM]->val4 = 0;
 				status_change_end(src, SC_WARM, INVALID_TIMER);
 			}
+			break;
 		case NC_NEUTRALBARRIER:
-			if( sc && sc->data[SC_NEUTRALBARRIER_MASTER] ){
+			if( sc && sc->data[SC_NEUTRALBARRIER_MASTER] )
+			{
 				sc->data[SC_NEUTRALBARRIER_MASTER]->val2 = 0;
-				status_change_end(src,SC_NEUTRALBARRIER_MASTER,INVALID_TIMER);
+				status_change_end(src, SC_NEUTRALBARRIER_MASTER, INVALID_TIMER);
 			}
 			break;
 		case NC_STEALTHFIELD:
-			if( sc && sc->data[SC_STEALTHFIELD_MASTER] ){
+			if( sc && sc->data[SC_STEALTHFIELD_MASTER] )
+			{
 				sc->data[SC_STEALTHFIELD_MASTER]->val2 = 0;
-				status_change_end(src,SC_STEALTHFIELD_MASTER,INVALID_TIMER);
+				status_change_end(src, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
 			}
 			break;
-	case LG_BANDING:
-		if( sc && sc->data[SC_BANDING] ){
-			sc->data[SC_BANDING]->val4 = 0;
-			status_change_end(src,SC_BANDING,INVALID_TIMER);
-		}
-		break;
+		case LG_BANDING:
+			if( sc && sc->data[SC_BANDING] )
+			{
+				sc->data[SC_BANDING]->val4 = 0;
+				status_change_end(src, SC_BANDING, INVALID_TIMER);
+			}
+			break;
 	}
 
 	if (src->type==BL_PC && group->state.ammo_consume)
@@ -17123,20 +17217,6 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 					skill_delunit(unit);
 				}
 				break;
-
-			case UNT_BANDING:
-			{
-				struct block_list *src = map_id2bl(group->src_id);
-				struct status_change *sc;
-				if( !src || (sc = status_get_sc(src)) == NULL || !sc->data[SC_BANDING] ){
-					skill_delunit(unit);
-					break;
-				}
-				// This unit isn't removed while SC_BANDING is active.
-				group->limit = DIFF_TICK32(tick + group->interval, group->tick);
-				unit->limit = DIFF_TICK32(tick + group->interval, group->tick);
- 			}
- 			break;
 
 			default:
 				skill_delunit(unit);
@@ -18400,19 +18480,43 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 	return 0;
 }
 
+int skill_banding_count (struct map_session_data *sd)
+{
+	unsigned char count = party_foreachsamemap(party_sub_count_banding, sd, 3, 0);
+	unsigned int group_hp = party_foreachsamemap(party_sub_count_banding, sd, 3, 1);
+
+	nullpo_ret(sd);
+
+	// HP is set to the average HP of the banding group.
+	if ( count > 1 )
+		status_set_hp(&sd->bl, group_hp/count, 0);
+
+	// Royal Guard count check for banding.
+	if ( sd && sd->status.party_id )
+	{// There's no official max count but its best to limit it to the official max party size.
+		if( count > 12)
+			return 12;
+		else if( count > 1)
+			return count;//Effect bonus from additional Royal Guards if not above the max possiable.
+	}
+
+	return 0;
+}
 
 int skill_chorus_count (struct map_session_data *sd)
 {
+	unsigned char count = party_foreachsamemap(party_sub_count_chorus, sd, 15);
+
 	nullpo_ret(sd);
 
 	// Minstrel/Wanderer count check for chorus skills.
 	// Bonus remains 0 unless 3 or more Minstrel's/Wanderer's are in the party.
 	if ( sd && sd->status.party_id )
 	{
-		if( party_foreachsamemap(party_sub_count_chorus, sd, 0) > 7)
+		if (count > 7)
 			return 5;//Maximum effect possiable from 7 or more Minstrel's/Wanderer's
-		else if( party_foreachsamemap(party_sub_count_chorus, sd, 0) > 2)
-			return (party_foreachsamemap(party_sub_count_chorus, sd, 0) - 2);//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
+		else if (count > 2)
+			return (count - 2);//Effect bonus from additional Minstrel's/Wanderer's if not above the max possiable.
 	}
 
 	return 0;
@@ -18818,15 +18922,6 @@ void skill_init_unit_layout (void)
 					static const int dx[] = {-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2, 2, 2, 1, 0};
 					static const int dy[] = { 2, 2, 1, 0,-1,-2,-2,-2,-2,-2,-1, 0, 1, 2, 2, 2};
 					skill_unit_layout[pos].count = 16;
-					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
-					break;
-				}
-				case KO_MAKIBISHI:
-				{
-					static const int dx[] = {-1, 0, 1,-1, 1,-1, 0, 1};
-					static const int dy[] = { 1, 1, 1, 0, 0,-1,-1,-1};
-					skill_unit_layout[pos].count = 8;
 					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
 					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
 					break;

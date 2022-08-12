@@ -584,106 +584,6 @@ int pc_overheat(struct map_session_data *sd, int val)
 	return 0;
 }
 
-static int pc_check_banding( struct block_list *bl, va_list ap )
-{
-	int *c, *b_sd;
-	struct block_list *src;
-	struct map_session_data *tsd;
-	struct status_change *sc;
-
-	nullpo_retr(0, bl);
-	nullpo_retr(0, tsd = (struct map_session_data*)bl);
-	nullpo_retr(0, src = va_arg(ap,struct block_list *));
-	c = va_arg(ap,int *);
-	b_sd = va_arg(ap, int *);
-
-	if(pc_isdead(tsd))
-		return 0;
-
-	sc = status_get_sc(bl);
-
-	//if( bl == src )
-	//	return 0;
-
-	if( sc && sc->data[SC_BANDING] )
-	{
-		b_sd[(*c)++] = tsd->bl.id;
-		return 1;
-	}
-
-	return 0;
-}
-
-int pc_banding(struct map_session_data *sd, short skill_lv)
-{
-	int c;
-	int b_sd[MAX_PARTY]; // In case of a full Royal Guard party.
-	int i, j, hp, extra_hp = 0, tmp_qty = 0, tmp_hp;
-	struct map_session_data *bsd;
-	struct status_change *sc;
-	int range = skill_get_splash(LG_BANDING, skill_lv);
-
-	nullpo_ret(sd);
-
-	c = 0;
-	memset(b_sd, 0, sizeof(b_sd));
-	i = party_foreachsamemap(pc_check_banding,sd,range,&sd->bl,&c,&b_sd);
-	if( c < 1 )
-	{	// No more Royal Guards in Banding found.
-		if( (sc = status_get_sc(&sd->bl)) != NULL  && sc->data[SC_BANDING] )
-		{
-			sc->data[SC_BANDING]->val2 = 0; // Reset the counter
-			status_calc_bl(&sd->bl,StatusChangeFlagTable[SC_BANDING]);
-		}
-		return 0;
-	}
-
-	//Add yourself
-	hp = status_get_hp(&sd->bl);
-	i++;
-
-	// Get total HP of all Royal Guards in party.
-	for( j = 0; j < i; j++ )
-	{
-		bsd = map_id2sd(b_sd[j]);
-		if( bsd != NULL )
-			hp += status_get_hp(&bsd->bl);
-	}
-
-	// Set average HP.
-	hp = hp / i;
-	
-	// If a Royal Guard have full HP, give more HP to others that haven't full HP.
-	for (j = 0; j < i; j++)
-	{
-		bsd = map_id2sd(b_sd[j]);
-		if (bsd != NULL && (tmp_hp = hp - status_get_max_hp(&bsd->bl)) > 0)
-		{
-			extra_hp += tmp_hp;
-			tmp_qty++;
-		}
-	}
-
-	if (extra_hp > 0 && tmp_qty > 0)
-		hp += extra_hp / tmp_qty;
-
-	for (j = 0; j < i; j++)
-	{
-		bsd = map_id2sd(b_sd[j]);
-		if (bsd != NULL)
-		{
-			status_set_hp(&bsd->bl,hp,0);	// Set hp
-			if ((sc = status_get_sc(&bsd->bl)) != NULL  && sc->data[SC_BANDING])
-			{
-				sc->data[SC_BANDING]->val2 = c; // Set the counter. It doesn't count your self.
-				status_calc_bl(&bsd->bl, StatusChangeFlagTable[SC_BANDING]);
-			}
-		}
-	}
-
-	return c;
-}
-
 // Increases a player's fame points and displays a notice to him
 void pc_addfame(struct map_session_data *sd,int count)
 {
@@ -5254,6 +5154,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 			status_change_end(&sd->bl, SC_NEUTRALBARRIER, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STEALTHFIELD_MASTER, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_STEALTHFIELD, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_BANDING, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_MIRACLE, INVALID_TIMER);
 			if (sd->sc.data[SC_KNOWLEDGE]) {
 				struct status_change_entry *sce = sd->sc.data[SC_KNOWLEDGE];
@@ -6692,7 +6593,7 @@ int pc_status_point_cost(int low)
 {
 	int sp;
 
-	if (battle_config.renewal_statpoints && low >= 100)
+	if (battle_config.renewal_stats_handling && low >= 100)
 	{
 		sp = (16 + 4 * ((low - 100) / 5));
 	}
@@ -9425,7 +9326,7 @@ int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswit
 		return 0;
 	}
 
-	if(sd->sc.data[SC_BERSERK])
+	if (sd->sc.data[SC_BERSERK] || sd->sc.data[SC_KYOUGAKU])
 	{
 		if (equipswitch) {
 			clif_equipswitch_add(sd, n, req_pos, true);
@@ -9648,7 +9549,7 @@ int pc_unequipitem(struct map_session_data *sd,int n,int flag)
 	}
 
 	if( !(flag&2) && sd->sc.count && 
-		(sd->sc.data[SC_BERSERK] || // Prevents unequipping anything.
+		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_KYOUGAKU] ||// Prevents unequipping anything.
 		(sd->sc.data[SC_PYROCLASTIC] && sd->inventory.u.items_inventory[n].equip & EQP_HAND_R)) )// Can't unequip weapon.
 	{
 		clif_unequipitemack(sd,n,0,0);
@@ -10314,6 +10215,7 @@ bool pc_setstand(struct map_session_data *sd, bool force){
 		return false;
 
 	status_change_end(&sd->bl, SC_TENSIONRELAX, INVALID_TIMER);
+	status_change_end(&sd->bl, SC_MEIKYOUSISUI, INVALID_TIMER);
 	clif_status_load(&sd->bl, SI_SIT, 0);
 	clif_standing(&sd->bl, true); //Inform area PC is standing
 
@@ -10367,7 +10269,10 @@ int pc_split_atoui(char* str, unsigned int* val, char sep, int max)
 			val[i] = UINT_MAX;
 			if (!warning) {
 				warning = 1;
-				ShowWarning("pc_readdb (exp.txt): Required exp per level is capped to %u\n", UINT_MAX);
+				if ( battle_config.load_custom_exp_tables )
+					ShowWarning("pc_readdb (exp2.txt): Required exp per level is capped to %u\n", UINT_MAX);
+				else
+					ShowWarning("pc_readdb (exp.txt): Required exp per level is capped to %u\n", UINT_MAX);
 			}
 		} else
 			val[i] = (unsigned int)f;
@@ -10606,7 +10511,7 @@ static int pc_read_statsdb(const char *basedir, int last_s){
 	char line[24000]; //FIXME this seem too big
 	FILE *fp;
 
-	if( battle_config.renewal_statpoints )
+	if( battle_config.renewal_stats_handling)
 		sprintf(line, "%s/statpoint_renewal.txt", basedir); // Renewal mechanic
 	else
 		sprintf(line, "%s/statpoint.txt", basedir); // Old mechanic.
@@ -10635,7 +10540,7 @@ static int pc_read_statsdb(const char *basedir, int last_s){
 			entries++;
 		}
 		fclose(fp);
-		if (battle_config.renewal_statpoints)
+		if (battle_config.renewal_stats_handling)
 			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s/%s"CL_RESET"'.\n", entries, basedir, "statpoint_renewal.txt");
 		else
 			ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s/%s"CL_RESET"'.\n", entries, basedir, "statpoint.txt");
@@ -10690,7 +10595,10 @@ void pc_readdb(void) {
 	s = pc_read_statsdb(db_path,s);
 	sv_readdb(db_path, "job_db1.txt",',',5+MAX_WEAPON_TYPE,5+MAX_WEAPON_TYPE,CLASS_COUNT,&pc_readdb_job1);
 	sv_readdb(db_path, "job_db2.txt",',',1,1+MAX_LEVEL,CLASS_COUNT,&pc_readdb_job2);
-	sv_readdb(db_path, "exp.txt",',',4,1000+3,CLASS_COUNT*2,&pc_readdb_exp);
+	if (battle_config.load_custom_exp_tables)
+		sv_readdb(db_path, "exp2.txt", ',', 4, 1000 + 3, CLASS_COUNT * 2, &pc_readdb_exp);
+	else
+		sv_readdb(db_path, "exp.txt",',',4,1000+3,CLASS_COUNT*2,&pc_readdb_exp);
 	sv_readdb(db_path, "job_noenter.txt", ',', 3, 3, CLASS_COUNT, &pc_readdb_job_noenter);
 
 	// Reset and read skilltree
