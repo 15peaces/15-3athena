@@ -2493,7 +2493,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x02C4,26,partyinvite2,2
 0x0281,4
 0x0202,26,friendslistadd,2
-0x022D,5,hommenu,4
+0x022D,5,hommenu,2:4
 0x023B,36,storagepassword,0
 
 0x0206,35

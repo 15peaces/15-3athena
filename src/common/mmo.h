@@ -483,6 +483,8 @@ struct s_homunculus {	//[orn]
 	int int_ ;
 	int dex ;
 	int luk ;
+
+	int autofeed; // TODO
 };
 
 struct s_mercenary {

@@ -18318,6 +18318,13 @@ void clif_parse_cz_config(int fd, struct map_session_data *sd)
 			pd->pet.autofeed = flag;
 			break;
 		}
+		case CZ_CONFIG_HOMUNCULUS_AUTOFEEDING: // TODO
+		{
+			struct homun_data *hd = sd->hd;
+			nullpo_retv(hd);
+			hd->homunculus.autofeed = flag;
+			break;
+		}
 		default:
 			ShowWarning("clif_parse_cz_config: Unsupported type has been received (%u).\n", type);
 			return;

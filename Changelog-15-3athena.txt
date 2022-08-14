@@ -5,9 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/14/2022
+	r343 [15peaces]
+		*Added missing changelogs, sorry... ^^"
+		*Fixed the CZ_COMMAND_MER packet for 2018+ clients.
+			-The homunculus menu is now working fine again.
+		*Fixed an warning in clif_parse_cz_config function.
+			-Added pre-support for homunculus autofeed flag.
+			-Support for this feature might be added later.
+
 08/12/2022
 	r342 [15peaces]
-		*Merged missing changes from 3ceam rev. 844 - 845
+		*Merged missing changes from 3ceam rev. 844 - 846
 		*Added support for IT_SHADOWGEAR item type.
 			-also changed the way the itemtype function is working to probably support it.
 				--Thanks to @rathena
@@ -31,6 +40,9 @@
 			-These are official limits for players (RE Era Jobs) and homunculus for the 175/60 cap.
 		*Renewal Era Jobs (Jobs introduced during RE era)
 			-Canged all limits to fit the 175/60 level cap.
+		*This is the first part on the revisiting of the Kagerou/Oboro skills.
+			-Part 2 will come at a later date.
+		*Cleaned up and optomized some code.
 		*Disabled Crystalized_Teardrop in item_trade database.
 			-It is a normal etc item in renewal (on kRO) an can be traded.
 		*Corrected the max level for CG_MOONLIT in the skill database.
@@ -52,7 +64,60 @@
 		*LG_HESPERUSLIT
 			-Fixed a issue where the element didn't turn to holy when banding requirement's were met.
 			-Now maxes out the rage sphere's for all in banding when the banding count is 7.
-			-Bonus effects no longer stack.
+			-Bonus effects no longer stack.		
+		*Kagerou/Oboro
+			-Fixed a issue where none of the skill cast times were interruptable.
+		*KO_HAPPOKUNAI (Spray Kunai)
+			-Recoded the skill.
+			-Damage is now ranged physical. Basicly a stronger version of Throw Kunai.
+		*KO_MUCHANAGE (Over Throw)
+			-Recoded the skill.
+			-Damage is no longer reduced in GvG/BG areas.
+			-Damage is no longer reduced by half on enemy players.
+			-Success chance of hitting is now seprate for each enemy target.
+			-Damage is now divided between enemys detected in AoE.
+			-This means its divided based on the number of enemy's detected in the AoE and not by the number of enemys hit.
+		*KO_HUUMARANKA (Launch Huuma Shuriken)
+			-Damage no longer split between targets.
+		*KO_MAKIBISHI (Makibishi)
+			-Recoded the skill.
+			-Fixed a issue where it didn't follow the rules of AoE placement.
+			-No longer ignores elemental adjustments.
+			-No longer stacks on top of each other.
+			-Stun duration is now fixed and can't be reduced.
+			-Now places the proper number of makibishi depending on skill level used.
+		*KO_MEIKYOUSISUI (Clear Meditation)
+			-Recoded the skill.
+			-Skill now makes the caster sit when the status starts. If the caster stands up at will or gets forced to stand up, the status will end. This also prevent's the caster from being able to move or use any skills while active due to sitting.
+			-Now has a chance of making any attack completely miss the caster while active.
+			-Now removes a single debuff by random on use. The following can be removed....
+			-Poison / Curse / Silence / Blind / Fear / Burning / Frost / Crystalize.
+			-This behavior is official according to zone scans but a bug does exist on official where the skill use animation would stop the caster from sitting, allowing exploiting of skill uses. I coded it to prevent this issue from happening.
+		*KO_KYOUGAKU (Illusion - Shock)
+			-Recoded the skill.
+			-Now has a success chance reduceable by the target's INT.
+			-Duration is now reduceable by the target's INT.
+			-Now only usable in GvG and Battleground maps and on enemy players only.
+			-Will now fail if used on a target already affected by this skill.
+			-Affected target can no longer switch or unequip equips.
+		*KO_JYUSATSU (Illusion - Killing Curse)
+			-Now only usable on enemy players.
+			-Now reduces the affected target's current HP if the chance of curse is successful.
+		*KO_ZENKAI (Spread Seals)
+			-Can no longer be stacked on top of each other.
+			-Random status chance is now applied every second.
+			-Random status success chance is now 100%, but is reduceable by stats and equips.
+			-Durations of the random status's is now set to their original defaults.
+			-Friendly player's standing in the AoE will now get a WATK increase if the weapon element is the same as the AoE's element.
+		*KO_IZAYOI (16th Night)
+			-Updated the MATK increase formula.
+			-Corrected the animation handling.
+		*KG_KAGEHUMI (Shadow Hold)
+			-Corrected the animation handling.
+			-Fixed a issue where affected player's didn't stop moving.
+			-Affected targets will not beable to use the following skills for the duration...
+			-Hiding / Cloaking / Cloaking Exceed / Camouflage / Shadow Form / Dark Cloud
+			-Also blocks the use of any teleporting methods including fly/butterfly wings.
 
 08/07/2022
 	r341 [15peaces]
