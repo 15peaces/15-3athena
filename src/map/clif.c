@@ -1609,6 +1609,10 @@ int clif_spawn(struct block_list *bl)
 				clif_status_change(&sd->bl,SI_SU_STOOP,1,9999,sd->sc.data[SC_SU_STOOP]->val1,0,0);
 			if( sd->sc.count && sd->sc.data[SC_SPRITEMABLE] )
 				clif_status_change(&sd->bl,SI_SPRITEMABLE,1,9999,sd->sc.data[SC_SPRITEMABLE]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_SV_ROOTTWIST] )
+				clif_status_change(&sd->bl,SI_SV_ROOTTWIST,1,9999,sd->sc.data[SC_SV_ROOTTWIST]->val1,0,0);
+			if( sd->sc.count && sd->sc.data[SC_BITESCAR] )
+				clif_status_change(&sd->bl,SI_BITESCAR,1,9999,sd->sc.data[SC_BITESCAR]->val1,0,0);
 			if (sd->sc.count && sd->sc.data[SC_TUNAPARTY])
 				clif_status_change(&sd->bl, SI_TUNAPARTY, 1, 9999, sd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if (sd->sc.count && sd->sc.data[SC_SOULATTACK])
@@ -1776,8 +1780,7 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 		if( (id = hd->homunculus.hskill[i].id) != 0 ){
 			j = id - HM_SKILLBASE;
 			WFIFOW(fd,len  ) = id;
-			WFIFOW(fd,len+2) = skill_get_inf(id);
-			WFIFOW(fd,len+4) = 0;
+			WFIFOL(fd,len+2) = skill_get_inf(id);
 			WFIFOW(fd,len+6) = hd->homunculus.hskill[j].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,hd->homunculus.hskill[j].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->hd->bl, id,hd->homunculus.hskill[j].lv);
@@ -2514,8 +2517,8 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 			WFIFOW(fd,6+offs) = sd->inventory_data[n]->view_id;
 		else
 			WFIFOW(fd,6+offs) = sd->inventory.u.items_inventory[n].nameid;
-		WFIFOB(fd,8+offs) = sd->inventory.u.items_inventory[n].identify;
-		WFIFOB(fd,9+offs) = sd->inventory.u.items_inventory[n].attribute;
+		WFIFOB(fd,8+offs) = sd->inventory.u.items_inventory[n].identify ? 1 : 0;
+		WFIFOB(fd,9+offs) = (sd->inventory.u.items_inventory[n].attribute) != 0 ? 1 : 0;
 		WFIFOB(fd,10+offs) = sd->inventory.u.items_inventory[n].refine;
 		clif_addcards(WFIFOP(fd,11+offs), &sd->inventory.u.items_inventory[n]);
 #if PACKETVER < 20120925
@@ -5026,6 +5029,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SU_STOOP,1,9999,tsd->sc.data[SC_SU_STOOP]->val1,0,0);
 			if( tsd->sc.count && tsd->sc.data[SC_SPRITEMABLE] )
 				clif_status_change_single(&sd->bl,&tsd->bl,SI_SPRITEMABLE,1,9999,tsd->sc.data[SC_SPRITEMABLE]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_SV_ROOTTWIST] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_SV_ROOTTWIST,1,9999,tsd->sc.data[SC_SV_ROOTTWIST]->val1,0,0);
+			if( tsd->sc.count && tsd->sc.data[SC_BITESCAR] )
+				clif_status_change_single(&sd->bl,&tsd->bl,SI_BITESCAR,1,9999,tsd->sc.data[SC_BITESCAR]->val1,0,0);
 			if (tsd->sc.count && tsd->sc.data[SC_TUNAPARTY])
 				clif_status_change_single(&sd->bl, &tsd->bl, SI_TUNAPARTY, 1, 9999, tsd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
 			if (tsd->sc.count && tsd->sc.data[SC_SOULATTACK])
@@ -7278,8 +7285,7 @@ void clif_item_skill(struct map_session_data *sd,int skillid,int skilllv)
 	WFIFOHEAD(fd,packet_len(0x147));
 	WFIFOW(fd, 0)=0x147;
 	WFIFOW(fd, 2)=skillid;
-	WFIFOW(fd, 4)=skill_get_inf(skillid);
-	WFIFOW(fd, 6)=0;
+	WFIFOL(fd, 4)=skill_get_inf(skillid);
 	WFIFOW(fd, 8)=skilllv;
 	WFIFOW(fd,10)=skill_get_sp(skillid,skilllv);
 	WFIFOW(fd,12)=skill_get_range2(&sd->bl, skillid,skilllv);

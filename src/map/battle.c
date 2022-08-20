@@ -2941,9 +2941,30 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case SU_BITE:
 					skillratio = 200;
+					// kRO says "When the enemy is weak, there is a bigger attack.
+					// jRO says if the target's HP is below 70% it deals 50% more damage. Does that make it 250% or 300%??? [Rytech]
+					if (tstatus->hp < 70 * tstatus->max_hp / 100)
+						skillratio += 100;// Going with added 100% for now.
 					break;
 				case SU_SCRATCH:
 					skillratio = 50 + 50 * skill_lv;
+					break;
+				case SU_SCAROFTAROU:
+					skillratio = 100 * skill_lv;
+					if ( tsc && tsc->data[SC_BITESCAR] || (tstatus->mode&MD_BOSS))
+						skillratio *= 2;// Double damage on enemy's with the status or is a boss.
+					break;
+				case SU_PICKYPECK:
+					skillratio = 200 + 100 * skill_lv;
+					if (tstatus->hp < 50 * tstatus->max_hp / 100)
+						skillratio *= 2;// Double damage if enemy HP is below 50%.
+					break;
+				case SU_LUNATICCARROTBEAT:
+				case SU_LUNATICCARROTBEAT2:
+					skillratio = 200 + 100 * skill_lv;
+					break;
+				case SU_SVG_SPIRIT:
+					skillratio = 250 + 150 * skill_lv;
 					break;
 				case MH_NEEDLE_OF_PARALYZE:
 					skillratio = 700 + 100 * skill_lv;
@@ -4268,6 +4289,13 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 200 * (sd ? sd->charmball_old : 10);
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
+						break;
+					case SU_SV_STEMSPEAR:
+						skillratio = 700;
+						break;
+					case SU_CN_METEOR:
+					case SU_CN_METEOR2:
+						skillratio = 200 + 100 * skill_lv;
 						break;
 					case MH_POISON_MIST:
 						skillratio = 40 * skill_lv;
@@ -6412,6 +6440,7 @@ static const struct _battle_data {
 	{ "mass_spiral_max_def",                &battle_config.mass_spiral_max_def,             50,     0,      SHRT_MAX,       },
 	{ "rebel_base_lv_skill_effect",         &battle_config.rebel_base_lv_skill_effect,      1,      0,      1,              },
 	{ "hesperuslit_bonus_stack",            &battle_config.hesperuslit_bonus_stack,         0,      0,      1,              },
+	{ "homun_autofeed",						&battle_config.homun_autofeed,					1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

@@ -5,6 +5,40 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/20/2022
+	r344 [15peaces]
+		*Merged missing changes from 3ceam rev. 847 - 848
+		*Please don't forget to add the upgrade_15-3athena_svn344.sql file!
+		*Added full support for homunculus auto feeding.
+		*Use skill inf value as int32 in all packets.
+			-Before some packets had skill inf as int16 + unknown int16 field.
+			-Thanks to @HerculesWS
+		*Added the "skill_summoner_power" function.
+			-This function is used to check if the player has any of the "POWEROF...." skills and then check if 20 or more skill points are invested into the part of the skill tree related to it.
+		*Cleaned and optomized some code.
+		*Updated all the Summoner skill entrys in the skill_db to get them prepared for coding in future updates.
+		*Added the catnip fruit item.
+		*Summoner; Baby Summoner
+			-Updated the MaxHP to be more official.
+			-The job exp table was redone to act more like official.
+			-In official, Summoner's have a job exp table thats a mix of regular 1st, 2nd, and 3rd job exp tables. I was able to make a table with the same behavior using pre-renewal exp values.
+			-Updated all variable cast, fixed cast, aftercast, cooldown, and durations for all skills with official times.
+		*AL_HEAL; AL_CURE; AB_CHEAL; AB_HIGHNESSHEAL; AB_CLEARANCE
+			-Updated to remove the BITESCAR (Scar of Tarou) status.
+		*SU_BITE
+			-Updated the handling of the animation.
+			-Now deals more damage on enemy's with HP below a certain percentage of MaxHP.
+			-Now has a chance of double casting depending on the caster's base level.
+		*SU_SCRATCH
+			-Updated the handling of the animation.
+			-Now has a chance of giving the bleeding status.
+			-Now has a chance of double casting depending on the caster's base level.
+		*SU_HIDE
+			-Updated the SP requirement.
+		*SU_SV_STEMSPEAR; SU_PICKYPECK; SU_CN_POWDERING; SU_CN_METEOR; SU_SCAROFTAROU; SU_LUNATICCARROTBEAT; SU_CN_METEOR2; SU_LUNATICCARROTBEAT2; SU_SVG_SPIRIT; SU_NYANGGRASS
+			-Added support for these skills.
+			-Note: Scar of Tarou's status doesn't deal damage at the moment but its effect on double damage from Scar of Tarou does work. I'll add in the rest of the stuff for it in a future update.
+
 08/14/2022
 	r343 [15peaces]
 		*Added missing changelogs, sorry... ^^"

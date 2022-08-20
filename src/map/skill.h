@@ -392,6 +392,7 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 int skill_banding_count(struct map_session_data *sd);
 int skill_chorus_count(struct map_session_data *sd);
 int skill_akaitsuki_damage(struct block_list* src, struct block_list *bl, int damage, int skillid, int skilllv, int64 tick);
+int skill_summoner_power(struct map_session_data *sd, unsigned char power_type);
 
 int skill_stasis_check(struct block_list *bl, int skillid);// Stasis skill usage check. [LimitLine]
 int skill_get_elemental_type(int skill_id, int skill_lv);
@@ -2002,6 +2003,12 @@ enum charm_element {
 	CHARM_EARTH,
 	CHARM_FIRE,
 	CHARM_WIND
+};
+
+enum summoner_power {
+	POWER_OF_LIFE = 1,
+	POWER_OF_LAND,
+	POWER_OF_SEA
 };
 
 // msgstringtable

@@ -4390,6 +4390,7 @@
 31101,C_JP_EV07,Costume Taini Hat Blue,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,0,1538,{},{},{}
 
 // 3ceam stable
+11602,Catnip_Fruit,Catnip Fruit,0,15,,1,,,,,0xFFFFFFFF,7,2,,,,,,{ itemheal rand(36,40),0; },{},{}
 13138,Dark_Rose,Dark Rose,4,20,,1800,150,,7,2,0x01000000,7,2,34,3,120,1,17,{},{},{}
 // Rebellion Ammo
 13215,AP_Ammo,Armor-Piercing Bullet,10,50,,2,50,,,,0x01000000,7,2,32768,,100,,3,{},{},{}

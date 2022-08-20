@@ -714,7 +714,14 @@ static int merc_hom_hungry(int tid, int64 tick, int id, intptr_t data)
 		clif_emotion(&hd->bl, E_HMM);
 	} else if(hd->homunculus.hunger == 75) {
 		clif_emotion(&hd->bl, E_OK);
-	}  
+	}
+
+	if (battle_config.homun_autofeed != 0) {
+		if (hd->homunculus.autofeed) {
+			if (hd->homunculus.hunger < 30)
+				merc_hom_food(sd, hd);
+		}
+	}
 	
 	if(hd->homunculus.hunger < 0) {
 		hd->homunculus.hunger = 0;
