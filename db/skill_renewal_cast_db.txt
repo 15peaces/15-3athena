@@ -18,7 +18,7 @@
 // If set like this, the cast time for level 1 will be 1 second, level 2 will be 3 seconds, and level 3 will be 8 seconds.
 // You can set them to whatever you want.
 //
-// All skills in the 2000 - 5067 ID range will use the renewal cast time system. Anything else outside the range will use the regular cast time system.
+// All skills in the 2000 - 5073 ID range will use the renewal cast time system. Anything else outside the range will use the regular cast time system.
 // Mutated Homunculus skills will also use the renewal system. Their ID's are in the 8017 - 8043 range.
 //==========================================
 
@@ -166,8 +166,8 @@
 
 //-- WL_EARTHSTRAIN
 2216,2000:3000:4000:5000:6000,1000,1000,10000,0,500,30000
-//-- WL_TETRAVORTEX //CHECK Duration 1 might be correct?
-2217,5000:6000:7000:8000:9000,1000,2000,15000,0,20000,0
+//-- WL_TETRAVORTEX // Duration hard coded for the 4 different status.
+2217,5000:6000:7000:8000:9000,1000,2000,15000,0,0,0
 
 //-- WL_SUMMONFB
 2222,2000,0,0,0,0,120000:160000:200000:240000:280000,0
@@ -633,8 +633,14 @@
 2572,0,0,0,0,0,0,0
 //-- RL_B_FLICKER_ATK
 2573,0,0,0,0,0,0,0
-//-- RL_GLITTERING_GREED_ATK
-2574,0,0,0,0,0,0,0
+//==========================================
+
+//===== Star Emperor =======================
+//
+//==========================================
+
+//===== Soul Reaper ========================
+//
 //==========================================
 
 //===== Kagerou / Oboro ====================
@@ -712,7 +718,7 @@
 3035,0,3000,0,300000,0,0,0
 //==========================================
 
-//===== 3rd Job Level Expansion Skills ======
+//===== 3rd Job Level Expansion Skills =====
 //-- GC_DARKCROW
 5001,0,0,0,60000,0,5000,0
 
@@ -826,7 +832,7 @@
 //-- SU_MEOWMEOW
 5053,0,0,1000,180000:160000:140000:120000:100000,0,10000:10000:10000:10000:12000,8000:8000:10000:10000:12000
 //-- SU_SPIRITOFLAND / Passive
-5054,0,0,0,0,0,0,0
+5054,0,0,0,0,0,3000,0
 //-- SU_CHATTERING
 5055,0,0,1000,140000:120000:100000:80000:60000,0,10000,5000
 //-- SU_SPIRITOFSEA / Passive
@@ -845,6 +851,10 @@
 //===== Other Skills =======================
 //-- ALL_EQSWITCH
 5067,0,60,0,10000,0,0,0
+//==========================================
+
+//===== New Arch Bishop Skills =============
+//
 //==========================================
 
 //===== Mutated Homunculus =================

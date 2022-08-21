@@ -5,6 +5,38 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/21/2022
+	r345 [15peaces]
+		*Merged missing changes from 3ceam rev. 849 - 850
+		*Added some comments in source.
+		*Fixed an possible item duplication bug.
+			-RODEX won't allow you to send mails while in npc interaction now.
+		*Added a missing value to Summoners job exp table.
+		*renewal_casting_square_calc; renewal_casting_square_debug
+			-Added these config settings in.
+			-renewal_casting_square_calc controls if square root (official) or simple calculations will be used when calculating variable cast times.
+			-The debug one forces square root calculations on and shows debug info in the map server console.
+		*Added "INF2_BOOST_PASSIVE" skillinfo2 setting.
+			-This is used for active skills that passively boost the effects of passive skills. This is needed to make the server recalculate a player's sub-stats just like it does when learning a passive skill.
+		*Cleaned up and optimized some code.
+		*Added all the latest tags and ID's for jobs, skills, status, and NPC's.
+		*Added place holders for many new skills.
+		*Star Emperor; Soul Reaper; Baby Star Emperor; Baby Soul Reaper
+			-Added support for these jobs.
+			-Note: These jobs are fully playable. However, none of the new skills that comes
+			-with them are in the skill trees. This will be added in a future update.
+			-Everything else for them works.
+			-Note 2: A 2018-06-21aRagexeRE Client or newer is required to support these jobs.
+		*All renewal era skills will now have their variable cast times calculated through a square root calculation. This is the way official server's handles the reduction of variable cast times. This can be disabled to go back to the previous 
+			-simple calculations used before by turning off the "renewal_casting_square_calc" setting if desired.
+		*WL_TETRAVORTEX
+			-Corrected the durations on the different status's it can give.
+		*SU_ARCLOUSEDASH
+			-Now increases ranged physical damage.
+				--This increase only works on Summoners.
+		*SU_POWEROFLAND; SU_POWEROFLIFE; SU_SPIRITOFLIFE; SU_SPIRITOFLAND
+			-Added support for these skills.
+
 08/20/2022
 	r344 [15peaces]
 		*Merged missing changes from 3ceam rev. 847 - 848

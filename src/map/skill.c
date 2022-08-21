@@ -2741,9 +2741,9 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			case GN_SLINGITEM_RANGEMELEEATK:
 				copy_skillid = GN_SLINGITEM;
 				break;
-			case RL_GLITTERING_GREED_ATK:
-				copy_skillid = RL_GLITTERING_GREED;
-				break;
+			//case RL_GLITTERING_GREED_ATK:
+			//	copy_skillid = RL_GLITTERING_GREED;
+			//	break;
 			case RL_R_TRIP_PLUSATK:
 				copy_skillid = RL_R_TRIP;
 				break;
@@ -3614,11 +3614,19 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 							}
 							if( j )
 							{
+								int duration = 0;
+
 								i = applyeffects[rand()%j];
-								status_change_start(target, i, 10000, skl->skill_lv,
-									(i == SC_BURNING ? 1000 : 0),
-									(i == SC_BURNING ? src->id : 0),
-									0, skill_get_time(WL_TETRAVORTEX,skl->skill_lv), 0);
+								if ( i == SC_BURNING )
+									duration = 20000;
+								if ( i == SC_FROST )
+									duration = 40000;
+								if ( i == SC_BLEEDING )
+									duration = 120000;
+								if ( i == SC_STUN )
+									duration = 5000;
+
+								sc_start(target, i, 100, skl->skill_lv, duration);
 							}
 						}
 					}
@@ -11462,8 +11470,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case RL_HAMMER_OF_GOD:
 	case LG_KINGS_GRACE:
 	case KO_ZENKAI:
-	case SU_CN_POWDERING:
-	case SU_NYANGGRASS:
 	case MH_POISON_MIST:
 	case MH_XENO_SLASHER:
 	case MH_STEINWAND:
@@ -11472,6 +11478,19 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		break;
+
+	case SU_CN_POWDERING:
+	case SU_NYANGGRASS:
+		flag|=1;
+		skill_unitsetting(src,skillid,skilllv,x,y,0);
+		if ( sd && pc_checkskill(sd, SU_SPIRITOFLAND) > 0 )
+		{
+			if ( skillid == SU_CN_POWDERING )
+				sc_start(src,SC_SPIRITOFLAND_PERFECTDODGE,100,skilllv,skill_get_time(SU_SPIRITOFLAND,1));
+			else
+				sc_start(src,SC_SPIRITOFLAND_MATK,100,skilllv,skill_get_time(SU_SPIRITOFLAND,1));
+		}
 		break;
 
 	case KO_MAKIBISHI:
@@ -11607,6 +11626,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			// Switch back to original skill ID in case there's more to be done beyond here.
 			if ( skillid == SU_CN_METEOR2 )
 				skillid = SU_CN_METEOR;
+
+			if (skillid == SU_CN_METEOR && sd && pc_checkskill(sd, SU_SPIRITOFLAND) > 0)
+				sc_start(src, SC_SPIRITOFLAND_AUTOCAST, 100, skilllv, skill_get_time(SU_SPIRITOFLAND, 1));
 		}
 		break;
 
@@ -15474,9 +15496,21 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	// Calculates regular and variable cast time.
 	if( !(skill_get_castnodex(skill_id, skill_lv)&1) )
 	{ //If renewal casting is enabled, all renewal skills will follow the renewal cast time formula.
-		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= WE_CHEERUP || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+		if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= AB_CONVENIO || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		{
-			time -= time * (status_get_dex(bl) * 2 + status_get_int(bl)) / 530;
+			if ( battle_config.renewal_casting_square_debug == 1 )
+			{
+				ShowDebug("Skill ID: %d\n",skill_id);
+				ShowDebug("INT: %d / DEX: %d\n",status_get_int(bl) , status_get_dex(bl));
+				ShowDebug("Variable Cast %d\n",time);
+				ShowDebug("Time With Simple Reduction: %d\n",(time - time * (status_get_int(bl) + 2 * status_get_dex(bl)) / 530));
+				time = (int)(time - sqrt((status_get_int(bl) + 2 * status_get_dex(bl)) / (double)530) * time);
+				ShowDebug("Time With Square Reduction: %d\n",time);
+			}
+			else if ( battle_config.renewal_casting_square_calc == 1 )
+				time = (int)(time - sqrt((status_get_int(bl) + 2 * status_get_dex(bl)) / (double)530) * time);
+			else
+				time -= time * (status_get_int(bl) + 2 * status_get_dex(bl)) / 530;
 			if ( time < 0 ) time = 0;// No return of 0 since were adding the fixed_time later.
 		}
 		else
@@ -15487,7 +15521,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 			//if renewal_casting_renewal_skills is turned off. Non-renewal skills dont have fixed times,
 			//causing a fixed cast value of 0 to be added and not affect the actural cast time.
 			time = time + fixed_time;
-			if ( sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SHADOW_CHASER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER))
+			if (sd && ((sd->class_&MAPID_THIRDMASK) >= MAPID_SUPER_NOVICE_E && (sd->class_&MAPID_THIRDMASK) <= MAPID_SOUL_REAPER || (sd->class_&MAPID_UPPERMASK) == MAPID_KAGEROUOBORO || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER))
 				rate = battle_config.castrate_dex_scale_renewal_jobs;
 			else
 				rate = battle_config.castrate_dex_scale;
@@ -15608,7 +15642,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 
 	//Only add variable and fixed times when renewal casting for renewal skills are on. Without this check,
 	//it will add the 2 together during the above phase and then readd the fixed time.
-	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= WE_CHEERUP || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
+	if (battle_config.renewal_casting_renewal_skills == 1 && (skill_id >= RK_ENCHANTBLADE && skill_id <= AB_CONVENIO || skill_id >= MH_SUMMON_LEGION && skill_id <= MH_VOLCANIC_ASH))
 		final_time = time + fixed_time;
 	else
 		final_time = time;

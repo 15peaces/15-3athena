@@ -762,15 +762,15 @@ extern unsigned int equip[EQI_MAX];
 //Checks if the given class value corresponds to a player class. [Skotlex]
 #define pcdb_checkid(class_) \
 ( \
-	( (class_) >= JOB_NOVICE			&& (class_) < JOB_MAX_BASIC ) \
-	|| ( (class_) >= JOB_NOVICE_HIGH	&& (class_) <= JOB_DARK_COLLECTOR ) \
-	|| ( (class_) >= JOB_RUNE_KNIGHT	&& (class_) <= JOB_BABY_MECHANIC2 ) \
-	|| ( (class_) >= JOB_SUPER_NOVICE_E && (class_) <= JOB_SUPER_BABY_E ) \
-	|| ( (class_) >= JOB_KAGEROU		&& (class_) <= JOB_OBORO ) \
-	||	 (class_) == JOB_REBELLION      || (class_) == JOB_SUMMONER         \
-	||   (class_) == JOB_BABY_SUMMONER \
-	|| ( (class_) >= JOB_BABY_NINJA     && (class_) <= JOB_BABY_REBELLION ) \
-	||   (class_) == JOB_BABY_STAR_GLADIATOR2 \
+		( (class_) >= JOB_NOVICE			&& (class_) < JOB_MAX_BASIC ) \
+	||	( (class_) >= JOB_NOVICE_HIGH	&& (class_) <= JOB_DARK_COLLECTOR ) \
+	||	( (class_) >= JOB_RUNE_KNIGHT	&& (class_) <= JOB_BABY_MECHANIC2 ) \
+	||	( (class_) >= JOB_SUPER_NOVICE_E && (class_) <= JOB_SUPER_BABY_E ) \
+	||	( (class_) >= JOB_KAGEROU		&& (class_) <= JOB_OBORO ) \
+	||	  (class_) == JOB_REBELLION      || (class_) == JOB_SUMMONER         \
+	||    (class_) == JOB_BABY_SUMMONER \
+	||	( (class_) >= JOB_BABY_NINJA     && (class_) <= JOB_BABY_REBELLION ) \
+	||	( (class_) >= JOB_BABY_STAR_GLADIATOR2 && (class_) <= JOB_BABY_STAR_EMPEROR2 ) \
 )
 
 static inline bool pc_hasprogress(struct map_session_data *sd, enum e_wip_block progress) {

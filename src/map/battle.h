@@ -515,6 +515,8 @@ extern struct Battle_Config
 	// 15-3athena
 	int load_custom_exp_tables;
 	int renewal_casting_renewal_skills;
+	int renewal_casting_square_calc;
+	int renewal_casting_square_debug;
 	int castrate_dex_scale_renewal_jobs;
 	int max_parameter_renewal_jobs;
 	int max_baby_parameter_renewal_jobs;

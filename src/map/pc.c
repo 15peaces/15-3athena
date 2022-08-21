@@ -3778,8 +3778,9 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 		return 0;
 	}
 
-	switch( flag ){
-	case 0: //Set skill data overwriting whatever was there before.
+	switch( flag )
+	{
+		case 0: //Set skill data overwriting whatever was there before.
 			sd->status.skill[id].id   = id;
 			sd->status.skill[id].lv   = level;
 			sd->status.skill[id].flag = SKILL_FLAG_PERMANENT;
@@ -3788,9 +3789,10 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 				clif_deleteskill(sd,id);
 			} else
 				clif_addskill(sd,id);
-			if( !skill_get_inf(id) ) //Only recalculate for passive skills.
+			// Only recalculate for passive skills and active skills that boost the effects of passive skills.
+			if( !skill_get_inf(id) || skill_get_inf2(id)&INF2_BOOST_PASSIVE && (pc_checkskill(sd, SU_POWEROFLAND) > 0 || pc_checkskill(sd, SU_POWEROFSEA) > 0) )
 				status_calc_pc(sd, 0);
-		break;
+			break;
 		case 1: //Item bonus skill.
 			if( sd->status.skill[id].id == id ) {
 				if( sd->status.skill[id].lv >= level )
@@ -5670,6 +5672,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_ARCH_BISHOP:			return MAPID_ARCH_BISHOP;
 		case JOB_MECHANIC:				return MAPID_MECHANIC;
 		case JOB_GUILLOTINE_CROSS:		return MAPID_GUILLOTINE_CROSS;
+		case JOB_STAR_EMPEROR:          return MAPID_STAR_EMPEROR;
 	//3-2 Jobs
 		case JOB_ROYAL_GUARD:			return MAPID_ROYAL_GUARD;
 		case JOB_SORCERER:				return MAPID_SORCERER;
@@ -5678,6 +5681,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_SURA:					return MAPID_SURA;
 		case JOB_GENETIC:				return MAPID_GENETIC;
 		case JOB_SHADOW_CHASER:			return MAPID_SHADOW_CHASER;
+		case JOB_SOUL_REAPER:           return MAPID_SOUL_REAPER;
 	//Trans 3-1 Jobs
 		case JOB_RUNE_KNIGHT_T:			return MAPID_RUNE_KNIGHT_T;
 		case JOB_WARLOCK_T:				return MAPID_WARLOCK_T;
@@ -5701,6 +5705,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_BABY_BISHOP:			return MAPID_BABY_BISHOP;
 		case JOB_BABY_MECHANIC:			return MAPID_BABY_MECHANIC;
 		case JOB_BABY_CROSS:			return MAPID_BABY_CROSS;
+		case JOB_BABY_STAR_EMPEROR:     return MAPID_BABY_STAR_EMPEROR;
 	//Baby 3-2 Jobs
 		case JOB_BABY_GUARD:			return MAPID_BABY_GUARD;
 		case JOB_BABY_SORCERER:			return MAPID_BABY_SORCERER;
@@ -5709,6 +5714,7 @@ int pc_jobid2mapid(unsigned short b_class)
 		case JOB_BABY_SURA:				return MAPID_BABY_SURA;
 		case JOB_BABY_GENETIC:			return MAPID_BABY_GENETIC;
 		case JOB_BABY_CHASER:			return MAPID_BABY_CHASER;
+		case JOB_BABY_SOUL_REAPER:      return MAPID_BABY_SOUL_REAPER;
 		default:
 			return -1;
 	}
@@ -5820,6 +5826,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_ARCH_BISHOP:				return JOB_ARCH_BISHOP;
 		case MAPID_MECHANIC:				return JOB_MECHANIC;
 		case MAPID_GUILLOTINE_CROSS:		return JOB_GUILLOTINE_CROSS;
+		case MAPID_STAR_EMPEROR:          return JOB_STAR_EMPEROR;
 	//3-2 Jobs
 		case MAPID_ROYAL_GUARD:				return JOB_ROYAL_GUARD;
 		case MAPID_SORCERER:				return JOB_SORCERER;
@@ -5827,6 +5834,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_SURA:					return JOB_SURA;
 		case MAPID_GENETIC:					return JOB_GENETIC;
 		case MAPID_SHADOW_CHASER:			return JOB_SHADOW_CHASER;
+		case MAPID_SOUL_REAPER:           return JOB_SOUL_REAPER;
 	//Trans 3-1 Jobs
 		case MAPID_RUNE_KNIGHT_T:			return JOB_RUNE_KNIGHT_T;
 		case MAPID_WARLOCK_T:				return JOB_WARLOCK_T;
@@ -5849,6 +5857,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_BABY_BISHOP:				return JOB_BABY_BISHOP;
 		case MAPID_BABY_MECHANIC:			return JOB_BABY_MECHANIC;
 		case MAPID_BABY_CROSS:				return JOB_BABY_CROSS;
+		case MAPID_BABY_STAR_EMPEROR:     return JOB_BABY_STAR_EMPEROR;
 	//Baby 3-2 Jobs
 		case MAPID_BABY_GUARD:				return JOB_BABY_GUARD;
 		case MAPID_BABY_SORCERER:			return JOB_BABY_SORCERER;
@@ -5856,6 +5865,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 		case MAPID_BABY_SURA:				return JOB_BABY_SURA;
 		case MAPID_BABY_GENETIC:			return JOB_BABY_GENETIC;
 		case MAPID_BABY_CHASER:				return JOB_BABY_CHASER;
+		case MAPID_BABY_SOUL_REAPER:      return JOB_BABY_SOUL_REAPER;
 		default:
 			return -1;
 	}
@@ -6129,6 +6139,18 @@ const char* job_name(int class_)
 
 	case JOB_BABY_STAR_GLADIATOR2:
 		return msg_txt(664);
+
+	case JOB_STAR_EMPEROR:
+	case JOB_SOUL_REAPER:
+	case JOB_BABY_STAR_EMPEROR:
+	case JOB_BABY_SOUL_REAPER:
+		return msg_txt(668 - JOB_STAR_EMPEROR+class_);
+
+	case JOB_STAR_EMPEROR2:
+		return msg_txt(668);
+
+	case JOB_BABY_STAR_EMPEROR2:
+		return msg_txt(670);
 	
 	default:
 		return msg_txt(699);
@@ -6846,8 +6868,8 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 	{
 		sd->status.skill[skill_num].lv++;
 		sd->status.skill_point--;
-		if (!skill_get_inf(skill_num) || pc_checkskill(sd, SU_POWEROFSEA) > 0 && (skill_num >= SU_TUNABELLY && skill_num <= SU_FRESHSHRIMP || skill_num >= SU_GROOMING && skill_num <= SU_SHRIMPARTY))
-			status_calc_pc(sd,0); // Only recalculate for passive skills. Must also recalculate on Summoner's Sea skills for SU_POWEROFSEA's bonuses.
+		if (!skill_get_inf(skill_num) || skill_get_inf2(skill_num)&INF2_BOOST_PASSIVE && (pc_checkskill(sd, SU_POWEROFLAND) > 0 || pc_checkskill(sd, SU_POWEROFSEA) > 0))
+			status_calc_pc(sd, 0); // Only recalculate for passive skills and active skills that boost the effects of passive skills.
 		else if( sd->status.skill_point == 0 && (sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON) )
 			pc_calc_skilltree(sd); // Required to grant all TK Ranger skills.
 		else

@@ -770,6 +770,8 @@ void clif_authrefuse(int fd, uint8 error_code)
 ///     108 = BAN_IP_BLOCK
 ///     109 = BAN_INVALID_PWD_CNT
 ///     110 = BAN_NOT_ALLOWED_JOBCLASS
+///     113 = access is restricted between the hours of midnight to 6:00am.
+///     115 = You are in game connection ban period.
 ///     ? = disconnected -> MsgStringTable[3]
 void clif_authfail_fd(int fd, int type)
 {
@@ -2356,6 +2358,7 @@ void clif_viewpoint(struct map_session_data *sd, int npc_id, int type, int x, in
 ///     2 = bottom right corner
 ///     3 = middle of screen, inside a movable window
 ///     4 = middle of screen, movable with a close button, chrome-less
+///   255 = hide
 void clif_cutin(struct map_session_data* sd, const char* image, int type)
 {
 	int fd;
@@ -17063,7 +17066,7 @@ void clif_parse_Mail_beginwrite( int fd, struct map_session_data *sd ){
 
 	safestrncpy(name, RFIFOCP(fd, 2), NAME_LENGTH);
 
-	if( sd->state.storage_flag || sd->state.mail_writing || sd->trade_partner ){
+	if( sd->state.storage_flag || sd->state.mail_writing || sd->trade_partner || sd->npc_id > 0){
 		clif_send_Mail_beginwrite_ack(sd, name, false);
 		return;
 	}

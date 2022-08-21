@@ -361,7 +361,7 @@ void mail_send(struct map_session_data *sd, const char *dest_name, const char *t
 
 	nullpo_retv(sd);
 
-	if( sd->state.trading )
+	if( sd->state.trading || sd->npc_id > 0)
 		return;
 
 	if( DIFF_TICK(sd->cansendmail_tick, gettick()) > 0 ) {
