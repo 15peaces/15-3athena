@@ -1980,20 +1980,26 @@ void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 
 /// Notifies the client of a position change to coordinates on given map, which is on another map-server (ZC_NPCACK_SERVERMOVE).
 /// 0092 <map name>.16B <x>.W <y>.W <ip>.L <port>.W
+/// 0ac7 <map name>.16B <x>.W <y>.W <ip>.L <port>.W <zero>.128B
 void clif_changemapserver(struct map_session_data* sd, unsigned short map_index, int x, int y, uint32 ip, uint16 port)
 {
 	int fd;
+#if PACKETVER >= 20170315
+	const int cmd = 0xac7;
+#else
+	const int cmd = 0x92;
+#endif
 	nullpo_retv(sd);
 	fd = sd->fd;
 
-	WFIFOHEAD(fd,packet_len(0x92));
-	WFIFOW(fd,0) = 0x92;
+	WFIFOHEAD(fd,packet_len(cmd));
+	WFIFOW(fd,0) = cmd;
 	mapindex_getmapname_ext(mapindex_id2name(map_index), (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOL(fd,22) = htonl(ip);
 	WFIFOW(fd,26) = ntows(htons(port)); // [!] LE byte order here [!]
-	WFIFOSET(fd,packet_len(0x92));
+	WFIFOSET(fd,packet_len(cmd));
 }
 
 

@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/22/2022
+	r346 [15peaces]
+		*Merged missing changes from 3ceam rev. 851
+		*Add new map server change packet for PACKETVER 20170315+
+			-Thanks to @HerculesWS
+		*Added new unit tag and ID.
+		*Star Emperor; Soul Reaper
+			-Updated skill trees to add the rest of the skills in.
+		*Added the "3ceam_jobchange" script with support for Star Emperor, Soul Reaper and their baby versions.
+		*Enabled access to all skills for Star Emperor, Soul Reaper, and new Arch Bishop skills. Range, target type, max level, and sp requirements are official.
+			-Note: Currently none of them work even tho their usable.
+
 08/21/2022
 	r345 [15peaces]
 		*Merged missing changes from 3ceam rev. 849 - 850
