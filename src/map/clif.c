@@ -375,7 +375,7 @@ static int clif_send_sub(struct block_list *bl, va_list ap)
 /*==========================================
  *
  *------------------------------------------*/
-int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type)
+int clif_send(const void* buf, int len, struct block_list* bl, enum send_target type)
 {
 	int i;
 	struct map_session_data *sd, *tsd;
@@ -1377,11 +1377,11 @@ void clif_class_change_target(struct block_list *bl, int class_, int type, enum 
 /// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
 static void clif_spiritball_single_sub(int fd, int id, int amount)
 {
-	WFIFOHEAD(fd, packet_len(0x1e1));
-	WFIFOW(fd,0)=0x1e1;
+	WFIFOHEAD(fd, packet_len(0x1d0));
+	WFIFOW(fd,0)= 0x1d0;
 	WFIFOL(fd,2)=id;
 	WFIFOW(fd,6)=amount;
-	WFIFOSET(fd, packet_len(0x1e1));
+	WFIFOSET(fd, packet_len(0x1d0));
 }
 
 #define clif_spiritball_single(fd, sd)	clif_spiritball_single_sub(fd, sd->bl.id, sd->spiritball)
@@ -1410,6 +1410,27 @@ static void clif_spiritball_attribute_single(int fd, struct map_session_data *sd
 	WFIFOW(fd, 6) = sd->charmball_type;
 	WFIFOW(fd, 8) = sd->charmball;
 	WFIFOSET(fd, packet_len(0x08cf));
+}
+
+/// Notifies the client of an object's souls.
+/// Note: Spirit spheres and Soul spheres work on
+/// seprate systems officially, but both send out
+/// the same packet which leads to confusion on how
+/// much soul energy a Soul Reaper acturally has
+/// should the player also have spirit spheres.
+/// They will likely create a new packet for this soon
+/// to seprate the animations for spirit and soul spheres.
+/// For now well use this and replace it later when possible. [Rytech]
+/// 
+/// 01d0 <id>.L <amount>.W (ZC_SPIRITS)
+/// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
+static void clif_soulball_single(int fd, struct map_session_data *sd)
+{
+	WFIFOHEAD(fd, packet_len(0x1d0));
+	WFIFOW(fd, 0) = 0x1d0;
+	WFIFOL(fd, 2) = sd->bl.id;
+	WFIFOW(fd, 6) = sd->soulball;
+	WFIFOSET(fd, packet_len(0x1d0));
 }
 
 /*==========================================
@@ -1490,6 +1511,7 @@ int clif_spawn(struct block_list *bl)
 {
 	unsigned char buf[128];
 	struct view_data *vd;
+	short i;
 	int len;
 
 	vd = status_get_viewdata(bl);
@@ -1520,6 +1542,8 @@ int clif_spawn(struct block_list *bl)
 				clif_millenniumshield(sd, sd->rageball);
 			if (sd->charmball > 0)
 				clif_spiritball_attribute(sd);
+			if (sd->soulball > 0)
+				clif_soulball(sd);
 			if(sd->state.size==2) // tiny/big players [Valaris]
 				clif_specialeffect(bl,423,AREA);
 			else if(sd->state.size==1)
@@ -1527,114 +1551,24 @@ int clif_spawn(struct block_list *bl)
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
 			clif_hat_effects(sd, bl, AREA);
-			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
-			// Note: This was supposed to be just a temp thing but its getting out of hand. Need to redo this. [Rytech]
-			//if( sd->sc.count && sd->sc.data[SC_] )
-			//	clif_status_change(&sd->bl,SI_,1,9999,sd->sc.data[SC_]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_CAMOUFLAGE])
-				clif_status_change(&sd->bl, SI_CAMOUFLAGE, 1, 9999, sd->sc.data[SC_CAMOUFLAGE]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_ORATIO])
-				clif_status_change(&sd->bl, SI_ORATIO, 1, 9999, sd->sc.data[SC_ORATIO]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_DUPLELIGHT])
-				clif_status_change(&sd->bl, SI_DUPLELIGHT, 1, 9999, sd->sc.data[SC_DUPLELIGHT]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SUMMON1])
-				clif_status_change(&sd->bl, SI_SUMMON1, 1, 9999, sd->sc.data[SC_SUMMON1]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SUMMON2])
-				clif_status_change(&sd->bl, SI_SUMMON2, 1, 9999, sd->sc.data[SC_SUMMON2]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SUMMON3])
-				clif_status_change(&sd->bl, SI_SUMMON3, 1, 9999, sd->sc.data[SC_SUMMON3]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SUMMON4])
-				clif_status_change(&sd->bl, SI_SUMMON4, 1, 9999, sd->sc.data[SC_SUMMON4]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SUMMON5])
-				clif_status_change(&sd->bl, SI_SUMMON5, 1, 9999, sd->sc.data[SC_SUMMON5]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_FROST])
-				clif_status_change(&sd->bl, SI_FROSTMISTY, 1, 9999, sd->sc.data[SC_FROST]->val1, 0, 0);
-			if( sd->sc.count && sd->sc.data[SC_STEALTHFIELD] )
-				clif_status_change(&sd->bl,SI_STEALTHFIELD,1,9999,sd->sc.data[SC_STEALTHFIELD]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_VENOMIMPRESS])
-				clif_status_change(&sd->bl, SI_VENOMIMPRESS, 1, 9999, sd->sc.data[SC_VENOMIMPRESS]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_HALLUCINATIONWALK])
-				clif_status_change(&sd->bl, SI_HALLUCINATIONWALK, 1, 9999, sd->sc.data[SC_HALLUCINATIONWALK]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_ROLLINGCUTTER])
-				clif_status_change(&sd->bl, SI_ROLLINGCUTTER, 1, 9999, sd->sc.data[SC_ROLLINGCUTTER]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_BANDING])
-				clif_status_change(&sd->bl, SI_BANDING, 1, 9999, sd->sc.data[SC_BANDING]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_CRYSTALIZE])
-				clif_status_change(&sd->bl, SI_COLD, 1, 9999, sd->sc.data[SC_CRYSTALIZE]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_DEEPSLEEP])
-				clif_status_change(&sd->bl, SI_DEEP_SLEEP, 1, 9999, sd->sc.data[SC_DEEPSLEEP]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_CURSEDCIRCLE_ATKER])
-				clif_status_change(&sd->bl, SI_CURSEDCIRCLE_ATKER, 1, 9999, sd->sc.data[SC_CURSEDCIRCLE_ATKER]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_CURSEDCIRCLE_TARGET])
-				clif_status_change(&sd->bl, SI_CURSEDCIRCLE_TARGET, 1, 9999, sd->sc.data[SC_CURSEDCIRCLE_TARGET]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_BLOOD_SUCKER])
-				clif_status_change(&sd->bl, SI_BLOOD_SUCKER, 1, 9999, sd->sc.data[SC_BLOOD_SUCKER]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC__SHADOWFORM])
-				clif_status_change(&sd->bl, SI_SHADOWFORM, 1, 9999, sd->sc.data[SC__SHADOWFORM]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC__MANHOLE])
-				clif_status_change(&sd->bl, SI_MANHOLE, 1, 9999, sd->sc.data[SC__MANHOLE]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_C_MARKER])
-				clif_status_change(&sd->bl, SI_C_MARKER, 1, 9999, sd->sc.data[SC_C_MARKER]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_H_MINE])
-				clif_status_change(&sd->bl, SI_H_MINE, 1, 9999, sd->sc.data[SC_H_MINE]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_ANTI_M_BLAST])
-				clif_status_change(&sd->bl, SI_ANTI_M_BLAST, 1, 9999, sd->sc.data[SC_ANTI_M_BLAST]->val1, 0, 0);
-			if( sd->sc.count && sd->sc.data[SC_KO_JYUMONJIKIRI] )
-				clif_status_change(&sd->bl,SI_KO_JYUMONJIKIRI,1,9999,sd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_MEIKYOUSISUI] )
-				clif_status_change(&sd->bl,SI_MEIKYOUSISUI,1,9999,sd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_KYOUGAKU])
-				clif_status_change(&sd->bl, SI_KYOUGAKU, 1, 9999, sd->sc.data[SC_KYOUGAKU]->val1, 0, 0);
-			if( sd->sc.count && sd->sc.data[SC_KYOMU] )
-				clif_status_change(&sd->bl,SI_KYOMU,1,9999,sd->sc.data[SC_KYOMU]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_KAGEMUSYA] )
-				clif_status_change(&sd->bl,SI_KAGEMUSYA,1,9999,sd->sc.data[SC_KAGEMUSYA]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_ZANGETSU] )
-				clif_status_change(&sd->bl,SI_ZANGETSU,1,9999,sd->sc.data[SC_ZANGETSU]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_GENSOU] )
-				clif_status_change(&sd->bl,SI_GENSOU,1,9999,sd->sc.data[SC_GENSOU]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_AKAITSUKI] )
-				clif_status_change(&sd->bl,SI_AKAITSUKI,1,9999,sd->sc.data[SC_AKAITSUKI]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_ALL_RIDING])
-				clif_status_change(&sd->bl, SI_ALL_RIDING, 1, 9999, sd->sc.data[SC_ALL_RIDING]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_DARKCROW])
-				clif_status_change(&sd->bl, SI_DARKCROW, 1, 9999, sd->sc.data[SC_DARKCROW]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_UNLIMIT])
-				clif_status_change(&sd->bl, SI_UNLIMIT, 1, 9999, sd->sc.data[SC_UNLIMIT]->val1, 0, 0);
-			if( sd->sc.count && sd->sc.data[SC_OFFERTORIUM] )
-				clif_status_change(&sd->bl,SI_OFFERTORIUM,1,9999,sd->sc.data[SC_OFFERTORIUM]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_TELEKINESIS_INTENSE] )
-				clif_status_change(&sd->bl,SI_TELEKINESIS_INTENSE,1,9999,sd->sc.data[SC_TELEKINESIS_INTENSE]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_SUHIDE] )
-				clif_status_change(&sd->bl,SI_SUHIDE,1,9999,sd->sc.data[SC_SUHIDE]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_SU_STOOP] )
-				clif_status_change(&sd->bl,SI_SU_STOOP,1,9999,sd->sc.data[SC_SU_STOOP]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_SPRITEMABLE] )
-				clif_status_change(&sd->bl,SI_SPRITEMABLE,1,9999,sd->sc.data[SC_SPRITEMABLE]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_SV_ROOTTWIST] )
-				clif_status_change(&sd->bl,SI_SV_ROOTTWIST,1,9999,sd->sc.data[SC_SV_ROOTTWIST]->val1,0,0);
-			if( sd->sc.count && sd->sc.data[SC_BITESCAR] )
-				clif_status_change(&sd->bl,SI_BITESCAR,1,9999,sd->sc.data[SC_BITESCAR]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_TUNAPARTY])
-				clif_status_change(&sd->bl, SI_TUNAPARTY, 1, 9999, sd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
-			if (sd->sc.count && sd->sc.data[SC_SOULATTACK])
-				clif_status_change(&sd->bl, SI_SOULATTACK, 1, 9999, sd->sc.data[SC_SOULATTACK]->val1, 0, 0);
-			if( sd->sc.count && sd->sc.data[SC_VOLCANIC_ASH] )
-				clif_status_change(&sd->bl,SI_VOLCANIC_ASH,1,9999,sd->sc.data[SC_VOLCANIC_ASH]->val1,0,0);
-			if (sd->sc.count && sd->sc.data[SC_CLAN_INFO])
-				clif_status_change(&sd->bl, SI_CLAN_INFO, 1, 9999, 0, sd->sc.data[SC_CLAN_INFO]->val2, 0);
-			if ( sd->sc.count && sd->sc.data[SC_MONSTER_TRANSFORM] )
-				clif_efst_status_change(&sd->bl,SI_MONSTER_TRANSFORM,1000,sd->sc.data[SC_MONSTER_TRANSFORM]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_ON_PUSH_CART] )
-				clif_efst_status_change(&sd->bl,SI_ON_PUSH_CART,1000,sd->sc.data[SC_ON_PUSH_CART]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_MOONSTAR] )
-				clif_efst_status_change(&sd->bl,SI_MOONSTAR,1000,sd->sc.data[SC_MOONSTAR]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_STRANGELIGHTS] )
-				clif_efst_status_change(&sd->bl,SI_STRANGELIGHTS,1000,sd->sc.data[SC_STRANGELIGHTS]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_SUPER_STAR] )
-				clif_efst_status_change(&sd->bl,SI_SUPER_STAR,1000,sd->sc.data[SC_SUPER_STAR]->val1,0,0);
-			if ( sd->sc.count && sd->sc.data[SC_DECORATION_OF_MUSIC] )
-				clif_efst_status_change(&sd->bl,SI_DECORATION_OF_MUSIC,1000,sd->sc.data[SC_DECORATION_OF_MUSIC]->val1,0,0);
+#if PACKETVER >= 20111108
+			if (sd->sc.count)
+			{// Starting the check at SC_ALL_RIDING since all SC's after this don't use OPT3.
+			//  Starting at 0 would just waste CPU cycles. [Rytech]
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{// If SC is not active, check for the next one.
+					if (!sd->sc.data[i])
+						continue;
+
+					// Don't bother sending the packet if the SC has no icon data.
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					// Status active and has a icon for showing possible animation? Send it.
+					clif_efst_status_change(&sd->bl,status_sc2icon(i),sd->sc.data[i]->timer,sd->sc.data[i]->val1,0,0);
+				}
+			}
+#endif
 		}
 		break;
 	case BL_MOB:
@@ -1644,6 +1578,21 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(&md->bl,423,AREA);
 			else if(md->special_state.size==1)
 				clif_specialeffect(&md->bl,421,AREA);
+#if PACKETVER >= 20111108
+			if (md->sc.count)
+			{
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{
+					if (!md->sc.data[i])
+						continue;
+
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					clif_efst_status_change(&md->bl,status_sc2icon(i),md->sc.data[i]->timer,md->sc.data[i]->val1,0,0);
+				}
+			}
+#endif
 		}
 		break;
 	case BL_NPC:
@@ -1662,6 +1611,28 @@ int clif_spawn(struct block_list *bl)
 		if (vd->head_bottom)
 			clif_pet_equip_area((TBL_PET*)bl); // needed to display pet equip properly
 		break;
+	case BL_HOM:
+	{
+		TBL_HOM *hd = ((TBL_HOM*)bl);
+		if (hd->hom_spiritball > 0)
+			clif_hom_spiritball(hd);
+#if PACKETVER >= 20111108
+		if (hd->sc.count)
+		{
+			for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+			{
+				if (!hd->sc.data[i])
+					continue;
+
+				if (status_sc2icon(i) == SI_BLANK)
+					continue;
+
+				clif_efst_status_change(&hd->bl, status_sc2icon(i), hd->sc.data[i]->timer, hd->sc.data[i]->val1, 0, 0);
+			}
+		}
+#endif
+	}
+	break;
 	}
 	return 0;
 }
@@ -1884,13 +1855,6 @@ static void clif_move2(struct block_list *bl, struct view_data *vd, struct unit_
 		if( vd->head_bottom )
 		{// needed to display pet equip properly
 			clif_pet_equip_area((TBL_PET*)bl); 
-		}
-		break;
-	case BL_HOM:
-		{
-			TBL_HOM *hd = ((TBL_HOM*)bl);
-			if (hd->hom_spiritball > 0)
-				clif_hom_spiritball(hd);
 		}
 		break;
 	}
@@ -2442,9 +2406,9 @@ void clif_add_random_options(unsigned char* buf, struct item *it) {
 	int i;
 
 	for (i = 0; i < MAX_ITEM_RDM_OPT; i++) {
-		WBUFW(buf, i*5 + 0) = it->option[i].id;		// OptIndex
-		WBUFW(buf, i*5 + 2) = it->option[i].value;	// Value
-		WBUFB(buf, i*5 + 4) = it->option[i].param;	// Param1
+		WBUFW(buf, i * 5 + 0) = it->option[i].id;		// OptIndex
+		WBUFW(buf, i * 5 + 2) = it->option[i].value;	// Value
+		WBUFB(buf, i * 5 + 4) = it->option[i].param;	// Param1
 	}
 #if MAX_ITEM_RDM_OPT < 5
 	for ( ; i < 5; i++) {
@@ -2680,6 +2644,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_dat
 }
 
 void clif_favorite_item(struct map_session_data* sd, unsigned short index);
+
 //Unified inventory function which sends all of the inventory (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
 void clif_inventorylist(struct map_session_data *sd) {
 	int i,n,ne,arrow=-1;
@@ -3776,10 +3741,14 @@ void clif_arrowequip(struct map_session_data *sd,int val)
 
 	pc_stop_attack(sd); // [Valaris]
 
+#if PACKETVER >= 20121128
+	clif_status_change(&sd->bl, SI_CLIENT_ONLY_EQUIP_ARROW, 1, -1, 0, 0, 0);
+#endif
+
 	fd=sd->fd;
 	WFIFOHEAD(fd, packet_len(0x013c));
 	WFIFOW(fd,0)=0x013c;
-	WFIFOW(fd,2)=val+2;//矢のアイテムID
+	WFIFOW(fd,2)=val+2;//Item ID of the arrow
 	WFIFOSET(fd,packet_len(0x013c));
 }
 
@@ -4864,7 +4833,6 @@ void clif_storageclose(struct map_session_data* sd)
 	WFIFOSET(fd,packet_len(0xf8));
 }
 
-
 /*==========================================
  * PC表示
  *------------------------------------------*/
@@ -4900,6 +4868,9 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 	if (dstsd->charmball > 0)
 		clif_spiritball_attribute_single(sd->fd, dstsd);
 
+	if (dstsd->soulball > 0)
+		clif_soulball_single(sd->fd, dstsd);
+
 	if( (sd->status.party_id && dstsd->status.party_id == sd->status.party_id) || //Party-mate, or hpdisp setting.
 		(sd->bg_id && sd->bg_id == dstsd->bg_id) || //BattleGround
 		(battle_config.disp_hpmeter && (gmlvl = pc_isGM(sd)) >= battle_config.disp_hpmeter && gmlvl >= pc_isGM(dstsd)) )
@@ -4921,6 +4892,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 	uint8 buf[128];
 	struct unit_data *ud;
 	struct view_data *vd;
+	int i;
 	int len;
 	
 	vd = status_get_viewdata(bl);
@@ -4950,114 +4922,24 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
 			clif_hat_effects(sd, bl, SELF);
-			// Below SI's must be resent to the client to show animations on players walking onto other player's view range.
-			// This was supposed to be just a temp thing but this is getting out of hand. Needs to recode this. [Rytech]
-			//if( tsd->sc.count && tsd->sc.data[SC_] )
-			//	clif_status_change_single(&sd->bl,&tsd->bl,SI_,1,9999,tsd->sc.data[SC_]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_CAMOUFLAGE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_CAMOUFLAGE,1,9999,tsd->sc.data[SC_CAMOUFLAGE]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_ORATIO] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_ORATIO,1,9999,tsd->sc.data[SC_ORATIO]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_DUPLELIGHT] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_DUPLELIGHT,1,9999,tsd->sc.data[SC_DUPLELIGHT]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUMMON1] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON1,1,9999,tsd->sc.data[SC_SUMMON1]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUMMON2] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON2,1,9999,tsd->sc.data[SC_SUMMON2]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUMMON3] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON3,1,9999,tsd->sc.data[SC_SUMMON3]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUMMON4] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON4,1,9999,tsd->sc.data[SC_SUMMON4]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUMMON5] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUMMON5,1,9999,tsd->sc.data[SC_SUMMON5]->val1,0,0);
-			if (tsd->sc.count && tsd->sc.data[SC_FROST])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_FROSTMISTY, 1, 9999, tsd->sc.data[SC_FROST]->val1, 0, 0);
-			if( tsd->sc.count && tsd->sc.data[SC_STEALTHFIELD] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_STEALTHFIELD,1,9999,tsd->sc.data[SC_STEALTHFIELD]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_VENOMIMPRESS] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_VENOMIMPRESS,1,9999,tsd->sc.data[SC_VENOMIMPRESS]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_HALLUCINATIONWALK] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_HALLUCINATIONWALK,1,9999,tsd->sc.data[SC_HALLUCINATIONWALK]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_ROLLINGCUTTER] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_ROLLINGCUTTER,1,9999,tsd->sc.data[SC_ROLLINGCUTTER]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_BANDING] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_BANDING,1,9999,tsd->sc.data[SC_BANDING]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_CRYSTALIZE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_COLD,1,9999,tsd->sc.data[SC_CRYSTALIZE]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_DEEPSLEEP] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_DEEP_SLEEP,1,9999,tsd->sc.data[SC_DEEPSLEEP]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_CURSEDCIRCLE_ATKER] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_CURSEDCIRCLE_ATKER,1,9999,tsd->sc.data[SC_CURSEDCIRCLE_ATKER]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_CURSEDCIRCLE_TARGET] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_CURSEDCIRCLE_TARGET,1,9999,tsd->sc.data[SC_CURSEDCIRCLE_TARGET]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_BLOOD_SUCKER] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_BLOOD_SUCKER,1,9999,tsd->sc.data[SC_BLOOD_SUCKER]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC__SHADOWFORM] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SHADOWFORM,1,9999,tsd->sc.data[SC__SHADOWFORM]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC__MANHOLE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_MANHOLE,1,9999,tsd->sc.data[SC__MANHOLE]->val1,0,0);
-			if (tsd->sc.count && tsd->sc.data[SC_C_MARKER])
-				 clif_status_change_single(&sd->bl, &tsd->bl, SI_C_MARKER, 1, 9999, tsd->sc.data[SC_C_MARKER]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_H_MINE])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_H_MINE, 1, 9999, tsd->sc.data[SC_H_MINE]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_ANTI_M_BLAST])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_ANTI_M_BLAST, 1, 9999, tsd->sc.data[SC_ANTI_M_BLAST]->val1, 0, 0);
-			if( tsd->sc.count && tsd->sc.data[SC_KO_JYUMONJIKIRI] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_KO_JYUMONJIKIRI,1,9999,tsd->sc.data[SC_KO_JYUMONJIKIRI]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_MEIKYOUSISUI] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_MEIKYOUSISUI,1,9999,tsd->sc.data[SC_MEIKYOUSISUI]->val1,0,0);
-			if (tsd->sc.count && tsd->sc.data[SC_KYOUGAKU])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_KYOUGAKU, 1, 9999, tsd->sc.data[SC_KYOUGAKU]->val1, 0, 0);
-			if( tsd->sc.count && tsd->sc.data[SC_KYOMU] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_KYOMU,1,9999,tsd->sc.data[SC_KYOMU]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_KAGEMUSYA] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_KAGEMUSYA,1,9999,tsd->sc.data[SC_KAGEMUSYA]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_ZANGETSU] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_ZANGETSU,1,9999,tsd->sc.data[SC_ZANGETSU]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_GENSOU] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_GENSOU,1,9999,tsd->sc.data[SC_GENSOU]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_AKAITSUKI] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_AKAITSUKI,1,9999,tsd->sc.data[SC_AKAITSUKI]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_ALL_RIDING] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_ALL_RIDING,1,9999,tsd->sc.data[SC_ALL_RIDING]->val1,0,0);
-			if (tsd->sc.count && tsd->sc.data[SC_MONSTER_TRANSFORM])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MONSTER_TRANSFORM, 1000, tsd->sc.data[SC_MONSTER_TRANSFORM]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_ON_PUSH_CART])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_ON_PUSH_CART, 1000, tsd->sc.data[SC_ON_PUSH_CART]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_DARKCROW])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_DARKCROW, 1, 9999, tsd->sc.data[SC_DARKCROW]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_UNLIMIT])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_UNLIMIT, 1, 9999, tsd->sc.data[SC_UNLIMIT]->val1, 0, 0);
-			if( tsd->sc.count && tsd->sc.data[SC_OFFERTORIUM] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_OFFERTORIUM,1,9999,tsd->sc.data[SC_OFFERTORIUM]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_TELEKINESIS_INTENSE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_TELEKINESIS_INTENSE,1,9999,tsd->sc.data[SC_TELEKINESIS_INTENSE]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SUHIDE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SUHIDE,1,9999,tsd->sc.data[SC_SUHIDE]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SU_STOOP] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SU_STOOP,1,9999,tsd->sc.data[SC_SU_STOOP]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SPRITEMABLE] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SPRITEMABLE,1,9999,tsd->sc.data[SC_SPRITEMABLE]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_SV_ROOTTWIST] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_SV_ROOTTWIST,1,9999,tsd->sc.data[SC_SV_ROOTTWIST]->val1,0,0);
-			if( tsd->sc.count && tsd->sc.data[SC_BITESCAR] )
-				clif_status_change_single(&sd->bl,&tsd->bl,SI_BITESCAR,1,9999,tsd->sc.data[SC_BITESCAR]->val1,0,0);
-			if (tsd->sc.count && tsd->sc.data[SC_TUNAPARTY])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_TUNAPARTY, 1, 9999, tsd->sc.data[SC_TUNAPARTY]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_SOULATTACK])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_SOULATTACK, 1, 9999, tsd->sc.data[SC_SOULATTACK]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_VOLCANIC_ASH])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_VOLCANIC_ASH, 1, 9999, tsd->sc.data[SC_VOLCANIC_ASH]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_CLAN_INFO])
-				clif_status_change_single(&sd->bl, &tsd->bl, SI_CLAN_INFO, 1, 9999, 0, tsd->sc.data[SC_CLAN_INFO]->val2, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_MOONSTAR])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_MOONSTAR, 1000, tsd->sc.data[SC_MOONSTAR]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_STRANGELIGHTS])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_STRANGELIGHTS, 1000, tsd->sc.data[SC_STRANGELIGHTS]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_SUPER_STAR])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_SUPER_STAR, 1000, tsd->sc.data[SC_SUPER_STAR]->val1, 0, 0);
-			if (tsd->sc.count && tsd->sc.data[SC_DECORATION_OF_MUSIC])
-				clif_efst_status_change_single(&sd->bl, &tsd->bl, SI_DECORATION_OF_MUSIC, 1000, tsd->sc.data[SC_DECORATION_OF_MUSIC]->val1, 0, 0);
+#if PACKETVER >= 20111108
+			if (tsd->sc.count)
+			{// Starting the check at SC_ALL_RIDING since all SC's after this don't use OPT3.
+			//  Starting at 0 would just waste CPU cycles. [Rytech]
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{// If SC is not active, check for the next one.
+					if (!tsd->sc.data[i])
+						continue;
+
+					// Don't bother sending the packet if the SC has no icon data.
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					// Status active and has a icon for showing possible animation? Send it.
+					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),tsd->sc.data[i]->timer,tsd->sc.data[i]->val1,0,0);
+				}
+			}
+#endif
 		}
 		break;
 	case BL_MER: // Devotion Effects
@@ -5082,6 +4964,21 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,423,sd->fd);
 			else if(md->special_state.size==1)
 				clif_specialeffect_single(bl,421,sd->fd);
+#if PACKETVER >= 20111108
+			if (md->sc.count)
+			{
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{
+					if (!md->sc.data[i])
+						continue;
+
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),md->sc.data[i]->timer,md->sc.data[i]->val1,0,0);
+				}
+			}
+#endif
 		}
 		break;
 	case BL_PET:
@@ -5093,6 +4990,21 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 			TBL_HOM* hd = (TBL_HOM*)bl;
 			if (hd->hom_spiritball > 0)
 				clif_hom_spiritball_single(sd->fd,hd);
+#if PACKETVER >= 20111108
+			if (hd->sc.count)
+			{
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{
+					if (!hd->sc.data[i])
+						continue;
+
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),hd->sc.data[i]->timer,hd->sc.data[i]->val1,0,0);
+				}
+			}
+#endif
 		}
 		break;
 	}
@@ -6484,7 +6396,8 @@ void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int
 		type == SI_READYTURN || type == SI_READYCOUNTER || type == SI_DODGE ||
 		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION || type == SI_REPRODUCE ||
 		type == SI_BLOODYLUST || type == SI_FORCEOFVANGUARD || type == SI_NEUTRALBARRIER ||
-		type == SI_OVERHEAT || type == SI_BANDING || type == SI_SUHIDE || type == SI_SPRITEMABLE)
+		type == SI_OVERHEAT || type == SI_BANDING || type == SI_SUHIDE || type == SI_SPRITEMABLE ||
+		type == SI_SOULCOLLECT)
 		tick=0;
 
 #if PACKETVER >= 20090121
@@ -6644,36 +6557,6 @@ void clif_notify_playerchat(struct map_session_data* sd, const char* message)
 	WFIFOW(fd,2) = 4+length+1;  // header + message + NUL
 	safestrncpy((char*)WFIFOP(fd,4), message, length+1);
 	WFIFOSET(fd,WFIFOW(fd,2));
-}
-
-/*==========================================
- * Display a status change when someone
- * under this status change walk into your
- * view range.
- *------------------------------------------*/
-void clif_status_change_single(struct block_list *dst, struct block_list *bl, int type, int flag, unsigned int tick, int val1, int val2, int val3)
-{
-	unsigned char buf[32];
-
-	nullpo_retv(bl);
-	nullpo_retv(dst);
-
-	if (flag && battle_config.display_status_timers)
-		WBUFW(buf,0)=0x043f;
-	else
-		WBUFW(buf,0)=0x0196;
-	WBUFW(buf, 2) = type;
-	WBUFL(buf, 4)=bl->id;
-	WBUFB(buf, 8) = flag;
-	if( flag && battle_config.display_status_timers )
-	{
-		WBUFL(buf, 9) = tick;
-		WBUFL(buf,13)= val1;
-		WBUFL(buf,17)= val2;
-		WBUFL(buf,21)= val3;
-	}
-	clif_send(buf,packet_len(WBUFW(buf,0)),dst,SELF);
-	return;
 }
 
 /// Send message (modified by [Yor]) (ZC_NOTIFY_PLAYERCHAT).
@@ -8701,6 +8584,31 @@ int clif_millenniumshield(struct map_session_data *sd, short shield_count )
 	return 0;
 }
 
+/// Notifies clients in an area of an object's souls.
+/// Note: Spirit spheres and Soul spheres work on
+/// seprate systems officially, but both send out
+/// the same packet which leads to confusion on how
+/// much soul energy a Soul Reaper acturally has
+/// should the player also have spirit spheres.
+/// They will likely create a new packet for this soon
+/// to seprate the animations for spirit and soul spheres.
+/// For now well use this and replace it later when possible. [Rytech]
+/// 
+/// 01d0 <id>.L <amount>.W (ZC_SPIRITS)
+/// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
+int clif_soulball(struct map_session_data *sd)
+{
+	unsigned char buf[8];
+
+	nullpo_ret(sd);
+
+	WBUFW(buf,0)=0x1d0;
+	WBUFL(buf,2)=sd->bl.id;
+	WBUFW(buf,6)=sd->soulball;
+	clif_send(buf,packet_len(0x1d0),&sd->bl,AREA);
+	return 0;
+}
+
 /*==========================================
  * Homunculus Spirit Spheres
  *------------------------------------------*/
@@ -10116,6 +10024,8 @@ void clif_refresh(struct map_session_data *sd)
 		clif_millenniumshield_single(sd->fd, sd, sd->rageball);
 	if (sd->charmball)
 		clif_spiritball_attribute_single(sd->fd, sd);
+	if (sd->soulball)
+		clif_soulball_single(sd->fd, sd);
 	if (sd->vd.cloth_color)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
 	if (sd->vd.body_style)
@@ -11109,7 +11019,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	clif_inventorylist(sd);  // inventory list first, otherwise deleted items in pc_checkitem show up as 'unknown item'
 	pc_checkitem(sd);
 	clif_equipswitch_list(sd);
-	
+
 	// cart
 	if(pc_iscarton(sd)) {
 		clif_cartlist(sd);
@@ -21633,9 +21543,14 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 //#0x0AC0
 		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 22,  0,  0,
 	    0,  0,  7,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  2,
-	   10,  0,  0,  0,  0,  0,  0, 32,  0,  0,  0,  0,  0,  0,  0,  0,
+	   10,  0,  0,  0, 11,  0,  0, 32,  0,  0,  0,  0,  0,  0,  0,  0,
+//#0x0B00
+	    8, 40,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	    0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,
 	};
 	struct {
 		void (*func)(int, struct map_session_data *);

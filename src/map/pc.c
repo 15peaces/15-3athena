@@ -561,6 +561,106 @@ int pc_delcharmball(struct map_session_data *sd, int count, int type)
 	return 0;
 }
 
+static int pc_soulball_timer(int tid, int64 tick, int id, intptr data)
+{
+	struct map_session_data *sd;
+	int i;
+
+	if( (sd=(struct map_session_data *)map_id2sd(id)) == NULL || sd->bl.type!=BL_PC )
+		return 1;
+
+	if( sd->soulball <= 0 )
+	{
+		ShowError("pc_soulball_timer: %d soulball's available. (aid=%d cid=%d tid=%d)\n", sd->soulball, sd->status.account_id, sd->status.char_id, tid);
+		sd->soulball = 0;
+		return 0;
+	}
+
+	ARR_FIND(0, sd->soulball, i, sd->soul_timer[i] == tid);
+	if( i == sd->soulball )
+	{
+		ShowError("pc_soulball_timer: timer not found (aid=%d cid=%d tid=%d)\n", sd->status.account_id, sd->status.char_id, tid);
+		return 0;
+	}
+
+	sd->soulball--;
+	if( i != sd->soulball )
+		memmove(sd->soul_timer+i, sd->soul_timer+i+1, (sd->soulball-i)*sizeof(int));
+	sd->soul_timer[sd->soulball] = INVALID_TIMER;
+
+	clif_soulball(sd);
+
+	return 0;
+}
+
+int pc_addsoulball(struct map_session_data *sd,int interval,int max)
+{
+	int tid, i;
+
+	nullpo_ret(sd);
+
+	if(max > MAX_SKILL_LEVEL)
+		max = MAX_SKILL_LEVEL;
+	if(sd->soulball < 0)
+		sd->soulball = 0;
+
+	if( sd->soulball && sd->soulball >= max )
+	{
+		if(sd->soul_timer[0] != INVALID_TIMER)
+			delete_timer(sd->soul_timer[0],pc_soulball_timer);
+		sd->soulball--;
+		if( sd->soulball != 0 )
+			memmove(sd->soul_timer+0, sd->soul_timer+1, (sd->soulball)*sizeof(int));
+		sd->soul_timer[sd->soulball] = INVALID_TIMER;
+	}
+
+	tid = add_timer(gettick()+interval, pc_soulball_timer, sd->bl.id, 0);
+	ARR_FIND(0, sd->soulball, i, sd->soul_timer[i] == INVALID_TIMER || DIFF_TICK(get_timer(tid)->tick, get_timer(sd->soul_timer[i])->tick) < 0);
+	if( i != sd->soulball )
+		memmove(sd->soul_timer+i+1, sd->soul_timer+i, (sd->soulball-i)*sizeof(int));
+	sd->soul_timer[i] = tid;
+	sd->soulball++;
+	clif_soulball(sd);
+
+	return 0;
+}
+
+int pc_delsoulball(struct map_session_data *sd,int count,int type)
+{
+	int i;
+
+	nullpo_ret(sd);
+
+	if(sd->soulball <= 0) {
+		sd->soulball = 0;
+		return 0;
+	}
+
+	if(count <= 0)
+		return 0;
+	if(count > sd->soulball)
+		count = sd->soulball;
+	sd->soulball -= count;
+	if(count > MAX_SKILL_LEVEL)
+		count = MAX_SKILL_LEVEL;
+
+	for(i=0;i<count;i++) {
+		if(sd->soul_timer[i] != INVALID_TIMER) {
+			delete_timer(sd->soul_timer[i],pc_soulball_timer);
+			sd->soul_timer[i] = INVALID_TIMER;
+		}
+	}
+	for(i=count;i<MAX_SKILL_LEVEL;i++) {
+		sd->soul_timer[i-count] = sd->soul_timer[i];
+		sd->soul_timer[i] = INVALID_TIMER;
+	}
+
+	if(!type)
+		clif_soulball(sd);
+
+	return 0;
+}
+
 int pc_overheat(struct map_session_data *sd, int val)
 {
 	int heat = val, skill,
@@ -1244,10 +1344,19 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
  	// Checks and fixes to character status data, that are required
  	// in case of configuration change or stuff, which cannot be
  	// checked on char-server.
- 	sd->status.hair = cap_value(sd->status.hair,MIN_HAIR_STYLE,MAX_HAIR_STYLE);
- 	sd->status.hair_color = cap_value(sd->status.hair_color,MIN_HAIR_COLOR,MAX_HAIR_COLOR);
- 	sd->status.clothes_color = cap_value(sd->status.clothes_color,MIN_CLOTH_COLOR,MAX_CLOTH_COLOR);
-	sd->status.body = cap_value(sd->status.body,MIN_BODY_STYLE,MAX_BODY_STYLE);
+	if ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER)
+	{// Doram
+		sd->status.hair = cap_value(sd->status.hair, MIN_DORAM_HAIR_STYLE, MAX_DORAM_HAIR_STYLE);
+		sd->status.hair_color = cap_value(sd->status.hair_color, MIN_DORAM_HAIR_COLOR, MAX_DORAM_HAIR_COLOR);
+		sd->status.clothes_color = cap_value(sd->status.clothes_color, MIN_DORAM_CLOTH_COLOR, MAX_DORAM_CLOTH_COLOR);
+	}
+	else
+	{// Human
+ 		sd->status.hair = cap_value(sd->status.hair,MIN_HAIR_STYLE,MAX_HAIR_STYLE);
+ 		sd->status.hair_color = cap_value(sd->status.hair_color,MIN_HAIR_COLOR,MAX_HAIR_COLOR);
+ 		sd->status.clothes_color = cap_value(sd->status.clothes_color,MIN_CLOTH_COLOR,MAX_CLOTH_COLOR);
+		sd->status.body = cap_value(sd->status.body,MIN_BODY_STYLE,MAX_BODY_STYLE);
+	}
 
 	//Initializations to null/0 unneeded since map_session_data was filled with 0 upon allocation.
 	sd->state.connect_new = 1;
@@ -1271,6 +1380,8 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 		sd->rage_timer[i] = INVALID_TIMER;
 	for (i = 0; i < MAX_SKILL_LEVEL; i++)
 		sd->charm_timer[i] = INVALID_TIMER;
+	for (i = 0; i < MAX_SKILL_LEVEL; i++)
+		sd->soul_timer[i] = INVALID_TIMER;
 	for(i = 0; i < ARRAYLENGTH(sd->autobonus); i++)
 		sd->autobonus[i].active = INVALID_TIMER;
 	for(i = 0; i < ARRAYLENGTH(sd->autobonus2); i++)
@@ -4393,6 +4504,8 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		return 0;
 	if( !item->script ) //if it has no script, you can't really consume it!
 		return 0;
+	if (item->flag.dead_branch && (map[sd->bl.m].flag.nobranch || map_flag_gvg(sd->bl.m)))
+		return 0;
 
 	switch( nameid )
 	{
@@ -4424,13 +4537,6 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 				return 0;
 			}
 			if( nameid != 601 && nameid != 12212 && map[sd->bl.m].flag.noreturn || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )	// Cell PVP [Napster]
-				return 0;
-			break;
-		case 604: // Dead Branch
-		case 12024: // Red Pouch
-		case 12103: // Bloody Branch
-		case 12109: // Poring Box
-			if( map[sd->bl.m].flag.nobranch || map_flag_gvg(sd->bl.m) )
 				return 0;
 			break;
 		case 12210: // Bubble Gum
@@ -4493,6 +4599,17 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 	)
 		return 0;
 
+	if (item->flag.group) {
+		if (pc_is90overweight(sd)) {
+			clif_msg(sd, ITEM_CANT_OBTAIN_WEIGHT);
+			return 0;
+		}
+		if (!pc_inventoryblank(sd)) {
+			clif_displaymessagecolor(sd, msg_txt(820), COLOR_RED); //Item cannot be open when inventory is full
+			return 0;
+		}
+	}
+
 	//Gender check
 	if(item->sex != 2 && sd->status.sex != item->sex)
 		return 0;
@@ -4514,9 +4631,8 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		(item->class_upper&8 && sd->class_&JOBL_THIRD)))
 		return 0;
 
-	//Dead Branch & Bloody Branch & Porings Box
-	// FIXME: outdated, use constants or database
-	if( nameid == 604 || nameid == 12103 || nameid == 12109 )
+	//Dead Branch items
+	if (item->flag.dead_branch)
 		log_branch(sd);
 
 	return 1;
@@ -7206,11 +7322,11 @@ int pc_resetfeel(struct map_session_data* sd)
 	int i;
 	nullpo_ret(sd);
 
-	for (i=0; i<MAX_PC_FEELHATE; i++)
+	for (i = 0; i < MAX_PC_FEELHATE; i++)
 	{
 		sd->feel_map[i].m = -1;
 		sd->feel_map[i].index = 0;
-		pc_setglobalreg(sd,sg_info[i].feel_var,0);
+		pc_setglobalreg(sd, sg_info[i].feel_var, 0);
 	}
 
 	return 0;
@@ -7221,13 +7337,14 @@ int pc_resethate(struct map_session_data* sd)
 	int i;
 	nullpo_ret(sd);
 
-	for (i=0; i<3; i++)
+	for (i = 0; i < MAX_PC_FEELHATE; i++)
 	{
 		sd->hate_mob[i] = -1;
-		pc_setglobalreg(sd,sg_info[i].hate_var,0);
+		pc_setglobalreg(sd, sg_info[i].hate_var, 0);
 	}
 	return 0;
 }
+
 
 int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
 {
@@ -7499,40 +7616,43 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if (sd && sd->charmball)
 		pc_delcharmball(sd, sd->charmball, 0);
 
-	if (src)
-	switch (src->type) {
-	case BL_MOB:
-	{
-		struct mob_data *md=(struct mob_data *)src;
-		if(md->target_id==sd->bl.id)
-			mob_unlocktarget(md,tick);
-		if(battle_config.mobs_level_up && md->status.hp &&
-			(unsigned int)md->level < pc_maxbaselv(sd) &&
-			!md->guardian_data && !md->special_state.ai// Guardians/summons should not level. [Skotlex]
-		) { 	// monster level up [Valaris]
-			clif_misceffect(&md->bl,0);
-			md->level++;
-			status_calc_mob(md, 0);
-			status_percent_heal(src,10,0);
+	if (sd && sd->soulball)
+		pc_delsoulball(sd, sd->soulball, 0);
 
-			if( battle_config.show_mob_info&4 )
-			{// update name with new level
-				clif_charnameack(0, &md->bl);
+	if (src)
+		switch (src->type) {
+			case BL_MOB:
+			{
+				struct mob_data *md=(struct mob_data *)src;
+				if(md->target_id==sd->bl.id)
+					mob_unlocktarget(md,tick);
+				if(battle_config.mobs_level_up && md->status.hp &&
+					(unsigned int)md->level < pc_maxbaselv(sd) &&
+					!md->guardian_data && !md->special_state.ai// Guardians/summons should not level. [Skotlex]
+				) { 	// monster level up [Valaris]
+					clif_misceffect(&md->bl,0);
+					md->level++;
+					status_calc_mob(md, 0);
+					status_percent_heal(src,10,0);
+
+					if( battle_config.show_mob_info&4 )
+					{// update name with new level
+						clif_charnameack(0, &md->bl);
+					}
+				}
+				src = battle_get_master(src); // Maybe Player Summon
 			}
+			break;
+			case BL_PET: //Pass on to master...
+				src = &((TBL_PET*)src)->msd->bl;
+				break;
+			case BL_HOM:
+				src = &((TBL_HOM*)src)->master->bl;
+				break;
+			case BL_MER:
+				src = &((TBL_MER*)src)->master->bl;
+				break;
 		}
-		src = battle_get_master(src); // Maybe Player Summon
-	}
-	break;
-	case BL_PET: //Pass on to master...
-		src = &((TBL_PET*)src)->msd->bl;
-	break;
-	case BL_HOM:
-		src = &((TBL_HOM*)src)->master->bl;
-	break;
-	case BL_MER:
-		src = &((TBL_MER*)src)->master->bl;
-	break;
-	}
 
 	if (src && src->type == BL_PC)
 	{
@@ -8398,7 +8518,10 @@ int pc_changelook(struct map_session_data *sd,int type,int val)
 
 	switch(type){
 	case LOOK_HAIR:	//Use the battle_config limits! [Skotlex]
-		val = cap_value(val, MIN_HAIR_STYLE, MAX_HAIR_STYLE);
+		if ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER)
+			val = cap_value(val, MIN_DORAM_HAIR_STYLE, MAX_DORAM_HAIR_STYLE);
+		else
+			val = cap_value(val, MIN_HAIR_STYLE, MAX_HAIR_STYLE);
 
 		if (sd->status.hair != val)
 		{
@@ -8421,7 +8544,10 @@ int pc_changelook(struct map_session_data *sd,int type,int val)
 		sd->status.head_mid=val;
 		break;
 	case LOOK_HAIR_COLOR:	//Use the battle_config limits! [Skotlex]
-		val = cap_value(val, MIN_HAIR_COLOR, MAX_HAIR_COLOR);
+		if ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER)
+			val = cap_value(val, MIN_DORAM_HAIR_COLOR, MAX_DORAM_HAIR_COLOR);
+		else
+			val = cap_value(val, MIN_HAIR_COLOR, MAX_HAIR_COLOR);
 
 		if (sd->status.hair_color != val)
 		{
@@ -8432,7 +8558,10 @@ int pc_changelook(struct map_session_data *sd,int type,int val)
 		}
 		break;
 	case LOOK_CLOTHES_COLOR:	//Use the battle_config limits! [Skotlex]
-		val = cap_value(val, MIN_CLOTH_COLOR, MAX_CLOTH_COLOR);
+		if ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER)
+			val = cap_value(val, MIN_DORAM_CLOTH_COLOR, MAX_DORAM_CLOTH_COLOR);
+		else
+			val = cap_value(val, MIN_CLOTH_COLOR, MAX_CLOTH_COLOR);
 
 		sd->status.clothes_color=val;
 		break;
@@ -11204,6 +11333,7 @@ int do_init_pc(void)
 	add_timer_func_list(pc_shieldball_timer, "pc_shieldball_timer");
 	add_timer_func_list(pc_rageball_timer, "pc_rageball_timer");
 	add_timer_func_list(pc_charmball_timer, "pc_spiritball_attribute_timer");
+	add_timer_func_list(pc_soulball_timer, "pc_soulball_timer");
 	add_timer_func_list(pc_follow_timer, "pc_follow_timer");
 	add_timer_func_list(pc_endautobonus, "pc_endautobonus");
 

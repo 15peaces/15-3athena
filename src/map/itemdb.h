@@ -215,6 +215,8 @@ struct item_data {
 		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
 		unsigned autoequip: 1;
 		unsigned buyingstore : 1;
+		unsigned dead_branch : 1; // As dead branch item. Logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
+		unsigned group : 1; // As item group container [Cydh]
 	} flag;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]

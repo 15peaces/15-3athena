@@ -1829,6 +1829,7 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 // New Packets
 0x0447,2 // CZ_BLOCKING_PLAY_CANCEL
 0x082d,-1//HC_ACCEPT_ENTER2
+0x084b,19
 0x08C8,34	// ZC_NOTIFY_ACT3
 0x08ff,24 	// ZC_EFST_SET_ENTER
 0x097c,4,pranklist,0	//CZ_REQ_RANKING
@@ -2462,8 +2463,8 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 0x0acc,18
 
 // Note: Clients after 2018-03-07bRagexeRE do not obfuscate packets anymore!
-
-//2018-06-21aRagexeRE ~ 2018-09-19aRagexe
+// Note 2: Clients after 2018-03-07bRagexeRE do not have shuffled packets anymore
+//2018-06-21aRagexeRE+
 packet_ver: 45
 packet_keys: 0x00000000,0x00000000,0x00000000
 0x0437,7,actionrequest,2:6
@@ -2502,6 +2503,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x09a1,2//CH_CHARLIST_REQ
 
 0x0a68,3,pOpenUIRequest,0
+0x0add,22
 0x0ade,6//ZC_OVERWEIGHT_PERCENT
 0x0ae2,7
 0x0ae8,2,changedress,0
@@ -2515,6 +2517,8 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x0aff,-1
 0x0b00,8
 0x0b01,40
+0xb09,-1
+0xb39,-1
 
 //Add new packets here
 //packet_ver: 45

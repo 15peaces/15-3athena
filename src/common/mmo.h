@@ -50,10 +50,9 @@
 // 20120307 - 2012-03-07aRagexeRE+ - 0x970
 
 #ifndef PACKETVER
-	//#define PACKETVER 20170614 //stable client [15peaces]
 	//#define PACKETVER 20180621 //stable client [15peaces]
 	#define PACKETVER 20180919 //stable client [15peaces]
-	//#define PACKETVER 20181121 //next experimental client [15peaces]
+	//#define PACKETVER 20181121 //experimental client [15peaces]
 #endif
 
 // backward compatible PACKETVER 8 and 9
@@ -88,7 +87,20 @@
 #endif
 
 #define MAX_MAP_PER_SERVER 1500 // Increased to allow creation of Instance Maps
-#define MAX_INVENTORY 100
+
+#ifndef INVENTORY_BASE_SIZE
+	#define INVENTORY_BASE_SIZE 100 // Amount of inventory slots each player has
+#endif
+
+#ifndef INVENTORY_EXPANSION_SIZE
+#if PACKETVER >= 20181031
+	#define INVENTORY_EXPANSION_SIZE 100 // Amount of additional inventory slots a player can have
+#else
+	#define INVENTORY_EXPANSION_SIZE 0
+#endif
+#endif
+
+#define MAX_INVENTORY ( INVENTORY_BASE_SIZE + INVENTORY_EXPANSION_SIZE ) // Maximum items in player inventory (in total)
 
 //Max number of characters per account. Note that changing this setting alone is not enough if the client is not hexed to support more characters as well.
 //April 2010 and newer clients don't need to be hexed. Setting server side is enough.

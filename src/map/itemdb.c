@@ -1719,6 +1719,29 @@ void itemdb_parse_attendance_db(void)
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
 }
 
+/** Misc Item flags
+* <item_id>,<flag>
+* &1 - Log as dead branch
+* &2 - As item container
+*/
+static bool itemdb_read_flag(char* fields[], int columns, int current) {
+	uint16 nameid = atoi(fields[0]);
+	uint8 flag = atoi(fields[1]);
+	struct item_data *id;
+
+	if (!(id = itemdb_exists(nameid))) {
+		ShowError("itemdb_read_flag: Invalid item item with id %d\n", nameid);
+		return true;
+	}
+
+	if (flag & 1)
+		id->flag.dead_branch = 1;
+	if (flag & 2)
+		id->flag.group = 1;
+
+	return true;
+}
+
 /*====================================
  * read all item-related databases
  *------------------------------------*/
@@ -1734,12 +1757,13 @@ static void itemdb_read(void)
 	itemdb_read_itemgroup();
 	itemdb_read_itempackage();
 	itemdb_read_randomopt();
-	sv_readdb(db_path, "item_avail.txt",   ',', 2, 2, -1,             &itemdb_read_itemavail);
-	sv_readdb(db_path, "item_noequip.txt", ',', 2, 2, -1,             &itemdb_read_noequip);
-	sv_readdb(db_path, "item_trade.txt",   ',', 3, 3, -1,             &itemdb_read_itemtrade);
-	sv_readdb(db_path, "item_delay.txt",   ',', 2, 3, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
-	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,         &itemdb_read_buyingstore);
-	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,            &itemdb_read_cashshop);
+	sv_readdb(db_path, "item_avail.txt",	',', 2, 2, -1,             &itemdb_read_itemavail);
+	sv_readdb(db_path, "item_noequip.txt",	',', 2, 2, -1,             &itemdb_read_noequip);
+	sv_readdb(db_path, "item_trade.txt",	',', 3, 3, -1,             &itemdb_read_itemtrade);
+	sv_readdb(db_path, "item_delay.txt",	',', 2, 3, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
+	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,			&itemdb_read_buyingstore);
+	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,				&itemdb_read_cashshop);
+	sv_readdb(db_path, "item_flag.txt",		',', 2, 2, -1,				&itemdb_read_flag);
 }
 
 /*==========================================

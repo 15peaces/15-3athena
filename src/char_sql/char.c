@@ -3169,10 +3169,14 @@ int char_loadName(int char_id, char* name)
 		safestrncpy(name, data, NAME_LENGTH);
 		return 1;
 	}
+#if PACKETVER < 20180221
 	else
 	{
 		safestrncpy(name, unknown_char_name, NAME_LENGTH);
 	}
+#else
+	name[0] = '\0';
+#endif
 	return 0;
 }
 

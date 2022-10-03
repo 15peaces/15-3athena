@@ -5,6 +5,48 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+10/03/2022
+	r347 [15peaces]
+		*Merged missing changes from 3ceam rev. 852 - 854
+		*Added full support for ZC_ITEM_FALL_ENTRY4
+			-This will now replace the old ZC_ITEM_FALL_ENTRY for 2013+ clients.
+		*Added partial support for ZC_ITEM_FALL_ENTRY5
+			-This will be used for 201804+ clients.
+			-Currently it is working the same way as the ZC_ITEM_FALL_ENTRY4 packet but it will be needed in a future update.
+		*Implemented a flagged items database for item groups and Dead Branch type item checks.
+			-Thanks to @rathena
+		*Added ~250 missing items.
+		*Added the soul energy system.
+			-This system is used for managing the Soul Reaper's soul energy.
+			-Its basicly another sphere system. Its been confirmed that soul energy sphere's works on its own system and not through any other sphere system.
+		*Added the "hatereset" and "soulball" command.
+		*Added ranges of styles/dyes for Doram's.
+			-This is a range seprate from the regular ones since Doram's officially have a different set number of hair styles and cloth dyes. As of 2018-06-05 they have 6 hair styles, 8 hair dyes, and no cloth dyes.
+		*min_doram_hair_style; max_doram_hair_style; min_doram_hair_color; max_doram_hair_color; min_doram_cloth_color; max_doram_cloth_color
+			-Added these configs to the client config file.
+			-These are a seprate set of style/dye ranges for Doram characters.
+			-This is needed since they have different maxes from humans.
+		*Updated a few commands to pickup on the style/dye ranges for Doram characters.
+		*Updated default setting for "max_hair_style" to 29.
+		*Corrected default setting for "max_hair_color" to 8.
+		*clif_spiritball_single
+			-Changed the packet use to 0x1d0 (ZC_SPIRITS).
+			-This change fixes a issue where Rebellion's Coin sphere's and Soul Reaper's Soul Energy sphere's would look like regular spirit sphere's when the player warps to another map, refreshes, and also appear as spirit sphere's to other players who 
+			-walk into view range of the one with the spheres.
+			-It also fixes a issue where the sphere's may not vanish properly from view when the player dies.
+		*Did a small text update in the skill config file.
+		*Added the "status_sc2icon" function.
+		*Recoded the system that displays status animations for renewal era status's.
+			-Status's that were added in during the renewal era don't use OPT3 for resending animation display's to other player's clients around you. Instead they are displayed with a seprate packet called EFST_SET_ENTER.
+			-This recode get rid of those 2 huge walls of code that was just temp code and replaces them with much much smaller and more efficent code. This makes it so I don't have to add anything to it when it comes to new skills. The recode also 
+			-allows these animations to be shown on monsters and homunculus that come into view of a player.
+		*Updated the 3CeAM super stylist to detect the ranges of styles/dyes for Doram character's.
+		*RL_MASS_SPIRAL
+		-Fixed a issue where the skill would deal extremely high damage on targets with negeative DEF.
+		*SJ_DOCUMENT; SP_SOULCOLLECT; SP_SOULENERGY
+		-Added support for these skills.
+
 08/22/2022
 	r346 [15peaces]
 		*Merged missing changes from 3ceam rev. 851

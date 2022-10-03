@@ -476,6 +476,7 @@ enum clif_messages {
 	/* -end- */
 
 	//! NOTE: These values below need client version validation
+	ITEM_CANT_OBTAIN_WEIGHT = 0x34, /* You cannot carry more items because you are overweight. */
 	ITEM_REUSE_LIMIT = 0x746,
 	WORK_IN_PROGRESS = 0x783,
 
@@ -757,6 +758,7 @@ void clif_autospell(struct map_session_data *sd,int skilllv);
 void clif_devotion(struct block_list *src, struct map_session_data *tsd);
 void clif_spiritball(struct map_session_data *sd);
 int clif_spiritball_attribute(struct map_session_data *sd);
+int clif_soulball(struct map_session_data *sd);
 void clif_combo_delay(struct block_list *bl,int wait);
 void clif_bladestop(struct block_list *src, int dst_id, int active);
 void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target target);
@@ -980,7 +982,7 @@ void clif_quest_update_objective(struct map_session_data * sd, struct quest * qd
 void clif_quest_show_event(struct map_session_data *sd, struct block_list *bl, short state, short color);
 void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest, bool lost);
 
-int clif_send(const uint8* buf, int len, struct block_list* bl, enum send_target type);
+int clif_send(const void* buf, int len, struct block_list* bl, enum send_target type);
 int do_init_clif(void);
 
 #ifndef TXT_ONLY

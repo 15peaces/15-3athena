@@ -1471,7 +1471,7 @@ enum si_type {
 //	SI_GVG_CURSE = 692,
 //	SI_GVG_SILENCE = 693,
 //	SI_GVG_BLIND = 694,
-//	SI_CLIENT_ONLY_EQUIP_ARROW = 695,
+	SI_CLIENT_ONLY_EQUIP_ARROW = 695,
 	SI_CLAN_INFO = 696,
 //	SI_JP_EVENT01 = 697,
 //	SI_JP_EVENT02 = 698,
@@ -2174,6 +2174,7 @@ struct status_change {
 // for looking up associated data
 sc_type status_skill2sc(int skill);
 int status_sc2skill(sc_type sc);
+int status_sc2icon(sc_type sc);
 
 int status_damage(struct block_list *src,struct block_list *target,int hp,int sp, int walkdelay, int flag);
 //Define for standard HP damage attacks.

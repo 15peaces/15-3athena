@@ -2167,6 +2167,9 @@ void script_hardcoded_constants(void)
 	script_set_constant("MAX_HAIR_STYLE", MAX_HAIR_STYLE, false);
 	script_set_constant("MAX_CLOTH_COLOR", MAX_CLOTH_COLOR, false);
 	script_set_constant("MAX_BODY_STYLE", MAX_BODY_STYLE, false);
+	script_set_constant("MAX_DORAM_HAIR_COLOR", MAX_DORAM_HAIR_COLOR, false);
+	script_set_constant("MAX_DORAM_HAIR_STYLE", MAX_DORAM_HAIR_STYLE, false);
+	script_set_constant("MAX_DORAM_CLOTH_COLOR", MAX_DORAM_CLOTH_COLOR, false);
 
 	/* misc */
 	script_set_constant("BF_WEAPON", BF_WEAPON, false);
