@@ -115,6 +115,8 @@
 1986,115,100	// P_Tail1
 2127,91,100		// Secular_Mission
 2132,91,100		// Shelter_Resistance
+2997,91,100	//RWC_Gold_Brooch
+2999,91,100	//RWC_Brooch
 2358,91,100		// Dress_Of_Angel
 2368,83,100		// Golden_Armor
 2370,91,100		// Used_Mage_Coat
@@ -370,6 +372,7 @@
 5812,123,100	// Hat_Of_Expert
 5817,123,100	// Valentine_Pledge
 5820,83,100		// Black_Elven_Ears
+5864,91,100	//Shadow_Booster
 6000,91,100		// Dark_Ashes
 6001,123,100	// Essence_Of_Fire
 6002,121,100	// Token_Of_Apostle
@@ -451,18 +454,62 @@
 6507,123,100	// Evil_Bone
 6519,123,100	// Collected_Samples
 6520,123,100	// Lost_Belongings
+6654,91,100	//Needle_And_Thread
+6655,91,100	//Firm_Pumpkin
+6656,91,100	//Goast_Free_Charm
+6657,91,100	//Memory_Of_Jack
+6658,91,100	//Halloween_Coin
+6671,91,100	//Geffen_Coin_Magic_Tournament
+6672,91,100	//RWC_Inicializer
+6673,91,100	//Bossnia_Tickets
+6674,91,100	//GM_Coin
+6684,91,100		// TokenOfHero
 6708,123,100	// Mana_crystal
 6709,123,100	// Crisp_Silk
 6710,123,100	// Tied_Snake
 6713,123,100	// Heart_of_Soul
 6714,123,100	// Sheenas_Soul
-6715,123,100	// Gods_Soul_Piece
 6715,123,100	// P_Of_Evil_Soul
+6720,91,100	//Status_Reset_Coupon
+6721,91,100	//Status_Reset_Coupon_
+6746,91,100	//Iron_Artifacts
+6747,91,100	//Steel_Workpiece
+6748,91,100	//Daily_Report_He_And_His_Team
+6749,91,100	//Operation_Control_Device
+6752,91,100	//Charleston_Parts
+6753,91,100	//Token_Of_Destruction
+6754,91,100	//Collected_Medicinal_Herbs
 6756,123,100	// Cohesive_Energy
 6757,123,100	// The_Memory_Recorder
+6814,91,100	//Swordman_Soul
+6815,91,100	//Merchant_Soul
+6816,91,100	//Thief_Soul
+6817,91,100	//Mage_Soul
+6818,91,100	//Archer_Soul
+6819,91,100	//Acolyte_Soul
+6820,91,100	//Energy_Debris
+6824,91,100	//Experimental_Dong_Memory_Record
+6825,91,100	//Air_Cleaner_Box
+6826,91,100	//Fresh_Grapes
+6827,91,100	//Complete_Machine_Parts
+6828,91,100	//Gravity_Safety_Device
+6832,91,100	//Questioned_Parts
+6833,91,100	//(Limited)_Token_of_Ziegfried
+6836,91,100	//Talisman_Of_Soul
+6837,91,100	//Piece_Of_Soul_Mouse
+6838,91,100	//Secret_Orders_Of_Prophet_K
+6839,91,100	//Gold_Choco_Coin
+6840,91,100	//Silver_Choco_Coin
+6841,91,100	//Bronze_Choco_Coin
+6842,91,100	//Huge_Jewery
+6843,91,100	//Thin_Ring
+6844,91,100	//Mild_Stone
+6845,91,100	//That_Thing
 6847,91,100		// Very_Small_Box
 6848,91,100 	// Light_Box
-6684,91,100		// TokenOfHero
+6860,91,100	//Piece_Of_Soul_Cow
+6862,91,100	//Piece_Of_Soul_Tiger
+6863,91,100	//Strong_Piece_Of_Soul_Tiger
 6904,123,100	// Piece_Of_Soul_Snake
 6907,123,100	// Piece_Of_Soul_Horse
 7025,91,100		// Lucifer's_Lament
@@ -592,6 +639,9 @@
 7621,91,100		// Token_Of_Siegfried
 7622,91,100		// New_Style_Coupon
 7623,123,100	// Name_Change_Coupon
+7630,91,100	//Clean_Beach_Brush
+7631,91,100	//Trash_Debris
+7690,91,100	//Special_Exchange_Coupons
 7701,115,100	// Dragon_Spirit
 7704,123,100	// Broken_Thermometer
 7705,123,100	// Note_Of_Geologist
@@ -683,6 +733,29 @@
 11016,91,100 	// Expedition_Report_Vol4
 11503,91,100	// Siege_White_Potion
 11504,91,100	// Siege_Blue_Potion
+11565,91,100	//White_Potion
+11566,91,100	//Yellow_Potion
+11567,91,100	//Novice_Potion
+11568,91,100	//Red_Slim_Potion
+11569,91,100	//Orange_Potion
+11570,91,100	//Red_Potion
+11571,91,100	//Green_Potion
+11572,91,100	//Blue_Potion
+11573,91,100	//White_Slim_Potion
+11574,91,100	//Yellow_Slim_Potion
+11575,91,100	//Lucky_Cookie
+11576,91,100	//Lucky_Lollipop
+11577,91,100	//Rice_Ball
+11578,91,100	//Candy_Bar
+11579,91,100	//Lucky_Candy
+11580,91,100	//Candy
+11581,91,100	//Piece_of_Cake
+11582,91,100	//Well-baked_Cookie
+11583,91,100	//Chocolate_Drink
+11584,91,100	//White_Chocolate
+11585,91,100	//Hand-made_Chocolate
+11586,91,100	//Hand-made_Chocolate_
+11587,91,100	//Chocolate
 12142,122,100	// Magic_Book
 12153,115,100	// Bow_Mercenary_Scroll1
 12154,115,100	// Bow_Mercenary_Scroll2
@@ -774,6 +847,7 @@
 12310,83,100	// Spray_Of_Flowers
 12311,83,100	// Large_Spray_Of_Flowers
 12313,115,100	// Protection_Of_Angel
+12314,91,100	//Noive_Box
 12323,123,100	// N_Fly_Wing
 12324,123,100	// N_Butterfly_Wing
 12325,123,100	// N_Magnifier
@@ -794,6 +868,35 @@
 12388,123,100	// Runstone_Crush
 12389,123,100	// Runstone_Storm
 12390,123,100	// Runstone_Millennium
+12497,91,100	//E_Bubble_Gum
+12501,91,100	//E_Str_Dish10_
+12502,91,100	//E_Agi_Dish10_
+12503,91,100	//E_Int_Dish10_
+12504,91,100	//E_Dex_Dish10_
+12505,91,100	//E_Luk_Dish10_
+12506,91,100	//E_Vit_Dish10_
+12507,91,100	//E_WOB_Rune
+12508,91,100	//E_WOB_Schwaltz
+12509,91,100	//E_WOB_Rachel
+12510,91,100	//E_WOB_Local
+12511,91,100	//E_Siege_Teleport_Scroll
+12512,91,100	//E_Greed_Scroll
+12513,91,100	//E_Glass_Of_Illusion
+12514,91,100	//E_Abrasive
+12515,91,100	//E_Med_Life_Potion
+12516,91,100	//E_Small_Life_Potion
+12517,91,100	//E_Regeneration_Potion
+12518,91,100	//E_B_Mdef_Potion
+12519,91,100	//E_S_Mdef_Potion
+12520,91,100	//E_B_Def_Potion
+12521,91,100	//E_S_Def_Potion
+12522,91,100	//E_Blessing_10_Scroll
+12523,91,100	//E_Inc_Agi_10_Scroll
+12524,91,100	//E_Aspersio_5_Scroll
+12525,91,100	//E_Assumptio_5_Scroll
+12526,91,100	//E_Wind_Walk_10_Scroll
+12527,91,100	//E_Adrenaline_Scroll
+12528,91,100	//E_Convex_Mirror
 12622,123,100 	// Boarding_Halter
 12704,91,100	// Elixir_Of_Life
 12705,91,100	// Noble_Nameplate
@@ -809,6 +912,10 @@
 12732,91,100	// Runstone_Pertz
 12733,91,100	// Runstone_Hagalas
 12811,123,100	// Event_Gift_Box_
+12884,91,100	//Infinite_Concentration_Potion
+12885,91,100	//Infinite_Awakening_Potion
+12886,91,100	//Infinite_Berserk_Potion
+12887,91,100	//C_Wing_Of_Fly
 12900,73,100	// Battle_Manual_Box
 12901,73,100	// Insurance_Package
 12902,73,100	// Bubble_Gum_Box
@@ -889,6 +996,8 @@
 13112,115,100	// P_Revolver1
 13113,115,100	// P_Revolver2
 13114,115,100	// P_Revolver3
+13118,91,100	//Spark_Light
+13125,91,100	//Metal_Revolver
 13171,83,100	// BF_Rifle1
 13172,83,100	// BF_Gatling_Gun1
 13173,83,100	// BF_Shotgun1
@@ -902,6 +1011,7 @@
 13306,83,100	// BF_Huuma_Shuriken2
 13307,83,100	// Krieger_Huuma_Shuriken1
 13310,115,100	// P_Huuma_Suriken1
+13322,91,100	//Huuma_Metal_Shuriken
 13401,91,100	// Excalibur_C
 13406,91,100	// Edger
 13407,91,100	// Nagan_C
@@ -1483,25 +1593,174 @@
 14603,91,100	// MistressS
 14604,91,100	// Orc_HeroS
 14605,91,100	// Orc_LoadS
+14613,91,100	//RWC_Scroll_2012
+14614,91,100	//Ex_Def_Potion
+14616,91,100	//STR_Biscuit_Stick
+14617,91,100	//VIT_Biscuit_Stick
+14618,91,100	//AGI_Biscuit_Stick
+14619,91,100	//INT_Biscuit_Stick
+14620,91,100	//DEX_Biscuit_Stick
+14621,91,100	//LUK_Biscuit_Stick
+14623,91,100	//Golden_Treasure_Box
+14627,91,100	//Christmas_Scroll
+14628,91,100	//Costume_Festival_Box
+14663,91,100	//Scroll_Sealed_Dark_Lord
+14675,91,100	//Shadow_Box_II
+14679,91,100	//Article_Sealed_Storm_Scroll
+14682,91,100	//Sealed_Beelzebub_Scroll
+14689,91,100	//Sealed_Kiel-D-01_Scroll
+14696,91,100	//Sealed_Gloom_Under_Night_Gachapon
+14704,91,100	//Gemstone_Shadow_Box
+14705,91,100	//Sealed_Fallen_Bishop_Hibram_Scroll
+14717,91,100	//2013_RWC_Scroll
+14723,91,100	//(Limited)Neuralizer_I
+14724,91,100	//(Limited)Neuralizer_II
+14725,91,100	//Sealed_Bacsojin_Scroll
+14726,91,100	//Grid_Shadow_Box
+14727,91,100	//Heal_Shadow_Box
+14728,91,100	//Hiding_Shadow_Box
+14729,91,100	//Cloaking_Shadow_Box
+14730,91,100	//Costume_Festival_Box_II
+14731,91,100	//Teleport_Shadow_Box
+14732,91,100	//Steal_Shadow_Box
+14733,91,100	//Sealed_Pharaoh_Scroll
 14765,91,100 	// Limited_Edition_JOB_Battle_Manual
 15009,115,100	// Para_Team_Uniform1
 15010,115,100	// Para_Team_Uniform2
 15011,115,100	// Para_Team_Uniform3
 15023,87,100	// Half_Brynhild
 15031,115,100	// Para_Team_Armor
+15116,91,100	//Armor_Of_Airship
 16004,115,100	// P_Mace1
 16005,115,100	// P_Mace2
 16014,115,100	// P_Mace3
+16378,91,100	//Siege_Tele_Scroll_Box_30
+16382,91,100	//WoE_Teleport_Scroll_30_Box
+16481,91,100	//Small_Life_Potion_Box_10
+16483,91,100	//Abrasive_Box_10
+16503,91,100	//E_Insurance_Package
+16504,91,100	//Bubble_Gum_Box(10)
+16505,91,100	//Steamed_Tongue_Box_10
+16506,91,100	//Steamed_Desert_Scorpions_Box_10
+16507,91,100	//Dragon_Breath_Cocktail_Box_10
+16508,91,100	//Hwergelmir's_Tonic_Box_10
+16509,91,100	//Cooked_Nine_Tail_Box_10
+16510,91,100	//Immortal_Stew_Box_10
+16514,91,100	//Blessing_Scroll_Box_10
+16515,91,100	//Increase_Agility_Scroll_Box_10
 16628,87,100	// Brynhild_Box
 16682,73,100 	// Boarding_Halter_Box
+16821,91,100	//Dungeon_Teleport_Scroll_Box_5
+16822,91,100	//Dungeon_Teleport_Scroll_Box_10
+16837,91,100	//Dungeon_Teleport_Scroll_II_Box_5
+16838,91,100	//Dungeon_Teleport_Scroll_II_Box_10
+16864,91,100	//Siege_Map_Teleport_Scroll_Box_10
+16865,91,100	//Siege_Map_Teleport_Scroll_Box_30
+16866,91,100	//Siege_Map_Teleport_Scroll_II_Box_10
+16867,91,100	//Siege_Map_Teleport_Scroll_II_Box_30
+17159,91,100	//Name_Change_Box
+17160,91,100	//Character_Name_Change_Card_Box
+17226,91,100	//Infinite_Concentration_Potion
+17227,91,100	//Infinite_Awakening_Potion
+17228,91,100	//Infinite_Berserk_Potion
+17229,91,100	//Infinite_Flywing_Box
+17231,91,100	//Refinement_Ore_Box
+17232,91,100	//Refinement_box(7)
+17241,91,100	//Amistr_Cap_Box
 17252,91,100 	// RWC_2012_Set_Box
+17262,91,100	//Ex_Def_Potion_Box
+17263,91,100	//Infinite_Concentration_Potion_3rd_Box
+17264,91,100	//Infinite_Awakening_Potion_3rd_Box
+17265,91,100	//Infinite_Berserk_Potion_3rd_Box
+17266,91,100	//Limited_Battle_Manual_Package
+17270,91,100	//STR_Biscuit_Stick_Box
+17271,91,100	//VIT_Biscuit_Stick_Box
+17272,91,100	//AGI_Biscuit_Stick_Box
+17273,91,100	//INT_Biscuit_Stick_Box
+17274,91,100	//DEX_Biscuit_Stick_Box
+17275,91,100	//LUK_Biscuit_Stick_Box
+17277,91,100	//Unlimited_Box
+17278,91,100	//Unlimited_Box(10)
+17281,91,100	//Refinement_Ore_Box_IV
+17282,91,100	//Refinement_Ore_Box_IV(10)
+17283,91,100	//Refinement_Ore_Box_IV(20)
+17292,91,100	//Shadow_Box
+17293,91,100	//Shadow_Physical_Package
+17294,91,100	//Shadow_Magical_Package
+17298,91,100	//Support_Package
+17299,91,100	//Support_Package(10)
+17302,91,100	//Shadow_Box_II_
+17303,91,100	//Shadow_Set_Box_II
+17304,91,100	//Neuralizer_Box_3
+17306,91,100	//Status_Reset_Coupon_Box
+17314,91,100	//Infinite_Giant_Fly_Wing_Box
+17321,91,100	//Three_Master_Package
+17322,91,100	//Three_Master_Package(10)
+17331,91,100	//Event_Almighty_Box
+17332,91,100	//Event_Almighty_Box(100)
+17338,91,100	//Ore_Box_V
+17339,91,100	//Ore_Box_V(10)
+17429,91,100	//11_Anniversary_Shadow_Box
+17430,91,100	//11_Anniversary_Shadow_Package
+17440,91,100	//Name_Change_Card_Box
+17442,91,100	//Emperium_G_Box
+17443,91,100	//Reinforcement_Buckler_Box
+17449,91,100	//Cookies_Bar_Set
+17455,91,100	//Premium_Battle_Manual_Box
+17468,91,100	//Neuralizer_II_Box_3
+17469,91,100	//Neuralizer_I_Box
+17472,91,100	//Support_Package_III
+17473,91,100	//Support_Package_III(10)
+17474,91,100	//Infinite_Giant_Fly_Wing_Box_V
+17475,91,100	//(Limited)Gym_Membership_Card_Box(10)
+17477,91,100	//Unlimited_Box_II
+17478,91,100	//Unlimited_Box_II(10)
+17483,91,100	//Three_Master_Package_III
+17484,91,100	//Three_Master_Package_III(10)
 17501,123,100	// Support_Package_IV
 17502,123,100	// Support_Package_IV(10)
 17520,91,100 	// Limited_Edition_Manual_Box
 18106,115,100	// P_Bow3
 18505,91,100 	// Umbala_Spirit
 18514,115,100	// Para_Team_Hat2
+18760,91,100	//Remodel_Wizardry_Hat
+18761,91,100	//Remodel_Magician_Hat
+18762,91,100	//Remodel_Mask_Of_Fox
+18763,91,100	//Remodel_Joker_Jester
+18764,91,100	//Remodel_Bunny_Band
+18765,91,100	//Enhanced_Corsair
+18766,91,100	//Enhanced_Helm_Of_Angel
+18767,91,100	//Enhanced_Helm_Of_Sun
+18768,91,100	//Enhanced_Bone_Helm
+18769,91,100	//Remodel_Munak_Turban,
+18770,91,100	//Remodel_Bongun_Hat
+18771,91,100	//Remodel_Opera_Mask
+18772,91,100	//Improved_Binoculars
+18773,91,100	//Improved_Fin_Helm
+18774,91,100	//Improved_Assassin_Mask
+18775,91,100	//Improved_Welding_Mask
+18776,91,100	//Improved_Kiss_Of_Angel
+18779,91,100	//RWC_Champ_Crown_First_Place
+18780,91,100	//RWC_Champ_Crown_Second_Place
+18781,91,100	//RWC_Champ_Crown_Third_Place
+18796,91,100	//RWC_Champ_Crown_Fourth_Place
 18828,87,100	// 2012RMSCNO1
+18829,91,100	//2013 RWC Runners-Up Helmet
+18830,91,100	//2013 RWC 3rd Helmet
+18971,91,100	//Old_Rune_Circlet
+18972,91,100	//Old_Mitra
+18973,91,100	//Old_Driver_Band
+18974,91,100	//Old_Driver_Band(Yellow)
+18975,91,100	//Old_Shadow_Handicraft
+18976,91,100	//Old_Minstrel_Song's_Hat
+18977,91,100	//Old_Midas_Whisper
+18978,91,100	//Old_Magic_Stone_Hat
+18979,91,100	//Old_Blazing_Soul
+18980,91,100	//Old_Wind_Whisper
+18981,91,100	//Old_Dying_Swan
+18982,91,100	//Old_Circlet_Of_Bones
+18983,91,100	//Old_Protect_Of_Crown
+18984,91,100	//Old_Camouflage_Rabbit_Hood
 19164,83,100	// Para_Team_Hat100
 19165,83,100	// Para_Team_Hat160
 //19169,1,100	//
@@ -1529,6 +1788,7 @@
 19397,91,100	// Racing_Cap_SL
 19507,1,100	// Fine_Sun
 19509,1,100	// Butterfly_Wing_Ear
+19764,91,100	//C_Monster_Card
 19999,59,100	// C_Mouse_Hat1
 20000,59,100	// C_Mouse_Hat2
 20001,59,100	// C_Mouse_Hat3
@@ -1538,11 +1798,53 @@
 20026,59,100	// C_Cow_Hat2
 20027,59,100	// C_Cow_Hat3
 20028,59,100	// C_Cow_Hat4
+20053,91,100	//C_White_King_Tiger_Doll_Hat
+20063,91,100	//C_Yellow_Brain_Hat
+20064,91,100	//C_Blue_Brain_Hat
 20110,123,100 	// C_Coiledup_Snake
 20139,123,100	// C_Horse_Hairpin
 20140,123,100	// C_Horse_Hairpin
+20743,91,100	//Cloak_Of_Airship
+22508,91,100	//Para_Team_Mark_
+22510,91,100	//King_Wolf_Scroll
+22513,91,100	//King_of_Gift_Box
+22521,91,100	//Level_Up_Box
+22522,91,100	//Level_Up_Box100
+22523,91,100	//Level_Up_Box120
+22524,91,100	//Level_Up_Box130
+22525,91,100	//Level_Up_Box140
+22526,91,100	//Level_Up_Box150
+22527,91,100	//Level_Up_Box160
+22533,91,100	//New_Year_Gift_Box
+22535,91,100	//Scroll_Summoning_Workers(Male)
+22536,91,100	//Scroll_Summoning_Workers(Female)
 22540,91,100	// Runstone_Luxanima
+22541,91,100	//PC_Room_Coupon_Box_VI
+22542,91,100	//Concentration_Potion
+22543,91,100	//Berserk_Potion
+22544,91,100	//Awakening_Potion
+22545,91,100	//Speed_Potion
+22546,91,100	//Slow_Potion
+22547,91,100	//Anti-Payne_Moment
+22548,91,100	//Wed_Cursed
+22549,91,100	//Poison_Bottle
+22550,91,100	//Sweets_Pocket
+22551,91,100	//Teacake
+22552,91,100	//Fried_Pastry
+22553,91,100	//Rainbow_Bread
+22554,91,100	//First_Aid_Box
 22567,123,100	// Squad_Prize
+22569,91,100	//Gift_New_start
+22592,91,100	//Happy_Call_Box
+22610,91,100	//New_Beginnings_Box
+22614,91,100	//Premium_Manual
+22617,91,100	//Clear_Box_S
+22618,91,100	//Clear_Box_A
+22652,91,100	//Briliant_Hat_Box
+22675,91,100	//Mysterious_Scroll
+22700,91,100	//Jumping_Support_Box
+22734,91,100	//Revolution_Quiz_Box
+22735,91,100	//Sealed_Moonlight_Flower_Scroll
 22760,123,100	// Argiope_Transportin
 22761,123,100	// Luciola_Vespa_Transportin
 22762,123,100	// Centipede_Transportin
@@ -1551,6 +1853,7 @@
 22812,123,100 	// Sealed_Dracula_Scroll
 22813,123,100 	// Bearer's_Shadow_Box
 22823,123,100	// Sealed_Sniper_Scroll
+22708,91,100	//Exciting_Box
 22781,123,100 	// PC_Bang_Normal_Box
 22782,123,100 	// PC_Bang_Wooden_Box
 22783,123,100 	// PC_Bang_Golden_Box

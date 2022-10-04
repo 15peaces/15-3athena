@@ -2063,7 +2063,7 @@ enum summoner_power {
 };
 
 // msgstringtable
-// To use with clif_skill_msg();
+// To use with clif_msg_skill();
 enum skill_msg {
 	SKMSG_RUNESTONE_OVERCOUNT	= 0x61b,
 	SKMSG_MATERIAL_FAIL			= 0x625,

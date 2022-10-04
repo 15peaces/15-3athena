@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/04/2022
+	r347 [15peaces]
+		*Merged missing changes from 3ceam rev. 855
+		*Added another huge number of missing items and fixed others.
+		*Updated the hit counts to official for some skills to prepare for coding.
+		*Updated all Genetic's item creation skills to its official behavior.
+			-Thanks to @rathena
+		*Star Emperor; Soul Reaper
+			-Added official bonus stats.
+			-Added all official variable cast, fixed cast, aftercast, and cooldowns for all of the skills for these jobs. Durations are mostly confirmed official but more testing is needed to get them all.
 
 10/03/2022
 	r347 [15peaces]

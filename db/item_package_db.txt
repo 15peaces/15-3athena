@@ -283,54 +283,97 @@
 19,12678,13,1,1,0	// 1x Siege_Arrow_Quiver_A
 19,12677,13,1,1,0	// 1x Siege_Arrow_Quiver_S
 
+//IP_Level_Up_Box100
+20,6231,0,1,0,0,0
+20,22523,0,1,0,0,0
+
+//IP_Level_Up_Box120
+21,12208,0,5,0,0,0
+21,12210,0,5,0,0,0
+21,12209,0,5,0,0,0
+21,14592,0,5,0,0,0
+21,6235,0,1,0,0,0
+21,22524,0,1,0,0,0
+
+//IP_Level_Up_Box130
+22,12208,0,5,0,0,0
+22,12210,0,5,0,0,0
+22,12209,0,5,0,0,0
+22,14592,0,5,0,0,0
+22,6230,0,1,0,0,0
+22,22525,0,1,0,0,0
+
+//IP_Level_Up_Box140
+23,12208,0,5,0,0,0
+23,12210,0,5,0,0,0
+23,12209,0,5,0,0,0
+23,14592,0,5,0,0,0
+23,6234,0,1,0,0,0
+23,22526,0,1,0,0,0
+
+//IP_Level_Up_Box150
+24,12208,0,5,0,0,0
+24,12210,0,5,0,0,0
+24,12209,0,5,0,0,0
+24,14592,0,5,0,0,0
+24,6229,0,1,0,0,0
+24,22527,0,1,0,0,0
+
+//IP_Level_Up_Box160
+25,12208,0,5,0,0,0
+25,12210,0,5,0,0,0
+25,12209,0,5,0,0,0
+25,14592,0,5,0,0,0
+25,6233,0,2,0,0,0
+
 //IP_IDRO10TH_SCROLL
-20,12350,1300,10,1,0	// 10x Angeling_Potion
-20,12903,1300,1,1,0		// 1x Str_Dish_Box
-20,12900,1300,1,1,0		// 1x Battle_Manual_Box
-20,12922,1200,1,1,0		// 1x Token_Of_Siegfried_Box
-20,12905,1100,1,1,0		// 1x Int_Dish_Box
-20,12902,1100,1,1,0		// 1x Bubble_Gum_Box
-20,13858,800,1,1,0		// 1x Spark_Candy_Box10
-20,2959,200,1,1,1		// 1x Fidelity_Necklace
-20,16753,300,1,1,1		// 1x Unbreak_Weap_Box
-20,16755,300,1,1,1		// 1x Unbreak_Def_Box
-20,18745,439,1,1,1		// 1x Choco_Stick_In_Mouth
-20,2176,200,1,1,1		// 1x Dark_Book
-20,18756,50,1,1,1		// 1x Black_Shiba_Inu_Hat
-20,18759,50,1,1,1		// 1x Stretched_Nose_M
-20,19574,200,1,1,1		// 1x C_Lord_of_Death
-20,18742,50,1,1,1		// 1x C_MoonStar_Accessory
-20,18744,50,1,1,1		// 1x C_World_Star
-20,18551,30,1,1,1		// 1x Galaxy_Circlet
-20,4492,15,1,1,1		// 1x Sealed_Orc_Hero_Card
-20,4488,15,1,1,1		// 1x Sealed_D_Lord_Card
-20,4305,1,1,1,1			// 1x Turtle_General_Card
+26,12350,1300,10,1,0	// 10x Angeling_Potion
+26,12903,1300,1,1,0		// 1x Str_Dish_Box
+26,12900,1300,1,1,0		// 1x Battle_Manual_Box
+26,12922,1200,1,1,0		// 1x Token_Of_Siegfried_Box
+26,12905,1100,1,1,0		// 1x Int_Dish_Box
+26,12902,1100,1,1,0		// 1x Bubble_Gum_Box
+26,13858,800,1,1,0		// 1x Spark_Candy_Box10
+26,2959,200,1,1,1		// 1x Fidelity_Necklace
+26,16753,300,1,1,1		// 1x Unbreak_Weap_Box
+26,16755,300,1,1,1		// 1x Unbreak_Def_Box
+26,18745,439,1,1,1		// 1x Choco_Stick_In_Mouth
+26,2176,200,1,1,1		// 1x Dark_Book
+26,18756,50,1,1,1		// 1x Black_Shiba_Inu_Hat
+26,18759,50,1,1,1		// 1x Stretched_Nose_M
+26,19574,200,1,1,1		// 1x C_Lord_of_Death
+26,18742,50,1,1,1		// 1x C_MoonStar_Accessory
+26,18744,50,1,1,1		// 1x C_World_Star
+26,18551,30,1,1,1		// 1x Galaxy_Circlet
+26,4492,15,1,1,1		// 1x Sealed_Orc_Hero_Card
+26,4488,15,1,1,1		// 1x Sealed_D_Lord_Card
+26,4305,1,1,1,1			// 1x Turtle_General_Card
 
 //IP_Something_Candy_Holder
-21,517,5,5,0,0 		// 5x Meat
-21,518,9,3,0,0 		// 3x Honey
-21,529,9,7,0,0 		// 7x Candy
-21,538,10,2,0,0 	// 2x Well-baked Cookie
-21,539,10,1,0,0 	// 1x Piece of Cake
-21,580,5,3,0,0 		// 3x Bread
-21,603,2,1,0,0 		// 1x Old Blue Box
-21,607,2,1,0,0 		// 1x Yggdrasilberry
-21,616,1,1,0,0 		// 1x Old Card Album
-21,617,1,1,0,0 		// 1x Old Purple Box
-21,11550,7,1,0,0 	// 1x Pumpkin Cake
-21,11592,6,3,0,0 	// 3x Trans Candy Red
-21,11593,6,3,0,0 	// 3x Trans Candy Blue
-21,11594,6,3,0,0 	// 3x Trans Candy Yellow
-21,11595,6,3,0,0 	// 3x Trans Candy Green
-21,12192,7,3,0,0 	// 3x Pumpkin Pie
-21,20183,1,1,0,0 	// 1x Costume: Floating Ghost
-21,22067,1,1,0,0 	// 1x Witch Shoes
-21,22669,5,1,0,0 	// 1x October Spooky Trade Box
-21,22670,1,1,0,0	// 1x DARK INVITATION
+27,517,5,5,0,0 		// 5x Meat
+27,518,9,3,0,0 		// 3x Honey
+27,529,9,7,0,0 		// 7x Candy
+27,538,10,2,0,0 	// 2x Well-baked Cookie
+27,539,10,1,0,0 	// 1x Piece of Cake
+27,580,5,3,0,0 		// 3x Bread
+27,603,2,1,0,0 		// 1x Old Blue Box
+27,607,2,1,0,0 		// 1x Yggdrasilberry
+27,616,1,1,0,0 		// 1x Old Card Album
+27,617,1,1,0,0 		// 1x Old Purple Box
+27,11550,7,1,0,0 	// 1x Pumpkin Cake
+27,11592,6,3,0,0 	// 3x Trans Candy Red
+27,11593,6,3,0,0 	// 3x Trans Candy Blue
+27,11594,6,3,0,0 	// 3x Trans Candy Yellow
+27,11595,6,3,0,0 	// 3x Trans Candy Green
+27,12192,7,3,0,0 	// 3x Pumpkin Pie
+27,20183,1,1,0,0 	// 1x Costume: Floating Ghost
+27,22067,1,1,0,0 	// 1x Witch Shoes
+27,22669,5,1,0,0 	// 1x October Spooky Trade Box
+27,22670,1,1,0,0	// 1x DARK INVITATION
 
 //IP_Noive_Box
-22,2136,1,1,1,0,10080	// 1x Cracked_Buckler
-22,2392,1,1,1,0,10080	// 1x Old_Pant
-22,2442,1,1,1,0,10080	// 1x Boots_Perforated
-22,2547,1,1,1,0,10080	// 1x Cheap_Running_Shirts
-22,5408,1,1,1,0,10080	// 1x Old_Bandanna
+28,2136,1,1,1,0,10080	// 1x Cracked_Buckler
+28,2392,1,1,1,0,10080	// 1x Old_Pant
+28,2442,1,1,1,0,10080	// 1x Boots_Perforated
+28,2547,1,1,1,0,10080	// 1x Cheap_Running_Shirts
+28,5408,1,1,1,0,10080	// 1x Old_Bandanna

@@ -6054,21 +6054,6 @@ void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int 
 		clif_send(buf,packet_len(0x117),src,AREA);
 }
 
-void clif_skill_msg(struct map_session_data *sd, int skill_id, int msg) {
-#if PACKETVER >= 20090922
-	int fd;
-
-	nullpo_retv(sd);
-
-	fd = sd->fd;
-	WFIFOHEAD(fd,packet_len(0x7e6));
-	WFIFOW(fd,0) = 0x7e6;
-	WFIFOW(fd,2) = skill_id;
-	WFIFOL(fd,4) = msg;
-	WFIFOSET(fd, packet_len(0x7e6));
-#endif
-}
-
 /*==========================================
  * 場所スキルエフェクト表示
  *------------------------------------------*/
@@ -6261,12 +6246,17 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int
 
 	if(sd->menuskill_id == skill_num)
 		return; //Avoid resending the menu twice or more times...
+	if (skill_num == GC_CREATENEWPOISON)
+		skill_num = GC_RESEARCHNEWPOISON;
+
 	fd=sd->fd;
 	WFIFOHEAD(fd, MAX_SKILL_PRODUCE_DB * 8 + 8);
 	WFIFOW(fd, 0)=0x18d;
 
 	for(i=0,c=0;i<MAX_SKILL_PRODUCE_DB;i++){
-		if( skill_can_produce_mix(sd,skill_produce_db[i].nameid,trigger, 1) ){
+		if (skill_can_produce_mix(sd, skill_produce_db[i].nameid, trigger, 1) &&
+			((skill_num > 0 && skill_produce_db[i].req_skill == skill_num) || skill_num < 0)
+			) {
 			if((view = itemdb_viewid(skill_produce_db[i].nameid)) > 0)
 				WFIFOW(fd,c*8+ 4)= view;
 			else
@@ -6339,7 +6329,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 		if( skill_id != AM_PHARMACY ) // AM_PHARMACY is used to Cooking.
 		{	// It fails.
 #if PACKETVER >= 20090922
-			clif_skill_msg(sd,skill_id,SKMSG_MATERIAL_FAIL);
+			clif_msg_skill(sd,skill_id,SKMSG_MATERIAL_FAIL);
 #else
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));
@@ -13020,7 +13010,7 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 {
 	// -1 is used by produce script command.
 	if( sd->menuskill_id != -1 && sd->menuskill_id != AM_PHARMACY && sd->menuskill_id != SA_CREATECON &&
-		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_CREATENEWPOISON )
+		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_RESEARCHNEWPOISON)
 		return;
 
 	if (pc_istrading(sd)) {
