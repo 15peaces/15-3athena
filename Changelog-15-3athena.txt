@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/10/2022
+	r348 [15peaces]
+		*Merged missing changes from 3ceam rev. 856 - 857
+		*Added some missing comments.
+		*Soul Energy spheres now give 3 MATK per sphere.
+		*Made some adjustments to some skills in the "skill_db" file to prepare for future development.
+		*Soul Reaper
+			-Added soul energy requirements to all skills.
+		*Star Emperor
+			-Added stance requirements to all skills.
+		*TK_JUMPKICK
+			-Updated to work on new Soul Reaper soul links.
+		*SG_DEVIL
+			-Fixed a issue where the animation would not activate when learned.
+			-Updated to work for Star Gladiator if job level is 50 or higher.
+			-Updated to work for Star Emperor no matter the job level.
+		*SJ_LUNARSTANCE; SJ_STARSTANCE; SJ_UNIVERSESTANCE; SJ_SUNSTANCE; SP_SOULUNITY; SP_SOULDIVISION; SP_SOULREVOLVE; SP_SOULEXPLOSION; SP_KAUTE; SP_SOULGOLEM; SP_SOULSHADOW; SP_SOULFALCON; SP_SOULFAIRY; SP_CURSEEXPLOSION; SP_SOULCURSE; SP_SPA
+		*SP_SHA; SP_SWHOO; SP_SOULREAPER
+			-Added support for these skills.
+			-Note: Soul Unity is a complex skill and will require a lot of work to make it work correctly. Because of this there is a temp code so it will work on the caster. It will be fully coded in the future.
+		*KO_SETSUDAN (Soul Cutter)
+			-Updated to work on new Soul Reaper soul links.
+		*AB_VITUPERATUM; AB_CONVENIO
+			-Added official timer data.
+
 10/04/2022
 	r347 [15peaces]
 		*Merged missing changes from 3ceam rev. 855

@@ -373,12 +373,13 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
  * ƒ_??[ƒW??IŒvŽZ
  *------------------------------------------*/
 int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int damage,int skill_num,int skill_lv,int element){
-	struct map_session_data *sd = NULL;
-	struct homun_data *hd = NULL;
+	struct map_session_data *sd = NULL, *tsd = NULL;
+	struct homun_data *hd = NULL, *thd = NULL;
 	struct status_change *sc, *tsc;
 	struct status_change_entry *sce;
 	int div_ = d->div_, flag = d->flag;
 
+	nullpo_ret(src);
 	nullpo_ret(bl);
 
 	if( !damage )
@@ -403,13 +404,18 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	else if (bl->type == BL_HOM)
 		hd = (struct homun_data *)bl;
 
+	if (src->type == BL_PC)
+		tsd=(struct map_session_data *)src;
+	else if ( src->type == BL_HOM )
+		thd=(struct homun_data *)src;
+
 	sc = status_get_sc(bl);
 	tsc = status_get_sc(src);
 
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (skill_num == PA_PRESSURE)
+	if (skill_num == PA_PRESSURE || skill_num == SP_SOULEXPLOSION)
 		return damage; //This skill bypass everything else.
 
 	if( sc && sc->count )
@@ -824,6 +830,13 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	{
 		if (tsc->data[SC_INVINCIBLE] && !tsc->data[SC_INVINCIBLEOFF])
 			damage += damage * 75 / 100;
+
+		if ( tsd && (sce = tsc->data[SC_SOULREAPER]) && rand()%100 < sce->val2)
+		{
+			clif_specialeffect(src, 1208, AREA);
+			pc_addsoulball(tsd, skill_get_time2(SP_SOULREAPER, sce->val1), 5+3*pc_checkskill(tsd, SP_SOULENERGY));
+		}
+
 		// [Epoque]
 		if (bl->type == BL_MOB)
 		{
@@ -950,6 +963,7 @@ int battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int dam
 		case NJ_ZENYNAGE:
 		//case RK_DRAGONBREATH:
 		//case GN_HELLS_PLANT_ATK:
+		case SP_SOULEXPLOSION:
 		case KO_MUCHANAGE:
 			break;
 		default:
@@ -1014,6 +1028,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 	case NJ_ZENYNAGE:
 	//case RK_DRAGONBREATH:
 	//case GN_HELLS_PLANT_ATK:
+	case SP_SOULEXPLOSION:
 	case KO_MUCHANAGE:
 		break;
 	default:
@@ -2911,11 +2926,15 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio += 150 * skill_lv;
 					break;
 				case KO_SETSUDAN:
-					skillratio = 100 * skill_lv;
-					if (level_effect_bonus == 1)
-						skillratio = skillratio * status_get_base_lv_effect(src) / 100;
-					if (tsc && tsc->data[SC_SPIRIT])// Bonus damage added when target is soul linked. [Rytech]
-						skillratio += 200 * tsc->data[SC_SPIRIT]->val1;// Deals higher damage depending on level of soul link.
+					{
+						struct status_change_entry *sce;
+						skillratio = 100 * skill_lv;
+						if( level_effect_bonus == 1 )
+							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
+						if ( tsc && ((sce=tsc->data[SC_SPIRIT]) || (sce=tsc->data[SC_SOULGOLEM]) || (sce=tsc->data[SC_SOULSHADOW]) || 
+							(sce=tsc->data[SC_SOULFALCON]) || (sce=tsc->data[SC_SOULFAIRY])))// Bonus damage added when target is soul linked.
+							skillratio += 200 * sce->val1;// Deals higher damage depending on level of soul link.
+					}
 					break;
 				case KO_BAKURETSU:
 					skillratio = (50 + sstatus->dex / 4) * skill_lv * (sd?pc_checkskill(sd, NJ_TOBIDOUGU):10) * 4 / 10;
@@ -3946,6 +3965,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					MATK_ADD(sstatus->matk_min);
 				}
 
+				if (sd)
+				{// Soul energy spheres adds MATK.
+					MATK_ADD(3*sd->soulball);
+				}
+
 				if(nk&NK_SPLASHSPLIT){ // Divide MATK in case of multiple targets skill
 					if(mflag>0)
 						ad.damage/= mflag;
@@ -4312,6 +4336,25 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += 10 + 20 * (skill_lv - 10) + sstatus->int_ + status_get_job_lv_effect(src);
 						else// Normal Demonic Fire Damage
 							skillratio += 10 + 20 * skill_lv;
+						break;
+					case SP_CURSEEXPLOSION:
+						if ( tsc && tsc->data[SC_CURSE] )
+							skillratio = 1500 + 200 * skill_lv;
+						else
+							skillratio = 400 + 100 * skill_lv;
+						break;
+					case SP_SPA:
+						skillratio = 500 + 250 * skill_lv;
+						if( level_effect_bonus == 1 )
+							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
+						break;
+					case SP_SHA:
+						skillratio = 5 * skill_lv;
+						break;
+					case SP_SWHOO:
+						skillratio = 1100 + 200 * skill_lv;
+						if( level_effect_bonus == 1 )
+							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						break;
 					case KO_KAIHOU:
 						skillratio = 200 * (sd ? sd->charmball_old : 10);
@@ -4767,6 +4810,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case GN_HELLS_PLANT_ATK:
 		md.damage = 10 * skill_lv * status_get_base_lv_effect(target) + 7 * sstatus->int_ / 2 * (status_get_job_lv_effect(src) / 4 + 18) * 5 / (10 - (sd ? pc_checkskill(sd, AM_CANNIBALIZE) : 5));
+		break;
+	case SP_SOULEXPLOSION:
+		md.damage = tstatus->hp * (20 + 10 * skill_lv) / 100;
 		break;
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);
