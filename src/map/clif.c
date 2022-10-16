@@ -6432,8 +6432,8 @@ void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int
 /// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
 /// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
 /// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
-//void clif_efst_status_change(struct block_list *bl,int type,int64 tick, int val1, int val2, int val3)
-void clif_efst_status_change(struct block_list *bl,int type,int64 tick, int val1, int val2, int val3)
+
+void clif_efst_status_change_sub(struct block_list *dst, struct block_list *bl, int type, int64 tick, int val1, int val2, int val3, bool single) 
 {
 	unsigned char buf[32];
 
@@ -6443,60 +6443,38 @@ void clif_efst_status_change(struct block_list *bl,int type,int64 tick, int val1
 	nullpo_retv(bl);
 
 #if PACKETVER >= 20130320
-	WBUFW(buf,0)=0x984;
+	WBUFW(buf, 0) = 0x984;
 #else
-	WBUFW(buf,0)=0x8ff;
+	WBUFW(buf, 0) = 0x8ff;
 #endif
-	WBUFL(buf,2)=bl->id;
-	WBUFW(buf,6)=type;
+	WBUFL(buf, 2) = bl->id;
+	WBUFW(buf, 6) = type;
 #if PACKETVER >= 20130320
-	WBUFL(buf,8)=(unsigned int)tick;
-	WBUFL(buf,12)=(unsigned int)tick;
-	WBUFL(buf,16)=val1;
-	WBUFL(buf,20)=val2;
-	WBUFL(buf,24)=val3;
+	WBUFL(buf, 8) = (unsigned int)tick;
+	WBUFL(buf, 12) = (unsigned int)tick;
+	WBUFL(buf, 16) = val1;
+	WBUFL(buf, 20) = val2;
+	WBUFL(buf, 24) = val3;
 #else
-	WBUFL(buf,8)=tick;
-	WBUFL(buf,12)=val1;
-	WBUFL(buf,16)=val2;
-	WBUFL(buf,20)=val3;
+	WBUFL(buf, 8) = tick;
+	WBUFL(buf, 12) = val1;
+	WBUFL(buf, 16) = val2;
+	WBUFL(buf, 20) = val3;
 #endif
-	clif_send(buf,packet_len(WBUFW(buf,0)),bl,AREA);
+	if(single)
+		clif_send(buf, packet_len(WBUFW(buf, 0)), dst, SELF);
+	else
+		clif_send(buf, packet_len(WBUFW(buf, 0)), bl, AREA);
 }
 
-/// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
-/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
-/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
-void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl,int type,int64 tick, int val1, int val2, int val3)
+void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl, int type, int64 tick, int val1, int val2, int val3)
 {
-	unsigned char buf[32];
+	clif_efst_status_change_sub(dst, bl, type, tick, val1, val2, val3, true);
+}
 
-	if (type == SI_BLANK) //It shows nothing on the client...
-		return;
-	
-	nullpo_retv(bl);
-	nullpo_retv(dst);
-
-#if PACKETVER >= 20130320
-	WBUFW(buf,0)=0x984;
-#else
-	WBUFW(buf,0)=0x8ff;
-#endif
-	WBUFL(buf,2)=bl->id;
-	WBUFW(buf,6)=type;
-#if PACKETVER >= 20130320
-	WBUFL(buf,8)=(unsigned int)tick;
-	WBUFL(buf,12)=(unsigned int)tick;
-	WBUFL(buf,16)=val1;
-	WBUFL(buf,20)=val2;
-	WBUFL(buf,24)=val3;
-#else
-	WBUFL(buf,8)=tick;
-	WBUFL(buf,12)=val1;
-	WBUFL(buf,16)=val2;
-	WBUFL(buf,20)=val3;
-#endif
-	clif_send(buf,packet_len(WBUFW(buf,0)),dst,SELF);
+void clif_efst_status_change(struct block_list *bl,int type, int64 tick, int val1, int val2, int val3)
+{
+	clif_efst_status_change_sub(NULL, bl, type, tick, val1, val2, val3, false);
 }
 
 /// Notification about an another object's chat message (ZC_NOTIFY_CHAT).
@@ -11486,7 +11464,9 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 	{
 		clif_disconnect_ack(sd, 0);
 		flush_fifo(fd);
-		set_eof(fd);
+		if (battle_config.drop_connection_on_quit) {
+			set_eof(fd);
+		}
 	} else {
 		clif_disconnect_ack(sd, 1);
 	}
@@ -14572,7 +14552,7 @@ void clif_achievement_list_all(struct map_session_data *sd)
 
 	/* Browse through the session's achievement list and gather their values. */
 	for (i = 0; i < VECTOR_LENGTH(sd->achievement); i++) {
-		int j = 0;
+		j = 0;
 		struct achievement *a = &VECTOR_INDEX(sd->achievement, i);
 		const struct achievement_data *ad = NULL;
 
@@ -14606,10 +14586,7 @@ void clif_achievement_list_all(struct map_session_data *sd)
 		}
 	}
 
-	len = (50 * count) + 22;
-
-	if (len <= 22)
-		return;
+	len = sizeof(struct ach_list_info) * count + 22;
 
 	WFIFOHEAD(fd, len);
 	WFIFOW(fd, 0) = 0xa23;
@@ -14622,10 +14599,10 @@ void clif_achievement_list_all(struct map_session_data *sd)
 
 	for (i = 0; i < count; i++) {
 		WFIFOL(fd, i * 50 + 22) = (uint32)ach[i].ach_id;
-		WFIFOB(fd, i * 50 + 26) = (uint32)ach[i].completed > 0;
+		WFIFOB(fd, i * 50 + 26) = (uint32)ach[i].completed_at > 0;
 		for (j = 0; j < MAX_ACHIEVEMENT_OBJECTIVES; j++)
 			WFIFOL(fd, (i * 50) + 27 + (j * 4)) = (uint32)ach[i].objective[j];
-		WFIFOL(fd, i * 50 + 67) = (uint32)ach[i].completed;
+		WFIFOL(fd, i * 50 + 67) = (uint32)ach[i].completed_at;
 		WFIFOB(fd, i * 50 + 71) = ach[i].reward > 0;
 	}
 	WFIFOSET(fd, len);
@@ -14685,7 +14662,7 @@ void clif_achievement_update(struct map_session_data *sd, const struct achieveme
 		WFIFOB(fd, 20) = ach.completed > 0; // Is it complete?
 		for (i = 0; i < MAX_ACHIEVEMENT_OBJECTIVES; i++)
 			WFIFOL(fd, 21 + (i * 4)) = (uint32)ach.objective[i]; // 1~10 pre-reqs
-		WFIFOL(fd, 61) = (uint32)ach.completed; // Epoch time
+		WFIFOL(fd, 61) = (uint32)ach.completed_at; // Epoch time
 		WFIFOB(fd, 65) = ach.reward > 0; // Got reward?
 	}
 	else

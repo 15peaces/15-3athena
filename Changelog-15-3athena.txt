@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/16/2022
+	r349 [15peaces]
+		*Merged missing changes from 3ceam rev. 858
+		*Some misc. cleaning & optimizing.
+		*Small fix in Chemical Protection skills
+			-They will now check for current equips.
+		*Fixed Bakonawa Lake spawns.
+			-Changed some spawn positions to valid coordinates.
+		*Fixed achievement completed date display.
+		*Fixed logging out on newer clients
+			-2018+ clients use REST API calls which cause disconnection issues if the connection is dropped server sided.
+			-Thanks to @rathena
+		*Fixed a issue where double attacking changes was 1% lower then they should be.
+		*Fixed a issue where some status's from Shadow Chaser skills were dispellable.
+		*Added missing quest db entries related to Homnunculus S quest.
+		*Added some missing items.
+		*"lunarstance" is changed to "moonstance" in the skill requirement database.
+			-Didn't feel right putting it as lunar while the others are sun and star.
+		*AB_ADORAMUS; SJ_LIGHTOFMOON; SJ_LIGHTOFSTAR; SJ_FLASHKICK; SJ_FALLINGSTAR; SJ_LIGHTOFSUN; SJ_FALLINGSTAR_ATK; SJ_FALLINGSTAR_ATK2
+			-Added support for these skills.
+		*SJ_LUNARSTANCE; SJ_STARSTANCE; SJ_UNIVERSESTANCE; SJ_SUNSTANCE
+			-Stances no longer stack.
+		*SP_SOULUNITY
+			-Recoded the entire skill to work as it should officially.
+
 10/10/2022
 	r348 [15peaces]
 		*Merged missing changes from 3ceam rev. 856 - 857

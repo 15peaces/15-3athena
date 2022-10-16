@@ -1134,8 +1134,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		skill_castend_nodamage_id(src,bl,skillid,skilllv,tick,BCT_ENEMY);
 		break;
 	case AB_ADORAMUS:
-		if (tsc && !tsc->data[SC_DECREASEAGI]) //Prevent duplicate agi-down effect.
-			sc_start(bl, SC_ADORAMUS, 4 * skilllv + status_get_job_lv_effect(src) / 2, skilllv, skill_get_time(skillid, skilllv));
+		if (rand() % 100 < 4 * skilllv + status_get_job_lv_effect(src) / 2)
+		{
+			sc_start(bl, SC_ADORAMUS, 100, skilllv, skill_get_time(skillid, skilllv));
+			sc_start(bl, SC_BLIND, 100, skilllv, skill_get_time2(skillid, skilllv));
+		}
 		break;
 	case WL_CRIMSONROCK:
 		sc_start(bl, SC_STUN, 40, skilllv, skill_get_time(skillid, skilllv));
@@ -1409,16 +1412,16 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_FOOD_LUK_CASH:
 					// 3CeAM
 					// 3rd Job Status's
-				case SC_DEATHBOUND:		case SC_EPICLESIS:		case SC_CLOAKINGEXCEED:
-				case SC_HALLUCINATIONWALK:	case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
-				case SC_WEAPONBLOCKING_POSTDELAY:	case SC_ROLLINGCUTTER:	case SC_POISONINGWEAPON:
-				case SC_FEARBREEZE:		case SC_ELECTRICSHOCKER:	case SC_WUGRIDER:
-				case SC_WUGDASH:		case SC_WUGBITE:			case SC_CAMOUFLAGE:
-				case SC_ACCELERATION:	case SC_HOVERING:		case SC_OVERHEAT_LIMITPOINT:
-				case SC_OVERHEAT:		case SC_SHAPESHIFT:		case SC_INFRAREDSCAN:
-				case SC_MAGNETICFIELD:	case SC_NEUTRALBARRIER:	case SC_NEUTRALBARRIER_MASTER:
-				case SC_STEALTHFIELD_MASTER:	case SC_REPRODUCE:	case SC_FORCEOFVANGUARD:
-				case SC_SHADOWFORM:		case SC_EXEEDBREAK:		case SC_INVISIBILITY:
+				case SC_DEATHBOUND:				case SC_EPICLESIS:				case SC_CLOAKINGEXCEED:
+				case SC_HALLUCINATIONWALK:		case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
+				case SC_WEAPONBLOCKING_POSTDELAY:	case SC_ROLLINGCUTTER:		case SC_POISONINGWEAPON:
+				case SC_FEARBREEZE:				case SC_ELECTRICSHOCKER:		case SC_WUGRIDER:
+				case SC_WUGDASH:				case SC_WUGBITE:				case SC_CAMOUFLAGE:
+				case SC_ACCELERATION:			case SC_HOVERING:				case SC_OVERHEAT_LIMITPOINT:
+				case SC_OVERHEAT:				case SC_SHAPESHIFT:				case SC_INFRAREDSCAN:
+				case SC_MAGNETICFIELD:			case SC_NEUTRALBARRIER:			case SC_NEUTRALBARRIER_MASTER:
+				case SC_STEALTHFIELD_MASTER:	case SC__REPRODUCE:				case SC_FORCEOFVANGUARD:
+				case SC__SHADOWFORM:			case SC_EXEEDBREAK:				case SC__INVISIBILITY:
 				case SC_BANDING:		case SC_INSPIRATION:	case SC_RAISINGDRAGON:
 				case SC_LIGHTNINGWALK:	case SC_CURSEDCIRCLE_ATKER:	case SC_CURSEDCIRCLE_TARGET:
 				case SC_CRESCENTELBOW:	case SC_STRIPACCESSARY:	case SC_MANHOLE:
@@ -1475,7 +1478,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_ANTI_M_BLAST:	case SC_FALLEN_ANGEL:
 				// Star Emperor
 				case SC_LUNARSTANCE:	case SC_UNIVERSESTANCE:	case SC_SUNSTANCE:
-				case SC_STARSTANCE:
+				case SC_STARSTANCE:		case SC_FLASHKICK:		case SC_FALLINGSTAR:
 				// Soul Reaper
 				case SC_SOULCOLLECT:		case SC_SOULREAPER:		case SC_SOULUNITY:
 				case SC_SOULSHADOW:			case SC_SOULFAIRY:		case SC_SOULFALCON:
@@ -1488,15 +1491,15 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
 				case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Clearance
-				case SC_CRUSHSTRIKE:	case SC_REFRESH:		case SC_GIANTGROWTH:
+				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
-				case SC_ABUNDANCE:		case SC_ORATIO:			case SC_LAUDAAGNUS:
-				case SC_LAUDARAMUS:		case SC_RENOVATIO:		case SC_EXPIATIO:
-				case SC_TOXIN:			case SC_PARALYSE:		case SC_VENOMBLEED:
-				case SC_MAGICMUSHROOM:	case SC_DEATHHURT:		case SC_PYREXIA:
-				case SC_OBLIVIONCURSE:	case SC_LEECHESEND:		case SC_DUPLELIGHT:
-				case SC_MARSHOFABYSS:	case SC_RECOGNIZEDSPELL:	case SC_BODYPAINT:
-				case SC_DEADLYINFECT:	case SC_EARTHDRIVE:		case SC_VENOMIMPRESS:
+				case SC_ABUNDANCE:		case SC_ORATIO:				case SC_LAUDAAGNUS:
+				case SC_LAUDARAMUS:		case SC_RENOVATIO:			case SC_EXPIATIO:
+				case SC_TOXIN:			case SC_PARALYSE:			case SC_VENOMBLEED:
+				case SC_MAGICMUSHROOM:	case SC_DEATHHURT:			case SC_PYREXIA:
+				case SC_OBLIVIONCURSE:	case SC_LEECHESEND:			case SC_DUPLELIGHT:
+				case SC_MARSHOFABYSS:	case SC_RECOGNIZEDSPELL:	case SC__BODYPAINT:
+				case SC__DEADLYINFECT:	case SC_EARTHDRIVE:			case SC_VENOMIMPRESS:
 				case SC_FROST:			case SC_BLOOD_SUCKER:	case SC_MANDRAGORA:
 				case SC_STOMACHACHE:	case SC_MYSTERIOUS_POWDER:
 				case SC_DAILYSENDMAILCNT:
@@ -2667,6 +2670,8 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		else
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, skilllv, type);
 		break;
+	case SJ_FALLINGSTAR_ATK:
+	case SJ_FALLINGSTAR_ATK2:
 	case KO_HUUMARANKA:
 		dmg.dmotion = clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 8);
 		break;
@@ -4147,6 +4152,71 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
+	case SJ_FLASHKICK:
+		{// Max allowed targets to be tagged with a stellar mark.
+			short count = MAX_STELLAR_MARKS;
+			int i = 0, fk_damage = 0;
+
+			// Only players and monsters can be tagged....I think??? [Rytech]
+			// Lets only allow players and monsters to use this skill for safety reasons.
+			if( (!tsd && !tmd) || !sd && !md )
+			{
+				if( sd )
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+				break;
+			}
+
+			// Check if the target is already tagged by another source.
+			if( (tsd && tsd->sc.data[SC_FLASHKICK] && tsd->sc.data[SC_FLASHKICK]->val1 != src->id) || // Cant tag a player that was already tagged from another source.
+				(tmd && tmd->sc.data[SC_FLASHKICK] && tmd->sc.data[SC_FLASHKICK]->val1 != src->id) )// Same as the above check, but for monsters.
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 1;
+			}
+
+			if( sd )
+			{// Tagging the target.
+				ARR_FIND(0, count, i, sd->stellar_mark[i] == bl->id );
+				if( i == count )
+				{
+					ARR_FIND(0, count, i, sd->stellar_mark[i] == 0 );
+					if( i == count )
+					{// Max number of targets tagged. Fail the skill.
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+						map_freeblock_unlock();
+						return 1;
+					}
+				}
+				// Attack the target and return the damage result for the upcoming check.
+				fk_damage = skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+				// Tag the target only if damage was done. If it deals no damage, it counts as a miss and won't tag.
+				// Note: Not sure if it works like this in official but you can't mark on something you can't
+				// hit, right? For now well just use this logic until we can get a confirm on if it does this or not. [Rytech]
+				if ( fk_damage > 0 )
+				{// Add the ID of the tagged target to the player's tag list and start the status on the target.
+					sd->stellar_mark[i] = bl->id;
+
+					// Val4 flags if the status was applied by a player or a monster.
+					// This will be important for other skills that work together with this one.
+					// 1 = Player, 2 = Monster.
+					// Note: Because the attacker's ID and the slot number is handled here, we have to
+					// apply the status here. We can't pass this data to skill_additional_effect.
+					sc_start4(bl, SC_FLASHKICK, 100, src->id, i, skilllv, 1, skill_get_time(skillid, skilllv));
+				}
+			}
+			else if ( md )// Monster's cant track with this skill. Just give the status.
+			{
+				fk_damage = skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
+
+				if ( fk_damage > 0 )
+					sc_start4(bl, SC_FLASHKICK, 100, 0, 0, skilllv, 2, skill_get_time(skillid, skilllv));
+			}
+		}
+		break;
+
 	case NC_BOOSTKNUCKLE:
 	case NC_PILEBUNKER:
 	//case NC_VULCANARM:
@@ -4368,6 +4438,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GC_ROLLINGCUTTER:
 	case GC_COUNTERSLASH:
 	case AB_JUDEX:
+	case AB_ADORAMUS:
 	case WL_SOULEXPANSION:
 	case WL_CRIMSONROCK:
 	case WL_JACKFROST:
@@ -4391,6 +4462,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
 	case GN_ILLUSIONDOPING:
+	case SJ_FALLINGSTAR_ATK2:
 	case SP_CURSEEXPLOSION:
 	case SP_SHA:
 	case SP_SWHOO:
@@ -4508,24 +4580,38 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case RL_D_TAIL:
-		if( flag&1 )
-		{
-			if ( sd )
-			{// If a player used the skill it will search for targets marked by that player. 
-				if (tsc && tsc->data[SC_C_MARKER] && tsc->data[SC_C_MARKER]->val3 == 1)// Mark placed by a player.
+		if ( sd )
+		{// If a player used the skill it will search for targets marked by that player. 
+			if ( tsc && tsc->data[SC_C_MARKER] && tsc->data[SC_C_MARKER]->val3 == 1 )// Mark placed by a player.
+			{
+				short i = 0;
+				ARR_FIND( 0, MAX_CRIMSON_MARKS, i, sd->crimson_mark[i] == bl->id);
+				if ( i < MAX_CRIMSON_MARKS )
+					skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			}
+		}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
+		else if ( tsc && tsc->data[SC_C_MARKER] && tsc->data[SC_C_MARKER]->val3 == 2 )// Mark placed by a monster.
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		break;
+
+	case SJ_FALLINGSTAR_ATK:
+		if ( sd )
+		{// If a player used the skill it will search for targets marked by that player. 
+			if ( tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val3 == 1 )// Mark placed by a player.
+			{
+				short i = 0;
+				ARR_FIND( 0, MAX_STELLAR_MARKS, i, sd->stellar_mark[i] == bl->id);
+				if ( i < MAX_STELLAR_MARKS )
 				{
-					short i = 0;
-					ARR_FIND( 0, MAX_CRIMSON_MARKS, i, sd->crimson_mark[i] == bl->id);
-					if ( i < MAX_CRIMSON_MARKS )
-						skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+					skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+					skill_castend_damage_id(src, bl, SJ_FALLINGSTAR_ATK2, skilllv, tick, 0);
 				}
-			}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
-			else if (tsc && tsc->data[SC_C_MARKER] && tsc->data[SC_C_MARKER]->val3 == 2)// Mark placed by a monster.
-				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-		}
-		else
+			}
+		}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
+		else if ( tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val3 == 2 )// Mark placed by a monster.
 		{
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			skill_castend_damage_id(src, bl, SJ_FALLINGSTAR_ATK2, skilllv, tick, 0);
 		}
 		break;
 
@@ -6002,7 +6088,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
 	case RL_HEAT_BARREL:
-	case SP_SOULUNITY:
+	case SJ_LIGHTOFMOON:
+	case SJ_LIGHTOFSTAR:
+	case SJ_FALLINGSTAR:
+	case SJ_LIGHTOFSUN:
 	case SP_SOULREAPER:
 	case KO_IZAYOI:
 	case RA_UNLIMIT:
@@ -6361,6 +6450,53 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case SP_SOULUNITY:
+		{
+			short count = min(5+skilllv,MAX_UNITED_SOULS);
+
+			if ( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
+			{
+				if( !dstsd || !sd )
+				{// Only put player's souls in unity.
+					if( sd )
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+					break;
+				}
+
+				if (dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id)
+				{// Fail if a player is in unity with another source.
+					if( sd )
+						clif_skill_fail(sd,skillid,0,0,0);
+					map_freeblock_unlock();
+					return 1;
+				}
+
+				i = 0;
+				if( sd )
+				{// Unite player's soul with caster's soul.
+					ARR_FIND(0, count, i, sd->united_soul[i] == bl->id );
+					if( i == count )
+					{
+						ARR_FIND(0, count, i, sd->united_soul[i] == 0 );
+						if( i == count )
+						{// No more free slots? Fail the skill.
+							clif_skill_fail(sd, skillid, 0, 0, 0);
+							map_freeblock_unlock();
+							return 1;
+						}
+					}
+
+					sd->united_soul[i] = bl->id;
+				}
+
+				clif_skill_nodamage(src, bl, skillid, skilllv,
+					sc_start4(bl, type, 100, src->id, i, skilllv, 0, skill_get_time(skillid, skilllv)));
+			}
+			else if ( sd )
+				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+		}
+		break;
+
 	case MO_CALLSPIRITS:
 		if (sd)
 		{
@@ -6498,6 +6634,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
 	case RL_D_TAIL:
+	case SJ_FALLINGSTAR_ATK:
 	case KO_HAPPOKUNAI:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -7249,7 +7386,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AM_CP_ARMOR:
 	case AM_CP_HELM:
 		{
+			unsigned int equip[] = { EQP_WEAPON, EQP_SHIELD, EQP_ARMOR, EQP_HEAD_TOP };
 			enum sc_type scid = (sc_type)(SC_STRIPWEAPON + (skillid - AM_CP_WEAPON));
+
+			if (sd && (bl->type != BL_PC || (dstsd && pc_checkequip(dstsd, equip[skillid - AM_CP_WEAPON], false) < 0))) {
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0, 0);
+				map_freeblock_unlock(); // Don't consume item requirements
+				return 0;
+			}
+
 			status_change_end(bl, scid, INVALID_TIMER);
 			clif_skill_nodamage(src,bl,skillid,skilllv,
 				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
@@ -7345,20 +7490,20 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FOOD_LUK_CASH:
 				// 3CeAM
 				// 3rd Job Status's
-				case SC_DEATHBOUND:		case SC_EPICLESIS:		case SC_CLOAKINGEXCEED:
-				case SC_HALLUCINATIONWALK:	case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
+				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
+				case SC_HALLUCINATIONWALK:		case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
 				case SC_WEAPONBLOCKING_POSTDELAY:	case SC_ROLLINGCUTTER:	case SC_POISONINGWEAPON:
-				case SC_FEARBREEZE:		case SC_ELECTRICSHOCKER:	case SC_WUGRIDER:
-				case SC_WUGDASH:		case SC_WUGBITE:			case SC_CAMOUFLAGE:
-				case SC_ACCELERATION:	case SC_HOVERING:		case SC_OVERHEAT_LIMITPOINT:
-				case SC_OVERHEAT:		case SC_SHAPESHIFT:		case SC_INFRAREDSCAN:
-				case SC_MAGNETICFIELD:	case SC_NEUTRALBARRIER:	case SC_NEUTRALBARRIER_MASTER:
-				case SC_STEALTHFIELD_MASTER:	case SC_REPRODUCE:	case SC_FORCEOFVANGUARD:
-				case SC_SHADOWFORM:		case SC_EXEEDBREAK:		case SC_INVISIBILITY:
-				case SC_BANDING:		case SC_INSPIRATION:	case SC_RAISINGDRAGON:
-				case SC_LIGHTNINGWALK:	case SC_CURSEDCIRCLE_ATKER:	case SC_CURSEDCIRCLE_TARGET:
-				case SC_CRESCENTELBOW:	case SC_STRIPACCESSARY:	case SC_MANHOLE:
-				case SC_GENTLETOUCH_ENERGYGAIN:	case SC_GENTLETOUCH_CHANGE:		case SC_GENTLETOUCH_REVITALIZE:
+				case SC_FEARBREEZE:				case SC_ELECTRICSHOCKER:	case SC_WUGRIDER:
+				case SC_WUGDASH:				case SC_WUGBITE:			case SC_CAMOUFLAGE:
+				case SC_ACCELERATION:			case SC_HOVERING:			case SC_OVERHEAT_LIMITPOINT:
+				case SC_OVERHEAT:				case SC_SHAPESHIFT:			case SC_INFRAREDSCAN:
+				case SC_MAGNETICFIELD:			case SC_NEUTRALBARRIER:		case SC_NEUTRALBARRIER_MASTER:
+				case SC_STEALTHFIELD_MASTER:	case SC__REPRODUCE:			case SC_FORCEOFVANGUARD:
+				case SC__SHADOWFORM:			case SC_EXEEDBREAK:			case SC__INVISIBILITY:
+				case SC_BANDING:				case SC_INSPIRATION:		case SC_RAISINGDRAGON:
+				case SC_LIGHTNINGWALK:			case SC_CURSEDCIRCLE_ATKER:	case SC_CURSEDCIRCLE_TARGET:
+				case SC_CRESCENTELBOW:			case SC__STRIPACCESSARY:	case SC__MANHOLE:
+				case SC_GENTLETOUCH_ENERGYGAIN:	case SC_GENTLETOUCH_CHANGE:	case SC_GENTLETOUCH_REVITALIZE:
 				case SC_SWING:		case SC_SYMPHONY_LOVE:	case SC_RUSH_WINDMILL:
 				case SC_ECHOSONG:		case SC_MOONLIT_SERENADE:	case SC_SITDOWN_FORCE:
 				case SC_ANALYZE:		case SC_LERADS_DEW:		case SC_MELODYOFSINK:
@@ -7411,7 +7556,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_ANTI_M_BLAST:	case SC_FALLEN_ANGEL:
 				// Star Emperor
 				case SC_LUNARSTANCE:	case SC_UNIVERSESTANCE:	case SC_SUNSTANCE:
-				case SC_STARSTANCE:
+				case SC_STARSTANCE:		case SC_FLASHKICK:		case SC_FALLINGSTAR:
 				// Soul Reaper
 				case SC_SOULCOLLECT:		case SC_SOULREAPER:		case SC_SOULUNITY:
 				case SC_SOULSHADOW:			case SC_SOULFAIRY:		case SC_SOULFALCON:
@@ -7424,15 +7569,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
 				case SC_FULL_THROTTLE:	case SC_REBOUND:
 				// Only removeable by Clearance
-				case SC_CRUSHSTRIKE:	case SC_REFRESH:		case SC_GIANTGROWTH:
+				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
-				case SC_ABUNDANCE:		case SC_ORATIO:			case SC_LAUDAAGNUS:
-				case SC_LAUDARAMUS:		case SC_RENOVATIO:		case SC_EXPIATIO:
-				case SC_TOXIN:			case SC_PARALYSE:		case SC_VENOMBLEED:
-				case SC_MAGICMUSHROOM:	case SC_DEATHHURT:		case SC_PYREXIA:
-				case SC_OBLIVIONCURSE:	case SC_LEECHESEND:		case SC_DUPLELIGHT:
-				case SC_MARSHOFABYSS:	case SC_RECOGNIZEDSPELL:	case SC_BODYPAINT:
-				case SC_DEADLYINFECT:	case SC_EARTHDRIVE:		case SC_VENOMIMPRESS:
+				case SC_ABUNDANCE:		case SC_ORATIO:				case SC_LAUDAAGNUS:
+				case SC_LAUDARAMUS:		case SC_RENOVATIO:			case SC_EXPIATIO:
+				case SC_TOXIN:			case SC_PARALYSE:			case SC_VENOMBLEED:
+				case SC_MAGICMUSHROOM:	case SC_DEATHHURT:			case SC_PYREXIA:
+				case SC_OBLIVIONCURSE:	case SC_LEECHESEND:			case SC_DUPLELIGHT:
+				case SC_MARSHOFABYSS:	case SC_RECOGNIZEDSPELL:	case SC__BODYPAINT:
+				case SC__DEADLYINFECT:	case SC_EARTHDRIVE:			case SC_VENOMIMPRESS:
 				case SC_FROST:		case SC_BLOOD_SUCKER:	case SC_MANDRAGORA:
 				case SC_STOMACHACHE:	case SC_MYSTERIOUS_POWDER:
 				case SC_DAILYSENDMAILCNT:
@@ -9088,20 +9233,20 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FOOD_LUK_CASH:
 				// 3CeAM
 				// 3rd Job Status's
-				case SC_DEATHBOUND:		case SC_EPICLESIS:		case SC_CLOAKINGEXCEED:
-				case SC_HALLUCINATIONWALK:	case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
+				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
+				case SC_HALLUCINATIONWALK:		case SC_HALLUCINATIONWALK_POSTDELAY:	case SC_WEAPONBLOCKING:
 				case SC_WEAPONBLOCKING_POSTDELAY:	case SC_ROLLINGCUTTER:	case SC_POISONINGWEAPON:
-				case SC_FEARBREEZE:		case SC_ELECTRICSHOCKER:	case SC_WUGRIDER:
-				case SC_WUGDASH:		case SC_WUGBITE:			case SC_CAMOUFLAGE:
-				case SC_ACCELERATION:	case SC_HOVERING:		case SC_OVERHEAT_LIMITPOINT:
-				case SC_OVERHEAT:		case SC_SHAPESHIFT:		case SC_INFRAREDSCAN:
-				case SC_MAGNETICFIELD:	case SC_NEUTRALBARRIER:	case SC_NEUTRALBARRIER_MASTER:
-				case SC_STEALTHFIELD_MASTER:	case SC_REPRODUCE:	case SC_FORCEOFVANGUARD:
-				case SC_SHADOWFORM:		case SC_EXEEDBREAK:		case SC_INVISIBILITY:
-				case SC_BANDING:		case SC_INSPIRATION:	case SC_RAISINGDRAGON:
-				case SC_LIGHTNINGWALK:	case SC_CURSEDCIRCLE_ATKER:	case SC_CURSEDCIRCLE_TARGET:
-				case SC_CRESCENTELBOW:	case SC_STRIPACCESSARY:	case SC_MANHOLE:
-				case SC_GENTLETOUCH_ENERGYGAIN:	case SC_GENTLETOUCH_CHANGE:		case SC_GENTLETOUCH_REVITALIZE:
+				case SC_FEARBREEZE:				case SC_ELECTRICSHOCKER:	case SC_WUGRIDER:
+				case SC_WUGDASH:				case SC_WUGBITE:			case SC_CAMOUFLAGE:
+				case SC_ACCELERATION:			case SC_HOVERING:			case SC_OVERHEAT_LIMITPOINT:
+				case SC_OVERHEAT:				case SC_SHAPESHIFT:			case SC_INFRAREDSCAN:
+				case SC_MAGNETICFIELD:			case SC_NEUTRALBARRIER:		case SC_NEUTRALBARRIER_MASTER:
+				case SC_STEALTHFIELD_MASTER:	case SC__REPRODUCE:			case SC_FORCEOFVANGUARD:
+				case SC__SHADOWFORM:			case SC_EXEEDBREAK:			case SC__INVISIBILITY:
+				case SC_BANDING:				case SC_INSPIRATION:		case SC_RAISINGDRAGON:
+				case SC_LIGHTNINGWALK:			case SC_CURSEDCIRCLE_ATKER:	case SC_CURSEDCIRCLE_TARGET:
+				case SC_CRESCENTELBOW:			case SC__STRIPACCESSARY:	case SC__MANHOLE:
+				case SC_GENTLETOUCH_ENERGYGAIN:	case SC_GENTLETOUCH_CHANGE:	case SC_GENTLETOUCH_REVITALIZE:
 				case SC_SWING:		case SC_SYMPHONY_LOVE:	case SC_RUSH_WINDMILL:
 				case SC_ECHOSONG:		case SC_MOONLIT_SERENADE:	case SC_SITDOWN_FORCE:
 				case SC_ANALYZE:		case SC_LERADS_DEW:		case SC_MELODYOFSINK:
@@ -9154,7 +9299,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_ANTI_M_BLAST:	case SC_FALLEN_ANGEL:
 				// Star Emperor
 				case SC_LUNARSTANCE:	case SC_UNIVERSESTANCE:	case SC_SUNSTANCE:
-				case SC_STARSTANCE:
+				case SC_STARSTANCE:		case SC_FLASHKICK:		case SC_FALLINGSTAR:
 				// Soul Reaper
 				case SC_SOULCOLLECT:	case SC_SOULREAPER:			case SC_SOULUNITY:
 				case SC_SOULSHADOW:		case SC_SOULFAIRY:			case SC_SOULFALCON:
@@ -15096,7 +15241,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
-	case ST_LUNARSTANCE:
+	case ST_MOONSTANCE:
 		if(!(sc && sc->data[SC_LUNARSTANCE])) {
 			clif_skill_fail(sd,skill,0,0,0);
 			return 0;
@@ -19994,7 +20139,7 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if (strcmpi(split[10], "fighter") == 0) skill_db[i].state = ST_FIGHTER;
 	else if (strcmpi(split[10], "grappler") == 0) skill_db[i].state = ST_GRAPPLER;
 	else if (strcmpi(split[10], "sunstance") == 0) skill_db[i].state = ST_SUNSTANCE;
-	else if (strcmpi(split[10], "lunarstance") == 0) skill_db[i].state = ST_LUNARSTANCE;
+	else if (strcmpi(split[10], "lunarstance") == 0) skill_db[i].state = ST_MOONSTANCE;
 	else if (strcmpi(split[10], "starstance") == 0) skill_db[i].state = ST_STARSTANCE;
 	else if (strcmpi(split[10], "universestance") == 0) skill_db[i].state = ST_UNIVERSESTANCE;
 	else skill_db[i].state = ST_NONE;

@@ -4969,6 +4969,8 @@
 22757,Collection_Of_Scrolls_Magical_Transformation,Collection Of Scrolls Magical Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22755,1; getitem 22754,1; },{},{}
 22758,Collection_Of_Scrolls_Shooting_Transformation,Collection Of Scrolls Shooting Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22753,1; getitem 22752,1; },{},{}
 22759,Collection_Of_Scrolls_Attack_Speed_Transformation,Collection Of Scrolls Attack Speed Transformation,18,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22751,1; getitem 22750,1; },{},{}
+25266,Dried_Leaf_Of_Ygg,Dried Yggdrasil Leaf,3,450,,10,,,,,,,,,,,,,{},{},{}
+25267,SuspiciousMagicCircle,Suspicious Pentacle,3,970,,10,,,,,,,,,,,,,{},{},{}
 28310,Sarah's_Left_Earring,Sarah's Left Earring,5,10,,100,,,,0,0xFFFFFFFF,63,2,128,,145,1,,{ skill "AL_HEAL",1; },{},{}
 28311,Sarah's_Right_Earring,Sarah's Right Earring,5,10,,100,,,,0,0xFFFFFFFF,63,2,8,,145,1,,{ skill "AL_TELEPORT",1; },{},{}
 28326,Broken_Chips_01,Broken Chips 01,5,10,,100,,,,1,0xFFFFFFFF,63,2,136,,100,1,,{ bonus bStr,4; if(isequipped(28327)){ bonus bInt,8; bonus bStr,8; }},{},{}
