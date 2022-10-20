@@ -779,7 +779,7 @@ enum {
 	GMI_LAST_LOGIN,
 };
 
-enum {
+enum  e_guild_skill{
 	GD_SKILLBASE=10000,
 	GD_APPROVAL=10000,
 	GD_KAFRACONTRACT=10001,

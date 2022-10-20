@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/20/2022
+	r350 [15peaces]
+		*Merged missing changes from 3ceam rev. 859
+		*Added some placeholders in skill database.
+		*Added GD_ITEMEMERGENCYCALL skill for Emergencycall Scroll items (12968, 12969, 12970).
+			-Delay time 'guild_skill_relog_delay' can now be set in conf/battle/guild.conf.
+		*LG_PRESTIGE
+			-Fixed a issue where the duration would restart when the skill is casted while the status is active.
+		*SJ_FULLMOONKICK; SJ_NEWMOONKICK; SJ_SOLARBURST; SJ_PROMINENCEKICK
+			-Added support for these skills.
+			-Note: The bonus 100% fire damage for Prominence Kick currently doesn't work.
+			-This will be added later when I learn how its applied officially.
+		*SJ_FALLINGSTAR_ATK
+			-Fixed a issue where the attack wouldn't trigger on marked enemy's.
+
 10/16/2022
 	r349 [15peaces]
 		*Merged missing changes from 3ceam rev. 858

@@ -613,15 +613,17 @@ void initChangeTables(void)
 	add_sc( RL_HAMMER_OF_GOD, SC_STUN );
 
 	// Star Emperor
-	set_sc( SJ_LIGHTOFMOON   , SC_LIGHTOFMOON   , SI_LIGHTOFMOON   , SCB_NONE );
-	set_sc( SJ_LUNARSTANCE   , SC_LUNARSTANCE   , SI_LUNARSTANCE   , SCB_MAXHP );
-	set_sc( SJ_LIGHTOFSTAR   , SC_LIGHTOFSTAR   , SI_LIGHTOFSTAR   , SCB_NONE );
-	set_sc( SJ_STARSTANCE    , SC_STARSTANCE    , SI_STARSTANCE    , SCB_ASPD );
-	set_sc( SJ_FLASHKICK     , SC_FLASHKICK     , SI_FLASHKICK     , SCB_NONE );
-	set_sc( SJ_UNIVERSESTANCE, SC_UNIVERSESTANCE, SI_UNIVERSESTANCE, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
-	set_sc( SJ_FALLINGSTAR   , SC_FALLINGSTAR   , SI_FALLINGSTAR   , SCB_NONE );
-	set_sc( SJ_LIGHTOFSUN    , SC_LIGHTOFSUN    , SI_LIGHTOFSUN    , SCB_NONE );
-	set_sc( SJ_SUNSTANCE     , SC_SUNSTANCE     , SI_SUNSTANCE     , SCB_BATK|SCB_WATK );
+	set_sc( SJ_LIGHTOFMOON		, SC_LIGHTOFMOON	, SI_LIGHTOFMOON	, SCB_NONE );
+	set_sc( SJ_LUNARSTANCE		, SC_LUNARSTANCE	, SI_LUNARSTANCE	, SCB_MAXHP );
+	add_sc( SJ_FULLMOONKICK		, SC_BLIND			);
+	set_sc( SJ_LIGHTOFSTAR		, SC_LIGHTOFSTAR	, SI_LIGHTOFSTAR	, SCB_NONE );
+	set_sc( SJ_STARSTANCE		, SC_STARSTANCE		, SI_STARSTANCE		, SCB_ASPD );
+	set_sc( SJ_NEWMOONKICK		, SC_NEWMOON		, SI_NEWMOON		, SCB_NONE);
+	set_sc( SJ_FLASHKICK		, SC_FLASHKICK		, SI_FLASHKICK		, SCB_NONE );
+	set_sc( SJ_UNIVERSESTANCE	, SC_UNIVERSESTANCE	, SI_UNIVERSESTANCE	, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
+	set_sc( SJ_FALLINGSTAR		, SC_FALLINGSTAR	, SI_FALLINGSTAR	, SCB_NONE );
+	set_sc( SJ_LIGHTOFSUN		, SC_LIGHTOFSUN		, SI_LIGHTOFSUN		, SCB_NONE );
+	set_sc( SJ_SUNSTANCE		, SC_SUNSTANCE		, SI_SUNSTANCE		, SCB_BATK|SCB_WATK );
 
 	// Soul Reaper
 	set_sc( SP_SOULGOLEM   , SC_SOULGOLEM   , SI_SOULGOLEM   , SCB_DEF|SCB_MDEF );
@@ -1285,6 +1287,7 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			status_change_end(target, SC_CAMOUFLAGE, INVALID_TIMER);
 			status_change_end(target, SC_SIREN,INVALID_TIMER);
 			//status_change_end(target, SC_MAGNETICFIELD,INVALID_TIMER);// Skill description says it ends of you take damage.
+			status_change_end(target, SC_NEWMOON, INVALID_TIMER);
 			status_change_end(target, SC_SUHIDE, INVALID_TIMER);
 			if ((sce=sc->data[SC_ENDURE]) && !sce->val4) {
 				//Endure count is only reduced by non-players on non-gvg maps.
@@ -1303,8 +1306,8 @@ int status_damage(struct block_list *src,struct block_list *target,int hp, int s
 			}
 			if(sc->data[SC_DANCING] && (unsigned int)hp > status->max_hp>>2)
 				status_change_end(target, SC_DANCING, INVALID_TIMER);
-			if(sc->data[SC_CLOAKINGEXCEED] && --(sc->data[SC_CLOAKINGEXCEED]->val2) <= 0)
-				status_change_end(target,SC_CLOAKINGEXCEED,-1);
+			if (sc->data[SC_CLOAKINGEXCEED] && (--sc->data[SC_CLOAKINGEXCEED]->val2) <= 0)
+				status_change_end(target, SC_CLOAKINGEXCEED, INVALID_TIMER);
 		}
 		if (target->type == BL_PC)
 			pc_bonus_script_clear(BL_CAST(BL_PC,target),BSF_REM_ON_DAMAGED);
@@ -1936,7 +1939,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				struct map_session_data *sd = (TBL_PC*) target;
 				if (pc_isinvisible(sd))
 					return 0;
-				if( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) )
+				if ((tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON]) && !(status->mode&MD_BOSS) && (((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
 					return 0;
 				if( tsc->option&hide_flag && !(status->mode&MD_BOSS) && (sd->special_state.perfect_hiding || !(status->mode&MD_DETECTOR)))
 					return 0;
@@ -1995,7 +1998,8 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 	switch (target->type)
 	{	//Check for chase-walk/hiding/cloaking opponents.
 		case BL_PC:
-			if( tsc->data[SC_CLOAKINGEXCEED] && !(status->mode&MD_BOSS) && (((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
+			if ((tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON]) && !(status->mode&MD_BOSS) &&
+				(((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
 				return 0;
 			if ((tsc->option&(OPTION_HIDE | OPTION_CLOAK | OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&MD_BOSS) &&
 				( ((TBL_PC*)target)->special_state.perfect_hiding || !(status->mode&MD_DETECTOR) ) )
@@ -5231,8 +5235,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_STONEHARDSKIN]->val2;
 	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
 		def += sc->data[SC_SHIELDSPELL_REF]->val2;
-	if( sc->data[SC_PRESTIGE] )// FIX ME I CAN'T RESTART BECAUSE OF HOW VAL1 IS USED HERE!!!! [Rytech]
-		def += sc->data[SC_PRESTIGE]->val1;
+	if (sc->data[SC_PRESTIGE])
+		def += sc->data[SC_PRESTIGE]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
 		def += (5 + sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2 / 10;
 	if(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2)
@@ -7077,6 +7081,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_CLOAKINGEXCEED:
 		case SC_HIDING:
+		case SC_NEWMOON:
 			if( sc->data[SC_WUGBITE] )
 				return 0; // Prevent Cloaking, Exceed and Hiding
  			break;
@@ -8981,13 +8986,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 
 		case SC_PRESTIGE:
-			val2 = ((status->int_ + status->luk) * val1 / 20) * status_get_base_lv_effect(bl) / 200 + val1;// Chance to evade magic damage.
-			val1 = 15 * val1 + 10 * pc_checkskill(sd,CR_DEFENDER);// Defence added
-			if( status_get_lv(bl) >= 100 )
-				val1 = val1 * status_get_lv(bl) / 100;
-			val1 = val1 / 10;//DEF divided to make skill balanced for pre-renewal mechanics.
-			val_flag |= 1|2;
- 			break;
+			val2 = (15 * val1 + 10 * pc_checkskill(sd,CR_DEFENDER)) / 10;// Defence added. Divided by 10 to balance out for pre-renewal mechanics.
+			// No way of making this work out. Hard to explain on balance terms.
+			//val2 = val2 * status_get_base_lv_effect(bl) / 100;//This is for use in renewal mechanic's only.
+			val3 = ((status->int_ + status->luk) * val1 / 20) * status_get_base_lv_effect(bl) / 200 + val1;// Chance to evade magic damage.
+			break;
 		case SC_BANDING:// val1 = Skill LV, val4 = Skill Group AoE ID.
 			val2 = skill_banding_count(sd);// Royal Guard's In Banding Count
 			val3 = tick / 5000;
@@ -9084,6 +9087,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_UNIVERSESTANCE:
 			val2 = 2+val1;// All Stats Increase
 			tick = -1;
+			break;
+		case SC_NEWMOON:
+			val2 = 7;// Number of Regular Attacks Until Reveal
 			break;
 		case SC_FALLINGSTAR:
 			val2 = 8 + 2 * (1 + val1) / 2;// Autocast Chance
@@ -9567,6 +9573,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CLOAKINGEXCEED:
 		case SC_HEAT_BARREL_AFTER:
 		case SC_ALL_RIDING:
+		case SC_NEWMOON:
 		case SC_SUHIDE:
 			unit_stop_attack(bl);
 		break;
@@ -9700,6 +9707,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CLOAKING:
 		case SC_CLOAKINGEXCEED:
 		case SC__INVISIBILITY:
+		case SC_NEWMOON:
 			sc->option |= OPTION_CLOAK;
 			opt_flag = 2;
 			break;
@@ -10581,6 +10589,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_CLOAKING:
 		case SC_CLOAKINGEXCEED:
 		case SC__INVISIBILITY:
+		case SC_NEWMOON:
 			sc->option &= ~OPTION_CLOAK;
 			opt_flag|= 2;
 			break;
@@ -11822,6 +11831,7 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 		status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 		status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 		status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
+		status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 		break;
 	case SC_RUWACH:	/* At */
 		if (sce && sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rand() % 100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
@@ -11834,11 +11844,12 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 		else if ( sce && sce->val4 >= 2000 )//Reset check to 0 seconds only if above condition fails.
 			sce->val4 = 0;//No break after this since other invisiable character status's are removed as well.
 		if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED] ||
-			tsc->data[SC_CAMOUFLAGE])) {
+			tsc->data[SC_CAMOUFLAGE] || tsc->data[SC_NEWMOON])) {
 			status_change_end(bl, SC_HIDING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 			status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
+			status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 			if(battle_check_target( src, bl, BCT_ENEMY ) > 0)
 				skill_attack(BF_MAGIC,src,src,bl,AL_RUWACH,1,tick,0);
 		}

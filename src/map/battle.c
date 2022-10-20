@@ -543,7 +543,7 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			return 0;
 		}
 
-		if( flag&BF_MAGIC && (sce=sc->data[SC_PRESTIGE]) && rand()%100 < sce->val2)
+		if (flag&BF_MAGIC && (sce = sc->data[SC_PRESTIGE]) && rand() % 100 < sce->val3)
 		{
 			clif_specialeffect(bl, 462, AREA); // Still need confirm it.
  			return 0;
@@ -2630,7 +2630,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					{
 						struct status_change *tsc = status_get_sc(target);//Should check for Shadow Chaser's Invisiable skill right? [Rytech]
 						if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CHASEWALK] ||
-							tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_CAMOUFLAGE] || tsc->data[SC__INVISIBILITY]))
+							tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_CAMOUFLAGE] || tsc->data[SC__INVISIBILITY] ||
+							tsc->data[SC_NEWMOON]))
 							{
 							skillratio = 150 * skill_lv;
 							if (level_effect_bonus == 1)
@@ -5261,6 +5262,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
 		status_change_end(src,SC_CAMOUFLAGE, INVALID_TIMER);
 
+	if (sc && sc->data[SC_NEWMOON] && (--sc->data[SC_NEWMOON]->val2) <= 0)
+		status_change_end(src, SC_NEWMOON, INVALID_TIMER);
+
 	if( tsc && tsc->data[SC_AUTOCOUNTER] && status_check_skilluse(target, src, KN_AUTOCOUNTER, tsc->data[SC_AUTOCOUNTER]->val1, 1) ){
 		int dir = map_calc_dir(target,src->x,src->y);
 		int t_dir = unit_getdir(target);
@@ -6121,7 +6125,7 @@ static const struct _battle_data {
 	{ "chase_range_rate",                   &battle_config.chase_range_rate,                100,    0,      INT_MAX,        },
 	{ "gtb_sc_immunity",                    &battle_config.gtb_sc_immunity,                 50,     0,      INT_MAX,        },
 	{ "guild_max_castles",                  &battle_config.guild_max_castles,               0,      0,      INT_MAX,        },
-	{ "guild_skill_relog_delay",            &battle_config.guild_skill_relog_delay,         0,      0,      1,              },
+	{ "guild_skill_relog_delay",            &battle_config.guild_skill_relog_delay,         300000, 0,      INT_MAX,        },
 	{ "emergency_call",                     &battle_config.emergency_call,                  11,     0,      31,             },
 	{ "lowest_gm_level",                    &battle_config.lowest_gm_level,                 1,      0,      99,             },
 	{ "atcommand_gm_only",                  &battle_config.atc_gmonly,                      0,      0,      1,              },

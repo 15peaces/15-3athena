@@ -567,6 +567,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			break;
 		case GD_EMERGENCYCALL:
+		case GD_ITEMEMERGENCYCALL:
 			if (
 				!(battle_config.emergency_call&((agit_flag || agit2_flag)?2:1)) ||
 				!(battle_config.emergency_call&(map[m].flag.gvg || map[m].flag.gvg_castle?8:4)) ||
@@ -1546,6 +1547,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case RL_HAMMER_OF_GOD:
 		sc_start(bl, SC_STUN, 100, skilllv, skill_get_time2(skillid, skilllv));
+		break;
+	case SJ_FULLMOONKICK:
+		sc_start(bl,SC_BLIND,15+5*skilllv,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	case SP_CURSEEXPLOSION:
 		status_change_end(bl, SC_CURSE, INVALID_TIMER);
@@ -2571,6 +2575,10 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			case GS_FULLBUSTER:
 				//Can't attack nor use items until skill's delay expires. [Skotlex]
 				sd->ud.attackabletime = sd->canuseitem_tick = sd->ud.canact_tick;
+				break;
+			case SJ_PROMINENCEKICK:
+				if(pc_checkskill(sd, SJ_SOLARBURST) > 0)
+					flag=1;
 				break;
 			case SP_SPA:
 				sc_start(src,SC_USE_SKILL_SP_SPA,100,skilllv,skill_get_time(skillid, skilllv));
@@ -4462,6 +4470,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RL_R_TRIP:
 	case KO_HAPPOKUNAI:
 	case GN_ILLUSIONDOPING:
+	case SJ_FULLMOONKICK:
+	case SJ_NEWMOONKICK:
+	case SJ_SOLARBURST:
+	case SJ_PROMINENCEKICK:
 	case SJ_FALLINGSTAR_ATK2:
 	case SP_CURSEEXPLOSION:
 	case SP_SHA:
@@ -4597,7 +4609,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SJ_FALLINGSTAR_ATK:
 		if ( sd )
 		{// If a player used the skill it will search for targets marked by that player. 
-			if ( tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val3 == 1 )// Mark placed by a player.
+			if (tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val4 == 1)// Mark placed by a player.
 			{
 				short i = 0;
 				ARR_FIND( 0, MAX_STELLAR_MARKS, i, sd->stellar_mark[i] == bl->id);
@@ -4608,7 +4620,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				}
 			}
 		}// If a monster used the skill it will search for targets marked by any monster since they can't track their own targets.
-		else if ( tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val3 == 2 )// Mark placed by a monster.
+		else if (tsc && tsc->data[SC_FLASHKICK] && tsc->data[SC_FLASHKICK]->val4 == 2)// Mark placed by a monster.
 		{
 			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 			skill_castend_damage_id(src, bl, SJ_FALLINGSTAR_ATK2, skilllv, tick, 0);
@@ -5193,6 +5205,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_HIDING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 			status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER); // Need confirm it.
+			status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 			sc_start(bl, SC_INFRAREDSCAN, 10000, skilllv, skill_get_time(skillid, skilllv));
 		}else{
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
@@ -6634,12 +6647,17 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
 	case RL_D_TAIL:
+	case SJ_FULLMOONKICK:
+	case SJ_NEWMOONKICK:
+	case SJ_SOLARBURST:
 	case SJ_FALLINGSTAR_ATK:
 	case KO_HAPPOKUNAI:
 		skill_area_temp[1] = 0;
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), 
 			src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+		if (skillid == SJ_NEWMOONKICK)
+			sc_start(src, SC_NEWMOON, 100, skilllv, skill_get_time(skillid, skilllv));
 		break;
 
 	case RK_IGNITIONBREAK:
@@ -8530,17 +8548,28 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 	case GD_EMERGENCYCALL:
+	case GD_ITEMEMERGENCYCALL:
 		{
 			// i don't know if it actually summons in a circle, but oh well. ;P
-			int dx[9]={-1, 1, 0, 0,-1, 1,-1, 1, 0};
-			int dy[9]={ 0, 0, 1,-1, 1,-1,-1, 1, 0};
-			int j = 0;
+			int8 dx[9] = { -1, 1, 0, 0,-1, 1,-1, 1, 0 };
+			int8 dy[9] = { 0, 0, 1,-1, 1,-1,-1, 1, 0 };
+			uint8 j = 0, calls = 0, called = 0;
 			struct guild* g = guild_search(status_get_guild_id(src));
 			if( g == NULL )
 				break;
+
+			if (skillid == GD_ITEMEMERGENCYCALL)
+				switch (skilllv) {
+				case 1:	calls = 7; break;
+				case 2:	calls = 12; break;
+				case 3:	calls = 20; break;
+				default: calls = 0;	break;
+				}
+
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			for(i = 0; i < g->max_member; i++, j++) {
-				if (j>8) j=0;
+			for (i = 0; i < g->max_member && (!calls || (calls && called < calls)); i++, j++) {
+				if (j > 8)
+					j = 0;
 				if ((dstsd = g->member[i].sd) != NULL && sd != dstsd && !dstsd->state.autotrade) {
 					if (map[dstsd->bl.m].flag.nowarp && !map_flag_gvg2(dstsd->bl.m))
 						continue;
@@ -8549,6 +8578,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					if(map_getcell(src->m,src->x+dx[j],src->y+dy[j],CELL_CHKNOREACH))
 						dx[j] = dy[j] = 0;
 					pc_setpos(dstsd, map_id2index(src->m), src->x+dx[j], src->y+dy[j], CLR_RESPAWN);
+					called++;
 				}
 			}
 			if (sd)
@@ -9664,11 +9694,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SC_BODYPAINT:
 		if (flag&1)
 		{
-			if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED]))
+			if (tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON]))
 			{
 				status_change_end(bl, SC_HIDING, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
+				status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 				sc_start(bl,type,20 + 5 * skilllv,skilllv,skill_get_time(skillid,skilllv));
 			}
 				sc_start(bl,SC_BLIND,53 + 2 * skilllv,skilllv,skill_get_time2(skillid,skilllv));
@@ -10584,13 +10615,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( flag&1 )
 		{// Chase walk is not placed here since its immune to detection skills.
 			if( tsc && (tsc->data[SC_HIDING] || tsc->data[SC_CLOAKING] || tsc->data[SC_CAMOUFLAGE] || 
-				tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC__SHADOWFORM]) )
+				tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC__SHADOWFORM] || tsc->data[SC_NEWMOON]))
 			{
 				status_change_end(bl, SC_HIDING, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKING, INVALID_TIMER);
 				status_change_end(bl, SC_CAMOUFLAGE, INVALID_TIMER);
 				status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 				status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
+				status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
 			}
 		}
@@ -13735,6 +13767,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					status_change_end(bl,SC_HIDING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
 					status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
+					status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
 				}
 			}
 			/* Enable this if kRO fix the current skill. Currently no damage on undead and demon monster. [Jobbie]
@@ -14631,6 +14664,10 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		if(!(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_DRAGONCOMBO))
 			return 0;
 		break;
+	case SJ_SOLARBURST:
+		if(!(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SJ_PROMINENCEKICK))
+			return 0;
+		break;
 	case MO_EXTREMITYFIST:
 //		if(sc && sc->data[SC_EXTREMITYFIST]) //To disable Asura during the 5 min skill block uncomment this...
 //			return 0;
@@ -14823,6 +14860,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 	case GD_EMERGENCYCALL:
+	case GD_ITEMEMERGENCYCALL:
 		// other checks were already done in skillnotok()
 		if (!sd->status.guild_id || !sd->state.gmaster_flag)
 			return 0;
@@ -15079,6 +15117,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case SO_EL_CONTROL:
 		if( !sd->status.ele_id || !sd->ed ) {
 			clif_skill_fail(sd,skill,0x00,0,0);
+			return 0;
+		}
+		break;
+	case SJ_FULLMOONKICK:
+		if(!(sc && sc->data[SC_NEWMOON]))
+		{
+			clif_skill_fail(sd,skill,0,0,0);
 			return 0;
 		}
 		break;
@@ -16165,6 +16210,7 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 	case CH_CHAINCRUSH:
 	case SR_DRAGONCOMBO:
 	case SR_FALLENEMPIRE:
+	case SJ_PROMINENCEKICK:
 		time -= 4*status_get_agi(bl) - 2*status_get_dex(bl);
 		break;
 	case HP_BASILICA:

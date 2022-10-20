@@ -91,5 +91,11 @@
 //12205,60000	//Dex_Dish10_
 //12206,60000	//Luk_Dish10_
 //12207,60000	//Vit_Dish10_
+
+// FIXE ME! I assume the delay like GD_ITEMEMERGENCYCALL cooldown time
+12968,300000	// Emergency_Scroll1
+12969,300000	// Emergency_Scroll2
+12970,300000	// Emergency_Scroll3
+
 22508,7200000	//Para_Team_Mark_
 23277,180000	//Mado_Box
