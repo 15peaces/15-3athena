@@ -418,10 +418,15 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 	if (skill_num == PA_PRESSURE || skill_num == SP_SOULEXPLOSION)
 		return damage; //This skill bypass everything else.
 
+	// Nothing can reduce the damage, but Safety Wall and Millennium Shield can block it completely.
+	// So can defense sphere's but what the heck is that??? [Rytech]
+	if ( skill_num == SJ_NOVAEXPLOSING && !(sc && (sc->data[SC_SAFETYWALL] || sc->data[SC_MILLENNIUMSHIELD])) )
+		return damage;
+
 	if( sc && sc->count )
 	{
 		//First, sc_*'s that reduce damage to 0.
-		if( sc->data[SC_BASILICA] && !(status_get_mode(src)&MD_BOSS) && skill_num != PA_PRESSURE )
+		if (sc->data[SC_BASILICA] && !(status_get_mode(src)&MD_BOSS) && skill_num != PA_PRESSURE && skill_num != SP_SOULEXPLOSION)
 		{
 			d->dmg_lv = ATK_BLOCK;
 			return 0;
@@ -963,6 +968,7 @@ int battle_calc_bg_damage(struct block_list *src, struct block_list *bl, int dam
 		case NJ_ZENYNAGE:
 		//case RK_DRAGONBREATH:
 		//case GN_HELLS_PLANT_ATK:
+		case SJ_NOVAEXPLOSING:
 		case SP_SOULEXPLOSION:
 		case KO_MUCHANAGE:
 			break;
@@ -1028,6 +1034,7 @@ int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int dama
 	case NJ_ZENYNAGE:
 	//case RK_DRAGONBREATH:
 	//case GN_HELLS_PLANT_ATK:
+	case SJ_NOVAEXPLOSING:
 	case SP_SOULEXPLOSION:
 	case KO_MUCHANAGE:
 		break;
@@ -1491,7 +1498,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				break;
 
 		case RL_H_MINE:
-			if ( wflag&8 )// Explosion damage deals fire damage according to description.
+		case SJ_PROMINENCEKICK:
+			if (wflag & 8)// Explosion damage for howling mine deals fire damage according to description.
 				s_ele = s_ele_ = ELE_FIRE;
 			break;
 
@@ -2772,7 +2780,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case GN_CART_TORNADO:
 					{
 						int strbonus = sstatus->str;//Supposed to take only base STR, but current code wont allow that. So well just take STR for now. [Rytech]
-						if ( strbonus > 130 )//Max base stat limit on official is 130. So well allow no higher then 120 STR here. This limit prevents
+						if (strbonus > 130)//Max base stat limit on official is 130. So well allow no higher then 130 STR here. This limit prevents
 							strbonus = 130;//the division from going any lower then 20 so the server wont divide by 0 if someone has 150 STR.
 						skillratio = 50 * skill_lv + (sd?sd->cart_weight/10:105000) / (150 - strbonus) + 50 * (sd?pc_checkskill(sd, GN_REMODELING_CART):5);
 					}
@@ -2926,6 +2934,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case SJ_NEWMOONKICK:
 					skillratio = 700 + 100 * skill_lv;
 					break;
+				case SJ_STAREMPEROR:
+					skillratio = 800 + 200 * skill_lv;
+					break;
 				case SJ_SOLARBURST:
 					skillratio = 900 + 100 * skill_lv;
 					if( level_effect_bonus == 1 )
@@ -2934,7 +2945,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio += skillratio * sc->data[SC_LIGHTOFSUN]->val2 / 100;
 					break;
 				case SJ_PROMINENCEKICK:
-					skillratio = 150 + 50 * skill_lv;
+					if (!(wflag & 8))// Ratio for main hit. The fire hit is just 100%.
+						skillratio = 150 + 50 * skill_lv;
 					break;
 				case SJ_FALLINGSTAR_ATK:
 				case SJ_FALLINGSTAR_ATK2:
@@ -4843,6 +4855,20 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	case SP_SOULEXPLOSION:
 		md.damage = tstatus->hp * (20 + 10 * skill_lv) / 100;
 		break;
+	case SJ_NOVAEXPLOSING:
+		{
+			short hp_skilllv = skill_lv;
+
+			if ( hp_skilllv > 5 )
+				hp_skilllv = 5;// Prevents dividing the MaxHP by 0 on levels higher then 5.
+
+			// (Base ATK + Weapon ATK) * Ratio
+			md.damage = (sstatus->batk + sstatus->rhw.atk) * (200 + 100 * skill_lv) / 100;
+
+			// Additional Damage
+			md.damage += sstatus->max_hp / (6 - hp_skilllv) + status_get_max_sp(src) * (2 * skill_lv);
+		}
+		break;
 	case KO_MUCHANAGE:
 		md.damage = skill_get_zeny(skill_num, skill_lv);
 		if (!md.damage) md.damage = 10;
@@ -6491,6 +6517,9 @@ static const struct _battle_data {
 	{ "renewal_casting_square_calc",        &battle_config.renewal_casting_square_calc,     1,      0,      1,              },
 	{ "renewal_casting_square_debug",       &battle_config.renewal_casting_square_debug,    0,      0,      1,              },
 	{ "castrate_dex_scale_renewal_jobs",	&battle_config.castrate_dex_scale_renewal_jobs,	150,	1,		INT_MAX,		},
+	{ "cooldown_rate",                      &battle_config.cooldown_rate,                   100,    0,      INT_MAX,        },
+	{ "min_skill_cooldown_limit",           &battle_config.min_skill_cooldown_limit,        0,      0,      INT_MAX,        },
+	{ "no_skill_cooldown",                  &battle_config.no_skill_cooldown,               BL_MOB, BL_NUL, BL_ALL,         },
 	{ "max_parameter_renewal_jobs",         &battle_config.max_parameter_renewal_jobs,      130,    10,     10000,          },
 	{ "max_baby_parameter_renewal_jobs",    &battle_config.max_baby_parameter_renewal_jobs, 117,    10,     10000,          },
 	{ "renewal_stats_handling",             &battle_config.renewal_stats_handling,          1,      0,      1,              },

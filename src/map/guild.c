@@ -41,7 +41,7 @@ struct eventlist {
 	struct eventlist *next;
 };
 
-#define GUILD_SEND_XY_INVERVAL	5000
+#define GUILD_SEND_XY_INTERVAL	5000
 
 
 #define MAX_GUILD_SKILL_REQUIRE 5
@@ -1673,7 +1673,7 @@ void do_init_guild(void)
 	sv_readdb(db_path, "guild_skill_tree.txt", ',', 2+MAX_GUILD_SKILL_REQUIRE*2, 2+MAX_GUILD_SKILL_REQUIRE*2, -1, &guild_read_guildskill_tree_db); //guild skill tree [Komurka]
 
 	add_timer_func_list(guild_send_xy_timer, "guild_send_xy_timer");
-	add_timer_interval(gettick()+GUILD_SEND_XY_INVERVAL,guild_send_xy_timer,0,0,GUILD_SEND_XY_INVERVAL);
+	add_timer_interval(gettick()+GUILD_SEND_XY_INTERVAL,guild_send_xy_timer,0,0,GUILD_SEND_XY_INTERVAL);
 
 	do_init_guild_castle();
 	do_init_guild_expcache();

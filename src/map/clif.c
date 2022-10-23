@@ -3262,7 +3262,7 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOW(fd,2)=sd->cart_num;
 		WFIFOW(fd,4)=MAX_CART;
 		WFIFOL(fd,6)=sd->cart_weight;
-		WFIFOL(fd,10)=battle_config.max_cart_weight + (pc_checkskill(sd,GN_REMODELING_CART)*5000);
+		WFIFOL(fd, 10) = battle_config.max_cart_weight + 5000 * pc_checkskill(sd, GN_REMODELING_CART);
 		len=14;
 		break;
 
@@ -6329,7 +6329,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 		if( skill_id != AM_PHARMACY ) // AM_PHARMACY is used to Cooking.
 		{	// It fails.
 #if PACKETVER >= 20090922
-			clif_msg_skill(sd,skill_id,SKMSG_MATERIAL_FAIL);
+			clif_msg_skill(sd,skill_id, MSG_SKILL_MATERIAL_FAIL);
 #else
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));
@@ -11688,6 +11688,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		sd->sc.data[SC_FALLENEMPIRE] ||
 		sd->sc.data[SC_CURSEDCIRCLE_ATKER] ||
 		sd->sc.data[SC_CURSEDCIRCLE_TARGET] ||
+		sd->sc.data[SC_GRAVITYCONTROL] ||
 		sd->sc.data[SC_NEWMOON] ||
 		sd->sc.data[SC_SUHIDE]
 	))
@@ -12010,6 +12011,8 @@ void clif_parse_TakeItem(int fd, struct map_session_data *sd)
 			sd->sc.data[SC_CLOAKINGEXCEED] ||
 			(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
 			sd->sc.data[SC_CURSEDCIRCLE_TARGET] ||
+			sd->sc.data[SC_NEWMOON] ||
+			sd->sc.data[SC_GRAVITYCONTROL] ||
 			sd->sc.data[SC_SUHIDE]
 		))
 			break;

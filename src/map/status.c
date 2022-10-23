@@ -620,8 +620,13 @@ void initChangeTables(void)
 	set_sc( SJ_STARSTANCE		, SC_STARSTANCE		, SI_STARSTANCE		, SCB_ASPD );
 	set_sc( SJ_NEWMOONKICK		, SC_NEWMOON		, SI_NEWMOON		, SCB_NONE);
 	set_sc( SJ_FLASHKICK		, SC_FLASHKICK		, SI_FLASHKICK		, SCB_NONE );
+	add_sc( SJ_STAREMPEROR		, SC_SILENCE		);
+	set_sc( SJ_NOVAEXPLOSING	, SC_NOVAEXPLOSING	, SI_NOVAEXPLOSING	, SCB_NONE );
 	set_sc( SJ_UNIVERSESTANCE	, SC_UNIVERSESTANCE	, SI_UNIVERSESTANCE	, SCB_STR|SCB_AGI|SCB_VIT|SCB_INT|SCB_DEX|SCB_LUK );
 	set_sc( SJ_FALLINGSTAR		, SC_FALLINGSTAR	, SI_FALLINGSTAR	, SCB_NONE );
+	set_sc( SJ_GRAVITYCONTROL	, SC_GRAVITYCONTROL	, SI_GRAVITYCONTROL	, SCB_NONE );
+	set_sc( SJ_BOOKOFDIMENSION	, SC_DIMENSION		, SI_DIMENSION		, SCB_NONE );
+	set_sc( SJ_BOOKOFCREATINGSTAR, SC_CREATINGSTAR	, SI_CREATINGSTAR	, SCB_SPEED );
 	set_sc( SJ_LIGHTOFSUN		, SC_LIGHTOFSUN		, SI_LIGHTOFSUN		, SCB_NONE );
 	set_sc( SJ_SUNSTANCE		, SC_SUNSTANCE		, SI_SUNSTANCE		, SCB_BATK|SCB_WATK );
 
@@ -5540,6 +5545,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				if (sc->data[SC_GLOOMYDAY] && sc->data[SC_GLOOMYDAY]->val1 == 2)
 					val = max(val, 50);
 				if (sc->data[SC_B_TRAP])
+					val = max( val, 90 );
+				if( sc->data[SC_CREATINGSTAR] )
 					val = max(val, 90);
 				if (sc->data[SC_SP_SHA])
 					val = max(val, 50);
@@ -9096,6 +9103,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if ( val1 >= 7 )
 				val2 += 1;// Make it 15% at level 7.
 			break;
+		case SC_CREATINGSTAR:
+			val4 = tick / 500;
+			tick = 10;
+			break;
 		case SC_LIGHTOFSUN:
 		case SC_LIGHTOFMOON:
 		case SC_LIGHTOFSTAR:
@@ -9541,6 +9552,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_FALLENEMPIRE:
 		case SC_CURSEDCIRCLE_ATKER:
 		case SC_CURSEDCIRCLE_TARGET:
+		case SC_GRAVITYCONTROL:
 			unit_stop_attack(bl);
 			status_change_end(bl, SC_DANCING, INVALID_TIMER);
 			// Cancel cast when get status [LuzZza]
@@ -10454,8 +10466,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_IMPRISON:
 			if( tid == -1 )
 				break; // Terminated by Damage
-			status_fix_damage(bl, bl, 400 * sce->val1, 0);
 			clif_damage(bl, bl, gettick(), 0, 0, 400 * sce->val1, 0, 0, 0, false);
+			status_fix_damage(bl, bl, 400 * sce->val1, 0);
 			break;
 		case SC_WUGDASH:
 			{
@@ -10515,6 +10527,28 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_BANANA_BOMB_SITDOWN_POSTDELAY:
 			if (sd && pc_issit(sd) && pc_setstand(sd, false))
 				skill_sit(sd, false);
+			break;
+		case SC_SUNSTANCE:
+			status_change_end(bl, SC_LIGHTOFSUN, INVALID_TIMER);
+			break;
+		case SC_LUNARSTANCE:
+			status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
+			status_change_end(bl, SC_LIGHTOFMOON, INVALID_TIMER);
+			break;
+		case SC_STARSTANCE:
+			status_change_end(bl, SC_FALLINGSTAR, INVALID_TIMER);
+			status_change_end(bl, SC_LIGHTOFSTAR, INVALID_TIMER);
+			break;
+		case SC_UNIVERSESTANCE:
+			status_change_end(bl, SC_DIMENSION, INVALID_TIMER);
+			status_change_end(bl, SC_DIMENSION1, INVALID_TIMER);
+			status_change_end(bl, SC_DIMENSION2, INVALID_TIMER);
+			break;
+		case SC_GRAVITYCONTROL:
+			clif_damage(bl,bl,gettick(),0,0,sce->val2,0,0,0,false);
+			status_fix_damage(bl,bl,sce->val2,0);
+			clif_specialeffect(bl, 223, AREA);
+			clif_specialeffect(bl, 330, AREA);
 			break;
 		case SC_OVERED_BOOST:
 			if (hd)
@@ -11166,8 +11200,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{
 			bool flag;
 			map_freeblock_lock();
+			clif_damage(bl, bl, tick, 0, 0, 1000 + 3 * status->max_hp / 100, 0, 0, 0, false);
 			status_fix_damage(bl,bl,1000+3*status->max_hp/100,0);
-			clif_damage(bl,bl,tick,0,0,1000+3*status->max_hp/100,0,0,0,false);
 			flag = !sc->data[type];
 			map_freeblock_unlock();
 			if (flag) return 0;
@@ -11651,11 +11685,24 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
+	case SC_CREATINGSTAR:
+		if( --(sce->val4) >= 0 )
+		{// Needed to check who the caster is and what AoE is giving the status.
+			struct block_list *star_caster = map_id2bl(sce->val2);
+			struct skill_unit *star_aoe = (struct skill_unit *)map_id2bl(sce->val3);
+
+			sc_timer_next(500+tick, status_change_timer, bl->id, data);
+
+			// Must be placed after sc_timer_next to prevent null errors.
+			skill_attack(BF_WEAPON,star_caster,&star_aoe->bl,bl,SJ_BOOKOFCREATINGSTAR,sce->val1,tick,0);
+			return 0;
+		}
+		break;
+
 	case SC_SOULUNITY:
 		if( --(sce->val4) >= 0 )
 		{// Needed to check the caster's location for the range check.
-			struct block_list *unity_src;
-			unity_src = map_id2bl(sce->val1);
+			struct block_list *unity_src = map_id2bl(sce->val1);
 
 			// End the status if out of range.
 			if ( !check_distance_bl(bl, unity_src, 11) )

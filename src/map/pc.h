@@ -1044,11 +1044,9 @@ void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
 int pc_read_motd(void); // [Valaris]
 int pc_disguise(struct map_session_data *sd, int class_);
 
-bool pc_isSkillFromJob( int job_id, int skill_num );
-
 enum pc_msg {
-	MSG_UPGRADESKER_FIRSTJOB	=  0x61e,
-	MSG_UPGRADESKER_SECONDJOB	=  0x61f
+	MSG_UPGRADESKILLERROR_MORE_FIRSTJOBSKILL = 0x61e,
+	MSG_UPGRADESKILLERROR_MORE_SECONDJOBSKILL = 0x61f
 };
 
 enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int money);

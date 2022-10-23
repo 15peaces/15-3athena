@@ -5,6 +5,65 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/23/2022
+	r351 [15peaces]
+		*Merged missing changes from 3ceam rev. 860
+		*Added official 2013 halloween event.
+		*Script command sscanf will now return -1 when a string is empty.
+		*Corrected a typo in a message related to push carts.
+		*Fixed a issue with the "allskills" command where it may not appear to give you all the skills accessable by your job. This is needed due to the normalize job skilltree recode.
+		*pc_normalize_job_max_skillpoint
+			-Added support for ths function.
+			-This works with the normalizing of jobs to set how many skill points should be invested into certain skills in a skill tree depending on the job since the max job level is different between jobs.
+		*pc_calc_skilltree_normalize_job
+			-Recoded the function to properly work for 3rd jobs.
+			-Note: This was so broken. I had to reverted it back to the original eAthena code and then update it to the way it should be. Wasn't easy.
+		*pc_search_job_skilltree
+			-Added support for this function.
+			-This replaces "pc_isSkillFromJob" and is a recode of it.
+		*pc_skillup
+			-Recoded the checks and message handling for telling the player how many skill points need to be placed into lower tier skills. This is also part of the reason "pc_calc_skilltree_normalize_job" was recoded. Having to update the skill range 
+			-check every time new 3rd job skills come out is annoying. Better to let the normalize_job and search_job_skilltree functions work together for this.
+		*pc_jobchange
+			-Removed JOBL_THIRD from the upper setting switch.
+			-Third jobs are not a alternate version of 2nd jobs. Its a higher tier, making it its own job.
+		*Updated "pc_msg" and "msg_skill" MSG names with official ones.
+		*cooldown_rate; min_skill_cooldown_limit; no_skill_cooldown
+			-Added these config settings to the skill.conf file.
+		*Fixed a issue where some status's that deal damage and shows it will not show the damage done on the enemy if its a killing blow.
+		*Autocasted skills will no longer trigger a cooldown on renewal era skills.
+		*skill_cooldownfix
+			-Added support for this function.
+			-This function is kinda like skill_delayfix, but for cooldowns.
+			-At the moment its functional enough to allow cooldown time adjustments through status's but will be updated later to work with equip bonuses.
+		*WS_WEAPONREFINE
+			-Updated refine chance bonus gained from JobLV's to official.
+			-JobLV will not affect the success chance when below 50.
+			-When above 50, it will add a 0.5% chance bonus for each level above 50.
+			-This brings the added success chance to 10% at JobLV 70.
+			-Mechanics now get the full 10% added chance bonus no matter the JobLV.
+		*LG_BANDING
+			-Fixed a issue where using the skill under certain conditions would crash the server.
+		*WM_METALICSOUND
+			-Fixed a issue where it didn't deal bonus damage on sleeping targets.
+			-Now displays SP damage as blue numbers.
+		*GN_ILLUSIONDOPING
+			-Fixed a issue where casting the skill didn't require alcohol.
+		*SJ_STAREMPEROR; SJ_NOVAEXPLOSING; SJ_BOOKOFDIMENSION; SJ_BOOKOFCREATINGSTAR; SJ_GRAVITYCONTROL
+			-Added support for these skills.
+		*SJ_FALLINGSTAR_ATK
+			-The AoE size for the stellar mark check is now 5x5.
+			-Note: Sucks that its this small but its confirmed official.
+		*SJ_PROMINENCEKICK
+			-Now deals 2 hits.
+			-The first hit is the main damage. The second hit is the 100% fire damage.
+		*SJ_SUNSTANCE; SJ_LUNARSTANCE; SJ_STARSTANCE; SJ_UNIVERSESTANCE
+			-Switching or disabling stances now removes status's given from skills exclusive to the previously active stance.
+		*SP_SOULDIVISION
+			-Adjusted map check code.
+		*SP_SOULEXPLOSION
+			-Now only usable in PVP type maps.
+
 10/20/2022
 	r350 [15peaces]
 		*Merged missing changes from 3ceam rev. 859

@@ -537,6 +537,9 @@ extern struct Battle_Config
 	int renewal_casting_square_calc;
 	int renewal_casting_square_debug;
 	int castrate_dex_scale_renewal_jobs;
+	int cooldown_rate;
+	int min_skill_cooldown_limit;
+	int no_skill_cooldown;
 	int max_parameter_renewal_jobs;
 	int max_baby_parameter_renewal_jobs;
 	int renewal_stats_handling;

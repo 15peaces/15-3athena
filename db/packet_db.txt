@@ -1956,6 +1956,7 @@ packet_keys: 0x631C511C,0x111C111C,0x111C111C // [Shakto]
 0x083c,10,useskilltoid,2:4:6
 0x096a,6,getcharnamerequest,2
 0x09cb,17//ZC_USE_SKILL2
+0x09cd,8//ZC_MSG_COLOR
 0x09D4,2,npcshopclosed,0
 //NPC Market
 0x09D5,-1

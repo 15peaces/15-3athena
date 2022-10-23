@@ -2030,7 +2030,7 @@ struct block_list * map_id2bl(int id)
 }
 
 /*==========================================
- * Convext Mirror
+ * Convex Mirror
  *------------------------------------------*/
 struct mob_data * map_getmob_boss(int m)
 {
