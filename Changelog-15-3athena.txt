@@ -5,9 +5,46 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/24/2022
+	r352 [15peaces]
+		*Merged missing changes from 3ceam rev. 862 - 863
+		*Homunculus skill re-use delay is no longer reset when vaporized.
+		*Changed a few settings in the client.conf file to new defaults.
+			-max_hair_style changed from 29 to 31. (July 2018 client or higher needed)
+			-max_doram_cloth_color changed from 0 to 3. (July 2018 client or higher needed)
+			-save_body_style changed from no to yes.
+				--Note: Body style's will now be saved by default from here on since the alternate 3rd job outfits are now officially released in kRO. Make sure your kRO and RE client data is up-to-date to prevent errors.
+		*bCooldownRate; bNoMadoFuel
+			-Added support for these bonuses.
+		*Fixed a issue where bonus and bonus2 for fixedcastrate stacked.
+			-Only the highest percentage should be taken.
+		*Burning status now reduces MDEF by 25%.
+		*Frost status no longer increases variable cast time.
+			-Now increases fixed cast time by 50%.
+		*The party window now updates the shown job and base level of a party member when the member's job or base level changes.
+		*Fixed the status icon for ALL_RIDING not being displayed at login.
+		*Cleaned up SC_NOCHAT/Manner system.
+		*Updated Sightrasher area to be 15x15.
+		*Fixed Shield Boomerang not taking weapon element.
+		*Updated/fixed all pre-renewal class skills cast times.
+		*Corrected some equips that were usable by Star Emperor and Soul Reaper jobs that should not be usable by those jobs.
+		*Added the "Costume Change Ticket" item.
+		*Added body style support to the mob_avail file.
+		*Updated item_bonus file to show how to use the new bonuses.
+		*Star Emperor; Soul Reaper
+			-Updated the status's given by their skills for dispell/clearance rules.
+		*TK_JUMPKICK
+			-No longer removes soul reaper soul links.
+		*AB_CLEARANCE
+			-Can now be used on Soul Linker / Soul Reaper jobs.
+		*SJ_UNIVERSESTANCE
+			-Now allows the use of all Star Emperor's Sun, Moon, Star, and Universe skills.
+		*SJ_FALLINGSTAR
+			-Duration updated to official and is now affected by skill level used.
+
 10/23/2022
 	r351 [15peaces]
-		*Merged missing changes from 3ceam rev. 860
+		*Merged missing changes from 3ceam rev. 860 - 861
 		*Added official 2013 halloween event.
 		*Script command sscanf will now return -1 when a string is empty.
 		*Corrected a typo in a message related to push carts.

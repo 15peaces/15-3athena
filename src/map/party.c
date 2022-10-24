@@ -740,8 +740,10 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 /// Invoked (from char-server) when a party member
 /// - changes maps
 /// - logs in or out
-/// - gains a level (disabled)
-int party_recv_movemap(int party_id,int account_id,int char_id, unsigned short map,int online,int lv)
+/// - changes jobs
+/// - gains a level
+int party_recv_movemap(int party_id, int account_id, int char_id, unsigned short map, int online, int lv, unsigned short class_)
+
 {
 	struct party_member* m;
 	struct party_data* p;
@@ -761,6 +763,7 @@ int party_recv_movemap(int party_id,int account_id,int char_id, unsigned short m
 	m = &p->party.member[i];
 	m->map = map;
 	m->online = online;
+	m->class_ = class_;
 	m->lv = lv;
 	//Check if they still exist on this map server
 	p->data[i].sd = party_sd_check(party_id, account_id, char_id);
@@ -801,6 +804,11 @@ void party_send_movemap(struct map_session_data *sd)
 		}
 	}
 	return;
+}
+
+void party_send_jobchange(struct map_session_data *sd)
+{
+	intif_party_changemap(sd, 1);
 }
 
 void party_send_levelup(struct map_session_data *sd)

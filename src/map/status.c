@@ -140,20 +140,19 @@ void initChangeTables(void)
 	memset(SCDisabled, 0, sizeof(SCDisabled));
 
 	//First we define the skill for common ailments. These are used in skill_additional_effect through sc cards. [Skotlex]
-	set_sc( NPC_PETRIFYATTACK    , SC_STONE           , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
-	set_sc( NPC_WIDEFREEZE       , SC_FREEZE          , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
-	set_sc( NPC_STUNATTACK       , SC_STUN            , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_SLEEPATTACK      , SC_SLEEP           , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_POISON           , SC_POISON          , SI_BLANK           , SCB_DEF2|SCB_REGEN );
-	set_sc( NPC_CURSEATTACK      , SC_CURSE           , SI_BLANK           , SCB_LUK|SCB_BATK|SCB_WATK|SCB_SPEED );
-	set_sc( NPC_SILENCEATTACK    , SC_SILENCE         , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_WIDECONFUSE      , SC_CONFUSION       , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_BLINDATTACK      , SC_BLIND           , SI_BLANK           , SCB_HIT|SCB_FLEE );
-	set_sc( NPC_BLEEDING         , SC_BLEEDING        , SI_BLEEDING        , SCB_REGEN );
-	set_sc( NPC_POISON           , SC_DPOISON         , SI_BLANK           , SCB_DEF2|SCB_REGEN );
-	set_sc( NPC_WIDEHEALTHFEAR   , SC_FEAR            , SI_BLANK           , SCB_HIT|SCB_FLEE );
-	//set_sc( NPC_WIDEBODYBURNNING , SC_BURNING         , SI_BLANK           , SCB_MDEF );// Enable when proof of MDEF reduction is found.
-	set_sc( NPC_WIDEBODYBURNNING , SC_BURNING         , SI_BLANK           , SCB_NONE );
+	set_sc( NPC_PETRIFYATTACK		, SC_STONE           , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
+	set_sc( NPC_WIDEFREEZE			, SC_FREEZE          , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
+	set_sc( NPC_STUNATTACK			, SC_STUN            , SI_BLANK           , SCB_NONE );
+	set_sc( NPC_SLEEPATTACK			, SC_SLEEP           , SI_BLANK           , SCB_NONE );
+	set_sc( NPC_POISON				, SC_POISON          , SI_BLANK           , SCB_DEF2|SCB_REGEN );
+	set_sc( NPC_CURSEATTACK			, SC_CURSE           , SI_BLANK           , SCB_LUK|SCB_BATK|SCB_WATK|SCB_SPEED );
+	set_sc( NPC_SILENCEATTACK		, SC_SILENCE         , SI_BLANK           , SCB_NONE );
+	set_sc( NPC_WIDECONFUSE			, SC_CONFUSION       , SI_BLANK           , SCB_NONE );
+	set_sc( NPC_BLINDATTACK			, SC_BLIND           , SI_BLANK           , SCB_HIT|SCB_FLEE );
+	set_sc( NPC_BLEEDING			, SC_BLEEDING        , SI_BLEEDING        , SCB_REGEN );
+	set_sc( NPC_POISON				, SC_DPOISON         , SI_BLANK           , SCB_DEF2|SCB_REGEN );
+	set_sc( NPC_WIDEHEALTHFEAR		, SC_FEAR            , SI_BLANK           , SCB_HIT|SCB_FLEE );
+	set_sc( NPC_WIDEBODYBURNNING	, SC_BURNING         , SI_BLANK           , SCB_MDEF );
 	//set_sc( WL_WHITEIMPRISON     , SC_IMPRISON        , SI_BLANK           , SCB_NONE );// No imprison skill for NPC's....yet.
 	set_sc( NPC_WIDE_DEEP_SLEEP  , SC_DEEPSLEEP       , SI_DEEP_SLEEP      , SCB_NONE );
 	set_sc( NPC_WIDEFROSTMISTY   , SC_FROST           , SI_FROSTMISTY      , SCB_DEF|SCB_SPEED|SCB_ASPD );
@@ -2536,6 +2535,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	sd->castrate=100;
 	sd->fixedcastrate=100;
 	sd->delayrate=100;
+	sd->cooldownrate = 100;
 	sd->dsprate=100;
 	sd->hprecov_rate = 100;
 	sd->sprecov_rate = 100;
@@ -3309,6 +3309,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		sd->fixedcastrate = 0;
 	if(sd->delayrate < 0)
 		sd->delayrate = 0;
+	if (sd->cooldownrate < 0)
+		sd->cooldownrate = 0;
 	if(sd->hprecov_rate < 0)
 		sd->hprecov_rate = 0;
 	if(sd->sprecov_rate < 0)
@@ -5408,8 +5410,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 	}
 	if (sc->data[SC_ODINS_POWER])
 		mdef -= 2 * sc->data[SC_ODINS_POWER]->val1;
-	//if(sc->data[SC_BURNING])// Enable when proof of MDEF reduction is found.
-	//	mdef -= mdef * 25 / 100;
+	if (sc->data[SC_BURNING])
+		mdef -= mdef * 25 / 100;
 	if(sc->data[SC_ANALYZE])
 		mdef -= mdef * ( 14 * sc->data[SC_ANALYZE]->val1 ) / 100;
 	if (sc->data[SC_NYANGGRASS] && sc->data[SC_NYANGGRASS]->val2 == 2)
@@ -9961,10 +9963,6 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_DECORATION_OF_MUSIC:
 				case SC_SPRITEMABLE:
 				case SC_SOULATTACK:
-				//case SC_LUNARSTANCE:// Need confirm please.
-				//case SC_UNIVERSESTANCE:
-				//case SC_SUNSTANCE:
-				//case SC_STARSTANCE:
 
 				// Clans
 				case SC_CLAN_INFO:
@@ -10540,9 +10538,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			status_change_end(bl, SC_LIGHTOFSTAR, INVALID_TIMER);
 			break;
 		case SC_UNIVERSESTANCE:
+			status_change_end(bl, SC_LIGHTOFSUN, INVALID_TIMER);
+			status_change_end(bl, SC_NEWMOON, INVALID_TIMER);
+			status_change_end(bl, SC_LIGHTOFMOON, INVALID_TIMER);
+			status_change_end(bl, SC_FALLINGSTAR, INVALID_TIMER);
+			status_change_end(bl, SC_LIGHTOFSTAR, INVALID_TIMER);
 			status_change_end(bl, SC_DIMENSION, INVALID_TIMER);
-			status_change_end(bl, SC_DIMENSION1, INVALID_TIMER);
-			status_change_end(bl, SC_DIMENSION2, INVALID_TIMER);
 			break;
 		case SC_GRAVITYCONTROL:
 			clif_damage(bl,bl,gettick(),0,0,sce->val2,0,0,0,false);

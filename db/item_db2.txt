@@ -4977,3 +4977,7 @@
 28327,Broken_Chips_02,Broken Chips 02,5,10,,100,,,,1,0xFFFFFFFF,63,2,136,,100,1,,{ bonus bInt,4; },{},{}
 28332,Jewerly_Ring,Jewerly Ring,5,10,,100,,,,0,0xFFFFFFFF,63,2,136,,1,0,,{ bonus bLuk,20; autobonus "{ bonus bAspd,2; }",50,2000,BF_WEAPON|BF_MAGIC; },{},{}
 28333,Gold_PC_Room_Ring,Gold PC Room Ring,5,10,,0,,,,1,0xFFFFFFFF,63,2,136,,1,1,,{ bonus bMaxHPrate,3; bonus bMaxSPrate,3; },{},{}
+
+//3ceam
+6959,Costume_Change_Ticket,Costume Change Ticket,3,0,,10,,,,,,,,,,,,,{},{},{}
+//28380,Fresh_Grass_Necklace,Fresh Grass Necklace,5,30000,,100,,0,,1,0x000FDF80,8,2,136,,0,0,0,{},{},{}

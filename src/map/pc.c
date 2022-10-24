@@ -2850,6 +2850,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		if(sd->state.lr_flag != 2)
 			sd->special_state.no_gemstone = 1;
 		break;
+	case SP_NO_MADOFUEL:
+		if(sd->state.lr_flag != 2)
+			sd->special_state.no_madofuel = 1;
+		break;
 	case SP_INTRAVISION: // Maya Purple Card effect allowing to see Hiding/Cloaking people [DracoRPG]
 		if(sd->state.lr_flag != 2) {
 			sd->special_state.intravision = 1;
@@ -2954,6 +2958,10 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 	case SP_ADD_STEAL_RATE:
 		if(sd->state.lr_flag != 2)
 			sd->add_steal_rate+=val;
+		break;
+	case SP_COOLDOWNRATE:
+		if(sd->state.lr_flag != 2)
+			sd->cooldownrate+=val;
 		break;
 	case SP_DELAYRATE:
 		if(sd->state.lr_flag != 2)
@@ -8172,7 +8180,13 @@ int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 		break;
 	case SP_MANNER:
 		sd->status.manner = val;
-		break;
+		if (val < 0)
+			sc_start(&sd->bl, SC_NOCHAT, 100, 0, 0);
+		else {
+			status_change_end(&sd->bl, SC_NOCHAT, INVALID_TIMER);
+			clif_manner_message(sd, 5);
+		}
+		return true; // status_change_start/status_change_end already sends packets warning the client
 	case SP_FAME:
 		sd->status.fame = val;
 		break;

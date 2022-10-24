@@ -649,7 +649,9 @@ bSubSkill	2077
 bSubDefEle	2078
 
 bFixedCastRate	2101
-bMatk	2102
+bCooldownRate	2102
+bMatk	2103
+bNoMadoFuel	2104
 
 EQI_ACC_L	1
 EQI_ACC_R	2

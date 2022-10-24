@@ -10955,6 +10955,8 @@ void clif_parse_WantToConnection(int fd, TBL_PC* sd)
 /// 007d
 void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 {
+	bool guild_notice = false;
+
 	if(sd->bl.prev != NULL)
 		return;
 	
@@ -11112,6 +11114,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	if(sd->state.connect_new) {
 		int lv;
+		guild_notice = true;
 		clif_skillupdateinfoblock(sd);
 		clif_hotkeys_send(sd);
 		clif_updatestatus(sd,SP_BASEEXP);
@@ -11129,6 +11132,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 		if (sd->sc.option&OPTION_WUGRIDER)
 			clif_status_load(&sd->bl, SI_WUGRIDER, 1);
+
+		else if (sd->sc.data[SC_ALL_RIDING])
+			clif_status_load(&sd->bl, SI_ALL_RIDING, 1);
 
 		if(sd->status.manner < 0)
 			sc_start(&sd->bl,SC_NOCHAT,100,0,0);
@@ -11187,6 +11193,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_partyinvitationstate(sd);
 		clif_equipcheckbox(sd);
 #endif
+
+		if (sd->status.guild_id && battle_config.guild_notice_changemap == 1)
+			clif_guild_notice(sd, guild_search(sd->status.guild_id));
+
 		if( (battle_config.bg_flee_penalty != 100 || battle_config.gvg_flee_penalty != 100) &&
 			(map_flag_gvg(sd->state.pmap) || map_flag_gvg(sd->bl.m) || map[sd->state.pmap].flag.battleground || map[sd->bl.m].flag.battleground) )
 			status_calc_bl(&sd->bl, SCB_FLEE); //Refresh flee penalty
@@ -11222,6 +11232,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		status_change_clear_onChangeMap(&sd->bl, &sd->sc);
 		map_iwall_get(sd); // Updates Walls Info on this Map to Client
 	}
+
+	if (sd->status.guild_id && (battle_config.guild_notice_changemap == 2 || guild_notice))
+		clif_guild_notice(sd, guild_search(sd->status.guild_id)); // Displays at end
 	
 #ifndef TXT_ONLY
 	mail_clear(sd);

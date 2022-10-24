@@ -196,6 +196,7 @@ struct map_session_data {
 		unsigned int no_castcancel2 : 1;
 		unsigned int no_sizefix : 1;
 		unsigned int no_gemstone : 1;
+		unsigned int no_madofuel : 1;
 		unsigned int intravision : 1; // Maya Purple Card effect [DracoRPG]
 		unsigned int perfect_hiding : 1; // [Valaris]
 		unsigned int no_knockback : 1;
@@ -374,7 +375,7 @@ struct map_session_data {
 
 	// zeroed vars end here.
 
-	int castrate,delayrate,hprate,sprate,dsprate;
+	int castrate,delayrate,cooldownrate,hprate,sprate,dsprate;
 	int fixedcastrate; //Renewal fixed cast time adjustment, Thanks to Rytech. [15peaces]
 	int hprecov_rate,sprecov_rate;
 	int matk_rate;

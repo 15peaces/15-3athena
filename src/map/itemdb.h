@@ -12,7 +12,7 @@
 #define MAX_RANDITEM	11000
 
 // The maximum number of item delays
-#define MAX_ITEMDELAYS	33
+#define MAX_ITEMDELAYS	35
 
 #define MAX_ROULETTE_LEVEL 7 /** client-defined value **/
 #define MAX_ROULETTE_COLUMNS 9 /** client-defined value **/
@@ -43,6 +43,7 @@ enum item_itemid
 	ITEMID_MAKEOVER_BRUSH			,
 	ITEMID_PAINT_BRUSH				,
 	ITEMID_SURFACE_PAINT			,
+	ITEMID_MAGIC_GEAR_FUEL			= 6146,
 	ITEMID_MAGICBOOK_FIREBOLT		= 6189,
 	ITEMID_MAGICBOOK_COLDBOLT		,
 	ITEMID_MAGICBOOK_LIGHTNINGBOLT	,
@@ -148,6 +149,7 @@ enum item_itemid
 #define itemid_is_sling_atk(id) ((id) >= ITEMID_APPLE_BOMB && (id) <= ITEMID_VERY_HARD_DARK_LUMP)
 #define itemid_is_sling_buff(id) ((id) >= ITEMID_MYSTERIOUS_POWDER && (id) <= ITEMID_THROW_OVERDONE_FOOD)
 #define itemid_is_holy_bullet(id) ( (id) == ITEMID_SILVER_BULLET || (id) == ITEMID_PURIFICATION_BULLET )
+#define itemid_is_mado_fuel(id) ( (id) == ITEMID_MAGIC_GEAR_FUEL )
 
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6

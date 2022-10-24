@@ -3942,6 +3942,12 @@ static bool mob_readdb_mobavail(char* str[], int columns, int current)
 		mob_db_data[class_]->vd.head_bottom=atoi(str[9]);
 		mob_db_data[class_]->option=atoi(str[10])&~(OPTION_HIDE|OPTION_CLOAK|OPTION_INVISIBLE);
 		mob_db_data[class_]->vd.cloth_color=atoi(str[11]); // Monster player dye option - Valaris
+
+		// Only the main 3rd jobs have alternate outfits. Also make sure a setting over 1 isnt allowed.
+		if ( k >= JOB_RUNE_KNIGHT && k <= JOB_BABY_MECHANIC2 && atoi(str[12]) < 2 )
+			mob_db_data[class_]->vd.body_style=atoi(str[12]);
+		else// Selected job ID doesn't support a alternate outfit.
+			mob_db_data[class_]->vd.body_style=0;
 	}
 	else if(columns==3)
 		mob_db_data[class_]->vd.head_bottom=atoi(str[2]); // mob equipment [Valaris]
@@ -4469,7 +4475,7 @@ static void mob_load(void)
 #endif /* TXT_ONLY */
 	mob_readdb();
 
-	sv_readdb(db_path, "mob_avail.txt", ',', 2, 12, -1, &mob_readdb_mobavail);
+	sv_readdb(db_path, "mob_avail.txt", ',', 2, 13, -1, &mob_readdb_mobavail);
 	mob_read_randommonster();
 	mob_readchatdb();
 	mob_readskilldb();

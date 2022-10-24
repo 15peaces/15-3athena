@@ -449,3 +449,5 @@ bonus bFixedCast,t;				Increases fixed cast time of all skills by t milliseconds
 bonus2 bSkillCooldown,sk,t;		Increases cooldown of skill sk by t milliseconds
 bonus bMatk,n;		Magical attack power + n
 bonus2 bUseSPrate,n,x;		Decrease SP consumption of skill n by x% (supports skill names)
+bonus bCooldownRate,n;		Skill cooldown time adjustment in percentage. n is the percentage value.
+bonus bNoMadoFuel,n;		Skill requiring mado gear fuel will no longer require it. Set n to 0.
