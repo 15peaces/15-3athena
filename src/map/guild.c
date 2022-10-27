@@ -1561,6 +1561,10 @@ int guild_break(struct map_session_data *sd,char *name)
 {
 	struct guild *g;
 	int i;
+#ifdef BOUND_ITEMS
+	int j;
+	int idxlist[MAX_INVENTORY];
+#endif
 
 	nullpo_ret(sd);
 
@@ -1580,6 +1584,13 @@ int guild_break(struct map_session_data *sd,char *name)
 		clif_guild_broken(sd,2);
 		return 0;
 	}
+
+#ifdef BOUND_ITEMS
+	//Guild bound item check - Removes the bound flag
+	j = pc_bound_chk(sd, 2, idxlist);
+	for (i = 0; i < j; i++)
+		sd->inventory.u.items_inventory[idxlist[i]].bound = BOUND_NONE;
+#endif
 
 	intif_guild_break(g->guild_id);
 	return 1;

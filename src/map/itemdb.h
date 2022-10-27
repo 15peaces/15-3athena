@@ -156,7 +156,7 @@ enum item_itemid
 #define IG_POTION 37
 //The max. item group count, same for item packages (increase this when needed).
 #define MAX_ITEMGROUP 58
-#define MAX_ITEMPACKAGE 28
+#define MAX_ITEMPACKAGE 29
 #define MAX_RANDGROUP 4 // For item packages
 
 #define CARD0_FORGE 0x00FF
@@ -219,6 +219,8 @@ struct item_data {
 		unsigned buyingstore : 1;
 		unsigned dead_branch : 1; // As dead branch item. Logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
 		unsigned group : 1; // As item group container [Cydh]
+		unsigned guid : 1; // This item always be attached with GUID and make it as bound item! [Cydh]
+		unsigned fixed_drop : 1;
 	} flag;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]
@@ -317,6 +319,8 @@ int itemdb_isstackable2(struct item_data *);
 bool itemdb_parse_roulette_db(void);
 
 void itemdb_package_item(struct map_session_data *sd, int packageid);
+
+uint64 itemdb_unique_id(struct map_session_data *sd); // Unique Item ID
 
 void itemdb_reload(void);
 

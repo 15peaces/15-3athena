@@ -13,7 +13,6 @@
 #include "../common/timer.h"
 #include "../common/utils.h"
 #include "../common/version.h"
-#include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"
 #include "int_mail.h"
@@ -22,6 +21,7 @@
 #include "int_party.h"
 #include "int_achievement.h"
 #include "char.h"
+#include "inter.h"
 
 #include <sys/types.h>
 #include <time.h>
@@ -483,7 +483,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->ele_id != cp->ele_id) || (p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->rename != cp->rename) ||
 		(p->delete_date != cp->delete_date) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
-		(p->clan_id != cp->clan_id) || (p->title_id != cp->title_id)
+		(p->clan_id != cp->clan_id) || (p->title_id != cp->title_id) || (p->uniqueitem_counter != cp->uniqueitem_counter)
 	)
 	{	//Save status
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `base_level`='%d', `job_level`='%d',"
@@ -493,7 +493,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',`elemental_id`='%d',"
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
-			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu'"
+			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu',`uniqueitem_counter`='%u'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -504,7 +504,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->last_point.map), p->last_point.x, p->last_point.y,
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
-			p->robe, p->hotkey_rowshift, p->clan_id, p->title_id,
+			p->robe, p->hotkey_rowshift, p->clan_id, p->title_id, p->uniqueitem_counter,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
@@ -869,7 +869,7 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 	SqlStmt_Free(stmt);
 
 	StringBuf_Clear(&buf);
-	StringBuf_Printf(&buf, "INSERT INTO `%s`(`%s`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `expire_time`, `bound`", tablename, selectoption);
+	StringBuf_Printf(&buf, "INSERT INTO `%s`(`%s`, `nameid`, `amount`, `equip`, `identify`, `refine`, `attribute`, `expire_time`, `bound`, `unique_id`", tablename, selectoption);
 	if (tableswitch == TABLE_INVENTORY)
 		StringBuf_Printf(&buf, ", `favorite`, `equip_switch`");
 	for( j = 0; j < MAX_SLOTS; ++j )
@@ -894,8 +894,8 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 		else
 			found = true;
 
-		StringBuf_Printf(&buf, "('%d', '%hu', '%d', '%u', '%d', '%d', '%d', '%u' ,'%d'",
-			id, items[i].nameid, items[i].amount, items[i].equip, items[i].identify, items[i].refine, items[i].attribute, items[i].expire_time, items[i].bound);
+		StringBuf_Printf(&buf, "('%d', '%hu', '%d', '%u', '%d', '%d', '%d', '%u' ,'%d', '%"PRIu64"'",
+			id, items[i].nameid, items[i].amount, items[i].equip, items[i].identify, items[i].refine, items[i].attribute, items[i].expire_time, items[i].bound, items[i].unique_id);
 		if (tableswitch == TABLE_INVENTORY)
 			StringBuf_Printf(&buf, ", '%d', '%u'", items[i].favorite, items[i].equipSwitch);
 		for( j = 0; j < MAX_SLOTS; ++j )
@@ -969,7 +969,7 @@ bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum stora
 	}
 
 	StringBuf_Init(&buf);
-	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`expire_time`,`bound`");
+	StringBuf_AppendStr(&buf, "SELECT `id`,`nameid`,`amount`,`equip`,`identify`,`refine`,`attribute`,`expire_time`,`bound`,`unique_id`");
 	if (tableswitch == TABLE_INVENTORY) {
 		StringBuf_Printf(&buf, ", `favorite`, `equip_switch`");
 		offset = 2;
@@ -993,25 +993,26 @@ bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum stora
 		return false;
 	}
 
-	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,          &item.id,        0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,       &item.nameid,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,        &item.amount,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,         &item.equip,     0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,         &item.identify,  0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,         &item.refine,    0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,         &item.attribute, 0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 0, SQLDT_INT,          &item.id,       0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT,       &item.nameid,   0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 2, SQLDT_SHORT,        &item.amount,   0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 3, SQLDT_UINT,         &item.equip,    0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 4, SQLDT_CHAR,         &item.identify, 0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 5, SQLDT_CHAR,         &item.refine,   0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 6, SQLDT_CHAR,         &item.attribute,0, NULL, NULL);
 	SqlStmt_BindColumn(stmt, 7, SQLDT_UINT,         &item.expire_time, 0, NULL, NULL);
-	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,         &item.bound,     0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 8, SQLDT_CHAR,         &item.bound,    0, NULL, NULL);
+	SqlStmt_BindColumn(stmt, 9, SQLDT_ULONGLONG,	&item.unique_id,	0, NULL, NULL);
 	if (tableswitch == TABLE_INVENTORY) {
-		SqlStmt_BindColumn(stmt,  9, SQLDT_CHAR, &item.favorite,    0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 10, SQLDT_UINT, &item.equipSwitch, 0, NULL, NULL);
+		SqlStmt_BindColumn(stmt,  10, SQLDT_CHAR, &item.favorite,    0, NULL, NULL);
+		SqlStmt_BindColumn(stmt, 11, SQLDT_UINT, &item.equipSwitch, 0, NULL, NULL);
 	}
 	for( i = 0; i < MAX_SLOTS; ++i )
-		SqlStmt_BindColumn(stmt, 9+offset+i, SQLDT_USHORT, &item.card[i],   0, NULL, NULL);
+		SqlStmt_BindColumn(stmt, 10+offset+i, SQLDT_USHORT, &item.card[i],   0, NULL, NULL);
  	for( i = 0; i < MAX_ITEM_RDM_OPT; ++i ) {
-		SqlStmt_BindColumn(stmt, 9+offset+MAX_SLOTS+i*3, SQLDT_SHORT, &item.option[i].id, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 10+offset+MAX_SLOTS+i*3, SQLDT_SHORT, &item.option[i].value, 0, NULL, NULL);
-		SqlStmt_BindColumn(stmt, 11+offset+MAX_SLOTS+i*3, SQLDT_CHAR, &item.option[i].param, 0, NULL, NULL);
+		SqlStmt_BindColumn(stmt, 10+offset+MAX_SLOTS+i*3, SQLDT_SHORT, &item.option[i].id, 0, NULL, NULL);
+		SqlStmt_BindColumn(stmt, 11+offset+MAX_SLOTS+i*3, SQLDT_SHORT, &item.option[i].value, 0, NULL, NULL);
+		SqlStmt_BindColumn(stmt, 12+offset+MAX_SLOTS+i*3, SQLDT_CHAR, &item.option[i].param, 0, NULL, NULL);
  	}
 
 	for( i = 0; i < max && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
@@ -1334,7 +1335,7 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`party_id`,`guild_id`,`pet_id`,`homun_id`,`elemental_id`,`hair`,"
 		"`hair_color`,`clothes_color`,`body`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`last_x`,`last_y`,"
 		"`save_map`,`save_x`,`save_y`,`partner_id`,`father`,`mother`,`child`,`fame`,`rename`,`delete_date`,`robe`,`sex`,"
-		"`hotkey_rowshift`,`clan_id`,`title_id`"
+		"`hotkey_rowshift`,`clan_id`,`title_id`,`uniqueitem_counter`"
 		" FROM `%s` WHERE `char_id`=? LIMIT 1", char_db)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
@@ -1395,6 +1396,7 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 54, SQLDT_UCHAR,  &p->hotkey_rowshift, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 55, SQLDT_INT,	&p->clan_id, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 56, SQLDT_ULONG,	&p->title_id, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 57, SQLDT_UINT,	&p->uniqueitem_counter, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug(stmt);

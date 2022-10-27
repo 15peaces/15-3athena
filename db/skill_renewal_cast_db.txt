@@ -331,7 +331,7 @@
 //-- LG_TRAMPLE
 2309,0,0,1000,0,0,0,0
 //-- LG_SHIELDPRESS
-2310,0,0,0,2000,0,3500:4000:4500:5000:5500,0
+2310,0,0,0,2000,0,5500:6000:6500:7000:7500,0
 //-- LG_REFLECTDAMAGE
 2311,0,0,0,0,0,300000,0
 //-- LG_PINPOINTATTACK //Duration 1 used for bleeding.
@@ -927,6 +927,12 @@
 //===== Other Skills =======================
 //-- ALL_EQSWITCH
 5067,0,60,0,10000,0,0,0
+//==========================================
+
+//===== Full Throttle jRO Version ==========
+//-- EVT_FULL_THROTTLE -- Duration 1 is for Full Throttle. Duration 2 is for Rebound.
+//Note: Whats the official cooldown for this version? Doing 30 minutes for now.
+5071,0,0,500,3000000,0,40000,10000
 //==========================================
 
 //===== New Arch Bishop Skills =============

@@ -1,379 +1,382 @@
 // Item Package Database
 //
 // Structure of Database:
-// PackageID,ItemID,Rate{,Amount,Random,isAnnounced,Duration}
+// PackageID,ItemID,Rate{,Amount,Random,isAnnounced,Duration,GUID}
+
+// IP_Aspersio_5_Scroll_Box
+1,12217,0,10,0,0,0,1
 
 // IP_New_Year_Scroll
-1,12903,1500,1,1,0	// 1x Str_Dish_Box
-1,12904,1500,1,1,0	// 1x Agi_Dish_Box
-1,12905,1500,1,1,0	// 1x Int_Dish_Box
-1,12906,1500,1,1,0	// 1x Dex_Dish_Box
-1,12907,1500,1,1,0	// 1x Luk_Dish_Box
-1,12908,1500,1,1,0	// 1x Vit_Dish_Box
-1,14232,950,1,1,0	// 1x Yggdrasilberry_Box_
-1,17071,50,1,1,0	// 1x Superb_Fish_Box50
-1,4145,1,1,2,0		// 1x Berzebub_Card
-1,4480,1,1,2,0		// 1x Sealed_Kiel_Card
-1,4489,3,1,2,0		// 1x Sealed_Pharaoh_Card
-1,2589,10,1,2,0		// 1x Fallen_Angel_Wing
-1,18603,5,1,2,0		// 1x Black_Devil_Mask_
-1,5209,50,1,2,0		// 1x Yellow_Baseball_Cap
-1,5507,30,1,2,0		// 1x Pink_Pajamas_Hat
-1,2345,50,1,2,0		// 1x Flame_Sprits_Armor_
-1,5783,500,1,2,0	// 1x YellowBunny_Hairband
-1,13710,200,1,2,0	// 1x Max_Weight_Up_Box
-1,12103,300,1,2,0	// 1x Bloody_Dead_Branch
-1,6024,1250,1,2,0	// 1x 17Carat_Dia
-1,12710,2000,5,2,0	// 5x Guyak_Pudding
-1,12406,2000,10,2,0	// 10x Psychic_ArmorS
-1,12642,2000,1,2,0	// 1x Fruit_Of_Mastela_Box2
-1,12533,1600,1,2,0	// 1x Blue_Herb_Box2
+2,12903,1500,1,1,0	// 1x Str_Dish_Box
+2,12904,1500,1,1,0	// 1x Agi_Dish_Box
+2,12905,1500,1,1,0	// 1x Int_Dish_Box
+2,12906,1500,1,1,0	// 1x Dex_Dish_Box
+2,12907,1500,1,1,0	// 1x Luk_Dish_Box
+2,12908,1500,1,1,0	// 1x Vit_Dish_Box
+2,14232,950,1,1,0	// 1x Yggdrasilberry_Box_
+2,17071,50,1,1,0	// 1x Superb_Fish_Box50
+2,4145,1,1,2,0		// 1x Berzebub_Card
+2,4480,1,1,2,0		// 1x Sealed_Kiel_Card
+2,4489,3,1,2,0		// 1x Sealed_Pharaoh_Card
+2,2589,10,1,2,0		// 1x Fallen_Angel_Wing
+2,18603,5,1,2,0		// 1x Black_Devil_Mask_
+2,5209,50,1,2,0		// 1x Yellow_Baseball_Cap
+2,5507,30,1,2,0		// 1x Pink_Pajamas_Hat
+2,2345,50,1,2,0		// 1x Flame_Sprits_Armor_
+2,5783,500,1,2,0	// 1x YellowBunny_Hairband
+2,13710,200,1,2,0	// 1x Max_Weight_Up_Box
+2,12103,300,1,2,0	// 1x Bloody_Dead_Branch
+2,6024,1250,1,2,0	// 1x 17Carat_Dia
+2,12710,2000,5,2,0	// 5x Guyak_Pudding
+2,12406,2000,10,2,0	// 10x Psychic_ArmorS
+2,12642,2000,1,2,0	// 1x Fruit_Of_Mastela_Box2
+2,12533,1600,1,2,0	// 1x Blue_Herb_Box2
 
 // IP_Buddah_Scroll
-2,14600,0,3,0,0		// 3x Mental_Potion
-2,12902,1400,1,1,0	// 1x Bubble_Gum_Box
-2,12903,1400,1,1,0	// 1x Str_Dish_Box
-2,12919,1400,1,1,0	// 1x Megaphone_Box
-2,12900,1352,1,1,0	// 1x Battle_Manual_Box
-2,12922,1250,1,1,0	// 1x Token_Of_Siegfried_Box
-2,13741,1400,1,1,0	// 1x Shadow_Armor_S_Box10
-2,12710,1400,10,1,0	// 10x Guyak_Pudding
-2,18750,30,1,1,0	// 1x Poker_Card_In_Mouth
-2,18693,100,1,1,0	// 1x Sleeping_Kitty_Cat
-2,18600,10,1,1,0	// 1x Cat_Ear_Beret
-2,6456,70,1,1,0		// 1x Guarantee_Weapon_5Up
-2,18694,100,1,1,0	// 1x Red_Hood
-2,18743,20,1,1,0	// 1x Spirit_Of_Chung_E
-2,6228,5,1,1,0		// 1x Guarantee_Weapon_9Up
-2,4499,3,1,1,0		// 1x Sealed_Samurai_Card
-2,20707,10,1,1,0	// 1x Kirin_Wing
-2,16753,50,1,1,0	// 1x Unbreak_Weap_Box
+3,14600,0,3,0,0		// 3x Mental_Potion
+3,12902,1400,1,1,0	// 1x Bubble_Gum_Box
+3,12903,1400,1,1,0	// 1x Str_Dish_Box
+3,12919,1400,1,1,0	// 1x Megaphone_Box
+3,12900,1352,1,1,0	// 1x Battle_Manual_Box
+3,12922,1250,1,1,0	// 1x Token_Of_Siegfried_Box
+3,13741,1400,1,1,0	// 1x Shadow_Armor_S_Box10
+3,12710,1400,10,1,0	// 10x Guyak_Pudding
+3,18750,30,1,1,0	// 1x Poker_Card_In_Mouth
+3,18693,100,1,1,0	// 1x Sleeping_Kitty_Cat
+3,18600,10,1,1,0	// 1x Cat_Ear_Beret
+3,6456,70,1,1,0		// 1x Guarantee_Weapon_5Up
+3,18694,100,1,1,0	// 1x Red_Hood
+3,18743,20,1,1,0	// 1x Spirit_Of_Chung_E
+3,6228,5,1,1,0		// 1x Guarantee_Weapon_9Up
+3,4499,3,1,1,0		// 1x Sealed_Samurai_Card
+3,20707,10,1,1,0	// 1x Kirin_Wing
+3,16753,50,1,1,0	// 1x Unbreak_Weap_Box
 
 // IP_Evil_Incarnation
-3,14234,224,1,1,0	// 1x Dead_Tree_Branch_Box2
-3,12710,124,10,1,0	// 10x Guyak_Pudding
-3,12905,123,1,1,0	// 1x Int_Dish_Box
-3,12907,122,1,1,0	// 1x Luk_Dish_Box
-3,12908,121,1,1,0	// 1x Vit_Dish_Box
-3,12903,120,1,1,0	// 1x Str_Dish_Box
-3,5206,47,1,1,0		// 1x Romantic_White_Flower
-3,5056,46,1,1,0		// 1x Love_Berry
-3,5188,26,1,1,0		// 1x Minstrel_Hat
-3,5182,25,1,1,0		// 1x Puppy_Hat
-3,5020,10,1,1,0		// 1x Kafra_Band
-3,5584,9,1,1,0		// 1x Majestic_Evil_Horn
-3,12261,2,2,1,0		// 2x Secret_Medicine
-3,12259,1,1,1,0		// 1x Miracle_Medicine
+4,14234,224,1,1,0	// 1x Dead_Tree_Branch_Box2
+4,12710,124,10,1,0	// 10x Guyak_Pudding
+4,12905,123,1,1,0	// 1x Int_Dish_Box
+4,12907,122,1,1,0	// 1x Luk_Dish_Box
+4,12908,121,1,1,0	// 1x Vit_Dish_Box
+4,12903,120,1,1,0	// 1x Str_Dish_Box
+4,5206,47,1,1,0		// 1x Romantic_White_Flower
+4,5056,46,1,1,0		// 1x Love_Berry
+4,5188,26,1,1,0		// 1x Minstrel_Hat
+4,5182,25,1,1,0		// 1x Puppy_Hat
+4,5020,10,1,1,0		// 1x Kafra_Band
+4,5584,9,1,1,0		// 1x Majestic_Evil_Horn
+4,12261,2,2,1,0		// 2x Secret_Medicine
+4,12259,1,1,1,0		// 1x Miracle_Medicine
 
 // IP_Taurus_Crown_Scroll
-4,2533,1,1,1,0		// 1x Freyja_Cape
-4,4452,50,1,1,0		// 1x Centipede_Larva_Card
-4,16760,100,1,1,0	// 1x Umbala_Spirit_Box2
-4,5550,100,1,1,0	// 1x Taurus_Crown
-4,5102,200,1,1,0	// 1x Round_Eyes
-4,5351,245,1,1,0	// 1x Sunflower_
-4,5352,400,1,1,0	// 1x Poporing_Cap
-4,13710,500,1,1,0	// 1x Max_Weight_Up_Box
-4,14600,1000,1,1,0	// 1x Mental_Potion
-4,13540,1000,1,1,0	// 1x Vermilion_10_Scroll_Box
-4,13846,1100,1,1,0	// 1x Mysterious_Travel_Sack2
-4,13607,1500,1,1,0	// 1x Bubble_Gum_Box5
-4,13712,1800,1,1,0	// 1x Small_Life_Potion_Box30
-4,14508,2004,10,1,0	// 10x Zeny_Scroll
+5,2533,1,1,1,0		// 1x Freyja_Cape
+5,4452,50,1,1,0		// 1x Centipede_Larva_Card
+5,16760,100,1,1,0	// 1x Umbala_Spirit_Box2
+5,5550,100,1,1,0	// 1x Taurus_Crown
+5,5102,200,1,1,0	// 1x Round_Eyes
+5,5351,245,1,1,0	// 1x Sunflower_
+5,5352,400,1,1,0	// 1x Poporing_Cap
+5,13710,500,1,1,0	// 1x Max_Weight_Up_Box
+5,14600,1000,1,1,0	// 1x Mental_Potion
+5,13540,1000,1,1,0	// 1x Vermilion_10_Scroll_Box
+5,13846,1100,1,1,0	// 1x Mysterious_Travel_Sack2
+5,13607,1500,1,1,0	// 1x Bubble_Gum_Box5
+5,13712,1800,1,1,0	// 1x Small_Life_Potion_Box30
+5,14508,2004,10,1,0	// 10x Zeny_Scroll
 
 // IP_Taurus_Crown_Scroll_Box
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
-5,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
+6,17077,0,1,0,0	// 1x Taurus_Crown_Scroll
 
 // IP_Hallo_Scroll
-6,18543,50,1,1,0	// 1x Witchs_Hat
-6,5227,350,1,1,0	// 1x Red_Deviruchi_Cap
-6,12901,1350,1,1,0	// 1x Insurance_Package
-6,12328,1350,1,1,0	// 1x Charm_Of_Happiness
-6,12246,220,1,1,0	// 1x Magic_Card_Album
-6,14375,330,1,1,0	// 1x Holy_Celestial_Axe_Box
-6,13738,1350,1,1,0	// 1x Glass_Of_Illusion_Box5
-6,13742,600,1,1,0	// 1x Shadow_Armor_S_Box30
-6,12278,1350,5,1,0	// 5x Alice_Scroll
-6,6130,1350,1,1,0	// 1x Ticket_Loli_Ruri
-6,4340,10,1,1,0		// 1x Teddy_Bear_Card
-6,14243,1300,1,1,0	// 1x Hallow_Ring_Box
-6,5121,140,1,1,0	// 1x Zherlthsh_Mask
-6,12411,150,1,1,0	// 1x HE_Battle_Manual
-6,14508,100,30,1,0	// 30x Zeny_Scroll
+7,18543,50,1,1,0	// 1x Witchs_Hat
+7,5227,350,1,1,0	// 1x Red_Deviruchi_Cap
+7,12901,1350,1,1,0	// 1x Insurance_Package
+7,12328,1350,1,1,0	// 1x Charm_Of_Happiness
+7,12246,220,1,1,0	// 1x Magic_Card_Album
+7,14375,330,1,1,0	// 1x Holy_Celestial_Axe_Box
+7,13738,1350,1,1,0	// 1x Glass_Of_Illusion_Box5
+7,13742,600,1,1,0	// 1x Shadow_Armor_S_Box30
+7,12278,1350,5,1,0	// 5x Alice_Scroll
+7,6130,1350,1,1,0	// 1x Ticket_Loli_Ruri
+7,4340,10,1,1,0		// 1x Teddy_Bear_Card
+7,14243,1300,1,1,0	// 1x Hallow_Ring_Box
+7,5121,140,1,1,0	// 1x Zherlthsh_Mask
+7,12411,150,1,1,0	// 1x HE_Battle_Manual
+7,14508,100,30,1,0	// 30x Zeny_Scroll
 
 // IP_Tw_Aug_Scroll
-7,14232,1350,1,1,0	// 1x Yggdrasilberry_Box_
-7,12550,1280,1,1,0	// 1x Poison_Bottle_Box2
-7,12787,1300,5,1,0	// 5x Diabolic_Scroll
-7,12902,1300,1,1,0	// 1x Bubble_Gum_Box
-7,12900,1130,1,1,0	// 1x Battle_Manual_Box
-7,6484,800,1,1,0	// 1x Enchant_Book
-7,12406,1021,10,1,0	// 10x Psychic_ArmorS
-7,12908,1350,1,1,0	// 1x Vit_Dish_Box
-7,6457,200,1,1,0	// 1x Guarantee_Armor_5Up
-7,5362,150,1,1,0	// 1x Ninja_Scroll
-7,5237,100,1,1,0	// 1x Pink_Fur_Hat
-7,2589,3,1,1,0		// 1x Fallen_Angel_Wing
-7,4303,15,1,1,0		// 1x Whisper_Boss_Card
-7,4408,1,1,1,0		// 1x Gloom_Under_Night_Card
+8,14232,1350,1,1,0	// 1x Yggdrasilberry_Box_
+8,12550,1280,1,1,0	// 1x Poison_Bottle_Box2
+8,12787,1300,5,1,0	// 5x Diabolic_Scroll
+8,12902,1300,1,1,0	// 1x Bubble_Gum_Box
+8,12900,1130,1,1,0	// 1x Battle_Manual_Box
+8,6484,800,1,1,0	// 1x Enchant_Book
+8,12406,1021,10,1,0	// 10x Psychic_ArmorS
+8,12908,1350,1,1,0	// 1x Vit_Dish_Box
+8,6457,200,1,1,0	// 1x Guarantee_Armor_5Up
+8,5362,150,1,1,0	// 1x Ninja_Scroll
+8,5237,100,1,1,0	// 1x Pink_Fur_Hat
+8,2589,3,1,1,0		// 1x Fallen_Angel_Wing
+8,4303,15,1,1,0		// 1x Whisper_Boss_Card
+8,4408,1,1,1,0		// 1x Gloom_Under_Night_Card
 
 // IP_Old_Coin_Pocket
-8,12636,400,1,1,0	// 1x Malang_Sp_Can
-8,6081,200,1,1,0	// 1x Splendide_Coin
-8,6080,100,1,1,0	// 1x Manuk_Coin
-8,6304,80,1,1,0		// 1x Sapa_Feat_Cert
-8,6380,50,1,1,0		// 1x Mora_Coin
-8,6423,1,1,1,0		// 1x Anger_Seagod
-8,6420,74,1,1,0		// 1x Cgrade_Coin
-8,6421,95,1,1,0		// 1x Dgrade_Coin
-8,12636,400,1,2,0	// 1x Malang_Sp_Can
-8,6081,250,1,2,0	// 1x Splendide_Coin
-8,6080,100,1,2,0	// 1x Manuk_Coin
-8,6304,100,1,2,0	// 1x Sapa_Feat_Cert
-8,6380,40,1,2,0		// 1x Mora_Coin
-8,6418,15,1,2,0		// 1x Agrade_Coin
-8,6422,40,1,2,0		// 1x Egrade_Coin
-8,12636,300,1,3,0	// 1x Malang_Sp_Can
-8,6081,230,1,3,0	// 1x Splendide_Coin
-8,6080,180,1,3,0	// 1x Manuk_Coin
-8,6304,100,1,3,0	// 1x Sapa_Feat_Cert
-8,6380,75,1,3,0		// 1x Mora_Coin
-8,6419,60,1,3,0		// 1x Bgrade_Coin
+9,12636,400,1,1,0	// 1x Malang_Sp_Can
+9,6081,200,1,1,0	// 1x Splendide_Coin
+9,6080,100,1,1,0	// 1x Manuk_Coin
+9,6304,80,1,1,0		// 1x Sapa_Feat_Cert
+9,6380,50,1,1,0		// 1x Mora_Coin
+9,6423,1,1,1,0		// 1x Anger_Seagod
+9,6420,74,1,1,0		// 1x Cgrade_Coin
+9,6421,95,1,1,0		// 1x Dgrade_Coin
+9,12636,400,1,2,0	// 1x Malang_Sp_Can
+9,6081,250,1,2,0	// 1x Splendide_Coin
+9,6080,100,1,2,0	// 1x Manuk_Coin
+9,6304,100,1,2,0	// 1x Sapa_Feat_Cert
+9,6380,40,1,2,0		// 1x Mora_Coin
+9,6418,15,1,2,0		// 1x Agrade_Coin
+9,6422,40,1,2,0		// 1x Egrade_Coin
+9,12636,300,1,3,0	// 1x Malang_Sp_Can
+9,6081,230,1,3,0	// 1x Splendide_Coin
+9,6080,180,1,3,0	// 1x Manuk_Coin
+9,6304,100,1,3,0	// 1x Sapa_Feat_Cert
+9,6380,75,1,3,0		// 1x Mora_Coin
+9,6419,60,1,3,0		// 1x Bgrade_Coin
 
 //IP_High_Coin_Pocket
-9,12636,600,1,1,0	// 1x Malang_Sp_Can
-9,6304,300,1,1,0	// 1x Sapa_Feat_Cert
-9,6418,100,1,1,0	// 1x Agrade_Coin
-9,12636,600,1,2,0	// 1x Malang_Sp_Can
-9,6380,200,1,2,0	// 1x Mora_Coin
-9,6419,200,1,2,0	// 1x Bgrade_Coin
-9,12636,500,1,3,0	// 1x Malang_Sp_Can
-9,6304,300,1,3,0	// 1x Sapa_Feat_Cert
-9,6420,200,1,3,0	// 1x Cgrade_Coin
-9,12636,500,1,4,0	// 1x Malang_Sp_Can
-9,6380,300,1,4,0	// 1x Mora_Coin
-9,6421,200,1,4,0	// 1x Dgrade_Coin
-
-// IP_Mid_Coin_Pocket
 10,12636,600,1,1,0	// 1x Malang_Sp_Can
 10,6304,300,1,1,0	// 1x Sapa_Feat_Cert
-10,6419,100,1,1,0	// 1x Bgrade_Coin
+10,6418,100,1,1,0	// 1x Agrade_Coin
 10,12636,600,1,2,0	// 1x Malang_Sp_Can
 10,6380,200,1,2,0	// 1x Mora_Coin
-10,6420,200,1,2,0	// 1x Cgrade_Coin
+10,6419,200,1,2,0	// 1x Bgrade_Coin
 10,12636,500,1,3,0	// 1x Malang_Sp_Can
-10,6080,300,1,3,0	// 1x Manuk_Coin
-10,6421,200,1,3,0	// 1x Dgrade_Coin
+10,6304,300,1,3,0	// 1x Sapa_Feat_Cert
+10,6420,200,1,3,0	// 1x Cgrade_Coin
 10,12636,500,1,4,0	// 1x Malang_Sp_Can
-10,6081,300,1,4,0	// 1x Splendide_Coin
-10,6422,200,1,4,0	// 1x Egrade_Coin
+10,6380,300,1,4,0	// 1x Mora_Coin
+10,6421,200,1,4,0	// 1x Dgrade_Coin
 
-// IP_Low_Coin_Pocket
+// IP_Mid_Coin_Pocket
 11,12636,600,1,1,0	// 1x Malang_Sp_Can
 11,6304,300,1,1,0	// 1x Sapa_Feat_Cert
-11,6420,100,1,1,0	// 1x Cgrade_Coin
+11,6419,100,1,1,0	// 1x Bgrade_Coin
 11,12636,600,1,2,0	// 1x Malang_Sp_Can
 11,6380,200,1,2,0	// 1x Mora_Coin
-11,6421,200,1,2,0	// 1x Dgrade_Coin
+11,6420,200,1,2,0	// 1x Cgrade_Coin
 11,12636,500,1,3,0	// 1x Malang_Sp_Can
 11,6080,300,1,3,0	// 1x Manuk_Coin
-11,6422,200,1,3,0	// 1x Egrade_Coin
+11,6421,200,1,3,0	// 1x Dgrade_Coin
 11,12636,500,1,4,0	// 1x Malang_Sp_Can
 11,6081,300,1,4,0	// 1x Splendide_Coin
 11,6422,200,1,4,0	// 1x Egrade_Coin
 
-// IP_Sgrade_Pocket
-12,6418,0,1,0,0		// 1x Agrade_Coin
-12,6419,0,1,0,0		// 1x Bgrade_Coin
-12,12636,800,1,2,0	// 1x Malang_Sp_Can
-12,6418,200,1,2,0	// 1x Agrade_Coin
-12,12636,700,1,3,0	// 1x Malang_Sp_Can
-12,6419,200,1,3,0	// 1x Bgrade_Coin
-12,6423,100,1,3,0	// 1x Anger_Seagod
+// IP_Low_Coin_Pocket
+12,12636,600,1,1,0	// 1x Malang_Sp_Can
+12,6304,300,1,1,0	// 1x Sapa_Feat_Cert
+12,6420,100,1,1,0	// 1x Cgrade_Coin
+12,12636,600,1,2,0	// 1x Malang_Sp_Can
+12,6380,200,1,2,0	// 1x Mora_Coin
+12,6421,200,1,2,0	// 1x Dgrade_Coin
+12,12636,500,1,3,0	// 1x Malang_Sp_Can
+12,6080,300,1,3,0	// 1x Manuk_Coin
+12,6422,200,1,3,0	// 1x Egrade_Coin
+12,12636,500,1,4,0	// 1x Malang_Sp_Can
+12,6081,300,1,4,0	// 1x Splendide_Coin
+12,6422,200,1,4,0	// 1x Egrade_Coin
 
-// IP_Agrade_Pocket
+// IP_Sgrade_Pocket
 13,6418,0,1,0,0		// 1x Agrade_Coin
 13,6419,0,1,0,0		// 1x Bgrade_Coin
-13,6420,0,1,0,0		// 1x Cgrade_Coin
 13,12636,800,1,2,0	// 1x Malang_Sp_Can
-13,6420,50,1,2,0	// 1x Cgrade_Coin
-13,6419,150,1,2,0	// 1x Bgrade_Coin
-13,12636,800,1,3,0	// 1x Malang_Sp_Can
-13,6420,200,1,3,0	// 1x Cgrade_Coin
+13,6418,200,1,2,0	// 1x Agrade_Coin
+13,12636,700,1,3,0	// 1x Malang_Sp_Can
+13,6419,200,1,3,0	// 1x Bgrade_Coin
+13,6423,100,1,3,0	// 1x Anger_Seagod
 
-// IP_Bgrade_Pocket
+// IP_Agrade_Pocket
+14,6418,0,1,0,0		// 1x Agrade_Coin
 14,6419,0,1,0,0		// 1x Bgrade_Coin
 14,6420,0,1,0,0		// 1x Cgrade_Coin
-14,6421,0,1,0,0		// 1x Dgrade_Coin
 14,12636,800,1,2,0	// 1x Malang_Sp_Can
-14,6421,50,1,2,0	// 1x Dgrade_Coin
-14,6420,150,1,2,0	// 1x Cgrade_Coin
+14,6420,50,1,2,0	// 1x Cgrade_Coin
+14,6419,150,1,2,0	// 1x Bgrade_Coin
 14,12636,800,1,3,0	// 1x Malang_Sp_Can
-14,6421,200,1,3,0	// 1x Dgrade_Coin
+14,6420,200,1,3,0	// 1x Cgrade_Coin
 
-// IP_Cgrade_Pocket
+// IP_Bgrade_Pocket
+15,6419,0,1,0,0		// 1x Bgrade_Coin
 15,6420,0,1,0,0		// 1x Cgrade_Coin
 15,6421,0,1,0,0		// 1x Dgrade_Coin
-15,6422,0,1,0,0		// 1x Egrade_Coin
 15,12636,800,1,2,0	// 1x Malang_Sp_Can
-15,6422,50,1,2,0	// 1x Egrade_Coin
-15,6422,150,1,2,0	// 1x Egrade_Coin
+15,6421,50,1,2,0	// 1x Dgrade_Coin
+15,6420,150,1,2,0	// 1x Cgrade_Coin
 15,12636,800,1,3,0	// 1x Malang_Sp_Can
 15,6421,200,1,3,0	// 1x Dgrade_Coin
 
-// IP_Dgrade_Pocket
+// IP_Cgrade_Pocket
+16,6420,0,1,0,0		// 1x Cgrade_Coin
 16,6421,0,1,0,0		// 1x Dgrade_Coin
 16,6422,0,1,0,0		// 1x Egrade_Coin
-16,12636,800,2,2,0	// 2x Malang_Sp_Can
-16,6422,200,2,2,0	// 2x Egrade_Coin
+16,12636,800,1,2,0	// 1x Malang_Sp_Can
+16,6422,50,1,2,0	// 1x Egrade_Coin
+16,6422,150,1,2,0	// 1x Egrade_Coin
 16,12636,800,1,3,0	// 1x Malang_Sp_Can
 16,6421,200,1,3,0	// 1x Dgrade_Coin
 
-// IP_Egrade_Pocket
+// IP_Dgrade_Pocket
+17,6421,0,1,0,0		// 1x Dgrade_Coin
 17,6422,0,1,0,0		// 1x Egrade_Coin
 17,12636,800,2,2,0	// 2x Malang_Sp_Can
 17,6422,200,2,2,0	// 2x Egrade_Coin
 17,12636,800,1,3,0	// 1x Malang_Sp_Can
-17,6422,200,1,3,0	// 1x Egrade_Coin
+17,6421,200,1,3,0	// 1x Dgrade_Coin
+
+// IP_Egrade_Pocket
+18,6422,0,1,0,0		// 1x Egrade_Coin
+18,12636,800,2,2,0	// 2x Malang_Sp_Can
+18,6422,200,2,2,0	// 2x Egrade_Coin
+18,12636,800,1,3,0	// 1x Malang_Sp_Can
+18,6422,200,1,3,0	// 1x Egrade_Coin
 
 // IP_HALLOWEEN_G_BOX
-18,929,1,30,1,0		// 30x Immortal_Heart
-18,1061,1,30,1,0	// 30x Starsand_Of_Witch
-18,713,1,30,1,0		// 30x Empty_Bottle
-18,970,1,30,1,0		// 30x Alchol
-18,972,1,30,1,0		// 30x Karvodailnirol
-18,1059,1,30,1,0	// 30x Transparent_Cloth
-18,905,1,30,1,0		// 30x Stem
-18,7033,1,30,1,0	// 30x Poison_Spore
-18,12016,1,5,1,0	// 5x Speed_Up_Potion
-18,558,1,5,1,0		// 5x Chocolate
-18,12414,1,5,1,0	// 5x Guarana_Candy
-18,608,1,5,1,0		// 5x Seed_Of_Yggdrasil
-18,603,1,1,1,0		// 1x Old_Blue_Box
-18,616,1,1,1,0		// 1x Old_Card_Album
-18,617,1,1,1,0		// 1x Old_Violet_Box
+19,929,1,30,1,0		// 30x Immortal_Heart
+19,1061,1,30,1,0	// 30x Starsand_Of_Witch
+19,713,1,30,1,0		// 30x Empty_Bottle
+19,970,1,30,1,0		// 30x Alchol
+19,972,1,30,1,0		// 30x Karvodailnirol
+19,1059,1,30,1,0	// 30x Transparent_Cloth
+19,905,1,30,1,0		// 30x Stem
+19,7033,1,30,1,0	// 30x Poison_Spore
+19,12016,1,5,1,0	// 5x Speed_Up_Potion
+19,558,1,5,1,0		// 5x Chocolate
+19,12414,1,5,1,0	// 5x Guarana_Candy
+19,608,1,5,1,0		// 5x Seed_Of_Yggdrasil
+19,603,1,1,1,0		// 1x Old_Blue_Box
+19,616,1,1,1,0		// 1x Old_Card_Album
+19,617,1,1,1,0		// 1x Old_Violet_Box
 
 //IP_Sg_Weapon_Supply_Box
-19,18113,3,1,1,0	// 1x Velum_Arbalest
-19,2016,8,1,1,0		// 1x Velum_Arc_Wand
-19,1586,8,1,1,0		// 1x Velum_Bible
-19,1395,1,1,1,0		// 1x Velum_Buster
-19,1832,3,1,1,0		// 1x Velum_Claw
-19,21001,8,1,1,0	// 1x Velum_Claymore
-19,18114,8,1,1,0	// 1x Velum_CrossBow
-19,13072,3,1,1,0	// 1x Velum_Damascus
-19,1587,8,1,1,0		// 1x Velum_Encyclopedia
-19,16021,3,1,1,0	// 1x Velum_Flail
-19,1492,8,1,1,0		// 1x Velum_Glaive
-19,1396,8,1,1,0		// 1x Velum_Guillotine
-19,1293,2,1,1,0		// 1x Velum_Jamadhar
-19,21002,8,1,1,0	// 1x Velum_Katzbalger
-19,1294,1,1,1,0		// 1x Velum_Scare
-19,1436,8,1,1,0		// 1x Velum_Spear
-19,16020,3,1,1,0	// 1x Velum_Stunner
-19,12678,13,1,1,0	// 1x Siege_Arrow_Quiver_A
-19,12677,13,1,1,0	// 1x Siege_Arrow_Quiver_S
+20,18113,3,1,1,0	// 1x Velum_Arbalest
+20,2016,8,1,1,0		// 1x Velum_Arc_Wand
+20,1586,8,1,1,0		// 1x Velum_Bible
+20,1395,1,1,1,0		// 1x Velum_Buster
+20,1832,3,1,1,0		// 1x Velum_Claw
+20,21001,8,1,1,0	// 1x Velum_Claymore
+20,18114,8,1,1,0	// 1x Velum_CrossBow
+20,13072,3,1,1,0	// 1x Velum_Damascus
+20,1587,8,1,1,0		// 1x Velum_Encyclopedia
+20,16021,3,1,1,0	// 1x Velum_Flail
+20,1492,8,1,1,0		// 1x Velum_Glaive
+20,1396,8,1,1,0		// 1x Velum_Guillotine
+20,1293,2,1,1,0		// 1x Velum_Jamadhar
+20,21002,8,1,1,0	// 1x Velum_Katzbalger
+20,1294,1,1,1,0		// 1x Velum_Scare
+20,1436,8,1,1,0		// 1x Velum_Spear
+20,16020,3,1,1,0	// 1x Velum_Stunner
+20,12678,13,1,1,0	// 1x Siege_Arrow_Quiver_A
+20,12677,13,1,1,0	// 1x Siege_Arrow_Quiver_S
 
 //IP_Level_Up_Box100
-20,6231,0,1,0,0,0
-20,22523,0,1,0,0,0
+21,6231,0,1,0,0,0
+21,22523,0,1,0,0,0
 
 //IP_Level_Up_Box120
-21,12208,0,5,0,0,0
-21,12210,0,5,0,0,0
-21,12209,0,5,0,0,0
-21,14592,0,5,0,0,0
-21,6235,0,1,0,0,0
-21,22524,0,1,0,0,0
-
-//IP_Level_Up_Box130
 22,12208,0,5,0,0,0
 22,12210,0,5,0,0,0
 22,12209,0,5,0,0,0
 22,14592,0,5,0,0,0
-22,6230,0,1,0,0,0
-22,22525,0,1,0,0,0
+22,6235,0,1,0,0,0
+22,22524,0,1,0,0,0
 
-//IP_Level_Up_Box140
+//IP_Level_Up_Box130
 23,12208,0,5,0,0,0
 23,12210,0,5,0,0,0
 23,12209,0,5,0,0,0
 23,14592,0,5,0,0,0
-23,6234,0,1,0,0,0
-23,22526,0,1,0,0,0
+23,6230,0,1,0,0,0
+23,22525,0,1,0,0,0
 
-//IP_Level_Up_Box150
+//IP_Level_Up_Box140
 24,12208,0,5,0,0,0
 24,12210,0,5,0,0,0
 24,12209,0,5,0,0,0
 24,14592,0,5,0,0,0
-24,6229,0,1,0,0,0
-24,22527,0,1,0,0,0
+24,6234,0,1,0,0,0
+24,22526,0,1,0,0,0
 
-//IP_Level_Up_Box160
+//IP_Level_Up_Box150
 25,12208,0,5,0,0,0
 25,12210,0,5,0,0,0
 25,12209,0,5,0,0,0
 25,14592,0,5,0,0,0
-25,6233,0,2,0,0,0
+25,6229,0,1,0,0,0
+25,22527,0,1,0,0,0
+
+//IP_Level_Up_Box160
+26,12208,0,5,0,0,0
+26,12210,0,5,0,0,0
+26,12209,0,5,0,0,0
+26,14592,0,5,0,0,0
+26,6233,0,2,0,0,0
 
 //IP_IDRO10TH_SCROLL
-26,12350,1300,10,1,0	// 10x Angeling_Potion
-26,12903,1300,1,1,0		// 1x Str_Dish_Box
-26,12900,1300,1,1,0		// 1x Battle_Manual_Box
-26,12922,1200,1,1,0		// 1x Token_Of_Siegfried_Box
-26,12905,1100,1,1,0		// 1x Int_Dish_Box
-26,12902,1100,1,1,0		// 1x Bubble_Gum_Box
-26,13858,800,1,1,0		// 1x Spark_Candy_Box10
-26,2959,200,1,1,1		// 1x Fidelity_Necklace
-26,16753,300,1,1,1		// 1x Unbreak_Weap_Box
-26,16755,300,1,1,1		// 1x Unbreak_Def_Box
-26,18745,439,1,1,1		// 1x Choco_Stick_In_Mouth
-26,2176,200,1,1,1		// 1x Dark_Book
-26,18756,50,1,1,1		// 1x Black_Shiba_Inu_Hat
-26,18759,50,1,1,1		// 1x Stretched_Nose_M
-26,19574,200,1,1,1		// 1x C_Lord_of_Death
-26,18742,50,1,1,1		// 1x C_MoonStar_Accessory
-26,18744,50,1,1,1		// 1x C_World_Star
-26,18551,30,1,1,1		// 1x Galaxy_Circlet
-26,4492,15,1,1,1		// 1x Sealed_Orc_Hero_Card
-26,4488,15,1,1,1		// 1x Sealed_D_Lord_Card
-26,4305,1,1,1,1			// 1x Turtle_General_Card
+27,12350,1300,10,1,0	// 10x Angeling_Potion
+27,12903,1300,1,1,0		// 1x Str_Dish_Box
+27,12900,1300,1,1,0		// 1x Battle_Manual_Box
+27,12922,1200,1,1,0		// 1x Token_Of_Siegfried_Box
+27,12905,1100,1,1,0		// 1x Int_Dish_Box
+27,12902,1100,1,1,0		// 1x Bubble_Gum_Box
+27,13858,800,1,1,0		// 1x Spark_Candy_Box10
+27,2959,200,1,1,1		// 1x Fidelity_Necklace
+27,16753,300,1,1,1		// 1x Unbreak_Weap_Box
+27,16755,300,1,1,1		// 1x Unbreak_Def_Box
+27,18745,439,1,1,1		// 1x Choco_Stick_In_Mouth
+27,2176,200,1,1,1		// 1x Dark_Book
+27,18756,50,1,1,1		// 1x Black_Shiba_Inu_Hat
+27,18759,50,1,1,1		// 1x Stretched_Nose_M
+27,19574,200,1,1,1		// 1x C_Lord_of_Death
+27,18742,50,1,1,1		// 1x C_MoonStar_Accessory
+27,18744,50,1,1,1		// 1x C_World_Star
+27,18551,30,1,1,1		// 1x Galaxy_Circlet
+27,4492,15,1,1,1		// 1x Sealed_Orc_Hero_Card
+27,4488,15,1,1,1		// 1x Sealed_D_Lord_Card
+27,4305,1,1,1,1			// 1x Turtle_General_Card
 
 //IP_Something_Candy_Holder
-27,517,5,5,0,0 		// 5x Meat
-27,518,9,3,0,0 		// 3x Honey
-27,529,9,7,0,0 		// 7x Candy
-27,538,10,2,0,0 	// 2x Well-baked Cookie
-27,539,10,1,0,0 	// 1x Piece of Cake
-27,580,5,3,0,0 		// 3x Bread
-27,603,2,1,0,0 		// 1x Old Blue Box
-27,607,2,1,0,0 		// 1x Yggdrasilberry
-27,616,1,1,0,0 		// 1x Old Card Album
-27,617,1,1,0,0 		// 1x Old Purple Box
-27,11550,7,1,0,0 	// 1x Pumpkin Cake
-27,11592,6,3,0,0 	// 3x Trans Candy Red
-27,11593,6,3,0,0 	// 3x Trans Candy Blue
-27,11594,6,3,0,0 	// 3x Trans Candy Yellow
-27,11595,6,3,0,0 	// 3x Trans Candy Green
-27,12192,7,3,0,0 	// 3x Pumpkin Pie
-27,20183,1,1,0,0 	// 1x Costume: Floating Ghost
-27,22067,1,1,0,0 	// 1x Witch Shoes
-27,22669,5,1,0,0 	// 1x October Spooky Trade Box
-27,22670,1,1,0,0	// 1x DARK INVITATION
+28,517,5,5,0,0 		// 5x Meat
+28,518,9,3,0,0 		// 3x Honey
+28,529,9,7,0,0 		// 7x Candy
+28,538,10,2,0,0 	// 2x Well-baked Cookie
+28,539,10,1,0,0 	// 1x Piece of Cake
+28,580,5,3,0,0 		// 3x Bread
+28,603,2,1,0,0 		// 1x Old Blue Box
+28,607,2,1,0,0 		// 1x Yggdrasilberry
+28,616,1,1,0,0 		// 1x Old Card Album
+28,617,1,1,0,0 		// 1x Old Purple Box
+28,11550,7,1,0,0 	// 1x Pumpkin Cake
+28,11592,6,3,0,0 	// 3x Trans Candy Red
+28,11593,6,3,0,0 	// 3x Trans Candy Blue
+28,11594,6,3,0,0 	// 3x Trans Candy Yellow
+28,11595,6,3,0,0 	// 3x Trans Candy Green
+28,12192,7,3,0,0 	// 3x Pumpkin Pie
+28,20183,1,1,0,0 	// 1x Costume: Floating Ghost
+28,22067,1,1,0,0 	// 1x Witch Shoes
+28,22669,5,1,0,0 	// 1x October Spooky Trade Box
+28,22670,1,1,0,0	// 1x DARK INVITATION
 
 //IP_Noive_Box
-28,2136,1,1,1,0,10080	// 1x Cracked_Buckler
-28,2392,1,1,1,0,10080	// 1x Old_Pant
-28,2442,1,1,1,0,10080	// 1x Boots_Perforated
-28,2547,1,1,1,0,10080	// 1x Cheap_Running_Shirts
-28,5408,1,1,1,0,10080	// 1x Old_Bandanna
+29,2136,1,1,1,0,10080	// 1x Cracked_Buckler
+29,2392,1,1,1,0,10080	// 1x Old_Pant
+29,2442,1,1,1,0,10080	// 1x Boots_Perforated
+29,2547,1,1,1,0,10080	// 1x Cheap_Running_Shirts
+29,5408,1,1,1,0,10080	// 1x Old_Bandanna

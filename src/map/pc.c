@@ -38,6 +38,7 @@
 #include "script.h" // script_config
 #include "skill.h"
 #include "status.h" // struct status_data
+#include "storage.h"
 #include "pc.h"
 #include "quest.h"
 #include "achievement.h"
@@ -1663,6 +1664,8 @@ int pc_reg_received(struct map_session_data *sd)
 	map_delnickdb(sd->status.char_id, sd->status.name);
 	if (!chrif_auth_finished(sd))
 		ShowError("pc_reg_received: Failed to properly remove player %d:%d from logging db!\n", sd->status.account_id, sd->status.char_id);
+
+	pc_check_available_item(sd); // Check for invalid(ated) items.
 
 	chrif_bsdata_request(sd->status.char_id); // cydh bonus_script
 
@@ -4349,6 +4352,8 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 		clif_additem(sd,i,amount,0);
 	}
 
+	sd->inventory.u.items_inventory[i].unique_id = itemdb_unique_id(sd);
+
 	achievement_validate_item_get(sd, sd->inventory.u.items_inventory[i].nameid, sd->inventory.u.items_inventory[i].amount); // Achievements [Smokexyz/Hercules]
 
 	sd->weight += w;
@@ -4867,7 +4872,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	data = itemdb_search(item_data->nameid);
 
-	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || (item_data->bound > 1 && !pc_can_give_bounded_items(sd->gmlevel)))
+	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || (item_data->bound > BOUND_ACCOUNT && !pc_can_give_bounded_items(sd->gmlevel)))
 	{ // Check item trade restrictions	[Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(264));
 		return 1;
@@ -6026,7 +6031,7 @@ int pc_mapid2jobid(unsigned short class_, int sex)
 * 3 Party Bound 
 * 4 Character Bound
 *------------------------------------------*/ 
-int pc_bound_chk(TBL_PC *sd,int type,int *idxlist) 
+int pc_bound_chk(TBL_PC *sd,enum bound_type type,int *idxlist)
 { 
 	int i=0, j=0; 
 	for(i=0;i<MAX_INVENTORY;i++){ 
@@ -9966,38 +9971,13 @@ void pc_equipswitch_remove(struct map_session_data* sd, int index) {
  *------------------------------------------*/
 int pc_checkitem(struct map_session_data *sd)
 {
-	int i,id,calc_flag = 0;
+	int i,calc_flag = 0;
 	struct item_data *it=NULL;
 
 	nullpo_ret(sd);
 
 	if( sd->state.vending ) //Avoid reorganizing items when we are vending, as that leads to exploits (pointed out by End of Exam)
 		return 0;
-
-	if( battle_config.item_check )
-	{// check for invalid(ated) items
-		for( i = 0; i < MAX_INVENTORY; i++ )
-		{
-			id = sd->inventory.u.items_inventory[i].nameid;
-
-			if( id && !itemdb_available(id) )
-			{
-				ShowWarning("Removed invalid/disabled item id %d from inventory (amount=%d, char_id=%d).\n", id, sd->inventory.u.items_inventory[i].amount, sd->status.char_id);
-				pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
-			}
-		}
-
-		for( i = 0; i < MAX_CART; i++ )
-		{
-			id = sd->cart.u.items_cart[i].nameid;
-
-			if( id && !itemdb_available(id) )
-			{
-				ShowWarning("Removed invalid/disabled item id %d from cart (amount=%d, char_id=%d).\n", id, sd->cart.u.items_cart[i].amount, sd->status.char_id);
-				pc_cart_delitem(sd, i, sd->cart.u.items_cart[i].amount, 0);
-			}
-		}
-	}
 
 	for( i = 0; i < MAX_INVENTORY; i++)
 	{
@@ -10013,6 +9993,23 @@ int pc_checkitem(struct map_session_data *sd)
 		{
 			pc_unequipitem(sd, i, 2);
 			calc_flag = 1;
+			continue;
+		}
+
+		if (!sd->inventory.u.items_inventory[i].equipSwitch)
+			continue;
+
+		if (sd->inventory.u.items_inventory[i].equipSwitch&~pc_equippoint(sd, i))
+		{
+
+			for (int j = 0; j < EQI_MAX; j++) {
+				if (sd->equip_switch_index[j] == i) {
+					sd->equip_switch_index[j] = -1;
+				}
+			}
+
+			sd->inventory.u.items_inventory[i].equipSwitch = 0;
+
 			continue;
 		}
 
@@ -10032,33 +10029,61 @@ int pc_checkitem(struct map_session_data *sd)
 		}
 	}
 
-
-	for (i = 0; i < MAX_INVENTORY; i++) {
-		it = sd->inventory_data[i];
-
-		if (sd->inventory.u.items_inventory[i].nameid == 0)
-			continue;
-		if (!sd->inventory.u.items_inventory[i].equipSwitch)
-			continue;
-		if (sd->inventory.u.items_inventory[i].equipSwitch&~pc_equippoint(sd, i)) 
-		{
-
-			for (int j = 0; j < EQI_MAX; j++) {
-				if (sd->equip_switch_index[j] == i) {
-					sd->equip_switch_index[j] = -1;
-				}
-			}
-
-			sd->inventory.u.items_inventory[i].equipSwitch = 0;
-
-			continue;
-		}
-	}
-
 	if( calc_flag && sd->state.active )
 	{
 		pc_checkallowskill(sd);
 		status_calc_pc(sd,0);
+	}
+
+	return 0;
+}
+
+/*==========================================
+ * Checks for unavailable items and removes them.
+ *------------------------------------------*/
+int pc_check_available_item(struct map_session_data *sd) {
+	int i, it;
+	char output[256];
+
+	nullpo_ret(sd);
+
+	if (battle_config.item_check & 1) { // Check for invalid(ated) items in inventory.
+		for (i = 0; i < MAX_INVENTORY; i++) {
+			it = sd->inventory.u.items_inventory[i].nameid;
+
+			if (it && !itemdb_available(it)) {
+				sprintf(output, msg_txt(816), it); // Item %d has been removed from your inventory.
+				clif_displaymessage(sd->fd, output);
+				ShowWarning("Removed invalid/disabled item id %d from inventory (amount=%d, char_id=%d).\n", it, sd->inventory.u.items_inventory[i].amount, sd->status.char_id);
+				pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
+			}
+		}
+	}
+
+	if (battle_config.item_check & 2) { // Check for invalid(ated) items in cart.
+		for (i = 0; i < MAX_CART; i++) {
+			it = sd->inventory.u.items_cart[i].nameid;
+
+			if (it && !itemdb_available(it)) {
+				sprintf(output, msg_txt(817), it); // Item %d has been removed from your cart.
+				clif_displaymessage(sd->fd, output);
+				ShowWarning("Removed invalid/disabled item id %d from cart (amount=%d, char_id=%d).\n", it, sd->inventory.u.items_cart[i].amount, sd->status.char_id);
+				pc_cart_delitem(sd, i, sd->inventory.u.items_cart[i].amount, 0);
+			}
+		}
+	}
+
+	if (battle_config.item_check & 4) { // Check for invalid(ated) items in storage.
+		for (i = 0; i < MAX_STORAGE; i++) {
+			it = sd->inventory.u.items_storage[i].nameid;
+
+			if (it && !itemdb_available(it)) {
+				sprintf(output, msg_txt(818), it); // Item %d has been removed from your storage.
+				clif_displaymessage(sd->fd, output);
+				ShowWarning("Removed invalid/disabled item id %d from storage (amount=%d, char_id=%d).\n", it, sd->inventory.u.items_storage[i].amount, sd->status.char_id);
+				storage_delitem(sd, i, sd->inventory.u.items_storage[i].amount);
+			}
+		}
 	}
 
 	return 0;

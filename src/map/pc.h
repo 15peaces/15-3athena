@@ -831,7 +831,7 @@ int pc_getzeny(struct map_session_data*,int);
 int pc_delitem(struct map_session_data*,int,int,int,short);
 
 //Bound items 
-int pc_bound_chk(TBL_PC *sd,int type,int *idxlist);
+int pc_bound_chk(TBL_PC *sd,enum bound_type type,int *idxlist);
 
 // Special Shop System
 void pc_paycash(struct map_session_data *sd, int price, int points);
@@ -901,6 +901,7 @@ int pc_unequipitem(struct map_session_data*,int,int);
 int pc_equipswitch(struct map_session_data* sd, int index);
 void pc_equipswitch_remove(struct map_session_data* sd, int index);
 int pc_checkitem(struct map_session_data*);
+int pc_check_available_item(struct map_session_data *sd);
 int pc_useitem(struct map_session_data*,int);
 uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);
 uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);

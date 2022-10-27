@@ -33,6 +33,7 @@ CREATE TABLE `picklog` (
   `option_id4` smallint(5) unsigned NOT NULL default '0',
   `option_val4` smallint(5) unsigned NOT NULL default '0',
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   `map` varchar(11) NOT NULL default '',
   `bound` tinyint(1) unsigned NOT NULL default '0', 
   PRIMARY KEY  (`id`),

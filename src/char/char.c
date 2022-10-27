@@ -2173,16 +2173,12 @@ void mmo_charinfo_per_page(int fd, struct char_session_data* sd)
 	}
 }
 
-// 0x9a0 - HC_CHARLIST_NOTIFY - Tells the client its ready to send character list???
-// Note: The TotalCnt value seems to affect how many times the client will send the
-// HC_ACK_CHARINFO_PER_PAGE packet. So a value of 4 would make it spam it 4 times.
-// Not sure why this is a thing when a value of 1 works just as good.
-// Special thanks to Rytech. [15peaces]
+// 0x9a0 - HC_CHARLIST_NOTIFY - Tell client how many pages, kRO sends 17
 void mmo_charlist_notify(int fd, struct char_session_data* sd)
  {
 	WFIFOHEAD(fd, 6);
 	WFIFOW(fd, 0) = 0x9a0;
-	WFIFOL(fd, 2) = 1;// TotalCnt
+	WFIFOL(fd, 2) = (MAX_CHARS > 3) ? MAX_CHARS / 3 : 1; //int TotalCnt (nb page to load)
 	WFIFOSET(fd, 6);
 }
 

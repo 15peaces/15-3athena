@@ -313,6 +313,7 @@ struct item {
 	unsigned char favorite;
 	unsigned char bound;
 	unsigned int equipSwitch; // location(s) where item is equipped for equip switching (using enum equip_pos for bitmasking)
+	uint64 unique_id;
 };
 
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
@@ -585,6 +586,8 @@ struct mmo_charstatus {
 
 	unsigned char hotkey_rowshift;
 	unsigned long title_id;
+
+	uint32 uniqueitem_counter;
 };
 
 typedef enum mail_status {

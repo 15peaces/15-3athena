@@ -1854,7 +1854,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		switch (skill_num)
 		{	//Calc base damage according to skill
 			case NJ_ISSEN:
-				wd.damage = 40*sstatus->str +skill_lv*(sstatus->hp/10 + 35);
+				wd.damage = (40 * sstatus->str) + ((sstatus->hp * (8 * skill_lv)) / 100);
 				wd.damage2 = 0;
 				status_set_hp(src, 1, 0);
 				break;
@@ -3144,9 +3144,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case LG_SHIELDPRESS:
 					if( sd )
 					{
+						signed char refinebonus = 0;
 						short index = sd->equip_index[EQI_HAND_L];
 						if( index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR )
-							ATK_ADD(sstatus->vit * sd->inventory.u.items_inventory[index].refine);
+						{
+							if ( MAX_REFINE > 10 )// +20 Refine Limit
+								refinebonus = sd->inventory.u.items_inventory[index].refine;
+							else// +10 Refine Limit
+								refinebonus = 2 * sd->inventory.u.items_inventory[index].refine;
+
+							ATK_ADD(sstatus->vit * refinebonus);
+						}
 					}
 					break;
 				//case LG_RAYOFGENESIS:
@@ -6220,7 +6228,7 @@ static const struct _battle_data {
 	{ "max_heal_lv",                        &battle_config.max_heal_lv,                     11,     1,      INT_MAX,        },
 	{ "max_heal",                           &battle_config.max_heal,                        9999,   0,      INT_MAX,        },
 	{ "combo_delay_rate",                   &battle_config.combo_delay_rate,                100,    0,      INT_MAX,        },
-	{ "item_check",                         &battle_config.item_check,                      0,      0,      1,              },
+	{ "item_check",                         &battle_config.item_check,                      0,      0,      7,              },
 	{ "item_use_interval",                  &battle_config.item_use_interval,               100,    0,      INT_MAX,        },
 	{ "cashfood_use_interval",              &battle_config.cashfood_use_interval,           60000,  0,      INT_MAX,        },
 	{ "wedding_modifydisplay",              &battle_config.wedding_modifydisplay,           0,      0,      1,              },

@@ -280,7 +280,7 @@ int mapif_parse_itembound_retrieve(int fd)
 	}
 
 	while( SQL_SUCCESS == SqlStmt_NextRow(stmt) ) { 
-		if(item.bound == 2) { 
+		if(item.bound == BOUND_GUILD) { 
 			memcpy(&items[i],&item,sizeof(struct item)); 
 			i++; 
 		} 

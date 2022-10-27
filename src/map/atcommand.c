@@ -1712,7 +1712,7 @@ ACMD_FUNC(heal)
 ACMD_FUNC(item)
 {
 	char item_name[100];
-	int number = 0, flag = 0, bound = 0;
+	int number = 0, flag = 0, bound = BOUND_NONE;
 	unsigned short item_id;
 	struct item item_tmp;
 	struct item_data *item_data;
@@ -1721,12 +1721,19 @@ ACMD_FUNC(item)
 
 	memset(item_name, '\0', sizeof(item_name));
 
-	if (!strcmpi(command+1,"itembound") && (!message || !*message || ( 
-		sscanf(message, "\"%99[^\"]\" %d %d", item_name, &number, &bound) < 2 &&  
-		sscanf(message, "%99s %d %d", item_name, &number, &bound) < 2  
-	))) { 
-		clif_displaymessage(fd, msg_txt(295)); // Please enter an item name or ID (usage: @item <item name/ID> <quantity> <bound_type>). 
-		return -1; 
+	if (!strcmpi(command + 1, "itembound")) {
+		if (!message || !*message || (
+			sscanf(message, "\"%99[^\"]\" %d %d", item_name, &number, &bound) < 3 &&
+			sscanf(message, "%99s %d %d", item_name, &number, &bound) < 3))
+		{
+			clif_displaymessage(fd, msg_txt(295)); // Please enter an item name or ID (usage: @item <item name/ID> <quantity> <bound_type>).
+			clif_displaymessage(fd, msg_txt(298)); // Invalid bound type
+			return -1;
+		}
+		if (bound <= BOUND_NONE || bound >= BOUND_MAX) {
+			clif_displaymessage(fd, msg_txt(298)); // Invalid bound type
+			return -1;
+		}
 	} else if (!message || !*message || ( 
 		sscanf(message, "\"%99[^\"]\" %d", item_name, &number) < 1 &&  
 		 sscanf(message, "%99s %d", item_name, &number) < 1 
@@ -1745,11 +1752,6 @@ ACMD_FUNC(item)
 		return -1;
 	}
 
-	if( bound < 0 || bound > 4 ) { 
-		clif_displaymessage(fd, msg_txt(298)); // Invalid bound type 
-		return -1; 
-	}
-
 	item_id = item_data->nameid;
 	get_count = number;
 	//Check if it's stackable.
@@ -1762,7 +1764,7 @@ ACMD_FUNC(item)
 			memset(&item_tmp, 0, sizeof(item_tmp));
 			item_tmp.nameid = item_id;
 			item_tmp.identify = 1;
-			item_tmp.bound = bound; 
+			item_tmp.bound = bound;
 
 			if ((flag = pc_additem(sd, &item_tmp, get_count)))
 				clif_additem(sd, 0, 0, flag);
@@ -1785,7 +1787,7 @@ ACMD_FUNC(item2)
 	struct item_data *item_data;
 	char item_name[100];
 	unsigned short item_id;
-	int number = 0, bound = 0;
+	int number = 0, bound = BOUND_NONE;
 	int identify = 0, refine = 0, attr = 0;
 	int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
 	int flag;
@@ -1794,12 +1796,20 @@ ACMD_FUNC(item2)
 
 	memset(item_name, '\0', sizeof(item_name));
 
-	if (!strcmpi(command+1,"itembound2") && (!message || !*message || ( 
-		sscanf(message, "\"%99[^\"]\" %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &bound) < 10 && 
-		sscanf(message, "%99s %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &bound) < 10 ))) { 
-		clif_displaymessage(fd, msg_txt(296)); // Please enter all parameters (usage: @item2 <item name/ID> <quantity> 
-		clif_displaymessage(fd, msg_txt(297)); //   <identify_flag> <refine> <attribute> <card1> <card2> <card3> <card4> <bound_type>). 
-		return -1; 
+	if (!strcmpi(command + 1, "itembound2")) {
+		if (!message || !*message || (
+			sscanf(message, "\"%99[^\"]\" %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &bound) < 10 &&
+			sscanf(message, "%99s %d %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4, &bound) < 10))
+		{
+			clif_displaymessage(fd, msg_txt(296)); // Please enter all parameters (usage: @item2 <item name/ID> <quantity>
+			clif_displaymessage(fd, msg_txt(297)); //   <identify_flag> <refine> <attribute> <card1> <card2> <card3> <card4> <bound_type>).
+			clif_displaymessage(fd, msg_txt(298)); // Invalid bound type
+			return -1;
+		}
+		if (bound <= BOUND_NONE || bound >= BOUND_MAX) {
+			clif_displaymessage(fd, msg_txt(298)); // Invalid bound type
+			return -1;
+		}
 	} else if ( !message || !*message || (
 		sscanf(message, "\"%99[^\"]\" %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4) < 9 &&
 		sscanf(message, "%99s %d %d %d %d %d %d %d %d", item_name, &number, &identify, &refine, &attr, &c1, &c2, &c3, &c4) < 9
@@ -1811,11 +1821,6 @@ ACMD_FUNC(item2)
 
 	if (number <= 0)
 		number = 1;
-
-	if( bound < 0 || bound > 3 ) { 
-		clif_displaymessage(fd, msg_txt(298)); // Invalid bound type 
-		return -1; 
-	} 
 
 	item_id = 0;
 	if ((item_data = itemdb_searchname(item_name)) != NULL ||
@@ -2497,6 +2502,8 @@ ACMD_FUNC(go)
 		{ MAP_MALAYA,		242, 211, "Malaya Port" }, // 34
 		{ MAP_ECLAGE,		110,  39, "Eclage" }, // 35
 		{ MAP_NOVICE_ACADEMY, 97, 90, "Novice Academy" }, // 36
+		{ MAP_LASAGNA,		169, 160, "Lasagna" }, // 37
+		{ MAP_ROCKRIDGE,	200, 211, "Rockridge"}, // 38
 	};
 
 	static const struct {
@@ -2554,6 +2561,8 @@ ACMD_FUNC(go)
 		{ MAP_MALANGDO,		"malangdo" },
 		{ MAP_MALAYA,		"malaya" },
 		{ MAP_ECLAGE,		"eclage" },
+		{ MAP_LASAGNA,		"lasagna" },
+		{ MAP_ROCKRIDGE,	"rockridge" },
 	};
 
 	nullpo_retr(-1, sd);
@@ -6618,18 +6627,23 @@ ACMD_FUNC(displayskill)
 	int64 tick;
 	int skillnum;
 	int skilllv = 1;
+	int type = 0;
 	nullpo_retr(-1, sd);
 
-	if (!message || !*message || sscanf(message, "%d %d", &skillnum, &skilllv) < 1)
+	if (!message || !*message || sscanf(message, "%d %d %d", &skillnum, &skilllv, &type) < 1)
 	{
-		clif_displaymessage(fd, "Usage: @displayskill <skillnum> {<skillv>}>");
+		clif_displaymessage(fd, "Usage: @displayskill <skillnum> {<skillv>} {<type>}>");
+		clif_displaymessage(fd, "Effect Types: 0: All, 1: Damage, 2: No Damage, 3: Ground");
 		return -1;
 	}
 	status = status_get_status_data(&sd->bl);
 	tick = gettick();
-	clif_skill_damage(&sd->bl,&sd->bl, tick, status->amotion, status->dmotion, 1, 1, skillnum, skilllv, 5);
-	clif_skill_nodamage(&sd->bl, &sd->bl, skillnum, skilllv, 1);
-	clif_skill_poseffect(&sd->bl, skillnum, skilllv, sd->bl.x, sd->bl.y, tick);
+	if ( type == 0 || type == 1 )
+		clif_skill_damage(&sd->bl,&sd->bl, tick, status->amotion, status->dmotion, 1, 1, skillnum, skilllv, 5);
+	if ( type == 0 || type == 2 )
+		clif_skill_nodamage(&sd->bl, &sd->bl, skillnum, skilllv, 1);
+	if ( type == 0 || type == 3 )
+		clif_skill_poseffect(&sd->bl, skillnum, skilllv, sd->bl.x, sd->bl.y, tick);
 	return 0;
 }
 

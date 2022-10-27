@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `auction` (
   `option_id4` smallint(5) unsigned NOT NULL default '0',
   `option_val4` smallint(5) unsigned NOT NULL default '0',
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`auction_id`)
 ) ENGINE=MyISAM;
 
@@ -95,7 +96,8 @@ CREATE TABLE IF NOT EXISTS `cart_inventory` (
   `option_val4` smallint(5) unsigned NOT NULL default '0',
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
   `expire_time` int(11) unsigned NOT NULL default '0',
-  `bound` tinyint(3) unsigned NOT NULL default '0', 
+  `bound` tinyint(3) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)
 ) ENGINE=MyISAM;
@@ -164,6 +166,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `clan_id` int(11) UNSIGNED NOT NULL default '0',
   `last_login` datetime DEFAULT NULL,
   `title_id` INT(11) unsigned NOT NULL default '0',
+  `uniqueitem_counter` bigint(20) NOT NULL,
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),
@@ -458,7 +461,8 @@ CREATE TABLE IF NOT EXISTS `guild_storage` (
   `option_val4` smallint(5) unsigned NOT NULL default '0',
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
   `expire_time` int(11) unsigned NOT NULL default '0',
-  `bound` tinyint(3) unsigned NOT NULL default '0', 
+  `bound` tinyint(3) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `guild_id` (`guild_id`)
 ) ENGINE=MyISAM;
@@ -501,7 +505,7 @@ CREATE TABLE IF NOT EXISTS `homunculus` (
 CREATE TABLE IF NOT EXISTS `interlog` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `log` varchar(255) NOT NULL default ''
-) ENGINE=MyISAM; 
+) ENGINE=MyISAM;
 
 --
 -- Table structure for table `inventory`
@@ -539,6 +543,7 @@ CREATE TABLE IF NOT EXISTS `inventory` (
   `favorite` TINYINT unsigned NOT NULL DEFAULT '0',
   `bound` tinyint(3) unsigned NOT NULL default '0',
   `equip_switch` int(11) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `char_id` (`char_id`)
 ) ENGINE=MyISAM;
@@ -662,6 +667,7 @@ CREATE TABLE IF NOT EXISTS `mail_attachments` (
   `option_val4` smallint(5) unsigned NOT NULL DEFAULT '0',
   `option_parm4` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `bound` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
     PRIMARY KEY (`id`,`index`)
 ) ENGINE=MyISAM;
 
@@ -839,7 +845,8 @@ CREATE TABLE IF NOT EXISTS `storage` (
   `option_val4` smallint(5) unsigned NOT NULL default '0',
   `option_parm4` tinyint(3) unsigned NOT NULL default '0',
   `expire_time` int(11) unsigned NOT NULL default '0',
-  `bound` tinyint(3) unsigned NOT NULL default '0', 
+  `bound` tinyint(3) unsigned NOT NULL default '0',
+  `unique_id` bigint(20) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `account_id` (`account_id`)
 ) ENGINE=MyISAM;

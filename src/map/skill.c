@@ -2627,9 +2627,11 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		else // the central target doesn't display an animation
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5); // needs -2(!) as skill level
 		break;
+#if PACKETVER < 20180620
 	case RK_IGNITIONBREAK:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,NV_BASIC,-1,5);
 		break;
+#endif
 	case WL_HELLINFERNO:
 		if ( flag&4 )// Show animation for fire damage part.
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,skilllv,type);
@@ -3014,7 +3016,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	if (dmg.amotion)
 		battle_delay_damage(tick, dmg.amotion,src,bl,dmg.flag,skillid,skilllv,damage,dmg.dmg_lv,dmg.dmotion);
 
-	if (sc && sc->data[SC_DEVOTION] && (skillid != PA_PRESSURE || skillid != SJ_NOVAEXPLOSING || skillid != SP_SOULEXPLOSION))
+	if (sc && sc->data[SC_DEVOTION] && (skillid != PA_PRESSURE && skillid != SJ_NOVAEXPLOSING && skillid != SP_SOULEXPLOSION))
 	{
 		struct status_change_entry *sce = sc->data[SC_DEVOTION];
 		struct block_list *d_bl = map_id2bl(sce->val1);
@@ -6681,6 +6683,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case ASC_METEORASSAULT:
 	case GS_SPREADATTACK:
+#if PACKETVER >= 20180620
+	case RK_IGNITIONBREAK:
+#endif
 	case RK_STORMBLAST:
 	case WL_FROSTMISTY:
 	case NC_AXETORNADO:
@@ -6716,7 +6721,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case RK_IGNITIONBREAK:
 	case LG_EARTHDRIVE:
 		skill_area_temp[1] = 0;
 		//clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -9826,6 +9830,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case LG_SHIELDSPELL:
 		if (sd)
 		{
+			signed char refinebonus = 0;
 			short effect_number = rand()%3 + 1;// Effect Number. Each level has 3 unique effects thats randomly picked from.
 			short shield_bonus = 0;// Shield Stats. DEF/MDEF/Refine is taken from shield and ran through a formula.
 			short splash_range = 0;// Splash AoE. Used for splash AoE ATK/MATK and Lex Divina.
@@ -9838,6 +9843,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_fail(sd, skillid, 0, 0, 0);
 				break;
 			}
+
+			// Set how the bonus from the shield's refine will be handled.
+			if ( MAX_REFINE > 10 )// +20 Refine Limit
+				refinebonus = shield->refine;
+			else// +10 Refine Limit
+				refinebonus = 2 * shield->refine;
 
 			switch( skilllv )
 			{
@@ -9913,16 +9924,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						switch (effect_number)
 						{
 							case 1://Status Resistance Increase. This is for common status's.
-								shield_bonus = 2 * shield->refine + sstatus->luk / 10;
-								sc_start2(bl,SC_SHIELDSPELL_REF,100,effect_number,shield_bonus,shield->refine * 30000);
+								shield_bonus = 2 * refinebonus + sstatus->luk / 10;
+								sc_start2(bl, SC_SHIELDSPELL_REF, 100, effect_number, shield_bonus, refinebonus * 30000);
 								break;
 							case 2://DEF Increase / Using Converted DEF Increase Formula For Pre-renewal Mechanics.
-								shield_bonus = shield->refine;
-								sc_start2(bl,SC_SHIELDSPELL_REF,100,effect_number,shield_bonus,shield->refine * 20000);
+								shield_bonus = refinebonus / 2;// Half the increase amount.
+								sc_start2(bl, SC_SHIELDSPELL_REF, 100, effect_number, shield_bonus, refinebonus * 20000);
 								break;
 							case 3://HP Recovery
 								sc_start(bl, SC_SHIELDSPELL_REF, 100, effect_number, -1);
-								shield_bonus = sstatus->max_hp * (status_get_base_lv_effect(src) / 10 + shield->refine) / 100;
+								shield_bonus = sstatus->max_hp * (status_get_base_lv_effect(src) / 10 + refinebonus) / 100;
 								status_heal(bl, shield_bonus, 0, 2);
 								status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
 							break;
@@ -10516,7 +10527,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KO_ZANZOU:
 		{
 			struct mob_data *md;
-			md = mob_once_spawn_sub(src, src->m, src->x, src->y, status_get_name(src), MOBID_KO_ZANZOU, "");
+			md = mob_once_spawn_sub(src, src->m, src->x, src->y, status_get_name(src), MOBID_KO_KAGE, "");
 			if( md )
 			{
 				md->master_id = src->id;
@@ -10699,8 +10710,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ECLAGE_RECALL:
 		if( sd )
 		{
-			short x, y;// Destiny position.
-			unsigned short mapindex;
+			short x = 0, y = 0;// Destiny position.
+			unsigned short mapindex = 0;
 			if( skillid == RETURN_TO_ELDICASTES)
 			{
 				x = 198;
@@ -10725,7 +10736,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				map_freeblock_unlock();
 				return 0;
 			}
-			pc_setpos(sd, mapindex, x, y, CLR_TELEPORT);
+			else
+				pc_setpos(sd, mapindex, x, y, CLR_TELEPORT);
 		}
 		break;
 

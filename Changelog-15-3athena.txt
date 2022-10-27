@@ -5,6 +5,52 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/27/2022
+	r353 [15peaces]
+		*Merged missing changes from 3ceam rev. 864 - 871
+		*Please don't forget to add the upgrade_15-3athena_svn353.sql files!	
+		*Some misc cleaning & optimizations.		
+		*Fixed Issen's damage calculation.
+		*Updated item_db.sql & mob_db.sql to reflect latest database changes.
+		*Some misc updates/fixes related to itembound system.
+		*Improved item_check to remove unavailable items from inventory, cart and storage on character login.
+		*Implemented Unique identifier for Non stackable items.
+			-This will be needed for later updates.
+			-It also is a nice feature to find a lost item in some cases.
+			-It is not yet fully working, will be finnished in another update.
+		*max_cloth_color changed to 3.
+			-Turns out while the old original 1st and 2nd jobs has a 4th dye option, the other jobs don't. Plus the styling shop info only allows for dyes up to 3 by default.
+			-They must of decided long ago to only offer 3 dyes.
+		*Added 2 new skill place holders.
+		*Updated the "displayskill" command to allow for selecting which skill animation packets to send.
+		*Added 2 new towns to the "go" command. Lasagna and Rock Ridge.
+		*Updated the 3ceam_stylist to not allow the use of hair style 0 and body dye 1.
+			-This is for official reasons and also to prevent glitches.
+		*Important monster ID's are now set in a enum table.
+		*Updated the Neuralizer cashshop script to check for wug and mado.
+		*Some item_db updates.
+			-Fixed some item script errors.
+			-Added some missing items.
+		*Added fixed drop flag to item_flag database.
+			-This allows you to add items that you don't want to be affected by the set server rates and instead only be affected by whats set in the monster database.
+			-Basicly its a way to force certain items to drop at official chances no matter what the rates are set to.
+		*Added a 2nd usable letters/symbols options for "char_name_letters".
+			-This option allows for the use of ASCII Punctuation & Symbols in character names.
+		*Renamed the monster KO_ZANZOU to KO_KAGE.
+			-Its the actural official name.
+		*RK_IGNITIONBREAK
+			-Fixed a issue where the animation wouldn't appear on 2018-06-20 and newer clients.
+		*RK_CRUSHSTRIKE; LG_SHIELDSPELL
+			-Updated damage, effect, and duration formula's to work properly for +10 and +20 refine settings.
+		*LG_SHIELDPRESS
+			-Updated stun duration to official.
+			-Once again the 2011 iRO document is wrong.
+			-Updated damage, effect, and duration formula's to work properly for +10 and +20 refine settings.
+		*SJ_NOVAEXPLOSING; SP_SOULEXPLOSION
+			-Fixed a issue where the damage didn't bypass protection from Devotion.
+		*SC_ESCAPE
+			-Added missing item requirement.
+
 10/24/2022
 	r352 [15peaces]
 		*Merged missing changes from 3ceam rev. 862 - 863

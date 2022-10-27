@@ -145,7 +145,7 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 		return 1;
 	}
 
-	if( (item_data->bound > 1) && !pc_can_give_bounded_items(sd->gmlevel) ) { 
+	if( (item_data->bound > BOUND_ACCOUNT) && !pc_can_give_bounded_items(sd->gmlevel) ) {
 		clif_displaymessage(sd->fd, msg_txt(294)); 
 		return 1; 
 	}

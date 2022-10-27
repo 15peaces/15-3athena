@@ -2485,6 +2485,14 @@ armor, but also don't want them to equip if after the check, you would do this:
 
 ---------------------------------------
 
+*getequipuniqueid(<equipment slot>)
+
+This function returns the unique ID (as a string) of the item equipped in the equipment slot 
+specified on the invoking character. If nothing is equipped there, it returns an empty string.
+See 'getequipid' for a full list of valid equipment slots.
+
+---------------------------------------
+
 *getequipname(<equpment slot>)
 
 Returns the jname of the item equipped in the specified equipment slot on the
@@ -2793,6 +2801,17 @@ This func returns CARD ID, 255,254,-255 (for card 0, if the item is produced) it
 when you want to check item cards or if it's signed. Useful for such quests as 
 "Sign this refined item with players name" etc;
 	Hat[0] +4 -> Player's Hat[0] +4
+
+---------------------------------------
+
+*mergeitem({<item_id>});
+*mergeitem({"<item name>"});
+
+Merge item!!!!!!!!!
+
+If no item_id ot "item name", it will merges all possible items that exist in player's inventory.
+
+Example, just see the NPC npc/re/other/merge_item.txt
 
 ---------------------------------------
 //
@@ -4922,10 +4941,10 @@ the character may not be able to trade or store these items, however all bounded
 cannot be sold, vended, auctioned, or mailed. 
 	 
 Bound Types: 
-	1 - Account Bound 
-	2 - Guild Bound 
-	3 - Party Bound 
-	4 - Character Bound 
+	1 - BOUND_ACCOUNT	- Account Bound 
+	2 - BOUND_GUILD 	- Guild Bound 
+	3 - BOUND_PARTY  	- Party Bound 
+	4 - BOUND_CHAR 		- Character Bound 
  
 --------------------------------------- 
 

@@ -23,9 +23,8 @@ typedef int (*TimerFunc)(int tid, int64 tick, int id, intptr_t data);
 struct TimerData {
 	int64 tick;
 	TimerFunc func;
-	int type;
+	unsigned int type;
 	int interval;
-	int heap_pos;
 
 	// general-purpose storage
 	int id; 

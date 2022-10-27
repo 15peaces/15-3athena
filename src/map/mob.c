@@ -3726,6 +3726,8 @@ static bool mob_parse_dbrow(char** str)
 		//calculate and store Max available drop chance of the MVP item
 		if (db->mvpitem[i].p) {
 			id = itemdb_search(db->mvpitem[i].nameid);
+			if (id->flag.fixed_drop)
+				db->mvpitem[i].p = atoi(str[33 + i * 2]);
 			if (id->maxchance == -1 || (id->maxchance < db->mvpitem[i].p/10 + 1) ) {
 				//item has bigger drop chance or sold in shops
 				id->maxchance = db->mvpitem[i].p/10 + 1; //reduce MVP drop info to not spoil common drop rate
@@ -3792,6 +3794,8 @@ static bool mob_parse_dbrow(char** str)
 		if( db->dropitem[i].p && (class_ < 1324 || class_ > 1363) && (class_ < 1938 || class_ > 1946) )
 		{ //Skip treasure chests.
 			id = itemdb_search(db->dropitem[i].nameid);
+			if (id->flag.fixed_drop)
+				db->dropitem[i].p = rate;
 			if (id->nameid == 500) {
 				ShowWarning("mob_parse_dbrow: Dummy drop on mob %d, slot %d (item %d).\n", class_, i, db->dropitem[i].nameid);
 			}

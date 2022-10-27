@@ -796,34 +796,35 @@ IG_Advanced_Weapons_Box	55 //61
 IG_Candy_Holder	56 //389
 
 //Item Packages
-IP_New_Year_Scroll	1 			//225
-IP_Buddah_Scroll	2 			//228
-IP_Evil_Incarnation	3 			//229
-IP_Taurus_Crown_Scroll	4 		//272
-IP_Taurus_Crown_Scroll_Box	5 	//273
-IP_Hallo_Scroll	6 				//292
-IP_Tw_Aug_Scroll	7 			//318
-IP_Old_Coin_Pocket	8			//343
-IP_High_Coin_Pocket	9			//344
-IP_Mid_Coin_Pocket	10			//345
-IP_Low_Coin_Pocket	11			//346
-IP_Sgrade_Pocket	12			//347
-IP_Agrade_Pocket	13			//348
-IP_Bgrade_Pocket	14			//349
-IP_Cgrade_Pocket	15			//350
-IP_Dgrade_Pocket	16			//351
-IP_Egrade_Pocket	17			//352
-IP_HALLOWEEN_G_BOX	18			//386
-IP_Sg_Weapon_Supply_Box	19		//388
-IP_Level_Up_Box100	20	//413
-IP_Level_Up_Box120	21	//414
-IP_Level_Up_Box130	22	//415
-IP_Level_Up_Box140	23	//416
-IP_Level_Up_Box150	24	//417
-IP_Level_Up_Box160	25	//418
-IP_IDRO10TH_SCROLL	26			//442
-IP_SOMETHING_CANDY_HOLDER	27	//472
-IP_Noive_Box	28				//481
+IP_Aspersio_5_Scroll_Box	1	// 92
+IP_New_Year_Scroll	2 			//225
+IP_Buddah_Scroll	3 			//228
+IP_Evil_Incarnation	4 			//229
+IP_Taurus_Crown_Scroll	5 		//272
+IP_Taurus_Crown_Scroll_Box	6 	//273
+IP_Hallo_Scroll	7 				//292
+IP_Tw_Aug_Scroll	8 			//318
+IP_Old_Coin_Pocket	9			//343
+IP_High_Coin_Pocket	10			//344
+IP_Mid_Coin_Pocket	11			//345
+IP_Low_Coin_Pocket	12			//346
+IP_Sgrade_Pocket	13			//347
+IP_Agrade_Pocket	14			//348
+IP_Bgrade_Pocket	15			//349
+IP_Cgrade_Pocket	16			//350
+IP_Dgrade_Pocket	17			//351
+IP_Egrade_Pocket	18			//352
+IP_HALLOWEEN_G_BOX	19			//386
+IP_Sg_Weapon_Supply_Box	20		//388
+IP_Level_Up_Box100	21	//413
+IP_Level_Up_Box120	22	//414
+IP_Level_Up_Box130	23	//415
+IP_Level_Up_Box140	24	//416
+IP_Level_Up_Box150	25	//417
+IP_Level_Up_Box160	26	//418
+IP_IDRO10TH_SCROLL	27			//442
+IP_SOMETHING_CANDY_HOLDER	28	//472
+IP_Noive_Box	29				//481
 
 SC_ALL	-1
 SC_NONE	-1

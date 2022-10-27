@@ -1721,12 +1721,14 @@ void itemdb_parse_attendance_db(void)
 
 /** Misc Item flags
 * <item_id>,<flag>
-* &1 - Log as dead branch
+* &1 - As dead branch item
 * &2 - As item container
+* &4 - Drop rate is always 1
 */
 static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	uint16 nameid = atoi(fields[0]);
-	uint8 flag = atoi(fields[1]);
+	uint8 flag;
+	bool set;
 	struct item_data *id;
 
 	if (!(id = itemdb_exists(nameid))) {
@@ -1734,12 +1736,22 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 		return true;
 	}
 
-	if (flag & 1)
-		id->flag.dead_branch = 1;
-	if (flag & 2)
-		id->flag.group = 1;
+	flag = abs(atoi(fields[1]));
+	set = atoi(fields[1]) > 0;
+
+	if (flag & 1) id->flag.dead_branch = set ? 1 : 0;
+	if (flag & 2) id->flag.group = set ? 1 : 0;
+	if (flag & 4) id->flag.fixed_drop = set ? 1 : 0;
 
 	return true;
+}
+
+/*Unique item ID function
+ * @param sd : Player
+ * @return unique_id
+ */
+uint64 itemdb_unique_id(struct map_session_data *sd) {
+	return ((uint64)sd->status.char_id << 32) | sd->status.uniqueitem_counter++;
 }
 
 /*====================================
@@ -1845,6 +1857,7 @@ void itemdb_reload(void)
 	{
 		memset(sd->item_delay, 0, sizeof(sd->item_delay));  // reset item delays
 		pc_setinventorydata(sd);
+		pc_check_available_item(sd); // Check for invalid(ated) items.
 	}
 	mapit_free(iter);
 }

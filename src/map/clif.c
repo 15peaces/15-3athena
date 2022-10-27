@@ -2506,7 +2506,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 		WFIFOL(fd,23+offs) = sd->inventory.u.items_inventory[n].expire_time;
 #endif
 #if PACKETVER >= 20071002
-		WFIFOW(fd,27+offs) = (sd->inventory.u.items_inventory[n].bound && !itemdb_isstackable(sd->inventory.u.items_inventory[n].nameid)) ? 2 : 0;
+		WFIFOW(fd,27+offs) = (sd->inventory.u.items_inventory[n].bound && !itemdb_isstackable(sd->inventory.u.items_inventory[n].nameid)) ? BOUND_GUILD : 0;
 #endif
 #if PACKETVER >= 20150226
 		clif_add_random_options(WFIFOP(fd,31), &sd->inventory.u.items_inventory[n]);
@@ -2586,7 +2586,7 @@ void clif_item_sub(unsigned char *buf, int n, struct item *i, struct item_data *
 		clif_addcards(WBUFP(buf, n+10), i);
 #if PACKETVER >= 20071002
 			WBUFL(buf,n+18) = i->expire_time;
-			WBUFW(buf,n+22) = i->bound ? 2 : 0; 
+			WBUFW(buf,n+22) = i->bound ? BOUND_GUILD : 0; 
 #endif
 #if PACKETVER >= 20100629
 		WBUFW(buf,n+24) = (id->equip&EQP_VISIBLE) ? id->look : 0;
@@ -2619,7 +2619,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_dat
 		WBUFB(buf,n+11) = i->refine; //refine lvl
 		clif_addcards(WBUFP(buf, n+12), i); //EQUIPSLOTINFO 8B
 		WBUFL(buf,n+20) = i->expire_time;
-		WBUFW(buf,n+24) = i->bound ? 2 : 0; //bindOnEquipType
+		WBUFW(buf,n+24) = i->bound ? BOUND_GUILD : 0; //bindOnEquipType
 		WBUFW(buf,n+26) = (id->equip&EQP_VISIBLE) ? id->look : 0;
 #if PACKETVER >= 20150226
 		//V6_ITEM_Option
@@ -17453,7 +17453,7 @@ void clif_parse_Auction_setitem(int fd, struct map_session_data *sd)
 		return;
 	}
 	
-	if( !pc_candrop(sd, &sd->inventory.u.items_inventory[idx]) || !sd->inventory.u.items_inventory[idx].identify )
+	if( !pc_candrop(sd, &sd->inventory.u.items_inventory[idx]) || !sd->inventory.u.items_inventory[idx].identify || !itemdb_available(sd->inventory.u.items_inventory[idx].nameid))
 	{ // Quest Item or something else
 		clif_Auction_setitem(sd->fd, idx, true);
 		return;

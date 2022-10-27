@@ -2179,6 +2179,12 @@ void script_hardcoded_constants(void)
 	script_set_constant("BF_LONG", BF_LONG, false);
 	script_set_constant("BF_SKILL", BF_SKILL, false);
 	script_set_constant("BF_NORMAL", BF_NORMAL, false);
+	// Item Bound
+	script_set_constant("BOUND_ACCOUNT", BOUND_ACCOUNT, false);
+	script_set_constant("BOUND_GUILD", BOUND_GUILD, false);
+	script_set_constant("BOUND_PARTY", BOUND_PARTY, false);
+	script_set_constant("BOUND_CHAR", BOUND_CHAR, false);
+	// Sex
 	script_set_constant("SEX_FEMALE", SEX_FEMALE, false);
 	script_set_constant("SEX_MALE", SEX_MALE, false);
 }
@@ -5954,15 +5960,17 @@ BUILDIN_FUNC(getitem) {
 
 	if( !strcmp(script_getfuncname(st),"getitembound") ) { 
 		char bound = script_getnum(st,4); 
-		if( bound < 1 || bound > 4) { //Not a correct bound type 
+		if (bound > BOUND_NONE && bound < BOUND_MAX) {
+			it.bound = bound;
+			if (script_hasdata(st, 5))
+				sd = map_id2sd(script_getnum(st, 5));
+			else
+				sd = script_rid2sd(st); // Attached player
+		}
+		else { //Not a correct bound type
 			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound); 
 			return 1; 
 		} 
-		it.bound = bound; 
-		if( script_hasdata(st,5) ) 
-			sd=map_id2sd(script_getnum(st,5)); 
-		else 
-			sd=script_rid2sd(st); // Attached player 
 	} else if( script_hasdata(st,4) ) 
 		sd=map_id2sd(script_getnum(st,4)); // <Account ID>
 	else
@@ -6001,7 +6009,7 @@ BUILDIN_FUNC(getitem2) {
 	unsigned short nameid, amount;
 	int get_count,i,flag = 0;
 	int iden,ref,attr,c1,c2,c3,c4;
-	char bound=0;
+	char bound=BOUND_NONE;
 	struct item_data *item_data;
 	struct item item_tmp;
 	TBL_PC *sd;
@@ -6009,14 +6017,16 @@ BUILDIN_FUNC(getitem2) {
 
 	if( !strcmp(script_getfuncname(st),"getitembound2") ) { 
 		bound = script_getnum(st,11); 
-		if( bound < 1 || bound > 3) { //Not a correct bound type 
+		if (bound > BOUND_NONE && bound < BOUND_MAX) {
+			if (script_hasdata(st, 12))
+				sd = map_id2sd(script_getnum(st, 12));
+			else
+				sd = script_rid2sd(st); // Attached player
+		}
+		else {
 			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound); 
 			return 1; 
-		} 
-		if( script_hasdata(st,12) ) 
-			sd=map_id2sd(script_getnum(st,12)); 
-		else 
-			sd=script_rid2sd(st); // Attached player 
+		}
 	} else if( script_hasdata(st,11) )
 		sd=map_id2sd(script_getnum(st,11)); // <Account ID>
 	else
@@ -6153,7 +6163,7 @@ BUILDIN_FUNC(rentitem)
 	it.nameid = nameid;
 	it.identify = 1;
 	it.expire_time = (unsigned int)(time(NULL) + seconds);
-	it.bound = 0;
+	it.bound = BOUND_NONE;
 
 	if( (flag = pc_additem(sd, &it, 1)) )
 	{
@@ -18573,6 +18583,7 @@ BUILDIN_FUNC(showdigit)
  * Creates an array of bounded item IDs 
  * Returns amount of items found 
  * Type: 
+ *		0 - All bound items;
  *      1 - Account Bound 
  *      2 - Guild Bound 
  *      3 - Party Bound 
@@ -18585,13 +18596,13 @@ BUILDIN_FUNC(countbound)
 	if( (sd = script_rid2sd(st)) == NULL ) 
 		return 0; 
 	 
-	type = script_hasdata(st,2)?script_getnum(st,2):0; 
+	type = script_getnum(st, 2);
  
-	for(i=0;i<MAX_INVENTORY;i++){ 
-		if(sd->inventory.u.items_inventory[i].nameid > 0 && ( 
-			(!type && sd->inventory.u.items_inventory[i].bound > 0) || 
-			(type && sd->inventory.u.items_inventory[i].bound == type) 
-		)) { 
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].nameid > 0 && (
+			(!type && sd->inventory.u.items_inventory[i].bound) || (type && sd->inventory.u.items_inventory[i].bound == type)
+			))
+		{
 			pc_setreg(sd,reference_uid(add_str("@bound_items"), k),sd->inventory.u.items_inventory[i].nameid); 
 			k++; 
 			j += sd->inventory.u.items_inventory[i].amount; 

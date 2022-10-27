@@ -4981,3 +4981,28 @@
 //3ceam
 6959,Costume_Change_Ticket,Costume Change Ticket,3,0,,10,,,,,,,,,,,,,{},{},{}
 //28380,Fresh_Grass_Necklace,Fresh Grass Necklace,5,30000,,100,,0,,1,0x000FDF80,8,2,136,,0,0,0,{},{},{}
+
+// GUID testing & more
+12915,Aspersio_5_Scroll_Box,Aspersio 5 Scroll Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Aspersio_5_Scroll_Box); },{},{}
+13925,Lucky_Scroll08,Lucky Scroll08,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Lucky_Scroll08);*/ },{},{}
+13926,Crusader_Card_Box,Crusader Card Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4371,1; getitem 4311,1; getitem 4319,1; getitem 4331,1; },{},{}
+13927,Alchemist_Card_Box,Alchemist Card Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4281,1; getitem 4233,1; getitem 4343,1; getitem 4186,1; getitem 4036,1; },{},{}
+13928,Rogue_Card_Box,Rogue Card Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4039,1; getitem 4210,1; getitem 4257,1; getitem 4230,1; getitem 4348,1; },{},{}
+13929,Bard_Dancer_Card_Box,Bard Dancer Card Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4297,1; getitem 4234,1; getitem 4178,1; getitem 4381,1; getitem 4252,1; },{},{}
+13930,Sage_Card_Box,Sage card box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4382,1; getitem 4258,1; getitem 4325,1; getitem 4208,1; getitem 4327,1; },{},{}
+13931,Monk_Card_Box,Monk Card Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4312,1; getitem 4332,1; getitem 4185,1; getitem 4293,1; },{},{}
+13932,Sylph_Box,Sylph Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4345,4; },{},{}
+13933,Undine_Box,Undine Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4350,4; },{},{}
+13934,Salamander_Box,Salamander Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 4380,4; },{},{}
+14229,Cherry_Blossom_Scroll,Cherry Blossom Scroll,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Sakura_Scroll);*/ },{},{}
+14230,Note_Headphones_Box,Note Headphones Box,18,,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 5151,1; },{},{}
+14231,Novice_Breastplate_Boxes,Novice Breastplate Boxes,18,,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
+14232,Yggdrasilberry_Box_,Yggdrasil Berry 10 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 607,10; },{},{}
+14233,Dead_Tree_Branch_Box1,Dead Branch 10 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 604,10; },{},{}
+14234,Dead_Tree_Branch_Box2,Dead Branch 25 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 604,25; },{},{}
+14235,Field_Manual_Box_2,Field Manual 2 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12208,2; },{},{}
+14236,Steamed_Tongue_Box_20,Steamed Tongue 20 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12202,20; },{},{}
+14237,Steamed_Desert_Scorpions_Box_20,Steamed Desert Scorpions Box(20),18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12203,20; },{},{}
+14238,Stew_Of_Immortality_Box_20,Immortal Stew 20 Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 12207,20; },{},{}
+14623,Golden_Treasure_Box_,Golden Treasure Box,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ /*getitem callfunc("F_Rand",Devilring card, Angeling card, 11 weapons smelting ticket, armor smelting 11 ticket , horns of the buffalo, ring of recovery, pink bunny costume hair band)*/ },{},{}
+14624,Blue_Scroll,Blue Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Blue_Scroll);*/ },{},{}
