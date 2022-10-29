@@ -2010,7 +2010,7 @@ int pc_calc_skilltree_normalize_job(struct map_session_data *sd)
 		return c;
 	
 	skill_point = pc_calc_skillpoint(sd);
-	if(pc_checkskill(sd, NV_BASIC) < 9) //Consider Novice Tree when you don't have NV_BASIC maxed.
+	if ((sd->class_&MAPID_BASEMASK) != MAPID_SUMMONER && pc_checkskill(sd, NV_BASIC) < 9) //Consider Novice Tree when you don't have NV_BASIC maxed.
 		c = MAPID_NOVICE;
 	else
 	// Ignore Super Novice type jobs since regular Super Novice is a 2nd job of the Novice.
@@ -5438,6 +5438,8 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 	// If the player is changing maps, end cloaking.
 	if( sd->state.changemap && sd->sc.count )
 		status_change_end(&sd->bl, SC_CLOAKING, INVALID_TIMER);
+
+	pc_cell_basilica(sd);
 
 	return 0;
 }
@@ -8869,7 +8871,7 @@ int pc_setdragon(TBL_PC* sd, int flag)
 {
 	if( flag ){
 		if( pc_checkskill(sd,RK_DRAGONTRAINING) > 0 )
-		{	// MAPID_THIRDMASK isnt good enough for a baby 3rd check. A custom mask value is used instead.
+		/*{	// MAPID_THIRDMASK isnt good enough for a baby 3rd check. A custom mask value is used instead.
 			// MAPID_THIRDMASK (0x4fff) + JOBL_BABY (0x2000) = 0x6fff.
 			if ((sd->class_&0x6fff) == MAPID_BABY_RUNE && flag != 1)
 				flag = 1;// Baby Rune Knights only have a green dragon sprite.
@@ -8891,7 +8893,8 @@ int pc_setdragon(TBL_PC* sd, int flag)
 					pc_setoption(sd, sd->sc.option | OPTION_DRAGON5);
 					break;
 			}
-		}
+		}*/
+			pc_setoption(sd, sd->sc.option | OPTION_DRAGON1);
 	}
 	else if( pc_isdragon(sd) ){
 		pc_setoption(sd, sd->sc.option&~OPTION_DRAGON);
@@ -11383,6 +11386,23 @@ void pc_update_job_and_level(struct map_session_data *sd)
 				p->party.member[i].lv = sd->status.base_level;
 		}
 	}
+}
+
+
+/** [Cydh]
+ * Gives/removes SC_BASILICA when player steps in/out the cell with 'cell_basilica'
+ * @param sd player
+ */
+void pc_cell_basilica(struct map_session_data *sd) {
+	if (!sd)
+		return;
+
+	if (!map_getcell(sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKBASILICA)) {
+		if (&sd->sc && sd->sc.data[SC_BASILICA])
+			status_change_end(&sd->bl, SC_BASILICA, INVALID_TIMER);
+	}
+	else if (!(&sd->sc) || !sd->sc.data[SC_BASILICA])
+		sc_start(&sd->bl, SC_BASILICA, 100, 0, -1);
 }
 
 /*==========================================

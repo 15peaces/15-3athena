@@ -20593,6 +20593,7 @@ static void skill_readdb(void)
 	memset(skill_produce_db,0,sizeof(skill_produce_db));
 	memset(skill_arrow_db,0,sizeof(skill_arrow_db));
 	memset(skill_abra_db,0,sizeof(skill_abra_db));
+	memset(skill_spellbook_db, 0, sizeof(skill_spellbook_db));
 	memset(skill_improvise_db,0,sizeof(skill_improvise_db));
 	memset(skill_magicmushroom_db,0,sizeof(skill_magicmushroom_db));
 	memset(skill_changematerial_db, 0, sizeof(skill_changematerial_db));

@@ -5218,8 +5218,10 @@ ACMD_FUNC(mount)
 /*==========================================
  * Dragon mounting command for Rune Knight
  * that allows selecting a dragon color. [Rytech]
+ * Note: Disabled due to conflicts with the body
+ * style system which can cause client errors.
  *------------------------------------------*/
-ACMD_FUNC(dragon)
+/*ACMD_FUNC(dragon)
 {
 	int color = 0;
 	nullpo_retr(-1, sd);
@@ -5287,7 +5289,7 @@ ACMD_FUNC(dragon)
 		clif_displaymessage(fd, msg_txt(701));// You can't mount with your current job.
 
 	return 0;
-}
+}*/
 
 /*==========================================
  * Falcon command for all jobs that can
@@ -6458,20 +6460,49 @@ ACMD_FUNC(follow)
 
 /*==========================================
  * @dropall by [MouseJstr]
- * Drop all your possession on the ground
+ * Drops all your possession on the ground based on item type
  *------------------------------------------*/
 ACMD_FUNC(dropall)
 {
-	int i;
+	int8 type = -1;
+	uint16 i, count = 0;
+	struct item_data *item_data = NULL;
+
 	nullpo_retr(-1, sd);
-	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->inventory.u.items_inventory[i].amount) {
-			if(sd->inventory.u.items_inventory[i].equip != 0)
-				pc_unequipitem(sd, i, 3);
-			pc_equipswitch_remove(sd, i);
-			pc_dropitem(sd,  i, sd->inventory.u.items_inventory[i].amount);
+
+	if (message[0]) {
+		type = atoi(message);
+		if (type != -1 && type != IT_HEALING && type != IT_USABLE && type != IT_ETC && type != IT_ARMOR &&
+			type != IT_WEAPON && type != IT_CARD && type != IT_PETEGG && type != IT_PETARMOR && type != IT_AMMO)
+		{
+			clif_displaymessage(fd, msg_txt(821));
+			clif_displaymessage(fd, msg_txt(822));
+			return -1;
 		}
 	}
+
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].amount) {
+			if ((item_data = itemdb_exists(sd->inventory.u.items_inventory[i].nameid)) == NULL) {
+				ShowDebug("Non-existant item %d on dropall list (account_id: %d, char_id: %d)\n", sd->inventory.u.items_inventory[i].nameid, sd->status.account_id, sd->status.char_id);
+				continue;
+			}
+			if (!pc_candrop(sd, &sd->inventory.u.items_inventory[i]))
+				continue;
+
+			if (type == -1 || type == (uint8)item_data->type) {
+				if (sd->inventory.u.items_inventory[i].equip != 0)
+					pc_unequipitem(sd, i, 3);
+				pc_equipswitch_remove(sd, i);
+				count += sd->inventory.u.items_inventory[i].amount;
+				pc_dropitem(sd, i, sd->inventory.u.items_inventory[i].amount);
+			}
+		}
+	}
+
+	sprintf(atcmd_output, msg_txt(823), count); // %d items are dropped!
+	clif_displaymessage(fd, atcmd_output);
+
 	return 0;
 }
 
@@ -10208,7 +10239,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "charunban",         60,60,     atcommand_char_unban },
 	{ "charunbanish",      60,60,     atcommand_char_unban },
 	{ "mount",             20,20,     atcommand_mount },
-	{ "dragon",            20,20,     atcommand_dragon },
+	//{ "dragon",            20,20,     atcommand_dragon },
 	{ "falcon",            20,20,     atcommand_falcon },
 	{ "cart",              20,20,     atcommand_cart },
 	{ "guildspy",          60,60,     atcommand_guildspy },

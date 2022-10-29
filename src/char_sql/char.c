@@ -206,6 +206,9 @@ static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
 DBMap* char_get_authdb() { return auth_db; }
 DBMap* char_get_chardb() { return char_db_; }
 
+int loginif_isconnected();
+#define loginif_check(a) { if(!loginif_isconnected()) return a; }
+
 static void* create_online_char_data(DBKey key, va_list args)
 {
 	struct online_char_data* character;
@@ -246,7 +249,7 @@ void set_char_charselect(int account_id)
 		character->waiting_disconnect = INVALID_TIMER;
 	}
 
-	if (login_fd > 0 && !session[login_fd]->flag.eof)
+	if (loginif_isconnected())
 	{
 		WFIFOHEAD(login_fd,6);
 		WFIFOW(login_fd,0) = 0x272b;
@@ -292,7 +295,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 	inter_guild_CharOnline(char_id, cp?cp->guild_id:-1);
 
 	//Notify login server
-	if (login_fd > 0 && !session[login_fd]->flag.eof)
+	if (loginif_isconnected())
 	{	
 		WFIFOHEAD(login_fd,6);
 		WFIFOW(login_fd,0) = 0x272b;
@@ -350,7 +353,7 @@ void set_char_offline(int char_id, int account_id)
 	}
 
 	//Remove char if 1- Set all offline, or 2- character is no longer connected to char-server.
-	if (login_fd > 0 && !session[login_fd]->flag.eof && (char_id == -1 || character == NULL || character->fd == -1))
+	if (loginif_isconnected() && (char_id == -1 || character == NULL || character->fd == -1))
 	{
 		WFIFOHEAD(login_fd,6);
 		WFIFOW(login_fd,0) = 0x272c;
@@ -402,7 +405,7 @@ void set_all_offline(int id)
 		ShowNotice("Sending users of map-server %d offline.\n",id);
 	online_char_db->foreach(online_char_db,char_db_kickoffline,id);
 
-	if (id >= 0 || login_fd <= 0 || session[login_fd]->flag.eof)
+	if (id >= 0 || !loginif_isconnected())
 		return;
 	//Tell login-server to also mark all our characters as offline.
 	WFIFOHEAD(login_fd,2);
@@ -2302,7 +2305,7 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 		character->fd = fd;
 	}
 
-	if (login_fd > 0) {
+	if (loginif_isconnected()) {
 		// request account data
 		WFIFOHEAD(login_fd,6);
 		WFIFOW(login_fd,0) = 0x2716;
@@ -2321,6 +2324,10 @@ static void char_auth_ok(int fd, struct char_session_data *sd)
 
 int send_accounts_tologin(int tid, int64 tick, int id, intptr_t data);
 void mapif_server_reset(int id);
+
+int loginif_isconnected() {
+	return (login_fd > 0 && session[login_fd] && !session[login_fd]->flag.eof);
+}
 
 /// Resets all the data.
 void loginif_reset(void)
@@ -2650,29 +2657,27 @@ void do_final_loginif(void)
 
 int request_accreg2(int account_id, int char_id)
 {
-	if (login_fd > 0) {
-		WFIFOHEAD(login_fd,10);
-		WFIFOW(login_fd,0) = 0x272e;
-		WFIFOL(login_fd,2) = account_id;
-		WFIFOL(login_fd,6) = char_id;
-		WFIFOSET(login_fd,10);
-		return 1;
-	}
-	return 0;
+	loginif_check(0);
+
+	WFIFOHEAD(login_fd, 10);
+	WFIFOW(login_fd, 0) = 0x272e;
+	WFIFOL(login_fd, 2) = account_id;
+	WFIFOL(login_fd, 6) = char_id;
+	WFIFOSET(login_fd, 10);
+	return 1;
 }
 
 //Send packet forward to login-server for account saving
 int save_accreg2(unsigned char* buf, int len)
 {
-	if (login_fd > 0) {
-		WFIFOHEAD(login_fd,len+4);
-		memcpy(WFIFOP(login_fd,4), buf, len);
-		WFIFOW(login_fd,0) = 0x2728;
-		WFIFOW(login_fd,2) = len+4;
-		WFIFOSET(login_fd,len+4);
-		return 1;
-	}
-	return 0;
+	loginif_check(0);
+
+	WFIFOHEAD(login_fd, len + 4);
+	memcpy(WFIFOP(login_fd, 4), buf, len);
+	WFIFOW(login_fd, 0) = 0x2728;
+	WFIFOW(login_fd, 2) = len + 4;
+	WFIFOSET(login_fd, len + 4);
+	return 1;
 }
 
 /**
@@ -2879,7 +2884,7 @@ int char_parse_fwlog_changestatus(int fd){
 			Sql_GetData(sql_handle, 1, &data, NULL); t_cid = atoi(data);
 			Sql_FreeResult(sql_handle);
 
-			if( login_fd <= 0 )
+			if(!loginif_isconnected())
 				result = 3; // 3-login-server offline
 			//FIXME: need to move this check to login server [ultramage]
 			//	if( acc != -1 && isGM(acc) < isGM(account_id) )
@@ -3628,7 +3633,7 @@ int parse_frommap(int fd)
 		case 0x2b0c: // Map server send information to change an email of an account -> login-server
 			if (RFIFOREST(fd) < 86)
 				return 0;
-			if (login_fd > 0) { // don't send request if no login-server
+			if (!loginif_isconnected()) { // don't send request if no login-server or eof
 				WFIFOHEAD(login_fd,86);
 				memcpy(WFIFOP(login_fd,0), RFIFOP(fd,0),86); // 0x2722 <account_id>.L <actual_e-mail>.40B <new_e-mail>.40B
 				WFIFOW(login_fd,0) = 0x2722;
@@ -4494,7 +4499,7 @@ int parse_char(int fd)
 			}
 			else
 			{// authentication not found (coming from login server)
-				if (login_fd > 0) { // don't send request if no login-server
+				if (loginif_isconnected()) { // don't send request if no login-server
 					WFIFOHEAD(login_fd,23);
 					WFIFOW(login_fd,0) = 0x2712; // ask login-server to authentify an account
 					WFIFOL(login_fd,2) = sd->account_id;
@@ -5034,7 +5039,7 @@ int broadcast_user_count(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	prev_users = users;
 
-	if( login_fd > 0 && session[login_fd] )
+	if (loginif_isconnected())
 	{
 		// send number of user to login server
 		WFIFOHEAD(login_fd,6);

@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/29/2022
+	r354 [15peaces]
+		*Merged missing changes from 3ceam rev. 872 - 873
+		*updated @dropall command to allow dropping items by type.
+			-Thanks to @rathena
+		*Some misc cleaning.
+		*Fixed cell_basilica which gave nothing.
+			-Thanks to @rathena
+		*Added loginif_isconnected function to check if the login-server is connected to char-server.
+		*Disabled access to multi-colored dragons through commands and scripts.
+			-Its been found that riding any color other then green while having a body style of 1 or more causes sprite error's and client crash, making it impossible to get back on that character.
+		*Fixed a issue where skills could not be leveled up when playing as a Summoner.
+		*Added a structure init for skill_spellbook_db.
+		*Disabled dragon color selection in the 3CeAM rental script.
+		*Added new items.
+
 10/27/2022
 	r353 [15peaces]
 		*Merged missing changes from 3ceam rev. 864 - 871

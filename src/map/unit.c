@@ -206,6 +206,8 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 				}
 			}
 		}
+
+		pc_cell_basilica(sd);
 	} else if (md) {
 		if( map_getcell(bl->m,x,y,CELL_CHKNPC) ) {
 			if( npc_touch_areanpc2(md) ) return 0; // Warped
