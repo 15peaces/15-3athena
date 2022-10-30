@@ -775,6 +775,8 @@ typedef enum sc_type {
 	SC_USE_SKILL_SP_SPA,
 	SC_USE_SKILL_SP_SHA,
 	SC_SP_SHA,
+
+	SC_ANCILLA,
 	
 	// only temp and for testing
 	SC_MILLENNIUMSHIELD = 700,

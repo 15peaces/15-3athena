@@ -1886,8 +1886,8 @@
 2892,Assassin_Handcuffs,Assassin's Glove,5,56000,,400,,1,,1,0x00001000,63,2,136,,100,0,0,{ bonus bMaxSP,20; bonus bCritical,3; },{},{}
 //2893,Cursed_Heart
 2894,Glove_Of_Shura,Sura Gauntlet,5,20,,400,,0,,0,0x00008000,63,2,136,,130,0,0,{ bonus bStr,5; bonus bMaxSPrate,6; bonus bMaxHPrate,-6; if(readparam(bStr)>=120){ bonus bBaseAtk,30; } },{},{}
-//2895,Medal_Of_Valor1
-//2896,Medal_Of_Valor2
+2895,Medal_Of_Valor1,Medal Of Valor1,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bCastrate,-2; },{},{}
+2896,Medal_Of_Valor2,Medal Of Valor2,5,0,,0,,4,,0,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAspdRate,3; },{},{}
 2897,2011RWC_Necklace_J,2011RWC Necklace J,5,0,,100,,0,,0,0xFFFFFFFF,63,2,136,,1,0,0,{ bonus2 bAddRace,RC_Boss,5; bonus2 bAddRace,RC_NonBoss,5; bonus bMatkRate,5; bonus2 bExpAddRace,RC_Boss,1; bonus2 bExpAddRace,RC_NonBoss,1; },{},{}
 2898,Black_Rosary,Dark Rosary,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,90,0,0,{ bonus bMdef,15; },{},{}
 2899,Sound_Amplifier,Sound Amplification Device,5,20,,100,,0,,1,0x00080800,63,2,136,,90,0,0,{ bonus2 bSkillAtk,"WM_METALICSOUND",90; bonus2 bSkillUseSP,"WM_METALICSOUND",-60; bonus bCastrate,-50; },{},{}
@@ -5384,7 +5384,6 @@
 12330,Recall_FemaleGM,Summon Female GameMaster Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2001,1800000; },{},{}
 12331,Ginseng,Ginseng,0,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 6,0; },{},{}
 12332,Fruit_Juice,Fruit Juice,0,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,6; },{},{}
-12333,Ansila,Ancilla,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 0,15; },{},{}
 12334,Cherish_Box,Treasure Edition Helm Box,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem groupranditem(IG_Cherish_Box),1; },{},{}
 12335,Yummy_Skewered_Dish,Grilled Delicious Skewer,0,1000,,350,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 60,60; },{},{}
 12336,Baked_Mushroom,Grilled Mushroom,0,500,,300,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 30,30; },{},{}
@@ -7545,9 +7544,10 @@
 //19007,Blue_Ear_Accessary,
 //19008,Little_Wyverns,
 //19013,LuBu_Helmet,
-//19019,Elemental_Crown,
+19019,Elemental_Crown,Elemental Crown,5,0,,500,,10,,1,0xFFFFFFFF,63,2,256,,50,,1219,{bonus bDex,3; bonus bLongAtkRate,4; bonus bDex,(getrefine()/2); if(BaseLevel>130){bonus bDex,getrefine();} },{},{}
 //19020,Survive_Circlet,
 //19022,Floating_Stone_Of_Int,
+19028,Kid_Deviling,Kid Deviling,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,,40,,1036,{},{},{}
 //19032,Angel_Of_Happiness,
 //19040,Wish_Tree_Hat,
 //19112,Tengu_Scroll,

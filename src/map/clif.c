@@ -2865,20 +2865,23 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 
 void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int items_length)
 {
+	static const int client_buf = 0x5000; // Max buffer to send
 	struct item_data *id;
-	int i,n,ne;
+	int i,n,ne,nn;
 	unsigned char *buf;
 	unsigned char *bufe;
+	unsigned char *bufn;
 
 	const int s = 24;// Packet length for stackable items V5.
+
 #if PACKETVER < 20150513
-	const int cmd = 31;// Packet length for equippable items V5.
+	const int se = 31;// Packet length for equippable items V5.
 #else
-	const int cmd = 57;// Packet length for equippable items V6.
+	const int se = 57;// Packet length for equippable items V6.
 #endif
 
 	buf = (unsigned char*)aMallocA(items_length * s + 28);
-	bufe = (unsigned char*)aMallocA(items_length * cmd + 28);
+	bufe = (unsigned char*)aMallocA(items_length * se + 28);
 
 	for( i = 0, n = 0, ne = 0; i < items_length; i++ )
 	{
@@ -2887,8 +2890,8 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 		id = itemdb_search(items[i].nameid);
 		if( !itemdb_isstackable2(id) )
 		{// Equippable Items (Not Stackable)
-			WBUFW(bufe,ne*cmd+28)=i+1;// index
-			clif_item_sub_v5(bufe, ne*cmd+30, &items[i], id, id->equip);
+			WBUFW(bufe,ne*se+28)=i+1;// index
+			clif_item_sub_v5(bufe, ne*se +30, &items[i], id, id->equip);
 			ne++;
 		}
 		else
@@ -2898,23 +2901,31 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 			n++;
 		}
 	}
-	if( n )
+	for (i = 0; i < n;) // Loop through non-equipable items
 	{// ZC_STORE_ITEMLIST_NORMAL_V5
-		WBUFW(buf,0)=0x995;
-		WBUFW(buf,2)=28+n*s;
-		memcpy(WBUFP(buf,4), "Storage", NAME_LENGTH);// StoreName
-		clif_send(buf, WBUFW(buf,2), &sd->bl, SELF);
+		nn = n - i < (client_buf - 4) / s ? n - i : (client_buf - 4) / s; // Split up non-equipable items 
+		bufn = buf + i * s; // Update buffer to new index range
+		i += nn;
+
+		WBUFW(bufn,0)=0x995;
+		WBUFW(bufn,2)=28+n*s;
+		memcpy(WBUFP(bufn,4), "Storage", NAME_LENGTH);// StoreName
+		clif_send(bufn, WBUFW(bufn,2), &sd->bl, SELF);
 	}
-	if( ne )
+	for (i = 0; i < ne;) // Loop through equipable items
 	{// ZC_STORE_ITEMLIST_EQUIP_V5
+		nn = ne - i < (client_buf - 4) / se ? ne - i : (client_buf - 4) / se; // Split up equipable items
+		bufn = bufe + i * se; // Update buffer to new index range
+		i += nn;
+
 #if PACKETVER < 20150513
-		WBUFW(bufe,0)=0x996;
+		WBUFW(bufn,0)=0x996;
 #else
-		WBUFW(bufe,0)=0xa10;
+		WBUFW(bufn,0)=0xa10;
 #endif
-		WBUFW(bufe,2)=28+ne*cmd;
-		memcpy(WBUFP(bufe,4), "Storage", NAME_LENGTH);// StoreName
-		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
+		WBUFW(bufn,2)=28+ne*se;
+		memcpy(WBUFP(bufn,4), "Storage", NAME_LENGTH);// StoreName
+		clif_send(bufn, WBUFW(bufn,2), &sd->bl, SELF);
 	}
 
 	if( buf ) aFree(buf);

@@ -5,6 +5,73 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/30/2022
+	r355 [15peaces]
+		*Merged missing changes from 3ceam rev. 874 - 875
+		*Some more updates to item database
+			-Added missing items.
+			-Moved some stable items.
+			-Updated the Ancilla item to its new behavior.
+		*Some misc bug fixes
+			-Adjusted script commands that use script_isstring and script_isint to use script_getdata to dereference if variable is given.
+			-Increased the hostname array to account for longer hostnames.
+			-Fixed the itemlist send to allow increase of MAX_STORAGE.
+			-Thanks to @rathena
+		*Applied the Arch Bishop 2018 update.
+		*Fixed the itemlist command to tell if a item is equipped to the ammo slot.
+		*Cleaned and optomized some code.
+		*Arch Bishop
+			-Skill tree updated with 2 new skills.
+			-AB_EUCHARISTICA is still enabled for a few reasons.
+			-First, packet capture data shows its still enabled in the skill tree. Not sure if its acturally learnable. Likely not. 2nd, some private server's will still be using older clients with older skill tree data. 3rd, this is a private server emu. 
+			-Note: A 2018-06-20RagexeRE or newer client is required for the 2 new skills to properly show up in the skill window and also display properly when casted.
+				--All other skill updates should work fine with older clients.
+			-Note: AB_CONVENIO doesn't work yet and will be coded in on the next update due to how complex the code for it will be.
+		*AB_JUDEX
+			-Damage formula updated.
+			-Fixed a issue where the splash AoE size was bigger then it should be.
+		*AB_ANCILLA
+			-SP cost reduced to 10%.
+			-Ancilla item behavior changed. Using it now gives a buff for 60 seconds that increases healing rate by 15% and SP recovery rate by 30%.
+			-Fixed a issue where SP was consumed on skill fail due to lack of blue gemstone.
+		*AB_ADORAMUS
+			-Damage formula updated.
+			-Is now a enemy targeted splash AoE.
+			-SP requirements updated.
+			-Now checks for Acolyte and higher jobs for gemstone requirement removal. (Confirmed)
+			-Status apply behavior updated to official.
+			-When the status success chance triggers, it will apply adoramus version of decrease AGI (duration not halved on players) and remove regular Dec-AGI if found active, and apply blind at 100% success chance (reduceable by normal means).
+			-Durations are now official for both status as well.
+		*AB_LAUDAAGNUS
+			-Success chance of removing debuffs updated.
+			-No longer gives buff that increases VIT.
+			-Now gives buff that increases MaxHP.
+		*AB_LAUDARAMUS
+			-Success chance of removing debuffs updated.
+			-No longer gives buff that increases LUK.
+			-Now gives buff that increases critical damage.
+		*AB_RENOVATIO
+			-Is now a self casted splash AoE.
+			-AoE only affects party members in screen-wide range.
+			-SP requirements updated.
+			-Now heals 5% MaxHP every 5 seconds but won't heal if player is undead element.
+			-No longer deals damage to undead.
+		*AB_EXPIATIO
+			-Now bypasses both DEF/MDEF.
+		*AB_DUPLELIGHT
+			-Damage formula updated.
+			-Melee damage part now deals ranged damage.
+			-Both duple sphere's now have seprate success chances of triggering, allowing for one or both to trigger.
+		*NC_STEALTHFIELD
+			-Fixed a issue where it made those affected immune to damage.
+		*SR_DRAGONCOMBO
+			-Corrected stun chance to official.
+			-Looks like they didn't keep the increased chance.
+		*SO_STRIKING
+			-Corrected when the operations the CRIT increase is applied.
+		*AB_VITUPERATUM
+			-Added support for this skill.
+
 10/29/2022
 	r354 [15peaces]
 		*Merged missing changes from 3ceam rev. 872 - 873

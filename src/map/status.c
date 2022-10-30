@@ -460,10 +460,10 @@ void initChangeTables(void)
 	set_sc(AB_CANTO			, SC_INCREASEAGI	, SI_INCREASEAGI	, SCB_AGI | SCB_SPEED);
 	set_sc( AB_EPICLESIS	, SC_EPICLESIS		, SI_EPICLESIS		, SCB_MAXHP );
 	set_sc(AB_PRAEFATIO		, SC_KYRIE			, SI_KYRIE			, SCB_NONE);
-	set_sc( AB_ORATIO		, SC_ORATIO			, SI_ORATIO			, SCB_NONE );
-	set_sc( AB_LAUDAAGNUS	, SC_LAUDAAGNUS		, SI_LAUDAAGNUS		, SCB_VIT );
-	set_sc( AB_LAUDARAMUS	, SC_LAUDARAMUS		, SI_LAUDARAMUS		, SCB_LUK );
-	set_sc( AB_RENOVATIO	, SC_RENOVATIO		, SI_RENOVATIO		, SCB_REGEN );
+	set_sc(AB_ORATIO		, SC_ORATIO			, SI_ORATIO			, SCB_NONE);
+	set_sc(AB_LAUDAAGNUS	, SC_LAUDAAGNUS		, SI_LAUDAAGNUS		, SCB_MAXHP);
+	set_sc(AB_LAUDARAMUS	, SC_LAUDARAMUS		, SI_LAUDARAMUS		, SCB_NONE);
+	set_sc(AB_RENOVATIO		, SC_RENOVATIO		, SI_RENOVATIO		, SCB_REGEN);
 	set_sc(AB_EXPIATIO		, SC_EXPIATIO		, SI_EXPIATIO		, SCB_NONE);
 	set_sc( AB_DUPLELIGHT	, SC_DUPLELIGHT		, SI_DUPLELIGHT		, SCB_NONE );
 	set_sc( AB_SECRAMENT	, SC_AB_SECRAMENT	, SI_AB_SECRAMENT	, SCB_NONE );
@@ -684,6 +684,8 @@ void initChangeTables(void)
 	set_sc(SU_NYANGGRASS		, SC_NYANGGRASS		, SI_NYANGGRASS		, SCB_DEF | SCB_MDEF);
 
 	set_sc(WE_CHEERUP, SC_CHEERUP, SI_CHEERUP, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK);
+
+	add_sc(AB_VITUPERATUM, SC_AETERNA);
 
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
@@ -925,6 +927,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_REBOUND] = SI_REBOUND;
 	StatusIconChangeTable[SC_H_MINE_SPLASH] = SI_H_MINE_SPLASH;
 	StatusIconChangeTable[SC_HEAT_BARREL_AFTER] = SI_HEAT_BARREL_AFTER;
+	StatusIconChangeTable[SC_ANCILLA] = SI_ANCILLA;
 
 	// Star Emperor / Soul Reaper
 	StatusIconChangeTable[SC_USE_SKILL_SP_SPA] = SI_USE_SKILL_SP_SPA;
@@ -1907,8 +1910,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			return 0;
 		if(skill_num == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))
 			return 0;
-		if( skill_num && tsc->data[SC_STEALTHFIELD] )
-			return 0;
+		if((skill_get_inf(skill_num)&INF_ATTACK_SKILL || skill_get_inf(skill_num)&INF_SUPPORT_SKILL) && tsc->data[SC_STEALTHFIELD])
+			return 0;// Its blocking splash damage from other's targeted with INF_ATK_SKILL. Need to correct this later. [Rytech]
 	}
 
 	if( tsc && tsc->option )
@@ -4732,8 +4735,6 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += 5;
 	if(sc->data[SC_GLORIA])
 		luk += 30;
-	if(sc->data[SC_LAUDARAMUS])
-		luk += 4 + sc->data[SC_LAUDARAMUS]->val1;
 	if(sc->data[SC_HARMONIZE])
 		luk += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_PUTTI_TAILS_NOODLES])
@@ -5863,7 +5864,9 @@ static unsigned int status_calc_maxhp(struct block_list *bl, struct status_chang
 	if(sc->data[SC_MERC_HPUP])
 		maxhp += maxhp * sc->data[SC_MERC_HPUP]->val2/100;
 	if(sc->data[SC_EPICLESIS])
-		maxhp += maxhp * 5 * sc->data[SC_EPICLESIS]->val1 / 100;
+		maxhp += maxhp * sc->data[SC_EPICLESIS]->val2 / 100;
+	if(sc->data[SC_LAUDAAGNUS])
+		maxhp += maxhp * sc->data[SC_LAUDAAGNUS]->val2 / 100;
 	if(sc->data[SC_FORCEOFVANGUARD])
 		maxhp += maxhp * 3 * sc->data[SC_FORCEOFVANGUARD]->val1 / 100;
 	if(sc->data[SC_RAISINGDRAGON])
@@ -7364,8 +7367,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_TRUESIGHT, INVALID_TIMER);
 		status_change_end(bl, SC_WINDWALK, INVALID_TIMER);
 		//Also blocks the ones below...
-	case SC_DECREASEAGI:
 	case SC_ADORAMUS:
+		status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
+	case SC_DECREASEAGI:
 		status_change_end(bl, SC_CARTBOOST, INVALID_TIMER);
 		//Also blocks the ones below...
 	case SC_DONTFORGETME:
@@ -7772,10 +7776,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	{
 		case SC_DECREASEAGI:
 		case SC_INCREASEAGI:
-		case SC_ADORAMUS:
 			val2 = 2 + val1; //Agi change
-			if( type == SC_ADORAMUS )
-				sc_start(bl,SC_BLIND,100,val1,skill_get_time(status_sc2skill(type),val1)); 
 			break;
 		case SC_ENDURE:
 			val2 = 7; // Hit-count [Celest]
@@ -8743,9 +8744,30 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val3 = 10 * val1; // Evasion rate of magical attacks.
 			val_flag |= 1|2|4;
 			break;
+		case SC_ADORAMUS:
+			val2 = 2 + val1;// AGI Reduction
+			break;
+		case SC_EPICLESIS:
+			val2 = 5 * val1;// MaxHP Increase
+			break;
+		case SC_ORATIO:
+			val2 = 2 * val1;// Holy Element Resistance Reduction
+			break;
+		case SC_LAUDAAGNUS:
+			val2 = 2 + 2 * val1;// MaxHP Increase
+			break;
+		case SC_LAUDARAMUS:
+			val2 = 5 * val1;// Critical Damage Increase
+			break;
 		case SC_RENOVATIO:
 			val4 = tick / 5000;
 			tick = 5000;
+			break;
+		case SC_EXPIATIO:
+			val2 = 5 * val1;
+			break;
+		case SC_DUPLELIGHT:
+			val2 = 10 + 2 * val1;// Success Chance
 			break;
 		case SC_MARSHOFABYSS:
 			val2 = 3 * val1;//AGI and DEX Reduction
@@ -9467,6 +9489,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val4 = val3 / 10 + (5 * val2 - 10);
 			if (val4 <= 0)//Prevents a negeative value from happening.
 				val4 = 0;
+			break;
+		case SC_ANCILLA:
+			val2 = 15;// Heal Increase
+			val3 = 30;// SP Recovery Increase
 			break;
 		case SC_CLAN_INFO:
  			val_flag |= 1|2;
@@ -10459,9 +10485,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_HALLUCINATIONWALK:
 			sc_start(bl,SC_HALLUCINATIONWALK_POSTDELAY,100,sce->val1,skill_get_time2(GC_HALLUCINATIONWALK,sce->val1));
 			break;
-		case SC_ADORAMUS:
-			status_change_end(bl, SC_BLIND, -1);
-			break;
 		case SC_IMPRISON:
 			if( tid == -1 )
 				break; // Terminated by Damage
@@ -11379,7 +11402,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 	case SC_RENOVATIO:
 		if( --(sce->val4) >= 0 ) {
-			status_heal(bl, status->max_hp * 3 / 100, 0, 2);
+			if(!battle_check_undead(status->race, status->def_ele))
+				status_heal(bl, status->max_hp * 5 / 100, 0, 2);
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}

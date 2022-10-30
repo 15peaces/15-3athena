@@ -7780,6 +7780,7 @@ BUILDIN_FUNC(bonus)
 	int val4 = 0;
 	int val5 = 0;
 	TBL_PC* sd;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
@@ -7801,7 +7802,9 @@ BUILDIN_FUNC(bonus)
 	case SP_ADDEFF_ONSKILL:
 	case SP_SPRATE:
 		// these bonuses support skill names
-		val1 = ( script_isstring(st,3) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3) );
+		data = script_getdata(st, 3);
+		get_val(st, data); // Convert into value in case of a variable
+		val1 = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
 		break;
 	default:
 		val1 = script_getnum(st,3);
@@ -7823,7 +7826,9 @@ BUILDIN_FUNC(bonus)
 		pc_bonus3(sd, type, val1, val2, val3);
 		break;
 	case 4:
-		if( type == SP_AUTOSPELL_ONSKILL && script_isstring(st,4) )
+		data = script_getdata(st, 4);
+		get_val(st, data); // Convert into value in case of a variable
+		if (type == SP_AUTOSPELL_ONSKILL && data_isstring(data))
 			val2 = skill_name2id(script_getstr(st,4)); // 2nd value can be skill name
 		else
 			val2 = script_getnum(st,4);
@@ -7833,7 +7838,9 @@ BUILDIN_FUNC(bonus)
 		pc_bonus4(sd, type, val1, val2, val3, val4);
 		break;
 	case 5:
-		if( type == SP_AUTOSPELL_ONSKILL && script_isstring(st,4) )
+		data = script_getdata(st, 4);
+		get_val(st, data); // Convert into value in case of a variable
+		if (type == SP_AUTOSPELL_ONSKILL && data_isstring(data))
 			val2 = skill_name2id(script_getstr(st,4)); // 2nd value can be skill name
 		else
 			val2 = script_getnum(st,4);
@@ -7931,6 +7938,7 @@ BUILDIN_FUNC(autobonus3)
 	short rate,atk_type;
 	TBL_PC* sd;
 	const char *bonus_script, *other_script = NULL;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
@@ -7941,7 +7949,9 @@ BUILDIN_FUNC(autobonus3)
 
 	rate = script_getnum(st,3);
 	dur = script_getnum(st,4);
-	atk_type = ( script_isstring(st,5) ? skill_name2id(script_getstr(st,5)) : script_getnum(st,5) );
+	data = script_getdata(st, 5);
+	get_val(st, data); // Convert into value in case of a variable
+	atk_type = (data_isstring(data) ? skill_name2id(script_getstr(st, 5)) : script_getnum(st, 5));
 	bonus_script = script_getstr(st,2);
 	if( !rate || !dur || !atk_type || !bonus_script )
 		return 0;
@@ -7976,12 +7986,15 @@ BUILDIN_FUNC(skill)
 	int level;
 	int flag = 1;
 	TBL_PC* sd;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;// no player attached, report source
 
-	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	level = script_getnum(st,3);
 	if( script_hasdata(st,4) )
 		flag = script_getnum(st,4);
@@ -8005,12 +8018,15 @@ BUILDIN_FUNC(addtoskill)
 	int level;
 	int flag = 2;
 	TBL_PC* sd;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;// no player attached, report source
 
-	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	level = script_getnum(st,3);
 	if( script_hasdata(st,4) )
 		flag = script_getnum(st,4);
@@ -8029,12 +8045,15 @@ BUILDIN_FUNC(guildskill)
 	int level;
 	TBL_PC* sd;
 	int i;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;// no player attached, report source
 
-	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	level = script_getnum(st,3);
 	for( i=0; i < level; i++ )
 		guild_skillup(sd, id);
@@ -8050,12 +8069,15 @@ BUILDIN_FUNC(getskilllv)
 {
 	int id;
 	TBL_PC* sd;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;// no player attached, report source
 
-	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	script_pushint(st, pc_checkskill(sd,id));
 
 	return 0;
@@ -8070,9 +8092,12 @@ BUILDIN_FUNC(getgdskilllv)
 	int guild_id;
 	int skill_id;
 	struct guild* g;
+	struct script_data *data;
 
 	guild_id = script_getnum(st,2);
-	skill_id = ( script_isstring(st,3) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3) );
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
 	g = guild_search(guild_id);
 	if( g == NULL )
 		script_pushint(st, -1);
@@ -8682,12 +8707,15 @@ BUILDIN_FUNC(itemskill)
 	int id;
 	int lv;
 	TBL_PC* sd;
+	struct script_data *data;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL || sd->ud.skilltimer != INVALID_TIMER )
 		return 0;
 
-	id = ( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	lv = script_getnum(st,3);
 
 	sd->skillitem=id;
@@ -12792,6 +12820,7 @@ BUILDIN_FUNC(petheal)
 BUILDIN_FUNC(petskillattack)
 {
 	struct pet_data *pd;
+	struct script_data *data;
 	TBL_PC *sd=script_rid2sd(st);
 
 	if(sd==NULL || sd->pd==NULL)
@@ -12801,7 +12830,9 @@ BUILDIN_FUNC(petskillattack)
 	if (pd->a_skill == NULL)
 		pd->a_skill = (struct pet_skill_attack *)aMalloc(sizeof(struct pet_skill_attack));
 				
-	pd->a_skill->id=( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	pd->a_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	pd->a_skill->lv=script_getnum(st,3);
 	pd->a_skill->div_ = 0;
 	pd->a_skill->rate=script_getnum(st,4);
@@ -12819,6 +12850,7 @@ BUILDIN_FUNC(petskillattack2)
 {
 	struct pet_data *pd;
 	TBL_PC *sd=script_rid2sd(st);
+	struct script_data *data;
 
 	if(sd==NULL || sd->pd==NULL)
 		return 0;
@@ -12827,7 +12859,9 @@ BUILDIN_FUNC(petskillattack2)
 	if (pd->a_skill == NULL)
 		pd->a_skill = (struct pet_skill_attack *)aMalloc(sizeof(struct pet_skill_attack));
 				
-	pd->a_skill->id=( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	pd->a_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	pd->a_skill->lv=script_getnum(st,3);
 	pd->a_skill->div_ = script_getnum(st,4);
 	pd->a_skill->rate=script_getnum(st,5);
@@ -12844,6 +12878,7 @@ BUILDIN_FUNC(petskillattack2)
 BUILDIN_FUNC(petskillsupport)
 {
 	struct pet_data *pd;
+	struct script_data *data;
 	TBL_PC *sd=script_rid2sd(st);
 
 	if(sd==NULL || sd->pd==NULL)
@@ -12862,7 +12897,9 @@ BUILDIN_FUNC(petskillsupport)
 	} else //init memory
 		pd->s_skill = (struct pet_skill_support *) aMalloc(sizeof(struct pet_skill_support)); 
 	
-	pd->s_skill->id=( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
+	data = script_getdata(st, 2);
+	get_val(st, data); // Convert into value in case of a variable
+	pd->s_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	pd->s_skill->lv=script_getnum(st,3);
 	pd->s_skill->delay=script_getnum(st,4);
 	pd->s_skill->hp=script_getnum(st,5);
@@ -12885,9 +12922,12 @@ BUILDIN_FUNC(petskillsupport)
 BUILDIN_FUNC(skilleffect)
 {
 	TBL_PC *sd;
+	uint16 skillid, skilllv;
+	struct script_data *data = script_getdata(st, 2);
 
-	int skillid=( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
-	int skilllv=script_getnum(st,3);
+	get_val(st, data); // Convert into value in case of a variable
+	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
+	skilllv = script_getnum(st, 3);
 	sd=script_rid2sd(st);
 
 	clif_skill_nodamage(&sd->bl,&sd->bl,skillid,skilllv,1);
@@ -12903,11 +12943,15 @@ BUILDIN_FUNC(skilleffect)
 BUILDIN_FUNC(npcskilleffect)
 {
 	struct block_list *bl= map_id2bl(st->oid);
+	uint16 skillid, skilllv;
+	int x, y;
+	struct script_data *data = script_getdata(st, 2);
 
-	int skillid=( script_isstring(st,2) ? skill_name2id(script_getstr(st,2)) : script_getnum(st,2) );
-	int skilllv=script_getnum(st,3);
-	int x=script_getnum(st,4);
-	int y=script_getnum(st,5);
+	get_val(st, data); // Convert into value in case of a variable
+	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
+	skilllv = script_getnum(st, 3);
+	x = script_getnum(st, 4);
+	y = script_getnum(st, 5);
 
 	if (bl)
 		clif_skill_poseffect(bl,skillid,skilllv,x,y,gettick());
@@ -16980,9 +17024,12 @@ BUILDIN_FUNC(unitskilluseid)
 	int unit_id, target_id, casttime;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;
+	struct script_data *data;
 
 	unit_id  = script_getnum(st,2);
-	skill_id = ( script_isstring(st,3) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3) );
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
 	skill_lv = script_getnum(st,4);
 	target_id = ( script_hasdata(st,5) ? script_getnum(st,5) : unit_id );
 
@@ -17003,9 +17050,12 @@ BUILDIN_FUNC(unitskillusepos)
 	int unit_id, skill_x, skill_y, casttime;
 	uint16 skill_id, skill_lv;
 	struct block_list* bl;
+	struct script_data *data;
 
 	unit_id  = script_getnum(st,2);
-	skill_id = ( script_isstring(st,3) ? skill_name2id(script_getstr(st,3)) : script_getnum(st,3) );
+	data = script_getdata(st, 3);
+	get_val(st, data); // Convert into value in case of a variable
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 3)) : script_getnum(st, 3));
 	skill_lv = script_getnum(st,4);
 	skill_x  = script_getnum(st,5);
 	skill_y  = script_getnum(st,6);
@@ -18407,6 +18457,7 @@ static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 BUILDIN_FUNC(areamobuseskill)
 {
 	struct block_list center;
+	struct script_data *data;
 	int m,range,mobid,skillid,skilllv,casttime,emotion,target,cancel;
 
 	if( (m = map_mapname2mapid(script_getstr(st,2))) < 0 )
@@ -18423,7 +18474,9 @@ BUILDIN_FUNC(areamobuseskill)
 	center.y = script_getnum(st,4);
 	range = script_getnum(st,5);
 	mobid = script_getnum(st,6);
-	skillid = ( script_isstring(st,7) ? skill_name2id(script_getstr(st,7)) : script_getnum(st,7) );
+	data = script_getdata(st, 7);
+	get_val(st, data); // Convert into value in case of a variable
+	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 7)) : script_getnum(st, 7));
 	if( (skilllv = script_getnum(st,8)) > battle_config.mob_max_skilllvl )
 		skilllv = battle_config.mob_max_skilllvl;
 

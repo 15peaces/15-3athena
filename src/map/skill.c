@@ -409,6 +409,8 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 	{
 			if( sc->data[SC_OFFERTORIUM] )
 				hp += hp * sc->data[SC_OFFERTORIUM]->val2 / 100;
+			if( sc->data[SC_ANCILLA] )
+				hp += hp * sc->data[SC_ANCILLA]->val2 / 100;
 	}
 
 	sc = status_get_sc(target);
@@ -1266,7 +1268,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			skill_castend_damage_id(src, bl, LG_PINPOINTATTACK, rnd_value(1, (sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5)), tick, 0);
 		break;
 	case SR_DRAGONCOMBO:
-		sc_start(bl, SC_STUN, 2 * skilllv, skilllv, skill_get_time(skillid, skilllv));
+		sc_start(bl, SC_STUN, 1 + skilllv, skilllv, skill_get_time(skillid, skilllv));
 		break;
 	case SR_FALLENEMPIRE:// Switch this to SC_FALLENEMPIRE soon.
 		sc_start(bl, SC_STOP, 100, skilllv, skill_get_time(skillid, skilllv));
@@ -1488,7 +1490,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -4748,7 +4750,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NJ_KOUENKA:
 	case NJ_HYOUSENSOU:
 	case NJ_HUUJIN:
-	case AB_RENOVATIO:
 	case AB_HIGHNESSHEAL:
 	case AB_DUPLELIGHT_MAGIC:
 	case WL_TETRAVORTEX_FIRE:
@@ -5544,13 +5545,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	switch (skillid) {
 		case HLIF_HEAL:	//[orn]
 			if (bl->type != BL_HOM) {
-				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0) ;
-	        break ;
+				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
+				break;
 			}
  		case AL_HEAL:
 		case ALL_RESURRECTION:
 		case PR_ASPERSIO:
-		case AB_RENOVATIO:
  		case AB_HIGHNESSHEAL:
 			//Apparently only player casted skills can be offensive like this.
 			if (sd && battle_check_undead(tstatus->race,tstatus->def_ele)) {
@@ -6125,7 +6125,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_GENTLETOUCH_REVITALIZE:
 	case GN_CARTBOOST:
 	case WL_RECOGNIZEDSPELL:
-	case AB_RENOVATIO:
 	case ALL_ODINS_POWER:
 	case RL_E_CHAIN:
 	case RL_HEAT_BARREL:
@@ -6802,6 +6801,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case CASH_BLESSING:
 	case CASH_INCAGI:
 	case CASH_ASSUMPTIO:
+	case AB_RENOVATIO:
 	case SU_BUNCHOFSHRIMP:
 		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
 			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
@@ -7643,7 +7643,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -9221,47 +9221,49 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
-	case AB_LAUDAAGNUS:
-		if( flag&1 || sd == NULL ) {
-			if ((tsc && (tsc->data[SC_STONE] || tsc->data[SC_FREEZE] ||
-				tsc->data[SC_BLIND] || tsc->data[SC_BURNING] ||
-				tsc->data[SC_FROST] || tsc->data[SC_CRYSTALIZE])) && (rand() % 100 < 40 + 10 * skilllv))
+	case AB_VITUPERATUM:
+		if ( flag&1 )
+		{
+			if ( !(tsc && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE))) )
 			{
-				status_change_end(bl, SC_STONE, INVALID_TIMER);
-				status_change_end(bl, SC_FREEZE, INVALID_TIMER);
-				status_change_end(bl, SC_BLIND, INVALID_TIMER);
-				status_change_end(bl, SC_BURNING, INVALID_TIMER);
-				status_change_end(bl, SC_FROST, INVALID_TIMER);
-				status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
 			}
-			// Success rate only applies to the curing effect and not stat bonus.
-			clif_skill_nodamage(bl, bl, skillid, skilllv,
-				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
-		} else if( sd )
-			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv),
-				src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+		}
+		else
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), BL_CHAR,
+				src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
 		break;
 
+	case AB_LAUDAAGNUS:
 	case AB_LAUDARAMUS:
-		if( flag&1 || sd == NULL )
+		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
 		{
-			if( (tsc && (tsc->data[SC_STUN] || tsc->data[SC_SLEEP] || 
-				tsc->data[SC_SILENCE] || tsc->data[SC_DEEPSLEEP] || 
-				tsc->data[SC_MANDRAGORA])) && (rand()%100 < 40+10*skilllv) )
+			if ( rand()%100 < 60+10*skilllv )
 			{
-				status_change_end(bl, SC_STUN, INVALID_TIMER);
-				status_change_end(bl, SC_SLEEP, INVALID_TIMER);
-				status_change_end(bl, SC_SILENCE, INVALID_TIMER);
-				status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
-				status_change_end(bl, SC_MANDRAGORA, INVALID_TIMER);
+				if ( skillid == AB_LAUDAAGNUS )
+				{// Lauda Agnus status removals
+					status_change_end(bl, SC_STONE, INVALID_TIMER);
+					status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+					status_change_end(bl, SC_BLIND, INVALID_TIMER);
+					status_change_end(bl, SC_BURNING, INVALID_TIMER);
+					status_change_end(bl, SC_FROST, INVALID_TIMER);
+					status_change_end(bl, SC_CRYSTALIZE, INVALID_TIMER);
+				}
+				else
+				{// Lauda Ramus status removals
+					status_change_end(bl, SC_STUN, INVALID_TIMER);
+					status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+					status_change_end(bl, SC_SILENCE, INVALID_TIMER);
+					status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+					status_change_end(bl, SC_MANDRAGORA, INVALID_TIMER);
+				}
 			}
-			clif_skill_nodamage(bl, bl, skillid, skilllv,
-				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
-			//Success rate only applies to the curing effect and not stat bonus.
-		}
+
+			clif_skill_nodamage(bl, bl, skillid, skilllv, sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
+		} 
 		else if( sd )
-			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv),
-				src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag | BCT_PARTY | 1, skill_castend_nodamage_id);
 		break;
 
 	case AB_EPICLESIS:
@@ -9397,7 +9399,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_KINGS_GRACE:
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
-				case SC_FULL_THROTTLE:	case SC_REBOUND:
+				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Only removeable by Dispell
 				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
 				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
@@ -14383,13 +14385,13 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 				return 1;
 			}
 		case AB_ADORAMUS:
-		{ // Adoramus does not consume Blue Gemstone when there is at least 1 Priest class next to the caster
-			if( tsd->status.sp >= 2*lv && (tsd->class_&MAPID_UPPERMASK) == MAPID_PRIEST )
+			{// Does not consume a blue gemstone if a Acolyte type job is standing next to the caster.
+				if ((tsd->class_&MAPID_BASEMASK) == MAPID_ACOLYTE && tsd->status.sp >= 2 * lv)
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}
 		case WL_COMET:
-		{ // Comet does not consume Red Gemstones when there is at least 1 Warlock class next to the caster
+		{// Does not consume a red gemstone if a Warlock is standing next to the caster.
 			if( tsd->status.class_ == JOB_WARLOCK || tsd->status.class_ == JOB_WARLOCK_T || tsd->status.class_ == JOB_BABY_WARLOCK )
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
@@ -14992,10 +14994,10 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 	case AB_ANCILLA:
 		{
-			int count = 0;
+			short count = 0;
 			for( i = 0; i < MAX_INVENTORY; i ++ )
 				if( sd->inventory.u.items_inventory[i].nameid == ITEMID_ANCILLA )
-					count += sd->inventory.u.items_inventory[i].amount;
+					count = sd->inventory.u.items_inventory[i].amount;
 			if( count >= 3 )
 			{
 				clif_skill_fail(sd, skill, USESKILL_FAIL_ANCILLA_NUMOVER, 0, 0);
