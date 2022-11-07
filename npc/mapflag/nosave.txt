@@ -17,7 +17,7 @@
 	-	script	_ep_mf_nosave	-1,{
 Oninit:
 	// after Episode 5
-	if(getepisode() > 50){
+	if(getepisode() > 50 /* && getepisode() < 152 */){ // TODO: Confirm removal...
 		setmapflagnosave "monk_in","SavePoint",0,0;
 	}
 

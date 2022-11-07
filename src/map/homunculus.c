@@ -382,6 +382,11 @@ int merc_hom_change_class(struct homun_data *hd, short class_)
 	return 1;
 }
 
+/**
+ * Make an homonculus evolve, (changing in evolution class and apply bonus)
+ * @param hd : homonculus datas
+ * @return 0:failure, 1:success
+ */
 int merc_hom_evolution(struct homun_data *hd)
 {
 	struct s_homunculus *hom;
@@ -422,7 +427,9 @@ int merc_hom_evolution(struct homun_data *hd)
 	hom->intimacy = 500;
 
 	unit_remove_map(&hd->bl, CLR_OUTSIGHT);
-	map_addblock(&hd->bl);
+	
+	if (map_addblock(&hd->bl))
+		return 0;
 
 	clif_spawn(&hd->bl);
 	clif_emotion(&sd->bl, E_NO1);
@@ -439,6 +446,12 @@ int merc_hom_evolution(struct homun_data *hd)
 	return 1 ;
 }
 
+/**
+ * Make an homonculus mutate in renewal homon
+ * @param hd : homonculus datas
+ * @param class_ : id to make it transform into (must be a valid homon class)
+ * @return 0:failure, 1:sucess
+ */
 int merc_hom_mutation(struct homun_data *hd, int class_)
 {
 	struct s_homunculus *hom;
@@ -518,7 +531,9 @@ int merc_hom_mutation(struct homun_data *hd, int class_)
 	hd->homunculus.rename_flag = 0;
 
 	unit_remove_map(&hd->bl, CLR_OUTSIGHT);
-	map_addblock(&hd->bl);
+	
+	if (map_addblock(&hd->bl))
+		return 0;
 
 	clif_spawn(&hd->bl);
 	clif_emotion(&sd->bl, E_NO1);
@@ -867,6 +882,11 @@ void merc_hom_init_timers(struct homun_data * hd)
 		sc_start(&hd->bl, SC_STYLE_CHANGE, 100, FIGHTER_STYLE, INVALID_TIMER);
 }
 
+/**
+ * Make a player spawn a homonculus (call)
+ * @param sd
+ * @return 0:failure, 1:sucess
+ */
 int merc_call_homunculus(struct map_session_data *sd)
 {
 	struct homun_data *hd;
@@ -894,7 +914,10 @@ int merc_call_homunculus(struct map_session_data *sd)
 		hd->bl.x = sd->bl.x;
 		hd->bl.y = sd->bl.y;
 		hd->bl.m = sd->bl.m;
-		map_addblock(&hd->bl);
+		
+		if (map_addblock(&hd->bl))
+			return 0;
+
 		clif_spawn(&hd->bl);
 		clif_send_homdata(sd,SP_ACK,0);
 		clif_hominfo(sd,hd,1);
@@ -909,7 +932,13 @@ int merc_call_homunculus(struct map_session_data *sd)
 	return 1;
 }
 
-// Recv homunculus data from char server
+/**
+ * Receive homunculus data from char server
+ * @param account_id : owner account_id of the homon
+ * @param sh : homonculus data from char-serv
+ * @param flag : does the creation in inter-serv was a success (0:no,1:yes)
+ * @return 0:failure, 1:sucess
+ */
 int merc_hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 {
 	struct map_session_data *sd;
@@ -940,7 +969,9 @@ int merc_hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
 	hd = sd->hd;
 	if(hd && hd->homunculus.hp && !hd->homunculus.vaporize && hd->bl.prev == NULL && sd->bl.prev != NULL)
 	{
-		map_addblock(&hd->bl);
+		if (map_addblock(&hd->bl))
+			return 0;
+
 		clif_spawn(&hd->bl);
 		clif_send_homdata(sd,SP_ACK,0);
 		clif_hominfo(sd,hd,1);
@@ -991,6 +1022,14 @@ int merc_create_homunculus_request(struct map_session_data *sd, int class_)
 	return 1;
 }
 
+/**
+ * Make a player resurect an homon (player must have one)
+ * @param sd : player pointer
+ * @param per : hp percentage to revive homon
+ * @param x : x map coordinate
+ * @param y : Y map coordinate
+ * @return 0:failure, 1:success
+ */
 int merc_resurrect_homunculus(struct map_session_data* sd, unsigned char per, short x, short y)
 {
 	struct homun_data* hd;
@@ -1004,7 +1043,7 @@ int merc_resurrect_homunculus(struct map_session_data* sd, unsigned char per, sh
 	
 	hd = sd->hd;
 
-  	if (hd->homunculus.vaporize == 1)
+	if (hd->homunculus.vaporize == 1)
 		return 0; // vaporized homunculi need to be 'called'
 
 	if (!status_isdead(&hd->bl))
@@ -1017,11 +1056,13 @@ int merc_resurrect_homunculus(struct map_session_data* sd, unsigned char per, sh
 		hd->bl.m = sd->bl.m;
 		hd->bl.x = x;
 		hd->bl.y = y;
-		map_addblock(&hd->bl);
+		
+		if (map_addblock(&hd->bl))
+			return 0;
+
 		clif_spawn(&hd->bl);
 	}
-	status_revive(&hd->bl, per, 0);
-	return 1;
+	return status_revive(&hd->bl, per, 0);
 }
 
 void merc_hom_revive(struct homun_data *hd, unsigned int hp, unsigned int sp)

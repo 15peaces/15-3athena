@@ -130,7 +130,6 @@ int unit_counttargeted(struct block_list *bl,int target_lv);
 // unit_data ‚Ì‰Šú‰»ˆ—
 void unit_dataset(struct block_list *bl);
 
-int unit_fixdamage(struct block_list *src,struct block_list *target,int64 tick,int sdelay,int ddelay,int damage,int div,int type,int damage2);
 // ‚»‚Ì‘¼
 struct unit_data* unit_bl2ud(struct block_list *bl);
 void unit_remove_map_pc(struct map_session_data *sd, clr_type clrtype);

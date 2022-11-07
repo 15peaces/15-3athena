@@ -34,7 +34,7 @@ enum e_buyingstore_failure
 
 
 static unsigned int buyingstore_nextid = 0;
-static const short buyingstore_blankslots[MAX_SLOTS] = { 0 };  // used when checking whether or not an item's card slots are blank
+static const unsigned short buyingstore_blankslots[MAX_SLOTS] = { 0 };  // used when checking whether or not an item's card slots are blank
 static const struct item_option buyingstore_blankoptions[MAX_ITEM_RDM_OPT] = { 0 };  // used when checking whether or not an item's random options are blank
 
 

@@ -471,6 +471,7 @@ packet_ver: 5
 //0x020c,0
 0x020d,-1
 0x8b3,-1	// showscript
+0x8d6,6//,ZC_CLEAR_DIALOG,2
 
 //2004-07-05aSakexe
 packet_ver: 6

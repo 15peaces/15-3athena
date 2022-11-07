@@ -2162,6 +2162,21 @@ void clif_scriptclose(struct map_session_data *sd, int npcid)
 	WFIFOSET(fd,packet_len(0xb6));
 }
 
+/// Close script when player is idle
+/// 08d6 <npc id>.L (ZC_CLEAR_DIALOG)
+void clif_scriptclear(struct map_session_data *sd, int npcid)
+{
+	int fd;
+
+	nullpo_retv(sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, packet_len(0x8d6));
+	WFIFOW(fd, 0) = 0x8d6;
+	WFIFOL(fd, 2) = npcid;
+	WFIFOSET(fd, packet_len(0x8d6));
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -11036,7 +11051,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 	sd->state.debug_remove_map = 0; // temporary state to track double remove_map's [FlavioJS]
 
-	map_addblock(&sd->bl);
+	if (map_addblock(&sd->bl))
+		return;
+
 	clif_spawn(&sd->bl);
 
 	// Party
@@ -11084,7 +11101,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		}
 		else
 		{
-			map_addblock(&sd->pd->bl);
+			if (map_addblock(&sd->pd->bl))
+				return;
+
 			clif_spawn(&sd->pd->bl);
 			clif_send_petdata(sd,sd->pd,0,0);
 			clif_send_petstatus(sd);
@@ -11095,7 +11114,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	//homunculus [blackhole89]
 	if( merc_is_hom_active(sd->hd) )
 	{
-		map_addblock(&sd->hd->bl);
+		if (map_addblock(&sd->hd->bl))
+			return;
+
 		clif_spawn(&sd->hd->bl);
 		clif_send_homdata(sd,SP_ACK,0);
 		clif_hominfo(sd,sd->hd,1);
@@ -11108,7 +11129,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	if( sd->md ) {
-		map_addblock(&sd->md->bl);
+		if (map_addblock(&sd->md->bl))
+			return;
+
 		clif_spawn(&sd->md->bl);
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
@@ -21560,7 +21583,7 @@ void packetdb_readdb(void)
 		{clif_parse_TickSend,"ticksend"},
 		{clif_parse_WalkToXY,"walktoxy"},
 		{clif_parse_QuitGame,"quitgame"},
-		{ clif_parse_GetCharNameRequest, "getcharnamerequest" },
+		{clif_parse_GetCharNameRequest, "getcharnamerequest"},
 		{clif_parse_GlobalMessage,"globalmessage"},
 		{clif_parse_MapMove,"mapmove"},
 		{clif_parse_ChangeDir,"changedir"},
@@ -21805,7 +21828,7 @@ void packetdb_readdb(void)
 		{clif_parse_private_airship_request, "pPrivateAirshipRequest"},
 		{clif_parse_open_ui_request, "pOpenUIRequest"},
 		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
-		{ clif_parse_pet_evolution, "petevolution"},
+		{clif_parse_pet_evolution, "petevolution"},
 		{NULL,NULL}
 	};
 

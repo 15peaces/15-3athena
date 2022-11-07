@@ -370,6 +370,11 @@ int map_delblock(struct block_list* bl)
  * Moves a block a x/y target position. [Skotlex]
  * Pass flag as 1 to prevent doing skill_unit_move checks
  * (which are executed by default on BL_CHAR types)
+ * @param bl : block(object) to move
+ * @param x1 : new x position
+ * @param y1 : new y position
+ * @param tick : when this was scheduled
+ * @return 0:sucess, 1:fail
  *------------------------------------------*/
 int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 {
@@ -408,7 +413,10 @@ int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 #endif
 	bl->x = x1;
 	bl->y = y1;
-	if (moveblock) map_addblock(bl);
+	if (moveblock) {
+		if (map_addblock(bl))
+			return 1;
+	}
 #ifdef CELL_NOSTACK
 	else map_addblcell(bl);
 #endif
@@ -736,7 +744,7 @@ int map_foreachinarea(int (*func)(struct block_list*,va_list), int m, int x0, in
 	struct block_list *bl;
 	int blockcount=bl_list_count,i;
 
-	if (m < 0)
+	if (m < 0 || m >= map_num)
 		return 0;
 	if (x1 < x0)
 	{	//Swap range
@@ -1557,10 +1565,18 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 }
 
 /*==========================================
- * (m,x,y)‚ð’†S‚É3x3ˆÈ?‚É°ƒAƒCƒeƒ€Ý’u
- *
- * item_data‚ÍamountˆÈŠO‚ðcopy‚·‚é
- * type flag: &1 MVP item. &2 do stacking check.
+ * Add an item in floor to location (m,x,y) and add restriction for those who could pickup later
+ * NB : If charids are null their no restriction for pickup
+ * @param item_data : item attributes
+ * @param amount : items quantity
+ * @param m : mapid
+ * @param x : x coordinates
+ * @param y : y coordinates
+ * @param first_charid : 1st player that could loot the item (only charid that could loot for first_get_tick duration)
+ * @param second_charid :  2nd player that could loot the item (2nd charid that could loot for second_get_charid duration)
+ * @param third_charid : 3rd player that could loot the item (3rd charid that could loot for third_get_charid duration)
+ * @param flag: &1 MVP item. &2 do stacking check. &4 bypass droppable check.
+ * @return 0:failure, x:item_gid [MIN_FLOORITEM;MAX_FLOORITEM]==[2;START_ACCOUNT_NUM]
  *------------------------------------------*/
 int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags)
 {
@@ -1599,7 +1615,10 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int fir
 	fitem->cleartimer=add_timer(gettick()+battle_config.flooritem_lifetime,map_clearflooritem_timer,fitem->bl.id,0);
 
 	map_addiddb(&fitem->bl);
-	map_addblock(&fitem->bl);
+
+	if (map_addblock(&fitem->bl))
+		return 0;
+
 	clif_dropflooritem(fitem);
 
 	return fitem->bl.id;

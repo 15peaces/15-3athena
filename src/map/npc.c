@@ -2204,6 +2204,19 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 	}
 }
 
+/**
+ * Add then display an npc warp on map
+ * @param name : warp unique name
+ * @param from_mapid : mapid to warp from
+ * @param from_x : x coordinate of warp
+ * @param from_y : y coordinate of warp
+ * @param xs : x lenght of warp (for trigger activation)
+ * @param ys : y lenght of warp (for trigger activation)
+ * @param to_mapindex : mapid to warp to
+ * @param to_x : x coordinate to warp to
+ * @param to_y : y coordinate to warp to
+ * @return NULL:failed creation, npc_data* new warp
+ */
 struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
 {
 	int i;
@@ -2236,7 +2249,10 @@ struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, shor
 	nd->subtype = NPCTYPE_WARP;
 	nd->trigger_on_hidden = false;
 	npc_setcells(nd);
-	map_addblock(&nd->bl);
+	
+	if (map_addblock(&nd->bl))
+		return NULL;
+
 	status_set_viewdata(&nd->bl, nd->class_);
 	status_change_init(&nd->bl);
 	unit_dataset(&nd->bl);
@@ -2246,7 +2262,18 @@ struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, shor
 	return nd;
 }
 
-/// Parses a warp npc.
+/**
+ * Parses a warp npc.
+ * Line definition <from mapname>,<fromX>,<fromY>,<facing>%TAB%warp%TAB%<warp name>%TAB%<spanx>,<spany>,<to mapname>,<toX>,<toY>
+ * @param w1 : word 1 before tab (<from map name>,<fromX>,<fromY>,<facing>)
+ * @param w2 : word 2 before tab (warp), keyword that sent us in this parsing
+ * @param w3 : word 3 before tab (<warp name>)
+ * @param w4 : word 4 before tab (<spanx>,<spany>,<to mapname>,<toX>,<toY>)
+ * @param start : index to start parsing
+ * @param buffer : lines to parses
+ * @param filepath : filename with path wich we are parsing
+ * @return new index for next parsing
+ */
 static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
 	int x, y, xs, ys, to_x, to_y, m;
@@ -2300,7 +2327,10 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 	else
 		nd->trigger_on_hidden = false;
 	npc_setcells(nd);
-	map_addblock(&nd->bl);
+	
+	if (map_addblock(&nd->bl)) //couldn't add on map
+		return strchr(start, '\n');
+
 	status_set_viewdata(&nd->bl, nd->class_);
 	status_change_init(&nd->bl);
 	unit_dataset(&nd->bl);
@@ -2536,7 +2566,7 @@ int npc_convertlabel_db(DBKey key, void* data, va_list ap)
 	// here we check if the label fit into the buffer
 	if( len > 23 )
 	{
-		ShowError("npc_parse_script: label name longer than 23 chars! '%s'\n (%s)", lname, filepath);
+		ShowError("npc_convertlabel_db: label name longer than 23 chars! '%s'\n (%s)", lname, filepath);
 		return 0;
 	}
 
@@ -2726,7 +2756,10 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 		unit_dataset(&nd->bl);
 		nd->ud.dir = dir;
 		npc_setcells(nd);
-		map_addblock(&nd->bl);
+
+		if (map_addblock(&nd->bl))
+			return NULL;
+
 		if( class_ >= 0 )
 		{
 			status_set_viewdata(&nd->bl, nd->class_);
@@ -2931,7 +2964,10 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		unit_dataset(&nd->bl);
 		nd->ud.dir = dir;
 		npc_setcells(nd);
-		map_addblock(&nd->bl);
+
+		if (map_addblock(&nd->bl))
+			return end;
+
 		if( class_ >= 0 )
 		{
 			status_set_viewdata(&nd->bl, nd->class_);
@@ -3049,7 +3085,10 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 		wnd->subtype = NPCTYPE_WARP;
 		wnd->trigger_on_hidden = snd->trigger_on_hidden;
 		npc_setcells(wnd);
-		map_addblock(&wnd->bl);
+
+		if (map_addblock(&wnd->bl))
+			return 1;
+
 		status_set_viewdata(&wnd->bl, wnd->class_);
 		status_change_init(&wnd->bl);
 		unit_dataset(&wnd->bl);
@@ -4189,6 +4228,7 @@ int do_init_npc(void)
 
 	//Stock view data for normal npcs.
 	memset(&npc_viewdb, 0, sizeof(npc_viewdb));
+	memset(&npc_viewdb_2, 0, sizeof(npc_viewdb_2));
 	npc_viewdb[0].class_ = INVISIBLE_CLASS; //Invisible class is stored here.
 	for( i = 1; i < MAX_NPC_CLASS; i++ ) 
 		npc_viewdb[i].class_ = i;

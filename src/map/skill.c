@@ -4879,7 +4879,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{// Requires target to have a soul link and more then 10% of MaxHP.
 			// With this skill requiring a soul link, and the target to have more then 10% if MaxHP, I wonder
 			// if the cooldown still happens after it fails. Need a confirm. [Rytech] 
-			clif_skill_fail(sd,skillid,0,0,0);
+			if (sd)
+				clif_skill_fail(sd,skillid,0,0,0);
 			break;
 		}
 
@@ -6790,7 +6791,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			skill_get_splash(skillid, skilllv), splash_target(src),
 			src, skillid, skilllv, tick, flag|i,
 			skill_castend_damage_id);
-		map_addblock(src);
+		
+		if (map_addblock(src))
+			return 1;
+
 		status_damage(src, src, sstatus->max_hp,0,0,1);
 		break;
 
@@ -10562,7 +10566,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if ( (!map_flag_gvg(src->m) && !map[src->m].flag.battleground) || bl->type != BL_PC ||
 				(tsc && (tsc->data[SC_KYOUGAKU] || tsc->data[SC_MONSTER_TRANSFORM])) )
 			{
-				clif_skill_fail(sd,skillid,0,0,0);
+				if(sd)
+					clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
 
@@ -10578,7 +10583,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 		if ( bl->type != BL_PC )
 		{
-			clif_skill_fail(sd,skillid,0,0,0);
+			if(sd)
+				clif_skill_fail(sd,skillid,0,0,0);
 			break;
 		}
 
@@ -10658,7 +10664,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{// Usable only on other players.
 			if ( bl->type != BL_PC )
 			{
-				clif_skill_fail(sd,skillid,0,0,0);
+				if(sd)
+					clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
 		}
@@ -11025,9 +11032,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 						ud->skilly = target->y;
 					}
 					else
-					{// Strike a random spot in a 9x9 area around the target if it doesn't have a crimson mark.
-						// Need a confirm on the size of the random strike zone.
-						// Using the same size as Crazy Weed for now. [Rytech]
+					{// Strike a random spot in a 15x15 area around the target if it doesn't have a crimson mark.
 						ud->skillx = target->x - drop_zone + rand()%(drop_zone * 2 + 1);
 						ud->skilly = target->y - drop_zone + rand()%(drop_zone * 2 + 1);
 					}
@@ -12790,12 +12795,12 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 			val1 += pc_checkskill(sd,BA_MUSICALLESSON);
 		break;
 	case DC_SERVICEFORYOU:
-		val1 = 15+skilllv+(status->int_/10); // MaxSP percent increase TO-DO: this INT bonus value is guessed
-		val2 = 20+3*skilllv+(status->int_/10); // SP cost reduction
-		if(sd){
-			val1 += pc_checkskill(sd,DC_DANCINGLESSON); //TO-DO This bonus value is guessed
-			val2 += pc_checkskill(sd,DC_DANCINGLESSON); //TO-DO Should be half this value
-		}
+		//val1: MaxSP percent increase
+		val1 = 15 + skilllv + (status->int_ / 10); //Bonus rate by Dancer's INT 
+		//val2: SP cost reduction
+		val2 = 20 + 3 * skilllv;
+		if (sd) val2 += (pc_checkskill(sd, DC_DANCINGLESSON) + 1) / 2; //Bonus rate by DC_DANCINGLESSON
+		val2 += status->int_ / 10; //Bonus rate by Dancer's INT
 		break;
 	case BA_ASSASSINCROSS:
 		val1 = 100+10*skilllv+status->agi; // ASPD increase
@@ -15778,6 +15783,13 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 	return 1;
 }
 
+/**
+* Get skill requirements and return the value after some additional/reduction condition (such item bonus and status change)
+* @param sd Player's that will be checked
+* @param skill_id Skill that's being used
+* @param skill_lv Skill level of used skill
+* @return skill_condition Struct 'skill_condition' that store the modified skill requirements
+*/
 struct skill_condition skill_get_requirement(struct map_session_data* sd, short skill, short lv)
 {
 	struct skill_condition req;
@@ -17445,7 +17457,8 @@ struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int 
 
 	idb_put(skillunit_db, unit->bl.id, unit);
 	map_addiddb(&unit->bl);
-	map_addblock(&unit->bl);
+	if (map_addblock(&unit->bl))
+		return NULL;
 
 	// perform oninit actions
 	switch (group->skill_id) {

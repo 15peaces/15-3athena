@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/07/2022
+	r356 [15peaces]
+		*Merged missing changes from 3ceam rev. 876 - 877
+		*Fixed an issue where autobonus didn't work on shadow/costume items.
+		*Added some checks to prevent all kinds of objects from spawning if it would fail (eg. illegal coordinates, invalid map...).
+		*Added support for the ZC_CLEAR_DIALOG packet.
+			-However, it is currently not used.
+		*Added some missing item combos.
+		*Some misc cleaning.
+		*Now saves guild storage permissions.
+			-It only alows setting it but its not yet coded to set if a NPC allows acces or not. This will be coded in a future update.
+		*Added support for the 2nd range of monster ID's.
+			-Usable ranges are now 1000-4000 and 20020-24000.
+		*Added some code for helping with the loading of the 3rd NPC ID range.
+		*Stablized clones for Kagerou/Oboro/Rebellion/Star Emperor/Soul Reaper.
+		*GD_GUILD_STORAGE
+		-Skill Tree Requirements updated.
+
 10/30/2022
 	r355 [15peaces]
 		*Merged missing changes from 3ceam rev. 874 - 875
