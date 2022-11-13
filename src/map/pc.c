@@ -8545,7 +8545,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 }
 
 /*==========================================
- * Œ©‚½–Ú?X
+ * Tell client player sd has change equipement
  *------------------------------------------*/
 int pc_equiplookall(struct map_session_data *sd)
 {
@@ -8569,7 +8569,7 @@ int pc_equiplookall(struct map_session_data *sd)
 }
 
 /*==========================================
- * Œ©‚½–Ú?X
+ * Tell client player sd has change look (hair,equip...)
  *------------------------------------------*/
 int pc_changelook(struct map_session_data *sd,int type,int val)
 {
@@ -9655,21 +9655,21 @@ int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswit
 	}
 	//Added check to prevent sending the same look on multiple slots ->
 	//causes client to redraw item on top of itself. (suggested by Lupus)
-	if(pos & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW, false) == -1) {
+	if(pos & EQP_HEAD_LOW) {
 		if(id && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID)))
 			sd->status.head_bottom = id->look;
 		else
 			sd->status.head_bottom = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
-	if(pos & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP, false) == -1) {
+	if(pos & EQP_HEAD_TOP) {
 		if(id)
 			sd->status.head_top = id->look;
 		else
 			sd->status.head_top = 0;
 		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
 	}
-	if(pos & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID, false) == -1) {
+	if(pos & EQP_HEAD_MID) {
 		if(id && !(pos&EQP_HEAD_TOP))
 			sd->status.head_mid = id->look;
 		else
@@ -9678,40 +9678,40 @@ int pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswit
 	}
 	if(pos & EQP_SHOES)
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
-	if(pos & EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT, false) == -1) {
+	if(pos & EQP_GARMENT) {
 		if(id)
 			sd->status.robe = id->look;
 		else
 			sd->status.robe = 0;
 		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
 	}
-	if(pos & EQP_COSTUME_HEAD_TOP) {
-		if(id){
-			sd->status.head_top = id->look;
-		} else
-			sd->status.head_top = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
-	}
-	if(pos & EQP_COSTUME_HEAD_MID) {
-		if(id && !(pos&EQP_HEAD_TOP)){
-			sd->status.head_mid = id->look;
-		} else
-			sd->status.head_mid = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
-	}
-	if(pos & EQP_COSTUME_HEAD_LOW) {
-		if(id && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID))){
+	if (pos & EQP_COSTUME_HEAD_LOW) {
+		if (id && !(pos&(EQP_COSTUME_HEAD_TOP | EQP_COSTUME_HEAD_MID)))
 			sd->status.head_bottom = id->look;
-		} else
+		else
 			sd->status.head_bottom = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
+		clif_changelook(&sd->bl, LOOK_HEAD_BOTTOM, sd->status.head_bottom);
 	}
-	if(pos & EQP_COSTUME_GARMENT) {
-		if(id)
+	if (pos & EQP_COSTUME_HEAD_TOP) {
+		if (id)
+			sd->status.head_top = id->look;
+		else
+			sd->status.head_top = 0;
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
+	}
+	if (pos & EQP_COSTUME_HEAD_MID) {
+		if (id && !(pos&EQP_COSTUME_HEAD_TOP))
+			sd->status.head_mid = id->look;
+		else
+			sd->status.head_mid = 0;
+		clif_changelook(&sd->bl, LOOK_HEAD_MID, sd->status.head_mid);
+	}
+	if (pos & EQP_COSTUME_GARMENT) {
+		if (id)
 			sd->status.robe = id->look;
 		else
 			sd->status.robe = 0;
-		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
+		clif_changelook(&sd->bl, LOOK_ROBE, sd->status.robe);
 	}
 
 	pc_checkallowskill(sd); //Check if status changes should be halted.
@@ -10812,7 +10812,6 @@ static bool pc_readdb_job_noenter(char *str[], int columns, int current) {
  * attr_fix.txt		- elemental adjustment table
  * job_db1.txt		- job,weight,hp_factor,hp_multiplicator,sp_factor,aspds/lvl
  * job_db2.txt		- job,stats bonuses/lvl
- * job_maxhpsp_db.txt	- strtlvl,maxlvl,job,type,values/lvl (values=hp|sp)
  *------------------------------------------*/
 void pc_readdb(void) {
 	int i, k, s = 1;

@@ -3556,11 +3556,6 @@ void clif_changelook(struct block_list *bl,int type,int val)
 				(vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
 			))
 				clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
-			if (vd->body_style && (
-				sd->sc.option&OPTION_WEDDING || sd->sc.option&OPTION_XMAS ||
-				sd->sc.option&OPTION_SUMMER || sd->sc.option&OPTION_HANBOK ||
-				sd->sc.option&OPTION_OKTOBERFEST || sd->sc.option&OPTION_SUMMER2))
-				vd->body_style = 0;
 		break;
 		case LOOK_HAIR:
 			vd->hair_style = val;
@@ -3620,11 +3615,6 @@ void clif_changelook(struct block_list *bl,int type,int val)
 #if PACKETVER < 20150513
 			return;
 #else
-			if (val && (
- 				sd->sc.option&OPTION_WEDDING || sd->sc.option&OPTION_XMAS ||
- 				sd->sc.option&OPTION_SUMMER || sd->sc.option&OPTION_HANBOK ||
- 				sd->sc.option&OPTION_OKTOBERFEST))
- 				val = 0;
  			vd->body_style = val;
 #endif
 		break;
@@ -3652,6 +3642,7 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		WBUFL(buf,7)=val;
 	}
 	clif_send(buf,packet_len(0x1d7),bl,target);
+	unit_refresh(bl);
 #endif
 }
 
@@ -21283,7 +21274,7 @@ void packetdb_readdb(void)
 {
 	FILE *fp;
 	char line[1024];
-	int ln=0;
+	int ln=0, entries = 0;
 	int cmd,i,j,packet_ver;
 	int max_cmd=-1;
 	int skip_ver = 0;
@@ -21824,7 +21815,7 @@ void packetdb_readdb(void)
 		{clif_parse_equipswitch_remove, "equipswitch_remove"},
 		{clif_parse_equipswitch_request, "equipswitch_request"},
 		{clif_parse_equipswitch_request_single, "equipswitch_request_single"},
-		{clif_parse_changedress,"changedress"},
+		{clif_parse_changedress, "changedress"},
 		{clif_parse_private_airship_request, "pPrivateAirshipRequest"},
 		{clif_parse_open_ui_request, "pOpenUIRequest"},
 		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
@@ -22014,6 +22005,7 @@ void packetdb_readdb(void)
 
 			packet_db[packet_ver][cmd].pos[j] = k;
 		}
+		entries++;
 	}
 	fclose(fp);
 	if(max_cmd > MAX_PACKET_DB)
@@ -22027,7 +22019,8 @@ void packetdb_readdb(void)
 		
 		clif_config.packet_db_ver = j?j:MAX_PACKET_VER;
 	}
-	ShowStatus("Done reading packet database from '"CL_WHITE"%s"CL_RESET"'. Using default packet version: "CL_WHITE"%d"CL_RESET".\n", "packet_db.txt", clif_config.packet_db_ver);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, "packet_db.txt");
+	ShowStatus("Using default packet version: "CL_WHITE"%d"CL_RESET".\n", clif_config.packet_db_ver);
 
 #ifdef PACKET_OBFUSCATION
 	if (!key_defined && !clif_cryptKey[0] && !clif_cryptKey[1] && !clif_cryptKey[2]) { // Not defined

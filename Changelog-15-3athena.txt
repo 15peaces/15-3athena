@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/13/2022
+	r357 [15peaces]
+		*Merged missing changes from 3ceam rev. 878
+		*Fixed pneuma display.
+		*Removed some leftover code no longer needed...
+			-Gravity found a way to prevent client crashes when displaying body costume's while the body style value is set to 1.
+			-Some more old eA code is removed since it's not used anymore.
+		*Fixed an issue where costume headgears won't show up correctly.
+		*LG_TRAMPLE
+			-Added success chance.
+			-Updated the list of traps it destroy's to official.
+		*SO_EARTHGRAVE
+			-Fixed a issue where it didn't hit hidden enemies.
+		*SU_SV_ROOTTWIST; SU_SV_ROOTTWIST_ATK; AB_CONVENIO
+		-Added support for these skills.
+
 11/07/2022
 	r356 [15peaces]
 		*Merged missing changes from 3ceam rev. 876 - 877

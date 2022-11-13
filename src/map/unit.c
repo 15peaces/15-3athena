@@ -1115,6 +1115,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_KG_KAGEHUMI]
 			|| sc->data[SC_KINGS_GRACE]
 			|| sc->data[SC_SUHIDE]
+			|| sc->data[SC_SV_ROOTTWIST]
 			|| sc->data[SC_NEEDLE_OF_PARALYZE]
 			|| sc->data[SC_TINDER_BREAKER]
 		))
@@ -2344,8 +2345,8 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		status_change_end(bl, SC_SOULUNITY, INVALID_TIMER);
 		status_change_end(bl, SC_KINGS_GRACE, INVALID_TIMER);
 		status_change_end(bl, SC_SUHIDE, INVALID_TIMER);
+		status_change_end(bl, SC_SV_ROOTTWIST, INVALID_TIMER);
 		status_change_end(bl, SC_TINDER_BREAKER, INVALID_TIMER);
-
 	}
 
 	if (bl->type&BL_CHAR) {
@@ -2515,6 +2516,24 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 	map_delblock(bl);
 	map_freeblock_unlock();
 	return 1;
+}
+
+/**
+ * Refresh the area with a change in display of a unit.
+ * @bl: Object to update
+ */
+void unit_refresh(struct block_list *bl) {
+	nullpo_retv(bl);
+
+	if (bl->m < 0)
+		return;
+
+	// Using CLR_TRICKDEAD because other flags show effects
+	// Probably need to use another flag or other way to refresh it
+	if (map[bl->m].users) {
+		clif_clearunit_area(bl, CLR_TRICKDEAD); // Fade out
+		clif_spawn(bl); // Fade in
+	}
 }
 
 /*==========================================

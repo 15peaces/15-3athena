@@ -49,7 +49,6 @@ enum e_regen
 	RGN_SSP = 0x08,
 };
 
-static int hp_sigma_val[CLASS_COUNT][MAX_LEVEL+1];
 static int refinebonus[MAX_REFINE_BONUS][3];	// 精錬ボーナステーブル(refine_db.txt)
 int percentrefinery[5][MAX_REFINE+1];	// 精錬成功率(refine_db.txt)
 static int atkmods[3][MAX_WEAPON_TYPE];	// 武器ATKサイズ修正(size_fix.txt)
@@ -673,6 +672,7 @@ void initChangeTables(void)
 	add_sc(SU_SCRATCH			, SC_BLEEDING		);
 	set_sc(SU_STOOP				, SC_SU_STOOP		, SI_SU_STOOP		, SCB_NONE);
 	add_sc(SU_SV_STEMSPEAR		, SC_BLEEDING		);
+	set_sc(SU_SV_ROOTTWIST		, SC_SV_ROOTTWIST	, SI_SV_ROOTTWIST	, SCB_NONE);
 	set_sc(SU_CN_POWDERING		, SC_CATNIPPOWDER	, SI_CATNIPPOWDER	, SCB_BATK | SCB_WATK | SCB_MATK | SCB_REGEN);
 	set_sc(SU_SCAROFTAROU		, SC_BITESCAR		, SI_BITESCAR		, SCB_NONE);
 	set_sc(SU_ARCLOUSEDASH		, SC_ARCLOUSEDASH	, SI_ARCLOUSEDASH	, SCB_AGI | SCB_SPEED);
@@ -6644,11 +6644,6 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 		|| (vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
 	))
 		vd->cloth_color = 0;
-	if (vd && vd->body_style && (
-		vd->class_==JOB_WEDDING || vd->class_==JOB_XMAS ||
-		vd->class_==JOB_SUMMER || vd->class_==JOB_HANBOK ||
-		vd->class_==JOB_OKTOBERFEST || vd->class_==JOB_SUMMER2))
-		vd->body_style = 0;
 }
 
 /// Returns the status_change data of bl or NULL if it doesn't exist.
@@ -7693,6 +7688,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC__MANHOLE:
 			case SC_CONFUSIONPANIC:
 			case SC_B_TRAP:
+			case SC_SV_ROOTTWIST:
 			case SC_REUSE_REFRESH:
 			case SC_REUSE_LIMIT_A:
 			case SC_REUSE_LIMIT_B:
@@ -8001,7 +7997,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl, LOOK_BASE, type == SC_WEDDING ? JOB_WEDDING : type == SC_XMAS ? JOB_XMAS : type == SC_SUMMER ? JOB_SUMMER : type == SC_HANBOK ? JOB_HANBOK : type == SC_OKTOBERFEST ? JOB_OKTOBERFEST : JOB_SUMMER2);
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
-			clif_changelook(bl, LOOK_BODY2, 0);
 			break;
 		case SC_ATTHASTE_CASH:
 			val2 = 50 * val1; // Just custom for pre-re
@@ -9279,6 +9274,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ARCLOUSEDASH:
 			val2 = 15 + 5 * val1;// AGI Increase.
 			break;
+		case SC_SV_ROOTTWIST:
+			val3 = tick / 1000;
+			tick = 1000;
+			break;
 		case SC_TUNAPARTY:
 			val2 = val2 * (10 * val1) / 100;// Tuna's HP
 			break;
@@ -9606,6 +9605,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_VACUUM_EXTREME:
 		case SC_THORNS_TRAP:
 		case SC_KG_KAGEHUMI:
+		case SC_SV_ROOTTWIST:
 		case SC_NEEDLE_OF_PARALYZE:
 		case SC_TINDER_BREAKER:
 			unit_stop_walking(bl,1);
@@ -10148,7 +10148,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
 			clif_changelook(bl,LOOK_SHIELD,vd->shield);
-			clif_changelook(bl,LOOK_BODY2,vd->body_style);
 			if(sd) clif_skillupdateinfoblock(sd);
 		break;
 		case SC_RUN:
@@ -11806,7 +11805,20 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
-
+	case SC_SV_ROOTTWIST:
+		if (--(sce->val3) > 0)
+		{
+			bool flag;
+			struct block_list* src = map_id2bl(sce->val2);
+			map_freeblock_lock();
+			skill_attack(BF_MISC,src,src,bl,SU_SV_ROOTTWIST_ATK,sce->val1,tick,SD_LEVEL|SD_ANIMATION);
+			flag = !sc->data[type];
+			map_freeblock_unlock();
+			if (flag) return 0;
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data );
+			return 0;
+		}
+		break;
 	case SC_FRESHSHRIMP:
 		if( --(sce->val3) >= 0 )
 		{
@@ -12503,56 +12515,9 @@ static bool status_readdb_status_disabled(char **str, int columns, int current)
 
 /*==========================================
  * DB reading.
- * job_db1.txt    - weight, hp, sp, aspd
- * job_db2.txt    - job level stat bonuses
  * size_fix.txt   - size adjustment table for weapons
  * refine_db.txt  - refining data table
  *------------------------------------------*/
-static bool status_readdb_job1(char* fields[], int columns, int current)
-{// Job-specific values (weight, HP, SP, ASPD)
-	int idx, class_;
-	unsigned int i;
-
-	class_ = atoi(fields[0]);
-
-	if(!pcdb_checkid(class_))
-	{
-		ShowWarning("status_readdb_job1: Invalid job class %d specified.\n", class_);
-		return false;
-	}
-	idx = pc_class2idx(class_);
-
-	job_info[idx].max_weight_base = atoi(fields[1]);
-	job_info[idx].hp_factor  = atoi(fields[2]);
-	job_info[idx].hp_multiplicator = atoi(fields[3]);
-	job_info[idx].sp_factor  = atoi(fields[4]);
-
-	for(i = 0; i < MAX_WEAPON_TYPE; i++)
-	{
-		job_info[idx].aspd_base[i] = atoi(fields[i+5]);
-	}
-	return true;
-}
-
-static bool status_readdb_job2(char* fields[], int columns, int current)
-{
-	int idx, class_, i;
-
-	class_ = atoi(fields[0]);
-
-	if(!pcdb_checkid(class_))
-	{
-		ShowWarning("status_readdb_job2: Invalid job class %d specified.\n", class_);
-		return false;
-	}
-	idx = pc_class2idx(class_);
-
-	for(i = 1; i < columns; i++)
-	{
-		job_info[idx].job_bonus[i-1] = atoi(fields[i]);
-	}
-	return true;
-}
 
 static bool status_readdb_sizefix(char* fields[], int columns, int current)
 {

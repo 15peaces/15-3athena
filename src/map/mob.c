@@ -3989,7 +3989,7 @@ static int mob_read_randommonster(void)
 	FILE *fp;
 	char line[1024];
 	char *str[10],*p;
-	int i,j;
+	int i,j,entries;
 
 	const char* mobfile[] = {
 		"mob_branch.txt",
@@ -4000,8 +4000,9 @@ static int mob_read_randommonster(void)
 	memset(&summon, 0, sizeof(summon));
 
 	for( i = 0; i < ARRAYLENGTH(mobfile) && i < MAX_RANDOMMONSTER; i++ )
-	{
-		mob_db_data[0]->summonper[i] = 1002;	// Default fallback value, in case the database does not provide one
+	{ // MobID,DummyName,Rate
+		entries = 0;
+		mob_db_data[0]->summonper[i] = MOBID_PORING;	// Default fallback value, in case the database does not provide one
 		sprintf(line, "%s/%s", db_path, mobfile[i]);
 		fp=fopen(line,"r");
 		if(fp==NULL){
@@ -4035,6 +4036,7 @@ static int mob_read_randommonster(void)
 					break;
 				}
 			}
+			entries++;
 		}
 		if (i && !summon[i].qty)
 		{ //At least have the default here.
@@ -4042,7 +4044,7 @@ static int mob_read_randommonster(void)
 			summon[i].qty = 1;
 		}
 		fclose(fp);
-		ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n",mobfile[i]);
+		ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, mobfile[i]);
 	}
 	return 0;
 }

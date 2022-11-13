@@ -710,6 +710,9 @@ typedef enum sc_type {
 	SC_REUSE_REFRESH,
 	SC_REUSE_LIMIT_ECL,
 	SC_REUSE_LIMIT_RECALL,
+
+	//Summer 2 Outfit
+	//Should be DRESS_UP and not handled by a OPTION setting.
 	SC_SUMMER2,
 
 	//Summoner

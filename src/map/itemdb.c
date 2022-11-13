@@ -716,7 +716,7 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 {
 	FILE *fp;
 	char line[1024];
-	int ln=0;
+	int ln=0, entries=0;
 	unsigned short nameid;
 	int groupid,j,k;
 	char *str[3],*p;
@@ -769,8 +769,10 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 		}
 		for(j=0;j<k;j++)
 			itemgroup_db[groupid].nameid[itemgroup_db[groupid].qty++] = nameid;
+		entries++;
 	}
 	fclose(fp);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, filename);
 	return;
 }
 
@@ -781,7 +783,6 @@ static void itemdb_read_itemgroup(void)
 
 	memset(&itemgroup_db, 0, sizeof(itemgroup_db));
 	itemdb_read_itemgroup_sub(path);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", "item_group_db.txt");
 	return;
 }
 
