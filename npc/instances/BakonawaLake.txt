@@ -272,10 +272,10 @@ OnStart:
 	enablenpc instance_npcname("#Bakonawan2");
 	set .@label$, instance_npcname("#Bakonawan2")+"::OnMyMobDead";
 	set .@map$, instance_mapname("1@ma_b");
-	monster .@map$,95,97,"Caldron",2328,1,.@label$;
-	monster .@map$,60,97,"Caldron",2328,1,.@label$;
-	monster .@map$,97,103,"Gong",2328,1,.@label$;
-	monster .@map$,58,103,"Gong",2328,1,.@label$;
+	monster .@map$,95,98,"Caldron",2328,1,.@label$;
+	monster .@map$,60,98,"Caldron",2328,1,.@label$;
+	monster .@map$,97,104,"Gong",2328,1,.@label$;
+	monster .@map$,58,104,"Gong",2328,1,.@label$;
 	donpcevent instance_npcname("#Bakonawan2-1")+"::OnStart";
 	initnpctimer;
 	end;

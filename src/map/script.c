@@ -13885,8 +13885,8 @@ BUILDIN_FUNC(isequipped)
 		return 0;
 	}
 
-	setitem_hash = sd->setitem_hash;
-	setitem_hash2 = sd->setitem_hash2;
+	setitem_hash = sd->bonus.setitem_hash;
+	setitem_hash2 = sd->bonus.setitem_hash2;
 	for (i=0; id!=0; i++)
 	{
 		FETCH (i+2, id) else id = 0;
@@ -13924,16 +13924,16 @@ BUILDIN_FUNC(isequipped)
 
 					hash = 1<<((j<5?j:j-5)*4 + k);
 					// check if card is already used by another set
-					if ((j<5?sd->setitem_hash:sd->setitem_hash2) & hash)	
+					if ((j<5?sd->bonus.setitem_hash:sd->bonus.setitem_hash2) & hash)	
 						continue;
 
 					// We have found a match
 					flag = 1;
 					// Set hash so this card cannot be used by another
 					if (j<5)
-						sd->setitem_hash |= hash;
+						sd->bonus.setitem_hash |= hash;
 					else
-						sd->setitem_hash2 |= hash;
+						sd->bonus.setitem_hash2 |= hash;
 					break;
 				}
 			}
@@ -13947,8 +13947,8 @@ BUILDIN_FUNC(isequipped)
 	}
 	if (!ret)
   	{	//When check fails, restore original hash values. [Skotlex]
-		sd->setitem_hash = setitem_hash;
-		sd->setitem_hash2 = setitem_hash2;
+		sd->bonus.setitem_hash = setitem_hash;
+		sd->bonus.setitem_hash2 = setitem_hash2;
 	}
 	script_pushint(st,ret);
 	return 0;

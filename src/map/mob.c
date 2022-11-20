@@ -468,7 +468,7 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short
 		map_search_freecell(bl, m, &x, &y, 1, 1, 0);
 
 	// if none found, pick random position on map
-	if (x <= 0 || y <= 0 || map_getcell(m,x,y,CELL_CHKNOREACH))
+	if (x <= 0 || x >= map[m].xs || y <= 0 || y >= map[m].ys)
 		map_search_freecell(NULL, m, &x, &y, -1, -1, 1);
 	
 	data.x = x;
@@ -1413,8 +1413,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		md->sc.data[SC_DEEPSLEEP] ||
 		md->sc.data[SC_CRYSTALIZE] ||
 		md->sc.data[SC__MANHOLE] ||
-		md->sc.data[SC_FALLENEMPIRE] ||
-		md->sc.data[SC_CURSEDCIRCLE_TARGET] )
+		md->sc.data[SC_FALLENEMPIRE])
   	{	//Should reset targets.
 		md->target_id = md->attacked_id = 0;
 		return false;
@@ -2426,9 +2425,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 			
 			// process script-granted zeny bonus (get_zeny_num) [Skotlex]
-			if(sd->get_zeny_num && rand()%100 < sd->get_zeny_rate)
+			if(sd->bonus.get_zeny_num && rand()%100 < sd->bonus.get_zeny_rate)
 			{
-				i = sd->get_zeny_num > 0?sd->get_zeny_num:-md->level*sd->get_zeny_num;
+				i = sd->bonus.get_zeny_num > 0?sd->bonus.get_zeny_num:-md->level*sd->bonus.get_zeny_num;
 				if (!i) i = 1;
 				pc_getzeny(sd, 1+rand()%i);
 			}

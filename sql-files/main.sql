@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `char` (
   `clan_id` int(11) UNSIGNED NOT NULL default '0',
   `last_login` datetime DEFAULT NULL,
   `title_id` INT(11) unsigned NOT NULL default '0',
-  `uniqueitem_counter` bigint(20) NOT NULL,
+  `uniqueitem_counter` bigint(20) NOT NULL DEFAULT '0',
   PRIMARY KEY  (`char_id`),
   KEY `account_id` (`account_id`),
   KEY `party_id` (`party_id`),

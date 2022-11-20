@@ -5,6 +5,45 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/20/2022
+	r358 [15peaces]
+		*Merged missing changes from 3ceam rev. 879
+		*Please don't forget to add the upgrade_15-3athena_svn358.sql files!
+			-This will fix an issue where the character creation was denied (missing a default value).
+		*Monsters can now spawn on unwalkable cells, as required by newer instances. (credits: @rathena)
+			-Changed back Bakonawa Lake spawn coordinates to official.
+		*Optimized calculation for Max HP/SP.
+		*Added added a 'bonus' struct to map_session_data and moved zeroed bonus variables to it.
+			-I found it would make it clearer to find a certain bonus value.
+			-Also it's easier to zero the values up as we can simply zero the whole struct.
+		*Cleaned up some code.
+		*WL_FROSTMISTY; WL_JACKFROST
+			-Fixed a issue where under certain odd conditions the damage might miss.
+		*WL_CRIMSONROCK
+			-Updated damage formula.
+			-Adjusted knock back behavior.
+			-Fixed a odd issue with the skill being used on ice walls.
+		*SC_TRIANGLESHOT; LG_OVERBRAND_BRANDISH
+			-Fixed a issue where the target would get pushed back depending on its facing direction when it should be depending on the caster and targets position.
+		*SR_CURSEDCIRCLE
+			-Recoded the skill.
+			-Now requires 1 spirit sphere before casting.
+			-Item pickup/drop is now blocked for both caster and enemies.
+			-Now uses a array to keep track of all affected enemys.
+			-Status now checks every second to see if the affected target is still in AoE range. If outside the AoE the status will end.
+			-Status now ends if the caster dies, if the caster uses any skills, if outside the AoE, or if the duration ends.
+			-Does not affect boss monsters.
+		*GN_BLOOD_SUCKER
+			-Recoded the skill.
+			-Now uses a array to keep track of all affected enemys.
+			-A max of 3 can be active at a time.
+			-Caster no longer does repeated skill cast actions while active.
+			-The status now ends if the caster dies, is farther then 12 cells from the caster, or the duration ends.
+		*GN_CRAZYWEED; GN_CRAZYWEED_ATK
+			-Fixed a issue where the caster did repeated skill cast actions when casted.
+		*RL_C_MARKER; RL_H_MINE; SJ_FLASHKICK
+			-Fixed a issue where the status was not removed from monster's when the caster dies.
+
 11/13/2022
 	r357 [15peaces]
 		*Merged missing changes from 3ceam rev. 878

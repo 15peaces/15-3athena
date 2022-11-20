@@ -1710,7 +1710,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			// Target weapon breaking
 			rate = 0;
 			if( sd )
-				rate += sd->break_weapon_rate;
+				rate += sd->bonus.break_weapon_rate;
 			if( sc && sc->data[SC_MELTDOWN] )
 				rate += sc->data[SC_MELTDOWN]->val2;
 			if( rate )
@@ -1719,7 +1719,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			// Target armor breaking
 			rate = 0;
 			if( sd )
-				rate += sd->break_armor_rate;
+				rate += sd->bonus.break_armor_rate;
 			if( sc && sc->data[SC_MELTDOWN] )
 				rate += sc->data[SC_MELTDOWN]->val3;
 			if( rate )
@@ -1816,9 +1816,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	}
 
 	//Polymorph
-	if(sd && sd->classchange && attack_type&BF_WEAPON &&
+	if(sd && sd->bonus.classchange && attack_type&BF_WEAPON &&
 		dstmd && !(tstatus->mode&MD_BOSS) &&
-		(rand()%10000 < sd->classchange))
+		(rand()%10000 < sd->bonus.classchange))
 	{
 		struct mob_db *mob;
 		int class_;
@@ -2032,15 +2032,15 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		int sp = 0, hp = 0;
 		if( attack_type&BF_WEAPON )
 		{
-			sp += sd->sp_gain_value;
+			sp += sd->bonus.sp_gain_value;
 			sp += sd->sp_gain_race[status_get_race(bl)];
 			sp += sd->sp_gain_race[is_boss(bl)?RC_BOSS:RC_NONBOSS];
-			hp += sd->hp_gain_value;
+			hp += sd->bonus.hp_gain_value;
 		}
 		if( attack_type&BF_MAGIC )
 		{
-			sp += sd->magic_sp_gain_value;
-			hp += sd->magic_hp_gain_value;
+			sp += sd->bonus.magic_sp_gain_value;
+			hp += sd->bonus.magic_hp_gain_value;
 		}
 		if( hp || sp )
 			status_heal(src, hp, sp, battle_config.show_hp_sp_gain?2:0);
@@ -2147,10 +2147,10 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 		sc = NULL;
 
 	if (sd) {
-		if (sd->unbreakable_equip)
-			where &= ~sd->unbreakable_equip;
-		if (sd->unbreakable)
-			rate -= rate*sd->unbreakable/100;
+		if (sd->bonus.unbreakable_equip)
+			where &= ~sd->bonus.unbreakable_equip;
+		if (sd->bonus.unbreakable)
+			rate -= rate*sd->bonus.unbreakable/100;
 		if (where&EQP_WEAPON) {
 			switch (sd->status.weapon) {
 				case W_FIST:	//Bare fists should not break :P
@@ -2335,7 +2335,7 @@ static int skill_magic_reflect(struct block_list* src, struct block_list* bl, in
 	struct map_session_data* sd = BL_CAST(BL_PC, bl);
 
 	// item-based reflection
-	if( sd && sd->magic_damage_return && type && rand()%100 < sd->magic_damage_return )
+	if( sd && sd->bonus.magic_damage_return && type && rand()%100 < sd->bonus.magic_damage_return )
 		return 1;
 
 	if( is_boss(src) )
@@ -2641,7 +2641,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 		else// Only display damage for the shadow hit.
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,0,-2,5);
 		break;
-	case WL_SOULEXPANSION:
 	case WL_COMET:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,skilllv,8);
 		break;
@@ -2668,9 +2667,6 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, 0, -2, 5);
 		else// Display animation only on the source.
 			dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, -2, 5);
-		break;
-	case GN_CRAZYWEED_ATK:// FIX ME
-		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid, -2, 6);
 		break;
 	case GN_SLINGITEM_RANGEMELEEATK://Server sends a skill level of 65534 and type 6. Interesting.
 		dmg.dmotion = clif_skill_damage(dsrc, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skillid, 65534, 6);
@@ -2935,7 +2931,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 
 	// Apply knock back chance in SC_TRIANGLESHOT skill.
-	if( skillid == SC_TRIANGLESHOT && rand()%100 > (1 + skilllv) )
+	if (skillid == SC_TRIANGLESHOT && !(rand() % 100 < (1 + skilllv)))
 		dmg.blewcount = 0;
 
 	//Only knockback if it's still alive, otherwise a "ghost" is left behind. [Skotlex]
@@ -2951,21 +2947,14 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				if (battle_config.cart_revo_knockback)
 					direction = 2; // Official servers push target to the West
 				break;
-			case WL_CRIMSONROCK: 
-				map_calc_dir(bl,skill_area_temp[4],skill_area_temp[5]);
-				break;
 			case MG_FIREWALL:
 			case PR_SANCTUARY:
-			case SC_TRIANGLESHOT:
-			case LG_OVERBRAND:
-			case LG_OVERBRAND_BRANDISH:
-			case SR_KNUCKLEARROW:
 			case GN_WALLOFTHORN:
 			case EL_FIRE_MANTLE:
 				direction = unit_getdir(bl); 
 				break;
 		}
-		if( skillid == SR_KNUCKLEARROW ){
+		if( skillid == SR_KNUCKLEARROW ){// Fix me. I need a recode.
 			if( skill_blown(dsrc,bl,dmg.blewcount,direction,0) && !(flag&4) ){
 				short dir_x, dir_y;
 				dir_x = dirx[(direction+4)%8];
@@ -4076,7 +4065,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SR_HOWLINGOFLION:
 	case WM_SEVERE_RAINSTORM_MELEE:
 	case WM_GREAT_ECHO:
-	case GN_CRAZYWEED_ATK:
 	case GN_SLINGITEM_RANGEMELEEATK:
 	case RL_R_TRIP_PLUSATK:
 	case KO_SETSUDAN:
@@ -4096,6 +4084,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 	case NC_MAGMA_ERUPTION:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag | SD_ANIMATION);
+		break;
+	case GN_CRAZYWEED_ATK:
+		skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag|SD_LEVEL|SD_ANIMATION);
 		break;
 	// Works just like the above except animations are done through ZC_USE_SKILL.
 	case RL_MASS_SPIRAL:
@@ -4561,10 +4552,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_area_temp[0] = 0;
 			skill_area_temp[1] = bl->id;
 			skill_area_temp[2] = 0;
-			if(skillid == WL_CRIMSONROCK) {
-				skill_area_temp[4] = bl->x;
-				skill_area_temp[5] = bl->y;
-			}
 
 			if (skillid == NC_VULCANARM )
 				if (sd) pc_overheat(sd, 1);
@@ -4576,7 +4563,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				skill_area_temp[0] = map_foreachinrange(skill_area_sub, bl, (skillid == AS_SPLASHER || skillid == GN_SPORE_EXPLOSION) ? 1 : skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, BCT_ENEMY, skill_area_sub_count);
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
 
 			//FIXME: Isn't EarthQuake a ground skill after all?
 			if( skillid == NPC_EARTHQUAKE )
@@ -4731,7 +4718,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 	case CH_PALMSTRIKE: //	Palm Strike takes effect 1sec after casting. [Skotlex]
 	//	clif_skill_nodamage(src,bl,skillid,skilllv,0); //Can't make this one display the correct attack animation delay :/
-		status_change_end(bl, SC_CURSEDCIRCLE_TARGET, INVALID_TIMER);// Needed to end cursed circle on target since skill effect is delayed . [Rytech]
 		clif_damage(src,bl,tick,status_get_amotion(src),0,-1,1,4,0, false); //Display an absorbed damage attack.
 		skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag);
 		break;
@@ -4868,7 +4854,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case GS_FLING:
 	case NJ_ZENYNAGE:
 	case GN_THORNS_TRAP:
-	case GN_BLOOD_SUCKER:
 	case GN_HELLS_PLANT_ATK:
 	case SU_SV_ROOTTWIST_ATK:
 		skill_attack(BF_MISC, src, src, bl, skillid, skilllv, tick, flag);
@@ -5289,7 +5274,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case SR_KNUCKLEARROW:
-		{
+		{// Fix me. I need a recode. [Rytech]
 			if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 1, 1) ){
 				clif_slide(src,bl->x,bl->y);
 				clif_fixpos(src); // Aegis send this packet too.
@@ -5478,7 +5463,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			} else {
 				skill_area_temp[1] = bl->id;
 				map_foreachinrange(skill_area_sub, bl,
-					sd->splash_range, BL_CHAR,
+					sd->bonus.splash_range, BL_CHAR,
 					src, skillid, skilllv, tick, flag | BCT_ENEMY | 1,
 					skill_castend_damage_id);
 				flag|=1; //Set flag to 1 so ammo is not double-consumed. [Skotlex]
@@ -6472,6 +6457,113 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 
+	case SR_CURSEDCIRCLE:
+		{// Max enemies that can be locked in the circle.
+			short count = min(sd?1+sd->spiritball:15,MAX_CURSED_CIRCLES);
+			short spheres_used = 0;
+
+			if ( flag&1 )
+			{// Limit to only allowing players and mobs to use this skill. Also affect only players and mobs.
+				if( (!dstsd && !dstmd) || !sd && !md )
+					break;
+
+				// Boss monster's arn't affected.
+				if ( tstatus->mode&MD_BOSS )
+					break;
+
+				if( (dstsd && dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id) || // Cant curse a player that was already cursed from another source.
+					(dstmd && dstmd->sc.data[type] && dstmd->sc.data[type]->val1 != src->id) )// Same as the above check, but for monsters.
+				{
+					map_freeblock_unlock();
+					return 1;
+				}
+
+				i = 0;
+				if( sd )
+				{// Curse the enemy.
+					ARR_FIND(0, count, i, sd->cursed_circle[i] == bl->id );
+					if( i == count )
+					{
+						ARR_FIND(0, count, i, sd->cursed_circle[i] == 0 );
+						if( i == count )
+						{// No more free slots? Fail.
+							map_freeblock_unlock();
+							return 1;
+						}
+					}
+
+					sd->cursed_circle[i] = bl->id;
+				}
+
+				// Duration is set 500ms higher then what the atker version gets.
+				// This is to give the atker status time to end the target status on all affected targets when it ends.
+				// Should that fail to happen for some reason, the target status ends half a second after.
+				sc_start4(bl, type, 100, src->id, i, skilllv, 0, 500+skill_get_time(skillid, skilllv));
+			}
+			else if ( sd )
+			{// Display animation and give self the attacker status.
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				sc_start(bl, SC_CURSEDCIRCLE_ATKER, 100, skilllv, skill_get_time(skillid, skilllv));
+
+				// Count the number of enemys in range to know how many spirit sphere's will be used.
+				spheres_used = map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_area_sub_count);
+
+				// Give the cursed circle status to the enemys and then consume the spirit spheres.
+				map_foreachinrange(skill_area_sub, src, skill_get_splash(skillid, skilllv), BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
+				pc_delspiritball(sd, spheres_used, 0);
+			}
+		}
+		break;
+
+	case GN_BLOOD_SUCKER:
+		{// Max allowed targets to be sucked on.
+			short count = MAX_BLOOD_SUCKERS;
+
+			// Only players and monsters can be sucked on....I think??? [Rytech]
+			// Lets only allow players and monsters to use this skill for safety reasons.
+			if( (!dstsd && !dstmd) || !sd && !md )
+			{
+				if( sd )
+					clif_skill_fail(sd, skillid, 0, 0, 0);
+				break;
+			}
+
+			// Check if the target is already marked by another source.
+			if( (dstsd && dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id) || // Cant suck on a player that was already marked from another source.
+				(dstmd && dstmd->sc.data[type] && dstmd->sc.data[type]->val1 != src->id) )// Same as the above check, but for monsters.
+			{
+				if( sd )
+					clif_skill_fail(sd,skillid,0,0,0);
+				map_freeblock_unlock();
+				return 1;
+			}
+
+			i = 0;
+			if( sd )
+			{// Sucking on the target.
+				ARR_FIND(0, count, i, sd->blood_sucker[i] == bl->id );
+				if( i == count )
+				{
+					ARR_FIND(0, count, i, sd->blood_sucker[i] == 0 );
+					if( i == count )
+					{// Max number of targets marked. Fail the skill.
+						clif_skill_fail(sd, skillid, 0, 0, 0);
+						map_freeblock_unlock();
+						return 1;
+					}
+				}
+				// Add the ID of the marked target to the player's sucker list.
+				sd->blood_sucker[i] = bl->id;
+
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				sc_start4(bl, type, 100, src->id, i, skilllv, 0, skill_get_time(skillid, skilllv));
+			}
+			else if ( md )// Monster's cant track with this skill. Just give the status.
+				clif_skill_nodamage(src, bl, skillid, skilllv,
+					sc_start4(bl, type, 100, 0, 0, skilllv, 0, skill_get_time(skillid, skilllv)));
+		}
+		break;
+
 	case RL_C_MARKER:
 		{// Max allowed targets to be marked.
 			short count = MAX_CRIMSON_MARKS;
@@ -6525,22 +6617,16 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case SP_SOULUNITY:
-		{
+		{// Max allowed targets to be in unity.
 			short count = min(5+skilllv,MAX_UNITED_SOULS);
 
 			if ( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
-			{
+			{// Only put player's souls in unity.
 				if( !dstsd || !sd )
-				{// Only put player's souls in unity.
-					if( sd )
-						clif_skill_fail(sd, skillid, 0, 0, 0);
 					break;
-				}
 
 				if (dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id)
 				{// Fail if a player is in unity with another source.
-					if( sd )
-						clif_skill_fail(sd,skillid,0,0,0);
 					map_freeblock_unlock();
 					return 1;
 				}
@@ -6553,8 +6639,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					{
 						ARR_FIND(0, count, i, sd->united_soul[i] == 0 );
 						if( i == count )
-						{// No more free slots? Fail the skill.
-							clif_skill_fail(sd, skillid, 0, 0, 0);
+						{// No more free slots? Fail.
 							map_freeblock_unlock();
 							return 1;
 						}
@@ -6566,8 +6651,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_nodamage(src, bl, skillid, skilllv,
 					sc_start4(bl, type, 100, src->id, i, skilllv, 0, skill_get_time(skillid, skilllv)));
 			}
-			else if ( sd )
-				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
+			else if (sd)
+			{
+				party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skillid, skilllv), src, skillid, skilllv, tick, flag | BCT_PARTY | 1, skill_castend_nodamage_id);
+			}
 		}
 		break;
 
@@ -9968,9 +10055,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					{
 						if ( effect_number != 3 )
 						{// Don't bother setting the splash AoE size unless effect 1 or 2 is going to trigger.
-							if ( sd->shieldmdef >= 0 && sd->shieldmdef <= 3 )//Info says between 1 - 3, but ill make it go as low as 0 for now. [Rytech]
+							if ( sd->bonus.shieldmdef >= 0 && sd->bonus.shieldmdef <= 3 )//Info says between 1 - 3, but ill make it go as low as 0 for now. [Rytech]
 								splash_range = 1;
-							else if ( sd->shieldmdef >= 4 && sd->shieldmdef <= 5 )
+							else if ( sd->bonus.shieldmdef >= 4 && sd->bonus.shieldmdef <= 5 )
 								splash_range = 2;
 							else
 								splash_range = 3;
@@ -9984,7 +10071,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 								status_change_end(bl,SC_SHIELDSPELL_MDEF,-1);
 								break;
 							case 2://Splash AoE Lex Divina
-								shield_bonus = sd->shieldmdef;// Shield's MDEF = Level of Lex Divina to cast.
+								shield_bonus = sd->bonus.shieldmdef;// Shield's MDEF = Level of Lex Divina to cast.
 								if ( shield_bonus > 10 )
 									shield_bonus = 10;// Don't cast any level above 10.
 								sc_start(bl,SC_SHIELDSPELL_MDEF,100,effect_number,-1);
@@ -9992,8 +10079,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 								status_change_end(bl,SC_SHIELDSPELL_MDEF,-1);
 								break;
 							case 3://Magnificat
-								if (sc_start(bl, SC_SHIELDSPELL_MDEF, 100, effect_number, sd->shieldmdef * 30000))
-									clif_skill_nodamage(src, bl, PR_MAGNIFICAT, skilllv, sc_start(bl, SC_MAGNIFICAT, 100, 1, sd->shieldmdef * 30000));
+								if (sc_start(bl, SC_SHIELDSPELL_MDEF, 100, effect_number, sd->bonus.shieldmdef * 30000))
+									clif_skill_nodamage(src, bl, PR_MAGNIFICAT, skilllv, sc_start(bl, SC_MAGNIFICAT, 100, 1, sd->bonus.shieldmdef * 30000));
 								break;
 						}
 					}
@@ -10046,32 +10133,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 			clif_skill_nodamage(bl,src,skillid,skilllv,
 				sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv)));
-		}
-		break;
-
-	case SR_CURSEDCIRCLE:
-		if (flag&1)
-		{
-			if (is_boss(bl))
-				break;
-			if (sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid, skilllv)))
-			{
-				unit_stop_attack(bl);
-				clif_bladestop(src, bl->id, 1);
-				map_freeblock_unlock();
-				return 1;
-			}
-		}
-		else
-		{
-			int count = 0;
-			clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			count = map_forcountinrange(skill_area_sub, src, skill_get_splash(skillid,skilllv), (sd)?sd->spiritball_old:15, // Assume 15 spiritballs in non-charactors
-				BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_nodamage_id);
-			if(sd)
-				pc_delspiritball(sd, count, 0);
-			clif_skill_nodamage(src, src, skillid, skilllv, sc_start2(src, SC_CURSEDCIRCLE_ATKER, 100, skilllv, count, skill_get_time(skillid,skilllv)));
-
 		}
 		break;
 
@@ -10429,17 +10490,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( sd ) {
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 			clif_skill_itemlistwindow(sd,skillid,skilllv);
-		}
-		break;
-
-	case GN_BLOOD_SUCKER:
-		if( skill_unitsetting(src, skillid, skilllv, bl->x, bl->y, 0) ){
-			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
-			sc_start2(bl, type, 100, skilllv, src->id, skill_get_time(skillid,skilllv));
-		}
-		else if( sd ){
-			clif_skill_fail(sd, skillid, 0, 0,0);
-			return 0;
 		}
 		break;
 
@@ -11274,11 +11324,6 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		if( sc ){ //Status end during cast end.
 			if( sc->data[SC_CAMOUFLAGE] )
 				status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
-			if (sc->data[SC_CURSEDCIRCLE_ATKER])
-			{
-				sc->data[SC_CURSEDCIRCLE_ATKER]->val3 = 1;
-				status_change_end(src, SC_CURSEDCIRCLE_ATKER, INVALID_TIMER);
-			}
 		}
 
 		if (skill_get_casttype(ud->skillid) == CAST_NODAMAGE)
@@ -11558,11 +11603,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	{ //Status end during cast end.
 		if (sc->data[SC_CAMOUFLAGE])
 			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
-		if (sc->data[SC_CURSEDCIRCLE_ATKER])
-		{
-			sc->data[SC_CURSEDCIRCLE_ATKER]->val3 = 1;
-			status_change_end(src, SC_CURSEDCIRCLE_ATKER, INVALID_TIMER);
-		}
 	}
 
 	switch (skillid) { //Skill effect.
@@ -11577,6 +11617,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		case SC_BLOODYLUST:
 		case SC_MAELSTROM:
 		case LG_EARTHDRIVE:
+		case GN_CRAZYWEED_ATK:
 		case RL_FIRE_RAIN:
 		//case KO_MAKIBISHI:// Enable once I figure out how to prevent movement stopping. [Rytech]
 		case SU_CN_METEOR:
@@ -12492,6 +12533,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 		sd->sc.data[SC_DEEPSLEEP] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
 		sd->sc.data[SC__MANHOLE] ||
+		sd->sc.data[SC_CURSEDCIRCLE_TARGET] ||
 		sd->sc.data[SC_HEAT_BARREL_AFTER] ||
 		sd->sc.data[SC_NOVAEXPLOSING] ||
 		sd->sc.data[SC_GRAVITYCONTROL] ||
@@ -14818,7 +14860,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 	case MO_EXTREMITYFIST:
 //		if(sc && sc->data[SC_EXTREMITYFIST]) //To disable Asura during the 5 min skill block uncomment this...
 //			return 0;
-		if( sc && (sc->data[SC_BLADESTOP] || sc->data[SC_CURSEDCIRCLE_ATKER]) )
+		if( sc && sc->data[SC_BLADESTOP] )
 			break;
 		if( sc && sc->data[SC_COMBO] )
 		{
@@ -15226,14 +15268,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
  		break;
 	case SR_CRESCENTELBOW:
 		if( sc && sc->data[SC_CRESCENTELBOW] ){
-			clif_skill_fail(sd,skill,0,0,0);
-			return 0;
-		}
-		break;
-	case SR_CURSEDCIRCLE:
-		if( sd->spiritball > 0 )
-			sd->spiritball_old = require.spiritball = sd->spiritball;
-		else{
 			clif_skill_fail(sd,skill,0,0,0);
 			return 0;
 		}
@@ -16256,7 +16290,7 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	if(sd) 
 	{
 		// Fixed cast time adjustments by a fixed amount trough items. [15peaces]
-		fixed_time += sd->fixedcast;
+		fixed_time += sd->bonus.fixedcast;
 
 		//Fixed cast time reductions in a percentage starts here where reductions from any worn equips and cards that give fixed cast
 		//reductions are calculated. Percentage reductions do not stack and the highest reduction value found on any worn equip,

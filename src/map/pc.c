@@ -2525,7 +2525,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		}
 
 		if (sd->state.lr_flag == 3)
-			sd->shieldmdef = val;
+			sd->bonus.shieldmdef = val;
 		break;
 	case SP_MDEF2:
 		if(sd->state.lr_flag != 2) {
@@ -2538,7 +2538,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			bonus = status->hit + val;
 			status->hit = cap_value(bonus, SHRT_MIN, SHRT_MAX);
 		} else
-			sd->arrow_hit+=val;
+			sd->bonus.arrow_hit+=val;
 		break;
 	case SP_FLEE1:
 		if(sd->state.lr_flag != 2) {
@@ -2557,7 +2557,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			bonus = status->cri + val*10;
 			status->cri = cap_value(bonus, SHRT_MIN, SHRT_MAX);
 		} else
-			sd->arrow_cri += val*10;
+			sd->bonus.arrow_cri += val*10;
 		break;
 	case SP_ATKELE:
 		if(val >= ELE_MAX) {
@@ -2578,7 +2578,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 					status->rhw.ele=val;
 					break;
 				default: //Become arrow element.
-					sd->arrow_ele=val;
+					sd->bonus.arrow_ele=val;
 					break;
 			}
 			break;
@@ -2601,16 +2601,12 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 	case SP_MAXHP:
 		if(sd->state.lr_flag == 2)
 			break;
-		val += (int)status->max_hp;
-		//Negative bonuses will underflow, this will be handled in status_calc_pc through casting 
-		//If this is called outside of status_calc_pc, you'd better pray they do not underflow and end with UINT_MAX max_hp.
-		status->max_hp = (unsigned int)val;
+		sd->bonus.hp += val;
 		break;
 	case SP_MAXSP:
 		if(sd->state.lr_flag == 2) 
 			break;
-		val += (int)status->max_sp;
-		status->max_sp = (unsigned int)val;
+		sd->bonus.sp += val;
 		break;
 	case SP_CASTRATE:
 		if(sd->state.lr_flag != 2)
@@ -2622,7 +2618,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_FIXEDCAST:
 		if (sd->state.lr_flag != 2)
-			sd->fixedcast+=val;
+			sd->bonus.fixedcast+=val;
 		break;
 	case SP_MAXHPRATE:
 		if(sd->state.lr_flag != 2)
@@ -2659,15 +2655,15 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_SPEED_RATE:	//Non stackable increase
 		if(sd->state.lr_flag != 2)
-			sd->speed_rate = min(sd->speed_rate, -val);
+			sd->bonus.speed_rate = min(sd->bonus.speed_rate, -val);
 		break;
 	case SP_SPEED_ADDRATE:	//Stackable increase
 		if(sd->state.lr_flag != 2)
-			sd->speed_add_rate -= val;
+			sd->bonus.speed_add_rate -= val;
 		break;
 	case SP_ASPD:	//Raw increase
 		if(sd->state.lr_flag != 2)
-			sd->aspd_add -= 10*val;
+			sd->bonus.aspd_add -= 10*val;
 		break;
 	case SP_ASPD_RATE:	//Stackable increase - Made it linear as per rodatazone
 		if(sd->state.lr_flag != 2)
@@ -2683,27 +2679,27 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_CRITICAL_DEF:
 		if(sd->state.lr_flag != 2)
-			sd->critical_def += val;
+			sd->bonus.critical_def += val;
 		break;
 	case SP_NEAR_ATK_DEF:
 		if(sd->state.lr_flag != 2)
-			sd->near_attack_def_rate += val;
+			sd->bonus.near_attack_def_rate += val;
 		break;
 	case SP_LONG_ATK_DEF:
 		if(sd->state.lr_flag != 2)
-			sd->long_attack_def_rate += val;
+			sd->bonus.long_attack_def_rate += val;
 		break;
 	case SP_DOUBLE_RATE:
-		if(sd->state.lr_flag == 0 && sd->double_rate < val)
-			sd->double_rate = val;
+		if(sd->state.lr_flag == 0 && sd->bonus.double_rate < val)
+			sd->bonus.double_rate = val;
 		break;
 	case SP_DOUBLE_ADD_RATE:
 		if(sd->state.lr_flag == 0)
-			sd->double_add_rate += val;
+			sd->bonus.double_add_rate += val;
 		break;
 	case SP_MATK:
 		if(sd->state.lr_flag != 2)
-			sd->matk+=val;
+			sd->bonus.matk+=val;
 		break;
 	case SP_MATK_RATE:
 		if(sd->state.lr_flag != 2)
@@ -2727,15 +2723,15 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_ATK_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->atk_rate += val;
+			sd->bonus.atk_rate += val;
 		break;
 	case SP_MAGIC_ATK_DEF:
 		if(sd->state.lr_flag != 2)
-			sd->magic_def_rate += val;
+			sd->bonus.magic_def_rate += val;
 		break;
 	case SP_MISC_ATK_DEF:
 		if(sd->state.lr_flag != 2)
-			sd->misc_def_rate += val;
+			sd->bonus.misc_def_rate += val;
 		break;
 	case SP_IGNORE_MDEF_RATE:
 		if(sd->state.lr_flag != 2) {
@@ -2749,19 +2745,19 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			break;
 		}
 		if(sd->state.lr_flag != 2)
-			sd->ignore_mdef_ele |= 1<<val;
+			sd->bonus.ignore_mdef_ele |= 1<<val;
 		break;
 	case SP_IGNORE_MDEF_RACE:
 		if(sd->state.lr_flag != 2)
-			sd->ignore_mdef_race |= 1<<val;
+			sd->bonus.ignore_mdef_race |= 1<<val;
 		break;
 	case SP_PERFECT_HIT_RATE:
-		if(sd->state.lr_flag != 2 && sd->perfect_hit < val)
-			sd->perfect_hit = val;
+		if(sd->state.lr_flag != 2 && sd->bonus.perfect_hit < val)
+			sd->bonus.perfect_hit = val;
 		break;
 	case SP_PERFECT_HIT_ADD_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->perfect_hit_add += val;
+			sd->bonus.perfect_hit_add += val;
 		break;
 	case SP_CRITICAL_RATE:
 		if(sd->state.lr_flag != 2)
@@ -2868,24 +2864,24 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 			sd->special_state.no_knockback = 1;
 		break;
 	case SP_SPLASH_RANGE:
-		if(sd->state.lr_flag != 2 && sd->splash_range < val)
-			sd->splash_range = val;
+		if(sd->state.lr_flag != 2 && sd->bonus.splash_range < val)
+			sd->bonus.splash_range = val;
 		break;
 	case SP_SPLASH_ADD_RANGE:
 		if(sd->state.lr_flag != 2)
-			sd->splash_add_range += val;
+			sd->bonus.splash_add_range += val;
 		break;
 	case SP_SHORT_WEAPON_DAMAGE_RETURN:
 		if(sd->state.lr_flag != 2)
-			sd->short_weapon_damage_return += val;
+			sd->bonus.short_weapon_damage_return += val;
 		break;
 	case SP_LONG_WEAPON_DAMAGE_RETURN:
 		if(sd->state.lr_flag != 2)
-			sd->long_weapon_damage_return += val;
+			sd->bonus.long_weapon_damage_return += val;
 		break;
 	case SP_MAGIC_DAMAGE_RETURN: //AppleGirl Was Here
 		if(sd->state.lr_flag != 2)
-			sd->magic_damage_return += val;
+			sd->bonus.magic_damage_return += val;
 		break;
 	case SP_ALL_STATS:	// [Valaris]
 		if(sd->state.lr_flag!=2) {
@@ -2916,51 +2912,51 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_UNBREAKABLE:
 		if(sd->state.lr_flag!=2)
-			sd->unbreakable += val;
+			sd->bonus.unbreakable += val;
 		break;
 	case SP_UNBREAKABLE_WEAPON:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_WEAPON;
+			sd->bonus.unbreakable_equip |= EQP_WEAPON;
 		break;
 	case SP_UNBREAKABLE_ARMOR:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_ARMOR;
+			sd->bonus.unbreakable_equip |= EQP_ARMOR;
 		break;
 	case SP_UNBREAKABLE_HELM:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_HELM;
+			sd->bonus.unbreakable_equip |= EQP_HELM;
 		break;
 	case SP_UNBREAKABLE_SHIELD:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_SHIELD;
+			sd->bonus.unbreakable_equip |= EQP_SHIELD;
 		break;
 	case SP_UNBREAKABLE_GARMENT:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_GARMENT;
+			sd->bonus.unbreakable_equip |= EQP_GARMENT;
 		break;
 	case SP_UNBREAKABLE_SHOES:
 		if(sd->state.lr_flag != 2)
-			sd->unbreakable_equip |= EQP_SHOES;
+			sd->bonus.unbreakable_equip |= EQP_SHOES;
 		break;
 	case SP_CLASSCHANGE: // [Valaris]
 		if(sd->state.lr_flag !=2)
-			sd->classchange=val;  // FIXME: unpredictable result when stacking
+			sd->bonus.classchange=val;  // FIXME: unpredictable result when stacking
 		break;
 	case SP_LONG_ATK_RATE:
 		if(sd->state.lr_flag != 2)	//[Lupus] it should stack, too. As any other cards rate bonuses
-			sd->long_attack_atk_rate+=val;
+			sd->bonus.long_attack_atk_rate+=val;
 		break;
 	case SP_BREAK_WEAPON_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->break_weapon_rate+=val;
+			sd->bonus.break_weapon_rate+=val;
 		break;
 	case SP_BREAK_ARMOR_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->break_armor_rate+=val;
+			sd->bonus.break_armor_rate+=val;
 		break;
 	case SP_ADD_STEAL_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->add_steal_rate+=val;
+			sd->bonus.add_steal_rate+=val;
 		break;
 	case SP_COOLDOWNRATE:
 		if(sd->state.lr_flag != 2)
@@ -2972,7 +2968,7 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_CRIT_ATK_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->crit_atk_rate += val;
+			sd->bonus.crit_atk_rate += val;
 		break;
 	case SP_NO_REGEN:
 		if(sd->state.lr_flag != 2)
@@ -2980,20 +2976,20 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_UNSTRIPABLE_WEAPON:
 		if(sd->state.lr_flag != 2)
-			sd->unstripable_equip |= EQP_WEAPON;
+			sd->bonus.unstripable_equip |= EQP_WEAPON;
 		break;
 	case SP_UNSTRIPABLE:
 	case SP_UNSTRIPABLE_ARMOR:
 		if(sd->state.lr_flag != 2)
-			sd->unstripable_equip |= EQP_ARMOR;
+			sd->bonus.unstripable_equip |= EQP_ARMOR;
 		break;
 	case SP_UNSTRIPABLE_HELM:
 		if(sd->state.lr_flag != 2)
-			sd->unstripable_equip |= EQP_HELM;
+			sd->bonus.unstripable_equip |= EQP_HELM;
 		break;
 	case SP_UNSTRIPABLE_SHIELD:
 		if(sd->state.lr_flag != 2)
-			sd->unstripable_equip |= EQP_SHIELD;
+			sd->bonus.unstripable_equip |= EQP_SHIELD;
 		break;
 	case SP_HP_DRAIN_VALUE:
 		if(!sd->state.lr_flag) {
@@ -3017,31 +3013,31 @@ int pc_bonus(struct map_session_data *sd,int type,int val)
 		break;
 	case SP_SP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
-			sd->sp_gain_value += val;
+			sd->bonus.sp_gain_value += val;
 		break;
 	case SP_HP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
-			sd->hp_gain_value += val;
+			sd->bonus.hp_gain_value += val;
 		break;
 	case SP_MAGIC_SP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
-			sd->magic_sp_gain_value += val;
+			sd->bonus.magic_sp_gain_value += val;
 		break;
 	case SP_MAGIC_HP_GAIN_VALUE:
 		if(!sd->state.lr_flag)
-			sd->magic_hp_gain_value += val;
+			sd->bonus.magic_hp_gain_value += val;
 		break;
 	case SP_ADD_HEAL_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->add_heal_rate += val;
+			sd->bonus.add_heal_rate += val;
 		break;
 	case SP_ADD_HEAL2_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->add_heal2_rate += val;
+			sd->bonus.add_heal2_rate += val;
 		break;
 	case SP_ADD_ITEM_HEAL_RATE:
 		if(sd->state.lr_flag != 2)
-			sd->itemhealrate2 += val;
+			sd->bonus.itemhealrate2 += val;
 		break;
 	default:
 		ShowWarning("pc_bonus: unknown bonus type %d %d in item #%d\n", type, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
@@ -3314,22 +3310,22 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		break;
 	case SP_SP_VANISH_RATE:
 		if(sd->state.lr_flag != 2) {
-			sd->sp_vanish_rate += type2;
-			sd->sp_vanish_per += val;
+			sd->bonus.sp_vanish_rate += type2;
+			sd->bonus.sp_vanish_per += val;
 		}
 		break;
 	case SP_GET_ZENY_NUM:
-		if(sd->state.lr_flag != 2 && sd->get_zeny_rate < val)
+		if(sd->state.lr_flag != 2 && sd->bonus.get_zeny_rate < val)
 		{
-			sd->get_zeny_rate = val;
-			sd->get_zeny_num = type2;
+			sd->bonus.get_zeny_rate = val;
+			sd->bonus.get_zeny_num = type2;
 		}
 		break;
 	case SP_ADD_GET_ZENY_NUM:
 		if(sd->state.lr_flag != 2)
 		{
-			sd->get_zeny_rate += val;
-			sd->get_zeny_num += type2;
+			sd->bonus.get_zeny_rate += val;
+			sd->bonus.get_zeny_num += type2;
 		}
 		break;
 	case SP_WEAPON_COMA_ELE:
@@ -3359,8 +3355,8 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 		break;
 	case SP_RANDOM_ATTACK_INCREASE:	// [Valaris]
 		if(sd->state.lr_flag !=2){
-			sd->random_attack_increase_add = type2;  // FIXME: unpredictable result when stacking
-			sd->random_attack_increase_per += val;
+			sd->bonus.random_attack_increase_add = type2;  // FIXME: unpredictable result when stacking
+			sd->bonus.random_attack_increase_per += val;
 		}
 		break;
 	case SP_WEAPON_ATK:
@@ -5082,7 +5078,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 
 	// base skill success chance (percentual)
 	rate = (sd_status->dex - md_status->dex)/2 + lv*6 + 4;
-	rate += sd->add_steal_rate;
+	rate += sd->bonus.add_steal_rate;
 		
 	if( rate < 1 )
 		return 0;
@@ -5324,8 +5320,6 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 					s_sd->shadowform_id = 0;
 					status_change_end(&sd->bl,SC__SHADOWFORM,INVALID_TIMER);
 			}
-			if (sd->sc.data[SC_CURSEDCIRCLE_ATKER])
-				status_change_end(&sd->bl,SC_CURSEDCIRCLE_ATKER,-1);
 		}
 		if (sd->shadowform_id){
 			struct block_list *s_bl = map_id2bl(sd->shadowform_id);
@@ -7395,7 +7389,7 @@ int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
 
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 {
-	int i, bonus = sd->add_heal_rate;
+	int i, bonus = sd->bonus.add_heal_rate;
 
 	if( bonus )
 	{
@@ -7418,7 +7412,7 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 
 int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num)
 {
-	int i, bonus = sd->add_heal2_rate;
+	int i, bonus = sd->bonus.add_heal2_rate;
 
 	ARR_FIND(0, ARRAYLENGTH(sd->skillheal2), i, sd->skillheal2[i].id == skill_num);
 	if( i < ARRAYLENGTH(sd->skillheal2) ) bonus += sd->skillheal2[i].val;
@@ -7558,27 +7552,58 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		sd->devotion[k] = 0;
 	}
 
+	for(k = 0; k < MAX_CURSED_CIRCLES; k++)
+	if (sd->cursed_circle[k]){
+		struct map_session_data *ccirclesd = map_id2sd(sd->cursed_circle[k]);
+		struct mob_data *ccirclemd = map_id2md(sd->cursed_circle[k]);
+		if (ccirclesd)
+			status_change_end(&ccirclesd->bl, SC_CURSEDCIRCLE_TARGET, INVALID_TIMER);
+		if (ccirclemd)
+			status_change_end(&ccirclemd->bl, SC_CURSEDCIRCLE_TARGET, INVALID_TIMER);
+		sd->cursed_circle[k] = 0;
+	}
+
+	for(k = 0; k < MAX_BLOOD_SUCKERS; k++)
+	if (sd->blood_sucker[k]){
+		struct map_session_data *bsuckersd = map_id2sd(sd->blood_sucker[k]);
+		struct mob_data *bsuckermd = map_id2md(sd->blood_sucker[k]);
+		if (bsuckersd)
+			status_change_end(&bsuckersd->bl, SC_BLOOD_SUCKER, INVALID_TIMER);
+		if (bsuckermd)
+			status_change_end(&bsuckermd->bl, SC_BLOOD_SUCKER, INVALID_TIMER);
+		sd->blood_sucker[k] = 0;
+	}
+
 	for(k = 0; k < MAX_CRIMSON_MARKS; k++)
 	if (sd->crimson_mark[k]){
 		struct map_session_data *cmarksd = map_id2sd(sd->crimson_mark[k]);
+		struct mob_data *cmarkmd = map_id2md(sd->crimson_mark[k]);
 		if (cmarksd)
 			status_change_end(&cmarksd->bl, SC_C_MARKER, INVALID_TIMER);
+		if (cmarkmd)
+			status_change_end(&cmarkmd->bl, SC_C_MARKER, INVALID_TIMER);
 		sd->crimson_mark[k] = 0;
 	}
 
 	for(k = 0; k < MAX_HOWL_MINES; k++)
 	if (sd->howl_mine[k]){
 		struct map_session_data *hminesd = map_id2sd(sd->howl_mine[k]);
+		struct mob_data *hminemd = map_id2md(sd->howl_mine[k]);
 		if (hminesd)
 			status_change_end(&hminesd->bl, SC_H_MINE, INVALID_TIMER);
+		if (hminemd)
+			status_change_end(&hminemd->bl, SC_H_MINE, INVALID_TIMER);
 		sd->howl_mine[k] = 0;
 	}
 
 	for(k = 0; k < MAX_STELLAR_MARKS; k++)
 	if (sd->stellar_mark[k]){
 		struct map_session_data *smarksd = map_id2sd(sd->stellar_mark[k]);
+		struct mob_data *smarkmd = map_id2md(sd->stellar_mark[k]);
 		if (smarksd)
 			status_change_end(&smarksd->bl, SC_FLASHKICK, INVALID_TIMER);
+		if (smarkmd)
+			status_change_end(&smarkmd->bl, SC_FLASHKICK, INVALID_TIMER);
 		sd->stellar_mark[k] = 0;
 	}
 
@@ -8265,7 +8290,7 @@ int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 		if (potion_flag > 1)
 			bonus += bonus*(potion_flag-1)*50/100;
 		//All item bonuses.
-		bonus += sd->itemhealrate2;
+		bonus += sd->bonus.itemhealrate2;
 		//Item Group bonuses
 		bonus += bonus*itemdb_group_bonus(sd, itemid)/100;
 		//Individual item bonuses.
@@ -10705,8 +10730,12 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 	idx = pc_class2idx(job_id);
 
 	job_info[idx].max_level[type] = maxlvl;
-	for(i=0; i<maxlvl; i++)
-		job_info[idx].exp_table[type][i] = ((uint32) atoi(fields[3+i]));
+	for (i = 0; i < maxlvl; i++) {
+		job_info[idx].exp_table[type][i] = ((uint32)atoi(fields[3 + i]));
+		//Place the BaseHP/SP calculation here, so we can use the maxlevel from job_exp
+		job_info[idx].base_hp[i] = pc_calc_basehp(i + 1, idx);
+		job_info[idx].base_sp[i] = 10 + ((i + 1) * (job_info[idx].sp_factor / 100));
+	}
 	//Reverse check in case the array has a bunch of trailing zeros... [Skotlex]
 	//The reasoning behind the -2 is this... if the max level is 5, then the array
 	//should look like this:
@@ -10724,6 +10753,7 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 	}
 //	ShowInfo("%s - Class %d: %d\n", type?"Job":"Base", job_id, job_info[idx].max_level[type]);
 	for (i = 1; i < job_count; i++) {
+		uint16 j;
 		job_id = jobs[i];
 		if (!pcdb_checkid(job_id)) {
 			ShowError("pc_readdb_exp: Invalid job ID %d.\n", job_id);
@@ -10731,6 +10761,13 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 		}
 		idx = pc_class2idx(job_id);
 		memcpy(job_info[idx].exp_table[type], job_info[pc_class2idx(jobs[0])].exp_table[type], sizeof(job_info[pc_class2idx(jobs[0])].exp_table[type]));
+
+		//Place the BaseHP/SP calculation here, so we can use the maxlevel from job_exp
+		for (j = 0; j < maxlvl; j++) {
+			job_info[idx].base_hp[j] = pc_calc_basehp(j + 1, idx);
+			job_info[idx].base_sp[j] = 10 + ((j + 1) * (job_info[idx].sp_factor / 100));
+		}
+
 		job_info[idx].max_level[type] = maxlvl;
 //		ShowInfo("%s - Class %d: %u\n", type?"Job":"Base", job_id, job_info[idx].max_level[type]);
 	}

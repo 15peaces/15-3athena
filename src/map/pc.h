@@ -337,42 +337,44 @@ struct map_session_data {
 	struct s_autobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS]; //Auto script on attack, when attacked, on skill usage
 	// manually zeroed structures end here.
 	// zeroed vars start here.
-	int atk_rate;
-	int arrow_atk,arrow_ele,arrow_cri,arrow_hit;
-	int nsshealhp,nsshealsp;
-	int critical_def,double_rate;
-	int long_attack_atk_rate; //Long range atk rate, not weapon based. [Skotlex]
-	int near_attack_def_rate,long_attack_def_rate,magic_def_rate,misc_def_rate;
-	int ignore_mdef_ele;
-	int ignore_mdef_race;
-	int perfect_hit;
-	int perfect_hit_add;
-	int get_zeny_rate;
-	int get_zeny_num; //Added Get Zeny Rate [Skotlex]
-	int double_add_rate;
-	int short_weapon_damage_return,long_weapon_damage_return;
-	int magic_damage_return; // AppleGirl Was Here
-	int random_attack_increase_add,random_attack_increase_per; // [Valaris]
-	int break_weapon_rate,break_armor_rate;
-	int crit_atk_rate;
-	int classchange; // [Valaris]
-	int speed_rate, speed_add_rate, aspd_add;
-	int itemhealrate2; // [Epoque] Increase heal rate of all healing items.
-	int shieldmdef;
-	unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
-	int matk; //For equips that adds a fixed amount of MATK. [15peaces]
-	int fixedcast; //Renewal fixed cast time adjustment. [15peaces]
-	
-	short splash_range, splash_add_range;
-	short add_steal_rate;
-	short add_heal_rate, add_heal2_rate;
-	short sp_gain_value, hp_gain_value, magic_sp_gain_value, magic_hp_gain_value;
-	short sp_vanish_rate;
-	short sp_vanish_per;	
-	unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
-	unsigned short unbreakable_equip; //100% break resistance on certain equipment
-	unsigned short unstripable_equip;
+	struct {
+		int hp, sp;
+		int atk_rate;
+		int arrow_atk, arrow_ele, arrow_cri, arrow_hit;
+		int nsshealhp, nsshealsp;
+		int critical_def, double_rate;
+		int long_attack_atk_rate; //Long range atk rate, not weapon based. [Skotlex]
+		int near_attack_def_rate, long_attack_def_rate, magic_def_rate, misc_def_rate;
+		int ignore_mdef_ele;
+		int ignore_mdef_race;
+		int perfect_hit;
+		int perfect_hit_add;
+		int get_zeny_rate;
+		int get_zeny_num; //Added Get Zeny Rate [Skotlex]
+		int double_add_rate;
+		int short_weapon_damage_return, long_weapon_damage_return;
+		int magic_damage_return; // AppleGirl Was Here
+		int random_attack_increase_add, random_attack_increase_per; // [Valaris]
+		int break_weapon_rate, break_armor_rate;
+		int crit_atk_rate;
+		int classchange; // [Valaris]
+		int speed_rate, speed_add_rate, aspd_add;
+		int itemhealrate2; // [Epoque] Increase heal rate of all healing items.
+		int shieldmdef;
+		unsigned int setitem_hash, setitem_hash2; //Split in 2 because shift operations only work on int ranges. [Skotlex]
+		int matk; //For equips that adds a fixed amount of MATK. [15peaces]
+		int fixedcast; //Renewal fixed cast time adjustment. [15peaces]
 
+		short splash_range, splash_add_range;
+		short add_steal_rate;
+		short add_heal_rate, add_heal2_rate;
+		short sp_gain_value, hp_gain_value, magic_sp_gain_value, magic_hp_gain_value;
+		short sp_vanish_rate;
+		short sp_vanish_per;
+		unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
+		unsigned short unbreakable_equip; //100% break resistance on certain equipment
+		unsigned short unstripable_equip;
+	}bonus;
 	// zeroed vars end here.
 
 	int castrate,delayrate,cooldownrate,hprate,sprate,dsprate;
@@ -407,6 +409,8 @@ struct map_session_data {
 	short mission_mobid; //Stores the target mob_id for TK_MISSION
 	int die_counter; //Total number of times you've died
 	int devotion[5]; //Stores the account IDs of chars devoted to.
+	int cursed_circle[MAX_CURSED_CIRCLES];// Stores the account ID's of character's in cursed circle.
+	int blood_sucker[MAX_BLOOD_SUCKERS];// Stores the account ID's of character's with a blood sucker.
 	int crimson_mark[MAX_CRIMSON_MARKS];// Stores the account ID's of character's with a crimson mark.
 	int howl_mine[MAX_HOWL_MINES];// Stores the account ID's of character's with a howl mine.
 	int stellar_mark[MAX_STELLAR_MARKS];// Stores the account ID's of character's with a stellar mark.
