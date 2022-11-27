@@ -6791,7 +6791,7 @@ ACMD_FUNC(marry)
 	return -1;
   }
 
-  if (pc_marriage(pl_sd1, pl_sd2) == 0) {
+  if (pc_marriage(pl_sd1, pl_sd2)) {
 	clif_displaymessage(fd, "They are married.. wish them well");
 	clif_wedding_effect(&sd->bl);	//wedding effect and music [Lupus]
 	// Auto-give named rings (Aru)
@@ -6825,7 +6825,7 @@ ACMD_FUNC(divorce)
 		return -1;
 	}
 
-	if (pc_divorce(pl_sd) != 0) {
+	if (!pc_divorce(pl_sd)) {
 		sprintf(atcmd_output, "The divorce has failed.. Cannot find player '%s' or his(her) partner online.", atcmd_player_name);
 		clif_displaymessage(fd, atcmd_output);
 		return -1;

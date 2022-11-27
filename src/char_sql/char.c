@@ -108,7 +108,7 @@ char unknown_char_name[NAME_LENGTH] = "Unknown"; // Name to use when the request
 char char_name_letters[1024] = ""; // list of letters/symbols allowed (or not) in a character name. by [Yor]
 
 int char_per_account = 0; //Maximum charas per account (default unlimited) [Sirius]
-int char_del_level = 0; //From which level u can delete character [Lupus]
+int char_del_level = 0; //From which level you can delete character [Lupus]
 int char_del_delay = 86400;
 int char_del_restriction = CHAR_DEL_RESTRICT_ALL;
 
@@ -150,9 +150,9 @@ struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
 // Set default char delete option by clientver. [15peaces]
 #if PACKETVER >= 20100803
-	char_del_option = CHAR_DEL_BIRTHDATE;
+	int char_del_option = CHAR_DEL_BIRTHDATE;
 #else
-	char_del_option = CHAR_DEL_EMAIL;
+	int char_del_option = CHAR_DEL_EMAIL;
 #endif
 
 // cydh bonus_script
@@ -4054,7 +4054,8 @@ static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint
 		!stricmp(delcode, sd->email) || //email does not match or
 		(
 		!stricmp("a@a.com", sd->email) && //it is default email and
-		!strcmp("", delcode) //user sent an empty email
+		!strcmp("", delcode) && //user sent an empty email
+		char_del_option&1
 		))) {
 		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(E-Mail)"CL_RESET".\n");
 		return true;
@@ -4064,7 +4065,8 @@ static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint
 		!strcmp(sd->birthdate + 2, delcode) || // +2 to cut off the century
 		(
 		!strcmp("0000-00-00", sd->birthdate) && // it is default birthdate and
-		!strcmp("", delcode) // user sent an empty birthdate
+		!strcmp("", delcode) && // user sent an empty birthdate
+		char_del_option&2
 		))) {
 		ShowInfo(""CL_RED"Char Deleted"CL_RESET" "CL_GREEN"(Birthdate)"CL_RESET".\n");
 		return true;
@@ -4186,7 +4188,7 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 		return;
 	}
 
-	if( ( char_del_level > 0 && base_level >= (unsigned int)char_del_level ) || ( char_del_level < 0 && base_level <= (unsigned int)(-char_del_level) ) )
+	if( ( char_del_level > 0 && base_level >= (unsigned int)char_del_level ) || ( char_del_level < 0 && base_level <= (unsigned int)(-char_del_level) ) || !(char_del_option&2) )
 	{// character level config restriction
 		char_delete2_accept_ack(fd, char_id, 2);
 		return;
@@ -5573,6 +5575,8 @@ int char_config_read( const char* cfgName )
 			char_del_level = atoi(w2);
 		} else if (strcmpi(w1, "char_del_delay") == 0) {
 			char_del_delay = atoi(w2);
+		}else if (strcmpi(w1, "char_del_option") == 0) {
+			char_del_option = atoi(w2);
 		} else if (strcmpi(w1, "char_del_restriction") == 0) {
 			char_del_restriction = atoi(w2);
 		} else if(strcmpi(w1,"db_path")==0) {

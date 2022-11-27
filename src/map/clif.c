@@ -7128,9 +7128,9 @@ void clif_item_refine_list(struct map_session_data *sd)
 	fd=sd->fd;
 
 	refine_item[0] = -1;
-	refine_item[1] = pc_search_inventory(sd,1010);
-	refine_item[2] = pc_search_inventory(sd,1011);
-	refine_item[3] = refine_item[4] = pc_search_inventory(sd,984);
+	refine_item[1] = pc_search_inventory(sd, ITEMID_PHRACON);
+	refine_item[2] = pc_search_inventory(sd, ITEMID_EMVERETARCON);
+	refine_item[3] = refine_item[4] = pc_search_inventory(sd, ITEMID_ORIDECON);
 
 	WFIFOHEAD(fd, MAX_INVENTORY * 13 + 4);
 	WFIFOW(fd,0)=0x221;
@@ -9577,22 +9577,18 @@ void clif_wedding_effect(struct block_list *bl)
 void clif_callpartner(struct map_session_data *sd)
 {
 	unsigned char buf[26];
-	const char *p;
 
 	nullpo_retv(sd);
 
 	WBUFW(buf,0) = 0x1e6;
 
-	if( sd->status.partner_id )
-	{
-		if( ( p = map_charid2nick(sd->status.partner_id) ) != NULL )
-		{
+	if (sd->status.partner_id) {
+		const char *p = map_charid2nick(sd->status.partner_id);
+		struct map_session_data *p_sd = pc_get_partner(sd);
+		if (p != NULL && p_sd != NULL && !p_sd->state.autotrade)
 			memcpy(WBUFP(buf,2), p, NAME_LENGTH);
-		}
 		else
-		{
 			WBUFB(buf,2) = 0;
-		}
 	}
 	else
 	{// Send zero-length name if no partner, to initialize the client buffer.

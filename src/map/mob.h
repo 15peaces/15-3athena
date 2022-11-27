@@ -49,9 +49,15 @@ enum MOBID {
 	MOBID_WHITE_PLANT,
 	MOBID_SHINING_PLANT,
 	MOBID_BLACK_MUSHROOM	= 1084,
+	MOBID_MARINE_SPHERE		= 1142,
 	MOBID_EMPERIUM			= 1288,
+	MOBID_G_PARASITE		= 1555,
+	MOBID_G_FLORA			= 1575,
+	MOBID_G_HYDRA			= 1579,
+	MOBID_G_MANDRAGORA		= 1589,
+	MOBID_G_GEOGRAPHER		= 1590,
 	// WoE:SE objects
-	MOBID_BARRICADE1		=1905,
+	MOBID_BARRICADE1		= 1905,
 	MOBID_BARRICADE2,		
 	MOBID_GUARIDAN_STONE1,	
 	MOBID_GUARIDAN_STONE2,
@@ -167,8 +173,8 @@ struct mob_data {
 		int provoke_flag; // Celest
 	} state;
 	struct guardian_data* guardian_data; 
-	struct {
-		int id;
+	struct s_dmglog {
+		int id; //char id
 		unsigned int dmg;
 		unsigned int flag : 2; //0: Normal. 1: Homunc exp. 2: Pet exp
 	} dmglog[DAMAGELOG_SIZE];

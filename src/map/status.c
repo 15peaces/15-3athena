@@ -715,6 +715,8 @@ void initChangeTables(void)
 
 	add_sc(AB_VITUPERATUM, SC_AETERNA);
 
+	set_sc(NV_HELPANGEL, SC_HELPANGEL, SI_HELPANGEL, SCB_NONE);
+
 	set_sc( HLIF_AVOID           , SC_AVOID           , SI_BLANK           , SCB_SPEED );
 	set_sc( HLIF_CHANGE          , SC_CHANGE          , SI_BLANK           , SCB_VIT|SCB_INT );
 	set_sc( HFLI_FLEET           , SC_FLEET           , SI_BLANK           , SCB_ASPD|SCB_BATK|SCB_WATK );
@@ -2119,6 +2121,8 @@ static inline unsigned short status_base_matk_min(const struct status_data* stat
 //Fills in the misc data that can be calculated from the other status info (except for level)
 void status_calc_misc(struct block_list *bl, struct status_data *status, int level)
 {
+	int stat;
+
 	//Non players get the value set, players need to stack with previous bonuses.
 	if( bl->type != BL_PC )
 		status->batk = 
@@ -2129,18 +2133,37 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	status->matk_min = status_base_matk_min(status);
 	status->matk_max = status_base_matk_max(status);
 
-	status->hit += level + status->dex;
-	status->flee += level + status->agi;
-	status->def2 += status->vit;
-	status->mdef2 += status->int_ + (status->vit>>1);
+	//Hit
+	stat = status->hit;
+	stat += level + status->dex;
+	status->hit = cap_value(stat, 1, SHRT_MAX);
+	//Flee
+	stat = status->flee;
+	stat += level + status->agi;
+	status->flee = cap_value(stat, 1, SHRT_MAX);
+	//Def2
+	stat = status->def2;
+	stat += status->vit;
+	status->def2 = cap_value(stat, 0, SHRT_MAX);
+	//MDef2
+	stat = status->mdef2;
+	stat += status->int_ + (status->vit >> 1);
+	status->mdef2 = cap_value(stat, 0, SHRT_MAX);
 
-	if( bl->type&battle_config.enable_critical )
-		status->cri += status->luk*3 + 10;
+	//Critical
+	if (bl->type&battle_config.enable_critical) {
+		stat = status->cri;
+		stat += 10 + (status->luk * 10 / 3); // (every 1 luk = +0.3 critical)
+		status->cri = cap_value(stat, 1, SHRT_MAX);
+	}
 	else
 		status->cri = 0;
 
-	if (bl->type&battle_config.enable_perfect_flee)
-		status->flee2 += status->luk + 10;
+	if (bl->type&battle_config.enable_perfect_flee) {
+		stat = status->flee2;
+		stat += status->luk + 10; // (every 10 luk = +1 perfect flee)
+		status->flee2 = cap_value(stat, 0, SHRT_MAX);
+	}
 	else
 		status->flee2 = 0;
 
@@ -2153,7 +2176,7 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 	switch (bl->type) {
 	case BL_MOB:
 		if(battle_config.mob_critical_rate != 100)
-			status->cri = status->cri*battle_config.mob_critical_rate/100;
+			status->cri = cap_value(status->cri*battle_config.mob_critical_rate / 100, 1, SHRT_MAX);
 		if(!status->cri && battle_config.mob_critical_rate)
 		  	status->cri = 10;
 		break;
@@ -2162,7 +2185,7 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 		break;
 	default:
 		if(battle_config.critical_rate != 100)
-			status->cri = status->cri*battle_config.critical_rate/100;
+			status->cri = cap_value(status->cri*battle_config.critical_rate / 100, 1, SHRT_MAX);
 		if (!status->cri && battle_config.critical_rate)
 			status->cri = 10;
 	}
@@ -2453,7 +2476,7 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 
 			bonus += sd->bonus.hp;
 			if ((i = pc_checkskill(sd, CR_TRUST)) > 0)
-				bonus += i * 200;
+				bonus += 200 * i;
 			if (pc_checkskill(sd, SU_SPRITEMABLE) > 0)
 				bonus += 1000;
 			if (pc_checkskill(sd, SU_POWEROFSEA) > 0)
@@ -2462,6 +2485,20 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 
 				if (skill_summoner_power(sd, POWER_OF_SEA) == 1)
 					bonus += 3000;
+			}
+			if( (i = pc_checkskill(sd,NV_BREAKTHROUGH)) > 0 )
+			{
+				bonus += 350 * i;
+		
+				if ( i >= 5 )
+					bonus += 250;
+			}
+			if( (i = pc_checkskill(sd,NV_TRANSCENDENCE)) > 0 )
+			{
+				bonus += 350 * i;
+		
+				if ( i >= 5 )
+					bonus += 250;
 			}
 
 			if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
@@ -2606,6 +2643,20 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 
 				if (skill_summoner_power(sd, POWER_OF_SEA) == 1)
 					bonus += 300;
+			}
+			if( (i = pc_checkskill(sd,NV_BREAKTHROUGH)) > 0 )
+			{
+				bonus += 30 * i;
+		
+				if ( i >= 5 )
+					bonus += 50;
+			}
+			if( (i = pc_checkskill(sd,NV_TRANSCENDENCE)) > 0 )
+			{
+				bonus += 30 * i;
+		
+				if ( i >= 5 )
+					bonus += 50;
 			}
 		}
 
@@ -2769,6 +2820,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	struct s_skill b_skill[MAX_SKILL]; // previous skill tree
 	int i,index;
 	int skill,refinedef=0;
+	short passive_add_matk = 0;
 	short passive_matk_rate = 0;
 
 	if (++calculating > 10) //Too many recursive calls!
@@ -3018,14 +3070,15 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			continue;
 
 		if(sd->inventory_data[index]) {
-			int j,c;
+			int j;
 			struct item_data *data;
 
 			//Card script execution.
 			if(itemdb_isspecial(sd->inventory.u.items_inventory[index].card[0]))
 				continue;
 			for(j=0;j<MAX_SLOTS;j++){ // Uses MAX_SLOTS to support Soul Bound system [Inkfish]
-				current_equip_card_id= c= sd->inventory.u.items_inventory[index].card[j];
+				int c = sd->inventory.u.items_inventory[index].card[j];
+				current_equip_card_id = c;
 				if(!c)
 					continue;
 				data = itemdb_exists(c);
@@ -3217,6 +3270,13 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	// Absolute modifiers from passive skills
 	if((skill=pc_checkskill(sd,BS_HILTBINDING))>0)
 		status->batk += 4;
+	if( (skill = pc_checkskill(sd,NV_BREAKTHROUGH)) > 0 )
+	{
+		status->batk += 15 * skill;
+
+		if ( skill >= 5 )
+			status->batk += 25;
+	}
 
 // ----- HP MAX CALCULATION -----
 
@@ -3266,11 +3326,20 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 // ----- MISC CALCULATION -----
 	status_calc_misc(&sd->bl, status, sd->status.base_level);
 
+	// Passive skills that increase matk.
+	if( (skill = pc_checkskill(sd,NV_TRANSCENDENCE)) > 0 )
+	{
+		passive_add_matk += 15 * skill;
+
+		if ( skill >= 5 )
+			passive_add_matk += 25;
+	}
+
 	//Equipment modifiers for misc settings
-	if ( sd->bonus.matk > 0 )
+	if (sd->bonus.matk + passive_add_matk > 0)
 	{	//Increases MATK by a fixed amount. [15peaces]
-		status->matk_min += sd->bonus.matk;
-		status->matk_max += sd->bonus.matk;
+		status->matk_min += sd->bonus.matk + passive_add_matk;
+		status->matk_max += sd->bonus.matk + passive_add_matk;
 	}
 
 	if(sd->matk_rate < 0)
@@ -3307,7 +3376,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	if(sd->critical_rate < 0) 
 		sd->critical_rate = 0;
 	if(sd->critical_rate != 100)
-		status->cri = status->cri * sd->critical_rate/100;
+		status->cri = cap_value(status->cri * sd->critical_rate / 100, SHRT_MIN, SHRT_MAX);
 
 	if(sd->flee2_rate < 0)
 		sd->flee2_rate = 0;
@@ -4247,12 +4316,23 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 
 		if( bl->type&BL_PC )
 		{
+			short skill = 0;
+			short passive_add_matk = 0;
 			short passive_matk_rate = 0;
 
-			if ( sd->bonus.matk > 0 )
+			// Passive skills that increase matk.
+			if( (skill = pc_checkskill(sd,NV_TRANSCENDENCE)) > 0 )
+			{
+				passive_add_matk += 15 * skill;
+
+				if ( skill >= 5 )
+					passive_add_matk += 25;
+			}
+
+			if ( sd->bonus.matk+passive_add_matk > 0 )
 			{	//Increases MATK by a fixed amount. [15peaces]
-				status->matk_min += sd->bonus.matk;
-				status->matk_max += sd->bonus.matk;
+				status->matk_min += sd->bonus.matk + passive_add_matk;
+				status->matk_max += sd->bonus.matk + passive_add_matk;
 			}
 
 			if ( skill_summoner_power(sd, POWER_OF_LAND) == 1 )
@@ -8195,10 +8275,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if( !(flag&1) )
 			{
 				struct map_session_data *tsd;
-				int i,t;
+				int i;
 				for( i = val2 = 0; i < val1; i++)
 				{
-					t = 5-(i>>1);
+					int t = 5 - (i >> 1);
 					val2 += (t < 0)? 1:t;
 				}
 
@@ -8354,11 +8434,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if( (d_bl = map_id2bl(val1)) && (d_sc = status_get_sc(d_bl)) && d_sc->count )
 			{ // Inherits Status From Source
 				const enum sc_type types[] = { SC_AUTOGUARD, SC_DEFENDER, SC_REFLECTSHIELD, SC_ENDURE };
-				enum sc_type type2;
 				int i = (map_flag_gvg(bl->m) || map[bl->m].flag.battleground)?2:3;
 				while( i >= 0 )
 				{
-					type2 = types[i];
+					enum sc_type type2 = types[i];
 					if( d_sc->data[type2] )
 						sc_start(bl, type2, 100, d_sc->data[type2]->val1, skill_get_time(status_sc2skill(type2),d_sc->data[type2]->val1));
 					i--;
@@ -9358,6 +9437,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_SPIRITOFLAND_PERFECTDODGE:
 			val2 = 10 * status_get_base_lv_effect(bl) / 12;// Perfect Dodge Increase. 10 = 1.
+			break;
+		case SC_HELPANGEL:
+			val4 = tick / 1000;
+			tick = 1000;
 			break;
 		case SC_NEEDLE_OF_PARALYZE:
 			val2 = 5 * val1;// DEF/MDEF  Reduction
@@ -10398,7 +10481,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				int prevline = 0;
 				struct map_session_data *dsd;
 				struct status_change_entry *dsc;
-				struct skill_unit_group *group;
 
 				if( sd )
 				{
@@ -10427,8 +10509,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 
 				if(sce->val2)
 				{// erase associated land skill
+					struct skill_unit_group *group;
 					group = skill_id2group(sce->val2);
-
 					if( group == NULL )
 					{
 						ShowDebug("status_change_end: SC_DANCING is missing skill unit group (val1=%d, val2=%d, val3=%d, val4=%d, timer=%d, tid=%d, char_id=%d, map=%s, x=%d, y=%d, prev=%s:%d, from=%s:%d). Please report this! (#3504)\n",
@@ -11458,12 +11540,12 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			{ // Random Skill Cast
 				if( sd )
 				{
-					int mushroom_skillid = 0, i;
+					int mushroom_skillid = 0;
 					unit_stop_attack(bl);
 					unit_skillcastcancel(bl,1);
 					do
 					{
-						i = rand() % MAX_SKILL_MAGICMUSHROOM_DB;
+						int i = rand() % MAX_SKILL_MAGICMUSHROOM_DB;
 						mushroom_skillid = skill_magicmushroom_db[i].skillid;
 					}
 					while( mushroom_skillid == 0 );
@@ -11966,6 +12048,15 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{
 			status_heal(bl, status->max_hp * 4 / 100, 0, 2);
 			sc_timer_next(sce->val2 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_HELPANGEL:
+		if (--(sce->val4) >= 0)
+			{
+			status_heal(bl, 1000, 350, 2);
+			sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

@@ -279,7 +279,7 @@ enum npc_subtype {
 	NPCTYPE_MARKETSHOP, 
 };
 
-enum Race {
+enum e_race {
 	RC_FORMLESS=0,		//NOTHING
 	RC_UNDEAD,			//UNDEAD
 	RC_BRUTE,			//ANIMAL
@@ -331,7 +331,7 @@ enum e_classAE {
 	CLASS_MAX //auto upd enum for array len
 };
 
-enum {
+enum e_race2 {
 	RC2_NONE = 0,
 	RC2_GOBLIN,
 	RC2_KOBOLD,
@@ -343,7 +343,7 @@ enum {
 	RC2_MAX
 };
 
-enum {
+enum e_elemen {
 	ELE_NEUTRAL=0,	//NOTHING
 	ELE_WATER,		//WATER
 	ELE_EARTH,		//GROUND

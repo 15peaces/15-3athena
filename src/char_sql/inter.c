@@ -358,6 +358,8 @@ int mapif_broadcast(unsigned char *mes, int len, unsigned long fontColor, short 
 {
 	unsigned char *buf = (unsigned char*)aMallocA((len)*sizeof(unsigned char));
 
+	if (buf == NULL) return 1;
+
 	WBUFW(buf,0) = 0x3800;
 	WBUFW(buf,2) = len;
 	WBUFL(buf,4) = fontColor;
@@ -368,8 +370,8 @@ int mapif_broadcast(unsigned char *mes, int len, unsigned long fontColor, short 
 	memcpy(WBUFP(buf,16), mes, len - 16);
 	mapif_sendallwos(sfd, buf, len);
 
-	if (buf)
-		aFree(buf);
+	aFree(buf);
+
 	return 0;
 }
 

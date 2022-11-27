@@ -288,7 +288,7 @@ struct item_data* itemdb_exists(unsigned short nameid) {
 
 /// Returns human readable name for given item type.
 /// @param type Type id to retrieve name for ( IT_* ).
-const char* itemdb_typename(int type)
+const char* itemdb_typename(enum item_types type)
 {
 	switch(type)
 	{
@@ -529,7 +529,7 @@ struct item_data* itemdb_search(unsigned short nameid) {
 /*==========================================
  * Returns if given item is a player-equippable piece.
  *------------------------------------------*/
-int itemdb_isequip(unsigned short nameid)
+bool itemdb_isequip(unsigned short nameid)
 {
 	int type=itemdb_type(nameid);
 	switch (type) 
@@ -537,16 +537,16 @@ int itemdb_isequip(unsigned short nameid)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
-			return 1;
+			return true;
 		default:
-			return 0;
+			return false;
 	}
 }
 
 /*==========================================
  * Alternate version of itemdb_isequip
  *------------------------------------------*/
-int itemdb_isequip2(struct item_data *data)
+bool itemdb_isequip2(struct item_data *data)
 { 
 	nullpo_ret(data);
 	switch(data->type)
@@ -554,16 +554,16 @@ int itemdb_isequip2(struct item_data *data)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
-			return 1;
+			return true;
 		default:
-			return 0;
+			return false;
 	}
 }
 
 /*==========================================
  * Returns if given item's type is stackable.
  *------------------------------------------*/
-int itemdb_isstackable(unsigned short nameid)
+bool itemdb_isstackable(unsigned short nameid)
 {
   int type=itemdb_type(nameid);
   switch(type) {
@@ -571,16 +571,16 @@ int itemdb_isstackable(unsigned short nameid)
 	  case IT_ARMOR:
 	  case IT_PETEGG:
 	  case IT_PETARMOR:
-		  return 0;
+		  return false;
 	  default:
-		  return 1;
+		  return true;
   }
 }
 
 /*==========================================
  * Alternate version of itemdb_isstackable
  *------------------------------------------*/
-int itemdb_isstackable2(struct item_data *data)
+bool itemdb_isstackable2(struct item_data *data)
 {
   nullpo_ret(data);
   switch(data->type) {
@@ -588,9 +588,9 @@ int itemdb_isstackable2(struct item_data *data)
 	  case IT_ARMOR:
 	  case IT_PETEGG:
 	  case IT_PETARMOR:
-		  return 0;
+		  return false;
 	  default:
-		  return 1;
+		  return true;
   }
 }
 
@@ -637,23 +637,23 @@ int itemdb_canmail_sub(struct item_data* item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&128) || gmlv >= item->gm_lv_trade_override));
 }
 
-int itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int))
+bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int))
 {
 	struct item_data* item_data = itemdb_search(item->nameid);
 	int i;
 
 	if (!func(item_data, gmlv, gmlv2))
-		return 0;
+		return false;
 	
 	if(item_data->slot == 0 || itemdb_isspecial(item->card[0]))
-		return 1;
+		return true;
 	
 	for(i = 0; i < item_data->slot; i++) {
 		if (!item->card[i]) continue;
 		if (!func(itemdb_search(item->card[i]), gmlv, gmlv2))
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 bool itemdb_ishatched_egg(struct item* item) {
@@ -665,7 +665,7 @@ bool itemdb_ishatched_egg(struct item* item) {
 /*==========================================
  *	Specifies if item-type should drop unidentified.
  *------------------------------------------*/
-int itemdb_isidentified(unsigned short nameid)
+char itemdb_isidentified(unsigned short nameid)
 {
 	int type=itemdb_type(nameid);
 	switch (type) {
@@ -1156,7 +1156,7 @@ static void itemdb_roulette_free(void) {
 /*======================================
  * Applies gender restrictions according to settings. [Skotlex]
  *======================================*/
-static int itemdb_gendercheck(struct item_data *id)
+static char itemdb_gendercheck(struct item_data *id)
 {
 	if (id->nameid == WEDDING_RING_M) //Grom Ring
 		return 1;

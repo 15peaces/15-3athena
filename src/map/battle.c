@@ -263,10 +263,10 @@ int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct
 int battle_attr_ratio(int atk_elem,int def_type, int def_lv)
 {
 	
-	if (atk_elem < 0 || atk_elem >= ELE_MAX)
+	if (atk_elem < ELE_NEUTRAL || atk_elem >= ELE_MAX)
 		return 100;
 
-	if (def_type < 0 || def_type > ELE_MAX || def_lv < 1 || def_lv > 4)
+	if (def_type < ELE_NEUTRAL || def_type > ELE_MAX || def_lv < 1 || def_lv > 4)
 		return 100;
 
 	return attr_fix_table[def_lv-1][atk_elem][def_type];
@@ -289,10 +289,10 @@ int battle_attr_fix(struct block_list *src, struct block_list *target, int damag
 	if (src) sc = status_get_sc(src);
 	if (target) tsc = status_get_sc(target);
 	
-	if (atk_elem < 0 || atk_elem >= ELE_MAX)
+	if (atk_elem < ELE_NEUTRAL || atk_elem >= ELE_MAX)
 		atk_elem = rand()%ELE_MAX;
 
-	if (def_type < 0 || def_type > ELE_MAX ||
+	if (def_type < ELE_NEUTRAL || def_type > ELE_MAX ||
 		def_lv < 1 || def_lv > 4) {
 		ShowError("battle_attr_fix: unknown attr type: atk=%d def_type=%d def_lv=%d\n",atk_elem,def_type,def_lv);
 		return damage;
@@ -5147,7 +5147,7 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 void battle_drain(TBL_PC *sd, struct block_list *tbl, int rdamage, int ldamage, int race, int boss)
 {
 	struct weapon_data *wd;
-	int type, thp = 0, tsp = 0, rhp = 0, rsp = 0, hp, sp, i, *damage;
+	int type, thp = 0, tsp = 0, rhp = 0, rsp = 0, hp = 0, sp = 0, i, *damage;
 	for (i = 0; i < 4; i++) {
 		//First two iterations: Right hand
 		if (i < 2) { wd = &sd->right_weapon; damage = &rdamage; }

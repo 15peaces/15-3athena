@@ -1636,8 +1636,6 @@ static void* create_charid2nick(DBKey key, va_list args)
 void map_addnickdb(int charid, const char* nick)
 {
 	struct charid2nick* p;
-	struct charid_request* req;
-	struct map_session_data* sd;
 
 	if( map_charid2sd(charid) )
 		return;// already online
@@ -1647,6 +1645,8 @@ void map_addnickdb(int charid, const char* nick)
 
 	while( p->requests )
 	{
+		struct map_session_data* sd;
+		struct charid_request* req;
 		req = p->requests;
 		p->requests = req->next;
 		sd = map_charid2sd(req->charid);
@@ -1661,8 +1661,6 @@ void map_addnickdb(int charid, const char* nick)
 void map_delnickdb(int charid, const char* name)
 {
 	struct charid2nick* p;
-	struct charid_request* req;
-	struct map_session_data* sd;
 
 	p = (struct charid2nick*)idb_remove(nick_db, charid);
 	if( p == NULL )
@@ -1670,6 +1668,8 @@ void map_delnickdb(int charid, const char* name)
 
 	while( p->requests )
 	{
+		struct charid_request* req;
+		struct map_session_data* sd;
 		req = p->requests;
 		p->requests = req->next;
 		sd = map_charid2sd(req->charid);
@@ -2596,16 +2596,15 @@ int map_random_dir(struct block_list *bl, short *x, short *y)
 {
 	short xi = *x-bl->x;
 	short yi = *y-bl->y;
-	short i=0, j;
+	short i=0;
 	int dist2 = xi*xi + yi*yi;
 	short dist = (short)sqrt((float)dist2);
-	short segment;
 	
 	if (dist < 1) dist =1;
 	
 	do {
-		j = 1 + 2*(rand()%4); //Pick a random diagonal direction
-		segment = 1+(rand()%dist); //Pick a random interval from the whole vector in that direction
+		short j = 1 + 2 * (rand() % 4); //Pick a random diagonal direction
+		short segment = 1 + (rand() % dist); //Pick a random interval from the whole vector in that direction
 		xi = bl->x + segment*dirx[j];
 		segment = (short)sqrt((float)(dist2 - segment*segment)); //The complement of the previously picked segment
 		yi = bl->y + segment*diry[j];

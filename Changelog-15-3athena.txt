@@ -5,6 +5,38 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/27/2022
+	r359 [15peaces]
+		*Merged missing changes from 3ceam rev. 880 - 881
+		*Some misc optimisation, thanks to @rathena
+		-Fixed path working directory issue to start servers.
+			--(now you won't need to be in maindir to launch server)
+		*Fixed overflowed parameters calculation will give 32767 stat effect instead 1 (ex. overflowed LUK will give crit 32767)
+		*Fixed WE_MALE and WE_FEMALE to not consume HP/SP when it's below 10%.
+		*Fixed WE_CALLPARTNER, WE_CALLPARENT, and WE_CALLBABY to not recall target if they are autotrading.
+		*Fixed WE_BABY not checking for parents if they are in the same party and in the area.
+		*Added a new config 'char_del_option' to set whether email or birthdate should be used for deleting characters.
+		*Fixed Weapon Refining to use clif_upgrademessage. (bugreport:2135)
+		*Fixed script command 'prompt' not ending script state when player selects Cancel from menu.
+		*All items, except for Cash items, can no longer be used when storage is open.
+		*Defined constants for a lot of item and monster IDs used in source.
+		*Added the latest tags and ID's for skills and status's.
+		*MAX_SKILL increased to 5078.
+		*MAX_GUILDSKILL increased to 20.
+		*Added a new monster entry used for the skill Charge Shout - Flag.
+		*Added 3 new skills to guild skill tree.
+			-Note: These are disabled for now.
+			-Plus need to confirm if Charge Shout - Beating is learned the same way as all the other guild skills.
+		*Expanded Super Novice
+			-Applied the 2019 update that reworked the job.
+			-MaxHP/MaxSP pools updated (hope I got it right).
+			-Bonus stats for job levels 51 - 65 added (tho default max is 60 here for now).
+			-Updated the skill tree and added 3 new skills exclusive to the job.
+			-Note: The 3 new exclusive skills are not learnable/usable on a 2018-09-19aRagexe and requires a newer client which at this time is not supported.
+			-Make sure your client's lua files are up-to-date to display the new skill tree or many of the skills will appear in the misc tab.
+		*NV_BREAKTHROUGH; NV_HELPANGEL; NV_TRANSCENDENCE
+			-Added support for these skills.
+
 11/20/2022
 	r358 [15peaces]
 		*Merged missing changes from 3ceam rev. 879

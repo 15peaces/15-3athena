@@ -4339,7 +4339,7 @@ BUILDIN_FUNC(prompt)
 		sd->state.menu_or_input = 0;
 		pc_setreg(sd, add_str("@menu"), 0xff);
 		script_pushint(st, 0xff);
-		st->state = RUN;
+		st->state = END;
 	}
 	else
 	{// return selected option
@@ -11937,7 +11937,7 @@ BUILDIN_FUNC(marriage)
 	TBL_PC *sd=script_rid2sd(st);
 	TBL_PC *p_sd=map_nick2sd(partner);
 
-	if(sd==NULL || p_sd==NULL || pc_marriage(sd,p_sd) < 0){
+	if (!sd || !p_sd || !pc_marriage(sd, p_sd)) {
 		script_pushint(st,0);
 		return 0;
 	}
@@ -11959,7 +11959,7 @@ BUILDIN_FUNC(wedding_effect)
 BUILDIN_FUNC(divorce)
 {
 	TBL_PC *sd=script_rid2sd(st);
-	if(sd==NULL || pc_divorce(sd) < 0){
+	if (!sd || !pc_divorce(sd)) {
 		script_pushint(st,0);
 		return 0;
 	}
@@ -17857,7 +17857,7 @@ BUILDIN_FUNC(bg_monster_set_team)
 	int id = script_getnum(st,2),
 		bg_id = script_getnum(st,3);
 	
-	if( (mbl = map_id2bl(id)) == NULL || mbl->type != BL_MOB )
+	if (id == 0 || (mbl = map_id2bl(id)) == NULL || mbl->type != BL_MOB)
 		return 0;
 	md = (TBL_MOB *)mbl;
 	md->bg_id = bg_id;

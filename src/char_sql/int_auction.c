@@ -188,8 +188,6 @@ void auction_delete(struct auction_data *auction)
 void inter_auctions_fromsql(void)
 {
 	int i;
-	struct auction_data *auction;
-	struct item *item;
 	char *data;
 	StringBuf buf;
 	int64 tick = gettick(), endtick;
@@ -214,6 +212,9 @@ void inter_auctions_fromsql(void)
 
 	while( SQL_SUCCESS == Sql_NextRow(sql_handle) )
 	{
+		struct item *item;
+		struct auction_data *auction;
+
 		CREATE(auction, struct auction_data, 1);
 		Sql_GetData(sql_handle, 0, &data, NULL); auction->auction_id = atoi(data);
 		Sql_GetData(sql_handle, 1, &data, NULL); auction->seller_id = atoi(data);
