@@ -274,7 +274,7 @@ bool path_search(struct walkpath_data *wpd,int m,int x0,int y0,int x1,int y1,int
 {
 	int heap[MAX_HEAP+1];
 	struct tmp_path tp[MAX_WALKPATH*MAX_WALKPATH];
-	register int i,j,len,x,y,dx,dy;
+	register int i,j,len,x,y,dx=0,dy=0;
 	int rp,xs,ys;
 	struct map_data *md;
 	struct walkpath_data s_wpd;

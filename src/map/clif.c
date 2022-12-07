@@ -1665,7 +1665,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	WBUFW(buf, 31) = (unsigned short) (hd->homunculus.intimacy / 100) ;
 	WBUFW(buf, 33) = 0; // equip id
 	WBUFW(buf, 35) = cap_value(status->rhw.atk2+status->batk, 0, INT16_MAX);
-	WBUFW(buf, 37) = cap_value(status->matk_max, 0, INT16_MAX);
+	WBUFW(buf, 37) = min(status->matk_max, INT16_MAX); //FIXME capping to INT16 here is too late
 	WBUFW(buf, 39) = status->hit;
 	if (battle_config.hom_setting&0x10)
 		WBUFW(buf,41)=status->luk/3 + 1;	//crit is a +1 decimal value! Just display purpose.[Vicious]
@@ -8773,8 +8773,9 @@ void clif_guild_created(struct map_session_data *sd,int flag)
 /// Notifies the client that it is belonging to a guild (ZC_UPDATE_GDID).
 /// 016c <guild id>.L <emblem id>.L <mode>.L <ismaster>.B <inter sid>.L <guild name>.24B
 /// mode:
-///     &0x01 = allow invite
-///     &0x10 = allow expel
+///     &0x001 = allow invite
+///     &0x010 = allow expel
+///     &0x100 = allow guild storage access
 void clif_guild_belonginfo(struct map_session_data *sd, struct guild *g)
 {
 	int ps,fd;
@@ -9055,8 +9056,9 @@ void clif_guild_positionnamelist(struct map_session_data *sd)
 /// Guild position information (ZC_POSITION_INFO).
 /// 0160 <packet len>.W { <position id>.L <mode>.L <ranking>.L <pay rate>.L }*
 /// mode:
-///     &0x01 = allow invite
-///     &0x10 = allow expel
+///     &0x001 = allow invite
+///     &0x010 = allow expel
+///     &0x100 = allow guild storage access
 /// ranking:
 ///     TODO
 void clif_guild_positioninfolist(struct map_session_data *sd)
@@ -9086,8 +9088,9 @@ void clif_guild_positioninfolist(struct map_session_data *sd)
 /// Notifies clients in a guild about updated position information (ZC_ACK_CHANGE_GUILD_POSITIONINFO).
 /// 0174 <packet len>.W { <position id>.L <mode>.L <ranking>.L <pay rate>.L <position name>.24B }*
 /// mode:
-///     &0x01 = allow invite
-///     &0x10 = allow expel
+///     &0x001 = allow invite
+///     &0x010 = allow expel
+///     &0x100 = allow guild storage access
 /// ranking:
 ///     TODO
 void clif_guild_positionchanged(struct guild *g,int idx)
@@ -10180,7 +10183,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 				if( battle_config.show_mob_info&1 )
 					str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
 				if( battle_config.show_mob_info&2 )
-					str_p += sprintf(str_p, "HP: %d%% | ", get_percentage(md->status.hp, md->status.max_hp));
+					str_p += sprintf(str_p, "HP: %ui%% | ", get_percentage(md->status.hp, md->status.max_hp));
 				//Even thought mobhp ain't a name, we send it as one so the client
 				//can parse it. [Skotlex]
 				if( str_p != mobhp )
@@ -12585,7 +12588,7 @@ void clif_parse_ChangeCart(int fd,struct map_session_data *sd)
 {// TODO: State tracking?
 	int type;
 
-	if( sd && pc_checkskill(sd, MC_CHANGECART) < 1 )
+	if(!sd || pc_checkskill(sd, MC_CHANGECART) < 1)
 		return;
 
 	type = (int)RFIFOW(fd,2);
@@ -15983,7 +15986,7 @@ void clif_blacksmith(struct map_session_data* sd)
 	WFIFOHEAD(fd, packet_len(0x219));
 	WFIFOW(fd, 0) = 0x219;
 	//Packet size limits this list to 10 elements. [Skotlex]
-	for (i = 0; i < 10 && i < MAX_FAME_LIST; i++) {
+	for (i = 0; i < min(10, MAX_FAME_LIST); i++) {
 		if (smith_fame_list[i].id > 0) {
 			if (strcmp(smith_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(smith_fame_list[i].id)) != NULL)
@@ -16036,7 +16039,7 @@ void clif_alchemist(struct map_session_data* sd)
 	WFIFOHEAD(fd,packet_len(0x21a));
 	WFIFOW(fd,0) = 0x21a;
 	//Packet size limits this list to 10 elements. [Skotlex]
-	for (i = 0; i < 10 && i < MAX_FAME_LIST; i++) {
+	for (i = 0; i < min(10, MAX_FAME_LIST); i++) {
 		if (chemist_fame_list[i].id > 0) {
 			if (strcmp(chemist_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(chemist_fame_list[i].id)) != NULL)
@@ -16089,7 +16092,7 @@ void clif_taekwon(struct map_session_data* sd)
 	WFIFOHEAD(fd,packet_len(0x226));
 	WFIFOW(fd,0) = 0x226;
 	//Packet size limits this list to 10 elements. [Skotlex]
-	for (i = 0; i < 10 && i < MAX_FAME_LIST; i++) {
+	for (i = 0; i < min(10, MAX_FAME_LIST); i++) {
 		if (taekwon_fame_list[i].id > 0) {
 			if (strcmp(taekwon_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(taekwon_fame_list[i].id)) != NULL)
@@ -21857,7 +21860,7 @@ void packetdb_readdb(void)
 		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
-		if (sscanf(line,"%256[^:]: %256[^\r\n]",w1,w2) == 2)
+		if (sscanf(line,"%255[^:]: %255[^\r\n]",w1,w2) == 2)
 		{
 			if(strcmpi(w1,"packet_ver")==0) {
 				int prev_ver = packet_ver;

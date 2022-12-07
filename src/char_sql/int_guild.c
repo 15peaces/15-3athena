@@ -251,12 +251,10 @@ int inter_guild_tosql(struct guild *g,int flag)
 
 	if (flag&GS_MEMBER)
 	{
-		struct guild_member *m;
-
 		strcat(t_info, " members");
 		// Update only needed players
 		for(i=0;i<g->max_member;i++){
-			m = &g->member[i];
+			struct guild_member *m = &g->member[i];
 #ifndef TXT_SQL_CONVERT
 			if (!m->modified)
 				continue;

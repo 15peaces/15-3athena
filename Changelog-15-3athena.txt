@@ -5,6 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/07/2022
+	r360 [15peaces]
+		*Merged missing changes from 3ceam rev. 882 - 884
+		*Some misc. small fixes.
+		*Please don't forget to add the upgrade_15-3athena_svn360.sql file!
+		*Fixed some display issues related to quests.
+			-Modified the quest_read_db function to only count valid items and objectives.
+		*Updated the guild position mode value to smallint.
+			-This is required since the value for guild storage permission is higher then 256.
+		*Fixed an operator check for WE_MALE and WE_FEMALE. Thanks to rathena.
+		*Fixed a possible null pointer dereference in WE_BABY.
+		*Fixed a reassigned value being reset before being checked.
+		*Fixed sprintf specifier output trying to display int value when return value is unsigned int.
+		*Fixed a redundant check for when monster's HP is less than 0 when HP is declared as an unsigned int.
+		*Fixed a redundant check for when uAccLen or uTokenLen are less then 0 when both are declared as unsigned int.
+		*NJ_HUUJIN (Wind Blade)
+			-Corrected the cast time.
+		*RK_SONICWAVE; RK_HUNDREDSPEAR; RK_IGNITIONBREAK
+			-Fixed a issue where having a base level below 100 would break the damage.
+
 11/27/2022
 	r359 [15peaces]
 		*Merged missing changes from 3ceam rev. 880 - 881
@@ -16,7 +36,7 @@
 		*Fixed WE_CALLPARTNER, WE_CALLPARENT, and WE_CALLBABY to not recall target if they are autotrading.
 		*Fixed WE_BABY not checking for parents if they are in the same party and in the area.
 		*Added a new config 'char_del_option' to set whether email or birthdate should be used for deleting characters.
-		*Fixed Weapon Refining to use clif_upgrademessage. (bugreport:2135)
+		*Fixed Weapon Refining to use clif_upgrademessage.
 		*Fixed script command 'prompt' not ending script state when player selects Cancel from menu.
 		*All items, except for Cash items, can no longer be used when storage is open.
 		*Defined constants for a lot of item and monster IDs used in source.

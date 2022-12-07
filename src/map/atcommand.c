@@ -487,7 +487,7 @@ ACMD_FUNC(where)
 	nullpo_retr(-1, sd);
 	memset(atcmd_player_name, '\0', sizeof atcmd_player_name);
 
-	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
+	if (!message || !*message || sscanf(message, "%23s[^\n]", atcmd_player_name) < 1) {
 		clif_displaymessage(fd, "Please, enter a player name (usage: @where <char name>).");
 		return -1;
 	}
@@ -9271,7 +9271,7 @@ ACMD_FUNC(duel)
 	}
 
 	if( message[0] ) {
-		if(sscanf(message, "%d", &maxpl) >= 1) {
+		if(sscanf(message, "%ui", &maxpl) >= 1) {
 			if(maxpl < 2 || maxpl > 65535) {
 				clif_displaymessage(fd, msg_txt(357)); // "Duel: Invalid value."
 				return 0;

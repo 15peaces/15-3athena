@@ -1747,9 +1747,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 		for (i = 0; i < ARRAYLENGTH(sd->autospell) && sd->autospell[i].id; i++) {
 
-			if(!(sd->autospell[i].flag&attack_type&BF_WEAPONMASK &&
-				 sd->autospell[i].flag&attack_type&BF_RANGEMASK &&
-				 sd->autospell[i].flag&attack_type&BF_SKILLMASK))
+			if (!(((sd->autospell[i].flag)&attack_type)&BF_WEAPONMASK &&
+				((sd->autospell[i].flag)&attack_type)&BF_RANGEMASK &&
+				((sd->autospell[i].flag)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
 
 			skill = (sd->autospell[i].id > 0) ? sd->autospell[i].id : -sd->autospell[i].id;
@@ -1818,9 +1818,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				continue;
 			if( sd->autobonus[i].active != INVALID_TIMER )
 				continue;
-			if(!(sd->autobonus[i].atk_type&attack_type&BF_WEAPONMASK &&
-				 sd->autobonus[i].atk_type&attack_type&BF_RANGEMASK &&
-				 sd->autobonus[i].atk_type&attack_type&BF_SKILLMASK))
+			if (!(((sd->autobonus[i].atk_type)&attack_type)&BF_WEAPONMASK &&
+				((sd->autobonus[i].atk_type)&attack_type)&BF_RANGEMASK &&
+				((sd->autobonus[i].atk_type)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
 			pc_exeautobonus(sd,&sd->autobonus[i]);
 		}
@@ -2067,9 +2067,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 
 		for (i = 0; i < ARRAYLENGTH(dstsd->autospell2) && dstsd->autospell2[i].id; i++) {
 
-			if(!(dstsd->autospell2[i].flag&attack_type&BF_WEAPONMASK &&
-				 dstsd->autospell2[i].flag&attack_type&BF_RANGEMASK &&
-				 dstsd->autospell2[i].flag&attack_type&BF_SKILLMASK))
+			if (!(((dstsd->autospell2[i].flag)&attack_type)&BF_WEAPONMASK &&
+				((dstsd->autospell2[i].flag)&attack_type)&BF_RANGEMASK &&
+				((dstsd->autospell2[i].flag)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
 
 			skillid = (dstsd->autospell2[i].id > 0) ? dstsd->autospell2[i].id : -dstsd->autospell2[i].id;
@@ -2129,9 +2129,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 				continue;
 			if( dstsd->autobonus2[i].active != INVALID_TIMER )
 				continue;
-			if(!(dstsd->autobonus2[i].atk_type&attack_type&BF_WEAPONMASK &&
-				 dstsd->autobonus2[i].atk_type&attack_type&BF_RANGEMASK &&
-				 dstsd->autobonus2[i].atk_type&attack_type&BF_SKILLMASK))
+			if (!(((dstsd->autobonus2[i].atk_type)&attack_type)&BF_WEAPONMASK &&
+				((dstsd->autobonus2[i].atk_type)&attack_type)&BF_RANGEMASK &&
+				((dstsd->autobonus2[i].atk_type)&attack_type)&BF_SKILLMASK))
 				continue; // one or more trigger conditions were not fulfilled
 			pc_exeautobonus(dstsd,&dstsd->autobonus2[i]);
 		}
@@ -8114,14 +8114,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WE_MALE:
-		if (status_get_hp(bl) < status_get_max_hp(bl) / 10) {
+		if (status_get_hp(bl) > status_get_max_hp(bl) / 10) {
 			int hp_rate=(skilllv <= 0)? 0:skill_db[skillid].hp_rate[skilllv-1];
 			int gain_hp= tstatus->max_hp*abs(hp_rate)/100; // The earned is the same % of the target HP than it costed the caster. [Skotlex]
 			clif_skill_nodamage(src,bl,skillid,status_heal(bl, gain_hp, 0, 0),1);
 		}
 		break;
 	case WE_FEMALE:
-		if (status_get_sp(bl) < status_get_max_sp(bl) / 10) {
+		if (status_get_sp(bl) > status_get_max_sp(bl) / 10) {
 			int sp_rate=(skilllv <= 0)? 0:skill_db[skillid].sp_rate[skilllv-1];
 			int gain_sp=tstatus->max_sp*abs(sp_rate)/100;// The earned is the same % of the target SP than it costed the caster. [Skotlex]
 			clif_skill_nodamage(src,bl,skillid,status_heal(bl, 0, gain_sp, 0),1);
@@ -8133,16 +8133,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if(sd){
 			struct map_session_data *f_sd = pc_get_father(sd);
 			struct map_session_data *m_sd = pc_get_mother(sd);
-			struct block_list *b_bl = map_id2bl(sd->bl.id);
-			struct block_list *f_bl = map_id2bl(f_sd->bl.id);
-			struct block_list *m_bl = map_id2bl(m_sd->bl.id);
 			if ((!f_sd && !m_sd) // if neither was found
 				|| (sd->status.party_id != 0 && //not in same party
 				((!f_sd || sd->status.party_id != f_sd->status.party_id)
 					&& (!m_sd || sd->status.party_id != m_sd->status.party_id) //if both are online they should all be in same team
 					))
-				|| ((!f_sd || !check_distance_bl(b_bl, f_bl, AREA_SIZE)) //not in same screen
-					&& (!m_bl && !check_distance_bl(b_bl, m_bl, AREA_SIZE)))
+				|| ((!f_sd || !check_distance_bl(&sd->bl, &f_sd->bl, AREA_SIZE)) //not in same screen
+					&& (!m_sd || !check_distance_bl(&sd->bl, &m_sd->bl, AREA_SIZE)))
 				) {
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				map_freeblock_unlock();

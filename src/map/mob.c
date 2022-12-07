@@ -92,9 +92,8 @@ int mob_skillid2skillidx(int class_,int skillid);
 int mobdb_searchname(const char *str)
 {
 	int i;
-	struct mob_db* mob;
 	for(i=0;i<=MAX_MOB_DB;i++){
-		mob = mob_db(i);
+		struct mob_db* mob = mob_db(i);
 		if(mob == mob_dummy) //Skip dummy mobs.
 			continue;
 		if(strcmpi(mob->name,str)==0 || strcmpi(mob->jname,str)==0 || strcmpi(mob->sprite,str)==0)
@@ -366,12 +365,9 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 	struct block_list *s_bl, *t_bl;
 	struct map_session_data
 		*sd,    // Source
-		*pl_sd, // Owner
 		*t_sd;  // Mob Target
-	struct status_change_entry *sce;
 	struct mob_data *md;
 	int64 tick = gettick();
-	char output[128];
 
 	if( !battle_config.ksprotection )
 		return false; // KS Protection Disabled
@@ -392,6 +388,10 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 	t_sd = BL_CAST(BL_PC,s_bl);
 
 	do {
+		struct status_change_entry *sce;
+		struct map_session_data *pl_sd; // Owner
+		char output[128];
+
 		if( map[md->bl.m].flag.allowks || map_flag_ks(md->bl.m) )
 			return false; // Ignores GVG, PVP and AllowKS map flags
 
@@ -1313,7 +1313,7 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 int mob_randomwalk(struct mob_data *md,int64 tick)
 {
 	const int retrycount=20;
-	int i,x,y,c,d;
+	int i,c,d;
 	int speed;
 
 	nullpo_ret(md);
@@ -1328,8 +1328,8 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	if(d<5) d=5;
 	for(i=0;i<retrycount;i++){	// Search of a movable place
 		int r=rand();
-		x=r%(d*2+1)-d;
-		y=r/(d*2+1)%(d*2+1)-d;
+		int x=r%(d*2+1)-d;
+		int y=r/(d*2+1)%(d*2+1)-d;
 		x+=md->bl.x;
 		y+=md->bl.y;
 
@@ -1393,7 +1393,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	int search_size;
 	int view_range, can_move;
 
-	if(md->bl.prev == NULL || md->status.hp <= 0)
+	if(md->bl.prev == NULL || md->status.hp == 0)
 		return false;
 		
 	if (DIFF_TICK(tick, md->last_thinktime) < MIN_MOBTHINKTIME)
@@ -1617,7 +1617,10 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 
 		if(tbl->type == BL_PC)
 			mob_log_damage(md, tbl, 0); //Log interaction (counts as 'attacker' for the exp bonus)
-		unit_attack(&md->bl,tbl->id,1);
+		if (!(md->sc.option&OPTION_HIDE))
+			unit_attack(&md->bl, tbl->id, 1);
+		else
+			mobskill_use(md, tick, -1);
 		return true;
 	}
 
@@ -1801,10 +1804,11 @@ static struct item_drop* mob_setlootitem(struct item* item)
 static int mob_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 {
 	struct item_drop_list *list;
-	struct item_drop *ditem, *ditem_prev;
+	struct item_drop *ditem;
 	list=(struct item_drop_list *)data;
 	ditem = list->item;
 	while (ditem) {
+		struct item_drop *ditem_prev;
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
 			list->first_charid,list->second_charid,list->third_charid,0);
@@ -3276,7 +3280,7 @@ int mobskill_event(struct mob_data *md, struct block_list *src, int64 tick, int 
 {
 	int target_id, res = 0;
 
-	if(md->bl.prev == NULL || md->status.hp <= 0)
+	if(md->bl.prev == NULL || md->status.hp == 0)
 		return 0;
 
 	target_id = md->target_id;

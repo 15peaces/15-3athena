@@ -735,8 +735,9 @@ void chrif_authfail(int fd) /* HELLO WORLD. ip in RFIFOL 15 is not being used (b
 int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
 {
 	struct auth_node *node=(struct auth_node*)data;
-	const char* states[] = { "Login", "Logout", "Map change" };
+	
 	if(DIFF_TICK(gettick(),node->node_created)>60000) {
+		const char* states[] = { "Login", "Logout", "Map change" };
 		switch (node->state)
 		{
 		case ST_LOGOUT:
@@ -1320,7 +1321,6 @@ int chrif_load_scdata(int fd)
 {	
 #ifdef ENABLE_SC_SAVING
 	struct map_session_data *sd;
-	struct status_change_data *data;
 	int aid, cid, i, count;
 
 	aid = RFIFOL(fd,4); //Player Account ID
@@ -1340,7 +1340,7 @@ int chrif_load_scdata(int fd)
 	count = RFIFOW(fd,12); //sc_count
 	for (i = 0; i < count; i++)
 	{
-		data = (struct status_change_data*)RFIFOP(fd,14 + i*sizeof(struct status_change_data));
+		struct status_change_data *data = (struct status_change_data*)RFIFOP(fd,14 + i*sizeof(struct status_change_data));
 		status_change_start(&sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
 	}
 #endif
@@ -1351,7 +1351,6 @@ int chrif_load_scdata(int fd)
 int chrif_skillcooldown_load(int fd)
 {
 	struct map_session_data *sd;
-	struct skill_cooldown_data *data;
 	int aid, cid, i, count;
 
 	aid = RFIFOL(fd,4);
@@ -1371,7 +1370,7 @@ int chrif_skillcooldown_load(int fd)
 	count = RFIFOW(fd,12); //sc_count
 	for( i = 0; i < count; i++ )
 	{
-		data = (struct skill_cooldown_data*)RFIFOP(fd,14 + i*sizeof(struct skill_cooldown_data));
+		struct skill_cooldown_data *data = (struct skill_cooldown_data*)RFIFOP(fd,14 + i*sizeof(struct skill_cooldown_data));
 		skill_blockpc_start(sd, data->skill_id, data->tick);
 	}
 	return 0;
@@ -1640,7 +1639,7 @@ int chrif_bsdata_received(int fd) {
  *------------------------------------------*/
 int chrif_parse(int fd)
 {
-	int packet_len, cmd;
+	int packet_len;
 
 	// only process data from the char-server
 	if (fd != char_fd)
@@ -1668,7 +1667,7 @@ int chrif_parse(int fd)
 
 	while (RFIFOREST(fd) >= 2)
 	{
-		cmd = RFIFOW(fd,0);
+		int cmd = RFIFOW(fd,0);
 		if (cmd < 0x2af8 || cmd >= 0x2af8 + ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x2af8] == 0)
 		{
 			int r = intif_parse(fd); // Passed on to the intif

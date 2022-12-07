@@ -409,13 +409,16 @@ int quest_read_db(void)
 
 			memset(&quest_db[count].objectives[i], 0, sizeof(quest_db[count].objectives[0]));
 			quest_db[count].objectives[i].mob = mob_id;
-			quest_db[count].objectives[i].count = atoi(str[2*i+3]);
+			quest_db[count].objectives[i].count = atoi(str[2 * i + 3]);
 			quest_db[count].objectives[i].min_level = 0;
 			quest_db[count].objectives[i].max_level = 0;
-			quest_db[count].objectives[i].race = 0; // default should be RC_ALL later
-			quest_db[count].objectives[i].size = 0; // default should be 3 later
-			quest_db[count].objectives[i].element = 0; // default should be ELE_ALL later
-			quest_db[count].objectives_count++;
+			// These values are dummy for now...
+			quest_db[count].objectives[i].race = RC_ALL;
+			quest_db[count].objectives[i].size = 3;
+			quest_db[count].objectives[i].element = ELE_ALL;
+			
+			if (mob_id) // Only count valid objectives.
+				quest_db[count].objectives_count++;
 		}
 
 		for (i = 0; i < MAX_QUEST_DROPS; i++)
@@ -432,7 +435,9 @@ int quest_read_db(void)
 			quest_db[count].dropitem[i].mob_id = mob_id;
 			quest_db[count].dropitem[i].nameid = nameid;
 			quest_db[count].dropitem[i].rate = atoi(str[3 * i + (2 * MAX_QUEST_OBJECTIVES + 4)]);
-			quest_db[count].dropitem_count++;
+			
+			if (nameid) // Only count valid items.
+				quest_db[count].dropitem_count++;
 		}
 
 		//StringBuf_Printf(&quest_db[count].name, "%s", str[17]);

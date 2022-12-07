@@ -293,9 +293,10 @@ enum e_race {
 	RC_BOSS,			//PLAYER - In Aegis this ID is marked as PLAYER. Not sure why its BOSS here.
 	RC_NONBOSS,			//LAST - Race ID 11 officially marked as LAST to mark the end of the race ID list.
 	RC_MAX,
+	RC_ALL,
 	RC_NONDEMIHUMAN,
 
-	RC_ALL = 0xFF,     ///< Every race (implemented as equivalent to RC_BOSS and RC_NONBOSS)
+	//RC_ALL = 0xFF,     ///< Every race (implemented as equivalent to RC_BOSS and RC_NONBOSS)
 };
 
 /**

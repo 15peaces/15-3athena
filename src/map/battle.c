@@ -2332,7 +2332,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case RK_SONICWAVE:
 					skillratio += 400 + 100 * skill_lv;
 					if (level_effect_bonus == 1)
-						skillratio += skillratio * (status_get_base_lv_effect(src) - 100) / 200;
+						skillratio += skillratio * (200 + status_get_base_lv_effect(src) - 100) / 200;
 					break;
 				case RK_HUNDREDSPEAR:
 					skillratio += 500 + 80 * skill_lv + 50 * (sd ? pc_checkskill(sd, LK_SPIRALPIERCE) : 5);
@@ -2350,7 +2350,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					else// If used by a monster or clone.
 						skillratio += 1000;
 					if (level_effect_bonus == 1)
-						skillratio += skillratio * (status_get_base_lv_effect(src) - 100) / 200;
+						skillratio += skillratio * (200 + status_get_base_lv_effect(src) - 100) / 200;
 					break;
 				case RK_WINDCUTTER:
 					skillratio += 50 * skill_lv;
@@ -2368,7 +2368,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					if (sstatus->rhw.ele == ELE_FIRE)
 						skillratio += 100 * skill_lv;	// Bonus by fire element endow.
 					if (level_effect_bonus == 1)
-						skillratio += skillratio * (status_get_base_lv_effect(src) - 100) / 100;
+						skillratio += skillratio * (100 + status_get_base_lv_effect(src) - 100) / 100;
 					break;
 				case RK_CRUSHSTRIKE:
 					if (sd)
@@ -4769,8 +4769,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		if (skill_num == SN_FALCONASSAULT)
 		{
 			//Div fix of Blitzbeat
-			skill = skill_get_num(HT_BLITZBEAT, 5);
-			damage_div_fix(md.damage, skill); 
+			md.div_ = skill_get_num(HT_BLITZBEAT, 5);
+			damage_div_fix(md.damage, md.div_);
 
 			//Falcon Assault Modifier
 			md.damage=md.damage*(150+70*skill_lv)/100;

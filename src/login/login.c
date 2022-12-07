@@ -1210,6 +1210,9 @@ void login_auth_ok(struct login_session_data* sd)
 	memset(WFIFOP(fd,20), 0, 24);
 	WFIFOW(fd,44) = 0; // unknown
 	WFIFOB(fd,46) = sex_str2num(sd->sex);
+#if PACKETVER >= 20170301
+	memset(WFIFOP(fd,47), 0, 17);// Unknown Data
+#endif
 	for( i = 0, n = 0; i < ARRAYLENGTH(server); ++i )
 	{
 		if( !session_isValid(server[i].fd) )
@@ -1434,7 +1437,7 @@ int parse_login(int fd)
 
 				version = RFIFOL(fd,4);
 
-				if(uAccLen > NAME_LENGTH - 1 || uAccLen <= 0 || uTokenLen > NAME_LENGTH - 1  || uTokenLen <= 0)
+				if(uAccLen > NAME_LENGTH - 1 || uAccLen == 0 || uTokenLen > NAME_LENGTH - 1  || uTokenLen <= 0)
 				{
 					login_auth_failed(sd, 3);
 					return 0;
