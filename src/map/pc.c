@@ -4482,8 +4482,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 	
 	if(fitem->first_get_charid > 0 && fitem->first_get_charid != sd->status.char_id)
   	{
-		struct map_session_data *first_sd = NULL, *second_sd = NULL, *third_sd = NULL;
-		first_sd = map_charid2sd(fitem->first_get_charid);
+		struct map_session_data *first_sd = map_charid2sd(fitem->first_get_charid);
 		if(DIFF_TICK(tick,fitem->first_get_tick) < 0) {
 			if (!(p && p->party.item&1 &&
 				first_sd && first_sd->status.party_id == sd->status.party_id
@@ -4493,7 +4492,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 		else
 		if(fitem->second_get_charid > 0 && fitem->second_get_charid != sd->status.char_id)
 	  	{
-			second_sd = map_charid2sd(fitem->second_get_charid);
+			struct map_session_data *second_sd = map_charid2sd(fitem->second_get_charid);
 			if(DIFF_TICK(tick, fitem->second_get_tick) < 0) {
 				if(!(p && p->party.item&1 &&
 					((first_sd && first_sd->status.party_id == sd->status.party_id) ||
@@ -4504,7 +4503,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 			else
 			if(fitem->third_get_charid > 0 && fitem->third_get_charid != sd->status.char_id)
 		  	{
-				third_sd = map_charid2sd(fitem->third_get_charid);
+				struct map_session_data *third_sd = map_charid2sd(fitem->third_get_charid);
 				if(DIFF_TICK(tick,fitem->third_get_tick) < 0) {
 					if(!(p && p->party.item&1 &&
 						((first_sd && first_sd->status.party_id == sd->status.party_id) ||
@@ -9853,7 +9852,7 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_GARMENT) {
-		sd->status.robe = 0;
+		sd->status.robe = (pc_checkequip(sd, EQP_GARMENT, false) >= 0) ? sd->inventory_data[pc_checkequip(sd, EQP_GARMENT, false)]->look : 0;
 		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
 	}
 

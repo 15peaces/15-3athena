@@ -39,7 +39,7 @@ struct item_data;
 #define NATURAL_HEAL_INTERVAL 500
 #define MIN_FLOORITEM 2
 #define MAX_FLOORITEM START_ACCOUNT_NUM
-#define MAX_LEVEL 175
+#define MAX_LEVEL 200
 #define MAX_DROP_PER_MAP 48
 #define MAX_IGNORE_LIST 20 // official is 14
 #define MAX_VENDING 12
@@ -290,8 +290,9 @@ enum e_race {
 	RC_DEMIHUMAN,		//HUMAN
 	RC_ANGEL,			//ANGEL
 	RC_DRAGON,			//DRAGON
-	RC_BOSS,			//PLAYER - In Aegis this ID is marked as PLAYER. Not sure why its BOSS here.
-	RC_NONBOSS,			//LAST - Race ID 11 officially marked as LAST to mark the end of the race ID list.
+	RC_PLAYER,			//PLAYER
+	RC_BOSS,			//LAST - Race ID 11 officially marked as LAST to mark the end of the race ID list.
+	RC_NONBOSS,
 	RC_MAX,
 	RC_ALL,
 	RC_NONDEMIHUMAN,
@@ -316,6 +317,7 @@ enum RaceMask {
 	RCMASK_DEMIHUMAN = 1 << RC_DEMIHUMAN,
 	RCMASK_ANGEL = 1 << RC_ANGEL,
 	RCMASK_DRAGON = 1 << RC_DRAGON,
+	RCMASK_PLAYER = 1 << RC_PLAYER,
 	RCMASK_BOSS = 1 << RC_BOSS,
 	RCMASK_NONBOSS = 1 << RC_NONBOSS,
 	RCMASK_NONDEMIPLAYER = RCMASK_FORMLESS | RCMASK_UNDEAD | RCMASK_BRUTE | RCMASK_PLANT | RCMASK_INSECT | RCMASK_FISH | RCMASK_DEMON | RCMASK_ANGEL | RCMASK_DRAGON,

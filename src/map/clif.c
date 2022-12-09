@@ -808,28 +808,34 @@ void clif_charselectok(int id, uint8 ok)
 
 /// Makes an item appear on the ground.
 /// 009e <id>.L <name id>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY)
-/// 084b (ZC_ITEM_FALL_ENTRY4)
+/// 084b <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY4)
 void clif_dropflooritem(struct flooritem_data* fitem)
 {
+#if PACKETVER >= 20130000
+	uint8 buf[19];
+	uint32 header = 0x84b;
+#else
 	uint8 buf[17];
-	int view;
-
+	uint32 header = 0x09e;
+#endif
+	int view, offset = 0;
 	nullpo_retv(fitem);
-
 	if (fitem->item_data.nameid <= 0)
 		return;
-
-	WBUFW(buf, 0) = 0x9e;
-	WBUFL(buf, 2) = fitem->bl.id;
-	WBUFW(buf, 6) = ((view = itemdb_viewid(fitem->item_data.nameid)) > 0) ? view : fitem->item_data.nameid;
-	WBUFB(buf, 8) = fitem->item_data.identify;
-	WBUFW(buf, 9) = fitem->bl.x;
-	WBUFW(buf,11) = fitem->bl.y;
-	WBUFB(buf,13) = fitem->subx;
-	WBUFB(buf,14) = fitem->suby;
-	WBUFW(buf,15) = fitem->item_data.amount;
-
-	clif_send(buf, packet_len(0x9e), &fitem->bl, AREA);
+	WBUFW(buf, offset + 0) = header;
+	WBUFL(buf, offset + 2) = fitem->bl.id;
+	WBUFW(buf, offset + 6) = ((view = itemdb_viewid(fitem->item_data.nameid)) > 0) ? view : fitem->item_data.nameid;
+#if PACKETVER >= 20130000
+	WBUFW(buf, offset + 8) = itemtype(fitem->item_data.nameid);
+	offset += 2;
+#endif
+	WBUFB(buf, offset + 8) = fitem->item_data.identify;
+	WBUFW(buf, offset + 9) = fitem->bl.x;
+	WBUFW(buf, offset + 11) = fitem->bl.y;
+	WBUFB(buf, offset + 13) = fitem->subx;
+	WBUFB(buf, offset + 14) = fitem->suby;
+	WBUFW(buf, offset + 15) = fitem->item_data.amount;
+	clif_send(buf, packet_len(header), &fitem->bl, AREA);
 }
 
 

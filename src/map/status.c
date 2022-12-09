@@ -511,7 +511,7 @@ void initChangeTables(void)
 	set_sc(RA_FEARBREEZE		, SC_FEARBREEZE			, SI_FEARBREEZE		, SCB_NONE);
 	set_sc(RA_ELECTRICSHOCKER	, SC_ELECTRICSHOCKER	, SI_ELECTRICSHOCKER, SCB_NONE);
 	set_sc(RA_WUGDASH			, SC_WUGDASH			, SI_WUGDASH		, SCB_SPEED);
-	set_sc(RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE		, SCB_WATK | SCB_CRI | SCB_DEF | SCB_SPEED);
+	set_sc( RA_CAMOUFLAGE		, SC_CAMOUFLAGE			, SI_CAMOUFLAGE		, SCB_WATK|SCB_DEF|SCB_SPEED|SCB_CRI );
 	add_sc(RA_MAGENTATRAP		, SC_ELEMENTALCHANGE	);
 	add_sc(RA_COBALTTRAP		, SC_ELEMENTALCHANGE	);
 	add_sc(RA_MAIZETRAP			, SC_ELEMENTALCHANGE	);
@@ -2034,9 +2034,11 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 	switch (target->type)
 	{	//Check for chase-walk/hiding/cloaking opponents.
 		case BL_PC:
+			// Perfect hiding. Nothing can see or detect you, including insect and demon monsters.
 			if ((tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON]) && !(status->mode&MD_BOSS) &&
 				(((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
 				return 0;
+			// Normal hiding. Insects and demon monsters can detect you.
 			if ((tsc->option&(OPTION_HIDE | OPTION_CLOAK | OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&MD_BOSS) &&
 				( ((TBL_PC*)target)->special_state.perfect_hiding || !(status->mode&MD_DETECTOR) ) )
  				return 0;
@@ -2909,7 +2911,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	status->aspd_amount = 0;
 	status->aspd_rate = 1000;
 	status->ele_lv = 1;
-	status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? RC_BRUTE : RC_DEMIHUMAN;
+	status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? RC_BRUTE : RC_PLAYER;
 
 	//zero up structures...
 	memset(&sd->autospell,0,sizeof(sd->autospell)
@@ -7216,6 +7218,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WINDWALK:
 		case SC_CARTBOOST:
 		case SC_ASSNCROS:
+		case SC_GN_CARTBOOST:
 			if (sc->data[SC_QUAGMIRE])
 				return 0;
 		break;
@@ -7330,7 +7333,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CAMOUFLAGE:
 			if (sd && pc_checkskill(sd, RA_CAMOUFLAGE) < 2 && !skill_check_camouflage(bl, NULL))
 				return 0;
-			val2 = 1;
 			break;
 	case SC_TOXIN:
 	case SC_PARALYSE:
@@ -7507,6 +7509,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
 	case SC_DECREASEAGI:
 		status_change_end(bl, SC_CARTBOOST, INVALID_TIMER);
+		status_change_end(bl, SC_GN_CARTBOOST, INVALID_TIMER);
 		//Also blocks the ones below...
 	case SC_DONTFORGETME:
 		status_change_end(bl, SC_INCREASEAGI, INVALID_TIMER);
@@ -7564,6 +7567,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		status_change_end(bl, SC_ASSUMPTIO, INVALID_TIMER);
 		break;
 	case SC_CARTBOOST:
+	case SC_GN_CARTBOOST:
 		if(sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
 		{	//Cancel Decrease Agi, but take no further effect [Skotlex]
 			status_change_end(bl, SC_DECREASEAGI, INVALID_TIMER);
@@ -9017,6 +9021,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 75;
 			else
 				val2 = 100;
+			val3 = 10 * val1;
 			break;
 		case SC_PROPERTYWALK:
 			val_flag |= 1|2;
@@ -9773,7 +9778,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SPIDERWEB:
 		case SC_ELECTRICSHOCKER:
 		case SC_WUGBITE:
-		case SC_CAMOUFLAGE:
 		case SC_MAGNETICFIELD:
 		case SC_CONFUSIONPANIC:
 		case SC_NETHERWORLD:
@@ -9791,6 +9795,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_WEIGHT90:
 		case SC_SIREN:
 		case SC_CLOAKINGEXCEED:
+		case SC_CAMOUFLAGE:
 		case SC_HEAT_BARREL_AFTER:
 		case SC_ALL_RIDING:
 		case SC_NEWMOON:
@@ -11668,7 +11673,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 		if( sce->val2 < 10 ) {
 			sce->val2++;
-			status_calc_bl( bl, SCB_WATK | SCB_CRI | SCB_DEF );
+			status_calc_bl(bl, SCB_WATK | SCB_DEF | SCB_CRI);
 		}
 
 		sc_timer_next(1000 + tick, status_change_timer, bl->id, data);

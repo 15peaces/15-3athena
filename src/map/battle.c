@@ -1105,6 +1105,9 @@ int battle_addmastery(struct map_session_data *sd,struct block_list *target,int 
 			damage += sd->status.str;
 	}
 
+	if (sd->sc.data[SC_GN_CARTBOOST])
+		damage += sd->sc.data[SC_GN_CARTBOOST]->val3;
+
 	if((skill = pc_checkskill(sd, RA_RANGERMAIN)) > 0 && (status->race == RC_BRUTE || status->race == RC_PLANT || status->race == RC_FISH))
 		damage += skill * 5;
 
@@ -2274,7 +2277,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case GS_BULLSEYE:
 					//Only works well against brute/demihumans non bosses.
-					if((tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN)
+					if((tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_PLAYER)
 						&& !(tstatus->mode&MD_BOSS))
 						skillratio += 400;
 					break;
@@ -2672,9 +2675,9 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case SR_TIGERCANNON:
 					if (sc && sc->data[SC_COMBO])
-						skillratio = (sstatus->max_hp * (10 + 2 * skill_lv) / 100 + sstatus->max_sp * (5 + 1 * skill_lv) / 100) / 2;
+						skillratio = (sstatus->max_hp * (10 + 2 * skill_lv) / 100 + sstatus->max_sp * (5 + skill_lv) / 100) / 2;
 					else
-						skillratio = (sstatus->max_hp * (10 + 2 * skill_lv) / 100 + sstatus->max_sp * (5 + 1 * skill_lv) / 100) / 4;
+						skillratio = (sstatus->max_hp * (10 + 2 * skill_lv) / 100 + sstatus->max_sp * (5 + skill_lv) / 100) / 4;
 					if (level_effect_bonus == 1)
 						skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 					break;
@@ -2700,7 +2703,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						skillratio = 5000;//Ratio is officially capped at 5000%.
 					break;
 				case SR_KNUCKLEARROW:
-					if (wflag & 4)//Bonus damage if knocked back into a wall.
+					if (wflag&1)//Bonus damage if knocked back into a wall.
 					{
 						if (tsd)//Players have weight. Monster's dont.
 							skillratio = 150 * skill_lv + 1000 * (tsd->weight / 10) / tsd->max_weight + 5 * status_get_base_lv_effect(target);
@@ -3201,12 +3204,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						ATK_ADD((sstatus->max_hp - sstatus->hp) + sstatus->sp * (5 + skill_lv) / 5 + 10 * status_get_base_lv_effect(src));
 					}
 					break;
-				case MC_CARTREVOLUTION:
-				case GN_CART_TORNADO:
-				case GN_CARTCANNON:
-					if( sc && sc->data[SC_GN_CARTBOOST] )
-					ATK_ADD( 10 * sc->data[SC_GN_CARTBOOST]->val1 );
-					break;
 			}
 		}
 		//Div fix.
@@ -3551,7 +3548,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				cardfix=cardfix*(100+sd->right_weapon.addsize[tstatus->size]+sd->arrow_addsize[tstatus->size])/100;
 				cardfix=cardfix*(100+sd->right_weapon.addrace2[t_race2])/100;
 				cardfix=cardfix*(100+sd->right_weapon.addrace[is_boss(target)?RC_BOSS:RC_NONBOSS]+sd->arrow_addrace[is_boss(target)?RC_BOSS:RC_NONBOSS])/100;
-				if( tstatus->race != RC_DEMIHUMAN )
+				if( tstatus->race != RC_DEMIHUMAN && tstatus->race != RC_PLAYER )
 					cardfix=cardfix*(100+sd->right_weapon.addrace[RC_NONDEMIHUMAN]+sd->arrow_addrace[RC_NONDEMIHUMAN])/100;
 			}
 			else
@@ -3574,7 +3571,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					cardfix=cardfix*(100+sd->right_weapon.addsize[tstatus->size])/100;
 					cardfix=cardfix*(100+sd->right_weapon.addrace2[t_race2])/100;
 					cardfix=cardfix*(100+sd->right_weapon.addrace[is_boss(target)?RC_BOSS:RC_NONBOSS])/100;
-					if( tstatus->race != RC_DEMIHUMAN )
+					if (tstatus->race != RC_DEMIHUMAN && tstatus->race != RC_PLAYER)
 						cardfix=cardfix*(100+sd->right_weapon.addrace[RC_NONDEMIHUMAN])/100;
 
 					if( flag.lh )
@@ -3595,7 +3592,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 						cardfix_=cardfix_*(100+sd->left_weapon.addsize[tstatus->size])/100;
 						cardfix_=cardfix_*(100+sd->left_weapon.addrace2[t_race2])/100;
 						cardfix_=cardfix_*(100+sd->left_weapon.addrace[is_boss(target)?RC_BOSS:RC_NONBOSS])/100;
-						if( tstatus->race != RC_DEMIHUMAN )
+						if (tstatus->race != RC_DEMIHUMAN && tstatus->race != RC_PLAYER)
 							cardfix_=cardfix_*(100+sd->left_weapon.addrace[RC_NONDEMIHUMAN])/100;
 					}
 				}
@@ -3624,7 +3621,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					cardfix=cardfix*(100+sd->right_weapon.addsize[tstatus->size]+sd->left_weapon.addsize[tstatus->size])/100;
 					cardfix=cardfix*(100+sd->right_weapon.addrace2[t_race2]+sd->left_weapon.addrace2[t_race2])/100;
 					cardfix=cardfix*(100+sd->right_weapon.addrace[is_boss(target)?RC_BOSS:RC_NONBOSS]+sd->left_weapon.addrace[is_boss(target)?RC_BOSS:RC_NONBOSS])/100;
-					if( tstatus->race != RC_DEMIHUMAN )
+					if (tstatus->race != RC_DEMIHUMAN && tstatus->race != RC_PLAYER)
 						cardfix=cardfix*(100+sd->right_weapon.addrace[RC_NONDEMIHUMAN]+sd->left_weapon.addrace[RC_NONDEMIHUMAN])/100;
 				}
 			}
@@ -3716,7 +3713,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
  		cardfix=cardfix*(100-tsd->subrace2[s_race2])/100;
 		cardfix=cardfix*(100-tsd->subrace[sstatus->race])/100;
 		cardfix=cardfix*(100-tsd->subrace[is_boss(src)?RC_BOSS:RC_NONBOSS])/100;
-		if( sstatus->race != RC_DEMIHUMAN )
+		if( sstatus->race != RC_DEMIHUMAN && sstatus->race != RC_PLAYER )
 			cardfix=cardfix*(100-tsd->subrace[RC_NONDEMIHUMAN])/100;
 
 		for( i = 0; i < ARRAYLENGTH(tsd->add_def) && tsd->add_def[i].rate;i++ )
@@ -4284,7 +4281,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 					case WL_SUMMON_ATK_GROUND:
 						skillratio = (1 + skill_lv) / 2 * (status_get_base_lv_effect(src) + status_get_job_lv_effect(src));
 						if (level_effect_bonus == 1)
-							skillratio += skillratio * (status_get_base_lv_effect(src) - 100) / 200;
+							skillratio = skillratio * (200 + status_get_base_lv_effect(src) - 100) / 200;
 						break;
 					case LG_SHIELDSPELL:
 					if ( sd && skill_lv == 2 )
@@ -4646,7 +4643,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			cardfix=cardfix*(100-tsd->subrace2[s_race2])/100;
 			cardfix=cardfix*(100-tsd->subrace[sstatus->race])/100;
 			cardfix=cardfix*(100-tsd->subrace[is_boss(src)?RC_BOSS:RC_NONBOSS])/100;
-			if( sstatus->race != RC_DEMIHUMAN )
+			if( sstatus->race != RC_DEMIHUMAN && sstatus->race != RC_PLAYER )
 				cardfix=cardfix*(100-tsd->subrace[RC_NONDEMIHUMAN])/100;
 
 			for(i=0; i < ARRAYLENGTH(tsd->add_mdef) && tsd->add_mdef[i].rate;i++) {
@@ -4987,7 +4984,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		cardfix=cardfix*(100-tsd->subrace2[race2])/100;
 		cardfix=cardfix*(100-tsd->subrace[sstatus->race])/100;
 		cardfix=cardfix*(100-tsd->subrace[is_boss(src)?RC_BOSS:RC_NONBOSS])/100;
-		if( sstatus->race != RC_DEMIHUMAN )
+		if( sstatus->race != RC_DEMIHUMAN && sstatus->race != RC_PLAYER )
 			cardfix=cardfix*(100-tsd->subrace[RC_NONDEMIHUMAN])/100;
 
 		cardfix=cardfix*(100-tsd->bonus.misc_def_rate)/100;
@@ -5298,9 +5295,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if (sc && sc->data[SC_CLOAKINGEXCEED] && !(sc->data[SC_CLOAKINGEXCEED]->val4&2))
 		status_change_end(src,SC_CLOAKINGEXCEED, INVALID_TIMER);
-
-	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3&2))
-		status_change_end(src,SC_CAMOUFLAGE, INVALID_TIMER);
 
 	if (sc && sc->data[SC_NEWMOON] && (--sc->data[SC_NEWMOON]->val2) <= 0)
 		status_change_end(src, SC_NEWMOON, INVALID_TIMER);
@@ -5695,6 +5689,10 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
 		battle_delay_damage(tick, wd.amotion, target, src, 0, 0, 0, rdamage, ATK_DEF, rdelay);
 	}
+
+	// Allow the ATK and CRIT bonus to be applied to the next regular attack before ending the status.
+	if (sc && sc->data[SC_CAMOUFLAGE] && !(sc->data[SC_CAMOUFLAGE]->val3 & 2))
+		status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
 
 	if (tsc) 
 	{

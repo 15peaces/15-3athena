@@ -3389,7 +3389,7 @@ int parse_console(const char* buf)
 }
 
 /*==========================================
- * Ý’èƒtƒ@ƒCƒ‹‚ð?‚Ý?‚Þ
+ * Read map server configuration files (conf/map_athena.conf...)
  *------------------------------------------*/
 int map_config_read(char *cfgName)
 {
@@ -3411,7 +3411,7 @@ int map_config_read(char *cfgName)
 			continue;
 		if( (ptr = strstr(line, "//")) != NULL )
 			*ptr = '\n'; //Strip comments
-		if( sscanf(line, "%[^:]: %[^\t\r\n]", w1, w2) < 2 )
+		if( sscanf(line, "%1023[^:]: %1023[^\t\r\n]", w1, w2) < 2 )
 			continue;
 
 		//Strip trailing spaces
@@ -3537,7 +3537,7 @@ int inter_config_read(char *cfgName)
 	{
 		if(line[0] == '/' && line[1] == '/')
 			continue;
-		if( sscanf(line,"%[^:]: %[^\r\n]",w1,w2) < 2 )
+		if( sscanf(line,"%1023[^:]: %1023[^\r\n]",w1,w2) < 2 )
 			continue;
 
 		if(strcmpi(w1, "main_chat_nick")==0)

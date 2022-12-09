@@ -1105,7 +1105,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			sc_start(bl,SC_STUN,70,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 	case GS_BULLSEYE: //0.1% coma rate.
-		if(tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN)
+		if(tstatus->race == RC_BRUTE || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_PLAYER)
 			status_change_start(bl,SC_COMA,10,skilllv,0,0,0,0,0);
 		break;
 	case GS_PIERCINGSHOT:
@@ -2965,13 +2965,33 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 				direction = unit_getdir(bl); 
 				break;
 		}
-		if( skillid == SR_KNUCKLEARROW ){// Fix me. I need a recode.
-			if( skill_blown(dsrc,bl,dmg.blewcount,direction,0) && !(flag&4) ){
-				short dir_x, dir_y;
-				dir_x = dirx[(direction+4)%8];
-				dir_y = diry[(direction+4)%8];
-				if( map_getcell(bl->m, bl->x+dir_x, bl->y+dir_y, CELL_CHKNOPASS) != 0 )
-					skill_addtimerskill(src, tick + 300 * ((flag&2) ? 1 : 2), bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|4);	
+		if ( skillid == SR_KNUCKLEARROW )
+		{
+			struct mob_data* tmd = BL_CAST(BL_MOB, bl);
+			static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1};
+			static int dy[] = {-1, 0, 1,  0, -1, -1, 1,  1};
+			bool wall_damage = true;
+			int i = 0;
+
+			// Main attack has no flag set which allows the knockback code to be processed.
+			// If a flag is detected, then it means the knockback code was already ran.
+			if ( !flag )
+			{
+				// Knock back the target first if possible before we do a wall check.
+				skill_blown(dsrc,bl,dmg.blewcount,direction,0);
+
+				// Check if the target will receive wall damage.
+				// Targets that can be knocked back will receive wall damage if pushed next to a wall.
+				// Player's with anti-knockback and boss monsters will always receive wall damage.
+				if ( !((tsd && tsd->special_state.no_knockback) || (tmd && is_boss(bl))) )
+				{// Is there a wall next to the target?
+					ARR_FIND( 0, 8, i, map_getcell(bl->m, bl->x+dx[i], bl->y+dy[i], CELL_CHKNOPASS) != 0 );
+					if( i == 8 )// No wall detected.
+						wall_damage = false;
+				}
+
+				if ( wall_damage == true )// Deal wall damage if the above check detected a wall or the target has anti-knockback.
+					skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, SR_KNUCKLEARROW, skilllv, BF_WEAPON, flag|1 );
 			}
 		}
 		if (skillid == LG_OVERBRAND_BRANDISH)
@@ -3048,6 +3068,13 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 	{
 		int sp_damage = damage / 10 / (11 - (sd?pc_checkskill(sd,WM_LESSON):10)) * battle_config.metallicsound_spburn_rate / 100;
 
+		clif_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, sp_damage, 1, 0, 0, true);
+		status_zap(bl, 0, sp_damage);
+	}
+
+	if ( skillid == SR_TIGERCANNON && damage > 0 )
+	{
+		int sp_damage = damage * 10 / 100;
 		clif_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, sp_damage, 1, 0, 0, true);
 		status_zap(bl, 0, sp_damage);
 	}
@@ -5285,17 +5312,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case SR_KNUCKLEARROW:
-		{// Fix me. I need a recode. [Rytech]
-			if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 1, 1) ){
-				clif_slide(src,bl->x,bl->y);
-				clif_fixpos(src); // Aegis send this packet too.
-			}
-
-			if( flag&1 )
-				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag|SD_LEVEL);
-			else
-				skill_addtimerskill(src, tick + 300, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag|SD_LEVEL|2);
-		}
+		// teleport to target (if not on WoE grounds)
+		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1) )
+			// Self knock back 1 cell to make it appear you warped
+			// next to the enemy you targeted from the direction
+			// you attacked from.
+			skill_blown(bl,src,1,unit_getdir(src),0);
+			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
 	case SR_EARTHSHAKER:
@@ -5309,22 +5332,21 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case SR_TIGERCANNON:
-		if ( flag&1 )
+		if (flag & 1)
 		{
 			skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-			status_zap(bl, 0, status_get_max_sp(bl) * 10 / 100);
 		}
-		else if ( sd )
+		else if (sd)
 		{
 			int hpcost, spcost;
 			hpcost = 10 + 2 * skilllv;
-			spcost = 5 + 1 * skilllv;
-			if (!status_charge(src, status_get_max_hp(src) * hpcost / 100, status_get_max_sp(src) * spcost / 100)) {
-				if (sd)
-					clif_skill_fail(sd,skillid,0,0,0);
+			spcost = 5 + skilllv;
+			if (!status_charge(src, status_get_max_hp(src) * hpcost / 100, status_get_max_sp(src) * spcost / 100))
+			{
+				if (sd) clif_skill_fail(sd, skillid, 0, 0, 0);
 				break;
 			}
-			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
+			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
 			status_zap(src, hpcost, spcost);
 		}
 		break;
@@ -7114,7 +7136,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( dstmd )
 		{
 			if( status_get_lv(src) > status_get_lv(bl)
-			&&  (tstatus->race == RC_DEMON || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_ANGEL)
+			&&  (tstatus->race == RC_DEMON || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_PLAYER || tstatus->race == RC_ANGEL)
 			&&  !(tstatus->mode&MD_BOSS) )
 				clif_skill_nodamage(src,bl,skillid,skilllv, sc_start(bl,type,70,skilllv,skill_get_time(skillid,skilllv)));
 			else
@@ -11352,10 +11374,9 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		map_freeblock_lock();
 
 		sc = status_get_sc(src);
-		if( sc ){ //Status end during cast end.
-			if( sc->data[SC_CAMOUFLAGE] )
-				status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
-		}
+		// Cancel status after skill cast timer ends but before skill behavior starts.
+		if( sc && sc->data[SC_CAMOUFLAGE] )
+			status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
 
 		if (skill_get_casttype(ud->skillid) == CAST_NODAMAGE)
 			skill_castend_nodamage_id(src,target,ud->skillid,ud->skilllv,tick,flag);
@@ -11630,11 +11651,9 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	type = status_skill2sc(skillid);
 	sce = (sc && type != -1)?sc->data[type]:NULL;
 
-	if (sc) 
-	{ //Status end during cast end.
-		if (sc->data[SC_CAMOUFLAGE])
-			status_change_end(src, SC_CAMOUFLAGE, INVALID_TIMER);
-	}
+	// Cancel status after skill cast timer ends but before skill behavior starts.
+	if( sc && sc->data[SC_CAMOUFLAGE] )
+		status_change_end(src,SC_CAMOUFLAGE,INVALID_TIMER);
 
 	switch (skillid) { //Skill effect.
 		// Skills listed here will not display their animation.
@@ -15006,11 +15025,11 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		break;
 	case CG_MOONLIT: //Check there's no wall in the range+1 area around the caster. [Skotlex]
 		{
-			int i,x,y,range = skill_get_splash(skill, lv)+1;
+			int i,range = skill_get_splash(skill, lv)+1;
 			int size = range*2+1;
 			for (i=0;i<size*size;i++) {
-				x = sd->bl.x+(i%size-range);
-				y = sd->bl.y+(i/size-range);
+				int x = sd->bl.x+(i%size-range);
+				int y = sd->bl.y+(i/size-range);
 				if (map_getcell(sd->bl.m,x,y,CELL_CHKWALL)) {
 					clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
 					return 0;
@@ -16801,8 +16820,6 @@ void skill_identify (struct map_session_data *sd, int idx) {
 void skill_weaponrefine (struct map_session_data *sd, int idx)
 {
 	short joblv_bonus = (sd->status.job_level - 50) / 2;
-	int i = 0, ep = 0, per;
-	int material[5] = { 0, ITEMID_PHRACON, ITEMID_EMVERETARCON, ITEMID_ORIDECON, ITEMID_ORIDECON };
 	struct item *item;
 
 	nullpo_retv(sd);
@@ -16814,6 +16831,9 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 
 		if(item->nameid > 0 && ditem->type == IT_WEAPON)
 		{
+			int i = 0, ep = 0, per;
+			int material[5] = { 0, ITEMID_PHRACON, ITEMID_EMVERETARCON, ITEMID_ORIDECON, ITEMID_ORIDECON, };
+
 			if (ditem->flag.no_refine) { 	// if the item isn't refinable
 				clif_skill_fail(sd, sd->menuskill_id, USESKILL_FAIL_LEVEL, 0, 0);
 				return;
@@ -17519,14 +17539,14 @@ int skill_enchant_elemental_end (struct block_list *bl, int type)
 
 bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce)
 {
-	static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1};
-	static int dy[] = {-1, 0, 1,  0, -1, -1, 1,  1};
 	bool wall = true;
 	int i;
 
 	if( (bl->type == BL_PC && battle_config.pc_cloak_check_type&1)
 	||	(bl->type != BL_PC && battle_config.monster_cloak_check_type&1) )
 	{	//Check for walls.
+		static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1 };
+		static int dy[] = { -1, 0, 1,  0, -1, -1, 1,  1 };
 		ARR_FIND( 0, 8, i, map_getcell(bl->m, bl->x+dx[i], bl->y+dy[i], CELL_CHKNOPASS) != 0 );
 		if( i == 8 )
 			wall = false;
@@ -17560,13 +17580,13 @@ bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce
 
 bool skill_check_camouflage(struct block_list *bl, struct status_change_entry *sce)
 {
-	static int dx[] = { 0, 1, 0, -1, -1, 1, 1, -1};
-	static int dy[] = {-1, 0, 1, 0, -1, -1, 1, 1};
 	bool wall = true;
 	int i;
 
 	if( bl->type == BL_PC && battle_config.pc_camouflage_check_type&1 )
 	{ //Check for walls.
+		static int dx[] = { 0, 1, 0, -1, -1, 1, 1, -1 };
+		static int dy[] = { -1, 0, 1, 0, -1, -1, 1, 1 };
 		ARR_FIND( 0, 8, i, map_getcell(bl->m, bl->x+dx[i], bl->y+dy[i], CELL_CHKNOPASS) != 0 );
 		if( i == 8 )
 			wall = false;
@@ -17938,7 +17958,7 @@ int skill_clear_unitgroup (struct block_list *src)
  *------------------------------------------*/
 struct skill_unit_group_tickset *skill_unitgrouptickset_search (struct block_list *bl, struct skill_unit_group *group, int64 tick)
 {
-	int i,j=-1,k,s,id;
+	int i,j=-1,s,id;
 	struct unit_data *ud;
 	struct skill_unit_group_tickset *set;
 
@@ -17957,7 +17977,7 @@ struct skill_unit_group_tickset *skill_unitgrouptickset_search (struct block_lis
 		id = s = group->group_id;
 
 	for (i=0; i<MAX_SKILLUNITGROUPTICKSET; i++) {
-		k = (i+s) % MAX_SKILLUNITGROUPTICKSET;
+		int k = (i+s) % MAX_SKILLUNITGROUPTICKSET;
 		if (set[k].id == id)
 			return &set[k];
 		else if (j==-1 && (DIFF_TICK(tick,set[k].tick)>0 || set[k].id==0))
@@ -18491,7 +18511,7 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 	}
 
 	for(j=0;j<MAX_PRODUCE_RESOURCE;j++){
-		int id,x,y;
+		int id;
 		if( (id=skill_produce_db[i].mat_id[j]) <= 0 )
 			continue;
 		if(skill_produce_db[i].mat_amount[j] <= 0) {
@@ -18499,6 +18519,7 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 				return 0;
 		}
 		else {
+			int x, y;
 			for(y=0,x=0;y<MAX_INVENTORY;y++)
 				if( sd->inventory.u.items_inventory[y].nameid == id )
 					x+=sd->inventory.u.items_inventory[y].amount;
@@ -19347,7 +19368,7 @@ int skill_elementalanalysis(struct map_session_data* sd, int n, int skill_lv, un
 
 	for( i = 0; i < n; i++ )
 	{
-		int nameid, add_amount, del_amount, idx, product, flag;
+		int nameid, add_amount, del_amount, idx, product;
 		struct item tmp_item;
 
 		idx = item_list[i*2+0]-2;
@@ -19400,7 +19421,8 @@ int skill_elementalanalysis(struct map_session_data* sd, int n, int skill_lv, un
 
 		if( tmp_item.amount )
 		{
-			if( (flag = pc_additem(sd,&tmp_item,tmp_item.amount)) )
+			int flag = pc_additem(sd, &tmp_item, tmp_item.amount);
+			if (flag != 0)
 			{
 				clif_additem(sd,0,0,flag);
 				map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
@@ -19704,12 +19726,17 @@ int skill_split_str (char *str, char **val, int num)
 
 	return i;
 }
-/*
- *
+
+/**
+ * Split the string with ':' as separator and put each value for a skilllv
+ * if no more value found put the latest to fill the array
+ * @param str : string to split
+ * @param val : array of MAX_SKILL_LEVEL to put value into
+ * @return 0:error, x:number of value assign (should be MAX_SKILL_LEVEL)
  */
 int skill_split_atoi (char *str, int *val)
 {
-	int i, j, diff, step = 1;
+	int i, j, step = 1;
 
 	for (i=0; i<MAX_SKILL_LEVEL; i++) {
 		if (!str) break;
@@ -19729,7 +19756,7 @@ int skill_split_atoi (char *str, int *val)
 	//Check for linear change with increasing steps until we reach half of the data acquired.
 	for (step = 1; step <= i/2; step++)
 	{
-		diff = val[i-1] - val[i-step-1];
+		int diff = val[i-1] - val[i-step-1];
 		for(j = i-1; j >= step; j--)
 			if ((val[j]-val[j-step]) != diff)
 				break;
@@ -19756,13 +19783,13 @@ int skill_split_atoi (char *str, int *val)
  */
 void skill_init_unit_layout (void)
 {
-	int i,j,size,pos = 0;
+	int i,j,pos = 0;
 
 	memset(skill_unit_layout,0,sizeof(skill_unit_layout));
 
 	// standard square layouts go first
 	for (i=0; i<=MAX_SQUARE_LAYOUT; i++) {
-		size = i*2+1;
+		int size = i*2+1;
 		skill_unit_layout[i].count = size*size;
 		for (j=0; j<size*size; j++) {
 			skill_unit_layout[i].dx[j] = (j%size-i);

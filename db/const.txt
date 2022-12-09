@@ -715,9 +715,10 @@ RC_Demon	6
 RC_DemiHuman	7
 RC_Angel	8
 RC_Dragon	9
-RC_Boss	10
-RC_NonBoss	11
-RC_NonDemiHuman	13
+RC_Player	10
+RC_Boss	11
+RC_NonBoss	12
+RC_NonDemiHuman	14
 RC_All	255
 
 RC2_None	0

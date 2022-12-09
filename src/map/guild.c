@@ -964,11 +964,13 @@ int guild_change_notice(struct map_session_data *sd,int guild_id,const char *mes
 		return 0;
 	return intif_guild_notice(guild_id,mes1,mes2);
 }
-// ギルド告知変更通知
+
+/*====================================================
+ * Notification of guild has changed his notice
+ *---------------------------------------------------*/
 int guild_notice_changed(int guild_id,const char *mes1,const char *mes2)
 {
 	int i;
-	struct map_session_data *sd;
 	struct guild *g=guild_search(guild_id);
 	if(g==NULL)
 		return 0;
@@ -977,7 +979,8 @@ int guild_notice_changed(int guild_id,const char *mes1,const char *mes2)
 	memcpy(g->mes2,mes2,MAX_GUILDMES2);
 
 	for(i=0;i<g->max_member;i++){
-		if((sd=g->member[i].sd)!=NULL)
+		struct map_session_data *sd = g->member[i].sd;
+		if (sd != NULL)
 			clif_guild_notice(sd,g);
 	}
 	return 0;
@@ -1393,12 +1396,13 @@ int guild_allianceack(int guild_id1, int guild_id2, int account_id1, int account
 	}
 
 
-	for(i=0;i<2-(flag&1);i++){	// 同盟/敵対リストの再送信
-		struct map_session_data *sd;
+	for(i=0;i<2-(flag&1);i++){	// Retransmission of the relationship list to all members
 		if(g[i]!=NULL)
-			for(j=0;j<g[i]->max_member;j++)
-				if((sd=g[i]->member[j].sd)!=NULL)
+			for (j = 0; j < g[i]->max_member; j++) {
+				struct map_session_data *sd = g[i]->member[j].sd;
+				if (sd != NULL)
 					clif_guild_allianceinfo(sd);
+			}
 	}
 	return 0;
 }

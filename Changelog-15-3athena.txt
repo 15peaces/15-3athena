@@ -5,6 +5,43 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/09/2022
+	r361 [15peaces]
+		*Merged missing changes from 3ceam rev. 885
+		*Reduced another lot of variable scopes and fixed unsafe scanf.
+		*Added support for the ZC_ITEM_FALL_ENTRY4 packet for 2013+ clients.
+		*Added support for the PLAYER race and changed the default player race.
+			-This is how it official works. Race ID 10 is marked as PLAYER for so long now, it was time to finally add it in.
+			-Most of the items in item_db.txt are changed to target both races (RC_Player & RC_DemiHuman). However I'll do another, closer re-check later.
+			-Make sure to adjust your custom items to use RC_Player instead of RC_DemiHuman to make it work on players.
+			-I hope, this didn't break any calculations at all. However, if there are any bugs, feel free to report them to me. ^^
+		*The following battle config settings defaults are changed....
+			-base_lv_skill_effect_limit: Changed from 175 to 200.
+			-job_lv_skill_effect_limit: Changed from 60 to 70.
+		*Fixed a issue where unequipping a costume robe would make regular robes with a visual ID not appear.
+		*Renewal Era Jobs (Jobs introduced during RE era)
+			-The following caps have been increased....
+				--Base Level: 200/175
+				--Job Level: 70/60
+			-Note: The bonus stats for job levels 61 to 70 (51 to 60 for Summoners) for these jobs will be added in a later update.
+		*WL_SUMMON_ATK_FIRE; WL_SUMMON_ATK_WATER; WL_SUMMON_ATK_WIND; WL_SUMMON_ATK_GROUND
+			-Fixed a issue where having a base level below 100 would break the damage.
+		*RA_CAMOUFLAGE
+			-Fixed a issue where the status was ending too early when doing a regular attack.
+			-The ATK/CRIT/DEF adjustments will now start after the status is active for over a second.
+		*SR_TIGERCANNON
+			-Fixed the SP damage to be 10% of the damage dealt.
+			-SP damage is now displayed on impact.
+		*SR_KNUCKLEARROW
+			-Recoded the skill.
+			-This fixes the issues with the knockback direction and how the knockback damage is triggered. It also removes the fixed delay between the 2 hits and sets it to your ASPD. Aegis didn't appear to have any fixed delay on this.
+		*GN_CARTBOOST
+			-Recoded the skill.
+			-Damage increase is now treated as mastery damage. (Confirmed in aegis scan)
+			-This damage increase applies like other masterys and works on all attacks.
+			-Status can now be ended by Decrease AGI and Quagmire.
+			-Decrease AGI can also be removed by recasting this skill.
+
 12/07/2022
 	r360 [15peaces]
 		*Merged missing changes from 3ceam rev. 882 - 884
