@@ -772,32 +772,32 @@ void initChangeTables(void)
 	set_sc( MER_INCAGI           , SC_INCREASEAGI     , SI_INCREASEAGI     , SCB_AGI|SCB_SPEED );
 
 	// Elemental Spirit summoner's 'side' status changes.
-	set_sc( EL_CIRCLE_OF_FIRE	, SC_CIRCLE_OF_FIRE_OPTION, SI_CIRCLE_OF_FIRE_OPTION, SCB_NONE );
-	set_sc( EL_FIRE_CLOAK		, SC_FIRE_CLOAK_OPTION    , SI_FIRE_CLOAK_OPTION    , SCB_ALL );
-	set_sc( EL_WATER_SCREEN		, SC_WATER_SCREEN_OPTION  , SI_WATER_SCREEN_OPTION  , SCB_NONE );
-	set_sc( EL_WATER_DROP		, SC_WATER_DROP_OPTION    , SI_WATER_DROP_OPTION    , SCB_ALL );
-	set_sc( EL_WATER_BARRIER	, SC_WATER_BARRIER        , SI_WATER_BARRIER        , SCB_MDEF|SCB_WATK|SCB_MATK|SCB_FLEE );
-	set_sc( EL_WIND_STEP		, SC_WIND_STEP_OPTION     , SI_WIND_STEP_OPTION     , SCB_SPEED|SCB_FLEE );
-	set_sc( EL_WIND_CURTAIN		, SC_WIND_CURTAIN_OPTION  , SI_WIND_CURTAIN_OPTION  , SCB_ALL );
-	set_sc( EL_ZEPHYR			, SC_ZEPHYR               , SI_ZEPHYR               , SCB_FLEE );
-	set_sc( EL_SOLID_SKIN		, SC_SOLID_SKIN_OPTION    , SI_SOLID_SKIN_OPTION    , SCB_DEF|SCB_MAXHP );
-	set_sc( EL_STONE_SHIELD		, SC_STONE_SHIELD_OPTION  , SI_STONE_SHIELD_OPTION  , SCB_ALL );
-	set_sc( EL_POWER_OF_GAIA	, SC_POWER_OF_GAIA        , SI_POWER_OF_GAIA        , SCB_MAXHP|SCB_DEF|SCB_SPEED );
-	set_sc( EL_PYROTECHNIC		, SC_PYROTECHNIC_OPTION   , SI_PYROTECHNIC_OPTION	, SCB_WATK );
-	set_sc( EL_HEATER           , SC_HEATER_OPTION        , SI_HEATER_OPTION		, SCB_WATK );
-	set_sc( EL_TROPIC           , SC_TROPIC_OPTION        , SI_TROPIC_OPTION		, SCB_WATK );
-	set_sc( EL_AQUAPLAY         , SC_AQUAPLAY_OPTION      , SI_AQUAPLAY_OPTION		, SCB_MATK );
-	set_sc( EL_COOLER           , SC_COOLER_OPTION        , SI_COOLER_OPTION		, SCB_MATK );
-	set_sc( EL_CHILLY_AIR       , SC_CHILLY_AIR_OPTION    , SI_CHILLY_AIR_OPTION	, SCB_MATK );
-	set_sc( EL_GUST             , SC_GUST_OPTION          , SI_GUST_OPTION			, SCB_NONE );
-	set_sc( EL_BLAST            , SC_BLAST_OPTION         , SI_BLAST_OPTION			, SCB_NONE );
-	set_sc( EL_WILD_STORM       , SC_WILD_STORM_OPTION    , SI_WILD_STORM_OPTION	, SCB_NONE );
-	set_sc( EL_PETROLOGY        , SC_PETROLOGY_OPTION     , SI_PETROLOGY_OPTION		, SCB_NONE );
-	set_sc( EL_CURSED_SOIL      , SC_CURSED_SOIL_OPTION   , SI_CURSED_SOIL_OPTION   , SCB_NONE );
-	set_sc( EL_UPHEAVAL         , SC_UPHEAVAL_OPTION      , SI_UPHEAVAL_OPTION      , SCB_NONE );
-	set_sc( EL_TIDAL_WEAPON		, SC_TIDAL_WEAPON_OPTION  , SI_TIDAL_WEAPON_OPTION  , SCB_ALL );
-	set_sc( EL_ROCK_CRUSHER     , SC_ROCK_CRUSHER         , SI_ROCK_CRUSHER         , SCB_DEF );
-	set_sc( EL_ROCK_CRUSHER_ATK , SC_ROCK_CRUSHER_ATK     , SI_ROCK_CRUSHER_ATK     , SCB_SPEED );
+	set_sc( EL_CIRCLE_OF_FIRE	, SC_CIRCLE_OF_FIRE_OPTION	, SI_CIRCLE_OF_FIRE_OPTION	, SCB_NONE );
+	set_sc( EL_FIRE_CLOAK		, SC_FIRE_CLOAK_OPTION		, SI_FIRE_CLOAK_OPTION		, SCB_ALL );
+	set_sc( EL_WATER_SCREEN		, SC_WATER_SCREEN_OPTION	, SI_WATER_SCREEN_OPTION	, SCB_NONE );
+	set_sc( EL_WATER_DROP		, SC_WATER_DROP_OPTION		, SI_WATER_DROP_OPTION		, SCB_ALL );
+	set_sc( EL_WATER_BARRIER	, SC_WATER_BARRIER			, SI_WATER_BARRIER			, SCB_MDEF|SCB_WATK|SCB_MATK|SCB_FLEE );
+	set_sc( EL_WIND_STEP		, SC_WIND_STEP_OPTION		, SI_WIND_STEP_OPTION		, SCB_SPEED|SCB_FLEE );
+	set_sc( EL_WIND_CURTAIN		, SC_WIND_CURTAIN_OPTION	, SI_WIND_CURTAIN_OPTION	, SCB_ALL );
+	set_sc( EL_ZEPHYR			, SC_ZEPHYR					, SI_ZEPHYR					, SCB_FLEE );
+	set_sc( EL_SOLID_SKIN		, SC_SOLID_SKIN_OPTION		, SI_SOLID_SKIN_OPTION		, SCB_DEF|SCB_MAXHP );
+	set_sc( EL_STONE_SHIELD		, SC_STONE_SHIELD_OPTION	, SI_STONE_SHIELD_OPTION	, SCB_ALL );
+	set_sc( EL_POWER_OF_GAIA	, SC_POWER_OF_GAIA			, SI_POWER_OF_GAIA			, SCB_MAXHP|SCB_DEF|SCB_SPEED );
+	set_sc( EL_PYROTECHNIC		, SC_PYROTECHNIC_OPTION		, SI_PYROTECHNIC_OPTION		, SCB_WATK );
+	set_sc( EL_HEATER           , SC_HEATER_OPTION			, SI_HEATER_OPTION			, SCB_WATK );
+	set_sc( EL_TROPIC           , SC_TROPIC_OPTION			, SI_TROPIC_OPTION			, SCB_WATK );
+	set_sc( EL_AQUAPLAY         , SC_AQUAPLAY_OPTION		, SI_AQUAPLAY_OPTION		, SCB_MATK );
+	set_sc( EL_COOLER           , SC_COOLER_OPTION			, SI_COOLER_OPTION			, SCB_MATK );
+	set_sc( EL_CHILLY_AIR       , SC_CHILLY_AIR_OPTION		, SI_CHILLY_AIR_OPTION		, SCB_MATK );
+	set_sc( EL_GUST             , SC_GUST_OPTION			, SI_GUST_OPTION			, SCB_NONE );
+	set_sc( EL_BLAST            , SC_BLAST_OPTION			, SI_BLAST_OPTION			, SCB_NONE );
+	set_sc( EL_WILD_STORM		, SC_WILD_STORM_OPTION		, SI_WILD_STORM_OPTION		, SCB_ASPD);
+	set_sc( EL_PETROLOGY        , SC_PETROLOGY_OPTION		, SI_PETROLOGY_OPTION		, SCB_NONE );
+	set_sc( EL_CURSED_SOIL      , SC_CURSED_SOIL_OPTION		, SI_CURSED_SOIL_OPTION		, SCB_NONE );
+	set_sc( EL_UPHEAVAL         , SC_UPHEAVAL_OPTION		, SI_UPHEAVAL_OPTION		, SCB_MAXHP );
+	set_sc( EL_TIDAL_WEAPON		, SC_TIDAL_WEAPON_OPTION	, SI_TIDAL_WEAPON_OPTION	, SCB_ALL );
+	set_sc( EL_ROCK_CRUSHER     , SC_ROCK_CRUSHER			, SI_ROCK_CRUSHER			, SCB_DEF );
+	set_sc( EL_ROCK_CRUSHER_ATK , SC_ROCK_CRUSHER_ATK		, SI_ROCK_CRUSHER_ATK		, SCB_SPEED );
 
 	set_sc( GD_LEADERSHIP        , SC_GUILDAURA       , SI_BLANK           , SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX );
 	set_sc( GD_BATTLEORDER       , SC_BATTLEORDERS    , SI_BLANK           , SCB_STR|SCB_INT|SCB_DEX );
@@ -2583,6 +2583,8 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += sc->data[SC_FRIGG_SONG]->val2;
 			if (sc->data[SC_MUSTLE_M])
 				bonus += sc->data[SC_MUSTLE_M]->val1;
+			if (sc->data[SC_UPHEAVAL_OPTION])
+				bonus += sc->data[SC_UPHEAVAL_OPTION]->val2;
 			if (sc->data[SC_ANGRIFFS_MODUS])
 				bonus += (5 * sc->data[SC_ANGRIFFS_MODUS]->val1);
 			if (sc->data[SC_PETROLOGY_OPTION])
@@ -5089,6 +5091,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 50 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1;
 	if (sc->data[SC_PYROCLASTIC])
 		watk += sc->data[SC_PYROCLASTIC]->val2;
+	if (sc->data[SC_TROPIC_OPTION])
+		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if(sc->data[SC_FULL_SWING_K])
 		watk += sc->data[SC_FULL_SWING_K]->val1;
 	if(sc->data[SC_INCATKRATE])
@@ -5141,8 +5145,6 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_element(bl) == ELE_WATER)
 		watk -= watk * 50 / 100;
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
-	if( sc->data[SC_TROPIC_OPTION] )
-		watk += sc->data[SC_TROPIC_OPTION]->val2;
 	if( sc->data[SC_HEATER_OPTION] )
 		watk += sc->data[SC_HEATER_OPTION]->val2;
 	if( sc->data[SC_WATER_BARRIER] )
@@ -5185,6 +5187,8 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_SPIRITOFLAND_MATK])
 		matk += sc->data[SC_SPIRITOFLAND_MATK]->val2;
+	if (sc->data[SC_CHILLY_AIR_OPTION])
+		matk += sc->data[SC_CHILLY_AIR_OPTION]->val2;
 	if(sc->data[SC_MAGICPOWER])
 		matk += matk * sc->data[SC_MAGICPOWER]->val3/100;
 	if(sc->data[SC_MINDBREAKER])
@@ -5200,8 +5204,6 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	//Not bothering to organize these until I rework the elemental spirits. [Rytech]
 	if(sc->data[SC_AQUAPLAY_OPTION])
 		matk += sc->data[SC_AQUAPLAY_OPTION]->val2;
-	if(sc->data[SC_CHILLY_AIR_OPTION])
-		matk += sc->data[SC_CHILLY_AIR_OPTION]->val2;
 	if(sc->data[SC_WATER_BARRIER])
 		matk -= sc->data[SC_WATER_BARRIER]->val3;
 
@@ -5864,6 +5866,8 @@ static short status_calc_aspd_amount(struct block_list *bl, struct status_change
 		aspd_amount += 10 * sc->data[SC_HEAT_BARREL]->val1;
 	if (sc->data[SC_SOULSHADOW])
 		aspd_amount += 10 * sc->data[SC_SOULSHADOW]->val2;
+	if (sc->data[SC_WILD_STORM_OPTION])
+		aspd_amount += sc->data[SC_WILD_STORM_OPTION]->val2;
 	if (sc->data[SC_EXTRACT_SALAMINE_JUICE]) // Correct way to handle? [15peaces]
 		aspd_amount += sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
 
@@ -9188,11 +9192,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_CRESCENTELBOW:
 			val2 = 50 + 5 * val1 + status_get_job_lv_effect(bl) / 2;
-			val_flag |= 1|2;
 			break;
 		case SC_LIGHTNINGWALK:
 			val2 = 40 + 5 * val1 + status_get_job_lv_effect(bl) / 2;
-			val_flag |= 1;
 			break;
 		case SC_RAISINGDRAGON:
 			val3 = tick / 5000;
@@ -9524,8 +9526,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 		case SC_TROPIC_OPTION:
-			val2 = 180; // Watk. TODO: Renewal (Atk2)
-			val3 = MG_FIREBOLT;
+			val2 = 180;// WATK Increase
 			break;
 		case SC_AQUAPLAY_OPTION:
 			val2 = 40; // Matk. TODO: Renewal (Matk1)
@@ -9539,9 +9540,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 		case SC_CHILLY_AIR_OPTION:
-			val2 = 120; // Matk. TODO: Renewal (Matk1)
-			val3 = MG_COLDBOLT;
-			val_flag |= 1|2;
+			val2 = 120;// MATK Increase
 			break;
 		case SC_GUST_OPTION:
 			val2 = 33;
@@ -9556,8 +9555,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 		case SC_WILD_STORM_OPTION:
-			val2 = MG_LIGHTNINGBOLT;
-			val_flag |= 1|2;
+			val2 = 5;// ASPD Increase
 			break;
 		case SC_PETROLOGY_OPTION:
 			val2 = 5;
@@ -9571,8 +9569,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			val_flag |= 1|2|4;
 			break;
 		case SC_UPHEAVAL_OPTION:
-			val2 = WZ_EARTHSPIKE;
-			val_flag |= 1|2;
+			val2 = 15;// MaxHP Increase
 			break;
 		case SC_CIRCLE_OF_FIRE_OPTION:
 			val2 = 300;

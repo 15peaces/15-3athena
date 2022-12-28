@@ -953,7 +953,7 @@
 1743,Krieger_Bow1,Glorious Hunter Bow,5,0,,0,100,,5,0,0x001A0848,7,2,34,4,80,1,11,{ bonus2 bAddRace,RC_DemiHuman,55; bonus2 bAddRace,RC_Player,55; bonus2 bIgnoreDefRate,RC_DemiHuman,20; bonus2 bIgnoreDefRate,RC_Player,20; bonus bCritAtkRate,getrefine() * 2; bonus bUnbreakableWeapon,0; if(getrefine()>5) { bonus2 bAddRace,RC_DemiHuman,(getrefine()-4)*(getrefine()-4); bonus2 bAddRace,RC_Player,(getrefine()-4)*(getrefine()-4); bonus2 bIgnoreDefRate,RC_DemiHuman,5; bonus2 bIgnoreDefRate,RC_Player,5; } if(getrefine()>8) bonus2 bSkillAtk,"AC_DOUBLE",20; },{},{}
 1744,Bow_Of_Evil,Bow Of Evil,4,0,,0,170,,5,0,0x000A0848,7,2,34,4,1,0,11,{ bonus2 bSkillAtk,"AC_DOUBLE",25; bonus bDex,2; },{},{}
 1745,Falken_Blitz,Falken Blitz,4,0,,1000,100,,5,2,0x00080808,2,2,34,3,50,1,11,{ bonus2 bSkillAtk,"SN_SHARPSHOOTING",10; bonus2 bSkillAtk,"AC_DOUBLE",10; bonus2 bSkillAtk,"AC_CHARGEARROW",10; },{},{}
-1746,Elven_Bow,Elven Bow,4,20,,1500,160,,5,1,0x000A0848,7,2,34,3,100,1,11,{ bonus bDex,2; },{},{}
+1746,Elven_Bow,Elven Bow,4,20,,1500,160,,5,1,0x00080800,8,2,34,3,100,1,11,{ bonus bDex,2; if(isequipped(1773)) { bonus bLongAtkRate,50; } },{},{}
 1747,P_Bow1,Eden Bow I,4,0,,0,82,,5,3,0x000A0848,7,2,34,2,26,0,11,{},{},{}
 1748,P_Bow2,Eden Bow II,4,0,,0,120,,5,3,0x000A0848,7,2,34,2,40,0,11,{},{},{}
 1749,Tourist_Bow,Tourist Bow,4,0,,500,40,,5,0,0x000A0848,7,2,34,1,1,0,11,{ bonus bDex,2; },{},{}
@@ -7123,7 +7123,8 @@
 16679,Universal_Catalog_Gold_Box10,Universal Catalog Gold 10 Box,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12581,10; },{},{}
 16680,Universal_Catalog_Gold_Box50,Universal Catalog Gold 50 Box,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12581,50; },{},{}
 
-16682,Boarding_Halter_Box,Boarding Halter Box,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 12622,604800; },{},{}
+16682,Boarding_Halter_Box,Boarding Halter Box 7 Days,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 12622,604800; },{},{}
+16683,B_Halter_Box_30Days,Boarding Halter Box 30 Days,18,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 12622,2592000; },{},{}
 
 16776,Universal_Catalog_Gold_Box10,Universal Catalog Gold 10 Box,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12581,10; },{},{}
 16777,Universal_Catalog_Gold_Box50,Universal Catalog Gold 50 Box,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 12581,50; },{},{}

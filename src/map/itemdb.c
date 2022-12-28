@@ -672,7 +672,7 @@ char itemdb_isidentified(unsigned short nameid)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_PETARMOR:
-			return 0;
+			return battle_config.item_auto_identify;
 		default:
 			return 1;
 	}

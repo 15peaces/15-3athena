@@ -9271,7 +9271,10 @@ BUILDIN_FUNC(addtimer)
 	if( sd == NULL )
 		return 0;
 
-	pc_addeventtimer(sd,tick,event);
+	if (!pc_addeventtimer(sd, tick, event)) {
+		ShowWarning("buildin_addtimer: Event timer is full, can't add new event timer. (cid:%d timer:%s)\n", sd->status.char_id, event);
+		return 1;
+	}
 	return 0;
 }
 /*==========================================

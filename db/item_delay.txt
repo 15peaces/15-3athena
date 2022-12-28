@@ -84,6 +84,12 @@
 // SC_REUSE_REFRESH
 12725,120000,SC_REUSE_REFRESH	//Runstone_Nosiege
 
+// New HP/SP Syrups (Potions)
+11621,1000	//Red Syrup
+11622,1000	//Yellow Syrup
+11623,1000	//White Syrup
+11624,10000	//Blue Syrup
+
 // Misc
 //12202,60000	//Str_Dish10_
 //12203,60000	//Agi_Dish10_

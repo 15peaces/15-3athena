@@ -410,4 +410,4 @@
 //2548,MER_HILLSRION
 
 // Charge Shout Flag - Temp Values Until We Know The Official Ones (3ceam)
-20269,GUILD_SKILL_FLAG,Guild Skill Flag,Guild Skill Flag,98,120000,0,0,0,1,0,0,0,0,1,17,1,80,126,20,10,12,2,0,20,0x120,300,1288,288,384,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+20269,GUILD_SKILL_FLAG,Guild Skill Flag,Guild Skill Flag,90,30,0,0,0,1,0,0,0,0,1,17,1,80,126,20,10,12,2,0,20,0x120,300,1288,288,384,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

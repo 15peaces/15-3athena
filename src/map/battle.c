@@ -773,10 +773,15 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 			}
 		}
 
-		if ((sce = sc->data[SC_LIGHTNINGWALK]) && flag&BF_LONG && damage > 0 && rand()%100 < sce->val2)
+		if ( (sce = sc->data[SC_LIGHTNINGWALK]) && damage > 0 && (flag&BF_WEAPON && flag&BF_LONG) && rand()%100 < sce->val2 )
 		{
-			skill_blown(src, bl, distance_bl(src, bl) - 1, unit_getdir(src), 0);
-			d->div_ = ATK_DEF;
+			if( unit_movepos(bl, src->x, src->y, 1, 1) )
+			{	// Self knock back 1 cell to make it appear you warped
+				// next to the enemy you targeted from the direction
+				// you attacked from.
+				skill_blown(src,bl,1,unit_getdir(bl),0);
+				unit_setdir(bl, map_calc_dir(bl, src->x, src->y));
+			}
 			status_change_end(bl, SC_LIGHTNINGWALK, INVALID_TIMER);
 			return 0;
 		}
@@ -798,6 +803,27 @@ int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damag
 
 			if(sce->val2 <= 0)
 				status_change_end(bl, SC_TUNAPARTY, INVALID_TIMER);
+		}
+
+		if ( (sce=sc->data[SC_CRESCENTELBOW]) && damage > 0 && !is_boss(bl) && (flag&BF_WEAPON && flag&BF_SHORT) && rand()%100 < sce->val2 )
+		{
+			struct status_data *tstatus = status_get_status_data(bl);
+			// Ratio part of the damage is reduceable and affected by other means. Additional damage after that is not.
+			struct Damage ced = battle_calc_attack(BF_WEAPON, bl, src, SR_CRESCENTELBOW_AUTOSPELL, sce->val1, 0);
+			int elbow_damage = ced.damage + damage * ( 100 + 20 * sce->val1 ) / 100;
+
+			// Attacker gets the full damage.
+			clif_damage(bl, src, gettick(), tstatus->amotion, 0, elbow_damage, 1, 4, 0, false);
+			status_zap(src, elbow_damage, 0);
+
+			// Caster takes 10% of the damage.
+			clif_damage(bl, bl, gettick(), tstatus->amotion, 0, elbow_damage / 10, 1, 4, 0, false);
+			status_zap(bl, elbow_damage / 10, 0);
+
+			// Activate the passive part of the skill to show skill animation, deal knockback, and do damage if pushed into a wall.
+			skill_castend_nodamage_id(bl, src, SR_CRESCENTELBOW_AUTOSPELL, sce->val1, gettick(), 0);
+
+			return 0;
 		}
 
 		if (!damage)
@@ -2695,12 +2721,27 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 							skillratio = skillratio * status_get_base_lv_effect(src) / 150;
 					}
 					break;
-				case SR_CRESCENTELBOW_AUTOSPELL://Will not work until I can recode this skill in another update. [Rytech]
-					skillratio = tstatus->hp / 100 * skill_lv;
-					if (level_effect_bonus == 1)
-						skillratio = skillratio * status_get_base_lv_effect(src) / 125;
-					if (skillratio > 5000)
-						skillratio = 5000;//Ratio is officially capped at 5000%.
+				case SR_CRESCENTELBOW_AUTOSPELL:
+					if ( wflag&1 )
+						skillratio = 200 * skill_lv;// Bonus damage if knocked back into a wall.
+					else
+					{
+						int target_hp = tstatus->hp;
+
+						// Official 2011 balance documents says the max ratio is 5000% but thats false.
+						// The real limit is on the amount of HP thats calculated in the base damage formula.
+						// HP taken is capped at 100k which when ran through level 5 usage comes out to 5000%.
+						// The caster's base level is calculated after, increasing the ratio further.
+						if ( target_hp > 100000 )
+							target_hp = 100000;
+
+						// Ratio damage appears to be affected by normal means like casters ATK, enemy's DEF, and maybe cards.
+						// The fixed damage affected by the attackers damage is calculated seprate as its not reduceable.
+						// This is according to my finding in aegis code but need a 2nd confirm from another person to verify. [Rytech]
+						skillratio = target_hp / 100 * skill_lv;
+						if( level_effect_bonus == 1 )
+							skillratio = skillratio * status_get_base_lv_effect(src) / 125;
+					}
 					break;
 				case SR_KNUCKLEARROW:
 					if (wflag&1)//Bonus damage if knocked back into a wall.
@@ -5121,13 +5162,6 @@ int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int
 			rdamage += (*damage) / 100;
 			rdamage = cap_value(rdamage,1,max_damage);
 		}
-		if (sc && sc->data[SC_CRESCENTELBOW] && !(flag&BF_SKILL) && !is_boss(src) && rand()%100 < sc->data[SC_CRESCENTELBOW]->val2)
-		{	// Stimated formula from test
-			//rdamage += (int)((*damage) + (*damage) * status_get_hp(src) * 2.15 / 100000);//No longer used since its not official, but keeping for reference.
-			rdamage += (*damage) * (100 + 20 * sc->data[SC_CRESCENTELBOW]->val1) / 100;//Part of the official formula. Will code the rest later. [Rytech]
-			if (rdamage < 1)
-				rdamage = 1;
-		}
 	}
 	else
 	{
@@ -5396,6 +5430,29 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 	}
 
+	// This skill once only triggered on regular attacks. But aegis code appears to trigger this on skill attacks too. Disable for now. [Rytech]
+	/*if ( tsc && tsc->data[SC_CRESCENTELBOW] && !is_boss(src) && (wd.flag&BF_WEAPON && wd.flag&BF_SHORT) && rand()%100 < tsc->data[SC_CRESCENTELBOW]->val2 )
+	{
+		// Ratio part of the damage is reduceable and affected by other means. Additional damage after that is not.
+		struct Damage ced = battle_calc_weapon_attack(target, src, SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1, 0);
+		int elbow_damage = ced.damage + wd.damage * ( 100 + 20 * tsc->data[SC_CRESCENTELBOW]->val1 ) / 100;
+
+		//clif_damage(src, target, tick, sstatus->amotion, 1, 0, 1, 0, 0); //Display MISS.
+
+		// Attacker gets the full damage.
+		clif_damage(target, src, tick, tstatus->amotion, 0, elbow_damage, 1, 4, 0);
+		status_zap(src, elbow_damage, 0);
+
+		// Caster takes 10% of the damage.
+		clif_damage(target, target, tick, tstatus->amotion, 0, elbow_damage / 10, 1, 4, 0);
+		status_zap(target, elbow_damage / 10, 0);
+
+		// Activate the passive part of the skill to show skill animation, deal knockback, and do damage if pushed into a wall.
+		skill_castend_nodamage_id(target, src, SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1, tick, 0);
+
+		return ATK_NONE;
+	}*/
+
 	if( sd && sc && sc->data[SC_GIANTGROWTH] && (wd.flag&BF_SHORT) && rand()%100 < sc->data[SC_GIANTGROWTH]->val2 )
 	{
 		if ( battle_config.giant_growth_behavior == 1 )
@@ -5436,14 +5493,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			}
 			else
 			{
-				if (tsc && tsc->data[SC_CRESCENTELBOW])
-				{	// Deal rdamage to src and 10% damage back to target.
-					clif_skill_nodamage(target, target, SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1, 1);
-					skill_blown(target, src,skill_get_blewcount(SR_CRESCENTELBOW_AUTOSPELL, tsc->data[SC_CRESCENTELBOW]->val1), unit_getdir(src), 0);
-					status_damage(NULL, target, rdamage / 10, 0, 0, 1);
-					clif_damage(target, target, tick, wd.amotion, wd.dmotion, rdamage/10, wd.div_ , wd.type, wd.damage2, false);
-					status_change_end(target, SC_CRESCENTELBOW, INVALID_TIMER);
-				}
 				rdelay = clif_damage(src, src, tick, wd.amotion, sstatus->dmotion, rdamage, 1, 4, 0, false);
 				//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
 				skill_additional_effect(target,src,CR_REFLECTSHIELD,1,BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
@@ -5640,31 +5689,31 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		if (sd) sd->state.autocast = 0;
 	}
 
-	if( sc && (sc->data[SC_TROPIC_OPTION] || sc->data[SC_CHILLY_AIR_OPTION] || sc->data[SC_WILD_STORM_OPTION] || sc->data[SC_UPHEAVAL_OPTION]) && rand()%100 < 25 )
+	if (sc && (sc->data[SC_TROPIC_OPTION] || sc->data[SC_CHILLY_AIR_OPTION] || sc->data[SC_WILD_STORM_OPTION] || sc->data[SC_UPHEAVAL_OPTION]) && rand() % 100 < (status_get_job_lv_effect(src) / 2))
 	{// Autocast one Bolt depending on status change.
 		struct unit_data *ud;
 		short skillid = 0;
+		short skilllv = status_get_job_lv_effect(src) / 10;
 		int delay;
 
 		if( sc->data[SC_TROPIC_OPTION] )
-			skillid = sc->data[SC_TROPIC_OPTION]->val3;
+			skillid = MG_FIREBOLT;
 		else if( sc->data[SC_CHILLY_AIR_OPTION] )
-			skillid = sc->data[SC_CHILLY_AIR_OPTION]->val3;
+			skillid = MG_COLDBOLT;
 		else if( sc->data[SC_WILD_STORM_OPTION] )
-			skillid = sc->data[SC_WILD_STORM_OPTION]->val2;
+			skillid = MG_LIGHTNINGBOLT;
 		else if( sc->data[SC_UPHEAVAL_OPTION] )
-			skillid = sc->data[SC_UPHEAVAL_OPTION]->val2;
+			skillid = WZ_EARTHSPIKE;
 
-		// Chance should be JobLV / 2 and level casted be JobLV / 10;
 		if (sd) sd->state.autocast = 1;
-		if (status_charge(src, 0, skill_get_sp(skillid,5)))
+		if (status_charge(src, 0, skill_get_sp(skillid,skilllv)))
 		{
-			skill_castend_damage_id(src, target, skillid, 5, tick, flag);
+			skill_castend_damage_id(src, target, skillid, skilllv, tick, flag);
 
 			ud = unit_bl2ud(src);
 			if (ud)
 			{
-				delay = skill_delayfix(src, skillid, 5);
+				delay = skill_delayfix(src, skillid, skilllv);
 				if( DIFF_TICK(ud->canact_tick, tick + delay) < 0 )
 				{
 					ud->canact_tick = tick+delay;
@@ -6616,6 +6665,7 @@ static const struct _battle_data {
 	{ "drop_connection_on_quit",            &battle_config.drop_connection_on_quit,         0,      0,      1,				},
 	{ "cart_revo_knockback",                &battle_config.cart_revo_knockback,             1,      0,      1,				},
 	{ "guild_notice_changemap",             &battle_config.guild_notice_changemap,          2,      0,      2,				},
+	{ "item_auto_identify",                 &battle_config.item_auto_identify,              0,      0,      1,              },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

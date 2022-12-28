@@ -5097,3 +5097,12 @@
 22649,Devil_Ring_Package,Devil Ring Package,3,10,,10,,,,,,,,,,,,,{},{},{}
 22653,Wet_Card_Album,Wet Card Album,2,10000,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
 22654,Golden_Seal_Card,Golden Seal Card,3,20,,50,,,,,,,,,,,,,{},{},{}
+
+// 3ceam stable
+// New HP/SP Syrups (Potions)
+11621,Red_Syrup,Red Syrup,0,800,,70,,,,,0xFFFFFFFF,7,2,,,60,,,{ itemheal 325,0; },{},{}
+11622,Yellow_Syrup,Yellow Syrup,0,1200,,100,,,,,0xFFFFFFFF,7,2,,,60,,,{ itemheal 900,0; },{},{}
+11623,White_Syrup,White Syrup,0,1500,,140,,,,,0xFFFFFFFF,7,2,,,60,,,{ itemheal 1800,0; },{},{}
+11624,Blue_Syrup,Blue Syrup,0,7000,,100,,,,,0xFFFFFFFF,7,2,,,60,,,{ itemheal 0,180; },{},{}
+// Green Apple Ring - Job Permissions Correct???
+2795,Green_Apple_Ring,Green_Apple_Ring,5,100000,,0,,0,,0,0xFFFFFFFF,7,2,136,,99,0,0,{ if(JobLevel<30) { bonus bAllStats,6-(JobLevel/5); } },{},{}

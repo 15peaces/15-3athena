@@ -5080,6 +5080,7 @@ static int clif_calc_walkdelay(struct block_list *bl,int delay, int type, int da
 /// 10 = ATTACK_CRITICAL - critical hit
 /// 11 = ATTACK_LUCKY - lucky dodge
 /// 12 = TOUCHSKILL - (touch skill?)
+/// 13 = ATTACK_MULTIPLE_CRITICAL - multi-hit critical damage
 int clif_damage(struct block_list* src, struct block_list* dst, int64 tick, int sdelay, int ddelay, int64 sdamage, int div, int type, int64 sdamage2, bool spdamage)
 {
 	unsigned char buf[34];
@@ -21851,6 +21852,7 @@ void packetdb_readdb(void)
 	memset(packet_db, 0, sizeof(packet_db));
 	for (i = 0; i < ARRAYLENGTH(packet_len_table); ++i)
 		packet_len(i) = packet_len_table[i];
+		entries = 0;
 
 	sprintf(line, "%s/packet_db.txt", db_path);
 	if ((fp = fopen(line, "r")) == NULL)

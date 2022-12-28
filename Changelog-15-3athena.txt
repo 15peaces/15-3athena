@@ -5,6 +5,50 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/28/2022
+	r362 [15peaces]
+		*Merged missing changes from 3ceam rev. 886 - 887
+		*Added warning message when addtimer script fails.
+		*Some misc cleaning.
+		*MAX_SKILL increased to 5079.
+		*Added the "item_auto_identify" config setting.
+			-This setting allows equips dropped by monsters to drop in a identified state.
+		*Added new skill and status tags and ID's.
+		*MAX_ITEMDELAYS increased to 40.
+		*Did a few updates in the item database.
+			-Added the syrups which are basicly stronger HP/SP potions.
+		*Updated the LV and HP for GUILD_SKILL_FLAG.
+			-Big thanks to 3ceam.
+		*Renewal Era Jobs
+			-Added stat bonuses for new job level caps.
+		*Updated 3ceam_jobchange with checks for mounts, falcons, wargs, and carts.
+			-Now players will have to remove these things from their character before changing jobs to prevent certain possible issues. Also to future proof if more jobs come out in the future.
+		*SR_CRESCENTELBOW
+			-Recoded the skill.
+			-Effect is now triggered on physical melee attacks both regular and skills.
+			-Effect will not trigger on attacks from boss monsters.
+			-Formula updated. Damage from the ratio part is affected by normal means like the caster's ATK, enemy's DEF, etc. and the fixed damage after can't be reduced.
+			-The ratio part of the damage is forced neutral for now. (Need a confirm if it is)
+			-Skill now ignores the enemy's flee. This is a counter skill after all.
+			-Enemy takes the full damage and the caster takes 10% of what the dealt damage is.
+			-Knockback range increased to 7 cells.
+			-Now deals's knockback damage if pushed into a wall.
+		*SR_LIGHTNINGWALK
+			-Recoded the skill.
+			-Now only triggers on physical ranged attacks.
+			-Caster will now warp to the attacking enemy and face the direction of the enemy.
+		*NC_PILEBUNKER
+			-Added the Engine Pile Bunker to the check.
+			-Now there's a total of 5 pile bunkers.
+		*EL_TROPIC; EL_CHILLY_AIR; EL_WILD_STORM; EL_UPHEAVAL
+			-Recoded these skills.
+			-The success chance and level of bolts casted is now affected by master's JobLV.
+			-Wild Storm now increases the master's ASPD by 5.
+			-Upheaval now increases the master's MaxHP by 5 * SummonLV.
+		*GD_CHARGESHOUT_FLAG
+			-Updated cooldown to official.
+			-Big thanks 3ceam.
+
 12/09/2022
 	r361 [15peaces]
 		*Merged missing changes from 3ceam rev. 885
