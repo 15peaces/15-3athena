@@ -3388,6 +3388,7 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 	{
 		case BL_HOM: sd = ((TBL_HOM*)bl)->master; break;
 		case BL_MER: sd = ((TBL_MER*)bl)->master; break;
+		case BL_ELEM: sd = ((TBL_ELEM*)bl)->master; break;
 	}
 
 	status = status_get_status_data(bl);
@@ -5534,7 +5535,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	struct mob_data *md, *dstmd;
 	struct homun_data *hd;
 	struct mercenary_data *mer;
-	struct elemental_data *ele;
+	struct elemental_data *ed;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	struct status_change_entry *tsce;
@@ -5555,7 +5556,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	hd = BL_CAST(BL_HOM, src);
 	md = BL_CAST(BL_MOB, src);
 	mer = BL_CAST(BL_MER, src);
-	ele = BL_CAST(BL_ELEM, src);
+	ed = BL_CAST(BL_ELEM, src);
 
 	dstsd = BL_CAST(BL_PC, bl);
 	dstmd = BL_CAST(BL_MOB, bl);
@@ -11051,14 +11052,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		case EL_SOLID_SKIN:
 		case EL_STONE_SHIELD:
 		case EL_WIND_STEP:
-			if( ele ) {
+			if( ed ) {
 				sc_type type2 = type-1;
-				struct status_change *sc = status_get_sc(&ele->bl);
+				struct status_change *sc = status_get_sc(&ed->bl);
 
 				tsc = status_get_sc(bl);
 
 				if( (sc && sc->data[type2]) || (tsc && tsc->data[type]) )
-					elemental_clean_single_effect(ele, skillid);
+					elemental_clean_single_effect(ed, skillid);
 				else {
 					clif_skill_nodamage(src,bl,skillid,skilllv,1);
 					clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
@@ -11080,13 +11081,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			break;
 
 		case EL_WATER_SCREEN:
-			if( ele ) {
-				struct status_change *sc = status_get_sc(&ele->bl);
+			if( ed ) {
+				struct status_change *sc = status_get_sc(&ed->bl);
 				sc_type type2 = type-1;
 
 				clif_skill_nodamage(src,src,skillid,skilllv,1);
 				if( (sc && sc->data[type2]) || (tsc && tsc->data[type]) )
-					elemental_clean_single_effect(ele, skillid);
+					elemental_clean_single_effect(ed, skillid);
 				else {
 					// This not heals at the end.
 					clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
@@ -11356,7 +11357,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 				skill_consume_requirement(sd,ud->skillid,ud->skilllv,1);
 		}
 
-		if( (src->type == BL_MER || src->type == BL_HOM) && !skill_check_condition_mercenary(src, ud->skillid, ud->skilllv, 1) )
+		if ((src->type == BL_HOM || src->type == BL_MER || src->type == BL_ELEM) && !skill_check_condition_mercenary(src, ud->skillid, ud->skilllv, 1))
 			break;
 
 		if (ud->state.running && ud->skillid == TK_JUMPKICK)
@@ -11591,7 +11592,7 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 				skill_consume_requirement(sd,ud->skillid,ud->skilllv,1);
 		}
 
-		if( (src->type == BL_MER || src->type == BL_HOM) && !skill_check_condition_mercenary(src, ud->skillid, ud->skilllv, 1) )
+		if ((src->type == BL_HOM || src->type == BL_MER || src->type == BL_ELEM) && !skill_check_condition_mercenary(src, ud->skillid, ud->skilllv, 1))
 			break;
 
 		if(md) {
@@ -13177,6 +13178,11 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		int val1 = skilllv;
 		int val2 = 0;
 		int alive = 1;
+
+		// are the coordinates out of range?
+		if (ux <= 0 || uy <= 0 || ux >= map[src->m].xs || uy >= map[src->m].ys) {
+			continue;
+		}
 
 		if( !group->state.song_dance && !map_getcell(src->m,ux,uy,CELL_CHKREACH) )
 			continue; // don't place skill units on walls (except for songs/dances/encores)

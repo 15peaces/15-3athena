@@ -15916,6 +15916,7 @@ BUILDIN_FUNC(rid2name)
 			case BL_PET: script_pushstrcopy(st,((TBL_PET*)bl)->pet.name); break;
 			case BL_HOM: script_pushstrcopy(st,((TBL_HOM*)bl)->homunculus.name); break;
 			case BL_MER: script_pushstrcopy(st,((TBL_MER*)bl)->db->name); break;
+			case BL_ELEM: script_pushstrcopy(st, ((TBL_ELEM*)bl)->db->name); break;
 			default:
 				ShowError("buildin_rid2name: BL type unknown.\n");
 				script_pushconststr(st,"");

@@ -513,9 +513,12 @@ struct s_elemental {
 	int elemental_id;
 	int char_id;
 	short class_;
-	int mode;
-	int hp, sp, max_hp, max_sp, str, agi, vit, int_, dex, luk;
-	int life_time;
+	int hp, max_hp, sp, max_sp;
+	unsigned short batk, matk, adelay;
+	short def, mdef, hit, flee;
+	short str, agi, vit, int_, dex, luk;
+	unsigned int mode;
+	unsigned int life_time;
 };
 
 struct s_friend {

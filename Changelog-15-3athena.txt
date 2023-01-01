@@ -5,6 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/01/2023
+	r363 [15peaces]
+		*Merged missing changes from 3ceam rev. 888
+		*Added a check to skill_unitsetting whether the cells are valid or not.
+			-Thanks to @rathena
+		*Removed duplicated/unused bg_id from map_session_data->state.
+		*Elemental Update Part 1
+			-This is the start of a series of updates that focuses on fixing up the elementals system. Due to the system being coded in 2010 with very little info on the elementals, how they work and are handled, and how things were coded, the system will 
+			-have to be completely redone which will take a lot of work to do.
+			-The work load will be spread out between updates to make it easier to keep track of changes in the updates. This first part focuses on adding missing checks in the code for elemental entitys and other similar checks needed to perform 
+			-functions for this kind of entity.
+		*attack_walk_delay; attack_direction_change; clear_skills_on_warp; auto_counter_type; land_skill_limit
+			-Added mercenarys and elementals to these configs by default.
+		*MAX_MERCSKILL increased to 41.
+			-This should of been increased long ago when MER_INVINCIBLEOFF2 was added.
+		*Added a bunch of missing code that should resolve some hidden issues with the elementals. What all it fixes im not entirely sure. I just know they should be there.
+		*ZC_EL_INIT; ZC_EL_PAR_CHANGE
+			-Updated these packets.
+		*Added some stuff to prepare for future updates to elementals.
+		*EL_WILD_STORM
+			-Fixed a issue where the caster's ASPD didn't increase properly.
+
 12/28/2022
 	r362 [15peaces]
 		*Merged missing changes from 3ceam rev. 886 - 887

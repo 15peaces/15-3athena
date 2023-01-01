@@ -22,6 +22,7 @@
 #include "pet.h"
 #include "homunculus.h"
 #include "mercenary.h"
+#include "elemental.h"
 
 #include <string.h>
 #include <stdio.h>
@@ -317,6 +318,10 @@ int bg_team_get_id(struct block_list *bl)
 		case BL_MER:
 			if( ((TBL_MER*)bl)->master )
 				return ((TBL_MER*)bl)->master->bg_id;
+			break;
+		case BL_ELEM:
+			if( ((TBL_ELEM*)bl)->master )
+				return ((TBL_ELEM*)bl)->master->bg_id;
 			break;
 		case BL_SKILL:
 			return ((TBL_SKILL*)bl)->group->bg_id;

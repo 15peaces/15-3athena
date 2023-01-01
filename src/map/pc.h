@@ -183,7 +183,6 @@ struct map_session_data {
 		unsigned int warping : 1;//states whether you're in the middle of a warp processing
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
-		unsigned int bg_id;
 		unsigned int workinprogress : 2; // See clif.h::e_workinprogress
 		bool keepshop; // Whether shop data should be removed when the player disconnects
 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not

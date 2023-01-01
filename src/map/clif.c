@@ -3315,7 +3315,7 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 				clif_hpmeter(sd);
 			if (!battle_config.party_hp_mode && sd->status.party_id)
 				clif_party_hp(sd);
-			if (sd->state.bg_id)
+			if (sd->bg_id)
 				clif_bg_hp(sd);
 			break;
 	}
@@ -5030,6 +5030,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 #endif
 		}
 		break;
+		//case BL_ELEM: // Water Screen's Effect. Its basicly devotion. (FIX ME!!!) [Rytech]
+		//	if( ((TBL_ELEM*)bl)->devotion_flag )
+		//		clif_devotion(bl, sd);
+		//	break;
 	}
 }
 
@@ -8522,6 +8526,14 @@ void clif_devotion(struct block_list *src, struct map_session_data *tsd)
 
 		WBUFW(buf,26) = skill_get_range2(src, ML_DEVOTION, mercenary_checkskill(md, ML_DEVOTION));
 	}
+	/*if( src->type == BL_ELEM )
+	{// Aqua's Water Screen. Works like devotion. (FIX ME!!!) [Rytech]
+		struct elemental_data *ed = BL_CAST(BL_ELEM,src);
+		if( ed && ed->master && ed->devotion_flag )
+			WBUFL(buf,6) = ed->master->bl.id;
+
+		WBUFW(buf,26) = skill_get_range2(src, EL_WATER_SCREEN, elemental_checkskill(ed, EL_WATER_SCREEN));
+	}*/
 	else
 	{
 		struct map_session_data *sd = BL_CAST(BL_PC,src);
@@ -11138,9 +11150,6 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		map_addblock(&sd->ed->bl);
 		clif_spawn(&sd->ed->bl);
 		clif_elemental_info(sd);
-		clif_elemental_updatestatus(sd,SP_HP);
-		clif_hpmeter_single(sd->fd,sd->ed->bl.id,sd->ed->battle_status.hp,sd->ed->battle_status.matk_max);
-		clif_elemental_updatestatus(sd,SP_SP);
 	}
 
 	if(sd->state.connect_new) {
@@ -12642,6 +12651,7 @@ void clif_parse_SkillUp(int fd,struct map_session_data *sd)
 
 
 // TODO: Move clif_parse_UseSkillTo* helper functions to unit.c
+// Be sure to make one of these for ID and Pos for Elementals. (FIX ME!!!) [Rytech]
 static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, int target_id)
 {
 	int lv;
@@ -12752,6 +12762,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		return; //Using a ground/passive skill on a target? WRONG.
 	}
 
+	// Be sure to make one of these and Pos for elementals. (FIX ME!!!) [Rytech]
 	if( skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
 		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skillnum, skilllv, target_id);
@@ -18776,13 +18787,12 @@ void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 }
 
 
-/*------------------------------------------
-* Mercenary Message
-* 1266 = Mercenary soldier's duty hour is over.
-* 1267 = Your mercenary soldier has been killed.
-* 1268 = Your mercenary soldier has been fired.
-* 1269 = Your mercenary soldier has ran away.
-*------------------------------------------*/
+/// Mercenary Message
+/// message:
+///     0 = Mercenary soldier's duty hour is over.
+///     1 = Your mercenary soldier has been killed.
+///     2 = Your mercenary soldier has been fired.
+///     3 = Your mercenary soldier has ran away.
 void clif_mercenary_message(struct map_session_data* sd, int message) {
 	clif_msg(sd, MSG_MER_FINISH + message);
 }
@@ -18790,6 +18800,9 @@ void clif_mercenary_message(struct map_session_data* sd, int message) {
 /*==========================================
  * Elemental System
  *==========================================*/
+
+/// Notification about a elemental status parameter change (ZC_EL_PAR_CHANGE).
+/// 081e <var id>.W <value>.L
 void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
 	struct elemental_data *ed;
 	struct status_data *status;
@@ -18799,7 +18812,7 @@ void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
 
 	fd = sd->fd;
 	status = &ed->battle_status;
-	WFIFOHEAD(fd,8);
+	WFIFOHEAD(fd, packet_len(0x81e));
 	WFIFOW(fd,0) = 0x81e;
 	WFIFOW(fd,2) = type;
 	switch( type ) {
@@ -18816,9 +18829,11 @@ void clif_elemental_updatestatus(struct map_session_data *sd, int type) {
 			WFIFOL(fd,4) = status->max_sp;
 			break;
 	}
-	WFIFOSET(fd,8);
+	WFIFOSET(fd, packet_len(0x81e));
 }
 
+/// Elemental base status data (ZC_EL_INIT).
+/// 081d <id>.L <hp>.L <maxhp>.L <sp>.L <maxsp>.L
 void clif_elemental_info(struct map_session_data *sd) {
 	int fd;
 	struct elemental_data *ed;
@@ -18830,14 +18845,14 @@ void clif_elemental_info(struct map_session_data *sd) {
 	fd = sd->fd;
 	status = &ed->battle_status;
 
-	WFIFOHEAD(fd,22);
+	WFIFOHEAD(fd, packet_len(0x81d));
 	WFIFOW(fd, 0) = 0x81d;
 	WFIFOL(fd, 2) = ed->bl.id;
 	WFIFOL(fd, 6) = status->hp;
 	WFIFOL(fd,10) = status->max_hp;
 	WFIFOL(fd,14) = status->sp;
 	WFIFOL(fd,18) = status->max_sp;
-	WFIFOSET(fd,22);
+	WFIFOSET(fd, packet_len(0x81d));
 }
 
 /// Notification about the remaining time of a rental item (ZC_CASH_TIME_COUNTER).
@@ -21500,7 +21515,7 @@ void packetdb_readdb(void)
 #else // for Party booking ( PACKETVER >= 20091229 )
 	   -1, -1, 18,  4,  8,  6,  2,  4, 14, 50, 18,  6,  2,  3, 14, 20,
 #endif
-	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10,  0,  0,  0,
+	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10, 22,  8,  0,
 	    0,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
 	    0,  0,  0,  0,  0, -1, -1,  3,  2, 66,  5,  2, 12,  6,  0,  0,
 	//#0x0840

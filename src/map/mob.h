@@ -36,7 +36,7 @@
 #define MOB_CLONE_END MAX_MOB_DB+1000
 
 //Used to determine default enemy type of mobs (for use in eachinrange calls)
-#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM|BL_MER)
+#define DEFAULT_ENEMY_TYPE(md) (md->special_state.ai?BL_CHAR:BL_PC|BL_HOM|BL_MER|BL_ELEM)
 
 struct mob_db *mob_dummy;	//Dummy mob to be returned when a non-existant one is requested.
 
