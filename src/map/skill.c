@@ -432,8 +432,6 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 		{
 			if (sc->data[SC_INCHEALRATE])// Only affects Heal, Sanctuary and PotionPitcher.(like bHealPower) [Inkfish]
 				hp += hp * sc->data[SC_INCHEALRATE]->val1 / 100;// Highness Heal too. [Rytech]
-			if( sc->data[SC_EXTRACT_WHITE_POTION_Z] )
-				hp += hp * sc->data[SC_EXTRACT_WHITE_POTION_Z]->val1 / 100;
 			if ( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2 )
 				hp += hp * 10 / 100;
 		}
@@ -2384,13 +2382,14 @@ static int skill_magic_reflect(struct block_list* src, struct block_list* bl, in
  * flag&0x2000 is used to signal that the skilllv should be passed as -1 to the
  *      client (causes player characters to not scream skill name)
  *-------------------------------------------------------------------------*/
-int skill_attack (int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl, int skillid, int skilllv, int64 tick, int flag)
+int64 skill_attack (int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl, int skillid, int skilllv, int64 tick, int flag)
 {
 	struct Damage dmg;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc;
 	struct map_session_data *sd, *tsd;
-	int type,damage,rdamage=0;
+	int type=0;
+	int64 damage, rdamage;
 
 	if(skillid > 0 && skilllv <= 0) return 0;
 
@@ -3066,7 +3065,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	if ( skillid == WM_METALICSOUND && damage > 0 )
 	{
-		int sp_damage = damage / 10 / (11 - (sd?pc_checkskill(sd,WM_LESSON):10)) * battle_config.metallicsound_spburn_rate / 100;
+		int64 sp_damage = damage / 10 / (11 - (sd?pc_checkskill(sd,WM_LESSON):10)) * battle_config.metallicsound_spburn_rate / 100;
 
 		clif_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, sp_damage, 1, 0, 0, true);
 		status_zap(bl, 0, sp_damage);
@@ -3074,7 +3073,7 @@ int skill_attack (int attack_type, struct block_list* src, struct block_list *ds
 
 	if ( skillid == SR_TIGERCANNON && damage > 0 )
 	{
-		int sp_damage = damage * 10 / 100;
+		int64 sp_damage = damage * 10 / 100;
 		clif_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, sp_damage, 1, 0, 0, true);
 		status_zap(bl, 0, sp_damage);
 	}
@@ -4138,7 +4137,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RL_H_MINE:
 		{// Max allowed targets to be tagged with a mine.
 			short count = MAX_HOWL_MINES;
-			int i = 0, hm_damage = 0;
+			int i = 0;
+			int64 hm_damage = 0;
 
 			if ( flag&1 )
 			{// Splash damage from explosion.
@@ -4219,7 +4219,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SJ_FLASHKICK:
 		{// Max allowed targets to be tagged with a stellar mark.
 			short count = MAX_STELLAR_MARKS;
-			int i = 0, fk_damage = 0;
+			int i = 0;
+			int64 fk_damage = 0;
 
 			// Only players and monsters can be tagged....I think??? [Rytech]
 			// Lets only allow players and monsters to use this skill for safety reasons.
@@ -4545,7 +4546,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			// skill_area_temp[0] holds number of targets in area
 			// skill_area_temp[1] holds the id of the original target
 			// skill_area_temp[2] counts how many targets have already been processed
-			int sflag = skill_area_temp[0] & 0xFFF, heal;
+			int sflag = skill_area_temp[0] & 0xFFF;
+			int heal = 0;
 			if( flag&SD_LEVEL )
 				sflag |= SD_LEVEL; // -1 will be used in packets instead of the skill level
 			if( skill_area_temp[1] != bl->id && !(skill_get_inf2(skillid)&INF2_NPC_SKILL) )
@@ -4555,7 +4557,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if ( ( skillid == SP_SHA || skillid == SP_SWHOO ) && !battle_config.allow_es_magic_pc && bl->type != BL_MOB )
 				break;
 			
-			heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, sflag);
+			heal = (int)skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, sflag);
 			if (skillid == NPC_VAMPIRE_GIFT && heal > 0)
 			{
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
@@ -4957,7 +4959,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_BLOODDRAIN:
 	case NPC_ENERGYDRAIN:
 		{
-			int heal = skill_attack( (skillid == NPC_BLOODDRAIN) ? BF_WEAPON : BF_MAGIC,
+			int heal = (int)skill_attack( (skillid == NPC_BLOODDRAIN) ? BF_WEAPON : BF_MAGIC,
 					src, src, bl, skillid, skilllv, tick, flag);
 			if (heal > 0){
 				clif_skill_nodamage(NULL, src, AL_HEAL, heal, 1);
@@ -5057,7 +5059,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case WL_DRAINLIFE:
 	{
-						 int heal = skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
+						 int heal = (int)skill_attack(skill_get_type(skillid), src, src, bl, skillid, skilllv, tick, flag);
 						 int rate = 70 + 5 * skilllv;
 
 						 heal = heal * (5 + 5 * skilllv) / 100;
@@ -7393,7 +7395,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				break;
 			}
 			if(!battle_config.duel_allow_teleport && sd->duel_group && skilllv <= 2) { // duel restriction [LuzZza]
-				clif_displaymessage(sd->fd, "Duel: Can't use teleport in duel.");
+				char output[128]; sprintf(output, msg_txt(365), skill_get_name(AL_TELEPORT));
+				clif_displaymessage(sd->fd, output); //"Duel: Can't use %s in duel."
 				break;
 			}
 
@@ -9875,7 +9878,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case RA_WUGDASH:
 		if( tsce )
 		{
-			clif_skill_nodamage(src,bl,skillid,skilllv,status_change_end(bl, type, -1));
+			clif_skill_nodamage(src,bl,skillid,skilllv,status_change_end(bl, type, INVALID_TIMER));
 			map_freeblock_unlock();
 			return 0;
 		}
@@ -10538,21 +10541,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case SO_EL_CURE:
 		if( sd ) {
-			struct elemental_data *ed = sd->ed;
-			int s_hp = sd->battle_status.hp * 10 / 100, s_sp = sd->battle_status.sp * 10 / 100;
-			int e_hp, e_sp;
-			if( !ed ) {
+			int hp_amount = sstatus->max_hp * 10 / 100;
+			int sp_amount = sstatus->max_sp * 10 / 100;
+
+			if ( sd->ed && status_charge(src, hp_amount, sp_amount))
+			{
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				status_heal(&sd->ed->bl,hp_amount,sp_amount,0);
+			}
+			else
+			{// Protection for GM's bypassing pre-cast requirements.
 				clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
-			if( !status_charge(&sd->bl,s_hp,s_sp) ) {
-				clif_skill_fail(sd,skillid,0,0,0);
-				break;
-			}
-			e_hp = ed->battle_status.max_hp * 10 / 100;
-			e_sp = ed->battle_status.max_sp * 10 / 100;
-			status_heal(&ed->bl,e_hp,e_sp,3);
-			clif_skill_nodamage(src,&ed->bl,skillid,skilllv,1);
 		}
 		break;
 
@@ -10680,7 +10681,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						sc_start2(bl, SC_VITATA_500, 100, 20, 5, 500000);
 						status_heal(bl, 0, 200, 0);
 						break;
-					case ITEMID_THROW_EXTRACT_SALAMINE_JUICE:// ASPD +10
+					case ITEMID_THROW_EXTRACT_SALAMINE_JUICE:// ASPD +10%
 						sc_start(bl, SC_EXTRACT_SALAMINE_JUICE, 100, 10, 500000);
 						break;
 					case ITEMID_THROW_SAVAGE_STEAK:// STR +20
@@ -14505,7 +14506,7 @@ static int skill_unit_effect (struct block_list* bl, va_list ap)
 /*==========================================
  *
  *------------------------------------------*/
-int skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int damage, int64 tick)
+int64 skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int64 damage, int64 tick)
 {
 	struct skill_unit_group *sg;
 
@@ -14526,7 +14527,7 @@ int skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int dam
 	case UNT_REVERBERATION:
 	//case UNT_POEMOFNETHERWORLD:// Need a confirm on if this can be damaged.
 	case UNT_WALLOFTHORN:
-		src->val1-=damage;
+		src->val1-= (int)cap_value(damage, INT_MIN, INT_MAX);
 		break;
 	case UNT_BLASTMINE:
 	case UNT_CLAYMORETRAP:
@@ -14868,7 +14869,8 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			break;
 		case AL_WARP:
 			if(!battle_config.duel_allow_teleport && sd->duel_group) { // duel restriction [LuzZza]
-				clif_displaymessage(sd->fd, "Duel: Can't use warp in duel.");
+				char output[128]; sprintf(output, msg_txt(365), skill_get_name(AL_WARP));
+				clif_displaymessage(sd->fd, output); //"Duel: Can't use %s in duel."
 				return 0;
 			}
 			break;
@@ -15562,9 +15564,9 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			return 0;
 		}
 		break;
-	case ST_ELEMENTALSPIRIT:
+	case ST_ELEMENTAL:
 		if(!sd->ed) {
-			clif_skill_fail(sd,skill,USESKILL_FAIL_EL_SUMMON,0,0);
+			clif_skill_fail(sd, skill, USESKILL_FAIL_EL_SUMMON, 0, 0);
 			return 0;
 		}
 		break;
@@ -16342,14 +16344,14 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	{
 		if (sc->data[SC_SUFFRAGIUM]) {
 			time -= time * sc->data[SC_SUFFRAGIUM]->val2 / 100;
-			status_change_end(bl, SC_SUFFRAGIUM, -1);
+			status_change_end(bl, SC_SUFFRAGIUM, INVALID_TIMER);
 		}
 		if (sc->data[SC_POEMBRAGI])
 			time -= time * sc->data[SC_POEMBRAGI]->val2 / 100;
 		if (sc->data[SC_MEMORIZE]) {
 			time -= time * 50 / 100;
 			if ((sc->data[SC_MEMORIZE]->val2) <= 0)
-				status_change_end(bl, SC_MEMORIZE, -1);
+				status_change_end(bl, SC_MEMORIZE, INVALID_TIMER);
 		}
 		if (sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 3 &&
 			skill_get_ele(skill_id, skill_lv) == ELE_WATER && skill_get_type(skill_id) == BF_MAGIC)
@@ -17146,7 +17148,7 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 
 
 	if (skill_area_temp[1] == bl->id) //This is the target of the skill, do a full attack and skip target checks.
-		return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
+		return (int)skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
 
 	if( battle_check_target(dsrc,bl,type) <= 0 || !status_check_skilluse(NULL, bl, skillid, skilllv, 2) )
 		return 0;
@@ -17159,10 +17161,10 @@ int skill_attack_area (struct block_list *bl, va_list ap)
 	case NPC_FIREBREATH:
 	case NPC_ICEBREATH:
 	case NPC_THUNDERBREATH:
-		return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
+		return (int)skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag);
 	default:
 		//Area-splash, disable skill animation.
-		return skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag|SD_ANIMATION);
+		return (int)skill_attack(atk_type,src,dsrc,bl,skillid,skilllv,tick,flag|SD_ANIMATION);
 	}
 }
 /*==========================================
@@ -20392,14 +20394,15 @@ int skill_stasis_check(struct block_list *bl, int skillid)
 	return 0;//Any skills thats not the above will work.
 }
 
-int skill_get_elemental_type(int skill_id, int skill_lv ) {
-	int type = 0;
+int skill_get_elemental_type(int skill_id, int skill_lv)
+{
+	unsigned short type = 0;
 
 	switch( skill_id ) {
-		case SO_SUMMON_AGNI:	type = 2114; break;
-		case SO_SUMMON_AQUA:	type = 2117; break;
-		case SO_SUMMON_VENTUS:	type = 2120; break;
-		case SO_SUMMON_TERA:	type = 2123; break;
+		case SO_SUMMON_AGNI:	type = MOBID_EL_AGNI_S; break;
+		case SO_SUMMON_AQUA:	type = MOBID_EL_AQUA_S; break;
+		case SO_SUMMON_VENTUS:	type = MOBID_EL_VENTUS_S; break;
+		case SO_SUMMON_TERA:	type = MOBID_EL_TERA_S; break;
 	}
 
 	type += skill_lv - 1;
@@ -20541,7 +20544,7 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	else if( strcmpi(split[10],"warg")==0 ) skill_db[i].state = ST_WUG;
 	else if( strcmpi(split[10],"ridingwarg")==0 ) skill_db[i].state = ST_WUGRIDER;
 	else if( strcmpi(split[10],"mado")==0 ) skill_db[i].state = ST_MADOGEAR;
-	else if( strcmpi(split[10],"elementalspirit")==0 ) skill_db[i].state = ST_ELEMENTALSPIRIT;
+	else if( strcmpi(split[10],"elemental")==0 ) skill_db[i].state = ST_ELEMENTAL;
 	else if (strcmpi(split[10], "fighter") == 0) skill_db[i].state = ST_FIGHTER;
 	else if (strcmpi(split[10], "grappler") == 0) skill_db[i].state = ST_GRAPPLER;
 	else if (strcmpi(split[10], "sunstance") == 0) skill_db[i].state = ST_SUNSTANCE;

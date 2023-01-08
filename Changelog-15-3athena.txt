@@ -5,6 +5,64 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/08/2023
+	r364 [15peaces]
+		*Merged missing changes from 3ceam rev. 889 - 890
+		*Changed huge number of damage calculation functions to support int64 values for calculation.
+			-This should also fix some overflow issues on highrate servers...
+		*Some cleaning.
+			-Added some src basic documentation.
+			-Changed some -1 for status ending timer.
+			-Moved some hardcoded msg in msg_athena.
+			-Removed some unneeded leftover code.
+		*Elemental update part 2 completed.
+		*Added the "elemental" battle config file with a bunch of new configs in it.
+		*natural_homun_healhp_interval; natural_homun_healsp_interval; natural_elem_healhp_interval; natural_elem_healsp_interval; elemental_masters_walk_speed; max_elemental_hp; max_elemental_sp; max_elemental_def_mdef
+			-Added these new configs.
+		*Added the "eleminfo" command.
+			-This command allows one to see the stats of a summoned elemental.
+			-Quite useful for seeing the build of your elemental and what to expect from it.
+		*Added elemental tags and ID's to the mobid enum table.
+		*Regen rate adjusting for natural HP/SP recovery through status's and skills is updated to support adjustments in multiples of 1%.
+			-Why this was done in multiples of 100% before is just....ugh.
+		*Cleaned up the elemental database.
+			-Note: Won't allow blank lines. This will be fixed on the elemental system recode.
+		*Changed the required state "elementalspirit" to "elemental" for skill checks.
+		*White Potion Z and Vitata 500 no longer increases HP/SP recovered through potions and heal skills. They do now increase natural HP/SP recovery rates by 20%.
+		*FAW's now have a 10% chance of dropping steel when killed.
+		*Updated settings for elemental skills.
+			-This is to prepare for the recoding of these skills.
+		*Updated the behavior of the elementals.
+			-Reduced the chase range to a proper 2 above the view range.
+			-aMotion and aDelay behavior corrected to fix cropped attack animations.
+			-dMotion reduced to 300.
+			-Now has the same movement speed as their master.
+			-Chance of autocasting attack skill when attacking increased from 2% to 5%.
+			-Max follow distance from the master reduced from 6 to 3 cells.
+			-HP/SP now recovers at a rate of 2% MaxHP/MaxSP every 3 seconds.
+			-Sub-stats are now affected by the master's build.
+			-Formula's for MATK, DEF, and MDEF are customized to be balanced for pre-re.
+			-Formula for ASPD is official. The 2011 balance update document is wrong.
+			-Note: Natural HP/SP recovery will be on no matter the mode selected for now until the main system code is redone.
+		*Fixed a issue where the attack speed was faster then what it should be.
+		*SR_GENTLETOUCH_REVITALIZE
+			-Recoded the skill.
+			-Now properly increases natural HP recovery rate.
+			-Now allows natural HP recovery while moving.
+			-Natural HP recovery rate is not reduced while moving.
+		*SO_FIRE_INSIGNIA; SO_WATER_INSIGNIA; SO_WIND_INSIGNIA; SO_EARTH_INSIGNIA
+			-Level 1 now works on elementals.
+		*SO_EL_CURE
+			-Recoded the skill.
+			-HP/SP recovery formula updated to official.
+			-Old Formula: Recovers 10% MaxHP/MaxSP.
+			-New Formula: Recovers HP/SP by the amount equal to what the master sacrificed.
+			-Example: Master with 47997 HP and 4387 SP will recover the elemental by 4799 HP and 438 SP.
+		*MH_OVERED_BOOST
+			-Now sets the homunculus and master's ASPD to a fixed value.
+		*MH_SUMMON_LEGION
+			-Summoned monster's HP, MaxAttack, DEF, and ASPD is now affected by the homunculus BaseLV and the skill level used.
+
 01/01/2023
 	r363 [15peaces]
 		*Merged missing changes from 3ceam rev. 888

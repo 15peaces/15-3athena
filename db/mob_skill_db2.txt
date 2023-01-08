@@ -2854,3 +2854,17 @@
 2160,Luciola Vespa@NPC_PULSESTRIKE,attack,661,1,1000,0,30000,yes,self,always,0,,,,,,32,
 2160,Luciola Vespa@NPC_COMBOATTACK,attack,171,1,3000,0,5000,yes,target,always,0,,,,,,,
 2160,Luciola Vespa@NPC_BLEEDING,attack,660,3,200,0,3000,yes,target,always,0,,,,,,32,
+
+// Sorcerer's Elementals - Code is unable to read these skill ID's. Disable for now.
+//2114,Agni@EL_FIRE_ARROW,attack,8425,1,500,1000,10000,no,target,always,0,,,,,,,
+//2115,Agni@EL_FIRE_BOMB,attack,8426,1,500,1000,10000,no,target,always,0,,,,,,,
+//2116,Agni@EL_FIRE_WAVE,attack,8428,1,500,1000,10000,no,target,always,0,,,,,,,
+//2117,Aqua@EL_ICE_NEEDLE,attack,8430,1,500,1000,10000,no,target,always,0,,,,,,,
+//2118,Aqua@EL_WATER_SCREW,attack,8431,1,500,1000,10000,no,target,always,0,,,,,,,
+//2119,Aqua@EL_TIDAL_WEAPON,attack,8433,1,500,1000,10000,no,target,always,0,,,,,,,
+//2120,Ventus@EL_WIND_SLASH,attack,8434,1,500,1000,10000,no,target,always,0,,,,,,,
+//2121,Ventus@EL_HURRICANE,attack,8435,1,500,1000,10000,no,target,always,0,,,,,,,
+//2122,Ventus@EL_TYPOON_MIS,attack,8437,1,500,1000,10000,no,target,always,0,,,,,,,
+//2123,Tera@EL_STONE_HAMMER,attack,8439,1,500,1000,10000,no,target,always,0,,,,,,,
+//2124,Tera@EL_ROCK_CRUSHER,attack,8440,1,500,1000,10000,no,target,always,0,,,,,,,
+//2125,Tera@EL_STONE_RAIN,attack,8442,1,500,1000,10000,no,target,always,0,,,,,,,

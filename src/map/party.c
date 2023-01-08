@@ -701,7 +701,7 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 
 	if( map[sd->bl.m].flag.partylock )
 	{
-		clif_displaymessage(sd->fd, "You cannot change party leaders on this map.");
+		clif_displaymessage(sd->fd, msg_txt(287));
 		return false;
 	}
 

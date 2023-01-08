@@ -18,7 +18,7 @@ typedef enum damage_lv {
 
 // ダメージ
 struct Damage {
-	int damage,damage2;
+	int64 damage,damage2;
 	int type,div_;
 	int amotion,dmotion;
 	int blewcount;
@@ -38,17 +38,17 @@ struct block_list;
 
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int count);
 
-int battle_calc_return_damage(struct block_list *src, struct block_list *bl, int *damage, int flag);
+int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag);
 
-void battle_drain(struct map_session_data *sd, struct block_list *tbl, int rdamage, int ldamage, int race, int boss);
+void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int boss);
 
 int battle_attr_ratio(int atk_elem,int def_type, int def_lv);
-int battle_attr_fix(struct block_list *src, struct block_list *target, int damage,int atk_elem,int def_type, int def_lv);
+int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 damage,int atk_elem,int def_type, int def_lv);
 
 // ダメージ最終計算
-int battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int damage,int skill_num,int skill_lv,int element);
-int battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
-int battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int damage,int div_,int skill_num,int skill_lv,int flag);
+int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_num,int skill_lv,int element);
+int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_num,int skill_lv,int flag);
+int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_num,int skill_lv,int flag);
 
 enum {	// 最終計算のフラグ
 	BF_WEAPON	= 0x0001,
@@ -63,7 +63,7 @@ enum {	// 最終計算のフラグ
 	BF_SKILLMASK= 0x0f00,
 };
 
-int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int damage, enum damage_lv dmg_lv, int ddelay);
+int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay);
 int battle_damage_area( struct block_list *bl, va_list ap);
 // 通常攻撃処理まとめ
 enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,int64 tick,int flag);
@@ -595,10 +595,19 @@ extern struct Battle_Config
 	int mail_attachment_price;
 	int mail_attachment_weight;
 	int feature_achievement;
+	int natural_homun_healhp_interval;
+	int natural_homun_healsp_interval;
 	int max_homunculus_hp;
 	int max_homunculus_sp;
 	int max_homunculus_parameter;
 	int hom_bonus_exp_from_master;
+	// Elemental Settings
+	int elemental_masters_walk_speed;
+	int natural_elem_healhp_interval;
+	int natural_elem_healsp_interval;
+	int max_elemental_hp;
+	int max_elemental_sp;
+	int max_elemental_def_mdef;
 	int feature_equipswitch;
 	int mvp_exp_reward_message;
 	int feature_attendance_system;

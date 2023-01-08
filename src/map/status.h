@@ -2160,6 +2160,14 @@ enum e_status_bonus {
 //Define to determine who has regen
 #define BL_REGEN (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 
+// Temp placement for elemental type set until core elemental file is redone.
+enum {
+	ELEMTYPE_NONE = 0,
+	ELEMTYPE_AGNI,
+	ELEMTYPE_AQUA,
+	ELEMTYPE_VENTUS,
+	ELEMTYPE_TERA,
+};
 
 //Basic damage info of a weapon
 //Required because players have two of these, one in status_data
@@ -2204,9 +2212,9 @@ struct regen_data_sub {
 		unsigned int hp,sp;
 	} tick;
 	
-	//Regen rates (where every 1 means +100% regen)
+	//Regen rates
 	struct {
-		unsigned char hp,sp;
+		unsigned short hp,sp;
 	} rate;
 };
 
@@ -2221,9 +2229,9 @@ struct regen_data {
 		unsigned int hp,sp,shp,ssp;
 	} tick;
 	
-	//Regen rates (where every 1 means +100% regen)
+	//Regen rates
 	struct {
-		unsigned char
+		unsigned short
 		hp,sp,shp,ssp;
 	} rate;
 	
@@ -2263,7 +2271,7 @@ sc_type status_skill2sc(int skill);
 int status_sc2skill(sc_type sc);
 int status_sc2icon(sc_type sc);
 
-int status_damage(struct block_list *src,struct block_list *target,int hp,int sp, int walkdelay, int flag);
+int status_damage(struct block_list *src,struct block_list *target, int64 dhp, int64 dsp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
 #define status_fix_damage(src, target, hp, walkdelay) status_damage(src, target, hp, 0, walkdelay, 0)
 //Define for standard HP/SP damage triggers.
@@ -2279,7 +2287,7 @@ int status_percent_change(struct block_list *src,struct block_list *target,signe
 //Used to set the hp/sp of an object to an absolute value (can't kill)
 int status_set_hp(struct block_list *bl, unsigned int hp, int flag);
 int status_set_sp(struct block_list *bl, unsigned int sp, int flag);
-int status_heal(struct block_list *bl,int hp,int sp, int flag);
+int status_heal(struct block_list *bl,int64 hhp,int64 hsp, int flag);
 int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per_sp);
 //Fixed HP/SP recovery resurrection function needed for the WM_DEADHILLHERE skill. [Rytech]
 int status_fixed_revive(struct block_list *bl, unsigned int per_hp, unsigned int per_sp);
@@ -2389,6 +2397,9 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 int status_getrefinebonus(int lv,int type);
 int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_num, int skill_lv, int flag); // [Skotlex]
 int status_check_visibility(struct block_list *src, struct block_list *target); //[Skotlex]
+
+// Elemental Type Check
+int status_check_elemental_type(struct block_list *bl);
 
 int status_readdb(void);
 int do_init_status(void);

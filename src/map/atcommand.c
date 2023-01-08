@@ -1478,7 +1478,7 @@ ACMD_FUNC(jobchange)
 		(job >= JOB_BABY_RUNE2 && job <= JOB_BABY_MECHANIC2) || 
 		job == JOB_BABY_STAR_GLADIATOR2 || job == JOB_STAR_EMPEROR2 || job == JOB_BABY_STAR_EMPEROR2)
 	{// Deny direct transformation into dummy jobs
-		clif_displaymessage(fd, "You can not change into this job by command."); // Deny direct transformation into dummy jobs
+		clif_displaymessage(fd, msg_txt(436)); //"You can not change to this job by command."
 		return 0;
 	}
 	if (pcdb_checkid(job))
@@ -6301,7 +6301,7 @@ ACMD_FUNC(killer)
 	if(sd->state.killer)
 		clif_displaymessage(fd, msg_txt(241));
 	else {
-		clif_displaymessage(fd, msg_txt(287));
+		clif_displaymessage(fd, msg_txt(292));
 		pc_stop_attack(sd);
 	}
 	return 0;
@@ -8383,6 +8383,54 @@ ACMD_FUNC(hominfo)
 	return 0;
 }
 
+ACMD_FUNC(eleminfo)
+{
+	struct elemental_data *ed;
+	struct s_elemental_db *db;
+	struct status_data *status;
+	nullpo_retr(-1, sd);
+
+	if ( !sd->ed ) {
+		clif_displaymessage(fd, "You do not have a elemental.");
+		return -1;
+	}
+
+	// Should I add the elemental's element, element lv, and size too?
+	ed = sd->ed;
+	db = ed->db;
+	status = status_get_status_data(&ed->bl);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"Elemental stats for: %s",
+		db->name);
+	clif_displaymessage(fd, atcmd_output);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"HP : %d/%d - SP : %d/%d",
+		status->hp, status->max_hp, status->sp, status->max_sp);
+	clif_displaymessage(fd, atcmd_output);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"ATK : %d - MATK : %d",
+		status->rhw.atk, status->matk_min);
+	clif_displaymessage(fd, atcmd_output);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"DEF : %d - MDEF : %d",
+		status->def, status->mdef);
+	clif_displaymessage(fd, atcmd_output);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"HIT : %d - FLEE : %d - ASPD : %d/%dms",
+		status->hit, status->flee, (200 - status->amotion / 10), status->adelay);
+	clif_displaymessage(fd, atcmd_output);
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"HP/SP Regen Rate : %d%%/%d%%",
+		ed->regen.rate.hp, ed->regen.rate.sp);
+	clif_displaymessage(fd, atcmd_output);
+
+	//snprintf(atcmd_output, sizeof(atcmd_output) ,"Summon Time: %d (Currently Broken)",
+	//	ed->summon_timer);
+	//clif_displaymessage(fd, atcmd_output);
+
+	return 0;
+}
+
 ACMD_FUNC(homstats)
 {
 	struct homun_data *hd;
@@ -8790,7 +8838,7 @@ ACMD_FUNC(size)
 
 	nullpo_retr(-1, sd);
 
-	size = atoi(message);
+	size = cap_value(atoi(message), 0, 2);
 	if(sd->state.size) {
 		sd->state.size=0;
 		pc_setpos(sd, sd->mapindex, sd->bl.x, sd->bl.y, CLR_TELEPORT);
@@ -10404,6 +10452,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "agitend3",          60,60,     atcommand_agitend3 },
 	{ "adopt",              1,1,      atcommand_adopt },
 	{ "hommax",            60,60,     atcommand_hommax },
+	{ "eleminfo",           1,1,      atcommand_eleminfo }
 };
 
 

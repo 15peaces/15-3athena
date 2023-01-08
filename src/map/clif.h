@@ -735,9 +735,9 @@ void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x,
 void clif_skillcastcancel(struct block_list* bl);
 void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype, int val);
 void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int duration);
-int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
+int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int64 sdamage,int div,int skill_id,int skill_lv,int type);
 //int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
-int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail);
+int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int64 tick);
 void clif_skill_poseffect(struct block_list *src,int skill_id,int val,int x,int y,int64 tick);
 void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst);
 void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4);

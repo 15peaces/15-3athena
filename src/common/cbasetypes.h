@@ -406,5 +406,18 @@ void SET_FUNCPOINTER(T1& var, T2 p)
 #define SET_FUNCPOINTER(var,p) (var) = (p)
 #endif
 
+#ifndef min
+static inline int min(int a, int b) { return (a < b) ? a : b; } //default is int
+#endif
+static inline int8 i8min(int8 a, int8 b) { return (a < b) ? a : b; }
+static inline int16 i16min(int16 a, int16 b) { return (a < b) ? a : b; }
+static inline int32 i32min(int32 a, int32 b) { return (a < b) ? a : b; }
+static inline int64 i64min(int64 a, int64 b) { return (a < b) ? a : b; }
+static inline uint32 umin(uint32 a, uint32 b) { return (a < b) ? a : b; }
+static inline uint8 u8min(uint8 a, uint8 b) { return (a < b) ? a : b; }
+static inline uint16 u16min(uint16 a, uint16 b) { return (a < b) ? a : b; }
+static inline uint32 u32min(uint32 a, uint32 b) { return (a < b) ? a : b; }
+static inline uint64 u64min(uint64 a, uint64 b) { return (a < b) ? a : b; }
+static inline size_t zmin(size_t a, size_t b) { return (a < b) ? a : b; }
 
 #endif /* _CBASETYPES_H_ */

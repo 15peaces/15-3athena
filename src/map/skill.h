@@ -333,7 +333,7 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
 
-int skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int damage,int64 tick);
+int64 skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int64 damage,int64 tick);
 
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
@@ -414,7 +414,7 @@ int skill_blockhomun_start (struct homun_data*,int,int);
 int skill_blockmerc_start (struct mercenary_data*,int,int);
 
 // ƒXƒLƒ‹U?ˆêŠ‡?—
-int skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
+int64 skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
 
 void skill_reload(void);
 
@@ -439,7 +439,7 @@ enum {
 	ST_WUGRIDER,
 	ST_MADOGEAR,
 	//ST_POISONINGWEAPON,
-	ST_ELEMENTALSPIRIT,
+	ST_ELEMENTAL,
 	ST_FIGHTER,
 	ST_GRAPPLER,
 	ST_SUNSTANCE,

@@ -5866,10 +5866,12 @@ void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int 
 /// Skill attack effect and damage.
 /// 0114 <skill id>.W <src id>.L <dst id>.L <tick>.L <src delay>.L <dst delay>.L <damage>.W <level>.W <div>.W <type>.B (ZC_NOTIFY_SKILL)
 /// 01de <skill id>.W <src id>.L <dst id>.L <tick>.L <src delay>.L <dst delay>.L <damage>.L <level>.W <div>.W <type>.B (ZC_NOTIFY_SKILL2)
-int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type)
+int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int64 sdamage,int div,int skill_id,int skill_lv,int type)
 {
 	unsigned char buf[64];
 	struct status_change *sc;
+
+	int damage = (int)cap_value(sdamage, INT_MIN, INT_MAX);
 
 	nullpo_ret(src);
 	nullpo_ret(dst);
@@ -6018,7 +6020,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 /// Non-damaging skill effect.
 /// 011a <skill id>.W <skill lv>.W <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL)
 /// 09cb <skill id>.W <skill lv>.L <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL2)
-int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int fail)
+int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal, int64 tick)
 {
 	unsigned char buf[32];
 	short offset = 0;
@@ -6027,6 +6029,8 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 #else
 	short packet_num = 0x9cb;
 #endif
+
+	bool success = (tick != 0);
 
 	nullpo_ret(dst);
 
@@ -6040,7 +6044,7 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 #endif
 	WBUFL(buf,6+offset)=dst->id;
 	WBUFL(buf,10+offset)=src?src->id:0;
-	WBUFB(buf,14+offset)=fail;
+	WBUFB(buf,14+offset)=success;
 
 	if (disguised(dst)) {
 		clif_send(buf, packet_len(packet_num), dst, AREA_WOS);
@@ -6056,7 +6060,7 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 		clif_send(buf, packet_len(packet_num), src, SELF);
 	}
 
-	return fail;
+	return success;
 }
 
 /// Non-damaging ground skill effect (ZC_NOTIFY_GROUNDSKILL).
@@ -11150,6 +11154,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		map_addblock(&sd->ed->bl);
 		clif_spawn(&sd->ed->bl);
 		clif_elemental_info(sd);
+		if (battle_config.elemental_masters_walk_speed)
+			status_calc_bl(&sd->ed->bl, SCB_SPEED);
 	}
 
 	if(sd->state.connect_new) {
@@ -14308,7 +14314,7 @@ void clif_parse_GuildLeave(int fd,struct map_session_data *sd)
 	}
 	if( sd->bg_id )
 	{
-		clif_displaymessage(fd, "You can't leave battleground guilds.");
+		clif_displaymessage(fd, msg_txt(520)); //"You can't leave battleground guilds."
 		return;
 	}
 
@@ -15755,7 +15761,7 @@ void clif_parse_FriendsListAdd(int fd, struct map_session_data *sd)
 	// Friend already exists
 	for (i = 0; i < MAX_FRIENDS && sd->status.friends[i].char_id != 0; i++) {
 		if (sd->status.friends[i].char_id == f_sd->status.char_id) {
-			clif_displaymessage(fd, "Friend already exists.");
+			clif_displaymessage(fd, msg_txt(521)); //"Friend already exists."
 			return;
 		}
 	}
@@ -15858,7 +15864,7 @@ void clif_parse_FriendsListRemove(int fd, struct map_session_data *sd)
 		(sd->status.friends[i].char_id != char_id || sd->status.friends[i].account_id != account_id); i++);
 
 	if (i == MAX_FRIENDS) {
-		clif_displaymessage(fd, "Name not found in list.");
+		clif_displaymessage(fd, msg_txt(522)); //"Name not found in list."
 		return;
 	}
 		
@@ -15867,7 +15873,7 @@ void clif_parse_FriendsListRemove(int fd, struct map_session_data *sd)
 		memcpy(&sd->status.friends[j-1], &sd->status.friends[j], sizeof(sd->status.friends[0]));
 
 	memset(&sd->status.friends[MAX_FRIENDS-1], 0, sizeof(sd->status.friends[MAX_FRIENDS-1]));
-	clif_displaymessage(fd, "Friend removed");
+	clif_displaymessage(fd, msg_txt(523)); //"Friend removed"
 	
 	WFIFOHEAD(fd,packet_len(0x20a));
 	WFIFOW(fd,0) = 0x20a;

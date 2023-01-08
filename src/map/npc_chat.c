@@ -363,11 +363,6 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 	msg = va_arg(ap,char*);
 	len = va_arg(ap,int);
 	sd = va_arg(ap,struct map_session_data *);
-
-//#if PACKETVER >= 20151029
-//	if( msg[len-1] != '\0' )
-//		msg[len++] = '\0';
-//#endif
 	
 	// iterate across all active sets
 	for (pcreset = npcParse->active; pcreset != NULL; pcreset = pcreset->next)
@@ -384,7 +379,7 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 				// save out the matched strings
 				for (i = 0; i < r; i++)
 				{
-					char var[6], val[255];
+					char var[255], val[255];
 					snprintf(var, sizeof(var), "$@p%i$", i);
 					pcre_copy_substring(msg, offsets, r, i, val, sizeof(val));
 					set_var(sd, var, val);

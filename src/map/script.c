@@ -13207,7 +13207,7 @@ BUILDIN_FUNC(recovery)
 			status_revive(&sd->bl, 100, 100);
 		else
 			status_percent_heal(&sd->bl, 100, 100);
-		clif_displaymessage(sd->fd,"You have been recovered!");
+		clif_displaymessage(sd->fd, msg_txt(528)); // You have been recovered!
 	}
 	mapit_free(iter);
 	return 0;

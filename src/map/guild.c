@@ -41,7 +41,7 @@ struct eventlist {
 	struct eventlist *next;
 };
 
-#define GUILD_SEND_XY_INTERVAL	5000
+#define GUILD_SEND_XY_INTERVAL	5000 // Interval of sending coordinates and HP
 
 
 #define MAX_GUILD_SKILL_REQUIRE 5
@@ -83,7 +83,7 @@ int guild_skill_get_max (int id)
 	return guild_skill_tree[id-GD_SKILLBASE].max;
 }
 
-// ギルドスキルがあるか確認
+// Retrive skilllv learned by guild
 int guild_checkskill(struct guild *g,int id)
 {
 	int idx = id-GD_SKILLBASE;
@@ -205,7 +205,7 @@ int guild_getposition(struct guild* g, struct map_session_data* sd)
 	return( i < g->max_member ) ? g->member[i].position : -1;
 }
 
-// メンバー情報の作成
+//Creation of member information
 void guild_makemember(struct guild_member *m,struct map_session_data *sd)
 {
 	nullpo_retv(sd);
@@ -1165,7 +1165,7 @@ int guild_reqalliance(struct map_session_data *sd,struct map_session_data *tsd)
 
 	if(is_agit_start())
 	{	// Disable alliance creation during woe [Valaris]
-		clif_displaymessage(sd->fd,"Alliances cannot be made during Guild Wars!");
+		clif_displaymessage(sd->fd, msg_txt(676)); //"Alliances cannot be made during Guild Wars!"
 		return 0;
 	}	// end addition [Valaris]
 
@@ -1281,7 +1281,7 @@ int guild_delalliance(struct map_session_data *sd,int guild_id,int flag)
 
 	if(is_agit_start())
 	{	// Disable alliance breaking during woe [Valaris]
-		clif_displaymessage(sd->fd,"Alliances cannot be broken during Guild Wars!");
+		clif_displaymessage(sd->fd, msg_txt(525)); //"Alliances cannot be broken during Guild Wars!"
 		return 0;
 	}	// end addition [Valaris]
 
@@ -1528,13 +1528,13 @@ int guild_gm_changed(int guild_id, int account_id, int char_id)
 
 	if (g->member[pos].sd && g->member[pos].sd->fd)
 	{
-		clif_displaymessage(g->member[pos].sd->fd, "You no longer are the Guild Master.");
+		clif_displaymessage(g->member[pos].sd->fd, msg_txt(526)); //"You no longer are the Guild Master."
 		g->member[pos].sd->state.gmaster_flag = false;
 	}
 	
 	if (g->member[0].sd && g->member[0].sd->fd)
 	{
-		clif_displaymessage(g->member[0].sd->fd, "You have become the Guild Master!");
+		clif_displaymessage(g->member[0].sd->fd, msg_txt(527)); //"You have become the Guild Master!"
 		g->member[0].sd->state.gmaster_flag = true;
 		//Block his skills for 5 minutes to prevent abuse.
 		if (battle_config.guild_skill_relog_delay)
