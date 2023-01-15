@@ -1437,9 +1437,8 @@ int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data)
 
 	if(data)
 		delete_timer(fitem->cleartimer,map_clearflooritem_timer);
-	else
-	if(fitem->item_data.card[0] == CARD0_PET) // pet egg
-		intif_delete_petdata( MakeDWord(fitem->item_data.card[1],fitem->item_data.card[2]) );
+	else if (search_petDB_index(fitem->item_data.nameid, PET_EGG) >= 0)
+		intif_delete_petdata(MakeDWord(fitem->item_data.card[1], fitem->item_data.card[2]));
 
 	clif_clearflooritem(fitem,0);
 	map_deliddb(&fitem->bl);
@@ -1876,8 +1875,6 @@ int map_quit(struct map_session_data *sd)
 	
 	// Return loot to owner
 	if( sd->pd ) pet_lootitem_drop(sd->pd, sd);
-
-	if( sd->ed ) elemental_clean_effect(sd->ed);
 
 	unit_remove_map_pc(sd,CLR_TELEPORT);
 	
@@ -3832,7 +3829,6 @@ void do_final(void)
 	do_final_status();
 	do_final_unit();
 	do_final_battleground();
-	do_final_elemental();
 	do_final_duel();
 	do_final_cashshop();
 	do_final_clan();

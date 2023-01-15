@@ -442,7 +442,7 @@ cmd_in02,146,180,4	script	Kafra Employee::kaf_comodo2	1,30,-1,721,{
 	end;
 }
 
-// Morroc Field
+// Morocc Field
 //============================================================
 moc_fild12,35,303,4	script	Serutero#cmd	1,30,-1,59,{
 	mes "[Serutero]";

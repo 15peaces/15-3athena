@@ -22,8 +22,8 @@
 #include "pet.h"
 #include "atcommand.h"
 #include "mercenary.h"
-#include "homunculus.h"
 #include "elemental.h"
+#include "homunculus.h"
 #include "mail.h"
 #include "quest.h"
 #include "status.h"
@@ -2209,7 +2209,7 @@ int intif_parse_elemental_received(int fd) {
 		return 0;
 	}
 
-	elemental_data_received((struct s_elemental*)RFIFOP(fd,5), RFIFOB(fd,4));
+	elem_data_received((struct s_elemental*)RFIFOP(fd,5), RFIFOB(fd,4));
 	return 0;
 }
 

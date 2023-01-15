@@ -1283,7 +1283,7 @@ new_1-2,118,108,3	script	Kafra Employee#nv1	117,{
 			mes "Please choose";
 			mes "your destination.";
 			next;
-			switch(select("Prontera:Morroc:Payon:Alberta:Geffen")) {
+			switch(select("Prontera:Morocc:Payon:Alberta:Geffen")) {
 			case 1:
 				set .@dest$,"Prontera";
 				set .@mapn$,"prontera";
@@ -1291,7 +1291,7 @@ new_1-2,118,108,3	script	Kafra Employee#nv1	117,{
 				set .@warpX,150; set .@warpY,50;
 				break;
 			case 2:
-				set .@dest$,"Morroc";
+				set .@dest$,"Morocc";
 				set .@mapn$,"morocc";
 				set .@saveX,150; set .@saveY,99;
 				set .@warpX,155; set .@warpY,110;
@@ -1346,7 +1346,7 @@ new_1-2,118,108,3	script	Kafra Employee#nv1	117,{
 			end;
 		}
 		else {
-			switch(select("Field Combat Course:Prontera:Morroc:Payon:Alberta:Geffen")) {
+			switch(select("Field Combat Course:Prontera:Morocc:Payon:Alberta:Geffen")) {
 			case 1:
 				mes "[Kafra Employee]";
 				mes "Thank you, let";
@@ -1362,7 +1362,7 @@ new_1-2,118,108,3	script	Kafra Employee#nv1	117,{
 				set .@warpX,150; set .@warpY,50;
 				break;
 			case 3:
-				set .@dest$,"Morroc";
+				set .@dest$,"Morocc";
 				set .@mapn$,"morocc";
 				set .@saveX,150; set .@saveY,99;
 				set .@warpX,155; set .@warpY,110;
@@ -3551,7 +3551,7 @@ new_1-4,100,29,1	script	Hanson#nv	46,{
 					mes "'Phracon' is an ore which can be used to upgrade lvl 1 weapons. To strengthen your Main Gauche with this Phracon, please visit a forge in one of the towns.";
 					next;
 					mes "[Hanson]";
-					mes "The town you will be sent to is named Morroc. The Thief Guild is in the first underground floor of the pyramid NorthWest of Morroc. Remember this.";
+					mes "The town you will be sent to is named Morocc. The Thief Guild is in the first underground floor of the pyramid NorthWest of Morocc. Remember this.";
 					next;
 					mes "[Hanson]";
 					mes "You will now";
@@ -3869,7 +3869,7 @@ S_UserJobchoice:
 	else if (@menu == 4) {
 		mes "to become a Thief.";
 		mes "You will be sent to";
-		mes "the town of Morroc.";
+		mes "the town of Morocc.";
 		next;
 		mes "[Hanson]";
 		mes "The Thief guild is in the underground 1st floor of a pyramid which is NorthWest of town. Please remember this.";

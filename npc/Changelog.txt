@@ -29,8 +29,8 @@ Date		Added
 	* Implemented 13.2 update to Report to the New World quest.
 2011/03/21
 	* Fixed and commented out old Anthell entrance warps (bugreport:3589). Moved entrance to cmd_fild08 to match mapcache updates [Gepard]
-	- Fixed an issue in Resurrection of Satan Morroc (Continental Guard Quest) when player dying/logging out during conversation
-	  could prevent summoning of Satan Morroc until server reboot (bugreport:3437).
+	- Fixed an issue in Resurrection of Satan Morocc (Continental Guard Quest) when player dying/logging out during conversation
+	  could prevent summoning of Satan Morocc until server reboot (bugreport:3437).
 2011/03/17
 	* Rev. 14747 Endless Tower fixes: [Gepard]
 	- Added missing end's to prevent accidental disabling of warps between floors. (bugreport:4623)
@@ -57,7 +57,7 @@ Date		Added
 	* Rev. 14555 Updated instances with more proper English, care of Resplendent. [L0ne_W0lf]
 2010/12/02
 	* Rev. 14552 Just going through bug reports. :P [L0ne_W0lf]
-	- Removed duplicate NPCs in Lighthalzen and Morroc. (bugreport:4555)
+	- Removed duplicate NPCs in Lighthalzen and Morocc. (bugreport:4555)
 	- Corrected typo (Sit -> Suit) in enhcant_arm NPC. (bugreport:4586)
 	- Corrected a typo in the christmas_2008 event. (bugreport:4600)
 	- Changed which White Lady spawns in endless tower. (bugreport:4601)
@@ -190,7 +190,7 @@ Date		Added
 	- Made Brasilis shop names unique, and uncommented.
 	- Changed the whip sold in comodo weapon shop. (1956 ->1960)
 	- Added Fire and Silver arrow to Einbroch tool dealer.
-	- Re-added Bill of Birds to Morroc Item Collectors.
+	- Re-added Bill of Birds to Morocc Item Collectors.
 2010/05/29
 	* Rev. 14313 Updated F_CashPartyCall to use warpparty. Renamed original function to F_CashPartyCall2 and commented out. [L0ne_W0lf]
 	* Fixed an error in the monster race npcs calling a nonexistant OnEnable.
@@ -304,12 +304,12 @@ Date		Added
 	- Fixed the checkweights in the Crow of Fate quest. (bugreport:3500)
 2009/08/11
 	* Rev. 14001 More episode 12.1 updates, mainly to morroc quests. [L0ne_W0lf]
-	- Updated Satan Morroc to allow people who have finished it to return to the previous map.
+	- Updated Satan Morocc to allow people who have finished it to return to the previous map.
 	- Added quest log commands for Resurrection of Satan Morocc.
 	- Added the two remaining episode 12.1 quests. 
 2009/07/26
 	* Rev. 13970 Another Episode 12 change, and more 13.1 content. [L0ne_W0lf]
-	- Moved Voting staff in Morroc to Morroc Ruins.
+	- Moved Voting staff in Morocc to Morocc Ruins.
 	- Added Manuk/Slpendide mob spawn files (commented out.)
 	* Rev. 13969 Added Quest Log commands for 1-1 job quests and trans quest. [L0ne_W0lf]
 2009/07/18
@@ -416,7 +416,7 @@ Date		Added
 	* Corrected the conditions in the if block that I goofed up, in agit_template.
 2009/03/02
 	* Rev. 13559 Another round of bug fixes to various scripts. [L0ne_W0lf]
-	- Added Satan Morroc spawn and corrected shadow spawn timers. (bugreport:2690)
+	- Added Satan Morocc spawn and corrected shadow spawn timers. (bugreport:2690)
 	- Fixed Group of Evil NPC not reactivating  when it should. (bugreport:2696)
 	- Fixed the Zeny check when summoning guardians in agits. (bugreport:2712)
 	- Added zeny check to Jawaii bartender (hung the script.) (bugreport:2747)
@@ -454,12 +454,12 @@ Date		Added
 2008/12/26
 	Rev. 13415 Happy boxing day, eAthena! Here have a massive update. [L0ne_W0lf]
 	* Implemented the first round of episode 12.1 change which include:
-	- Many Morroc NPCs have been moved to Morroc Ruins.
-	- The addition of new of NPCs to the ruins of Morroc.
-	- Several warp points leading around Morroc altered.
+	- Many Morocc NPCs have been moved to Morocc Ruins.
+	- The addition of new of NPCs to the ruins of Morocc.
+	- Several warp points leading around Morocc altered.
 	- The implementation of the continental Guard Quest.
 	- The removal of the 'Dandelion's Request" quest.
-	- This update contains several changes, as Morroc and several fields no longer
+	- This update contains several changes, as Morocc and several fields no longer
 	  exist in one sense of the word. AS such, many NPCs have been moved, there may
 	  be quests that no longer function because of NPCs on inaccessable maps.
 2008/12/25
@@ -1113,7 +1113,7 @@ Date		Added
 	* Rev. 11570 Added the Advanced Refiner for Enriched ores. [L0ne_W0lf]
 	- I've had this done for awhile now, but I've never submitted it. XD
 2007/10/23
-	* Rev. 11568 Removed duplicate Morroc city npc (bugreport:277) [L0ne_W0lf]
+	* Rev. 11568 Removed duplicate Morocc city npc (bugreport:277) [L0ne_W0lf]
 	- Fix to the knight job quest. (bad areawarp destination)
 	* Rev. 11566 Corrected the Jawaii Ice Cream salesman. bugreport:285 [L0ne_W0lf]
 	* Rev. 11565 Fixed two duplicate names in the assassin skill quest. XD [L0ne_W0lf]
@@ -1365,7 +1365,7 @@ Date		Added
 2007/07/10
 	* Rev. 10874 Added the gemstone trader into script_athena.conf [L0ne_W0lf]
 2007/07/07
-	* Rev. 10863 Updated header for Morroc City. [L0ne_W0lf]
+	* Rev. 10863 Updated header for Morocc City. [L0ne_W0lf]
 	* Finished updating Geffen awhile back, and forgot to commit it.
 	* Rev. 10862 Fixed various errors in the Bajin NPC in quests_yuno. [L0ne_W0lf]
 2007/07/06
@@ -1462,7 +1462,7 @@ Date		Added
 	* Red. 10769 Fixed central Kafra position (146,86 -> 146,98) [L0ne_W0lf]
 	* Rev. 10767 Fixed a missing ")" in the new wedding script. [L0ne_W0lf]
 	* Forgot to upload the mail.txt file. 
-	* Rev. 10766 Updated cities: Morroc, Jawaii, and Izlude [L0ne_W0lf]
+	* Rev. 10766 Updated cities: Morocc, Jawaii, and Izlude [L0ne_W0lf]
 	- Moved an NPC out of Prontera because of the Jawaii update.
 	* Updated Wedding script to official. (Moved previous to custom.)
 	- Updated the Divorce NPC to Official as well.
@@ -1477,7 +1477,7 @@ Date		Added
 2007/06/12
 	* Added first part of Hugel quests. Credits go to MasterOfMuppets. [SinSloth]
 	- Moved some Hugel NPCs to proper quest file. [SinSloth]
-	- Added GM lvl check to Morroc Inv.Quest as in other invansion quests [Lupus]
+	- Added GM lvl check to Morocc Inv.Quest as in other invansion quests [Lupus]
 2007/06/11
 	* Updated dialogs from Binoculars Quest. [Samuray22]
 2007/06/10
@@ -1512,7 +1512,7 @@ Date		Added
 	- Added totally custom Moscovia warps by Azazel [Lupus]
 2007/06/06
 	* More Breeder fixes [Playtester]
-	* Added Dandelion's Request / Morroc Invasion quest. [SinSloth]
+	* Added Dandelion's Request / Morocc Invasion quest. [SinSloth]
 2007/06/05
 	* Updated Arena warp, thanks to diedlikeahero [Lupus]
 	- removed old temp shop scrolls_arrows [Lupus]
@@ -2064,7 +2064,7 @@ Date		Added
 	- Ayothaya Field
 	- Ayothaya Dungeon
 2006/10/20
-	* Official kRO 10.1 spawns for Morroc Field [Playtester]
+	* Official kRO 10.1 spawns for Morocc Field [Playtester]
 	- Prontera Field
 	- Cities (reorganized citycleaners)
 	* Added official Free Ticket for the Cart Service to the Novice Training Grounds [Lupus]
@@ -2365,7 +2365,7 @@ Date		Added
 	- should be commented once Airship quest is finished
 	- also added two airship warps
 2006/07/27
-	* Fixed the Morroc ingredient seller to not appear [Playtester]
+	* Fixed the Morocc ingredient seller to not appear [Playtester]
 	* Fixed some spawns and a warp in Sunken Ship [Playtester]
 2006/07/26
 	* Fixed the Factory Quest [Playtester]
@@ -2712,7 +2712,7 @@ Date		Added
 	* Added que_ng.gat ninja map portion's warp. [erKURITA]
 	* Modified and corrected the gunslinger quest. [erKURITA]
 2006/05/01
-	* Fixed an NPC in Morroc who still said the Dragon Fly is North [Playtester]
+	* Fixed an NPC in Morocc who still said the Dragon Fly is North [Playtester]
 2006/04/30
 	* Made Geffen Tower 1 in eamobs a bit more crowded [Playtester]
 	* Added the correct spawns for Ancient Geffenia(gef_dun03) [Playtester]
@@ -2734,7 +2734,7 @@ Date		Added
 	* Cube Room Quest: fixed "free stick" bug, thx 2 Neouni [Lupus]
 2006/04/23
 	* Rearranged Ingredient Sellers. Removed doubled seller from Morocc [Lupus]
-	* Added an ingredient seller to Morroc, thanks to Muad_Dib [MasterOfMuppets]
+	* Added an ingredient seller to Morocc, thanks to Muad_Dib [MasterOfMuppets]
 	* Fixed the names of the Lighthalzen and Einbroch refiners, thanks to Muad_Dib [Kargha]
 2006/04/22
 	* Fixed some typos in the mage quest thanks to decayed.cell [Playtester]
@@ -3216,7 +3216,7 @@ Date		Added
 2005/11/07
 	* Added the lvl 4 weapon quest, thanks a lot to Vicious_pucca for converting it from [MasterOfMuppets]
 	  aegis format to eA format. a lot of thanks to reddozen as well for fixing bugs.
-	  - Also two quest related NPCs was added to Geffen and Morroc
+	  - Also two quest related NPCs was added to Geffen and Morocc
 	* Fixed a misleading typo in quest/monstertamers.txt, thanks to vicious_pucca [MasterOfMuppets]
 	  for pointing it out.
 	* Updated the spawns of Santa Porings and Antonios in event/xmas.txt [MasterOfMuppets]
@@ -3328,8 +3328,8 @@ Date		Added
 2005/10/08
 	* Fixed Ayothaya town script, thanks to Poki#3 [Lupus]
 	* Total warps update of Hidden Temple (Forest Labyrinth), thanks to jA and Dr.Evil for info [Lupus]
-	* Updated Payon and Morroc (Jellopy->Scell) shops, thanks to Muad-Dib and andz [Lupus]
-	* Added Lighthalzen,Einbroch,Einbech shops. Updated Prontera,Morroc,Payon shops [Lupus]
+	* Updated Payon and Morocc (Jellopy->Scell) shops, thanks to Muad-Dib and andz [Lupus]
+	* Added Lighthalzen,Einbroch,Einbech shops. Updated Prontera,Morocc,Payon shops [Lupus]
 	- Thanks to Muad-dib, Nexon, andz, MasterOfMuppets
 	* Due to added Magic Scrolls drops... finally removed the temp shop [Lupus]
 2005/10/07
@@ -3341,7 +3341,7 @@ Date		Added
 	* Updated official Bard Job Quest: Flowers Part now is quite easy to pass trough [Lupus]
 	  (thanks to Vicious Pucca for info)
 	* Thanks to MasterOfMuppats for some Kafra changes: [Lupus]
-	- Updated teleport destinations of Aldebaran,Comodo, Izlude and Morroc Kafras
+	- Updated teleport destinations of Aldebaran,Comodo, Izlude and Morocc Kafras
 	* More Bulletin Boards [MasterOfMuppets]
 	* Added Einbech and Einbroch Item NPC's. [Nexon]
 	* Updated all scripts to work with the script engine update (changed break
@@ -3518,7 +3518,7 @@ Date		Added
 	  thanks to Mellowz, for pointing it out
 2005/08/09
 	* Fixed position of Lothar (from IRC), and MrSmile Girl pos at Prontera, txh to dshome [Lupus]
-	* Added some Acky's custom scrips (Lottery, MVM, Stock Market, Shifty Assassin, Morroc Raceway, Russian Roulette)
+	* Added some Acky's custom scrips (Lottery, MVM, Stock Market, Shifty Assassin, Morocc Raceway, Russian Roulette)
 	* Added custom quest on a Bandit Beard (by Mega Man Expert) [Lupus]
 	* Fixed logging bugs in THQ shop [Lupus]
 2005/08/02
@@ -3871,7 +3871,7 @@ Date		Added
 	* Added translated shop names for the Extended Shop, I'unno who made it. o.O; [Mass Zero]
 	* Changed Lord of Death spawn intervals to 90 minutes based on jRO [celest]
 	* Added nomemo flags for Niflheim and some maps [celest]
-	* Corrected Niflheim shops and Morroc jewel merchant - should sell Ruby
+	* Corrected Niflheim shops and Morocc jewel merchant - should sell Ruby
 	  instead of Pearl [celest]
 2004/12/07
 	* Added npc/other/mc_cameri/heal.txt, a heal npc that is as simple as one click healing [MC Cameri]
@@ -4034,7 +4034,7 @@ Date		Added
 	  Moved shops from umbala.txt to shops.txt.  Commented out the other ones.
 	  Updated mapflags and re-organized them again.  Files in "mapflag\type" folder are the
 	  same as ones in "mapflag" folder, just organized differently.  ONLY use 1 set.[kobra_k88]
-	* Corrected Morroc warp npc overlaying Kafra npc. [Aria]
+	* Corrected Morocc warp npc overlaying Kafra npc. [Aria]
 	* Corrected kafra typo. [Shinigami]
 	* Corrected zeny amount subtracted for iron hammer in refine.txt[kobra_k88]
 2004/10/15

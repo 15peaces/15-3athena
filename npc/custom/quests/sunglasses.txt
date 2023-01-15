@@ -61,7 +61,7 @@ L_SG_1_Check:
 	mes "Great. Now, listen carefully.";
 	next;
 	mes "[Sunglasses Trader]";
-	mes "Look for someone named Maseph somewhere north of Morroc.";
+	mes "Look for someone named Maseph somewhere north of Morocc.";
 	mes "I will send her a message to let her know that you are coming.";
 	close;
 L_SG_Diamond:
@@ -81,7 +81,7 @@ L_SG_Q1_Done:
 	mes "There is nothing more I can tell you.";
 	next;
 	mes "[Sunglasses Trader]";
-	mes "Go see Maseph. She is somewhere north of Morroc.";
+	mes "Go see Maseph. She is somewhere north of Morocc.";
 	close;
 L_SG_No:
 	mes "[Sunglasses Trader]";

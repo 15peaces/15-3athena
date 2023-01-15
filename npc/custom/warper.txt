@@ -46,7 +46,7 @@
 			mes "[Warp Agent]";
 			mes "Please select which town you would like to be teleported to.";
 			next;
-			switch(select("Alberta:Aldebaran:Amatsu:Ayothaya:Brasilis:Comodo:Dewata:Eclage:Einbroch:Einbech:El Dicastes:Expedition Camp:Geffen:Gonryun:Hugel:Izlude:Jawaii:Lighthalzen:Louyang:Lutie:Malangdo:Malaya:Manuk:Mora:Morroc:Moscovia:Payon:Prontera:Rachel:Splendide:Umbala:Veins:Yuno")) {
+			switch(select("Alberta:Aldebaran:Amatsu:Ayothaya:Brasilis:Comodo:Dewata:Eclage:Einbroch:Einbech:El Dicastes:Expedition Camp:Geffen:Gonryun:Hugel:Izlude:Jawaii:Lighthalzen:Louyang:Lutie:Malangdo:Malaya:Manuk:Mora:Morocc:Moscovia:Payon:Prontera:Rachel:Splendide:Umbala:Veins:Yuno")) {
 			case 1:
 				warp "alberta",27,236;
 				break;

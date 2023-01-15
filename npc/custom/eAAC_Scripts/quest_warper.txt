@@ -974,8 +974,8 @@ function	script	QWS_Tarray	{
 	setarray @pTYcoords[@Ti], 131;
 
 	QWS_Make_Town_Menu 15;
-//----------------Morroc:
-	setarray @pTmenuitems$[@Ti], "Morroc";
+//----------------Morocc:
+	setarray @pTmenuitems$[@Ti], "Morocc";
 	setarray @pTprice[@Ti], $QW_BW_PRICE;
 
 	setarray @pTmap$[@Ti], "morocc";
@@ -1594,7 +1594,7 @@ function	script	QWS_DLarray	{
 //=================Backwards=Compatibility=Pre=1.8=================
 
 function	script	QWS_BackComp	{
-// reference where i put the towns: "Prontera"[0], "Alberta"[1], "Aldebaran"[2], "Amatsu"[3], "Ayothaya"[4], "Comodo"[5], "Einbech"[6], "Einbroch"[7], "Geffen"[8], "Gonryun"[9], "Hugel"[10], "Izlude"[11], "Jawaii"[12], "Lighthalzen"[13], "Louyang"[14], "Lutie"[15], "Morroc"[16], "Niflheim"[17], "Payon"[18], "Umbala"[19], "Yuno"[20];
+// reference where i put the towns: "Prontera"[0], "Alberta"[1], "Aldebaran"[2], "Amatsu"[3], "Ayothaya"[4], "Comodo"[5], "Einbech"[6], "Einbroch"[7], "Geffen"[8], "Gonryun"[9], "Hugel"[10], "Izlude"[11], "Jawaii"[12], "Lighthalzen"[13], "Louyang"[14], "Lutie"[15], "Morocc"[16], "Niflheim"[17], "Payon"[18], "Umbala"[19], "Yuno"[20];
 // reference where i put the dungeons: "Abyss Lake"[0], "Amatsu Dungeon"[1], "Ant Hell Dungeon"[2], "Ayotaya Dungeon"[3], "Byalan Dungeon"[4], "Clock Tower Dungeon"[5], "Coal Mine Dungeon"[6], "Culvert Dungeon"[7], "Einbech Dungeon"[8], "Gefenia Dungeon"[9], "Geffen Dungeon"[10], "Glast Heim Dungeon"[11], "Gonryun Dungeon"[12], "Hidden Dungeon"[13], "Juperos Cave"[14], "Lighthalzen Bio Lab"[15], "Louyang Dungeon"[16], "Magma Dungeon"[17], "Odin Temple"[18], "Orc Dungeon"[19], "Payon Dungeon"[20], "Pyramids Dungeon"[21], "Sphinx Dungeon"[22], "Sunken Ship Dungeon"[23], "Thanatos Tower"[24], "Toy Factory Dungeon"[25], "Turtle Island Dungeon"[26], "Umbala Dungeon"[27], "Kiel Dungeon[28];
 // also clears variables so that the account file variables can be used for something else variable 0 = variable delete on next save
 
@@ -1965,7 +1965,7 @@ louyang,211,106,4	script	Warpra#28	113,{
 	close;
 }
 morocc,157,95,4	script	Warpra#29	113,{
-	callfunc "QWS_Town_Warpra",16,"Morroc Town";
+	callfunc "QWS_Town_Warpra",16,"Morocc Town";
 	close;
 }
 nif_fild01,319,77,1	script	Warpra#30	113,{

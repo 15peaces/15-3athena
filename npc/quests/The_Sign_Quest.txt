@@ -135,7 +135,7 @@ prt_in,227,45,0	script	Archeologist#sign	1,30,-1,804,{
 			mes "[Metz]";
 			mes "Now, the first person";
 			mes "you must visit is ^FF0000Arian^000000";
-			mes "in Morroc. Please speak";
+			mes "in Morocc. Please speak";
 			mes "to him and he'll give you";
 			mes "all the details about his";
 			mes "examination... I hope.";
@@ -158,7 +158,7 @@ prt_in,227,45,0	script	Archeologist#sign	1,30,-1,804,{
 		case 3:
 			mes "Hm...?";
 			mes "Shouldn't you leave";
-			mes "for Morroc to see Arian?";
+			mes "for Morocc to see Arian?";
 			mes "You better hurry in case";
 			mes "somebody else applies";
 			mes "for this little job.";
@@ -4269,7 +4269,7 @@ geffen_in,61,72,7	script	Aaron#sign	1,30,-1,754,{
 			mes "that looks different";
 			mes "than all the others.";
 			next;
-			if (select("Prontera Hollgrehenn:Prontera Doll Merchant:Izlude Meat Merchant:Morroc Meat Merchant") == 3) set .@user_p,.@user_p+1;
+			if (select("Prontera Hollgrehenn:Prontera Doll Merchant:Izlude Meat Merchant:Morocc Meat Merchant") == 3) set .@user_p,.@user_p+1;
 			break;
 		case 2:
 			mes "[Aaron]";

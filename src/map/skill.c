@@ -47,14 +47,14 @@
 #define SKILLUNITTIMER_INTERVAL	100
 
 // ranges reserved for mapping skill ids to skilldb offsets
-#define HM_SKILLRANGEMIN 1101
-#define HM_SKILLRANGEMAX (HM_SKILLRANGEMIN+MAX_HOMUNSKILL)
-#define MC_SKILLRANGEMIN 1301
-#define MC_SKILLRANGEMAX (MC_SKILLRANGEMIN+MAX_MERCSKILL)
-#define EL_SKILLRANGEMIN 1501
-#define EL_SKILLRANGEMAX (EL_SKILLRANGEMIN+MAX_ELEMSKILL)
-#define GD_SKILLRANGEMIN 1701
-#define GD_SKILLRANGEMAX (GD_SKILLRANGEMIN+MAX_GUILDSKILL)
+#define HM_SKILLRANGEMIN 1201// 1201 - 1400
+#define HM_SKILLRANGEMAX HM_SKILLRANGEMIN+MAX_HOMUNSKILL
+#define MC_SKILLRANGEMIN 1401// 1401 - 1600
+#define MC_SKILLRANGEMAX MC_SKILLRANGEMIN+MAX_MERCSKILL
+#define EL_SKILLRANGEMIN 1601// 1601 - 1800
+#define EL_SKILLRANGEMAX EL_SKILLRANGEMIN+MAX_ELEMSKILL
+#define GD_SKILLRANGEMIN 1801// 1801 - 2000
+#define GD_SKILLRANGEMAX GD_SKILLRANGEMIN+MAX_GUILDSKILL
 
 static struct eri *skill_unit_ers = NULL; //For handling skill_unit's [Skotlex]
 static struct eri *skill_timer_ers = NULL; //For handling skill_timerskills [Skotlex]
@@ -593,7 +593,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	return (map[m].flag.noskill);
 }
 
-int skillnotok_hom(int skillid, struct homun_data *hd)
+int skillnotok_homun(int skillid, struct homun_data *hd)
 {
 	int i = skill_get_index(skillid);
 	nullpo_retr(1,hd);
@@ -1317,10 +1317,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		sc_start(bl, SC_BLEEDING, 5 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case SO_DIAMONDDUST:
-		sc_start(bl, SC_CRYSTALIZE, 10 + 10 * skilllv, skilllv, skill_get_time2(skillid, skilllv));
 		rate = 5 + 5 * skilllv;
-		if( sc && sc->data[SC_COOLER_OPTION] )
-			rate += rate * sc->data[SC_COOLER_OPTION]->val2 / 100;
 		sc_start(bl, SC_CRYSTALIZE, rate, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 	case SO_CLOUD_KILL:
@@ -1456,7 +1453,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_FULL_SWING_K:	case SC_MANA_PLUS:		case SC_MUSTLE_M:
 				case SC_LIFE_FORCE_F:
 					// Elementals and Insignias
-				case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
+				/*case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
 				case SC_PYROTECHNIC:	case SC_PYROTECHNIC_OPTION:	case SC_HEATER:
 				case SC_HEATER_OPTION:	case SC_TROPIC:			case SC_TROPIC_OPTION:
 				case SC_AQUAPLAY:		case SC_AQUAPLAY_OPTION:	case SC_COOLER:
@@ -1471,7 +1468,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_WIND_STEP_OPTION:	case SC_WIND_CURTAIN:	case SC_WIND_CURTAIN_OPTION:
 				case SC_SOLID_SKIN:		case SC_SOLID_SKIN_OPTION:	case SC_STONE_SHIELD:
 				case SC_STONE_SHIELD_OPTION:	case SC_TIDAL_WEAPON:	case SC_TIDAL_WEAPON_OPTION:
-				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:	case SC_FIRE_INSIGNIA:
+				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:*/	case SC_FIRE_INSIGNIA:
 				case SC_WATER_INSIGNIA:	case SC_WIND_INSIGNIA:	case SC_EARTH_INSIGNIA:
 					// Mutated Homunculus
 				case SC_NEEDLE_OF_PARALYZE:	case SC_PAIN_KILLER:	case SC_LIGHT_OF_REGENE:
@@ -1668,20 +1665,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case MH_LAVA_SLIDE:
 		sc_start(bl, SC_BURNING, 10 * skilllv, skilllv, skill_get_time2(skillid,skilllv));
-		break;
-	case EL_WIND_SLASH:	// Non confirmed rate.
-		sc_start(bl, SC_BLEEDING, 25, skilllv, skill_get_time(skillid,skilllv));
-		break;
-	case EL_STONE_HAMMER:
-		rate = 10 * skilllv;
-		sc_start(bl, SC_STUN, rate, skilllv, skill_get_time(skillid,skilllv));
-		break;
-	case EL_ROCK_CRUSHER:
-	case EL_ROCK_CRUSHER_ATK:
-		sc_start(bl,status_skill2sc(skillid),50,skilllv,skill_get_time(EL_ROCK_CRUSHER,skilllv));
-		break;
-	case EL_TYPOON_MIS:
-		sc_start(bl,SC_SILENCE,10*skilllv,skilllv,skill_get_time(skillid,skilllv));
 		break;
 	}
 
@@ -2719,28 +2702,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		break;
 	case LG_OVERBRAND_BRANDISH:
 	case LG_OVERBRAND_PLUSATK:
-	case EL_FIRE_BOMB:
-	case EL_FIRE_BOMB_ATK:
-	case EL_FIRE_WAVE:
-	case EL_FIRE_WAVE_ATK:
-	case EL_FIRE_MANTLE:
-	case EL_CIRCLE_OF_FIRE:
-	case EL_FIRE_ARROW:
-	case EL_ICE_NEEDLE:
-	case EL_WATER_SCREW:
-	case EL_WATER_SCREW_ATK:
-	case EL_WIND_SLASH:
-	case EL_TIDAL_WEAPON:
-	case EL_ROCK_CRUSHER:
-	case EL_ROCK_CRUSHER_ATK:
-	case EL_HURRICANE:
-	case EL_HURRICANE_ATK:
-	case EL_TYPOON_MIS:
-	case EL_TYPOON_MIS_ATK:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,-1,5);
-		break;
-	case EL_STONE_RAIN:
-		dmg.dmotion = clif_skill_damage(dsrc,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,-1,(flag&1)?8:5);
 		break;
 
 	default:
@@ -2960,7 +2922,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			case MG_FIREWALL:
 			case PR_SANCTUARY:
 			case GN_WALLOFTHORN:
-			case EL_FIRE_MANTLE:
 				direction = unit_getdir(bl); 
 				break;
 		}
@@ -3121,17 +3082,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 			status_change_end(src,SC_POISONINGWEAPON,-1);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);	
-		}
-	}
-
-	if( sc && sc->data[SC_WATER_SCREEN_OPTION] && sc->data[SC_WATER_SCREEN_OPTION]->val1 && damage > 0) {
-		struct block_list *e_bl = map_id2bl(sc->data[SC_WATER_SCREEN_OPTION]->val1);
-		if( e_bl && !status_isdead(e_bl) ) {
-			clif_damage(e_bl,e_bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,dmg.type,dmg.damage2, false);
-			status_damage(bl,e_bl,damage,0,0,0);
-			// Just show damage in target.
-			clif_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, dmg.type, dmg.damage2, false);
-			return ATK_NONE;
 		}
 	}
 
@@ -5419,78 +5369,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(BF_MISC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
 
-	case EL_FIRE_BOMB:
-	case EL_FIRE_WAVE:
-	case EL_WATER_SCREW:
-	case EL_HURRICANE:
-	case EL_TYPOON_MIS:
-		if( flag&1 )
-				skill_attack(skill_get_type(skillid+1),src,src,bl,skillid+1,skilllv,tick,flag);
-		else {
-			int i = skill_get_splash(skillid,skilllv);
-			clif_skill_nodamage(src,battle_get_master(src),skillid,skilllv,1);
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			if( rand()%100 < 30 )
-				map_foreachinrange(skill_area_sub,bl,i,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-			else
-				skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
-		}
-		break;
-		
-	case EL_ROCK_CRUSHER:
-			clif_skill_nodamage(src,battle_get_master(src),skillid,skilllv,1);
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			if( rand()%100 < 50 )
-				skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
-			else
-				skill_attack(BF_WEAPON,src,src,bl,EL_ROCK_CRUSHER_ATK,skilllv,tick,flag);
-			break;
-		
-	case EL_STONE_RAIN:
-		if( flag&1 )
-				skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
-		else {
-			int i = skill_get_splash(skillid,skilllv);
-			clif_skill_nodamage(src,battle_get_master(src),skillid,skilllv,1);
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			if( rand()%100 < 30 )
-				map_foreachinrange(skill_area_sub,bl,i,BL_CHAR,src,skillid,skilllv,tick,flag|BCT_ENEMY|1,skill_castend_damage_id);
-			else
-				skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
-		}
-		break;
-
-	case EL_FIRE_ARROW:
-	case EL_ICE_NEEDLE:
-	case EL_WIND_SLASH:
-	case EL_STONE_HAMMER:
-		clif_skill_nodamage(src,battle_get_master(src),skillid,skilllv,1);
-		clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-		skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
-		break;
-
-	case EL_TIDAL_WEAPON:
-		if( src->type == BL_ELEM ) {
-			struct elemental_data *ele = BL_CAST(BL_ELEM,src);
-			struct status_change *sc = status_get_sc(&ele->bl);
-			sc_type type = status_skill2sc(skillid), type2;
-			type2 = type-1;
-			
-			clif_skill_nodamage(src,battle_get_master(src),skillid,skilllv,1);
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			if( (sc && sc->data[type2]) || (tsc && tsc->data[type]) ) {
-				elemental_clean_single_effect(ele, skillid);
-			}
-			if( rand()%100 < 50 )
-				skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
-			else {
-				sc_start(src,type2,100,skilllv,skill_get_time(skillid,skilllv));
-				sc_start(battle_get_master(src),type,100,ele->bl.id,skill_get_time(skillid,skilllv));
-			}
-			clif_skill_nodamage(src,src,skillid,skilllv,1);
-		}
-		break;
-
 	case 0:
 		if(sd) {
 			if (flag & 3){
@@ -7205,7 +7083,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MG_STONECURSE:
 		{
-			struct status_change *sc = status_get_sc(src);
 			if (tstatus->mode&MD_BOSS) {
 				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -7218,12 +7095,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
-			i = (skilllv * 4 + 20);
-
-			if( sc && sc->data[SC_PETROLOGY_OPTION] )
-				i += i * sc->data[SC_PETROLOGY_OPTION]->val2 / 100;
-
-			if (sc_start4(bl,SC_STONE,i,skilllv,0,0,skill_get_time(skillid,skilllv),skill_get_time2(skillid,skilllv)))
+			if (sc_start4(bl,SC_STONE,(skilllv*4+20),
+				skilllv, 0, 0, skill_get_time(skillid, skilllv),
+				skill_get_time2(skillid,skilllv)))
 					clif_skill_nodamage(src,bl,skillid,skilllv,1);
 			else if(sd) {
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
@@ -7774,7 +7648,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FULL_SWING_K:	case SC_MANA_PLUS:		case SC_MUSTLE_M:
 				case SC_LIFE_FORCE_F:
 				// Elementals and Insignias
-				case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
+				/*case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
 				case SC_PYROTECHNIC:	case SC_PYROTECHNIC_OPTION:	case SC_HEATER:
 				case SC_HEATER_OPTION:	case SC_TROPIC:			case SC_TROPIC_OPTION:
 				case SC_AQUAPLAY:		case SC_AQUAPLAY_OPTION:	case SC_COOLER:
@@ -7789,7 +7663,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_WIND_STEP_OPTION:	case SC_WIND_CURTAIN:	case SC_WIND_CURTAIN_OPTION:
 				case SC_SOLID_SKIN:		case SC_SOLID_SKIN_OPTION:	case SC_STONE_SHIELD:
 				case SC_STONE_SHIELD_OPTION:	case SC_TIDAL_WEAPON:	case SC_TIDAL_WEAPON_OPTION:
-				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:	case SC_FIRE_INSIGNIA:
+				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:*/	case SC_FIRE_INSIGNIA:
 				case SC_WATER_INSIGNIA:	case SC_WIND_INSIGNIA:	case SC_EARTH_INSIGNIA:
 				// Mutated Homunculus
 				case SC_NEEDLE_OF_PARALYZE:	case SC_PAIN_KILLER:	case SC_LIGHT_OF_REGENE:
@@ -9587,7 +9461,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FULL_SWING_K:	case SC_MANA_PLUS:		case SC_MUSTLE_M:
 				case SC_LIFE_FORCE_F:
 				// Elementals and Insignias
-				case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
+				/*case SC_WATER_BARRIER:	case SC_ZEPHYR:			case SC_POWER_OF_GAIA:
 				case SC_PYROTECHNIC:	case SC_PYROTECHNIC_OPTION:	case SC_HEATER:
 				case SC_HEATER_OPTION:	case SC_TROPIC:			case SC_TROPIC_OPTION:
 				case SC_AQUAPLAY:		case SC_AQUAPLAY_OPTION:	case SC_COOLER:
@@ -9602,7 +9476,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_WIND_STEP_OPTION:	case SC_WIND_CURTAIN:	case SC_WIND_CURTAIN_OPTION:
 				case SC_SOLID_SKIN:		case SC_SOLID_SKIN_OPTION:	case SC_STONE_SHIELD:
 				case SC_STONE_SHIELD_OPTION:	case SC_TIDAL_WEAPON:	case SC_TIDAL_WEAPON_OPTION:
-				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:	case SC_FIRE_INSIGNIA:
+				case SC_ROCK_CRUSHER:	case SC_ROCK_CRUSHER_ATK:*/	case SC_FIRE_INSIGNIA:
 				case SC_WATER_INSIGNIA:	case SC_WIND_INSIGNIA:	case SC_EARTH_INSIGNIA:
 				// Mutated Homunculus
 				case SC_NEEDLE_OF_PARALYZE:	case SC_PAIN_KILLER:	case SC_LIGHT_OF_REGENE:
@@ -10482,59 +10356,86 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src, bl, skillid, skilllv, sc_start(bl, type, rate, skilllv, skill_get_time(skillid, skilllv)));
 		break;
 
+	case SO_EL_CONTROL:
+		if ( sd )
+		{
+			if ( skilllv == 4 && sd->ed )
+				elem_delete(sd->ed, 0);
+
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		}
+		break;
+
 	case SO_SUMMON_AGNI:
 	case SO_SUMMON_AQUA:
 	case SO_SUMMON_VENTUS:
 	case SO_SUMMON_TERA:
-		if( sd ) {
-			int elemental_class = skill_get_elemental_type(skillid,skilllv);
+		if ( sd )
+		{
+			const short agni_id[3] = { MOBID_EL_AGNI_S, MOBID_EL_AGNI_M, MOBID_EL_AGNI_L };
+			const short aqua_id[3] = { MOBID_EL_AQUA_S, MOBID_EL_AQUA_M, MOBID_EL_AQUA_L };
+			const short ventus_id[3] = { MOBID_EL_VENTUS_S, MOBID_EL_VENTUS_M, MOBID_EL_VENTUS_L };
+			const short tera_id[3] = { MOBID_EL_TERA_S, MOBID_EL_TERA_M, MOBID_EL_TERA_L };
+			short summon_id = 0;
 
-			// Remove previous elemental fisrt.
-			if( sd->ed && elemental_delete(sd->ed,0) ) {
-				clif_skill_fail(sd,skillid,0,0,0);
+			if ( skilllv < 1 || skilllv > 3 )
+			{// Avoid summoning anything outside of the range.
+				clif_skill_fail(sd, skillid, 0, 0, 0);
 				break;
 			}
-			// Summoning the new one.
-			if( !elemental_create(sd,elemental_class,skill_get_time(skillid,skilllv)) ) {
-				clif_skill_fail(sd,skillid,0,0,0);
-				break;
+
+			// Remove current existing elemental if one exists.
+			if ( sd->ed )
+				elem_delete(sd->ed, 0);
+
+			switch ( skillid )
+			{// Which elemental is being summoned?
+				case SO_SUMMON_AGNI: summon_id = agni_id[skilllv-1]; break;
+				case SO_SUMMON_AQUA: summon_id = aqua_id[skilllv-1]; break;
+				case SO_SUMMON_VENTUS: summon_id = ventus_id[skilllv-1]; break;
+				case SO_SUMMON_TERA: summon_id = tera_id[skilllv-1]; break;
 			}
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
+
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+			elem_create(sd, summon_id, skill_get_time(skillid, skilllv));
 		}
 		break;
 
-	case SO_EL_CONTROL:
-		if( sd ) {
-			int mode = EL_MODE_PASSIVE;	// Standard mode.
-			if( !sd->ed ) {
+	/*case SO_EL_CONTROL:
+		if( sd )
+		{
+			int mode = ELEMMODE_PASSIVE;	// Standard mode.
+			if( !sd->ed )
+			{
 				clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
 			if( skilllv == 4 )
 			{	// At level 4 delete elementals.
-				if( elemental_delete(sd->ed, 0) )
+				if( elem_delete(sd->ed, 0) )
 					clif_skill_fail(sd,skillid,0,0,0);
 				break;
 			}
 			switch( skilllv )
 			{	// Select mode bassed on skill level used.
-				case 1: mode = EL_MODE_PASSIVE; break;
-				case 2: mode = EL_MODE_ASSIST; break;
-				case 3: mode = EL_MODE_AGGRESSIVE; break;
+				case 1: mode = ELEMMODE_PASSIVE; break;
+				case 2: mode = ELEMMODE_DEFENSIVE; break;
+				case 3: mode = ELEMMODE_OFFENSIVE; break;
 			}
-			if( !elemental_change_mode(sd->ed,mode) ) {
-				clif_skill_fail(sd,skillid,0,0,0);
-				break;
-			}
+			//if( !elemental_change_mode(sd->ed,mode) )
+			//{
+			//	clif_skill_fail(sd,skillid,0,0,0);
+			//	break;
+			//}
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
-		break;
+		break;*/
 
 	case SO_EL_ACTION:
 		if( sd ) {
 			if( !sd->ed )
 				break;
-			elemental_action(sd->ed, bl, tick);
+			//elemental_action(sd->ed, bl, tick);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
@@ -11033,70 +10934,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 		}
 		break;
-
-		case EL_CIRCLE_OF_FIRE:
-		case EL_PYROTECHNIC:
-		case EL_HEATER:
-		case EL_TROPIC:
-		case EL_AQUAPLAY:
-		case EL_COOLER:
-		case EL_CHILLY_AIR:
-		case EL_GUST:
-		case EL_BLAST:
-		case EL_WILD_STORM:
-		case EL_PETROLOGY:
-		case EL_CURSED_SOIL:
-		case EL_UPHEAVAL:
-		case EL_FIRE_CLOAK:
-		case EL_WATER_DROP:
-		case EL_WIND_CURTAIN:
-		case EL_SOLID_SKIN:
-		case EL_STONE_SHIELD:
-		case EL_WIND_STEP:
-			if( ed ) {
-				sc_type type2 = type-1;
-				struct status_change *sc = status_get_sc(&ed->bl);
-
-				tsc = status_get_sc(bl);
-
-				if( (sc && sc->data[type2]) || (tsc && tsc->data[type]) )
-					elemental_clean_single_effect(ed, skillid);
-				else {
-					clif_skill_nodamage(src,bl,skillid,skilllv,1);
-					clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-					if( skillid == EL_WIND_STEP )	// There aren't telemport, just push to the master.
-						skill_blown(src,bl,skill_get_blewcount(skillid,skilllv),(map_calc_dir(src,bl->x,bl->y)+4)%8,0);
-					sc_start(src,type2,100,skilllv,skill_get_time(skillid,skilllv));
-					sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
-				}
-			}
-			break;
-			
-		case EL_FIRE_MANTLE:
-		case EL_WATER_BARRIER:
-		case EL_ZEPHYR:
-		case EL_POWER_OF_GAIA:
-			clif_skill_nodamage(src,src,skillid,skilllv,1);
-			clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-			skill_unitsetting(src,skillid,skilllv,bl->x,bl->y,0);
-			break;
-
-		case EL_WATER_SCREEN:
-			if( ed ) {
-				struct status_change *sc = status_get_sc(&ed->bl);
-				sc_type type2 = type-1;
-
-				clif_skill_nodamage(src,src,skillid,skilllv,1);
-				if( (sc && sc->data[type2]) || (tsc && tsc->data[type]) )
-					elemental_clean_single_effect(ed, skillid);
-				else {
-					// This not heals at the end.
-					clif_skill_damage(src, src, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
-					sc_start(src,type2,100,skilllv,skill_get_time(skillid,skilllv));
-					sc_start(bl,type,100,src->id,skill_get_time(skillid,skilllv));
-				}
-			}
-			break;
 
 	default:
 		ShowWarning("skill_castend_nodamage_id: Unknown skill used:%d\n",skillid);
@@ -13397,9 +13234,6 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_EARTH_INSIGNIA:
 	case UNT_CN_POWDERING:
 	case UNT_NYANGGRASS:
-	case UNT_WATER_BARRIER:
-	case UNT_ZEPHYR:
-	case UNT_POWER_OF_GAIA:
 		if (sg->src_id == bl->id && (sg->unit_id == UNT_STEALTHFIELD || sg->unit_id == UNT_BLOODYLUST))
 			return 0;// Can't be affected by your own AoE.
 		if(!sce)
@@ -14128,9 +13962,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			{
 				int heal = tstatus->max_hp * sg->skill_lv / 100;
 
-				if (ssc && ssc->data[SC_HEATER_OPTION])
-					heal = tstatus->max_hp * 3 * sg->skill_lv / 100;
-
 				if( tsc && tsc->data[SC_AKAITSUKI] )
 					skill_akaitsuki_damage(&src->bl, bl, heal, sg->skill_id, sg->skill_lv, tick);
 				else
@@ -14158,11 +13989,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					clif_fixpos(bl);
 				}
 			}
-			break;
-
-		case UNT_FIRE_MANTLE:
-			if( battle_check_target(&src->bl, bl, BCT_ENEMY) )
-				skill_attack(BF_MAGIC,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			break;
 
 		case UNT_B_TRAP:
@@ -14281,8 +14107,6 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, int64 tick)
 		case UNT_PNEUMA:
 		case UNT_EPICLESIS:
 		case UNT_WARMER:
-		case UNT_WATER_BARRIER:
-		case UNT_ZEPHYR:
 		if (sce)
 			status_change_end(bl, type, INVALID_TIMER);
 		break;
@@ -14390,9 +14214,6 @@ int skill_unit_onleft (uint16 skill_id, struct block_list *bl, int64 tick)
 		case SU_CN_POWDERING:
 		case SU_NYANGGRASS:
 		case MH_STEINWAND:
-		case EL_WATER_BARRIER:
-		case EL_ZEPHYR:
-		case EL_POWER_OF_GAIA:
 			if (sce)
 				status_change_end(bl, type, INVALID_TIMER);
 			break;
@@ -16168,15 +15989,6 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 
 		if (itemid_is_mado_fuel(req.itemid[i]) && sd->special_state.no_madofuel)
 			req.amount[i] = req.itemid[i] = 0;
-
-		if( sc && (
-			( sc->data[SC_TROPIC_OPTION] && (skill == SA_FLAMELAUNCHER || skill == SA_VOLCANO) ) ||
-			( sc->data[SC_CHILLY_AIR_OPTION] && (skill == SA_FROSTWEAPON || skill == SA_DELUGE) ) ||
-			( sc->data[SC_WILD_STORM_OPTION] && (skill == SA_LIGHTNINGLOADER || skill == SA_VIOLENTGALE) ) ||
-			( sc->data[SC_UPHEAVAL_OPTION] && skill == SA_SEISMICWEAPON )
-			) && rand()%100 < 50 )
-			// Item is not consumed on cast.
-			req.itemid[i] = req.amount[i] = 0;
 	}
 	if (skill == NC_SHAPESHIFT || skill == NC_REPAIR || skill == GN_FIRE_EXPANSION)
 	{
@@ -16369,8 +16181,6 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//These status's adjust the fixed cast time by a fixed amount. Fixed adjustments stack and can increase or decrease the time.
 	if (sc && sc->count)
 	{
-		if (sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION])
-			fixed_time -= 1000;
 		if( sc->data[SC_MANDRAGORA] )
 			fixed_time += 500 * sc->data[SC_MANDRAGORA]->val1;
 	}
@@ -19842,31 +19652,6 @@ void skill_init_unit_layout (void)
 	for (i=0;i<MAX_SKILL_DB;i++) {
 		if (!skill_db[i].unit_id[0] || skill_db[i].unit_layout_type[0] != -1)
 			continue;
-		if( i >= HM_SKILLRANGEMIN && i <= EL_SKILLRANGEMAX ) {
-			int skill = i;
-			/*if( i >= GD_SKILLRANGEMIN && i <= GD_SKILLRANGEMAX )
-				skill  = GD_SKILLBASE + i - GD_SKILLRANGEMIN ;
-			else if( i >= MC_SKILLRANGEMIN && i <= MC_SKILLRANGEMAX )
-				skill = MC_SKILLBASE + i - MC_SKILLRANGEMIN;
-			else if( i >= HM_SKILLRANGEMIN && i <= HM_SKILLRANGEMAX )
-				skill = HM_SKILLBASE + i - HM_SKILLRANGEMIN;
-			else */
-			if( i >= EL_SKILLRANGEMIN && i <= EL_SKILLRANGEMAX ) {
-				skill -= EL_SKILLRANGEMIN;
-				skill += EL_SKILLBASE;
-			}
-			switch( skill ) {
-				case EL_FIRE_MANTLE:
-				{
-					static const int dx[] = {-1, 0, 1, 1, 1, 0,-1,-1};
-					static const int dy[] = { 1, 1, 1, 0,-1,-1,-1, 0};
-					skill_unit_layout[pos].count = 8;
-					memcpy(skill_unit_layout[pos].dx,dx,sizeof(dx));
-					memcpy(skill_unit_layout[pos].dy,dy,sizeof(dy));
-					break;
-				}
-			}
-		} else {
 			switch (i) {
 				case MG_FIREWALL:
 				case WZ_ICEWALL:
@@ -20018,7 +19803,6 @@ void skill_init_unit_layout (void)
 					ShowError("unknown unit layout at skill %d\n",i);
 					break;
 			}
-		}
 		if (!skill_unit_layout[pos].count)
 			continue;
 		for (j=0;j<MAX_SKILL_LEVEL;j++)
@@ -20392,22 +20176,6 @@ int skill_stasis_check(struct block_list *bl, int skillid)
 		return 1;
 
 	return 0;//Any skills thats not the above will work.
-}
-
-int skill_get_elemental_type(int skill_id, int skill_lv)
-{
-	unsigned short type = 0;
-
-	switch( skill_id ) {
-		case SO_SUMMON_AGNI:	type = MOBID_EL_AGNI_S; break;
-		case SO_SUMMON_AQUA:	type = MOBID_EL_AQUA_S; break;
-		case SO_SUMMON_VENTUS:	type = MOBID_EL_VENTUS_S; break;
-		case SO_SUMMON_TERA:	type = MOBID_EL_TERA_S; break;
-	}
-
-	type += skill_lv - 1;
-
-	return type;
 }
 
 /*==========================================

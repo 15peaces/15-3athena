@@ -85,7 +85,7 @@ prt_castle,43,30,3	script	Charles Orleans#cook	878,{
 			emotion e_an;
 			mes "[Charles Orleans]";
 			mes "Monsieur, why you look";
-			mes "at me so? Is it the Morroc";
+			mes "at me so? Is it the Morocc";
 			mes "silk shirt I am wearing, my";
 			mes "hair styled by Madam Veronica,";
 			mes "or my brand name muffler";

@@ -129,19 +129,19 @@ Xthirdbaby:
 	if (BaseLevel >= @reqbaselv && JobLevel >= @reqjoblvreg2rd)
 	{
 		if (Class == Job_Baby_Knight)
-			jobchange Job_Baby_Rune;
+			jobchange Job_Baby_Rune_Knight;
 		else if (Class == Job_Baby_Wizard)
 			jobchange Job_Baby_Warlock;
 		else if (Class == Job_Baby_Hunter)
 			jobchange Job_Baby_Ranger;
 		else if (Class == Job_Baby_Priest)
-			jobchange Job_Baby_Bishop;
+			jobchange Job_Baby_Arch_Bishop;
 		else if (Class == Job_Baby_Blacksmith)
 			jobchange Job_Baby_Mechanic;
 		else if (Class == Job_Baby_Assassin)
-			jobchange Job_Baby_Cross;
+			jobchange Job_Baby_Guillotine_Cross;
 		else if (Class == Job_Baby_Crusader)
-			jobchange Job_Baby_Guard;
+			jobchange Job_Baby_Royal_Guard;
 		else if (Class == Job_Baby_Sage)
 			jobchange Job_Baby_Sorcerer;
 		else if (Class == Job_Baby_Bard)
@@ -153,7 +153,7 @@ Xthirdbaby:
 		else if (Class == Job_Baby_Alchemist)
 			jobchange Job_Baby_Genetic;
 		else if (Class == Job_Baby_Rogue)
-			jobchange Job_Baby_Chaser;
+			jobchange Job_Baby_Shadow_Chaser;
 
 		goto Xcomplete;
 	}

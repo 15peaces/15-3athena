@@ -305,7 +305,7 @@ if(BaseLevel < 20){
 								X2_1:
 								mes "^2f4f4f[Tsuji]^000000";
 								mes "2nd question.";
-								mes "The cloesest village from Pyramid Dugeon is 'Morroc'.";
+								mes "The cloesest village from Pyramid Dugeon is 'Morocc'.";
 								next;
 									menu "O",-, "X",X2_2;
 
@@ -752,7 +752,7 @@ if(BaseLevel < 20){
 								X5_1:
 								mes "^2f4f4f[Tsuji]^000000";
 								mes "2nd question.";
-								mes "The cloesest village from Pyramid Dugeon is 'Morroc'.";
+								mes "The cloesest village from Pyramid Dugeon is 'Morocc'.";
 								next;
 									menu "O",-, "X",X5_2;
 

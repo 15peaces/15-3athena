@@ -1644,7 +1644,7 @@ int clif_spawn(struct block_list *bl)
 }
 
 /// Sends information about owned homunculus to the client (ZC_PROPERTY_HOMUN). [orn] [15peaces]
-/// 022e <name>.24B <modified>.B <level>.W <hunger>.W <intimacy>.W <equip id>.W <atk>.W <matk>.W <hit>.W <crit>.W <def>.W <mdef>.W <flee>.W <aspd>.W <hp>.W <max hp>.W <sp>.W <max sp>.W <exp>.L <max exp>.L <skill points>.W <atk range>.W
+/// 022e <name>.24B <modified>.B <level>.W <hunger>.W <intimacy>.W <equip id>.W <atk>.W <matk>.W <hit>.W <crit>.W <def>.W <mdef>.W <flee>.W <aspd>.W <hp>.W <max hp>.W <sp>.W <max sp>.W <exp>.L <max exp>.L <skill points>.W <atk range>.W	(ZC_PROPERTY_HOMUN)
 /// 09f7 <name>.24B <modified>.B <level>.W <hunger>.W <intimacy>.W <equip id>.W <atk>.W <matk>.W <hit>.W <crit>.W <def>.W <mdef>.W <flee>.W <aspd>.W <hp>.L <max hp>.L <sp>.W <max sp>.W <exp>.L <max exp>.L <skill points>.W <atk range>.W (ZC_PROPERTY_HOMUN_2)
 void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 {
@@ -1658,6 +1658,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
  	const int cmd = 0x9f7;
 #endif
 	
+	nullpo_retv(sd);
 	nullpo_retv(hd);
 
 	status = &hd->battle_status;
@@ -12664,7 +12665,7 @@ static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_sess
 
 	if( !hd )
 		return;
-	if( skillnotok_hom(skillnum, hd) )
+	if( skillnotok_homun(skillnum, hd) )
 		return;
 	if( hd->bl.id != target_id && skill_get_inf(skillnum)&INF_SELF_SKILL )
 		target_id = hd->bl.id;
@@ -12712,7 +12713,7 @@ static void clif_parse_UseSkillToPos_homun(struct homun_data *hd, struct map_ses
 	int lv;
 	if( !hd )
 		return;
-	if( skillnotok_hom(skillnum, hd) )
+	if( skillnotok_homun(skillnum, hd) )
 		return;
 	if( hd->ud.skilltimer != INVALID_TIMER )
 		return;

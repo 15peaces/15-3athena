@@ -2826,7 +2826,9 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				if( elemental_get_lifetime(ed) > 0 )
 					elemental_save(ed);
 				else {
+#ifndef TXT_ONLY
 					intif_elemental_delete(ed->elemental.elemental_id);
+#endif
 					if( sd )
 						sd->status.ele_id = 0;
 				}
@@ -2834,7 +2836,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			if( sd )
 				sd->ed = NULL;
 
-			elemental_summon_stop(ed);
+			elem_summon_stop(ed);
 			break;
 		}
 	}

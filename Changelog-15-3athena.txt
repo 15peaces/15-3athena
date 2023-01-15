@@ -5,6 +5,45 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/15/2023
+	r365 [15peaces]
+		*Merged missing changes from 3ceam rev. 891 - 892
+		*Expanded a couple baby job names.
+			-Don't forget to adjust your custom NPCs!
+			-Expanded Job_Baby_Rune -> Job_Baby_Rune_Knight, Job_Baby_Bishop -> Job_Baby_Arch_Bishop, Job_Baby_Cross -> Job_Baby_Guillotine_Cross, Job_Baby_Guard -> Job_Baby_Royal_Guard, and Job_Baby_Chaser -> Job_Baby_Shadow_Chaser.
+			-Expanded related MAPID/EAJ constants as well.
+			-Updated database and NPC scripts to use new constants.	
+		*Fixed a bug where pet egg was not deleted properly after clearing the floor.
+		*Modified @addwarp to accept a new optional parameter <npc name>.
+			-If <npc name> is specified, then the warp created will have that name.
+			-Otherwise it will use a name chosen by the emulator.
+			-If there is already another warp with that name the generic name will be used instead.
+			-Thanks to @rathena
+		*Elemental system recode part 1.
+			-Removed all status and skill code for elemental skills.
+			-There was a lot to track after doing this. Best to commit the changes before doing the elemental system itself as it too is a lot of code to remove.
+			-This part focused on recoding the elemental C/H files from the ground up.
+			-With the core parts complete, its possible to summon and release elementals.
+			-They don't have a working AI yet and will just stand in place and do nothing.
+		*All elemental related skills in the Sorcerer's skill tree is set to passive type for now to prevent use of those skills. They will be renabled once the recoding is complete. Gotta error proof things for anyone updating not aware of whats going on.
+		*Updated the "eleminfo" command.
+			-Now shows the elemental's summon Lv next to the name.
+			-Now displays the remaining time left for the current elemental.
+			-Note: The rate display will remain in here for now for testing purposes.
+		*Shifted the offset ranges for homunculus, mercenary, elemental, and guild skills.
+		*Updated the elemental_db and elemental_skill_db.
+			-The formats should be finalized but we'll see.
+		*Some fixes to Guillotine Cross job change quest
+			-Add official quest conditions.
+			-Fixed PLAYTIME issue.
+			-Thanks to @rathena
+		*Fixed "Morocc"-Name in all npc scripts.
+		*SO_EL_CONTROL
+			-Partly recoded the skill but did enough for allowing releasing the elemental.
+			-It does not support mode switching yet.
+		*SO_SUMMON_AGNI; SO_SUMMON_AQUA; SO_SUMMON_VENTUS; SO_SUMMON_TERA
+			-Recoded these skills.
+
 01/08/2023
 	r364 [15peaces]
 		*Merged missing changes from 3ceam rev. 889 - 890
@@ -2310,7 +2349,7 @@
 			-Note: This should not be used for Kagerou/Oboro or Rebellion since their 2nd jobs. Use BaseJob for that.
 			-Example:
 				--Before - Check for all 3 are seprate.
-					if (Class == Job_Rune_Knight || Class == Job_Rune_Knight_T || Class == Job_Baby_Rune)
+					if (Class == Job_Rune_Knight || Class == Job_Rune_Knight_T || Class == Job_Baby_Rune_Knight)
 				--After - Checks for all 3 in 1. Regular, Trans, and Baby versions.
 					if (BaseThird == Job_Rune_Knight)
 			-Check the npc/custom/breeder.txt file to see a example of it used in scripts.

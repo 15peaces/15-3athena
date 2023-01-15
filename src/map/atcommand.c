@@ -1475,7 +1475,7 @@ ACMD_FUNC(jobchange)
 		job == JOB_LORD_KNIGHT2 || job == JOB_PALADIN2 || job == JOB_BABY_KNIGHT2 || 
 		job == JOB_BABY_CRUSADER2 || job == JOB_STAR_GLADIATOR2 || 
 		(job >= JOB_RUNE_KNIGHT2 && job <= JOB_RUNE_KNIGHT_T6) || 
-		(job >= JOB_BABY_RUNE2 && job <= JOB_BABY_MECHANIC2) || 
+		(job >= JOB_BABY_RUNE_KNIGHT2 && job <= JOB_BABY_MECHANIC2) || 
 		job == JOB_BABY_STAR_GLADIATOR2 || job == JOB_STAR_EMPEROR2 || job == JOB_BABY_STAR_EMPEROR2)
 	{// Deny direct transformation into dummy jobs
 		clif_displaymessage(fd, msg_txt(436)); //"You can not change to this job by command."
@@ -4718,7 +4718,6 @@ ACMD_FUNC(reloadmobdb)
 	mob_reload();
 	read_petdb();
 	merc_reload();
-	reload_elementaldb();
 	clif_displaymessage(fd, msg_txt(98)); // Monster database has been reloaded.
 
 	return 0;
@@ -4732,7 +4731,6 @@ ACMD_FUNC(reloadskilldb)
 	nullpo_retr(-1, sd);
 	skill_reload();
 	merc_skill_reload();
-	reload_elemental_skilldb();
 	clif_displaymessage(fd, msg_txt(99)); // Skill database has been reloaded.
 
 	return 0;
@@ -5253,7 +5251,7 @@ ACMD_FUNC(mount)
 
 			// MAPID_THIRDMASK isnt good enough for a baby 3rd check. A custom mask value is used instead.
 			// MAPID_THIRDMASK (0x4fff) + JOBL_BABY (0x2000) = 0x6fff.
-			if ((sd->class_&0x6fff) == MAPID_BABY_RUNE && color != 1)
+			if ((sd->class_&0x6fff) == MAPID_BABY_RUNE_KNIGHT && color != 1)
 			{
 				clif_displaymessage(fd, msg_txt(753));// Baby Rune Knights can only mount on green dragons.
 				return -1;
@@ -6395,15 +6393,16 @@ ACMD_FUNC(npcmove)
  *------------------------------------------*/
 ACMD_FUNC(addwarp)
 {
-	char mapname[32];
+	char mapname[32], warpname[NAME_LENGTH + 1];
 	int x,y;
 	unsigned short m;
 	struct npc_data* nd;
 
 	nullpo_retr(-1, sd);
+	memset(warpname, '\0', sizeof(warpname));
 
-	if (!message || !*message || sscanf(message, "%31s %d %d", mapname, &x, &y) < 3) {
-		clif_displaymessage(fd, "usage: @addwarp <mapname> <X> <Y>.");
+	if (!message || !*message || sscanf(message, "%31s %d %d %23[^\n]", mapname, &x, &y, warpname) < 3) {
+		clif_displaymessage(fd, "usage: @addwarp <mapname> <X> <Y> {<npc name>}.");
 		return -1;
 	}
 
@@ -6415,7 +6414,7 @@ ACMD_FUNC(addwarp)
 		return -1;
 	}
 
-	nd = npc_add_warp(sd->bl.m, sd->bl.x, sd->bl.y, 2, 2, m, x, y);
+	nd = npc_add_warp(warpname, sd->bl.m, sd->bl.x, sd->bl.y, 2, 2, m, x, y);
 	if( nd == NULL )
 		return -1;
 
@@ -8388,6 +8387,7 @@ ACMD_FUNC(eleminfo)
 	struct elemental_data *ed;
 	struct s_elemental_db *db;
 	struct status_data *status;
+	unsigned int minutes, seconds;
 	nullpo_retr(-1, sd);
 
 	if ( !sd->ed ) {
@@ -8400,8 +8400,13 @@ ACMD_FUNC(eleminfo)
 	db = ed->db;
 	status = status_get_status_data(&ed->bl);
 
-	snprintf(atcmd_output, sizeof(atcmd_output) ,"Elemental stats for: %s",
-		db->name);
+	// Calculate remaining summon time.
+	seconds = elemental_get_lifetime(ed)/1000;
+	minutes = seconds/60;
+	seconds -= (seconds/60>0)?(seconds/60)*60:0;
+
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"Elemental stats for: %s (Lv %d)",
+		db->name, db->status.size+1);
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"HP : %d/%d - SP : %d/%d",
@@ -8420,13 +8425,14 @@ ACMD_FUNC(eleminfo)
 		status->hit, status->flee, (200 - status->amotion / 10), status->adelay);
 	clif_displaymessage(fd, atcmd_output);
 
+	snprintf(atcmd_output, sizeof(atcmd_output) ,"Summon Time: %d minutes, %d seconds",
+		minutes, seconds);
+	clif_displaymessage(fd, atcmd_output);
+
+	// Temp code to help with seeing regen rates.
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"HP/SP Regen Rate : %d%%/%d%%",
 		ed->regen.rate.hp, ed->regen.rate.sp);
 	clif_displaymessage(fd, atcmd_output);
-
-	//snprintf(atcmd_output, sizeof(atcmd_output) ,"Summon Time: %d (Currently Broken)",
-	//	ed->summon_timer);
-	//clif_displaymessage(fd, atcmd_output);
 
 	return 0;
 }

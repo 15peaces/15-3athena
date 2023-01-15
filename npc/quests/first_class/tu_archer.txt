@@ -1590,7 +1590,7 @@ prontera,126,335,5	script	Arthail	51,{
 		next;
 		mes "[Arthail]";
 		mes "^3131FFEmperium^000000...";
-		mes "There are a lot of ambitious people in Morroc that want one of those. Even in my hometown of Payon,";
+		mes "There are a lot of ambitious people in Morocc that want one of those. Even in my hometown of Payon,";
 		mes "there are people clamoring to obtain one...";
 		next;
 		mes "[Arthail]";

@@ -2217,9 +2217,9 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
  * @param to_y : y coordinate to warp to
  * @return NULL:failed creation, npc_data* new warp
  */
-struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
+struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short from_y, short xs, short ys, unsigned short to_mapindex, short to_x, short to_y)
 {
-	int i;
+	int i, flag = 0;
 	struct npc_data *nd;
 
 	CREATE(nd, struct npc_data, 1);
@@ -2230,7 +2230,17 @@ struct npc_data* npc_add_warp(short from_mapid, short from_x, short from_y, shor
 	nd->bl.x = from_x;
 	nd->bl.y = from_y;
 	safestrncpy(nd->name, "", ARRAYLENGTH(nd->name));// empty display name
-	snprintf(nd->exname, ARRAYLENGTH(nd->exname), "warp_%d_%d_%d", from_mapid, from_x, from_y);
+
+	if (name)
+	{
+		safestrncpy(nd->exname, name, ARRAYLENGTH(nd->exname));
+		if (npc_name2id(nd->exname) != NULL)
+			flag = 1;
+	}
+
+	if (name[0] == '\0' || flag == 1)
+		snprintf(nd->exname, ARRAYLENGTH(nd->exname), "warp_%d_%d_%d", from_mapid, from_x, from_y);
+
 	for( i = 0; npc_name2id(nd->exname) != NULL; ++i )
 		snprintf(nd->exname, ARRAYLENGTH(nd->exname), "warp%d_%d_%d_%d", i, from_mapid, from_x, from_y);
 
