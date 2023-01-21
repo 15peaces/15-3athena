@@ -31,10 +31,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define CHAR_MAX_MSG 200
+static char* msg_table[CHAR_MAX_MSG]; // Login Server messages_conf
+
 // private declarations
 #define CHAR_CONF_NAME	"conf/char_athena.conf"
 #define LAN_CONF_NAME	"conf/subnet_athena.conf"
 #define SQL_CONF_NAME	"conf/inter_athena.conf"
+#define MSG_CONF_NAME	"conf/msg_conf/char_msg.conf"
 
 char char_db[256] = "char";
 char scdata_db[256] = "sc_data";
@@ -5631,6 +5635,7 @@ void do_final(void)
 
 	flush_fifos();
 	
+	do_final_msg();
 	do_final_mapif();
 	do_final_loginif();
 
@@ -5691,6 +5696,7 @@ int do_init(int argc, char **argv)
 	mapindex_init();
 	start_point.map = mapindex_name2id("new_zone01");
 
+	msg_config_read(MSG_CONF_NAME);
 	char_config_read((argc < 2) ? CHAR_CONF_NAME : argv[1]);
 	char_lan_config_read((argc > 3) ? argv[3] : LAN_CONF_NAME);
 	sql_config_read(SQL_CONF_NAME);
@@ -5787,6 +5793,16 @@ int do_init(int argc, char **argv)
 	ShowStatus("The char-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", char_port);
 	
 	return 0;
+}
+
+int char_msg_config_read(char *cfgName) {
+	return _msg_config_read(cfgName, CHAR_MAX_MSG, msg_table);
+}
+const char* char_msg_txt(int msg_number) {
+	return _msg_txt(msg_number, CHAR_MAX_MSG, msg_table);
+}
+void char_do_final_msg(void) {
+	_do_final_msg(CHAR_MAX_MSG, msg_table);
 }
 
 #endif //TXT_SQL_CONVERT

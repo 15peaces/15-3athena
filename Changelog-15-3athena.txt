@@ -5,6 +5,46 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/21/2023
+	r366 [15peaces]
+		*Merged missing changes from 3ceam rev. 893 - 894
+		*Added save_settings_type enum to easier keep track of 'save_settings' map config.
+		*Added another check to vending_openvending function & added a missing return.
+		*Some misc. cleaning.
+		*Added some missing client messages.
+		*Some changes to the server message system.
+			-This is also done to prepare it for multi-language support.
+			-Moved msg_txt() handlers from map::atcommand, transfert it to common::msg_conf.
+			-Added a msg_table for login and char servers to be able to have their own configured messages.
+				--Changed auth_fail_login hardcoded logged messages to configured with msg_txt.
+		*Elemental system recode part 3.
+			-This part focused on adding AI support for the elementals. Elementals will now autocast their offensive skills when attacking and also use them when commanded with Elemental Action. Skills are also handled through 3 seprate skill type functions 
+			-and are triggered depending on the elementals set mood.
+			-With the main parts of the system now working I feel its safe to enable the Sorcerer's elemental related skills. There's still some bugs as the system is still in development but nothing to worry about.
+		*Added AI support for the elementals.
+			-Elementals appear to use the same AI as monsters in official and because of this I decided to make a copy of the mob's AI and then do the needed edits to make it usable for elementals. The basic functions and feature are complete which gives 
+			-the elementals life. They will follow its master, attack anything the master attacks, attack anything that attacks it, search for and attack stuff when set to aggressive, etc.
+		*Added the "elemental_ai" config setting.
+			-Allows setting custom AI settings for the elemental's AI.
+			-Note: Not all of the settings work since the AI is still under development.
+		*elem_support; elem_offensive_skill_chance; elem_offensive_skill_casttime; elem_offensive_skill_aftercast
+			-Added these configs to the elemental config.
+		*Updated the "useskill" command to check if the player has a elemental when casting a skill from their skill range. If one exists, it will cast the skill instead of the player. This check is also added for mercenarys and their skills.
+		*Elementals are now summoned with full HP/SP.
+		*Elementals are now only allowed to attack when in offensive mode.
+		*Cleaned up some code.
+		*Updated @mapinfo to count number of vendors in map.
+		*Added the "elemtalk" command.
+			-This allows you to make a elemental say what you type. Fun extra to have.
+		*Sorcerer
+			-Enabled skills related to the elemental system.
+			-With the system recode now stable and mostly working it should be safe to allow use of these skills.
+		*Elementals
+			-Updated all timer data settings in the skill_renewal_cast_db to prepare for coding in their skills soon. Some may need to be hardcoded later on.
+			-All skill animation code is complete (should be) and so is the status support.
+		*EL_FIRE_MANTLE; EL_FIRE_ARROW; EL_FIRE_BOMB; EL_FIRE_WAVE
+		-Added support for these skills.
+
 01/15/2023
 	r365 [15peaces]
 		*Merged missing changes from 3ceam rev. 891 - 892

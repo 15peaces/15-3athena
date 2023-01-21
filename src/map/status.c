@@ -772,6 +772,34 @@ void initChangeTables(void)
 	set_sc( MER_BLESSING         , SC_BLESSING        , SI_BLESSING        , SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( MER_INCAGI           , SC_INCREASEAGI     , SI_INCREASEAGI     , SCB_AGI|SCB_SPEED );
 
+	// Elementals
+	set_sc( EL_CIRCLE_OF_FIRE    , SC_CIRCLE_OF_FIRE  , SI_CIRCLE_OF_FIRE  , SCB_NONE );
+	set_sc( EL_FIRE_CLOAK        , SC_FIRE_CLOAK      , SI_FIRE_CLOAK      , SCB_NONE );
+	set_sc( EL_WATER_SCREEN      , SC_WATER_SCREEN    , SI_WATER_SCREEN    , SCB_NONE );
+	set_sc( EL_WATER_DROP        , SC_WATER_DROP      , SI_WATER_DROP      , SCB_NONE );
+	set_sc( EL_WATER_BARRIER     , SC_WATER_BARRIER   , SI_WATER_BARRIER   , SCB_NONE );
+	set_sc( EL_WIND_STEP         , SC_WIND_STEP       , SI_WIND_STEP       , SCB_NONE );
+	set_sc( EL_WIND_CURTAIN      , SC_WIND_CURTAIN    , SI_WIND_CURTAIN    , SCB_NONE );
+	set_sc( EL_ZEPHYR            , SC_ZEPHYR          , SI_ZEPHYR          , SCB_NONE );
+	set_sc( EL_SOLID_SKIN        , SC_SOLID_SKIN      , SI_SOLID_SKIN      , SCB_NONE );
+	set_sc( EL_STONE_SHIELD      , SC_STONE_SHIELD    , SI_STONE_SHIELD    , SCB_NONE );
+	set_sc( EL_POWER_OF_GAIA     , SC_POWER_OF_GAIA   , SI_POWER_OF_GAIA   , SCB_NONE );
+	set_sc( EL_PYROTECHNIC       , SC_PYROTECHNIC     , SI_PYROTECHNIC     , SCB_NONE );
+	set_sc( EL_HEATER            , SC_HEATER          , SI_HEATER          , SCB_NONE );
+	set_sc( EL_TROPIC            , SC_TROPIC          , SI_TROPIC          , SCB_NONE );
+	set_sc( EL_AQUAPLAY          , SC_AQUAPLAY        , SI_AQUAPLAY        , SCB_NONE );
+	set_sc( EL_COOLER            , SC_COOLER          , SI_COOLER          , SCB_NONE );
+	set_sc( EL_CHILLY_AIR        , SC_CHILLY_AIR      , SI_CHILLY_AIR      , SCB_NONE );
+	set_sc( EL_GUST              , SC_GUST            , SI_GUST            , SCB_NONE );
+	set_sc( EL_BLAST             , SC_BLAST           , SI_BLAST           , SCB_NONE );
+	set_sc( EL_WILD_STORM        , SC_WILD_STORM      , SI_WILD_STORM      , SCB_NONE );
+	set_sc( EL_PETROLOGY         , SC_PETROLOGY       , SI_PETROLOGY       , SCB_NONE );
+	set_sc( EL_CURSED_SOIL       , SC_CURSED_SOIL     , SI_CURSED_SOIL     , SCB_NONE );
+	set_sc( EL_UPHEAVAL          , SC_UPHEAVAL        , SI_UPHEAVAL        , SCB_NONE );
+	set_sc( EL_TIDAL_WEAPON      , SC_TIDAL_WEAPON    , SI_TIDAL_WEAPON    , SCB_NONE );
+	set_sc( EL_ROCK_CRUSHER      , SC_ROCK_CRUSHER    , SI_ROCK_CRUSHER    , SCB_NONE );
+	set_sc( EL_ROCK_CRUSHER_ATK  , SC_ROCK_CRUSHER_ATK, SI_ROCK_CRUSHER_ATK, SCB_NONE );
+
 	set_sc( GD_LEADERSHIP        , SC_GUILDAURA       , SI_BLANK           , SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX );
 	set_sc( GD_BATTLEORDER       , SC_BATTLEORDERS    , SI_BLANK           , SCB_STR|SCB_INT|SCB_DEX );
 	set_sc( GD_REGENERATION      , SC_REGENERATION    , SI_BLANK           , SCB_REGEN );
@@ -854,6 +882,36 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_MERC_HPUP] = SI_MERC_HPUP;
 	StatusIconChangeTable[SC_MERC_SPUP] = SI_MERC_SPUP;
 	StatusIconChangeTable[SC_MERC_HITUP] = SI_MERC_HITUP;
+
+	// Elementals
+	StatusIconChangeTable[SC_EL_WAIT] = SI_EL_WAIT;
+	StatusIconChangeTable[SC_EL_PASSIVE] = SI_EL_PASSIVE;
+	StatusIconChangeTable[SC_EL_DEFENSIVE] = SI_EL_DEFENSIVE;
+	StatusIconChangeTable[SC_EL_OFFENSIVE] = SI_EL_OFFENSIVE;
+	StatusIconChangeTable[SC_EL_COST] = SI_EL_COST;
+
+	StatusIconChangeTable[SC_CIRCLE_OF_FIRE_OPTION] = SI_CIRCLE_OF_FIRE_OPTION;
+	StatusIconChangeTable[SC_FIRE_CLOAK_OPTION] = SI_FIRE_CLOAK_OPTION;
+	StatusIconChangeTable[SC_WATER_SCREEN_OPTION] = SI_WATER_SCREEN_OPTION;
+	StatusIconChangeTable[SC_WATER_DROP_OPTION] = SI_WATER_DROP_OPTION;
+	StatusIconChangeTable[SC_WIND_STEP_OPTION] = SI_WIND_STEP_OPTION;
+	StatusIconChangeTable[SC_WIND_CURTAIN_OPTION] = SI_WIND_CURTAIN_OPTION;
+	StatusIconChangeTable[SC_SOLID_SKIN_OPTION] = SI_SOLID_SKIN_OPTION;
+	StatusIconChangeTable[SC_STONE_SHIELD_OPTION] = SI_STONE_SHIELD_OPTION;
+	StatusIconChangeTable[SC_PYROTECHNIC_OPTION] = SI_PYROTECHNIC_OPTION;
+	StatusIconChangeTable[SC_HEATER_OPTION] = SI_HEATER_OPTION;
+	StatusIconChangeTable[SC_TROPIC_OPTION] = SI_TROPIC_OPTION;
+	StatusIconChangeTable[SC_AQUAPLAY_OPTION] = SI_AQUAPLAY_OPTION;
+	StatusIconChangeTable[SC_COOLER_OPTION] = SI_COOLER_OPTION;
+	StatusIconChangeTable[SC_CHILLY_AIR_OPTION] = SI_CHILLY_AIR_OPTION;
+	StatusIconChangeTable[SC_GUST_OPTION] = SI_GUST_OPTION;
+	StatusIconChangeTable[SC_BLAST_OPTION] = SI_BLAST_OPTION;
+	StatusIconChangeTable[SC_WILD_STORM_OPTION] = SI_WILD_STORM_OPTION;
+	StatusIconChangeTable[SC_PETROLOGY_OPTION] = SI_PETROLOGY_OPTION;
+	StatusIconChangeTable[SC_CURSED_SOIL_OPTION] = SI_CURSED_SOIL_OPTION;
+	StatusIconChangeTable[SC_UPHEAVAL_OPTION] = SI_UPHEAVAL_OPTION;
+	StatusIconChangeTable[SC_TIDAL_WEAPON_OPTION] = SC_TIDAL_WEAPON_OPTION;
+
 	// Rental Mounts, Push Carts, and Transformation Scrolls
 	StatusIconChangeTable[SC_ALL_RIDING] = SI_ALL_RIDING;
 	StatusIconChangeTable[SC_ON_PUSH_CART] = SI_ON_PUSH_CART;
@@ -1095,6 +1153,28 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SPIRITOFLAND_SPEED] = SCB_SPEED;
 	StatusChangeFlagTable[SC_SPIRITOFLAND_MATK] = SCB_MATK;
 	StatusChangeFlagTable[SC_SPIRITOFLAND_PERFECTDODGE] = SCB_FLEE2;
+
+	//StatusChangeFlagTable[SC_CIRCLE_OF_FIRE_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_FIRE_CLOAK_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_WATER_SCREEN_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_WATER_DROP_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_WIND_STEP_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_WIND_CURTAIN_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_SOLID_SKIN_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_STONE_SHIELD_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_PYROTECHNIC_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_HEATER_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_TROPIC_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_AQUAPLAY_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_COOLER_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_CHILLY_AIR_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_GUST_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_BLAST_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_WILD_STORM_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_PETROLOGY_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_CURSED_SOIL_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_UPHEAVAL_OPTION] |= SCB_NONE;
+	//StatusChangeFlagTable[SC_TIDAL_WEAPON_OPTION] |= SCB_NONE;
 
 	// Clan System
 	StatusChangeFlagTable[SC_CLAN_INFO] |= SCB_NONE;
@@ -3796,11 +3876,14 @@ int status_calc_elemental_(struct elemental_data *ed, bool first)
 		//status->race = db->race;
 		//status->size = db->size;
 		//status->rhw.range = db->range;
-		status->mode = MD_CANMOVE|MD_CANATTACK;
+		status->mode = MD_CANMOVE;
 		//status->hp = status->max_hp;
 		//status->sp = status->max_sp;
 		//ed->battle_status.hp = elem->hp;
 		//ed->battle_status.sp = elem->sp;
+
+		if (battle_config.elem_support)
+			status->mode |= MD_CANATTACK;
 
 		status->speed = DEFAULT_WALK_SPEED;
 		if (battle_config.elemental_masters_walk_speed && ed->master)
@@ -5522,7 +5605,7 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		return cap_value(flee,1,SHRT_MAX);
 
 	if (sc->data[SC_TINDER_BREAKER])
-		return 0;
+		return 1; //1 = min flee
 	if (sc->data[SC_OVERED_BOOST])
 		return sc->data[SC_OVERED_BOOST]->val2;
 	if(sc->data[SC_INCFLEE])

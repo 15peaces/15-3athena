@@ -275,6 +275,9 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 		return;
 	}
 
+	if (save_settings&CHARSAVE_VENDING) // Avoid invalid data from saving
+		chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
+
 	// filter out invalid items
 	i = 0;
 	for( j = 0; j < count; j++ )
@@ -303,7 +306,10 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	}
 
 	if (i != j)
+	{
 		clif_displaymessage(sd->fd, msg_txt(266)); //"Some of your items cannot be vended and were removed from the shop."
+		return;
+	}
 
 	if( i == 0 )
 	{	// no valid item found
@@ -318,7 +324,6 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	sd->vend_num = i;
 	safestrncpy(sd->message, message, MESSAGE_SIZE);
 
-	pc_stop_walking(sd,1);
 	clif_openvending(sd,sd->bl.id,sd->vending);
 	clif_showvendingboard(&sd->bl,message,0);
 

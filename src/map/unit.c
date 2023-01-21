@@ -142,6 +142,7 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 	struct block_list       *bl;
 	struct map_session_data *sd;
 	struct mob_data         *md;
+	struct elemental_data   *ed;
 	struct unit_data        *ud;
 
 	bl = map_id2bl(id);
@@ -149,6 +150,7 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	sd = BL_CAST(BL_PC, bl);
 	md = BL_CAST(BL_MOB, bl);
+	ed = BL_CAST(BL_ELEM, bl);
 	ud = unit_bl2ud(bl);
 	
 	if(ud == NULL) return 0;
@@ -244,6 +246,27 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		if(tid != INVALID_TIMER &&
 			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
 			mobskill_use(md, tick, -1))
+	  	{
+			if (!(ud->skillid == NPC_SELFDESTRUCTION && ud->skilltimer != INVALID_TIMER))
+			{	//Skill used, abort walking
+				clif_fixpos(bl); //Fix position as walk has been cancelled.
+				return 0;
+			}
+			//Resend walk packet for proper Self Destruction display.
+			clif_move(ud);
+		}
+	} else if (ed) {
+		// Elementals shouldn't need any of this arena stuff but leave here just in case. [Rytech]
+		//if( map_getcell(bl->m,x,y,CELL_CHKNPC) ) {
+		//	if( npc_touch_areanpc2(ed) ) return 0; // Warped
+		//} else
+		//	ed->areanpc_id = 0;
+		if (ed->min_chase > ed->db->range3) ed->min_chase--;
+		//Walk skills are triggered regardless of target due to the idle-walk mob state.
+		//But avoid triggering on stop-walk calls.
+		if(tid != INVALID_TIMER &&
+			!(ud->walk_count%WALK_SKILL_INTERVAL) &&
+			elemskill_use(ed, tick, -1))
 	  	{
 			if (!(ud->skillid == NPC_SELFDESTRUCTION && ud->skilltimer != INVALID_TIMER))
 			{	//Skill used, abort walking
@@ -1761,9 +1784,11 @@ int unit_unattackable(struct block_list *bl)
 	}
 	
 	if(bl->type == BL_MOB)
-		mob_unlocktarget((struct mob_data*)bl, gettick()) ;
+		mob_unlocktarget((struct mob_data*)bl, gettick());
 	else if(bl->type == BL_PET)
 		pet_unlocktarget((struct pet_data*)bl);
+	else if (bl->type == BL_ELEM)
+		elem_unlocktarget((struct elemental_data*)bl, gettick());
 	return 0;
 }
 
@@ -1821,6 +1846,8 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 	//Set Mob's ANGRY/BERSERK states.
 	if(src->type == BL_MOB)
 		((TBL_MOB*)src)->state.skillstate = ((TBL_MOB*)src)->state.aggressive?MSS_ANGRY:MSS_BERSERK;
+	else if (src->type == BL_ELEM)
+		((TBL_ELEM*)src)->state.skillstate = ((TBL_ELEM*)src)->state.aggressive?MSS_ANGRY:MSS_BERSERK;
 
 	if(DIFF_TICK(ud->attackabletime, gettick()) > 0)
 		//Do attack next time it is possible. [Skotlex]
@@ -1997,6 +2024,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 	struct status_data *sstatus;
 	struct map_session_data *sd = NULL;
 	struct mob_data *md = NULL;
+	struct elemental_data *ed = NULL;
 	int range;
 	
 	if( (ud=unit_bl2ud(src))==NULL )
@@ -2009,6 +2037,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 
 	sd = BL_CAST(BL_PC, src);
 	md = BL_CAST(BL_MOB, src);
+	ed = BL_CAST(BL_ELEM, src);
 	ud->attacktimer = INVALID_TIMER;
 	target=map_id2bl(ud->target);
 
@@ -2092,6 +2121,16 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 				map_foreachinrange(mob_linksearch, src, md->db->range2, BL_MOB, md->class_, target, tick);
 			}
 		}
+		else if(ed) {
+			if (elemskill_use(ed,tick,-1))
+				return 1;
+			//if (sstatus->mode&MD_ASSIST && DIFF_TICK(ed->last_linktime, tick) < MIN_ELEMLINKTIME)
+			//{	// Link monsters nearby [Skotlex]
+			//	ed->last_linktime = tick;
+			//	map_foreachinrange(elem__linksearch, src, ed->db->range2, BL_ELEM, ed->class_, target, tick);
+			//}
+		}
+
 		if(src->type == BL_PET && pet_attackskill((TBL_PET*)src, target->id))
 			return 1;
 		

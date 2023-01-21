@@ -110,6 +110,9 @@ static int block_free_count = 0, block_free_lock = 0;
 static struct block_list *bl_list[BL_LIST_MAX];
 static int bl_list_count = 0;
 
+#define MAX_MSG 1000
+static char* msg_table[MAX_MSG]; // map Server messages
+
 struct map_data map[MAX_MAP_PER_SERVER];
 int map_num = 0;
 int map_port=0;
@@ -3989,7 +3992,7 @@ int do_init(int argc, char *argv[])
 	BATTLE_CONF_FILENAME = "conf/battle_athena.conf";
 	ATCOMMAND_CONF_FILENAME = "conf/atcommand_athena.conf";
 	SCRIPT_CONF_NAME = "conf/script_athena.conf";
-	MSG_CONF_NAME = "conf/msg_athena.conf";
+	MSG_CONF_NAME = "conf/msg_conf/map_msg.conf";
 	GRF_PATH_FILENAME = "conf/grf-files.txt";
 	safestrncpy(console_log_filepath, "./log/map-msg_log.log", sizeof(console_log_filepath));
 
@@ -4180,6 +4183,16 @@ int do_init(int argc, char *argv[])
 	ShowStatus("Server is '"CL_GREEN"ready"CL_RESET"' and listening on port '"CL_WHITE"%d"CL_RESET"'.\n\n", map_port);
 
 	return 0;
+}
+
+int map_msg_config_read(char *cfgName) {
+	return _msg_config_read(cfgName, MAX_MSG, msg_table);
+}
+const char* map_msg_txt(int msg_number) {
+	return _msg_txt(msg_number, MAX_MSG, msg_table);
+}
+void map_do_final_msg(void) {
+	_do_final_msg(MAX_MSG, msg_table);
 }
 
 // Cell PVP [Napster]

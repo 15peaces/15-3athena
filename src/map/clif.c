@@ -290,7 +290,7 @@ uint16 clif_getport(void) {
 #if PACKETVER >= 20071106
 static inline unsigned char clif_bl_type(struct block_list *bl) {
 	switch (bl->type) {
-	case BL_PC:    return disguised(bl)?0x1:0x0; //PC_TYPE
+	case BL_PC:    return (disguised(bl) && !pcdb_checkid(status_get_viewdata(bl)->class_)) ? 0x1:0x0; //PC_TYPE
 	case BL_ITEM:  return 0x2; //ITEM_TYPE
 	case BL_SKILL: return 0x3; //SKILL_TYPE
 	case BL_CHAT:  return 0x4; //UNKNOWN_TYPE
@@ -10651,13 +10651,6 @@ void clif_msg_color(struct map_session_data *sd, uint16 msg_id, uint32 color) {
 	WFIFOSET(fd, packet_len(0x9cd));
 }
 
-/// View player equip request denied
-void clif_viewequip_fail(struct map_session_data* sd)
-{
-	clif_msg(sd, 1357);
-}
-
-
 /// Validates one global/guild/party/whisper message packet and tries to recognize its components.
 /// Returns true if the packet was parsed successfully.
 /// Formats: 0 - <packet id>.w <packet len>.w (<name> : <message>).?B 00
@@ -10908,7 +10901,7 @@ void clif_auth_error(int fd, int errorCode)
 /// 0072 <account id>.L <char id>.L <auth code>.L <client time>.L <gender>.B (CZ_ENTER)
 /// 0436 <account id>.L <char id>.L <auth code>.L <client time>.L <gender>.B (CZ_ENTER2)
 /// There are various variants of this packet, some of them have padding between fields.
-void clif_parse_WantToConnection(int fd, TBL_PC* sd)
+void clif_parse_WantToConnection(int fd, struct map_session_data* sd)
 {
 	struct block_list* bl;
 	struct auth_node* node;
@@ -12253,8 +12246,10 @@ void clif_parse_NpcClicked(int fd,struct map_session_data *sd)
 		return;
 	}
 
-	if (pc_cant_act(sd))
+	if (pc_cant_act(sd) || sd->npc_id || pc_hasprogress(sd, WIP_DISABLE_NPC)) {
+		clif_msg(sd, WORK_IN_PROGRESS);
 		return;
+	}
 
 	if( sd->state.mail_writing )
 		return;
@@ -12267,6 +12262,11 @@ void clif_parse_NpcClicked(int fd,struct map_session_data *sd)
 			clif_parse_ActionRequest_sub(sd, 0x07, bl->id, gettick());
 			break;
 		case BL_NPC:
+			if (sd->ud.skillid < RK_ENCHANTBLADE && sd->ud.skilltimer != INVALID_TIMER) { // Should only show an error message for non-3rd job skills with a running timer
+				clif_msg(sd, WORK_IN_PROGRESS);
+				break;
+			}
+
 			if( bl->m != -1 )// the user can't click floating npcs directly (hack attempt)
 				npc_click(sd,(TBL_NPC*)bl);
 			break;
@@ -12658,7 +12658,6 @@ void clif_parse_SkillUp(int fd,struct map_session_data *sd)
 
 
 // TODO: Move clif_parse_UseSkillTo* helper functions to unit.c
-// Be sure to make one of these for ID and Pos for Elementals. (FIX ME!!!) [Rytech]
 static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, int target_id)
 {
 	int lv;
@@ -12759,17 +12758,16 @@ static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct
 
 void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 skilllv, int target_id)
 {
-	int tmp;
+	int inf;
 	int64 tick = gettick();
 
 	if( skilllv < 1 ) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	tmp = skill_get_inf(skillnum);
-	if (tmp&INF_GROUND_SKILL || !tmp) {
+	inf = skill_get_inf(skillnum);
+	if (inf&INF_GROUND_SKILL || !inf) {
 		return; //Using a ground/passive skill on a target? WRONG.
 	}
 
-	// Be sure to make one of these and Pos for elementals. (FIX ME!!!) [Rytech]
 	if( skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
 		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skillnum, skilllv, target_id);
@@ -12785,6 +12783,13 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	// Whether skill fails or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
 
+	if (sd->npc_id) {
+		if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM) || !sd->npc_item_flag || !(inf & INF_SELF_SKILL)) {
+			clif_msg(sd, WORK_IN_PROGRESS);
+			return;
+		}
+	}
+
 	if (pc_cant_act(sd) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE)
 		return;
 
@@ -12794,7 +12799,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	if( skillnotok(skillnum, sd) )
 		return;
 
-	if( sd->bl.id != target_id && tmp&INF_SELF_SKILL )
+	if( sd->bl.id != target_id && inf&INF_SELF_SKILL )
 		target_id = sd->bl.id; // never trust the client
 	
 	if( target_id < 0 && -target_id == sd->bl.id ) // for disguises [Valaris]
@@ -12839,7 +12844,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	{
 		if( skilllv != sd->skillitemlv )
 			skilllv = sd->skillitemlv;
-		if( !(tmp&INF_SELF_SKILL) )
+		if( !(inf&INF_SELF_SKILL) )
 			pc_delinvincibletimer(sd); // Target skills thru items cancel invincibility. [Inkfish]
 		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
 		return;
@@ -12908,6 +12913,11 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	if( skillnum >= MC_SKILLBASE && skillnum < MC_SKILLBASE + MAX_MERCSKILL )
 	{
 		clif_parse_UseSkillToPos_mercenary(sd->md, sd, tick, skillnum, skilllv, x, y, skillmoreinfo);
+		return;
+	}
+
+	if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM)) {
+		clif_msg(sd, WORK_IN_PROGRESS);
 		return;
 	}
 
@@ -18247,7 +18257,7 @@ void clif_parse_ViewPlayerEquip(int fd, struct map_session_data* sd) {
 	if( tsd->status.show_equip || (battle_config.gm_viewequip_min_lv && pc_isGM(sd) >= battle_config.gm_viewequip_min_lv) )
 		clif_viewequip_ack(sd, tsd);
 	else
-		clif_viewequip_fail(sd);
+		clif_msg(sd, VIEW_EQUIP_FAIL);
 }
 
 

@@ -4703,9 +4703,16 @@ int pc_useitem(struct map_session_data *sd,int n) {
 
 	nullpo_ret(sd);
 
-	if (sd->npc_id && sd->progressbar.npc_id) {
-		clif_progressbar_abort(sd);
-		return 0; // First item use attempt cancels the progress bar
+	if (sd->npc_id) {
+		if (sd->progressbar.npc_id) {
+			clif_progressbar_abort(sd);
+			return 0; // First item use attempt cancels the progress bar
+		}
+
+		if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM)) {
+			clif_msg(sd, WORK_IN_PROGRESS);
+			return 0;
+		}
 	}
 
 	if( sd->inventory.u.items_inventory[n].nameid <= 0 || sd->inventory.u.items_inventory[n].amount <= 0 )

@@ -477,6 +477,7 @@ enum clif_messages {
 
 	//! NOTE: These values below need client version validation
 	ITEM_CANT_OBTAIN_WEIGHT = 0x34, /* You cannot carry more items because you are overweight. */
+	VIEW_EQUIP_FAIL = 0x54d,
 	ITEM_REUSE_LIMIT = 0x746,
 	WORK_IN_PROGRESS = 0x783,
 
@@ -964,7 +965,6 @@ void clif_send_homdata(struct map_session_data *sd, int state, int param);	//[or
 
 void clif_zc_config(struct map_session_data* sd, enum CZ_CONFIG type, int flag);
 void clif_viewequip_ack(struct map_session_data* sd, struct map_session_data* tsd);
-void clif_viewequip_fail(struct map_session_data* sd);
 void clif_equipcheckbox(struct map_session_data* sd);
 
 void clif_msg(struct map_session_data* sd, unsigned short id);

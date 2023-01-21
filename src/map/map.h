@@ -9,6 +9,7 @@
 #include "../common/mmo.h"
 #include "../common/mapindex.h"
 #include "../common/db.h"
+#include "../common/msg_conf.h"
 
 #include <stdarg.h>
 
@@ -26,6 +27,13 @@ struct item_data;
 //Enabling this changes such checks to circular checks, which is more realistic,
 //  but is not the official behaviour.
 //#define CIRCULAR_AREA
+
+#define msg_config_read(cfgName) map_msg_config_read(cfgName)
+#define msg_txt(msg_number) map_msg_txt(msg_number)
+#define do_final_msg() map_do_final_msg()
+int map_msg_config_read(char *cfgName);
+const char* map_msg_txt(int msg_number);
+void map_do_final_msg(void);
 
 #define MAX_NPC_PER_MAP 512
 #define BLOCK_SIZE 8
@@ -866,6 +874,20 @@ extern char market_table[32];
 extern char db_roulette_table[32];
 
 #endif /* not TXT_ONLY */
+
+/// Type of 'save_settings'
+enum save_settings_type {
+	CHARSAVE_NONE		= 0x000, /// Never
+	CHARSAVE_TRADE		= 0x001, /// After trading
+	CHARSAVE_VENDING	= 0x002, /// After vending (open/transaction)
+	CHARSAVE_STORAGE	= 0x004, /// After closing storage/guild storage.
+	CHARSAVE_PET		= 0x008, /// After hatching/returning to egg a pet.
+	CHARSAVE_MAIL		= 0x010, /// After successfully sending a mail with attachment
+	CHARSAVE_AUCTION	= 0x020, /// After successfully submitting an item for auction
+	CHARSAVE_QUEST		= 0x040, /// After successfully get/delete/complete a quest
+	CHARSAVE_BANK		= 0x080, /// After every bank transaction (deposit/withdraw)
+	CHARSAVE_ALL		= 0xFFF, /// Always
+};
 
 // éIëSëÃèÓïÒ
 void map_setusers(int);

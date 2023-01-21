@@ -4,8 +4,20 @@
 #ifndef _ELEMENTAL_H_
 #define _ELEMENTAL_H_
 
+#include "map.h" // struct status_data, struct view_data, struct elemental_skill
 #include "status.h" // struct status_data, struct status_change
 #include "unit.h" // struct unit_data
+
+//Min time between AI executions
+#define MIN_ELEMTHINKTIME 100
+//Min time before mobs do a check to call nearby friends for help (or for slaves to support their master)
+#define MIN_ELEMLINKTIME 1000
+
+//Distance that slaves should keep from their master.
+#define ELEM_SLAVEDISTANCE 2
+
+//Used to determine default enemy type of mobs (for use in eachinrange calls)
+#define DEFAULT_ELEM_ENEMY_TYPE(ed) (BL_PC | BL_MOB | BL_HOM | BL_MER | BL_ELEM)
 
 enum {
 	ELEMTYPE_AGNI = 1,
@@ -15,10 +27,10 @@ enum {
 };
 
 enum {
-	ELEMMODE_WAIT,
-	ELEMMODE_PASSIVE,
-	ELEMMODE_DEFENSIVE,
-	ELEMMODE_OFFENSIVE,
+	CONTROL_WAIT,
+	CONTROL_PASSIVE,
+	CONTROL_DEFENSIVE,
+	CONTROL_OFFENSIVE,
 };
 
 struct s_elemental_db {
@@ -50,6 +62,37 @@ struct elemental_data {
 	struct map_session_data *master;
 	int summon_timer;
 	unsigned water_screen_flag : 1;
+
+	// AI Stuff
+	struct {
+		enum MobSkillState skillstate;
+		unsigned aggressive : 1; //Signals whether the mob AI is in aggressive mode or reactive mode. [Skotlex]
+		//unsigned char steal_flag; //number of steal tries (to prevent steal exploit on mobs with few items) [Lupus]
+		//unsigned steal_coin_flag : 1;
+		//unsigned soul_change_flag : 1; // Celest
+		//unsigned alchemist: 1;
+		unsigned spotted: 1;
+		unsigned char attacked_count; //For rude attacked.
+		int provoke_flag; // Celest
+		//unsigned npc_killmonster: 1; //for new killmonster behavior
+		//unsigned rebirth: 1; // NPC_Rebirth used
+		//unsigned int bg_id; // BattleGround System
+		short control_state : 3;// State set through SO_EL_CONTROL
+	} state;
+	struct {
+		int id;
+		unsigned int dmg;
+		unsigned flag : 2; //0: Normal. 1: Homunc exp. 2: Pet exp
+	} dmglog[DAMAGELOG_SIZE];
+
+	unsigned int tdmg;
+	int level;
+	int target_id,attacked_id;
+	int64 next_walktime,last_thinktime,last_linktime,last_pcneartime;
+	short min_chase;
+	int master_dist;
+	
+	int64 skilldelay;
 };
 
 bool elem_class(int class_);
@@ -70,6 +113,22 @@ int elemental_get_lifetime(struct elemental_data *ed);
 int elemental_get_type(struct elemental_data *ed);
 
 int elemental_checkskill(struct elemental_data *ed, int skill_id);
+
+int elemental_set_control_state(struct elemental_data *ed, short control_state);
+
+int elemental_passive_skill(struct elemental_data *ed);
+int elemental_defensive_skill(struct elemental_data *ed);
+int elemental_offensive_skill(struct elemental_data *ed);
+
+// AI Stuff
+int elem_target(struct elemental_data *ed,struct block_list *bl,int dist);
+int elem_unlocktarget(struct elemental_data *ed, int64 tick);
+int elem_can_reach(struct elemental_data *ed,struct block_list *bl,int range, int state);
+void elem_log_damage(struct elemental_data *ed, struct block_list *src, int damage);
+int elemskill_use(struct elemental_data *ed, int64 tick, int bypass);
+
+#define elem_stop_walking(ed, type) unit_stop_walking(&(ed)->bl, type)
+#define elem_stop_attack(ed) unit_stop_attack(&(ed)->bl)
 
 int do_init_elemental(void);
 

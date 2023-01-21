@@ -1,17 +1,17 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
-#include "../common/mmo.h"
-#include "../common/version.h"
-#include "../common/showmsg.h"
-#include "../common/malloc.h"
+#include "mmo.h"
+#include "version.h"
+#include "showmsg.h"
+#include "malloc.h"
 #include "core.h"
 #include "strlib.h"
-#include "../common/db.h"
-#include "../common/socket.h"
-#include "../common/timer.h"
-#include "../common/plugins.h"
-#include "../common/utils.h" // filesize()
+#include "db.h"
+#include "socket.h"
+#include "timer.h"
+#include "plugins.h"
+#include "utils.h" // filesize()
 #ifndef _WIN32
 #include "svnversion.h"
 #endif

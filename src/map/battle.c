@@ -3942,6 +3942,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	{
 		case MG_FIREWALL:
 		case NJ_KAENSIN:
+		case EL_FIRE_MANTLE:
 			ad.dmotion = 0; //No flinch animation.
 			if (tstatus->def_ele == ELE_FIRE || battle_check_undead(tstatus->race, tstatus->def_ele))
 				ad.blewcount = 0; //No knockback
@@ -4385,6 +4386,18 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 500 + 250 * skill_lv;
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 150;
+						break;
+					case EL_FIRE_MANTLE:
+						skillratio = 1000;
+						break;
+					case EL_FIRE_ARROW:
+						skillratio = 300;
+						break;
+					case EL_FIRE_BOMB:
+						skillratio = 500;
+						break;
+					case EL_FIRE_WAVE:
+						skillratio = 1200;
 						break;
 				}
 
@@ -6468,6 +6481,11 @@ static const struct _battle_data {
 	{ "item_auto_identify",                 &battle_config.item_auto_identify,              0,      0,      1,              },
 	{ "natural_homun_healhp_interval",      &battle_config.natural_homun_healhp_interval,   3000,   NATURAL_HEAL_INTERVAL, INT_MAX, },
 	{ "natural_homun_healsp_interval",      &battle_config.natural_homun_healsp_interval,   4000,   NATURAL_HEAL_INTERVAL, INT_MAX, },
+	{ "elemental_ai",                       &battle_config.elem_ai,                         0x000,  0x000,  0x77F,          },
+	{ "elem_support",                       &battle_config.elem_support,                    0,      0,      1,              },
+	{ "elem_offensive_skill_chance",        &battle_config.elem_offensive_skill_chance,     5,      0,      100,            },
+	{ "elem_offensive_skill_casttime",      &battle_config.elem_offensive_skill_casttime,   1000,   0,      60000,          },
+	{ "elem_offensive_skill_aftercast",     &battle_config.elem_offensive_skill_aftercast,  10000,  0,      60000,          },
 	{ "elemental_masters_walk_speed",       &battle_config.elemental_masters_walk_speed,    1,      0,      1,              },
 	{ "natural_elem_healhp_interval",       &battle_config.natural_elem_healhp_interval,    3000,   NATURAL_HEAL_INTERVAL, INT_MAX, },
 	{ "natural_elem_healsp_interval",       &battle_config.natural_elem_healsp_interval,    3000,   NATURAL_HEAL_INTERVAL, INT_MAX, },

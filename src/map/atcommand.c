@@ -51,7 +51,6 @@
 // extern variables
 char atcommand_symbol = '@'; // first char of the commands
 char charcommand_symbol = '#';
-char* msg_table[MAX_MSG]; // Server messages (0-499 reserved for GM commands, 500-999 reserved for others)
 
 // local declarations
 #define ACMD_FUNC(x) int atcommand_ ## x (const int fd, struct map_session_data* sd, const char* command, const char* message)
@@ -101,18 +100,6 @@ int lowtohigh_compare (const void * a, const void * b)
 }
 
 //-----------------------------------------------------------
-// Return the message string of the specified number by [Yor]
-//-----------------------------------------------------------
-const char* msg_txt(int msg_number)
-{
-	if (msg_number >= 0 && msg_number < MAX_MSG &&
-	    msg_table[msg_number] != NULL && msg_table[msg_number][0] != '\0')
-		return msg_table[msg_number];
-
-	return "??";
-}
-
-//-----------------------------------------------------------
 // Returns Players title (from msg_athena.conf) [Lupus]
 //-----------------------------------------------------------
 static char* player_title_txt(int level)
@@ -130,63 +117,6 @@ static char* player_title_txt(int level)
 	sprintf(atcmd_temp, format, level);
 	return atcmd_temp;
 }
-
-
-/*==========================================
- * Read Message Data
- *------------------------------------------*/
-int msg_config_read(const char* cfgName)
-{
-	int msg_number;
-	char line[1024], w1[1024], w2[1024];
-	FILE *fp;
-	static int called = 1;
-
-	if ((fp = fopen(cfgName, "r")) == NULL) {
-		ShowError("Messages file not found: %s\n", cfgName);
-		return 1;
-	}
-
-	if ((--called) == 0)
-		memset(msg_table, 0, sizeof(msg_table[0]) * MAX_MSG);
-
-	while(fgets(line, sizeof(line), fp))
-	{
-		if (line[0] == '/' && line[1] == '/')
-			continue;
-		if (sscanf(line, "%[^:]: %[^\r\n]", w1, w2) != 2)
-			continue;
-
-		if (strcmpi(w1, "import") == 0)
-			msg_config_read(w2);
-		else
-		{
-			msg_number = atoi(w1);
-			if (msg_number >= 0 && msg_number < MAX_MSG)
-			{
-				if (msg_table[msg_number] != NULL)
-					aFree(msg_table[msg_number]);
-				msg_table[msg_number] = (char *)aMalloc((strlen(w2) + 1)*sizeof (char));
-				strcpy(msg_table[msg_number],w2);
-			}
-		}
-	}
-
-	fclose(fp);
-
-	return 0;
-}
-
-/*==========================================
- * Cleanup Message Data
- *------------------------------------------*/
-void do_final_msg(void)
-{
-	int i;
-	for (i = 0; i < MAX_MSG; i++)
-		aFree(msg_table[i]);
-}
-
 
 /*==========================================
  * @send (used for testing packet sends from the client)
@@ -4861,7 +4791,7 @@ ACMD_FUNC(reloadscript)
  * 0 = no additional information
  * 1 = Show users in that map and their location
  * 2 = Shows NPCs in that map
- * 3 = Shows the shops/chats in that map (not implemented)
+ * 3 = Shows the shops/chats in that map
  *------------------------------------------*/
 ACMD_FUNC(mapinfo)
 {
@@ -4870,7 +4800,7 @@ ACMD_FUNC(mapinfo)
 	struct npc_data *nd = NULL;
 	struct chat_data *cd = NULL;
 	char direction[12];
-	int i, m_id, chat_num, list = 0;
+	int i, m_id, chat_num, list = 0, vend_num = 0;
 	unsigned short m_index;
 	char mapname[24];
 
@@ -4905,12 +4835,17 @@ ACMD_FUNC(mapinfo)
 	// count chats (for initial message)
 	chat_num = 0;
 	iter = mapit_getallusers();
-	for( pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter) )
-		if( (cd = (struct chat_data*)map_id2bl(pl_sd->chatID)) != NULL && pl_sd->mapindex == m_index && cd->usersd[0] == pl_sd )
-			chat_num++;
+	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter)) {
+		if (pl_sd->mapindex == m_index) {
+			if (pl_sd->state.vending)
+				vend_num++;
+			else if ((cd = (struct chat_data*)map_id2bl(pl_sd->chatID)) != NULL && cd->usersd[0] == pl_sd)
+				chat_num++;
+		}
+	}
 	mapit_free(iter);
 
-	sprintf(atcmd_output, "Map Name: %s | Players In Map: %d | NPCs In Map: %d | Chats In Map: %d", mapname, map[m_id].users, map[m_id].npc_num, chat_num);
+	sprintf(atcmd_output, "Map: %s | Players: %d | NPCs: %d | Chats: %d | Vendings: %d", mapname, map[m_id].users, map[m_id].npc_num, chat_num, vend_num);
 	clif_displaymessage(fd, atcmd_output);
 	clif_displaymessage(fd, "------ Map Flags ------");
 	if (map[m_id].flag.town)
@@ -6634,9 +6569,12 @@ ACMD_FUNC(useskill)
 		return -1;
 	}
 
-	if (skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE+MAX_HOMUNSKILL
-		&& sd->hd && merc_is_hom_active(sd->hd)) // (If used with @useskill, put the homunc as dest)
-		bl = &sd->hd->bl;
+	if (skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd && merc_is_hom_active(sd->hd))
+		bl = &sd->hd->bl;// Put the homunculus as dest.
+	if (skillnum >= MC_SKILLBASE && skillnum < MC_SKILLBASE+MAX_MERCSKILL && sd->md)
+		bl = &sd->md->bl;// Put the mercenary as dest.
+	else if (skillnum >= EL_SKILLBASE && skillnum < EL_SKILLBASE+MAX_ELEMSKILL && sd->ed)
+		bl = &sd->ed->bl;// Put the elemental as dest.
 	else
 		bl = &sd->bl;
 	
@@ -8344,6 +8282,36 @@ ACMD_FUNC(homtalk)
 }
 
 /*==========================================
+ * make the elemental speak [Rytech]
+ *------------------------------------------*/
+ACMD_FUNC(elemtalk)
+{
+	char mes[100],temp[100];
+
+	nullpo_retr(-1, sd);
+
+	if (sd->sc.count && //no "chatting" while muted.
+		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		return -1;
+
+	if ( !sd->ed ) {
+		clif_displaymessage(fd, "You do not have a elemental.");
+		return -1;
+	}
+
+	if (!message || !*message || sscanf(message, "%99[^\n]", mes) < 1) {
+		clif_displaymessage(fd, "Please, enter a message (usage: @elemtalk <message>");
+		return -1;
+	}
+
+	snprintf(temp, sizeof temp ,"%s : %s", sd->ed->db->name, mes);
+	clif_disp_overhead(&sd->ed->bl, temp);
+
+	return 0;
+}
+
+/*==========================================
  * Show homunculus stats
  *------------------------------------------*/
 ACMD_FUNC(hominfo)
@@ -8382,10 +8350,12 @@ ACMD_FUNC(hominfo)
 	return 0;
 }
 
+/*==========================================
+ * Show elementals stats
+ *------------------------------------------*/
 ACMD_FUNC(eleminfo)
 {
 	struct elemental_data *ed;
-	struct s_elemental_db *db;
 	struct status_data *status;
 	unsigned int minutes, seconds;
 	nullpo_retr(-1, sd);
@@ -8397,7 +8367,6 @@ ACMD_FUNC(eleminfo)
 
 	// Should I add the elemental's element, element lv, and size too?
 	ed = sd->ed;
-	db = ed->db;
 	status = status_get_status_data(&ed->bl);
 
 	// Calculate remaining summon time.
@@ -8406,7 +8375,7 @@ ACMD_FUNC(eleminfo)
 	seconds -= (seconds/60>0)?(seconds/60)*60:0;
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"Elemental stats for: %s (Lv %d)",
-		db->name, db->status.size+1);
+		ed->db->name, status->size+1);
 	clif_displaymessage(fd, atcmd_output);
 
 	snprintf(atcmd_output, sizeof(atcmd_output) ,"HP : %d/%d - SP : %d/%d",
@@ -10458,6 +10427,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "agitend3",          60,60,     atcommand_agitend3 },
 	{ "adopt",              1,1,      atcommand_adopt },
 	{ "hommax",            60,60,     atcommand_hommax },
+	//Elemental Commands
+	{ "elemtalk",          10,10,     atcommand_elemtalk },
 	{ "eleminfo",           1,1,      atcommand_eleminfo }
 };
 
