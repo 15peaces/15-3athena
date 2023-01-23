@@ -392,9 +392,9 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 				int64 e_tick = (battle_config.cellpvp_walkout_delay - DIFF_TICK( tick, sd->pvpcan_walkout_tick))/1000;
 				char e_msg[150];
 				if( e_tick > 99 )
-						sprintf(e_msg, msg_txt(800), sd->status.name, (double)e_tick / 60); 
+						sprintf(e_msg, msg_txt(sd,800), sd->status.name, (double)e_tick / 60); 
 				else
-						sprintf(e_msg, msg_txt(801), sd->status.name, e_tick+1);
+						sprintf(e_msg, msg_txt(sd,801), sd->status.name, e_tick+1);
 
 				clif_disp_overheadcolor_self(sd->fd,COLOR_WHITE, e_msg);
 				return 0;

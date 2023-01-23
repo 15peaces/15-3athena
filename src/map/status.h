@@ -2158,7 +2158,7 @@ enum e_status_bonus {
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 //Define to determine who has regen
-#define BL_REGEN (BL_PC|BL_HOM|BL_MER|BL_ELEM)
+#define BL_REGEN (BL_PC|BL_HOM|BL_MER)
 
 //Basic damage info of a weapon
 //Required because players have two of these, one in status_data
@@ -2388,9 +2388,6 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 int status_getrefinebonus(int lv,int type);
 int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_num, int skill_lv, int flag); // [Skotlex]
 int status_check_visibility(struct block_list *src, struct block_list *target); //[Skotlex]
-
-// Elemental Type Check
-int status_check_elemental_type(struct block_list *bl);
 
 int status_readdb(void);
 int do_init_status(void);

@@ -46,7 +46,7 @@ static const int packet_len_table[] = {
 	 9, 9,-1,14,  0, 0, 0, 0, -1,75,-1,11, 11,-1, 38, 0, //0x3840
 	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
 	-1, 7,-1, 0, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
-	-1, 3, 3, 0,  0, 0, 0, 0,  0, 0, 0, 0, -1, 3,  3, 0, //0x3870  Mercenaries [Zephyrus] Elementals [pakpil]
+	-1, 3, 3, 0,  0, 0, 0, 0, -1, 3, 3, 0,  0, 0,  0, 0, //0x3870  Mercenaries [Zephyrus] Elementals [Rytech]
 	11,-1, 7, 3,  0, 0, 0, 0,  0, 0,-1, 8,  0, 0,  0, 0, //0x3880  Pet System,  Storages
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 	-1,-1, 8, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x38A0  Clans
@@ -1612,7 +1612,7 @@ int intif_parse_Mail_inboxreceived(int fd)
 	}else if( battle_config.mail_show_status && ( battle_config.mail_show_status == 1 || sd->mail.inbox.unread ) )
 	{
 		char output[128];
-		sprintf(output, msg_txt(510), sd->mail.inbox.unchecked, sd->mail.inbox.unread + sd->mail.inbox.unchecked);
+		sprintf(output, msg_txt(sd,510), sd->mail.inbox.unchecked, sd->mail.inbox.unread + sd->mail.inbox.unchecked);
 		clif_disp_onlyself(sd, output, strlen(output));
 	}
 	return 0;
@@ -2187,16 +2187,16 @@ int intif_parse_mercenary_saved(int fd)
 /*==========================================
  * Elemental's System
  *------------------------------------------*/
-int intif_elemental_create(struct s_elemental *ele) {
+int intif_elemental_create(struct s_elemental *elem) {
 	int size = sizeof(struct s_elemental) + 4;
 
 	if( CheckForCharServer() )
 		return 0;
 
 	WFIFOHEAD(inter_fd,size);
-	WFIFOW(inter_fd,0) = 0x307c;
+	WFIFOW(inter_fd, 0) = 0x3078;
 	WFIFOW(inter_fd,2) = size;
-	memcpy(WFIFOP(inter_fd,4), ele, sizeof(struct s_elemental));
+	memcpy(WFIFOP(inter_fd,4), elem, sizeof(struct s_elemental));
 	WFIFOSET(inter_fd,size);
 	return 0;
 }
@@ -2213,25 +2213,25 @@ int intif_parse_elemental_received(int fd) {
 	return 0;
 }
 
-int intif_elemental_request(int ele_id, int char_id) {
+int intif_elemental_request(int elem_id, int char_id) {
 	if (CheckForCharServer())
 		return 0;
 
 	WFIFOHEAD(inter_fd,10);
-	WFIFOW(inter_fd,0) = 0x307d;
-	WFIFOL(inter_fd,2) = ele_id;
+	WFIFOW(inter_fd, 0) = 0x3079;
+	WFIFOL(inter_fd, 2) = elem_id;
 	WFIFOL(inter_fd,6) = char_id;
 	WFIFOSET(inter_fd,10);
 	return 0;
 }
 
-int intif_elemental_delete(int ele_id) {
+int intif_elemental_delete(int elem_id) {
 	if (CheckForCharServer())
 		return 0;
 
 	WFIFOHEAD(inter_fd,6);
-	WFIFOW(inter_fd,0) = 0x307e;
-	WFIFOL(inter_fd,2) = ele_id;
+	WFIFOW(inter_fd,0) = 0x307a;
+	WFIFOL(inter_fd,2) = elem_id;
 	WFIFOSET(inter_fd,6);
 	return 0;
 }
@@ -2243,16 +2243,16 @@ int intif_parse_elemental_deleted(int fd) {
 	return 0;
 }
 
-int intif_elemental_save(struct s_elemental *ele) {
+int intif_elemental_save(struct s_elemental *elem) {
 	int size = sizeof(struct s_elemental) + 4;
 
 	if( CheckForCharServer() )
 		return 0;
 
 	WFIFOHEAD(inter_fd,size);
-	WFIFOW(inter_fd,0) = 0x307f;
+	WFIFOW(inter_fd,0) = 0x307b;
 	WFIFOW(inter_fd,2) = size;
-	memcpy(WFIFOP(inter_fd,4), ele, sizeof(struct s_elemental));
+	memcpy(WFIFOP(inter_fd,4), elem, sizeof(struct s_elemental));
 	WFIFOSET(inter_fd,size);
 	return 0;
 }
@@ -2610,6 +2610,8 @@ int intif_parse(int fd)
 	case 0x3804:	intif_parse_Registers(fd); break;
 	case 0x3806:	intif_parse_ChangeNameOk(fd); break;
 	case 0x3818:	intif_parse_LoadGuildStorage(fd); break;
+	
+// Party System
 	case 0x3819:	intif_parse_SaveGuildStorage(fd); break;
 	case 0x3820:	intif_parse_PartyCreated(fd); break;
 	case 0x3821:	intif_parse_PartyInfo(fd); break;
@@ -2619,6 +2621,8 @@ int intif_parse(int fd)
 	case 0x3825:	intif_parse_PartyMove(fd); break;
 	case 0x3826:	intif_parse_PartyBroken(fd); break;
 	case 0x3827:	intif_parse_PartyMessage(fd); break;
+	
+// Guild System
 	case 0x3830:	intif_parse_GuildCreated(fd); break;
 	case 0x3831:	intif_parse_GuildInfo(fd); break;
 	case 0x3832:	intif_parse_GuildMemberAdded(fd); break;
@@ -2637,10 +2641,6 @@ int intif_parse(int fd)
 	case 0x3841:	intif_parse_GuildCastleDataSave(fd); break;
 	case 0x3842:	intif_parse_GuildCastleAllDataLoad(fd); break;
 	case 0x3843:	intif_parse_GuildMasterChanged(fd); break;
-
-	//Quest system
-	case 0x3860:	intif_parse_questlog(fd); break;
-	case 0x3861:	intif_parse_questsave(fd); break;
 
 #ifndef TXT_ONLY
 // Mail System
@@ -2665,6 +2665,10 @@ int intif_parse(int fd)
 	case 0x3856:    intif_parse_itembound_ack(fd); break;
 #endif
 
+// Quest system
+	case 0x3860:	intif_parse_questlog(fd); break;
+	case 0x3861:	intif_parse_questsave(fd); break;
+
 // Achievement system
 	case 0x3862:	intif_parse_achievements_load(fd); break;
 
@@ -2674,9 +2678,9 @@ int intif_parse(int fd)
 	case 0x3872:	intif_parse_mercenary_saved(fd); break;
 
 // Elemental System
-	case 0x387c:	intif_parse_elemental_received(fd); break;
-	case 0x387d:	intif_parse_elemental_deleted(fd); break;
-	case 0x387e:	intif_parse_elemental_saved(fd); break;
+	case 0x3878:	intif_parse_elemental_received(fd); break;
+	case 0x3879:	intif_parse_elemental_deleted(fd); break;
+	case 0x387a:	intif_parse_elemental_saved(fd); break;
 
 // Pet System
 	case 0x3880:	intif_parse_CreatePet(fd); break;
@@ -2684,7 +2688,7 @@ int intif_parse(int fd)
 	case 0x3882:	intif_parse_SavePetOk(fd); break;
 	case 0x3883:	intif_parse_DeletePetOk(fd); break;
 
-	// Storage
+// Storage
 	case 0x388a:	intif_parse_StorageReceived(fd); break;
 	case 0x388b:	intif_parse_StorageSaved(fd); break;
 

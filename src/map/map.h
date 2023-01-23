@@ -28,12 +28,13 @@ struct item_data;
 //  but is not the official behaviour.
 //#define CIRCULAR_AREA
 
-#define msg_config_read(cfgName) map_msg_config_read(cfgName)
-#define msg_txt(msg_number) map_msg_txt(msg_number)
+#define msg_config_read(cfgName,isnew) map_msg_config_read(cfgName,isnew)
+#define msg_txt(sd,msg_number) map_msg_txt(sd,msg_number)
 #define do_final_msg() map_do_final_msg()
-int map_msg_config_read(char *cfgName);
-const char* map_msg_txt(int msg_number);
+int map_msg_config_read(char *cfgName, int lang);
+const char* map_msg_txt(struct map_session_data *sd, int msg_number);
 void map_do_final_msg(void);
+void map_msg_reload(void);
 
 #define MAX_NPC_PER_MAP 512
 #define BLOCK_SIZE 8
@@ -79,6 +80,7 @@ static DBMap* map_db=NULL; // unsigned int mapindex -> struct map_data*
 static DBMap* nick_db=NULL; // int char_id -> struct charid2nick* (requested names of offline characters)
 static DBMap* charid_db=NULL; // int char_id -> struct map_session_data*
 static DBMap* regen_db=NULL; // int id -> struct block_list* (status_natural_heal processing)
+static DBMap* map_msg_db = NULL;
 
 //First Jobs
 //Note the oddity of the novice:
@@ -778,8 +780,17 @@ extern char *MAP_CONF_NAME;
 extern char *BATTLE_CONF_FILENAME;
 extern char *ATCOMMAND_CONF_FILENAME;
 extern char *SCRIPT_CONF_NAME;
-extern char *MSG_CONF_NAME;
+extern char *MSG_CONF_NAME_EN;
 extern char *GRF_PATH_FILENAME;
+
+//other lang supported
+char *MSG_CONF_NAME_RUS;
+char *MSG_CONF_NAME_GER;
+char *MSG_CONF_NAME_CHN;
+char *MSG_CONF_NAME_MAL;
+char *MSG_CONF_NAME_IND;
+char *MSG_CONF_NAME_FRN;
+char *MSG_CONF_NAME_SPN;
 
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;

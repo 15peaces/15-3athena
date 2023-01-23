@@ -791,7 +791,7 @@ int merc_hom_change_name_ack(struct map_session_data *sd, char* name, int flag)
 	struct homun_data *hd = sd->hd;
 	if (!merc_is_hom_active(hd)) return 0;
 	if (!flag) {
-		clif_displaymessage(sd->fd, msg_txt(280)); // You cannot use this name
+		clif_displaymessage(sd->fd, msg_txt(sd,280)); // You cannot use this name
 		return 0;
 	}
 	strncpy(hd->homunculus.name,name,NAME_LENGTH);

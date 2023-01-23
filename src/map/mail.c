@@ -365,7 +365,7 @@ void mail_send(struct map_session_data *sd, const char *dest_name, const char *t
 		return;
 
 	if( DIFF_TICK(sd->cansendmail_tick, gettick()) > 0 ) {
-		clif_displaymessage(sd->fd,msg_txt(742)); //"Cannot send mails too fast!!."
+		clif_displaymessage(sd->fd,msg_txt(sd,742)); //"Cannot send mails too fast!!."
 		clif_Mail_send(sd, WRITE_MAIL_FAILED); // fail
 		return;
 	}

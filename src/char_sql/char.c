@@ -38,7 +38,7 @@ static char* msg_table[CHAR_MAX_MSG]; // Login Server messages_conf
 #define CHAR_CONF_NAME	"conf/char_athena.conf"
 #define LAN_CONF_NAME	"conf/subnet_athena.conf"
 #define SQL_CONF_NAME	"conf/inter_athena.conf"
-#define MSG_CONF_NAME	"conf/msg_conf/char_msg.conf"
+#define MSG_CONF_NAME_EN	"conf/msg_conf/char_msg.conf"
 
 char char_db[256] = "char";
 char scdata_db[256] = "sc_data";
@@ -1837,11 +1837,11 @@ int delete_char_sql(int char_id)
 {
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1]; //Name needs be escaped.
-	int account_id, party_id, guild_id, hom_id, base_level, partner_id, father_id, mother_id;
+	int account_id, party_id, guild_id, hom_id, ele_id, base_level, partner_id, father_id, mother_id;
 	char* data;
 	size_t len;
 
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id`,`partner_id`,`father`,`mother` FROM `%s` WHERE `char_id`='%d'", char_db, char_id) )
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id`,`elemental_id`,`partner_id`,`father`,`mother` FROM `%s` WHERE `char_id`='%d'", char_db, char_id))
 		Sql_ShowDebug(sql_handle);
 
 	if( SQL_SUCCESS != Sql_NextRow(sql_handle) )
@@ -1857,9 +1857,10 @@ int delete_char_sql(int char_id)
 	Sql_GetData(sql_handle, 3, &data, NULL); guild_id = atoi(data);
 	Sql_GetData(sql_handle, 4, &data, NULL); base_level = atoi(data);
 	Sql_GetData(sql_handle, 5, &data, NULL); hom_id = atoi(data);
-	Sql_GetData(sql_handle, 6, &data, NULL); partner_id = atoi(data);
-	Sql_GetData(sql_handle, 7, &data, NULL); father_id = atoi(data);
-	Sql_GetData(sql_handle, 8, &data, NULL); mother_id = atoi(data);
+	Sql_GetData(sql_handle, 6, &data, NULL); ele_id = atoi(data);
+	Sql_GetData(sql_handle, 7, &data, NULL); partner_id = atoi(data);
+	Sql_GetData(sql_handle, 8, &data, NULL); father_id = atoi(data);
+	Sql_GetData(sql_handle, 9, &data, NULL); mother_id = atoi(data);
 
 	Sql_EscapeStringLen(sql_handle, esc_name, name, min(len, NAME_LENGTH));
 	Sql_FreeResult(sql_handle);
@@ -1926,6 +1927,10 @@ int delete_char_sql(int char_id)
 
 	/* remove mercenary data */ 
 	mercenary_owner_delete(char_id);
+
+	/* remove elemental */ 
+	if( ele_id )
+		mapif_elemental_delete(ele_id);
 
 	/* delete char's friends list */
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", friend_db, char_id) )
@@ -5696,7 +5701,7 @@ int do_init(int argc, char **argv)
 	mapindex_init();
 	start_point.map = mapindex_name2id("new_zone01");
 
-	msg_config_read(MSG_CONF_NAME);
+	msg_config_read(MSG_CONF_NAME_EN);
 	char_config_read((argc < 2) ? CHAR_CONF_NAME : argv[1]);
 	char_lan_config_read((argc > 3) ? argv[3] : LAN_CONF_NAME);
 	sql_config_read(SQL_CONF_NAME);

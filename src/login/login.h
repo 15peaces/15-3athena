@@ -9,7 +9,7 @@
 
 #define LOGIN_CONF_NAME "conf/login_athena.conf"
 #define LAN_CONF_NAME "conf/subnet_athena.conf"
-#define MSG_CONF_NAME "conf/msg_conf/login_msg.conf"
+#define MSG_CONF_NAME_EN "conf/msg_conf/login_msg.conf"
 
 // supported encryption types: 1- passwordencrypt, 2- passwordencrypt2, 3- both
 #define PASSWORDENC 3

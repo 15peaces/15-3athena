@@ -606,10 +606,11 @@ void initChangeTables(void)
 	set_sc( SO_WARMER           , SC_WARMER         , SI_WARMER         , SCB_NONE );
 	set_sc( SO_VACUUM_EXTREME	, SC_VACUUM_EXTREME	, SI_VACUUM_EXTREME	, SCB_NONE );
 	add_sc( SO_ARRULLO			, SC_DEEPSLEEP		);
-	set_sc( SO_FIRE_INSIGNIA    , SC_FIRE_INSIGNIA  , SI_FIRE_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_MATK|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_WATER_INSIGNIA   , SC_WATER_INSIGNIA , SI_WATER_INSIGNIA , SCB_BATK|SCB_WATK|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_WIND_INSIGNIA    , SC_WIND_INSIGNIA  , SI_WIND_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_ASPD|SCB_ATK_ELE|SCB_REGEN );
-	set_sc( SO_EARTH_INSIGNIA   , SC_EARTH_INSIGNIA , SI_EARTH_INSIGNIA , SCB_MAXHP|SCB_MAXSP|SCB_BATK|SCB_WATK|SCB_DEF|SCB_MDEF|SCB_ATK_ELE|SCB_REGEN );
+	set_sc( SO_FIRE_INSIGNIA    , SC_FIRE_INSIGNIA  , SI_FIRE_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_MATK|SCB_ATK_ELE );
+	set_sc( SO_WATER_INSIGNIA   , SC_WATER_INSIGNIA , SI_WATER_INSIGNIA , SCB_BATK|SCB_WATK|SCB_ATK_ELE );
+	set_sc( SO_WIND_INSIGNIA    , SC_WIND_INSIGNIA  , SI_WIND_INSIGNIA  , SCB_BATK|SCB_WATK|SCB_ASPD|SCB_ATK_ELE );
+	set_sc( SO_EARTH_INSIGNIA   , SC_EARTH_INSIGNIA , SI_EARTH_INSIGNIA , SCB_MAXHP|SCB_MAXSP|SCB_BATK|SCB_WATK|SCB_DEF|SCB_MDEF|SCB_ATK_ELE );
+
 
 
 
@@ -3711,6 +3712,61 @@ int status_calc_mercenary_(struct mercenary_data *md, bool first)
 	return 0;
 }
 
+int status_calc_elemental_(struct elemental_data *ed, bool first)
+{
+	struct status_data *status = &ed->base_status;
+	struct s_elemental *elem = &ed->elemental;
+
+	if( first )
+	{
+		memcpy(status, &ed->db->status, sizeof(struct status_data));
+		//status->def_ele =  db->element;
+		//status->ele_lv = 1;
+		//status->race = db->race;
+		//status->size = db->size;
+		//status->rhw.range = db->range;
+		status->mode = MD_CANMOVE;
+		status->speed = DEFAULT_WALK_SPEED;
+
+		if (battle_config.elemental_masters_walk_speed && ed->master)
+			status->speed = status_get_speed(&ed->master->bl);
+	}
+
+	// Elementals don't have stats but as with monsters we must give them at least 1 of each
+	// to avoid any possible divisions by 0. These won't affect their sub-stats.
+	// Note: A confirm on this would be nice. How can they have any natural immunity to common status's without stats??? [Rytech]
+	status->str = status->agi = status->vit = status->int_ = status->dex = status->luk = 1;
+
+	// Zero out the sub-stats elementals arn't affected by.
+	status->batk = status->def2 = status->mdef2 = status->cri = status->flee2 = 0;
+
+	// Set sub-stats to what was given on creation/load.
+	status->max_hp = elem->max_hp;
+	status->max_sp = elem->max_sp;
+	status->rhw.atk = status->rhw.atk2 = elem->batk;
+	status->matk_min = status->matk_max = elem->matk;
+	status->def = elem->def;
+	status->mdef = elem->mdef;
+	status->hit = elem->hit;
+	status->flee = elem->flee;
+	status->amotion = elem->amotion;
+
+	if ( first )
+	{// Set current HP after Max HP/SP is set on creation/load.
+		ed->battle_status.hp = elem->hp;
+		ed->battle_status.sp = elem->sp;
+	}
+
+	// Set other things needed.
+	status->aspd_amount = 0;
+	status->aspd_rate = 1000;
+	status->adelay = 2 * status->amotion;
+
+	status_cpy(&ed->battle_status, status);
+
+	return 0;
+}
+
 int status_calc_homunculus_(struct homun_data *hd, bool first)
 {
 	const struct status_change *sc = &hd->sc;
@@ -3835,170 +3891,6 @@ int status_calc_npc_(struct npc_data *nd, enum e_status_calc_opt opt)
 	return 0;
 }
 
-int status_check_elemental_type(struct block_list *bl)
-{
-	if ( bl->type != BL_ELEM )
-		return 0;
-
-	if ( status_get_class(bl) >= MOBID_EL_AGNI_S && status_get_class(bl) <= MOBID_EL_AGNI_L )
-		return ELEMTYPE_AGNI;
-	else if ( status_get_class(bl) >= MOBID_EL_AQUA_S && status_get_class(bl) <= MOBID_EL_AQUA_L )
-		return ELEMTYPE_AQUA;
-	else if ( status_get_class(bl) >= MOBID_EL_VENTUS_S && status_get_class(bl) <= MOBID_EL_VENTUS_L )
-		return ELEMTYPE_VENTUS;
-	else if ( status_get_class(bl) >= MOBID_EL_TERA_S && status_get_class(bl) <= MOBID_EL_TERA_L )
-		return ELEMTYPE_TERA;
-
-	return 0;
-}
-
-int status_calc_elemental_(struct elemental_data *ed, bool first)
-{
-	struct status_data *status = &ed->base_status;
-	struct s_elemental *elem = &ed->elemental;
-	struct map_session_data *sd;
-	struct status_data *mstatus = &ed->master->base_status;
-	int skill;
-	int amotion;
-	unsigned char elem_size;
-
-	sd = ed->master;
-
-	if (!sd)
-		return 0;
-
-	if (first)
-	{
-		//const struct s_elemental_db *db = ed->db;
-		memcpy(status, &ed->db->status, sizeof(struct status_data));
-		//status->def_ele =  db->element;
-		//status->ele_lv = 1;
-		//status->race = db->race;
-		//status->size = db->size;
-		//status->rhw.range = db->range;
-		status->mode = MD_CANMOVE;
-		//status->hp = status->max_hp;
-		//status->sp = status->max_sp;
-		//ed->battle_status.hp = elem->hp;
-		//ed->battle_status.sp = elem->sp;
-
-		if (battle_config.elem_support)
-			status->mode |= MD_CANATTACK;
-
-		status->speed = DEFAULT_WALK_SPEED;
-		if (battle_config.elemental_masters_walk_speed && ed->master)
-			status->speed = status_get_speed(&ed->master->bl);
-	}
-
-	// Elementals don't have stats but as with monsters we must give them at least 1 of each
-	// to avoid any possible divisions by 0. These won't affect their sub-stats.
-	// Note: A confirm on this would be nice. How can they have any natural immunity to common status's without stats??? [Rytech]
-	status->str = status->agi = status->vit = status->int_ = status->dex = status->luk = 1;
-
-	// Zero out the sub-stats elementals arn't affected by.
-	status->batk = status->def2 = status->mdef2 = status->cri = status->flee2 = 0;
-
-	// Sub-stats are affected by the elemental's summon level but each level has a different size.
-	// So we use this size to affect the formula's. This is also true in official.
-	elem_size = 1 + status->size;
-
-	// MaxHP = (10 * (Master's INT + 2 * Master's JobLV)) * ((ElemLV + 2) / 3.0) + (Master's MaxHP / 3)
-	// MaxSP = Master's MaxSP / 4
-	status->max_hp = (10 * (mstatus->int_ + 2 * status_get_job_lv_effect(&sd->bl))) * ((elem_size + 2) / 3) + mstatus->max_hp / 3;
-	status->max_sp = mstatus->max_sp / 4;
-
-	// MaxHP/MaxSP + 5% * SkillLV
-	if((skill=pc_checkskill(sd,SO_EL_SYMPATHY)) > 0)
-	{
-		status->max_hp += status->max_hp * (5 * skill) / 100;
-		status->max_sp += status->max_sp * (5 * skill) / 100;
-	}
-
-	if( status->max_hp > battle_config.max_elemental_hp )
-		status->max_hp = battle_config.max_elemental_hp;
-
-	if( status->max_sp > battle_config.max_elemental_sp )
-		status->max_sp = battle_config.max_elemental_sp;
-
-	if (first)
-	{
-		ed->battle_status.hp = elem->hp ;
-		ed->battle_status.sp = elem->sp ;
-	}
-
-	// ATK = Owner's MaxSP / (18 / ElemLV)
-	// MATK (Official) = ElemLV * (Owner's INT / 2 + Owner's DEX / 4)
-	// MATK (Custom) = ElemLV * (Master's INT + (Master's INT / 5) * (Master's DEX / 5)) / 3
-	// Custom formula used for MATK since renewals MATK formula is greatly different from pre-re.
-	status->rhw.atk = status->rhw.atk2 = mstatus->max_sp / (18 / elem_size);
-	status->matk_min = status->matk_max = elem_size * (mstatus->int_ + (mstatus->int_ / 5) * (mstatus->dex / 5)) / 3;
-
-	// ATK/MATK + 25 * SkillLV
-	if((skill=pc_checkskill(sd,SO_EL_SYMPATHY)) > 0)
-	{
-		status->rhw.atk = status->rhw.atk2 += 25 * skill;
-		status->matk_min = status->matk_max += 25 * skill;
-	}
-
-	// DEF (Official) = Master's DEF + Master's BaseLV / (5 - ElemLV)
-	// DEF (Custom) = Master's DEF + Master's BaseLV / (5 - ElemLV) / 10
-	// Custom formula used to balance the bonus DEF part for pre-re.
-	skill = mstatus->def + status_get_base_lv_effect(&sd->bl) / (5 - elem_size) / 10;
-	status->def = cap_value(skill, 0, battle_config.max_elemental_def_mdef);
-
-	// MDEF (Official) = Master's MDEF + Master's INT / (5 - ElemLV)
-	// MDEF (Custom) = Master's MDEF + Master's INT / (5 - ElemLV) / 10
-	// Custom formula used to balance the bonus MDEF part for pre-re.
-	skill = mstatus->mdef + mstatus->int_ / (5 - elem_size) / 10;
-	status->mdef = cap_value(skill, 0, battle_config.max_elemental_def_mdef);
-
-	// HIT = Master's HIT + Master's JobLV
-	// 2011 document made a mistake saying the master's BaseLV affects this. Its acturally JobLV.
-	status->hit = mstatus->hit + status_get_job_lv_effect(&sd->bl);
-
-	// FLEE = Master's FLEE + Master's BaseLV / (5 - ElemLV)
-	status->flee = mstatus->flee + status_get_base_lv_effect(&sd->bl) / (5 - elem_size);
-
-	// ASPD (aMotion) = 750 - 45 / ElemLV - Master's BaseLV - Master's DEX
-	// 2011 balance document says the formula is "ASPD 150 + Master's DEX / 10 + ElemLV * 3".
-	// But im seeing a completely different formula for this and a cap for it too.
-	// Seriously, where did they get that formula from? I can't find it anywhere. [Rytech]
-	status->aspd_amount = 0;
-	status->aspd_rate = 1000;
-	amotion = 750 - 45 / elem_size - status_get_base_lv_effect(&sd->bl) - mstatus->dex;
-	if ( amotion < 400 )// ASPD capped at 160.
-		amotion = 400;
-	status->amotion = cap_value(amotion,battle_config.max_aspd,2000);
-	status->adelay = 2 * status->amotion;
-
-	// Bonus sub-stats given depending on the elemental type and its summon level.
-	// Agni - Bonus ATK/HIT
-	if (status_check_elemental_type(&ed->bl) == ELEMTYPE_AGNI)
-	{
-		status->rhw.atk = status->rhw.atk2 += 20 * elem_size;
-		status->hit += 10 * elem_size;
-	}// Aqua - Bonus MATK/MDEF
-	else if (status_check_elemental_type(&ed->bl) == ELEMTYPE_AQUA)
-	{
-		status->matk_min = status->matk_max += 20 * elem_size;
-		status->mdef += 10 * elem_size / 10;
-	}// Ventus - Bonus MATK/FLEE
-	else if (status_check_elemental_type(&ed->bl) == ELEMTYPE_VENTUS)
-	{
-		status->matk_min = status->matk_max += 10 * elem_size;
-		status->flee += 20 * elem_size;
-	}// Tera - Bonus ATK/DEF
-	else if (status_check_elemental_type(&ed->bl) == ELEMTYPE_TERA)
-	{
-		status->rhw.atk = status->rhw.atk2 += 5 * elem_size;
-		status->def += 25 * elem_size / 10;
-	}
-
-	status_cpy(&ed->battle_status, status);
-
-	return 0;
-}
-
 //Calculates base regen values.
 void status_calc_regen(struct block_list *bl, struct status_data *status, struct regen_data *regen)
 {
@@ -4098,12 +3990,6 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 
 		val = (status->max_sp * (status->int_ + 10) / 750) + 1;
 		regen->sp = cap_value(val, 1, SHRT_MAX);
-	} else if( bl->type == BL_ELEM ) {// Recover 2% MaxHP/MaxSP
-		val = status->max_hp * 2 / 100;
-		regen->hp = cap_value(val, 1, SHRT_MAX);
-
-		val = status->max_sp * 2 / 100;
-		regen->sp = cap_value(val, 1, SHRT_MAX);
 	}
 }
 
@@ -4188,16 +4074,6 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 
 	if( sc->data[SC_GENTLETOUCH_REVITALIZE] )// 50 + 30 * SkillLV
 		regen->rate.hp += sc->data[SC_GENTLETOUCH_REVITALIZE]->val3;
-
-	if( bl->type == BL_ELEM && 
-		((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_AGNI) || 
-		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_AQUA) || 
-		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_VENTUS) || 
-		(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_TERA)) )
-	{
-		regen->rate.hp += 100;
-		regen->rate.sp += 100;
-	}
 
 	if( sc->data[SC_EXTRACT_WHITE_POTION_Z] )// 20
 		regen->rate.hp += sc->data[SC_EXTRACT_WHITE_POTION_Z]->val1;
@@ -4740,12 +4616,6 @@ void status_calc_bl_elem(struct block_list *bl, enum scb_flag flag)
 	// And with no stats I have no idea what defines it. For now its set to 300 in our database.
 	if(flag&SCB_DSPD)
 		status->dmotion = status_calc_dmotion(bl, sc, b_status->dmotion);
-
-	if(flag&(SCB_MAXHP|SCB_MAXSP) && bl->type&BL_REGEN)
-		status_calc_regen(bl, status, status_get_regen_data(bl));
-
-	if(flag&SCB_REGEN && bl->type&BL_REGEN)
-		status_calc_regen_rate(bl, status_get_regen_data(bl), sc);
 }
 
 /// Recalculates parts of an object's base status and battle status according to the specified flags.
@@ -5413,12 +5283,20 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += watk * sc->data[SC_FLEET]->val3/100;
 	if(sc->data[SC__BLOODYLUST])
 		watk += watk * 32 / 100;
-	if (bl->type == BL_ELEM &&
-		((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_AGNI) ||
-		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_AQUA) ||
-			(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_VENTUS) ||
-			(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1 && status_check_elemental_type(bl) == ELEMTYPE_TERA)))
-		watk += watk * 20 / 100;
+	if ( bl->type == BL_ELEM )
+	{
+		unsigned char elem_type;
+
+		TBL_ELEM *ed = BL_CAST(BL_ELEM,bl);
+
+		elem_type = elemental_get_type(ed);
+
+		if ((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_AGNI) || 
+			(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_AQUA) || 
+			(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_VENTUS) || 
+			(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_TERA))
+			watk += watk * 20 / 100;
+	}
 	else if ((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 2) ||
 		(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) ||
 		(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 2) ||
@@ -7328,6 +7206,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 {
 	struct map_session_data *sd = NULL;
 	struct homun_data *hd;
+	struct elemental_data *ed;
 	struct status_change* sc;
 	struct status_change_entry* sce;
 	struct status_data *status;
@@ -7395,6 +7274,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 
 	sd = BL_CAST(BL_PC, bl);
 	hd = BL_CAST(BL_HOM, bl);
+	ed = BL_CAST(BL_ELEM, bl);
 
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
@@ -9861,6 +9741,14 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				break;
 			}
 			break;
+		case SC_EL_DEFENSIVE:
+			if ( battle_config.elem_defensive_support == 1 )
+				sc_start4(bl, SC_MODECHANGE, 100, 1, 0, MD_CANATTACK, 0, 0);
+			break;
+		case SC_EL_OFFENSIVE:
+			sc_start4(bl, SC_MODECHANGE, 100, 1, 0, MD_CANATTACK|MD_AGGRESSIVE, 0, 0);
+			tick = -1;// Keep active until requested to end.
+			break;
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
 			{	//Status change with no calc, no icon, and no skill associated...? 
@@ -10412,6 +10300,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 {
 	struct map_session_data *sd;
 	struct homun_data *hd;
+	struct elemental_data *ed;
 	struct status_change *sc;
 	struct status_change_entry *sce;
 	struct status_data *status;
@@ -10428,6 +10317,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 
 	sd = BL_CAST(BL_PC,bl);
 	hd = BL_CAST(BL_HOM, bl);
+	ed = BL_CAST(BL_ELEM, bl);
 
 	if (sce->timer != tid && tid != INVALID_TIMER)
 		return 0;
@@ -10983,6 +10873,41 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			if ( sd && battle_config.pyroclastic_breaks_weapon == 1 )
 				skill_break_equip(bl, EQP_WEAPON, 10000, BCT_SELF);
 			break;
+		case SC_EL_PASSIVE:
+			status_change_end(bl, SC_PYROTECHNIC, INVALID_TIMER);
+			status_change_end(bl, SC_HEATER, INVALID_TIMER);
+			status_change_end(bl, SC_TROPIC, INVALID_TIMER);
+			status_change_end(bl, SC_AQUAPLAY, INVALID_TIMER);
+			status_change_end(bl, SC_COOLER, INVALID_TIMER);
+			status_change_end(bl, SC_CHILLY_AIR, INVALID_TIMER);
+			status_change_end(bl, SC_GUST, INVALID_TIMER);
+			status_change_end(bl, SC_BLAST, INVALID_TIMER);
+			status_change_end(bl, SC_WILD_STORM, INVALID_TIMER);
+			status_change_end(bl, SC_PETROLOGY, INVALID_TIMER);
+			status_change_end(bl, SC_CURSED_SOIL, INVALID_TIMER);
+			status_change_end(bl, SC_UPHEAVAL, INVALID_TIMER);
+			if ( ed->state.alive == 1 )
+				sc_start(bl, SC_EL_WAIT, 100, 1, 0);
+			break;
+		case SC_EL_DEFENSIVE:
+			status_change_end(bl, SC_CIRCLE_OF_FIRE, INVALID_TIMER);
+			status_change_end(bl, SC_FIRE_CLOAK, INVALID_TIMER);
+			status_change_end(bl, SC_WATER_SCREEN, INVALID_TIMER);
+			status_change_end(bl, SC_WATER_DROP, INVALID_TIMER);
+			status_change_end(bl, SC_WIND_STEP, INVALID_TIMER);
+			status_change_end(bl, SC_WIND_CURTAIN, INVALID_TIMER);
+			status_change_end(bl, SC_SOLID_SKIN, INVALID_TIMER);
+			status_change_end(bl, SC_STONE_SHIELD, INVALID_TIMER);
+			if ( battle_config.elem_defensive_support == 1 )
+				status_change_end(bl, SC_MODECHANGE, INVALID_TIMER);
+			if ( ed->state.alive == 1 )
+				sc_start(bl, SC_EL_WAIT, 100, 1, 0);
+			break;
+		case SC_EL_OFFENSIVE:
+			status_change_end(bl, SC_MODECHANGE, INVALID_TIMER);
+			if ( ed->state.alive == 1 )
+				sc_start(bl, SC_EL_WAIT, 100, 1, 0);
+			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -11248,6 +11173,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	enum sc_type type = (sc_type)data;
 	struct block_list *bl;
 	struct map_session_data *sd;
+	struct elemental_data *ed;
 	struct status_data *status;
 	struct status_change *sc;
 	struct status_change_entry *sce;
@@ -11274,6 +11200,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	}
 
 	sd = BL_CAST(BL_PC, bl);
+	ed = BL_CAST(BL_ELEM, bl);
 
 // set the next timer of the sce (don't assume the status still exists)
 #define sc_timer_next(t,f,i,d) \
@@ -11929,10 +11856,13 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 	case SC_FORCEOFVANGUARD:
-		if (!status_charge(bl, 0, 24 - 4 * sce->val1))
-			break;
-		sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
-		return 0;
+		{
+			if( !status_charge(bl,0,24 - 4 * sce->val1))
+				break;
+
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
 		break;
 
 	case SC_BANDING:
@@ -12263,6 +12193,60 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 				status_charge(bl, 0, sce->val3);
 
 			sc_timer_next(1000+tick, status_change_timer,bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_EL_COST:
+		{
+			if(!status_charge(bl, 0, 2 + 3 * sce->val1))
+			{// Not enough SP to continue? Remove the elemental.
+				elem_delete(sd->ed, 0);
+				break;
+			}
+
+			sc_timer_next(10000+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_EL_WAIT:
+		{
+			unsigned char elem_type, regen_percent = 2;
+
+			if ( sc )
+			{
+				elem_type = elemental_get_type(ed);
+
+				if ((sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_AGNI) || 
+					(sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_AQUA) || 
+					(sc->data[SC_WIND_INSIGNIA] && sc->data[SC_WIND_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_VENTUS) || 
+					(sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 1 && elem_type == ELEMTYPE_TERA))
+					regen_percent = 4;
+			}
+
+			status_percent_heal(bl, regen_percent, regen_percent);
+			sc_timer_next(battle_config.natural_elem_heal_interval+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_EL_PASSIVE:
+		{
+			if(!status_charge(bl, 0, 10 * sce->val1))
+				break;// Not enough SP. Switch back to Wait mode.
+
+			sc_timer_next(10000+tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_EL_DEFENSIVE:
+		{
+			if(!status_charge(bl, 0, 5))
+				break;// Not enough SP. Switch back to Wait mode.
+
+			sc_timer_next(1000+tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -12711,8 +12695,6 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 		// Different interval's for homunculus, elementals, and everything else.
 		if(bl->type==BL_HOM)
 			heal_interval = battle_config.natural_homun_healhp_interval;
-		else if(bl->type==BL_ELEM)
-			heal_interval = battle_config.natural_elem_healhp_interval;
 		else
 			heal_interval = battle_config.natural_healhp_interval;
 
@@ -12739,8 +12721,6 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 		// Different interval's for homunculus, elementals, and everything else.
 		if(bl->type==BL_HOM)
 			heal_interval = battle_config.natural_homun_healsp_interval;
-		else if(bl->type==BL_ELEM)
-			heal_interval = battle_config.natural_elem_healsp_interval;
 		else
 			heal_interval = battle_config.natural_healsp_interval;
 

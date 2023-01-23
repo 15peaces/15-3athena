@@ -1827,7 +1827,7 @@ int do_init(int argc, char** argv)
 
 	// read login-server configuration
 	login_set_defaults();
-	msg_config_read(MSG_CONF_NAME);
+	msg_config_read(MSG_CONF_NAME_EN);
 	login_config_read((argc > 1) ? argv[1] : LOGIN_CONF_NAME);
 	login_lan_config_read((argc > 2) ? argv[2] : LAN_CONF_NAME);
 

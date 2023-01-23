@@ -36,7 +36,7 @@ static char* msg_table[CHAR_MAX_MSG]; // Login Server messages_conf
 // private declarations
 #define CHAR_CONF_NAME	"conf/char_athena.conf"
 #define LAN_CONF_NAME	"conf/subnet_athena.conf"
-#define MSG_CONF_NAME	"conf/msg_conf/char_msg.conf"
+#define MSG_CONF_NAME_EN	"conf/msg_conf/char_msg.conf"
 
 char char_txt[1024] = "save/athena.txt";
 char friends_txt[1024] = "save/friends.txt";
@@ -5261,7 +5261,7 @@ int do_init(int argc, char **argv)
 	mapindex_init();
 	start_point.map = mapindex_name2id("new_zone01");
 
-	msg_config_read(MSG_CONF_NAME);
+	msg_config_read(MSG_CONF_NAME_EN);
 	char_config_read((argc < 2) ? CHAR_CONF_NAME : argv[1]);
 	char_lan_config_read((argc > 3) ? argv[3] : LAN_CONF_NAME);
 

@@ -14,7 +14,7 @@
 #define MIN_ELEMLINKTIME 1000
 
 //Distance that slaves should keep from their master.
-#define ELEM_SLAVEDISTANCE 2
+#define ELEM_SLAVEDISTANCE 3
 
 //Used to determine default enemy type of mobs (for use in eachinrange calls)
 #define DEFAULT_ELEM_ENEMY_TYPE(ed) (BL_PC | BL_MOB | BL_HOM | BL_MER | BL_ELEM)
@@ -40,9 +40,6 @@ struct s_elemental_db {
 	short range2, range3;
 	struct status_data status;
 	struct view_data vd;
-	struct {
-		unsigned short id, lv, mode;
-	} skill[MAX_ELEMSKILL];
 };
 
 extern struct s_elemental_db elemental_db[MAX_ELEMENTAL_CLASS];
@@ -66,23 +63,16 @@ struct elemental_data {
 	// AI Stuff
 	struct {
 		enum MobSkillState skillstate;
-		unsigned aggressive : 1; //Signals whether the mob AI is in aggressive mode or reactive mode. [Skotlex]
-		//unsigned char steal_flag; //number of steal tries (to prevent steal exploit on mobs with few items) [Lupus]
-		//unsigned steal_coin_flag : 1;
-		//unsigned soul_change_flag : 1; // Celest
-		//unsigned alchemist: 1;
+		unsigned aggressive : 1;
 		unsigned spotted: 1;
-		unsigned char attacked_count; //For rude attacked.
-		int provoke_flag; // Celest
-		//unsigned npc_killmonster: 1; //for new killmonster behavior
-		//unsigned rebirth: 1; // NPC_Rebirth used
-		//unsigned int bg_id; // BattleGround System
-		short control_state : 3;// State set through SO_EL_CONTROL
+		unsigned char attacked_count;
+		int provoke_flag;
+		unsigned alive : 1;// Flag if the elemental is dead or alive.
 	} state;
 	struct {
 		int id;
 		unsigned int dmg;
-		unsigned flag : 2; //0: Normal. 1: Homunc exp. 2: Pet exp
+		unsigned flag : 2;
 	} dmglog[DAMAGELOG_SIZE];
 
 	unsigned int tdmg;
@@ -112,10 +102,7 @@ void elem_summon_stop(struct elemental_data *ed);
 int elemental_get_lifetime(struct elemental_data *ed);
 int elemental_get_type(struct elemental_data *ed);
 
-int elemental_checkskill(struct elemental_data *ed, int skill_id);
-
-int elemental_set_control_state(struct elemental_data *ed, short control_state);
-
+int elemental_set_control_mode(struct elemental_data *ed, short control_mode);
 int elemental_passive_skill(struct elemental_data *ed);
 int elemental_defensive_skill(struct elemental_data *ed);
 int elemental_offensive_skill(struct elemental_data *ed);

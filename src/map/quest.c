@@ -261,7 +261,7 @@ void quest_update_objective(TBL_PC * sd, int mob_id)
 			else if (dropitem->isAnnounced) {
 				char output[CHAT_SIZE_MAX];
 
-				sprintf(output, msg_txt(717), sd->status.name, itemdb_jname(item.nameid), StringBuf_Value(&quest_db[sd->quest_index[i]].name));
+				sprintf(output, msg_txt(sd,717), sd->status.name, itemdb_jname(item.nameid), StringBuf_Value(&quest_db[sd->quest_index[i]].name));
 				intif_broadcast(output, strlen(output) + 1, BC_DEFAULT);
 			}
 		}

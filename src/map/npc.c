@@ -1099,17 +1099,17 @@ void run_tomb(struct map_session_data* sd, struct npc_data* nd)
     strftime(time, sizeof(time), "%H:%M", localtime(&nd->u.tomb.kill_time));
 
 	// TODO: Find exact color?
-	snprintf(buffer, sizeof(buffer), msg_txt(727), nd->u.tomb.md->db->name);
+	snprintf(buffer, sizeof(buffer), msg_txt(sd,727), nd->u.tomb.md->db->name);
     clif_scriptmes(sd, nd->bl.id, buffer);
 
-    clif_scriptmes(sd, nd->bl.id, msg_txt(728));
+    clif_scriptmes(sd, nd->bl.id, msg_txt(sd,728));
 
-    snprintf(buffer, sizeof(buffer), msg_txt(729), time);
+    snprintf(buffer, sizeof(buffer), msg_txt(sd,729), time);
     clif_scriptmes(sd, nd->bl.id, buffer);
 	
-    clif_scriptmes(sd, nd->bl.id, msg_txt(730));
+    clif_scriptmes(sd, nd->bl.id, msg_txt(sd,730));
 
- 	snprintf(buffer, sizeof(buffer), msg_txt(731), nd->u.tomb.killer_name[0] ? nd->u.tomb.killer_name : "Unknown"); 
+ 	snprintf(buffer, sizeof(buffer), msg_txt(sd,731), nd->u.tomb.killer_name[0] ? nd->u.tomb.killer_name : "Unknown"); 
 	clif_scriptmes(sd, nd->bl.id, buffer);
 
     clif_scriptclose(sd, nd->bl.id);
@@ -1153,7 +1153,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 				}
 
 				if (i == nd->u.shop.count) {
-					clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(534));
+					clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(sd,534));
 					return false;
 				}
 

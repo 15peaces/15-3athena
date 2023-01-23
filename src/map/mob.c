@@ -127,7 +127,7 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 	nd->bl.y = md->bl.y;
 	nd->bl.type = BL_NPC;
 	
-	safestrncpy(nd->name, msg_txt(726), sizeof(nd->name));
+	safestrncpy(nd->name, msg_txt(NULL,726), sizeof(nd->name));
 
 	nd->class_ = 565;
 	nd->speed = 200;
@@ -2383,7 +2383,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				struct item_data *i_data;
 				char message[128];
 				i_data = itemdb_search(ditem->item_data.nameid);
-				sprintf (message, msg_txt(541), mvp_sd->status.name, md->name, i_data->jname, (float)drop_rate/100);
+				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, i_data->jname, (float)drop_rate/100);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_broadcast(message,strlen(message)+1,0);
 			}
@@ -2512,7 +2512,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				struct item_data *i_data;
 				char message[128];
 				i_data = itemdb_exists(item.nameid);
-				sprintf (message, msg_txt(541), mvp_sd->status.name, md->name, i_data->jname, temp/100.);
+				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, i_data->jname, temp/100.);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
 				intif_broadcast(message,strlen(message)+1,0);
 			}

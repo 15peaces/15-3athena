@@ -604,12 +604,12 @@ extern struct Battle_Config
 	// Elemental Settings
 	int elemental_masters_walk_speed;
 	int elem_ai;
-	int elem_support;
+	int elem_defensive_support;
+	int elem_defensive_attack_skill;
 	int elem_offensive_skill_chance;
 	int elem_offensive_skill_casttime;
 	int elem_offensive_skill_aftercast;
-	int natural_elem_healhp_interval;
-	int natural_elem_healsp_interval;
+	int natural_elem_heal_interval;
 	int max_elemental_hp;
 	int max_elemental_sp;
 	int max_elemental_def_mdef;

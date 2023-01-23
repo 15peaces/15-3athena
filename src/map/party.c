@@ -11,7 +11,7 @@
 #include "../common/strlib.h"
 
 #include "party.h"
-#include "atcommand.h"	//msg_txt()
+#include "atcommand.h"	//msg_txt(sd,)
 #include "pc.h"
 #include "map.h"
 #include "instance.h"
@@ -379,7 +379,7 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	{
 		//GMs can't invite non GMs to the party if not above the invite trust level
 		//Likewise, as long as gm_can_party is off, players can't invite GMs.
-		clif_displaymessage(sd->fd, msg_txt(81));
+		clif_displaymessage(sd->fd, msg_txt(sd,81));
 		return 0;
 	}
 	
@@ -387,7 +387,7 @@ int party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	ARR_FIND(0, MAX_PARTY, i, p->data[i].sd == sd);
 	if (i == MAX_PARTY || !p->party.member[i].leader)
 	{	//TODO: Find the correct reply packet.
-		clif_displaymessage(sd->fd, msg_txt(282));
+		clif_displaymessage(sd->fd, msg_txt(sd,282));
 		return 0;
 	}
 
@@ -695,13 +695,13 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 		return false;
 
 	if (!tsd || tsd->status.party_id != sd->status.party_id) {
-		clif_displaymessage(sd->fd, msg_txt(283));
+		clif_displaymessage(sd->fd, msg_txt(sd,283));
 		return false;
 	}
 
 	if( map[sd->bl.m].flag.partylock )
 	{
-		clif_displaymessage(sd->fd, msg_txt(287));
+		clif_displaymessage(sd->fd, msg_txt(sd,287));
 		return false;
 	}
 
@@ -714,7 +714,7 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 
 	if (!p->party.member[mi].leader)
 	{	//Need to be a party leader.
-		clif_displaymessage(sd->fd, msg_txt(282));
+		clif_displaymessage(sd->fd, msg_txt(sd,282));
 		return false;
 	}
 
@@ -725,11 +725,11 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 	//Change leadership.
 	p->party.member[mi].leader = 0;
 	if (p->data[mi].sd->fd)
-		clif_displaymessage(p->data[mi].sd->fd, msg_txt(284));
+		clif_displaymessage(p->data[mi].sd->fd, msg_txt(sd,284));
 
 	p->party.member[tmi].leader = 1;
 	if (p->data[tmi].sd->fd)
-		clif_displaymessage(p->data[tmi].sd->fd, msg_txt(285));
+		clif_displaymessage(p->data[tmi].sd->fd, msg_txt(sd,285));
 
 	//Update info.
 	intif_party_leaderchange(p->party.party_id,p->party.member[tmi].account_id,p->party.member[tmi].char_id);

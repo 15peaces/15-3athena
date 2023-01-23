@@ -519,7 +519,7 @@ void guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 			|| (battle_config.guild_disable_invite&8 && (!map_flag_gvg(tsd->bl.m))) // Disable at normal condition
 			)
 		{
-			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(719));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(sd,719));
 			//clif_guild_inviteack(sd,0);
 			return;
 		}
@@ -691,7 +691,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, int account_id, int c
 			|| (battle_config.guild_disable_expel&8 && (!map_flag_gvg(sd->bl.m))) // Disable at normal condition
 			)
 		{
-			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(720));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(sd,720));
 			return 0;
 		}
 	}
@@ -731,7 +731,7 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, i
 			|| (battle_config.guild_disable_expel&8 && (!map_flag_gvg(sd->bl.m))) // Disable at normal condition
 			)
 		{
-			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(720));
+			clif_disp_overheadcolor_self(sd->fd,COLOR_RED,msg_txt(sd,720));
 			return 0;
 		}
 	}
@@ -1165,7 +1165,7 @@ int guild_reqalliance(struct map_session_data *sd,struct map_session_data *tsd)
 
 	if(is_agit_start())
 	{	// Disable alliance creation during woe [Valaris]
-		clif_displaymessage(sd->fd, msg_txt(676)); //"Alliances cannot be made during Guild Wars!"
+		clif_displaymessage(sd->fd, msg_txt(sd,676)); //"Alliances cannot be made during Guild Wars!"
 		return 0;
 	}	// end addition [Valaris]
 
@@ -1281,7 +1281,7 @@ int guild_delalliance(struct map_session_data *sd,int guild_id,int flag)
 
 	if(is_agit_start())
 	{	// Disable alliance breaking during woe [Valaris]
-		clif_displaymessage(sd->fd, msg_txt(525)); //"Alliances cannot be broken during Guild Wars!"
+		clif_displaymessage(sd->fd, msg_txt(sd,525)); //"Alliances cannot be broken during Guild Wars!"
 		return 0;
 	}	// end addition [Valaris]
 
@@ -1528,13 +1528,13 @@ int guild_gm_changed(int guild_id, int account_id, int char_id)
 
 	if (g->member[pos].sd && g->member[pos].sd->fd)
 	{
-		clif_displaymessage(g->member[pos].sd->fd, msg_txt(526)); //"You no longer are the Guild Master."
+		clif_displaymessage(g->member[pos].sd->fd, msg_txt(g->member[pos].sd,526)); //"You no longer are the Guild Master."
 		g->member[pos].sd->state.gmaster_flag = false;
 	}
 	
 	if (g->member[0].sd && g->member[0].sd->fd)
 	{
-		clif_displaymessage(g->member[0].sd->fd, msg_txt(527)); //"You have become the Guild Master!"
+		clif_displaymessage(g->member[0].sd->fd, msg_txt(g->member[pos].sd,527)); //"You have become the Guild Master!"
 		g->member[0].sd->state.gmaster_flag = true;
 		//Block his skills for 5 minutes to prevent abuse.
 		if (battle_config.guild_skill_relog_delay)

@@ -513,8 +513,6 @@ struct s_elemental {
 	int hp, max_hp, sp, max_sp;
 	unsigned short batk, matk, amotion;
 	short def, mdef, hit, flee;
-	short str, agi, vit, int_, dex, luk;
-	unsigned int mode;
 	unsigned int life_time;
 };
 

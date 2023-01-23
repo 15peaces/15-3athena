@@ -34,7 +34,7 @@ int _msg_config_read(const char* cfgName, int size, char ** msg_table)
 
 	if ((fp = fopen(cfgName, "r")) == NULL) {
 		ShowError("Messages file not found: %s\n", cfgName);
-		return 1;
+		return -1;
 	}
 
 	if ((--called) == 0)
@@ -72,4 +72,40 @@ void _do_final_msg(int size, char ** msg_table) {
 	int i;
 	for (i = 0; i < size; i++)
 		aFree(msg_table[i]);
+}
+
+/*
+ * lookup a langtype string into his associate langtype number
+ * return -1 if not found
+ */
+int msg_langstr2langtype(char * langtype) {
+	int lang = -1;
+	if (!strncmp(langtype, "eng", 2)) lang = 0;
+	else if (!strncmp(langtype, "rus", 2)) lang = 1;
+	else if (!strncmp(langtype, "spn", 2)) lang = 2;
+	else if (!strncmp(langtype, "ger", 2)) lang = 3;
+	else if (!strncmp(langtype, "chn", 2)) lang = 4;
+	else if (!strncmp(langtype, "mal", 2)) lang = 5;
+	else if (!strncmp(langtype, "idn", 2)) lang = 6;
+	else if (!strncmp(langtype, "frn", 2)) lang = 7;
+
+	return lang;
+}
+
+/*
+ * verify that the choosen langtype is enable
+ * return
+ *  1 : langage enable
+ * -1 : false range
+ * -2 : disable
+ */
+int msg_checklangtype(int lang, bool display) {
+	uint16 test = 1;
+	if (!lang) return 1; //default english
+	else if (lang < 0 && (test << (lang - 1)) > LANG_MAX) return -1; //false range
+	else if (LANG_ENABLE&(test << (lang - 1))) return 1;
+	else if (display) {
+		ShowDebug("Unsuported langtype=%d\n", lang);
+	}
+	return -2;
 }

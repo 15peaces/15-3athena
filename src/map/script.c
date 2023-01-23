@@ -13207,7 +13207,7 @@ BUILDIN_FUNC(recovery)
 			status_revive(&sd->bl, 100, 100);
 		else
 			status_percent_heal(&sd->bl, 100, 100);
-		clif_displaymessage(sd->fd, msg_txt(528)); // You have been recovered!
+		clif_displaymessage(sd->fd, msg_txt(sd,528)); // You have been recovered!
 	}
 	mapit_free(iter);
 	return 0;
@@ -15410,7 +15410,7 @@ BUILDIN_FUNC(callshop)
 		}
 
 		if (i == nd->u.shop.count) {
-			clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(534));
+			clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(sd,534));
 			return false;
 		}
 
@@ -16242,15 +16242,15 @@ BUILDIN_FUNC(getunitdata) {
 			}
 			getunitdata_sub(UELE_SIZE, ed->base_status.size);
 			getunitdata_sub(UELE_HP, ed->elemental.hp);
-			//getunitdata_sub(UELE_MAXHP, ed->elemental.max_hp);
+			getunitdata_sub(UELE_MAXHP, ed->elemental.max_hp);
 			getunitdata_sub(UELE_SP, ed->elemental.sp);
-			//getunitdata_sub(UELE_MAXSP, ed->elemental.max_sp);
+			getunitdata_sub(UELE_MAXSP, ed->elemental.max_sp);
 			getunitdata_sub(UELE_MASTERCID, ed->elemental.char_id);
 			getunitdata_sub(UELE_MAPID, ed->bl.m);
 			getunitdata_sub(UELE_X, ed->bl.x);
 			getunitdata_sub(UELE_Y, ed->bl.y);
 			getunitdata_sub(UELE_LIFETIME, ed->elemental.life_time);
-			getunitdata_sub(UELE_MODE, ed->elemental.mode);
+			//getunitdata_sub(UELE_MODE, ed->elemental.mode);
 			getunitdata_sub(UELE_SP, ed->base_status.speed);
 			getunitdata_sub(UELE_LOOKDIR, ed->ud.dir);
 			getunitdata_sub(UELE_CANMOVETICK, ed->ud.canmove_tick);
@@ -16601,7 +16601,7 @@ BUILDIN_FUNC(setunitdata) {
 			case UELE_X: if (!unit_walktoxy(bl, (short)value, ed->bl.y, 2)) unit_movepos(bl, (short)value, ed->bl.y, 0, 0); break;
 			case UELE_Y: if (!unit_walktoxy(bl, ed->bl.x, (short)value, 2)) unit_movepos(bl, ed->bl.x, (short)value, 0, 0); break;
 			case UELE_LIFETIME: ed->elemental.life_time = (unsigned int)value; break;
-			case UELE_MODE: ed->elemental.mode = (enum e_mode)value; break;
+			//case UELE_MODE: ed->elemental.mode = (enum e_mode)value; break;
 			case UELE_SPEED: ed->base_status.speed = (unsigned short)value; status_calc_misc(bl, &ed->base_status, ed->db->lv); break;
 			case UELE_LOOKDIR: unit_setdir(bl, (uint8)value); break;
 			case UELE_CANMOVETICK: ed->ud.canmove_tick = value > 0 ? (unsigned int)value : 0; break;
@@ -17280,7 +17280,7 @@ BUILDIN_FUNC(openauction)
 		return 0;
 
 	if (!battle_config.feature_auction) {
-		clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(517));
+		clif_disp_overheadcolor_self(sd->fd, COLOR_RED, msg_txt(sd,517));
 		return 0;
 	}
 
@@ -19261,12 +19261,12 @@ BUILDIN_FUNC(montransform) {
 
 	if (tick != 0) {
 		if (battle_config.gvg_mon_trans_disable && map_flag_gvg2(sd->bl.m)) {
-			clif_displaymessage(sd->fd, msg_txt(739)); // Transforming into monster is not allowed in Guild Wars.
+			clif_displaymessage(sd->fd, msg_txt(sd,739)); // Transforming into monster is not allowed in Guild Wars.
 			return 1;
 		}
 
 		if (sd->disguise){
-			clif_displaymessage(sd->fd, msg_txt(737)); // Cannot transform into monster while in disguise.
+			clif_displaymessage(sd->fd, msg_txt(sd,737)); // Cannot transform into monster while in disguise.
 			return 1;
 		}
 
