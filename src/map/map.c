@@ -1841,6 +1841,27 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_SPRITEMABLE, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SOULATTACK, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_EL_COST, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_CIRCLE_OF_FIRE_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_FIRE_CLOAK_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_WATER_SCREEN_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_WATER_DROP_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_WIND_STEP_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_WIND_CURTAIN_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_SOLID_SKIN_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_STONE_SHIELD_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_PYROTECHNIC_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_HEATER_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_TROPIC_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_AQUAPLAY_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_COOLER_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_CHILLY_AIR_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_GUST_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_BLAST_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_WILD_STORM_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_PETROLOGY_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_CURSED_SOIL_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_UPHEAVAL_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_TIDAL_WEAPON_OPTION, INVALID_TIMER);
 		if (battle_config.debuff_on_logout&1) 
 		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);

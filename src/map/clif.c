@@ -4909,6 +4909,9 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 	// display link (dstsd - crusader) to sd
 	if( dstsd->sc.data[SC_DEVOTION] && (d_bl = map_id2bl(dstsd->sc.data[SC_DEVOTION]->val1)) != NULL )
 		clif_devotion(d_bl, sd);
+	// display link (dstsd - elemental) to sd
+	if( dstsd->sc.data[SC_WATER_SCREEN_OPTION] && (d_bl = map_id2bl(dstsd->sc.data[SC_WATER_SCREEN_OPTION]->val1)) != NULL )
+		clif_devotion(d_bl, sd);
 }
 
 void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
@@ -4968,6 +4971,10 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 		break;
 	case BL_MER: // Devotion Effects
 		if( ((TBL_MER*)bl)->devotion_flag )
+			clif_devotion(bl, sd);
+		break;
+	case BL_ELEM: // Water Screen's Effect. Its basicly devotion.
+		if( ((TBL_ELEM*)bl)->water_screen_flag )
 			clif_devotion(bl, sd);
 		break;
 	case BL_NPC:
@@ -5031,10 +5038,6 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 #endif
 		}
 		break;
-		//case BL_ELEM: // Water Screen's Effect. Its basicly devotion. (FIX ME!!!) [Rytech]
-		//	if( ((TBL_ELEM*)bl)->devotion_flag )
-		//		clif_devotion(bl, sd);
-		//	break;
 	}
 }
 
@@ -8524,23 +8527,23 @@ void clif_devotion(struct block_list *src, struct map_session_data *tsd)
 	WBUFW(buf,0) = 0x1cf;
 	WBUFL(buf,2) = src->id;
 	if( src->type == BL_MER )
-	{
+	{// Mercenary's Devotion
 		struct mercenary_data *md = BL_CAST(BL_MER,src);
 		if( md && md->master && md->devotion_flag )
 			WBUFL(buf,6) = md->master->bl.id;
 
 		WBUFW(buf,26) = skill_get_range2(src, ML_DEVOTION, mercenary_checkskill(md, ML_DEVOTION));
 	}
-	/*if( src->type == BL_ELEM )
-	{// Aqua's Water Screen. Works like devotion. (FIX ME!!!) [Rytech]
+	else if (src->type == BL_ELEM)
+	{// Aqua's Water Screen. Works like devotion.
 		struct elemental_data *ed = BL_CAST(BL_ELEM,src);
-		if( ed && ed->master && ed->devotion_flag )
+		if (ed && ed->master && ed->water_screen_flag)
 			WBUFL(buf,6) = ed->master->bl.id;
 
-		WBUFW(buf,26) = skill_get_range2(src, EL_WATER_SCREEN, elemental_checkskill(ed, EL_WATER_SCREEN));
-	}*/
+		WBUFW(buf, 26) = 11;// Doesn't appear to have a actural range but gotta give it something.
+	}
 	else
-	{
+	{// Player's Devotion
 		struct map_session_data *sd = BL_CAST(BL_PC,src);
 		if( sd == NULL )
 			return;

@@ -1243,7 +1243,7 @@
 2449,9,6,2,0,0,0,5,1,yes,0,0,0,magic,0,		SO_PSYCHIC_WAVE,Psychic Wave
 2450,9,6,2,5,0,0,5,1,yes,0,0,0,magic,0,		SO_CLOUD_KILL,Cloud Kill
 2451,9,6,16,0,0x1,0,5,1,yes,0,0,0,none,0,	SO_STRIKING,Striking
-2452,9,6,2,3,0x1,0,5,1,yes,0,0,0,magic,0,	SO_WARMER,Warmer// CHECK - Do I need a recode???
+2452,9,6,2,3,0x1,0,5,1,yes,0,0,0,magic,0,	SO_WARMER,Warmer
 2453,9,6,2,0,0x1,0,5,1,yes,0,0,0,magic,0,	SO_VACUUM_EXTREME,Vacuum Extreme
 2454,9,6,1,4,0x2,1:1:2:2:3,5,1,yes,0,0,0,magic,0,	SO_VARETYR_SPEAR,Varetyr Spear// CHECK - I may need a recode.
 2455,7:7:7:7:9,6,2,0,0x3,1:1:2:2:3,5,1,yes,0,0,0,magic,0,	SO_ARRULLO,Arrullo
@@ -1618,8 +1618,8 @@
 // Elemental Spirits
 8401,0,6,4,3,0x2,1,1,1,no,0,0,0,weapon,3,	EL_CIRCLE_OF_FIRE,Circle of Fire
 8402,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		EL_FIRE_CLOAK,Fire Cloak
-8403,0,6,4,3,0,0,1,1,no,0,0,3,magic,3,		EL_FIRE_MANTLE,Fire Mantle
-8404,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		EL_WATER_SCREEN,Water Screen// Check - Devotion effect???
+8403,0,6,4,3,0,0,1,1,no,0,0,0,magic,3,		EL_FIRE_MANTLE,Fire Mantle
+8404,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		EL_WATER_SCREEN,Water Screen// Devotion link animation added but not official.
 8405,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		EL_WATER_DROP,Water Drop
 8406,0,6,4,0,0x1,0,1,1,no,0,0,0,none,0,		EL_WATER_BARRIER,Water Barrier
 8407,0,6,4,0,0x3,4,1,1,no,0,0,0,none,0,		EL_WIND_STEP,Wind Step

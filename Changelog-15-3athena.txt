@@ -5,6 +5,39 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/25/2023
+	r368 [15peaces]
+		*Merged missing changes from 3ceam rev. 897 - 898
+		*Elemental system recode part 4.
+			-This update focuses on adding the structures and handlings for the elementals skills and the status for them. This update also adds support for all of Agni's and Aqua's skills. Now that I have things set on how to handle these skills it should 
+			-be a smooth development for the remaining 2 elementals.
+		*Added some checks to help stablize the elemental skills.
+		*Fixed a issue where LV 1 elementals would not stay in passive mode.
+		*SA_AUTOSPELL
+			-Aftercast delay is now properly triggered on autocast.
+		*NC_RESEARCHFE
+			-Recoded the skill.
+			-Bonus ATK now only applies to fire and earth element monsters.
+			-Damage reduction is corrected to be a fixed reduction.
+			-The damage reduction only applies to attacks from fire and earth element monsters.
+		*SO_WARMER
+			-Recoded the skill.
+			-Freeze, Frost Misty, and Crystalize status are now removed by the AoE itself.
+			-HP recovery is now handled by the warmer status. This is the official handling.
+			-Status is now removed when you walk outside of the AoE.
+		*SO_EL_CONTROL
+			-Fixed a issue where the skill would fail even if you have a elemental.
+		*EL_CIRCLE_OF_FIRE; EL_FIRE_CLOAK; EL_PYROTECHNIC; EL_HEATER; EL_TROPIC; EL_FIRE_BOMB_ATK; EL_FIRE_WAVE_ATK; EL_WATER_SCREEN; EL_WATER_DROP; EL_WATER_BARRIER; EL_AQUAPLAY; EL_COOLER; EL_CHILLY_AIR; EL_ICE_NEEDLE; 
+		*EL_WATER_SCREW; EL_WATER_SCREW_ATK; EL_TIDAL_WEAPON
+			-Added support for these skills.
+		*EL_FIRE_MANTLE
+			-Number of hits per cell changed to 1.
+			-Due to the damage they deal and with no known official number, its best to keep it safe for now. Especially when you can lure a enemy to walk through multiple cells at a time. 1000% MATK is a lot of damage for 1 hit from a firewall.
+			-A regular LV 10 firewall deals 50% MATK per hit for 12 hits per cell.
+			-Thats 600% total.
+		*EL_FIRE_BOMB; EL_FIRE_WAVE
+			-Now has a 50/50 chance of casting 1 of 2 versions of itself.
+
 01/23/2023
 	r367 [15peaces]
 		*Merged missing changes from 3ceam rev. 895 - 896

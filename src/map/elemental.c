@@ -1240,7 +1240,7 @@ int elemental_set_control_mode(struct elemental_data *ed, short control_mode)
 			break;
 
 		case CONTROL_PASSIVE:
-			sc_start(&ed->bl, SC_EL_PASSIVE, 100, ed->battle_status.size, 0);// SP Cost depends on summon LV.
+			sc_start(&ed->bl, SC_EL_PASSIVE, 100, ed->battle_status.size + 1, 0);// SP Cost depends on summon LV.
 			unit_skilluse_id(&ed->bl, ed->bl.id, elemental_passive_skill(ed), 1);
 			break;
 
