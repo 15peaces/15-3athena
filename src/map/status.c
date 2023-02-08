@@ -776,6 +776,7 @@ void initChangeTables(void)
 	// Elementals
 	set_sc( EL_CIRCLE_OF_FIRE    , SC_CIRCLE_OF_FIRE  , SI_CIRCLE_OF_FIRE  , SCB_NONE );
 	set_sc( EL_FIRE_CLOAK        , SC_FIRE_CLOAK      , SI_FIRE_CLOAK      , SCB_NONE );
+	add_sc( EL_FIRE_MANTLE       , SC_BURNING         );
 	set_sc( EL_WATER_SCREEN      , SC_WATER_SCREEN    , SI_WATER_SCREEN    , SCB_NONE );
 	set_sc( EL_WATER_DROP        , SC_WATER_DROP      , SI_WATER_DROP      , SCB_NONE );
 	set_sc( EL_WATER_BARRIER     , SC_WATER_BARRIER   , SI_WATER_BARRIER   , SCB_BATK|SCB_WATK|SCB_FLEE|SCB_DEF|SCB_MDEF );
@@ -798,8 +799,12 @@ void initChangeTables(void)
 	set_sc( EL_CURSED_SOIL       , SC_CURSED_SOIL     , SI_CURSED_SOIL     , SCB_NONE );
 	set_sc( EL_UPHEAVAL          , SC_UPHEAVAL        , SI_UPHEAVAL        , SCB_NONE );
 	set_sc( EL_TIDAL_WEAPON      , SC_TIDAL_WEAPON    , SI_TIDAL_WEAPON    , SCB_WATK|SCB_ATK_ELE );
-	set_sc( EL_ROCK_CRUSHER      , SC_ROCK_CRUSHER    , SI_ROCK_CRUSHER    , SCB_NONE );
-	set_sc( EL_ROCK_CRUSHER_ATK  , SC_ROCK_CRUSHER_ATK, SI_ROCK_CRUSHER_ATK, SCB_NONE );
+	add_sc( EL_WIND_SLASH        , SC_BLEEDING        );
+	add_sc( EL_TYPOON_MIS_ATK    , SC_SILENCE         );
+	add_sc( EL_STONE_HAMMER      , SC_STUN            );
+	set_sc( EL_ROCK_CRUSHER      , SC_ROCK_CRUSHER    , SI_ROCK_CRUSHER    , SCB_DEF );
+	set_sc( EL_ROCK_CRUSHER_ATK  , SC_ROCK_CRUSHER_ATK, SI_ROCK_CRUSHER_ATK, SCB_SPEED );
+	add_sc( EL_STONE_RAIN        , SC_STUN            );
 
 	set_sc( GD_LEADERSHIP        , SC_GUILDAURA       , SI_BLANK           , SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX );
 	set_sc( GD_BATTLEORDER       , SC_BATTLEORDERS    , SI_BLANK           , SCB_STR|SCB_INT|SCB_DEX );
@@ -1159,9 +1164,9 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_FIRE_CLOAK_OPTION] |= SCB_ALL;
 	//StatusChangeFlagTable[SC_WATER_SCREEN_OPTION] |= SCB_NONE;
 	StatusChangeFlagTable[SC_WATER_DROP_OPTION] |= SCB_ALL;
-	//StatusChangeFlagTable[SC_WIND_STEP_OPTION] |= SCB_NONE;
+	StatusChangeFlagTable[SC_WIND_STEP_OPTION] |= SCB_FLEE | SCB_SPEED;
 	StatusChangeFlagTable[SC_WIND_CURTAIN_OPTION] |= SCB_ALL;
-	//StatusChangeFlagTable[SC_SOLID_SKIN_OPTION] |= SCB_NONE;
+	StatusChangeFlagTable[SC_SOLID_SKIN_OPTION] |= SCB_MAXHP | SCB_DEF;
 	StatusChangeFlagTable[SC_STONE_SHIELD_OPTION] |= SCB_ALL;
 	StatusChangeFlagTable[SC_PYROTECHNIC_OPTION] |= SCB_WATK;
 	StatusChangeFlagTable[SC_HEATER_OPTION] |= SCB_WATK;
@@ -2547,6 +2552,8 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 			//Increasing
 			if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2)
 				bonus += 500;
+			if (sc->data[SC_SOLID_SKIN_OPTION])
+				bonus += 2000;
 			if (sc->data[SC_LERADS_DEW])
 				bonus += sc->data[SC_LERADS_DEW]->val3;
 			if (sc->data[SC_PROMOTE_HEALTH_RESERCH])
@@ -2614,10 +2621,14 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += sc->data[SC_MUSTLE_M]->val1;
 			if (sc->data[SC_ANGRIFFS_MODUS])
 				bonus += (5 * sc->data[SC_ANGRIFFS_MODUS]->val1);
-			if (sc->data[SC_PETROLOGY_OPTION])
-				bonus += sc->data[SC_PETROLOGY_OPTION]->val2;
-			if (sc->data[SC_CURSED_SOIL_OPTION])
-				bonus += sc->data[SC_CURSED_SOIL_OPTION]->val2;
+			if(sc->data[SC_POWER_OF_GAIA])
+				bonus += 20;
+			if(sc->data[SC_PETROLOGY_OPTION])
+				bonus += 5;
+			if(sc->data[SC_CURSED_SOIL_OPTION])
+				bonus += 10;
+			if(sc->data[SC_UPHEAVAL_OPTION])
+				bonus += 15;
 
 			//Decreasing
 			if (sc->data[SC_VENOMBLEED])
@@ -3666,6 +3677,16 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		{
 			sd->subele[ELE_WATER] += 100;
 			sd->subele[ELE_WIND] -= 100;
+		}
+		if( sc->data[SC_WIND_CURTAIN_OPTION] )
+		{
+			sd->subele[ELE_WIND] += 100;
+			sd->subele[ELE_EARTH] -= 100;
+		}
+		if( sc->data[SC_STONE_SHIELD_OPTION] )
+		{
+			sd->subele[ELE_EARTH] += 100;
+			sd->subele[ELE_FIRE] -= 100;
 		}
 	}
 
@@ -5532,6 +5553,10 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += sc->data[SC_HALLUCINATIONWALK]->val2;
 	if (sc->data[SC_GOLDENE_FERSE])
 		flee += sc->data[SC_GOLDENE_FERSE]->val2;
+	if ( sc->data[SC_WIND_STEP_OPTION] )
+		flee += flee * 10 / 100;
+	if ( sc->data[SC_ZEPHYR] )
+		flee += flee * 25 / 100;
 	if(sc->data[SC_INCFLEERATE])
 		flee += flee * sc->data[SC_INCFLEERATE]->val1/100;
 	if ( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
@@ -5651,6 +5676,10 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += def * (5 * sd->charmball) / 100;
 	if (sc->data[SC_WATER_BARRIER])
 		def += def * 30 / 100;
+	if( sc->data[SC_SOLID_SKIN_OPTION] )
+		def += def * 50 / 100;// Official increase is 100%, but is overpowered for pre-re. Setting to 50%.
+	if( sc->data[SC_POWER_OF_GAIA] )
+		def += def * 50 / 100;// Official increase is 100%, but is overpowered for pre-re. Setting to 50%.
 	if (sc->data[SC_ANGRIFFS_MODUS])// Fixed decrease. Divided by 10 to keep it balanced for classic mechanics.
 		def -= (30 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1) / 10;
 	if(sc->data[SC_ODINS_POWER])
@@ -5696,6 +5725,13 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * sc->data[SC_EQC]->val3 / 100;
 	if (sc->data[SC_VOLCANIC_ASH] && bl->type == BL_MOB && status_get_race(bl) == RC_PLANT)
 		def -= def * 50 / 100;
+	if(sc->data[SC_ROCK_CRUSHER])
+	{
+		if ( bl->type == BL_PC )
+			def -= def * 50 / 100;
+		else
+			def -= def * 30 / 100;
+	}
 
 	return (signed char)cap_value(def, CHAR_MIN, battle_config.max_def);
 }
@@ -5936,6 +5972,10 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max(val, 90);
 				if (sc->data[SC_SP_SHA])
 					val = max(val, 50);
+				if( sc->data[SC_POWER_OF_GAIA] )
+					val = max( val, sc->data[SC_POWER_OF_GAIA]->val2 );
+				if( sc->data[SC_ROCK_CRUSHER_ATK] )
+					val = max( val, 50 );
 				if( sc->data[SC_MELON_BOMB] )
 					val = max( val, sc->data[SC_MELON_BOMB]->val2 );
 				if (sc->data[SC_REBOUND])
@@ -5987,6 +6027,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 				val = max(val, 25);
 			if (sc->data[SC_SPIRITOFLAND_SPEED])
 				val = max(val, 60);
+			if (sc->data[SC_WIND_STEP_OPTION])
+				val = max(val, 50);
 
 			//FIXME: official items use a single bonus for this [ultramage]
 			if( sc->data[SC_SPEEDUP0] ) // temporary item-based speedup
@@ -6034,6 +6076,8 @@ static short status_calc_aspd_amount(struct block_list *bl, struct status_change
 		aspd_amount += 10 * sc->data[SC_HEAT_BARREL]->val1;
 	if (sc->data[SC_SOULSHADOW])
 		aspd_amount += 10 * sc->data[SC_SOULSHADOW]->val2;
+	if (sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION])
+		aspd_amount += 10 * 5;
 	if (sc->data[SC_EXTRACT_SALAMINE_JUICE]) // Correct way to handle? [15peaces]
 		aspd_amount += sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
 
@@ -9841,6 +9885,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 						break;
 					case SC_PYROTECHNIC_OPTION:
 					case SC_AQUAPLAY_OPTION:
+					case SC_GUST_OPTION:
+					case SC_PETROLOGY_OPTION:
 						val2 = status_get_job_lv_effect(bl) / 3;// Skill Damage Increase
 						break;
 					case SC_HEATER_OPTION:
@@ -9848,12 +9894,22 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 						break;
 					case SC_TROPIC_OPTION:
 					case SC_CHILLY_AIR_OPTION:
+					case SC_WILD_STORM_OPTION:
+					case SC_UPHEAVAL_OPTION:
 						val2 = status_get_job_lv_effect(bl) / 2;// Autocast Chance
 						val3 = status_get_job_lv_effect(bl) / 10;// Autocasted Skill LV
 						break;
 					case SC_COOLER_OPTION:
 						val2 = 5 * status_get_job_lv_effect(bl);// Skill Damage Increase
 						val3 = status_get_job_lv_effect(bl) / 5;// Crystalize Chance Increase
+						break;
+					case SC_BLAST_OPTION:
+						val2 = status_get_job_lv_effect(bl) / 2;// Skill Damage Increase
+						val3 = 5 * status_get_job_lv_effect(bl);// Skill Damage Increase
+						break;
+					case SC_CURSED_SOIL_OPTION:
+						val2 = 5 * status_get_job_lv_effect(bl);// Skill Damage Increase
+						val3 = status_get_job_lv_effect(bl);// Skill Damage Increase
 						break;
 				}
 
@@ -9863,6 +9919,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 					tick = -1;
 			}
 			break;
+
+		case SC_POWER_OF_GAIA:
+			val2 = 60 - status_get_job_lv_effect(bl);// Movement Speed Reduction.
+			if (val2 < 0)
+				val2 = 0;
+			break;
+
 
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] == 0 && StatusIconChangeTable[type] == 0 )
@@ -10163,7 +10226,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		calc_flag&=~SCB_BODY;
 	}*/
 
-	if( (vd && (pcdb_checkid(vd->class_))) || bl->type == BL_MER ) //Only for players sprites, client crashes if they receive this for a mob o.O [Skotlex]
+	if ((vd && (pcdb_checkid(vd->class_))) || bl->type == BL_MOB || bl->type == BL_MER || bl->type == BL_ELEM)
 		clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val1 > 0) ? val1 : 1, (val2 > 0) ? val2 : 0, (val3 > 0) ? val3 : 0);
 	else if( sd ) //Send packet to self otherwise (disguised player?)
 		clif_status_load(bl,StatusIconChangeTable[type],1);
@@ -11252,7 +11315,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	}*/
 
 	//On Aegis, when turning off a status change, first goes the sc packet, then the option packet.
-	if( vd && (pcdb_checkid(vd->class_) || bl->type == BL_MER || bl->type == BL_MOB) )
+	if (vd && (pcdb_checkid(vd->class_) || bl->type == BL_MOB || bl->type == BL_MER || bl->type == BL_ELEM))
 		clif_status_change(bl,StatusIconChangeTable[type],0,0, 0, 0, 0);
 	else if (sd)
 		clif_status_load(bl,StatusIconChangeTable[type],0);

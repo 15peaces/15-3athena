@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/08/2023
+	r369 [15peaces]
+		*Merged missing changes from 3ceam rev. 899 - 900
+		*Some misc. cleaning.
+		*Added primary keys to the mapreg sql-table.
+			-Please don't forget to add the upgrade_15-3athena_svn369.sql file!
+			-This will fix some issues with newer sql-versions.
+		*Added display of enabled languages in @langtype
+		*Speeded up language checks and ignore cases.
+		*Elemental system recode part 5.
+			-This update focused on adding support for all of Ventus's and Tera's skills.
+			-With this update, the recoding of the entire elemental system is now complete.
+			-Any further updates to the system will be bug fixes and optimization.
+		*Reduced the amount of code used for some autocasting status's.
+		*EL_WIND_STEP; EL_WIND_CURTAIN; EL_ZEPHYR; EL_GUST; EL_BLAST; EL_WILD_STORM; EL_WIND_SLASH; EL_HURRICANE; EL_HURRICANE_ATK; EL_TYPOON_MIS; EL_TYPOON_MIS_ATK; EL_SOLID_SKIN; EL_STONE_SHIELD; EL_POWER_OF_GAIA; EL_PETROLOGY
+		*EL_CURSED_SOIL; EL_UPHEAVAL; EL_STONE_HAMMER; EL_ROCK_CRUSHER; EL_ROCK_CRUSHER_ATK; EL_STONE_RAIN
+			-Added support for these skills.
+
 01/25/2023
 	r368 [15peaces]
 		*Merged missing changes from 3ceam rev. 897 - 898

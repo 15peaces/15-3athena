@@ -669,6 +669,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	struct map_session_data *sd, *dstsd;
 	struct mob_data *md, *dstmd;
 	struct homun_data *hd;
+	struct elemental_data *ed;
 	struct status_data *sstatus, *tstatus;
 	struct status_change *sc, *tsc;
 	int s_job_level = 50;
@@ -690,6 +691,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	sd = BL_CAST(BL_PC, src);
 	md = BL_CAST(BL_MOB, src);
 	hd = BL_CAST(BL_HOM, src);
+	ed = BL_CAST(BL_ELEM, src);
 	dstsd = BL_CAST(BL_PC, bl);
 	dstmd = BL_CAST(BL_MOB, bl);
 
@@ -1670,6 +1672,49 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 	case EL_FIRE_MANTLE:
 		sc_start(bl, SC_BURNING, 5, skilllv, skill_get_time2(skillid, skilllv));
+		break;
+	case EL_WIND_SLASH:
+		{
+			int duration = 10000;// Default JobLv 50 duration.
+			if ( ed )
+				duration = skill_get_time(skillid,skilllv) * status_get_job_lv_effect(&ed->master->bl) / 5;
+			status_change_start(bl,SC_BLEEDING,2500,skilllv,0,0,0,duration,2);
+		}
+		break;
+	case EL_TYPOON_MIS_ATK:
+		status_change_start(bl,SC_SILENCE,10000,skilllv,0,0,0,skill_get_time(skillid,skilllv) * status_get_base_lv_effect(bl) / 10,2);
+		break;
+	case EL_STONE_HAMMER:
+		sc_start(bl,SC_STUN,25,skilllv,skill_get_time(skillid,skilllv));
+		break;
+	case EL_ROCK_CRUSHER:
+		{
+			int duration = 15000;// Default BaseLV duration.
+			if ( ed )
+				duration = skill_get_time(skillid,skilllv) * status_get_base_lv_effect(&ed->master->bl) / 10;
+			sc_start(bl,SC_ROCK_CRUSHER,100,skilllv,duration);
+		}
+		break;
+	case EL_ROCK_CRUSHER_ATK:
+		{
+			short chance = 100;
+			int duration = 15000;// Default BaseLV duration.
+			if ( ed )
+			{
+				chance = status_get_base_lv_effect(&ed->master->bl) + status_get_job_lv_effect(&ed->master->bl) - status_get_lv(bl) - tstatus->vit;
+				duration = skill_get_time(skillid,skilllv) * status_get_base_lv_effect(&ed->master->bl) / 10;
+			}
+			sc_start(bl,SC_ROCK_CRUSHER_ATK,chance,skilllv,duration);
+		}
+		break;
+	case EL_STONE_RAIN:
+		if ( attack_type&BF_WEAPON )
+		{// Only the physical version can stun.
+			int duration = 5000;// Default JobLv 50 duration.
+			if ( ed )
+				duration = skill_get_time(skillid,skilllv) * status_get_job_lv_effect(&ed->master->bl) / 10;
+			status_change_start(bl,SC_STUN,5000,skilllv,0,0,0,duration,2);
+		}
 		break;
 	}
 
@@ -2710,6 +2755,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skillid,-1,5);
 		break;
 	case EL_CIRCLE_OF_FIRE:
+	case EL_STONE_RAIN:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, 0, -2, 5);
 		break;
 
@@ -4091,6 +4137,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case MH_SILVERVEIN_RUSH:
 	case MH_MIDNIGHT_FRENZY:
 	case MH_CBC:
+	case EL_WIND_SLASH:
+	case EL_STONE_HAMMER:
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 	case NC_MAGMA_ERUPTION:
@@ -4518,6 +4566,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case EL_FIRE_BOMB_ATK:
 	case EL_FIRE_WAVE_ATK:
 	case EL_WATER_SCREW_ATK:
+	case EL_HURRICANE_ATK:
 		if (flag&1)
 		{	//Recursive invocation
 			// skill_area_temp[0] holds number of targets in area
@@ -4783,6 +4832,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case EL_FIRE_WAVE:
 	case EL_WATER_SCREW:
 	case EL_TIDAL_WEAPON:
+	case EL_HURRICANE:
+	case EL_TYPOON_MIS:
+	case EL_ROCK_CRUSHER:
 		{
 			short skill_switch = 0;
 
@@ -4795,7 +4847,16 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					clif_skill_damage(src, &ed->master->bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 5);
 					sc_start(&ed->bl, SC_TIDAL_WEAPON, 100, 1, skill_get_time(skillid, skilllv));
 				}
-
+				else if (skillid == EL_TYPOON_MIS)
+				{
+					clif_skill_damage(src, bl, tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 5);
+					skill_attack(skill_get_type(EL_TYPOON_MIS_ATK), src, src, bl, EL_TYPOON_MIS_ATK, skilllv, tick, flag);
+				}
+				else if ( skillid == EL_ROCK_CRUSHER )
+				{
+					clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 5);
+					skill_attack(skill_get_type(EL_ROCK_CRUSHER_ATK),src,src,bl,EL_ROCK_CRUSHER_ATK,skilllv,tick,flag);
+				}
 				else
 				{
 					switch ( skillid )
@@ -4811,10 +4872,35 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 						case EL_WATER_SCREW:
 							skill_switch = EL_WATER_SCREW_ATK;
 							break;
+
+						case EL_HURRICANE:
+							skill_switch = EL_HURRICANE_ATK;
+							break;
 					}
 					clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 5);
 					skill_castend_damage_id(src, bl, skill_switch, skilllv, tick, flag);
 				}
+			}
+		}
+		break;
+
+	case EL_STONE_RAIN:
+		if ( !flag && rand()%100 < 50 )
+		{// Physical Version. Single target.
+			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+			skill_attack(skill_get_type(skillid),src,src,bl,skillid,skilllv,tick,flag);
+		}
+		else
+		{
+			if( flag&1 )
+			{// Magical version. Does a splash attack.
+				skill_attack(BF_MAGIC, src, src, bl, skillid, skilllv, tick, flag);
+			}
+			else
+			{
+				skill_area_temp[0] = 0;
+				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+				map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
 			}
 		}
 		break;
@@ -6148,6 +6234,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{// Activate the status only if casted by a elemental since it checks for its master on startup.
 			clif_skill_damage(src, &ed->master->bl, tick, status_get_amotion(src), 0, 0, 1, skillid, skilllv, 6);
 			sc_start(bl, type, 100, skilllv, skill_get_time(skillid,skilllv));
+
+			if( skillid == EL_WIND_STEP && !map_flag_gvg(src->m) && !map[src->m].flag.battleground )
+			{// No position jumping on GvG maps.
+				short x, y;
+				map_search_freecell(&ed->master->bl, 0, &x, &y, 4, 4, 0);
+				if (unit_movepos(&ed->master->bl, x, y, 0, 0))
+					clif_slide(&ed->master->bl,ed->master->bl.x,ed->master->bl.y);
+			}
 		}
 		break;
 
@@ -7180,6 +7274,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MG_STONECURSE:
 		{
+			short stone_chance = 20 + 4 * skilllv;
+
 			if (tstatus->mode&MD_BOSS) {
 				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -7192,7 +7288,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
-			if (sc_start4(bl,SC_STONE,(skilllv*4+20),
+			if ( sc && sc->data[SC_PETROLOGY_OPTION] )
+				stone_chance += 25;
+			if (sc_start4(bl,SC_STONE,stone_chance,
 				skilllv, 0, 0, skill_get_time(skillid, skilllv),
 				skill_get_time2(skillid,skilllv)))
 					clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -12787,6 +12885,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	int target,interval,range,unit_flag;
 	struct s_skill_unit_layout *layout;
 	struct map_session_data *sd;
+	struct elemental_data *ed;
 	struct status_data *status;
 	struct status_change *sc;
 	int active_flag=1;
@@ -12807,6 +12906,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	layout = skill_get_unit_layout(skillid,skilllv,src,x,y,dir);
 
 	sd = BL_CAST(BL_PC, src);
+	ed = BL_CAST(BL_ELEM, src);
 	status = status_get_status_data(src);
 	sc = status_get_sc(src);	// for traps, firewall and fogwall - celest
 
@@ -13089,6 +13189,10 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case MH_STEINWAND:
 		val2=skilllv+4;
 		break;
+
+	case EL_ZEPHYR:
+		val2 = status_get_job_lv_effect(&ed->master->bl) / 2;
+		break;
 	}
 
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skillid,skilllv,skill_get_unit_id(skillid,flag&1)+subunt, limit, interval));
@@ -13355,12 +13459,16 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_CN_POWDERING:
 	case UNT_NYANGGRASS:
 	case UNT_WATER_BARRIER:
-	case UNT_ZEPHYR:
 	case UNT_POWER_OF_GAIA:
 		if (sg->src_id == bl->id && (sg->unit_id == UNT_STEALTHFIELD || sg->unit_id == UNT_BLOODYLUST))
 			return 0;// Can't be affected by your own AoE.
 		if(!sce)
 			sc_start(bl,type,100,sg->skill_lv,sg->limit);
+		break;
+
+	case UNT_ZEPHYR:
+		if(!sce)
+			sc_start2(bl,type,100,sg->skill_lv,sg->val2,sg->limit);
 		break;
 
 	case UNT_WARMER:
@@ -16103,7 +16211,9 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 
 		if (sc && (
 			(sc->data[SC_TROPIC_OPTION] && (skill == SA_FLAMELAUNCHER || skill == SA_VOLCANO)) ||
-			(sc->data[SC_CHILLY_AIR_OPTION] && (skill == SA_FROSTWEAPON || skill == SA_DELUGE))
+			(sc->data[SC_CHILLY_AIR_OPTION] && (skill == SA_FROSTWEAPON || skill == SA_DELUGE)) ||
+			(sc->data[SC_WILD_STORM_OPTION] && (skill == SA_LIGHTNINGLOADER || skill == SA_VIOLENTGALE)) ||
+			(sc->data[SC_UPHEAVAL_OPTION] && skill == SA_SEISMICWEAPON)
 			) && rand() % 100 < 50)
 			req.amount[i] = req.itemid[i] = 0;
 	}
@@ -16183,7 +16293,7 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 				req.sp -= req.sp * 10 / 100;
 			break;
 		case SO_PSYCHIC_WAVE:
-			if (sc && (sc->data[SC_HEATER_OPTION] || sc->data[SC_COOLER_OPTION]))
+			if (sc && (sc->data[SC_HEATER_OPTION] || sc->data[SC_COOLER_OPTION] || sc->data[SC_GUST_OPTION] || sc->data[SC_CURSED_SOIL_OPTION]))
 				req.sp += req.sp * 50 / 100;
 			break;
 		case SO_SUMMON_AGNI:
@@ -16302,6 +16412,8 @@ int skill_castfix (struct block_list *bl, int skill_id, int skill_lv)
 	//These status's adjust the fixed cast time by a fixed amount. Fixed adjustments stack and can increase or decrease the time.
 	if (sc && sc->count)
 	{
+		if (sc->data[SC_GUST_OPTION] || sc->data[SC_BLAST_OPTION] || sc->data[SC_WILD_STORM_OPTION])
+			fixed_time -= 1000;
 		if( sc->data[SC_MANDRAGORA] )
 			fixed_time += 500 * sc->data[SC_MANDRAGORA]->val1;
 	}

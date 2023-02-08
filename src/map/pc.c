@@ -2292,6 +2292,9 @@ int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short 
 {
 	int i;
 
+	nullpo_ret(bonus);
+	nullpo_ret(script);
+
 	ARR_FIND(0, max, i, bonus[i].rate == 0);
 	if( i == max )
 	{
