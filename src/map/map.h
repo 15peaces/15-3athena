@@ -783,14 +783,15 @@ extern char *SCRIPT_CONF_NAME;
 extern char *MSG_CONF_NAME_EN;
 extern char *GRF_PATH_FILENAME;
 
-//other lang supported
+//Other languages supported
 char *MSG_CONF_NAME_RUS;
+char *MSG_CONF_NAME_SPN;
 char *MSG_CONF_NAME_GER;
 char *MSG_CONF_NAME_CHN;
 char *MSG_CONF_NAME_MAL;
-char *MSG_CONF_NAME_IND;
+char *MSG_CONF_NAME_IDN;
 char *MSG_CONF_NAME_FRN;
-char *MSG_CONF_NAME_SPN;
+char *MSG_CONF_NAME_POR;
 
 //Useful typedefs from jA [Skotlex]
 typedef struct map_session_data TBL_PC;

@@ -14,20 +14,27 @@ enum lang_types {
 	LANG_GER = 0x04,
 	LANG_CHN = 0x08,
 	LANG_MAL = 0x10,
-	LANG_IND = 0x20,
+	LANG_IDN = 0x20,
 	LANG_FRN = 0x40,
+	LANG_POR = 0x80,
 	LANG_MAX
 };
-// What languages are enabled? bitmask FF mean all
-//#define LANG_ENABLE 0xFF
+
+// Multilanguage System.
+// Define which languages to enable (bitmask).
+// 0xFF will enable all, while 0x00 will enable English only.
 #define LANG_ENABLE 0x00
 
+//read msg in table
 const char* _msg_txt(int msg_number, int size, char ** msg_table);
+//store msg from txtfile into msg_table
 int _msg_config_read(const char* cfgName, int size, char ** msg_table);
+//clear msg_table
 void _do_final_msg(int size, char ** msg_table);
+//Lookups
 int msg_langstr2langtype(char * langtype);
 const char* msg_langtype2langstr(int langtype);
-//verify that the choosen langtype is enable
+// Verify that the choosen langtype is enabled.
 int msg_checklangtype(int lang, bool display);
 
 #ifdef	__cplusplus

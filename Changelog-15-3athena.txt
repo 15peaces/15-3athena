@@ -7,6 +7,19 @@
 //========================================
 02/08/2023
 	r369 [15peaces]
+		*As of this update all 3ceam changes (compared to 3ceam r903) are finally merged!
+			-Another big THANK YOU to Rytech for doing this great work for all of these years.
+		*Updates to the language system, thanks to @rathena
+			-Updated file reading to be more dynamic.
+			-Updated @langtype to display available languages when no arg entered.
+			-Introduced support for Brazilian Portuguese messages in map_msg;
+				--Added support for "sim"(yes) and "nao"(no) in config settings.
+		*'summon' command now takes milliseconds instead of seconds, as documented in script_commands.txt.
+		*Users can no longer attack while in chat rooms.
+		*Weapon Refine now gets straight bonus when used by Mechanic.
+		
+02/08/2023
+	r369 [15peaces]
 		*Merged missing changes from 3ceam rev. 899 - 900
 		*Some misc. cleaning.
 		*Added primary keys to the mapreg sql-table.

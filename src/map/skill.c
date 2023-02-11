@@ -18951,7 +18951,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	} 
 	else 
 	{ // Weapon Forging - skill bonuses are straight from kRO website, other things from a jRO calculator [DracoRPG]
-		make_per = 5000 + sd->status.job_level * 20 + status->dex * 10 + status->luk * 10; // Base
+		make_per = 5000 + ((sd->class_&JOBL_THIRD) ? 1400 : sd->status.job_level * 20) + status->dex * 10 + status->luk * 10; // Base
 		make_per += pc_checkskill (sd, skill_id) * 500; // Smithing skills bonus: +5/+10/+15
 		make_per += pc_checkskill (sd, BS_WEAPONRESEARCH) * 100 +((wlv >= 3) ? pc_checkskill(sd, BS_ORIDEOCON) * 100 : 0); // Weaponry Research bonus: +1/+2/+3/+4/+5/+6/+7/+8/+9/+10, Oridecon Research bonus (custom): +1/+2/+3/+4/+5
 		make_per -= (ele ? 2000 : 0) + sc * 1500 + (wlv > 1 ? wlv * 1000 : 0); // Element Stone: -20%, Star Crumb: -15% each, Weapon level malus: -0/-20/-30

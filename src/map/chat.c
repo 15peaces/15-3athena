@@ -100,6 +100,7 @@ int chat_createpcchat(struct map_session_data* sd, const char* title, const char
 		cd->users = 1;
 		cd->usersd[0] = sd;
 		pc_setchatid(sd,cd->bl.id);
+		pc_stop_attack(sd);
 		clif_createchat(sd,0);
 		clif_dispchat(cd,0);
 

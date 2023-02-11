@@ -11,6 +11,7 @@
 
 //-----------------------------------------------------------
 // Return the message string of the specified number by [Yor]
+// (read in table msg_table, with specified lenght table in size)
 //-----------------------------------------------------------
 
 const char* _msg_txt(int msg_number, int size, char ** msg_table)
@@ -23,7 +24,7 @@ const char* _msg_txt(int msg_number, int size, char ** msg_table)
 }
 
 /*==========================================
- * Read Message Data
+ * Read txt file and store them into msg_table
  *------------------------------------------*/
 int _msg_config_read(const char* cfgName, int size, char ** msg_table)
 {
@@ -66,7 +67,7 @@ int _msg_config_read(const char* cfgName, int size, char ** msg_table)
 }
 
 /*==========================================
- * Cleanup Message Data
+ * Destroy msg_table (freeup mem)
  *------------------------------------------*/
 void _do_final_msg(int size, char ** msg_table) {
 	int i;
@@ -88,10 +89,15 @@ int msg_langstr2langtype(char * langtype) {
 	else if (!strncmpi(langtype, "mal", 2)) lang = 5;
 	else if (!strncmpi(langtype, "idn", 2)) lang = 6;
 	else if (!strncmpi(langtype, "frn", 2)) lang = 7;
+	else if (!strncmpi(langtype, "por", 2)) lang = 8;
 
 	return lang;
 }
 
+/*
+ * lookup a langtype into his associate lang string
+ * return ?? if not found
+ */
 const char* msg_langtype2langstr(int langtype) {
 	switch (langtype) {
 	case 0: return "English (ENG)";
@@ -102,6 +108,7 @@ const char* msg_langtype2langstr(int langtype) {
 	case 5: return "Malasian (MAL)";
 	case 6: return "Indonesian (IDN)";
 	case 7: return "French (FRN)";
+	case 8: return "Brazilian Portuguese (POR)";
 	default: return "??";
 	}
 }
@@ -119,7 +126,7 @@ int msg_checklangtype(int lang, bool display) {
 	else if (lang < 0 || test > LANG_MAX) return -1; //false range
 	else if (LANG_ENABLE&test) return 1;
 	else if (display) {
-		ShowDebug("Unsuported langtype=%d\n", lang);
+		ShowDebug("Unsupported langtype '%d'.\n", lang);
 	}
 	return -2;
 }
