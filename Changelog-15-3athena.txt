@@ -5,8 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
-02/08/2023
-	r369 [15peaces]
+02/14/2023
+	r371 [15peaces]
+		*Fixed the 'defpattern' script command... again.
+			-It got broken when I removed the temp-fix for the chat system.
+		*Changed hom_bonus_exp_from_master setting to 10% as it is on officials.
+		*Some fixes related to pet eggs thanks to @rathena
+			-Fixed if you have a pet and the pet egg is flagged as non-droppable and your inventory is full and you try to return the pet to the egg, the egg would drop; now you won't be able to return the pet to the egg.
+			-Fix for @item, if you use an egg id it would create it regardless of your inventory limit, dropping the item if your inventory is full; now it won't create the egg.
+		*Now the languages at @langtype are displayed as they are written in their original language.
+
+02/11/2023
+	r370 [15peaces]
 		*As of this update all 3ceam changes (compared to 3ceam r903) are finally merged!
 			-Another big THANK YOU to Rytech for doing this great work for all of these years.
 		*Updates to the language system, thanks to @rathena

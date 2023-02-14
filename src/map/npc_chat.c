@@ -363,7 +363,7 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 	msg = va_arg(ap,char*);
 	len = va_arg(ap,int);
 	sd = va_arg(ap,struct map_session_data *);
-	
+
 	// iterate across all active sets
 	for (pcreset = npcParse->active; pcreset != NULL; pcreset = pcreset->next)
 	{
@@ -373,7 +373,7 @@ int npc_chat_sub(struct block_list* bl, va_list ap)
 			int offsets[2*10 + 10]; // 1/3 reserved for temp space requred by pcre_exec
 			
 			// perform pattern match
-			int r = pcre_exec(e->pcre_, e->pcre_extra_, msg, len, 0, 0, offsets, ARRAYLENGTH(offsets));
+			int r = pcre_exec(e->pcre_, e->pcre_extra_, msg, len+1, 0, 0, offsets, ARRAYLENGTH(offsets));
 			if (r > 0)
 			{
 				// save out the matched strings
