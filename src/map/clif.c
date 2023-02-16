@@ -11086,9 +11086,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			sd->pvp_lost = 0;
 		}
 		clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF);
-	} else
-	// set flag, if it's a duel [LuzZza]
-	if(sd->duel_group)
+	} else if(sd->duel_group) // set flag, if it's a duel [LuzZza]
 		clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF);
 	else if (map[sd->bl.m].flag.gvg_dungeon)
 		clif_map_property(&sd->bl, MAPPROPERTY_FREEPVPZONE, SELF); //TODO: Figure out the real packet to send here.

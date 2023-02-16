@@ -406,7 +406,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 	if ( skill_id == AB_HIGHNESSHEAL )
 		hp += hp * ( 70 + 30 * skill_lv ) / 100;
 
-	if( ( (target && target->type == BL_MER) || !heal ) && skill_id != NPC_EVILLAND )
+	if( (!heal || (target && target->type == BL_MER) ) && skill_id != NPC_EVILLAND )
 		hp >>= 1;
 
 	if( sd && (skill = pc_skillheal_bonus(sd, skill_id)) )
@@ -435,10 +435,9 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 			if ( sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2 )
 				hp += hp * 10 / 100;
 		}
-		//Critical Wound and Death Hurt stacks. Need to fix when I fix the bugs in this heal code. [Rytech]
-		if( sc->data[SC_CRITICALWOUND] && heal ) // Critical Wound has no effect on offensive heal. [Inkfish]
+		if( heal && sc->data[SC_CRITICALWOUND] ) // Critical Wound has no effect on offensive heal. [Inkfish]
 			hp -= hp * sc->data[SC_CRITICALWOUND]->val2/100;
-		if( sc->data[SC_DEATHHURT] )
+		if( heal && sc->data[SC_DEATHHURT] )
 			hp -= hp * 20 / 100;
 	}
 

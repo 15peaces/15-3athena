@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/15/2023
+	r372 [15peaces]
+		*Some cleaning.
+		*Updated item bonuses for LV5 Assumptio Scroll (12218) and Chemical Protection scrolls.
+		*Implemented "item_nouse.txt" to prevent players from using items under certain flags (which are pre-determined).
+			-Thanks to @rathena
+
 02/14/2023
 	r371 [15peaces]
 		*Fixed the 'defpattern' script command... again.

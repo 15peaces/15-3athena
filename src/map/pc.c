@@ -4557,6 +4557,9 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		return 0;
 	if (item->flag.dead_branch && (map[sd->bl.m].flag.nobranch || map_flag_gvg(sd->bl.m)))
 		return 0;
+	if ((item->item_usage.flag&NOUSE_SITTING) && (pc_issit(sd) == 1) && (sd->gmlevel < item->item_usage.override)) {
+		return 0; // You cannot use this item while sitting.
+	}
 
 	if (sd->state.storage_flag && item->type != IT_CASH) {
 		clif_displaymessagecolor(sd, msg_txt(sd,389), COLOR_RED); // You cannot use this item while storage is open.
@@ -4568,10 +4571,6 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 		case ITEMID_ANODYNE:
 			if( map_flag_gvg(sd->bl.m) )
 				return 0;
-		case ITEMID_ALOEBERA:
-			if( pc_issit(sd) )
-				return 0;
-			break;
 		case ITEMID_WING_OF_FLY:
 		case ITEMID_GIANT_FLY_WING:
 			if( map[sd->bl.m].flag.noteleport || map_flag_gvg(sd->bl.m) || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )	// Cell PVP [Napster]

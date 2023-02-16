@@ -301,6 +301,10 @@ struct s_roulette_db
 	int items[MAX_ROULETTE_LEVEL]; /// Number of items in the list for each
 } rd;
 
+enum {
+	NOUSE_SITTING = 0x01,
+} item_nouse_list;
+
 struct item_data {
 	unsigned short nameid;
 	char name[ITEM_NAME_LENGTH],jname[ITEM_NAME_LENGTH];
@@ -345,6 +349,10 @@ struct item_data {
 		unsigned guid : 1; // This item always be attached with GUID and make it as bound item! [Cydh]
 		unsigned fixed_drop : 1;
 	} flag;
+	struct {// used by item_nouse.txt
+		unsigned int flag;
+		unsigned short override;
+	} item_usage;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]
 };
