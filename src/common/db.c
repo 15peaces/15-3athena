@@ -2533,6 +2533,21 @@ DBData db_ptr2data(void *data)
 }
 
 /**
+ * Gets int type data from struct DBData.
+ * If data is not int type, returns 0.
+ * @param data Data
+ * @return Integer value of the data.
+ * @public
+ */
+int db_data2i(DBData *data)
+{
+	DB_COUNTSTAT(db_data2i);
+	if (data && DB_DATA_INT == data->type)
+		return data->u.i;
+	return 0;
+}
+
+/**
  * Initializes the database system.
  * @public
  * @see #db_final(void)

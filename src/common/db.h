@@ -600,12 +600,15 @@ struct DBMap {
 #define uidb_exists(db,k)  ( (db)->exists((db),db_ui2key(k)) )
 #define strdb_exists(db,k) ( (db)->exists((db),db_str2key(k)) )
 
+// Get pointer-type data from DBMaps of various key types
 #define db_get(db,k)    ( (db)->get((db),(k)) )
 #define idb_get(db,k)   ( (db)->get((db),db_i2key(k)) )
 #define uidb_get(db,k)  ( (db)->get((db),db_ui2key(k)) )
 #define strdb_get(db,k) ( (db)->get((db),db_str2key(k)) )
 #define i64db_get(db,k)  ( (db)->get((db),db_i642key(k)) )
 
+// Get int-type data from DBMaps of various key types
+#define strdb_iget(db,k)  ( db_data2i((db)->get((db),db_str2key(k))) )
 
 #define db_put(db,k,d)    ( (db)->put((db),(k),(d)) )
 #define idb_put(db,k,d)   ( (db)->put((db),db_i2key(k),(d)) )
@@ -794,6 +797,15 @@ DBData db_ptr2data(void *data);
 * @public
 */
 void* db_data2ptr(DBData *data);
+
+/**
+ * Gets int type data from struct DBData.
+ * If data is not int type, returns 0.
+ * @param data Data
+ * @return Integer value of the data.
+ * @public
+ */
+int db_data2i(DBData *data);
 
 /**
  * Initialize the database system.

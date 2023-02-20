@@ -155,6 +155,7 @@ unsigned short mapindex_addmap(unsigned short index, const char* name)
 	if( mapindex_exists(index) )
 	{
 		ShowWarning("mapindex_addmap: Overriding existing index [%u]: '%s' -> '%s'\n", index, mapindex_indexes[index], map_name);
+		strdb_remove(mapindex_db, mapindex_indexes[index]);
 	}
 
 	mapindex_indexes[index] = aStrdup(map_name);
@@ -233,6 +234,10 @@ void mapindex_init(void)
 	}
 
 	fclose(fp);
+
+	if (!strdb_iget(mapindex_db, MAP_DEFAULT)) {
+		ShowError("mapindex_init: MAP_DEFAULT '%s' not found in cache! Update MAP_DEFAULT in mapindex.h!\n", MAP_DEFAULT);
+	}
 
 	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, mapindex_cfgfile);
 }

@@ -1331,7 +1331,7 @@ int chrif_load_scdata(int fd)
 	for (i = 0; i < count; i++)
 	{
 		struct status_change_data *data = (struct status_change_data*)RFIFOP(fd,14 + i*sizeof(struct status_change_data));
-		status_change_start(&sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 15);
+		status_change_start(&sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 1 | 2 | 4 | 8);
 	}
 #endif
 	return 0;
@@ -1790,7 +1790,7 @@ static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data)
 		}
 
 		chrif_state = 0;
-		char_fd = make_connection(char_ip, char_port);
+		char_fd = make_connection(char_ip, char_port, 10);
 		if (char_fd == -1)
 		{	//Attempt to connect later. [Skotlex]
 			return 0;
@@ -1849,6 +1849,12 @@ int do_final_chrif(void)
  *------------------------------------------*/
 int do_init_chrif(void)
 {
+	if (sizeof(struct mmo_charstatus) > 0xFFFF) {
+		ShowError("mmo_charstatus size = %d is too big to be transmitted.\n",
+			sizeof(struct mmo_charstatus));
+		exit(EXIT_FAILURE);
+	}
+
 	if(sizeof(struct s_storage) > 0xFFFF) {
 		ShowError("s_storage size = %d is too big to be transmitted. (must be below 0xFFFF)\n", sizeof(struct s_storage));
 		exit(EXIT_FAILURE);

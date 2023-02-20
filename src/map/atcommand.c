@@ -4786,6 +4786,17 @@ ACMD_FUNC(reloadscript)
 }
 
 /*==========================================
+* @reloadpacketdb - reloads packets
+*------------------------------------------*/
+	ACMD_FUNC(reloadpacketdb)
+{
+	packetdb_readdb();
+	clif_displaymessage(fd, msg_txt(sd,746)); // Achievement databases have been reloaded.
+
+	return 0;
+}
+
+/*==========================================
  * @mapinfo [0-3] <map name> by MC_Cameri
  * => Shows information about the map [map name]
  * 0 = no additional information
@@ -10278,6 +10289,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "reloadstatusdb",    99,99,     atcommand_reloadstatusdb },
 	{ "reloadpcdb",        99,99,     atcommand_reloadpcdb },
 	{ "reloadachievementdb",99,99,    atcommand_reloadachievementdb },
+	{ "reloadpacketdb",    99,99,     atcommand_reloadpacketdb },
 	{ "reloadmotd",        99,99,     atcommand_reloadmotd },
 	{ "mapinfo",           99,99,     atcommand_mapinfo },
 	{ "dye",               40,40,     atcommand_dye },

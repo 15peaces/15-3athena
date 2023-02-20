@@ -21129,6 +21129,29 @@ void clif_parse_attendance_reward_request(int fd, struct map_session_data *sd)
 #endif
 }
 
+/// Ack world info (ZC_ACK_BEFORE_WORLD_INFO)
+/// 0979 <world name>.24B <char name>.24B
+void clif_ackworldinfo(struct map_session_data* sd) {
+	int fd;
+
+	nullpo_retv(sd);
+	fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0x979));
+	WFIFOW(fd, 0) = 0x979;
+	//AID -> world name ?
+	safestrncpy((char*)WFIFOP(fd, 2), '\0' /* World name */, 24);
+	safestrncpy((char*)WFIFOP(fd, 26), sd->status.name, NAME_LENGTH);
+	WFIFOSET(fd, packet_len(0x979));
+}
+
+/// req world info (CZ_REQ_BEFORE_WORLD_INFO)
+/// 0978 <AID>.L
+void clif_parse_reqworldinfo(int fd, struct map_session_data *sd) {
+	//uint32 aid = RFIFOL(fd,2); //should we trust client ?
+	if (sd) clif_ackworldinfo(sd);
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -21861,6 +21884,7 @@ void packetdb_readdb(void)
 		{clif_parse_open_ui_request, "pOpenUIRequest"},
 		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
 		{clif_parse_pet_evolution, "petevolution"},
+		{clif_parse_reqworldinfo, "reqworldinfo"},
 		{NULL,NULL}
 	};
 
@@ -22087,7 +22111,6 @@ void packetdb_readdb(void)
 		}
 	}
 #endif
-	return;
 }
 
 /*

@@ -411,7 +411,7 @@ struct spawn_data {
 	unsigned int delay1,delay2; //Spawn delay (fixed base + random variance)
 	struct {
 		unsigned int size :2; //Holds if mob has to be tiny/large
-		unsigned int ai :2;	//Holds if mob is special ai.
+		enum mob_ai ai; //Special ai for summoned monsters.
 		unsigned int dynamic :1; //Whether this data is indexed by a map's dynamic mob list
 		unsigned int boss : 1;
 	} state;

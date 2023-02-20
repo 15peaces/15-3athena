@@ -1420,6 +1420,19 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 	p->last_point.map = mapindex_name2id(last_map);
 	p->save_point.map = mapindex_name2id(save_map);
 
+
+	if( p->last_point.map == 0 ) {
+		p->last_point.map = mapindex_name2id(MAP_DEFAULT);
+		p->last_point.x = MAP_DEFAULT_X;
+		p->last_point.y = MAP_DEFAULT_Y;
+	}
+
+	if( p->save_point.map == 0 ) {
+		p->save_point.map = mapindex_name2id(MAP_DEFAULT);
+		p->save_point.x = MAP_DEFAULT_X;
+		p->save_point.y = MAP_DEFAULT_Y;
+	}
+
 	strcat(t_msg, " status");
 
 	if (!load_everything) // For quick selection of data when displaying the char menu
@@ -5106,7 +5119,7 @@ int check_connect_login_server(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
-	login_fd = make_connection(login_ip, login_port);
+	login_fd = make_connection(login_ip, login_port, 10);
 	if (login_fd == -1)
 	{	//Try again later. [Skotlex]
 		login_fd = 0;

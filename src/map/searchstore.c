@@ -116,7 +116,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 {
 	unsigned int i;
 	struct map_session_data* pl_sd;
-	struct s_mapiterator* iter;
+	struct DBIterator *iter;
 	struct s_search_store_search s;
 	searchstore_searchall_t store_searchall;
 	time_t querytime;
@@ -194,12 +194,11 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	s.card_count = card_count;
 	s.min_price  = min_price;
 	s.max_price  = max_price;
-	iter         = mapit_geteachpc();
+	DBMap *vending_db = vending_getdb();
+	iter = db_iterator(vending_db);
 
-	for( pl_sd = (struct map_session_data*)mapit_first(iter); mapit_exists(iter);  pl_sd = (struct map_session_data*)mapit_next(iter) )
-	{
-		if( sd == pl_sd )
-		{// skip own shop, if any
+	for (pl_sd = dbi_first(iter); dbi_exists(iter); pl_sd = dbi_next(iter)) {
+		if (sd == pl_sd) {// skip own shop, if any
 			continue;
 		}
 
@@ -210,7 +209,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 		}
 	}
 
-	mapit_free(iter);
+	dbi_destroy(iter);
 
 	if( sd->searchstore.count )
 	{

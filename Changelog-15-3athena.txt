@@ -5,6 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/20/2023
+	r373 [15peaces]
+		*Added support for two missing packets: ZC_ACK_BEFORE_WORLD_INFO & CZ_REQ_BEFORE_WORLD_INFO.
+			-Thanks to @rathena
+		*Implemented script commands 'addmonsterdrop' and 'delmonsterdrop'.
+			-Added documentation
+		*Updated sc_start script commands to work with all variables/options that can be used in source.
+			-Also updated item database.
+		*Added @reloadpacketdb command.
+		*Added short timeout to make_connection
+			-Thanks to @rathena
+		*Some misc. cleaning.
+		*Merged/adapted some rAthena stuff:
+			-Added save char after buying if save_config&128
+			-Added vending_db to speed up searchstore iteration.
+			-Added emotion effect to SA_QUESTION
+			-Updated SA_INSTANTDEATH to really kill ourself and not set to 1hp
+			-Fixed SC_SLOWDOWN not asking to recalculate speed when used.
+			-Fixed SC_STRIPX effect on player, (should only remove equip on player)
+
 02/15/2023
 	r372 [15peaces]
 		*Some cleaning.

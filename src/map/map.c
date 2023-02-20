@@ -3856,6 +3856,7 @@ void do_final(void)
 	do_final_duel();
 	do_final_cashshop();
 	do_final_clan();
+	do_final_vending();
 	
 	map_db->destroy(map_db, map_db_final);
 	
@@ -4279,6 +4280,7 @@ int do_init(int argc, char *argv[])
 	do_init_unit();
 	do_init_battleground();
 	do_init_duel();
+	do_final_vending();
 
 	npc_event_do_oninit();	// Init npcs (OnInit)
 

@@ -9921,22 +9921,41 @@ BUILDIN_FUNC(enablenpc)
 	return 1;
 }
 
-/// Starts a status effect on the target unit or on the attached player.
-///
-/// sc_start <effect_id>,<duration>,<val1>{,<unit_id>};
+/* Starts a status effect on the target unit or on the attached player.
+ *
+ * sc_start  <effect_id>,<duration>,<val1>{,<rate>,<flag>,{<unit_id>}};
+ * sc_start2 <effect_id>,<duration>,<val1>,<val2>{,<rate,<flag>,{<unit_id>}};
+ * sc_start4 <effect_id>,<duration>,<val1>,<val2>,<val3>,<val4>{,<rate,<flag>,{<unit_id>}};
+ * <flag>
+ * 	&1: Cannot be avoided (it has to start)
+ * 	&2: Tick should not be reduced (by vit, luk, lv, etc)
+ * 	&4: sc_data loaded, no value has to be altered.
+ * 	&8: rate should not be reduced
+ */
 BUILDIN_FUNC(sc_start)
 {
 	struct block_list* bl;
 	enum sc_type type;
-	int tick;
-	int val1;
+	int tick, val1, val2, val3, rate, flag;
 	int val4 = 0;
+	char start_type;
+	const char* command = script_getfuncname(st);
+
+	if (strstr(command, "4"))
+		start_type = 4;
+	else if (strstr(command, "2"))
+		start_type = 2;
+	else
+		start_type = 1;
 
 	type = (sc_type)script_getnum(st,2);
 	tick = script_getnum(st,3);
 	val1 = script_getnum(st,4);
-	if( script_hasdata(st,5) )
-		bl = map_id2bl(script_getnum(st,5));
+	rate = script_hasdata(st, 4 + start_type) ? min(script_getnum(st, 4 + start_type), 10000) : 10000;
+	flag = script_hasdata(st, 5 + start_type) ? script_getnum(st, 5 + start_type) : 2;
+
+	if (script_hasdata(st, (6 + start_type)))
+		bl = map_id2bl(script_getnum(st, (6 + start_type)));
 	else
 		bl = map_id2bl(st->rid);
 
@@ -9945,97 +9964,31 @@ BUILDIN_FUNC(sc_start)
 		tick = skill_get_time(status_sc2skill(type), val1);
 	}
 
-	if( potion_flag == 1 && potion_target )
-	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
+	if( potion_flag == 1 && potion_target ) //skill.c set the flags before running the script, this must be a potion-pitched effect.
+	{
 		bl = map_id2bl(potion_target);
 		tick /= 2;// Thrown potions only last half.
 		val4 = 1;// Mark that this was a thrown sc_effect
 	}
 
-	if( bl )
-		status_change_start(bl, type, 10000, val1, 0, 0, val4, tick, 2);
-
-	return 0;
-}
-
-/// Starts a status effect on the target unit or on the attached player.
-///
-/// sc_start2 <effect_id>,<duration>,<val1>,<val2>{<rate>{,<unit_id>}};
-BUILDIN_FUNC(sc_start2)
-{
-	struct block_list* bl;
-	enum sc_type type;
-	int tick;
-	int val1,val2;
-	int val4 = 0;
-	int rate;
-
-	type = (sc_type)script_getnum(st,2);
-	tick = script_getnum(st,3);
-	val1 = script_getnum(st,4);
-	val2 = script_getnum(st,5);
-	rate = script_hasdata(st, 6) ? min(script_getnum(st, 6), 10000) : 10000;
-
-	if( script_hasdata(st,7) )
-		bl = map_id2bl(script_getnum(st,7));
-	else
-		bl = map_id2bl(st->rid);
-
-	if( tick == 0 && val1 > 0 && type > SC_NONE && type < SC_MAX && status_sc2skill(type) != 0 )
-	{// When there isn't a duration specified, try to get it from the skill_db
-		tick = skill_get_time(status_sc2skill(type), val1);
+	switch (start_type) {
+	case 1:
+		if (bl)
+			status_change_start(bl, type, rate, val1, 0, 0, val4, tick, flag);
+		break;
+	case 2:
+		val2 = script_getnum(st, 5);
+		if (bl)
+			status_change_start(bl, type, rate, val1, val2, 0, val4, tick, flag);
+		break;
+	case 4:
+		val2 = script_getnum(st, 5);
+		val3 = script_getnum(st, 6);
+		val4 = script_getnum(st, 7);
+		if (bl)
+			status_change_start(bl, type, rate, val1, val2, val3, val4, tick, flag);
+		break;
 	}
-
-	if( potion_flag == 1 && potion_target )
-	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
-		bl = map_id2bl(potion_target);
-		tick /= 2;// Thrown potions only last half.
-		val4 = 1;// Mark that this was a thrown sc_effect
-	}
-
-	if( bl )
-		status_change_start(bl, type, rate, val1, val2, 0, val4, tick, 2);
-
-	return 0;
-}
-
-/// Starts a status effect on the target unit or on the attached player.
-///
-/// sc_start4 <effect_id>,<duration>,<val1>,<val2>,<val3>,<val4>{,<unit_id>};
-BUILDIN_FUNC(sc_start4)
-{
-	struct block_list* bl;
-	enum sc_type type;
-	int tick;
-	int val1;
-	int val2;
-	int val3;
-	int val4;
-
-	type = (sc_type)script_getnum(st,2);
-	tick = script_getnum(st,3);
-	val1 = script_getnum(st,4);
-	val2 = script_getnum(st,5);
-	val3 = script_getnum(st,6);
-	val4 = script_getnum(st,7);
-	if( script_hasdata(st,8) )
-		bl = map_id2bl(script_getnum(st,8));
-	else
-		bl = map_id2bl(st->rid);
-
-	if( tick == 0 && val1 > 0 && type > SC_NONE && type < SC_MAX && status_sc2skill(type) != 0 )
-	{// When there isn't a duration specified, try to get it from the skill_db
-		tick = skill_get_time(status_sc2skill(type), val1);
-	}
-
-	if( potion_flag == 1 && potion_target )
-	{	//skill.c set the flags before running the script, this must be a potion-pitched effect.
-		bl = map_id2bl(potion_target);
-		tick /= 2;// Thrown potions only last half.
-	}
-
-	if( bl )
-		status_change_start(bl, type, 10000, val1, val2, val3, val4, tick, 2);
 
 	return 0;
 }
@@ -15682,32 +15635,103 @@ BUILDIN_FUNC(setitemscript)
 	return 0;
 }
 
-/* Work In Progress [Lupus]
+/*=======================================================
+ * Add or Update a mob drop temporarily [Akinari]
+ * Original Idea By: [Lupus]
+ *
+ * addmonsterdrop <mob_id or name>,<item_id>,<rate>;
+ *
+ * If given an item the mob already drops, the rate
+ * is updated to the new rate.  Rate cannot exceed 10000
+ * Returns 1 if succeeded (added/updated a mob drop)
+ *-------------------------------------------------------*/
 BUILDIN_FUNC(addmonsterdrop)
 {
-	int class_,item_id,chance;
-	class_=script_getnum(st,2);
+	struct mob_db *mob;
+	int item_id, rate, i, c = 0;
+
+	if (script_isstring(st, 2))
+		mob = mob_db(mobdb_searchname(script_getstr(st, 2)));
+	else
+		mob = mob_db(script_getnum(st, 2));
 	item_id=script_getnum(st,3);
-	chance=script_getnum(st,4);
-	if(class_>1000 && item_id>500 && chance>0) {
-		script_pushint(st,1);
-	} else {
-		script_pushint(st,0);
+	rate = script_getnum(st, 4);
+
+	if (!itemdb_exists(item_id)) {
+		ShowError("addmonsterdrop: Nonexistant item %d requested.\n", item_id);
+		return 1;
 	}
+
+	if (mob) { //We got a valid monster, check for available drop slot
+		for (i = 0; i < MAX_MOB_DROP; i++) {
+			if (mob->dropitem[i].nameid) {
+				if (mob->dropitem[i].nameid == item_id) { //If it equals item_id we update that drop
+					c = i;
+					break;
+				}
+				continue;
+			}
+			if (!c) //Accept first available slot only
+				c = i;
+		}
+		if (c) { //Fill in the slot with the item and rate
+			mob->dropitem[c].nameid = item_id;
+			mob->dropitem[c].p = (rate > 10000) ? 10000 : rate;
+			script_pushint(st, 1);
+		}
+		else //No place to put the new drop
+			script_pushint(st, 0);
+	} else {
+		ShowWarning("addmonsterdrop: bad mob id given %d\n", script_getnum(st, 2));
+		return 1;
+	}
+
+	return 0;
 }
 
+/*=======================================================
+ * Delete a mob drop temporarily [Akinari]
+ * Original Idea By: [Lupus]
+ *
+ * delmonsterdrop <mob_id or name>,<item_id>;
+ *
+ * Returns 1 if succeeded (deleted a mob drop)
+ *-------------------------------------------------------*/
 BUILDIN_FUNC(delmonsterdrop)
 {
-	int class_,item_id;
-	class_=script_getnum(st,2);
+	struct mob_db *mob;
+	int item_id, i;
+
+	if (script_isstring(st, 2))
+		mob = mob_db(mobdb_searchname(script_getstr(st, 2)));
+	else
+		mob = mob_db(script_getnum(st, 2));
 	item_id=script_getnum(st,3);
-	if(class_>1000 && item_id>500) {
-		script_pushint(st,1);
-	} else {
+
+	if (!itemdb_exists(item_id)) {
+		ShowError("delmonsterdrop: Nonexistant item %d requested.\n", item_id);
+		return 1;
+	}
+
+	if (mob) { //We got a valid monster, check for item drop on monster
+		for (i = 0; i < MAX_MOB_DROP; i++) {
+			if (mob->dropitem[i].nameid == item_id) {
+				mob->dropitem[i].nameid = 0;
+				mob->dropitem[i].p = 0;
+				script_pushint(st, 1);
+				return 0;
+			}
+		}
+		//No drop on that monster
 		script_pushint(st,0);
 	}
+	else {
+		ShowWarning("delmonsterdrop: bad mob id given %d\n", script_getnum(st, 2));
+		return 1;
+	}
+
+	return 0;
 }
-*/
 
 /*==========================================
  * Returns some values of a monster [Lupus]
@@ -20412,9 +20436,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF2(enablenpc, "hideonnpc", "?"),
 	BUILDIN_DEF2(enablenpc, "cloakoffnpc", "??"),
 	BUILDIN_DEF2(enablenpc, "cloakonnpc", "??"),
-	BUILDIN_DEF(sc_start,"iii?"),
-	BUILDIN_DEF(sc_start2,"iiii??"),
-	BUILDIN_DEF(sc_start4,"iiiiii?"),
+	BUILDIN_DEF(sc_start, "iii???"),
+	BUILDIN_DEF2(sc_start, "sc_start2", "iiii???"),
+	BUILDIN_DEF2(sc_start, "sc_start4", "iiiiii???"),
 	BUILDIN_DEF(sc_end,"i?"),
 	BUILDIN_DEF(getscrate,"ii?"),
 	BUILDIN_DEF(debugmes,"s"),
@@ -20592,6 +20616,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(disguise,"i"), //disguise player. Lupus
 	BUILDIN_DEF(undisguise,""), //undisguise player. Lupus
 	BUILDIN_DEF(getmonsterinfo,"ii"), //Lupus
+	BUILDIN_DEF(addmonsterdrop, "vii"), //Akinari [Lupus]
+	BUILDIN_DEF(delmonsterdrop, "vi"), //Akinari [Lupus]
 	BUILDIN_DEF(axtoi,"s"),
 	BUILDIN_DEF(query_sql,"s*"),
 	BUILDIN_DEF(query_logsql,"s*"),

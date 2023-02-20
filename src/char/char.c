@@ -4843,7 +4843,7 @@ int check_connect_login_server(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
-	login_fd = make_connection(login_ip, login_port);
+	login_fd = make_connection(login_ip, login_port, 10);
 	if (login_fd == -1)
 	{	//Try again later. [Skotlex]
 		login_fd = 0;

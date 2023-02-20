@@ -1089,6 +1089,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SPCOST_RATE] |= SCB_ALL;
 	StatusChangeFlagTable[SC_WALKSPEED] |= SCB_SPEED;
 	StatusChangeFlagTable[SC_ITEMSCRIPT] |= SCB_ALL;
+	StatusChangeFlagTable[SC_SLOWDOWN] |= SCB_SPEED;
 	// Cash Items
 	StatusChangeFlagTable[SC_FOOD_STR_CASH] |= SCB_STR;
 	StatusChangeFlagTable[SC_FOOD_AGI_CASH] |= SCB_AGI;
@@ -4952,7 +4953,7 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_UNIVERSESTANCE]->val2;
 	if(sc->data[SC_CHEERUP])
 		vit += 3;
-	if(sc->data[SC_STRIPARMOR])
+	if(sc->data[SC_STRIPARMOR] && bl->type != BL_PC)
 		vit -= vit * sc->data[SC_STRIPARMOR]->val2 / 100;
 	if(sc->data[SC_STOMACHACHE])
 		vit -= sc->data[SC_STOMACHACHE]->val1;
@@ -5011,10 +5012,12 @@ static unsigned short status_calc_int(struct block_list *bl, struct status_chang
 		int_ += sc->data[SC_HARMONIZE]->val3;
 	if(sc->data[SC_COCKTAIL_WARG_BLOOD])
 		int_ += sc->data[SC_COCKTAIL_WARG_BLOOD]->val1;
-	if(sc->data[SC_STRIPHELM])
-		int_ -= int_ * sc->data[SC_STRIPHELM]->val2/100;
-	if(sc->data[SC__STRIPACCESSARY])// What happens when 2 different reductions by percentages exists? [Rytech]
-		int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
+	if (bl->type != BL_PC) {
+		if (sc->data[SC_STRIPHELM])
+			int_ -= int_ * sc->data[SC_STRIPHELM]->val2 / 100;
+		if (sc->data[SC__STRIPACCESSARY])// What happens when 2 different reductions by percentages exists? [Rytech]
+			int_ -= int_ * sc->data[SC__STRIPACCESSARY]->val2 / 100;
+	}
 	if(sc->data[SC_MELODYOFSINK])
 		int_ -= sc->data[SC_MELODYOFSINK]->val3;
 	if(sc->data[SC_MANDRAGORA])
@@ -5082,7 +5085,7 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += 3;
 	if(sc->data[SC_MARSHOFABYSS])
 		dex -= dex * sc->data[SC_MARSHOFABYSS]->val2 / 100;
-	if(sc->data[SC__STRIPACCESSARY])
+	if(sc->data[SC__STRIPACCESSARY] && bl->type != BL_PC)
 		dex -= dex * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_QUAGMIRE])
 		dex -= sc->data[SC_QUAGMIRE]->val2;
@@ -5146,7 +5149,7 @@ static unsigned short status_calc_luk(struct block_list *bl, struct status_chang
 		luk += 1;
 	if(sc->data[SC_JUMPINGCLAN])
 		luk += 1;
-	if(sc->data[SC__STRIPACCESSARY])
+	if(sc->data[SC__STRIPACCESSARY] && bl->type != BL_PC)
 		luk -= luk * sc->data[SC__STRIPACCESSARY]->val2 / 100;
 	if(sc->data[SC_BANANA_BOMB])
 		luk -= 77;
@@ -5348,7 +5351,7 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk -= 30 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if(sc->data[SC_CURSE])
 		watk -= watk * 25/100;
-	if(sc->data[SC_STRIPWEAPON])
+	if(sc->data[SC_STRIPWEAPON] && bl->type != BL_PC)
 		watk -= watk * sc->data[SC_STRIPWEAPON]->val2/100;
 	if(sc->data[SC__ENERVATION])
 		watk -= watk * sc->data[SC__ENERVATION]->val2 / 100;
@@ -5694,10 +5697,12 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def -= def * sc->data[SC_CONCENTRATION]->val4/100;
 	if(sc->data[SC_SKE])
 		def >>=1;
-	if(sc->data[SC_PROVOKE] && bl->type != BL_PC) // Provoke doesn't alter player defense->
-		def -= def * sc->data[SC_PROVOKE]->val4/100;
-	if(sc->data[SC_STRIPSHIELD])
-		def -= def * sc->data[SC_STRIPSHIELD]->val2/100;
+	if (bl->type != BL_PC) {
+		if (sc->data[SC_PROVOKE]) // Provoke doesn't alter player defense->
+			def -= def * sc->data[SC_PROVOKE]->val4 / 100;
+		if (sc->data[SC_STRIPSHIELD]) // Player doesn't have def reduction, only equip is removed.
+			def -= def * sc->data[SC_STRIPSHIELD]->val2 / 100;
+	}
 	if (sc->data[SC_FLING])
 		def -= def * (sc->data[SC_FLING]->val2)/100;
 	if( sc->data[SC_FROST] )

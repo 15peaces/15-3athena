@@ -23,6 +23,11 @@
 #include <string.h>
 
 static int vending_nextid = 0;
+static DBMap *vending_db;
+
+DBMap * vending_getdb() {
+	return vending_db;
+}
 
 /// Returns an unique vending shop id.
 static int vending_getuid(void)
@@ -42,6 +47,7 @@ void vending_closevending(struct map_session_data* sd)
 		sd->state.vending = false;
 		sd->vender_id = 0;
 		clif_closevendingboard(&sd->bl, 0);
+		idb_remove(vending_db, sd->status.char_id);
 	}
 }
 
@@ -327,7 +333,7 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	clif_openvending(sd,sd->bl.id,sd->vending);
 	clif_showvendingboard(&sd->bl,message,0);
 
-	return;
+	idb_put(vending_db, sd->vender_id, sd);
 }
 
 
@@ -413,4 +419,13 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 	}
 
 	return true;
+}
+
+void do_final_vending(void) {
+	db_destroy(vending_db);
+}
+
+void do_init_vending(void) {
+	vending_db = idb_alloc(DB_OPT_BASE);
+	vending_nextid = 0;
 }

@@ -5925,9 +5925,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case SA_INSTANTDEATH:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		status_set_hp(bl,1,0);
+		status_kill(src);
 		break;
 	case SA_QUESTION:
+		clif_emotion(src, E_WHAT);
 	case SA_GRAVITY:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		break;
@@ -11510,7 +11511,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		}
 	}
 
-	ud->skillid = ud->skilllv = ud->skilltarget = 0;
+	ud->skillid = ud->skilltarget = 0;
 	if( !sd || sd->skillitem != ud->skillid || skill_get_delay(ud->skillid,ud->skilllv) )
 		ud->canact_tick = tick;
 	//You can't place a skill failed packet here because it would be
