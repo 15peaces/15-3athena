@@ -10930,8 +10930,9 @@ void clif_parse_WantToConnection(int fd, struct map_session_data* sd)
 	sex         = RFIFOB(fd, packet_db[packet_ver][cmd].pos[4]);
 
 	if( packet_ver < 5 || // reject really old client versions
-			(packet_ver <= 9 && (battle_config.packet_ver_flag & 1) == 0) || // older than 6sept04
-			(packet_ver > 9 && (battle_config.packet_ver_flag & 1<<(packet_ver-9)) == 0)) // version not allowed
+		(packet_ver <= 9 && (battle_config.packet_ver_flag & 1) == 0) || // older than 6sept04
+		(packet_ver > 9 && packet_ver < 40 && (battle_config.packet_ver_flag & 1 << (packet_ver - 9)) == 0) || // version not allowed
+		(packet_ver >= 40 && packet_ver <= 45 && (battle_config.packet_ver_flag2 & 1 << (packet_ver - 40)) == 0))
 	{// packet version rejected
 		ShowInfo("Rejected connection attempt, forbidden packet version (AID/CID: '"CL_WHITE"%d/%d"CL_RESET"', Packet Ver: '"CL_WHITE"%d"CL_RESET"', IP: '"CL_WHITE"%s"CL_RESET"').\n", account_id, char_id, packet_ver, ip2str(session[fd]->client_addr, NULL));
 		clif_auth_error(fd, 5); // Your Game's EXE file is not the latest version

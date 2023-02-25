@@ -1424,7 +1424,7 @@ packet_ver: 25
 
 //2009-08-18aRagexeRE
 0x07e3,6
-0x07e4,-1,itemlistwindowselected,2:4:8
+0x07e4,-1,itemlistwindowselected,2:4:8:12
 0x07e6,8
 
 //2009-08-25aRagexeRE
@@ -1760,7 +1760,7 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0908,5
 0x091C,26,partyinvite2,2
 0x0938,6,takeitem,2
-0x0945,-1,itemlistwindowselected,2:4:8
+0x0945,-1,itemlistwindowselected,2:4:8:12
 0x094B,19,wanttoconnection,2:6:10:14:18
 0x0961,36,storagepassword,0
 0x08CF,10 //Attribute Sphere
@@ -1817,7 +1817,7 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 0x0938,-1,reqopenbuyingstore,2:4:8:9:89
 0x085D,41,partybookingregisterreq,2:4
 //0x095A,8 // Unknown
-0x0868,-1,itemlistwindowselected,2:4:8
+0x0868,-1,itemlistwindowselected,2:4:8:12
 0x0888,19,wanttoconnection,2:6:10:14:18
 0x086D,26,partyinvite2,2
 //0x0890,4 // Unknown
@@ -2044,7 +2044,7 @@ packet_keys: 0x2DFF467C,0x444B37EE,0x2C1B634F // [YomRawr]
 0x0815,-1,reqopenbuyingstore,2:4:8:9:89
 0x0365,18,bookingregreq,2:4
 // 0x0363,8 // CZ_JOIN_BATTLE_FIELD
-0x0281,-1,itemlistwindowselected,2:4:8
+0x0281,-1,itemlistwindowselected,2:4:8:12
 0x086E,19,wanttoconnection,2:6:10:14:18
 0x0802,26,partyinvite,2
 // 0x0922,4 // CZ_GANGSI_RANK

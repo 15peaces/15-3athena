@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/25/2023
+	r374 [15peaces]
+		*Removed getequipisidentify script command.
+			-It's pointless to check if an equip part is identified, since it cannot be equipped if it isn't...
+		*Fixed and extended packet_ver_flag config to support all client versions.
+		*Removed some unneeded code from last commit.
+			-It also caused the char and map server to don't start probably... sorry ^^"
+
 02/20/2023
 	r373 [15peaces]
 		*Added support for two missing packets: ZC_ACK_BEFORE_WORLD_INFO & CZ_REQ_BEFORE_WORLD_INFO.

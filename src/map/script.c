@@ -7424,29 +7424,6 @@ BUILDIN_FUNC(getequipisenableref)
 }
 
 /*==========================================
- * 装備品鑑定チェック
- *------------------------------------------*/
-BUILDIN_FUNC(getequipisidentify)
-{
-	int i=-1,num;
-	TBL_PC *sd;
-
-	num=script_getnum(st,2);
-	sd = script_rid2sd(st);
-	if( sd == NULL )
-		return 0;
-
-	if (num > 0 && num <= ARRAYLENGTH(equip))
-		i=pc_checkequip(sd,equip[num-1],false);
-	if(i >= 0)
-		script_pushint(st,sd->inventory.u.items_inventory[i].identify);
-	else
-		script_pushint(st,0);
-
-	return 0;
-}
-
-/*==========================================
  * 装備品精錬度
  *------------------------------------------*/
 BUILDIN_FUNC(getequiprefinerycnt)
@@ -20345,7 +20322,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(repairall, "?"),
 	BUILDIN_DEF(getequipisequiped,"i"),
 	BUILDIN_DEF(getequipisenableref,"i"),
-	BUILDIN_DEF(getequipisidentify,"i"),
 	BUILDIN_DEF(getequiprefinerycnt,"i"),
 	BUILDIN_DEF(getequipweaponlv,"i"),
 	BUILDIN_DEF(getequippercentrefinery,"i"),

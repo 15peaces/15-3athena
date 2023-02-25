@@ -235,10 +235,6 @@ void mapindex_init(void)
 
 	fclose(fp);
 
-	if (!strdb_iget(mapindex_db, MAP_DEFAULT)) {
-		ShowError("mapindex_init: MAP_DEFAULT '%s' not found in cache! Update MAP_DEFAULT in mapindex.h!\n", MAP_DEFAULT);
-	}
-
 	ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, mapindex_cfgfile);
 }
 

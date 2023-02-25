@@ -2686,6 +2686,7 @@ recreate these items perfectly if they are destroyed. Here's what you get:
 @inventorylist_card4[]       if the character owns an item made by a specific 
                              craftsman.
 @inventorylist_expire[]    - expire time (Unix time stamp). 0 means never expires.
+@inventorylist_bound[]     - whether it is bound to the character
 @inventorylist_count       - the number of items in these lists.
 
 This could be handy to save/restore a character's inventory, since no other 
@@ -3784,17 +3785,6 @@ the number of cards in the list given that were found on the invoking character.
 This function will return 1 if the card specified by it's item ID number is 
 inserted into any equipment they have in their inventory, currently equipped or 
 not.
-
----------------------------------------
-
-*getequipisidentify(<equipment slot>)
-
-This function will return 1 if an item in the specified equipment slot is 
-identified and 0 if it isn't. Since you can't even equip unidentified equipment, 
-there's a question of whether it can actually end up there, and it will normally 
-return 1 all the time if there is an item in this equipment slot.
-Which is kinda pointless.
-For a list of equipment slots see 'getequipid'.
 
 ---------------------------------------
 //

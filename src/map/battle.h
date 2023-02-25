@@ -375,6 +375,7 @@ extern struct Battle_Config
 	int hack_info_GM_level; // added by [Yor]
 	int any_warp_GM_min_level; // added by [Yor]
 	int packet_ver_flag; // added by [Yor]
+	int packet_ver_flag2; // expanded packet_ver_flag
 	
 	int min_hair_style; // added by [MouseJstr]
 	int max_hair_style; // added by [MouseJstr]
