@@ -21,8 +21,8 @@ bool mapif_elemental_save(struct s_elemental* elem) {
 	if( elem->elemental_id == 0 )
 	{ // Create new DB entry
 		if( SQL_ERROR == Sql_Query(sql_handle,
-			"INSERT INTO `elemental` (`char_id`,`class`,`hp`,`max_hp`,`sp`,`max_sp`,`batk`,`matk`,`def`,`mdef`,`hit`,`flee`,`amotion`,`life_time`) VALUES ('%d','%d','%d','%d','%d','%d','%u','%u','%d','%d','%d','%d','%u','%u')",
-			elem->char_id, elem->class_, elem->hp, elem->max_hp, elem->sp, elem->max_sp, elem->batk, elem->matk, elem->def, elem->mdef, elem->hit, elem->flee, elem->amotion, elem->life_time))
+			"INSERT INTO `%s` (`char_id`,`class`,`hp`,`max_hp`,`sp`,`max_sp`,`batk`,`matk`,`def`,`mdef`,`hit`,`flee`,`amotion`,`life_time`) VALUES ('%d','%d','%d','%d','%d','%d','%u','%u','%d','%d','%d','%d','%u','%u')",
+			elemental_db, elem->char_id, elem->class_, elem->hp, elem->max_hp, elem->sp, elem->max_sp, elem->batk, elem->matk, elem->def, elem->mdef, elem->hit, elem->flee, elem->amotion, elem->life_time))
 		{
 			Sql_ShowDebug(sql_handle);
 			flag = false;
@@ -31,8 +31,8 @@ bool mapif_elemental_save(struct s_elemental* elem) {
 			elem->elemental_id = (int)Sql_LastInsertId(sql_handle);
 	}
 	else if( SQL_ERROR == Sql_Query(sql_handle,
-		"UPDATE `elemental` SET `char_id` = '%d', `class` = '%d', `hp` = '%d', `max_hp` = '%d', `sp` = '%d', `max_sp` = '%d', `batk` = '%u', `matk` = '%u', `def` = '%d', `mdef` = '%d', `hit` = '%d', `flee` = '%d', `amotion` = '%u', `life_time` = '%u' WHERE `ele_id` = '%d'",
-		elem->char_id, elem->class_, elem->hp, elem->max_hp, elem->sp, elem->max_sp, elem->batk, elem->matk, elem->def, elem->mdef, elem->hit, elem->flee, elem->amotion, elem->life_time, elem->elemental_id))
+		"UPDATE `%s` SET `char_id` = '%d', `class` = '%d', `hp` = '%d', `max_hp` = '%d', `sp` = '%d', `max_sp` = '%d', `batk` = '%u', `matk` = '%u', `def` = '%d', `mdef` = '%d', `hit` = '%d', `flee` = '%d', `amotion` = '%u', `life_time` = '%u' WHERE `ele_id` = '%d'",
+		elemental_db, elem->char_id, elem->class_, elem->hp, elem->max_hp, elem->sp, elem->max_sp, elem->batk, elem->matk, elem->def, elem->mdef, elem->hit, elem->flee, elem->amotion, elem->life_time, elem->elemental_id))
 	{ // Update DB entry
 		Sql_ShowDebug(sql_handle);
 		flag = false;
@@ -47,7 +47,7 @@ bool mapif_elemental_load(int elem_id, int char_id, struct s_elemental *elem) {
 	elem->elemental_id = elem_id;
 	elem->char_id = char_id;
 
-	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `class`, `hp`, `max_hp`, `sp`, `max_sp`, `batk`, `matk`, `def`, `mdef`, `hit`, `flee`, `amotion`, `life_time` FROM `elemental` WHERE `ele_id` = '%d' AND `char_id` = '%d'", elem_id, char_id))
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `class`, `hp`, `max_hp`, `sp`, `max_sp`, `batk`, `matk`, `def`, `mdef`, `hit`, `flee`, `amotion`, `life_time` FROM `%s` WHERE `ele_id` = '%d' AND `char_id` = '%d'", elemental_db, elem_id, char_id))
 	{
 		Sql_ShowDebug(sql_handle);
 		return false;
@@ -80,7 +80,7 @@ bool mapif_elemental_load(int elem_id, int char_id, struct s_elemental *elem) {
 
 bool mapif_elemental_delete(int elem_id)
 {
-	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `elemental` WHERE `ele_id` = '%d'", elem_id) ) {
+	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `ele_id` = '%d'", elemental_db, elem_id) ) {
 		Sql_ShowDebug(sql_handle);
 		return false;
 	}

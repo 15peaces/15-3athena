@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/26/2023
+	r375 [15peaces]
+		*Added renaming support for the remaining tables in the inter_athena.conf file.
+			-Includes: homunculus, skill_homunculus, mercenary, mercenary_owner, elemental, ragsrvinfo and skillcooldown
+		*Fixed a typo regarding the homunculus_db
+		*Introducing MySQL Reconnect.
+			-When MySQL disconnects during runtime, the server tries to reconnect either indefinitely (default) or a specified number of times before shutting down.
+			-Thanks to @rathena
+		*Fixed char deletion for 2013+ clients.
+		*Fixed an issue where bound items broke the guild storage.
+		*Switched/corrected variables for addtimercount script command.
+			-Thanks to @rathena
+
 02/25/2023
 	r374 [15peaces]
 		*Removed getequipisidentify script command.

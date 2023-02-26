@@ -25,7 +25,7 @@ struct s_homunculus_db {
 	unsigned char element, race, base_size, evo_size;
 };
 
-extern struct s_homunculus_db homuncumlus_db[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31];
+extern struct s_homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31];
 enum { HOMUNCULUS_CLASS, HOMUNCULUS_FOOD };
 
 enum {

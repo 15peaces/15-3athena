@@ -258,7 +258,8 @@ int mapif_parse_itembound_retrieve(int fd)
 	{ 
 		SqlStmt_ShowDebug(stmt); 
 		SqlStmt_Free(stmt); 
-		StringBuf_Destroy(&buf); 
+		StringBuf_Destroy(&buf);
+		mapif_itembound_ack(fd, aid, guild_id);
 		return 1; 
 	} 
 
@@ -284,10 +285,15 @@ int mapif_parse_itembound_retrieve(int fd)
 			memcpy(&items[i],&item,sizeof(struct item)); 
 			i++; 
 		} 
-	} 
+	}
+	Sql_FreeResult(sql_handle);
      
-	if(!i) //No items found - No need to continue 
-		return 0; 
+	if (!i) { //No items found - No need to continue
+		StringBuf_Destroy(&buf);
+		SqlStmt_Free(stmt);
+		mapif_itembound_ack(fd, aid, guild_id);
+		return 0;
+	}
 
 	//First we delete the character's items 
 	StringBuf_Clear(&buf); 
@@ -300,13 +306,13 @@ int mapif_parse_itembound_retrieve(int fd)
 		StringBuf_Printf(&buf, " `id`=%d",items[j].id); 
 	} 
 
-	stmt = SqlStmt_Malloc(sql_handle); 
 	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf)) 
 	||  SQL_ERROR == SqlStmt_Execute(stmt) ) 
 	{ 
 		SqlStmt_ShowDebug(stmt); 
 		SqlStmt_Free(stmt); 
-		StringBuf_Destroy(&buf); 
+		StringBuf_Destroy(&buf);
+		mapif_itembound_ack(fd, aid, guild_id);
 		return 1; 
 	} 
 
@@ -331,15 +337,15 @@ int mapif_parse_itembound_retrieve(int fd)
 		StringBuf_AppendStr(&buf, ")"); 
 	} 
 
-	stmt = SqlStmt_Malloc(sql_handle); 
 	if( SQL_ERROR == SqlStmt_PrepareStr(stmt, StringBuf_Value(&buf)) 
 	||  SQL_ERROR == SqlStmt_Execute(stmt) ) 
 	{ 
 		SqlStmt_ShowDebug(stmt); 
 		SqlStmt_Free(stmt); 
-		StringBuf_Destroy(&buf); 
+		StringBuf_Destroy(&buf);
+		mapif_itembound_ack(fd, aid, guild_id);
 		return 1; 
-	} 
+	}
 
 	//Finally reload storage and tell map we're done 
 	mapif_load_guild_storage(fd,aid,guild_id,0); 

@@ -9280,8 +9280,8 @@ BUILDIN_FUNC(addtimercount)
 	int tick;
 	TBL_PC* sd;
 
-	event=script_getstr(st, 2);
-	tick=script_getnum(st,3);
+	tick = script_getnum(st, 2);
+	event = script_getstr(st, 3);
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;
@@ -20388,7 +20388,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(cmdothernpc,"ss"),
 	BUILDIN_DEF(addtimer,"is"),
 	BUILDIN_DEF(deltimer,"s"),
-	BUILDIN_DEF(addtimercount,"si"),
+	BUILDIN_DEF(addtimercount, "is"),
 	BUILDIN_DEF(initnpctimer,"??"),
 	BUILDIN_DEF(stopnpctimer,"??"),
 	BUILDIN_DEF(startnpctimer,"??"),

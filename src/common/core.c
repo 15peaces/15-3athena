@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "plugins.h"
 #include "utils.h" // filesize()
+#include "sql.h"
 #ifndef _WIN32
 #include "svnversion.h"
 #endif
@@ -284,6 +285,7 @@ int main (int argc, char **argv)
 	display_title();
 	usercheck();
 
+	Sql_Init();
 	db_init();
 	signals_init();
 	timer_init();
