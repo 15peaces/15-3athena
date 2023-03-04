@@ -3073,6 +3073,13 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 					return 1;
 			}
 		}
+		else if (sd->inventory_data[index]->type == IT_SHADOWGEAR) { // Shadow System
+			if (!((battle_config.shadow_refine_def != 1 && i >= EQI_SHADOW_ARMOR && i <= EQI_SHADOW_ACC_L)))
+				refinedef += sd->inventory.u.items_inventory[index].refine * refinebonus[0][0];
+			run_script(sd->inventory_data[index]->script, 0, sd->bl.id, 0);
+			if (!calculating)
+				return 1;
+		}
 	}
 
 	if(sd->equip_index[EQI_AMMO] >= 0){

@@ -240,6 +240,35 @@
 2823,115,100	// Merchant_Manual
 2824,115,100	// Mage_Manual
 2856,87,100		// Half_Megin
+// Sealed Cards
+4485,91,100		// Sealed Gloom Under Night Card
+4489,91,100		// Sealed Pharaoh Card
+4490,91,100		// Sealed Moonlight Flower Card
+4491,91,100		// Sealed Sniper Card
+4492,91,100		// Sealed Orc Hero Card
+4493,91,100		// Sealed Tao Gunka Card
+4494,91,100		// Sealed Turtle General Card
+4495,91,100		// Sealed Amon Ra Card
+4496,91,100		// Sealed Drake Card
+4497,91,100		// Sealed Stormy Knight Card
+4498,91,100		// Sealed Lady Tanee Card
+4499,91,100		// Sealed Samurai Spector Card
+4500,91,100		// Sealed Orc Lord Card
+4501,91,100		// Sealed High Priest Card
+4502,91,100		// Sealed MasterSmith Card
+4503,91,100		// Sealed Vesper Card
+4504,91,100		// Sealed Eddga Card
+4535,91,100		// Sealed Randgris Card
+4536,91,100		// Sealed Atroce Card
+4537,91,100		// Sealed Phreeoni Card
+4538,91,100		// Sealed White Lady Card
+4539,91,100		// Sealed Fallen Bishop Hibram Card
+4540,91,100		// Sealed Lord of The Dead Card
+4541,91,100		// Sealed High Wizard Card
+4542,91,100		// Sealed Detale Card
+4543,91,100		// Sealed Hatii Card
+4544,91,100		// Sealed Evil Snake Lord Card
+4544,91,100		// Sealed Evil Snake Lord Card
 5132,91,100		// Angeling_Hat
 5147,123,100	// Baseball_Cap
 5148,72,100		// Phrygian_Cap

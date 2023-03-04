@@ -302,6 +302,7 @@ const char* itemdb_typename(enum item_types type)
 		case IT_PETARMOR:       return "Pet Accessory";
 		case IT_AMMO:           return "Arrow/Ammunition";
 		case IT_DELAYCONSUME:   return "Delay-Consume Usable";
+		case IT_SHADOWGEAR:     return "Shadow Equipment";
 		case IT_CASH:           return "Cash Usable";
 	}
 	return "Unknown Item Type";
@@ -537,6 +538,7 @@ bool itemdb_isequip(unsigned short nameid)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
+		case IT_SHADOWGEAR:
 			return true;
 		default:
 			return false;
@@ -554,6 +556,7 @@ bool itemdb_isequip2(struct item_data *data)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_AMMO:
+		case IT_SHADOWGEAR:
 			return true;
 		default:
 			return false;
@@ -571,6 +574,7 @@ bool itemdb_isstackable(unsigned short nameid)
 	  case IT_ARMOR:
 	  case IT_PETEGG:
 	  case IT_PETARMOR:
+	  case IT_SHADOWGEAR:
 		  return false;
 	  default:
 		  return true;
@@ -588,6 +592,7 @@ bool itemdb_isstackable2(struct item_data *data)
 	  case IT_ARMOR:
 	  case IT_PETEGG:
 	  case IT_PETARMOR:
+	  case IT_SHADOWGEAR:
 		  return false;
 	  default:
 		  return true;
@@ -672,6 +677,7 @@ char itemdb_isidentified(unsigned short nameid)
 		case IT_WEAPON:
 		case IT_ARMOR:
 		case IT_PETARMOR:
+		case IT_SHADOWGEAR:
 			return battle_config.item_auto_identify;
 		default:
 			return 1;
@@ -1229,7 +1235,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	id->type = atoi(str[3]);
 
-	if( id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 || ( id->type > IT_DELAYCONSUME && id->type < IT_CASH ) || id->type >= IT_MAX )
+	if( id->type < 0 || id->type == IT_UNKNOWN || id->type == IT_UNKNOWN2 || ( id->type > IT_SHADOWGEAR && id->type < IT_CASH ) || id->type >= IT_MAX )
 	{// catch invalid item types
 		ShowWarning("itemdb_parse_dbrow: Invalid item type %d for item %hu. IT_ETC will be used.\n", id->type, nameid);
 		id->type = IT_ETC;

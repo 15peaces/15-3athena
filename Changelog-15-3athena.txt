@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/04/2023
+	r376 [15peaces]
+	*Fixed Ancient Invisible Bug
+		-The movement of invisible units is no longer sent to the game clients of foes, therefore cheat tools that'd display hidden units, without requiring maya p, will no longer function.
+		-Special Thanks to @rathena , @HerculesWS
+	*Some misc. cleaning.
+	*Some updates in item databases
+		-Added some missing items
+		-Added some missing item combos
+		-Added trading restrictions for sealed mvp cards.
+	*Updated docs.
+	*Added better support for shadow equipment.
+
 02/26/2023
 	r375 [15peaces]
 		*Added renaming support for the remaining tables in the inter_athena.conf file.

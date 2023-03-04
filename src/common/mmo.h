@@ -258,7 +258,7 @@ enum item_types {
 	IT_UNKNOWN2,	//9		//IT_BOTHHAND	= 0x09
 	IT_AMMO,		//10	//IT_ARROW		= 0x0a
 	IT_DELAYCONSUME,//11	//IT_ARMORTM	= 0x0b
-	IT_SHADOWGEAR,			//IT_ARMORTB	= 0x0c
+	IT_SHADOWGEAR,	//12	//IT_ARMORTB	= 0x0c
 							//IT_ARMORMB	= 0x0d
 							//IT_ARMORTMB	= 0x0e
 							//IT_GUN		= 0x0f

@@ -2575,9 +2575,8 @@ int intif_parse(int fd)
 	cmd = RFIFOW(fd,0);
 
 	// パケットのID確認
-	if(cmd<0x3800 || cmd>=0x3800+(sizeof(packet_len_table)/sizeof(packet_len_table[0])) ||
-	   packet_len_table[cmd-0x3800]==0){
-	   	return 0;
+	if(cmd<0x3800 || cmd>=0x3800+ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x3800]==0){
+		return 0;
 	}
 	// パケットの長さ確認
 	packet_len = packet_len_table[cmd-0x3800];
