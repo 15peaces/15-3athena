@@ -496,7 +496,8 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 		(p->ele_id != cp->ele_id) || (p->shield != cp->shield) || (p->head_top != cp->head_top) ||
 		(p->head_mid != cp->head_mid) || (p->head_bottom != cp->head_bottom) || (p->rename != cp->rename) ||
 		(p->delete_date != cp->delete_date) || (p->robe != cp->robe) || (p->hotkey_rowshift != cp->hotkey_rowshift) || 
-		(p->clan_id != cp->clan_id) || (p->title_id != cp->title_id) || (p->uniqueitem_counter != cp->uniqueitem_counter)
+		(p->clan_id != cp->clan_id) || (p->title_id != cp->title_id) || (p->uniqueitem_counter != cp->uniqueitem_counter) ||
+		(p->unban_time != cp->unban_time)
 	)
 	{	//Save status
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `base_level`='%d', `job_level`='%d',"
@@ -506,7 +507,8 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`option`='%d',`party_id`='%d',`guild_id`='%d',`pet_id`='%d',`homun_id`='%d',`elemental_id`='%d',"
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
-			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu',`uniqueitem_counter`='%u'"
+			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu',`uniqueitem_counter`='%u',"
+			"`unban_time`='%d'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -518,6 +520,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
 			p->robe, p->hotkey_rowshift, p->clan_id, p->title_id, p->uniqueitem_counter,
+			p->unban_time,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
@@ -1117,7 +1120,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`body`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`sex`,`hotkey_rowshift`,`title_id`"
+		"`robe`,`sex`,`hotkey_rowshift`,`title_id`,`unban_time`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0,  SQLDT_INT,    &p.char_id, 0, NULL, NULL)
@@ -1160,6 +1163,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
  	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL) 
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR,  &p.hotkey_rowshift, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_ULONG,	&p.title_id, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_LONG,	&p.unban_time, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug( stmt );
@@ -1170,11 +1174,16 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	{
 		p.last_point.map = mapindex_name2id( last_map );
 		sd->found_char[i] = p.char_id;
+		sd->unban_time[i] = p.unban_time;
 		p.sex = char_mmo_gender( sd, &p, sex[0] );
 		j += mmo_char_tobuf( WBUFP( buf, j ), &p );
 	}
-	for( ; i < MAX_CHARS; i++ )
+	
+	for (; i < MAX_CHARS; i++) 
+	{
 		sd->found_char[i] = -1;
+		sd->unban_time[i] = 0;
+	}
 
 	memset( sd->new_name, 0, sizeof( sd->new_name ) );
 
@@ -1211,7 +1220,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		"`str`,`agi`,`vit`,`int`,`dex`,`luk`,`max_hp`,`hp`,`max_sp`,`sp`,"
 		"`status_point`,`skill_point`,`option`,`karma`,`manner`,`hair`,`hair_color`,"
 		"`clothes_color`,`body`,`weapon`,`shield`,`head_top`,`head_mid`,`head_bottom`,`last_map`,`rename`,`delete_date`,"
-		"`robe`,`sex`,`hotkey_rowshift`,`title_id`"
+		"`robe`,`sex`,`hotkey_rowshift`,`title_id`,`unban_time`"
 		" FROM `%s` WHERE `account_id`='%d' AND `char_num` < '%d'", char_db, sd->account_id, MAX_CHARS)
 		|| SQL_ERROR == SqlStmt_Execute(stmt)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_INT, &p.char_id, 0, NULL, NULL)
@@ -1254,6 +1263,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_ENUM, &sex, sizeof(sex), NULL, NULL)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR, &p.hotkey_rowshift, 0, NULL, NULL)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_ULONG, &p.title_id, 0, NULL, NULL)
+		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_LONG, &p.unban_time, 0, NULL, NULL)
 		)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -1282,6 +1292,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 			p.last_point.map = mapindex_name2id(last_map);
 			p.sex = char_mmo_gender(sd, &p, sex[0]);
 			sd->found_char[i] = p.char_id;
+			sd->unban_time[i] = p.unban_time;
 			j += mmo_char_tobuf(WFIFOP(fd, j), &p);
 		}
 		WFIFOW(fd,2) = j;// Packet Length
@@ -1302,8 +1313,11 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		WFIFOSET(fd,4);
 	}
 
-	for( ; i < MAX_CHARS; i++ )
+	for (; i < MAX_CHARS; i++)
+	{
 		sd->found_char[i] = -1;
+		sd->unban_time[i] = 0;
+	}
 
 	memset(sd->new_name,0,sizeof(sd->new_name));
 
@@ -2199,9 +2213,20 @@ int mmo_char_send006b(int fd, struct char_session_data* sd)
 // 0x9a0 - HC_CHARLIST_NOTIFY - Tell client how many pages, kRO sends 17
 void mmo_charlist_notify(int fd, struct char_session_data* sd)
 {
+	int found = 0, count = 0, i = 0;
+	for (i = 0; i < MAX_CHARS; i++) {
+		if (sd->found_char[i] != -1) {
+			found = 1;
+		}
+		if (i % 3 && found) { //each page contains 3char max
+			count++;
+			found = 0;
+		}
+	}
+
 	WFIFOHEAD(fd,6);
 	WFIFOW(fd,0) = 0x9a0;
-	WFIFOL(fd,2) = (MAX_CHARS > 3) ? MAX_CHARS / 3 : 1; //int TotalCnt (nb page to load)
+	WFIFOL(fd, 2) = count ? count : 1;
 	WFIFOSET(fd,6);
 }
 
@@ -2223,6 +2248,75 @@ void mmo_char_send082d(int fd, struct char_session_data* sd)
 	mmo_charlist_notify(fd, sd);
 #else
 	mmo_char_send006b(fd, sd);
+#endif
+}
+
+void char_block_character(int fd, struct char_session_data* sd);
+int charblock_timer(int tid, int64 tick, int id, intptr_t data)
+{
+	struct char_session_data* sd = NULL;
+	int i = 0;
+	ARR_FIND(0, fd_max, i, session[i] && (sd = (struct char_session_data*)session[i]->session_data) && sd->account_id == id);
+
+	if (sd == NULL || sd->charblock_timer == INVALID_TIMER) //has disconected or was required to stop
+		return 0;
+	if (sd->charblock_timer != tid) {
+		sd->charblock_timer = INVALID_TIMER;
+		return 0;
+	}
+	char_block_character(i, sd);
+	return 0;
+}
+
+/// 0x20d <PacketLength>.W <TAG_CHARACTER_BLOCK_INFO>24B (HC_BLOCK_CHARACTER)
+/// <GID>L <szExpireDate>20B (TAG_CHARACTER_BLOCK_INFO)
+void char_block_character(int fd, struct char_session_data* sd) {
+	int i = 0, j = 0, len = 4;
+	time_t now = time(NULL);
+
+	WFIFOHEAD(fd, 4 + MAX_CHARS * 24);
+	WFIFOW(fd, 0) = 0x20d;
+
+	for (i = 0; i < MAX_CHARS; i++) {
+		if (sd->found_char[i] == -1)
+			continue;
+		if (sd->unban_time[i]) {
+			if (sd->unban_time[i] > now) {
+				char szExpireDate[21];
+				WFIFOL(fd, 4 + j * 24) = sd->found_char[i];
+				timestamp2string(szExpireDate, 20, sd->unban_time[i], "%Y-%m-%d %H:%M:%S");
+				memcpy(WFIFOP(fd, 8 + j * 24), szExpireDate, 20);
+			}
+			else {
+				WFIFOL(fd, 4 + j * 24) = 0;
+				sd->unban_time[i] = 0;
+				if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `unban_time`='0' WHERE `char_id`='%d' LIMIT 1", char_db, sd->found_char[i]))
+					Sql_ShowDebug(sql_handle);
+			}
+			len += 24;
+			j++; //pkt list idx
+		}
+	}
+	WFIFOW(fd, 2) = len; //packet len
+	WFIFOSET(fd, len);
+
+	ARR_FIND(0, MAX_CHARS, i, sd->unban_time[i] > now); //sd->charslot only have productible char
+	if (i < MAX_CHARS) {
+		sd->charblock_timer = add_timer(
+			gettick() + 10000,	// each 10s resend that list
+			charblock_timer, sd->account_id, 0);
+	}
+}
+
+void mmo_char_send(int fd, struct char_session_data* sd) {
+#if PACKETVER >= 20120702
+	mmo_char_send082d(fd, sd);
+#else
+	mmo_char_send006b(fd, sd);
+#endif
+
+#if PACKETVER >= 20060819
+	char_block_character(fd, sd);
 #endif
 }
 
@@ -2515,11 +2609,7 @@ int parse_fromlogin(int fd)
 				else
 				{
 					// send characters to player
-					#if PACKETVER >= 20120702
-						mmo_char_send082d(i, sd);
-					#else
-						mmo_char_send006b(i, sd);
-					#endif
+					mmo_char_send(i, sd);
 #if PACKETVER >=  20110309
 					// PIN code system, disabled
 					WFIFOHEAD(i, 12);
@@ -2874,25 +2964,25 @@ int char_parse_ackchangecharsex(int char_id, int sex)
  * @return : 0 not enough data received, 1 success
  */
 int char_parse_fwlog_changestatus(int fd){
-	if (RFIFOREST(fd) < 44)
+	if (RFIFOREST(fd) < 36)
 		return 0;
 	else {
-		int result = 0; // 0-login-server request done, 1-player not found, 2-gm level too low, 3-login-server offline, 4-current group level > VIP group level
+		int result = 0; // 0-login-server request done, 1-player not found, 2-gm level too low, 3-login-server offline
 		char esc_name[NAME_LENGTH*2+1];
 		char answer = true;
 
 		int aid = RFIFOL(fd,2); // account_id of who ask (-1 if server itself made this request)
 		const char* name = (char*)RFIFOP(fd,6); // name of the target character
-		int operation = RFIFOW(fd,30); // type of operation: 1-block, 2-ban, 3-unblock, 4-unban, 5-changesex, 6-vip, 7-changecharsex
+		int operation = RFIFOW(fd,30); // type of operation: 1-block, 2-ban, 3-unblock, 4-unban, 5-changesex, 6-changecharsex
 		int32 timediff = 0;
-		int val1 = 0, sex = SEX_MALE;
+		int sex = SEX_MALE;
 
-		if (operation == 2) {
-			timediff = RFIFOL(fd, 32);
-			val1 = RFIFOL(fd, 36);
-		} else if (operation == 7)
+		timediff = RFIFOL(fd, 32);
+
+		if (operation == 6)
 			sex = RFIFOB(fd, 32);
-		RFIFOSKIP(fd,44);
+
+		RFIFOSKIP(fd,36);
 
 		Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
 		if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `account_id`, `char_id` FROM `%s` WHERE `name` = '%s'", char_db, esc_name) )
@@ -2954,9 +3044,7 @@ int char_parse_fwlog_changestatus(int fd){
 						WFIFOL(login_fd,2) = t_aid;
 						WFIFOSET(login_fd,6);
 						break;
-					case 6: // vip (not yet supported [15peaces])
-						break;
-					case 7: // changecharsex
+					case 6: // changecharsex
 						answer = false;
 						char_parse_ackchangecharsex(t_cid, sex);
 						break;
@@ -3270,6 +3358,88 @@ void mapif_on_disconnect(int id)
 	mapif_server_reset(id);
 }
 
+int mapif_parse_reqcharban(int fd) {
+	if (RFIFOREST(fd) < 10+NAME_LENGTH)
+		return 0;
+	else {
+		//int aid = RFIFOL(fd,2); aid of player who as requested the ban
+		int timediff = RFIFOL(fd, 6);
+		const char* name = (char*)RFIFOP(fd, 10); // name of the target character
+		RFIFOSKIP(fd, 10 + NAME_LENGTH);
+
+		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `account_id`,`char_id`,`unban_time` FROM `%s` WHERE `name` = '%s'", char_db, name))
+			Sql_ShowDebug(sql_handle);
+		else if (Sql_NumRows(sql_handle) == 0) {
+			return -1; // 1-player not found
+		}
+		else if (SQL_SUCCESS != Sql_NextRow(sql_handle)) {
+			Sql_ShowDebug(sql_handle);
+			Sql_FreeResult(sql_handle);
+			return -1;
+		}
+		else {
+			int t_cid = 0, t_aid = 0;
+			char* data;
+			time_t unban_time;
+			time_t now = time(NULL);
+			SqlStmt* stmt = SqlStmt_Malloc(sql_handle);
+
+			Sql_GetData(sql_handle, 0, &data, NULL); t_aid = atoi(data);
+			Sql_GetData(sql_handle, 1, &data, NULL); t_cid = atoi(data);
+			Sql_GetData(sql_handle, 2, &data, NULL); unban_time = atol(data);
+			Sql_FreeResult(sql_handle);
+
+
+			if (timediff < 0 && unban_time == 0) return 0; //attemp to reduce time of a non banned account ?!?
+			else if (unban_time < now) unban_time = now; //new entry
+			unban_time += timediff; //alterate the time
+			if (unban_time < now) unban_time = 0; //we have totally reduce the time
+
+			if (SQL_SUCCESS != SqlStmt_Prepare(stmt,
+				"UPDATE `%s` SET `unban_time` = ? WHERE `char_id` = ? LIMIT 1",
+				char_db)
+				|| SQL_SUCCESS != SqlStmt_BindParam(stmt, 0, SQLDT_LONG, (void*)&unban_time, sizeof(unban_time))
+				|| SQL_SUCCESS != SqlStmt_BindParam(stmt, 1, SQLDT_INT, (void*)&t_cid, sizeof(t_cid))
+				|| SQL_SUCCESS != SqlStmt_Execute(stmt)
+
+				) {
+				SqlStmt_ShowDebug(stmt);
+				SqlStmt_Free(stmt);
+				return -1;
+			}
+			SqlStmt_Free(stmt);
+
+			// condition applies; send to all map-servers to disconnect the player
+			if (unban_time > now) {
+				unsigned char buf[11];
+					WBUFW(buf, 0) = 0x2b14;
+					WBUFL(buf, 2) = t_cid;
+					WBUFB(buf, 6) = 2;
+					WBUFL(buf, 7) = (unsigned int)unban_time;
+					mapif_sendall(buf, 11);
+
+					// disconnect player if online on char-server
+					disconnect_player(t_aid);
+			}
+		}
+	}
+	return 0;
+}
+
+int mapif_parse_reqcharunban(int fd) {
+	if (RFIFOREST(fd) < 6)
+		return 0;
+	else {
+		int cid = RFIFOL(fd, 2);
+		RFIFOSKIP(fd, 6);
+
+		if (SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `unban_time` = '0' WHERE `char_id` = '%d' LIMIT 1", char_db, cid)) {
+			Sql_ShowDebug(sql_handle);
+			return -1;
+		}
+	}
+	return 0;
+}
 
 int parse_frommap(int fd)
 {
@@ -3852,76 +4022,8 @@ int parse_frommap(int fd)
 			RFIFOSKIP(fd,2);
 		break;
 
-		case 0x2b26: // auth request from map-server
-			char_parse_reqauth(fd, id);
-			/*Disabled and replaced by chmapif_parse_reqauth function. [15peaces]
-			if (RFIFOREST(fd) < 19)
-				return 0;
-
-		{
-			int account_id;
-			int char_id;
-			uint32 login_id1;
-			uint8 sex;
-			uint32 ip;
-			struct auth_node* node;
-			struct mmo_charstatus* cd;
-			struct mmo_charstatus char_dat;
-
-			account_id = RFIFOL(fd,2);
-			char_id    = RFIFOL(fd,6);
-			login_id1  = RFIFOL(fd,10);
-			sex        = RFIFOB(fd,14);
-			ip         = ntohl(RFIFOL(fd,15));
-			RFIFOSKIP(fd,19);
-
-			node = (struct auth_node*)idb_get(auth_db, account_id);
-			cd = (struct mmo_charstatus*)uidb_get(char_db_,char_id);
-			if( cd == NULL )
-			{	//Really shouldn't happen.
-				mmo_char_fromsql(char_id, &char_dat, true);
-				cd = (struct mmo_charstatus*)uidb_get(char_db_,char_id);
-			}
-			if( runflag == SERVER_STATE_RUN &&
-				cd != NULL &&
-				node != NULL && 
-				node->account_id == account_id &&
-				node->char_id == char_id &&
-				node->login_id1 == login_id1 &&
-				node->sex == sex &&
-				node->ip == ip )
-			{// auth ok
-			if (cd->sex == 99)
-				cd->sex = sex;
-
-				WFIFOHEAD(fd,24 + sizeof(struct mmo_charstatus));
-				WFIFOW(fd,0) = 0x2afd;
-				WFIFOW(fd,2) = 24 + sizeof(struct mmo_charstatus);
-				WFIFOL(fd,4) = account_id;
-				WFIFOL(fd,8) = node->login_id1;
-				WFIFOL(fd,12) = node->login_id2;
-				WFIFOL(fd,16) = (uint32)node->expiration_time; // FIXME: will wrap to negative after "19-Jan-2038, 03:14:07 AM GMT"
-				WFIFOL(fd,20) = node->gmlevel;
-				memcpy(WFIFOP(fd,24), cd, sizeof(struct mmo_charstatus));
-				WFIFOSET(fd, WFIFOW(fd,2));
-
-				// only use the auth once and mark user online
-				idb_remove(auth_db, account_id);
-				set_char_online(id, char_id, account_id);
-			}
-			else
-			{// auth failed
-				WFIFOHEAD(fd,19);
-				WFIFOW(fd,0) = 0x2b27;
-				WFIFOL(fd,2) = account_id;
-				WFIFOL(fd,6) = char_id;
-				WFIFOL(fd,10) = login_id1;
-				WFIFOB(fd,14) = sex;
-				WFIFOL(fd,15) = htonl(ip);
-				WFIFOSET(fd,19);
-			}
-		}*/
-		break;
+		// auth request from map-server
+		case 0x2b26: char_parse_reqauth(fd, id); break;
 
 		case 0x2736: // ip address update
 			if (RFIFOREST(fd) < 6) return 0;
@@ -3929,6 +4031,9 @@ int parse_frommap(int fd)
 			ShowInfo("Updated IP address of map-server #%d to %d.%d.%d.%d.\n", id, CONVIP(server[id].ip));
 			RFIFOSKIP(fd,6);
 		break;
+
+		case 0x2b28: mapif_parse_reqcharban(fd); break; //charban
+		case 0x2b29: mapif_parse_reqcharunban(fd); break; //charunban
 
 		// cydh bonus_script
 		case 0x2b2d: bonus_script_get(fd); break; //Load data
@@ -4331,6 +4436,12 @@ int char_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 		char_id = atoi(data);
 		Sql_FreeResult(sql_handle);
 
+		/* client doesn't let it get to this point if you're banned, so its a forged packet */
+		if (sd->found_char[slot] == char_id && sd->unban_time[slot] > time(NULL)) {
+			char_reject(fd, 0); // rejected from server
+			return 1;
+		}
+
 		/* set char as online prior to loading its data so 3rd party applications will realise the sql data is not reliable */
 		set_char_online(-2,char_id,sd->account_id);
 		if( !mmo_char_fromsql(char_id, &char_dat, true) ) { /* failed? set it back offline */
@@ -4564,145 +4675,6 @@ int parse_char(int fd)
 		case 0x66:
 			char_parse_charselect(fd, sd, ipl);
 			break;
-			/* Old Version, replaced by char_parse_charselect function. [15peaces]
-			FIFOSD_CHECK(3);
-		{
-			struct mmo_charstatus char_dat;
-			struct mmo_charstatus *cd;
-			char* data;
-			int char_id;
-			uint32 subnet_map_ip;
-			struct auth_node* node;
-
-			int slot = RFIFOB(fd,2);
-			RFIFOSKIP(fd,3);
-
-			if ( SQL_SUCCESS != Sql_Query(sql_handle, "SELECT `char_id` FROM `%s` WHERE `account_id`='%d' AND `char_num`='%d'", char_db, sd->account_id, slot)
-			  || SQL_SUCCESS != Sql_NextRow(sql_handle)
-			  || SQL_SUCCESS != Sql_GetData(sql_handle, 0, &data, NULL) )
-			{	//Not found?? May be forged packet.
-				Sql_ShowDebug(sql_handle);
-				Sql_FreeResult(sql_handle);
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x6c;
-				WFIFOB(fd,2) = 0; // rejected from server
-				WFIFOSET(fd,3);
-				break;
-			}
-
-			char_id = atoi(data);
-			Sql_FreeResult(sql_handle);
-			mmo_char_fromsql(char_id, &char_dat, true);
-
-			//Have to switch over to the DB instance otherwise data won't propagate [Kevin]
-			cd = (struct mmo_charstatus *)idb_get(char_db_, char_id);
-			if (cd->sex == 99)
-				cd->sex = sd->sex;
-
-			if (log_char) {
-				char esc_name[NAME_LENGTH*2+1];
-
-				Sql_EscapeStringLen(sql_handle, esc_name, char_dat.name, strnlen(char_dat.name, NAME_LENGTH));
-				if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s`(`time`, `account_id`,`char_num`,`name`) VALUES (NOW(), '%d', '%d', '%s')",
-					charlog_db, sd->account_id, slot, esc_name) )
-					Sql_ShowDebug(sql_handle);
-			}
-			ShowInfo("Selected char: (Account %d: %d - %s)\n", sd->account_id, slot, char_dat.name);
-
-			// searching map server
-			i = search_mapserver(cd->last_point.map, -1, -1);
-
-			// if map is not found, we check major cities
-			if (i < 0) {
-				unsigned short j;
-				//First check that there's actually a map server online.
-				ARR_FIND( 0, ARRAYLENGTH(server), j, server[j].fd >= 0 && server[j].map[0] );
-				if (j == ARRAYLENGTH(server)) {
-					ShowInfo("Connection Closed. No map servers available.\n");
-					WFIFOHEAD(fd,3);
-					WFIFOW(fd,0) = 0x81;
-					WFIFOB(fd,2) = 1; // 01 = Server closed
-					WFIFOSET(fd,3);
-					break;
-				}
-				if ((i = search_mapserver((j=mapindex_name2id(MAP_PRONTERA)),-1,-1)) >= 0) {
-					cd->last_point.x = 273;
-					cd->last_point.y = 354;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_GEFFEN)),-1,-1)) >= 0) {
-					cd->last_point.x = 120;
-					cd->last_point.y = 100;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_MORROC)),-1,-1)) >= 0) {
-					cd->last_point.x = 160;
-					cd->last_point.y = 94;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_ALBERTA)),-1,-1)) >= 0) {
-					cd->last_point.x = 116;
-					cd->last_point.y = 57;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_PAYON)),-1,-1)) >= 0) {
-					cd->last_point.x = 87;
-					cd->last_point.y = 117;
-				} else if ((i = search_mapserver((j=mapindex_name2id(MAP_IZLUDE)),-1,-1)) >= 0) {
-					cd->last_point.x = 94;
-					cd->last_point.y = 103;
-				} else {
-					ShowInfo("Connection Closed. No map server available that has a major city, and unable to find map-server for '%s'.\n", mapindex_id2name(cd->last_point.map));
-					WFIFOHEAD(fd,3);
-					WFIFOW(fd,0) = 0x81;
-					WFIFOB(fd,2) = 1; // 01 = Server closed
-					WFIFOSET(fd,3);
-					break;
-				}
-				ShowWarning("Unable to find map-server for '%s', sending to major city '%s'.\n", mapindex_id2name(cd->last_point.map), mapindex_id2name(j));
-				cd->last_point.map = j;
-			}
-
-			//Send NEW auth packet [Kevin]
-			//FIXME: is this case even possible? [ultramage]
-			if ((map_fd = server[i].fd) < 1 || session[map_fd] == NULL)
-			{
-				ShowError("parse_char: Attempting to write to invalid session %d! Map Server #%d disconnected.\n", map_fd, i);
-				server[i].fd = -1;
-				memset(&server[i], 0, sizeof(struct mmo_map_server));
-				//Send server closed.
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x81;
-				WFIFOB(fd,2) = 1; // 01 = Server closed
-				WFIFOSET(fd,3);
-				break;
-			}
-
-			// Send party to map
-			if( cd->party_id != 0 && !inter_party_update(cd) )
-			{
-				// TODO something went wrong, auto remove from party?
-			}
-
-			//Send player to map
-			WFIFOHEAD(fd,28);
-			WFIFOW(fd,0) = 0x71;
-			WFIFOL(fd,2) = cd->char_id;
-			mapindex_getmapname_ext(mapindex_id2name(cd->last_point.map), (char*)WFIFOP(fd,6));
-			subnet_map_ip = lan_subnetcheck(ipl); // Advanced subnet check [LuzZza]
-			WFIFOL(fd,22) = htonl((subnet_map_ip) ? subnet_map_ip : server[i].ip);
-			WFIFOW(fd,26) = ntows(htons(server[i].port)); // [!] LE byte order here [!]
-			WFIFOSET(fd,28);
-
-			// create temporary auth entry
-			CREATE(node, struct auth_node, 1);
-			node->account_id = sd->account_id;
-			node->char_id = cd->char_id;
-			node->login_id1 = sd->login_id1;
-			node->login_id2 = sd->login_id2;
-			node->sex = sd->sex;
-			node->expiration_time = sd->expiration_time;
-			node->gmlevel = sd->gmlevel;
-			node->ip = ipl;
-			idb_put(auth_db, sd->account_id, node);
-
-			set_char_online(-2,node->char_id,sd->account_id);
-
-		}
-		break;
-		*/
 
 		// create new char (CH_MAKE_CHAR).
 #if PACKETVER >= 20151001
@@ -4947,41 +4919,40 @@ int parse_char(int fd)
 		case 0x2af8:
 			if (RFIFOREST(fd) < 60)
 				return 0;
-		{
-			char* l_user = (char*)RFIFOP(fd,2);
-			char* l_pass = (char*)RFIFOP(fd,26);
-			l_user[23] = '\0';
-			l_pass[23] = '\0';
-			ARR_FIND( 0, ARRAYLENGTH(server), i, server[i].fd <= 0 );
-			if( runflag != SERVER_STATE_RUN ||
-				i == ARRAYLENGTH(server) ||
-				strcmp(l_user, userid) != 0 ||
-				strcmp(l_pass, passwd) != 0 )
-			{
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x2af9;
-				WFIFOB(fd,2) = 3;
-				WFIFOSET(fd,3);
-			} else {
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x2af9;
-				WFIFOB(fd,2) = 0;
-				WFIFOSET(fd,3);
+			else {
+				char* l_user = (char*)RFIFOP(fd,2);
+				char* l_pass = (char*)RFIFOP(fd,26);
+				l_user[23] = '\0';
+				l_pass[23] = '\0';
+				ARR_FIND( 0, ARRAYLENGTH(server), i, server[i].fd <= 0 );
+				if( runflag != SERVER_STATE_RUN ||
+					i == ARRAYLENGTH(server) ||
+					strcmp(l_user, userid) != 0 ||
+					strcmp(l_pass, passwd) != 0 )
+				{
+					WFIFOHEAD(fd,3);
+					WFIFOW(fd,0) = 0x2af9;
+					WFIFOB(fd,2) = 3;
+					WFIFOSET(fd,3);
+				} else {
+					WFIFOHEAD(fd,3);
+					WFIFOW(fd,0) = 0x2af9;
+					WFIFOB(fd,2) = 0;
+					WFIFOSET(fd,3);
 
-				server[i].fd = fd;
-				server[i].ip = ntohl(RFIFOL(fd,54));
-				server[i].port = ntohs(RFIFOW(fd,58));
-				server[i].users = 0;
-				memset(server[i].map, 0, sizeof(server[i].map));
-				session[fd]->func_parse = parse_frommap;
-				session[fd]->flag.server = 1;
-				realloc_fifo(fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
-				char_mapif_init(fd);
+					server[i].fd = fd;
+					server[i].ip = ntohl(RFIFOL(fd,54));
+					server[i].port = ntohs(RFIFOW(fd,58));
+					server[i].users = 0;
+					memset(server[i].map, 0, sizeof(server[i].map));
+					session[fd]->func_parse = parse_frommap;
+					session[fd]->flag.server = 1;
+					realloc_fifo(fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
+					char_mapif_init(fd);
+				}
+				RFIFOSKIP(fd,60);
 			}
-
-			RFIFOSKIP(fd,60);
-		}
-		return 0; // avoid processing of followup packets here
+			return 0; // avoid processing of followup packets here
 
 		// unknown packet received
 		default:

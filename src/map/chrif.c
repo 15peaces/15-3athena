@@ -43,11 +43,11 @@ static const int packet_len_table[0x3d] =
 {								// U - used, F - free
 	60, 3,-1,27,10,-1, 6,-1,	// 2af8-2aff: U->2af8, U->2af9, U->2afa, U->2afb, U->2afc, U->2afd, U->2afe, U->2aff
 	 6,-1,18, 7,-1,35,30, 6,	// 2b00-2b07: U->2b00, U->2b01, U->2b02, U->2b03, U->2b04, U->2b05, U->2b06, U->2b07
-	 6,30, 0,-1,86, 7,44,34,	// 2b08-2b0f: U->2b08, U->2b09, F->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
+	 6,30, 0,-1,86, 7,36,34,	// 2b08-2b0f: U->2b08, U->2b09, F->2b0a, U->2b0b, U->2b0c, U->2b0d, U->2b0e, U->2b0f
 	11,10,10, 0,11, 0,266,10,	// 2b10-2b17: U->2b10, U->2b11, U->2b12, F->2b13, U->2b14, F->2b15, U->2b16, U->2b17
 	 2,10, 2,-1,-1,-1, 2, 7,	// 2b18-2b1f: U->2b18, U->2b19, U->2b1a, U->2b1b, U->2b1c, U->2b1d, U->2b1e, U->2b1f
 	-1,10, 8, 2, 2,14,19,19,	// 2b20-2b27: U->2b20, U->2b21, U->2b22, U->2b23, U->2b24, U->2b25, U->2b26, U->2b27
-	-1, 0, 6, 0, 0, 0,-1,-1,	// 2b28-2b2f: U->2b28, U->2b29, U->2b2a, F->2b2b, F->2b2c, F->2b2d, U->2b2e, U->2b2f 
+	-1, 6, 0, 0, 0, 0,-1,-1,	// 2b28-2b2f: U->2b28, U->2b29, F->2b2a, F->2b2b, F->2b2c, F->2b2d, U->2b2e, U->2b2f 
 };
 
 //Used Packets:
@@ -73,8 +73,8 @@ static const int packet_len_table[0x3d] =
 //2b0b: Incoming, chrif_skillcooldown_load -> receives skill cooldown data
 //2b0c: Outgoing, chrif_changeemail -> 'change mail address ...'
 //2b0d: Incoming, chrif_changedsex -> 'Change sex of acc XY' (or char)
-//2b0e: Outgoing, chrif_char_ask_name -> 'Do some operations (change sex, ban / unban etc)'
-//2b0f: Incoming, chrif_char_ask_name_answer -> 'answer of the 2b0e'
+//2b0e: Outgoing, chrif_req_login_operation -> 'Do some operations (change sex, ban / unban etc)'
+//2b0f: Incoming, chrif_ack_login_req -> 'answer of the 2b0e'
 //2b10: Outgoing, chrif_updatefamelist -> 'Update the fame ranking lists and send them'
 //2b11: Outgoing, chrif_divorce -> 'tell the charserver to do divorce'
 //2b12: Incoming, chrif_divorceack -> 'divorce chars
@@ -99,6 +99,8 @@ static const int packet_len_table[0x3d] =
 //2b25: Incoming, chrif_deadopt -> 'Removes baby from Father ID and Mother ID'
 //2b26: Outgoing, chrif_authreq -> 'client authentication request'
 //2b27: Incoming, chrif_authfail -> 'client authentication failed'
+//2b28: Outgoing, chrif_req_charban -> 'ban a specific char '
+//2b29: Outgoing, chrif_req_charunban -> 'unban a specific char '
 //2b2d: Outgoing, chrif_bsdata_request -> request bonus_script for pc_authok'ed char.
 //2b2e: Outgoing, chrif_save_bsdata -> Send bonus_script of player for saving.
 //2b2f: Incoming, chrif_load_bsdata -> received bonus_script of player for loading.
@@ -824,43 +826,38 @@ int chrif_changeemail(int id, const char *actual_email, const char *new_email)
 }
 
 /*==========================================
- * S 2b0e <accid>.l <name>.24B <type>.w { <year>.w <month>.w <day>.w <hour>.w <minute>.w <second>.w }
+ * S 2b0e <accid>.l <name>.24B <operation_type>.w <timediff>L
  * Send an account modification request to the login server (via char server).
- * type of operation:
- *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex (use next function for 5)
+ * @aid : Player requesting operation account id
+ * @character_name : Target of operation Player name
+ * @operation_type : 1: block, 2: ban, 3: unblock, 4: unban, 5: changesex (use next function for 5), 6 vip, 7 bank
+ * @timediff : tick to add or remove to unixtimestamp
  *------------------------------------------*/
-int chrif_char_ask_name(int acc, const char* character_name, unsigned short operation_type, int year, int month, int day, int hour, int minute, int second)
-{
+int chrif_req_login_operation(int aid, const char* character_name, unsigned short operation_type, int timediff) {
 	chrif_check(-1);
 
-	WFIFOHEAD(char_fd,44);
+	WFIFOHEAD(char_fd,36);
 	WFIFOW(char_fd,0) = 0x2b0e;
-	WFIFOL(char_fd,2) = acc;
+	WFIFOL(char_fd,2) = aid;
 	safestrncpy((char*)WFIFOP(char_fd,6), character_name, NAME_LENGTH);
 	WFIFOW(char_fd,30) = operation_type;
-	if (operation_type == 2) {
-		WFIFOW(char_fd,32) = year;
-		WFIFOW(char_fd,34) = month;
-		WFIFOW(char_fd,36) = day;
-		WFIFOW(char_fd,38) = hour;
-		WFIFOW(char_fd,40) = minute;
-		WFIFOW(char_fd,42) = second;
-	}
-	WFIFOSET(char_fd,44);
+	if (operation_type == 2 || operation_type == 7)
+		WFIFOL(char_fd, 32) = timediff;
+	WFIFOSET(char_fd,36);
 	return 0;
 }
 
 int chrif_changesex(struct map_session_data *sd, bool change_account)
 {
 	chrif_check(-1);
-	WFIFOHEAD(char_fd,44);
+	WFIFOHEAD(char_fd,36);
 	WFIFOW(char_fd,0) = 0x2b0e;
 	WFIFOL(char_fd,2) = sd->status.account_id;
 	safestrncpy((char*)WFIFOP(char_fd,6), sd->status.name, NAME_LENGTH);
 	WFIFOW(char_fd,30) = (change_account ? 5 : 7);
 	if (!change_account)
 		WFIFOB(char_fd,32) = sd->status.sex == SEX_MALE ? SEX_FEMALE : SEX_MALE;
-	WFIFOSET(char_fd,44);
+	WFIFOSET(char_fd,36);
 
 	clif_displaymessage(sd->fd, msg_txt(sd,830)); //"Need disconnection to perform change-sex request..."
 
@@ -873,24 +870,27 @@ int chrif_changesex(struct map_session_data *sd, bool change_account)
 
 /*==========================================
  * R 2b0f <accid>.l <name>.24B <type>.w <answer>.w
- * Processing a reply to chrif_char_ask_name() (request to modify an account).
- * type of operation:
- *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex
- * type of answer:
- *   0: login-server request done
- *   1: player not found
- *   2: gm level too low
+ * Processing a reply to chrif_req_login_operation() (request to modify an account).
+ * NB: That ack is received just after the char as sent the request to login and therefore didn't have login reply yet
+ * @param aid : player account id the request was concerning
+ * @param player_name : name the request was concerning
+ * @param type : code of operation done:
+ *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex, 6:vip
+ * @param awnser : type of anwser \n
+ *   0: login-server request done \n
+ *   1: player not found \n
+ *   2: gm level too low \n
  *   3: login-server offline
  *------------------------------------------*/
-static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 type, uint16 answer)
+static void chrif_ack_login_req(int aid, const char* player_name, uint16 type, uint16 answer)
 {
 	struct map_session_data* sd;
 	char action[25];
 	char output[256];
 	
-	sd = map_id2sd(acc);
-	if( acc < 0 || sd == NULL ) {
-		ShowError("chrif_char_ask_name_answer failed - player not online.\n");
+	sd = map_id2sd(aid);
+	if( aid < 0 || sd == NULL ) {
+		ShowError("chrif_ack_login_req failed - player not online.\n");
 		return;
 	}
 
@@ -904,6 +904,7 @@ static void chrif_char_ask_name_answer(int acc, const char* player_name, uint16 
 	case 1: sprintf(output, msg_txt(sd,845), NAME_LENGTH, player_name); break;
 	case 2: sprintf(output, msg_txt(sd,846), action, NAME_LENGTH, player_name); break;
 	case 3: sprintf(output, msg_txt(sd,847), action, NAME_LENGTH, player_name); break;
+	case 4: sprintf(output, msg_txt(sd,844), action, NAME_LENGTH, player_name); break;
 	default: output[0] = '\0'; break;
 	}
 	
@@ -1046,25 +1047,28 @@ int chrif_deadopt(int father_id, int mother_id, int child_id)
 }
 
 /*==========================================
- * Disconnection of a player (account has been banned of has a status, from login-server) by [Yor]
+ * Disconnection of a player (account has been banned of has a status, from login/char-server) by [Yor]
  *------------------------------------------*/
-int chrif_accountban(int fd)
+int chrif_ban(int fd)
 {
-	int acc;
+	int id, res = 0;
 	struct map_session_data *sd;
 
-	acc = RFIFOL(fd,2);
+	id = RFIFOL(fd,2);
+	res = RFIFOB(fd, 6); // 0: change of statut, 1: ban, 2 charban
 	if (battle_config.etc_log)
-		ShowNotice("chrif_accountban %d.\n", acc);
-	sd = map_id2sd(acc);
+		ShowNotice("chrif_ban %d.type = %s \n", id, res == 1 ? "account" : "char");
 
-	if (acc < 0 || sd == NULL) {
-		ShowError("chrif_accountban failed - player not online.\n");
+	if (res == 2)  sd = map_charid2sd(id);
+	else sd = map_id2sd(id);
+
+	if (id < 0 || sd == NULL) {
+		//nothing to do on map if player not connected
 		return 0;
 	}
 
 	sd->login_id1++; // change identify, because if player come back in char within the 5 seconds, he can change its characters
-	if (RFIFOB(fd,6) == 0) // 0: change of statut, 1: ban
+	if (res == 0) 
 	{ 
 		int ret_status = RFIFOL(fd, 7); // status or final date of a banishment
 		if (0 < ret_status && ret_status <= 9)
@@ -1074,18 +1078,41 @@ int chrif_accountban(int fd)
 		else
 			clif_displaymessage(sd->fd, msg_txt(sd,840)); //"Your account has not more authorised." 
 	}
-	else if (RFIFOB(fd,6) == 1) // 0: change of statut, 1: ban
+	else if (res == 1 || res == 2)
 	{ 
 		time_t timestamp;
-		char tmpstr[2048];
+		char tmpstr[256];
+		char strtime[25];
 		timestamp = (time_t)RFIFOL(fd,7); // status or final date of a banishment
-		strcpy(tmpstr, msg_txt(sd,843)); //"Your account has been banished until "
-		strftime(tmpstr + strlen(tmpstr), 24, "%d-%m-%Y %H:%M:%S", localtime(&timestamp));
+		strftime(strtime, 24, "%d-%m-%Y %H:%M:%S", localtime(&timestamp));
+		safesnprintf(tmpstr, sizeof(tmpstr), msg_txt(sd, 843), res == 2 ? "char" : "account", strtime); //"Your %s has been banished until %s "
 		clif_displaymessage(sd->fd, tmpstr);
 	}
 
 	set_eof(sd->fd); // forced to disconnect for the change
 	map_quit(sd); // Remove leftovers (e.g. autotrading) [Paradox924X]
+	return 0;
+}
+
+int chrif_req_charban(int aid, const char* character_name, int timediff) {
+	chrif_check(-1);
+
+	WFIFOHEAD(char_fd, 10 + NAME_LENGTH);
+	WFIFOW(char_fd, 0) = 0x2b28;
+	WFIFOL(char_fd, 2) = aid;
+	WFIFOL(char_fd, 6) = timediff;
+	safestrncpy((char*)WFIFOP(char_fd, 10), character_name, NAME_LENGTH);
+	WFIFOSET(char_fd, 10 + NAME_LENGTH); //default 34
+	return 0;
+}
+
+int chrif_req_charunban(int cid) {
+	chrif_check(-1);
+
+	WFIFOHEAD(char_fd, 6);
+	WFIFOW(char_fd, 0) = 0x2b29;
+	WFIFOL(char_fd, 2) = cid;
+	WFIFOSET(char_fd, 6);
 	return 0;
 }
 
@@ -1697,9 +1724,9 @@ int chrif_parse(int fd)
 		case 0x2b09: map_addnickdb(RFIFOL(fd,2), (char*)RFIFOP(fd,6)); break;
 		case 0x2b0b: chrif_skillcooldown_load(fd); break;
 		case 0x2b0d: chrif_changedsex(fd); break;
-		case 0x2b0f: chrif_char_ask_name_answer(RFIFOL(fd,2), (char*)RFIFOP(fd,6), RFIFOW(fd,30), RFIFOW(fd,32)); break;
+		case 0x2b0f: chrif_ack_login_req(RFIFOL(fd, 2), (char*)RFIFOP(fd, 6), RFIFOW(fd, 30), RFIFOW(fd, 32)); break;
 		case 0x2b12: chrif_divorceack(RFIFOL(fd,2), RFIFOL(fd,6)); break;
-		case 0x2b14: chrif_accountban(fd); break;
+		case 0x2b14: chrif_ban(fd); break;
 		case 0x2b1b: chrif_recvfamelist(fd); break;
 		case 0x2b1d: chrif_load_scdata(fd); break;
 		case 0x2b1e: chrif_update_ip(fd); break;

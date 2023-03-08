@@ -3680,87 +3680,60 @@ ACMD_FUNC(char_block)
 		return -1;
 	}
 
-	chrif_char_ask_name(sd->status.account_id, atcmd_player_name, 1, 0, 0, 0, 0, 0, 0); // type: 1 - block
+	chrif_req_login_operation(sd->status.account_id, atcmd_player_name, 1, 0); // type: 1 - block
 	clif_displaymessage(fd, msg_txt(sd,88)); // Character name sent to char-server to ask it.
 
 	return 0;
 }
 
 /*==========================================
- * charban command (usage: charban <time> <player_name>)
- * This command do a limited ban on a player
- * Time is done as follows:
- *   Adjustment value (-1, 1, +1, etc...)
- *   Modified element:
- *     a or y: year
- *     m:  month
- *     j or d: day
- *     h:  hour
- *     mn: minute
- *     s:  second
- * <example> @ban +1m-2mn1s-6y test_player
- *           this example adds 1 month and 1 second, and substracts 2 minutes and 6 years at the same time.
+ * accountban command (usage: ban <%time> <player_name>)
+ * charban command (usage: charban <%time> <player_name>)
+ * %time see common/timer.c::solve_time()
  *------------------------------------------*/
 ACMD_FUNC(char_ban)
 {
 	char * modif_p;
-	int year, month, day, hour, minute, second, value;
 	nullpo_retr(-1, sd);
+	int timediff = 0;
+	int bantype = 2; //2=account block, 6=char specific
+	char output[256];
 
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
 	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
 
+	bantype = strcmpi(command + 1, "charban") ? 2 : 7; //! FIXME this breaking alias recognition
+
 	if (!message || !*message || sscanf(message, "%s %23[^\n]", atcmd_output, atcmd_player_name) < 2) {
-		clif_displaymessage(fd, "Please, enter ban time and a player name (usage: @charban/@ban/@banish/@charbanish <time> <name>).");
+		clif_displaymessage(fd, msg_txt(sd, 470)); // Please enter ban time and a player name (usage: @charban/@ban/@banish/@charbanish <time> <char name>).
 		return -1;
 	}
 
 	atcmd_output[sizeof(atcmd_output)-1] = '\0';
 
 	modif_p = atcmd_output;
-	year = month = day = hour = minute = second = 0;
-	while (modif_p[0] != '\0') {
-		value = atoi(modif_p);
-		if (value == 0)
-			modif_p++;
-		else {
-			if (modif_p[0] == '-' || modif_p[0] == '+')
-				modif_p++;
-			while (modif_p[0] >= '0' && modif_p[0] <= '9')
-				modif_p++;
-			if (modif_p[0] == 's') {
-				second = value;
-				modif_p++;
-			} else if (modif_p[0] == 'n') {
-				minute = value;
-				modif_p++;
-			} else if (modif_p[0] == 'm' && modif_p[1] == 'n') {
-				minute = value;
-				modif_p = modif_p + 2;
-			} else if (modif_p[0] == 'h') {
-				hour = value;
-				modif_p++;
-			} else if (modif_p[0] == 'd' || modif_p[0] == 'j') {
-				day = value;
-				modif_p++;
-			} else if (modif_p[0] == 'm') {
-				month = value;
-				modif_p++;
-			} else if (modif_p[0] == 'y' || modif_p[0] == 'a') {
-				year = value;
-				modif_p++;
-			} else if (modif_p[0] != '\0') {
-				modif_p++;
-			}
-		}
-	}
-	if (year == 0 && month == 0 && day == 0 && hour == 0 && minute == 0 && second == 0) {
-		clif_displaymessage(fd, msg_txt(sd,85)); // Invalid time for ban command.
+	timediff = (int)solve_time(modif_p); //discard seconds
+
+	if (timediff == 0) { //allow negative ?
+		char output[256];
+		safesnprintf(output, sizeof(output), msg_txt(sd, 85), bantype == 7 ? "charban" : "ban", timediff); // Invalid time for %s command (time=%d)
+		clif_displaymessage(fd, output);
+		clif_displaymessage(fd, msg_txt(sd, 458)); // Time parameter format is +/-<value> to alter. y/a = Year, m = Month, d/j = Day, h = Hour, n/mn = Minute, s = Second.
 		return -1;
 	}
 
-	chrif_char_ask_name(sd->status.account_id, atcmd_player_name, 2, year, month, day, hour, minute, second); // type: 2 - ban
-	clif_displaymessage(fd, msg_txt(sd,88)); // Character name sent to char-server to ask it.
+	if (timediff < 0) {
+		clif_displaymessage(fd, msg_txt(sd, 470)); // You are not allowed to alter the time of a ban.
+		return -1;
+	}
+
+	if (bantype == 2)
+		chrif_req_login_operation(sd->status.account_id, atcmd_player_name, 2, timediff); // type: 2 - ban
+	else
+		chrif_req_charban(sd->status.account_id, atcmd_player_name, timediff);
+
+	safesnprintf(output, sizeof(output), msg_txt(sd, 88), bantype == 7 ? "char" : "login"); // Sending request to %s server...
+	clif_displaymessage(fd, output);
 
 	return 0;
 }
@@ -3772,36 +3745,54 @@ ACMD_FUNC(char_unblock)
 {
 	nullpo_retr(-1, sd);
 
+	char output[256];
+
 	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
 
 	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
-		clif_displaymessage(fd, "Please, enter a player name (usage: @charunblock <player_name>).");
+		safesnprintf(output, sizeof(output), msg_txt(sd, 455), "@charunblock");
+		clif_displaymessage(fd, output); // Please enter a player name (usage: @charunblock <char name>).
 		return -1;
 	}
 
 	// send answer to login server via char-server
-	chrif_char_ask_name(sd->status.account_id, atcmd_player_name, 3, 0, 0, 0, 0, 0, 0); // type: 3 - unblock
+	chrif_req_login_operation(sd->status.account_id, atcmd_player_name, 3, 0); // type: 3 - unblock
 	clif_displaymessage(fd, msg_txt(sd,88)); // Character name sent to char-server to ask it.
 
 	return 0;
 }
 
 /*==========================================
- * charunban command (usage: charunban <player_name>)
+ * acc unban command (usage: unban <player_name>)
+ * char unban command (usage: charunban <player_name>)
  *------------------------------------------*/
 ACMD_FUNC(char_unban)
 {
+	int unbantype = 4;
 	nullpo_retr(-1, sd);
 
+	char output[256];
+
 	memset(atcmd_player_name, '\0', sizeof(atcmd_player_name));
+	unbantype = strcmpi(command + 1, "charunban") ? 4 : 8; //! FIXME this breaking alias recognition
 
 	if (!message || !*message || sscanf(message, "%23[^\n]", atcmd_player_name) < 1) {
-		clif_displaymessage(fd, "Please, enter a player name (usage: @charunban <player_name>).");
-		return -1;
+		if (unbantype == 4) {
+			safesnprintf(output, sizeof(output), msg_txt(sd, 455), "@unban");
+			clif_displaymessage(fd, output); // Please enter a player name (usage: @unban <char name>).
+		}
+		else {
+			safesnprintf(output, sizeof(output), msg_txt(sd, 455), "@charunban");
+			clif_displaymessage(fd, output); // Please enter a player name (usage: @charunban <char name>).
+			return -1;
+		}
 	}
 
-	// send answer to login server via char-server
-	chrif_char_ask_name(sd->status.account_id, atcmd_player_name, 4, 0, 0, 0, 0, 0, 0); // type: 4 - unban
+	if (unbantype == 4) // send answer to login server via char-server
+		chrif_req_login_operation(sd->status.account_id, atcmd_player_name, 4, 0); // type: 4 - unban
+	else //directly unban via char-serv
+		chrif_req_charunban(sd->status.char_id);
+
 	clif_displaymessage(fd, msg_txt(sd,88)); // Character name sent to char-server to ask it.
 
 	return 0;
@@ -5710,34 +5701,6 @@ ACMD_FUNC(servertime)
 	return 0;
 }
 
-//Added by Coltaro
-//We're using this function here instead of using time_t so that it only counts player's jail time when he/she's online (and since the idea is to reduce the amount of minutes one by one in status_change_timer...).
-//Well, using time_t could still work but for some reason that looks like more coding x_x
-static void get_jail_time(int jailtime, int* year, int* month, int* day, int* hour, int* minute)
-{
-	const int factor_year = 518400; //12*30*24*60 = 518400
-	const int factor_month = 43200; //30*24*60 = 43200
-	const int factor_day = 1440; //24*60 = 1440
-	const int factor_hour = 60;
-
-	*year = jailtime/factor_year;
-	jailtime -= *year*factor_year;
-	*month = jailtime/factor_month;
-	jailtime -= *month*factor_month;
-	*day = jailtime/factor_day;
-	jailtime -= *day*factor_day;
-	*hour = jailtime/factor_hour;
-	jailtime -= *hour*factor_hour;
-	*minute = jailtime;
-
-	*year = *year > 0? *year : 0;
-	*month = *month > 0? *month : 0;
-	*day = *day > 0? *day : 0;
-	*hour = *hour > 0? *hour : 0;
-	*minute = *minute > 0? *minute : 0;
-	return;
-}
-
 /*==========================================
  * @jail <char_name> by [Yor]
  * Special warp! No check with nowarp and nowarpto flag
@@ -5835,11 +5798,12 @@ ACMD_FUNC(unjail)
 ACMD_FUNC(jailfor)
 {
 	struct map_session_data *pl_sd = NULL;
-	int year, month, day, hour, minute, value;
 	char * modif_p;
 	int jailtime = 0,x,y;
 	short m_index = 0;
 	nullpo_retr(-1, sd);
+
+	memset(atcmd_output, '\0', sizeof(atcmd_output));
 
 	if (!message || !*message || sscanf(message, "%s %23[^\n]",atcmd_output,atcmd_player_name) < 2) {
 		clif_displaymessage(fd, msg_txt(sd,400));	//Usage: @jailfor <time> <character name>
@@ -5849,42 +5813,11 @@ ACMD_FUNC(jailfor)
 	atcmd_output[sizeof(atcmd_output)-1] = '\0';
 
 	modif_p = atcmd_output;
-	year = month = day = hour = minute = 0;
-	while (modif_p[0] != '\0') {
-		value = atoi(modif_p);
-		if (value == 0)
-			modif_p++;
-		else {
-			if (modif_p[0] == '-' || modif_p[0] == '+')
-				modif_p++;
-			while (modif_p[0] >= '0' && modif_p[0] <= '9')
-				modif_p++;
-			if (modif_p[0] == 'n') {
-				minute = value;
-				modif_p++;
-			} else if (modif_p[0] == 'm' && modif_p[1] == 'n') {
-				minute = value;
-				modif_p = modif_p + 2;
-			} else if (modif_p[0] == 'h') {
-				hour = value;
-				modif_p++;
-			} else if (modif_p[0] == 'd' || modif_p[0] == 'j') {
-				day = value;
-				modif_p++;
-			} else if (modif_p[0] == 'm') {
-				month = value;
-				modif_p++;
-			} else if (modif_p[0] == 'y' || modif_p[0] == 'a') {
-				year = value;
-				modif_p++;
-			} else if (modif_p[0] != '\0') {
-				modif_p++;
-			}
-		}
-	}
+	jailtime = (int)solve_time(modif_p) / 60; // Change to minutes
 
-	if (year == 0 && month == 0 && day == 0 && hour == 0 && minute == 0) {
-		clif_displaymessage(fd, "Invalid time for jail command.");
+	if (jailtime == 0) {
+		clif_displaymessage(fd, msg_txt(sd, 452));
+		clif_displaymessage(fd, msg_txt(sd, 458)); // Time parameter format is +/-<value> to alter. y/a = Year, m = Month, d/j = Day, h = Hour, n/mn = Minute, s = Second.
 		return -1;
 	}
 
@@ -5898,31 +5831,29 @@ ACMD_FUNC(jailfor)
 		return -1;
 	}
 
-	jailtime = year*12*30*24*60 + month*30*24*60 + day*24*60 + hour*60 + minute;	//In minutes
-
-	if(jailtime==0) {
-		clif_displaymessage(fd, "Invalid time for jail command.");
-		return -1;
-	}
-
-	//Added by Coltaro
-	if(pl_sd->sc.data[SC_JAILED] && 
-		pl_sd->sc.data[SC_JAILED]->val1 != INT_MAX)
-  	{	//Update the player's jail time
+	// Added by Coltaro
+	if (pl_sd->sc.data[SC_JAILED] && pl_sd->sc.data[SC_JAILED]->val1 != INT_MAX) { // Update the player's jail time
 		jailtime += pl_sd->sc.data[SC_JAILED]->val1;
 		if (jailtime <= 0) {
 			jailtime = 0;
 			clif_displaymessage(pl_sd->fd, msg_txt(sd,120)); // GM has discharge you.
 			clif_displaymessage(fd, msg_txt(sd,121)); // Player unjailed
 		} else {
-			get_jail_time(jailtime,&year,&month,&day,&hour,&minute);
-			sprintf(atcmd_output,msg_txt(sd,402),"You are now",year,month,day,hour,minute); //%s in jail for %d years, %d months, %d days, %d hours and %d minutes
+			int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0;
+			char timestr[21];
+			time_t now = time(NULL);
+			split_time(jailtime * 60, &year, &month, &day, &hour, &minute, &second);
+			sprintf(atcmd_output,msg_txt(sd,402), msg_txt(sd, 456),year,month,day,hour,minute); //^%s in jail for %d years, %d months, %d days, %d hours and %d minutes
 	 		clif_displaymessage(pl_sd->fd, atcmd_output);
-			sprintf(atcmd_output,msg_txt(sd,402),"This player is now",year,month,day,hour,minute); //This player is now in jail for %d years, %d months, %d days, %d hours and %d minutes
+			sprintf(atcmd_output,msg_txt(sd,402), msg_txt(sd, 457),year,month,day,hour,minute); // This player is now in jail for %d years, %d months, %d days, %d hours and %d minutes
 	 		clif_displaymessage(fd, atcmd_output);
+			timestamp2string(timestr, 20, now + jailtime * 60, "%Y-%m-%d %H:%M");
+			sprintf(atcmd_output, "Release date is: %s", timestr);
+			clif_displaymessage(pl_sd->fd, atcmd_output);
+			clif_displaymessage(fd, atcmd_output);
 		}
 	} else if (jailtime < 0) {
-		clif_displaymessage(fd, "Invalid time for jail command.");
+		clif_displaymessage(fd, msg_txt(sd, 452));
 		return -1;
 	}
 
@@ -5947,7 +5878,9 @@ ACMD_FUNC(jailfor)
 //By Coltaro
 ACMD_FUNC(jailtime)
 {
-	int year, month, day, hour, minute;
+	int year, month, day, hour, minute, second;
+	char timestr[21];
+	time_t now = time(NULL);
 
 	nullpo_retr(-1, sd);
 	
@@ -5967,10 +5900,11 @@ ACMD_FUNC(jailtime)
 	}
 
 	//Get remaining jail time
-	get_jail_time(sd->sc.data[SC_JAILED]->val1,&year,&month,&day,&hour,&minute);
+	split_time(sd->sc.data[SC_JAILED]->val1 * 60, &year, &month, &day, &hour, &minute, &second);
 	sprintf(atcmd_output,msg_txt(sd,402),"You will remain",year,month,day,hour,minute); // You will remain in jail for %d years, %d months, %d days, %d hours and %d minutes
-
 	clif_displaymessage(fd, atcmd_output);
+	timestamp2string(timestr, 20, now + sd->sc.data[SC_JAILED]->val1 * 60, "%Y-%m-%d %H:%M");
+	sprintf(atcmd_output, "Release date is: %s", timestr);
 
 	return 0;
 }

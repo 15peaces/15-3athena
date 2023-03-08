@@ -40,6 +40,8 @@ struct char_session_data {
 	uint8 clienttype;
 	char new_name[NAME_LENGTH];
 	char birthdate[10+1];  // YYYY-MM-DD
+	time_t unban_time[MAX_CHARS];
+	int charblock_timer;
 };
 
 enum e_char_delete {
