@@ -8058,6 +8058,7 @@ int pc_readparam(struct map_session_data* sd,int type)
 	case SP_MATK2:       val = sd->battle_status.matk_min; break;
 	case SP_ATTACKRANGE: val = sd->battle_status.rhw.range; break;
 	case SP_MDEF2:       val = sd->battle_status.mdef2; break; // client receives max(0,value-vit/2)
+	case SP_MAXSPRATE:	 val = sd->sprate; break;
 	case SP_USTR:        val = pc_need_status_point(sd, SP_STR, 1); break;
 	case SP_UAGI:        val = pc_need_status_point(sd, SP_AGI, 1); break;
 	case SP_UVIT:        val = pc_need_status_point(sd, SP_VIT, 1); break;

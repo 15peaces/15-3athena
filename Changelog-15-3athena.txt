@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/18/2023
+	r378 [15peaces]
+		*Fixed some HP/SP calculation issues.
+			-Item & equipment bonusses will now be added again.
+		*Some optimations of clif_storagelist_v5 to prepare for future coding.
+		*Fixed some issues with the char-saving.
+			-Follow-up @d1fb906 (r377).
+		*MG_THUNDERSTORM
+			-Fixed an issue where this skill caused an map-crash if casted by monsters.
+
 03/08/2023
 	r377 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn377.sql file!

@@ -2907,15 +2907,20 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 	int i,n,ne,nn;
 	unsigned char *buf;
 	unsigned char *bufe;
-	unsigned char *bufn;
 
 	const int s = 24;// Packet length for stackable items V5.
 
 #if PACKETVER < 20150513
 	const int se = 31;// Packet length for equippable items V5.
+	const int cmde = 0x996;
 #else
 	const int se = 57;// Packet length for equippable items V6.
+	const int cmde = 0xa10;
 #endif
+
+	const int sidx = 4 + 24;
+	const int sidxe = 4 + 24;
+	const int cmd = 0x995;
 
 	buf = (unsigned char*)aMallocA(items_length * s + 28);
 	bufe = (unsigned char*)aMallocA(items_length * se + 28);
@@ -2938,31 +2943,25 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 			n++;
 		}
 	}
-	for (i = 0; i < n;) // Loop through non-equipable items
+	for (i = 0; i < n; i += nn) // Loop through non-equipable items
 	{// ZC_STORE_ITEMLIST_NORMAL_V5
-		nn = n - i < (client_buf - 4) / s ? n - i : (client_buf - 4) / s; // Split up non-equipable items 
-		bufn = buf + i * s; // Update buffer to new index range
-		i += nn;
-
-		WBUFW(bufn,0)=0x995;
-		WBUFW(bufn,2)=28+n*s;
-		memcpy(WBUFP(bufn,4), "Storage", NAME_LENGTH);// StoreName
-		clif_send(bufn, WBUFW(bufn,2), &sd->bl, SELF);
+		nn = n - i < (client_buf - sidx) / s ? n - i : (client_buf - sidx) / s; // Split up non-equipable items
+		WFIFOHEAD(sd->fd, sidx + nn * s);
+		WFIFOW(sd->fd, 0) = cmd;
+		WFIFOW(sd->fd, 2) = sidx + nn * s;
+		memset((char*)WFIFOP(sd->fd, 4), 0, 24); //storename
+		memcpy(WFIFOP(sd->fd, sidx), buf + sidx + i * s, nn*s);
+		WFIFOSET(sd->fd, WFIFOW(sd->fd, 2));
 	}
-	for (i = 0; i < ne;) // Loop through equipable items
+	for (i = 0; i < ne; i += nn) // Loop through equipable items
 	{// ZC_STORE_ITEMLIST_EQUIP_V5
-		nn = ne - i < (client_buf - 4) / se ? ne - i : (client_buf - 4) / se; // Split up equipable items
-		bufn = bufe + i * se; // Update buffer to new index range
-		i += nn;
-
-#if PACKETVER < 20150513
-		WBUFW(bufn,0)=0x996;
-#else
-		WBUFW(bufn,0)=0xa10;
-#endif
-		WBUFW(bufn,2)=28+ne*se;
-		memcpy(WBUFP(bufn,4), "Storage", NAME_LENGTH);// StoreName
-		clif_send(bufn, WBUFW(bufn,2), &sd->bl, SELF);
+		nn = ne - i < (client_buf - sidxe) / se ? ne - i : (client_buf - sidxe) / se; // Split up equipable items
+		WFIFOHEAD(sd->fd, sidxe + nn * se);
+		WFIFOW(sd->fd, 0) = cmde;
+		WFIFOW(sd->fd, 2) = sidxe + nn * se;
+		memset((char*)WFIFOP(sd->fd, 4), 0, 24); //storename
+		memcpy(WFIFOP(sd->fd, sidxe), bufe + sidxe + i * se, nn*se);
+		WFIFOSET(sd->fd, WFIFOW(sd->fd, 2));
 	}
 
 	if( buf ) aFree(buf);

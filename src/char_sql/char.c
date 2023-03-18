@@ -508,7 +508,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			"`weapon`='%d',`shield`='%d',`head_top`='%d',`head_mid`='%d',`head_bottom`='%d',"
 			"`last_map`='%s',`last_x`='%d',`last_y`='%d',`save_map`='%s',`save_x`='%d',`save_y`='%d', `rename`='%d',"
 			"`delete_date`='%lu',`robe`='%d',`hotkey_rowshift`='%d', `clan_id`='%d', `title_id`='%lu',`uniqueitem_counter`='%u',"
-			"`unban_time`='%d'"
+			"`unban_time`='%lu'"
 			" WHERE  `account_id`='%d' AND `char_id` = '%d'",
 			char_db, p->base_level, p->job_level,
 			p->base_exp, p->job_exp, p->zeny,
@@ -520,7 +520,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 			mapindex_id2name(p->save_point.map), p->save_point.x, p->save_point.y, p->rename,
 			(unsigned long)p->delete_date,  // FIXME: platform-dependent size
 			p->robe, p->hotkey_rowshift, p->clan_id, p->title_id, p->uniqueitem_counter,
-			p->unban_time,
+			(unsigned long)p->unban_time,
 			p->account_id, p->char_id) )
 		{
 			Sql_ShowDebug(sql_handle);
@@ -1163,7 +1163,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
  	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_ENUM,   &sex, sizeof(sex), NULL, NULL) 
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR,  &p.hotkey_rowshift, 0, NULL, NULL)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_ULONG,	&p.title_id, 0, NULL, NULL)
-	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_LONG,	&p.unban_time, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_UINT32,	&p.unban_time, 0, NULL, NULL)
 	)
 	{
 		SqlStmt_ShowDebug( stmt );
@@ -1263,7 +1263,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 37, SQLDT_ENUM, &sex, sizeof(sex), NULL, NULL)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 38, SQLDT_UCHAR, &p.hotkey_rowshift, 0, NULL, NULL)
 		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 39, SQLDT_ULONG, &p.title_id, 0, NULL, NULL)
-		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_LONG, &p.unban_time, 0, NULL, NULL)
+		|| SQL_ERROR == SqlStmt_BindColumn(stmt, 40, SQLDT_UINT32, &p.unban_time, 0, NULL, NULL)
 		)
 	{
 		SqlStmt_ShowDebug(stmt);
@@ -3386,7 +3386,7 @@ int mapif_parse_reqcharban(int fd) {
 
 			Sql_GetData(sql_handle, 0, &data, NULL); t_aid = atoi(data);
 			Sql_GetData(sql_handle, 1, &data, NULL); t_cid = atoi(data);
-			Sql_GetData(sql_handle, 2, &data, NULL); unban_time = atol(data);
+			Sql_GetData(sql_handle, 2, &data, NULL); unban_time = atoi(data);
 			Sql_FreeResult(sql_handle);
 
 
@@ -3398,7 +3398,7 @@ int mapif_parse_reqcharban(int fd) {
 			if (SQL_SUCCESS != SqlStmt_Prepare(stmt,
 				"UPDATE `%s` SET `unban_time` = ? WHERE `char_id` = ? LIMIT 1",
 				char_db)
-				|| SQL_SUCCESS != SqlStmt_BindParam(stmt, 0, SQLDT_LONG, (void*)&unban_time, sizeof(unban_time))
+				|| SQL_SUCCESS != SqlStmt_BindParam(stmt, 0, SQLDT_UINT32, (void*)&unban_time, sizeof(unban_time))
 				|| SQL_SUCCESS != SqlStmt_BindParam(stmt, 1, SQLDT_INT, (void*)&t_cid, sizeof(t_cid))
 				|| SQL_SUCCESS != SqlStmt_Execute(stmt)
 

@@ -4139,7 +4139,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case MG_THUNDERSTORM:
 						skillratio -= 20;
-						if (sc->data[SC_GUST_OPTION])
+						if (sc && sc->data[SC_GUST_OPTION])
 							skillratio += sc->data[SC_GUST_OPTION]->val2;
 						break;
 					case MG_FROSTDIVER:

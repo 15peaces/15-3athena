@@ -2650,6 +2650,27 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 	return min(bonus, INT_MAX);
 }
 
+/**
+* HP bonus rate from usable items
+*/
+static int status_get_hpbonus_item(struct block_list *bl) {
+	int bonus = 0;
+
+	struct status_change *sc = status_get_sc(bl);
+
+	//Bonus by SC
+	if (sc) {
+		if (sc->data[SC_MUSTLE_M])
+			bonus += sc->data[SC_MUSTLE_M]->val1;
+
+		if (sc->data[SC_MYSTERIOUS_POWDER])
+			bonus -= sc->data[SC_MYSTERIOUS_POWDER]->val1;
+	}
+
+	// Max rate reduce is -100%
+	return cap_value(bonus, -100, INT_MAX);
+}
+
 /** [Cydh]
 * Get SP bonus modifiers
 * @param bl: block_list that will be checked
@@ -2756,6 +2777,28 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 	return min(bonus, INT_MAX);
 }
 
+/**
+* SP bonus rate from usable items
+*/
+static int status_get_spbonus_item(struct block_list *bl) {
+	int bonus = 0;
+
+	struct status_change *sc = status_get_sc(bl);
+
+	//Bonus by SC
+	if (sc) {
+		if (sc->data[SC_LIFE_FORCE_F])
+			bonus += sc->data[SC_LIFE_FORCE_F]->val1;
+		if (sc->data[SC_VITATA_500])
+			bonus += sc->data[SC_VITATA_500]->val2;
+		if (sc->data[SC_ENERGY_DRINK_RESERCH])
+			bonus += sc->data[SC_ENERGY_DRINK_RESERCH]->val3;
+	}
+
+	// Max rate reduce is -100%
+	return cap_value(bonus, -100, INT_MAX);
+}
+
 // Get final MaxHP or MaxSP for player. References: http://irowiki.org/wiki/Max_HP and http://irowiki.org/wiki/Max_SP
 // The calculation needs base_level, base_status/battle_status (vit or int), additive modifier, and multiplicative modifier
 // @param sd Player
@@ -2776,13 +2819,17 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	if (isHP) {//Calculates MaxHP
 		dmax = job_info[idx].base_hp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 		dmax += status_get_hpbonus(&sd->bl, STATUS_BONUS_FIX);
-		dmax = floor(dmax * (1 + status_get_hpbonus(&sd->bl, STATUS_BONUS_RATE) * 0.01));
+		dmax += sd->hprate - 100; // HP bonus rate from equipment
+		dmax += (dmax * status_get_hpbonus_item(&sd->bl) / 100);
+		dmax += (int64)(dmax * status_get_hpbonus(&sd->bl, STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
 	else {//Calculates MaxSP
-		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01));
+		double equip_bonus = 0;
+		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 		dmax += status_get_spbonus(&sd->bl, STATUS_BONUS_FIX);
-		dmax = floor(dmax * (1 + status_get_spbonus(&sd->bl, STATUS_BONUS_RATE) * 0.01));
-		dmax = floor(dmax * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1));
+		dmax += sd->sprate - 100; // SP bonus rate from equipment
+		dmax += (dmax * status_get_spbonus_item(&sd->bl) / 100);
+		dmax += (int64)(dmax * status_get_spbonus(&sd->bl, STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
 
 	// Baby classes get a 30% hp/sp penalty
