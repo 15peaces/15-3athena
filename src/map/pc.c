@@ -2241,9 +2241,14 @@ static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, e
 	return 1;
 }
 
-static int pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short id, short group, int race_mask, int rate)
+static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short nameid, uint16 group, int race, int rate)
 {
-	int i;
+	uint8 i;
+	if (nameid && !group && !itemdb_exists(nameid)) {
+		ShowWarning("pc_bonus_item_drop: Invalid item id\n", nameid);
+		return;
+	}
+
 	//Apply config rate adjustment settings.
 	if (rate >= 0) { //Absolute drop.
 		if (battle_config.item_rate_adddrop != 100)
@@ -2258,34 +2263,34 @@ static int pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned
 		if (rate > -1)
 			rate = -1;
 	}
-	for(i = 0; i < max && (drop[i].id || drop[i].group); i++) {
-		if (((id && drop[i].id == id) || (group && drop[i].group == group))
-			&& race_mask != RCMASK_NONE
-		) {
-			drop[i].race |= race_mask;
-			if(drop[i].rate > 0 && rate > 0)
-			{	//Both are absolute rates.
-				if (drop[i].rate < rate)
-					drop[i].rate = rate;
-			} else
-			if(drop[i].rate < 0 && rate < 0) {
-				//Both are relative rates.
-				if (drop[i].rate > rate)
-					drop[i].rate = rate;
-			} else if (rate < 0) //Give preference to relative rate.
-					drop[i].rate = rate;
-			return 1;
+	//Find match entry, and adjust the rate only
+	for (i = 0; i < max; i++) {
+		if (!&drop[i] || (!drop[i].nameid && !drop[i].group))
+			continue;
+		if (drop[i].nameid == nameid &&
+			drop[i].group == group &&
+			drop[i].race == race
+			)
+		{
+			//Adjust the rate if it has same classification
+			if ((rate < 0 && drop[i].rate < 0) ||
+				(rate > 0 && drop[i].rate > 0))
+			{
+				drop[i].rate += rate;
+				return;
+			}
 		}
 	}
-	if(i == max) {
-		ShowWarning("pc_bonus: Reached max (%d) number of added drops per character!\n", max);
-		return 0;
+	ARR_FIND(0, max, i, !&drop[i] || (drop[i].nameid == 0 && drop[i].group == 0));
+	if (i >= max) {
+		ShowWarning("pc_bonus_item_drop: Reached max (%d) number of added drops per character! (nameid:%d group:%d race:%d rate:%d)\n", max, nameid, group, race, rate);
+		return;
 	}
-	drop[i].id = id;
+	drop[i].nameid = nameid;
 	drop[i].group = group;
-	drop[i].race |= race_mask;
+	drop[i].race = race;
 	drop[i].rate = rate;
-	return 1;
+	return;
 }
 
 int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill)

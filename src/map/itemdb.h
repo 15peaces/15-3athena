@@ -416,7 +416,7 @@ const char* itemdb_armor_typename(int type);
 const char* itemdb_ammo_typename(int type);
 
 int itemdb_group_bonus(struct map_session_data* sd, int itemid);
-int itemdb_searchrandomid(int flags);
+int itemdb_searchrandomid(uint16 group_id);
 
 #define itemdb_value_buy(n) itemdb_search(n)->value_buy
 #define itemdb_value_sell(n) itemdb_search(n)->value_sell

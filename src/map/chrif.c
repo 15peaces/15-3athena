@@ -875,7 +875,7 @@ int chrif_changesex(struct map_session_data *sd, bool change_account)
  * @param aid : player account id the request was concerning
  * @param player_name : name the request was concerning
  * @param type : code of operation done:
- *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex, 6:vip
+ *   1: block, 2: ban, 3: unblock, 4: unban, 5: changesex
  * @param awnser : type of anwser \n
  *   0: login-server request done \n
  *   1: player not found \n
@@ -1283,8 +1283,7 @@ int chrif_save_scdata(struct map_session_data *sd)
 			&data, sizeof(struct status_change_data));
 		count++;
 	}
-	if (count == 0)
-		return 0; //Nothing to save.
+
 	WFIFOW(char_fd,12) = count;
 	WFIFOW(char_fd,2) = 14 +count*sizeof(struct status_change_data); //Total packet size
 	WFIFOSET(char_fd,WFIFOW(char_fd,2));

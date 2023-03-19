@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/19/2023
+	r379 [15peaces]
+		*Added missing status icons to a number of skills.
+		*Some updates in Item database.
+			-Reverted Chemical Protection Scroll effects.
+		*Fixed status saving in general, now cart will always be loaded.
+			-Thanks to @rathena
+		*Some misc. cleaning & fixing.
+
 03/18/2023
 	r378 [15peaces]
 		*Fixed some HP/SP calculation issues.

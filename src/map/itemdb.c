@@ -248,9 +248,9 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 /*==========================================
  * ” ŒnƒAƒCƒeƒ€ŒŸõ
  *------------------------------------------*/
-int itemdb_searchrandomid(int group)
+int itemdb_searchrandomid(uint16 group)
 {
-	if(group<1 || group>=MAX_ITEMGROUP) {
+	if(!group || group>=MAX_ITEMGROUP) {
 		ShowError("itemdb_searchrandomid: Invalid group id %d\n", group);
 		return UNKNOWN_ITEM_ID;
 	}

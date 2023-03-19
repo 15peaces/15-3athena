@@ -3334,18 +3334,12 @@ ACMD_FUNC(param)
 	status[4] = &sd->status.dex;
 	status[5] = &sd->status.luk;
 
-	if(value < 0 && *status[i] <= -value)
-	{
-		new_value = 1;
-	}
-	else if(SHRT_MAX - *status[i] < value)
-	{
+	if (value > 0 && *status[i] + value >= SHRT_MAX)
 		new_value = SHRT_MAX;
-	}
+	else if (value < 0 && *status[i] <= -value)
+		new_value = 1;
 	else
-	{
 		new_value = *status[i] + value;
-	}
 
 	if (new_value != *status[i]) {
 		*status[i] = new_value;

@@ -2400,22 +2400,20 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		if(sd) {
 			// process script-granted extra drop bonuses
-			int itemid = 0;
-			for (i = 0; i < ARRAYLENGTH(sd->add_drop) && (sd->add_drop[i].id || sd->add_drop[i].group); i++)
-			{
-				if ( sd->add_drop[i].race == -md->class_ ||
-					( sd->add_drop[i].race > 0 && (
-						sd->add_drop[i].race & (1<<status->race) ||
-						sd->add_drop[i].race & (1<<(status->mode&MD_BOSS?RC_BOSS:RC_NONBOSS))
-					)))
+			uint16 dropid = 0;
+
+			for (i = 0; i < ARRAYLENGTH(sd->add_drop); i++) {
+				if (!&sd->add_drop[i] || (!sd->add_drop[i].id && !sd->add_drop[i].group))
+					continue;
+				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->class_) || //Race < 0, use mob_id
+					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race)) //Matched race
 				{
-					//check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
-					if(sd->add_drop[i].rate < 0) {
-						//it's negative, then it should be multiplied. e.g. for Mimic,Myst Case Cards, etc
-						// rate = base_rate * (mob_level/10) + 1
-						drop_rate = -sd->add_drop[i].rate*(md->level/10)+1;
-						drop_rate = cap_value(drop_rate, battle_config.item_drop_adddrop_min, battle_config.item_drop_adddrop_max);
-						if (drop_rate > 10000) drop_rate = 10000;
+					//Check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
+					if (sd->add_drop[i].rate < 0) {
+						//It's negative, then it should be multiplied. with mob_level/10
+						//rate = base_rate * (mob_level/10) + 1
+						drop_rate = (-sd->add_drop[i].rate) * md->level / 10 + 1;
+						drop_rate = cap_value(drop_rate, max(battle_config.item_drop_adddrop_min, 1), min(battle_config.item_drop_adddrop_max, 10000));
 					}
 					else
 						//it's positive, then it goes as it is
@@ -2423,8 +2421,9 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					
 					if (rand()%10000 >= drop_rate)
 						continue;
-					itemid = (sd->add_drop[i].id > 0) ? sd->add_drop[i].id : itemdb_searchrandomid(sd->add_drop[i].group);
-					mob_item_drop(md, dlist, mob_setdropitem(itemid,1), 0, drop_rate, homkillonly);
+					dropid = (sd->add_drop[i].id > 0) ? sd->add_drop[i].id : itemdb_searchrandomid(sd->add_drop[i].group);
+
+					mob_item_drop(md, dlist, mob_setdropitem(dropid, 1), 0, drop_rate, homkillonly);
 				}
 			}
 			

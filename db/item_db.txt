@@ -3131,7 +3131,7 @@
 5577,Dark_Knight_Mask_,Dark Knight Mask,5,,,3000,,5,,0,0xFFFFFFFF,7,2,769,,80,1,479,{ bonus bStr,3; if(isequipped(2779,2780)) { bonus bMatkRate,10; bonus bInt,5; bonus2 bSubRace,RC_Angel,10; } },{},{}
 5578,Voyage_Hat,Voyage_Hat,5,200,,10,,1,,0,0xFFFFFFFF,7,2,256,,0,1,236,{ bonus bAgi,2; },{},{}
 5579,Wanderer's_Sakkat,Wanderer's Sakkat,5,20,,300,,2,,1,0xFFFFFFFF,7,2,768,,70,1,558,{ bonus bAgi,2; },{},{}
-//5580,Red_Beret,Red Beret,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,0,559,{ bonus bAllStats,3; bonus bMdef,3; },{},{}
+5580,Red_Beret,Red Beret,5,20,,100,,1,,0,0xFFFFFFFF,7,2,256,,0,0,559,{ bonus bAllStats,3; bonus bMdef,3; },{},{}
 //5581,Cancer_Diadem,Cancer Diadem,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,560,{ bonus bInt,2; bonus2 bSubEle,Ele_water,5; if(getrefine()>6) { bonus bMdef,1; bonus bHealPower,3; bonus bMatkRate,2; } },{},{}
 //5582,Cancer_Crown,Cancer Crown,5,20,,300,,3,,0,0xFFFFFFFF,7,2,256,,70,1,561,{ bonus bStr,2; bonus2 bSubEle,Ele_water,5; if(getrefine()>6) { bonus bDef,1; bonus bHealPower,3; bonus bFlee,10; } },{},{}
 5583,Para_Team_Hat,Eden Team Hat,5,0,,0,,1,,0,0xFFFFFFFF,7,2,256,,12,1,465,{},{},{}
@@ -6889,11 +6889,11 @@
 14514,Vermilion_10_Scroll,Lord of Vermilion Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "WZ_VERMILION",10; },{},{}
 14515,Lex_Aeterna_Scroll,Lex Aeterna Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "PR_LEXAETERNA",1; },{},{}
 14516,Magnificat_5_Scroll,Magnificat Scroll,11,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "PR_MAGNIFICAT",5; },{},{}
-14517,CP_Helm_Scroll,Chemical Protection Helm Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),"AM_CP_HELM",5; },{},{}
-14518,CP_Shield_Scroll,Chemical Protection Shield Scrol,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),"AM_CP_SHIELD",5; },{},{}
-14519,CP_Armor_Scroll,Chemical Protection Armor Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),"AM_CP_ARMOR",5; },{},{}
-14520,CP_Weapon_Scroll,Chemical Protection Weapon Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),"AM_CP_WEAPON",5; },{},{}
-14521,Repair_Scroll,Repair Weapon Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),"BS_REPAIRWEAPON",1; },{},{}
+14517,CP_Helm_Scroll,Chemical Protection Helm Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ skilleffect "AM_CP_HELM",0; sc_start SC_CP_HELM,600000,5; },{},{}
+14518,CP_Shield_Scroll,Chemical Protection Shield Scrol,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ skilleffect "AM_CP_SHIELD",0; sc_start SC_CP_SHIELD,600000,5; },{},{}
+14519,CP_Armor_Scroll,Chemical Protection Armor Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ skilleffect "AM_CP_ARMOR",0; sc_start SC_CP_ARMOR,600000,5; },{},{}
+14520,CP_Weapon_Scroll,Chemical Protection Weapon Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ skilleffect "AM_CP_WEAPON",0; sc_start SC_CP_WEAPON,600000,5; },{},{}
+14521,Repair_Scroll,Repair Weapon Scroll,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ unitskilluseid getcharid(3),108,1; },{},{}
 14522,Big_Bun,Big Bun,0,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 100,0; },{},{}
 14523,Pill_,Pill,0,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,100; },{},{}
 14524,Superb_Fish_Slice,Superb Fish Slice,0,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 100,100; },{},{}
@@ -7590,7 +7590,7 @@
 //19541,C_Romantic_White_Flower,
 19542,C_Devil_Whisper,Costume Devil Whisper,5,20,,0,,0,,0,0xFFFFFFFF,63,2,2048,,1,0,712,{ bonus bUnbreakableHelm,0; bonus2 bSubRace,RC_Angel,1; bonus2 bSubRace,RC_Demon,1; bonus3 bAddMonsterDropItem,523,RC_Angel,400; bonus3 bAddMonsterDropItem,12020,RC_Demon,400; },{},{}
 //19543,Oliver_Wolf_Hood,
-//19544,C_Tare_Neko_Cru,
+19544,C_Tare_Neko_Cru,Costume Tare Neko Cru,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,692,{ bonus bUnbreakableHelm,0; },{},{}
 //19545,C_Boys_Cap,
 19546,C_Valkyrie_Helm,Costume Valkyrie Helm,5,20,,100,,0,,0,0xFFFFFFFF,63,2,1024,,100,0,225,{ bonus bUnbreakableHelm,0; },{},{}
 //19547,C_Deviruchi_Cap,
