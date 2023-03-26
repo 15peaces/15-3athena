@@ -779,3 +779,21 @@
 56,7460,10	//Niflheim_Ticket
 56,11550,5	//Pumpkin_Cake
 56,12192,5	//Pumpkin_Pie
+
+//Lucky Bag
+57,12018,8	//Fire_Cracker
+57,663,6	//Korea_Rice_Cake
+57,668,2	//Handsei
+57,7647,3	//Taiwan_Luk_Coin
+57,7649,1	//Big_Luk_Bookmark
+
+//Holy Egg 2
+58,984,4	//Oridecon
+58,985,10	//Elunium
+58,547,30	//White_Slim_Potion
+58,505,30	//Blue_Potion
+58,607,3	//Yggdrasilberry
+58,608,2	//Seed_Of_Yggdrasil
+58,610,15	//Leaf_Of_Yggdrasil
+58,616,5	//Old_Card_Album
+58,5198,1	//Drooping_Bunny

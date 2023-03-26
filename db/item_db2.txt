@@ -4928,7 +4928,7 @@
 22540,Runstone_Luxanima,Lux Anima Runestone,11,2,,100,,,,,0xFFFFFFFF,56,2,,,,,,{ itemskill "RK_LUXANIMA",1; },{},{}
 22541,PC_Room_Coupon_Box_VI,PC Room Coupon Box VI,18,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22679,Death_Bin,Death Bin,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,170,,,{ /*TODO*/ },{},{}
-22685,Solo_Christmas_Gift,Single Union Christmas Gift,2,0,,0,,,,,0xFFFFFFFF,63,2,,,0,,,{ /*getgroupitem(IG_Solo_Christmas_Gift)*/; },{},{}
+22685,Solo_Christmas_Gift,Single Union Christmas Gift,2,0,,0,,,,,0xFFFFFFFF,63,2,,,0,,,{ getitempackage(IP_Solo_Christmas_Gift); },{},{}
 22686,Solo_Cookie,Single Cookie,0,0,,50,,,,,0xFFFFFFFF,63,2,,,0,,,{ percentheal 5,5; },{},{}
 22687,Pieces_Of_Sentiment,Sentimental Fragment,11,0,,1,,,,0,0xFFFFFFFF,63,2,,,100,,,{ callfunc("F_Pieces_Of_Sentiment"); },{},{}
 22691,Record_Fragment1,Record Fragment,3,10,,0,,,,,,,,,,,,,{},{},{}
@@ -5108,6 +5108,27 @@
 2795,Green_Apple_Ring,Green_Apple_Ring,5,100000,,0,,0,,0,0xFFFFFFFF,7,2,136,,99,0,0,{ if(JobLevel<30) { bonus bAllStats,6-(JobLevel/5); } },{},{}
 
 // missing items (renewal)
+1676,Baculum_Daemonicum,Baculum Daemonicum,4,20,,1200,60:150,,1,2,0x00818315,63,2,2,4,80,1,10,{ bonus bAtkEle,Ele_Dark; bonus bUnbreakableWeapon,0; bonus bVariableCastrate,-10; if (BaseLevel > 99){ bonus bMatk,30; } if(getrefine() > 8){ bonus2 bResEff,Eff_Blind,3000; bonus bUseSPrate,-10; } },{},{}
+2936,Recovery_Ring,Recovery Ring,5,20,,100,,5,,1,0xFFFFFFFF,63,2,136,,10,0,0,{ bonus bVit,1; bonus bMaxHP,250; bonus bMaxHPrate,10; bonus2 bAddItemHealRate,IG_Potion,5; },{},{}
 2995,DEX_Complement,DEX Complement,5,20,,100,,0,,1,0x00000400,56,2,136,,100,0,0,{ bonus bUseSPrate,-10; bonus bDelayrate,-10; bonus bVariableCastrate,-10; bonus2 bSkillVariableCast,"NC_AXEBOOMERANG",-2000; if(getequipid(EQI_HAND_R) == 1368) { bonus bAtkRate,100; } },{},{}
+5873,Helmet_Of_Siegfried,Helmet Of Siegfried,5,20,,600,,7,,1,0x000444A2,63,2,256,,60,1,1055,{ bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubRace,RC_Dragon,5; bonus3 bAutoSpellWhenHit,"HP_ASSUMPTIO",5,5; bonus2 bHPLossRate,600,1000; bonus bUnbreakableHelm,0;  },{},{}
+5874,Circlet_Of_Kriemhild,Circlet Of Kriemhild,5,20,,600,,7,,1,0x000444A2,63,2,256,,60,1,1056,{ bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubRace,RC_Dragon,5; bonus3 bAutoSpellWhenHit,"PR_KYRIE",9,5; bonus2 bHPLossRate,400,1000; bonus bUnbreakableHelm,0; },{},{}
+5875,Diadem_Of_Bruenhild,Diadem Of Bruenhild,5,20,,600,,7,,1,0x000444A2,63,2,256,,60,1,1057,{ bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubRace,RC_Dragon,5; bonus3 bAutoSpellWhenHit,"SM_ENDURE",8,5; bonus2 bHPLossRate,400,1000; bonus bUnbreakableHelm,0; },{},{}
+5881,Weissbier_Hat,Weissbier Hat,5,20,,300,,5,,0,0xFFFFFFFF,63,2,256,,0,1,1079,{ bonus bMaxHPrate,3; bonus bMaxSPrate,3; bonus bDex,10; if(getrefine()>6){ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bDex,5; } },{},{}
+5882,Red_Wizardry_Hat_C,Red Mage Hat C,5,20,,300,,1,,0,0x00810204,63,2,256,,0,1,282,{ bonus bMaxSP,150; },{},{}
+5883,White_Wizardry_Hat_C,Gray Mage Hat C,5,20,,300,,1,,0,0x00810204,63,2,256,,0,1,283,{ bonus bMaxSP,150; },{},{}
+5884,Gray_Wizardry_Hat_C,Brown Mage Hat C,5,20,,300,,1,,0,0x00810204,63,2,256,,0,1,284,{ bonus bMaxSP,150; },{},{}
+5885,Blue_Wizardry_Hat_C,Blue Mage Hat C,5,20,,300,,1,,0,0x00810204,63,2,256,,0,1,285,{ bonus bMaxSP,150; },{},{}
+5886,Yellow_Wizardry_Hat_C,Yellow Mage Hat C,5,20,,300,,1,,0,0x00810204,63,2,256,,0,1,286,{ bonus bMaxSP,150; },{},{}
+5887,Half_L_Magestic_Goat,Half L Majestic Goat,5,20,,800,,5,,0,0xFFFFFFFF,63,2,256,,0,1,380,{ bonus2 bAddRace,RC_DemiHuman,10; bonus2 bAddRace,RC_Player,10; bonus bBaseAtk,(JobLevel*2)/7; },{},{}
+5892,RCC2013_1ST_CROWN,RCC2013 1ST CROWN,5,20,,2500,,7,,1,0xFFFFFFFF,63,2,256,,1,0,1106,{ sc_start SC_SpeedUp0,-1,0; skill "AL_TELEPORT",1; },{ sc_end SC_SpeedUp0; },{}
+5893,RCC2013_2ND_CROWN,RCC2013 2ND CROWN,5,20,,2500,,7,,1,0xFFFFFFFF,63,2,256,,1,0,1107,{ sc_start SC_SpeedUp0,-1,0; skill "AL_TELEPORT",1; },{ sc_end SC_SpeedUp0; },{}
+5894,RCC2013_3RD_CROWN,RCC2013 3RD CROWN,5,20,,2500,,7,,1,0xFFFFFFFF,63,2,256,,1,0,1108,{ sc_start SC_SpeedUp0,-1,0; skill "AL_TELEPORT",1; },{ sc_end SC_SpeedUp0; },{}
+5895,RCC2013_ANV_Hat,RCC2013 ANV Hat,5,20,,2500,,7,,1,0xFFFFFFFF,63,2,256,,1,0,1109,{ bonus2 bAddClass,Class_All,2; bonus bMatkRate,2; },{},{}
 17338,Ore_Box_V,Ore Box V,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 7619,5; getitem 7620,5; getitem 14696,1; },{},{}
 17339,Ore_Box_V(10),Ore Box V(10),18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 7619,50; getitem 7620,50; getitem 14696,11; },{},{}
+19629,C_Tiara,Costume Tiara,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,19,{},{},{}
+19852,C_Galapago_Cap,Costume Galapago Cap,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,192,{},{},{}
+19854,C_Ear_Of_Black_Cat_,Costume Black Cat Ears,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,141,{},{},{}
+19856,C_Iceflake_Hat,Costume Snow Cone Hat,5,10,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,1080,{ bonus2 bAddEle,Ele_Fire,5; bonus2 bMagicAddEle,Ele_Fire,5; bonus2 bAddMonsterDropItem,11589,5; },{},{}
+19857,C_King_Prawn_Hat,Costume Crayfish Hat,5,10,,10,,0,,,0xFFFFFFFF,63,2,1024,,1,0,728,{},{},{}

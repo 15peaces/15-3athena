@@ -32,6 +32,9 @@ struct login_session_data {
 	uint8 clienttype;
 	uint32 version;
 
+	uint8 client_hash[16];
+	int has_client_hash;
+
 	int fd;
 };
 
@@ -44,6 +47,12 @@ struct mmo_char_server {
 	uint16 users;       // user count on this server
 	uint16 type;        // 0=normal, 1=maintenance, 2=over 18, 3=paying, 4=P2P
 	uint16 new_;        // should display as 'new'?
+};
+
+struct client_hash_node {
+	int level;
+	uint8 hash[16];
+	struct client_hash_node *next;
 };
 
 struct Login_Config {
@@ -71,6 +80,9 @@ struct Login_Config {
 	char dnsbl_servs[1024];                         // comma-separated list of dnsbl servers
 
 	char account_engine[256];                       // name of the engine to use (defaults to auto, for the first available engine)
+
+	int client_hash_check;							// flags for checking client md5
+	struct client_hash_node *client_hash_nodes;		// linked list containg md5 hash for each gm 
 
 	bool usercount_disable;							/// Disable colorization and description in general?
 	int usercount_low;								/// Amount of users that will display in green

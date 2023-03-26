@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/26/2023
+	r380 [15peaces]
+		*Added 'AUTHORS' file.
+		*Some misc. cleaning.
+		*Some item updates.
+			-Added missing items.
+			-Added IP_Solo_Christmas_Gift item package.
+			-Added some missing item groups.
+			-Added some missing item effects & fixed others.
+			-Some updates/cleaning in item_trade.txt
+		*Added some missing quest-db entries.
+		*Added client MD5 hash check option to login-server.
+
 03/19/2023
 	r379 [15peaces]
 		*Added missing status icons to a number of skills.

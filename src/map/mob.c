@@ -2403,7 +2403,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			uint16 dropid = 0;
 
 			for (i = 0; i < ARRAYLENGTH(sd->add_drop); i++) {
-				if (!&sd->add_drop[i] || (!sd->add_drop[i].id && !sd->add_drop[i].group))
+				if (!&sd->add_drop[i] || (!sd->add_drop[i].nameid && !sd->add_drop[i].group))
 					continue;
 				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->class_) || //Race < 0, use mob_id
 					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race)) //Matched race
@@ -2421,7 +2421,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					
 					if (rand()%10000 >= drop_rate)
 						continue;
-					dropid = (sd->add_drop[i].id > 0) ? sd->add_drop[i].id : itemdb_searchrandomid(sd->add_drop[i].group);
+					dropid = (sd->add_drop[i].nameid > 0) ? sd->add_drop[i].nameid : itemdb_searchrandomid(sd->add_drop[i].group);
 
 					mob_item_drop(md, dlist, mob_setdropitem(dropid, 1), 0, drop_rate, homkillonly);
 				}

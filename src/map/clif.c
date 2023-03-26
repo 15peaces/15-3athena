@@ -21357,7 +21357,7 @@ void packetdb_readdb(void)
 	int ln=0, entries = 0;
 	int cmd,i,j,packet_ver;
 	int max_cmd=-1;
-	int skip_ver = 0;
+	bool skip_ver = false;
 	int warned = 0;
 	char *str[64],*p,*str2[64],*p2,w1[128],w2[128];
 #ifdef PACKET_OBFUSCATION
@@ -21925,7 +21925,9 @@ void packetdb_readdb(void)
 	memset(packet_db, 0, sizeof(packet_db));
 	for (i = 0; i < ARRAYLENGTH(packet_len_table); ++i)
 		packet_len(i) = packet_len_table[i];
-		entries = 0;
+	
+	entries = 0;
+	clif_config.packet_db_ver = MAX_PACKET_VER;
 
 	sprintf(line, "%s/packet_db.txt", db_path);
 	if ((fp = fopen(line, "r")) == NULL)
@@ -21934,7 +21936,6 @@ void packetdb_readdb(void)
 		exit(EXIT_FAILURE);
 	}
 
-	clif_config.packet_db_ver = MAX_PACKET_VER;
 	packet_ver = MAX_PACKET_VER;	// read into packet_db's version by default
 	while( fgets(line, sizeof(line), fp) )
 	{
@@ -21945,28 +21946,28 @@ void packetdb_readdb(void)
 		{
 			if(strcmpi(w1,"packet_ver")==0) {
 				int prev_ver = packet_ver;
-				skip_ver = 0;
+				skip_ver = false;
 				packet_ver = atoi(w2);
 				if ( packet_ver > MAX_PACKET_VER )
 				{	//Check to avoid overflowing. [Skotlex]
 					if( (warned&1) == 0 )
 						ShowWarning("The packet_db table only has support up to version %d.\n", MAX_PACKET_VER);
 					warned &= 1;
-					skip_ver = 1;
+					skip_ver = true;
 				}
 				else if( packet_ver < 0 )
 				{
 					if( (warned&2) == 0 )
 						ShowWarning("Negative packet versions are not supported.\n");
 					warned &= 2;
-					skip_ver = 1;
+					skip_ver = true;
 				}
 				else if( packet_ver == SERVER )
 				{
 					if( (warned&4) == 0 )
 						ShowWarning("Packet version %d is reserved for server use only.\n", SERVER);
 					warned &= 4;
-					skip_ver = 1;
+					skip_ver = true;
 				}
 
 				if( skip_ver )

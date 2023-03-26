@@ -12828,6 +12828,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 int status_change_spread( struct block_list *src, struct block_list *bl )
 {
 	int i, flag = 0;
+	struct status_data* status = status_get_status_data(bl);
 	struct status_change *sc = status_get_sc(src);
 	const struct TimerData *timer;
 	int64 tick;

@@ -795,6 +795,8 @@ IG_Xmas_Gift	54
 //Some missing ItemGroups will be added later
 IG_Advanced_Weapons_Box	55 //61
 IG_Candy_Holder	56 //389
+IG_Lucky_Bag	57 //390
+IG_Holy_Egg_2	58 //391
 
 //Item Packages
 IP_Aspersio_5_Scroll_Box	1	// 92
@@ -816,16 +818,17 @@ IP_Cgrade_Pocket	16			//350
 IP_Dgrade_Pocket	17			//351
 IP_Egrade_Pocket	18			//352
 IP_HALLOWEEN_G_BOX	19			//386
-IP_Sg_Weapon_Supply_Box	20		//388
-IP_Level_Up_Box100	21	//413
-IP_Level_Up_Box120	22	//414
-IP_Level_Up_Box130	23	//415
-IP_Level_Up_Box140	24	//416
-IP_Level_Up_Box150	25	//417
-IP_Level_Up_Box160	26	//418
-IP_IDRO10TH_SCROLL	27			//442
-IP_SOMETHING_CANDY_HOLDER	28	//472
-IP_Noive_Box	29				//481
+IP_Solo_Christmas_Gift	20		//387
+IP_Sg_Weapon_Supply_Box	21		//388
+IP_Level_Up_Box100	22	//413
+IP_Level_Up_Box120	23	//414
+IP_Level_Up_Box130	24	//415
+IP_Level_Up_Box140	25	//416
+IP_Level_Up_Box150	26	//417
+IP_Level_Up_Box160	27	//418
+IP_IDRO10TH_SCROLL	28			//442
+IP_SOMETHING_CANDY_HOLDER	29	//472
+IP_Noive_Box	30				//481
 
 SC_ALL	-1
 SC_NONE	-1

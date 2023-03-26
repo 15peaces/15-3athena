@@ -517,6 +517,7 @@
 6818,91,100	//Archer_Soul
 6819,91,100	//Acolyte_Soul
 6820,91,100	//Energy_Debris
+6821,123,100	// Single Union Badge
 6824,91,100	//Experimental_Dong_Memory_Record
 6825,91,100	//Air_Cleaner_Box
 6826,91,100	//Fresh_Grapes
@@ -1871,24 +1872,23 @@
 22618,91,100	//Clear_Box_A
 22652,91,100	//Briliant_Hat_Box
 22675,91,100	//Mysterious_Scroll
+22685,123,100	// Single Union Christmas Gift
 22700,91,100	//Jumping_Support_Box
+22708,91,100	//Exciting_Box
 22734,91,100	//Revolution_Quiz_Box
 22735,91,100	//Sealed_Moonlight_Flower_Scroll
 22760,123,100	// Argiope_Transportin
 22761,123,100	// Luciola_Vespa_Transportin
 22762,123,100	// Centipede_Transportin
+22781,123,100 	// PC_Bang_Normal_Box
+22782,123,100 	// PC_Bang_Wooden_Box
+22783,123,100 	// PC_Bang_Golden_Box
+22784,123,100 	// PC_Bang_Platinum_Box
 22802,123,100	// Safe_to_6_Equipment_Certificate
 22808,91,100 	// Special_Gift_Box
 22812,123,100 	// Sealed_Dracula_Scroll
 22813,123,100 	// Bearer's_Shadow_Box
 22823,123,100	// Sealed_Sniper_Scroll
-22708,91,100	//Exciting_Box
-22781,123,100 	// PC_Bang_Normal_Box
-22782,123,100 	// PC_Bang_Wooden_Box
-22783,123,100 	// PC_Bang_Golden_Box
-22784,123,100 	// PC_Bang_Platinum_Box
-22812,123,100	// Sealed_Dracula_Scroll
-22813,123,100	// Bearer's_Shadow_Box
 25148,123,100	// Cute_Starved_Demon_Doll
 25149,123,100	// Doll_With_Warm_Scarf
 25150,123,100	// Hugging_Alice_Pilow
