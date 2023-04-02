@@ -53,6 +53,8 @@ int quest_search_db(int quest_id)
 //Send quest info on login
 int quest_pc_login(TBL_PC * sd)
 {
+	int i;
+
 	if(sd->avail_quests == 0)
 		return 1;
 
@@ -60,6 +62,10 @@ int quest_pc_login(TBL_PC * sd)
 #if PACKETVER < 20141022
 	clif_quest_send_mission(sd);
 #endif
+
+	for (i = 0; i < sd->avail_quests; i++) {
+		clif_quest_update_objective(sd, &sd->quest_log[i], sd->quest_index[i]);
+	}
 
 	return 0;
 }
@@ -152,6 +158,8 @@ int quest_change(TBL_PC * sd, int qid1, int qid2)
 
 	clif_quest_delete(sd, qid1);
 	clif_quest_add(sd, &sd->quest_log[i], sd->quest_index[i]);
+
+	clif_quest_update_objective(sd, &sd->quest_log[i], sd->quest_index[i]);
 
 	if( save_settings&64 )
 		chrif_save(sd, CSAVE_NORMAL);

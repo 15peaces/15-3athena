@@ -1,12 +1,13 @@
 //Notice\\
 
-This branch, "Trunk", might not be stable due to bugs and whatsoever. 
-It is highly recommended, if you have any doubts on using this svn version,
-it is best if you use an eAthena Official Version or use the Stable branch.
+This branch might not be stable due to bugs and whatsoever. 
+It is highly recommended, if you have any doubts on using this git version,
+it is best if you use an 15-3athena Official Version.
 
-on another note, if you found a bug, it is best if you report it on the eAthena 
-forums as http://eathena.ws/ . If you have made yourself a fix for 
-that piece of faulty/buggy code, why not post it up and we'll add it to the svn.
-who knows, you might be an aspiring dev.
+On another note, if you found a bug, it is best if you report it on the facebook 
+group as https://www.facebook.com/groups/153athena/ or directly on Github at
+https://github.com/15peaces/15-3athena . If you have made yourself a fix for 
+that piece of faulty/buggy code, why not post it up and we'll add it to the git. 
+Who knows, you might be an aspiring dev.
 
-eA Dev Team
+15-3athena Dev Team

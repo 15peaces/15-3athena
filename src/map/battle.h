@@ -640,6 +640,7 @@ extern struct Battle_Config
 	int cart_revo_knockback;
 	int guild_notice_changemap;
 	int item_auto_identify;
+	int path_blown_halt;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

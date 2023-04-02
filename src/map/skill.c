@@ -15536,7 +15536,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		}
 	case ST_CART:
 		if(!pc_iscarton(sd)) {
-			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+			clif_skill_fail(sd,skill,USESKILL_FAIL_CART,0,0);
 			return 0;
 		}
 		break;
@@ -15582,7 +15582,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		return 0;
 	case ST_DRAGON:
 		if (!pc_isdragon(sd)) {
-			clif_skill_fail(sd,skill,USESKILL_FAIL_LEVEL,0,0);
+			clif_skill_fail(sd,skill,USESKILL_FAIL_DRAGON,0,0);
 			return 0;
 		}
 		break;
@@ -15643,9 +15643,33 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 		return 0;
 	}
 
-	if( require.weapon && !pc_check_weapontype(sd,require.weapon) ) {
-		clif_skill_fail(sd,skill,USESKILL_FAIL_THIS_WEAPON,0,0);
-		return 0;
+	if (require.weapon && !pc_check_weapontype(sd, require.weapon)) {
+		switch (skill) {
+		case RA_AIMEDBOLT:
+			break;
+		default:
+			switch ((unsigned int)log2(require.weapon)) {
+			case W_REVOLVER:
+				clif_msg(sd, SKILL_NEED_REVOLVER);
+				break;
+			case W_RIFLE:
+				clif_msg(sd, SKILL_NEED_RIFLE);
+				break;
+			case W_GATLING:
+				clif_msg(sd, SKILL_NEED_GATLING);
+				break;
+			case W_SHOTGUN:
+				clif_msg(sd, SKILL_NEED_SHOTGUN);
+				break;
+			case W_GRENADE:
+				clif_msg(sd, SKILL_NEED_GRENADE);
+				break;
+			default:
+				clif_skill_fail(sd, skill, USESKILL_FAIL_THIS_WEAPON, 0, 0);
+				break;
+			}
+			return 0;
+		}
 	}
 
 	if( require.sp > 0 && status->sp < (unsigned int)require.sp) {
@@ -15677,7 +15701,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			case SP_KAUTE:
 				if ( sd->soulball < require.spiritball )
 				{
-					clif_skill_fail(sd,skill,0,0,0);
+					clif_skill_fail(sd,skill,USESKILL_FAIL_SPIRITS,0,0);
 					return 0;
 				}
 				break;
@@ -15686,7 +15710,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			case LG_RAGEBURST:
 				if ( sd->rageball < require.spiritball )
 				{
-					clif_skill_fail(sd,skill,0,0,0);
+					clif_skill_fail(sd,skill,USESKILL_FAIL_SPIRITS,0,0);
 					return 0;
 				}
 				break;
@@ -15696,16 +15720,18 @@ int skill_check_condition_castbegin(struct map_session_data* sd, short skill, sh
 			case KO_ZENKAI:
 				if ( sd->charmball < require.spiritball )
 				{
-					clif_skill_fail(sd,skill,0,0,0);
+					clif_skill_fail(sd,skill,USESKILL_FAIL_SPIRITS,0,0);
 					return 0;
 				}
 				break;
 
 			default:// Skills that require spirit/coin spheres.
-				if ( sd->spiritball < require.spiritball )
-				{
-					clif_skill_fail(sd,skill,0,0,0);
-					return 0;
+				if (sd->spiritball < require.spiritball) {
+					if ((sd->class_&MAPID_BASEMASK) == MAPID_GUNSLINGER || (sd->class_&MAPID_UPPERMASK) == MAPID_REBELLION)
+						clif_skill_fail(sd, skill, USESKILL_FAIL_COINS, (require.spiritball == -1) ? 1 : require.spiritball, 0);
+					else
+						clif_skill_fail(sd, skill, USESKILL_FAIL_SPIRITS, (require.spiritball == -1) ? 1 : require.spiritball, 0);
+					return false;
 				}
 				break;
 		}
@@ -15889,11 +15915,19 @@ int skill_check_condition_castend(struct map_session_data* sd, short skill, shor
 
 	if( require.ammo )
 	{ //Skill requires stuff equipped in the arrow slot.
-		if( (i = sd->equip_index[EQI_AMMO]) < 0 || !sd->inventory_data[i] ||
-			sd->inventory.u.items_inventory[i].amount < require.ammo_qty
-		) {
-			clif_arrow_fail(sd,0);
+		if ((i = sd->equip_index[EQI_AMMO]) < 0 || !sd->inventory_data[i]) {
+			clif_arrow_fail(sd, 0);
 			return 0;
+		}
+		else if (sd->inventory.u.items_inventory[i].amount < require.ammo_qty) {
+			if (require.ammo&(1 << A_BULLET | 1 << A_GRENADE | 1 << A_SHELL)) {
+				clif_skill_fail(sd, skill, USESKILL_FAIL_NEED_MORE_BULLET, 0, 0);
+				return 0;
+			}
+			else if (require.ammo&(1 << A_KUNAI)) {
+				clif_skill_fail(sd, skill, USESKILL_FAIL_NEED_EQUIPMENT_KUNAI, 0, 0);
+				return 0;
+			}
 		}
 		if (!(require.ammo&1<<sd->inventory_data[i]->look))
 		{	//Ammo type check. Send the "wrong weapon type" message
@@ -19274,7 +19308,7 @@ int skill_poisoningweapon( struct map_session_data *sd, int nameid)
 		case ITEMID_LAUGHING_POISON:		type = SC_MAGICMUSHROOM; t_lv = 8; break;
  		case ITEMID_OBLIVION_POISON:		type = SC_OBLIVIONCURSE; t_lv = 9; break;
 		default:
-			clif_skill_fail(sd, GC_POISONINGWEAPON, 0, 0, 0);
+			clif_skill_fail(sd, GC_POISONINGWEAPON, USESKILL_FAIL_LEVEL, 0, 0);
 			return 0;
 	}
 

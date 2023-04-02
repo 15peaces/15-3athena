@@ -2576,10 +2576,10 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 					bonus += 250;
 			}
 
-			if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
-				bonus *= 3; // Triple max HP for top ranking Taekwons over level 90.
 			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
 				bonus += 2000; // Supernovice lvl99 hp bonus.
+			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 150)
+				bonus += 2000; // Supernovice lvl150 hp bonus.
 		}
 
 		//Bonus by SC
@@ -2611,17 +2611,6 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 	}
 	else if (type == STATUS_BONUS_RATE) {
 		struct status_change *sc = status_get_sc(bl);
-
-		//Only for BL_PC
-		if (bl->type == BL_PC) {
-			struct map_session_data *sd = map_id2sd(bl->id);
-			bonus += sd->hprate;
-			bonus -= 100; //Default hprate is 100, so it should be add 0%
-
-			//+200% for top ranking Taekwons over level 90.
-			if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
-				bonus += 200;
-		}
 
 		//Bonus by SC
 		if (sc) {
@@ -2679,6 +2668,8 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 			if (sc->data[SC_EQC])
 				bonus -= sc->data[SC_EQC]->val4;
 		}
+		// Max rate reduce is -100%
+		bonus = cap_value(bonus, -100, INT_MAX);
 	}
 
 	return min(bonus, INT_MAX);
@@ -2772,7 +2763,7 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 			struct map_session_data *sd = map_id2sd(bl->id);
 			int i;
 
-			bonus += sd->hprate;
+			bonus += sd->sprate;
 			bonus -= 100; //Default hprate is 100, so it should be add 0%
 
 			if ((i = pc_checkskill(sd, HP_MEDITATIO)) > 0)
@@ -2781,14 +2772,11 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += 30 * i;
 			if ((i = pc_checkskill(sd, HW_SOULDRAIN)) > 0)
 				bonus += 2 * i;
-
-			//+200% for top ranking Taekwons over level 90.
-			if ((sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON))
-				bonus += 200;
 		}
 
 		//Bonus by SC
 		if (sc) {
+			//Increasing
 			if (sc->data[SC_INCMSPRATE])
 				bonus += sc->data[SC_INCMSPRATE]->val1;
 			if (sc->data[SC_RAISINGDRAGON])
@@ -2805,7 +2793,11 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += sc->data[SC_ENERGY_DRINK_RESERCH]->val4;
 			if (sc->data[SC_VITATA_500])
 				bonus += sc->data[SC_VITATA_500]->val2;
+
+			//Decreasing
 		}
+		// Max rate reduce is -100%
+		bonus = cap_value(bonus, -100, INT_MAX);
 	}
 
 	return min(bonus, INT_MAX);
@@ -2853,7 +2845,7 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 	if (isHP) {//Calculates MaxHP
 		dmax = job_info[idx].base_hp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 		dmax += status_get_hpbonus(&sd->bl, STATUS_BONUS_FIX);
-		dmax += sd->hprate - 100; // HP bonus rate from equipment
+		dmax += (dmax * (sd->hprate - 100) / 100); // HP bonus rate from equipment
 		dmax += (dmax * status_get_hpbonus_item(&sd->bl) / 100);
 		dmax += (int64)(dmax * status_get_hpbonus(&sd->bl, STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
@@ -2861,7 +2853,7 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 		double equip_bonus = 0;
 		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 		dmax += status_get_spbonus(&sd->bl, STATUS_BONUS_FIX);
-		dmax += sd->sprate - 100; // SP bonus rate from equipment
+		dmax += (dmax * (sd->sprate - 100) / 100); // SP bonus rate from equipment
 		dmax += (dmax * status_get_spbonus_item(&sd->bl) / 100);
 		dmax += (int64)(dmax * status_get_spbonus(&sd->bl, STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}

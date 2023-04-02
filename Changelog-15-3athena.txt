@@ -5,6 +5,25 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/02/2023
+	r381 [15peaces]
+		*Added 'AUTHORS' file.
+			-Forgot to add it to the last commit, sorry ^^
+		*Updated notice.txt file.
+		*Some misc. cleaning.
+		*Some item updates.
+			-Fixed some item types.
+		*Fixed initnpctimer to reset the timer.
+		*Fixed a misplaced quest log entry in Priest job quest (jobs\2-1\priest.txt)
+		*Fixed an incorrect check in Taekwon job quest (jobs\1-1e\taekwon.txt)
+		*Added 2013 christmas event.
+		*Improved 'client_hash_check' config. (rAthena)
+			-Added option to disable hash check by GM Level (specify 'disabled' as hash for a certain GM Level to let them log in with any client, even if 'client_hash_check' is enabled.
+		*Updated/improved some skill fail messages.
+		*Another fixing in HP/SP bonus calculations...
+			-Added an underflow check to both calculations.
+			-Fixed an typo that caused bMaxHPrate bonusses to also affect the Max-SP calculations.
+	
 03/26/2023
 	r380 [15peaces]
 		*Added 'AUTHORS' file.
