@@ -92,7 +92,7 @@ struct s_add_drop {
 	unsigned short nameid;
 	uint16 group;
 	int rate;
-	char race; ///Target Race, bitwise value of 1<<x. if < 0 means Monster ID
+	short race; ///Target Race, bitwise value of 1<<x. if < 0 means Monster ID
 };
 
 struct s_autobonus {

@@ -164,8 +164,8 @@ prontera,184,177,6	script	Refine Master	851,{
 		mes "Please report this.";
 		close;
 	}
-	for(set .@i,getequiprefinerycnt(.@part); .@i<.@ticket_lv; set .@i,.@i+1)
-		successrefitem .@part;
+	successrefitem .@part, .@ticket_lv;
+	
 	next;
 	emotion e_ho;
 	mes "[Refine Master]";

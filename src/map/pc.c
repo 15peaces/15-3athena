@@ -2241,7 +2241,7 @@ static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, e
 	return 1;
 }
 
-static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short nameid, uint16 group, int race, int rate)
+static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short nameid, uint16 group, short race, int rate)
 {
 	uint8 i;
 	if (nameid && !group && !itemdb_exists(nameid)) {
@@ -4294,7 +4294,7 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
  *------------------------------------------*/
 int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
 {
-	int i;
+	int16 i;
 	nullpo_retr(-1, sd);
 
 	ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == item_id && (sd->inventory.u.items_inventory[i].amount > 0 || item_id == 0) );
@@ -4317,7 +4317,7 @@ int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
 int pc_additem(struct map_session_data *sd,const struct item *item_data,int amount)
 {
 	struct item_data *data;
-	int i;
+	int16 i;
 	unsigned int w;
 
 	nullpo_retr(1, sd);
@@ -4335,10 +4335,14 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 
 	i = MAX_INVENTORY;
 
-	if( itemdb_isstackable2(data) && item_data->expire_time == 0 )
-	{ // Stackable | Non Rental
-		for( i = 0; i < MAX_INVENTORY; i++ ) {
-			if( sd->inventory.u.items_inventory[i].nameid == item_data->nameid && sd->inventory.u.items_inventory[i].bound == item_data->bound && memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0 ) {
+	// Stackable | Non Rental
+	if (itemdb_isstackable2(data) && item_data->expire_time == 0) {
+		for (i = 0; i < MAX_INVENTORY; i++) {
+			if (sd->inventory.u.items_inventory[i].nameid == item_data->nameid &&
+				sd->inventory.u.items_inventory[i].bound == item_data->bound &&
+				sd->inventory.u.items_inventory[i].expire_time == 0 &&
+				sd->inventory.u.items_inventory[i].unique_id == item_data->unique_id &&
+				memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
 					return 5;
 				if(	itemid_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {

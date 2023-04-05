@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/05/2023
+	r382 [15peaces]
+		*Item database update.
+			-Added some missing items.
+			-Added/edited itemscripts for some new items.
+			-Corrected the persistence of many Hit- and Flee-increasing consumables, as they should dispel upon death.
+		*Added optional 'count' parameter to script command 'successrefitem'.
+			-Consumables will now also probably check for expire time & unique ids to stack with.
+		*Reverted changes in mvptomb_destroy function.
+			-Never touch a running system... ^^"
+
 04/02/2023
 	r381 [15peaces]
 		*Added 'AUTHORS' file.
