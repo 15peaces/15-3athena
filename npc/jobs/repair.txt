@@ -49,6 +49,7 @@ Wanderer: job_wan
 
 Gunslinger: GUNS_Q -> hg_gun
 Ninja: NINJ_Q -> hg_nin
+Kagerou/Oboro -> job_kagero
 Taekwon: TK_Q -> job_taekwon
 Star Gladiator: STGL_Q -> job_star
 Soul Linker: SOUL_Q -> job_linker

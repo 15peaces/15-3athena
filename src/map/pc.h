@@ -1012,8 +1012,8 @@ void pc_setinvincibletimer(struct map_session_data* sd, int val);
 void pc_delinvincibletimer(struct map_session_data* sd);
 
 int pc_overheat(struct map_session_data *sd, int val);
-int pc_addspiritball(struct map_session_data *sd, int interval, int max);
-int pc_delspiritball(struct map_session_data *sd, int count, int type);
+void pc_addspiritball(struct map_session_data *sd, int interval, int max);
+void pc_delspiritball(struct map_session_data *sd, int count, int type);
 int pc_addshieldball(struct map_session_data *sd, int interval, int max, int shield_health);
 int pc_delshieldball(struct map_session_data *sd, int count, int type);
 int pc_addrageball(struct map_session_data *sd, int interval, int max);

@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/07/2023
+	r383 [15peaces]
+		*Item database update.
+			-Added 50+ missing items.
+			-Fixed some item types.
+			-Moved some stable costume items.
+		*Some cleaning & optimizing.
+
 04/05/2023
 	r382 [15peaces]
 		*Item database update.
