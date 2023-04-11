@@ -5318,6 +5318,10 @@ void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fi
 static void clif_getareachar_skillunit(struct map_session_data *sd, struct skill_unit *unit)
 {
 	int fd = sd->fd;
+
+	if (unit->group->state.guildaura)
+		return;
+
 #if PACKETVER > 20120702
 	short packet_type;
 #endif
@@ -6114,6 +6118,9 @@ void clif_skill_setunit(struct skill_unit *unit)
 #if PACKETVER > 20120702
 	short packet_type;
 #endif
+
+	if (unit->group->state.guildaura)
+		return;
 
 	nullpo_retv(unit);
 
@@ -11297,6 +11304,14 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	mail_clear(sd);
 #endif
 
+	/* Guild Aura Init */
+	if (sd->state.gmaster_flag) {
+		guild_guildaura_refresh(sd, GD_LEADERSHIP, guild_checkskill(guild_search(sd->status.guild_id), GD_LEADERSHIP));
+		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(guild_search(sd->status.guild_id), GD_GLORYWOUNDS));
+		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(guild_search(sd->status.guild_id), GD_SOULCOLD));
+		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(guild_search(sd->status.guild_id), GD_HAWKEYES));
+	}
+
 	if(map[sd->bl.m].flag.loadevent) // Lance
 		npc_script_event(sd, NPCE_LOADMAP);
 
@@ -11878,7 +11893,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd)
 {
 	switch(RFIFOB(fd,2)) {
 	case 0x00:
-		pc_respawn(sd,CLR_RESPAWN);
+		pc_respawn(sd, CLR_OUTSIGHT);
 		break;
 	case 0x01:
 		/*	Rovert's Prevent logout option - Fixed [Valaris]	*/

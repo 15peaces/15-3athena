@@ -211,30 +211,6 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		else if( sd->state.pvp && !map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
 			map_pvp_area(sd, 0);
 
-		if (sd->state.gmaster_flag &&
-			(battle_config.guild_aura&((agit_flag || agit2_flag)?2:1)) &&
-			(battle_config.guild_aura&(map_flag_gvg2(bl->m)?8:4))
-		)
-		{ //Guild Aura: Likely needs to be recoded, this method seems inefficient.
-			struct guild* g = guild_search(sd->status.guild_id);
-			int skill, strvit= 0, agidex = 0;
-			if ((skill = guild_checkskill(g, GD_LEADERSHIP)) > 0) strvit |= (skill&0xFFFF)<<16;
-			if ((skill = guild_checkskill(g, GD_GLORYWOUNDS)) > 0) strvit |= (skill&0xFFFF);
-			if ((skill = guild_checkskill(g, GD_SOULCOLD)) > 0) agidex |= (skill&0xFFFF)<<16;
-			if ((skill = guild_checkskill(g, GD_HAWKEYES)) > 0) agidex |= skill&0xFFFF;
-			if (strvit || agidex)
-			{// replaced redundant foreachinrange call with smaller and much more efficient iteration
-				for( i = 0; i < g->max_member; i++ )
-				{
-					if( g->member[i].online && g->member[i].sd && sd->bl.m == g->member[i].sd->bl.m && check_distance_bl(&sd->bl, &g->member[i].sd->bl, 2) )
-					{// perform the aura on the member as appropriate
-						skill_guildaura_sub(g->member[i].sd, sd->bl.id, strvit, agidex);
-					}
-				}
-			}
-		}
-
-		pc_cell_basilica(sd);
 	} else if (md) {
 		if( map_getcell(bl->m,x,y,CELL_CHKNPC) ) {
 			if( npc_touch_areanpc2(md) ) return 0; // Warped

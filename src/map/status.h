@@ -786,9 +786,14 @@ typedef enum sc_type {
 	SC_NV_BREAKTHROUGH,
 	SC_NV_TRANSCENDENCE,
 	SC_HELPANGEL,
-	
-	// only temp and for testing
-	SC_MILLENNIUMSHIELD = 700,
+
+	SC_MILLENNIUMSHIELD,
+
+	// Guild Aura
+	SC_LEADERSHIP,
+	SC_GLORYWOUNDS,
+	SC_SOULCOLD,
+	SC_HAWKEYES,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

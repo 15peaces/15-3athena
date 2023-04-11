@@ -49,6 +49,11 @@ enum MOBID {
 	MOBID_WHITE_PLANT,
 	MOBID_SHINING_PLANT,
 	MOBID_BLACK_MUSHROOM	= 1084,
+	MOBID_GOBLIN_1			= 1122,
+	MOBID_GOBLIN_2,
+	MOBID_GOBLIN_3,
+	MOBID_GOBLIN_4,
+	MOBID_GOBLIN_5,
 	MOBID_MARINE_SPHERE		= 1142,
 	MOBID_EMPERIUM			= 1288,
 	MOBID_G_PARASITE		= 1555,
@@ -304,6 +309,8 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 #define mob_stop_walking(md, type) unit_stop_walking(&(md)->bl, type)
 #define mob_stop_attack(md) unit_stop_attack(&(md)->bl)
 #define mob_is_battleground(md) ( map[(md)->bl.m].flag.battleground && ((md)->class_ == 1906 || ((md)->class_ >= 1909 && (md)->class_ <= 1915)) )
+#define mob_is_goblin(md, mid) (((md)->class_ >= MOBID_GOBLIN_1 && (md)->class_ <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
+#define mob_is_samename(md, mid) (strcmp(mob_db((md)->class_)->jname, mob_db(mid)->jname) == 0)
 
 void mob_clear_spawninfo();
 int do_init_mob(void);

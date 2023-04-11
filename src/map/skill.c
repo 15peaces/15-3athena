@@ -1402,7 +1402,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_INTFOOD:		case SC_DEXFOOD:		case SC_LUKFOOD:
 				case SC_HITFOOD:		case SC_FLEEFOOD:		case SC_BATKFOOD:
 				case SC_WATKFOOD:		case SC_MATKFOOD:		case SC_DANCING:
-				case SC_GUILDAURA:		case SC_EDP:			case SC_AUTOBERSERK:
+				case SC_EDP:			case SC_AUTOBERSERK:
 				case SC_CARTBOOST:		case SC_MELTDOWN:		case SC_SAFETYWALL:
 				case SC_SMA:			case SC_SPEEDUP0:		case SC_NOCHAT:
 				case SC_ANKLE:			case SC_SPIDERWEB:		case SC_JAILED:
@@ -1501,6 +1501,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
+				// Guild Skills
+				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
+				case SC_HAWKEYES:		case SC_GUILDAURA:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -2447,9 +2450,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	sc= status_get_sc(bl);
 	if (sc && !sc->count) sc = NULL; //Don't need it.
 
-	// Is this check really needed? FrostNova won't hurt you if you step right where the caster is?
-	if(skillid == WZ_FROSTNOVA && dsrc->x == bl->x && dsrc->y == bl->y)
-		return 0;
 	 //Trick Dead protects you from damage, but not from buffs and the like, hence it's placed here.
 	if (sc && sc->data[SC_TRICKDEAD] && !(sstatus->mode&MD_BOSS))
 		return 0;
@@ -7789,7 +7789,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_INTFOOD:		case SC_DEXFOOD:		case SC_LUKFOOD:
 				case SC_HITFOOD:		case SC_FLEEFOOD:		case SC_BATKFOOD:
 				case SC_WATKFOOD:		case SC_MATKFOOD:		case SC_DANCING:
-				case SC_GUILDAURA:		case SC_EDP:			case SC_AUTOBERSERK:
+				case SC_EDP:			case SC_AUTOBERSERK:
 				case SC_CARTBOOST:		case SC_MELTDOWN:		case SC_SAFETYWALL:
 				case SC_SMA:			case SC_SPEEDUP0:		case SC_NOCHAT:
 				case SC_ANKLE:			case SC_SPIDERWEB:		case SC_JAILED:
@@ -7888,6 +7888,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
+				// Guild Skills
+				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
+				case SC_HAWKEYES:		case SC_GUILDAURA:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -9623,7 +9626,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_INTFOOD:		case SC_DEXFOOD:		case SC_LUKFOOD:
 				case SC_HITFOOD:		case SC_FLEEFOOD:		case SC_BATKFOOD:
 				case SC_WATKFOOD:		case SC_MATKFOOD:		case SC_DANCING:
-				case SC_GUILDAURA:		case SC_SPIRIT:			case SC_AUTOBERSERK:
 				case SC_CARTBOOST:		case SC_MELTDOWN:		case SC_SAFETYWALL:
 				case SC_SMA:			case SC_SPEEDUP0:		case SC_NOCHAT:
 				case SC_ANKLE:			case SC_SPIDERWEB:		case SC_JAILED:
@@ -9723,6 +9725,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				// Misc Status's
 				case SC_ALL_RIDING:		case SC_MONSTER_TRANSFORM:	case SC_ON_PUSH_CART:
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
+				// Guild Skills
+				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
+				case SC_HAWKEYES:		case SC_GUILDAURA:
 				// Only removeable by Dispell
 				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
 				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
@@ -13193,6 +13198,13 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case EL_ZEPHYR:
 		val2 = status_get_job_lv_effect(&ed->master->bl) / 2;
 		break;
+
+	case GD_LEADERSHIP:
+	case GD_GLORYWOUNDS:
+	case GD_SOULCOLD:
+	case GD_HAWKEYES:
+		limit = 1000000;//it doesn't matter
+		break;
 	}
 
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skillid,skilllv,skill_get_unit_id(skillid,flag&1)+subunt, limit, interval));
@@ -13204,6 +13216,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	group->state.magic_power = (flag&2 || (sc && sc->data[SC_MAGICPOWER])); //Store the magic power flag. [Skotlex]
 	group->state.ammo_consume = (sd && sd->state.arrow_atk && skillid != GS_GROUNDDRIFT); //Store if this skill needs to consume ammo.
 	group->state.song_dance = (unit_flag&(UF_DANCE|UF_SONG)?1:0)|(unit_flag&UF_ENSEMBLE?2:0); //Signals if this is a song/dance/duet
+	group->state.guildaura = (skillid >= GD_LEADERSHIP && skillid <= GD_HAWKEYES) ? 1 : 0;
 
   	//if tick is greater than current, do not invoke onplace function just yet. [Skotlex]
 	if (DIFF_TICK(group->tick, gettick()) > SKILLUNITTIMER_INTERVAL)
@@ -13601,6 +13614,14 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 			skill_blown(&src->bl,bl,skill_get_blewcount(sg->skill_id,sg->skill_lv),unit_getdir(bl),0);
 		else
 			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+		break;
+
+	case UNT_GD_LEADERSHIP:
+	case UNT_GD_GLORYWOUNDS:
+	case UNT_GD_SOULCOLD:
+	case UNT_GD_HAWKEYES:
+		if (!sce)
+			sc_start4(bl, type, 100, sg->skill_lv, 0, 0, 0, 1000);
 		break;
 	}
 	return skillid;
@@ -14490,6 +14511,13 @@ int skill_unit_onleft (uint16 skill_id, struct block_list *bl, int64 tick)
 					}
 				}
 			}
+			break;
+		case GD_LEADERSHIP:
+		case GD_GLORYWOUNDS:
+		case GD_SOULCOLD:
+		case GD_HAWKEYES:
+			if (!(sce && sce->val4))
+				status_change_end(bl, type, INVALID_TIMER);
 			break;
 	}
 
@@ -18153,7 +18181,7 @@ static int skill_unit_timer_sub (DBKey key, void* data, va_list ap)
 	nullpo_ret(group);
 
 	// check for expiration
-	if( (DIFF_TICK(tick,group->tick) >= group->limit || DIFF_TICK(tick,group->tick) >= unit->limit) )
+	if (!group->state.guildaura && (DIFF_TICK(tick, group->tick) >= group->limit || DIFF_TICK(tick, group->tick) >= unit->limit))
 	{// skill unit expired (inlined from skill_unit_onlimit())
 		switch( group->unit_id )
 		{
@@ -20687,6 +20715,7 @@ static bool skill_parse_row_unitdb(char* split[], int columns, int current)
 	else if( strcmpi(split[6],"friend")==0 ) skill_db[i].unit_target = BCT_NOENEMY;
 	else if( strcmpi(split[6],"party")==0 ) skill_db[i].unit_target = BCT_PARTY;
 	else if( strcmpi(split[6],"ally")==0 ) skill_db[i].unit_target = BCT_PARTY|BCT_GUILD;
+	else if (strcmpi(split[6],"guild") == 0) skill_db[i].unit_target = BCT_GUILD;
 	else if( strcmpi(split[6],"all")==0 ) skill_db[i].unit_target = BCT_ALL;
 	else if( strcmpi(split[6],"enemy")==0 ) skill_db[i].unit_target = BCT_ENEMY;
 	else if( strcmpi(split[6],"self")==0 ) skill_db[i].unit_target = BCT_SELF;

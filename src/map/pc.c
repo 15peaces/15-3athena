@@ -5413,7 +5413,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		do {
 			x=rand()%(map[m].xs-2)+1;
 			y=rand()%(map[m].ys-2)+1;
-		} while(map_getcell(m,x,y,CELL_CHKNOPASS));
+		} while(map_getcell(m,x,y,CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1)));
 	}
 
 	if(sd->bl.prev != NULL){
@@ -5486,13 +5486,13 @@ int pc_randomwarp(struct map_session_data *sd, clr_type type)
 
 	m=sd->bl.m;
 
-	if (map[sd->bl.m].flag.noteleport)	// ƒeƒŒƒ|?ƒg‹ÖŽ~
+	if (map[sd->bl.m].flag.noteleport) //Teleport forbidden
 		return 0;
 
 	do{
 		x=rand()%(map[m].xs-2)+1;
 		y=rand()%(map[m].ys-2)+1;
-	}while(map_getcell(m,x,y,CELL_CHKNOPASS) && (i++)<1000 );
+	} while((map_getcell(m, x, y, CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1))) && (i++) < 1000);
 
 	if (i < 1000)
 		return pc_setpos(sd,map[sd->bl.m].index,x,y,type);

@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/11/2023
+	r384 [15peaces]
+		*Taekwon stances will now be removed on logout to prevent them being permanently on when a Taekwon is no longer ranked.
+		*Added a battle config (taekwon_mission_mobname) for Taekwon Mission to check for kills based on monster names, off by default.
+			-Thanks to @rathena for the base.
+		*Removed a case that ignores damaging a target when they are on the same cell as the caster for Frost Nova.
+		*Added a battle_config to allow avoidance of Teleporting on top of Map Warp Portals.
+			-Officially no one has been able to Teleport on top of a Map Warp Portal.
+		*Added Official Guild Aura Implementation
+			-Before:
+				--Guild Aura would only trigger when guild master moved
+			-Now:
+				--Guild Aura is triggered when master moves and/or when guild mate gets inside the area
+				--Guild Aura range is no longer hardcoded, you may modify it from skill_unit_db
+			-Added new skill_unit_db target type 'guild'
+
 04/07/2023
 	r383 [15peaces]
 		*Item database update.

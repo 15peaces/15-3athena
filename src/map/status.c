@@ -840,7 +840,10 @@ void initChangeTables(void)
 	add_sc( EL_STONE_RAIN        , SC_STUN            );
 
 	// Guild Skills
-	set_sc( GD_LEADERSHIP	, SC_GUILDAURA		, SI_BLANK					, SCB_STR|SCB_AGI|SCB_VIT|SCB_DEX );
+set_sc( GD_LEADERSHIP		, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
+	set_sc( GD_GLORYWOUNDS	, SC_GLORYWOUNDS	, SI_BLANK					, SCB_VIT );
+	set_sc( GD_SOULCOLD		, SC_SOULCOLD		, SI_BLANK					, SCB_AGI );
+	set_sc( GD_HAWKEYES		, SC_HAWKEYES		, SI_BLANK					, SCB_DEX );
 	set_sc( GD_BATTLEORDER	, SC_BATTLEORDERS	, SI_GDSKILL_BATTLEORDER	, SCB_STR | SCB_INT | SCB_DEX);
 	set_sc( GD_REGENERATION	, SC_REGENERATION	, SI_GDSKILL_REGENERATION	, SCB_REGEN);
 
@@ -4888,8 +4891,8 @@ static unsigned short status_calc_str(struct block_list *bl, struct status_chang
 		str += sc->data[SC_FOOD_STR_CASH]->val1;
 	if(sc->data[SC_BATTLEORDERS])
 		str += 5;
-	if(sc->data[SC_GUILDAURA] && sc->data[SC_GUILDAURA]->val3>>16)
-		str += (sc->data[SC_GUILDAURA]->val3)>>16;
+	if (sc->data[SC_LEADERSHIP])
+		str += sc->data[SC_LEADERSHIP]->val1;
 	if(sc->data[SC_LOUD])
 		str += 4;
 	if(sc->data[SC_TRUESIGHT])
@@ -4954,8 +4957,8 @@ static unsigned short status_calc_agi(struct block_list *bl, struct status_chang
 		agi += sc->data[SC_AGIFOOD]->val1;
 	if(sc->data[SC_FOOD_AGI_CASH])
 		agi += sc->data[SC_FOOD_AGI_CASH]->val1;
-	if(sc->data[SC_GUILDAURA] && (sc->data[SC_GUILDAURA]->val4)>>16)
-		agi += (sc->data[SC_GUILDAURA]->val4)>>16;
+	if (sc->data[SC_SOULCOLD])
+		agi += sc->data[SC_SOULCOLD]->val1;
 	if(sc->data[SC_TRUESIGHT])
 		agi += 5;
 	if(sc->data[SC_INCREASEAGI])
@@ -5019,8 +5022,8 @@ static unsigned short status_calc_vit(struct block_list *bl, struct status_chang
 		vit += sc->data[SC_FOOD_VIT_CASH]->val1;
 	if(sc->data[SC_CHANGE])
 		vit += sc->data[SC_CHANGE]->val2;
-	if(sc->data[SC_GUILDAURA] && sc->data[SC_GUILDAURA]->val3&0xFFFF)
-		vit += sc->data[SC_GUILDAURA]->val3&0xFFFF;
+	if (sc->data[SC_GLORYWOUNDS])
+		vit += sc->data[SC_GLORYWOUNDS]->val1;
 	if(sc->data[SC_TRUESIGHT])
 		vit += 5;
 	if(sc->data[SC_HARMONIZE])
@@ -5141,8 +5144,8 @@ static unsigned short status_calc_dex(struct block_list *bl, struct status_chang
 		dex += sc->data[SC_FOOD_DEX_CASH]->val1;
 	if(sc->data[SC_BATTLEORDERS])
 		dex += 5;
-	if(sc->data[SC_GUILDAURA] && sc->data[SC_GUILDAURA]->val4&0xFFFF)
-		dex += sc->data[SC_GUILDAURA]->val4&0xFFFF;
+	if (sc->data[SC_HAWKEYES])
+		dex += sc->data[SC_HAWKEYES]->val1;
 	if(sc->data[SC_TRUESIGHT])
 		dex += 5;
 	if(sc->data[SC_BLESSING]){
@@ -8202,6 +8205,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 					return 0;
 			case SC_SHAPESHIFT:
 			case SC_PROPERTYWALK:
+				break;
+			case SC_LEADERSHIP:
+			case SC_GLORYWOUNDS:
+			case SC_SOULCOLD:
+			case SC_HAWKEYES:
+				if (sce->val4 && !val4)//you cannot override master guild aura
+					return 0;
 				break;
 			default:
 				if(sce->val1 > val1)
@@ -11790,17 +11800,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
-		
-	case SC_GUILDAURA:
-		{
-			struct block_list *tbl = map_id2bl(sce->val2);
-			
-			if (tbl && battle_check_range(bl, tbl, 2)){
-				sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
-				return 0;
-			}
-		}
-		break;
 
 	case SC_JAILED:
 		if(sce->val1 == INT_MAX || --(sce->val1) > 0)
@@ -12399,6 +12398,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			return 0;
 		}
 		break;
 
@@ -12576,6 +12576,14 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
+
+	case SC_LEADERSHIP:
+	case SC_GLORYWOUNDS:
+	case SC_SOULCOLD:
+	case SC_HAWKEYES:
+		/* they only end by status_change_end */
+		sc_timer_next(600000 + tick, status_change_timer, bl->id, data);
+		return 0;
 	}
 
 	// default for all non-handled control paths is to end the status
@@ -12687,6 +12695,10 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_COMBO:
 			case SC_SMA:
 			case SC_DANCING:
+			case SC_LEADERSHIP:
+			case SC_GLORYWOUNDS:
+			case SC_SOULCOLD:
+			case SC_HAWKEYES:
 			case SC_GUILDAURA:
 			case SC_SAFETYWALL:
 			case SC_PNEUMA:

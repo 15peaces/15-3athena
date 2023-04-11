@@ -175,6 +175,7 @@ struct skill_unit_group {
 		unsigned ammo_consume : 1;
 		unsigned magic_power : 1;
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
+		unsigned guildaura : 1;
 	} state;
 };
 
@@ -2062,6 +2063,11 @@ enum {
 	UNT_NYANGGRASS,
 	UNT_GROUNDDRIFT_NEUTRAL,
 	UNT_CREATINGSTAR,
+	// Guild Auras
+	UNT_GD_LEADERSHIP,
+	UNT_GD_GLORYWOUNDS,
+	UNT_GD_SOULCOLD,
+	UNT_GD_HAWKEYES,
 	UNT_MAX
 };
 

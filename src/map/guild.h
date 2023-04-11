@@ -78,6 +78,8 @@ int guild_agit2_end(void);
 int guild_agit3_start(void);
 int guild_agit3_end(void);
 
+void guild_guildaura_refresh(struct map_session_data *sd, int skill_num, int skill_lv);
+
 void do_final_guild(void);
 
 #endif /* _GUILD_H_ */

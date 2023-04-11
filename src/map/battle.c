@@ -6665,6 +6665,8 @@ static const struct _battle_data {
 	{ "max_elemental_sp",                   &battle_config.max_elemental_sp,                1000000,100,    1000000000,     },
 	{ "max_elemental_def_mdef",             &battle_config.max_elemental_def_mdef,          99,     0,      99,             },
 	{ "path_blown_halt",                    &battle_config.path_blown_halt,                 1,      0,      1,				},
+	{ "taekwon_mission_mobname",            &battle_config.taekwon_mission_mobname,         0,      0,      2,				},
+	{ "teleport_on_portal",                 &battle_config.teleport_on_portal,              0,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

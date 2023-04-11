@@ -436,32 +436,42 @@ int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 		}
 
 		skill_unit_move(bl,tick,3);
-		if (sc){
-			if (sc->count){
-				if (sc->data[SC_CLOAKING])
-					skill_check_cloaking(bl, sc->data[SC_CLOAKING]);
-				if (sc->data[SC_CAMOUFLAGE])
-					skill_check_camouflage(bl, sc->data[SC_CAMOUFLAGE]);
-				if (sc->data[SC_DANCING])
-					skill_unit_move_unit_group(skill_id2group(sc->data[SC_DANCING]->val2), bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_WARM])
-					skill_unit_move_unit_group(skill_id2group(sc->data[SC_WARM]->val4), bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_NEUTRALBARRIER_MASTER])
-					skill_unit_move_unit_group(skill_id2group(sc->data[SC_NEUTRALBARRIER_MASTER]->val2), bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_STEALTHFIELD_MASTER])
-					skill_unit_move_unit_group(skill_id2group(sc->data[SC_STEALTHFIELD_MASTER]->val2), bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_BANDING])
-					skill_unit_move_unit_group(skill_id2group(sc->data[SC_BANDING]->val4), bl->m, x1-x0, y1-y0);
-				if (sc->data[SC_PROPERTYWALK]){
-					if( sc->data[SC_PROPERTYWALK]->val3 < skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) ){
-						if( map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_ELECTRICWALK,NULL,0) == NULL && map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_FIREWALK,NULL,0) == NULL )
-						{	// These aren't stackable in the same cell.
-							if( skill_unitsetting(bl,sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2,x0, y0,0) )
-								sc->data[SC_PROPERTYWALK]->val3++;
-						}
+		if (sc && sc->count){
+			if (sc->data[SC_CLOAKING])
+				skill_check_cloaking(bl, sc->data[SC_CLOAKING]);
+			if (sc->data[SC_CAMOUFLAGE])
+				skill_check_camouflage(bl, sc->data[SC_CAMOUFLAGE]);
+			if (sc->data[SC_DANCING])
+				skill_unit_move_unit_group(skill_id2group(sc->data[SC_DANCING]->val2), bl->m, x1-x0, y1-y0);
+			if (sc->data[SC_WARM])
+				skill_unit_move_unit_group(skill_id2group(sc->data[SC_WARM]->val4), bl->m, x1-x0, y1-y0);
+			if (sc->data[SC_NEUTRALBARRIER_MASTER])
+				skill_unit_move_unit_group(skill_id2group(sc->data[SC_NEUTRALBARRIER_MASTER]->val2), bl->m, x1-x0, y1-y0);
+			if (sc->data[SC_STEALTHFIELD_MASTER])
+				skill_unit_move_unit_group(skill_id2group(sc->data[SC_STEALTHFIELD_MASTER]->val2), bl->m, x1-x0, y1-y0);
+			if (sc->data[SC_BANDING])
+				skill_unit_move_unit_group(skill_id2group(sc->data[SC_BANDING]->val4), bl->m, x1-x0, y1-y0);
+			if (sc->data[SC_PROPERTYWALK]){
+				if( sc->data[SC_PROPERTYWALK]->val3 < skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2) ){
+					if( map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_ELECTRICWALK,NULL,0) == NULL && map_find_skill_unit_oncell(bl,bl->x,bl->y,SO_FIREWALK,NULL,0) == NULL )
+					{	// These aren't stackable in the same cell.
+						if( skill_unitsetting(bl,sc->data[SC_PROPERTYWALK]->val1,sc->data[SC_PROPERTYWALK]->val2,x0, y0,0) )
+							sc->data[SC_PROPERTYWALK]->val3++;
 					}
 				}
- 			}
+			}
+
+			/* Guild Aura Moving */
+			if (bl->type == BL_PC && ((TBL_PC*)bl)->state.gmaster_flag) {
+				if (sc->data[SC_LEADERSHIP])
+					skill_unit_move_unit_group(skill_id2group(sc->data[SC_LEADERSHIP]->val4), bl->m, x1 - x0, y1 - y0);
+				if (sc->data[SC_GLORYWOUNDS])
+					skill_unit_move_unit_group(skill_id2group(sc->data[SC_GLORYWOUNDS]->val4), bl->m, x1 - x0, y1 - y0);
+				if (sc->data[SC_SOULCOLD])
+					skill_unit_move_unit_group(skill_id2group(sc->data[SC_SOULCOLD]->val4), bl->m, x1 - x0, y1 - y0);
+				if (sc->data[SC_HAWKEYES])
+					skill_unit_move_unit_group(skill_id2group(sc->data[SC_HAWKEYES]->val4), bl->m, x1 - x0, y1 - y0);
+			}
 		}
 	} else if (bl->type == BL_NPC)
 		npc_setcells((TBL_NPC*)bl);
@@ -1825,7 +1835,10 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_SPURT, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_BERSERK, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_TRICKDEAD, INVALID_TIMER);
-		status_change_end(&sd->bl, SC_GUILDAURA, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_LEADERSHIP, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_GLORYWOUNDS, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_SOULCOLD, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_HAWKEYES, INVALID_TIMER);
 		if(sd->sc.data[SC_ENDURE] && sd->sc.data[SC_ENDURE]->val4)
 			status_change_end(&sd->bl, SC_ENDURE, INVALID_TIMER); //No need to save infinite endure.
 		status_change_end(&sd->bl, SC_WEIGHT50, INVALID_TIMER);
@@ -1862,6 +1875,10 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_CURSED_SOIL_OPTION, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_UPHEAVAL_OPTION, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_TIDAL_WEAPON_OPTION, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_READYSTORM, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_READYDOWN, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_READYTURN, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_READYCOUNTER, INVALID_TIMER);
 		if (battle_config.debuff_on_logout&1) 
 		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);
