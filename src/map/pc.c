@@ -4338,7 +4338,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 			if (sd->inventory.u.items_inventory[i].nameid == item_data->nameid &&
 				sd->inventory.u.items_inventory[i].bound == item_data->bound &&
 				sd->inventory.u.items_inventory[i].expire_time == 0 &&
-				sd->inventory.u.items_inventory[i].unique_id == item_data->unique_id &&
+				//sd->inventory.u.items_inventory[i].unique_id == item_data->unique_id &&
 				memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
 					return 5;

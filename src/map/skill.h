@@ -416,6 +416,10 @@ int skill_blockmerc_start (struct mercenary_data*,int,int);
 // ƒXƒLƒ‹U?ˆêŠ‡?—
 int64 skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
 
+// Skill Unit Save
+void skill_usave_add(struct map_session_data * sd, int skill_num, int skill_lv);
+void skill_usave_trigger(struct map_session_data *sd);
+
 void skill_reload(void);
 
 //RequiredState
@@ -1141,7 +1145,7 @@ enum e_skill {
 	DA_ZENYRANK,
 	DA_ACCESSORYMIX,
 
-	NPC_EARTHQUAKE = 653,
+	NPC_EARTHQUAKE,
 	NPC_FIREBREATH,
 	NPC_ICEBREATH,
 	NPC_THUNDERBREATH,

@@ -61,6 +61,14 @@ static struct eri *skill_timer_ers = NULL; //For handling skill_timerskills [Sko
 
 DBMap* skillunit_db = NULL; // int id -> struct skill_unit*
 
+/**
+ * Skill Unit Persistency during endack routes (mostly for songs)
+ **/
+DBMap* skillusave_db = NULL; // char_id -> struct skill_usave
+struct skill_usave {
+	int skill_num, skill_lv;
+};
+
 DBMap* skilldb_name2id = NULL;
 struct s_skill_db skill_db[MAX_SKILL_DB];
 struct s_skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
@@ -3788,6 +3796,18 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 				//case SR_KNUCKLEARROW://Shouldnt be needed since its set as a weapon attack in another part of the source. Will disable for now. [Rytech]
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
+				case CH_PALMSTRIKE:
+				{
+					struct status_change* tsc = status_get_sc(target);
+					struct status_change* sc = status_get_sc(src);
+					if ((tsc && tsc->option&OPTION_HIDE) ||
+						(sc && sc->option&OPTION_HIDE)) {
+						skill_blown(src, target, skill_get_blewcount(skl->skill_id, skl->skill_lv), -1, 0x0);
+						break;
+					}
+					skill_attack(skl->type, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag);
+					break;
+				}
 				default:
 					skill_attack(skl->type,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					break;
@@ -17993,6 +18013,24 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 		ShowError("skill_delunitgroup: Group's source not found! (src_id: %d skill_id: %d)\n", group->src_id, group->skill_id);
 		return 0;
 	}
+
+	if (!status_isdead(src) && ((TBL_PC*)src)->state.warping && !((TBL_PC*)src)->state.changemap) {
+		switch (group->skill_id) {
+		case BA_DISSONANCE:
+		case BA_POEMBRAGI:
+		case BA_WHISTLE:
+		case BA_ASSASSINCROSS:
+		case BA_APPLEIDUN:
+		case DC_UGLYDANCE:
+		case DC_HUMMING:
+		case DC_DONTFORGETME:
+		case DC_FORTUNEKISS:
+		case DC_SERVICEFORYOU:
+			skill_usave_add(((TBL_PC*)src), group->skill_id, group->skill_lv);
+			break;
+		}
+	}
+
 	sc = status_get_sc(src);
 	if (skill_get_unit_flag(group->skill_id)&(UF_DANCE|UF_SONG|UF_ENSEMBLE))
 	{
@@ -19854,6 +19892,39 @@ int skill_blockmerc_start(struct mercenary_data *md, int skillid, int tick)
 	return add_timer(gettick() + tick, skill_blockmerc_end, md->bl.id, skillid);
 }
 
+/**
+ * Adds a new skill unit entry for this player to recast after map load
+ **/
+void skill_usave_add(struct map_session_data * sd, int skill_num, int skill_lv) {
+	struct skill_usave * sus = NULL;
+
+	if (idb_exists(skillusave_db, sd->status.char_id)) {
+		idb_remove(skillusave_db, sd->status.char_id);
+	}
+
+	CREATE(sus, struct skill_usave, 1);
+	idb_put(skillusave_db, sd->status.char_id, sus);
+
+	sus->skill_num = skill_num;
+	sus->skill_lv = skill_lv;
+
+	return;
+}
+
+void skill_usave_trigger(struct map_session_data *sd) {
+	struct skill_usave * sus = NULL;
+
+	if (!(sus = idb_get(skillusave_db, sd->status.char_id))) {
+		return;
+	}
+
+	skill_unitsetting(&sd->bl, sus->skill_num, sus->skill_lv, sd->bl.x, sd->bl.y, 0);
+
+	idb_remove(skillusave_db, sd->status.char_id);
+
+	return;
+}
+
 /*
  *
  */
@@ -20954,6 +21025,7 @@ int do_init_skill (void)
 
 	group_db = idb_alloc(DB_OPT_BASE);
 	skillunit_db = idb_alloc(DB_OPT_BASE);
+	skillusave_db = idb_alloc(DB_OPT_RELEASE_DATA);
 	skill_unit_ers = ers_new(sizeof(struct skill_unit_group));
 	skill_timer_ers  = ers_new(sizeof(struct skill_timerskill));
 
@@ -20973,6 +21045,7 @@ int do_final_skill(void)
 	db_destroy(skilldb_name2id);
 	db_destroy(group_db);
 	db_destroy(skillunit_db);
+	db_destroy(skillusave_db);
 	ers_destroy(skill_unit_ers);
 	ers_destroy(skill_timer_ers);
 	return 0;

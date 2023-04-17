@@ -2766,9 +2766,6 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 			struct map_session_data *sd = map_id2sd(bl->id);
 			int i;
 
-			bonus += sd->sprate;
-			bonus -= 100; //Default hprate is 100, so it should be add 0%
-
 			if ((i = pc_checkskill(sd, HP_MEDITATIO)) > 0)
 				bonus += i;
 			if ((i = pc_checkskill(sd, WM_LESSON)) > 0)
@@ -2853,7 +2850,6 @@ static unsigned int status_calc_maxhpsp_pc(struct map_session_data* sd, unsigned
 		dmax += (int64)(dmax * status_get_hpbonus(&sd->bl, STATUS_BONUS_RATE) / 100); //Aegis accuracy
 	}
 	else {//Calculates MaxSP
-		double equip_bonus = 0;
 		dmax = job_info[idx].base_sp[level - 1] * (1 + (umax(stat, 1) * 0.01)) * ((sd->class_&JOBL_UPPER) ? 1.25 : (pc_is_taekwon_ranker(sd)) ? 3 : 1);
 		dmax += status_get_spbonus(&sd->bl, STATUS_BONUS_FIX);
 		dmax += (dmax * (sd->sprate - 100) / 100); // SP bonus rate from equipment

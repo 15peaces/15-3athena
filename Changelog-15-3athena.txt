@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/17/2023
+	r385 [15peaces]
+		*Added Official behavior to non-ensamble songs: they no longer go off if you warp within the same map.
+		*Some cleaning.
+		*Fixed CH_PALMSTRIKE deals damage to hidden targets.
+		*Disabled check for the unique ids for consumables, until the system is working probably.
+		*Another fixing in SP bonus calculations...
+			-Fixed an issue where the bMaxSPrate bonus was added twice..
+
 04/11/2023
 	r384 [15peaces]
 		*Taekwon stances will now be removed on logout to prevent them being permanently on when a Taekwon is no longer ranked.
