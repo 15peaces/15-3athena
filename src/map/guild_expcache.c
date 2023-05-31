@@ -24,7 +24,7 @@ static DBMap* guild_expcache_db = NULL; // int char_id -> struct guild_expcache*
 #define GUILD_ADDEXP_INVERVAL 10000 // interval for flushing exp cache
 
 
-static void* create_expcache(DBKey key, va_list args)
+static DBData create_expcache(DBKey key, va_list args)
 {
 	int guild_id = va_arg(args, int);
 	int account_id = va_arg(args, int);
@@ -35,13 +35,13 @@ static void* create_expcache(DBKey key, va_list args)
 	c->account_id = account_id;
 	c->char_id = char_id;
 	c->exp = 0;
-	return c;
+	return db_ptr2data(c);
 }
 
 
-static int guild_expcache_db_final(DBKey key, void* data, va_list args)
+static int guild_expcache_db_final(DBKey key, DBData *data, va_list ap)
 {
-	ers_free(expcache_ers, data);
+	ers_free(expcache_ers, db_data2ptr(data));
 	return 0;
 }
 

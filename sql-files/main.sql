@@ -786,6 +786,7 @@ CREATE TABLE IF NOT EXISTS `skill` (
   `char_id` int(11) unsigned NOT NULL default '0',
   `id` smallint(11) unsigned NOT NULL default '0',
   `lv` tinyint(4) unsigned NOT NULL default '0',
+  `flag` TINYINT(1) UNSIGNED NOT NULL default 0,
   PRIMARY KEY  (`char_id`,`id`),
   KEY `char_id` (`char_id`)
 ) ENGINE=MyISAM;

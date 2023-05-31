@@ -90,10 +90,10 @@ void do_final_storage(void)
  * @see DBApply
  * @return 0
  *------------------------------------------*/
-static int storage_reconnect_sub(DBKey key,void *data,va_list ap)
+static int storage_reconnect_sub(DBKey key,DBData *data,va_list ap)
 { //Parses storage and saves 'dirty' ones upon reconnect. [Skotlex]
 
-	struct s_storage* stor = (struct s_storage*) data;
+	struct s_storage* stor = db_data2ptr(data);
 	if (stor->dirty && stor->status == 0) //Save closed storages.
 		storage_guild_storagesave(0, stor->id, 0);
 
@@ -213,7 +213,6 @@ static int storage_additem(struct map_session_data* sd, struct item* item_data, 
 	stor->dirty = true;
 	clif_storageitemadded(sd,&stor->u.items_storage[i],i,amount);
 	clif_updatestorageamount(sd, stor->amount, MAX_STORAGE);
-	log_pick(&sd->bl, LOG_TYPE_STORAGE, item_data->nameid, -amount, item_data);
 
 	return 0;
 }
@@ -232,8 +231,6 @@ int storage_delitem(struct map_session_data* sd, int n, int amount)
 
 	sd->storage.u.items_storage[n].amount -= amount;
 	sd->storage.dirty = true;
-
-	log_pick(&sd->bl, LOG_TYPE_STORAGE, sd->storage.u.items_storage[n].nameid, amount, &sd->storage.u.items_storage[n]);
 
 	if( sd->storage.u.items_storage[n].amount == 0 )
 	{
@@ -312,7 +309,7 @@ void storage_storageadd(struct map_session_data* sd, int index, int amount)
 	else if (result == STORAGE_ADD_OK) {
 		switch( storage_additem(sd, &sd->inventory.u.items_inventory[index], amount) ){
 			case 0:
-				pc_delitem(sd,index,amount,0,4);
+				pc_delitem(sd,index,amount,0,4,LOG_TYPE_STORAGE);
 				return;
 			case 1:
 				break;
@@ -344,7 +341,7 @@ void storage_storageget(struct map_session_data* sd, int index, int amount)
 	if (result != STORAGE_ADD_OK)
 		return;
 
-	if ((flag = pc_additem(sd, &sd->storage.u.items_storage[index], amount)) == ADDITEM_SUCCESS)
+	if ((flag = pc_additem(sd, &sd->storage.u.items_storage[index], amount, LOG_TYPE_STORAGE)) == ADDITEM_SUCCESS)
 		storage_delitem(sd, index, amount);
 	else {
 		clif_storageitemremoved(sd, index, 0);
@@ -375,7 +372,7 @@ void storage_storageaddfromcart(struct map_session_data* sd, int index, int amou
 	else if (result == STORAGE_ADD_OK) {
 		switch (storage_additem(sd, &sd->cart.u.items_cart[index], amount)) {
 		case 0:
-			pc_cart_delitem(sd, index, amount, 0);
+			pc_cart_delitem(sd, index, amount, 0, LOG_TYPE_STORAGE);
 			return;
 		case 1:
 			break;
@@ -411,7 +408,7 @@ void storage_storagegettocart(struct map_session_data* sd, int index, int amount
 	if (result != STORAGE_ADD_OK)
 		return;
 
-	if ((flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount)) == 0)
+	if ((flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount, LOG_TYPE_STORAGE)) == 0)
 		storage_delitem(sd, index, amount);
 	else {
 		clif_storageitemremoved(sd, index, 0);
@@ -467,13 +464,13 @@ void storage_storage_quit(struct map_session_data* sd, int flag)
  * @param args
  * @return
  *------------------------------------------*/
-static void* create_guildstorage(DBKey key, va_list args)
+static DBData create_guildstorage(DBKey key, va_list args)
 {
 	struct s_storage *gs = NULL;
 	gs = (struct s_storage *) aCallocA(sizeof(struct s_storage), 1);
 	gs->type = TABLE_GUILD_STORAGE;
 	gs->id = key.i;
-	return gs;
+	return db_ptr2data(gs);
 }
 
 /*==========================================
@@ -486,7 +483,7 @@ struct s_storage *guild2storage(int guild_id)
 {
 	struct s_storage *gs = NULL;
 	if(guild_search(guild_id) != NULL)
-		gs=(struct s_storage *) idb_ensure(guild_storage_db,guild_id,create_guildstorage);
+		gs = idb_ensure(guild_storage_db,guild_id,create_guildstorage);
 	return gs;
 }
 
@@ -591,7 +588,6 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 				stor->u.items_guild[i].amount+=amount;
 				clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
 				stor->dirty = true;
-				log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
 				return true;
 			}
 		}
@@ -608,7 +604,6 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 	clif_storageitemadded(sd,&stor->u.items_guild[i],i,amount);
 	clif_updatestorageamount(sd, stor->amount, MAX_GUILD_STORAGE);
 	stor->dirty = true;
-	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, item_data->nameid, -amount, item_data);
 	return true;
 }
 
@@ -629,7 +624,6 @@ bool storage_guild_delitem(struct map_session_data* sd, struct s_storage* stor, 
 		return false;
 
 	stor->u.items_guild[n].amount-=amount;
-	log_pick(&sd->bl, LOG_TYPE_GSTORAGE, stor->u.items_guild[n].nameid, amount, &stor->u.items_guild[n]);
 	if(stor->u.items_guild[n].amount==0){
 		memset(&stor->u.items_guild[n],0,sizeof(stor->u.items_guild[0]));
 		stor->amount--;
@@ -664,9 +658,8 @@ void storage_guild_storageadd(struct map_session_data* sd, int index, int amount
 	if( amount < 1 || amount > sd->inventory.u.items_inventory[index].amount )
 		return;
 
-//	log_tostorage(sd, index, 1);
 	if(storage_guild_additem(sd,stor,&sd->inventory.u.items_inventory[index],amount))
-		pc_delitem(sd,index,amount,0,4);
+		pc_delitem(sd,index,amount,0,4,LOG_TYPE_GSTORAGE);
 
 	return;
 }
@@ -701,7 +694,7 @@ void storage_guild_storageget(struct map_session_data* sd, int index, int amount
  		return;
  	}
 
-	enum e_additem_result flag = pc_additem(sd, &stor->u.items_guild[index], amount);
+	enum e_additem_result flag = pc_additem(sd, &stor->u.items_guild[index], amount, LOG_TYPE_GSTORAGE);
 
 	if (flag == ADDITEM_SUCCESS)
 		storage_guild_delitem(sd, stor, index, amount);
@@ -709,8 +702,6 @@ void storage_guild_storageget(struct map_session_data* sd, int index, int amount
 		clif_storageitemremoved(sd, index, 0);
 		clif_additem(sd, 0, 0, flag);
 	}
-
-//	log_fromstorage(sd, index, 1);
 
 	return;
 }
@@ -741,7 +732,7 @@ void storage_guild_storageaddfromcart(struct map_session_data* sd, int index, in
 		return;
 
 	if(storage_guild_additem(sd,stor,&sd->cart.u.items_cart[index],amount))
-		pc_cart_delitem(sd,index,amount,0);
+		pc_cart_delitem(sd,index,amount,0,LOG_TYPE_GSTORAGE);
  	else {
  		clif_storageitemremoved(sd,index,0);
  		clif_dropitem(sd,index,0);
@@ -775,7 +766,7 @@ void storage_guild_storagegettocart(struct map_session_data* sd, int index, int 
 	if(amount < 1 || amount > stor->u.items_guild[index].amount)
 		return;
 
-	enum e_additem_result flag = pc_cart_additem(sd, &stor->u.items_guild[index], amount);
+	enum e_additem_result flag = pc_cart_additem(sd, &stor->u.items_guild[index], amount, LOG_TYPE_GSTORAGE);
 
 	if (flag == ADDITEM_SUCCESS)
 		storage_guild_delitem(sd,stor,index,amount);

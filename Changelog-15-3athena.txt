@@ -5,6 +5,65 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/31/2023
+	r386 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn386*.sql files!
+		*Fixed SC_MAGICMUSHROOM shouldn't cast skills if sit
+		*Replaced some hardcoded mobids by enum
+		*Added mob_is_treasure definition for faster search
+		*Some cleaning.
+			-Also updated/translated some comments.
+		*Enhanced DBMap implementation to allow storing integer type data in addition to void pointers.
+			-Thanks to @rathena for the base.
+			-Added enum for data: `int`, `unsigned int`, `int64` and `void*`
+			-Replaced generic `void*` data with `DBData` struct to hold `int`, `unsigned int`, `int64` or `void*` (member of `DBNode`)
+			-Added `db_i2data`, `db_ui2data` and `db_ptr2data` functions to cast from `int`/`uint`/`int64`/`void*` to `DBData` (used in `DBMap::put()`)
+			-Added `db_data2i`, `db_data2ui` and `db_data2ptr` functions to get `int`/`uint`/`int64`/`void*` from `DBData`
+			-Enabled statistics for new functions in `db_stats` struct
+			-`DBCreateData` functions (used in `DBMap::ensure()`) now return `DBData` instead of `void*`
+			-`DBApply` functions (used in `DBMap::foreach()` and `DBMap::destroy()`) now take `DBData*` as a parameter instead of `void*`
+			-`DBMatcher` functions (used in `DBMap::getall()`) now take `DBData` as a parameter instead of `void*`
+			-`DBReleaser` functions now take `DBData` as parameter instead of `void*`
+			-Default releasers release data if it is `void*` (`DB_DATA_PTR`) type
+			-`DBIterator` functions: `first()`, `last()`, `next()` and `prev()` now return `DBData*` instead of `void*`
+			-`DBIterator::remove()` now returns `int` (1 if node was found and removed, 0 otherwise) instead of `void*` and takes an extra `DBData*` parameter for the data of removed entry
+			-`DBMap::get()` and `DBMap::ensure()` now return `DBData*` instead of `void*`
+			-`DBMap::remove()` and `DBMap::put()` now return `int` (1 if node already existed, 0 otherwise) instead of `void*` and take an extra `DBData*` parameter for the data of removed entry
+			-`DBMap::put()` now takes `DBData` as parameter instead of `void*`
+			-`DBMap::getall()` now puts data into `DBData**` buffer instead of `void**` buffer
+			-Updated macros:
+				--(`i`/`ui`/`str`)`db_get` and (`i`/`ui`/`str`)`db_ensure` were wrapped with `db_data2ptr` to extract data from `DBData*` that is now returned by `DBMap::get()`
+				--added (`i`/`ui`/`str`)`db_iget` and (`i`/`ui`/`str`)`db_uiget` that get `DBData` from `DBMap` and extract `int`/`unsigned int` from it (with `db_data2i`/`db_data2ui`)
+				--`db_put`, `idb_put`, `uidb_put` and `strdb_put` data params were wrapped with `db_ptr2data` to match new signature of `DBMap::put()` (`DBData` instead of `void*`)
+				--added (`i`/`ui`/`str`)`db_iput` and (`i`/`ui`/`str`)`db_uiput` that put `int`/`unsigned int` into `DBMap` (first wrapping it with `DBData`)
+				--added `NULL` in place of extra parameter for removed data in `db_remove` macros
+				--`dbi_first`, `dbi_last`, `dbi_next` and `dbi_prev` were wrapped with `db_data2ptr` to extract data from `DBData*` that is now returned by these `DBIterator` functions
+			-Updated `DBMap` documentation.
+			-Updated rest of code to reflect `DBMap` changes (mostly required signature changes of `DBCreateData` and `DBApply` functions).
+			-Fixed a bug where `DBMap::put()` would return data of a deleted entry.
+			-Removed some unnecessary pointer casts.
+			-Increased `showmsg.c` static buffer size to fit entire DBMap stats report.
+			-Numeric global variables (mapreg) now utilize `DBMap`'s ability to store integer-type data.
+			-replaced some `DBMap` function calls with macros.
+			-Updated the script engine to make use of the DBMap* structure for storing variables
+		*Added initial support for direct variable assignment (allows assigning values to variables without the use of 'set')
+			-Note: the set; function is still required to be defined in the source.
+		*Edited some ***_config_read() functions to show a warning if "Unknown setting" is found.
+		*Added mercenary and elemental objects support to getmapxy.
+		*Fixed 'nude' script command to remove any part of equip.
+		*Modified script command 'donpcevent'.
+			-now returns 1 when successful, 0 when fails.
+			-now shows a debug message on the console when no events are triggered.
+		*When a menu supersedes the client's maximum length it is truncated and a warning is displayed on console, special thanks to @rathena for the base.
+		*getd now works as a parameter for query_sql
+		*Fixed pvp/gvg mapflag handling by setmapflag/removemapflag script commands.
+		*Fixed various quest-related script commands to fix crashes caused of null pointers (sd).
+		*Enforced all zeny transactions to use pc_payzeny and pc_getzeny handlers (auto log and clif).
+		*Picklog improvements:
+			-now it is finally possible to log every item / zeny players gain or lose
+			-new log type: `X` for all other items transactions that don't fall into another category (for detailed explanation on all log types read `conf/log_athena.conf`)
+			-it also fixes items being logged as picked up/gained by player when in fact they were dropped on the ground due to full inventory
+
 04/17/2023
 	r385 [15peaces]
 		*Added Official behavior to non-ensamble songs: they no longer go off if you warp within the same map.

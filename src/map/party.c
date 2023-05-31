@@ -609,7 +609,7 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 		int j,i; 
 		j = pc_bound_chk(sd,3,idxlist); 
 		for(i=0;i<j;i++) 
-			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1);
+			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1,LOG_TYPE_OTHER);
 #endif
 		sd->status.party_id = 0;
 		clif_charnameupdate(sd); //Update name display [Skotlex]
@@ -995,7 +995,7 @@ int party_exp_share(struct party_data* p, struct block_list* src, unsigned int b
 	{
 		pc_gainexp(sd[i], src, base_exp, job_exp, false);
 		if (zeny) // zeny from mobs [Valaris]
-			pc_getzeny(sd[i],zeny);
+			pc_getzeny(sd[i],zeny,LOG_TYPE_OTHER,NULL);
 	}
 	return 0;
 }
@@ -1020,7 +1020,7 @@ int party_share_loot(struct party_data* p, struct map_session_data* sd, struct i
 				if( (psd = p->data[i].sd) == NULL || sd->bl.m != psd->bl.m || pc_isdead(psd) || (battle_config.idle_no_share && pc_isidle(psd)) )
 					continue;
 				
-				if (pc_additem(psd,item_data,item_data->amount))
+				if (pc_additem(psd,item_data,item_data->amount,LOG_TYPE_PICKDROP_PLAYER))
 					continue; //Chosen char can't pick up loot.
 
 				//Successful pick.
@@ -1042,7 +1042,7 @@ int party_share_loot(struct party_data* p, struct map_session_data* sd, struct i
 			}
 			while (count > 0) { //Pick a random member.
 				i = rand()%count;
-				if (pc_additem(psd[i],item_data,item_data->amount))
+				if (pc_additem(psd[i],item_data,item_data->amount,LOG_TYPE_PICKDROP_PLAYER))
 				{	//Discard this receiver.
 					psd[i] = psd[count-1];
 					count--;
@@ -1056,12 +1056,9 @@ int party_share_loot(struct party_data* p, struct map_session_data* sd, struct i
 
 	if (!target) { 
 		target = sd; //Give it to the char that picked it up
-		if ((i=pc_additem(sd,item_data,item_data->amount)))
+		if ((i=pc_additem(sd,item_data,item_data->amount,LOG_TYPE_PICKDROP_PLAYER)))
 			return i;
 	}
-
-	//Logs items, taken by (P)layers [Lupus]
-	log_pick(&target->bl, LOG_TYPE_PICKDROP_PLAYER, item_data->nameid, item_data->amount, item_data);
 	
 	if( p && battle_config.party_show_share_picker && battle_config.show_picker_item_type&(1<<itemdb_type(item_data->nameid)) )
 		clif_party_show_picker(target, item_data);

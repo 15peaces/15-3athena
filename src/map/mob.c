@@ -2306,7 +2306,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 					pc_gainexp(tmpsd[i], &md->bl, base_exp, job_exp, false);
 			}
 			if(zeny) // zeny from mobs [Valaris]
-				pc_getzeny(tmpsd[i], zeny);
+				pc_getzeny(tmpsd[i], zeny, LOG_TYPE_PICKDROP_MONSTER, NULL);
 
 			achievement_validate_mob_kill(tmpsd[i], md->class_); // Achievements [Smokexyz/Hercules]
 		}
@@ -2429,7 +2429,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			{
 				i = sd->bonus.get_zeny_num > 0?sd->bonus.get_zeny_num:-md->level*sd->bonus.get_zeny_num;
 				if (!i) i = 1;
-				pc_getzeny(sd, 1+rand()%i);
+				pc_getzeny(sd, 1 + rand() % i, LOG_TYPE_OTHER, NULL);
 			}
 		}
 		
@@ -2513,15 +2513,13 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				intif_broadcast(message,strlen(message)+1,0);
 			}
 
-			if((temp = pc_additem(mvp_sd,&item,1)) != 0) {
+			if((temp = pc_additem(mvp_sd,&item,1,LOG_TYPE_PICKDROP_PLAYER)) != 0) {
 				clif_additem(mvp_sd,0,0,temp);
 				map_addflooritem(&item,1,mvp_sd->bl.m,mvp_sd->bl.x,mvp_sd->bl.y,mvp_sd->status.char_id,(second_sd?second_sd->status.char_id:0),(third_sd?third_sd->status.char_id:0),1);
 			}
 			
 			//Logs items, MVP prizes [Lupus]
 			log_pick(&md->bl, LOG_TYPE_PICKDROP_MONSTER, item.nameid, -1, NULL);
-			if (!temp)
-				log_pick(&mvp_sd->bl, LOG_TYPE_PICKDROP_PLAYER, item.nameid, 1, NULL);
 			break;
 		}
 
@@ -2715,7 +2713,7 @@ int mob_class_change (struct mob_data *md, int class_)
 	if (md->guardian_data)
 		return 0; //Guardians/Emperium
 
-	if( (md->class_ >= 1324 && md->class_ <= 1363) || (md->class_ >= 1938 && md->class_ <= 1946) )
+	if(mob_is_treasure(md))
 		return 0; //Treasure Boxes
 
 	if( md->special_state.ai > 1 )

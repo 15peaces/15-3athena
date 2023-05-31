@@ -4898,7 +4898,7 @@ static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
-static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
+static int online_data_cleanup_sub(DBKey key, DBData data, va_list ap)
 {
 	struct online_char_data *character= (struct online_char_data*)data;
 	if (character->fd != -1)

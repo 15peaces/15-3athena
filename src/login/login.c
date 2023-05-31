@@ -106,20 +106,20 @@ struct online_login_data {
 static DBMap* online_db; // int account_id -> struct online_login_data*
 static int waiting_disconnect_timer(int tid, int64 tick, int id, intptr_t data);
 
-static void* create_online_user(DBKey key, va_list args)
+static DBData create_online_user(DBKey key, va_list args)
 {
 	struct online_login_data* p;
 	CREATE(p, struct online_login_data, 1);
 	p->account_id = key.i;
 	p->char_server = -1;
 	p->waiting_disconnect = INVALID_TIMER;
-	return p;
+	return db_ptr2data(p);
 }
 
 struct online_login_data* add_online_user(int char_server, int account_id)
 {
 	struct online_login_data* p;
-	p = (struct online_login_data*)idb_ensure(online_db, account_id, create_online_user);
+	p = idb_ensure(online_db, account_id, create_online_user);
 	p->char_server = char_server;
 	if( p->waiting_disconnect != INVALID_TIMER )
 	{
@@ -153,9 +153,9 @@ static int waiting_disconnect_timer(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
-static int online_db_setoffline(DBKey key, void* data, va_list ap)
+static int online_db_setoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_login_data* p = (struct online_login_data*)data;
+	struct online_login_data* p = db_data2ptr(data);
 	int server = va_arg(ap, int);
 	if( server == -1 )
 	{
@@ -171,9 +171,9 @@ static int online_db_setoffline(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
+static int online_data_cleanup_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct online_login_data *character= (struct online_login_data*)data;
+	struct online_login_data *character = db_data2ptr(data);
 	if (character->char_server == -2) //Unknown server.. set them offline
 		remove_online_user(character->account_id);
 	return 0;
@@ -1944,7 +1944,10 @@ int do_init(int argc, char** argv)
 	}
 
 	// server port open & binding
-	login_fd = make_listen_bind(login_config.login_ip, login_config.login_port);
+	if ((login_fd = make_listen_bind(login_config.login_ip, login_config.login_port)) == -1) {
+		ShowFatalError("Failed to bind to port '"CL_WHITE"%d"CL_RESET"'\n", login_config.login_port);
+		exit(EXIT_FAILURE);
+	}
 	
 	ShowStatus("The login-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %u).\n\n", login_config.login_port);
 	login_log(0, "login server", 100, "login server started");

@@ -42,9 +42,9 @@ int mapif_parse_GuildLeave(int fd,int guild_id,int account_id,int char_id,int fl
 int mapif_guild_broken(int guild_id,int flag);
 static bool guild_check_empty(struct guild *g);
 int guild_calcinfo(struct guild *g);
-int mapif_guild_basicinfochanged(int guild_id,int type,const void *data,int len);
+int mapif_guild_basicinfochanged(int guild_id,int type,const void* data,int len);
 int mapif_guild_info(int fd,struct guild *g);
-int guild_break_sub(int key,void *data,va_list ap);
+int guild_break_sub(int key,DBData data,va_list ap);
 int inter_guild_tosql(struct guild *g,int flag);
 
 static int guild_save_timer(int tid, int64 tick, int id, intptr_t data)
@@ -59,7 +59,7 @@ static int guild_save_timer(int tid, int64 tick, int id, intptr_t data)
 		state = 1;
 
 	iter = guild_db_->iterator(guild_db_);
-	for( g = (struct guild*)iter->first(iter,&key); iter->exists(iter); g = (struct guild*)iter->next(iter,&key) )
+	for (g = db_data2ptr(iter->first(iter, &key)); dbi_exists(iter); g = db_data2ptr(iter->next(iter, &key)))
 	{
 		if( state == 0 && g->guild_id == last_id )
 			state++; //Save next guild in the list.
@@ -790,9 +790,9 @@ int inter_guild_sql_init(void)
 	return 0;
 }
 
-static int guild_db_final(DBKey key, void *data, va_list ap)
+static int guild_db_final(DBKey key, DBData *data, va_list ap)
 {
-	struct guild *g = (struct guild*)data;
+	struct guild *g = db_data2ptr(data);
 	if (g->save_flag&GS_MASK) {
 		inter_guild_tosql(g, g->save_flag&GS_MASK);
 		return 1;
@@ -1053,7 +1053,7 @@ int mapif_guild_message(int guild_id,int account_id,char *mes,int len, int sfd)
 }
 
 // Send basic info
-int mapif_guild_basicinfochanged(int guild_id,int type,const void *data,int len)
+int mapif_guild_basicinfochanged(int guild_id,int type,const void* data,int len)
 {
 	unsigned char buf[2048];
 	if (len > 2038)
@@ -1068,7 +1068,7 @@ int mapif_guild_basicinfochanged(int guild_id,int type,const void *data,int len)
 }
 
 // Send member info
-int mapif_guild_memberinfochanged(int guild_id,int account_id,int char_id, int type,const void *data,int len)
+int mapif_guild_memberinfochanged(int guild_id,int account_id,int char_id, int type,const void* data,int len)
 {
 	unsigned char buf[2048];
 	if (len > 2030)

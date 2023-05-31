@@ -56,7 +56,7 @@ char console_log_filepath[32] = "./log/unknown.log";
 ///////////////////////////////////////////////////////////////////////////////
 /// static/dynamic buffer for the messages
 
-#define SBUF_SIZE 2048 // never put less that what's required for the debug message
+#define SBUF_SIZE 2054 // never put less that what's required for the debug message
 
 #define NEWBUF(buf)				\
 	struct {					\

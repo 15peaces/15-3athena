@@ -15008,7 +15008,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 				struct pet_itemlist_entry *list = &VECTOR_INDEX(ped->items, j);
 				int n = pc_search_inventory(sd, list->id);
 
-				if (pc_delitem(sd, n, list->amount, 0, 0) == 1) {
+				if (pc_delitem(sd, n, list->amount, 0, 0, LOG_TYPE_OTHER) == 1) {
 					clif_pet_evolution_result(fd, PET_EVOL_NO_MATERIAL);
 					return;
 				}
@@ -15017,7 +15017,7 @@ void clif_parse_pet_evolution(int fd, struct map_session_data *sd)
 			// Return to Egg
 			pet_return_egg(sd, sd->pd);
 
-			if (pc_delitem(sd, idx, 1, 0, 0) == 1) {
+			if (pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_OTHER) == 1) {
 				clif_pet_evolution_result(fd, PET_EVOL_NO_PETEGG);
 				return;
 			}
@@ -15138,7 +15138,7 @@ void clif_parse_GMKick(int fd, struct map_session_data *sd)
 
 		// copy-pasted from atcommand_unloadnpc
 		npc_unload_duplicates(nd);
-		npc_unload(nd); // invalidates 'target'
+		npc_unload(nd, true); // invalidates 'target'
 		npc_read_event_script();
 	}
 	break;
@@ -16379,7 +16379,7 @@ void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 		return;
 	
 	clif_skill_nodamage(&sd->bl,&sd->bl,ALL_RESURRECTION,4,1);
-	pc_delitem(sd, item_position, 1, 0, 1);
+	pc_delitem(sd, item_position, 1, 0, 1, LOG_TYPE_CONSUME);
 }
 
 
@@ -17679,12 +17679,10 @@ void clif_parse_Auction_register(int fd, struct map_session_data *sd)
 	{
 		int zeny = auction.hours*battle_config.auction_feeperhour;
 
-		log_pick(&sd->bl, LOG_TYPE_AUCTION, auction.item.nameid, -auction.item.amount, &auction.item);
-		pc_delitem(sd, sd->auction.index, sd->auction.amount, 1, 6);
+		pc_delitem(sd, sd->auction.index, sd->auction.amount, 1, 6, LOG_TYPE_AUCTION);
 		sd->auction.amount = 0;
 
-		log_zeny(sd, LOG_TYPE_AUCTION, sd, -zeny);
-		pc_payzeny(sd, zeny);
+		pc_payzeny(sd, zeny, LOG_TYPE_AUCTION, NULL);
 	}
 }
 
@@ -17728,8 +17726,7 @@ void clif_parse_Auction_bid(int fd, struct map_session_data *sd)
 		clif_Auction_message(fd, 8); // You do not have enough zeny
 	else
 	{
-		log_zeny(sd, LOG_TYPE_AUCTION, sd, -bid);
-		pc_payzeny(sd, bid);
+		pc_payzeny(sd, bid, LOG_TYPE_AUCTION, NULL);
 		intif_Auction_bid(sd->status.char_id, sd->status.name, auction_id, bid);
 	}
 }
@@ -17983,7 +17980,7 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 						item_tmp.nameid = data->nameid;
 						item_tmp.identify = 1;
 
-						switch (pc_additem(sd, &item_tmp, get_count)) {
+						switch (pc_additem(sd, &item_tmp, get_count, LOG_TYPE_NPC)) {
 							case 0:
 								result = CSBR_SUCCESS;
 								break;
@@ -20297,7 +20294,7 @@ static uint8 clif_roulette_getitem(struct map_session_data *sd) {
 	it.nameid = rd.nameid[sd->roulette.prizeStage][sd->roulette.prizeIdx];
 	it.identify = 1;
 
-	if ((res = pc_additem(sd, &it, rd.qty[sd->roulette.prizeStage][sd->roulette.prizeIdx])) == 0) {
+	if ((res = pc_additem(sd, &it, rd.qty[sd->roulette.prizeStage][sd->roulette.prizeIdx], LOG_TYPE_OTHER)) == 0) {
 		; // onSuccess
 	}
 
@@ -20563,7 +20560,7 @@ void clif_parse_Oneclick_Itemidentify(int fd, struct map_session_data *sd) {
 		return;
 	
 	// deleting magnifier failed, for whatever reason...
-	if ( pc_delitem(sd, magnifier_idx, 1, 0, 0) != 0 ) {
+	if ( pc_delitem(sd, magnifier_idx, 1, 0, 0, LOG_TYPE_CONSUME) != 0 ) {
 		return;
     }
 
@@ -20982,7 +20979,7 @@ void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
 	}
 
 	// Delete the chosen item
-	if (pc_delitem(sd, idx, 1, 0, 0)) {
+	if (pc_delitem(sd, idx, 1, 0, 0, LOG_TYPE_OTHER)) {
 		clif_private_airship_response(sd, P_AIRSHIP_RETRY);
 		return;
 	}
@@ -22180,7 +22177,7 @@ int do_init_clif(void)
 	set_defaultparse(clif_parse);
 	if( make_listen_bind(bind_ip,map_port) == -1 )
 	{
-		ShowFatalError("can't bind game port\n");
+		ShowFatalError("Failed to bind to port '"CL_WHITE"%d"CL_RESET"'\n", map_port);
 		exit(EXIT_FAILURE);
 	}
 

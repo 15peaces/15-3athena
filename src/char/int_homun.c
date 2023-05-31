@@ -149,7 +149,7 @@ void inter_homun_final()
 	return;
 }
 
-int inter_homun_save_sub(DBKey key,void *data,va_list ap)
+int inter_homun_save_sub(DBKey key,DBData data,va_list ap)
 {
 	char line[8192];
 	FILE *fp;

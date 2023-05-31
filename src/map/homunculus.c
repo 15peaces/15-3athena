@@ -668,7 +668,7 @@ int merc_hom_food(struct map_session_data *sd, struct homun_data *hd)
 		clif_hom_food(sd,foodID,0);
 		return 1;
 	}
-	pc_delitem(sd,i,1,0,0);
+	pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_CONSUME);
 
 	if ( hd->homunculus.hunger >= 91 ) {
 		merc_hom_decrease_intimacy(hd, 50);

@@ -230,9 +230,9 @@ void guild_makemember(struct guild_member *m,struct map_session_data *sd)
 
 
 //Taken from party_send_xy_timer_sub. [Skotlex]
-int guild_send_xy_timer_sub(DBKey key,void *data,va_list ap)
+int guild_send_xy_timer_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct guild *g=(struct guild *)data;
+	struct guild *g = db_data2ptr(data);
 	int i;
 
 	nullpo_ret(g);
@@ -312,7 +312,7 @@ void guild_created(int account_id,int guild_id)
 		int index = pc_search_inventory(sd,ITEMID_EMPERIUM);
 
 		if( index > 0 )
-			pc_delitem(sd,index,1,0,0);	//emperium consumption
+			pc_delitem(sd,index,1,0,0,LOG_TYPE_CONSUME);	//emperium consumption
 	}
 	return;
 }
@@ -337,10 +337,14 @@ int guild_npc_request_info(int guild_id,const char *event)
 	if( event && *event )
 	{
 		struct eventlist* ev;
+		DBData prev;
+
 		ev=(struct eventlist *)aCalloc(sizeof(struct eventlist),1);
 		memcpy(ev->name,event,strlen(event));
-		//The one in the db becomes the next event from this.
-		ev->next = (struct eventlist*)idb_put(guild_infoevent_db,guild_id,ev);
+		
+		//The one in the db (if present) becomes the next event from this.
+		if (guild_infoevent_db->put(guild_infoevent_db, db_i2key(guild_id), db_ptr2data(ev), &prev))
+			ev->next = db_data2ptr(&prev);
 	}
 
 	return guild_request_info(guild_id);
@@ -391,7 +395,7 @@ void guild_recv_info(struct guild *sg)
 {
 	struct guild *g,before;
 	int i,bm,m;
-	struct eventlist *ev,*ev2;
+	DBData data;
 	struct map_session_data *sd;
 	bool guild_new = false;
 
@@ -464,8 +468,9 @@ void guild_recv_info(struct guild *sg)
 	}
 
 	// イベントの発生
-	if( (ev = (struct eventlist*)idb_remove(guild_infoevent_db,sg->guild_id))!=NULL )
+	if (guild_infoevent_db->remove(guild_infoevent_db, db_i2key(sg->guild_id), &data))
 	{
+		struct eventlist *ev = db_data2ptr(&data), *ev2;
 		while(ev){
 			npc_event_do(ev->name);
 			ev2=ev->next;
@@ -1438,9 +1443,9 @@ int guild_allianceack(int guild_id1, int guild_id2, int account_id1, int account
 	return 0;
 }
 // ギルド解散通知用
-int guild_broken_sub(DBKey key,void *data,va_list ap)
+int guild_broken_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct guild *g=(struct guild *)data;
+	struct guild *g = db_data2ptr(data);
 	int guild_id=va_arg(ap,int);
 	int i,j;
 	struct map_session_data *sd=NULL;
@@ -1703,7 +1708,7 @@ bool guild_isallied(int guild_id, int guild_id2)
 	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
 }
 
-static int guild_infoevent_db_final(DBKey key,void *data,va_list ap)
+static int guild_infoevent_db_final(DBKey key,DBData *data,va_list ap)
 {
 	aFree(data);
 	return 0;

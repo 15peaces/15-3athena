@@ -342,9 +342,9 @@ bool bg_send_message(struct map_session_data *sd, const char *mes, int len)
 	return false;
 }
 
-int bg_send_xy_timer_sub(DBKey key, void *data, va_list ap)
+int bg_send_xy_timer_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct battleground_data *bg = (struct battleground_data *)data;
+	struct battleground_data *bg = db_data2ptr(data);
 	struct map_session_data *sd;
 	int i;
 	nullpo_ret(bg);

@@ -504,9 +504,9 @@ int chrif_connectack(int fd)
 	return 0;
 }
 
-static int chrif_reconnect(DBKey key, void *data, va_list ap)
+static int chrif_reconnect(DBKey key, DBData *data, va_list ap)
 {
-	struct auth_node *node = (struct auth_node*)data;
+	struct auth_node *node = db_data2ptr(data);
 	switch (node->state) 
 	{
 		case ST_LOGIN:
@@ -734,9 +734,9 @@ void chrif_authfail(int fd) /* HELLO WORLD. ip in RFIFOL 15 is not being used (b
 
 
 //This can still happen (client times out while waiting for char to confirm auth data)
-int auth_db_cleanup_sub(DBKey key,void *data,va_list ap)
+int auth_db_cleanup_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct auth_node *node=(struct auth_node*)data;
+	struct auth_node *node = db_data2ptr(data);
 	
 	if(DIFF_TICK(gettick(),node->node_created)>60000) {
 		const char* states[] = { "Login", "Logout", "Map change" };
@@ -1005,7 +1005,7 @@ int chrif_divorceack(int char_id, int partner_id)
 		sd->status.partner_id = 0;
 		for(i = 0; i < MAX_INVENTORY; i++)
 			if (sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F)
-				pc_delitem(sd, i, 1, 0, 0);
+				pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
 	}
 
 	if( (sd = map_charid2sd(partner_id)) != NULL && sd->status.partner_id == char_id )
@@ -1013,7 +1013,7 @@ int chrif_divorceack(int char_id, int partner_id)
 		sd->status.partner_id = 0;
 		for(i = 0; i < MAX_INVENTORY; i++)
 			if (sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F)
-				pc_delitem(sd, i, 1, 0, 0);
+				pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
 	}
 	
 	return 0;
@@ -1843,9 +1843,9 @@ static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
-int auth_db_final(DBKey k,void *d,va_list ap)
+int auth_db_final(DBKey key, DBData *data, va_list ap)
 {
-	struct auth_node *node=(struct auth_node*)d;
+	struct auth_node *node = db_data2ptr(data);
 	if (node->char_dat)
 		aFree(node->char_dat);
 	if (node->sd)

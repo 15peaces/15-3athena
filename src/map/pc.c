@@ -797,7 +797,7 @@ void pc_inventory_rentals(struct map_session_data *sd)
 			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
 			if( sd->inventory.u.items_inventory[i].nameid == ITEMID_BOARDING_HALTER )
 				status_change_end(&sd->bl, SC_ALL_RIDING, -1);
-			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
 		}
 		else
 		{
@@ -1723,7 +1723,7 @@ static int pc_calc_skillpoint(struct map_session_data* sd)
 				if(sd->status.skill[i].flag == SKILL_FLAG_PERMANENT)
 					skill_point += skill_lv;
 				else
-				if(sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0)
+					if (sd->status.skill[i].flag == SKILL_FLAG_REPLACED_LV_0)
 					skill_point += (sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0);
 			}
 		}
@@ -1753,13 +1753,13 @@ int pc_calc_skilltree(struct map_session_data *sd)
 
 	for( i = 0; i < MAX_SKILL; i++ )
 	{ 
-		if( sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED ) //Don't touch plagiarized skills
+		if (sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED && sd->status.skill[i].flag != SKILL_FLAG_PERM_GRANTED) //Don't touch these
 			sd->status.skill[i].id = 0; //First clear skills.
 	}
 
 	for( i = 0; i < MAX_SKILL; i++ )
 	{ 
-		if( sd->status.skill[i].flag != SKILL_FLAG_PERMANENT && sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED )
+		if (sd->status.skill[i].flag != SKILL_FLAG_PERMANENT && sd->status.skill[i].flag != SKILL_FLAG_PERM_GRANTED && sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED)
 		{ // Restore original level of skills after deleting earned skills.	
 			sd->status.skill[i].lv = (sd->status.skill[i].flag == SKILL_FLAG_TEMPORARY) ? 0 : sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0;
 			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
@@ -1821,7 +1821,7 @@ int pc_calc_skilltree(struct map_session_data *sd)
 						if (sd->status.skill[k].id == 0 || sd->status.skill[k].flag == SKILL_FLAG_TEMPORARY || sd->status.skill[k].flag == SKILL_FLAG_PLAGIARIZED)
 							k = 0; //Not learned.
 						else
-						if (sd->status.skill[k].flag >= SKILL_FLAG_REPLACED_LV_0) //Real lerned level
+						if (sd->status.skill[k].flag == SKILL_FLAG_REPLACED_LV_0) //Real lerned level
 							k = sd->status.skill[skill_tree[c][i].need[j].id].flag - SKILL_FLAG_REPLACED_LV_0;
 						else
 							k = pc_checkskill(sd,k);
@@ -3946,7 +3946,7 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 		case 0: //Set skill data overwriting whatever was there before.
 			sd->status.skill[id].id   = id;
 			sd->status.skill[id].lv   = level;
-			sd->status.skill[id].flag = SKILL_FLAG_PERMANENT;
+			sd->status.skill[id].flag = SKILL_FLAG_PERM_GRANTED;
 			if( level == 0 ) { //Remove skill.
 				sd->status.skill[id].id = 0;
 				clif_deleteskill(sd,id);
@@ -4035,13 +4035,15 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 	// remember the card id to insert
 	nameid = sd->inventory.u.items_inventory[idx_card].nameid;
 
-	if( pc_delitem(sd,idx_card,1,1,0) == 1 )
+	if( pc_delitem(sd,idx_card,1,1,0,LOG_TYPE_OTHER) == 1 )
 	{// failed
 		clif_insert_card(sd,idx_equip,idx_card,1);
 	}
 	else
 	{// success
+		log_pick(&sd->bl, LOG_TYPE_OTHER, sd->inventory.u.items_inventory[idx_equip].nameid, -1, &sd->inventory.u.items_inventory[idx_equip]);
 		sd->inventory.u.items_inventory[idx_equip].card[i] = nameid;
+		log_pick(&sd->bl, LOG_TYPE_OTHER, sd->inventory.u.items_inventory[idx_equip].nameid, 1, &sd->inventory.u.items_inventory[idx_equip]);
 		clif_insert_card(sd,idx_equip,idx_card,0);
 	}
 
@@ -4144,9 +4146,9 @@ int pc_inventoryblank(struct map_session_data *sd)
 }
 
 /*==========================================
- * ‚¨‹à‚ð?‚¤
+ * attempts to remove zeny from player (sd)
  *------------------------------------------*/
-int pc_payzeny(struct map_session_data *sd,int zeny)
+int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd)
 {
 	nullpo_ret(sd);
 
@@ -4162,102 +4164,19 @@ int pc_payzeny(struct map_session_data *sd,int zeny)
 	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
+	if (!tsd) tsd = sd;
+	log_zeny(sd, type, tsd, -zeny);
+
 	achievement_validate_zeny(sd, -zeny); // Achievements [Smokexyz/Hercules]
 
 	return 0;
 }
-/*==========================================
- * Cash Shop
- *------------------------------------------*/
-
-void pc_paycash(struct map_session_data *sd, int price, int points)
-{
-	char output[128];
-	int cash;
-	nullpo_retv(sd);
-
-	if( price < 0 || points < 0 )
-	{
-		ShowError("pc_paycash: Paying negative points (price=%d, points=%d, account_id=%d, char_id=%d).\n", price, points, sd->status.account_id, sd->status.char_id);
-		return;
-	}
-
-	if( points > price )
-	{
-		ShowWarning("pc_paycash: More kafra points provided than needed (price=%d, points=%d, account_id=%d, char_id=%d).\n", price, points, sd->status.account_id, sd->status.char_id);
-		points = price;
-	}
-
-	cash = price-points;
-
-	if( sd->cashPoints < cash || sd->kafraPoints < points )
-	{
-		ShowError("pc_paycash: Not enough points (cash=%d, kafra=%d) to cover the price (cash=%d, kafra=%d) (account_id=%d, char_id=%d).\n", sd->cashPoints, sd->kafraPoints, cash, points, sd->status.account_id, sd->status.char_id);
-		return;
-	}
-
-	pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints-cash);
-	pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints-points);
-
-	if( battle_config.cashshop_show_points )
-	{
-		sprintf(output, msg_txt(sd,504), points, cash, sd->kafraPoints, sd->cashPoints);
-		clif_disp_onlyself(sd, output, strlen(output));
-	}
-}
-
-void pc_getcash(struct map_session_data *sd, int cash, int points)
-{
-	char output[128];
-	nullpo_retv(sd);
-
-	if( cash > 0 )
-	{
-		if( cash > MAX_ZENY-sd->cashPoints )
-		{
-			ShowWarning("pc_getcash: Cash point overflow (cash=%d, have cash=%d, account_id=%d, char_id=%d).\n", cash, sd->cashPoints, sd->status.account_id, sd->status.char_id);
-			cash = MAX_ZENY-sd->cashPoints;
-		}
-
-		pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints+cash);
-
-		if( battle_config.cashshop_show_points )
-		{
-			sprintf(output, msg_txt(sd,505), cash, sd->cashPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
-		}
-	}
-	else if( cash < 0 )
-	{
-		ShowError("pc_getcash: Obtaining negative cash points (cash=%d, account_id=%d, char_id=%d).\n", cash, sd->status.account_id, sd->status.char_id);
-	}
-
-	if( points > 0 )
-	{
-		if( points > MAX_ZENY-sd->kafraPoints )
-		{
-			ShowWarning("pc_getcash: Kafra point overflow (points=%d, have points=%d, account_id=%d, char_id=%d).\n", points, sd->kafraPoints, sd->status.account_id, sd->status.char_id);
-			points = MAX_ZENY-sd->kafraPoints;
-		}
-
-		pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints+points);
-
-		if( battle_config.cashshop_show_points )
-		{
-			sprintf(output, msg_txt(sd,506), points, sd->kafraPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
-		}
-	}
-	else if( points < 0 )
-	{
-		ShowError("pc_getcash: Obtaining negative kafra points (points=%d, account_id=%d, char_id=%d).\n", points, sd->status.account_id, sd->status.char_id);
-	}
-}
 
 /*==========================================
- * ‚¨‹à‚ð“¾‚é
+ * Attempts to give zeny to player (sd)
+ * tsd (optional) from who for log (if null take sd)
  *------------------------------------------*/
-int pc_getzeny(struct map_session_data *sd,int zeny)
+int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd)
 {
 	nullpo_ret(sd);
 
@@ -4273,6 +4192,9 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 	sd->status.zeny += zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
+	if (!sd) tsd = sd;
+	log_zeny(sd, type, tsd, zeny);
+
 	if( zeny > 0 && sd->state.showzeny )
 	{
 		char output[255];
@@ -4283,6 +4205,94 @@ int pc_getzeny(struct map_session_data *sd,int zeny)
 	achievement_validate_zeny(sd, zeny); // Achievements [Smokexyz/Hercules]
 
 	return 0;
+}
+
+/*==========================================
+ * Cash Shop
+ *------------------------------------------*/
+
+void pc_paycash(struct map_session_data *sd, int price, int points)
+{
+	char output[128];
+	int cash;
+	nullpo_retv(sd);
+
+	if (price < 0 || points < 0)
+	{
+		ShowError("pc_paycash: Paying negative points (price=%d, points=%d, account_id=%d, char_id=%d).\n", price, points, sd->status.account_id, sd->status.char_id);
+		return;
+	}
+
+	if (points > price)
+	{
+		ShowWarning("pc_paycash: More kafra points provided than needed (price=%d, points=%d, account_id=%d, char_id=%d).\n", price, points, sd->status.account_id, sd->status.char_id);
+		points = price;
+	}
+
+	cash = price - points;
+
+	if (sd->cashPoints < cash || sd->kafraPoints < points)
+	{
+		ShowError("pc_paycash: Not enough points (cash=%d, kafra=%d) to cover the price (cash=%d, kafra=%d) (account_id=%d, char_id=%d).\n", sd->cashPoints, sd->kafraPoints, cash, points, sd->status.account_id, sd->status.char_id);
+		return;
+	}
+
+	pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints - cash);
+	pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints - points);
+
+	if (battle_config.cashshop_show_points)
+	{
+		sprintf(output, msg_txt(sd, 504), points, cash, sd->kafraPoints, sd->cashPoints);
+		clif_disp_onlyself(sd, output, strlen(output));
+	}
+}
+
+void pc_getcash(struct map_session_data *sd, int cash, int points)
+{
+	char output[128];
+	nullpo_retv(sd);
+
+	if (cash > 0)
+	{
+		if (cash > MAX_ZENY - sd->cashPoints)
+		{
+			ShowWarning("pc_getcash: Cash point overflow (cash=%d, have cash=%d, account_id=%d, char_id=%d).\n", cash, sd->cashPoints, sd->status.account_id, sd->status.char_id);
+			cash = MAX_ZENY - sd->cashPoints;
+		}
+
+		pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints + cash);
+
+		if (battle_config.cashshop_show_points)
+		{
+			sprintf(output, msg_txt(sd, 505), cash, sd->cashPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
+	}
+	else if (cash < 0)
+	{
+		ShowError("pc_getcash: Obtaining negative cash points (cash=%d, account_id=%d, char_id=%d).\n", cash, sd->status.account_id, sd->status.char_id);
+	}
+
+	if (points > 0)
+	{
+		if (points > MAX_ZENY - sd->kafraPoints)
+		{
+			ShowWarning("pc_getcash: Kafra point overflow (points=%d, have points=%d, account_id=%d, char_id=%d).\n", points, sd->kafraPoints, sd->status.account_id, sd->status.char_id);
+			points = MAX_ZENY - sd->kafraPoints;
+		}
+
+		pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints + points);
+
+		if (battle_config.cashshop_show_points)
+		{
+			sprintf(output, msg_txt(sd, 506), points, sd->kafraPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
+	}
+	else if (points < 0)
+	{
+		ShowError("pc_getcash: Obtaining negative kafra points (points=%d, account_id=%d, char_id=%d).\n", points, sd->status.account_id, sd->status.char_id);
+	}
 }
 
 /*==========================================
@@ -4311,7 +4321,7 @@ int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
  *   4 = no free place found
  *   5 = max amount reached
  *------------------------------------------*/
-int pc_additem(struct map_session_data *sd,const struct item *item_data,int amount)
+int pc_additem(struct map_session_data *sd,const struct item *item_data,int amount, e_log_pick_type log_type)
 {
 	struct item_data *data;
 	int16 i;
@@ -4375,6 +4385,8 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 
 	sd->inventory.u.items_inventory[i].unique_id = itemdb_unique_id(sd);
 
+	log_pick(&sd->bl, log_type, sd->inventory.u.items_inventory[i].nameid, amount, &sd->inventory.u.items_inventory[i]);
+
 	achievement_validate_item_get(sd, sd->inventory.u.items_inventory[i].nameid, sd->inventory.u.items_inventory[i].amount); // Achievements [Smokexyz/Hercules]
 
 	sd->weight += w;
@@ -4386,7 +4398,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 	if (item_data->expire_time) {
 		if (time(NULL) > item_data->expire_time) {
 			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
-			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0, LOG_TYPE_OTHER);
 		}
 		else {
 			unsigned int seconds = (unsigned int)(item_data->expire_time - time(NULL));
@@ -4403,12 +4415,14 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 /*==========================================
  * ƒAƒCƒeƒ€‚ðŒ¸‚ç‚·
  *------------------------------------------*/
-int pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reason)
+int pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reason, e_log_pick_type log_type)
 {
 	nullpo_retr(1, sd);
 
 	if(sd->inventory.u.items_inventory[n].nameid==0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
 		return 1;
+
+	log_pick(&sd->bl, log_type, sd->inventory.u.items_inventory[n].nameid, -amount, &sd->inventory.u.items_inventory[n]);
 
 	sd->inventory.u.items_inventory[n].amount -= amount;
 	sd->weight -= sd->inventory_data[n]->weight*amount ;
@@ -4461,15 +4475,11 @@ int pc_dropitem(struct map_session_data *sd,int n,int amount)
 		clif_displaymessage (sd->fd, msg_txt(sd,263));
 		return 0;
 	}
-	
-	//Logs items, dropped by (P)layers [Lupus]
-	log_pick(&sd->bl, LOG_TYPE_PICKDROP_PLAYER, sd->inventory.u.items_inventory[n].nameid, -amount, (struct item*)&sd->inventory.u.items_inventory[n]);
-	//Logs
 
 	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2))
 		return 0;
 	
-	pc_delitem(sd, n, amount, 1, 0);
+	pc_delitem(sd, n, amount, 1, 0, LOG_TYPE_PICKDROP_PLAYER);
 	clif_dropitem(sd, n, amount);
 	return 1;
 }
@@ -4859,10 +4869,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		{
 			clif_useitemack(sd,n,amount-1,true);
 
-			//Logs (C)onsumable items [Lupus]
-			log_pick(&sd->bl, LOG_TYPE_CONSUME, sd->inventory.u.items_inventory[n].nameid, -1, &sd->inventory.u.items_inventory[n]);
 
-			pc_delitem(sd,n,1,1,0); // Rental Usable Items are not deleted until expiration
+			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME); // Rental Usable Items are not deleted until expiration
 		}
 		else
 			clif_useitemack(sd,n,0,false);
@@ -4892,7 +4900,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
  * @param amount
  * @return 0 = success; 1 = fail;
  *------------------------------------------*/
-int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount)
+int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type)
 {
 	struct item_data *data;
 	int i,w;
@@ -4946,6 +4954,8 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 	sd->cart.u.items_cart[i].favorite = 0;/* clear */
 	sd->cart.u.items_cart[i].equipSwitch = 0;
 
+	log_pick(&sd->bl, log_type, sd->cart.u.items_cart[i].nameid, amount, &sd->cart.u.items_cart[i]);
+
 	sd->cart_weight += w;
 	clif_updatestatus(sd,SP_CARTINFO);
 
@@ -4955,13 +4965,15 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 /*==========================================
  * ƒJ?ƒgƒAƒCƒeƒ€‚ðŒ¸‚ç‚·
  *------------------------------------------*/
-int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type)
+int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type, e_log_pick_type log_type)
 {
 	nullpo_retr(1, sd);
 
 	if(sd->cart.u.items_cart[n].nameid==0 ||
 	   sd->cart.u.items_cart[n].amount<amount)
 		return 1;
+
+	log_pick(&sd->bl, log_type, sd->cart.u.items_cart[n].nameid, -amount, &sd->cart.u.items_cart[n]);
 
 	sd->cart.u.items_cart[n].amount -= amount;
 	sd->cart_weight -= itemdb_weight(sd->cart.u.items_cart[n].nameid)*amount ;
@@ -4999,10 +5011,10 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 		return 1;
 	}
 
-	enum e_additem_result flag = pc_cart_additem(sd, item_data, amount);
+	enum e_additem_result flag = pc_cart_additem(sd, item_data, amount, LOG_TYPE_NONE);
 
 	if(flag == ADDITEM_SUCCESS)
-		return pc_delitem(sd,idx,amount,0,5);
+		return pc_delitem(sd,idx,amount,0,5,LOG_TYPE_NONE);
 	else {
 		clif_cart_additem_ack(sd, (flag == ADDITEM_OVERAMOUNT) ? ADDITEM_TO_CART_FAIL_COUNT : ADDITEM_TO_CART_FAIL_WEIGHT);
 		clif_additem(sd, idx, amount, 0);
@@ -5045,10 +5057,10 @@ int pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 	if(item_data->nameid==0 || amount < 1 || item_data->amount<amount || sd->state.vending || sd->state.prevend)
 		return 1;
 
-	enum e_additem_result flag = pc_additem(sd, item_data, amount);
+	enum e_additem_result flag = pc_additem(sd, item_data, amount, LOG_TYPE_NONE);
 
 	if (flag == ADDITEM_SUCCESS)
-		pc_cart_delitem(sd, idx, amount, 0);
+		pc_cart_delitem(sd, idx, amount, 0, LOG_TYPE_NONE);
 	else {
 		clif_cart_delitem(sd, idx, amount);
 		clif_additem(sd, idx, amount, flag);
@@ -5102,8 +5114,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 	md_status= status_get_status_data(bl);
 
 	if( md->master_id || md_status->mode&MD_BOSS ||
-		(md->class_ >= 1324 && md->class_ < 1364) || // Treasure Boxes WoE
-		(md->class_ >= 1938 && md->class_ < 1946) || // Treasure Boxes WoE SE
+		mob_is_treasure(md) ||
 		map[bl->m].flag.nomobloot || // check noloot map flag [Lorky]
 		(battle_config.skill_steal_max_tries && //Reached limit of steal attempts. [Lupus]
 			md->state.steal_flag++ >= battle_config.skill_steal_max_tries)
@@ -5132,7 +5143,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 	tmp_item.nameid = itemid;
 	tmp_item.amount = 1;
 	tmp_item.identify = itemdb_isidentified(itemid);
-	flag = pc_additem(sd,&tmp_item,1);
+	flag = pc_additem(sd,&tmp_item,1,LOG_TYPE_PICKDROP_PLAYER);
 
 	//TODO: Should we disable stealing when the item you stole couldn't be added to your inventory? Perhaps players will figure out a way to exploit this behaviour otherwise?
 	md->state.steal_flag = UCHAR_MAX; //you can't steal from this mob any more
@@ -5147,7 +5158,6 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 
 	//Logs items, Stolen from mobs [Lupus]
 	log_pick(&md->bl, LOG_TYPE_STEAL, itemid, -1, NULL);
-	log_pick(&sd->bl, LOG_TYPE_STEAL, itemid, 1, NULL);
 		
 	//A Rare Steal Global Announce by Lupus
 	if(md->db->dropitem[i].p<=battle_config.rare_drop_announce) {
@@ -5253,7 +5263,7 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 	if( md->state.steal_coin_flag || md->sc.data[SC_STONE] || md->sc.data[SC_FREEZE] || md->status.mode&MD_BOSS )
 		return 0;
 
-	if( (md->class_ >= 1324 && md->class_ < 1364) || (md->class_ >= 1938 && md->class_ < 1946) )
+	if(mob_is_treasure(md))
 		return 0;
 
 	// FIXME: This formula is either custom or outdated.
@@ -5264,7 +5274,7 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 		int amount = md->level*10 + rand()%100;
 
 		log_zeny(sd, LOG_TYPE_STEAL, sd, amount);
-		pc_getzeny(sd, amount);
+		pc_getzeny(sd, amount, LOG_TYPE_STEAL, NULL);
 		md->state.steal_coin_flag = 1;
 		return 1;
 	}
@@ -7076,7 +7086,7 @@ int pc_allskillup(struct map_session_data *sd)
 	nullpo_ret(sd);
 
 	for(i=0;i<MAX_SKILL;i++){
-		if (sd->status.skill[i].flag != SKILL_FLAG_PERMANENT && sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED) {
+		if (sd->status.skill[i].flag != SKILL_FLAG_PERMANENT && sd->status.skill[i].flag != SKILL_FLAG_PERM_GRANTED && sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED) {
 			sd->status.skill[i].lv = (sd->status.skill[i].flag == SKILL_FLAG_TEMPORARY) ? 0 : sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0;
 			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 			if (sd->status.skill[i].lv == 0)
@@ -7331,16 +7341,19 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		if( i == NV_TRICKDEAD && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE && (sd->class_&MAPID_UPPERMASK) != MAPID_BABY )
 		{
 			sd->status.skill[i].lv = 0;
-			sd->status.skill[i].flag = 0;
+			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 			continue;
 		}
 
 		if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE && (sd->class_&MAPID_UPPERMASK) != MAPID_BABY )
 		{ // Official server does not include Basic Skill to be resetted. [Jobbie]
-			sd->status.skill[i].lv = 9;
-			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
+			//sd->status.skill[i].lv = 9;
+			//sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 			continue;
 		}
+
+		if (sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED)
+			continue;
 
 		if( inf2&INF2_QUEST_SKILL && !battle_config.quest_skill_learn )
 		{ //Only handle quest skills in a special way when you can't learn them manually
@@ -7354,7 +7367,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		if( sd->status.skill[i].flag == SKILL_FLAG_PERMANENT )
 			skill_point += lv;
 		else
-		if( sd->status.skill[i].flag >= SKILL_FLAG_REPLACED_LV_0 )
+		if( sd->status.skill[i].flag == SKILL_FLAG_REPLACED_LV_0 )
 			skill_point += (sd->status.skill[i].flag - SKILL_FLAG_REPLACED_LV_0);
 
 		if( !(flag&2) )
@@ -7890,7 +7903,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		if( zeny_penalty > 0 && !map[sd->bl.m].flag.nozenypenalty) {
 			zeny_penalty = (uint32)( sd->status.zeny * ( zeny_penalty / 10000. ) );
 			if(zeny_penalty)
-				pc_payzeny(sd, zeny_penalty);
+				pc_payzeny(sd, zeny_penalty, LOG_TYPE_OTHER, NULL); //@TODO that type suck
 		}
 	}
 
@@ -10104,7 +10117,7 @@ void pc_check_available_item(struct map_session_data *sd) {
 				sprintf(output, msg_txt(sd,816), it); // Item %d has been removed from your inventory.
 				clif_displaymessage(sd->fd, output);
 				ShowWarning("Removed invalid/disabled item id %d from inventory (amount=%d, char_id=%d).\n", it, sd->inventory.u.items_inventory[i].amount, sd->status.char_id);
-				pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
+				pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
 			}
 		}
 	}
@@ -10117,7 +10130,7 @@ void pc_check_available_item(struct map_session_data *sd) {
 				sprintf(output, msg_txt(sd,817), it); // Item %d has been removed from your cart.
 				clif_displaymessage(sd->fd, output);
 				ShowWarning("Removed invalid/disabled item id %d from cart (amount=%d, char_id=%d).\n", it, sd->inventory.u.items_cart[i].amount, sd->status.char_id);
-				pc_cart_delitem(sd, i, sd->inventory.u.items_cart[i].amount, 0);
+				pc_cart_delitem(sd, i, sd->inventory.u.items_cart[i].amount, 0, LOG_TYPE_OTHER);
 			}
 		}
 	}
@@ -10259,9 +10272,9 @@ bool pc_divorce(struct map_session_data *sd)
 	for( i = 0; i < MAX_INVENTORY; i++ )
 	{
 		if( sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F )
-			pc_delitem(sd, i, 1, 0, 0);
+			pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_OTHER);
 		if( p_sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_M || p_sd->inventory.u.items_inventory[i].nameid == WEDDING_RING_F )
-			pc_delitem(p_sd, i, 1, 0, 0);
+			pc_delitem(p_sd, i, 1, 0, 0, LOG_TYPE_OTHER);
 	}
 
 	clif_divorced(sd, p_sd->status.name);
@@ -10991,7 +11004,7 @@ enum e_BANKING_DEPOSIT_ACK pc_bank_deposit(struct map_session_data *sd, int mone
 		return BDA_NO_MONEY;
 	}
 
-	if( pc_payzeny(sd,money) )
+	if( pc_payzeny(sd,money,LOG_TYPE_BANK,NULL) )
 		return BDA_NO_MONEY;
 
 	sd->bank_vault += money;
@@ -11019,7 +11032,7 @@ enum e_BANKING_WITHDRAW_ACK pc_bank_withdraw(struct map_session_data *sd, int mo
 		return BWA_UNKNOWN_ERROR;
 	}
 	
-	if( pc_getzeny(sd,money) )
+	if( pc_getzeny(sd,money,LOG_TYPE_BANK,NULL) )
 		return BWA_NO_MONEY;
 	
 	sd->bank_vault -= money;

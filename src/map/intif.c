@@ -660,7 +660,7 @@ int intif_guild_message(int guild_id,int account_id,const char *mes,int len)
 	return 0;
 }
 // ギルド基本情報変更要求
-int intif_guild_change_basicinfo(int guild_id,int type,const void *data,int len)
+int intif_guild_change_basicinfo(int guild_id,int type,const void* data,int len)
 {
 	if (CheckForCharServer())
 		return 0;
@@ -675,7 +675,7 @@ int intif_guild_change_basicinfo(int guild_id,int type,const void *data,int len)
 }
 // ギルドメンバ情報変更要求
 int intif_guild_change_memberinfo(int guild_id,int account_id,int char_id,
-	int type,const void *data,int len)
+	int type,const void* data,int len)
 {
 	if (CheckForCharServer())
 		return 0;
@@ -1971,11 +1971,9 @@ static void intif_parse_Auction_register(int fd)
 		int zeny = auction.hours*battle_config.auction_feeperhour;
 
 		clif_Auction_message(sd->fd, 4);
-		log_pick(&sd->bl, LOG_TYPE_AUCTION, auction.item.nameid, auction.item.amount, &auction.item);
-		pc_additem(sd, &auction.item, auction.item.amount);
+		pc_additem(sd, &auction.item, auction.item.amount, LOG_TYPE_AUCTION);
 
-		log_zeny(sd, LOG_TYPE_AUCTION, sd, zeny);
-		pc_getzeny(sd, zeny);
+		pc_getzeny(sd, zeny, LOG_TYPE_AUCTION, NULL);
 	}
 }
 
@@ -2072,8 +2070,7 @@ static void intif_parse_Auction_bid(int fd)
 	clif_Auction_message(sd->fd, result);
 	if( bid > 0 )
 	{
-		log_zeny(sd, LOG_TYPE_AUCTION, sd, bid);
-		pc_getzeny(sd, bid);
+		pc_getzeny(sd, bid, LOG_TYPE_AUCTION, NULL);
 	}
 	if( result == 1 )
 	{ // To update the list, display your buy list
@@ -2453,7 +2450,7 @@ static bool intif_parse_StorageReceived(int fd)
 				{ // Party was deleted while character offline
 					int i;
 					for (i = 0; i < j; i++)
-						pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 1);
+						pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 1, LOG_TYPE_OTHER);
 				}
 #endif
 				//Set here because we need the inventory data for weapon sprite parsing.

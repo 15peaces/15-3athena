@@ -1696,13 +1696,10 @@ ACMD_FUNC(item)
 			item_tmp.identify = 1;
 			item_tmp.bound = bound;
 
-			if ((flag = pc_additem(sd, &item_tmp, get_count)))
+			if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
 				clif_additem(sd, 0, 0, flag);
 		}
 	}
-
-	//Logs (A)dmins items [Lupus]
-	log_pick(&sd->bl, LOG_TYPE_COMMAND, item_id, number, NULL);
 
 	clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
 	return 0;
@@ -1787,12 +1784,9 @@ ACMD_FUNC(item2)
 			item_tmp.card[2] = c3;
 			item_tmp.card[3] = c4;
 			item_tmp.bound = bound;
-			if ((flag = pc_additem(sd, &item_tmp, get_count)))
+			if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
 				clif_additem(sd, 0, 0, flag);
 		}
-
-		//Logs (A)dmins items [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_COMMAND, item_tmp.nameid, number, &item_tmp);
 
 		clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
 	} else {
@@ -1813,11 +1807,7 @@ ACMD_FUNC(itemreset)
 
 	for (i = 0; i < MAX_INVENTORY; i++) {
 		if (sd->inventory.u.items_inventory[i].amount && sd->inventory.u.items_inventory[i].equip == 0) {
-
-			//Logs (A)dmins items [Lupus]
-			log_pick(&sd->bl, LOG_TYPE_COMMAND, sd->inventory.u.items_inventory[i].nameid, -sd->inventory.u.items_inventory[i].amount, &sd->inventory.u.items_inventory[i]);
-
-			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_COMMAND);
 		}
 	}
 	clif_displaymessage(fd, msg_txt(sd,20)); // All of your items have been removed.
@@ -3071,10 +3061,7 @@ ACMD_FUNC(produce)
 		clif_produceeffect(sd, 0, item_id);
 		clif_misceffect(&sd->bl, 3);
 
-		//Logs (A)dmins items [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_COMMAND, tmp_item.nameid, 1, &tmp_item);
-
-		if ((flag = pc_additem(sd, &tmp_item, 1)))
+		if ((flag = pc_additem(sd, &tmp_item, 1, LOG_TYPE_COMMAND)))
 			clif_additem(sd, 0, 0, flag);
 	} else {
 		sprintf(atcmd_output, msg_txt(sd,169), item_id, item_data->name); // The item (%d: '%s') is not equipable.
@@ -3271,7 +3258,7 @@ ACMD_FUNC(skillpoint)
  *------------------------------------------*/
 ACMD_FUNC(zeny)
 {
-	int zeny, new_zeny;
+	int zeny;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || (zeny = atoi(message)) == 0) {
@@ -3279,23 +3266,7 @@ ACMD_FUNC(zeny)
 		return -1;
 	}
 
-	new_zeny = sd->status.zeny + zeny;
-	if (zeny > 0 && (zeny > MAX_ZENY || new_zeny > MAX_ZENY)) // fix positiv overflow
-		new_zeny = MAX_ZENY;
-	else if (zeny < 0 && (zeny < -MAX_ZENY || new_zeny < 0)) // fix negativ overflow
-		new_zeny = 0;
-
-	if (new_zeny != sd->status.zeny) {
-		sd->status.zeny = new_zeny;
-		clif_updatestatus(sd, SP_ZENY);
-		clif_displaymessage(fd, msg_txt(sd,176)); // Current amount of zeny changed.
-	} else {
-		if (zeny < 0)
-			clif_displaymessage(fd, msg_txt(sd,41)); // Unable to decrease the number/value.
-		else
-			clif_displaymessage(fd, msg_txt(sd,149)); // Unable to increase the number/value.
-		return -1;
-	}
+	pc_getzeny(sd, zeny, LOG_TYPE_COMMAND, NULL);
 
 	return 0;
 }
@@ -5569,7 +5540,7 @@ ACMD_FUNC(unloadnpc)
 	}
 
 	npc_unload_duplicates(nd);
-	npc_unload(nd);
+	npc_unload(nd,true);
 	npc_read_event_script();
 	clif_displaymessage(fd, msg_txt(sd,112)); // Npc Disabled.
 	return 0;
@@ -6629,10 +6600,7 @@ void getring (struct map_session_data* sd)
 	item_tmp.card[2] = sd->status.partner_id;
 	item_tmp.card[3] = sd->status.partner_id >> 16;
 
-	//Logs (A)dmins items [Lupus]
-	log_pick(&sd->bl, LOG_TYPE_COMMAND, item_id, 1, &item_tmp);
-
-	if((flag = pc_additem(sd,&item_tmp,1))) {
+	if((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_COMMAND))) {
 		clif_additem(sd,0,0,flag);
 		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
 	}
@@ -9894,10 +9862,7 @@ ACMD_FUNC(delitem)
 			intif_delete_petdata(MakeDWord(sd->inventory.u.items_inventory[idx].card[1], sd->inventory.u.items_inventory[idx].card[2]));
 		}
 
-		//Logs (A)dmins items [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_COMMAND, nameid, -delamount, &sd->inventory.u.items_inventory[idx]);
-
-		pc_delitem(sd, idx, delamount, 0, 0);
+		pc_delitem(sd, idx, delamount, 0, 0, LOG_TYPE_COMMAND);
 
 		amount-= delamount;
 	}

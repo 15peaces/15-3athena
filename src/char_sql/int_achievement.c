@@ -171,14 +171,14 @@ static void inter_send_achievements_to_map(int fd, int char_id, const struct cha
 /**
  * This function ensures idb's entry.
  */
-void* inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
+DBData inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
 {
 	struct char_achievements *ca = NULL;
 
 	CREATE(ca, struct char_achievements, 1);
 	VECTOR_INIT(*ca);
 
-	return ca;
+	return db_ptr2data(ca);
 }
 
 /**
@@ -191,7 +191,7 @@ static void inter_achievement_load(int fd, int char_id)
 	struct char_achievements *cp = NULL;
 
 	/* Ensure data exists */
-	cp = (struct char_achievements *)idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+	cp = idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
 
 	/* Load storage for char-server. */
 	inter_achievement_fromsql(char_id, cp);
@@ -229,7 +229,7 @@ static void inter_achievement_save(int char_id, struct char_achievements *p)
 	nullpo_retv(p);
 
 	/* Get loaded achievements. */
-	cp = (struct char_achievements *)idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
+	cp = idb_ensure(char_achievements, char_id, inter_achievement_ensure_char_achievements);
 
 	if (VECTOR_LENGTH(*p)) /* Save current achievements. */
 		inter_achievement_tosql(char_id, cp, p);

@@ -280,7 +280,7 @@ int npc_event_sub(struct map_session_data* sd, struct event_data* ev, const char
 /*==========================================
  * 全てのNPCのOn*イベント実行
  *------------------------------------------*/
-int npc_event_doall_sub(DBKey key, void* data, va_list ap)
+int npc_event_doall_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char* p = key.str;
 	struct event_data* ev;
@@ -288,7 +288,7 @@ int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 	const char* name;
 	int rid;
 
-	nullpo_ret(ev = (struct event_data *)data);
+	nullpo_ret(ev = db_data2ptr(data));
 	nullpo_ret(c = va_arg(ap, int *));
 	nullpo_ret(name = va_arg(ap, const char *));
 	rid = va_arg(ap, int);
@@ -306,14 +306,14 @@ int npc_event_doall_sub(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int npc_event_do_sub(DBKey key, void* data, va_list ap)
+static int npc_event_do_sub(DBKey key, DBData *data, va_list ap)
 {
 	const char* p = key.str;
 	struct event_data* ev;
 	int* c;
 	const char* name;
 
-	nullpo_ret(ev = (struct event_data *)data);
+	nullpo_ret(ev = db_data2ptr(data));
 	nullpo_ret(c = va_arg(ap, int *));
 	nullpo_ret(name = va_arg(ap, const char *));
 
@@ -1343,7 +1343,7 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 		item_tmp.nameid = nameid;
 		item_tmp.identify = 1;
 
-		pc_additem(sd,&item_tmp, amount);
+		pc_additem(sd,&item_tmp, amount, LOG_TYPE_NPC);
 	}
 
 	return 0;
@@ -1452,13 +1452,7 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 		item_tmp.nameid = nameid;
 		item_tmp.identify = 1;
 
-		pc_additem(sd,&item_tmp,amount);
-		
-		/*Disabled, not supported yet [15peaces]
-		//Log items bought in NPC Cash Shop
-		if( log_config.enable_logs&0x20 )
-			log_pick_pc(sd, "S", item_tmp.nameid, amount, NULL);
-		*/
+		pc_additem(sd,&item_tmp,amount, LOG_TYPE_NPC);
 	}
 
 	return 0;
@@ -1571,7 +1565,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
  	switch(nd->subtype) {
  		case NPCTYPE_SHOP:
 		case NPCTYPE_MARKETSHOP:
- 			pc_payzeny(sd, (int)z);
+			pc_payzeny(sd, (int)z, LOG_TYPE_NPC, NULL);
  			break;
  	}
 
@@ -1597,7 +1591,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 			item_tmp.nameid = nameid;
 			item_tmp.identify = 1;
 
-			pc_additem(sd,&item_tmp,amount);
+			pc_additem(sd, &item_tmp, amount, LOG_TYPE_NPC);
 		}
 	}
 
@@ -1716,10 +1710,6 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 		amount = item_list[i*2+1];
 		nameid = sd->inventory.u.items_inventory[idx].nameid;
 
-		//Logs items, Sold to NPC (S)hop [Lupus]
-		log_pick(&sd->bl, LOG_TYPE_NPC, nameid, -amount, &sd->inventory.u.items_inventory[idx]);
-		//Logs
-
 		if( sd->inventory_data[idx]->type == IT_PETEGG && sd->inventory.u.items_inventory[idx].card[0] == CARD0_PET )
 		{
 			if( search_petDB_index(sd->inventory.u.items_inventory[idx].nameid, PET_EGG) >= 0 )
@@ -1731,7 +1721,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 		// Achievements [Smokexyz/Hercules]
 		achievement_validate_item_sell(sd, sd->inventory.u.items_inventory[idx].nameid, amount);
 
-		pc_delitem(sd, idx, amount, 0, 6);
+		pc_delitem(sd, idx, amount, 0, 6, LOG_TYPE_NPC);
 	}
 
 	if (z + sd->status.zeny > MAX_ZENY && nd->master_nd == NULL)
@@ -1740,11 +1730,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	if( z > MAX_ZENY )
 		z = MAX_ZENY;
 
-	//Logs (S)hopping Zeny [Lupus]
-	log_zeny(sd, LOG_TYPE_NPC, sd, (int)z);
-	//Logs
-
-	pc_getzeny(sd, (int)z);
+	pc_getzeny(sd, (int)z, LOG_TYPE_NPC, NULL);
 
 	// custom merchant shop exp bonus
 	if( battle_config.shop_exp > 0 && z > 0 && ( skill = pc_checkskill(sd,MC_OVERCHARGE) ) > 0)
@@ -1804,8 +1790,8 @@ void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clea
 /**
  * Check NPC Market Shop for each entry
  **/
-static int npc_market_checkall_sub(DBKey key, void *data, va_list ap) {
-	struct s_npc_market *market = (struct s_npc_market *)data;
+static int npc_market_checkall_sub(DBKey key, DBData* data, va_list ap) {
+	struct s_npc_market *market = db_data2ptr(data);
 	struct npc_data *nd = NULL;
 	uint16 i;
 
@@ -1868,8 +1854,8 @@ static int npc_market_checkall_sub(DBKey key, void *data, va_list ap) {
 /**
  * Clear NPC market single entry
  **/
-static int npc_market_free(DBKey key, void *data, va_list ap) {
-	struct s_npc_market *market = (struct s_npc_market *)data;
+static int npc_market_free(DBKey key, DBData *data, va_list ap) {
+	struct s_npc_market *market = db_data2ptr(data);
 	if (!market)
 		return 0;
 	if (market->list) {
@@ -1957,9 +1943,9 @@ int npc_remove_map(struct npc_data* nd)
 	return 0;
 }
 
-static int npc_unload_ev(DBKey key, void* data, va_list ap)
+static int npc_unload_ev(DBKey key, DBData *data, va_list ap)
 {
-	struct event_data* ev = (struct event_data *)data;
+	struct event_data* ev = db_data2ptr(data);
 	char* npcname = va_arg(ap, char *);
 
 	if(strcmp(ev->nd->exname,npcname)==0){
@@ -1975,7 +1961,7 @@ static int npc_unload_dup_sub(struct npc_data* nd, va_list args)
 
 	src_id = va_arg(args, int);
 	if (nd->src_id == src_id)
-		npc_unload(nd);
+		npc_unload(nd,true);
 	return 0;
 }
 
@@ -1985,14 +1971,15 @@ void npc_unload_duplicates(struct npc_data* nd)
 	map_foreachnpc(npc_unload_dup_sub,nd->bl.id);
 }
 
-int npc_unload(struct npc_data* nd)
+int npc_unload(struct npc_data* nd, bool single)
 {
 	nullpo_ret(nd);
 
 	status_change_clear(&nd->bl, 1);
 	npc_remove_map(nd);
 	map_deliddb(&nd->bl);
-	strdb_remove(npcname_db, nd->exname);
+	if(single)
+		strdb_remove(npcname_db, nd->exname);
 
 	if (nd->chat_id) // remove npc chatroom object and kick users
 		chat_deletenpcchat(nd);
@@ -2003,20 +1990,18 @@ int npc_unload(struct npc_data* nd)
 
 	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_MARKETSHOP) && nd->src_id == 0) //src check for duplicate shops [Orcao]
 		aFree(nd->u.shop.shop_item);
-	else
-	if( nd->subtype == NPCTYPE_SCRIPT )
+	else if( nd->subtype == NPCTYPE_SCRIPT )
 	{
 		struct s_mapiterator* iter;
 		struct block_list* bl;		
 
-		ev_db->foreach(ev_db,npc_unload_ev,nd->exname); //Clean up all events related
+		if(single)
+			ev_db->foreach(ev_db,npc_unload_ev,nd->exname); //Clean up all events related
 
 		iter = mapit_geteachpc();  
-		for( bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter) )  
-		{
-			struct map_session_data *sd = map_id2sd(bl->id);
-			if( sd && sd->npc_timer_id != INVALID_TIMER )
-			{
+		for (bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter)) {
+			struct map_session_data *sd = ((TBL_PC*)bl);
+			if (sd && sd->npc_timer_id != INVALID_TIMER) {
 				const struct TimerData *td = get_timer(sd->npc_timer_id);
 
 				if( td && td->id != nd->bl.id )
@@ -2552,10 +2537,10 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 /*==========================================
  * NPCのラベルデータコンバート
  *------------------------------------------*/
-int npc_convertlabel_db(DBKey key, void* data, va_list ap)
+int npc_convertlabel_db(DBKey key, DBData *data, va_list ap)
 {
 	const char* lname = (const char*)key.str;
-	int lpos = (int)(intptr_t)data;
+	int lpos = db_data2i(data);
 	struct npc_label_list** label_list;
 	int* label_list_num;
 	const char* filepath;
@@ -2731,7 +2716,7 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 		{
 			DBMap* label_db = script_get_label_db();
 			label_db->foreach(label_db, npc_convertlabel_db, &label_list, &label_list_num, filepath);
-			label_db->clear(label_db, NULL); // not needed anymore, so clear the db
+			db_clear(label_db); // not needed anymore, so clear the db
 		}
 	}
 
@@ -2800,7 +2785,7 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 			CREATE(ev, struct event_data, 1);
 			ev->nd = nd;
 			ev->pos = pos;
-			if( strdb_put(ev_db, buf, ev) != NULL )// There was already another event of the same name?
+			if( strdb_put(ev_db, buf, ev))// There was already another event of the same name?
 				ShowWarning("npc_parse_script : duplicate event %s (%s)\n", buf, filepath);
 		}
 	}
@@ -3012,7 +2997,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 			CREATE(ev, struct event_data, 1);
 			ev->nd = nd;
 			ev->pos = pos;
-			if( strdb_put(ev_db, buf, ev) != NULL )// There was already another event of the same name?
+			if( strdb_put(ev_db, buf, ev) )// There was already another event of the same name?
 				ShowWarning("npc_parse_duplicate : duplicate event %s (%s)\n", buf, filepath);
 		}
 	}
@@ -3320,8 +3305,8 @@ int npc_do_atcmd_event(struct map_session_data *sd, const char *command, const c
 static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
 	DBMap* func_db;
+	DBData old_data;
 	struct script_code *script;
-	struct script_code *oldscript;
 	const char* end;
 	const char* script_start;
 
@@ -3343,11 +3328,11 @@ static const char* npc_parse_function(char* w1, char* w2, char* w3, char* w4, co
 		return end;
 
 	func_db = script_get_userfunc_db();
-	oldscript = (struct script_code*)strdb_put(func_db, w3, script);
-	if( oldscript != NULL )
+	if (func_db->put(func_db, db_str2key(w3), db_ptr2data(script), &old_data))
 	{
+		struct script_code *oldscript = (struct script_code*)db_data2ptr(&old_data);
 		ShowInfo("npc_parse_function: Overwriting user function [%s] (%s:%d)\n", w3, filepath, strline(buffer,start-buffer));
-		script_free_vars(&oldscript->script_vars);
+		script_free_vars(oldscript->script_vars);
 		aFree(oldscript->script_buf);
 		aFree(oldscript);
 	}
@@ -4030,7 +4015,7 @@ void npc_read_event_script(void)
 	{
 		DBIterator* iter;
 		DBKey key;
-		void* data;
+		DBData *data;
 
 		char name[64]="::";
 		strncpy(name+2,config[i].event_name,62);
@@ -4040,7 +4025,7 @@ void npc_read_event_script(void)
 		for( data = iter->first(iter,&key); iter->exists(iter); data = iter->next(iter,&key) )
 		{
 			const char* p = key.str;
-			struct event_data* ed = (struct event_data*) data;
+			struct event_data* ed = db_data2ptr(data);
 			unsigned char count = script_event[i].event_count;
 
 			if( count >= ARRAYLENGTH(script_event[i].event) )
@@ -4074,6 +4059,9 @@ int npc_reload(void)
 	struct s_mapiterator* iter;
 	struct block_list* bl;
 
+	db_clear(npcname_db);
+	db_clear(ev_db);
+
 	//Remove all npcs/mobs. [Skotlex]
 
 #if PACKETVER >= 20131223
@@ -4081,12 +4069,11 @@ int npc_reload(void)
 #endif
 
 	iter = mapit_geteachiddb();
-	for( bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter) )
-	{
+	for( bl = (struct block_list*)mapit_first(iter); mapit_exists(iter); bl = (struct block_list*)mapit_next(iter) ) {
 		switch(bl->type) {
 		case BL_NPC:
 			if( bl->id != fake_nd->bl.id )// don't remove fake_nd
-				npc_unload((struct npc_data *)bl);
+				npc_unload((struct npc_data *)bl, false);
 			break;
 		case BL_MOB:
 			unit_free(bl,CLR_OUTSIGHT);
@@ -4117,9 +4104,6 @@ int npc_reload(void)
 	// clear mob spawn lookup index
 	mob_clear_spawninfo();
 
-	// clear npc-related data structures
-	ev_db->clear(ev_db,NULL);
-	npcname_db->clear(npcname_db,NULL);
 	npc_warp = npc_shop = npc_script = 0;
 	npc_mob = npc_cache_mob = npc_delay_mob = 0;
 
@@ -4170,10 +4154,13 @@ int do_final_npc(void)
 	int i;
 	struct block_list *bl;
 
+	db_clear(npcname_db);
+	db_clear(ev_db);
+
 	for (i = START_NPC_NUM; i < npc_id; i++){
 		if ((bl = map_id2bl(i))){
 			if (bl->type == BL_NPC)
-				npc_unload((struct npc_data *)bl);
+				npc_unload((struct npc_data *)bl, false);
 			else if (bl->type&(BL_MOB|BL_PET|BL_HOM|BL_MER|BL_ELEM))
 				unit_free(bl, CLR_OUTSIGHT);
 		}
@@ -4246,7 +4233,7 @@ int do_init_npc(void)
 		npc_viewdb_2[i-NPC_CLASS_BASE_2].class_ = i;
 
 	ev_db = strdb_alloc((DBOptions)(DB_OPT_DUP_KEY|DB_OPT_RELEASE_DATA),2*NAME_LENGTH+2+1);
-	npcname_db = strdb_alloc(DB_OPT_BASE,NPC_NAME_LENGTH);
+	npcname_db = strdb_alloc(DB_OPT_BASE,NPC_NAME_LENGTH+1);
 
 #if PACKETVER >= 20131223
 	NPCMarketDB = strdb_alloc(DB_OPT_BASE, NPC_NAME_LENGTH+1);

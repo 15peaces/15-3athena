@@ -56,6 +56,8 @@ enum MOBID {
 	MOBID_GOBLIN_5,
 	MOBID_MARINE_SPHERE		= 1142,
 	MOBID_EMPERIUM			= 1288,
+	MOBID_TREAS01			= 1324,
+	MOBID_TREAS40			= 1363,
 	MOBID_G_PARASITE		= 1555,
 	MOBID_G_FLORA			= 1575,
 	MOBID_G_HYDRA			= 1579,
@@ -66,6 +68,8 @@ enum MOBID {
 	MOBID_BARRICADE2,		
 	MOBID_GUARIDAN_STONE1,	
 	MOBID_GUARIDAN_STONE2,
+	MOBID_TREAS41			= 1938,
+	MOBID_TREAS49			= 1946,
 	MOBID_SILVERSNIPER		= 2042,
 	MOBID_MAGICDECOY_FIRE,
 	MOBID_MAGICDECOY_WATER,
@@ -311,6 +315,7 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 #define mob_is_battleground(md) ( map[(md)->bl.m].flag.battleground && ((md)->class_ == 1906 || ((md)->class_ >= 1909 && (md)->class_ <= 1915)) )
 #define mob_is_goblin(md, mid) (((md)->class_ >= MOBID_GOBLIN_1 && (md)->class_ <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
 #define mob_is_samename(md, mid) (strcmp(mob_db((md)->class_)->jname, mob_db(mid)->jname) == 0)
+#define mob_is_treasure(md) (((md)->class_ >= MOBID_TREAS01 && (md)->class_ <= MOBID_TREAS40) || ((md)->class_ >= MOBID_TREAS41 && (md)->class_ <= MOBID_TREAS49))
 
 void mob_clear_spawninfo();
 int do_init_mob(void);

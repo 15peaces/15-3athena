@@ -262,8 +262,7 @@ void quest_update_objective(TBL_PC * sd, int mob_id)
 #ifdef BOUND_ITEMS
 			item.bound = dropitem->bound;
 #endif
-			temp = pc_additem(sd, &item, 1);
-			log_pick(&sd->bl, LOG_TYPE_QUEST, dropitem->nameid, 1, &item);
+			temp = pc_additem(sd, &item, 1, LOG_TYPE_QUEST);
 			if (temp != 0) // Failed to obtain the item
 				clif_additem(sd, 0, 0, temp);
 			else if (dropitem->isAnnounced) {

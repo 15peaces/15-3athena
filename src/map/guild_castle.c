@@ -59,12 +59,12 @@ DBMap *guild_get_castle_db(void) {
 	return castle_db;
 }
 
-static int guild_castle_db_final(DBKey key, void* data, va_list ap)
+static int guild_castle_db_final(DBKey key, DBData *data, va_list ap)
 {
-	struct guild_castle* gc = (struct guild_castle*)data;
+	struct guild_castle* gc = db_data2ptr(data);
 	if( gc->temp_guardians )
 		aFree(gc->temp_guardians);
-	aFree(data);
+	aFree(gc);
 	return 0;
 }
 
@@ -104,11 +104,11 @@ struct guild_castle* guild_mapindex2gc(short mapindex)
 {
 	struct guild_castle* gc;
 
-	DBIterator* iter = castle_db->iterator(castle_db);
-	for( gc = (struct guild_castle*)iter->first(iter,NULL); iter->exists(iter); gc = (struct guild_castle*)iter->next(iter,NULL) )
+	DBIterator* iter = db_iterator(castle_db);
+	for( gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter) )
 		if( gc->mapindex == mapindex )
 			break;
-	iter->destroy(iter);
+	dbi_destroy(iter);
 
 	return gc;
 }

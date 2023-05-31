@@ -24,13 +24,13 @@ static bool mapreg_dirty = false;
 /// Looks up the value of an integer variable using its uid.
 int64 mapreg_readreg(int64 uid)
 {
-	return (int64)(intptr_t)i64db_get(mapreg_db, uid);
+	return i64db_iget(mapreg_db, uid);
 }
 
 /// Looks up the value of a string variable using its uid.
 char* mapreg_readregstr(int64 uid)
 {
-	return (char*)i64db_get(mapregstr_db, uid);
+	return i64db_get(mapregstr_db, uid);
 }
 
 /// Modifies the value of an integer variable.
@@ -42,10 +42,10 @@ bool mapreg_setreg(int64 uid, int64 val)
 
 	if( val != 0 )
 	{
-		if(i64db_put(mapreg_db,uid,(void*)(intptr_t)val) )
+		if(i64db_iput(mapreg_db,uid,(int)val) )
 			mapreg_dirty = true; // already exists, delay write
 		else if(name[1] != '@')
-		{// write new wariable to database
+		{// write new variable to database
 			char tmp_str[32*2+1];
 			Sql_EscapeStringLen(mmysql_handle, tmp_str, name, strnlen(name, 32));
 			if( SQL_ERROR == Sql_Query(mmysql_handle, "INSERT INTO `%s`(`varname`,`index`,`value`) VALUES ('%s','%d','%d')", mapreg_table, tmp_str, i, val) )
@@ -134,7 +134,7 @@ static void script_load_mapreg(void)
 		if( varname[length-1] == '$' )
 			idb_put(mapregstr_db, (i<<24)|s, aStrdup(value));
 		else
-			idb_put(mapreg_db, (i<<24)|s, (void *)(intptr_t)atoi(value));
+			idb_iput(mapreg_db, (i<<24)|s, atoi(value));
 	}
 	
 	SqlStmt_Free(stmt);
@@ -146,7 +146,7 @@ static void script_load_mapreg(void)
 static void script_save_mapreg(void)
 {
 	DBIterator* iter;
-	void* data;
+	DBData *data;
 	DBKey key;
 
 	iter = mapreg_db->iterator(mapreg_db);
@@ -159,7 +159,7 @@ static void script_save_mapreg(void)
 		if( name[1] == '@' )
 			continue;
 
-		if( SQL_ERROR == Sql_Query(mmysql_handle, "UPDATE `%s` SET `value`='%d' WHERE `varname`='%s' AND `index`='%d'", mapreg_table, (int)(intptr_t)data, name, i) )
+		if (SQL_ERROR == Sql_Query(mmysql_handle, "UPDATE `%s` SET `value`='%d' WHERE `varname`='%s' AND `index`='%d'", mapreg_table, db_data2i(data), name, i))
 			Sql_ShowDebug(mmysql_handle);
 	}
 	iter->destroy(iter);
@@ -175,7 +175,7 @@ static void script_save_mapreg(void)
 		if( name[1] == '@' )
 			continue;
 
-		Sql_EscapeStringLen(mmysql_handle, tmp_str2, (char*)data, safestrnlen((char*)data, 255));
+		Sql_EscapeStringLen(mmysql_handle, tmp_str2, db_data2ptr(data), safestrnlen(db_data2ptr(data), 255));
 		if( SQL_ERROR == Sql_Query(mmysql_handle, "UPDATE `%s` SET `value`='%s' WHERE `varname`='%s' AND `index`='%d'", mapreg_table, tmp_str2, name, i) )
 			Sql_ShowDebug(mmysql_handle);
 	}
@@ -198,8 +198,8 @@ void mapreg_reload(void)
 	if( mapreg_dirty )
 		script_save_mapreg();
 
-	mapreg_db->clear(mapreg_db, NULL);
-	mapregstr_db->clear(mapregstr_db, NULL);
+	db_clear(mapreg_db);
+	db_clear(mapregstr_db);
 
 	script_load_mapreg();
 }
@@ -209,8 +209,8 @@ void mapreg_final(void)
 	if( mapreg_dirty )
 		script_save_mapreg();
 
-	mapreg_db->destroy(mapreg_db,NULL);
-	mapregstr_db->destroy(mapregstr_db,NULL);
+	db_destroy(mapreg_db);
+	db_destroy(mapregstr_db);
 }
 
 void mapreg_init(void)

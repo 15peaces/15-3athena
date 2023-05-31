@@ -34,9 +34,9 @@ struct item_data *dummy_item; //This is the default dummy item used for non-exis
  * –¼‘O‚ÅŒŸõ—p
  *------------------------------------------*/
 // name = item alias, so we should find items aliases first. if not found then look for "jname" (full name)
-static int itemdb_searchname_sub(DBKey key,void *data,va_list ap)
+static int itemdb_searchname_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct item_data *item=(struct item_data *)data,**dst,**dst2;
+	struct item_data *item = db_data2ptr(data), **dst, **dst2;
 	char *str;
 	str=va_arg(ap,char *);
 	dst=va_arg(ap,struct item_data **);
@@ -93,9 +93,9 @@ struct item_data* itemdb_searchname(const char *str)
 	return item?item:item2;
 }
 
-static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
+static int itemdb_searchname_array_sub(DBKey key, DBData data, va_list ap)
 {
-	struct item_data *item=(struct item_data *)data;
+	struct item_data *item = db_data2ptr(&data);
 	char *str;
 	str=va_arg(ap,char *);
 	if (item == dummy_item)
@@ -109,57 +109,21 @@ static int itemdb_searchname_array_sub(DBKey key,void * data,va_list ap)
 
 /*==========================================
  * Founds up to N matches. Returns number of matches [Skotlex]
- * New Version. It however causes crashes... disabled for now and re-enabled old version. [15peaces]
  * @param *data
  * @param size
  * @param str
  * @return Number of matches item
  *------------------------------------------*/
-/*int itemdb_searchname_array(struct item_data** data, int size, const char *str)
+int itemdb_searchname_array(struct item_data** data, int size, const char *str)
 {
 	DBData *db_data[MAX_SEARCH];
 	int i, count = 0, db_count;
 
-	db_count = itemdb_other->getall(itemdb_other, (void**)&db_data, size, itemdb_searchname_array_sub, str);
+	db_count = itemdb_other->getall(itemdb_other, (DBData**)&db_data, size, itemdb_searchname_array_sub, str);
 	for (i = 0; i < db_count && count < size; i++)
 		data[count++] = (struct item_data*)db_data2ptr(db_data[i]);
 
 	return count;
-}*/
-// Old version. [15peaces]
-int itemdb_searchname_array(struct item_data** data, int size, const char *str)
-{
-	struct item_data* item;
-	int i;
-	int count=0;
-
-	// Search in the array
-	for( i = 0; i < ARRAYLENGTH(itemdb_array); ++i )
-	{
-		item = itemdb_array[i];
-		if( item == NULL )
-			continue;
-
-		if( stristr(item->jname,str) || stristr(item->name,str) )
-		{
-			if( count < size )
-				data[count] = item;
-			++count;
-		}
-	}
-
-	// search in the db
-	if( count >= size )
-	{
-		data = NULL;
-		size = 0;
-	}
-	else
-	{
-		data -= count;
-		size -= count;
-	}
-	return count + itemdb_other->getall(itemdb_other,(void**)data,size,itemdb_searchname_array_sub,str);
 }
 
 void itemdb_package_item(struct map_session_data *sd, int packageid) 
@@ -186,7 +150,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 
 			for (j = 0; j < itempackage_db[packageid].amount[i]; j += get_count)
 			{
-				if ((flag = pc_additem(sd, &it, get_count)))
+				if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
 				{
 					if (itempackage_db[packageid].announced[i])
 						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
@@ -232,7 +196,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 
 		for (j = 0; j < tmp_package.amount[r]; j += get_count)
 		{
-			if ((flag = pc_additem(sd, &it, get_count)))
+			if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
 			{
 				if (tmp_package.announced[r])
 					clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
@@ -1834,18 +1798,18 @@ static void destroy_item_data(struct item_data* self)
 	aFree(self);
 }
 
-static int itemdb_final_sub(DBKey key,void *data,va_list ap)
+static int itemdb_final_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct item_data *id = (struct item_data *)data;
+	struct item_data *id = db_data2ptr(data);
 
 	destroy_item_data(id);
 
 	return 0;
 }
 
-static int itemdb_randomopt_free(DBKey key, void *data, va_list ap) 
+static int itemdb_randomopt_free(DBKey key, DBData *data, va_list ap) 
 {
-	struct s_random_opt_data *opt = (struct s_random_opt_data *)data;
+	struct s_random_opt_data *opt = db_data2ptr(data);
 	if (!opt)
 		return 0;
 	if (opt->script)

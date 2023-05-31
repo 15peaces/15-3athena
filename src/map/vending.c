@@ -177,14 +177,13 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		}
 	}
 
-	//Logs (V)ending Zeny [Lupus]
-	log_zeny(vsd, LOG_TYPE_VENDING, sd, (int)z);
+	pc_payzeny(sd, (int)z, LOG_TYPE_VENDING, vsd);
 
-	pc_payzeny(sd, (int)z);
 	//achievement_update_objective(sd, AG_SPEND_ZENY, 1, (int)z);
 	if( battle_config.vending_tax )
 		z -= z * (battle_config.vending_tax/10000.);
-	pc_getzeny(vsd, (int)z);
+	
+	pc_getzeny(vsd, (int)z, LOG_TYPE_VENDING, sd);
 
 	for( i = 0; i < count; i++ )
 	{
@@ -193,15 +192,11 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		idx -= 2;
 		z = 0.; // zeny counter
 
-		//Logs sold (V)ending items [Lupus]
-		log_pick(&vsd->bl, LOG_TYPE_VENDING, vsd->cart.u.items_cart[idx].nameid, -amount, &vsd->cart.u.items_cart[idx]);
-		log_pick( &sd->bl, LOG_TYPE_VENDING, vsd->cart.u.items_cart[idx].nameid,  amount, &vsd->cart.u.items_cart[idx]);
-
 		// vending item
-		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount);
+		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount, LOG_TYPE_VENDING);
 		vsd->vending[vend_list[i]].amount -= amount;
 		z += ((double)vsd->vending[i].value * (double)amount);
-		pc_cart_delitem(vsd, idx, amount, 0);
+		pc_cart_delitem(vsd, idx, amount, 0, LOG_TYPE_VENDING);
 		if( battle_config.vending_tax )
 			z -= z * (battle_config.vending_tax/10000.);
 		clif_vendingreport(vsd, idx, amount, sd->status.char_id, (int)z);

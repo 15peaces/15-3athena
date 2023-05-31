@@ -32,9 +32,9 @@ static unsigned int guild_exp[100];
 int mapif_guild_broken(int guild_id, int flag);
 static bool guild_check_empty(struct guild *g);
 int guild_calcinfo(struct guild *g);
-int mapif_guild_basicinfochanged(int guild_id, int type, const void *data, int len);
+int mapif_guild_basicinfochanged(int guild_id, int type, const DBData data, int len);
 int mapif_guild_info(int fd, struct guild *g);
-int guild_break_sub(DBKey key, void *data, va_list ap);
+int guild_break_sub(DBKey key, DBData data, va_list ap);
 
 /// serializes the guild data structure into the provided string
 int inter_guild_tostr(char* str, struct guild* g)
@@ -780,7 +780,7 @@ int mapif_guild_message(int guild_id, int account_id, char *mes, int len, int sf
 }
 
 // ギルド基本情報変更通知
-int mapif_guild_basicinfochanged(int guild_id, int type, const void *data, int len)
+int mapif_guild_basicinfochanged(int guild_id, int type, const DBData data, int len)
 {
 	unsigned char buf[2048];
 
@@ -794,7 +794,7 @@ int mapif_guild_basicinfochanged(int guild_id, int type, const void *data, int l
 }
 
 // ギルドメンバ情報変更通知
-int mapif_guild_memberinfochanged(int guild_id, int account_id, int char_id, int type, const void *data, int len)
+int mapif_guild_memberinfochanged(int guild_id, int account_id, int char_id, int type, const DBData data, int len)
 {
 	unsigned char buf[4096];
 
@@ -1153,7 +1153,7 @@ int mapif_parse_GuildChangeMemberInfoShort(int fd, int guild_id, int account_id,
 }
 
 // ギルド解散処理用（同盟/敵対を解除）
-int guild_break_sub(DBKey key, void *data, va_list ap)
+int guild_break_sub(DBKey key, DBData data, va_list ap)
 {
 	struct guild *g = (struct guild *)data;
 	int guild_id = va_arg(ap, int);

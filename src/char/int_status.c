@@ -120,7 +120,7 @@ void status_load_scdata(const char* filename)
 	ShowStatus("Loaded %d saved status changes for %d characters.\n", sc_count, sd_count);
 }
 
-static int inter_status_save_sub(DBKey key, void *data, va_list ap) {
+static int inter_status_save_sub(DBKey key, DBData data, va_list ap) {
 	char line[8192];
 	struct scdata * sc_data;
 	FILE *fp;

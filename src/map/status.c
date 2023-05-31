@@ -7421,10 +7421,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	if (status_change_isDisabledOnMap(type, bl->m))
 		return 0;
 
-	if( bl->type == BL_MOB && type != SC_SAFETYWALL && type != SC_PNEUMA )
+	if( bl->type == BL_MOB )
 	{
 		struct mob_data *md = BL_CAST(BL_MOB,bl);
-		if( md->class_ == MOBID_EMPERIUM || mob_is_battleground(md) )
+		if (md && (md->class_ == MOBID_EMPERIUM || mob_is_battleground(md)) && type != SC_SAFETYWALL && type != SC_PNEUMA)
 			return 0; //Emperium/BG Monsters can't be afflicted by status changes
 	}
 
@@ -11931,7 +11931,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 			if( !flag )
 			{ // Random Skill Cast
-				if( sd )
+				if (sd && !pc_issit(sd)) //can't cast if sit
 				{
 					int mushroom_skillid = 0;
 					unit_stop_attack(bl);

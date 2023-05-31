@@ -16,12 +16,12 @@
  *  released.                                                                *
  *                                                                           *
  *  TODO:                                                                    *
- *  - create an enum for the data (with int, unsigned int and void *)        *
  *  - create a custom database allocator                                     *
  *  - see what functions need or should be added to the database interface   *
  *                                                                           *
  *  HISTORY:                                                                 *
- *    2007/11/09 - Added an iterator to the database.
+ *    2012/03/09 - Added enum for data types (int, uint, void*)              *
+ *    2007/11/09 - Added an iterator to the database.                        *
  *    2.1 (Athena build #???#) - Portability fix                             *
  *      - Fixed the portability of casting to union and added the functions  *
  *        {@link DBMap#ensure(DBMap,DBKey,DBCreateData,...)} and             *
@@ -50,7 +50,9 @@
  *  DBType       - Enumeration of database types.                            *
  *  DBOptions    - Bitfield enumeration of database options.                 *
  *  DBKey        - Union of used key types.                                  *
- *  DBApply      - Format of functions applyed to the databases.             *
+ *  DBDataType   - Enumeration of data types.                                *
+ *  DBData       - Struct for used data types.                               *
+ *  DBApply      - Format of functions applied to the databases.             *
  *  DBMatcher    - Format of matchers used in DBMap::getall.                 *
  *  DBComparator - Format of the comparators used by the databases.          *
  *  DBHasher     - Format of the hashers used by the databases.              *
@@ -81,6 +83,8 @@ typedef enum DBRelease {
  * @param DB_UINT Uses unsigned int's for keys
  * @param DB_STRING Uses strings for keys.
  * @param DB_ISTRING Uses case insensitive strings for keys.
+ * @param DB_INT64 Uses int64's for keys
+ * @param DB_UINT64 Uses uint64's for keys
  * @public
  * @see #DBOptions
  * @see #DBKey
@@ -94,7 +98,9 @@ typedef enum DBType {
 	DB_INT,
 	DB_UINT,
 	DB_STRING,
-	DB_ISTRING
+	DB_ISTRING,
+	DB_INT64,
+	DB_UINT64,
 } DBType;
 
 /**
@@ -144,6 +150,7 @@ typedef union DBKey {
 	unsigned int ui;
 	const char *str;
 	int64 i64;
+	uint64 ui64;
 } DBKey;
 
 /**
@@ -190,7 +197,7 @@ typedef struct DBData {
  * @see DBMap#vensure
  * @see DBMap#ensure
  */
-typedef void* (*DBCreateData)(DBKey key, va_list args);
+typedef DBData (*DBCreateData)(DBKey key, va_list args);
 
 /**
  * Format of functions to be applyed to an unspecified quantity of entries of 
@@ -207,7 +214,7 @@ typedef void* (*DBCreateData)(DBKey key, va_list args);
  * @see DBMap#vdestroy
  * @see DBMap#destroy
  */
-typedef int (*DBApply)(DBKey key, void* data, va_list args);
+typedef int (*DBApply)(DBKey key, DBData *data, va_list args);
 
 /**
  * Format of functions that match database entries.
@@ -220,7 +227,7 @@ typedef int (*DBApply)(DBKey key, void* data, va_list args);
  * @public
  * @see DBMap#getall
  */
-typedef int (*DBMatcher)(DBKey key, void* data, va_list args);
+typedef int (*DBMatcher)(DBKey key, DBData data, va_list args);
 
 /**
  * Format of the comparators used internally by the database system.
@@ -246,7 +253,7 @@ typedef int (*DBComparator)(DBKey key1, DBKey key2, unsigned short maxlen);
  * @public
  * @see #db_default_hash(DBType)
  */
-typedef unsigned int (*DBHasher)(DBKey key, unsigned short maxlen);
+typedef uint64 (*DBHasher)(DBKey key, unsigned short maxlen);
 
 /**
  * Format of the releaser used by the database system.
@@ -260,7 +267,7 @@ typedef unsigned int (*DBHasher)(DBKey key, unsigned short maxlen);
  * @see #db_default_releaser(DBType,DBOptions)
  * @see #db_custom_release(DBRelease)
  */
-typedef void (*DBReleaser)(DBKey key, void* data, DBRelease which);
+typedef void (*DBReleaser)(DBKey key, DBData data, DBRelease which);
 
 
 
@@ -290,7 +297,7 @@ struct DBIterator
 	 * @return Data of the entry
 	 * @protected
 	 */
-	void* (*first)(DBIterator* self, DBKey* out_key);
+	DBData* (*first)(DBIterator* self, DBKey* out_key);
 
 	/**
 	 * Fetches the last entry in the database.
@@ -301,7 +308,7 @@ struct DBIterator
 	 * @return Data of the entry
 	 * @protected
 	 */
-	void* (*last)(DBIterator* self, DBKey* out_key);
+	DBData* (*last)(DBIterator* self, DBKey* out_key);
 
 	/**
 	 * Fetches the next entry in the database.
@@ -312,7 +319,7 @@ struct DBIterator
 	 * @return Data of the entry
 	 * @protected
 	 */
-	void* (*next)(DBIterator* self, DBKey* out_key);
+	DBData* (*next)(DBIterator* self, DBKey* out_key);
 
 	/**
 	 * Fetches the previous entry in the database.
@@ -323,7 +330,7 @@ struct DBIterator
 	 * @return Data of the entry
 	 * @protected
 	 */
-	void* (*prev)(DBIterator* self, DBKey* out_key);
+	DBData* (*prev)(DBIterator* self, DBKey* out_key);
 
 	/**
 	 * Returns true if the fetched entry exists.
@@ -338,14 +345,15 @@ struct DBIterator
 	/**
 	 * Removes the current entry from the database.
 	 * NOTE: {@link DBIterator#exists} will return false until another entry 
-	 *       is fethed
-	 * Returns the data of the entry.
+	 *       is fetched
+	 * Puts data of the removed entry in out_data, if out_data is not NULL.
 	 * @param self Iterator
-	 * @return The data of the entry or NULL if not found
+	 * @param out_data Data of the removed entry.
+	 * @return 1 if entry was removed, 0 otherwise
 	 * @protected
 	 * @see DBMap#remove
 	 */
-	void* (*remove)(DBIterator* self);
+	int(*remove)(DBIterator* self, DBData *out_data);
 
 	/**
 	 * Destroys this iterator and unlocks the database.
@@ -391,7 +399,7 @@ struct DBMap {
 	 * @return Data of the entry or NULL if not found
 	 * @protected
 	 */
-	void* (*get)(DBMap* self, DBKey key);
+	DBData* (*get)(DBMap* self, DBKey key);
 
 	/**
 	 * Just calls {@link DBMap#vgetall}.
@@ -410,7 +418,7 @@ struct DBMap {
 	 * @protected
 	 * @see DBMap#vgetall(DBMap*,void **,unsigned int,DBMatcher,va_list)
 	 */
-	unsigned int (*getall)(DBMap* self, void** buf, unsigned int max, DBMatcher match, ...);
+	unsigned int (*getall)(DBMap* self, DBData** buf, unsigned int max, DBMatcher match, ...);
 
 	/**
 	 * Get the data of the entries matched by <code>match</code>.
@@ -428,7 +436,7 @@ struct DBMap {
 	 * @protected
 	 * @see DBMap#getall(DBMap*,void **,unsigned int,DBMatcher,...)
 	 */
-	unsigned int (*vgetall)(DBMap* self, void** buf, unsigned int max, DBMatcher match, va_list args);
+	unsigned int (*vgetall)(DBMap* self, DBData** buf, unsigned int max, DBMatcher match, va_list args);
 
 	/**
 	 * Just calls {@link DBMap#vensure}.
@@ -443,7 +451,7 @@ struct DBMap {
 	 * @protected
 	 * @see DBMap#vensure(DBMap*,DBKey,DBCreateData,va_list)
 	 */
-	void* (*ensure)(DBMap* self, DBKey key, DBCreateData create, ...);
+	DBData* (*ensure)(DBMap* self, DBKey key, DBCreateData create, ...);
 
 	/**
 	 * Get the data of the entry identified by the key.
@@ -457,30 +465,31 @@ struct DBMap {
 	 * @protected
 	 * @see DBMap#ensure(DBMap*,DBKey,DBCreateData,...)
 	 */
-	void* (*vensure)(DBMap* self, DBKey key, DBCreateData create, va_list args);
+	DBData* (*vensure)(DBMap* self, DBKey key, DBCreateData create, va_list args);
 
 	/**
 	 * Put the data identified by the key in the database.
-	 * Returns the previous data if the entry exists or NULL.
+	 * Puts the previous data in out_data, if out_data is not NULL.
 	 * NOTE: Uses the new key, the old one is released.
 	 * @param self Database
 	 * @param key Key that identifies the data
 	 * @param data Data to be put in the database
-	 * @return The previous data if the entry exists or NULL
+	 * @param out_data Previous data if the entry exists
+	 * @return 1 if if the entry already exists, 0 otherwise
 	 * @protected
 	 */
-	void* (*put)(DBMap* self, DBKey key, void* data);
+	int(*put)(DBMap* self, DBKey key, DBData data, DBData *out_data);
 
 	/**
 	 * Remove an entry from the database.
-	 * Returns the data of the entry.
+	 * Puts the previous data in out_data, if out_data is not NULL.
 	 * NOTE: The key (of the database) is released.
 	 * @param self Database
 	 * @param key Key that identifies the entry
 	 * @return The data of the entry or NULL if not found
 	 * @protected
 	 */
-	void* (*remove)(DBMap* self, DBKey key);
+	int(*remove)(DBMap* self, DBKey key, DBData *out_data);
 
 	/**
 	 * Just calls {@link DBMap#vforeach}.
@@ -599,51 +608,107 @@ struct DBMap {
 #define idb_exists(db,k)   ( (db)->exists((db),db_i2key(k)) )
 #define uidb_exists(db,k)  ( (db)->exists((db),db_ui2key(k)) )
 #define strdb_exists(db,k) ( (db)->exists((db),db_str2key(k)) )
+#define i64db_exists(db,k)  ( (db)->exists((db),db_i642key(k)) )
+#define ui64db_exists(db,k) ( (db)->exists((db),db_ui642key(k)) )
 
 // Get pointer-type data from DBMaps of various key types
-#define db_get(db,k)    ( (db)->get((db),(k)) )
-#define idb_get(db,k)   ( (db)->get((db),db_i2key(k)) )
-#define uidb_get(db,k)  ( (db)->get((db),db_ui2key(k)) )
-#define strdb_get(db,k) ( (db)->get((db),db_str2key(k)) )
-#define i64db_get(db,k)  ( (db)->get((db),db_i642key(k)) )
+#define db_get(db,k)    ( db_data2ptr((db)->get((db),(k))) )
+#define idb_get(db,k)   ( db_data2ptr((db)->get((db),db_i2key(k))) )
+#define uidb_get(db,k)  ( db_data2ptr((db)->get((db),db_ui2key(k))) )
+#define strdb_get(db,k) ( db_data2ptr((db)->get((db),db_str2key(k))) )
+#define i64db_get(db,k)  ( db_data2ptr((db)->get((db),db_i642key(k))) )
+#define ui64db_get(db,k) ( db_data2ptr((db)->get((db),db_ui642key(k))) )
 
 // Get int-type data from DBMaps of various key types
-#define strdb_iget(db,k)  ( db_data2i((db)->get((db),db_str2key(k))) )
+#define db_iget(db,k)    ( db_data2i((db)->get((db),(k))) )
+#define idb_iget(db,k)   ( db_data2i((db)->get((db),db_i2key(k))) )
+#define uidb_iget(db,k)  ( db_data2i((db)->get((db),db_ui2key(k))) )
+#define strdb_iget(db,k) ( db_data2i((db)->get((db),db_str2key(k))) )
+#define i64db_iget(db,k)  ( db_data2i((db)->get((db),db_i642key(k))) )
+#define ui64db_iget(db,k) ( db_data2i((db)->get((db),db_ui642key(k))) )
 
-#define db_put(db,k,d)    ( (db)->put((db),(k),(d)) )
-#define idb_put(db,k,d)   ( (db)->put((db),db_i2key(k),(d)) )
-#define uidb_put(db,k,d)  ( (db)->put((db),db_ui2key(k),(d)) )
-#define strdb_put(db,k,d) ( (db)->put((db),db_str2key(k),(d)) )
-#define i64db_put(db,k,d)  ( (db)->put((db),db_i642key(k),(d)) )
+// Get uint-type data from DBMaps of various key types
+#define db_uiget(db,k)    ( db_data2ui((db)->get((db),(k))) )
+#define idb_uiget(db,k)   ( db_data2ui((db)->get((db),db_i2key(k))) )
+#define uidb_uiget(db,k)  ( db_data2ui((db)->get((db),db_ui2key(k))) )
+#define strdb_uiget(db,k) ( db_data2ui((db)->get((db),db_str2key(k))) )
+#define i64db_uiget(db,k)  ( db_data2ui((db)->get((db),db_i642key(k))) )
+#define ui64db_uiget(db,k) ( db_data2ui((db)->get((db),db_ui642key(k))) )
 
+// Get int64-type data from DBMaps of various key types
+#define db_i64get(db,k)     ( db_data2i64((db)->get((db),(k))) )
+#define idb_i64get(db,k)    ( db_data2i64((db)->get((db),db_i2key(k))) )
+#define uidb_i64get(db,k)   ( db_data2i64((db)->get((db),db_ui2key(k))) )
+#define strdb_i64get(db,k)  ( db_data2i64((db)->get((db),db_str2key(k))) )
+#define i64db_i64get(db,k)  ( db_data2i64((db)->get((db),db_i642key(k))) )
+#define ui64db_i64get(db,k) ( db_data2i64((db)->get((db),db_ui642key(k))) )
 
-#define db_remove(db,k)    ( (db)->remove((db),(k)) )
-#define idb_remove(db,k)   ( (db)->remove((db),db_i2key(k)) )
-#define uidb_remove(db,k)  ( (db)->remove((db),db_ui2key(k)) )
-#define strdb_remove(db,k) ( (db)->remove((db),db_str2key(k)) )
-#define i64db_remove(db,k)  ( (db)->remove((db),db_i642key(k)) )
+// Put pointer-type data into DBMaps of various key types
+#define db_put(db,k,d)    ( (db)->put((db),(k),db_ptr2data(d),NULL) )
+#define idb_put(db,k,d)   ( (db)->put((db),db_i2key(k),db_ptr2data(d),NULL) )
+#define uidb_put(db,k,d)  ( (db)->put((db),db_ui2key(k),db_ptr2data(d),NULL) )
+#define strdb_put(db,k,d) ( (db)->put((db),db_str2key(k),db_ptr2data(d),NULL) )
+#define i64db_put(db,k,d)  ( (db)->put((db),db_i642key(k),db_ptr2data(d),NULL) )
+#define ui64db_put(db,k,d) ( (db)->put((db),db_ui642key(k),db_ptr2data(d),NULL) )
+
+// Put int-type data into DBMaps of various key types
+#define db_iput(db,k,d)    ( (db)->put((db),(k),db_i2data(d),NULL) )
+#define idb_iput(db,k,d)   ( (db)->put((db),db_i2key(k),db_i2data(d),NULL) )
+#define uidb_iput(db,k,d)  ( (db)->put((db),db_ui2key(k),db_i2data(d),NULL) )
+#define strdb_iput(db,k,d) ( (db)->put((db),db_str2key(k),db_i2data(d),NULL) )
+#define i64db_iput(db,k,d)  ( (db)->put((db),db_i642key(k),db_i2data(d),NULL) )
+#define ui64db_iput(db,k,d) ( (db)->put((db),db_ui642key(k),db_i2data(d),NULL) )
+
+// Put uint-type data into DBMaps of various key types
+#define db_uiput(db,k,d)    ( (db)->put((db),(k),db_ui2data(d),NULL) )
+#define idb_uiput(db,k,d)   ( (db)->put((db),db_i2key(k),db_ui2data(d),NULL) )
+#define uidb_uiput(db,k,d)  ( (db)->put((db),db_ui2key(k),db_ui2data(d),NULL) )
+#define strdb_uiput(db,k,d) ( (db)->put((db),db_str2key(k),db_ui2data(d),NULL) )
+#define i64db_uiput(db,k,d)  ( (db)->put((db),db_i642key(k),db_ui2data(d),NULL) )
+#define ui64db_uiput(db,k,d) ( (db)->put((db),db_ui642key(k),db_ui2data(d),NULL) )
+
+// Put int64 data into DBMaps of various key types
+#define db_i64put(db,k,d)     ( (db)->put((db),(k),db_i642data(d),NULL) )
+#define idb_i64put(db,k,d)    ( (db)->put((db),db_i2key(k),db_i642data(d),NULL) )
+#define uidb_i64put(db,k,d)   ( (db)->put((db),db_ui2key(k),db_i642data(d),NULL) )
+#define strdb_i64put(db,k,d)  ( (db)->put((db),db_str2key(k),db_i642data(d),NULL) )
+#define i64db_i64put(db,k,d)  ( (db)->put((db),db_i642key(k),db_i642data(d),NULL) )
+#define ui64db_i64put(db,k,d) ( (db)->put((db),db_ui642key(k),db_i642data(d),NULL) )
+
+// Remove entry from DBMaps of various key types
+#define db_remove(db,k)    ( (db)->remove((db),(k),NULL) )
+#define idb_remove(db,k)   ( (db)->remove((db),db_i2key(k),NULL) )
+#define uidb_remove(db,k)  ( (db)->remove((db),db_ui2key(k),NULL) )
+#define strdb_remove(db,k) ( (db)->remove((db),db_str2key(k),NULL) )
+#define i64db_remove(db,k)  ( (db)->remove((db),db_i642key(k),NULL) )
+#define ui64db_remove(db,k) ( (db)->remove((db),db_ui642key(k),NULL) )
 
 //These are discarding the possible vargs you could send to the function, so those
 //that require vargs must not use these defines.
-#define db_ensure(db,k,f)    ( (db)->ensure((db),(k),(f)) )
-#define idb_ensure(db,k,f)   ( (db)->ensure((db),db_i2key(k),(f)) )
-#define uidb_ensure(db,k,f)  ( (db)->ensure((db),db_ui2key(k),(f)) )
-#define strdb_ensure(db,k,f) ( (db)->ensure((db),db_str2key(k),(f)) )
+#define db_ensure(db,k,f)    ( db_data2ptr((db)->ensure((db),(k),(f))) )
+#define idb_ensure(db,k,f)   ( db_data2ptr((db)->ensure((db),db_i2key(k),(f))) )
+#define uidb_ensure(db,k,f)  ( db_data2ptr((db)->ensure((db),db_ui2key(k),(f))) )
+#define strdb_ensure(db,k,f) ( db_data2ptr((db)->ensure((db),db_str2key(k),(f))) )
+#define i64db_ensure(db,k,f)  ( db_data2ptr((db)->ensure((db),db_i642key(k),(f))) )
+#define ui64db_ensure(db,k,f) ( db_data2ptr((db)->ensure((db),db_ui642key(k),(f))) )
 
 // Database creation and destruction macros
 #define idb_alloc(opt)            db_alloc(__FILE__,__LINE__,DB_INT,(opt),sizeof(int))
 #define uidb_alloc(opt)           db_alloc(__FILE__,__LINE__,DB_UINT,(opt),sizeof(unsigned int))
 #define strdb_alloc(opt,maxlen)   db_alloc(__FILE__,__LINE__,DB_STRING,(opt),(maxlen))
 #define stridb_alloc(opt,maxlen)  db_alloc(__FILE__,__LINE__,DB_ISTRING,(opt),(maxlen))
+#define i64db_alloc(opt)          db_alloc(__FILE__,__LINE__,DB_INT64,(opt),sizeof(int64))
+#define ui64db_alloc(opt)         db_alloc(__FILE__,__LINE__,DB_UINT64,(opt),sizeof(uint64))
 #define db_destroy(db)            ( (db)->destroy((db),NULL) )
 // Other macros
 #define db_clear(db)        ( (db)->clear(db,NULL) )
 #define db_size(db)         ( (db)->size(db) )
 #define db_iterator(db)     ( (db)->iterator(db) )
-#define dbi_first(dbi)      ( (dbi)->first(dbi,NULL) )
-#define dbi_last(dbi)       ( (dbi)->last(dbi,NULL) )
-#define dbi_next(dbi)       ( (dbi)->next(dbi,NULL) )
-#define dbi_prev(dbi)       ( (dbi)->prev(dbi,NULL) )
+#define dbi_first(dbi)      ( db_data2ptr((dbi)->first(dbi,NULL)) )
+#define dbi_last(dbi)       ( db_data2ptr((dbi)->last(dbi,NULL)) )
+#define dbi_next(dbi)       ( db_data2ptr((dbi)->next(dbi,NULL)) )
+#define dbi_prev(dbi)       ( db_data2ptr((dbi)->prev(dbi,NULL)) )
+#define dbi_remove(dbi)     ( (dbi)->remove(dbi,NULL) )
 #define dbi_exists(dbi)     ( (dbi)->exists(dbi) )
 #define dbi_destroy(dbi)    ( (dbi)->destroy(dbi) )
 
@@ -660,8 +725,14 @@ struct DBMap {
  *  db_ui2key          - Manual cast from 'unsigned int' to 'DBKey'.         *
  *  db_ptr2data        - Manual cast from `void*` to `struct DBData`.        *
  *  db_str2key         - Manual cast from 'unsigned char *' to 'DBKey'.      *
- *  db_init            - Initialise the database system.                     *
- *  db_final           - Finalise the database system.                       *
+ *  db_i2data          - Manual cast from 'int' to 'DBData'.                 *
+ *  db_ui2data         - Manual cast from 'unsigned int' to 'DBData'.        *
+ *  db_ptr2data        - Manual cast from 'void*' to 'DBData'.               *
+ *  db_data2i          - Gets 'int' value from 'DBData'.                     *
+ *  db_data2ui         - Gets 'unsigned int' value from 'DBData'.            *
+ *  db_data2ptr        - Gets 'void*' value from 'DBData'.                   *
+ *  db_init            - Initializes the database system.                    *
+ *  db_final           - Finalizes the database system.                      *
 \*****************************************************************************/
 
 /**
@@ -782,6 +853,30 @@ DBKey db_str2key(const char *key);
 DBKey db_i642key(int64 key);
 
 /**
+ * Manual cast from 'uint64' to the union DBKey.
+ * @param key Key to be casted
+ * @return The key as a DBKey union
+ * @public
+ */
+DBKey db_ui642key(uint64 key);
+
+/**
+ * Manual cast from 'int' to the struct DBData.
+ * @param data Data to be casted
+ * @return The data as a DBData struct
+ * @public
+ */
+DBData db_i2data(int data);
+
+/**
+ * Manual cast from 'unsigned int' to the struct DBData.
+ * @param data Data to be casted
+ * @return The data as a DBData struct
+ * @public
+ */
+DBData db_ui2data(unsigned int data);
+
+/**
  * Manual cast from 'void *' to the struct DBData.
  * @param data Data to be casted
  * @return The data as a DBData struct
@@ -790,13 +885,12 @@ DBKey db_i642key(int64 key);
 DBData db_ptr2data(void *data);
 
 /**
-* Gets void* type data from struct DBData.
-* If data is not void* type, returns NULL.
-* @param data Data
-* @return Void* value of the data.
-* @public
-*/
-void* db_data2ptr(DBData *data);
+ * Manual cast from 'int64' to the struct DBData.
+ * @param data Data to be casted
+ * @return The data as a DBData struct
+ * @public
+ */
+DBData db_i642data(int64 data);
 
 /**
  * Gets int type data from struct DBData.
@@ -806,6 +900,33 @@ void* db_data2ptr(DBData *data);
  * @public
  */
 int db_data2i(DBData *data);
+
+/**
+ * Gets unsigned int type data from struct DBData.
+ * If data is not unsigned int type, returns 0.
+ * @param data Data
+ * @return Unsigned int value of the data.
+ * @public
+ */
+unsigned int db_data2ui(DBData *data);
+
+/**
+ * Gets void* type data from struct DBData.
+ * If data is not void* type, returns NULL.
+ * @param data Data
+ * @return Void* value of the data.
+ * @public
+ */
+void* db_data2ptr(DBData *data);
+
+/**
+ * Gets int64 type data from struct DBData.
+ * If data is not int64 type, returns 0.
+ * @param data Data
+ * @return Integer(64-bit signed) value of the data.
+ * @public
+ */
+int64 db_data2i64(DBData *data);
 
 /**
  * Initialize the database system.
@@ -830,14 +951,16 @@ struct linkdb_node {
 	void               *data;
 };
 
-typedef void (*LinkDBFunc)(void* key, void* data, va_list args);
+typedef void(*LinkDBFunc)(void* key, void* data, va_list args);
 
-void  linkdb_insert ( struct linkdb_node** head, void *key, void* data); // 重複を考慮しない
-void  linkdb_replace( struct linkdb_node** head, void *key, void* data); // 重複を考慮する
-void* linkdb_search ( struct linkdb_node** head, void *key);
-void* linkdb_erase  ( struct linkdb_node** head, void *key);
-void  linkdb_final  ( struct linkdb_node** head );
-void  linkdb_foreach( struct linkdb_node** head, LinkDBFunc func, ...  );
+void  linkdb_insert(struct linkdb_node** head, void *key, void* data); // Doesn't take into account duplicate keys
+void  linkdb_replace(struct linkdb_node** head, void *key, void* data); // Takes into account duplicate keys
+void* linkdb_search(struct linkdb_node** head, void *key);
+void* linkdb_erase(struct linkdb_node** head, void *key);
+void  linkdb_final(struct linkdb_node** head);
+void  linkdb_vforeach(struct linkdb_node** head, LinkDBFunc func, va_list ap);
+void  linkdb_foreach(struct linkdb_node** head, LinkDBFunc func, ...);
+
 
 
 

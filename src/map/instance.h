@@ -21,7 +21,7 @@ struct s_instance {
 	int num_map;
 	int users;
 
-	struct linkdb_node *ivar, *svar; // Instance Variable for scripts
+	struct DBMap* vars; // Instance Variable for scripts
 	
 	int progress_timer;
 	unsigned int progress_timeout;

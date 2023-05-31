@@ -219,7 +219,7 @@ DBMap* char_get_chardb() { return char_db_; }
 int loginif_isconnected();
 #define loginif_check(a) { if(!loginif_isconnected()) return a; }
 
-static void* create_online_char_data(DBKey key, va_list args)
+static DBData create_online_char_data(DBKey key, va_list args)
 {
 	struct online_char_data* character;
 	CREATE(character, struct online_char_data, 1);
@@ -228,7 +228,7 @@ static void* create_online_char_data(DBKey key, va_list args)
   	character->server = -1;
 	character->fd = -1;
 	character->waiting_disconnect = INVALID_TIMER;
-	return character;
+	return db_ptr2data(character);
 }
 
 unsigned int char_server_fd(int account_id)
@@ -245,7 +245,7 @@ void set_char_charselect(int account_id)
 {
 	struct online_char_data* character;
 
-	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = idb_ensure(online_char_db, account_id, create_online_char_data);
 
 	if( character->server > -1 )
 		if( server[character->server].users > 0 ) // Prevent this value from going negative.
@@ -279,7 +279,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 		Sql_ShowDebug(sql_handle);
 
 	//Check to see for online conflicts
-	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = idb_ensure(online_char_db, account_id, create_online_char_data);
 	if( character->char_id != -1 && character->server > -1 && character->server != map_id )
 	{
 		ShowNotice("set_char_online: Character %d:%d marked in map server %d, but map server %d claims to have (%d:%d) online!\n",
@@ -372,9 +372,9 @@ void set_char_offline(int char_id, int account_id)
 	}
 }
 
-static int char_db_setoffline(DBKey key, void* data, va_list ap)
+static int char_db_setoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = (struct online_char_data*)data;
+	struct online_char_data* character = db_data2ptr(data);
 	int server = va_arg(ap, int);
 	if (server == -1) {
 		character->char_id = -1;
@@ -388,9 +388,9 @@ static int char_db_setoffline(DBKey key, void* data, va_list ap)
 	return 0;
 }
 
-static int char_db_kickoffline(DBKey key, void* data, va_list ap)
+static int char_db_kickoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = (struct online_char_data*)data;
+	struct online_char_data* character = db_data2ptr(data);
 	int server_id = va_arg(ap, int);
 
 	if (server_id > -1 && character->server != server_id)
@@ -434,12 +434,12 @@ void set_all_offline_sql(void)
 		Sql_ShowDebug(sql_handle);
 }
 
-static void* create_charstatus(DBKey key, va_list args)
+static DBData create_charstatus(DBKey key, va_list args)
 {
 	struct mmo_charstatus *cp;
 	cp = (struct mmo_charstatus *) aCalloc(1,sizeof(struct mmo_charstatus));
 	cp->char_id = key.i;
-	return cp;
+	return db_ptr2data(cp);
 }
 #endif //TXT_SQL_CONVERT
 
@@ -456,7 +456,7 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 	if (char_id!=p->char_id) return 0;
 
 #ifndef TXT_SQL_CONVERT
-	cp = (struct mmo_charstatus*)idb_ensure(char_db_, char_id, create_charstatus);
+	cp = idb_ensure(char_db_, char_id, create_charstatus);
 #else
 	cp = (struct mmo_charstatus*)aCalloc(1, sizeof(struct mmo_charstatus));
 #endif
@@ -613,31 +613,36 @@ int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
 
 
 	//skills
-	if( memcmp(p->skill, cp->skill, sizeof(p->skill)) )
+	if (memcmp(p->skill, cp->skill, sizeof(p->skill)))
 	{
 		//`skill` (`char_id`, `id`, `lv`)
-		if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d'", skill_db, p->char_id) )
+		if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d'", skill_db, p->char_id))
 		{
 			Sql_ShowDebug(sql_handle);
 			errors++;
 		}
 
 		StringBuf_Clear(&buf);
-		StringBuf_Printf(&buf, "INSERT INTO `%s`(`char_id`,`id`,`lv`) VALUES ", skill_db);
+		StringBuf_Printf(&buf, "INSERT INTO `%s`(`char_id`,`id`,`lv`,`flag`) VALUES ", skill_db);
 		//insert here.
-		for( i = 0, count = 0; i < MAX_SKILL; ++i )
-		{
-			if(p->skill[i].id != 0 && p->skill[i].flag != SKILL_FLAG_TEMPORARY)
-			{
-				if( count )
+		for (i = 0, count = 0; i < MAX_SKILL; ++i) {
+			if (p->skill[i].id != 0 && p->skill[i].flag != SKILL_FLAG_TEMPORARY) {
+
+				if (p->skill[i].lv == 0 && (p->skill[i].flag == SKILL_FLAG_PERM_GRANTED || p->skill[i].flag == SKILL_FLAG_PERMANENT))
+					continue;
+				if (p->skill[i].flag != SKILL_FLAG_PERMANENT && p->skill[i].flag != SKILL_FLAG_PERM_GRANTED && (p->skill[i].flag - SKILL_FLAG_REPLACED_LV_0) == 0)
+					continue;
+				if (count)
 					StringBuf_AppendStr(&buf, ",");
-				StringBuf_Printf(&buf, "('%d','%d','%d')", char_id, p->skill[i].id, (p->skill[i].flag == SKILL_FLAG_PERMANENT ? p->skill[i].lv : p->skill[i].flag - SKILL_FLAG_REPLACED_LV_0));
+				StringBuf_Printf(&buf, "('%d','%d','%d','%d')", char_id, p->skill[i].id,
+					((p->skill[i].flag == SKILL_FLAG_PERMANENT || p->skill[i].flag == SKILL_FLAG_PERM_GRANTED) ? p->skill[i].lv : p->skill[i].flag - SKILL_FLAG_REPLACED_LV_0),
+					p->skill[i].flag == SKILL_FLAG_PERM_GRANTED ? p->skill[i].flag : 0);/* other flags do not need to be saved */
 				++count;
 			}
 		}
-		if( count )
+		if (count)
 		{
-			if( SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf)) )
+			if (SQL_ERROR == Sql_QueryStr(sql_handle, StringBuf_Value(&buf)))
 			{
 				Sql_ShowDebug(sql_handle);
 				errors++;
@@ -1479,14 +1484,16 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 	strcat(t_msg, " memo");
 
 	//read skill
-	//`skill` (`char_id`, `id`, `lv`)
-	if( SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `id`, `lv` FROM `%s` WHERE `char_id`=? LIMIT %d", skill_db, MAX_SKILL)
+	//`skill` (`char_id`, `id`, `lv`, `flag`)
+	if( SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT `id`, `lv`, `flag` FROM `%s` WHERE `char_id`=? LIMIT %d", skill_db, MAX_SKILL)
 	||	SQL_ERROR == SqlStmt_BindParam(stmt, 0, SQLDT_INT, &char_id, 0)
 	||	SQL_ERROR == SqlStmt_Execute(stmt)
 	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 0, SQLDT_USHORT, &tmp_skill.id, 0, NULL, NULL)
-	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &tmp_skill.lv, 0, NULL, NULL) )
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 1, SQLDT_USHORT, &tmp_skill.lv, 0, NULL, NULL)
+	||	SQL_ERROR == SqlStmt_BindColumn(stmt, 2, SQLDT_UCHAR, &tmp_skill.flag, 0, NULL, NULL))
 		SqlStmt_ShowDebug(stmt);
-	tmp_skill.flag = SKILL_FLAG_PERMANENT;
+	if (tmp_skill.flag != SKILL_FLAG_PERM_GRANTED)
+		tmp_skill.flag = SKILL_FLAG_PERMANENT;
 
 	for( i = 0; i < MAX_SKILL && SQL_SUCCESS == SqlStmt_NextRow(stmt); ++i )
 	{
@@ -1541,7 +1548,7 @@ int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everythin
 	if (save_log) ShowInfo("Loaded char (%d - %s): %s\n", char_id, p->name, t_msg);	//ok. all data load successfuly!
 	SqlStmt_Free(stmt);
 
-	cp = (struct mmo_charstatus*)idb_ensure(char_db_, char_id, create_charstatus);
+	cp = idb_ensure(char_db_, char_id, create_charstatus);
 	memcpy(cp, p, sizeof(struct mmo_charstatus));
 	return 1;
 }
@@ -3643,7 +3650,7 @@ int parse_frommap(int fd)
 			for(i = 0; i < server[id].users; i++) {
 				aid = RFIFOL(fd,6+i*8);
 				cid = RFIFOL(fd,6+i*8+4);
-				character = (struct online_char_data*)idb_ensure(online_char_db, aid, create_online_char_data);
+				character = idb_ensure(online_char_db, aid, create_online_char_data);
 				if( character->server > -1 && character->server != id )
 				{
 					ShowNotice("Set map user: Character (%d:%d) marked on map server %d, but map server %d claims to have (%d:%d) online!\n",
@@ -3786,7 +3793,7 @@ int parse_frommap(int fd)
 				node->ip = ntohl(RFIFOL(fd,31));
 				idb_put(auth_db, RFIFOL(fd,2), node);
 
-				data = (struct online_char_data*)idb_ensure(online_char_db, RFIFOL(fd,2), create_online_char_data);
+				data = idb_ensure(online_char_db, RFIFOL(fd,2), create_online_char_data);
 				data->char_id = char_data->char_id;
 				data->server = map_id; //Update server where char is.
 
@@ -5067,9 +5074,9 @@ int broadcast_user_count(int tid, int64 tick, int id, intptr_t data)
 }
 
 /// load this char's account id into the 'online accounts' packet
-static int send_accounts_tologin_sub(DBKey key, void* data, va_list ap)
+static int send_accounts_tologin_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = (struct online_char_data*)data;
+	struct online_char_data* character = db_data2ptr(data);
 	int* i = va_arg(ap, int*);
 
 	if(character->server > -1)
@@ -5265,9 +5272,9 @@ static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data)
 	return 0;
 }
 
-static int online_data_cleanup_sub(DBKey key, void *data, va_list ap)
+static int online_data_cleanup_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data *character= (struct online_char_data*)data;
+	struct online_char_data *character= db_data2ptr(data);
 	if (character->fd != -1)
 		return 0; //Character still connected
 	if (character->server == -2) //Unknown server.. set them offline
@@ -5807,7 +5814,11 @@ int do_init(int argc, char **argv)
 
 	set_defaultparse(parse_char);
 	ShowInfo("open port %d.....\n",char_port);
-	char_fd = make_listen_bind(bind_ip, char_port);
+	
+	if ((char_fd = make_listen_bind(bind_ip, char_port)) == -1) {
+		ShowFatalError("Failed to bind to port '"CL_WHITE"%d"CL_RESET"'\n", char_port);
+		exit(EXIT_FAILURE);
+	}
 	ShowStatus("The char-server is "CL_GREEN"ready"CL_RESET" (Server is listening on the port %d).\n\n", char_port);
 	
 	return 0;

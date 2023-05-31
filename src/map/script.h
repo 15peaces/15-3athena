@@ -52,6 +52,7 @@ typedef enum c_op {
 	C_RETINFO,
 	C_USERFUNC, // internal script function
 	C_USERFUNC_POS, // internal script function label
+	C_REF, // the next call to c_op2 should push back a ref to the left operand
 
 	// operators
 	C_OP3, // a ? b : c
@@ -75,11 +76,13 @@ typedef enum c_op {
 	C_LNOT, // ! a
 	C_NOT, // ~ a
 	C_R_SHIFT, // a >> b
-	C_L_SHIFT // a << b
+	C_L_SHIFT, // a << b
+	C_ADD_PP, // ++a
+	C_SUB_PP, // --a
 } c_op;
 
 struct script_retinfo {
-	struct linkdb_node** var_function;// scope variables
+	struct DBMap* var_function;// scope variables
 	struct script_code* script;// script code
 	int pos;// script location
 	int nargs;// argument count
@@ -93,7 +96,7 @@ struct script_data {
 		char *str;
 		struct script_retinfo* ri;
 	} u;
-	struct linkdb_node** ref;
+	struct DBMap** ref;
 };
 
 // Moved defsp from script_state to script_stack since
@@ -101,7 +104,7 @@ struct script_data {
 struct script_code {
 	int script_size;
 	unsigned char* script_buf;
-	struct linkdb_node* script_vars;
+	struct DBMap* script_vars;
 };
 
 struct script_stack {
@@ -109,7 +112,7 @@ struct script_stack {
 	int sp_max;// capacity of the stack
 	int defsp;
 	struct script_data *stack_data;// stack
-	struct linkdb_node** var_function;// scope variables
+	struct DBMap* var_function;// scope variables
 };
 
 /**
@@ -146,6 +149,7 @@ struct script_state {
 	struct script_state *bk_st;
 	int bk_npcid;
 	unsigned freeloop : 1;// used by buildin_freeloop
+	unsigned op2ref : 1;// used by op_2
 	char* funcname; // Stores the current running function name
 };
 
@@ -578,7 +582,7 @@ void run_script_main(struct script_state *st);
 void script_stop_sleeptimers(int id);
 struct linkdb_node* script_erase_sleepdb(struct linkdb_node *n);
 void script_free_code(struct script_code* code);
-void script_free_vars(struct linkdb_node **node);
+void script_free_vars(struct DBMap *storage);
 struct script_state* script_alloc_state(struct script_code* script, int pos, int rid, int oid);
 void script_free_state(struct script_state* st);
 
@@ -602,7 +606,7 @@ const char* get_str(int id);
 int script_reload(void);
 
 // @commands (script based) 
-void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct linkdb_node **ref); 
+void setd_sub(struct script_state *st, TBL_PC *sd, const char *varname, int elem, void *value, struct DBMap **ref);
 
 // Script Queue
 struct script_queue *script_queue_get(int idx);

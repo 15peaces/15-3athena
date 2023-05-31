@@ -54,7 +54,7 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_SCRIPT:           return 'N';  // (N)PC Script
 		case LOG_TYPE_STEAL:            return 'D';  // Steal/Snatcher
 		case LOG_TYPE_CONSUME:          return 'C';  // (C)onsumed
-		//case LOG_TYPE_PRODUCE:          return 'O';  // Pr(O)duced/Ingredients
+		case LOG_TYPE_PRODUCE:          return 'O';  // Pr(O)duced/Ingredients
 		//case LOG_TYPE_MVP:              return 'U';  // MVP Rewards
 		case LOG_TYPE_COMMAND:          return 'A';  // (A)dmin command
 		case LOG_TYPE_STORAGE:          return 'R';  // Sto(R)age
@@ -65,11 +65,12 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_LOOT:             return 'L';  // (L)oot (consumed monster pick/drop)
 		case LOG_TYPE_BANK:             return 'K';  // Ban(K) Transactions
 		case LOG_TYPE_QUEST:			return 'Q';  // (Q)uest Item
+		case LOG_TYPE_OTHER:			return 'X';  // Other
 	}
 
 	// should not get here, fallback
 	ShowDebug("log_picktype2char: Unknown pick type %d.\n", type);
-	return 'S';
+	return 'X';
 }
 
 
@@ -525,6 +526,8 @@ int log_config_read(const char* cfgName)
 			//support the import command, just like any other config
 			else if( strcmpi(w1,"import") == 0 )
 				log_config_read(w2);
+			else
+				ShowWarning("Unknown setting '%s' in file %s\n", w1, cfgName);
 		}
 	}
 

@@ -54,19 +54,18 @@ int mail_removeitem(struct map_session_data *sd, short flag, int idx, int amount
 
 	if( flag ){
 		if( battle_config.mail_attachment_price > 0 ){
-			if( pc_payzeny( sd, battle_config.mail_attachment_price) ){
+			if( pc_payzeny( sd, battle_config.mail_attachment_price, LOG_TYPE_MAIL, NULL) ){
 				return false;
 			}
 		}
 
 #if PACKETVER < 20150513
 		// With client update packet
-		pc_delitem(sd, idx, amount, 1, 0);
+		pc_delitem(sd, idx, amount, 1, 0, LOG_TYPE_MAIL);
 #else
 		// RODEX refreshes the client inventory from the ACK packet
-		pc_delitem(sd, idx, amount, 0, 0);
+		pc_delitem(sd, idx, amount, 0, 0, LOG_TYPE_MAIL);
 #endif
-		log_pick(&sd->bl, LOG_TYPE_MAIL, sd->mail.item[i].nameid, -sd->mail.item[i].amount, &sd->inventory.u.items_inventory[idx]);
 	}else{
 		for( ; i < MAIL_MAX_ITEM-1; i++ ){
 			if (sd->mail.item[i + 1].nameid == 0)
@@ -98,8 +97,7 @@ bool mail_removezeny( struct map_session_data *sd, bool flag ){
 	if( sd->mail.zeny > 0 ){
 		//Zeny send
 		if( flag ){
-			if( pc_payzeny( sd, sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100) ){
-				log_zeny(sd, LOG_TYPE_MAIL, sd, -sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100);
+			if( pc_payzeny( sd, sd->mail.zeny + sd->mail.zeny * battle_config.mail_zeny_fee / 100, LOG_TYPE_MAIL, NULL) ){
 				return false;
 			}
 		}else{
@@ -279,8 +277,7 @@ void mail_getattachment(struct map_session_data* sd, struct mail_message* msg, i
 
 	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
 		if( item->nameid > 0 && item->amount > 0 ){
-			pc_additem(sd, &item[i], item[i].amount);
-			log_pick(&sd->bl, LOG_TYPE_MAIL, item[i].nameid, item[i].amount, item);
+			pc_additem(sd, &item[i], item[i].amount, LOG_TYPE_MAIL);
 			item_received = true;
 		}	
 	}
@@ -291,8 +288,7 @@ void mail_getattachment(struct map_session_data* sd, struct mail_message* msg, i
 
 	// Zeny receive
 	if( zeny > 0 ){
-		log_zeny(sd, LOG_TYPE_MAIL, sd, zeny);
-		pc_getzeny(sd, zeny);
+		pc_getzeny(sd, zeny, LOG_TYPE_MAIL, NULL);
 		clif_mail_getattachment( sd, msg, 0, MAIL_ATT_ZENY ); 
 	}
 }
@@ -318,8 +314,7 @@ void mail_deliveryfail(struct map_session_data *sd, struct mail_message *msg){
 	for( i = 0; i < MAIL_MAX_ITEM; i++ ){
 		if( msg->item[i].amount > 0 ){
 			// Item receive (due to failure)
-			log_pick(&sd->bl, LOG_TYPE_MAIL, msg->item[i].nameid, msg->item[i].amount, &msg->item[i]);
-			pc_additem(sd, &msg->item[i], msg->item[i].amount);
+			pc_additem(sd, &msg->item[i], msg->item[i].amount, LOG_TYPE_MAIL);
 			zeny += battle_config.mail_attachment_price;
 		}
 	}
@@ -327,8 +322,7 @@ void mail_deliveryfail(struct map_session_data *sd, struct mail_message *msg){
 	if( msg->zeny > 0 )
 	{
 		//Zeny recieve (due to failure)
-		log_zeny(sd, LOG_TYPE_MAIL, sd, msg->zeny + msg->zeny*battle_config.mail_zeny_fee/100 + zeny);
-		pc_getzeny(sd,msg->zeny + msg->zeny*battle_config.mail_zeny_fee/100 + zeny);
+		pc_getzeny(sd,msg->zeny + msg->zeny*battle_config.mail_zeny_fee/100 + zeny, LOG_TYPE_MAIL, NULL);
  	}
 	
 	clif_Mail_send(sd, WRITE_MAIL_FAILED);
