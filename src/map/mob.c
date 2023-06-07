@@ -2519,7 +2519,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 			
 			//Logs items, MVP prizes [Lupus]
-			log_pick(&md->bl, LOG_TYPE_PICKDROP_MONSTER, item.nameid, -1, NULL);
+			log_pick(&md->bl, LOG_TYPE_MVP, item.nameid, -1, NULL);
 			break;
 		}
 

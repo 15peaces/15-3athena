@@ -55,7 +55,7 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_STEAL:            return 'D';  // Steal/Snatcher
 		case LOG_TYPE_CONSUME:          return 'C';  // (C)onsumed
 		case LOG_TYPE_PRODUCE:          return 'O';  // Pr(O)duced/Ingredients
-		//case LOG_TYPE_MVP:              return 'U';  // MVP Rewards
+		case LOG_TYPE_MVP:              return 'U';  // MVP Rewards
 		case LOG_TYPE_COMMAND:          return 'A';  // (A)dmin command
 		case LOG_TYPE_STORAGE:          return 'R';  // Sto(R)age
 		case LOG_TYPE_GSTORAGE:         return 'G';  // (G)uild storage

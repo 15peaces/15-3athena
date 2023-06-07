@@ -3203,8 +3203,6 @@ int skill_area_sub (struct block_list *bl, va_list ap)
 
 	if(battle_check_target(src,bl,flag) > 0)
 	{
-		if( skill_id == AB_EPICLESIS && src->id == bl->id ) // 3ceam v1.
-			return 0;
 		// several splash skills need this initial dummy packet to display correctly
 		if (flag&SD_PREAMBLE && skill_area_temp[2] == 0)
 			clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, 6);
@@ -14692,7 +14690,7 @@ static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 		}
 		case WL_COMET:
 		{// Does not consume a red gemstone if a Warlock is standing next to the caster.
-			if( tsd->status.class_ == JOB_WARLOCK || tsd->status.class_ == JOB_WARLOCK_T || tsd->status.class_ == JOB_BABY_WARLOCK )
+			if ((tsd->class_&MAPID_THIRDMASK) == MAPID_WARLOCK)
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}

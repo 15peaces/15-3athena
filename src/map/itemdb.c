@@ -18,10 +18,10 @@
 #include <string.h>
 
 // 65,535 array entries (the rest goes to the db)
-#define MAX_ITEMDB 0x10000
+//#define MAX_ITEMDB 0x10000
 
 
-static struct item_data* itemdb_array[MAX_ITEMDB];
+//static struct item_data* itemdb_array[MAX_ITEMDB];
 static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
 static DBMap *itemdb_randomopt; /// Random option DB
 
