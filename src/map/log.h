@@ -37,7 +37,7 @@ typedef enum e_log_pick_type
 	LOG_TYPE_STEAL            = 0x00040,
 	LOG_TYPE_CONSUME          = 0x00080,
 	LOG_TYPE_PRODUCE          = 0x00100,
-	//LOG_TYPE_MVP              = 0x00200,
+	LOG_TYPE_MVP              = 0x00200,
 	LOG_TYPE_COMMAND          = 0x00400,
 	LOG_TYPE_STORAGE          = 0x00800,
 	LOG_TYPE_GSTORAGE         = 0x01000,

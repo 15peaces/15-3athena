@@ -2213,6 +2213,9 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 				case W_2HSTAFF:
 				case W_BOOK: //Rods and Books can't be broken [Skotlex]
 				case W_HUUMA:
+				case W_DOUBLE_AA:	// Axe usage during dual wield should also prevent breaking [Neutral]
+				case W_DOUBLE_DA:
+				case W_DOUBLE_SA:
 					where &= ~EQP_WEAPON;
 			}
 		}
@@ -2242,7 +2245,7 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 			j = sd->equip_index[i];
 			if (j < 0 || sd->inventory.u.items_inventory[j].attribute == 1 || !sd->inventory_data[j])
 				continue;
-			flag = 0;
+
 			switch(i) {
 				case EQI_HEAD_TOP: //Upper Head
 					flag = (where&EQP_HELM);
@@ -5987,7 +5990,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case SA_FORTUNE:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		if(sd) pc_getzeny(sd,status_get_lv(bl)*100,LOG_TYPE_OTHER,NULL);
+		if(sd) pc_getzeny(sd,status_get_lv(bl)*100,LOG_TYPE_STEAL,NULL);
 		break;
 	case SA_TAMINGMONSTER:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -6984,7 +6987,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			int dummy = 1;
 			i = skill_get_splash(skillid,skilllv);
-			map_foreachinarea(skill_cell_overlap, src->m, src->x-i, src->y-i, src->x+i, src->y+i, BL_SKILL, LG_EARTHDRIVE, &dummy, src);
+			map_foreachinarea(skill_cell_overlap, src->m, src->x-i, src->y-i, src->x+i, src->y+i, BL_SKILL, LG_EARTHDRIVE, src);
 		}
 		map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src),
 		src, skillid, skilllv, tick, flag|BCT_ENEMY|SD_SPLASH|1, skill_castend_damage_id);
@@ -12021,7 +12024,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			//Enable if any unique animation gets added to this skill ID in the future. [Rytech]
 			//clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
 			i = skill_get_splash(skillid, skilllv);
-			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, skillid, &dummy, src);
+			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, skillid, src);
 			map_foreachinarea(skill_area_sub, src->m, x-i, y-i, x+i, y+i, BL_CHAR, src, skillid, skilllv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
 		}
 		break;
@@ -12503,7 +12506,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			int dummy = 1;
 			clif_skill_poseffect(src,skillid,skilllv,x,y,tick);
 			i = skill_get_splash(skillid, skilllv);
-			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, HW_GANBANTEIN, &dummy, src);
+			map_foreachinarea(skill_cell_overlap, src->m, x-i, y-i, x+i, y+i, BL_SKILL, HW_GANBANTEIN, src);
 		} else {
 			if (sd) clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 			return 1;
@@ -13343,7 +13346,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 			val2 |= UF_SINGLEANIMATION;
 
 		if( range <= 0 )
-			map_foreachincell(skill_cell_overlap, src->m, ux, uy, BL_SKILL, skillid, &alive, src, flag);
+			map_foreachincell(skill_cell_overlap, src->m, ux, uy, BL_SKILL, skillid, src, flag);
 		if( !alive )
 			continue;
 
@@ -16078,7 +16081,7 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 				req.zeny = 0; //Zeny is reduced on skill_attack.
 			if( sd->status.zeny < req.zeny )
 				req.zeny = sd->status.zeny;
-			pc_payzeny(sd, req.zeny, LOG_TYPE_OTHER, NULL); //@Need proper type
+			pc_payzeny(sd, req.zeny, LOG_TYPE_CONSUME, NULL);
 		}
 	}
 
@@ -17481,11 +17484,9 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 	int *alive;
 	int flag;
 	struct skill_unit *unit;
-	struct block_list *src;
 
 	skillid = va_arg(ap,int);
 	alive = va_arg(ap,int *);
-	src = va_arg(ap,struct block_list *);
 	flag = va_arg(ap, int);
 	unit = (struct skill_unit *)bl;
 
@@ -20565,7 +20566,7 @@ int skill_stasis_check(struct block_list *bl, int skillid)
  * skill_nocast_db.txt
  * skill_unit_db.txt
  * produce_db.txt
- * create_arrow_db.txt
+ * CREATErrow_db.txt
  * abra_db.txt
  * spellbook_db.txt
  *------------------------------------------*/
@@ -21001,7 +21002,7 @@ static void skill_readdb(void)
 	skill_init_unit_layout();
 	skill_init_nounit_layout();
 	sv_readdb(db_path, "produce_db.txt"        , ',',   4,  4+2*MAX_PRODUCE_RESOURCE, MAX_SKILL_PRODUCE_DB, skill_parse_row_producedb);
-	episode_sv_readdb(db_path, "create_arrow_db", ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
+	episode_sv_readdb(db_path, "CREATErrow_db", ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
 	sv_readdb(db_path, "abra_db.txt"           , ',',   4,  4, MAX_SKILL_ABRA_DB, skill_parse_row_abradb);
 	sv_readdb(db_path, "spellbook_db.txt"      , ',',   3,  3, MAX_SKILL_SPELLBOOK_DB, skill_parse_row_spellbookdb);
 	sv_readdb(db_path, "improvise_db.txt"      , ',',   2,  2, MAX_SKILL_IMPROVISE_DB, skill_parse_row_improvisedb);

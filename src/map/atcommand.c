@@ -3254,11 +3254,11 @@ ACMD_FUNC(skillpoint)
 }
 
 /*==========================================
- * @zeny (Rewritten by [Yor])
+ * @zeny
  *------------------------------------------*/
 ACMD_FUNC(zeny)
 {
-	int zeny;
+	int zeny = 0, ret = -1;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || (zeny = atoi(message)) == 0) {
@@ -3266,7 +3266,17 @@ ACMD_FUNC(zeny)
 		return -1;
 	}
 
-	pc_getzeny(sd, zeny, LOG_TYPE_COMMAND, NULL);
+
+	if (zeny > 0) {
+		if ((ret = pc_getzeny(sd, zeny, LOG_TYPE_COMMAND, NULL)) == 1)
+			clif_displaymessage(fd, msg_txt(sd, 149)); // Unable to increase the number/value.
+	}
+	else {
+		if (sd->status.zeny < -zeny) zeny = -sd->status.zeny;
+		if ((ret = pc_payzeny(sd, -zeny, LOG_TYPE_COMMAND, NULL)) == 1)
+			clif_displaymessage(fd, msg_txt(sd, 41)); // Unable to decrease the number/value.
+	}
+	if (!ret) clif_displaymessage(fd, msg_txt(sd, 176)); //ret=0 mean cmd success
 
 	return 0;
 }
@@ -9339,6 +9349,10 @@ ACMD_FUNC(clone)
 		flag = 1;
 	else if (strcmpi(command+1, "slaveclone") == 0) {
 	  	flag = 2;
+		if (pc_isdead(sd)) {
+			clif_displaymessage(fd, msg_txt(sd, 129 + flag * 2));
+			return 0;
+		}
 		master = sd->bl.id;
 		if (battle_config.atc_slave_clone_limit
 			&& mob_countslave(&sd->bl) >= battle_config.atc_slave_clone_limit) {

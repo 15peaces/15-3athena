@@ -1372,7 +1372,7 @@ const char* parse_subexpr(const char* p,int limit)
 			return p;
 		}
 	}
-	tmpp=p;
+
 	if((op=C_NEG,*p=='-') || (op=C_LNOT,*p=='!') || (op=C_NOT,*p=='~')){
 		p=parse_subexpr(p+1,10);
 		add_scriptc(op);
@@ -3227,7 +3227,7 @@ void op_2str(struct script_state* st, int op, const char* s1, const char* s2)
 	case C_LE: a = (strcmp(s1,s2) <= 0); break;
 	case C_ADD:
 		{
-			char* buf = (char *)aMallocA((strlen(s1)+strlen(s2)+1)*sizeof(char));
+			char* buf = (char *)aMalloc((strlen(s1)+strlen(s2)+1)*sizeof(char));
 			strcpy(buf, s1);
 			strcat(buf, s2);
 			script_pushstr(st, buf);
@@ -8905,7 +8905,7 @@ BUILDIN_FUNC(gettimestr)
 	fmtstr=script_getstr(st,2);
 	maxlen=script_getnum(st,3);
 
-	tmpstr=(char *)aMallocA((maxlen+1)*sizeof(char));
+	tmpstr=(char *)aMalloc((maxlen+1)*sizeof(char));
 	strftime(tmpstr,maxlen,fmtstr,localtime(&now));
 	tmpstr[maxlen]='\0';
 
@@ -9995,7 +9995,7 @@ BUILDIN_FUNC(getusers)
 BUILDIN_FUNC(getusersname)
 {
 	TBL_PC *sd, *pl_sd;
-	int disp_num=1;
+	//int disp_num=1;
 	struct s_mapiterator* iter;
 
 	sd = script_rid2sd(st);
@@ -10007,8 +10007,10 @@ BUILDIN_FUNC(getusersname)
 		if( battle_config.hide_GM_session && pc_isGM(pl_sd) )
 			continue; // skip hidden GMs
 
+		/* Temporary fix for bugreport:1023.
+		 * Do not uncomment unless you want thousands of 'next' buttons.
 		if((disp_num++)%10==0)
-			clif_scriptnext(sd,st->oid);
+			clif_scriptnext(sd,st->oid);*/
 		clif_scriptmes(sd,st->oid,pl_sd->status.name);
 	}
 	mapit_free(iter);
@@ -10296,7 +10298,7 @@ BUILDIN_FUNC(sc_end)
 		sce->val1 = sce->val2 = sce->val3 = sce->val4 = 0;
 		status_change_end(bl, (sc_type)type, INVALID_TIMER);
 	} else
-		status_change_clear(bl, 2);// remove all effects
+		status_change_clear(bl, 3);// remove all effects
 	return 0;
 }
 
@@ -12431,7 +12433,7 @@ BUILDIN_FUNC(getitemname)
 		script_pushconststr(st,"null");
 		return 0;
 	}
-	item_name=(char *)aMallocA(ITEM_NAME_LENGTH*sizeof(char));
+	item_name=(char *)aMalloc(ITEM_NAME_LENGTH*sizeof(char));
 
 	memcpy(item_name, i_data->jname, ITEM_NAME_LENGTH);
 	script_pushstr(st,item_name);
@@ -15293,7 +15295,7 @@ BUILDIN_FUNC(md5)
 	char *md5str;
 
 	tmpstr = script_getstr(st,2);
-	md5str = (char *)aMallocA((32+1)*sizeof(char));
+	md5str = (char *)aMalloc((32+1)*sizeof(char));
 	MD5_String(tmpstr, md5str);
 	script_pushstr(st, md5str);
 	return 0;
@@ -15471,7 +15473,7 @@ BUILDIN_FUNC(escape_sql)
 
 	str = script_getstr(st,2);
 	len = strlen(str);
-	esc_str = (char*)aMallocA(len*2+1);
+	esc_str = (char*)aMalloc(len*2+1);
 #if defined(TXT_ONLY)
 	jstrescapecpy(esc_str, str);
 #else

@@ -2709,8 +2709,8 @@ void clif_inventorylist(struct map_session_data *sd) {
 	const int se = 57;
 #endif
 
-	buf = (unsigned char*)aMallocA(MAX_INVENTORY * s + 4);
-	bufe = (unsigned char*)aMallocA(MAX_INVENTORY * se + 4);
+	buf = (unsigned char*)aMalloc(MAX_INVENTORY * s + 4);
+	bufe = (unsigned char*)aMalloc(MAX_INVENTORY * se + 4);
 	
 	for( i = 0, n = 0, ne = 0; i < MAX_INVENTORY; i++ ) {
 		if( sd->inventory.u.items_inventory[i].nameid <=0 || sd->inventory_data[i] == NULL )
@@ -2842,8 +2842,8 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 	const int cmd = 28;
 #endif
 
-	buf = (unsigned char*)aMallocA(items_length * s + 4);
-	bufe = (unsigned char*)aMallocA(items_length * cmd + 4);
+	buf = (unsigned char*)aMalloc(items_length * s + 4);
+	bufe = (unsigned char*)aMalloc(items_length * cmd + 4);
 
 	for( i = 0, n = 0, ne = 0; i < items_length; i++ )
 	{
@@ -2922,8 +2922,8 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 	const int sidxe = 4 + 24;
 	const int cmd = 0x995;
 
-	buf = (unsigned char*)aMallocA(items_length * s + 28);
-	bufe = (unsigned char*)aMallocA(items_length * se + 28);
+	buf = (unsigned char*)aMalloc(items_length * s + 28);
+	bufe = (unsigned char*)aMalloc(items_length * se + 28);
 
 	for( i = 0, n = 0, ne = 0; i < items_length; i++ )
 	{
@@ -2994,8 +2994,8 @@ void clif_cartlist(struct map_session_data *sd) {
 	const int cmd = 57;
 #endif
 
-	buf = (unsigned char*)aMallocA(MAX_CART * s + 4);
-	bufe = (unsigned char*)aMallocA(MAX_CART * cmd + 4);
+	buf = (unsigned char*)aMalloc(MAX_CART * s + 4);
+	bufe = (unsigned char*)aMalloc(MAX_CART * cmd + 4);
 	
 	for( i = 0, n = 0, ne = 0; i < MAX_CART; i++ )
 	{
@@ -3615,8 +3615,8 @@ void clif_changelook(struct block_list *bl,int type,int val)
 						val = sd->inventory_data[n]->view_id;
 					else
 						val = sd->inventory.u.items_inventory[n].nameid;
-					}
-				val = 0;
+				} else
+					val = 0;
 			}
 #endif
 			//Shoes? No packet uses this....
@@ -6661,7 +6661,7 @@ void clif_displayformatted(struct map_session_data* sd, const char* fmt, ...)
 void clif_broadcast(struct block_list* bl, const char* mes, int len, int type, enum send_target target)
 {
 	int lp = type ? 4 : 0;
-	unsigned char *buf = (unsigned char*)aMallocA((4 + lp + len)*sizeof(unsigned char));
+	unsigned char *buf = (unsigned char*)aMalloc((4 + lp + len)*sizeof(unsigned char));
 
 	WBUFW(buf,0) = 0x9a;
 	WBUFW(buf,2) = 4 + lp + len;
@@ -6698,7 +6698,7 @@ void clif_MainChatMessage(const char* message)
 /// 01c3 <packet len>.W <fontColor>.L <fontType>.W <fontSize>.W <fontAlign>.W <fontY>.W <message>.?B
 void clif_broadcast2(struct block_list* bl, const char* mes, int len, unsigned long fontColor, short fontType, short fontSize, short fontAlign, short fontY, enum send_target target)
 {
-	unsigned char *buf = (unsigned char*)aMallocA((16 + len)*sizeof(unsigned char));
+	unsigned char *buf = (unsigned char*)aMalloc((16 + len)*sizeof(unsigned char));
 
 	WBUFW(buf,0)  = 0x1c3;
 	WBUFW(buf,2)  = len + 16;
@@ -12165,13 +12165,6 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
 		return;
 	}
-
-	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING && 
-		sd->inventory.u.items_inventory[index].nameid != ITEMID_NAUTHIZ_RUNE)
-	{
-		clif_useitemack(sd,index,0,false);
-		return;
-	}
 	
 	//This flag enables you to use items while in an NPC. [Skotlex]
 	if (sd->npc_id) {
@@ -15830,11 +15823,12 @@ void clif_parse_FriendsListAdd(int fd, struct map_session_data *sd)
 void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 {
 	struct map_session_data *f_sd;
-	int char_id, account_id;
+	int account_id;
+	//int char_id;
 	char reply;
 
 	account_id = RFIFOL(fd,2);
-	char_id = RFIFOL(fd,6);
+	//char_id = RFIFOL(fd,6);
 #if PACKETVER < 6
 	reply = RFIFOB(fd,10);
 #else
@@ -19021,7 +19015,7 @@ void clif_bg_message(struct battleground_data *bg, int src_id, const char *name,
 	if( !bg->count || (sd = bg_getavailablesd(bg)) == NULL )
 		return;
 
-	buf = (unsigned char*)aMallocA((len + NAME_LENGTH + 8)*sizeof(unsigned char));
+	buf = (unsigned char*)aMalloc((len + NAME_LENGTH + 8)*sizeof(unsigned char));
 
 	WBUFW(buf,0) = 0x2dc;
 	WBUFW(buf,2) = len + NAME_LENGTH + 8;

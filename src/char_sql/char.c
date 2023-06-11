@@ -818,7 +818,7 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 	}
 
 	// bit array indicating which inventory items have already been matched
-	flag = (bool*) aCallocA(max, sizeof(bool));
+	flag = (bool*) aCalloc(max, sizeof(bool));
 
 	while( SQL_SUCCESS == SqlStmt_NextRow(stmt) )
 	{

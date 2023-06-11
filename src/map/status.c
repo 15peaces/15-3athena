@@ -10431,11 +10431,13 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	return 1;
 }
 /*==========================================
- * ステータス異常全解除
+ * Ending all status except those listed.
+ * @TODO maybe usefull for dispel instead reseting a liste there.
  * type:
- * 0 - ???
- * 1 - ???
- * 2 - ???
+ * 0 - PC killed -> Place here statuses that do not dispel on death.
+ * 1 - If for some reason status_change_end decides to still keep the status when quitting.
+ * 2 - Do clif
+ * 3 - Do not remove some permanent/time-independent effects
  *------------------------------------------*/
 int status_change_clear(struct block_list* bl, int type)
 {
@@ -10493,8 +10495,6 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_DECORATION_OF_MUSIC:
 				case SC_SPRITEMABLE:
 				case SC_SOULATTACK:
-
-				// Clans
 				case SC_CLAN_INFO:
 				case SC_SWORDCLAN:
 				case SC_ARCWANDCLAN:
@@ -10525,8 +10525,12 @@ int status_change_clear(struct block_list* bl, int type)
 
 		if(type == 3)
 			switch(i)
-			{
-				// Clans
+			{	// Type 3: Do not remove some permanent/time-independent effects
+				// TODO: This list may be incomplete
+				case SC_WEIGHT50:
+				case SC_WEIGHT90:
+				case SC_NOCHAT:
+				case SC_ON_PUSH_CART:
 				case SC_CLAN_INFO:
 				case SC_SWORDCLAN:
 				case SC_ARCWANDCLAN:

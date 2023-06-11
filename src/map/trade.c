@@ -600,12 +600,15 @@ void trade_tradecommit(struct map_session_data *sd)
 		}
 	}
 
-	if( sd->deal.zeny || tsd->deal.zeny )
-	{
-		pc_getzeny(sd, tsd->deal.zeny - sd->deal.zeny, LOG_TYPE_TRADE, tsd);
-		pc_getzeny(tsd, sd->deal.zeny - tsd->deal.zeny, LOG_TYPE_TRADE, sd);
-
+	if (sd->deal.zeny) {
+		pc_payzeny(sd, sd->deal.zeny, LOG_TYPE_TRADE, tsd);
+		pc_getzeny(tsd, sd->deal.zeny, LOG_TYPE_TRADE, sd);
 		sd->deal.zeny = 0;
+
+	}
+	if (tsd->deal.zeny) {
+		pc_payzeny(tsd, tsd->deal.zeny, LOG_TYPE_TRADE, sd);
+		pc_getzeny(sd, tsd->deal.zeny, LOG_TYPE_TRADE, tsd);
 		tsd->deal.zeny = 0;
 	}
 	

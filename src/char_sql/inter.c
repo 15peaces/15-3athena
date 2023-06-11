@@ -356,7 +356,7 @@ int inter_mapif_init(int fd)
 // broadcast sending
 int mapif_broadcast(unsigned char *mes, int len, unsigned long fontColor, short fontType, short fontSize, short fontAlign, short fontY, int sfd)
 {
-	unsigned char *buf = (unsigned char*)aMallocA((len)*sizeof(unsigned char));
+	unsigned char *buf = (unsigned char*)aMalloc((len)*sizeof(unsigned char));
 
 	if (buf == NULL) return 1;
 

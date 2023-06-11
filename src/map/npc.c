@@ -435,7 +435,7 @@ int npc_timerevent_import(char* lname, void* data, va_list ap)
 		int j, i = nd->u.scr.timeramount;
 
 		if( te == NULL )
-			te = (struct npc_timerevent_list*)aMallocA( sizeof(struct npc_timerevent_list) );
+			te = (struct npc_timerevent_list*)aMalloc( sizeof(struct npc_timerevent_list) );
 		else
 			te = (struct npc_timerevent_list*)aRealloc( te, sizeof(struct npc_timerevent_list) * (i+1) );
 
@@ -796,14 +796,13 @@ int npc_event(struct map_session_data* sd, const char* eventname, int ontouch)
 int npc_touch_areanpc_sub(struct block_list *bl, va_list ap)
 {
 	struct map_session_data *sd;
-	int pc_id,npc_id;
+	int pc_id;
 	char *name;
 
 	nullpo_ret(bl);
 	nullpo_ret((sd = map_id2sd(bl->id)));
 
 	pc_id = va_arg(ap,int);
-	npc_id = va_arg(ap,int);
 	name = va_arg(ap,char*);
 
 	if( sd->state.warping )
@@ -838,7 +837,7 @@ int npc_touchnext_areanpc(struct map_session_data* sd, bool leavemap)
 
 		nd->touching_id = sd->touching_id = 0;
 		snprintf(name, ARRAYLENGTH(name), "%s::%s", nd->exname, script_config.ontouch_name);
-		map_forcountinarea(npc_touch_areanpc_sub,nd->bl.m,nd->bl.x - xs,nd->bl.y - ys,nd->bl.x + xs,nd->bl.y + ys,1,BL_PC,sd->bl.id,nd->bl.id,name);
+		map_forcountinarea(npc_touch_areanpc_sub,nd->bl.m,nd->bl.x - xs,nd->bl.y - ys,nd->bl.x + xs,nd->bl.y + ys,1,BL_PC,sd->bl.id,name);
 	}
 	return 0;
 }
@@ -2567,7 +2566,7 @@ int npc_convertlabel_db(DBKey key, DBData *data, va_list ap)
 
 	if( *label_list == NULL )
 	{
-		*label_list = (struct npc_label_list *) aCallocA (1, sizeof(struct npc_label_list));
+		*label_list = (struct npc_label_list *) aCalloc (1, sizeof(struct npc_label_list));
 		*label_list_num = 0;
 	} else
 		*label_list = (struct npc_label_list *) aRealloc (*label_list, sizeof(struct npc_label_list)*(*label_list_num+1));
@@ -2801,7 +2800,7 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 			struct npc_timerevent_list *te = nd->u.scr.timer_event;
 			int j, k = nd->u.scr.timeramount;
 			if (te == NULL)
-				te = (struct npc_timerevent_list *)aMallocA(sizeof(struct npc_timerevent_list));
+				te = (struct npc_timerevent_list *)aMalloc(sizeof(struct npc_timerevent_list));
 			else
 				te = (struct npc_timerevent_list *)aRealloc( te, sizeof(struct npc_timerevent_list) * (k+1) );
 			for (j = 0; j < k; j++){
@@ -3013,7 +3012,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 			struct npc_timerevent_list *te = nd->u.scr.timer_event;
 			int j, k = nd->u.scr.timeramount;
 			if (te == NULL)
-				te = (struct npc_timerevent_list *)aMallocA(sizeof(struct npc_timerevent_list));
+				te = (struct npc_timerevent_list *)aMalloc(sizeof(struct npc_timerevent_list));
 			else
 				te = (struct npc_timerevent_list *)aRealloc( te, sizeof(struct npc_timerevent_list) * (k+1) );
 			for (j = 0; j < k; j++){

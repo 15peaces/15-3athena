@@ -4150,8 +4150,9 @@ int pc_inventoryblank(struct map_session_data *sd)
  *------------------------------------------*/
 int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd)
 {
-	nullpo_ret(sd);
+	nullpo_retr(-1, sd);
 
+	zeny = cap_value(zeny, -MAX_ZENY, MAX_ZENY); //prevent command UB
 	if( zeny < 0 )
 	{
 		ShowError("pc_payzeny: Paying negative Zeny (zeny=%d, account_id=%d, char_id=%d).\n", zeny, sd->status.account_id, sd->status.char_id);
@@ -4178,8 +4179,9 @@ int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
  *------------------------------------------*/
 int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd)
 {
-	nullpo_ret(sd);
+	nullpo_retr(-1, sd);
 
+	zeny = cap_value(zeny, -MAX_ZENY, MAX_ZENY); //prevent command UB
 	if( zeny < 0 )
 	{
 		ShowError("pc_getzeny: Obtaining negative Zeny (zeny=%d, account_id=%d, char_id=%d).\n", zeny, sd->status.account_id, sd->status.char_id);
@@ -4814,33 +4816,53 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	if( !pc_isUseitem(sd,n) )
 		return 0;
 
-	 //Prevent mass item usage. [Skotlex]
-	if( DIFF_TICK(sd->canuseitem_tick, tick) > 0 ||
-		(itemdb_iscashfood(sd->inventory.u.items_inventory[n].nameid) && DIFF_TICK(sd->canusecashfood_tick, tick) > 0)
-	)
-		return 0;
-
-	if( sd->sc.count && (
-		sd->sc.data[SC_BERSERK] ||
-		(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
-		sd->sc.data[SC_TRICKDEAD] ||
-		sd->sc.data[SC_HIDING] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
-		sd->sc.data[SC__SHADOWFORM] ||
-		sd->sc.data[SC__INVISIBILITY] ||
-		sd->sc.data[SC__MANHOLE] ||
-		// Nauthiz Rune (RK_REFRESH) can be used while in crystalize status.
-		(sd->sc.data[SC_CRYSTALIZE] && sd->inventory.u.items_inventory[n].nameid != ITEMID_NAUTHIZ_RUNE) ||
-		sd->sc.data[SC_SATURDAY_NIGHT_FEVER] ||
-		sd->sc.data[SC_HEAT_BARREL_AFTER] ||
-		sd->sc.data[SC_FLASHCOMBO] ||
-		sd->sc.data[SC_KINGS_GRACE] ||
-		sd->sc.data[SC_SUHIDE]
-	))
-		return 0;
-
 	// Store information for later use before it is lost (via pc_delitem) [Paradox924X]
 	nameid = sd->inventory_data[n]->nameid;
+
+	if (nameid != ITEMID_NAUTHIZ_RUNE && sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
+		return 0;
+
+	if (sd->sc.count) {
+		if ((nameid == ITEMID_NAUTHIZ_RUNE) && (
+			sd->sc.data[SC_FREEZE] ||
+			sd->sc.data[SC_STUN] ||
+			sd->sc.data[SC_DEEPSLEEP] ||
+			sd->sc.data[SC_STONE] ||
+			sd->sc.data[SC_CRYSTALIZE]
+			)
+			) {
+			sd->sc.opt1 = 0; //remove option and status to allow skill
+			status_change_end(&sd->bl, SC_FREEZE, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STUN, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_DEEPSLEEP, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_STONE, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_CRYSTALIZE, INVALID_TIMER);
+		}  //let us continue
+		else if (
+			sd->sc.data[SC_BERSERK] ||
+			(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
+			sd->sc.data[SC_TRICKDEAD] ||
+			sd->sc.data[SC_HIDING] ||
+			(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOITEM) ||
+			sd->sc.data[SC__SHADOWFORM] ||
+			sd->sc.data[SC__INVISIBILITY] ||
+			sd->sc.data[SC__MANHOLE] ||
+			// Nauthiz Rune (RK_REFRESH) can be used while in crystalize status.
+			sd->sc.data[SC_CRYSTALIZE] ||
+			sd->sc.data[SC_SATURDAY_NIGHT_FEVER] ||
+			sd->sc.data[SC_HEAT_BARREL_AFTER] ||
+			sd->sc.data[SC_FLASHCOMBO] ||
+			sd->sc.data[SC_KINGS_GRACE] ||
+			sd->sc.data[SC_SUHIDE]
+			)
+			return 0;
+	}
+
+		//Prevent mass item usage. [Skotlex]
+		if (DIFF_TICK(sd->canuseitem_tick, tick) > 0 ||
+			(itemdb_iscashfood(nameid) && DIFF_TICK(sd->canusecashfood_tick, tick) > 0)
+			)
+			return 0;
 
 	//Since most delay-consume items involve using a "skill-type" target cursor,
 	//perform a skill-use check before going through. [Skotlex]
@@ -8145,6 +8167,7 @@ int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 	case SP_ZENY:
 		if( val < 0 )
 			return 0;// can't set negative zeny
+		log_zeny(sd, LOG_TYPE_SCRIPT, sd, -(sd->status.zeny - cap_value(val, 0, MAX_ZENY)));
 		sd->status.zeny = cap_value(val, 0, MAX_ZENY);
 		break;
 	case SP_BASEEXP:

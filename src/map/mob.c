@@ -1149,14 +1149,12 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 
 static int mob_warpchase_sub(struct block_list *bl,va_list ap)
 {
-	struct mob_data* md;
 	struct block_list *target;
 	struct npc_data **target_nd;
 	struct npc_data *nd;
 	int *min_distance;
 	int cur_distance;
 
-	md=va_arg(ap,struct mob_data *);
 	target= va_arg(ap, struct block_list*);
 	target_nd= va_arg(ap, struct npc_data**);
 	min_distance= va_arg(ap, int*);
@@ -1371,7 +1369,7 @@ int mob_warpchase(struct mob_data *md, struct block_list *target)
 
 	//Search for warps within mob's viewing range.
 	map_foreachinrange (mob_warpchase_sub, &md->bl,
-		md->db->range2, BL_NPC, md, target, &warp, &distance);
+		md->db->range2, BL_NPC, target, &warp, &distance);
 
 	if (warp && unit_walktobl(&md->bl, &warp->bl, 1, 1))
 		return 1;
@@ -2429,7 +2427,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			{
 				i = sd->bonus.get_zeny_num > 0?sd->bonus.get_zeny_num:-md->level*sd->bonus.get_zeny_num;
 				if (!i) i = 1;
-				pc_getzeny(sd, 1 + rand() % i, LOG_TYPE_OTHER, NULL);
+				pc_getzeny(sd, 1 + rand() % i, LOG_TYPE_PICKDROP_MONSTER, NULL);
 			}
 		}
 		
@@ -3344,6 +3342,9 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 
 	nullpo_ret(sd);
 
+	if (pc_isdead(sd) && master_id && flag & 1)
+		return 0;
+
 	ARR_FIND( MOB_CLONE_START, MOB_CLONE_END, class_, mob_db_data[class_] == NULL );
 	if(class_ >= MOB_CLONE_END)
 		return 0;
@@ -3926,7 +3927,6 @@ static int mob_read_sqldb(void)
 		Sql_FreeResult(mmysql_handle);
 		
 		ShowStatus("Done reading '"CL_WHITE"%lu"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", count, mob_db_name[fi]);
-		count = 0;
 	}
 	return 0;
 }

@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/11/2023
+	r388 [15peaces]
+		*Fixed zeny transactions for negative amounts.
+			-Also updated @zeny to send a message when succed.
+		*Temporary bugfix for getusersname script command where various 'next' buttons would pop 
+			-for now let's display everything in one single "page";
+		*Fixed something related to sc_end command:
+			-Made use of the "new" flag 3 of status_change_clear to include some status which shouldn't be removed by sc_end script command.
+		*Some misc cleaning/fixing.
+			-Removed deprecated memory manager macros.
+			-disabled unused grf_shuffle_enc function.
+		*Preventing clone commands if player is dead (for slave and evil clone).
+		*Updated athena-start, save pid to not kill all other processes with same name.
+
 06/07/2023
 	r387 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn387_log.sql file!

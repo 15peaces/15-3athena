@@ -299,7 +299,7 @@ int inter_mapif_init(int fd) {
 // broadcast sending
 int mapif_broadcast(unsigned char *mes, int len, unsigned long fontColor, short fontType, short fontSize, short fontAlign, short fontY, int sfd)
 {
-	unsigned char *buf = (unsigned char*)aMallocA((len)*sizeof(unsigned char));
+	unsigned char *buf = (unsigned char*)aMalloc((len)*sizeof(unsigned char));
 
 	WBUFW(buf,0) = 0x3800;
 	WBUFW(buf,2) = len;
@@ -553,7 +553,7 @@ int mapif_parse_WisToGM(int fd) {
 	return 0;
 }
 
-static void* create_accreg(DBKey key, va_list args) {
+static void* CREATEccreg(DBKey key, va_list args) {
 	struct accreg *reg;
 	reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
 	reg->account_id = key.i;
@@ -575,7 +575,7 @@ int mapif_parse_Registry(int fd) {
 		default: //Error?
 			return 1; 
 	}
-	reg = (struct accreg*)idb_ensure(accreg_db, RFIFOL(fd,4), create_accreg);
+	reg = (struct accreg*)idb_ensure(accreg_db, RFIFOL(fd,4), CREATEccreg);
 
 	for(j=0,p=13;j<ACCOUNT_REG_NUM && p<RFIFOW(fd,2);j++){
 		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg->reg[j].str, &len);

@@ -56,11 +56,6 @@
 
 #endif
 
-// deprecated, do not use
-#define aMallocA aMalloc
-#define aCallocA aCalloc
-#define CREATE_A CREATE
-
 /////////////// Buffer Creation /////////////////
 // Full credit for this goes to Shinomori [Ajarn]
 
