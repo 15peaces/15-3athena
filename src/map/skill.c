@@ -20566,7 +20566,7 @@ int skill_stasis_check(struct block_list *bl, int skillid)
  * skill_nocast_db.txt
  * skill_unit_db.txt
  * produce_db.txt
- * CREATErrow_db.txt
+ * create_arrow_db.txt
  * abra_db.txt
  * spellbook_db.txt
  *------------------------------------------*/
@@ -21002,7 +21002,7 @@ static void skill_readdb(void)
 	skill_init_unit_layout();
 	skill_init_nounit_layout();
 	sv_readdb(db_path, "produce_db.txt"        , ',',   4,  4+2*MAX_PRODUCE_RESOURCE, MAX_SKILL_PRODUCE_DB, skill_parse_row_producedb);
-	episode_sv_readdb(db_path, "CREATErrow_db", ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
+	episode_sv_readdb(db_path, "create_arrow_db", ',', 1+2,  1+2*MAX_ARROW_RESOURCE, MAX_SKILL_ARROW_DB, skill_parse_row_createarrowdb);
 	sv_readdb(db_path, "abra_db.txt"           , ',',   4,  4, MAX_SKILL_ABRA_DB, skill_parse_row_abradb);
 	sv_readdb(db_path, "spellbook_db.txt"      , ',',   3,  3, MAX_SKILL_SPELLBOOK_DB, skill_parse_row_spellbookdb);
 	sv_readdb(db_path, "improvise_db.txt"      , ',',   2,  2, MAX_SKILL_IMPROVISE_DB, skill_parse_row_improvisedb);

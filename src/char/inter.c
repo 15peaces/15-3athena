@@ -553,7 +553,7 @@ int mapif_parse_WisToGM(int fd) {
 	return 0;
 }
 
-static void* CREATEccreg(DBKey key, va_list args) {
+static void* create_accreg(DBKey key, va_list args) {
 	struct accreg *reg;
 	reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
 	reg->account_id = key.i;
@@ -575,7 +575,7 @@ int mapif_parse_Registry(int fd) {
 		default: //Error?
 			return 1; 
 	}
-	reg = (struct accreg*)idb_ensure(accreg_db, RFIFOL(fd,4), CREATEccreg);
+	reg = (struct accreg*)idb_ensure(accreg_db, RFIFOL(fd,4), create_accreg);
 
 	for(j=0,p=13;j<ACCOUNT_REG_NUM && p<RFIFOW(fd,2);j++){
 		sscanf((char*)RFIFOP(fd, p), "%31s%n", reg->reg[j].str, &len);
