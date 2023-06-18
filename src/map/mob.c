@@ -976,7 +976,8 @@ int mob_spawn (struct mob_data *md)
 	if (map_addblock(&md->bl))
 		return 2;
 
-	clif_spawn(&md->bl);
+	if (map[md->bl.m].users)
+		clif_spawn(&md->bl);
 	skill_unit_move(&md->bl,tick,1);
 	mobskill_use(md, tick, MSC_SPAWN);
 	return 0;
@@ -1079,8 +1080,14 @@ static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 		dist = distance_bl(&md->bl, bl);
 		if(
 			((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) &&
-			battle_check_range(&md->bl,bl,md->db->range2)
+			battle_check_range(&md->bl, bl, md->db->range2)
 		) { //Pick closest target?
+			if (map[bl->m].icewall_num &&
+				!path_search_long(NULL, bl->m, md->bl.x, md->bl.y, bl->x, bl->y, CELL_CHKICEWALL)) {
+
+				if (!check_distance_bl(&md->bl, bl, status_get_range(&md->bl)))
+					return 0;
+			}
 			(*target) = bl;
 			md->target_id=bl->id;
 			md->min_chase= dist + md->db->range3;
@@ -2481,9 +2488,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			; //No drops.
 		else
 		for(j=0;j<3;j++)
-		{
-			i = rand() % 3;
-			
+		{			
 			if(md->db->mvpitem[i].nameid <= 0)
 				continue;
 			if(!itemdb_exists(md->db->mvpitem[i].nameid))
@@ -3334,7 +3339,7 @@ static bool mob_clone_disabled_skills(uint16 skill_id)
 int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char *event, int master_id, int mode, int flag, unsigned int duration)
 {
 	int class_;
-	int i,j,inf,skill_id;
+	int i,j,inf,skill_id, fd;
 	struct mob_data *md;
 	struct mob_skill *ms;
 	struct mob_db* db;
@@ -3377,6 +3382,11 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 
 	//Skill copy [Skotlex]
 	ms = &db->skill[0];
+
+	// We temporarily disable sd's fd so it doesn't receive the messages from skill_check_condition_castbegin
+	fd = sd->fd;
+	sd->fd = 0;
+
 	//Go Backwards to give better priority to advanced skills.
 	for (i=0,j = MAX_SKILL_TREE-1;j>=0 && i< MAX_MOBSKILL ;j--) {
 		skill_id = skill_tree[pc_class2idx(sd->status.class_)][j].id;
@@ -3391,6 +3401,10 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 		if (!(flag&1) &&
 			skill_get_unit_id(skill_id, 0) &&
 			skill_get_unit_flag(skill_id)&(UF_NOMOB|UF_NOPC))
+			continue;
+
+		// The clone should be able to cast the skill(e.g.have the required weapon)
+		if (!skill_check_condition_castbegin(sd, skill_id, sd->status.skill[skill_id].lv))
 			continue;
 
 		memset (&ms[i], 0, sizeof(struct mob_skill));
@@ -3485,6 +3499,10 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 		
 		db->maxskill = ++i;
 	}
+
+	// We grant the session it's fd value back.
+	sd->fd = fd;
+
 	//Finally, spawn it.
 	md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event);
 	if (!md) return 0; //Failed?
@@ -3693,8 +3711,10 @@ static bool mob_parse_dbrow(char** str)
 	status->speed = atoi(str[26]);
 	status->aspd_amount = 0;
 	status->aspd_rate = 1000;
-	status->adelay = atoi(str[27]);
-	status->amotion = atoi(str[28]);
+	i = atoi(str[27]);
+	status->adelay = cap_value(i, battle_config.monster_max_aspd * 2, 4000);
+	i = atoi(str[28]);
+	status->amotion = cap_value(i, battle_config.monster_max_aspd, 2000);
 	//If the attack animation is longer than the delay, the client crops the attack animation!
 	//On aegis there is no real visible effect of having a recharge-time less than amotion anyway.
 	if (status->adelay < status->amotion)

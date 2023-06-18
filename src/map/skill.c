@@ -12899,6 +12899,30 @@ static bool skill_dance_switch(struct skill_unit* unit, int flag)
 }
 
 /*==========================================
+ * Upon Ice Wall cast it checks all nearby mobs to find any who may be blocked by the IW
+ *------------------------------------------*/
+static int skill_icewall_block(struct block_list *bl, va_list ap) {
+	struct block_list *target = NULL;
+	struct mob_data *md = ((TBL_MOB*)bl);
+
+	nullpo_ret(bl);
+	nullpo_ret(md);
+
+	if (!md->target_id)
+		return 0;
+
+	nullpo_ret((target = map_id2bl(md->target_id)));
+
+	if (path_search_long(NULL, bl->m, bl->x, bl->y, target->x, target->y, CELL_CHKICEWALL))
+		return 0;
+
+	if (!check_distance_bl(bl, target, status_get_range(bl)))
+		mob_unlocktarget(md, gettick());
+
+	return 0;
+}
+
+/*==========================================
  * Initializes and sets a ground skill.
  * flag&1 is used to determine when the skill 'morphs' (Warp portal becomes active, or Fire Pillar becomes active)
  * flag&2 is used to determine if this skill was casted with Magic Power active.
@@ -13372,8 +13396,15 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	}
 
 
-	if (skillid == NJ_TATAMIGAESHI) //Store number of tiles.
-		group->val1 = group->alive_count;
+	//success, unit created.
+	switch (skillid) {
+	case WZ_ICEWALL:
+			map_foreachinrange(skill_icewall_block, src, AREA_SIZE, BL_MOB);
+			break;
+		case NJ_TATAMIGAESHI: //Store number of tiles.
+			group->val1 = group->alive_count;
+			break;
+	}
 
 	return group;
 }
@@ -17804,6 +17835,7 @@ struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int 
 		map_setgatcell(unit->bl.m,unit->bl.x,unit->bl.y,5);
 		clif_changemapcell(0,unit->bl.m,unit->bl.x,unit->bl.y,5,AREA);
 		skill_unitsetmapcell(unit, WZ_ICEWALL, group->skill_lv, CELL_ICEWALL, true);
+		map[unit->bl.m].icewall_num++;
 		break;
 	case SA_LANDPROTECTOR:
 		skill_unitsetmapcell(unit,SA_LANDPROTECTOR,group->skill_lv,CELL_LANDPROTECTOR,true);
@@ -17859,6 +17891,7 @@ int skill_delunit (struct skill_unit* unit)
 		map_setgatcell(unit->bl.m,unit->bl.x,unit->bl.y,unit->val2);
 		clif_changemapcell(0,unit->bl.m,unit->bl.x,unit->bl.y,unit->val2,ALL_SAMEMAP); // hack to avoid clientside cell bug
 		skill_unitsetmapcell(unit, WZ_ICEWALL, group->skill_lv, CELL_ICEWALL, false);
+		map[unit->bl.m].icewall_num--;
 		break;
 	case SA_LANDPROTECTOR:
 		skill_unitsetmapcell(unit,SA_LANDPROTECTOR,group->skill_lv,CELL_LANDPROTECTOR,false);

@@ -303,11 +303,9 @@ enum e_race {
 	RC_PLAYER,			//PLAYER
 	RC_BOSS,			//LAST - Race ID 11 officially marked as LAST to mark the end of the race ID list.
 	RC_NONBOSS,
-	RC_MAX,
 	RC_ALL,
 	RC_NONDEMIHUMAN,
-
-	//RC_ALL = 0xFF,     ///< Every race (implemented as equivalent to RC_BOSS and RC_NONBOSS)
+	RC_MAX // auto upd enum for array size
 };
 
 /**
@@ -552,6 +550,7 @@ typedef enum {
 	CELL_CHKNOCHAT,		// Whether the cell denies Player Chat Window
 	CELL_CHKPVP,		// Whether the cell has PVP [Napster]
 	CELL_CHKMAELSTROM,
+	CELL_CHKICEWALL,
 } cell_chk;
 
 struct mapcell
@@ -686,6 +685,13 @@ struct map_data {
 	int jexp;	// map experience multiplicator
 	int bexp;	// map experience multiplicator
 	int nocommand; //Blocks @/# commands for non-gms. [Skotlex]
+	/**
+	 * Ice wall reference counter
+	 * - since there are a thounsand mobs out there in a lot of maps checking on,
+	 * - every targetting for icewall on attack path would just be a waste, so,
+	 * - this counter allows icewall checking be only run when there is a actual ice wall on the map
+	 **/
+	int icewall_num;
 	// Instance Variables
 	int instance_id;
 	int instance_src_map;

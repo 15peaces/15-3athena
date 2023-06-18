@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/18/2023
+	r389 [15peaces]
+		*Removed /SAFESEH option from all MSVC** projects.
+		*Modified @cleanmap to properly clean the entire map and added @cleanarea to clean an specified area.
+		*Some updates to const.txt file
+			-Corrected RC_ constants
+				--This should also fix some item bonusses.
+			-Added C_ constants for some colors.
+		*Added official way to drop MVP rewards (always starts from first slot).
+		*adelay and amotion values of monsters will now be capped on db-loading.
+		*Fixed clones so that they only cast skills according to the data passed from it's player source (e.g. your clone can't cast double straffing if it isn't wearing a bow).
+		*Added support for CELL_CHKICEWALL checks.
+			-This fixes a item dropping over a ice-wall-occupied cell is no longer lost/deleted.
+			-Also fixes Ice Walls finally are able to stop mobs chasing caster, and they now act as walls meaning mobs will not turn around to attack you unless they were already chasing you.
+		*Minor performance improvement. Server no longer wastes processing time creating the awfully long spawn packet when there is nobody in the map it is being spawned in (for mobs & npcs). 
+			-This also makes server boot faster.
+
 06/11/2023
 	r388 [15peaces]
 		*Fixed zeny transactions for negative amounts.
