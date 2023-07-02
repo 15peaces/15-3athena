@@ -7,6 +7,7 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/mmo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -39,8 +40,8 @@
 #include <math.h>
 
 
-//Better equiprobability than rand()% [orn]
-#define rand(a, b) (a+(int) ((float)(b-a+1)*rand()/(RAND_MAX+1.0)))
+//Better equiprobability than rnd()% [orn]
+#define rand(a, b) (a+(int) ((float)(b-a+1)*rnd()/(RAND_MAX+1.0)))
 
 struct s_homunculus_db homunculus_db[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31];	//[orn]
 struct skill_tree_entry hskill_tree[MAX_HOMUNCULUS_CLASS + MAX_MUTATE_HOMUNCULUS_CLASS + 31][MAX_SKILL_TREE];

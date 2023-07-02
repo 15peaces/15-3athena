@@ -6,6 +6,7 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/core.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/malloc.h"
 #include "../common/socket.h"
@@ -125,7 +126,6 @@ ACMD_FUNC(send)
 {
 	int len=0,off,end,type;
 	long num;
-	(void)command; // not used
 
 	// read message type as hex number (without the 0x)
 	if(!message || !*message ||
@@ -2752,11 +2752,11 @@ ACMD_FUNC(monstersmall)
 	for (i = 0; i < number; i++) {
 		int mx, my;
 		if (x <= 0)
-			mx = sd->bl.x + (rand() % 11 - 5);
+			mx = sd->bl.x + (rnd() % 11 - 5);
 		else
 			mx = x;
 		if (y <= 0)
-			my = sd->bl.y + (rand() % 11 - 5);
+			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
 		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "2") != 0) ? 1 : 0;
@@ -2828,11 +2828,11 @@ ACMD_FUNC(monsterbig)
 	for (i = 0; i < number; i++) {
 		int mx, my;
 		if (x <= 0)
-			mx = sd->bl.x + (rand() % 11 - 5);
+			mx = sd->bl.x + (rnd() % 11 - 5);
 		else
 			mx = x;
 		if (y <= 0)
-			my = sd->bl.y + (rand() % 11 - 5);
+			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
 		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "4") != 0) ? 1 : 0;
@@ -5711,7 +5711,7 @@ ACMD_FUNC(jail)
 		return -1;
 	}
 
-	switch(rand() % 2) { //Jail Locations
+	switch(rnd() % 2) { //Jail Locations
 	case 0:
 		m_index = mapindex_name2id(MAP_JAIL);
 		x = 24;
@@ -5833,7 +5833,7 @@ ACMD_FUNC(jailfor)
 	}
 
 	//Jail locations, add more as you wish.
-	switch(rand()%2)
+	switch(rnd()%2)
 	{
 		case 1: //Jail #1
 			m_index = mapindex_name2id(MAP_JAIL);
@@ -9377,8 +9377,8 @@ ACMD_FUNC(clone)
 	}
 
 	do {
-		x = sd->bl.x + (rand() % 10 - 5);
-		y = sd->bl.y + (rand() % 10 - 5);
+		x = sd->bl.x + (rnd() % 10 - 5);
+		y = sd->bl.y + (rnd() % 10 - 5);
 	} while (map_getcell(sd->bl.m,x,y,CELL_CHKNOPASS) && i++ < 10);
 
 	if (i >= 10) {

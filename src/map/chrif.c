@@ -27,6 +27,7 @@
 #include "chrif.h"
 #include "quest.h"
 #include "storage.h"
+#include "guild.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -498,6 +499,7 @@ int chrif_connectack(int fd)
 	if( !char_init_done ) {
 		char_init_done = true;
 		ShowStatus("Event '"CL_WHITE"OnInterIfInitOnce"CL_RESET"' executed with '"CL_WHITE"%d"CL_RESET"' NPCs.\n", npc_event_doall("OnInterIfInitOnce"));
+		guild_castle_map_init();
 		intif_clan_requestclans();
 	}
 
@@ -552,6 +554,9 @@ void chrif_on_ready(void)
 
 	//Re-save any storages that were modified in the disconnection time. [Skotlex]
 	do_reconnect_storage();
+
+	//Re-save any guild castles that were modified in the disconnection time.
+	guild_castle_reconnect(-1, 0, 0);
 }
 
 

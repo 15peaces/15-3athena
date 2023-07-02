@@ -6,6 +6,7 @@
 #include "../common/timer.h"
 #include "../common/grfio.h"
 #include "../common/malloc.h"
+#include "../common/random.h"
 #include "../common/socket.h" // WFIFO*()
 #include "../common/showmsg.h"
 #include "../common/version.h"
@@ -1364,12 +1365,12 @@ int map_pickrandominrange(int (*func)(struct block_list*,va_list), struct block_
 
 		for( i = 0; i < 2 * bl_list_count; i++ )
 		{ // Randomize indexes of array. Thanks to vallcrist. [LimitLine]
-			int size = bl_list_count, index1 = rand() % size, index2 = 0, tries = 0;
+			int size = bl_list_count, index1 = rnd() % size, index2 = 0, tries = 0;
 			struct block_list *temp;
 			do
 			{
 				tries ++; // Prevent infinite loop. [LimitLine]
-				index2 = rand()% size;
+				index2 = rnd()% size;
 			} while ( index2 == index1 && bl_list_count > 1 && tries < 10 );
 			temp = bl_list[index1];
 			bl_list[index1] = bl_list[index2];
@@ -1487,7 +1488,7 @@ int map_searchrandfreecell(int m,int *x,int *y,int stack)
 	}
 	if(free_cell==0)
 		return 0;
-	free_cell = rand()%free_cell;
+	free_cell = rnd()%free_cell;
 	*x = free_cells[free_cell][0];
 	*y = free_cells[free_cell][1];
 	return 1;
@@ -1548,8 +1549,8 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
 	}
 	
 	while(tries--) {
-		*x = (rx >= 0)?(rand()%rx2-rx+bx):(rand()%(map[m].xs-2)+1);
-		*y = (ry >= 0)?(rand()%ry2-ry+by):(rand()%(map[m].ys-2)+1);
+		*x = (rx >= 0)?(rnd()%rx2-rx+bx):(rnd()%(map[m].xs-2)+1);
+		*y = (ry >= 0)?(rnd()%ry2-ry+by):(rnd()%(map[m].ys-2)+1);
 		
 		if (*x == bx && *y == by)
 			continue; //Avoid picking the same target tile.
@@ -1598,7 +1599,7 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int fir
 
 	if(!map_searchrandfreecell(m,&x,&y,flags&2?1:0))
 		return 0;
-	r=rand();
+	r=rnd();
 
 	CREATE(fitem, struct flooritem_data, 1);
 	fitem->bl.type=BL_ITEM;
@@ -2643,8 +2644,8 @@ int map_random_dir(struct block_list *bl, short *x, short *y)
 	if (dist < 1) dist =1;
 	
 	do {
-		short j = 1 + 2 * (rand() % 4); //Pick a random diagonal direction
-		short segment = 1 + (rand() % dist); //Pick a random interval from the whole vector in that direction
+		short j = 1 + 2 * (rnd() % 4); //Pick a random diagonal direction
+		short segment = 1 + (rnd() % dist); //Pick a random interval from the whole vector in that direction
 		xi = bl->x + segment*dirx[j];
 		segment = (short)sqrt((float)(dist2 - segment*segment)); //The complement of the previously picked segment
 		yi = bl->y + segment*diry[j];

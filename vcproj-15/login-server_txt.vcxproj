@@ -52,7 +52,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\3rdparty\msinttypes\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\3rdparty\msinttypes\include;..\3rdparty\mt19937ar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32;__WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;FD_SETSIZE=4096;DB_MANUAL_CAST_TO_UNION;WITH_TXT;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
@@ -97,7 +97,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\3rdparty\msinttypes\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\3rdparty\msinttypes\include;..\3rdparty\mt19937ar;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WIN32;__WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;FD_SETSIZE=4096;DB_MANUAL_CAST_TO_UNION;WITH_TXT;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -130,6 +130,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\3rdparty\mt19937ar\mt19937ar.h" />
     <ClInclude Include="..\src\login\account.h" />
     <ClInclude Include="..\src\login\ipban.h" />
     <ClInclude Include="..\src\login\login.h" />
@@ -145,6 +146,7 @@
     <ClInclude Include="..\src\common\nullpo.h" />
     <ClInclude Include="..\src\common\plugin.h" />
     <ClInclude Include="..\src\common\plugins.h" />
+    <ClInclude Include="..\src\common\random.h" />
     <ClInclude Include="..\src\common\showmsg.h" />
     <ClInclude Include="..\src\common\socket.h" />
     <ClInclude Include="..\src\common\strlib.h" />
@@ -153,6 +155,7 @@
     <ClInclude Include="..\src\common\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\3rdparty\mt19937ar\mt19937ar.c" />
     <ClCompile Include="..\src\login\account_txt.c" />
     <ClCompile Include="..\src\login\ipban_txt.c" />
     <ClCompile Include="..\src\login\login.c" />
@@ -166,6 +169,7 @@
     <ClCompile Include="..\src\common\msg_conf.c" />
     <ClCompile Include="..\src\common\nullpo.c" />
     <ClCompile Include="..\src\common\plugins.c" />
+    <ClCompile Include="..\src\common\random.c" />
     <ClCompile Include="..\src\common\showmsg.c" />
     <ClCompile Include="..\src\common\socket.c" />
     <ClCompile Include="..\src\common\strlib.c" />

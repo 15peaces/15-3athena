@@ -5,6 +5,7 @@
 #include "../common/core.h" // get_svn_revision()
 #include "../common/malloc.h"
 #include "../common/nullpo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/socket.h" // session[]
 #include "../common/strlib.h" // safestrncpy()
@@ -34,7 +35,6 @@
 #include "pet.h" // pet_unlocktarget()
 #include "party.h" // party_search()
 #include "guild.h" // guild_search(), guild_request_info()
-#include "guild_castle.h" // guild_mapindex2gc()
 #include "script.h" // script_config
 #include "skill.h"
 #include "status.h" // struct status_data
@@ -5155,7 +5155,7 @@ int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 	// Try dropping one item, in the order from first to last possible slot.
 	// Droprate is affected by the skill success rate.
 	for( i = 0; i < MAX_STEAL_DROP; i++ )
-		if( md->db->dropitem[i].nameid > 0 && itemdb_exists(md->db->dropitem[i].nameid) && rand() % 10000 < md->db->dropitem[i].p * rate/100. )
+		if( md->db->dropitem[i].nameid > 0 && itemdb_exists(md->db->dropitem[i].nameid) && rnd() % 10000 < md->db->dropitem[i].p * rate/100. )
 			break;
 	if( i == MAX_STEAL_DROP )
 		return 0;
@@ -5291,9 +5291,9 @@ int pc_steal_coin(struct map_session_data *sd,struct block_list *target)
 	// FIXME: This formula is either custom or outdated.
 	skill = pc_checkskill(sd,RG_STEALCOIN)*10;
 	rate = skill + (sd->status.base_level - md->level)*3 + sd->battle_status.dex*2 + sd->battle_status.luk*2;
-	if(rand()%1000 < rate)
+	if(rnd()%1000 < rate)
 	{
-		int amount = md->level*10 + rand()%100;
+		int amount = md->level*10 + rnd()%100;
 
 		log_zeny(sd, LOG_TYPE_STEAL, sd, amount);
 		pc_getzeny(sd, amount, LOG_TYPE_STEAL, NULL);
@@ -5443,8 +5443,8 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 	if( x == 0 && y == 0 )
 	{// pick a random walkable cell
 		do {
-			x=rand()%(map[m].xs-2)+1;
-			y=rand()%(map[m].ys-2)+1;
+			x=rnd()%(map[m].xs-2)+1;
+			y=rnd()%(map[m].ys-2)+1;
 		} while(map_getcell(m,x,y,CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1)));
 	}
 
@@ -5522,8 +5522,8 @@ int pc_randomwarp(struct map_session_data *sd, clr_type type)
 		return 0;
 
 	do{
-		x=rand()%(map[m].xs-2)+1;
-		y=rand()%(map[m].ys-2)+1;
+		x=rnd()%(map[m].xs-2)+1;
+		y=rnd()%(map[m].ys-2)+1;
 	} while((map_getcell(m, x, y, CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1))) && (i++) < 1000);
 
 	if (i < 1000)
@@ -7531,8 +7531,8 @@ void pc_deathmatch(struct map_session_data* sd, clr_type clrtype)
 	if( map_getcell(sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) && battle_config.cellpvp_deathmatch ) 
 	{
 		do {
-			x = rand() % (map[sd->bl.m].xs - 2) + 1;
-			y = rand() % (map[sd->bl.m].ys - 2) + 1;
+			x = rnd() % (map[sd->bl.m].xs - 2) + 1;
+			y = rnd() % (map[sd->bl.m].ys - 2) + 1;
 		} while( !map_getcell(sd->bl.m, x, y, CELL_CHKPVP) );
 
 		pc_setstand(sd, false);
@@ -7962,8 +7962,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 					}
 				}
 				if(eq_num > 0){
-					int n = eq_n[rand()%eq_num];
-					if(rand()%10000 < per){
+					int n = eq_n[rnd()%eq_num];
+					if(rnd()%10000 < per){
 						if(sd->inventory.u.items_inventory[n].equip)
 							pc_unequipitem(sd,n,3);
 						pc_dropitem(sd,n,1);
@@ -7973,7 +7973,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			else if(id > 0){
 				for(i=0;i<MAX_INVENTORY;i++){
 					if(sd->inventory.u.items_inventory[i].nameid == id
-						&& rand()%10000 < per
+						&& rnd()%10000 < per
 						&& ((type == 1 && !sd->inventory.u.items_inventory[i].equip)
 							|| (type == 2 && sd->inventory.u.items_inventory[i].equip)
 							|| type == 3) ){
@@ -10956,9 +10956,6 @@ void pc_readdb(void) {
 // Read MOTD on startup. [Valaris]
 int pc_read_motd(void)
 {
-	char* buf, * ptr;
-	unsigned int lines = 0, entries = 0;
-	size_t len;
 	FILE* fp;
 
 	// clear old MOTD
@@ -10967,6 +10964,10 @@ int pc_read_motd(void)
 	// read current MOTD
 	if( ( fp = fopen(motd_txt, "r") ) != NULL )
 	{
+		char* buf, *ptr;
+		unsigned int lines = 0, entries = 0;
+		size_t len;
+
 		while( entries < MOTD_LINE_SIZE && fgets(motd_text[entries], sizeof(motd_text[entries]), fp) )
 		{
 			lines++;

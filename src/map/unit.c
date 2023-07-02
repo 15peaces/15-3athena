@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/timer.h"
 #include "../common/nullpo.h"
@@ -788,12 +789,12 @@ uint8 unit_getdir(struct block_list *bl)
  *------------------------------------------*/
 int unit_blown(struct block_list* bl, int dx, int dy, int count, int flag)
 {
-	int nx, ny, result;
-	struct map_session_data* sd;
-	struct skill_unit* su = NULL;
-
 	if(count)
 	{
+		int nx, ny, result;
+		struct map_session_data* sd;
+		struct skill_unit* su = NULL;
+
 		sd = BL_CAST(BL_PC, bl);
 		su = BL_CAST(BL_SKILL, bl);
 
@@ -1957,7 +1958,7 @@ int	unit_calc_pos(struct block_list *bl, int tx, int ty, int dir)
 		{
 			for( i = 0; i < 12; i++ )
 			{
-				k = rand()%8; // Pick a Random Dir
+				k = rnd()%8; // Pick a Random Dir
 				dx = -dirx[k] * 2;
 				dy = -diry[k] * 2;
 				x = tx + dx;
@@ -2535,7 +2536,10 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 	default: ;// do nothing
 	}
 
-	clif_clearunit_area(bl,clrtype);
+	// BL_MOB is handled by mob_dead
+	if (bl->type != BL_MOB)
+		clif_clearunit_area(bl, clrtype);
+
 	map_delblock(bl);
 	map_freeblock_unlock();
 	return 1;

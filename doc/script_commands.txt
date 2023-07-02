@@ -888,8 +888,10 @@ OnAgitInit3:
 
 OnAgitStart will run whenever the server shifts into WoE mode, whether it is 
 done with @agitstart GM command or with 'AgitStart' script command. OnAgitEnd 
-will do likewise for the end of WoE. OnAgitInit will run when castle data is 
-loaded from the char-server by the map server.
+will do likewise for the end of WoE.
+
+OnAgitInit will run when data for all castles and all guilds that hold a castle 
+is received by map-server from the char-server after initial connect.
 
 No RID will be attached while any of the above mentioned labels are triggered, so 
 no character or account-based variables will be accessible, until you attach a 
@@ -3071,9 +3073,6 @@ version of the server and in 'guild_castle' table for the SQL version.
 
 Valid types of data are:
 
- 0 - Will make the map server request the castle data from the char server, and 
-     always return 0. This, apparently, will also cause indirectly the execution 
-     of an 'OnAgitInit:' event mentioned at the beginning of this document.
  1 - Guild ID
  2 - Castle Economy score.
  3 - Castle Defense score.

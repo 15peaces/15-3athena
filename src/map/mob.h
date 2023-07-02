@@ -5,7 +5,6 @@
 #define _MOB_H_
 
 #include "../common/mmo.h" // struct item
-#include "guild_castle.h" // struct guardian_data
 #include "map.h" // struct status_data, struct view_data, struct mob_skill
 #include "status.h" // struct status data, struct status_change
 #include "unit.h" // unit_stop_walking(), unit_stop_attack()
@@ -293,7 +292,7 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target);
 
 int mob_spawn_guardian(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, int guardian, bool has_index);	// Spawning Guardians [Valaris]
 int mob_spawn_bg(const char* mapname, short x, short y, const char* mobname, int class_, const char* event, unsigned int bg_id);
-int mob_guardian_guildchange(struct block_list *bl,va_list ap); //Change Guardian's ownership. [Skotlex]
+int mob_guardian_guildchange(struct mob_data *md); //Change Guardian's ownership. [Skotlex]
 
 int mob_randomwalk(struct mob_data *md,int64 tick);
 int mob_warpchase(struct mob_data *md, struct block_list *target);

@@ -7,6 +7,7 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/mmo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -629,14 +630,14 @@ int elem_unlocktarget(struct elemental_data *ed, int64 tick)
 			DIFF_TICK(ed->next_walktime, tick) <= 0 &&
 			!elem_randomwalk(ed,tick))
 			//Delay next random walk when this one failed.
-			ed->next_walktime=tick+rand()%3000;
+			ed->next_walktime=tick+rnd()%3000;
 		break;*/
 	default:
 		elem_stop_attack(ed);
 		if (battle_config.elem_ai&0x8)
 			elem_stop_walking(ed,1); //Immediately stop chasing.
 		ed->state.skillstate = MSS_IDLE;
-		ed->next_walktime=tick+rand()%3000+3000;
+		ed->next_walktime=tick+rnd()%3000+3000;
 		break;
 	}
 	if (ed->target_id) {
@@ -723,7 +724,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 			    )
 			&&  ed->state.attacked_count++ >= ELEM_RUDE_ATTACKED_COUNT
 			&&  !elemskill_use(ed, tick, MSC_RUDEATTACKED) // If can't rude Attack
-			&&  can_move && unit_escape(&ed->bl, tbl, rand()%10 +1)) // Attempt escape
+			&&  can_move && unit_escape(&ed->bl, tbl, rnd()%10 +1)) // Attempt escape
 			{	//Escaped
 				ed->attacked_id = 0;
 				return true;
@@ -747,7 +748,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 			{ // Rude attacked
 				if (ed->state.attacked_count++ >= ELEM_RUDE_ATTACKED_COUNT
 				&& !elemskill_use(ed, tick, MSC_RUDEATTACKED) && can_move
-				&& !tbl && unit_escape(&ed->bl, abl, rand()%10 +1))
+				&& !tbl && unit_escape(&ed->bl, abl, rnd()%10 +1))
 				{	//Escaped.
 					//TODO: Maybe it shouldn't attempt to run if it has another, valid target?
 					ed->attacked_id = 0;
@@ -1145,7 +1146,7 @@ int elemskill_use(struct elemental_data *ed, int64 tick, int bypass)
 		return 0;
 
 	// Cast chance.
-	if (rand() % 100 > battle_config.elem_offensive_skill_chance)
+	if (rnd() % 100 > battle_config.elem_offensive_skill_chance)
 		return 0;
 
 	// Cast time should only be applied when

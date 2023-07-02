@@ -5,6 +5,33 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/02/2023
+	r390 [15peaces]
+		*Follow-up r389
+			-Ice Wall should now block mobs properly.
+		*Fixed soul drain visual effect not being displayed to mobs.
+		*Mobs can now "drop" pet eggs.
+		*Some misc. fixing & cleaning.
+			-Reduced some scopes.
+			-Reading the itemDB now checks for extra columns.
+		*Switched to Mersenne Twister MT19937 as random number generator instead of standard `rand()` function.
+			-It also fixes issues caused by RAND_MAX being only 32k in Windows systems.
+		*Re-added missing warp to prontera castle.
+		*Replaced some magic numbers related to castle guardians with `MAX_GUARDIANS`.
+		*Guild Castle code cleanup:
+			-removed `MAX_GUILDCASTLE` limit
+			-char-server now caches guild castles in `DBMap`
+			-improved guild castle SQL queries to support non-default values of `MAX_GUARDIANS`
+			-disallowed declaring guild castles on maps that are on other map-servers 
+			-map-server now requests data for all guild castles from char-server on initial connect
+			-removed ''guildcastleinfo events'' as they were esentially duplicated ''OnAgitInit''
+			-optimized castle data load packets
+			-Replaced manual counting of castles occupied by a guild with `guild_checkcastles()` calls.
+			-Merged guild_castle source files into guild files.
+			-Updated build-files, also added episode source files to make-lists.
+			-all changes to guild castle data are now handled first by map-server and only sent to char-server for saving
+				--ensured that changes made to guild castle during char-server disconnection time will be resent on reconnect
+
 06/18/2023
 	r389 [15peaces]
 		*Removed /SAFESEH option from all MSVC** projects.

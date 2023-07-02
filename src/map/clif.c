@@ -8,6 +8,7 @@
 #include "../common/malloc.h"
 #include "../common/version.h"
 #include "../common/nullpo.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -31,7 +32,6 @@
 #include "party.h"
 #include "unit.h"
 #include "guild.h"
-#include "guild_castle.h"
 #include "vending.h"
 #include "pet.h"
 #include "homunculus.h"
@@ -916,16 +916,16 @@ void clif_clearunit_area(struct block_list* bl, clr_type type)
 static int clif_clearunit_delayed_sub(int tid, int64 tick, int id, intptr_t data)
 {
 	struct block_list *bl = (struct block_list *)data;
-	clif_clearunit_area(bl, CLR_OUTSIGHT);
+	clif_clearunit_area(bl, (clr_type)id);
 	aFree(bl);
 	return 0;
 }
-void clif_clearunit_delayed(struct block_list* bl, int64 tick)
+void clif_clearunit_delayed(struct block_list* bl, clr_type type, int64 tick)
 {
 	struct block_list *tbl;
 	tbl = (struct block_list*)aMalloc(sizeof (struct block_list));
 	memcpy (tbl, bl, sizeof (struct block_list));
-	add_timer(tick, clif_clearunit_delayed_sub, 0, (intptr_t)tbl);
+	add_timer(tick, clif_clearunit_delayed_sub, (int)type, (intptr_t)tbl);
 }
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand)
@@ -2412,7 +2412,7 @@ static void clif_addcards(unsigned char* buf, struct item* item)
 	}
 	//Client only receives four cards.. so randomly send them a set of cards. [Skotlex]
 	if( MAX_SLOTS > 4 && (j = itemdb_slot(item->nameid)) > 4 )
-		i = rand()%(j-3); //eg: 6 slots, possible i values: 0->3, 1->4, 2->5 => i = rand()%3;
+		i = rnd()%(j-3); //eg: 6 slots, possible i values: 0->3, 1->4, 2->5 => i = rnd()%3;
 
 	//Normal items.
 	if( item->card[i] > 0 && (j=itemdb_viewid(item->card[i])) > 0 )
@@ -5127,8 +5127,8 @@ int clif_damage(struct block_list* src, struct block_list* dst, int64 tick, int 
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION]) {
-			if(damage) damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rand()%100;
-			if(damage2) damage2 = damage2*(sc->data[SC_HALLUCINATION]->val2) + rand()%100;
+			if(damage) damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
+			if(damage2) damage2 = damage2*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
 		}
 	}
 
@@ -5902,7 +5902,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,i
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION] && damage)
-			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rand()%100;
+			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
 	}
 
 #if PACKETVER < 3
@@ -5998,7 +5998,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION] && damage)
-			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rand()%100;
+			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
 	}
 
 	WBUFW(buf,0)=0x115;
@@ -11724,7 +11724,7 @@ void clif_parse_Emotion(int fd, struct map_session_data *sd)
 
 		if(battle_config.client_reshuffle_dice && emoticon>=E_DICE1 && emoticon<=E_DICE6)
 		{// re-roll dice
-			emoticon = rand()%6+E_DICE1;
+			emoticon = rnd()%6+E_DICE1;
 		}
 
 		clif_emotion(&sd->bl, emoticon);
@@ -12925,7 +12925,6 @@ void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
   *------------------------------------------*/
 static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, short skilllv, short skillnum, short x, short y, int skillmoreinfo)
 {
-	int lv;
 	int64 tick = gettick();
 
 	if( !(skill_get_inf(skillnum)&INF_GROUND_SKILL) )
@@ -13005,6 +13004,8 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	}
 	else
 	{
+		int lv;
+
 		sd->skillitem = sd->skillitemlv = 0;
 		if( (lv = pc_checkskill(sd, skillnum)) > 0 )
 		{
@@ -18688,7 +18689,7 @@ void clif_mercenary_updatestatus(struct map_session_data *sd, int type)
 	{
 		case SP_ATK1:
 			{
-				int atk = rand()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+				int atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
 				WFIFOL(fd,4) = cap_value(atk, 0, INT16_MAX);
 			}
 			break;
@@ -18758,7 +18759,7 @@ void clif_mercenary_info(struct map_session_data *sd)
 	WFIFOL(fd,2) = md->bl.id;
 
 	// Mercenary shows ATK as a random value between ATK ~ ATK2
-	atk = rand()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
+	atk = rnd()%(status->rhw.atk2 - status->rhw.atk + 1) + status->rhw.atk;
 	WFIFOW(fd,6) = cap_value(atk, 0, INT16_MAX);
 	WFIFOW(fd,8) = cap_value(status->matk_max, 0, INT16_MAX);
 	WFIFOW(fd,10) = status->hit;
@@ -20341,7 +20342,7 @@ void clif_parse_RouletteGenerate(int fd, struct map_session_data* sd)
 		}
 
 		sd->roulette.prizeStage = stage;
-		sd->roulette.prizeIdx = rand()%rd.items[stage];
+		sd->roulette.prizeIdx = rnd()%rd.items[stage];
 
 		if (rd.flag[stage][sd->roulette.prizeIdx]&1) {
 			clif_roulette_generate_ack(sd,GENERATE_ROULETTE_LOSING,stage,sd->roulette.prizeIdx,0);

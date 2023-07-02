@@ -5,6 +5,7 @@
 #include "../common/timer.h"
 #include "../common/nullpo.h"
 #include "../common/malloc.h"
+#include "../common/random.h"
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -143,7 +144,6 @@ int pet_unlocktarget(struct pet_data *pd)
 int pet_attackskill(struct pet_data *pd, int target_id)
 {
 	struct block_list *bl;
-	int inf;
 
 	if (!battle_config.pet_status_support || !pd->a_skill || 
 		(battle_config.pet_equip_required && !pd->pet.equip))
@@ -152,8 +152,10 @@ int pet_attackskill(struct pet_data *pd, int target_id)
 	if (DIFF_TICK(pd->ud.canact_tick, gettick()) > 0)
 		return 0;
 	
-	if (rand()%100 < (pd->a_skill->rate +pd->pet.intimate*pd->a_skill->bonusrate/1000))
+	if (rnd()%100 < (pd->a_skill->rate +pd->pet.intimate*pd->a_skill->bonusrate/1000))
 	{	//Skotlex: Use pet's skill 
+		int inf;
+
 		bl=map_id2bl(target_id);
 		if(bl == NULL || pd->bl.m != bl->m || bl->prev == NULL || status_isdead(bl) ||
 			!check_distance_bl(&pd->bl, bl, pd->db->range3))
@@ -202,9 +204,9 @@ int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type)
 		if(pd->petDB->defence_attack_rate > 0 && rate <= 0)
 			rate = 1;
 	}
-	if(rand()%10000 < rate) 
+	if(rnd()%10000 < rate) 
 	{
-		if(pd->target_id == 0 || rand()%10000 < pd->petDB->change_target_rate)
+		if(pd->target_id == 0 || rnd()%10000 < pd->petDB->change_target_rate)
 			pd->target_id = bl->id;
 	}
 
@@ -333,7 +335,7 @@ static int pet_performance(struct map_session_data *sd, struct pet_data *pd)
 		val = 1;
 
 	pet_stop_walking(pd,2000<<8);
-	clif_pet_performance(pd, rand()%val + 1);
+	clif_pet_performance(pd, rnd()%val + 1);
 	pet_lootitem_drop(pd,NULL);
 	return 1;
 }
@@ -605,7 +607,7 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 	if(battle_config.pet_catch_rate != 100)
 		pet_catch_rate = (pet_catch_rate*battle_config.pet_catch_rate)/100;
 
-	if(rand()%10000 < pet_catch_rate)
+	if(rnd()%10000 < pet_catch_rate)
 	{
 		//achievement_update_objective(sd, AG_TAMING, 1, md->class_);
 		unit_remove_map(&md->bl,CLR_OUTSIGHT);
@@ -888,7 +890,7 @@ static int pet_randomwalk(struct pet_data *pd,int64 tick)
 		int i,x,y,c,d=12-pd->move_fail_count;
 		if(d<5) d=5;
 		for(i=0;i<retrycount;i++){
-			int r=rand();
+			int r=rnd();
 			x=pd->bl.x+r%(d*2+1)-d;
 			y=pd->bl.y+r/(d*2+1)%(d*2+1)-d;
 			if(map_getcell(pd->bl.m,x,y,CELL_CHKPASS) && unit_walktoxy(&pd->bl,x,y,0)){
@@ -911,7 +913,7 @@ static int pet_randomwalk(struct pet_data *pd,int64 tick)
 			else
 				c+=pd->status.speed;
 		}
-		pd->next_walktime = tick+rand()%3000+3000+c;
+		pd->next_walktime = tick+rnd()%3000+3000+c;
 
 		return 1;
 	}

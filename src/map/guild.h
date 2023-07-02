@@ -8,6 +8,23 @@
 #include "../common/mmo.h" // struct guild, struct guild_position
 struct map_session_data;
 
+//For quick linking to a guardian's info.
+struct guardian_data
+{
+	int number; //0-MAX_GUARDIANS-1 = Guardians. MAX_GUARDIANS = Emperium.
+	int guild_id;
+	int emblem_id;
+	int guardup_lv; //Level of GD_GUARDUP skill.
+	char guild_name[NAME_LENGTH];
+	struct guild_castle* castle;
+};
+
+DBMap *guild_get_castle_db(void);
+
+struct guild_castle* guild_castle_search(int castle_id);
+struct guild_castle* guild_mapname2gc(const char* mapname);
+struct guild_castle* guild_mapindex2gc(short mapindex);
+
 int guild_skill_get_max(int id);
 
 int guild_checkskill(struct guild *g,int id);
@@ -69,6 +86,8 @@ int guild_broken(int guild_id,int flag);
 int guild_gm_change(int guild_id, struct map_session_data *sd);
 int guild_gm_changed(int guild_id, int account_id, int char_id);
 
+void guild_castle_reconnect(int castle_id, int index, int value);
+
 int guild_agit_start(void);
 int guild_agit_end(void);
 
@@ -79,6 +98,14 @@ int guild_agit3_start(void);
 int guild_agit3_end(void);
 
 void guild_guildaura_refresh(struct map_session_data *sd, int skill_num, int skill_lv);
+
+void guild_castle_map_init(void);
+int guild_castledatasave(int castle_id, int index, int value);
+int guild_castledatasaveack(int castle_id, int index, int value);
+int guild_castledataloadack(int len, struct guild_castle *gc);
+
+int guild_castle_count(int guild_id);
+void guild_castle_guardian_updateemblem(int guild_id, int emblem_id);
 
 void do_final_guild(void);
 

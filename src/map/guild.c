@@ -14,7 +14,6 @@
 
 #include "map.h"
 #include "guild.h"
-#include "guild_castle.h"
 #include "guild_expcache.h"
 #include "storage.h"
 #include "battle.h"
@@ -27,6 +26,7 @@
 #include "skill.h"
 #include "log.h"
 #include "atcommand.h"
+#include "episode.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,6 +35,7 @@
 
 static DBMap* guild_db; // int guild_id -> struct guild*
 static DBMap* guild_infoevent_db; // int guild_id -> struct eventlist*
+static DBMap* castle_db; // int castle_id -> struct guild_castle*
 
 struct eventlist {
 	char name[EVENT_NAME_LENGTH];
@@ -1464,8 +1465,28 @@ int guild_broken_sub(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
+//Invoked on Castles when a guild is broken. [Skotlex]
+int castle_guild_broken_sub(DBKey key, void *data, va_list ap)
+{
+	char name[EVENT_NAME_LENGTH];
+	struct guild_castle *gc = data;
+	int guild_id = va_arg(ap, int);
 
-//Innvoked on /breakguild "Guild name"
+	nullpo_ret(gc);
+
+	if (gc->guild_id == guild_id) {
+		// We call castle_event::OnGuildBreak of all castles of the guild
+		// You can set all castle_events in the 'db/castle_db.txt'
+		safestrncpy(name, gc->castle_event, sizeof(name));
+		npc_event_do(strcat(name, "::OnGuildBreak"));
+
+		//Save the new 'owner', this should invoke guardian clean up and other such things.
+		guild_castledatasave(gc->castle_id, 1, 0);
+	}
+	return 0;
+}
+
+//Invoked on /breakguild "Guild name"
 int guild_broken(int guild_id, int flag)
 {
 	struct guild* g = guild_search(guild_id);
@@ -1476,20 +1497,6 @@ int guild_broken(int guild_id, int flag)
 
 	if( flag != 0 )
 		return 0;
-
-	//we call castle_event::OnGuildBreak of all castles of the guild
-	//you can set all castle_events in the castle_db.txt
-	for( i = 0; i < MAX_GUILDCASTLE; ++i )
-	{
-		char name[EVENT_NAME_LENGTH];
-
-		struct guild_castle* gc = guild_castle_search(i);
-		if( gc == NULL || gc->guild_id != guild_id )
-			continue;
-
-		safestrncpy(name, gc->castle_event, ARRAYLENGTH(name));
-		npc_event_do(strcat(name,"::OnGuildBreak"));
-	}
 
 	// update members
 	for( i = 0; i < g->max_member; ++i )
@@ -1508,7 +1515,7 @@ int guild_broken(int guild_id, int flag)
 	}
 
 	guild_db->foreach(guild_db,guild_broken_sub,guild_id);
-	guild_castle_onguildbreak(guild_id);
+	castle_db->foreach(castle_db, castle_guild_broken_sub, guild_id);
 	storage_guild_delete(guild_id);
 	idb_remove(guild_db,guild_id);
 	return 0;
@@ -1708,33 +1715,355 @@ bool guild_isallied(int guild_id, int guild_id2)
 	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
 }
 
+static bool guild_read_castledb(char* str[], int columns, int current)
+{// <castle id>,<map name>,<castle name>,<castle event>[,<reserved/unused switch flag>]
+	struct guild_castle* gc;
+	int mapindex = mapindex_name2id(str[1]);
+
+	if (map_mapindex2mapid(mapindex) < 0) // Map not found or on another map-server
+		return false;
+
+	CREATE(gc, struct guild_castle, 1);
+	gc->castle_id = atoi(str[0]);
+	gc->mapindex = mapindex;
+	safestrncpy(gc->castle_name, str[2], sizeof(gc->castle_name));
+	safestrncpy(gc->castle_event, str[3], sizeof(gc->castle_event));
+
+	idb_put(castle_db, gc->castle_id, gc);
+
+	//intif_guild_castle_info(gc->castle_id);
+
+	return true;
+}
+
+/// Get castle_db
+DBMap *guild_get_castle_db(void) {
+	return castle_db;
+}
+
+static int guild_castle_db_final(DBKey key, DBData *data, va_list ap)
+{
+	struct guild_castle* gc = db_data2ptr(data);
+	if (gc->temp_guardians)
+		aFree(gc->temp_guardians);
+	aFree(gc);
+	return 0;
+}
+
+/// lookup: castle id -> castle*
+struct guild_castle* guild_castle_search(int castle_id)
+{
+	return (struct guild_castle*)idb_get(castle_db, castle_id);
+}
+
+
+/// lookup: map index -> castle*
+struct guild_castle* guild_mapindex2gc(short mapindex)
+{
+	struct guild_castle* gc;
+
+	DBIterator* iter = db_iterator(castle_db);
+	for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter))
+		if (gc->mapindex == mapindex)
+			break;
+	dbi_destroy(iter);
+
+	return gc;
+}
+
+
+/// lookup: map name -> castle*
+struct guild_castle* guild_mapname2gc(const char* mapname)
+{
+	return guild_mapindex2gc(mapindex_name2id(mapname));
+}
+
+/**
+ * Creates a list of guild castle IDs to be requested
+ * from char-server.
+ */
+void guild_castle_map_init(void)
+{
+	DBIterator* iter = NULL;
+	int num = db_size(castle_db);
+
+	if (num > 0) {
+		struct guild_castle* gc = NULL;
+		int *castle_ids, *cursor;
+
+		CREATE(castle_ids, int, num);
+		cursor = castle_ids;
+		iter = db_iterator(castle_db);
+		for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter)) {
+			*(cursor++) = gc->castle_id;
+		}
+	}
+}
+
+/**
+ * Setter function for members of guild_castle struct.
+ * Handles all side-effects, like updating guardians.
+ * Sends updated info to char-server for saving.
+ * @param castle_id Castle ID
+ * @param index Type of data to change
+ * @param value New value
+ */
+int guild_castledatasave(int castle_id, int index, int value)
+{
+	struct guild_castle *gc = guild_castle_search(castle_id);
+
+	if (gc == NULL) {
+		ShowWarning("guild_castledatasave: guild castle '%d' not found\n", castle_id);
+		return 0;
+	}
+
+	switch (index) {
+		case 1: // The castle's owner has changed? Update or remove Guardians too. [Skotlex]
+		{
+			int i;
+			struct mob_data *gd;
+			gc->guild_id = value;
+			for (i = 0; i < MAX_GUARDIANS; i++)
+				if (gc->guardian[i].visible && (gd = map_id2md(gc->guardian[i].id)) != NULL)
+					mob_guardian_guildchange(gd);
+			break;
+		}
+		case 2:
+			gc->economy = value; break;
+		case 3: // defense invest change -> recalculate guardian hp
+		{
+			int i;
+			struct mob_data *gd;
+			gc->defense = value;
+			for (i = 0; i < MAX_GUARDIANS; i++)
+				if (gc->guardian[i].visible && (gd = map_id2md(gc->guardian[i].id)) != NULL)
+					status_calc_mob(gd, 0);
+			break;
+		}
+		case 4:
+			gc->triggerE = value; break;
+		case 5:
+			gc->triggerD = value; break;
+		case 6:
+			gc->nextTime = value; break;
+		case 7:
+			gc->payTime = value; break;
+		case 8:
+			gc->createTime = value; break;
+		case 9:
+			gc->visibleC = value; break;
+		default:
+			if (index > 9 && index <= 9 + MAX_GUARDIANS) {
+				gc->guardian[index - 10].visible = value;
+				break;
+			}
+			ShowWarning("guild_castledatasave: index = '%d' is out of allowed range\n", index);
+			return 0;
+	}
+
+	if (!intif_guild_castle_datasave(castle_id, index, value)) {
+		guild_castle_reconnect(castle_id, index, value);
+	}
+	return 0;
+}
+
+void guild_castle_reconnect_sub(void *key, void *data, va_list ap)
+{
+	int castle_id = GetWord((int)key, 0);
+	int index = GetWord((int)key, 1);
+	intif_guild_castle_datasave(castle_id, index, *(int *)data);
+	aFree(data);
+}
+
+/**
+ * Saves pending guild castle data changes when char-server is
+ * disconnected.
+ * On reconnect pushes all changes to char-server for saving.
+ */
+void guild_castle_reconnect(int castle_id, int index, int value)
+{
+	static struct linkdb_node *gc_save_pending = NULL;
+	
+	if (castle_id < 0) { // char-server reconnected
+		linkdb_foreach(&gc_save_pending, guild_castle_reconnect_sub);
+		linkdb_final(&gc_save_pending);
+	}
+	else {
+		int *data;
+		CREATE(data, int, 1);
+		*data = value;
+		linkdb_replace(&gc_save_pending, (void*)(MakeDWord(castle_id, index)), data);
+	}
+}
+
+
+int guild_castledatasaveack(int castle_id, int index, int value)
+{
+	struct guild_castle *gc = guild_castle_search(castle_id);
+	if (gc == NULL) {
+		return 0;
+	}
+	switch (index) {
+	case 1: gc->guild_id = value; break;
+	case 2: gc->economy = value; break;
+	case 3: gc->defense = value; break;
+	case 4: gc->triggerE = value; break;
+	case 5: gc->triggerD = value; break;
+	case 6: gc->nextTime = value; break;
+	case 7: gc->payTime = value; break;
+	case 8: gc->createTime = value; break;
+	case 9: gc->visibleC = value; break;
+	default:
+		if (index > 9 && index <= 9 + MAX_GUARDIANS) {
+			gc->guardian[index - 10].visible = value;
+			break;
+		}
+		ShowError("guild_castledatasaveack: not found index=%d)\n", index);
+		return 0;
+	}
+	return 1;
+}
+
+
+/// Receive data of all castles at once (initialization).
+int guild_castledataloadack(int len, struct guild_castle *gc)
+{
+	int i;
+	int n = (len - 4) / sizeof(struct guild_castle);
+	int ev;
+
+	nullpo_ret(gc);
+
+	//Last owned castle in the list invokes ::OnAgitinit
+	for (i = n - 1; i >= 0 && !(gc[i].guild_id); --i);
+	ev = i; // offset of castle or -1
+
+	if (ev < 0) { //No castles owned, invoke OnAgitInit as it is.
+		npc_event_doall("OnAgitInit");
+		npc_event_doall("OnAgitInit2");
+		npc_event_doall("OnAgitInit3");
+	}
+	else // load received castles into memory, one by one
+		for (i = 0; i < n; i++, gc++)
+		{
+			struct guild_castle *c = guild_castle_search(gc->castle_id);
+			if (!c) {
+				ShowError("guild_castledataloadack Castle id=%d not found.\n", gc->castle_id);
+				continue;
+			}
+
+			// update map-server castle data with new info
+			memcpy(&c->guild_id, &gc->guild_id, sizeof(struct guild_castle) - offsetof(struct guild_castle, guild_id));
+
+			if (c->guild_id)
+			{
+				if (i != ev)
+					guild_request_info(c->guild_id);
+				else
+				{ // last owned one
+					guild_npc_request_info(c->guild_id, "::OnAgitInit");
+					guild_npc_request_info(c->guild_id, "::OnAgitInit2");
+					guild_npc_request_info(c->guild_id, "::OnAgitInit3");
+				}
+			}
+		}
+	ShowStatus("Received '"CL_WHITE"%d"CL_RESET"' guild castles from char-server.\n", n);
+	return 0;
+}
+
+/// Counts the number of castles belonging to this guild.
+int guild_castle_count(int guild_id)
+{
+	DBIterator* iter = db_iterator(castle_db);
+	int count = 0;
+
+	struct guild_castle* gc;
+	for (gc = (struct guild_castle*)dbi_first(iter); dbi_exists(iter); gc = (struct guild_castle*)dbi_next(iter))
+	{
+		if (gc->guild_id != guild_id)
+			continue;
+
+		++count;
+	}
+
+	dbi_destroy(iter);
+	return count;
+}
+
+/// Updates the emblem of guardians in all castles belonging to this guild.
+void guild_castle_guardian_updateemblem(int guild_id, int emblem_id)
+{
+	DBIterator* iter = db_iterator(castle_db);
+
+	struct guild_castle* gc;
+	for (gc = (struct guild_castle*)dbi_first(iter); dbi_exists(iter); gc = (struct guild_castle*)dbi_next(iter))
+	{
+		TBL_MOB* md;
+		int i;
+
+		if (gc->guild_id != guild_id)
+			continue;
+
+		// update permanent guardians
+		for (i = 0; i < ARRAYLENGTH(gc->guardian); ++i)
+		{
+			if (gc->guardian[i].id == 0)
+				continue;
+
+			md = map_id2md(gc->guardian[i].id);
+			if (md == NULL || md->guardian_data == NULL)
+				continue;
+
+			md->guardian_data->emblem_id = emblem_id;
+			clif_guild_emblem_area(&md->bl);
+		}
+
+		// update temporary guardians
+		for (i = 0; i < gc->temp_guardians_max; ++i)
+		{
+			if (gc->temp_guardians[i] == 0)
+				continue;
+
+			md = map_id2md(gc->temp_guardians[i]);
+			if (md == NULL || md->guardian_data == NULL)
+				continue;
+
+			md->guardian_data->emblem_id = emblem_id;
+			clif_guild_emblem_area(&md->bl);
+		}
+	}
+
+	dbi_destroy(iter);
+}
+
 static int guild_infoevent_db_final(DBKey key,DBData *data,va_list ap)
 {
 	aFree(data);
 	return 0;
 }
 
-
 void do_init_guild(void)
 {
 	guild_db=idb_alloc(DB_OPT_RELEASE_DATA);
 	guild_infoevent_db=idb_alloc(DB_OPT_BASE);
+	castle_db = idb_alloc(DB_OPT_BASE);
 
 	memset(guild_skill_tree,0,sizeof(guild_skill_tree));
 	sv_readdb(db_path, "guild_skill_tree.txt", ',', 2+MAX_GUILD_SKILL_REQUIRE*2, 2+MAX_GUILD_SKILL_REQUIRE*2, -1, &guild_read_guildskill_tree_db); //guild skill tree [Komurka]
+	episode_sv_readdb(db_path, "castle_db", ',', 4, 5, -1, &guild_read_castledb);
 
 	add_timer_func_list(guild_send_xy_timer, "guild_send_xy_timer");
 	add_timer_interval(gettick()+GUILD_SEND_XY_INTERVAL,guild_send_xy_timer,0,0,GUILD_SEND_XY_INTERVAL);
 
-	do_init_guild_castle();
 	do_init_guild_expcache();
+
 }
 
 void do_final_guild(void)
 {
 	guild_db->destroy(guild_db,NULL);
 	guild_infoevent_db->destroy(guild_infoevent_db,guild_infoevent_db_final);
+	castle_db->destroy(castle_db, guild_castle_db_final);
 
-	do_final_guild_castle();
 	do_final_guild_expcache();
 }

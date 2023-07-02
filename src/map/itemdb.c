@@ -219,7 +219,7 @@ int itemdb_searchrandomid(uint16 group)
 		return UNKNOWN_ITEM_ID;
 	}
 	if (itemgroup_db[group].qty)
-		return itemgroup_db[group].nameid[rand()%itemgroup_db[group].qty];
+		return itemgroup_db[group].nameid[rnd()%itemgroup_db[group].qty];
 	
 	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
 	return UNKNOWN_ITEM_ID;
@@ -1419,6 +1419,12 @@ static int itemdb_readdb(void)
 			}
 			str[21] = p;
 
+			p = strstr(p + 1, "}");
+			if (strchr(p, ',') != NULL)
+			{
+				ShowError("itemdb_readdb: Extra columns in line %d of \"%s\" (item with id %d), skipping.\n", lines, path, atoi(str[0]));
+				continue;
+			}
 
 			if (!itemdb_parse_dbrow(str, path, lines, 0))
 				continue;
