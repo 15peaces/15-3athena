@@ -178,6 +178,7 @@ struct mob_data {
 	struct {
 		unsigned int size : 2; //Small/Big monsters.
 		enum mob_ai ai;
+		unsigned int clone : 1;// is clone? 1:0
 	} special_state; //Special mob information that does not needs to be zero'ed on mob respawn.
 	struct {
 		unsigned int aggressive : 1; //Signals whether the mob AI is in aggressive mode or reactive mode. [Skotlex]

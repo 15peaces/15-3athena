@@ -1148,6 +1148,22 @@ static int mob_ai_sub_hard_changechase(struct block_list *bl,va_list ap)
 	return 1;
 }
 
+/*==========================================
+ * finds nearby bg ally for guardians looking for users to follow.
+ *------------------------------------------*/
+static int mob_ai_sub_hard_bg_ally(struct block_list *bl, va_list ap) {
+	struct mob_data *md;
+	struct block_list **target;
+
+	nullpo_ret(bl);
+	md = va_arg(ap, struct mob_data *);
+	target = va_arg(ap, struct block_list**);
+
+	if (status_check_skilluse(&md->bl, bl, 0, 0, 0) && battle_check_target(&md->bl, bl, BCT_ENEMY) <= 0) {
+		(*target) = bl;
+	}
+	return 1;
+}
 
 /*==========================================
  * loot monster item search
@@ -1569,6 +1585,17 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	if (!tbl) { //No targets available.
 		if (mode&MD_ANGRY && !md->state.aggressive)
 			md->state.aggressive = 1; //Restore angry state when no targets are available.
+		
+		// bg guardians follow allies when no targets nearby
+		if (md->bg_id && mode&MD_CANATTACK) {
+			if (md->ud.walktimer != INVALID_TIMER)
+				return true;// we are already moving
+			map_foreachinrange(mob_ai_sub_hard_bg_ally, &md->bl, view_range, BL_PC, md, &tbl, mode);
+			if (tbl) {
+				if (distance_blxy(&md->bl, tbl->x, tbl->y) <= 3 || unit_walktobl(&md->bl, tbl, 1, 1))
+					return true;// we're moving or close enough don't unlock the target.
+			}
+		}
 		//This handles triggering idle walk/skill.
 		mob_unlocktarget(md, tick);
 		return true;
@@ -2605,14 +2632,17 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	
 	map_freeblock_unlock();
 
-	if(pcdb_checkid(md->vd->class_))
-	{	//Player mobs are not removed automatically by the client.
-		clif_clearunit_delayed(&md->bl, CLR_OUTSIGHT, tick + 3000);
+	if (!rebirth) {
+
+		if (pcdb_checkid(md->vd->class_)) {	//Player mobs are not removed automatically by the client.
+			clif_clearunit_delayed(&md->bl, CLR_OUTSIGHT, tick + 3000);
+		}
+		else {
+			// We give the client some time to breath and this allows it to display anything it'd like with the dead corpose
+			// For example, this delay allows it to display soul drain effect
+			clif_clearunit_delayed(&md->bl, CLR_DEAD, tick + 250);
+		}
 	}
-	else
-		// We give the client some time to breath and this allows it to display anything it'd like with the dead corpose
-		// For example, this delay allows it to display soul drain effect
-		clif_clearunit_delayed(&md->bl, CLR_DEAD, tick + 250);
 
 	if(!md->spawn) //Tell status_damage to remove it from memory.
 		return 5; // Note: Actually, it's 4. Oh well...
@@ -3526,6 +3556,8 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	//Finally, spawn it.
 	md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event);
 	if (!md) return 0; //Failed?
+
+	md->special_state.clone = 1;
 	
 	if (master_id || flag || duration) { //Further manipulate crafted char.
 		if (flag&1) //Friendly Character

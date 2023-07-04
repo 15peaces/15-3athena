@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/04/2023
+	r391 [15peaces]
+		*Fixed mob rebirth skill for newer clients.
+		*Clones with cloaking skill are no longer "invincible".
+		*Battleground guardians will now follow nearby allies when no foes are in range.
+
 07/02/2023
 	r390 [15peaces]
 		*Follow-up r389
