@@ -96,7 +96,7 @@ unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned in
 void do_init_guild_expcache(void)
 {
 	guild_expcache_db = idb_alloc(DB_OPT_BASE);
-	expcache_ers = ers_new(sizeof(struct guild_expcache));
+	expcache_ers = ers_new(sizeof(struct guild_expcache), "guild.c::expcache_ers", ERS_OPT_NONE);
 
 	add_timer_func_list(guild_addexp_timer, "guild_addexp_timer");
 	add_timer_interval(gettick() + GUILD_ADDEXP_INVERVAL, guild_addexp_timer, 0, 0, GUILD_ADDEXP_INVERVAL);

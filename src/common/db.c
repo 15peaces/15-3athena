@@ -2531,8 +2531,8 @@ DBMap* db_alloc(const char *file, int line, DBType type, DBOptions options, unsi
 	db->free_max = 0;
 	db->free_lock = 0;
 	/* Other */
-	db->nodes = ers_new(sizeof(struct dbn));
-	db->iters = ers_new(sizeof(DBIterator_impl));
+	db->nodes = ers_new(sizeof(struct dbn), "db.c::db_alloc", ERS_OPT_NONE);
+	db->iters = ers_new(sizeof(DBIterator_impl), "db.c::db_alloc", ERS_OPT_NONE);
 	db->cmp = db_default_cmp(type);
 	db->hash = db_default_hash(type);
 	db->release = db_default_release(type, options);

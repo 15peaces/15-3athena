@@ -64,6 +64,7 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_BUYING_STORE:     return 'B';  // (B)uying Store
 		case LOG_TYPE_LOOT:             return 'L';  // (L)oot (consumed monster pick/drop)
 		case LOG_TYPE_BANK:             return 'K';  // Ban(K) Transactions
+		case LOG_TYPE_ROULETTE:			return 'Y';  // Roulette System
 		case LOG_TYPE_QUEST:			return 'Q';  // (Q)uest Item
 		case LOG_TYPE_OTHER:			return 'X';  // Other
 	}

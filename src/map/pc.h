@@ -147,7 +147,7 @@ struct map_session_data {
 		unsigned int autocast : 1; // Autospell flag [Inkfish]
 		unsigned int autotrade : 1;	//By Fantik
 		unsigned int prevend : 1;//used to flag wheather you've spent 40sp to open the vending or not.
-		unsigned int reg_dirty : 3; //By Skotlex (marks whether registry variables have been saved or not yet)
+		unsigned int reg_dirty : 4; //By Skotlex (marks whether registry variables have been saved or not yet)
 		unsigned int showdelay :1;
 		unsigned int showexp :1;
 		unsigned int showzeny :1;

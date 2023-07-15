@@ -256,7 +256,7 @@ int skill_get_casttype (int id)
 	if (skill_get_nk(id)&NK_NO_DAMAGE)
 		return CAST_NODAMAGE;
 	return CAST_DAMAGE;
-};
+}
 
 //Returns actual skill range taking into account attack range and AC_OWL [Skotlex]
 int skill_get_range2 (struct block_list *bl, int id, int lv)
@@ -5962,7 +5962,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
-			class_ = skillid==SA_MONOCELL?1002:mob_get_random_id(2, 1, 0);
+			class_ = skillid==SA_MONOCELL?1002:mob_get_random_id(4, 1, 0);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 			mob_class_change(dstmd,class_);
 			if( tsc && dstmd->status.mode&MD_BOSS )
@@ -21061,8 +21061,8 @@ int do_init_skill (void)
 	group_db = idb_alloc(DB_OPT_BASE);
 	skillunit_db = idb_alloc(DB_OPT_BASE);
 	skillusave_db = idb_alloc(DB_OPT_RELEASE_DATA);
-	skill_unit_ers = ers_new(sizeof(struct skill_unit_group));
-	skill_timer_ers  = ers_new(sizeof(struct skill_timerskill));
+	skill_unit_ers = ers_new(sizeof(struct skill_unit_group), "skill.c::skill_unit_ers", ERS_OPT_NONE);
+	skill_timer_ers = ers_new(sizeof(struct skill_timerskill), "skill.c::skill_timer_ers", ERS_OPT_NONE);
 
 	add_timer_func_list(skill_unit_timer,"skill_unit_timer");
 	add_timer_func_list(skill_castend_id,"skill_castend_id");

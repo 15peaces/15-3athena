@@ -73,8 +73,6 @@ static struct {
 	int class_[350];
 } summon[MAX_RANDOMMONSTER];
 
-#define CLASSCHANGE_BOSS_NUM 21
-
 //Defines the Manuk/Splendide mob groups for the status reductions [Epoque]
 const int mob_manuk[8] = { 1986, 1987, 1988, 1989, 1990, 1997, 1998, 1999 };
 const int mob_splendide[5] = { 1991, 1992, 1993, 1994, 1995 };
@@ -150,7 +148,6 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
     status_change_init(&nd->bl);
     unit_dataset(&nd->bl);
     clif_spawn(&nd->bl);
-
 }
 
 void mvptomb_destroy(struct mob_data *md) {
@@ -959,6 +956,7 @@ int mob_spawn (struct mob_data *md)
 	md->target_id = 0;
 	md->move_fail_count = 0;
 	md->ud.state.attack_continue = 0;
+
 	if( md->spawn_timer != INVALID_TIMER )
 	{
 		delete_timer(md->spawn_timer, mob_delayspawn);
@@ -980,7 +978,7 @@ int mob_spawn (struct mob_data *md)
 	memset(md->dmglog, 0, sizeof(md->dmglog));
 	md->tdmg = 0;
 	if (md->lootitem)
-		memset(md->lootitem, 0, sizeof(md->lootitem));
+		memset(md->lootitem, 0, sizeof(*md->lootitem));
 	md->lootitem_count = 0;
 
 	if(md->db->option)
@@ -1831,7 +1829,7 @@ static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
 	drop->item_data.identify = itemdb_isidentified(nameid);
 	drop->next = NULL;
 	return drop;
-};
+}
 
 /*==========================================
  * Initializes the delay drop structure for mob-looted items.
@@ -1842,7 +1840,7 @@ static struct item_drop* mob_setlootitem(struct item* item)
 	memcpy(&drop->item_data, item, sizeof(struct item));
 	drop->next = NULL;
 	return drop;
-};
+}
 
 /*==========================================
  * item drop with delay (timer function)
@@ -2077,12 +2075,6 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 //Call when a mob has received damage.
 void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 {
-#if PACKETVER >= 20131223
-	uint8 buf[128];
-	struct unit_data *ud;
-	ud = unit_bl2ud(&md->bl);
-#endif
-
 	if (damage > 0)
 	{	//Store total damage...
 		if (UINT_MAX - (unsigned int)damage > md->tdmg)
@@ -2112,10 +2104,15 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 	if (battle_config.show_mob_info&3)
 		clif_charnameack (0, &md->bl);
 
-#if PACKETVER >= 20131223
-	// Resend ZC_NOTIFY_MOVEENTRY (Version 10 or higher) packet to update HP bar.
-	if ( battle_config.monster_hp_bars_info == 1 )
-		clif_send(buf,clif_set_unit_walking( &md->bl, ud, buf),&md->bl,AREA);
+#if PACKETVER >= 20120404
+	if (!(md->status.mode&MD_BOSS)) {
+		int i;
+		for (i = 0; i < DAMAGELOG_SIZE; i++) { // must show hp bar to all char who already hit the mob.
+			struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
+			if (sd && check_distance_bl(&md->bl, &sd->bl, AREA_SIZE)) // check if in range
+				clif_monster_hp_bar(md, sd->fd);
+		}
+	}
 #endif
 
 	if (!src)
@@ -2172,28 +2169,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 	if(src && src->type == BL_MOB)
 		mob_unlocktarget((struct mob_data *)src,tick);
-
-	if( sd )
-	{
-		if (sd->mission_mobid == md->class_ ||
-			(battle_config.taekwon_mission_mobname == 1 && mob_is_goblin(md, sd->mission_mobid)) ||
-			(battle_config.taekwon_mission_mobname == 2 && mob_is_samename(md, sd->mission_mobid))) { //TK_MISSION [Skotlex]
-			if( ++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0xE, sd->status.base_level)) )
-			{
-				pc_addfame(sd, 1);
-				sd->mission_mobid = temp;
-				pc_setglobalreg(sd,"TK_MISSION_ID", temp);
-				sd->mission_count = 0;
-				clif_mission_info(sd, temp, 0);
-			}
-			pc_setglobalreg(sd,"TK_MISSION_COUNT", sd->mission_count);
-		}
-		if( sd->status.party_id )
-			map_foreachinrange(quest_update_objective_sub,&md->bl,AREA_SIZE,BL_PC,sd->status.party_id,md->class_);
-		else
-		if( sd->avail_quests )
-			quest_update_objective(sd, md->class_);
-	}
 
 	// filter out entries not eligible for exp distribution
 	memset(tmpsd,0,sizeof(tmpsd));
@@ -2587,17 +2562,37 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	if( !rebirth )
 	{ // Only trigger event on final kill
 		md->status.hp = 0; //So that npc_event invoked functions KNOW that mob is dead
-		if( src )
-			switch( src->type )
-			{
+		if (src) {
+			switch (src->type) {
 				case BL_PET: sd = ((TBL_PET*)src)->msd; break;
 				case BL_HOM: sd = ((TBL_HOM*)src)->master; break;
 				case BL_MER: sd = ((TBL_MER*)src)->master; break;
 				case BL_ELEM: sd = ((TBL_ELEM*)src)->master; break;
 			}
+		}
 
-		if( sd && sd->md && src && src->type == BL_MER && mob_db(md->class_)->lv > sd->status.base_level/2 )
-			mercenary_kills(sd->md);
+		if (sd) {
+			if (sd->mission_mobid == md->class_ ||
+				(battle_config.taekwon_mission_mobname == 1 && mob_is_goblin(md, sd->mission_mobid)) ||
+				(battle_config.taekwon_mission_mobname == 2 && mob_is_samename(md, sd->mission_mobid))) { //TK_MISSION [Skotlex]
+				if (++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0xE, sd->status.base_level))) {
+					pc_addfame(sd, 1);
+					sd->mission_mobid = temp;
+					pc_setglobalreg(sd, "TK_MISSION_ID", temp);
+					sd->mission_count = 0;
+					clif_mission_info(sd, temp, 0);
+				}
+				pc_setglobalreg(sd, "TK_MISSION_COUNT", sd->mission_count);
+			}
+			
+			if (sd->status.party_id)
+				map_foreachinrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->class_);
+			else if (sd->avail_quests)
+					quest_update_objective(sd, md->class_);
+
+			if (sd->md && src && src->type != BL_HOM && mob_db(md->class_)->lv > sd->status.base_level / 2)
+				mercenary_kills(sd->md);
+		}
 
 		if( md->npc_event[0] && !md->state.npc_killmonster )
 		{
@@ -2635,6 +2630,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	if (!rebirth) {
 
 		if (pcdb_checkid(md->vd->class_)) {	//Player mobs are not removed automatically by the client.
+			// first we set them dead, then we delay the outsight effect.
+			clif_clearunit_area(&md->bl, CLR_DEAD);
 			clif_clearunit_delayed(&md->bl, CLR_OUTSIGHT, tick + 3000);
 		}
 		else {
@@ -3210,16 +3207,6 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 		
 		if (!flag)
 			continue; //Skill requisite failed to be fulfilled.
-
-		if (ms[i].msg_id){ //Display color message [SnakeDrak]
-			struct mob_chat *mc = mob_chat(ms[i].msg_id);
-			char temp[CHAT_SIZE_MAX];
- 			char name[NAME_LENGTH];
- 			snprintf(name, sizeof name,"%s", md->name);
- 			strtok(name, "#"); // discard extra name identifier if present [Daegaladh]
- 			snprintf(temp, sizeof temp,"%s : %s", name, mc->msg);
-			clif_disp_overheadcolor(&md->bl, mc->color, temp);
-		}
 		
 		//Execute skill	
 		if (skill_get_casttype(ms[i].skill_id) == CAST_GROUND)
@@ -3307,6 +3294,15 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			}
 		}
 		//Skill used. Post-setups... 
+		if (ms[i].msg_id) { //Display color message [SnakeDrak]
+			struct mob_chat *mc = mob_chat(ms[i].msg_id);
+			char temp[CHAT_SIZE_MAX];
+			char name[NAME_LENGTH];
+			snprintf(name, sizeof name, "%s", md->name);
+			strtok(name, "#"); // discard extra name identifier if present [Daegaladh]
+			snprintf(temp, sizeof temp, "%s : %s", name, mc->msg);
+			clif_disp_overheadcolor(&md->bl, mc->color, temp);
+		}
 		if(!(battle_config.mob_ai&0x200))
 		{ //pass on delay to same skill.
 			for (j = 0; j < md->db->maxskill; j++)
@@ -4065,7 +4061,8 @@ static int mob_read_randommonster(void)
 		"mob_branch.txt",
 		"mob_poring.txt",
 		"mob_boss.txt",
-		"mob_pouch.txt"};
+		"mob_pouch.txt",
+		"mob_classchange.txt" };
 
 	memset(&summon, 0, sizeof(summon));
 
@@ -4564,6 +4561,8 @@ static bool mob_readdb_race2(char* fields[], int columns, int current)
 
 static void mob_load(void)
 {
+	mob_readchatdb();
+
 #ifndef TXT_ONLY
 	if(db_use_sqldbs)
 		mob_read_sqldb();
@@ -4573,7 +4572,6 @@ static void mob_load(void)
 
 	sv_readdb(db_path, "mob_avail.txt", ',', 2, 13, -1, &mob_readdb_mobavail);
 	mob_read_randommonster();
-	mob_readchatdb();
 	mob_readskilldb();
 	sv_readdb(db_path, "mob_race2_db.txt", ',', 2, MAX_RACE2_MOBS, -1, &mob_readdb_race2);
 }
@@ -4610,8 +4608,8 @@ int do_init_mob(void)
 	mob_db_data[0] = (struct mob_db*)aCalloc(1, sizeof (struct mob_db));	//This mob is used for random spawns
 	mob_dummy = NULL;
 	mob_makedummymobdb(0); //The first time this is invoked, it creates the dummy mob
-	item_drop_ers = ers_new(sizeof(struct item_drop));
-	item_drop_list_ers = ers_new(sizeof(struct item_drop_list));
+	item_drop_ers = ers_new(sizeof(struct item_drop), "mob.c::item_drop_ers", ERS_OPT_NONE);
+	item_drop_list_ers = ers_new(sizeof(struct item_drop_list), "mob.c::item_drop_list_ers", ERS_OPT_NONE);
 
 	mob_load();
 

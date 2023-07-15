@@ -6711,7 +6711,7 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
  **/
 unsigned int pc_maxbaselv(struct map_session_data *sd) {
 	return job_info[pc_class2idx(sd->status.class_)].max_level[0];
-};
+}
 
 /**
  * Returns max job level for this character.
@@ -6720,7 +6720,7 @@ unsigned int pc_maxbaselv(struct map_session_data *sd) {
  **/
 unsigned int pc_maxjoblv(struct map_session_data *sd) {
 	return job_info[pc_class2idx(sd->status.class_)].max_level[1];
-};
+}
 
 /**
  * Check if player is reached max base level

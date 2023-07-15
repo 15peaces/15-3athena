@@ -4226,7 +4226,7 @@ int do_init_npc(void)
 	npc_market_fromsql();
 #endif
 
-	timer_event_ers = ers_new(sizeof(struct timer_event_data));
+	timer_event_ers = ers_new(sizeof(struct timer_event_data), "clif.c::timer_event_ers", ERS_OPT_NONE);
 
 	// process all npc files
 	ShowStatus("Loading NPCs...\r");

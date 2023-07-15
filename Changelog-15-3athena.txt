@@ -5,6 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/15/2023
+	r392 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn392_log.sql file!
+		*Some monster chat fixes:
+			-chats should now be working.
+			-monster skills will only trigger their text messages if they're successful.
+		*Added mob_classchange.txt since SA_CLASSCHANGE was using mob_boss.txt monsters instead of the correct ones.
+		*Some updates in summoning items files.
+		*Some more fixing related to picklogs...
+		*Minor adjustment that makes clones die in a smoother manner (rather than standing still after death and disappearing in a small delay they now display a dead sprite and disappear a few seconds afterwards)
+		*Monster HP bars will now use the correct packet.
+			-Main support was already there, I forgot to make use of it...
+			-Added missing packet_db entry for monster HP bars.
+		*When a monster is killed by a assist of yours it now updates quests (homunculus, mercenary, elemental). 
+		*Fixed taekwon mission not to count kills for when you kill a monster's fake version (e.g. shinobi under that rebirth spell) -- avoids exploit.
+		*Some optimizing & fixing:
+			-Removed a unused #define.
+			-Delayed clearunit now makes use of the ERS which is quite convenient for it speeds up due to the previous amount of mallocs that function would spend.
+			-Added extra debug information to the ERS system, now upon allocation you give it a const, human-readable, name.
+			-Added support for options in the ERS system to save multiple/redudant processing in battle_delayed_damage and clif_clearunit_delayed and perhaps also in the future.
+			-Fixed some items.
+
 07/04/2023
 	r391 [15peaces]
 		*Fixed mob rebirth skill for newer clients.

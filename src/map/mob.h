@@ -11,7 +11,7 @@
 #include "npc.h"
 
 
-#define MAX_RANDOMMONSTER 4
+#define MAX_RANDOMMONSTER 5
 
 // Be sure to note that IDs 4001 to 5000 are reserved for advanced/baby/expanded classes.
 #define MAX_MOB_DB 24000

@@ -427,7 +427,7 @@ void* _mmalloc(size_t size, const char *file, int line, const char *func )
 	memmgr_unit_tail(head)[0] = TAILCHECK_VALUE;
 
 	return &head->checksum;
-};
+}
 
 void* _mcalloc(size_t num, size_t size, const char* file, int line, const char* func)
 {
