@@ -1229,15 +1229,22 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 		sc = NULL; //Unneeded
 
 	//temp: used to signal combo-skills right now.
-	temp =	( target_id == src->id && 
-				( 
-					( !(skill_get_inf(skill_num)&INF_SELF_SKILL) && sd && sd->state.combo ) || 
-					( skill_get_inf(skill_num)&INF_SELF_SKILL && skill_get_inf2(skill_num)&INF2_NO_TARGET_SELF ) || 
-					skill_num == SR_DRAGONCOMBO
-				) 
-			);
-	if (temp)
-		target_id = ud->target; //Auto-select skills. [Skotlex]
+	if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_num)
+	{
+		if (sc->data[SC_COMBO]->val2)
+			target_id = sc->data[SC_COMBO]->val2;
+		else
+			target_id = ud->target;
+		temp = 1;
+	}
+	else if (target_id == src->id &&
+		skill_get_inf(skill_num)&INF_SELF_SKILL &&
+		skill_get_inf2(skill_num)&INF2_NO_TARGET_SELF ||
+	skill_num == SR_DRAGONCOMBO)
+	{
+		target_id = ud->target; //Auto-select target. [Skotlex]
+		temp = 1;
+	}
 
 	if (sd) {
 		//Target_id checking.
@@ -1252,14 +1259,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 					return 0;
 			}
 			break;
-		case TK_JUMPKICK:
-		case TK_COUNTER:
-		case HT_POWER:
 		case RL_QD_SHOT:
 			if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_num)
 				target_id = sc->data[SC_COMBO]->val2;
 			break;
-
 		case WE_MALE:
 		case WE_FEMALE:
 			if (!sd->status.partner_id)

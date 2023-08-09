@@ -200,7 +200,7 @@ typedef struct DBData {
 typedef DBData (*DBCreateData)(DBKey key, va_list args);
 
 /**
- * Format of functions to be applyed to an unspecified quantity of entries of 
+ * Format of functions to be applied to an unspecified quantity of entries of 
  * a database.
  * Any function that applies this function to the database will return the sum 
  * of values returned by this function.
@@ -496,7 +496,7 @@ struct DBMap {
 	 * Apply <code>func</code> to every entry in the database.
 	 * Returns the sum of values returned by func.
 	 * @param self Database
-	 * @param func Function to be applyed
+	 * @param func Function to be applied
 	 * @param ... Extra arguments for func
 	 * @return Sum of the values returned by func
 	 * @protected
@@ -508,7 +508,7 @@ struct DBMap {
 	 * Apply <code>func</code> to every entry in the database.
 	 * Returns the sum of values returned by func.
 	 * @param self Database
-	 * @param func Function to be applyed
+	 * @param func Function to be applied
 	 * @param args Extra arguments for func
 	 * @return Sum of the values returned by func
 	 * @protected
@@ -519,11 +519,11 @@ struct DBMap {
 	/**
 	 * Just calls {@link DBMap#vclear}.
 	 * Removes all entries from the database.
-	 * Before deleting an entry, func is applyed to it.
+	 * Before deleting an entry, func is applied to it.
 	 * Releases the key and the data.
 	 * Returns the sum of values returned by func, if it exists.
 	 * @param self Database
-	 * @param func Function to be applyed to every entry before deleting
+	 * @param func Function to be applied to every entry before deleting
 	 * @param ... Extra arguments for func
 	 * @return Sum of values returned by func
 	 * @protected
@@ -533,11 +533,11 @@ struct DBMap {
 
 	/**
 	 * Removes all entries from the database.
-	 * Before deleting an entry, func is applyed to it.
+	 * Before deleting an entry, func is applied to it.
 	 * Releases the key and the data.
 	 * Returns the sum of values returned by func, if it exists.
 	 * @param self Database
-	 * @param func Function to be applyed to every entry before deleting
+	 * @param func Function to be applied to every entry before deleting
 	 * @param args Extra arguments for func
 	 * @return Sum of values returned by func
 	 * @protected
@@ -548,13 +548,13 @@ struct DBMap {
 	/**
 	 * Just calls {@link DBMap#vdestroy}.
 	 * Finalize the database, feeing all the memory it uses.
-	 * Before deleting an entry, func is applyed to it.
+	 * Before deleting an entry, func is applied to it.
 	 * Releases the key and the data.
 	 * Returns the sum of values returned by func, if it exists.
 	 * NOTE: This locks the database globally. Any attempt to insert or remove 
 	 * a database entry will give an error and be aborted (except for clearing).
 	 * @param self Database
-	 * @param func Function to be applyed to every entry before deleting
+	 * @param func Function to be applied to every entry before deleting
 	 * @param ... Extra arguments for func
 	 * @return Sum of values returned by func
 	 * @protected
@@ -564,12 +564,12 @@ struct DBMap {
 
 	/**
 	 * Finalize the database, feeing all the memory it uses.
-	 * Before deleting an entry, func is applyed to it.
+	 * Before deleting an entry, func is applied to it.
 	 * Returns the sum of values returned by func, if it exists.
 	 * NOTE: This locks the database globally. Any attempt to insert or remove 
 	 * a database entry will give an error and be aborted (except for clearing).
 	 * @param self Database
-	 * @param func Function to be applyed to every entry before deleting
+	 * @param func Function to be applied to every entry before deleting
 	 * @param args Extra arguments for func
 	 * @return Sum of values returned by func
 	 * @protected

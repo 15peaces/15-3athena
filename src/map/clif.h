@@ -645,7 +645,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 void clif_dropitem(struct map_session_data *sd,int n,int amount);	//self
 void clif_delitem(struct map_session_data *sd,int n,int amount, short reason); //self
 int clif_updatestatus(struct map_session_data*,int); //self
-int clif_changestatus(struct block_list*,int,int);	//area
+void clif_changestatus(struct map_session_data* sd, int type, int val);	//area
 void clif_updatelongparam(struct map_session_data* sd, short type, int value);	//self
 void clif_updatestatuspointsneeded(struct map_session_data* sd, short type, unsigned char value);	//self
 void clif_updatecartinfo(struct map_session_data* sd, short count, short maxcount, int weight, int maxweight);	//self
@@ -742,7 +742,7 @@ void clif_deleteskill(struct map_session_data *sd, int id);
 
 void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x, int dst_y, int skill_num, int property, int casttime);
 void clif_skillcastcancel(struct block_list* bl);
-void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype, int val);
+void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fail_cause type,int btype, int val);
 void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int duration);
 int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int64 sdamage,int div,int skill_id,int skill_lv,int type);
 //int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
@@ -771,9 +771,8 @@ void clif_combo_delay(struct block_list *bl,int wait);
 void clif_bladestop(struct block_list *src, int dst_id, int active);
 void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target target);
 
-int clif_status_load(struct block_list *bl,int type, int flag);
+#define clif_status_load(bl, type, flag) clif_status_change((bl), (type), (flag), 0, 0, 0, 0)
 void clif_status_change(struct block_list *bl,int type,int flag, uint64 tick, int val1, int val2, int val3);
-void clif_status_change2(struct block_list *bl, int tid, enum send_target target, int type, int val1, int val2, int val3);
 
 void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len);
 void clif_wis_end(int fd, int flag);

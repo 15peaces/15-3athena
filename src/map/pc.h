@@ -134,10 +134,9 @@ struct map_session_data {
 		unsigned int active : 1; //Marks active player (not active is logging in/out, or changing map servers)
 		unsigned int menu_or_input : 1;// if a script is waiting for feedback from the player
 		unsigned int dead_sit : 2;
-		unsigned int lr_flag : 3;
+		unsigned int lr_flag : 3; //1: left h. weapon; 2: arrow; 3: shield
 		unsigned int connect_new : 1;
 		unsigned int arrow_atk : 1;
-		unsigned combo : 2; // 1:Asura, 2:Kick [Inkfish]
 		unsigned int gangsterparadise : 1;
 		unsigned int rest : 1;
 		unsigned int storage_flag : 2; //0: closed, 1: Normal Storage open, 2: guild storage open [Skotlex]

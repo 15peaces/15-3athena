@@ -159,14 +159,14 @@ struct guild* guild_search(int guild_id)
 struct guild* guild_searchname(char* str)
 {
 	struct guild* g;
+	DBIterator *iter = db_iterator(guild_db);
 
-	DBIterator* iter = guild_db->iterator(guild_db);
-	for( g = (struct guild*)iter->first(iter,NULL); iter->exists(iter); g = (struct guild*)iter->next(iter,NULL) )
+	for (g = dbi_first(iter); dbi_exists(iter); g = dbi_next(iter))
 	{
 		if( strcmpi(g->name, str) == 0 )
 			break;
 	}
-	iter->destroy(iter);
+	dbi_destroy(iter);
 
 	return g;
 }
@@ -1715,6 +1715,18 @@ bool guild_isallied(int guild_id, int guild_id2)
 	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
 }
 
+static int eventlist_db_final(DBKey key, void *data, va_list ap)
+{
+	struct eventlist *next = NULL;
+	struct eventlist *current = db_data2ptr(data);
+	while (current != NULL) {
+		next = current->next;
+		aFree(current);
+		current = next;
+	}
+	return 0;
+}
+
 static bool guild_read_castledb(char* str[], int columns, int current)
 {// <castle id>,<map name>,<castle name>,<castle event>[,<reserved/unused switch flag>]
 	struct guild_castle* gc;
@@ -1761,8 +1773,8 @@ struct guild_castle* guild_castle_search(int castle_id)
 struct guild_castle* guild_mapindex2gc(short mapindex)
 {
 	struct guild_castle* gc;
+	DBIterator *iter = db_iterator(castle_db);
 
-	DBIterator* iter = db_iterator(castle_db);
 	for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter))
 		if (gc->mapindex == mapindex)
 			break;
@@ -1797,6 +1809,10 @@ void guild_castle_map_init(void)
 		for (gc = dbi_first(iter); dbi_exists(iter); gc = dbi_next(iter)) {
 			*(cursor++) = gc->castle_id;
 		}
+		dbi_destroy(iter);
+		if (intif_guild_castle_dataload(num, castle_ids))
+			ShowStatus("Requested '"CL_WHITE"%d"CL_RESET"' guild castles from char-server...\n", num);
+		aFree(castle_ids);
 	}
 }
 
@@ -2036,12 +2052,6 @@ void guild_castle_guardian_updateemblem(int guild_id, int emblem_id)
 	dbi_destroy(iter);
 }
 
-static int guild_infoevent_db_final(DBKey key,DBData *data,va_list ap)
-{
-	aFree(data);
-	return 0;
-}
-
 void do_init_guild(void)
 {
 	guild_db=idb_alloc(DB_OPT_RELEASE_DATA);
@@ -2061,8 +2071,8 @@ void do_init_guild(void)
 
 void do_final_guild(void)
 {
-	guild_db->destroy(guild_db,NULL);
-	guild_infoevent_db->destroy(guild_infoevent_db,guild_infoevent_db_final);
+	db_destroy(guild_db);
+	guild_infoevent_db->destroy(guild_infoevent_db, eventlist_db_final);
 	castle_db->destroy(castle_db, guild_castle_db_final);
 
 	do_final_guild_expcache();

@@ -110,7 +110,7 @@ int skill_name2id(const char* name)
 	if( name == NULL )
 		return 0;
 
-	return (int)(intptr_t)strdb_get(skilldb_name2id, name);
+	return *(int*)strdb_get(skilldb_name2id, name);
 }
 
 /// Maps skill ids to skill db offsets.
@@ -2094,7 +2094,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 			hp += sd->bonus.magic_hp_gain_value;
 		}
 		if( hp || sp )
-			status_heal(src, hp, sp, battle_config.show_hp_sp_gain?2:0);
+		{// updated to force healing to allow healing through berserk
+			status_heal(src, hp, sp, battle_config.show_hp_sp_gain ? 3 : 1);
+		}
 	}
 
 	// Trigger counter-spells to retaliate against damage causing skills.
@@ -2649,9 +2651,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		if (flag)
 		{ //Possible to chain
 			flag = DIFF_TICK32(sd->ud.canact_tick, tick);
-			if (flag < 0) flag = 0;
-			flag += 300 * battle_config.combo_delay_rate/100;
-			sc_start(src,SC_COMBO,100,skillid,flag);
+			if (flag < 1) flag = 1;
+			sc_start2(src, SC_COMBO, 100, skillid, bl->id, flag);
 			clif_combo_delay(src, flag);
 		}
 	}
@@ -3361,7 +3362,7 @@ int skill_guildaura_sub (struct map_session_data* sd, int id, int strvit, int ag
 		if (sce->val3 != strvit || sce->val4 != agidex) {
 			sce->val3 = strvit;
 			sce->val4 = agidex;
-			status_calc_bl(&sd->bl, StatusChangeFlagTable[SC_GUILDAURA]);
+			status_calc_bl(&sd->bl, status_sc2scb_flag(SC_GUILDAURA));
 		}
 		return 0;
 	}
@@ -7260,7 +7261,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( status_get_lv(src) > status_get_lv(bl)
 			&&  (tstatus->race == RC_DEMON || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_PLAYER || tstatus->race == RC_ANGEL)
 			&&  !(tstatus->mode&MD_BOSS) )
-				clif_skill_nodamage(src,bl,skillid,skilllv, sc_start(bl,type,70,skilllv,skill_get_time(skillid,skilllv)));
+				clif_skill_nodamage(src, bl, skillid, skilllv, sc_start2(bl, type, 70, skilllv, src->id, skill_get_time(skillid, skilllv)));
 			else
 			{
 				clif_skill_nodamage(src,bl,skillid,skilllv,0);
@@ -13957,11 +13958,21 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		case UNT_VERDURETRAP:
 		case UNT_FIRINGTRAP:
 		case UNT_ICEBOUNDTRAP:
+			/**
+			 * The owner of these traps (all but ankle snare) cannot be affected by it
+			 **/
+			if (sg->src_id == bl->id)
+				break;
+			map_foreachinrange(skill_trap_splash, &src->bl, skill_get_splash(sg->skill_id, sg->skill_lv), sg->bl_flag, &src->bl, tick);
+			if (sg->unit_id != UNT_FIREPILLAR_ACTIVE)
+				clif_changetraplook(&src->bl, sg->unit_id == UNT_LANDMINE ? UNT_FIREPILLAR_ACTIVE : UNT_USED_TRAPS);
+			src->range = -1; //Disable range so it does not invoke a for each in area again.
+			sg->limit = DIFF_TICK32(tick, sg->tick) + 1500;
+			break;
 		case UNT_REVERBERATION:
 		case UNT_POEMOFNETHERWORLD:
 			map_foreachinrange(skill_trap_splash,&src->bl, skill_get_splash(sg->skill_id, sg->skill_lv), sg->bl_flag, &src->bl,tick);
-			if (sg->unit_id != UNT_FIREPILLAR_ACTIVE)
-				clif_changetraplook(&src->bl, sg->unit_id == UNT_LANDMINE ? UNT_FIREPILLAR_ACTIVE : UNT_USED_TRAPS);
+			clif_changetraplook(&src->bl, UNT_USED_TRAPS);
 			src->range = -1; //Disable range so it does not invoke a for each in area again.
 			sg->limit = DIFF_TICK32(tick, sg->tick) + 1500;
 			break;
@@ -20609,7 +20620,7 @@ int skill_stasis_check(struct block_list *bl, int skillid)
 static bool skill_parse_row_skilldb(char* split[], int columns, int current)
 {// id,range,hit,inf,element,nk,splash,max,list_num,castcancel,cast_defence_rate,inf2,maxcount,skill_type,blow_count,name,description
 	int id = atoi(split[0]);
-	int i;
+	int i, *idp;
 	if( (id >= HM_SKILLRANGEMIN && id <= HM_SKILLRANGEMAX)
 		|| (id >= MC_SKILLRANGEMIN && id <= MC_SKILLRANGEMAX)
 		|| (id >= EL_SKILLRANGEMIN && id <= EL_SKILLRANGEMAX)
@@ -20650,7 +20661,9 @@ static bool skill_parse_row_skilldb(char* split[], int columns, int current)
 	skill_split_atoi(split[14],skill_db[i].blewcount);
 	safestrncpy(skill_db[i].name, trim(split[15]), sizeof(skill_db[i].name));
 	safestrncpy(skill_db[i].desc, trim(split[16]), sizeof(skill_db[i].desc));
-	strdb_put(skilldb_name2id, skill_db[i].name, (void*)(intptr_t)id);
+	CREATE(idp, int, 1);
+	*idp = id;
+	strdb_put(skilldb_name2id, skill_db[i].name, idp);
 
 	return true;
 }
@@ -21055,7 +21068,7 @@ void skill_reload (void)
  *------------------------------------------*/
 int do_init_skill (void)
 {
-	skilldb_name2id = strdb_alloc(DB_OPT_DUP_KEY, 0);
+	skilldb_name2id = strdb_alloc(DB_OPT_DUP_KEY | DB_OPT_RELEASE_DATA, 0);
 	skill_readdb();
 
 	group_db = idb_alloc(DB_OPT_BASE);

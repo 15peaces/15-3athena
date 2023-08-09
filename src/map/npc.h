@@ -18,7 +18,7 @@ struct view_data;
 #else
 	#define __64BPRTSIZE(y) y
 #endif
-DBMap* npcname_db; // const char* npc_name -> struct npc_data*
+static DBMap* npcname_db; // const char* npc_name -> struct npc_data*
 
 struct npc_timerevent_list {
 	int timer,pos;

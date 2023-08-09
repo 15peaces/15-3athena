@@ -4165,6 +4165,12 @@ int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
 	sd->status.zeny -= zeny;
 	clif_updatestatus(sd,SP_ZENY);
 
+	if (zeny > 0 && sd->state.showzeny) {
+		char output[255];
+		sprintf(output, "Removed %dz.", zeny);
+		clif_disp_onlyself(sd, output, strlen(output));
+	}
+
 	if (!tsd) tsd = sd;
 	log_zeny(sd, type, tsd, -zeny);
 
@@ -4549,7 +4555,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 	//Display pickup animation.
 	pc_stop_attack(sd);
 	clif_takeitem(&sd->bl,&fitem->bl);
-	map_clearflooritem(fitem->bl.id);
+	map_clearflooritem(&fitem->bl);
 	return 1;
 }
 
@@ -7121,22 +7127,25 @@ int pc_allskillup(struct map_session_data *sd)
 	{	//Get ALL skills except npc/guild ones. [Skotlex]
 		//and except SG_DEVIL [Komurka] and MO_TRIPLEATTACK and RG_SNATCHER [ultramage]
 		for(i=0;i<MAX_SKILL;i++){
-			if(!(skill_get_inf2(i)&(INF2_NPC_SKILL|INF2_GUILD_SKILL|INF2_SUB_SKILL)) &&
-				i!=RG_SNATCHER &&
-				i!=MO_TRIPLEATTACK &&
-				i!=SG_DEVIL &&
-				i!=SM_SELFPROVOKE &&
-				i!=SL_DEATHKNIGHT &&
-				i!=SL_COLLECTOR &&
-				i!=SL_NINJA &&
-				i!=SL_GUNNER &&
-				i!=ALL_ODINS_RECALL &&
-				i!=RK_LUXANIMA)
-				sd->status.skill[i].lv=skill_get_max(i); //Nonexistant skills should return a max of 0 anyway.
+			switch (i) {
+				case SG_DEVIL:
+				case MO_TRIPLEATTACK:
+				case RG_SNATCHER:
+				case SM_SELFPROVOKE:
+				case SL_DEATHKNIGHT:
+				case SL_COLLECTOR:
+				case SL_NINJA:
+				case SL_GUNNER:
+				case ALL_ODINS_RECALL:
+				case RK_LUXANIMA:
+					continue;
+				default:
+					if (!(skill_get_inf2(i)&(INF2_NPC_SKILL | INF2_GUILD_SKILL | INF2_SUB_SKILL)))
+						if (sd->status.skill[i].lv = skill_get_max(i))//Nonexistant skills should return a max of 0 anyway.
+							sd->status.skill[i].id = i;
+			}
 		}
-	}
-	else
-	{
+	} else {
 		int id;
 		for(i=0;i < MAX_SKILL_TREE && (id=skill_tree[pc_class2idx(sd->status.class_)][i].id)>0;i++){
 			int inf2 = skill_get_inf2(id);
@@ -7146,6 +7155,8 @@ int pc_allskillup(struct map_session_data *sd)
 				id==SG_DEVIL
 			)
 				continue; //Cannot be learned normally.
+
+			sd->status.skill[id].id = id;
 			sd->status.skill[id].lv = skill_tree_get_max(id, sd->status.class_);	// celest
 		}
 	}
@@ -7297,6 +7308,14 @@ int pc_resetstate(struct map_session_data* sd)
 	clif_updatestatus(sd,SP_ULUK);	// End Addition
 	
 	clif_updatestatus(sd,SP_STATUSPOINT);
+
+	if (sd->mission_mobid)
+	{
+		sd->mission_mobid = 0;
+		sd->mission_count = 0;
+		pc_setglobalreg(sd, "TK_MISSION_ID", 0);
+	}
+
 	status_calc_pc(sd,0);
 
 	return 1;
@@ -7367,12 +7386,9 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 			continue;
 		}
 
+		// do not reset basic skill
 		if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE && (sd->class_&MAPID_UPPERMASK) != MAPID_BABY )
-		{ // Official server does not include Basic Skill to be resetted. [Jobbie]
-			//sd->status.skill[i].lv = 9;
-			//sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
 			continue;
-		}
 
 		if (sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED)
 			continue;
@@ -8602,7 +8618,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		status_change_end(&sd->bl, SC_SOULATTACK, INVALID_TIMER);
 	
 	if(sd->status.manner < 0)
-		clif_changestatus(&sd->bl,SP_MANNER,sd->status.manner);
+		clif_changestatus(sd,SP_MANNER,sd->status.manner);
 
 	status_calc_pc(sd,0);
 	pc_checkallowskill(sd);

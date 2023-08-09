@@ -5,6 +5,83 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/09/2023
+	r393 [15peaces]
+		*Some item database updates.
+			-Enabled & fixed some headgears.
+			-Fixed Mysterious_Powder item type & effect.
+			-Added full support for 2 new item_trade.txt flags:
+				--Item can't be attached to mail
+				--Item can't be auctioned
+			-nodrop/notrade flags no longer share no mail and no auction flags
+			-added some missing item trade flags and updated others.
+			-Fixed Pile Bunkers (ID:1549) job requirements.
+			-Fixed some arrow recipes.
+			-Fixed Sky Deleter Card (and similar items) not healing when killing a monster when in Berserk status.
+			-Fixed Eddga Card, it should give 1 MDEF (instead of 0).
+		*Some monster database updates.
+			-Added Bradium Golem to mob_race2_db.txt.
+			-Fixed some wrong monster drops & chances.
+			-Fixed Garms iRO name.
+		*Fixed ZC_GUILD_INFO3 packet, related to #15
+			-This fixes the territory display.
+		*Server shutdown and @cleanmap / @cleanarea are now all faster.
+			-Instead of wasting time doing a dbmap lookup (of a data it already possessed!) on each floor item being deleted, it'll use the data to clean the item.
+		*Some more internal database fixes and optimations.
+			-Enabled DB_OPT_RELEASE_DATA for several DBMaps to simplify data freeing.
+			-Fixed va_list being reused in DBMap code (linkdb_foreach()).
+			-replaced DBIterator function calls with macros wherepossible.
+			-Fixed Nick DB code using uninitialized data.
+		*Clarified the comment about spaces in 'server_name' config.
+		*Some misc. cleaning & fixing.
+			-Some code cleanup (npc (timer)event labels).
+			-Fixed a little leftover in socket_enchant2.txt.
+			-Optimized some statuses.
+			-Fixed walk-delay bug when a player is attacked in disguise causing inaccurate client position.
+			-Some fixing related to manner status.
+			-Fixed a possible monster speed underflow when mobs leveling up is enabled.
+			-Fixed some memory leaks & crashes on server-shutdown.
+		*Rewrote/updated the SC_COMBO logic.
+			-Got rid of remainig state.combo usages and added usage of packet 0x7e1 (PACKET_ZC_SKILLINFO_UPDATE2) to report skill inf changes.
+			-This should also fix some issues with the combo skills.
+		*Added @showzeny tracking to pc_payzeny so that it's messages are more consistent when zeny is earned/reduced.
+		*`clif_displaymessage` is now capable of displaying multiline messages.
+		*pc_resetstate will now also reset the TK_MISSION target mob.
+		*Fixed @allskill setting skill ids too late.
+		*Some script fixes.
+			-Added missing warp to iz_dun05.
+			-Fixed Siblings Quest exploits and made it more official.
+		*Fixed @duel problem with Kaizel.
+		*Fixed all sniper traps (except ankle snare) from working on their owner.
+		*(AoE) skills now continue to trigger even if character is dead, official behavior.
+		*Fixed holy and shadow elemental scrolls from dispelling on death.
+		*Updated Emperium to not can be healed by any skills.
+		*Fixed some (ancient) MvP bugs/exploits
+			-When mvp drops are at 100% drop rate it'll no longer always drop the first.
+			-MvP monsters no longer can target play dead characters.
+			-It has been confirmed on official servers that MvP mobs have no dmotion even without endure.
+		*PA_SACRIFICE 
+			-Fixed calculation order.
+			-The damage needs to be calculated before the hp reduction.
+		*DC_WINKCHARM
+			-Affected mobs will now follow caster during effect.
+		*SL_SWOO
+			-Fixed the visual effect not going off after duration is gone.
+		*SL_HIGH
+			-Stat increases no longer stack with any other status changes.
+		*Songs no longer dispell on death.
+		*Fixed Divest status changes not loading properly on login with `debuff_on_logout: 0`
+		*Status change packet cleanup
+			-replaced duplicate function clif_status_load with a macro
+			-put some checks that were previously in multiple places into clif_status_change
+			-packets are now used as they are on official servers:
+				--ZC_MSG_STATE_CHANGE for ending statuses and starting them on non-pcs
+				--ZC_MSG_STATE_CHANGE2 for starting *all* statuses on players
+				--tick = 9999 for statuses of indeterminate duration
+				--for non-pc units, a packet is only sent if it has a visual impact on the client; if you notice any missing visual effects, please report them!
+			-fixed status end packet never being sent for non-pc, non-mercenary units
+			-removed hard-coded status length exceptions in clif_status_change
+
 07/15/2023
 	r392 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn392_log.sql file!

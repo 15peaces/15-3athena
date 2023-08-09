@@ -15,9 +15,6 @@ struct status_change;
 #define MAX_REFINE 20
 #define MAX_REFINE_BONUS 5
 
-extern unsigned long StatusChangeFlagTable[];
-
-
 // Status changes listing. These code are for use by the server. 
 typedef enum sc_type {
 	SC_NONE = -1,
@@ -2164,6 +2161,8 @@ enum e_status_bonus {
 #define BL_CONSUME (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 //Define to determine who has regen
 #define BL_REGEN (BL_PC|BL_HOM|BL_MER)
+//Define to determine who will receive a clif_status_change packet for effects that require one to display correctly
+#define BL_SCEFFECT (BL_PC|BL_HOM|BL_MER|BL_MOB)
 
 //Basic damage info of a weapon
 //Required because players have two of these, one in status_data
@@ -2266,6 +2265,8 @@ struct status_change {
 sc_type status_skill2sc(int skill);
 int status_sc2skill(sc_type sc);
 int status_sc2icon(sc_type sc);
+unsigned int status_sc2scb_flag(sc_type sc);
+int status_type2relevant_bl_types(int type);
 
 int status_damage(struct block_list *src,struct block_list *target, int64 dhp, int64 dsp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
@@ -2334,6 +2335,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 #define status_get_attack_element(bl) status_get_status_data(bl)->rhw.ele
 #define status_get_attack_lelement(bl) status_get_status_data(bl)->lhw.ele
 #define status_get_race(bl) status_get_status_data(bl)->race
+#define status_get_class_(bl) status_get_status_data(bl)->class_
 #define status_get_size(bl) status_get_status_data(bl)->size
 #define status_get_mode(bl) status_get_status_data(bl)->mode
 #define status_has_mode(status,md) (((status)->mode&(md)) == (md))

@@ -64,28 +64,6 @@ static int itemdb_searchname_sub(DBKey key, DBData *data, va_list ap)
  *------------------------------------------*/
 struct item_data* itemdb_searchname(const char *str)
 {
-	/* Old version. [15peaces]
-	struct item_data* item;
-	struct item_data* item2=NULL;
-	int i;
-
-	for( i = 0; i < ARRAYLENGTH(itemdb_array); ++i )
-	{
-		item = itemdb_array[i];
-		if( item == NULL )
-			continue;
-
-		// Absolute priority to Aegis code name.
-		if( strcasecmp(item->name,str) == 0 )
-			return item;
-
-		//Second priority to Client displayed name.
-		if( strcasecmp(item->jname,str) == 0 )
-			item2 = item;
-	}
-
-	item = NULL;
-	*/
 	struct item_data* item = NULL;
 	struct item_data* item2 = NULL;
 
@@ -606,6 +584,10 @@ int itemdb_canmail_sub(struct item_data* item, int gmlv, int unused) {
 	return (item && (!(item->flag.trade_restriction&128) || gmlv >= item->gm_lv_trade_override));
 }
 
+int itemdb_canauction_sub(struct item_data* item, int gmlv, int unused) {
+	return (item && (!(item->flag.trade_restriction & 256) || gmlv >= item->gm_lv_trade_override));
+}
+
 bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int))
 {
 	struct item_data* item_data = itemdb_search(item->nameid);
@@ -920,7 +902,7 @@ static bool itemdb_read_itemtrade(char* str[], int columns, int current)
 	flag = atoi(str[1]);
 	gmlv = atoi(str[2]);
 
-	if( flag < 0 || flag >= 128 )
+	if( flag < 0 || flag > 511 )
 	{//Check range
 		ShowWarning("itemdb_read_itemtrade: Invalid trading mask %d for item id %hu.\n", flag, nameid);
 		return false;

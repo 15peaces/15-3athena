@@ -341,7 +341,7 @@ struct item_data {
 		short no_equip;
 		unsigned no_refine : 1;	// [celest]
 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
-		unsigned trade_restriction : 7;	//Item restrictions mask [Skotlex]
+		unsigned trade_restriction : 9;	//Item restrictions mask [Skotlex]
 		unsigned autoequip: 1;
 		unsigned buyingstore : 1;
 		unsigned dead_branch : 1; // As dead branch item. Logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
@@ -430,6 +430,7 @@ int itemdb_cancartstore_sub(struct item_data*, int, int);
 int itemdb_canstore_sub(struct item_data*, int, int);
 int itemdb_canguildstore_sub(struct item_data*, int, int);
 int itemdb_canmail_sub(struct item_data*, int, int);
+int itemdb_canauction_sub(struct item_data*, int, int);
 bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int));
 bool itemdb_ishatched_egg(struct item* item);
 #define itemdb_isdropable(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_isdropable_sub)
@@ -440,6 +441,7 @@ bool itemdb_ishatched_egg(struct item* item);
 #define itemdb_canstore(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_canstore_sub) 
 #define itemdb_canguildstore(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canguildstore_sub) 
 #define itemdb_canmail(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canmail_sub)
+#define itemdb_canauction(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canauction_sub)
 
 bool itemdb_isequip(unsigned short);
 bool itemdb_isequip2(struct item_data *);

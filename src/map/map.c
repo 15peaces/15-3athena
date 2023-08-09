@@ -1442,15 +1442,13 @@ int map_get_new_object_id(void)
 int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	struct flooritem_data* fitem = (struct flooritem_data*)idb_get(id_db, id);
-	if( fitem==NULL || fitem->bl.type!=BL_ITEM || (!data && fitem->cleartimer != tid) )
+	if( fitem==NULL || fitem->bl.type!=BL_ITEM || (fitem->cleartimer != tid) )
 	{
 		ShowError("map_clearflooritem_timer : error\n");
 		return 1;
 	}
 
-	if(data)
-		delete_timer(fitem->cleartimer,map_clearflooritem_timer);
-	else if (search_petDB_index(fitem->item_data.nameid, PET_EGG) >= 0)
+	if (search_petDB_index(fitem->item_data.nameid, PET_EGG) >= 0)
 		intif_delete_petdata(MakeDWord(fitem->item_data.card[1], fitem->item_data.card[2]));
 
 	clif_clearflooritem(fitem,0);
@@ -1459,6 +1457,21 @@ int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data)
 	map_freeblock(&fitem->bl);
 
 	return 0;
+}
+
+/*==========================================
+ * clears a single bl item out of the bazooonga.
+ *------------------------------------------*/
+void map_clearflooritem(struct block_list *bl) {
+	struct flooritem_data* fitem = (struct flooritem_data*)bl;
+
+	if (fitem->cleartimer)
+		delete_timer(fitem->cleartimer, map_clearflooritem_timer);
+
+	clif_clearflooritem(fitem, 0);
+	map_deliddb(&fitem->bl);
+	map_delblock(&fitem->bl);
+	map_freeblock(&fitem->bl);
 }
 
 /*==========================================
@@ -1675,9 +1688,7 @@ void map_delnickdb(int charid, const char* name)
 	struct charid2nick* p;
 	DBData data;
 
-	nick_db->remove(nick_db, db_i2key(charid), &data);
-	p = db_data2ptr(&data);
-	if( p == NULL )
+	if (!nick_db->remove(nick_db, db_i2key(charid), &data) || (p = db_data2ptr(&data)) == NULL)
 		return;
 
 	while( p->requests )
@@ -2126,7 +2137,7 @@ void map_foreachpc(int (*func)(struct map_session_data* sd, va_list args), ...)
 	struct map_session_data* sd;
 
 	iter = db_iterator(pc_db);
-	for (sd = (struct map_session_data*)dbi_first(iter); dbi_exists(iter); sd = (struct map_session_data*)dbi_next(iter))
+	for (sd = dbi_first(iter); dbi_exists(iter); sd = dbi_next(iter))
 	{
 		va_list args;
 		int ret;
@@ -2897,15 +2908,14 @@ void map_iwall_get(struct map_session_data *sd)
 {
 	struct iwall_data *iwall;
 	DBIterator* iter;
-	DBKey key;
 	int x1, y1;
 	int i;
 
 	if( map[sd->bl.m].iwall_num < 1 )
 		return;
 
-	iter = iwall_db->iterator(iwall_db);
-	for( iwall = (struct iwall_data *)iter->first(iter,&key); iter->exists(iter); iwall = (struct iwall_data *)iter->next(iter,&key) )
+	iter = db_iterator(iwall_db);
+	for (iwall = dbi_first(iter); dbi_exists(iter); iwall = dbi_next(iter))
 	{
 		if( iwall->m != sd->bl.m )
 			continue;
@@ -2916,7 +2926,7 @@ void map_iwall_get(struct map_session_data *sd)
 			clif_changemapcell(sd->fd, iwall->m, x1, y1, map_getcell(iwall->m, x1, y1, CELL_GETTYPE), SELF);
 		}
 	}
-	iter->destroy(iter);
+	dbi_destroy(iter);
 }
 
 void map_iwall_remove(const char *wall_name)
@@ -3814,7 +3824,7 @@ int cleanup_sub(struct block_list *bl, va_list ap)
 		//There is no need for this, the pet is removed together with the player. [Skotlex]
 			break;
 		case BL_ITEM:
-			map_clearflooritem(bl->id);
+			map_clearflooritem(bl);
 			break;
 		case BL_SKILL:
 			skill_delunit((struct skill_unit *) bl);

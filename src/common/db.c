@@ -1833,7 +1833,6 @@ static int db_obj_put(DBMap* self, DBKey key, DBData data, DBData *out_data)
 	DBNode parent = NULL;
 	int c = 0, retval = 0;
 	unsigned int hash;
-	void *old_data = NULL;
 
 	DB_COUNTSTAT(db_put);
 	if (db == NULL) return 0; // nullpo candidate
@@ -1981,7 +1980,7 @@ static int db_obj_remove(DBMap* self, DBKey key, DBData *out_data)
  * Apply <code>func</code> to every entry in the database.
  * Returns the sum of values returned by func.
  * @param self Interface of the database
- * @param func Function to be applyed
+ * @param func Function to be applied
  * @param args Extra arguments for func
  * @return Sum of the values returned by func
  * @protected
@@ -2041,7 +2040,7 @@ static int db_obj_vforeach(DBMap* self, DBApply func, va_list args)
  * Apply <code>func</code> to every entry in the database.
  * Returns the sum of values returned by func.
  * @param self Interface of the database
- * @param func Function to be applyed
+ * @param func Function to be applied
  * @param ... Extra arguments for func
  * @return Sum of the values returned by func
  * @protected
@@ -2064,11 +2063,11 @@ static int db_obj_foreach(DBMap* self, DBApply func, ...)
 
 /**
  * Removes all entries from the database.
- * Before deleting an entry, func is applyed to it.
+ * Before deleting an entry, func is applied to it.
  * Releases the key and the data.
  * Returns the sum of values returned by func, if it exists.
  * @param self Interface of the database
- * @param func Function to be applyed to every entry before deleting
+ * @param func Function to be applied to every entry before deleting
  * @param args Extra arguments for func
  * @return Sum of values returned by func
  * @protected
@@ -2135,13 +2134,13 @@ static int db_obj_vclear(DBMap* self, DBApply func, va_list args)
 /**
  * Just calls {@link DBMap#vclear}.
  * Removes all entries from the database.
- * Before deleting an entry, func is applyed to it.
+ * Before deleting an entry, func is applied to it.
  * Releases the key and the data.
  * Returns the sum of values returned by func, if it exists.
  * NOTE: This locks the database globally. Any attempt to insert or remove 
  * a database entry will give an error and be aborted (except for clearing).
  * @param self Interface of the database
- * @param func Function to be applyed to every entry before deleting
+ * @param func Function to be applied to every entry before deleting
  * @param ... Extra arguments for func
  * @return Sum of values returned by func
  * @protected
@@ -2164,12 +2163,12 @@ static int db_obj_clear(DBMap* self, DBApply func, ...)
 
 /**
  * Finalize the database, feeing all the memory it uses.
- * Before deleting an entry, func is applyed to it.
+ * Before deleting an entry, func is applied to it.
  * Returns the sum of values returned by func, if it exists.
  * NOTE: This locks the database globally. Any attempt to insert or remove 
  * a database entry will give an error and be aborted (except for clearing).
  * @param self Interface of the database
- * @param func Function to be applyed to every entry before deleting
+ * @param func Function to be applied to every entry before deleting
  * @param args Extra arguments for func
  * @return Sum of values returned by func
  * @protected
@@ -2217,13 +2216,13 @@ static int db_obj_vdestroy(DBMap* self, DBApply func, va_list args)
 /**
  * Just calls {@link DBMap#db_vdestroy}.
  * Finalize the database, feeing all the memory it uses.
- * Before deleting an entry, func is applyed to it.
+ * Before deleting an entry, func is applied to it.
  * Releases the key and the data.
  * Returns the sum of values returned by func, if it exists.
  * NOTE: This locks the database globally. Any attempt to insert or remove 
  * a database entry will give an error and be aborted.
  * @param self Database
- * @param func Function to be applyed to every entry before deleting
+ * @param func Function to be applied to every entry before deleting
  * @param ... Extra arguments for func
  * @return Sum of values returned by func
  * @protected
@@ -2860,15 +2859,16 @@ void linkdb_insert( struct linkdb_node** head, void *key, void* data)
 
 void linkdb_foreach( struct linkdb_node** head, LinkDBFunc func, ...  )
 {
-	va_list args;
 	struct linkdb_node *node;
 	
 	if( head == NULL ) return;
 	
-	va_start(args, func);
 	node = *head;
 	while ( node ) {
+		va_list args;
+		va_start(args, func);
 		func( node->key, node->data, args );
+		va_end(args);
 		node = node->next;
 	}
 }

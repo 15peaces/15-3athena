@@ -1647,7 +1647,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			unit_set_walkdelay(&md->bl, tick, md->status.amotion, 1);
 		}
 		//Clear item.
-		map_clearflooritem (tbl->id);
+		map_clearflooritem (tbl);
 		mob_unlocktarget (md,tick);
 		return true;
 	}
@@ -2509,46 +2509,62 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		clif_mvp_exp(mvp_sd,mexp);
 		pc_gainexp(mvp_sd, &md->bl, mexp,0, false);
 		log_mvp[1] = mexp;
-		if(map[m].flag.nomvploot || type&1)
-			; //No drops.
-		else
-		for(i=0;i<3;i++)
-		{			
-			if(md->db->mvpitem[i].nameid <= 0)
-				continue;
-			if(!itemdb_exists(md->db->mvpitem[i].nameid))
-				continue;
-			
-			temp = md->db->mvpitem[i].p;
-			if(temp <= 0 && !battle_config.drop_rate0item)
-				temp = 1;
-			if(temp <= rnd()%10000+1) //if ==0, then it doesn't drop
-				continue;
 
-			memset(&item,0,sizeof(item));
-			item.nameid=md->db->mvpitem[i].nameid;
-			item.identify= itemdb_isidentified(item.nameid);
-			clif_mvp_item(mvp_sd,item.nameid);
-			log_mvp[0] = item.nameid;
+		if (!(map[m].flag.nomvploot || type & 1)) {
+			/* pose them randomly in the list -- so on 100% drop servers it wont always drop the same item */
+			int mdrop_id[3];
+			int mdrop_p[3];
 			
-			//A Rare MVP Drop Global Announce by Lupus
-			if(temp<=battle_config.rare_drop_announce) {
-				struct item_data *i_data;
-				char message[128];
-				i_data = itemdb_exists(item.nameid);
-				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, i_data->jname, temp/100.);
-				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
-				intif_broadcast(message,strlen(message)+1,0);
+			memset(&mdrop_id, 0, 3*sizeof(int));
+			
+			for (i = 0; i < 3; i++) {
+				while (1) {
+					int va = rand() % 3;
+					if (!mdrop_id[va] || !md->db->mvpitem[i].nameid) {
+						mdrop_id[va] = md->db->mvpitem[i].nameid;
+						mdrop_p[va] = md->db->mvpitem[i].p;
+						break;
+					}
+				}
 			}
 
-			if((temp = pc_additem(mvp_sd,&item,1,LOG_TYPE_PICKDROP_PLAYER)) != 0) {
-				clif_additem(mvp_sd,0,0,temp);
-				map_addflooritem(&item,1,mvp_sd->bl.m,mvp_sd->bl.x,mvp_sd->bl.y,mvp_sd->status.char_id,(second_sd?second_sd->status.char_id:0),(third_sd?third_sd->status.char_id:0),1);
+			for (i = 0; i < 3; i++) {
+				if (mdrop_id[i] <= 0)
+					continue;
+				if (!itemdb_exists(mdrop_id[i]))
+					continue;
+
+				temp = mdrop_p[i];
+				if (temp <= 0 && !battle_config.drop_rate0item)
+					temp = 1;
+				if (temp <= rnd() % 10000 + 1) //if ==0, then it doesn't drop
+					continue;
+
+				memset(&item, 0, sizeof(item));
+				item.nameid = mdrop_id[i];
+				item.identify = itemdb_isidentified(item.nameid);
+				clif_mvp_item(mvp_sd, item.nameid);
+				log_mvp[0] = item.nameid;
+
+				//A Rare MVP Drop Global Announce by Lupus
+				if (temp <= battle_config.rare_drop_announce) {
+					struct item_data *i_data;
+					char message[128];
+					i_data = itemdb_exists(item.nameid);
+					sprintf(message, msg_txt(sd, 541), mvp_sd->status.name, md->name, i_data->jname, temp / 100.);
+					//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
+					intif_broadcast(message, strlen(message) + 1, 0);
+				}
+
+				if ((temp = pc_additem(mvp_sd, &item, 1, LOG_TYPE_PICKDROP_PLAYER)) != 0) {
+					clif_additem(mvp_sd, 0, 0, temp);
+					map_addflooritem(&item, 1, mvp_sd->bl.m, mvp_sd->bl.x, mvp_sd->bl.y, mvp_sd->status.char_id, (second_sd ? second_sd->status.char_id : 0), (third_sd ? third_sd->status.char_id : 0), 1);
+				}
+
+				//Logs items, MVP prizes [Lupus]
+				log_pick(&md->bl, LOG_TYPE_MVP, item.nameid, -1, &item);
+				break;
 			}
-			
-			//Logs items, MVP prizes [Lupus]
-			log_pick(&md->bl, LOG_TYPE_MVP, item.nameid, -1, NULL);
-			break;
 		}
 
 		log_mvpdrop(mvp_sd, md->class_, log_mvp);

@@ -667,17 +667,17 @@ int WFIFOSET(int fd, size_t len)
 		return 0;
 	}
 
-	if( !s->flag.server && len > socket_max_client_packet )
-	{// see declaration of socket_max_client_packet for details
-		ShowError("WFIFOSET: Dropped too large client packet 0x%04x (length=%u, max=%u).\n", WFIFOW(fd,0), len, socket_max_client_packet);
-		return 0;
-	}
+	if (!s->flag.server) {
+		if (len > socket_max_client_packet) {// see declaration of socket_max_client_packet for details
+			ShowError("WFIFOSET: Dropped too large client packet 0x%04x (length=%u, max=%u).\n", WFIFOW(fd, 0), len, socket_max_client_packet);
+			return 0;
+		}
 
-	if( !s->flag.server && s->wdata_size+len > WFIFO_MAX )
-	{// reached maximum write fifo size
-		ShowError("WFIFOSET: Maximum write buffer size for client connection %d exceeded, most likely caused by packet 0x%04x (len=%u, ip=%lu.%lu.%lu.%lu).\n", fd, WFIFOW(fd,0), len, CONVIP(s->client_addr));
-		set_eof(fd);
-		return 0;
+		if (s->wdata_size + len > WFIFO_MAX) {// reached maximum write fifo size
+			ShowError("WFIFOSET: Maximum write buffer size for client connection %d exceeded, most likely caused by packet 0x%04x (len=%u, ip=%lu.%lu.%lu.%lu).\n", fd, WFIFOW(fd, 0), len, CONVIP(s->client_addr));
+			set_eof(fd);
+			return 0;
+		}
 	}
 
 	s->wdata_size += len;

@@ -1042,6 +1042,10 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 			switch (skill_num) {
 			case MO_TRIPLEATTACK:
 			case HW_GRAVITATION:
+			case AL_HEAL:
+			case PR_SANCTUARY:
+			case BA_APPLEIDUN:
+			case AB_CHEAL:
 				break;
 			default:
 				return 0;
@@ -1705,8 +1709,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			cri+= sd->critaddrace[tstatus->race];
 			if(flag.arrow)
 				cri += sd->bonus.arrow_cri;
-			if(sd->status.weapon == W_KATAR)
-				cri <<=1;
 		}
 		//The official equation is *2, but that only applies when sd's do critical.
 		//Therefore, we use the old value 3 on cases when an sd gets attacked by a mob
@@ -5406,14 +5408,17 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		if (sc->data[SC_SACRIFICE])
 		{
 			int skilllv = sc->data[SC_SACRIFICE]->val1;
+			damage_lv ret_val;
 
 			if( --sc->data[SC_SACRIFICE]->val2 <= 0 )
 				status_change_end(src, SC_SACRIFICE, INVALID_TIMER);
 
+			// We need to calculate the DMG before the hp reduction, because it can kill the source.
+			ret_val = (damage_lv)skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,skilllv,tick,0);
+
 			status_zap(src, sstatus->max_hp*9/100, 0);//Damage to self is always 9%
 
-			//FIXME: invalid return type!
-			return (damage_lv)skill_attack(BF_WEAPON,src,src,target,PA_SACRIFICE,skilllv,tick,0);
+			return ret_val;
 		}
 		if (sc->data[SC_MAGICALATTACK])
 			//FIXME: invalid return type!

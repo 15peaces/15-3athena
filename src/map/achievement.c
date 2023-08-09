@@ -1612,8 +1612,6 @@ void do_init_achievement(void)
 	/* Read database files */
 	achievement_readdb();
 	achievement_readdb_ranks();
-
-	//aFree(rewards); // Not needed anymore.
 }
 
 /**

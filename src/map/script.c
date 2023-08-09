@@ -3950,24 +3950,11 @@ int script_config_read(char *cfgName)
 	return 0;
 }
 
-static int do_final_userfunc_sub (DBKey key,DBData *data,va_list ap)
+static int db_script_free_code_sub(DBKey key, DBData *data, va_list ap)
 {
 	struct script_code *code = db_data2ptr(data);
-	if(code){
-		script_free_vars( code->script_vars );
-		aFree( code->script_buf );
-		aFree( code );
-	}
-	return 0;
-}
-
-static int do_final_autobonus_sub (DBKey key,DBData *data,va_list ap)
-{
-	struct script_code *code = db_data2ptr(data);
-
-	if(code)
+	if (code)
 		script_free_code(code);
-
 	return 0;
 }
 
@@ -4125,9 +4112,9 @@ int do_final_script()
 
 	mapreg_final();
 
-	scriptlabel_db->destroy(scriptlabel_db,NULL);
-	userfunc_db->destroy(userfunc_db,do_final_userfunc_sub);
-	autobonus_db->destroy(autobonus_db, do_final_autobonus_sub);
+	db_destroy(scriptlabel_db);
+	userfunc_db->destroy(userfunc_db, db_script_free_code_sub);
+	autobonus_db->destroy(autobonus_db, db_script_free_code_sub);
 	if(sleep_db) {
 		struct linkdb_node *n = (struct linkdb_node *)sleep_db;
 		while(n) {
@@ -4157,7 +4144,7 @@ int do_final_script()
 int do_init_script()
 {
 	userfunc_db=strdb_alloc(DB_OPT_DUP_KEY,0);
-	scriptlabel_db=strdb_alloc(DB_OPT_DUP_KEY,50);
+	scriptlabel_db=strdb_alloc(DB_OPT_DUP_KEY | DB_OPT_ALLOW_NULL_DATA,50);
 	autobonus_db = strdb_alloc(DB_OPT_DUP_KEY,0);
 
 	mapreg_init();
@@ -4167,8 +4154,8 @@ int do_init_script()
 
 int script_reload()
 {
-	userfunc_db->clear(userfunc_db,do_final_userfunc_sub);
-	scriptlabel_db->clear(scriptlabel_db, NULL);
+	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
+	db_clear(scriptlabel_db);
 	
 	// @commands (script based) 
 	// Clear bindings 

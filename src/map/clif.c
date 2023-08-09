@@ -3341,31 +3341,26 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 	return 0;
 }
 
-int clif_changestatus(struct block_list *bl,int type,int val)
+void clif_changestatus(struct map_session_data* sd,int type,int val)
 {
 	unsigned char buf[12];
-	struct map_session_data *sd = NULL;
 
-	nullpo_ret(bl);
+	nullpo_retv(sd);
 
-	if(bl->type == BL_PC)
-		sd = (struct map_session_data *)bl;
+	WBUFW(buf, 0) = 0x1ab;
+	WBUFL(buf, 2) = sd->bl.id;
+	WBUFW(buf, 6) = type;
 
-	if(sd){
-		WBUFW(buf,0)=0x1ab;
-		WBUFL(buf,2)=bl->id;
-		WBUFW(buf,6)=type;
-		switch(type){
+	switch (type)
+	{
 		case SP_MANNER:
 			WBUFL(buf,8)=val;
 			break;
 		default:
 			ShowError("clif_changestatus : unrecognized type %d.\n",type);
-			return 1;
-		}
-		clif_send(buf,packet_len(0x1ab),bl,AREA_WOS);
+			return;
 	}
-	return 0;
+	clif_send(buf, packet_len(0x1ab), &sd->bl, AREA_WOS);
 }
 
 /// Notifies client of a change in a long parameter (ZC_LONGPAR_CHANGE).
@@ -5582,12 +5577,7 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 		if( (id = sd->status.skill[i].id) != 0 )
 		{
 			WFIFOW(fd,len)   = id;
-			if ((id == MO_EXTREMITYFIST && sd->state.combo & 1) || (id == TK_JUMPKICK && sd->state.combo & 2) ||
-				(id == SR_DRAGONCOMBO && sd->state.combo & 1) || (id == SR_TIGERCANNON && sd->state.combo & 1) ||
-				(id == SR_GATEOFHELL && sd->state.combo & 1))
-				WFIFOL(fd, len + 2) = INF_SELF_SKILL;
-			else
-				WFIFOL(fd, len + 2) = skill_get_inf(id);
+			WFIFOL(fd, len + 2) = skill_get_inf(id);
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,sd->status.skill[i].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->bl, id,sd->status.skill[i].lv);
@@ -5623,12 +5613,7 @@ void clif_addskill(struct map_session_data *sd, int id)
 	WFIFOHEAD(fd, packet_len(0x111));
 	WFIFOW(fd,0) = 0x111;
 	WFIFOW(fd,2) = id;
-	if ((id == MO_EXTREMITYFIST && sd->state.combo & 1) || (id == TK_JUMPKICK && sd->state.combo & 2) ||
-		(id == SR_DRAGONCOMBO && sd->state.combo & 1) || (id == SR_TIGERCANNON && sd->state.combo & 1) ||
-		(id == SR_GATEOFHELL && sd->state.combo & 1))
-		WFIFOL(fd, 4) = INF_SELF_SKILL;
-	else
-		WFIFOL(fd, 4) = skill_get_inf(id);
+	WFIFOL(fd, 4) = skill_get_inf(id);
 	WFIFOW(fd,8) = sd->status.skill[id].lv;
 	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[id].lv);
 	WFIFOW(fd,12)= skill_get_range2(&sd->bl, id,sd->status.skill[id].lv);
@@ -5839,7 +5824,7 @@ void clif_skillcastcancel(struct block_list* bl)
 /// if(result!=0) doesn't display any of the previous messages
 /// Note: when this packet is received an unknown flag is always set to 0,
 /// suggesting this is an ACK packet for the UseSkill packets and should be sent on success too [FlavioJS]
-void clif_skill_fail(struct map_session_data *sd,int skill_id,int type,int btype, int val)
+void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fail_cause type,int btype, int val)
 {
 	int fd;
 
@@ -6406,64 +6391,33 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 	}
 }
 
-
-/*==========================================
- * Sends a status change packet to the object only, used for loading status changes. [Skotlex]
- *------------------------------------------*/
-int clif_status_load(struct block_list *bl,int type, int flag)
-{
-	int fd;
-	if (type == SI_BLANK)  //It shows nothing on the client...
-		return 0;
-	
-	if (bl->type != BL_PC)
-		return 0;
-
-	fd = ((struct map_session_data*)bl)->fd;
-	
-	WFIFOHEAD(fd,packet_len(0x196));
-	WFIFOW(fd,0)=0x0196;
-	WFIFOW(fd,2)=type;
-	WFIFOL(fd,4)=bl->id;
-	WFIFOB(fd,8)=flag; //Status start
-	WFIFOSET(fd, packet_len(0x196));
-	return 0;
-}
-
-
 /// Notifies clients of a status change.
-/// 0196 <index>.W <id>.L <state>.B (ZC_MSG_STATE_CHANGE)
-/// 043f <index>.W <id>.L <state>.B <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE2)
+/// 0196 <index>.W <id>.L <state>.B (ZC_MSG_STATE_CHANGE) [used for ending status changes and starting them on non-pc units (when needed)]
+/// 043f <index>.W <id>.L <state>.B <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE2) [used exclusively for starting statuses on pcs]
 /// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
 /// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE3) (PACKETVER >= 20120618)
 /// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
 void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int val1, int val2, int val3)
 {
 	unsigned char buf[32];
+	struct map_session_data *sd;
 
 	if (type == SI_BLANK)  //It shows nothing on the client...
 		return;
 
 	nullpo_retv(bl);
 
-	if (type == SI_BLANK || type == SI_MAXIMIZEPOWER || type == SI_RIDING ||
-		type == SI_FALCON || type == SI_TRICKDEAD || type == SI_BROKENARMOR ||
-		type == SI_BROKENWEAPON || type == SI_WEIGHT50 || type == SI_WEIGHT90 ||
-		type == SI_TENSIONRELAX || type == SI_LANDENDOW || type == SI_AUTOBERSERK ||
-		type == SI_BUMP || type == SI_READYSTORM || type == SI_READYDOWN ||
-		type == SI_READYTURN || type == SI_READYCOUNTER || type == SI_DODGE ||
-		type == SI_DEVIL || type == SI_NIGHT || type == SI_INTRAVISION ||
-		type == SI_OVERHEAT || type == SI_NEUTRALBARRIER || type == SI_REPRODUCE ||
-		type == SI_FORCEOFVANGUARD || type == SI_BANDING || type == SI_BLOODYLUST ||
-		type == SI_SUHIDE || type == SI_SPRITEMABLE || type == SI_SOULCOLLECT)
-		tick=0;
+	sd = BL_CAST(BL_PC, bl);
+
+	if (!(status_type2relevant_bl_types(type)&bl->type)) // only send status changes that actually matter to the client
+		return;
 
 	// Status's with a infinite duration, but still needs a duration sent to display properly.
 	if (type == SI_LUNARSTANCE || type == SI_UNIVERSESTANCE || type == SI_SUNSTANCE || type == SI_STARSTANCE)
 		tick=200;
 
 #if PACKETVER >= 20090121
-	if( battle_config.display_status_timers && tick>0 )
+	if (flag && battle_config.display_status_timers && sd)
 		#if PACKETVER >= 20130320
 			WBUFW(buf,0)=0x983;
 		#else
@@ -6476,8 +6430,11 @@ void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int
 	WBUFL(buf,4)=bl->id;
 	WBUFB(buf,8)=flag;
 #if PACKETVER >= 20090121
-	if( battle_config.display_status_timers && tick>0 )
+	if (flag && battle_config.display_status_timers && sd)
 	{
+		if (tick <= 0)
+			tick = 9999; // this is indeed what official servers do
+
 		#if PACKETVER >= 20130320
 		//eAthena coding currently has no way of retrieving the total duration
 		//needed for MaxMS. For now well send the current tick to it. [Rytech]
@@ -6494,7 +6451,7 @@ void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int
 		#endif
 	}
 #endif
-	clif_send(buf,packet_len(WBUFW(buf,0)),bl,AREA);
+	clif_send(buf,packet_len(WBUFW(buf,0)),bl, (sd && sd->status.option&OPTION_INVISIBLE) ? SELF : AREA);
 }
 
 /// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
@@ -6605,23 +6562,32 @@ void clif_displaymessage(const int fd, const char* mes)
 {
 	nullpo_retv(mes);
 
-	//Scrapped, as these are shared by disconnected players =X [Skotlex]
-	if ( fd > 0 ) {
-#if PACKETVER == 20141022
-		/** for some reason game client crashes depending on message pattern (only for this packet) **/
-		/** so we redirect to ZC_NPC_CHAT **/
-		clif_disp_overheadcolor_self(fd, COLOR_DEFAULT, mes);
-#else
-		uint16 len;
+	if (session_isActive(fd)) {
+		char *message, *line;
 
-		if ( ( len = (uint16)strnlen(mes, 255) ) > 0 ) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
-			WFIFOHEAD(fd, 5 + len);
-			WFIFOW(fd,0) = 0x8e;
-			WFIFOW(fd,2) = 5 + len; // 4 + len + NULL terminate
-			safestrncpy((char *)WFIFOP(fd,4), mes, len + 1);
-			WFIFOSET(fd, 5 + len);
-		}
+		message = aStrdup(mes);
+		line = strtok(message, "\n");
+
+		while (line != NULL) {
+#if PACKETVER == 20141022
+			/** for some reason game client crashes depending on message pattern (only for this packet) **/
+			/** so we redirect to ZC_NPC_CHAT **/
+			clif_disp_overheadcolor_self(fd, COLOR_DEFAULT, line);
+#else
+			// Limit message to 255+1 characters (otherwise it causes a buffer overflow in the client)
+			int len = strnlen(line, CHAT_SIZE_MAX);
+
+			if (len > 0) { // don't send a void message (it's not displaying on the client chat). @help can send void line.
+				WFIFOHEAD(fd, 5 + len);
+				WFIFOW(fd, 0) = 0x8e;
+				WFIFOW(fd, 2) = 5 + len; // 4 + len + NULL teminate
+				safestrncpy(WFIFOCP(fd, 4), line, len + 1);
+				WFIFOSET(fd, 5 + len);
+			}
 #endif
+			line = strtok(NULL, "\n");
+		}
+		aFree(message);
 	}
 }
 
@@ -8967,7 +8933,7 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	short offset = 0;
 #else
 	short packet_num = 0xa84;
-	short offset = 24;// Negeative
+	short offset = NAME_LENGTH;// Negeative
 #endif
 
 	nullpo_retv(sd);
@@ -8985,7 +8951,7 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	WFIFOL(fd,14)=g->max_member;
 	WFIFOL(fd,18)=g->average_lv;
 	WFIFOL(fd,22)=(uint32)cap_value(g->exp,0,INT32_MAX);
-	WFIFOL(fd,26)=g->next_exp;
+	WFIFOL(fd,26)= (uint32)cap_value(g->next_exp,0,INT32_MAX);
 	WFIFOL(fd,30)=0;	// Tax Points
 	WFIFOL(fd,34)=0;	// Honor: (left) Vulgar [-100,100] Famed (right)
 	WFIFOL(fd,38)=0;	// Virtue: (down) Wicked [-100,100] Righteous (up)
@@ -8995,8 +8961,8 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	memcpy(WFIFOP(fd,70),g->master, NAME_LENGTH);
 #endif
 	// Calculate the number of castles owned.
-	safestrncpy((char*)WFIFOP(fd,94),msg_txt(sd,300+guild_castle_count(g->guild_id)),16); // "'N' castles"
-	WFIFOL(fd,110) = 0;  // zeny
+	safestrncpy((char*)WFIFOP(fd,94-offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
+	WFIFOL(fd,110-offset) = 0;  // zeny
 #if PACKETVER >= 20161228
 	WFIFOL(fd,114-offset) = g->member[0].char_id;
 #endif
@@ -12174,6 +12140,13 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
+		return;
+	}
+
+	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING &&
+		sd->inventory.u.items_inventory[index].nameid != ITEMID_NAUTHIZ_RUNE)
+	{
+		clif_useitemack(sd, index, 0, false);
 		return;
 	}
 	
@@ -17554,7 +17527,8 @@ void clif_parse_Auction_setitem(int fd, struct map_session_data *sd)
 		return;
 	}
 	
-	if( !pc_candrop(sd, &sd->inventory.u.items_inventory[idx]) || !sd->inventory.u.items_inventory[idx].identify || !itemdb_available(sd->inventory.u.items_inventory[idx].nameid))
+	if(!pc_can_give_items(pc_isGM(sd)) || !sd->inventory.u.items_inventory[idx].identify ||
+		!itemdb_canauction(&sd->inventory.u.items_inventory[idx], pc_isGM(sd)) || !itemdb_available(sd->inventory.u.items_inventory[idx].nameid))
 	{ // Quest Item or something else
 		clif_Auction_setitem(sd->fd, idx, true);
 		return;
@@ -17730,8 +17704,9 @@ void clif_parse_Auction_bid(int fd, struct map_session_data *sd)
 		clif_Auction_message(fd, 0); // You have failed to bid into the auction
 	else if( bid > sd->status.zeny )
 		clif_Auction_message(fd, 8); // You do not have enough zeny
-	else
-	{
+	else if (CheckForCharServer()) // char server is down (bugreport:1138)
+		clif_Auction_message(fd, 0); // You have failed to bid into the auction
+	else {
 		pc_payzeny(sd, bid, LOG_TYPE_AUCTION, NULL);
 		intif_Auction_bid(sd->status.char_id, sd->status.name, auction_id, bid);
 	}
@@ -21508,7 +21483,7 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  8,  0, 25,
 	//#0x0440
-	   10,  4,  0,  0,  0,  0, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	   10,  4, -1,  0,  0,  0, 14,  0,  0,  0,  6,  0,  0,  0,  0,  0,
 	    0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
