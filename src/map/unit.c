@@ -1496,6 +1496,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, short skill_num, sh
 	if( casttime > 0 || temp )
 	{ 
 		unit_stop_walking(src,1);
+
+		// SC_MAGICPOWER needs to switch states at start of cast
+		skill_toggle_magicpower(src, skill_num);
+
 		clif_skillcasting(src, src->id, target_id, 0,0, skill_num, skill_get_ele(skill_num, skill_lv), casttime);
 
 		if (sd && target->type == BL_MOB)
@@ -1722,6 +1726,10 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, sh
 	if( casttime > 0 )
 	{
 		unit_stop_walking(src,1);
+
+		// SC_MAGICPOWER needs to switch states at start of cast
+		skill_toggle_magicpower(src, skill_num);
+
 		clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_num, skill_get_ele(skill_num, skill_lv), casttime);
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_pos, src->id, 0 );
 		if( (sd && pc_checkskill(sd,SA_FREECAST) > 0) || skill_num == LG_EXEEDBREAK )

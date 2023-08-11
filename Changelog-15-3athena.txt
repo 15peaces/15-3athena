@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/11/2023
+	r393 [15peaces]
+		*Fixed item script typos NPC_CRITICALWOUND*S*
+		*Fixed null pointer dereference in skill_name2id.
+		*HW_MAGICPOWER
+			-Rewrote to behave like on official servers...    
+			-the status now uses a much simpler two-state mechanism.
+			-non-offensive and non-magic skills no longer consume the status
+			-set WZ_ICEWALL NK flag to NK_NO_DAMAGE to properly not consume the status
+			-fixed stale matk used for unit- and timerskills
+			-removed a couple now unnecessary exceptions (they now work out of the box/as side effects)
+
 08/09/2023
 	r393 [15peaces]
 		*Some item database updates.

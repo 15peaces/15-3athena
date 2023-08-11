@@ -176,7 +176,6 @@ struct skill_unit_group {
 	struct skill_unit *unit;
 	struct {
 		unsigned ammo_consume : 1;
-		unsigned magic_power : 1;
 		unsigned song_dance : 2; //0x1 Song/Dance, 0x2 Ensemble
 		unsigned guildaura : 1;
 	} state;
@@ -343,6 +342,7 @@ int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
 int skill_delayfix( struct block_list *bl, int skill_id, int skill_lv);
 int skill_cooldownfix(struct block_list *bl, int skill_id, int skill_lv);
+void skill_toggle_magicpower(struct block_list *bl, short skillid);
 
 // Skill conditions check and remove [Inkfish]
 int skill_check_condition_castbegin(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);

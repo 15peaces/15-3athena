@@ -4554,11 +4554,6 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		status->matk_min = status_calc_matk(bl, sc, status->matk_min);
 		status->matk_max = status_calc_matk(bl, sc, status->matk_max);
 
-		if(sc->data[SC_MAGICPOWER]) { //Store current matk values
-			sc->mp_matk_min = status->matk_min;
-			sc->mp_matk_max = status->matk_max;
-		}
-
 		if( bl->type&BL_HOM && battle_config.hom_setting&0x20 ) //Hom Min Matk is always the same as Max Matk
 			status->matk_min = status->matk_max;
 
@@ -5544,7 +5539,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += 80;
 	if(sc->data[SC_CHILLY_AIR_OPTION])
 		matk += 120;
-	if(sc->data[SC_MAGICPOWER])
+	if(sc->data[SC_MAGICPOWER] && sc->data[SC_MAGICPOWER]->val4)
 		matk += matk * sc->data[SC_MAGICPOWER]->val3/100;
 	if(sc->data[SC_MINDBREAKER])
 		matk += matk * sc->data[SC_MINDBREAKER]->val2/100;
@@ -8357,6 +8352,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			//val1: Skill lv
 			val2 = 1; //Lasts 1 invocation
 			val3 = 5*val1; //Matk% increase
+			val4 = 0; // 0 = ready to be used, 1 = activated and running
 			break;
 		case SC_SACRIFICE:
 			val2 = 5; //Lasts 5 hits
@@ -11515,7 +11511,14 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	}
 
 	if (calc_flag)
-		status_calc_bl(bl,calc_flag);
+	{
+		if (type == SC_MAGICPOWER) {
+			//If Mystical Amplification ends, MATK is immediately recalculated
+			status_calc_bl_(bl, calc_flag, true);
+		}
+		else
+			status_calc_bl(bl, calc_flag);
+	}
 
 	if(opt_flag&4) //Out of hiding, invoke on place.
 		skill_unit_move(bl,gettick(),1);
