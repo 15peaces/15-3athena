@@ -12312,7 +12312,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case WZ_METEOR:
 	case SU_CN_METEOR:
 		{
-			int flag = 0, area = skill_get_splash(skillid, skilllv), n;
+			int area = skill_get_splash(skillid, skilllv), n;
 			short tmpx = 0, tmpy = 0, x1 = 0, y1 = 0, drop_timer = 0;
 			signed char drop_count = 0;
 

@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+08/12/2023
+	r394 [15peaces]
+		*Fixed baphomet card bonus not working when used by ammunition (required by a new kunai)
+		*Fixed gcc warning, removed unused variable 'flag'.
+		*Fixed an exploit where you can create crafting items by mixing packets thru wpe/rpe/whatever.
+			-It now checks if the item you're attempting to create belongs to the trigger used.
+
 08/11/2023
 	r393 [15peaces]
 		*Fixed item script typos NPC_CRITICALWOUND*S*
