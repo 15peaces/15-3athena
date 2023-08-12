@@ -107,6 +107,8 @@ int guild_castledataloadack(int len, struct guild_castle *gc);
 int guild_castle_count(int guild_id);
 void guild_castle_guardian_updateemblem(int guild_id, int emblem_id);
 
+unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned int exp);
+
 void do_final_guild(void);
 
 #endif /* _GUILD_H_ */

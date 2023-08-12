@@ -7,6 +7,16 @@
 //========================================
 
 08/12/2023
+	r395 [15peaces]
+		*Fixed a server crash when a character with guild-exp-tax kills a monster.
+			-You should update ASAP.
+			-Also cleaned up and moved guid-exp-cache code just like the castle stuff...
+		*loginlog now submits proper escaped message to log.
+		*ST_REJECTSWORD
+			-Fixed damage reduction to now apply damage properly and reject dual-wield weapons properly as on official servers.
+			-Super thanks to @rathena for the base.
+
+08/12/2023
 	r394 [15peaces]
 		*Fixed baphomet card bonus not working when used by ammunition (required by a new kunai)
 		*Fixed gcc warning, removed unused variable 'flag'.

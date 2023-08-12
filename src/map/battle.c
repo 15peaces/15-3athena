@@ -719,24 +719,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				status_change_end(bl, SC_STONEHARDSKIN, INVALID_TIMER);
 		}
 
-		// FIXME:
-		// So Reject Sword calculates the redirected damage before calculating WoE/BG reduction? This is weird. [Inkfish]
-		if((sce=sc->data[SC_REJECTSWORD]) && flag&BF_WEAPON &&
-			// Fixed the condition check [Aalye]
-			(src->type!=BL_PC || (
-				((TBL_PC *)src)->status.weapon == W_DAGGER ||
-				((TBL_PC *)src)->status.weapon == W_1HSWORD ||
-				((TBL_PC *)src)->status.weapon == W_2HSWORD
-			)) &&
-			rnd()%100 < sce->val2
-		){
-			damage = damage*50/100;
-			status_fix_damage(bl,src,damage,clif_damage(bl,src,gettick(),0,0,damage,0,0,0,false));
-			clif_skill_nodamage(bl,bl,ST_REJECTSWORD,sce->val1,1);
-			if(--(sce->val3)<=0)
-				status_change_end(bl, SC_REJECTSWORD, INVALID_TIMER);
-		}
-
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
 		if (skill_num == RA_AIMEDBOLT && (sc->data[SC_WUGBITE] || sc->data[SC_ANKLE] || sc->data[SC_ELECTRICSHOCKER]))
 		{
@@ -3865,6 +3847,22 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			else if( map[target->m].flag.battleground )
 				wd.damage = battle_calc_bg_damage(src,target,wd.damage2,wd.div_,skill_num,skill_lv,wd.flag);
 		}
+	}
+
+	//Reject Sword bugreport:4493 by Daegaladh
+	if (wd.damage && tsc && tsc->data[SC_REJECTSWORD] &&
+		(src->type != BL_PC || (
+		((TBL_PC *)src)->weapontype1 == W_DAGGER ||
+			((TBL_PC *)src)->weapontype1 == W_1HSWORD ||
+			((TBL_PC *)src)->status.weapon == W_2HSWORD
+			)) &&
+		rnd() % 100 < tsc->data[SC_REJECTSWORD]->val2
+		) {
+		wd.damage = wd.damage * 50 / 100;
+		status_fix_damage(target, src, wd.damage, clif_damage(target, src, gettick(), 0, 0, wd.damage, 0, 0, 0, false));
+		clif_skill_nodamage(target, target, ST_REJECTSWORD, tsc->data[SC_REJECTSWORD]->val1, 1);
+		if (--(tsc->data[SC_REJECTSWORD]->val3) <= 0)
+			status_change_end(target, SC_REJECTSWORD, INVALID_TIMER);
 	}
 
 	if(skill_num==ASC_BREAKER)

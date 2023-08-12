@@ -121,7 +121,6 @@
     <ClCompile Include="..\src\map\elemental.c" />
     <ClCompile Include="..\src\map\episode.c" />
     <ClCompile Include="..\src\map\guild.c" />
-    <ClCompile Include="..\src\map\guild_expcache.c" />
     <ClCompile Include="..\src\map\homunculus.c" />
     <ClCompile Include="..\src\map\instance.c" />
     <ClCompile Include="..\src\map\intif.c" />
@@ -163,7 +162,6 @@
     <ClInclude Include="..\src\map\elemental.h" />
     <ClInclude Include="..\src\map\episode.h" />
     <ClInclude Include="..\src\map\guild.h" />
-    <ClInclude Include="..\src\map\guild_expcache.h" />
     <ClInclude Include="..\src\map\homunculus.h" />
     <ClInclude Include="..\src\map\instance.h" />
     <ClInclude Include="..\src\map\intif.h" />

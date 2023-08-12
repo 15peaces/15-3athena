@@ -14,7 +14,6 @@
 
 #include "map.h"
 #include "guild.h"
-#include "guild_expcache.h"
 #include "storage.h"
 #include "battle.h"
 #include "npc.h"
@@ -36,6 +35,7 @@
 static DBMap* guild_db; // int guild_id -> struct guild*
 static DBMap* guild_infoevent_db; // int guild_id -> struct eventlist*
 static DBMap* castle_db; // int castle_id -> struct guild_castle*
+static DBMap* guild_expcache_db; // int char_id -> struct guild_expcache*
 
 struct eventlist {
 	char name[EVENT_NAME_LENGTH];
@@ -43,9 +43,9 @@ struct eventlist {
 };
 
 #define GUILD_SEND_XY_INTERVAL	5000 // Interval of sending coordinates and HP
-
-
+#define GUILD_ADDEXP_INVERVAL 10000 // interval for flushing exp cache
 #define MAX_GUILD_SKILL_REQUIRE 5
+
 struct{
 	int id;
 	int max;
@@ -54,6 +54,15 @@ struct{
 		short lv;
 	}need[MAX_GUILD_SKILL_REQUIRE];
 } guild_skill_tree[MAX_GUILDSKILL];
+
+struct guild_expcache
+{
+	int guild_id;
+	int account_id;
+	int char_id;
+	uint64 exp;
+};
+static struct eri *expcache_ers; //For handling of guild exp payment.
 
 static int guild_send_xy_timer(int tid, int64 tick, int id, intptr_t data);
 
@@ -2052,28 +2061,96 @@ void guild_castle_guardian_updateemblem(int guild_id, int emblem_id)
 	dbi_destroy(iter);
 }
 
+static DBData create_expcache(DBKey key, va_list args)
+{
+	struct guild_expcache* c;
+
+	int guild_id = va_arg(args, int);
+	int account_id = va_arg(args, int);
+	int char_id = va_arg(args, int);
+
+	c = ers_alloc(expcache_ers, struct guild_expcache);
+	c->guild_id = guild_id;
+	c->account_id = account_id;
+	c->char_id = char_id;
+	c->exp = 0;
+
+	return db_ptr2data(c);
+}
+
+// Flush guild exp cache to interserver.
+static int guild_addexp_timer_sub(DBKey dataid, void* data, va_list ap)
+{
+	struct guild_expcache* c = (struct guild_expcache*)data;
+
+	struct guild* g = guild_search(c->guild_id);
+	if (g != NULL)
+	{
+		int i = guild_getindex(g, c->account_id, c->char_id);
+		if (i >= 0)
+		{
+			if (g->member[i].exp > UINT64_MAX - c->exp)
+				g->member[i].exp = UINT64_MAX;
+			else
+				g->member[i].exp += c->exp;
+
+			intif_guild_change_memberinfo(g->guild_id, c->account_id, c->char_id, GMI_EXP, &g->member[i].exp, sizeof(g->member[i].exp));
+			c->exp = 0;
+		}
+	}
+
+	ers_free(expcache_ers, c);
+	return 0;
+}
+
+static int guild_addexp_timer(int tid, int64 tick, int id, intptr_t data)
+{
+	guild_expcache_db->clear(guild_expcache_db, guild_addexp_timer_sub);
+	return 0;
+}
+
+/// Increase this player's exp contribution to his guild.
+unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned int exp)
+{
+	struct guild_expcache* c = (struct guild_expcache*)guild_expcache_db->ensure(guild_expcache_db, db_i2key(char_id), create_expcache, guild_id, account_id, char_id);
+
+	if (c->exp > UINT64_MAX - exp)
+		c->exp = UINT64_MAX;
+	else
+		c->exp += exp;
+
+	return exp;
+}
+
+static int guild_expcache_db_final(DBKey key, DBData *data, va_list ap)
+{
+	ers_free(expcache_ers, db_data2ptr(data));
+	return 0;
+}
+
 void do_init_guild(void)
 {
 	guild_db=idb_alloc(DB_OPT_RELEASE_DATA);
 	guild_infoevent_db=idb_alloc(DB_OPT_BASE);
 	castle_db = idb_alloc(DB_OPT_BASE);
+	guild_expcache_db = idb_alloc(DB_OPT_BASE);
+	expcache_ers = ers_new(sizeof(struct guild_expcache), "guild.c::expcache_ers", ERS_OPT_NONE);
 
 	memset(guild_skill_tree,0,sizeof(guild_skill_tree));
 	sv_readdb(db_path, "guild_skill_tree.txt", ',', 2+MAX_GUILD_SKILL_REQUIRE*2, 2+MAX_GUILD_SKILL_REQUIRE*2, -1, &guild_read_guildskill_tree_db); //guild skill tree [Komurka]
 	episode_sv_readdb(db_path, "castle_db", ',', 4, 5, -1, &guild_read_castledb);
 
 	add_timer_func_list(guild_send_xy_timer, "guild_send_xy_timer");
+	add_timer_func_list(guild_addexp_timer, "guild_addexp_timer");
 	add_timer_interval(gettick()+GUILD_SEND_XY_INTERVAL,guild_send_xy_timer,0,0,GUILD_SEND_XY_INTERVAL);
-
-	do_init_guild_expcache();
-
+	add_timer_interval(gettick() + GUILD_ADDEXP_INVERVAL, guild_addexp_timer, 0, 0, GUILD_ADDEXP_INVERVAL);
 }
 
 void do_final_guild(void)
 {
 	db_destroy(guild_db);
+	guild_expcache_db->destroy(guild_expcache_db, guild_expcache_db_final);
 	guild_infoevent_db->destroy(guild_infoevent_db, eventlist_db_final);
 	castle_db->destroy(castle_db, guild_castle_db_final);
-
-	do_final_guild_expcache();
+	ers_destroy(expcache_ers);
 }

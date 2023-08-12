@@ -70,7 +70,7 @@ void login_log(uint32 ip, const char* username, int rcode, const char* message)
 
 	retcode = Sql_Query(sql_handle,
 		"INSERT INTO `%s`(`time`,`ip`,`user`,`rcode`,`log`) VALUES (NOW(), '%s', '%s', '%d', '%s')",
-		loginlog_table, ip2str(ip,NULL), esc_username, rcode, message);
+		loginlog_table, ip2str(ip,NULL), esc_username, rcode, esc_message);
 
 	if( retcode != SQL_SUCCESS )
 		Sql_ShowDebug(sql_handle);
