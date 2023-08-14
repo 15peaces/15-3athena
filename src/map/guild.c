@@ -247,10 +247,14 @@ int guild_send_xy_timer_sub(DBKey key, DBData *data, va_list ap)
 
 	nullpo_ret(g);
 
+	if (!g->connect_member)
+	{// no members connected to this guild so do not iterate
+		return 0;
+	}
+
 	for(i=0;i<g->max_member;i++){
-		//struct map_session_data* sd = g->member[i].sd;
-		struct map_session_data* sd = map_charid2sd(g->member[i].char_id); // temporary crashfix
-		if( sd != NULL && (sd->guild_x != sd->bl.x || sd->guild_y != sd->bl.y) && !sd->bg_id )
+		struct map_session_data* sd = g->member[i].sd;
+		if (sd != NULL && sd->fd && (sd->guild_x != sd->bl.x || sd->guild_y != sd->bl.y) && !sd->bg_id)
 		{
 			clif_guild_xy(sd);
 			sd->guild_x = sd->bl.x;
@@ -1475,10 +1479,10 @@ int guild_broken_sub(DBKey key, DBData *data, va_list ap)
 }
 
 //Invoked on Castles when a guild is broken. [Skotlex]
-int castle_guild_broken_sub(DBKey key, void *data, va_list ap)
+int castle_guild_broken_sub(DBKey key, DBData *data, va_list ap)
 {
 	char name[EVENT_NAME_LENGTH];
-	struct guild_castle *gc = data;
+	struct guild_castle *gc = db_data2ptr(data);
 	int guild_id = va_arg(ap, int);
 
 	nullpo_ret(gc);
@@ -1724,7 +1728,7 @@ bool guild_isallied(int guild_id, int guild_id2)
 	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
 }
 
-static int eventlist_db_final(DBKey key, void *data, va_list ap)
+static int eventlist_db_final(DBKey key, DBData *data, va_list ap)
 {
 	struct eventlist *next = NULL;
 	struct eventlist *current = db_data2ptr(data);
@@ -2079,25 +2083,30 @@ static DBData create_expcache(DBKey key, va_list args)
 }
 
 // Flush guild exp cache to interserver.
-static int guild_addexp_timer_sub(DBKey dataid, void* data, va_list ap)
+int guild_addexp_timer_sub(DBKey key, DBData *data, va_list ap)
 {
-	struct guild_expcache* c = (struct guild_expcache*)data;
+	int i;
+	struct guild_expcache *c;
+	struct guild *g;
 
-	struct guild* g = guild_search(c->guild_id);
-	if (g != NULL)
-	{
-		int i = guild_getindex(g, c->account_id, c->char_id);
-		if (i >= 0)
-		{
-			if (g->member[i].exp > UINT64_MAX - c->exp)
-				g->member[i].exp = UINT64_MAX;
-			else
-				g->member[i].exp += c->exp;
+	c = db_data2ptr(data);
 
-			intif_guild_change_memberinfo(g->guild_id, c->account_id, c->char_id, GMI_EXP, &g->member[i].exp, sizeof(g->member[i].exp));
-			c->exp = 0;
-		}
+	if (
+		(g = guild_search(c->guild_id)) == NULL ||
+		(i = guild_getindex(g, c->account_id, c->char_id)) < 0
+		) {
+		ers_free(expcache_ers, c);
+		return 0;
 	}
+
+	if (g->member[i].exp > UINT_MAX - c->exp)
+		g->member[i].exp = UINT_MAX;
+	else
+		g->member[i].exp += c->exp;
+
+	intif_guild_change_memberinfo(g->guild_id, c->account_id, c->char_id,
+		GMI_EXP, &g->member[i].exp, sizeof(g->member[i].exp));
+	c->exp = 0;
 
 	ers_free(expcache_ers, c);
 	return 0;
@@ -2112,7 +2121,7 @@ static int guild_addexp_timer(int tid, int64 tick, int id, intptr_t data)
 /// Increase this player's exp contribution to his guild.
 unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned int exp)
 {
-	struct guild_expcache* c = (struct guild_expcache*)guild_expcache_db->ensure(guild_expcache_db, db_i2key(char_id), create_expcache, guild_id, account_id, char_id);
+	struct guild_expcache* c = db_data2ptr(guild_expcache_db->ensure(guild_expcache_db, db_i2key(char_id), create_expcache, guild_id, account_id, char_id));
 
 	if (c->exp > UINT64_MAX - exp)
 		c->exp = UINT64_MAX;

@@ -6994,12 +6994,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		status_change_end(src, SC_OVERHEAT_LIMITPOINT, INVALID_TIMER);
 		status_change_end(src, SC_OVERHEAT, INVALID_TIMER);
 		break;
-	case NC_INFRAREDSCAN:
 	case GC_COUNTERSLASH:
-	case SR_EARTHSHAKER:
 	case SR_WINDMILL:
 	case GN_CART_TORNADO:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
+	case NC_INFRAREDSCAN:
+	case SR_EARTHSHAKER:
 	case NPC_EARTHQUAKE:
 	case NPC_VAMPIRE_GIFT:
 	case NPC_HELLJUDGEMENT:

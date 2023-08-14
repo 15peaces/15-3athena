@@ -6,6 +6,16 @@
 //			--More Details.
 //========================================
 
+08/14/2023
+	r396 [15peaces]
+		*Another crash-fix related to guild-exp-tax.
+		*Performance Improvements guild_send_xy_timer function.
+			-Changed to not process the guild if no members are online.
+			-Removed a unnecessary idb lookup.
+		*NC_INFRAREDSCAN; SR_EARTHSHAKER
+			-Fixed skill effects.
+		*Fixed Deep Sleep status and Voice of Siren not going off when hit.
+
 08/12/2023
 	r395 [15peaces]
 		*Fixed a server crash when a character with guild-exp-tax kills a monster.

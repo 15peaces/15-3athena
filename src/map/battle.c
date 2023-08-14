@@ -593,8 +593,16 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			}
 		}
 
-		if( sc->data[SC_DEEPSLEEP] )
-			damage += damage / 2;// 1.5 times more damage while in Deep Sleep.
+		if (damage)
+		{
+			if (sc->data[SC_DEEPSLEEP]) {
+				damage += damage / 2; // 1.5 times more damage while in Deep Sleep.
+				status_change_end(bl, SC_DEEPSLEEP, INVALID_TIMER);
+			}
+
+			if (sc->data[SC_SIREN])
+				status_change_end(bl, SC_SIREN, INVALID_TIMER);
+		}
 
 		if ( sc->data[SC_CRYSTALIZE] && flag&BF_WEAPON )
 		{
