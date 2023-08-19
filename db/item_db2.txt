@@ -3705,7 +3705,7 @@
 // Costume Robes
 2573,Archangel_Wing,Archangel Wings,5,20,,100,,0,,0,0xFFFFFFFF,7,2,8192,,1,0,1,{},{},{}
 // GM Equips
-1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; /*skill "GM_SANDMAN",1;*/ },{},{}
+1599,Angra_Manyu,Angra Manyu,4,1,,10,200,,2,0,0xFFFFFFFF,7,2,2,1,1,1,8,{ bonus bAllStats,50; bonus bBaseAtk,3800; bonus bMatkRate,200; bonus2 bHPDrainRate,1000,100; bonus2 bSPDrainRate,1000,20; bonus bHealPower,200; bonus2 bAddRace,RC_NonBoss,100; bonus2 bAddRace,RC_Boss,100; skill "WZ_STORMGUST",10; Skill "WZ_METEOR",10; Skill "WZ_VERMILION",10; skill "GM_SANDMAN",1; },{},{}
 2199,Ahura_Mazda,Ahura Mazdah,5,1,,10,,100,,0,0xFFFFFFFF,7,2,32,,1,1,0,{ bonus bAllStats,50; bonus bMdef,99; bonus bShortWeaponDamageReturn,100; bonus2 bSubRace,RC_DemiHuman,95; skill "CR_FULLPROTECTION",5; Skill "WZ_ESTIMATION",1; Skill "ST_FULLSTRIP",5; Skill "HW_MAGICPOWER", 10; Skill "AB_CLEARANCE", 5; Skill "SR_GENTLETOUCH_CURE", 5; bonus bMaxHPRate,200; bonus bNoGemStone,0;  bonus bSpeedRate,25; },{ sc_start4 SC_ENDURE,60000,10,0,0,1; },{ sc_end SC_ENDURE; }
 // New GM Equip? It gives access to a hand full of skills.
 2904,Naqsh,Naqsh,5,20,,0,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ Skill "BS_MAXIMIZE",5; Skill "BS_WEAPONPERFECT",5; Skill "WL_RECOGNIZEDSPELL",5; Skill "ECL_SNOWFLIP",1; Skill "ECL_PEONYMAMY",1; Skill "ECL_SADAGUI",1; Skill "ECL_SEQUOIADUST",1; },{},{}

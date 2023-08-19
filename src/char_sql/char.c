@@ -245,7 +245,7 @@ void set_char_charselect(int account_id)
 {
 	struct online_char_data* character;
 
-	character = idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
 
 	if( character->server > -1 )
 		if( server[character->server].users > 0 ) // Prevent this value from going negative.
@@ -279,7 +279,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 		Sql_ShowDebug(sql_handle);
 
 	//Check to see for online conflicts
-	character = idb_ensure(online_char_db, account_id, create_online_char_data);
+	character = (struct online_char_data*)idb_ensure(online_char_db, account_id, create_online_char_data);
 	if( character->char_id != -1 && character->server > -1 && character->server != map_id )
 	{
 		ShowNotice("set_char_online: Character %d:%d marked in map server %d, but map server %d claims to have (%d:%d) online!\n",
@@ -374,7 +374,7 @@ void set_char_offline(int char_id, int account_id)
 
 static int char_db_setoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = db_data2ptr(data);
+	struct online_char_data* character = (struct online_char_data*)db_data2ptr(data);
 	int server = va_arg(ap, int);
 	if (server == -1) {
 		character->char_id = -1;
@@ -390,7 +390,7 @@ static int char_db_setoffline(DBKey key, DBData *data, va_list ap)
 
 static int char_db_kickoffline(DBKey key, DBData *data, va_list ap)
 {
-	struct online_char_data* character = db_data2ptr(data);
+	struct online_char_data* character = (struct online_char_data*)db_data2ptr(data);
 	int server_id = va_arg(ap, int);
 
 	if (server_id > -1 && character->server != server_id)
@@ -4268,7 +4268,6 @@ static void char_delete2_req(int fd, struct char_session_data* sd)
 		char_delete2_ack(fd, char_id, 5, 0);
 		return;
 	}
-
 
 	// success
 	delete_date = time(NULL)+char_del_delay;

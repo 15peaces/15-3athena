@@ -5348,12 +5348,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RA_WUGSTRIKE:
 	case RA_WUGBITE:
 		if( path_search(NULL,src->m,src->x,src->y,bl->x,bl->y,1,CELL_CHKNOREACH) ){
-			if( skillid == RA_WUGSTRIKE )
-			{
-				if( sd && pc_iswugrider(sd) && !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src,bl->x,bl->y,1,1) )
-					clif_slide(src, bl->x, bl->y);
-			}
-
 			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
 		}
 		break;
@@ -11139,6 +11133,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ALL_WEWISH:
 		clif_skill_nodamage( src, bl, skillid, skilllv, 1 );
 		break;
+
+	case GM_SANDMAN:
+		if (tsc) {
+			if (tsc->opt1 == OPT1_SLEEP)
+				tsc->opt1 = 0;
+			else
+				tsc->opt1 = OPT1_SLEEP;
+			clif_changeoption(bl);
+			clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		}
+		break;
+
 	case ALL_BUYING_STORE:
 		if( sd )
 		{// players only, skill allows 5 buying slots

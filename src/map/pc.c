@@ -7752,8 +7752,11 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 	npc_script_event(sd,NPCE_DIE);
 
+	if (pc_issit(sd))
+		clif_status_load(&sd->bl, SI_SIT, 0);//Remove the sit status icon on death if you died while sitting.
+
 	pc_setdead(sd);
-	clif_status_load(&sd->bl, SI_SIT, 0);//Remove the sit status icon on death if you died while sitting.
+
 	//Reset menu skills/item skills
 	if ((sd->skillitem) != 0)
 		sd->skillitem = sd->skillitemlv = 0;

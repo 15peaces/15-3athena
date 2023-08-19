@@ -6,6 +6,19 @@
 //			--More Details.
 //========================================
 
+08/19/2023
+	r397 [15peaces]
+		*Updated existing registry saving code to perform one single uniform query.
+		*Fixed Remove Traps range.
+		*Fixed @mount command for Mechanics.
+		*Cleaned up & optimized some code.
+			-Fixed missing casts from void* to struct online_char_data* in char.c.
+		*RA_WUGSTRIKE
+			-Can now be used without riding a warg.
+		*GM_SANDMAN
+			-Added full support for the skill.
+			-Enabled skill via Angra Manyu item.
+
 08/14/2023
 	r396 [15peaces]
 		*Another crash-fix related to guild-exp-tax.

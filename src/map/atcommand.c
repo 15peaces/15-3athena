@@ -5092,7 +5092,7 @@ ACMD_FUNC(mount)
 				return -1;
 			}
 
-			pc_setoption(sd, sd->sc.option | OPTION_WUGRIDER);
+			pc_setoption(sd, sd->sc.option | OPTION_MADOGEAR);
 			clif_displaymessage(fd, msg_txt(sd,712)); // You mounted on a Mado Gear.
 		}
 		else
