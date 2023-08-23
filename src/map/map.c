@@ -1838,6 +1838,8 @@ int map_quit(struct map_session_data *sd)
 
 	npc_script_event(sd, NPCE_LOGOUT);
 
+	pc_itemcd_do(sd, false);
+
 	//Unit_free handles clearing the player related data, 
 	//map_quit handles extra specific data which is related to quitting normally
 	//(changing map-servers invokes unit_free but bypasses map_quit)

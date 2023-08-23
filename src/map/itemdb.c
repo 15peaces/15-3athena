@@ -1752,14 +1752,14 @@ static void itemdb_read(void)
 	itemdb_read_itemgroup();
 	itemdb_read_itempackage();
 	itemdb_read_randomopt();
-	sv_readdb(db_path, "item_avail.txt",	',', 2, 2, -1,             &itemdb_read_itemavail);
-	sv_readdb(db_path, "item_noequip.txt",	',', 2, 2, -1,             &itemdb_read_noequip);
-	sv_readdb(db_path, "item_trade.txt",	',', 3, 3, -1,             &itemdb_read_itemtrade);
-	sv_readdb(db_path, "item_delay.txt",	',', 2, 3, MAX_ITEMDELAYS, &itemdb_read_itemdelay);
-	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,			&itemdb_read_buyingstore);
-	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,				&itemdb_read_cashshop);
-	sv_readdb(db_path, "item_flag.txt",		',', 2, 2, -1,				&itemdb_read_flag);
-	sv_readdb(db_path, "item_nouse.txt",	',', 3, 3, -1,				&itemdb_read_nouse);
+	sv_readdb(db_path, "item_avail.txt",	',', 2, 2, -1,		&itemdb_read_itemavail);
+	sv_readdb(db_path, "item_noequip.txt",	',', 2, 2, -1,		&itemdb_read_noequip);
+	sv_readdb(db_path, "item_trade.txt",	',', 3, 3, -1,		&itemdb_read_itemtrade);
+	sv_readdb(db_path, "item_delay.txt",	',', 2, 3, -1,		&itemdb_read_itemdelay);
+	sv_readdb(db_path, "item_buyingstore.txt", ',', 1, 1, -1,	&itemdb_read_buyingstore);
+	sv_readdb(db_path, "cashshop_db.txt",   ',', 3, 3, -1,		&itemdb_read_cashshop);
+	sv_readdb(db_path, "item_flag.txt",		',', 2, 2, -1,		&itemdb_read_flag);
+	sv_readdb(db_path, "item_nouse.txt",	',', 3, 3, -1,		&itemdb_read_nouse);
 }
 
 /*==========================================

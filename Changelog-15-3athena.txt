@@ -6,6 +6,32 @@
 //			--More Details.
 //========================================
 
+08/23/2023
+	r398 [15peaces]
+		*Fixed party & friend-list exploits which allowed players to confirm the online status of another player.
+		*Some misc. cleaning & fixing.
+		*Rehashed Item_delay.txt
+			-Before you could only have MAX_ITEMDELAYS (10) items with delays. Now: you can have up to MAX_ITEMDELAYS (10) concurrent delays. and of course you can always increase MAX_ITEMDELAYS in src/map/itemdb.h as much as you may need.
+			-Item delays are no longer lost on logout, they're persistent until server restarts.
+		*skill_amotion_leniency configuration
+			-Added new check conditions to prevent abuse from no-delay .act files
+		*Royal Guard's Force of Vanguard icon no longer goes negative.
+		*Break Fall's dodge combo may be only be used with Fly Kick now.
+		*Poem Bragi, Whistle, Assasin Cross, Apple Idun, Humming, Don't Forget me, Fortune Kiss and Service4U are only dispellable if you're no longer in the song area (in the 20s grace time).
+		*Trick Dead may now be canceled with provoke.
+		*Fixed blinker+evil druid vs status recovery.
+		*Fixed timer errors on Taekwon kicks.
+		*MO_BODYRELOCATION can now be used in battlegrounds.
+		*AC_SHOWER; MA_SHOWER
+			-Now work over land protector.
+			-Added new skill inf: INF2_NOLP.
+		*MO_TRIPLEATTACK; PA_SACRIFICE; NPC_MAGICALATTACK
+			-Fixed an issue that stopped the character from attacking if either missed.
+		*GS_CRACKER
+			-Fixed the stun effect. 
+		*AM_TWILIGHT3
+			-The skill no longer allows you to attempt to bypass empty bottle count.
+
 08/19/2023
 	r397 [15peaces]
 		*Updated existing registry saving code to perform one single uniform query.

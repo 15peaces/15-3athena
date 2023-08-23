@@ -5404,9 +5404,11 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			triple_rate+= triple_rate*(sc->data[SC_SKILLRATE_UP]->val2)/100;
 			status_change_end(src, SC_SKILLRATE_UP, INVALID_TIMER);
 		}
-		if (rnd()%100 < triple_rate)
-			//FIXME: invalid return type!
-			return (damage_lv)skill_attack(BF_WEAPON,src,src,target,MO_TRIPLEATTACK,skillv,tick,0);
+		if (rnd() % 100 < triple_rate) {
+			if (skill_attack(BF_WEAPON, src, src, target, MO_TRIPLEATTACK, skillv, tick, 0))
+				return ATK_DEF;
+			return ATK_MISS;
+		}
 	}
 
 	if (sc)
@@ -5424,11 +5426,16 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 			status_zap(src, sstatus->max_hp*9/100, 0);//Damage to self is always 9%
 
+			if (ret_val == ATK_NONE)
+				return ATK_MISS;
+
 			return ret_val;
 		}
-		if (sc->data[SC_MAGICALATTACK])
-			//FIXME: invalid return type!
-			return (damage_lv)skill_attack(BF_MAGIC,src,src,target,NPC_MAGICALATTACK,sc->data[SC_MAGICALATTACK]->val1,tick,0);
+		if (sc->data[SC_MAGICALATTACK]) {
+			if (skill_attack(BF_MAGIC, src, src, target, NPC_MAGICALATTACK, sc->data[SC_MAGICALATTACK]->val1, tick, 0))
+				return ATK_DEF;
+			return ATK_MISS;
+		}
 		if ( sd && (sce = sc->data[SC_GENTLETOUCH_ENERGYGAIN]) && rnd()%100 < sce->val2 )
 		{
 			short spheremax = 5;
@@ -6602,6 +6609,7 @@ static const struct _battle_data {
 	{ "gc_skill_edp_boost_formula_c",       &battle_config.gc_skill_edp_boost_formula_c,    1,      0,      1,				},
 	{ "mob_spawn_variance",                 &battle_config.mob_spawn_variance,              1,      0,      3,              },
 	{ "slave_stick_with_master",            &battle_config.slave_stick_with_master,         0,      0,      1,              },
+	{ "skill_amotion_leniency",             &battle_config.skill_amotion_leniency,          90,     0,      100				},
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },

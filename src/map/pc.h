@@ -263,6 +263,7 @@ struct map_session_data {
 	int64 canusecashfood_tick;
 	int64 canequip_tick;	// [Inkfish]
 	int64 cantalk_tick;
+	int64 canskill_tick; // used to prevent abuse from no-delay ACT files
 	int64 cansendmail_tick; // [Mail System Flood Protection]
 	int64 ks_floodprotect_tick; // [Kill Steal Protection]
 	int64 pvpcan_walkout_tick; // Cell PVP [Napster]
@@ -1073,6 +1074,9 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv);
 void pc_update_job_and_level(struct map_session_data *sd);
 
 void pc_cell_basilica(struct map_session_data *sd);
+
+// Item Cooldown persistency
+void pc_itemcd_do(struct map_session_data *sd, bool load);
 
 /// Check if player is Taekwon Ranker and the level is >= 90 (battle_config.taekwon_ranker_min_lv)
 #define pc_is_taekwon_ranker(sd) (((sd)->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && pc_famerank((sd)->status.char_id,MAPID_TAEKWON))

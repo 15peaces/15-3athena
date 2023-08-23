@@ -15766,6 +15766,14 @@ void clif_parse_FriendsListAdd(int fd, struct map_session_data *sd)
 
 	f_sd = map_nick2sd((char*)RFIFOP(fd,2));
 
+	// ensure that the request player's friend list is not full
+	ARR_FIND(0, MAX_FRIENDS, i, sd->status.friends[i].char_id == 0);
+
+	if (i == MAX_FRIENDS) {
+		clif_friendslist_reqack(sd, f_sd, 2);
+		return;
+	}
+
 	// Friend doesn't exist (no player with this name)
 	if (f_sd == NULL) {
 		clif_displaymessage(fd, msg_txt(sd,3));
@@ -15789,12 +15797,6 @@ void clif_parse_FriendsListAdd(int fd, struct map_session_data *sd)
 			clif_displaymessage(fd, msg_txt(sd,521)); //"Friend already exists."
 			return;
 		}
-	}
-
-	if (i == MAX_FRIENDS) {
-		//No space, list full.
-		clif_friendslist_reqack(sd, f_sd, 2);
-		return;
 	}
 
 	clif_friendlist_req(f_sd, sd->status.account_id, sd->status.char_id, sd->status.name);

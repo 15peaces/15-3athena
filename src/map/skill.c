@@ -520,6 +520,15 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	if (skillid == ALL_EQSWITCH)
 		return 0;
 
+	// Epoque:
+	// This code will compare the player's attack motion value which is influenced by ASPD before
+	// allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
+	// AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion.
+	if( sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
+	{// attempted to cast a skill before the attack motion has finished
+		return 1;
+	}
+
 	if( skill_blockpc_get(sd,skillid) != -1 )
 		return 1;
 
@@ -1424,12 +1433,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_SPL_ATK:		case SC_SPL_DEF:		case SC_MANU_MATK:
 				case SC_SPL_MATK:		case SC_RICHMANKIM:		case SC_ETERNALCHAOS:
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
-				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_WHISTLE:
-				case SC_ASSNCROS:		case SC_POEMBRAGI:		case SC_APPLEIDUN:
-				case SC_HUMMING:		case SC_DONTFORGETME:	case SC_FORTUNE:
-				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
-				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
-				case SC_FOOD_LUK_CASH:
+				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:
+				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
 					// 3CeAM
 					// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:				case SC_CLOAKINGEXCEED:
@@ -1531,6 +1537,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
+				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
+				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
+				case SC_FORTUNE:	case SC_SERVICE4U:
+					if (tsc->data[i]->val4) //val4 = out-of-song-area
+						continue;
+					break;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
 						continue;
@@ -2579,7 +2591,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			  	{	//Extend combo time.
 					sce->val1 = skillid; //Update combo-skill
 					sce->val3 = skillid;
-					delete_timer(sce->timer, status_change_timer);
+					if (sce->timer != INVALID_TIMER)
+						delete_timer(sce->timer, status_change_timer);
 					sce->timer = add_timer(tick+sce->val4, status_change_timer, src->id, SC_COMBO);
 					break;
 				}
@@ -5074,7 +5087,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				skill_attack(BF_MAGIC,src,src,src,skillid,skilllv,tick,flag);
 			status_percent_damage(src, src, 0, 100, false);
 		}
-		if (sd) skill_blockpc_start (sd, skillid, (skilllv < 5 ? 10000: 15000));
 		break;
 
 	case NPC_BLOODDRAIN:
@@ -5561,9 +5573,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	map_freeblock_unlock();
 
 	if( sd && !(flag&1) )
-	{
-		if( sd->state.arrow_atk ) //Consume arrow on last invocation to this skill.
+	{// ensure that the skill last-cast tick is recorded
+		sd->canskill_tick = gettick();
+
+		if (sd->state.arrow_atk) // consume arrow on last invocation to this skill.
 			battle_consume_ammo(sd, skillid, skilllv);
+
+		// perform auto-cast routines and skill requirement consumption
 		skill_onskillusage(sd, bl, skillid, tick);
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
@@ -6511,6 +6527,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE )
 				status_change_end(bl, SC_STONE, INVALID_TIMER);
 			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+			status_change_end(bl, SC_TRICKDEAD, INVALID_TIMER);
 		}
 
 		if( dstmd )
@@ -7365,7 +7382,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			status_change_start(bl, SC_BLIND,
 				100*(100-(tstatus->int_/2+tstatus->vit/3+tstatus->luk/10)),
 				1,0,0,0,
-				skill_get_time2(skillid, skilllv) * (100-(tstatus->int_+tstatus->vit)/2)/100,10);
+				skill_get_time2(skillid, skilllv) * (100-(tstatus->int_+tstatus->vit)/2)/100,0);
 		}
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		if(dstmd)
@@ -7750,10 +7767,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case AM_TWILIGHT3:
 		if (sd) {
+			int ebottle = pc_search_inventory(sd, ITEMID_EMPTY_BOTTLE);
+			if (ebottle >= 0)
+				ebottle = sd->inventory.u.items_inventory[ebottle].amount;
 			//check if you can produce all three, if not, then fail:
 			if (!skill_can_produce_mix(sd, ITEMID_ALCOHOL,-1, 100) //100 Alcohol
 				|| !skill_can_produce_mix(sd, ITEMID_ACID_BOTTLE,-1, 50) //50 Acid Bottle
 				|| !skill_can_produce_mix(sd, ITEMID_FIRE_BOTTLE,-1, 50) //50 Flame Bottle
+				|| ebottle < 200 //200 empty bottle are required at total.
 			) {
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -7814,12 +7835,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_SPL_ATK:		case SC_SPL_DEF:		case SC_MANU_MATK:
 				case SC_SPL_MATK:		case SC_RICHMANKIM:		case SC_ETERNALCHAOS:
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
-				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_WHISTLE:
-				case SC_ASSNCROS:		case SC_POEMBRAGI:		case SC_APPLEIDUN:
-				case SC_HUMMING:		case SC_DONTFORGETME:	case SC_FORTUNE:
-				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
-				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
-				case SC_FOOD_LUK_CASH:
+				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:	
+				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
 				// 3CeAM
 				// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
@@ -7921,6 +7939,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
+				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
+				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
+				case SC_FORTUNE:	case SC_SERVICE4U:
+					if (tsc->data[i]->val4) //val4 = out-of-song-area
+						continue;
+					break;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
 						continue;
@@ -9002,15 +9026,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case GS_CRACKER:
-		if (!dstsd)	// according to latest patch, should not work on players [Reddozen]
-		{
-			i =65 -5*distance_bl(src,bl); //Base rate
-			if (i < 30) i = 30;
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);
-			sc_start(bl,SC_STUN, i,skilllv,skill_get_time2(skillid,skilllv));
-		}
-		else if (sd)
-			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
+		i = 65 - 5 * distance_bl(src, bl); //Base rate
+		if (i < 30) i = 30;
+		clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+		sc_start(bl, SC_STUN, i, skilllv, skill_get_time2(skillid, skilllv));
 		break;
 
 	case AM_CALLHOMUN:	//[orn]
@@ -9650,12 +9669,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_SPL_ATK:		case SC_SPL_DEF:		case SC_MANU_MATK:
 				case SC_SPL_MATK:		case SC_RICHMANKIM:		case SC_ETERNALCHAOS:
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
-				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_WHISTLE:
-				case SC_ASSNCROS:		case SC_POEMBRAGI:		case SC_APPLEIDUN:
-				case SC_HUMMING:		case SC_DONTFORGETME:	case SC_FORTUNE:
-				case SC_SERVICE4U:		case SC_FOOD_STR_CASH:	case SC_FOOD_AGI_CASH:
-				case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	case SC_FOOD_INT_CASH:
-				case SC_FOOD_LUK_CASH:
+				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:
+				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
 				// 3CeAM
 				// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
@@ -9751,6 +9767,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 					continue;
+				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
+				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
+				case SC_FORTUNE:	case SC_SERVICE4U:
+					if (tsc->data[i]->val4) //val4 = out-of-song-area
+						continue;
+					break;
 				case SC_ASSUMPTIO:
 					if( bl->type == BL_MOB )
 							continue;
@@ -11177,9 +11199,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	}
 
 	if( sd && !(flag&1) )
-	{
+	{// ensure that the skill last-cast tick is recorded
+		sd->canskill_tick = gettick();
+
 		if( sd->state.arrow_atk ) //Consume arrow on last invocation to this skill.
 			battle_consume_ammo(sd, skillid, skilllv);
+
+		// perform auto-cast routines and skill requirement consumption
 		skill_onskillusage(sd, bl, skillid, tick);
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
@@ -12642,9 +12668,13 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	}
 
 	if( sd )
-	{
+	{// ensure that the skill last-cast tick is recorded
+		sd->canskill_tick = gettick();
+
 		if( sd->state.arrow_atk && !(flag&1) ) //Consume arrow if a ground skill was not invoked. [Skotlex]
 			battle_consume_ammo(sd, skillid, skilllv);
+
+		// perform auto-cast routines and skill requirement consumption
 		skill_onskillusage(sd, NULL, skillid, tick);
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
@@ -13103,7 +13133,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 		val2 += status->int_ / 10; //Bonus rate by Dancer's INT
 		break;
 	case BA_ASSASSINCROSS:
-		val1 = 100+10*skilllv+status->agi; // ASPD increase
+		val1 = 100 + (10 * skilllv) + (status->agi / 10); // ASPD increase
 		if(sd)
 			val1 += 5*pc_checkskill(sd,BA_MUSICALLESSON);
 		break;
@@ -15104,7 +15134,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 	case TK_COUNTER:
 		if ((sd->class_&MAPID_UPPERMASK) == MAPID_SOUL_LINKER)
 			return 0; //Anti-Soul Linker check in case you job-changed with Stances active.
-		if(!(sc && sc->data[SC_COMBO]))
+		if(!(sc && sc->data[SC_COMBO]) || sc->data[SC_COMBO]->val1 == TK_JUMPKICK)
 			return 0; //Combo needs to be ready
 
 		if (sc->data[SC_COMBO]->val3)
@@ -18210,7 +18240,7 @@ int skill_unit_timer_sub_onplace (struct block_list* bl, va_list ap)
 
 	nullpo_ret(group);
 
-	if( !(skill_get_inf2(group->skill_id)&(INF2_SONG_DANCE|INF2_TRAP)) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR) )
+	if (!(skill_get_inf2(group->skill_id)&(INF2_SONG_DANCE | INF2_TRAP | INF2_NOLP)) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR))
 		return 0; //AoE skills are ineffective. [Skotlex]
 
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )

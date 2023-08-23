@@ -82,6 +82,18 @@ const struct sg_data sg_info[MAX_PC_FEELHATE] = {
 		{ SG_STAR_ANGER, SG_STAR_BLESS, SG_STAR_COMFORT, "PC_FEEL_STAR", "PC_HATE_MOB_STAR", is_day_of_star }
 	};
 
+/**
+ * Item Cool Down Delay Saving
+ * Struct item_cd is not a member of struct map_session_data
+ * to keep cooldowns in memory between player log-ins.
+ * All cooldowns are reset when server is restarted.
+ **/
+DBMap* itemcd_db = NULL; // char_id -> struct skill_cd
+struct item_cd {
+	int64 tick[MAX_ITEMDELAYS];//tick
+	unsigned short nameid[MAX_ITEMDELAYS];//skill id
+};
+
 //Converts a class to its array index for CLASS_COUNT defined arrays.
 //Note that it does not do a validity check for speed purposes, where parsing
 //player input make sure to use a pcdb_checkid first!
@@ -1382,6 +1394,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->canusecashfood_tick = tick;
 	sd->canequip_tick = tick;
 	sd->cantalk_tick = tick;
+	sd->canskill_tick = tick;
 	sd->cansendmail_tick = tick;
 
 	for(i = 0; i < MAX_SKILL_LEVEL; i++)
@@ -1521,6 +1534,9 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->hatEffectIDs = NULL;
 	sd->hatEffectCount = 0;
 #endif
+
+	// Check if player have any item cooldowns on
+	pc_itemcd_do(sd, true);
 
 	// Check EXP overflow, since in previous revision EXP on Max Level can be more than 'official' Max EXP
 	if (pc_is_maxbaselv(sd) && sd->status.base_exp > MAX_LEVEL_BASE_EXP) {
@@ -11032,6 +11048,41 @@ int pc_read_motd(void)
 	return 0;
 }
 
+void pc_itemcd_do(struct map_session_data *sd, bool load) {
+	int i, cursor = 0;
+	struct item_cd* cd = NULL;
+
+	if (load) {
+		if (!(cd = idb_get(itemcd_db, sd->status.char_id))) {
+			// no skill cooldown is associated with this character
+			return;
+		}
+		for (i = 0; i < MAX_ITEMDELAYS; i++) {
+			if (cd->nameid[i] && DIFF_TICK(gettick(), cd->tick[i]) < 0) {
+				sd->item_delay[cursor].tick = cd->tick[i];
+				sd->item_delay[cursor].nameid = cd->nameid[i];
+				cursor++;
+			}
+		}
+		idb_remove(itemcd_db, sd->status.char_id);
+	}
+	else {
+		if (!(cd = idb_get(itemcd_db, sd->status.char_id))) {
+			// create a new skill cooldown object for map storage
+			CREATE(cd, struct item_cd, 1);
+			idb_put(itemcd_db, sd->status.char_id, cd);
+		}
+		for (i = 0; i < MAX_ITEMDELAYS; i++) {
+			if (sd->item_delay[i].nameid && DIFF_TICK(gettick(), sd->item_delay[i].tick) < 0) {
+				cd->tick[cursor] = sd->item_delay[i].tick;
+				cd->nameid[cursor] = sd->item_delay[i].nameid;
+				cursor++;
+			}
+		}
+	}
+	return;
+}
+
 /**
 * Deposit some money to bank
 * @param sd
@@ -11514,11 +11565,15 @@ void pc_cell_basilica(struct map_session_data *sd) {
  *------------------------------------------*/
 void do_final_pc(void)
 {
+	db_destroy(itemcd_db);
+
 	return;
 }
 
 int do_init_pc(void)
 {
+	itemcd_db = idb_alloc(DB_OPT_RELEASE_DATA);
+
 	pc_readdb();
 	pc_read_motd(); // Read MOTD [Valaris]
 

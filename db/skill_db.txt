@@ -24,22 +24,23 @@
 // 10 Cast interrupted when hit?
 // 11 defense-reduction rate during cast.
 // 12 inf2 (skill information 2):
-//    0x0001- quest skill
-//    0x0002- npc skill
-//    0x0004- wedding skill
-//    0x0008- spirit skill
-//    0x0010- guild skill
-//    0x0020- song/dance
-//    0x0040- ensemble skill
-//    0x0080- trap
-//    0x0100- skill that damages/targets yourself
-//    0x0200- cannot be casted on self (if inf = 4, auto-select target skill)
-//    0x0400- usable only on party-members (and enemies if skill is offensive)
-//    0x0800- usable only on guild-mates (and enemies if skill is offensive)
-//    0x1000- disable usage on enemies (for non-offensive skills).
-//    0x2000- chorus skill
-//    0x4000- sub-skill (skill that works as part of a main skill)
-//    0x8000- boost passive skill (active skill that boosts the effects of passive skills)
+//    0x00001- quest skill
+//    0x00002- npc skill
+//    0x00004- wedding skill
+//    0x00008- spirit skill
+//    0x00010- guild skill
+//    0x00020- song/dance
+//    0x00040- ensemble skill
+//    0x00080- trap
+//    0x00100- skill that damages/targets yourself
+//    0x00200- cannot be casted on self (if inf = 4, auto-select target skill)
+//    0x00400- usable only on party-members (and enemies if skill is offensive)
+//    0x00800- usable only on guild-mates (and enemies if skill is offensive)
+//    0x01000- disable usage on enemies (for non-offensive skills).
+//    0x02000- chorus skill
+//    0x04000- sub-skill (skill that works as part of a main skill)
+//    0x08000- boost passive skill (active skill that boosts the effects of passive skills)
+//    0x10000- skill ignores land protector (e.g. arrow shower)
 // 13 maxcount: max amount of skill instances to place on the ground when
 //    player_land_skill_limit/monster_land_skill_limit is enabled. For skills
 //    that attack using a path, this is the path length to be used.
@@ -105,7 +106,7 @@
 44,0,0,0,0,0,0,10,0,no,0,0,0,none,0,		AC_VULTURE,Vulture's Eye
 45,0,6,4,0,0x3,3,10,1,no,0,0,0,weapon,0,	AC_CONCENTRATION,Improve Concentration
 46,-9,8,1,-1,0,0,10,2,no,0,0,0,weapon,0,	AC_DOUBLE,Double Strafe
-47,-9,6,2,-1,0x2,2,10,1,no,0,0,0,weapon,2,	AC_SHOWER,Arrow Shower
+47,-9,6,2,-1,0x2,2,10,1,no,0,0x10000,0,weapon,2,	AC_SHOWER,Arrow Shower
 
 // Thief
 48,-1,8,0,-1,0,0,10,2,no,0,0,0,weapon,0,	TF_DOUBLE,Double Attack
@@ -1580,7 +1581,7 @@
 8205,0,6,4,0,0,0,10,1,no,0,0,0,weapon,0,	MS_REFLECTSHIELD,Shield_Reflect
 8206,0,6,4,0,0x1,0,1,1,no,0,0,0,weapon,0,	MS_BERSERK,Frenzy
 8207,-9,8,1,-1,0,0,10,2,no,0,0,0,weapon,0,	MA_DOUBLE,Double_Strafe
-8208,-9,6,2,-1,0x2,2,10,1,no,0,0,0,weapon,2,	MA_SHOWER,Arrow_Shower
+8208,-9,6,2,-1,0x2,2,10,1,no,0,0x10000,0,weapon,2,	MA_SHOWER,Arrow_Shower
 8209,3,6,2,0,0x1,0,5,1,no,0,0x80,0,misc,6:7:8:9:10,	MA_SKIDTRAP,Skid_Trap
 8210,3,6,2,2,0x40,0,5,1,no,0,0x80,0,misc,0,	MA_LANDMINE,Land_Mine
 8211,3,6,2,0,0x3,2,5,1,no,0,0x80,0,misc,0,	MA_SANDMAN,Sandman

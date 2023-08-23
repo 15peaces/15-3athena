@@ -568,6 +568,7 @@ extern struct Battle_Config
 	int gc_skill_edp_boost_formula_c;
 	int mob_spawn_variance;
 	int slave_stick_with_master;
+	int skill_amotion_leniency;
 	// Cell PVP [Napster]
 	int cellpvp_deathmatch;
 	int cellpvp_deathmatch_delay;
