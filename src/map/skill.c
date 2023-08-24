@@ -890,6 +890,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		if(tsc->sg_counter >= 3 &&
 			sc_start(bl,SC_FREEZE,300,skilllv,skill_get_time2(skillid,skilllv)))
 			tsc->sg_counter = 0;
+		//being it only resets on success it'd keep stacking and eventually overflowing on mvps, so we reset at a high value
+		else if (tsc->sg_counter > 250)
+			tsc->sg_counter = 0;
 		break;
 
 	case WZ_METEOR:
@@ -1435,7 +1438,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
 				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:
 				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:
-				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:	case SC_SEVENWIND:
+				case SC_MIRACLE:
 					// 3CeAM
 					// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:				case SC_CLOAKINGEXCEED:
@@ -7837,7 +7841,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
 				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:	
 				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:	
-				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:	case SC_SEVENWIND:
+				case SC_MIRACLE:
 				// 3CeAM
 				// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
@@ -9671,7 +9676,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_DRUMBATTLE:		case SC_NIBELUNGEN:		case SC_ROKISWEIL:
 				case SC_INTOABYSS:		case SC_SIEGFRIED:		case SC_FOOD_STR_CASH:
 				case SC_FOOD_AGI_CASH:	case SC_FOOD_VIT_CASH:	case SC_FOOD_DEX_CASH:
-				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:
+				case SC_FOOD_INT_CASH:	case SC_FOOD_LUK_CASH:	case SC_SEVENWIND:
+				case SC_MIRACLE:
 				// 3CeAM
 				// 3rd Job Status's
 				case SC_DEATHBOUND:				case SC_EPICLESIS:			case SC_CLOAKINGEXCEED:
@@ -11454,7 +11460,11 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 			break;
 
 		if (ud->state.running && ud->skillid == TK_JUMPKICK)
+		{
+			ud->state.running = 0;
+			status_change_end(src, SC_RUN, INVALID_TIMER);
 			flag = 1;
+		}
 
 		if (ud->walktimer != INVALID_TIMER && ud->skillid != TK_RUN && ud->skillid != RA_WUGDASH)
 			unit_stop_walking(src,1);

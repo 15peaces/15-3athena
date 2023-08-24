@@ -850,6 +850,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			skill_castend_nodamage_id(bl,bl,EL_CIRCLE_OF_FIRE,1,0,flag|2);
 	}
 
+	// Storm Gust doubles it's damage every 3 hits against' boss monsters
+	if (sc && skill_num == WZ_STORMGUST && sc->sg_counter % 3 == 0 && (status_get_mode(bl)&MD_BOSS)) {
+		damage += damage;
+	}
+
 	if (tsc && tsc->count)
 	{
 		if (tsc->data[SC_INVINCIBLE] && !tsc->data[SC_INVINCIBLEOFF])

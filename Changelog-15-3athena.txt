@@ -6,6 +6,15 @@
 //			--More Details.
 //========================================
 
+08/24/2023
+	r399 [15peaces]
+		*Fixed Sevenwinds (warm wind) and Miracle from being dispellable.
+		*TK_JUMPKICK
+			-Fixed invalid running state.
+				--This was causing wrong damages when use the ability with 1 cell difference of your target.
+		*WZ_STORMGUST
+			-Now doubles it's damage every 3 hits against' boss monsters.
+
 08/23/2023
 	r398 [15peaces]
 		*Fixed party & friend-list exploits which allowed players to confirm the online status of another player.
