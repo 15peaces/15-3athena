@@ -3846,6 +3846,38 @@ void clif_arrow_create_list(struct map_session_data *sd)
 }
 
 /*==========================================
+ * Server tells client to display a window similar to Magnifier (item) one
+ * Server populates the window with avilable elemental converter options according to player's inventory
+ *------------------------------------------*/
+int clif_elementalconverter_list(struct map_session_data *sd) {
+	int i, c, view, fd;
+
+	nullpo_ret(sd);
+
+	fd = sd->fd;
+	WFIFOHEAD(fd, MAX_SKILL_PRODUCE_DB * 2 + 4);
+	WFIFOW(fd, 0) = 0x1ad;
+
+	for (i = 0, c = 0; i < MAX_SKILL_PRODUCE_DB; i++) {
+		if (skill_can_produce_mix(sd, skill_produce_db[i].nameid, 23, 1)) {
+			if ((view = itemdb_viewid(skill_produce_db[i].nameid)) > 0)
+				WFIFOW(fd, c * 2 + 4) = view;
+			else
+				WFIFOW(fd, c * 2 + 4) = skill_produce_db[i].nameid;
+			c++;
+		}
+	}
+	WFIFOW(fd, 2) = c * 2 + 4;
+	WFIFOSET(fd, WFIFOW(fd, 2));
+	if (c > 0) {
+		sd->menuskill_id = SA_CREATECON;
+		sd->menuskill_val = c;
+	}
+
+	return 0;
+}
+
+/*==========================================
  * Guillotine Cross Poisons List
  *------------------------------------------*/
 int clif_poison_list(struct map_session_data *sd, int skill_lv)
@@ -13290,6 +13322,7 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 	switch( sd->menuskill_id )
 	{
 		case AC_MAKINGARROW:
+		case SA_CREATECON:
 		case GC_POISONINGWEAPON:
 		case WL_READING_SB:
 		case NC_MAGICDECOY:
@@ -13310,6 +13343,9 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 	{
 		case AC_MAKINGARROW:
 			skill_arrow_create(sd,RFIFOW(fd,2));
+			break;
+		case SA_CREATECON:
+			skill_produce_mix(sd,SA_CREATECON,RFIFOW(fd,2),0,0,0,1);
 			break;
 		case GC_POISONINGWEAPON:
 			skill_poisoningweapon(sd,RFIFOW(fd,2));

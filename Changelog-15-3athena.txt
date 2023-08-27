@@ -5,7 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
-
+08/27/2023
+	r400 [15peaces]
+		*Fixed baby classes forging/brewing rates.
+		*Added official elemental converter creation window.
+		*Some misc. cleaning & fixing.
+		*WZ_STORMGUST
+			-Fixed it to always throw foe backwards from storm gust center, confirmed on official server.
+		
 08/24/2023
 	r399 [15peaces]
 		*Fixed Sevenwinds (warm wind) and Miracle from being dispellable.

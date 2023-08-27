@@ -2995,15 +2995,13 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	{
 		int direction = -1; // default
 		switch(skillid) {
-			case WZ_STORMGUST: 
-				direction = rnd()%8;
-				break;
 			case MC_CARTREVOLUTION:
 				if (battle_config.cart_revo_knockback)
 					direction = 2; // Official servers push target to the West
 				break;
 			case MG_FIREWALL:
 			case PR_SANCTUARY:
+			case WZ_STORMGUST:
 			case GN_WALLOFTHORN:
 			case EL_FIRE_MANTLE:
 				direction = unit_getdir(bl); 
@@ -6924,7 +6922,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case SA_CREATECON:
 		if(sd) {
-			clif_skill_produce_mix_list(sd,skillid,23);
+			clif_elementalconverter_list(sd);
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		}
 		break;
@@ -13977,11 +13975,6 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		case UNT_VERDURETRAP:
 		case UNT_FIRINGTRAP:
 		case UNT_ICEBOUNDTRAP:
-			/**
-			 * The owner of these traps (all but ankle snare) cannot be affected by it
-			 **/
-			if (sg->src_id == bl->id)
-				break;
 			map_foreachinrange(skill_trap_splash, &src->bl, skill_get_splash(sg->skill_id, sg->skill_lv), sg->bl_flag, &src->bl, tick);
 			if (sg->unit_id != UNT_FIREPILLAR_ACTIVE)
 				clif_changetraplook(&src->bl, sg->unit_id == UNT_LANDMINE ? UNT_FIREPILLAR_ACTIVE : UNT_USED_TRAPS);
@@ -19123,7 +19116,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	}
 
 	if (battle_config.baby_crafting_penalty == 1 && sd->class_&JOBL_BABY) //if it's a Baby Class
-		make_per = (make_per * 70) / 100; //Baby penalty is 30%
+		make_per = (make_per * 50) / 100; //Baby penalty is 50%
 
 	if(make_per < 1) make_per = 1;
 
