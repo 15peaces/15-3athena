@@ -513,7 +513,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			return 0;
 		}
 		
-		if(sc->data[SC_DODGE] && !sc->opt1 &&
+		if(sc->data[SC_DODGE] && (!sc->opt1 || sc->opt1 == OPT1_BURNING) &&
 			(flag&BF_LONG || sc->data[SC_SPURT])
 		&& rnd()%100 < 20) {
 			if (sd && pc_issit(sd))

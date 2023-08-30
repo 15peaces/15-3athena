@@ -96,6 +96,10 @@ int windcutter_nounit_pos;
 int overbrand_nounit_pos;
 int overbrand_brandish_nounit_pos;
 
+//early declaration
+static int skill_check_unit_range(struct block_list *bl, int x, int y, int skillid, int skilllv);
+static int skill_check_unit_range2(struct block_list *bl, int x, int y, int skillid, int skilllv);
+
 //Since only mob-casted splash skills can hit ice-walls
 static inline int splash_target(struct block_list* bl)
 {
@@ -528,6 +532,13 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	{// attempted to cast a skill before the attack motion has finished
 		return 1;
 	}
+
+	/**
+	 * It has been confirmed on a official server (thanks to Yommy) that item-cast skills bypass all the restrictions above
+	 * Also, without this check, an exploit where an item casting + healing (or any other kind buff) isn't deleted after used on a restricted map
+	 **/
+	if (sd->skillitem == skillid)
+		return 0;
 
 	if( skill_blockpc_get(sd,skillid) != -1 )
 		return 1;
@@ -1799,7 +1810,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skilllv;
+		int i, skilllv, type;
 
 		for (i = 0; i < ARRAYLENGTH(sd->autospell) && sd->autospell[i].id; i++) {
 
@@ -1823,11 +1834,37 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 			tbl = (sd->autospell[i].id < 0) ? src : bl;
 
+			if ((type = skill_get_casttype(skill)) == CAST_GROUND) {
+				int maxcount = 0;
+				if (!(BL_PC&battle_config.skill_reiteration) &&
+					skill_get_unit_flag(skill)&UF_NOREITERATION &&
+					skill_check_unit_range(src, tbl->x, tbl->y, skill, skilllv)
+					) {
+					continue;
+				}
+				if (BL_PC&battle_config.skill_nofootset &&
+					skill_get_unit_flag(skill)&UF_NOFOOTSET &&
+					skill_check_unit_range2(src, tbl->x, tbl->y, skill, skilllv)
+					) {
+					continue;
+				}
+				if (BL_PC&battle_config.land_skill_limit &&
+					(maxcount = skill_get_maxcount(skill, skilllv)) > 0
+					) {
+					int v;
+					for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; i++) {
+						if (sd->ud.skillunit[v]->skill_id == skill)
+							maxcount--;
+					}
+					if (maxcount == 0) {
+						continue;
+					}
+				}
+			}
+
 			if( battle_config.autospell_check_range &&
 				!battle_check_range(src, tbl, skill_get_range2(src, skill,skilllv) + (skill == RG_CLOSECONFINE?0:1)) )
 				continue;
-
-			int type = skill_get_casttype(skill);
 
 			if (skill == PF_SPIDERWEB) //Special case, due to its nature of coding.
 				type = CAST_GROUND;
@@ -1911,7 +1948,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, int64 tick)
 {
-	int skill, skilllv, i;
+	int skill, skilllv, i, type;
 	struct block_list *tbl;
 
 	if( sd == NULL || skillid <= 0 )
@@ -1938,6 +1975,34 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 			continue;
 		tbl = (sd->autospell3[i].id < 0) ? &sd->bl : bl;
 
+		if ((type = skill_get_casttype(skill)) == CAST_GROUND) {
+			int maxcount = 0;
+			if (!(BL_PC&battle_config.skill_reiteration) &&
+				skill_get_unit_flag(skill)&UF_NOREITERATION &&
+				skill_check_unit_range(&sd->bl, tbl->x, tbl->y, skill, skilllv)
+				) {
+				continue;
+			}
+			if (BL_PC&battle_config.skill_nofootset &&
+				skill_get_unit_flag(skill)&UF_NOFOOTSET &&
+				skill_check_unit_range2(&sd->bl, tbl->x, tbl->y, skill, skilllv)
+				) {
+				continue;
+			}
+			if (BL_PC&battle_config.land_skill_limit &&
+				(maxcount = skill_get_maxcount(skill, skilllv)) > 0
+				) {
+				int v;
+				for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; i++) {
+					if (sd->ud.skillunit[v]->skill_id == skill)
+						maxcount--;
+				}
+				if (maxcount == 0) {
+					continue;
+				}
+			}
+		}
+
 		if( battle_config.autospell_check_range &&
 			!battle_check_range(&sd->bl, tbl, skill_get_range2(&sd->bl, skill,skilllv) + (skill == RG_CLOSECONFINE?0:1)) )
 			continue;
@@ -1945,7 +2010,7 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 		sd->state.autocast = 1;
 		sd->autospell3[i].lock = true;
 		skill_consume_requirement(sd,skill,skilllv,1);
-		switch( skill_get_casttype(skill) )
+		switch( type )
 		{
 			case CAST_GROUND:   skill_castend_pos2(&sd->bl, tbl->x, tbl->y, skill, skilllv, tick, 0); break;
 			case CAST_NODAMAGE: skill_castend_nodamage_id(&sd->bl, tbl, skill, skilllv, tick, 0); break;
@@ -2123,7 +2188,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skillid, skilllv, rate;
+		int i, skillid, skilllv, rate, type;
 
 		for (i = 0; i < ARRAYLENGTH(dstsd->autospell2) && dstsd->autospell2[i].id; i++) {
 
@@ -2147,12 +2212,40 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 
 			tbl = (dstsd->autospell2[i].id < 0) ? bl : src;
 
+			if ((type = skill_get_casttype(skillid)) == CAST_GROUND) {
+				int maxcount = 0;
+				if (!(BL_PC&battle_config.skill_reiteration) &&
+					skill_get_unit_flag(skillid)&UF_NOREITERATION &&
+					skill_check_unit_range(bl, tbl->x, tbl->y, skillid, skilllv)
+					) {
+					continue;
+				}
+				if (BL_PC&battle_config.skill_nofootset &&
+					skill_get_unit_flag(skillid)&UF_NOFOOTSET &&
+					skill_check_unit_range2(bl, tbl->x, tbl->y, skillid, skilllv)
+					) {
+					continue;
+				}
+				if (BL_PC&battle_config.land_skill_limit &&
+					(maxcount = skill_get_maxcount(skillid, skilllv)) > 0
+					) {
+					int v;
+					for (v = 0; v < MAX_SKILLUNITGROUP && dstsd->ud.skillunit[v] && maxcount; i++) {
+						if (dstsd->ud.skillunit[v]->skill_id == skillid)
+							maxcount--;
+					}
+					if (maxcount == 0) {
+						continue;
+					}
+				}
+			}
+
 			if( !battle_check_range(src, tbl, skill_get_range2(src, skillid,skilllv) + (skillid == RG_CLOSECONFINE?0:1)) && battle_config.autospell_check_range )
 				continue;
 
 			dstsd->state.autocast = 1;
 			skill_consume_requirement(dstsd,skillid,skilllv,1);
-			switch (skill_get_casttype(skillid)) {
+			switch (type) {
 				case CAST_GROUND:
 					skill_castend_pos2(bl, tbl->x, tbl->y, skillid, skilllv, tick, 0);
 					break;
@@ -6480,7 +6573,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
-			id = mob_get_random_id(0,0xE, sd->status.base_level);
+			id = mob_get_random_id(0,0xF, sd->status.base_level);
 			if (!id) {
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -13957,7 +14050,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 
 		case UNT_VENOMDUST:
 			if(tsc && !tsc->data[type])
-				status_change_start(bl,type,10000,sg->skill_lv,sg->group_id,0,0,skill_get_time2(sg->skill_id,sg->skill_lv),8);
+				status_change_start(bl,type,10000,sg->skill_lv,sg->group_id,0,0,skill_get_time2(sg->skill_id,sg->skill_lv),0);
 			break;
 
 		case UNT_LANDMINE:

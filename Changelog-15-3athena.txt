@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/30/2023
+	r401 [15peaces]
+		*Venom Dust poison doesn't ignore items or stats anymore.
+		*Fixed Autospell bugs with stacking, foot check, and max_count check.
+		*Fixed exploit with infinite item use.
+			-Thanks to @rathena
+		*TK_MISSION
+			-Now only getting random mobs that are available from dead branch list.
+
 08/27/2023
 	r400 [15peaces]
 		*Fixed baby classes forging/brewing rates.
