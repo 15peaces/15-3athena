@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/03/2023
+	r402 [15peaces]
+		*Fixed some trap bugs
+			-you now can attack traps directly.
+		*Fixed some item scripts.
+		*Fixed a bug with autocast max count checking, super special thanks to @rathena
+		*BD_LULLABY
+			-Fixed it to end after moving out of ensamble area.
+		*NPC_SELFDESTRUCTION
+			-Fixed to don't hit hidden characters.
+
 08/30/2023
 	r401 [15peaces]
 		*Venom Dust poison doesn't ignore items or stats anymore.

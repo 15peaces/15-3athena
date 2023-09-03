@@ -1852,7 +1852,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 					(maxcount = skill_get_maxcount(skill, skilllv)) > 0
 					) {
 					int v;
-					for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; i++) {
+					for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; v++) {
 						if (sd->ud.skillunit[v]->skill_id == skill)
 							maxcount--;
 					}
@@ -1993,7 +1993,7 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 				(maxcount = skill_get_maxcount(skill, skilllv)) > 0
 				) {
 				int v;
-				for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; i++) {
+				for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; v++) {
 					if (sd->ud.skillunit[v]->skill_id == skill)
 						maxcount--;
 				}
@@ -2230,7 +2230,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 					(maxcount = skill_get_maxcount(skillid, skilllv)) > 0
 					) {
 					int v;
-					for (v = 0; v < MAX_SKILLUNITGROUP && dstsd->ud.skillunit[v] && maxcount; i++) {
+					for (v = 0; v < MAX_SKILLUNITGROUP && dstsd->ud.skillunit[v] && maxcount; v++) {
 						if (dstsd->ud.skillunit[v]->skill_id == skillid)
 							maxcount--;
 					}
@@ -5163,8 +5163,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
+	case NPC_SELFDESTRUCTION: {
+		struct status_change *tsc = NULL;
+		if ((tsc = status_get_sc(bl)) && tsc->data[SC_HIDING])
+			break;
+	}
 	case HVAN_EXPLOSION:
-	case NPC_SELFDESTRUCTION:
 		if (src != bl)
 			skill_attack(BF_MISC,src,src,bl,skillid,skilllv,tick,flag);
 		break;
@@ -14757,6 +14761,7 @@ int64 skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int64
 	case UNT_SHOCKWAVE:
 	case UNT_SANDMAN:
 	case UNT_FLASHER:
+	case UNT_CLAYMORETRAP:
 	case UNT_FREEZINGTRAP:
 	case UNT_TALKIEBOX:
 	case UNT_ANKLESNARE:
@@ -14767,8 +14772,7 @@ int64 skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int64
 		src->val1-= (int)cap_value(damage, INT_MIN, INT_MAX);
 		break;
 	case UNT_BLASTMINE:
-	case UNT_CLAYMORETRAP:
-		skill_blown(bl, &src->bl, 2, -1, 0);
+		skill_blown(bl, &src->bl, 3, -1, 0);
 		break;
 	default:
 		damage = 0;
@@ -18489,6 +18493,7 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 			case UNT_SHOCKWAVE:
 			case UNT_SANDMAN:
 			case UNT_FLASHER:
+			case UNT_CLAYMORETRAP:
 			case UNT_FREEZINGTRAP:
 			case UNT_TALKIEBOX:
 			case UNT_ANKLESNARE:
@@ -18589,7 +18594,7 @@ int skill_unit_move_sub (struct block_list* bl, va_list ap)
 	//Necessary in case the group is deleted after calling on_place/on_out [Skotlex]
 	skill_id = unit->group->skill_id;
 
-	if( unit->group->interval != -1 && !(skill_get_unit_flag(skill_id)&UF_DUALMODE) )
+	if( unit->group->interval != -1 && !(skill_get_unit_flag(skill_id)&UF_DUALMODE) && skill_id != BD_LULLABY) //Lullaby is the exception
 	{	//Non-dualmode unit skills with a timer don't trigger when walking, so just return
 		if( dissonance ) {
 			skill_dance_switch(unit, 1);
