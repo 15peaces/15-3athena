@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+09/03/2023
+	r402 [15peaces]
+		*Small Life Potion, Medium Life Potion and Regeneration Potion are no longer dispel-able
+		*SA_MAGICROD
+			-Now displays animation on usage.
+
 09/03/2023
 	r402 [15peaces]
 		*Fixed some trap bugs
