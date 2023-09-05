@@ -5,9 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
-
-09/03/2023
-	r402 [15peaces]
+09/05/2023
+	r404 [15peaces]
+		*Removed duplicate Magnum Break code.
+		*Fixed Flying Side Kick, you can now use it in non-foe and jump to their location (confirmed on official).
+		
+09/04/2023
+	r403 [15peaces]
 		*Small Life Potion, Medium Life Potion and Regeneration Potion are no longer dispel-able
 		*SA_MAGICROD
 			-Now displays animation on usage.

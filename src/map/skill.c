@@ -4494,14 +4494,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
-	case TK_JUMPKICK:
-		if( unit_movepos(src, bl->x, bl->y, 1, 1) )
-		{
-			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
-			clif_slide(src,bl->x,bl->y);
-		}
-		break;
-
 	case NC_FLAMELAUNCHER:
 		if (sd) 
 			pc_overheat(sd,1);
@@ -4759,16 +4751,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			//FIXME: Isn't EarthQuake a ground skill after all?
 			if( skillid == NPC_EARTHQUAKE )
 				skill_addtimerskill(src,tick+250,src->id,0,0,skillid,skilllv,2,flag|BCT_ENEMY|SD_SPLASH|1);
-
-			//FIXME: move this to skill_additional_effect or some such? [ultramage]
-			if( skillid == SM_MAGNUM || skillid == MS_MAGNUM )
-			{ // Initiate 10% of your damage becomes fire element.
-				sc_start4(src,SC_WATK_ELEMENT,100,3,20,0,0,skill_get_time2(skillid, skilllv));
-				if( sd )
-					skill_blockpc_start(sd, skillid, skill_get_time(skillid, skilllv));
-				if( bl->type == BL_MER )
-					skill_blockmerc_start((TBL_MER*)bl, skillid, skill_get_time(skillid, skilllv));
-			}
 
 			// Switch back to original skill ID in case there's more to be done beyond here.
 			if ( skillid == SU_LUNATICCARROTBEAT2 )
@@ -6237,7 +6219,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage (src,src,skillid,skilllv,1);
 		//Initiate 10% of your damage becomes fire element.
 		sc_start4(src,SC_WATK_ELEMENT,100,3,20,0,0,skill_get_time2(skillid, skilllv));
-		if (sd) skill_blockpc_start (sd, skillid, skill_get_time(skillid, skilllv));
+		if (sd)
+			skill_blockpc_start(sd, skillid, skill_get_time(skillid, skilllv));
+		else if (bl->type == BL_MER)
+			skill_blockmerc_start((TBL_MER*)bl, skillid, skill_get_time(skillid, skilllv));
+		break;
+
+	case TK_JUMPKICK:
+		if (unit_movepos(src, bl->x, bl->y, 1, 1)) {
+			if (battle_check_target(src, bl, BCT_ENEMY) > 0)
+				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+			clif_slide(src, bl->x, bl->y);
+		}
 		break;
 
 	case AL_INCAGI:
