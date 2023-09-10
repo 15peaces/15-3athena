@@ -4251,7 +4251,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 
 					case AB_JUDEX:
-						skillratio = 300 + 40 * skill_lv;
+						skillratio = 300 + 70 * skill_lv;
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						break;

@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/10/2023
+	r405 [15peaces]
+		*Fixed some leftovers related to random numbers.
+		*Fixed Genetic Ammo item types.
+		*AB_JUDEX; AB_RENOVATIO
+			-Applied official max level changes.
+
 09/05/2023
 	r404 [15peaces]
 		*Removed duplicate Magnum Break code.

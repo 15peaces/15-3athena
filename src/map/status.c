@@ -12088,7 +12088,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_RENOVATIO:
 		if( --(sce->val4) >= 0 ) {
 			if(!battle_check_undead(status->race, status->def_ele))
-				status_heal(bl, status->max_hp * 5 / 100, 0, 2);
+				status_heal(bl, status->max_hp * (sce->val1 + 4) / 100, 0, 2);
 			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}

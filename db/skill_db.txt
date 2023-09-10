@@ -1020,7 +1020,7 @@
 2037,9:10:11:12:13,6,1,-1,0,0,5,1,no,0,0,0,weapon,0,	GC_CROSSRIPPERSLASHER,Cross Ripper Slasher
 
 // Arch Bishop //CHECK Some attack types for buffs are none. Should I set those to none here?
-2038,11,8,1,6,0x2,1,5,-3,yes,0,0,0,magic,0,	AB_JUDEX,Judex
+2038,11,8,1,6,0x2,1,10,-3,yes,0,0,0,magic,0,	AB_JUDEX,Judex
 2039,0,6,4,0,0x1,0,1,1,yes,0,0,0,magic,0,	AB_ANCILLA,Ancilla
 2040,11,8,1,6,0x2,1:1:1:1:1:1:2:2:2:2,10,-10,yes,0,0,0,magic,0,	AB_ADORAMUS,Adoramus// Need confirm that it fails to damage those in Land Protector
 2041,0,6,4,6,0x3,3:7:15,3,1,yes,0,0,0,magic,0,	AB_CLEMENTIA,Crementia
@@ -1032,7 +1032,7 @@
 2047,0,6,4,6,0x3,15,4,1,yes,0,0,0,magic,0,	AB_LAUDAAGNUS,Lauda Agnus
 2048,0,6,4,6,0x3,15,4,1,yes,0,0,0,magic,0,	AB_LAUDARAMUS,Lauda Ramus
 2049,0,0,0,0,0,0,10,0,no,0,0,0,none,0,		AB_EUCHARISTICA,Eucharistica
-2050,0,6,4,6,0x3,0x15,1,1,yes,0,0,0,magic,0,	AB_RENOVATIO,Renovatio
+2050,0,6,4,6,0x3,0x15,1,4,yes,0,0,0,magic,0,	AB_RENOVATIO,Renovatio
 2051,11,6,16,6,0x21,0,5,1,yes,0,0,0,magic,0,	AB_HIGHNESSHEAL,Highness Heal
 2052,11,6,16,0,0x1,0,5,1,yes,0,0x600,0,magic,0,	AB_CLEARANCE,Clearance// CHECK Also shows this as a magic attack. Why?
 2053,11,6,16,0,0x1,0,5,1,yes,0,0,0,magic,0,	AB_EXPIATIO,Expiatio

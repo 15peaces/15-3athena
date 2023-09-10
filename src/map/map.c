@@ -4146,7 +4146,7 @@ int do_init(int argc, char *argv[])
 	MSG_CONF_NAME_POR = "conf/msg_conf/map_msg_por.conf";	// Brazilian Portuguese
 	/* Multilanguage */
 
-	srand((unsigned int)gettick());
+	rnd_init();
 
 	for( i = 1; i < argc ; i++ )
 	{
