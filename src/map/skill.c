@@ -528,7 +528,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	// This code will compare the player's attack motion value which is influenced by ASPD before
 	// allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
 	// AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion.
-	if( sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
+	if(sd->skillitem != skillid && sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
 	{// attempted to cast a skill before the attack motion has finished
 		return 1;
 	}
@@ -2052,7 +2052,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	struct map_session_data *sd=NULL;
 	struct map_session_data *dstsd=NULL;
 	struct status_data *sstatus, *tstatus;
-	struct status_change *sc, *tsc;
+	struct status_change *sc;
 
 	nullpo_ret(src);
 	nullpo_ret(bl);
@@ -2061,9 +2061,6 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	if(skillid > 0 && skilllv <= 0) return 0;	// don't forget auto attacks! - celest
 
 	sc = status_get_sc(src);
-	tsc = status_get_sc(bl);
-	if (tsc && !tsc->count)
-		tsc = NULL;
 
 	sd = BL_CAST(BL_PC, src);
 	dstsd = BL_CAST(BL_PC, bl);
@@ -2176,6 +2173,13 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		{
 			sp += sd->bonus.magic_sp_gain_value;
 			hp += sd->bonus.magic_hp_gain_value;
+			if (sc && skillid == WZ_WATERBALL) {
+				status_change_end(src, SC_MAGICPOWER, INVALID_TIMER);
+				if (sc->data[SC_SPIRIT] &&
+					sc->data[SC_SPIRIT]->val2 == SL_WIZARD &&
+					sc->data[SC_SPIRIT]->val3 == WZ_WATERBALL)
+					sc->data[SC_SPIRIT]->val3 = 0; //Clear bounced spell check.
+			}
 		}
 		if( hp || sp )
 		{// updated to force healing to allow healing through berserk
@@ -2652,9 +2656,8 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		skillid == MER_INCAGI || skillid == MER_BLESSING) && tsd->sc.data[SC_CHANGEUNDEAD] )
 		damage = 1;
 
-	if( damage > 0 && ((dmg.flag&BF_WEAPON && src != bl && ( src == dsrc || ( dsrc->type == BL_SKILL && ( skillid == SG_SUN_WARM || skillid == SG_MOON_WARM || skillid == SG_STAR_WARM ) ) )
-		&& skillid != WS_CARTTERMINATION) || (sc && sc->data[SC_LG_REFLECTDAMAGE])) )
-		rdamage = battle_calc_return_damage(src, bl, &damage, dmg.flag);
+	if( damage > 0 && ((dmg.flag&BF_WEAPON && src != bl && ( src == dsrc || ( dsrc->type == BL_SKILL && ( skillid == SG_SUN_WARM || skillid == SG_MOON_WARM || skillid == SG_STAR_WARM ) ) )) || (sc && sc->data[SC_LG_REFLECTDAMAGE])) )
+		rdamage = battle_calc_return_damage(src, bl, &damage, dmg.flag, skillid);
 
 	//Skill hit type
 	type=(skillid==0)?5:skill_get_hit(skillid);
@@ -3788,17 +3791,17 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					map_foreachinarea(skill_frostjoke_scream,skl->map,skl->x-range,skl->y-range,skl->x+range,skl->y+range,BL_CHAR,src,skl->skill_id,skl->skill_lv,tick);
 					break;
 				case NPC_EARTHQUAKE:
+					if (skl->type > 1)
+						skill_addtimerskill(src, tick + 250, src->id, 0, 0, skl->skill_id, skl->skill_lv, skl->type - 1, skl->flag);
 					skill_area_temp[0] = map_foreachinrange(skill_area_sub, src, skill_get_splash(skl->skill_id, skl->skill_lv), BL_CHAR, src, skl->skill_id, skl->skill_lv, tick, BCT_ENEMY, skill_area_sub_count);
 					skill_area_temp[1] = src->id;
 					skill_area_temp[2] = 0;
 					map_foreachinrange(skill_area_sub, src, skill_get_splash(skl->skill_id, skl->skill_lv), splash_target(src), src, skl->skill_id, skl->skill_lv, tick, skl->flag, skill_castend_damage_id);
-					if( skl->type > 1 )
-						skill_addtimerskill(src,tick+250,src->id,0,0,skl->skill_id,skl->skill_lv,skl->type-1,skl->flag);
 					break;
 				case WZ_WATERBALL:
 					if (!status_isdead(target))
 						skill_attack(BF_MAGIC,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
-					if (skl->type>1 && !status_isdead(target)) {
+					if (skl->type>1 && !status_isdead(target) && !status_isdead(src)) {
 						skill_addtimerskill(src,tick+125,target->id,0,0,skl->skill_id,skl->skill_lv,skl->type-1,skl->flag);
 					} else {
 						struct status_change *sc = status_get_sc(src);
@@ -3970,6 +3973,10 @@ int skill_addtimerskill (struct block_list *src, int64 tick, int target, int x,i
 	int i;
 	struct unit_data *ud;
 	nullpo_retr(1, src);
+
+	if (src->prev == NULL)
+		return 0;
+
 	ud = unit_bl2ud(src);
 	nullpo_retr(1, ud);
 
@@ -4731,6 +4738,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			if (skillid == LG_MOONSLASHER)
 				clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skillid, skilllv, 6);
+			//FIXME: Isn't EarthQuake a ground skill after all?
+			if (skillid == NPC_EARTHQUAKE)
+				skill_addtimerskill(src, tick + 250, src->id, 0, 0, skillid, skilllv, 2, flag | BCT_ENEMY | SD_SPLASH | 1);
 
 			skill_area_temp[0] = 0;
 			skill_area_temp[1] = bl->id;
@@ -4747,10 +4757,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skillid, skilllv), splash_target(src), src, skillid, skilllv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
-
-			//FIXME: Isn't EarthQuake a ground skill after all?
-			if( skillid == NPC_EARTHQUAKE )
-				skill_addtimerskill(src,tick+250,src->id,0,0,skillid,skilllv,2,flag|BCT_ENEMY|SD_SPLASH|1);
 
 			// Switch back to original skill ID in case there's more to be done beyond here.
 			if ( skillid == SU_LUNATICCARROTBEAT2 )
@@ -5037,7 +5043,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 	case WZ_WATERBALL:
-		skill_attack(BF_MAGIC,src,src,bl,skillid,skilllv,tick,flag);
 		{
 			int range = skilllv / 2;
 			int maxlv = skill_get_max(skillid); // learnable level
@@ -5069,6 +5074,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if( count > 1 ) // queue the remaining count - 1 timerskill Waterballs
 				skill_addtimerskill(src,tick+150,bl->id,0,0,skillid,skilllv,count-1,flag);
 		}
+		skill_attack(BF_MAGIC, src, src, bl, skillid, skilllv, tick, flag);
 		break;
 
 	case WL_CHAINLIGHTNING:
@@ -15239,7 +15245,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			status_change_end(&sd->bl, SC_COMBO, INVALID_TIMER);
 			return 0;
 		}
-		if(sc->data[SC_COMBO]->val1 != skill_id)
+		if (sc->data[SC_COMBO]->val1 != skill_id && !(sd && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON)))	//Cancel combo wait.
 		{	//Cancel combo wait.
 			unit_cancel_combo(&sd->bl);
 			return 0;
@@ -18337,6 +18343,14 @@ int skill_unit_timer_sub_onplace (struct block_list* bl, va_list ap)
 	if (!(skill_get_inf2(group->skill_id)&(INF2_SONG_DANCE | INF2_TRAP | INF2_NOLP)) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR))
 		return 0; //AoE skills are ineffective. [Skotlex]
 
+	if (group->skill_id == WZ_STORMGUST) {
+		int i, o;
+		for (i = -1; i < 2; i++)
+			for (o = -1; o < 2; o++)
+				if (map_getcell(bl->m, bl->x + i, bl->y + o, CELL_CHKLANDPROTECTOR))
+					return 0; // Storm Gust can be hitted around Land Protector. [Protimus]
+	}
+
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
 		return 0;
 
@@ -20169,13 +20183,13 @@ int skill_split_atoi (char *str, int *val)
  */
 void skill_init_unit_layout (void)
 {
-	int i,j,pos = 0;
+	int i,j,z,size,pos = 0;
 
 	memset(skill_unit_layout,0,sizeof(skill_unit_layout));
 
 	// standard square layouts go first
 	for (i=0; i<=MAX_SQUARE_LAYOUT; i++) {
-		int size = i*2+1;
+		size = i*2+1;
 		skill_unit_layout[i].count = size*size;
 		for (j=0; j<size*size; j++) {
 			skill_unit_layout[i].dx[j] = (j%size-i);
@@ -20185,6 +20199,21 @@ void skill_init_unit_layout (void)
 
 	// afterwards add special ones
 	pos = i;
+	for (z = 0; z <= 5; z++) {
+		pos++;
+		size = 7 + z;
+		for (j = 0; j < size*size; j++) {
+			skill_unit_layout[pos].dx[j] = j % size - size / 2;
+			skill_unit_layout[pos].dy[j] = j / size - size / 2 + 1;
+		}
+		skill_unit_layout[pos].count = size * size;
+		skill_db[SA_LANDPROTECTOR].unit_layout_type[z] = pos;
+		skill_db[SA_LANDPROTECTOR].unit_layout_type[++z] = pos;
+	}
+	for (; z < MAX_SKILL_LEVEL; z++)
+		skill_db[SA_LANDPROTECTOR].unit_layout_type[z] = pos;
+
+	pos++;
 	for (i=0;i<MAX_SKILL_DB;i++) {
 		if (!skill_db[i].unit_id[0] || skill_db[i].unit_layout_type[0] != -1)
 			continue;

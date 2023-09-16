@@ -1426,7 +1426,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	if( hp && flag&32 ){
 		if( sc && sc->data[SC_LG_REFLECTDAMAGE] ){
 			int64 thp = (int64)hp;
-			int64 rdamage = battle_calc_return_damage(src,target,&thp,BF_SHORT);
+			int64 rdamage = battle_calc_return_damage(src,target,&thp,BF_SHORT,0);
 			hp = (int)cap_value(thp, INT32_MIN, INT32_MAX);
 			if( src != target )
 				map_foreachinrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,gettick(),target,status_get_amotion(src),status_get_dmotion(src),rdamage,status->race);

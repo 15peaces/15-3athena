@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/16/2023
+	r406 [15peaces]
+		*Fixed Emperium's skill damage/heal and elemental resist.
+		*Fix to Storm Gust work around Land Protector.
+		*Fixed map-server crashing when monster was killed by a reflected Waterball or Earthquake and `delay_battle_damage` was set to `no`.
+		*Fixed waterball not canceling magic power if target is killed while not all spheres were fired. 
+			-Thanks to rAthena for the base.
+		*Fixed bug that didn't allow LV 90+ TK Rankers from being able to use kicks not corresponding to current kick stance.
+		*Fixed bug with abracadabra self skills not working.
+		*Skill timers will no longer be added if source has been already removed from map and is about to be freed.
+		*Fixed bShortWeaponDamage to work against cart termination.
+
 09/10/2023
 	r405 [15peaces]
 		*Fixed some leftovers related to random numbers.

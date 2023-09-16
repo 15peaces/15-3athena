@@ -1032,18 +1032,15 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 		return 0;
 	
 	if(md && md->guardian_data) {
-		if(class_ == MOBID_EMPERIUM && flag&BF_SKILL)
+		if(class_ == MOBID_EMPERIUM && flag&BF_SKILL) {
 		//Skill immunity.
 			switch (skill_num) {
-			case MO_TRIPLEATTACK:
-			case HW_GRAVITATION:
-			case AL_HEAL:
-			case PR_SANCTUARY:
-			case BA_APPLEIDUN:
-			case AB_CHEAL:
-				break;
-			default:
-				return 0;
+				case MO_TRIPLEATTACK:
+				case HW_GRAVITATION:
+					break;
+				default:
+					return 0;
+			}
 		}
 		if(src->type != BL_MOB) {
 			struct guild *g=guild_search(status_get_guild_id(src));
@@ -3779,10 +3776,22 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 	if( flag.infdef )
 	{ //Plants receive 1 damage when hit
+		short class_ = status_get_class(target);
 		if( flag.hit || wd.damage > 0 )
 			wd.damage = wd.div_; // In some cases, right hand no need to have a weapon to increase damage
 		if( flag.lh && (flag.hit || wd.damage2 > 0) )
 			wd.damage2 = wd.div_;
+		if (flag.hit && class_ == MOBID_EMPERIUM) {
+			if (wd.damage2 > 0) {
+				wd.damage2 = battle_attr_fix(src, target, wd.damage2, s_ele_, tstatus->def_ele, tstatus->ele_lv);
+				wd.damage2 = battle_calc_gvg_damage(src, target, wd.damage2, wd.div_, skill_num, skill_lv, wd.flag);
+			}
+			else if (wd.damage > 0) {
+				wd.damage = battle_attr_fix(src, target, wd.damage, s_ele_, tstatus->def_ele, tstatus->ele_lv);
+				wd.damage = battle_calc_gvg_damage(src, target, wd.damage, wd.div_, skill_num, skill_lv, wd.flag);
+			}
+			return wd;
+		}
 		if( !(battle_config.skill_min_damage&1) )
 			//Do not return if you are supposed to deal greater damage to plants than 1. [Skotlex]
 			return wd;
@@ -5125,7 +5134,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 }
 
 //Calculates BF_WEAPON returned damage.
-int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag) {
+int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skillid) {
 	struct map_session_data* sd = NULL;
 	int64 rdamage = 0;
 	int max_damage = status_get_max_hp(bl);
@@ -5145,7 +5154,7 @@ int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, i
 			rdamage += (*damage) * sd->bonus.short_weapon_damage_return / 100;
 			rdamage = max(rdamage,1);
 		}
-		if (sc && sc->data[SC_DEATHBOUND] && !is_boss(src))
+		if (sc && sc->data[SC_DEATHBOUND] && skillid != WS_CARTTERMINATION && !is_boss(src))
 		{
 			int dir = map_calc_dir(bl, src->x, src->y), t_dir = unit_getdir(bl);
 
@@ -5158,7 +5167,7 @@ int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, i
 				rdamage += rd1 * 70 / 100; // Target receives 70% of the amplified damage. [Rytech]
 			}
 		}
-		if (sc && sc->data[SC_REFLECTSHIELD]){
+		if (sc && sc->data[SC_REFLECTSHIELD] && skillid != WS_CARTTERMINATION){
 			rdamage += (*damage) * sc->data[SC_REFLECTSHIELD]->val2 / 100;
 			if (rdamage < 1) rdamage = 1;
 		}//Now only reflects short range damage only. Does not reflect magic anymore.
@@ -5532,7 +5541,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 				skill_attack(skill_get_type(AB_DUPLELIGHT_MAGIC), src, src, target, AB_DUPLELIGHT_MAGIC, sc->data[SC_DUPLELIGHT]->val1, tick, SD_LEVEL);
 		}
 
-		rdamage = battle_calc_return_damage(src, target, &damage, wd.flag);
+		rdamage = battle_calc_return_damage(src, target, &damage, wd.flag, 0);
 
 		if( rdamage > 0 )
 		{
