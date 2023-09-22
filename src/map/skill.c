@@ -528,7 +528,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	// This code will compare the player's attack motion value which is influenced by ASPD before
 	// allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
 	// AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion.
-	if(sd->skillitem != skillid && sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
+	if(!sd->state.autocast && sd->skillitem != skillid && sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
 	{// attempted to cast a skill before the attack motion has finished
 		return 1;
 	}
@@ -1811,7 +1811,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skilllv, type;
+		int i, skilllv, type, notok;
 
 		for (i = 0; i < ARRAYLENGTH(sd->autospell) && sd->autospell[i].id; i++) {
 
@@ -1822,7 +1822,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 			skill = (sd->autospell[i].id > 0) ? sd->autospell[i].id : -sd->autospell[i].id;
 
-			if (skillnotok(skill, sd))
+			sd->state.autocast = 1;
+			notok = skillnotok(skill, sd);
+			sd->state.autocast = 0;
+
+			if (notok)
 				continue;
 
 			skilllv = sd->autospell[i].lv?sd->autospell[i].lv:1;
@@ -1949,7 +1953,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, int64 tick)
 {
-	int skill, skilllv, i, type;
+	int skill, skilllv, i, type, notok;
 	struct block_list *tbl;
 
 	if( sd == NULL || skillid <= 0 )
@@ -1964,7 +1968,12 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 			continue;  // autospell already being executed
 
 		skill = (sd->autospell3[i].id > 0) ? sd->autospell3[i].id : -sd->autospell3[i].id;
-		if( skillnotok(skill, sd) )
+		
+		sd->state.autocast = 1;
+		notok = skillnotok(skill, sd);
+		sd->state.autocast = 0;
+
+		if (notok)
 			continue;
 
 		skilllv = sd->autospell3[i].lv ? sd->autospell3[i].lv : 1;
@@ -2019,6 +2028,7 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 		}
 		sd->autospell3[i].lock = false;
 		sd->state.autocast = 0;
+		skill_onskillusage(sd, bl, skill, tick);
 	}
 
 	if( sd && sd->autobonus3[0].rate )
@@ -2193,7 +2203,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skillid, skilllv, rate, type;
+		int i, skillid, skilllv, rate, type, notok;
 
 		for (i = 0; i < ARRAYLENGTH(dstsd->autospell2) && dstsd->autospell2[i].id; i++) {
 
@@ -2210,8 +2220,13 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 			if (attack_type&BF_LONG)
 				 rate>>=1;
 
-			if (skillnotok(skillid, dstsd))
+			dstsd->state.autocast = 1;
+			notok = skillnotok(skillid, dstsd);
+			dstsd->state.autocast = 0;
+
+			if (notok)
 				continue;
+
 			if (rnd()%1000 >= rate)
 				continue;
 
@@ -18343,14 +18358,6 @@ int skill_unit_timer_sub_onplace (struct block_list* bl, va_list ap)
 	if (!(skill_get_inf2(group->skill_id)&(INF2_SONG_DANCE | INF2_TRAP | INF2_NOLP)) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR))
 		return 0; //AoE skills are ineffective. [Skotlex]
 
-	if (group->skill_id == WZ_STORMGUST) {
-		int i, o;
-		for (i = -1; i < 2; i++)
-			for (o = -1; o < 2; o++)
-				if (map_getcell(bl->m, bl->x + i, bl->y + o, CELL_CHKLANDPROTECTOR))
-					return 0; // Storm Gust can be hitted around Land Protector. [Protimus]
-	}
-
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
 		return 0;
 
@@ -20183,7 +20190,7 @@ int skill_split_atoi (char *str, int *val)
  */
 void skill_init_unit_layout (void)
 {
-	int i,j,z,size,pos = 0;
+	int i,j,size,pos = 0;
 
 	memset(skill_unit_layout,0,sizeof(skill_unit_layout));
 
@@ -20199,21 +20206,6 @@ void skill_init_unit_layout (void)
 
 	// afterwards add special ones
 	pos = i;
-	for (z = 0; z <= 5; z++) {
-		pos++;
-		size = 7 + z;
-		for (j = 0; j < size*size; j++) {
-			skill_unit_layout[pos].dx[j] = j % size - size / 2;
-			skill_unit_layout[pos].dy[j] = j / size - size / 2 + 1;
-		}
-		skill_unit_layout[pos].count = size * size;
-		skill_db[SA_LANDPROTECTOR].unit_layout_type[z] = pos;
-		skill_db[SA_LANDPROTECTOR].unit_layout_type[++z] = pos;
-	}
-	for (; z < MAX_SKILL_LEVEL; z++)
-		skill_db[SA_LANDPROTECTOR].unit_layout_type[z] = pos;
-
-	pos++;
 	for (i=0;i<MAX_SKILL_DB;i++) {
 		if (!skill_db[i].unit_id[0] || skill_db[i].unit_layout_type[0] != -1)
 			continue;

@@ -2720,6 +2720,21 @@ int db_data2i(DBData *data)
 }
 
 /**
+ * Gets unsigned int type data from struct DBData.
+ * If data is not unsigned int type, returns 0.
+ * @param data Data
+ * @return Unsigned int value of the data.
+ * @public
+ */
+unsigned int db_data2ui(DBData *data)
+{
+	DB_COUNTSTAT(db_data2ui);
+	if (data && DB_DATA_UINT == data->type)
+		return data->u.ui;
+	return 0;
+}
+
+/**
  * Gets int64 type data from struct DBData.
  * If data is not int64 type, returns 0.
  * @param data Data

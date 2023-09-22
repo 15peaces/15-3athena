@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/22/2023
+	r407 [15peaces]
+		*WZ_STORMGUST
+			-Reverted latest changes, broken workaround...
+		*Added missing db_data2ui function.
+		*Fixed bug with autocasts being blocked by skill_amotion_leniency.
+		*Elemental Sword bautospellonskill recursion is now fully functional.
+
 09/16/2023
 	r406 [15peaces]
 		*Fixed Emperium's skill damage/heal and elemental resist.
