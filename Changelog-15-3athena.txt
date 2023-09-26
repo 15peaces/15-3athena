@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/26/2023
+	r408 [15peaces]
+		*Fixed Super Novices mentral strength so that they may ressurect in gvg maps w/o being kicked out.
+		*Fixed reflecting bug:
+			-mage casts firebolt on professor with doublecasting+maya, if reflected, the fire bolt would trigger double casting.
+		*Coma on monsters now grants you the fully deserved exp.
+		*Added missing 'delitem's in Ninja Job Quest.
+			
 09/22/2023
 	r407 [15peaces]
 		*WZ_STORMGUST

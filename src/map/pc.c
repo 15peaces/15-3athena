@@ -7891,7 +7891,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag)
   	{
 		unsigned int exp = pc_nextbaseexp(sd);
-		if( exp && get_percentage(sd->status.base_exp,exp) >= 99 && !map_flag_gvg(sd->bl.m) )
+		if( exp && get_percentage(sd->status.base_exp,exp) >= 99 )
 		{
 			sd->state.snovice_dead_flag = 1;
 			pc_setstand(sd, false);
