@@ -16049,10 +16049,10 @@ int skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id, 
 				return 0;
 			}
 			break;
-		case AB_ADORAMUS:
+		/*case AB_ADORAMUS:
 			if( skill_check_pc_partner(sd, skill_id,&skill_lv, 1, 2) )
 				sd->state.no_gemstone = 1; // Mark this skill as it don't consume ammo because partners gives SP
-			break;
+			break;*/
 		case WL_COMET:
 			if( skill_check_pc_partner(sd, skill_id,&skill_lv, 1, 0) )
 				sd->state.no_gemstone = 1; // No need to consume 2 Red Gemstones if there are partners near by.
@@ -16420,6 +16420,14 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 			break;
 		case NC_REPAIR:
 			if (i < 5)
+				continue;
+			break;
+		case AB_ADORAMUS:
+			if (itemid_isgemstone(skill_db[j].itemid[i]) && skill_check_pc_partner(sd, skill, &lv, 1, 2))
+				continue;
+			break;
+		case WL_COMET:
+			if (itemid_isgemstone(skill_db[j].itemid[i]) && skill_check_pc_partner(sd, skill, &lv, 1, 0))
 				continue;
 			break;
 		case SO_SUMMON_AGNI:
