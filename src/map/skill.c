@@ -2028,7 +2028,6 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 		}
 		sd->autospell3[i].lock = false;
 		sd->state.autocast = 0;
-		skill_onskillusage(sd, bl, skill, tick);
 	}
 
 	if( sd && sd->autobonus3[0].rate )
@@ -3276,20 +3275,26 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 	}
 
-	if( damage > 0 && skillid == RK_CRUSHSTRIKE ) // Your weapon will not be broken if you miss.
-		skill_break_equip(src, EQP_WEAPON, 2000, BCT_SELF);
-
-	if( damage > 0 && skillid == GC_VENOMPRESSURE ){
-		struct status_change *ssc = status_get_sc(src);
-		short rate = 100;
-		if( ssc && ssc->data[SC_POISONINGWEAPON] && rnd()%100 < 70 + 5*skilllv ){
-			if (ssc->data[SC_POISONINGWEAPON]->val1 == 9)//Oblivion Curse gives a 2nd success chance after the 1st one passes which is reduceable. [Rytech]
-				rate = 100 - tstatus->int_ * 4 / 5;
-			sc_start(bl, ssc->data[SC_POISONINGWEAPON]->val2, rate, ssc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, 1) - (tstatus->vit + tstatus->luk) / 2 * 1000);
-
-			status_change_end(src,SC_POISONINGWEAPON,-1);
-			clif_skill_nodamage(src,bl,skillid,skilllv,1);	
+	if( damage > 0){ 
+		switch (skillid) {
+			case RK_CRUSHSTRIKE: // Your weapon will not be broken if you miss.
+				skill_break_equip(src, EQP_WEAPON, 2000, BCT_SELF);
+				break;
+			case GC_VENOMPRESSURE: {
+				struct status_change *ssc = status_get_sc(src);
+				short rate = 100;
+				if (ssc && ssc->data[SC_POISONINGWEAPON] && rnd() % 100 < 70 + 5 * skilllv) {
+					if (ssc->data[SC_POISONINGWEAPON]->val1 == 9)//Oblivion Curse gives a 2nd success chance after the 1st one passes which is reduceable. [Rytech]
+						rate = 100 - tstatus->int_ * 4 / 5;
+					sc_start(bl, ssc->data[SC_POISONINGWEAPON]->val2, rate, ssc->data[SC_POISONINGWEAPON]->val1, skill_get_time2(GC_POISONINGWEAPON, 1) - (tstatus->vit + tstatus->luk) / 2 * 1000);
+					
+					status_change_end(src, SC_POISONINGWEAPON, -1);
+					clif_skill_nodamage(src, bl, skillid, skilllv, 1);
+				}
+			}
 		}
+		if (sd)
+			skill_onskillusage(sd, bl, skillid, tick);
 	}
 
 	if (!(flag & 2))
@@ -5683,8 +5688,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if (sd->state.arrow_atk) // consume arrow on last invocation to this skill.
 			battle_consume_ammo(sd, skillid, skilllv);
 
-		// perform auto-cast routines and skill requirement consumption
-		skill_onskillusage(sd, bl, skillid, tick);
+		// perform skill requirement consumption
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
 
@@ -11323,8 +11327,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( sd->state.arrow_atk ) //Consume arrow on last invocation to this skill.
 			battle_consume_ammo(sd, skillid, skilllv);
 
-		// perform auto-cast routines and skill requirement consumption
-		skill_onskillusage(sd, bl, skillid, tick);
+		// perform skill requirement consumption
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
 
@@ -12796,8 +12799,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		if( sd->state.arrow_atk && !(flag&1) ) //Consume arrow if a ground skill was not invoked. [Skotlex]
 			battle_consume_ammo(sd, skillid, skilllv);
 
-		// perform auto-cast routines and skill requirement consumption
-		skill_onskillusage(sd, NULL, skillid, tick);
+		// perform skill requirement consumption
 		skill_consume_requirement(sd,skillid,skilllv,2);
 	}
 

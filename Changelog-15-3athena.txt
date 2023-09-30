@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/30/2023
+	r410 [15peaces]
+		*Merged/optimized main-chat message handling.
+		*item_noequip now scans armor enchant gems.
+		*skill_onskillusage will now be only triggered if previous skill didn't miss.
+
 09/29/2023
 	r409 [15peaces]
 		*Warlock's Comet no longer requires 2 gemstones if you cast it beside another warlock.
