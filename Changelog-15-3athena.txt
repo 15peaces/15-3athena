@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/01/2023
+	r411 [15peaces]
+		*Magenta, Cobalt, Maize, Verdure, Firing and Icebound traps are now able to be cast under a target's feet.
+		*Epiclesis now heals every 3 seconds instead of 1.
+		*Minor improvement on NPC parsing. 
+
 09/30/2023
 	r410 [15peaces]
 		*Merged/optimized main-chat message handling.
