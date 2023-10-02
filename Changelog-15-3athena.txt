@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/02/2023
+	r412 [15peaces]
+		*Some misc. cleaning.
+		*Added 22nd argument (MOB_MVPEXP) to 'getmonsterinfo' which returns the mvp_exp of a monster.
+		*Changed 'checkvending' to return 2 if player is using autotrade.
+		*Some @pettalk updates:
+			-Added flood protection for pet emotions.
+			-Changed /dice to roll random 1-6 (before it always rolled 1).
+			-Added more /emotions to pet emotion processing.
+		*Firewalk and Electric Walk should now work properly.
+
 10/01/2023
 	r411 [15peaces]
 		*Magenta, Cobalt, Maize, Verdure, Firing and Icebound traps are now able to be cast under a target's feet.
