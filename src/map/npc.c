@@ -4038,26 +4038,16 @@ int npc_reload(void)
 	return 0;
 }
 
+void do_clear_npc(void) {
+	db_clear(npcname_db);
+	db_clear(ev_db);
+}
+
 /*==========================================
  * èIóπ
  *------------------------------------------*/
 int do_final_npc(void)
 {
-	int i;
-	struct block_list *bl;
-
-	db_clear(npcname_db);
-	db_clear(ev_db);
-
-	for (i = START_NPC_NUM; i < npc_id; i++){
-		if ((bl = map_id2bl(i))){
-			if (bl->type == BL_NPC)
-				npc_unload((struct npc_data *)bl, false);
-			else if (bl->type&(BL_MOB|BL_PET|BL_HOM|BL_MER|BL_ELEM))
-				unit_free(bl, CLR_OUTSIGHT);
-		}
-	}
-
 	ev_db->destroy(ev_db, NULL);
 	//There is no free function for npcname_db because at this point there shouldn't be any npcs left!
 	//So if there is anything remaining, let the memory manager catch it and report it.

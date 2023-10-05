@@ -7572,7 +7572,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_TWOHANDQUICKEN:
 			if(sc->data[SC_DECREASEAGI] || sc->data[SC_ADORAMUS])
 				return 0;
-		case SC_CONCENTRATE:
 		case SC_INCREASEAGI:
 		case SC_SPEARQUICKEN:
 		case SC_TRUESIGHT:

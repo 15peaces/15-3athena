@@ -2519,7 +2519,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			
 			for (i = 0; i < 3; i++) {
 				while (1) {
-					int va = rand() % 3;
+					int va = rnd() % 3;
 					if (!mdrop_id[va] || !md->db->mvpitem[i].nameid) {
 						mdrop_id[va] = md->db->mvpitem[i].nameid;
 						mdrop_p[va] = md->db->mvpitem[i].p;

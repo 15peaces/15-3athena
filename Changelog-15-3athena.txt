@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/05/2023
+	r413 [15peaces]
+		*Emergency Call does not recall dead guild members anymore.
+		*Replaced remaining rand() calls with rnd().
+		*Another performance improvement: Shutdown processing is now about to 7 times faster.
+
 10/02/2023
 	r412 [15peaces]
 		*Some misc. cleaning.
