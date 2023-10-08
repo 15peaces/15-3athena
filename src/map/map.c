@@ -1415,7 +1415,7 @@ int map_get_new_object_id(void)
 		if( i == MAX_FLOORITEM )
 			i = MIN_FLOORITEM;
 
-		if( idb_get(id_db, i) == NULL )
+		if (!idb_exists(id_db, i))
 			break;
 
 		++i;
@@ -2102,6 +2102,13 @@ struct map_session_data * map_nick2sd(const char *nick)
 struct block_list * map_id2bl(int id)
 {
 	return (struct block_list*)idb_get(id_db,id);
+}
+
+/**
+ * Same as map_id2bl except it only checks for its existence
+ **/
+bool map_blid_exists(int id) {
+	return (idb_exists(id_db, id));
 }
 
 /*==========================================

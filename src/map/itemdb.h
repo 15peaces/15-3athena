@@ -278,7 +278,7 @@ enum item_itemid
 #define IG_FINDINGORE 6
 #define IG_POTION 37
 //The max. item group count, same for item packages (increase this when needed).
-#define MAX_ITEMGROUP 58
+#define MAX_ITEMGROUP 59
 #define MAX_ITEMPACKAGE 30
 #define MAX_RANDGROUP 4 // For item packages
 

@@ -963,6 +963,7 @@ struct pet_data* map_id2pd(int id);
 struct elemental_data* map_id2ed(int id);
 struct chat_data* map_id2cd(int id);
 struct block_list * map_id2bl(int id);
+bool map_blid_exists(int id);
 
 #define map_id2index(id) map[(id)].index
 int map_mapindex2mapid(unsigned short mapindex);

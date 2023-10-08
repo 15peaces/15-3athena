@@ -8962,10 +8962,10 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 
 #if PACKETVER < 20161228
 	short packet_num = 0x1b6;
-	short offset = 0;
+	short offset = NAME_LENGTH;
 #else
 	short packet_num = 0xa84;
-	short offset = NAME_LENGTH;// Negeative
+	short offset = 0;
 #endif
 
 	nullpo_retv(sd);
@@ -8993,10 +8993,10 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	memcpy(WFIFOP(fd,70),g->master, NAME_LENGTH);
 #endif
 	// Calculate the number of castles owned.
-	safestrncpy((char*)WFIFOP(fd,94-offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
-	WFIFOL(fd,110-offset) = 0;  // zeny
+	safestrncpy((char*)WFIFOP(fd,70+offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
+	WFIFOL(fd,70+offset+16) = 0;  // zeny
 #if PACKETVER >= 20161228
-	WFIFOL(fd,114-offset) = g->member[0].char_id;
+	WFIFOL(fd,70+offset+20) = g->member[0].char_id;
 #endif
 	WFIFOSET(fd,packet_len(packet_num));
 }

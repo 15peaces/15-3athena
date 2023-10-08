@@ -72,15 +72,15 @@ static void npc_market_fromsql(void);
 /// Fatal error if nothing is available.
 int npc_get_new_npc_id(void)
 {
-	if( npc_id >= START_NPC_NUM && map_id2bl(npc_id) == NULL )
+	if (npc_id >= START_NPC_NUM && !map_blid_exists(npc_id))
 		return npc_id++;// available
-	{// find next id
+	else {// find next id
 		int base_id = npc_id;
 		while( base_id != ++npc_id )
 		{
 			if( npc_id < START_NPC_NUM )
 				npc_id = START_NPC_NUM;
-			if( map_id2bl(npc_id) == NULL )
+			if (!map_blid_exists(npc_id))
 				return npc_id++;// available
 		}
 		// full loop, nothing available
@@ -2432,6 +2432,11 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			if (type == NPCTYPE_SHOP || type == NPCTYPE_MARKETSHOP) value = id->value_buy;
 			else value = 0; // Cashshop doesn't have a "buy price" in the item_db
 		}
+		if (type == NPCTYPE_SHOP && id->value_buy == 0)
+		{ // NPC selling items for free!
+			ShowWarning("npc_parse_shop: Item %s [%d] is being sold for FREE in file '%s', line '%d'.\n",
+				id->name, nameid, filepath, strline(buffer, start - buffer));
+		}
 		if( type == NPCTYPE_SHOP && value*0.75 < id->value_sell*1.24 ) { // Exploit possible: you can buy and sell back with profit
 			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
 				id->name, nameid2, value, (int)(value*0.75), id->value_sell, (int)(id->value_sell*1.24), filepath, strline(buffer,start-buffer));
@@ -2628,7 +2633,7 @@ static const char* npc_skip_script(const char* start, const char* buffer, const 
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<sprite id>,<triggerX>,<triggerY>,{<code>}
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,{<code>}
 /// <map name>,<x>,<y>,<facing>%TAB%script%TAB%<NPC Name>%TAB%<episode_flag>,<min_episode>,<max_episode>,<sprite id>,<triggerX>,<triggerY>,{<code>}
-static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
+static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath, bool runOnInit)
 {
 	int x, y, dir = 0, m, xs = 0, ys = 0, class_ = 0, episode_ident, min_episode, max_episode = 0;	// [Valaris] thanks to fov
 	char mapname[32];
@@ -2764,6 +2769,20 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 	}
 
 	nd->u.scr.timerid = INVALID_TIMER;
+
+	if (runOnInit) {
+		char evname[EVENT_NAME_LENGTH];
+		struct event_data *ev;
+
+		snprintf(evname, ARRAYLENGTH(evname), "%s::OnInit", nd->exname);
+
+		if ((ev = (struct event_data*)strdb_get(ev_db, evname))) {
+
+			//Execute OnInit
+			run_script(nd->u.scr.script, ev->pos, 0, nd->bl.id);
+
+		}
+	}
 
 	return end;
 }
@@ -3723,7 +3742,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 	return strchr(start,'\n');// continue
 }
 
-void npc_parsesrcfile(const char* filepath)
+void npc_parsesrcfile(const char* filepath, bool runOnInit)
 {
 	int m, lines = 0;
 	FILE* fp;
@@ -3847,7 +3866,7 @@ void npc_parsesrcfile(const char* filepath)
 			if( strcasecmp(w1,"function") == 0 )
 				p = npc_parse_function(w1, w2, w3, w4, p, buffer, filepath);
 			else
-				p = npc_parse_script(w1,w2,w3,w4, p, buffer, filepath);
+				p = npc_parse_script(w1,w2,w3,w4, p, buffer, filepath, runOnInit);
 		}
 		else if( (i=0, sscanf(w2,"duplicate%n",&i), (i > 0 && w2[i] == '(')) && count > 3 )
 		{
@@ -4007,7 +4026,7 @@ int npc_reload(void)
 	for (nsl = npc_src_files; nsl; nsl = nsl->next)
 	{
 		ShowStatus("Loading NPC file: %s"CL_CLL"\r", nsl->name);
-		npc_parsesrcfile(nsl->name);
+		npc_parsesrcfile(nsl->name, false);
 	}
 
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:"CL_CLL"\n"
@@ -4129,7 +4148,7 @@ int do_init_npc(void)
 	for( file = npc_src_files; file != NULL; file = file->next )
 	{
 		ShowStatus("Loading NPC file: %s"CL_CLL"\r", file->name);
-		npc_parsesrcfile(file->name);
+		npc_parsesrcfile(file->name, false);
 	}
 
 	ShowInfo ("Done loading '"CL_WHITE"%d"CL_RESET"' NPCs:"CL_CLL"\n"

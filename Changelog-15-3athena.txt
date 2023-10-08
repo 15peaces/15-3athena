@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/08/2023
+	r414 [15peaces]
+		*A minor memory improvement, changed some usages of idb_get to idb_exists if the data is not needed.
+		*NPC loaded by @loadnpc will now trigger their OnInit labels as they're loaded.
+		*Added a warning when NPC shops sell items for 0z (FREE!).
+		*Instance NPCs will now be cleared properly.
+			-Thanks to @rathena
+		*Added some missing items.
+		*Increased MAX_ITEMGROUP to read Holy Egg 2 group.
+		*Corrected PACKETVER_CHAR_DELETEDATE
+		*Some cleaning.
+
 10/05/2023
 	r413 [15peaces]
 		*Emergency Call does not recall dead guild members anymore.
