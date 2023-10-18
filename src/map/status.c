@@ -64,13 +64,7 @@ short current_equip_opt_index; /// Contains random option index of an equipped i
 unsigned int SCDisabled[SC_MAX]; /// List of disabled SC on map zones. [Cydh]
 static bool status_change_isDisabledOnMap_(sc_type type, bool mapIsVS, bool mapIsPVP, bool mapIsGVG, bool mapIsBG, unsigned int mapZone, bool mapIsTE);
 #define status_change_isDisabledOnMap(type, m) ( status_change_isDisabledOnMap_((type), map_flag_vs2((m)), map[(m)].flag.pvp, map_flag_gvg2_no_te((m)), map[(m)].flag.battleground, map[(m)].zone << 3, map_flag_gvg2_te((m))) )
- 
 
-static sc_type SkillStatusChangeTable[MAX_SKILL]; // skill  -> status
-static int StatusIconChangeTable[SC_MAX];         // status -> "icon" (icon is a bit of a misnomer, since there exist values with no icon associated)
-unsigned long StatusChangeFlagTable[SC_MAX];      // status -> flags
-static int StatusSkillChangeTable[SC_MAX];        // status -> skill
-static int StatusRelevantBLTypes[SI_MAX];          // "icon" -> enum bl_type (for clif_status_change to identify for which bl types to send packets)
 
 static unsigned short status_calc_str(struct block_list *, struct status_change *, int);
 static unsigned short status_calc_agi(struct block_list *, struct status_change *, int);
@@ -210,6 +204,7 @@ void initChangeTables(void)
 
 	memset(StatusSkillChangeTable, 0, sizeof(StatusSkillChangeTable));
 	memset(StatusChangeFlagTable, 0, sizeof(StatusChangeFlagTable));
+	memset(StatusDisplayType, 0, sizeof(StatusDisplayType));
 	memset(SCDisabled, 0, sizeof(SCDisabled));
 
 	//First we define the skill for common ailments. These are used in skill_additional_effect through sc cards. [Skotlex]
@@ -1279,6 +1274,41 @@ set_sc( GD_LEADERSHIP		, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
+
+	/* StatusDisplayType Table [Ind] */
+	StatusDisplayType[SC_ALL_RIDING] = true;
+	StatusDisplayType[SC_ON_PUSH_CART] = true;
+	StatusDisplayType[SC_CAMOUFLAGE] = true;
+	StatusDisplayType[SC_DUPLELIGHT] = true;
+	StatusDisplayType[SC_ORATIO] = true;
+	StatusDisplayType[SC_FROST] = true;
+	StatusDisplayType[SC_VENOMIMPRESS] = true;
+	StatusDisplayType[SC_HALLUCINATIONWALK] = true;
+	StatusDisplayType[SC_ROLLINGCUTTER] = true;
+	StatusDisplayType[SC_BANDING] = true;
+	StatusDisplayType[SC_CRYSTALIZE] = true;
+	StatusDisplayType[SC_DEEPSLEEP] = true;
+	StatusDisplayType[SC_CURSEDCIRCLE_ATKER] = true;
+	StatusDisplayType[SC_CURSEDCIRCLE_TARGET] = true;
+	StatusDisplayType[SC_NETHERWORLD] = true;
+	StatusDisplayType[SC_SIREN] = true;
+	StatusDisplayType[SC_BLOOD_SUCKER] = true;
+	StatusDisplayType[SC__SHADOWFORM] = true;
+	StatusDisplayType[SC__MANHOLE] = true;
+	StatusDisplayType[SC_KO_JYUMONJIKIRI] = true;
+	StatusDisplayType[SC_AKAITSUKI] = true;
+	StatusDisplayType[SC_MONSTER_TRANSFORM] = true;
+	StatusDisplayType[SC_DARKCROW] = true;
+	StatusDisplayType[SC_OFFERTORIUM] = true;
+	StatusDisplayType[SC_TELEKINESIS_INTENSE] = true;
+	StatusDisplayType[SC_UNLIMIT] = true;
+	StatusDisplayType[SC_ILLUSIONDOPING] = true;
+	StatusDisplayType[SC_C_MARKER] = true;
+	StatusDisplayType[SC_ANTI_M_BLAST] = true;
+	StatusDisplayType[SC_MOONSTAR] = true;
+	StatusDisplayType[SC_SUPER_STAR] = true;
+	StatusDisplayType[SC_STRANGELIGHTS] = true;
+	StatusDisplayType[SC_DECORATION_OF_MUSIC] = true;
 }
 
 static void initDummyData(void)
@@ -6909,24 +6939,6 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 		{
 			TBL_PC* sd = (TBL_PC*)bl;
 			if (pcdb_checkid(class_)) {
-				if (sd->sc.option&OPTION_WEDDING)
-					class_ = JOB_WEDDING;
-				else
-				if (sd->sc.option&OPTION_XMAS)
-					class_ = JOB_XMAS;
-				else
-				if (sd->sc.option&OPTION_SUMMER)
-					class_ = JOB_SUMMER;
-				else
-				if (sd->sc.option&OPTION_HANBOK)
-					class_ = JOB_HANBOK;
-				else
-				if (sd->sc.option&OPTION_OKTOBERFEST)
-					class_ = JOB_OKTOBERFEST;
-				else
-				if (sd->sc.option&OPTION_SUMMER2)
-					class_ = JOB_SUMMER2;
-				else
 				if (sd->sc.option&OPTION_RIDING)
 					switch (class_)
 					{	//Adapt class to a Mounted one.
@@ -7056,6 +7068,21 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 				sd->vd.sex = sd->status.sex;
 				sd->vd.robe = sd->status.robe;
 				sd->vd.body_style = sd->status.body;
+
+				if (sd->vd.cloth_color) {
+					if (sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+						sd->vd.cloth_color = 0;
+					if (sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+						sd->vd.cloth_color = 0;
+					if (sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+						sd->vd.cloth_color = 0;
+					if (sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+						sd->vd.cloth_color = 0;
+					if (sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+						sd->vd.cloth_color = 0;
+					if (sd->sc.option&OPTION_SUMMER2 && battle_config.summer2_ignorepalette)
+						sd->vd.cloth_color = 0;
+				}
 			} else if (vd)
 				memcpy(&sd->vd, vd, sizeof(struct view_data));
 			else
@@ -7131,16 +7158,6 @@ void status_set_viewdata(struct block_list *bl, int class_) {
 		}
 		break;
 	}
-	vd = status_get_viewdata(bl);
-	if (vd && vd->cloth_color && (
-		(vd->class_==JOB_WEDDING && battle_config.wedding_ignorepalette)
-		|| (vd->class_==JOB_XMAS && battle_config.xmas_ignorepalette)
-		|| (vd->class_==JOB_SUMMER && battle_config.summer_ignorepalette)
-		|| (vd->class_==JOB_HANBOK && battle_config.hanbok_ignorepalette)
-		|| (vd->class_==JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
-		|| (vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
-	))
-		vd->cloth_color = 0;
 }
 
 /// Returns the status_change data of bl or NULL if it doesn't exist.
@@ -7406,6 +7423,78 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 		tick = 10000;
 
 	return tick<=0?0:tick;
+}
+
+/**
+* Applies SC effect to the player
+* @param sd: Source to apply effect [PC]
+* @param type: Status change (SC_*)
+* @param dval1~3: Depends on type of status change
+* Author: Ind
+**/
+void status_display_add(struct map_session_data *sd, enum sc_type type, int dval1, int dval2, int dval3) {
+	struct sc_display_entry *entry;
+	int i;
+
+	for (i = 0; i < sd->sc_display_count; i++) {
+		if (sd->sc_display[i]->type == type)
+			break;
+	}
+
+	if (i != sd->sc_display_count) {
+		sd->sc_display[i]->val1 = dval1;
+		sd->sc_display[i]->val2 = dval2;
+		sd->sc_display[i]->val3 = dval3;
+		return;
+	}
+
+	entry = ers_alloc(pc_sc_display_ers, struct sc_display_entry);
+
+	entry->type = type;
+	entry->val1 = dval1;
+	entry->val2 = dval2;
+	entry->val3 = dval3;
+
+	RECREATE(sd->sc_display, struct sc_display_entry *, ++sd->sc_display_count);
+	sd->sc_display[sd->sc_display_count - 1] = entry;
+}
+
+/**
+* Removes SC effect of the player
+* @param sd: Source to remove effect [PC]
+* @param type: Status change (SC_*)
+* Author: Ind
+**/
+void status_display_remove(struct map_session_data *sd, enum sc_type type) {
+	int i;
+
+	for (i = 0; i < sd->sc_display_count; i++) {
+		if (sd->sc_display[i]->type == type)
+			break;
+	}
+
+	if (i != sd->sc_display_count) {
+		int cursor;
+
+		ers_free(pc_sc_display_ers, sd->sc_display[i]);
+		sd->sc_display[i] = NULL;
+
+		/* The all-mighty compact-o-matic */
+		for (i = 0, cursor = 0; i < sd->sc_display_count; i++) {
+			if (sd->sc_display[i] == NULL)
+				continue;
+
+			if (i != cursor)
+				sd->sc_display[cursor] = sd->sc_display[i];
+
+			cursor++;
+		}
+
+		if (!(sd->sc_display_count = cursor)) {
+			aFree(sd->sc_display);
+			sd->sc_display = NULL;
+		}
+	}
 }
 
 /*==========================================
@@ -8496,15 +8585,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_SUMMER2:
 			if (!vd) return 0;
 			//Store previous values as they could be removed.
-			val1 = vd->class_;
-			val2 = vd->weapon;
-			val3 = vd->shield;
-			val4 = vd->cloth_color;
 			unit_stop_attack(bl);
-			clif_changelook(bl,LOOK_WEAPON,0);
-			clif_changelook(bl,LOOK_SHIELD,0);
-			clif_changelook(bl, LOOK_BASE, type == SC_WEDDING ? JOB_WEDDING : type == SC_XMAS ? JOB_XMAS : type == SC_SUMMER ? JOB_SUMMER : type == SC_HANBOK ? JOB_HANBOK : type == SC_OKTOBERFEST ? JOB_OKTOBERFEST : JOB_SUMMER2);
-			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
 			break;
 		case SC_ATTHASTE_CASH:
 			val2 = 50 * val1; // Just custom for pre-re
@@ -10106,11 +10187,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_HANBOK:
 		case SC_OKTOBERFEST:
 		case SC_SUMMER2:
+			if (!vd)
+				break;
+			clif_changelook(bl, LOOK_BASE, vd->class_);
 			clif_changelook(bl,LOOK_WEAPON,0);
 			clif_changelook(bl,LOOK_SHIELD,0);
-			clif_changelook(bl, LOOK_BASE, type == SC_WEDDING ? JOB_WEDDING : type == SC_XMAS ? JOB_XMAS : type == SC_SUMMER ? JOB_SUMMER : type == SC_HANBOK ? JOB_HANBOK : type == SC_OKTOBERFEST ? JOB_OKTOBERFEST : JOB_SUMMER2);
-			clif_changelook(bl,LOOK_CLOTHES_COLOR,val4);
-			clif_changelook(bl,LOOK_BODY2,0);
+			clif_changelook(bl, LOOK_CLOTHES_COLOR, vd->cloth_color);
 			break;
 		case SC_KAAHI:
 			val4 = INVALID_TIMER;
@@ -10136,6 +10218,20 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_ACTIVE_MONSTER_TRANSFORM:
 			val_flag |= 1;
 			break;
+	}
+
+	if (sd && StatusDisplayType[type]) {
+		int dval1 = 0, dval2 = 0, dval3 = 0;
+
+		switch (type) {
+		case SC_ALL_RIDING:
+			dval1 = 1;
+			break;
+		default: /* All others: just copy val1 */
+			dval1 = val1;
+			break;
+		}
+		status_display_add(sd, type, dval1, dval2, dval3);
 	}
 	
 	//Those that make you stop attacking/walking....
@@ -10203,6 +10299,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			unit_stop_attack(bl);
 			unit_skillcastcancel(bl, 0);
 		break;
+		case SC_ITEMSCRIPT: // Shows Buff Icons
+			if (sd && val2)
+				clif_status_change(bl, (enum si_type)val2, 1, tick, 0, 0, 0);
+			break;
 	}
 
 	// Set option as needed.
@@ -10339,21 +10439,27 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			break;
 		case SC_WEDDING:
 			sc->option |= OPTION_WEDDING;
+			opt_flag |= 0x4;
 			break;
 		case SC_XMAS:
 			sc->option |= OPTION_XMAS;
+			opt_flag |= 0x4;
 			break;
 		case SC_SUMMER:
 			sc->option |= OPTION_SUMMER;
+			opt_flag |= 0x4;
 			break;
 		case SC_HANBOK:
 			sc->option |= OPTION_HANBOK;
+			opt_flag |= 0x4;
 			break;
 		case SC_OKTOBERFEST:
 			sc->option |= OPTION_OKTOBERFEST;
+			opt_flag |= 0x4;
 			break;
 		case SC_SUMMER2:
 			sc->option |= OPTION_SUMMER2;
+			opt_flag |= 0x4;
 			break;
 		case SC_ORCISH:
 			sc->option |= OPTION_ORCISH;
@@ -10366,8 +10472,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	//On Aegis, when turning on a status change, first goes the option packet, then the sc packet.
-	if(opt_flag)
+	if(opt_flag) {
 		clif_changeoption(bl);
+
+		if (sd && (opt_flag & 0x4)) {
+			clif_changelook(bl, LOOK_BASE, vd->class_);
+			clif_changelook(bl, LOOK_WEAPON, 0);
+			clif_changelook(bl, LOOK_SHIELD, 0);
+			clif_changelook(bl, LOOK_CLOTHES_COLOR, vd->cloth_color);
+		}
+	}
 
 	if (calc_flag&SCB_DYE)
 	{	//Reset DYE color
@@ -10389,7 +10503,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		calc_flag&=~SCB_BODY;
 	}*/
 
-	clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val_flag & 1) ? val1 : 1, (val_flag & 2) ? val2 : 0, (val_flag & 4) ? val3 : 0);
+	if (!(flag & 4 && StatusDisplayType[type]))
+		clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val_flag & 1) ? val1 : 1, (val_flag & 2) ? val2 : 0, (val_flag & 4) ? val3 : 0);
 
 	/**
 	 * used as temporary storage for scs with interval ticks, so that the actual duration is sent to the client first.
@@ -10707,34 +10822,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	sc->data[type] = NULL;
 	(sc->count)--;
 
+	if (sd && StatusDisplayType[type])
+		status_display_remove(sd, type);
+
 	vd = status_get_viewdata(bl);
 	calc_flag = StatusChangeFlagTable[type];
 	switch(type){
-		case SC_WEDDING:
-		case SC_XMAS:
-		case SC_SUMMER:
-		case SC_HANBOK:
-		case SC_OKTOBERFEST:
-		case SC_SUMMER2:
-			if (!vd) break;
-			if (sd)
-			{	//Load data from sd->status.* as the stored values could have changed.
-				//Must remove OPTION to prevent class being rechanged.
-				sc->option &= type == SC_WEDDING ? ~OPTION_WEDDING : type == SC_XMAS ? ~OPTION_XMAS : type == SC_SUMMER ? ~OPTION_SUMMER : type == SC_HANBOK ? ~OPTION_HANBOK : type == SC_OKTOBERFEST ? ~OPTION_OKTOBERFEST : ~OPTION_SUMMER2;
-				clif_changeoption(&sd->bl);
-				status_set_viewdata(bl, sd->status.class_);
-			} else {
-				vd->class_ = sce->val1;
-				vd->weapon = sce->val2;
-				vd->shield = sce->val3;
-				vd->cloth_color = sce->val4;
-			}
-			clif_changelook(bl,LOOK_BASE,vd->class_);
-			clif_changelook(bl,LOOK_CLOTHES_COLOR,vd->cloth_color);
-			clif_changelook(bl,LOOK_WEAPON,vd->weapon);
-			clif_changelook(bl,LOOK_SHIELD,vd->shield);
-			if(sd) clif_skillupdateinfoblock(sd);
-		break;
 		case SC_RUN:
 		{
 			struct unit_data *ud = unit_bl2ud(bl);
@@ -11310,6 +11403,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_JUMPINGCLAN:
 			status_change_end(bl, SC_CLAN_INFO, INVALID_TIMER);
 			break;
+		case SC_ITEMSCRIPT: // Removes Buff Icons
+			if (sd && sce->val2)
+				clif_status_load(bl, (enum si_type)sce->val2, 0);
+			break;
 		}
 
 
@@ -11362,21 +11459,27 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			break;
 		case SC_WEDDING:	
 			sc->option &= ~OPTION_WEDDING;
+			opt_flag |= 0x4;
 			break;
 		case SC_XMAS:	
 			sc->option &= ~OPTION_XMAS;
+			opt_flag |= 0x4;
 			break;
 		case SC_SUMMER:
 			sc->option &= ~OPTION_SUMMER;
+			opt_flag |= 0x4;
 			break;
 		case SC_HANBOK:
 			sc->option &= ~OPTION_HANBOK;
+			opt_flag |= 0x4;
 			break;
 		case SC_OKTOBERFEST:
 			sc->option &= ~OPTION_OKTOBERFEST;
+			opt_flag |= 0x4;
 			break;
 		case SC_SUMMER2:
 			sc->option &= ~OPTION_SUMMER2;
+			opt_flag |= 0x4;
 			break;
 		case SC_ORCISH:
 			sc->option &= ~OPTION_ORCISH;

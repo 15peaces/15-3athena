@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/18/2023
+	r415 [15peaces]
+		*Some cleaning and optimizing.
+			-some cleaning in guild leader change functions.
+			-Cleaned up Costume Job System to work like officials.
+			-Changed & prepared some stuff to get clan emblems working.
+		*Added status icons to mvp scrolls.
+
 10/08/2023
 	r414 [15peaces]
 		*A minor memory improvement, changed some usages of idb_get to idb_exists if the data is not needed.

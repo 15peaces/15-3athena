@@ -9141,7 +9141,7 @@ BUILDIN_FUNC(guildchangegm)
 	if (!sd)
 		script_pushint(st,0);
 	else
-		script_pushint(st,guild_gm_change(guild_id, sd));
+		script_pushint(st,guild_gm_change(guild_id, sd->status.char_id));
 
 	return 0;
 }

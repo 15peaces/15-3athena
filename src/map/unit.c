@@ -2631,6 +2631,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 		case BL_PC:
 		{
 			struct map_session_data *sd = (struct map_session_data*)bl;
+			int i;
 
 			if( status_isdead(bl) )
 				pc_setrestartvalue(sd,2);
@@ -2681,6 +2682,13 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				script_free_state(sd->st);
 				sd->st = NULL;
 				sd->npc_id = 0;
+			}
+			if (sd->sc_display_count) {
+				for (i = 0; i < sd->sc_display_count; i++)
+					ers_free(pc_sc_display_ers, sd->sc_display[i]);
+				sd->sc_display_count = 0;
+				aFree(sd->sc_display);
+				sd->sc_display = NULL;
 			}
 			if (sd->qi_display) {
 				aFree(sd->qi_display);

@@ -5,6 +5,7 @@
 #define _PC_H_
 
 #include "../common/mmo.h" // JOB_*, MAX_FAME_LIST, struct fame_list, struct mmo_charstatus
+#include "../common/ers.h"
 #include "../common/timer.h" // INVALID_TIMER
 #include "../common/strlib.h"// StringBuf
 #include "battle.h" // battle_config
@@ -538,6 +539,9 @@ struct map_session_data {
 	unsigned int bg_id;
 	unsigned short user_font;
 
+	struct sc_display_entry **sc_display;
+	unsigned char sc_display_count;
+
 	/* Possible Thanks to Yommy~ / herc.ws! */
 	struct
 	{
@@ -581,6 +585,8 @@ struct map_session_data {
 	unsigned int cryptKey; ///< Packet obfuscation key to be used for the next received packet
 #endif
 };
+
+struct eri *pc_sc_display_ers;
 
 //Update this max as necessary. 105 is the value needed for the Expanded Super Baby.
 #define MAX_SKILL_TREE 105

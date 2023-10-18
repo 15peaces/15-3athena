@@ -96,6 +96,9 @@ struct npc_data {
 			char killer_name[NAME_LENGTH];
 		} tomb;
 	} u;
+
+	struct sc_display_entry **sc_display;
+	unsigned char sc_display_count;
 };
 
 struct event_data {
@@ -103,6 +106,8 @@ struct event_data {
 	int pos;
 };
 static DBMap* ev_db; // const char* event_name -> struct event_data*
+
+struct eri *npc_sc_display_ers;
 
 #define START_NPC_NUM 110000000
 

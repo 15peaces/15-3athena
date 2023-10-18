@@ -1579,7 +1579,7 @@ int clif_spawn(struct block_list *bl)
 						continue;
 
 					// Status active and has a icon for showing possible animation? Send it.
-					clif_efst_status_change(&sd->bl,status_sc2icon(i),sd->sc.data[i]->timer,sd->sc.data[i]->val1,0,0);
+					clif_efst_status_change_sub(bl, bl, AREA);
 				}
 			}
 #endif
@@ -1603,7 +1603,7 @@ int clif_spawn(struct block_list *bl)
 					if (status_sc2icon(i) == SI_BLANK)
 						continue;
 
-					clif_efst_status_change(&md->bl,status_sc2icon(i),md->sc.data[i]->timer,md->sc.data[i]->val1,0,0);
+					clif_efst_status_change_sub(bl, bl, AREA);
 				}
 			}
 #endif
@@ -1641,7 +1641,7 @@ int clif_spawn(struct block_list *bl)
 				if (status_sc2icon(i) == SI_BLANK)
 					continue;
 
-				clif_efst_status_change(&hd->bl, status_sc2icon(i), hd->sc.data[i]->timer, hd->sc.data[i]->val1, 0, 0);
+				clif_efst_status_change_sub(bl, bl, AREA);
 			}
 		}
 #endif
@@ -3562,19 +3562,28 @@ void clif_changelook(struct block_list *bl,int type,int val)
 			else vd->shield = val;
 		break;
 		case LOOK_BASE:
-			vd->class_ = val;
-			if (vd->class_ == JOB_WEDDING || vd->class_ == JOB_XMAS || vd->class_ == JOB_SUMMER ||
-				vd->class_ == JOB_HANBOK || vd->class_ == JOB_OKTOBERFEST || vd->class_ == JOB_SUMMER2)
+			if (!sd) break;
+
+			if (sd->sc.option&OPTION_COSTUME)
 				vd->weapon = vd->shield = 0;
-			if (vd->cloth_color && (
-				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
-				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
-				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
-				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
-			))
-				clif_changelook(bl,LOOK_CLOTHES_COLOR,0);
+
+			if (!vd->cloth_color)
+				break;
+
+			if (sd) {
+				if (sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+					vd->cloth_color = 0;
+				if (sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+					vd->cloth_color = 0;
+				if (sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+					vd->cloth_color = 0;
+				if (sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+					vd->cloth_color = 0;
+				if (sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+					vd->cloth_color = 0;
+				if (sd->sc.option&OPTION_SUMMER2 && battle_config.summer2_ignorepalette)
+					vd->cloth_color = 0;
+			}
 		break;
 		case LOOK_HAIR:
 			vd->hair_style = val;
@@ -3592,16 +3601,20 @@ void clif_changelook(struct block_list *bl,int type,int val)
 			vd->hair_color = val;
 		break;
 		case LOOK_CLOTHES_COLOR:
-			if (val && (
-				(vd->class_ == JOB_WEDDING && battle_config.wedding_ignorepalette) ||
-				(vd->class_ == JOB_XMAS && battle_config.xmas_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER && battle_config.summer_ignorepalette) ||
-				(vd->class_ == JOB_HANBOK && battle_config.hanbok_ignorepalette) ||
-				(vd->class_ == JOB_OKTOBERFEST && battle_config.oktoberfest_ignorepalette) ||
-				(vd->class_ == JOB_SUMMER2 && battle_config.summer2_ignorepalette)
-
-			))
-				val = 0;
+			if (val && sd) {
+				if (sd->sc.option&OPTION_WEDDING && battle_config.wedding_ignorepalette)
+					val = 0;
+				if (sd->sc.option&OPTION_XMAS && battle_config.xmas_ignorepalette)
+					val = 0;
+				if (sd->sc.option&OPTION_SUMMER && battle_config.summer_ignorepalette)
+					val = 0;
+				if (sd->sc.option&OPTION_HANBOK && battle_config.hanbok_ignorepalette)
+					val = 0;
+				if (sd->sc.option&OPTION_OKTOBERFEST && battle_config.oktoberfest_ignorepalette)
+					val = 0;
+				if (sd->sc.option&OPTION_SUMMER2 && battle_config.summer2_ignorepalette)
+					val = 0;
+			}
 			vd->cloth_color = val;
 		break;
 		case LOOK_SHOES:
@@ -5007,7 +5020,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 						continue;
 
 					// Status active and has a icon for showing possible animation? Send it.
-					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),tsd->sc.data[i]->timer,tsd->sc.data[i]->val1,0,0);
+					clif_efst_status_change_sub(&sd->bl, bl, SELF);
 				}
 			}
 #endif
@@ -5030,6 +5043,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,423,sd->fd);
 			else if( nd->size == 1 )
 				clif_specialeffect_single(bl,421,sd->fd);
+			clif_efst_status_change_sub(&sd->bl, bl, SELF);
 		}
 		break;
 	case BL_MOB:
@@ -5050,7 +5064,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 					if (status_sc2icon(i) == SI_BLANK)
 						continue;
 
-					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),md->sc.data[i]->timer,md->sc.data[i]->val1,0,0);
+					clif_efst_status_change_sub(&sd->bl, bl, SELF);
 				}
 			}
 #endif
@@ -5084,7 +5098,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 					if (status_sc2icon(i) == SI_BLANK)
 						continue;
 
-					clif_efst_status_change_single(&sd->bl,bl,status_sc2icon(i),hd->sc.data[i]->timer,hd->sc.data[i]->val1,0,0);
+					clif_efst_status_change_sub(&sd->bl, bl, SELF);
 				}
 			}
 #endif
@@ -6423,18 +6437,25 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 	}
 }
 
-/// Notifies clients of a status change.
-/// 0196 <index>.W <id>.L <state>.B (ZC_MSG_STATE_CHANGE) [used for ending status changes and starting them on non-pc units (when needed)]
-/// 043f <index>.W <id>.L <state>.B <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE2) [used exclusively for starting statuses on pcs]
-/// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
-/// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE3) (PACKETVER >= 20120618)
-/// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
-void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int val1, int val2, int val3)
-{
-	unsigned char buf[32];
-	struct map_session_data *sd;
+/* Sends status effect to clients around the bl
+ * @param bl Object that has the effect
+ * @param type Status icon see enum si_type
+ * @param flag 1:Active, 0:Deactive
+ * @param tick Duration in ms
+ * @param val1
+ * @param val2
+ * @param val3
+ */
+void clif_status_change(struct block_list *bl, int type, int flag, int64 tick, int val1, int val2, int val3) {
+	struct map_session_data *sd = NULL;
 
 	if (type == SI_BLANK)  //It shows nothing on the client...
+		return;
+
+	if (type == SI_ACTIONDELAY && tick == 0)
+		return;
+
+	if (type == SI_HALLUCINATION && !battle_config.display_hallucination) // Disable Hallucination.
 		return;
 
 	nullpo_retv(bl);
@@ -6444,53 +6465,124 @@ void clif_status_change(struct block_list *bl,int type,int flag,uint64 tick, int
 	if (!(status_type2relevant_bl_types(type)&bl->type)) // only send status changes that actually matter to the client
 		return;
 
-	// Status's with a infinite duration, but still needs a duration sent to display properly.
-	if (type == SI_LUNARSTANCE || type == SI_UNIVERSESTANCE || type == SI_SUNSTANCE || type == SI_STARSTANCE)
-		tick=200;
+	clif_status_change_sub(bl, bl->id, type, flag, tick, val1, val2, val3, ((sd ? (pc_isinvisible(sd) ? SELF : AREA) : AREA_WOS)));
+}
 
-#if PACKETVER >= 20090121
-	if (flag && battle_config.display_status_timers && sd)
-		#if PACKETVER >= 20130320
-			WBUFW(buf,0)=0x983;
-		#else
-			WBUFW(buf,0)=0x43f;
-		#endif
+/// Notifies clients of a status change.
+/// 0196 <index>.W <id>.L <state>.B (ZC_MSG_STATE_CHANGE) [used for ending status changes and starting them on non-pc units (when needed)]
+/// 043f <index>.W <id>.L <state>.B <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE2) [used exclusively for starting statuses on pcs]
+/// 0983 <index>.W <id>.L <state>.B <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_MSG_STATE_CHANGE3) (PACKETVER >= 20120618)
+/// @param bl Sends packet to clients around this object
+/// @param id ID of object that has this effect
+/// @param type Status icon see enum si_type
+/// @param flag 1:Active, 0:Deactive
+/// @param tick Duration in ms
+/// @param val1
+/// @param val2
+/// @param val3
+void clif_status_change_sub(struct block_list *bl, int id, int type, int flag, int64 tick, int val1, int val2, int val3, enum send_target target_type)
+{
+	unsigned char buf[32];
+
+	if (type == SI_BLANK)  //It shows nothing on the client...
+		return;
+
+	if (type == SI_ACTIONDELAY && tick == 0)
+		return;
+
+	nullpo_retv(bl);
+
+#if PACKETVER >= 20120618
+	if (flag && battle_config.display_status_timers)
+		WBUFW(buf, 0) = 0x983;
+	else
+#elif PACKETVER >= 20090121
+	if (flag && battle_config.display_status_timers)
+		WBUFW(buf, 0) = 0x43f;
 	else
 #endif
-		WBUFW(buf,0)=0x196;
-	WBUFW(buf,2)=type;
-	WBUFL(buf,4)=bl->id;
-	WBUFB(buf,8)=flag;
-#if PACKETVER >= 20090121
-	if (flag && battle_config.display_status_timers && sd)
-	{
+		WBUFW(buf, 0) = 0x196;
+	WBUFW(buf, 2) = type;
+	WBUFL(buf, 4) = id;
+	WBUFB(buf, 8) = flag;
+#if PACKETVER >= 20120618
+	if (flag && battle_config.display_status_timers) {
 		if (tick <= 0)
 			tick = 9999; // this is indeed what official servers do
 
-		#if PACKETVER >= 20130320
-		//eAthena coding currently has no way of retrieving the total duration
-		//needed for MaxMS. For now well send the current tick to it. [Rytech]
-			WBUFL(buf,9)=(unsigned int)tick;//MaxMS
-			WBUFL(buf,13)=(unsigned int)tick;//RemainMS
-			WBUFL(buf,17)=val1;
-			WBUFL(buf,21)=val2;
-			WBUFL(buf,25)=val3;
-		#else
-			WBUFL(buf,9)=tick;
-			WBUFL(buf,13)=val1;
-			WBUFL(buf,17)=val2;
-			WBUFL(buf,21)=val3;
-		#endif
+		WBUFL(buf, 9) = (unsigned int)tick;/* at this stage remain and total are the same value I believe */
+		WBUFL(buf, 13) = (unsigned int)tick;
+		WBUFL(buf, 17) = val1;
+		WBUFL(buf, 21) = val2;
+		WBUFL(buf, 25) = val3;
+	}
+#elif PACKETVER >= 20090121
+	if (flag && battle_config.display_status_timers) {
+		if (tick <= 0)
+			tick = 9999; // this is indeed what official servers do
+
+		WBUFL(buf, 9) = (unsigned int)tick;
+		WBUFL(buf, 13) = val1;
+		WBUFL(buf, 17) = val2;
+		WBUFL(buf, 21) = val3;
 	}
 #endif
-	clif_send(buf,packet_len(WBUFW(buf,0)),bl, (sd && sd->status.option&OPTION_INVISIBLE) ? SELF : AREA);
+	clif_send(buf, packet_len(WBUFW(buf, 0)), bl, target_type);
+}
+
+/**
+ * Send any active EFST to those around.
+ * @param tbl: Unit to send the packet to
+ * @param bl: Objects walking into view
+ * @param target: Client send type
+ */
+void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, enum send_target target) {
+	unsigned char i;
+	struct sc_display_entry **sc_display;
+	unsigned char sc_display_count;
+
+	nullpo_retv(bl);
+
+	switch( bl->type ){
+		case BL_PC: {
+			struct map_session_data* sd = (struct map_session_data*)bl;
+
+			sc_display = sd->sc_display;
+			sc_display_count = sd->sc_display_count;
+			}
+			break;
+		case BL_NPC: {
+			struct npc_data* nd = (struct npc_data*)bl;
+
+			sc_display = nd->sc_display;
+			sc_display_count = nd->sc_display_count;
+			}
+			break;
+		default:
+			return;
+	}
+
+	for (i = 0; i < sc_display_count; i++) {
+		enum sc_type type = sc_display[i]->type;
+		struct status_change *sc = status_get_sc(bl);
+		const struct TimerData *td = (sc && sc->data[type] ? get_timer(sc->data[type]->timer) : NULL);
+		int64 tick = 0;
+
+		if (td)
+			tick = DIFF_TICK(td->tick, gettick());
+#if PACKETVER > 20120418
+		clif_efst_status_change(tbl, bl->id, target, StatusIconChangeTable[type], tick, sc_display[i]->val1, sc_display[i]->val2, sc_display[i]->val3);
+#else
+		clif_status_change_sub(tbl, bl->id, StatusIconChangeTable[type], 1, tick, sc_display[i]->val1, sc_display[i]->val2, sc_display[i]->val3, target);
+#endif
+	}
 }
 
 /// Notifies clients in a area of a player entering the screen with a active EFST status. (Need A Confirm. [Rytech])
 /// 08ff <id>.L <index>.W <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER) (PACKETVER >= 20111108)
 /// 0984 <id>.L <index>.W <total msec>.L <remain msec>.L { <val>.L }*3 (ZC_EFST_SET_ENTER2) (PACKETVER >= 20120618)
 
-void clif_efst_status_change_sub(struct block_list *dst, struct block_list *bl, int type, int64 tick, int val1, int val2, int val3, bool single) 
+void clif_efst_status_change(struct block_list *bl, int tid, enum send_target target, int type, int64 tick, int val1, int val2, int val3)
 {
 	unsigned char buf[32];
 
@@ -6499,12 +6591,15 @@ void clif_efst_status_change_sub(struct block_list *dst, struct block_list *bl, 
 
 	nullpo_retv(bl);
 
+	if (tick <= 0)
+		tick = 9999;
+
 #if PACKETVER >= 20130320
 	WBUFW(buf, 0) = 0x984;
 #else
 	WBUFW(buf, 0) = 0x8ff;
 #endif
-	WBUFL(buf, 2) = bl->id;
+	WBUFL(buf, 2) = tid;
 	WBUFW(buf, 6) = type;
 #if PACKETVER >= 20130320
 	WBUFL(buf, 8) = (unsigned int)tick;
@@ -6513,25 +6608,12 @@ void clif_efst_status_change_sub(struct block_list *dst, struct block_list *bl, 
 	WBUFL(buf, 20) = val2;
 	WBUFL(buf, 24) = val3;
 #else
-	WBUFL(buf, 8) = tick;
+	WBUFL(buf, 8) = (unsigned int)tick;
 	WBUFL(buf, 12) = val1;
 	WBUFL(buf, 16) = val2;
 	WBUFL(buf, 20) = val3;
 #endif
-	if(single)
-		clif_send(buf, packet_len(WBUFW(buf, 0)), dst, SELF);
-	else
-		clif_send(buf, packet_len(WBUFW(buf, 0)), bl, AREA);
-}
-
-void clif_efst_status_change_single(struct block_list *dst, struct block_list *bl, int type, int64 tick, int val1, int val2, int val3)
-{
-	clif_efst_status_change_sub(dst, bl, type, tick, val1, val2, val3, true);
-}
-
-void clif_efst_status_change(struct block_list *bl,int type, int64 tick, int val1, int val2, int val3)
-{
-	clif_efst_status_change_sub(NULL, bl, type, tick, val1, val2, val3, false);
+	clif_send(buf, packet_len(WBUFW(buf, 0)), bl, target);
 }
 
 /// Notification about an another object's chat message (ZC_NOTIFY_CHAT).
@@ -10097,9 +10179,14 @@ void clif_refresh(struct map_session_data *sd)
 		clif_clearunit_single(sd->bl.id,CLR_DEAD,sd->fd);
 	else
 		clif_changed_dir(&sd->bl, SELF);
+	clif_efst_status_change_sub(&sd->bl, &sd->bl, SELF);
 
-	// unlike vending, resuming buyingstore crashes the client.
-	buyingstore_close(sd);
+	//Cancel Trading State 
+	if (sd->state.trading)
+		trade_tradecancel(sd);
+	//Cancel Buying/Selling State
+	if (sd->state.buyingstore)
+		buyingstore_close(sd);
 
 #ifndef TXT_ONLY
 	mail_clear(sd);
@@ -14178,13 +14265,15 @@ void clif_parse_GuildChangePositionInfo(int fd, struct map_session_data *sd)
 void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd)
 {
 	int i;
+	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd, 0)];
+	int len = RFIFOW(fd, info->pos[0]);
 
 	if (!sd->state.gmaster_flag)
 		return;
 
 	// Guild leadership change.
 	// A sent position change of 0 triggers a change in guild ownership.
-	if (RFIFOL(fd, 12) == 0)
+	if (len == 16 && RFIFOL(fd, 12) == 0)
 	{
 		struct map_session_data *tsd = map_charid2sd(RFIFOL(fd, 8));
 
@@ -14198,18 +14287,20 @@ void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd)
 			return;
 		}
 
-		if (map_charid2sd(RFIFOL(fd, 8)) == NULL || tsd->status.guild_id != sd->status.guild_id){
+		if (tsd == NULL || tsd->status.guild_id != sd->status.guild_id){
 			clif_displaymessage(fd, "Targeted character must be a online guildmate.");
 			return;
 		}
 
-		guild_gm_change(sd->status.guild_id, tsd);
+		guild_gm_change(sd->status.guild_id, RFIFOL(fd, 8));
 		return;// End it here since position change already happened.
 	}
 
-	for (i = 4; i<RFIFOW(fd, 2); i += 12){
-		guild_change_memberposition(sd->status.guild_id,
-			RFIFOL(fd, i), RFIFOL(fd, i + 4), RFIFOL(fd, i + 8));
+	for (i = info->pos[1]; i<len; i += 12){
+		int position = RFIFOL(fd, i + 8);
+
+		if (position > 0)
+			guild_change_memberposition(sd->status.guild_id, RFIFOL(fd, i), RFIFOL(fd, i + 4), position);
 	}
 }
 

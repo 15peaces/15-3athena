@@ -2018,6 +2018,15 @@ int npc_unload(struct npc_data* nd, bool single)
 				nd->u.scr.label_list_num = 0;
 			}
 		}
+		if (nd->sc_display_count) {
+			unsigned char i;
+
+			for (i = 0; i < nd->sc_display_count; i++)
+				ers_free(npc_sc_display_ers, nd->sc_display[i]);
+			nd->sc_display_count = 0;
+			aFree(nd->sc_display);
+			nd->sc_display = NULL;
+		}
 	}
 
 	script_stop_sleeptimers(nd->bl.id);
@@ -2172,6 +2181,29 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 }
 
 /**
+ * Create a bare NPC object.
+ * @param m: Map ID
+ * @param x: X location
+ * @param y: Y location
+ * @return npc_data
+ */
+struct npc_data *npc_create_npc(int16 m, int16 x, int16 y) {
+	struct npc_data *nd;
+
+	CREATE(nd, struct npc_data, 1);
+	nd->bl.id = npc_get_new_npc_id();
+	nd->bl.prev = nd->bl.next = NULL;
+	nd->bl.m = m;
+	nd->bl.x = x;
+	nd->bl.y = y;
+	safestrncpy(nd->name, "", ARRAYLENGTH(nd->name));// empty display name
+	nd->sc_display = NULL;
+	nd->sc_display_count = 0;
+
+	return nd;
+}
+
+/**
  * Add then display an npc warp on map
  * @param name : warp unique name
  * @param from_mapid : mapid to warp from
@@ -2189,15 +2221,9 @@ struct npc_data* npc_add_warp(char* name, short from_mapid, short from_x, short 
 	int i, flag = 0;
 	struct npc_data *nd;
 
-	CREATE(nd, struct npc_data, 1);
-	nd->bl.id = npc_get_new_npc_id();
+	nd = npc_create_npc(from_mapid, from_x, from_y);
 	map_addnpc(from_mapid, nd);
-	nd->bl.prev = nd->bl.next = NULL;
-	nd->bl.m = from_mapid;
-	nd->bl.x = from_x;
-	nd->bl.y = from_y;
-	safestrncpy(nd->name, "", ARRAYLENGTH(nd->name));// empty display name
-
+	
 	if (name)
 	{
 		safestrncpy(nd->exname, name, ARRAYLENGTH(nd->exname));
@@ -2276,14 +2302,8 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 		return strchr(start,'\n');// skip and continue
 	}
 
-	CREATE(nd, struct npc_data, 1);
-
-	nd->bl.id = npc_get_new_npc_id();
+	nd = npc_create_npc(m, x, y);
 	map_addnpc(m, nd);
-	nd->bl.prev = nd->bl.next = NULL;
-	nd->bl.m = m;
-	nd->bl.x = x;
-	nd->bl.y = y;
 	npc_parsename(nd, w3, start, buffer, filepath);
 
 	if (!battle_config.warp_point_debug)
@@ -2392,7 +2412,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 	else
 		return strchr(start, '\n'); // skip and continue
 	
-	CREATE(nd, struct npc_data, 1);
+	nd = npc_create_npc(m, x, y);
 
 	nd->u.shop.count = 0;
 	while ( p ) {
@@ -2432,7 +2452,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			if (type == NPCTYPE_SHOP || type == NPCTYPE_MARKETSHOP) value = id->value_buy;
 			else value = 0; // Cashshop doesn't have a "buy price" in the item_db
 		}
-		if (type == NPCTYPE_SHOP && id->value_buy == 0)
+		if (type == NPCTYPE_SHOP && value == 0)
 		{ // NPC selling items for free!
 			ShowWarning("npc_parse_shop: Item %s [%d] is being sold for FREE in file '%s', line '%d'.\n",
 				id->name, nameid, filepath, strline(buffer, start - buffer));
@@ -2484,11 +2504,6 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 	nd->u.shop.discount = is_discount;
 
-	nd->bl.prev = nd->bl.next = NULL;
-	nd->bl.m = m;
-	nd->bl.x = x;
-	nd->bl.y = y;
-	nd->bl.id = npc_get_new_npc_id();
 	npc_parsename(nd, w3, start, buffer, filepath);
 	nd->class_ = m==-1?-1:atoi(w4);
 	nd->speed = 200;
@@ -2709,19 +2724,14 @@ static const char* npc_parse_script(char* w1, char* w2, char* w3, char* w4, cons
 		}
 	}
 
-	CREATE(nd, struct npc_data, 1);
+	nd = npc_create_npc(m, x, y);
 
 	if(ignore == false){
 		nd->u.scr.ep_min = min_episode;
 		nd->u.scr.ep_max = max_episode;
 		nd->u.scr.xs = xs;
 		nd->u.scr.ys = ys;
-		nd->bl.prev = nd->bl.next = NULL;
-		nd->bl.m = m;
-		nd->bl.x = x;
-		nd->bl.y = y;
 		npc_parsename(nd, w3, start, buffer, filepath);
-		nd->bl.id = npc_get_new_npc_id();
 		nd->class_ = class_;
 		nd->speed = 200;
 		nd->u.scr.script = script;
@@ -2854,7 +2864,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 		m = map_mapname2mapid(mapname);
 	}
 
-	CREATE(nd, struct npc_data, 1);
+	nd = npc_create_npc(m, x, y);
 
 	nd->u.scr.ep_min = 0;
 	nd->u.scr.ep_max = 0;
@@ -2872,12 +2882,7 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	nd->u.scr.ep_min = min_episode;
 	nd->u.scr.ep_max = max_episode;
 
-	nd->bl.prev = nd->bl.next = NULL;
-	nd->bl.m = m;
-	nd->bl.x = x;
-	nd->bl.y = y;
 	npc_parsename(nd, w3, start, buffer, filepath);
-	nd->bl.id = npc_get_new_npc_id();
 	nd->class_ = class_;
 	nd->speed = 200;
 	nd->src_id = src_id;
@@ -2988,14 +2993,8 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 			return 1;
 		}
 
-		CREATE(wnd, struct npc_data, 1);
-		wnd->bl.id = npc_get_new_npc_id();
+		wnd = npc_create_npc(m, snd->bl.x, snd->bl.y);
 		map_addnpc(m, wnd);
-		wnd->bl.prev = wnd->bl.next = NULL;
-		wnd->bl.m = m;
-		wnd->bl.x = snd->bl.x;
-		wnd->bl.y = snd->bl.y;
-		safestrncpy(wnd->name, "", ARRAYLENGTH(wnd->name));
 		safestrncpy(wnd->exname, newname, ARRAYLENGTH(wnd->exname));
 		wnd->class_ = WARP_CLASS;
 		wnd->speed = 200;
@@ -4077,6 +4076,7 @@ int do_final_npc(void)
 #endif
 #endif
 	ers_destroy(timer_event_ers);
+	ers_destroy(npc_sc_display_ers);
 	npc_clearsrcfile();
 
 	return 0;
@@ -4142,6 +4142,7 @@ int do_init_npc(void)
 #endif
 
 	timer_event_ers = ers_new(sizeof(struct timer_event_data), "clif.c::timer_event_ers", ERS_OPT_NONE);
+	npc_sc_display_ers = ers_new(sizeof(struct sc_display_entry), "npc.c:npc_sc_display_ers", ERS_OPT_NONE);
 
 	// process all npc files
 	ShowStatus("Loading NPCs...\r");

@@ -1542,6 +1542,9 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	// Check if player have any item cooldowns on
 	pc_itemcd_do(sd, true);
 
+	sd->sc_display = NULL;
+	sd->sc_display_count = 0;
+
 	// Check EXP overflow, since in previous revision EXP on Max Level can be more than 'official' Max EXP
 	if (pc_is_maxbaselv(sd) && sd->status.base_exp > MAX_LEVEL_BASE_EXP) {
 		sd->status.base_exp = MAX_LEVEL_BASE_EXP;
@@ -8855,36 +8858,6 @@ void pc_setoption(struct map_session_data *sd,int type)
 		new_look = JOB_STAR_GLADIATOR2;
 	else if (!(type&OPTION_FLYING) && p_type&OPTION_FLYING)
 		new_look = -1;
-	
-	if (type&OPTION_WEDDING && !(p_type&OPTION_WEDDING))
-		new_look = JOB_WEDDING;
-	else if (!(type&OPTION_WEDDING) && p_type&OPTION_WEDDING)
-		new_look = -1;
-
-	if (type&OPTION_XMAS && !(p_type&OPTION_XMAS))
-		new_look = JOB_XMAS;
-	else if (!(type&OPTION_XMAS) && p_type&OPTION_XMAS)
-		new_look = -1;
-
-	if (type&OPTION_SUMMER && !(p_type&OPTION_SUMMER))
-		new_look = JOB_SUMMER;
-	else if (!(type&OPTION_SUMMER) && p_type&OPTION_SUMMER)
-		new_look = -1;
-	
-	if (type&OPTION_HANBOK && !(p_type&OPTION_HANBOK))
-		new_look = JOB_HANBOK;
-	else if (!(type&OPTION_HANBOK) && p_type&OPTION_HANBOK)
-		new_look = -1;
-
-	if (type&OPTION_OKTOBERFEST && !(p_type&OPTION_OKTOBERFEST))
-		new_look = JOB_OKTOBERFEST;
-	else if (!(type&OPTION_OKTOBERFEST) && p_type&OPTION_OKTOBERFEST)
-		new_look = -1;
-
-	if (type&OPTION_SUMMER2 && !(p_type&OPTION_SUMMER2))
-		new_look = JOB_SUMMER2;
-	else if (!(type&OPTION_SUMMER2) && p_type&OPTION_SUMMER2)
-		new_look = -1;
 
 	if (sd->disguise || !new_look)
 		return; //Disguises break sprite changes
@@ -11571,6 +11544,8 @@ void do_final_pc(void)
 {
 	db_destroy(itemcd_db);
 
+	ers_destroy(pc_sc_display_ers);
+
 	return;
 }
 
@@ -11613,6 +11588,8 @@ int do_init_pc(void)
 			night_timer_tid = add_timer_interval(gettick() + day_duration + night_duration, map_night_timer, 0, 0, day_duration + night_duration);
 		}
 	}
+
+	pc_sc_display_ers = ers_new(sizeof(struct sc_display_entry), "pc.c:pc_sc_display_ers", ERS_OPT_NONE);
 
 	return 0;
 }
