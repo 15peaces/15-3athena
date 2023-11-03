@@ -5,6 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/03/2023
+	r416 [15peaces]
+		*Cleaned up NPC_RUN to show e_hlp and not get stuck in a follow state.
+		*Fixed SC_ITEMSCRIPT to only use an icon if val2 is not empty.
+			-follow-up @4aa9f49 (r415)
+		*Warmth of the Sun/Moon/Stars are now placeable on Land Protector.
+		*Fixed Eska not reducing movement speed.
+		*Hidden GMs will now ignored by PVP ranking timer.
+		*Some cleaning.
+			-Removed some unneeded/leftover code.
+		*Fixed a friend adding exploit.
+		*Removing a friend will now also remove you from your friends friendlist.
+		*Fixed CZ_PC_BUY_CASH_POINT_ITEM packet for 2010-11-24aRagexeRE+ clients.
+		*(Un)equip stuff is now also possible while under status changes.
+		*/resetstate now also resets taekwon mission.
+		*Removed outdated version number handling & updated map_versionscreen function.
+			-need to add support for git-version display...
+		*Added a workaround for too large ZC_SKILLINFO_LIST packets resulting from gm_all_skill setting by sending excess skills one by one
+		*Vendings are no longer broken when character moves map or is recalled by a gm.
+		*Adding new config min_npc_vending_distance config which simulates the official 'no vending near npcs' feature.
+			-Credits to @rathena
+
 10/18/2023
 	r415 [15peaces]
 		*Some cleaning and optimizing.

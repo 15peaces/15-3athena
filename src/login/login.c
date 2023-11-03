@@ -11,7 +11,7 @@
 #include "../common/strlib.h"
 #include "../common/timer.h"
 #include "../common/msg_conf.h"
-#include "../common/version.h"
+
 #include "account.h"
 #include "ipban.h"
 #include "login.h"

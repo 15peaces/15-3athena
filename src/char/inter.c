@@ -286,10 +286,8 @@ void inter_final(void) {
 	return;
 }
 
-// マップサーバー接続
-int inter_mapif_init(int fd) {
-	inter_guild_mapif_init(fd);
-
+int inter_mapif_init(int fd)
+{
 	return 0;
 }
 

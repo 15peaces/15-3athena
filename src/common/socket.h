@@ -108,7 +108,6 @@ struct socket_data
 	void* session_data; // stores application-specific data related to the session
 };
 
-
 // Data prototype declaration
 
 extern struct socket_data* session[FD_SETSIZE];

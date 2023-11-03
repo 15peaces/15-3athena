@@ -12,7 +12,7 @@
 #include "../common/strlib.h"
 #include "../common/timer.h"
 #include "../common/utils.h"
-#include "../common/version.h"
+
 #include "int_guild.h"
 #include "int_homun.h"
 #include "int_mail.h"
@@ -3580,6 +3580,22 @@ int parse_frommap(int fd)
 			RFIFOSKIP(fd, 10);
 		}
 		break;
+
+		case 0x2b07: // Remove RFIFOL(fd,6) (friend_id) from RFIFOL(fd,2) (char_id) friend list [Ind]
+			if (RFIFOREST(fd) < 10)
+				return 0;
+			{
+				int char_id, friend_id;
+				char_id = RFIFOL(fd, 2);
+				friend_id = RFIFOL(fd, 6);
+				if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d' AND `friend_id`='%d' LIMIT 1",
+					friend_db, char_id, friend_id)) {
+					Sql_ShowDebug(sql_handle);
+					break;
+				}
+				RFIFOSKIP(fd, 10);
+			}
+			break;
 
 		case 0x2b0a: //Request skillcooldown data
 			if (RFIFOREST(fd) < 10)

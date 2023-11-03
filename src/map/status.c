@@ -465,7 +465,7 @@ void initChangeTables(void)
 	add_sc( SL_STUN		, SC_STUN	);
 	set_sc( SL_SWOO		, SC_SWOO	, SI_SWOO	, SCB_SPEED);
 	set_sc( SL_SKE		, SC_SKE	, SI_BLANK	, SCB_BATK|SCB_WATK|SCB_DEF|SCB_DEF2 );
-	set_sc( SL_SKA		, SC_SKA	, SI_BLANK	, SCB_DEF|SCB_MDEF|SCB_ASPD );
+	set_sc( SL_SKA		, SC_SKA	, SI_BLANK	, SCB_DEF|SCB_MDEF|SCB_SPEED|SCB_ASPD );
 	set_sc( SL_SMA		, SC_SMA	, SI_SMA	, SCB_NONE );
 
 	// 2nd Job And Other Skills
@@ -6117,6 +6117,8 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 					val = max( val, sc->data[SC_SUITON]->val3 );
 				if( sc->data[SC_SWOO] )
 					val = max( val, 300 );
+				if (sc->data[SC_SKA])
+					val = max(val, 25);
 				if (sc->data[SC_FROST])
 					val = max(val, 70);
 				if( sc->data[SC_ADORAMUS] )
@@ -10300,7 +10302,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			unit_skillcastcancel(bl, 0);
 		break;
 		case SC_ITEMSCRIPT: // Shows Buff Icons
-			if (sd && val2)
+			if (sd && val2 != SI_BLANK)
 				clif_status_change(bl, (enum si_type)val2, 1, tick, 0, 0, 0);
 			break;
 	}
@@ -11404,7 +11406,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			status_change_end(bl, SC_CLAN_INFO, INVALID_TIMER);
 			break;
 		case SC_ITEMSCRIPT: // Removes Buff Icons
-			if (sd && sce->val2)
+			if (sd && sce->val2 != SI_BLANK)
 				clif_status_load(bl, (enum si_type)sce->val2, 0);
 			break;
 		}

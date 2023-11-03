@@ -549,7 +549,7 @@ int unit_run(struct block_list *bl)
 		to_y += dir_y;
 	}
 
-	if (to_x == bl->x && to_y == bl->y || (to_x == (bl->x + 1) || to_y == (bl->y + 1)) || (to_x == (bl->x - 1) || to_y == (bl->y - 1))) {
+	if ((to_x == bl->x && to_y == bl->y) || (to_x == (bl->x + 1) || to_y == (bl->y + 1)) || (to_x == (bl->x - 1) || to_y == (bl->y - 1))) {
 		//If you can't run forward, you must be next to a wall, so bounce back. [Skotlex]
 		clif_status_change(bl, SI_BUMP, 1, 0, 0, 0, 0);
 
@@ -2400,7 +2400,6 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			chat_leavechat(sd,0);
 		if(sd->trade_partner)
 			trade_tradecancel(sd);
-		vending_closevending(sd);
 		buyingstore_close(sd);
 		searchstore_close(sd);
 		if(sd->state.storage_flag == 1)
@@ -2464,6 +2463,10 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		else
 		if (--map[bl->m].users == 0 && battle_config.dynamic_mobs)	//[Skotlex]
 			map_removemobs(bl->m);
+		if (!(sd->sc.option&OPTION_INVISIBLE))
+		{// decrement the number of active pvp players on the map
+			--map[bl->m].users_pvp;
+		}
 		if( map[bl->m].instance_id )
 		{
 			instance[map[bl->m].instance_id].users--;

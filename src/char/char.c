@@ -13,7 +13,7 @@
 #include "../common/strlib.h"
 #include "../common/timer.h"
 #include "../common/utils.h"
-#include "../common/version.h"
+
 #include "inter.h"
 #include "int_guild.h"
 #include "int_homun.h"

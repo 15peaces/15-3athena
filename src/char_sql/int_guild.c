@@ -33,7 +33,6 @@ static const char dataToHex[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9
 #ifndef TXT_SQL_CONVERT
 //Guild cache
 static DBMap* guild_db_; // int guild_id -> struct guild*
-
 static DBMap *castle_db;
 
 static unsigned int guild_exp[100];

@@ -4,6 +4,12 @@
 #ifndef	_CORE_H_
 #define	_CORE_H_
 
+#define ATHENA_SERVER_NONE	0	// not defined
+#define ATHENA_SERVER_LOGIN	1	// login server
+#define ATHENA_SERVER_CHAR	2	// char server
+#define ATHENA_SERVER_INTER	4	// inter server
+#define ATHENA_SERVER_MAP	8	// map server
+
 // Comment to disable Guild/Party Bound item system 
 // By default, we recover/remove Guild/Party Bound items automatically 
 #define BOUND_ITEMS

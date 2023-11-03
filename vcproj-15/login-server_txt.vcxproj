@@ -152,7 +152,6 @@
     <ClInclude Include="..\src\common\strlib.h" />
     <ClInclude Include="..\src\common\timer.h" />
     <ClInclude Include="..\src\common\utils.h" />
-    <ClInclude Include="..\src\common\version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\3rdparty\mt19937ar\mt19937ar.c" />

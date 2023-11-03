@@ -5,7 +5,7 @@
 #include "../common/socket.h"
 #include "../common/timer.h"
 #include "../common/malloc.h"
-#include "../common/version.h"
+
 #include "../common/nullpo.h"
 #include "../common/random.h"
 #include "../common/showmsg.h"

@@ -6985,10 +6985,13 @@ bool pc_statusup(struct map_session_data* sd, int type, int increase)
 
 /// Raises a stat by the specified amount.
 /// Obeys max_parameter limits.
-/// Does not subtract stat points.
+/// Does not subtract status points for the cost of the modified stat points.
 ///
-/// @param type The stat to change (see enum _sp)
-/// @param val The stat increase amount.
+/// @param sd   The target character.
+/// @param type The stat to change(see enum _sp)
+/// @param val  The stat increase(or decrease) amount.
+/// @return the stat increase amount.
+/// @retval 0 if no changes were made.
 int pc_statusup2(struct map_session_data* sd, int type, int val)
 {
 	int max, need;
@@ -6997,7 +7000,7 @@ int pc_statusup2(struct map_session_data* sd, int type, int val)
 	if( type < SP_STR || type > SP_LUK )
 	{
 		clif_statusupack(sd,type,0,0);
-		return 1;
+		return 0;
 	}
 
 	need = pc_need_status_point(sd,type,1);
@@ -7019,7 +7022,7 @@ int pc_statusup2(struct map_session_data* sd, int type, int val)
 
 	//achievement_update_objective(sd, AG_GOAL_STATUS, 1, val);
 
-	return 0;
+	return val;
 }
 
 // Checks to see if a skill exist's on a job's skill tree.
@@ -10193,6 +10196,11 @@ static int pc_calc_pvprank_sub(struct block_list *bl,va_list ap)
 	sd1=(struct map_session_data *)bl;
 	sd2=va_arg(ap,struct map_session_data *);
 
+	if (sd1->sc.option&OPTION_INVISIBLE || sd2->sc.option&OPTION_INVISIBLE)
+	{// cannot register pvp rank for hidden GMs
+		return 0;
+	}
+
 	if( sd1->pvp_point > sd2->pvp_point )
 		sd2->pvp_rank++;
 	return 0;
@@ -10215,8 +10223,8 @@ int pc_calc_pvprank(struct map_session_data *sd)
 		return sd->pvp_rank;
 	}
 
-	if(old!=sd->pvp_rank || sd->pvp_lastusers!=m->users)
-		clif_pvpset(sd,sd->pvp_rank,sd->pvp_lastusers=m->users,0);
+	if(old!=sd->pvp_rank || sd->pvp_lastusers!=m->users_pvp)
+		clif_pvpset(sd,sd->pvp_rank,sd->pvp_lastusers=m->users_pvp,0);
 	return sd->pvp_rank;
 }
 /*==========================================
@@ -10230,6 +10238,12 @@ int pc_calc_pvprank_timer(int tid, int64 tick, int id, intptr_t data)
 	if(sd==NULL)
 		return 0;
 	sd->pvp_timer = INVALID_TIMER;
+
+	if (sd->sc.option&OPTION_INVISIBLE)
+	{// do not calculate the pvp rank for a hidden GM
+		return 0;
+	}
+
 	if( pc_calc_pvprank(sd) > 0 )
 		sd->pvp_timer = add_timer(gettick()+PVP_CALCRANK_INTERVAL,pc_calc_pvprank_timer,id,data);
 	return 0;

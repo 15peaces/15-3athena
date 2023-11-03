@@ -4,7 +4,7 @@ COMMON_OBJ = ../common/obj_all/core.o ../common/obj_all/malloc.o \
 	../common/obj_all/utils.o ../common/obj_all/des.o ../common/obj_all/grfio.o \
 	../common/obj_all/db.o ../common/obj_all/ers.o ../common/obj_all/socket.o \
 	../common/obj_all/timer.o ../common/obj_all/plugins.o
-COMMON_H = ../common/core.h ../common/mmo.h ../common/version.h \
+COMMON_H = ../common/core.h ../common/mmo.h \
 	../common/malloc.h ../common/showmsg.h ../common/strlib.h \
 	../common/utils.h ../common/cbasetypes.h ../common/des.h ../common/grfio.h \
 	../common/db.h ../common/ers.h ../common/socket.h \

@@ -152,7 +152,6 @@
     <ClInclude Include="..\src\common\strlib.h" />
     <ClInclude Include="..\src\common\timer.h" />
     <ClInclude Include="..\src\common\utils.h" />
-    <ClInclude Include="..\src\common\version.h" />
     <ClInclude Include="..\src\char_sql\char.h" />
     <ClInclude Include="..\src\char_sql\int_achievement.h" />
     <ClInclude Include="..\src\char_sql\int_auction.h" />

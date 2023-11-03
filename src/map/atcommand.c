@@ -1171,10 +1171,31 @@ ACMD_FUNC(hide)
 		else
 			status_set_viewdata(&sd->bl, sd->status.class_);
 		clif_displaymessage(fd, msg_txt(sd,10)); // Invisible: Off
+
+		if (map[sd->bl.m].flag.pvp)
+		{// increment the number of pvp players on the map
+			map[sd->bl.m].users_pvp++;
+
+			if (!map[sd->bl.m].flag.pvp_nocalcrank)
+			{// register the player for ranking calculations
+				sd->pvp_timer = add_timer(gettick() + 200, pc_calc_pvprank_timer, sd->bl.id, 0);
+			}
+		}
 	} else {
 		sd->sc.option |= OPTION_INVISIBLE;
 		sd->vd.class_ = INVISIBLE_CLASS;
 		clif_displaymessage(fd, msg_txt(sd,11)); // Invisible: On
+
+		if (map[sd->bl.m].flag.pvp)
+		{// decrement the number of pvp players on the map
+			map[sd->bl.m].users_pvp--;
+
+			if (!map[sd->bl.m].flag.pvp_nocalcrank && sd->pvp_timer != INVALID_TIMER)
+			{// unregister the player for ranking
+				delete_timer(sd->pvp_timer, pc_calc_pvprank_timer);
+				sd->pvp_timer = INVALID_TIMER;
+			}
+		}
 	}
 	clif_changeoption(&sd->bl);
 

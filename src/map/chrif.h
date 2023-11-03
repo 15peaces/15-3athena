@@ -76,6 +76,8 @@ int chrif_req_charunban(int cid);
 
 int chrif_bsdata_request(uint32 char_id);
 
+int chrif_removefriend(int char_id, int friend_id);
+
 int do_final_chrif(void);
 int do_init_chrif(void);
 

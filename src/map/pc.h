@@ -539,6 +539,9 @@ struct map_session_data {
 	unsigned int bg_id;
 	unsigned short user_font;
 
+	// Guarantees your friend request is legit.
+	int friend_req;
+
 	struct sc_display_entry **sc_display;
 	unsigned char sc_display_count;
 

@@ -6698,6 +6698,7 @@ static const struct _battle_data {
 	{ "path_blown_halt",                    &battle_config.path_blown_halt,                 1,      0,      1,				},
 	{ "taekwon_mission_mobname",            &battle_config.taekwon_mission_mobname,         0,      0,      2,				},
 	{ "teleport_on_portal",                 &battle_config.teleport_on_portal,              0,      0,      1,				},
+	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100             },
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

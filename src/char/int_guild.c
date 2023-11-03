@@ -926,27 +926,6 @@ int mapif_guild_castle_datasave(int castle_id, int index, int value)
 	return 0;
 }
 
-int mapif_guild_castle_alldataload(int fd)
-{
-	DBIterator* iter;
-	struct guild_castle* gc;
-	int len = 4;
-
-	WFIFOHEAD(fd, 4 + MAX_GUILDCASTLE*sizeof(struct guild_castle));
-	WFIFOW(fd,0) = 0x3842;
-	iter = castle_db->iterator(castle_db);
-	for( gc = (struct guild_castle*)iter->first(iter,NULL); iter->exists(iter); gc = (struct guild_castle*)iter->next(iter,NULL) )
-	{
-		memcpy(WFIFOP(fd,len), gc, sizeof(struct guild_castle));
-		len += sizeof(struct guild_castle);
-	}
-	iter->destroy(iter);
-	WFIFOW(fd,2) = len;
-	WFIFOSET(fd, len);
-
-	return 0;
-}
-
 //-------------------------------------------------------------------
 // map serverからの通信
 
@@ -1572,12 +1551,6 @@ int inter_guild_parse_frommap(int fd)
 	}
 
 	return 1;
-}
-
-// processes a mapserver connection event
-int inter_guild_mapif_init(int fd)
-{
-	return mapif_guild_castle_alldataload(fd);
 }
 
 // サーバーから脱退要求（キャラ削除用）

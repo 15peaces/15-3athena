@@ -9,7 +9,7 @@
 #include "../common/random.h"
 #include "../common/socket.h" // WFIFO*()
 #include "../common/showmsg.h"
-#include "../common/version.h"
+
 #include "../common/nullpo.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
@@ -3999,12 +3999,11 @@ static void map_helpscreen(bool do_exit)
  *------------------------------------------------------*/
 static void map_versionscreen(bool do_exit)
 {
-	ShowInfo(CL_WHITE"eAthena version %d.%02d.%02d, Athena Mod version %d" CL_RESET"\n", ATHENA_MAJOR_VERSION, ATHENA_MINOR_VERSION, ATHENA_REVISION, ATHENA_MOD_VERSION);
-	ShowInfo(CL_GREEN"Website/Forum:"CL_RESET"\thttp://eathena.ws/\n");
-	ShowInfo(CL_GREEN"IRC Channel:"CL_RESET"\tirc://irc.deltaanime.net/#athena\n");
+	ShowInfo(CL_WHITE"15-3athena SVN version: %s" CL_RESET"\n", get_svn_revision()); // TODO: change this to git, we don't use svn anymore...
+	ShowInfo(CL_GREEN"Project page:"CL_RESET"\thttps://15peaces.com/blog/index.php/15-3athena/\n");
+	ShowInfo(CL_GREEN"GitHub:"CL_RESET"\thttps://github.com/15peaces/15-3athena/\n");
+	ShowInfo(CL_GREEN"Facebook group:"CL_RESET"\thttps://www.facebook.com/groups/153athena/\n");
 	ShowInfo("Open "CL_WHITE"readme.html"CL_RESET" for more information.\n");
-	if(ATHENA_RELEASE_FLAG)
-		ShowNotice("This version is not for release.\n");
 	if( do_exit )
 		exit(EXIT_SUCCESS);
 }

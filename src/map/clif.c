@@ -6,7 +6,7 @@
 #include "../common/timer.h"
 #include "../common/grfio.h"
 #include "../common/malloc.h"
-#include "../common/version.h"
+
 #include "../common/nullpo.h"
 #include "../common/random.h"
 #include "../common/showmsg.h"
@@ -4925,16 +4925,15 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 
 	if(dstsd->chatID)
 	{
-		struct chat_data *cd;
-		cd=(struct chat_data*)map_id2bl(dstsd->chatID);
-		if(cd && cd->usersd[0]==dstsd)
+		struct chat_data *cd = NULL;
+		if ((cd = (struct chat_data*)map_id2bl(dstsd->chatID)) && cd->usersd[0] == dstsd)
 			clif_dispchat(cd,sd->fd);
 	}
 
-	if( dstsd->state.vending )
+	else if( dstsd->state.vending )
 		clif_showvendingboard(&dstsd->bl,dstsd->message,sd->fd);
 
-	if( dstsd->state.buyingstore )
+	else if( dstsd->state.buyingstore )
 		clif_buyingstore_entry_single(sd, dstsd);
 
 	if(dstsd->spiritball > 0)
@@ -5622,6 +5621,10 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 	{
 		if( (id = sd->status.skill[i].id) != 0 )
 		{
+			// workaround for gm_all_skill
+			if (len + 37 > 8192)
+				break;
+
 			WFIFOW(fd,len)   = id;
 			WFIFOL(fd, len + 2) = skill_get_inf(id);
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
@@ -5637,6 +5640,16 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 	}
 	WFIFOW(fd,2)=len;
 	WFIFOSET(fd,len);
+
+	// workaround for gm_all_skill; send the remaining skills one by one to bypass packet size limit
+	for (; i < MAX_SKILL; i++)
+	{
+		if ((id = sd->status.skill[i].id) != 0)
+		{
+			clif_addskill(sd, id);
+			clif_skillupdateinfo(sd, id, 0, 0);
+		}
+	}
 }
 
 /// Adds new skill to the skill tree (ZC_ADD_SKILL).
@@ -8929,7 +8942,7 @@ void clif_guild_belonginfo(struct map_session_data *sd, struct guild *g)
 	WFIFOL(fd,2)=g->guild_id;
 	WFIFOL(fd,6)=g->emblem_id;
 	WFIFOL(fd,10)=g->position[ps].mode;
-	WFIFOB(fd,14)=( sd->status.guild_id == g->guild_id ) ? 1 : 0;
+	WFIFOB(fd, 14) = (bool)(sd->state.gmaster_flag == 1);
 	WFIFOL(fd,15)=0;  // InterSID (unknown purpose)
 	memcpy(WFIFOP(fd,19),g->name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x16c));
@@ -10336,7 +10349,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 					*(str_p-3) = '\0'; //Remove trailing space + pipe.
 					memcpy(WBUFP(buf,30), mobhp, NAME_LENGTH);
 					WBUFB(buf,54) = 0;
-					memcpy(WBUFP(buf,78), mobhp, NAME_LENGTH);
+					WBUFB(buf,78) = 0;
 				}
 			}
 #if PACKETVER >= 20150513
@@ -11173,6 +11186,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	if( map[sd->bl.m].users++ == 0 && battle_config.dynamic_mobs )
 		map_spawnmobs(sd->bl.m);
+	if (!(sd->sc.option&OPTION_INVISIBLE))
+	{// increment the number of pvp players on the map
+		map[sd->bl.m].users_pvp++;
+	}
 	if( map[sd->bl.m].instance_id )
 	{
 		instance[map[sd->bl.m].instance_id].users++;
@@ -11194,7 +11211,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	if( sd->bg_id ) clif_bg_hp(sd); // BattleGround System
 
-	if(map[sd->bl.m].flag.pvp) {
+	if(map[sd->bl.m].flag.pvp && !(sd->sc.option&OPTION_INVISIBLE)) {
 		if(!battle_config.pk_mode) { // remove pvp stuff for pk_mode [Valaris]
 			if (!map[sd->bl.m].flag.pvp_nocalcrank)
 				sd->pvp_timer = add_timer(gettick()+200, pc_calc_pvprank_timer, sd->bl.id, 0);
@@ -11406,6 +11423,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(guild_search(sd->status.guild_id), GD_GLORYWOUNDS));
 		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(guild_search(sd->status.guild_id), GD_SOULCOLD));
 		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(guild_search(sd->status.guild_id), GD_HAWKEYES));
+	}
+
+	if (sd->state.vending) { /* show we have a vending */
+		clif_openvending(sd, sd->bl.id, sd->vending);
+		clif_showvendingboard(&sd->bl, sd->message, 0);
 	}
 
 	if(map[sd->bl.m].flag.loadevent) // Lance
@@ -12347,8 +12369,8 @@ void clif_parse_UnequipItem(int fd,struct map_session_data *sd)
 	}
 
 	// TODO: Won't this allow you to do actions, that would be otherwise prohibited? [Ai4rei]
-	if (sd->state.storage_flag)
-		; //You can equip/unequip stuff while storage is open.
+	if (sd->state.storage_flag || sd->sc.opt1)
+		; //You can equip/unequip stuff while storage is open/under status changes.
 	else if (pc_cant_act(sd))
 		return;
 
@@ -13505,7 +13527,15 @@ void clif_parse_ResetChar(int fd, struct map_session_data *sd)
 	if( RFIFOW(fd,2) )
 		pc_resetskill(sd,1);
 	else
+	{
 		pc_resetstate(sd);
+
+		if (sd->mission_mobid) {
+			sd->mission_mobid = 0;
+			sd->mission_count = 0;
+			pc_setglobalreg(sd, "TK_MISSION_ID", 0);
+		}
+	}
 
 	log_atcommand(sd, get_atcommand_level(atcommand_reset), RFIFOW(fd,2) ? "/resetskill" : "/resetstate");
 }
@@ -14144,6 +14174,13 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	}
 	if( map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKNOVENDING) ) {
 		clif_displaymessage (sd->fd, msg_txt(sd,204)); // "You can't open a shop on this cell."
+		return;
+	}
+	if (vending_checknearnpc(&sd->bl)) {
+		char output[150];
+		sprintf(output, "You're too close to a NPC, you must be at least %d cells away from any NPC.", battle_config.min_npc_vending_distance);
+		clif_displaymessage(sd->fd, output);
+		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
 		return;
 	}
 	if (message[0] == '\0') {// invalid input
@@ -15913,6 +15950,9 @@ void clif_parse_FriendsListAdd(int fd, struct map_session_data *sd)
 		return;
 	}
 
+	f_sd->friend_req = sd->status.char_id;
+	sd->friend_req = f_sd->status.char_id;
+
 	// Friend already exists
 	for (i = 0; i < MAX_FRIENDS && sd->status.friends[i].char_id != 0; i++) {
 		if (sd->status.friends[i].char_id == f_sd->status.char_id) {
@@ -15955,7 +15995,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 	if (f_sd == NULL)
 		return;
 		
-	if (reply == 0)
+	if (reply == 0 || !(sd->friend_req == f_sd->status.char_id && f_sd->friend_req == sd->status.char_id))
 		clif_friendslist_reqack(f_sd, sd, 1);
 	else {
 		int i;
@@ -16003,6 +16043,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 /// 0203 <account id>.L <char id>.L
 void clif_parse_FriendsListRemove(int fd, struct map_session_data *sd)
 {
+	struct map_session_data *f_sd = NULL;
 	int account_id, char_id;
 	int i, j;
 
@@ -16018,12 +16059,42 @@ void clif_parse_FriendsListRemove(int fd, struct map_session_data *sd)
 		return;
 	}
 		
-	// move all chars down
-	for(j = i + 1; j < MAX_FRIENDS; j++)
-		memcpy(&sd->status.friends[j-1], &sd->status.friends[j], sizeof(sd->status.friends[0]));
+	//remove from friend's list first
+	if ((f_sd = map_id2sd(account_id)) && f_sd->status.char_id == char_id) {
+		for (i = 0; i < MAX_FRIENDS &&
+			(f_sd->status.friends[i].char_id != sd->status.char_id || f_sd->status.friends[i].account_id != sd->status.account_id); i++);
 
-	memset(&sd->status.friends[MAX_FRIENDS-1], 0, sizeof(sd->status.friends[MAX_FRIENDS-1]));
-	clif_displaymessage(fd, msg_txt(sd,523)); //"Friend removed"
+		if (i != MAX_FRIENDS) {
+			// move all chars up
+			for (j = i + 1; j < MAX_FRIENDS; j++)
+				memcpy(&f_sd->status.friends[j - 1], &f_sd->status.friends[j], sizeof(f_sd->status.friends[0]));
+
+			memset(&f_sd->status.friends[MAX_FRIENDS - 1], 0, sizeof(f_sd->status.friends[MAX_FRIENDS - 1]));
+			//should the guy be notified of some message? we should add it here if so
+			WFIFOHEAD(f_sd->fd, packet_len(0x20a));
+			WFIFOW(f_sd->fd, 0) = 0x20a;
+			WFIFOL(f_sd->fd, 2) = sd->status.account_id;
+			WFIFOL(f_sd->fd, 6) = sd->status.char_id;
+			WFIFOSET(f_sd->fd, packet_len(0x20a));
+		}
+
+	}
+	else { //friend not online -- ask char server to delete from his friendlist
+		if (chrif_removefriend(char_id, sd->status.char_id)) { // char-server offline, abort
+			clif_displaymessage(fd, "This action can't be performed at the moment. Please try again later.");
+			return;
+		}
+	}
+
+	// We can now delete from original requester
+	for (i = 0; i < MAX_FRIENDS &&
+		(sd->status.friends[i].char_id != char_id || sd->status.friends[i].account_id != account_id); i++);
+	// move all chars up
+	for (j = i + 1; j < MAX_FRIENDS; j++)
+		memcpy(&sd->status.friends[j - 1], &sd->status.friends[j], sizeof(sd->status.friends[0]));
+
+	memset(&sd->status.friends[MAX_FRIENDS - 1], 0, sizeof(sd->status.friends[MAX_FRIENDS - 1]));
+	clif_displaymessage(fd, "Friend removed");
 	
 	WFIFOHEAD(fd,packet_len(0x20a));
 	WFIFOW(fd,0) = 0x20a;
@@ -17960,20 +18031,19 @@ void clif_cashshop_ack(struct map_session_data* sd, int error)
 /// 0288 <packet len>.W <kafra points>.L <count>.W { <amount>.W <name id>.W }.4B*count (PACKETVER >= 20100803)
 void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
 {
-	int fail = 0, amount, points = 0;
-	short nameid;
+	int fail = 0;
 	nullpo_retv(sd);
 
-	nameid = RFIFOW(fd,2);
-	amount = RFIFOW(fd,4);
-#if PACKETVER >= 20070711
-	points = RFIFOL(fd,6); // Not Implemented. Should be 0
-#endif
-
-	if( sd->state.trading || !sd->npc_shopid )
+	if (sd->state.trading || !sd->npc_shopid)
 		fail = 1;
 	else
+	{
+		short nameid = RFIFOW(fd, 2);
+		short amount = RFIFOW(fd, 4);
+		int points = RFIFOL(fd, 6);
+
 		fail = npc_cashshop_buy(sd, nameid, amount, points);
+	}
 
 	clif_cashshop_ack(sd, fail);
 }
