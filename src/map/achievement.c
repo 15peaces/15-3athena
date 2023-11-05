@@ -1619,10 +1619,9 @@ void do_init_achievement(void)
  */
 static int achievement_db_finalize(union DBKey key, struct DBData *data, va_list args)
 {
-	int i = 0;
 	struct achievement_data *ad = db_data2ptr(data);
 
-	for (i = 0; i < VECTOR_LENGTH(ad->objective); i++)
+	for (int i = 0; i < VECTOR_LENGTH(ad->objective); i++)
 		VECTOR_CLEAR(VECTOR_INDEX(ad->objective, i).jobid);
 
 	VECTOR_CLEAR(ad->objective);

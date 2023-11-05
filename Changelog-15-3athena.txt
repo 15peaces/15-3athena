@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/05/2023
+	r417 [15peaces]
+		*Modified unknown packet ver message to provide more data as on what it believes is an invalid packet ver.
+		*All Runestones & Token of Siegfried can now be placed in storage.
+		*Added some missing items.
+		*Added missing COYOTE and GASTER drops.
+
 11/03/2023
 	r416 [15peaces]
 		*Cleaned up NPC_RUN to show e_hlp and not get stuck in a follow state.

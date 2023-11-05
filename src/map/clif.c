@@ -21410,7 +21410,7 @@ static int clif_parse(int fd)
 		packet_ver = clif_guess_PacketVer(fd, 0, &err);
 		if( err )
 		{// failed to identify packet version
-			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s.\n", fd, (
+			ShowInfo("clif_parse: Disconnecting session #%d with unknown packet version%s (p:0x%04x,l:%d).\n", fd, (
 				err == 1 ? "" :
 				err == 2 ? ", possibly for having an invalid account_id" :
 				err == 3 ? ", possibly for having an invalid char_id." :
@@ -21419,7 +21419,7 @@ static int clif_parse(int fd)
 				err == 5 ? ", possibly for having an invalid client_tick." :
 				*/
 				err == 6 ? ", possibly for having an invalid sex." :
-				". ERROR invalid error code"));
+				". ERROR invalid error code"), cmd, RFIFOREST(fd));
 				clif_auth_error(fd, 3);  // Rejected by server
 #ifdef DUMP_INVALID_PACKET
 			ShowDump(RFIFOP(fd,0), RFIFOREST(fd));

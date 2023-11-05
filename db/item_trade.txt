@@ -725,7 +725,7 @@
 7618,499,100	// Monster_Crystal
 7619,507,100		// Enriched_Elunium
 7620,507,100		// Enriched_Oridecon
-7621,507,100		// Token_Of_Siegfried
+7621,479,100		// Token_Of_Siegfried
 7622,507,100		// New_Style_Coupon
 7623,507,100	// Name_Change_Coupon
 7630,507,100	//Clean_Beach_Brush
@@ -961,9 +961,9 @@
 12385,499,100	// Rainbow_Ruby_Fire
 12386,499,100	// Rainbow_Ruby_Wind
 12387,499,100	// Rainbow_Ruby_Earth
-12388,507,100	// Runstone_Crush
-12389,507,100	// Runstone_Storm
-12390,507,100	// Runstone_Millennium
+12388,479,100	// Runstone_Crush
+12389,479,100	// Runstone_Storm
+12390,479,100	// Runstone_Millennium
 12391,475,100	// Lucky Egg
 12396,73,100	// Gift Box?
 12397,73,100	// Gift Box?
@@ -1035,15 +1035,15 @@
 12705,507,100	// Noble_Nameplate
 12714,467,100	// Easter_Scroll
 12715,507,100	// Black_Treasure_Chest
-12725,507,100	// Runstone_Nosiege
-12726,507,100	// Runstone_Rhydo
-12727,507,100	// Runstone_Verkana
-12728,507,100	// Runstone_Isia
-12729,507,100	// Runstone_Asir
-12730,507,100	// Runstone_Urj
-12731,507,100	// Runstone_Turisus
-12732,507,100	// Runstone_Pertz
-12733,507,100	// Runstone_Hagalas
+12725,479,100	// Runstone_Nosiege
+12726,479,100	// Runstone_Rhydo
+12727,479,100	// Runstone_Verkana
+12728,479,100	// Runstone_Isia
+12729,479,100	// Runstone_Asir
+12730,479,100	// Runstone_Urj
+12731,479,100	// Runstone_Turisus
+12732,479,100	// Runstone_Pertz
+12733,479,100	// Runstone_Hagalas
 12811,507,100	// Event_Gift_Box_
 12884,507,100	//Infinite_Concentration_Potion
 12885,507,100	//Infinite_Awakening_Potion
@@ -2008,7 +2008,7 @@
 22533,507,100	//New_Year_Gift_Box
 22535,507,100	//Scroll_Summoning_Workers(Male)
 22536,507,100	//Scroll_Summoning_Workers(Female)
-22540,507,100	// Runstone_Luxanima
+22540,479,100	// Runstone_Luxanima
 22541,507,100	//PC_Room_Coupon_Box_VI
 22542,507,100	//Concentration_Potion
 22543,507,100	//Berserk_Potion
