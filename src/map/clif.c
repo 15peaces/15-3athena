@@ -348,9 +348,16 @@ static int clif_send_sub(struct block_list *bl, va_list ap)
 	break;
 	case AREA_WOSC:
 	{
-		struct map_session_data *ssd = (struct map_session_data *)src_bl;
-		if (ssd && (src_bl->type == BL_PC) && sd->chatID && (sd->chatID == ssd->chatID))
-			return 0;
+		if (src_bl->type == BL_PC) {
+			struct map_session_data *ssd = (struct map_session_data *)src_bl;
+			if (ssd && sd->chatID && (sd->chatID == ssd->chatID))
+				return 0;
+		}
+		else if (src_bl->type == BL_NPC) {
+			struct npc_data *nd = (struct npc_data *)src_bl;
+			if (nd && sd->chatID && (sd->chatID == nd->chat_id))
+				return 0;
+		}
 	}
 	break;
 	}
@@ -4429,7 +4436,7 @@ void clif_dispchat(struct chat_data* cd, int fd)
 	WBUFL(buf, 4) = cd->owner->id;
 	WBUFL(buf, 8) = cd->bl.id;
 	WBUFW(buf,12) = cd->limit;
-	WBUFW(buf,14) = cd->users;
+	WBUFW(buf,14) = (cd->owner->type == BL_NPC) ? cd->users + 1 : cd->users;
 	WBUFB(buf,16) = type;
 	memcpy((char*)WBUFP(buf,17), cd->title, strlen(cd->title)); // not zero-terminated
 
@@ -4467,7 +4474,7 @@ void clif_changechatstatus(struct chat_data* cd)
 	WBUFL(buf, 4) = cd->owner->id;
 	WBUFL(buf, 8) = cd->bl.id;
 	WBUFW(buf,12) = cd->limit;
-	WBUFW(buf,14) = cd->users;
+	WBUFW(buf,14) = (cd->owner->type == BL_NPC) ? cd->users + 1 : cd->users;
 	WBUFB(buf,16) = type;
 	memcpy((char*)WBUFP(buf,17), cd->title, strlen(cd->title)); // not zero-terminated
 
@@ -4529,7 +4536,7 @@ void clif_joinchatfail(struct map_session_data *sd,int flag)
 void clif_joinchatok(struct map_session_data *sd,struct chat_data* cd)
 {
 	int fd;
-	int i;
+	int i,t;
 
 	nullpo_retv(sd);
 	nullpo_retv(cd);
@@ -4537,14 +4544,26 @@ void clif_joinchatok(struct map_session_data *sd,struct chat_data* cd)
 	fd = sd->fd;
 	if (!session_isActive(fd))
 		return;
-	WFIFOHEAD(fd, 8 + (28*cd->users));
+	t = (int)(cd->owner->type == BL_NPC);
+	WFIFOHEAD(fd, 8 + (28 * (cd->users + t)));
 	WFIFOW(fd, 0) = 0xdb;
-	WFIFOW(fd, 2) = 8 + (28*cd->users);
+	WFIFOW(fd, 2) = 8 + (28 * (cd->users + t));
 	WFIFOL(fd, 4) = cd->bl.id;
-	for (i = 0; i < cd->users; i++) {
-		WFIFOL(fd, 8+i*28) = (i != 0 || cd->owner->type == BL_NPC);
-		memcpy(WFIFOP(fd, 8+i*28+4), cd->usersd[i]->status.name, NAME_LENGTH);
+
+	if (cd->owner->type == BL_NPC) {
+		WFIFOL(fd, 30) = 1;
+		WFIFOL(fd, 8) = 0;
+		memcpy(WFIFOP(fd, 12), ((struct npc_data *)cd->owner)->name, NAME_LENGTH);
+		for (i = 0; i < cd->users; i++) {
+			WFIFOL(fd, 8 + (i + 1) * 28) = 1;
+			memcpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
+		}
 	}
+	else
+		for (i = 0; i < cd->users; i++) {
+			WFIFOL(fd, 8+i*28) = (i != 0 || cd->owner->type == BL_NPC);
+			memcpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
+		}
 	WFIFOSET(fd, WFIFOW(fd, 2));
 }
 
@@ -7188,7 +7207,7 @@ void clif_item_identified(struct map_session_data *sd,int idx,int flag)
 
 /// Presents a list of items that can be repaired (ZC_REPAIRITEMLIST).
 /// 01fc <packet len>.W { <index>.W <name id>.W <refine>.B <card1>.W <card2>.W <card3>.W <card4>.W }*
-void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *dstsd)
+void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *dstsd, int lv)
 {
 	int i,c;
 	int fd;
@@ -7215,6 +7234,7 @@ void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *
 		WFIFOSET(fd,WFIFOW(fd,2));
 		sd->menuskill_id = BS_REPAIRWEAPON;
 		sd->menuskill_val = dstsd->bl.id;
+		sd->menuskill_val2 = lv;
 	}else
 		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
 }
@@ -11453,6 +11473,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		npc_touch_areanpc(sd,sd->bl.m,sd->bl.x,sd->bl.y);
 	else
 		sd->areanpc_id = 0;
+
+	// it broke at some point (e.g. during a crash), so we make it visibly dead again.
+	if( !sd->status.hp && !pc_isdead(sd) && status_isdead(&sd->bl) )
+		pc_setdead(sd);
 
 	// If player is dead, and is spawned (such as @refresh) send death packet. [Valaris]
 	if(pc_isdead(sd))

@@ -895,6 +895,7 @@ unsigned int pc_maxjoblv(struct map_session_data *sd);
 bool pc_is_maxbaselv(struct map_session_data *sd);
 bool pc_is_maxjoblv(struct map_session_data *sd);
 int pc_checkbaselevelup(struct map_session_data *sd);
+void pc_baselevelchanged(struct map_session_data *sd);
 int pc_checkjoblevelup(struct map_session_data *sd);
 int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int base_exp, unsigned int job_exp, bool quest); 
 unsigned int pc_nextbaseexp(struct map_session_data *sd);

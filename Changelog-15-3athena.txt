@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/13/2023
+	r418 [15peaces]
+		*Added another check to prevent "broken" characters with 0 HP.
+			-I don't think this is even possible with the checks I added some time ago, but...
+			-Instead of beeing broken they'll now login dead with the window to go back to respawn point or remain there now. =P
+		*Fixed an old bug in waitingroom where NPCs weren't appearing into their chatrooms.
+		*Repair_Scroll_ item.
+			-Bug was due to the range being checked on pc_checkskill and it'd return 0 when the caster isn't a blacksmith class (or doesn't have repair weapon mastered). 
+				--The skill level cast is now stored in (struct map_session_data)->menuskill_val2.
+			-Special thanks to @rathena
+		*Fixed @baselevelup command to also unequip items if you leave the elvl_max range.
+
 11/05/2023
 	r417 [15peaces]
 		*Modified unknown packet ver message to provide more data as on what it believes is an invalid packet ver.

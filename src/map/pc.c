@@ -6519,15 +6519,11 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	clif_misceffect(&sd->bl,0);
 	npc_script_event(sd, NPCE_BASELVUP); //LORDALFA - LVLUPEVENT
 
+	pc_baselevelchanged(sd);
+
 	if(sd->status.party_id)
 		party_send_levelup(sd);
 
-	for (uint8 i = 0; i < EQI_MAX; i++) {
-		if (sd->equip_index[i] >= 0 && sd->inventory_data[sd->equip_index[i]]) {
-			if (sd->inventory_data[sd->equip_index[i]]->elv_max && sd->status.base_level > (unsigned int)sd->inventory_data[sd->equip_index[i]]->elv_max)
-				pc_unequipitem(sd, sd->equip_index[i], 3);
-		}
-	}
 	pc_show_questinfo(sd);
 
 #if PACKETVER >= 20090218
@@ -6537,6 +6533,15 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.base_level);
 
 	return 1;
+}
+
+void pc_baselevelchanged(struct map_session_data *sd) {
+	for (uint8 i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0 && sd->inventory_data[sd->equip_index[i]]) {
+			if (sd->inventory_data[sd->equip_index[i]]->elv_max && sd->status.base_level > (unsigned int)sd->inventory_data[sd->equip_index[i]]->elv_max)
+				pc_unequipitem(sd, sd->equip_index[i], 3);
+		}
+	}
 }
 
 int pc_checkjoblevelup(struct map_session_data *sd)

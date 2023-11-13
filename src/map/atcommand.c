@@ -1910,6 +1910,7 @@ ACMD_FUNC(baselevelup)
 	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.base_level);
 
 	status_calc_pc(sd, 0);
+	pc_baselevelchanged(sd);
 	if(sd->status.party_id)
 		party_send_levelup(sd);
 	npc_script_event(sd, NPCE_BASELVUP); // Trigger OnPCBaseLvUpEvent
