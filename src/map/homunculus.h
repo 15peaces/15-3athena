@@ -58,6 +58,18 @@ struct homun_data {
 	short hom_spiritball, hom_spiritball_old;
 };
 
+#define MAX_HOM_SKILL_REQUIRE 5
+struct homun_skill_tree_entry {
+	short id;
+	unsigned char max;
+	unsigned char joblv;
+	short intimacylv;
+	struct {
+		short id;
+		unsigned char lv;
+	} need[MAX_HOM_SKILL_REQUIRE];
+};
+
 // HM stands for HoMunculus and MH stands for Mutated Homunculus
 #define homdb_checkid(id) (id >= HM_CLASS_BASE && id <= HM_CLASS_MAX || id >= MH_CLASS_BASE && id <= MH_CLASS_MAX)
 
@@ -69,10 +81,10 @@ struct view_data* merc_get_hom_viewdata(int class_);
 void merc_damage(struct homun_data *hd,struct block_list *src,int hp,int sp);
 int merc_hom_dead(struct homun_data *hd, struct block_list *src);
 void merc_hom_skillup(struct homun_data *hd,int skillnum);
-int merc_hom_calc_skilltree(struct homun_data *hd) ;
-int merc_hom_checkskill(struct homun_data *hd,int skill_id) ;
-int merc_hom_gainexp(struct homun_data *hd,int exp) ;
-int merc_hom_levelup(struct homun_data *hd) ;
+int merc_hom_calc_skilltree(struct homun_data *hd,int flag_evolve);
+int merc_hom_checkskill(struct homun_data *hd,int skill_id);
+int merc_hom_gainexp(struct homun_data *hd,int exp);
+int merc_hom_levelup(struct homun_data *hd);
 int merc_hom_evolution(struct homun_data *hd) ;
 int merc_hom_mutation(struct homun_data *hd, int class_);
 void merc_hom_heal(struct homun_data *hd,int hp,int sp);

@@ -4850,23 +4850,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	if (nameid != ITEMID_NAUTHIZ_RUNE && sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 		return 0;
 
-	if (sd->sc.count) {
-		if ((nameid == ITEMID_NAUTHIZ_RUNE) && (
-			sd->sc.data[SC_FREEZE] ||
-			sd->sc.data[SC_STUN] ||
-			sd->sc.data[SC_DEEPSLEEP] ||
-			sd->sc.data[SC_STONE] ||
-			sd->sc.data[SC_CRYSTALIZE]
-			)
-			) {
-			sd->sc.opt1 = 0; //remove option and status to allow skill
-			status_change_end(&sd->bl, SC_FREEZE, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_STUN, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_DEEPSLEEP, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_STONE, INVALID_TIMER);
-			status_change_end(&sd->bl, SC_CRYSTALIZE, INVALID_TIMER);
-		}  //let us continue
-		else if (
+	if (sd->sc.count && (
 			sd->sc.data[SC_BERSERK] ||
 			(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
 			sd->sc.data[SC_TRICKDEAD] ||
@@ -4882,15 +4866,12 @@ int pc_useitem(struct map_session_data *sd,int n) {
 			sd->sc.data[SC_FLASHCOMBO] ||
 			sd->sc.data[SC_KINGS_GRACE] ||
 			sd->sc.data[SC_SUHIDE]
-			)
+			))
 			return 0;
-	}
 
-		//Prevent mass item usage. [Skotlex]
-		if (DIFF_TICK(sd->canuseitem_tick, tick) > 0 ||
-			(itemdb_iscashfood(nameid) && DIFF_TICK(sd->canusecashfood_tick, tick) > 0)
-			)
-			return 0;
+	//Prevent mass item usage. [Skotlex]
+	if (DIFF_TICK(sd->canuseitem_tick, tick) > 0 || (itemdb_iscashfood(nameid) && DIFF_TICK(sd->canusecashfood_tick, tick) > 0))
+		return 0;
 
 	//Since most delay-consume items involve using a "skill-type" target cursor,
 	//perform a skill-use check before going through. [Skotlex]
@@ -7781,6 +7762,24 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		if( (bg = bg_team_search(sd->bg_id)) != NULL && bg->die_event[0] )
 			npc_event(sd, bg->die_event, 0);
 	}
+
+// Clear anything NPC-related when you die and was interacting with one.
+	if (sd->npc_id)
+	{
+		if (sd->state.using_fake_npc) {
+			clif_clearunit_single(sd->npc_id, CLR_OUTSIGHT, sd->fd);
+			sd->state.using_fake_npc = 0;
+		}
+		if (sd->state.menu_or_input)
+			sd->state.menu_or_input = 0;
+		if (sd->npc_menu)
+			sd->npc_menu = 0;
+
+		sd->npc_id = 0;
+		if (sd->st && sd->st->state != END)
+			sd->st->state = END;
+	}
+
 	npc_script_event(sd,NPCE_DIE);
 
 	if (pc_issit(sd))

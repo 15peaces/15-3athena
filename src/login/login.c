@@ -961,22 +961,17 @@ int mmo_auth(struct login_session_data* sd, bool isServer)
 		char r_ip[16];
 		char ip_dnsbl[256];
 		char* dnsbl_serv;
-		bool matched = false;
 		uint8* sin_addr = (uint8*)&session[sd->fd]->client_addr;
 
 		sprintf(r_ip, "%u.%u.%u.%u", sin_addr[0], sin_addr[1], sin_addr[2], sin_addr[3]);
 
-		for( dnsbl_serv = strtok(login_config.dnsbl_servs,","); !matched && dnsbl_serv != NULL; dnsbl_serv = strtok(NULL,",") )
+		for( dnsbl_serv = strtok(login_config.dnsbl_servs,","); dnsbl_serv != NULL; dnsbl_serv = strtok(NULL,",") )
 		{
 			sprintf(ip_dnsbl, "%s.%s", r_ip, dnsbl_serv);
-			if( host2ip(ip_dnsbl) )
-				matched = true;
-		}
-
-		if( matched )
-		{
-			ShowInfo("DNSBL: (%s) Blacklisted. User Kicked.\n", r_ip);
-			return 3;
+			if (host2ip(ip_dnsbl)) {
+				ShowInfo("DNSBL: (%s) Blacklisted. User Kicked.\n", r_ip);
+				return 3;
+			}
 		}
 	}
 

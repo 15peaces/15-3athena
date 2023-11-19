@@ -309,36 +309,54 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 	if ( tsd && tsd->charmball > 0 && atk_elem == tsd->charmball_type )
 		ratio -= 2 * tsd->charmball;
 
-	if ( tsc && tsc->count ) {
-		if ( tsc->data[SC_CRYSTALIZE] )
-		{
-			if ( atk_elem == ELE_FIRE )
-				status_change_end(target, SC_CRYSTALIZE, INVALID_TIMER);
-			else if ( atk_elem == ELE_WIND )
-				damage += damage * 50 / 100;
+	if (tsc && tsc->count) { //since an atk can only have one type let's optimise this a bit
+		switch (atk_elem) {
+			case ELE_WATER:
+				if (tsc->data[SC_FIRE_INSIGNIA])
+					ratio += 50;
+				break;
+			case ELE_EARTH:
+				if (tsc->data[SC_WIND_INSIGNIA])
+					ratio += 50;
+				break;
+			case ELE_FIRE:
+				if (tsc->data[SC_SPIDERWEB]) {
+					tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
+					if (tsc->data[SC_SPIDERWEB]->val2-- > 0)
+						damage <<= 1; // double damage
+					if (tsc->data[SC_SPIDERWEB]->val2 == 0)
+						status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
+				}
+				if (tsc->data[SC_THORNS_TRAP])
+					status_change_end(target, SC_THORNS_TRAP, INVALID_TIMER);
+				if (tsc->data[SC_FIRE_CLOAK_OPTION])
+					damage -= damage * tsc->data[SC_FIRE_CLOAK_OPTION]->val2 / 100;
+				if (tsc->data[SC_CRYSTALIZE] && target->type != BL_MOB) {
+					status_change_end(target, SC_CRYSTALIZE, INVALID_TIMER);
+				}
+				if (tsc->data[SC_VOLCANIC_ASH] && atk_elem == ELE_FIRE)
+					damage += damage * 50 / 100;
+				if (tsc->data[SC_EARTH_INSIGNIA])
+					ratio += 50;
+				break;
+			case ELE_HOLY:
+				if (tsc->data[SC_ORATIO])
+					ratio += tsc->data[SC_ORATIO]->val1 * 2;
+				break;
+			case ELE_POISON:
+				if (tsc->data[SC_VENOMIMPRESS])
+					ratio += tsc->data[SC_VENOMIMPRESS]->val2;
+				break;
+			case ELE_WIND:
+				if (tsc->data[SC_CRYSTALIZE] && target->type != BL_MOB)
+					damage = damage * 150 / 100;
+				if (tsc->data[SC_WATER_INSIGNIA])
+					ratio += 50;
+				break;
+
 		}
-		if ( tsc->data[SC_SPIDERWEB] && atk_elem == ELE_FIRE)
-		{
-			tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
-			if( tsc->data[SC_SPIDERWEB]->val2-- > 0 )
-				damage <<= 1; // double damage
-			if( tsc->data[SC_SPIDERWEB]->val2 == 0 )
-				status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
-		}
-		if(tsc->data[SC_VENOMIMPRESS] && atk_elem == ELE_POISON)
-			ratio += tsc->data[SC_VENOMIMPRESS]->val2;
-		if(tsc->data[SC_ORATIO] && atk_elem == ELE_HOLY )
-			ratio += tsc->data[SC_ORATIO]->val2;
-		if ((tsc->data[SC_FIRE_INSIGNIA] && atk_elem == ELE_WATER) ||
-			(tsc->data[SC_WATER_INSIGNIA] && atk_elem == ELE_WIND) ||
-			(tsc->data[SC_WIND_INSIGNIA] && atk_elem == ELE_EARTH) ||
-			(tsc->data[SC_EARTH_INSIGNIA] && atk_elem == ELE_FIRE))
-			ratio += 50;
-		if(tsc->data[SC_THORNS_TRAP] && atk_elem == ELE_FIRE)
-			status_change_end(target, SC_THORNS_TRAP, INVALID_TIMER);
-		if (tsc->data[SC_VOLCANIC_ASH] && atk_elem == ELE_FIRE)
-			damage += damage * 50 / 100;
-	}
+	} //end tsc check
+
 	if( target && target->type == BL_SKILL )
 	{
 		if( atk_elem == ELE_FIRE && battle_getcurrentskill(target) == GN_WALLOFTHORN )

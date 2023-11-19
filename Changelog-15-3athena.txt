@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/19/2023
+	r419 [15peaces]
+		*Fixed @item commands to only display message "Item created" on success.
+		*@raisemap will now also heal all players.
+		*Applied the 'min_chat_delay' to @main, @PetTalk and @homtalk.
+		*Minor improvements on pm processing.
+			-removed double min_chat_delay check in the case of a @main message
+			-moved autotrade check over the ignore list check, so that if user is in autotrade it doesnt waste time going thru the characters ignore list array.
+		*Small optimisation on battle_attr_fix.
+		*Modified DNSBL check on login server to stop looking up addresses on the first match.
+		*A new field was added to homun_skill_tree.txt containing the minimum level of intimacy to unlock a skill. 
+			-This is used in some skills where the homunculus has to reach a amount of 910 of intimacy. The default value is 0 and it should only affect evolved homunculus.
+		*Removed a unneeded check in clif_parse_UseItem.
+		*Harmonized mapflag script commands, flag value is always an int, and could be superior to 1 for some mapflags.
+		*A player interacting with a NPC will now no longer be queued when died.
+			-This was causing problems with further NPC interactions.
+		*Fixed heal -Hp,0; percentheal -100,0; where causing a map-crash.
+
 11/13/2023
 	r418 [15peaces]
 		*Added another check to prevent "broken" characters with 0 HP.

@@ -1722,7 +1722,8 @@ ACMD_FUNC(item)
 		}
 	}
 
-	clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
+	if (flag == 0)
+		clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
 	return 0;
 }
 
@@ -1809,7 +1810,8 @@ ACMD_FUNC(item2)
 				clif_additem(sd, 0, 0, flag);
 		}
 
-		clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
+		if (flag == 0)
+			clif_displaymessage(fd, msg_txt(sd,18)); // Item created.
 	} else {
 		clif_displaymessage(fd, msg_txt(sd,19)); // Invalid item ID or name.
 		return -1;
@@ -3888,11 +3890,11 @@ ACMD_FUNC(doommap)
  *------------------------------------------*/
 static void atcommand_raise_sub(struct map_session_data* sd)
 {
-	if (!status_isdead(&sd->bl))
-		return;
+	if (pc_isdead(sd))
+		status_revive(&sd->bl, 100, 100);
+	else
+		status_percent_heal(&sd->bl, 100, 100);
 
-	if(!status_revive(&sd->bl, 100, 100))
-		return;
 	clif_skill_nodamage(&sd->bl,&sd->bl,ALL_RESURRECTION,4,1);
 	clif_displaymessage(sd->fd, msg_txt(sd,63)); // Mercy has been shown.
 }
@@ -5597,19 +5599,19 @@ char* txt_time(unsigned int duration)
 	minutes = duration / 60;
 	seconds = duration - (60 * minutes);
 
-	if (days < 2)
+	if (days == 1)
 		sprintf(temp, msg_txt(NULL,219), days); // %d day
 	else
 		sprintf(temp, msg_txt(NULL,220), days); // %d days
-	if (hours < 2)
+	if (hours == 1)
 		sprintf(temp1, msg_txt(NULL,221), temp, hours); // %s %d hour
 	else
 		sprintf(temp1, msg_txt(NULL,222), temp, hours); // %s %d hours
-	if (minutes < 2)
+	if (minutes == 1)
 		sprintf(temp, msg_txt(NULL,223), temp1, minutes); // %s %d minute
 	else
 		sprintf(temp, msg_txt(NULL,224), temp1, minutes); // %s %d minutes
-	if (seconds < 2)
+	if (seconds == 1)
 		sprintf(temp1, msg_txt(NULL,225), temp, seconds); // %s and %d second
 	else
 		sprintf(temp1, msg_txt(NULL,226), temp, seconds); // %s and %d seconds
@@ -7339,6 +7341,12 @@ ACMD_FUNC(pettalk)
 
 	nullpo_retr(-1, sd);
 
+	if (battle_config.min_chat_delay) {
+		if (DIFF_TICK(sd->cantalk_tick, gettick()) > 0)
+			return 0;
+		sd->cantalk_tick = gettick() + battle_config.min_chat_delay;
+	}
+
 	if(!sd->status.pet_id || !(pd=sd->pd))
 	{
 		clif_displaymessage(fd, msg_txt(sd,184));
@@ -8223,6 +8231,12 @@ ACMD_FUNC(homtalk)
 	char mes[100],temp[100];
 
 	nullpo_retr(-1, sd);
+
+	if (battle_config.min_chat_delay) {
+		if (DIFF_TICK(sd->cantalk_tick, gettick()) > 0)
+			return 0;
+		sd->cantalk_tick = gettick() + battle_config.min_chat_delay;
+	}
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
@@ -9457,6 +9471,13 @@ ACMD_FUNC(main)
 				clif_displaymessage(fd, msg_txt(sd,387));
 				return -1;
 			}
+
+			if (battle_config.min_chat_delay) {
+				if (DIFF_TICK(sd->cantalk_tick, gettick()) > 0)
+					return 0;
+				sd->cantalk_tick = gettick() + battle_config.min_chat_delay;
+			}
+
 			// send the message using inter-server system
 			intif_main_message(sd, message);
 		}

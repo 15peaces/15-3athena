@@ -1749,6 +1749,9 @@ void clif_send_homdata(struct map_session_data *sd, int state, int param)
 {	//[orn]
 	int fd = sd->fd;
 
+	if ((state == SP_INTIMATE) && (param >= 910) && (sd->hd->homunculus.class_ == sd->hd->homunculusDB->evo_class))
+		merc_hom_calc_skilltree(sd->hd, 0);
+
 	WFIFOHEAD(fd, packet_len(0x230));
 	WFIFOW(fd,0)=0x230;
 	WFIFOB(fd,2)=0;
@@ -12116,7 +12119,7 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 	}
 	
 	// Main chat [LuzZza]
-	if(strcmpi(target, main_chat_nick) == 0)
+	else if(strcmpi(target, main_chat_nick) == 0)
 	{
 		if(!sd->state.mainchat)
 			clif_displaymessage(fd, msg_txt(sd,388)); // You should enable main chat with "@main on" command.
@@ -12150,13 +12153,6 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 			clif_wis_end(fd, 3); // 3: everyone ignored by target
 		return;
 	}
-	// if player ignores the source character
-	ARR_FIND(0, MAX_IGNORE_LIST, i, dstsd->ignore[i].name[0] == '\0' || strcmp(dstsd->ignore[i].name, sd->status.name) == 0);
-	if(i < MAX_IGNORE_LIST && dstsd->ignore[i].name[0] != '\0')
-	{	// source char present in ignore list
-		clif_wis_end(fd, 2); // 2: ignored by target
-		return;
-	}
 	
 	// if player is autotrading
 	if( dstsd->state.autotrade == 1 )
@@ -12164,6 +12160,14 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 		char output[256];
 		sprintf(output, "%s is in autotrade mode and cannot receive whispered messages.", dstsd->status.name);
 		clif_wis_message(fd, wisp_server_name, output, strlen(output) + 1);
+		return;
+	}
+
+	// if player ignores the source character
+	ARR_FIND(0, MAX_IGNORE_LIST, i, dstsd->ignore[i].name[0] == '\0' || strcmp(dstsd->ignore[i].name, sd->status.name) == 0);
+	if (i < MAX_IGNORE_LIST && dstsd->ignore[i].name[0] != '\0')
+	{	// source char present in ignore list
+		clif_wis_end(fd, 2); // 2: ignored by target
 		return;
 	}
 	
@@ -12190,7 +12194,7 @@ void clif_parse_Broadcast(int fd, struct map_session_data* sd)
 		return;
 
 	// as the length varies depending on the command used, just block unreasonably long strings
-	len = mes_len_check(msg, len, CHAT_SIZE_MAX);
+	mes_len_check(msg, len, CHAT_SIZE_MAX);
 
 	intif_broadcast(msg, len, 0);
 
@@ -12300,13 +12304,6 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 
 	if (pc_isdead(sd)) {
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
-		return;
-	}
-
-	if (sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING &&
-		sd->inventory.u.items_inventory[index].nameid != ITEMID_NAUTHIZ_RUNE)
-	{
-		clif_useitemack(sd, index, 0, false);
 		return;
 	}
 	
