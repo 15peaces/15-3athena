@@ -6730,7 +6730,7 @@ void clif_displaymessage(const int fd, const char* mes)
 				WFIFOHEAD(fd, 5 + len);
 				WFIFOW(fd, 0) = 0x8e;
 				WFIFOW(fd, 2) = 5 + len; // 4 + len + NULL teminate
-				safestrncpy(WFIFOCP(fd, 4), line, len + 1);
+				safestrncpy((char *)WFIFOCP(fd, 4), line, len + 1);
 				WFIFOSET(fd, 5 + len);
 			}
 #endif
@@ -11302,6 +11302,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_spawn(&sd->md->bl);
 		clif_mercenary_info(sd);
 		clif_mercenary_skillblock(sd);
+		status_calc_bl(&sd->md->bl, SCB_SPEED); //Mercenary mimic their master's speed on each map change
 	}
 
 	if( sd->ed ) {

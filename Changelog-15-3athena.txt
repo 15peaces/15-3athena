@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/21/2023
+	r420 [15peaces]
+		*Mercenary now mimic their master's speed on each map change.
+		*Added some checks to pc_jobchange.
+			-It will now remove elementals, shops & clones.
+		*Some misc cleaning.
+
 11/19/2023
 	r419 [15peaces]
 		*Fixed @item commands to only display message "Item created" on success.

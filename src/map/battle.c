@@ -3949,7 +3949,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	unsigned int skillratio = 100;	//Skill dmg modifiers.
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
 
-	struct map_session_data *sd, *tsd;
+	TBL_PC *sd;
+	TBL_PC *tsd;
 	struct Damage ad;
 	struct status_change *sc = status_get_sc(src);
 	struct status_change *tsc = status_get_sc(target);
