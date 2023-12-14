@@ -3724,8 +3724,6 @@ int parse_frommap(int fd)
 			if( RFIFOREST(fd) < 18 )
 				return 0;
 		{
-			struct auth_node* node;
-
 			int account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
@@ -3742,6 +3740,8 @@ int parse_frommap(int fd)
 			}
 			else
 			{
+				struct auth_node* node;
+
 				// create temporary auth entry
 				CREATE(node, struct auth_node, 1);
 				node->account_id = account_id;
@@ -3771,7 +3771,6 @@ int parse_frommap(int fd)
 				return 0;
 		{
 			int map_id, map_fd = -1;
-			struct online_char_data* data;
 			struct mmo_charstatus* char_data;
 			struct mmo_charstatus char_dat;
 
@@ -3790,6 +3789,7 @@ int parse_frommap(int fd)
 				session_isActive(map_fd) &&
 				char_data )
 			{	//Send the map server the auth of this player.
+				struct online_char_data* data;
 				struct auth_node* node;
 
 				//Update the "last map" as this is where the player must be spawned on the new map server.
@@ -5518,25 +5518,25 @@ int char_config_read( const char* cfgName )
 				safestrncpy(wisp_server_name, w2, sizeof(wisp_server_name));
 			}
 		} else if (strcmpi(w1, "login_ip") == 0) {
-			char ip_str[16];
 			login_ip = host2ip(w2);
 			if (login_ip) {
+				char ip_str[16];
 				safestrncpy(login_ip_str, w2, sizeof(login_ip_str));
 				ShowStatus("Login server IP address : %s -> %s\n", w2, ip2str(login_ip, ip_str));
 			}
 		} else if (strcmpi(w1, "login_port") == 0) {
 			login_port = atoi(w2);
 		} else if (strcmpi(w1, "char_ip") == 0) {
-			char ip_str[16];
 			char_ip = host2ip(w2);
 			if (char_ip){
+				char ip_str[16];
 				safestrncpy(char_ip_str, w2, sizeof(char_ip_str));
 				ShowStatus("Character server IP address : %s -> %s\n", w2, ip2str(char_ip, ip_str));
 			}
 		} else if (strcmpi(w1, "bind_ip") == 0) {
-			char ip_str[16];
 			bind_ip = host2ip(w2);
 			if (bind_ip) {
+				char ip_str[16];
 				safestrncpy(bind_ip_str, w2, sizeof(bind_ip_str));
 				ShowStatus("Character server binding IP address : %s -> %s\n", w2, ip2str(bind_ip, ip_str));
 			}

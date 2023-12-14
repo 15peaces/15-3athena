@@ -301,7 +301,6 @@ int merc_hom_levelup(struct homun_data *hd)
 	struct h_stats *min, *max;
 	int growth_str, growth_agi, growth_vit, growth_int, growth_dex, growth_luk ;
 	int growth_max_hp, growth_max_sp ;
-	char output[256] ;
 
 	if (hd->homunculus.level == hd->homunculusDB->maxlevel || !hd->exp_next || hd->homunculus.exp < hd->exp_next)
 		return 0 ;
@@ -361,6 +360,8 @@ int merc_hom_levelup(struct homun_data *hd)
 	clif_homskillinfoblock(hd->master);
 
 	if ( battle_config.homunculus_show_growth ) {
+		char output[256];
+
 		sprintf(output,
 			"Growth: hp:%d sp:%d str(%.2f) agi(%.2f) vit(%.2f) int(%.2f) dex(%.2f) luk(%.2f) ",
 			growth_max_hp, growth_max_sp,
@@ -796,7 +797,7 @@ int merc_hom_change_name_ack(struct map_session_data *sd, char* name, int flag)
 		clif_displaymessage(sd->fd, msg_txt(sd,280)); // You cannot use this name
 		return 0;
 	}
-	strncpy(hd->homunculus.name,name,NAME_LENGTH);
+	safestrncpy(hd->homunculus.name,name,NAME_LENGTH);
 	clif_charnameack (0,&hd->bl);
 	hd->homunculus.rename_flag = 1;
 	clif_hominfo(sd,hd,0);
@@ -1001,7 +1002,7 @@ int merc_create_homunculus_request(struct map_session_data *sd, int class_)
 	
 	memset(&homun, 0, sizeof(struct s_homunculus));
 	//Initial data
-	strncpy(homun.name, homunculus_db[i].name, NAME_LENGTH-1);
+	safestrncpy(homun.name, homunculus_db[i].name, NAME_LENGTH-1);
 	homun.class_ = class_;
 	homun.level = 1;
 	homun.hunger = 32; //32%
@@ -1207,7 +1208,7 @@ static bool read_homunculusdb_sub(char* str[], int columns, int current)
 	}
 	db->evo_class = classid;
 	//Name, Max Level, Food, Hungry Delay, Base Size, Evo Size, Race, Element, ASPD
-	strncpy(db->name,str[2],NAME_LENGTH-1);
+	safestrncpy(db->name,str[2],NAME_LENGTH-1);
 	db->maxlevel = atoi(str[3]);
 	db->foodID = atoi(str[4]);
 	db->hungryDelay = atoi(str[5]);
@@ -1306,10 +1307,11 @@ int read_homunculusdb(void)
 	memset(homunculus_db,0,sizeof(homunculus_db));
 	for(i = 0; i<ARRAYLENGTH(filename); i++)
 	{
-		char path[256];
 
 		if( i > 0 )
 		{
+			char path[256];
+
 			sprintf(path, "%s/%s", db_path, filename[i]);
 
 			if( !exists(path) )

@@ -187,12 +187,10 @@ void do_clear_npc(void);
 int do_final_npc(void);
 int do_init_npc(void);
 void npc_event_do_oninit(void);
-int npc_do_ontimer(int npc_id, int option);
 
 int npc_event_do(const char* name);
 int npc_event_doall(const char* name);
 int npc_event_doall_id(const char* name, int rid);
-bool npc_event_isspecial(const char* eventname);
 
 int npc_timerevent_start(struct npc_data* nd, int rid);
 int npc_timerevent_stop(struct npc_data* nd);

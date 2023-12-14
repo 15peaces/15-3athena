@@ -2576,7 +2576,7 @@ int map_mapindex2mapid(unsigned short mapindex)
  *------------------------------------------*/
 int map_mapname2ipport(unsigned short name, uint32* ip, uint16* port)
 {
-	struct map_data_other_server *mdos=NULL;
+	struct map_data_other_server *mdos;
 
 	mdos = (struct map_data_other_server*)uidb_get(map_db,(unsigned int)name);
 	if(mdos==NULL || mdos->cell) //If gat isn't null, this is a local map.
@@ -2977,7 +2977,7 @@ static DBData create_map_data_other_server(DBKey key, va_list args)
  *------------------------------------------*/
 int map_setipport(unsigned short mapindex, uint32 ip, uint16 port)
 {
-	struct map_data_other_server *mdos=NULL;
+	struct map_data_other_server *mdos;
 
 	mdos=uidb_ensure(map_db,(unsigned int)mapindex, create_map_data_other_server);
 	
@@ -3488,7 +3488,7 @@ int map_config_read(char *cfgName)
 		*ptr = '\0';
 			
 		if(strcmpi(w1,"timestamp_format")==0)
-			strncpy(timestamp_format, w2, 20);
+			safestrncpy(timestamp_format, w2, 20);
 		else 
 		if(strcmpi(w1,"stdout_with_ansisequence")==0)
 			stdout_with_ansisequence = config_switch(w2);
@@ -3558,10 +3558,10 @@ int map_config_read(char *cfgName)
 			strcpy(charhelp_txt, w2);
 		else
 		if(strcmpi(w1,"map_cache_file") == 0)
-			strncpy(map_cache_file,w2,255);
+			safestrncpy(map_cache_file,w2,255);
 		else
 		if(strcmpi(w1,"db_path") == 0)
-			strncpy(db_path,w2,255);
+			safestrncpy(db_path,w2,255);
 		else
 		if (strcmpi(w1, "console") == 0) {
 			console = config_switch(w2);

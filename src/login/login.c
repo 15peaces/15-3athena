@@ -1652,7 +1652,7 @@ int login_config_read(const char* cfgName)
 			continue;
 
 		if(!strcmpi(w1,"timestamp_format"))
-			strncpy(timestamp_format, w2, 20);
+			safestrncpy(timestamp_format, w2, 20);
 		else if(!strcmpi(w1,"stdout_with_ansisequence"))
 			stdout_with_ansisequence = config_switch(w2);
 		else if(!strcmpi(w1,"console_silent")) {
@@ -1660,10 +1660,11 @@ int login_config_read(const char* cfgName)
 			msg_silent = atoi(w2);
 		}
 		else if( !strcmpi(w1, "bind_ip") ) {
-			char ip_str[16];
 			login_config.login_ip = host2ip(w2);
-			if( login_config.login_ip )
+			if (login_config.login_ip) {
+				char ip_str[16];
 				ShowStatus("Login server binding IP address : %s -> %s\n", w2, ip2str(login_config.login_ip, ip_str));
+			}
 		}
 		else if( !strcmpi(w1, "login_port") ) {
 			login_config.login_port = (uint16)atoi(w2);
@@ -1705,10 +1706,10 @@ int login_config_read(const char* cfgName)
 		else if (!strcmpi(w1, "client_hash")) {
 			int group = 0;
 			char md5[33];
-			int i;
 
 			if (sscanf(w2, "%d, %32s", &group, md5) == 2) {
 				struct client_hash_node *nnode;
+				int i;
 				CREATE(nnode, struct client_hash_node, 1);
 
 				if (strcmpi(md5, "disabled") == 0) {

@@ -224,11 +224,11 @@ int party_request_info(int party_id, int char_id)
 /// Invoked (from char-server) when the party info is not found.
 int party_recv_noinfo(int party_id, int char_id)
 {
-	struct map_session_data* sd;
-
 	party_broken(party_id);
 	if( char_id != 0 )// requester
 	{
+		struct map_session_data* sd;
+
 		sd = map_charid2sd(char_id);
 		if( sd && sd->status.party_id == party_id )
 			sd->status.party_id = 0;
@@ -770,7 +770,6 @@ int party_recv_movemap(int party_id, int account_id, int char_id, unsigned short
 
 void party_send_movemap(struct map_session_data *sd)
 {
-	int i;
 	struct party_data *p;
 
 	if( sd->status.party_id==0 )
@@ -789,6 +788,8 @@ void party_send_movemap(struct map_session_data *sd)
 	}
 
 	if (sd->fd) { // synchronize minimap positions with the rest of the party
+		int i;
+
 		for(i=0; i < MAX_PARTY; i++) {
 			if (p->data[i].sd && 
 				p->data[i].sd != sd &&

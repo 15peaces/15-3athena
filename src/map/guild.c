@@ -66,6 +66,10 @@ static struct eri *expcache_ers; //For handling of guild exp payment.
 
 static int guild_send_xy_timer(int tid, int64 tick, int id, intptr_t data);
 
+/* guild flags cache */
+struct npc_data **guild_flags;
+unsigned short guild_flags_count;
+
 /*==========================================
  * Retrieves and validates the sd pointer for this guild member [Skotlex]
  *------------------------------------------*/
@@ -1049,16 +1053,11 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 
 	// update npcs (flags or other npcs that used flagemblem to attach to this guild)
 	{
-		// TODO this is not efficient [FlavioJS]
-		struct s_mapiterator* iter = mapit_geteachnpc();
-		TBL_NPC* nd;
-		for( nd = (TBL_NPC*)mapit_first(iter) ; mapit_exists(iter); nd = (TBL_NPC*)mapit_next(iter) )
-		{
-			if( nd->subtype != NPCTYPE_SCRIPT || nd->u.scr.guild_id != guild_id )
-				continue;
-			clif_guild_emblem_area(&nd->bl);
+		for (i = 0; i < guild_flags_count; i++) {
+			if (guild_flags[i] && guild_flags[i]->u.scr.guild_id == guild_id) {
+				clif_guild_emblem_area(&guild_flags[i]->bl);
+			}
 		}
-		mapit_free(iter);
 	}
 
 	return 0;
@@ -1481,13 +1480,14 @@ int guild_broken_sub(DBKey key, DBData *data, va_list ap)
 //Invoked on Castles when a guild is broken. [Skotlex]
 int castle_guild_broken_sub(DBKey key, DBData *data, va_list ap)
 {
-	char name[EVENT_NAME_LENGTH];
 	struct guild_castle *gc = db_data2ptr(data);
 	int guild_id = va_arg(ap, int);
 
 	nullpo_ret(gc);
 
 	if (gc->guild_id == guild_id) {
+		char name[EVENT_NAME_LENGTH];
+
 		// We call castle_event::OnGuildBreak of all castles of the guild
 		// You can set all castle_events in the 'db/castle_db.txt'
 		safestrncpy(name, gc->castle_event, sizeof(name));
@@ -1734,6 +1734,49 @@ bool guild_isallied(int guild_id, int guild_id2)
 
 	ARR_FIND( 0, MAX_GUILDALLIANCE, i, g->alliance[i].guild_id == guild_id2 );
 	return( i < MAX_GUILDALLIANCE && g->alliance[i].opposition == 0 );
+}
+
+void guild_flag_add(struct npc_data *nd) {
+	int i;
+
+	/* check */
+	for (i = 0; i < guild_flags_count; i++) {
+		if (guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id) {
+			return;/* exists, most likely updated the id. */
+		}
+	}
+
+	i = guild_flags_count;/* save the current slot */
+	/* add */
+	RECREATE(guild_flags, struct npc_data*, ++guild_flags_count);
+	/* save */
+	guild_flags[i] = nd;
+}
+
+void guild_flag_remove(struct npc_data *nd) {
+	int i, cursor;
+	if (guild_flags_count == 0)
+		return;
+	/* find it */
+	for (i = 0; i < guild_flags_count; i++) {
+		if (guild_flags[i] && guild_flags[i]->bl.id == nd->bl.id) {/* found */
+			guild_flags[i] = NULL;
+			break;
+		}
+	}
+
+	/* compact list */
+	for (i = 0, cursor = 0; i < guild_flags_count; i++) {
+		if (guild_flags[i] == NULL)
+			continue;
+
+		if (cursor != i) {
+			memmove(&guild_flags[cursor], &guild_flags[i], sizeof(struct npc_data*));
+		}
+
+		cursor++;
+	}
+
 }
 
 static int eventlist_db_final(DBKey key, DBData *data, va_list ap)
@@ -2145,13 +2188,26 @@ static int guild_expcache_db_final(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
+/* called when scripts are reloaded/unloaded */
+void guild_flags_clear(void) {
+	int i;
+	for (i = 0; i < guild_flags_count; i++) {
+		if (guild_flags[i])
+			guild_flags[i] = NULL;
+	}
+
+	guild_flags_count = 0;
+}
+
 void do_init_guild(void)
 {
 	guild_db=idb_alloc(DB_OPT_RELEASE_DATA);
-	guild_infoevent_db=idb_alloc(DB_OPT_BASE);
 	castle_db = idb_alloc(DB_OPT_BASE);
 	guild_expcache_db = idb_alloc(DB_OPT_BASE);
+	guild_infoevent_db = idb_alloc(DB_OPT_BASE);
 	expcache_ers = ers_new(sizeof(struct guild_expcache), "guild.c::expcache_ers", ERS_OPT_NONE);
+
+	guild_flags_count = 0;
 
 	memset(guild_skill_tree,0,sizeof(guild_skill_tree));
 	sv_readdb(db_path, "guild_skill_tree.txt", ',', 2+MAX_GUILD_SKILL_REQUIRE*2, 2+MAX_GUILD_SKILL_REQUIRE*2, -1, &guild_read_guildskill_tree_db); //guild skill tree [Komurka]
@@ -2170,4 +2226,6 @@ void do_final_guild(void)
 	guild_infoevent_db->destroy(guild_infoevent_db, eventlist_db_final);
 	castle_db->destroy(castle_db, guild_castle_db_final);
 	ers_destroy(expcache_ers);
+
+	aFree(guild_flags);/* never empty; created on boot */
 }

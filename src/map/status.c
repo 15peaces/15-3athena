@@ -4825,12 +4825,13 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, bool first)
 	{// calculate the object's base status too
 		switch( bl->type )
 		{
-		case BL_PC:  status_calc_pc_(BL_CAST(BL_PC,bl), first);           break;
-		case BL_MOB: status_calc_mob_(BL_CAST(BL_MOB,bl), first);         break;
-		case BL_PET: status_calc_pet_(BL_CAST(BL_PET,bl), first);         break;
-		case BL_HOM: status_calc_homunculus_(BL_CAST(BL_HOM,bl), first);  break;
-		case BL_MER: status_calc_mercenary_(BL_CAST(BL_MER,bl), first);   break;
-		case BL_ELEM: status_calc_elemental_(BL_CAST(BL_ELEM,bl), first); break;
+			case BL_PC:		status_calc_pc_(BL_CAST(BL_PC,bl), first);				break;
+			case BL_MOB:	status_calc_mob_(BL_CAST(BL_MOB,bl), first);			break;
+			case BL_PET:	status_calc_pet_(BL_CAST(BL_PET,bl), first);			break;
+			case BL_HOM:	status_calc_homunculus_(BL_CAST(BL_HOM,bl), first);		break;
+			case BL_MER:	status_calc_mercenary_(BL_CAST(BL_MER,bl), first);		break;
+			case BL_ELEM:	status_calc_elemental_(BL_CAST(BL_ELEM,bl), first);		break;
+			case BL_NPC:	status_calc_npc_(BL_CAST(BL_NPC, bl), first);			break;
 		}
 	}
 
@@ -6592,6 +6593,7 @@ int status_get_lv(struct block_list *bl) {
 		case BL_HOM: return ((TBL_HOM*)bl)->homunculus.level;
 		case BL_MER: return ((TBL_MER*)bl)->db->lv;
 		case BL_ELEM: return ((TBL_ELEM*)bl)->db->lv;
+		case BL_NPC: return ((TBL_NPC*)bl)->level;
 	}
 	return 1;
 }
@@ -6707,6 +6709,7 @@ struct status_data *status_get_status_data(struct block_list *bl) {
 		case BL_HOM: return &((TBL_HOM*)bl)->battle_status;
 		case BL_MER: return &((TBL_MER*)bl)->battle_status;
 		case BL_ELEM: return &((TBL_ELEM*)bl)->battle_status;
+		case BL_NPC: return ((mobdb_checkid(((TBL_NPC*)bl)->class_) == 0) ? &((TBL_NPC*)bl)->status : &dummy_status);
 		default:
 			return &dummy_status;
 	}
@@ -6721,6 +6724,7 @@ struct status_data *status_get_base_status(struct block_list *bl) {
 		case BL_HOM: return &((TBL_HOM*)bl)->base_status;
 		case BL_MER: return &((TBL_MER*)bl)->base_status;
 		case BL_ELEM: return &((TBL_ELEM*)bl)->base_status;
+		case BL_NPC: return ((mobdb_checkid(((TBL_NPC*)bl)->class_) == 0) ? &((TBL_NPC*)bl)->status : NULL);
 		default:
 			return NULL;
 	}
@@ -10263,7 +10267,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_CONFUSION:
 		case SC_CLOSECONFINE:
 		case SC_CLOSECONFINE2:
-		case SC_ANKLE:
 		case SC_SPIDERWEB:
 		case SC_ELECTRICSHOCKER:
 		case SC_WUGBITE:
@@ -10277,7 +10280,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_NEEDLE_OF_PARALYZE:
 		case SC_TINDER_BREAKER:
 			unit_stop_walking(bl,1);
-		break;
+			break;
+		case SC_ANKLE:
+			if (battle_config.skill_trap_type)
+				unit_stop_walking(bl, 1);
+			break;
 		case SC_HIDING:
 		case SC_CLOAKING:
 		case SC_CHASEWALK:

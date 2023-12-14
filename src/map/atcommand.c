@@ -1739,8 +1739,7 @@ ACMD_FUNC(item2)
 	int number = 0, bound = BOUND_NONE;
 	int identify = 0, refine = 0, attr = 0;
 	int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-	int flag;
-	int loop, get_count, i;
+
 	nullpo_retr(-1, sd);
 
 	memset(item_name, '\0', sizeof(item_name));
@@ -1777,6 +1776,9 @@ ACMD_FUNC(item2)
 		item_id = item_data->nameid;
 
 	if (item_id > 500) {
+		int flag;
+		int loop, get_count, i;
+
 		loop = 1;
 		get_count = number;
 		if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR ||
@@ -2698,7 +2700,7 @@ ACMD_FUNC(monster)
 	range = (int)sqrt((float)number) +2; // calculation of an odd number (+ 4 area around)
 	for (i = 0; i < number; i++) {
 		map_search_freecell(&sd->bl, 0, &mx,  &my, range, range, 0);
-		k = mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "");
+		k = mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "", 0, AI_NONE);
 		count += (k != 0) ? 1 : 0;
 	}
 
@@ -2783,7 +2785,7 @@ ACMD_FUNC(monstersmall)
 			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
-		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "2") != 0) ? 1 : 0;
+		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "", 1, AI_NONE) != 0) ? 1 : 0;
 	}
 
 	if (count != 0)
@@ -2859,7 +2861,7 @@ ACMD_FUNC(monsterbig)
 			my = sd->bl.y + (rnd() % 11 - 5);
 		else
 			my = y;
-		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "4") != 0) ? 1 : 0;
+		count += (mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "", 2, AI_NONE) != 0) ? 1 : 0;
 	}
 
 	if (count != 0)
@@ -3044,7 +3046,6 @@ ACMD_FUNC(produce)
 	char item_name[100];
 	unsigned short item_id;
 	int attribute = 0, star = 0;
-	int flag = 0;
 	struct item_data *item_data;
 	struct item tmp_item;
 	nullpo_retr(-1, sd);
@@ -3069,6 +3070,8 @@ ACMD_FUNC(produce)
 	}
 	item_id = item_data->nameid;
 	if (itemdb_isequip2(item_data)) {
+		int flag = 0;
+
 		if (attribute < MIN_ATTRIBUTE || attribute > MAX_ATTRIBUTE)
 			attribute = ATTRIBUTE_NORMAL;
 		if (star < MIN_STAR || star > MAX_STAR)
@@ -3703,7 +3706,7 @@ ACMD_FUNC(char_ban)
 
 	bantype = strcmpi(command + 1, "charban") ? 2 : 7; //! FIXME this breaking alias recognition
 
-	if (!message || !*message || sscanf(message, "%s %23[^\n]", atcmd_output, atcmd_player_name) < 2) {
+	if (!message || !*message || sscanf(message, "%255s %23[^\n]", atcmd_output, atcmd_player_name) < 2) {
 		clif_displaymessage(fd, msg_txt(sd, 470)); // Please enter ban time and a player name (usage: @charban/@ban/@banish/@charbanish <time> <char name>).
 		return -1;
 	}
@@ -4262,32 +4265,34 @@ ACMD_FUNC(guild)
  *------------------------------------------*/
 ACMD_FUNC(breakguild) 
 { 
-        int ret = 0; 
-        struct guild *g; 
         nullpo_retr(-1, sd); 
  
         if (sd->status.guild_id) { // Check if the player has a guild 
-		if (!(battle_config.guild_break&2)) {
-			clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(sd,718));
-			return -1;
-		}
-                g = guild_search(sd->status.guild_id); // Search the guild 
-                if (g) { // Check if guild was found 
-                        if (sd->state.gmaster_flag) { // Check if player is guild master 
-                                ret = guild_break(sd, g->name); // Break guild 
-                                if (ret) { // Check if anything went wrong 
-                                        return 0; // Guild was broken 
-                                } else { 
-                                        return -1; // Something went wrong 
-                                } 
-                        } else { // Not guild master 
-                                clif_displaymessage(fd, msg_txt(sd,1181)); // You need to be a Guild Master to use this command. 
-                                return -1; 
-                        } 
-                } else { // Guild was not found. HOW? 
-                        clif_displaymessage(fd, msg_txt(sd,252)); // You are not in a guild. 
-                        return -1; 
-                } 
+			struct guild *g;
+
+			if (!(battle_config.guild_break&2)) {
+				clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(sd,718));
+				return -1;
+			}
+			g = guild_search(sd->status.guild_id); // Search the guild 
+			if (g) { // Check if guild was found 
+				int ret = 0;
+
+				if (sd->state.gmaster_flag) { // Check if player is guild master 
+					ret = guild_break(sd, g->name); // Break guild 
+					if (ret) { // Check if anything went wrong 
+						return 0; // Guild was broken 
+					} else { 
+						return -1; // Something went wrong 
+					} 
+				} else { // Not guild master 
+					clif_displaymessage(fd, msg_txt(sd,1181)); // You need to be a Guild Master to use this command. 
+					return -1; 
+				} 
+			} else { // Guild was not found. HOW? 
+				 clif_displaymessage(fd, msg_txt(sd,252)); // You are not in a guild. 
+				 return -1; 
+			} 
         } else { // Player does not have a guild 
                 clif_displaymessage(fd, msg_txt(sd,252)); // You are not in a guild. 
                 return -1; 
@@ -5804,7 +5809,7 @@ ACMD_FUNC(jailfor)
 
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
 
-	if (!message || !*message || sscanf(message, "%s %23[^\n]",atcmd_output,atcmd_player_name) < 2) {
+	if (!message || !*message || sscanf(message, "%255s %23[^\n]",atcmd_output,atcmd_player_name) < 2) {
 		clif_displaymessage(fd, msg_txt(sd,400));	//Usage: @jailfor <time> <character name>
 		return -1;
 	}
@@ -6501,7 +6506,9 @@ ACMD_FUNC(useskill)
 		return -1;
 	}
 
-	if ( (pl_sd = map_nick2sd(target)) == NULL )
+	if (!strcmp(target, "self"))
+		pl_sd = sd; //quick keyword
+	else if ((pl_sd = map_nick2sd(target)) == NULL)
 	{
 		clif_displaymessage(fd, msg_txt(sd,3)); // Character not found.
 		return -1;
@@ -6882,7 +6889,7 @@ ACMD_FUNC(partyoption)
 ACMD_FUNC(autoloot)
 {
 	int rate;
-	double drate;
+
 	nullpo_retr(-1, sd);
 	// autoloot command without value
 	if(!message || !*message)
@@ -6892,6 +6899,7 @@ ACMD_FUNC(autoloot)
 		else
 			rate = 10000;
 	} else {
+		double drate;
 		drate = atof(message);
 		rate = (int)(drate*100);
 	}
@@ -7488,7 +7496,7 @@ ACMD_FUNC(summon)
 		return -1;
 	}
 
-	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, -1, -1, "--ja--", mob_id, "");
+	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, -1, -1, "--ja--", mob_id, "", 0, AI_NONE);
 
 	if(!md)
 		return -1;
@@ -7808,12 +7816,13 @@ ACMD_FUNC(identify)
  *------------------------------------------*/
 ACMD_FUNC(gmotd)
 {
-	char buf[CHAT_SIZE_MAX];
-	size_t len;
 	FILE* fp;
 
 	if( ( fp = fopen(motd_txt, "r") ) != NULL )
 	{
+		char buf[CHAT_SIZE_MAX];
+		size_t len;
+
 		while( fgets(buf, sizeof(buf), fp) )
 		{
 			if( buf[0] == '/' && buf[1] == '/' )
@@ -9203,7 +9212,7 @@ ACMD_FUNC(invite)
 	unsigned int did = sd->duel_group;
 	struct map_session_data *target_sd = map_nick2sd((char *)message);
 
-	if(did <= 0)	{
+	if(did == 0) {
 		// "Duel: @invite without @duel."
 		clif_displaymessage(fd, msg_txt(sd,350));
 		return 0;
@@ -9244,9 +9253,7 @@ ACMD_FUNC(invite)
 
 ACMD_FUNC(duel)
 {
-	char output[CHAT_SIZE_MAX];
-	unsigned int maxpl=0, newduel;
-	struct map_session_data *target_sd;
+	unsigned int maxpl = 0;
 
 	if(sd->duel_group > 0) {
 		duel_showinfo(sd->duel_group, sd);
@@ -9260,6 +9267,8 @@ ACMD_FUNC(duel)
 	}
 
 	if(!duel_checktime(sd)) {
+		char output[CHAT_SIZE_MAX];
+
 		// "Duel: You can take part in duel only one time per %d minutes."
 		sprintf(output, msg_txt(sd,356), battle_config.duel_time_interval);
 		clif_displaymessage(fd, output);
@@ -9274,8 +9283,12 @@ ACMD_FUNC(duel)
 			}
 			duel_create(sd, maxpl);
 		} else {
+			struct map_session_data *target_sd;
+
 			target_sd = map_nick2sd((char *)message);
 			if(target_sd != NULL) {
+				unsigned int maxpl = 0, newduel;
+
 				if((newduel = duel_create(sd, 2)) != -1) {
 					if(target_sd->duel_group > 0 ||	target_sd->duel_invite > 0) {
 						clif_displaymessage(fd, msg_txt(sd,353)); // "Duel: Player already in duel."
@@ -9312,9 +9325,9 @@ ACMD_FUNC(leave)
 
 ACMD_FUNC(accept)
 {
-	char output[CHAT_SIZE_MAX];
-
 	if(!duel_checktime(sd)) {
+		char output[CHAT_SIZE_MAX];
+
 		// "Duel: You can take part in duel only one time per %d minutes."
 		sprintf(output, msg_txt(sd,356), battle_config.duel_time_interval);
 		clif_displaymessage(fd, output);

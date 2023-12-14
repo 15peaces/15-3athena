@@ -629,15 +629,8 @@ static void check_event(struct script_state *st, const char *evt)
 {
 	if( evt && evt[0] && !stristr(evt, "::On") )
 	{
-		if( npc_event_isspecial(evt) )
-		{
-			;  // portable small/large monsters or other attributes
-		}
-		else
-		{
-			ShowWarning("NPC event parameter deprecated! Please use 'NPCNAME::OnEVENT' instead of '%s'.\n", evt);
-			script_reportsrc(st);
-		}
+		ShowWarning("NPC event parameter deprecated! Please use 'NPCNAME::OnEVENT' instead of '%s'.\n", evt);
+		script_reportsrc(st);
 	}
 }
 
@@ -9152,13 +9145,15 @@ BUILDIN_FUNC(guildchangegm)
  *------------------------------------------*/
 BUILDIN_FUNC(monster)
 {
-	const char* mapn  = script_getstr(st,2);
-	int x             = script_getnum(st,3);
-	int y             = script_getnum(st,4);
-	const char* str   = script_getstr(st,5);
-	int class_        = script_getnum(st,6);
-	int amount        = script_getnum(st,7);
-	const char* event = "";
+	const char* mapn	= script_getstr(st,2);
+	int x				= script_getnum(st,3);
+	int y				= script_getnum(st,4);
+	const char* str		= script_getstr(st,5);
+	int class_			= script_getnum(st,6);
+	int amount			= script_getnum(st,7);
+	const char* event	= "";
+	unsigned int size	= 0;
+	unsigned int ai		= AI_NONE;
 
 	struct map_session_data* sd;
 	int m,i;
@@ -9168,6 +9163,26 @@ BUILDIN_FUNC(monster)
 	{
 		event = script_getstr(st,8);
 		check_event(st, event);
+	}
+
+	if (script_hasdata(st, 9))
+	{
+		size = script_getnum(st, 9);
+		if (size > 3)
+		{
+			ShowWarning("buildin_monster: Attempted to spawn non-existing size %d for monster class %d\n", size, class_);
+			return 1;
+		}
+	}
+
+	if (script_hasdata(st, 10))
+	{
+		ai = script_getnum(st, 10);
+		if (ai > 6)
+		{
+			ShowWarning("buildin_monster: Attempted to spawn non-existing ai %d for monster class %d\n", ai, class_);
+			return 1;
+		}
 	}
 
 	if (class_ >= 0 && !mobdb_checkid(class_)) {
@@ -9193,7 +9208,7 @@ BUILDIN_FUNC(monster)
 	}
 
 	for(i = 0; i < amount; i++) { //not optimised
-		int mobid = mob_once_spawn(sd,m,x,y,str,class_,1,event);
+		int mobid = mob_once_spawn(sd,m,x,y,str,class_,1,event,size,ai);
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
 	}
@@ -9241,15 +9256,17 @@ BUILDIN_FUNC(getmobdrops)
  *------------------------------------------*/
 BUILDIN_FUNC(areamonster)
 {
-	const char* mapn  = script_getstr(st,2);
-	int x0            = script_getnum(st,3);
-	int y0            = script_getnum(st,4);
-	int x1            = script_getnum(st,5);
-	int y1            = script_getnum(st,6);
-	const char* str   = script_getstr(st,7);
-	int class_        = script_getnum(st,8);
-	int amount        = script_getnum(st,9);
-	const char* event = "";
+	const char* mapn	= script_getstr(st,2);
+	int x0				= script_getnum(st,3);
+	int y0				= script_getnum(st,4);
+	int x1				= script_getnum(st,5);
+	int y1				= script_getnum(st,6);
+	const char* str		= script_getstr(st,7);
+	int class_			= script_getnum(st,8);
+	int amount			= script_getnum(st,9);
+	const char* event	= "";
+	unsigned int size	= 0;
+	unsigned int ai		= AI_NONE;
 
 	struct map_session_data* sd;
 	int m,i;
@@ -9258,6 +9275,26 @@ BUILDIN_FUNC(areamonster)
 	{
 		event = script_getstr(st,10);
 		check_event(st, event);
+	}
+
+	if (script_hasdata(st, 11))
+	{
+		size = script_getnum(st, 11);
+		if (size > 3)
+		{
+			ShowWarning("buildin_monster: Attempted to spawn non-existing size %d for monster class %d\n", size, class_);
+			return 1;
+		}
+	}
+
+	if (script_hasdata(st, 12))
+	{
+		ai = script_getnum(st, 12);
+		if (ai > 6)
+		{
+			ShowWarning("buildin_monster: Attempted to spawn non-existing ai %d for monster class %d\n", ai, class_);
+			return 1;
+		}
 	}
 
 	if (class_ >= 0 && !mobdb_checkid(class_)) {
@@ -9283,7 +9320,7 @@ BUILDIN_FUNC(areamonster)
 	}
 	
 	for(i = 0; i < amount; i++) { //not optimised
-		int mobid = mob_once_spawn_area(sd, m, x0, y0, x1, y1, str, class_, 1, event);
+		int mobid = mob_once_spawn_area(sd, m, x0, y0, x1, y1, str, class_, 1, event, size, ai);
 
 		if (mobid)
 			mapreg_setreg(reference_uid(add_str("$@mobid"), i), mobid);
@@ -11037,9 +11074,8 @@ BUILDIN_FUNC(addrid)
 BUILDIN_FUNC(attachrid)
 {
 	int rid = script_getnum(st,2);
-	struct map_session_data* sd;
 
-	if ((sd = map_id2sd(rid))!=NULL) {
+	if (map_id2sd(rid) != NULL) {
 		script_detach_rid(st);
 
 		st->rid = rid;
@@ -11712,8 +11748,14 @@ BUILDIN_FUNC(flagemblem)
 	}
 	else
 	{
+		bool changed = (nd->u.scr.guild_id != g_id) ? true : false;
 		nd->u.scr.guild_id = g_id;
 		clif_guild_emblem_area(&nd->bl);
+		/* guild flag caching */
+		if (g_id) /* adding a id */
+			guild_flag_add(nd);
+		else if (changed) /* removing a flag */
+			guild_flag_remove(nd);
 	}
 	return 0;
 }
@@ -13957,7 +13999,7 @@ BUILDIN_FUNC(summon)
 
 	clif_skill_poseffect(&sd->bl,AM_CALLHOMUN,1,sd->bl.x,sd->bl.y,tick);
 
-	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, sd->bl.x, sd->bl.y, str, _class, event);
+	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, sd->bl.x, sd->bl.y, str, _class, event, 0, AI_NONE);
 	if (md) {
 		md->master_id=sd->bl.id;
 		md->special_state.ai=1;
@@ -18307,12 +18349,14 @@ BUILDIN_FUNC(instance_attach)
 
 BUILDIN_FUNC(instance_id)
 {
-	int type, instance_id;
-	struct map_session_data *sd;
-	struct party_data *p;
+	int instance_id;
 	
 	if( script_hasdata(st, 2) )
 	{
+		struct map_session_data *sd;
+		struct party_data *p;
+		int type;
+
 		type = script_getnum(st, 2);
 		if( type == 0 )
 			instance_id = st->instance_id;
@@ -20593,9 +20637,9 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(makerune,"i"),
 	BUILDIN_DEF(hascashmount,""),//[Ind]
 	BUILDIN_DEF(setcashmount,""),//[Ind]
-	BUILDIN_DEF(monster,"siisii?"),
+	BUILDIN_DEF(monster,"siisii???"),
 	BUILDIN_DEF(getmobdrops,"i"),
-	BUILDIN_DEF(areamonster,"siiiisii?"),
+	BUILDIN_DEF(areamonster,"siiiisii???"),
 	BUILDIN_DEF(killmonster,"ss?"),
 	BUILDIN_DEF(killmonsterall,"s?"),
 	BUILDIN_DEF(clone,"siisi????"),

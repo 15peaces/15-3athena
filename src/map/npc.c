@@ -28,6 +28,7 @@
 #include "npc.h"
 #include "chat.h"
 #include "achievement.h"
+#include "guild.h" // guild flag cache
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -342,15 +343,6 @@ int npc_event_doall_id(const char* name, int rid)
 	return c;
 }
 
-
-/// Checks whether or not the event name is used as transport for
-/// special flags.
-bool npc_event_isspecial(const char* eventname)
-{
-	return (bool)( eventname && ISDIGIT(eventname[0]) && !strstr(eventname, "::") );
-}
-
-
 /*==========================================
  * 時計イベント実行
  *------------------------------------------*/
@@ -360,24 +352,25 @@ int npc_event_do_clock(int tid, int64 tick, int id, intptr_t data)
 	time_t timer;
 	struct tm* t;
 	char buf[64];
-	char* day;
 	int c = 0;
 
 	timer = time(NULL);
 	t = localtime(&timer);
 
-	switch (t->tm_wday) {
-	case 0: day = "Sun"; break;
-	case 1: day = "Mon"; break;
-	case 2: day = "Tue"; break;
-	case 3: day = "Wed"; break;
-	case 4: day = "Thu"; break;
-	case 5: day = "Fri"; break;
-	case 6: day = "Sat"; break;
-	default:day = ""; break;
-	}
-
 	if (t->tm_min != ev_tm_b.tm_min ) {
+		char* day;
+
+		switch (t->tm_wday) {
+			case 0: day = "Sun"; break;
+			case 1: day = "Mon"; break;
+			case 2: day = "Tue"; break;
+			case 3: day = "Wed"; break;
+			case 4: day = "Thu"; break;
+			case 5: day = "Fri"; break;
+			case 6: day = "Sat"; break;
+			default:day = ""; break;
+		}
+
 		sprintf(buf,"OnMinute%02d",t->tm_min);
 		c+=npc_event_doall(buf);
 		sprintf(buf,"OnClock%02d%02d",t->tm_hour,t->tm_min);
@@ -499,10 +492,8 @@ int npc_timerevent(int tid, int64 tick, int id, intptr_t data)
 		if( sd )
 			sd->npc_timer_id = INVALID_TIMER;
 		else
-		{
 			nd->u.scr.timerid = INVALID_TIMER;
-			nd->u.scr.timertick = 0; // NPC timer stopped
-		}
+
 		ers_free(timer_event_ers, ted);
 	}
 
@@ -523,21 +514,14 @@ int npc_timerevent(int tid, int64 tick, int id, intptr_t data)
  *------------------------------------------*/
 int npc_timerevent_start(struct npc_data* nd, int rid)
 {
-	int j, next;
+	int j;
 	int64 tick = gettick();
 	struct map_session_data *sd = NULL; //Player to whom script is attached.
-	struct timer_event_data *ted;
 		
 	nullpo_ret(nd);
 
-	// No need to start because of no events
-	if( nd->u.scr.timeramount == 0 )
-		return 0;
-
 	// Check if there is an OnTimer Event
 	ARR_FIND( 0, nd->u.scr.timeramount, j, nd->u.scr.timer_event[j].timer > nd->u.scr.timer );
-	if( j >= nd->u.scr.timeramount ) // No need to start because of no events left to trigger
-		return 0;
 
 	if( nd->u.scr.rid > 0 && !(sd = map_id2sd(nd->u.scr.rid)) )
 	{ // Failed to attach timer to this player.
@@ -551,24 +535,34 @@ int npc_timerevent_start(struct npc_data* nd, int rid)
 		if( sd->npc_timer_id != INVALID_TIMER )
 			return 0;
 	}
-	else if( nd->u.scr.timerid != INVALID_TIMER )
+	else if( nd->u.scr.timerid != INVALID_TIMER || nd->u.scr.timertick )
 		return 0;
 
-	// Arrange for the next event		
-	ted = ers_alloc(timer_event_ers, struct timer_event_data);
-	ted->next = j; // Set event index
-	ted->time = nd->u.scr.timer_event[j].timer;
-	next = nd->u.scr.timer_event[j].timer - nd->u.scr.timer;
-	if( sd )
+	if (j < nd->u.scr.timeramount)
 	{
-		ted->rid = sd->bl.id; // Attach only the player if attachplayerrid was used.
-		sd->npc_timer_id = add_timer(tick+next,npc_timerevent,nd->bl.id,(intptr_t)ted);
+		int next;
+		struct timer_event_data *ted;
+
+		// Arrange for the next event
+		ted = ers_alloc(timer_event_ers, struct timer_event_data);
+		ted->next = j; // Set event index
+		ted->time = nd->u.scr.timer_event[j].timer;
+		next = nd->u.scr.timer_event[j].timer - nd->u.scr.timer;
+		if (sd)
+		{
+			ted->rid = sd->bl.id; // Attach only the player if attachplayerrid was used.
+			sd->npc_timer_id = add_timer(tick + next, npc_timerevent, nd->bl.id, (intptr_t)ted);
+		}
+		else
+		{
+			ted->rid = 0;
+			nd->u.scr.timertick = tick; // Set when timer is started
+			nd->u.scr.timerid = add_timer(tick + next, npc_timerevent, nd->bl.id, (intptr_t)ted);
+		}
 	}
-	else
+	else if (!sd)
 	{
-		ted->rid = 0;
-		nd->u.scr.timertick = tick; // Set when timer is started
-		nd->u.scr.timerid = add_timer(tick+next,npc_timerevent,nd->bl.id,(intptr_t)ted);
+		nd->u.scr.timertick = tick;
 	}
 
 	return 0;
@@ -591,17 +585,20 @@ int npc_timerevent_stop(struct npc_data* nd)
 	}
 	
 	tid = sd?&sd->npc_timer_id:&nd->u.scr.timerid;
-	if( *tid == INVALID_TIMER ) // Nothing to stop
+	if( *tid == INVALID_TIMER && (sd || !nd->u.scr.timertick) ) // Nothing to stop
 		return 0;
 
 	// Delete timer
-	td = get_timer(*tid);
-	if( td && td->data ) 
-		ers_free(timer_event_ers, (void*)td->data);
-	delete_timer(*tid,npc_timerevent);
-	*tid = INVALID_TIMER;
+	if (*tid != INVALID_TIMER)
+	{
+		td = get_timer(*tid);
+		if (td && td->data)
+			ers_free(timer_event_ers, (void*)td->data);
+		delete_timer(*tid, npc_timerevent);
+		*tid = INVALID_TIMER;
+	}
 
-	if( !sd )
+	if( !sd && nd->u.scr.timertick )
 	{
 		nd->u.scr.timer += DIFF_TICK32(gettick(),nd->u.scr.timertick); // Set 'timer' to the time that has passed since the beginning of the timers
 		nd->u.scr.timertick = 0; // Set 'tick' to zero so that we know it's off.
@@ -1999,7 +1996,7 @@ int npc_unload(struct npc_data* nd, bool single)
 		mapit_free(iter);
 
 		if (nd->u.scr.timerid != INVALID_TIMER) {
-			const struct TimerData *td = NULL;
+			const struct TimerData *td;
 			td = get_timer(nd->u.scr.timerid);
 			if (td && td->data) 
 				ers_free(timer_event_ers, (void*)td->data);
@@ -2027,6 +2024,8 @@ int npc_unload(struct npc_data* nd, bool single)
 			aFree(nd->sc_display);
 			nd->sc_display = NULL;
 		}
+		if (nd->u.scr.guild_id)
+			guild_flag_remove(nd);
 	}
 
 	script_stop_sleeptimers(nd->bl.id);
@@ -2078,7 +2077,7 @@ void npc_addsrcfile(const char* name)
 
 	file = (struct npc_src_list*)aMalloc(sizeof(struct npc_src_list) + strlen(name));
 	file->next = NULL;
-	strncpy(file->name, name, strlen(name) + 1);
+	safestrncpy(file->name, name, strlen(name) + 1);
 	if( file_prev == NULL )
 		npc_src_files = file;
 	else
@@ -3292,8 +3291,10 @@ void npc_parse_mob2(struct spawn_data* mob)
 
 static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath)
 {
-	int num, class_, m,x,y,xs,ys, i,j, episode_ident = 0, min_episode = 0, max_episode = 0;
+	int num, class_, m,x,y,xs,ys, i,j;
 	char mapname[32];
+	int episode_ident = 0, min_episode = 0, max_episode = 0;
+	int ai = -1, size = -1;
 	struct spawn_data mob, *data;
 	struct mob_db* db;
 
@@ -3302,7 +3303,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 	mob.state.boss = !strcmpi(w2,"boss_monster");
 
 	// w1=<map name>,<x>,<y>,<xs>,<ys>{,<episode_flag>,<min_episode>,<max_episode>}
-	// w4=<mob id>,<amount>,<delay1>,<delay2>,<event>
+	// w4=<mob id>,<amount>,<delay1>,<delay2>,<event>{,<mob size>,<mob ai>}
 	if( sscanf(w1, "%31[^,],%d,%d,%d,%d,%d,%d,%d", mapname, &x, &y, &xs, &ys, &episode_ident, &min_episode, &max_episode) == 8);
 	else if( sscanf(w1, "%31[^,],%d,%d,%d,%d", mapname, &x, &y, &xs, &ys) == 5);
 	else {
@@ -3310,7 +3311,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		return strchr(start,'\n');// skip and continue
 	}
 
-	if(sscanf(w4, "%d,%d,%u,%u,%127[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname) < 2 ) {
+	if(sscanf(w4, "%d,%d,%u,%u,%127[^,],%d,%d[^\t\r\n]", &class_, &num, &mob.delay1, &mob.delay2, mob.eventname, &size, &ai) < 2) {
 		ShowError("npc_parse_mob: Invalid mob definition in file '%s', line '%d'.\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer,start-buffer), w1, w2, w3, w4);
 		return strchr(start,'\n');// skip and continue
 	}
@@ -3351,6 +3352,20 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		return strchr(start,'\n');// skip and continue
 	}
 
+
+	if ((mob.state.size < 0 || mob.state.size > 2) && size != -1)
+	{
+		ShowError("npc_parse_mob: Invalid size number %d for mob ID %d (file '%s', line '%d').\n", mob.state.size, class_, filepath, strline(buffer, start - buffer));
+		return strchr(start, '\n');
+	}
+
+	if ((mob.state.ai < 0 || mob.state.ai > 6) && ai != -1)
+	{
+		ShowError("npc_parse_mob: Invalid ai %d for mob ID %d (file '%s', line '%d').\n", mob.state.ai, class_, filepath, strline(buffer, start - buffer));
+		return strchr(start, '\n');
+	}
+
+
 	mob.num = (unsigned short)num;
 	mob.active = 0;
 	mob.class_ = (short) class_;
@@ -3358,6 +3373,10 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 	mob.y = (unsigned short)y;
 	mob.xs = (signed short)xs;
 	mob.ys = (signed short)ys;
+	if (size > 0 && size <= 2)
+		mob.state.size = size;
+	if (ai > 0 && ai <= 6)
+		mob.state.ai = ai;
 
 	if (mob.num > 1 && battle_config.mob_count_rate != 100) {
 		if ((mob.num = mob.num * battle_config.mob_count_rate / 100) < 1)
@@ -3543,9 +3562,9 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.pvp_noguild=state;
 	else if (!strcmpi(w3, "pvp_nightmaredrop")) {
 		char drop_arg1[16], drop_arg2[16];
-		int drop_id = 0, drop_type = 0, drop_per = 0;
+		int drop_per = 0;
 		if (sscanf(w4, "%[^,],%[^,],%d", drop_arg1, drop_arg2, &drop_per) == 3) {
-			int i;
+			int drop_id = 0, drop_type = 0;
 			if (!strcmpi(drop_arg1, "random"))
 				drop_id = -1;
 			else if (itemdb_exists((drop_id = atoi(drop_arg1))) == NULL)
@@ -3558,6 +3577,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 				drop_type = 3;
 
 			if (drop_id != 0){
+				int i;
 				for (i = 0; i < MAX_DROP_PER_MAP; i++) {
 					if (map[m].drop_list[i].drop_id == 0){
 						map[m].drop_list[i].drop_id = drop_id;
@@ -3928,7 +3948,7 @@ void npc_read_event_script(void)
 		DBData *data;
 
 		char name[64]="::";
-		strncpy(name+2,config[i].event_name,62);
+		safestrncpy(name+2,config[i].event_name,62);
 
 		script_event[i].event_count = 0;
 		iter = db_iterator(ev_db);
@@ -3968,6 +3988,9 @@ int npc_reload(void)
 	int npc_new_min = npc_id;
 	struct s_mapiterator* iter;
 	struct block_list* bl;
+
+	/* clear guild flag cache */
+	guild_flags_clear();
 
 	db_clear(npcname_db);
 	db_clear(ev_db);

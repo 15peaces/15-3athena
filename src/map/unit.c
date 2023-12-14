@@ -389,8 +389,11 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != INVALID_TIMER) {
-		// 現在歩いている最中の目的地変更なのでマス目の中心に来た時に
-		// timer関数からunit_walktoxy_subを呼ぶようにする
+		if (!battle_config.skill_trap_type && sc->data[SC_ANKLE]) // Ankle disallows you from changing your path
+			return 0;
+
+		// When you come to the center of the grid because the change of destination while you're walking right now
+		// Call a function from a timer unit_walktoxy_sub
 		ud->state.change_walk_target = 1;
 		return 1;
 	}
@@ -482,6 +485,9 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != INVALID_TIMER) {
+		if (!battle_config.skill_trap_type && sc->data[SC_ANKLE]) // Ankle disallows you from changing your path
+			return 0;
+
 		ud->state.change_walk_target = 1;
 		set_mobstate(bl, flag&2);
 		return 1;
@@ -1069,6 +1075,9 @@ int unit_can_move(struct block_list *bl)
 		return 0; //Can't move
 	
 	if (sc) {
+		if (sc->data[SC_ANKLE] && (battle_config.skill_trap_type || !unit_is_walking(bl))) // Ankle only stops you after you're done moving
+			return 0;
+
 		if (sc->opt1 > 0 && sc->opt1 != OPT1_STONEWAIT && sc->opt1 != OPT1_BURNING)
 			return 0;
 

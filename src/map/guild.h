@@ -108,6 +108,11 @@ void guild_castle_guardian_updateemblem(int guild_id, int emblem_id);
 
 unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned int exp);
 
+/* guild flag cachin */
+void guild_flag_add(struct npc_data *nd);
+void guild_flag_remove(struct npc_data *nd);
+void guild_flags_clear(void);
+
 void do_final_guild(void);
 
 #endif /* _GUILD_H_ */

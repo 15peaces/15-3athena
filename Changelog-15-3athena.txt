@@ -5,6 +5,44 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/14/2023
+	r421 [15peaces]
+		*Fixed @lostskill was removing the skill from skill tree and not disabling it (making it grey).
+		*Fixed mercenary window not showing up critical.
+		*some updated to skill_amotion_leniency setting.
+			-Changed default value to 0.
+			-Now allows a range up to 300.
+			-Amotion delay wont be twice by default anymore.
+		*Fixed cooking formula and creation effect is not working properly.
+		*Star Gladiator's map data is now cleared upon job changing outside star gladiator lineage, that way the database will no longer store these vars when they're not used.
+		*Basilica can only be placed when there are no other units (no mobs/players) within the range of which the basilica will spawn.
+		*Normal Boss/mini-boss attacks no longer can hit trick-dead'd players.
+		*Fixed bug with garments not displaying properly.
+		*Fixed Ankle Snare to behave as in official servers, you only stop walking when you reach your destination and activates all other traps in the path.
+			-Also added a new skill config - provided a switch to this official feature since it drastically change the way traps can be used.
+		*pc_cant_act will now also check for buying stores.	
+		*Spider web no longer triggers on players on non-pvp maps.
+		*@follow will not stop immeadily when turned off, instead of waiting for the current walk path to be complete.
+		*Players in chatrooms can now equip/unequip gear, can talk to NPCS, and can't use consumable items.
+		*Some optimations, replaced some strncpy calls with safestrncpy.
+		*NPC timer will not stop anymore after running all timer events.
+		*Added missing E_COWRAIDERS1 drops.
+		*Minor improvement on npc_event_do_clock, moved 'day'-part so that its only assigned when its actually used.
+		*Modified monster and areamonster script commands to allow size and ai parameters.
+			-Event parameter now no longer works as size & ai replacement.
+			-If not defined, it'll assume the default size (0 = medium) and default ai (0 = none).
+			-This also removes some unstable code...
+			-permanent monster spawns also allow the new optional parameters.
+		*Updated mob_count_sub fuction to read a 10 mobid list to check if present or not.
+			-Before it simply always returned 1...?
+		*Minor performance improvement; created guild flag cache to replace the inefficient npcdb lookup, in perspective:
+			-Before: whenever a guild emblem was changed it'd loop through all npcs looking for flags belongin to that guild
+			-Now: whenever a guild emblem is changed it'll loop through a very small list which contains all guild flags, and from there it'll update the flags accordingly.
+		*Official servers now always reshuffle the dice emoticon, so we will do by default.
+			-To disable change the configuration to 'no'.
+		*Creating a guild and exiting in a short amount of time will now save the guild properly.
+		*NPCs with monster sprite now work.
+		
 11/21/2023
 	r420 [15peaces]
 		*Mercenary now mimic their master's speed on each map change.

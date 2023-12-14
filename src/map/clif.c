@@ -239,16 +239,17 @@ int clif_setip(const char* ip)
 		return 0;
 	}
 
-	strncpy(map_ip_str, ip, sizeof(map_ip_str));
+	safestrncpy(map_ip_str, ip, sizeof(map_ip_str));
 	ShowInfo("Map Server IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(map_ip, ip_str));
 	return 1;
 }
 
 void clif_setbindip(const char* ip)
 {
-	char ip_str[16];
 	bind_ip = host2ip(ip);
 	if (bind_ip) {
+		char ip_str[16];
+
 		ShowInfo("Map Server Bind IP Address : '"CL_WHITE"%s"CL_RESET"' -> '"CL_WHITE"%s"CL_RESET"'.\n", ip, ip2str(bind_ip, ip_str));
 	} else {
 		ShowWarning("Failed to Resolve Map Server Address! (%s)\n", ip);
@@ -1571,6 +1572,8 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(bl,421,AREA);
 			if( sd->bg_id && map[sd->bl.m].flag.battleground )
 				clif_sendbgemblem_area(sd);
+			if (sd->status.robe)
+				clif_refreshlook(bl, bl->id, LOOK_ROBE, sd->status.robe, AREA);
 			clif_hat_effects(sd, bl, AREA);
 #if PACKETVER >= 20111108
 			if (sd->sc.count)
@@ -3542,7 +3545,7 @@ void clif_updateparam_area(struct map_session_data* sd, short type, int value)
 void clif_changelook(struct block_list *bl,int type,int val)
 {
 	unsigned char buf[16];
-	struct map_session_data* sd = NULL;
+	struct map_session_data* sd;
 	struct status_change* sc;
 	struct view_data* vd;
 	enum send_target target = AREA;
@@ -5026,6 +5029,8 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,421,sd->fd);
 			if( tsd->bg_id && map[tsd->bl.m].flag.battleground )
 				clif_sendbgemblem_single(sd->fd,tsd);
+			if (tsd->status.robe)
+				clif_refreshlook(&sd->bl, bl->id, LOOK_ROBE, tsd->status.robe, SELF);
 			clif_hat_effects(sd, bl, SELF);
 #if PACKETVER >= 20111108
 			if (tsd->sc.count)
@@ -5722,9 +5727,9 @@ void clif_deleteskill(struct map_session_data *sd, int id)
 	WFIFOW(fd,0) = 0x441;
 	WFIFOW(fd,2) = id;
 	WFIFOSET(fd,packet_len(0x441));
-#else
-	clif_skillupdateinfoblock(sd);
 #endif
+
+	clif_skillupdateinfoblock(sd);
 }
 
 
@@ -8668,7 +8673,6 @@ void clif_autospell(struct map_session_data *sd,int skilllv)
 void clif_devotion(struct block_list *src, struct map_session_data *tsd)
 {
 	unsigned char buf[56];
-	int i;
 	
 	nullpo_retv(src);
 	memset(buf,0,packet_len(0x1cf));
@@ -8693,6 +8697,7 @@ void clif_devotion(struct block_list *src, struct map_session_data *tsd)
 	}
 	else
 	{// Player's Devotion
+		int i;
 		struct map_session_data *sd = BL_CAST(BL_PC,src);
 		if( sd == NULL )
 			return;
@@ -10405,7 +10410,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 void clif_charnameupdate (struct map_session_data *ssd)
 {
 	unsigned char buf[103];
-	int cmd = 0x195, ps = -1, i;
+	int cmd = 0x195, ps = -1;
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
 
@@ -10429,6 +10434,8 @@ void clif_charnameupdate (struct map_session_data *ssd)
 
 	if( ssd->status.guild_id > 0 && (g = guild_search(ssd->status.guild_id)) != NULL )
 	{
+		int i;
+
 		ARR_FIND(0, g->max_member, i, g->member[i].account_id == ssd->status.account_id && g->member[i].char_id == ssd->status.char_id);
 		if( i < g->max_member ) ps = g->member[i].position;
 	}
@@ -12270,7 +12277,7 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 		if (pc_isdead(sd))
 			break;
 
-		if (pc_cant_act(sd))
+		if (pc_cant_act2(sd))
 			break;
 
 		if (sd->sc.count && (
@@ -12313,7 +12320,7 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 		if (sd->npc_id != sd->npc_item_flag)
 			return;
 	} else
-	if (pc_istrading(sd))
+	if (pc_istrading(sd) || sd->chatID)
 		return;
 
 	//Whether the item is used or not is irrelevant, the char ain't idle. [Skotlex]
@@ -12347,7 +12354,7 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 			return;
 	} else if (sd->state.storage_flag || (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING))
 		; //You can equip/unequip stuff while storage is open/under status changes
-	else if (pc_cant_act(sd))
+	else if (pc_cant_act2(sd))
 		return;
 
 	if(!sd->inventory.u.items_inventory[index].identify) {
@@ -12393,7 +12400,7 @@ void clif_parse_UnequipItem(int fd,struct map_session_data *sd)
 	// TODO: Won't this allow you to do actions, that would be otherwise prohibited? [Ai4rei]
 	if (sd->state.storage_flag || sd->sc.opt1)
 		; //You can equip/unequip stuff while storage is open/under status changes.
-	else if (pc_cant_act(sd))
+	else if (pc_cant_act2(sd))
 		return;
 
 	index = RFIFOW(fd,2)-2;
@@ -12415,7 +12422,7 @@ void clif_parse_NpcClicked(int fd,struct map_session_data *sd)
 		return;
 	}
 
-	if (pc_cant_act(sd) || sd->npc_id || pc_hasprogress(sd, WIP_DISABLE_NPC)) {
+	if (pc_cant_act2(sd) || sd->npc_id || pc_hasprogress(sd, WIP_DISABLE_NPC)) {
 		clif_msg(sd, WORK_IN_PROGRESS);
 		return;
 	}
@@ -13302,7 +13309,7 @@ void clif_parse_Cooking(int fd,struct map_session_data *sd)
 		return;
 	}
 	if (skill_can_produce_mix(sd, nameid, sd->menuskill_val, 1))
-		skill_produce_mix(sd, sd->menuskill_id, nameid, 0, 0, 0, sd->menuskill_itemused);
+		skill_produce_mix(sd, (type > 1 ? sd->menuskill_id : 0), nameid, 0, 0, 0, sd->menuskill_itemused);
 	sd->menuskill_val = sd->menuskill_id = sd->menuskill_itemused = 0;
 }
 

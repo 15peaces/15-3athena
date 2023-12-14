@@ -828,7 +828,6 @@ void pc_inventory_rentals(struct map_session_data *sd)
 
 void pc_inventory_rental_add(struct map_session_data *sd, int seconds)
 {
-	const struct TimerData * td;
 	int tick = seconds * 1000;
 
 	if( sd == NULL )
@@ -836,6 +835,8 @@ void pc_inventory_rental_add(struct map_session_data *sd, int seconds)
 
 	if( sd->rental_timer != INVALID_TIMER )
 	{
+		const struct TimerData * td;
+
 		td = get_timer(sd->rental_timer);
 		if( DIFF_TICK(td->tick, gettick()) > tick )
 		{ // Update Timer as this one ends first than the current one
@@ -4243,7 +4244,6 @@ int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
 
 void pc_paycash(struct map_session_data *sd, int price, int points)
 {
-	char output[128];
 	int cash;
 	nullpo_retv(sd);
 
@@ -4272,6 +4272,8 @@ void pc_paycash(struct map_session_data *sd, int price, int points)
 
 	if (battle_config.cashshop_show_points)
 	{
+		char output[128];
+
 		sprintf(output, msg_txt(sd, 504), points, cash, sd->kafraPoints, sd->cashPoints);
 		clif_disp_onlyself(sd, output, strlen(output));
 	}
@@ -6430,6 +6432,8 @@ int pc_stop_following (struct map_session_data *sd)
 	}
 	sd->followtarget = -1;
 
+	unit_stop_walking(&sd->bl, 1);
+
 	return 0;
 }
 
@@ -7997,11 +8001,12 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 				int eq_num=0,eq_n[MAX_INVENTORY];
 				memset(eq_n,0,sizeof(eq_n));
 				for(i=0;i<MAX_INVENTORY;i++){
-					int k;
 					if( (type == 1 && !sd->inventory.u.items_inventory[i].equip)
 						|| (type == 2 && sd->inventory.u.items_inventory[i].equip)
 						||  type == 3)
 					{
+						int k;
+
 						ARR_FIND( 0, MAX_INVENTORY, k, eq_n[k] <= 0 );
 						if( k < MAX_INVENTORY )
 							eq_n[k] = i;
@@ -8400,9 +8405,10 @@ void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int ty
  *------------------------------------------*/
 int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
 {
-	int i, bonus, penalty;
+	int bonus, penalty;
 
 	if(hp) {
+		int i;
 		bonus = 100 + (sd->battle_status.vit<<1)
 			+ pc_checkskill(sd,SM_RECOVERY)*10
 			+ pc_checkskill(sd,AM_LEARNINGPOTION)*5;
@@ -8589,6 +8595,11 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 			if (sc > SC_COMMON_MAX && sd->sc.data[sc])
 				status_change_end(&sd->bl, sc, INVALID_TIMER);
 		}
+	}
+
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR && (b_class&MAPID_UPPERMASK) != MAPID_STAR_GLADIATOR) {
+		/* going off star glad lineage, reset feel to not store no-longer-used vars in the database */
+		pc_resetfeel(sd);
 	}
 
 	// Reset body style to 0 before changing job to avoid
@@ -10217,7 +10228,7 @@ void pc_check_available_item(struct map_session_data *sd) {
  *------------------------------------------*/
 static int pc_calc_pvprank_sub(struct block_list *bl,va_list ap)
 {
-	struct map_session_data *sd1,*sd2=NULL;
+	struct map_session_data *sd1,*sd2;
 
 	sd1=(struct map_session_data *)bl;
 	sd2=va_arg(ap,struct map_session_data *);
@@ -10258,7 +10269,7 @@ int pc_calc_pvprank(struct map_session_data *sd)
  *------------------------------------------*/
 int pc_calc_pvprank_timer(int tid, int64 tick, int id, intptr_t data)
 {
-	struct map_session_data *sd=NULL;
+	struct map_session_data *sd;
 
 	sd=map_id2sd(id);
 	if(sd==NULL)

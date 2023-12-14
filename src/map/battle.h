@@ -645,6 +645,7 @@ extern struct Battle_Config
 	int taekwon_mission_mobname;
 	int teleport_on_portal;
 	int min_npc_vending_distance;
+	int skill_trap_type;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

@@ -284,10 +284,9 @@ int mobdb_searchname(const char *str);
 int mobdb_searchname_array(struct mob_db** data, int size, const char *str);
 int mobdb_checkid(const int id);
 struct view_data* mob_get_viewdata(int class_);
-struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m,
-	short x, short y, const char *mobname, int class_, const char *event);
-int mob_once_spawn(struct map_session_data* sd,int m,short x,short y,const char* mobname,int class_,int amount,const char* event);
-int mob_once_spawn_area(struct map_session_data* sd,int m,int x0,int y0,int x1,int y1,const char* mobname,int class_,int amount,const char* event);
+struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short y, const char *mobname, int class_, const char *event, unsigned int size, enum mob_ai ai);
+int mob_once_spawn(struct map_session_data* sd,int m,short x,short y,const char* mobname,int class_,int amount,const char* event, unsigned int size, enum mob_ai ai);
+int mob_once_spawn_area(struct map_session_data* sd,int m,int x0,int y0,int x1,int y1,const char* mobname,int class_,int amount,const char* event, unsigned int size, enum mob_ai ai);
 
 bool mob_ksprotected (struct block_list *src, struct block_list *target);
 
@@ -336,6 +335,7 @@ int mobskill_castend_id( int tid, int64 tick, int id,int data );
 int mobskill_castend_pos( int tid, int64 tick, int id,int data );
 int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id);
 int mob_countslave(struct block_list *bl);
+int mob_count_sub(struct block_list *bl, va_list ap);
 
 int mob_is_clone(int class_);
 

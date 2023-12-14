@@ -205,8 +205,8 @@ int inter_guild_tosql(struct guild *g,int flag)
 			strcat(t_info, " basic");
 			if( add_comma )
 				StringBuf_AppendStr(&buf, ", ");
-			else
-				add_comma = true;
+			//else //last condition using add_coma setting
+			//	add_comma = true;
 			StringBuf_Printf(&buf, "`name`='%s', `master`='%s', `char_id`=%d", esc_name, esc_master, g->member[0].char_id);
 		}
 		if (flag & GS_CONNECT)
@@ -266,7 +266,7 @@ int inter_guild_tosql(struct guild *g,int flag)
 					m->hair, m->hair_color, m->gender,
 					m->class_, m->lv, m->exp, m->exp_payper, m->online, m->position, m->last_login, esc_name))
 					Sql_ShowDebug(sql_handle);
-				if (m->modified & GS_MEMBER_NEW)
+				if (m->modified & GS_MEMBER_NEW || new_guild == 1)
 				{
 					if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `guild_id` = '%d' WHERE `char_id` = '%d'",
 						char_db, g->guild_id, m->char_id) )
@@ -533,7 +533,7 @@ struct guild * inter_guild_fromsql(int guild_id)
 	{
 		int id;
 		Sql_GetData(sql_handle, 0, &data, NULL); id = atoi(data) - GD_SKILLBASE;
-		if( id < 0 && id >= MAX_GUILDSKILL )
+		if( id < 0 || id >= MAX_GUILDSKILL )
 			continue;// invalid guild skill
 		Sql_GetData(sql_handle, 1, &data, NULL); g->skill[id].lv = atoi(data);
 	}
@@ -1223,7 +1223,7 @@ int mapif_parse_CreateGuild(int fd,int account_id,char *name,struct guild_member
 	g->guild_id= -1; //Request to create guild.
 
 	// Create the guild
-	if (!inter_guild_tosql(g,GS_BASIC|GS_POSITION|GS_SKILL)) {
+	if (!inter_guild_tosql(g,GS_BASIC|GS_POSITION|GS_SKILL|GS_MEMBER)) {
 		//Failed to Create guild....
 		ShowError("Failed to create Guild %s (Guild Master: %s)\n", g->name, g->master);
 		mapif_guild_created(fd,account_id,NULL);
@@ -1299,7 +1299,7 @@ int mapif_parse_GuildAddMember(int fd,int guild_id,struct guild_member *m)
 // Delete member from guild
 int mapif_parse_GuildLeave(int fd, int guild_id, int account_id, int char_id, int flag, const char *mes)
 {
-	int i, j;
+	int i;
 
 	struct guild* g = inter_guild_fromsql(guild_id);
 	if( g == NULL )
@@ -1322,6 +1322,8 @@ int mapif_parse_GuildLeave(int fd, int guild_id, int account_id, int char_id, in
 	if( flag )
 	{	// Write expulsion reason
 		// Find an empty slot
+		int j;
+		
 		ARR_FIND( 0, MAX_GUILDEXPULSION, j, g->expulsion[j].account_id == 0 );
 		if( j == MAX_GUILDEXPULSION )
 		{
@@ -1862,7 +1864,7 @@ int mapif_parse_GuildMasterChange(int fd, int guild_id, const char* name, int le
 	g->member[0].position = 0; //Position 0: guild Master.
 	g->member[0].modified = GS_MEMBER_MODIFIED;
 
-	strncpy(g->master, name, len);
+	safestrncpy(g->master, name, len);
 	if (len < NAME_LENGTH)
 		g->master[len] = '\0';
 

@@ -528,7 +528,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	// This code will compare the player's attack motion value which is influenced by ASPD before
 	// allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
 	// AC_DOUBLE which do not have a skill delay and are not regarded in terms of attack motion.
-	if(!sd->state.autocast && sd->skillitem != skillid && sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (100 + battle_config.skill_amotion_leniency) / 100) )
+	if(!sd->state.autocast && sd->skillitem != skillid && sd->canskill_tick && DIFF_TICK(gettick(), sd->canskill_tick) < (sd->battle_status.amotion * (battle_config.skill_amotion_leniency) / 100) )
 	{// attempted to cast a skill before the attack motion has finished
 		return 1;
 	}
@@ -1871,11 +1871,10 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				!battle_check_range(src, tbl, skill_get_range2(src, skill,skilllv) + (skill == RG_CLOSECONFINE?0:1)) )
 				continue;
 
-			if (skill == PF_SPIDERWEB) //Special case, due to its nature of coding.
-				type = CAST_GROUND;
-
 			if (skill == AS_SONICBLOW)
 				pc_stop_attack(sd); //Special case, Sonic Blow autospell should stop the player attacking.
+			else if (skill == PF_SPIDERWEB) //Special case, due to its nature of coding.
+				type = CAST_GROUND;
 
 			sd->state.autocast = 1;
 			skill_consume_requirement(sd,skill,skilllv,1);
@@ -2593,7 +2592,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if (sc && !sc->count) sc = NULL; //Don't need it.
 
 	 //Trick Dead protects you from damage, but not from buffs and the like, hence it's placed here.
-	if (sc && sc->data[SC_TRICKDEAD] && !(sstatus->mode&MD_BOSS))
+	if (sc && sc->data[SC_TRICKDEAD])
 		return 0;
 
 	dmg = battle_calc_attack(attack_type,src,bl,skillid,skilllv,flag&0xFFF);
@@ -6051,7 +6050,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 	case SA_SUMMONMONSTER:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
-		if (sd) mob_once_spawn(sd,src->m,src->x,src->y,"--ja--",-1,1,"");
+		if (sd) mob_once_spawn(sd,src->m,src->x,src->y,"--ja--",-1,1,"",0,AI_NONE);
 		break;
 	case SA_LEVELUP:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
@@ -10985,11 +10984,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case KO_ZANZOU:
 		{
 			struct mob_data *md;
-			md = mob_once_spawn_sub(src, src->m, src->x, src->y, status_get_name(src), MOBID_KO_KAGE, "");
+			md = mob_once_spawn_sub(src, src->m, src->x, src->y, status_get_name(src), MOBID_KO_KAGE, "", 0, AI_NONE);
 			if( md )
 			{
 				md->master_id = src->id;
-				md->special_state.ai = 3;
+				md->special_state.ai = AI_ZANZOU;
 				if( md->deletetimer != INVALID_TIMER )
 					delete_timer(md->deletetimer, mob_timer_delete);
 				md->deletetimer = add_timer (gettick() + skill_get_time(skillid, skilllv), mob_timer_delete, md->bl.id, 0);
@@ -11868,6 +11867,15 @@ int skill_castend_pos(int tid, int64 tick, int id, intptr_t data)
 
 }
 
+/* skill count without self */
+static int skill_count_wos(struct block_list *bl, va_list ap) {
+	struct block_list* src = va_arg(ap, struct block_list*);
+	if (src->id != bl->id) {
+		return 1;
+	}
+	return 0;
+}
+
 /*==========================================
  *
  *------------------------------------------*/
@@ -12084,11 +12092,11 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 		{
 			struct mob_data *md;
 
-			md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src), MOBID_SILVERSNIPER, "");
+			md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src), MOBID_SILVERSNIPER, "", 0, AI_NONE);
 			if(md)
 			{
 				md->master_id = src->id;
-				md->special_state.ai = 3;
+				md->special_state.ai = AI_FLORA;
 				if( md->deletetimer != INVALID_TIMER )
 					delete_timer(md->deletetimer, mob_timer_delete);
 				md->deletetimer = add_timer(gettick() + skill_get_time(skillid, skilllv), mob_timer_delete, md->bl.id, 0);
@@ -12441,8 +12449,12 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case HP_BASILICA:
 		if( sc->data[SC_BASILICA] )
 			status_change_end(src, SC_BASILICA, INVALID_TIMER); // Cancel Basilica
-		else
-		{ // Create Basilica. Start SC on caster. Unit timer start SC on others.
+		else { // Create Basilica. Start SC on caster. Unit timer start SC on others.
+			if (map_foreachinrange(skill_count_wos, src, 2, BL_MOB | BL_PC, src)) {
+				if (sd)
+					clif_skill_fail(sd, skillid, USESKILL_FAIL, 0, 0);
+				return 1;
+			}
 			skill_clear_unitgroup(src);
 			if( skill_unitsetting(src,skillid,skilllv,x,y,0) )
 				sc_start4(src,type,100,skilllv,0,0,src->id,skill_get_time(skillid,skilllv));
@@ -12577,10 +12589,10 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			struct mob_data *md;
 
 			// Correct info, don't change any of this! [celest]
-			md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src),class_,"");
+			md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src),class_,"",0,AI_NONE);
 			if (md) {
 				md->master_id = src->id;
-				md->special_state.ai = skillid==AM_SPHEREMINE?2:3;
+				md->special_state.ai = skillid==AM_SPHEREMINE?AI_SPHERE:AI_FLORA;
 				if( md->deletetimer != INVALID_TIMER )
 					delete_timer(md->deletetimer, mob_timer_delete);
 				md->deletetimer = add_timer (gettick() + skill_get_time(skillid,skilllv), mob_timer_delete, md->bl.id, 0);
@@ -12697,7 +12709,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 						mob_id = MOBID_SHINING_PLANT;
 				}
 
-				md = mob_once_spawn_sub(src, src->m, x, y, "--ja--", mob_id, "");
+				md = mob_once_spawn_sub(src, src->m, x, y, "--ja--", mob_id, "", 0, AI_NONE);
 				if (!md)
 					break;
 				if ((i = skill_get_time(skillid, skilllv)) > 0)
@@ -12768,7 +12780,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 
 			for (i=0; i<summon_count; i++)
 			{
-				md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src),class_,"");
+				md = mob_once_spawn_sub(src, src->m, x, y, status_get_name(src),class_,"",0,AI_NONE);
 				if (md)
 				{
 					md->master_id = src->id;
@@ -13596,7 +13608,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 			sc->data[SC_SPIDERWEB]->val2++;
 			break;
 		}
-		else if( sc )
+		else if (sc && battle_check_target(&sg->unit->bl, bl, sg->target_flag) > 0)
 		{
 			int sec = skill_get_time2(sg->skill_id,sg->skill_lv);
 			if( status_change_start(bl,type,10000,sg->skill_lv,1,sg->group_id,0,sec,8) )
@@ -14032,8 +14044,11 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					if( td )
 						sec = DIFF_TICK32(td->tick, tick);
 					unit_movepos(bl, src->bl.x, src->bl.y, 0, 0);
-					clif_fixpos(bl);
-					sg->val2 = bl->id;
+					if (sg->unit_id == UNT_MANHOLE || battle_config.skill_trap_type)
+					{
+						clif_fixpos(bl);
+						sg->val2 = bl->id;
+					}
 				}
 				else
 					sec = 3000; //Couldn't trap it?
@@ -19621,7 +19636,7 @@ int skill_magicdecoy(struct map_session_data *sd, int nameid)
 			break;
 	}
 
-	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, x, y, status_get_name(&sd->bl),mobid,"");
+	md = mob_once_spawn_sub(&sd->bl, sd->bl.m, x, y, status_get_name(&sd->bl),mobid,"",0,AI_NONE);
 	if (md)
 	{
 		md->master_id = sd->bl.id;

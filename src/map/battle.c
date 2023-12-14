@@ -364,13 +364,14 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 			struct skill_unit *su = (struct skill_unit*)target;
 			struct skill_unit_group *sg;
 			struct block_list *src;
-			int x,y;
 
 			if( !su || !su->alive || (sg = su->group) == NULL || !sg || sg->val3 == -1 ||
 				(src = map_id2bl(su->val2)) == NULL || status_isdead(src) )
 				return 0;
 			
 			if( sg->unit_id != UNT_FIREWALL ){
+				int x, y;
+
 				x = sg->val3 >> 16;
 				y = sg->val3 & 0xffff;
 				skill_unitsetting(src,su->group->skill_id,su->group->skill_lv,x,y,1);
@@ -5154,7 +5155,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 
 //Calculates BF_WEAPON returned damage.
 int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skillid) {
-	struct map_session_data* sd = NULL;
+	struct map_session_data* sd;
 	int64 rdamage = 0;
 	int max_damage = status_get_max_hp(bl);
 	struct status_change *sc = status_get_sc(bl);
@@ -6641,7 +6642,7 @@ static const struct _battle_data {
 	{ "gc_skill_edp_boost_formula_c",       &battle_config.gc_skill_edp_boost_formula_c,    1,      0,      1,				},
 	{ "mob_spawn_variance",                 &battle_config.mob_spawn_variance,              1,      0,      3,              },
 	{ "slave_stick_with_master",            &battle_config.slave_stick_with_master,         0,      0,      1,              },
-	{ "skill_amotion_leniency",             &battle_config.skill_amotion_leniency,          90,     0,      100				},
+	{ "skill_amotion_leniency",             &battle_config.skill_amotion_leniency,          0,      0,      300,			},
 	// Cell PVP [Napster]
 	{ "cellpvp_deathmatch",					&battle_config.cellpvp_deathmatch,              1,      0,      1,              },
 	{ "cellpvp_deathmatch_delay",           &battle_config.cellpvp_deathmatch_delay,        1000,   0,      INT_MAX,        },
@@ -6717,7 +6718,8 @@ static const struct _battle_data {
 	{ "path_blown_halt",                    &battle_config.path_blown_halt,                 1,      0,      1,				},
 	{ "taekwon_mission_mobname",            &battle_config.taekwon_mission_mobname,         0,      0,      2,				},
 	{ "teleport_on_portal",                 &battle_config.teleport_on_portal,              0,      0,      1,				},
-	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100             },
+	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100,            },
+	{ "skill_trap_type",                    &battle_config.skill_trap_type,                 0,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
@@ -6832,7 +6834,6 @@ void battle_adjust_conf()
 
 int battle_config_read(const char* cfgName)
 {
-	char line[1024], w1[1024], w2[1024];
 	FILE* fp;
 	static int count = 0;
 
@@ -6846,6 +6847,8 @@ int battle_config_read(const char* cfgName)
 		ShowError("File not found: %s\n", cfgName);
 	else
 	{
+		char line[1024], w1[1024], w2[1024];
+
 		while(fgets(line, sizeof(line), fp))
 		{
 			if (line[0] == '/' && line[1] == '/')

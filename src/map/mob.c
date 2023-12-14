@@ -233,35 +233,11 @@ struct view_data * mob_get_viewdata(int class_)
 int mob_parse_dataset(struct spawn_data *data)
 {
 	size_t len;
-
-	//FIXME: This implementation is not stable, npc scripts will stop working once MAX_MOB_DB changes value! [Skotlex]
-	if(data->class_ > 2*MAX_MOB_DB){ // large/tiny mobs [Valaris]
-		data->state.size=2;
-		data->class_ -= 2*MAX_MOB_DB;
-	} else if (data->class_ > MAX_MOB_DB) {
-		data->state.size=1;
-		data->class_ -= MAX_MOB_DB;
-	}
 	
 	if ((!mobdb_checkid(data->class_) && !mob_is_clone(data->class_)) || !data->num)
 		return 0;
 
-	if( npc_event_isspecial(data->eventname) )
-	{//Portable monster big/small implementation. [Skotlex]
-		int i = atoi(data->eventname);
-
-		if( i )
-		{
-			if( i&2 )
-				data->state.size = 1;
-			else if( i&4 )
-				data->state.size = 2;
-			if( i&8 )
-				data->state.ai = 1;
-		}
-		data->eventname[0] = '\0'; //Clear event as it is not used.
-	}
-	else if( ( len = strlen(data->eventname) ) > 0 )
+	if( ( len = strlen(data->eventname) ) > 0 )
 	{
 		if( data->eventname[len-1] == '"' )
 			data->eventname[len-1] = '\0'; //Remove trailing quote.
@@ -437,7 +413,7 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 	return false;
 }
 
-struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short y, const char *mobname, int class_, const char *event)
+struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short y, const char *mobname, int class_, const char *event, unsigned int size, enum mob_ai ai)
 {
 	struct spawn_data data;
 	
@@ -445,6 +421,8 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short
 	data.m = m;
 	data.num = 1;
 	data.class_ = class_;
+	data.state.size = size;
+	data.state.ai = ai;
 	if (mobname)
 		safestrncpy(data.name, mobname, sizeof(data.name));
 	else
@@ -476,7 +454,7 @@ struct mob_data *mob_once_spawn_sub(struct block_list *bl, int m, short x, short
 /*==========================================
  * Spawn a single mob on the specified coordinates.
  *------------------------------------------*/
-int mob_once_spawn(struct map_session_data* sd, int m, short x, short y, const char* mobname, int class_, int amount, const char* event)
+int mob_once_spawn(struct map_session_data* sd, int m, short x, short y, const char* mobname, int class_, int amount, const char* event, unsigned int size, enum mob_ai ai)
 {
 	struct mob_data* md = NULL;
 	int count, lv;
@@ -492,9 +470,10 @@ int mob_once_spawn(struct map_session_data* sd, int m, short x, short y, const c
 	for (count = 0; count < amount; count++)
 	{
 		int c = ( class_ >= 0 ) ? class_ : mob_get_random_id(-class_-1, battle_config.random_monster_checklv?3:1, lv);
-		md = mob_once_spawn_sub(sd?&sd->bl:NULL, m, x, y, mobname, c, event);
+		md = mob_once_spawn_sub(sd?&sd->bl:NULL, m, x, y, mobname, c, event, size, ai);
 
-		if (!md) continue;
+		if (!md)
+			continue;
 
 		if(class_ == MOBID_EMPERIUM) {
 			struct guild_castle* gc = guild_mapindex2gc(map[m].index);
@@ -528,7 +507,7 @@ int mob_once_spawn(struct map_session_data* sd, int m, short x, short y, const c
 /*==========================================
  * Spawn mobs in the specified area.
  *------------------------------------------*/
-int mob_once_spawn_area(struct map_session_data* sd,int m,int x0,int y0,int x1,int y1,const char* mobname,int class_,int amount,const char* event)
+int mob_once_spawn_area(struct map_session_data* sd,int m,int x0,int y0,int x1,int y1,const char* mobname,int class_,int amount,const char* event, unsigned int size, enum mob_ai ai)
 {
 	int i,max,id=0;
 	int lx=-1,ly=-1;
@@ -572,7 +551,7 @@ int mob_once_spawn_area(struct map_session_data* sd,int m,int x0,int y0,int x1,i
 		lx = x;
 		ly = y;
 
-		id = mob_once_spawn(sd,m,x,y,mobname,class_,1,event);
+		id = mob_once_spawn(sd,m,x,y,mobname,class_,1,event,size,ai);
 	}
 
 	return id; // id of last spawned mob
@@ -898,9 +877,15 @@ int mob_setdelayspawn(struct mob_data *md)
 	return 0;
 }
 
-static int mob_count_sub(struct block_list *bl,va_list ap)
-{
-	return 1;
+int mob_count_sub(struct block_list *bl, va_list ap) {
+	int mobid[10], i;
+	ARR_FIND(0, 10, i, (mobid[i] = va_arg(ap, int)) == 0); //fetch till 0
+	if (mobid[0]) { //if there one let's check it otherwise go backward
+		TBL_MOB *md = BL_CAST(BL_MOB, bl);
+		ARR_FIND(0, 10, i, md->class_ == mobid[i]);
+		return (i < 10) ? 1 : 0;
+	}
+	return 1; //backward compatibility
 }
 
 /*==========================================
@@ -1421,9 +1406,7 @@ int mob_warpchase(struct mob_data *md, struct block_list *target)
 static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 {
 	struct block_list *tbl = NULL, *abl = NULL;
-	int dist;
 	int mode;
-	int search_size;
 	int view_range, can_move;
 
 	if(md->bl.prev == NULL || md->status.hp == 0)
@@ -1505,6 +1488,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		}
 		else if ((abl = map_id2bl(md->attacked_id)) && (!tbl || mob_can_changetarget(md, abl, mode)))
 		{
+			int dist;
+
 			if( md->bl.m != abl->m || abl->prev == NULL
 				|| (dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE // Attacker longer than visual area
 				|| battle_check_target(&md->bl, abl, BCT_ENEMY) <= 0 // Attacker is not enemy of mob
@@ -1576,6 +1561,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	else
 	if (mode&MD_CHANGECHASE && (md->state.skillstate == MSS_RUSH || md->state.skillstate == MSS_FOLLOW || (md->sc.count && md->sc.data[SC_CONFUSION])))
 	{
+		int search_size;
+
 		search_size = view_range<md->status.rhw.range ? view_range:md->status.rhw.range;
 		map_foreachinrange (mob_ai_sub_hard_changechase, &md->bl, search_size, DEFAULT_ENEMY_TYPE(md), md, &tbl);
 	}
@@ -3566,14 +3553,14 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 	sd->fd = fd;
 
 	//Finally, spawn it.
-	md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event);
+	md = mob_once_spawn_sub(&sd->bl, m, x, y, "--en--",class_,event,0,AI_NONE);
 	if (!md) return 0; //Failed?
 
 	md->special_state.clone = 1;
 	
 	if (master_id || flag || duration) { //Further manipulate crafted char.
 		if (flag&1) //Friendly Character
-			md->special_state.ai = 1;
+			md->special_state.ai = AI_ATTACK;
 		if (master_id) //Attach to Master
 			md->master_id = master_id;
 		if (duration) //Auto Delete after a while.
@@ -3818,7 +3805,6 @@ static bool mob_parse_dbrow(char** str)
 	
 	// MVP Drops: MVP1id,MVP1per,MVP2id,MVP2per,MVP3id,MVP3per
 	for(i = 0; i < 3; i++) {
-		struct item_data *id;
 		db->mvpitem[i].nameid = atoi(str[32+i*2]);
 		if (!db->mvpitem[i].nameid) {
 			db->mvpitem[i].p = 0; //No item....
@@ -3828,6 +3814,8 @@ static bool mob_parse_dbrow(char** str)
 		
 		//calculate and store Max available drop chance of the MVP item
 		if (db->mvpitem[i].p) {
+			struct item_data *id;
+
 			id = itemdb_search(db->mvpitem[i].nameid);
 			if (id->flag.fixed_drop)
 				db->mvpitem[i].p = atoi(str[33 + i * 2]);
@@ -3945,10 +3933,10 @@ static void mob_readdb(void)
 	
 	for( fi = 0; fi < ARRAYLENGTH(filename); ++fi )
 	{
-		char path[256];
-
 		if(fi > 0)
 		{
+			char path[256];
+
 			sprintf(path, "%s/%s", db_path, filename[fi]);
 			if(!exists(path))
 			{
@@ -4186,7 +4174,7 @@ static bool mob_parse_row_chatdb(char** str, const char* source, int line, int* 
 	}
 
 	msg[len] = 0;  // strip previously found EOL
-	strncpy(ms->msg, str[2], CHAT_SIZE_MAX);
+	safestrncpy(ms->msg, str[2], CHAT_SIZE_MAX);
 
 	return true;
 }
@@ -4533,10 +4521,10 @@ static void mob_readskilldb(void)
 
 	for( fi = 0; fi < ARRAYLENGTH(filename); ++fi )
 	{
-		char path[256];
-
 		if(fi > 0)
 		{
+			char path[256];
+
 			sprintf(path, "%s/%s", db_path, filename[fi]);
 			if(!exists(path))
 			{
