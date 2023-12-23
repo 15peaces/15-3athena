@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+12/23/2023
+	r422 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn422_log.sql file!
+			-Added logging support to the cash shop.
+		*Added preliminary source modifications.
+		*Players can now change equipment when talking with NPCs by default.
+			-This behavior can be switched off in conf/battle/items.conf.
+		*Revised/added 'npc_isnear' to check if an NPC is nearby when opening chat rooms or using vending.
+		*Improved overall guild processing/lookup by creating a cached guild state.
+		*Some cleaning & optimations.
+		*Fixed a bug where equipping equip with view-id would override costumes view-id.
+		*Merged clif_guild_skillup and clif_skillup, they use the same packet. (old TODO)
+		*(Re-)added some missing Dewata warps.
+		*Changed some misleading documentation for getrefine() and cardscnt() script commands.
+		*Fixed @disguise breaking with @refresh.
+
 12/14/2023
 	r421 [15peaces]
 		*Fixed @lostskill was removing the skill from skill tree and not disabling it (making it grey).

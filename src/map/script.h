@@ -132,7 +132,7 @@ VECTOR_DECL(struct script_queue) sc_queue;
 //
 // Script state
 //
-enum e_script_state { RUN,STOP,END,RERUNLINE,GOTO,RETFUNC };
+enum e_script_state { RUN,STOP,END,RERUNLINE,GOTO,RETFUNC,CLOSE };
 
 struct script_state {
 	struct script_stack* stack;
@@ -150,6 +150,7 @@ struct script_state {
 	int bk_npcid;
 	unsigned freeloop : 1;// used by buildin_freeloop
 	unsigned op2ref : 1;// used by op_2
+	unsigned npc_item_flag : 1;
 	char* funcname; // Stores the current running function name
 };
 

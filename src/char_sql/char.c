@@ -1119,6 +1119,12 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	}
 	memset(&p, 0, sizeof(p));
 
+	for (; i < MAX_CHARS; i++)
+	{
+		sd->found_char[i] = -1;
+		sd->unban_time[i] = 0;
+	}
+
 	// read char data
 	if( SQL_ERROR == SqlStmt_Prepare(stmt, "SELECT "
 		"`char_id`,`char_num`,`name`,`class`,`base_level`,`job_level`,`base_exp`,`job_exp`,`zeny`,"
@@ -1182,12 +1188,6 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		sd->unban_time[i] = p.unban_time;
 		p.sex = char_mmo_gender( sd, &p, sex[0] );
 		j += mmo_char_tobuf( WBUFP( buf, j ), &p );
-	}
-	
-	for (; i < MAX_CHARS; i++) 
-	{
-		sd->found_char[i] = -1;
-		sd->unban_time[i] = 0;
 	}
 
 	memset( sd->new_name, 0, sizeof( sd->new_name ) );

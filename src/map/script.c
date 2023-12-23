@@ -3097,6 +3097,7 @@ struct script_state* script_alloc_state(struct script_code* script, int pos, int
 	st->rid = rid;
 	st->oid = oid;
 	st->sleep.timer = INVALID_TIMER;
+	st->npc_item_flag = battle_config.item_enabled_npc;
 	return st;
 }
 
@@ -3734,6 +3735,7 @@ static void script_attach_state(struct script_state* st)
 		}
 		sd->st = st;
 		sd->npc_id = st->oid;
+		sd->npc_item_flag = st->npc_item_flag; // load default.
 	}
 }
 
@@ -4222,7 +4224,7 @@ BUILDIN_FUNC(close)
 	if( sd == NULL )
 		return 0;
 
-	st->state = END;
+	st->state = CLOSE;
 	clif_scriptclose(sd, st->oid);
 	return 0;
 }
@@ -7067,7 +7069,7 @@ BUILDIN_FUNC(enableitemuse)
 	TBL_PC *sd;
 	sd=script_rid2sd(st);
 	if (sd)
-		sd->npc_item_flag = st->oid;
+		st->npc_item_flag = sd->npc_item_flag = 1;
 	return 0;
 }
 
@@ -7076,7 +7078,7 @@ BUILDIN_FUNC(disableitemuse)
 	TBL_PC *sd;
 	sd=script_rid2sd(st);
 	if (sd)
-		sd->npc_item_flag = 0;
+		st->npc_item_flag = sd->npc_item_flag = 0;
 	return 0;
 }
 
@@ -7360,7 +7362,7 @@ BUILDIN_FUNC(strcharinfo)
 			}
 			break;
 		case 2:
-			if( ( g = guild_search(sd->status.guild_id) ) != NULL )
+			if( ( g = sd->guild ) != NULL )
 			{
 				script_pushstrcopy(st,g->name);
 			}
@@ -18825,6 +18827,13 @@ BUILDIN_FUNC(buyingstore)
 
 	if( ( sd = script_rid2sd(st) ) == NULL )
 	{
+		return 0;
+	}
+
+	if (npc_isnear(&sd->bl)) {
+		char output[150];
+		sprintf(output, msg_txt(sd,725), battle_config.min_npc_vending_distance);
+		clif_displaymessage(sd->fd, output);
 		return 0;
 	}
 

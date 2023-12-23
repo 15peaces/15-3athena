@@ -199,7 +199,7 @@ struct skill_unit_group_tickset {
 };
 
 
-enum {
+enum e_skill_unit_flag {
 	UF_DEFNOTENEMY		= 0x0001,	// If 'defunit_not_enemy' is set, the target is changed to 'friend'
 	UF_NOREITERATION	= 0x0002,	// Spell cannot be stacked
 	UF_NOFOOTSET		= 0x0004,	// Spell cannot be cast near/on targets

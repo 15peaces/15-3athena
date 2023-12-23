@@ -13,6 +13,7 @@
 #include "../common/nullpo.h"
 #include "../common/strlib.h"
 #include "../common/utils.h"
+#include "../common/ers.h"
 
 #include "map.h"
 #include "path.h"
@@ -3439,6 +3440,10 @@ int parse_console(const char* buf)
 		{
 			runflag = SERVER_STATE_STOP;
 		}
+	}
+	else if (strcmpi("ers_report", type) == 0)
+	{
+		ers_report();
 	}
 	else if( strcmpi("help", type) == 0 )
 	{

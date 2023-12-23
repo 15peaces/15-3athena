@@ -585,8 +585,16 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			break;
 		case MC_VENDING:
-		case MC_IDENTIFY:
 		case ALL_BUYING_STORE:
+			if (npc_isnear(&sd->bl)) {
+				// uncomment to send msg_txt.
+				//char output[150];
+				//sprintf(output, msg_txt(sd,725), battle_config.min_npc_vending_distance);
+				//clif_displaymessage(sd->fd, output);
+				clif_skill_fail(sd, skillid, USESKILL_FAIL_THERE_ARE_NPC_AROUND, 0, 0);
+				return 1;
+			}
+		case MC_IDENTIFY:
 			return 0; // always allowed
 		case WZ_ICEWALL:
 			// noicewall flag [Valaris]
@@ -18866,7 +18874,7 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 	if( i >= MAX_SKILL_PRODUCE_DB )
 		return 0;
 
-	if( pc_checkadditem(sd, nameid, qty) == ADDITEM_OVERAMOUNT )
+	if( pc_checkadditem(sd, nameid, qty) == CHKADDITEM_OVERAMOUNT )
 	{// cannot carry the produced stuff
 		return 0;
 	}

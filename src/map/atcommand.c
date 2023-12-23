@@ -704,7 +704,7 @@ ACMD_FUNC(who)
 			for (j = 0; player_name[j]; j++)
 				player_name[j] = TOLOWER(player_name[j]);
 			if (strstr(player_name, match_text) != NULL) { // search with no case sensitive
-				g = guild_search(pl_sd->status.guild_id);
+				g = pl_sd->guild;
 				p = party_search(pl_sd->status.party_id);
 				//Players Name
 				sprintf(atcmd_output, msg_txt(sd,333), pl_sd->status.name);
@@ -996,7 +996,7 @@ ACMD_FUNC(whogm)
 		clif_displaymessage(fd, atcmd_output);
 		
 		p = party_search(pl_sd->status.party_id);
-		g = guild_search(pl_sd->status.guild_id);
+		g = pl_sd->guild;
 	
 		sprintf(atcmd_output,"       Party: '%s' | Guild: '%s'",
 			p?p->party.name:"None", g?g->name:"None");
@@ -3438,7 +3438,7 @@ ACMD_FUNC(guildlevelup)
 		return -1;
 	}
 
-	if (sd->status.guild_id <= 0 || (guild_info = guild_search(sd->status.guild_id)) == NULL) {
+	if (sd->status.guild_id <= 0 || (guild_info = sd->guild) == NULL) {
 		clif_displaymessage(fd, msg_txt(sd,43)); // You're not in a guild.
 		return -1;
 	}
@@ -4274,7 +4274,7 @@ ACMD_FUNC(breakguild)
 				clif_disp_overheadcolor_self(fd, COLOR_RED, msg_txt(sd,718));
 				return -1;
 			}
-			g = guild_search(sd->status.guild_id); // Search the guild 
+			g = sd->guild; // Search the guild 
 			if (g) { // Check if guild was found 
 				int ret = 0;
 
@@ -6786,7 +6786,7 @@ ACMD_FUNC(changegm)
 	struct map_session_data *pl_sd;
 	nullpo_retr(-1, sd);
 
-	if (sd->status.guild_id == 0 || (g = guild_search(sd->status.guild_id)) == NULL || strcmp(g->master,sd->status.name))
+	if (sd->status.guild_id == 0 || (g = sd->guild) == NULL || strcmp(g->master,sd->status.name))
 	{
 		clif_displaymessage(fd, "You need to be a Guild Master to use this command.");
 		return -1;
@@ -9383,16 +9383,16 @@ ACMD_FUNC(cash)
 	if( !strcmpi(command+1,"cash") )
 	{
 		if( value > 0 )
-			pc_getcash(sd, value, 0);
+			pc_getcash(sd, value, 0, LOG_TYPE_COMMAND);
 		else
-			pc_paycash(sd, -value, 0);
+			pc_paycash(sd, -value, 0, LOG_TYPE_COMMAND);
 	}
 	else
 	{ // @points
 		if( value > 0 )
-			pc_getcash(sd, 0, value);
+			pc_getcash(sd, 0, value, LOG_TYPE_COMMAND);
 		else
-			pc_paycash(sd, -value, -value);
+			pc_paycash(sd, -value, -value, LOG_TYPE_COMMAND);
 	}
 
 	return 0;
@@ -10092,10 +10092,9 @@ ACMD_FUNC(adopt)
 
 ACMD_FUNC(langtype) {
 	char langstr[8];
-	int i = 0, test = 0; char output[100];
+	int i = 0, test = 0;
 
 	memset(langstr, '\0', sizeof(langstr));
-	memset(output, '\0', sizeof(output));
 
 	if (sscanf(message, "%3s", langstr) >= 1) {
 		int lang = -1;

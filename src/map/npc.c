@@ -115,6 +115,25 @@ struct view_data* npc_get_viewdata(int class_)
 	return NULL;
 }
 
+static int npc_isnear_sub(struct block_list* bl, va_list args)
+{
+	struct npc_data *nd = (struct npc_data*)bl;
+
+	if (nd->sc.option & (OPTION_HIDE | OPTION_INVISIBLE))
+		return 0;
+
+	return 1;
+}
+
+bool npc_isnear(struct block_list * bl)
+{
+	if (battle_config.min_npc_vending_distance > 0 &&
+		map_foreachinrange(npc_isnear_sub, bl, battle_config.min_npc_vending_distance, BL_NPC))
+		return true;
+
+	return false;
+}
+
 int npc_ontouch_event(struct map_session_data *sd, struct npc_data *nd)
 {
 	char name[EVENT_NAME_LENGTH];
@@ -1156,7 +1175,7 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 /*==========================================
  *
  *------------------------------------------*/
-int npc_scriptcont(struct map_session_data* sd, int id)
+int npc_scriptcont(struct map_session_data* sd, int id, bool closing)
 {
 	nullpo_retr(1, sd);
 
@@ -1175,6 +1194,10 @@ int npc_scriptcont(struct map_session_data* sd, int id)
 			return 1;
 		}
 	}
+
+	if (closing && sd->st->state == CLOSE)
+		sd->st->state = END;
+
 	run_script_main(sd->st);
 
 	return 0;
@@ -1314,7 +1337,7 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 	if( (sd->kafraPoints < points) || (sd->cashPoints < price - points) )
 		return 6;
 
-	pc_paycash(sd, price, points);
+	pc_paycash(sd, price, points, LOG_TYPE_NPC);
 
 	if( !pet_create_egg(sd, nameid) )
 	{
@@ -1420,7 +1443,7 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 	if( pc_inventoryblank(sd) < new_ )
 		return 9;	// Not enough space to store items
 
-	pc_paycash(sd, p, points);
+	pc_paycash(sd, p, points, LOG_TYPE_NPC);
 
 	for( i = 0; i < n; ++i )
 	{

@@ -4242,7 +4242,7 @@ int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type,
  * Cash Shop
  *------------------------------------------*/
 
-void pc_paycash(struct map_session_data *sd, int price, int points)
+void pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_type type)
 {
 	int cash;
 	nullpo_retv(sd);
@@ -4268,7 +4268,13 @@ void pc_paycash(struct map_session_data *sd, int price, int points)
 	}
 
 	pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints - cash);
+	if (cash) {
+		log_cash(sd, type, LOG_CASH_TYPE_CASH, -cash);
+	}
 	pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints - points);
+	if (points) {
+		log_cash(sd, type, LOG_CASH_TYPE_KAFRA, -points);
+	}
 
 	if (battle_config.cashshop_show_points)
 	{
@@ -4279,7 +4285,7 @@ void pc_paycash(struct map_session_data *sd, int price, int points)
 	}
 }
 
-void pc_getcash(struct map_session_data *sd, int cash, int points)
+void pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_type type)
 {
 	char output[128];
 	nullpo_retv(sd);
@@ -4293,6 +4299,9 @@ void pc_getcash(struct map_session_data *sd, int cash, int points)
 		}
 
 		pc_setaccountreg(sd, "#CASHPOINTS", sd->cashPoints + cash);
+		if (cash) {
+			log_cash(sd, type, LOG_CASH_TYPE_CASH, cash);
+		}
 
 		if (battle_config.cashshop_show_points)
 		{
@@ -4314,6 +4323,9 @@ void pc_getcash(struct map_session_data *sd, int cash, int points)
 		}
 
 		pc_setaccountreg(sd, "#KAFRAPOINTS", sd->kafraPoints + points);
+		if (points) {
+			log_cash(sd, type, LOG_CASH_TYPE_KAFRA, points);
+		}
 
 		if (battle_config.cashshop_show_points)
 		{
@@ -4363,14 +4375,14 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 	nullpo_retr(1, item_data);
 
 	if( item_data->nameid <= 0 || amount <= 0 )
-		return 1;
+		return ADDITEM_INVALID;
 	if( amount > MAX_AMOUNT )
-		return 5;
+		return ADDITEM_OVERAMOUNT;
 	
 	data = itemdb_search(item_data->nameid);
 	w = data->weight*amount;
 	if(sd->weight + w > sd->max_weight)
-		return 2;
+		return ADDITEM_OVERWEIGHT;
 
 	i = MAX_INVENTORY;
 
@@ -4383,10 +4395,10 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 				//sd->inventory.u.items_inventory[i].unique_id == item_data->unique_id &&
 				memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
-					return 5;
+					return ADDITEM_OVERAMOUNT;
 				if(	itemid_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {
 					clif_msg(sd,1418);
-					return 1;
+					return ADDITEM_STACKLIMIT;
 				}
 				sd->inventory.u.items_inventory[i].amount += amount;
 				clif_additem(sd,i,amount,0);
@@ -4399,7 +4411,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 	{
 		i = pc_search_inventory(sd,0);
 		if( i < 0 )
-			return 4;
+			return ADDITEM_OVERITEM;
 
 		memcpy(&sd->inventory.u.items_inventory[i], item_data, sizeof(sd->inventory.u.items_inventory[0]));
 		// clear equip and favorite fields first, just in case
@@ -4441,7 +4453,7 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 
 	pc_show_questinfo(sd);
 
-	return 0;
+	return ADDITEM_SUCCESS;
 }
 
 /*==========================================
@@ -5049,7 +5061,7 @@ int pc_putitemtocart(struct map_session_data *sd,int idx,int amount)
 	if(flag == ADDITEM_SUCCESS)
 		return pc_delitem(sd,idx,amount,0,5,LOG_TYPE_NONE);
 	else {
-		clif_cart_additem_ack(sd, (flag == ADDITEM_OVERAMOUNT) ? ADDITEM_TO_CART_FAIL_COUNT : ADDITEM_TO_CART_FAIL_WEIGHT);
+		clif_cart_additem_ack(sd, (flag == CHKADDITEM_OVERAMOUNT) ? ADDITEM_TO_CART_FAIL_COUNT : ADDITEM_TO_CART_FAIL_WEIGHT);
 		clif_additem(sd, idx, amount, 0);
 		clif_delitem(sd, idx, amount, 0);
 	}
@@ -5671,7 +5683,7 @@ int pc_checkskill(struct map_session_data *sd,int skill_id) {
 	{
 		struct guild *g;
 
-		if( sd->status.guild_id > 0 && ( g = guild_search( sd->status.guild_id ) ) != NULL )
+		if( sd->status.guild_id > 0 && ( g = sd->guild) != NULL )
 			return guild_checkskill( g, skill_id );
 		return 0;
 	} 
@@ -7098,6 +7110,7 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 		sd->status.skill[skill_num].flag == 0 && //Don't allow raising while you have granted skills. [Skotlex]
 		sd->status.skill[skill_num].lv < skill_tree_get_max(skill_num, sd->status.class_) )
 	{
+		int lv, range, upgradable;
 		sd->status.skill[skill_num].lv++;
 		sd->status.skill_point--;
 		if (!skill_get_inf(skill_num) || skill_get_inf2(skill_num)&INF2_BOOST_PASSIVE && (pc_checkskill(sd, SU_POWEROFLAND) > 0 || pc_checkskill(sd, SU_POWEROFSEA) > 0))
@@ -7107,7 +7120,11 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 		else
 			pc_check_skilltree(sd, skill_num); // Check if a new skill can Lvlup
 
-		clif_skillup(sd,skill_num);
+		lv = sd->status.skill[skill_num].lv;
+		range = skill_get_range2(&sd->bl, skill_num, lv);
+		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_num].id, sd->status.class_)) ? 1 : 0;
+		clif_skillup(sd, skill_num, lv, range, upgradable);
+
 		clif_updatestatus(sd,SP_SKILLPOINT);
 		if( skill_num == GN_REMODELING_CART )
 			clif_updatestatus(sd,SP_CARTINFO);
@@ -9619,7 +9636,8 @@ void pc_cleareventtimer(struct map_session_data *sd)
 *------------------------------------------*/
 bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswitch)
 {
-	int i,pos,flag=0;
+	int i,j,pos,flag=0;
+	int head_low = 0, head_mid = 0, head_top = 0, robe = 0;
 	struct item_data *id;
 	short* equip_index;
 
@@ -9782,66 +9800,60 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_SHIELD,sd->status.shield);
 	}
+
+	head_low = sd->status.head_bottom;
+	head_mid = sd->status.head_mid;
+	head_top = sd->status.head_top;
+	robe = sd->status.robe;
+
+	sd->status.head_bottom = sd->status.head_mid = sd->status.head_top = sd->status.robe = 0;
+
 	//Added check to prevent sending the same look on multiple slots ->
 	//causes client to redraw item on top of itself. (suggested by Lupus)
-	if(pos & EQP_HEAD_LOW) {
-		if(id && !(pos&(EQP_HEAD_TOP|EQP_HEAD_MID)))
+	// Normal headgear checks
+	if ((j = sd->equip_index[EQI_HEAD_LOW]) != -1 && (id = sd->inventory_data[j])) {
+		if (!(id->equip&(EQP_HEAD_MID | EQP_HEAD_TOP)))
 			sd->status.head_bottom = id->look;
 		else
 			sd->status.head_bottom = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
 	}
-	if(pos & EQP_HEAD_TOP) {
-		if(id)
-			sd->status.head_top = id->look;
-		else
-			sd->status.head_top = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
-	}
-	if(pos & EQP_HEAD_MID) {
-		if(id && !(pos&EQP_HEAD_TOP))
+	if ((j = sd->equip_index[EQI_HEAD_MID]) != -1 && (id = sd->inventory_data[j])) {
+		if (!(id->equip&(EQP_HEAD_TOP)))
 			sd->status.head_mid = id->look;
 		else
 			sd->status.head_mid = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
 	}
-	if(pos & EQP_SHOES)
-		clif_changelook(&sd->bl,LOOK_SHOES,0);
-	if(pos & EQP_GARMENT) {
-		if(id)
-			sd->status.robe = id->look;
-		else
-			sd->status.robe = 0;
-		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
-	}
-	if (pos & EQP_COSTUME_HEAD_LOW) {
-		if (id && !(pos&(EQP_COSTUME_HEAD_TOP | EQP_COSTUME_HEAD_MID)))
+	if ((j = sd->equip_index[EQI_HEAD_TOP]) != -1 && (id = sd->inventory_data[j]))
+		sd->status.head_top = id->look;
+	if ((j = sd->equip_index[EQI_GARMENT]) != -1 && (id = sd->inventory_data[j]))
+		sd->status.robe = id->look;
+
+	// Costumes check
+	if ((j = sd->equip_index[EQI_COSTUME_HEAD_LOW]) != -1 && (id = sd->inventory_data[j])) {
+		if (!(id->equip&(EQP_COSTUME_HEAD_MID | EQP_COSTUME_HEAD_TOP)))
 			sd->status.head_bottom = id->look;
 		else
 			sd->status.head_bottom = 0;
+	}
+	if ((j = sd->equip_index[EQI_COSTUME_HEAD_MID]) != -1 && (id = sd->inventory_data[j])) {
+		if (!(id->equip&EQP_COSTUME_HEAD_TOP))
+			sd->status.head_mid = id->look;
+		else
+			sd->status.head_mid = 0;
+	}
+	if ((j = sd->equip_index[EQI_COSTUME_HEAD_TOP]) != -1 && (id = sd->inventory_data[j]))
+		sd->status.head_top = id->look;
+	if ((j = sd->equip_index[EQI_COSTUME_GARMENT]) != -1 && (id = sd->inventory_data[j]))
+		sd->status.robe = id->look;
+
+	if (head_low != sd->status.head_bottom)
 		clif_changelook(&sd->bl, LOOK_HEAD_BOTTOM, sd->status.head_bottom);
-	}
-	if (pos & EQP_COSTUME_HEAD_TOP) {
-		if (id)
-			sd->status.head_top = id->look;
-		else
-			sd->status.head_top = 0;
-		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
-	}
-	if (pos & EQP_COSTUME_HEAD_MID) {
-		if (id && !(pos&EQP_COSTUME_HEAD_TOP))
-			sd->status.head_mid = id->look;
-		else
-			sd->status.head_mid = 0;
+	if (head_mid != sd->status.head_mid)
 		clif_changelook(&sd->bl, LOOK_HEAD_MID, sd->status.head_mid);
-	}
-	if (pos & EQP_COSTUME_GARMENT) {
-		if (id)
-			sd->status.robe = id->look;
-		else
-			sd->status.robe = 0;
+	if (head_top != sd->status.head_top)
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
+	if (robe != sd->status.robe)
 		clif_changelook(&sd->bl, LOOK_ROBE, sd->status.robe);
-	}
 
 	pc_checkallowskill(sd); //Check if status changes should be halted.
 

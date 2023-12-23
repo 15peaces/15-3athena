@@ -161,7 +161,7 @@ int npc_touch_areanpc2(struct mob_data *md); // [Skotlex]
 int npc_check_areanpc(int flag, int m, int x, int y, int range);
 int npc_touchnext_areanpc(struct map_session_data* sd,bool leavemap);
 int npc_click(struct map_session_data* sd, struct npc_data* nd);
-int npc_scriptcont(struct map_session_data* sd, int id);
+int npc_scriptcont(struct map_session_data* sd, int id, bool closing);
 struct npc_data* npc_checknear(struct map_session_data* sd, struct block_list* bl);
 int npc_buysellsel(struct map_session_data* sd, int id, int type);
 uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list *item_list);
@@ -177,6 +177,7 @@ bool npc_enable(struct npc_data* nd, int flag);
 void npc_setdisplayname(struct npc_data* nd, const char* newname);
 void npc_setclass(struct npc_data* nd, short class_);
 struct npc_data* npc_name2id(const char* name);
+bool npc_isnear(struct block_list * bl);
 
 int npc_get_new_npc_id(void);
 

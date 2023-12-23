@@ -1062,7 +1062,7 @@ int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 
 			}
 		}
 		if(src->type != BL_MOB) {
-			struct guild *g=guild_search(status_get_guild_id(src));
+			struct guild *g = src->type == BL_PC ? ((TBL_PC *)src)->guild : guild_search(status_get_guild_id(src));
 			if (!g) return 0;
 			if (class_ == MOBID_EMPERIUM && guild_checkskill(g,GD_APPROVAL) <= 0)
 				return 0;
@@ -6720,6 +6720,7 @@ static const struct _battle_data {
 	{ "teleport_on_portal",                 &battle_config.teleport_on_portal,              0,      0,      1,				},
 	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100,            },
 	{ "skill_trap_type",                    &battle_config.skill_trap_type,                 0,      0,      1,				},
+	{ "item_enabled_npc",					&battle_config.item_enabled_npc,				1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
