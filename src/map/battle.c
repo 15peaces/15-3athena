@@ -1426,7 +1426,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		unsigned rh : 1;		//Attack considers right hand (wd.damage)
 		unsigned lh : 1;		//Attack considers left hand (wd.damage2)
 		unsigned weapon : 1; //It's a weapon attack (consider VVS, and all that)
-	}	flag;	
+	}	flag;
 
 	memset(&wd,0,sizeof(wd));
 	memset(&flag,0,sizeof(flag));
@@ -1439,7 +1439,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 	flag.weapon = 1;
 	flag.infdef =(tstatus->mode&MD_PLANT) ? 1 : 0;
 	
-	if (target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION)
+	if (!flag.infdef && target->type == BL_SKILL && ((TBL_SKILL*)target)->group->unit_id == UNT_REVERBERATION)
 		flag.infdef = 1; // Reberberation takes 1 damage
 
 	//Initial Values
@@ -1879,6 +1879,12 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		else
 			flag.hit = 1;
 	}	//End hit/miss calculation
+
+	if (!flag.infdef && (
+		(tstatus->mode&MD_IGNOREMELEE && wd.flag&(BF_SHORT))	//physical melee
+		|| (tstatus->mode&MD_IGNORERANGED && wd.flag&(BF_LONG))	//physical ranged
+		))
+		flag.infdef = 1;
 
 	if (flag.hit && !flag.infdef) //No need to do the math for plants
 	{	//Hitting attack
@@ -4054,6 +4060,10 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			break;
 	}
 
+	if (!flag.infdef && (
+		(tstatus->mode&MD_IGNOREMAGIC && ad.flag&(BF_MAGIC))	//magic
+		)) flag.infdef = 1;
+
 	if (!flag.infdef) //No need to do the math for plants
 	{
 
@@ -5123,6 +5133,9 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			}
 		break;
 	}
+
+	if (tstatus->mode&MD_IGNOREMISC && md.flag&(BF_MISC))	//misc @TODO optimize me
+		md.damage = md.damage2 = 1;
 
 	return md;
 }

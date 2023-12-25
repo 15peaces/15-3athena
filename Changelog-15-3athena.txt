@@ -6,6 +6,21 @@
 //			--More Details.
 //========================================
 
+12/25/2023
+	r423 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn423_log.sql file!
+			-Upated picklog enum (added missing types).
+		*Some small fixes to the custom MVP Arena script.
+		*Small fix in map_addiddb function.
+		*Song/Dance timers now cannot be updated by self without Soul Link.
+		*Some code cleanup.
+		*Fixed "Unable to restore stack! Double continuation!" case (when dead by mob talking to an npc).
+		*Improved infintite def checks.
+		*Added some missing packets to db.
+		*Rewrite clif_equipitemack to also support ZC_REQ_WEAR_EQUIP_ACK2 & correctly handle the result bytes.
+		*Added support for /guildinvite command for 2012 or newer clients.
+			-Also merged both guild invite functions.
+
 12/23/2023
 	r422 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn422_log.sql file!

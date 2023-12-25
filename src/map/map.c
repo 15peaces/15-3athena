@@ -1740,7 +1740,7 @@ void map_reqnickdb(struct map_session_data * sd, int charid)
 }
 
 /*==========================================
- * id_db‚Öbl‚ð’Ç‰Á
+ * add bl to id_db
  *------------------------------------------*/
 void map_addiddb(struct block_list *bl)
 {
@@ -1750,7 +1750,7 @@ void map_addiddb(struct block_list *bl)
 	{
 		TBL_PC* sd = (TBL_PC*)bl;
 		idb_put(pc_db,sd->bl.id,sd);
-		idb_put(charid_db,sd->status.char_id,sd);
+		uidb_put(charid_db,sd->status.char_id,sd);
 	}
 	else if( bl->type == BL_MOB )
 	{

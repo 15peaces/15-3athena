@@ -1638,6 +1638,7 @@ packet_ver: 26
 0x0857,-1
 0x0858,-1
 0x0859,-1
+0x08d0,9
 
 //2011-10-05aRagexeRE
 packet_ver: 27
@@ -1647,6 +1648,7 @@ packet_keys: 0x291E6762,0x77CD391A,0x60AC2F16 // [Shakto]
 0x0437,5,walktoxy,2
 0x07ec,7,actionrequest,2:6
 0x0887,6
+0x08d1,7
 
 // New Packet
 0x0900,-1
@@ -1769,6 +1771,7 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x090f,-1 //ZC_NOTIFY_NEWENTRY7
 0x0914,-1 //ZC_NOTIFY_MOVEENTRY9
 0x0915,-1 //ZC_NOTIFY_STANDENTRY8
+0x0916,26,guildinvite2,2
 0x0977,14 //Monster HP Bar
 
 // 2012-05-02aRagexeRE

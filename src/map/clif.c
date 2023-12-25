@@ -4111,63 +4111,49 @@ void clif_statusupack(struct map_session_data *sd,int type,int ok,int val)
 /// Notifies the client about the result of a request to equip an item (ZC_REQ_WEAR_EQUIP_ACK).
 /// 00aa <index>.W <equip location>.W <result>.B
 /// 00aa <index>.W <equip location>.W <view id>.W <result>.B (PACKETVER >= 20100629)
+/// 08d0 <index>.W <equip location>.W <view id>.W <result>.B (ZC_REQ_WEAR_EQUIP_ACK2)
 /// 0999 <index>.W <equip location>.L <view id>.W <result>.B (ZC_ACK_WEAR_EQUIP_V5)
 /// 0xaa Result Table:
 ///     0 = failure
 ///     1 = success
 ///     2 = failure due to low level
 /// --------------------------------
-/// 0x999 Result Table:
+/// 0x999 / 0x8d0 Result Table:
 ///     0 = SUCCESS
 ///     1 = FAIL_FORBID
 ///     2 = FAILURE
-void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 ok) {
-	int fd;
-	short packet_num;
-	short offset = 0;
-
+void clif_equipitemack(struct map_session_data *sd,int n,int pos,uint8 ok)
+{
+	int fd, header, offs = 0;
+#if PACKETVER < 20110824
+	header = 0xaa;
+#elif PACKETVER < 20120925
+	header = 0x8d0;
+#else
+	header = 0x999;
+#endif
 	nullpo_retv(sd);
 
-	fd=sd->fd;
-
-#if PACKETVER < 20131223
-	packet_num = 0xaa;
-
-	if (ok == 0)
-		ok = 1;
-	else if (ok == 1)
-		ok = 2;
-	else if (ok == 2)
-		ok = 0;
+	fd = sd->fd;
+	WFIFOHEAD(fd, packet_len(header));
+	WFIFOW(fd, offs + 0) = header;
+	WFIFOW(fd, offs + 2) = n + 2;
+#if PACKETVER >= 20120925
+	WFIFOL(fd, offs + 4) = pos;
+	offs += 2;
 #else
-	packet_num = 0x999;
-#endif
-
-	WFIFOHEAD(fd,packet_len(packet_num));
-	WFIFOW(fd,0)=packet_num;
-	WFIFOW(fd,2)=n+2;
-#if PACKETVER < 20131223
-	WFIFOW(fd,4)=pos;
-#else
-	WFIFOL(fd,4)=pos;
-	offset = 2;
+	WFIFOW(fd, offs + 4) = (int)pos;
 #endif
 #if PACKETVER < 20100629
-	WFIFOB(fd,6)=ok;
+	WFIFOB(fd, offs + 6) = ok;
 #else
-
-
-#if PACKETVER < 20131223
 	if (ok && sd->inventory_data[n]->equip&EQP_VISIBLE)
-#else
-	if (ok == 0 && sd->inventory_data[n]->equip&EQP_VISIBLE)
-#endif
-		WFIFOW(fd,6+offset)=sd->inventory_data[n]->look;
+		WFIFOW(fd, offs + 6) = sd->inventory_data[n]->look;
 	else
-		WFIFOW(fd,6+offset)=0;
-	WFIFOB(fd,8+offset)=ok;
+		WFIFOW(fd, offs + 6) = 0;
+	WFIFOB(fd, offs + 8) = ok;
 #endif
-	WFIFOSET(fd,packet_len(packet_num));
+	WFIFOSET(fd, packet_len(header));
 }
 
 /// Notifies the client about the result of a request to take off an item.
@@ -14461,32 +14447,48 @@ void clif_parse_GuildChangeNotice(int fd, struct map_session_data* sd)
 	guild_change_notice(sd, guild_id, msg1, msg2);
 }
 
-
-/// Guild invite request (CZ_REQ_JOIN_GUILD).
-/// 0168 <account id>.L <inviter account id>.L <inviter char id>.L
-void clif_parse_GuildInvite(int fd,struct map_session_data *sd)
-{
-	struct map_session_data *t_sd;
-	
-	if(map[sd->bl.m].flag.guildlock)
-	{	//Guild locked.
-		clif_displaymessage(fd, msg_txt(sd,228));
-		return;
+// Helper function for guild invite functions
+int clif_sub_guild_invite(int fd, struct map_session_data *sd, struct map_session_data *t_sd) {
+	if (t_sd == NULL) {// not online or does not exist
+		return 1;
 	}
 
-	t_sd = map_id2sd(RFIFOL(fd,2));
+	if (map[sd->bl.m].flag.guildlock) {//Guild locked.
+		clif_displaymessage(fd, msg_txt(sd, 228));
+		return 1;
+	}
 
-	// @noask [LuzZza]
-	if(t_sd && t_sd->state.noask) {
+	if (t_sd && t_sd->state.noask) {// @noask [LuzZza]
 		clif_noask_sub(sd, t_sd, 2);
-		return;
+		return 1;
 	}
 
 	// Players in a clan can not join a guild
 	if (t_sd && t_sd->clan)
-		return;
+		return 1;
 
-	guild_invite(sd,t_sd);
+	guild_invite(sd, t_sd);
+	return 0;
+}
+
+/// Guild invite request (CZ_REQ_JOIN_GUILD).
+/// 0168 <account id>.L <inviter account id>.L <inviter char id>.L
+void clif_parse_GuildInvite(int fd, struct map_session_data *sd)
+{
+	struct map_session_data *t_sd = map_id2sd(RFIFOL(fd, 2));
+
+	if (clif_sub_guild_invite(fd, sd, t_sd))
+		return;
+}
+
+/// Guild invite request (/guildinvite)
+/// 0916 <char name>.24B (CZ_REQ_JOIN_GUILD2)
+void clif_parse_GuildInvite2(int fd, struct map_session_data *sd) {
+	struct map_session_data *t_sd = map_nick2sd((char *)RFIFOP(fd, 2));
+
+	// @noask [LuzZza]
+	if (clif_sub_guild_invite(fd, sd, t_sd))
+		return;
 }
 
 
@@ -22106,6 +22108,7 @@ void packetdb_readdb(void)
 		{clif_parse_attendance_reward_request, "pAttendanceRewardRequest"},
 		{clif_parse_pet_evolution, "petevolution"},
 		{clif_parse_reqworldinfo, "reqworldinfo"},
+		{clif_parse_GuildInvite2, "guildinvite2"},
 		{NULL,NULL}
 	};
 

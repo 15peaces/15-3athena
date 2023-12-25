@@ -2,7 +2,7 @@
 # Players (T)rade Give/Take, Players (V)ending Sell/Take, (S)hop Sell/Take, (N)PC Give/Take,
 # (C)onsumable Items, (A)dministrators Create/Delete, Sto(R)age, (G)uild Storage,
 # (E)mail attachment, Auct(I)ons, (D) Stolen from mobs, (B)uying Store, Ban(K), Lotter(Y),
-# (Q)uest, (X) Other
+# (Q)uest, (X) Other, ($) Cash 
 
 #Database: log
 #Table: picklog
@@ -10,7 +10,7 @@ CREATE TABLE `picklog` (
   `id` int(11) NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
-  `type` enum('M','P','L','T','V','S','N','C','A','R','G','E','B','I','D','Q','X') NOT NULL default 'P',
+  `type` enum('T','V','P','M','S','N','D','C','O','U','A','R','G','E','I','B','L','K','Y','Q','X','$') NOT NULL default 'P',
   `nameid` smallint(5) unsigned NOT NULL default '0',
   `amount` int(11) NOT NULL default '1',
   `refine` tinyint(3) unsigned NOT NULL default '0',

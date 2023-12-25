@@ -2146,8 +2146,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 	if( src )
 	{ // Use Dead skill only if not killed by Script or Command
+		md->status.hp = 1;
 		md->state.skillstate = MSS_DEAD;	
 		mobskill_use(md,tick,-1);
+		md->status.hp = 0;
 	}
 
 	map_freeblock_lock();
@@ -2564,7 +2566,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	rebirth = (md->sc.data[SC_KAIZEL] || md->sc.data[SC_LIGHT_OF_REGENE] || (md->sc.data[SC_REBIRTH] && !md->state.rebirth));
 	if( !rebirth )
 	{ // Only trigger event on final kill
-		md->status.hp = 0; //So that npc_event invoked functions KNOW that mob is dead
 		if (src) {
 			switch (src->type) {
 				case BL_PET: sd = ((TBL_PET*)src)->msd; break;
@@ -2617,8 +2618,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			pc_setparam(mvp_sd, SP_KILLEDRID, md->class_);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
 		}
-		
-		md->status.hp = 1;
 	}
 
 	if(md->deletetimer != INVALID_TIMER) {

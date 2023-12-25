@@ -2486,7 +2486,8 @@ int skill_blown(struct block_list* src, struct block_list* target, int count, in
 			struct mob_data* md = BL_CAST(BL_MOB, target);
 			if( md->class_ == MOBID_EMPERIUM )
 				return 0;
-			if(src != target && is_boss(target)) //Bosses can't be knocked-back
+			//Bosses or imune can't be knocked-back
+			if (src != target && status_get_mode(target)&(MD_KNOCKBACK_IMMUNE | MD_BOSS))
 				return 0;
 		}
 			break;
@@ -14556,9 +14557,9 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, int64 tick)
 			status_change_end(bl, type, INVALID_TIMER);
 		break;
 
-	case UNT_BASILICA:
-		if( sce && sce->val4 == src->bl.id )
-			status_change_end(bl, type, INVALID_TIMER);
+		case UNT_BASILICA:
+			if( sce && sce->val4 == src->bl.id )
+				status_change_end(bl, type, INVALID_TIMER);
 			break;
 
 		case UNT_DISSONANCE:
@@ -14574,6 +14575,17 @@ int skill_unit_onout (struct skill_unit *src, struct block_list *bl, int64 tick)
 				}
 			}
 		}
+
+		case UNT_WHISTLE:
+		case UNT_ASSASSINCROSS:
+		case UNT_POEMBRAGI:
+		case UNT_APPLEIDUN:
+		case UNT_HUMMING:
+		case UNT_DONTFORGETME:
+		case UNT_FORTUNEKISS:
+		case UNT_SERVICEFORYOU:
+			if (sg->src_id == bl->id && !(sc && sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_BARDDANCER))
+				return -1;
 
 		case UNT_HERMODE:	//Clear Hermode if the owner moved.
 			if (sce && sce->val3 == BCT_SELF && sce->val4 == sg->group_id)
@@ -14762,8 +14774,10 @@ static int skill_unit_effect (struct block_list* bl, va_list ap)
   	if( isTarget ){
  		if( flag&1 )
  			skill_unit_onplace(unit,bl,tick);
- 		else
- 			skill_unit_onout(unit,bl,tick);
+		else {
+			if (skill_unit_onout(unit, bl, tick) == -1)
+				return 0; // Don't let a Bard/Dancer update their own song timer
+		}
  
  		if( flag&4 )
  			skill_unit_onleft(skill_id, bl, tick);

@@ -470,9 +470,15 @@ enum clif_messages {
 	ADDITEM_TO_CART_FAIL_COUNT = 0x1,
 
 	// clif_equipitemack flags
+#if PACKETVER >= 20121205
 	ITEM_EQUIP_ACK_OK = 0,
-	ITEM_EQUIP_ACK_FAIL = 1,
-	ITEM_EQUIP_ACK_FAILLEVEL = 2,
+	ITEM_EQUIP_ACK_FAIL = 2,
+	ITEM_EQUIP_ACK_FAILLEVEL = 1,
+#else
+	ITEM_EQUIP_ACK_OK = 1,
+	ITEM_EQUIP_ACK_FAIL = 0,
+	ITEM_EQUIP_ACK_FAILLEVEL = 0,
+#endif
 	/* -end- */
 
 	//! NOTE: These values below need client version validation

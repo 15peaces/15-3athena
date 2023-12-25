@@ -1544,7 +1544,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return hp+sp;
 	}
 
-	status->hp = 0; //To let the dead function cast skills and all that.
+	status->hp = 0;
 	//NOTE: These dead functions should return: [Skotlex]
 	//0: Death cancelled, auto-revived.
 	//Non-zero: Standard death. Clear status, cancel move/attack, etc
@@ -1565,7 +1565,6 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return hp+sp;
 
 	//Normal death
-	status->hp = 0;
 	if (battle_config.clear_unit_ondeath &&
 		battle_config.clear_unit_ondeath&target->type)
 		skill_clear_unitgroup(target);
@@ -7927,7 +7926,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	}
 
 	// Check for mvp resistance // atm only those who OS
-	if(status_has_mode(status,MD_MVP) /*&& !(flag&SCSTART_NOAVOID)*/) {
+	if(status_has_mode(status,MD_MVP) && !(flag&1)) {
 		 switch (type) {
 		 case SC_COMA:
 		// continue list...

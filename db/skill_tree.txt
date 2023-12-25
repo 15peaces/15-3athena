@@ -5,7 +5,6 @@
 0,142,1,0,0,0,0,0,0,0,0,0,0 //NV_FIRSTAID#First Aid#
 0,143,1,0,0,0,0,0,0,0,0,0,0 //NV_TRICKDEAD#Act Dead#
 0,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-0,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Swordman
 1,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -21,7 +20,6 @@
 1,145,1,0,0,0,0,0,0,0,0,0,0 //SM_FATALBLOW#Attack Weak Point#
 1,146,1,0,0,0,0,0,0,0,0,0,0 //SM_AUTOBERSERK#Auto Berserk#
 1,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-1,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Magician
 2,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -41,7 +39,6 @@
 2,21,10,20,4,0,0,0,0,0,0,0,0 //MG_THUNDERSTORM#Thunderstorm#
 2,157,1,0,0,0,0,0,0,0,0,0,0 //MG_ENERGYCOAT#Energy Coat#
 2,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-2,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Archer
 3,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -54,7 +51,6 @@
 3,147,1,0,0,0,0,0,0,0,0,0,0 //AC_MAKINGARROW#Arrow Crafting#
 3,148,1,0,0,0,0,0,0,0,0,0,0 //AC_CHARGEARROW#Arrow Repel#
 3,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-3,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Acolyte
 4,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -75,7 +71,6 @@
 4,35,1,28,2,0,0,0,0,0,0,0,0 //AL_CURE#Cure#
 4,156,1,0,0,0,0,0,0,0,0,0,0 //AL_HOLYLIGHT#Holy Light#
 4,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Merchant
 5,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -91,8 +86,6 @@
 5,154,1,0,0,0,0,0,0,0,0,0,0 //MC_CHANGECART#Change Cart#
 5,155,1,0,0,0,0,0,0,0,0,0,0 //MC_LOUD#Crazy Uproar#
 5,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-5,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-5,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 5,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Thief
@@ -109,7 +102,6 @@
 6,151,1,0,0,0,0,0,0,0,0,0,0 //TF_PICKSTONE#Find Stone#
 6,152,1,0,0,0,0,0,0,0,0,0,0 //TF_THROWSTONE#Stone Fling#
 6,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-6,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Knight
 7,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -137,7 +129,6 @@
 7,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 7,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 7,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-7,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Priest
 8,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -177,7 +168,6 @@
 8,79,10,12,1,78,1,77,3,0,0,0,0 //PR_MAGNUS#Magnus Exorcismus#
 8,1014,1,0,0,0,0,0,0,0,0,0,0 //PR_REDEMPTIO#Redemptio#
 8,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-8,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Wizard
 9,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -212,7 +202,6 @@
 9,93,1,0,0,0,0,0,0,0,0,0,0 //WZ_ESTIMATION#Sense#
 9,1006,1,0,0,0,0,0,0,0,0,0,0 //WZ_SIGHTBLASTER#Sight Blaster#
 9,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-9,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Blacksmith
 10,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -252,8 +241,6 @@
 10,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 10,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 10,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-10,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-10,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 10,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Hunter
@@ -286,7 +273,6 @@
 11,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 11,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 11,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-11,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Assassin
 12,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -314,7 +300,6 @@
 12,1003,1,0,0,0,0,0,0,0,0,0,0 //AS_SONICACCEL#Sonic Acceleration#
 12,1004,1,0,0,0,0,0,0,0,0,0,0 //AS_VENOMKNIFE#Throw Venom Knife#
 12,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-12,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Knight (Peco)
 13,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -342,7 +327,6 @@
 13,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 13,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 13,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-13,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Crusader
 14,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -377,7 +361,6 @@
 14,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 14,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
 14,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-14,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Monk
 15,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -415,7 +398,6 @@
 15,1015,1,0,0,0,0,0,0,0,0,0,0 //MO_KITRANSLATION#Ki Translation#
 15,1016,1,0,0,0,0,0,0,0,0,0,0 //MO_BALKYOUNG#Ki Explosion#
 15,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-15,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Sage
 16,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -460,7 +442,6 @@
 16,1018,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTFIRE#Elemental Change Fire#
 16,1019,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTWIND#Elemental Change Wind#
 16,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-16,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Rogue
 17,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -497,7 +478,6 @@
 17,225,10,219,5,0,0,0,0,0,0,0,0 //RG_PLAGIARISM#Intimidate#
 17,1005,1,0,0,0,0,0,0,0,0,0,0 //RG_CLOSECONFINE#Close Confine#
 17,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-17,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Alchemist
 18,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -533,8 +513,6 @@
 18,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 18,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 18,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-18,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-18,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 18,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Bard
@@ -567,7 +545,6 @@
 19,313,5,321,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 19,1010,1,0,0,0,0,0,0,0,0,0,0 //BA_PANGVOICE#Pang Voice#
 19,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-19,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Dancer
 20,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -599,7 +576,6 @@
 20,313,5,329,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 20,1011,1,0,0,0,0,0,0,0,0,0,0 //DC_WINKCHARM#Wink of Charm#
 20,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-20,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Crusader (Peco)
 21,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -634,7 +610,6 @@
 21,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 21,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
 21,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-21,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Wedding Class
 22,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -642,7 +617,6 @@
 22,335,5,0,0,0,0,0,0,0,0,0,0 //WE_FEMALE#I Look up to You#
 22,336,5,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARTNER#I miss You#
 22,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-22,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 22,5063,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLALLFAMILY#Call All Family#
 22,5064,1,0,0,0,0,0,0,0,0,0,0 //WE_ONEFOREVER#One Forever#
 
@@ -699,8 +673,6 @@
 23,52,10,0,0,0,0,0,0,0,0,0,0 //TF_POISON#Envenom#
 23,53,1,52,3,0,0,0,0,0,0,0,0 //TF_DETOXIFY#Detoxify#
 23,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-23,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-23,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 
 //Gunslinger
 24,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -728,7 +700,6 @@
 24,520,10,519,5,0,0,0,0,0,0,0,0 //GS_SPREADATTACK#Spread Attack#
 24,521,10,520,7,0,0,0,0,0,0,0,0 //GS_GROUNDDRIFT#Ground Drift#
 24,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-24,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Ninja
 25,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -757,14 +728,12 @@
 25,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 25,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
 25,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-25,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Novice High
 4001,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
 4001,142,1,0,0,0,0,0,0,0,0,0,0 //NV_FIRSTAID#First Aid#
 4001,143,1,0,0,0,0,0,0,0,0,0,0 //NV_TRICKDEAD#Act Dead#
 4001,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4001,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Swordman High
 4002,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -780,7 +749,6 @@
 4002,145,1,0,0,0,0,0,0,0,0,0,0 //SM_FATALBLOW#Attack Weak Point#
 4002,146,1,0,0,0,0,0,0,0,0,0,0 //SM_AUTOBERSERK#Auto Berserk#
 4002,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4002,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Magician High
 4003,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -800,7 +768,6 @@
 4003,21,10,20,4,0,0,0,0,0,0,0,0 //MG_THUNDERSTORM#Thunderstorm#
 4003,157,1,0,0,0,0,0,0,0,0,0,0 //MG_ENERGYCOAT#Energy Coat#
 4003,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4003,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Archer High
 4004,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -813,7 +780,6 @@
 4004,147,1,0,0,0,0,0,0,0,0,0,0 //AC_MAKINGARROW#Arrow Crafting#
 4004,148,1,0,0,0,0,0,0,0,0,0,0 //AC_CHARGEARROW#Arrow Repel#
 4004,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4004,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Acolyte High
 4005,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -834,7 +800,6 @@
 4005,35,1,28,2,0,0,0,0,0,0,0,0 //AL_CURE#Cure#
 4005,156,1,0,0,0,0,0,0,0,0,0,0 //AL_HOLYLIGHT#Holy Light#
 4005,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4005,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Merchant High
 4006,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -850,8 +815,6 @@
 4006,154,1,0,0,0,0,0,0,0,0,0,0 //MC_CHANGECART#Change Cart#
 4006,155,1,0,0,0,0,0,0,0,0,0,0 //MC_LOUD#Crazy Uproar#
 4006,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4006,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4006,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4006,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Thief High
@@ -868,7 +831,6 @@
 4007,151,1,0,0,0,0,0,0,0,0,0,0 //TF_PICKSTONE#Find Stone#
 4007,152,1,0,0,0,0,0,0,0,0,0,0 //TF_THROWSTONE#Stone Fling#
 4007,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4007,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Lord Knight
 4008,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -904,7 +866,6 @@
 4008,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4008,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4008,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4008,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //High Priest
 4009,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -948,7 +909,6 @@
 4009,363,10,68,3,9,5,76,5,0,0,0,0 //HP_MEDITATIO#Meditatio#
 4009,481,5,65,10,23,10,0,0,0,0,0,0 //HP_MANARECHARGE#Mana Recharge#
 4009,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4009,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //High Wizard
 4010,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -988,7 +948,6 @@
 4010,483,1,93,1,87,1,0,0,0,0,0,0 //HW_GANBANTEIN#Ganbantein#
 4010,484,5,365,1,366,10,92,1,0,0,0,0 //HW_GRAVITATION#Gravitation#
 4010,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4010,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Whitesmith
 4011,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1036,8 +995,6 @@
 4011,486,5,113,5,0,0,0,0,0,0,0,0 //WS_OVERTHRUSTMAX#Maximum Power Thrust#
 4011,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4011,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4011,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4011,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4011,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Sniper
@@ -1074,7 +1031,6 @@
 4012,383,10,45,9,0,0,0,0,0,0,0,0 //SN_WINDWALK#Wind Walker#
 4012,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4012,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4012,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Assassin Cross
 4013,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1107,7 +1063,6 @@
 4013,406,10,132,3,134,5,136,5,379,1,0,0 //ASC_METEORASSAULT#Meteor Assault#
 4013,407,1,52,10,53,1,138,5,0,0,0,0 //ASC_CDP#Create Deadly Poison#
 4013,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4013,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Lord Knight (Peco)
 4014,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1143,7 +1098,6 @@
 4014,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4014,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4014,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4014,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Paladin
 4015,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1182,7 +1136,6 @@
 4015,369,10,248,8,22,3,23,5,0,0,0,0 //PA_GOSPEL#Battle Chant#
 4015,480,5,251,5,0,0,0,0,0,0,0,0 //PA_SHIELDCHAIN#Shield Chain#
 4015,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4015,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Champion
 4016,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1224,7 +1177,6 @@
 4016,372,10,259,5,261,5,371,2,0,0,0,0 //CH_CHAINCRUSH#Chain Crush Combo#
 4016,401,1,261,5,262,1,270,5,0,0,0,0 //CH_SOULCOLLECT#Hyper Spirit Sphere#
 4016,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4016,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Professor
 4017,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1277,7 +1229,6 @@
 4017,405,1,284,4,0,0,0,0,0,0,0,0 //PF_SPIDERWEB#Fiber Lock#
 4017,482,5,279,1,0,0,0,0,0,0,0,0 //PF_DOUBLECASTING#Double Casting#
 4017,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4017,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Stalker
 4018,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1318,7 +1269,6 @@
 4018,475,1,225,10,0,0,0,0,0,0,0,0 //ST_PRESERVE#Preserve#
 4018,476,5,215,5,216,5,217,5,218,5,0,0 //ST_FULLSTRIP#Divest All#
 4018,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4018,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Creator
 4019,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1360,8 +1310,6 @@
 4019,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 4019,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 4019,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-4019,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4019,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4019,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 
 //Clown
@@ -1400,7 +1348,6 @@
 4020,488,5,45,10,315,10,0,0,0,0,0,0 //CG_HERMODE#Wand of Hermod#
 4020,489,5,45,10,317,3,0,0,0,0,0,0 //CG_TAROTCARD#Tarot Card of Fate#
 4020,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4020,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Gypsy
 4021,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1438,7 +1385,6 @@
 4021,488,5,45,10,323,10,0,0,0,0,0,0 //CG_HERMODE#Wand of Hermod#
 4021,489,5,45,10,325,3,0,0,0,0,0,0 //CG_TAROTCARD#Tarot Card of Fate#
 4021,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4021,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Paladin (Peco)
 4022,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1477,7 +1423,6 @@
 4022,369,10,248,8,22,3,23,5,0,0,0,0 //PA_GOSPEL#Battle Chant#
 4022,480,5,251,5,0,0,0,0,0,0,0,0 //PA_SHIELDCHAIN#Shield Chain#
 4022,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4022,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Baby Novice
 4023,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -1485,7 +1430,6 @@
 4023,143,1,0,0,0,0,0,0,0,0,0,0 //NV_TRICKDEAD#Act Dead#
 4023,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4023,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4023,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4023,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Swordman
@@ -1503,7 +1447,6 @@
 4024,146,1,0,0,0,0,0,0,0,0,0,0 //SM_AUTOBERSERK#Auto Berserk#
 4024,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4024,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4024,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4024,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Magician
@@ -1525,7 +1468,6 @@
 4025,157,1,0,0,0,0,0,0,0,0,0,0 //MG_ENERGYCOAT#Energy Coat#
 4025,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4025,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4025,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4025,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Archer
@@ -1540,7 +1482,6 @@
 4026,148,1,0,0,0,0,0,0,0,0,0,0 //AC_CHARGEARROW#Arrow Repel#
 4026,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4026,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4026,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4026,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Acolyte
@@ -1563,7 +1504,6 @@
 4027,156,1,0,0,0,0,0,0,0,0,0,0 //AL_HOLYLIGHT#Holy Light#
 4027,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4027,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4027,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4027,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Merchant
@@ -1581,8 +1521,6 @@
 4028,155,1,0,0,0,0,0,0,0,0,0,0 //MC_LOUD#Crazy Uproar#
 4028,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4028,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4028,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4028,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4028,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4028,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
@@ -1601,7 +1539,6 @@
 4029,152,1,0,0,0,0,0,0,0,0,0,0 //TF_THROWSTONE#Stone Fling#
 4029,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4029,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4029,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4029,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Knight
@@ -1631,7 +1568,6 @@
 4030,64,5,63,1,0,0,0,0,0,0,0,0 //KN_CAVALIERMASTERY#Cavalier Mastery#
 4030,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4030,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4030,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4030,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Priest
@@ -1673,7 +1609,6 @@
 4031,78,1,76,5,0,0,0,0,0,0,0,0 //PR_LEXAETERNA#Lex Aeterna#
 4031,79,10,12,1,78,1,77,3,0,0,0,0 //PR_MAGNUS#Magnus Exorcismus#
 4031,1014,1,0,0,0,0,0,0,0,0,0,0 //PR_REDEMPTIO#Redemptio#
-4031,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4031,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Wizard
@@ -1709,7 +1644,6 @@
 4032,92,5,91,1,0,0,0,0,0,0,0,0 //WZ_QUAGMIRE#Quagmire#
 4032,93,1,0,0,0,0,0,0,0,0,0,0 //WZ_ESTIMATION#Sense#
 4032,1006,1,0,0,0,0,0,0,0,0,0,0 //WZ_SIGHTBLASTER#Sight Blaster#
-4032,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4032,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Blacksmith
@@ -1751,8 +1685,6 @@
 4033,1012,1,0,0,0,0,0,0,0,0,0,0 //BS_UNFAIRLYTRICK#Unfair Trick#
 4033,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 4033,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4033,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4033,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4033,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4033,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
@@ -1787,7 +1719,6 @@
 4034,131,5,124,1,127,1,0,0,0,0,0,0 //HT_SPRINGTRAP#Spring Trap#
 4034,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 4034,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4034,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4034,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Assassin
@@ -1817,7 +1748,6 @@
 4035,141,10,139,5,140,5,0,0,0,0,0,0 //AS_SPLASHER#Venom Splasher#
 4035,1003,1,0,0,0,0,0,0,0,0,0,0 //AS_SONICACCEL#Sonic Acceleration#
 4035,1004,1,0,0,0,0,0,0,0,0,0,0 //AS_VENOMKNIFE#Throw Venom Knife#
-4035,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4035,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Knight (Peco)
@@ -1847,7 +1777,6 @@
 4036,64,5,63,1,0,0,0,0,0,0,0,0 //KN_CAVALIERMASTERY#Cavalier Mastery#
 4036,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4036,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4036,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4036,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Crusader
@@ -1884,7 +1813,6 @@
 4037,257,5,251,1,0,0,0,0,0,0,0,0 //CR_DEFENDER#Defending Aura#
 4037,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4037,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
-4037,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4037,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Monk
@@ -1924,7 +1852,6 @@
 4038,273,5,272,3,0,0,0,0,0,0,0,0 //MO_COMBOFINISH#Raging Thrust#
 4038,1015,1,0,0,0,0,0,0,0,0,0,0 //MO_KITRANSLATION#Ki Translation#
 4038,1016,1,0,0,0,0,0,0,0,0,0,0 //MO_BALKYOUNG#Ki Explosion#
-4038,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4038,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Sage
@@ -1971,7 +1898,6 @@
 4039,1017,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTGROUND#Elemental Change Earth#
 4039,1018,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTFIRE#Elemental Change Fire#
 4039,1019,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTWIND#Elemental Change Wind#
-4039,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4039,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Rogue
@@ -2010,7 +1936,6 @@
 4040,224,5,223,1,0,0,0,0,0,0,0,0 //RG_COMPULSION#Haggle#
 4040,225,10,219,5,0,0,0,0,0,0,0,0 //RG_PLAGIARISM#Intimidate#
 4040,1005,1,0,0,0,0,0,0,0,0,0,0 //RG_CLOSECONFINE#Close Confine#
-4040,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4040,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Alchemist
@@ -2048,8 +1973,6 @@
 4041,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 4041,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 4041,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-4041,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4041,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4041,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4041,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
@@ -2084,7 +2007,6 @@
 4042,312,1,306,1,0,0,0,0,0,0,0,0 //BD_INTOABYSS#Power Chord#
 4042,313,5,321,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4042,1010,1,0,0,0,0,0,0,0,0,0,0 //BA_PANGVOICE#Pang Voice#
-4042,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4042,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Dancer
@@ -2118,7 +2040,6 @@
 4043,312,1,306,1,0,0,0,0,0,0,0,0 //BD_INTOABYSS#Power Chord#
 4043,313,5,329,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4043,1011,1,0,0,0,0,0,0,0,0,0,0 //DC_WINKCHARM#Wink of Charm#
-4043,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4043,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Baby Crusader (Peco)
@@ -2155,7 +2076,6 @@
 4044,257,5,251,1,0,0,0,0,0,0,0,0 //CR_DEFENDER#Defending Aura#
 4044,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4044,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
-4044,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4044,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Super Baby
@@ -2212,8 +2132,6 @@
 4045,53,1,52,3,0,0,0,0,0,0,0,0 //TF_DETOXIFY#Detoxify#
 4045,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4045,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4045,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
-4045,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4045,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Taekwon
@@ -2237,7 +2155,6 @@
 4046,426,5,0,0,0,0,0,0,0,0,0,0 //TK_HIGHJUMP#High Jump#
 4046,493,1,424,5,0,0,0,0,0,0,0,0 //TK_MISSION#Taekwon Mission#
 4046,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4046,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Star Gladiator
 4047,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2278,7 +2195,6 @@
 4047,443,10,0,0,0,0,0,0,0,0,0,0	//SG_KNOWLEDGE#Knowledge of the Sun, Moon and Stars#
 4047,444,1,443,9,0,0,0,0,0,0,0,0	//SG_FUSION#Union of the Sun, Moon and Stars#
 4047,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4047,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Star Gladiator (Union)
 4048,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2319,7 +2235,6 @@
 4048,443,10,0,0,0,0,0,0,0,0,0,0	//SG_KNOWLEDGE#Knowledge of the Sun, Moon and Stars#
 4048,444,1,443,9,0,0,0,0,0,0,0,0	//SG_FUSION#Union of the Sun, Moon and Stars#
 4048,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4048,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Soul Linker
 4049,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2369,7 +2284,6 @@
 4049,472,3,447,1,0,0,0,0,0,0,0,0	//SL_SKA#Eska#
 4049,494,5,451,1,0,0,0,0,0,0,0,0	//SL_HIGH#Spirit of Rebirth#
 4049,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4049,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Gangsi (Bongun/Munak)
 4050,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2402,7 +2316,6 @@
 //4050,570,5,565,1,0,0,0,0,0,0,0,0 //MB_M_REINCARNATION##
 //4050,571,1,551,10,553,1,564,5,568,5,569,7 //MB_B_EQUIP## //Also requires MB_M_REINCARNATION 5 but not enough columns.
 4050,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4050,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Death Knight
 4051,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2474,7 +2387,6 @@
 //4051,617,10,605,1,0,0,0,0,0,0,0,0 //DE_WINDATTACK##
 //4051,618,10,605,1,0,0,0,0,0,0,0,0 //DE_WATERATTACK##
 4051,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4051,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Dark Collector
 4052,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -2541,7 +2453,6 @@
 //4052,651,1,640,5,0,0,0,0,0,0,0,0 //DA_ZENYRANK##
 //4052,652,1,0,0,0,0,0,0,0,0,0,0 //DA_ACCESSORYMIX##
 4052,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4052,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //New Soul Linker And Soul Link Enabled Skills
 //4049,572,5,0,0,0,0,0,0,0,0,0,0 //SL_DEATHKNIGHT##
@@ -2586,7 +2497,6 @@
 4054,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4054,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4054,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4054,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4054,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4054,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4054,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -2633,7 +2543,6 @@
 4055,93,1,0,0,0,0,0,0,0,0,0,0 //WZ_ESTIMATION#Sense#
 4055,1006,1,0,0,0,0,0,0,0,0,0,0 //WZ_SIGHTBLASTER#Sight Blaster#
 4055,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4055,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4055,2201,5,2202,3,0,0,0,0,0,0,0,0 //WL_WHITEIMPRISON#White Imprison#
 4055,2202,5,2210,1,0,0,0,0,0,0,0,0 //WL_SOULEXPANSION#Soul Expansion#
 4055,2203,5,2224,1,0,0,0,0,0,0,0,0 //WL_FROSTMISTY#Frosty Misty#
@@ -2690,7 +2599,6 @@
 4056,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 4056,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4056,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4056,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4056,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4056,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4056,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -2754,7 +2662,6 @@
 4057,79,10,12,1,78,1,77,3,0,0,0,0 //PR_MAGNUS#Magnus Exorcismus#
 4057,1014,1,0,0,0,0,0,0,0,0,0,0 //PR_REDEMPTIO#Redemptio#
 4057,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4057,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4057,2038,10,77,1,0,0,0,0,0,0,0,0 //AB_JUDEX#Judex#
 4057,2039,1,2041,3,0,0,0,0,0,0,0,0 //AB_ANCILLA#Ancilla#
 4057,2040,10,79,1,2038,1,2039,1,0,0,0,0 //AB_ADORAMUS#Adoramus#
@@ -2817,7 +2724,6 @@
 4058,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 4058,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4058,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4058,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4058,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4058,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4058,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -2847,7 +2753,6 @@
 4058,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4058,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4058,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4058,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4058,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4058,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4058,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -2878,7 +2783,6 @@
 4059,1003,1,0,0,0,0,0,0,0,0,0,0 //AS_SONICACCEL#Sonic Acceleration#
 4059,1004,1,0,0,0,0,0,0,0,0,0,0 //AS_VENOMKNIFE#Throw Venom Knife#
 4059,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4059,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4059,2021,5,138,3,0,0,0,0,0,0,0,0 //GC_VENOMIMPRESS#Venom Impress#
 4059,2022,5,136,10,0,0,0,0,0,0,0,0 //GC_CROSSIMPACT#Cross Impact#
 4059,2023,5,2022,3,0,0,0,0,0,0,0,0 //GC_DARKILLUSION#Dark Illusion#
@@ -2933,7 +2837,6 @@
 4060,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4060,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4060,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4060,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4060,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4060,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4060,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -2986,7 +2889,6 @@
 4061,483,1,93,1,87,1,0,0,0,0,0,0 //HW_GANBANTEIN#Ganbantein#
 4061,484,5,365,1,366,10,92,1,0,0,0,0 //HW_GRAVITATION#Gravitation#
 4061,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4061,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4061,2201,5,2202,3,0,0,0,0,0,0,0,0 //WL_WHITEIMPRISON#White Imprison#
 4061,2202,5,2210,1,0,0,0,0,0,0,0,0 //WL_SOULEXPANSION#Soul Expansion#
 4061,2203,5,2224,1,0,0,0,0,0,0,0,0 //WL_FROSTMISTY#Frosty Misty#
@@ -3047,7 +2949,6 @@
 4062,383,10,45,9,0,0,0,0,0,0,0,0 //SN_WINDWALK#Wind Walker#
 4062,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4062,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4062,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4062,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4062,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4062,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -3115,7 +3016,6 @@
 4063,363,10,68,3,9,5,76,5,0,0,0,0 //HP_MEDITATIO#Meditatio#
 4063,481,5,65,10,23,10,0,0,0,0,0,0 //HP_MANARECHARGE#Mana Recharge#
 4063,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4063,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4063,2038,10,77,1,0,0,0,0,0,0,0,0 //AB_JUDEX#Judex#
 4063,2039,1,2041,3,0,0,0,0,0,0,0,0 //AB_ANCILLA#Ancilla#
 4063,2040,10,79,1,2038,1,2039,1,0,0,0,0 //AB_ADORAMUS#Adoramus#
@@ -3183,7 +3083,6 @@
 4064,486,5,113,5,0,0,0,0,0,0,0,0 //WS_OVERTHRUSTMAX#Maximum Power Thrust#
 4064,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4064,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4064,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4064,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4064,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4064,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -3213,7 +3112,6 @@
 4064,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4064,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4064,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4064,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4064,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4064,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4064,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -3249,7 +3147,6 @@
 4065,406,10,132,3,134,5,136,5,379,1,0,0 //ASC_METEORASSAULT#Meteor Assault#
 4065,407,1,52,10,53,1,138,5,0,0,0,0 //ASC_CDP#Create Deadly Poison#
 4065,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4065,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4065,2021,5,138,3,0,0,0,0,0,0,0,0 //GC_VENOMIMPRESS#Venom Impress#
 4065,2022,5,136,10,0,0,0,0,0,0,0,0 //GC_CROSSIMPACT#Cross Impact#
 4065,2023,5,2022,3,0,0,0,0,0,0,0,0 //GC_DARKILLUSION#Dark Illusion#
@@ -3303,7 +3200,6 @@
 4066,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4066,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
 4066,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4066,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4066,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4066,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4066,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -3369,7 +3265,6 @@
 4067,1018,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTFIRE#Elemental Change Fire#
 4067,1019,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTWIND#Elemental Change Wind#
 4067,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4067,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4067,2443,5,285,1,0,0,0,0,0,0,0,0 //SO_FIREWALK#Fire Walk#
 4067,2444,5,287,1,0,0,0,0,0,0,0,0 //SO_ELECTRICWALK#Electric Walk#
 4067,2445,5,279,4,0,0,0,0,0,0,0,0 //SO_SPELLFIST#Spell Fist#
@@ -3429,7 +3324,6 @@
 4068,313,5,321,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4068,1010,1,0,0,0,0,0,0,0,0,0,0 //BA_PANGVOICE#Pang Voice#
 4068,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4068,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4068,2381,5,2422,1,0,0,0,0,0,0,0,0 //MI_RUSH_WINDMILL#Windmill Rush Attack#
 4068,2382,5,2422,1,0,0,0,0,0,0,0,0 //MI_ECHOSONG#Echo Song#
 4068,2383,5,2422,1,0,0,0,0,0,0,0,0 //MI_HARMONIZE#Harmonize#
@@ -3487,7 +3381,6 @@
 4069,313,5,329,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4069,1011,1,0,0,0,0,0,0,0,0,0,0 //DC_WINKCHARM#Wink of Charm#
 4069,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4069,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4069,2350,5,2422,1,0,0,0,0,0,0,0,0 //WA_SWING_DANCE#Swing Dance#
 4069,2351,5,2422,1,0,0,0,0,0,0,0,0 //WA_SYMPHONY_OF_LOVER#Symphony of Lovers#
 4069,2352,5,2422,1,0,0,0,0,0,0,0,0 //WA_MOONLIT_SERENADE#Moonlit Serenade#
@@ -3551,7 +3444,6 @@
 4070,1015,1,0,0,0,0,0,0,0,0,0,0 //MO_KITRANSLATION#Ki Translation#
 4070,1016,1,0,0,0,0,0,0,0,0,0,0 //MO_BALKYOUNG#Ki Explosion#
 4070,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4070,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4070,2326,10,263,5,0,0,0,0,0,0,0,0 //SR_DRAGONCOMBO#Dragon Combo#
 4070,2327,5,2326,3,0,0,0,0,0,0,0,0 //SR_SKYNETBLOW#Sky Net Blow#
 4070,2328,5,2326,1,2334,1,0,0,0,0,0,0 //SR_EARTHSHAKER#Earth Shaker#
@@ -3611,7 +3503,6 @@
 4071,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 4071,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 4071,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-4071,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4071,2474,5,0,0,0,0,0,0,0,0,0,0 //GN_TRAINING_SWORD#Sword Training#
 4071,2475,5,0,0,0,0,0,0,0,0,0,0 //GN_REMODELING_CART#Cart Remodeling#
 4071,2476,5,2475,1,0,0,0,0,0,0,0,0 //GN_CART_TORNADO#Cart Tornado#
@@ -3631,7 +3522,6 @@
 4071,2495,2,2497,1,0,0,0,0,0,0,0,0 //GN_MIX_COOKING#Mix Cooking#
 4071,2496,2,2495,1,0,0,0,0,0,0,0,0 //GN_MAKEBOMB#Create Bomb#
 4071,2497,10,0,0,0,0,0,0,0,0,0,0 //GN_S_PHARMACY#Special Pharmacy#
-4071,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4071,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4071,5003,5,2497,1,0,0,0,0,0,0,0,0 //GN_ILLUSIONDOPING#Illusion Doping#
 4071,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -3671,7 +3561,6 @@
 4072,225,10,219,5,0,0,0,0,0,0,0,0 //RG_PLAGIARISM#Intimidate#
 4072,1005,1,0,0,0,0,0,0,0,0,0,0 //RG_CLOSECONFINE#Close Confine#
 4072,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4072,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4072,2284,5,219,5,0,0,0,0,0,0,0,0 //SC_FATALMMENACE#Fatal Menace#
 4072,2285,10,225,5,0,0,0,0,0,0,0,0 //SC_REPRODUCE#Reproduce#
 4072,2286,10,2285,5,0,0,0,0,0,0,0,0 //SC_AUTOSHADOWSPELL#Auto Shadow Spell#
@@ -3733,7 +3622,6 @@
 4073,369,10,248,8,22,3,23,5,0,0,0,0 //PA_GOSPEL#Battle Chant#
 4073,480,5,251,5,0,0,0,0,0,0,0,0 //PA_SHIELDCHAIN#Shield Chain#
 4073,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4073,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4073,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4073,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4073,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -3807,7 +3695,6 @@
 4074,405,1,284,4,0,0,0,0,0,0,0,0 //PF_SPIDERWEB#Fiber Lock#
 4074,482,5,279,1,0,0,0,0,0,0,0,0 //PF_DOUBLECASTING#Double Casting#
 4074,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4074,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4074,2443,5,285,1,0,0,0,0,0,0,0,0 //SO_FIREWALK#Fire Walk#
 4074,2444,5,287,1,0,0,0,0,0,0,0,0 //SO_ELECTRICWALK#Electric Walk#
 4074,2445,5,279,4,0,0,0,0,0,0,0,0 //SO_SPELLFIST#Spell Fist#
@@ -3873,7 +3760,6 @@
 4075,488,5,45,10,315,10,0,0,0,0,0,0 //CG_HERMODE#Wand of Hermod#
 4075,489,5,45,10,317,3,0,0,0,0,0,0 //CG_TAROTCARD#Tarot Card of Fate#
 4075,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4075,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4075,2381,5,2422,1,0,0,0,0,0,0,0,0 //MI_RUSH_WINDMILL#Windmill Rush Attack#
 4075,2382,5,2422,1,0,0,0,0,0,0,0,0 //MI_ECHOSONG#Echo Song#
 4075,2383,5,2422,1,0,0,0,0,0,0,0,0 //MI_HARMONIZE#Harmonize#
@@ -3937,7 +3823,6 @@
 4076,488,5,45,10,323,10,0,0,0,0,0,0 //CG_HERMODE#Wand of Hermod#
 4076,489,5,45,10,325,3,0,0,0,0,0,0 //CG_TAROTCARD#Tarot Card of Fate#
 4076,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4076,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4076,2350,5,2422,1,0,0,0,0,0,0,0,0 //WA_SWING_DANCE#Swing Dance#
 4076,2351,5,2422,1,0,0,0,0,0,0,0,0 //WA_SYMPHONY_OF_LOVER#Symphony of Lovers#
 4076,2352,5,2422,1,0,0,0,0,0,0,0,0 //WA_MOONLIT_SERENADE#Moonlit Serenade#
@@ -4005,7 +3890,6 @@
 4077,372,10,259,5,261,5,371,2,0,0,0,0 //CH_CHAINCRUSH#Chain Crush Combo#
 4077,401,1,261,5,262,1,270,5,0,0,0,0 //CH_SOULCOLLECT#Hyper Spirit Sphere#
 4077,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4077,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4077,2326,10,263,5,0,0,0,0,0,0,0,0 //SR_DRAGONCOMBO#Dragon Combo#
 4077,2327,5,2326,3,0,0,0,0,0,0,0,0 //SR_SKYNETBLOW#Sky Net Blow#
 4077,2328,5,2326,1,2334,1,0,0,0,0,0,0 //SR_EARTHSHAKER#Earth Shaker#
@@ -4069,7 +3953,6 @@
 4078,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 4078,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 4078,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-4078,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4078,2474,5,0,0,0,0,0,0,0,0,0,0 //GN_TRAINING_SWORD#Sword Training#
 4078,2475,5,0,0,0,0,0,0,0,0,0,0 //GN_REMODELING_CART#Cart Remodeling#
 4078,2476,5,2475,1,0,0,0,0,0,0,0,0 //GN_CART_TORNADO#Cart Tornado#
@@ -4089,7 +3972,6 @@
 4078,2495,2,2497,1,0,0,0,0,0,0,0,0 //GN_MIX_COOKING#Mix Cooking#
 4078,2496,2,2495,1,0,0,0,0,0,0,0,0 //GN_MAKEBOMB#Create Bomb#
 4078,2497,10,0,0,0,0,0,0,0,0,0,0 //GN_S_PHARMACY#Special Pharmacy#
-4078,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4078,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4078,5003,5,2497,1,0,0,0,0,0,0,0,0 //GN_ILLUSIONDOPING#Illusion Doping#
 4078,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -4133,7 +4015,6 @@
 4079,475,1,225,10,0,0,0,0,0,0,0,0 //ST_PRESERVE#Preserve#
 4079,476,5,215,5,216,5,217,5,218,5,0,0 //ST_FULLSTRIP#Divest All#
 4079,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4079,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4079,2284,5,219,5,0,0,0,0,0,0,0,0 //SC_FATALMMENACE#Fatal Menace#
 4079,2285,10,225,5,0,0,0,0,0,0,0,0 //SC_REPRODUCE#Reproduce#
 4079,2286,10,2285,5,0,0,0,0,0,0,0,0 //SC_AUTOSHADOWSPELL#Auto Shadow Spell#
@@ -4184,7 +4065,6 @@
 4080,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4080,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4080,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4080,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4080,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4080,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4080,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4233,7 +4113,6 @@
 4081,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4081,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4081,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4081,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4081,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4081,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4081,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4281,7 +4160,6 @@
 4082,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4082,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
 4082,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4082,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4082,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4082,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4082,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -4341,7 +4219,6 @@
 4083,369,10,248,8,22,3,23,5,0,0,0,0 //PA_GOSPEL#Battle Chant#
 4083,480,5,251,5,0,0,0,0,0,0,0,0 //PA_SHIELDCHAIN#Shield Chain#
 4083,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4083,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4083,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4083,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4083,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -4394,7 +4271,6 @@
 4084,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 4084,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4084,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4084,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4084,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4084,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4084,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -4454,7 +4330,6 @@
 4085,383,10,45,9,0,0,0,0,0,0,0,0 //SN_WINDWALK#Wind Walker#
 4085,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4085,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4085,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4085,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4085,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4085,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -4518,7 +4393,6 @@
 4086,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 4086,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4086,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4086,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4086,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4086,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4086,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -4548,7 +4422,6 @@
 4086,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4086,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4086,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4086,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4086,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4086,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4086,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -4596,7 +4469,6 @@
 4087,486,5,113,5,0,0,0,0,0,0,0,0 //WS_OVERTHRUSTMAX#Maximum Power Thrust#
 4087,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4087,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4087,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4087,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4087,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4087,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -4626,7 +4498,6 @@
 4087,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4087,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4087,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4087,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4087,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4087,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4087,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -4657,7 +4528,6 @@
 4088,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4088,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4088,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4088,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4088,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4088,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4088,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4706,7 +4576,6 @@
 4089,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4089,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4089,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4089,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4089,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4089,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4089,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4747,7 +4616,6 @@
 4090,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4090,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4090,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4090,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4090,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4090,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4090,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4796,7 +4664,6 @@
 4091,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4091,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4091,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4091,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4091,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4091,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4091,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4837,7 +4704,6 @@
 4092,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4092,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4092,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4092,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4092,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4092,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4092,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4886,7 +4752,6 @@
 4093,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4093,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4093,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4093,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4093,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4093,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4093,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4927,7 +4792,6 @@
 4094,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4094,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4094,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4094,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4094,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4094,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4094,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -4976,7 +4840,6 @@
 4095,399,10,55,9,64,3,398,3,0,0,0,0 //LK_JOINTBEAT#Vital Strike#
 4095,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
 4095,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4095,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4095,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4095,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4095,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -5018,7 +4881,6 @@
 4096,64,5,63,1,0,0,0,0,0,0,0,0 //KN_CAVALIERMASTERY#Cavalier Mastery#
 4096,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4096,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4096,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4096,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4096,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4096,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -5067,7 +4929,6 @@
 4097,92,5,91,1,0,0,0,0,0,0,0,0 //WZ_QUAGMIRE#Quagmire#
 4097,93,1,0,0,0,0,0,0,0,0,0,0 //WZ_ESTIMATION#Sense#
 4097,1006,1,0,0,0,0,0,0,0,0,0,0 //WZ_SIGHTBLASTER#Sight Blaster#
-4097,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4097,2201,5,2202,3,0,0,0,0,0,0,0,0 //WL_WHITEIMPRISON#White Imprison#
 4097,2202,5,2210,1,0,0,0,0,0,0,0,0 //WL_SOULEXPANSION#Soul Expansion#
 4097,2203,5,2224,1,0,0,0,0,0,0,0,0 //WL_FROSTMISTY#Frosty Misty#
@@ -5126,7 +4987,6 @@
 4098,131,5,124,1,127,1,0,0,0,0,0,0 //HT_SPRINGTRAP#Spring Trap#
 4098,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 4098,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4098,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4098,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4098,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4098,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -5192,7 +5052,6 @@
 4099,78,1,76,5,0,0,0,0,0,0,0,0 //PR_LEXAETERNA#Lex Aeterna#
 4099,79,10,12,1,78,1,77,3,0,0,0,0 //PR_MAGNUS#Magnus Exorcismus#
 4099,1014,1,0,0,0,0,0,0,0,0,0,0 //PR_REDEMPTIO#Redemptio#
-4099,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4099,2038,10,77,1,0,0,0,0,0,0,0,0 //AB_JUDEX#Judex#
 4099,2039,1,2041,3,0,0,0,0,0,0,0,0 //AB_ANCILLA#Ancilla#
 4099,2040,10,79,1,2038,1,2039,1,0,0,0,0 //AB_ADORAMUS#Adoramus#
@@ -5257,7 +5116,6 @@
 4100,1012,1,0,0,0,0,0,0,0,0,0,0 //BS_UNFAIRLYTRICK#Unfair Trick#
 4100,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 4100,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4100,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4100,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4100,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4100,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -5287,7 +5145,6 @@
 4100,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4100,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4100,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4100,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4100,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4100,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4100,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -5320,7 +5177,6 @@
 4101,141,10,139,5,140,5,0,0,0,0,0,0 //AS_SPLASHER#Venom Splasher#
 4101,1003,1,0,0,0,0,0,0,0,0,0,0 //AS_SONICACCEL#Sonic Acceleration#
 4101,1004,1,0,0,0,0,0,0,0,0,0,0 //AS_VENOMKNIFE#Throw Venom Knife#
-4101,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4101,2021,5,138,3,0,0,0,0,0,0,0,0 //GC_VENOMIMPRESS#Venom Impress#
 4101,2022,5,136,10,0,0,0,0,0,0,0,0 //GC_CROSSIMPACT#Cross Impact#
 4101,2023,5,2022,3,0,0,0,0,0,0,0,0 //GC_DARKILLUSION#Dark Illusion#
@@ -5376,7 +5232,6 @@
 4102,257,5,251,1,0,0,0,0,0,0,0,0 //CR_DEFENDER#Defending Aura#
 4102,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4102,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
-4102,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4102,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4102,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4102,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -5444,7 +5299,6 @@
 4103,1017,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTGROUND#Elemental Change Earth#
 4103,1018,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTFIRE#Elemental Change Fire#
 4103,1019,1,0,0,0,0,0,0,0,0,0,0 //SA_ELEMENTWIND#Elemental Change Wind#
-4103,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4103,2443,5,285,1,0,0,0,0,0,0,0,0 //SO_FIREWALK#Fire Walk#
 4103,2444,5,287,1,0,0,0,0,0,0,0,0 //SO_ELECTRICWALK#Electric Walk#
 4103,2445,5,279,4,0,0,0,0,0,0,0,0 //SO_SPELLFIST#Spell Fist#
@@ -5506,7 +5360,6 @@
 4104,312,1,306,1,0,0,0,0,0,0,0,0 //BD_INTOABYSS#Power Chord#
 4104,313,5,321,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4104,1010,1,0,0,0,0,0,0,0,0,0,0 //BA_PANGVOICE#Pang Voice#
-4104,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4104,2381,5,2422,1,0,0,0,0,0,0,0,0 //MI_RUSH_WINDMILL#Windmill Rush Attack#
 4104,2382,5,2422,1,0,0,0,0,0,0,0,0 //MI_ECHOSONG#Echo Song#
 4104,2383,5,2422,1,0,0,0,0,0,0,0,0 //MI_HARMONIZE#Harmonize#
@@ -5566,7 +5419,6 @@
 4105,312,1,306,1,0,0,0,0,0,0,0,0 //BD_INTOABYSS#Power Chord#
 4105,313,5,329,10,0,0,0,0,0,0,0,0 //BD_SIEGFRIED#Acoustic Rhythm#
 4105,1011,1,0,0,0,0,0,0,0,0,0,0 //DC_WINKCHARM#Wink of Charm#
-4105,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4105,2350,5,2422,1,0,0,0,0,0,0,0,0 //WA_SWING_DANCE#Swing Dance#
 4105,2351,5,2422,1,0,0,0,0,0,0,0,0 //WA_SYMPHONY_OF_LOVER#Symphony of Lovers#
 4105,2352,5,2422,1,0,0,0,0,0,0,0,0 //WA_MOONLIT_SERENADE#Moonlit Serenade#
@@ -5632,7 +5484,6 @@
 4106,273,5,272,3,0,0,0,0,0,0,0,0 //MO_COMBOFINISH#Raging Thrust#
 4106,1015,1,0,0,0,0,0,0,0,0,0,0 //MO_KITRANSLATION#Ki Translation#
 4106,1016,1,0,0,0,0,0,0,0,0,0,0 //MO_BALKYOUNG#Ki Explosion#
-4106,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4106,2326,10,263,5,0,0,0,0,0,0,0,0 //SR_DRAGONCOMBO#Dragon Combo#
 4106,2327,5,2326,3,0,0,0,0,0,0,0,0 //SR_SKYNETBLOW#Sky Net Blow#
 4106,2328,5,2326,1,2334,1,0,0,0,0,0,0 //SR_EARTHSHAKER#Earth Shaker#
@@ -5694,7 +5545,6 @@
 4107,496,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT1#Twilight Alchemy 1#
 4107,497,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT2#Twilight Alchemy 2#
 4107,498,1,228,10,0,0,0,0,0,0,0,0	//AM_TWILIGHT3#Twilight Alchemy 3#
-4107,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4107,2474,5,0,0,0,0,0,0,0,0,0,0 //GN_TRAINING_SWORD#Sword Training#
 4107,2475,5,0,0,0,0,0,0,0,0,0,0 //GN_REMODELING_CART#Cart Remodeling#
 4107,2476,5,2475,1,0,0,0,0,0,0,0,0 //GN_CART_TORNADO#Cart Tornado#
@@ -5714,7 +5564,6 @@
 4107,2495,2,2497,1,0,0,0,0,0,0,0,0 //GN_MIX_COOKING#Mix Cooking#
 4107,2496,2,2495,1,0,0,0,0,0,0,0,0 //GN_MAKEBOMB#Create Bomb#
 4107,2497,10,0,0,0,0,0,0,0,0,0,0 //GN_S_PHARMACY#Special Pharmacy#
-4107,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4107,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4107,5003,5,2497,1,0,0,0,0,0,0,0,0 //GN_ILLUSIONDOPING#Illusion Doping#
 4107,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -5756,7 +5605,6 @@
 4108,224,5,223,1,0,0,0,0,0,0,0,0 //RG_COMPULSION#Haggle#
 4108,225,10,219,5,0,0,0,0,0,0,0,0 //RG_PLAGIARISM#Intimidate#
 4108,1005,1,0,0,0,0,0,0,0,0,0,0 //RG_CLOSECONFINE#Close Confine#
-4108,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4108,2284,5,219,5,0,0,0,0,0,0,0,0 //SC_FATALMMENACE#Fatal Menace#
 4108,2285,10,225,5,0,0,0,0,0,0,0,0 //SC_REPRODUCE#Reproduce#
 4108,2286,10,2285,5,0,0,0,0,0,0,0,0 //SC_AUTOSHADOWSPELL#Auto Shadow Spell#
@@ -5809,7 +5657,6 @@
 4109,64,5,63,1,0,0,0,0,0,0,0,0 //KN_CAVALIERMASTERY#Cavalier Mastery#
 4109,1001,1,0,0,0,0,0,0,0,0,0,0 //KN_CHARGEATK#Charge Attack#
 4109,495,1,60,10,0,0,0,0,0,0,0,0	//KN_ONEHAND#Onehand Quicken#
-4109,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4109,2001,5,2010,2,0,0,0,0,0,0,0,0 //RK_ENCHANTBLADE#Enchant Blade#
 4109,2002,5,2001,3,0,0,0,0,0,0,0,0 //RK_SONICWAVE#Sonic Wave#
 4109,2003,10,61,1,2001,2,0,0,0,0,0,0 //RK_DEATHBOUND#Death Bound#
@@ -5859,7 +5706,6 @@
 4110,257,5,251,1,0,0,0,0,0,0,0,0 //CR_DEFENDER#Defending Aura#
 4110,258,10,55,10,0,0,0,0,0,0,0,0 //CR_SPEARQUICKEN#Spear Quicken#
 4110,1002,1,0,0,0,0,0,0,0,0,0,0 //CR_SHRINK#Shrink#
-4110,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4110,2307,5,2312,1,0,0,0,0,0,0,0,0 //LG_CANNONSPEAR#Cannon Spear#
 4110,2308,10,55,1,0,0,0,0,0,0,0,0 //LG_BANISHINGPOINT#Banishing Point#
 4110,2309,3,0,0,0,0,0,0,0,0,0,0 //LG_TRAMPLE#Trample#
@@ -5914,7 +5760,6 @@
 4111,131,5,124,1,127,1,0,0,0,0,0,0 //HT_SPRINGTRAP#Spring Trap#
 4111,1009,1,0,0,0,0,0,0,0,0,0,0 //HT_PHANTASMIC#Phantasmic Arrow#
 4111,499,1,46,10,0,0,0,0,0,0,0,0	//HT_POWER#Beast Strafing#
-4111,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4111,2233,10,2236,5,0,0,0,0,0,0,0,0 //RA_ARROWSTORM#Arrow Storm#
 4111,2234,5,2233,5,2247,1,0,0,0,0,0,0 //RA_FEARBREEZE#Fear Breeze#
 4111,2235,10,0,0,0,0,0,0,0,0,0,0 //RA_RANGERMAIN#Ranger Main#
@@ -5980,7 +5825,6 @@
 4112,1012,1,0,0,0,0,0,0,0,0,0,0 //BS_UNFAIRLYTRICK#Unfair Trick#
 4112,1013,1,0,0,0,0,0,0,0,0,0,0 //BS_GREED#Greed#
 4112,459,1,111,5,0,0,0,0,0,0,0,0	//BS_ADRENALINE2#Full Adrenaline Rush#
-4112,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4112,2255,5,0,0,0,0,0,0,0,0,0,0 //NC_MADOLICENCE#Mado License#
 4112,2256,5,2255,1,0,0,0,0,0,0,0,0 //NC_BOOSTKNUCKLE#Boost Knuckle#
 4112,2257,3,2256,2,0,0,0,0,0,0,0,0 //NC_PILEBUNKER#Pile Bunker#
@@ -6010,7 +5854,6 @@
 4112,2281,5,2277,2,0,0,0,0,0,0,0,0 //NC_SILVERSNIPER#FAW - Silver Sniper#
 4112,2282,5,2277,2,0,0,0,0,0,0,0,0 //NC_MAGICDECOY#FAW - Magic Decoy#
 4112,2283,1,2281,1,0,0,0,0,0,0,0,0 //NC_DISJOINT#FAW Removal#
-4112,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4112,2544,1,0,0,0,0,0,0,0,0,0,0 //MC_CARTDECORATE#Cart Decorate#
 4112,5006,5,2277,1,0,0,0,0,0,0,0,0 //NC_MAGMA_ERUPTION#Magma Eruption#
 4112,5014,5,0,0,0,0,0,0,0,0,0,0 //ALL_FULL_THROTTLE#Full Throttle#
@@ -6069,7 +5912,6 @@
 4190,52,10,0,0,0,0,0,0,0,0,0,0 //TF_POISON#Envenom#
 4190,53,1,52,3,0,0,0,0,0,0,0,0 //TF_DETOXIFY#Detoxify#
 4190,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4190,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4190,66,5,0,0,0,0,0,0,0,0,0,0 //PR_IMPOSITIO#Impositio Manus#
 4190,68,5,31,1,66,3,0,0,0,0,0,0 //PR_ASPERSIO#Aspersio#
 4190,70,10,28,1,0,0,0,0,0,0,0,0 //PR_SANCTUARY#Sanctuary#
@@ -6119,7 +5961,6 @@
 4190,5075,5,0,0,0,0,0,0,0,0,0,0 //NV_BREAKTHROUGH#Break Through#
 4190,5076,1,0,0,0,0,0,0,0,0,0,0 //NV_HELPANGEL#Help Angel#
 4190,5077,5,0,0,0,0,0,0,0,0,0,0 //NV_TRANSCENDENCE#Transcendence#
-4190,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 
 //Super Baby (Expanded)
 4191,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -6175,7 +6016,6 @@
 4191,53,1,52,3,0,0,0,0,0,0,0,0 //TF_DETOXIFY#Detoxify#
 4191,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4191,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
-4191,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4191,66,5,0,0,0,0,0,0,0,0,0,0 //PR_IMPOSITIO#Impositio Manus#
 4191,68,5,31,1,66,3,0,0,0,0,0,0 //PR_ASPERSIO#Aspersio#
 4191,70,10,28,1,0,0,0,0,0,0,0,0 //PR_SANCTUARY#Sanctuary#
@@ -6225,7 +6065,6 @@
 4191,5075,5,0,0,0,0,0,0,0,0,0,0 //NV_BREAKTHROUGH#Break Through#
 4191,5076,1,0,0,0,0,0,0,0,0,0,0 //NV_HELPANGEL#Help Angel#
 4191,5077,5,0,0,0,0,0,0,0,0,0,0 //NV_TRANSCENDENCE#Transcendence#
-4191,2535,1,41,1,0,0,0,0,0,0,0,0 //ALL_BUYING_STORE#Open Buying Store#
 4191,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
 
 //Kagerou
@@ -6255,7 +6094,6 @@
 4211,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 4211,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
 4211,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4211,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4211,3001,1,530,5,0,0,0,0,0,0,0,0 //KO_YAMIKUMO##
 4211,3002,5,0,0,0,0,0,0,0,0,0,0 //KO_RIGHT##
 4211,3003,5,0,0,0,0,0,0,0,0,0,0 //KO_LEFT##
@@ -6309,7 +6147,6 @@
 4212,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 4212,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
 4212,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4212,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4212,3001,1,530,5,0,0,0,0,0,0,0,0 //KO_YAMIKUMO##
 4212,3002,5,0,0,0,0,0,0,0,0,0,0 //KO_RIGHT##
 4212,3003,5,0,0,0,0,0,0,0,0,0,0 //KO_LEFT##
@@ -6362,7 +6199,6 @@
 4215,520,10,519,5,0,0,0,0,0,0,0,0 //GS_SPREADATTACK#Spread Attack#
 4215,521,10,520,7,0,0,0,0,0,0,0,0 //GS_GROUNDDRIFT#Ground Drift#
 4215,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4215,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4215,2552,1,500,5,0,0,0,0,0,0,0,0 //RL_RICHS_COIN#Rich's Coin#
 4215,2553,5,514,1,0,0,0,0,0,0,0,0 //RL_MASS_SPIRAL#Mass Spiral#
 4215,2554,5,2557,1,0,0,0,0,0,0,0,0 //RL_BANISHING_BUSTER#Banishing Buster#
@@ -6421,7 +6257,6 @@
 4218,5055,5,5025,1,0,0,0,0,0,0,0,0 //SU_CHATTERING##
 4218,5056,1,5051,5,0,0,0,0,0,0,0,0 //SU_SPIRITOFSEA##
 4218,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4218,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Baby Summoner
 4220,5018,1,0,0,0,0,0,0,0,0,0,0 //SU_BASIC_SKILL##
@@ -6459,7 +6294,6 @@
 4220,5054,1,5048,5,0,0,0,0,0,0,0,0 //SU_SPIRITOFLAND##
 4220,5055,5,5025,1,0,0,0,0,0,0,0,0 //SU_CHATTERING##
 4220,5056,1,5051,5,0,0,0,0,0,0,0,0 //SU_SPIRITOFSEA##
-4220,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4220,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4220,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4220,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6490,7 +6324,6 @@
 4222,542,5,533,10,541,5,0,0,0,0,0,0 //NJ_KAMAITACHI#NJ_KAMAITACHI#
 4222,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 4222,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
-4222,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4222,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4222,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4222,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6521,7 +6354,6 @@
 4223,542,5,533,10,541,5,0,0,0,0,0,0 //NJ_KAMAITACHI#NJ_KAMAITACHI#
 4223,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 4223,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
-4223,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4223,3001,1,530,5,0,0,0,0,0,0,0,0 //KO_YAMIKUMO##
 4223,3002,5,0,0,0,0,0,0,0,0,0,0 //KO_RIGHT##
 4223,3003,5,0,0,0,0,0,0,0,0,0,0 //KO_LEFT##
@@ -6577,7 +6409,6 @@
 4224,542,5,533,10,541,5,0,0,0,0,0,0 //NJ_KAMAITACHI#NJ_KAMAITACHI#
 4224,543,5,533,5,0,0,0,0,0,0,0,0 //NJ_NEN#NJ_NEN#
 4224,544,10,522,7,530,5,543,1,0,0,0,0 //NJ_ISSEN#NJ_ISSEN#
-4224,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4224,3001,1,530,5,0,0,0,0,0,0,0,0 //KO_YAMIKUMO##
 4224,3002,5,0,0,0,0,0,0,0,0,0,0 //KO_RIGHT##
 4224,3003,5,0,0,0,0,0,0,0,0,0,0 //KO_LEFT##
@@ -6627,7 +6458,6 @@
 4225,425,7,422,5,423,5,424,5,0,0,0,0 //TK_SEVENWIND#Warm Wind#
 4225,426,5,0,0,0,0,0,0,0,0,0,0 //TK_HIGHJUMP#High Jump#
 4225,493,1,424,5,0,0,0,0,0,0,0,0 //TK_MISSION#Taekwon Mission#
-4225,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4225,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4225,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4225,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6670,7 +6500,6 @@
 4226,442,3,0,0,0,0,0,0,0,0,0,0	//SG_FRIEND#Friend of the Sun, Moon and Stars#
 4226,443,10,0,0,0,0,0,0,0,0,0,0	//SG_KNOWLEDGE#Knowledge of the Sun, Moon and Stars#
 4226,444,1,443,9,0,0,0,0,0,0,0,0	//SG_FUSION#Union of the Sun, Moon and Stars#
-4226,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4226,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4226,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4226,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6722,7 +6551,6 @@
 4227,471,3,452,1,0,0,0,0,0,0,0,0	//SL_SKE#Esk#
 4227,472,3,447,1,0,0,0,0,0,0,0,0	//SL_SKA#Eska#
 4227,494,5,451,1,0,0,0,0,0,0,0,0	//SL_HIGH#Spirit of Rebirth#
-4227,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4227,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4227,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4227,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6752,7 +6580,6 @@
 4228,519,10,518,3,0,0,0,0,0,0,0,0 //GS_FULLBUSTER#Full Buster#
 4228,520,10,519,5,0,0,0,0,0,0,0,0 //GS_SPREADATTACK#Spread Attack#
 4228,521,10,520,7,0,0,0,0,0,0,0,0 //GS_GROUNDDRIFT#Ground Drift#
-4228,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4228,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4228,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4228,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6782,7 +6609,6 @@
 4229,519,10,518,3,0,0,0,0,0,0,0,0 //GS_FULLBUSTER#Full Buster#
 4229,520,10,519,5,0,0,0,0,0,0,0,0 //GS_SPREADATTACK#Spread Attack#
 4229,521,10,520,7,0,0,0,0,0,0,0,0 //GS_GROUNDDRIFT#Ground Drift#
-4229,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4229,2552,1,500,5,0,0,0,0,0,0,0,0 //RL_RICHS_COIN#Rich's Coin#
 4229,2553,5,514,1,0,0,0,0,0,0,0,0 //RL_MASS_SPIRAL#Mass Spiral#
 4229,2554,5,2557,1,0,0,0,0,0,0,0,0 //RL_BANISHING_BUSTER#Banishing Buster#
@@ -6845,7 +6671,6 @@
 4238,442,3,0,0,0,0,0,0,0,0,0,0	//SG_FRIEND#Friend of the Sun, Moon and Stars#
 4238,443,10,0,0,0,0,0,0,0,0,0,0	//SG_KNOWLEDGE#Knowledge of the Sun, Moon and Stars#
 4238,444,1,443,9,0,0,0,0,0,0,0,0	//SG_FUSION#Union of the Sun, Moon and Stars#
-4238,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 4238,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4238,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4238,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
@@ -6909,7 +6734,6 @@
 4239,2592,7,2593,7,0,0,0,0,0,0,0,0 //SJ_SOLARBURST##
 4239,2593,7,2591,1,0,0,0,0,0,0,0,0 //SJ_PROMINENCEKICK##
 4239,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4239,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Soul Reaper
 4240,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -6976,7 +6800,6 @@
 4240,2611,5,2609,1,0,0,0,0,0,0,0,0 //SP_SOULENERGY##
 4240,2612,5,2611,1,0,0,0,0,0,0,0,0 //SP_KAUTE##
 4240,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4240,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Baby Star Emperor
 4241,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -7039,7 +6862,6 @@
 4241,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4241,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4241,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
-4241,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Baby Soul Reaper
 4242,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -7108,7 +6930,6 @@
 4242,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4242,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4242,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
-4242,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Star Emperor (Union)
 4243,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -7169,7 +6990,6 @@
 4243,2592,7,2593,7,0,0,0,0,0,0,0,0 //SJ_SOLARBURST##
 4243,2593,7,2591,1,0,0,0,0,0,0,0,0 //SJ_PROMINENCEKICK##
 4243,410,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLBABY#Call Baby#
-4243,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
 
 //Baby Star Emperor (Union)
 4244,1,9,0,0,0,0,0,0,0,0,0,0 //NV_BASIC#Basic Skill#
@@ -7232,4 +7052,3 @@
 4244,408,1,0,0,0,0,0,0,0,0,0,0 //WE_BABY#Baby#
 4244,409,1,0,0,0,0,0,0,0,0,0,0 //WE_CALLPARENT#Call Parent#
 4244,5065,1,0,0,0,0,0,0,0,0,0,0 //WE_CHEERUP#Cheer Up#
-4244,681,1,0,0,0,0,0,0,0,0,0,0 //ALL_INCCARRY#Enlarge Weight Limit R#
