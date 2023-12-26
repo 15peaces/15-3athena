@@ -2224,7 +2224,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case MO_EXTREMITYFIST:
 					{	//Overflow check. [Skotlex]
-						unsigned int ratio = skillratio + 100*(8 + sstatus->sp/10);
+						unsigned int ratio = skillratio + 100*(7 + sstatus->sp/10);
 						//You'd need something like 6K SP to reach this max, so should be fine for most purposes.
 						if (ratio > 60000) ratio = 60000; //We leave some room here in case skillratio gets further increased.
 						skillratio = (unsigned short)ratio;

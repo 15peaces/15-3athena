@@ -6,6 +6,12 @@
 //			--More Details.
 //========================================
 
+12/26/2023
+	r424 [15peaces]
+		*Reworked unitwalk script command and updated documentation.
+		*Added server-wide NPC close on @reloadscript.
+		*Some small changes to clif_item_sub functions to optimize it a bit.
+
 12/25/2023
 	r423 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn423_log.sql file!

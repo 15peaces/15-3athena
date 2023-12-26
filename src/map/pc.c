@@ -7660,7 +7660,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 void pc_close_npc(struct map_session_data *sd, int flag) {
 	nullpo_retv(sd);
 
-	if (sd->npc_id) {
+	if (sd->npc_id || sd->npc_shopid) {
 		if (sd->state.using_fake_npc) {
 			clif_clearunit_single(sd->npc_id, CLR_OUTSIGHT, sd->fd);
 			sd->state.using_fake_npc = 0;
@@ -7670,6 +7670,7 @@ void pc_close_npc(struct map_session_data *sd, int flag) {
 
 		sd->state.menu_or_input = 0;
 		sd->npc_menu = 0;
+		sd->npc_shopid = 0;
 		clif_scriptclose(sd, sd->npc_id);
 		if (sd->st && sd->st->state != RUN) {// free attached scripts that are waiting
 			script_free_state(sd->st);

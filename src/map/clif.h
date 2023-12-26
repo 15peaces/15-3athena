@@ -1105,9 +1105,6 @@ void clif_status_change_sub(struct block_list *bl, int id, int type, int flag, i
 void clif_efst_status_change(struct block_list *bl, int tid, enum send_target target, int type, int64 tick, int val1, int val2, int val3);
 void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, enum send_target target);
 
-// V5 Item Packet
-void clif_item_sub_v5(unsigned char *buf, int n, struct item *i, struct item_data *id, int equip);
-
 /// Trade NPC
 void clif_npc_market_open(struct map_session_data *sd, struct npc_data *nd);
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd);

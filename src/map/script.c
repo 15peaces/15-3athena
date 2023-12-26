@@ -17043,7 +17043,7 @@ BUILDIN_FUNC(setunitname) {
 /// Returns if it was successful.
 ///
 /// unitwalk(<unit_id>,<x>,<y>) -> <bool>
-/// unitwalk(<unit_id>,<map_id>) -> <bool>
+/// unitwalk(<unit_id>,<target_id>) -> <bool>
 BUILDIN_FUNC(unitwalk)
 {
 	struct block_list* bl;
@@ -17054,10 +17054,17 @@ BUILDIN_FUNC(unitwalk)
 	else if( script_hasdata(st,4) ){
 		int x = script_getnum(st,3);
 		int y = script_getnum(st,4);
-		script_pushint(st, unit_walktoxy(bl,x,y,0));// We'll use harder calculations.
+		if (script_pushint(st, unit_can_reach_pos(bl, x, y, 0)))
+			add_timer(gettick() + 50, unit_delay_walktoxy_timer, bl->id, (x << 16) | (y & 0xFFFF)); // Need timer to avoid mismatches
 	}else{
-		int map_id = script_getnum(st,3);
-		script_pushint(st, unit_walktobl(bl,map_id2bl(map_id),65025,1));
+		struct block_list* tbl = map_id2bl(script_getnum(st, 3));
+		if (tbl == NULL) {
+			ShowError("script:unitwalk: bad target destination\n");
+			script_pushint(st, 0);
+			return 1;
+		}
+		else if (script_pushint(st, unit_can_reach_bl(bl, tbl, distance_bl(bl, tbl) + 1, 0, NULL, NULL)))
+			add_timer(gettick() + 50, unit_delay_walktobl_timer, bl->id, tbl->id); // Need timer to avoid mismatches
 	}
 
 	return 0;
