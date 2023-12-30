@@ -7,6 +7,16 @@
 //========================================
 
 12/30/2023
+	r426 [15peaces]
+		*Fixed some compilation warnings, sorry...
+		-follow-up @bef081f (r425)
+		*Fixed a map crash in unit_walktoxy function.
+		*Updated packet_db declarations for some older clients.
+		*Fixed a map crash when private messaging an autotrade character.
+		*Removed a duplicated HP/SP calculation on pc_readdb_exp.
+		*Rewrite & optimized mob_chat_db reading.
+
+12/30/2023
 	r425 [15peaces]
 		*Restricted bonuses 'SPRecovRate' and 'HPRecovRate' to short range melee only.
 		*Some updates to @reload... commands:

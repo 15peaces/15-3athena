@@ -10864,12 +10864,10 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 	idx = pc_class2idx(job_id);
 
 	job_info[idx].max_level[type] = maxlvl;
-	for (i = 0; i < maxlvl; i++) {
+
+	for (i = 0; i < maxlvl; i++)
 		job_info[idx].exp_table[type][i] = ((uint32)atoi(fields[3 + i]));
-		//Place the BaseHP/SP calculation here, so we can use the maxlevel from job_exp
-		job_info[idx].base_hp[i] = pc_calc_basehp(i + 1, idx);
-		job_info[idx].base_sp[i] = 10 + ((i + 1) * (job_info[idx].sp_factor / 100));
-	}
+
 	//Reverse check in case the array has a bunch of trailing zeros... [Skotlex]
 	//The reasoning behind the -2 is this... if the max level is 5, then the array
 	//should look like this:

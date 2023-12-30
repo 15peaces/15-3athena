@@ -88,7 +88,7 @@ packet_ver: 5
 0x008d,-1
 0x008e,-1
 //0x008f,0
-0x0090,7,npcclicked,2
+0x0090,7,npcclicked,2:6
 0x0091,22 // ZC_NPCACK_MAPMOVE
 0x0092,28 // ZC_NPCACK_SERVERMOVE
 0x0093,2
@@ -301,10 +301,10 @@ packet_ver: 5
 0x0162,-1
 0x0163,-1
 0x0164,-1
-0x0165,30,createguild,6
+0x0165,30,createguild,2:6
 0x0166,-1
 0x0167,3
-0x0168,14,guildinvite,2
+0x0168,14,guildinvite,2:6:10
 0x0169,3
 0x016a,30
 0x016b,10,guildreplyinvite,2:6
@@ -312,7 +312,7 @@ packet_ver: 5
 0x016d,14
 0x016e,186,guildchangenotice,2:6:66
 0x016f,182
-0x0170,14,guildrequestalliance,2
+0x0170,14,guildrequestalliance,2:6:10
 0x0171,30
 0x0172,10,guildreplyalliance,2:6
 0x0173,3
@@ -338,7 +338,7 @@ packet_ver: 5
 0x0187,6
 0x0188,8
 0x0189,4
-0x018a,4,quitgame,0
+0x018a,4,quitgame,2
 0x018b,4
 0x018c,29
 0x018d,-1
@@ -357,7 +357,7 @@ packet_ver: 5
 0x019a,14
 0x019b,10
 0x019c,-1,localbroadcast,2:4
-0x019d,6,gmhide,0
+0x019d,6,gmhide,2
 0x019e,2
 0x019f,6,catchpet,2
 0x01a0,3
@@ -432,7 +432,7 @@ packet_ver: 5
 0x01e5,6
 0x01e6,26
 0x01e7,2,sndoridori,0
-0x01e8,28,createparty2,2
+0x01e8,28,createparty2,2:26:27
 0x01e9,81
 0x01ea,6
 0x01eb,10
@@ -447,9 +447,9 @@ packet_ver: 5
 0x01f4,32
 0x01f5,9
 0x01f6,34
-0x01f7,14,adoptreply,0
+0x01f7,14,adoptreply,2:6:10
 0x01f8,2
-0x01f9,6,adoptrequest,0
+0x01f9,6,adoptrequest,2
 0x01fa,48
 0x01fb,56
 0x01fc,-1
@@ -741,7 +741,7 @@ packet_ver: 16
 0x0216,6
 0x0217,2,blacksmith,0
 0x022f,5
-0x0231,26,changehomunculusname,0
+0x0231,26,changehomunculusname,2
 0x023a,4
 0x023b,36,storagepassword,2:4:20
 0x023c,6
@@ -837,11 +837,11 @@ packet_ver: 19
 
 //2005-08-17aSakexe
 0x0253,3
-0x0254,3,feelsaveok,0
+0x0254,3,feelsaveok,2
 
 //2005-08-29aSakexe
 0x0240,-1
-0x0248,-1,mailsend,2:4:28:68
+0x0248,-1,mailsend,2:4:28:68:69
 0x0255,5
 0x0256,0
 0x0257,8
@@ -854,7 +854,7 @@ packet_ver: 19
 //2005-10-10aSakexe
 0x020e,32
 0x025a,-1
-0x025b,6,cooking,0
+0x025b,6,cooking,2:4
 
 //2005-10-13aSakexe
 0x007a,6
@@ -964,7 +964,7 @@ packet_ver: 20
 0x029c,66
 0x029d,-1
 0x029e,11
-0x029f,3,mermenu,0
+0x029f,3,mermenu,2
 0x02a0,0
 0x02a1,0
 0x02a2,8
@@ -1021,7 +1021,7 @@ packet_ver: 22
 0x0190,19,actionrequest,5:18
 
 //2007-05-07aSakexe
-0x01fd,15,repairitem,2
+0x01fd,15,repairitem,2:4:6:7:9:11:13
 
 //2007-02-27aSakexe to 2007-10-02aSakexe
 0x0288,10,cashshopbuy,2:4:6
@@ -1068,7 +1068,7 @@ packet_ver: 22
 0x02d5,2
 0x02d6,6,viewplayerequip,2
 0x02d7,-1
-0x02d8,10,p_cz_config,6
+0x02d8,10,p_cz_config,4:4
 0x02d9,10
 0x02da,3
 0x02db,-1,battlechat,2:4
@@ -1488,7 +1488,7 @@ packet_ver: 25
 0x0803,4
 0x0804,8		// Booking System
 0x0805,-1
-0x0806,4,bookingdelreq,2		// Booking System
+0x0806,2,bookingdelreq,0		// Booking System
 //0x0807,2
 0x0808,4		// Booking System
 //0x0809,14
@@ -1621,7 +1621,7 @@ packet_ver: 25
 
 //2010-11-24aRagexeRE
 packet_ver: 26
-0x0288,-1,cashshopbuy,4:8
+0x0288,-1,cashshopbuy,2:4:8:10
 0x0436,19,wanttoconnection,2:6:10:14:18
 0x035f,5,walktoxy,2
 0x0360,6,ticksend,2
@@ -1714,7 +1714,7 @@ packet_ver: 28
 //2012-04-10aRagexeRE
 packet_ver: 29
 packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
-0x01FD,15,repairitem,2
+0x01FD,15,repairitem,2:4:6:7:9:11:13
 0x0366,90,useskilltoposinfo,2:4:6:8:10
 0x0369,7,actionrequest,2:6
 0x0437,5,walktoxy,2
@@ -1738,9 +1738,9 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x089C,26,friendslistadd,2
 0x08A6,8,movefromkafra,2:4
 0x08E6,4
-0x08E7,10,bookingsearchreq,2
+0x08E7,10,bookingsearchreq,2:4:6:8:12
 0x08E8,-1
-0x08E9,2,bookingdelreq,2
+0x08E9,2,bookingdelreq,0
 0x08EA,4
 0x08EB,39,bookingupdatereq,2
 0x08EC,73
@@ -1766,7 +1766,7 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0938,6,takeitem,2
 0x0945,-1,itemlistwindowselected,2:4:8:12
 0x094B,19,wanttoconnection,2:6:10:14:18
-0x0961,36,storagepassword,0
+0x0961,36,storagepassword,2:4:20
 0x08CF,10 //Attribute Sphere
 0x08d2,10 //Fast Movement
 0x090f,-1 //ZC_NOTIFY_NEWENTRY7
@@ -1864,7 +1864,7 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 0x0844,2,pCashShopOpen,0
 0x084a,2,pCashShopClose,0
 0x08c9,2,pCashShopSchedule,0
-0x0848,-1,pCashShopBuy,0
+0x0848,-1,pCashShopBuy,2:4:6:10
 
 //2013-07-17 Ragexe
 packet_ver: 32

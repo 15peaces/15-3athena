@@ -2942,7 +2942,7 @@ void clif_storagelist_v5(struct map_session_data* sd, struct item* items, int it
 		id = itemdb_search(items[i].nameid);
 		if( !itemdb_isstackable2(id) )
 		{// Equippable Items (Not Stackable)
-			clif_item_sub_v5(bufe, ne*se+sidx, i+1, &items[i], id, id->equip);
+			clif_item_sub_v5(bufe, ne*se+sidxe, i+1, &items[i], id, id->equip);
 			ne++;
 		}
 		else
@@ -3794,7 +3794,7 @@ void clif_arrowequip(struct map_session_data *sd,int val)
 	pc_stop_attack(sd); // [Valaris]
 
 #if PACKETVER >= 20121128
-	clif_status_change(&sd->bl, SI_CLIENT_ONLY_EQUIP_ARROW, 1, -1, 0, 0, 0);
+	clif_status_change(&sd->bl, SI_CLIENT_ONLY_EQUIP_ARROW, 1, INVALID_TIMER, 0, 0, 0);
 #endif
 
 	fd=sd->fd;
@@ -7016,7 +7016,7 @@ void clif_wis_message(int fd, const char* nick, const char* mes, int mes_len)
 	WFIFOW(fd,0) = 0x97;
 	WFIFOW(fd,2) = mes_len + NAME_LENGTH + 8;
 	safestrncpy((char*)WFIFOP(fd,4), nick, NAME_LENGTH);
-	WFIFOL(fd, 28) = (pc_isGM(ssd) == 99) ? 1 : 0; // isAdmin; if nonzero, also displays text above char
+	WFIFOL(fd, 28) = (ssd && pc_isGM(ssd) == 99) ? 1 : 0; // isAdmin; if nonzero, also displays text above char
 	safestrncpy((char*)WFIFOP(fd,32), mes, mes_len);
 	WFIFOSET(fd,WFIFOW(fd,2));
 #endif
@@ -13766,7 +13766,6 @@ void clif_parse_CreateParty2(int fd, struct map_session_data *sd)
 
 /// Party invitation request
 /// 00fc <account id>.L (CZ_REQ_JOIN_GROUP)
-/// 02c4 <char name>.24B (CZ_PARTY_JOIN_REQ)
 void clif_parse_PartyInvite(int fd, struct map_session_data *sd)
 {
 	struct map_session_data *t_sd;
@@ -13788,6 +13787,8 @@ void clif_parse_PartyInvite(int fd, struct map_session_data *sd)
 	party_invite(sd, t_sd);
 }
 
+/// Party invitation request
+/// 02c4 <char name>.24B (CZ_PARTY_JOIN_REQ)
 void clif_parse_PartyInvite2(int fd, struct map_session_data *sd)
 {
 	struct map_session_data *t_sd;
@@ -13814,7 +13815,6 @@ void clif_parse_PartyInvite2(int fd, struct map_session_data *sd)
 
 /// Party invitation reply
 /// 00ff <party id>.L <flag>.L (CZ_JOIN_GROUP)
-/// 02c7 <party id>.L <flag>.B (CZ_PARTY_JOIN_REQ_ACK)
 /// flag:
 ///     0 = reject
 ///     1 = accept
@@ -13823,6 +13823,10 @@ void clif_parse_ReplyPartyInvite(int fd,struct map_session_data *sd)
 	party_reply_invite(sd,RFIFOL(fd,2),RFIFOL(fd,6));
 }
 
+/// Party invitation reply
+/// 02c7 <party id>.L <flag>.B (CZ_PARTY_JOIN_REQ_ACK)
+///     0 = reject
+///     1 = accept
 void clif_parse_ReplyPartyInvite2(int fd,struct map_session_data *sd)
 {
 	party_reply_invite(sd,RFIFOL(fd,2),RFIFOB(fd,6));

@@ -897,7 +897,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MG_FROSTDIVER:
-		if (!sc_start(src, bl, SC_FREEZE, skilllv * 3 + 35, skilllv, skill_get_time2(skillid, skilllv)) && sd)
+		if (!sc_start(bl, SC_FREEZE, skilllv * 3 + 35, skilllv, skill_get_time2(skillid, skilllv)) && sd)
 			clif_skill_fail(sd, skillid, 0, 0, 0);
 		break;
 
@@ -7586,11 +7586,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			clif_item_identify_list(sd);
 			if (sd->menuskill_id != MC_IDENTIFY) {/* failed, dont consume anything, return */
-				clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 				map_freeblock_unlock();
 				return 1;
 			}
-			status_zap(src, 0, skill_db[skill_get_index(skill_id)].sp[skill_lv]); // consume sp only if succeeded
+			status_zap(src, 0, skill_db[skill_get_index(skillid)].sp[skilllv]); // consume sp only if succeeded
 		}
 		break;
 

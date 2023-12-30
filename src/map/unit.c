@@ -487,7 +487,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != INVALID_TIMER) {
-		if (!battle_config.skill_trap_type && sc->data[SC_ANKLE]) // Ankle disallows you from changing your path
+		if (!battle_config.skill_trap_type && sc && sc->data[SC_ANKLE]) // Ankle disallows you from changing your path
 			return 0;
 
 		// When you come to the center of the grid because the change of destination while you're walking right now

@@ -54,7 +54,7 @@
 #define MOB_MAX_DELAY (24*3600*1000)
 #define MAX_MINCHASE 30	//Max minimum chase value to use for mobs.
 #define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
-#define MAX_MOB_CHAT 250 //Max Skill's messages
+#define MAX_MOB_CHAT 50 //Max Skill's messages
 
 //Dynamic mob database, allows saving of memory when there's big gaps in the mob_db [Skotlex]
 struct mob_db *mob_db_data[MAX_MOB_DB+1];
@@ -4121,23 +4121,19 @@ static int mob_read_randommonster(void)
 
 /*==========================================
  * processes one mob_chat_db entry [SnakeDrak]
- * @param last_msg_id ensures that only one error message per mob id is printed
+ * db struct: Line_ID,Color_Code,Dialog
  *------------------------------------------*/
-static bool mob_parse_row_chatdb(char** str, const char* source, int line, int* last_msg_id)
+static bool mob_parse_row_chatdb(char* fields[], int columns, int current)
 {
 	char* msg;
 	struct mob_chat *ms;
 	int msg_id;
 	size_t len;
 
-	msg_id = atoi(str[0]);
+	msg_id = atoi(fields[0]);
 
-	if (msg_id <= 0 || msg_id > MAX_MOB_CHAT)
-	{
-		if (msg_id != *last_msg_id) {
-			ShowError("mob_chat: Invalid chat ID: %d at %s, line %d\n", msg_id, source, line);
-			*last_msg_id = msg_id;
-		}
+	if (msg_id <= 0 || msg_id > MAX_MOB_CHAT) {
+		ShowError("mob_parse_row_chatdb: Invalid chat ID: %d at %s, line %d\n", msg_id, columns, current);
 		return false;
 	}
 
@@ -4148,9 +4144,9 @@ static bool mob_parse_row_chatdb(char** str, const char* source, int line, int* 
 	//MSG ID
 	ms->msg_id=msg_id;
 	//Color
-	ms->color=strtoul(str[1],NULL,0);
+	ms->color=strtoul(fields[1],NULL,0);
 	//Message
-	msg = str[2];
+	msg = fields[2];
 	len = strlen(msg);
 
 	while( len && ( msg[len-1]=='\r' || msg[len-1]=='\n' ) )
@@ -4158,12 +4154,8 @@ static bool mob_parse_row_chatdb(char** str, const char* source, int line, int* 
 		len--;
 	}
 
-	if(len>(CHAT_SIZE_MAX-1))
-	{
-		if (msg_id != *last_msg_id) {
-			ShowError("mob_chat: readdb: Message too long! Line %d, id: %d\n", line, msg_id);
-			*last_msg_id = msg_id;
-		}
+	if (len > (CHAT_SIZE_MAX - 1)) {
+		ShowError("mob_chat: readdb: Message too long! Line %d, id: %d\n", current, msg_id);
 		return false;
 	}
 	else if( !len )
@@ -4173,65 +4165,9 @@ static bool mob_parse_row_chatdb(char** str, const char* source, int line, int* 
 	}
 
 	msg[len] = 0;  // strip previously found EOL
-	safestrncpy(ms->msg, str[2], CHAT_SIZE_MAX);
+	safestrncpy(ms->msg, fields[2], CHAT_SIZE_MAX);
 
 	return true;
-}
-
-/*==========================================
- * mob_chat_db.txt reading [SnakeDrak]
- *-------------------------------------------------------------------------*/
-static void mob_readchatdb(void)
-{
-	char arc[]="mob_chat_db.txt";
-	uint32 lines=0, count=0;
-	char line[1024], path[256];
-	int i, tmp=0;
-	FILE *fp;
-	sprintf(path, "%s/%s", db_path, arc); 
-	fp=fopen(path, "r");
-	if(fp == NULL)
-	{
-		ShowWarning("mob_readchatdb: File not found \"%s\", skipping.\n", path);
-		return;
-	}
-	
-	while(fgets(line, sizeof(line), fp))
-	{
-		char *str[3], *p, *np;
-		int j=0;
-
-		lines++;
-		if(line[0] == '/' && line[1] == '/')
-			continue;
-		memset(str, 0, sizeof(str));
-
-		p=line;
-		while(ISSPACE(*p))
-			++p;
-		if(*p == '\0')
-			continue;// empty line
-		for(i = 0; i <= 2; i++)
-		{
-			str[i] = p;
-			if(i<2 && (np = strchr(p, ',')) != NULL) {
-				*np = '\0'; p = np + 1; j++;
-			}
-		}
-
-		if( j < 2 || str[2]==NULL)
-		{
-			ShowError("mob_readchatdb: Insufficient number of fields for skill at %s, line %d\n", arc, lines);
-			continue;
-		}
-
-		if( !mob_parse_row_chatdb(str, path, lines, &tmp) )
-			continue;
-
-		count++;
-	}
-	fclose(fp);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", arc);
 }
 
 /*==========================================
@@ -4564,7 +4500,7 @@ static bool mob_readdb_race2(char* fields[], int columns, int current)
 
 static void mob_load(void)
 {
-	mob_readchatdb();
+	sv_readdb(db_path, "mob_chat_db.txt", '#', 3, 3, MAX_MOB_CHAT, &mob_parse_row_chatdb);
 
 #ifndef TXT_ONLY
 	if(db_use_sqldbs)
