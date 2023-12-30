@@ -2000,11 +2000,11 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 		{
 			struct pet_data *pd = (TBL_PET*)src;
 			flag = MDLF_PET;
-			if( pd->msd )
+			if( pd->master )
 			{
-				char_id = pd->msd->status.char_id;
+				char_id = pd->master->status.char_id;
 				if( damage ) //Let mobs retaliate against the pet's master [Skotlex]
-					md->attacked_id = pd->msd->bl.id;
+					md->attacked_id = pd->master->bl.id;
 			}
 			break;
 		}
@@ -2568,7 +2568,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	{ // Only trigger event on final kill
 		if (src) {
 			switch (src->type) {
-				case BL_PET: sd = ((TBL_PET*)src)->msd; break;
+				case BL_PET: sd = ((TBL_PET*)src)->master; break;
 				case BL_HOM: sd = ((TBL_HOM*)src)->master; break;
 				case BL_MER: sd = ((TBL_MER*)src)->master; break;
 				case BL_ELEM: sd = ((TBL_ELEM*)src)->master; break;

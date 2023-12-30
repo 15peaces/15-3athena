@@ -6,6 +6,13 @@
 //= 1.5
 //===== Compatible With: =====================================
 //= 15-3athena Project
+//===== Description: ========================================= 
+//= Disables warping from a map.
+//= Script commands 'warpparty' and 'warpguild' will not warp
+//=   players.
+//= Atcommands @warp, @go, @load, @jump, @partyrecall,
+//=   @guildrecall, and @recallall will not warp players.
+//= GD_EMERGENCYCALL and UNT_CALLFAMILY will not warp players.
 //===== Additional Comments: ================================= 
 //= 1.3 Added WoE SE maps
 //= 1.4 Added support for episode mapflags [15peaces]

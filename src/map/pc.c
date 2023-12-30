@@ -7869,7 +7869,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			}
 			break;
 			case BL_PET: //Pass on to master...
-				src = &((TBL_PET*)src)->msd->bl;
+				src = &((TBL_PET*)src)->master->bl;
 				break;
 			case BL_HOM:
 				src = &((TBL_HOM*)src)->master->bl;

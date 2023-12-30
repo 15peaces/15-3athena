@@ -12624,7 +12624,7 @@ BUILDIN_FUNC(petloot)
 	pd = sd->pd;
 	if (pd->loot != NULL)
 	{	//Release whatever was there already and reallocate memory
-		pet_lootitem_drop(pd, pd->msd);
+		pet_lootitem_drop(pd, pd->master);
 		aFree(pd->loot->item);
 	}
 	else
@@ -16944,7 +16944,7 @@ BUILDIN_FUNC(setunitdata) {
 			clif_send_homdata(hd->master, SP_ACK, 0);
 			break;
 		case BL_PET:
-			clif_send_petstatus(pd->msd);
+			clif_send_petstatus(pd->master);
 			break;
 		case BL_MER:
 			clif_mercenary_info(map_charid2sd(md->master_id));

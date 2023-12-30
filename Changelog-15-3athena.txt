@@ -6,6 +6,27 @@
 //			--More Details.
 //========================================
 
+12/30/2023
+	r425 [15peaces]
+		*Restricted bonuses 'SPRecovRate' and 'HPRecovRate' to short range melee only.
+		*Some updates to @reload... commands:
+			-@reloadmobdb now also reloads mercanary database.
+			-@reloadskilldb now also reloads mercanary skill database.
+			-@reloadpacketdb now will display the correct message.
+		*Added some missing mapflags to @mapinfo command.
+		*Expanded teleport_timer for pets, homunculus and elementals.
+		*Some fixes related to cashfood status changes.
+		*Added some comments to mapflag files.
+		*Added hook for CZ_BLOCKING_PLAY_CANCEL and CZ_CLIENT_VERSION packets.
+		*Added timestr for DumpUnknownPackets and moved to proper function for visibility.
+		*Added some packets for party booking system.
+			-Thanks to @rathena
+		*Added support for ZC_ACK_SE_CASH_ITEM_LIST2 packet.
+			-This existed only in 2011 clients and was dropped after.
+			-Only added for backwards compatibility with older clients.
+		*Fixed an issue where a non-player failing to freeze another with Frost Diver causes map crash.
+		*MC_IDENTIFY will not take SP anymore when no items found.
+
 12/26/2023
 	r424 [15peaces]
 		*Reworked unitwalk script command and updated documentation.

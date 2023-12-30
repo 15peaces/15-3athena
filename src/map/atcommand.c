@@ -4643,6 +4643,8 @@ ACMD_FUNC(reloadmobdb)
 	mob_reload();
 	read_petdb();
 	merc_reload();
+	read_mercenarydb();
+	read_mercenary_skilldb();
 	clif_displaymessage(fd, msg_txt(sd,98)); // Monster database has been reloaded.
 
 	return 0;
@@ -4656,6 +4658,7 @@ ACMD_FUNC(reloadskilldb)
 	nullpo_retr(-1, sd);
 	skill_reload();
 	merc_skill_reload();
+	read_mercenary_skilldb();
 	clif_displaymessage(fd, msg_txt(sd,99)); // Skill database has been reloaded.
 
 	return 0;
@@ -4777,13 +4780,13 @@ ACMD_FUNC(reloadscript)
 }
 
 /*==========================================
-* @reloadachievementdb - reloads achievements
+* @reloadachievementdb - reloads achievements - TODO
 *------------------------------------------*/
 	ACMD_FUNC(reloadachievementdb)
 {
 	//achievement_db_reload();
 
-	clif_displaymessage(fd, msg_txt(sd,746)); // Achievement databases have been reloaded.
+	//clif_displaymessage(fd, msg_txt(sd,746)); // Achievement databases have been reloaded.
 
 	return 0;
 }
@@ -4794,7 +4797,7 @@ ACMD_FUNC(reloadscript)
 	ACMD_FUNC(reloadpacketdb)
 {
 	packetdb_readdb();
-	clif_displaymessage(fd, msg_txt(sd,746)); // Achievement databases have been reloaded.
+	clif_displaymessage(fd, msg_txt(sd,745)); // Packet database has been reloaded.
 
 	return 0;
 }
@@ -4864,14 +4867,20 @@ ACMD_FUNC(mapinfo)
 	clif_displaymessage(fd, "------ Map Flags ------");
 	if (map[m_id].flag.town)
 		clif_displaymessage(fd, "Town Map");
+	if (map[m_id].flag.restricted) {
+		sprintf(atcmd_output, "Restricted (zone %d)", map[m_id].zone);
+		clif_displaymessage(fd, atcmd_output);
+	}
 
 	if (battle_config.autotrade_mapflag == map[m_id].flag.autotrade)
 		clif_displaymessage(fd, "Autotrade Enabled");
 	else
 		clif_displaymessage(fd, "Autotrade Disabled");
 	
-	if (map[m_id].flag.battleground)
-		clif_displaymessage(fd, "Battlegrounds ON");
+	if (map[m_id].flag.battleground) {
+		sprintf(atcmd_output, "Battlegrounds ON (type %d)", map[m_id].zone);
+		clif_displaymessage(fd, atcmd_output);
+	}
 		
 	strcpy(atcmd_output,"PvP Flags: ");
 	if (map[m_id].flag.pvp)
@@ -4987,6 +4996,10 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "PartyLock | ");
 	if (map[m_id].flag.guildlock)
 		strcat(atcmd_output, "GuildLock | ");
+	if (map[m_id].flag.loadevent)
+		strcat(atcmd_output, "Loadevent |");
+	if (map[m_id].flag.src4instance)
+		strcat(atcmd_output, "Src4instance |");
 	if (map[m_id].flag.nosunmoonstarmiracle)
 		strcat(atcmd_output, "NoSunMoonStarMiracle | ");
 	if (map[m_id].flag.pairship_startable)
@@ -9295,7 +9308,7 @@ ACMD_FUNC(duel)
 
 			target_sd = map_nick2sd((char *)message);
 			if(target_sd != NULL) {
-				unsigned int maxpl = 0, newduel;
+				unsigned int newduel;
 
 				if((newduel = duel_create(sd, 2)) != -1) {
 					if(target_sd->duel_group > 0 ||	target_sd->duel_invite > 0) {

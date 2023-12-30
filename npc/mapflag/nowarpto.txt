@@ -6,6 +6,11 @@
 //= 1.5
 //===== Compatible With: =====================================
 //= 15-3athena Project
+//===== Description: ========================================= 
+//= Disables warping to a map.
+//= Atcommands @warp, @go, @load, @jump, @partyrecall,
+//=   @guildrecall, and @recallall are disabled.
+//= Command /memo is disabled.
 //===== Additional Comments: =================================
 //= 1.4 Added support for episode mapflags [15peaces]
 //= 1.5 Added WOE:TE maps [15peaces]

@@ -1169,13 +1169,13 @@ set_sc( GD_LEADERSHIP		, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
 	StatusChangeFlagTable[SC_ITEMSCRIPT] |= SCB_ALL;
 	StatusChangeFlagTable[SC_SLOWDOWN] |= SCB_SPEED;
 	// Cash Items
-	StatusChangeFlagTable[SC_FOOD_STR_CASH] |= SCB_STR;
-	StatusChangeFlagTable[SC_FOOD_AGI_CASH] |= SCB_AGI;
-	StatusChangeFlagTable[SC_FOOD_VIT_CASH] |= SCB_VIT;
-	StatusChangeFlagTable[SC_FOOD_DEX_CASH] |= SCB_DEX;
-	StatusChangeFlagTable[SC_FOOD_INT_CASH] |= SCB_INT;
-	StatusChangeFlagTable[SC_FOOD_LUK_CASH] |= SCB_LUK;
-	StatusChangeFlagTable[SC_ATTHASTE_CASH] |= SCB_ASPD;
+	StatusChangeFlagTable[SC_FOOD_STR_CASH] = SCB_STR;
+	StatusChangeFlagTable[SC_FOOD_AGI_CASH] = SCB_AGI;
+	StatusChangeFlagTable[SC_FOOD_VIT_CASH] = SCB_VIT;
+	StatusChangeFlagTable[SC_FOOD_DEX_CASH] = SCB_DEX;
+	StatusChangeFlagTable[SC_FOOD_INT_CASH] = SCB_INT;
+	StatusChangeFlagTable[SC_FOOD_LUK_CASH] = SCB_LUK;
+	StatusChangeFlagTable[SC_ATTHASTE_CASH] = SCB_ASPD;
 	// Mercenary Bonus Effects
 	StatusChangeFlagTable[SC_MERC_FLEEUP] |= SCB_FLEE;
 	StatusChangeFlagTable[SC_MERC_ATKUP] |= SCB_WATK;
@@ -2571,9 +2571,9 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 		}
 	}
 
-	if (battle_config.pet_lv_rate && pd->msd)
+	if (battle_config.pet_lv_rate && pd->master)
 	{
-		struct map_session_data *sd = pd->msd;
+		struct map_session_data *sd = pd->master;
 		int lv;
 
 		lv =sd->status.base_level*battle_config.pet_lv_rate/100;
@@ -3896,6 +3896,9 @@ int status_calc_mercenary_(struct mercenary_data *md, bool first)
 		status->sp = status->max_sp;
 		md->battle_status.hp = merc->hp;
 		md->battle_status.sp = merc->sp;
+
+		if (md->master)
+			status->speed = status_get_speed(&md->master->bl);
 	}
 
 	status_calc_misc(&md->bl, status, md->db->lv);
@@ -4457,7 +4460,11 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 		if( bl->type&BL_HOM && battle_config.hom_setting&0x8 && ((TBL_HOM*)bl)->master)
 			status->speed = status_get_speed(&((TBL_HOM*)bl)->master->bl);
 
+		if (bl->type&BL_MER && ((TBL_MER*)bl)->master)
+			status->speed = status_get_speed(&((TBL_MER*)bl)->master->bl);
 
+		if (bl->type&BL_ELEM && ((TBL_ELEM*)bl)->master)
+			status->speed = status_get_speed(&((TBL_ELEM*)bl)->master->bl);
 	}
 
 	if(flag&SCB_CRI && b_status->cri) {
@@ -6754,8 +6761,8 @@ int status_get_party_id(struct block_list *bl)
 	case BL_PC:
 		return ((TBL_PC*)bl)->status.party_id;
 	case BL_PET:
-		if (((TBL_PET*)bl)->msd)
-			return ((TBL_PET*)bl)->msd->status.party_id;
+		if (((TBL_PET*)bl)->master)
+			return ((TBL_PET*)bl)->master->status.party_id;
 		break;
 	case BL_MOB:
 	{
@@ -6794,8 +6801,8 @@ int status_get_guild_id(struct block_list *bl)
 	case BL_PC:
 		return ((TBL_PC*)bl)->status.guild_id;
 	case BL_PET:
-		if (((TBL_PET*)bl)->msd)
-			return ((TBL_PET*)bl)->msd->status.guild_id;
+		if (((TBL_PET*)bl)->master)
+			return ((TBL_PET*)bl)->master->status.guild_id;
 		break;
 	case BL_MOB:
 	{
@@ -6836,8 +6843,8 @@ int status_get_emblem_id(struct block_list *bl)
 	case BL_PC:
 		return ((TBL_PC*)bl)->guild_emblem_id;
 	case BL_PET:
-		if (((TBL_PET*)bl)->msd)
-			return ((TBL_PET*)bl)->msd->guild_emblem_id;
+		if (((TBL_PET*)bl)->master)
+			return ((TBL_PET*)bl)->master->guild_emblem_id;
 		break;
 	case BL_MOB:
 	{

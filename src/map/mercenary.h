@@ -7,6 +7,9 @@
 #include "status.h" // struct status_data, struct status_change
 #include "unit.h" // struct unit_data
 
+// number of cells that a mercenary can walk to from it's master before being warped
+#define MAX_MER_DISTANCE 15
+
 enum {
 	ARCH_MERC_GUILD,
 	SPEAR_MERC_GUILD,
@@ -46,6 +49,7 @@ struct mercenary_data {
 	struct s_mercenary mercenary;
 	char blockskill[MAX_SKILL];
 
+	int masterteleport_timer;
 	struct map_session_data *master;
 	int contract_timer;
 	
@@ -76,6 +80,8 @@ int mercenary_kills(struct mercenary_data *md);
 
 int mercenary_checkskill(struct mercenary_data *md, int skill_id);
 
+int read_mercenarydb(void);
+int read_mercenary_skilldb(void);
 int do_init_mercenary(void);
 
 #endif /* _MERCENARY_H_ */

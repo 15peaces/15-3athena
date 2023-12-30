@@ -8,6 +8,8 @@
 #include "status.h" // struct status_data, struct status_change
 #include "unit.h" // struct unit_data
 
+#define MAX_ELEDISTANCE 5
+
 //Min time between AI executions
 #define MIN_ELEMTHINKTIME 100
 //Min time before mobs do a check to call nearby friends for help (or for slaves to support their master)
@@ -56,6 +58,7 @@ struct elemental_data {
 	struct s_elemental elemental;
 	char blockskill[MAX_SKILL];
 
+	int masterteleport_timer;
 	struct map_session_data *master;
 	int summon_timer;
 	unsigned water_screen_flag : 1;

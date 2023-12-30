@@ -5843,8 +5843,8 @@ struct block_list* battle_get_master(struct block_list *src)
 		prev = src;
 		switch (src->type) {
 			case BL_PET:
-				if (((TBL_PET*)src)->msd)
-					src = (struct block_list*)((TBL_PET*)src)->msd;
+				if (((TBL_PET*)src)->master)
+					src = (struct block_list*)((TBL_PET*)src)->master;
 				break;
 			case BL_MOB:
 				if (((TBL_MOB*)src)->master_id)

@@ -1651,6 +1651,7 @@ packet_keys: 0x291E6762,0x77CD391A,0x60AC2F16 // [Shakto]
 0x08d1,7
 
 // New Packet
+0x0846,4,cashshopreqtab,2
 0x0900,-1
 0x0901,-1
 0x0902,-1
@@ -1736,7 +1737,6 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0891,6,dropitem,2:4
 0x089C,26,friendslistadd,2
 0x08A6,8,movefromkafra,2:4
-0x08E5,41,bookingregreq,2:4 //Added to prevent disconnections
 0x08E6,4
 0x08E7,10,bookingsearchreq,2
 0x08E8,-1
@@ -1762,6 +1762,7 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0907,5,moveitem,2:4
 0x0908,5
 0x091C,26,partyinvite2,2
+0x091D,18,bookingregreq,2:4:6
 0x0938,6,takeitem,2
 0x0945,-1,itemlistwindowselected,2:4:8:12
 0x094B,19,wanttoconnection,2:6:10:14:18
@@ -1788,6 +1789,7 @@ packet_keys: 0x25733B31,0x53486CFD,0x398649BD // [Shakto]
 0x0861,8,movefromkafra,2:4
 0x0862,10,useskilltoid,2:4:6
 0x0863,10,useskilltopos,2:4:6:8
+0x0879,18,bookingregreq,2:4:6
 0x0886,6,solvecharname,2
 0x0889,90,useskilltoposinfo,2:4:6:8:10
 0x089e,6,dropitem,2:4
@@ -1833,7 +1835,8 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 0x0947,36,storagepassword,0
 
 // New Packets
-0x0447,2 // CZ_BLOCKING_PLAY_CANCEL
+0x0447,2,booking_playcancel,0
+0x044A,6,clientversion,2
 0x082d,-1//HC_ACCEPT_ENTER2
 0x084b,19 //ZC_ITEM_FALL_ENTRY4
 0x08C8,34	// ZC_NOTIFY_ACT3
@@ -1860,7 +1863,6 @@ packet_keys: 0x3F094C49,0x55F86C1E,0x58AA359A // [Shakto]
 	
 0x0844,2,pCashShopOpen,0
 0x084a,2,pCashShopClose,0
-0x0846,4,CashShopReqTab,2
 0x08c9,2,pCashShopSchedule,0
 0x0848,-1,pCashShopBuy,0
 

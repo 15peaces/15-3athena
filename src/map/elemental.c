@@ -338,6 +338,7 @@ int elem_data_received(struct s_elemental *elem, bool flag) {
 		map_addiddb(&ed->bl);
 		status_calc_elemental(ed,1);
 		ed->summon_timer = INVALID_TIMER;
+		ed->masterteleport_timer = INVALID_TIMER;
 		elem_summon_init(ed);
 	} else {
 		memcpy(&sd->ed->elemental, elem, sizeof(struct s_elemental));
@@ -938,11 +939,11 @@ void elem_log_damage(struct elemental_data *ed, struct block_list *src, int dama
 		{
 			struct pet_data *pd = (TBL_PET*)src;
 			flag = MDLF_PET;
-			if( pd->msd )
+			if( pd->master )
 			{
-				char_id = pd->msd->status.char_id;
+				char_id = pd->master->status.char_id;
 				if( damage ) //Let mobs retaliate against the pet's master
-					ed->attacked_id = pd->msd->bl.id;
+					ed->attacked_id = pd->master->bl.id;
 			}
 			break;
 		}

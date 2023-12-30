@@ -127,6 +127,75 @@ int unit_walktoxy_sub(struct block_list *bl)
 	return 1;
 }
 
+TBL_PC* unit_get_master(struct block_list *bl) {
+	if (bl)
+		switch (bl->type) {
+		case BL_HOM: return (((TBL_HOM *)bl)->master);
+		case BL_ELEM: return (((TBL_ELEM *)bl)->master);
+		case BL_PET: return (((TBL_PET *)bl)->master);
+		case BL_MER: return (((TBL_MER *)bl)->master);
+		}
+	return NULL;
+}
+
+int* unit_get_masterteleport_timer(struct block_list *bl) {
+	if (bl)
+		switch (bl->type) {
+		case BL_HOM: return &(((TBL_HOM *)bl)->masterteleport_timer);
+		case BL_ELEM: return &(((TBL_ELEM *)bl)->masterteleport_timer);
+		case BL_PET: return &(((TBL_PET *)bl)->masterteleport_timer);
+		case BL_MER: return &(((TBL_MER *)bl)->masterteleport_timer);
+		}
+	return NULL;
+}
+
+int unit_teleport_timer(int tid, int64 tick, int id, intptr_t data) {
+	struct block_list *bl = map_id2bl(id);
+	int *mast_tid = unit_get_masterteleport_timer(bl);
+
+	if (tid == INVALID_TIMER || mast_tid == NULL)
+		return 0;
+	else if (*mast_tid != tid)
+		return 0;
+	else {
+		TBL_PC *msd = unit_get_master(bl);
+
+		if (msd && !check_distance_bl(&msd->bl, bl, data)) {
+			*mast_tid = INVALID_TIMER;
+			unit_warp(bl, msd->bl.id, msd->bl.x, msd->bl.y, CLR_TELEPORT);
+		}
+	}
+	return 0;
+}
+
+int unit_check_start_teleport_timer(struct block_list *sbl) {
+	TBL_PC *msd = unit_get_master(sbl);
+	int max_dist = 0;
+	switch (sbl->type) {
+		case BL_HOM: max_dist = AREA_SIZE; break;
+		case BL_ELEM: max_dist = MAX_ELEDISTANCE; break;
+		case BL_PET: max_dist = AREA_SIZE; break;
+		case BL_MER: max_dist = MAX_MER_DISTANCE; break;
+	}
+	if (msd && max_dist) { //if there is a master and it's a valid type
+		int *msd_tid = unit_get_masterteleport_timer(sbl);
+
+		if (msd_tid == NULL)
+			return 0;
+
+		if (!check_distance_bl(&msd->bl, sbl, max_dist)) {
+			if (*msd_tid == INVALID_TIMER || *msd_tid == 0)
+				*msd_tid = add_timer(gettick() + 3000, unit_teleport_timer, sbl->id, max_dist);
+		}
+		else {
+			if (*msd_tid && *msd_tid != INVALID_TIMER)
+				delete_timer(*msd_tid, unit_teleport_timer);
+			*msd_tid = INVALID_TIMER; //cancel recall
+		}
+	}
+	return 0;
+}
+
 /*==========================================
  * Defines when to refresh the walking character to object and restart the timer if applicable \n
  * Also checks for speed update, target location, and slave teleport timers
@@ -141,17 +210,24 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 	int x,y,dx,dy;
 	uint8 dir;
 	struct block_list       *bl;
-	struct map_session_data *sd;
-	struct mob_data         *md;
-	struct elemental_data   *ed;
 	struct unit_data        *ud;
+	
+	TBL_PC *sd;
+	TBL_MOB *md;
+	TBL_MER *mrd;
+	TBL_ELEM *ed;
+	TBL_PET *pd;
+	TBL_HOM *hd;
 
 	bl = map_id2bl(id);
 	if(bl == NULL)
 		return 0;
 	sd = BL_CAST(BL_PC, bl);
 	md = BL_CAST(BL_MOB, bl);
+	mrd = BL_CAST(BL_MER, bl);
 	ed = BL_CAST(BL_ELEM, bl);
+	pd = BL_CAST(BL_PET, bl);
+	hd = BL_CAST(BL_HOM, bl);
 	ud = unit_bl2ud(bl);
 	
 	if(ud == NULL) return 0;
@@ -206,6 +282,11 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		} else
 			sd->areanpc_id=0;
 
+		if (sd->md) unit_check_start_teleport_timer(&sd->md->bl);
+		if (sd->ed) unit_check_start_teleport_timer(&sd->ed->bl);
+		if (sd->hd) unit_check_start_teleport_timer(&sd->hd->bl);
+		if (sd->pd) unit_check_start_teleport_timer(&sd->pd->bl);
+
 		// Cell PVP [Napster]
 		if( !sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP) )
 			map_pvp_area(sd, 1);
@@ -233,6 +314,8 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 			clif_move(ud);
 		}
 	} else if (ed) {
+		unit_check_start_teleport_timer(&ed->bl);
+
 		// Elementals shouldn't need any of this arena stuff but leave here just in case. [Rytech]
 		//if( map_getcell(bl->m,x,y,CELL_CHKNPC) ) {
 		//	if( npc_touch_areanpc2(ed) ) return 0; // Warped
@@ -254,6 +337,9 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 			clif_move(ud);
 		}
 	}
+	else if (hd) unit_check_start_teleport_timer(&hd->bl);
+	else if (pd) unit_check_start_teleport_timer(&pd->bl);
+	else if (mrd) unit_check_start_teleport_timer(&mrd->bl);
 
 	if(tid == INVALID_TIMER) //A directly invoked timer is from battle_stop_walking, therefore the rest is irrelevant.
 		return 0;
@@ -2515,7 +2601,7 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 	case BL_PET:
 	{
 		struct pet_data *pd = (struct pet_data*)bl;
-		if( pd->pet.intimate <= 0 && !(pd->msd && !pd->msd->state.active) )
+		if( pd->pet.intimate <= 0 && !(pd->master && !pd->master->state.active) )
 		{	//If logging out, this is deleted on unit_free
 			clif_clearunit_area(bl,clrtype);
 			map_delblock(bl);
@@ -2736,7 +2822,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 		case BL_PET:
 		{
 			struct pet_data *pd = (struct pet_data*)bl;
-			struct map_session_data *sd = pd->msd;
+			struct map_session_data *sd = pd->master;
 			pet_hungry_timer_delete(pd);
 			if( pd->a_skill )
 			{
@@ -2923,6 +3009,7 @@ int do_init_unit(void)
 	add_timer_func_list(unit_walktobl_sub, "unit_walktobl_sub");
 	add_timer_func_list(unit_delay_walktoxy_timer,"unit_delay_walktoxy_timer");
 	add_timer_func_list(unit_delay_walktobl_timer, "unit_delay_walktobl_timer");
+	add_timer_func_list(unit_teleport_timer, "unit_teleport_timer");
 	return 0;
 }
 

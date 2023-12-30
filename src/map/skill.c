@@ -897,7 +897,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MG_FROSTDIVER:
-		sc_start(bl,SC_FREEZE,skilllv*3+35,skilllv,skill_get_time2(skillid,skilllv));
+		if (!sc_start(src, bl, SC_FREEZE, skilllv * 3 + 35, skilllv, skill_get_time2(skillid, skilllv)) && sd)
+			clif_skill_fail(sd, skillid, 0, 0, 0);
 		break;
 
 	case WZ_FROSTNOVA:
@@ -2178,7 +2179,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	if( sd && status_isdead(bl) )
 	{
 		int sp = 0, hp = 0;
-		if( attack_type&BF_WEAPON )
+		if((attack_type&(BF_WEAPON | BF_SHORT)) == (BF_WEAPON | BF_SHORT))
 		{
 			sp += sd->bonus.sp_gain_value;
 			sp += sd->sp_gain_race[status_get_race(bl)];
@@ -6010,7 +6011,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				if (!ud) break;
 				if (inf&INF_SELF_SKILL || inf&INF_SUPPORT_SKILL) {
 					if (src->type == BL_PET)
-						bl = (struct block_list*)((TBL_PET*)src)->msd;
+						bl = (struct block_list*)((TBL_PET*)src)->master;
 					if (!bl) bl = src;
 					unit_skilluse_id(src, bl->id, abra_skillid, abra_skilllv);
 				} else {	//Assume offensive skills
@@ -7582,7 +7583,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case MC_IDENTIFY:
 		if(sd)
+		{
 			clif_item_identify_list(sd);
+			if (sd->menuskill_id != MC_IDENTIFY) {/* failed, dont consume anything, return */
+				clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+				map_freeblock_unlock();
+				return 1;
+			}
+			status_zap(src, 0, skill_db[skill_get_index(skill_id)].sp[skill_lv]); // consume sp only if succeeded
+		}
 		break;
 
 	// Weapon Refining [Celest]
@@ -10705,7 +10714,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					break;
 				if (inf&INF_SELF_SKILL || inf&INF_SUPPORT_SKILL) {
 					if (src->type == BL_PET)
-						bl = (struct block_list*)((TBL_PET*)src)->msd;
+						bl = (struct block_list*)((TBL_PET*)src)->master;
 					if (!bl) bl = src;
 					unit_skilluse_id(src, bl->id, improv_skillid, improv_skilllv);
 				} else {
@@ -16229,8 +16238,16 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 
 	if( type&1 )
 	{
-		if( skill == CG_TAROTCARD || sd->state.autocast )
-			req.sp = 0; // TarotCard will consume sp in skill_cast_nodamage_id [Inkfish]
+		switch (skill) {
+			case CG_TAROTCARD: // TarotCard will consume sp in skill_cast_nodamage_id [Inkfish]
+			case MC_IDENTIFY:
+				req.sp = 0;
+				break;
+			default:
+				if (sd->state.autocast)
+					req.sp = 0;
+				break;
+		}
 		if(req.hp || req.sp)
 			status_zap(&sd->bl, req.hp, req.sp);
 
