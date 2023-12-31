@@ -671,6 +671,7 @@ struct map_data {
 		unsigned nosunmoonstarmiracle : 1; // SUNMOONSTAR_MIRACLE
 		unsigned pairship_startable : 1;
 		unsigned pairship_endable : 1;
+		unsigned notomb : 1;
 	} flag;
 	struct point save;
 	struct npc_data *npc[MAX_NPC_PER_MAP];

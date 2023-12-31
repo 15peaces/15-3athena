@@ -1109,11 +1109,11 @@ unsigned int guild_payexp(struct map_session_data* sd, unsigned int exp)
 
 
 // スキルポイント割り振り
-int guild_skillup(TBL_PC* sd, int skill_num)
+int guild_skillup(TBL_PC* sd, int skill_id)
 {
 	struct guild* g;
-	int idx = skill_num - GD_SKILLBASE;
-	int max = guild_skill_get_max(skill_num);
+	int idx = skill_id - GD_SKILLBASE;
+	int max = guild_skill_get_max(skill_id);
 
 	nullpo_ret(sd);
 
@@ -1125,12 +1125,12 @@ int guild_skillup(TBL_PC* sd, int skill_num)
 	if( g->skill_point > 0 &&
 			g->skill[idx].id != 0 &&
 			g->skill[idx].lv < max )
-		intif_guild_skillup(g->guild_id, skill_num, sd->status.account_id, max);
+		intif_guild_skillup(g->guild_id, skill_id, sd->status.account_id, max);
 
 	return 0;
 }
 // スキルポイント割り振り通知
-int guild_skillupack(int guild_id,int skill_num,int account_id)
+int guild_skillupack(int guild_id,int skill_id,int account_id)
 {
 	struct map_session_data *sd=map_id2sd(account_id);
 	struct guild *g=guild_search(guild_id);
@@ -1138,17 +1138,17 @@ int guild_skillupack(int guild_id,int skill_num,int account_id)
 	if(g==NULL)
 		return 0;
 	if (sd != NULL) {
-		int lv = g->skill[skill_num - GD_SKILLBASE].lv;
-		int range = skill_get_range(skill_num, lv);
-		clif_skillup(sd, skill_num, lv, range, 1);
+		int lv = g->skill[skill_id - GD_SKILLBASE].lv;
+		int range = skill_get_range(skill_id, lv);
+		clif_skillup(sd, skill_id, lv, range, 1);
 
 		/* Guild Aura handling */
-		switch (skill_num) {
+		switch (skill_id) {
 		case GD_LEADERSHIP:
 		case GD_GLORYWOUNDS:
 		case GD_SOULCOLD:
 		case GD_HAWKEYES:
-			guild_guildaura_refresh(sd, skill_num, g->skill[skill_num - GD_SKILLBASE].lv);
+			guild_guildaura_refresh(sd, skill_id, g->skill[skill_id - GD_SKILLBASE].lv);
 			break;
 		}
 	}
@@ -1160,9 +1160,9 @@ int guild_skillupack(int guild_id,int skill_num,int account_id)
 	return 0;
 }
 
-void guild_guildaura_refresh(struct map_session_data *sd, int skill_num, int skill_lv) {
+void guild_guildaura_refresh(struct map_session_data *sd, int skill_id, int skill_lv) {
 	struct skill_unit_group* group = NULL;
-	int type = status_skill2sc(skill_num);
+	int type = status_skill2sc(skill_id);
 	if (!(battle_config.guild_aura&((agit_flag || agit2_flag) ? 2 : 1)) &&
 		!(battle_config.guild_aura&(map_flag_gvg2(sd->bl.m) ? 8 : 4)))
 		return;
@@ -1172,7 +1172,7 @@ void guild_guildaura_refresh(struct map_session_data *sd, int skill_num, int ski
 		skill_delunitgroup(group);
 		status_change_end(&sd->bl, type, INVALID_TIMER);
 	}
-	group = skill_unitsetting(&sd->bl, skill_num, skill_lv, sd->bl.x, sd->bl.y, 0);
+	group = skill_unitsetting(&sd->bl, skill_id, skill_lv, sd->bl.x, sd->bl.y, 0);
 	if (group) {
 		sc_start4(&sd->bl, type, 100, (battle_config.guild_aura & 16) ? 0 : skill_lv, 0, 0, group->group_id, 600000);//duration doesn't matter these status never end with val4
 	}
@@ -1197,10 +1197,10 @@ int guild_get_alliance_count(struct guild *g,int flag)
 // Blocks all guild skills which have a common delay time.
 void guild_block_skill(struct map_session_data *sd, int time)
 {
-	int skill_num[] = { GD_BATTLEORDER, GD_REGENERATION, GD_RESTORE, GD_EMERGENCYCALL };
+	int skill_id[] = { GD_BATTLEORDER, GD_REGENERATION, GD_RESTORE, GD_EMERGENCYCALL };
 	int i;
 	for (i = 0; i < 4; i++)
-		skill_blockpc_start(sd, skill_num[i], time);
+		skill_blockpc_start(sd, skill_id[i], time);
 }
 
 // 同盟関係かどうかチェック

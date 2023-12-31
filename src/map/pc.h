@@ -923,9 +923,9 @@ int pc_useitem(struct map_session_data*,int);
 uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);
 uint8 pc_itemcd_check(struct map_session_data *sd, struct item_data *id, int64 tick, unsigned short n);
 
-int pc_skillatk_bonus(struct map_session_data *sd, int skill_num);
-int pc_skillheal_bonus(struct map_session_data *sd, int skill_num);
-int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num);
+int pc_skillatk_bonus(struct map_session_data *sd, int skill_id);
+int pc_skillheal_bonus(struct map_session_data *sd, int skill_id);
+int pc_skillheal2_bonus(struct map_session_data *sd, int skill_id);
 
 void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int hp, unsigned int sp);
 void pc_close_npc(struct map_session_data *sd, int flag);

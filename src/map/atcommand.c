@@ -1025,6 +1025,11 @@ ACMD_FUNC(save)
 {
 	nullpo_retr(-1, sd);
 
+	if (map[sd->bl.m].instance_id) {
+		clif_displaymessage(fd, msg_txt(sd, 437)); // You cannot create a savepoint in an instance.
+		return 1;
+	}
+
 	pc_setsavepoint(sd, sd->mapindex, sd->bl.x, sd->bl.y);
 	if (sd->status.pet_id > 0 && sd->pd)
 		intif_save_petdata(sd->status.account_id, &sd->pd->pet);
@@ -3131,8 +3136,7 @@ ACMD_FUNC(memo)
 		return -1;
 	}
 
-	pc_memo(sd, position);
-	return 0;
+	return !pc_memo(sd, position);
 }
 
 /*==========================================
@@ -8911,12 +8915,14 @@ ACMD_FUNC(mapflag)
 				clif_displaymessage(fd, "Supported mapflags:");
 				clif_displaymessage(fd, "nomemo         nowarp           nowarpto   noreturn    monster_noteleport");
 				clif_displaymessage(fd, "nobranch       nopenalty        pvp        gvg         gvg_te");
-				clif_displaymessage(fd, "noexppenalty     notrade    novending   nodrop");
+				clif_displaymessage(fd, "noexppenalty   notrade          novending  nodrop");
 				clif_displaymessage(fd, "noskill        noicewall        snow       clouds      clouds2");
 				clif_displaymessage(fd, "fog            nozenypenalty    fireworks  sakura      leaves");
 				clif_displaymessage(fd, "rain           nightenabled     nogo       noexp       nobaseexp");
 				clif_displaymessage(fd, "nojobexp       noloot           nomvploot  restricted  loadevent");
 				clif_displaymessage(fd, "nochat         partylock        guildlock  nosunmoonstarmiracle");
+				clif_displaymessage(fd, "town           notomb");
+
 				clif_displaymessage(fd, "");
 				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-8) to set a zone, 0 to turn off all zones for the map");
 				return -1;
@@ -9166,6 +9172,12 @@ ACMD_FUNC(mapflag)
 	}
 	else if (!strcmpi(map_flag, "nosunmoonstarmiracle")) {
 		map[m].flag.nosunmoonstarmiracle = state;
+	}
+	else if (!strcmpi(map_flag, "town")) {
+	map[m].flag.town = state;
+	}
+	else if (!strcmpi(map_flag, "notomb")) {
+	map[m].flag.notomb = state;
 	}
 	else
 	{

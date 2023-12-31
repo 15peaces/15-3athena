@@ -811,13 +811,13 @@ int mapif_guild_memberinfochanged(int guild_id, int account_id, int char_id, int
 }
 
 // ギルドスキルアップ通知
-int mapif_guild_skillupack(int guild_id, int skill_num, int account_id)
+int mapif_guild_skillupack(int guild_id, int skill_id, int account_id)
 {
 	unsigned char buf[14];
 
 	WBUFW(buf, 0) = 0x383c;
 	WBUFL(buf, 2) = guild_id;
-	WBUFL(buf, 6) = skill_num;
+	WBUFL(buf, 6) = skill_id;
 	WBUFL(buf,10) = account_id;
 	mapif_sendall(buf, 14);
 
@@ -1306,10 +1306,10 @@ int mapif_parse_GuildPosition(int fd, int guild_id, int idx, struct guild_positi
 }
 
 // ギルドスキルアップ要求
-int mapif_parse_GuildSkillUp(int fd, int guild_id, int skill_num, int account_id, int max)
+int mapif_parse_GuildSkillUp(int fd, int guild_id, int skill_id, int account_id, int max)
 {
 	struct guild *g = (struct guild*)idb_get(guild_db, guild_id);
-	int idx = skill_num - GD_SKILLBASE;
+	int idx = skill_id - GD_SKILLBASE;
 
 	if (g == NULL || idx < 0 || idx >= MAX_GUILDSKILL)
 		return 0;
@@ -1319,7 +1319,7 @@ int mapif_parse_GuildSkillUp(int fd, int guild_id, int skill_num, int account_id
 		g->skill_point--;
 		if (guild_calcinfo(g) == 0)
 			mapif_guild_info(-1, g);
-		mapif_guild_skillupack(guild_id, skill_num, account_id);
+		mapif_guild_skillupack(guild_id, skill_id, account_id);
 	}
 
 	return 0;

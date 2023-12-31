@@ -396,6 +396,7 @@ enum {
 	MF_NOSUNMOONSTARMIRACLE,
 	MF_PAIRSHIP_STARTABLE,
 	MF_PAIRSHIP_ENDABLE,
+	MF_NOTOMB,
 };
 
 const char* script_op2name(int op)
@@ -11210,6 +11211,7 @@ BUILDIN_FUNC(getmapflag)
 			case MF_NOSUNMOONSTARMIRACLE: script_pushint(st, map[m].flag.nosunmoonstarmiracle); break;
 			case MF_PAIRSHIP_STARTABLE: script_pushint(st, map[m].flag.pairship_startable); break;
 			case MF_PAIRSHIP_ENDABLE:   script_pushint(st, map[m].flag.pairship_endable); break;
+			case MF_NOTOMB:				script_pushint(st, map[m].flag.notomb); break;
 		}
 	}
 
@@ -11313,6 +11315,7 @@ BUILDIN_FUNC(setmapflag)
 			case MF_NOSUNMOONSTARMIRACLE: map[m].flag.nosunmoonstarmiracle = 1; break;
 			case MF_PAIRSHIP_STARTABLE: map[m].flag.pairship_startable = 1; break;
 			case MF_PAIRSHIP_ENDABLE:   map[m].flag.pairship_endable = 1; break;
+			case MF_NOTOMB:				map[m].flag.notomb = 1; break;
 		}
 	}
 
@@ -11401,6 +11404,7 @@ BUILDIN_FUNC(removemapflag)
 				clif_map_property_mapall(m, MAPPROPERTY_NOTHING);
 				break;
 			case MF_NOSUNMOONSTARMIRACLE: map[m].flag.nosunmoonstarmiracle = 0; break;
+			case MF_NOTOMB:				map[m].flag.notomb = 0; break;
 		}
 	}
 
@@ -18517,7 +18521,6 @@ BUILDIN_FUNC(instance_warpall)
 	int m, i, instance_id;
 	const char *mapn;
 	int x, y;
-	unsigned short mapindex;
 	struct party_data *p = NULL;
 
 	mapn = script_getstr(st,2);
@@ -18537,9 +18540,8 @@ BUILDIN_FUNC(instance_warpall)
 	if( !(p = party_search(instance[instance_id].party_id)) )
 		return 0;
 
-	mapindex = map_id2index(m);
 	for( i = 0; i < MAX_PARTY; i++ )
-		if( (pl_sd = p->data[i].sd) && map[pl_sd->bl.m].instance_id == st->instance_id ) pc_setpos(pl_sd,mapindex,x,y,CLR_TELEPORT);
+		if( (pl_sd = p->data[i].sd) && map[pl_sd->bl.m].instance_id == st->instance_id ) pc_setpos(pl_sd, map_id2index(m),x,y,CLR_TELEPORT);
 
 	return 0;
 }

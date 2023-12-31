@@ -315,7 +315,7 @@ int skill_name2id(const char* name);
 int skill_isammotype(struct map_session_data *sd, int skill);
 int skill_castend_id(int tid, int64 tick, int id, intptr_t data);
 int skill_castend_pos(int tid, int64 tick, int id, intptr_t data);
-int skill_castend_map( struct map_session_data *sd,short skill_num, const char *map);
+int skill_castend_map( struct map_session_data *sd,short skill_id, const char *map);
 
 int skill_cleartimerskill(struct block_list *src);
 int skill_addtimerskill(struct block_list *src,int64 tick,int target,int x,int y,int skill_id,int skill_lv,int type,int flag);
@@ -421,7 +421,7 @@ int skill_blockmerc_start (struct mercenary_data*,int,int);
 int64 skill_attack( int attack_type, struct block_list* src, struct block_list *dsrc,struct block_list *bl,int skillid,int skilllv,int64 tick,int flag );
 
 // Skill Unit Save
-void skill_usave_add(struct map_session_data * sd, int skill_num, int skill_lv);
+void skill_usave_add(struct map_session_data * sd, int skill_id, int skill_lv);
 void skill_usave_trigger(struct map_session_data *sd);
 
 void skill_reload(void);

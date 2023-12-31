@@ -1870,7 +1870,7 @@ int status_fixed_revive(struct block_list *bl, unsigned int per_hp, unsigned int
  * target MAY Be null, in which case the checks are only to see 
  * whether the source can cast or not the skill on the ground.
  *------------------------------------------*/
-int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_num, int skill_lv, int flag)
+int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_id, int skill_lv, int flag)
 {
 	struct status_data *status;
 	struct status_change *sc=NULL, *tsc;
@@ -1881,7 +1881,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	if (src && src->type != BL_PC && status_isdead(src))
 		return 0;
 
-	if (!skill_num) { //Normal attack checks.
+	if (!skill_id) { //Normal attack checks.
 		if (!(status->mode&MD_CANATTACK))
 			return 0; //This mode is only needed for melee attacking.
 		//Dead state is not checked for skills as some skills can be used 
@@ -1892,7 +1892,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			return 0;
 	}
 
-	if (skill_num == PA_PRESSURE && flag && target) {
+	if (skill_id == PA_PRESSURE && flag && target) {
 		//Gloria Avoids pretty much everything....
 		tsc = status_get_sc(target);
 		if(tsc && tsc->option&OPTION_HIDE)
@@ -1900,40 +1900,40 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		return 1;
 	}
 
-	if( skill_num == GN_WALLOFTHORN && target && status_isdead(target) )
+	if( skill_id == GN_WALLOFTHORN && target && status_isdead(target) )
 		return 0;
 
 	//Should fail when used on top of Land Protector [Skotlex]
-	if (src && (skill_num == AL_TELEPORT || skill_num == ALL_ODINS_RECALL) && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR)
-		&& !(status->mode&MD_BOSS) && (src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_num) )
+	if (src && (skill_id == AL_TELEPORT || skill_id == ALL_ODINS_RECALL) && map_getcell(src->m, src->x, src->y, CELL_CHKLANDPROTECTOR)
+		&& !(status->mode&MD_BOSS) && (src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_id) )
  		return 0;
 
 	if (src) sc = status_get_sc(src);
 
 	if(sc && sc->count)
 	{
-		if (sc->opt1 > 0 && sc->opt1 != OPT1_BURNING && skill_num != RK_REFRESH && skill_num != SR_GENTLETOUCH_CURE)
+		if (sc->opt1 > 0 && sc->opt1 != OPT1_BURNING && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE)
 		{	//Stuned/Frozen/etc
 			if (flag != 1) //Can't cast, casted stuff can't damage. 
 				return 0;
-			if (!(skill_get_inf(skill_num)&INF_GROUND_SKILL))
+			if (!(skill_get_inf(skill_id)&INF_GROUND_SKILL))
 				return 0; //Targetted spells can't come off.
 		}
 
 		if (
-			(sc->data[SC_TRICKDEAD] && skill_num != NV_TRICKDEAD)
+			(sc->data[SC_TRICKDEAD] && skill_id != NV_TRICKDEAD)
 			|| ((sc->data[SC_AUTOCOUNTER] || sc->data[SC_DEATHBOUND]) && !flag)
-			|| (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_num != PA_GOSPEL)
+			|| (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_id != PA_GOSPEL)
 			|| (sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF && flag != 2)
-			|| (sc->data[SC_SUHIDE] && skill_num != SU_HIDE)
+			|| (sc->data[SC_SUHIDE] && skill_id != SU_HIDE)
 		)
 			return 0;
 
 		// Shadow Hold prevent's use of skills that hides the player. This doesn't apply to Chase Walk due to its immunity to detection.
 		// Also prevent's the use of fly wings and butterfly wings (teleporting).
-		if ( sc->data[SC_KG_KAGEHUMI] && (skill_num == AL_TELEPORT || 
-			skill_num == TF_HIDING || skill_num == AS_CLOAKING || skill_num == GC_CLOAKINGEXCEED || 
-			skill_num == RA_CAMOUFLAGE || skill_num == SC_SHADOWFORM || skill_num == KO_YAMIKUMO) )
+		if ( sc->data[SC_KG_KAGEHUMI] && (skill_id == AL_TELEPORT || 
+			skill_id == TF_HIDING || skill_id == AS_CLOAKING || skill_id == GC_CLOAKINGEXCEED || 
+			skill_id == RA_CAMOUFLAGE || skill_id == SC_SHADOWFORM || skill_id == KO_YAMIKUMO) )
 			return 0;
 
 		if (sc->data[SC_WINKCHARM] && target && !flag) { //Prevents skill usage
@@ -1946,29 +1946,29 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		if (sc->data[SC_BLADESTOP]) {
 			switch (sc->data[SC_BLADESTOP]->val1)
 			{
-				case 5: if (skill_num == MO_EXTREMITYFIST) break;
-				case 4: if (skill_num == MO_CHAINCOMBO) break;
-				case 3: if (skill_num == MO_INVESTIGATE) break;
-				case 2: if (skill_num == MO_FINGEROFFENSIVE) break;
+				case 5: if (skill_id == MO_EXTREMITYFIST) break;
+				case 4: if (skill_id == MO_CHAINCOMBO) break;
+				case 3: if (skill_id == MO_INVESTIGATE) break;
+				case 2: if (skill_id == MO_FINGEROFFENSIVE) break;
 				default: return 0;
 			}
 		}
 
 		if (sc->data[SC_DANCING] && flag!=2)
 		{
-			if( src->type == BL_PC && skill_num >= WA_SWING_DANCE && skill_num <= WM_UNLIMITED_HUMMING_VOICE )
+			if( src->type == BL_PC && skill_id >= WA_SWING_DANCE && skill_id <= WM_UNLIMITED_HUMMING_VOICE )
 			{ // Lvl 5 Lesson or higher allow you use 3rd job skills while dancing.v
 				if( pc_checkskill((TBL_PC*)src,WM_LESSON) < 5 )
 					return 0;
 			}
 			else if(sc->data[SC_LONGING])
 			{	//Allow everything except dancing/re-dancing. [Skotlex]
-				if (skill_num == BD_ENCORE ||
-					skill_get_inf2(skill_num)&(INF2_SONG_DANCE|INF2_ENSEMBLE_SKILL)
+				if (skill_id == BD_ENCORE ||
+					skill_get_inf2(skill_id)&(INF2_SONG_DANCE|INF2_ENSEMBLE_SKILL)
 				)
 					return 0;
 			} else
-			switch (skill_num) {
+			switch (skill_id) {
 			case BD_ADAPTATION:
 			case CG_LONGINGFREEDOM:
 			case BA_MUSICALSTRIKE:
@@ -1977,23 +1977,23 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			default:
 				return 0;
 			}
-			if ((sc->data[SC_DANCING]->val1&0xFFFF) == CG_HERMODE && skill_num == BD_ADAPTATION)
+			if ((sc->data[SC_DANCING]->val1&0xFFFF) == CG_HERMODE && skill_id == BD_ADAPTATION)
 				return 0;	//Can't amp out of Wand of Hermode :/ [Skotlex]
 		}
 
-		if (skill_num && //Do not block item-casted skills.
-			(src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_num)
+		if (skill_id && //Do not block item-casted skills.
+			(src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_id)
 		) {	//Skills blocked through status changes...
 			if (!flag && ( //Blocked only from using the skill (stuff like autospell may still go through
 				sc->data[SC_SILENCE] ||
 				sc->data[SC_DEEPSLEEP] ||
 				sc->data[SC_CRYSTALIZE] ||
-				(sc->data[SC_MARIONETTE] && skill_num != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
-				(sc->data[SC_MARIONETTE2] && skill_num == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
+				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
+				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				sc->data[SC_STEELBODY] ||
 				sc->data[SC_BERSERK] ||
 				sc->data[SC_OBLIVIONCURSE] ||
-				sc->data[SC_STASIS] && skill_stasis_check(src, skill_num) ||
+				sc->data[SC_STASIS] && skill_stasis_check(src, skill_id) ||
 				sc->data[SC__INVISIBILITY] ||
 				sc->data[SC__IGNORANCE] ||
 				sc->data[SC_CURSEDCIRCLE_TARGET] ||
@@ -2007,16 +2007,16 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 
 			//Skill blocking.
 			if (
-				(sc->data[SC_VOLCANO] && skill_num == WZ_ICEWALL) ||
-				(sc->data[SC_ROKISWEIL] && skill_num != BD_ADAPTATION) ||
-				(sc->data[SC_HERMODE] && skill_get_inf(skill_num) & INF_SUPPORT_SKILL) ||
+				(sc->data[SC_VOLCANO] && skill_id == WZ_ICEWALL) ||
+				(sc->data[SC_ROKISWEIL] && skill_id != BD_ADAPTATION) ||
+				(sc->data[SC_HERMODE] && skill_get_inf(skill_id) & INF_SUPPORT_SKILL) ||
 				(sc->data[SC_NOCHAT] && sc->data[SC_NOCHAT]->val1&MANNER_NOSKILL)
 			)
 				return 0;
 
 			/*if( sc->data[SC__MANHOLE] || ((tsc = status_get_sc(target)) && tsc->data[SC__MANHOLE]) )
 			{
-				switch(skill_num)
+				switch(skill_id)
 				{
 					// Skills that can be used even under Man Hole effects.
 					case SC_SHADOWFORM:
@@ -2035,7 +2035,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	if (sc && sc->option)
 	{
 		if (sc->option&OPTION_HIDE)
-		switch (skill_num) { //Usable skills while hiding.
+		switch (skill_id) { //Usable skills while hiding.
 			case TF_HIDING:
 			case AS_GRIMTOOTH:
 			case RG_BACKSTAP:
@@ -2046,13 +2046,13 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				break;
 			default:
 				//Non players can use all skills while hidden.
-				if (!skill_num || src->type == BL_PC)
+				if (!skill_id || src->type == BL_PC)
 					return 0;
 		}
-		if (sc->option&OPTION_CHASEWALK && skill_num != ST_CHASEWALK)
+		if (sc->option&OPTION_CHASEWALK && skill_id != ST_CHASEWALK)
 			return 0;
-		if (sc->option&OPTION_WUGRIDER && ((TBL_PC*)src)->skillitem != skill_num)
-			switch (skill_num)
+		if (sc->option&OPTION_WUGRIDER && ((TBL_PC*)src)->skillitem != skill_id)
+			switch (skill_id)
 			{//List of skills usable while mounted on a warg.
 				case HT_SKIDTRAP:		case HT_LANDMINE:
 				case HT_ANKLESNARE:		case HT_SHOCKWAVE:
@@ -2070,8 +2070,8 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				default:
 					return 0;
 			}
-		if ( battle_config.mado_skill_limit == 0 && sc->option&OPTION_MADOGEAR && ((TBL_PC*)src)->skillitem != skill_num )
-			switch ( skill_num )
+		if ( battle_config.mado_skill_limit == 0 && sc->option&OPTION_MADOGEAR && ((TBL_PC*)src)->skillitem != skill_id )
+			switch ( skill_id )
 			{//List of skills usable while mounted on a mado.
 				case AL_TELEPORT:		case BS_GREED:
 				case NC_BOOSTKNUCKLE:	case NC_PILEBUNKER:
@@ -2103,21 +2103,21 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	{	
 		if (tsc->data[SC_INVINCIBLE])
 			return 0;
-		if(!skill_num && tsc->data[SC_TRICKDEAD])
+		if(!skill_id && tsc->data[SC_TRICKDEAD])
 			return 0;
-		if((skill_num == WZ_STORMGUST || skill_num == WZ_FROSTNOVA || skill_num == NJ_HYOUSYOURAKU)
+		if((skill_id == WZ_STORMGUST || skill_id == WZ_FROSTNOVA || skill_id == NJ_HYOUSYOURAKU)
 			&& tsc->data[SC_FREEZE])
 			return 0;
-		if(skill_num == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))
+		if(skill_id == PR_LEXAETERNA && (tsc->data[SC_FREEZE] || (tsc->data[SC_STONE] && tsc->opt1 == OPT1_STONE)))
 			return 0;
-		if((skill_get_inf(skill_num)&INF_ATTACK_SKILL || skill_get_inf(skill_num)&INF_SUPPORT_SKILL) && tsc->data[SC_STEALTHFIELD])
+		if((skill_get_inf(skill_id)&INF_ATTACK_SKILL || skill_get_inf(skill_id)&INF_SUPPORT_SKILL) && tsc->data[SC_STEALTHFIELD])
 			return 0;// Its blocking splash damage from other's targeted with INF_ATK_SKILL. Need to correct this later. [Rytech]
 	}
 
 	if( tsc && tsc->option )
 	{
 		if (battle_config.mado_cast_skill_on_limit == 0 && tsc->option&OPTION_MADOGEAR)
-			switch (skill_num)
+			switch (skill_id)
 			{// List of skills not castable on player's mounted on a mado.
 				case AL_HEAL:
 				case AL_INCAGI:
@@ -2138,7 +2138,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 	hide_flag = flag?OPTION_HIDE:(OPTION_HIDE|OPTION_CLOAK|OPTION_CHASEWALK);
 		
  	//You cannot hide from ground skills.
-	if( skill_get_ele(skill_num, (skill_lv) ? skill_lv : 1) == ELE_EARTH )
+	if( skill_get_ele(skill_id, (skill_lv) ? skill_lv : 1) == ELE_EARTH )
 		hide_flag &= ~OPTION_HIDE;
 
 	switch( target->type ) {
@@ -2151,7 +2151,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 					return 0;
 				if( tsc->option&hide_flag && !(status->mode&MD_BOSS) && (sd->special_state.perfect_hiding || !(status->mode&MD_DETECTOR)))
 					return 0;
-				if( tsc->data[SC_CAMOUFLAGE] && !(status->mode&(MD_BOSS|MD_DETECTOR)) && !skill_num )
+				if( tsc->data[SC_CAMOUFLAGE] && !(status->mode&(MD_BOSS|MD_DETECTOR)) && !skill_id )
 				//Enable the line below once all the missing information for this skill is added. Leaving it enabled will caused overpowering issues. [Rytech]
 				//if( tsc->data[SC_CAMOUFLAGE] && !(status->mode&(MD_BOSS|MD_DETECTOR)) )
 					return 0;
@@ -2165,11 +2165,11 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		case BL_HOM: 
 		case BL_MER:
 		case BL_ELEM:
-			if( target->type == BL_HOM && skill_num && battle_config.hom_setting&0x1 && skill_get_inf(skill_num)&INF_SUPPORT_SKILL && battle_get_master(target) != src )
+			if( target->type == BL_HOM && skill_id && battle_config.hom_setting&0x1 && skill_get_inf(skill_id)&INF_SUPPORT_SKILL && battle_get_master(target) != src )
 				return 0; // Can't use support skills on Homunculus (only Master/Self)
-			if( target->type == BL_MER && (skill_num == PR_ASPERSIO || (skill_num >= SA_FLAMELAUNCHER && skill_num <= SA_SEISMICWEAPON)) && battle_get_master(target) != src )
+			if( target->type == BL_MER && (skill_id == PR_ASPERSIO || (skill_id >= SA_FLAMELAUNCHER && skill_id <= SA_SEISMICWEAPON)) && battle_get_master(target) != src )
 				return 0; // Can't use Weapon endow skills on Mercenary (only Master)
-			if( (target->type == BL_MER || target->type == BL_ELEM) && skill_num == AM_POTIONPITCHER )
+			if( (target->type == BL_MER || target->type == BL_ELEM) && skill_id == AM_POTIONPITCHER )
 				return 0; // Can't use Potion Pitcher on Mercenaries
 		default:
 			//Check for chase-walk/hiding/cloaking opponents.

@@ -725,14 +725,14 @@ int intif_guild_position(int guild_id,int idx,struct guild_position *p)
 	return 0;
 }
 // ギルドスキルアップ要求
-int intif_guild_skillup(int guild_id, int skill_num, int account_id, int max)
+int intif_guild_skillup(int guild_id, int skill_id, int account_id, int max)
 {
 	if( CheckForCharServer() )
 		return 0;
 	WFIFOHEAD(inter_fd, 18);
 	WFIFOW(inter_fd, 0)  = 0x303c;
 	WFIFOL(inter_fd, 2)  = guild_id;
-	WFIFOL(inter_fd, 6)  = skill_num;
+	WFIFOL(inter_fd, 6)  = skill_id;
 	WFIFOL(inter_fd, 10) = account_id;
 	WFIFOL(inter_fd, 14) = max;
 	WFIFOSET(inter_fd, 18);

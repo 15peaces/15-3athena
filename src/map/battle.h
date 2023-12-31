@@ -36,7 +36,7 @@ struct block_list;
 
 // ダメージ計算
 
-struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_num,int skill_lv,int count);
+struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_id,int skill_lv,int count);
 
 int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skillid);
 
@@ -46,9 +46,9 @@ int battle_attr_ratio(int atk_elem,int def_type, int def_lv);
 int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 damage,int atk_elem,int def_type, int def_lv);
 
 // ダメージ最終計算
-int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_num,int skill_lv,int element);
-int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_num,int skill_lv,int flag);
-int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_num,int skill_lv,int flag);
+int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_id,int skill_lv,int element);
+int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
+int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
 
 enum {	// 最終計算のフラグ
 	BF_WEAPON	= 0x0001,

@@ -66,7 +66,7 @@ DBMap* skillunit_db = NULL; // int id -> struct skill_unit*
  **/
 DBMap* skillusave_db = NULL; // char_id -> struct skill_usave
 struct skill_usave {
-	int skill_num, skill_lv;
+	int skill_id, skill_lv;
 };
 
 struct s_skill_db skill_db[MAX_SKILL_DB];
@@ -7586,7 +7586,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			clif_item_identify_list(sd);
 			if (sd->menuskill_id != MC_IDENTIFY) {/* failed, dont consume anything, return */
-				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 				map_freeblock_unlock();
 				return 1;
 			}
@@ -12833,13 +12832,13 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 /*==========================================
  *
  *------------------------------------------*/
-int skill_castend_map (struct map_session_data *sd, short skill_num, const char *map)
+int skill_castend_map (struct map_session_data *sd, short skill_id, const char *map)
 {
 	nullpo_ret(sd);
 
 //Simplify skill_failed code.
 #define skill_failed(sd) { sd->menuskill_id = sd->menuskill_val = 0; }
-	if(skill_num != sd->menuskill_id)
+	if(skill_id != sd->menuskill_id)
 		return 0;
 
 	if( sd->bl.prev == NULL || pc_isdead(sd) ) {
@@ -12881,20 +12880,20 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 	pc_stop_walking(sd,0);
 
 	if(battle_config.skill_log && battle_config.skill_log&BL_PC)
-		ShowInfo("PC %d skill castend skill =%d map=%s\n",sd->bl.id,skill_num,map);
+		ShowInfo("PC %d skill castend skill =%d map=%s\n",sd->bl.id,skill_id,map);
 
 	if(strcmp(map,"cancel")==0) {
 		skill_failed(sd);
 		return 0;
 	}
 
-	switch(skill_num)
+	switch(skill_id)
 	{
 	case AL_TELEPORT:
 	case ALL_ODINS_RECALL:
 		if(strcmp(map,"Random")==0)
 			pc_randomwarp(sd,CLR_TELEPORT);
-		else if (sd->menuskill_val > 1 || skill_num == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
+		else if (sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
 			pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
 		break;
 
@@ -12909,7 +12908,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 
 			mapindex  = mapindex_name2id((char*)map);
 			if(!mapindex) { //Given map not found?
-				clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0,0);
+				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				skill_failed(sd);
 				return 0;
 			}
@@ -12918,19 +12917,19 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 			p[2] = &sd->status.memo_point[1];
 			p[3] = &sd->status.memo_point[2];
 
-			if((maxcount = skill_get_maxcount(skill_num, sd->menuskill_val)) > 0) {
+			if((maxcount = skill_get_maxcount(skill_id, sd->menuskill_val)) > 0) {
 				for(i=0;i<MAX_SKILLUNITGROUP && sd->ud.skillunit[i] && maxcount;i++) {
-					if(sd->ud.skillunit[i]->skill_id == skill_num)
+					if(sd->ud.skillunit[i]->skill_id == skill_id)
 						maxcount--;
 				}
 				if(!maxcount) {
-					clif_skill_fail(sd,skill_num,USESKILL_FAIL_LEVEL,0,0);
+					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					skill_failed(sd);
 					return 0;
 				}
 			}
 
-			lv = sd->skillitem==skill_num?sd->skillitemlv:pc_checkskill(sd,skill_num);
+			lv = sd->skillitem==skill_id?sd->skillitemlv:pc_checkskill(sd,skill_id);
 			wx = sd->menuskill_val>>16;
 			wy = sd->menuskill_val&0xffff;
 
@@ -12956,7 +12955,7 @@ int skill_castend_map (struct map_session_data *sd, short skill_num, const char 
 			skill_consume_requirement(sd,sd->menuskill_id,lv,2);
 			sd->skillitem = sd->skillitemlv = 0; // Clear data that's skipped in 'skill_castend_pos' [Inkfish]
 
-			if((group=skill_unitsetting(&sd->bl,skill_num,lv,wx,wy,0))==NULL) {
+			if((group=skill_unitsetting(&sd->bl,skill_id,lv,wx,wy,0))==NULL) {
 				skill_failed(sd);
 				return 0;
 			}
@@ -15167,6 +15166,22 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 				return 0;
 			}
 			break;
+		case AS_CLOAKING:
+		{
+			static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1 };
+			static int dy[] = { -1, 0, 1,  0, -1, -1, 1,  1 };
+
+			if (skill_lv < 3 && ((sd->bl.type == BL_PC && battle_config.pc_cloak_check_type & 1)
+				|| (sd->bl.type != BL_PC && battle_config.monster_cloak_check_type & 1))) { //Check for walls.
+				int i;
+				ARR_FIND(0, 8, i, map_getcell(sd->bl.m, sd->bl.x + dx[i], sd->bl.y + dy[i], CELL_CHKNOPASS) != 0);
+				if (i == 8) {
+					clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0, 0);
+					return 0;
+				}
+			}
+			break;
+		}
 		case AL_WARP:
 			if(!battle_config.duel_allow_teleport && sd->duel_group) { // duel restriction [LuzZza]
 				char output[128]; sprintf(output, msg_txt(sd,365), skill_get_name(AL_WARP));
@@ -17469,9 +17484,9 @@ int skill_frostjoke_scream (struct block_list *bl, va_list ap)
 /*==========================================
  *
  *------------------------------------------*/
-static void skill_unitsetmapcell (struct skill_unit *src, int skill_num, int skill_lv, cell_t cell, bool flag)
+static void skill_unitsetmapcell (struct skill_unit *src, int skill_id, int skill_lv, cell_t cell, bool flag)
 {
-	int range = skill_get_unit_range(skill_num,skill_lv);
+	int range = skill_get_unit_range(skill_id,skill_lv);
 	int x,y;
 
 	for( y = src->bl.y - range; y <= src->bl.y + range; ++y )
@@ -20151,7 +20166,7 @@ int skill_blockmerc_start(struct mercenary_data *md, int skillid, int tick)
 /**
  * Adds a new skill unit entry for this player to recast after map load
  **/
-void skill_usave_add(struct map_session_data * sd, int skill_num, int skill_lv) {
+void skill_usave_add(struct map_session_data * sd, int skill_id, int skill_lv) {
 	struct skill_usave * sus = NULL;
 
 	if (idb_exists(skillusave_db, sd->status.char_id)) {
@@ -20161,7 +20176,7 @@ void skill_usave_add(struct map_session_data * sd, int skill_num, int skill_lv) 
 	CREATE(sus, struct skill_usave, 1);
 	idb_put(skillusave_db, sd->status.char_id, sus);
 
-	sus->skill_num = skill_num;
+	sus->skill_id = skill_id;
 	sus->skill_lv = skill_lv;
 
 	return;
@@ -20174,7 +20189,7 @@ void skill_usave_trigger(struct map_session_data *sd) {
 		return;
 	}
 
-	skill_unitsetting(&sd->bl, sus->skill_num, sus->skill_lv, sd->bl.x, sd->bl.y, 0);
+	skill_unitsetting(&sd->bl, sus->skill_id, sus->skill_lv, sd->bl.x, sd->bl.y, 0);
 
 	idb_remove(skillusave_db, sd->status.char_id);
 

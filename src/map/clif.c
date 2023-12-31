@@ -1796,22 +1796,22 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 	return 0;
 }
 
-void clif_homskillup(struct map_session_data *sd, int skill_num)
+void clif_homskillup(struct map_session_data *sd, int skill_id)
 {	//[orn]
 	struct homun_data *hd;
 	int fd, skillid;
 	nullpo_retv(sd);
-	skillid = skill_num - HM_SKILLBASE;
+	skillid = skill_id - HM_SKILLBASE;
 
 	fd=sd->fd;
 	hd=sd->hd;
 
 	WFIFOHEAD(fd, packet_len(0x239));
 	WFIFOW(fd,0) = 0x239;
-	WFIFOW(fd,2) = skill_num;
+	WFIFOW(fd,2) = skill_id;
 	WFIFOW(fd,4) = hd->homunculus.hskill[skillid].lv;
-	WFIFOW(fd,6) = skill_get_sp(skill_num,hd->homunculus.hskill[skillid].lv);
-	WFIFOW(fd,8) = skill_get_range2(&hd->bl, skill_num,hd->homunculus.hskill[skillid].lv);
+	WFIFOW(fd,6) = skill_get_sp(skill_id,hd->homunculus.hskill[skillid].lv);
+	WFIFOW(fd,8) = skill_get_range2(&hd->bl, skill_id,hd->homunculus.hskill[skillid].lv);
 	WFIFOB(fd,10) = (hd->homunculus.hskill[skillid].lv < skill_get_max(hd->homunculus.hskill[skillid].id)) ? 1 : 0;
 	WFIFOSET(fd,packet_len(0x239));
 }
@@ -1966,7 +1966,7 @@ void clif_quitsave(int fd,struct map_session_data *sd)
 
 /// Notifies the client of a position change to coordinates on given map (ZC_NPCACK_MAPMOVE).
 /// 0091 <map name>.16B <x>.W <y>.W
-void clif_changemap(struct map_session_data *sd, short map, int x, int y)
+void clif_changemap(struct map_session_data *sd, short m, int x, int y)
 {
 	int fd;
 	nullpo_retv(sd);
@@ -1974,7 +1974,7 @@ void clif_changemap(struct map_session_data *sd, short map, int x, int y)
 
 	WFIFOHEAD(fd,packet_len(0x91));
 	WFIFOW(fd,0) = 0x91;
-	mapindex_getmapname_ext(mapindex_id2name(map), (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(map[m].name, (char*)WFIFOP(fd,2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOSET(fd,packet_len(0x91));
@@ -5771,16 +5771,16 @@ void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int r
 int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type, int range)
 {
 	struct homun_data *hd;
-	int fd, id, skill_num;
+	int fd, id, skill_id;
 
 	nullpo_ret(sd);
 
 	fd = sd->fd;
 	hd = sd->hd;
 
-	skill_num = skillid - HM_SKILLBASE;
+	skill_id = skillid - HM_SKILLBASE;
 
-	if ((id = hd->homunculus.hskill[skill_num].id) <= 0)
+	if ((id = hd->homunculus.hskill[skill_id].id) <= 0)
 		return 0;
 
 	WFIFOHEAD(fd, packet_len(0x7e1));
@@ -5790,15 +5790,15 @@ int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type,
 		WFIFOL(fd, 4) = type;
 	else
 		WFIFOL(fd, 4) = skill_get_inf(id);
-	WFIFOW(fd, 8) = hd->homunculus.hskill[skill_num].lv;
-	WFIFOW(fd, 10) = skill_get_sp(id, hd->homunculus.hskill[skill_num].lv);
+	WFIFOW(fd, 8) = hd->homunculus.hskill[skill_id].lv;
+	WFIFOW(fd, 10) = skill_get_sp(id, hd->homunculus.hskill[skill_id].lv);
 	if (range)
 		WFIFOW(fd, 12) = range;
 	else
-		WFIFOW(fd, 12) = skill_get_range2(&hd->bl, id, hd->homunculus.hskill[skill_num].lv);
+		WFIFOW(fd, 12) = skill_get_range2(&hd->bl, id, hd->homunculus.hskill[skill_id].lv);
 
 	if (hd->homunculus.hskill[id - HM_SKILLBASE].flag == 0)
-		WFIFOB(fd, 14) = (hd->homunculus.hskill[skill_num].lv < merc_skill_tree_get_max(id, hd->homunculus.class_)) ? 1 : 0;
+		WFIFOB(fd, 14) = (hd->homunculus.hskill[skill_id].lv < merc_skill_tree_get_max(id, hd->homunculus.class_)) ? 1 : 0;
 	else
 		WFIFOB(fd, 14) = 0;
 	WFIFOSET(fd, packet_len(0x7e1));
@@ -5821,7 +5821,7 @@ int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type,
 /// is disposable:
 ///     0 = yellow chat text "[src name] will use skill [skill name]."
 ///     1 = no text
-void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x, int dst_y, int skill_num, int property, int casttime)
+void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x, int dst_y, int skill_id, int property, int casttime)
 {
 #if PACKETVER < 20091124
 	const int cmd = 0x13e;
@@ -5835,7 +5835,7 @@ void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x,
 	WBUFL(buf,6) = dst_id;
 	WBUFW(buf,10) = dst_x;
 	WBUFW(buf,12) = dst_y;
-	WBUFW(buf,14) = skill_num;
+	WBUFW(buf,14) = skill_id;
 	WBUFL(buf,16) = property<0?0:property; //Avoid sending negatives as element [Skotlex]
 	WBUFL(buf,20) = casttime;
 #if PACKETVER >= 20091124
@@ -6242,14 +6242,14 @@ void clif_skill_setunit(struct skill_unit *unit)
 
 /// Presents a list of available warp destinations (ZC_WARPLIST).
 /// 011c <skill id>.W { <map name>.16B }*4
-void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4) {
+void clif_skill_warppoint(struct map_session_data* sd, short skill_id, short skill_lv, unsigned short map1, unsigned short map2, unsigned short map3, unsigned short map4) {
 	int fd;
 	nullpo_retv(sd);
 	fd = sd->fd;
 
 	WFIFOHEAD(fd,packet_len(0x11c));
 	WFIFOW(fd,0) = 0x11c;
-	WFIFOW(fd,2) = skill_num;
+	WFIFOW(fd,2) = skill_id;
 	memset(WFIFOP(fd,4), 0x00, 4*MAP_NAME_LENGTH_EXT);
 	if (map1 == (unsigned short)-1) strcpy((char*)WFIFOP(fd,4), "Random");
 	else // normal map name
@@ -6259,8 +6259,8 @@ void clif_skill_warppoint(struct map_session_data* sd, short skill_num, short sk
 	if (map4 > 0) mapindex_getmapname_ext(mapindex_id2name(map4), (char*)WFIFOP(fd,52));
 	WFIFOSET(fd,packet_len(0x11c));
 
-	sd->menuskill_id = skill_num;
-	if (skill_num == AL_WARP) {
+	sd->menuskill_id = skill_id;
+	if (skill_id == AL_WARP) {
 		sd->menuskill_val = (sd->ud.skillx<<16)|sd->ud.skilly; //Store warp position here.
 		sd->state.workinprogress = WIP_DISABLE_ALL;
 	} else
@@ -6354,15 +6354,15 @@ void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
 /// 018d <packet len>.W { <name id>.W { <material id>.W }*3 }*
 /// material id:
 ///     unused by the client
-void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int trigger)
+void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_id, int trigger)
 {
 	int i,c,view,fd;
 	nullpo_retv(sd);
 
-	if(sd->menuskill_id == skill_num)
+	if(sd->menuskill_id == skill_id)
 		return; //Avoid resending the menu twice or more times...
-	if (skill_num == GC_CREATENEWPOISON)
-		skill_num = GC_RESEARCHNEWPOISON;
+	if (skill_id == GC_CREATENEWPOISON)
+		skill_id = GC_RESEARCHNEWPOISON;
 
 	fd=sd->fd;
 	WFIFOHEAD(fd, MAX_SKILL_PRODUCE_DB * 8 + 8);
@@ -6370,7 +6370,7 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int
 
 	for(i=0,c=0;i<MAX_SKILL_PRODUCE_DB;i++){
 		if (skill_can_produce_mix(sd, skill_produce_db[i].nameid, trigger, 1) &&
-			((skill_num > 0 && skill_produce_db[i].req_skill == skill_num) || skill_num < 0)
+			((skill_id > 0 && skill_produce_db[i].req_skill == skill_id) || skill_id < 0)
 			) {
 			if((view = itemdb_viewid(skill_produce_db[i].nameid)) > 0)
 				WFIFOW(fd,c*8+ 4)= view;
@@ -6385,7 +6385,7 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_num, int
 	WFIFOW(fd, 2)=c*8+8;
 	WFIFOSET(fd,WFIFOW(fd,2));
 	if(c > 0) {
-		sd->menuskill_id = skill_num;
+		sd->menuskill_id = skill_id;
 		sd->menuskill_val = trigger;
 		return;
 	}
@@ -10123,7 +10123,7 @@ void clif_refresh(struct map_session_data *sd)
 {
 	nullpo_retv(sd);
 
-	clif_changemap(sd,sd->mapindex,sd->bl.x,sd->bl.y);
+	clif_changemap(sd,sd->bl.m,sd->bl.x,sd->bl.y);
 	clif_inventorylist(sd);
 	clif_equipswitch_list(sd);
 	if(pc_iscarton(sd)) {
@@ -11125,7 +11125,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	if (sd->state.rewarp)
 	{	//Rewarp player.
 		sd->state.rewarp = 0;
-		clif_changemap(sd, sd->mapindex, sd->bl.x, sd->bl.y);
+		clif_changemap(sd, sd->bl.m, sd->bl.x, sd->bl.y);
 		return;
 	}
 
@@ -11326,6 +11326,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 		// Notify everyone that this char logged in [Skotlex].
 		map_foreachpc(clif_friendslist_toggle_sub, sd->status.account_id, sd->status.char_id, 1);
+
+		// Set the initial idle time
+		sd->idletime = last_tick;
 
 #if PACKETVER >= 20180307
 		if (battle_config.feature_attendance_system != 0 && battle_config.attendance_show_window != 0 && clif_attendance_timediff(sd) == true)
@@ -11620,6 +11623,11 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 
 	if(sd->sc.data[SC_RUN] || sd->sc.data[SC_WUGDASH] )
 		return;
+
+	// Cloaking wall check is actually updated when you click to process next movement
+	// not when you move each cell.  This is official behaviour.
+	if (sd->sc.data[SC_CLOAKING])
+		skill_check_cloaking(&sd->bl, sd->sc.data[SC_CLOAKING]);
 
 	pc_delinvincibletimer(sd);
 
@@ -12112,7 +12120,7 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 	}
 	
 	// if player ignores everyone
-	if (dstsd->state.ignoreAll)
+	if (dstsd->state.ignoreAll && pc_isGM(sd) <= pc_isGM(dstsd) )
 	{
 		if (dstsd->sc.option & OPTION_INVISIBLE && pc_isGM(sd) < pc_isGM(dstsd))
 			clif_wis_end(fd, 1); // 1: target character is not loged in
@@ -12130,12 +12138,14 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 		return;
 	}
 
-	// if player ignores the source character
-	ARR_FIND(0, MAX_IGNORE_LIST, i, dstsd->ignore[i].name[0] == '\0' || strcmp(dstsd->ignore[i].name, sd->status.name) == 0);
-	if (i < MAX_IGNORE_LIST && dstsd->ignore[i].name[0] != '\0')
-	{	// source char present in ignore list
-		clif_wis_end(fd, 2); // 2: ignored by target
-		return;
+	if (pc_isGM(sd) <= pc_isGM(dstsd)) {
+		// if player ignores the source character
+		ARR_FIND(0, MAX_IGNORE_LIST, i, dstsd->ignore[i].name[0] == '\0' || strcmp(dstsd->ignore[i].name, sd->status.name) == 0);
+		if (i < MAX_IGNORE_LIST && dstsd->ignore[i].name[0] != '\0')
+		{	// source char present in ignore list
+			clif_wis_end(fd, 2); // 2: ignored by target
+			return;
+		}
 	}
 	
 	// notify sender of success
@@ -13177,13 +13187,13 @@ void clif_parse_UseSkillToPosMoreInfo(int fd, struct map_session_data *sd)
 /// Answer to map selection dialog (CZ_SELECT_WARPPOINT).
 /// 011b <skill id>.W <map name>.16B
 void clif_parse_UseSkillMap(int fd, struct map_session_data* sd) {
-	short skill_num = RFIFOW(fd,2);
+	short skill_id = RFIFOW(fd,2);
 	char map_name[MAP_NAME_LENGTH];
 
 	mapindex_getmapname((char*)RFIFOP(fd,4), map_name);
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 
-	if(skill_num != sd->menuskill_id) 
+	if(skill_id != sd->menuskill_id) 
 		return;
 
 	if( sd->sc.data[SC__MANHOLE] )
@@ -13196,7 +13206,7 @@ void clif_parse_UseSkillMap(int fd, struct map_session_data* sd) {
 	}
 
 	pc_delinvincibletimer(sd);
-	skill_castend_map(sd,skill_num,map_name);
+	skill_castend_map(sd,skill_id,map_name);
 }
 
 

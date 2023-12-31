@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/31/2023
+	r427 [15peaces]
+		*Players can no longer block whispers from a higher gm level.
+		*Fixed chatrooms disappearing after using @disguise.
+			-Thanks to @rathena
+		*Implemented 'notomb' mapflag for Bossnia maps.
+			-Thanks to @rathena for the base.
+		*Replaced 'skill_num' with 'skill_id' in all source files.
+		*Poison React now activates when character is damaged only.
+		*Cloaking fixed to official behaviour.
+		*You cannot save or memo on instance maps anymore.
+		*Idle timer now resets on continuous attacks, i.e. /noctrl or ctrl+click.
+			-Also it's initialized on login.
 
 12/30/2023
 	r426 [15peaces]

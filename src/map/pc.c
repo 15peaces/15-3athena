@@ -16,6 +16,7 @@
 #include "atcommand.h" // get_atcommand_level()
 #include "battle.h" // battle_config
 #include "battleground.h"
+#include "chat.h"
 #include "chrif.h"
 #include "clan.h"
 #include "clif.h"
@@ -1532,7 +1533,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 			/**
 			 * Fixes login-without-aura glitch (the screen won't blink at this point, don't worry :P)
 			 **/
-			clif_changemap(sd, sd->mapindex, sd->bl.x, sd->bl.y);
+			clif_changemap(sd, sd->bl.m, sd->bl.x, sd->bl.y);
 	}
 
 #if PACKETVER >= 20150513
@@ -2144,6 +2145,11 @@ int pc_disguise(struct map_session_data *sd, int class_)
 		{	//It seems the cart info is lost on undisguise.
 			clif_cartlist(sd);
 			clif_updatestatus(sd,SP_CARTINFO);
+		}
+		if (sd->chatID) {
+			struct chat_data* cd;
+			if ((cd = (struct chat_data*)map_id2bl(sd->chatID)) != NULL)
+				clif_dispchat(cd, 0);
 		}
 	}
 	return 1;
@@ -5473,7 +5479,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 
 	if(sd->bl.prev != NULL){
 		unit_remove_map_pc(sd,clrtype);
-		clif_changemap(sd,map[m].index,x,y); // [MouseJstr]
+		clif_changemap(sd,m,x,y); // [MouseJstr]
 	} else if(sd->state.active)
 		//Tag player for rewarping after map-loading is done. [Skotlex]
 		sd->state.rewarp = 1;
@@ -5632,6 +5638,11 @@ int pc_memo(struct map_session_data* sd, int pos)
 		ARR_FIND( 0, MAX_MEMOPOINTS, i, sd->status.memo_point[i].map == map_id2index(sd->bl.m) );
 		memmove(&sd->status.memo_point[1], &sd->status.memo_point[0], (min(i,MAX_MEMOPOINTS-1))*sizeof(struct point));
 		pos = 0;
+	}
+
+	if (map[sd->bl.m].instance_id) {
+		clif_displaymessage(sd->fd, msg_txt(sd, 438)); // You cannot create a memo in an instance.
+		return 0;
 	}
 
 	sd->status.memo_point[pos].map = map_id2index(sd->bl.m);
@@ -7043,7 +7054,7 @@ bool pc_search_job_skilltree(int b_class, int id)
 /*==========================================
  * ƒXƒLƒ‹ƒ|ƒCƒ“ƒgŠ„‚èU‚è
  *------------------------------------------*/
-int pc_skillup(struct map_session_data *sd,int skill_num)
+int pc_skillup(struct map_session_data *sd,int skill_id)
 {
 	short check_1st_job, check_2nd_job;
 	short used_skill_points;
@@ -7061,22 +7072,22 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 	}
 	c = pc_class2idx(c);
 
-	if( skill_num >= GD_SKILLBASE && skill_num < GD_SKILLBASE+MAX_GUILDSKILL )
+	if( skill_id >= GD_SKILLBASE && skill_id < GD_SKILLBASE+MAX_GUILDSKILL )
 	{
-		guild_skillup(sd, skill_num);
+		guild_skillup(sd, skill_id);
 		return 0;
 	}
 
-	if( skill_num >= HM_SKILLBASE && skill_num < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd )
+	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd )
 	{
-		merc_hom_skillup(sd->hd, skill_num);
+		merc_hom_skillup(sd->hd, skill_id);
 		return 0;
 	}
 
-	if( skill_num < 0 || skill_num >= MAX_SKILL )
+	if( skill_id < 0 || skill_id >= MAX_SKILL )
 		return 0;
 
-	if ( !pc_search_job_skilltree(c, skill_num) )
+	if ( !pc_search_job_skilltree(c, skill_id) )
 	{
 		used_skill_points = pc_calc_skillpoint(sd);
 
@@ -7106,27 +7117,27 @@ int pc_skillup(struct map_session_data *sd,int skill_num)
 	}
 
 	if( sd->status.skill_point > 0 &&
-		sd->status.skill[skill_num].id &&
-		sd->status.skill[skill_num].flag == 0 && //Don't allow raising while you have granted skills. [Skotlex]
-		sd->status.skill[skill_num].lv < skill_tree_get_max(skill_num, sd->status.class_) )
+		sd->status.skill[skill_id].id &&
+		sd->status.skill[skill_id].flag == 0 && //Don't allow raising while you have granted skills. [Skotlex]
+		sd->status.skill[skill_id].lv < skill_tree_get_max(skill_id, sd->status.class_) )
 	{
 		int lv, range, upgradable;
-		sd->status.skill[skill_num].lv++;
+		sd->status.skill[skill_id].lv++;
 		sd->status.skill_point--;
-		if (!skill_get_inf(skill_num) || skill_get_inf2(skill_num)&INF2_BOOST_PASSIVE && (pc_checkskill(sd, SU_POWEROFLAND) > 0 || pc_checkskill(sd, SU_POWEROFSEA) > 0))
+		if (!skill_get_inf(skill_id) || skill_get_inf2(skill_id)&INF2_BOOST_PASSIVE && (pc_checkskill(sd, SU_POWEROFLAND) > 0 || pc_checkskill(sd, SU_POWEROFSEA) > 0))
 			status_calc_pc(sd, 0); // Only recalculate for passive skills and active skills that boost the effects of passive skills.
 		else if( sd->status.skill_point == 0 && (sd->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && sd->status.base_level >= 90 && pc_famerank(sd->status.char_id, MAPID_TAEKWON) )
 			pc_calc_skilltree(sd); // Required to grant all TK Ranger skills.
 		else
-			pc_check_skilltree(sd, skill_num); // Check if a new skill can Lvlup
+			pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup
 
-		lv = sd->status.skill[skill_num].lv;
-		range = skill_get_range2(&sd->bl, skill_num, lv);
-		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_num].id, sd->status.class_)) ? 1 : 0;
-		clif_skillup(sd, skill_num, lv, range, upgradable);
+		lv = sd->status.skill[skill_id].lv;
+		range = skill_get_range2(&sd->bl, skill_id, lv);
+		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
+		clif_skillup(sd, skill_id, lv, range, upgradable);
 
 		clif_updatestatus(sd,SP_SKILLPOINT);
-		if( skill_num == GN_REMODELING_CART )
+		if( skill_id == GN_REMODELING_CART )
 			clif_updatestatus(sd,SP_CARTINFO);
 		if (pc_checkskill(sd, SG_DEVIL) && ((sd->class_&MAPID_THIRDMASK) == MAPID_STAR_EMPEROR || sd->status.job_level >= 50))
 			clif_status_load(&sd->bl, SI_DEVIL, 1);
@@ -7493,23 +7504,23 @@ int pc_resethate(struct map_session_data* sd)
 }
 
 
-int pc_skillatk_bonus(struct map_session_data *sd, int skill_num)
+int pc_skillatk_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = 0;
 
-	ARR_FIND(0, ARRAYLENGTH(sd->skillatk), i, sd->skillatk[i].id == skill_num);
+	ARR_FIND(0, ARRAYLENGTH(sd->skillatk), i, sd->skillatk[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillatk) ) bonus = sd->skillatk[i].val;
 
 	return bonus;
 }
 
-int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
+int pc_skillheal_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = sd->bonus.add_heal_rate;
 
 	if( bonus )
 	{
-		switch( skill_num )
+		switch( skill_id )
 		{
 		case AL_HEAL:			if( !(battle_config.skill_add_heal_rate&1) ) bonus = 0; break;
 		case PR_SANCTUARY:		if( !(battle_config.skill_add_heal_rate&2) ) bonus = 0; break;
@@ -7520,17 +7531,17 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_num)
 		}
 	}
 
-	ARR_FIND(0, ARRAYLENGTH(sd->skillheal), i, sd->skillheal[i].id == skill_num);
+	ARR_FIND(0, ARRAYLENGTH(sd->skillheal), i, sd->skillheal[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillheal) ) bonus += sd->skillheal[i].val;
 
 	return bonus;
 }
 
-int pc_skillheal2_bonus(struct map_session_data *sd, int skill_num)
+int pc_skillheal2_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = sd->bonus.add_heal2_rate;
 
-	ARR_FIND(0, ARRAYLENGTH(sd->skillheal2), i, sd->skillheal2[i].id == skill_num);
+	ARR_FIND(0, ARRAYLENGTH(sd->skillheal2), i, sd->skillheal2[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillheal2) ) bonus += sd->skillheal2[i].val;
 
 	return bonus;

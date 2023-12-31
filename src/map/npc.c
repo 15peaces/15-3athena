@@ -3776,8 +3776,10 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.nosunmoonstarmiracle = state;
 	else if (!strcmpi(w3, "pairship_startable"))
 		map[m].flag.pairship_startable = (state) ? 1 : 0;
-	 else if (!strcmpi(w3, "pairship_endable"))
+	else if (!strcmpi(w3, "pairship_endable"))
 		map[m].flag.pairship_endable = (state) ? 1 : 0;
+	else if (!strcmpi(w3, "notomb"))
+		map[m].flag.notomb = (state) ? 1 : 0;
 	else
 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 
