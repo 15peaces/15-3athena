@@ -12246,7 +12246,7 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 		if (pc_isdead(sd))
 			break;
 
-		if (pc_cant_act2(sd))
+		if (pc_cant_act2(sd) || sd->npc_id)
 			break;
 
 		if (sd->sc.count && (
@@ -12942,7 +12942,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		}
 	}
 
-	if (pc_cant_act(sd) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE)
+	if ((pc_cant_act2(sd) || sd->chatID) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE)
 		return;
 
 	if( pc_issit(sd) )

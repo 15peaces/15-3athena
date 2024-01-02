@@ -2437,6 +2437,22 @@ Available information types are:
  2 - Y coordinate
 
 ---------------------------------------
+
+*checklang
+
+Returns the language number from player, and -1 upon error
+
+	0 - English (ENG)
+	1 - Russkiy (RUS)
+	2 - Espanol (SPN)
+	3 - Deutsch (GRM)
+	4 - Hanyu (CHN)
+	5 - Bahasa Malaysia (MAL)
+	6 - Bahasa Indonesia (IDN)
+	7 - Francais (FRN)
+	8 - Portugues Brasileiro (POR)
+	
+---------------------------------------
 \\
 2,2 Item-related commands
 \\

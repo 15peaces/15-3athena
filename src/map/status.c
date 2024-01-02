@@ -1386,7 +1386,7 @@ int status_set_sp(struct block_list *bl, unsigned int sp, int flag)
 	return status_zap(bl, 0, status->sp - sp);
 }
 
-int status_charge(struct block_list* bl, int hp, int sp)
+int64 status_charge(struct block_list* bl, int64 hp, int64 sp)
 {
 	if(!(bl->type&BL_CONSUME))
 		return hp+sp; //Assume all was charged so there are no 'not enough' fails.

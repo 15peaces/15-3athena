@@ -9293,7 +9293,7 @@ BUILDIN_FUNC(areamonster)
 	if (script_hasdata(st, 12))
 	{
 		ai = script_getnum(st, 12);
-		if (ai > 6)
+		if (ai >= AI_MAX)
 		{
 			ShowWarning("buildin_monster: Attempted to spawn non-existing ai %d for monster class %d\n", ai, class_);
 			return 1;
@@ -20498,6 +20498,19 @@ BUILDIN_FUNC(adopt)
 	return 1;
 }
 
+BUILDIN_FUNC(checklang)
+{
+	TBL_PC* sd = NULL;
+
+	if ((sd = script_rid2sd(st)) == NULL) {
+		script_pushint(st, -1);
+		return 0;
+	}
+
+	script_pushint(st, sd->langtype);
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -20999,6 +21012,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(setrandomoption,"iiiii?"),
 	BUILDIN_DEF(unloadnpc, "s"),
 	BUILDIN_DEF(hateffect, "ii"),
+	BUILDIN_DEF(checklang, ""),
 	// Monster Transform [malufett/Hercules]
 	BUILDIN_DEF(jobcanentermap,"s?"),
 	BUILDIN_DEF2(montransform, "transform", "vi?????"),

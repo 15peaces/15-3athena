@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/02/2024
+	r428 [15peaces]
+		*Added script command checklang() for checking player's language.
+		*Players can now use items and self-targetting skills while talking to NPCs.
+		*SL_STIN; SL_STUN
+			-These skills can now be casted by non players.
+		*Optimized pc_useitem processing a bit.
+		*New ranklist packets will now be used on newer clients.
+		*Some cleaning.
+		*Added int64 support to status_charge function.
+
 12/31/2023
 	r427 [15peaces]
 		*Players can no longer block whispers from a higher gm level.

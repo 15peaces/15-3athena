@@ -2285,7 +2285,7 @@ int status_damage(struct block_list *src,struct block_list *target, int64 dhp, i
 //Define for standard HP/SP damage triggers.
 #define status_zap(bl, hp, sp) status_damage(NULL, bl, hp, sp, 0, 1)
 //Define for standard HP/SP skill-related cost triggers (mobs require no HP/SP to use skills)
-int status_charge(struct block_list* bl, int hp, int sp);
+int64 status_charge(struct block_list* bl, int64 hp, int64 sp);
 int status_percent_change(struct block_list *src,struct block_list *target,signed char hp_rate, signed char sp_rate, int flag);
 //Easier handling of status_percent_change
 #define status_percent_heal(bl, hp_rate, sp_rate) status_percent_change(NULL, bl, -(hp_rate), -(sp_rate), 0)

@@ -2767,8 +2767,11 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 				break;
 			case SL_STIN:
 			case SL_STUN:
-				if (skilllv >= 7 && !sd->sc.data[SC_SMA])
-					sc_start(src,SC_SMA,100,skilllv,skill_get_time(SL_SMA, skilllv));
+				if (skilllv >= 7) {
+					struct status_change *sc = status_get_sc(src);
+					if (sc && !sc->data[SC_SMA])
+						sc_start(src, SC_SMA, 100, skilllv, skill_get_time(SL_SMA, skilllv));
+				}
 				break;
 			case GS_FULLBUSTER:
 				//Can't attack nor use items until skill's delay expires. [Skotlex]
@@ -16556,9 +16559,9 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		case SL_STUN:
 		case SL_STIN:
 		{
-			int kaina_lv = pc_checkskill(sd,SL_KAINA);
+			int kaina_lv = sd ? pc_checkskill(sd, SL_KAINA) : skill_get_max(SL_KAINA);
 
-			if(kaina_lv==0 || sd->status.base_level<70)
+			if(kaina_lv==0 || !sd || sd->status.base_level<70)
 				break;
 			if(sd->status.base_level>=90)
 				req.sp -= req.sp*7*kaina_lv/100;

@@ -698,21 +698,22 @@ int pc_overheat(struct map_session_data *sd, int val)
 // Increases a player's fame points and displays a notice to him
 void pc_addfame(struct map_session_data *sd,int count)
 {
+	int ranktype = -1;
+
 	nullpo_retv(sd);
+
 	sd->status.fame += count;
+
 	if(sd->status.fame > MAX_FAME)
 		sd->status.fame = MAX_FAME;
+
 	switch(sd->class_&MAPID_UPPERMASK){
-		case MAPID_BLACKSMITH: // Blacksmith
-			clif_fame_blacksmith(sd,count);
-			break;
-		case MAPID_ALCHEMIST: // Alchemist
-			clif_fame_alchemist(sd,count);
-			break;
-		case MAPID_TAEKWON: // Taekwon
-			clif_fame_taekwon(sd,count);
-			break;	
+		case MAPID_BLACKSMITH: ranktype = 0; break;
+		case MAPID_ALCHEMIST:  ranktype = 1; break;
+		case MAPID_TAEKWON: ranktype = 2; break;
 	}
+
+	clif_update_rankingpoint(sd, ranktype, count);
 	chrif_updatefamelist(sd);
 }
 
@@ -4469,7 +4470,7 @@ int pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reas
 {
 	nullpo_retr(1, sd);
 
-	if(sd->inventory.u.items_inventory[n].nameid==0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
+	if(n < 0 || sd->inventory.u.items_inventory[n].nameid==0 || amount <= 0 || sd->inventory.u.items_inventory[n].amount<amount || sd->inventory_data[n] == NULL)
 		return 1;
 
 	log_pick(&sd->bl, log_type, sd->inventory.u.items_inventory[n].nameid, -amount, &sd->inventory.u.items_inventory[n]);
@@ -4771,6 +4772,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	unsigned short nameid;
 	int amount;
 	struct script_code *script;
+	struct item item;
+	struct item_data *id;
 
 	nullpo_ret(sd);
 
@@ -4786,13 +4789,19 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		}
 	}
 
-	if( sd->inventory.u.items_inventory[n].nameid <= 0 || sd->inventory.u.items_inventory[n].amount <= 0 )
+	item = sd->inventory.u.items_inventory[n];
+	id = sd->inventory_data[n];
+
+	if( item.nameid <= 0 || item.amount <= 0 )
 		return 0;
 
+	// Store information for later use before it is lost (via pc_delitem) [Paradox924X]
+	nameid = id->nameid;
+
 	// In this case these sc are OFFICIALS cooldowns for these skills
-	if( itemid_is_rune(sd->inventory.u.items_inventory[n].nameid) )
+	if( itemid_is_rune(nameid) )
 	{
-		switch(sd->inventory.u.items_inventory[n].nameid)
+		switch(nameid)
 		{
 			case ITEMID_NAUTHIZ_RUNE:
 				if( skill_blockpc_get(sd,RK_REFRESH) != -1 )
@@ -4838,9 +4847,9 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	}
 
 	// Eclage status cure items must each be tied to their own cooldowns.
-	if(itemid_is_eclage_cures(sd->inventory.u.items_inventory[n].nameid))
+	if(itemid_is_eclage_cures(nameid))
 	{
-		switch(sd->inventory.u.items_inventory[n].nameid)
+		switch(nameid)
 		{
 			case ITEMID_SNOW_FLIP:
 				if( skill_blockpc_get(sd,ECL_SNOWFLIP) != -1 )
@@ -4863,9 +4872,6 @@ int pc_useitem(struct map_session_data *sd,int n) {
 
 	if( !pc_isUseitem(sd,n) )
 		return 0;
-
-	// Store information for later use before it is lost (via pc_delitem) [Paradox924X]
-	nameid = sd->inventory_data[n]->nameid;
 
 	if (nameid != ITEMID_NAUTHIZ_RUNE && sd->sc.opt1 > 0 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 		return 0;
@@ -4897,26 +4903,26 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	//perform a skill-use check before going through. [Skotlex]
 	//resurrection was picked as testing skill, as a non-offensive, generic skill, it will do.
 	//FIXME: Is this really needed here? It'll be checked in unit.c after all and this prevents skill items using when silenced [Inkfish]
-	if( sd->inventory_data[n]->flag.delay_consume && ( sd->ud.skilltimer != INVALID_TIMER /*|| !status_check_skilluse(&sd->bl, &sd->bl, ALL_RESURRECTION, 0)*/ ) )
+	if( id->flag.delay_consume && ( sd->ud.skilltimer != INVALID_TIMER /*|| !status_check_skilluse(&sd->bl, &sd->bl, ALL_RESURRECTION, 0)*/ ) )
 		return 0;
 
-	if (sd->inventory_data[n]->delay > 0 && pc_itemcd_check(sd, sd->inventory_data[n], tick, n))
+	if (id->delay > 0 && pc_itemcd_check(sd, sd->inventory_data[n], tick, n))
 		return 0;
 
-	sd->itemid = sd->inventory.u.items_inventory[n].nameid;
+	sd->itemid = item.nameid;
 	sd->itemindex = n;
 	if(sd->catch_target_class != -1) //Abort pet catching.
 		sd->catch_target_class = -1;
 
-	amount = sd->inventory.u.items_inventory[n].amount;
-	script = sd->inventory_data[n]->script;
+	amount = item.amount;
+	script = id->script;
 
 	//Check if the item is to be consumed immediately [Skotlex]
-	if( sd->inventory_data[n]->flag.delay_consume )
+	if( id->flag.delay_consume )
 		clif_useitemack(sd,n,amount,true);
 	else
 	{ // Don't delete boarding halters & Eden Group Marks. [15peaces]
-		if( sd->inventory.u.items_inventory[n].expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER && sd->itemid != ITEMID_PARA_TEAM_MARK)
+		if( item.expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER && sd->itemid != ITEMID_PARA_TEAM_MARK)
 		{
 			clif_useitemack(sd,n,amount-1,true);
 
@@ -4926,8 +4932,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		else
 			clif_useitemack(sd,n,0,false);
 	}
-	if(sd->inventory.u.items_inventory[n].card[0]==CARD0_CREATE &&
-		pc_famerank(MakeDWord(sd->inventory.u.items_inventory[n].card[2],sd->inventory.u.items_inventory[n].card[3]), MAPID_ALCHEMIST))
+	if(item.card[0]==CARD0_CREATE &&
+		pc_famerank(MakeDWord(item.card[2],item.card[3]), MAPID_ALCHEMIST))
 	{
 	    potion_flag = 2; // Famous player's potions have 50% more efficiency
 		 if (sd->sc.data[SC_SPIRIT] && sd->sc.data[SC_SPIRIT]->val2 == SL_ROGUE)
