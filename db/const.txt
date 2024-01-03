@@ -643,6 +643,9 @@ bSkillUseSP	2055
 bMagicAtkEle	2056
 bFixedCast	2057
 
+bSetDefRace	2059
+bSetMDefRace	2060
+
 bHPVanishRaceRate	2074
 bSPVanishRaceRate	2075
 bAbsorbDmgMaxHP	2076

@@ -186,6 +186,7 @@ struct map_session_data {
 		unsigned int banking : 1; //1 when we using the banking system 0 when closed
 		unsigned int pvp : 1;	// Cell PVP [Napster]
 		unsigned int workinprogress : 2; // See clif.h::e_workinprogress
+		unsigned int hpmeter_visible : 1;
 		bool keepshop; // Whether shop data should be removed when the player disconnects
 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not
 		bool pc_loaded; // Ensure inventory data and status data is loaded before we calculate player stats
@@ -335,6 +336,10 @@ struct map_session_data {
 		short flag, rate;
 		unsigned char ele;
 	} subele2[MAX_PC_BONUS];
+	struct {
+		short value;
+		int rate, tick;
+	} def_set_race[RC_MAX], mdef_set_race[RC_MAX];
 	// zeroed structures end here
 	// manually zeroed structures start here.
 	struct s_autobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS]; //Auto script on attack, when attacked, on skill usage
@@ -823,6 +828,7 @@ int pc_setinventorydata(struct map_session_data *sd);
 int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
 int pc_checkskill(struct map_session_data *sd,int skill_id);
 short pc_checkequip(struct map_session_data *sd,int pos, bool checkall);
+bool pc_checkequip2(struct map_session_data *sd, int nameid);
 
 int pc_calc_skilltree(struct map_session_data *sd);
 int pc_calc_skilltree_normalize_job(struct map_session_data *sd);

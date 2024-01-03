@@ -3185,7 +3185,9 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 	case SP_HP:
 		// On officials the HP never go below 1, even if you die [Lemongrass]
 		// On officials the HP Novice class never go below 50%, even if you die [Napster]
-		WFIFOL(fd,4)= sd->battle_status.hp ? sd->battle_status.hp : (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE ? 1 : sd->battle_status.max_hp/2; 
+		WFIFOL(fd,4)= sd->battle_status.hp ? sd->battle_status.hp : (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE ? 1 : sd->battle_status.max_hp/2;
+		if (map[sd->bl.m].hpmeter_visible)
+			clif_hpmeter(sd);
 		break;
 	case SP_SP:
 		WFIFOL(fd,4)=sd->battle_status.sp;
@@ -6409,6 +6411,9 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 	nullpo_retv(sd);
 	fd = sd->fd;
 
+	if (sd->menuskill_id == skill_id)
+		return; //Avoid resending the menu twice or more times...
+
 	WFIFOHEAD(fd, 6 + 2*MAX_SKILL_PRODUCE_DB);
 	WFIFOW(fd,0) = 0x25a;
 	WFIFOW(fd,4) = list_type; // list type
@@ -6426,30 +6431,20 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 		c++;
 	}
 
-	if( skill_id == AM_PHARMACY )
-	{	// Only send it while Cooking else check for c.
-		WFIFOW(fd,2) = 6 + 2*c;
-		WFIFOSET(fd,WFIFOW(fd,2));
-	}
-	if( c > 0 ){
+	if (c > 0 || skill_id == AM_PHARMACY) {
 		sd->menuskill_id = skill_id;
 		sd->menuskill_val = trigger;
-		if( skill_id != AM_PHARMACY ){
-			sd->menuskill_itemused = qty; // amount.
-			WFIFOW(fd,2) = 6 + 2*c;
-			WFIFOSET(fd,WFIFOW(fd,2));
-		}
+		sd->menuskill_val2 = qty; // amount.
+		WFIFOW(fd, 2) = 6 + 2 * c;
+		WFIFOSET(fd, WFIFOW(fd, 2));
 	}else{
 		sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
-		if( skill_id != AM_PHARMACY ) // AM_PHARMACY is used to Cooking.
-		{	// It fails.
 #if PACKETVER >= 20090922
 			clif_msg_skill(sd,skill_id, MSG_SKILL_MATERIAL_FAIL);
 #else
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));
 #endif
-		}
 	}
 }
 
@@ -11397,6 +11392,11 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			char output[128];
 			sprintf(output, "[ Kill Steal Protection Disable. KS is allowed in this map ]");
 			clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
+		}
+
+		if ((pc_isGM(sd)) >= battle_config.disp_hpmeter) {
+			map[sd->bl.m].hpmeter_visible++;
+			sd->state.hpmeter_visible = 1;
 		}
 
 		status_change_clear_onChangeMap(&sd->bl, &sd->sc);

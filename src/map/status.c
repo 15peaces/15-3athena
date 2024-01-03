@@ -881,7 +881,7 @@ void initChangeTables(void)
 	add_sc( EL_STONE_RAIN        , SC_STUN            );
 
 	// Guild Skills
-set_sc( GD_LEADERSHIP		, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
+	set_sc( GD_LEADERSHIP	, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
 	set_sc( GD_GLORYWOUNDS	, SC_GLORYWOUNDS	, SI_BLANK					, SCB_VIT );
 	set_sc( GD_SOULCOLD		, SC_SOULCOLD		, SI_BLANK					, SCB_AGI );
 	set_sc( GD_HAWKEYES		, SC_HAWKEYES		, SI_BLANK					, SCB_DEX );
@@ -1274,6 +1274,10 @@ set_sc( GD_LEADERSHIP		, SC_LEADERSHIP		, SI_BLANK					, SCB_STR );
 
 	if( !battle_config.display_hallucination ) //Disable Hallucination.
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
+
+	// misc
+	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF;
+	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF;
 
 	/* StatusDisplayType Table [Ind] */
 	StatusDisplayType[SC_ALL_RIDING] = true;
@@ -2205,11 +2209,11 @@ int status_check_visibility(struct block_list *src, struct block_list *target)
 	{	//Check for chase-walk/hiding/cloaking opponents.
 		case BL_PC:
 			// Perfect hiding. Nothing can see or detect you, including insect and demon monsters.
-			if ((tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON]) && !(status->mode&MD_BOSS) &&
+			if (tsc && ((tsc->data[SC_CLOAKINGEXCEED] || tsc->data[SC_NEWMOON])) && !(status->mode&MD_BOSS) &&
 				(((TBL_PC*)target)->special_state.perfect_hiding || (status->mode&MD_DETECTOR)))
 				return 0;
 			// Normal hiding. Insects and demon monsters can detect you.
-			if ((tsc->option&(OPTION_HIDE | OPTION_CLOAK | OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE]) && !(status->mode&MD_BOSS) &&
+			if (tsc && ((tsc->option&(OPTION_HIDE | OPTION_CLOAK | OPTION_CHASEWALK) || tsc->data[SC_CAMOUFLAGE])) && !(status->mode&MD_BOSS) &&
 				( ((TBL_PC*)target)->special_state.perfect_hiding || !(status->mode&MD_DETECTOR) ) )
  				return 0;
 			break;

@@ -100,7 +100,7 @@ enum e_skill_display
 #define MAX_SKILL_ITEM_REQUIRE	10
 struct skill_condition {
 	int weapon,ammo,ammo_qty,hp,sp,zeny,spiritball,mhp,state;
-	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[MAX_SKILL_ITEM_REQUIRE];
+	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[MAX_SKILL_ITEM_REQUIRE],eqItem[MAX_SKILL_ITEM_REQUIRE];
 };
 
 /// Database skills.
@@ -117,7 +117,7 @@ struct s_skill_db {
 	int blewcount[MAX_SKILL_LEVEL];
 	int hp[MAX_SKILL_LEVEL],sp[MAX_SKILL_LEVEL],mhp[MAX_SKILL_LEVEL],hp_rate[MAX_SKILL_LEVEL],sp_rate[MAX_SKILL_LEVEL],zeny[MAX_SKILL_LEVEL];
 	int weapon,ammo,ammo_qty[MAX_SKILL_LEVEL],state,spiritball[MAX_SKILL_LEVEL];
-	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[MAX_SKILL_ITEM_REQUIRE];
+	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[MAX_SKILL_ITEM_REQUIRE],eqItem[MAX_SKILL_ITEM_REQUIRE];
 	int castnodex[MAX_SKILL_LEVEL], delaynodex[MAX_SKILL_LEVEL];
 	int nocast;
 	int unit_id[2];

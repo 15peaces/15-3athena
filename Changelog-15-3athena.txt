@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/03/2024
+	r429 [15peaces]
+		*Added support for bSetDefRace and bSetMdefRace for Vellum Weapons.
+		*Some item fixes:
+			-Removed outdated Strong_Bine trading restrictions.
+			-Corrected some job requirements.
+		*Some cleaning.
+		*Added support for RequiredEquip field in skill_require_db.
+			-Currently only used for Mechanic Skills, more might be needed later.
+		*clif_updatestatus will now also update the HP meters to GMs.
+
 01/02/2024
 	r428 [15peaces]
 		*Added script command checklang() for checking player's language.

@@ -1791,17 +1791,17 @@
 2797,Magical_Stone_,Rocks,5,0,,200,,0,,0,0x00810204,7,2,136,,99,0,0,{ bonus2 bAddDamageClass,2049,10; bonus2 bAddDefClass,2050,-10; bonus3 bAddClassDropItem,6151,2049,70; },{},{}
 2798,Will_Of_Exhausted_Angel,Will Of Exhausted Angel,5,0,,200,,0,,0,0x00008100,7,2,136,,99,0,0,{ getmapxy .@map$,.@x,.@y,0; if(.@map$ == "job3_arch02") { bonus2 bAddDefClass,1761,50; bonus2 bAddDefClass,1762,50; } },{},{}
 2799,Kuirpenring,Kuirpenring,5,0,,100,,0,,1,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bMdef,1; },{},{}
-2800,Accelerator,Accelerator,5,100000,,100,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bAgi,2; },{},{}
-2801,Hovering_Booster,Hovering Booster,5,100000,,2000,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bAgi,1; },{},{}
-2802,Suicidal_Device,Suicidal Device,5,500000,,1000,,0,,1,0x00000000,7,2,136,,99,0,0,{},{},{}
-2803,Shape_Shifter,Shape Shifter,5,100000,,500,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bInt,3; },{},{}
-2804,Cooling_Device,Cooling Device,5,100000,,2500,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bDex,1; },{},{}
-2805,Mag_Field_Generator,Magnetic Field Generator,5,100000,,6000,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bDex,1; },{},{}
-2806,Barrier_Builder,Barrier Builder,5,150000,,8000,,3,,1,0x00000000,7,2,136,,99,0,0,{ bonus bDex,1; },{},{}
-2807,Repair_Kit,Repair Kit,5,200000,,400,,0,,1,0x00000000,7,2,136,,99,0,0,{},{},{}
-2808,Camouflage_Generator,Camouflague Generator,5,250000,,1000,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bAgi,3; },{},{}
-2809,High_Quality_Cooler,High Quality Cooler,5,100000,,2500,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bDex,1; },{},{}
-2810,Special_Cooler,Special Cooler,5,100000,,2500,,0,,1,0x00000000,7,2,136,,99,0,0,{ bonus bDex,1; },{},{}
+2800,Accelerator,Accelerator,5,100000,,100,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bAgi,2; },{},{}
+2801,Hovering_Booster,Hovering Booster,5,100000,,2000,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bAgi,1; },{},{}
+2802,Suicidal_Device,Suicidal Device,5,500000,,1000,,0,,1,0x00000400,8,2,136,,99,0,0,{},{},{}
+2803,Shape_Shifter,Shape Shifter,5,100000,,500,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bInt,3; },{},{}
+2804,Cooling_Device,Cooling Device,5,100000,,2500,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bDex,1; },{},{}
+2805,Mag_Field_Generator,Magnetic Field Generator,5,100000,,6000,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bDex,1; },{},{}
+2806,Barrier_Builder,Barrier Builder,5,150000,,8000,,3,,1,0x00000400,8,2,136,,99,0,0,{ bonus bDex,1; },{},{}
+2807,Repair_Kit,Repair Kit,5,200000,,400,,0,,1,0x00000400,8,2,136,,99,0,0,{},{},{}
+2808,Camouflage_Generator,Camouflague Generator,5,250000,,1000,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bAgi,3; },{},{}
+2809,High_Quality_Cooler,High Quality Cooler,5,100000,,2500,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bDex,1; },{},{}
+2810,Special_Cooler,Special Cooler,5,100000,,2500,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bDex,1; },{},{}
 //2811,Freyja_SBracelet7,Freyja's Spirit Bracelet,5,20,,200,,1,,0,0xFFFFFFFF,7,2,136,,20,0,0,{ bonus bAllStats,1; },{},{}
 //2812,Freyja_SBracelet30,Freyja's Spirit Bracelet,5,20,,200,,1,,0,0xFFFFFFFF,7,2,136,,20,0,0,{ bonus bAllStats,1; },{},{}
 //2813,Freyja_SBracelet60,Freyja's Spirit Bracelet,5,20,,200,,1,,0,0xFFFFFFFF,7,2,136,,20,0,0,{ bonus bAllStats,1; },{},{}

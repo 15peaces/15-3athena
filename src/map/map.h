@@ -491,7 +491,8 @@ enum _sp {
 	//15-3athena
 	SP_SKILL_COOLDOWN = 2050,	//2050
 	SP_SKILL_USE_SP = 2055,		//2055
-	SP_MAGIC_ATK_ELE, SP_FIXEDCAST,	//2056-2060
+	SP_MAGIC_ATK_ELE, SP_FIXEDCAST,	//2056-2057
+	SP_DEF_SET = 2059, SP_MDEF_SET,  //2059-2060
 	SP_FIXEDCASTRATE = 2101, SP_COOLDOWNRATE, SP_MATK, SP_NO_MADOFUEL //2101 - 2105
 
 };
@@ -701,6 +702,7 @@ struct map_data {
 	// Questinfo Cache
 	struct questinfo *qi_data;
 	unsigned short qi_count;
+	unsigned short hpmeter_visible;
 };
 
 /// Stores information about a remote map (for multi-mapserver setups).

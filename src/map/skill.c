@@ -951,8 +951,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case TF_THROWSTONE:
-		sc_start(bl,SC_STUN,3,skilllv,skill_get_time(skillid,skilllv));
-		sc_start(bl,SC_BLIND,3,skilllv,skill_get_time2(skillid,skilllv));
+		if (!sc_start(bl,SC_STUN,3,skilllv,skill_get_time(skillid,skilllv))) //only blind if success
+			sc_start(bl,SC_BLIND,3,skilllv,skill_get_time2(skillid,skilllv));
 		break;
 
 	case NPC_DARKCROSS:
@@ -1813,6 +1813,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			if( rate )
 				skill_break_equip(bl, EQP_ARMOR, rate, BCT_ENEMY);
 		}
+		if (sd && sd->def_set_race[tstatus->race].rate)
+			status_change_start(bl, SC_DEFSET, sd->def_set_race[tstatus->race].rate, sd->def_set_race[tstatus->race].value,
+				0, 0, 0, sd->def_set_race[tstatus->race].tick, 2);
+		if (sd && sd->def_set_race[tstatus->race].rate)
+			status_change_start(bl, SC_MDEFSET, sd->mdef_set_race[tstatus->race].rate, sd->mdef_set_race[tstatus->race].value,
+				0, 0, 0, sd->mdef_set_race[tstatus->race].tick, 2);
 	}
 
 	// Autospell when attacking
@@ -15908,6 +15914,19 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		break;
 	}
 
+	//check if equiped item
+	for (i = 0; i < 10; i++) {
+		int reqeqit = require.eqItem[i];
+		if (!reqeqit) break; //no more required item get out of here
+		if (!pc_checkequip2(sd, reqeqit)) {
+			char output[128];
+			//clif_skill_fail(sd, skill_id, USESKILL_FAIL_NEED_EQUIPMENT, reqeqit);
+			sprintf(output, "need to put on [%d] in order to use.", reqeqit);
+			clif_displaymessagecolor(sd, output, COLOR_RED);
+			return 0;
+		}
+	}
+
 	if(require.mhp > 0 && get_percentage(status->hp, status->max_hp) > (unsigned int)require.mhp) {
 		//mhp is the max-hp-requirement, that is,
 		//you must have this % or less of HP to cast it.
@@ -16455,6 +16474,9 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 		req.ammo = 0xFFFFFFFF; //Enable use on all ammo types.
 		req.ammo_qty = 1;
 	}
+
+	memset(req.eqItem, 0, sizeof(req.eqItem));
+	memcpy(req.eqItem, skill_db[j].eqItem, sizeof(skill_db[j].eqItem));
 
 	for( i = 0; i < MAX_SKILL_ITEM_REQUIRE; i++ )
 	{// Skills that have different item requirements on each level.
@@ -20895,7 +20917,7 @@ static bool skill_parse_row_skilldb(char* split[], int columns, int current)
 }
 
 static bool skill_parse_row_requiredb(char* split[], int columns, int current)
-{// SkillID,HPCost,MaxHPTrigger,SPCost,HPRateCost,SPRateCost,ZenyCost,RequiredWeapons,RequiredAmmoTypes,RequiredAmmoAmount,RequiredState,SpiritSphereCost,RequiredItemID1,RequiredItemAmount1,RequiredItemID2,RequiredItemAmount2,RequiredItemID3,RequiredItemAmount3,RequiredItemID4,RequiredItemAmount4,RequiredItemID5,RequiredItemAmount5,RequiredItemID6,RequiredItemAmount6,RequiredItemID7,RequiredItemAmount7,RequiredItemID8,RequiredItemAmount8,RequiredItemID9,RequiredItemAmount9,RequiredItemID10,RequiredItemAmount10
+{// SkillID,HPCost,MaxHPTrigger,SPCost,HPRateCost,SPRateCost,ZenyCost,RequiredWeapons,RequiredAmmoTypes,RequiredAmmoAmount,RequiredState,SpiritSphereCost,RequiredItemID1,RequiredItemAmount1,RequiredItemID2,RequiredItemAmount2,RequiredItemID3,RequiredItemAmount3,RequiredItemID4,RequiredItemAmount4,RequiredItemID5,RequiredItemAmount5,RequiredItemID6,RequiredItemAmount6,RequiredItemID7,RequiredItemAmount7,RequiredItemID8,RequiredItemAmount8,RequiredItemID9,RequiredItemAmount9,RequiredItemID10,RequiredItemAmount10,RequiredEquip
 	char* p;
 	int j;
 
@@ -20978,6 +21000,20 @@ static bool skill_parse_row_requiredb(char* split[], int columns, int current)
 	for( j = 0; j < MAX_SKILL_ITEM_REQUIRE; j++ ) {
 		skill_db[i].itemid[j] = atoi(split[12+ 2*j]);
 		skill_db[i].amount[j] = atoi(split[13+ 2*j]);
+	}
+
+	//require equiped
+	memset(skill_db[i].eqItem, 0, sizeof(skill_db[i].eqItem));
+	p = strtok(split[32], ":");
+	for (j = 0; j < 10 && p != NULL; i++) {
+		int itid = atoi(p);
+		p = strtok(NULL, ":"); //for easy continue don,t read p after this
+		if (itid <= 0) continue; //silent
+		if (itemdb_exists(itid) == NULL) {
+			ShowWarning("Invalid reqIt=%d specified for skillid=%d\n", itid, i);
+			continue; //invalid id
+		}
+		skill_db[i].eqItem[j] = itid;
 	}
 
 	return true;
@@ -21267,7 +21303,7 @@ static void skill_readdb(void)
 	safestrncpy(skill_db[0].name, "UNKNOWN_SKILL", sizeof(skill_db[0].name));
 	safestrncpy(skill_db[0].desc, "Unknown Skill", sizeof(skill_db[0].desc));
 	sv_readdb(db_path, "skill_db.txt"          , ',',  17, 17, MAX_SKILL_DB, skill_parse_row_skilldb);
-	sv_readdb(db_path, "skill_require_db.txt"  , ',',  32, 32, MAX_SKILL_DB, skill_parse_row_requiredb);
+	sv_readdb(db_path, "skill_require_db.txt"  , ',',  33, 33, MAX_SKILL_DB, skill_parse_row_requiredb);
 	sv_readdb(db_path, "skill_cast_db.txt"     , ',',   6,  6, MAX_SKILL_DB, skill_parse_row_castdb);
 	sv_readdb(db_path, "skill_renewal_cast_db.txt", ',',   8,  8, MAX_SKILL_DB, skill_parse_row_renewalcastdb);
 	sv_readdb(db_path, "skill_castnodex_db.txt", ',',   2,  3, MAX_SKILL_DB, skill_parse_row_castnodexdb);

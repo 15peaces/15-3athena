@@ -477,7 +477,6 @@
 6038,507,100 	// Neat_Report
 6039,507,100 	// Piece_Of_Fish
 6040,507,100 	// Some_Of_Report
-6041,507,100		// Strong_Bine
 6042,507,100		// Ordinary_Branch
 6043,507,100 	// Letter_From_Lugen
 6044,507,100 	// Letter_From_Otto
