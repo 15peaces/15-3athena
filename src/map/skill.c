@@ -8084,6 +8084,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_G:	case SC_REUSE_LIMIT_H:	case SC_REUSE_LIMIT_MTF:
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
+				// Monster Transformation
+				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
+				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
@@ -9907,6 +9910,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_G:	case SC_REUSE_LIMIT_H:	case SC_REUSE_LIMIT_MTF:
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
+				// Monster Transformation
+				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
+				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:

@@ -3,7 +3,7 @@
 //===== By: ==================================================
 //= Syrus22 (1.1) dafide18 (1.4) Skotlex (1.5) 15peaces (3.0)
 //===== Current Version: =====================================
-//= 3.3
+//= 3.4
 //===== Compatible With: =====================================
 //= 15-3athena Project
 //===== Description: =========================================
@@ -16,6 +16,7 @@
 //= 3.2 Some minor changes. [15peaces]
 //= 3.2a Added 'disable_items' command. Thanks to Euphy. [15peaces]
 //= 3.3 Some official script updates. Thanks to Euphy. [15peaces]
+//= 3.4 Added correct safe refines. Thanks to Haruna. [15peaces]
 //============================================================
 
 
@@ -1450,7 +1451,6 @@ payon_in01,18,132,3	script	Vestri#pay	826,{
 //=
 //= If you want to enable that feature just set the third argument to '1' in the function call.
 //= Otherwise it will use the % chance in your refine_db.txt .
-//= Side Note: Current values for +11 and above upgrading in the refine_db.txt are custom.
 //=====================================================================================
 
 function	script	refinenew	{
@@ -1516,12 +1516,7 @@ function	script	refinenew	{
 		set .@type$,"weapon";
 		set .@material,6224; //Bradium
 		set .@price,100000;
-		switch(getequipweaponlv(.@part)) {
-			case 1: set .@safe,17; break;
-			case 2: set .@safe,16; break;
-			case 3: set .@safe,15; break;
-			case 4: set .@safe,14; break;
-		}
+		set .@safe,10;
 		mes "["+ .@npc_name$ +"]";
 		mes "Hmm a weapon, is that ok?";
 		mes "If you want to refine this weapon,";
@@ -1530,7 +1525,7 @@ function	script	refinenew	{
 		set .@type$,"armor";
 		set .@material,6223; //Carnium
 		set .@price,100000;
-		set .@safe,14;
+		set .@safe,10;
 		mes "["+ .@npc_name$ +"]";
 		mes "Hmm an armor, is that ok?";
 		mes "If you want to refine this armor,";
@@ -1598,7 +1593,7 @@ function	script	refinenew	{
 			if (rand(100) < 80) {
 				mes "["+ .@npc_name$ +"]";
 				mes "Clang! Clang! Clang! Clang!";
-				downrefitem .@part;
+				downrefitem .@part,3; // Failed refine attempts decrease the item's refine level by 3
 				next;
 				emotion (!rand(5))?e_cash:e_omg;
 				mes "["+ .@npc_name$ +"]";
@@ -1714,7 +1709,7 @@ function	script	refinenew	{
 			if (rand(100) < 80) {
 				mes "["+ .@npc_name$ +"]";
 				mes "Clang! Clang! Clang! Clang!";
-				downrefitem .@part;
+				downrefitem .@part,3; // Failed refine attempts decrease the item's refine level by 3
 				next;
 				emotion (!rand(5))?e_cash:e_omg;
 				mes "["+ .@npc_name$ +"]";

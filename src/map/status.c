@@ -1279,6 +1279,11 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF;
 	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF;
 
+	// Monster Transformation
+	StatusChangeFlagTable[SC_MTF_ASPD] = SCB_ASPD | SCB_HIT;
+	StatusChangeFlagTable[SC_MTF_MATK] = SCB_MATK;
+	StatusChangeFlagTable[SC_MTF_MLEATKED] |= SCB_ALL;
+
 	/* StatusDisplayType Table [Ind] */
 	StatusDisplayType[SC_ALL_RIDING] = true;
 	StatusDisplayType[SC_ON_PUSH_CART] = true;
@@ -2005,7 +2010,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_HEAT_BARREL_AFTER] ||
 				sc->data[SC_FLASHCOMBO] ||
 				sc->data[SC_KINGS_GRACE] ||
-				sc->data[SC_ALL_RIDING]
+				sc->data[SC_ALL_RIDING] != NULL
 			))
 				return 0;
 
@@ -2031,8 +2036,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				}
 			}*/
 		}
-		if (sc->data[SC_ALL_RIDING])
-			return 0; //You can't use skills while in the new mounts (The client doesn't let you, this is to make cheat-safe)
 	}
 
 	// Check for src's status changes
@@ -3859,6 +3862,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 			sd->subele[ELE_EARTH] += 100;
 			sd->subele[ELE_FIRE] -= 100;
 		}
+		if (sc->data[SC_MTF_MLEATKED])
+			sd->subele[ELE_NEUTRAL] += 2;
 	}
 
 	status_cpy(&sd->battle_status, status);
@@ -5588,6 +5593,8 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += matk * sc->data[SC_INCMATKRATE]->val1/100;
 	if (sc->data[SC_SHRIMP])
 		matk += matk * 10 / 100;
+	if (sc->data[SC_MTF_MATK])
+		matk += matk * 25 / 100;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val4 == 2)
 		matk -= 30 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_CATNIPPOWDER])
@@ -5663,6 +5670,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit += 5 * sc->data[SC_INSPIRATION]->val1 + 25;
 	if(sc->data[SC_SOULFALCON])
 		hit += sc->data[SC_SOULFALCON]->val3;
+	if (sc->data[SC_MTF_ASPD])
+		hit += 5;
 	if(sc->data[SC_INCHITRATE])
 		hit += hit * sc->data[SC_INCHITRATE]->val1/100;
 	if(sc->data[SC_ADJUSTMENT])
@@ -5810,6 +5819,9 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 
 	if(!sc || !sc->count)
 		return (signed char)cap_value(def, CHAR_MIN, battle_config.max_def);
+
+	if (sc->data[SC_DEFSET]) //FIXME: Find out if this really overrides all other SCs
+		return sc->data[SC_DEFSET]->val1;
 
 	if(sc->data[SC_BERSERK])
 		return 0;
@@ -5972,6 +5984,9 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 {
 	if(!sc || !sc->count)
 		return (signed char)cap_value(mdef, CHAR_MIN, battle_config.max_def);
+
+	if (sc->data[SC_MDEFSET]) //FIXME: Find out if this really overrides all other SCs
+		return sc->data[SC_MDEFSET]->val1;
 
 	if(sc->data[SC_BERSERK])
 		return 0;
@@ -6264,6 +6279,8 @@ static short status_calc_aspd_amount(struct block_list *bl, struct status_change
 		aspd_amount += 10 * 5;
 	if (sc->data[SC_EXTRACT_SALAMINE_JUICE]) // Correct way to handle? [15peaces]
 		aspd_amount += sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
+	if (sc->data[SC_MTF_ASPD])
+		aspd_amount -= 10;
 
 	return (short)cap_value(aspd_amount,0,SHRT_MAX);
 }

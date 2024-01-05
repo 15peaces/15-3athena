@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/05/2024
+	r430 [15peaces]
+		*Fixed bSetDefRace & bSetMDefRace bonusses.
+			-Follow-up f9ec043 (r429)
+		*Added full support for monster transformations, including their status changes.
+			-Also updated the item scripts.
+		*Added correct refine rates above +10.
+			-Changed fail-downrefine to -3.
+			-Changed all rates to their official values which are much lower!
+		*Some cleaning.
+		*Moved misplaced SC_ALL_RIDING check in status_check_skilluse function.
+			-This fixed the use of Fly Wing/Butterfly Wing while riding a cash mount.
+		*Rewrite guild emblem change functions.
+			-Added support for transparency check and change during woe check.
+			-Added fail messages.
+		*Add @fullstrip command.
+			-Fixed packet 0x07f5 pointing to the wrong function.
+
 01/03/2024
 	r429 [15peaces]
 		*Added support for bSetDefRace and bSetMdefRace for Vellum Weapons.

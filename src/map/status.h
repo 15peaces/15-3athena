@@ -792,9 +792,16 @@ typedef enum sc_type {
 	SC_SOULCOLD,
 	SC_HAWKEYES,
 
-	//Vellum Weapon reductions
+	// Vellum Weapon reductions
 	SC_DEFSET,
 	SC_MDEFSET,
+
+	// Monster Transformation
+	SC_MTF_ASPD,
+	SC_MTF_RANGEATK,
+	SC_MTF_MATK,
+	SC_MTF_MLEATKED,
+	SC_MTF_CRIDAMAGE,
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;

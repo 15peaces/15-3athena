@@ -2585,11 +2585,11 @@ int intif_parse(int fd)
 	int packet_len, cmd;
 	cmd = RFIFOW(fd,0);
 
-	// パケットのID確認
+	// Verify ID of the packet
 	if(cmd<0x3800 || cmd>=0x3800+ARRAYLENGTH(packet_len_table) || packet_len_table[cmd-0x3800]==0){
 		return 0;
 	}
-	// パケットの長さ確認
+	// Check the length of the packet
 	packet_len = packet_len_table[cmd-0x3800];
 	if(packet_len==-1){
 		if(RFIFOREST(fd)<4)

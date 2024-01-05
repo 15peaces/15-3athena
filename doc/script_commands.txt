@@ -4842,10 +4842,6 @@ Whatever the type is, it will also show a failure effect on screen.
 This command repairs a broken piece of equipment, using the same list of broken 
 items as available through 'getbrokenid'.
 
-The official scripts seem to use the repair command as a function instead: 
-'repair(<number>)' but it returns nothing on the stack. Probably only Valaris, 
-who made it, can answer why is it so.
-
 ---------------------------------------
 
 *repairall {<char_id>};
@@ -4865,10 +4861,6 @@ appropriate messages into their chat window. It will also give the character fam
 points if a weapon reached +10 this way, even though these will only take effect for
 blacksmith who will later forge a weapon.
 
-The official scripts seem to use the 'successrefitem' command as a function 
-instead: 'successrefitem(<number>)' but it returns nothing on the stack. 
-This is since jAthena, so probably nobody knows for sure why is it so.
-
 ---------------------------------------
 
 *failedrefitem <equipment slot>;
@@ -4877,10 +4869,6 @@ This command will fail to refine an item in the specified equipment slot of the
 invoking character. The item will be destroyed. This will also display a 'refine 
 failure' effect on the character and put appropriate messages into their chat 
 window.
-
-The official scripts seem to use the 'failedrefitem' command as a function 
-instead: 'failedrefitem(<number>)' but it returns nothing on the stack. This is 
-since jAthena, so probably nobody knows for sure why is it so.
 
 ---------------------------------------
 

@@ -2053,6 +2053,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 						if (sc && sc->data[SC_LAUDARAMUS])
 							crit_damage_rate += sc->data[SC_LAUDARAMUS]->val2;
+						if (sc && sc->data[SC_MTF_CRIDAMAGE])
+							crit_damage_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;// temporary it should be 'bonus.crit_atk_rate'
 
 						ATK_ADDRATE(crit_damage_rate);
 					}
@@ -3355,6 +3357,11 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 		{
 			if (skill_id && (i = pc_skillatk_bonus(sd, skill_id)))
 				ATK_ADDRATE(i);
+
+			if (wd.flag&BF_LONG)
+				ATK_ADDRATE(sd->bonus.long_attack_atk_rate);
+			if (sc && sc->data[SC_MTF_RANGEATK])
+				ATK_ADDRATE(sc->data[SC_MTF_RANGEATK]->val1);// temporary it should be 'bonus.long_attack_atk_rate'
 
 			// This is for piercing defense depending on the targets defense element and race.
 			// This does not adjust damage by a percent depending on elements and race.
@@ -5501,6 +5508,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 		if ( hd && (sce = sc->data[SC_STYLE_CHANGE]) && sce->val1 == FIGHTER_STYLE && rnd()%100 < sce->val2 )
 			merc_hom_addspiritball(hd,MAX_HOMUN_SPHERES);
+
+		if (tsc && tsc->data[SC_MTF_MLEATKED] && rnd() % 100 < 20)
+			clif_skill_nodamage(target, target, SM_ENDURE, 5, sc_start(target, SC_ENDURE, 100, 5, skill_get_time(SM_ENDURE, 5)));
 	}
 
 	if( tsc && tsc->data[SC_KAAHI] && tsc->data[SC_KAAHI]->val4 == -1 && tstatus->hp < tstatus->max_hp )
@@ -6734,6 +6744,8 @@ static const struct _battle_data {
 	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100,            },
 	{ "skill_trap_type",                    &battle_config.skill_trap_type,                 0,      0,      1,				},
 	{ "item_enabled_npc",					&battle_config.item_enabled_npc,				1,      0,      1,				},
+	{ "emblem_woe_change",                  &battle_config.emblem_woe_change,                0,     0,      1,				},
+	{ "emblem_transparency_limit",          &battle_config.emblem_transparency_limit,       80,     0,    100,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

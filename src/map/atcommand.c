@@ -5934,6 +5934,7 @@ ACMD_FUNC(jailtime)
 	clif_displaymessage(fd, atcmd_output);
 	timestamp2string(timestr, 20, now + sd->sc.data[SC_JAILED]->val1 * 60, "%Y-%m-%d %H:%M");
 	sprintf(atcmd_output, "Release date is: %s", timestr);
+	clif_displaymessage(fd, atcmd_output);
 
 	return 0;
 }
@@ -10164,6 +10165,29 @@ ACMD_FUNC(reloadmsgconf) {
 	return 0;
 }
 
+ACMD_FUNC(fullstrip) {
+	int i;
+	TBL_PC *tsd;
+
+	nullpo_retr(-1, sd);
+
+	if (!message || !*message) {
+		clif_displaymessage(fd, msg_txt(sd, 349)); // Please enter a player name (usage: @fullstrip/@warpto/@goto <char name/ID>).
+		return -1;
+	}
+
+	if ((tsd = map_nick2sd((char *)message)) == NULL && (tsd = map_id2sd(atoi(message))) == NULL) {
+		clif_displaymessage(fd, msg_txt(sd, 3)); // Character not found.
+		return -1;
+	}
+
+	for (i = 0; i < EQI_MAX; i++) {
+		if (tsd->equip_index[i] >= 0)
+			pc_unequipitem(tsd, tsd->equip_index[i], 2);
+	}
+	return 0;
+}
+
 /*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
@@ -10495,8 +10519,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "elemtalk",          10,10,     atcommand_elemtalk },
 	{ "eleminfo",           1,1,      atcommand_eleminfo },
 	{ "langtype",           1,1,      atcommand_langtype },
-	{ "reloadmsgconf",     99,99,     atcommand_reloadmsgconf }
-
+	{ "reloadmsgconf",     99,99,     atcommand_reloadmsgconf },
+	{ "fullstrip",         50,50,     atcommand_fullstrip }
 };
 
 

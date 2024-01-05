@@ -647,6 +647,8 @@ extern struct Battle_Config
 	int min_npc_vending_distance;
 	int skill_trap_type;
 	int item_enabled_npc;
+	int emblem_woe_change;
+	int emblem_transparency_limit;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

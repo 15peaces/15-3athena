@@ -1574,6 +1574,9 @@ int clif_spawn(struct block_list *bl)
 				clif_sendbgemblem_area(sd);
 			if (sd->status.robe)
 				clif_refreshlook(bl, bl->id, LOOK_ROBE, sd->status.robe, AREA);
+			if (sd->sc.data[SC_MONSTER_TRANSFORM])
+				clif_status_change(bl, SI_MONSTER_TRANSFORM, 1, 0, sd->sc.data[SC_MONSTER_TRANSFORM]->val1, 0, 0);
+
 			clif_hat_effects(sd, bl, AREA);
 #if PACKETVER >= 20111108
 			if (sd->sc.count)
@@ -5009,6 +5012,9 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_sendbgemblem_single(sd->fd,tsd);
 			if (tsd->status.robe)
 				clif_refreshlook(&sd->bl, bl->id, LOOK_ROBE, tsd->status.robe, SELF);
+			if (tsd->sc.data[SC_MONSTER_TRANSFORM])
+				clif_status_change(bl, SI_MONSTER_TRANSFORM, 1, 0, tsd->sc.data[SC_MONSTER_TRANSFORM]->val1, 0, 0);
+
 			clif_hat_effects(sd, bl, SELF);
 #if PACKETVER >= 20111108
 			if (tsd->sc.count)
@@ -14355,74 +14361,66 @@ void clif_parse_GuildRequestEmblem(int fd,struct map_session_data *sd)
 		clif_guild_emblem(sd,g);
 }
 
-
 /// Validates data of a guild emblem (compressed bitmap)
-static bool clif_validate_emblem(const uint8* emblem, unsigned long emblem_len)
+enum e_result_validate_emblem {	// Used as Result for clif_validate_emblem
+	EMBVALIDATE_SUCCESS = 0,
+	EMBVALIDATE_ERR_RAW_FILEFORMAT,	// Invalid File Format (Error in zlib/decompression or malformed BMP header)
+	EMBVALIDATE_ERR_TRANSPARENCY	// uploaded emblem does not met the requirements of inter_config.emblem_transparency_limit
+};
+
+static enum e_result_validate_emblem clif_validate_emblem(const uint8* emblem, unsigned long emblem_len)
 {
-	enum e_bitmapconst
-	{
-		RGBTRIPLE_SIZE = 3,          // sizeof(RGBTRIPLE)
-		RGBQUAD_SIZE = 4,            // sizeof(RGBQUAD)
-		BITMAPFILEHEADER_SIZE = 14,  // sizeof(BITMAPFILEHEADER)
-		BITMAPINFOHEADER_SIZE = 40,  // sizeof(BITMAPINFOHEADER)
-		BITMAP_WIDTH = 24,
-		BITMAP_HEIGHT = 24,
-	};
-	bool success;
 	uint8 buf[1800];  // no well-formed emblem bitmap is larger than 1782 (24 bit) / 1654 (8 bit) bytes
 	unsigned long buf_len = sizeof(buf);
+	int offset = 0;
 
-	success = ( decode_zip(buf, &buf_len, emblem, emblem_len) == 0 && buf_len >= BITMAPFILEHEADER_SIZE + BITMAPINFOHEADER_SIZE )
-			&& RBUFW(buf,0) == 0x4d42                   // BITMAPFILEHEADER.bfType (signature)
-			&& RBUFL(buf,2) == buf_len                  // BITMAPFILEHEADER.bfSize (file size)
-			&& RBUFL(buf,14) == BITMAPINFOHEADER_SIZE   // BITMAPINFOHEADER.biSize (other headers are not supported)
-			&& RBUFL(buf,18) == BITMAP_WIDTH            // BITMAPINFOHEADER.biWidth
-			&& RBUFL(buf,22) == BITMAP_HEIGHT           // BITMAPINFOHEADER.biHeight (top-down bitmaps (-24) are not supported)
-			&& RBUFL(buf,30) == 0                       // BITMAPINFOHEADER.biCompression == BI_RGB (compression not supported)
-			;
+	if (!((decode_zip(buf, &buf_len, emblem, emblem_len) == 0 && buf_len >= 18)  // sizeof(BITMAPFILEHEADER) + sizeof(biSize) of the following info header struct
+		&& RBUFW(buf, 0) == 0x4d42   // BITMAPFILEHEADER.bfType (signature)
+		&& RBUFL(buf, 2) == buf_len  // BITMAPFILEHEADER.bfSize (file size)
+		&& (offset = RBUFL(buf, 10)) < buf_len  // BITMAPFILEHEADER.bfOffBits (offset to bitmap bits)
+		))
+		return EMBVALIDATE_ERR_RAW_FILEFORMAT;
 
-	if( success )
-	{
-		uint32 header = 0, bitmap = 0, offbits = RBUFL(buf,10);  // BITMAPFILEHEADER.bfOffBits (offset to bitmap bits)
-
-		switch( RBUFW(buf,28) )  // BITMAPINFOHEADER.biBitCount
-		{
-			case 8:
-				header = BITMAPFILEHEADER_SIZE + BITMAPINFOHEADER_SIZE + RGBQUAD_SIZE * 256;  // headers + palette
-				bitmap = BITMAP_WIDTH * BITMAP_HEIGHT;
-				break;
-			case 24:
-				header = BITMAPFILEHEADER_SIZE + BITMAPINFOHEADER_SIZE;
-				bitmap = BITMAP_WIDTH * BITMAP_HEIGHT * RGBTRIPLE_SIZE;
-				break;
+	if (battle_config.emblem_transparency_limit != 100) {
+		int i, transcount = 1, tmp[3];
+		for (i = offset; i < buf_len - 1; i++) {
+			int j = i % 3;
+			tmp[j] = RBUFL(buf, i);
+			if (j == 2 && (tmp[0] == 0xFFFF00FF) && (tmp[1] == 0xFFFF00) && (tmp[2] == 0xFF00FFFF)) //if pixel is transparent
+				transcount++;
 		}
-
-		// NOTE: This check gives a little freedom for bitmap-producing implementations,
-		//       that align the start of bitmap data, which is harmless but unnecessary.
-		//       If you want it paranoidly strict, change the first condition from >= to ==.
-		if( offbits >= header && buf_len > bitmap && offbits == buf_len - bitmap )
-		{
-			return true;
-		}
+		if (((transcount * 300) / (buf_len - offset)) > battle_config.emblem_transparency_limit) //convert in % to chk
+			return EMBVALIDATE_ERR_TRANSPARENCY;
 	}
 
-	return false;
+	return EMBVALIDATE_SUCCESS;
 }
-
 
 /// Request to update the guild emblem (CZ_REGISTER_GUILD_EMBLEM_IMG).
 /// 0153 <packet len>.W <emblem data>.?B
-void clif_parse_GuildChangeEmblem(int fd,struct map_session_data *sd)
-{
-	unsigned long emblem_len = RFIFOW(fd,2)-4;
-	const uint8* emblem = RFIFOP(fd,4);
+void clif_parse_GuildChangeEmblem(int fd, struct map_session_data *sd) {
+	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd, 0)];
+	unsigned long emblem_len = RFIFOW(fd, info->pos[0]) - 4;
+	const uint8* emblem = RFIFOP(fd, info->pos[1]);
+	int emb_val = 0;
 
-	if( !emblem_len || !sd->state.gmaster_flag )
+	if (!emblem_len || !sd->state.gmaster_flag)
 		return;
 
-	if( !clif_validate_emblem(emblem, emblem_len) )
-	{
+	if (!(battle_config.emblem_woe_change) && is_agit_start()) {
+		clif_displaymessagecolor(sd, msg_txt(sd, 411), COLOR_RED); //"You not allowed to change emblem during woe"
+		return;
+	}
+	emb_val = clif_validate_emblem(emblem, emblem_len);
+	if (emb_val == EMBVALIDATE_ERR_RAW_FILEFORMAT) {
 		ShowWarning("clif_parse_GuildChangeEmblem: Rejected malformed guild emblem (size=%lu, accound_id=%d, char_id=%d, guild_id=%d).\n", emblem_len, sd->status.account_id, sd->status.char_id, sd->status.guild_id);
+		clif_displaymessagecolor(sd, msg_txt(sd, 412), COLOR_RED); //"The chosen emblem was detected invalid"
+		return;
+	}
+	else if (emb_val == EMBVALIDATE_ERR_TRANSPARENCY) {
+		char output[128];
+		safesnprintf(output, sizeof(output), msg_txt(sd, 413), battle_config.emblem_transparency_limit);
+		clif_displaymessagecolor(sd, output, COLOR_RED); //"The chosen emblem was detected invalid as it contain too much transparency (limit=%d)"
 		return;
 	}
 
@@ -15598,12 +15596,21 @@ void clif_account_name(struct map_session_data* sd, int account_id, const char* 
 /// 01df <account id>.L
 void clif_parse_GMReqAccountName(int fd, struct map_session_data *sd)
 {
+	char command[30];
 	uint32 account_id = RFIFOL(fd,2);
-
-	//TODO: find out if this works for any player or only for authorized GMs
-	clif_account_name(sd, account_id, ""); // insert account name here >_<
+	
+	//tmp get all display
+	safesnprintf(command, sizeof(command), "%caccinfo %d", atcommand_symbol, account_id);
+	is_atcommand(fd, sd, command, 1);
+	//clif_account_name(sd, account_id, ""); //! TODO request to login-serv
 }
 
+void clif_parse_GMFullStrip(int fd, struct map_session_data *sd) {
+	char cmd[30];
+	int t_aid = RFIFOL(fd, 2);
+	safesnprintf(cmd, sizeof(cmd), "%cfullstrip %d", atcommand_symbol, t_aid);
+	is_atcommand(fd, sd, cmd, 1);
+}
 
 /// /changemaptype <x> <y> <type> (CZ_CHANGE_MAPTYPE).
 /// GM single cell type change request.
@@ -22155,6 +22162,7 @@ void packetdb_readdb(void)
 		{clif_parse_GuildInvite2, "guildinvite2"},
 		{clif_parse_client_version, "clientversion"},
 		{clif_parse_blocking_playcancel, "booking_playcancel"},
+		{clif_parse_GMFullStrip, "gmfullstrip"},
 		{NULL,NULL}
 	};
 
@@ -22314,7 +22322,9 @@ void packetdb_readdb(void)
 			if( j < ARRAYLENGTH(clif_ack_func)) {
 				int fidx = clif_ack_func[j].funcidx;
 				packet_db_ack[packet_ver][fidx] = cmd;
+#ifdef NOISY
 				ShowInfo("Added %s, <=> %X i=%d for v=%d\n",clif_ack_func[j].name,cmd,fidx,packet_ver);
+#endif
 			}
 		} 
 
