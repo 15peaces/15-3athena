@@ -6746,6 +6746,7 @@ static const struct _battle_data {
 	{ "item_enabled_npc",					&battle_config.item_enabled_npc,				1,      0,      1,				},
 	{ "emblem_woe_change",                  &battle_config.emblem_woe_change,                0,     0,      1,				},
 	{ "emblem_transparency_limit",          &battle_config.emblem_transparency_limit,       80,     0,    100,				},
+	{ "discount_item_point_shop",			&battle_config.discount_item_point_shop,		0,		0,		3,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

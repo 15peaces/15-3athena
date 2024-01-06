@@ -649,6 +649,7 @@ extern struct Battle_Config
 	int item_enabled_npc;
 	int emblem_woe_change;
 	int emblem_transparency_limit;
+	int discount_item_point_shop;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

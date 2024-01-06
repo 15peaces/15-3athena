@@ -15600,7 +15600,7 @@ BUILDIN_FUNC(callshop)
 	if (script_hasdata(st,3))
 		flag = script_getnum(st,3);
 	nd = npc_name2id(shopname);
-	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP) ) {
+	if( !nd || nd->bl.type != BL_NPC || (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP) ) {
 		ShowError("buildin_callshop: Shop [%s] not found (or NPC is not shop type)\n", shopname);
 		script_pushint(st,0);
 		return 1;
@@ -15652,7 +15652,7 @@ BUILDIN_FUNC(npcshopitem)
 	int amount;
 	uint16 offs = 2;
 
-	if( !nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP ) ) { // Not found.
+	if( !nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP ) ) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -15692,7 +15692,7 @@ BUILDIN_FUNC(npcshopadditem) {
 	int n, i;
 	uint16 offs = 2, amount;
 
-	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found.
+	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP )) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}
@@ -15746,7 +15746,7 @@ BUILDIN_FUNC(npcshopdelitem) {
 	int n, i, size;
 	unsigned short amount;
 
-	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP)) { // Not found.
+	if (!nd || ( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_CASHSHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP )) { // Not found.
 		script_pushint(st,0);
 		return 0;
 	}

@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/06/2024
+	r431 [15peaces]
+		*Added support for 2 new types of shops: itemshop & pointshop.
+			-itemshops will use a defined item as currency.
+			-pointshops will us a defined variable as currency.
+			-Thanks to @rathena
+		*Cleaned up a mercenary kill check.
+		*Added full support for ZC_CLEAR_DIALOG packet.
+		*Added a missing check for elementals in clif_parse_LoadEndAck function.
+		
 01/05/2024
 	r430 [15peaces]
 		*Fixed bSetDefRace & bSetMDefRace bonusses.

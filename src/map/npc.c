@@ -1160,7 +1160,24 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 				clif_npc_market_open(sd, nd);
 			}
 #endif
-			break; 
+			break;
+		case NPCTYPE_ITEMSHOP:
+		{
+			char output[CHAT_SIZE_MAX];
+			struct item_data *id = itemdb_exists(nd->u.shop.itemshop_nameid);
+			memset(output, '\0', sizeof(output));
+			sprintf(output, msg_txt(sd, 765), id->jname, id->nameid); // Item Shop List: %s (%d)
+			clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
+			clif_npcbuysell(sd, nd->bl.id);
+		} break;
+		case NPCTYPE_POINTSHOP:
+		{
+			char output[CHAT_SIZE_MAX];
+			memset(output, '\0', sizeof(output));
+			sprintf(output, msg_txt(sd, 766), nd->u.shop.pointshop_str); // Point Shop List: '%s'
+			clif_broadcast(&sd->bl, output, strlen(output) + 1, 0x10, SELF);
+			clif_npcbuysell(sd, nd->bl.id);
+		} break;
 		case NPCTYPE_SCRIPT:
 			run_script(nd->u.scr.script,0,sd->bl.id,nd->bl.id);
 			break;
@@ -1215,7 +1232,7 @@ int npc_buysellsel(struct map_session_data* sd, int id, int type)
 	if ((nd = npc_checknear(sd,map_id2bl(id))) == NULL)
 		return 1;
 
-	if (nd->subtype != NPCTYPE_SHOP) {
+	if (nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP) {
 		ShowError("no such shop npc : %d\n",id);
 		if (sd->npc_id == id)
 			sd->npc_id=0;
@@ -1473,8 +1490,9 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 	struct npc_data* nd;
 	struct npc_item_list *shop = NULL;
 	double z;
-	int i,j,w,skill,new_,count = 0;
+	int i,j,k,w,skill,new_,count = 0;
 	uint8 market_index[MAX_INVENTORY];
+	char output[CHAT_SIZE_MAX];
 
 	nullpo_retr(3, sd);
 	nullpo_retr(3, item_list);
@@ -1482,7 +1500,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 	nd = npc_checknear(sd,map_id2bl(sd->npc_shopid));
 	if( nd == NULL )
 		return 3;
-	if( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_MARKETSHOP )
+	if( nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_MARKETSHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP)
 		return 3; 
 	if (!item_list || !n)
 		return 3;
@@ -1545,6 +1563,9 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 				return 2;
 		}
 
+		if (npc_shop_discount(nd->subtype, nd->u.shop.discount))
+			value = pc_modifybuyvalue(sd, value);
+
 		z += (double)value * amount;
 		w += itemdb_weight(nameid) * amount;
 	}
@@ -1558,6 +1579,38 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
  			if (z > (double)sd->status.zeny)
  				return 1;	// Not enough Zeny
  			break;
+		case NPCTYPE_ITEMSHOP:
+			for (k = 0; k < MAX_INVENTORY; k++) {
+				if (sd->inventory.u.items_inventory[k].nameid == nd->u.shop.itemshop_nameid)
+					count += sd->inventory.u.items_inventory[k].amount;
+			}
+			if (z > (double)count) {
+				struct item_data *id = itemdb_exists(nd->u.shop.itemshop_nameid);
+
+				sprintf(output, msg_txt(sd, 763), id->jname, id->nameid); // You do not have enough %s %d.
+				clif_displaymessagecolor(sd, output, COLOR_RED);
+				return 1;
+			}
+			break;
+		case NPCTYPE_POINTSHOP:
+			switch (nd->u.shop.pointshop_str[0]) {
+			case '#':
+				if (nd->u.shop.pointshop_str[1] == '#')
+					count = pc_readaccountreg2(sd, nd->u.shop.pointshop_str);
+				else
+					count = pc_readaccountreg(sd, nd->u.shop.pointshop_str);
+				break;
+			case '@':
+			default:
+				count = pc_readglobalreg(sd, nd->u.shop.pointshop_str);
+				break;
+			}
+			if (z > (double)count) {
+				sprintf(output, msg_txt(sd, 764), nd->u.shop.pointshop_str); // You do not have enough '%s'.
+				clif_displaymessagecolor(sd, output, COLOR_RED);
+				return 1;
+			}
+			break;
 	}
 
 	if( w + sd->weight > sd->max_weight )
@@ -1570,6 +1623,23 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 		case NPCTYPE_MARKETSHOP:
 			pc_payzeny(sd, (int)z, LOG_TYPE_NPC, NULL);
  			break;
+		case NPCTYPE_ITEMSHOP:
+			pc_delitem(sd, pc_search_inventory(sd, nd->u.shop.itemshop_nameid), (int)z, 0, 0, LOG_TYPE_NPC);
+			break;
+		case NPCTYPE_POINTSHOP:
+			switch (nd->u.shop.pointshop_str[0]) {
+			case '#':
+				if (nd->u.shop.pointshop_str[1] == '#')
+					pc_setaccountreg2(sd, nd->u.shop.pointshop_str, count - (int)z);
+				else
+					pc_setaccountreg(sd, nd->u.shop.pointshop_str, count - (int)z);
+				break;
+			case '@':
+			default:
+				pc_setglobalreg(sd, nd->u.shop.pointshop_str, count - (int)z);
+				break;
+			}
+			break;
  	}
 
 	for( i = 0; i < n; ++i ) {
@@ -1610,6 +1680,10 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 				z = 1;
 			pc_gainexp(sd,NULL,0,(int)z, false);
 		}
+	}
+	if (nd->subtype == NPCTYPE_POINTSHOP) {
+		sprintf(output, msg_txt(sd, 767), nd->u.shop.pointshop_str, count - (int)z); // Your '%s' now: %d
+		clif_disp_onlyself(sd, output, strlen(output) + 1);
 	}
 
 	return 0;
@@ -1657,7 +1731,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	nullpo_retr(1, sd);
 	nullpo_retr(1, item_list);
 
-	if( ( nd = npc_checknear(sd, map_id2bl(sd->npc_shopid)) ) == NULL || nd->subtype != NPCTYPE_SHOP )
+	if( ( nd = npc_checknear(sd, map_id2bl(sd->npc_shopid)) ) == NULL || nd->subtype != NPCTYPE_SHOP && nd->subtype != NPCTYPE_ITEMSHOP && nd->subtype != NPCTYPE_POINTSHOP)
 	{
 		return 1;
 	}
@@ -1991,7 +2065,7 @@ int npc_unload(struct npc_data* nd, bool single)
 	npc_chat_finalize(nd); // deallocate npc PCRE data structures
 #endif
 
-	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_MARKETSHOP) && nd->src_id == 0) //src check for duplicate shops [Orcao]
+	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_MARKETSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP) && nd->src_id == 0) //src check for duplicate shops [Orcao]
 		aFree(nd->u.shop.shop_item);
 	else if( nd->subtype == NPCTYPE_SCRIPT )
 	{
@@ -2407,6 +2481,10 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		type = NPCTYPE_CASHSHOP;
 	else if( !strcasecmp(w2, "marketshop") )
 		type = NPCTYPE_MARKETSHOP;
+	else if (!strcasecmp(w2, "itemshop"))
+		type = NPCTYPE_ITEMSHOP;
+	else if (!strcasecmp(w2, "pointshop"))
+		type = NPCTYPE_POINTSHOP;
 	else
 		type = NPCTYPE_SHOP;
 
@@ -2422,8 +2500,56 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			is_discount = 0;
 			break;
 #endif
+		case NPCTYPE_ITEMSHOP: {
+			if (sscanf(p, ",%hu:%11d,", &nameid, &is_discount) < 1) {
+				ShowError("npc_parse_shop: Invalid item cost definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+				return strchr(start, '\n'); // skip and continue
+			}
+			if (!itemdb_exists(nameid)) {
+				ShowWarning("npc_parse_shop: Invalid item ID cost in file '%s', line '%d' (id '%u').\n", filepath, strline(buffer, start - buffer), nameid);
+				return strchr(start, '\n'); // skip and continue
+			}
+			p = strchr(p + 1, ',');
+			break;
+		}
+		case NPCTYPE_POINTSHOP: {
+			if (sscanf(p, ",%32[^,:]:%11d,", point_str, &is_discount) < 1) {
+				ShowError("npc_parse_shop: Invalid item cost definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+				return strchr(start, '\n'); // skip and continue
+			}
+			switch (point_str[0]) {
+			case '$':
+			case '.':
+			case '\'':
+				ShowWarning("npc_parse_shop: Invalid item cost variable type (must be permanent character or account based) in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+				return strchr(start, '\n'); // skip and continue
+				break;
+			}
+			if (point_str[strlen(point_str) - 1] == '$') {
+				ShowWarning("npc_parse_shop: Invalid item cost variable type (must be integer) in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
+				return strchr(start, '\n'); // skip and continue
+			}
+			p = strchr(p + 1, ',');
+			break;
+		}
 		default:
-			is_discount = 1;
+			if (sscanf(p, ",%32[^,:]:%11d,", point_str, &is_discount) == 2) {
+				is_discount = 1;
+			}
+			else {
+				if (!strcasecmp(point_str, "yes")) {
+					is_discount = 1;
+				}
+				else if (!strcasecmp(point_str, "no")) {
+					is_discount = 0;
+				}
+				else {
+					ShowError("npc_parse_shop: unknown discount setting %s\n", point_str);
+					return strchr(start, '\n'); // skip and continue
+				}
+
+				p = strchr(p + 1, ',');
+			}
 			break;
 	}
 
@@ -2474,7 +2600,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			if (type == NPCTYPE_SHOP || type == NPCTYPE_MARKETSHOP) value = id->value_buy;
 			else value = 0; // Cashshop doesn't have a "buy price" in the item_db
 		}
-		if (type == NPCTYPE_SHOP && value == 0)
+		if (value == 0 && (type == NPCTYPE_SHOP || type == NPCTYPE_MARKETSHOP))
 		{ // NPC selling items for free!
 			ShowWarning("npc_parse_shop: Item %s [%d] is being sold for FREE in file '%s', line '%d'.\n",
 				id->name, nameid, filepath, strline(buffer, start - buffer));
@@ -2483,7 +2609,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
 				id->name, nameid2, value, (int)(value*0.75), id->value_sell, (int)(id->value_sell*1.24), filepath, strline(buffer,start-buffer));
 		}
-		if (type == NPCTYPE_MARKETSHOP && (!qty || qty > UINT16_MAX)) {
+		if (type == NPCTYPE_MARKETSHOP && (qty < -1 || qty > UINT16_MAX)) {
 			ShowWarning("npc_parse_shop: Item %s [%hu] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",
 				id->name, nameid2, filepath, strline(buffer,start-buffer));
 			qty = 1;
@@ -2524,7 +2650,16 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		return strchr(start,'\n');// continue
 	}
 
-	nd->u.shop.discount = is_discount;
+	if (type == NPCTYPE_ITEMSHOP) {
+		// Item shop currency
+		nd->u.shop.itemshop_nameid = nameid;
+	}
+	else if (type == NPCTYPE_POINTSHOP) {
+		// Point shop currency
+		safestrncpy(nd->u.shop.pointshop_str, point_str, strlen(point_str) + 1);
+	}
+
+	nd->u.shop.discount = is_discount > 0;
 
 	npc_parsename(nd, w3, start, buffer, filepath);
 	nd->class_ = m==-1?-1:atoi(w4);
@@ -2558,6 +2693,22 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 	}
 	strdb_put(npcname_db, nd->exname, nd);
 	return strchr(start,'\n');// continue
+}
+
+/** [Cydh]
+* Check if the shop is affected by discount or not
+* @param type Type of NPC shop (enum npc_subtype)
+* @param discount Discount flag of NPC shop
+* @return bool 'true' is discountable, 'false' otherwise
+*/
+bool npc_shop_discount(enum npc_subtype type, bool discount) {
+	if (type == NPCTYPE_SHOP || (type != NPCTYPE_SHOP && discount))
+		return true;
+
+	if ((type == NPCTYPE_ITEMSHOP && battle_config.discount_item_point_shop & 1) ||
+		(type == NPCTYPE_POINTSHOP && battle_config.discount_item_point_shop & 2))
+		return true;
+	return false;
 }
 
 /*==========================================
@@ -2871,8 +3022,8 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	type = dnd->subtype;
 
 	// get placement
-	if( (type==NPCTYPE_SHOP || type==NPCTYPE_CASHSHOP || type==NPCTYPE_SCRIPT) && strcmp(w1, "-") == 0 )
-	{// floating shop/chashshop/script
+	if( (type==NPCTYPE_SHOP || type==NPCTYPE_CASHSHOP || type == NPCTYPE_ITEMSHOP || type == NPCTYPE_POINTSHOP || type==NPCTYPE_SCRIPT) && strcmp(w1, "-") == 0 )
+	{// floating shop/chashshop/itemshop/pointshop/script
 		x = y = dir = 0;
 		m = -1;
 	}
@@ -2924,6 +3075,8 @@ const char* npc_parse_duplicate(char* w1, char* w2, char* w3, char* w4, const ch
 	case NPCTYPE_SHOP:
 	case NPCTYPE_CASHSHOP:
 	case NPCTYPE_MARKETSHOP:
+	case NPCTYPE_ITEMSHOP:
+	case NPCTYPE_POINTSHOP:
 		++npc_shop;
 		nd->u.shop.shop_item = dnd->u.shop.shop_item;
 		nd->u.shop.count = dnd->u.shop.count;
@@ -3901,7 +4054,7 @@ void npc_parsesrcfile(const char* filepath, bool runOnInit)
 		{
 			p = npc_parse_warp(w1,w2,w3,w4, p, buffer, filepath);
 		}
-		else if( (!strcasecmp(w2,"shop") || !strcasecmp(w2,"cashshop") || !strcasecmp(w2,"marketshop") ) && count > 3 ) 
+		else if( (!strcasecmp(w2,"shop") || !strcasecmp(w2,"cashshop") || !strcasecmp(w2,"marketshop") || !strcasecmp(w2, "itemshop") || !strcasecmp(w2, "pointshop") ) && count > 3 )
 		{
 			p = npc_parse_shop(w1,w2,w3,w4, p, buffer, filepath);
 		}

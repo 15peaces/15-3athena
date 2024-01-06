@@ -83,6 +83,8 @@ struct npc_data {
 		struct {
 			struct npc_item_list *shop_item;
 			uint16 count;
+			int itemshop_nameid; // Item Shop cost item ID
+			char pointshop_str[32]; // Point Shop cost variable name
 			bool discount;
 		} shop;
 		struct {
@@ -209,6 +211,8 @@ int npc_duplicate4instance(struct npc_data *snd, int m);
 int npc_instanceinit(struct npc_data* nd);
 int npc_cashshop_buy(struct map_session_data* sd, unsigned short nameid, int amount, int points);
 int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_list *item_list, int points);
+
+bool npc_shop_discount(enum npc_subtype type, bool discount);
 
 #if PACKETVER >= 20131223
 void npc_market_tosql(const char *exname, struct npc_item_list *list);

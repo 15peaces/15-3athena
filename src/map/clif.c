@@ -11271,7 +11271,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	if( sd->ed ) {
-		map_addblock(&sd->ed->bl);
+		if (map_addblock(&sd->ed->bl))
+			return;
+
 		clif_spawn(&sd->ed->bl);
 		clif_elemental_info(sd);
 		if (battle_config.elemental_masters_walk_speed)
@@ -14365,7 +14367,7 @@ void clif_parse_GuildRequestEmblem(int fd,struct map_session_data *sd)
 enum e_result_validate_emblem {	// Used as Result for clif_validate_emblem
 	EMBVALIDATE_SUCCESS = 0,
 	EMBVALIDATE_ERR_RAW_FILEFORMAT,	// Invalid File Format (Error in zlib/decompression or malformed BMP header)
-	EMBVALIDATE_ERR_TRANSPARENCY	// uploaded emblem does not met the requirements of inter_config.emblem_transparency_limit
+	EMBVALIDATE_ERR_TRANSPARENCY	// uploaded emblem does not met the requirements of battle_config.emblem_transparency_limit
 };
 
 static enum e_result_validate_emblem clif_validate_emblem(const uint8* emblem, unsigned long emblem_len)
@@ -21849,7 +21851,7 @@ void packetdb_readdb(void)
 //#0x08C0
 
 		0,  0,  0,  0,  0,  0,  0, 20, 34,  2,  0,  0,  0,  0,  0, 10,
-		9,	7, 10,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
+		9,	7, 10,	0,	0,	0,	6,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 24,
 //#0x0900
