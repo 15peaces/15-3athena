@@ -2207,15 +2207,23 @@ void clif_scriptclose(struct map_session_data *sd, int npcid)
 /// 08d6 <npc id>.L (ZC_CLEAR_DIALOG)
 void clif_scriptclear(struct map_session_data *sd, int npcid)
 {
+	struct s_packet_db* info;
+	int16 len;
+	int cmd = 0;
 	int fd;
 
 	nullpo_retv(sd);
 
+	cmd = packet_db_ack[sd->packet_ver][ZC_CLEAR_DIALOG];
+	if (!cmd) cmd = 0x8d6; //default
+	info = &packet_db[sd->packet_ver][cmd];
+	len = info->len;
 	fd = sd->fd;
-	WFIFOHEAD(fd, packet_len(0x8d6));
+
+	WFIFOHEAD(fd, len);
 	WFIFOW(fd, 0) = 0x8d6;
-	WFIFOL(fd, 2) = npcid;
-	WFIFOSET(fd, packet_len(0x8d6));
+	WFIFOL(fd, info->pos[0]) = npcid;
+	WFIFOSET(fd, len);
 }
 
 /*==========================================
@@ -7116,9 +7124,15 @@ void clif_use_card(struct map_session_data *sd,int idx)
 		if( j == sd->inventory_data[i]->slot )	// No room
 			continue;
 
+		if (sd->inventory.u.items_inventory[i].equip > 0)	// Do not check items that are already equipped
+			continue;
+
 		WFIFOW(fd,4+c*2)=i+2;
 		c++;
 	}
+
+	if (!c) return;	// no item is available for card insertion
+
 	WFIFOW(fd,2)=4+c*2;
 	WFIFOSET(fd,WFIFOW(fd,2));
 }
@@ -10329,7 +10343,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 				if( battle_config.show_mob_info&1 )
 					str_p += sprintf(str_p, "HP: %u/%u | ", md->status.hp, md->status.max_hp);
 				if( battle_config.show_mob_info&2 )
-					str_p += sprintf(str_p, "HP: %ui%% | ", get_percentage(md->status.hp, md->status.max_hp));
+					str_p += sprintf(str_p, "HP: %u%% | ", get_percentage(md->status.hp, md->status.max_hp));
 				//Even thought mobhp ain't a name, we send it as one so the client
 				//can parse it. [Skotlex]
 				if( str_p != mobhp )
@@ -22181,6 +22195,8 @@ void packetdb_readdb(void)
 		{"ZC_BANKING_CHECK", ZC_BANKING_CHECK},
 		{"ZC_WEAR_EQUIP_ACK",ZC_WEAR_EQUIP_ACK},
 		{"ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN",ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN},
+		{ "ZC_CLEAR_DIALOG", ZC_CLEAR_DIALOG},
+
 	}; 
 
 	memset(packet_db_ack, 0, sizeof(packet_db_ack));

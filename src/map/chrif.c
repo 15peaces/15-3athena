@@ -1899,7 +1899,7 @@ int do_final_chrif(void)
 int do_init_chrif(void)
 {
 	if (sizeof(struct mmo_charstatus) > 0xFFFF) {
-		ShowError("mmo_charstatus size = %d is too big to be transmitted.\n",
+		ShowError("mmo_charstatus size = %d is too big to be transmitted. (must be below 0xFFFF)\n",
 			sizeof(struct mmo_charstatus));
 		exit(EXIT_FAILURE);
 	}

@@ -1510,9 +1510,18 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 
 	if( !changing_mapservers ) 
 	{
-		if (battle_config.display_version == 1){
+		if (battle_config.display_version == 1) {
+			const char* svn = get_svn_revision();
+			const char* git = get_git_hash();
 			char buf[256];
-			sprintf(buf, "15-3athena SVN version: %s", get_svn_revision());
+
+			if (svn[0] != UNKNOWN_VERSION)
+				sprintf(buf, "15-3athena SVN Revision: %s", svn);
+			else if (git[0] != UNKNOWN_VERSION)
+				sprintf(buf, "15-3athena Git Hash: %s", git);
+			else
+				sprintf(buf, "Unknown Version");
+
 			clif_displaymessage(sd->fd, buf);
 		}
 
@@ -7887,19 +7896,19 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	//Reset ticks.
 	sd->hp_loss.tick = sd->sp_loss.tick = sd->hp_regen.tick = sd->sp_regen.tick = 0;
 
-	if (sd && (sd->spiritball) != 0)
+	if (sd->spiritball != 0)
 		pc_delspiritball(sd,sd->spiritball,0);
 
-	if (sd && (sd->shieldball) != 0)
+	if (sd->shieldball != 0)
 		pc_delshieldball(sd, sd->shieldball, 0);
 
-	if (sd && (sd->rageball) != 0)
+	if (sd->rageball != 0)
 		pc_delrageball(sd, sd->rageball, 0);
 
-	if (sd && (sd->charmball) != 0)
+	if (sd->charmball != 0)
 		pc_delcharmball(sd, sd->charmball, 0);
 
-	if (sd && (sd->soulball) != 0)
+	if (sd->soulball != 0)
 		pc_delsoulball(sd, sd->soulball, 0);
 
 	if (src)

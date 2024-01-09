@@ -1394,6 +1394,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 //For quick div adjustment.
 #define damage_div_fix(dmg, div) { if (div > 1) (dmg)*=div; else if (div < 0) (div)*=-1; }
+#define damage_div_fix2(dmg, div) { if (div > 1) (dmg)*=div; }
 /*==========================================
  * battle_calc_weapon_attack (by Skotlex)
  *------------------------------------------*/
@@ -4795,7 +4796,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
  *------------------------------------------*/
 struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,int skill_id,int skill_lv,int mflag)
 {
-	int skill;
 	short i, nk;
 	short s_ele;
 	bool level_effect_bonus = battle_config.renewal_level_effect_skills;// Base/Job level effect on formula's.
@@ -4858,23 +4858,25 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		break;
 	case HT_BLITZBEAT:
 	case SN_FALCONASSAULT:
+	{
+		uint8 skill;
 		//Blitz-beat Damage.
-		if(!sd || (skill = pc_checkskill(sd,HT_STEELCROW)) <= 0)
-			skill=0;
-		md.damage=(sstatus->dex/10+sstatus->int_/2+skill*3+40)*2;
-		if(mflag > 1) //Autocasted Blitz.
-			nk|=NK_SPLASHSPLIT;
-		
+		if (!sd || (skill = pc_checkskill(sd, HT_STEELCROW)) <= 0)
+			skill = 0;
+		md.damage = (sstatus->dex / 10 + sstatus->int_ / 2 + skill * 3 + 40) * 2;
+		if (mflag > 1) //Autocasted Blitz.
+			nk |= NK_SPLASHSPLIT;
+
 		if (skill_id == SN_FALCONASSAULT)
 		{
 			//Div fix of Blitzbeat
-			md.div_ = skill_get_num(HT_BLITZBEAT, 5);
-			damage_div_fix(md.damage, md.div_);
+			damage_div_fix2(md.damage, skill_get_num(HT_BLITZBEAT, 5));
 
 			//Falcon Assault Modifier
-			md.damage=md.damage*(150+70*skill_lv)/100;
+			md.damage = md.damage*(150 + 70 * skill_lv) / 100;
 		}
 		break;
+	}
 	case TF_THROWSTONE:
 		md.damage=50;
 		break;
@@ -5264,6 +5266,12 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldama
 		if (wd->sp_drain[type].rate)
 			sp += battle_calc_drain(*damage, wd->sp_drain[type].rate, wd->sp_drain[type].per);
 
+		// HPVanishRate - TODO
+
+		// SPVanishRate
+		if (sd->bonus.sp_vanish_rate && rnd() % 1000 < sd->bonus.sp_vanish_rate)
+			status_percent_damage(&sd->bl, tbl, 0, (unsigned char)sd->bonus.sp_vanish_per, false);
+
 		if (hp) {
 			if (wd->hp_drain[type].type)
 				rhp += hp;
@@ -5276,8 +5284,6 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldama
 		}
 	}
 
-	if (sd->bonus.sp_vanish_rate && rnd()%1000 < sd->bonus.sp_vanish_rate)
-		status_percent_damage(&sd->bl, tbl, 0, (unsigned char)sd->bonus.sp_vanish_per, false);
 	if (!thp && !tsp) return;
 
 	status_heal(&sd->bl, thp, tsp, battle_config.show_hp_sp_drain?3:1);

@@ -1452,7 +1452,7 @@ int parse_login(int fd)
 
 				version = RFIFOL(fd,4);
 
-				if(uAccLen > NAME_LENGTH - 1 || uAccLen == 0 || uTokenLen > NAME_LENGTH - 1  || uTokenLen <= 0)
+				if(uAccLen > NAME_LENGTH - 1 || uAccLen == 0 || uTokenLen > NAME_LENGTH - 1  || uTokenLen == 0)
 				{
 					login_auth_failed(sd, 3);
 					return 0;

@@ -1826,7 +1826,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skilllv, type, notok;
+		int i, skilllv, type;
 
 		for (i = 0; i < ARRAYLENGTH(sd->autospell) && sd->autospell[i].id; i++) {
 
@@ -1838,11 +1838,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			skill = (sd->autospell[i].id > 0) ? sd->autospell[i].id : -sd->autospell[i].id;
 
 			sd->state.autocast = 1;
-			notok = skillnotok(skill, sd);
-			sd->state.autocast = 0;
-
-			if (notok)
+			if (skillnotok(skill, sd)) {
+				sd->state.autocast = 0;
 				continue;
+			}
+			sd->state.autocast = 0;
 
 			skilllv = sd->autospell[i].lv?sd->autospell[i].lv:1;
 			if (skilllv < 0) skilllv = 1+rnd()%(-skilllv);
@@ -2216,7 +2216,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	{
 		struct block_list *tbl;
 		struct unit_data *ud;
-		int i, skillid, skilllv, rate, type, notok;
+		int i, skillid, skilllv, rate, type;
 
 		for (i = 0; i < ARRAYLENGTH(dstsd->autospell2) && dstsd->autospell2[i].id; i++) {
 
@@ -2234,11 +2234,11 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 				 rate>>=1;
 
 			dstsd->state.autocast = 1;
-			notok = skillnotok(skillid, dstsd);
-			dstsd->state.autocast = 0;
-
-			if (notok)
+			if (skillnotok(skillid, dstsd)) {
+				dstsd->state.autocast = 0;
 				continue;
+			}
+			dstsd->state.autocast = 0;
 
 			if (rnd()%1000 >= rate)
 				continue;
@@ -8418,14 +8418,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case WE_MALE:
-		if (status_get_hp(bl) > status_get_max_hp(bl) / 10) {
+		if (status_get_hp(src) > status_get_max_hp(src) / 10) {
 			int hp_rate=(skilllv <= 0)? 0:skill_db[skillid].hp_rate[skilllv-1];
 			int gain_hp= tstatus->max_hp*abs(hp_rate)/100; // The earned is the same % of the target HP than it costed the caster. [Skotlex]
 			clif_skill_nodamage(src,bl,skillid,status_heal(bl, gain_hp, 0, 0),1);
 		}
 		break;
 	case WE_FEMALE:
-		if (status_get_sp(bl) > status_get_max_sp(bl) / 10) {
+		if (status_get_sp(src) > status_get_max_sp(src) / 10) {
 			int sp_rate=(skilllv <= 0)? 0:skill_db[skillid].sp_rate[skilllv-1];
 			int gain_sp=tstatus->max_sp*abs(sp_rate)/100;// The earned is the same % of the target SP than it costed the caster. [Skotlex]
 			clif_skill_nodamage(src,bl,skillid,status_heal(bl, 0, gain_sp, 0),1);

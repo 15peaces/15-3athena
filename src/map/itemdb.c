@@ -704,7 +704,12 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 				ShowWarning("itemdb_read_itemgroup: Insufficient fields for entry at %s:%d\n", filename, ln);
 			continue;
 		}
-		groupid = atoi(str[0]);
+		//Checking groupid
+		if (!atoi(str[0])) //Try reads group id by const
+			script_get_constant(trim(str[0]), &groupid);
+		else
+			groupid = atoi(str[0]);
+
 		if (groupid < 0 || groupid >= MAX_ITEMGROUP) {
 			ShowWarning("itemdb_read_itemgroup: Invalid group %d in %s:%d\n", groupid, filename, ln);
 			continue;
@@ -784,7 +789,13 @@ static void itemdb_read_itempackage_sub(const char* filename)
 				ShowWarning("itemdb_read_itempackage: Insufficient fields for entry at %s:%d\n", filename, ln);
 			continue;
 		}
-		packageid = atoi(str[0]);
+
+		//Checking packageid
+		if (!atoi(str[0])) //Try reads group id by const
+			script_get_constant(trim(str[0]), &packageid);
+		else
+			packageid = atoi(str[0]);
+
 		if (packageid < 0 || packageid > MAX_ITEMPACKAGE) {
 			ShowWarning("itemdb_read_itempackage: Invalid package %d in %s:%d\n", packageid, filename, ln);
 			continue;

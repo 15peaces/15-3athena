@@ -1107,7 +1107,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 {
 	SqlStmt* stmt;
 	struct mmo_charstatus p;
-	int j = 0, i;
+	int j = 0, i = 0;
 	char last_map[MAP_NAME_LENGTH_EXT];
 	char sex[2];
 

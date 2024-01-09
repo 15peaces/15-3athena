@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/09/2024
+	r432 [15peaces]
+		*Some fixes on ZC_CLEAR_DIALOG packet.
+		*Updated item_group & item_package databases to support IG_ / IP_ constants.
+			-Also updated item_package_db to use constants.
+		*Added info about skipped items to @dropall command.
+		*Some cleaning.
+		*Fixed a redundant check for when uTokenLen is less then 0 when it's declared as unsigned int.
+		*Fixed possible null pointer dereferences in ***_ball checks.
+		*Added support for GIT hashes. (thanks to @rathena)
+		*Fixed a multi-hit damage issue for Falcon Assault.
+		*Fixed unsigned int specifier for sprint.
+		*Fixed WE_MALE and WE_FEMALE checking target rather than caster.
+		*Card compounding window no longer appears if no slotted items are available.
+		
 01/06/2024
 	r431 [15peaces]
 		*Added support for 2 new types of shops: itemshop & pointshop.

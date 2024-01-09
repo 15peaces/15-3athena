@@ -3702,7 +3702,7 @@ ACMD_FUNC(char_ban)
 	char * modif_p;
 	nullpo_retr(-1, sd);
 	int timediff = 0;
-	int bantype = 2; //2=account block, 6=char specific
+	int bantype = 0; //2=account block, 6=char specific
 	char output[256];
 
 	memset(atcmd_output, '\0', sizeof(atcmd_output));
@@ -3774,7 +3774,7 @@ ACMD_FUNC(char_unblock)
  *------------------------------------------*/
 ACMD_FUNC(char_unban)
 {
-	int unbantype = 4;
+	int unbantype = 0;
 	nullpo_retr(-1, sd);
 
 	char output[256];
@@ -6376,7 +6376,7 @@ ACMD_FUNC(follow)
 ACMD_FUNC(dropall)
 {
 	int8 type = -1;
-	uint16 i, count = 0;
+	uint16 i, count = 0, count2 = 0;
 	struct item_data *item_data = NULL;
 
 	nullpo_retr(-1, sd);
@@ -6405,13 +6405,16 @@ ACMD_FUNC(dropall)
 				if (sd->inventory.u.items_inventory[i].equip != 0)
 					pc_unequipitem(sd, i, 3);
 				pc_equipswitch_remove(sd, i);
-				count += sd->inventory.u.items_inventory[i].amount;
+				if (pc_dropitem(sd, i, sd->inventory.u.items_inventory[i].amount))
+					count += sd->inventory.u.items_inventory[i].amount;
+				else
+					count2++;
 				pc_dropitem(sd, i, sd->inventory.u.items_inventory[i].amount);
 			}
 		}
 	}
 
-	sprintf(atcmd_output, msg_txt(sd,823), count); // %d items are dropped!
+	sprintf(atcmd_output, msg_txt(sd,823), count, count2); // %d items are dropped (%d skipped)!
 	clif_displaymessage(fd, atcmd_output);
 
 	return 0;
@@ -9310,7 +9313,7 @@ ACMD_FUNC(duel)
 	}
 
 	if( message[0] ) {
-		if(sscanf(message, "%ui", &maxpl) >= 1) {
+		if(sscanf(message, "%u", &maxpl) >= 1) {
 			if(maxpl < 2 || maxpl > 65535) {
 				clif_displaymessage(fd, msg_txt(sd,357)); // "Duel: Invalid value."
 				return 0;
