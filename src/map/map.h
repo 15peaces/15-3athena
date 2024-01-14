@@ -292,7 +292,7 @@ enum npc_subtype {
 };
 
 enum e_race {
-	RC_NONE = -1,		//don't give us bonus
+	//RC_NONE = -1,		//don't give us bonus
 	RC_FORMLESS=0,		//NOTHING
 	RC_UNDEAD,			//UNDEAD
 	RC_BRUTE,			//ANIMAL

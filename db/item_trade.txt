@@ -722,8 +722,8 @@
 7603,499,100	// RO_Party_Ticket
 7614,499,100	// Special_Packing_Paper
 7618,499,100	// Monster_Crystal
-7619,507,100		// Enriched_Elunium
-7620,507,100		// Enriched_Oridecon
+7619,475,100		// Enriched_Elunium
+7620,475,100		// Enriched_Oridecon
 7621,479,100		// Token_Of_Siegfried
 7622,507,100		// New_Style_Coupon
 7623,507,100	// Name_Change_Coupon
@@ -884,7 +884,7 @@
 12207,507,100	// Vit_Dish10_
 12208,507,100	// Battle_Manual
 12209,507,100	// Insurance
-12210,507,100	// Bubble_Gum
+12210,475,100	// Bubble_Gum
 12211,507,100	// Kafra_Card
 12212,507,100	// Giant_Fly_Wing
 12213,507,100	// Neuralizer
@@ -895,7 +895,7 @@
 12218,507,100	// Assumptio_5_Scroll
 12219,507,100	// Wind_Walk_10_Scroll
 12220,507,100	// Adrenaline_Scroll
-12221,507,100	// Megaphone_
+12221,475,100	// Megaphone_
 12238,467,100	// New_Year_Rice_Cake_1
 12239,467,100	// New_Year_Rice_Cake_2
 12258,499,100	// Bombring_Box

@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/14/2024
+	r433 [15peaces]
+		*Some optimations.
+		*Changed some Rock Ridge monsters to fit pre-renewal calculations.
+		*Fixed some item trading restrictions.
+		*Fixed a crash related to Warlocks Comet skill.
+
 01/09/2024
 	r432 [15peaces]
 		*Some fixes on ZC_CLEAR_DIALOG packet.

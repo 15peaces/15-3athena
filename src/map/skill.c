@@ -103,6 +103,7 @@ static int skill_check_unit_range2(struct block_list *bl, int x, int y, int skil
 //Since only mob-casted splash skills can hit ice-walls
 static inline int splash_target(struct block_list* bl)
 {
+	nullpo_retr(BL_CHAR, bl);
 	return ( bl->type == BL_MOB ) ? BL_SKILL|BL_CHAR : BL_CHAR;
 }
 
@@ -524,6 +525,9 @@ int skillnotok (int skillid, struct map_session_data *sd)
 	if (skillid == ALL_EQSWITCH)
 		return 0;
 
+	if (map[m].flag.noskill)
+		return 1;
+
 	// Epoque:
 	// This code will compare the player's attack motion value which is influenced by ASPD before
 	// allowing a skill to be cast. This is to prevent no-delay ACT files from spamming skills such as
@@ -624,7 +628,7 @@ int skillnotok (int skillid, struct map_session_data *sd)
 			}
 			break;
 	}
-	return (map[m].flag.noskill);
+	return 0;
 }
 
 int skillnotok_homun(int skillid, struct homun_data *hd)
@@ -2933,7 +2937,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	map_freeblock_lock();
 
 	// Skill Copy Process
-	if(damage > 0 && dmg.flag&BF_SKILL && tsd && (unsigned int)damage < tsd->battle_status.hp)
+	if(bl->type == BL_PC && damage > 0 && dmg.flag&BF_SKILL && tsd && (unsigned int)damage < tsd->battle_status.hp)
 	{// Updated to not be able to copy skills if the blow will kill you. [Skotlex]
 		short copy_skillid = skillid;
 
@@ -4690,6 +4694,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case AB_ADORAMUS:
 	case WL_SOULEXPANSION:
 	case WL_CRIMSONROCK:
+	case WL_COMET:
 	case WL_JACKFROST:
 	case RA_ARROWSTORM:
 	case RA_WUGDASH:
@@ -12048,17 +12053,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 			map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, ALL_RESURRECTION, 1, tick, flag|BCT_NOENEMY|1,skill_castend_nodamage_id);
 		}
 		break;
-	case WL_COMET:
-		if( sc )
-		{
-			sc->comet_x = x;
-			sc->comet_y = y;
-		}//Splash is used to check the distance between the enemy and the center of the AoE to see what damage zone the target is in.
-		i = skill_get_splash(skillid,skilllv);
-		map_foreachinarea(skill_area_sub,src->m,x-i,y-i,x+i,y+i,BCT_ENEMY);
-		flag|=1;
-		skill_unitsetting(src,skillid,skilllv,x,y,0);
-		break;
 	case WL_EARTHSTRAIN:
 		{
 			int i, wave = skilllv + 4, dir = map_calc_dir(src,x,y);
@@ -12348,6 +12342,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case NJ_RAIGEKISAI:
 	case NJ_KAMAITACHI:
 	case NPC_EVILLAND:
+	case WL_COMET:
 	case RA_ELECTRICSHOCKER:
 	case RA_CLUSTERBOMB:
 	case RA_MAGENTATRAP:
@@ -13439,7 +13434,14 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 	case GD_HAWKEYES:
 		limit = 1000000;//it doesn't matter
 		break;
+	case WL_COMET:
+		if (sc) {
+			sc->comet_x = x;
+			sc->comet_y = y;
+		}
+		break;
 	}
+
 
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skillid,skilllv,skill_get_unit_id(skillid,flag&1)+subunt, limit, interval));
 	group->val1=val1;
