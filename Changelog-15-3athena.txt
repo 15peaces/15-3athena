@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/16/2024
+	r434 [15peaces]
+		*Fixed some display issues related to a clif_item_sub_v5 index mistake...
+		*Re-added missing skill tree entries.
+			-Follow-up cb96457 (r405)
+
 01/14/2024
 	r433 [15peaces]
 		*Some optimations.

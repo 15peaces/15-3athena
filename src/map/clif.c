@@ -2644,7 +2644,7 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *i, struct
 		WBUFL(buf, n + 5) = equip; //location
 		WBUFL(buf, n + 9) = i->equip; //wear state
 		WBUFB(buf, n + 13) = i->refine; //refine lvl
-		clif_addcards(WBUFP(buf, n + 12), i); //EQUIPSLOTINFO 8B
+		clif_addcards(WBUFP(buf, n + 14), i); //EQUIPSLOTINFO 8B
 		WBUFL(buf, n + 22) = i->expire_time;
 		WBUFW(buf, n + 26) = i->bound ? BOUND_GUILD : 0; //bindOnEquipType
 		WBUFW(buf, n + 28) = (id->equip&EQP_VISIBLE) ? id->look : 0;
