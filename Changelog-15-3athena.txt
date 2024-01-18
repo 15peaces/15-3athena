@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/18/2024
+	r435 [15peaces]
+		*A few item database fixes.
+			-Removed all 'Loc' fields from Armor Enchantments, since they cannot be used directly by players.
+			-Fixed some item view IDs.
+		*Added some server defined constants to script_hardcoded_constants function.
+		*Made use of the already existing OPTION_COSTUME compound.
+
 01/16/2024
 	r434 [15peaces]
 		*Fixed some display issues related to a clif_item_sub_v5 index mistake...

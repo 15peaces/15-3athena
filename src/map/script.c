@@ -2333,6 +2333,19 @@ void script_error(const char* src, const char* file, int start_line, const char*
  **/
 void script_hardcoded_constants(void)
 {
+	/* server defines */
+	script_set_constant("PACKETVER", PACKETVER, false);
+	script_set_constant("MAX_LEVEL", MAX_LEVEL, false);
+	script_set_constant("MAX_STORAGE", MAX_STORAGE, false);
+	script_set_constant("MAX_INVENTORY", MAX_INVENTORY, false);
+	script_set_constant("MAX_CART", MAX_CART, false);
+	script_set_constant("MAX_ZENY", MAX_ZENY, false);
+	script_set_constant("MAX_PARTY", MAX_PARTY, false);
+	script_set_constant("MAX_GUILD", MAX_GUILD, false);
+	script_set_constant("MAX_GUILDLEVEL", MAX_GUILDLEVEL, false);
+	script_set_constant("MAX_GUILD_STORAGE", MAX_GUILD_STORAGE, false);
+	script_set_constant("MAX_BG_MEMBERS", MAX_BG_MEMBERS, false);
+
 	/* config settings */
 	script_set_constant("MAX_HAIR_COLOR", MAX_HAIR_COLOR, false);
 	script_set_constant("MAX_HAIR_STYLE", MAX_HAIR_STYLE, false);
