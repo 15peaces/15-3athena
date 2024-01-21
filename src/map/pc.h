@@ -1053,7 +1053,7 @@ extern struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 extern unsigned int statp[MAX_LEVEL + 1];
 
 void pc_readdb(void);
-int do_init_pc(void);
+void do_init_pc(void);
 void do_final_pc(void);
 
 // timer for night.day

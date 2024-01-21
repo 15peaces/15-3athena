@@ -5543,7 +5543,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		sd->pd->ud.dir = sd->ud.dir;
 	}
 
-	if( merc_is_hom_active(sd->hd) )
+	if( hom_is_active(sd->hd) )
 	{
 		sd->hd->bl.m = m;
 		sd->hd->bl.x = sd->hd->ud.to_x = x;
@@ -6794,7 +6794,7 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 	if (sd->hd != NULL && battle_config.hom_bonus_exp_from_master > 0) {
 		
 
-		merc_hom_gainexp(sd->hd, (base_exp * battle_config.hom_bonus_exp_from_master / 100));
+		hom_gainexp(sd->hd, (base_exp * battle_config.hom_bonus_exp_from_master / 100));
 	}
 
 	return 1;
@@ -7135,7 +7135,7 @@ int pc_skillup(struct map_session_data *sd,int skill_id)
 
 	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd )
 	{
-		merc_hom_skillup(sd->hd, skill_id);
+		hom_skillup(sd->hd, skill_id);
 		return 0;
 	}
 
@@ -7452,8 +7452,8 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		if( i != sd->sc.option )
 			pc_setoption(sd, i);
 
-		if( merc_is_hom_active(sd->hd) && pc_checkskill(sd, AM_CALLHOMUN) )
-			merc_hom_vaporize(sd, 0);
+		if( hom_is_active(sd->hd) && pc_checkskill(sd, AM_CALLHOMUN) )
+			hom_vaporize(sd, 0);
 
 		if( sd->sc.data[SC_ON_PUSH_CART] && pc_checkskill(sd, MC_PUSHCART))
 			pc_setcart(sd, 0);
@@ -7854,10 +7854,10 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	}
 
 	if( sd->status.hom_id > 0 && battle_config.homunculus_auto_vapor )
-		merc_hom_vaporize(sd, 0);
+		hom_vaporize(sd, 0);
 
 	if( sd->md )
-		merc_delete(sd->md, 3); // Your mercenary soldier has ran away.
+		mercenary_delete(sd->md, 3); // Your mercenary soldier has ran away.
 
 	if( sd->ed )
 		elem_delete(sd->ed, 0);
@@ -8767,8 +8767,8 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	if(i != sd->sc.option)
 		pc_setoption(sd, i);
 
-	if(merc_is_hom_active(sd->hd) && !pc_checkskill(sd, AM_CALLHOMUN))
-		merc_hom_vaporize(sd, 0);
+	if(hom_is_active(sd->hd) && !pc_checkskill(sd, AM_CALLHOMUN))
+		hom_vaporize(sd, 0);
 
 	if( sd->sc.data[SC_ON_PUSH_CART] && !pc_checkskill(sd, MC_PUSHCART))
 			pc_setcart(sd, 0);
@@ -11686,11 +11686,9 @@ void do_final_pc(void)
 	db_destroy(itemcd_db);
 
 	ers_destroy(pc_sc_display_ers);
-
-	return;
 }
 
-int do_init_pc(void)
+void do_init_pc(void)
 {
 	itemcd_db = idb_alloc(DB_OPT_RELEASE_DATA);
 
@@ -11731,6 +11729,4 @@ int do_init_pc(void)
 	}
 
 	pc_sc_display_ers = ers_new(sizeof(struct sc_display_entry), "pc.c:pc_sc_display_ers", ERS_OPT_NONE);
-
-	return 0;
 }

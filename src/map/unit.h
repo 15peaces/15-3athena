@@ -143,8 +143,8 @@ int unit_free(struct block_list *bl, clr_type clrtype);
 int unit_changeviewsize(struct block_list *bl,short size);
 
 // ‰Šú‰»ƒ‹[ƒ`ƒ“
-int do_init_unit(void);
-int do_final_unit(void);
+void do_init_unit(void);
+void do_final_unit(void);
 
 extern const short dirx[8];
 extern const short diry[8];

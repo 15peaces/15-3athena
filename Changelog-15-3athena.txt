@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/21/2024
+	r436 [15peaces]
+		*Some misc cleaning.
+		*Fixed Guild Auras applying to other guilds.
+		*Some more fixes in hp/sp calculations.
+			-'hp_rate' and 'sp_rate' configs are now working.
+		*Mercenary & Homunculus DB are now read properly.
+			-Also changed function names for homunculus.c/h with prefix hom_* and mercenary.c/h with prefix mercenary_*
+		*Changed some unnecessary 'int' return values to 'void'.
+		*Fixed clif_cartlist to send the items correctly again.
+			-it used the wrong index for clif_item_sub function... sorry.
+
 01/18/2024
 	r435 [15peaces]
 		*A few item database fixes.

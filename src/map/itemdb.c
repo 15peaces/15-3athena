@@ -1873,7 +1873,7 @@ void do_final_itemdb(void)
 /**
  * Initializing Item DB
  */
-int do_init_itemdb(void)
+void do_init_itemdb(void)
 {
 	//memset(itemdb_array, 0, sizeof(itemdb_array));
 	itemdb_other = idb_alloc(DB_OPT_BASE); 
@@ -1886,6 +1886,4 @@ int do_init_itemdb(void)
 
 	VECTOR_INIT(attendance_data);
 	itemdb_parse_attendance_db();
-
-	return 0;
 }

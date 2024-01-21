@@ -4057,9 +4057,9 @@ void script_setarray_pc(struct map_session_data* sd, const char* varname, uint8 
 
 
 /*==========================================
- * I—¹
+ * Destructor
  *------------------------------------------*/
-int do_final_script()
+void do_final_script()
 {
 	int i;
 
@@ -4142,25 +4142,20 @@ int do_final_script()
 		aFree(str_data);
 	if (str_buf)
 		aFree(str_buf);
-
-
-	return 0;
 }
 /*==========================================
- * ‰Šú‰»
+ * Initialization
  *------------------------------------------*/
-int do_init_script()
+void do_init_script()
 {
 	userfunc_db=strdb_alloc(DB_OPT_DUP_KEY,0);
 	scriptlabel_db=strdb_alloc(DB_OPT_DUP_KEY | DB_OPT_ALLOW_NULL_DATA,50);
 	autobonus_db = strdb_alloc(DB_OPT_DUP_KEY,0);
 
 	mapreg_init();
-	
-	return 0;
 }
 
-int script_reload()
+void script_reload()
 {
 	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
 	db_clear(scriptlabel_db);
@@ -4180,7 +4175,6 @@ int script_reload()
 	}
 
 	mapreg_reload();
-	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -10401,10 +10395,10 @@ BUILDIN_FUNC(homunculus_evolution)
 	if( sd == NULL )
 		return 0;
 
-	if(merc_is_hom_active(sd->hd))
+	if(hom_is_active(sd->hd))
 	{
 		if (sd->hd->homunculus.intimacy > 91000)
-			merc_hom_evolution(sd->hd);
+			hom_evolution(sd->hd);
 		else
 			clif_emotion(&sd->hd->bl, E_SWT);
 	}
@@ -10432,7 +10426,7 @@ BUILDIN_FUNC(homunculus_mutation)
 
 		if (i >= 0) {
 			sd->hd->homunculus.vaporize = 1; // Remove morph state.
-			merc_call_homunculus(sd); // Respawn homunculus.
+			hom_call(sd); // Respawn homunculus.
 			merc_hom_mutation(sd->hd, homun_id);
 			pc_delitem(sd, i, 1, 0, 0, LOG_TYPE_SCRIPT);
 			script_pushint(st, 1);
@@ -10458,7 +10452,7 @@ BUILDIN_FUNC(morphembryo)
 	if (sd == NULL)
 		return 0;
 
-	if (merc_is_hom_active(sd->hd)) {
+	if (hom_is_active(sd->hd)) {
 
 		if (sd->hd->homunculus.level >= 99 && (sd->hd->homunculus.class_ >= 6009 && sd->hd->homunculus.class_ <= 6016)) {
 			memset(&item_tmp, 0, sizeof(item_tmp));
@@ -10470,7 +10464,7 @@ BUILDIN_FUNC(morphembryo)
 				clif_emotion(&sd->bl, E_SWT); // Fail to avoid item drop exploit.
 			}
 			else {
-				merc_hom_vaporize(sd, 2);
+				hom_vaporize(sd, 2);
 				script_pushint(st, 1);
 				return 0;
 			}
@@ -10520,8 +10514,8 @@ BUILDIN_FUNC(homunculus_shuffle)
 	if( sd == NULL )
 		return 0;
 
-	if(merc_is_hom_active(sd->hd))
-		merc_hom_shuffle(sd->hd);
+	if(hom_is_active(sd->hd))
+		hom_shuffle(sd->hd);
 
 	return 0;
 }
@@ -17626,14 +17620,14 @@ BUILDIN_FUNC(mercenary_create)
 	
 	class_ = script_getnum(st,2);
 
-	if( !merc_class(class_) )
+	if( !mercenary_class(class_) )
 		return 0;
 
 	if( sd->sc.data[SC__GROOMY] )
 		return 0;
 
 	contract_time = script_getnum(st,3);
-	merc_create(sd, class_, contract_time);
+	mercenary_create(sd, class_, contract_time);
 #else
 	script_pushint(st, 0);
 #endif

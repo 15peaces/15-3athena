@@ -317,8 +317,8 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 #define mob_is_treasure(md) (((md)->class_ >= MOBID_TREAS01 && (md)->class_ <= MOBID_TREAS40) || ((md)->class_ >= MOBID_TREAS41 && (md)->class_ <= MOBID_TREAS49))
 
 void mob_clear_spawninfo();
-int do_init_mob(void);
-int do_final_mob(void);
+void do_init_mob(void);
+void do_final_mob(void);
 
 int mob_timer_delete(int tid, int64 tick, int id, intptr_t data);
 int mob_deleteslave(struct mob_data *md);

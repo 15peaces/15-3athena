@@ -1297,7 +1297,7 @@ int pet_skill_support_timer(int tid, int64 tick, int id, intptr_t data)
 /*==========================================
  *ペットデータ読み込み
  *------------------------------------------*/ 
-int read_petdb()
+void read_petdb()
 {
 	char* filename[] = {"pet_db.txt","pet_db2.txt"};
 	FILE *fp;
@@ -1441,7 +1441,6 @@ int read_petdb()
 		fclose(fp);
 		ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' pets in '"CL_WHITE"%s"CL_RESET"'.\n", entries, filename[i]);
 	}
-	return 0;
 }
 
 /*==========================================
@@ -1561,7 +1560,7 @@ void read_petevolve_db()
 /*==========================================
  * スキル関係初期化処理
  *------------------------------------------*/
-int do_init_pet(void)
+void do_init_pet(void)
 {
 	read_petdb();
 	read_petevolve_db();
@@ -1577,11 +1576,9 @@ int do_init_pet(void)
 	add_timer_func_list(pet_recovery_timer,"pet_recovery_timer"); // [Valaris]
 	add_timer_func_list(pet_heal_timer,"pet_heal_timer"); // [Valaris]
 	add_timer_interval(gettick()+MIN_PETTHINKTIME,pet_ai_hard,0,0,MIN_PETTHINKTIME);
-
-	return 0;
 }
 
-int do_final_pet(void)
+void do_final_pet(void)
 {
 	int i,j;
 
@@ -1606,5 +1603,4 @@ int do_final_pet(void)
 	}
 	ers_destroy(item_drop_ers);
 	ers_destroy(item_drop_list_ers);
-	return 0;
 }

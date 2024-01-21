@@ -187,8 +187,8 @@ void npc_addsrcfile(const char* name);
 void npc_delsrcfile(const char* name);
 void npc_parsesrcfile(const char* filepath, bool runOnInit);
 void do_clear_npc(void);
-int do_final_npc(void);
-int do_init_npc(void);
+void do_final_npc(void);
+void do_init_npc(void);
 void npc_event_do_oninit(void);
 
 int npc_event_do(const char* name);

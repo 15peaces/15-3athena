@@ -1756,7 +1756,7 @@ void clif_send_homdata(struct map_session_data *sd, int state, int param)
 	int fd = sd->fd;
 
 	if ((state == SP_INTIMATE) && (param >= 910) && (sd->hd->homunculus.class_ == sd->hd->homunculusDB->evo_class))
-		merc_hom_calc_skilltree(sd->hd, 0);
+		hom_calc_skilltree(sd->hd, 0);
 
 	WFIFOHEAD(fd, packet_len(0x230));
 	WFIFOW(fd,0)=0x230;
@@ -1789,7 +1789,7 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 			WFIFOW(fd,len+8) = skill_get_sp(id,hd->homunculus.hskill[j].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->hd->bl, id,hd->homunculus.hskill[j].lv);
 			safestrncpy((char*)WFIFOP(fd,len+12), skill_get_name(id), NAME_LENGTH);
-			WFIFOB(fd,len+36) = (hd->homunculus.hskill[j].lv < merc_skill_tree_get_max(id, hd->homunculus.class_))?1:0;
+			WFIFOB(fd,len+36) = (hd->homunculus.hskill[j].lv < hom_skill_tree_get_max(id, hd->homunculus.class_))?1:0;
 			len+=37;
 		}
 	}
@@ -3023,12 +3023,12 @@ void clif_cartlist(struct map_session_data *sd) {
 		id = itemdb_search(sd->cart.u.items_cart[i].nameid);
 		if( !itemdb_isstackable2(id) )
 		{ //Equippable
-			clif_item_sub(bufe, ne*cmd+6, i+2, &sd->cart.u.items_cart[i], id, id->equip);
+			clif_item_sub(bufe, ne*cmd+4, i+2, &sd->cart.u.items_cart[i], id, id->equip);
 			ne++;
 		}
 		else
 		{ //Stackable
-			clif_item_sub(buf, n*s+6, i+2, &sd->cart.u.items_cart[i], id,-1);
+			clif_item_sub(buf, n*s+4, i+2, &sd->cart.u.items_cart[i], id,-1);
 			n++;
 		}
 	}
@@ -5814,7 +5814,7 @@ int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type,
 		WFIFOW(fd, 12) = skill_get_range2(&hd->bl, id, hd->homunculus.hskill[skill_id].lv);
 
 	if (hd->homunculus.hskill[id - HM_SKILLBASE].flag == 0)
-		WFIFOB(fd, 14) = (hd->homunculus.hskill[skill_id].lv < merc_skill_tree_get_max(id, hd->homunculus.class_)) ? 1 : 0;
+		WFIFOB(fd, 14) = (hd->homunculus.hskill[skill_id].lv < hom_skill_tree_get_max(id, hd->homunculus.class_)) ? 1 : 0;
 	else
 		WFIFOB(fd, 14) = 0;
 	WFIFOSET(fd, packet_len(0x7e1));
@@ -10167,7 +10167,7 @@ void clif_refresh(struct map_session_data *sd)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
 	if (sd->vd.body_style)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_BODY2,sd->vd.body_style,SELF);
-	if(merc_is_hom_active(sd->hd))
+	if(hom_is_active(sd->hd))
 		clif_send_homdata(sd,SP_ACK,0);
 	if( sd->md )
 	{
@@ -11258,7 +11258,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	//homunculus [blackhole89]
-	if( merc_is_hom_active(sd->hd) )
+	if( hom_is_active(sd->hd) )
 	{
 		if (map_addblock(&sd->hd->bl))
 			return;
@@ -11332,8 +11332,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		if(sd->pd && sd->pd->pet.intimate > 900)
 			clif_pet_emotion(sd->pd,(sd->pd->pet.class_ - 100)*100 + 50 + pet_hungry_val(sd->pd));
 
-		if(merc_is_hom_active(sd->hd))
-			merc_hom_init_timers(sd->hd);
+		if(hom_is_active(sd->hd))
+			hom_init_timers(sd->hd);
 
 		if (night_flag && map[sd->bl.m].flag.nightenabled)
 		{
@@ -12850,7 +12850,7 @@ static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_sess
 	else if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
 		return;
 
-	lv = merc_hom_checkskill(hd, skillnum);
+	lv = hom_checkskill(hd, skillnum);
 	if( skilllv > lv )
 		skilllv = lv;
 	if( skilllv )
@@ -12898,7 +12898,7 @@ static void clif_parse_UseSkillToPos_homun(struct homun_data *hd, struct map_ses
 
 	if( hd->sc.data[SC_BASILICA] )
 		return;
-	lv = merc_hom_checkskill(hd, skillnum);
+	lv = hom_checkskill(hd, skillnum);
 	if( skilllv > lv )
 		skilllv = lv;
 	if( skilllv )
@@ -16493,7 +16493,7 @@ void clif_feel_req(int fd, struct map_session_data *sd, int skilllv)
 /// 0231 <name>.24B
 void clif_parse_ChangeHomunculusName(int fd, struct map_session_data *sd)
 {
-	merc_hom_change_name(sd,(char*)RFIFOP(fd,2));
+	hom_change_name(sd,(char*)RFIFOP(fd,2));
 }
 
 
@@ -16507,7 +16507,7 @@ void clif_parse_HomMoveToMaster(int fd, struct map_session_data *sd)
 
 	if( sd->md && sd->md->bl.id == id )
 		bl = &sd->md->bl;
-	else if( merc_is_hom_active(sd->hd) && sd->hd->bl.id == id )
+	else if( hom_is_active(sd->hd) && sd->hd->bl.id == id )
 		bl = &sd->hd->bl; // Moving Homunculus
 	else
 		return;
@@ -16530,7 +16530,7 @@ void clif_parse_HomMoveTo(int fd, struct map_session_data *sd)
 
 	if( sd->md && sd->md->bl.id == id )
 		bl = &sd->md->bl; // Moving Mercenary
-	else if( merc_is_hom_active(sd->hd) && sd->hd->bl.id == id )
+	else if( hom_is_active(sd->hd) && sd->hd->bl.id == id )
 		bl = &sd->hd->bl; // Moving Homunculus
 	else
 		return;
@@ -16550,7 +16550,7 @@ void clif_parse_HomAttack(int fd,struct map_session_data *sd)
 		target_id = RFIFOL(fd,6),
 		action_type = RFIFOB(fd,10);
 
-	if( merc_is_hom_active(sd->hd) && sd->hd->bl.id == id )
+	if( hom_is_active(sd->hd) && sd->hd->bl.id == id )
 		bl = &sd->hd->bl;
 	else if( sd->md && sd->md->bl.id == id )
 		bl = &sd->md->bl;
@@ -16575,10 +16575,10 @@ void clif_parse_HomMenu(int fd, struct map_session_data *sd)
 
 	cmd = RFIFOW(fd,0);
 
-	if(!merc_is_hom_active(sd->hd))
+	if(!hom_is_active(sd->hd))
 		return;
 
-	merc_menu(sd,RFIFOB(fd,packet_db[sd->packet_ver][cmd].pos[1]));
+	hom_menu(sd,RFIFOB(fd,packet_db[sd->packet_ver][cmd].pos[1]));
 }
 
 
@@ -19076,7 +19076,7 @@ void clif_parse_mercenary_action(int fd, struct map_session_data* sd)
 	if( sd->md == NULL )
 		return;
 
-	if( option == 2 ) merc_delete(sd->md, 2);
+	if( option == 2 ) mercenary_delete(sd->md, 2);
 }
 
 
@@ -22433,7 +22433,7 @@ void do_final_cashshop( void ){
 /*==========================================
  *
  *------------------------------------------*/
-int do_init_clif(void)
+void do_init_clif(void)
 {
 	clif_config.packet_db_ver = -1; // the main packet version of the DB
 	memset(clif_config.connect_cmd, 0, sizeof(clif_config.connect_cmd)); //The default connect command will be determined after reading the packet_db [Skotlex]
@@ -22455,8 +22455,6 @@ int do_init_clif(void)
 	add_timer_func_list(clif_delayquit, "clif_delayquit");
 
 	delay_clearunit_ers = ers_new(sizeof(struct block_list), "clif.c::delay_clearunit_ers", ERS_OPT_CLEAR);
-
-	return 0;
 }
 
 void do_final_clif(void) {

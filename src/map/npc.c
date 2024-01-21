@@ -4263,9 +4263,9 @@ void do_clear_npc(void) {
 }
 
 /*==========================================
- * I—¹
+ * Destructor
  *------------------------------------------*/
-int do_final_npc(void)
+void do_final_npc(void)
 {
 	ev_db->destroy(ev_db, NULL);
 	//There is no free function for npcname_db because at this point there shouldn't be any npcs left!
@@ -4279,8 +4279,6 @@ int do_final_npc(void)
 	ers_destroy(timer_event_ers);
 	ers_destroy(npc_sc_display_ers);
 	npc_clearsrcfile();
-
-	return 0;
 }
 
 static void npc_debug_warps_sub(struct npc_data* nd)
@@ -4320,7 +4318,7 @@ static void npc_debug_warps(void)
 /*==========================================
  * npc initialization
  *------------------------------------------*/
-int do_init_npc(void)
+void do_init_npc(void)
 {
 	struct npc_src_list *file;
 	int i;
@@ -4395,6 +4393,4 @@ int do_init_npc(void)
 	map_addiddb(&fake_nd->bl);
 
 	// End of initialization
-
-	return 0;
 }

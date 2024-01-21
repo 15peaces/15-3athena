@@ -349,9 +349,17 @@ int skill_get_range2 (struct block_list *bl, int id, int lv)
 	return range;
 }
 
+/** Calculates heal value of skill's effect
+ * @param src
+ * @param target
+ * @param skill_id
+ * @param skill_lv
+ * @param heal
+ * @return modified heal value
+ */
 int skill_calc_heal(struct block_list *src, struct block_list *target, int skill_id, int skill_lv, bool heal)
 {
-	int skill, hp;
+	int skill, hp = 0;
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct map_session_data *tsd = BL_CAST(BL_PC, target);
 	struct status_change* sc;
@@ -409,7 +417,7 @@ int skill_calc_heal(struct block_list *src, struct block_list *target, int skill
 				if( (skill = pc_checkskill(sd, NV_TRANSCENDENCE)) > 0 )
 					hp += hp * skill * 3 / 100;
 			}
-			else if( src->type == BL_HOM && (skill = merc_hom_checkskill(((TBL_HOM*)src), HLIF_BRAIN)) > 0 )
+			else if( src->type == BL_HOM && (skill = hom_checkskill(((TBL_HOM*)src), HLIF_BRAIN)) > 0 )
 				hp += hp * skill * 2 / 100;
 			break;
 	}
@@ -9180,14 +9188,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case AM_CALLHOMUN:	//[orn]
-		if (sd && !merc_call_homunculus(sd))
+		if (sd && !hom_call(sd))
 			clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 		break;
 
 	case AM_REST:
 		if (sd)
 		{
-			if (merc_hom_vaporize(sd,1))
+			if (hom_vaporize(sd,1))
 				clif_skill_nodamage(src, bl, skillid, skilllv, 1);
 			else
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
@@ -12790,7 +12798,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skillid, int sk
 	case AM_RESURRECTHOMUN:	//[orn]
 		if (sd)
 		{
-			if (!merc_resurrect_homunculus(sd, 20*skilllv, x, y))
+			if (!hom_ressurect(sd, 20*skilllv, x, y))
 			{
 				clif_skill_fail(sd,skillid,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -13275,11 +13283,6 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skilli
 			val1 += pc_checkskill(sd,DC_DANCINGLESSON);
 			val2 += pc_checkskill(sd,DC_DANCINGLESSON);
 		}
-		break;
-	case BA_APPLEIDUN:
-		val1 = 5+2*skilllv+status->vit/10; // MaxHP percent increase
-		if(sd)
-			val1 += pc_checkskill(sd,BA_MUSICALLESSON);
 		break;
 	case DC_SERVICEFORYOU:
 		//val1: MaxSP percent increase
@@ -13862,7 +13865,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_GD_GLORYWOUNDS:
 	case UNT_GD_SOULCOLD:
 	case UNT_GD_HAWKEYES:
-		if (!sce)
+		if (!sce && battle_check_target(&sg->unit->bl, bl, sg->target_flag) > 0)
 			sc_start4(bl, type, 100, sg->skill_lv, 0, 0, 0, 1000);
 		break;
 	}
@@ -15528,7 +15531,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		}
 		break;
 	case AM_REST: //Can't vapo homun if you don't have an active homunc or it's hp is < 80%
-		if (!merc_is_hom_active(sd->hd) || sd->hd->battle_status.hp < (sd->hd->battle_status.max_hp*80/100))
+		if (!hom_is_active(sd->hd) || sd->hd->battle_status.hp < (sd->hd->battle_status.max_hp*80/100))
 		{
 			clif_skill_fail(sd, skill_id,USESKILL_FAIL_LEVEL,0,0);
 			return 0;
@@ -17768,6 +17771,9 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 	if (unit == NULL || unit->group == NULL || (*alive) == 0)
 		return 0;
 
+	if (unit->group->state.guildaura) /* guild auras are not cancelled! */
+		return 0;
+
 	switch (skillid)
 	{
 		case SA_LANDPROTECTOR:
@@ -19131,10 +19137,10 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			case AM_TWILIGHT2:
 			case AM_TWILIGHT3:
 				make_per = pc_checkskill(sd,AM_LEARNINGPOTION)*50 + pc_checkskill(sd,AM_PHARMACY) * 300 + sd->status.job_level * 20 + (status->int_/2)*10 + status->dex*10+status->luk*10;
-				if(merc_is_hom_active(sd->hd)) 
+				if(hom_is_active(sd->hd)) 
 				{//Player got a homun
 					int skill;
-					if ((skill = merc_hom_checkskill(sd->hd, HVAN_INSTRUCT)) > 0) //His homun is a vanil with instruction change
+					if ((skill = hom_checkskill(sd->hd, HVAN_INSTRUCT)) > 0) //His homun is a vanil with instruction change
 						make_per += skill*100; //+1% bonus per level
 				}
 				switch(nameid){
@@ -21104,10 +21110,11 @@ static bool skill_parse_row_unitdb(char* split[], int columns, int current)
 	else if( strcmpi(split[6],"friend")==0 ) skill_db[i].unit_target = BCT_NOENEMY;
 	else if( strcmpi(split[6],"party")==0 ) skill_db[i].unit_target = BCT_PARTY;
 	else if( strcmpi(split[6],"ally")==0 ) skill_db[i].unit_target = BCT_PARTY|BCT_GUILD;
-	else if (strcmpi(split[6],"guild") == 0) skill_db[i].unit_target = BCT_GUILD;
+	else if( strcmpi(split[6],"guild") == 0) skill_db[i].unit_target = BCT_GUILD;
 	else if( strcmpi(split[6],"all")==0 ) skill_db[i].unit_target = BCT_ALL;
 	else if( strcmpi(split[6],"enemy")==0 ) skill_db[i].unit_target = BCT_ENEMY;
 	else if( strcmpi(split[6],"self")==0 ) skill_db[i].unit_target = BCT_SELF;
+	else if( strcmpi(split[6],"sameguild")==0 ) skill_db[i].unit_target = BCT_GUILD | BCT_SAMEGUILD;
 	else if( strcmpi(split[6],"noone")==0 ) skill_db[i].unit_target = BCT_NOONE;
 	else skill_db[i].unit_target = strtol(split[6],NULL,16);
 
@@ -21336,7 +21343,7 @@ void skill_reload (void)
 /*==========================================
  *
  *------------------------------------------*/
-int do_init_skill (void)
+void do_init_skill (void)
 {
 	skilldb_name2id = strdb_alloc(DB_OPT_DUP_KEY | DB_OPT_RELEASE_DATA, 0);
 	skill_readdb();
@@ -21354,11 +21361,9 @@ int do_init_skill (void)
 	add_timer_func_list(skill_blockpc_end, "skill_blockpc_end");
 
 	add_timer_interval(gettick()+SKILLUNITTIMER_INTERVAL,skill_unit_timer,0,0,SKILLUNITTIMER_INTERVAL);
-
-	return 0;
 }
 
-int do_final_skill(void)
+void do_final_skill(void)
 {
 	db_destroy(skilldb_name2id);
 	db_destroy(group_db);
@@ -21366,5 +21371,4 @@ int do_final_skill(void)
 	db_destroy(skillusave_db);
 	ers_destroy(skill_unit_ers);
 	ers_destroy(skill_timer_ers);
-	return 0;
 }

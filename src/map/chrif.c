@@ -339,8 +339,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 
 	if( sd->status.pet_id > 0 && sd->pd )
 		intif_save_petdata(sd->status.account_id,&sd->pd->pet);
-	if( sd->hd && merc_is_hom_active(sd->hd) )
-		merc_save(sd->hd);
+	if( sd->hd && hom_is_active(sd->hd) )
+		hom_save(sd->hd);
 	if( sd->md && mercenary_get_lifetime(sd->md) > 0 )
 		mercenary_save(sd->md);
 	if( sd->ed && elemental_get_lifetime(sd->ed) > 0 )
@@ -1880,7 +1880,7 @@ int auth_db_final(DBKey key, DBData *data, va_list ap)
 /*==========================================
  * I—¹
  *------------------------------------------*/
-int do_final_chrif(void)
+void do_final_chrif(void)
 {
 	if( char_fd != -1 )
 	{
@@ -1890,13 +1890,12 @@ int do_final_chrif(void)
 
 	auth_db->destroy(auth_db, auth_db_final);
 	ers_destroy(auth_db_ers);
-	return 0;
 }
 
 /*==========================================
  *
  *------------------------------------------*/
-int do_init_chrif(void)
+void do_init_chrif(void)
 {
 	if (sizeof(struct mmo_charstatus) > 0xFFFF) {
 		ShowError("mmo_charstatus size = %d is too big to be transmitted. (must be below 0xFFFF)\n",
@@ -1927,6 +1926,4 @@ int do_init_chrif(void)
 
 	// send the user count every 10 seconds, to hide the charserver's online counting problem
 	add_timer_interval(gettick() + 1000, send_usercount_tochar, 0, 0, UPDATE_INTERVAL);
-
-	return 0;
 }

@@ -458,6 +458,6 @@ uint64 itemdb_unique_id(struct map_session_data *sd); // Unique Item ID
 void itemdb_reload(void);
 
 void do_final_itemdb(void);
-int do_init_itemdb(void);
+void do_init_itemdb(void);
 
 #endif /* _ITEMDB_H_ */
