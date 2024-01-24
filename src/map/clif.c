@@ -301,7 +301,7 @@ static inline unsigned char clif_bl_type(struct block_list *bl) {
 	case BL_SKILL: return 0x3; //SKILL_TYPE
 	case BL_CHAT:  return 0x4; //UNKNOWN_TYPE
 	case BL_MOB:   return pcdb_checkid(status_get_viewdata(bl)->class_)?0x0:0x5; //NPC_MOB_TYPE
-	case BL_NPC:   return 0x6; //NPC_EVT_TYPE
+	case BL_NPC:   return pcdb_checkid(status_get_viewdata(bl)->class_)?0x0:0x6; //NPC_EVT_TYPE
 	case BL_PET:   return pcdb_checkid(status_get_viewdata(bl)->class_)?0x0:0x7; //NPC_PET_TYPE
 	case BL_HOM:   return 0x8; //NPC_HOM_TYPE
 	case BL_MER:   return 0x9; //NPC_MERSOL_TYPE
@@ -12770,14 +12770,14 @@ void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
 
 /// Request to remove cart/falcon/peco/dragon (CZ_REQ_CARTOFF).
 /// 012a
-void clif_parse_RemoveOption(int fd,struct map_session_data *sd)
+void clif_parse_RemoveOption(int fd, struct map_session_data *sd)
 {
-	//Can only remove Cart/Riding/Falcon/Dragon/Warg/Mado.
-	pc_setoption(sd,sd->sc.option&~(OPTION_CART|OPTION_RIDING|OPTION_FALCON|OPTION_DRAGON|OPTION_MADOGEAR));
-	if (sd->sc.data[SC_ON_PUSH_CART])
-		pc_setcart(sd,0);
+	if (!(sd->sc.option&(OPTION_RIDING | OPTION_FALCON | OPTION_DRAGON | OPTION_MADOGEAR)) && sd->sc.data[SC_ON_PUSH_CART]) {
+		pc_setcart(sd, 0);
+	}
+	else  // priority to remove this option before we can clear cart
+		pc_setoption(sd, sd->sc.option&~(OPTION_RIDING | OPTION_FALCON | OPTION_DRAGON | OPTION_MADOGEAR));
 }
-
 
 /// Request to change cart's visual look (CZ_REQ_CHANGECART).
 /// 01af <num>.W

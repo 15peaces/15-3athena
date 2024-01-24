@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/24/2024
+	r437 [15peaces]
+		*If a player has both a Cart and Magic Gear, removing them will now remove the Magic Gear first (instead of both simultaneously).
+		*Player-looking NPCs will now display properly.
+
 01/21/2024
 	r436 [15peaces]
 		*Some misc cleaning.
