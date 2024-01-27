@@ -3139,7 +3139,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		switch(skillid) {
 			case MC_CARTREVOLUTION:
 				if (battle_config.cart_revo_knockback)
-					direction = 2; // Official servers push target to the West
+					direction = 6; // Official servers push target to the West
 				break;
 			case MG_FIREWALL:
 			case PR_SANCTUARY:
@@ -3950,7 +3950,6 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 							pc_setsit(tsd);
 							skill_sit(tsd, 1);
 							clif_sitting(&tsd->bl, true);
-							clif_status_load(&tsd->bl, SI_SIT, 1);
 						}
 					}
 					break;
@@ -7893,7 +7892,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case AM_CP_HELM:
 		{
 			unsigned int equip[] = { EQP_WEAPON, EQP_SHIELD, EQP_ARMOR, EQP_HEAD_TOP };
-			enum sc_type scid = (sc_type)(SC_STRIPWEAPON + (skillid - AM_CP_WEAPON));
 
 			if (sd && (bl->type != BL_PC || (dstsd && pc_checkequip(dstsd, equip[skillid - AM_CP_WEAPON], false) < 0))) {
 				clif_skill_fail(sd, skillid, USESKILL_FAIL_LEVEL, 0, 0);
@@ -7901,7 +7899,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				return 0;
 			}
 
-			status_change_end(bl, scid, INVALID_TIMER);
 			clif_skill_nodamage(src,bl,skillid,skilllv,
 				sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
 		}
@@ -8776,7 +8773,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				break;
 			}
 			for (i=0; i<4; i++) {
-				status_change_end(bl, (sc_type)(SC_STRIPWEAPON + i), INVALID_TIMER);
 				sc_start(bl,(sc_type)(SC_CP_WEAPON + i),100,skilllv,skilltime);
 			}
 			clif_skill_nodamage(src,bl,skillid,skilllv,1);

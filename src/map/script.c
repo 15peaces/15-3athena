@@ -13132,7 +13132,14 @@ BUILDIN_FUNC(skilleffect)
 	get_val(st, data); // Convert into value in case of a variable
 	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
 	skilllv = script_getnum(st, 3);
-	sd=script_rid2sd(st);
+	sd = script_rid2sd(st);
+
+	/* Ensure we're standing because the following packet causes the client to virtually set the char to stand,
+	 * which leaves the server thinking it still is sitting. */
+	if (pc_issit(sd) && pc_setstand(sd, false)) {
+		skill_sit(sd, 0);
+		clif_standing(&sd->bl, true);
+	}
 
 	clif_skill_nodamage(&sd->bl,&sd->bl,skillid,skilllv,1);
 
@@ -17951,13 +17958,13 @@ BUILDIN_FUNC(changequest)
 BUILDIN_FUNC(checkquest)
 {
 	struct map_session_data *sd = script_rid2sd(st);
-	quest_check_type type = HAVEQUEST;
+	enum quest_check_type type = HAVEQUEST;
 
 	nullpo_ret(sd);
 
 
 	if( script_hasdata(st, 3) )
-		type = (quest_check_type)script_getnum(st, 3);
+		type = (enum quest_check_type)script_getnum(st, 3);
 
 	script_pushint(st, quest_check(sd, script_getnum(st, 2), type));
 

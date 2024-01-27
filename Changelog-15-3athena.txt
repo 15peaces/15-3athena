@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/27/2024
+	r438 [15peaces]
+		*Some variable scope optimisation.
+		*Fixed Cart Revolution pushing targets East rather than West.
+		*Chemical Protection will not remove Strip status anymore.
+		*Corrected usage of skill_sit.
+		*Removed unneeded check from clif_spawn.
+			-All SCs with status icons are looped on spawning. So there is no need to double check for monster transformation SC.
+		*Quest Log system improvements
+			-Improved memory usage of the quest log system. (saves up to ~80kB per online character).
+			-Fixed various issues with quest entries disappearing from characters without an apparent reason, or monster kill counters getting stuck - the issues were caused by a de-synchronization between the two parallel questlog arrays in map_session_data.
+		*Some msg_conf changes:
+			-Added warning message if msg_number is invalid when msg_conf files are being read.
+			-Increased CHAR_MAX_MSG to 300. Now the messages with IDs 200+ are read. 
+
 01/24/2024
 	r437 [15peaces]
 		*If a player has both a Cart and Magic Gear, removing them will now remove the Magic Gear first (instead of both simultaneously).

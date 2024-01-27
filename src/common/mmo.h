@@ -149,7 +149,6 @@
 #define MAX_GUILDSKILL	20 // increased max guild skills because of new skills [Sara-chan] [15peaces]
 #define MAX_GUILDLEVEL 50
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
-#define MAX_QUEST_DB 3000 //Max quests that the server will load
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_QUEST_DROPS 3 ///Max quest drops for a quest
 #define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
@@ -269,14 +268,18 @@ enum item_types {
 };
 
 
-//Questlog system [Kevin] [Inkfish]
-typedef enum quest_state { Q_INACTIVE, Q_ACTIVE, Q_COMPLETE } quest_state;
+// Questlog states
+enum quest_state {
+	Q_INACTIVE, ///< Inactive quest (the user can toggle between active and inactive quests)
+	Q_ACTIVE,   ///< Active quest
+	Q_COMPLETE, ///< Completed quest
+};
 
 struct quest {
-	int quest_id;
-	unsigned int time;
-	int count[MAX_QUEST_OBJECTIVES];
-	quest_state state;
+	int quest_id;                    ///< Quest ID
+	unsigned int time;               ///< Expiration time
+	int count[MAX_QUEST_OBJECTIVES]; ///< Kill counters of each quest objective
+	enum quest_state state;          ///< Current quest state
 };
 
 /// Achievement log entry

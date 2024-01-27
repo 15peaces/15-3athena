@@ -2646,7 +2646,7 @@ ACMD_FUNC(monster)
 	int mob_id;
 	int number = 0;
 	int count;
-	int i, k, range;
+	int i, range;
 	short mx, my;
 	nullpo_retr(-1, sd);
 
@@ -2704,9 +2704,13 @@ ACMD_FUNC(monster)
 	count = 0;
 	range = (int)sqrt((float)number) +2; // calculation of an odd number (+ 4 area around)
 	for (i = 0; i < number; i++) {
+		int k;
 		map_search_freecell(&sd->bl, 0, &mx,  &my, range, range, 0);
 		k = mob_once_spawn(sd, sd->bl.m, mx, my, name, mob_id, 1, "", 0, AI_NONE);
-		count += (k != 0) ? 1 : 0;
+		if (k) {
+			//mapreg_setreg(reference_uid(add_str("$@mobid"), i),k); //retain created mobid in array uncomment if needed
+			count++;
+		}
 	}
 
 	if (count != 0)

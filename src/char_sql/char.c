@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CHAR_MAX_MSG 200
+#define CHAR_MAX_MSG 300
 static char* msg_table[CHAR_MAX_MSG]; // Login Server messages_conf
 
 // private declarations
@@ -3498,11 +3498,12 @@ int parse_frommap(int fd)
 			char_send_fame_list(fd); //Send fame list.
 
 			{
-			unsigned char buf[16384];
 			int x;
 			if (j == 0) {
 				ShowWarning("Map-server %d has NO maps.\n", id);
 			} else {
+				unsigned char buf[16384];
+
 				// Transmitting maps information to the other map-servers
 				WBUFW(buf,0) = 0x2b04;
 				WBUFW(buf,2) = j * 4 + 10;

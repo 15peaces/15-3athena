@@ -1936,7 +1936,7 @@ static int db_obj_remove(DBMap* self, DBKey key, DBData *out_data)
 	DBMap_impl* db = (DBMap_impl*)self;
 	DBNode node;
 	unsigned int hash;
-	int c = 0, retval = 0;
+	int retval = 0;
 
 	DB_COUNTSTAT(db_remove);
 	if (db == NULL) return 0; // nullpo candidate
@@ -1954,7 +1954,7 @@ static int db_obj_remove(DBMap* self, DBKey key, DBData *out_data)
 	db_free_lock(db);
 	hash = db->hash(key, db->maxlen)%HASH_SIZE;
 	for(node = db->ht[hash]; node; ){
-		c = db->cmp(key, node->key, db->maxlen);
+		int c = db->cmp(key, node->key, db->maxlen);
 		if (c == 0) {
 			if (!(node->deleted)) {
 				if (db->cache == node)

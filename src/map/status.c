@@ -8802,8 +8802,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			if (sd)
 			{
 				pc_setsit(sd);
+				skill_sit(sd, 1);
 				clif_sitting(&sd->bl, true);
-				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			val2 = 12; //SP cost
 			val4 = 10000; //Decrease at 10secs intervals.
@@ -9607,7 +9607,6 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				pc_setsit(sd);
 				skill_sit(sd, 1);
 				clif_sitting(&sd->bl, true);
-				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			break;
 		case SC_LG_REFLECTDAMAGE:
@@ -12601,11 +12600,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			status_charge(bl, 0, sce->val2); // Reduce 8 every 10 seconds.
 			if (sd && !pc_issit(sd)) // Force to sit every 10 seconds.
 			{
-				pc_stop_walking(sd, 1 | 4);
-				pc_stop_attack(sd);
 				pc_setsit(sd);
+				skill_sit(sd, 1);
 				clif_sitting(&sd->bl, true);
-				clif_status_load(&sd->bl, SI_SIT, 1);
 			}
 			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 			return 0;

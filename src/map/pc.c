@@ -1467,6 +1467,11 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	for( i = 0; i < 3; i++ )
 		sd->hate_mob[i] = -1;
 
+	sd->quest_log = NULL;
+	sd->num_quests = 0;
+	sd->avail_quests = 0;
+	sd->save_quest = false;
+
 	sd->qi_display = NULL;
 	sd->qi_count = 0;
 
