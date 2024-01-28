@@ -4613,13 +4613,13 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
 		if (skillid == MO_EXTREMITYFIST) {
 			status_set_sp(src, 0, 0);
-			status_change_end(src, SC_EXPLOSIONSPIRITS);
-			status_change_end(src, SC_BLADESTOP);
+			status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
+			status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
 		}
 		else {
 			status_set_hp(src, 1, 0);
-			status_change_end(src, SC_NEN);
-			status_change_end(src, SC_HIDING);
+			status_change_end(src, SC_NEN, INVALID_TIMER);
+			status_change_end(src, SC_HIDING, INVALID_TIMER);
 		}
 		if (skillid == MO_EXTREMITYFIST) {
 			mbl = src; // For MO_EXTREMITYFIST
@@ -4641,7 +4641,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if ((mbl == src || (!map_flag_gvg2(src->m) && !map[src->m].flag.battleground)) &&
 			unit_movepos(src, mbl->x + x, mbl->y + y, 1, 1)) {
 			clif_blown(src);
-			clif_spiritball(src);
+			clif_spiritball(sd);
 		}
 	}
 	break;

@@ -13036,9 +13036,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	{
 		if( sd->state.gmaster_flag )
 		{
-				skilllv = guild_checkskill(sd->guild, skillnum);
-			else
-				skilllv = 0;
+			skilllv = guild_checkskill(sd->guild, skillnum);
 		}
 		else
 			skilllv = 0;
