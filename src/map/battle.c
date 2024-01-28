@@ -2126,6 +2126,18 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				case MER_CRASH:
 					skillratio += 10*skill_lv;
 					break;
+				case KN_AUTOCOUNTER:
+					if (sc && sc->data[SC_CRUSHSTRIKE]) {
+						if (sd) {
+							// ATK [{Weapon Level * (Weapon Upgrade Level + 6) * 100} + (Weapon ATK) + (Weapon Weight)]%
+							short index = sd->equip_index[EQI_HAND_R];
+
+							if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+								skillratio = sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
+								100 * sd->inventory_data[index]->wlv * (sd->inventory.u.items_inventory[index].refine + 6);
+						}
+					}
+					break;
 				case KN_SPEARSTAB:
 					skillratio += 15*skill_lv;
 					break;

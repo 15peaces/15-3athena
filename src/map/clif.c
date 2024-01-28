@@ -6452,7 +6452,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 	}else{
 		sd->menuskill_id = sd->menuskill_val = sd->menuskill_itemused = 0;
 #if PACKETVER >= 20090922
-			clif_msg_skill(sd,skill_id, MSG_SKILL_MATERIAL_FAIL);
+			clif_msg_skill(sd,skill_id, INVENTORY_SPACE_FULL);
 #else
 			WFIFOW(fd,2) = 6 + 2*c;
 			WFIFOSET(fd,WFIFOW(fd,2));
@@ -11424,7 +11424,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	if (sd->status.guild_id && (battle_config.guild_notice_changemap == 2 || guild_notice))
-		clif_guild_notice(sd, guild_search(sd->status.guild_id)); // Displays at end
+		clif_guild_notice(sd, sd->guild); // Displays at end
 	
 #ifndef TXT_ONLY
 	mail_clear(sd);
@@ -11432,10 +11432,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 	/* Guild Aura Init */
 	if (sd->state.gmaster_flag) {
-		guild_guildaura_refresh(sd, GD_LEADERSHIP, guild_checkskill(guild_search(sd->status.guild_id), GD_LEADERSHIP));
-		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(guild_search(sd->status.guild_id), GD_GLORYWOUNDS));
-		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(guild_search(sd->status.guild_id), GD_SOULCOLD));
-		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(guild_search(sd->status.guild_id), GD_HAWKEYES));
+		guild_guildaura_refresh(sd, GD_LEADERSHIP, guild_checkskill(sd->guild, GD_LEADERSHIP));
+		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(sd->guild, GD_GLORYWOUNDS));
+		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(sd->guild, GD_SOULCOLD));
+		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(sd->guild, GD_HAWKEYES));
 	}
 
 	if (sd->state.vending) { /* show we have a vending */
@@ -12965,8 +12965,13 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		}
 	}
 
-	if ((pc_cant_act2(sd) || sd->chatID) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE)
+	if ((pc_cant_act2(sd) || sd->chatID) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE &&
+		sd->state.storage_flag && !(inf&INF_SELF_SKILL)) //SELF skills can be used with the storage open
 		return;
+
+	//Some self skills need to close the storage to work properly
+	if (skillnum == AL_TELEPORT && sd->state.storage_flag)
+		storage_storageclose(sd);
 
 	if( pc_issit(sd) )
 		return;
@@ -13031,9 +13036,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	{
 		if( sd->state.gmaster_flag )
 		{
-			struct guild* g = guild_search(sd->status.guild_id);
-			if( g != NULL )
-				skilllv = guild_checkskill(g, skillnum);
+				skilllv = guild_checkskill(sd->guild, skillnum);
 			else
 				skilllv = 0;
 		}

@@ -485,6 +485,12 @@ enum clif_messages {
 	//! NOTE: These values below need client version validation
 	ITEM_CANT_OBTAIN_WEIGHT = 0x34, /* You cannot carry more items because you are overweight. */
 	VIEW_EQUIP_FAIL = 0x54d,
+	RUNE_CANT_CREATE = 0x61b,
+	ITEM_CANT_COMBINE = 0x623,
+	INVENTORY_SPACE_FULL = 0x625,
+	ITEM_PRODUCE_SUCCESS = 0x627,
+	ITEM_PRODUCE_FAIL = 0x628,
+	ITEM_UNIDENTIFIED = 0x62d,
 	ITEM_REUSE_LIMIT = 0x746,
 	WORK_IN_PROGRESS = 0x783,
 

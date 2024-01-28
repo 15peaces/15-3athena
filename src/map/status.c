@@ -1921,6 +1921,9 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 
 	if(sc && sc->count)
 	{
+		if (sc->data[SC_ALL_RIDING])
+			return 0; //You can't use skills while in the new mounts (The client doesn't let you, this is to make cheat-safe)
+
 		if (sc->opt1 > 0 && sc->opt1 != OPT1_BURNING && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE)
 		{	//Stuned/Frozen/etc
 			if (flag != 1) //Can't cast, casted stuff can't damage. 
@@ -2022,19 +2025,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				(sc->data[SC_NOCHAT] && sc->data[SC_NOCHAT]->val1&MANNER_NOSKILL)
 			)
 				return 0;
-
-			/*if( sc->data[SC__MANHOLE] || ((tsc = status_get_sc(target)) && tsc->data[SC__MANHOLE]) )
-			{
-				switch(skill_id)
-				{
-					// Skills that can be used even under Man Hole effects.
-					case SC_SHADOWFORM:
-					//case SC_STRIPACCESSARY:
-						break;
-					default:
-						return 0;
-				}
-			}*/
 		}
 	}
 
@@ -12906,7 +12896,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_GLORYWOUNDS:
 			case SC_SOULCOLD:
 			case SC_HAWKEYES:
-			case SC_GUILDAURA:
 			case SC_SAFETYWALL:
 			case SC_PNEUMA:
 			case SC_NOCHAT:

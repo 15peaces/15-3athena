@@ -8190,6 +8190,13 @@ void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp)
 	pc_setstand(sd, true);
 	if(battle_config.pc_invincible_time > 0)
 		pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
+
+	if (sd->state.gmaster_flag) {
+		guild_guildaura_refresh(sd, GD_LEADERSHIP, guild_checkskill(sd->guild, GD_LEADERSHIP));
+		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(sd->guild, GD_GLORYWOUNDS));
+		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(sd->guild, GD_SOULCOLD));
+		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(sd->guild, GD_HAWKEYES));
+	}
 }
 // script? ˜A
 //

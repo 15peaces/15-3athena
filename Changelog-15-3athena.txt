@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/28/2024
+	r439 [15peaces]
+		*Fixed NPC_RUN to show e_hlp emote.
+		*Updated clif_message enum and appropriate clif_msg* functions.
+		*Removed unused guild aura leftovers and fixed some other issues with setting the guild aura.
+		*Cleaned up some remaining issues with Issen.
+		*Self skills can now be used while storage is open.
+		*Reverted Acceleration, Hovering, Self Destruction, Shapeshift, Emergency Cool, Magnetic Field, Neutral Barrier, Stealth Field, and Repair skill item requirements back to only check the player's inventory rather than equipment list.
+		*Fixed Auto Counter to work with Crush Strike.
+
 01/27/2024
 	r438 [15peaces]
 		*Some variable scope optimisation.

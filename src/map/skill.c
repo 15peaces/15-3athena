@@ -1553,7 +1553,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Guild Skills
 				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
-				case SC_HAWKEYES:		case SC_GUILDAURA:
+				case SC_HAWKEYES:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -3517,24 +3517,6 @@ static int skill_check_unit_range2 (struct block_list *bl, int x, int y, int ski
 		type, skillid);
 }
 
-int skill_guildaura_sub (struct map_session_data* sd, int id, int strvit, int agidex)
-{
-	if(id == sd->bl.id && battle_config.guild_aura&16)
-		return 0;  // Do not affect guild leader
-
-	if (sd->sc.data[SC_GUILDAURA]) {
-		struct status_change_entry *sce = sd->sc.data[SC_GUILDAURA];
-		if (sce->val3 != strvit || sce->val4 != agidex) {
-			sce->val3 = strvit;
-			sce->val4 = agidex;
-			status_calc_bl(&sd->bl, status_sc2scb_flag(SC_GUILDAURA));
-		}
-		return 0;
-	}
-	sc_start4(&sd->bl, SC_GUILDAURA,100, 1, id, strvit, agidex, 1000);
-	return 1;
-}
-
 static int skill_check_condition_mob_master_mer_sub (struct block_list *bl, va_list ap)
 {
 	int *c,src_id,mob_class,skill;
@@ -4622,53 +4604,47 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case NJ_ISSEN:
-		status_change_end(src, SC_NEN, INVALID_TIMER);
-		status_change_end(src, SC_HIDING, INVALID_TIMER);
-		// fall through
 	case MO_EXTREMITYFIST:
-		if( skillid == MO_EXTREMITYFIST )
-		{
-			status_change_end(src, SC_EXPLOSIONSPIRITS, INVALID_TIMER);
-			status_change_end(src, SC_BLADESTOP, INVALID_TIMER);
-		}
-		//Client expects you to move to target regardless of distance
-		{
-			struct unit_data *ud = unit_bl2ud(src);
-			short dx,dy;
-			int i,speed;
-			i = skillid == MO_EXTREMITYFIST?1:2; //Move 2 cells for Issen, 1 for Asura
-			dx = bl->x - src->x;
-			dy = bl->y - src->y;
-			if (dx < 0) dx-=i;
-			else if (dx > 0) dx+=i;
-			if (dy < 0) dy-=i;
-			else if (dy > 0) dy+=i;
-			if (!dx && !dy) dy++;
-			if (map_getcell(src->m, src->x+dx, src->y+dy, CELL_CHKNOPASS))
-			{
-				dx = bl->x;
-				dy = bl->y;
-			} else {
-				dx = src->x + dx;
-				dy = src->y + dy;
-			}
+	{
+		struct block_list *mbl = bl; // For NJ_ISSEN
+		short x, y, i = 2; // Move 2 cells (From target)
+		short dir = map_calc_dir(src, bl->x, bl->y);
 
-			skill_attack(BF_WEAPON,src,src,bl,skillid,skilllv,tick,flag);
-
-			if(unit_walktoxy(src, dx, dy, 2) && ud) {
-				//Increase can't walk delay to not alter your walk path
-				ud->canmove_tick = tick;
-				speed = status_get_speed(src);
-				for (i = 0; i < ud->walkpath.path_len; i ++)
-				{
-					if(ud->walkpath.path[i]&1)
-						ud->canmove_tick+=7*speed/5;
-					else
-						ud->canmove_tick+=speed;
-				}
-			}
+		skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
+		if (skillid == MO_EXTREMITYFIST) {
+			status_set_sp(src, 0, 0);
+			status_change_end(src, SC_EXPLOSIONSPIRITS);
+			status_change_end(src, SC_BLADESTOP);
 		}
-		break;
+		else {
+			status_set_hp(src, 1, 0);
+			status_change_end(src, SC_NEN);
+			status_change_end(src, SC_HIDING);
+		}
+		if (skillid == MO_EXTREMITYFIST) {
+			mbl = src; // For MO_EXTREMITYFIST
+			i = 3; // Move 3 cells (From caster)
+		}
+		if (dir > 0 && dir < 4)
+			x = -i;
+		else if (dir > 4)
+			x = i;
+		else
+			x = 0;
+		if (dir > 2 && dir < 6)
+			y = -i;
+		else if (dir == 7 || dir < 2)
+			y = i;
+		else
+			y = 0;
+		// Ashura Strike still has slide effect in GVG
+		if ((mbl == src || (!map_flag_gvg2(src->m) && !map[src->m].flag.battleground)) &&
+			unit_movepos(src, mbl->x + x, mbl->y + y, 1, 1)) {
+			clif_blown(src);
+			clif_spiritball(src);
+		}
+	}
+	break;
 
 	//Splash attack skills.
 	case AS_GRIMTOOTH:
@@ -8074,7 +8050,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Guild Skills
 				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
-				case SC_HAWKEYES:		case SC_GUILDAURA:
+				case SC_HAWKEYES:
 				// Only removeable by Clearance
 				case SC_CRUSHSTRIKE:	case SC_REFRESH:			case SC_GIANTGROWTH:
 				case SC_STONEHARDSKIN:	case SC_VITALITYACTIVATION:	case SC_FIGHTINGSPIRIT:
@@ -9050,8 +9026,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int8 dx[9] = { -1, 1, 0, 0,-1, 1,-1, 1, 0 };
 			int8 dy[9] = { 0, 0, 1,-1, 1,-1,-1, 1, 0 };
 			uint8 j = 0, calls = 0, called = 0;
-			struct guild* g = guild_search(status_get_guild_id(src));
-			if( g == NULL )
+			struct guild* g;
+			g = sd ? sd->guild:guild_search(status_get_guild_id(src));
+			if(!g)
 				break;
 
 			if (skillid == GD_ITEMEMERGENCYCALL)
@@ -9906,7 +9883,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_FULL_THROTTLE:	case SC_REBOUND:			case SC_ANCILLA:
 				// Guild Skills
 				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
-				case SC_HAWKEYES:		case SC_GUILDAURA:
+				case SC_HAWKEYES:
 				// Only removeable by Dispell
 				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
 				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
@@ -19064,7 +19041,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			{
 				if( temp_qty > MAX_RUNE - sd->inventory.u.items_inventory[i].amount )
 				{
-					clif_msg(sd, MSG_RUNESTONE_MAKEERROR_OVERCOUNT);
+					clif_msg(sd, RUNE_CANT_CREATE);
 					return 0;
 				}
 			}
@@ -19495,7 +19472,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 					break;
 				}
 			if (k) {
-				clif_msg_skill(sd, skill_id, 0x627);
+				clif_msg_skill(sd, skill_id, ITEM_PRODUCE_SUCCESS);
 				return 1;
 			}
 		}
@@ -19506,7 +19483,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 				map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
 			}
 			if (skill_id == GN_MIX_COOKING || skill_id == GN_MAKEBOMB || skill_id == GN_S_PHARMACY)
-				clif_msg_skill(sd, skill_id, 0x627);
+				clif_msg_skill(sd, skill_id, ITEM_PRODUCE_SUCCESS);
 			return 1;
 		}
 	}
@@ -19560,13 +19537,13 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 						clif_additem(sd, 0, 0, flag);
 						map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
 					}
-					clif_msg_skill(sd, skill_id, 0x628);
+					clif_msg_skill(sd, skill_id, ITEM_PRODUCE_FAIL);
 				}
 				break;
 			case GN_MAKEBOMB:
 			case GN_S_PHARMACY:
 			case GN_CHANGEMATERIAL:
-				clif_msg_skill(sd, skill_id, 0x628);
+				clif_msg_skill(sd, skill_id, ITEM_PRODUCE_FAIL);
 				break;
 			default:
 				if( skill_produce_db[idx].itemlv > 10 && skill_produce_db[idx].itemlv <= 20 )
@@ -19951,7 +19928,7 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 							amount = item_list[k * 2 + 1];
 
 							if (nameid > 0 && sd->inventory.u.items_inventory[idx].identify == 0) {
-								clif_msg_skill(sd, GN_CHANGEMATERIAL, 0x62D);
+								clif_msg_skill(sd, GN_CHANGEMATERIAL, ITEM_UNIDENTIFIED);
 								return 0;
 							}
 							if (nameid == skill_produce_db[i].mat_id[j] && (amount - p * skill_produce_db[i].mat_amount[j]) >= skill_produce_db[i].mat_amount[j]
@@ -19974,7 +19951,7 @@ int skill_changematerial(struct map_session_data *sd, int n, unsigned short *ite
 	}
 
 	if (p == 0)
-		clif_msg_skill(sd, GN_CHANGEMATERIAL, 0x623);
+		clif_msg_skill(sd, GN_CHANGEMATERIAL, ITEM_CANT_COMBINE);
 
 	return 0;
 }
