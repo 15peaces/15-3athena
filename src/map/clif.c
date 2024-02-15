@@ -730,7 +730,7 @@ void clif_authok(struct map_session_data *sd)
 	WFIFOB(fd, 9) = 5; // ignored
 	WFIFOB(fd,10) = 5; // ignored
 #if PACKETVER >= 20080102
-	WFIFOW(fd,11) = sd->user_font;  // FIXME: Font is currently not saved.
+	WFIFOW(fd,11) = sd->status.font;
 #endif
 #if PACKETVER >= 20141016 && PACKETVER < 20160330
 	WFIFOB(fd,13) = sd->status.sex;
@@ -1183,7 +1183,7 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 		return packet_len(WBUFW(buffer,0));
 #endif
 #if PACKETVER >= 20080102
-	WBUFW(buf,53) = sd?sd->user_font:0;
+	WBUFW(buf,53) = sd?sd->status.font:0;
 #endif
 #if PACKETVER >= 20131223
 	if ( battle_config.monster_hp_bars_info && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
@@ -1328,7 +1328,7 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 	WBUFB(buf,57) = (sd)? 5 : 0;
 	WBUFW(buf,58) = clif_setlevel(bl);
 #if PACKETVER >= 20080102
-	WBUFW(buf,60) = sd?sd->user_font:0;
+	WBUFW(buf,60) = sd?sd->status.font:0;
 #endif
 #if PACKETVER >= 20131223
 	if ( battle_config.monster_hp_bars_info && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
@@ -11421,6 +11421,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 
 		status_change_clear_onChangeMap(&sd->bl, &sd->sc);
 		map_iwall_get(sd); // Updates Walls Info on this Map to Client
+		status_calc_pc(sd, SCO_NONE); // Some conditions are map-dependent so we must recalculate
 	}
 
 	if (sd->status.guild_id && (battle_config.guild_notice_changemap == 2 || guild_notice))
@@ -19559,7 +19560,7 @@ void clif_font(struct map_session_data *sd)
 	nullpo_retv(sd);
 	WBUFW(buf,0) = 0x2ef;
 	WBUFL(buf,2) = sd->bl.id;
-	WBUFW(buf,6) = sd->user_font;
+	WBUFW(buf,6) = sd->status.font;
 	clif_send(buf, packet_len(0x2ef), &sd->bl, AREA);
 #endif
 }

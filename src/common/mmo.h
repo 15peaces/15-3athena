@@ -590,6 +590,8 @@ struct mmo_charstatus {
 	uint32 uniqueitem_counter;
 
 	time_t unban_time;
+
+	unsigned char font;
 };
 
 typedef enum mail_status {

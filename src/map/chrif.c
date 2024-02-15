@@ -104,7 +104,6 @@ static const int packet_len_table[0x3d] =
 //2b29: Outgoing, chrif_req_charunban -> 'unban a specific char '
 //2b2d: Outgoing, chrif_bsdata_request -> request bonus_script for pc_authok'ed char.
 //2b2e: Outgoing, chrif_save_bsdata -> Send bonus_script of player for saving.
-//2b2f: Incoming, chrif_load_bsdata -> received bonus_script of player for loading.
 
 int chrif_connected = 0;
 int char_fd = -1;
@@ -1367,6 +1366,11 @@ int chrif_load_scdata(int fd)
 		status_change_start(&sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 1 | 2 | 4 | 8);
 	}
 #endif
+
+#ifndef TXT_ONLY
+	pc_inventory_rentals(sd);
+#endif
+
 	return 0;
 }
 

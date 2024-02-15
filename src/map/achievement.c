@@ -1307,6 +1307,7 @@ static bool achievement_readdb_objectives(char** str, struct achievement_data *e
 
 		/* Push buffer */
 		VECTOR_PUSH(entry->objective, obj);
+		VECTOR_CLEAR(obj.jobid);
 	}
 
 	return true;

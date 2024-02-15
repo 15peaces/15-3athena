@@ -336,7 +336,7 @@ int elem_data_received(struct s_elemental *elem, bool flag) {
 		ed->bl.y = ed->ud.to_y;
 
 		map_addiddb(&ed->bl);
-		status_calc_elemental(ed,1);
+		status_calc_elemental(ed, SCO_FIRST);
 		ed->summon_timer = INVALID_TIMER;
 		ed->masterteleport_timer = INVALID_TIMER;
 		elem_summon_init(ed);

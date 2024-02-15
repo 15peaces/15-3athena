@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+02/15/2024
+	r440 [15peaces]
+		*Fixed a typo in the map_msg.
+		*Updated Vellum Weapons item script to official.
+		*Cleaned up some other issues/left overs.
+		*Cleaned up Weapon Research and Cart Revolution bonuses.
+		*Added ITEM_NOUSE_SITTING message.
+		*Modified status_calc_* to support multiple options.
+			-Also fixed some calculation issues.
+		*Fixed Flamel_Card effect.
+		*Changed itemgroups & itempackages from array to DBMap.
+			-Removed MAX_* limits.
+			-Changed a player bonus fixed array.
+			-Added 'bonus2 bAddItemGroupHealRate' to replace 'bonus2 bAddItemHealRate' for Item Group ID usage.
+		*Fixed the Font System to properly save to the character.
+
 01/28/2024
 	r439 [15peaces]
 		*Fixed NPC_RUN to show e_hlp emote.

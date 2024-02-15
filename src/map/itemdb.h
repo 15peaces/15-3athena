@@ -160,6 +160,15 @@ enum item_itemid
 	ITEMID_M_BERSERK_POTION				= 12243,
 	ITEMID_COMP_BATTLE_MANUAL			= 12263,
 	ITEMID_COMP_BUBBLE_GUM				= 12264,
+	ITEMID_LOVE_ANGEL					= 12287,
+	ITEMID_SQUIRREL						= 12288,
+	ITEMID_GOGO							= 12289,
+	ITEMID_PICTURE_DIARY				= 12304,
+	ITEMID_MINI_HEART					= 12305,
+	ITEMID_NEWCOMER						= 12306,
+	ITEMID_KID							= 12307,
+	ITEMID_MAGIC_CASTLE					= 12308,
+	ITEMID_BULGING_HEAD					= 12309,
 	ITEMID_THICK_BATTLE_MANUAL			= 12312,
 	ITEMID_NOVICE_MAGNIFIER				= 12325,
 	ITEMID_ANCILLA						= 12333,
@@ -278,7 +287,7 @@ enum item_itemid
 #define IG_FINDINGORE 6
 #define IG_POTION 37
 //The max. item group count, same for item packages (increase this when needed).
-#define MAX_ITEMGROUP 59
+#define MAX_ITEMGROUP 60
 #define MAX_ITEMPACKAGE 30
 #define MAX_RANDGROUP 4 // For item packages
 
@@ -358,11 +367,19 @@ struct item_data {
 };
 
 struct item_group {
+	uint16 id;
+	uint16 qty;
 	unsigned short nameid[MAX_RANDITEM];
-	int qty; //Counts amount of items in the group.
 };
 
 struct item_package {
+	uint16 id;
+	struct item_package_entry *data;
+	uint16 qty;
+};
+
+struct item_package_entry {
+	uint16 id;
 	unsigned short nameid[MAX_RANDITEM];
 	int qty; //Counts amount of items in the group.
 	unsigned short prob[MAX_RANDITEM];
@@ -415,7 +432,6 @@ const char* itemdb_weapon_typename(int type);
 const char* itemdb_armor_typename(int type);
 const char* itemdb_ammo_typename(int type);
 
-int itemdb_group_bonus(struct map_session_data* sd, int itemid);
 int itemdb_searchrandomid(uint16 group_id);
 
 #define itemdb_value_buy(n) itemdb_search(n)->value_buy
@@ -454,6 +470,9 @@ bool itemdb_parse_roulette_db(void);
 void itemdb_package_item(struct map_session_data *sd, int packageid);
 
 uint64 itemdb_unique_id(struct map_session_data *sd); // Unique Item ID
+
+DBMap * itemdb_get_groupdb();
+DBMap * itemdb_get_packagedb();
 
 void itemdb_reload(void);
 

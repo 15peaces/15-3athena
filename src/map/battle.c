@@ -191,24 +191,45 @@ struct delay_damage {
 	unsigned short skill_id;
 	enum damage_lv dmg_lv;
 	unsigned short attack_type;
+	enum bl_type src_type;
 };
 
 int battle_delay_damage_sub(int tid, int64 tick, int id, intptr_t data)
 {
 	struct delay_damage *dat = (struct delay_damage *)data;
-	struct block_list *target = map_id2bl(dat->target);
-	if (target && dat && map_id2bl(id) == dat->src && target->prev != NULL && !status_isdead(target) &&
-		target->m == dat->src->m &&
-		(target->type != BL_PC || ((TBL_PC*)target)->invincible_timer == INVALID_TIMER) &&
-		check_distance_bl(dat->src, target, dat->distance)) //Check to see if you haven't teleported. [Skotlex]
+
+	if (dat)
 	{
-		map_freeblock_lock();
-		status_fix_damage(dat->src, target, dat->damage, dat->delay);
-		if( dat->attack_type && !status_isdead(target) )
-			skill_additional_effect(dat->src,target,dat->skill_id,dat->skill_lv,dat->attack_type,dat->dmg_lv,tick);
-		if( dat->dmg_lv > ATK_BLOCK && dat->attack_type )
-			skill_counter_additional_effect(dat->src,target,dat->skill_id,dat->skill_lv,dat->attack_type,tick);
-		map_freeblock_unlock();
+		struct block_list *target = map_id2bl(dat->target);
+
+		if (!target || status_isdead(target)) { /* Nothing we can do */
+			if (dat->src_type == BL_PC &&
+				--((TBL_PC*)dat->src)->delayed_damage == 0 && ((TBL_PC*)dat->src)->state.hold_recalc) {
+				((TBL_PC*)dat->src)->state.hold_recalc = 0;
+				status_calc_pc(((TBL_PC*)dat->src), SCO_FORCE);
+			}
+			ers_free(delay_damage_ers, dat);
+			return 0;
+		}
+
+		if (map_id2bl(id) == dat->src && target->prev != NULL && !status_isdead(target) &&
+			target->m == dat->src->m &&
+			(target->type != BL_PC || ((TBL_PC*)target)->invincible_timer == INVALID_TIMER) &&
+			check_distance_bl(dat->src, target, dat->distance)) //Check to see if you haven't teleported. [Skotlex]
+		{
+			map_freeblock_lock();
+			status_fix_damage(dat->src, target, dat->damage, dat->delay);
+			if (dat->attack_type && !status_isdead(target))
+				skill_additional_effect(dat->src, target, dat->skill_id, dat->skill_lv, dat->attack_type, dat->dmg_lv, tick);
+			if (dat->dmg_lv > ATK_BLOCK && dat->attack_type)
+				skill_counter_additional_effect(dat->src, target, dat->skill_id, dat->skill_lv, dat->attack_type, tick);
+			map_freeblock_unlock();
+		}
+
+		if (dat->src && dat->src->type == BL_PC && --((TBL_PC*)dat->src)->delayed_damage == 0 && ((TBL_PC*)dat->src)->state.hold_recalc) {
+			((TBL_PC*)dat->src)->state.hold_recalc = 0;
+			status_calc_pc(((TBL_PC*)dat->src), SCO_FORCE);
+		}
 	}
 	ers_free(delay_damage_ers, dat);
 	return 0;
@@ -252,8 +273,13 @@ int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct
 	dat->dmg_lv = dmg_lv;
 	dat->delay = ddelay;
 	dat->distance = distance_bl(src, target)+10; //Attack should connect regardless unless you teleported.
+	dat->src_type = src->type;
 	if (src->type != BL_PC && amotion > 1000)
 		amotion = 1000; //Aegis places a damage-delay cap of 1 sec to non player attacks. [Skotlex]
+
+	if (src->type == BL_PC)
+		((TBL_PC*)src)->delayed_damage++;
+
 	add_timer(tick+amotion, battle_delay_damage_sub, src->id, (intptr_t)dat);
 	
 	return 0;
@@ -2077,6 +2103,17 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 				skillratio += sc->data[SC_MAXOVERTHRUST]->val2;
 			if(sc->data[SC_BERSERK])
 				skillratio += 100;
+			if (sc->data[SC_CRUSHSTRIKE] && (!skill_id || skill_id == KN_AUTOCOUNTER)) {
+				if (sd) { //ATK [{Weapon Level * (Weapon Upgrade Level + 6) * 100} + (Weapon ATK) + (Weapon Weight)]%
+					short index = sd->equip_index[EQI_HAND_R];
+
+					if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+						skillratio += -100 + sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
+						100 * sd->inventory_data[index]->wlv * (sd->inventory.u.items_inventory[index].refine + 6);
+				}
+				status_change_end(src, SC_CRUSHSTRIKE, INVALID_TIMER);
+				skill_break_equip(src, EQP_WEAPON, 2000, BCT_SELF);
+			}
 		}
 		if( !skill_id )
 		{ // Random chance to deal multiplied damage - Consider it as part of skill-based-damage
@@ -2125,18 +2162,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 					break;
 				case MER_CRASH:
 					skillratio += 10*skill_lv;
-					break;
-				case KN_AUTOCOUNTER:
-					if (sc && sc->data[SC_CRUSHSTRIKE]) {
-						if (sd) {
-							// ATK [{Weapon Level * (Weapon Upgrade Level + 6) * 100} + (Weapon ATK) + (Weapon Weight)]%
-							short index = sd->equip_index[EQI_HAND_R];
-
-							if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
-								skillratio = sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
-								100 * sd->inventory_data[index]->wlv * (sd->inventory.u.items_inventory[index].refine + 6);
-						}
-					}
 					break;
 				case KN_SPEARSTAB:
 					skillratio += 15*skill_lv;
@@ -3558,12 +3583,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
   	else if(wd.div_ < 0) //Since the attack missed...
 		wd.div_ *= -1; 
 
-	if(sd && (skill=pc_checkskill(sd,BS_WEAPONRESEARCH)) > 0) 
-		ATK_ADD(skill*2);
-
-	if(skill_id==TF_POISON)
-		ATK_ADD(15*skill_lv);
-
 	if( !(nk&NK_NO_ELEFIX) && !n_ele )
 	{	//Elemental attribute fix
 		if( wd.damage > 0 )
@@ -3594,8 +3613,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 
 	if (sd)
 	{
+		uint16 skill;
+
+		if ((skill = pc_checkskill(sd, BS_WEAPONRESEARCH)) > 0)
+			ATK_ADD(skill * 2);
+		if (skill_id == TF_POISON)
+			ATK_ADD(15 * skill_lv);
 		if (skill_id != CR_SHIELDBOOMERANG) //Only Shield boomerang doesn't takes the Star Crumbs bonus.
 			ATK_ADD2(wd.div_*sd->right_weapon.star, wd.div_*sd->left_weapon.star);
+		if (skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
+			ATK_ADD(4);
 		if (skill_id==MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count. [Skotlex]
 			ATK_ADD(wd.div_*sd->spiritball_old*3);
 		} else {

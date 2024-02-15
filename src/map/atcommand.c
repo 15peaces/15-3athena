@@ -1879,6 +1879,7 @@ ACMD_FUNC(baselevelup)
 
 		sd->status.status_point += status_point;
 		sd->status.base_level += (unsigned int)level;
+		status_calc_pc(sd, SCO_FORCE);
 		status_percent_heal(&sd->bl, 100, 100);
 		clif_misceffect(&sd->bl, 0);
 		clif_displaymessage(fd, msg_txt(sd,21)); // Base level raised.
@@ -1907,6 +1908,7 @@ ACMD_FUNC(baselevelup)
 		else
 			sd->status.status_point -= status_point;
 		sd->status.base_level -= (unsigned int)level;
+		status_calc_pc(sd, SCO_FORCE);
 		clif_displaymessage(fd, msg_txt(sd,22)); // Base level lowered.
 	}
 	sd->status.base_exp = 0;
@@ -1918,7 +1920,6 @@ ACMD_FUNC(baselevelup)
 	// achievements
 	achievement_validate_stats(sd, SP_BASELEVEL, sd->status.base_level);
 
-	status_calc_pc(sd, 0);
 	pc_baselevelchanged(sd);
 	if(sd->status.party_id)
 		party_send_levelup(sd);
@@ -1975,7 +1976,7 @@ ACMD_FUNC(joblevelup)
 	clif_updatestatus(sd, SP_JOBEXP);
 	clif_updatestatus(sd, SP_NEXTJOBEXP);
 	clif_updatestatus(sd, SP_SKILLPOINT);
-	status_calc_pc(sd, 0);
+	status_calc_pc(sd, SCO_FORCE);
 	npc_script_event(sd, NPCE_JOBLVUP); // Trigger OnPCJobLvUpEvent
 
 	return 0;
@@ -10031,9 +10032,9 @@ ACMD_FUNC(font)
 	font_id = atoi(message);
 	if( font_id == 0 )
 	{
-		if( sd->user_font )
+		if( sd->status.font )
 		{
-			sd->user_font = 0;
+			sd->status.font = 0;
 			clif_displaymessage(fd, "Returning to normal font.");
 			clif_font(sd);
 		}
@@ -10045,9 +10046,9 @@ ACMD_FUNC(font)
 	}
 	else if( font_id < 0 || font_id > 9 )
 		clif_displaymessage(fd, "Invalid font. Use a Value from 0 to 9.");
-	else if( font_id != sd->user_font )
+	else if( font_id != sd->status.font )
 	{
-		sd->user_font = font_id;
+		sd->status.font = font_id;
 		clif_font(sd);
 		clif_displaymessage(fd, "Font changed.");
 	}

@@ -1276,8 +1276,8 @@ void initChangeTables(void)
 		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
 
 	// misc
-	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF;
-	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF;
+	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF|SCB_DEF2;
+	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF|SCB_MDEF2;
 
 	// Monster Transformation
 	StatusChangeFlagTable[SC_MTF_ASPD] = SCB_ASPD | SCB_HIT;
@@ -2364,13 +2364,13 @@ void status_calc_misc(struct block_list *bl, struct status_data *status, int lev
 
 //Skotlex: Calculates the initial status for the given mob
 //first will only be false when the mob leveled up or got a GuardUp level.
-int status_calc_mob_(struct mob_data* md, bool first)
+int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 {
 	struct status_data *status;
 	struct block_list *mbl = NULL;
 	int flag=0;
 
-	if(first)
+	if(opt&SCO_FIRST)
 	{	//Set basic level on respawn.
 		md->level = md->db->lv;
 	}
@@ -2399,7 +2399,7 @@ int status_calc_mob_(struct mob_data* md, bool first)
 			aFree(md->base_status);
 			md->base_status = NULL;
 		}
-		if(first)
+		if(opt&SCO_FIRST)
 			memcpy(&md->status, &md->db->status, sizeof(struct status_data));
 		return 0;
 	}
@@ -2546,18 +2546,18 @@ int status_calc_mob_(struct mob_data* md, bool first)
 		}
 	}
 
-	if( first ) //Initial battle status
+	if(opt&SCO_FIRST) //Initial battle status
 		memcpy(&md->status, status, sizeof(struct status_data));
 
 	return 1;
 }
 
 //Skotlex: Calculates the stats of the given pet.
-int status_calc_pet_(struct pet_data *pd, bool first)
+int status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 {
 	nullpo_ret(pd);
 
-	if (first) {
+	if (opt&SCO_FIRST) {
 		memcpy(&pd->status, &pd->db->status, sizeof(struct status_data));
 		pd->status.mode = MD_CANMOVE; // pets discard all modes, except walking
 		pd->status.speed = pd->petDB->speed;
@@ -2576,11 +2576,11 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 		lv =sd->status.base_level*battle_config.pet_lv_rate/100;
 		if (lv < 0)
 			lv = 1;
-		if (lv != pd->pet.level || first)
+		if (lv != pd->pet.level || opt & SCO_FIRST)
 		{
 			struct status_data *bstat = &pd->db->status, *status = &pd->status;
 			pd->pet.level = lv;
-			if (!first) //Lv Up animation
+			if (!opt&SCO_FIRST) //Lv Up animation
 				clif_misceffect(&pd->bl, 0);
 			status->rhw.atk = (bstat->rhw.atk*lv)/pd->db->lv;
 			status->rhw.atk2 = (bstat->rhw.atk2*lv)/pd->db->lv;
@@ -2602,10 +2602,10 @@ int status_calc_pet_(struct pet_data *pd, bool first)
 
 			status_calc_misc(&pd->bl, &pd->status, lv);
 
-			if (!first)	//Not done the first time because the pet is not visible yet
+			if (!opt&SCO_FIRST)	//Not done the first time because the pet is not visible yet
 				clif_send_petstatus(sd);
 		}
-	} else if (first) {
+	} else if (opt&SCO_FIRST) {
 		status_calc_misc(&pd->bl, &pd->status, pd->db->lv);
 		if (!battle_config.pet_lv_rate && pd->pet.level != pd->db->lv)
 			pd->pet.level = pd->db->lv;
@@ -3011,7 +3011,7 @@ bool status_calc_weight(struct map_session_data *sd, uint8 flag)
 
 //Calculates player data from scratch without counting SC adjustments.
 //Should be invoked whenever players raise stats, learn passive skills or change equipment.
-int status_calc_pc_(struct map_session_data* sd, bool first)
+int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 {
 	static int calculating = 0; //Check for recursive call preemption. [Skotlex]
 	struct status_data *status; // pointer to the player's base status
@@ -3030,7 +3030,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 	pc_calc_skilltree(sd);	// スキルツリ?の計算
 
-	if(first) {
+	if(opt&SCO_FIRST) {
 		//Load Hp/SP from char-received data.
 		sd->battle_status.hp = sd->status.hp;
 		sd->battle_status.sp = sd->status.sp;
@@ -3078,7 +3078,6 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 		+ sizeof(sd->expaddrace)
 		+ sizeof(sd->ignore_mdef)
 		+ sizeof(sd->ignore_def)
-		+ sizeof(sd->itemgrouphealrate)
 		+ sizeof(sd->sp_gain_race)
 		);
 
@@ -3144,6 +3143,8 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	pc_delautobonus(sd,sd->autobonus2,ARRAYLENGTH(sd->autobonus2),true);
 	pc_delautobonus(sd,sd->autobonus3,ARRAYLENGTH(sd->autobonus3),true);
 
+	pc_itemgrouphealrate_clear(sd);
+
 	// Parse equipment.
 	for(i=0;i<EQI_MAX;i++) {
 		current_equip_item_index = index = sd->equip_index[i]; //We pass INDEX to current_equip_item_index - for EQUIP_SCRIPT (new cards solution) [Lupus]
@@ -3166,7 +3167,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 
 		status->def += sd->inventory_data[index]->def;
 
-		if(first && sd->inventory_data[index]->equip_script)
+		if(opt&SCO_FIRST && sd->inventory_data[index]->equip_script)
 	  	{	//Execute equip-script on login
 			run_script(sd->inventory_data[index]->equip_script,0,sd->bl.id,0);
 			if (!calculating)
@@ -3290,7 +3291,7 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 				data = itemdb_exists(c);
 				if(!data)
 					continue;
-				if(first && data->equip_script)
+				if(opt&SCO_FIRST && data->equip_script)
 			  	{	//Execute equip-script on login
 					run_script(data->equip_script,0,sd->bl.id,0);
 					if (!calculating)
@@ -3876,12 +3877,12 @@ int status_calc_pc_(struct map_session_data* sd, bool first)
 	return 0;
 }
 
-int status_calc_mercenary_(struct mercenary_data *md, bool first) 
+int status_calc_mercenary_(struct mercenary_data *md, enum e_status_calc_opt opt)
 {
 	struct status_data *status = &md->base_status;
 	struct s_mercenary *merc = &md->mercenary;
 
-	if( first )
+	if(opt&SCO_FIRST)
 	{
 		memcpy(status, &md->db->status, sizeof(struct status_data));
 		status->mode = MD_CANMOVE|MD_CANATTACK;
@@ -3900,12 +3901,12 @@ int status_calc_mercenary_(struct mercenary_data *md, bool first)
 	return 0;
 }
 
-int status_calc_elemental_(struct elemental_data *ed, bool first)
+int status_calc_elemental_(struct elemental_data *ed, enum e_status_calc_opt opt)
 {
 	struct status_data *status = &ed->base_status;
 	struct s_elemental *elem = &ed->elemental;
 
-	if( first )
+	if(opt&SCO_FIRST)
 	{
 		memcpy(status, &ed->db->status, sizeof(struct status_data));
 		//status->def_ele =  db->element;
@@ -3939,7 +3940,7 @@ int status_calc_elemental_(struct elemental_data *ed, bool first)
 	status->flee = elem->flee;
 	status->amotion = elem->amotion;
 
-	if ( first )
+	if (opt&SCO_FIRST)
 	{// Set current HP after Max HP/SP is set on creation/load.
 		ed->battle_status.hp = elem->hp;
 		ed->battle_status.sp = elem->sp;
@@ -3955,7 +3956,7 @@ int status_calc_elemental_(struct elemental_data *ed, bool first)
 	return 0;
 }
 
-int status_calc_homunculus_(struct homun_data *hd, bool first)
+int status_calc_homunculus_(struct homun_data *hd, enum e_status_calc_opt opt)
 {
 	const struct status_change *sc = &hd->sc;
 	struct status_data *status = &hd->base_status;
@@ -3970,7 +3971,7 @@ int status_calc_homunculus_(struct homun_data *hd, bool first)
 	status->int_ = hom->int_ / 10;
 	status->luk = hom->luk / 10;
 
-	if (first) {	//[orn]
+	if (opt&SCO_FIRST) {	//[orn]
 		const struct s_homunculus_db *db = hd->homunculusDB;
 		status->def_ele =  db->element;
 		status->ele_lv = 1;
@@ -4011,7 +4012,7 @@ int status_calc_homunculus_(struct homun_data *hd, bool first)
 	if((skill = hom_checkskill(hd,HLIF_BRAIN)) > 0)
 		status->max_sp += (1 +skill/2 -skill/4 +skill/5) * status->max_sp / 100 ;
 
-	if (first) {
+	if (opt&SCO_FIRST) {
 		hd->battle_status.hp = hom->hp ;
 		hd->battle_status.sp = hom->sp ;
 	}
@@ -4813,10 +4814,19 @@ void status_calc_bl_elem(struct block_list *bl, enum scb_flag flag)
 /// Also sends updates to the client wherever applicable.
 /// @param flag bitfield of values from enum scb_flag
 /// @param first if true, will cause status_calc_* functions to run their base status initialization code
-void status_calc_bl_(struct block_list* bl, enum scb_flag flag, bool first)
+void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_calc_opt opt)
 {
 	struct status_data b_status; // previous battle status
 	struct status_data* status; // pointer to current battle status
+
+	if (bl->type == BL_PC && ((TBL_PC*)bl)->delayed_damage != 0) {
+		if (opt&SCO_FORCE)
+			((TBL_PC*)bl)->state.hold_recalc = 0; /* Clear and move on */
+		else {
+			((TBL_PC*)bl)->state.hold_recalc = 1; /* Flag and stop */
+			return;
+		}
+	}
 
 	// remember previous values
 	status = status_get_status_data(bl);
@@ -4826,20 +4836,20 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, bool first)
 	{// calculate the object's base status too
 		switch( bl->type )
 		{
-			case BL_PC:		status_calc_pc_(BL_CAST(BL_PC,bl), first);				break;
-			case BL_MOB:	status_calc_mob_(BL_CAST(BL_MOB,bl), first);			break;
-			case BL_PET:	status_calc_pet_(BL_CAST(BL_PET,bl), first);			break;
-			case BL_HOM:	status_calc_homunculus_(BL_CAST(BL_HOM,bl), first);		break;
-			case BL_MER:	status_calc_mercenary_(BL_CAST(BL_MER,bl), first);		break;
-			case BL_ELEM:	status_calc_elemental_(BL_CAST(BL_ELEM,bl), first);		break;
-			case BL_NPC:	status_calc_npc_(BL_CAST(BL_NPC, bl), first);			break;
+			case BL_PC:		status_calc_pc_(BL_CAST(BL_PC,bl), opt);			break;
+			case BL_MOB:	status_calc_mob_(BL_CAST(BL_MOB,bl), opt);			break;
+			case BL_PET:	status_calc_pet_(BL_CAST(BL_PET,bl), opt);			break;
+			case BL_HOM:	status_calc_homunculus_(BL_CAST(BL_HOM,bl), opt);	break;
+			case BL_MER:	status_calc_mercenary_(BL_CAST(BL_MER,bl), opt);	break;
+			case BL_ELEM:	status_calc_elemental_(BL_CAST(BL_ELEM,bl), opt);	break;
+			case BL_NPC:	status_calc_npc_(BL_CAST(BL_NPC, bl), opt);			break;
 		}
 	}
 
 	if( bl->type == BL_PET )
 		return; // pets are not affected by statuses
 
-	if( first && bl->type == BL_MOB )
+	if(opt&SCO_FIRST && bl->type == BL_MOB )
 		return; // assume there will be no statuses active
 
 	if ( bl->type == BL_ELEM )// Elemental calculations are based on the summoner and not raw stats.
@@ -4847,7 +4857,7 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, bool first)
 	else
 		status_calc_bl_main(bl, flag);
 
-	if( first && bl->type == BL_HOM )
+	if(opt&SCO_FIRST && bl->type == BL_HOM )
 		return; // client update handled by caller
 
 	// compare against new values and send client updates
@@ -5823,6 +5833,8 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		return 1;
 	if (sc->data[SC_NYANGGRASS] && sc->data[SC_NYANGGRASS]->val2 == 1)
 		return 0;
+	if (sc->data[SC_DEFSET])
+		return sc->data[SC_DEFSET]->val1;
 	if(sc->data[SC_ARMORCHANGE])
 		def += sc->data[SC_ARMORCHANGE]->val2;
 	if(sc->data[SC_DRUMBATTLE])
@@ -5932,6 +5944,8 @@ static signed short status_calc_def2(struct block_list *bl, struct status_change
 		return 0;
 	if (sc->data[SC_UNLIMIT])
 		return 1;
+	if (sc->data[SC_DEFSET])
+		return sc->data[SC_DEFSET]->val1;
 	if(sc->data[SC_SUN_COMFORT])
 		def2 += sc->data[SC_SUN_COMFORT]->val2;
 	if (sc->data[SC_GENTLETOUCH_REVITALIZE])
@@ -5986,6 +6000,8 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		return 1;
 	if (sc->data[SC_NYANGGRASS] && sc->data[SC_NYANGGRASS]->val2 == 1)
 		return 0;
+	if (sc->data[SC_MDEFSET])
+		return sc->data[SC_MDEFSET]->val1;
 	if (sc->data[SC_ENDURE])// It has been confirmed that eddga card grants 1 MDEF, not 0, not 10, but 1.
 		mdef += (sc->data[SC_ENDURE]->val4 == 0) ? sc->data[SC_ENDURE]->val1 : 1;
 	if (sc->data[SC_CONCENTRATION])
@@ -6037,6 +6053,8 @@ static signed short status_calc_mdef2(struct block_list *bl, struct status_chang
 		return 0;
 	if (sc->data[SC_UNLIMIT])
 		return 1;
+	if (sc->data[SC_MDEFSET])
+		return sc->data[SC_MDEFSET]->val1;
 	if(sc->data[SC_MINDBREAKER])
 		mdef2 -= mdef2 * sc->data[SC_MINDBREAKER]->val3/100;
 	if(sc->data[SC_ANALYZE])

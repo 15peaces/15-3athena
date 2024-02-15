@@ -99,7 +99,7 @@ void pet_set_intimate(struct pet_data *pd, int value)
 
 	pd->pet.intimate = value;
 	if( (intimate >= battle_config.pet_equip_min_friendly && pd->pet.intimate < battle_config.pet_equip_min_friendly) || (intimate < battle_config.pet_equip_min_friendly && pd->pet.intimate >= battle_config.pet_equip_min_friendly) )
-		status_calc_pc(sd,0);
+		status_calc_pc(sd, SCO_NONE);
 
 	/* Pet is lost, delete the egg */
 	if (value <= 0) {
@@ -274,7 +274,7 @@ static int pet_hungry(int tid, int64 tick, int id, intptr_t data)
 			pd->pet.intimate = 0;
 			pd->status.speed = pd->db->status.speed;
 		}
-		status_calc_pet(pd, 0);
+		status_calc_pet(pd, SCO_NONE);
 		clif_send_petdata(sd,pd,1,pd->pet.intimate);
 	}
 	clif_send_petdata(sd,pd,2,pd->pet.hungry);
@@ -381,7 +381,7 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 	pd->pet.incuvate = 1;
 	unit_free(&pd->bl,CLR_OUTSIGHT);
 
-	status_calc_pc(sd,0);
+	status_calc_pc(sd, SCO_NONE);
 	sd->status.pet_id = 0;
 
 	return 1;
@@ -437,19 +437,23 @@ int pet_data_init(struct map_session_data *sd, struct s_pet *pet)
 	pd->bl.y = pd->ud.to_y;
 
 	map_addiddb(&pd->bl);
-	status_calc_pet(pd,1);
+	status_calc_pet(pd, SCO_FIRST);
 
 	pd->last_thinktime = gettick();
 	pd->state.skillbonus = 0;
 	if( battle_config.pet_status_support )
 		run_script(pet_db[i].pet_script,0,sd->bl.id,0);
-	if( pd->petDB && pd->petDB->equip_script )
-		status_calc_pc(sd,0);
 
-	if( battle_config.pet_hungry_delay_rate != 100 )
-		interval = (pd->petDB->hungry_delay*battle_config.pet_hungry_delay_rate)/100;
-	else
-		interval = pd->petDB->hungry_delay;
+	if (pd->petDB) {
+		if (pd->petDB->equip_script)
+			status_calc_pc(sd, SCO_NONE);
+
+		if (battle_config.pet_hungry_delay_rate != 100)
+			interval = pd->petDB->hungry_delay * battle_config.pet_hungry_delay_rate / 100;
+		else
+			interval = pd->petDB->hungry_delay;
+	}
+
 	if( interval <= 0 )
 		interval = 1;
 	pd->pet_hungry_timer = add_timer(gettick() + interval, pet_hungry, sd->bl.id, 0);
@@ -810,7 +814,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 		if( pd->state.skillbonus )
 		{
 			pd->state.skillbonus = 0;
-			status_calc_pc(sd,0);
+			status_calc_pc(sd, SCO_NONE);
 		}
 		if( pd->s_skill && pd->s_skill->timer != INVALID_TIMER )
 		{
@@ -866,7 +870,7 @@ int pet_food(struct map_session_data *sd, struct pet_data *pd)
 	}
 	else if( pd->pet.intimate > 1000 )
 		pd->pet.intimate = 1000;
-	status_calc_pet(pd, 0);
+	status_calc_pet(pd, SCO_NONE);
 	pd->pet.hungry += pd->petDB->fullness;
 	if( pd->pet.hungry > 100 )
 		pd->pet.hungry = 100;
@@ -1175,7 +1179,7 @@ int pet_skill_bonus_timer(int tid, int64 tick, int id, intptr_t data)
 
 	if (pd->state.skillbonus != bonus) {
 		pd->state.skillbonus = bonus;
-		status_calc_pc(sd, 0);
+		status_calc_pc(sd, SCO_NONE);
 	}
 	// wait for the next timer
 	pd->bonus->timer=add_timer(tick+timer,pet_skill_bonus_timer,sd->bl.id,0);

@@ -603,7 +603,7 @@ static int mob_spawn_guardian_sub(int tid, int64 tick, int id, intptr_t data)
 	memcpy(md->guardian_data->guild_name, g->name, NAME_LENGTH);
 	md->guardian_data->guardup_lv = guardup_lv;
 	if( guardup_lv )
-		status_calc_mob(md, 0); //Give bonuses.
+		status_calc_mob(md, SCO_NONE); //Give bonuses.
 	return 0;
 }
 
@@ -936,7 +936,7 @@ int mob_spawn (struct mob_data *md)
 	}
 
 	memset(&md->state, 0, sizeof(md->state));
-	status_calc_mob(md, 1);
+	status_calc_mob(md, SCO_FIRST);
 	md->attacked_id = 0;
 	md->target_id = 0;
 	md->move_fail_count = 0;
@@ -2796,7 +2796,7 @@ int mob_class_change (struct mob_data *md, int class_)
 	unit_skillcastcancel(&md->bl, 0);
 	status_set_viewdata(&md->bl, class_);
 	clif_mob_class_change(md,md->vd->class_);
-	status_calc_mob(md, 1);
+	status_calc_mob(md, SCO_FIRST);
 	md->ud.state.speed_changed = 1; //Speed change update.
 
 	if (battle_config.monster_class_change_recover) {

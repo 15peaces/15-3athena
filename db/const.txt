@@ -646,11 +646,7 @@ bFixedCast	2057
 bSetDefRace	2059
 bSetMDefRace	2060
 
-bHPVanishRaceRate	2074
-bSPVanishRaceRate	2075
-bAbsorbDmgMaxHP	2076
-bSubSkill	2077
-bSubDefEle	2078
+bAddItemGroupHealRate	2073
 
 bFixedCastRate	2101
 bCooldownRate	2102
@@ -798,9 +794,10 @@ IG_Louise_Costume_Box	53
 IG_Xmas_Gift	54
 //Some missing ItemGroups will be added later
 IG_Advanced_Weapons_Box	55 //61
-IG_Candy_Holder	56 //389
-IG_Lucky_Bag	57 //390
-IG_Holy_Egg_2	58 //391
+IG_Flamel_Card	56//70
+IG_Candy_Holder	57 //389
+IG_Lucky_Bag	58 //390
+IG_Holy_Egg_2	59 //391
 
 //Item Packages
 IP_Aspersio_5_Scroll_Box	1	// 92

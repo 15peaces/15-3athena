@@ -22,13 +22,20 @@
 
 
 //static struct item_data* itemdb_array[MAX_ITEMDB];
-static DBMap*            itemdb_other;// unsigned short nameid -> struct item_data*
+static DBMap *itemdb_other;// unsigned short nameid -> struct item_data*
 static DBMap *itemdb_randomopt; /// Random option DB
-
-static struct item_group itemgroup_db[MAX_ITEMGROUP];
-static struct item_package itempackage_db[MAX_ITEMPACKAGE];
+static DBMap *itemdb_group;
+static DBMap *itemdb_package;
 
 struct item_data *dummy_item; //This is the default dummy item used for non-existant items. [Skotlex]
+
+DBMap * itemdb_get_groupdb() {
+	return itemdb_group;
+}
+
+DBMap * itemdb_get_packagedb() {
+	return itemdb_package;
+}
 
 /*==========================================
  * 名前で検索用
@@ -112,25 +119,27 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 	nullpo_retv(sd);
 
 	struct item it;
+	struct item_package *package = (struct item_package *) idb_get(itemdb_package, packageid);
+
 	memset(&it, 0, sizeof(it));
 
 	// "Must"-Items
-	for (i = 0; i < itempackage_db[packageid].qty; i++)
+	for (i = 0; i < package->data->qty; i++)
 	{
-		if (itempackage_db[packageid].isrand[i] == 0)
+		if (package->data->isrand[i] == 0)
 		{ 
 
-			it.nameid = itempackage_db[packageid].nameid[i];
+			it.nameid = package->data->nameid[i];
 			it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
-			get_count = itemdb_isstackable(it.nameid) ? itempackage_db[packageid].amount[i] : 1;
+			get_count = itemdb_isstackable(it.nameid) ? package->data->amount[i] : 1;
 			it.amount = get_count == 1 ? 1 : get_count;
-			it.expire_time = (itempackage_db[packageid].duration[i]) ? (unsigned int)(time(NULL) + itempackage_db[packageid].duration[i] * 60) : 0;
+			it.expire_time = (package->data->duration[i]) ? (unsigned int)(time(NULL) + package->data->duration[i] * 60) : 0;
 
-			for (j = 0; j < itempackage_db[packageid].amount[i]; j += get_count)
+			for (j = 0; j < package->data->amount[i]; j += get_count)
 			{
 				if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
 				{
-					if (itempackage_db[packageid].announced[i])
+					if (package->data->announced[i])
 						clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
 
 					clif_additem(sd, 0, 0, flag);
@@ -140,48 +149,51 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 	}
 
 	// Random Items
-	for (int cur_rand = 1; cur_rand <= itempackage_db[packageid].max_rand; cur_rand++)
+	for (int cur_rand = 1; cur_rand <= package->data->max_rand; cur_rand++)
 	{
 		uint16 r = 0;
-		struct item_package tmp_package = {0};
+		struct item_package_entry *tmp = NULL;
+
+		CREATE(tmp, struct item_package_entry, 1);
 
 		// First, get the current random group separated
-		for (i = 0; i < itempackage_db[packageid].qty; i++)
+		for (i = 0; i < package->data->qty; i++)
 		{
-			if (itempackage_db[packageid].isrand[i] == cur_rand)
+			if (package->data->isrand[i] == cur_rand)
 			{
-				for (int j = 0; j < itempackage_db[packageid].prob[i]; j++)
+				for (int j = 0; j < package->data->prob[i]; j++)
 				{
-					tmp_package.nameid[tmp_package.qty] = itempackage_db[packageid].nameid[i];
-					tmp_package.amount[tmp_package.qty] = itempackage_db[packageid].amount[i];
-					tmp_package.duration[tmp_package.qty] = itempackage_db[packageid].duration[i];
-					tmp_package.announced[tmp_package.qty] = itempackage_db[packageid].announced[i];
-					tmp_package.prob[tmp_package.qty] = itempackage_db[packageid].prob[i];
-					tmp_package.qty++;
+					tmp->nameid[tmp->qty] = package->data->nameid[i];
+					tmp->amount[tmp->qty] = package->data->amount[i];
+					tmp->duration[tmp->qty] = package->data->duration[i];
+					tmp->announced[tmp->qty] = package->data->announced[i];
+					tmp->prob[tmp->qty] = package->data->prob[i];
+					tmp->qty++;
 				}
 			}
 		}
 
 		// Now we'll get an random item of the current group.
-		if(tmp_package.qty > 0)
-			r = rnd() % tmp_package.qty;
+		if(tmp->qty > 0)
+			r = rnd() % tmp->qty;
 		
-		it.nameid = tmp_package.nameid[r];
+		it.nameid = tmp->nameid[r];
 		it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
-		get_count = itemdb_isstackable(it.nameid) ? tmp_package.amount[r] : 1;
+		get_count = itemdb_isstackable(it.nameid) ? tmp->amount[r] : 1;
 		it.amount = get_count == 1 ? 1 : get_count;
-		it.expire_time = (tmp_package.duration[r]) ? (unsigned int)(time(NULL) + tmp_package.duration[r] * 60) : 0;
+		it.expire_time = (tmp->duration[r]) ? (unsigned int)(time(NULL) + tmp->duration[r] * 60) : 0;
 
-		for (j = 0; j < tmp_package.amount[r]; j += get_count)
+		for (j = 0; j < tmp->amount[r]; j += get_count)
 		{
 			if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT)))
 			{
-				if (tmp_package.announced[r])
+				if (tmp->announced[r])
 					clif_broadcast_obtain_special_item(sd, sd->status.name, it.nameid, sd->itemid, ITEMOBTAIN_TYPE_BOXITEM, itemdb_name(sd->itemid));
 
 				clif_additem(sd, 0, 0, flag);
 			}
 		}
+		aFree(tmp);
 	}
 }
 
@@ -190,33 +202,19 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 /*==========================================
  * 箱系アイテム検索
  *------------------------------------------*/
-int itemdb_searchrandomid(uint16 group)
+int itemdb_searchrandomid(uint16 group_id)
 {
-	if(!group || group>=MAX_ITEMGROUP) {
-		ShowError("itemdb_searchrandomid: Invalid group id %d\n", group);
+	struct item_group *group = (struct item_group *) idb_get(itemdb_group, group_id);
+
+	if(!group) {
+		ShowError("itemdb_searchrandomid: Invalid group id %d\n", group_id);
 		return UNKNOWN_ITEM_ID;
 	}
-	if (itemgroup_db[group].qty)
-		return itemgroup_db[group].nameid[rnd()%itemgroup_db[group].qty];
+	if (group->qty)
+		return group->nameid[rnd()%group->qty];
 	
-	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group);
+	ShowError("itemdb_searchrandomid: No item entries for group id %d\n", group_id);
 	return UNKNOWN_ITEM_ID;
-}
-
-/*==========================================
- * Calculates total item-group related bonuses for the given item
- *------------------------------------------*/
-int itemdb_group_bonus(struct map_session_data* sd, int itemid)
-{
-	int bonus = 0, i, j;
-	for (i=0; i < MAX_ITEMGROUP; i++) {
-		if (!sd->itemgrouphealrate[i])
-			continue;
-		ARR_FIND( 0, itemgroup_db[i].qty, j, itemgroup_db[i].nameid[j] == itemid );
-		if( j < itemgroup_db[i].qty )
-			bonus += sd->itemgrouphealrate[i];
-	}
-	return bonus;
 }
 
 /*==========================================
@@ -671,6 +669,7 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 	int ln=0, entries=0;
 	unsigned short nameid;
 	int groupid,j,k;
+	uint16 idx = 0;
 	char *str[3],*p;
 	char w1[1024], w2[1024];
 	
@@ -681,6 +680,8 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 
 	while(fgets(line, sizeof(line), fp))
 	{
+		struct item_group *group = NULL;
+
 		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
@@ -710,7 +711,7 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 		else
 			groupid = atoi(str[0]);
 
-		if (groupid < 0 || groupid >= MAX_ITEMGROUP) {
+		if (groupid < 0) {
 			ShowWarning("itemdb_read_itemgroup: Invalid group %d in %s:%d\n", groupid, filename, ln);
 			continue;
 		}
@@ -720,12 +721,16 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 			continue;
 		}
 		k = atoi(str[2]);
-		if (itemgroup_db[groupid].qty+k >= MAX_RANDITEM) {
-			ShowWarning("itemdb_read_itemgroup: Group %d is full (%d entries) in %s:%d\n", groupid, MAX_RANDITEM, filename, ln);
-			continue;
+
+		if (!(group = (struct item_group *) idb_get(itemdb_group, groupid))) {
+			CREATE(group, struct item_group, 1);
+			group->id = groupid;
 		}
-		for(j=0;j<k;j++)
-			itemgroup_db[groupid].nameid[itemgroup_db[groupid].qty++] = nameid;
+		
+		for (j = 0; j < k; j++)
+			group->nameid[group->qty++] = nameid;
+
+		idb_put(itemdb_group, group->id, group);
 		entries++;
 	}
 	fclose(fp);
@@ -738,9 +743,18 @@ static void itemdb_read_itemgroup(void)
 	char path[256];
 	snprintf(path, 255, "%s/item_group_db.txt", db_path);
 
-	memset(&itemgroup_db, 0, sizeof(itemgroup_db));
 	itemdb_read_itemgroup_sub(path);
 	return;
+}
+
+static int itemdb_group_free(DBKey key, DBData *data, va_list ap) {
+	struct item_group *group = db_data2ptr(data);
+
+	if (!group)
+		return 0;
+
+	aFree(group);
+	return 0;
 }
 
 /*==========================================
@@ -751,7 +765,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 {
 	FILE *fp;
 	char line[1024];
-	int ln=0;
+	int ln=0, entries = 0;
 	unsigned short nameid, announced = 0, duration = 0;
 	int packageid,amt,j;
 	int prob = 1;
@@ -766,6 +780,8 @@ static void itemdb_read_itempackage_sub(const char* filename)
 
 	while(fgets(line, sizeof(line), fp))
 	{
+		struct item_package *package = NULL;
+
 		ln++;
 		if(line[0]=='/' && line[1]=='/')
 			continue;
@@ -845,17 +861,34 @@ static void itemdb_read_itempackage_sub(const char* filename)
 			continue;
 		}
 
-		itempackage_db[packageid].nameid[itempackage_db[packageid].qty] = nameid;
-		itempackage_db[packageid].prob[itempackage_db[packageid].qty] = prob;
-		itempackage_db[packageid].amount[itempackage_db[packageid].qty] = amt;
-		itempackage_db[packageid].isrand[itempackage_db[packageid].qty] = rand_package;
-		itempackage_db[packageid].announced[itempackage_db[packageid].qty] = announced;
-		itempackage_db[packageid].duration[itempackage_db[packageid].qty] = duration;
-		itempackage_db[packageid].qty++;
-		if (rand_package > itempackage_db[packageid].max_rand)
-			itempackage_db[packageid].max_rand = rand_package;
+		if (!(package = (struct item_package *) idb_get(itemdb_package, packageid))) {
+			CREATE(package, struct item_package, 1);
+			package->id = packageid;
+		}
+
+		uint16 idx = package->qty;
+		if (!idx)
+			CREATE(package->data, struct item_package_entry, 1);
+		else
+			RECREATE(package->data, struct item_package_entry, idx + 1);
+
+		package->data->id = packageid;
+		package->data->nameid[package->data->qty] = nameid;
+		package->data->prob[package->data->qty] = prob;
+		package->data->amount[package->data->qty] = amt;
+		package->data->isrand[package->data->qty] = rand_package;
+		package->data->announced[package->data->qty] = announced;
+		package->data->duration[package->data->qty] = duration;
+		package->data->qty++;
+		if (rand_package > package->data->max_rand)
+			package->data->max_rand = rand_package;
+		package->qty++;
+
+		idb_put(itemdb_package, package->id, package);
+		entries++;
 	}
 	fclose(fp);
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", entries, filename);
 	return;
 }
 
@@ -864,10 +897,21 @@ static void itemdb_read_itempackage(void)
 	char path[256];
 	snprintf(path, 255, "%s/item_package_db.txt", db_path);
 
-	memset(&itempackage_db, 0, sizeof(itempackage_db));
 	itemdb_read_itempackage_sub(path);
-	ShowStatus("Done reading '"CL_WHITE"%s"CL_RESET"'.\n", "item_package_db.txt");
 	return;
+}
+
+static int itemdb_package_free(DBKey key, DBData *data, va_list ap) {
+	struct item_package *package = db_data2ptr(data);
+
+	if (!package)
+		return 0;
+
+	if (package->qty)
+		aFree(package->data);
+
+	aFree(package);
+	return 0;
 }
 
 /*==========================================
@@ -1823,22 +1867,13 @@ void itemdb_reload(void)
 	struct s_mapiterator* iter;
 	struct map_session_data* sd;
 
-	/*
-	int i;
-
-	// clear the previous itemdb data
-	for( i = 0; i < ARRAYLENGTH(itemdb_array); ++i )
-		if( itemdb_array[i] )
-			destroy_item_data(itemdb_array[i]);
-	*/
-
 	itemdb_other->clear(itemdb_other, itemdb_final_sub);
 	itemdb_randomopt->clear(itemdb_randomopt, itemdb_randomopt_free);
+	itemdb_group->clear(itemdb_group, itemdb_group_free);
+	itemdb_package->clear(itemdb_package, itemdb_package_free);
 
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
-
-	//memset(itemdb_array, 0, sizeof(itemdb_array));
 
 	// read new data
 	itemdb_read();
@@ -1864,6 +1899,9 @@ void do_final_itemdb(void)
 {
 	itemdb_other->destroy(itemdb_other, itemdb_final_sub);
 	itemdb_randomopt->destroy(itemdb_randomopt, itemdb_randomopt_free);
+	itemdb_group->destroy(itemdb_group, itemdb_group_free);
+	itemdb_package->destroy(itemdb_package, itemdb_package_free);
+
 	destroy_item_data(dummy_item);
 	if (battle_config.feature_roulette)
 		itemdb_roulette_free();
@@ -1878,6 +1916,9 @@ void do_init_itemdb(void)
 	//memset(itemdb_array, 0, sizeof(itemdb_array));
 	itemdb_other = idb_alloc(DB_OPT_BASE); 
 	itemdb_randomopt = uidb_alloc(DB_OPT_BASE);
+	itemdb_group = idb_alloc(DB_OPT_BASE);
+	itemdb_package = idb_alloc(DB_OPT_BASE);
+
 	create_dummy_data(); //Dummy data item.
 	itemdb_read();
 

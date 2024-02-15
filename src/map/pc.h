@@ -121,6 +121,12 @@ struct skill_cooldown_entry {
 	int timer;
 };
 
+/// Item Group heal rate struct
+struct s_pc_itemgrouphealrate {
+	uint16 group_id; /// Item Group ID
+	short rate; /// Rate
+};
+
 struct map_session_data {
 	struct block_list bl;
 	struct unit_data ud;
@@ -187,6 +193,7 @@ struct map_session_data {
 		unsigned int pvp : 1;	// Cell PVP [Napster]
 		unsigned int workinprogress : 2; // See clif.h::e_workinprogress
 		unsigned int hpmeter_visible : 1;
+		unsigned int hold_recalc : 1;
 		bool keepshop; // Whether shop data should be removed when the player disconnects
 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not
 		bool pc_loaded; // Ensure inventory data and status data is loaded before we calculate player stats
@@ -303,7 +310,6 @@ struct map_session_data {
 	int expaddrace[RC_MAX];
 	int ignore_mdef[RC_MAX];
 	int ignore_def[RC_MAX];
-	int itemgrouphealrate[MAX_ITEMGROUP];
 	short sp_gain_race[RC_MAX];
 	// zeroed arrays end here.
 	// zeroed structures start here
@@ -542,13 +548,14 @@ struct map_session_data {
 	int shadowform_id;
 
 	unsigned int bg_id;
-	unsigned short user_font;
 
 	// Guarantees your friend request is legit.
 	int friend_req;
 
 	struct sc_display_entry **sc_display;
 	unsigned char sc_display_count;
+
+	unsigned char delayed_damage; //[Ind]
 
 	/* Possible Thanks to Yommy~ / herc.ws! */
 	struct
@@ -584,6 +591,9 @@ struct map_session_data {
 		bool claimPrize;
 	} roulette;
 
+	struct s_pc_itemgrouphealrate **itemgrouphealrate; /// List of Item Group Heal rate bonus
+	uint8 itemgrouphealrate_count; /// Number of rate bonuses
+
 #if PACKETVER >= 20150513
 	uint32* hatEffectIDs;
 	uint8 hatEffectCount;
@@ -594,7 +604,8 @@ struct map_session_data {
 #endif
 };
 
-struct eri *pc_sc_display_ers;
+struct eri *pc_sc_display_ers; /// Player's SC display table
+struct eri *pc_itemgrouphealrate_ers; /// Player's Item Group Heal Rate table
 
 //Update this max as necessary. 105 is the value needed for the Expanded Super Baby.
 #define MAX_SKILL_TREE 105
@@ -1065,6 +1076,7 @@ int map_night_timer(int tid, int64 tick, int id, intptr_t data); // by [yor]
 void pc_inventory_rentals(struct map_session_data *sd);
 int pc_inventory_rental_clear(struct map_session_data *sd);
 void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
+void pc_rental_expire(struct map_session_data *sd, int i);
 
 int pc_read_motd(void); // [Valaris]
 int pc_disguise(struct map_session_data *sd, int class_);
@@ -1092,6 +1104,10 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int group_lv);
 void pc_update_job_and_level(struct map_session_data *sd);
 
 void pc_cell_basilica(struct map_session_data *sd);
+
+void pc_itemgrouphealrate_clear(struct map_session_data *sd);
+short pc_get_itemgroup_bonus(struct map_session_data* sd, uint16 nameid);
+short pc_get_itemgroup_bonus_group(struct map_session_data* sd, uint16 group_id);
 
 // Item Cooldown persistency
 void pc_itemcd_do(struct map_session_data *sd, bool load);

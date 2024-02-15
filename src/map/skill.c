@@ -1825,12 +1825,14 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 			if( rate )
 				skill_break_equip(bl, EQP_ARMOR, rate, BCT_ENEMY);
 		}
-		if (sd && sd->def_set_race[tstatus->race].rate)
-			status_change_start(bl, SC_DEFSET, sd->def_set_race[tstatus->race].rate, sd->def_set_race[tstatus->race].value,
-				0, 0, 0, sd->def_set_race[tstatus->race].tick, 2);
-		if (sd && sd->def_set_race[tstatus->race].rate)
-			status_change_start(bl, SC_MDEFSET, sd->mdef_set_race[tstatus->race].rate, sd->mdef_set_race[tstatus->race].value,
-				0, 0, 0, sd->mdef_set_race[tstatus->race].tick, 2);
+		if (sd && !skillid && bl->type == BL_PC) { // This effect does not work with skills.
+			if (sd->def_set_race[tstatus->race].rate)
+				status_change_start(bl, SC_DEFSET, sd->def_set_race[tstatus->race].rate, sd->def_set_race[tstatus->race].value,
+					0, 0, 0, sd->def_set_race[tstatus->race].tick, 2);
+			if (sd->def_set_race[tstatus->race].rate)
+				status_change_start(bl, SC_MDEFSET, sd->mdef_set_race[tstatus->race].rate, sd->mdef_set_race[tstatus->race].value,
+					0, 0, 0, sd->mdef_set_race[tstatus->race].tick, 2);
+		}
 	}
 
 	// Autospell when attacking
@@ -3811,6 +3813,9 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 
 			switch( skl->skill_id )
 			{
+				case KN_AUTOCOUNTER:
+					clif_skill_nodamage(src, target, skl->skill_id, skl->skill_lv, 1);
+					break;
 				case RG_INTIMIDATE:
 					if (unit_warp(src,-1,-1,-1,CLR_TELEPORT) == 0) {
 						short x,y;
@@ -6259,11 +6264,15 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case TK_JUMPKICK:
-		if (unit_movepos(src, bl->x, bl->y, 1, 1)) {
-			if (battle_check_target(src, bl, BCT_ENEMY) > 0)
+		/* Check if the target is an enemy; if not, skill should fail so the character doesn't unit_movepos (exploitable) */
+		if (battle_check_target(src, bl, BCT_ENEMY) > 0) {
+			if (unit_movepos(src, bl->x, bl->y, 2, 1)) {
 				skill_attack(BF_WEAPON, src, src, bl, skillid, skilllv, tick, flag);
-			clif_slide(src, bl->x, bl->y);
+				clif_blown(src);
+			}
 		}
+		else
+			clif_skill_fail(sd, skillid, USESKILL_FAIL, 0, 0);
 		break;
 
 	case AL_INCAGI:
@@ -6281,7 +6290,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case PR_BENEDICTIO:
 	case LK_BERSERK:
 	case MS_BERSERK:
-	case KN_AUTOCOUNTER:
 	case KN_TWOHANDQUICKEN:
 	case KN_ONEHAND:
 	case MER_QUICKEN:
@@ -6506,6 +6514,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SU_STOOP:
 		clif_skill_nodamage(src,bl,skillid,skilllv,1);
 		sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv));
+		break;
+	case KN_AUTOCOUNTER:
+		sc_start(bl, type, 100, skilllv, skill_get_time(skillid, skilllv));
+		skill_addtimerskill(src, tick + 100, bl->id, 0, 0, skillid, skilllv, BF_WEAPON, flag);
 		break;
 	case SO_STRIKING:
 		{
@@ -7822,10 +7834,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					}
 				}
 
-				if (sd->itemgrouphealrate[IG_POTION]>0)
-				{
-					hp += hp * sd->itemgrouphealrate[IG_POTION] / 100;
-					sp += sp * sd->itemgrouphealrate[IG_POTION] / 100;
+				if ((bonus = pc_get_itemgroup_bonus_group(sd, IG_POTION))) {
+					hp += hp * bonus / 100;
+					sp += sp * bonus / 100;
 				}
 
 				if( (i = pc_skillheal_bonus(sd, skillid)) )
@@ -8606,7 +8617,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if((bl->type==BL_SKILL) && (su=(struct skill_unit *)bl) && (su->group) ){
 				switch(su->group->unit_id){
 					case UNT_ANKLESNARE:	// ankle snare
-						if (su->group->val2 != 0)
+						if (su->group->val2 != 0 || su->group->val3 == SC_ESCAPE)
 							// if it is already trapping something don't spring it,
 							// remove trap should be used instead
 							break;

@@ -484,6 +484,7 @@ enum clif_messages {
 
 	//! NOTE: These values below need client version validation
 	ITEM_CANT_OBTAIN_WEIGHT = 0x34, /* You cannot carry more items because you are overweight. */
+	ITEM_NOUSE_SITTING = 0x297,
 	VIEW_EQUIP_FAIL = 0x54d,
 	RUNE_CANT_CREATE = 0x61b,
 	ITEM_CANT_COMBINE = 0x623,
