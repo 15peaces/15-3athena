@@ -286,9 +286,7 @@ enum item_itemid
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6
 #define IG_POTION 37
-//The max. item group count, same for item packages (increase this when needed).
-#define MAX_ITEMGROUP 60
-#define MAX_ITEMPACKAGE 30
+
 #define MAX_RANDGROUP 4 // For item packages
 
 #define CARD0_FORGE 0x00FF
@@ -379,7 +377,6 @@ struct item_package {
 };
 
 struct item_package_entry {
-	uint16 id;
 	unsigned short nameid[MAX_RANDITEM];
 	int qty; //Counts amount of items in the group.
 	unsigned short prob[MAX_RANDITEM];
@@ -459,11 +456,11 @@ bool itemdb_ishatched_egg(struct item* item);
 #define itemdb_canmail(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canmail_sub)
 #define itemdb_canauction(item, gmlv) itemdb_isrestricted(item , gmlv, 0, itemdb_canauction_sub)
 
-bool itemdb_isequip(unsigned short);
-bool itemdb_isequip2(struct item_data *);
+bool itemdb_isequip2(struct item_data *id);
+#define itemdb_isequip(nameid) itemdb_isequip2(itemdb_search(nameid))
 char itemdb_isidentified(unsigned short);
-bool itemdb_isstackable(unsigned short);
-bool itemdb_isstackable2(struct item_data *);
+bool itemdb_isstackable2(struct item_data *id);
+#define itemdb_isstackable(nameid) itemdb_isstackable2(itemdb_search(nameid))
 
 bool itemdb_parse_roulette_db(void);
 

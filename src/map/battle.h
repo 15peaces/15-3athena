@@ -430,7 +430,6 @@ extern struct Battle_Config
 
 	int ignore_items_gender; //[Lupus]
 
-	int copyskill_restrict; // [Aru]
 	int berserk_cancels_buffs; // [Aru]
 	int debuff_on_logout; // Removes a few "official" negative Scs on logout. [Skotlex]
 	int mob_ai; //Configures various mob_ai settings to make them smarter or dumber(official). [Skotlex]
@@ -627,8 +626,6 @@ extern struct Battle_Config
 	int warmer_show_heal;
 	int baby_hp_sp_penalty;
 	int baby_crafting_penalty;
-	int plag_renewal_expanded_skills;
-	int plag_doram_skills;
 	int allow_bloody_lust_on_boss;
 	int allow_bloody_lust_on_warp;
 	int homunculus_pyroclastic_autocast;

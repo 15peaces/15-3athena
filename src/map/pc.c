@@ -10348,7 +10348,7 @@ void pc_checkitem(struct map_session_data *sd)
 	{
 		it = sd->inventory_data[i];
 
-		if( sd->inventory.u.items_inventory[i].nameid == 0 )
+		if(!(&sd->inventory.u.items_inventory[i]) || sd->inventory.u.items_inventory[i].nameid == 0 )
 			continue;
 
 		if( !sd->inventory.u.items_inventory[i].equip )

@@ -468,30 +468,14 @@ struct item_data* itemdb_search(unsigned short nameid) {
 }
 
 /*==========================================
- * Returns if given item is a player-equippable piece.
+ * Checks if item is equip type or not
+ * @param id Item data
+ * @return True if item is equip, false otherwise
  *------------------------------------------*/
-bool itemdb_isequip(unsigned short nameid)
-{
-	int type=itemdb_type(nameid);
-	switch (type) 
-	{
-		case IT_WEAPON:
-		case IT_ARMOR:
-		case IT_AMMO:
-		case IT_SHADOWGEAR:
-			return true;
-		default:
-			return false;
-	}
-}
-
-/*==========================================
- * Alternate version of itemdb_isequip
- *------------------------------------------*/
-bool itemdb_isequip2(struct item_data *data)
+bool itemdb_isequip2(struct item_data *id)
 { 
-	nullpo_ret(data);
-	switch(data->type)
+	nullpo_ret(id);
+	switch(id->type)
 	{
 		case IT_WEAPON:
 		case IT_ARMOR:
@@ -504,30 +488,14 @@ bool itemdb_isequip2(struct item_data *data)
 }
 
 /*==========================================
- * Returns if given item's type is stackable.
+ * Checks if item is stackable or not
+ * @param id Item data
+ * @return True if item is stackable, false otherwise
  *------------------------------------------*/
-bool itemdb_isstackable(unsigned short nameid)
+bool itemdb_isstackable2(struct item_data *id)
 {
-  int type=itemdb_type(nameid);
-  switch(type) {
-	  case IT_WEAPON:
-	  case IT_ARMOR:
-	  case IT_PETEGG:
-	  case IT_PETARMOR:
-	  case IT_SHADOWGEAR:
-		  return false;
-	  default:
-		  return true;
-  }
-}
-
-/*==========================================
- * Alternate version of itemdb_isstackable
- *------------------------------------------*/
-bool itemdb_isstackable2(struct item_data *data)
-{
-  nullpo_ret(data);
-  switch(data->type) {
+  nullpo_ret(id);
+  switch(id->type) {
 	  case IT_WEAPON:
 	  case IT_ARMOR:
 	  case IT_PETEGG:
@@ -812,7 +780,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 		else
 			packageid = atoi(str[0]);
 
-		if (packageid < 0 || packageid > MAX_ITEMPACKAGE) {
+		if (packageid < 0) {
 			ShowWarning("itemdb_read_itempackage: Invalid package %d in %s:%d\n", packageid, filename, ln);
 			continue;
 		}
@@ -872,7 +840,6 @@ static void itemdb_read_itempackage_sub(const char* filename)
 		else
 			RECREATE(package->data, struct item_package_entry, idx + 1);
 
-		package->data->id = packageid;
 		package->data->nameid[package->data->qty] = nameid;
 		package->data->prob[package->data->qty] = prob;
 		package->data->amount[package->data->qty] = amt;

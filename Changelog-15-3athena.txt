@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/18/2024
+	r441 [15peaces]
+		*Removed some leftovers.
+		*Some cleaning.
+			-cleaned-up skill requirements.
+		*Fixed Plagiarism & Reproduce
+			-Preseve now only prevents to copy skills via Plagiarism, player are still able to copy skills by Reproduce.
+			-Added db/skill_copyable_db.txt that allows you customize the available skills to be copied.
+			-Removed some configs from conf/battle/skill.conf, these settings can now be set by editing the db/skill_reproduce_db.txt
+			-Thanks to @rathena for the base.
 
 02/15/2024
 	r440 [15peaces]

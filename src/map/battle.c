@@ -1419,8 +1419,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *target,int skill_id,int skill_lv,int mflag);
 
 //For quick div adjustment.
-#define damage_div_fix(dmg, div) { if (div > 1) (dmg)*=div; else if (div < 0) (div)*=-1; }
-#define damage_div_fix2(dmg, div) { if (div > 1) (dmg)*=div; }
+#define DAMAGE_DIV_FIX(dmg, div) { if (div > 1) (dmg)*=div; else if (div < 0) (div)*=-1; }
+#define DAMAGE_DIV_FIX2(dmg, div) { if (div > 1) (dmg)*=div; }
 /*==========================================
  * battle_calc_weapon_attack (by Skotlex)
  *------------------------------------------*/
@@ -3306,7 +3306,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src,struct blo
 			}
 		}
 		//Div fix.
-		damage_div_fix(wd.damage, wd.div_);
+		DAMAGE_DIV_FIX(wd.damage, wd.div_);
 
 		//The following are applied on top of current damage and are stackable.
 		if (sc) {
@@ -4810,7 +4810,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 		}
 	}
 
-	damage_div_fix(ad.damage, ad.div_);
+	DAMAGE_DIV_FIX(ad.damage, ad.div_);
 	
 	if (flag.infdef && ad.damage)
 		ad.damage = ad.damage>0?1:-1;
@@ -4909,7 +4909,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		if (skill_id == SN_FALCONASSAULT)
 		{
 			//Div fix of Blitzbeat
-			damage_div_fix2(md.damage, skill_get_num(HT_BLITZBEAT, 5));
+			DAMAGE_DIV_FIX2(md.damage, skill_get_num(HT_BLITZBEAT, 5));
 
 			//Falcon Assault Modifier
 			md.damage = md.damage*(150 + 70 * skill_lv) / 100;
@@ -5065,7 +5065,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 			ShowError("0 enemies targeted by %d:%s, divide per 0 avoided!\n", skill_id, skill_get_name(skill_id));
 	}
 
-	damage_div_fix(md.damage, md.div_);
+	DAMAGE_DIV_FIX(md.damage, md.div_);
 	
 	if (!(nk&NK_IGNORE_FLEE))
 	{
@@ -6580,7 +6580,6 @@ static const struct _battle_data {
 	{ "display_hallucination",              &battle_config.display_hallucination,           1,      0,      1,              },
 	{ "use_statpoint_table",                &battle_config.use_statpoint_table,             1,      0,      1,              },
 	{ "ignore_items_gender",                &battle_config.ignore_items_gender,             1,      0,      1,              },
-	{ "copyskill_restrict",                 &battle_config.copyskill_restrict,              2,      0,      2,              },
 	{ "berserk_cancels_buffs",              &battle_config.berserk_cancels_buffs,           0,      0,      1,              },
 	{ "debuff_on_logout",                   &battle_config.debuff_on_logout,                1|2,    0,      1|2,            },
 	{ "monster_ai",                         &battle_config.mob_ai,                          0x000,  0x000,  0x77F,          },
@@ -6754,8 +6753,6 @@ static const struct _battle_data {
 	{ "warmer_show_heal",                   &battle_config.warmer_show_heal,                0,      0,      1,              },
 	{ "baby_hp_sp_penalty",                 &battle_config.baby_hp_sp_penalty,              1,      0,      1,              },
 	{ "baby_crafting_penalty",              &battle_config.baby_crafting_penalty,           1,      0,      1,              },
-	{ "plag_renewal_expanded_skills",       &battle_config.plag_renewal_expanded_skills,    1,      0,      1,              },
-	{ "plag_doram_skills",                  &battle_config.plag_doram_skills,               1,      0,      1,              },
 	{ "allow_bloody_lust_on_boss",          &battle_config.allow_bloody_lust_on_boss,       1,      0,      1,              },
 	{ "allow_bloody_lust_on_warp",          &battle_config.allow_bloody_lust_on_warp,       1,      0,      1,              },
 	{ "homunculus_pyroclastic_autocast",    &battle_config.homunculus_pyroclastic_autocast, 0,      0,      1,              },

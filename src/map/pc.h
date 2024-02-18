@@ -11,7 +11,7 @@
 #include "battle.h" // battle_config
 #include "buyingstore.h"  // struct s_buyingstore
 #include "clan.h" // struct clan
-#include "itemdb.h" // MAX_ITEMGROUP
+#include "itemdb.h"
 #include "map.h" // RC_MAX
 #include "script.h" // struct script_reg, struct script_regstr
 #include "searchstore.h"  // struct s_search_store_info
