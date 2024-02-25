@@ -1393,21 +1393,8 @@ void clif_class_change_target(struct block_list *bl, int class_, int type, enum 
 	}
 }
 
-
-/// Notifies the client of an object's spirits.
-/// 01d0 <id>.L <amount>.W (ZC_SPIRITS)
-/// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
-static void clif_spiritball_single_sub(int fd, int id, int amount)
-{
-	WFIFOHEAD(fd, packet_len(0x1d0));
-	WFIFOW(fd,0)= 0x1d0;
-	WFIFOL(fd,2)=id;
-	WFIFOW(fd,6)=amount;
-	WFIFOSET(fd, packet_len(0x1d0));
-}
-
-#define clif_spiritball_single(fd, sd)	clif_spiritball_single_sub(fd, sd->bl.id, sd->spiritball)
-#define clif_hom_spiritball_single(fd, hd)	clif_spiritball_single_sub(fd, hd->bl.id, hd->hom_spiritball)
+#define clif_spiritball_single(sd)	clif_spiritball_sub(&sd->bl, &sd->bl, SELF)
+#define clif_hom_spiritball_single(hd)	clif_spiritball_sub(&hd->bl, &hd->bl, SELF)
 
 /*==========================================
  * ZC_SPIRITS_ATTRIBUTE =  0x8cf
@@ -4949,7 +4936,7 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 		clif_buyingstore_entry_single(sd, dstsd);
 
 	if(dstsd->spiritball > 0)
-		clif_spiritball_single(sd->fd, dstsd);
+		clif_spiritball_single(dstsd);
 
 	if (dstsd->shieldball > 0)
 		clif_millenniumshield_single(sd->fd, dstsd, dstsd->shieldball);
@@ -5102,7 +5089,7 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 		{
 			TBL_HOM* hd = (TBL_HOM*)bl;
 			if (hd->hom_spiritball > 0)
-				clif_hom_spiritball_single(sd->fd,hd);
+				clif_hom_spiritball_single(hd);
 #if PACKETVER >= 20111108
 			if (hd->sc.count)
 			{
@@ -8706,16 +8693,30 @@ void clif_devotion(struct block_list *src, struct map_session_data *tsd)
 /// Notifies clients in an area of an object's spirits.
 /// 01d0 <id>.L <amount>.W (ZC_SPIRITS)
 /// 01e1 <id>.L <amount>.W (ZC_SPIRITS2)
-void clif_spiritball(struct map_session_data *sd)
+void clif_spiritball_sub(struct block_list *bl, struct block_list* target, enum send_target send_target)
 {
+	nullpo_retv(bl);
+
 	unsigned char buf[8];
 
-	nullpo_retv(sd);
+	WBUFW(buf, 0) = 0x1d0;
+	WBUFL(buf,2)=bl->id;
 
-	WBUFW(buf,0)=0x1d0;
-	WBUFL(buf,2)=sd->bl.id;
-	WBUFW(buf,6)=sd->spiritball;
-	clif_send(buf,packet_len(0x1d0),&sd->bl,AREA);
+	switch (bl->type) {
+		case BL_PC:
+			WBUFW(buf, 6) = ((struct map_session_data*)bl)->spiritball;
+			break;
+		case BL_HOM:
+			WBUFW(buf, 6) = ((struct homun_data*)bl)->hom_spiritball;
+			break;
+	}
+
+	clif_send(buf, packet_len(0x1d0), target == NULL ? bl : target, send_target);
+}
+
+void clif_spiritball(struct map_session_data *sd)
+{
+	clif_spiritball_sub(&sd->bl, NULL, AREA);
 }
 
 /*==========================================
@@ -10152,7 +10153,7 @@ void clif_refresh(struct map_session_data *sd)
 	clif_updatestatus(sd,SP_DEX);
 	clif_updatestatus(sd,SP_LUK);
 	if (sd->spiritball)
-		clif_spiritball_single(sd->fd, sd);
+		clif_spiritball_single(sd);
 	if (sd->shieldball)
 		clif_millenniumshield_single(sd->fd, sd, sd->shieldball);
 	if (sd->rageball)

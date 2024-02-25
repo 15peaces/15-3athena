@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/25/2024
+	r442 [15peaces]
+		*Fixed 'bAutoSpellOnSkill'.
+		*Added skill_get_itemeq function (accessor).
+		*Removed an unnecessary applied cooldown when casting Endure.
+		*MO_EXTREMITYFIST; NJ_ISSEN
+			-Fixed a nullpo return if used by monsters.
+			-Cleaned up and optimized ZC_SPIRITS usage.
+				--Still might need some more optimations.
+			-This should also fix some crashes related to Biolab 4 dungeon.
+		*Some misc changes to skill_unit_move_sub function.
+			-Added skill-id to error message for easier debugging.
+		*Some Rockridge fixes
+			-Changed item costs to use the default values from database.
+			
 02/18/2024
 	r441 [15peaces]
 		*Removed some leftovers.

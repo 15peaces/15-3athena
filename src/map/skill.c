@@ -225,6 +225,7 @@ int skill_get_state( uint16 skill_id )                      { skill_get (skill_d
 int skill_get_spiritball( uint16 skill_id, uint16 skill_lv ){ skill_get2 (skill_db[skill_id].require.spiritball[skill_lv-1], skill_id, skill_lv); }
 int skill_get_itemid( uint16 skill_id, int idx )            { skill_get3 (skill_db[skill_id].require.itemid[idx], skill_id, idx); }
 int skill_get_itemqty( uint16 skill_id, int idx )           { skill_get3 (skill_db[skill_id].require.amount[idx], skill_id, idx); }
+int skill_get_itemeq( uint16 skill_id, int idx )            { skill_get3 (skill_db[skill_id].require.eqItem[idx], skill_id, idx); }
 
 int skill_tree_get_max(int id, int b_class)
 {
@@ -1989,7 +1990,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, int 
 
 int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int skillid, int64 tick)
 {
-	int skill, skilllv, i, type, notok;
+	uint8 i;
 	struct block_list *tbl;
 
 	if( sd == NULL || skillid <= 0 )
@@ -1997,46 +1998,52 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 
 	for( i = 0; i < ARRAYLENGTH(sd->autospell3) && sd->autospell3[i].flag; i++ )
 	{
+		int skill, skill_lv, type;
+
 		if( sd->autospell3[i].flag != skillid )
 			continue;
 
 		if( sd->autospell3[i].lock )
 			continue;  // autospell already being executed
 
-		skill = (sd->autospell3[i].id > 0) ? sd->autospell3[i].id : -sd->autospell3[i].id;
+		skill = sd->autospell3[i].id;
+		sd->state.autocast = 1; //set this to bypass sd->canskill_tick check
 		
-		sd->state.autocast = 1;
-		notok = skillnotok(skill, sd);
-		sd->state.autocast = 0;
-
-		if (notok)
+		if (skillnotok((skill > 0) ? skill : skill * -1, sd))
 			continue;
 
-		skilllv = sd->autospell3[i].lv ? sd->autospell3[i].lv : 1;
-		if( skilllv < 0 ) skilllv = 1 + rnd()%(-skilllv);
+		sd->state.autocast = 0;
 
-		if( sd->autospell3[i].id >= 0 && bl == NULL )
+		if (skill >= 0 && bl == NULL)
 			continue; // No target
 		if( rnd()%1000 >= sd->autospell3[i].rate )
 			continue;
-		tbl = (sd->autospell3[i].id < 0) ? &sd->bl : bl;
+		
+		skill_lv = sd->autospell3[i].lv ? sd->autospell3[i].lv : 1;
+		if (skill < 0) {
+			tbl = &sd->bl;
+			skill *= -1;
+			skill_lv = 1 + rnd() % (-skill_lv); //random skill_lv
+		}
+		else
+			tbl = bl;
 
 		if ((type = skill_get_casttype(skill)) == CAST_GROUND) {
 			int maxcount = 0;
 			if (!(BL_PC&battle_config.skill_reiteration) &&
 				skill_get_unit_flag(skill)&UF_NOREITERATION &&
-				skill_check_unit_range(&sd->bl, tbl->x, tbl->y, skill, skilllv)
+				skill_check_unit_range(&sd->bl, tbl->x, tbl->y, skill, skill_lv)
 				) {
 				continue;
 			}
 			if (BL_PC&battle_config.skill_nofootset &&
 				skill_get_unit_flag(skill)&UF_NOFOOTSET &&
-				skill_check_unit_range2(&sd->bl, tbl->x, tbl->y, skill, skilllv)
+				skill_check_unit_range2(&sd->bl, tbl->x, tbl->y, skill, skill_lv)
 				) {
 				continue;
 			}
 			if (BL_PC&battle_config.land_skill_limit &&
-				(maxcount = skill_get_maxcount(skill, skilllv)) > 0
+				(maxcount = skill_get_maxcount(skill, skill_lv)) > 0
 				) {
 				int v;
 				for (v = 0; v < MAX_SKILLUNITGROUP && sd->ud.skillunit[v] && maxcount; v++) {
@@ -2050,17 +2057,17 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 		}
 
 		if( battle_config.autospell_check_range &&
-			!battle_check_range(&sd->bl, tbl, skill_get_range2(&sd->bl, skill,skilllv) + (skill == RG_CLOSECONFINE?0:1)) )
+			!battle_check_range(&sd->bl, tbl, skill_get_range2(&sd->bl, skill,skill_lv) + (skill == RG_CLOSECONFINE?0:1)) )
 			continue;
 
 		sd->state.autocast = 1;
 		sd->autospell3[i].lock = true;
-		skill_consume_requirement(sd,skill,skilllv,1);
+		skill_consume_requirement(sd,skill,skill_lv,1);
 		switch( type )
 		{
-			case CAST_GROUND:   skill_castend_pos2(&sd->bl, tbl->x, tbl->y, skill, skilllv, tick, 0); break;
-			case CAST_NODAMAGE: skill_castend_nodamage_id(&sd->bl, tbl, skill, skilllv, tick, 0); break;
-			case CAST_DAMAGE:   skill_castend_damage_id(&sd->bl, tbl, skill, skilllv, tick, 0); break;
+			case CAST_GROUND:   skill_castend_pos2(&sd->bl, tbl->x, tbl->y, skill, skill_lv, tick, 0); break;
+			case CAST_NODAMAGE: skill_castend_nodamage_id(&sd->bl, tbl, skill, skill_lv, tick, 0); break;
+			case CAST_DAMAGE:   skill_castend_damage_id(&sd->bl, tbl, skill, skill_lv, tick, 0); break;
 		}
 		sd->autospell3[i].lock = false;
 		sd->state.autocast = 0;
@@ -4646,7 +4653,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		if ((mbl == src || (!map_flag_gvg2(src->m) && !map[src->m].flag.battleground)) &&
 			unit_movepos(src, mbl->x + x, mbl->y + y, 1, 1)) {
 			clif_blown(src);
-			clif_spiritball(sd);
+			clif_spiritball_sub(src, NULL, AREA);
 		}
 	}
 	break;
@@ -6573,8 +6580,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SM_ENDURE:
 		clif_skill_nodamage(src,bl,skillid,skilllv,
 			sc_start(bl,type,100,skilllv,skill_get_time(skillid,skilllv)));
-		if (sd)
-			skill_blockpc_start (sd, skillid, skill_get_time2(skillid,skilllv));
 		break;
 
 	case AS_ENCHANTPOISON: // Prevent spamming [Valaris]
@@ -18703,7 +18708,6 @@ static int skill_unit_temp[20];  // temporary storage for tracking skill unit sk
 int skill_unit_move_sub (struct block_list* bl, va_list ap)
 {
 	struct skill_unit* unit = (struct skill_unit *)bl;
-	struct skill_unit_group* group = unit->group;
 
 	struct block_list* target = va_arg(ap,struct block_list*);
 	int64 tick = va_arg(ap, int64);
@@ -18713,12 +18717,18 @@ int skill_unit_move_sub (struct block_list* bl, va_list ap)
 	int skill_id;
 	int i;
 
-	nullpo_ret(group);
+	nullpo_ret(unit);
+	nullpo_ret(target);
 
 	if( !unit->alive || target->prev == NULL )
 		return 0;
 
-	if( unit->group->skill_id == PF_SPIDERWEB && flag&1 || unit->group->skill_id == GN_THORNS_TRAP)
+	struct skill_unit_group* group = unit->group;
+
+	if (group == NULL)
+		return 0;
+
+	if(flag&1 && (unit->group->skill_id == PF_SPIDERWEB && flag&1 || unit->group->skill_id == GN_THORNS_TRAP) )
 		return 0; // Fiberlock is never supposed to trigger on skill_unit_move. [Inkfish]
 
 	dissonance = skill_dance_switch(unit, 0);
@@ -18757,7 +18767,7 @@ int skill_unit_move_sub (struct block_list* bl, va_list ap)
 					if( i < ARRAYLENGTH(skill_unit_temp) )
 						skill_unit_temp[i] = skill_id;
 					else
-						ShowError("skill_unit_move_sub: Reached limit of unit objects per cell!\n");
+						ShowError("skill_unit_move_sub: Reached limit of unit objects per cell! (skill_id: %hu)\n", skill_id);
 				}
 
 			}
@@ -18791,7 +18801,7 @@ int skill_unit_move_sub (struct block_list* bl, va_list ap)
 				if( i < ARRAYLENGTH(skill_unit_temp) )
 					skill_unit_temp[i] = skill_id;
 				else
-					ShowError("skill_unit_move_sub: Reached limit of unit objects per cell!\n");
+					ShowError("skill_unit_move_sub: Reached limit of unit objects per cell! (skill_id: %hu)\n", skill_id);
 			}
 		}
 
