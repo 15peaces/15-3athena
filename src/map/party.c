@@ -856,7 +856,7 @@ int party_recv_message(int party_id,int account_id,const char *mes,int len)
 	return 0;
 }
 
-int party_skill_check(struct map_session_data *sd, int party_id, int skillid, int skilllv)
+int party_skill_check(struct map_session_data *sd, int party_id, int skill_id, int skill_lv)
 {
 	struct party_data *p;
 	struct map_session_data *p_sd;
@@ -864,7 +864,7 @@ int party_skill_check(struct map_session_data *sd, int party_id, int skillid, in
 
 	if(!party_id || (p=party_search(party_id))==NULL)
 		return 0;
-	switch(skillid) {
+	switch(skill_id) {
 		case TK_COUNTER: //Increase Triple Attack rate of Monks.
 			if (!p->state.monk) return 0;
 			break;
@@ -884,12 +884,12 @@ int party_skill_check(struct map_session_data *sd, int party_id, int skillid, in
 			continue;
 		if (sd->bl.m != p_sd->bl.m)
 			continue;
-		switch(skillid) {
+		switch(skill_id) {
 			case TK_COUNTER: //Increase Triple Attack rate of Monks.
 				if((p_sd->class_&MAPID_UPPERMASK) == MAPID_MONK
 					&& pc_checkskill(p_sd,MO_TRIPLEATTACK)) {
 					sc_start4(&p_sd->bl,SC_SKILLRATE_UP,100,MO_TRIPLEATTACK,
-						50+50*skilllv, //+100/150/200% rate
+						50+50*skill_lv, //+100/150/200% rate
 						0,0,skill_get_time(SG_FRIEND, 1));
 				}
 				break;

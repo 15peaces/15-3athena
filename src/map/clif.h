@@ -751,7 +751,7 @@ void clif_class_change_target(struct block_list *bl, int class_, int type, enum 
 
 void clif_skillupdateinfoblock(struct map_session_data *sd);
 void clif_skillup(struct map_session_data *sd, uint16 skill_id, int lv, int range, int upgradable);
-void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int range);
+void clif_skillupdateinfo(struct map_session_data *sd,int skill_id,int type,int range);
 int clif_hom_skillupdateinfo(struct map_session_data *sd, int skillid, int type, int range);
 void clif_addskill(struct map_session_data *sd, int id);
 void clif_deleteskill(struct map_session_data *sd, int id);
@@ -759,7 +759,7 @@ void clif_deleteskill(struct map_session_data *sd, int id);
 void clif_skillcasting(struct block_list* bl, int src_id, int dst_id, int dst_x, int dst_y, int skill_id, int property, int casttime);
 void clif_skillcastcancel(struct block_list* bl);
 void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fail_cause type,int btype, int val);
-void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int duration);
+void clif_skill_cooldown(struct map_session_data *sd, int skill_id, unsigned int duration);
 int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int64 sdamage,int div,int skill_id,int skill_lv,int type);
 //int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,int sdelay,int ddelay,int damage,int div,int skill_id,int skill_lv,int type);
 int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal,int64 tick);
@@ -778,7 +778,7 @@ void clif_skill_delunit(struct skill_unit *unit);
 
 void clif_skillunit_update(struct block_list* bl);
 
-void clif_autospell(struct map_session_data *sd,int skilllv);
+void clif_autospell(struct map_session_data *sd,int skill_lv);
 void clif_devotion(struct block_list *src, struct map_session_data *tsd);
 void clif_spiritball(struct map_session_data *sd);
 void clif_spiritball_sub(struct block_list *bl, struct block_list* target, enum send_target send_target);
@@ -818,7 +818,7 @@ void clif_item_refine_list(struct map_session_data *sd);
 void clif_hat_effects(struct map_session_data* sd, struct block_list* bl, enum send_target target);
 void clif_hat_effect_single(struct map_session_data* sd, uint16 effectId, bool enable);
 
-void clif_item_skill(struct map_session_data *sd,int skillid,int skilllv);
+void clif_item_skill(struct map_session_data *sd,int skill_id,int skill_lv);
 
 void clif_mvp_effect(struct map_session_data *sd);
 void clif_mvp_item(struct map_session_data *sd,unsigned short nameid);
@@ -971,7 +971,7 @@ void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, un
 
 void clif_party_xy_remove(struct map_session_data *sd); //Fix for minimap [Kevin]
 void clif_gospel_info(struct map_session_data *sd, int type);
-void clif_feel_req(int fd, struct map_session_data *sd, int skilllv);
+void clif_feel_req(int fd, struct map_session_data *sd, int skill_lv);
 void clif_starskill(struct map_session_data* sd, const char* mapname, int monster_id, unsigned char star, unsigned char result);
 void clif_feel_info(struct map_session_data* sd, unsigned char feel_level, unsigned char type);
 void clif_hate_info(struct map_session_data *sd, unsigned char hate_level,int class_, unsigned char type);

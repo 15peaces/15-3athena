@@ -369,7 +369,8 @@ enum e_elemen {
 	ELE_GHOST,		//TELEKINESIS
 	ELE_UNDEAD,		//UNDEAD
 	ELE_ALL,
-	ELE_MAX
+	ELE_MAX,
+	ELE_NONE
 };
 
 enum mob_ai {
@@ -584,7 +585,8 @@ struct mapcell
 
 struct iwall_data {
 	char wall_name[50];
-	short m, x, y, size, dir;
+	short m, x, y, size;
+	int8 dir;
 	bool shootable;
 };
 

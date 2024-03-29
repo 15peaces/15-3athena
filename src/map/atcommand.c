@@ -4027,14 +4027,14 @@ ACMD_FUNC(allskill)
  *------------------------------------------*/
 ACMD_FUNC(questskill)
 {
-	int skill_id;
+	uint16 skill_id;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || (skill_id = atoi(message)) < 0) {
 		clif_displaymessage(fd, "Please, enter a quest skill number (usage: @questskill <#:0+>).");
 		return -1;
 	}
-	if (skill_id < 0 || skill_id >= MAX_SKILL_DB) {
+	if (skill_id >= MAX_SKILL_DB) {
 		clif_displaymessage(fd, msg_txt(sd,198)); // This skill number doesn't exist.
 		return -1;
 	}
@@ -4058,14 +4058,14 @@ ACMD_FUNC(questskill)
  *------------------------------------------*/
 ACMD_FUNC(lostskill)
 {
-	int skill_id;
+	uint16 skill_id;
 	nullpo_retr(-1, sd);
 
 	if (!message || !*message || (skill_id = atoi(message)) < 0) {
 		clif_displaymessage(fd, "Please, enter a quest skill number (usage: @lostskill <#:0+>).");
 		return -1;
 	}
-	if (skill_id < 0 || skill_id >= MAX_SKILL) {
+	if (skill_id >= MAX_SKILL) {
 		clif_displaymessage(fd, msg_txt(sd,198)); // This skill number doesn't exist.
 		return -1;
 	}
@@ -6530,13 +6530,13 @@ ACMD_FUNC(useskill)
 {
 	struct map_session_data *pl_sd = NULL;
 	struct block_list *bl;
-	int skillnum;
-	int skilllv;
+	uint16 skill_id;
+	uint16 skill_lv;
 	char target[100];
 	nullpo_retr(-1, sd);
 
-	if(!message || !*message || sscanf(message, "%d %d %23[^\n]", &skillnum, &skilllv, target) != 3) {
-		clif_displaymessage(fd, "Usage: @useskill <skillnum> <skillv> <target>");
+	if(!message || !*message || sscanf(message, "%hu %hu %23[^\n]", &skill_id, &skill_lv, target) != 3) {
+		clif_displaymessage(fd, "Usage: @useskill <skill_id> <skillv> <target>");
 		return -1;
 	}
 
@@ -6554,19 +6554,19 @@ ACMD_FUNC(useskill)
 		return -1;
 	}
 
-	if (skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd && hom_is_active(sd->hd))
+	if (skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE+MAX_HOMUNSKILL && sd->hd && hom_is_active(sd->hd))
 		bl = &sd->hd->bl;// Put the homunculus as dest.
-	if (skillnum >= MC_SKILLBASE && skillnum < MC_SKILLBASE+MAX_MERCSKILL && sd->md)
+	if (skill_id >= MC_SKILLBASE && skill_id < MC_SKILLBASE+MAX_MERCSKILL && sd->md)
 		bl = &sd->md->bl;// Put the mercenary as dest.
-	else if (skillnum >= EL_SKILLBASE && skillnum < EL_SKILLBASE+MAX_ELEMSKILL && sd->ed)
+	else if (skill_id >= EL_SKILLBASE && skill_id < EL_SKILLBASE+MAX_ELEMSKILL && sd->ed)
 		bl = &sd->ed->bl;// Put the elemental as dest.
 	else
 		bl = &sd->bl;
 	
-	if (skill_get_inf(skillnum)&INF_GROUND_SKILL)
-		unit_skilluse_pos(bl, pl_sd->bl.x, pl_sd->bl.y, skillnum, skilllv);
+	if (skill_get_inf(skill_id)&INF_GROUND_SKILL)
+		unit_skilluse_pos(bl, pl_sd->bl.x, pl_sd->bl.y, skill_id, skill_lv);
 	else
-		unit_skilluse_id(bl, pl_sd->bl.id, skillnum, skilllv);
+		unit_skilluse_id(bl, pl_sd->bl.id, skill_id, skill_lv);
 
 	return 0;
 }
@@ -6580,25 +6580,25 @@ ACMD_FUNC(displayskill)
 {
 	struct status_data * status;
 	int64 tick;
-	int skillnum;
-	int skilllv = 1;
+	uint16 skill_id;
+	uint16 skill_lv = 1;
 	int type = 0;
 	nullpo_retr(-1, sd);
 
-	if (!message || !*message || sscanf(message, "%d %d %d", &skillnum, &skilllv, &type) < 1)
+	if (!message || !*message || sscanf(message, "%hu %hu %d", &skill_id, &skill_lv, &type) < 1)
 	{
-		clif_displaymessage(fd, "Usage: @displayskill <skillnum> {<skillv>} {<type>}>");
+		clif_displaymessage(fd, "Usage: @displayskill <skill_id> {<skillv>} {<type>}>");
 		clif_displaymessage(fd, "Effect Types: 0: All, 1: Damage, 2: No Damage, 3: Ground");
 		return -1;
 	}
 	status = status_get_status_data(&sd->bl);
 	tick = gettick();
 	if ( type == 0 || type == 1 )
-		clif_skill_damage(&sd->bl,&sd->bl, tick, status->amotion, status->dmotion, 1, 1, skillnum, skilllv, 5);
+		clif_skill_damage(&sd->bl,&sd->bl, tick, status->amotion, status->dmotion, 1, 1, skill_id, skill_lv, 5);
 	if ( type == 0 || type == 2 )
-		clif_skill_nodamage(&sd->bl, &sd->bl, skillnum, skilllv, 1);
+		clif_skill_nodamage(&sd->bl, &sd->bl, skill_id, skill_lv, 1);
 	if ( type == 0 || type == 3 )
-		clif_skill_poseffect(&sd->bl, skillnum, skilllv, sd->bl.x, sd->bl.y, tick);
+		clif_skill_poseffect(&sd->bl, skill_id, skill_lv, sd->bl.x, sd->bl.y, tick);
 	return 0;
 }
 
@@ -6609,14 +6609,14 @@ ACMD_FUNC(displayskill)
 ACMD_FUNC(skilltree)
 {
 	struct map_session_data *pl_sd = NULL;
-	int skillnum;
+	uint16 skill_id;
 	int meets, j, c=0;
 	char target[NAME_LENGTH];
 	struct skill_tree_entry *ent;
 	nullpo_retr(-1, sd);
 
-	if(!message || !*message || sscanf(message, "%d %23[^\r\n]", &skillnum, target) != 2) {
-		clif_displaymessage(fd, "Usage: @skilltree <skillnum> <target>");
+	if(!message || !*message || sscanf(message, "%hu %23[^\r\n]", &skill_id, target) != 2) {
+		clif_displaymessage(fd, "Usage: @skilltree <skill_id> <target>");
 		return -1;
 	}
 
@@ -6632,7 +6632,7 @@ ACMD_FUNC(skilltree)
 	sprintf(atcmd_output, "Player is using %s skill tree (%d basic points)", job_name(c), pc_checkskill(pl_sd, NV_BASIC));
 	clif_displaymessage(fd, atcmd_output);
 
-	ARR_FIND( 0, MAX_SKILL_TREE, j, skill_tree[c][j].id == 0 || skill_tree[c][j].id == skillnum );
+	ARR_FIND( 0, MAX_SKILL_TREE, j, skill_tree[c][j].id == 0 || skill_tree[c][j].id == skill_id );
 	if( j == MAX_SKILL_TREE || skill_tree[c][j].id == 0 )
 	{
 		sprintf(atcmd_output, "I do not believe the player can use that skill");
@@ -6805,7 +6805,7 @@ ACMD_FUNC(autotrade)
 		int timeout = atoi(message);
 		status_change_start(&sd->bl, SC_AUTOTRADE, 10000, 0, 0, 0, 0, ((timeout > 0) ? min(timeout,battle_config.at_timeout) : battle_config.at_timeout) * 60000, 0);
 	}
-	clif_authfail_fd(fd, 15);
+	clif_authfail_fd(sd->fd, 15);
 		
 	return 0;
 }
@@ -7282,7 +7282,7 @@ ACMD_FUNC(mobsearch)
 
 		if( md->bl.m != sd->bl.m )
 			continue;
-		if( mob_id != -1 && md->class_ != mob_id )
+		if( mob_id != -1 && md->mob_id != mob_id )
 			continue;
 
 		++number;
@@ -8069,7 +8069,7 @@ ACMD_FUNC(showmobs)
 
 		if( md->bl.m != sd->bl.m )
 			continue;
-		if( mob_id != -1 && md->class_ != mob_id )
+		if( mob_id != -1 && md->mob_id != mob_id )
 			continue;
 		if( md->special_state.ai || md->master_id )
 			continue; // hide slaves and player summoned mobs
@@ -10063,14 +10063,14 @@ ACMD_FUNC(font)
 *------------------------------------------*/
 ACMD_FUNC(skillfailmsg)
 {
-	int skillid = 0, cause = 0, num = 0;
+	int skill_id = 0, cause = 0, num = 0;
 
-	if( sscanf(message, "%d %d %d", &skillid, &cause, &num) < 1 )
+	if( sscanf(message, "%d %d %d", &skill_id, &cause, &num) < 1 )
 	{
 		clif_displaymessage(fd, "Usage: @skillfailmsg <skill id> <cause> <num>");
 		return -1;
 	}
-	clif_skill_fail(sd,skillid,cause,num,0);
+	clif_skill_fail(sd,skill_id,cause,num,0);
 	return 0;
 }
 

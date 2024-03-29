@@ -4200,6 +4200,9 @@ BUILDIN_FUNC(mes)
 		return 0;
 
 	clif_scriptmes(sd, st->oid, script_getstr(st, 2));
+
+	st->mes_active = 1; // Invoking character has a NPC dialog box open.
+
 	return 0;
 }
 
@@ -4232,7 +4235,16 @@ BUILDIN_FUNC(close)
 	if( sd == NULL )
 		return 0;
 
-	st->state = CLOSE;
+	if (!st->mes_active) {
+		TBL_NPC* nd = map_id2nd(st->oid);
+		st->state = END; // Keep backwards compatibility.
+		ShowWarning("Incorrect use of 'close'! (source:%s)\n", nd ? nd->name : "Unknown");
+	}
+	else {
+		st->state = CLOSE;
+		st->mes_active = 0;
+	}
+
 	clif_scriptclose(sd, st->oid);
 	return 0;
 }
@@ -4250,6 +4262,10 @@ BUILDIN_FUNC(close2)
 		return 0;
 
 	st->state = STOP;
+
+	if (st->mes_active)
+		st->mes_active = 0;
+
 	clif_scriptclose(sd, st->oid);
 	return 0;
 }
@@ -7441,7 +7457,6 @@ BUILDIN_FUNC(strnpcinfo)
 
 
 // aegis->athena slot position conversion table
-// unsigned int equip[] = {EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_GARMENT,EQP_SHOES,EQP_ACC_L,EQP_ACC_R,EQP_HEAD_MID,EQP_HEAD_LOW,EQP_COSTUME_HEAD_LOW,EQP_COSTUME_HEAD_MID,EQP_COSTUME_HEAD_TOP,EQP_COSTUME_GARMENT,EQP_COSTUME_FLOOR,EQP_SHADOW_ARMOR,EQP_SHADOW_WEAPON,EQP_SHADOW_SHIELD,EQP_SHADOW_SHOES,EQP_SHADOW_ACC_R,EQP_SHADOW_ACC_L};
 unsigned int equip[EQI_MAX] = {
 	EQP_ACC_L,				// EQI_ACC_L
 	EQP_ACC_R,				// EQI_ACC_R
@@ -8372,7 +8387,18 @@ BUILDIN_FUNC(getgmlevel)
 /// end
 BUILDIN_FUNC(end)
 {
+	TBL_PC* sd;
+
+	sd = map_id2sd(st->rid);
+
 	st->state = END;
+
+	if (st->mes_active)
+		st->mes_active = 0;
+
+	if (sd)
+		clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
+
 	return 0;
 }
 
@@ -11600,7 +11626,7 @@ static int buildin_maprespawnguildid_sub_mob(struct block_list *bl,va_list ap)
 {
 	struct mob_data *md=(struct mob_data *)bl;
 
-	if(!md->guardian_data && md->class_ != MOBID_EMPERIUM)
+	if(!md->guardian_data && md->mob_id != MOBID_EMPERIUM)
 		status_kill(bl);
 
 	return 0;
@@ -13126,12 +13152,12 @@ BUILDIN_FUNC(petskillsupport)
 BUILDIN_FUNC(skilleffect)
 {
 	TBL_PC *sd;
-	uint16 skillid, skilllv;
+	uint16 skill_id, skill_lv;
 	struct script_data *data = script_getdata(st, 2);
 
 	get_val(st, data); // Convert into value in case of a variable
-	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	skilllv = script_getnum(st, 3);
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
+	skill_lv = script_getnum(st, 3);
 	sd = script_rid2sd(st);
 
 	/* Ensure we're standing because the following packet causes the client to virtually set the char to stand,
@@ -13141,7 +13167,7 @@ BUILDIN_FUNC(skilleffect)
 		clif_standing(&sd->bl, true);
 	}
 
-	clif_skill_nodamage(&sd->bl,&sd->bl,skillid,skilllv,1);
+	clif_skill_nodamage(&sd->bl,&sd->bl,skill_id,skill_lv,1);
 
 	return 0;
 }
@@ -13154,18 +13180,18 @@ BUILDIN_FUNC(skilleffect)
 BUILDIN_FUNC(npcskilleffect)
 {
 	struct block_list *bl= map_id2bl(st->oid);
-	uint16 skillid, skilllv;
+	uint16 skill_id, skill_lv;
 	int x, y;
 	struct script_data *data = script_getdata(st, 2);
 
 	get_val(st, data); // Convert into value in case of a variable
-	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	skilllv = script_getnum(st, 3);
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
+	skill_lv = script_getnum(st, 3);
 	x = script_getnum(st, 4);
 	y = script_getnum(st, 5);
 
 	if (bl)
-		clif_skill_poseffect(bl,skillid,skilllv,x,y,gettick());
+		clif_skill_poseffect(bl,skill_id,skill_lv,x,y,gettick());
 
 	return 0;
 }
@@ -18707,14 +18733,14 @@ static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 	TBL_MOB* md		= (TBL_MOB*)bl;
 	struct block_list *tbl;
 	int mobid		= va_arg(ap,int);
-	int skillid		= va_arg(ap,int);
-	int skilllv		= va_arg(ap,int);
+	int skill_id		= va_arg(ap,int);
+	int skill_lv		= va_arg(ap,int);
 	int casttime	= va_arg(ap,int);
 	int cancel		= va_arg(ap,int);
 	int emotion		= va_arg(ap,int);
 	int target		= va_arg(ap,int);
 
-	if( md->class_ != mobid )
+	if( md->mob_id != mobid )
 		return 0;
 
 	// 0:self, 1:target, 2:master, default:random
@@ -18723,7 +18749,7 @@ static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 		case 0: tbl = map_id2bl(md->bl.id); break;
 		case 1: tbl = map_id2bl(md->target_id); break;
 		case 2: tbl = map_id2bl(md->master_id); break;
-		default:tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),skill_get_range2(&md->bl, skillid, skilllv)); break;
+		default:tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),skill_get_range2(&md->bl, skill_id, skill_lv)); break;
 	}
 
 	if( !tbl )
@@ -18732,10 +18758,10 @@ static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 	if( md->ud.skilltimer != INVALID_TIMER ) // Cancel the casting skill.
 		unit_skillcastcancel(bl,0);
 
-	if( skill_get_casttype(skillid) == CAST_GROUND )
-		unit_skilluse_pos2(&md->bl, tbl->x, tbl->y, skillid, skilllv, casttime, cancel);
+	if( skill_get_casttype(skill_id) == CAST_GROUND )
+		unit_skilluse_pos2(&md->bl, tbl->x, tbl->y, skill_id, skill_lv, casttime, cancel);
 	else
-		unit_skilluse_id2(&md->bl, tbl->id, skillid, skilllv, casttime, cancel);
+		unit_skilluse_id2(&md->bl, tbl->id, skill_id, skill_lv, casttime, cancel);
 
 	clif_emotion(&md->bl, emotion);
 
@@ -18748,7 +18774,7 @@ BUILDIN_FUNC(areamobuseskill)
 {
 	struct block_list center;
 	struct script_data *data;
-	int m,range,mobid,skillid,skilllv,casttime,emotion,target,cancel;
+	int m,range,mobid,skill_id,skill_lv,casttime,emotion,target,cancel;
 
 	if( (m = map_mapname2mapid(script_getstr(st,2))) < 0 )
 	{
@@ -18766,16 +18792,16 @@ BUILDIN_FUNC(areamobuseskill)
 	mobid = script_getnum(st,6);
 	data = script_getdata(st, 7);
 	get_val(st, data); // Convert into value in case of a variable
-	skillid = (data_isstring(data) ? skill_name2id(script_getstr(st, 7)) : script_getnum(st, 7));
-	if( (skilllv = script_getnum(st,8)) > battle_config.mob_max_skilllvl )
-		skilllv = battle_config.mob_max_skilllvl;
+	skill_id = (data_isstring(data) ? skill_name2id(script_getstr(st, 7)) : script_getnum(st, 7));
+	if( (skill_lv = script_getnum(st,8)) > battle_config.mob_max_skilllvl )
+		skill_lv = battle_config.mob_max_skilllvl;
 
 	casttime = script_getnum(st,9);
 	cancel = script_getnum(st,10);
 	emotion = script_getnum(st,11);
 	target = script_getnum(st,12);
 	
-	map_foreachinrange(buildin_mobuseskill_sub, &center, range, BL_MOB, mobid, skillid, skilllv, casttime, cancel, emotion, target);
+	map_foreachinrange(buildin_mobuseskill_sub, &center, range, BL_MOB, mobid, skill_id, skill_lv, casttime, cancel, emotion, target);
 	return 0;
 }
 

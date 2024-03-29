@@ -236,8 +236,8 @@ int inter_guild_tosql(struct guild *g,int flag)
 			strcat(t_info, " level");
 			if( add_comma )
 				StringBuf_AppendStr(&buf, ", ");
-			else
-				add_comma = true;
+			//else	//last condition using add_coma setting
+				//	add_comma = true;
 			StringBuf_Printf(&buf, "`guild_lv`=%d, `skill_point`=%d, `exp`=%"PRIu64", `next_exp`=%u, `max_member`=%d", g->guild_lv, g->skill_point, g->exp, g->next_exp, g->max_member);
 		}
 		StringBuf_Printf(&buf, " WHERE `guild_id`=%d", g->guild_id);

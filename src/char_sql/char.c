@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX_STARTITEM 16
 #define CHAR_MAX_MSG 300
 static char* msg_table[CHAR_MAX_MSG]; // Login Server messages_conf
 
@@ -138,14 +139,17 @@ struct s_subnet {
 } subnet[16];
 int subnet_count = 0;
 
+struct startitem {
+	int nameid; //item id
+	int amount; //number of item
+	int pos; //position for autoequip
+};
+struct startitem start_items[MAX_STARTITEM], start_items_doram[MAX_STARTITEM]; // Initial items the player with spawn with on the server
+
 int max_connect_user = 0;
 int gm_allow_level = 99;
 int autosave_interval = DEFAULT_AUTOSAVE_INTERVAL;
 int start_zeny = 0;
-int start_weapon = 1201;
-int start_armor = 2301;
-int start_weapon_doram = 1681;
-int start_armor_doram = 2301;
 int guild_exp_rate = 100;
 
 //Custom limits for the fame lists. [Skotlex]
@@ -1680,8 +1684,8 @@ int check_char_name(char * name, char * esc_name)
 int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style, int race, uint8 sex) {
 	short starting_job;
 	short starting_hp, starting_sp;
-	short starting_weapon, starting_armor;
 	const char *starting_point_map;
+	struct startitem tmp_start_items[MAX_STARTITEM];
 	short starting_point_x, starting_point_y;
 #else
 int make_new_char_sql(struct char_session_data* sd, char* name_, int slot, int hair_color, int hair_style) {
@@ -1693,11 +1697,14 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 #endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
-	int char_id, flag;
+	int char_id, flag, k;
 
 	safestrncpy(name, name_, NAME_LENGTH);
 	normalize_name(name,TRIM_CHARS);
 	Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
+
+	memset(tmp_start_items, 0, MAX_STARTITEM * sizeof(struct startitem));
+	memcpy(tmp_start_items, start_items, MAX_STARTITEM * sizeof(struct startitem));
 
 	flag = check_char_name(name,esc_name);
 	if( flag < 0 )
@@ -1770,8 +1777,6 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 		starting_job = JOB_NOVICE;
 		starting_hp = 40 * (100 + vit) / 100;
 		starting_sp = 11 * (100 + vit) / 100;
-		starting_weapon = start_weapon;
-		starting_armor = start_armor;
 		starting_point_map = mapindex_id2name(start_point.map);
 		starting_point_x = start_point.x;
 		starting_point_y = start_point.y;
@@ -1785,11 +1790,11 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 		starting_job = JOB_SUMMONER;
 		starting_hp = 60 * (100 + vit) / 100;
 		starting_sp = 8 * (100 + vit) / 100;
-		starting_weapon = start_weapon_doram;
-		starting_armor = start_armor_doram;
 		starting_point_map = mapindex_id2name(start_point_doram.map);
 		starting_point_x = start_point_doram.x;
 		starting_point_y = start_point_doram.y;
+		memset(tmp_start_items, 0, MAX_STARTITEM * sizeof(struct startitem));
+		memcpy(tmp_start_items, start_items_doram, MAX_STARTITEM * sizeof(struct startitem));
 	}
 
 	//Insert the new char entry to the database
@@ -1823,25 +1828,10 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 	//Retrieve the newly auto-generated char id
 	char_id = (int)Sql_LastInsertId(sql_handle);
 	//Give the char the default items
-#if PACKETVER >= 20151001
-	if (starting_weapon > 0) {
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, starting_weapon, 1, 1) )
+	for (k = 0; k <= MAX_STARTITEM && tmp_start_items[k].nameid != 0; k++) {
+		if (SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `equip`, `identify`) VALUES ('%d', '%u', '%hu', '%u', '%d')", inventory_db, char_id, tmp_start_items[k].nameid, tmp_start_items[k].amount, tmp_start_items[k].pos, 1))
 			Sql_ShowDebug(sql_handle);
 	}
-	if (starting_armor > 0) {
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, starting_armor, 1, 1) )
-			Sql_ShowDebug(sql_handle);
-	}
-#else
-	if (start_weapon > 0) { //add Start Weapon (Knife?)
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, start_weapon, 1, 1) )
-			Sql_ShowDebug(sql_handle);
-	}
-	if (start_armor > 0) { //Add default armor (cotton shirt?)
-		if( SQL_ERROR == Sql_Query(sql_handle, "INSERT INTO `%s` (`char_id`,`nameid`, `amount`, `identify`) VALUES ('%d', '%d', '%d', '%d')", inventory_db, char_id, start_armor, 1, 1) )
-			Sql_ShowDebug(sql_handle);
-	}
-#endif
 
 	ShowInfo("Created char: account: %d, char: %d, slot: %d, name: %s\n", sd->account_id, char_id, slot, name);
 	return char_id;
@@ -4829,6 +4819,37 @@ int parse_char(int fd)
 			RFIFOSKIP(fd,6);
 		break;
 
+		// char rename request
+		// R 08fc <char ID>.l <new name>.24B
+		case 0x8fc:
+			FIFOSD_CHECK(30);
+			{
+				int i, cid = RFIFOL(fd, 2);
+				char name[NAME_LENGTH];
+				char esc_name[NAME_LENGTH * 2 + 1];
+				safestrncpy(name, (char *)RFIFOP(fd, 6), NAME_LENGTH);
+				RFIFOSKIP(fd, 30);
+
+				ARR_FIND(0, MAX_CHARS, i, sd->found_char[i] == cid);
+				if (i == MAX_CHARS)
+					break;
+
+				normalize_name(name, TRIM_CHARS);
+				Sql_EscapeStringLen(sql_handle, esc_name, name, strnlen(name, NAME_LENGTH));
+				if (!check_char_name(name, esc_name)) {
+					i = 1;
+					safestrncpy(sd->new_name, name, NAME_LENGTH);
+				}
+				else
+					i = 0;
+
+				WFIFOHEAD(fd, 4);
+				WFIFOW(fd, 0) = 0x28e;
+				WFIFOW(fd, 2) = i;
+				WFIFOSET(fd, 4);
+			}
+			break;
+
 		// char rename request (CH_REQ_IS_VALID_CHARNAME).
 		// 028d <account id>.L <char id>.L <new name>.24B
 		case 0x28d:
@@ -5479,6 +5500,43 @@ void sql_config_read(const char* cfgName)
 }
 #ifndef TXT_SQL_CONVERT
 
+/**
+ * Split start_items configuration values.
+ * @param w1_value: Value from w1
+ * @param w2_value: Value from w2
+ * @param start: Start item reference
+ */
+void char_config_split_startitem(char *w1_value, char *w2_value, struct startitem start_items[MAX_STARTITEM])
+{
+	char *lineitem, **fields;
+	int i = 0, fields_length = 3 + 1;
+
+	fields = (char **)aMalloc(fields_length * sizeof(char *));
+	if (fields == NULL)
+		return; // Failed to allocate memory.
+	lineitem = strtok(w2_value, ":");
+
+	while (lineitem != NULL && i < MAX_STARTITEM) {
+		int n = sv_split(lineitem, strlen(lineitem), 0, ',', fields, fields_length, SV_NOESCAPE_NOTERMINATE);
+
+		if (n + 1 < fields_length) {
+			ShowDebug("%s: not enough arguments for %s! Skipping...\n", w1_value, lineitem);
+			lineitem = strtok(NULL, ":"); //next lineitem
+			continue;
+		}
+
+		// TODO: Item ID verification
+		start_items[i].nameid = strtoul(fields[1], NULL, 10);
+		// TODO: Stack verification
+		start_items[i].amount = min((uint16)strtoul(fields[2], NULL, 10), MAX_AMOUNT);
+		start_items[i].pos = strtoul(fields[3], NULL, 10);
+
+		lineitem = strtok(NULL, ":"); //next lineitem
+		i++;
+	}
+	aFree(fields);
+}
+
 int char_config_read( const char* cfgName )
 {
 	char line[1024], w1[1024], w2[1024];
@@ -5573,14 +5631,6 @@ int char_config_read( const char* cfgName )
 				ShowError("Specified start_point %s not found in map-index cache.\n", map);
 			start_point.x = x;
 			start_point.y = y;
-		} else if (strcmpi(w1, "start_weapon") == 0) {
-			start_weapon = atoi(w2);
-			if (start_weapon < 0)
-				start_weapon = 0;
-		} else if (strcmpi(w1, "start_armor") == 0) {
-			start_armor = atoi(w2);
-			if (start_armor < 0)
-				start_armor = 0;
 		} else if (strcmpi(w1, "start_point_doram") == 0) {
 			char map[MAP_NAME_LENGTH_EXT];
 			int x, y;
@@ -5591,14 +5641,12 @@ int char_config_read( const char* cfgName )
 				ShowError("Specified start_point %s not found in map-index cache.\n", map);
 			start_point_doram.x = x;
 			start_point_doram.y = y;
-		} else if (strcmpi(w1, "start_weapon_doram") == 0) {
-			start_weapon_doram = atoi(w2);
-			if (start_weapon_doram < 0)
-				start_weapon_doram = 0;
-		} else if (strcmpi(w1, "start_armor_doram") == 0) {
-			start_armor_doram = atoi(w2);
-			if (start_armor_doram < 0)
-				start_armor_doram = 0;
+		} else if (strcmpi(w1, "start_items") == 0) {
+			char_config_split_startitem(w1, w2, start_items);
+#if PACKETVER >= 20151001
+		} else if (strcmpi(w1, "start_items_doram") == 0) {
+			char_config_split_startitem(w1, w2, start_items_doram);
+#endif
 		} else if (strcmpi(w1, "start_zeny") == 0) {
 			start_zeny = atoi(w2);
 			if (start_zeny < 0)

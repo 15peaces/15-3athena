@@ -119,6 +119,14 @@ enum MobDamageLogFlag
 	MDLF_PET,
 };
 
+enum e_size {
+	SZ_SMALL = 0,
+	SZ_MEDIUM,
+	SZ_BIG,
+	SZ_ALL,
+	SZ_MAX
+};
+
 struct mob_skill {
 	enum MobSkillState state;
 	short skill_id,skill_lv;
@@ -173,7 +181,7 @@ struct mob_data {
 	struct view_data *vd;
 	struct status_data status, *base_status; //Second one is in case of leveling up mobs, or tiny/large mobs.
 	struct status_change sc;
-	struct mob_db *db;	//For quick data access (saves doing mob_db(md->class_) all the time) [Skotlex]
+	struct mob_db *db;	//For quick data access (saves doing mob_db(md->mob_id) all the time) [Skotlex]
 	char name[NAME_LENGTH];
 	struct {
 		unsigned int size : 2; //Small/Big monsters.
@@ -204,7 +212,7 @@ struct mob_data {
 	struct spawn_data *spawn; //Spawn data.
 	int spawn_timer; //Required for Convex Mirror
 	struct item *lootitem;
-	short class_;
+	short mob_id;
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
 	int target_id,attacked_id;
@@ -311,10 +319,10 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 
 #define mob_stop_walking(md, type) unit_stop_walking(&(md)->bl, type)
 #define mob_stop_attack(md) unit_stop_attack(&(md)->bl)
-#define mob_is_battleground(md) ( map[(md)->bl.m].flag.battleground && ((md)->class_ == 1906 || ((md)->class_ >= 1909 && (md)->class_ <= 1915)) )
-#define mob_is_goblin(md, mid) (((md)->class_ >= MOBID_GOBLIN_1 && (md)->class_ <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
-#define mob_is_samename(md, mid) (strcmp(mob_db((md)->class_)->jname, mob_db(mid)->jname) == 0)
-#define mob_is_treasure(md) (((md)->class_ >= MOBID_TREAS01 && (md)->class_ <= MOBID_TREAS40) || ((md)->class_ >= MOBID_TREAS41 && (md)->class_ <= MOBID_TREAS49))
+#define mob_is_battleground(md) ( map[(md)->bl.m].flag.battleground && ((md)->mob_id == 1906 || ((md)->mob_id >= 1909 && (md)->mob_id <= 1915)) )
+#define mob_is_goblin(md, mid) (((md)->mob_id >= MOBID_GOBLIN_1 && (md)->mob_id <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
+#define mob_is_samename(md, mid) (strcmp(mob_db((md)->mob_id)->jname, mob_db(mid)->jname) == 0)
+#define mob_is_treasure(md) (((md)->mob_id >= MOBID_TREAS01 && (md)->mob_id <= MOBID_TREAS40) || ((md)->mob_id >= MOBID_TREAS41 && (md)->mob_id <= MOBID_TREAS49))
 
 void mob_clear_spawninfo();
 void do_init_mob(void);

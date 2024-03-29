@@ -5732,7 +5732,7 @@ void clif_skillup(struct map_session_data *sd, uint16 skill_id, int lv, int rang
 
 /// Updates a skill in the skill tree (ZC_SKILLINFO_UPDATE2).
 /// 07e1 <skill id>.W <type>.L <level>.W <sp cost>.W <attack range>.W <upgradable>.B
-void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int range) {
+void clif_skillupdateinfo(struct map_session_data *sd,int skill_id,int type,int range) {
 	int fd, id, cmd, offs = 0;
 	
 #if PACKETVER < 20090715
@@ -5743,22 +5743,22 @@ void clif_skillupdateinfo(struct map_session_data *sd,int skillid,int type,int r
 	
 	nullpo_retv(sd);
 	fd = sd->fd;
- 	if( (id=sd->status.skill[skillid].id) <= 0 )
+ 	if( (id=sd->status.skill[skill_id].id) <= 0 )
  		return;
 
 	WFIFOHEAD(fd,packet_len(cmd));
 	WFIFOW(fd,0) = cmd;
 	WFIFOW(fd,2) = id;
 	WFIFOL(fd,4) = type?type:skill_get_inf(id);
-	WFIFOW(fd,8) = sd->status.skill[skillid].lv;
-	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[skillid].lv);
-	WFIFOW(fd,12) = range?range:skill_get_range2(&sd->bl,id,sd->status.skill[skillid].lv);
+	WFIFOW(fd,8) = sd->status.skill[skill_id].lv;
+	WFIFOW(fd,10) = skill_get_sp(id,sd->status.skill[skill_id].lv);
+	WFIFOW(fd,12) = range?range:skill_get_range2(&sd->bl,id,sd->status.skill[skill_id].lv);
 #if PACKETVER < 20090715
 	safestrncpy((char*)WFIFOP(fd,14), skill_get_name(id), NAME_LENGTH);
 	offs = 24;
 #endif
-	if( sd->status.skill[skillid].flag == SKILL_FLAG_PERMANENT )
-		WFIFOB(fd,14+offs) = (sd->status.skill[skillid].lv < skill_tree_get_max(id, sd->status.class_))? 1:0;
+	if( sd->status.skill[skill_id].flag == SKILL_FLAG_PERMANENT )
+		WFIFOB(fd,14+offs) = (sd->status.skill[skill_id].lv < skill_tree_get_max(id, sd->status.class_))? 1:0;
 	else
 		WFIFOB(fd,14+offs) = 0;
 	WFIFOSET(fd,packet_len(cmd));
@@ -5928,7 +5928,7 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fai
 /// the ZC_SKILL_POSTDELAY_LIST and ZC_SKILL_POSTDELAY_LIST2 will need to be supported
 /// soon to tell the client which skills are currently in cooldown when a player logs on
 /// and display them in the shortcut bar. [Rytech]
-void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int duration)
+void clif_skill_cooldown(struct map_session_data *sd, int skill_id, unsigned int duration)
 {
 #if PACKETVER>=20081112
 	int fd;
@@ -5938,7 +5938,7 @@ void clif_skill_cooldown(struct map_session_data *sd, int skillid, unsigned int 
 	fd=sd->fd;
 	WFIFOHEAD(fd,packet_len(0x43d));
 	WFIFOW(fd,0) = 0x43d;
-	WFIFOW(fd,2) = skillid;
+	WFIFOW(fd,2) = skill_id;
 	WFIFOL(fd,4) = duration;
 	WFIFOSET(fd,packet_len(0x43d));
 #endif
@@ -6371,7 +6371,7 @@ void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_id, int 
 
 	for(i=0,c=0;i<MAX_SKILL_PRODUCE_DB;i++){
 		if (skill_can_produce_mix(sd, skill_produce_db[i].nameid, trigger, 1) &&
-			((skill_id > 0 && skill_produce_db[i].req_skill == skill_id) || skill_id < 0)
+			(skill_id > 0 && skill_produce_db[i].req_skill == skill_id || skill_id < 0)
 			) {
 			if((view = itemdb_viewid(skill_produce_db[i].nameid)) > 0)
 				WFIFOW(fd,c*8+ 4)= view;
@@ -7220,7 +7220,7 @@ void clif_item_repair_list(struct map_session_data *sd,struct map_session_data *
 		sd->menuskill_val = dstsd->bl.id;
 		sd->menuskill_val2 = lv;
 	}else
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 }
 
 
@@ -7266,13 +7266,13 @@ void clif_item_refine_list(struct map_session_data *sd)
 {
 	int i,c;
 	int fd;
-	int skilllv;
+	int skill_lv;
 	int wlv;
 	int refine_item[5];
 
 	nullpo_retv(sd);
 
-	skilllv = pc_checkskill(sd,WS_WEAPONREFINE);
+	skill_lv = pc_checkskill(sd,WS_WEAPONREFINE);
 
 	fd=sd->fd;
 
@@ -7284,7 +7284,7 @@ void clif_item_refine_list(struct map_session_data *sd)
 	WFIFOHEAD(fd, MAX_INVENTORY * 13 + 4);
 	WFIFOW(fd,0)=0x221;
 	for(i=c=0;i<MAX_INVENTORY;i++){
-		if(sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].refine < skilllv &&
+		if(sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].refine < skill_lv &&
 			sd->inventory.u.items_inventory[i].identify && (wlv=itemdb_wlv(sd->inventory.u.items_inventory[i].nameid)) >=1 &&
 			refine_item[wlv]!=-1 && !(sd->inventory.u.items_inventory[i].equip&EQP_ARMS)){
 			WFIFOW(fd,c*13+ 4)=i+2;
@@ -7298,14 +7298,14 @@ void clif_item_refine_list(struct map_session_data *sd)
 	WFIFOSET(fd,WFIFOW(fd,2));
 	if (c > 0) {
 		sd->menuskill_id = WS_WEAPONREFINE;
-		sd->menuskill_val = skilllv;
+		sd->menuskill_val = skill_lv;
 	}
 }
 
 
 /// Notification of an auto-casted skill (ZC_AUTORUN_SKILL).
 /// 0147 <skill id>.W <type>.L <level>.W <sp cost>.W <atk range>.W <skill name>.24B <upgradable>.B
-void clif_item_skill(struct map_session_data *sd,int skillid,int skilllv)
+void clif_item_skill(struct map_session_data *sd,int skill_id,int skill_lv)
 {
 	int fd;
 
@@ -7314,12 +7314,12 @@ void clif_item_skill(struct map_session_data *sd,int skillid,int skilllv)
 	fd=sd->fd;
 	WFIFOHEAD(fd,packet_len(0x147));
 	WFIFOW(fd, 0)=0x147;
-	WFIFOW(fd, 2)=skillid;
-	WFIFOL(fd, 4)=skill_get_inf(skillid);
-	WFIFOW(fd, 8)=skilllv;
-	WFIFOW(fd,10)=skill_get_sp(skillid,skilllv);
-	WFIFOW(fd,12)=skill_get_range2(&sd->bl, skillid,skilllv);
-	safestrncpy((char*)WFIFOP(fd,14),skill_get_name(skillid),NAME_LENGTH);
+	WFIFOW(fd, 2)=skill_id;
+	WFIFOL(fd, 4)=skill_get_inf(skill_id);
+	WFIFOW(fd, 8)=skill_lv;
+	WFIFOW(fd,10)=skill_get_sp(skill_id,skill_lv);
+	WFIFOW(fd,12)=skill_get_range2(&sd->bl, skill_id,skill_lv);
+	safestrncpy((char*)WFIFOP(fd,14),skill_get_name(skill_id),NAME_LENGTH);
 	WFIFOB(fd,38)=0;
 	WFIFOSET(fd,packet_len(0x147));
 }
@@ -8599,7 +8599,7 @@ void clif_pet_food(struct map_session_data *sd,int foodid,int fail)
 
 /// Presents a list of skills that can be auto-spelled (ZC_AUTOSPELLLIST).
 /// 01cd { <skill id>.L }*7
-void clif_autospell(struct map_session_data *sd,int skilllv)
+void clif_autospell(struct map_session_data *sd,int skill_lv)
 {
 	int fd;
 
@@ -8609,38 +8609,38 @@ void clif_autospell(struct map_session_data *sd,int skilllv)
 	WFIFOHEAD(fd,packet_len(0x1cd));
 	WFIFOW(fd, 0)=0x1cd;
 
-	if(skilllv>0 && pc_checkskill(sd,MG_NAPALMBEAT)>0)
+	if(skill_lv>0 && pc_checkskill(sd,MG_NAPALMBEAT)>0)
 		WFIFOL(fd,2)= MG_NAPALMBEAT;
 	else
 		WFIFOL(fd,2)= 0x00000000;
-	if(skilllv>1 && pc_checkskill(sd,MG_COLDBOLT)>0)
+	if(skill_lv>1 && pc_checkskill(sd,MG_COLDBOLT)>0)
 		WFIFOL(fd,6)= MG_COLDBOLT;
 	else
 		WFIFOL(fd,6)= 0x00000000;
-	if(skilllv>1 && pc_checkskill(sd,MG_FIREBOLT)>0)
+	if(skill_lv>1 && pc_checkskill(sd,MG_FIREBOLT)>0)
 		WFIFOL(fd,10)= MG_FIREBOLT;
 	else
 		WFIFOL(fd,10)= 0x00000000;
-	if(skilllv>1 && pc_checkskill(sd,MG_LIGHTNINGBOLT)>0)
+	if(skill_lv>1 && pc_checkskill(sd,MG_LIGHTNINGBOLT)>0)
 		WFIFOL(fd,14)= MG_LIGHTNINGBOLT;
 	else
 		WFIFOL(fd,14)= 0x00000000;
-	if(skilllv>4 && pc_checkskill(sd,MG_SOULSTRIKE)>0)
+	if(skill_lv>4 && pc_checkskill(sd,MG_SOULSTRIKE)>0)
 		WFIFOL(fd,18)= MG_SOULSTRIKE;
 	else
 		WFIFOL(fd,18)= 0x00000000;
-	if(skilllv>7 && pc_checkskill(sd,MG_FIREBALL)>0)
+	if(skill_lv>7 && pc_checkskill(sd,MG_FIREBALL)>0)
 		WFIFOL(fd,22)= MG_FIREBALL;
 	else
 		WFIFOL(fd,22)= 0x00000000;
-	if(skilllv>9 && pc_checkskill(sd,MG_FROSTDIVER)>0)
+	if(skill_lv>9 && pc_checkskill(sd,MG_FROSTDIVER)>0)
 		WFIFOL(fd,26)= MG_FROSTDIVER;
 	else
 		WFIFOL(fd,26)= 0x00000000;
 
 	WFIFOSET(fd,packet_len(0x1cd));
 	sd->menuskill_id = SA_AUTOSPELL;
-	sd->menuskill_val = skilllv;
+	sd->menuskill_val = skill_lv;
 }
 
 
@@ -12430,7 +12430,7 @@ void clif_parse_NpcClicked(int fd,struct map_session_data *sd)
 			clif_parse_ActionRequest_sub(sd, 0x07, bl->id, gettick());
 			break;
 		case BL_NPC:
-			if (sd->ud.skillid < RK_ENCHANTBLADE && sd->ud.skilltimer != INVALID_TIMER) { // Should only show an error message for non-3rd job skills with a running timer
+			if (sd->ud.skill_id < RK_ENCHANTBLADE && sd->ud.skilltimer != INVALID_TIMER) { // Should only show an error message for non-3rd job skills with a running timer
 				clif_msg(sd, WORK_IN_PROGRESS);
 				break;
 			}
@@ -12835,125 +12835,125 @@ void clif_parse_SkillUp(int fd,struct map_session_data *sd)
 
 
 // TODO: Move clif_parse_UseSkillTo* helper functions to unit.c
-static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, int target_id)
+static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skill_id, short skill_lv, int target_id)
 {
 	int lv;
 
 	if( !hd )
 		return;
-	if( skillnotok_homun(skillnum, hd) )
+	if( skillnotok_homun(skill_id, hd) )
 		return;
-	if( hd->bl.id != target_id && skill_get_inf(skillnum)&INF_SELF_SKILL )
+	if( hd->bl.id != target_id && skill_get_inf(skill_id)&INF_SELF_SKILL )
 		target_id = hd->bl.id;
 	if( sd->ud.skilltimer != INVALID_TIMER ){
-		if( skillnum != SA_CASTCANCEL &&
-		!(skillnum == SO_SPELLFIST && (sd->ud.skillid == MG_FIREBOLT || sd->ud.skillid == MG_COLDBOLT || sd->ud.skillid == MG_LIGHTNINGBOLT)) )
+		if( skill_id != SA_CASTCANCEL &&
+		!(skill_id == SO_SPELLFIST && (sd->ud.skill_id == MG_FIREBOLT || sd->ud.skill_id == MG_COLDBOLT || sd->ud.skill_id == MG_LIGHTNINGBOLT)) )
  			return;
  	}
 	else if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
 		return;
 
-	lv = hom_checkskill(hd, skillnum);
-	if( skilllv > lv )
-		skilllv = lv;
-	if( skilllv )
-		unit_skilluse_id(&hd->bl, target_id, skillnum, skilllv);
+	lv = hom_checkskill(hd, skill_id);
+	if( skill_lv > lv )
+		skill_lv = lv;
+	if( skill_lv )
+		unit_skilluse_id(&hd->bl, target_id, skill_id, skill_lv);
 }
 
-static void clif_parse_UseSkillToId_mercenary(struct mercenary_data *md, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, int target_id)
+static void clif_parse_UseSkillToId_mercenary(struct mercenary_data *md, struct map_session_data *sd, int64 tick, short skill_id, short skill_lv, int target_id)
 {
 	int lv;
 
 	if( !md )
 		return;
-	if( skillnotok_mercenary(skillnum, md) )
+	if( skillnotok_mercenary(skill_id, md) )
 		return;
-	if( md->bl.id != target_id && skill_get_inf(skillnum)&INF_SELF_SKILL )
+	if( md->bl.id != target_id && skill_get_inf(skill_id)&INF_SELF_SKILL )
 		target_id = md->bl.id;
 	if( md->ud.skilltimer != INVALID_TIMER )
 	{
-		if( skillnum != SA_CASTCANCEL ) return;
+		if( skill_id != SA_CASTCANCEL ) return;
 	}
 	else if( DIFF_TICK(tick, md->ud.canact_tick) < 0 )
 		return;
 
-	lv = mercenary_checkskill(md, skillnum);
-	if( skilllv > lv )
-		skilllv = lv;
-	if( skilllv )
-		unit_skilluse_id(&md->bl, target_id, skillnum, skilllv);
+	lv = mercenary_checkskill(md, skill_id);
+	if( skill_lv > lv )
+		skill_lv = lv;
+	if( skill_lv )
+		unit_skilluse_id(&md->bl, target_id, skill_id, skill_lv);
 }
 
-static void clif_parse_UseSkillToPos_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, short x, short y, int skillmoreinfo)
+static void clif_parse_UseSkillToPos_homun(struct homun_data *hd, struct map_session_data *sd, int64 tick, short skill_id, short skill_lv, short x, short y, int skillmoreinfo)
 {
 	int lv;
 	if( !hd )
 		return;
-	if( skillnotok_homun(skillnum, hd) )
+	if( skillnotok_homun(skill_id, hd) )
 		return;
 	if( hd->ud.skilltimer != INVALID_TIMER )
 		return;
 	if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
 	{
-		clif_skill_fail(hd->master, skillnum, 4, 0, 0);
+		clif_skill_fail(hd->master, skill_id, 4, 0, 0);
 		return;
 	}
 
 	if( hd->sc.data[SC_BASILICA] )
 		return;
-	lv = hom_checkskill(hd, skillnum);
-	if( skilllv > lv )
-		skilllv = lv;
-	if( skilllv )
-		unit_skilluse_pos(&hd->bl, x, y, skillnum, skilllv);
+	lv = hom_checkskill(hd, skill_id);
+	if( skill_lv > lv )
+		skill_lv = lv;
+	if( skill_lv )
+		unit_skilluse_pos(&hd->bl, x, y, skill_id, skill_lv);
 }
 
-static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct map_session_data *sd, int64 tick, short skillnum, short skilllv, short x, short y, int skillmoreinfo)
+static void clif_parse_UseSkillToPos_mercenary(struct mercenary_data *md, struct map_session_data *sd, int64 tick, short skill_id, short skill_lv, short x, short y, int skillmoreinfo)
 {
 	int lv;
 	if( !md )
 		return;
-	if( skillnotok_mercenary(skillnum, md) )
+	if( skillnotok_mercenary(skill_id, md) )
 		return;
 	if( md->ud.skilltimer != INVALID_TIMER )
 		return;
 	if( DIFF_TICK(tick, md->ud.canact_tick) < 0 )
 	{
-		clif_skill_fail(md->master, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
+		clif_skill_fail(md->master, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 		return;
 	}
 
 	if( md->sc.data[SC_BASILICA] )
 		return;
-	lv = mercenary_checkskill(md, skillnum);
-	if( skilllv > lv )
-		skilllv = lv;
-	if( skilllv )
-		unit_skilluse_pos(&md->bl, x, y, skillnum, skilllv);
+	lv = mercenary_checkskill(md, skill_id);
+	if( skill_lv > lv )
+		skill_lv = lv;
+	if( skill_lv )
+		unit_skilluse_pos(&md->bl, x, y, skill_id, skill_lv);
 }
 
 
-void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 skilllv, int target_id)
+void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 skill_lv, int target_id)
 {
 	int inf;
 	int64 tick = gettick();
 
-	if( skilllv < 1 ) skilllv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
+	if( skill_lv < 1 ) skill_lv = 1; //No clue, I have seen the client do this with guild skills :/ [Skotlex]
 
-	inf = skill_get_inf(skillnum);
+	inf = skill_get_inf(skill_id);
 	if (inf&INF_GROUND_SKILL || !inf) {
 		return; //Using a ground/passive skill on a target? WRONG.
 	}
 
-	if( skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE + MAX_HOMUNSKILL )
+	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
-		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skillnum, skilllv, target_id);
+		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skill_id, skill_lv, target_id);
 		return;
 	}
 
-	if( skillnum >= MC_SKILLBASE && skillnum < MC_SKILLBASE + MAX_MERCSKILL )
+	if( skill_id >= MC_SKILLBASE && skill_id < MC_SKILLBASE + MAX_MERCSKILL )
 	{
-		clif_parse_UseSkillToId_mercenary(sd->md, sd, tick, skillnum, skilllv, target_id);
+		clif_parse_UseSkillToId_mercenary(sd->md, sd, tick, skill_id, skill_lv, target_id);
 		return;
 	}
 
@@ -12967,18 +12967,18 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		}
 	}
 
-	if ((pc_cant_act2(sd) || sd->chatID) && skillnum != RK_REFRESH && skillnum != SR_GENTLETOUCH_CURE &&
+	if ((pc_cant_act2(sd) || sd->chatID) && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE &&
 		sd->state.storage_flag && !(inf&INF_SELF_SKILL)) //SELF skills can be used with the storage open
 		return;
 
 	//Some self skills need to close the storage to work properly
-	if (skillnum == AL_TELEPORT && sd->state.storage_flag)
+	if (skill_id == AL_TELEPORT && sd->state.storage_flag)
 		storage_storageclose(sd);
 
 	if( pc_issit(sd) )
 		return;
 
-	if( skillnotok(skillnum, sd) )
+	if( skillnotok(skill_id, sd) )
 		return;
 
 	if( sd->bl.id != target_id && inf&INF_SELF_SKILL )
@@ -12992,14 +12992,14 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	
 	if( sd->ud.skilltimer != INVALID_TIMER )
 	{
-		if( skillnum != SA_CASTCANCEL )
+		if( skill_id != SA_CASTCANCEL )
 			return;
 	}
-	else if( DIFF_TICK(tick, sd->ud.canact_tick) < 0 && skillnum != SO_SPELLFIST )
+	else if( DIFF_TICK(tick, sd->ud.canact_tick) < 0 && skill_id != SO_SPELLFIST )
 	{
-		if( sd->skillitem != skillnum )
+		if( sd->skillitem != skill_id )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
+			clif_skill_fail(sd, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 			return;
 		}
 	}
@@ -13007,7 +13007,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 	if( sd->sc.option&OPTION_COSTUME)
 		return;
 
-	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
+	if( sd->sc.data[SC_BASILICA] && (skill_id != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
 		return; // On basilica only caster can use Basilica again to stop it.
 
 	if( sd->sc.data[SC__MANHOLE] )
@@ -13022,38 +13022,38 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 		else if( sd->menuskill_id != SA_AUTOSPELL )
 			return; //Can't use skills while a menu is open.
 	}
-	if( sd->skillitem == skillnum )
+	if( sd->skillitem == skill_id )
 	{
-		if( skilllv != sd->skillitemlv )
-			skilllv = sd->skillitemlv;
+		if( skill_lv != sd->skillitemlv )
+			skill_lv = sd->skillitemlv;
 		if( !(inf&INF_SELF_SKILL) )
 			pc_delinvincibletimer(sd); // Target skills thru items cancel invincibility. [Inkfish]
-		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
+		unit_skilluse_id(&sd->bl, target_id, skill_id, skill_lv);
 		return;
 	}
 
 	sd->skillitem = sd->skillitemlv = 0;
 
-	if( skillnum >= GD_SKILLBASE )
+	if( skill_id >= GD_SKILLBASE )
 	{
 		if( sd->state.gmaster_flag )
 		{
-			skilllv = guild_checkskill(sd->guild, skillnum);
+			skill_lv = guild_checkskill(sd->guild, skill_id);
 		}
 		else
-			skilllv = 0;
+			skill_lv = 0;
 	}
 	else
 	{
-		if (skillnum != ALL_EQSWITCH) {
-			skilllv = min(pc_checkskill(sd, skillnum), skilllv); //never trust client
+		if (skill_id != ALL_EQSWITCH) {
+			skill_lv = min(pc_checkskill(sd, skill_id), skill_lv); //never trust client
 		}
 	}
 
 	pc_delinvincibletimer(sd);
 
-	if( skilllv )
-		unit_skilluse_id(&sd->bl, target_id, skillnum, skilllv);
+	if( skill_lv )
+		unit_skilluse_id(&sd->bl, target_id, skill_id, skill_lv);
 }
 
 /// Request to use a targeted skill.
@@ -13061,35 +13061,35 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skillnum, uint16 
 /// 0438 <skill lv>.W <skill id>.W <target id>.L (CZ_USE_SKILL2)
 /// There are various variants of this packet, some of them have padding between fields.
 void clif_parse_UseSkillToId(int fd, struct map_session_data *sd) {
-	short skilllv, skillnum;
+	short skill_lv, skill_id;
 	int target_id;
 	
-	skilllv = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[0]);
-	skillnum = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[1]);
+	skill_lv = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[0]);
+	skill_id = RFIFOW(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[1]);
 	target_id = RFIFOL(fd, packet_db[sd->packet_ver][RFIFOW(fd, 0)].pos[2]);
 
-	clif_parse_skill_toid(sd, skillnum, skilllv, target_id);
+	clif_parse_skill_toid(sd, skill_id, skill_lv, target_id);
 }
 
  /*==========================================
   * Client tells server he'd like to use AoE skill id 'skill_id' of level 'skill_lv' on 'x','y' location
   *------------------------------------------*/
-static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, short skilllv, short skillnum, short x, short y, int skillmoreinfo)
+static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, short skill_lv, short skill_id, short x, short y, int skillmoreinfo)
 {
 	int64 tick = gettick();
 
-	if( !(skill_get_inf(skillnum)&INF_GROUND_SKILL) )
+	if( !(skill_get_inf(skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
 
-	if( skillnum >= HM_SKILLBASE && skillnum < HM_SKILLBASE + MAX_HOMUNSKILL )
+	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
-		clif_parse_UseSkillToPos_homun(sd->hd, sd, tick, skillnum, skilllv, x, y, skillmoreinfo);
+		clif_parse_UseSkillToPos_homun(sd->hd, sd, tick, skill_id, skill_lv, x, y, skillmoreinfo);
 		return;
 	}
 
-	if( skillnum >= MC_SKILLBASE && skillnum < MC_SKILLBASE + MAX_MERCSKILL )
+	if( skill_id >= MC_SKILLBASE && skill_id < MC_SKILLBASE + MAX_MERCSKILL )
 	{
-		clif_parse_UseSkillToPos_mercenary(sd->md, sd, tick, skillnum, skilllv, x, y, skillmoreinfo);
+		clif_parse_UseSkillToPos_mercenary(sd->md, sd, tick, skill_id, skill_lv, x, y, skillmoreinfo);
 		return;
 	}
 
@@ -13101,13 +13101,13 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	//Whether skill fails or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
 
-	if( skillnotok(skillnum, sd) )
+	if( skillnotok(skill_id, sd) )
 		return;
 	if( skillmoreinfo != -1 )
 	{
 		if( pc_issit(sd) )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_LEVEL, 0,0);
+			clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0,0);
 			return;
 		}
 		//You can't use Graffiti/TalkieBox AND have a vending open, so this is safe.
@@ -13119,9 +13119,9 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 
 	if( DIFF_TICK(tick, sd->ud.canact_tick) < 0 )
 	{
-		if( sd->skillitem != skillnum )
+		if( sd->skillitem != skill_id )
 		{
-			clif_skill_fail(sd, skillnum, USESKILL_FAIL_SKILLINTERVAL, 0,0);
+			clif_skill_fail(sd, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0,0);
 			return;
 		}
 	}
@@ -13129,7 +13129,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 	if( sd->sc.option&OPTION_COSTUME)
 		return;
 
-	if( sd->sc.data[SC_BASILICA] && (skillnum != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
+	if( sd->sc.data[SC_BASILICA] && (skill_id != HP_BASILICA || sd->sc.data[SC_BASILICA]->val4 != sd->bl.id) )
 		return; // On basilica only caster can use Basilica again to stop it.
 
 	if( sd->sc.data[SC__MANHOLE] )
@@ -13147,22 +13147,22 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 
 	pc_delinvincibletimer(sd);
 
-	if( sd->skillitem == skillnum )
+	if( sd->skillitem == skill_id )
 	{
-		if( skilllv != sd->skillitemlv )
-			skilllv = sd->skillitemlv;
-		unit_skilluse_pos(&sd->bl, x, y, skillnum, skilllv);
+		if( skill_lv != sd->skillitemlv )
+			skill_lv = sd->skillitemlv;
+		unit_skilluse_pos(&sd->bl, x, y, skill_id, skill_lv);
 	}
 	else
 	{
 		int lv;
 
 		sd->skillitem = sd->skillitemlv = 0;
-		if( (lv = pc_checkskill(sd, skillnum)) > 0 )
+		if( (lv = pc_checkskill(sd, skill_id)) > 0 )
 		{
-			if( skilllv > lv )
-				skilllv = lv;
-			unit_skilluse_pos(&sd->bl, x, y, skillnum,skilllv);
+			if( skill_lv > lv )
+				skill_lv = lv;
+			unit_skilluse_pos(&sd->bl, x, y, skill_id,skill_lv);
 		}
 	}
 }
@@ -13256,7 +13256,7 @@ void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -13275,7 +13275,7 @@ void clif_parse_SkillSelectMenu(int fd, struct map_session_data *sd)
 
 	if( pc_istrading(sd) )
 	{
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -13306,7 +13306,7 @@ void clif_parse_Cooking(int fd,struct map_session_data *sd)
 	if (pc_istrading(sd))
 	{
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd, sd->ud.skillid, USESKILL_FAIL_LEVEL, 0, 0);
+		clif_skill_fail(sd, sd->ud.skill_id, USESKILL_FAIL_LEVEL, 0, 0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -13325,7 +13325,7 @@ void clif_parse_RepairItem(int fd, struct map_session_data *sd)
 	if (pc_istrading(sd))
 	{
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd, sd->ud.skillid, USESKILL_FAIL_LEVEL, 0, 0);
+		clif_skill_fail(sd, sd->ud.skill_id, USESKILL_FAIL_LEVEL, 0, 0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -13344,7 +13344,7 @@ void clif_parse_WeaponRefine(int fd, struct map_session_data *sd)
 		return;
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
-		clif_skill_fail(sd,sd->ud.skillid,USESKILL_FAIL_LEVEL,0,0);
+		clif_skill_fail(sd,sd->ud.skill_id,USESKILL_FAIL_LEVEL,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -13469,7 +13469,7 @@ void clif_parse_SelectArrow(int fd,struct map_session_data *sd)
 
 	if( pc_istrading(sd) )
 	{ // Make it fail to avoid shop exploits where you sell something different than you see.
- 		clif_skill_fail(sd,sd->ud.skillid,0,0,0);
+ 		clif_skill_fail(sd,sd->ud.skill_id,0,0,0);
 		sd->menuskill_val = sd->menuskill_id = 0;
 		return;
 	}
@@ -16482,14 +16482,14 @@ void clif_parse_FeelSaveOk(int fd,struct map_session_data *sd)
 ///     0 = sun
 ///     1 = moon
 ///     2 = star
-void clif_feel_req(int fd, struct map_session_data *sd, int skilllv)
+void clif_feel_req(int fd, struct map_session_data *sd, int skill_lv)
 {
 	WFIFOHEAD(fd,packet_len(0x253));
 	WFIFOW(fd,0)=0x253;
-	WFIFOB(fd,2)=TOB(skilllv-1);
+	WFIFOB(fd,2)=TOB(skill_lv-1);
 	WFIFOSET(fd, packet_len(0x253));
 	sd->menuskill_id = SG_FEEL;
-	sd->menuskill_val = skilllv;
+	sd->menuskill_val = skill_lv;
 }
 
 

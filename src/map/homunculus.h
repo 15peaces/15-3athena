@@ -82,7 +82,7 @@ int hom_recv_data(int account_id, struct s_homunculus *sh, int flag); //albator
 struct view_data* hom_get_viewdata(int class_);
 void hom_damage(struct homun_data *hd,struct block_list *src,int hp,int sp);
 int hom_dead(struct homun_data *hd, struct block_list *src);
-void hom_skillup(struct homun_data *hd,int skillnum);
+void hom_skillup(struct homun_data *hd,int skill_id);
 int hom_calc_skilltree(struct homun_data *hd,int flag_evolve);
 int hom_checkskill(struct homun_data *hd,int skill_id);
 int hom_gainexp(struct homun_data *hd,int exp);

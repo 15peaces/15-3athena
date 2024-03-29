@@ -519,7 +519,7 @@ struct map_session_data {
 
 	// Reading SpellBook
 	struct s_rsb {
-		unsigned short skillid;
+		unsigned short skill_id;
 		unsigned char level;
 		unsigned char points;
 	} rsb[MAX_SPELLBOOK];
@@ -836,7 +836,7 @@ int pc_equippoint(struct map_session_data *sd,int n);
 int pc_setinventorydata(struct map_session_data *sd);
 
 int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 skill_lv);
-int pc_checkskill(struct map_session_data *sd,int skill_id);
+int pc_checkskill(struct map_session_data *sd, uint16 skill_id);
 short pc_checkequip(struct map_session_data *sd,int pos, bool checkall);
 bool pc_checkequip2(struct map_session_data *sd, int nameid);
 
@@ -898,7 +898,7 @@ int pc_skill(struct map_session_data* sd, int id, int level, int flag);
 
 int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
 
-int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int skilllv);
+int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int skill_lv);
 int pc_steal_coin(struct map_session_data *sd,struct block_list *bl);
 
 int pc_modifybuyvalue(struct map_session_data*,int);
@@ -922,7 +922,7 @@ int pc_gets_status_point(int);
 int pc_need_status_point(struct map_session_data *,int,int);
 bool pc_statusup(struct map_session_data*, int, int);
 int pc_statusup2(struct map_session_data*,int,int);
-int pc_skillup(struct map_session_data*,int);
+int pc_skillup(struct map_session_data* sd, uint16 skill_id);
 int pc_allskillup(struct map_session_data*);
 int pc_resetlvl(struct map_session_data*,int type);
 int pc_resetstate(struct map_session_data*);

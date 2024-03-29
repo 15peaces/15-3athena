@@ -284,17 +284,17 @@ int inter_guild_fromstr(char* str, struct guild* g)
 	}
 
 	{// load guild skill info
-		int skillid;
-		int skilllv;
+		int skill_id;
+		int skill_lv;
 		int len;
 		int i;
 
 		for(i = 0; i < MAX_GUILDSKILL; i++)
 		{
-			if (sscanf(str, "%d,%d %n", &skillid, &skilllv, &len) < 2)
+			if (sscanf(str, "%d,%d %n", &skill_id, &skill_lv, &len) < 2)
 				break;
-			g->skill[i].id = skillid;
-			g->skill[i].lv = skilllv;
+			g->skill[i].id = skill_id;
+			g->skill[i].lv = skill_lv;
 
 			str+= len;
 		}

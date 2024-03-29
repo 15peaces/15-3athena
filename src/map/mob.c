@@ -82,7 +82,7 @@ const int mob_splendide[5] = { 1991, 1992, 1993, 1994, 1995 };
  *------------------------------------------*/
 static int mob_makedummymobdb(int);
 static int mob_spawn_guardian_sub(int tid, int64 tick, int id, intptr_t data);
-int mob_skillid2skillidx(int class_,int skillid);
+int mob_skillid2skillidx(int class_,int skill_id);
 
 /*==========================================
  * Mob is searched with a name.
@@ -176,9 +176,9 @@ void mvptomb_destroy(struct mob_data *md) {
 static int mobdb_searchname_array_sub(struct mob_db* mob, const char *str)
 {
 	if (mob == mob_dummy)
-		return 1; //Invalid mob.
-	if(!mob->base_exp && !mob->job_exp)
-		return 1; //Discount slave-mobs (no exp) as requested by Playtester. [Skotlex]
+		return 1;
+	if (!mob->base_exp && !mob->job_exp && mob->spawn[0].qty < 1)
+		return 1; // Monsters with no base/job exp and no spawn point are, by this criteria, considered "slave mobs" and excluded from search results
 	if(stristr(mob->jname,str))
 		return 0;
 	if(stristr(mob->name,str))
@@ -263,9 +263,9 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 	md->bl.m = data->m;
 	md->bl.x = data->x;
 	md->bl.y = data->y;
-	md->class_ = data->class_;
+	md->mob_id = data->class_;
 	md->state.boss = data->state.boss;
-	md->db = mob_db(md->class_);
+	md->db = mob_db(md->mob_id);
 	memcpy(md->name, data->name, NAME_LENGTH);
 	if (data->state.ai)
 		md->special_state.ai = data->state.ai;
@@ -278,7 +278,7 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 	md->spawn_timer = INVALID_TIMER;
 	md->deletetimer = INVALID_TIMER;
 	md->skillidx = -1;
-	status_set_viewdata(&md->bl, md->class_);
+	status_set_viewdata(&md->bl, md->mob_id);
 	status_change_init(&md->bl);
 	unit_dataset(&md->bl);
 	
@@ -582,7 +582,7 @@ static int mob_spawn_guardian_sub(int tid, int64 tick, int id, intptr_t data)
 	if (g == NULL)
 	{	//Liberate castle, if the guild is not found this is an error! [Skotlex]
 		ShowError("mob_spawn_guardian_sub: Couldn't load guild %d!\n", (int)data);
-		if (md->class_ == MOBID_EMPERIUM)
+		if (md->mob_id == MOBID_EMPERIUM)
 		{	//Not sure this is the best way, but otherwise we'd be invoking this for ALL guardians spawned later on.
 			md->guardian_data->guild_id = 0;
 			if (md->guardian_data->castle->guild_id) //Free castle up.
@@ -799,7 +799,7 @@ int mob_linksearch(struct block_list *bl,va_list ap)
 	target = va_arg(ap, struct block_list *);
 	tick = va_arg(ap, int64);
 
-	if (md->class_ == class_ && DIFF_TICK(md->last_linktime, tick) < MIN_MOBLINKTIME
+	if (md->mob_id == class_ && DIFF_TICK(md->last_linktime, tick) < MIN_MOBLINKTIME
 		&& !md->target_id)
 	{
 		md->last_linktime = tick;
@@ -882,7 +882,7 @@ int mob_count_sub(struct block_list *bl, va_list ap) {
 	ARR_FIND(0, 10, i, (mobid[i] = va_arg(ap, int)) == 0); //fetch till 0
 	if (mobid[0]) { //if there one let's check it otherwise go backward
 		TBL_MOB *md = BL_CAST(BL_MOB, bl);
-		ARR_FIND(0, 10, i, md->class_ == mobid[i]);
+		ARR_FIND(0, 10, i, md->mob_id == mobid[i]);
 		return (i < 10) ? 1 : 0;
 	}
 	return 1; //backward compatibility
@@ -903,11 +903,11 @@ int mob_spawn (struct mob_data *md)
 	if (md->bl.prev != NULL)
 		unit_remove_map(&md->bl,CLR_RESPAWN);
 	else
-	if (md->spawn && md->class_ != md->spawn->class_)
+	if (md->spawn && md->mob_id != md->spawn->class_)
 	{
-		md->class_ = md->spawn->class_;
-		status_set_viewdata(&md->bl, md->class_);
-		md->db = mob_db(md->class_);
+		md->mob_id = md->spawn->class_;
+		status_set_viewdata(&md->bl, md->mob_id);
+		md->db = mob_db(md->mob_id);
 		memcpy(md->name,md->spawn->name,NAME_LENGTH);
 	}
 
@@ -1358,7 +1358,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	if(i==retrycount){
 		md->move_fail_count++;
 		if(md->move_fail_count>1000){
-			ShowWarning("MOB can't move. random spawn %d, class = %d, at %s (%d,%d)\n",md->bl.id,md->class_,map[md->bl.m].name, md->bl.x, md->bl.y);
+			ShowWarning("MOB can't move. random spawn %d, class = %d, at %s (%d,%d)\n",md->bl.id,md->mob_id,map[md->bl.m].name, md->bl.x, md->bl.y);
 			md->move_fail_count=0;
 			mob_spawn(md);
 		}
@@ -2322,7 +2322,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			if(zeny) // zeny from mobs [Valaris]
 				pc_getzeny(tmpsd[i], zeny, LOG_TYPE_PICKDROP_MONSTER, NULL);
 
-			achievement_validate_mob_kill(tmpsd[i], md->class_); // Achievements [Smokexyz/Hercules]
+			achievement_validate_mob_kill(tmpsd[i], md->mob_id); // Achievements [Smokexyz/Hercules]
 		}
 	}
 	
@@ -2422,7 +2422,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			for (i = 0; i < ARRAYLENGTH(sd->add_drop); i++) {
 				if (!&sd->add_drop[i] || (!sd->add_drop[i].nameid && !sd->add_drop[i].group))
 					continue;
-				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->class_) || //Race < 0, use mob_id
+				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->mob_id) || //Race < 0, use mob_id
 					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race)) //Matched race
 				{
 					//Check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
@@ -2562,10 +2562,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 		}
 
-		log_mvpdrop(mvp_sd, md->class_, log_mvp);
+		log_mvpdrop(mvp_sd, md->mob_id, log_mvp);
 	}
 
-	if (type&2 && !sd && md->class_ == MOBID_EMPERIUM)
+	if (type&2 && !sd && md->mob_id == MOBID_EMPERIUM)
 	  	//Emperium destroyed by script. Discard mvp character. [Skotlex]
 		mvp_sd = NULL;
 
@@ -2574,15 +2574,17 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	{ // Only trigger event on final kill
 		if (src) {
 			switch (src->type) {
-				case BL_PET: sd = ((TBL_PET*)src)->master; break;
-				case BL_HOM: sd = ((TBL_HOM*)src)->master; break;
-				case BL_MER: sd = ((TBL_MER*)src)->master; break;
-				case BL_ELEM: sd = ((TBL_ELEM*)src)->master; break;
+			case BL_PET:
+			case BL_HOM:
+			case BL_MER:
+			case BL_ELEM:
+			case BL_MOB:
+				sd = BL_CAST(BL_PC, battle_get_master(src));
 			}
 		}
 
 		if (sd) {
-			if (sd->mission_mobid == md->class_ ||
+			if (sd->mission_mobid == md->mob_id ||
 				(battle_config.taekwon_mission_mobname == 1 && mob_is_goblin(md, sd->mission_mobid)) ||
 				(battle_config.taekwon_mission_mobname == 2 && mob_is_samename(md, sd->mission_mobid))) { //TK_MISSION [Skotlex]
 				if (++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0xE, sd->status.base_level))) {
@@ -2596,11 +2598,11 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 			
 			if (sd->status.party_id)
-				map_foreachinrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->class_);
+				map_foreachinrange(quest_update_objective_sub, &md->bl, AREA_SIZE, BL_PC, sd->status.party_id, md->mob_id);
 			else if (sd->avail_quests)
-					quest_update_objective(sd, md->class_);
+					quest_update_objective(sd, md->mob_id);
 
-			if (sd->md && src && src->type == BL_MER && mob_db(md->class_)->lv > sd->status.base_level / 2)
+			if (sd->md && src && src->type == BL_MER && mob_db(md->mob_id)->lv > sd->status.base_level / 2)
 				mercenary_kills(sd->md);
 		}
 
@@ -2621,7 +2623,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		}
 		else if( mvp_sd && !md->state.npc_killmonster )
 		{
-			pc_setparam(mvp_sd, SP_KILLEDRID, md->class_);
+			pc_setparam(mvp_sd, SP_KILLEDRID, md->mob_id);
 			npc_script_event(mvp_sd, NPCE_KILLNPC); // PCKillNPC [Lance]
 		}
 	}
@@ -2699,7 +2701,7 @@ int mob_guardian_guildchange(struct mob_data *md)
 
 	if (md->guardian_data->castle->guild_id == 0)
 	{	//Castle with no owner? Delete the guardians.
-		if (md->class_ == MOBID_EMPERIUM)
+		if (md->mob_id == MOBID_EMPERIUM)
 		{	//But don't delete the emperium, just clear it's guild-data
 			md->guardian_data->guild_id = 0;
 			md->guardian_data->emblem_id = 0;
@@ -2777,14 +2779,14 @@ int mob_class_change (struct mob_data *md, int class_)
 	if( md->special_state.ai > 1 )
 		return 0; //Marine Spheres and Floras.
 
-	if( mob_is_clone(md->class_) )
+	if( mob_is_clone(md->mob_id) )
 		return 0; //Clones
 
-	if( md->class_ == class_ )
+	if( md->mob_id == class_ )
 		return 0; //Nothing to change.
 
 	hp_rate = get_percentage(md->status.hp, md->status.max_hp);
-	md->class_ = class_;
+	md->mob_id = class_;
 	md->db = mob_db(class_);
 	if (battle_config.override_mob_names==1)
 		memcpy(md->name,md->db->name,NAME_LENGTH);
@@ -2994,9 +2996,9 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 }
 
 /*==========================================
- *MOBskill‚©‚çŠY“–skillid‚Ìskillidx‚ð•Ô‚·
+ *MOBskill‚©‚çŠY“–skill_id‚Ìskillidx‚ð•Ô‚·
  *------------------------------------------*/
-int mob_skillid2skillidx(int class_,int skillid)
+int mob_skillid2skillidx(int class_,int skill_id)
 {
 	int i, max = mob_db(class_)->maxskill;
 	struct mob_skill *ms=mob_db(class_)->skill;
@@ -3004,7 +3006,7 @@ int mob_skillid2skillidx(int class_,int skillid)
 	if(ms==NULL)
 		return -1;
 
-	ARR_FIND( 0, max, i, ms[i].skill_id == skillid );
+	ARR_FIND( 0, max, i, ms[i].skill_id == skill_id );
 	return ( i < max ) ? i : -1;
 }
 
@@ -3198,7 +3200,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 				case MSC_ATTACKPCGE:	// attack pc >= num
 					flag = (unit_counttargeted(&md->bl, 0) >= c2); break;
 				case MSC_AFTERSKILL:
-					flag = (md->ud.skillid == c2); break;
+					flag = (md->ud.skill_id == c2); break;
 				case MSC_RUDEATTACKED:
 					flag = (md->state.attacked_count >= RUDE_ATTACKED_COUNT);
 					if (flag) md->state.attacked_count = 0;	//Rude attacked count should be reset after the skill condition is met. Thanks to Komurka [Skotlex]
@@ -3583,7 +3585,7 @@ int mob_clone_spawn(struct map_session_data *sd, int m, int x, int y, const char
 
 int mob_clone_delete(struct mob_data *md)
 {
-	const int class_ = md->class_;
+	const int class_ = md->mob_id;
 	if (class_ >= MOB_CLONE_START && class_ < MOB_CLONE_END
 		&& mob_db_data[class_]!=NULL) {
 		aFree(mob_db_data[class_]);

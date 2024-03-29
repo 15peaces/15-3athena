@@ -959,8 +959,8 @@ enum si_type {
 	SI_ADRENALINE2		= 147,
 	SI_GHOSTWEAPON		= 148,
 	SI_SPIRIT		= 149,
-//	SI_PLUSATTACKPOWER = 150,
-//	SI_PLUSMAGICPOWER = 151,
+	SI_PLUSATTACKPOWER = 150,
+	SI_PLUSMAGICPOWER = 151,
 	SI_DEVIL		= 152,
 	SI_KAITE		= 153,
 	SI_SWOO = 154,
@@ -2029,8 +2029,10 @@ enum e_mode
  	MD_KNOCKBACK_IMMUNE		= 0x200000,
 	MD_NORANDOM_WALK		= 0x400000,
 	MD_NOCAST_SKILL			= 0x800000,
-	MD_MASK					= 0xFFFFFF,
 };
+
+#define MD_MASK 0x000FFFF
+#define ATR_MASK 0xFF0000
 
 //Status change option definitions (options are what makes status changes visible to chars
 //who were not on your field of sight when it happened)
@@ -2171,9 +2173,9 @@ enum e_status_bonus {
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 //Define to determine who has regen
-#define BL_REGEN (BL_PC|BL_HOM|BL_MER)
+#define BL_REGEN (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 //Define to determine who will receive a clif_status_change packet for effects that require one to display correctly
-#define BL_SCEFFECT (BL_PC|BL_HOM|BL_MER|BL_MOB)
+#define BL_SCEFFECT (BL_PC|BL_HOM|BL_MER|BL_MOB|BL_ELEM)
 
 //Basic damage info of a weapon
 //Required because players have two of these, one in status_data

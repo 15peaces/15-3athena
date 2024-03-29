@@ -242,15 +242,15 @@ int hom_checkskill(struct homun_data *hd,int skill_id)
 }
 
 int hom_skill_tree_get_max(int id, int b_class){
-	int i, skillid;
+	int i, skill_id;
 	b_class -= HM_CLASS_BASE;
-	for(i=0;(skillid=hskill_tree[b_class][i].id)>0;i++)
-		if (id == skillid)
+	for(i=0;(skill_id=hskill_tree[b_class][i].id)>0;i++)
+		if (id == skill_id)
 			return hskill_tree[b_class][i].max;
 	return skill_get_max(id);
 }
 
-void hom_skillup(struct homun_data *hd,int skillnum)
+void hom_skillup(struct homun_data *hd,int skill_id)
 {
 	int i = 0 ;
 	nullpo_retv(hd);
@@ -258,18 +258,18 @@ void hom_skillup(struct homun_data *hd,int skillnum)
 	if(hd->homunculus.vaporize)
 		return;
 	
-	i = skillnum - HM_SKILLBASE;
+	i = skill_id - HM_SKILLBASE;
 	if(hd->homunculus.skillpts > 0 &&
 		hd->homunculus.hskill[i].id &&
 		hd->homunculus.hskill[i].flag == SKILL_FLAG_PERMANENT && //Don't allow raising while you have granted skills. [Skotlex]
-		hd->homunculus.hskill[i].lv < hom_skill_tree_get_max(skillnum, hd->homunculus.class_)
+		hd->homunculus.hskill[i].lv < hom_skill_tree_get_max(skill_id, hd->homunculus.class_)
 		)
 	{
 		hd->homunculus.hskill[i].lv++;
 		hd->homunculus.skillpts-- ;
 		status_calc_homunculus(hd, SCO_NONE);
 		if (hd->master) {
-			clif_homskillup(hd->master, skillnum);
+			clif_homskillup(hd->master, skill_id);
 			clif_hominfo(hd->master,hd,0);
 			clif_homskillinfoblock(hd->master);
 		}

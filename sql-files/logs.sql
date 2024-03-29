@@ -6,7 +6,7 @@
 
 #Database: log
 #Table: picklog
-CREATE TABLE `picklog` (
+CREATE TABLE IF NOT EXISTS `picklog` (
   `id` int(11) NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
@@ -43,7 +43,7 @@ CREATE TABLE `picklog` (
 #ZenyLog types (M)onsters,(T)rade,(V)ending Sell/Buy,(S)hop Sell/Buy,(N)PC Change amount,(A)dministrators,(E)Mail,(B)uying Store
 #Database: log
 #Table: zenylog
-CREATE TABLE `zenylog` (
+CREATE TABLE IF NOT EXISTS `zenylog` (
   `id` int(11) NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
@@ -57,7 +57,7 @@ CREATE TABLE `zenylog` (
 
 #Database: log
 #Table: branchlog
-CREATE TABLE `branchlog` (
+CREATE TABLE IF NOT EXISTS `branchlog` (
   `branch_id` mediumint(9) unsigned NOT NULL auto_increment,
   `branch_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) NOT NULL default '0',
@@ -71,7 +71,7 @@ CREATE TABLE `branchlog` (
 
 #Database: log
 #Table: mvplog
-CREATE TABLE `mvplog` (
+CREATE TABLE IF NOT EXISTS `mvplog` (
   `mvp_id` mediumint(9) unsigned NOT NULL auto_increment,
   `mvp_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `kill_char_id` int(11) NOT NULL default '0',
@@ -84,7 +84,7 @@ CREATE TABLE `mvplog` (
 
 #Database: log
 #Table: atcommandlog
-CREATE TABLE `atcommandlog` (
+CREATE TABLE IF NOT EXISTS `atcommandlog` (
   `atcommand_id` mediumint(9) unsigned NOT NULL auto_increment,
   `atcommand_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) unsigned NOT NULL default '0',
@@ -99,7 +99,7 @@ CREATE TABLE `atcommandlog` (
 
 #Database: log
 #Table: npclog
-CREATE TABLE `npclog` (
+CREATE TABLE IF NOT EXISTS `npclog` (
   `npc_id` mediumint(9) unsigned NOT NULL auto_increment,
   `npc_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `account_id` int(11) unsigned NOT NULL default '0',
@@ -115,7 +115,7 @@ CREATE TABLE `npclog` (
 #ChatLog types Gl(O)bal,(W)hisper,(P)arty,(G)uild,(M)ain chat
 #Database: log
 #Table: chatlog
-CREATE TABLE `chatlog` (
+CREATE TABLE IF NOT EXISTS `chatlog` (
   `id` bigint(20) NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `type` enum('O','W','P','G','M') NOT NULL default 'O',
@@ -134,7 +134,7 @@ CREATE TABLE `chatlog` (
 
 #Database: log
 #Table: loginlog
-CREATE TABLE `loginlog` (
+CREATE TABLE IF NOT EXISTS `loginlog` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `ip` varchar(15) NOT NULL default '',
   `user` varchar(23) NOT NULL default '',

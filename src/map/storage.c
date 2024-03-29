@@ -657,8 +657,21 @@ void storage_guild_storageadd(struct map_session_data* sd, int index, int amount
 	if( amount < 1 || amount > sd->inventory.u.items_inventory[index].amount )
 		return;
 
+
+	if (itemdb_ishatched_egg(&sd->inventory.u.items_inventory[index]))
+		return;
+
+	if (stor->lock) {
+		storage_guild_storageclose(sd);
+		return;
+	}
+
 	if(storage_guild_additem(sd,stor,&sd->inventory.u.items_inventory[index],amount))
 		pc_delitem(sd,index,amount,0,4,LOG_TYPE_GSTORAGE);
+	else {
+		clif_storageitemremoved(sd, index, 0);
+		clif_dropitem(sd, index, 0);
+	}
 
 	return;
 }

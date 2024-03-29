@@ -5,6 +5,117 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/29/2024
+	r443 [15peaces]
+		*Note: This update will break some item bonus calculations due to an unfinished change I already made...!
+			-This will be fixed in the next commit, but I don't wanted to hold back the important fixes of this commit any longer!
+		*Fixed a critical issue where all players had the MD_PLANT mode active by default.
+			-This was caused by a wrong handling of the default mode mask.
+		*Fixed bad login values.
+		*Fixed skill_copyable_db RequirementRemoved field.
+			-Also added support for removing RequiredEquipment.
+		*Added some checks to unit_check_start_teleport_timer.
+		*Changed Sleep chance of Lullaby's effect.
+			-Chance is increased with INT.
+		*Fixed Pneuma display.
+		*Some cleaning & fixing.
+		*Fixed a map-crash related to unit_walktobl function.
+		*Harmonized skillid, skillnum, to skill_id and same for skill_lv.
+		*Added missing status icons for SC_MATKPOTION and SC_ATKPOTION.
+		*changed CH_PALMSTRIKE to aspd based like official.
+		*ItemDB updates:
+			-Added missing Eden Group Equipment.
+			-Added some costumes.
+		*Changed some trading restrictions.
+		*Fixed another issue related to moving items.
+			-Dragging an item into a full/overweighted guild storage caused the item to get stuck until relog.
+		*WL_COMET
+			-Fixed an issue that caused the skill to be single target instead of AoE.
+			-Still needs another fixing...
+		*Added New Char-Server Rename Packet.
+		*Fixed magical reflection behavior, user reflecting now visually casts the skill back at the caster, instead of caster casting it on itself.
+		*You no longer can dispell guild mates in non-pkable areas.
+		*Fire Pillar is now removed by land protector, and no longer can be cast over land protector.
+		*Status effects no longer propagate with magical reflection (e.g. when frost diver is reflected there is no chance that target will be frozen).
+		*Fixed SC__SHADOWFORM not ending if target does not move after being warped.
+			-This allowed to inflict damage between maps (only if both player don't move).
+			-Cleanup old map-check on move check.
+		*Fixed Trick Dead not being removed on job change.
+		*Modified @mi exclusion criteria so that it requires a monster to not have a fixed spawn point as well as no base/job exp. It was excluding things such as red/blue/whatever plant from search results.
+		*#autotrade now relogs the target, not the caster.
+		*Fixed bug where Kagerou and Oboro could hit their Zanzoe.
+		*Finally added the correct formula for Spiral Pierce when used by monsters.
+		*When bosses use level 48 decrease agi, it will now have a base duration of 65 seconds on players.
+		*Enforce logs.sql to check if table not existing.
+		*Slaves now return the final master when killing mob.
+		*Correct implementation of NPC_PIERCINGATT, NPC_COMBOATTACK and NPC_RANDOMATTACK:
+			-NPC_PIERCINGATT deals 75% damage, ignoring DEF
+			-NPC_COMBOATTACK deals 100%+25%*level damage spread on level+1 hits
+			-NPC_RANDOMATTACK deals 100%*level damage with a random element
+		*Fixed Dispel-Skills not removing dance statusses (inversed area checks).
+		*Improved the structure of status_get_sc_def so it's a lot easier to apply official formulas and make sure the checks are applied in the correct order.
+			-In the process, fixed the effect of luk on status changes and removed the static 3% resistance that has been proven to not exist (97 vit, 1 luk can get stunned on officials)
+			-As there is no general luk resistance as it depends on each status change, removed the luk_status_def configurations
+		*Updated the success chance of Decrease Agi to the formula that was extracted from Aegis (blevel/5 + int/5 + skill_lv*3 + 50)
+		*Implemented the official stun chance of Bash based on an Aegis leak.
+			-Basically the base chance (5% per level above 5) will get multiplied by BaseLevel/50.0, so on level 50, it will be 1x, on level 75 it will be 1.5x and on level 99 it will be almost 2x (prior reductions), 
+			-e.g. a level 99 knight using bash 10 will have a 49.5% base success chance to stun with it (if he has learned the quest skill).
+		*Added check on map_flooradditem to prevent item apparition if inventory full and item is not droppable.
+		*Changed some msg_langtype2langstr messages to a readable format.
+		*Fixed disable_items not working when the close button appears in NPC dialog while keeping close/close2/end backwards compatibility.
+		*Refactored start items config.
+			-Thanks to @rathena fo the base.
+			-Now also supports auto-equip and (by default) max 16 items.
+		*Updated Bowling Bash to its official behavior including the gutter line.
+		*Sonic Blow now has a fixed range of 1, even for monsters; a monster can't use this skill if you tank it from farther away.
+		*Capped reflected damage to max HP of the one reflecting.
+		*Minor fix to Reflect Damage timer going over time limit.
+		*Fixed Star Gladiator Miracle not using correct ratio.
+		*Per official behavior, Knight's Auto Counter skill is based off of player's ASPD for delay.
+		*Added battle_calc_cardfix function.
+			-Thanks to @rathena for the base.
+			-This was done to optimize and clean-up the cardfix calculations.
+		*Major battle calculation engine refactoring! Giant thanks to @rathena for the refactoring work
+			-Forced neutral behavior documented and implemented. Weapon element does affect the following skills, but final damage is treated neutral for resistances.
+				--End result is endows do boost skill damage as expected given elemental weaknesses or resistances, but forced neutral skills will always miss on Ghost 3/4 mobs as the damage is "forced" back to neutral type after bonuses are applied
+				--but before resistances.
+			-The following skills are considered "forced neutral"
+				--Merchant "Cart Revolution"
+				--Creator "Acid Demonstration"
+				--Genetic "Cart Cannon" (damage is forced to element of cannon ball, either neutral or holy or ghost)
+			-Weapon calculation engine has been rewritten to better emulate official behaviors and "quirks", the following changes have been documented and implemented:
+				--Double attack takes priority over criticals when determining which effect activates
+				--VITDEF (status or sDEF) is applied on every hit on multi-hit skills, rather than a flat reduction on the final damage total
+				--Skills such as Spiral Pierce that differ when used by monsters modified to match official calculation methods
+			-Weapon element behavior adjusted to match official behavior, endows override any innate weapon element, including elemental arrows
+			-Thief:
+				--Double attack gives a hidden +1 HIT per skill level on attacks that activate the double attack effect
+				--Envenom gives a flat +15 ATK per skill level when used, it is considered a mastery type damage and has no element
+			-Creator
+				--Acid Demonstration adjusted to match "forced neutral" behavior on official
+					---For example, Acid Demonstration used on a water-type mob with a wind endowed weapon will do bonus damage, but will miss on a Ghost 3/4 monster regardless of endow.
+			-Swordsman
+				--Magnum break bonus damage gives +20% ATK fire damage on physical attack (so 100% ATK normal + 20% ATK fire)
+			-Ninja
+				--Final Strike will MISS on plant-type mobs (mobs that only take 1 damage per hit from all sources) 
+				--Mirror Image cast over itself will override and reset current Mirror Image count
+			-Genetic
+				--Cart Cannon "forced element" behavior implemented, damage is "forced" to the element of the cannon ball. 
+					---Ex. Cart Cannon fitted with a standard cannon ball and a fire elemental weapon will do bonus damage against earth targets, and a Cart Cannon fitted with a holy cannon ball will do bonus damage against shadow, 
+					---but total damage is forced back to element of cannon ball and resistances applied against it. Neutral cannon balls will miss on Ghost 3/4 but holy/ghost/shadow will not.
+			-Gunslinger
+				--Gunslinger Mine skill formula and behavior matched to official
+					---Fixed 500 damage, ignores DEF and is affected by +% ATK weapon cards only
+			-Warlock
+				--Tetra Vortex behavior modified to match official
+					---First 4 spirit spheres are used for calculating element of each hit, but if 5 are present all 5 are consumed
+		*Moved pc_dead NPC event calls to the end of the death process
+		*Super Novices are no longer counted as dead when saved by their angel
+			-They won't lose their +10 bonus on the first death
+			-Pet intimacy, mercenaries, skull drops are unaffected by first death
+			-Steel Body is level 5 when saved
+		*Water Ball now checks for obstacles
+
 02/25/2024
 	r442 [15peaces]
 		*Fixed 'bAutoSpellOnSkill'.

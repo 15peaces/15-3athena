@@ -422,6 +422,7 @@ struct s_random_opt_data* itemdb_randomopt_exists(short id);
 #define itemdb_range(n) itemdb_search(n)->range
 #define itemdb_slot(n) itemdb_search(n)->slot
 #define itemdb_available(n) (itemdb_search(n)->flag.available)
+#define itemdb_traderight(n) (itemdb_search(n)->flag.trade_restriction)
 #define itemdb_viewid(n) (itemdb_search(n)->view_id)
 #define itemdb_autoequip(n) (itemdb_search(n)->flag.autoequip)
 const char* itemdb_typename(enum item_types type);

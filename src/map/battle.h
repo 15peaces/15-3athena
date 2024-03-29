@@ -23,6 +23,7 @@ struct Damage {
 	int amotion,dmotion;
 	int blewcount;
 	int flag;
+	int miscflag;
 	enum damage_lv dmg_lv;	//ATK_LUCKY,ATK_FLEE,ATK_DEF
 	bool isspdamage; /// Display blue damage numbers in clif_damage
 };
@@ -38,7 +39,7 @@ struct block_list;
 
 struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct block_list *target,int skill_id,int skill_lv,int count);
 
-int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skillid);
+int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skill_id);
 
 void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int boss);
 
@@ -46,7 +47,8 @@ int battle_attr_ratio(int atk_elem,int def_type, int def_lv);
 int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 damage,int atk_elem,int def_type, int def_lv);
 
 // ダメージ最終計算
-int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_id,int skill_lv,int element);
+int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_list *target, int nk, int s_ele, int s_ele_, int64 damage, int left, int flag);
+int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_id,int skill_lv);
 int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
 int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
 
@@ -63,7 +65,7 @@ enum {	// 最終計算のフラグ
 	BF_SKILLMASK= 0x0f00,
 };
 
-int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay);
+int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay, bool additional_effects);
 int battle_damage_area( struct block_list *bl, va_list ap);
 // 通常攻撃処理まとめ
 enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,int64 tick,int flag);
@@ -477,8 +479,6 @@ extern struct Battle_Config
 	int sc_castcancel; // [Skotlex]
 	int pc_sc_def_rate; // [Skotlex]
 	int mob_sc_def_rate;
-	int pc_luk_sc_def;
-	int mob_luk_sc_def;
 	int pc_max_sc_def;
 	int mob_max_sc_def;
 
@@ -646,6 +646,7 @@ extern struct Battle_Config
 	int min_npc_vending_distance;
 	int skill_trap_type;
 	int item_enabled_npc;
+	int item_onfloor;
 	int emblem_woe_change;
 	int emblem_transparency_limit;
 	int discount_item_point_shop;

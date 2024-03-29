@@ -433,7 +433,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 			struct block_list *d_bl;
 			if (sc && sc->data[SC__SHADOWFORM] && ((d_bl = map_id2bl(sc->data[SC__SHADOWFORM]->val2)) == NULL || bl->m != d_bl->m || !check_distance_bl(bl, d_bl, 10)))
 				status_change_end(bl,SC__SHADOWFORM,-1);
-			if (sd->shadowform_id && ((d_bl = map_id2bl(sd->shadowform_id)) == NULL || bl->m != d_bl->m || !check_distance_bl(bl, d_bl, 10))) {
+			if (sd->shadowform_id && ((d_bl = map_id2bl(sd->shadowform_id)) == NULL || !check_distance_bl(bl, d_bl, 10))) {
 				if (d_bl) status_change_end(d_bl, SC__SHADOWFORM, -1);
 				sd->shadowform_id = 0;
 			}
@@ -1612,6 +1612,9 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int fir
 	struct flooritem_data *fitem=NULL;
 
 	nullpo_ret(item_data);
+
+	if (battle_config.item_onfloor && (itemdb_traderight(item_data->nameid) & 1))
+		return 0; //can't be dropped
 
 	if(!map_searchrandfreecell(m,&x,&y,flags&2?1:0))
 		return 0;

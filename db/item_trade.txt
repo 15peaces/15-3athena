@@ -602,9 +602,6 @@
 6907,507,100	// Piece_Of_Soul_Horse
 7025,475,100		// Lucifer's_Lament
 7037,507,100 	// Trade_Coupon
-7059,507,100 	// Cargo_Free_Ticket
-7060,507,100 	// Warp_Free_Ticket
-7061,507,100 	// Cart_Free_Ticket
 7177,507,100	// Part_Of_Star's_Sob
 7178,507,100	// Star's_Sob
 7275,507,100	// Ancient_Document

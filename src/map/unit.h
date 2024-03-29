@@ -24,7 +24,7 @@ struct unit_data {
 	short attacktarget_lv;
 	short to_x,to_y;
 	short skillx,skilly;
-	short skillid,skilllv;
+	short skill_id,skill_lv;
 	int   skilltarget;
 	int   skilltimer;
 	int   target;
@@ -115,12 +115,12 @@ int unit_attack(struct block_list *src,int target_id,int continuous);
 int unit_cancel_combo(struct block_list *bl);
 
 // スキル使用
-int unit_skilluse_id(struct block_list *src, int target_id, short skill_id, short skill_lv);
-int unit_skilluse_pos(struct block_list *src, short skill_x, short skill_y, short skill_id, short skill_lv);
+int unit_skilluse_id(struct block_list *src, int target_id, uint16 skill_id, uint16 skill_lv);
+int unit_skilluse_pos(struct block_list *src, short skill_x, uint16 skill_y, uint16 skill_id, short skill_lv);
 
 // スキル使用( 補正済みキャスト時間、キャンセル不可設定付き )
-int unit_skilluse_id2(struct block_list *src, int target_id, short skill_id, short skill_lv, int casttime, int castcancel);
-int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, short skill_id, short skill_lv, int casttime, int castcancel);
+int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel);
+int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel);
 
 static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data);
 

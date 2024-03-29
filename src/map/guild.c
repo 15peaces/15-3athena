@@ -97,7 +97,7 @@ int guild_skill_get_max (int id)
 	return guild_skill_tree[id-GD_SKILLBASE].max;
 }
 
-// Retrive skilllv learned by guild
+// Retrive skill_lv learned by guild
 int guild_checkskill(struct guild *g,int id)
 {
 	int idx = id-GD_SKILLBASE;
@@ -111,18 +111,18 @@ int guild_checkskill(struct guild *g,int id)
  *------------------------------------------*/
 static bool guild_read_guildskill_tree_db(char* split[], int columns, int current)
 {// <skill id>,<max lv>,<req id1>,<req lv1>,<req id2>,<req lv2>,<req id3>,<req lv3>,<req id4>,<req lv4>,<req id5>,<req lv5>
-	int k, id, skillid;
+	int k, id, skill_id;
 
-	skillid = atoi(split[0]);
-	id = skillid - GD_SKILLBASE;
+	skill_id = atoi(split[0]);
+	id = skill_id - GD_SKILLBASE;
 
 	if( id < 0 || id >= MAX_GUILDSKILL )
 	{
-		ShowWarning("guild_read_guildskill_tree_db: Invalid skill id %d.\n", skillid);
+		ShowWarning("guild_read_guildskill_tree_db: Invalid skill id %d.\n", skill_id);
 		return false;
 	}
 
-	guild_skill_tree[id].id = skillid;
+	guild_skill_tree[id].id = skill_id;
 	guild_skill_tree[id].max = atoi(split[1]);
 
 	if( guild_skill_tree[id].id == GD_GLORYGUILD && battle_config.require_glory_guild && guild_skill_tree[id].max == 0 )

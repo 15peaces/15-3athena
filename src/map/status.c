@@ -22,6 +22,7 @@
 #include "skill.h"
 #include "itemdb.h"
 #include "battle.h"
+#include "battleground.h"
 #include "chrif.h"
 #include "skill.h"
 #include "status.h"
@@ -937,6 +938,8 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_SPL_DEF] = SI_SPL_DEF;
 	StatusIconChangeTable[SC_MANU_MATK] = SI_MANU_MATK;
 	StatusIconChangeTable[SC_SPL_MATK] = SI_SPL_MATK;
+	StatusIconChangeTable[SC_ATKPOTION] = SI_PLUSATTACKPOWER;
+	StatusIconChangeTable[SC_MATKPOTION] = SI_PLUSMAGICPOWER;
 	//Cash Items
 	StatusIconChangeTable[SC_FOOD_STR_CASH] = SI_FOOD_STR_CASH;
 	StatusIconChangeTable[SC_FOOD_AGI_CASH] = SI_FOOD_AGI_CASH;
@@ -1650,6 +1653,18 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		skill_cleartimerskill(target);
 	}
 
+	// Always run NPC scripts for players last
+	if (target->type == BL_PC) {
+		TBL_PC *sd = BL_CAST(BL_PC, target);
+		if (sd->bg_id) {
+			struct battleground_data *bg;
+			if ((bg = bg_team_search(sd->bg_id)) != NULL && bg->die_event[0])
+				npc_event(sd, bg->die_event, 0);
+		}
+
+		npc_script_event(sd, NPCE_DIE);
+	}
+
 	return hp+sp;
 }
 
@@ -1740,38 +1755,32 @@ int status_percent_change(struct block_list *src,struct block_list *target,signe
 
 	status = status_get_status_data(target);
 
-	//Change the equation when the values are high enough to discard the
-	//imprecision in exchange of overflow protection [Skotlex]
-	//Also add 100% checks since those are the most used cases where we don't 
-	//want aproximation errors.
 	if (hp_rate > 99)
 		hp = status->hp;
 	else if (hp_rate > 0)
 		hp = status->hp>10000?
 			hp_rate*(status->hp/100):
-			(hp_rate*status->hp)/100;
+			((int64)hp_rate*status->hp)/100;
 	else if (hp_rate < -99)
 		hp = status->max_hp;
 	else if (hp_rate < 0)
 		hp = status->max_hp>10000?
 			(-hp_rate)*(status->max_hp/100):
-			(-hp_rate*status->max_hp)/100;
+			((int64)-hp_rate*status->max_hp)/100;
 	if (hp_rate && !hp)
 		hp = 1;
 
 	if (flag == 2 && hp >= status->hp)
 		hp = status->hp-1; //Must not kill target.
 
-	//Should be safe to not do overflow protection here, noone should have
-	//millions upon millions of SP
 	if (sp_rate > 99)
 		sp = status->sp;
 	else if (sp_rate > 0)
-		sp = (sp_rate*status->sp)/100;
+		sp = ((int64)sp_rate*status->sp)/100;
 	else if (sp_rate < -99)
 		sp = status->max_sp;
 	else if (sp_rate < 0)
-		sp = (-sp_rate)*status->max_sp/100;
+		sp = ((int64)-sp_rate)*status->max_sp/100;
 	if (sp_rate && !sp)
 		sp = 1;
 
@@ -1806,8 +1815,8 @@ int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per
 	if (status == &dummy_status)
 		return 0; //Invalid target.
 
-	hp = status->max_hp * per_hp/100;
-	sp = status->max_sp * per_sp/100;
+	hp = (int64)status->max_hp * per_hp/100;
+	sp = (int64)status->max_sp * per_sp/100;
 
 	if(hp > status->max_hp - status->hp)
 		hp = status->max_hp - status->hp;
@@ -2384,7 +2393,7 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 
 	if (md->guardian_data && md->guardian_data->guardup_lv)
 		flag|=4;
-	if (md->class_ == MOBID_EMPERIUM)
+	if (md->mob_id == MOBID_EMPERIUM)
 		flag|=4;
 
 	if (battle_config.slaves_inherit_speed && md->master_id)
@@ -2427,36 +2436,36 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 			md->special_state.ai = 0;
 		if (ud)
 		{	// different levels of HP according to skill level
-			if (ud->skillid == AM_SPHEREMINE) {
-				status->max_hp = 2000 + 400*ud->skilllv;
+			if (ud->skill_id == AM_SPHEREMINE) {
+				status->max_hp = 2000 + 400*ud->skill_lv;
 			}
-			else if (ud->skillid == AM_CANNIBALIZE) {
-				status->max_hp = 1500 + 200*ud->skilllv + 10*status_get_lv(mbl);
+			else if (ud->skill_id == AM_CANNIBALIZE) {
+				status->max_hp = 1500 + 200*ud->skill_lv + 10*status_get_lv(mbl);
 				status->mode|= MD_CANATTACK|MD_AGGRESSIVE;
 			}
-			else if( ud->skillid == NC_SILVERSNIPER )
+			else if( ud->skill_id == NC_SILVERSNIPER )
 			{
 				short atkbonus[5] = { 0, 200, 400, 800, 1000 };
 
-				status->rhw.atk = status->rhw.atk2 += atkbonus[ud->skilllv-1];
-				status->max_hp = 1000 * ud->skilllv + 12 * status_get_lv(mbl) + status_get_max_hp(mbl) / 3;
+				status->rhw.atk = status->rhw.atk2 += atkbonus[ud->skill_lv-1];
+				status->max_hp = 1000 * ud->skill_lv + 12 * status_get_lv(mbl) + status_get_max_hp(mbl) / 3;
 			}
 			// Disabled since MaxHP and MATK values are set elsewhere since it won't work here.
-			//else if ( ud->skillid == NC_MAGICDECOY )
+			//else if ( ud->skill_id == NC_MAGICDECOY )
 			//{
-			//	status->matk_min = status->matk_max = 250 + 50 * ud->skilllv;
-			//	status->max_hp = 1000 * ud->skilllv + 12 * status_get_lv(mbl) + 4 * status_get_max_sp(mbl);
+			//	status->matk_min = status->matk_max = 250 + 50 * ud->skill_lv;
+			//	status->max_hp = 1000 * ud->skill_lv + 12 * status_get_lv(mbl) + 4 * status_get_max_sp(mbl);
 			//}
-			else if ( ud->skillid == KO_ZANZOU )
-				status->max_hp = 3000 + 3000 * ud->skilllv + status_get_max_sp(mbl);
-			else if (ud->skillid == MH_SUMMON_LEGION)
+			else if ( ud->skill_id == KO_ZANZOU )
+				status->max_hp = 3000 + 3000 * ud->skill_lv + status_get_max_sp(mbl);
+			else if (ud->skill_id == MH_SUMMON_LEGION)
 			{
 				const int summon_def[10] = { 15, 20, 25, 30, 33, 37, 40, 42, 45, 47 };// DEF - Future proofed for 10 levels.
-				short summon_amotion = 10 * (2 * (20 - ud->skilllv) - status_get_lv(mbl) / 10);
+				short summon_amotion = 10 * (2 * (20 - ud->skill_lv) - status_get_lv(mbl) / 10);
 
-				status->max_hp = 10 * (100 * (2 + ud->skilllv) + status_get_lv(mbl));
-				status->rhw.atk2 = 100 * (ud->skilllv + 5) / 2;
-				status->def = summon_def[ud->skilllv-1];
+				status->max_hp = 10 * (100 * (2 + ud->skill_lv) + status_get_lv(mbl));
+				status->rhw.atk2 = 100 * (ud->skill_lv + 5) / 2;
+				status->def = summon_def[ud->skill_lv-1];
 
 				// ASPD formula is correct but feels OP. Need to see official in-game behavior. [Rytech]
 				if ( summon_amotion < 100 )
@@ -2530,7 +2539,7 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 		if (!gc)
 			ShowError("status_calc_mob: No castle set at map %s\n", map[md->bl.m].name);
 		else
-		if(gc->castle_id < 24 || md->class_ == MOBID_EMPERIUM) {
+		if(gc->castle_id < 24 || md->mob_id == MOBID_EMPERIUM) {
 			status->max_hp += 1000 * gc->defense;
 			status->max_sp += 200 * gc->defense;
 			status->hp = status->max_hp;
@@ -2538,7 +2547,7 @@ int status_calc_mob_(struct mob_data* md, enum e_status_calc_opt opt)
 			status->def += (gc->defense+2)/3;
 			status->mdef += (gc->defense+2)/3;
 		}
-		if(md->class_ != MOBID_EMPERIUM) {
+		if(md->mob_id != MOBID_EMPERIUM) {
 			status->batk += status->batk * 10*md->guardian_data->guardup_lv/100;
 			status->rhw.atk += status->rhw.atk * 10*md->guardian_data->guardup_lv/100;
 			status->rhw.atk2 += status->rhw.atk2 * 10*md->guardian_data->guardup_lv/100;
@@ -3017,8 +3026,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	struct status_data *status; // pointer to the player's base status
 	const struct status_change *sc = &sd->sc;
 	struct s_skill b_skill[MAX_SKILL]; // previous skill tree
-	int i,index;
-	int skill,refinedef=0;
+	int i, index, skill, refinedef = 0;
 	short passive_add_matk = 0;
 	short passive_matk_rate = 0;
 
@@ -3093,7 +3101,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	//FIXME: Most of these stuff should be calculated once, but how do I fix the memset above to do that? [Skotlex]
 	status->speed = DEFAULT_WALK_SPEED;
 	//Give them all modes except these (useful for clones)
-	status->mode = MD_MASK&~(MD_BOSS|MD_PLANT|MD_DETECTOR|MD_ANGRY|MD_TARGETWEAK);
+	status->mode = MD_MASK&~(MD_BOSS|MD_PLANT|MD_DETECTOR|MD_ANGRY|MD_TARGETWEAK|MD_IGNOREMELEE|MD_IGNOREMAGIC|MD_IGNORERANGED|MD_IGNOREMISC);
 
 	status->size = (sd->class_&JOBL_BABY || (sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? 0 : 1;
 	if (battle_config.character_size && (pc_isriding(sd)||pc_isdragon(sd)||pc_iswugrider(sd)||pc_ismadogear(sd))) { //[Lupus]
@@ -3514,11 +3522,11 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			&& battle_config.restart_hp_rate < 50) 
 			status->hp=status->max_hp>>1;
 		else 
-			status->hp=status->max_hp * battle_config.restart_hp_rate/100;
+			status->hp=(int64)status->max_hp * battle_config.restart_hp_rate/100;
 		if(!status->hp)
 			status->hp = 1;
 
-		status->sp = status->max_sp * battle_config.restart_sp_rate /100;
+		status->sp = (int64)status->max_sp * battle_config.restart_sp_rate /100;
 
 		if (!status->sp) // The minimum for the respawn setting is SP:1
 			status->sp = 1;
@@ -6071,10 +6079,10 @@ static unsigned short status_calc_speed(struct block_list *bl, struct status_cha
 	if( sc == NULL )
 		return cap_value(speed,10,USHRT_MAX);
 
-	if( sd && sd->ud.skilltimer != -1 && ( sd->ud.skillid == LG_EXEEDBREAK || pc_checkskill(sd,SA_FREECAST) > 0) )
+	if( sd && sd->ud.skilltimer != -1 && ( sd->ud.skill_id == LG_EXEEDBREAK || pc_checkskill(sd,SA_FREECAST) > 0) )
 	{
-		if( sd->ud.skillid == LG_EXEEDBREAK )
-			speed_rate = 160 - 10 * sd->ud.skilllv;// -50% at skilllv 1 -> -10% at skilllv 5
+		if( sd->ud.skill_id == LG_EXEEDBREAK )
+			speed_rate = 160 - 10 * sd->ud.skill_lv;// -50% at skill_lv 1 -> -10% at skill_lv 5
 		else
 			speed_rate = 175 - 5 * pc_checkskill(sd,SA_FREECAST);
 	}
@@ -6768,7 +6776,7 @@ signed char status_get_def(struct block_list *bl)
 	int def = status?status->def:0;
 	ud = unit_bl2ud(bl);
 	if (ud && ud->skilltimer != INVALID_TIMER)
-		def -= def * skill_get_castdef(ud->skillid)/100;
+		def -= def * skill_get_castdef(ud->skill_id)/100;
 	return cap_value(def, CHAR_MIN, CHAR_MAX);
 }
 
@@ -7225,7 +7233,12 @@ void status_change_init(struct block_list *bl)
 int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int tick, int flag)
 {
 	bool natural_def = true;
-	int sc_def = 0, tick_def = 0;
+	//Percentual resistance: 10000 = 100% Resist
+	//Example: 50% -> sc_def=5000 -> 25%; 5000ms -> tick_def=5000 -> 2500ms
+	int sc_def = 0, tick_def = -1; //-1 = use sc_def
+	//Linear resistance substracted from rate and tick after percentual resistance was applied
+	//Example: 25% -> sc_def2=2000 -> 5%; 2500ms -> tick_def2=2000 -> 500ms
+	int sc_def2 = 0, tick_def2 = -1; //-1 = use sc_def2
 	struct status_data* status;
 	struct status_change* sc;
 	struct map_session_data *sd;
@@ -7275,35 +7288,43 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC_SILENCE:
 	case SC_BLEEDING:
 	case SC_DPOISON:
-		sc_def = status->vit;
+		sc_def = status->vit * 100;
+		sc_def2 = status->luk * 10;
 		break;
 	case SC_SLEEP:
-		sc_def = status->int_;
+		sc_def = status->int_ * 100;
+		sc_def2 = status->luk * 10;
 		break;
 	case SC_DECREASEAGI:
 		if (sd) tick>>=1; //Half duration for players.
 	case SC_STONE:
+		//Impossible to reduce duration with stats
+		tick_def = 0;
+		tick_def2 = 0;
 	case SC_FREEZE:
-		sc_def = status->mdef;
+		sc_def = status->mdef * 100;
+		sc_def2 = status->luk * 10;
 		break;
 	case SC_CURSE:
 		//Special property: inmunity when luk is greater than level or zero
 		if (status->luk > status_get_lv(bl) || status->luk == 0)
 			return 0;
-		else
-			sc_def = status->luk;
-		tick_def = status->vit;
+		sc_def = status->luk * 100;
+		sc_def2 = status->luk * 10;
+		tick_def = status->vit * 100;
 		break;
 	case SC_BLIND:
-		sc_def = (status->vit + status->int_)/2;
+		sc_def = (status->vit + status->int_) * 50;
+		sc_def2 = status->luk * 10;
 		break;
 	case SC_CONFUSION:
-		sc_def = (status->str + status->int_)/2;
+		sc_def = (status->str + status->int_) * 50;
+		sc_def2 = status->luk * 10;
 		break;
 	case SC_ANKLE:
 		if(status->mode&MD_BOSS) // Lasts 5 times less on bosses
 			tick /= 5;
-		sc_def = status->agi / 2;
+		sc_def = status->agi * 50;
 		break;
 
 	// Fear / Burning / Imprison
@@ -7332,47 +7353,44 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	case SC_ARMORCHANGE:
 		if (sd) //Duration greatly reduced for players.
 			tick /= 15;
-		//No defense against it (buff).
+		sc_def2 = status_get_lv(bl) * 20 + status->vit * 25 + status->agi * 10; // Lineal Reduction of Rate
+		tick_def2 = 0; //No duration reduction
 	default:
 		//Effect that cannot be reduced? Likely a buff.
 		if (!(rnd()%10000 < rate))
 			return 0;
-		return tick?tick:1;
+		return max(1, tick);
 	}
 	
 	if ( natural_def == true )
 		if (sd)
 		{
-			if (battle_config.pc_sc_def_rate != 100)
-				sc_def = sc_def*battle_config.pc_sc_def_rate/100;
+			if (battle_config.pc_sc_def_rate != 100) {
+				sc_def = sc_def * battle_config.pc_sc_def_rate / 100;
+				sc_def2 = sc_def2 * battle_config.pc_sc_def_rate / 100;
+			}
 
-			if (sc_def < battle_config.pc_max_sc_def)
-				sc_def += (battle_config.pc_max_sc_def - sc_def)*
-					status->luk/battle_config.pc_luk_sc_def;
-			else
-				sc_def = battle_config.pc_max_sc_def;
+			sc_def = min(sc_def, battle_config.pc_max_sc_def * 100);
+			sc_def2 = min(sc_def2, battle_config.pc_max_sc_def * 100);
 
-			if (tick_def)
-			{
-				if (battle_config.pc_sc_def_rate != 100)
-					tick_def = tick_def*battle_config.pc_sc_def_rate/100;
+			if (tick_def > 0 && battle_config.pc_sc_def_rate != 100) {
+				tick_def = tick_def * battle_config.pc_sc_def_rate / 100;
+				tick_def2 = tick_def2 * battle_config.pc_sc_def_rate / 100;
 			}
 		}
 		else
 		{
-			if (battle_config.mob_sc_def_rate != 100)
-				sc_def = sc_def*battle_config.mob_sc_def_rate/100;
+			if (battle_config.mob_sc_def_rate != 100) {
+				sc_def = sc_def * battle_config.mob_sc_def_rate / 100;
+				sc_def2 = sc_def2 * battle_config.mob_sc_def_rate / 100;
+			}
 
-			if (sc_def < battle_config.mob_max_sc_def)
-				sc_def += (battle_config.mob_max_sc_def - sc_def)*
-					status->luk/battle_config.mob_luk_sc_def;
-			else
-				sc_def = battle_config.mob_max_sc_def;
+			sc_def = min(sc_def, battle_config.mob_max_sc_def * 100);
+			sc_def2 = min(sc_def2, battle_config.mob_max_sc_def * 100);
 
-			if (tick_def)
-			{
-				if (battle_config.mob_sc_def_rate != 100)
-					tick_def = tick_def*battle_config.mob_sc_def_rate/100;
+			if (tick_def > 0 && battle_config.mob_sc_def_rate != 100) {
+				tick_def = tick_def * battle_config.mob_sc_def_rate / 100;
+				tick_def2 = tick_def2 * battle_config.mob_sc_def_rate / 100;
 			}
 		}
 	
@@ -7380,20 +7398,30 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	if (sc && sc->count)
 	{
 		if (sc->data[SC_SCRESIST])
-			sc_def += sc->data[SC_SCRESIST]->val1; //Status resist
+			sc_def += sc->data[SC_SCRESIST]->val1 * 100; //Status resist
 		else if (sc->data[SC_SIEGFRIED])
-			sc_def += sc->data[SC_SIEGFRIED]->val3; //Status resistance.
+			sc_def += sc->data[SC_SIEGFRIED]->val3 * 100; //Status resistance.
 		else if (sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1)
-			sc_def += sc->data[SC_SHIELDSPELL_REF]->val2; //Status resistance.
+			sc_def += sc->data[SC_SHIELDSPELL_REF]->val2 * 100; //Status resistance.
 	}
 
 	//When no tick def, reduction is the same for both.
-	if( !tick_def && type != SC_STONE ) //Recent tests show duration of petrify isn't reduced by MDEF. [Inkfish]
+	if (tick_def < 0)
 		tick_def = sc_def;
+	if (tick_def2 < 0)
+		tick_def2 = sc_def2;
 
 	//Natural resistance
 	if (!(flag & 8) && natural_def == true) {
-		rate -= rate * sc_def / 100;
+		rate -= rate * sc_def / 10000;
+		rate -= sc_def2;
+
+		//Minimum chances
+		switch (type) {
+		case SC_WUGBITE:
+			rate = max(rate, 5000); //Minimum of 50%
+			break;
+		}
 
 		//Item resistance (only applies to rate%)
 		if(sd && SC_COMMON_MIN <= type && type <= SC_COMMON_MAX)
@@ -7407,9 +7435,8 @@ int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int ti
 	if (!(rnd()%10000 < rate))
 		return 0;
 
-	//Why would a status start with no duration? Presume it has 
-	//duration defined elsewhere.
-	if (!tick) return 1;
+	//Even if a status change doesn't have a duration, it should still trigger
+	if (tick < 1) return 1;
 
 	//Rate reduction
  	if (flag&2)
@@ -7611,7 +7638,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	if( bl->type == BL_MOB )
 	{
 		struct mob_data *md = BL_CAST(BL_MOB,bl);
-		if (md && (md->class_ == MOBID_EMPERIUM || mob_is_battleground(md)) && type != SC_SAFETYWALL && type != SC_PNEUMA)
+		if (md && (md->mob_id == MOBID_EMPERIUM || mob_is_battleground(md)) && type != SC_SAFETYWALL && type != SC_PNEUMA)
 			return 0; //Emperium/BG Monsters can't be afflicted by status changes
 	}
 
@@ -7943,7 +7970,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC__UNLUCKY:
 			case SC__WEAKNESS:
 			case SC__MANHOLE:
-			//case SC_VACUUM_EXTREME:// Same as SC_BITE with rude attack.
+			//case SC_VACUUM_EXTREME:// Same as SC_WUGBITE with rude attack.
 			case SC_CURSEDCIRCLE_TARGET:
 			case SC_SILENT_BREEZE:
 			case SC_NETHERWORLD:
@@ -8460,16 +8487,16 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_KYRIE:
 			if ( val4 == RL_P_ALTER )
 			{// Platinum Alter's Formula
-				val2 = status->max_hp * (val1 * 5) / 100; //%Max HP to absorb
+				val2 = (int64)status->max_hp * (val1 * 5) / 100; //%Max HP to absorb
 				val3 = 3 + val1; //Hits
 			}
 			else if ( val4 == AB_PRAEFATIO )
 			{// Praefatio's Formula
-				val2 = status->max_hp * (val1 * 2 + 16) / 100; //%Max HP to absorb
+				val2 = (int64)status->max_hp * (val1 * 2 + 16) / 100; //%Max HP to absorb
 				val3 = 6 + val1; //Hits
 			} else
 			{// Kyrie Eleison's Formula
-				val2 = status->max_hp * (val1 * 2 + 10) / 100; //%Max HP to absorb
+				val2 = (int64)status->max_hp * (val1 * 2 + 10) / 100; //%Max HP to absorb
 				val3 = (val1 / 2 + 5); //Hits
 			}
 			break;
@@ -8594,7 +8621,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_DANCING:
 			//val1 : Skill ID + LV
 			//val2 : Skill Group of the Dance.
-			//val3 : Brings the skilllv (merged into val1 here)
+			//val3 : Brings the skill_lv (merged into val1 here)
 			//val4 : Partner
 			if (val1 == CG_MOONLIT)
 				clif_status_change(bl,SI_MOONLIT,1,tick, 0, 0, 0);
@@ -8964,7 +8991,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		}
 			break;
 		case SC_KAITE:
-			val2 = 1+val1/5; //Number of bounces: 1 + skilllv/5
+			val2 = 1+val1/5; //Number of bounces: 1 + skill_lv/5
 			break;
 		case SC_KAUPE:
 			switch (val1) {
@@ -9001,7 +9028,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		}
 			break;
 		case SC_EARTHSCROLL:
-			val2 = 11-val1; //Chance to consume: 11-skilllv%
+			val2 = 11-val1; //Chance to consume: 11-skill_lv%
 			break;
 		case SC_RUN:
 		case SC_WUGDASH:
@@ -12164,7 +12191,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 					do
 					{
 						int i = rnd() % MAX_SKILL_MAGICMUSHROOM_DB;
-						mushroom_skillid = skill_magicmushroom_db[i].skillid;
+						mushroom_skillid = skill_magicmushroom_db[i].skill_id;
 					}
 					while( mushroom_skillid == 0 );
 
@@ -12398,7 +12425,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_LG_REFLECTDAMAGE:
-		if( --(sce->val4) >= 0 ) {
+		if( --(sce->val4) > 0 ) {
 			if (!status_charge(bl, 0, 20 + 10 * sce->val1))
 				break;
 			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
@@ -12825,7 +12852,7 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 
 	switch( type )
 	{
-	case SC_SIGHT:	/* ƒTƒCƒg */
+	case SC_SIGHT:	/* Reveal hidden ennemy on 3*3 range */
 		if (sce && sce->val4 == 2000 && tsc && tsc->data[SC__SHADOWFORM] && rnd() % 100 < 100 - 10 * tsc->data[SC__SHADOWFORM]->val1)
 		{//Attempt to remove Shadow Form status by chance every 2 seconds. [Rytech]
 			status_change_end(bl, SC__SHADOWFORM, INVALID_TIMER);
@@ -12864,8 +12891,9 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	case SC_SIGHTBLASTER:
 		if (battle_check_target(src, bl, BCT_ENEMY) > 0 && status_check_skilluse(src, bl, WZ_SIGHTBLASTER, sce->val1, 2))
 		{
-			skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, 1, tick, 0);
-			sce->val2 = 0; // This signals it to end.
+			if (sce && !(bl->type&BL_SKILL) && skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, 1, tick, 0)) { //The hit is not counted if it's against a trap
+				sce->val2 = 0; // This signals it to end.
+			}
 		}
 		break;
 	case SC_CLOSECONFINE:
@@ -13098,7 +13126,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 			//case SC_STRIPARMOR:// Disabled until I can confirm if it does or not. [Rytech]
 			//case SC_STRIPHELM:
 			//case SC__STRIPACCESSORY:
-			//case SC_BITE:
+			//case SC_WUGBITE:
 			//Guillotine Cross Poisons
 			case SC_TOXIN:
 			case SC_PARALYSE:

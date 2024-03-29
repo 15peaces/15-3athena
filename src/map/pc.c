@@ -1859,6 +1859,18 @@ int pc_calc_skilltree(struct map_session_data *sd)
 	{ 
 		if (sd->status.skill[i].flag != SKILL_FLAG_PLAGIARIZED && sd->status.skill[i].flag != SKILL_FLAG_PERM_GRANTED) //Don't touch these
 			sd->status.skill[i].id = 0; //First clear skills.
+			/* permanent skills that must be re-checked */
+		if (sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED) {
+			switch (i) {
+			case NV_TRICKDEAD:
+				if ((sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE) {
+					sd->status.skill[i].id = 0;
+					sd->status.skill[i].lv = 0;
+					sd->status.skill[i].flag = 0;
+				}
+				break;
+			}
+		}
 	}
 
 	for( i = 0; i < MAX_SKILL; i++ )
@@ -1941,8 +1953,12 @@ int pc_calc_skilltree(struct map_session_data *sd)
 					skill_tree[c][i].id >= SU_POWEROFFLOCK && skill_tree[c][i].id <= SU_SPIRITOFSEA )
 					f = 0;
 				// Some skills require the player to reach a certain job level to unlock.
-				if( sd->status.job_level < skill_tree[c][i].joblv )
-					f = 0; // job level requirement wasn't satisfied
+				if (sd->status.job_level < skill_tree[c][i].joblv) { //We need to get the actual class in this case
+					int class = pc_mapid2jobid(sd->class_, sd->status.sex);
+					class = pc_class2idx(class);
+					if (class == c || (class != c && sd->status.job_level < skill_tree[class][i].joblv))
+						f = 0; // job level requirement wasn't satisfied
+				}
 			}
 
 			if( f )
@@ -4709,7 +4725,7 @@ int pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 	nullpo_ret(sd);
 	nullpo_ret(fitem);
 
-	if(!check_distance_bl(&fitem->bl, &sd->bl, 2) && sd->ud.skillid!=BS_GREED)
+	if(!check_distance_bl(&fitem->bl, &sd->bl, 2) && sd->ud.skill_id!=BS_GREED)
 		return 0;	// ‹——£‚ª‰“‚¢
 
 	if (sd->status.party_id)
@@ -5855,7 +5871,7 @@ int pc_get_skillcooldown(struct map_session_data *sd, uint16 skill_id, uint16 sk
 /*==========================================
  * Return player sd skill_lv learned for given skill
  *------------------------------------------*/
-int pc_checkskill(struct map_session_data *sd,int skill_id) {
+int pc_checkskill(struct map_session_data *sd, uint16 skill_id) {
 	if( sd == NULL )
 		return 0;
 
@@ -5867,7 +5883,7 @@ int pc_checkskill(struct map_session_data *sd,int skill_id) {
 			return guild_checkskill( g, skill_id );
 		return 0;
 	} 
-	else if( skill_id < 0 || skill_id >= ARRAYLENGTH( sd->status.skill ) ) 
+	else if( skill_id >= ARRAYLENGTH( sd->status.skill ) ) 
 	{
 		ShowError( "pc_checkskill: Invalid skill id %d (char_id=%d).\n", skill_id, sd->status.char_id );
 		return 0;
@@ -7239,7 +7255,7 @@ bool pc_search_job_skilltree(int b_class, int id)
 /*==========================================
  * ƒXƒLƒ‹ƒ|ƒCƒ“ƒgŠ„‚èU‚è
  *------------------------------------------*/
-int pc_skillup(struct map_session_data *sd,int skill_id)
+int pc_skillup(struct map_session_data *sd, uint16 skill_id)
 {
 	short check_1st_job, check_2nd_job;
 	short used_skill_points;
@@ -7269,7 +7285,7 @@ int pc_skillup(struct map_session_data *sd,int skill_id)
 		return 0;
 	}
 
-	if( skill_id < 0 || skill_id >= MAX_SKILL )
+	if( skill_id >= MAX_SKILL )
 		return 0;
 
 	if ( !pc_search_job_skilltree(c, skill_id) )
@@ -7692,6 +7708,7 @@ int pc_resethate(struct map_session_data* sd)
 int pc_skillatk_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = 0;
+	nullpo_ret(sd);
 
 	ARR_FIND(0, ARRAYLENGTH(sd->skillatk), i, sd->skillatk[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillatk) ) bonus = sd->skillatk[i].val;
@@ -7861,8 +7878,10 @@ void pc_close_npc(struct map_session_data *sd, int flag) {
 			clif_clearunit_single(sd->npc_id, CLR_OUTSIGHT, sd->fd);
 			sd->state.using_fake_npc = 0;
 		}
-		if (sd->st)
-			sd->st->state = (flag == 1) ? CLOSE : END;
+		if (sd->st){
+			sd->st->state = ((flag == 1 && sd->st->mes_active) ? CLOSE : END);
+			sd->st->mes_active = 0;
+		}
 
 		sd->state.menu_or_input = 0;
 		sd->npc_menu = 0;
@@ -7881,6 +7900,25 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 {
 	int i = 0, k = 0;
 	int64 tick = gettick();
+
+	// Activate Steel body if a super novice dies at 99+% exp [celest]
+		// Super Novices have no kill or die functions attached when saved by their angel
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag) {
+		unsigned int next = pc_nextbaseexp(sd);
+		if (next == 0) next = pc_thisbaseexp(sd);
+		if (get_percentage(sd->status.base_exp, next) >= 99) {
+			sd->state.snovice_dead_flag = 1;
+			pc_setrestartvalue(sd, 1);
+			status_percent_heal(&sd->bl, 100, 100);
+			clif_resurrection(&sd->bl, 1);
+			if (battle_config.pc_invincible_time)
+				pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
+			sc_start(&sd->bl, &sd->bl, status_skill2sc(MO_STEELBODY), 100, 5, skill_get_time(MO_STEELBODY, 5));
+			if (map_flag_gvg(sd->bl.m))
+				pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
+			return 0;
+		}
+	}
 		
 	for(k = 0; k < 5; k++)
 	if (sd->devotion[k]){
@@ -8010,14 +8048,6 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	pc_setglobalreg(sd, "PC_DIE_COUNTER", sd->die_counter + 1);
 	pc_setparam(sd, SP_KILLERRID, src ? src->id : 0);
 
-	if (sd->bg_id) {
-		struct battleground_data *bg;
-		if ((bg = bg_team_search(sd->bg_id)) != NULL && bg->die_event[0])
-			npc_event(sd, bg->die_event, 0);
-	}
-
-	npc_script_event(sd, NPCE_DIE);
-
 	//Reset menu skills/item skills
 	if ((sd->skillitem) != 0)
 		sd->skillitem = sd->skillitemlv = 0;
@@ -8130,25 +8160,6 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		item_tmp.card[2]=GetWord(sd->status.char_id,0); // CharId
 		item_tmp.card[3]=GetWord(sd->status.char_id,1);
 		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
-	}
-
-	// activate Steel body if a super novice dies at 99+% exp [celest]
-	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag)
-  	{
-		unsigned int exp = pc_nextbaseexp(sd);
-		if( exp && get_percentage(sd->status.base_exp,exp) >= 99 )
-		{
-			sd->state.snovice_dead_flag = 1;
-			pc_setstand(sd, false);
-			status_percent_heal(&sd->bl, 100, 100);
-			clif_resurrection(&sd->bl, 1);
-			if(battle_config.pc_invincible_time)
-				pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
-			sc_start(&sd->bl,status_skill2sc(MO_STEELBODY),100,1,skill_get_time(MO_STEELBODY,1));
-			if(map_flag_gvg(sd->bl.m))
-				pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
-			return 0;
-		}
 	}
 
 	//Remove bonus_script when dead
@@ -10889,14 +10900,14 @@ static int pc_split_atoui(char* str, unsigned int* val, char sep, int max)
  *------------------------------------------*/
 static bool pc_readdb_skilltree(char* fields[], int columns, int current)
 {
-	unsigned char joblv = 0, skilllv;
-	unsigned short skillid;
+	unsigned char joblv = 0, skill_lv;
+	unsigned short skill_id;
 	int idx, class_;
 	unsigned int i, offset = 3, skillidx;
 
 	class_  = atoi(fields[0]);
-	skillid = (unsigned short)atoi(fields[1]);
-	skilllv = (unsigned char)atoi(fields[2]);
+	skill_id = (unsigned short)atoi(fields[1]);
+	skill_lv = (unsigned char)atoi(fields[2]);
 
 	if(columns==4+MAX_PC_SKILL_REQUIRE*2)
 	{// job level requirement extra column
@@ -10912,19 +10923,19 @@ static bool pc_readdb_skilltree(char* fields[], int columns, int current)
 	idx = pc_class2idx(class_);
 
 	//This is to avoid adding two lines for the same skill. [Skotlex]
-	ARR_FIND( 0, MAX_SKILL_TREE, skillidx, skill_tree[idx][skillidx].id == 0 || skill_tree[idx][skillidx].id == skillid );
+	ARR_FIND( 0, MAX_SKILL_TREE, skillidx, skill_tree[idx][skillidx].id == 0 || skill_tree[idx][skillidx].id == skill_id );
 	if( skillidx == MAX_SKILL_TREE )
 	{
-		ShowWarning("pc_readdb_skilltree: Unable to load skill %hu into job %d's tree. Maximum number of skills per class has been reached.\n", skillid, class_);
+		ShowWarning("pc_readdb_skilltree: Unable to load skill %hu into job %d's tree. Maximum number of skills per class has been reached.\n", skill_id, class_);
 		return false;
 	}
 	else if(skill_tree[idx][skillidx].id)
 	{
-		ShowNotice("pc_readdb_skilltree: Overwriting skill %hu for job class %d.\n", skillid, class_);
+		ShowNotice("pc_readdb_skilltree: Overwriting skill %hu for job class %d.\n", skill_id, class_);
 	}
 
-	skill_tree[idx][skillidx].id    = skillid;
-	skill_tree[idx][skillidx].max   = skilllv;
+	skill_tree[idx][skillidx].id    = skill_id;
+	skill_tree[idx][skillidx].max   = skill_lv;
 	skill_tree[idx][skillidx].joblv = joblv;
 
 	for(i = 0; i < MAX_PC_SKILL_REQUIRE; i++)

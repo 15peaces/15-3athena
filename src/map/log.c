@@ -199,7 +199,7 @@ void log_pick(struct block_list* bl, e_log_pick_type type, unsigned short nameid
 			id = ((TBL_PC*)bl)->status.char_id;
 			break;
 		case BL_MOB:
-			id = ((TBL_MOB*)bl)->class_;
+			id = ((TBL_MOB*)bl)->mob_id;
 			break;
 		default:
 			ShowDebug("log_pick: Unhandled bl type %d.\n", bl->type);
