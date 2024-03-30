@@ -1393,6 +1393,7 @@ int pc_isequip(struct map_session_data *sd,int n)
 				}
 		}
 	}
+
 	//Not equipable by class. [Skotlex]
 	if (!(1<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1)?1:((sd->class_&JOBL_2_2)?2:0)]))
 		return 0;
@@ -7905,15 +7906,14 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		// Super Novices have no kill or die functions attached when saved by their angel
 	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag) {
 		unsigned int next = pc_nextbaseexp(sd);
-		if (next == 0) next = pc_thisbaseexp(sd);
-		if (get_percentage(sd->status.base_exp, next) >= 99) {
+		if (exp && get_percentage(sd->status.base_exp, next) >= 99) {
 			sd->state.snovice_dead_flag = 1;
 			pc_setrestartvalue(sd, 1);
 			status_percent_heal(&sd->bl, 100, 100);
 			clif_resurrection(&sd->bl, 1);
 			if (battle_config.pc_invincible_time)
 				pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
-			sc_start(&sd->bl, &sd->bl, status_skill2sc(MO_STEELBODY), 100, 5, skill_get_time(MO_STEELBODY, 5));
+			sc_start(&sd->bl, status_skill2sc(MO_STEELBODY), 100, 5, skill_get_time(MO_STEELBODY, 5));
 			if (map_flag_gvg(sd->bl.m))
 				pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
 			return 0;

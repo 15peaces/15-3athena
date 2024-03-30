@@ -9214,7 +9214,7 @@ BUILDIN_FUNC(monster)
 	if (script_hasdata(st, 10))
 	{
 		ai = script_getnum(st, 10);
-		if (ai > 6)
+		if (ai >= AI_MAX)
 		{
 			ShowWarning("buildin_monster: Attempted to spawn non-existing ai %d for monster class %d\n", ai, class_);
 			return 1;

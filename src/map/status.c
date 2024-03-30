@@ -1468,7 +1468,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	if( hp && flag&32 ){
 		if( sc && sc->data[SC_LG_REFLECTDAMAGE] ){
 			int64 thp = (int64)hp;
-			int64 rdamage = battle_calc_return_damage(src,target,&thp,BF_SHORT,0);
+			int64 rdamage = battle_calc_return_damage(src,target,&thp,BF_SHORT,0,1);
 			hp = (int)cap_value(thp, INT32_MIN, INT32_MAX);
 			if( src != target )
 				map_foreachinrange(battle_damage_area,target,skill_get_splash(LG_REFLECTDAMAGE,1),BL_CHAR,gettick(),target,status_get_amotion(src),status_get_dmotion(src),rdamage,status->race);
@@ -4389,14 +4389,6 @@ void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 				status->lhw.atk = status_calc_watk(bl, sc, b_status->lhw.atk);
 				status->lhw.atk2= status_calc_watk(bl, sc, b_status->lhw.atk2);
 			}
-		}
-
-		if( bl->type&BL_HOM )
-		{
-			status->rhw.atk += (status->dex - b_status->dex);
-			status->rhw.atk2 += (status->str - b_status->str);
-			if( status->rhw.atk2 < status->rhw.atk )
-				status->rhw.atk2 = status->rhw.atk;
 		}
 	}
 

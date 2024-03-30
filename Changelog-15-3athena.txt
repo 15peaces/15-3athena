@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/30/2024
+	r444 [15peaces]
+		*Follow up 7db5acc
+			-Fixed a compilation error.
+		*Some misc fixing.
+		*Mechanic Neutral Barrier updated to block ranged and splash attacks.
+		*Fixed card damage fixing.
+			-Fixed GVG and Card reductions for skills that use separate damage calc functions.
+		*Removed some unnecessary code causing attack underflow in homunculus.
+		*Update Songs/Dances for Land Protector.
+		*Reflect damage even when damage is blocked by a status.
+
 03/29/2024
 	r443 [15peaces]
 		*Note: This update will break some item bonus calculations due to an unfinished change I already made...!

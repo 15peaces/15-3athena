@@ -2610,7 +2610,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	struct map_session_data *sd, *tsd;
 	int type=0;
 	int idx;
-	int64 damage, rdamage = 0;
+	int64 damage;
 	bool additional_effects = true;
 
 	if(skill_id > 0 && skill_lv <= 0) return 0;
@@ -2719,9 +2719,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		skill_id == CASH_BLESSING || skill_id == CASH_INCAGI ||
 		skill_id == MER_INCAGI || skill_id == MER_BLESSING) && tsd->sc.data[SC_CHANGEUNDEAD] )
 		damage = 1;
-
-	if( damage > 0 && ((dmg.flag&BF_WEAPON && src != bl && ( src == dsrc || ( dsrc->type == BL_SKILL && ( skill_id == SG_SUN_WARM || skill_id == SG_MOON_WARM || skill_id == SG_STAR_WARM ) ) )) || (sc && sc->data[SC_LG_REFLECTDAMAGE])) )
-		rdamage = battle_calc_return_damage(src, bl, &damage, dmg.flag, skill_id);
 
 	//Skill hit type
 	type=(skill_id==0)?5:skill_get_hit(skill_id);
@@ -3296,25 +3293,6 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->mode&MD_BOSS);
 		else
 			battle_drain(sd, bl, dmg.damage, dmg.damage2, tstatus->race, tstatus->mode&MD_BOSS);
-	}
-
-	if( rdamage > 0 )
-	{
-		if( sc && sc->data[SC_LG_REFLECTDAMAGE] )
-			if(src != bl) // Don't reflect your own damage (Grand Cross)
-				map_foreachinshootrange(battle_damage_area, bl, skill_get_splash(LG_REFLECTDAMAGE, 1), BL_CHAR, tick, bl, dmg.amotion, sstatus->dmotion, rdamage, tstatus->race);
-		else
-		{
-			if( dmg.amotion )
-				battle_delay_damage(tick, dmg.amotion,bl,src,0,0,0,rdamage,ATK_DEF,0,additional_effects);
-			else
-				status_fix_damage(bl,src,rdamage,0);
-			clif_damage(src,src,tick, dmg.amotion,0,rdamage,1,4,0, false);
-			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
-			if( tsd && src != bl )
-				battle_drain(tsd, src, rdamage, rdamage, sstatus->race, is_boss(src));
-			skill_additional_effect(bl, src, CR_REFLECTSHIELD, 1, BF_WEAPON|BF_SHORT|BF_NORMAL,ATK_DEF,tick);
-		}
 	}
 
 	if( damage > 0){ 
@@ -12176,7 +12154,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 			if(md)
 			{
 				md->master_id = src->id;
-				md->special_state.ai = AI_FLORA;
+				md->special_state.ai = AI_FAW;
 				if( md->deletetimer != INVALID_TIMER )
 					delete_timer(md->deletetimer, mob_timer_delete);
 				md->deletetimer = add_timer(gettick() + skill_get_time(skill_id, skill_lv), mob_timer_delete, md->bl.id, 0);
@@ -14903,7 +14881,7 @@ int64 skill_unit_ondamaged (struct skill_unit *src, struct block_list *bl, int64
 /*==========================================
  *
  *------------------------------------------*/
-static int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
+int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 {
 	int *c, skill_id, lv;
 	struct block_list *src;
@@ -17838,7 +17816,7 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 				skill_delunit(unit);
 				return 1;
 			}
-			if( !(skill_get_inf2(unit->group->skill_id)&(INF2_SONG_DANCE|INF2_TRAP)) || unit->group->skill_id == WZ_FIREPILLAR )
+			if( !(skill_get_inf2(unit->group->skill_id)&(INF2_TRAP|INF2_NOLP)) || unit->group->skill_id == WZ_FIREPILLAR )
 			{	//It deletes everything except songs/dances and traps
 				skill_delunit(unit);
 				return 1;
@@ -17846,6 +17824,9 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 			break;
 		case HW_GANBANTEIN:
 		case LG_EARTHDRIVE:
+			// Officially songs/dances are removed
+			skill_delunit(unit);
+			return 1;
 		case GN_CRAZYWEED_ATK:
 			if( !(unit->group->state.song_dance&0x1) )
 			{// Don't touch song/dance.
@@ -17906,9 +17887,8 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 			break;
 	}
 
-	if (unit->group->skill_id == SA_LANDPROTECTOR &&
-		!(skill_get_inf2(skill_id)&(INF2_SONG_DANCE|INF2_TRAP)))
-	{	//It deletes everything except songs/dances/traps
+	if (unit->group->skill_id == SA_LANDPROTECTOR && !(skill_get_inf2(skill_id)&(INF2_TRAP | INF2_NOLP))) 
+	{ //It deletes everything except traps and barriers
 		(*alive) = 0;
 		return 1;
 	}
@@ -18529,7 +18509,7 @@ int skill_unit_timer_sub_onplace (struct block_list* bl, va_list ap)
 
 	nullpo_ret(group);
 
-	if (!(skill_get_inf2(group->skill_id)&(INF2_SONG_DANCE | INF2_TRAP | INF2_NOLP)) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR))
+	if( !(skill_get_inf2(group->skill_id)&(INF2_TRAP|INF2_NOLP)) && group->skill_id != NC_NEUTRALBARRIER && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR) )
 		return 0; //AoE skills are ineffective. [Skotlex]
 
 	if( battle_check_target(&unit->bl,bl,group->target_flag) <= 0 )
@@ -19796,7 +19776,7 @@ int skill_magicdecoy(struct map_session_data *sd, int nameid)
 	if (md)
 	{
 		md->master_id = sd->bl.id;
-		md->special_state.ai = 3;
+		md->special_state.ai = AI_FAW;
 		if( md->deletetimer != INVALID_TIMER )
 			delete_timer(md->deletetimer, mob_timer_delete);
 		md->deletetimer = add_timer (gettick() + skill_get_time(NC_MAGICDECOY,skill_lv), mob_timer_delete, md->bl.id, 0);
