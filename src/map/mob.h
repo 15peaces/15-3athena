@@ -54,6 +54,9 @@ enum MOBID {
 	MOBID_GOBLIN_4,
 	MOBID_GOBLIN_5,
 	MOBID_MARINE_SPHERE		= 1142,
+	MOBID_A_GUARDIAN		= 1285,
+	MOBID_K_GUARDIAN,
+	MOBID_S_GUARDIAN,
 	MOBID_EMPERIUM			= 1288,
 	MOBID_TREAS01			= 1324,
 	MOBID_TREAS40			= 1363,
@@ -63,6 +66,8 @@ enum MOBID {
 	MOBID_G_MANDRAGORA		= 1589,
 	MOBID_G_GEOGRAPHER		= 1590,
 	// WoE:SE objects
+	MOBID_S_GUARDIAN_		= 1899,
+	MOBID_A_GUARDIAN_,
 	MOBID_BARRICADE1		= 1905,
 	MOBID_BARRICADE2,		
 	MOBID_GUARIDAN_STONE1,	
@@ -323,6 +328,7 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 #define mob_is_goblin(md, mid) (((md)->mob_id >= MOBID_GOBLIN_1 && (md)->mob_id <= MOBID_GOBLIN_5) && (mid >= MOBID_GOBLIN_1 && mid <= MOBID_GOBLIN_5))
 #define mob_is_samename(md, mid) (strcmp(mob_db((md)->mob_id)->jname, mob_db(mid)->jname) == 0)
 #define mob_is_treasure(md) (((md)->mob_id >= MOBID_TREAS01 && (md)->mob_id <= MOBID_TREAS40) || ((md)->mob_id >= MOBID_TREAS41 && (md)->mob_id <= MOBID_TREAS49))
+#define mob_is_guardian(mob_id) ((mob_id >= MOBID_A_GUARDIAN && mob_id <= MOBID_S_GUARDIAN) || mob_id == MOBID_S_GUARDIAN_ || mob_id == MOBID_A_GUARDIAN_)
 
 void mob_clear_spawninfo();
 void do_init_mob(void);

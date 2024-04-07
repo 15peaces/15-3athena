@@ -28,7 +28,6 @@ void mail_clear(struct map_session_data *sd)
 		sd->mail.item[i].amount = 0;
 	}
 	sd->mail.zeny = 0;
-	sd->auction.amount = 0;
 
 	return;
 }

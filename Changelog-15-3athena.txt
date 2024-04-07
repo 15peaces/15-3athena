@@ -5,6 +5,44 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/07/2024
+	r445 [15peaces]
+		*Follow up 7db5acc
+			-Fixed damage rate calculation should be before reflected damage calculation.
+			-Fixed NJ_ISSEN and ASC_BREAKER calculation.
+			-Some cleanup of reflecting damage.
+			-Fixed some left-hand issues.
+			-Fixed cardfix for target not being reseted and therefor using same value as caster.
+			-Moveed ADJUST_SKILL_DAMAGE in battle_calc_weapon_final_atk_modifiers (since it shuold alter the final dammage just like it do for magic and misc)
+			-Add battle_do_reflect small function to encapsulate code.
+			-Added AEGIS 'CLASS_' enum
+				--Added CLASS_NORMAL, CLASS_BOSS, CLASS_GUARDIAN enum.
+				--Item bonuses 'bAddDefClass' and 'bAddMdefClass' replaced by 'bAddDefMonster' and 'bAddMdefMonster'.
+				--Item bonuses 'bIgnoreMdefRate' and 'bIgnoreDefRate' replaced by 'bIgnoreMdefRaceRate' and 'bIgnoreDefRaceRate'.
+				--Added new item bonuses: bIgnoreDefClass, bIgnoreMdefRaceRate, bDefRatioAtkClass, bAddClass, bSubClass, bMagicAddClass, bWeaponComaClass, bHpDrainValueClass, bSpDrainValueClass, bIgnoreMdefClassRate, bAddClassDropItem, bAddClassDropItemGroup.
+				--Item bonus 'bAddClassDropItem' renamed to 'bAddMonsterIdDropItem'.
+				--Updated 'battle_calc_cardfix' function.
+				--Item bonusses are now all working again.
+		*Some misc fixing & cleaning.
+			-removed unused parameters in several functions.
+			-Removed misplaced auction code.
+		*Changed Cart Tornado to use base strength.
+		*Moved OnInit to load before OnInstanceInit in npc_reload().
+		*Fixed homunculus causing the map-server to crash.
+		*Fixed Frost Driver damages with overpower level because of skill_lv reduction mistake.
+		*Added item_id on @whodrops's result for each item (avoiding confusion if the result is more than 1 items).
+		*Fixed Pneuma behaviors:
+			-Emeny still can be knocked back.
+			-Acid Terror still has chance to break the armor.
+		*NPC_DARKBREATH
+			-Fixed damage calculation.
+		*Implemented 'devotion_rdamage' config on conf/battle/skill.conf.
+			-This allows you to change the devotion behavior back to "old" version.
+		*Finally fixed character delayed deletion method.
+		*Fixed char-server not making use of name_ignoring_case setting.
+		*Pets & Homun renaming with empty name fix.
+		*Homunculus skill tree is now refreshed upon class change.
+
 03/30/2024
 	r444 [15peaces]
 		*Follow up 7db5acc

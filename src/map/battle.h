@@ -29,7 +29,7 @@ struct Damage {
 };
 
 //(Used in read pc.c,) attribute table (battle_attr_fix)
-extern int attr_fix_table[4][ELE_MAX][ELE_MAX];
+extern int attr_fix_table[4][ELE_NONE][ELE_NONE];
 
 struct map_session_data;
 struct mob_data;
@@ -95,7 +95,7 @@ enum e_battle_check_target
 	BCT_ALL = 0x3f0000,
 };
 
-#define	is_boss(bl)	(status_get_mode(bl)&MD_BOSS)	// Can refine later [Aru]
+#define	is_boss(bl)	(status_get_class_(bl) == CLASS_BOSS)	// Can refine later [Aru]
 
 int battle_check_undead(int race,int element);
 int battle_check_target(struct block_list *src, struct block_list *target,int flag);
@@ -350,6 +350,7 @@ extern struct Battle_Config
 	int gx_allhit;
 	int gx_disptype;
 	int devotion_level_difference;
+	int devotion_rdamage;
 	int player_skill_partner_check;
 	int hide_GM_session;
 	int invite_request_check;

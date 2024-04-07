@@ -63,9 +63,9 @@ bool mercenary_create(struct map_session_data *sd, int class_, unsigned int life
 bool mercenary_recv_data(struct s_mercenary *merc, bool flag);
 void mercenary_save(struct mercenary_data *md);
 
-void mercenary_damage(struct mercenary_data *md, struct block_list *src, int hp, int sp);
+void mercenary_damage(struct mercenary_data *md, int hp, int sp);
 void mercenary_heal(struct mercenary_data *md, int hp, int sp);
-bool mercenary_dead(struct mercenary_data *md, struct block_list *src);
+bool mercenary_dead(struct mercenary_data *md);
 
 int mercenary_delete(struct mercenary_data *md, int reply);
 void mercenary_contract_stop(struct mercenary_data *md);

@@ -213,6 +213,7 @@ struct online_char_data {
 };
 
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
+int delete_char_sql(int char_id);
 
 static DBMap* auth_db; // int account_id -> struct auth_node*
 static DBMap* online_char_db; // int account_id -> struct online_char_data*
@@ -1187,6 +1188,12 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	}
 	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow( stmt ); i++ )
 	{
+		if (p.delete_date && p.delete_date < time(NULL)) {
+			delete_char_sql(p.char_id);
+			i--;
+			continue;
+		}
+
 		p.last_point.map = mapindex_name2id( last_map );
 		sd->found_char[i] = p.char_id;
 		sd->unban_time[i] = p.unban_time;
@@ -1298,6 +1305,12 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		WFIFOW(fd,0) = 0x99d;
 		for( i = (page_num*3); i < (page_num*3+send_cnt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
 		{
+			if (p.delete_date && p.delete_date < time(NULL)) {
+				delete_char_sql(p.char_id);
+				i--;
+				continue;
+			}
+
 			p.last_point.map = mapindex_name2id(last_map);
 			p.sex = char_mmo_gender(sd, &p, sex[0]);
 			sd->found_char[i] = p.char_id;
@@ -1665,11 +1678,19 @@ int check_char_name(char * name, char * esc_name)
 	}
 
 	// check name (already in use?)
-	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `name` = '%s'", char_db, esc_name) )
-	{
-		Sql_ShowDebug(sql_handle);
-		return -2;
+	if (name_ignoring_case) {
+		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE BINARY `name` = '%s' LIMIT 1", char_db, esc_name)) {
+			Sql_ShowDebug(sql_handle);
+			return -2;
+		}
 	}
+	else {
+		if (SQL_ERROR == Sql_Query(sql_handle, "SELECT 1 FROM `%s` WHERE `name` = '%s' LIMIT 1", char_db, esc_name)) {
+			Sql_ShowDebug(sql_handle);
+			return -2;
+		}
+	}
+
 	if( Sql_NumRows(sql_handle) > 0 )
 		return -1; // name already exists
 

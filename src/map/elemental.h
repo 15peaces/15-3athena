@@ -97,7 +97,7 @@ int elemental_save(struct elemental_data *ed);
 
 void elemental_damage(struct elemental_data *ed, struct block_list *src, int hp, int sp);
 void elemental_heal(struct elemental_data *ed, int hp, int sp);
-int elemental_dead(struct elemental_data *ed, struct block_list *src);
+int elemental_dead(struct elemental_data *ed);
 
 int elem_delete(struct elemental_data *ed, int reply);
 void elem_summon_stop(struct elemental_data *ed);

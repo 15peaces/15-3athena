@@ -945,11 +945,10 @@ int mapif_parse_WisToGM(int fd)
 {
 	int min_gm_level, mes_len;
 	char Wisp_name[NAME_LENGTH];
-	char mbuf[255];
 	char *message;
 
 	mes_len =  RFIFOW(fd,2) - 30;
-	message = (char *) (mes_len >= 255 ? (char *) aMalloc(mes_len) : mbuf);
+	message = (char *)aMalloc(mes_len);
 
 	min_gm_level = (int)RFIFOW(fd,28);
 	safestrncpy(Wisp_name, (char*)RFIFOP(fd,4), NAME_LENGTH);
@@ -957,8 +956,8 @@ int mapif_parse_WisToGM(int fd)
 	// information is sended to all online GM
 	map_foreachpc(mapif_parse_WisToGM_sub, min_gm_level, Wisp_name, message, mes_len);
 
-	if (message != mbuf)
-		aFree(message);
+	aFree(message);
+
 	return 0;
 }
 

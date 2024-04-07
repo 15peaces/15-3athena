@@ -103,7 +103,7 @@ static const int packet_len_table[0x3d] =
 //2b28: Outgoing, chrif_req_charban -> 'ban a specific char '
 //2b29: Outgoing, chrif_req_charunban -> 'unban a specific char '
 //2b2d: Outgoing, chrif_bsdata_request -> request bonus_script for pc_authok'ed char.
-//2b2e: Outgoing, chrif_save_bsdata -> Send bonus_script of player for saving.
+//2b2e: Outgoing, chrif_bsdata_save -> Send bonus_script of player for saving.
 
 int chrif_connected = 0;
 int char_fd = -1;

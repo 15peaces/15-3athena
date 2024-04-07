@@ -332,13 +332,12 @@ int main (int argc, char **argv)
 	do_init(argc,argv);
 	plugin_event_trigger(EVENT_ATHENA_INIT);
 
-	{// Main runtime cycle
-		int next;
-		while (runflag != SERVER_STATE_STOP) {
-			next = do_timer(gettick_nocache());
-			do_sockets(next);
-		}
+	// Main runtime cycle
+	while (runflag != SERVER_STATE_STOP) {
+		int next = do_timer(gettick_nocache());
+		do_sockets(next);
 	}
+	
 
 	plugin_event_trigger(EVENT_ATHENA_FINAL);
 	do_final();

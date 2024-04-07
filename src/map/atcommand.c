@@ -8108,7 +8108,9 @@ ACMD_FUNC(homlevel)
 
 	for (i = 1; i <= level && hd->exp_next; i++){
 		hd->homunculus.exp += hd->exp_next;
-		hom_levelup(hd);
+		if (!hom_levelup(hd)) {
+			break;
+		}
 	}
 	status_calc_homunculus(hd,0);
 	status_percent_heal(&hd->bl, 100, 100);
@@ -8642,7 +8644,7 @@ ACMD_FUNC(whodrops)
 	}
 	for (i = 0; i < count; i++) {
 		item_data = item_array[i];
-		sprintf(atcmd_output, "Item: '%s'[%d]", item_data->jname,item_data->slot);
+		sprintf(atcmd_output, "Item: '%s'[%d] (ID:%d)", item_data->jname,item_data->slot,item_data->nameid);
 		clif_displaymessage(fd, atcmd_output);
 
 		if (item_data->mob[0].chance == 0) {

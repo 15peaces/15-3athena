@@ -482,7 +482,7 @@
 1129,Flamberge,Flamberge,4,60000,,1500,150,,1,0,0x00004080,7,2,2,3,27,1,2,{},{},{}
 1130,Nagan,Nagan,4,20,,500,120,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bDoubleRate,25; bonus2 bAddRace,RC_DemiHuman,5; bonus2 bAddRace,RC_Player,5; },{},{}
 1131,Ice_Falchon,Ice Falchion,4,20,,600,100,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Water; bonus2 bAddEff,Eff_Freeze,500; bonus2 bAddEff2,Eff_Freeze,10; skill "MG_COLDBOLT",3; bonus3 bAutoSpell,"MG_COLDBOLT",3,100; },{},{}
-1132,Edge,Edge,4,20,,700,115,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddEff,Eff_Curse,30; bonus2 bWeaponComaClass,Class_Normal10; },{},{}
+1132,Edge,Edge,4,20,,700,115,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddEff,Eff_Curse,30; bonus2 bWeaponComaClass,Class_Normal,10; },{},{}
 1133,Fire_Brand,Fireblend,4,20,,500,100,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus bAtkEle,Ele_Fire; skill "MG_FIREBOLT",3; bonus3 bAutoSpell,"MG_FIREBOLT",3,100; },{},{}
 1134,Scissores_Sword,Caesar's Sword,4,20,,700,140,,1,0,0x000654E2,7,2,2,4,40,1,2,{ bonus2 bAddRace,RC_Plant,25; bonus bIgnoreDefRace,RC_Plant; },{},{}
 1135,Cutlas,Cutlus,4,20,,900,150,,1,0,0x000654E2,7,2,2,4,40,1,2,{ skill "SM_BASH",5; bonus bStr,2; bonus bDef,1; },{},{}
@@ -1787,8 +1787,8 @@
 //2793,Ring_Of_Resonance_I,Ring of Resonance,5,0,,0,,2,,0,0x000FFF80,2,2,136,,0,0,0,{ bonus bAgi,2; bonus bVit,1; bonus bMdef,2; bonus4 bAutoSpellWhenHit,"WZ_QUAGMIRE",1,50,0; bonus3 bAutoSpellWhenHit,"AS_SPLASHER",10,20; bonus3 bAutoSpellWhenHit,"AL_HEAL",10,30; bonus3 bAutoSpellWhenHit,"HP_ASSUMPTIO",3,20; bonus3 bAutoSpellWhenHit,"CG_TAROTCARD",5,20; },{},{}
 2794,Magic_Stone_Ring,Magic Stone Ring,5,0,,0,,0,,1,0x00004082,7,2,136,,99,0,0,{ bonus bStr,2; },{},{}
 2795,Green_Apple_Ring,Green Apple Ring,5,0,,0,,0,,0,0xFFFFFFFE,7,2,136,,99,0,0,{ bonus bAllStats,6; if(JobLevel <30) { bonus bAllStats,(JobLevel/5); } },{},{}
-2796,Magical_Stone,Rocks,5,0,,200,,0,,0,0x00810204,7,2,136,,99,0,0,{ bonus2 bAddDamageClass,2047,10; bonus2 bAddDefMonster,2048,-10; bonus3 bAddClassDropItem,6152,2047,70; },{},{}
-2797,Magical_Stone_,Rocks,5,0,,200,,0,,0,0x00810204,7,2,136,,99,0,0,{ bonus2 bAddDamageClass,2049,10; bonus2 bAddDefMonster,2050,-10; bonus3 bAddClassDropItem,6151,2049,70; },{},{}
+2796,Magical_Stone,Rocks,5,0,,200,,0,,0,0x00810204,7,2,136,,99,0,0,{ bonus2 bAddDamageClass,2047,10; bonus2 bAddDefMonster,2048,-10; bonus3 bAddMonsterIdDropItem,6152,2047,70; },{},{}
+2797,Magical_Stone_,Rocks,5,0,,200,,0,,0,0x00810204,7,2,136,,99,0,0,{ bonus2 bAddDamageClass,2049,10; bonus2 bAddDefMonster,2050,-10; bonus3 bAddMonsterIdDropItem,6151,2049,70; },{},{}
 2798,Will_Of_Exhausted_Angel,Will Of Exhausted Angel,5,0,,200,,0,,0,0x00008100,7,2,136,,99,0,0,{ getmapxy .@map$,.@x,.@y,0; if(.@map$ == "job3_arch02") { bonus2 bAddDefMonster,1761,50; bonus2 bAddDefMonster,1762,50; } },{},{}
 2799,Kuirpenring,Kuirpenring,5,0,,100,,0,,1,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bMdef,1; },{},{}
 2800,Accelerator,Accelerator,5,100000,,100,,0,,1,0x00000400,8,2,136,,99,0,0,{ bonus bAgi,2; },{},{}
@@ -2242,7 +2242,7 @@
 4273,Shellfish_Card,Shell Fish Card,6,20,,10,,,,,,,,2,,,,,{ bonus bBaseAtk,5; bonus2 bAddDamageClass,1073,30; },{},{}
 4274,Zombie_Master_Card,Zombie Master Card,6,20,,10,,,,,,,,2,,,,,{ bonus2 bSPGainRace,RC_Undead,5; },{},{ heal 0,-5; }
 4275,Zombie_Prisoner_Card,Zombie Prisoner Card,6,20,,10,,,,,,,,64,,,,,{ bonus2 bSubRace,RC_Undead,-20; bonus2 bExpAddRace,RC_Undead,10; },{},{}
-4276,Lord_Of_Death_Card,Lord of The Dead Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Stun,500,ATF_SHORT; bonus3 bAddEff,Eff_Curse,500,ATF_SHORT; bonus3 bAddEff,Eff_Silence,500,ATF_SHORT; bonus3 bAddEff,Eff_Poison,500,ATF_SHORT; bonus3 bAddEff,Eff_Bleeding,500,ATF_SHORT; bonus2 bWeaponComaClass,Class_Normal1; },{},{}
+4276,Lord_Of_Death_Card,Lord of The Dead Card,6,20,,10,,,,,,,,2,,,,,{ bonus3 bAddEff,Eff_Stun,500,ATF_SHORT; bonus3 bAddEff,Eff_Curse,500,ATF_SHORT; bonus3 bAddEff,Eff_Silence,500,ATF_SHORT; bonus3 bAddEff,Eff_Poison,500,ATF_SHORT; bonus3 bAddEff,Eff_Bleeding,500,ATF_SHORT; bonus2 bWeaponComaClass,Class_Normal,1; },{},{}
 4277,Zherlthsh_Card,Zealotus Card,6,20,,10,,,,,,,,32,,,,,{ bonus bLuk,2; bonus2 bSkillAtk,"BA_MUSICALSTRIKE",10; bonus2 bSkillAtk,"DC_THROWARROW",10; },{},{}
 4278,Gibbet_Card,Gibbet Card,6,20,,10,,,,,,,,769,,,,,{ if(getrefine()<6) bonus bMdef,5; },{},{}
 4279,Deleter_Card,Earth Deleter Card,6,20,,10,,,,,,,,16,,,,,{ bonus bSPrecovRate,-100; bonus bSPGainValue,10; },{},{ heal 0,-100; }

@@ -169,9 +169,9 @@ bonus2 bAddDamageClass,n,x;		+x% extra physical damage against monsters of class
 								Against players, n is their job id
 bonus2 bAddMagicDamageClass,n,x;	+x% extra magical damage against monsters of class n
 									Against players, n is their job id.
-bonus2 bAddDefClass,n,x;		x% physical damage reduction against monsters of class n
+bonus2 bAddDefMonster,n,x;		x% physical damage reduction against monsters of class n
 								Against players, n is their job id.
-bonus2 bAddMDefClass,n,x;		x% magical damage reduction against monsters of class n
+bonus2 bAddMDefMonster,n,x;		x% magical damage reduction against monsters of class n
 								Against players, n is their job id.
 bonus2 bIgnoreMdefRaceRate,n,x;	Disregard x% of the target's MDEF if the target belongs to race n;
 bonus2 bHPDrainRate,n,x;		n/10 % probability to drain x% HP when attacking
@@ -428,8 +428,6 @@ bonus2 bWeaponAtk,x,n;	Adds n ATK when weapon of type x is equipped.
 bonus2 bWeaponAtkRate,x,n;	Adds n% damage to normal attacks when weapon of type x is equipped.
 							x: see doc/item_db.txt -> view -> weapons for possible values
 bonus bDelayrate,n;	Increases skill delay by n%.
-bonus3 bHPDrainRateRace,r,n,x;	Adds a n/10% chance to receive x% of dealed damage as HP from a monster of race r with normal attack.
-bonus3 bSPDrainRateRace,r,n,x;	Adds a n/10% chance to receive x% of dealed damage as SP from a monster of race r with normal attack.
 bonus3 bAddEffOnSkill,s,x,n;	Adds a n/100% chance to cause status change x on enemy when using skill s (supports skill names)
 bonus4 bAddEffOnSkill,s,x,n,t;	Adds a n/100% chance to cause status change x when using skill s (supports skill names)
 								t:	ATF_SELF   = causes status change to oneself
@@ -440,7 +438,7 @@ bonus bUnstripable,n;	Armor cannot be taken off via strip skills (n is meaningle
 bonus2 bHPDrainValueRace,r,n;	Heals +n HP when attacking a monster of race r with normal attack.
 bonus bMagicSPGainValue,n;	Heals +n SP when killing an enemy with magic attack.
 bonus bMagicHPGainValue,n;	Heals +n HP when killing an enemy with magic attack.
-bonus3 bAddClassDropItem,s,x,n;		Adds an n/100% chance of dropping item s when killing monster class x.
+bonus3 bAddMonsterIdDropItem,s,x,n;		Adds an n/100% chance of dropping item s when killing monster id x.
 bonus bFixedCastrate,-n;		Skill fixed cast time reduction in percentage. n is the percentage value and must be set as a negeative value.
 bonus2 bFixedCastrate,x,-n;		Skill fixed cast time reduction for a certain skill. x is the skill ID. n is the percentage value and must be set as a negeative value.
 bonus bFixedCast,t;				Increases fixed cast time of all skills by t milliseconds.
@@ -470,4 +468,11 @@ bonus2 bSpDrainValueClass,n,x;		Heals +x SP when attacking a monster of class n 
 										n: 	Class_Normal, Class_Boss, Class_Guardian
 bonus2 bIgnoreMdefClassRate,n,x;	Disregard x% of the target's MDEF if the target belongs to class n
 										n: 	Class_Normal, Class_Boss, Class_Guardian
-										
+bonus3 bAddClassDropItem,n,x,y;	Adds a y/100% chance for item n to be dropped, when killing any monster of class x.
+						x: Class_Normal, Class_Boss, Class_Guardian, Class_All
+					If 'y' is negative value, then it's a part of formula
+						chance = -y*(killed_mob_level/10)+1
+bonus3 bAddClassDropItemGroup,n,x,y;	Adds a y/100% chance to get an item of group type n when you kill a monster of class x (Check db/item_group_db.txt)
+						x: Class_Normal, Class_Boss, Class_Guardian, Class_All
+					If 'y' is negative value, then it's a part of formula
+						chance = -y*(killed_mob_level/10)+1

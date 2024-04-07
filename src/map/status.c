@@ -1539,8 +1539,8 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	{
 		case BL_PC:  pc_damage((TBL_PC*)target,src,hp,sp); break;
 		case BL_MOB: mob_damage((TBL_MOB*)target, src, hp); break;
-		case BL_HOM: hom_damage((TBL_HOM*)target,src,hp,sp); break;
-		case BL_MER: mercenary_damage((TBL_MER*)target,src,hp,sp); break;
+		case BL_HOM: hom_damage((TBL_HOM*)target); break;
+		case BL_MER: mercenary_damage((TBL_MER*)target,hp,sp); break;
 		case BL_ELEM: elemental_damage((TBL_ELEM*)target,src,hp,sp); break;
 	}
 
@@ -1565,9 +1565,9 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	switch (target->type) {
 		case BL_PC:  flag = pc_dead((TBL_PC*)target,src); break;
 		case BL_MOB: flag = mob_dead((TBL_MOB*)target, src, flag&4?3:0); break;
-		case BL_HOM: flag = hom_dead((TBL_HOM*)target,src); break;
-		case BL_MER: flag = mercenary_dead((TBL_MER*)target,src); break;
-		case BL_ELEM: flag = elemental_dead((TBL_ELEM*)target,src); break;
+		case BL_HOM: flag = hom_dead((TBL_HOM*)target); break;
+		case BL_MER: flag = mercenary_dead((TBL_MER*)target); break;
+		case BL_ELEM: flag = elemental_dead((TBL_ELEM*)target); break;
 		default:	//Unhandled case, do nothing to object.
 			flag = 0;
 			break;
@@ -1734,7 +1734,7 @@ int status_heal(struct block_list *bl,int64 hhp,int64 hsp, int flag)
 	switch(bl->type) {
 	case BL_PC:  pc_heal((TBL_PC*)bl,hp,sp,flag&2?1:0); break;
 	case BL_MOB: mob_heal((TBL_MOB*)bl,hp); break;
-	case BL_HOM: hom_heal((TBL_HOM*)bl,hp,sp); break;
+	case BL_HOM: hom_heal((TBL_HOM*)bl); break;
 	case BL_MER: mercenary_heal((TBL_MER*)bl,hp,sp); break;
 	case BL_ELEM: elemental_heal((TBL_ELEM*)bl,hp,sp); break;
 	}
@@ -2569,6 +2569,7 @@ int status_calc_pet_(struct pet_data *pd, enum e_status_calc_opt opt)
 	if (opt&SCO_FIRST) {
 		memcpy(&pd->status, &pd->db->status, sizeof(struct status_data));
 		pd->status.mode = MD_CANMOVE; // pets discard all modes, except walking
+		pd->status.class_ = CLASS_NORMAL;
 		pd->status.speed = pd->petDB->speed;
 
 		if(battle_config.pet_attack_support || battle_config.pet_damage_support)
@@ -3068,24 +3069,29 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->param_equip)
 		+ sizeof(sd->subele)
 		+ sizeof(sd->subrace)
+		+ sizeof(sd->subclass)
 		+ sizeof(sd->subrace2)
 		+ sizeof(sd->subsize)
 		+ sizeof(sd->reseff)
 		+ sizeof(sd->weapon_coma_ele)
 		+ sizeof(sd->weapon_coma_race)
+		+ sizeof(sd->weapon_coma_class)
 		+ sizeof(sd->weapon_atk)
 		+ sizeof(sd->weapon_atk_rate)
 		+ sizeof(sd->arrow_addele) 
 		+ sizeof(sd->arrow_addrace)
+		+ sizeof(sd->arrow_addclass)
 		+ sizeof(sd->arrow_addsize)
 		+ sizeof(sd->magic_addele)
 		+ sizeof(sd->magic_addrace)
+		+ sizeof(sd->magic_addclass)
 		+ sizeof(sd->magic_addsize)
 		+ sizeof(sd->magic_atk_ele)
 		+ sizeof(sd->critaddrace)
 		+ sizeof(sd->expaddrace)
-		+ sizeof(sd->ignore_mdef)
-		+ sizeof(sd->ignore_def)
+		+ sizeof(sd->ignore_def_by_race)
+		+ sizeof(sd->ignore_mdef_by_race)
+		+ sizeof(sd->ignore_mdef_by_class)
 		+ sizeof(sd->sp_gain_race)
 		);
 
@@ -3116,6 +3122,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	status->aspd_rate = 1000;
 	status->ele_lv = 1;
 	status->race = ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER) ? RC_BRUTE : RC_PLAYER;
+	status->class_ = CLASS_NORMAL;
 
 	//zero up structures...
 	memset(&sd->autospell,0,sizeof(sd->autospell)
@@ -3893,6 +3900,7 @@ int status_calc_mercenary_(struct mercenary_data *md, enum e_status_calc_opt opt
 	if(opt&SCO_FIRST)
 	{
 		memcpy(status, &md->db->status, sizeof(struct status_data));
+		status->class_ = CLASS_NORMAL;
 		status->mode = MD_CANMOVE|MD_CANATTACK;
 		status->hp = status->max_hp;
 		status->sp = status->max_sp;
@@ -3922,6 +3930,7 @@ int status_calc_elemental_(struct elemental_data *ed, enum e_status_calc_opt opt
 		//status->race = db->race;
 		//status->size = db->size;
 		//status->rhw.range = db->range;
+		status->class_ = CLASS_NORMAL;
 		status->mode = MD_CANMOVE;
 		status->speed = DEFAULT_WALK_SPEED;
 
@@ -3984,6 +3993,7 @@ int status_calc_homunculus_(struct homun_data *hd, enum e_status_calc_opt opt)
 		status->def_ele =  db->element;
 		status->ele_lv = 1;
 		status->race = db->race;
+		status->class_ = CLASS_NORMAL;
 		status->size = (hom->class_ == db->evo_class)?db->evo_size:db->base_size;
 		status->rhw.range = 1 + status->size;
 		status->mode = MD_CANMOVE|MD_CANATTACK;
@@ -8517,7 +8527,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			// val1 : Element Lvl (if called by skill lvl 1, takes random value between 1 and 4)
 			// val2 : Element (When no element, random one is picked)
 			// val3 : 0 = called by skill 1 = called by script (fixed level)
-			if( !val2 ) val2 = rnd()%ELE_MAX;
+			if( !val2 ) val2 = rnd()% ELE_ALL;
 
 			if( val1 == 1 && val3 == 0 )
 				val1 = 1 + rnd()%4;
@@ -9199,10 +9209,10 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			//end previous enchants
 			skill_enchant_elemental_end(bl,type);
 			//Make sure the received element is valid.
-			if (val2 >= ELE_MAX)
-				val2 = val2%ELE_MAX;
+			if (val2 >= ELE_ALL)
+				val2 = val2% ELE_ALL;
 			else if (val2 < 0)
-				val2 = rnd()%ELE_MAX;
+				val2 = rnd()% ELE_ALL;
 			break;
 		case SC_CRITICALWOUND:
 			val2 = 20*val1; //Heal effectiveness decrease
@@ -13523,13 +13533,13 @@ static bool status_readdb_attrfix(const char *basedir)
 		lv = atoi(split[0]);
 		n = atoi(split[1]);
 
-		for (i = 0; i < n && i < ELE_MAX;) {
+		for (i = 0; i < n && i < ELE_ALL;) {
 			if (!fgets(line, sizeof(line), fp))
 				break;
 			if (line[0] == '/' && line[1] == '/')
 				continue;
 
-			for (j = 0, p = line; j < n && j < ELE_MAX && p; j++) {
+			for (j = 0, p = line; j < n && j < ELE_ALL && p; j++) {
 				while (*p == 32 && *p > 0)
 					p++;
 				attr_fix_table[lv - 1][i][j] = atoi(p);

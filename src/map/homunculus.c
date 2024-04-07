@@ -57,7 +57,7 @@ struct view_data* hom_get_viewdata(int class_)
 	return NULL;
 }
 
-void hom_damage(struct homun_data *hd,struct block_list *src,int hp,int sp)
+void hom_damage(struct homun_data *hd)
 {
 	clif_hominfo(hd->master,hd,0);
 }
@@ -113,7 +113,7 @@ int merc_hom_delspiritball(struct homun_data *hd, int count)
 	return 0;
 }
 
-int hom_dead(struct homun_data *hd, struct block_list *src)
+int hom_dead(struct homun_data *hd)
 {
 	//There's no intimacy penalties on death (from Tharis)
 	struct map_session_data *sd = hd->master;
@@ -226,13 +226,17 @@ int hom_calc_skilltree(struct homun_data *hd, int flag_evolve)
 		if (f)
 			hd->homunculus.hskill[id-HM_SKILLBASE].id = id ;
 	}
+
+	if (hd->master)
+		clif_homskillinfoblock(hd->master);
+
 	return 0;
 }
 
 int hom_checkskill(struct homun_data *hd,int skill_id)
 {
 	int i = skill_id - HM_SKILLBASE;
-	if(!hd)
+	if(!hd || !&hd->homunculus)
 		return 0;
 
 	if(hd->homunculus.hskill[i].id == skill_id)
@@ -580,12 +584,13 @@ int hom_gainexp(struct homun_data *hd,int exp)
 		return 0;
 	}
 
- 	//levelup
-	do
-	{
-		hom_levelup(hd) ;
+	// Do the levelup(s)
+	while (hd->homunculus.level < hd->homunculusDB->maxlevel && hd->homunculus.exp > hd->exp_next) {
+		// Max level reached or error
+		if (!hom_levelup(hd)) {
+			break;
+		}
 	}
-	while (hd->homunculus.level < hd->homunculusDB->maxlevel && hd->homunculus.exp > hd->exp_next && hd->exp_next != 0);
 
 	if( hd->homunculus.level == hd->homunculusDB->maxlevel || hd->exp_next == 0 )
 		hd->homunculus.exp = 0 ;
@@ -620,7 +625,7 @@ int hom_decrease_intimacy(struct homun_data * hd, unsigned int value)
 	return hd->homunculus.intimacy;
 }
 
-void hom_heal(struct homun_data *hd,int hp,int sp)
+void hom_heal(struct homun_data *hd)
 {
 	clif_hominfo(hd->master,hd,0);
 }
@@ -794,7 +799,10 @@ int hom_change_name_ack(struct map_session_data *sd, char* name, int flag)
 {
 	struct homun_data *hd = sd->hd;
 	if (!hom_is_active(hd)) return 0;
-	if (!flag) {
+
+	normalize_name(name, " ");
+
+	if (!flag || name[0] == '\0') {
 		clif_displaymessage(sd->fd, msg_txt(sd,280)); // You cannot use this name
 		return 0;
 	}
@@ -1126,7 +1134,10 @@ int hom_shuffle(struct homun_data *hd)
 	//Level it back up
 	for (i = 1; i < lv && hd->exp_next; i++){
 		hd->homunculus.exp += hd->exp_next;
-		hom_levelup(hd);
+		// Should never happen, but who knows
+		if (!hom_levelup(hd)) {
+			break;
+		}
 	}
 
 	if(hd->homunculus.class_ == hd->homunculusDB->evo_class) {

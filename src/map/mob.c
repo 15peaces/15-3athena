@@ -2423,7 +2423,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				if (!&sd->add_drop[i] || (!sd->add_drop[i].nameid && !sd->add_drop[i].group))
 					continue;
 				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->mob_id) || //Race < 0, use mob_id
-					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race)) //Matched race
+					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race) || //Matched race
+					(sd->add_drop[i].class_ == CLASS_ALL || sd->add_drop[i].class_ == status->class_)) //Matched class
 				{
 					//Check if the bonus item drop rate should be multiplied with mob level/10 [Lupus]
 					if (sd->add_drop[i].rate < 0) {
@@ -3669,24 +3670,24 @@ static bool mob_parse_dbrow(char** str)
 {
 	struct mob_db *db, entry;
 	struct status_data *status;
-	int class_, i, k;
+	int mob_id, i, k;
 	bool is_mvp, is_boss;
 	double exp, maxhp;
 	struct mob_data data;
 	
-	class_ = atoi(str[0]);
+	mob_id = atoi(str[0]);
 	
-	if (class_ <= 1000 || class_ >= 4000 && class_ < 20020 || class_ > MAX_MOB_DB) {
-		ShowError("mob_parse_dbrow: Invalid monster ID %d, must be in range %d-%d  or %d-%d.\n", class_, 1000, 4000, 20020, MAX_MOB_DB);
+	if (mob_id <= 1000 || mob_id >= 4000 && mob_id < 20020 || mob_id > MAX_MOB_DB) {
+		ShowError("mob_parse_dbrow: Invalid monster ID %d, must be in range %d-%d  or %d-%d.\n", mob_id, 1000, 4000, 20020, MAX_MOB_DB);
 		return false;
 	}
-	if (pcdb_checkid(class_)) {
-		ShowError("mob_parse_dbrow: Invalid monster ID %d, reserved for player classes.\n", class_);
+	if (pcdb_checkid(mob_id)) {
+		ShowError("mob_parse_dbrow: Invalid monster ID %d, reserved for player classes.\n", mob_id);
 		return false;
 	}
 	
-	if (class_ >= MOB_CLONE_START && class_ < MOB_CLONE_END) {
-		ShowError("mob_parse_dbrow: Invalid monster ID %d. Range %d-%d is reserved for player clones. Please increase MAX_MOB_DB (%d).\n", class_, MOB_CLONE_START, MOB_CLONE_END-1, MAX_MOB_DB);
+	if (mob_id >= MOB_CLONE_START && mob_id < MOB_CLONE_END) {
+		ShowError("mob_parse_dbrow: Invalid monster ID %d. Range %d-%d is reserved for player clones. Please increase MAX_MOB_DB (%d).\n", mob_id, MOB_CLONE_START, MOB_CLONE_END-1, MAX_MOB_DB);
 		return false;
 	}
 
@@ -3695,7 +3696,7 @@ static bool mob_parse_dbrow(char** str)
 	db = &entry;
 	status = &db->status;
 	
-	db->vd.class_ = class_;
+	db->vd.class_ = mob_id;
 	safestrncpy(db->sprite, str[1], sizeof(db->sprite));
 	safestrncpy(db->jname, str[2], sizeof(db->jname));
 	safestrncpy(db->name, str[3], sizeof(db->name));
@@ -3749,11 +3750,11 @@ static bool mob_parse_dbrow(char** str)
 	status->def_ele = i%10;
 	status->ele_lv = i/20;
 	if (status->def_ele >= ELE_MAX) {
-		ShowError("mob_parse_dbrow: Invalid element type %d for monster ID %d (max=%d).\n", status->def_ele, class_, ELE_MAX-1);
+		ShowError("mob_parse_dbrow: Invalid element type %d for monster ID %d (max=%d).\n", status->def_ele, mob_id, ELE_MAX-1);
 		return false;
 	}
 	if (status->ele_lv < 1 || status->ele_lv > 4) {
-		ShowError("mob_parse_dbrow: Invalid element level %d for monster ID %d, must be in range 1-4.\n", status->ele_lv, class_);
+		ShowError("mob_parse_dbrow: Invalid element level %d for monster ID %d, must be in range 1-4.\n", status->ele_lv, mob_id);
 		return false;
 	}
 	
@@ -3761,8 +3762,10 @@ static bool mob_parse_dbrow(char** str)
 	if (!battle_config.monster_active_enable)
 		status->mode &= ~MD_AGGRESSIVE;
 
-	if (status_has_mode(status,/*MD_STATUS_IMMUNE|*/MD_KNOCKBACK_IMMUNE|MD_DETECTOR))
+	if (status_has_mode(status, MD_BOSS|/*MD_STATUS_IMMUNE|*/MD_KNOCKBACK_IMMUNE|MD_DETECTOR))
 		status->class_ = CLASS_BOSS;
+	else if (mob_is_guardian(mob_id))
+		status->class_ = CLASS_GUARDIAN;
 	else // Store as Normal and overwrite in mob_race2_db for special Class
 		status->class_ = CLASS_NORMAL;
 	
@@ -3849,7 +3852,7 @@ static bool mob_parse_dbrow(char** str)
 		type = itemdb_type(db->dropitem[i].nameid);
 		rate = atoi(str[k+1]);
 
-		if( (class_ >= 1324 && class_ <= 1363) || (class_ >= 1938 && class_ <= 1946) )
+		if( (mob_id >= 1324 && mob_id <= 1363) || (mob_id >= 1938 && mob_id <= 1946) )
 		{	//Treasure box drop rates [Skotlex]
 			rate_adjust = battle_config.item_rate_treasure;
 			ratemin = battle_config.item_drop_treasure_min;
@@ -3889,13 +3892,13 @@ static bool mob_parse_dbrow(char** str)
 		db->dropitem[i].p = mob_drop_adjust(rate, rate_adjust, ratemin, ratemax);
 		
 		//calculate and store Max available drop chance of the item
-		if( db->dropitem[i].p && (class_ < 1324 || class_ > 1363) && (class_ < 1938 || class_ > 1946) )
+		if( db->dropitem[i].p && (mob_id < 1324 || mob_id > 1363) && (mob_id < 1938 || mob_id > 1946) )
 		{ //Skip treasure chests.
 			id = itemdb_search(db->dropitem[i].nameid);
 			if (id->flag.fixed_drop)
 				db->dropitem[i].p = rate;
 			if (id->nameid == 500) {
-				ShowWarning("mob_parse_dbrow: Dummy drop on mob %d, slot %d (item %d).\n", class_, i, db->dropitem[i].nameid);
+				ShowWarning("mob_parse_dbrow: Dummy drop on mob %d, slot %d (item %d).\n", mob_id, i, db->dropitem[i].nameid);
 			}
 			if (id->maxchance == -1 || (id->maxchance < db->dropitem[i].p) ) {
 				id->maxchance = db->dropitem[i].p; //item has bigger drop chance or sold in shops
@@ -3907,21 +3910,21 @@ static bool mob_parse_dbrow(char** str)
 			if (k == MAX_SEARCH)
 				continue;
 			
-			if (id->mob[k].id != class_)
+			if (id->mob[k].id != mob_id)
 				memmove(&id->mob[k+1], &id->mob[k], (MAX_SEARCH-k-1)*sizeof(id->mob[0]));
 			id->mob[k].chance = db->dropitem[i].p;
-			id->mob[k].id = class_;
+			id->mob[k].id = mob_id;
 		}
 	}
 
 	// Finally insert monster's data into the database.
-	if (mob_db_data[class_] == NULL)
-		mob_db_data[class_] = (struct mob_db*)aCalloc(1, sizeof(struct mob_db));
+	if (mob_db_data[mob_id] == NULL)
+		mob_db_data[mob_id] = (struct mob_db*)aCalloc(1, sizeof(struct mob_db));
 	else
 		//Copy over spawn data
-		memcpy(&db->spawn, mob_db_data[class_]->spawn, sizeof(db->spawn));
+		memcpy(&db->spawn, mob_db_data[mob_id]->spawn, sizeof(db->spawn));
 
-	memcpy(mob_db_data[class_], db, sizeof(struct mob_db));
+	memcpy(mob_db_data[mob_id], db, sizeof(struct mob_db));
 	return true;
 }
 

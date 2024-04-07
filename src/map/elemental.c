@@ -1040,7 +1040,7 @@ void elemental_heal(struct elemental_data *ed, int hp, int sp) {
 		clif_elemental_updatestatus(ed->master, SP_SP);
 }
 
-int elemental_dead(struct elemental_data *ed, struct block_list *src) {
+int elemental_dead(struct elemental_data *ed) {
 	// I might need to put something more here. [Rytech]
 	elem_delete(ed, 1);
 	return 0;
@@ -1284,9 +1284,9 @@ static bool read_elementaldb_sub(char* str[], int columns, int current)
 	ele = atoi(str[9]);
 	status->def_ele = ele%10;
 	status->ele_lv = ele/20;
-	if( status->def_ele >= ELE_MAX )
+	if( status->def_ele >= ELE_ALL)
 	{
-		ShowWarning("Elemental %d has invalid element type %d (max element is %d)\n", db->class_, status->def_ele, ELE_MAX - 1);
+		ShowWarning("Elemental %d has invalid element type %d (max element is %d)\n", db->class_, status->def_ele, ELE_ALL - 1);
 		status->def_ele = ELE_NEUTRAL;
 	}
 	if( status->ele_lv < 1 || status->ele_lv > 4 )

@@ -5199,6 +5199,8 @@
 25729,Shadowdecon,Shadowdecon,3,0,,20,,,,,,,,,,,,,{},{},{}
 25730,Zelunium_Ore,Rough Zelunium,3,0,,10,,,,,,,,,,,,,{},{},{}
 25731,Zelunium,Zelunium,3,0,,20,,,,,,,,,,,,,{},{},{}
+22675,Mysterious_Scroll,Mysterious Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_INTFOOD,3600000,30; },{},{}
+22676,Hangul_Day_Event_Box,Hangul Day Event Box,2,20,,0,,,,,0xFFFFFFFF,63,2,,,0,,,{ getitem 22675,10; getitem 607,9; },{},{}
 //===================================================================
 // More 1-Handed Spears
 //===================================================================

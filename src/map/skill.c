@@ -814,6 +814,13 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 				if( sd->addeff3[i].target&ATF_SELF )
 					status_change_start(src,type,sd->addeff3[i].rate,7,0,0,0,skill,0);
 			}
+
+			//"While the damage can be blocked by Pneuma, the chance to break armor remains", irowiki. [Cydh]
+			if (dmg_lv == ATK_BLOCK && skill_id == AM_ACIDTERROR) {
+				sc_start2(bl, SC_BLEEDING, (skill_lv * 3), skill_lv, src->id, skill_get_time2(skill_id, skill_lv));
+				if (skill_break_equip(bl, EQP_ARMOR, 100 * skill_get_time(skill_id, skill_lv), BCT_ENEMY))
+					clif_emotion(bl, E_OMG);
+			}
 		}
 	}
 
@@ -1795,9 +1802,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	{ // Coma, Breaking Equipment
 		if( sd && sd->special_state.bonus_coma )
 		{
-			rate  = sd->weapon_coma_ele[tstatus->def_ele];
-			rate += sd->weapon_coma_race[tstatus->race];
-			rate += sd->weapon_coma_race[tstatus->mode&MD_BOSS?RC_BOSS:RC_NONBOSS];
+			rate = sd->weapon_coma_ele[tstatus->def_ele] + sd->weapon_coma_ele[ELE_ALL];
+			rate += sd->weapon_coma_race[tstatus->race] + sd->weapon_coma_race[RC_ALL];
+			rate += sd->weapon_coma_class[tstatus->class_] + sd->weapon_coma_class[CLASS_ALL];
 			if (rate)
 				status_change_start(bl, SC_COMA, rate, 0, 0, src->id, 0, 0, 0);
 		}
@@ -2216,8 +2223,7 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		if((attack_type&(BF_WEAPON | BF_SHORT)) == (BF_WEAPON | BF_SHORT))
 		{
 			sp += sd->bonus.sp_gain_value;
-			sp += sd->sp_gain_race[status_get_race(bl)];
-			sp += sd->sp_gain_race[is_boss(bl)?RC_BOSS:RC_NONBOSS];
+			sp += sd->sp_gain_race[status_get_race(bl)] + sd->sp_gain_race[RC_ALL];
 			hp += sd->bonus.hp_gain_value;
 		}
 		if( attack_type&BF_MAGIC )
@@ -3290,9 +3296,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if( sd && dmg.flag&BF_WEAPON && src != bl && ( src == dsrc || ( dsrc->type == BL_SKILL && ( skill_id == SG_SUN_WARM || skill_id == SG_MOON_WARM || skill_id == SG_STAR_WARM ) ) )  && damage > 0 )
 	{
 		if (battle_config.left_cardfix_to_right)
-			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->mode&MD_BOSS);
+			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->class_);
 		else
-			battle_drain(sd, bl, dmg.damage, dmg.damage2, tstatus->race, tstatus->mode&MD_BOSS);
+			battle_drain(sd, bl, dmg.damage, dmg.damage2, tstatus->race, tstatus->class_);
 	}
 
 	if( damage > 0){ 

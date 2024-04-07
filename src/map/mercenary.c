@@ -382,7 +382,7 @@ bool mercenary_recv_data(struct s_mercenary *merc, bool flag)
 	return true;
 }
 
-void mercenary_damage(struct mercenary_data *md, struct block_list *src, int hp, int sp)
+void mercenary_damage(struct mercenary_data *md, int hp, int sp)
 {
 	if( hp )
 		clif_mercenary_updatestatus(md->master, SP_HP);
@@ -402,7 +402,7 @@ void mercenary_heal(struct mercenary_data *md, int hp, int sp)
 * Delete Mercenary
 * @param md Mercenary
 **/
-bool mercenary_dead(struct mercenary_data *md, struct block_list *src)
+bool mercenary_dead(struct mercenary_data *md)
 {
 	mercenary_delete(md, 1);
 	return true;
@@ -494,9 +494,9 @@ static bool mercenary_readdb_sub(char* str[], int columns, int current)
 	ele = atoi(str[21]);
 	status->def_ele = ele%10;
 	status->ele_lv = ele/20;
-	if( status->def_ele >= ELE_MAX )
+	if( status->def_ele >= ELE_ALL)
 	{
-		ShowWarning("Mercenary %d has invalid element type %d (max element is %d)\n", db->class_, status->def_ele, ELE_MAX - 1);
+		ShowWarning("Mercenary %d has invalid element type %d (max element is %d)\n", db->class_, status->def_ele, ELE_ALL - 1);
 		status->def_ele = ELE_NEUTRAL;
 	}
 	if( status->ele_lv < 1 || status->ele_lv > 4 )
