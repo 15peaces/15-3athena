@@ -7884,6 +7884,13 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 	}
 }
 
+static int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data)
+{
+	TBL_PC *sd = map_id2sd(id);
+	if (sd) pc_close_npc(sd, data);
+	return 0;
+}
+
 /*
  *  Method to properly close npc for player and clear anything related
  * @flag == 1 : produce close button
@@ -7898,6 +7905,10 @@ void pc_close_npc(struct map_session_data *sd, int flag) {
 			sd->state.using_fake_npc = 0;
 		}
 		if (sd->st){
+			if (sd->st->state == RUN) { //wait ending code execution
+				add_timer(gettick() + 500, pc_close_npc_timer, sd->bl.id, flag);
+				return;
+			}
 			sd->st->state = ((flag == 1 && sd->st->mes_active) ? CLOSE : END);
 			sd->st->mes_active = 0;
 		}

@@ -955,6 +955,7 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_id);
 int pc_skillheal2_bonus(struct map_session_data *sd, int skill_id);
 
 void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int hp, unsigned int sp);
+static int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data);
 void pc_close_npc(struct map_session_data *sd, int flag);
 int pc_dead(struct map_session_data *sd,struct block_list *src);
 void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp);

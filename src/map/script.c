@@ -6978,6 +6978,7 @@ BUILDIN_FUNC(delitem)
 
 	ShowError("buildin_%s: failed to delete %d items (AID=%d item_id=%d).\n", command, it.amount, sd->status.account_id, it.nameid); 
 	st->state = END;
+	st->mes_active = 0;
 	clif_scriptclose(sd, st->oid);
 	return 1;
 }
@@ -7081,6 +7082,7 @@ BUILDIN_FUNC(delitem2)
 
 	ShowError("buildin_%s: failed to delete %d items (AID=%d item_id=%d).\n", command, it.amount, sd->status.account_id, it.nameid); 
 	st->state = END;
+	st->mes_active = 0;
 	clif_scriptclose(sd, st->oid);
 	return 1;
 }

@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/08/2024
+	r446 [15peaces]
+		*Quick fix for npcs:
+		-Fixed st->mes_active case where var wasn't refresh but dialogue was ended
+		-added a timered loop to prevent early forced close npc quitting while still executing, (must be in a stop wait etc state to do so)
+
 04/07/2024
 	r445 [15peaces]
 		*Follow up 7db5acc
