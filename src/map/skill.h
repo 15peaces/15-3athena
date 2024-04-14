@@ -155,7 +155,7 @@ struct s_skill_db {
 	int unit_target;
 	int unit_flag;
 	struct s_copyable { // [Cydh]
-		bool plagiarism, reproduce;
+		uint8 option;
 		uint16 joballowed, req_opt;
 	} copyable;
 };

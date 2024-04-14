@@ -966,7 +966,7 @@ void pc_makesavestatus(struct map_session_data *sd) {
 
   	//Only copy the Cart/Peco/Falcon options, the rest are handled via 
 	//status change load/saving. [Skotlex]
-	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
+	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_MADOGEAR);
 	
 	// Note: Don't save 0HP/0SP characters, they will be in an fake-dead state on relog. [15peaces]
 	if (sd->sc.data[SC_JAILED])
@@ -1372,7 +1372,7 @@ int pc_isequip(struct map_session_data *sd,int n)
 			return 0;
 		if(item->equip & EQP_ARMOR && sd->sc.data[SC_STRIPARMOR])
 			return 0;
-		if(item->equip & EQP_HELM && sd->sc.data[SC_STRIPHELM])
+		if(item->equip & EQP_HEAD_TOP && sd->sc.data[SC_STRIPHELM])
 			return 0;
 		if(item->equip & EQP_ACC && sd->sc.data[SC__STRIPACCESSARY])
 			return 0;
@@ -7594,8 +7594,13 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 	int i, skill_point = 0;
 	nullpo_ret(sd);
 
+	//Remove stuff lost when resetting skills.
 	if( !(flag&2) )
-	{ //Remove stuff lost when resetting skills.
+	{
+		// It has been confirmed on official servers that when you reset skills with a ranked Taekwon your skills are not reset (because you have all of them anyway)
+		if (pc_is_taekwon_ranker(sd))
+			return 0;
+
 		if (pc_checkskill(sd, SG_DEVIL))
 			clif_status_load(&sd->bl, SI_DEVIL, 0); //Remove perma blindness due to skill-reset. [Skotlex]
 		i = sd->sc.option;
@@ -7642,7 +7647,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 			continue;
 		
 		// Don't reset trick dead if not a novice/baby
-		if( i == NV_TRICKDEAD && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE && (sd->class_&MAPID_UPPERMASK) != MAPID_BABY )
+		if( i == NV_TRICKDEAD && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
 		{
 			sd->status.skill[i].lv = 0;
 			sd->status.skill[i].flag = SKILL_FLAG_PERMANENT;
@@ -7650,7 +7655,7 @@ int pc_resetskill(struct map_session_data* sd, int flag)
 		}
 
 		// do not reset basic skill
-		if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE && (sd->class_&MAPID_UPPERMASK) != MAPID_BABY )
+		if( i == NV_BASIC && (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE )
 			continue;
 
 		if (sd->status.skill[i].flag == SKILL_FLAG_PERM_GRANTED)
@@ -8848,13 +8853,26 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		pc_setglobalreg (sd, "jobchange_level", sd->change_level[0]);
 	}
 
-	if(sd->cloneskill_id) {
+	if(sd->cloneskill_id)
+	{
+		if (sd->status.skill[sd->cloneskill_id].flag == SKILL_FLAG_PLAGIARIZED) {
+			sd->status.skill[sd->cloneskill_id].id = 0;
+			sd->status.skill[sd->cloneskill_id].lv = 0;
+			sd->status.skill[sd->cloneskill_id].flag = 0;
+			clif_deleteskill(sd, sd->cloneskill_id);
+		}
 		sd->cloneskill_id = 0;
 		pc_setglobalreg(sd, "CLONE_SKILL", 0);
 		pc_setglobalreg(sd, "CLONE_SKILL_LV", 0);
 	}
 	if(sd->reproduceskill_id)
 	{
+		if (sd->status.skill[sd->reproduceskill_id].flag == SKILL_FLAG_PLAGIARIZED) {
+			sd->status.skill[sd->reproduceskill_id].id = 0;
+			sd->status.skill[sd->reproduceskill_id].lv = 0;
+			sd->status.skill[sd->reproduceskill_id].flag = 0;
+			clif_deleteskill(sd, sd->reproduceskill_id);
+		}
 		sd->reproduceskill_id = 0;
 		pc_setglobalreg(sd, "REPRODUCE_SKILL",0);
 		pc_setglobalreg(sd, "REPRODUCE_SKILL_LV",0);

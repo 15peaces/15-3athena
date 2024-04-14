@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/14/2024
+	r447 [15peaces]
+		*Another small fix to buildin_end function.
+		*Added some missing item bonusses.
+		*Fixed pneuma display animation.
+		*Some misc. cleaning and fixing.
+			-Removed a redundant check.
+		*Plagiarized skills are now removed on jobchange.
+		*Fixed Strip Helm from not allowing you to put on a different middle/lower headgear.
+		*Wug riding state is no longer saved on logout.
+		*Fixed Ranked Taekwon skill reset bug.
+
 04/08/2024
 	r446 [15peaces]
 		*Quick fix for npcs:

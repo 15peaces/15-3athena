@@ -4214,6 +4214,11 @@ BUILDIN_FUNC(next)
 {
 	TBL_PC* sd;
 
+	if (!st->mes_active) {
+		ShowWarning("buildin_next: There is no mes active.\n");
+		return 1;
+	}
+
 	sd = script_rid2sd(st);
 	if( sd == NULL )
 		return 0;
@@ -8389,17 +8394,20 @@ BUILDIN_FUNC(getgmlevel)
 /// end
 BUILDIN_FUNC(end)
 {
-	TBL_PC* sd;
-
-	sd = map_id2sd(st->rid);
+	TBL_PC * sd = map_id2sd(st->rid);
+	TBL_NPC * nd = map_id2nd(st->oid);
 
 	st->state = END;
 
 	if (st->mes_active)
 		st->mes_active = 0;
 
-	if (sd)
-		clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
+	if (sd) {
+		if (sd->state.callshop == 0)
+			clif_scriptclose(sd, st->oid); // If a menu/select/prompt is active, close it.
+		else
+			sd->state.callshop = 0;
+	}
 
 	return 0;
 }

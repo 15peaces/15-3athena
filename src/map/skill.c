@@ -487,7 +487,7 @@ static short skill_isCopyable(struct map_session_data *sd, uint16 skill_id, stru
 	int idx = skill_get_index(skill_id);
 
 	// Only copy skill that player doesn't have or the skill is old clone
-	if (sd->status.skill[skill_id].id != 0 && sd->status.skill[skill_id].flag != SKILL_FLAG_PLAGIARIZED)
+	if (sd->status.skill[idx].id != 0 && sd->status.skill[idx].flag != SKILL_FLAG_PLAGIARIZED)
 		return 0;
 
 	// Never copy NPC/Wedding Skills
@@ -513,11 +513,11 @@ static short skill_isCopyable(struct map_session_data *sd, uint16 skill_id, stru
 	}
 
 	//Plagiarism only able to copy skill while SC_PRESERVE is not active and skill is copyable by Plagiarism
-	if (skill_db[idx].copyable.plagiarism && pc_checkskill(sd, RG_PLAGIARISM) && !sd->sc.data[SC_PRESERVE])
+	if (skill_db[idx].copyable.option&1 && pc_checkskill(sd, RG_PLAGIARISM) && !sd->sc.data[SC_PRESERVE])
 		return 1;
 
 	//Reproduce can copy skill if SC__REPRODUCE is active and the skill is copyable by Reproduce
-	if (skill_db[idx].copyable.reproduce && pc_checkskill(sd, SC_REPRODUCE) && (&sd->sc && sd->sc.data[SC__REPRODUCE]))
+	if (skill_db[idx].copyable.option&2 && pc_checkskill(sd, SC_REPRODUCE) && (&sd->sc && sd->sc.data[SC__REPRODUCE]))
 		return 2;
 
 	return 0;
@@ -21096,27 +21096,30 @@ static bool skill_parse_row_castdb(char* split[], int columns, int current)
 	return true;
 }
 
-static bool skill_parse_row_reproducedb(char* split[], int column, int current) {
-	uint16 skill_id = skill_name2id(split[0]), idx;
+static bool skill_parse_row_copyabledb(char* split[], int column, int current) {
+	int16 id;
 	uint8 option;
 
-	if (!skill_get_index(skill_id)) {
-		ShowError("skill_parse_row_reproducedb: Invalid skill %s\n", split[0]);
+	trim(split[0]);
+	if (ISDIGIT(split[0][0]))
+		id = atoi(split[0]);
+	else
+		id = skill_name2id(split[0]);
+
+	if ((id = skill_get_index(id)) < 0) {
+		ShowError("skill_parse_row_copyabledb: Invalid skill %s\n", split[0]);
 		return false;
 	}
-	if (!(option = atoi(split[1]))) {
-		ShowError("skill_parse_row_reproducedb: Invalid option %d\n", option);
+	if ((option = atoi(split[1])) < 0 || option > 3) {
+		ShowError("skill_parse_row_copyabledb: Invalid option '%s'\n", split[1]);
 		return false;
 	}
-	idx = skill_get_index(skill_id);
 
-	//skill that can be copied by plagiarism
-	skill_db[idx].copyable.plagiarism = (option & 1) ? true : false;
-	//skill that can be copied by reproduce
-	skill_db[idx].copyable.reproduce = (option & 2) ? true : false;
-
-	skill_db[idx].copyable.joballowed = (atoi(split[2])) ? cap_value(atoi(split[2]), 1, 63) : 63;
-	skill_db[idx].copyable.req_opt = cap_value(atoi(split[3]), 0, 4095);
+	skill_db[id].copyable.option = option;
+	skill_db[id].copyable.joballowed = 63;
+	if (atoi(split[2]))
+		skill_db[id].copyable.joballowed = cap_value(atoi(split[2]), 1, 63);
+	skill_db[id].copyable.req_opt = cap_value(atoi(split[3]), 0, 4095);
 
 	return true;
 }
@@ -21404,7 +21407,7 @@ static void skill_readdb(void)
 	sv_readdb(db_path, "spellbook_db.txt"      , ',',   3,  3, MAX_SKILL_SPELLBOOK_DB, skill_parse_row_spellbookdb);
 	sv_readdb(db_path, "improvise_db.txt"      , ',',   2,  2, MAX_SKILL_IMPROVISE_DB, skill_parse_row_improvisedb);
 	sv_readdb(db_path, "magicmushroom_db.txt"  , ',',   1,  1, MAX_SKILL_MAGICMUSHROOM_DB, skill_parse_row_magicmushroomdb);
-	sv_readdb(db_path, "skill_copyable_db.txt", ',',    2,  4, MAX_SKILL_DB, skill_parse_row_reproducedb);
+	sv_readdb(db_path, "skill_copyable_db.txt", ',',    2,  4, MAX_SKILL_DB, skill_parse_row_copyabledb);
 	sv_readdb(db_path, "skill_changematerial_db.txt", ',', 4, 4 + 2 * 5, MAX_SKILL_PRODUCE_DB, skill_parse_row_changematerialdb);
 }
 
