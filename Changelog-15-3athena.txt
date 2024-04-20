@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/20/2024
+	r448 [15peaces]
+		*Some small optimizations & cleaning here and there.
+		*You can now only have up to 3 Ancillas with you.
+		*GN Cart Boost is now removed when user takes off his cart.
+		*Item restrictions are now checked upon logoff/mapchange which leads to gear being unequipped when conditions are not met.
+			-Thanks to @rathena
+
 04/14/2024
 	r447 [15peaces]
 		*Another small fix to buildin_end function.

@@ -4599,7 +4599,9 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 				memcmp(&sd->inventory.u.items_inventory[i].card, &item_data->card, sizeof(item_data->card)) == 0) {
 				if( amount > MAX_AMOUNT - sd->inventory.u.items_inventory[i].amount )
 					return ADDITEM_OVERAMOUNT;
-				if(	itemid_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount ) {
+				if(	(sd->inventory.u.items_inventory[i].nameid == ITEMID_ANCILLA && amount > 3 - sd->inventory.u.items_inventory[i].amount ) || // Max. 3 Ancillas allowed.
+					(itemid_is_rune(sd->inventory.u.items_inventory[i].nameid) && amount > MAX_RUNE - sd->inventory.u.items_inventory[i].amount)
+				) {
 					clif_msg(sd,1418);
 					return ADDITEM_STACKLIMIT;
 				}
@@ -4638,8 +4640,10 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 
 	sd->weight += w;
 	clif_updatestatus(sd,SP_WEIGHT);
+	
 	//Auto-equip
-	if(data->flag.autoequip) pc_equipitem(sd, i, data->equip, false);
+	if(data->flag.autoequip)
+		pc_equipitem(sd, i, data->equip, false);
 
 	/* rental item check */
 	if (item_data->expire_time) {
@@ -5172,7 +5176,7 @@ int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amoun
 		return 1;
 	}
 
-	if ((w = data->weight*amount) + sd->cart_weight > battle_config.max_cart_weight + 5000 * pc_checkskill(sd, GN_REMODELING_CART))
+	if ((w = data->weight*amount) + sd->cart_weight > sd->cart_weight_max)
 		return 1;
 
 	i = MAX_CART;
@@ -5591,6 +5595,7 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 	if( sd->state.changemap )
 	{ // Misc map-changing settings
+		int i;
 		sd->state.pmap = sd->bl.m;
 		if (sd->sc.count)
 		{ // Cancel some map related stuff.
@@ -5627,6 +5632,13 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 				status_change_end(s_bl,SC__SHADOWFORM,INVALID_TIMER);
 			sd->shadowform_id = 0;
 		}
+
+		for (i = 0; i < EQI_MAX; i++) {
+			if (sd->equip_index[i] >= 0)
+				if (!pc_isequip(sd, sd->equip_index[i]))
+					pc_unequipitem(sd, sd->equip_index[i], 2);
+		}
+
 		if (battle_config.clear_unit_onwarp&BL_PC)
 			skill_clear_unitgroup(&sd->bl);
 		party_send_dot_remove(sd); //minimap dot fix [Kevin]
@@ -7105,15 +7117,14 @@ int pc_status_point_cost(int low)
 /// raise the specified stat from (current value - val) to current value.
 int pc_need_status_point(struct map_session_data* sd, int type, int val)
 {
-	int low, high, sp = 0, max = 0;
+	int low, high, sp = 0;
 
 	if ( val == 0 )
 		return 0;
 
 	low = pc_getstat(sd,type);
-	max = pc_maxparameter(sd);
 
-	if (low >= max && val > 0)
+	if (low >= pc_maxparameter(sd) && val > 0)
 		return 0; // Official servers show '0' when max is reached
 
 	high = low + val;
@@ -9229,6 +9240,9 @@ bool pc_setcart(struct map_session_data *sd,int type)
 
 	if (pc_checkskill(sd, MC_PUSHCART) <= 0)
 		return false;// Push cart is required
+
+	if (type == 0 && pc_iscarton(sd))
+		status_change_end(&sd->bl, SC_GN_CARTBOOST, INVALID_TIMER);
 
 	//If the date of the client used is older then 2012-04-10, OPTIONS for carts will be used.
 	//If the date of the client used is equal or newer then 2012-04-10, SC_ON_PUSH_CART will be used.

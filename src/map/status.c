@@ -3028,6 +3028,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	const struct status_change *sc = &sd->sc;
 	struct s_skill b_skill[MAX_SKILL]; // previous skill tree
 	int i, index, skill, refinedef = 0;
+	int b_cart_weight_max;
 	short passive_add_matk = 0;
 	short passive_matk_rate = 0;
 
@@ -3036,6 +3037,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 
 	// remember player-specific values that are currently being shown to the client (for refresh purposes)
 	memcpy(b_skill, &sd->status.skill, sizeof(b_skill));
+
+	b_cart_weight_max = sd->cart_weight_max;
 
 	pc_calc_skilltree(sd);	// スキルツリ?の計算
 
@@ -3727,6 +3730,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	// Weight
 	status_calc_weight(sd, 2);
 
+	sd->cart_weight_max = battle_config.max_cart_weight + (pc_checkskill(sd, GN_REMODELING_CART) * 5000);
+
 	if (pc_checkskill(sd,SM_MOVINGRECOVERY)>0)
 		sd->regen.state.walk = 1;
 	else
@@ -3886,6 +3891,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	// Same as above, but for Soul Attack.
 	if( (skill = pc_checkskill(sd,SU_SOULATTACK)) > 0 )
 		sc_start(&sd->bl,SC_SOULATTACK,100,1,-1);
+
+	if (b_cart_weight_max != sd->cart_weight_max) {
+		clif_updatestatus(sd, SP_CARTINFO);
+	}
 
 	calculating = 0;
 

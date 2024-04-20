@@ -6452,9 +6452,6 @@ BUILDIN_FUNC(rentitem)
 		clif_additem(sd, 0, 0, flag);
 		return 1;
 	}
-
-	//clif_rental_time(sd->fd, nameid, seconds);
-	//pc_inventory_rental_add(sd, seconds);
 	
 	return 0;
 }

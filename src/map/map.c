@@ -1935,6 +1935,12 @@ int map_quit(struct map_session_data *sd)
 			status_change_end(&sd->bl, SC_SOULFAIRY, INVALID_TIMER);
 		}
 	}
+
+	for (i = 0; i < EQI_MAX; i++) {
+		if (sd->equip_index[i] >= 0)
+			if (!pc_isequip(sd, sd->equip_index[i]))
+				pc_unequipitem(sd, sd->equip_index[i], 2);
+	}
 	
 	// Return loot to owner
 	if( sd->pd ) pet_lootitem_drop(sd->pd, sd);

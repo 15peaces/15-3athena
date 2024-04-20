@@ -232,7 +232,7 @@ struct map_session_data {
 	short equip_index[EQI_MAX];
 	short equip_switch_index[EQI_MAX];
 	unsigned int weight,max_weight;
-	int cart_weight,cart_num;
+	int cart_weight,cart_num,cart_weight_max;
 	int fd;
 	unsigned short mapindex;
 	unsigned char head_dir; //0: Look forward. 1: Look right, 2: Look left.
