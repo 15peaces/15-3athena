@@ -651,6 +651,7 @@ extern struct Battle_Config
 	int emblem_woe_change;
 	int emblem_transparency_limit;
 	int discount_item_point_shop;
+	int dancing_weaponswitch_fix;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

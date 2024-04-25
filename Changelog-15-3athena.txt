@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/25/2024
+	r449 [15peaces]
+		*Some small optimizations & cleaning here and there.
+		*Fixed double decrement with unit_remove_map and the issue that causes dynamic mobs to not spawn when one player is on the map.
+		*Added a new configuration option to allow either weapon switching to cancel SC_DANCING or not.
+		*Wug riding state is now saved on logout again...
+			-Sorry, my mistake... ^^"
+		*Sp respawn restart_sp_rate setting is now fully respected.
+		*Fixed list of skills that are not affected by EDP.
+		*WZ_QUAGMIRE no longer affects caster in non PK maps.
+		*SO_FIREWALK & SO_ELECTRIC walk will now end on changing map.
+		*'night_at_start' config can now be used, even if day_duration/night_duration are 0.
+		*Vending shops are now closed when warping to novending maps/cells.
+		*You are now able to remove your cart with any job. This also fixes the previously not working removal of cart when jobchanging.
+		*Added client feedback to @cash and @Points commands.
+		*Updated msg_athena.conf to include castle counts up to 34.
+
 04/20/2024
 	r448 [15peaces]
 		*Some small optimizations & cleaning here and there.

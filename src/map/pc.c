@@ -760,7 +760,9 @@ int pc_setrestartvalue(struct map_session_data *sd,int type)
 	if (type&1)
 	{	//Normal resurrection
 		status->hp = 1; //Otherwise status_heal may fail if dead.
-		status_heal(&sd->bl, b_status->hp, b_status->sp>status->sp?b_status->sp-status->sp:0, 1);
+		status_heal(&sd->bl, b_status->hp, 0, 1);
+		if (status->sp < b_status->sp)
+			status_set_sp(&sd->bl, b_status->sp, 1);
 	} else { //Just for saving on the char-server (with values as if respawned)
 		sd->status.hp = b_status->hp;
 		sd->status.sp = (status->sp < b_status->sp)?b_status->sp:status->sp;
@@ -966,7 +968,7 @@ void pc_makesavestatus(struct map_session_data *sd) {
 
   	//Only copy the Cart/Peco/Falcon options, the rest are handled via 
 	//status change load/saving. [Skotlex]
-	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_MADOGEAR);
+	sd->status.option = sd->sc.option&(OPTION_CART|OPTION_FALCON|OPTION_RIDING|OPTION_DRAGON|OPTION_WUG|OPTION_WUGRIDER|OPTION_MADOGEAR);
 	
 	// Note: Don't save 0HP/0SP characters, they will be in an fake-dead state on relog. [15peaces]
 	if (sd->sc.data[SC_JAILED])
@@ -5612,6 +5614,9 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 			status_change_end(&sd->bl, SC_STEALTHFIELD, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_BANDING, INVALID_TIMER);
 			status_change_end(&sd->bl, SC_MIRACLE, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_PROPERTYWALK, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_CLOAKING, INVALID_TIMER);
+			status_change_end(&sd->bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
 			if (sd->sc.data[SC_KNOWLEDGE]) {
 				struct status_change_entry *sce = sd->sc.data[SC_KNOWLEDGE];
 				if (sce->timer != INVALID_TIMER)
@@ -5646,6 +5651,12 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		bg_send_dot_remove(sd);
 		if (sd->regen.state.gc)
 			sd->regen.state.gc = 0;
+
+		// make sure vending is allowed here
+		if (sd->state.vending && map[m].flag.novending) {
+			clif_displaymessage(sd->fd, msg_txt(sd,276)); // "You can't open a shop on this map"
+			vending_closevending(sd);
+		}
 
 		// Addon Cell PVP [Napster]
 		if(sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP))
@@ -5690,6 +5701,11 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 			x=rnd()%(map[m].xs-2)+1;
 			y=rnd()%(map[m].ys-2)+1;
 		} while(map_getcell(m,x,y,CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1)));
+	}
+
+	if (sd->state.vending && map_getcell(m, x, y, CELL_CHKNOVENDING)) {
+		clif_displaymessage(sd->fd, msg_txt(sd,204)); // "You can't open a shop on this cell."
+		vending_closevending(sd);
 	}
 
 	if(sd->bl.prev != NULL){
@@ -5740,10 +5756,6 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		sd->ed->bl.y = sd->ed->ud.to_y = y;
 		sd->ed->ud.dir = sd->ud.dir;
 	}
-
-	// If the player is changing maps, end cloaking.
-	if( sd->state.changemap && sd->sc.count )
-		status_change_end(&sd->bl, SC_CLOAKING, INVALID_TIMER);
 
 	pc_cell_basilica(sd);
 
@@ -5961,6 +5973,8 @@ static void pc_checkallowskill(struct map_session_data *sd)
 	
 	for (i = 0; i < ARRAYLENGTH(scw_list); i++)
 	{	// Skills requiring specific weapon types
+		if (scw_list[i] == SC_DANCING && !battle_config.dancing_weaponswitch_fix)
+			continue;
 		if(sd->sc.data[scw_list[i]] &&
 			!pc_check_weapontype(sd,skill_get_weapontype(status_sc2skill(scw_list[i]))))
 			status_change_end(&sd->bl, scw_list[i], INVALID_TIMER);
@@ -9238,7 +9252,7 @@ bool pc_setcart(struct map_session_data *sd,int type)
 	if( type < 0 || type > maxcarts )
 		return false;// Never trust the values sent by the client! [Skotlex]
 
-	if (pc_checkskill(sd, MC_PUSHCART) <= 0)
+	if (pc_checkskill(sd, MC_PUSHCART) <= 0 && type != 0)
 		return false;// Push cart is required
 
 	if (type == 0 && pc_iscarton(sd))
@@ -10215,6 +10229,8 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		sd->status.weapon = sd->weapontype2;
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_WEAPON,sd->status.weapon);
+		if (!battle_config.dancing_weaponswitch_fix)
+			status_change_end(&sd->bl, SC_DANCING, INVALID_TIMER); // Unequipping => stop dancing.
 	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_HAND_L) {
 		sd->status.shield = sd->weapontype2 = 0;
@@ -11970,19 +11986,12 @@ void do_init_pc(void)
 	if (battle_config.day_duration > 0 && battle_config.night_duration > 0) {
 		int day_duration = battle_config.day_duration;
 		int night_duration = battle_config.night_duration;
-		// add night/day timer (by [yor])
-		add_timer_func_list(map_day_timer, "map_day_timer"); // by [yor]
-		add_timer_func_list(map_night_timer, "map_night_timer"); // by [yor]
+		// add night/day timer [Yor]
+		add_timer_func_list(map_day_timer, "map_day_timer");
+		add_timer_func_list(map_night_timer, "map_night_timer");
 
-		if (!battle_config.night_at_start) {
-			night_flag = 0; // 0=day, 1=night [Yor]
-			day_timer_tid = add_timer_interval(gettick() + day_duration + night_duration, map_day_timer, 0, 0, day_duration + night_duration);
-			night_timer_tid = add_timer_interval(gettick() + day_duration, map_night_timer, 0, 0, day_duration + night_duration);
-		} else {
-			night_flag = 1; // 0=day, 1=night [Yor]
-			day_timer_tid = add_timer_interval(gettick() + night_duration, map_day_timer, 0, 0, day_duration + night_duration);
-			night_timer_tid = add_timer_interval(gettick() + day_duration + night_duration, map_night_timer, 0, 0, day_duration + night_duration);
-		}
+		day_timer_tid = add_timer_interval(gettick() + (night_flag ? 0 : day_duration) + night_duration, map_day_timer, 0, 0, day_duration + night_duration);
+		night_timer_tid = add_timer_interval(gettick() + day_duration + (night_flag ? night_duration : 0), map_night_timer, 0, 0, day_duration + night_duration);
 	}
 
 	pc_sc_display_ers = ers_new(sizeof(struct sc_display_entry), "pc.c:pc_sc_display_ers", ERS_OPT_NONE);

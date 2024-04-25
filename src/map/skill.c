@@ -5748,7 +5748,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	struct status_change *sc, *tsc;
 	struct status_change_entry *tsce;
 
-	int i;
+	int i = 0;
 	int rate = 0;
 	enum sc_type type;
 
@@ -13726,7 +13726,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 		break;
 
 	case UNT_QUAGMIRE:
-		if(!sce)
+		if(!sce && battle_check_target(&sg->unit->bl, bl, sg->target_flag) > 0)
 			sc_start4(bl,type,100,sg->skill_lv,sg->group_id,0,0,sg->limit);
 		break;
 

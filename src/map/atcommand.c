@@ -106,14 +106,14 @@ int lowtohigh_compare (const void * a, const void * b)
 static char* player_title_txt(int level)
 {
 	const char* format;
-	format = (level >= battle_config.title_lvl8) ? msg_txt(NULL,332)
-	       : (level >= battle_config.title_lvl7) ? msg_txt(NULL,331)
-	       : (level >= battle_config.title_lvl6) ? msg_txt(NULL,330)
-	       : (level >= battle_config.title_lvl5) ? msg_txt(NULL,329)
-	       : (level >= battle_config.title_lvl4) ? msg_txt(NULL,328)
-	       : (level >= battle_config.title_lvl3) ? msg_txt(NULL,327)
-	       : (level >= battle_config.title_lvl2) ? msg_txt(NULL,326)
-	       : (level >= battle_config.title_lvl1) ? msg_txt(NULL,325)
+format = (level >= battle_config.title_lvl8) ? msg_txt(NULL, 342)
+	       : (level >= battle_config.title_lvl7) ? msg_txt(NULL, 341)
+	       : (level >= battle_config.title_lvl6) ? msg_txt(NULL, 340)
+	       : (level >= battle_config.title_lvl5) ? msg_txt(NULL, 339)
+	       : (level >= battle_config.title_lvl4) ? msg_txt(NULL, 338)
+	       : (level >= battle_config.title_lvl3) ? msg_txt(NULL, 337)
+	       : (level >= battle_config.title_lvl2) ? msg_txt(NULL, 336)
+	       : (level >= battle_config.title_lvl1) ? msg_txt(NULL, 335)
 	       : "";
 	sprintf(atcmd_temp, format, level);
 	return atcmd_temp;
@@ -563,16 +563,16 @@ ACMD_FUNC(who3)
 					atcmd_output[0]=0;
 				}
 				//Player name
-				sprintf(temp0, msg_txt(sd,333), pl_sd->status.name);
+				sprintf(temp0, msg_txt(sd,343), pl_sd->status.name);
 				strcat(atcmd_output,temp0);
 				//Player title, if exists
 				if (pl_GM_level > 0) {
 					//sprintf(temp0, "(%s) ", player_title_txt(pl_GM_level) );
-					sprintf(temp0, msg_txt(sd,334), player_title_txt(pl_GM_level) );
+					sprintf(temp0, msg_txt(sd,344), player_title_txt(pl_GM_level) );
 					strcat(atcmd_output,temp0);
 				}
 				//Players Location: map x y
-				sprintf(temp0, msg_txt(sd,338), mapindex_id2name(pl_sd->mapindex), pl_sd->bl.x, pl_sd->bl.y);
+				sprintf(temp0, msg_txt(sd,348), mapindex_id2name(pl_sd->mapindex), pl_sd->bl.x, pl_sd->bl.y);
 				strcat(atcmd_output,temp0);
 
 				clif_displaymessage(fd, atcmd_output);
@@ -633,16 +633,16 @@ ACMD_FUNC(who2)
 			if (strstr(player_name, match_text) != NULL) { // search with no case sensitive
 				//Players Name
 				//sprintf(atcmd_output, "Name: %s ", pl_sd->status.name);
-				sprintf(atcmd_output, msg_txt(sd,333), pl_sd->status.name);
+				sprintf(atcmd_output, msg_txt(sd,343), pl_sd->status.name);
 				//Player title, if exists
 				if (pl_GM_level > 0) {
 					//sprintf(temp0, "(%s) ", player_title_txt(pl_GM_level) );
-					sprintf(temp0, msg_txt(sd,334), player_title_txt(pl_GM_level) );
+					sprintf(temp0, msg_txt(sd,344), player_title_txt(pl_GM_level) );
 					strcat(atcmd_output,temp0);
 				}
 				//Players Base Level / Job name
 				//sprintf(temp0, "| L:%d/%d | Job: %s", pl_sd->status.base_level, pl_sd->status.job_level, job_name(pl_sd->status.class_) );
-				sprintf(temp0, msg_txt(sd,337), pl_sd->status.base_level, pl_sd->status.job_level, job_name(pl_sd->status.class_) );
+				sprintf(temp0, msg_txt(sd,347), pl_sd->status.base_level, pl_sd->status.job_level, job_name(pl_sd->status.class_) );
 				strcat(atcmd_output,temp0);
 
 				clif_displaymessage(fd, atcmd_output);
@@ -707,22 +707,22 @@ ACMD_FUNC(who)
 				g = pl_sd->guild;
 				p = party_search(pl_sd->status.party_id);
 				//Players Name
-				sprintf(atcmd_output, msg_txt(sd,333), pl_sd->status.name);
+				sprintf(atcmd_output, msg_txt(sd,343), pl_sd->status.name);
 				//Player title, if exists
 				if (pl_GM_level > 0) {
-					sprintf(temp0, msg_txt(sd,334), player_title_txt(pl_GM_level) );
+					sprintf(temp0, msg_txt(sd,344), player_title_txt(pl_GM_level) );
 					strcat(atcmd_output,temp0);
 				}
 				//Players Party if exists
 				if (p != NULL) {
 					//sprintf(temp0," | Party: '%s'", p->name);
-					sprintf(temp0, msg_txt(sd,335), p->party.name);
+					sprintf(temp0, msg_txt(sd,345), p->party.name);
 					strcat(atcmd_output,temp0);
 				}
 				//Players Guild if exists
 				if (g != NULL) {
 					//sprintf(temp0," | Guild: '%s'", g->name);
-					sprintf(temp0, msg_txt(sd,336), g->name);
+					sprintf(temp0, msg_txt(sd,346), g->name);
 					strcat(atcmd_output,temp0);
 				}
 				clif_displaymessage(fd, atcmd_output);
@@ -9416,6 +9416,7 @@ ACMD_FUNC(reject)
  *-----------------------------------*/
 ACMD_FUNC(cash)
 {
+	char output[128];
 	int value;
 	nullpo_retr(-1, sd);
 
@@ -9427,16 +9428,32 @@ ACMD_FUNC(cash)
 	if( !strcmpi(command+1,"cash") )
 	{
 		if( value > 0 )
+		{
 			pc_getcash(sd, value, 0, LOG_TYPE_COMMAND);
-		else
+			sprintf(output, msg_txt(sd,505), value, sd->cashPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
+		else 
+		{
 			pc_paycash(sd, -value, 0, LOG_TYPE_COMMAND);
+			sprintf(output, msg_txt(sd,511), value, sd->cashPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
 	}
 	else
 	{ // @points
 		if( value > 0 )
+		{
 			pc_getcash(sd, 0, value, LOG_TYPE_COMMAND);
+			sprintf(output, msg_txt(sd,506), value, sd->kafraPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
 		else
+		{
 			pc_paycash(sd, -value, -value, LOG_TYPE_COMMAND);
+			sprintf(output, msg_txt(sd,512), -value, sd->kafraPoints);
+			clif_disp_onlyself(sd, output, strlen(output));
+		}
 	}
 
 	return 0;

@@ -3437,6 +3437,8 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, u
 		if (sc->data[SC_EDP]) {
 			switch (skill_id) {
 			case AS_SPLASHER:
+			case AS_VENOMKNIFE:
+			case AS_GRIMTOOTH:
 			case ASC_BREAKER:
 			case ASC_METEORASSAULT:
 				break; //skills above have no effect with edp
@@ -6580,6 +6582,7 @@ static const struct _battle_data {
 	{ "buyer_name",                         &battle_config.buyer_name,                      1,      0,      1,              },
 	{ "skill_wall_check",                   &battle_config.skill_wall_check,                1,      0,      1,              },
 	{ "cell_stack_limit",                   &battle_config.cell_stack_limit,                1,      1,      255,            },
+	{ "dancing_weaponswitch_fix",			&battle_config.dancing_weaponswitch_fix,		1,      0,      1,				},
 // eAthena additions
 	{ "item_logarithmic_drops",             &battle_config.logarithmic_drops,               0,      0,      1,              },
 	{ "item_drop_common_min",               &battle_config.item_drop_common_min,            1,      1,      10000,          },
