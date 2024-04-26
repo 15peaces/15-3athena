@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/26/2024
+	r450 [15peaces]
+		*Minor @spiritball bugfix.
+		*Fixed "#cmd" nick exploit.
+
 04/25/2024
 	r449 [15peaces]
 		*Some small optimizations & cleaning here and there.
