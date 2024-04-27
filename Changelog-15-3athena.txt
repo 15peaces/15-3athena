@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/27/2024
+	r451 [15peaces]
+		*@hide will now refresh clients in area when unhiding.
+		*Fixed bug with @homevolution not refreshing homun's skill tree.
+
 04/26/2024
 	r450 [15peaces]
 		*Minor @spiritball bugfix.

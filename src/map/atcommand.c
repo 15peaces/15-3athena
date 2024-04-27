@@ -1186,6 +1186,7 @@ ACMD_FUNC(hide)
 				sd->pvp_timer = add_timer(gettick() + 200, pc_calc_pvprank_timer, sd->bl.id, 0);
 			}
 		}
+		map_foreachinmovearea(clif_insight, &sd->bl, AREA_SIZE, sd->bl.x, sd->bl.y, BL_ALL, &sd->bl);
 	} else {
 		sd->sc.option |= OPTION_INVISIBLE;
 		sd->vd.class_ = INVISIBLE_CLASS;
@@ -8137,6 +8138,7 @@ ACMD_FUNC(homevolution)
 		return -1;
 	}
 
+	clif_homskillinfoblock(sd);
 	return 0;
 }
 
@@ -10632,7 +10634,7 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 		
 		//Displays as a normal message for Non-GMs
 		if( battle_config.atc_gmonly != 0 && pc_isGM(sd) == 0 )
-			return false;	
+			return false;
 	}
 
 	while (*message == charcommand_symbol)
