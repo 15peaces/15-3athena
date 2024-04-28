@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/28/2024
+	r452 [15peaces]
+		*Some cleaning.
+		*Added another fix for @hide gms on @PvP'd pvp maps.
+		*Added @lkami command.
+			-This is a local broadcast without name.
+			-It is also used by /lb and /nlb commands.
+		*@mi/@mobinfo: Added support for mob FLEE & HIT, dropped SP support (all official mobs have 1 sp).
+		*@changegm is no longer working if used within gvg castles.
+
 04/27/2024
 	r451 [15peaces]
 		*@hide will now refresh clients in area when unhiding.

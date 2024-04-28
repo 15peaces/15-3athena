@@ -1177,14 +1177,12 @@ ACMD_FUNC(hide)
 			status_set_viewdata(&sd->bl, sd->status.class_);
 		clif_displaymessage(fd, msg_txt(sd,10)); // Invisible: Off
 
-		if (map[sd->bl.m].flag.pvp)
-		{// increment the number of pvp players on the map
-			map[sd->bl.m].users_pvp++;
+		// increment the number of pvp players on the map
+		map[sd->bl.m].users_pvp++;
 
-			if (!map[sd->bl.m].flag.pvp_nocalcrank)
-			{// register the player for ranking calculations
-				sd->pvp_timer = add_timer(gettick() + 200, pc_calc_pvprank_timer, sd->bl.id, 0);
-			}
+		if (map[sd->bl.m].flag.pvp && !map[sd->bl.m].flag.pvp_nocalcrank)
+		{// register the player for ranking calculations
+			sd->pvp_timer = add_timer(gettick() + 200, pc_calc_pvprank_timer, sd->bl.id, 0);
 		}
 		map_foreachinmovearea(clif_insight, &sd->bl, AREA_SIZE, sd->bl.x, sd->bl.y, BL_ALL, &sd->bl);
 	} else {
@@ -1192,15 +1190,13 @@ ACMD_FUNC(hide)
 		sd->vd.class_ = INVISIBLE_CLASS;
 		clif_displaymessage(fd, msg_txt(sd,11)); // Invisible: On
 
-		if (map[sd->bl.m].flag.pvp)
-		{// decrement the number of pvp players on the map
-			map[sd->bl.m].users_pvp--;
+		// decrement the number of pvp players on the map
+		map[sd->bl.m].users_pvp--;
 
-			if (!map[sd->bl.m].flag.pvp_nocalcrank && sd->pvp_timer != INVALID_TIMER)
-			{// unregister the player for ranking
-				delete_timer(sd->pvp_timer, pc_calc_pvprank_timer);
-				sd->pvp_timer = INVALID_TIMER;
-			}
+		if (map[sd->bl.m].flag.pvp && !map[sd->bl.m].flag.pvp_nocalcrank && sd->pvp_timer != INVALID_TIMER)
+		{// unregister the player for ranking
+			delete_timer(sd->pvp_timer, pc_calc_pvprank_timer);
+			sd->pvp_timer = INVALID_TIMER;
 		}
 	}
 	clif_changeoption(&sd->bl);
@@ -1585,7 +1581,11 @@ ACMD_FUNC(kami)
 		}
 
 		sscanf(message, "%199[^\n]", atcmd_output);
-		intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, (*(command + 5) == 'b' || *(command + 5) == 'B') ? 0x10 : 0);
+
+		if (strstr(command, "l") != NULL)
+			clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, 0, ALL_SAMEMAP);
+		else
+			intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, (*(command + 5) == 'b' || *(command + 5) == 'B') ? 0x10 : 0);
 	
 	} else {
 	
@@ -6835,7 +6835,7 @@ ACMD_FUNC(changegm)
 		return -1;
 	}
 
-	if( map[sd->bl.m].flag.guildlock )
+	if( map[sd->bl.m].flag.guildlock || map[sd->bl.m].flag.gvg_castle )
 	{
 		clif_displaymessage(fd, "You can't change guild leaders on this map.");
 		return -1;
@@ -7961,7 +7961,7 @@ ACMD_FUNC(mobinfo)
 		else
 			sprintf(atcmd_output, "Monster: '%s'/'%s'/'%s' (%d)", mob->name, mob->jname, mob->sprite, mob->vd.class_);
 		clif_displaymessage(fd, atcmd_output);
-		sprintf(atcmd_output, " Level:%d  HP:%d  SP:%d  Base EXP:%u  Job EXP:%u", mob->lv, mob->status.max_hp, mob->status.max_sp, mob->base_exp, mob->job_exp);
+		sprintf(atcmd_output, " Level:%d  HP:%d  Base EXP:%u  Job EXP:%u  HIT:%d  FLEE:%d", mob->lv, mob->status.max_hp, mob->base_exp, mob->job_exp, mob->lv + mob->status.dex, mob->lv + mob->status.agi);
 		clif_displaymessage(fd, atcmd_output);
 		sprintf(atcmd_output, " DEF:%d  MDEF:%d  STR:%d  AGI:%d  VIT:%d  INT:%d  DEX:%d  LUK:%d",
 			mob->status.def, mob->status.mdef, mob->status.str, mob->status.agi,
@@ -8721,7 +8721,7 @@ ACMD_FUNC(version)
 	const char * revision;
 
 	if ((revision = get_svn_revision()) != 0) {
-		sprintf(atcmd_output,"eAthena Version SVN r%s",revision);
+		sprintf(atcmd_output,"15-3athena Version SVN r%s",revision);
 		clif_displaymessage(fd,atcmd_output);
 	} else 
 		clif_displaymessage(fd,"Cannot determine SVN revision");
@@ -10256,6 +10256,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "kami",              40,40,     atcommand_kami },
 	{ "kamib",             40,40,     atcommand_kami },
 	{ "kamic",             40,40,     atcommand_kami },
+	{ "lkami",             40,40,     atcommand_kami },
 	{ "heal",              40,60,     atcommand_heal },
 	{ "item",              60,60,     atcommand_item },
 	{ "itembound",         60,60,     atcommand_item },

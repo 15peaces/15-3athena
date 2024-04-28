@@ -13577,6 +13577,7 @@ void clif_parse_ResetChar(int fd, struct map_session_data *sd)
 /// 019c <packet len>.W <text>.?B
 void clif_parse_LocalBroadcast(int fd, struct map_session_data* sd)
 {
+	char command[CHAT_SIZE_MAX + 16];
 	char* msg = (char*)RFIFOP(fd,4);
 	unsigned int len = RFIFOW(fd,2)-4;
 	int lv;
@@ -13590,13 +13591,8 @@ void clif_parse_LocalBroadcast(int fd, struct map_session_data* sd)
 	// as the length varies depending on the command used, just block unreasonably long strings
 	len = mes_len_check(msg, len, CHAT_SIZE_MAX);
 
-	clif_broadcast(&sd->bl, msg, len, 0, ALL_SAMEMAP);
-
-	{
-		char logmsg[CHAT_SIZE_MAX+5];
-		sprintf(logmsg, "/lb %s", msg);
-		log_atcommand(sd, lv, logmsg);
-	}
+	sprintf(command, "@lkami %s", msg);
+	is_atcommand(fd, sd, command, 1);
 }
 
 
