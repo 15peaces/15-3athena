@@ -39,6 +39,7 @@
 #include "trade.h"
 #include "unit.h"
 #include "achievement.h"
+#include "mapreg.h"
 
 #ifndef TXT_ONLY
 #include "mail.h"
@@ -56,6 +57,8 @@ char charcommand_symbol = '#';
 // local declarations
 #define ACMD_FUNC(x) int atcommand_ ## x (const int fd, struct map_session_data* sd, const char* command, const char* message)
 
+int atcmd_binding_count = 0;
+
 typedef struct AtCommandInfo
 {
 	const char* command;
@@ -68,14 +71,14 @@ static AtCommandInfo* get_atcommandinfo_byname(const char* name);
 static AtCommandInfo* get_atcommandinfo_byfunc(const AtCommandFunc func);
 
 // @commands (script-based) 
-struct Atcmd_Binding* get_atcommandbind_byname(const char* name) 
+struct atcmd_binding_data* get_atcommandbind_byname(const char* name)
 { 
 	int i = 0; 
 	if( *name == atcommand_symbol || *name == charcommand_symbol ) 
 		name++; // for backwards compatibility 
-	ARR_FIND( 0, ARRAYLENGTH(atcmd_binding), i, strcmpi(atcmd_binding[i].command, name) == 0 ); 
-	return ( i < ARRAYLENGTH(atcmd_binding) ) ? &atcmd_binding[i] : NULL; 
-	return NULL; 
+	ARR_FIND(0, atcmd_binding_count, i, strcmp(atcmd_binding[i]->command, name) == 0);
+
+	return (i < atcmd_binding_count) ? atcmd_binding[i] : NULL;
 }
 
 ACMD_FUNC(commands);
@@ -1863,7 +1866,7 @@ ACMD_FUNC(baselevelup)
 
 	if (level > 0)
 	{
-		if (sd->status.base_level == pc_maxbaselv(sd))
+		if (sd->status.base_level >= pc_maxbaselv(sd))
 		{ // check for max level by Valaris
 			clif_displaymessage(fd, msg_txt(sd,47)); // Base level can't go any higher.
 			return -1;
@@ -1944,7 +1947,7 @@ ACMD_FUNC(joblevelup)
 		return -1;
 	}
 	if (level > 0) {
-		if (sd->status.job_level == pc_maxjoblv(sd)) {
+		if (sd->status.job_level >= pc_maxjoblv(sd)) {
 			clif_displaymessage(fd, msg_txt(sd,23)); // Job level can't go any higher.
 			return -1;
 		}
@@ -10219,6 +10222,120 @@ ACMD_FUNC(fullstrip) {
 	return 0;
 }
 
+/* [Ind] */
+ACMD_FUNC(set) {
+	char reg[32], val[128];
+	struct script_data* data;
+	int toset = 0;
+	bool is_str = false;
+
+	if (!message || !*message || (toset = sscanf(message, "%32s %128[^\n]s", reg, val)) < 1) {
+		clif_displaymessage(fd, "Usage: @set <variable name> <value>");
+		clif_displaymessage(fd, "Usage: e.g. @set PoringCharVar 50");
+		clif_displaymessage(fd, "Usage: e.g. @set PoringCharVarSTR$ Super Duper String");
+		clif_displaymessage(fd, "Usage: e.g. \"@set PoringCharVarSTR$\" outputs it's value, Super Duper String");
+		return -1;
+	}
+
+	/* disabled variable types (they require a proper script state to function, so allowing them would crash the server) */
+	if (reg[0] == '.') {
+		clif_displaymessage(fd, "NPC Variables may not be used with @set");
+		return -1;
+	}
+	else if (reg[0] == '\'') {
+		clif_displaymessage(fd, "Instance variables may not be used with @set");
+		return -1;
+	}
+
+	is_str = (reg[strlen(reg) - 1] == '$') ? true : false;
+
+	if (toset >= 2) {/* we only set the var if there is an val, otherwise we only output the value */
+		if (is_str)
+			set_var(sd, reg, (void*)val);
+		else
+			set_var(sd, reg, (void*)__64BPRTSIZE((int)(atoi(val))));
+
+	}
+
+	CREATE(data, struct script_data, 1);
+
+
+	if (is_str) {// string variable
+
+		switch (reg[0]) {
+		case '@':
+			data->u.str = pc_readregstr(sd, add_str(reg));
+			break;
+		case '$':
+			data->u.str = mapreg_readregstr(add_str(reg));
+			break;
+		case '#':
+			if (reg[1] == '#')
+				data->u.str = pc_readaccountreg2str(sd, reg);// global
+			else
+				data->u.str = pc_readaccountregstr(sd, reg);// local
+			break;
+		default:
+			data->u.str = pc_readglobalreg_str(sd, reg);
+			break;
+		}
+
+		if (data->u.str == NULL || data->u.str[0] == '\0') {// empty string
+			data->type = C_CONSTSTR;
+			data->u.str = "";
+		}
+		else {// duplicate string
+			data->type = C_STR;
+			data->u.str = aStrdup(data->u.str);
+		}
+
+	}
+	else {// integer variable
+
+		data->type = C_INT;
+		switch (reg[0]) {
+		case '@':
+			data->u.num = pc_readreg(sd, add_str(reg));
+			break;
+		case '$':
+			data->u.num = mapreg_readreg(add_str(reg));
+			break;
+		case '#':
+			if (reg[1] == '#')
+				data->u.num = pc_readaccountreg2(sd, reg);// global
+			else
+				data->u.num = pc_readaccountreg(sd, reg);// local
+			break;
+		default:
+			data->u.num = pc_readglobalreg(sd, reg);
+			break;
+		}
+
+	}
+
+
+	switch (data->type) {
+	case C_INT:
+		sprintf(atcmd_output, "%s value is now :%I64d", reg, data->u.num);
+		break;
+	case C_STR:
+		sprintf(atcmd_output, "%s value is now :%s", reg, data->u.str);
+		break;
+	case C_CONSTSTR:
+		sprintf(atcmd_output, "%s is empty", reg);
+		break;
+	default:
+		sprintf(atcmd_output, "%s data type is not supported :%u", reg, data->type);
+		break;
+	}
+
+	clif_displaymessage(fd, atcmd_output);
+
+	aFree(data);
+
+	return 0;
+}
+
 /*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
@@ -10552,7 +10669,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "eleminfo",           1,1,      atcommand_eleminfo },
 	{ "langtype",           1,1,      atcommand_langtype },
 	{ "reloadmsgconf",     99,99,     atcommand_reloadmsgconf },
-	{ "fullstrip",         50,50,     atcommand_fullstrip }
+	{ "fullstrip",         50,50,     atcommand_fullstrip },
+	{ "set",               50,50,     atcommand_set }
 };
 
 
@@ -10600,9 +10718,6 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	
 	TBL_PC * ssd = NULL; //sd for target
 	AtCommandInfo * info;
-
-	// @commands (script based) 
-	Atcmd_Binding * binding; 
 
 	nullpo_retr(false, sd);
 	
@@ -10698,7 +10813,8 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 		params[0] = '\0';
 
 	// @commands (script based) 
-	if(type == 1) { 
+	if (type == 1 && atcmd_binding_count > 0) {
+		struct atcmd_binding_data * binding;
 		// Check if the command initiated is a character command 
 		if (*message == charcommand_symbol && 
 		(ssd = map_nick2sd(charname)) == NULL && (ssd = map_nick2sd(charname2)) == NULL ) 

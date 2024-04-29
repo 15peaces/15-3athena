@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/29/2024
+	r453 [15peaces]
+		*Added new atcommand: @set
+			-Extremely helpful at debugging and by manipulating npc vars with ease.
+			-Thanks to @rathena
+			-Examples:
+				--@set poring 1 -> poring char reg is now 1.
+				--@set poring$ wtf dude -> poring$ str char reg is now 'wtf dude'
+				--@set #CASHPOINTS 50 -> #CASHPOINTS acc reg is now 50.
+				--#set "Target" #CASHPOINTS 30 -> "Target"'s #CASHPOINTS acc reg is now 30.
+				--@set #CASHPOINTS -> outputs the current value of cashpoints.
+			-note the last one above, if you dont provide a value it will output the current value of the variable.
+		*Characters are no longer able to bypass servers max level with @baselevel/@jlevl/etc.
+		*Improved overall bindatcommand performance by making the bind list a pointer array, this also allows the system to have a unlimited amount of atcommand bind instances.
+
 04/28/2024
 	r452 [15peaces]
 		*Some cleaning.

@@ -4068,7 +4068,7 @@ void do_final_script()
 	{
 		FILE *fp = fopen("hash_dump.txt","wt");
 		if(fp) {
-			int i,count[SCRIPT_HASH_SIZE];
+			int count[SCRIPT_HASH_SIZE];
 			int count2[SCRIPT_HASH_SIZE]; // number of buckets with a certain number of items
 			int n=0;
 			int min=INT_MAX,max=0,zero=0;
@@ -4142,6 +4142,13 @@ void do_final_script()
 		aFree(str_data);
 	if (str_buf)
 		aFree(str_buf);
+
+	for (i = 0; i < atcmd_binding_count; i++) {
+		aFree(atcmd_binding[i]);
+	}
+
+	if (atcmd_binding_count != 0)
+		aFree(atcmd_binding);
 }
 /*==========================================
  * Initialization
@@ -4157,12 +4164,20 @@ void do_init_script()
 
 void script_reload()
 {
+	int i;
 	userfunc_db->clear(userfunc_db, db_script_free_code_sub);
 	db_clear(scriptlabel_db);
 	
 	// @commands (script based) 
 	// Clear bindings 
-	memset(atcmd_binding,0,sizeof(atcmd_binding)); 
+	for (i = 0; i < atcmd_binding_count; i++) {
+		aFree(atcmd_binding[i]);
+	}
+
+	if (atcmd_binding_count != 0)
+		aFree(atcmd_binding);
+
+	atcmd_binding_count = 0;
 
 	if(sleep_db) {
 		struct linkdb_node *n = (struct linkdb_node *)sleep_db;
@@ -19019,32 +19034,45 @@ BUILDIN_FUNC(bindatcmd)
 { 
 	const char* atcmd; 
 	const char* eventName; 
-	int i = 0, level = 0, level2 = 0; 
+	int i, level = 0, level2 = 0;
+	bool create = false;
 
-	atcmd = script_getstr(st,2); 
-	eventName = script_getstr(st,3); 
+	atcmd = script_getstr(st,2);
+	eventName = script_getstr(st,3);
+
+	if (*atcmd == atcommand_symbol || *atcmd == charcommand_symbol)
+		atcmd++;
 
 	if( script_hasdata(st,4) ) level = script_getnum(st,4); 
 	if( script_hasdata(st,5) ) level2 = script_getnum(st,5); 
 
-	// check if event is already binded 
-	ARR_FIND(0, MAX_ATCMD_BINDINGS, i, strcmp(atcmd_binding[i].command,atcmd) == 0); 
-	if (i < MAX_ATCMD_BINDINGS) 
-	{ 
-		safestrncpy(atcmd_binding[i].npc_event, eventName, EVENT_NAME_LENGTH); 
-		atcmd_binding[i].level = level; 
-		atcmd_binding[i].level2 = level2; 
+	if (atcmd_binding_count == 0) {
+		CREATE(atcmd_binding, struct atcmd_binding_data*, 1);
+
+		create = true;
+	}
+	else {
+		ARR_FIND(0, atcmd_binding_count, i, strcmp(atcmd_binding[i]->command, atcmd) == 0);
+		if (i < atcmd_binding_count) {/* update existent entry */
+			safestrncpy(atcmd_binding[i]->npc_event, eventName, 50);
+			atcmd_binding[i]->level = level;
+			atcmd_binding[i]->level2 = level2;
+		}
+		else
+			create = true;
 	} 
-	else 
-	{ // make new binding 
-		ARR_FIND(0, MAX_ATCMD_BINDINGS, i, atcmd_binding[i].command[0] == '\0'); 
-		if( i < MAX_ATCMD_BINDINGS ) 
-		{ 
-			safestrncpy(atcmd_binding[i].command, atcmd, 50); 
-			safestrncpy(atcmd_binding[i].npc_event, eventName, EVENT_NAME_LENGTH); 
-			atcmd_binding[i].level = level; 
-			atcmd_binding[i].level2 = level2; 
-		} 
+	if (create) {
+		i = atcmd_binding_count;
+
+		if (atcmd_binding_count++ != 0)
+			RECREATE(atcmd_binding, struct atcmd_binding_data*, atcmd_binding_count);
+
+		CREATE(atcmd_binding[i], struct atcmd_binding_data, 1);
+
+		safestrncpy(atcmd_binding[i]->command, atcmd, 50);
+		safestrncpy(atcmd_binding[i]->npc_event, eventName, 50);
+		atcmd_binding[i]->level = level;
+		atcmd_binding[i]->level2 = level2;
 	} 
 
 	return 0; 
@@ -19057,9 +19085,38 @@ BUILDIN_FUNC(unbindatcmd)
 
 	atcmd = script_getstr(st, 2); 
 
-	ARR_FIND(0, MAX_ATCMD_BINDINGS, i, strcmp(atcmd_binding[i].command, atcmd) == 0); 
-	if( i < MAX_ATCMD_BINDINGS ) 
-		memset(&atcmd_binding[i],0,sizeof(atcmd_binding[0])); 
+	if (*atcmd == atcommand_symbol || *atcmd == charcommand_symbol)
+		atcmd++;
+
+	if (atcmd_binding_count == 0) {
+		script_pushint(st, 0);
+		return 0;
+	}
+
+	ARR_FIND(0, atcmd_binding_count, i, strcmp(atcmd_binding[i]->command, atcmd) == 0);
+	if (i < atcmd_binding_count) {
+		int cursor = 0;
+		aFree(atcmd_binding[i]);
+		atcmd_binding[i] = NULL;
+		/* compact the list now that we freed a slot somewhere */
+		for (i = 0, cursor = 0; i < atcmd_binding_count; i++) {
+			if (atcmd_binding[i] == NULL)
+				continue;
+
+			if (cursor != i) {
+				memmove(&atcmd_binding[cursor], &atcmd_binding[i], sizeof(struct atcmd_binding_data*));
+			}
+
+			cursor++;
+		}
+
+		if ((atcmd_binding_count = cursor) == 0)
+			aFree(atcmd_binding);
+
+		script_pushint(st, 1);
+	}
+	else
+		script_pushint(st, 0);/* not found */
 
 	return 0; 
 } 
