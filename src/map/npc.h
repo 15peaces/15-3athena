@@ -65,6 +65,7 @@ struct npc_data {
 	unsigned int level,stat_point;
 
 	void* chatdb; // pointer to a npc_parse struct (see npc_chat.c)
+	char* path;/* path dir */
 	enum npc_subtype subtype;
 	bool trigger_on_hidden;
 	int src_id;
@@ -223,5 +224,7 @@ extern struct npc_data* fake_nd;
 
 // @commands (script-based) 
 int npc_do_atcmd_event(struct map_session_data* sd, const char* command, const char* message, const char* eventname);
+
+bool npc_unloadfile(const char* path);
 
 #endif /* _NPC_H_ */

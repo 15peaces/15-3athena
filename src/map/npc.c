@@ -2065,6 +2065,9 @@ int npc_unload(struct npc_data* nd, bool single)
 	npc_chat_finalize(nd); // deallocate npc PCRE data structures
 #endif
 
+	if (nd->path)
+		aFree(nd->path);
+
 	if( (nd->subtype == NPCTYPE_SHOP || nd->subtype == NPCTYPE_CASHSHOP || nd->subtype == NPCTYPE_MARKETSHOP || nd->subtype == NPCTYPE_ITEMSHOP || nd->subtype == NPCTYPE_POINTSHOP) && nd->src_id == 0) //src check for duplicate shops [Orcao]
 		aFree(nd->u.shop.shop_item);
 	else if( nd->subtype == NPCTYPE_SCRIPT )
@@ -2274,6 +2277,9 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 		ShowDebug("other npc:\n   display name '%s'\n   unique name '%s'\n   map=%s, x=%d, y=%d\n", dnd->name, dnd->exname, other_mapname, dnd->bl.x, dnd->bl.y);
 		safestrncpy(nd->exname, newname, sizeof(nd->exname));
 	}
+
+	CREATE(nd->path, char, strlen(filepath) + 1);
+	safestrncpy(nd->path, filepath, strlen(filepath) + 1);
 }
 
 /**
@@ -4256,6 +4262,23 @@ int npc_reload(void)
 	npc_market_checkall();
 #endif
 	return 0;
+}
+
+bool npc_unloadfile(const char* path) {
+	DBIterator * iter = db_iterator(npcname_db);
+	struct npc_data* nd = NULL;
+	bool found = false;
+
+	for (nd = dbi_first(iter); dbi_exists(iter); nd = dbi_next(iter)) {
+		if (nd->path && strcasecmp(nd->path, path) == 0) {
+			found = true;
+			npc_unload(nd, true);
+		}
+	}
+
+	dbi_destroy(iter);
+
+	return found;
 }
 
 void do_clear_npc(void) {

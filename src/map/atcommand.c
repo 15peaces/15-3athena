@@ -1785,7 +1785,7 @@ ACMD_FUNC(item2)
 		item_id = item_data->nameid;
 
 	if (item_id > 500) {
-		int flag;
+		int flag = 0;
 		int loop, get_count, i;
 
 		loop = 1;
@@ -2482,19 +2482,21 @@ ACMD_FUNC(go)
 		{ MAP_LUTIE,       "x-mas" },
 		{ MAP_COMODO,      "comodo" },
 		{ MAP_YUNO ,       "yuno" },
+		{ MAP_YUNO ,       "juno" },
 		{ MAP_AMATSU,      "amatsu" },
 		{ MAP_GONRYUN,     "gonryun" },
+		{ MAP_GONRYUN,     "kunlun" },
 		{ MAP_UMBALA,      "umbala" },
 		{ MAP_NIFLHEIM,    "niflheim" },
 		{ MAP_LOUYANG,     "louyang" },
 		{ MAP_NOVICE,      "new_1-1" },
 		{ MAP_NOVICE,      "startpoint" },
-		{ MAP_NOVICE,      "begining" },
+		{ MAP_NOVICE,      "beginning" },
 		{ MAP_NOVICE_ACADEMY,"academy" },
 		{ MAP_NOVICE_ACADEMY,"iz_int" },
 		{ MAP_JAIL,        "sec_pri" },
 		{ MAP_JAIL,        "prison" },
-		{ MAP_JAIL,        "jails" },
+		{ MAP_JAIL,        "jail" },
 		{ MAP_JAWAII,      "jawaii" },
 		{ MAP_JAWAII,      "jawai" },
 		{ MAP_AYOTHAYA,    "ayothaya" },
@@ -3075,7 +3077,6 @@ ACMD_FUNC(produce)
 		return -1;
 	}
 
-	item_id = 0;
 	if ((item_data = itemdb_searchname(item_name)) == NULL &&
 	    (item_data = itemdb_exists(atoi(item_name))) == NULL)
 	{
@@ -3906,10 +3907,7 @@ ACMD_FUNC(doommap)
  *------------------------------------------*/
 static void atcommand_raise_sub(struct map_session_data* sd)
 {
-	if (pc_isdead(sd))
-		status_revive(&sd->bl, 100, 100);
-	else
-		status_percent_heal(&sd->bl, 100, 100);
+	status_revive(&sd->bl, 100, 100);
 
 	clif_skill_nodamage(&sd->bl,&sd->bl,ALL_RESURRECTION,4,1);
 	clif_displaymessage(sd->fd, msg_txt(sd,63)); // Mercy has been shown.
@@ -3927,7 +3925,8 @@ ACMD_FUNC(raise)
 
 	iter = mapit_getallusers();
 	for( pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter) )
-		atcommand_raise_sub(pl_sd);
+		if (pc_isdead(pl_sd))
+			atcommand_raise_sub(pl_sd);
 	mapit_free(iter);
 
 	clif_displaymessage(fd, msg_txt(sd,64)); // Mercy has been granted.
@@ -3947,7 +3946,7 @@ ACMD_FUNC(raisemap)
 
 	iter = mapit_getallusers();
 	for( pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter) )
-		if (sd->bl.m == pl_sd->bl.m)
+		if (sd->bl.m == pl_sd->bl.m && pc_isdead(pl_sd))
 			atcommand_raise_sub(pl_sd);
 	mapit_free(iter);
 
@@ -9425,6 +9424,7 @@ ACMD_FUNC(cash)
 {
 	char output[128];
 	int value;
+	int ret = 0;
 	nullpo_retr(-1, sd);
 
 	if( !message || !*message || (value = atoi(message)) == 0 ) {
@@ -9436,30 +9436,38 @@ ACMD_FUNC(cash)
 	{
 		if( value > 0 )
 		{
-			pc_getcash(sd, value, 0, LOG_TYPE_COMMAND);
-			sprintf(output, msg_txt(sd,505), value, sd->cashPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
+			if ((ret = pc_getcash(sd, value, 0, LOG_TYPE_COMMAND)) >= 0) {
+				sprintf(output, msg_txt(sd, 505), ret, sd->cashPoints);
+				clif_disp_onlyself(sd, output, strlen(output));
+			}
+			else clif_displaymessage(fd, msg_txt(sd, 149)); // Unable to decrease the number/value.
 		}
 		else 
 		{
-			pc_paycash(sd, -value, 0, LOG_TYPE_COMMAND);
-			sprintf(output, msg_txt(sd,511), value, sd->cashPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
+			if ((ret = pc_paycash(sd, -value, 0, LOG_TYPE_COMMAND)) >= 0) {
+				sprintf(output, msg_txt(sd, 410), ret, sd->cashPoints);
+				clif_disp_onlyself(sd, output, strlen(output));
+			}
+			else clif_displaymessage(fd, msg_txt(sd, 41)); // Unable to decrease the number/value.
 		}
 	}
 	else
 	{ // @points
 		if( value > 0 )
 		{
-			pc_getcash(sd, 0, value, LOG_TYPE_COMMAND);
-			sprintf(output, msg_txt(sd,506), value, sd->kafraPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
+			if ((ret = pc_getcash(sd, 0, value, LOG_TYPE_COMMAND)) >= 0) {
+				sprintf(output, msg_txt(sd, 506), ret, sd->kafraPoints);
+				clif_disp_onlyself(sd, output, strlen(output));
+			}
+			else clif_displaymessage(fd, msg_txt(sd, 149)); // Unable to decrease the number/value.
 		}
 		else
 		{
-			pc_paycash(sd, -value, -value, LOG_TYPE_COMMAND);
-			sprintf(output, msg_txt(sd,512), -value, sd->kafraPoints);
-			clif_disp_onlyself(sd, output, strlen(output));
+			if ((ret = pc_paycash(sd, -value, -value, LOG_TYPE_COMMAND)) >= 0) {
+				sprintf(output, msg_txt(sd, 411), ret, sd->kafraPoints);
+				clif_disp_onlyself(sd, output, strlen(output));
+			}
+			else clif_displaymessage(fd, msg_txt(sd, 41)); // Unable to decrease the number/value.
 		}
 	}
 
@@ -10336,6 +10344,22 @@ ACMD_FUNC(set) {
 	return 0;
 }
 
+ACMD_FUNC(unloadnpcfile) {
+
+	if (!message || !*message) {
+		clif_displaymessage(fd, "Usage: @unloadnpcfile <file name>");
+		return -1;
+	}
+
+	if (npc_unloadfile(message))
+		clif_displaymessage(fd, "File unloaded, be aware mapflags and monsters spawned directly are not removed");
+	else {
+		clif_displaymessage(fd, "File not found");
+		return -1;
+	}
+	return 0;
+}
+
 /*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
@@ -10670,7 +10694,8 @@ AtCommandInfo atcommand_info[] = {
 	{ "langtype",           1,1,      atcommand_langtype },
 	{ "reloadmsgconf",     99,99,     atcommand_reloadmsgconf },
 	{ "fullstrip",         50,50,     atcommand_fullstrip },
-	{ "set",               50,50,     atcommand_set }
+	{ "set",               50,50,     atcommand_set },
+	{ "unloadnpcfile",     80,80,     atcommand_unloadnpcfile }
 };
 
 

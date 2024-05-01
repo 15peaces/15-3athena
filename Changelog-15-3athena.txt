@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/01/2024
+	r454 [15peaces]
+		*Added @unloadnpcfile command.
+		*Fixed @raise/@raisemap incorrect behavior which was healing everyone in the server/map despite being dead or not.
+		*Updated alternative city names for @go command.
+		*Fixed @cash,@Points commands display result.
+		*Fixed @follow was still enabled when the target/source died.
+
 04/29/2024
 	r453 [15peaces]
 		*Added new atcommand: @set

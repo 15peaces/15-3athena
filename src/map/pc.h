@@ -877,8 +877,8 @@ int pc_delitem(struct map_session_data *sd, int n, int amount, int type, short r
 int pc_bound_chk(TBL_PC *sd,enum bound_type type,int *idxlist);
 
 // Special Shop System
-void pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_type type);
-void pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_type type);
+int pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_type type);
+int pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_type type);
 
 int pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type);
 int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type, e_log_pick_type log_type);
