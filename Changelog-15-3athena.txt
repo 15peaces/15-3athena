@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/05/2024
+	r455 [15peaces]
+		*Added an underflow check to is_attack_critical function.
+			-This fixes an issue where characters with 1 luk got a infinite critical rate.
+		*Fixed some remaining issues with direct variable assignments.
+		*Modified some script commands
+		*First release of lasagna npcs (playing conversion, custom versions).
+			-Implemented doram food buffs
+			-Updated Time Limit for quests to allow HH:MM format
+			-Thanks to @rathena for the base!
+		*SU_GROOMING
+			-Added full support for this skill.
+
 05/01/2024
 	r454 [15peaces]
 		*Added @unloadnpcfile command.

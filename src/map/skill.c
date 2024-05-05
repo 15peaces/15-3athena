@@ -1589,6 +1589,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 				case SC_REUSE_LIMIT_G:	case SC_REUSE_LIMIT_H:	case SC_REUSE_LIMIT_MTF:
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
+				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
@@ -6273,7 +6274,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case PR_KYRIE:
-	case MER_KYRIE:	
+	case MER_KYRIE:
+	case SU_GROOMING:
+	case SU_CHATTERING:
 		clif_skill_nodamage(bl,bl,skill_id,skill_lv,
 			sc_start(bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
 		break;
@@ -8117,6 +8120,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				// Monster Transformation
 				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
 				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
+				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
@@ -9943,6 +9947,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				// Monster Transformation
 				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
 				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
+				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:

@@ -1947,6 +1947,7 @@
 18982,507,100	//Old_Circlet_Of_Bones
 18983,507,100	//Old_Protect_Of_Crown
 18984,507,100	//Old_Camouflage_Rabbit_Hood
+19084,467,100	// Parfaille_Vigilante_Hat
 19164,467,100	// Para_Team_Hat100
 19165,467,100	// Para_Team_Hat160
 //19169,1,100	//
@@ -2045,6 +2046,12 @@
 22812,507,100 	// Sealed_Dracula_Scroll
 22813,507,100 	// Bearer's_Shadow_Box
 22823,507,100	// Sealed_Sniper_Scroll
+25043,499,100	// Thorny_Vine_Flute
+25045,499,100	// Luxurious_Cloth
+25046,499,100	// Boarding_Pass
+25047,499,100	// Kahlunac
+25048,499,100	// Hearty_Lunchbox
+25049,499,100	// Basilac_Clam
 25148,507,100	// Cute_Starved_Demon_Doll
 25149,507,100	// Doll_With_Warm_Scarf
 25150,507,100	// Hugging_Alice_Pilow

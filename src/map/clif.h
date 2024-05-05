@@ -922,6 +922,7 @@ void clif_font(struct map_session_data *sd);
 void clif_notify_chat(struct block_list* bl, const char* message, send_target target);
 void clif_notify_playerchat(struct map_session_data* sd, const char* message);
 void clif_displaymessage(const int fd, const char* mes);
+void clif_displaymessagecolor_target(struct block_list *bl, unsigned long color, const char *msg, bool rgb2bgr, enum send_target type, struct map_session_data *sd);
 void clif_displaymessagecolor(struct map_session_data *sd, const char* msg, unsigned long color);
 void clif_displayformatted(struct map_session_data* sd, const char* fmt, ...);
 void clif_disp_onlyself(struct map_session_data *sd, const char *mes, int len);
@@ -965,7 +966,8 @@ void clif_GM_kick(struct map_session_data *sd,struct map_session_data *tsd);
 void clif_manner_message(struct map_session_data* sd, uint32 type);
 void clif_GM_silence(struct map_session_data* sd, struct map_session_data* tsd, uint8 type);
 
-void clif_disp_overhead(struct block_list *bl, const char* mes);
+void clif_disp_overhead_(struct block_list *bl, const char* mes, enum send_target flag);
+#define clif_disp_overhead(bl, mes) clif_disp_overhead_(bl, mes, AREA)
 
 void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand);
 

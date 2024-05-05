@@ -5970,13 +5970,13 @@ This command will make a <GID> stop moving.
 	
 ---------------------------------------
 
-*unittalk <GID>,<Text>{,hide_name};
+*unittalk <GID>,<Text>{,flag};
 
-This command will make a <GID> say a message.
+This command will make a <GID> say a message. The display name of the <GID> won't get appended in front of the message.
 
-	hide_name:
-		0: Shows Unit name like "UnitName : Message" (default)
-		1: Hides Unit name
+flag: Specify target
+   bc_area - Message is sent to players in the vicinity of the source (default).
+   bc_self - Message is sent only to player attached.
 
 ---------------------------------------
 
@@ -6273,16 +6273,17 @@ It is an approximation of official server script language's 'cmdothernpc'.
 
 ---------------------------------------
 	
-*npctalk("<message>"{, "<npc name>"{, <hide_name>}})
-
-hide_name values:
-	0: shows npc name (default)
-	1: hide npc name
+*npctalk("<message>"{, "<npc name>"{,"<flag>"}})
 
 This command will display a message to the surrounding area as if the NPC
 object running it was a player talking - that is, above their head and in
-the chat window. If show_npcname is true the name of the NPC will get appended in front of
-the message, otherwise the npc name will not be shown.
+the chat window.
+
+Target for <flag>:
+- bc_all  : Broadcast message is sent server-wide (only in the chat window).
+- bc_map  : Message is sent to everyone in the same map as the source of the npc.
+- bc_area : Message is sent to players in the vicinity of the source (default value).
+- bc_self : Message is sent only to player attached.
 
 	// This will make everyone in the area see the NPC greet the character
 	// who just invoked it.

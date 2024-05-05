@@ -1090,6 +1090,35 @@ bool is_number(const char *p) {
 	return false;
 }
 
+/**
+ * Pushes a variable into stack, processing its array index if needed.
+ * @see parse_variable
+ */
+void parse_variable_sub_push(int word, const char *p2)
+{
+	if (p2) { // Process the variable index
+		const char *p3 = NULL;
+
+		// Push the getelementofarray method into the stack
+		add_scriptl(buildin_getelementofarray_ref);
+		add_scriptc(C_ARG);
+		add_scriptl(word);
+
+		// Process the sub-expression for this assignment
+		p3 = parse_subexpr(p2 + 1, 1);
+		p3 = skip_space(p3);
+
+		if (*p3 != ']') // Closing parenthesis is required for this script
+			disp_error_message("Missing closing ']' parenthesis for the variable assignment.", p3);
+
+		// Push the closing function stack operator onto the stack
+		add_scriptc(C_FUNC);
+		p3++;
+	}
+	else // No array index, simply push the variable or value onto the stack
+		add_scriptl(word);
+}
+
 /// Parse a variable assignment using the direct equals operator
 /// @param p script position where the function should run from
 /// @return NULL if not a variable assignment, the new position otherwise
@@ -1189,37 +1218,10 @@ const char* parse_variable(const char* p)
 		disp_error_message("Cannot modify a variable which has the same name as a function or label.", p);
 	}
 
-	if (p2)
-	{// process the variable index
-		const char* p3 = NULL;
-
-		// push the getelementofarray method into the stack
-		add_scriptl(buildin_getelementofarray_ref);
-		add_scriptc(C_ARG);
-		add_scriptl(word);
-
-		// process the sub-expression for this assignment
-		p3 = parse_subexpr(p2 + 1, 1);
-		p3 = skip_space(p3);
-
-		if (*p3 != ']')
-		{// closing parenthesis is required for this script
-			disp_error_message("Missing closing ']' parenthesis for the variable assignment.", p3);
-		}
-
-		// push the closing function stack operator onto the stack
-		add_scriptc(C_FUNC);
-		p3++;
-	}
-	else
-	{// simply push the variable or value onto the stack
-		add_scriptl(word);
-	}
-
-	add_scriptc(C_REF);
+	parse_variable_sub_push(word, p2); // Push variable onto the stack
 
 	if (type != C_EQ)
-		add_scriptc(C_REF);
+		parse_variable_sub_push(word, p2); // Push variable onto the stack once again (first argument of setr)
 
 	if (type == C_ADD_PP || type == C_SUB_PP) {// incremental operator for the method
 		add_scripti(1);
@@ -5752,7 +5754,6 @@ BUILDIN_FUNC(deletearray)
 BUILDIN_FUNC(getelementofarray)
 {
 	struct script_data* data;
-	const char* name;
 	int32 id;
 	int i;
 
@@ -5767,15 +5768,6 @@ BUILDIN_FUNC(getelementofarray)
 	}
 
 	id = reference_getid(data);
-	name = reference_getname(data);
-	if( not_array_variable(*name) )
-	{
-		ShowError("script:getelementofarray: illegal scope\n");
-		script_reportdata(data);
-		script_pushnil(st);
-		st->state = END;
-		return 1;// not supported
-	}
 
 	i = script_getnum(st, 3);
 	if( i < 0 || i >= SCRIPT_MAX_ARRAYSIZE )
@@ -13726,8 +13718,12 @@ BUILDIN_FUNC(message)
 }
 
 /*==========================================
-* npctalk (sends message to surrounding area)
-* usage: npctalk("<message>"{, "<npc name>"{, <hide_name>}});
+ * npctalk("<message>"{,"<NPC name>","<flag>"});
+ * @param flag: Specify target
+ *   BC_ALL  - Broadcast message is sent server-wide.
+ *   BC_MAP  - Message is sent to everyone in the same map as the source of the npc.
+ *   BC_AREA - Message is sent to players in the vicinity of the source (default).
+ *   BC_SELF - Message is sent only to player attached.
 *------------------------------------------*/
 BUILDIN_FUNC(npctalk)
 {
@@ -13735,28 +13731,35 @@ BUILDIN_FUNC(npctalk)
 	const char *str = script_getstr(st, 2);
 	bool hide_name = false;
 
-	if (script_hasdata(st, 3)) {
+	if (script_hasdata(st, 3) && strlen(script_getstr(st, 3)) > 0) {
 		nd = npc_name2id(script_getstr(st, 3));
 	}
 	else {
 		nd = map_id2nd(st->oid);
 	}
 
-	if (script_hasdata(st, 4)) {
-		hide_name = (script_getnum(st, 4) == 0) ? true : false;
-	}
-
 	if (nd != NULL) {
-		char name[NAME_LENGTH], message[256];
-		safestrncpy(name, nd->name, sizeof(name));
-		strtok(name, "#"); // discard extra name identifier if present
-		if (hide_name) {
-			safesnprintf(message, sizeof(message), "%s", str);
+		send_target target = AREA;
+		char message[CHAT_SIZE_MAX];
+
+		if (script_hasdata(st, 4)) {
+			switch(script_getnum(st, 4)) {
+				case BC_ALL:	target = ALL_CLIENT;	break;
+				case BC_MAP:	target = ALL_SAMEMAP;	break;
+				case BC_SELF:	target = SELF;			break;
+				case BC_AREA:
+				default:		target = AREA;			break;
+			}
 		}
+		safesnprintf(message, sizeof(message), "%s", str);
+		if (target != SELF)
+			clif_displaymessagecolor_target(&nd->bl, COLOR_WHITE, message, false, target, NULL);
 		else {
-			safesnprintf(message, sizeof(message), "%s : %s", name, str);
+			TBL_PC *sd = map_id2sd(st->rid);
+			if (sd == NULL)
+				return 1;
+			clif_displaymessagecolor_target(&nd->bl, COLOR_WHITE, message, false, target, sd);
 		}
-		clif_disp_overhead(&nd->bl, message);
 	}
 
 	return 0;
@@ -17289,36 +17292,35 @@ BUILDIN_FUNC(unitstopwalk)
 
 /// Makes the unit say the given message.
 ///
-/// unittalk <unit_id>,"<message>"{,hide_name};
+/// unittalk <unit_id>,"<message>"{,"<flag>"};
 BUILDIN_FUNC(unittalk)
 {
 	int unit_id;
 	const char* message;
 	struct block_list* bl;
-	bool hide_name = false;
+	send_target target = AREA;
 
 	unit_id = script_getnum(st,2);
 	message = script_getstr(st, 3);
 
+	bl = map_id2bl(unit_id);
+
 	if (script_hasdata(st, 4)) {
-		hide_name = (script_getnum(st, 4) == 0) ? true : false;
+		if (script_getnum(st, 4) == BC_SELF) {
+			if (map_id2sd(bl->id) == NULL) {
+				ShowWarning("script: unittalk: bc_self can't be used for non-players objects.\n");
+				return 1;
+			}
+			target = SELF;
+		}
 	}
 
-	bl = map_id2bl(unit_id);
 	if( bl != NULL ) {
 		struct StringBuf sbuf;
 
 		StringBuf_Init(&sbuf);
-
-		if (hide_name) {
-			StringBuf_Printf(&sbuf, "%s", message);
-		}
-		else {
-			StringBuf_Printf(&sbuf, "%s : %s", status_get_name(bl), message);
-		}
-		clif_disp_overhead(bl, StringBuf_Value(&sbuf));
-		if( bl->type == BL_PC )
-			clif_displaymessage(((TBL_PC*)bl)->fd, StringBuf_Value(&sbuf));
+		StringBuf_Printf(&sbuf, "%s", message);
+		clif_disp_overhead_(bl, StringBuf_Value(&sbuf), target);
 		StringBuf_Destroy(&sbuf);
 	}
 

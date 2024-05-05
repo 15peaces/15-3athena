@@ -6715,24 +6715,36 @@ void clif_displaymessage(const int fd, const char* mes)
 	}
 }
 
-/// Send colored message (by [Dastgir/Hercules])
+/// Monster/NPC color chat [SnakeDrak] (ZC_NPC_CHAT).
+/// 02c1 <packet len>.W <id>.L <color>.L <message>.?B
+void clif_displaymessagecolor_target(struct block_list *bl, unsigned long color, const char *msg, bool rgb2bgr, enum send_target type, struct map_session_data *sd)
+{
+	unsigned short msg_len = (unsigned short)(strlen(msg) + 1);
+	uint8 buf[CHAT_SIZE_MAX];
+
+	nullpo_retv(bl);
+
+	if (msg_len > sizeof(buf) - 12) {
+		ShowWarning("clif_messagecolor: Truncating too long message '%s' (len=%u).\n", msg, msg_len);
+		msg_len = sizeof(buf) - 12;
+	}
+	if (rgb2bgr)
+		color = (color & 0x0000FF) << 16 | (color & 0x00FF00) | (color & 0xFF0000) >> 16; // RGB to BGR
+	WBUFW(buf, 0) = 0x2C1;
+	WBUFW(buf, 2) = msg_len + 12;
+	WBUFL(buf, 4) = bl->id;
+	WBUFL(buf, 8) = color;
+	memcpy(WBUFCP(buf, 12), msg, msg_len);
+	clif_send(buf, WBUFW(buf, 2), (sd == NULL ? bl : &(sd->bl)), type);
+}
+
+/// Send colored message to self
 void clif_displaymessagecolor(struct map_session_data *sd, const char* msg, unsigned long color)
 {
-	int fd;
-	uint16 len = (uint16)strlen(msg) + 1;
+	if (sd==NULL)
+		return;
 
-	if (sd==NULL) return;
-
-	color = (color & 0x0000FF) << 16 | (color & 0x00FF00) | (color & 0xFF0000) >> 16; // RGB to BGR
-	
-	fd = sd->fd;
-	WFIFOHEAD(fd, len+12);
-	WFIFOW(fd,0) = 0x2C1;
-	WFIFOW(fd,2) = len+12;
-	WFIFOL(fd,4) = 0;
-	WFIFOL(fd,8) = color;
-	memcpy(WFIFOP(fd,12), msg, len);
-	WFIFOSET(fd, WFIFOW(fd,2));
+	clif_displaymessagecolor_target(&sd->bl, color, msg, true, SELF, NULL);
 }
 
 
@@ -10461,7 +10473,7 @@ void clif_slide(struct block_list *bl, int x, int y)
 
 /// Public chat message (ZC_NOTIFY_CHAT). lordalfa/Skotlex - used by @me as well
 /// 008d <packet len>.W <id>.L <message>.?B
-void clif_disp_overhead(struct block_list *bl, const char* mes)
+void clif_disp_overhead_(struct block_list *bl, const char* mes, enum send_target flag)
 {
 	unsigned char buf[256]; //This should be more than sufficient, the theoretical max is CHAT_SIZE + 8 (pads and extra inserted crap)
 	uint16 len_mes;
@@ -10475,11 +10487,13 @@ void clif_disp_overhead(struct block_list *bl, const char* mes)
 		len_mes = sizeof(buf)-8; //Trunk it to avoid problems.
 	}
 	// send message to others
-	WBUFW(buf,0) = 0x8d;
-	WBUFW(buf,2) = len_mes + 8; // len of message + 8 (command+len+id)
-	WBUFL(buf,4) = bl->id;
-	safestrncpy((char*)WBUFP(buf,8), mes, len_mes);
-	clif_send(buf, WBUFW(buf,2), bl, AREA_CHAT_WOC);
+	if (flag == AREA) {
+		WBUFW(buf, 0) = 0x8d;
+		WBUFW(buf, 2) = len_mes + 8; // len of message + 8 (command+len+id)
+		WBUFL(buf, 4) = bl->id;
+		safestrncpy(WBUFCP(buf, 8), mes, len_mes);
+		clif_send(buf, WBUFW(buf, 2), bl, AREA_CHAT_WOC);
+	}
 
 	// send back message to the speaker
 	if( bl->type == BL_PC ) {
@@ -12968,7 +12982,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 
 	}
 
 	if ((pc_cant_act2(sd) || sd->chatID) && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE &&
-		sd->state.storage_flag && !(inf&INF_SELF_SKILL)) //SELF skills can be used with the storage open
+		skill_id != SU_GROOMING && sd->state.storage_flag && !(inf&INF_SELF_SKILL)) //SELF skills can be used with the storage open
 		return;
 
 	//Some self skills need to close the storage to work properly

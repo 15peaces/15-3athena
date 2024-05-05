@@ -787,6 +787,7 @@ void initChangeTables(void)
 	add_sc(SU_CN_METEOR2		, SC_CURSE);
 	add_sc(SU_LUNATICCARROTBEAT2, SC_STUN		);
 	set_sc(SU_NYANGGRASS		, SC_NYANGGRASS		, SI_NYANGGRASS		, SCB_DEF | SCB_MDEF);
+	add_sc(SU_GROOMING			, SC_GROOMING	);
 
 	set_sc(WE_CHEERUP, SC_CHEERUP, SI_CHEERUP, SCB_STR | SCB_AGI | SCB_VIT | SCB_INT | SCB_DEX | SCB_LUK);
 
@@ -1084,6 +1085,8 @@ void initChangeTables(void)
 	// Summoner
 	StatusIconChangeTable[SC_SPRITEMABLE] = SI_SPRITEMABLE;
 	StatusIconChangeTable[SC_SOULATTACK] = SI_SOULATTACK;
+	StatusIconChangeTable[SC_DORAM_BUF_01] = SI_DORAM_BUF_01;
+	StatusIconChangeTable[SC_DORAM_BUF_02] = SI_DORAM_BUF_02;
 
 	// Mutanted Homunculus
 	StatusIconChangeTable[SC_SONIC_CLAW_POSTDELAY] = SI_SONIC_CLAW_POSTDELAY;
@@ -1241,6 +1244,8 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_SPIRITOFLAND_SPEED] = SCB_SPEED;
 	StatusChangeFlagTable[SC_SPIRITOFLAND_MATK] = SCB_MATK;
 	StatusChangeFlagTable[SC_SPIRITOFLAND_PERFECTDODGE] = SCB_FLEE2;
+	StatusChangeFlagTable[SC_DORAM_BUF_01] |= SCB_REGEN;
+	StatusChangeFlagTable[SC_DORAM_BUF_02] |= SCB_REGEN;
 
 	//StatusChangeFlagTable[SC_CIRCLE_OF_FIRE_OPTION] |= SCB_NONE;
 	StatusChangeFlagTable[SC_FIRE_CLOAK_OPTION] |= SCB_ALL;
@@ -1933,7 +1938,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 		if (sc->data[SC_ALL_RIDING])
 			return 0; //You can't use skills while in the new mounts (The client doesn't let you, this is to make cheat-safe)
 
-		if (sc->opt1 > 0 && sc->opt1 != OPT1_BURNING && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE)
+		if (sc->opt1 > 0 && sc->opt1 != OPT1_BURNING && skill_id != RK_REFRESH && skill_id != SR_GENTLETOUCH_CURE && skill_id != SU_GROOMING)
 		{	//Stuned/Frozen/etc
 			if (flag != 1) //Can't cast, casted stuff can't damage. 
 				return 0;
@@ -5765,6 +5770,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += flee * sc->data[SC_INCFLEERATE]->val1/100;
 	if ( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
 		flee += flee * 20 / 100;
+	if (sc->data[SC_GROOMING])
+		flee += sc->data[SC_GROOMING]->val2;
 	if(sc->data[SC_GATLINGFEVER])
 		flee -= sc->data[SC_GATLINGFEVER]->val4;
 	if( sc->data[SC_GLOOMYDAY] )
@@ -8367,6 +8374,8 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			case SC_REUSE_CRUSHSTRIKE:
 			case SC_REUSE_STORMBLAST:
 			case SC_ALL_RIDING_REUSE_LIMIT:
+			case SC_DORAM_BUF_01:
+			case SC_DORAM_BUF_02:
 				return 0;
 			case SC_COMBO: 
 			case SC_DANCING:
@@ -9967,6 +9976,9 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 			else
 				val2 = 2;// Reduce DEF/MDEF by 50% on non-players.
 			break;
+		case SC_GROOMING:
+			val2 = 100; // Flee
+			break;
 		case SC_SPIRITOFLAND_MATK:
 			val2 = status_get_base_lv_effect(bl);// MATK Increase
 			break;
@@ -10239,6 +10251,12 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 				val2 = 0;
 			break;
 
+		case SC_DORAM_BUF_01:
+		case SC_DORAM_BUF_02:
+			tick_time = 10000; // every 10 seconds
+			if ((val4 = tick / tick_time) < 1)
+				val4 = 1;
+			break;
 
 		default:
 			if( calc_flag == SCB_NONE && StatusSkillChangeTable[type] ==-1 && StatusIconChangeTable[type] == SI_BLANK )
@@ -10761,6 +10779,8 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_SUPER_STAR:
 				case SC_DECORATION_OF_MUSIC:
 				case SC_SPRITEMABLE:
+				case SC_DORAM_BUF_01:
+				case SC_DORAM_BUF_02:
 				case SC_SOULATTACK:
 				case SC_CLAN_INFO:
 				case SC_SWORDCLAN:
@@ -12720,6 +12740,23 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		{
 			status_heal(bl, status->max_hp * 4 / 100, 0, 2);
 			sc_timer_next(sce->val2 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+
+	case SC_DORAM_BUF_01:
+		if (sd && --(sce->val4) >= 0) {
+			if (status->hp < status->max_hp)
+				status_heal(bl, 10, 0, 2);
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
+			return 0;
+		}
+		break;
+	case SC_DORAM_BUF_02:
+		if (sd && --(sce->val4) >= 0) {
+			if (status->sp < status->max_sp)
+				status_heal(bl, 0, 5, 2);
+			sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

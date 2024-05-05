@@ -1870,17 +1870,20 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 			skill_id == NJ_KIRIKAGE))
 	{
 		short cri = sstatus->cri;
+
 		if (sd)
 		{
 			cri += sd->critaddrace[tstatus->race] + sd->critaddrace[RC_ALL];
 			if (is_skill_using_arrow(src, skill_id))
 				cri += sd->bonus.arrow_cri;
 		}
+
 		if (sc && sc->data[SC_CAMOUFLAGE])
 			cri += 100 * min(10, sc->data[SC_CAMOUFLAGE]->val3); //max 100% (1K)
 		//The official equation is *2, but that only applies when sd's do critical.
 		//Therefore, we use the old value 3 on cases when an sd gets attacked by a mob
-		cri -= tstatus->luk*(!sd&&tsd ? 3 : 2);
+		cri -= tstatus->luk*((!sd&&tsd) ? 3 : 2);
+
 		if (tsc && tsc->data[SC_SLEEP]) {
 			cri <<= 1;
 		}
@@ -1902,6 +1905,11 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 		}
 		if (tsd && tsd->bonus.critical_def)
 			cri = cri * (100 - tsd->bonus.critical_def) / 100;
+
+		// Underflow check, critical rate should not be < 1.0
+		if (cri < 10)
+			cri = 10;
+
 		return (rnd() % 1000 < cri);
 	}
 	return 0;

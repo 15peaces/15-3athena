@@ -803,6 +803,10 @@ typedef enum sc_type {
 	SC_MTF_MLEATKED,
 	SC_MTF_CRIDAMAGE,
 
+	// Doram Buffs
+	SC_DORAM_BUF_01,
+	SC_DORAM_BUF_02,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 
@@ -1738,8 +1742,8 @@ enum si_type {
 //	SI_HELM_URJ = 932,
 	SI_SUHIDE = 933,
 //	SI_ = 934,
-//	SI_DORAM_BUF_01 = 935,
-//	SI_DORAM_BUF_02 = 936,
+	SI_DORAM_BUF_01 = 935,
+	SI_DORAM_BUF_02 = 936,
 	SI_SPRITEMABLE = 937,
 //	SI_AID_PERIOD_RECEIVEITEM = 938,
 //	SI_AID_PERIOD_PLUSEXP = 939,

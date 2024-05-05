@@ -5281,3 +5281,30 @@
 20600,Fantastic_Aura,Fantastic Aura,5,0,,0,,0,,0,0xFFFFFFFF,7,2,16384,,1,0,0,{ bonus bUnbreakableHelm,0; },{},{}
 20700,Egir_Manteau,Egir Manteau,5,200000,,300,,10,,1,0xFFFFFFFF,7,2,4,,110,1,0,{ bonus bUnbreakableHelm,0; },{},{}
 20724,Love_Dad_Wings_2012,Love Dad Wings 2012,5,0,,100,,15,,1,0xFFFFFFFF,7,2,4,,1,1,5,{},{},{}
+
+// Doram related & more (renewal)
+4669,Jungle_Mandragora_Card,Jungle Mandragora Card,6,20,,10,,,,,,,,2,,,,,{ .@r = getrefine(); bonus2 bAddEle,Ele_Wind,((.@r>=9)?7:((.@r>=7)?5:3)); },{},{}
+4670,Fruit_Pom_Spider_Card,Fruit Pom Spider Card,6,20,,10,,,,,,,,2,,,,,{ .@r = getrefine(); bonus2 bAddEle,Ele_Fire,((.@r>=9)?7:((.@r>=7)?5:3)); },{},{}
+4671,V_Celia_Card,Sorcerer Celia Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Sage){ bonus bMaxHPrate,10; bonus bMatkRate,10; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4672,V_Chen_Card,Sura Chen Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Monk){ bonus bMaxHPrate,10; bonus2 bAddClass,Class_All,10; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4673,V_Alphoccio_Card,Minstel Alphoccio Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Bard){ bonus bMaxHPrate,15; bonus bMaxSPrate,10; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4674,V_Eremes_Card,Guillotine Cross Eremes Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Assassin){ bonus bFlee2,10; bonus2 bAddClass,Class_All,15; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4675,V_Magaleta_Card,Arch Bishop Magaleta Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Priest){ bonus bMaxHPrate,10; bonus bHealPower,10; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4676,V_Shecil_Card,Ranger Cecil Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Hunter){ bonus bCritical,20; bonus bLongAtkRate,15; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4677,V_Howard_Card,Mechanic Howard Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Blacksmith){ bonus bHit,20; bonus2 bAddClass,Class_All,15; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+4678,V_Katrinn_Card,Warlock Kathryne Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Wizard){ bonus bMdef,80; bonus bMatkRate,15; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
+11602,Catnip_Fruit,Catnip Fruit,0,15,,1,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(10,40),0; },{},{}
+11601,Delicious_Anchovy,Delicious Anchovy,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(30,46),0; },{},{}
+19084,Parfaille_Vigilante_Hat,Parfaille Vigilante Hat,5,0,,100,,2,,0,0x80000000,63,2,256,,20,1,1368,{ bonus bLuk,1; bonus3 bAutoSpell,"AL_BLESSING",3,100; },{},{}
+22984,Kahluna_Milk,Kahluna Milk,0,6,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_01, 180000, 0; },{},{}
+22985,Basil,Basil,0,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_02, 180000, 0; },{},{}
+//===================================================================
+// New etc.
+//===================================================================
+25043,Thorny_Vine_Flute,Thorny Vine Flute,3,0,,0,,,,,,,,,,,,,{},{},{}
+25044,Hard_Thorny_Vine,Hard Thorny Vine,3,0,,10,,,,,,,,,,,,,{},{},{}
+25045,Luxurious_Cloth,Luxurious Cloth,3,0,,0,,,,,,,,,,,,,{},{},{}
+25046,Boarding_Pass,Boarding Pass,3,0,,0,,,,,,,,,,,,,{},{},{}
+25047,Kahlunac,Kahlunac,3,0,,0,,,,,,,,,,,,,{},{},{}
+25048,Hearty_Lunchbox,Hearty Lunchbox,3,0,,0,,,,,,,,,,,,,{},{},{}
+25049,Basilac_Clam,Basilac Clam,3,0,,0,,,,,,,,,,,,,{},{},{}

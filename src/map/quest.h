@@ -27,6 +27,7 @@ struct quest_objective {
 struct quest_db {
 	uint16 id;
 	unsigned int time;
+	bool time_type;
 	uint8 objectives_count;
 	struct quest_objective objectives[MAX_QUEST_OBJECTIVES];
 	uint8 dropitem_count;
