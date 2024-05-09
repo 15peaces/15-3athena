@@ -4677,7 +4677,14 @@ int pc_additem(struct map_session_data *sd,const struct item *item_data,int amou
 }
 
 /*==========================================
- * ƒAƒCƒeƒ€‚ðŒ¸‚ç‚·
+ * Remove an item at index n from inventory by amount.
+ * Parameters :
+ * @type
+ *	1 : don't notify deletion
+ *	2 : don't notify weight change
+ * Return:
+ *	0 = success
+ *	1 = invalid itemid or negative amount
  *------------------------------------------*/
 int pc_delitem(struct map_session_data *sd,int n,int amount,int type, short reason, e_log_pick_type log_type)
 {
@@ -8483,8 +8490,6 @@ int pc_readparam(struct map_session_data* sd,int type)
  *------------------------------------------*/
 int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 {
-	int statlimit;
-
 	nullpo_ret(sd);
 
 	int val = (int)val_;
@@ -8623,28 +8628,22 @@ int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 		}
 		break;
 	case SP_STR:
-		statlimit = pc_maxparameter(sd);
-		sd->status.str = cap_value(val, 1, statlimit);
+		sd->status.str = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_AGI:
-		statlimit = pc_maxparameter(sd);
-		sd->status.agi = cap_value(val, 1, statlimit);
+		sd->status.agi = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_VIT:
-		statlimit = pc_maxparameter(sd);
-		sd->status.vit = cap_value(val, 1, statlimit);
+		sd->status.vit = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_INT:
-		statlimit = pc_maxparameter(sd);
-		sd->status.int_ = cap_value(val, 1, statlimit);
+		sd->status.int_ = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_DEX:
-		statlimit = pc_maxparameter(sd);
-		sd->status.dex = cap_value(val, 1, statlimit);
+		sd->status.dex = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_LUK:
-		statlimit = pc_maxparameter(sd);
-		sd->status.luk = cap_value(val, 1, statlimit);
+		sd->status.luk = cap_value(val, 1, pc_maxparameter(sd));
 		break;
 	case SP_KARMA:
 		sd->status.karma = val;
@@ -8939,6 +8938,17 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	sd->class_ = (unsigned short)b_class;
 	sd->status.job_level=1;
 	sd->status.job_exp=0;
+
+	if (sd->status.base_level > pc_maxbaselv(sd)) {
+		sd->status.base_level = pc_maxbaselv(sd);
+		sd->status.base_exp = 0;
+		pc_resetstate(sd);
+		clif_updatestatus(sd, SP_STATUSPOINT);
+		clif_updatestatus(sd, SP_BASELEVEL);
+		clif_updatestatus(sd, SP_BASEEXP);
+		clif_updatestatus(sd, SP_NEXTBASEEXP);
+	}
+
 	clif_updatestatus(sd,SP_JOBLEVEL);
 	clif_updatestatus(sd,SP_JOBEXP);
 	clif_updatestatus(sd,SP_NEXTJOBEXP);

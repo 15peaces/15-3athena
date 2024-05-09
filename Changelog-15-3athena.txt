@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/09/2024
+	r456 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn456_log.sql file!
+			-Upated zenylog enum (added missing types).
+		*Fixed a max level bypass, code by @rathena
+		*Optimized pc_setparam function.
+
 05/05/2024
 	r455 [15peaces]
 		*Added an underflow check to is_attack_critical function.
