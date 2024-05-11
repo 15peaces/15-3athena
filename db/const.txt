@@ -475,6 +475,7 @@ RouletteBronze	124	1
 RouletteSilver	125	1
 RouletteGold	126	1
 BaseThird	127	1
+CharMoves	128	1
 
 bMaxHP	6
 bMaxSP	8

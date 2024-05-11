@@ -5,6 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/11/2024
+	r457 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn457.sql file!
+		*Items are no longer unequipped when a card within them is blacklisted (e.g. item_unequip.txt), instead the card's effect is nullified.
+		*item_noequip overhaul.
+			-Items are no longer unequipped when disabled by item_noequip.txt, instead their effects are nullified -- however cards in them, unless also disabled, wont have its effect nullified.
+			-Consumables will be consumed even while disabled, if you modify the new config item_restricted_consumption_type.
+		*Some misc cleaning & fixing.
+			-Fixed an logical error in clif_skill_produce_mix_list.
+			-Removed some unused code.
+		*Extending readparam functionality: Added many more bonuses.
+		*@skillid now supports partial search.
+		*Added full support for the official character movement system.
+			-NOTE: Requires client 2011-09-28aRagexeRE or newer.
+			-Thanks to @rathena for the base.
+		*Updated mob spawns for Undersea Tunnel floor 6 to official.
+		*Added missing mercenaries to mercenary_db.
+			-Skills are still missing.
+		*Fixed bug where 'unequip' command would override 'disable_items'.
+		*Merged a fix from Herculus which is supposed to fix a Taekwon Ranker skill tree problem.
+		*Fixed an issue with pc_jobchange.
+		*Added src variable to status_get_sc_def for later usage.
+
 05/09/2024
 	r456 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn456_log.sql file!

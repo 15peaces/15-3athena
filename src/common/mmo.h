@@ -226,7 +226,7 @@
 //Mercenary System
 #define MC_SKILLBASE 8201
 #define MAX_MERCSKILL 41
-#define MAX_MERCENARY_CLASS 45
+#define MAX_MERCENARY_CLASS 61
 
 //Elemental System
 #define EL_SKILLBASE 8401
@@ -580,7 +580,7 @@ struct mmo_charstatus {
 #endif
 	bool show_equip;
 	short rename;
-	unsigned short slotchange;
+	unsigned int character_moves;
 
 	time_t delete_date;
 

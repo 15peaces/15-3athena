@@ -42,6 +42,7 @@ struct char_session_data {
 	char birthdate[10+1];  // YYYY-MM-DD
 	time_t unban_time[MAX_CHARS];
 	int charblock_timer;
+	unsigned int char_moves[MAX_CHARS]; // character moves left
 };
 
 enum e_char_delete {
@@ -73,6 +74,9 @@ int char_parse_ackchangecharsex(int char_id, int sex);
 
 int request_accreg2(int account_id, int char_id);
 int save_accreg2(unsigned char* buf, int len);
+
+void moveCharSlot(int fd, struct char_session_data* sd, unsigned short from, unsigned short to);
+void moveCharSlotReply(int fd, struct char_session_data* sd, unsigned short index, short reason);
 
 extern int char_name_option;
 extern char char_name_letters[];

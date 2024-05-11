@@ -3188,6 +3188,19 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if(!sd->inventory_data[index])
 			continue;
 
+		if (sd->inventory_data[index]->flag.no_equip) { // Items may be equipped, their effects however are nullified.
+			if (map[sd->bl.m].flag.restricted && sd->inventory_data[index]->flag.no_equip&(8 * map[sd->bl.m].zone))
+				continue;
+			if (!map_flag_vs(sd->bl.m) && sd->inventory_data[index]->flag.no_equip & 1)
+				continue;
+			if (map[sd->bl.m].flag.pvp && sd->inventory_data[index]->flag.no_equip & 2)
+				continue;
+			if (map_flag_gvg(sd->bl.m) && sd->inventory_data[index]->flag.no_equip & 4)
+				continue;
+			if (map[sd->bl.m].flag.battleground && sd->inventory_data[index]->flag.no_equip & 8)
+				continue;
+		}
+
 		status->def += sd->inventory_data[index]->def;
 
 		if(opt&SCO_FIRST && sd->inventory_data[index]->equip_script)
@@ -7248,7 +7261,8 @@ void status_change_init(struct block_list *bl)
 //Applies SC defense to a given status change.
 //Returns the adjusted duration based on flag values.
 //the flag values are the same as in status_change_start.
-int status_get_sc_def(struct block_list *bl, enum sc_type type, int rate, int tick, int flag)
+//src might be needed in future updates, currently unused...
+int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int tick, int flag)
 {
 	bool natural_def = true;
 	//Percentual resistance: 10000 = 100% Resist
@@ -7667,7 +7681,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
 	{
-		tick = status_get_sc_def(bl, type, rate, tick, flag);
+		tick = status_get_sc_def(bl, bl, type, rate, tick, flag);
 		if( !tick ) return 0;
 	}
 

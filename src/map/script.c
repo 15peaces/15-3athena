@@ -7494,7 +7494,7 @@ unsigned int equip[EQI_MAX] = {
 };
 
 /*==========================================
- * GetEquipID(Pos);     Pos: 1-10
+ * GetEquipID(Pos);     Pos: 1-22
  *------------------------------------------*/
 BUILDIN_FUNC(getequipid)
 {
@@ -10390,7 +10390,7 @@ BUILDIN_FUNC(getscrate)
 		bl = map_id2bl(st->rid);
 
 	if (bl)
-		rate = status_get_sc_def(bl, (sc_type)type, 10000, 10000, 0);
+		rate = status_get_sc_def(bl, bl, (sc_type)type, 10000, 10000, 0);
 
 	script_pushint(st,rate);
 	return 0;

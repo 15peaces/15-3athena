@@ -1036,7 +1036,7 @@ int chrif_deadopt(int father_id, int mother_id, int child_id)
 		sd->status.child = 0;
 		sd->status.skill[WE_CALLBABY].id = 0;
 		sd->status.skill[WE_CALLBABY].lv = 0;
-		sd->status.skill[WE_CALLBABY].flag = 0;
+		sd->status.skill[WE_CALLBABY].flag = SKILL_FLAG_PERMANENT;
 		clif_deleteskill(sd,WE_CALLBABY);
 	}
 
@@ -1045,7 +1045,7 @@ int chrif_deadopt(int father_id, int mother_id, int child_id)
 		sd->status.child = 0;
 		sd->status.skill[WE_CALLBABY].id = 0;
 		sd->status.skill[WE_CALLBABY].lv = 0;
-		sd->status.skill[WE_CALLBABY].flag = 0;
+		sd->status.skill[WE_CALLBABY].flag = SKILL_FLAG_PERMANENT;
 		clif_deleteskill(sd,WE_CALLBABY);
 	}
 
