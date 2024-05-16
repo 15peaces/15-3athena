@@ -525,7 +525,7 @@ static bool mmo_auth_fromsql(AccountDB_SQL* db, struct mmo_account* acc, int acc
 
 	// retrieve login entry for the specified account
 	if( SQL_ERROR == Sql_Query(sql_handle,
-	    "SELECT `account_id`,`userid`,`user_pass`,`sex`,`email`,`level`,`state`,`unban_time`,`expiration_time`,`logincount`,`lastlogin`,`last_ip`,`birthdate` FROM `%s` WHERE `account_id` = %d",
+	    "SELECT `account_id`,`userid`,`user_pass`,`sex`,`email`,`level`,`state`,`unban_time`,`expiration_time`,`logincount`,`lastlogin`,`last_ip`,`birthdate`,`pincode`, `pincode_change` FROM `%s` WHERE `account_id` = %d",
 		db->account_db, account_id )
 	) {
 		Sql_ShowDebug(sql_handle);
@@ -551,6 +551,8 @@ static bool mmo_auth_fromsql(AccountDB_SQL* db, struct mmo_account* acc, int acc
 	Sql_GetData(sql_handle, 10, &data, NULL); safestrncpy(acc->lastlogin, data, sizeof(acc->lastlogin));
 	Sql_GetData(sql_handle, 11, &data, NULL); safestrncpy(acc->last_ip, data, sizeof(acc->last_ip));
 	Sql_GetData(sql_handle, 12, &data, NULL); safestrncpy(acc->birthdate, data, sizeof(acc->birthdate));
+	Sql_GetData(sql_handle, 13, &data, NULL); safestrncpy(acc->pincode, data, sizeof(acc->pincode));
+	Sql_GetData(sql_handle, 14, &data, NULL); acc->pincode_change = atol(data);
 
 	Sql_FreeResult(sql_handle);
 
@@ -599,7 +601,7 @@ static bool mmo_auth_tosql(AccountDB_SQL* db, const struct mmo_account* acc, boo
 	if( is_new )
 	{// insert into account table
 		if( SQL_SUCCESS != SqlStmt_Prepare(stmt,
-			"INSERT INTO `%s` (`account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, `state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, `last_ip`, `birthdate`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO `%s` (`account_id`, `userid`, `user_pass`, `sex`, `email`, `level`, `state`, `unban_time`, `expiration_time`, `logincount`, `lastlogin`, `last_ip`, `birthdate`,`pincode`,`pincode_change`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 			db->account_db)
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  0, SQLDT_INT,    &acc->account_id,      sizeof(acc->account_id))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  1, SQLDT_STRING, acc->userid,           strlen(acc->userid))
@@ -614,6 +616,8 @@ static bool mmo_auth_tosql(AccountDB_SQL* db, const struct mmo_account* acc, boo
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 10, SQLDT_STRING, &acc->lastlogin,       strlen(acc->lastlogin))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 11, SQLDT_STRING, &acc->last_ip,         strlen(acc->last_ip))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 12, SQLDT_STRING, &acc->birthdate,       strlen(acc->birthdate))
+		||	SQL_SUCCESS != SqlStmt_BindParam(stmt, 13, SQLDT_STRING, &acc->pincode,			strlen(acc->pincode))
+		||	SQL_SUCCESS != SqlStmt_BindParam(stmt, 14, SQLDT_LONG,   &acc->pincode_change,	sizeof(acc->pincode_change))
 		||  SQL_SUCCESS != SqlStmt_Execute(stmt)
 		) {
 			SqlStmt_ShowDebug(stmt);
@@ -622,7 +626,7 @@ static bool mmo_auth_tosql(AccountDB_SQL* db, const struct mmo_account* acc, boo
 	}
 	else
 	{// update account table
-		if( SQL_SUCCESS != SqlStmt_Prepare(stmt, "UPDATE `%s` SET `userid`=?,`user_pass`=?,`sex`=?,`email`=?,`level`=?,`state`=?,`unban_time`=?,`expiration_time`=?,`logincount`=?,`lastlogin`=?,`last_ip`=?,`birthdate`=? WHERE `account_id` = '%d'", db->account_db, acc->account_id)
+		if( SQL_SUCCESS != SqlStmt_Prepare(stmt, "UPDATE `%s` SET `userid`=?,`user_pass`=?,`sex`=?,`email`=?,`level`=?,`state`=?,`unban_time`=?,`expiration_time`=?,`logincount`=?,`lastlogin`=?,`last_ip`=?,`birthdate`=?,`pincode`=?, `pincode_change`=? WHERE `account_id` = '%d'", db->account_db, acc->account_id)
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  0, SQLDT_STRING, acc->userid,           strlen(acc->userid))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  1, SQLDT_STRING, acc->pass,             strlen(acc->pass))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  2, SQLDT_ENUM,   &acc->sex,             sizeof(acc->sex))
@@ -635,6 +639,8 @@ static bool mmo_auth_tosql(AccountDB_SQL* db, const struct mmo_account* acc, boo
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt,  9, SQLDT_STRING, &acc->lastlogin,       strlen(acc->lastlogin))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 10, SQLDT_STRING, &acc->last_ip,         strlen(acc->last_ip))
 		||  SQL_SUCCESS != SqlStmt_BindParam(stmt, 11, SQLDT_STRING, &acc->birthdate,       strlen(acc->birthdate))
+		||	SQL_SUCCESS != SqlStmt_BindParam(stmt, 12, SQLDT_STRING, &acc->pincode,			strlen(acc->pincode))
+		||	SQL_SUCCESS != SqlStmt_BindParam(stmt, 13, SQLDT_LONG,   &acc->pincode_change,	sizeof(acc->pincode_change))
 		||  SQL_SUCCESS != SqlStmt_Execute(stmt)
 		) {
 			SqlStmt_ShowDebug(stmt);

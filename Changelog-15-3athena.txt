@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/16/2024
+	r458 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn458.sql file!
+		*Beta Release of PIN Code system.
+			-NOTE: Requires client 2011-03-09aRagexeRE or newer.
+			-Thanks to @rathena for the base.
+		*Added some missing items & trading restrictions.
+		*Some misc cleaning.
+		*Fixed mobs not unlocking their target when they change their mode with NPC_EMOTION.
+
 05/11/2024
 	r457 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn457.sql file!

@@ -4744,6 +4744,8 @@
 17089,Upg_Dagger_Box,Upg Dagger Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13071,1; },{},{}
 17090,Upg_Revolver_Box,Upg Revolver,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 13115,1; },{},{}
 17091,Upg_Mace_Box,Upg Mace Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 16019,1; },{},{}
+17092,Upg_Bow_Box,Upg Bow Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 18112,1; },{},{}
+17093,Upg_Twohand_Sword_Box,Upg Two-Handed Sword Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 21000,1; },{},{}
 17107,Gemi_Crown_Scroll,Gemi Crown Scroll,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Gemi_Crown_Scroll)*/; },{},{}
 17108,Gemi_Crown_Scroll_Box,Gemi Crown Scroll Box,18,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ /*getgroupitem(IG_Gemi_Crown_Scroll_Box)*/; },{},{}
 17109,Capri_Scroll,Capri Scroll,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{},{},{}
@@ -5283,6 +5285,7 @@
 20724,Love_Dad_Wings_2012,Love Dad Wings 2012,5,0,,100,,15,,1,0xFFFFFFFF,7,2,4,,1,1,5,{},{},{}
 
 // Doram related & more (renewal)
+1198,Hairtail,Cutlass,4,0,,0,220,,3,0,0x00004082,7,2,34,1,50,0,3,{ bonus bUnbreakableWeapon,0; bonus bCritical,20; bonus bCritAtkRate,50; if(BaseLevel>99) { bonus bBaseAtk,50; } },{},{}
 4669,Jungle_Mandragora_Card,Jungle Mandragora Card,6,20,,10,,,,,,,,2,,,,,{ .@r = getrefine(); bonus2 bAddEle,Ele_Wind,((.@r>=9)?7:((.@r>=7)?5:3)); },{},{}
 4670,Fruit_Pom_Spider_Card,Fruit Pom Spider Card,6,20,,10,,,,,,,,2,,,,,{ .@r = getrefine(); bonus2 bAddEle,Ele_Fire,((.@r>=9)?7:((.@r>=7)?5:3)); },{},{}
 4671,V_Celia_Card,Sorcerer Celia Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Sage){ bonus bMaxHPrate,10; bonus bMatkRate,10; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
@@ -5296,6 +5299,27 @@
 11602,Catnip_Fruit,Catnip Fruit,0,15,,1,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(10,40),0; },{},{}
 11601,Delicious_Anchovy,Delicious Anchovy,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(30,46),0; },{},{}
 12786,Change_Slot_Card,Character Position Change Coupon,2,,,,,,,,0xFFFFFFFF,7,2,,,,,,{ set CharMoves, CharMoves + 1; },{},{}
+16740,Ptotection_Seagod_Box,The Sea God's Call 23 Hour Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6436,86400; },{},{}
+16741,Hairtail_Box1,Cutlass 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1198,86400; },{},{}
+16742,Hairtail_Box2,Cutlass 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1198,604800; },{},{}
+16743,Spearfish_Box1,Marlin 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1489,86400; },{},{}
+16744,Spearfish_Box2,Marlin 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1489,604800; },{},{}
+16745,Saurel_Box1,Pompano 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 13068,86400; },{},{}
+16746,Saurel_Box2,Pompano 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 13068,604800; },{},{}
+16747,Tuna_Box1,Tuna 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 16016,86400; },{},{}
+16748,Tuna_Box2,Tuna 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 16016,604800; },{},{}
+16749,Malang_Crab_Box1,Malangdo Crab 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 18107,86400; },{},{}
+16750,Malang_Crab_Box2,Malangdo Crab 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 18107,604800; },{},{}
+16751,Brindle_Eel_Box1,Zebra Eel 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 18108,86400; },{},{}
+16752,Brindle_Eel_Box2,Zebra Eel 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 18108,604800; },{},{}
+16763,Ptotection_Seagod_Box2,The Sea God's Call 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6436,604800; },{},{}
+16764,Ptotection_Seagod_Box3,The Sea God's Call 15 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6436,1209600; },{},{}
+16765,Octo_Hstick_Box,Octopus Hunting Skewer 23 Hour Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6442,86400; },{},{}
+16766,Octo_Hstick_Box2,Octopus Hunting Skewer 3 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6442,259200; },{},{}
+16767,Octo_Hstick_Box3,Octopus Hunting Skewer 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6442,604800; },{},{}
+16770,Silvervine_Fruit_Box10,Silvervine 10 Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 6417,10; getitem 12636,30; },{},{}
+16771,Silvervine_Fruit_Box40,Silvervine 40 Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 6417,40; getitem 12636,120; },{},{}
+17155,Upg_Huuma_Shuriken_Box,Upg Huuma Shuriken Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 13316,86400; },{},{}
 19084,Parfaille_Vigilante_Hat,Parfaille Vigilante Hat,5,0,,100,,2,,0,0x80000000,63,2,256,,20,1,1368,{ bonus bLuk,1; bonus3 bAutoSpell,"AL_BLESSING",3,100; },{},{}
 22984,Kahluna_Milk,Kahluna Milk,0,6,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_01, 180000, 0; },{},{}
 22985,Basil,Basil,0,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_02, 180000, 0; },{},{}

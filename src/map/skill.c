@@ -611,7 +611,7 @@ int skillnotok (int skill_id, struct map_session_data *sd)
 			if (npc_isnear(&sd->bl)) {
 				// uncomment to send msg_txt.
 				//char output[150];
-				//sprintf(output, msg_txt(sd,725), battle_config.min_npc_vending_distance);
+				//sprintf(output, msg_txt(sd,725), battle_config.min_npc_vendchat_distance);
 				//clif_displaymessage(sd->fd, output);
 				clif_skill_fail(sd, skill_id, USESKILL_FAIL_THERE_ARE_NPC_AROUND, 0, 0);
 				return 1;
@@ -8418,6 +8418,10 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_emotion(bl, md->db->skill[md->skillidx].val[0]);
 			if(md->db->skill[md->skillidx].val[4] && tsce)
 				status_change_end(bl, type, INVALID_TIMER);
+
+			//If mode gets set by NPC_EMOTION then the target should be reset [Playtester]
+			if (skill_id == NPC_EMOTION && md->db->skill[md->skillidx].val[1])
+				mob_unlocktarget(md, tick);
 
 			if(md->db->skill[md->skillidx].val[1] || md->db->skill[md->skillidx].val[2])
 				sc_start4(src, type, 100, skill_lv,

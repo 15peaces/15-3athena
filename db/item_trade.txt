@@ -26,6 +26,7 @@
 1192,499,100	// P_Slayer1
 1193,499,100	// P_Slayer2
 1197,499,100	// P_Slayer3
+1198,507,100	// Cutlass
 1267,507,100		// Infiltrator_C
 1272,507,100		// Scratcher
 1273,507,100		// Bloody_Roar_C
@@ -58,6 +59,7 @@
 1434,499,100	// P_Spear1
 1482,467,100		// BF_Lance1
 1486,467,100		// Krieger_Twohand_Spear1
+1489,507,100	// Marlin
 1533,507,100	// Warrior_Balmung
 1534,507,100 	//Spanner_C
 1536,507,100		// Good_Morning_Star
@@ -262,6 +264,7 @@
 2823,499,100	// Merchant_Manual
 2824,499,100	// Mage_Manual
 2856,87,100		// Half_Megin
+2872,475,100	// G Honor Certificate
 2997,507,100	//RWC_Gold_Brooch
 2999,507,100	//RWC_Brooch
 // Sealed Cards
@@ -521,7 +524,28 @@
 6278,507,100	// Black_Reagent
 6392,507,100	// Bradium_Box
 6397,507,100	// PR_Team_Ticket
+6401,507,100	// Palm Oil
+6402,499,100	// Palm Oil Fruit
 6415,507,100	// Strange Embryo
+6417,499,100	// Silvervine Fruit
+6418,499,100	// A Grade Coin
+6419,499,100	// B Grade Coin
+6420,499,100	// C Grade Coin
+6421,499,100	// D Grade Coin
+6422,499,100	// E Grade Coin
+6426,499,100	// Bad Canned Food
+6427,507,100	// Bad Canned Food Sack
+6428,507,100	// Adventure Card A
+6429,507,100	// Adventure Card B
+6430,499,100	// Figure Sculpture
+6431,499,100	// Pail
+6432,499,100	// Full Pail
+6433,499,100	// Cleaning Brush
+6434,499,100	// Fix Kit
+6435,499,100	// Fresh Fruit
+6436,507,100	// Sea God's Call
+6440,475,100	// General Lubrication
+6441,475,100	// Advanced Lubrication
 6442,507,100	// Octopus_Hunt_Stick
 6443,507,100	// Sillit_Pong_Bottle
 6444,507,100	// Emperium_G
@@ -1027,6 +1051,13 @@
 12549,475,100	// White Slim Pot Box2
 12550,475,100	// Poison Bottle Box2
 12622,507,100 	// Boarding_Halter
+12624,16,100	// Delicious Jelly
+12633,475,100	// Malangdo Cat Can
+12636,467,100	// Malangdo Canned Specialties
+12637,475,100	// Gong Bug Pocket
+12638,475,100	// Dried Squid Box
+12639,475,100	// Flying Fish Box
+12640,475,100	// Starfish Box
 12704,507,100	// Elixir_Of_Life
 12705,507,100	// Noble_Nameplate
 12714,467,100	// Easter_Scroll
@@ -1119,6 +1150,7 @@
 13050,499,100	// P_Dagger1
 13051,499,100	// P_Dagger2
 13066,499,100	// P_Dagger3
+13068,507,100	// Pompano
 13108,467,100	// BF_Pistol1
 13109,507,100	// Wasteland_Outlaw_C
 13110,467,100	// Krieger_Pistol1
@@ -1137,6 +1169,10 @@
 13177,467,100	// Krieger_Gatling1
 13178,467,100	// Krieger_Shotgun1
 13179,467,100	// Krieger_Launcher1
+13208,475,100	// Gong Bug
+13291,475,100	// Starfish
+13292,475,100	// Dried Squid
+13293,475,100	// Flying Fish
 13305,467,100	// BF_Huuma_Shuriken1
 13306,467,100	// BF_Huuma_Shuriken2
 13307,467,100	// Krieger_Huuma_Shuriken1
@@ -1812,6 +1848,7 @@
 16004,499,100	// P_Mace1
 16005,499,100	// P_Mace2
 16014,499,100	// P_Mace3
+16016,507,100	// Tuna
 16134,475,100	// Frog King Hat Box
 16135,457,100	// Satanic Bone Helm Box
 16247,475,100	// Dragon Arhat Mask Box
@@ -1837,6 +1874,26 @@
 16555,73,100	// Pr Reset Stone Box
 16628,87,100	// Brynhild_Box
 16682,73,100 	// Boarding_Halter_Box
+16740,475,100	// The Sea God's Call 23 Hour Box
+16741,475,100	// Cutlass 1 Day Box
+16742,475,100	// Cutlass 7 Day Box
+16743,475,100	// Marlin 1 Day Box
+16744,475,100	// Marlin 7 Day Box
+16745,475,100	// Pompano 1 Day Box
+16746,475,100	// Pompano 7 Day Box
+16747,475,100	// Tuna 1 Day Box
+16748,475,100	// Tuna 7 Day Box
+16749,475,100	// Malangdo Crab 1 Day Box
+16750,475,100	// Malangdo Crab 7 Day Box
+16751,475,100	// Zebra Eel 1 Day Box
+16752,475,100	// Zebra Eel 7 Day Box
+16763,475,100	// The Sea God's Call 7 Day Box
+16764,475,100	// The Sea God's Call 15 Day Box
+16765,475,100	// Octopus Hunting Skewer 23 Hour Box
+16766,475,100	// Octopus Hunting Skewer 3 Day Box
+16767,475,100	// Octopus Hunting Skewer 7 Day Box
+16770,457,100	// Silvervine 10 Box
+16771,457,100	// Silvervine 40 Box
 16821,507,100	//Dungeon_Teleport_Scroll_Box_5
 16822,507,100	//Dungeon_Teleport_Scroll_Box_10
 16837,507,100	//Dungeon_Teleport_Scroll_II_Box_5
@@ -1845,6 +1902,18 @@
 16865,507,100	//Siege_Map_Teleport_Scroll_Box_30
 16866,507,100	//Siege_Map_Teleport_Scroll_II_Box_10
 16867,507,100	//Siege_Map_Teleport_Scroll_II_Box_30
+16979,457,100	// Silvervine 4 Box
+17013,475,100	// Malang Woe Encard Box
+17084,473,100	// Upg Katar Box
+17085,473,100	// Upg Two Handed Axe Box
+17086,473,100	// Upg Lance Box
+17087,473,100	// Upg Book Box
+17088,473,100	// Upg Staff Box
+17089,473,100	// Upg Dagger Box
+17090,473,100	// Upg Revolver
+17091,473,100	// Upg Mace Box
+17092,473,100	// Upg Bow Box
+17093,473,100	// Upg Two-Handed Sword Box
 17159,507,100	//Name_Change_Box
 17160,507,100	//Character_Name_Change_Card_Box
 17226,507,100	//Infinite_Concentration_Potion
@@ -1908,8 +1977,11 @@
 17502,507,100	// Support_Package_IV(10)
 17520,507,100 	// Limited_Edition_Manual_Box
 18106,499,100	// P_Bow3
+18107,507,100	// Malangdo Crab
+18108,507,100	// Zebra Eel
 18505,507,100 	// Umbala_Spirit
 18514,499,100	// Para_Team_Hat2
+18520,475,100	// Jaty Crown
 18760,507,100	//Remodel_Wizardry_Hat
 18761,507,100	//Remodel_Magician_Hat
 18762,507,100	//Remodel_Mask_Of_Fox

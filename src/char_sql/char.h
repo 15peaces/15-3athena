@@ -43,6 +43,10 @@ struct char_session_data {
 	time_t unban_time[MAX_CHARS];
 	int charblock_timer;
 	unsigned int char_moves[MAX_CHARS]; // character moves left
+	char pincode[4 + 1];
+	uint16 pincode_seed;
+	time_t pincode_change;
+	uint16 pincode_try;
 };
 
 enum e_char_delete {

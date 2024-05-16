@@ -644,7 +644,7 @@ extern struct Battle_Config
 	int path_blown_halt;
 	int taekwon_mission_mobname;
 	int teleport_on_portal;
-	int min_npc_vending_distance;
+	int min_npc_vendchat_distance;
 	int skill_trap_type;
 	int item_enabled_npc;
 	int item_onfloor;

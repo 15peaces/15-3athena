@@ -156,6 +156,29 @@ bool char_move_enabled = true;
 bool char_movetoused = true;
 bool char_moves_unlimited = false;
 
+// Pincode system
+#define PINCODE_OK 0
+#define PINCODE_ASK 1
+#define PINCODE_NOTSET 2
+#define PINCODE_EXPIRED 3
+#define PINCODE_NEW 4
+#define PINCODE_PASSED 7
+#define	PINCODE_WRONG 8
+
+bool pincode_enabled = true;
+int pincode_changetime = 0;
+int pincode_maxtry = 3;
+bool pincode_force = true;
+
+void pincode_check(int fd, struct char_session_data* sd);
+void pincode_change(int fd, struct char_session_data* sd);
+void pincode_setnew(int fd, struct char_session_data* sd);
+void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state);
+void pincode_notifyLoginPinUpdate(int account_id, char* pin);
+void pincode_notifyLoginPinError(int account_id);
+void pincode_decrypt(unsigned long userSeed, char* pin);
+int pincode_compare(int fd, struct char_session_data* sd, char* pin);
+
 //Custom limits for the fame lists. [Skotlex]
 int fame_list_size_chemist = MAX_FAME_LIST;
 int fame_list_size_smith = MAX_FAME_LIST;
@@ -214,6 +237,7 @@ struct online_char_data {
 	int fd;
 	int waiting_disconnect;
 	short server; // -2: unknown server, -1: not connected, 0+: id of server
+	bool pincode_success;
 };
 
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
@@ -366,6 +390,8 @@ void set_char_offline(int char_id, int account_id)
 		{
 			character->char_id = -1;
 			character->server = -1;
+			// needed if player disconnects completely since Skotlex did not want to free the session
+			character->pincode_success = false;
 		}
 
 		//FIXME? Why Kevin free'd the online information when the char was effectively in the map-server?
@@ -2628,7 +2654,7 @@ int parse_fromlogin(int fd)
 		break;
 
 		case 0x2717: // account data
-			if (RFIFOREST(fd) < 62)
+			if (RFIFOREST(fd) < 71)
 				return 0;
 
 			// find the authenticated session with this account id
@@ -2639,6 +2665,8 @@ int parse_fromlogin(int fd)
 				sd->expiration_time = (time_t)RFIFOL(fd,46);
 				sd->gmlevel = RFIFOB(fd,50);
 				safestrncpy(sd->birthdate, (const char*)RFIFOP(fd,51), sizeof(sd->birthdate));
+				safestrncpy(sd->pincode, (const char*)RFIFOP(fd, 62), sizeof(sd->pincode));
+				sd->pincode_change = (time_t)RFIFOL(fd, 67);
 
 				// continued from char_auth_ok...
 				if( max_connect_user && count_users() >= max_connect_user && sd->gmlevel < gm_allow_level )
@@ -2654,18 +2682,44 @@ int parse_fromlogin(int fd)
 					// send characters to player
 					mmo_char_send(i, sd);
 #if PACKETVER >=  20110309
-					// PIN code system, disabled
-					WFIFOHEAD(i, 12);
-					WFIFOW(i, 0) = 0x08B9;
-					WFIFOW(i, 2) = 0;
-					WFIFOW(i, 4) = 0;
-					WFIFOL(i, 6) = sd->account_id;
-					WFIFOW(i, 10) = 0;
-					WFIFOSET(i, 12);
+					if (pincode_enabled) {
+						// PIN code system enabled
+						if (strlen(sd->pincode) <= 0) {
+							// No PIN code has been set yet
+							if (pincode_force) {
+								pincode_sendstate(i, sd, PINCODE_NEW);
+							}
+							else {
+								pincode_sendstate(i, sd, PINCODE_PASSED);
+							}
+						}
+						else {
+							if (!pincode_changetime || (sd->pincode_change + pincode_changetime) > time(NULL)) {
+								struct online_char_data* node = (struct online_char_data*)idb_get(online_char_db, sd->account_id);
+
+								if (node != NULL && node->pincode_success) {
+									// User has already passed the check
+									pincode_sendstate(i, sd, PINCODE_PASSED);
+								}
+								else {
+									// Ask user for his PIN code
+									pincode_sendstate(i, sd, PINCODE_ASK);
+								}
+							}
+							else {
+								// User hasnt changed his PIN code too long
+								pincode_sendstate(i, sd, PINCODE_EXPIRED);
+							}
+						}
+					}
+					else {
+						// PIN code system, disabled
+						pincode_sendstate(i, sd, PINCODE_OK);
+					}
 #endif
 				}
 			}
-			RFIFOSKIP(fd,62);
+			RFIFOSKIP(fd,71);
 		break;
 
 		// login-server alive packet
@@ -3760,46 +3814,54 @@ int parse_frommap(int fd)
 		case 0x2b02: // req char selection
 			if( RFIFOREST(fd) < 18 )
 				return 0;
-		{
-			int account_id = RFIFOL(fd,2);
-			uint32 login_id1 = RFIFOL(fd,6);
-			uint32 login_id2 = RFIFOL(fd,10);
-			uint32 ip = RFIFOL(fd,14);
-			RFIFOSKIP(fd,18);
+			else {
+				int account_id = RFIFOL(fd,2);
+				uint32 login_id1 = RFIFOL(fd,6);
+				uint32 login_id2 = RFIFOL(fd,10);
+				uint32 ip = RFIFOL(fd,14);
+				RFIFOSKIP(fd,18);
 			
-			if( runflag != SERVER_STATE_RUN )
-			{
-				WFIFOHEAD(fd,7);
-				WFIFOW(fd,0) = 0x2b03;
-				WFIFOL(fd,2) = account_id;
-				WFIFOB(fd,6) = 0;// not ok
-				WFIFOSET(fd,7);
-			}
-			else
-			{
-				struct auth_node* node;
+				if( runflag != SERVER_STATE_RUN )
+				{
+					WFIFOHEAD(fd,7);
+					WFIFOW(fd,0) = 0x2b03;
+					WFIFOL(fd,2) = account_id;
+					WFIFOB(fd,6) = 0;// not ok
+					WFIFOSET(fd,7);
+				}
+				else
+				{
+					struct auth_node* node;
 
-				// create temporary auth entry
-				CREATE(node, struct auth_node, 1);
-				node->account_id = account_id;
-				node->char_id = 0;
-				node->login_id1 = login_id1;
-				node->login_id2 = login_id2;
-				//node->sex = 0;
-				node->ip = ntohl(ip);
-				//node->expiration_time = 0; // unlimited/unknown time by default (not display in map-server)
-				//node->gmlevel = 0;
-				idb_put(auth_db, account_id, node);
+					// create temporary auth entry
+					CREATE(node, struct auth_node, 1);
+					node->account_id = account_id;
+					node->char_id = 0;
+					node->login_id1 = login_id1;
+					node->login_id2 = login_id2;
+					//node->sex = 0;
+					node->ip = ntohl(ip);
+					//node->expiration_time = 0; // unlimited/unknown time by default (not display in map-server)
+					//node->gmlevel = 0;
+					idb_put(auth_db, account_id, node);
 
-				//Set char to "@ char select" in online db [Kevin]
-				set_char_charselect(account_id);
+					//Set char to "@ char select" in online db [Kevin]
+					set_char_charselect(account_id);
 
-				WFIFOHEAD(fd,7);
-				WFIFOW(fd,0) = 0x2b03;
-				WFIFOL(fd,2) = account_id;
-				WFIFOB(fd,6) = 1;// ok
-				WFIFOSET(fd,7);
-			}
+					{
+						struct online_char_data* character = (struct online_char_data*)idb_get(online_char_db, account_id);
+
+						if (character != NULL) {
+							character->pincode_success = true;
+						}
+					}
+
+					WFIFOHEAD(fd,7);
+					WFIFOW(fd,0) = 0x2b03;
+					WFIFOL(fd,2) = account_id;
+					WFIFOB(fd,6) = 1;// ok
+					WFIFOSET(fd,7);
+				}
 		}
 		break;
 
@@ -4997,6 +5059,62 @@ int parse_char(int fd)
 			char_delete2_cancel(fd, sd);
 			RFIFOSKIP(fd,6);
 		break;
+		// checks the entered pin
+		case 0x8b8:
+			if (RFIFOREST(fd) < 10)
+				return 0;
+
+			if (RFIFOL(fd, 2) != sd->account_id)
+				break;
+
+			pincode_check(fd, sd);
+
+			RFIFOSKIP(fd, 10);
+			break;
+
+		// request for PIN window
+		case 0x8c5:
+			if (RFIFOREST(fd) < 6)
+				return 0;
+
+			if (RFIFOL(fd, 2) != sd->account_id)
+				break;
+
+			if (strlen(sd->pincode) <= 0) {
+				pincode_sendstate(fd, sd, PINCODE_NEW);
+			}
+			else {
+				pincode_sendstate(fd, sd, PINCODE_ASK);
+			}
+
+			RFIFOSKIP(fd, 6);
+			break;
+
+		// pincode change request
+		case 0x8be:
+			if (RFIFOREST(fd) < 14)
+				return 0;
+
+			if (RFIFOL(fd, 2) != sd->account_id)
+				break;
+
+			pincode_change(fd, sd);
+
+			RFIFOSKIP(fd, 14);
+			break;
+
+		// activate PIN system and set first PIN
+		case 0x8ba:
+			if (RFIFOREST(fd) < 10)
+				return 0;
+
+			if (RFIFOL(fd, 2) != sd->account_id)
+				break;
+
+			pincode_setnew(fd, sd);
+
+			RFIFOSKIP(fd, 10);
+			break;
 		// character movement request
 		case 0x8d4:
 			if (RFIFOREST(fd) < 8)
@@ -5347,6 +5465,121 @@ int bonus_script_save(int fd) {
 		RFIFOSKIP(fd,RFIFOW(fd,2));
 	}
 	return 1;
+}
+
+//------------------------------------------------
+//Pincode system
+//------------------------------------------------
+void pincode_check(int fd, struct char_session_data* sd) {
+	char pin[5] = "\0\0\0\0";
+	strncpy((char*)pin, (char*)RFIFOP(fd, 6), 4 + 1);
+
+	pincode_decrypt(sd->pincode_seed, pin);
+
+	if (pincode_compare(fd, sd, pin)) {
+		pincode_sendstate(fd, sd, PINCODE_PASSED);
+	}
+}
+
+int pincode_compare(int fd, struct char_session_data* sd, char* pin) {
+	if (strcmp(sd->pincode, pin) == 0) {
+		sd->pincode_try = 0;
+		return 1;
+	}
+	else {
+		pincode_sendstate(fd, sd, PINCODE_WRONG);
+
+		if (pincode_maxtry && ++sd->pincode_try >= pincode_maxtry) {
+			pincode_notifyLoginPinError(sd->account_id);
+		}
+
+		return 0;
+	}
+}
+
+void pincode_change(int fd, struct char_session_data* sd) {
+	char oldpin[5] = "\0\0\0\0";
+	char newpin[5] = "\0\0\0\0";
+
+	strncpy(oldpin, (char*)RFIFOP(fd, 6), 4 + 1);
+	pincode_decrypt(sd->pincode_seed, oldpin);
+
+	if (!pincode_compare(fd, sd, oldpin))
+		return;
+
+	strncpy(newpin, (char*)RFIFOP(fd, 10), 4 + 1);
+	pincode_decrypt(sd->pincode_seed, newpin);
+
+	pincode_notifyLoginPinUpdate(sd->account_id, newpin);
+
+	pincode_sendstate(fd, sd, PINCODE_PASSED);
+}
+
+void pincode_setnew(int fd, struct char_session_data* sd) {
+	char newpin[5] = "\0\0\0\0";
+
+	strncpy(newpin, (char*)RFIFOP(fd, 6), 4 + 1);
+	pincode_decrypt(sd->pincode_seed, newpin);
+
+	pincode_notifyLoginPinUpdate(sd->account_id, newpin);
+	strncpy(sd->pincode, newpin, strlen(newpin));
+
+	pincode_sendstate(fd, sd, PINCODE_PASSED);
+}
+
+// 0 = disabled / pin is correct
+// 1 = ask for pin - client sends 0x8b8
+// 2 = create new pin - client sends 0x8ba
+// 3 = pin must be changed - client 0x8be
+// 4 = create new pin - client sends 0x8ba
+// 5 = client shows msgstr(1896)
+// 6 = client shows msgstr(1897) Unable to use your KSSN number
+// 7 = char select window shows a button - client sends 0x8c5
+// 8 = pincode was incorrect
+void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state) {
+	WFIFOHEAD(fd, 12);
+	WFIFOW(fd, 0) = 0x8b9;
+	WFIFOL(fd, 2) = sd->pincode_seed = rand() % 0xFFFF;
+	WFIFOL(fd, 6) = sd->account_id;
+	WFIFOW(fd, 10) = state;
+	WFIFOSET(fd, 12);
+}
+
+void pincode_notifyLoginPinUpdate(int account_id, char* pin) {
+	WFIFOHEAD(login_fd, 11);
+	WFIFOW(login_fd, 0) = 0x2738;
+	WFIFOL(login_fd, 2) = account_id;
+	strncpy((char*)WFIFOP(login_fd, 6), pin, 5);
+	WFIFOSET(login_fd, 11);
+}
+
+void pincode_notifyLoginPinError(int account_id) {
+	WFIFOHEAD(login_fd, 6);
+	WFIFOW(login_fd, 0) = 0x2739;
+	WFIFOL(login_fd, 2) = account_id;
+	WFIFOSET(login_fd, 6);
+}
+
+void pincode_decrypt(unsigned long userSeed, char* pin) {
+	int i, pos;
+	char tab[10] = { 0,1,2,3,4,5,6,7,8,9 };
+	unsigned long multiplier = 0x3498, baseSeed = 0x881234;
+
+	for (i = 1; i < 10; i++) {
+		userSeed = baseSeed + userSeed * multiplier;
+		pos = userSeed % (i + 1);
+		if (i != pos) {
+			tab[i] ^= tab[pos];
+			tab[pos] ^= tab[i];
+			tab[i] ^= tab[pos];
+		}
+	}
+
+	for (i = 0; i < 4; i++) {
+		pin[i] = tab[pin[i] - '0'];
+	}
+
+	sprintf(pin, "%d%d%d%d", pin[0], pin[1], pin[2], pin[3]);
 }
 
 //------------------------------------------------
@@ -5818,19 +6051,23 @@ int char_config_read( const char* cfgName )
 			guild_exp_rate = atoi(w2);
 		} else if (strcmpi(w1, "mail_return_days") == 0) {
 			mail_return_days = atoi(w2);
-		}
-		else if (strcmpi(w1, "mail_delete_days") == 0) {
+		} else if (strcmpi(w1, "mail_delete_days") == 0) {
 			mail_delete_days = atoi(w2);
 		} else if (strcmpi(w1, "clan_remove_inactive_days") == 0) {
 			clan_remove_inactive_days = atoi(w2);
-		}
-		else if (strcmpi(w1, "char_move_enabled") == 0) {
+		} else if (strcmpi(w1, "pincode_enabled") == 0) {
+			pincode_enabled = config_switch(w2);
+		} else if (strcmpi(w1, "pincode_changetime") == 0) {
+			pincode_changetime = atoi(w2) * 60 * 60 * 24;
+		} else if (strcmpi(w1, "pincode_maxtry") == 0) {
+			pincode_maxtry = atoi(w2);
+		} else if (strcmpi(w1, "pincode_force") == 0) {
+			pincode_force = config_switch(w2);
+		} else if (strcmpi(w1, "char_move_enabled") == 0) {
 			char_move_enabled = config_switch(w2);
-		}
-		else if (strcmpi(w1, "char_movetoused") == 0) {
+		} else if (strcmpi(w1, "char_movetoused") == 0) {
 			char_movetoused = config_switch(w2);
-		}
-		else if (strcmpi(w1, "char_moves_unlimited") == 0) {
+		} else if (strcmpi(w1, "char_moves_unlimited") == 0) {
 			char_moves_unlimited = config_switch(w2);
 		} else if (strcmpi(w1, "import") == 0) {
 			char_config_read(w2);

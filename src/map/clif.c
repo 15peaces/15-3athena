@@ -12567,7 +12567,7 @@ void clif_parse_CreateChatRoom(int fd, struct map_session_data* sd)
 	if (npc_isnear(&sd->bl)) {
 		// uncomment to send msg_txt.
 		//char output[150];
-		//sprintf(output, msg_txt(sd,725), battle_config.min_npc_vending_distance);
+		//sprintf(output, msg_txt(sd,725), battle_config.min_npc_vendchat_distance);
 		//clif_displaymessage(sd->fd, output);
 		clif_skill_fail(sd, 1, USESKILL_FAIL_THERE_ARE_NPC_AROUND, 0, 0);
 		return;

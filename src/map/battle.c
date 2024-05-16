@@ -6891,7 +6891,7 @@ static const struct _battle_data {
 	{ "path_blown_halt",                    &battle_config.path_blown_halt,                 1,      0,      1,				},
 	{ "taekwon_mission_mobname",            &battle_config.taekwon_mission_mobname,         0,      0,      2,				},
 	{ "teleport_on_portal",                 &battle_config.teleport_on_portal,              0,      0,      1,				},
-	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,	    3,      0,      100,            },
+	{ "min_npc_vendchat_distance",           &battle_config.min_npc_vendchat_distance,	    3,      0,      100,            },
 	{ "skill_trap_type",                    &battle_config.skill_trap_type,                 0,      0,      1,				},
 	{ "item_enabled_npc",					&battle_config.item_enabled_npc,				1,      0,      1,				},
 	{ "item_flooritem_check",               &battle_config.item_onfloor,                   1,      0,      1,				},

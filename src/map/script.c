@@ -18905,7 +18905,7 @@ BUILDIN_FUNC(buyingstore)
 
 	if (npc_isnear(&sd->bl)) {
 		char output[150];
-		sprintf(output, msg_txt(sd,725), battle_config.min_npc_vending_distance);
+		sprintf(output, msg_txt(sd,725), battle_config.min_npc_vendchat_distance);
 		clif_displaymessage(sd->fd, output);
 		return 0;
 	}
