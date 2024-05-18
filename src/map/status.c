@@ -7261,7 +7261,6 @@ void status_change_init(struct block_list *bl)
 //Applies SC defense to a given status change.
 //Returns the adjusted duration based on flag values.
 //the flag values are the same as in status_change_start.
-//src might be needed in future updates, currently unused...
 int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int tick, int flag)
 {
 	bool natural_def = true;
@@ -7270,12 +7269,14 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	int sc_def = 0, tick_def = -1; //-1 = use sc_def
 	//Linear resistance substracted from rate and tick after percentual resistance was applied
 	//Example: 25% -> sc_def2=2000 -> 5%; 2500ms -> tick_def2=2000 -> 500ms
-	int sc_def2 = 0, tick_def2 = -1; //-1 = use sc_def2
-	struct status_data* status;
-	struct status_change* sc;
+	int sc_def2 = 0, tick_def2 = 0;
+
+	struct status_data *status, *status_src;
+	struct status_change *sc;
 	struct map_session_data *sd;
 
 	nullpo_ret(bl);
+	nullpo_retr(tick ? tick : 1, src); //If no source, it can't be resisted (NPC given)
 
 	if (rate <= 0)
 		rate = 0;
@@ -7311,47 +7312,75 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	
 	sd = BL_CAST(BL_PC,bl);
 	status = status_get_status_data(bl);
+	status_src = status_get_status_data(src);
 	sc = status_get_sc(bl);
 
 	switch (type)
 	{
-	case SC_STUN:
 	case SC_POISON:
-	case SC_SILENCE:
-	case SC_BLEEDING:
+		if (sc && sc->data[SC__UNLUCKY])
+			return tick;
 	case SC_DPOISON:
 		sc_def = status->vit * 100;
-		sc_def2 = status->luk * 10;
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		if (sd) {
+			//For players: 60000 - 450*vit - 100*luk
+			tick_def = status->vit * 75;
+			tick_def2 = status->luk * 100;
+		}
+		else {
+			//For monsters: 30000 - 200*vit
+			tick >>= 1;
+			tick_def = (status->vit * 200) / 3;
+		}
+		break;
+	case SC_STUN:
+		if (sc && sc->data[SC__UNLUCKY])
+			return tick;
+	case SC_SILENCE:
+	case SC_BLEEDING:
+		sc_def = status->vit * 100;
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		tick_def2 = status->luk * 10;
 		break;
 	case SC_SLEEP:
 		sc_def = status->int_ * 100;
-		sc_def2 = status->luk * 10;
-		break;
-	case SC_DECREASEAGI:
-		if (sd) tick>>=1; //Half duration for players.
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		tick_def2 = status->luk * 10;
 	case SC_STONE:
-		//Impossible to reduce duration with stats
-		tick_def = 0;
-		tick_def2 = 0;
+		sc_def = status->mdef * 100;
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		tick_def = 0; //No duration reduction
+		break;
 	case SC_FREEZE:
 		sc_def = status->mdef * 100;
-		sc_def2 = status->luk * 10;
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		tick_def2 = status_src->luk*-10; //Caster can increase final duration with luk
 		break;
 	case SC_CURSE:
-		//Special property: inmunity when luk is greater than level or zero
-		if (status->luk > status_get_lv(bl) || status->luk == 0)
+		//Special property: immunity when luk is zero
+		if (status->luk == 0)
 			return 0;
 		sc_def = status->luk * 100;
-		sc_def2 = status->luk * 10;
+		sc_def2 = status->luk * 10 - status_get_lv(src) * 10; //Curse only has a level penalty and no resistance
 		tick_def = status->vit * 100;
+		tick_def2 = status->luk * 10;
 		break;
 	case SC_BLIND:
 		sc_def = (status->vit + status->int_) * 50;
-		sc_def2 = status->luk * 10;
+		sc_def2 = status->luk * 10 + status_get_lv(bl) * 10 - status_get_lv(src) * 10;
+		tick_def2 = status->luk * 10;
 		break;
 	case SC_CONFUSION:
 		sc_def = (status->str + status->int_) * 50;
-		sc_def2 = status->luk * 10;
+		sc_def2 = status_get_lv(src) * 10 - status_get_lv(bl) * 10 - status->luk * 10; //Reversed sc_def2
+		tick_def2 = status->luk * 10;
+		break;
+	case SC_DECREASEAGI:
+	//case SC_ADORAMUS: //Arch Bishop
+		if (sd) tick >>= 1; //Half duration for players.
+		sc_def = status->mdef * 100;
+		tick_def = 0; //No duration reduction
 		break;
 	case SC_ANKLE:
 		if(status->mode&MD_BOSS) // Lasts 5 times less on bosses
@@ -7386,12 +7415,11 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 		if (sd) //Duration greatly reduced for players.
 			tick /= 15;
 		sc_def2 = status_get_lv(bl) * 20 + status->vit * 25 + status->agi * 10; // Lineal Reduction of Rate
-		tick_def2 = 0; //No duration reduction
 	default:
 		//Effect that cannot be reduced? Likely a buff.
 		if (!(rnd()%10000 < rate))
 			return 0;
-		return max(1, tick);
+		return tick ? tick : 1;
 	}
 	
 	if ( natural_def == true )
@@ -7437,11 +7465,9 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			sc_def += sc->data[SC_SHIELDSPELL_REF]->val2 * 100; //Status resistance.
 	}
 
-	//When no tick def, reduction is the same for both.
-	if (tick_def < 0)
+	//When tick def not set, reduction is the same for both.
+	if (tick_def == -1)
 		tick_def = sc_def;
-	if (tick_def2 < 0)
-		tick_def2 = sc_def2;
 
 	//Natural resistance
 	if (!(flag & 8) && natural_def == true) {
@@ -7463,6 +7489,9 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 			if (sd->sc.data[SC_COMMONSC_RESIST])
 				rate -= rate*sd->sc.data[SC_COMMONSC_RESIST]->val1/100;
 		}
+
+		//Aegis accuracy
+		if (rate > 0 && rate % 10 != 0) rate += (10 - rate % 10);
 	}
 	if (!(rnd()%10000 < rate))
 		return 0;

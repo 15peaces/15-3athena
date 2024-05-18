@@ -5,6 +5,18 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/18/2024
+	r459 [15peaces]
+		*Fixed a duplicate message output.
+		*Fixed a small logic issue.
+		*Updated athena-start to ask arg if none given.
+		*Fixed success chance of Storm Gust's freeze status change, iROwiki says 150% and feedback from official server players confirmed that it is indeed 150%.
+		*Another phase of the big status resistance updates:
+			-Made use of the status change source variable in status_get_sc_def (it still is a copy of bl for now, more support will be added later.)
+			-Added the fully official formulas of the status changes based on an Aegis leaks (since source is same as bl right now the level difference will always give "0").
+			-As tick_def2 is never equal to sc_def2, it will not use it by default anymore.
+			-The final chance for the status change will now consider Aegis accuracy (everything between 0.01% and 0.09% should actually be 0.1%, etc.)
+		
 05/16/2024
 	r458 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn458.sql file!

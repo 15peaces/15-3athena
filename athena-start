@@ -68,5 +68,7 @@ case $1 in
 ;;
     *)
         echo "Usage: athena-start { start | stop | restart }"
+		read -p "Enter a valid option: " readEnterKey
+		$0 $readEnterKey
 ;;
 esac
