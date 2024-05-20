@@ -149,8 +149,6 @@
 20000,C_Mouse_Hat2,Costume Mouse Hat 2,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1194,{},{},{}
 20001,C_Mouse_Hat3,Costume Mouse Hat 3,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1195,{},{},{}
 20002,C_Mouse_Hat4,Costume Mouse Hat 4,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1196,{},{},{}
-20003,C_Mouse_Hat5,Costume Mouse Hat5,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1197,{},{},{}
-//
 20003,C_Mouse_Hat5,Costume Mouse Hat 5,5,10,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1197,{},{},{}
 20004,C_Big_Golden_Bell,Costume Big Golden Bell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,175,{},{},{}
 20005,C_Sigrun_Wing,Costume Sigrun Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,568,{},{},{}
@@ -162,6 +160,7 @@
 20011,C_Lightning_Speed,Costume Lightning Speed,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1199,{},{},{}
 20012,C_Double_Horn_Helm,Costume Double Horn Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1200,{},{},{}
 20013,C_Chef_Hat,Costume Chef Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,111,{},{},{}
+//
 20021,C_Heart_Ribbon_Hairband,Costume Heart Ribbon Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,708,{},{},{}
 20022,C_Love_Fragment,Costume Love Fragment,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,734,{},{},{}
 20031,C_Bunny_Headress,Costume Bunny Headress,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1215,{},{},{}
@@ -5298,7 +5297,28 @@
 4678,V_Katrinn_Card,Warlock Kathryne Card,6,20,,10,,,,,,,,4,,,,,{ if(eaclass()&EAJL_THIRD && BaseJob == Job_Wizard){ bonus bMdef,80; bonus bMatkRate,15; } if(BaseLevel>174) bonus bAllStats,10; if(getrefine()>9) bonus bAllStats,10; },{},{}
 11602,Catnip_Fruit,Catnip Fruit,0,15,,1,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(10,40),0; },{},{}
 11601,Delicious_Anchovy,Delicious Anchovy,0,20,,30,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(30,46),0; },{},{}
+12625,Sapa_Feat_Cert_Pack,Sapa Feat Cert Pack,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12626,Wander_Man_Scroll,Wander Man Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2213,1800000; },{},{}
+12627,Wicked_Nymph_Scroll,Wicked Nymph Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2214,1800000; },{},{}
+12628,Kasa_Scroll,Kasa Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2215,1800000; },{},{}
+12629,Salamander_Scroll,Salamander Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2216,1800000; },{},{}
+12630,Teddy_Bear_Scroll,Teddy Bear Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2217,1800000; },{},{}
+12631,Macro_Stone_A,Macro Stone A,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12632,Macro_Stone_B,Macro Stone B,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12633,Malang_Cat_Can,Malangdo Cat Can,2,20,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ specialeffect2 EF_MAGICALATTHIT; sc_start SC_EXPBOOST,1200000,10; sc_start SC_ITEMBOOST,1200000,20; },{},{}
+12634,Macro_Stone_A1,Macro Stone A1,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12635,Macro_Stone_A2,Macro Stone A2,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12774,Empty_Potion_Bottle,Empty Potion Bottle,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12775,Ancient_Spirit_Agimat,Ancient Spirit Amulet,2,20,,600,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12786,Change_Slot_Card,Character Position Change Coupon,2,,,,,,,,0xFFFFFFFF,7,2,,,,,,{ set CharMoves, CharMoves + 1; },{},{}
+12797,Wish_Maiden_Scroll,Wish Maiden Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2344,1800000; },{},{}
+12798,Zealotus_Scroll,Zealotus Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2345,1800000; },{},{}
+12799,PCBang_Coupon_Box5,PCBang Coupon Box5,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12800,Ktullanux_Scroll,Ktullanux Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2346,1800000; },{},{}
+12801,Eddga_Scroll,Eddga Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2347,1800000; },{},{}
+12822,Songpyun_Box50,Songpyun Box50,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 663,50; },{},{}
+12823,Sedora_Scroll,Sedora Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2350,1800000; },{},{}
+12824,Chepet_Scroll,Chepet Scroll,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ mercenary_create 2351,1800000; },{},{}
 16740,Ptotection_Seagod_Box,The Sea God's Call 23 Hour Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 6436,86400; },{},{}
 16741,Hairtail_Box1,Cutlass 1 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1198,86400; },{},{}
 16742,Hairtail_Box2,Cutlass 7 Day Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 1198,604800; },{},{}

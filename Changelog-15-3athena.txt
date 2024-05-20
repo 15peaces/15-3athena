@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/20/2024
+	r460 [15peaces]
+		*Follow up 01d37ad
+			-added new mercenary skills and scrolls.
+		*Follow up 959ce91
+			-status_change_start now supports to transmit src to status_get_sc_def function to properly calculate defense.
+			-however, sc_start short versions don't support it and will always use bl as src.
+		*Updated item_db.
+			-Added missing items.
+			-Fixed some names & scripts.
+		*Updated item_trade database.
+		*Increased minimum respawn delay for monsters to 5000ms, this is needed to prevent the client from thinking the newly spawned monster is the same than the killed one;
+			-also at least in pre-renewal the minimum respawn time is 5 seconds officially and handling this via the code is much better than updating all spawn files.
+		*Implemented the official formula for Potion Pitcher when used by monsters.
+		*Documented boss_monster script type.
+		*Updated spawn delays for Dewata dungeons.
+		*Updated quest_db with a huge number of missing entries.
+
 05/18/2024
 	r459 [15peaces]
 		*Fixed a duplicate message output.

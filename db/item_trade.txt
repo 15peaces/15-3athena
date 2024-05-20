@@ -989,6 +989,7 @@
 12397,73,100	// Gift Box?
 12398,507,100	// PCBang Gift Box
 12402,475,100	// 29Fruit
+12403,475,100	// Lucky Egg C2
 12404,475,100	// Acti Potion
 12405,475,100	// Underripe Yggseed
 12406,475,100	// Psychic ArmorS
@@ -1048,16 +1049,30 @@
 12541,499,100	// Fortune Cookie1
 12542,499,100	// Fortune Cookie2
 12543,499,100	// Fortune Cookie3
+12545,475,100	// Lucky Egg C5
 12549,475,100	// White Slim Pot Box2
 12550,475,100	// Poison Bottle Box2
+12577,475,100	// Lucky Egg C6
+12581,475,100	// Universal Catalog Gold
+12591,475,100	// Universal Catalog Bronze
+12595,475,100	// Lucky Egg C7
 12622,507,100 	// Boarding_Halter
 12624,16,100	// Delicious Jelly
+12626,475,100	// Wander Man Scroll
+12627,475,100	// Wicked Nymph Scroll
+12628,475,100	// Kasa Scroll
+12629,475,100	// Salamander Scroll
+12630,475,100	// Teddy Bear Scroll
 12633,475,100	// Malangdo Cat Can
 12636,467,100	// Malangdo Canned Specialties
 12637,475,100	// Gong Bug Pocket
 12638,475,100	// Dried Squid Box
 12639,475,100	// Flying Fish Box
 12640,475,100	// Starfish Box
+12641,475,100	// Lucky Egg C8
+12642,475,100	// Fruit Of Mastela 100 Box
+12654,475,100	// Lucky Egg C9
+12673,475,100	// Lucky Egg C10
 12704,507,100	// Elixir_Of_Life
 12705,507,100	// Noble_Nameplate
 12714,467,100	// Easter_Scroll
@@ -1071,8 +1086,11 @@
 12731,479,100	// Runstone_Turisus
 12732,479,100	// Runstone_Pertz
 12733,479,100	// Runstone_Hagalas
+12778,473,100	// Bapho Jr Scroll
+12779,473,100	// Galapago Scroll
 12786,459,100	// Character Position Change Coupon
 12811,507,100	// Event_Gift_Box_
+12822,457,100	// Songpyun Box50
 12884,507,100	//Infinite_Concentration_Potion
 12885,507,100	//Infinite_Awakening_Potion
 12886,507,100	//Infinite_Berserk_Potion

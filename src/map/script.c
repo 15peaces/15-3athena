@@ -10300,19 +10300,19 @@ BUILDIN_FUNC(sc_start)
 	switch (start_type) {
 	case 1:
 		if (bl)
-			status_change_start(bl, type, rate, val1, 0, 0, val4, tick, flag);
+			status_change_start(NULL, bl, type, rate, val1, 0, 0, val4, tick, flag);
 		break;
 	case 2:
 		val2 = script_getnum(st, 5);
 		if (bl)
-			status_change_start(bl, type, rate, val1, val2, 0, val4, tick, flag);
+			status_change_start(NULL, bl, type, rate, val1, val2, 0, val4, tick, flag);
 		break;
 	case 4:
 		val2 = script_getnum(st, 5);
 		val3 = script_getnum(st, 6);
 		val4 = script_getnum(st, 7);
 		if (bl)
-			status_change_start(bl, type, rate, val1, val2, val3, val4, tick, flag);
+			status_change_start(NULL, bl, type, rate, val1, val2, val3, val4, tick, flag);
 		break;
 	}
 
@@ -10390,7 +10390,7 @@ BUILDIN_FUNC(getscrate)
 		bl = map_id2bl(st->rid);
 
 	if (bl)
-		rate = status_get_sc_def(bl, bl, (sc_type)type, 10000, 10000, 0);
+		rate = status_get_sc_def(NULL, bl, (sc_type)type, 10000, 10000, 0);
 
 	script_pushint(st,rate);
 	return 0;
@@ -17718,7 +17718,7 @@ BUILDIN_FUNC(mercenary_sc_start)
 	tick = script_getnum(st,3);
 	val1 = script_getnum(st,4);
 
-	status_change_start(&sd->md->bl, type, 10000, val1, 0, 0, 0, tick, 2);
+	status_change_start(NULL, &sd->md->bl, type, 10000, val1, 0, 0, 0, tick, 2);
 	return 0;
 }
 

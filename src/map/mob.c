@@ -408,7 +408,7 @@ bool mob_ksprotected (struct block_list *src, struct block_list *target)
 		return true;
 	} while(0);
 
-	status_change_start(target, SC_KSPROTECTED, 10000, sd->bl.id, sd->state.noks, sd->status.party_id, sd->status.guild_id, battle_config.ksprotection, 0);
+	status_change_start(src, target, SC_KSPROTECTED, 10000, sd->bl.id, sd->state.noks, sd->status.party_id, sd->status.guild_id, battle_config.ksprotection, 0);
 
 	return false;
 }
@@ -868,8 +868,8 @@ int mob_setdelayspawn(struct mob_data *md)
 		spawntime = spawntime / 100 * battle_config.mob_spawn_delay;
 	}
 
-	if (spawntime < 500) //Min respawn time (is it needed?)
-		spawntime = 500;
+	if (spawntime < 5000) //Monsters should never respawn faster than within 5 seconds
+		spawntime = 5000;
 
 	if( md->spawn_timer != INVALID_TIMER )
 		delete_timer(md->spawn_timer, mob_delayspawn);

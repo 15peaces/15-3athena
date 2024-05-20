@@ -7633,7 +7633,7 @@ void status_display_remove(struct map_session_data *sd, enum sc_type type) {
  * &4: sc_data loaded, no value has to be altered.
  * &8: rate should not be reduced
  *------------------------------------------*/
-int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
+int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
 {
 	struct map_session_data *sd = NULL;
 	struct homun_data *hd;
@@ -7710,7 +7710,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
 	{
-		tick = status_get_sc_def(bl, bl, type, rate, tick, flag);
+		tick = status_get_sc_def(src, bl, type, rate, tick, flag);
 		if( !tick ) return 0;
 	}
 
@@ -8511,11 +8511,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 					for( i = 0; i < 5; i++ )
 					{
 						if( sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])) )
-							status_change_start(&tsd->bl, type, 10000, val1, val2, val3, val4, tick, 1);
+							status_change_start(src, &tsd->bl, type, 10000, val1, val2, val3, val4, tick, 1);
 					}
 				}
 				else if( bl->type == BL_MER && ((TBL_MER*)bl)->devotion_flag && (tsd = ((TBL_MER*)bl)->master) )
-					status_change_start(&tsd->bl, type, 10000, val1, val2, val3, val4, tick, 1);
+					status_change_start(src, &tsd->bl, type, 10000, val1, val2, val3, val4, tick, 1);
 			}
 			//val4 signals infinite endure (if val4 == 2 it is infinite endure from Berserk)
 			if( val4 )
@@ -8610,11 +8610,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 					for( i = 0; i < 5; i++ )
 					{
 						if( sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])) )
-							status_change_start(&tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
+							status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
 					}
 				}
 				else if( bl->type == BL_MER && ((TBL_MER*)bl)->devotion_flag && (tsd = ((TBL_MER*)bl)->master) )
-					status_change_start(&tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
+					status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
 			}
 			break;
 		case SC_STRIPWEAPON:
@@ -8867,11 +8867,11 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 						for( i = 0; i < 5; i++ )
 						{
 							if( sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])) )
-								status_change_start(&tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
+								status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
 						}
 					}
 					else if( bl->type == BL_MER && ((TBL_MER*)bl)->devotion_flag && (tsd = ((TBL_MER*)bl)->master) )
-						status_change_start(&tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
+						status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
 				}
 			}
 			break;
@@ -8890,7 +8890,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 					for (i = 0; i < 5; i++)
 					{	//See if there are devoted characters, and pass the status to them. [Skotlex]
 						if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
-							status_change_start(&tsd->bl, type, 10000, val1, 5 + val1 * 5, val3, val4, tick, 1);
+							status_change_start(src, &tsd->bl, type, 10000, val1, 5 + val1 * 5, val3, val4, tick, 1);
 					}
 				}
 			}
@@ -10143,7 +10143,7 @@ int status_change_start(struct block_list* bl,enum sc_type type,int rate,int val
 		case SC_JUMPINGCLAN:
 			val_flag |= 1;
 			tick = -1;
-			status_change_start(bl, SC_CLAN_INFO, 10000, 0, val2, 0, 0, -1, flag);
+			status_change_start(src, bl, SC_CLAN_INFO, 10000, 0, val2, 0, 0, -1, flag);
 			break;
 		case SC_DAILYSENDMAILCNT:
 			val_flag |= 1|2;
@@ -13239,7 +13239,7 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 				data.val2 = sc->data[i]->val2;
 				data.val3 = sc->data[i]->val3;
 				data.val4 = sc->data[i]->val4;
-				status_change_start( bl, (sc_type)i, 10000, data.val1, data.val2, data.val3, data.val4, data.tick, 1|2|8 );
+				status_change_start(src, bl, (sc_type)i, 10000, data.val1, data.val2, data.val3, data.val4, data.tick, 1|2|8 );
 					flag = 1;
 				break;
 			default:

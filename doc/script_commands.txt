@@ -185,6 +185,9 @@ special ai mobs (which by default attack other monsters instead of players).
 You can add these, so using 10 will spawn small monsters that attack other
 mobs (if you specify both 2 and 4, the small version takes priority).
 
+Alternately, a monster spawned using 'boss_monster' instead of 'monster' is able
+to be detected on the map with the SC_BOSSMAPINFO status (used by Convex Mirror).
+
 ** NPC names
 
 /!\ WARNING: this applies to warps, NPCs, duplicates and shops /!\

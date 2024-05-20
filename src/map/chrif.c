@@ -1363,7 +1363,7 @@ int chrif_load_scdata(int fd)
 	for (i = 0; i < count; i++)
 	{
 		struct status_change_data *data = (struct status_change_data*)RFIFOP(fd,14 + i*sizeof(struct status_change_data));
-		status_change_start(&sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 1 | 2 | 4 | 8);
+		status_change_start(NULL, &sd->bl, (sc_type)data->type, 10000, data->val1, data->val2, data->val3, data->val4, data->tick, 1 | 2 | 4 | 8);
 	}
 #endif
 

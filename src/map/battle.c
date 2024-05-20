@@ -1143,7 +1143,7 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			if ( sd->shieldball_health < 1 )
 			{
 				pc_delshieldball(sd, 1, 0);
-				status_change_start(bl, SC_STUN, 10000, 0, 0, 0, 0, 1000, 2);
+				status_change_start(src, bl, SC_STUN, 10000, 0, 0, 0, 0, 1000, 2);
 			}
 		}
 
