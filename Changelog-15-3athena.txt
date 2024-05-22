@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/22/2024
+	r461 [15peaces]
+		*Fixed monster status changes not getting reseted before respawning.
+		*Fixed a nullpo info caused by skill_summoner_power.
+		*Added place holders for a huge number of existing monsters.
+
 05/20/2024
 	r460 [15peaces]
 		*Follow up 01d37ad

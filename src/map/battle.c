@@ -3475,7 +3475,7 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, u
 			if (sc->data[SC_ARCLOUSEDASH]) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 10);
 			}
-			if (skill_summoner_power(sd, POWER_OF_LIFE) == 1) {
+			if (sd && skill_summoner_power(sd, POWER_OF_LIFE) == 1) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 20);
 			}
 		}
