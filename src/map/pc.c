@@ -7953,12 +7953,17 @@ void pc_close_npc(struct map_session_data *sd, int flag) {
 		sd->state.menu_or_input = 0;
 		sd->npc_menu = 0;
 		sd->npc_shopid = 0;
-		clif_scriptclose(sd, sd->npc_id);
-		clif_scriptclear(sd, sd->npc_id); // [Ind/Hercules]
-		if (sd->st && sd->st->state != RUN) {// free attached scripts that are waiting
-			script_free_state(sd->st);
-			sd->st = NULL;
-			sd->npc_id = 0;
+		if (sd->st) {
+			if (sd->st->state == CLOSE) {
+				clif_scriptclose(sd, sd->npc_id);
+				clif_scriptclear(sd, sd->npc_id); // [Ind/Hercules]
+				sd->st->state = END; // Force to end now
+			}
+			if (sd->st->state == END) { // free attached scripts that are waiting
+				script_free_state(sd->st);
+				sd->st = NULL;
+				sd->npc_id = 0;
+			}
 		}
 	}
 }
@@ -8162,16 +8167,10 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			}
 			break;
 			case BL_PET: //Pass on to master...
-				src = &((TBL_PET*)src)->master->bl;
-				break;
 			case BL_HOM:
-				src = &((TBL_HOM*)src)->master->bl;
-				break;
 			case BL_MER:
-				src = &((TBL_MER*)src)->master->bl;
-				break;
 			case BL_ELEM:
-				src = &((TBL_ELEM*)src)->master->bl;
+				src = battle_get_master(src);
 				break;
 		}
 

@@ -12,6 +12,7 @@
 #include "../common/strlib.h"
 #include "../common/timer.h"
 #include "../common/utils.h"
+#include "../common/random.h"
 
 #include "int_guild.h"
 #include "int_homun.h"
@@ -30,6 +31,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 #define MAX_STARTITEM 16
 #define CHAR_MAX_MSG 300
@@ -176,7 +178,7 @@ void pincode_setnew(int fd, struct char_session_data* sd);
 void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state);
 void pincode_notifyLoginPinUpdate(int account_id, char* pin);
 void pincode_notifyLoginPinError(int account_id);
-void pincode_decrypt(unsigned long userSeed, char* pin);
+void pincode_decrypt(uint32 userSeed, char* pin);
 int pincode_compare(int fd, struct char_session_data* sd, char* pin);
 
 //Custom limits for the fame lists. [Skotlex]
@@ -1216,11 +1218,6 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 		SqlStmt_ShowDebug( stmt );
 		SqlStmt_Free( stmt );
 		return 0;
-	}
-
-	for (i = 0; i < MAX_CHARS; i++) {
-		sd->found_char[i] = -1;
-		sd->char_moves[i] = 0;
 	}
 
 	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow( stmt ); i++ )
@@ -5064,10 +5061,8 @@ int parse_char(int fd)
 			if (RFIFOREST(fd) < 10)
 				return 0;
 
-			if (RFIFOL(fd, 2) != sd->account_id)
-				break;
-
-			pincode_check(fd, sd);
+			if (pincode_enabled && RFIFOL(fd, 2) == sd->account_id)
+				pincode_check(fd, sd);
 
 			RFIFOSKIP(fd, 10);
 			break;
@@ -5077,14 +5072,13 @@ int parse_char(int fd)
 			if (RFIFOREST(fd) < 6)
 				return 0;
 
-			if (RFIFOL(fd, 2) != sd->account_id)
-				break;
-
-			if (strlen(sd->pincode) <= 0) {
-				pincode_sendstate(fd, sd, PINCODE_NEW);
-			}
-			else {
-				pincode_sendstate(fd, sd, PINCODE_ASK);
+			if (pincode_enabled && RFIFOL(fd, 2) == sd->account_id) {
+				if (strlen(sd->pincode) <= 0) {
+					pincode_sendstate(fd, sd, PINCODE_NEW);
+				}
+				else {
+					pincode_sendstate(fd, sd, PINCODE_ASK);
+				}
 			}
 
 			RFIFOSKIP(fd, 6);
@@ -5095,10 +5089,8 @@ int parse_char(int fd)
 			if (RFIFOREST(fd) < 14)
 				return 0;
 
-			if (RFIFOL(fd, 2) != sd->account_id)
-				break;
-
-			pincode_change(fd, sd);
+			if (pincode_enabled && RFIFOL(fd, 2) == sd->account_id)
+				pincode_change(fd, sd);
 
 			RFIFOSKIP(fd, 14);
 			break;
@@ -5108,10 +5100,8 @@ int parse_char(int fd)
 			if (RFIFOREST(fd) < 10)
 				return 0;
 
-			if (RFIFOL(fd, 2) != sd->account_id)
-				break;
-
-			pincode_setnew(fd, sd);
+			if (pincode_enabled && RFIFOL(fd, 2) == sd->account_id)
+				pincode_setnew(fd, sd);
 
 			RFIFOSKIP(fd, 10);
 			break;
@@ -5471,8 +5461,11 @@ int bonus_script_save(int fd) {
 //Pincode system
 //------------------------------------------------
 void pincode_check(int fd, struct char_session_data* sd) {
-	char pin[5] = "\0\0\0\0";
-	strncpy((char*)pin, (char*)RFIFOP(fd, 6), 4 + 1);
+	char pin[PINCODE_LENGTH + 1];
+
+	memset(pin, 0, PINCODE_LENGTH + 1);
+
+	strncpy((char*)pin, (char*)RFIFOP(fd, 6), PINCODE_LENGTH);
 
 	pincode_decrypt(sd->pincode_seed, pin);
 
@@ -5498,27 +5491,33 @@ int pincode_compare(int fd, struct char_session_data* sd, char* pin) {
 }
 
 void pincode_change(int fd, struct char_session_data* sd) {
-	char oldpin[5] = "\0\0\0\0";
-	char newpin[5] = "\0\0\0\0";
+	char oldpin[PINCODE_LENGTH + 1];
+	char newpin[PINCODE_LENGTH + 1];
 
-	strncpy(oldpin, (char*)RFIFOP(fd, 6), 4 + 1);
+	memset(oldpin, 0, PINCODE_LENGTH + 1);
+	memset(newpin, 0, PINCODE_LENGTH + 1);
+
+	strncpy(oldpin, (char*)RFIFOP(fd, 6), PINCODE_LENGTH);
 	pincode_decrypt(sd->pincode_seed, oldpin);
 
 	if (!pincode_compare(fd, sd, oldpin))
 		return;
 
-	strncpy(newpin, (char*)RFIFOP(fd, 10), 4 + 1);
+	strncpy(newpin, (char*)RFIFOP(fd, 10), PINCODE_LENGTH);
 	pincode_decrypt(sd->pincode_seed, newpin);
 
 	pincode_notifyLoginPinUpdate(sd->account_id, newpin);
+	strncpy(sd->pincode, newpin, sizeof(newpin));
 
 	pincode_sendstate(fd, sd, PINCODE_PASSED);
 }
 
 void pincode_setnew(int fd, struct char_session_data* sd) {
-	char newpin[5] = "\0\0\0\0";
+	char newpin[PINCODE_LENGTH + 1];
 
-	strncpy(newpin, (char*)RFIFOP(fd, 6), 4 + 1);
+	memset(newpin, 0, PINCODE_LENGTH + 1);
+
+	strncpy(newpin, (char*)RFIFOP(fd, 6), PINCODE_LENGTH);
 	pincode_decrypt(sd->pincode_seed, newpin);
 
 	pincode_notifyLoginPinUpdate(sd->account_id, newpin);
@@ -5539,7 +5538,7 @@ void pincode_setnew(int fd, struct char_session_data* sd) {
 void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state) {
 	WFIFOHEAD(fd, 12);
 	WFIFOW(fd, 0) = 0x8b9;
-	WFIFOL(fd, 2) = sd->pincode_seed = rand() % 0xFFFF;
+	WFIFOL(fd, 2) = sd->pincode_seed = rnd() % 0xFFFF;
 	WFIFOL(fd, 6) = sd->account_id;
 	WFIFOW(fd, 10) = state;
 	WFIFOSET(fd, 12);
@@ -5549,7 +5548,7 @@ void pincode_notifyLoginPinUpdate(int account_id, char* pin) {
 	WFIFOHEAD(login_fd, 11);
 	WFIFOW(login_fd, 0) = 0x2738;
 	WFIFOL(login_fd, 2) = account_id;
-	strncpy((char*)WFIFOP(login_fd, 6), pin, 5);
+	strncpy((char*)WFIFOP(login_fd, 6), pin, PINCODE_LENGTH + 1);
 	WFIFOSET(login_fd, 11);
 }
 
@@ -5560,12 +5559,15 @@ void pincode_notifyLoginPinError(int account_id) {
 	WFIFOSET(login_fd, 6);
 }
 
-void pincode_decrypt(unsigned long userSeed, char* pin) {
-	int i, pos;
-	char tab[10] = { 0,1,2,3,4,5,6,7,8,9 };
-	unsigned long multiplier = 0x3498, baseSeed = 0x881234;
+void pincode_decrypt(uint32 userSeed, char* pin) {
+	int i;
+	char tab[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	char *buf;
 
 	for (i = 1; i < 10; i++) {
+		int pos;
+		uint32 multiplier = 0x3498, baseSeed = 0x881234;
+
 		userSeed = baseSeed + userSeed * multiplier;
 		pos = userSeed % (i + 1);
 		if (i != pos) {
@@ -5575,11 +5577,13 @@ void pincode_decrypt(unsigned long userSeed, char* pin) {
 		}
 	}
 
-	for (i = 0; i < 4; i++) {
-		pin[i] = tab[pin[i] - '0'];
+	buf = (char *)aMalloc(sizeof(char) * (PINCODE_LENGTH + 1));
+	memset(buf, 0, PINCODE_LENGTH + 1);
+	for (i = 0; i < PINCODE_LENGTH; i++) {
+		sprintf(buf + i, "%d", tab[pin[i] - '0']);
 	}
-
-	sprintf(pin, "%d%d%d%d", pin[0], pin[1], pin[2], pin[3]);
+	strcpy(pin, buf);
+	aFree(buf);
 }
 
 //------------------------------------------------
@@ -6057,6 +6061,12 @@ int char_config_read( const char* cfgName )
 			clan_remove_inactive_days = atoi(w2);
 		} else if (strcmpi(w1, "pincode_enabled") == 0) {
 			pincode_enabled = config_switch(w2);
+#if PACKETVER < 20110309
+			if (pincode_enabled) {
+				ShowWarning("pincode_enabled requires PACKETVER 20110309 or higher. Disabling...\n");
+				pincode_enabled = false;
+			}
+#endif
 		} else if (strcmpi(w1, "pincode_changetime") == 0) {
 			pincode_changetime = atoi(w2) * 60 * 60 * 24;
 		} else if (strcmpi(w1, "pincode_maxtry") == 0) {

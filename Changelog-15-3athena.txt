@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/27/2024
+	r462 [15peaces]
+		*Optimized jobchange command.
+		*Some more optimations to pincode system.
+			-Should be stable now.
+		*Fixed Gympass to grant the skill permanent.
+		*Some misc fixing & optimizing.
+		*Some skill tree cleanup as ALL_INCCARRY and ALL_BUYING_STORE aren't necessary anymore.
+		*Updated Basilica to finally act more official.
+		*Fixed some remaining issues related to script end / close functions.
+
 05/22/2024
 	r461 [15peaces]
 		*Fixed monster status changes not getting reseted before respawning.

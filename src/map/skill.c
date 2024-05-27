@@ -12527,13 +12527,14 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		flag|=1;
 		break;
 	case HP_BASILICA:
-		if( sc->data[SC_BASILICA] )
-			status_change_end(src, SC_BASILICA, INVALID_TIMER); // Cancel Basilica
+		if (sc->data[SC_BASILICA]) {
+			status_change_end(src, SC_BASILICA, INVALID_TIMER); // Cancel Basilica and return so requirement isn't consumed again
+			return 0;
+		}
 		else { // Create Basilica. Start SC on caster. Unit timer start SC on others.
-			if (map_foreachinrange(skill_count_wos, src, 2, BL_MOB | BL_PC, src)) {
-				if (sd)
-					clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
-				return 1;
+			if (map_getcell(src->m, x, y, CELL_CHKLANDPROTECTOR)) {
+				clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
+				return 0;
 			}
 			skill_clear_unitgroup(src);
 			if( skill_unitsetting(src,skill_id,skill_lv,x,y,0) )
@@ -13341,9 +13342,9 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 		val2 += status->int_ / 10; //Bonus rate by Dancer's INT
 		break;
 	case BA_ASSASSINCROSS:
-		val1 = 100 + (10 * skill_lv) + (status->agi / 10); // ASPD increase
+		val1 = 100 + (10 * skill_lv) + status->agi; // ASPD increase
 		if(sd)
-			val1 += 5*pc_checkskill(sd,BA_MUSICALLESSON);
+			val1 += 10 * ((pc_checkskill(sd, BA_MUSICALLESSON) + 1) / 2); //aspd +1% per 2lvl
 		break;
 	case DC_FORTUNEKISS:
 		val1 = 10+skill_lv+(status->luk/10); // Critical increase
@@ -13669,6 +13670,9 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 
 	if( skill_get_type(sg->skill_id) == BF_MAGIC && map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR) && sg->skill_id != SA_LANDPROTECTOR )
 		return 0; //AoE skills are ineffective. [Skotlex]
+
+	if (skill_get_inf2(sg->skill_id)&(INF2_SONG_DANCE | INF2_ENSEMBLE_SKILL) && map_getcell(bl->m, bl->x, bl->y, CELL_CHKBASILICA))
+		return 0; //Songs don't work in Basilica
 
 	sc = status_get_sc(bl);
 	ssc = status_get_sc(ss);
@@ -15461,6 +15465,26 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			}
 			break;
 		}
+	case HP_BASILICA:
+		if (!sc || (sc && !sc->data[SC_BASILICA])) {
+			if (sd) {
+				int i, x, y, range = skill_get_unit_range(skill_id, skill_lv) + 1;
+				int size = range * 2 + 1;
+				for (i = 0; i < size*size; i++) {
+					x = sd->bl.x + (i%size - range);
+					y = sd->bl.y + (i / size - range);
+					if (map_getcell(sd->bl.m, x, y, CELL_CHKWALL)) {
+						clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
+						return 0;
+					}
+				}
+				if (map_foreachinrange(skill_count_wos, &sd->bl, range, BL_ALL, &sd->bl)) {
+					clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
+					return 0;
+				}
+			}
+		}
+		break;
 	case AM_TWILIGHT2:
 	case AM_TWILIGHT3:
 		if (!party_skill_check(sd, sd->status.party_id, skill_id, skill_lv))

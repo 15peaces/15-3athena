@@ -3287,7 +3287,7 @@ easiest way to store all the skills and make the character something else for a
 while. Advanced job for a day? :) This could also be useful to see how many 
 skills a character has.
 
-This command does not count skills which are set as flag 4 (permament granted) (ALL_BUYING_STORE/ALL_INCCARRY) 
+This command does not count skills which are set as flag 3 (permament granted) (ALL_BUYING_STORE/ALL_INCCARRY) 
 
 ---------------------------------------
 
@@ -3438,7 +3438,7 @@ other length limits and asking them to try to input something else.
 Returns the total amount of skill points a character possesses (SkillPoint+SP's used in skills)
 This command can be used to check the currently attached characters total amount of skill points.
 This means the skill points used in skill are counted, and added to SkillPoints (number of skill points not used).
-This command does not count skills which are set as flag 4 (permament granted) (ALL_BUYING_STORE/ALL_INCCARRY)
+This command does not count skills which are set as flag 3 (permament granted) (ALL_BUYING_STORE/ALL_INCCARRY)
 
 Example:
 

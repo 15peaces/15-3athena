@@ -546,8 +546,11 @@ int parse_fromchar(int fd)
 				char email[40] = "";
 				int gmlevel = 0;
 				char birthdate[10+1] = "";
-				char pincode[4 + 1] = "";
+				char pincode[PINCODE_LENGTH + 1];
 				int account_id = RFIFOL(fd,2);
+
+				memset(pincode, 0, PINCODE_LENGTH + 1);
+
 				RFIFOSKIP(fd,6);
 
 				if( !accounts->load_num(accounts, &acc, account_id) )
