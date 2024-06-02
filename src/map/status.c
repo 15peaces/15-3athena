@@ -10890,6 +10890,11 @@ int status_change_clear(struct block_list* bl, int type)
 	sc->opt3 = 0;
 	sc->option &= OPTION_MASK;
 
+	//cleaning all extras vars
+	sc->comet_x = 0;
+	sc->comet_y = 0;
+	sc->sg_counter = 0;
+
 	if( type == 0 || type == 2 )
 		clif_changeoption(bl);
 
@@ -13159,6 +13164,12 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			pc_bonus_script_clear(BL_CAST(BL_PC,bl),i);
 		}
 	}
+
+	//cleaning all extras vars
+	sc->comet_x = 0;
+	sc->comet_y = 0;
+	sc->sg_counter = 0;
+
 	return 0;
 }
 

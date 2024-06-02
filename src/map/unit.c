@@ -1721,6 +1721,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	else
 		skill_castend_id(ud->skilltimer, tick, src->id, 0);
 
+
+	if (sd)
+		sd->canlog_tick = gettick();
+
 	return 1;
 }
 
@@ -1864,6 +1868,10 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		ud->skilltimer = INVALID_TIMER;
 		skill_castend_pos(ud->skilltimer,tick,src->id,0);
 	}
+
+	if (sd)
+		sd->canlog_tick = gettick();
+
 	return 1;
 }
 
@@ -2265,6 +2273,9 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 			((TBL_PC*)src)->idletime = last_tick;
 		ud->attacktimer = add_timer(ud->attackabletime, unit_attack_timer, src->id, 0);
 	}
+
+	if (sd)
+		sd->canlog_tick = gettick();
 
 	return 1;
 }

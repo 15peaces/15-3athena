@@ -42,7 +42,7 @@ static const struct item_option buyingstore_blankoptions[MAX_ITEM_RDM_OPT] = { 0
 /// Returns unique buying store id
 static unsigned int buyingstore_getuid(void)
 {
-	return buyingstore_nextid++;
+	return ++buyingstore_nextid;
 }
 
 

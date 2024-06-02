@@ -5136,8 +5136,6 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		if( item.expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER && sd->itemid != ITEMID_PARA_TEAM_MARK)
 		{
 			clif_useitemack(sd,n,amount-1,true);
-
-
 			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME); // Rental Usable Items are not deleted until expiration
 		}
 		else
@@ -7921,7 +7919,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 	}
 }
 
-static int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data)
+int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data)
 {
 	TBL_PC *sd = map_id2sd(id);
 	if (sd) pc_close_npc(sd, data);
@@ -12036,6 +12034,64 @@ short pc_get_itemgroup_bonus_group(struct map_session_data* sd, uint16 group_id)
 			return sd->itemgrouphealrate[i]->rate;
 	}
 	return bonus;
+}
+
+void pc_clear_log_damage_sub(int char_id, struct mob_data *md)
+{
+	int i;
+	ARR_FIND(0, DAMAGELOG_SIZE, i, md->dmglog[i].id == char_id);
+	if (i < DAMAGELOG_SIZE)
+	{
+		md->dmglog[i].id = 0;
+		md->dmglog[i].dmg = 0;
+		md->dmglog[i].flag = 0;
+	}
+}
+
+void pc_damage_log_add(struct map_session_data *sd, int id)
+{
+	int i = 0;
+
+	if (!sd)
+		return;
+
+	for (i = 0; i < DAMAGELOG_SIZE_PC && sd->dmglog[i].id != id; i++)
+		if (!sd->dmglog[i].id)
+		{
+			sd->dmglog[i].id = id;
+			break;
+		}
+	return;
+}
+
+void pc_damage_log_clear(struct map_session_data *sd, int id)
+{
+	int i;
+	struct mob_data *md = NULL;
+	if (!sd)
+		return;
+
+	if (!id)
+	{
+		for (i = 0; i < DAMAGELOG_SIZE_PC; i++)	// track every id
+		{
+			if (!sd->dmglog[i].id)	//skip the empty value
+				continue;
+
+			if ((md = map_id2md(sd->dmglog[i].id)))
+				pc_clear_log_damage_sub(sd->status.char_id, md);
+		}
+		memset(sd->dmglog, 0, sizeof(sd->dmglog));	// clear all
+	}
+	else
+	{
+		if ((md = map_id2md(id)))
+			pc_clear_log_damage_sub(sd->status.char_id, md);
+
+		ARR_FIND(0, DAMAGELOG_SIZE_PC, i, sd->dmglog[i].id == id);	// find the id position
+		if (i < DAMAGELOG_SIZE_PC)
+			sd->dmglog[i].id = 0;
+	}
 }
 
 /*==========================================

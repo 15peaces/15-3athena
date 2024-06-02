@@ -1969,6 +1969,7 @@ int map_quit(struct map_session_data *sd)
 	if( sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )
 		map_pvp_area(sd, 0);
 
+	pc_damage_log_clear(sd, 0);
 	party_booking_delete(sd); // Party Booking [Spiria]
 	pc_makesavestatus(sd);
 	pc_clean_skilltree(sd);

@@ -24,6 +24,7 @@
 #define MAX_PC_BONUS 10
 #define MAX_PC_SKILL_REQUIRE 5
 #define MAX_PC_FEELHATE 3
+#define DAMAGELOG_SIZE_PC 100	// Any idea for this value?
 
 #define BANK_VAULT_VAR "#BANKVAULT"
 #define ROULETTE_BRONZE_VAR "RouletteBronze"
@@ -613,6 +614,10 @@ struct map_session_data {
 #ifdef PACKET_OBFUSCATION
 	unsigned int cryptKey; ///< Packet obfuscation key to be used for the next received packet
 #endif
+
+	struct {
+		int id;
+	} dmglog[DAMAGELOG_SIZE_PC];
 };
 
 struct eri *pc_sc_display_ers; /// Player's SC display table
@@ -955,7 +960,7 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_id);
 int pc_skillheal2_bonus(struct map_session_data *sd, int skill_id);
 
 void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int hp, unsigned int sp);
-static int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data);
+int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data);
 void pc_close_npc(struct map_session_data *sd, int flag);
 int pc_dead(struct map_session_data *sd,struct block_list *src);
 void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp);
@@ -1123,6 +1128,9 @@ short pc_get_itemgroup_bonus_group(struct map_session_data* sd, uint16 group_id)
 
 // Item Cooldown persistency
 void pc_itemcd_do(struct map_session_data *sd, bool load);
+
+void pc_damage_log_add(struct map_session_data *sd, int id);
+void pc_damage_log_clear(struct map_session_data *sd, int id);
 
 /// Check if player is Taekwon Ranker and the level is >= 90 (battle_config.taekwon_ranker_min_lv)
 #define pc_is_taekwon_ranker(sd) (((sd)->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && pc_famerank((sd)->status.char_id,MAPID_TAEKWON))

@@ -32,7 +32,7 @@ DBMap * vending_getdb() {
 /// Returns an unique vending shop id.
 static int vending_getuid(void)
 {
-	return vending_nextid++;
+	return ++vending_nextid;
 }
 
 /*==========================================

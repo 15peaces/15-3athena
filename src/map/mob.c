@@ -2041,6 +2041,9 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			if(md->dmglog[i].id==0) {	//Store data in first empty slot.
 				md->dmglog[i].id  = char_id;
 				md->dmglog[i].flag= flag;
+
+				if (md->db->mexp)
+					pc_damage_log_add(map_charid2sd(char_id), md->bl.id);
 				break;
 			}
 			if(md->dmglog[i].dmg<mindmg && i)
@@ -2055,6 +2058,9 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 			md->dmglog[minpos].id  = char_id;
 			md->dmglog[minpos].flag= flag;
 			md->dmglog[minpos].dmg = damage;
+
+			if (md->db->mexp)
+				pc_damage_log_add(map_charid2sd(char_id), md->bl.id);
 		}
 	}
 	return;
@@ -2121,7 +2127,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	struct status_data *status;
 	struct map_session_data *sd = NULL, *tmpsd[DAMAGELOG_SIZE];
 	struct map_session_data *mvp_sd = NULL, *second_sd = NULL, *third_sd = NULL;
-	struct status_change *sc;
+	//struct status_change *sc;
 	
 	struct {
 		struct party_data *p;
@@ -2135,7 +2141,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	bool rebirth, homkillonly;
 
 	status = &md->status;
-	sc = &md->sc;
+	//sc = &md->sc;
 
 	if( src && src->type == BL_PC )
 	{
@@ -2195,6 +2201,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			case MDLF_HOMUN:  dmgbltypes|= BL_HOM; break;
 			case MDLF_PET:    dmgbltypes|= BL_PET; break;
 		}
+		if (md->db->mexp)
+			pc_damage_log_clear(tsd, md->bl.id);
 	}
 
 	// determines, if the monster was killed by homunculus' damage only
@@ -2660,15 +2668,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	// MvP tomb [GreenBox]
 	if (battle_config.mvp_tomb_enabled && md->spawn->state.boss && map[md->bl.m].flag.notomb != 1)
 		mvptomb_create(md, mvp_sd ? mvp_sd->status.name : NULL, time(NULL));
-
-	// Remove all status changes before creating a respawn
-	if (sc) {
-		for (i = 0; i < SC_MAX; i++) {
-			if (sc->data[i] && (sc->data[i]->timer != INVALID_TIMER))
-				delete_timer(sc->data[i]->timer, status_change_timer);
-		}
-		memset(sc, 0, sizeof(struct status_change));
-	}
 
 	if( !rebirth )
 		mob_setdelayspawn(md); //Set respawning.

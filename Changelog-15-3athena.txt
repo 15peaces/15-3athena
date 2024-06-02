@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/02/2024
+	r463 [15peaces]
+		*Added simple identifyall atcommand.
+		*Some sc_start script command cleanup.
+		*Fixed status effects not being removed correctly.
+		*Some cleanup.
+		*Fixed logout delay after attacking.
+		*Fixed clear dmglog on MVP when player is logging out.
+		*Fixed vender_id and buyer_id.
+		*Added missing entries to mob_chat_db.txt
+		*Updated CashShop window to correctly show kafra points.
+			-Payment is still not supported...
+
 05/27/2024
 	r462 [15peaces]
 		*Optimized jobchange command.

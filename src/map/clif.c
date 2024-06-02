@@ -11705,6 +11705,7 @@ void clif_parse_QuitGame(int fd, struct map_session_data *sd)
 		!sd->sc.data[SC__INVISIBILITY] && !sd->sc.data[SC_NEWMOON] && !sd->sc.data[SC_SUHIDE] &&
 		(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
 	{
+		pc_damage_log_clear(sd, 0);
 		clif_disconnect_ack(sd, 0);
 		flush_fifo(fd);
 		if (battle_config.drop_connection_on_quit) {
@@ -12062,6 +12063,7 @@ void clif_parse_Restart(int fd, struct map_session_data *sd)
 			!sd->sc.data[SC_CLOAKINGEXCEED] && !sd->sc.data[SC__INVISIBILITY] && !sd->sc.data[SC_NEWMOON] && !sd->sc.data[SC_SUHIDE] &&
 			(!battle_config.prevent_logout || DIFF_TICK(gettick(), sd->canlog_tick) > battle_config.prevent_logout) )
 		{	//Send to char-server for character selection.
+			pc_damage_log_clear(sd, 0);
 			chrif_charselectreq(sd, session[fd]->client_addr);
 		} else {
 			clif_disconnect_ack(sd, 1);
@@ -18134,15 +18136,18 @@ void clif_parse_CashShopListSend(int fd, struct map_session_data *sd)
  */
 
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
+	sd->npc_shopid = -1; // Set npc_shopid when using cash shop from "cash shop" button
+
 	WFIFOHEAD(fd, 10);
 	WFIFOW(fd, 0) = 0x845;
-	WFIFOL(fd, 2) = sd->cashPoints;/* kafra for now disabled until we know how to apply it */
-	WFIFOL(fd, 6) = sd->cashPoints;
+	WFIFOL(fd, 2) = sd->cashPoints;
+	WFIFOL(fd, 6) = sd->kafraPoints;
 	WFIFOSET(fd, 10);	
 }
 
 void clif_parse_CashShopClose(int fd, struct map_session_data *sd) {
-	 return;
+	sd->npc_shopid = 0; // Reset npc_shopid when using cash shop from "cash shop" button
+	// No need to do anything here
 }
 
 //08c0 <len>.W <openIdentity>.L <itemcount>.W (ZC_ACK_SE_CASH_ITEM_LIST2)
@@ -18274,7 +18279,7 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 		WFIFOL(fd, 2) = id;
 		WFIFOW(fd, 6) = result;/* result */
 		WFIFOL(fd, 8) = sd->cashPoints;/* current cash point */
-		WFIFOL(fd, 12) = 0;/* no idea (kafra cash?) */
+		WFIFOL(fd, 12) = sd->kafraPoints;
 		WFIFOSET(fd, 16);
 
 	}

@@ -7873,6 +7873,23 @@ ACMD_FUNC(identify)
 	return 0;
 }
 
+/*===============================================
+* @identifyall
+* => Indentify all items in inventory - Akinari
+*-----------------------------------------------*/
+ACMD_FUNC(identifyall)
+{
+	int i;
+	nullpo_retr(-1, sd);
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		if (sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].identify != 1) {
+			sd->inventory.u.items_inventory[i].identify = 1;
+			clif_item_identified(sd, i, 0);
+		}
+	}
+	return 0;
+}
+
 /*==========================================
  * @gmotd (Global MOTD)
  * by davidsiaw :P
@@ -10618,6 +10635,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "mute",              80,80,     atcommand_mute },
 	{ "refresh",            1,1,      atcommand_refresh },
 	{ "identify",          40,40,     atcommand_identify },
+	{ "identifyall",       40,40,     atcommand_identifyall },
 	{ "gmotd",             20,20,     atcommand_gmotd },
 	{ "misceffect",        50,50,     atcommand_misceffect },
 	{ "mobsearch",         10,10,     atcommand_mobsearch },
