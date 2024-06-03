@@ -693,7 +693,7 @@ struct map_data {
 
 	struct spawn_data *moblist[MAX_MOB_LIST_PER_MAP]; // [Wizputer]
 	int mob_delete_timer;	// [Skotlex]
-	int zone;	// zone number (for item/skill restrictions)
+	uint32 zone;	// zone number (for item/skill restrictions)
 	int jexp;	// map experience multiplicator
 	int bexp;	// map experience multiplicator
 	int nocommand; //Blocks @/# commands for non-gms. [Skotlex]

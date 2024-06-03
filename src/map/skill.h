@@ -147,7 +147,7 @@ struct s_skill_db {
 	int blewcount[MAX_SKILL_LEVEL];
 	struct s_skill_require require;
 	int castnodex[MAX_SKILL_LEVEL], delaynodex[MAX_SKILL_LEVEL];
-	int nocast;
+	int32 nocast;
 	int unit_id[2];
 	int unit_layout_type[MAX_SKILL_LEVEL];
 	int unit_range[MAX_SKILL_LEVEL];

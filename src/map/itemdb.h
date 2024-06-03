@@ -345,7 +345,7 @@ struct item_data {
 	struct script_code *unequip_script;//Script executed once when unequipping.
 	struct {
 		unsigned available : 1;
-		short no_equip;
+		uint32 no_equip;
 		unsigned no_refine : 1;	// [celest]
 		unsigned delay_consume : 1;	// Signifies items that are not consumed immediately upon double-click [Skotlex]
 		unsigned trade_restriction : 9;	//Item restrictions mask [Skotlex]
@@ -471,6 +471,8 @@ uint64 itemdb_unique_id(struct map_session_data *sd); // Unique Item ID
 
 DBMap * itemdb_get_groupdb();
 DBMap * itemdb_get_packagedb();
+
+bool itemdb_isNoEquip(struct item_data *id, uint16 m);
 
 void itemdb_reload(void);
 

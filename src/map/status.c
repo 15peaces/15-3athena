@@ -3188,22 +3188,10 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		if(!sd->inventory_data[index])
 			continue;
 
-		if (sd->inventory_data[index]->flag.no_equip) { // Items may be equipped, their effects however are nullified.
-			if (map[sd->bl.m].flag.restricted && sd->inventory_data[index]->flag.no_equip&(8 * map[sd->bl.m].zone))
-				continue;
-			if (!map_flag_vs(sd->bl.m) && sd->inventory_data[index]->flag.no_equip & 1)
-				continue;
-			if (map[sd->bl.m].flag.pvp && sd->inventory_data[index]->flag.no_equip & 2)
-				continue;
-			if (map_flag_gvg(sd->bl.m) && sd->inventory_data[index]->flag.no_equip & 4)
-				continue;
-			if (map[sd->bl.m].flag.battleground && sd->inventory_data[index]->flag.no_equip & 8)
-				continue;
-		}
-
 		status->def += sd->inventory_data[index]->def;
 
-		if(opt&SCO_FIRST && sd->inventory_data[index]->equip_script)
+		// Items may be equipped, their effects however are nullified.
+		if(opt&SCO_FIRST && sd->inventory_data[index]->equip_script && (!itemdb_isNoEquip(sd->inventory_data[index], sd->bl.m)))
 	  	{	//Execute equip-script on login
 			run_script(sd->inventory_data[index]->equip_script,0,sd->bl.id,0);
 			if (!calculating)
@@ -3230,7 +3218,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 				wd->overrefine = r*refinebonus[wlv][1];
 
 			wa->range += sd->inventory_data[index]->range;
-			if(sd->inventory_data[index]->script) {
+			if(sd->inventory_data[index]->script && (!itemdb_isNoEquip(sd->inventory_data[index], sd->bl.m))) {
 				if (wd == &sd->left_weapon) {
 					sd->state.lr_flag = 1;
 					run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
@@ -3256,7 +3244,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			if (!((battle_config.costume_refine_def != 1 && i >= EQI_COSTUME_HEAD_LOW && i <= EQI_COSTUME_FLOOR) ||
 				(battle_config.shadow_refine_def != 1 && i >= EQI_SHADOW_ARMOR && i <= EQI_SHADOW_ACC_L)))
 				refinedef += sd->inventory.u.items_inventory[index].refine * refinebonus[0][0];
-			if(sd->inventory_data[index]->script) {
+			if(sd->inventory_data[index]->script && (!itemdb_isNoEquip(sd->inventory_data[index], sd->bl.m))) {
 				if (i == EQI_HAND_L) //Shield
 					sd->state.lr_flag = 3;
 				run_script(sd->inventory_data[index]->script,0,sd->bl.id,0);
@@ -3327,7 +3315,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 				data = itemdb_exists(c);
 				if(!data)
 					continue;
-				if(opt&SCO_FIRST && data->equip_script)
+				if(opt&SCO_FIRST && data->equip_script && (!itemdb_isNoEquip(data, sd->bl.m)))
 			  	{	//Execute equip-script on login
 					run_script(data->equip_script,0,sd->bl.id,0);
 					if (!calculating)
@@ -3335,18 +3323,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 				}
 				if(!data->script)
 					continue;
-				if(data->flag.no_equip) { //Card restriction checks.
-					if(map[sd->bl.m].flag.restricted && data->flag.no_equip&(8*map[sd->bl.m].zone))
-						continue;
-					if(!map_flag_vs(sd->bl.m) && data->flag.no_equip&1)
-						continue;
-					if(map[sd->bl.m].flag.pvp && data->flag.no_equip&2)
-						continue;
-					if(map_flag_gvg(sd->bl.m) && data->flag.no_equip&4) 
-						continue;
-					if(map[sd->bl.m].flag.battleground && data->flag.no_equip&8)
-						continue;
-				}
+				if (itemdb_isNoEquip(data, sd->bl.m)) //Card restriction checks.
+					continue;
 				if(i == EQI_HAND_L && sd->inventory.u.items_inventory[index].equip == EQP_HAND_L)
 				{	//Left hand status.
 					sd->state.lr_flag = 1;
@@ -6538,7 +6516,7 @@ static unsigned int status_calc_maxsp(struct block_list *bl, uint64 maxsp)
 static unsigned char status_calc_element(struct block_list *bl, struct status_change *sc, int element)
 {
 	if(!sc || !sc->count)
-		return element;
+		return cap_value(element, 0, UCHAR_MAX);
 
 	if(sc->data[SC_FREEZE])
 		return ELE_WATER;
@@ -6559,7 +6537,7 @@ static unsigned char status_calc_element(struct block_list *bl, struct status_ch
 static unsigned char status_calc_element_lv(struct block_list *bl, struct status_change *sc, int lv)
 {
 	if(!sc || !sc->count)
-		return lv;
+		return cap_value(lv, 1, 4);
 
 	if(sc->data[SC_FREEZE])	
 		return 1;
@@ -6581,7 +6559,7 @@ static unsigned char status_calc_element_lv(struct block_list *bl, struct status
 unsigned char status_calc_attack_element(struct block_list *bl, struct status_change *sc, int element)
 {
 	if(!sc || !sc->count)
-		return element;
+		return cap_value(element, 0, UCHAR_MAX);
 	if(sc->data[SC_ENCHANTARMS])
 		return sc->data[SC_ENCHANTARMS]->val2;
 	if(sc->data[SC_WATERWEAPON] || (sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) || sc->data[SC_TIDAL_WEAPON] || sc->data[SC_TIDAL_WEAPON_OPTION])
@@ -6606,7 +6584,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 static unsigned short status_calc_mode(struct block_list *bl, struct status_change *sc, int mode)
 {
 	if(!sc || !sc->count)
-		return mode;
+		return cap_value(mode, 0, USHRT_MAX);
 	if(sc->data[SC_MODECHANGE]) {
 		if (sc->data[SC_MODECHANGE]->val2)
 			mode = sc->data[SC_MODECHANGE]->val2; //Set mode

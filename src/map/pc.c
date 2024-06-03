@@ -1382,6 +1382,10 @@ int pc_isequip(struct map_session_data *sd,int n)
 		}
 	}
 
+	//fail to equip if item is restricted
+	if (!battle_config.allow_equip_restricted_item && itemdb_isNoEquip(item, sd->bl.m))
+		return 0;
+
 	//Not equipable by class. [Skotlex]
 	if (!(1<<(sd->class_&MAPID_BASEMASK)&item->class_base[(sd->class_&JOBL_2_1)?1:((sd->class_&JOBL_2_2)?2:0)]))
 		return 0;
@@ -5106,14 +5110,8 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		return 0;
 
 	/* on restricted maps the item is consumed but the effect is not used */
-	if (
-		(!map_flag_vs(sd->bl.m) && sd->inventory_data[n]->flag.no_equip & 1) || // Normal
-		(map[sd->bl.m].flag.pvp && sd->inventory_data[n]->flag.no_equip & 2) || // PVP
-		(map_flag_gvg(sd->bl.m) && sd->inventory_data[n]->flag.no_equip & 4) || // GVG
-		(map[sd->bl.m].flag.battleground && sd->inventory_data[n]->flag.no_equip & 8) || // Battleground
-		(map[sd->bl.m].flag.restricted && sd->inventory_data[n]->flag.no_equip&(8 * map[sd->bl.m].zone)) // Zone restriction
-		) {
-		if (battle_config.item_restricted_consumption_type) {
+	if (itemdb_isNoEquip(id, sd->bl.m)) {
+		if (battle_config.allow_consume_restricted_item) {
 			clif_useitemack(sd, n, sd->inventory.u.items_inventory[n].amount - 1, true);
 			pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME);
 		}
@@ -10269,7 +10267,8 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 	if (id) {
 		int i;
 		struct item_data *data;
-		if (id->equip_script)
+		//only run the script if item isn't restricted
+		if (id->equip_script && (!itemdb_isNoEquip(id, sd->bl.m)))
 			run_script(id->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		if(itemdb_isspecial(sd->inventory.u.items_inventory[n].card[0]))
 			; //No cards
@@ -10279,7 +10278,7 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 			if (!sd->inventory.u.items_inventory[n].card[i])
 				continue;
 			data = itemdb_exists(sd->inventory.u.items_inventory[n].card[i]);
-			if (data && data->equip_script)
+			if (data && (!itemdb_isNoEquip(data, sd->bl.m)))
 				run_script(data->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		}
 	}
@@ -10545,6 +10544,12 @@ void pc_checkitem(struct map_session_data *sd)
 
 		if( sd->inventory.u.items_inventory[i].equip&~pc_equippoint(sd,i) )
 		{
+			pc_unequipitem(sd, i, 2);
+			calc_flag = 1;
+			continue;
+		}
+
+		if (!battle_config.allow_equip_restricted_item && itemdb_isNoEquip(sd->inventory_data[i], sd->bl.m)) {
 			pc_unequipitem(sd, i, 2);
 			calc_flag = 1;
 			continue;

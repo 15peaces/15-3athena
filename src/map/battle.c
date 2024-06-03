@@ -6898,7 +6898,8 @@ static const struct _battle_data {
 	{ "emblem_woe_change",                  &battle_config.emblem_woe_change,                0,     0,      1,				},
 	{ "emblem_transparency_limit",          &battle_config.emblem_transparency_limit,       80,     0,    100,				},
 	{ "discount_item_point_shop",			&battle_config.discount_item_point_shop,		0,		0,		3,				},
-	{ "item_restricted_consumption_type",   &battle_config.item_restricted_consumption_type,1,      0,      1,				},
+	{ "allow_consume_restricted_item",      &battle_config.allow_consume_restricted_item,   1,      0,      1,				},
+	{ "allow_equip_restricted_item",        &battle_config.allow_equip_restricted_item,     1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

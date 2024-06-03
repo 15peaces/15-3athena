@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/03/2024
+	r464 [15peaces]
+		*Capped some return values in status_calc_* functions.
+		*Some fixes & optimisations to item_noequip.txt
+			-Fixed check when player try to equip an item.
+			-Config naming changed: 'item_restricted_consumption_type' to 'allow_consume_restricted_item' (conf/battle/items.conf)
+			-Added 'allow_equip_restricted_item' config to allow/disallow player use item that restricted. Default is yes, restricted item can be equipped but gives no script effect (conf/battle/items.conf)
+			-Moved item_nouse checks to itemdb_isNoEquip & fixed them.
+
 06/02/2024
 	r463 [15peaces]
 		*Added simple identifyall atcommand.

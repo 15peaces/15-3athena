@@ -652,7 +652,8 @@ extern struct Battle_Config
 	int emblem_transparency_limit;
 	int discount_item_point_shop;
 	int dancing_weaponswitch_fix;
-	int item_restricted_consumption_type;
+	int allow_consume_restricted_item;
+	int allow_equip_restricted_item;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;
