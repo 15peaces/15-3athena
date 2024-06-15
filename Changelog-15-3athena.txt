@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/15/2024
+	r465 [15peaces]
+		*Re-added a check that was removed by accident.
+		*Added bonus2 bHPVanishRate bonus.
+		*Added some missing consts.
+		*Cart Boost effect stays even if the cart is removed. Revert of recent change...
+
 06/03/2024
 	r464 [15peaces]
 		*Capped some return values in status_calc_* functions.

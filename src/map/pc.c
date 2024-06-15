@@ -3530,6 +3530,12 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			sd->bonus.sp_vanish_per += val;
 		}
 		break;
+	case SP_HP_VANISH_RATE:
+		if (sd->state.lr_flag != 2) {
+			sd->bonus.hp_vanish_rate += type2;
+			sd->bonus.hp_vanish_per += val;
+		}
+		break;
 	case SP_GET_ZENY_NUM:
 		if(sd->state.lr_flag != 2 && sd->bonus.get_zeny_rate < val)
 		{
@@ -9353,9 +9359,6 @@ bool pc_setcart(struct map_session_data *sd,int type)
 	if (pc_checkskill(sd, MC_PUSHCART) <= 0 && type != 0)
 		return false;// Push cart is required
 
-	if (type == 0 && pc_iscarton(sd))
-		status_change_end(&sd->bl, SC_GN_CARTBOOST, INVALID_TIMER);
-
 	//If the date of the client used is older then 2012-04-10, OPTIONS for carts will be used.
 	//If the date of the client used is equal or newer then 2012-04-10, SC_ON_PUSH_CART will be used.
 #if PACKETVER < 20120410
@@ -10278,7 +10281,7 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 			if (!sd->inventory.u.items_inventory[n].card[i])
 				continue;
 			data = itemdb_exists(sd->inventory.u.items_inventory[n].card[i]);
-			if (data && (!itemdb_isNoEquip(data, sd->bl.m)))
+			if (data && data->equip_script && (!itemdb_isNoEquip(data, sd->bl.m)))
 				run_script(data->equip_script,0,sd->bl.id,fake_nd->bl.id);
 		}
 	}

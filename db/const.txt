@@ -446,6 +446,8 @@ cell_chklandprotector	11
 cell_chknovending		12
 cell_chknochat			13
 cell_chkpvp				14	// Cell PVP [Napster]
+cell_chkmaelstrom	15
+cell_chkicewall	16
 
 StatusPoint	9	1
 BaseLevel	11	1
@@ -646,6 +648,7 @@ bFixedCast	2057
 
 bSetDefRace	2059
 bSetMDefRace	2060
+bHPVanishRate	2061
 bIgnoreDefClass	2062
 bDefRatioAtkClass	2063
 bAddClass	2064

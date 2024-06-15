@@ -5432,7 +5432,10 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldama
 		}
 	}
 
-	// HPVanishRate - TODO
+	// HPVanishRate
+	if (sd->bonus.hp_vanish_rate && rnd() % 1000 < sd->bonus.hp_vanish_rate
+		&& tbl->type == BL_PC && (map[sd->bl.m].flag.pvp || map[sd->bl.m].flag.gvg))
+		status_percent_damage(&sd->bl, tbl, (unsigned char)sd->bonus.hp_vanish_per, 0, false);
 	
 	// SPVanishRate
 	if (sd->bonus.sp_vanish_rate && rnd() % 1000 < sd->bonus.sp_vanish_rate)
