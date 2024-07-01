@@ -160,13 +160,13 @@
 20011,C_Lightning_Speed,Costume Lightning Speed,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1199,{},{},{}
 20012,C_Double_Horn_Helm,Costume Double Horn Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1200,{},{},{}
 20013,C_Chef_Hat,Costume Chef Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,111,{},{},{}
-//
 20021,C_Heart_Ribbon_Hairband,Costume Heart Ribbon Hairband,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,708,{},{},{}
 20022,C_Love_Fragment,Costume Love Fragment,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,734,{},{},{}
 20031,C_Bunny_Headress,Costume Bunny Headress,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1215,{},{},{}
 20032,C_Firinto_Scarf,Costume Firinto Scarf,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1216,{},{},{}
 20121,C_Water_Lily_Hat,Costume Water Lily Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,324,{},{},{}
 20122,C_Happy_Summer_Ribbon,Costume Happy Summer Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1260,{},{},{}
+//
 20123,C_Eagle_Eyes,Costume Eagle Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,63,{},{},{}
 20124,C_Masquerade,Costume Masquerade,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,78,{},{},{}
 20125,C_Mini_Glasses,Costume Mini Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,47,{},{},{}

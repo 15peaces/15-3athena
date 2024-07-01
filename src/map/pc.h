@@ -267,7 +267,8 @@ struct map_session_data {
 	short skillid_dance,skilllv_dance;
 	short cook_mastery; // range: [0,1999] [Inkfish]
 	struct skill_cooldown_entry *scd[MAX_SKILLCOOLDOWN]; // Skill Cooldown
-	int cloneskill_id, reproduceskill_id;
+	int cloneskill_idx, ///Stores index of copied skill by Intimidate/Plagiarism
+		reproduceskill_idx; ///Stores index of copied skill by Reproduce
 	int menuskill_id, menuskill_val, menuskill_val2, menuskill_itemused;
 
 	int invincible_timer;
@@ -615,9 +616,7 @@ struct map_session_data {
 	unsigned int cryptKey; ///< Packet obfuscation key to be used for the next received packet
 #endif
 
-	struct {
-		int id;
-	} dmglog[DAMAGELOG_SIZE_PC];
+	uint16 dmglog[DAMAGELOG_SIZE_PC];  ///target ids
 };
 
 struct eri *pc_sc_display_ers; /// Player's SC display table
@@ -980,7 +979,7 @@ void pc_changelook(struct map_session_data *,int,int);
 void pc_equiplookall(struct map_session_data *sd);
 
 int pc_readparam(struct map_session_data*,int);
-int pc_setparam(struct map_session_data*,int64,int64);
+bool pc_setparam(struct map_session_data*,int64,int64);
 int64 pc_readreg(struct map_session_data*,int64);
 bool pc_setreg(struct map_session_data*,int64,int64);
 char *pc_readregstr(struct map_session_data *sd,int64 reg);

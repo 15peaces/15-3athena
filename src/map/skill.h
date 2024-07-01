@@ -112,8 +112,9 @@ struct skill_condition {
 		hp_rate,
 		sp_rate;
 	int itemid[MAX_SKILL_ITEM_REQUIRE],
-		amount[MAX_SKILL_ITEM_REQUIRE],
-		eqItem[MAX_SKILL_EQUIP_REQUIRE];
+		amount[MAX_SKILL_ITEM_REQUIRE];
+	int *eqItem;
+	uint8 eqItem_count;
 };
 
 struct s_skill_require {
@@ -129,8 +130,9 @@ struct s_skill_require {
 		state,
 		spiritball[MAX_SKILL_LEVEL],
 		itemid[MAX_SKILL_ITEM_REQUIRE],
-		amount[MAX_SKILL_ITEM_REQUIRE],
-		eqItem[MAX_SKILL_EQUIP_REQUIRE];
+		amount[MAX_SKILL_ITEM_REQUIRE];
+		int *eqItem;
+		uint8 eqItem_count;
 };
 
 /// Database skills.

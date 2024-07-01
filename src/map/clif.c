@@ -4014,7 +4014,7 @@ int clif_skill_select_request(struct map_session_data *sd)
 	WFIFOHEAD(fd, 2 * 6 + 4);
 	WFIFOW(fd,0) = 0x442;
 	for( i = 0, c = 0; i < MAX_SKILL; i++ )
-		if ((sd->status.skill[i].id == sd->status.skill[sd->cloneskill_id].id || sd->status.skill[i].id == sd->status.skill[sd->reproduceskill_id].id) && 
+		if ((sd->status.skill[i].id == sd->status.skill[sd->cloneskill_idx].id || sd->status.skill[i].id == sd->status.skill[sd->reproduceskill_idx].id) && 
 			(sd->status.skill[i].id == MG_NAPALMBEAT || 
 			sd->status.skill[i].id >= MG_SOULSTRIKE && sd->status.skill[i].id <= MG_FROSTDIVER || 
 			sd->status.skill[i].id >= MG_FIREBALL && sd->status.skill[i].id <= MG_THUNDERSTORM || 
@@ -10596,7 +10596,7 @@ void clif_feel_info(struct map_session_data* sd, unsigned char feel_level, unsig
 {
 	char mapname[MAP_NAME_LENGTH_EXT];
 
-	mapindex_getmapname_ext(mapindex_id2name(sd->feel_map[feel_level].index), mapname);
+	mapindex_getmapname_ext(map[sd->feel_map[feel_level].m].name, mapname);
 	clif_starskill(sd, mapname, 0, feel_level, type ? 1 : 0);
 }
 

@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/01/2024
+	r466 [15peaces]
+		*Another small fix in MaxHP/SP calculation.
+		*Some cleaning & misc fixing.
+			-Added skill_do_copy function to encapsulate code.
+		*MC_IDENTIFY
+			-Fixed SP consumption.
+		*A little optimization on skill_db for skill requirements.
+
 06/15/2024
 	r465 [15peaces]
 		*Re-added a check that was removed by accident.

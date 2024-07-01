@@ -31,7 +31,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 
 #define MAX_STARTITEM 16
 #define CHAR_MAX_MSG 300
@@ -2563,6 +2562,38 @@ void loginif_on_ready(void)
 		ShowStatus("Awaiting maps from map-server.\n");
 }
 
+int loginif_parse_reqpincode(int fd, struct char_session_data *sd) {
+#if PACKETVER >=  20110309
+	if (pincode_enabled) {
+		// PIN code system enabled
+		if (sd->pincode[0] == '\0') {
+			// No PIN code has been set yet
+			if (pincode_force) pincode_sendstate(fd, sd, PINCODE_NEW);
+			else pincode_sendstate(fd, sd, PINCODE_PASSED);
+		}
+		else {
+			if (!pincode_changetime || (sd->pincode_change + pincode_changetime) > time(NULL)) {
+				struct online_char_data* node = (struct online_char_data*)idb_get(online_char_db, sd->account_id);
+
+				if (node != NULL && node->pincode_success) { // User has already passed the check                    
+					pincode_sendstate(fd, sd, PINCODE_PASSED);
+				}
+				else {
+					// Ask user for his PIN code
+					pincode_sendstate(fd, sd, PINCODE_ASK);
+				}
+			}
+			else { // User hasnt changed his PIN code too long
+				pincode_sendstate(fd, sd, PINCODE_EXPIRED);
+			}
+		}
+	}
+	else { // PIN code system disabled 
+		pincode_sendstate(fd, sd, PINCODE_OK);
+	}
+#endif
+	return 0;
+}
 
 int parse_fromlogin(int fd)
 {
@@ -2678,42 +2709,7 @@ int parse_fromlogin(int fd)
 				{
 					// send characters to player
 					mmo_char_send(i, sd);
-#if PACKETVER >=  20110309
-					if (pincode_enabled) {
-						// PIN code system enabled
-						if (strlen(sd->pincode) <= 0) {
-							// No PIN code has been set yet
-							if (pincode_force) {
-								pincode_sendstate(i, sd, PINCODE_NEW);
-							}
-							else {
-								pincode_sendstate(i, sd, PINCODE_PASSED);
-							}
-						}
-						else {
-							if (!pincode_changetime || (sd->pincode_change + pincode_changetime) > time(NULL)) {
-								struct online_char_data* node = (struct online_char_data*)idb_get(online_char_db, sd->account_id);
-
-								if (node != NULL && node->pincode_success) {
-									// User has already passed the check
-									pincode_sendstate(i, sd, PINCODE_PASSED);
-								}
-								else {
-									// Ask user for his PIN code
-									pincode_sendstate(i, sd, PINCODE_ASK);
-								}
-							}
-							else {
-								// User hasnt changed his PIN code too long
-								pincode_sendstate(i, sd, PINCODE_EXPIRED);
-							}
-						}
-					}
-					else {
-						// PIN code system, disabled
-						pincode_sendstate(i, sd, PINCODE_OK);
-					}
-#endif
+					loginif_parse_reqpincode(i, sd);
 				}
 			}
 			RFIFOSKIP(fd,71);
@@ -5073,7 +5069,7 @@ int parse_char(int fd)
 				return 0;
 
 			if (pincode_enabled && RFIFOL(fd, 2) == sd->account_id) {
-				if (strlen(sd->pincode) <= 0) {
+				if (sd->pincode[0] == '\0') {
 					pincode_sendstate(fd, sd, PINCODE_NEW);
 				}
 				else {

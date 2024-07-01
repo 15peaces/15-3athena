@@ -674,10 +674,10 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 			continue;
 		}
 		//Checking groupid
-		if (!atoi(str[0])) //Try reads group id by const
-			script_get_constant(trim(str[0]), &groupid);
-		else
+		if (atoi(str[0]))
 			groupid = atoi(str[0]);
+		else if (!atoi(str[0])) //Try reads group id by const
+			script_get_constant(trim(str[0]), &groupid);
 
 		if (groupid < 0) {
 			ShowWarning("itemdb_read_itemgroup: Invalid group %d in %s:%d\n", groupid, filename, ln);

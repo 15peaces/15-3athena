@@ -1727,25 +1727,25 @@ int pc_reg_received(struct map_session_data *sd)
 	}
 
 	if ((i = pc_checkskill(sd,RG_PLAGIARISM)) > 0) {
-		sd->cloneskill_id = pc_readglobalreg(sd,"CLONE_SKILL");
-		if (sd->cloneskill_id > 0) {
-			sd->status.skill[sd->cloneskill_id].id = sd->cloneskill_id;
-			sd->status.skill[sd->cloneskill_id].lv = pc_readglobalreg(sd,"CLONE_SKILL_LV");
-			if (sd->status.skill[sd->cloneskill_id].lv > i)
-				sd->status.skill[sd->cloneskill_id].lv = i;
-			sd->status.skill[sd->cloneskill_id].flag = SKILL_FLAG_PLAGIARIZED;
+		sd->cloneskill_idx = skill_get_index(pc_readglobalreg(sd,"CLONE_SKILL"));
+		if (sd->cloneskill_idx >= 0) {
+			sd->status.skill[sd->cloneskill_idx].id = pc_readglobalreg(sd, "CLONE_SKILL");
+			sd->status.skill[sd->cloneskill_idx].lv = pc_readglobalreg(sd,"CLONE_SKILL_LV");
+			if (sd->status.skill[sd->cloneskill_idx].lv > i)
+				sd->status.skill[sd->cloneskill_idx].lv = i;
+			sd->status.skill[sd->cloneskill_idx].flag = SKILL_FLAG_PLAGIARIZED;
 		}
 	}
 
 	if ((i = pc_checkskill(sd,SC_REPRODUCE)) > 0) {
-		sd->reproduceskill_id = pc_readglobalreg(sd,"REPRODUCE_SKILL");
-		if( sd->reproduceskill_id > 0)
+		sd->reproduceskill_idx = skill_get_index(pc_readglobalreg(sd,"REPRODUCE_SKILL"));
+		if( sd->reproduceskill_idx >= 0)
 		{
-			sd->status.skill[sd->reproduceskill_id].id = sd->reproduceskill_id;
-			sd->status.skill[sd->reproduceskill_id].lv = pc_readglobalreg(sd,"REPRODUCE_SKILL_LV");
-			if( i < sd->status.skill[sd->reproduceskill_id].lv)
-				sd->status.skill[sd->reproduceskill_id].lv = i;
-			sd->status.skill[sd->reproduceskill_id].flag = SKILL_FLAG_PLAGIARIZED;
+			sd->status.skill[sd->reproduceskill_idx].id = pc_readglobalreg(sd, "REPRODUCE_SKILL");
+			sd->status.skill[sd->reproduceskill_idx].lv = pc_readglobalreg(sd,"REPRODUCE_SKILL_LV");
+			if( i < sd->status.skill[sd->reproduceskill_idx].lv)
+				sd->status.skill[sd->reproduceskill_idx].lv = i;
+			sd->status.skill[sd->reproduceskill_idx].flag = SKILL_FLAG_PLAGIARIZED;
 		}
 	}
 
@@ -1947,9 +1947,9 @@ int pc_calc_skilltree(struct map_session_data *sd)
 					f = 0;
 				// Some skills require the player to reach a certain job level to unlock.
 				if (sd->status.job_level < skill_tree[c][i].joblv) { //We need to get the actual class in this case
-					int class = pc_mapid2jobid(sd->class_, sd->status.sex);
-					class = pc_class2idx(class);
-					if (class == c || (class != c && sd->status.job_level < skill_tree[class][i].joblv))
+					int class_ = pc_mapid2jobid(sd->class_, sd->status.sex);
+					class_ = pc_class2idx(class_);
+					if (class_ == c || (class_ != c && sd->status.job_level < skill_tree[class_][i].joblv))
 						f = 0; // job level requirement wasn't satisfied
 				}
 			}
@@ -8554,9 +8554,9 @@ int pc_readparam(struct map_session_data* sd,int type)
 /*==========================================
  * script set pc status registry
  *------------------------------------------*/
-int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
+bool pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 {
-	nullpo_ret(sd);
+	nullpo_retr(false,sd);
 
 	int val = (int)val_;
 
@@ -8753,14 +8753,14 @@ int pc_setparam(struct map_session_data *sd,int64 type,int64 val_)
 		return true;
 	case SP_CHARMOVE:
 		sd->status.character_moves = val;
-		return 1;
+		return true;
 	default:
 		ShowError("pc_setparam: Attempted to set unknown parameter '%d'.\n", type);
-		return 0;
+		return false;
 	}
 	clif_updatestatus(sd,(int)type);
 
-	return 1;
+	return true;
 }
 
 /*==========================================
@@ -8956,27 +8956,27 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 		pc_setglobalreg (sd, "jobchange_level", sd->change_level[0]);
 	}
 
-	if(sd->cloneskill_id)
+	if(sd->cloneskill_idx >= 0)
 	{
-		if (sd->status.skill[sd->cloneskill_id].flag == SKILL_FLAG_PLAGIARIZED) {
-			sd->status.skill[sd->cloneskill_id].id = 0;
-			sd->status.skill[sd->cloneskill_id].lv = 0;
-			sd->status.skill[sd->cloneskill_id].flag = 0;
-			clif_deleteskill(sd, sd->cloneskill_id);
+		if (sd->status.skill[sd->cloneskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
+			sd->status.skill[sd->cloneskill_idx].id = 0;
+			sd->status.skill[sd->cloneskill_idx].lv = 0;
+			sd->status.skill[sd->cloneskill_idx].flag = 0;
+			clif_deleteskill(sd, pc_readglobalreg(sd, "CLONE_SKILL"));
 		}
-		sd->cloneskill_id = 0;
+		sd->cloneskill_idx = -1;
 		pc_setglobalreg(sd, "CLONE_SKILL", 0);
 		pc_setglobalreg(sd, "CLONE_SKILL_LV", 0);
 	}
-	if(sd->reproduceskill_id)
+	if(sd->reproduceskill_idx >= 0)
 	{
-		if (sd->status.skill[sd->reproduceskill_id].flag == SKILL_FLAG_PLAGIARIZED) {
-			sd->status.skill[sd->reproduceskill_id].id = 0;
-			sd->status.skill[sd->reproduceskill_id].lv = 0;
-			sd->status.skill[sd->reproduceskill_id].flag = 0;
-			clif_deleteskill(sd, sd->reproduceskill_id);
+		if (sd->status.skill[sd->reproduceskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
+			sd->status.skill[sd->reproduceskill_idx].id = 0;
+			sd->status.skill[sd->reproduceskill_idx].lv = 0;
+			sd->status.skill[sd->reproduceskill_idx].flag = 0;
+			clif_deleteskill(sd, pc_readglobalreg(sd, "REPRODUCE_SKILL"));
 		}
-		sd->reproduceskill_id = 0;
+		sd->reproduceskill_idx = -1;
 		pc_setglobalreg(sd, "REPRODUCE_SKILL",0);
 		pc_setglobalreg(sd, "REPRODUCE_SKILL_LV",0);
 	}
@@ -11251,8 +11251,15 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 
 	job_info[idx].max_level[type] = maxlvl;
 
-	for (i = 0; i < maxlvl; i++)
+	for (i = 0; i < maxlvl; i++) {
 		job_info[idx].exp_table[type][i] = ((uint32)atoi(fields[3 + i]));
+		//Place the BaseHP/SP calculation here, so we can use the maxlevel from exp
+		if (type == 0)
+		{
+			job_info[idx].base_hp[i] = pc_calc_basehp(i + 1, idx);
+			job_info[idx].base_sp[i] = 10 + ((i + 1) * (job_info[idx].sp_factor / 100));
+		}
+	}
 
 	//Reverse check in case the array has a bunch of trailing zeros... [Skotlex]
 	//The reasoning behind the -2 is this... if the max level is 5, then the array
@@ -11280,15 +11287,20 @@ static bool pc_readdb_exp(char* fields[], int columns, int current)
 		idx = pc_class2idx(job_id);
 		memcpy(job_info[idx].exp_table[type], job_info[pc_class2idx(jobs[0])].exp_table[type], sizeof(job_info[pc_class2idx(jobs[0])].exp_table[type]));
 
-		//Place the BaseHP/SP calculation here, so we can use the maxlevel from job_exp
-		for (j = 0; j < maxlvl; j++) {
-			job_info[idx].base_hp[j] = pc_calc_basehp(j + 1, idx);
-			job_info[idx].base_sp[j] = 10 + ((j + 1) * (job_info[idx].sp_factor / 100));
-		}
-
 		job_info[idx].max_level[type] = maxlvl;
-//		ShowInfo("%s - Class %d: %u\n", type?"Job":"Base", job_id, job_info[idx].max_level[type]);
+		//ShowInfo("%s - Class %d: %u\n", type ? "Job" : "Base", job_id, job_info[idx].max_level[type]);
+
+		//Place the BaseHP/SP calculation here, so we can use the maxlevel from exp
+		if (type == 0)
+		{
+			for (j = 0; j < maxlvl; j++)
+			{
+				job_info[idx].base_hp[i] = pc_calc_basehp(i + 1, idx);
+				job_info[idx].base_sp[i] = 10 + ((i + 1) * (job_info[idx].sp_factor / 100));
+			}
+		}
 	}
+
 	return true;
 }
 
@@ -12044,7 +12056,7 @@ short pc_get_itemgroup_bonus_group(struct map_session_data* sd, uint16 group_id)
 	return bonus;
 }
 
-void pc_clear_log_damage_sub(int char_id, struct mob_data *md)
+static void pc_clear_log_damage_sub(int char_id, struct mob_data *md)
 {
 	int i;
 	ARR_FIND(0, DAMAGELOG_SIZE, i, md->dmglog[i].id == char_id);
@@ -12063,13 +12075,13 @@ void pc_damage_log_add(struct map_session_data *sd, int id)
 	if (!sd)
 		return;
 
-	for (i = 0; i < DAMAGELOG_SIZE_PC && sd->dmglog[i].id != id; i++)
-		if (!sd->dmglog[i].id)
-		{
-			sd->dmglog[i].id = id;
-			break;
-		}
-	return;
+	//Only store new data, don't need to renew the old one with same id
+	for (i = 0; i < DAMAGELOG_SIZE_PC; i++) {
+		if (sd->dmglog[i] == id)
+			return;
+		sd->dmglog[i] = id;
+		return;
+	}
 }
 
 void pc_damage_log_clear(struct map_session_data *sd, int id)
@@ -12083,10 +12095,10 @@ void pc_damage_log_clear(struct map_session_data *sd, int id)
 	{
 		for (i = 0; i < DAMAGELOG_SIZE_PC; i++)	// track every id
 		{
-			if (!sd->dmglog[i].id)	//skip the empty value
+			if (!sd->dmglog[i])	//skip the empty value
 				continue;
 
-			if ((md = map_id2md(sd->dmglog[i].id)))
+			if ((md = map_id2md(sd->dmglog[i])))
 				pc_clear_log_damage_sub(sd->status.char_id, md);
 		}
 		memset(sd->dmglog, 0, sizeof(sd->dmglog));	// clear all
@@ -12096,9 +12108,9 @@ void pc_damage_log_clear(struct map_session_data *sd, int id)
 		if ((md = map_id2md(id)))
 			pc_clear_log_damage_sub(sd->status.char_id, md);
 
-		ARR_FIND(0, DAMAGELOG_SIZE_PC, i, sd->dmglog[i].id == id);	// find the id position
+		ARR_FIND(0, DAMAGELOG_SIZE_PC, i, sd->dmglog[i] == id);	// find the id position
 		if (i < DAMAGELOG_SIZE_PC)
-			sd->dmglog[i].id = 0;
+			sd->dmglog[i] = 0;
 	}
 }
 
