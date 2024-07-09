@@ -37,7 +37,7 @@ struct guild *guild_searchname(char *str);
 
 struct map_session_data *guild_getavailablesd(struct guild *g);
 int guild_getindex(struct guild *g,int account_id,int char_id);
-int guild_getposition(struct guild *g, struct map_session_data *sd);
+int guild_getposition(struct map_session_data *sd);
 unsigned int guild_payexp(struct map_session_data* sd, unsigned int exp);
 
 bool guild_create(struct map_session_data *sd, const char *name);
@@ -83,7 +83,7 @@ int guild_skillupack(int guild_id,int skill_id,int account_id);
 int guild_break(struct map_session_data *sd,char *name);
 int guild_broken(int guild_id,int flag);
 int guild_gm_change(int guild_id, uint32 char_id);
-int guild_gm_changed(int guild_id, int account_id, int char_id);
+int guild_gm_changed(int guild_id, int account_id, int char_id, time_t time);
 
 void guild_castle_reconnect(int castle_id, int index, int value);
 

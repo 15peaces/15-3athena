@@ -807,7 +807,7 @@ int hom_change_name_ack(struct map_session_data *sd, char* name, int flag)
 		return 0;
 	}
 	safestrncpy(hd->homunculus.name,name,NAME_LENGTH);
-	clif_charnameack (0,&hd->bl);
+	clif_name_area(&hd->bl);
 	hd->homunculus.rename_flag = 1;
 	clif_hominfo(sd,hd,0);
 	return 1;

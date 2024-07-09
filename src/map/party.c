@@ -346,7 +346,7 @@ int party_recv_info(struct party* sp, int char_id)
 		sd = p->data[member_id].sd;
 		if( sd == NULL )
 			continue;// not online
-		clif_charnameupdate(sd); //Update other people's display. [Skotlex]
+		clif_name_area(&sd->bl); //Update other people's display. [Skotlex]
 		clif_party_member_info(p, member_id, PARTY);
 		clif_party_option(p, member_id, SELF);
 		clif_party_info(p,NULL);
@@ -530,7 +530,7 @@ int party_member_added(int party_id,int account_id,int char_id, int flag)
 	}
 	clif_party_hp(sd);
 	clif_party_xy(sd);
-	clif_charnameupdate(sd); //Update char name's display [Skotlex]
+	clif_name_area(&sd->bl); //Update char name's display [Skotlex]
 
 	if( p->instance_id )
 		clif_instance_join(sd->fd, p->instance_id);
@@ -608,7 +608,7 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1,LOG_TYPE_OTHER);
 #endif
 		sd->status.party_id = 0;
-		clif_charnameupdate(sd); //Update name display [Skotlex]
+		clif_name_area(&sd->bl); //Update name display [Skotlex]
 		//TODO: hp bars should be cleared too
 		if( p->instance_id )
 			instance_check_kick(sd);

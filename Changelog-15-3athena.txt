@@ -5,6 +5,26 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/09/2024
+	r467 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn467.sql file!
+		*Some misc cleaning.
+			-Moved some stable costume items.
+			-Adjusted a couple skills that have infinite timers to not display negative time to the client.
+		*Fixed Chorus skills not checking for additional partners.
+		*Refactored clif functions for unit names.
+			-Renamed clif_charnameack to clif_name and added additional parameters to follow other clif functions.
+			-Removed clif_charnameupdate completely since it was just a copy of the BL_PC code in clif_charnameack and replaced all calls with clif_name_area.
+		*Fixed a potential map-server crash.
+		*Added some checks to guild leader change
+			-Introduces two new configurations:
+			--Allow guild leader changes in WoE (yes/no)
+				---Default: no
+			--Delay between the changes (in minutes)
+		*Fixed ZC_ACK_REQNAME_BYGID packet structure for 2018+ clients.
+			-This also fixed the guild window.
+			-finally fixes issue #15
+
 07/01/2024
 	r466 [15peaces]
 		*Another small fix in MaxHP/SP calculation.

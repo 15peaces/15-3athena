@@ -8926,7 +8926,7 @@ ACMD_FUNC(fakename)
 		if( sd->fakename[0] )
 		{
 			sd->fakename[0] = '\0';
-			clif_charnameack(0, &sd->bl);
+			clif_name_area(&sd->bl);
 			clif_displaymessage(sd->fd, "Returned to real name.");
 			return 0;
 		}
@@ -8942,7 +8942,7 @@ ACMD_FUNC(fakename)
 	}
 	
 	safestrncpy(sd->fakename, message, sizeof(sd->fakename));
-	clif_charnameack(0, &sd->bl);
+	clif_name_area(&sd->bl);
 	clif_displaymessage(sd->fd, "Fake name enabled.");
 
 	return 0;

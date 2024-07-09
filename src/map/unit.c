@@ -2302,7 +2302,7 @@ static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data)
  * flag&1: Cast-Cancel invoked.
  * flag&2: Cancel only if skill is cancellable.
  *------------------------------------------*/
-int unit_skillcastcancel(struct block_list *bl,int type)
+int unit_skillcastcancel(struct block_list *bl,char type)
 {
 	struct map_session_data *sd = NULL;
 	struct unit_data *ud = unit_bl2ud( bl);

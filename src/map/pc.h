@@ -267,7 +267,7 @@ struct map_session_data {
 	short skillid_dance,skilllv_dance;
 	short cook_mastery; // range: [0,1999] [Inkfish]
 	struct skill_cooldown_entry *scd[MAX_SKILLCOOLDOWN]; // Skill Cooldown
-	int cloneskill_idx, ///Stores index of copied skill by Intimidate/Plagiarism
+	short cloneskill_idx, ///Stores index of copied skill by Intimidate/Plagiarism
 		reproduceskill_idx; ///Stores index of copied skill by Reproduce
 	int menuskill_id, menuskill_val, menuskill_val2, menuskill_itemused;
 

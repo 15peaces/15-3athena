@@ -166,7 +166,6 @@
 20032,C_Firinto_Scarf,Costume Firinto Scarf,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1216,{},{},{}
 20121,C_Water_Lily_Hat,Costume Water Lily Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,324,{},{},{}
 20122,C_Happy_Summer_Ribbon,Costume Happy Summer Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1260,{},{},{}
-//
 20123,C_Eagle_Eyes,Costume Eagle Eyes,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,63,{},{},{}
 20124,C_Masquerade,Costume Masquerade,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,78,{},{},{}
 20125,C_Mini_Glasses,Costume Mini Glasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,47,{},{},{}
@@ -192,12 +191,8 @@
 20171,C_Sepia_Cap,Costume Sepia Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1280,{},{},{}
 20172,C_Pumpkin_Hat,Costume Pumpkin Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1281,{},{},{}
 20173,C_Lude_Hood,Costume Lude Hood,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1282,{},{},{}
-20174,C_Orange_Halloween_Hat,Costume Orange Halloween Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1283,{},{},{}
-20175,C_Diabolic_Headphone,Costume Diabolic Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1284,{},{},{}
-20176,C_Happy_Pierrot_Mask,Costume Happy Pierrot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1288,{},{},{}
-20178,C_Puppy_Love,Costume Puppy Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,94,{},{},{}
-20179,C_Monkey_Fur_Hat,Costume Monkey Fur Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,858,{},{},{}
 
+//
 // sprite error
 5921,Fish_Monsters_Grill,Fish Monster's Grill,5,0,,200,,1,,0,0xFFFFFFFF,63,2,512,,10,,1218,{},{},{}
 18934,Fox_Ears_Drop_Ribbon,Fox Ears Drop Ribbon,5,0,,400,,4,,0,0xFFFFFFFF,63,2,256,,50,,1070,{},{},{}

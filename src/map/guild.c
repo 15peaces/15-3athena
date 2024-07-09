@@ -208,12 +208,12 @@ int guild_getindex(struct guild *g,int account_id,int char_id)
 }
 
 /// lookup: player sd -> member position
-int guild_getposition(struct guild* g, struct map_session_data* sd)
+int guild_getposition(struct map_session_data* sd)
 {
 	int i;
+	struct guild *g;
 
-	if( g == NULL && (g= sd->guild) == NULL )
-		return -1;
+	nullpo_retr(-1, g = sd->guild);
 	
 	ARR_FIND( 0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id );
 	return( i < g->max_member ) ? g->member[i].position : -1;
@@ -438,7 +438,7 @@ void guild_recv_info(struct guild *sg)
 			//Also set the guild master flag.
 			sd->guild = g;
 			sd->state.gmaster_flag = 1;
-			clif_charnameupdate(sd); // [LuzZza]
+			clif_name_area(&sd->bl); // [LuzZza]
 			clif_guild_masterormember(sd);
 		}
 	}else
@@ -454,7 +454,7 @@ void guild_recv_info(struct guild *sg)
 	for(i=bm=m=0;i<g->max_member;i++){
 		if(g->member[i].account_id>0){
 			sd = g->member[i].sd = guild_sd_check(g->guild_id, g->member[i].account_id, g->member[i].char_id);
-			if (sd) clif_charnameupdate(sd); // [LuzZza]
+			if (sd) clif_name_area(&sd->bl); // [LuzZza]
 			m++;
 		}else
 			g->member[i].sd=NULL;
@@ -479,11 +479,11 @@ void guild_recv_info(struct guild *sg)
 		}
 
 		if( before.skill_point!=g->skill_point)
-			clif_guild_skillinfo(sd);	// スキル情報送信
+			clif_guild_skillinfo(sd);	//Submit information skills
 
-		if( guild_new ){	// 未送信なら所属情報も送る
-			clif_guild_belonginfo(sd,g);
-			clif_guild_notice(sd,g);
+		if( guild_new ){	// Send information and affiliation if unsent
+			clif_guild_belonginfo(sd);
+			clif_guild_notice(sd);
 			sd->guild_emblem_id=g->emblem_id;
 		}
 	}
@@ -517,7 +517,7 @@ void guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	if(tsd==NULL || g==NULL)
 		return;
 
-	if( (i=guild_getposition(g,sd))<0 || !(g->position[i].mode&0x0001) )
+	if( (i=guild_getposition(sd))<0 || !(g->position[i].mode&0x0001) )
 		return; //Invite permission.
 
 	if(!battle_config.invite_request_check) {
@@ -687,8 +687,8 @@ void guild_member_added(int guild_id,int account_id,int char_id,int flag)
 	sd->status.guild_id = g->guild_id;
 	sd->guild_emblem_id = g->emblem_id;
 	//Packets which were sent in the previous 'guild_sent' implementation.
-	clif_guild_belonginfo(sd,g);
-	clif_guild_notice(sd,g);
+	clif_guild_belonginfo(sd);
+	clif_guild_notice(sd);
 
 	//TODO: send new emblem info to others
 
@@ -749,7 +749,7 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, i
 	if(sd->status.guild_id!=guild_id)
 		return 0;
 
-	if( (ps=guild_getposition(g,sd))<0 || !(g->position[ps].mode&0x0010) )
+	if( (ps=guild_getposition(sd))<0 || !(g->position[ps].mode&0x0010) )
 		return 0;	//Expulsion permission
 
   	//Can't leave inside guild castles.
@@ -815,7 +815,7 @@ int guild_member_withdraw(int guild_id, int account_id, int char_id, int flag, c
 		sd->guild = NULL;
 		sd->guild_emblem_id = 0;
 		
-		clif_charnameupdate(sd); //Update display name [Skotlex]
+		clif_name_area(&sd->bl); //Update display name [Skotlex]
 		status_change_end(&sd->bl, SC_LEADERSHIP, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_GLORYWOUNDS, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SOULCOLD, INVALID_TIMER);
@@ -851,7 +851,7 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 	
 	if(sd->state.connect_new)
 	{	//Note that this works because it is invoked in parse_LoadEndAck before connect_new is cleared.
-		clif_guild_belonginfo(sd,g);
+		clif_guild_belonginfo(sd);
 		sd->guild_emblem_id = g->emblem_id;
 	}
 	return 0;
@@ -959,7 +959,7 @@ int guild_memberposition_changed(struct guild *g,int idx,int pos)
 	
 	// Update char position in client [LuzZza]
 	if(g->member[idx].sd != NULL)
-		clif_charnameupdate(g->member[idx].sd);
+		clif_name_area(&g->member[idx].sd->bl);
 	return 0;
 }
 // ギルド役職変更
@@ -989,7 +989,7 @@ int guild_position_changed(int guild_id,int idx,struct guild_position *p)
 	// Update char name in client [LuzZza]
 	for(i=0;i<g->max_member;i++)
 		if(g->member[i].position == idx && g->member[i].sd != NULL)
-			clif_charnameupdate(g->member[i].sd);
+			clif_name_area(&g->member[i].sd->bl);
 	return 0;
 }
 // ギルド告知変更
@@ -1018,7 +1018,7 @@ int guild_notice_changed(int guild_id,const char *mes1,const char *mes2)
 	for(i=0;i<g->max_member;i++){
 		struct map_session_data *sd = g->member[i].sd;
 		if (sd != NULL)
-			clif_guild_notice(sd,g);
+			clif_guild_notice(sd);
 	}
 	return 0;
 }
@@ -1057,7 +1057,7 @@ int guild_emblem_changed(int len,int guild_id,int emblem_id,const char *data)
 			continue;
 
 		sd->guild_emblem_id = emblem_id;
-		clif_guild_belonginfo(sd,g);
+		clif_guild_belonginfo(sd);
 		clif_guild_emblem(sd,g);
 		clif_guild_emblem_area(&sd->bl);
 	}
@@ -1096,7 +1096,7 @@ unsigned int guild_payexp(struct map_session_data* sd, unsigned int exp)
 	if( g == NULL )
 		return 0;
 
-	pos = guild_getposition(g, sd);
+	pos = guild_getposition(sd);
 	if( pos < 0 )
 		return 0;
 
@@ -1541,7 +1541,7 @@ int guild_broken(int guild_id, int flag)
 		sd->guild = NULL;
 		sd->state.gmaster_flag = 0;
 		clif_guild_broken(g->member[i].sd,0);
-		clif_charnameupdate(sd);
+		clif_name_area(&sd->bl); // [LuzZza]
 		status_change_end(&sd->bl, SC_LEADERSHIP, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_GLORYWOUNDS, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_SOULCOLD, INVALID_TIMER);
@@ -1584,7 +1584,7 @@ int guild_gm_change(int guild_id, uint32 char_id)
 }
 
 //Notification from Char server that a guild's master has changed. [Skotlex]
-int guild_gm_changed(int guild_id, int account_id, int char_id)
+int guild_gm_changed(int guild_id, int account_id, int char_id, time_t time)
 {
 	struct guild *g;
 	struct guild_member gm;
@@ -1632,9 +1632,12 @@ int guild_gm_changed(int guild_id, int account_id, int char_id)
 		{
 			clif_guild_basicinfo(g->member[i].sd);
 			clif_guild_memberlist(g->member[i].sd);
-			clif_guild_belonginfo(g->member[i].sd, g); // Update clientside guildmaster flag
+			clif_guild_belonginfo(g->member[i].sd); // Update clientside guildmaster flag
 		}
 	}
+
+	// Store changing time
+	g->last_leader_change = time;
 
 	return 1;
 }

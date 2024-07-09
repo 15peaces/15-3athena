@@ -654,6 +654,8 @@ extern struct Battle_Config
 	int dancing_weaponswitch_fix;
 	int allow_consume_restricted_item;
 	int allow_equip_restricted_item;
+	int guild_leaderchange_delay;
+	int guild_leaderchange_woe;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

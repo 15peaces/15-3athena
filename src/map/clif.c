@@ -7069,12 +7069,13 @@ void clif_solved_charname(int fd, int charid, const char* name)
 	WFIFOW(fd, 0) = 0xaf7;
 	WFIFOW(fd, 2) = name[0] ? 3 : 2;
 	WFIFOL(fd, 4) = charid;
+	safestrncpy(WFIFOCP(fd, 8), name, NAME_LENGTH);
 	WFIFOSET(fd, packet_len(0x0af7));
 #else
 	WFIFOHEAD(fd,packet_len(0x194));
 	WFIFOW(fd,0)=0x194;
 	WFIFOL(fd,2)=charid;
-	safestrncpy((char*)WFIFOP(fd,6), name, NAME_LENGTH);
+	safestrncpy(WFIFOCP(fd,6), name, NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x194));
 #endif
 }
@@ -8959,14 +8960,15 @@ void clif_guild_created(struct map_session_data *sd,int flag)
 ///     &0x001 = allow invite
 ///     &0x010 = allow expel
 ///     &0x100 = allow guild storage access
-void clif_guild_belonginfo(struct map_session_data *sd, struct guild *g)
+void clif_guild_belonginfo(struct map_session_data *sd)
 {
 	int ps,fd;
+	struct guild* g;
 	nullpo_retv(sd);
-	nullpo_retv(g);
+	nullpo_retv(g = sd->guild);
 
 	fd=sd->fd;
-	ps=guild_getposition(g,sd);
+	ps=guild_getposition(sd);
 	WFIFOHEAD(fd,packet_len(0x16c));
 	WFIFOW(fd,0)=0x16c;
 	WFIFOL(fd,2)=g->guild_id;
@@ -9096,8 +9098,7 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	nullpo_retv(sd);
 	fd = sd->fd;
 
-	g = sd->guild;
-	if( g == NULL )
+	if ((g = sd->guild) == NULL)
 		return;
 
 	WFIFOHEAD(fd, packet_len(packet_num));
@@ -9113,12 +9114,12 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	WFIFOL(fd,34)=0;	// Honor: (left) Vulgar [-100,100] Famed (right)
 	WFIFOL(fd,38)=0;	// Virtue: (down) Wicked [-100,100] Righteous (up)
 	WFIFOL(fd,42)=g->emblem_id;
-	memcpy(WFIFOP(fd,46),g->name, NAME_LENGTH);
+	memcpy(WFIFOCP(fd,46),g->name, NAME_LENGTH);
 #if PACKETVER < 20161228
-	memcpy(WFIFOP(fd,70),g->master, NAME_LENGTH);
+	memcpy(WFIFOCP(fd,70),g->master, NAME_LENGTH);
 #endif
 	// Calculate the number of castles owned.
-	safestrncpy((char*)WFIFOP(fd,70+offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
+	safestrncpy(WFIFOCP(fd,70+offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
 	WFIFOL(fd,70+offset+16) = 0;  // zeny
 #if PACKETVER >= 20161228
 	WFIFOL(fd,70+offset+20) = g->member[0].char_id;
@@ -9202,7 +9203,7 @@ void clif_guild_memberlist(struct map_session_data *sd)
 		WFIFOL(fd,c*size+30)=m->position;
 #if PACKETVER < 20161228
 		memset(WFIFOP(fd,c*size+34),0,50);
-		memcpy(WFIFOP(fd,c*size+84),m->name,NAME_LENGTH);
+		memcpy(WFIFOCP(fd,c*size+84),m->name,NAME_LENGTH);
 #else
 		WFIFOL(fd, c*size + 34) = m->last_login;
 #endif
@@ -9403,12 +9404,13 @@ void clif_guild_skillinfo(struct map_session_data* sd)
 
 /// Sends guild notice to client (ZC_GUILD_NOTICE).
 /// 016f <subject>.60B <notice>.120B
-void clif_guild_notice(struct map_session_data* sd, struct guild* g)
+void clif_guild_notice(struct map_session_data* sd)
 {
 	int fd;
+	struct guild* g;
 
 	nullpo_retv(sd);
-	nullpo_retv(g);
+	nullpo_retv(g = sd->guild);
 
 	fd = sd->fd;
 
@@ -10221,14 +10223,17 @@ void clif_refresh(struct map_session_data *sd)
 
 
 /// Updates the object's (bl) name on client.
+/// Used to update when a char leaves a party/guild. [Skotlex]
+/// Needed because when you send a 0x95 packet, the client will not remove the cached party/guild info that is not sent.
 /// 0095 <id>.L <char name>.24B (ZC_ACK_REQNAME)
 /// 0195 <id>.L <char name>.24B <party name>.24B <guild name>.24B <position name>.24B (ZC_ACK_REQNAMEALL)
 /// 0a30 <id>.L <char name>.24B <party name>.24B <guild name>.24B <position name>.24B <title ID>.L (ZC_ACK_REQNAMEALL2)
-void clif_charnameack (int fd, struct block_list *bl)
+void clif_name(struct block_list* src, struct block_list *bl, send_target target)
 {
 	unsigned char buf[106];
-	int cmd = 0x95, i, ps = -1;
+	int cmd = 0x95, ps = -1;
 
+	nullpo_retv(src);
 	nullpo_retv(bl);
 
 	WBUFW(buf,0) = cmd;
@@ -10240,7 +10245,6 @@ void clif_charnameack (int fd, struct block_list *bl)
 		{
 			struct map_session_data *sd = (struct map_session_data *)bl;
 			struct party_data *p = NULL;
-			struct guild *g = NULL;
 
 #if PACKETVER >= 20150513
 			WBUFW(buf, 0) = cmd = 0xa30;
@@ -10249,7 +10253,7 @@ void clif_charnameack (int fd, struct block_list *bl)
 #endif
 			
 			//Requesting your own "shadow" name. [Skotlex]
-			if( sd->fd == fd && sd->disguise )
+			if (src == bl && target == SELF && sd->disguise)
 			{
 				WBUFL(buf,2) = -bl->id;
 			}
@@ -10269,17 +10273,9 @@ void clif_charnameack (int fd, struct block_list *bl)
 			{
 				p = party_search(sd->status.party_id);
 			}
-			if( sd->status.guild_id )
-			{
-				if( ( g = sd->guild) != NULL )
-				{
-					ARR_FIND(0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id);
-					if( i < g->max_member ) ps = g->member[i].position;
-				}
-			}
 
 			// do not display party unless the player is also in a guild
-			if( p && ( g || battle_config.display_party_name ) )
+			if( p && (sd->guild || battle_config.display_party_name ) )
 			{
 				safestrncpy((char*)WBUFP(buf,30), p->party.name, NAME_LENGTH);
 			}
@@ -10288,14 +10284,15 @@ void clif_charnameack (int fd, struct block_list *bl)
 				WBUFB(buf,30) = 0;
 			}
 
-			if( g )
+			if (sd->guild)
 			{
-				int i;
+				int position;
 			
-				ARR_FIND(0, g->max_member, i, g->member[i].account_id == sd->status.account_id && g->member[i].char_id == sd->status.char_id); 
+				// Will get the position of the guild the player is in
+				position = guild_getposition(sd);
 			
-				safestrncpy((char*)WBUFP(buf,54), g->name,NAME_LENGTH);
-				safestrncpy((char*)WBUFP(buf,78), g->position[ps].name, NAME_LENGTH);
+				safestrncpy(WBUFCP(buf, 54), sd->guild->name, NAME_LENGTH);
+				safestrncpy(WBUFCP(buf, 78), sd->guild->position[position].name, NAME_LENGTH);
 			}
 			else
 			{ //Assume no guild.
@@ -10375,76 +10372,12 @@ void clif_charnameack (int fd, struct block_list *bl)
 //		break;
 		return;
 	default:
-		ShowError("clif_charnameack: bad type %d(%d)\n", bl->type, bl->id);
+		ShowError("clif_name: bad type %d(%d)\n", bl->type, bl->id);
 		return;
 	}
 
-	// if no receipient specified just update nearby clients
-	if (fd == 0)
-		clif_send(buf, packet_len(cmd), bl, AREA);
-	else {
-		WFIFOHEAD(fd, packet_len(cmd));
-		memcpy(WFIFOP(fd, 0), buf, packet_len(cmd));
-		WFIFOSET(fd, packet_len(cmd));
-	}
+	clif_send(buf, packet_len(cmd), src, target);
 }
-
-
-//Used to update when a char leaves a party/guild. [Skotlex]
-//Needed because when you send a 0x95 packet, the client will not remove the cached party/guild info that is not sent.
-void clif_charnameupdate (struct map_session_data *ssd)
-{
-	unsigned char buf[103];
-	int cmd = 0x195, ps = -1;
-	struct party_data *p = NULL;
-	struct guild *g = NULL;
-
-	nullpo_retv(ssd);
-
-	if( ssd->fakename[0] )
-		return; //No need to update as the party/guild was not displayed anyway.
-
-	WBUFW(buf,0) = cmd;
-	WBUFL(buf,2) = ssd->bl.id;
-
-	memcpy(WBUFP(buf,6), ssd->status.name, NAME_LENGTH);
-			
-	if (!battle_config.display_party_name) {
-		if (ssd->status.party_id > 0 && ssd->status.guild_id > 0 && (g = ssd->guild) != NULL)
-			p = party_search(ssd->status.party_id);
-	}else{
-		if (ssd->status.party_id > 0)
-			p = party_search(ssd->status.party_id);
-	}
-
-	if( ssd->status.guild_id > 0 && (g = ssd->guild) != NULL )
-	{
-		int i;
-
-		ARR_FIND(0, g->max_member, i, g->member[i].account_id == ssd->status.account_id && g->member[i].char_id == ssd->status.char_id);
-		if( i < g->max_member ) ps = g->member[i].position;
-	}
-
-	if( p )
-		memcpy(WBUFP(buf,30), p->party.name, NAME_LENGTH);
-	else
-		WBUFB(buf,30) = 0;
-
-	if( g && ps >= 0 && ps < MAX_GUILDPOSITION )
-	{
-		memcpy(WBUFP(buf,54), g->name,NAME_LENGTH);
-		memcpy(WBUFP(buf,78), g->position[ps].name, NAME_LENGTH);
-	}
-	else
-	{
-		WBUFB(buf,54) = 0;
-		WBUFB(buf,78) = 0;
-	}
-
-	// Update nearby clients
-	clif_send(buf, packet_len(cmd), &ssd->bl, AREA);
-}
-
 
 /// Taekwon Jump (TK_HIGHJUMP) effect (ZC_HIGHJUMP).
 /// 01ff <id>.L <x>.W <y>.W
@@ -11393,7 +11326,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 #endif
 
 		if (sd->status.guild_id && battle_config.guild_notice_changemap == 1){
-			clif_guild_notice(sd, guild_search(sd->status.guild_id));
+			clif_guild_notice(sd);
 			guild_notice = false; // Do not display it twice
 		}
 
@@ -11440,7 +11373,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	}
 
 	if (sd->status.guild_id && (battle_config.guild_notice_changemap == 2 || guild_notice))
-		clif_guild_notice(sd, sd->guild); // Displays at end
+		clif_guild_notice(sd); // Displays at end
 	
 #ifndef TXT_ONLY
 	mail_clear(sd);
@@ -11753,7 +11686,7 @@ void clif_parse_GetCharNameRequest(int fd, struct map_session_data *sd)
 	}
 	*/
 
-	clif_charnameack(fd, bl);
+	clif_name(&sd->bl, bl, SELF);
 }
 
 
@@ -14354,8 +14287,13 @@ void clif_parse_GuildChangeMemberPosition(int fd, struct map_session_data *sd)
 	{
 		struct map_session_data *tsd = map_charid2sd(RFIFOL(fd, 8));
 
-		if (agit_flag == 1 || agit2_flag == 1){
-			clif_displaymessage(fd, "You can't change guild leaders while War of Emperium is in progress.");
+		if (!battle_config.guild_leaderchange_woe && is_agit_start()) {
+			clif_msg(sd, GUILD_MASTER_WOE);
+			return;
+		}
+
+		if (battle_config.guild_leaderchange_delay && DIFF_TICK(time(NULL), sd->guild->last_leader_change) < battle_config.guild_leaderchange_delay) {
+			clif_msg(sd, GUILD_MASTER_DELAY);
 			return;
 		}
 
@@ -15035,8 +14973,8 @@ static void clif_change_title_ack(int fd, struct map_session_data *sd, int title
 	WFIFOSET(fd, packet_len(0xa2f));
 
 	// Update names
-	clif_charnameack(fd, &sd->bl);
-	clif_charnameack(0, &sd->bl);
+	clif_name_self(&sd->bl);
+	clif_name_area(&sd->bl);
 #endif
 }
 
@@ -19926,11 +19864,11 @@ void clif_buyingstore_myitemlist(struct map_session_data* sd)
 /// 0814 <account id>.L <store name>.80B
 void clif_buyingstore_entry(struct map_session_data* sd)
 {
-	uint8 buf[86];
+	uint8 buf[MESSAGE_SIZE + 6];
 
 	WBUFW(buf,0) = 0x814;
 	WBUFL(buf,2) = sd->bl.id;
-	memcpy(WBUFP(buf,6), sd->message, MESSAGE_SIZE);
+	safestrncpy(WBUFCP(buf, 6), sd->message, MESSAGE_SIZE);
 
 	clif_send(buf, packet_len(0x814), &sd->bl, AREA_WOS);
 }
@@ -19941,7 +19879,7 @@ void clif_buyingstore_entry_single(struct map_session_data* sd, struct map_sessi
 	WFIFOHEAD(fd,packet_len(0x814));
 	WFIFOW(fd,0) = 0x814;
 	WFIFOL(fd,2) = pl_sd->bl.id;
-	memcpy(WFIFOP(fd,6), pl_sd->message, MESSAGE_SIZE);
+	safestrncpy(WFIFOCP(fd, 6), pl_sd->message, MESSAGE_SIZE);
 	WFIFOSET(fd,packet_len(0x814));
 }
 

@@ -125,7 +125,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data);
 
 // ‰r¥ƒLƒƒƒ“ƒZƒ‹
-int unit_skillcastcancel(struct block_list *bl,int type);
+int unit_skillcastcancel(struct block_list *bl,char type);
 
 int unit_counttargeted(struct block_list *bl,int target_lv);
 

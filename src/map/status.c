@@ -8796,9 +8796,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			else
 				val4 |= battle_config.monster_cloak_check_type&7;
 			break;
-		case SC_SIGHT:			/* サイト/ルアフ */
-		case SC_RUWACH:
 		case SC_SIGHTBLASTER:
+			tick = -1; // Duration sent to the client should be infinite
+		case SC_SIGHT:			/* splash status */
+		case SC_RUWACH:
 			val3 = skill_get_splash(val2, val1); //Val2 should bring the skill-id.
 			val2 = tick/250;
 			tick_time = 10;
@@ -9404,6 +9405,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_WEAPONBLOCKING:
 			val2 = 10 + 2 * val1; // Chance
 			val4 = tick / 5000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			val_flag |= 1|2;
 			break;
@@ -9459,6 +9461,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_RENOVATIO:
 			val4 = tick / 5000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			break;
 		case SC_EXPIATIO:
@@ -9526,6 +9529,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 20 * val1;// Critical Amount Increase
 			val3 = 50 - 10 * val1;// ASPD Reduction
 			val4 = tick / 1000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 1000;
 			val_flag |= 1|2;
 			break;
@@ -9689,6 +9693,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 15 + 5 * val1;//Reflect Amount
 			val3 = 25 + 5 * val1; //Number of Reflects
 			val4 = tick/ 10000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 10000;
 			break;
 		case SC_FORCEOFVANGUARD:// This is not the official way to handle it but I think we should use it. [pakpil]
@@ -9724,6 +9729,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_BANDING:// val1 = Skill LV, val4 = Skill Group AoE ID.
 			val2 = skill_banding_count(sd);// Royal Guard's In Banding Count
 			val3 = tick / 5000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			break;
 		case SC_SHIELDSPELL_DEF:
@@ -9739,6 +9745,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 40 * val1 + 3 * status_get_job_lv_effect(bl);// ATK Bonus
 			val3 = status_get_base_lv_effect(bl) / 10 + status_get_job_lv_effect(bl) / 5;// All Stats Bonus
 			val4 = tick / 5000;
+			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
 			break;
@@ -9947,7 +9954,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_FRIGG_SONG:
 			val2 = 5 * val1;// MaxHP Increase
 			val3 = tick / 1000;
-			tick = 1000;
+			tick_time = 1000;
+			tick = -1; // Duration sent to the client should be infinite
 			break;
 		case SC_FLASHCOMBO:
 			val2 = 20 + 20 * val1;// ATK Increase
@@ -9963,11 +9971,13 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_KINGS_GRACE:
 			val2 = tick / 1000;
-			tick = 1000;
+			tick_time = 1000;
+			tick = -1; // Duration sent to the client should be infinite
 			break;
 		case SC_FULL_THROTTLE:
 			val2 = tick/1000;
-			tick = 1000;
+			tick = -1; // Duration sent to the client should be infinite
+			tick_time = 1000;
 			break;
 		case SC_REBOUND:
 			val2 = tick/2000;

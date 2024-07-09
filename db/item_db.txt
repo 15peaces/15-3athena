@@ -7926,7 +7926,12 @@
 20135,C_12th_Anniversary_Crown,Costume 12th Anniversary Crown,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1117,{ if(isequipped(20136)){ bonus bAllStats,12; } },{},{}
 20136,C_12th_Anniversary_Fairy_Ears,Costume 12th Anniversary Fairy Ears,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,875,{},{},{}
 //
+20174,C_Orange_Halloween_Hat,Costume Orange Halloween Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1283,{},{},{}
+20175,C_Diabolic_Headphone,Costume Diabolic Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1284,{},{},{}
+20176,C_Happy_Pierrot_Mask,Costume Happy Pierrot Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,6144,,,,1288,{},{},{}
 20177,C_Drooping_Dorasuke,Costume Drooping Dorasuke,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1290,{},{},{}
+20178,C_Puppy_Love,Costume Puppy Love,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,94,{},{},{}
+20179,C_Monkey_Fur_Hat,Costume Monkey Fur Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,858,{},{},{}
 //
 20181,C_Mystic_Rose,Costume Mystic Rose,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,198,{},{},{}
 20182,C_Rainbow_Eggshell,Costume Rainbow Eggshell,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,124,{},{},{}

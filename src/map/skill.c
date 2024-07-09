@@ -2692,10 +2692,10 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 			case 1: //Copied by Plagiarism
 				{
 					if (tsd->cloneskill_idx >= 0 && tsd->status.skill[tsd->cloneskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
-						clif_deleteskill(tsd, tsd->status.skill[tsd->cloneskill_idx].id);
 						tsd->status.skill[tsd->cloneskill_idx].id = 0;
 						tsd->status.skill[tsd->cloneskill_idx].lv = 0;
 						tsd->status.skill[tsd->cloneskill_idx].flag = SKILL_FLAG_PERMANENT;
+						clif_deleteskill(tsd, tsd->status.skill[tsd->cloneskill_idx].id);
 					}
 
 					lv = min(skill_lv, pc_checkskill(tsd, RG_PLAGIARISM)); //Copied level never be > player's RG_PLAGIARISM level
@@ -2712,10 +2712,10 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 					//Skill level copied depends on Reproduce skill that used
 					lv = (tsc) ? tsc->data[SC__REPRODUCE]->val1 : 1;
 					if (tsd->reproduceskill_idx >= 0 && tsd->status.skill[tsd->reproduceskill_idx].flag == SKILL_FLAG_PLAGIARIZED) {
-						clif_deleteskill(tsd, tsd->status.skill[tsd->reproduceskill_idx].id);
 						tsd->status.skill[tsd->reproduceskill_idx].id = 0;
 						tsd->status.skill[tsd->reproduceskill_idx].lv = 0;
 						tsd->status.skill[tsd->reproduceskill_idx].flag = SKILL_FLAG_PERMANENT;
+						clif_deleteskill(tsd, tsd->status.skill[tsd->reproduceskill_idx].id);
 					}
 
 					//Level dependent and limitation.
@@ -11602,6 +11602,10 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 					break; 	// You can use Phantom Thurst on party members in normal maps too. [pakpil]
 			} else if( ud->skill_id != SC_SHADOWFORM && inf && battle_check_target(src, target, inf) <= 0 )
 				break;
+			else if (sd && (inf2&INF2_CHORUS_SKILL) && skill_check_pc_partner(sd, ud->skill_id, &ud->skill_lv, 1, 0) < 1) {
+				clif_skill_fail(sd, ud->skill_id, USESKILL_FAIL_NEED_HELPER, 0, 0);
+				break;
+			}
 
 			if (sc = status_get_sc(src))
 			{
@@ -14430,7 +14434,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 				}
 				// Reveal hidden players every 5 seconds.
 				if (sg->val2 % 5 == 0) {
-					// TODO: check if other hidden status can be removed.
+					// Doesn't remove Invisibility or Chase Walk.
 					status_change_end(bl,SC_HIDING,INVALID_TIMER);
 					status_change_end(bl,SC_CLOAKING,INVALID_TIMER);
 					status_change_end(bl, SC_CLOAKINGEXCEED, INVALID_TIMER);
@@ -21200,7 +21204,7 @@ static bool skill_parse_row_copyabledb(char* split[], int column, int current) {
 		ShowError("skill_parse_row_copyabledb: Invalid skill %s\n", split[0]);
 		return false;
 	}
-	if ((option = atoi(split[1])) < 0 || option > 3) {
+	if ((option = atoi(split[1])) > 3) {
 		ShowError("skill_parse_row_copyabledb: Invalid option '%s'\n", split[1]);
 		return false;
 	}

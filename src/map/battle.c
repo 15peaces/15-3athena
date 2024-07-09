@@ -6903,6 +6903,8 @@ static const struct _battle_data {
 	{ "discount_item_point_shop",			&battle_config.discount_item_point_shop,		0,		0,		3,				},
 	{ "allow_consume_restricted_item",      &battle_config.allow_consume_restricted_item,   1,      0,      1,				},
 	{ "allow_equip_restricted_item",        &battle_config.allow_equip_restricted_item,     1,      0,      1,				},
+	{ "guild_leaderchange_delay",			&battle_config.guild_leaderchange_delay,		1440,	0,		INT32_MAX,		},
+	{ "guild_leaderchange_woe",				&battle_config.guild_leaderchange_woe,			0,		0,		1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
