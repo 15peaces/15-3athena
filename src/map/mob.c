@@ -102,6 +102,38 @@ int mobdb_searchname(const char *str)
 }
 
 /*==========================================
+ * Tomb spawn time calculations
+ * @param nd: NPC data
+ *------------------------------------------*/
+int mvptomb_setdelayspawn(struct npc_data *nd) {
+	if (nd->u.tomb.spawn_timer != INVALID_TIMER)
+		delete_timer(nd->u.tomb.spawn_timer, mvptomb_delayspawn);
+	nd->u.tomb.spawn_timer = add_timer(gettick() + battle_config.mvp_tomb_delay, mvptomb_delayspawn, nd->bl.id, 0);
+	return 0;
+}
+
+/*==========================================
+ * Tomb spawn with delay (timer function)
+ * @param tid: Timer ID
+ * @param tick: Time
+ * @param id: Block list ID
+ * @param data: Used for add_timer_func_list
+ *------------------------------------------*/
+int mvptomb_delayspawn(int tid, int64 tick, int id, intptr_t data) {
+	struct npc_data *nd = BL_CAST(BL_NPC, map_id2bl(id));
+
+	if (nd) {
+		if (nd->u.tomb.spawn_timer != tid) {
+			ShowError("mvptomb_delayspawn: Timer mismatch: %d != %d\n", tid, nd->u.tomb.spawn_timer);
+			return 0;
+		}
+		nd->u.tomb.spawn_timer = INVALID_TIMER;
+		clif_spawn(&nd->bl);
+	}
+	return 0;
+}
+
+/*==========================================
  * Create and display a tombstone on the map
  * @author [GreenBox]
  * @param md : the mob to create a tombstone for
@@ -133,6 +165,7 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 
 	nd->u.tomb.md = md;
 	nd->u.tomb.kill_time = time;
+	nd->u.tomb.spawn_timer = INVALID_TIMER;
 	
 	if (killer)
 		safestrncpy(nd->u.tomb.killer_name, killer, NAME_LENGTH);
@@ -147,7 +180,8 @@ void mvptomb_create(struct mob_data *md, char *killer, time_t time)
 	status_set_viewdata(&nd->bl, nd->class_);
     status_change_init(&nd->bl);
     unit_dataset(&nd->bl);
-    clif_spawn(&nd->bl);
+	
+	mvptomb_setdelayspawn(nd);
 }
 
 void mvptomb_destroy(struct mob_data *md) {
@@ -2385,13 +2419,27 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				if (battle_config.drops_by_luk2)
 					drop_rate += (int)(0.5+drop_rate*status_get_luk(src)*battle_config.drops_by_luk2/10000.);
 			}
-			if (sd && battle_config.pk_mode &&
-				(int)(md->level - sd->status.base_level) >= 20)
-				drop_rate = (int)(drop_rate*1.25); // pk_mode increase drops if 20 level difference [Valaris]
 
-			// Increase drop rate if user has SC_ITEMBOOST
-			if (sd && sd->sc.data[SC_ITEMBOOST]) // now rig the drop rate to never be over 90% unless it is originally >90%.
-				drop_rate = max(drop_rate,cap_value((int)(0.5+drop_rate*(sd->sc.data[SC_ITEMBOOST]->val1)/100.),0,9000));
+			// Player specific drop rate adjustments
+			if (sd) {
+				int drop_rate_bonus = 0;
+
+				// pk_mode increase drops if 20 level difference [Valaris]
+				if (battle_config.pk_mode && (int)(md->level - sd->status.base_level) >= 20)
+					drop_rate = (int)(drop_rate*1.25);
+
+				// Add class and race specific bonuses
+				drop_rate_bonus += sd->dropaddclass[md->status.class_] + sd->dropaddclass[CLASS_ALL];
+				drop_rate_bonus += sd->dropaddrace[md->status.race] + sd->dropaddrace[RC_ALL];
+
+				// Increase drop rate if user has SC_ITEMBOOST
+				if (&sd->sc && sd->sc.data[SC_ITEMBOOST])
+					drop_rate_bonus += sd->sc.data[SC_ITEMBOOST]->val1;
+
+				drop_rate_bonus = (int)(0.5 + drop_rate * drop_rate_bonus / 100.);
+				// Now rig the drop rate to never be over 90% unless it is originally >90%.
+				drop_rate = i32max(drop_rate, cap_value(drop_rate_bonus, 0, 9000));
+			}
 
 			// attempt to drop the item
 			if (rnd() % 10000 >= drop_rate)
@@ -4580,6 +4628,7 @@ void do_init_mob(void)
 	add_timer_func_list(mob_timer_delete,"mob_timer_delete");
 	add_timer_func_list(mob_spawn_guardian_sub,"mob_spawn_guardian_sub");
 	add_timer_func_list(mob_respawn,"mob_respawn");
+	add_timer_func_list(mvptomb_delayspawn, "mvptomb_delayspawn");
 	add_timer_interval(gettick()+MIN_MOBTHINKTIME,mob_ai_hard,0,0,MIN_MOBTHINKTIME);
 	add_timer_interval(gettick()+MIN_MOBTHINKTIME*10,mob_ai_lazy,0,0,MIN_MOBTHINKTIME*10);
 }

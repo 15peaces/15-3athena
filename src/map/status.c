@@ -1005,6 +1005,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_ON_PUSH_CART] = SI_ON_PUSH_CART;
 	StatusIconChangeTable[SC_MONSTER_TRANSFORM] = SI_MONSTER_TRANSFORM;
 	StatusIconChangeTable[SC_ACTIVE_MONSTER_TRANSFORM] = SI_ACTIVE_MONSTER_TRANSFORM;
+	StatusIconChangeTable[SC_MTF_ASPD] = SI_MTF_ASPD;
+	StatusIconChangeTable[SC_MTF_RANGEATK] = SI_MTF_RANGEATK;
+	StatusIconChangeTable[SC_MTF_MATK] = SI_MTF_MATK;
+	StatusIconChangeTable[SC_MTF_MLEATKED] = SI_MTF_MLEATKED;
+	StatusIconChangeTable[SC_MTF_CRIDAMAGE] = SI_MTF_CRIDAMAGE;
 
 	// Headgears with special animations through status
 	StatusIconChangeTable[SC_MOONSTAR] = SI_MOONSTAR;
@@ -1499,7 +1504,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			//status_change_end(target, SC_MAGNETICFIELD,INVALID_TIMER);// Skill description says it ends of you take damage.
 			status_change_end(target, SC_NEWMOON, INVALID_TIMER);
 			status_change_end(target, SC_SUHIDE, INVALID_TIMER);
-			if ((sce=sc->data[SC_ENDURE]) && !sce->val4) {
+			if ((sce=sc->data[SC_ENDURE]) && !sce->val4 && !sc->data[SC_CONCENTRATION]) {
 				//Endure count is only reduced by non-players on non-gvg maps.
 				//val4 signals infinite endure. [Skotlex]
 				if (src && src->type != BL_PC && !map_flag_gvg(target->m) && !map[target->m].flag.battleground && --(sce->val2) < 0)
@@ -3101,6 +3106,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->ignore_mdef_by_race)
 		+ sizeof(sd->ignore_mdef_by_class)
 		+ sizeof(sd->sp_gain_race)
+		+ sizeof(sd->dropaddrace)
+		+ sizeof(sd->dropaddclass)
 		);
 
 	memset (&sd->right_weapon.overrefine, 0, sizeof(sd->right_weapon) - sizeof(sd->right_weapon.atkmods));
@@ -6465,8 +6472,6 @@ static unsigned short status_calc_dmotion(struct block_list *bl, struct status_c
 		
 	if( sc->data[SC_ENDURE] )
 		return 0;
-	if( sc->data[SC_CONCENTRATION] )
-		return 0;
 	if( sc->data[SC_RUN] || sc->data[SC_WUGDASH] )
 		return 0;
 
@@ -8035,6 +8040,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	//Before overlapping fail, one must check for status cured.
 	switch (type)
 	{
+	case SC_ENDURE:
+		if (val4)
+			status_change_end(bl, SC_CONCENTRATION, INVALID_TIMER);
+		break;
 	case SC_BLESSING:
 		//TO-DO Blessing and Agi up should do 1 damage against players on Undead Status, even on PvM
 		//but cannot be plagiarized (this requires aegis investigation on packets and official behavior) [Brainstorm]
@@ -9127,6 +9136,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 5*val1; //Batk/Watk Increase
 			val3 = 10*val1; //Hit Increase
 			val4 = 5*val1; //Def reduction
+			status_change_start(src, bl, SC_ENDURE, 10000, 1, 0, 0, 0, tick, 0); // Level 1 Endure effect
 			break;
 		case SC_ANGELUS:
 			val2 = 5*val1; //def increase
@@ -9405,7 +9415,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_WEAPONBLOCKING:
 			val2 = 10 + 2 * val1; // Chance
 			val4 = tick / 5000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			val_flag |= 1|2;
 			break;
@@ -9461,7 +9470,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_RENOVATIO:
 			val4 = tick / 5000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			break;
 		case SC_EXPIATIO:
@@ -9693,7 +9701,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 15 + 5 * val1;//Reflect Amount
 			val3 = 25 + 5 * val1; //Number of Reflects
 			val4 = tick/ 10000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 10000;
 			break;
 		case SC_FORCEOFVANGUARD:// This is not the official way to handle it but I think we should use it. [pakpil]
@@ -9729,7 +9736,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_BANDING:// val1 = Skill LV, val4 = Skill Group AoE ID.
 			val2 = skill_banding_count(sd);// Royal Guard's In Banding Count
 			val3 = tick / 5000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			break;
 		case SC_SHIELDSPELL_DEF:
@@ -9745,7 +9751,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 40 * val1 + 3 * status_get_job_lv_effect(bl);// ATK Bonus
 			val3 = status_get_base_lv_effect(bl) / 10 + status_get_job_lv_effect(bl) / 5;// All Stats Bonus
 			val4 = tick / 5000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 5000;
 			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
 			break;
@@ -9955,7 +9960,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 5 * val1;// MaxHP Increase
 			val3 = tick / 1000;
 			tick_time = 1000;
-			tick = -1; // Duration sent to the client should be infinite
 			break;
 		case SC_FLASHCOMBO:
 			val2 = 20 + 20 * val1;// ATK Increase
@@ -9972,11 +9976,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_KINGS_GRACE:
 			val2 = tick / 1000;
 			tick_time = 1000;
-			tick = -1; // Duration sent to the client should be infinite
 			break;
 		case SC_FULL_THROTTLE:
 			val2 = tick/1000;
-			tick = -1; // Duration sent to the client should be infinite
 			tick_time = 1000;
 			break;
 		case SC_REBOUND:
@@ -11243,6 +11245,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 					status_change_end(pbl, type2, INVALID_TIMER);
 				}
 			}
+			break;
+
+		case SC_CONCENTRATION:
+			status_change_end(bl, SC_ENDURE, INVALID_TIMER);
 			break;
 
 		case SC_BERSERK:

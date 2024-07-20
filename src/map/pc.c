@@ -3927,6 +3927,15 @@ int pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 			sd->skillcooldown[i].val = val;
 		}
 		break;
+	
+	case SP_DROP_ADDRACE: // bonus2 bDropAddRace,r,x;
+		if (sd->state.lr_flag != 2)
+			sd->dropaddrace[type2] += val;
+		break;
+	case SP_DROP_ADDCLASS: // bonus2 bDropAddClass,c,x;
+		if (sd->state.lr_flag != 2)
+			sd->dropaddclass[type2] += val;
+		break;
 
 	default:
 		ShowWarning("pc_bonus2: unknown bonus type %d %d %d in item #%d\n", type, type2, val, current_equip_card_id ? current_equip_card_id : sd->inventory_data[current_equip_item_index]->nameid);
@@ -4833,10 +4842,11 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 
 	if( item == NULL )
 		return 0;
+
 	//Not consumable item
 	if( item->type != IT_HEALING && item->type != IT_USABLE && item->type != IT_CASH )
 		return 0;
-	if( !item->script ) //if it has no script, you can't really consume it!
+	if (!item->script) //if it has no script, you can't really consume it!
 		return 0;
 	if (item->flag.dead_branch && (map[sd->bl.m].flag.nobranch || map_flag_gvg(sd->bl.m)))
 		return 0;
@@ -4928,7 +4938,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
 	if( pc_iswugrider(sd) && ((nameid >= 686 && nameid <= 700) || (nameid >= 12215 && nameid <= 12220) || (nameid >= 12000 && nameid <= 12003)) )
 		return 0; // Magic Scrolls cannot be used while riding a Warg. [Jobbie]
 
-	if (item->flag.group) {
+	if (item->flag.group || item->type == IT_CASH) {
 		if (pc_is90overweight(sd)) {
 			clif_msg(sd, ITEM_CANT_OBTAIN_WEIGHT);
 			return 0;
@@ -5117,6 +5127,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
 
 	/* on restricted maps the item is consumed but the effect is not used */
 	if (itemdb_isNoEquip(id, sd->bl.m)) {
+		clif_msg(sd, ITEM_CANT_USE_AREA); // This item cannot be used within this area
 		if (battle_config.allow_consume_restricted_item) {
 			clif_useitemack(sd, n, sd->inventory.u.items_inventory[n].amount - 1, true);
 			pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME);

@@ -477,3 +477,5 @@ bonus3 bAddClassDropItemGroup,n,x,y;	Adds a y/100% chance to get an item of grou
 						x: Class_Normal, Class_Boss, Class_Guardian, Class_All
 					If 'y' is negative value, then it's a part of formula
 						chance = -y*(killed_mob_level/10)+1
+bonus2 bDropAddRace,r,x;	Adds x% to player's drop rate when killing a monster with race r.
+bonus2 bDropAddClass,c,x;	Adds x% to player's drop rate when killing a monster with class c.

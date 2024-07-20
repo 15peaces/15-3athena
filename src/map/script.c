@@ -9082,7 +9082,7 @@ BUILDIN_FUNC(setcashmount)
 		return true;
 
 	if (pc_hasmount(sd)) {
-		clif_msg(sd, 1931);
+		clif_msg(sd, NEED_REINS_OF_MOUNT);
 		script_pushint(st, 0); // Can't mount with one of these
 	} else {
 		if (sd->sc.data[SC_ALL_RIDING]) {

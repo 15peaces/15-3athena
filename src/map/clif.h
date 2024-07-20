@@ -485,6 +485,8 @@ enum clif_messages {
 	//! NOTE: These values below need client version validation
 	ITEM_CANT_OBTAIN_WEIGHT = 0x34, /* You cannot carry more items because you are overweight. */
 	ITEM_NOUSE_SITTING = 0x297,
+	SKILL_CANT_USE_AREA = 0x536,
+	ITEM_CANT_USE_AREA = 0x537,
 	VIEW_EQUIP_FAIL = 0x54d,
 	RUNE_CANT_CREATE = 0x61b,
 	ITEM_CANT_COMBINE = 0x623,
@@ -494,6 +496,7 @@ enum clif_messages {
 	ITEM_UNIDENTIFIED = 0x62d,
 	ITEM_REUSE_LIMIT = 0x746,
 	WORK_IN_PROGRESS = 0x783,
+	NEED_REINS_OF_MOUNT = 0x78c,
 
 	SKILL_NEED_GATLING = 0x9fa,
 	SKILL_NEED_SHOTGUN = 0x9fb,

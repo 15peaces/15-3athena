@@ -589,6 +589,7 @@ extern struct Battle_Config
 	int feature_auction;
 	int feature_banking;
 	int mvp_tomb_enabled;
+	int mvp_tomb_delay;
 	int feature_roulette;
 	int monster_hp_bars_info;
 	int costume_refine_def;

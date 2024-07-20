@@ -124,7 +124,7 @@
 19899,C_RPC13_3RD_Wreath,Costume RPC13 3RD Wreath,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,261,{bonus bAllStats,1; bonus bMdef,1;},{},{}
 19902,C_Cigarette,Costume Cigarette,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,54,{},{},{}
 19913,C_Poo_Poo_Hat,Costume Poo Poo Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,76,{},{},{}
-19925,C_Monocle,Costume Monocle,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,23,{},{},{}
+19925,C_Monocle,Costume Monocle,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,807,{},{},{}
 19928,C_Gothic_Heart_Wing,Costume Gothic Heart Wing,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1111,{},{},{}
 19929,C_Classical_Ribbon,Costume Classical Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1112,{},{},{}
 19930,C_Angel_Mini_Silk_Hat,Costume Angel Mini Silk Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1113,{},{},{}
@@ -1891,7 +1891,7 @@
 11557,TE_White_Potion,TE White Potion,0,200,,300,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 325,0; },{},{}
 11558,TE_White_Slim_Potion,TE White Slim Potion,0,275,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 325,0; },{},{}
 11563,Hot_Tea,Hot Tea,2,10,,20,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,100; },{},{}
-11564,Sweets,Sweets,2,10,,20,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal 100,0; },{},{}
+11564,Sweets,Sweets,2,10,,20,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal 1000,0; },{},{}
 11565,White_Potion_,White Potion,0,10,,150,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(325,405),0; },{},{}
 11566,Yellow_Potion_,Yellow Potion,0,10,,130,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(175,235),0; },{},{}
 11567,Novice_Potion_,Novice Potion,0,10,,0,,,,0,0xFFFFFFFF,63,2,,,,,,{ itemheal rand(44,66),0; },{},{}
@@ -1963,7 +1963,7 @@
 22519,Stops_Buff,Stops Buff,3,10,,0,,,,,,,,,,,,,{},{},{}
 22520,Stops_Buff_Reset,Stops Buff Reset,3,10,,0,,,,,,,,,,,,,{},{},{}
 22521,Level_Up_Box_,Level Up Box,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,80,,,{ /*TODO*/ },{},{}
-22534,Closed_Mind_Box,Closed Mind Box,18,10,,1000,,,,,,,,,,,,,{ /*TODO*/ },{},{}
+22534,Closed_Mind_Box,Closed Mind Box,18,10,,1000,,,,,0xFFFFFFFF,63,2,,,,,,{ getitempackage(IP_Sealed_Mind_Box); },{},{}
 22535,Scroll_Summoning_Workers(Male),Scroll Summoning Workers(Male),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22536,Scroll_Summoning_Workers(Female),Scroll Summoning Workers(Female),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22620,Memorial_Box,Box Of Memories,2,0,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
@@ -4818,7 +4818,7 @@
 18870,Very_Sweet_Candy_Bar,Very Sweet Candy Bar,5,10,,10,,,,0,0xFFFFFFFF,63,2,1,,1,1,446,{ bonus bAllStats,2; bonus bBaseAtk,10; bonus bMatk,10; bonus2 bExpAddClass,Class_All,2; },{},{}
 18871,Very_Sweet_Candy,Very Sweet Candy,5,10,,10,,,,0,0xFFFFFFFF,63,2,1,,1,1,446,{ bonus bAllStats,1; bonus bBaseAtk,5; bonus bMatk,5; },{},{}
 18873,Sweet_Valentine_Out,Sweet Valentine Out,5,20,,100,,1,,0,0xFFFFFFFF,63,2,256,,1,1,865,{ bonus bMaxHPrate,7; bonus bMaxSPrate,7; },{},{}
-18874,Cyclops_Glasses,Cyclops Glasses,5,10,,100,,,,1,0xFFFFFFFF,63,2,1,,1,1,207,{},{},{}
+18874,Cyclops_Glasses,Cyclops Glasses,5,10,,100,,,,1,0xFFFFFFFF,63,2,1,,1,1,23,{},{},{}
 18880,Advanced_Jao_King_Hat,Advanced Jao King Hat,5,10,,1500,,4,,1,0xFFFFFFFF,63,2,256,,175,1,996,{ bonus bAllStats,3; bonus bMaxHPrate,5; bonus bMaxSPrate,5; },{},{}
 18971,Old_Rune_Circlet,Old Rune Circlet,5,10,,100,,10,,1,0x00000080,56,2,256,,170,1,623,{ bonus bAllStats,1; bonus bMdef,5; bonus bBaseAtk,4*getrefine(); bonus bAspd,getrefine()/5; bonus bMaxHPrate,getrefine()/2; bonus bMaxSPrate,getrefine()/2; bonus2 bSkillAtk,"RK_IGNITIONBREAK",20*getrefine()/2; bonus2 bSkillAtk,"RK_HUNDREDSPEAR",15*getrefine()/2; },{},{}
 18972,Old_Mitra,Old Mitra,5,10,,100,,10,,1,0x00000100,56,2,256,,170,1,624,{ bonus bAllStats,1; bonus bMdef,5; bonus bMatk,2*getrefine(); bonus bBaseAtk,4*getrefine(); bonus bHealPower,getrefine(); bonus bMaxHPrate,getrefine()/2; bonus bMaxSPrate,getrefine()/2; bonus2 bSkillAtk,"AB_JUDEX",20*getrefine()/2; bonus2 bSkillAtk,"PR_MAGNUS",10*getrefine()/2; },{},{}
@@ -4902,7 +4902,6 @@
 22531,Special_Christmas_Box,Special Christmas Box,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,1,,,{ /*TODO*/ },{},{}
 22532,Santa_Gift,Santa Gift,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,1,,,{ /*TODO*/ },{},{}
 22533,New_Year_Gift_Box,New Year Gift Box,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,1,,,{ /*TODO*/ },{},{}
-22534,Closed_Mind_Box,Closed Mind Box,18,10,,1000,,,,,,,,,,,,,{ /*TODO*/ },{},{}
 22535,Scroll_Summoning_Workers(Male),Scroll Summoning Workers(Male),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22536,Scroll_Summoning_Workers(Female),Scroll Summoning Workers(Female),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{},{},{}
 22538,Hanbok_bag,Hanbok bag,2,10,,10,,,,0,0xFFFFFFFF,63,2,,,1,,,{},{},{}
@@ -5336,6 +5335,9 @@
 16771,Silvervine_Fruit_Box40,Silvervine 40 Box,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 6417,40; getitem 12636,120; },{},{}
 17155,Upg_Huuma_Shuriken_Box,Upg Huuma Shuriken Box,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ rentitem 13316,86400; },{},{}
 19084,Parfaille_Vigilante_Hat,Parfaille Vigilante Hat,5,0,,100,,2,,0,0x80000000,63,2,256,,20,1,1368,{ bonus bLuk,1; bonus3 bAutoSpell,"AL_BLESSING",3,100; },{},{}
+19616,C_Wickebines_Black_Cat_Ears,Costume Wickebine's Black Cat Ears,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,1,141,{},{},{}
+20432,C_Khalitzburg_Knight_Helm,Costume Khalitzburg Knight Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1442,{},{},{}
+20433,C_Louise_Red_Hat,Costume Louise Red Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1443,{},{},{}
 22984,Kahluna_Milk,Kahluna Milk,0,6,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_01, 180000, 0; },{},{}
 22985,Basil,Basil,0,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_DORAM_BUF_02, 180000, 0; },{},{}
 //===================================================================

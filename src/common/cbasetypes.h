@@ -272,15 +272,6 @@ typedef char bool;
 // Avoid "value computed is not used" warning and generates the same assembly code
 #define swap(a,b) if( (a) != (b) ) ( ( (a) ^= (b) ), ( (b) ^= (a) ), ( (a) ^= (b) ) )
 
-#ifndef max
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-static inline uint32 umax(uint32 a, uint32 b){ return (a > b) ? a : b; }
-
-#ifndef min
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
-
 //////////////////////////////////////////////////////////////////////////
 // should not happen
 #ifndef NULL
@@ -406,6 +397,20 @@ void SET_FUNCPOINTER(T1& var, T2 p)
 #define SET_POINTER(var,p) (var) = (p)
 #define SET_FUNCPOINTER(var,p) (var) = (p)
 #endif
+
+#ifndef max
+static inline int max(int a, int b) { return (a > b) ? a : b; } //default is int
+#endif
+static inline int8 i8max(int8 a, int8 b) { return (a > b) ? a : b; }
+static inline int16 i16max(int16 a, int16 b) { return (a > b) ? a : b; }
+static inline int32 i32max(int32 a, int32 b) { return (a > b) ? a : b; }
+static inline int64 i64max(int64 a, int64 b) { return (a > b) ? a : b; }
+static inline uint32 umax(uint32 a, uint32 b) { return (a > b) ? a : b; }
+static inline uint8 u8max(uint8 a, uint8 b) { return (a > b) ? a : b; }
+static inline uint16 u16max(uint16 a, uint16 b) { return (a > b) ? a : b; }
+static inline uint32 u32max(uint32 a, uint32 b) { return (a > b) ? a : b; }
+static inline uint64 u64max(uint64 a, uint64 b) { return (a > b) ? a : b; }
+static inline size_t zmax(size_t a, size_t b) { return (a > b) ? a : b; } //cause those varie
 
 #ifndef min
 static inline int min(int a, int b) { return (a < b) ? a : b; } //default is int

@@ -121,14 +121,18 @@ void itemdb_package_item(struct map_session_data *sd, int packageid)
 	struct item it;
 	struct item_package *package = (struct item_package *) idb_get(itemdb_package, packageid);
 
+	if (!package) {
+		ShowWarning("itemdb_package_item: Unable to find package with id %d\n", packageid);
+		return;
+	}
+
 	memset(&it, 0, sizeof(it));
 
 	// "Must"-Items
 	for (i = 0; i < package->data->qty; i++)
 	{
 		if (package->data->isrand[i] == 0)
-		{ 
-
+		{
 			it.nameid = package->data->nameid[i];
 			it.identify = itemdb_isstackable(it.nameid) ? 1 : 0; // should not be identified by default?
 			get_count = itemdb_isstackable(it.nameid) ? package->data->amount[i] : 1;
@@ -737,7 +741,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 	unsigned short nameid, announced = 0, duration = 0;
 	int packageid,amt,j;
 	int prob = 1;
-	uint8 rand_package = 1;
+	uint8 rand_package = 0;
 	char *str[7],*p;
 	char w1[1024], w2[1024];
 	
@@ -832,12 +836,14 @@ static void itemdb_read_itempackage_sub(const char* filename)
 		if (!(package = (struct item_package *) idb_get(itemdb_package, packageid))) {
 			CREATE(package, struct item_package, 1);
 			package->id = packageid;
+			package->qty = 0;
 		}
 
 		uint16 idx = package->qty;
-		if (!idx)
+		if (!idx) {
 			CREATE(package->data, struct item_package_entry, 1);
-		else
+			package->data->qty = 0;
+		} else
 			RECREATE(package->data, struct item_package_entry, idx + 1);
 
 		package->data->nameid[package->data->qty] = nameid;

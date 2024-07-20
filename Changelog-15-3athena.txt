@@ -5,6 +5,29 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/20/2024
+	r468 [15peaces]
+		*Fixed Venom Splasher consuming a second Red Gemstone.
+		*Concentration now casts Endure.
+		*Updated Poem of Braggi cast time reduction bonus from Musical Lessons to only be 1% per level.
+		*Some cleaning.
+		*Fixed elemental reductions stacking to eventually cause 100% immunity…
+		*Fixed critical damage bonus from Monster Transformation system.
+		*Updated clif_message enum and appropriate clif_msg* functions.
+		*Added script bonuses in order to support official `AddReceiveItem_Equip n`
+			-`bonus2 bDropAddRace,r,x;` : Adds x% to player's drop rate when killing a monster with race r.
+			-`bonus2 bDropAddClass,c,x;` : Adds x% to player's drop rate when killing a monster with class c.
+		*Item Database Updates:
+			-Implemented Sealed_Mind_Box.
+			-Fixed a map crash if an invalid item package is opened.
+			-Fixed an issue where all items with no random group where set to group 1.
+			-Updated some view-ids.
+			-Added some costume items.
+		*Cleaned up player specific drop rate calculations.
+			-Removed the src check for the new bonuses.	
+		*Corrected MVP Tomb behavior.
+			-On Aegis there is a 9~ second delay before the tomb is spawned.
+		
 07/09/2024
 	r467 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn467.sql file!

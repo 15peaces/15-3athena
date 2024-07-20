@@ -662,6 +662,9 @@ bAddClassDropItemGroup	2071
 
 bAddItemGroupHealRate	2073
 
+bDropAddRace	2085
+bDropAddClass	2086
+
 bFixedCastRate	2101
 bCooldownRate	2102
 bMatk	2103
@@ -843,15 +846,16 @@ IP_Egrade_Pocket	18			//352
 IP_HALLOWEEN_G_BOX	19			//386
 IP_Solo_Christmas_Gift	20		//387
 IP_Sg_Weapon_Supply_Box	21		//388
-IP_Level_Up_Box100	22	//413
-IP_Level_Up_Box120	23	//414
-IP_Level_Up_Box130	24	//415
-IP_Level_Up_Box140	25	//416
-IP_Level_Up_Box150	26	//417
-IP_Level_Up_Box160	27	//418
+IP_Level_Up_Box100	22			//413
+IP_Level_Up_Box120	23			//414
+IP_Level_Up_Box130	24			//415
+IP_Level_Up_Box140	25			//416
+IP_Level_Up_Box150	26			//417
+IP_Level_Up_Box160	27			//418
 IP_IDRO10TH_SCROLL	28			//442
-IP_SOMETHING_CANDY_HOLDER	29	//472
-IP_Noive_Box	30				//481
+IP_Sealed_Mind_Box	29			//454
+IP_SOMETHING_CANDY_HOLDER	30	//472
+IP_Noive_Box	31				//481
 
 SC_ALL	-1
 SC_NONE	-1

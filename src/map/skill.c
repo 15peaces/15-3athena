@@ -554,16 +554,15 @@ int skillnotok (int skill_id, struct map_session_data *sd)
 		return 1;
 
 	// Check skill restrictions [Celest]
-	if(!map_flag_vs(m) && skill_get_nocast (skill_id) & 1)
-		return 1;
-	if(map[m].flag.pvp && skill_get_nocast (skill_id) & 2)
-		return 1;
-	if(map_flag_gvg(m) && skill_get_nocast (skill_id) & 4)
-		return 1;
-	if(map[m].flag.battleground && skill_get_nocast (skill_id) & 8)
-		return 1;
-	if(map[m].flag.restricted && map[m].zone && skill_get_nocast (skill_id) & (8*map[m].zone))
-		return 1;
+	if((!map_flag_vs(m) && skill_get_nocast (skill_id) & 1) ||
+		(map[m].flag.pvp && skill_get_nocast (skill_id) & 2) ||
+		(map_flag_gvg(m) && skill_get_nocast (skill_id) & 4) ||
+		(map[m].flag.battleground && skill_get_nocast (skill_id) & 8) ||
+		(map[m].flag.restricted && map[m].zone && skill_get_nocast(skill_id) & (8 * map[m].zone)))
+		{
+			clif_msg(sd, SKILL_CANT_USE_AREA); // This skill cannot be used within this area
+			return 1;
+		}
 
 	switch (skill_id) {
 		case AL_WARP:
@@ -4796,6 +4795,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 			// recursive invocation of skill_castend_damage_id() with flag|1
 			map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), splash_target(src), src, skill_id, skill_lv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
+
+			if (skill_id == AS_SPLASHER) {
+				map_freeblock_unlock(); // Don't consume a second gemstone.
+				return 0;
+			}
 
 			// Switch back to original skill ID in case there's more to be done beyond here.
 			if ( skill_id == SU_LUNATICCARROTBEAT2 )
@@ -13340,7 +13344,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 		//For some reason at level 10 the base delay reduction is 50%.
 		val2 = (skill_lv<10?3*skill_lv:50)+status->int_/5; // After-cast delay reduction
 		if(sd){
-			val1 += 2*pc_checkskill(sd,BA_MUSICALLESSON);
+			val1 += pc_checkskill(sd,BA_MUSICALLESSON);
 			val2 += 2*pc_checkskill(sd,BA_MUSICALLESSON);
 		}
 		break;
