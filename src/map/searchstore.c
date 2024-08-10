@@ -120,7 +120,6 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	struct s_search_store_search s;
 	searchstore_searchall_t store_searchall;
 	time_t querytime;
-	DBMap *vending_db = vending_getdb();
 
 	if( !battle_config.feature_search_stores )
 	{
@@ -195,7 +194,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	s.card_count = card_count;
 	s.min_price  = min_price;
 	s.max_price  = max_price;
-	iter = db_iterator(vending_db);
+	iter = db_iterator((type == SEARCHTYPE_VENDING) ? vending_getdb() : buyingstore_getdb());
 
 	for (pl_sd = dbi_first(iter); dbi_exists(iter); pl_sd = dbi_next(iter)) {
 		if (sd == pl_sd) {// skip own shop, if any
@@ -290,7 +289,7 @@ void searchstore_close(struct map_session_data* sd)
 }
 
 
-void searchstore_click(struct map_session_data* sd, int account_id, int store_id, unsigned short nameid)
+void searchstore_click(struct map_session_data* sd, uint32 account_id, int store_id, unsigned short nameid)
 {
 	unsigned int i;
 	struct map_session_data* pl_sd;
@@ -367,7 +366,7 @@ void searchstore_click(struct map_session_data* sd, int account_id, int store_id
 
 
 /// checks whether or not sd has opened account_id's shop remotely
-bool searchstore_queryremote(struct map_session_data* sd, int account_id)
+bool searchstore_queryremote(struct map_session_data* sd, uint32 account_id)
 {
 	return (bool)( sd->searchstore.open && sd->searchstore.count && sd->searchstore.remote_id == account_id );
 }
@@ -381,7 +380,7 @@ void searchstore_clearremote(struct map_session_data* sd)
 
 
 /// receives results from a store-specific callback
-bool searchstore_result(struct map_session_data* sd, int store_id, int account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine, const struct item_option* option)
+bool searchstore_result(struct map_session_data* sd, int store_id, uint32 account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine, const struct item_option* option)
 {
 	struct s_search_store_info_item* ssitem;
 

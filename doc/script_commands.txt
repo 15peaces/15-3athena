@@ -2855,14 +2855,26 @@ when you want to check item cards or if it's signed. Useful for such quests as
 
 ---------------------------------------
 
-*mergeitem({<item_id>});
-*mergeitem({"<item name>"});
+*mergeitem({,<char_id>});
 
-Merge item!!!!!!!!!
+Open merge item window to merge available item can be merged.
 
-If no item_id ot "item name", it will merges all possible items that exist in player's inventory.
+Examples
+1. See the NPC 'npc/other/item_merge.txt'.
+2. Simple usage:
+    mes "Let's check if any item can be merged.";
+    close2;
+    mergeitem;
+    end;
 
-Example, just see the NPC npc/re/other/merge_item.txt
+---------------------------------------
+
+*mergeitem2({<item_id>{,<char_id>}});
+*mergeitem2({"<item name>"{,<char_id>}});
+
+Merge all stackable items that separated by GUID flags
+(either by flag 4 item_flag.txt or GUID  in item_group).
+If no item ID/name given, all possible items in player's inventory will be merged.
 
 ---------------------------------------
 //
@@ -4974,7 +4986,8 @@ this command will bound the item to the player's account. Depending on the bound
 the character may not be able to trade or store these items, however all bounded types 
 cannot be sold, vended, auctioned, or mailed. 
 	 
-Bound Types: 
+Bound Types:
+	0 - BOUND_NONE		- Not Bound  
 	1 - BOUND_ACCOUNT	- Account Bound 
 	2 - BOUND_GUILD 	- Guild Bound 
 	3 - BOUND_PARTY  	- Party Bound 
@@ -5453,11 +5466,17 @@ logs out.
 Note that the maximum number of 'bonus_script' commands that can run simultaneously
 for a player is 20 (MAX_PC_BONUS_SCRIPT in 'src/common/mmo.h').
 
-Flags: (Default is 0)
-	&1: Remove when dead.
-	&2: Removable by Dispell.
-	&4: Removable by Clearance.
-	&8: Remove when player logs out.
+Flags (bitmask):
+	1   : Remove when dead.
+	2   : Removable by Dispell.
+	4   : Removable by Clearance.
+	8   : Remove when player logs out.
+	16  : Removeable by Banishing Buster.
+	32  : Removable by Refresh.
+	128 : Removable by Luxanima.
+	256 : Remove when Madogear is activated or deactivated.
+	512 : Remove when receive damage.
+	1024: Script is permanent, cannot be cleared by bonus_script_clear
 
 Types:
 	This will be used to decide negative or positive buff for 'debuff_on_logout'.
@@ -5471,6 +5490,16 @@ Example:
 	// Apple gives you +5 Str bonus for 1 minute when it's consumed.
 	512,Apple,Apple,0,15,,20,,,,,0xFFFFFFFF,63,2,,,,,,{ bonus_script "{ bonus bStr,5; }",60; },{},{}
 	
+---------------------------------------
+
+*bonus_script_clear {<flag>,{<char_id>}};
+
+Removes atatched bonus_script from player. If no 'char_id' given, it will removes
+from the invoker.
+
+If 'flag' is 1, means will clears all scripts even it's Permanent effect. By default,
+it just removes non-permanent script.
+
 ---------------------------------------
 
 *skill <skill id>,<level>{,<flag>};

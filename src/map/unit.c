@@ -1503,6 +1503,19 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 						return 0;
 					}
 					break;
+				case CR_DEVOTION:
+					if (target->type == BL_PC) {
+						uint8 i = 0, count = min(skill_lv, 5);
+						ARR_FIND(0, count, i, sd->devotion[i] == target_id);
+						if (i == count) {
+							ARR_FIND(0, count, i, sd->devotion[i] == 0);
+							if (i == count) { // No free slots, skill Fail
+								clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0, 0);
+								return 0;
+							}
+						}
+					}
+					break;
 			}
 		if (!skill_check_condition_castbegin(sd, skill_id, skill_lv))
 			return 0;
@@ -2939,10 +2952,9 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				delete_timer(md->deletetimer,mob_timer_delete);
 				md->deletetimer = INVALID_TIMER;
 			}
-			if( md->lootitem )
-			{
-				aFree(md->lootitem);
-				md->lootitem=NULL;
+			if (md->lootitems) {
+				aFree(md->lootitems);
+				md->lootitems = NULL;
 			}
 			if( md->guardian_data )
 			{

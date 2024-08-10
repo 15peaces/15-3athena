@@ -11,7 +11,7 @@ int inter_party_init(void);
 void inter_party_final(void);
 int inter_party_save(void);
 int inter_party_parse_frommap(int fd);
-int inter_party_leave(int party_id,int account_id, int char_id);
+int inter_party_leave(int party_id,uint32 account_id, uint32 char_id);
 bool inter_party_update(struct mmo_charstatus* cd);
 
 extern char party_txt[1024];

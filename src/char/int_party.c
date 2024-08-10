@@ -31,9 +31,9 @@ static int party_newid = 100;
 
 int mapif_party_broken(int party_id, int flag);
 int party_check_empty(struct party *p);
-int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id);
+int mapif_parse_PartyLeave(int fd, int party_id, uint32 account_id, uint32 char_id);
 int party_check_exp_share(struct party_data *p);
-int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag);
+int mapif_party_optionchanged(int fd,struct party *p, uint32 account_id, int flag);
 
 //Updates party's level range and unsets even share if broken.
 static int int_party_check_lv(struct party_data *p) {
@@ -290,7 +290,7 @@ int party_check_empty(struct party *p) {
 
 /// Party creation notification.
 /// @param result 0 on success, 1 on failure
-static void mapif_party_created(int fd, int account_id, int char_id, int result, int party_id, const char* name)
+static void mapif_party_created(int fd, uint32 account_id, uint32 char_id, int result, int party_id, const char* name)
 {
 	WFIFOHEAD(fd, 39);
 	WFIFOW(fd,0) = 0x3820;
@@ -303,7 +303,7 @@ static void mapif_party_created(int fd, int account_id, int char_id, int result,
 }
 
 // パ?ティ情報見つからず
-static void mapif_party_noinfo(int fd, int party_id, int char_id)
+static void mapif_party_noinfo(int fd, int party_id, uint32 char_id)
 {
 	WFIFOHEAD(fd, 12);
 	WFIFOW(fd,0) = 0x3821;
@@ -315,7 +315,7 @@ static void mapif_party_noinfo(int fd, int party_id, int char_id)
 }
 
 // パ?ティ情報まとめ送り
-static void mapif_party_info(int fd, struct party* p, int char_id)
+static void mapif_party_info(int fd, struct party* p, uint32 char_id)
 {
 	unsigned char buf[8 + sizeof(struct party)];
 	WBUFW(buf,0) = 0x3821;
@@ -329,7 +329,7 @@ static void mapif_party_info(int fd, struct party* p, int char_id)
 }
 
 // パ?ティメンバ追加可否
-int mapif_party_memberadded(int fd, int party_id, int account_id, int char_id, int flag) {
+int mapif_party_memberadded(int fd, int party_id, uint32 account_id, uint32 char_id, int flag) {
 	WFIFOHEAD(fd, 15);
 	WFIFOW(fd,0) = 0x3822;
 	WFIFOL(fd,2) = party_id;
@@ -342,7 +342,7 @@ int mapif_party_memberadded(int fd, int party_id, int account_id, int char_id, i
 }
 
 // パ?ティ設定?更通知
-int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag) {
+int mapif_party_optionchanged(int fd,struct party *p, uint32 account_id, int flag) {
 	unsigned char buf[15];
 
 	WBUFW(buf,0) = 0x3823;
@@ -359,7 +359,7 @@ int mapif_party_optionchanged(int fd,struct party *p, int account_id, int flag) 
 }
 
 // パ?ティ?退通知
-int mapif_party_withdraw(int party_id,int account_id, int char_id) {
+int mapif_party_withdraw(int party_id,uint32 account_id, uint32 char_id) {
 	unsigned char buf[16];
 
 	WBUFW(buf,0) = 0x3824;
@@ -399,7 +399,7 @@ int mapif_party_broken(int party_id, int flag) {
 }
 
 // パ?ティ??言
-int mapif_party_message(int party_id, int account_id, char *mes, int len, int sfd) {
+int mapif_party_message(int party_id, uint32 account_id, char *mes, int len, int sfd) {
 	unsigned char buf[2048];
 
 	WBUFW(buf,0) = 0x3827;
@@ -470,7 +470,7 @@ void mapif_parse_CreateParty(int fd, char* name, int item, int item2, struct par
 }
 
 // パ?ティ情報要求
-static void mapif_parse_PartyInfo(int fd, int party_id, int char_id)
+static void mapif_parse_PartyInfo(int fd, int party_id, uint32 char_id)
 {
 	struct party_data *p;
 
@@ -520,7 +520,7 @@ int mapif_parse_PartyAddMember(int fd, int party_id, struct party_member *member
 }
 
 // パ?ティ?設定?更要求
-int mapif_parse_PartyChangeOption(int fd, int party_id, int account_id, int exp, int item)
+int mapif_parse_PartyChangeOption(int fd, int party_id, uint32 account_id, int exp, int item)
 {
 	struct party_data *p;
 	int flag = 0;
@@ -540,7 +540,7 @@ int mapif_parse_PartyChangeOption(int fd, int party_id, int account_id, int exp,
 }
 
 // パ?ティ?退要求
-int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id)
+int mapif_parse_PartyLeave(int fd, int party_id, uint32 account_id, uint32 char_id)
 {
 	struct party_data *p;
 	unsigned int lv;
@@ -571,7 +571,7 @@ int mapif_parse_PartyLeave(int fd, int party_id, int account_id, int char_id)
 	return 0;
 }
 
-int mapif_parse_PartyChangeMap(int fd, int party_id, int account_id, int char_id, unsigned short map, unsigned int online, unsigned int lv, unsigned short class_)
+int mapif_parse_PartyChangeMap(int fd, int party_id, uint32 account_id, uint32 char_id, unsigned short map, unsigned int online, unsigned int lv, unsigned short class_)
 {
 	struct party_data *p;
 	int i;
@@ -640,12 +640,12 @@ int mapif_parse_BreakParty(int fd, int party_id) {
 }
 
 // パ?ティメッセ?ジ送信
-int mapif_parse_PartyMessage(int fd, int party_id, int account_id, char *mes, int len)
+int mapif_parse_PartyMessage(int fd, int party_id, uint32 account_id, char *mes, int len)
 {
 	return mapif_party_message(party_id, account_id, mes, len, fd);
 }
 
-int mapif_parse_PartyLeaderChange(int fd,int party_id,int account_id,int char_id)
+int mapif_parse_PartyLeaderChange(int fd,int party_id,uint32 account_id,uint32 char_id)
 {
 	struct party_data *p;
 	int i;
@@ -689,7 +689,7 @@ int inter_party_parse_frommap(int fd) {
 }
 
 // サ?バ?から?退要求（キャラ削除用）
-int inter_party_leave(int party_id, int account_id, int char_id) {
+int inter_party_leave(int party_id, uint32 account_id, uint32 char_id) {
 	return mapif_parse_PartyLeave(-1, party_id, account_id, char_id);
 }
 

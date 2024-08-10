@@ -1645,7 +1645,6 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 	for( i = 0; i < n; ++i ) {
 		unsigned short nameid = item_list[i].nameid;
 		unsigned short amount = item_list[i].qty;
-		struct item item_tmp;
 
 #if PACKETVER >= 20131223
 		if (nd->subtype == NPCTYPE_MARKETSHOP) {
@@ -1660,11 +1659,19 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 		if (itemdb_type(nameid) == IT_PETEGG)
 			pet_create_egg(sd, nameid);
 		else {
-			memset(&item_tmp,0,sizeof(item_tmp));
-			item_tmp.nameid = nameid;
-			item_tmp.identify = 1;
+			unsigned short get_amt = amount;
 
-			pc_additem(sd, &item_tmp, amount, LOG_TYPE_NPC);
+			if ((itemdb_search(nameid))->flag.guid)
+				get_amt = 1;
+
+			for (k = 0; k < amount; k += get_amt) {
+				struct item item_tmp;
+				memset(&item_tmp, 0, sizeof(item_tmp));
+				item_tmp.nameid = nameid;
+				item_tmp.identify = 1;
+
+				pc_additem(sd, &item_tmp, get_amt, LOG_TYPE_NPC);
+			}
 		}
 	}
 
@@ -2007,6 +2014,8 @@ int npc_remove_map(struct npc_data* nd)
 	if(nd->bl.prev == NULL || nd->bl.m < 0)
 		return 1; //Not assigned to a map.
   	m = nd->bl.m;
+	if (nd->subtype == NPCTYPE_SCRIPT)
+		skill_clear_unitgroup(&nd->bl);
 	clif_clearunit_area(&nd->bl,CLR_RESPAWN);
 	npc_unsetcells(nd);
 	map_delblock(&nd->bl);
@@ -4277,6 +4286,11 @@ bool npc_unloadfile(const char* path) {
 	}
 
 	dbi_destroy(iter);
+
+	if (found) /* refresh event cache */
+		npc_read_event_script();
+
+	npc_delsrcfile(path);
 
 	return found;
 }

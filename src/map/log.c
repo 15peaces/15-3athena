@@ -68,6 +68,7 @@ static char log_picktype2char(e_log_pick_type type)
 		case LOG_TYPE_QUEST:			return 'Q';  // (Q)uest Item
 		case LOG_TYPE_OTHER:			return 'X';  // Other
 		case LOG_TYPE_CASH:				return '$';  // Cash
+		case LOG_TYPE_MERGE_ITEM:		return 'Z';  // Merged Item
 	}
 
 	// should not get here, fallback
@@ -301,7 +302,7 @@ void log_mvpdrop(struct map_session_data* sd, int monster_id, int* log_mvp)
 	if( log_config.sql_logs )
 	{
 		if( SQL_ERROR == Sql_Query(logmysql_handle, "INSERT DELAYED INTO `%s` (`mvp_date`, `kill_char_id`, `monster_id`, `prize`, `mvpexp`, `map`) VALUES (NOW(), '%d', '%d', '%d', '%d', '%s') ",
-			log_config.log_mvpdrop, sd->status.char_id, monster_id, log_mvp[0], log_mvp[1], mapindex_id2name(sd->mapindex)) )
+			log_config.log_mvpdrop, sd->status.char_id, monster_id, (unsigned short)log_mvp[0], log_mvp[1], mapindex_id2name(sd->mapindex)) )
 		{
 			Sql_ShowDebug(logmysql_handle);
 			return;

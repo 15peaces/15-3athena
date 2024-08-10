@@ -86,7 +86,7 @@ bool bg_send_message(struct map_session_data *sd, const char *mes, int len);
 // Battleground Queue
 void bg_queue_player_cleanup(struct map_session_data *sd);
 void bg_queue_ready_ack(struct battleground_arena *arena, struct map_session_data *sd, bool response);
-int bg_id2pos(int queue_id, int account_id);
+int bg_id2pos(int queue_id, uint32 account_id);
 int bg_begin_timer(int tid, int64 tick, int id, intptr_t data);
 void bg_begin(struct battleground_arena *arena);
 void bg_queue_add(struct map_session_data *sd, struct battleground_arena *arena, enum bg_queue_types type);

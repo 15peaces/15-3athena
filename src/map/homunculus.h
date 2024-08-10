@@ -78,7 +78,7 @@ struct homun_skill_tree_entry {
 #define hom_is_active(x) (x && x->homunculus.vaporize == 0 && x->battle_status.hp > 0)
 int do_init_homunculus(void);
 void do_final_homunculus(void);
-int hom_recv_data(int account_id, struct s_homunculus *sh, int flag); //albator
+int hom_recv_data(uint32 account_id, struct s_homunculus *sh, int flag); //albator
 struct view_data* hom_get_viewdata(int class_);
 void hom_damage(struct homun_data *hd);
 int hom_dead(struct homun_data *hd);

@@ -1587,9 +1587,9 @@ ACMD_FUNC(kami)
 		sscanf(message, "%199[^\n]", atcmd_output);
 
 		if (strstr(command, "l") != NULL)
-			clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, 0, ALL_SAMEMAP);
+			clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT, ALL_SAMEMAP);
 		else
-			intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, (*(command + 5) == 'b' || *(command + 5) == 'B') ? 0x10 : 0);
+			intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, (*(command + 5) == 'b' || *(command + 5) == 'B') ? BC_BLUE : BC_DEFAULT);
 	
 	} else {
 	
@@ -1726,7 +1726,6 @@ ACMD_FUNC(item)
 			item_tmp.nameid = item_id;
 			item_tmp.identify = 1;
 			item_tmp.bound = bound;
-
 			if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_COMMAND)))
 				clif_additem(sd, 0, 0, flag);
 		}
@@ -3014,15 +3013,7 @@ ACMD_FUNC(refine)
 			continue;
 		if (j == EQI_AMMO)
 			continue;
-		if(j == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == i)
-			continue;
-		if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == i)
-			continue;
-		if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == i || sd->equip_index[EQI_HEAD_LOW] == i))
-			continue;
-		if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == i)
-			continue;
-		if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == i || sd->equip_index[EQI_COSTUME_HEAD_LOW] == i))
+		if (pc_is_same_equip_index((enum equip_index)j, sd->equip_index, i))
 			continue;
 
 		if(position && !(sd->inventory.u.items_inventory[i].equip & position))
@@ -6109,7 +6100,7 @@ ACMD_FUNC(broadcast)
 	}
 
 	sprintf(atcmd_output, "%s: %s", sd->status.name, message);
-	intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, 0);
+	intif_broadcast(atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT);
 
 	return 0;
 }
@@ -6130,7 +6121,7 @@ ACMD_FUNC(localbroadcast)
 
 	sprintf(atcmd_output, "%s: %s", sd->status.name, message);
 
-	clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, 0, ALL_SAMEMAP);
+	clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT, ALL_SAMEMAP);
 
 	return 0;
 }
@@ -6706,7 +6697,7 @@ void getring (struct map_session_data* sd)
 
 	if((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_COMMAND))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 	}
 }
 
@@ -7960,9 +7951,9 @@ ACMD_FUNC(mail)
  *------------------------------------------*/
 ACMD_FUNC(mobinfo)
 {
-	unsigned char msize[3][7] = {"Small", "Medium", "Large"};
-	unsigned char mrace[12][11] = {"Formless", "Undead", "Beast", "Plant", "Insect", "Fish", "Demon", "Demi-Human", "Angel", "Dragon", "Boss", "Non-Boss"};
-	unsigned char melement[10][8] = {"Neutral", "Water", "Earth", "Fire", "Wind", "Poison", "Holy", "Dark", "Ghost", "Undead"};
+	unsigned char msize[SZ_ALL][7] = {"Small", "Medium", "Large"};
+	unsigned char mrace[RC_ALL][11] = {"Formless", "Undead", "Beast", "Plant", "Insect", "Fish", "Demon", "Demi-Human", "Angel", "Dragon", "Player", "Boss", "Non-Boss"};
+	unsigned char melement[ELE_ALL][8] = {"Neutral", "Water", "Earth", "Fire", "Wind", "Poison", "Holy", "Dark", "Ghost", "Undead"};
 	char atcmd_output2[CHAT_SIZE_MAX];
 	struct item_data *item_data;
 	struct mob_db *mob, *mob_array[MAX_SEARCH];
@@ -8703,7 +8694,7 @@ ACMD_FUNC(whodrops)
 		
 			for (j=0; j < MAX_SEARCH && item_data->mob[j].chance > 0; j++)
 			{
-				sprintf(atcmd_output, "- %s (%02.02f%%)", mob_db(item_data->mob[j].id)->jname, item_data->mob[j].chance/100.);
+				sprintf(atcmd_output, "- %s (%d): %02.02f%%", mob_db(item_data->mob[j].id)->jname, item_data->mob[j].id, item_data->mob[j].chance/100.);
 				clif_displaymessage(fd, atcmd_output);
 			}
 		}

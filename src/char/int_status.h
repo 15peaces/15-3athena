@@ -7,7 +7,7 @@
 struct status_change_data;
 
 struct scdata {
-	int account_id, char_id;
+	uint32 account_id, char_id;
 	int count;
 	struct status_change_data* data;
 };

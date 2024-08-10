@@ -31,7 +31,7 @@ char accreg_txt[1024] = "save/accreg.txt";
 char inter_log_filename[1024] = "log/inter.log";
 char main_chat_nick[16] = "Main";
 
-static DBMap* accreg_db = NULL; // int account_id -> struct accreg*
+static DBMap* accreg_db = NULL; // uint32 account_id -> struct accreg*
 
 unsigned int party_share_level = 10;
 
@@ -375,7 +375,7 @@ static void mapif_account_reg(int fd, unsigned char *src)
 }
 
 // アカウント変数要求返信
-int mapif_account_reg_reply(int fd,int account_id, int char_id)
+int mapif_account_reg_reply(int fd,uint32 account_id, uint32 char_id)
 {
 	struct accreg *reg = (struct accreg*)idb_get(accreg_db,account_id);
 
@@ -399,7 +399,7 @@ int mapif_account_reg_reply(int fd,int account_id, int char_id)
 }
 
 //Request to kick char from a certain map server. [Skotlex]
-int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason)
+int mapif_disconnectplayer(int fd, uint32 account_id, uint32 char_id, int reason)
 {
 	if (fd < 0)
 		return -1;
@@ -604,7 +604,7 @@ int mapif_parse_RegistryRequest(int fd)
 	return 1;
 }
 
-static void mapif_namechange_ack(int fd, int account_id, int char_id, int type, int flag, char *name){
+static void mapif_namechange_ack(int fd, uint32 account_id, uint32 char_id, int type, int flag, char *name){
 	WFIFOHEAD(fd, NAME_LENGTH+13);
 	WFIFOW(fd, 0) =0x3806;
 	WFIFOL(fd, 2) =account_id;
@@ -617,7 +617,7 @@ static void mapif_namechange_ack(int fd, int account_id, int char_id, int type, 
 
 int mapif_parse_NameChangeRequest(int fd)
 {
-	int account_id, char_id, type;
+	uint32 account_id, char_id, type;
 	char* name;
 	int i;
 

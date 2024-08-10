@@ -1604,9 +1604,10 @@ int map_search_freecell(struct block_list *src, int m, short *x,short *y, int rx
  * @param second_charid :  2nd player that could loot the item (2nd charid that could loot for second_get_charid duration)
  * @param third_charid : 3rd player that could loot the item (3rd charid that could loot for third_get_charid duration)
  * @param flag: &1 MVP item. &2 do stacking check. &4 bypass droppable check.
+ * @param mob_id: Monster ID if dropped by monster
  * @return 0:failure, x:item_gid [MIN_FLOORITEM;MAX_FLOORITEM]==[2;START_ACCOUNT_NUM]
  *------------------------------------------*/
-int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags)
+int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int first_charid,int second_charid,int third_charid,int flags, unsigned short mob_id)
 {
 	int r;
 	struct flooritem_data *fitem=NULL;
@@ -1638,6 +1639,7 @@ int map_addflooritem(struct item *item_data,int amount,int m,int x,int y,int fir
 	fitem->second_get_tick = fitem->first_get_tick + (flags&1 ? battle_config.mvp_item_second_get_time : battle_config.item_second_get_time);
 	fitem->third_get_charid = third_charid;
 	fitem->third_get_tick = fitem->second_get_tick + (flags&1 ? battle_config.mvp_item_third_get_time : battle_config.item_third_get_time);
+	fitem->mob_id = mob_id;
 
 	memcpy(&fitem->item_data,item_data,sizeof(*item_data));
 	fitem->item_data.amount=amount;
@@ -1938,8 +1940,8 @@ int map_quit(struct map_session_data *sd)
 
 	for (i = 0; i < EQI_MAX; i++) {
 		if (sd->equip_index[i] >= 0)
-			if (!pc_isequip(sd, sd->equip_index[i]))
-				pc_unequipitem(sd, sd->equip_index[i], 2);
+			if (pc_isequip(sd, sd->equip_index[i]) != ITEM_EQUIP_ACK_OK)
+				pc_unequipitem(sd, sd->equip_index[i], ITEM_EQUIP_ACK_FAIL);
 	}
 	
 	// Return loot to owner
@@ -1968,6 +1970,12 @@ int map_quit(struct map_session_data *sd)
 	// Cell PVP [Napster]
 	if( sd->state.pvp && map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) )
 		map_pvp_area(sd, 0);
+
+	if (sd->state.vending)
+		idb_remove(vending_getdb(), sd->status.char_id);
+
+	if (sd->state.buyingstore)
+		idb_remove(buyingstore_getdb(), sd->status.char_id);
 
 	pc_damage_log_clear(sd, 0);
 	party_booking_delete(sd); // Party Booking [Spiria]
@@ -2555,7 +2563,7 @@ void map_removemobs(int m)
 }
 
 /*==========================================
- * map–¼‚©‚çmap”Ô?‚Ö?Š·
+ * Hookup, get map_id from map_name
  *------------------------------------------*/
 int map_mapname2mapid(const char* name)
 {
@@ -3925,6 +3933,7 @@ void do_final(void)
 	do_final_cashshop();
 	do_final_clan();
 	do_final_vending();
+	do_final_buyingstore();
 	
 	map_db->destroy(map_db, map_db_final);
 	
@@ -4348,6 +4357,7 @@ int do_init(int argc, char *argv[])
 	do_init_battleground();
 	do_init_duel();
 	do_init_vending();
+	do_init_buyingstore();
 
 	npc_event_do_oninit();	// Init npcs (OnInit)
 

@@ -2683,9 +2683,9 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 					bonus += 250;
 			}
 
-			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
+			if (sd->class_&JOBL_SUPER_NOVICE && sd->status.base_level >= 99)
 				bonus += 2000; // Supernovice lvl99 hp bonus.
-			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 150)
+			if (sd->class_&JOBL_SUPER_NOVICE && sd->status.base_level >= 150)
 				bonus += 2000; // Supernovice lvl150 hp bonus.
 		}
 
@@ -3182,15 +3182,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			continue;
 		if (i == EQI_AMMO)
 			continue;
-		if(i == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index)
-			continue;
-		if(i == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index)
-			continue;
-		if(i == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index))
-			continue;
-		if(i == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)
-			continue;
-		if(i == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index))
+		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
 			continue;
 		if(!sd->inventory_data[index])
 			continue;
@@ -3264,9 +3256,11 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		else if (sd->inventory_data[index]->type == IT_SHADOWGEAR) { // Shadow System
 			if (!((battle_config.shadow_refine_def != 1 && i >= EQI_SHADOW_ARMOR && i <= EQI_SHADOW_ACC_L)))
 				refinedef += sd->inventory.u.items_inventory[index].refine * refinebonus[0][0];
-			run_script(sd->inventory_data[index]->script, 0, sd->bl.id, 0);
-			if (!calculating)
-				return 1;
+			if (sd->inventory_data[index]->script && !itemdb_isNoEquip(sd->inventory_data[index], sd->bl.m)) {
+				run_script(sd->inventory_data[index]->script, 0, sd->bl.id, 0);
+				if (!calculating)
+					return 1;
+			}
 		}
 	}
 
@@ -3296,15 +3290,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			continue;
 		if (i == EQI_AMMO)
 			continue;
-		if(i == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index)
-			continue;
-		if(i == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index)
-			continue;
-		if(i == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index))
-			continue;
-		if(i == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)
-			continue;
-		if(i == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index))
+		if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
 			continue;
 
 		if(sd->inventory_data[index]) {
@@ -7611,10 +7597,11 @@ void status_display_remove(struct map_session_data *sd, enum sc_type type) {
  * 'rate' = base success rate. 10000 = 100%
  * 'tick' is base duration
  * 'flag':
- * &1: Cannot be avoided (it has to start)
- * &2: Tick should not be reduced (by vit, luk, lv, etc)
- * &4: sc_data loaded, no value has to be altered.
- * &8: rate should not be reduced
+ *  &1: Cannot be avoided (it has to start)
+ *  &2: Tick should not be reduced (by vit, luk, lv, etc)
+ *  &4: sc_data loaded, no value has to be altered.
+ *  &8: rate should not be reduced
+ * &16: don't send SI
  *------------------------------------------*/
 int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
 {
@@ -8627,22 +8614,38 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val4 = 5 + val1*2; //Chance of casting
 			break;
 		case SC_VOLCANO:
-			if (status->def_ele == ELE_FIRE)
-				val2 = val1*10; //Watk increase
-			else
-				val2 = 0;
+			{
+				int8 enchant_eff[] = { 10, 14, 17, 19, 20 }; // Enchant addition
+				uint8 i = max((val1 - 1) % 5, 0);
+
+				val2 = val1 * 10; // Watk increase
+				if (status->def_ele != ELE_FIRE)
+					val2 = 0;
+				val3 = enchant_eff[i];
+			}
 			break;
 		case SC_VIOLENTGALE:
-			if (status->def_ele == ELE_WIND)
-				val2 = val1*3; //Flee increase
-			else
-				val2 = 0;
+			{
+				int8 enchant_eff[] = { 10, 14, 17, 19, 20 }; // Enchant addition
+				uint8 i = max((val1 - 1) % 5, 0);
+
+				val2 = val1 * 3; // Flee increase
+				if (status->def_ele != ELE_WIND)
+					val2 = 0;
+				val3 = enchant_eff[i];
+			}
 			break;
 		case SC_DELUGE:
-			if(status->def_ele == ELE_WATER)
-				val2 = deluge_eff[val1-1]; //HP increase
-			else
-				val2 = 0;
+			{
+				int8 deluge_eff[] = { 5,  9, 12, 14, 15 }; // HP addition rate n/100
+				int8 enchant_eff[] = { 10, 14, 17, 19, 20 }; // Enchant addition
+				uint8 i = max((val1 - 1) % 5, 0);
+
+				val2 = deluge_eff[i]; // HP increase
+				if (status->def_ele != ELE_WATER)
+					val2 = 0;
+				val3 = enchant_eff[i];
+			}
 			break;
 		case SC_SUITON:
 			if (!val2 || (sd && (sd->class_&MAPID_BASEMASK) == MAPID_NINJA)) {
@@ -8855,7 +8858,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 						for( i = 0; i < 5; i++ )
 						{
 							if( sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])) )
-								status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1);
+								status_change_start(src, &tsd->bl, type, 10000, val1, val2, 0, 0, tick, 1|16);
 						}
 					}
 					else if( bl->type == BL_MER && ((TBL_MER*)bl)->devotion_flag && (tsd = ((TBL_MER*)bl)->master) )
@@ -9008,7 +9011,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				{
 					enum sc_type type2 = types[i];
 					if( d_sc->data[type2] )
-						sc_start(bl, type2, 100, d_sc->data[type2]->val1, skill_get_time(status_sc2skill(type2),d_sc->data[type2]->val1));
+						status_change_start(d_bl, bl, type2, 10000, d_sc->data[type2]->val1, 0, 0, (type2 == SC_REFLECTSHIELD ? 1 : 0), skill_get_time(status_sc2skill(type2), d_sc->data[type2]->val1), (type2 == SC_DEFENDER) ? 1 : 1|16);
 					i--;
 				}
 			}
@@ -10626,7 +10629,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		calc_flag&=~SCB_BODY;
 	}*/
 
-	if (!(flag & 4 && StatusDisplayType[type]))
+	if (!(flag & 16) && !(flag & 4 && StatusDisplayType[type]))
 		clif_status_change(bl, StatusIconChangeTable[type], 1, tick, (val_flag & 1) ? val1 : 1, (val_flag & 2) ? val2 : 0, (val_flag & 4) ? val3 : 0);
 
 	/**

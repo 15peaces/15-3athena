@@ -175,8 +175,8 @@ void pincode_check(int fd, struct char_session_data* sd);
 void pincode_change(int fd, struct char_session_data* sd);
 void pincode_setnew(int fd, struct char_session_data* sd);
 void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state);
-void pincode_notifyLoginPinUpdate(int account_id, char* pin);
-void pincode_notifyLoginPinError(int account_id);
+void pincode_notifyLoginPinUpdate(uint32 account_id, char* pin);
+void pincode_notifyLoginPinError(uint32 account_id);
 void pincode_decrypt(uint32 userSeed, char* pin);
 int pincode_compare(int fd, struct char_session_data* sd, char* pin);
 
@@ -218,8 +218,8 @@ int console = 0;
 #define AUTH_TIMEOUT 30000
 
 struct auth_node {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	uint32 login_id1;
 	uint32 login_id2;
 	uint32 ip;
@@ -242,11 +242,11 @@ struct online_char_data {
 };
 
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
-int delete_char_sql(int char_id);
+int delete_char_sql(uint32 char_id);
 
-static DBMap* auth_db; // int account_id -> struct auth_node*
-static DBMap* online_char_db; // int account_id -> struct online_char_data*
-static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
+static DBMap* auth_db; // uint32 account_id -> struct auth_node*
+static DBMap* online_char_db; // uint32 account_id -> struct online_char_data*
+static DBMap* char_db_; // uint32 char_id -> struct mmo_charstatus*
 DBMap* char_get_authdb() { return auth_db; }
 DBMap* char_get_chardb() { return char_db_; }
 
@@ -265,7 +265,7 @@ static DBData create_online_char_data(DBKey key, va_list args)
 	return db_ptr2data(character);
 }
 
-unsigned int char_server_fd(int account_id)
+unsigned int char_server_fd(uint32 account_id)
 {
 	struct online_char_data* character;
 
@@ -275,7 +275,7 @@ unsigned int char_server_fd(int account_id)
 	return 0;
 }
 
-void set_char_charselect(int account_id)
+void set_char_charselect(uint32 account_id)
 {
 	struct online_char_data* character;
 
@@ -303,7 +303,7 @@ void set_char_charselect(int account_id)
 
 }
 
-void set_char_online(int map_id, int char_id, int account_id)
+void set_char_online(int map_id, uint32 char_id, uint32 account_id)
 {
 	struct online_char_data* character;
 	struct mmo_charstatus *cp;
@@ -348,7 +348,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 	}
 }
 
-void set_char_offline(int char_id, int account_id)
+void set_char_offline(uint32 char_id, uint32 account_id)
 {
 	struct online_char_data* character;
 
@@ -479,7 +479,7 @@ static DBData create_charstatus(DBKey key, va_list args)
 }
 #endif //TXT_SQL_CONVERT
 
-int mmo_char_tosql(int char_id, struct mmo_charstatus* p)
+int mmo_char_tosql(uint32 char_id, struct mmo_charstatus* p)
 {
 	int i = 0;
 	int count = 0;
@@ -1388,7 +1388,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 }
 
 //=====================================================================================================
-int mmo_char_fromsql( int char_id, struct mmo_charstatus* p, bool load_everything )
+int mmo_char_fromsql( uint32 char_id, struct mmo_charstatus* p, bool load_everything )
 {
 	int i;
 	char t_msg[128] = "";
@@ -1640,7 +1640,7 @@ int mmo_char_sql_init(void)
 //-----------------------------------
 // Function to change chararcter's names
 //-----------------------------------
-int rename_char_sql(struct char_session_data *sd, int char_id)
+int rename_char_sql(struct char_session_data *sd, uint32 char_id)
 {
 	struct mmo_charstatus char_dat;
 	char esc_name[NAME_LENGTH*2+1];
@@ -1759,7 +1759,7 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 #endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
-	int char_id, flag, k;
+	uint32 char_id, flag, k;
 
 	safestrncpy(name, name_, NAME_LENGTH);
 	normalize_name(name,TRIM_CHARS);
@@ -1925,7 +1925,7 @@ int divorce_char_sql(int partner_id1, int partner_id2)
 /* Returns 0 if successful
  * Returns < 0 for error
  */
-int delete_char_sql(int char_id)
+int delete_char_sql(uint32 char_id)
 {
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1]; //Name needs be escaped.
@@ -2453,7 +2453,7 @@ int char_family(int cid1, int cid2, int cid3)
 //----------------------------------------------------------------------
 // Force disconnection of an online player (with account value) by [Yor]
 //----------------------------------------------------------------------
-void disconnect_player(int account_id)
+void disconnect_player(uint32 account_id)
 {
 	int i;
 	struct char_session_data* sd;
@@ -2649,7 +2649,7 @@ int parse_fromlogin(int fd)
 			if (RFIFOREST(fd) < 25)
 				return 0;
 		{
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			uint8 sex = RFIFOB(fd,14);
@@ -2863,7 +2863,7 @@ void do_final_loginif(void)
 	}
 }
 
-int request_accreg2(int account_id, int char_id)
+int request_accreg2(uint32 account_id, uint32 char_id)
 {
 	loginif_check(0);
 
@@ -2899,7 +2899,7 @@ int save_accreg2(unsigned char* buf, int len)
  * @param class_   The character's current job class.
  * @param guild_id The character's guild ID.
  */
-void char_parse_change_sex_sub(int sex, int acc, int char_id, int class_, int guild_id)
+void char_parse_change_sex_sub(int sex, int acc, uint32 char_id, int class_, int guild_id)
 {
 	// job modification
 	if (class_ == JOB_BARD || class_ == JOB_DANCER)
@@ -2967,7 +2967,7 @@ int char_parse_ackchangesex(int fd, struct char_session_data* sd)
 
 		if (acc > 0) { // TODO: Is this even possible?
 			unsigned char i;
-			int char_id = 0, class_ = 0, guild_id = 0;
+			uint32 char_id = 0, class_ = 0, guild_id = 0;
 			struct auth_node* node = (struct auth_node*)idb_get(auth_db, acc);
 			SqlStmt *stmt;
 
@@ -3010,7 +3010,7 @@ int char_parse_ackchangesex(int fd, struct char_session_data* sd)
  * @retval 0 in case of success.
  * @retval 1 in case of failure.
  */
-int char_parse_ackchangecharsex(int char_id, int sex)
+int char_parse_ackchangecharsex(uint32 char_id, int sex)
 {
 	int class_ = 0, guild_id = 0, account_id = 0;
 	unsigned char buf[7];
@@ -3369,7 +3369,7 @@ void char_update_fame_list(int type, int index, int fame)
 
 //Loads a character's name and stores it in the buffer given (must be NAME_LENGTH in size)
 //Returns 1 on found, 0 on not found (buffer is filled with Unknown char name)
-int char_loadName(int char_id, char* name)
+int char_loadName(uint32 char_id, char* name)
 {
 	char* data;
 	size_t len;
@@ -3669,7 +3669,7 @@ int parse_frommap(int fd)
 			if (RFIFOREST(fd) < 10)
 				return 0;
 			{
-				int char_id, friend_id;
+				uint32 char_id, friend_id;
 				char_id = RFIFOL(fd, 2);
 				friend_id = RFIFOL(fd, 6);
 				if (SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id`='%d' AND `friend_id`='%d' LIMIT 1",
@@ -3808,7 +3808,7 @@ int parse_frommap(int fd)
 			if( RFIFOREST(fd) < 18 )
 				return 0;
 			else {
-				int account_id = RFIFOL(fd,2);
+				uint32 account_id = RFIFOL(fd,2);
 				uint32 login_id1 = RFIFOL(fd,6);
 				uint32 login_id2 = RFIFOL(fd,10);
 				uint32 ip = RFIFOL(fd,14);
@@ -4238,7 +4238,7 @@ int lan_subnetcheck(uint32 ip)
 ///     4 = (0x71a) To delete a character you must withdraw from the guild.
 ///     5 = (0x71b) To delete a character you must withdraw from the party.
 ///     Any (0x718): An unknown error has occurred.
-void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
+void char_delete2_ack(int fd, uint32 char_id, uint32 result, time_t delete_date)
 {
 	WFIFOHEAD(fd,14);
 	WFIFOW(fd,0) = 0x828;
@@ -4263,7 +4263,7 @@ void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
 ///     4 = (0x71d) Deleting not yet possible time.
 ///     5 = (0x71e) Date of birth do not match.
 ///     ? = (0x718) An unknown error has occurred.
-void char_delete2_accept_ack(int fd, int char_id, uint32 result)
+void char_delete2_accept_ack(int fd, uint32 char_id, uint32 result)
 {
 #if PACKETVER >= 20130000
 	if (result == 1) {
@@ -4289,7 +4289,7 @@ void char_delete2_accept_ack(int fd, int char_id, uint32 result)
 ///     1 = (0x718) none/success, (if char id not in deletion process): An unknown error has occurred.
 ///     2 = (0x719) A database error occurred.
 ///     ? = (0x718) An unknown error has occurred.
-void char_delete2_cancel_ack(int fd, int char_id, uint32 result)
+void char_delete2_cancel_ack(int fd, uint32 char_id, uint32 result)
 {
 	WFIFOHEAD(fd,10);
 	WFIFOW(fd,0) = 0x82c;
@@ -4335,7 +4335,7 @@ static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint
 /// 0827 <char id>.L
 static void char_delete2_req(int fd, struct char_session_data* sd)
 {
-	int char_id, i, guild_id, party_id;
+	uint32 char_id, i, guild_id, party_id;
 	char* data;
 	time_t delete_date;
 
@@ -4713,7 +4713,7 @@ int parse_char(int fd)
 		{
 			struct auth_node* node;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			int sex = RFIFOB(fd,16);
@@ -5540,7 +5540,7 @@ void pincode_sendstate(int fd, struct char_session_data* sd, uint16 state) {
 	WFIFOSET(fd, 12);
 }
 
-void pincode_notifyLoginPinUpdate(int account_id, char* pin) {
+void pincode_notifyLoginPinUpdate(uint32 account_id, char* pin) {
 	WFIFOHEAD(login_fd, 11);
 	WFIFOW(login_fd, 0) = 0x2738;
 	WFIFOL(login_fd, 2) = account_id;
@@ -5548,7 +5548,7 @@ void pincode_notifyLoginPinUpdate(int account_id, char* pin) {
 	WFIFOSET(login_fd, 11);
 }
 
-void pincode_notifyLoginPinError(int account_id) {
+void pincode_notifyLoginPinError(uint32 account_id) {
 	WFIFOHEAD(login_fd, 6);
 	WFIFOW(login_fd, 0) = 0x2739;
 	WFIFOL(login_fd, 2) = account_id;
@@ -5593,7 +5593,7 @@ void moveCharSlot(int fd, struct char_session_data* sd, unsigned short from, uns
 	}
 
 	// We dont even have a character on the chosen slot?
-	if (sd->found_char[from] <= 0) {
+	if (sd->found_char[from] <= 0 || to >= MAX_CHARS) {
 		moveCharSlotReply(fd, sd, from, 1);
 		return;
 	}

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool mercenary_owner_fromsql(int char_id, struct mmo_charstatus *status)
+bool mercenary_owner_fromsql(uint32 char_id, struct mmo_charstatus *status)
 {
 	char* data;
 
@@ -43,7 +43,7 @@ bool mercenary_owner_fromsql(int char_id, struct mmo_charstatus *status)
 	return true;
 }
 
-bool mercenary_owner_tosql(int char_id, struct mmo_charstatus *status)
+bool mercenary_owner_tosql(uint32 char_id, struct mmo_charstatus *status)
 {
 	if( SQL_ERROR == Sql_Query(sql_handle, "REPLACE INTO `%s` (`char_id`, `merc_id`, `arch_calls`, `arch_faith`, `spear_calls`, `spear_faith`, `sword_calls`, `sword_faith`) VALUES ('%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d')",
 		mercenary_owner_db, char_id, status->mer_id, status->arch_calls, status->arch_faith, status->spear_calls, status->spear_faith, status->sword_calls, status->sword_faith) )
@@ -55,7 +55,7 @@ bool mercenary_owner_tosql(int char_id, struct mmo_charstatus *status)
 	return true;
 }
 
-bool mercenary_owner_delete(int char_id)
+bool mercenary_owner_delete(uint32 char_id)
 {
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `char_id` = '%d'", mercenary_owner_db, char_id) )
 		Sql_ShowDebug(sql_handle);
@@ -93,7 +93,7 @@ bool mapif_mercenary_save(struct s_mercenary* merc)
 	return flag;
 }
 
-bool mapif_mercenary_load(int merc_id, int char_id, struct s_mercenary *merc)
+bool mapif_mercenary_load(int merc_id, uint32 char_id, struct s_mercenary *merc)
 {
 	char* data;
 
@@ -156,7 +156,7 @@ static void mapif_parse_mercenary_create(int fd, struct s_mercenary* merc)
 	mapif_mercenary_send(fd, merc, result);
 }
 
-static void mapif_parse_mercenary_load(int fd, int merc_id, int char_id)
+static void mapif_parse_mercenary_load(int fd, int merc_id, uint32 char_id)
 {
 	struct s_mercenary merc;
 	bool result = mapif_mercenary_load(merc_id, char_id, &merc);

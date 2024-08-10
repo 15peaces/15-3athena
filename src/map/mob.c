@@ -308,7 +308,7 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
 	if (data->eventname[0] && strlen(data->eventname) >= 4)
 		safestrncpy(md->npc_event, data->eventname, EVENT_NAME_LENGTH);
 	if(md->db->status.mode&MD_LOOTER)
-		md->lootitem = (struct item *)aCalloc(LOOTITEM_SIZE,sizeof(struct item));
+		md->lootitems = (struct s_mob_lootitem *)aCalloc(LOOTITEM_SIZE, sizeof(struct s_mob_lootitem));
 	md->spawn_timer = INVALID_TIMER;
 	md->deletetimer = INVALID_TIMER;
 	md->skillidx = -1;
@@ -996,8 +996,8 @@ int mob_spawn (struct mob_data *md)
 
 	memset(md->dmglog, 0, sizeof(md->dmglog));
 	md->tdmg = 0;
-	if (md->lootitem)
-		memset(md->lootitem, 0, sizeof(*md->lootitem));
+	if (md->lootitems)
+		memset(md->lootitems, 0, sizeof(*md->lootitems));
 	md->lootitem_count = 0;
 
 	if(md->db->option)
@@ -1195,9 +1195,7 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	target= va_arg(ap,struct block_list**);
 
 	dist=distance_bl(&md->bl, bl);
-	if(mob_can_reach(md,bl,dist+1, MSS_LOOT) && 
-		((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) //New target closer than previous one.
-	) {
+	if (mob_can_reach(md, bl, dist + 1, MSS_LOOT) && (*target) == NULL) {
 		(*target) = bl;
 		md->target_id=bl->id;
 		md->min_chase=md->db->range3;
@@ -1347,8 +1345,7 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 		break;
 	default:
 		mob_stop_attack(md);
-		if (battle_config.mob_ai&0x8)
-			mob_stop_walking(md,1); //Immediately stop chasing.
+		mob_stop_walking(md, 1); //Stop chasing.
 		md->state.skillstate = MSS_IDLE;
 		md->next_walktime=tick+rnd()%3000+3000;
 		break;
@@ -1454,9 +1451,6 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	if (md->ud.skilltimer != INVALID_TIMER)
 		return false;
 
-	if(md->ud.walktimer != INVALID_TIMER && md->ud.walkpath.path_pos <= 3)
-		return false;
-
 	// Abnormalities
 	if( (md->sc.opt1 > 0 && md->sc.opt1 != OPT1_STONEWAIT && md->sc.opt1 != OPT1_BURNING) ||
 		md->sc.data[SC_BLADESTOP] ||
@@ -1487,10 +1481,12 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				tbl->type == BL_PC &&
 				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_BOSS)) ||
 				((TBL_PC*)tbl)->invincible_timer != INVALID_TIMER)
-		)) {	//Unlock current target.
+		)) {	//No valid target
 			if (mob_warpchase(md, tbl))
 				return true; //Chasing this target.
-			mob_unlocktarget(md, tick-(battle_config.mob_ai&0x8?3000:0)); //Imediately do random walk.
+			if (md->ud.walktimer != INVALID_TIMER && md->ud.walkpath.path_pos <= battle_config.mob_chase_refresh)
+				return true; //Walk at least "mob_chase_refresh" cells before dropping the target
+			mob_unlocktarget(md, tick - (battle_config.mob_ai & 0x8 ? 3000 : 0)); //Immediately do random walk.
 			tbl = NULL;
 		}
 	}
@@ -1582,7 +1578,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	}
 
 	// Scan area for targets
-	if (!tbl && mode&MD_LOOTER && md->lootitem && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
+	if (!tbl && mode&MD_LOOTER && md->lootitems && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
 		(md->lootitem_count < LOOTITEM_SIZE || battle_config.monster_loot_type != 1))
 	{	// Scan area for items to loot, avoid trying to loot if the mob is full and can't consume the items.
 		map_foreachinrange (mob_ai_sub_hard_lootsearch, &md->bl, view_range, BL_ITEM, md, &tbl);
@@ -1626,7 +1622,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		struct flooritem_data *fitem;
 		if (md->ud.target == tbl->id && md->ud.walktimer != INVALID_TIMER)
 			return true; //Already locked.
-		if (md->lootitem == NULL)
+		if (md->lootitems == NULL)
 		{	//Can't loot...
 			mob_unlocktarget (md, tick);
 			return true;
@@ -1654,12 +1650,15 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		log_pick(&md->bl, LOG_TYPE_LOOT, fitem->item_data.nameid, fitem->item_data.amount, &fitem->item_data);
 
 		if (md->lootitem_count < LOOTITEM_SIZE) {
-			memcpy (&md->lootitem[md->lootitem_count++], &fitem->item_data, sizeof(md->lootitem[0]));
+			memcpy(&md->lootitems[md->lootitem_count].item, &fitem->item_data, sizeof(md->lootitems[0].item));
+			md->lootitems[md->lootitem_count].mob_id = fitem->mob_id;
+			md->lootitem_count++;
 		} else {	//Destroy first looted item...
-			if (md->lootitem[0].card[0] == CARD0_PET)
-				intif_delete_petdata( MakeDWord(md->lootitem[0].card[1],md->lootitem[0].card[2]) );
-			memmove(&md->lootitem[0], &md->lootitem[1], (LOOTITEM_SIZE-1)*sizeof(md->lootitem[0]));
-			memcpy (&md->lootitem[LOOTITEM_SIZE-1], &fitem->item_data, sizeof(md->lootitem[0]));
+			if (md->lootitems[0].item.card[0] == CARD0_PET)
+				intif_delete_petdata(MakeDWord(md->lootitems[0].item.card[1], md->lootitems[0].item.card[2]));
+			memmove(&md->lootitems[0], &md->lootitems[1], (LOOTITEM_SIZE - 1) * sizeof(md->lootitems[0]));
+			memcpy(&md->lootitems[LOOTITEM_SIZE - 1].item, &fitem->item_data, sizeof(md->lootitems[0].item));
+			md->lootitems[LOOTITEM_SIZE - 1].mob_id = fitem->mob_id;
 		}
 		if (pcdb_checkid(md->vd->class_))
 		{	//Give them walk act/delay to properly mimic players. [Skotlex]
@@ -1672,38 +1671,50 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		mob_unlocktarget (md,tick);
 		return true;
 	}
+
 	//Attempt to attack.
 	//At this point we know the target is attackable, we just gotta check if the range matches.
-	if (md->ud.target == tbl->id && md->ud.attacktimer != INVALID_TIMER) //Already locked.
-		return true;
-	
 	if (battle_check_range (&md->bl, tbl, md->status.rhw.range))
 	{	//Target within range, engage
+		if (md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER)
+		{ //Only attack if no more attack delay left
+			if (tbl->type == BL_PC)
+				mob_log_damage(md, tbl, 0); //Log interaction (counts as 'attacker' for the exp bonus)
 
-		if(tbl->type == BL_PC)
-			mob_log_damage(md, tbl, 0); //Log interaction (counts as 'attacker' for the exp bonus)
-		if (!(md->sc.option&OPTION_HIDE))
-			unit_attack(&md->bl, tbl->id, 1);
-		else
-			mobskill_use(md, tick, -1);
+			if (!(mode&MD_RANDOMTARGET))
+				unit_attack(&md->bl, tbl->id, 1);
+			else { // Attack once and find a new random target
+				int search_size = (view_range < md->status.rhw.range) ? view_range : md->status.rhw.range;
+				unit_attack(&md->bl, tbl->id, 0);
+				if ((tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md), search_size))) {
+					md->target_id = tbl->id;
+					md->min_chase = md->db->range3;
+				}
+			}
+		}
+
 		return true;
 	}
 
 	//Out of range...
-	if (!(mode&MD_CANMOVE))
-	{	//Can't chase. Attempt an idle skill before unlocking.
-		md->state.skillstate = MSS_IDLE;
-		if (!mobskill_use(md, tick, -1))
-			mob_unlocktarget(md,tick);
+	if (!(mode&MD_CANMOVE) || (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0))
+	{	//Can't chase. Immobile and trapped mobs should unlock target and use an idle skill on next interval.
+		if ((md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER))
+		{ //Only unlock target to use idle skill if no more attack left
+			md->ud.walk_count = (md->ud.walk_count + 1) % 250;
+			if (!(md->ud.walk_count%IDLE_SKILL_INTERVAL))
+				mob_unlocktarget(md, tick);
+		}
 		return true;
 	}
 
-	if (!can_move)
-	{	//Stuck. Attempt an idle skill
-		md->state.skillstate = MSS_IDLE;
-		if (!(++md->ud.walk_count%IDLE_SKILL_INTERVAL))
+	//Before a monster starts to chase a target, it will check if it has a ranged "attack" skill to use on it.
+	if (md->ud.walktimer == INVALID_TIMER && (md->state.skillstate == MSS_BERSERK || md->state.skillstate == MSS_ANGRY))
+	{
+		if (DIFF_TICK(md->ud.canmove_tick, tick) <= MIN_MOBTHINKTIME && DIFF_TICK(md->ud.canact_tick, tick) < -MIN_MOBTHINKTIME * IDLE_SKILL_INTERVAL)
+		{ //Only use skill if able to walk on next tick and not used a skill the last second
 			mobskill_use(md, tick, -1);
-		return true;
+		}
 	}
 
 	if (md->ud.walktimer != INVALID_TIMER && md->ud.target == tbl->id &&
@@ -1713,7 +1724,12 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	)) //Current target tile is still within attack range.
 		return true;
 
+	//Only update target cell after having moved at least "mob_chase_refresh" cells
+	if (md->ud.walktimer != INVALID_TIMER && md->ud.walkpath.path_pos <= battle_config.mob_chase_refresh)
+		return true;
+
 	//Follow up if possible.
+	//Hint: Chase skills are handled in the walktobl routine
 	if(!mob_can_reach(md, tbl, md->min_chase, MSS_RUSH) ||
 		!unit_walktobl(&md->bl, tbl, md->status.rhw.range, 2))
 		mob_unlocktarget(md,tick);
@@ -1841,13 +1857,14 @@ static int mob_ai_hard(int tid, int64 tick, int id, intptr_t data)
 /*==========================================
  * Initializes the delay drop structure for mob-dropped items.
  *------------------------------------------*/
-static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
+static struct item_drop* mob_setdropitem(unsigned short nameid, int qty, unsigned short mob_id)
 {
 	struct item_drop *drop = ers_alloc(item_drop_ers, struct item_drop);
 	memset(&drop->item_data, 0, sizeof(struct item));
 	drop->item_data.nameid = nameid;
 	drop->item_data.amount = qty;
 	drop->item_data.identify = itemdb_isidentified(nameid);
+	drop->mob_id = mob_id;
 	drop->next = NULL;
 	return drop;
 }
@@ -1855,10 +1872,18 @@ static struct item_drop* mob_setdropitem(unsigned short nameid, int qty)
 /*==========================================
  * Initializes the delay drop structure for mob-looted items.
  *------------------------------------------*/
-static struct item_drop* mob_setlootitem(struct item* item)
+static struct item_drop* mob_setlootitem(struct s_mob_lootitem *item, unsigned short mob_id)
 {
 	struct item_drop *drop = ers_alloc(item_drop_ers, struct item_drop);
 	memcpy(&drop->item_data, item, sizeof(struct item));
+
+	/**
+	 * Conditions for lotted item, so it can be announced when player pick it up
+	 * 1. Not-dropped other than monster. (This will be done later on pc_takeitem/party_share_loot)
+	 * 2. The mob_id is become the last lootter, instead of the real monster who drop it.
+	 **/
+	drop->mob_id = item->mob_id;
+
 	drop->next = NULL;
 	return drop;
 }
@@ -1876,7 +1901,7 @@ static int mob_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 		struct item_drop *ditem_prev;
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_charid,list->second_charid,list->third_charid,0);
+			list->first_charid, list->second_charid, list->third_charid, 4, ditem->mob_id);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);
@@ -1914,12 +1939,19 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 		&& check_distance_blxy(&sd->bl, dlist->x, dlist->y, AUTOLOOT_DISTANCE)
 #endif
 	) {	//Autoloot.
+		struct party_data *p = party_search(sd->status.party_id);
+
 		if (party_share_loot(party_search(sd->status.party_id),
 			sd, &ditem->item_data, sd->status.char_id) == 0
 		) {
 			ers_free(item_drop_ers, ditem);
 			return;
 		}
+
+		if ((itemdb_search(ditem->item_data.nameid))->flag.broadcast &&
+			(!p || !(p->party.item & 2)) // Somehow, if party's pickup distribution is 'Even Share', no announcemet
+			)
+			intif_broadcast_obtain_special_item(sd, ditem->item_data.nameid, md->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);
 	}
 	ditem->next = dlist->item;
 	dlist->item = ditem;
@@ -1983,7 +2015,7 @@ int mob_respawn(int tid, int64 tick, int id, intptr_t data)
 
 void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 {
-	int char_id = 0, flag = MDLF_NORMAL;
+	uint32 char_id = 0, flag = MDLF_NORMAL;
 
 	if( damage < 0 )
 		return; //Do nothing for absorbed damage.
@@ -2316,13 +2348,21 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		if (map[m].flag.nobaseexp || !md->db->base_exp)
 			base_exp = 0; 
-		else
-			base_exp = (unsigned int)cap_value(md->db->base_exp * per * bonus/100. * map[m].bexp/100., 1, UINT_MAX);
+		else {
+			double exp = apply_rate2(md->db->base_exp, per, 1);
+			exp = apply_rate(exp, bonus);
+			exp = apply_rate(exp, map[m].bexp);
+			base_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
+		}
 		
 		if (map[m].flag.nojobexp || !md->db->job_exp || md->dmglog[i].flag == MDLF_HOMUN) //Homun earned job-exp is always lost.
 			job_exp = 0; 
-		else
-			job_exp = (unsigned int)cap_value(md->db->job_exp * per * bonus/100. * map[m].jexp/100., 1, UINT_MAX);
+		else {
+			double exp = apply_rate2(md->db->job_exp, per, 1);
+			exp = apply_rate(exp, bonus);
+			exp = apply_rate(exp, map[m].jexp);
+			job_exp = (unsigned int)cap_value(exp, 1, UINT_MAX);
+		}
  		
 		if((temp = tmpsd[i]->status.party_id )>0 && !md->dmglog[i].flag == MDLF_HOMUN) //Homun-done damage (flag 1) is not given to party
 		{
@@ -2450,7 +2490,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				continue;
 			}
 
-			ditem = mob_setdropitem(md->db->dropitem[i].nameid, 1);
+			ditem = mob_setdropitem(md->db->dropitem[i].nameid, 1, md->mob_id);
 
 			//A Rare Drop Global Announce by Lupus
 			if( mvp_sd && drop_rate <= battle_config.rare_drop_announce )
@@ -2460,7 +2500,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				i_data = itemdb_search(ditem->item_data.nameid);
 				sprintf (message, msg_txt(NULL,541), mvp_sd->status.name, md->name, it->jname, (float)drop_rate/100);
 				//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
-				intif_broadcast(message,strlen(message)+1,0);
+				intif_broadcast(message,strlen(message)+1,BC_DEFAULT);
 			}
 			// Announce first, or else ditem will be freed. [Lance]
 			// By popular demand, use base drop rate for autoloot code. [Skotlex]
@@ -2469,7 +2509,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		// Ore Discovery [Celest]
 		if (sd == mvp_sd && pc_checkskill(sd,BS_FINDINGORE)>0 && battle_config.finding_ore_rate/10 >= rnd()%10000) {
-			ditem = mob_setdropitem(itemdb_searchrandomid(IG_FINDINGORE), 1);
+			ditem = mob_setdropitem(itemdb_searchrandomid(IG_FINDINGORE), 1, md->mob_id);
 			mob_item_drop(md, dlist, ditem, 0, battle_config.finding_ore_rate/10, homkillonly);
 		}
 
@@ -2480,7 +2520,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			for (i = 0; i < ARRAYLENGTH(sd->add_drop); i++) {
 				if (!&sd->add_drop[i] || (!sd->add_drop[i].nameid && !sd->add_drop[i].group))
 					continue;
-				if ((sd->add_drop[i].race < 0 && sd->add_drop[i].race == -md->mob_id) || //Race < 0, use mob_id
+				if ((sd->add_drop[i].race < RC_NONE_ && sd->add_drop[i].race == -md->mob_id) || //Race < RC_NONE_, use mob_id
 					(sd->add_drop[i].race == RC_ALL || sd->add_drop[i].race == status->race) || //Matched race
 					(sd->add_drop[i].class_ == CLASS_ALL || sd->add_drop[i].class_ == status->class_)) //Matched class
 				{
@@ -2499,7 +2539,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 						continue;
 					dropid = (sd->add_drop[i].nameid > 0) ? sd->add_drop[i].nameid : itemdb_searchrandomid(sd->add_drop[i].group);
 
-					mob_item_drop(md, dlist, mob_setdropitem(dropid, 1), 0, drop_rate, homkillonly);
+					mob_item_drop(md, dlist, mob_setdropitem(dropid, 1, md->mob_id), 0, drop_rate, homkillonly);
 				}
 			}
 			
@@ -2513,15 +2553,15 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		}
 		
 		// process items looted by the mob
-		if(md->lootitem) {
-			for(i = 0; i < md->lootitem_count; i++)
-				mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000, homkillonly);
+		if (md->lootitems) {
+			for (i = 0; i < md->lootitem_count; i++)
+				mob_item_drop(md, dlist, mob_setlootitem(&md->lootitems[i], md->mob_id), 1, 10000, homkillonly);
 		}
 		if (dlist->item) //There are drop items.
 			add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, 0, (intptr_t)dlist);
 		else //No drops
 			ers_free(item_drop_list_ers, dlist);
-	} else if (md->lootitem && md->lootitem_count) {	//Loot MUST drop!
+	} else if (md->lootitems && md->lootitem_count) {	//Loot MUST drop!
 		struct item_drop_list *dlist = ers_alloc(item_drop_list_ers, struct item_drop_list);
 		dlist->m = md->bl.m;
 		dlist->x = md->bl.x;
@@ -2530,8 +2570,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		dlist->second_charid = (second_sd ? second_sd->status.char_id : 0);
 		dlist->third_charid = (third_sd ? third_sd->status.char_id : 0);
 		dlist->item = NULL;
-		for(i = 0; i < md->lootitem_count; i++)
-			mob_item_drop(md, dlist, mob_setlootitem(&md->lootitem[i]), 1, 10000, homkillonly);
+		for (i = 0; i < md->lootitem_count; i++)
+			mob_item_drop(md, dlist, mob_setlootitem(&md->lootitems[i], md->mob_id), 1, 10000, homkillonly);
 		add_timer(tick + (!battle_config.delay_battle_damage?500:0), mob_delay_item_drop, 0, (intptr_t)dlist);
 	}
 
@@ -2583,6 +2623,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			}
 
 			for (i = 0; i < 3; i++) {
+				struct item_data *i_data;
+
 				if (mdrop_id[i] <= 0 || !itemdb_exists(mdrop_id[i]))
 					continue;
 
@@ -2600,20 +2642,23 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 				clif_mvp_item(mvp_sd, item.nameid);
 				log_mvp[0] = item.nameid;
 
+				i_data = itemdb_exists(item.nameid);
+
 				//A Rare MVP Drop Global Announce by Lupus
 				if (temp <= battle_config.rare_drop_announce) {
-					struct item_data *i_data;
 					char message[128];
-					i_data = itemdb_exists(item.nameid);
 					sprintf(message, msg_txt(sd, 541), mvp_sd->status.name, md->name, i_data->jname, temp / 100.);
 					//MSG: "'%s' won %s's %s (chance: %0.02f%%)"
-					intif_broadcast(message, strlen(message) + 1, 0);
+					intif_broadcast(message, strlen(message) + 1, BC_DEFAULT);
 				}
 
 				if ((temp = pc_additem(mvp_sd, &item, 1, LOG_TYPE_PICKDROP_PLAYER)) != 0) {
 					clif_additem(mvp_sd, 0, 0, temp);
-					map_addflooritem(&item, 1, mvp_sd->bl.m, mvp_sd->bl.x, mvp_sd->bl.y, mvp_sd->status.char_id, (second_sd ? second_sd->status.char_id : 0), (third_sd ? third_sd->status.char_id : 0), 1);
+					map_addflooritem(&item, 1, mvp_sd->bl.m, mvp_sd->bl.x, mvp_sd->bl.y, mvp_sd->status.char_id, (second_sd ? second_sd->status.char_id : 0), (third_sd ? third_sd->status.char_id : 0), 1, 0);
 				}
+
+				if (i_data->flag.broadcast)
+					intif_broadcast_obtain_special_item(mvp_sd, item.nameid, md->mob_id, ITEMOBTAIN_TYPE_MONSTER_ITEM);
 
 				//Logs items, MVP prizes [Lupus]
 				log_pick(&md->bl, LOG_TYPE_MVP, item.nameid, -1, &item);
@@ -2871,8 +2916,8 @@ int mob_class_change (struct mob_data *md, int class_)
 	for(i=0,c=tick-MOB_MAX_DELAY;i<MAX_MOBSKILL;i++)
 		md->skilldelay[i] = c;
 
-	if(md->lootitem == NULL && md->db->status.mode&MD_LOOTER)
-		md->lootitem=(struct item *)aCalloc(LOOTITEM_SIZE,sizeof(struct item));
+	if (md->lootitems == NULL && md->db->status.mode&MD_LOOTER)
+		md->lootitems = (struct s_mob_lootitem *)aCalloc(LOOTITEM_SIZE, sizeof(struct s_mob_lootitem));
 
 	//Targets should be cleared no morph
 	md->target_id = md->attacked_id = 0;
@@ -3179,6 +3224,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 	struct block_list *bl;
 	struct mob_data *fmd = NULL;
 	int i,j,n;
+	short skill_target;
 
 	nullpo_ret(md);
 	nullpo_ret(ms = md->db->skill);
@@ -3277,11 +3323,12 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 		if (!flag)
 			continue; //Skill requisite failed to be fulfilled.
 		
-		//Execute skill	
+		//Execute skill
+		skill_target = (md->db->status.mode&MD_RANDOMTARGET) ? MST_RANDOM : ms[i].target;
 		if (skill_get_casttype(ms[i].skill_id) == CAST_GROUND)
 		{	//Ground skill.
 			short x, y;
-			switch (ms[i].target) {
+			switch (skill_target) {
 				case MST_RANDOM: //Pick a random enemy within skill range.
 					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
 						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
@@ -3310,10 +3357,10 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			x = bl->x;
 		  	y = bl->y;
 			// Look for an area to cast the spell around...
-			if (ms[i].target >= MST_AROUND1 || ms[i].target >= MST_AROUND5) {
-				j = ms[i].target >= MST_AROUND1?
-					(ms[i].target-MST_AROUND1) +1:
-					(ms[i].target-MST_AROUND5) +1;
+			if (skill_target >= MST_AROUND5) {
+				j = skill_target >= MST_AROUND1 ?
+					(skill_target - MST_AROUND1) + 1 :
+					(skill_target - MST_AROUND5) + 1;
 				map_search_freecell(&md->bl, md->bl.m, &x, &y, j, j, 3);
 			}
 			md->skillidx = i;
@@ -3326,7 +3373,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			}
 		} else {
 			//Targetted skill
-			switch (ms[i].target) {
+			switch (skill_target) {
 				case MST_RANDOM: //Pick a random enemy within skill range.
 					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
 						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
@@ -3807,7 +3854,7 @@ static bool mob_parse_dbrow(char** str)
 	i = atoi(str[24]); //Element
 	status->def_ele = i%10;
 	status->ele_lv = i/20;
-	if (status->def_ele >= ELE_MAX) {
+	if (!CHK_ELEMENT(status->def_ele)) {
 		ShowError("mob_parse_dbrow: Invalid element type %d for monster ID %d (max=%d).\n", status->def_ele, mob_id, ELE_MAX-1);
 		return false;
 	}
@@ -4548,7 +4595,7 @@ static bool mob_readdb_race2(char* fields[], int columns, int current)
 
 	race = atoi(fields[0]);
 
-	if (race < RC2_NONE || race >= RC2_MAX)
+	if (!CHK_RACE2(race))
 	{
 		ShowWarning("mob_readdb_race2: Unknown race2 %d.\n", race);
 		return false;

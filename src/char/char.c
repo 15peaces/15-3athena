@@ -108,7 +108,7 @@ int subnet_count = 0;
 
 struct char_session_data {
 	bool auth; // whether the session is authed or not
-	int account_id;
+	uint32 account_id;
 	uint32 login_id1, login_id2;
 	uint8 sex;
 	int found_char[MAX_CHARS]; // ids of chars on this account
@@ -164,8 +164,8 @@ int console = 0;
 #define AUTH_TIMEOUT 30000
 
 struct auth_node {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	uint32 login_id1;
 	uint32 login_id2;
 	uint32 ip;
@@ -175,8 +175,8 @@ struct auth_node {
 	unsigned changing_mapservers : 1;
 };
 
-static DBMap* auth_db; // int account_id -> struct auth_node*
-static DBMap* char_db_; // int char_id -> struct mmo_charstatus*
+static DBMap* auth_db; // uint32 account_id -> struct auth_node*
+static DBMap* char_db_; // uint32 char_id -> struct mmo_charstatus*
 DBMap* char_get_authdb() { return auth_db; }
 DBMap* char_get_chardb() { return char_db_; }
 
@@ -185,15 +185,15 @@ DBMap* char_get_chardb() { return char_db_; }
 //-----------------------------------------------------
 
 struct online_char_data {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	int fd;
 	int waiting_disconnect;
 	short server; // -2: unknown server, -1: not connected, 0+: id of server
 	struct s_storage inventory;
 };
 
-static DBMap* online_char_db; // int account_id -> struct online_char_data*
+static DBMap* online_char_db; // uint32 account_id -> struct online_char_data*
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
 
 static void* create_online_char_data(DBKey key, va_list args)
@@ -208,7 +208,7 @@ static void* create_online_char_data(DBKey key, va_list args)
 	return character;
 }
 
-void set_char_charselect(int account_id)
+void set_char_charselect(uint32 account_id)
 {
 	struct online_char_data* character;
 
@@ -239,7 +239,7 @@ void set_char_charselect(int account_id)
 
 }
 
-void set_char_online(int map_id, int char_id, int account_id)
+void set_char_online(int map_id, uint32 char_id, uint32 account_id)
 {
 	struct online_char_data* character;
 	
@@ -277,7 +277,7 @@ void set_char_online(int map_id, int char_id, int account_id)
 	}
 }
 
-void set_char_offline(int char_id, int account_id)
+void set_char_offline(uint32 char_id, uint32 account_id)
 {
 	struct online_char_data* character;
 
@@ -424,7 +424,7 @@ int char_find_characters(struct char_session_data* sd)
 
 
 /// Search character data from given session.
-struct mmo_charstatus* search_session_character(struct char_session_data* sd, int char_id)
+struct mmo_charstatus* search_session_character(struct char_session_data* sd, uint32 char_id)
 {
 	int i;
 
@@ -2387,7 +2387,7 @@ int char_family(int cid1, int cid2, int cid3)
 //----------------------------------------------------------------------
 // Force disconnection of an online player (with account value) by [Yor]
 //----------------------------------------------------------------------
-void disconnect_player(int account_id)
+void disconnect_player(uint32 account_id)
 {
 	int i;
 	struct char_session_data* sd;
@@ -2598,7 +2598,7 @@ int parse_fromlogin(int fd)
 			if (RFIFOREST(fd) < 25)
 				return 0;
 		{
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			uint8 sex = RFIFOB(fd,14);
@@ -2924,7 +2924,7 @@ void do_final_loginif(void)
 	}
 }
 
-int request_accreg2(int account_id, int char_id)
+int request_accreg2(uint32 account_id, uint32 char_id)
 {
 	if (login_fd > 0) {
 		WFIFOHEAD(login_fd,10);
@@ -2952,7 +2952,7 @@ int save_accreg2(unsigned char* buf, int len)
 }
 
 //Receive Registry information for a character.
-int char_parse_Registry(int account_id, int char_id, unsigned char *buf, int buf_len)
+int char_parse_Registry(uint32 account_id, uint32 char_id, unsigned char *buf, int buf_len)
 {
 	int i,j,p,len;
 	for (i = 0; i < char_num; i++) {
@@ -2974,7 +2974,7 @@ int char_parse_Registry(int account_id, int char_id, unsigned char *buf, int buf
 }
 
 //Reply to map server with acc reg values.
-int char_account_reg_reply(int fd,int account_id,int char_id)
+int char_account_reg_reply(int fd,uint32 account_id,uint32 char_id)
 {
 	int i,j,p;
 	WFIFOHEAD(fd, GLOBAL_REG_NUM*288 + 13);
@@ -3132,7 +3132,7 @@ void char_update_fame_list(int type, int index, int fame)
 
 //Loads a character's name and stores it in the buffer given (must be NAME_LENGTH in size)
 //Returns 1 on found, 0 on not found (buffer is filled with Unknown char name)
-int char_loadName(int char_id, char* name)
+int char_loadName(uint32 char_id, char* name)
 {
 	int j;
 
@@ -3395,7 +3395,7 @@ int parse_frommap(int fd)
 		{
 			struct auth_node* node;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			uint32 ip = RFIFOL(fd,14);
@@ -3544,7 +3544,7 @@ int parse_frommap(int fd)
 			else
 			{
 				char name[NAME_LENGTH];
-				int account_id;
+				uint32 account_id;
 
 				account_id = char_dat[i].status.account_id;
 				safestrncpy(name, char_dat[i].status.name, NAME_LENGTH);
@@ -3735,8 +3735,8 @@ int parse_frommap(int fd)
 				return 0;
 
 		{
-			int account_id;
-			int char_id;
+			uint32 account_id;
+			uint32 char_id;
 			uint32 login_id1;
 			uint8 sex;
 			uint32 ip;
@@ -3886,7 +3886,7 @@ int lan_subnetcheck(uint32 ip)
 ///     4 = (0x71a) To delete a character you must withdraw from the guild.
 ///     5 = (0x71b) To delete a character you must withdraw from the party.
 ///     Any (0x718): An unknown error has occurred.
-void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
+void char_delete2_ack(int fd, uint32 char_id, uint32 result, time_t delete_date)
 {
 	WFIFOHEAD(fd,14);
 	WFIFOW(fd,0) = 0x828;
@@ -3911,7 +3911,7 @@ void char_delete2_ack(int fd, int char_id, uint32 result, time_t delete_date)
 ///     4 = (0x71d) Deleting not yet possible time.
 ///     5 = (0x71e) Date of birth do not match.
 ///     ? = (0x718) An unknown error has occurred.
-void char_delete2_accept_ack(int fd, int char_id, uint32 result)
+void char_delete2_accept_ack(int fd, uint32 char_id, uint32 result)
 {
 	WFIFOHEAD(fd,10);
 	WFIFOW(fd,0) = 0x82a;
@@ -3927,7 +3927,7 @@ void char_delete2_accept_ack(int fd, int char_id, uint32 result)
 ///     1 = (0x718) none/success, (if char id not in deletion process): An unknown error has occurred.
 ///     2 = (0x719) A database error occurred.
 ///     ? = (0x718) An unknown error has occurred.
-void char_delete2_cancel_ack(int fd, int char_id, uint32 result)
+void char_delete2_cancel_ack(int fd, uint32 char_id, uint32 result)
 {
 	WFIFOHEAD(fd,10);
 	WFIFOW(fd,0) = 0x82c;
@@ -3972,7 +3972,7 @@ static bool char_delchar_check(struct char_session_data *sd, char *delcode, uint
 /// 0827 <char id>.L
 static void char_delete2_req(int fd, struct char_session_data* sd)
 {
-	int char_id;
+	uint32 char_id;
 	struct mmo_charstatus* cs;
 
 	char_id = RFIFOL(fd,2);
@@ -4014,7 +4014,7 @@ static void char_delete2_req(int fd, struct char_session_data* sd)
 static void char_delete2_accept(int fd, struct char_session_data* sd)
 {
 	char birthdate[8+1];
-	int char_id, i;
+	uint32 char_id, i;
 	struct mmo_charstatus* cs;
 
 	char_id = RFIFOL(fd,2);
@@ -4103,7 +4103,7 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 /// 082b <char id>.L
 static void char_delete2_cancel(int fd, struct char_session_data* sd)
 {
-	int char_id;
+	uint32 char_id;
 	struct mmo_charstatus* cs;
 
 	char_id = RFIFOL(fd,2);
@@ -4170,7 +4170,7 @@ int parse_char(int fd)
 		{
 			struct auth_node* node;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			int sex = RFIFOB(fd,16);

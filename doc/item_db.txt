@@ -30,6 +30,7 @@ The following below are the different usable types....
 10 = Ammo ('View' set the ammo type.)
 11 = Usable Item With Delayed Consumption (The item is lost from the
 inventory after selecting a target. For use with skills and pet lures.)
+12 = Shadow Equipment
 18 = Usable Item With Delayed Consumption On Confirm (Works just like
 type 11, except the user is required to confirm that he/she wants to
 use the item. Mainly used for special packages, boxes, and other cash
@@ -326,6 +327,13 @@ Weapons
 21 = Grenade Launchers
 22 = Huuma Shurikens
 23 = Two-Handed Staffs
+24 = Max Type
+25 = Dual-wield Daggers
+26 = Dual-wield Swords
+27 = Dual-wield Axes
+28 = Dagger + Sword
+29 = Dagger + Axe
+30 = Sword + Axe
 
 Ammo
 1 = Arrows

@@ -1981,19 +1981,30 @@
 17443,507,100	//Reinforcement_Buckler_Box
 17449,507,100	//Cookies_Bar_Set
 17455,507,100	//Premium_Battle_Manual_Box
+17461,475,100	// Frozen_Egg_Costume
 17468,507,100	//Neuralizer_II_Box_3
 17469,507,100	//Neuralizer_I_Box
+17470,475,100	// Headgear_Costume_Scroll
 17472,507,100	//Support_Package_III
 17473,507,100	//Support_Package_III(10)
 17474,507,100	//Infinite_Giant_Fly_Wing_Box_V
 17475,507,100	//(Limited)Gym_Membership_Card_Box(10)
 17477,507,100	//Unlimited_Box_II
 17478,507,100	//Unlimited_Box_II(10)
+17481,475,100	// Flower_Blossom_Scroll
 17483,507,100	//Three_Master_Package_III
 17484,507,100	//Three_Master_Package_III(10)
+17497,475,100	// Seaside_Costume_Scroll
 17501,507,100	// Support_Package_IV
 17502,507,100	// Support_Package_IV(10)
 17520,507,100 	// Limited_Edition_Manual_Box
+17648,475,100	// Smithy_Lucky_Egg
+17659,475,100	// Ganymede_Lucky_Egg
+17665,475,100	// LastAngel_LuckyScroll
+17671,475,100	// Valkyrie_Lucky_Egg
+17674,475,100	// Splash_Rainbow_Lucky_Egg
+17681,475,100	// Midgard_Lucky_Scroll
+17692,475,100	// Blessing_Scarlet_Egg
 18106,499,100	// P_Bow3
 18107,507,100	// Malangdo Crab
 18108,507,100	// Zebra Eel

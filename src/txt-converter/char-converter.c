@@ -118,7 +118,7 @@ int convert_init(void)
 		lineno = count = 0;
 		while(fgets(line, sizeof(line), fp))
 		{
-			int account_id;
+			uint32 account_id;
 
 			lineno++;
 			if( sscanf(line,"%d,%d",&tmp_int[0],&tmp_int[1]) != 2 )

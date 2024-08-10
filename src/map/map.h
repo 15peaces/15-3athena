@@ -65,6 +65,7 @@ void map_msg_reload(void);
 #define JOBL_UPPER 0x1000 //4096
 #define JOBL_BABY 0x2000  //8192
 #define JOBL_THIRD 0x4000 //16384
+#define JOBL_SUPER_NOVICE 0x8000 //32768
 
 //for filtering and quick checking.
 #define MAPID_BASEMASK 0x00ff //Checking 1st Jobs.
@@ -77,8 +78,8 @@ static DBMap* pc_db=NULL; // int id -> struct map_session_data*
 static DBMap* mobid_db=NULL; // int id -> struct mob_data*
 static DBMap* bossid_db=NULL; // int id -> struct mob_data* (MVP db)
 static DBMap* map_db=NULL; // unsigned int mapindex -> struct map_data*
-static DBMap* nick_db=NULL; // int char_id -> struct charid2nick* (requested names of offline characters)
-static DBMap* charid_db=NULL; // int char_id -> struct map_session_data*
+static DBMap* nick_db=NULL; // uint32 char_id -> struct charid2nick* (requested names of offline characters)
+static DBMap* charid_db=NULL; // uint32 char_id -> struct map_session_data*
 static DBMap* regen_db=NULL; // int id -> struct block_list* (status_natural_heal processing)
 static DBMap* map_msg_db = NULL;
 
@@ -106,8 +107,7 @@ enum {
 	MAPID_SUMMER2,
 	MAPID_SUMMONER,
 //2-1 Jobs
-	MAPID_SUPER_NOVICE = JOBL_2_1 | 0x0,
-	MAPID_KNIGHT,
+	MAPID_KNIGHT = JOBL_2_1 | 0x1,
 	MAPID_WIZARD,
 	MAPID_HUNTER,
 	MAPID_PRIEST,
@@ -161,8 +161,7 @@ enum {
 	MAPID_BABY_NINJA,
 	MAPID_BABY_SUMMONER = JOBL_BABY | 0x11,
 //Baby 2-1 Jobs
-	MAPID_SUPER_BABY = JOBL_BABY | JOBL_2_1 | 0x0,
-	MAPID_BABY_KNIGHT,
+	MAPID_BABY_KNIGHT = JOBL_BABY | JOBL_2_1 | 0x1,
 	MAPID_BABY_WIZARD,
 	MAPID_BABY_HUNTER,
 	MAPID_BABY_PRIEST,
@@ -180,8 +179,7 @@ enum {
 	MAPID_BABY_ROGUE,
 	MAPID_BABY_SOUL_LINKER,
 //3-1 Jobs
-	MAPID_SUPER_NOVICE_E = JOBL_THIRD|JOBL_2_1|0x0,
-	MAPID_RUNE_KNIGHT,
+	MAPID_RUNE_KNIGHT = JOBL_THIRD | JOBL_2_1 | 0x1,
 	MAPID_WARLOCK,
 	MAPID_RANGER,
 	MAPID_ARCH_BISHOP,
@@ -211,8 +209,7 @@ enum {
 	MAPID_GENETIC_T,
 	MAPID_SHADOW_CHASER_T,
 //Baby 3-1 Jobs
-	MAPID_SUPER_BABY_E = JOBL_THIRD | JOBL_BABY | JOBL_2_1 | 0x0,
-	MAPID_BABY_RUNE_KNIGHT,
+	MAPID_BABY_RUNE_KNIGHT = JOBL_THIRD | JOBL_BABY | JOBL_2_1 | 0x1,
 	MAPID_BABY_WARLOCK,
 	MAPID_BABY_RANGER,
 	MAPID_BABY_ARCH_BISHOP,
@@ -227,6 +224,11 @@ enum {
 	MAPID_BABY_GENETIC,
 	MAPID_BABY_SHADOW_CHASER,
 	MAPID_BABY_SOUL_REAPER,
+//Super Novices
+	MAPID_SUPER_NOVICE = JOBL_SUPER_NOVICE|JOBL_2_1|0x0,
+	MAPID_SUPER_BABY = JOBL_SUPER_NOVICE|JOBL_BABY|JOBL_2_1|0x0,
+	MAPID_SUPER_NOVICE_E = JOBL_SUPER_NOVICE|JOBL_THIRD|JOBL_2_1|0x0,
+	MAPID_SUPER_BABY_E = JOBL_SUPER_NOVICE|JOBL_THIRD|JOBL_BABY|JOBL_2_1|0x0,
 };
 
 //Max size for inputs to Graffiti, Talkie Box and Vending text prompts
@@ -358,6 +360,7 @@ enum e_race2 {
 };
 
 enum e_elemen {
+	ELE_NONE = -1,
 	ELE_NEUTRAL=0,	//NOTHING
 	ELE_WATER,		//WATER
 	ELE_EARTH,		//GROUND
@@ -369,8 +372,7 @@ enum e_elemen {
 	ELE_GHOST,		//TELEKINESIS
 	ELE_UNDEAD,		//UNDEAD
 	ELE_ALL,
-	ELE_MAX,
-	ELE_NONE
+	ELE_MAX
 };
 
 enum mob_ai {
@@ -430,6 +432,7 @@ struct flooritem_data {
 	int first_get_charid,second_get_charid,third_get_charid;
 	int64 first_get_tick,second_get_tick,third_get_tick;
 	struct item item_data;
+	unsigned short mob_id; ///< ID of monster who dropped it. 0 for non-monster who dropped it.
 };
 
 enum _sp {
@@ -496,7 +499,7 @@ enum _sp {
 	SP_SKILL_COOLDOWN = 2050,	//2050
 	SP_SKILL_USE_SP = 2055,		//2055
 	SP_MAGIC_ATK_ELE, SP_FIXEDCAST,	//2056-2057
-	SP_DEF_SET = 2059, SP_MDEF_SET,SP_HP_VANISH_RATE,  //2059-2061
+	SP_SET_DEF_RACE = 2059, SP_SET_MDEF_RACE,SP_HP_VANISH_RATE,  //2059-2061
 	SP_IGNORE_DEF_CLASS = 2062, SP_DEF_RATIO_ATK_CLASS, SP_ADDCLASS, SP_SUBCLASS, SP_MAGIC_ADDCLASS, //2062-2066
 	SP_WEAPON_COMA_CLASS, SP_IGNORE_MDEF_CLASS_RATE, //2067-2068
 	SP_ADD_CLASS_DROP_ITEM, SP_ADD_CLASS_DROP_ITEMGROUP, //2070-2071
@@ -794,6 +797,11 @@ void do_reconnect_map(void); //Invoked on map-char reconnection [Skotlex]
 void map_addmap2db(struct map_data *m);
 void map_removemapdb(struct map_data *m);
 
+#define CHK_ELEMENT(ele) ((ele) > ELE_NONE && (ele) < ELE_MAX) /// Check valid Element
+#define CHK_RACE(race) ((race) > RC_NONE_ && (race) < RC_MAX) /// Check valid Race
+#define CHK_RACE2(race2) ((race2) >= RC2_NONE && (race2) < RC2_MAX) /// Check valid Race2
+#define CHK_CLASS(class_) ((class_) > CLASS_NONE && (class_) < CLASS_MAX) /// Check valid Class
+
 extern char *INTER_CONF_NAME;
 extern char *LOG_CONF_NAME;
 extern char *MAP_CONF_NAME;
@@ -959,7 +967,7 @@ bool map_addnpc(int, struct npc_data *);
 int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data);
 int map_removemobs_timer(int tid, int64 tick, int id, intptr_t data);
 void map_clearflooritem(struct block_list* bl);
-int map_addflooritem(struct item *item_data, int amount, int m, int x, int y, int first_charid, int second_charid, int third_charid, int flags);
+int map_addflooritem(struct item *item_data, int amount, int m, int x, int y, int first_charid, int second_charid, int third_charid, int flags, unsigned short mob_id);
 
 // ƒLƒƒƒ‰id„ƒLƒƒƒ‰–¼ •ÏŠ·ŠÖ˜A
 void map_addnickdb(int charid, const char* nick);

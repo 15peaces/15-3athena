@@ -50,7 +50,7 @@ char main_chat_nick[16] = "Main";
 
 // recv. packet list
 int inter_recv_packet_length[] = {
-	-1,-1, 7,-1, -1,13,36, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3000-
+	-1,-1, 7,-1, -1,13,36, 0,  0,-1, 0, 0,  0, 0,  0, 0,	// 3000-
 	 6,-1, 0, 0,  0, 0, 0, 0, 10,-1, 0, 0,  0, 0,  0, 0,	// 3010-
 	-1,10,-1,14, 15+NAME_LENGTH,21, 6,-1, 14,14, 0, 0,  0, 0,  0, 0,	// 3020- Party
 	-1, 6,-1,-1, 55,19, 6,-1, 14,-1,-1,-1, 18,19,186,-1,	// 3030-
@@ -74,7 +74,7 @@ static int wis_dellist[WISDELLIST_MAX], wis_delnum;
 #endif //TXT_SQL_CONVERT
 //--------------------------------------------------------
 // Save registry to sql
-int inter_accreg_tosql(int account_id, int char_id, struct accreg* reg, int type)
+int inter_accreg_tosql(uint32 account_id, uint32 char_id, struct accreg* reg, int type)
 {
 	struct global_reg* r;
 	StringBuf buf;
@@ -139,7 +139,7 @@ int inter_accreg_tosql(int account_id, int char_id, struct accreg* reg, int type
 #ifndef TXT_SQL_CONVERT
 
 // Load account_reg from sql (type=2)
-int inter_accreg_fromsql(int account_id,int char_id, struct accreg *reg, int type)
+int inter_accreg_fromsql(uint32 account_id,uint32 char_id, struct accreg *reg, int type)
 {
 	struct global_reg* r;
 	char* data;
@@ -417,7 +417,7 @@ static void mapif_account_reg(int fd, unsigned char *src)
 }
 
 // Send the requested account_reg
-int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
+int mapif_account_reg_reply(int fd,uint32 account_id,uint32 char_id, int type)
 {
 	struct accreg *reg=accreg_pt;
 	WFIFOHEAD(fd, 13 + 5000);
@@ -444,7 +444,7 @@ int mapif_account_reg_reply(int fd,int account_id,int char_id, int type)
 }
 
 //Request to kick char from a certain map server. [Skotlex]
-int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason)
+int mapif_disconnectplayer(int fd, uint32 account_id, uint32 char_id, int reason)
 {
 	if (fd >= 0)
 	{
@@ -502,6 +502,22 @@ int mapif_parse_broadcast(int fd)
 	return 0;
 }
 
+/**
+ * Parse received item broadcast and sends it to all connected map-serves
+ * ZI 3009 <cmd>.W <len>.W <nameid>.W <source>.W <type>.B <name>.24B <srcname>.24B
+ * IZ 3809 <cmd>.W <len>.W <nameid>.W <source>.W <type>.B <name>.24B <srcname>.24B
+ * @param fd
+ * @return
+ **/
+int mapif_parse_broadcast_item(int fd) {
+	unsigned char buf[9 + NAME_LENGTH * 2];
+
+	memcpy(WBUFP(buf, 0), RFIFOP(fd, 0), RFIFOW(fd, 2));
+	WBUFW(buf, 0) = 0x3809;
+	mapif_sendallwos(fd, buf, RFIFOW(fd, 2));
+
+	return 0;
+}
 
 // Wisp/page request to send
 int mapif_parse_WisRequest(int fd)
@@ -658,7 +674,7 @@ int mapif_parse_RegistryRequest(int fd)
 	return 1;
 }
 
-static void mapif_namechange_ack(int fd, int account_id, int char_id, int type, int flag, char *name)
+static void mapif_namechange_ack(int fd, uint32 account_id, uint32 char_id, int type, int flag, char *name)
 {
 	WFIFOHEAD(fd, NAME_LENGTH+13);
 	WFIFOW(fd, 0) = 0x3806;
@@ -672,7 +688,7 @@ static void mapif_namechange_ack(int fd, int account_id, int char_id, int type, 
 
 int mapif_parse_NameChangeRequest(int fd)
 {
-	int account_id, char_id, type;
+	uint32 account_id, char_id, type;
 	char* name;
 	int i;
 
@@ -713,7 +729,7 @@ int mapif_parse_NameChangeRequest(int fd)
  * @param[in]  char_id Character ID.
  * @param[in]  cp      Pointer to character's achievement data vector.
  */
-static void mapif_send_achievements_to_map(int fd, int char_id, const struct char_achievements *cp)
+static void mapif_send_achievements_to_map(int fd, uint32 char_id, const struct char_achievements *cp)
 {
 	unsigned int i = 0;
 	int data_size = 0;
@@ -737,7 +753,7 @@ static void mapif_send_achievements_to_map(int fd, int char_id, const struct cha
  * @param[in] fd       socket descriptor
  * @param[in] char_id  character Id.
  */
-static void mapif_achievement_load(int fd, int char_id)
+static void mapif_achievement_load(int fd, uint32 char_id)
 {
 	struct char_achievements *cp = NULL;
 
@@ -757,7 +773,7 @@ static void mapif_achievement_load(int fd, int char_id)
  */
 static void mapif_parse_load_achievements(int fd)
 {
-	int char_id = 0;
+	uint32 char_id = 0;
 
 	/* Read received information from map-server. */
 	RFIFOHEAD(fd);
@@ -773,7 +789,7 @@ static void mapif_parse_load_achievements(int fd)
  * @param[in]  char_id      character identifier.
  * @param[out] p            pointer to character achievements vector.
  */
-static void mapif_achievement_save(int char_id, struct char_achievements *p)
+static void mapif_achievement_save(uint32 char_id, struct char_achievements *p)
 {
 	struct char_achievements *cp = NULL;
 
@@ -864,6 +880,7 @@ int inter_parse_frommap(int fd)
 	case 0x3004: mapif_parse_Registry(fd); break;
 	case 0x3005: mapif_parse_RegistryRequest(fd); break;
 	case 0x3006: mapif_parse_NameChangeRequest(fd); break;
+	case 0x3009: mapif_parse_broadcast_item(fd); break;
 	default:
 		if(  inter_party_parse_frommap(fd)
 		  || inter_guild_parse_frommap(fd)

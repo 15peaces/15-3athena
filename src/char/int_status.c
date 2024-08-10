@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 // Contains all the status change data in-memory. [Skotlex]
-static DBMap* scdata_db = NULL; // int char_id -> struct scdata*
+static DBMap* scdata_db = NULL; // uint32 char_id -> struct scdata*
 char scdata_txt[1024]="save/scdata.txt"; //By [Skotlex]
 
 #ifdef ENABLE_SC_SAVING

@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/nullpo.h"
 #include "../common/cbasetypes.h"
 #include "../common/db.h"  // ARR_FIND
 #include "../common/showmsg.h"  // ShowWarning
@@ -18,6 +19,12 @@
 /// constants (client-side restrictions)
 #define BUYINGSTORE_MAX_PRICE 99990000
 #define BUYINGSTORE_MAX_AMOUNT 9999
+
+static DBMap *buyingstore_db;
+
+DBMap *buyingstore_getdb(void) {
+	return buyingstore_db;
+}
 
 
 /// failure constants for clif functions
@@ -48,6 +55,8 @@ static unsigned int buyingstore_getuid(void)
 
 bool buyingstore_setup(struct map_session_data* sd, unsigned char slots)
 {
+	nullpo_retr(1, sd);
+
 	if( !battle_config.feature_buying_store || sd->state.vending || sd->state.buyingstore || sd->state.trading || slots == 0 )
 	{
 		return false;
@@ -86,6 +95,9 @@ bool buyingstore_setup(struct map_session_data* sd, unsigned char slots)
 void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned char result, const char* storename, const uint8* itemlist, unsigned int count)
 {
 	unsigned int i, weight, listidx;
+
+	nullpo_retv(sd);
+
 	if( !result || count == 0 )
 	{// canceled, or no items
 		return;
@@ -194,16 +206,21 @@ void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 	safestrncpy(sd->message, storename, sizeof(sd->message));
 	clif_buyingstore_myitemlist(sd);
 	clif_buyingstore_entry(sd);
+	idb_put(buyingstore_db, sd->status.char_id, sd);
 }
 
 
 void buyingstore_close(struct map_session_data* sd)
 {
+	nullpo_retv(sd);
+
 	if( sd->state.buyingstore )
 	{
 		// invalidate data
 		sd->state.buyingstore = false;
+		sd->buyer_id = 0;
 		memset(&sd->buyingstore, 0, sizeof(sd->buyingstore));
+		idb_remove(buyingstore_db, sd->status.char_id);
 
 		// notify other players
 		clif_buyingstore_disappear_entry(sd);
@@ -211,9 +228,11 @@ void buyingstore_close(struct map_session_data* sd)
 }
 
 
-void buyingstore_open(struct map_session_data* sd, int account_id)
+void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 {
 	struct map_session_data* pl_sd;
+
+	nullpo_retv(sd);
 
 	if( !battle_config.feature_buying_store || pc_istrading(sd) )
 	{// not allowed to sell
@@ -241,11 +260,13 @@ void buyingstore_open(struct map_session_data* sd, int account_id)
 }
 
 
-void buyingstore_trade(struct map_session_data* sd, int account_id, unsigned int buyer_id, const uint8* itemlist, unsigned int count)
+void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned int buyer_id, const uint8* itemlist, unsigned int count)
 {
 	int zeny = 0;
 	unsigned int i, weight, listidx, k;
 	struct map_session_data* pl_sd;
+
+	nullpo_retv(sd);
 
 	if( count == 0 )
 	{// nothing to do
@@ -418,6 +439,8 @@ bool buyingstore_search(struct map_session_data* sd, unsigned short nameid)
 {
 	unsigned int i;
 
+	nullpo_ret(sd);
+
 	if( !sd->state.buyingstore )
 	{// not buying
 		return false;
@@ -477,4 +500,21 @@ bool buyingstore_searchall(struct map_session_data* sd, const struct s_search_st
 	}
 
 	return true;
+}
+
+/**
+ * Initialise the buyingstore module
+ * called in map::do_init
+ */
+void do_final_buyingstore(void) {
+	db_destroy(buyingstore_db);
+}
+
+/**
+ * Destory the buyingstore module
+ * called in map::do_final
+ */
+void do_init_buyingstore(void) {
+	buyingstore_db = idb_alloc(DB_OPT_BASE);
+	buyingstore_nextid = 0;
 }

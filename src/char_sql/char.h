@@ -60,7 +60,7 @@ enum e_char_delete_restriction {
 	CHAR_DEL_RESTRICT_ALL
 };
 
-unsigned int char_server_fd(int account_id);
+unsigned int char_server_fd(uint32 account_id);
 
 int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch);
 bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum storage_type tableswitch );
@@ -74,9 +74,9 @@ int char_child(int parent_id, int child_id);
 int char_family(int pl1,int pl2,int pl3);
 
 int char_parse_ackchangesex(int fd, struct char_session_data* sd);
-int char_parse_ackchangecharsex(int char_id, int sex);
+int char_parse_ackchangecharsex(uint32 char_id, int sex);
 
-int request_accreg2(int account_id, int char_id);
+int request_accreg2(uint32 account_id, uint32 char_id);
 int save_accreg2(unsigned char* buf, int len);
 
 void moveCharSlot(int fd, struct char_session_data* sd, unsigned short from, unsigned short to);
@@ -134,7 +134,7 @@ extern int mail_delete_days;
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL || !sd->auth) { RFIFOSKIP(fd,rest); return 0; } }
 
 //Exported for use in the TXT-SQL converter.
-int mmo_char_tosql(int char_id, struct mmo_charstatus *p);
+int mmo_char_tosql(uint32 char_id, struct mmo_charstatus *p);
 void sql_config_read(const char *cfgName);
 
 #endif /* _CHAR_SQL_H_ */

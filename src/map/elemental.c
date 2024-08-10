@@ -888,7 +888,7 @@ static int elem_ai_hard(int tid, int64 tick, int id, intptr data)
 
 void elem_log_damage(struct elemental_data *ed, struct block_list *src, int damage)
 {
-	int char_id = 0, flag = MDLF_NORMAL;
+	uint32 char_id = 0, flag = MDLF_NORMAL;
 
 	if( damage < 0 )
 		return; //Do nothing for absorbed damage.
@@ -1284,7 +1284,7 @@ static bool read_elementaldb_sub(char* str[], int columns, int current)
 	ele = atoi(str[9]);
 	status->def_ele = ele%10;
 	status->ele_lv = ele/20;
-	if( status->def_ele >= ELE_ALL)
+	if(!CHK_ELEMENT(status->def_ele))
 	{
 		ShowWarning("Elemental %d has invalid element type %d (max element is %d)\n", db->class_, status->def_ele, ELE_ALL - 1);
 		status->def_ele = ELE_NEUTRAL;

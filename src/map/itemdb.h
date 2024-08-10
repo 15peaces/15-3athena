@@ -354,7 +354,9 @@ struct item_data {
 		unsigned dead_branch : 1; // As dead branch item. Logged at `branchlog` table and cannot be used at 'nobranch' mapflag [Cydh]
 		unsigned group : 1; // As item group container [Cydh]
 		unsigned guid : 1; // This item always be attached with GUID and make it as bound item! [Cydh]
+		unsigned broadcast : 1; ///< Will be broadcasted if someone obtain the item [Cydh]
 		unsigned fixed_drop : 1;
+		bool bindOnEquip; ///< Set item as bound when equipped
 	} flag;
 	struct {// used by item_nouse.txt
 		unsigned int flag;
@@ -372,19 +374,19 @@ struct item_group {
 
 struct item_package {
 	uint16 id;
-	struct item_package_entry *data;
-	uint16 qty;
+	struct item_package_entry *entry[MAX_RANDITEM];
+	uint16 count; // total count of entry
+	unsigned short max_rand;
 };
 
 struct item_package_entry {
-	unsigned short nameid[MAX_RANDITEM];
-	int qty; //Counts amount of items in the group.
-	unsigned short prob[MAX_RANDITEM];
-	unsigned short amount[MAX_RANDITEM];
-	unsigned short isrand[MAX_RANDITEM];
-	unsigned short announced[MAX_RANDITEM];
-	unsigned short duration[MAX_RANDITEM];
-	unsigned short max_rand;
+	unsigned short nameid;
+	unsigned short prob; // Rate
+	unsigned short amount;
+	unsigned short group;
+	bool announced;
+	bool guid;
+	unsigned short duration;
 };
 
 // Struct for item random option [Secret]
@@ -404,7 +406,6 @@ VECTOR_DECL(struct attendance_entry) attendance_data;
 
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
-struct item_data* itemdb_load(unsigned short nameid);
 struct item_data* itemdb_search(unsigned short nameid);
 struct item_data* itemdb_exists(unsigned short nameid);
 struct s_random_opt_data* itemdb_randomopt_exists(short id);
@@ -436,16 +437,16 @@ int itemdb_searchrandomid(uint16 group_id);
 #define itemdb_value_sell(n) itemdb_search(n)->value_sell
 #define itemdb_canrefine(n) (!itemdb_search(n)->flag.no_refine)
 //Item trade restrictions [Skotlex]
-int itemdb_isdropable_sub(struct item_data *, int, int);
-int itemdb_cantrade_sub(struct item_data*, int, int);
-int itemdb_canpartnertrade_sub(struct item_data*, int, int);
-int itemdb_cansell_sub(struct item_data*,int, int);
-int itemdb_cancartstore_sub(struct item_data*, int, int);
-int itemdb_canstore_sub(struct item_data*, int, int);
-int itemdb_canguildstore_sub(struct item_data*, int, int);
-int itemdb_canmail_sub(struct item_data*, int, int);
-int itemdb_canauction_sub(struct item_data*, int, int);
-bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, int (*func)(struct item_data*, int, int));
+bool itemdb_isdropable_sub(struct item_data *, int, int);
+bool itemdb_cantrade_sub(struct item_data*, int, int);
+bool itemdb_canpartnertrade_sub(struct item_data*, int, int);
+bool itemdb_cansell_sub(struct item_data*,int, int);
+bool itemdb_cancartstore_sub(struct item_data*, int, int);
+bool itemdb_canstore_sub(struct item_data*, int, int);
+bool itemdb_canguildstore_sub(struct item_data*, int, int);
+bool itemdb_canmail_sub(struct item_data*, int, int);
+bool itemdb_canauction_sub(struct item_data*, int, int);
+bool itemdb_isrestricted(struct item* item, int gmlv, int gmlv2, bool (*func)(struct item_data*, int, int));
 bool itemdb_ishatched_egg(struct item* item);
 #define itemdb_isdropable(item, gmlv) itemdb_isrestricted(item, gmlv, 0, itemdb_isdropable_sub)
 #define itemdb_cantrade(item, gmlv, gmlv2) itemdb_isrestricted(item, gmlv, gmlv2, itemdb_cantrade_sub)
@@ -467,10 +468,8 @@ bool itemdb_parse_roulette_db(void);
 
 void itemdb_package_item(struct map_session_data *sd, int packageid);
 
-uint64 itemdb_unique_id(struct map_session_data *sd); // Unique Item ID
-
-DBMap * itemdb_get_groupdb();
-DBMap * itemdb_get_packagedb();
+struct item_group *itemdb_group_exists(unsigned short group_id);
+struct item_package *itemdb_package_exists(unsigned short package_id);
 
 bool itemdb_isNoEquip(struct item_data *id, uint16 m);
 

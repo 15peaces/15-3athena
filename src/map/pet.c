@@ -371,7 +371,7 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 		tmp_item.card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
 		if ((flag = pc_additem(sd, &tmp_item, 1, LOG_TYPE_OTHER)) != 0) {
 			clif_additem(sd, 0, 0, flag);
-			map_addflooritem(&tmp_item, 1, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0);
+			map_addflooritem(&tmp_item, 1, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
 		}
 	}
 #if PACKETVER >= 20180704
@@ -505,7 +505,7 @@ int pet_birth_process(struct map_session_data *sd, struct s_pet *pet)
 	return 0;
 }
 
-int pet_recv_petdata(int account_id,struct s_pet *p,int flag)
+int pet_recv_petdata(uint32 account_id,struct s_pet *p,int flag)
 {
 	struct map_session_data *sd;
 
@@ -631,20 +631,33 @@ int pet_catch_process2(struct map_session_data* sd, int target_id)
 	return 0;
 }
 
-int pet_get_egg(int account_id,int pet_id,int flag)
+/**
+ * Is invoked _only_ when a new pet has been created is a product of packet 0x3880
+ * see mapif_pet_created@int_pet.c for more information
+ * Handles new pet data from inter-server and prepares item information
+ * to add pet egg
+ *
+ * pet_id - Should contain pet id otherwise means failure
+ * returns true on success
+ **/
+int pet_get_egg(uint32 account_id, short pet_class, int pet_id)
 {	//This function is invoked when a new pet has been created, and at no other time!
 	struct map_session_data *sd;
 	struct item tmp_item;
 	int i=0,ret=0;
 
-	if(flag)
+	if(pet_id == 0 || pet_class == 0)
 		return 0;
 		
 	sd = map_id2sd(account_id);
-	if(sd == NULL)
-		return 0;
+	if (sd == NULL)
+		return false;
 
-	i = search_petDB_index(sd->catch_target_class,PET_CLASS);
+	// i = pet_search_petDB_index(sd->catch_target_class,PET_CLASS);
+	// Before this change in cases where more than one pet egg were requested in a short
+	// period of time it wasn't possible to know which kind of egg was being requested after
+	// the first request. [Panikon]
+	i = search_petDB_index(pet_class, PET_CLASS);
 	sd->catch_target_class = -1;
 	
 	if(i < 0) {
@@ -661,7 +674,7 @@ int pet_get_egg(int account_id,int pet_id,int flag)
 	tmp_item.card[3] = pet_get_card4_value(0, pet_db[i].intimate);
 	if((ret = pc_additem(sd,&tmp_item,1,LOG_TYPE_PICKDROP_PLAYER))) {
 		clif_additem(sd,0,0,ret);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 	}
 
 	return 1;
@@ -810,7 +823,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 	tmp_item.identify = 1;
 	if((flag = pc_additem(sd,&tmp_item,1,LOG_TYPE_OTHER))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 	}
 	if( battle_config.pet_equip_required )
 	{ // Skotlex: halt support timers if needed
@@ -1090,7 +1103,7 @@ static int pet_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 	while (ditem) {
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_charid,list->second_charid,list->third_charid,0);
+			list->first_charid,list->second_charid,list->third_charid,0,0);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);

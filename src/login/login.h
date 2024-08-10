@@ -16,7 +16,7 @@
 
 struct login_session_data {
 
-	int account_id;
+	uint32 account_id;
 	long login_id1;
 	long login_id2;
 	char sex;// 'F','M','S'

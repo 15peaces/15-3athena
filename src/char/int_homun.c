@@ -183,7 +183,7 @@ int inter_homun_delete(int hom_id)
 	return 1;
 }
 
-int mapif_homun_created(int fd,int account_id, struct s_homunculus *p)
+int mapif_homun_created(int fd,uint32 account_id, struct s_homunculus *p)
 {
 	WFIFOHEAD(fd, sizeof(struct s_homunculus)+9);
 	WFIFOW(fd, 0) =0x3890;
@@ -195,7 +195,7 @@ int mapif_homun_created(int fd,int account_id, struct s_homunculus *p)
 	return 0;
 }
 
-int mapif_homun_info(int fd,int account_id,struct s_homunculus *p)
+int mapif_homun_info(int fd,uint32 account_id,struct s_homunculus *p)
 {
 	WFIFOHEAD(fd, sizeof(struct s_homunculus)+9);
 	WFIFOW(fd,0) = 0x3891;
@@ -208,7 +208,7 @@ int mapif_homun_info(int fd,int account_id,struct s_homunculus *p)
 	return 0;
 }
 
-int mapif_homun_noinfo(int fd,int account_id)
+int mapif_homun_noinfo(int fd,uint32 account_id)
 {
 	WFIFOHEAD(fd,sizeof(struct s_homunculus) + 9);
 	WFIFOW(fd,0)=0x3891;
@@ -221,7 +221,7 @@ int mapif_homun_noinfo(int fd,int account_id)
 	return 0;
 }
 
-int mapif_save_homun_ack(int fd,int account_id,int flag)
+int mapif_save_homun_ack(int fd,uint32 account_id,int flag)
 {
 	WFIFOHEAD(fd, 7);
 	WFIFOW(fd,0)=0x3892;
@@ -240,7 +240,7 @@ int mapif_delete_homun_ack(int fd,int flag)
 	return 0;
 }
 
-int mapif_rename_homun_ack(int fd, int account_id, int char_id, int flag, char *name){
+int mapif_rename_homun_ack(int fd, uint32 account_id, uint32 char_id, int flag, char *name){
 	WFIFOHEAD(fd, NAME_LENGTH+12);
 	WFIFOW(fd, 0) =0x3894;
 	WFIFOL(fd, 2) =account_id;
@@ -272,7 +272,7 @@ int mapif_create_homun(int fd)
 int mapif_load_homun(int fd)
 {
 	struct s_homunculus *p;
-	int account_id;
+	uint32 account_id;
 	account_id = RFIFOL(fd,2);
 
 	p = (struct s_homunculus*)idb_get(homun_db,RFIFOL(fd,6));
@@ -290,7 +290,7 @@ static void* create_homun(DBKey key, va_list args) {
 	p->hom_id = key.i;
 	return p;
 }
-int mapif_save_homun(int fd,int account_id,struct s_homunculus *data)
+int mapif_save_homun(int fd,uint32 account_id,struct s_homunculus *data)
 {
 	struct s_homunculus *p;
 	int hom_id;
@@ -310,7 +310,7 @@ int mapif_delete_homun(int fd,int hom_id)
 	return 0;
 }
 
-int mapif_rename_homun(int fd, int account_id, int char_id, char *name){
+int mapif_rename_homun(int fd, uint32 account_id, uint32 char_id, char *name){
 	int i;
 
 	// Check Authorised letters/symbols in the name of the homun

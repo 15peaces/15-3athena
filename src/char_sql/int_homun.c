@@ -25,7 +25,7 @@ void inter_homunculus_sql_final(void)
 	return;
 }
 
-static void mapif_homunculus_created(int fd, int account_id, struct s_homunculus *sh, unsigned char flag)
+static void mapif_homunculus_created(int fd, uint32 account_id, struct s_homunculus *sh, unsigned char flag)
 {
 	WFIFOHEAD(fd, sizeof(struct s_homunculus)+9);
 	WFIFOW(fd,0) = 0x3890;
@@ -44,7 +44,7 @@ static void mapif_homunculus_deleted(int fd, int flag)
 	WFIFOSET(fd, 3);
 }
 
-static void mapif_homunculus_loaded(int fd, int account_id, struct s_homunculus *hd)
+static void mapif_homunculus_loaded(int fd, uint32 account_id, struct s_homunculus *hd)
 {
 	WFIFOHEAD(fd, sizeof(struct s_homunculus)+9);
 	WFIFOW(fd,0) = 0x3891;
@@ -63,7 +63,7 @@ static void mapif_homunculus_loaded(int fd, int account_id, struct s_homunculus 
 	WFIFOSET(fd, sizeof(struct s_homunculus)+9);
 }
 
-static void mapif_homunculus_saved(int fd, int account_id, bool flag)
+static void mapif_homunculus_saved(int fd, uint32 account_id, bool flag)
 {
 	WFIFOHEAD(fd, 7);
 	WFIFOW(fd,0) = 0x3892;
@@ -72,7 +72,7 @@ static void mapif_homunculus_saved(int fd, int account_id, bool flag)
 	WFIFOSET(fd, 7);
 }
 
-static void mapif_homunculus_renamed(int fd, int account_id, int char_id, unsigned char flag, char* name)
+static void mapif_homunculus_renamed(int fd, uint32 account_id, uint32 char_id, unsigned char flag, char* name)
 {
 	WFIFOHEAD(fd, NAME_LENGTH+12);
 	WFIFOW(fd, 0) = 0x3894;
@@ -262,7 +262,7 @@ bool mapif_homunculus_rename(char *name)
 }
 
 
-static void mapif_parse_homunculus_create(int fd, int len, int account_id, struct s_homunculus* phd)
+static void mapif_parse_homunculus_create(int fd, int len, uint32 account_id, struct s_homunculus* phd)
 {
 	bool result = mapif_homunculus_save(phd);
 	mapif_homunculus_created(fd, account_id, phd, result);
@@ -274,20 +274,20 @@ static void mapif_parse_homunculus_delete(int fd, int homun_id)
 	mapif_homunculus_deleted(fd, result);
 }
 
-static void mapif_parse_homunculus_load(int fd, int account_id, int homun_id)
+static void mapif_parse_homunculus_load(int fd, uint32 account_id, int homun_id)
 {
 	struct s_homunculus hd;
 	bool result = mapif_homunculus_load(homun_id, &hd);
 	mapif_homunculus_loaded(fd, account_id, ( result ? &hd : NULL ));
 }
 
-static void mapif_parse_homunculus_save(int fd, int len, int account_id, struct s_homunculus* phd)
+static void mapif_parse_homunculus_save(int fd, int len, uint32 account_id, struct s_homunculus* phd)
 {
 	bool result = mapif_homunculus_save(phd);
 	mapif_homunculus_saved(fd, account_id, result);
 }
 
-static void mapif_parse_homunculus_rename(int fd, int account_id, int char_id, char* name)
+static void mapif_parse_homunculus_rename(int fd, uint32 account_id, uint32 char_id, char* name)
 {
 	bool result = mapif_homunculus_rename(name);
 	mapif_homunculus_renamed(fd, account_id, char_id, result, name);

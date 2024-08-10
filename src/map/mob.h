@@ -155,6 +155,12 @@ struct spawn_info {
 	unsigned short mapindex;
 	unsigned short qty;
 };
+
+/// Loooitem struct
+struct s_mob_lootitem {
+	struct item item;	   ///< Item info
+	unsigned short mob_id; ///< ID of monster that dropped the item
+};
  
 struct mob_db {
 	char sprite[NAME_LENGTH],name[NAME_LENGTH],jname[NAME_LENGTH];
@@ -216,7 +222,7 @@ struct mob_data {
 	} dmglog[DAMAGELOG_SIZE];
 	struct spawn_data *spawn; //Spawn data.
 	int spawn_timer; //Required for Convex Mirror
-	struct item *lootitem;
+	struct s_mob_lootitem *lootitems;
 	short mob_id;
 	unsigned int tdmg; //Stores total damage given to the mob, for exp calculations. [Skotlex]
 	int level;
@@ -284,6 +290,8 @@ enum {
 // The data structures for storing delayed item drops
 struct item_drop {
 	struct item item_data;
+	unsigned short mob_id;
+	enum bl_type src_type;
 	struct item_drop* next;
 };
 struct item_drop_list {
@@ -329,6 +337,8 @@ void mob_heal(struct mob_data *md,unsigned int heal);
 #define mob_is_samename(md, mid) (strcmp(mob_db((md)->mob_id)->jname, mob_db(mid)->jname) == 0)
 #define mob_is_treasure(md) (((md)->mob_id >= MOBID_TREAS01 && (md)->mob_id <= MOBID_TREAS40) || ((md)->mob_id >= MOBID_TREAS41 && (md)->mob_id <= MOBID_TREAS49))
 #define mob_is_guardian(mob_id) ((mob_id >= MOBID_A_GUARDIAN && mob_id <= MOBID_S_GUARDIAN) || mob_id == MOBID_S_GUARDIAN_ || mob_id == MOBID_A_GUARDIAN_)
+
+#define CHK_MOBSIZE(size) ((size) >= SZ_SMALL && (size) < SZ_MAX) /// Check valid Monster Size
 
 void mob_clear_spawninfo();
 void do_init_mob(void);

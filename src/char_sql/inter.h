@@ -12,7 +12,7 @@ void inter_final(void);
 int inter_parse_frommap(int fd);
 int inter_mapif_init(int fd);
 int mapif_send_gmaccounts(void);
-int mapif_disconnectplayer(int fd, int account_id, int char_id, int reason);
+int mapif_disconnectplayer(int fd, uint32 account_id, uint32 char_id, int reason);
 
 int inter_log(char *fmt,...);
 
@@ -25,6 +25,6 @@ extern Sql* lsql_handle;
 
 extern char main_chat_nick[16];
 
-int inter_accreg_tosql(int account_id, int char_id, struct accreg *reg, int type);
+int inter_accreg_tosql(uint32 account_id, uint32 char_id, struct accreg *reg, int type);
 
 #endif /* _INTER_SQL_H_ */

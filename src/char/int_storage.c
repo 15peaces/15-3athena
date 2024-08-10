@@ -23,7 +23,7 @@
 char storage_txt[1024]="save/storage.txt";
 char guild_storage_txt[1024]="save/g_storage.txt";
 
-static DBMap* storage_db = NULL; // int account_id -> struct storage_data*
+static DBMap* storage_db = NULL; // uint32 account_id -> struct storage_data*
 static DBMap* guild_storage_db = NULL; // int guild_id -> struct guild_storage*
 
 /**
@@ -131,7 +131,7 @@ static void* create_guildstorage(DBKey key, va_list args)
 
 /// Loads storage data into the provided data structure.
 /// If data doesn't exist, the destination is zeroed and false is returned.
-bool storage_load(int account_id, struct storage_data* storage)
+bool storage_load(uint32 account_id, struct storage_data* storage)
 {
 	struct storage_data* s = (struct storage_data*)idb_get(storage_db, account_id);
 
@@ -146,7 +146,7 @@ bool storage_load(int account_id, struct storage_data* storage)
 /// Writes provided data into storage cache.
 /// If data contains 0 items, any existing entry in cache is destroyed.
 /// If data contains 1+ items and no cache entry exists, a new one is created.
-bool storage_save(int account_id, struct storage_data* storage)
+bool storage_save(uint32 account_id, struct storage_data* storage)
 {
 	if( storage->storage_amount > 0 )
 	{
@@ -178,7 +178,7 @@ int inter_storage_init()
 	}
 	while( fgets(line, sizeof(line), fp) )
 	{
-		int account_id;
+		uint32 account_id;
 		struct storage_data *s;
 
 		s = (struct storage_data*)aCalloc(sizeof(struct storage_data), 1);
@@ -264,7 +264,7 @@ int inter_storage_save()
 	iter = storage_db->iterator(storage_db);
 	for( data = (struct storage_data*)iter->first(iter,&key); iter->exists(iter); data = (struct storage_data*)iter->next(iter,&key) )
 	{
-		int account_id = key.i;
+		uint32 account_id = key.i;
 		char line[65536];
 		storage_tostr(line,account_id,data);
 		fprintf(fp,"%s\n",line);
@@ -306,7 +306,7 @@ int inter_guild_storage_save()
 }
 
 // 倉庫データ削除
-int inter_storage_delete(int account_id)
+int inter_storage_delete(uint32 account_id)
 {
 	struct storage_data *s = (struct storage_data*)idb_get(storage_db,account_id);
 	if(s) {
@@ -346,7 +346,7 @@ struct guild_storage *guild2storage(int guild_id)
 //---------------------------------------------------------
 // map serverへの通信
 
-int mapif_load_guild_storage(int fd,int account_id,int guild_id)
+int mapif_load_guild_storage(int fd,uint32 account_id,int guild_id)
 {
 	struct guild_storage *gs=guild2storage(guild_id);
 	WFIFOHEAD(fd, sizeof(struct guild_storage)+12);
@@ -367,7 +367,7 @@ int mapif_load_guild_storage(int fd,int account_id,int guild_id)
 	return 0;
 }
 
-int mapif_save_guild_storage_ack(int fd,int account_id,int guild_id,int fail)
+int mapif_save_guild_storage_ack(int fd,uint32 account_id,int guild_id,int fail)
 {
 	WFIFOHEAD(fd,11);
 	WFIFOW(fd,0)=0x3819;

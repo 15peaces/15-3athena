@@ -221,7 +221,6 @@ EAJ_NINJA	0xA
 EAJ_GANGSI	0xD
 EAJ_SUMMONER	0x11
 
-EAJ_SUPER_NOVICE	0x100
 EAJ_KNIGHT	0x101
 EAJ_WIZARD	0x102
 EAJ_HUNTER	0x103
@@ -276,7 +275,6 @@ EAJ_BABY_GUNSLINGER	0x2009
 EAJ_BABY_NINJA	0x200A
 EAJ_BABY_SUMMONER	0x2011
 
-EAJ_SUPER_BABY	0x2100
 EAJ_BABY_KNIGHT	0x2101
 EAJ_BABY_WIZARD	0x2102
 EAJ_BABY_HUNTER	0x2103
@@ -295,7 +293,6 @@ EAJ_BABY_ALCHEMIST	0x2205
 EAJ_BABY_ROGUE	0x2206
 EAJ_BABY_SOUL_LINKER	0x2207
 
-EAJ_SUPER_NOVICE_E	0x4100
 EAJ_RUNE_KNIGHT 0x4101
 EAJ_WARLOCK 0x4102
 EAJ_RANGER 0x4103
@@ -326,7 +323,6 @@ EAJ_SURA_T 0x5204
 EAJ_GENETIC_T 0x5205
 EAJ_SHADOW_CHASER_T 0x5206
 
-EAJ_SUPER_BABY_E	0x6100
 EAJ_BABY_RUNE_KNIGHT 0x6101
 EAJ_BABY_WARLOCK 0x6102
 EAJ_BABY_RANGER 0x6103
@@ -334,7 +330,7 @@ EAJ_BABY_ARCH_BISHOP 0x6104
 EAJ_BABY_MECHANIC 0x6105
 EAJ_BABY_GUILLOTINE_CROSS 0x6106
 EAJ_BABY_STAR_EMPEROR	0x6107
-	
+
 EAJ_BABY_ROYAL_GUARD 0x6201
 EAJ_BABY_SORCERER 0x6202
 EAJ_BABY_MINSTRELWANDERER 0x6203
@@ -342,7 +338,12 @@ EAJ_BABY_SURA 0x6204
 EAJ_BABY_GENETIC 0x6205
 EAJ_BABY_SHADOW_CHASER 0x6206
 EAJ_BABY_SOUL_REAPER	0x6207
-	
+
+EAJ_SUPER_NOVICE	0x8100
+EAJ_SUPER_BABY	0xA100
+EAJ_SUPER_NOVICE_E	0xC100
+EAJ_SUPER_BABY_E	0xE100
+
 Option_Wedding	0x1000
 Option_Xmas	0x10000
 Option_Summer	0x40000
@@ -825,37 +826,82 @@ IG_Lucky_Bag	58 //390
 IG_Holy_Egg_2	59 //391
 
 //Item Packages
-IP_Aspersio_5_Scroll_Box	1	// 92
-IP_New_Year_Scroll	2 			//225
-IP_Buddah_Scroll	3 			//228
-IP_Evil_Incarnation	4 			//229
-IP_Taurus_Crown_Scroll	5 		//272
-IP_Taurus_Crown_Scroll_Box	6 	//273
-IP_Hallo_Scroll	7 				//292
-IP_Tw_Aug_Scroll	8 			//318
-IP_Old_Coin_Pocket	9			//343
-IP_High_Coin_Pocket	10			//344
-IP_Mid_Coin_Pocket	11			//345
-IP_Low_Coin_Pocket	12			//346
-IP_Sgrade_Pocket	13			//347
-IP_Agrade_Pocket	14			//348
-IP_Bgrade_Pocket	15			//349
-IP_Cgrade_Pocket	16			//350
-IP_Dgrade_Pocket	17			//351
-IP_Egrade_Pocket	18			//352
-IP_HALLOWEEN_G_BOX	19			//386
-IP_Solo_Christmas_Gift	20		//387
-IP_Sg_Weapon_Supply_Box	21		//388
-IP_Level_Up_Box100	22			//413
-IP_Level_Up_Box120	23			//414
-IP_Level_Up_Box130	24			//415
-IP_Level_Up_Box140	25			//416
-IP_Level_Up_Box150	26			//417
-IP_Level_Up_Box160	27			//418
-IP_IDRO10TH_SCROLL	28			//442
-IP_Sealed_Mind_Box	29			//454
-IP_SOMETHING_CANDY_HOLDER	30	//472
-IP_Noive_Box	31				//481
+IP_Aspersio_5_Scroll_Box	1		// 92
+IP_New_Year_Scroll	2 				//225
+IP_Buddah_Scroll	3 				//228
+IP_Evil_Incarnation	4 				//229
+IP_Taurus_Crown_Scroll	5 			//272
+IP_Taurus_Crown_Scroll_Box	6 		//273
+IP_Hallo_Scroll	7 					//292
+IP_Tw_Aug_Scroll	8 				//318
+IP_Old_Coin_Pocket	9				//343
+IP_High_Coin_Pocket	10				//344
+IP_Mid_Coin_Pocket	11				//345
+IP_Low_Coin_Pocket	12				//346
+IP_Sgrade_Pocket	13				//347
+IP_Agrade_Pocket	14				//348
+IP_Bgrade_Pocket	15				//349
+IP_Cgrade_Pocket	16				//350
+IP_Dgrade_Pocket	17				//351
+IP_Egrade_Pocket	18				//352
+IP_HALLOWEEN_G_BOX	19				//386
+IP_Solo_Christmas_Gift	20			//387
+IP_Sg_Weapon_Supply_Box	21			//388
+IP_Level_Up_Box100	22				//413
+IP_Level_Up_Box120	23				//414
+IP_Level_Up_Box130	24				//415
+IP_Level_Up_Box140	25				//416
+IP_Level_Up_Box150	26				//417
+IP_Level_Up_Box160	27				//418
+IP_Blessing_Lucky_Egg	28			//423
+IP_Sograt_Lucky_Egg	29				//424
+IP_Garnet_Lucky_Egg	30				//425
+IP_Amora_Lucky_Egg	31				//426
+IP_Venus_Lucky_Egg	32				//427
+IP_Erzulie_Lucky_Egg	33			//428
+IP_Majestic_Lucky_Egg	34			//429
+IP_Epic_Heroes_Lucky_Egg	35		//430
+IP_Hero_Midgard_Egg	36				//431
+IP_Midgard_Celebration_Lucky_Egg	37	//432
+IP_Rune_Midgard_Imortal_Lucky_Egg	38	//433
+IP_Rise_Midgard_Lucky_Egg	39		//434
+IP_Time_Travel_Lucky_Egg	40		//435
+IP_Solaris_Festival_Scroll	41		//436
+IP_Midgard_Festival_Egg	42			//437
+IP_Midgard_Egg	43					//438
+IP_Sweet_Midgard_Egg	44			//439
+IP_Winter_Midgard_Egg	45			//440
+IP_Spring_Festival_Lucky_Egg	46	//441
+IP_Birthday_IdRO10th_Scroll	47		//442
+IP_Requiem_Egg	48					//443
+IP_Holy_Spirit_Egg	49				//444
+IP_Memorial_Garuda_Lucky_Egg	50	//445
+IP_Miracle_Lucky_Egg	51			//446
+IP_Legend_Hero_Lucky_Egg	52		//447
+IP_Blessing_Midgard_Lucky_Egg	53	//448
+IP_IDRO10TH_SCROLL	54				//442
+IP_Chronosian_Lucky_Egg	55			//449
+IP_Sanctuary_Lucky_Egg	56			//450
+IP_Cyborg_Lucky_Egg	57				//451
+IP_Undine_Lucky_Egg	58				//452
+IP_Sealed_Mind_Box	59				//454
+IP_Frozen_Egg_Costume	60			//455
+IP_Headgear_Costume_Scroll	61		//456
+IP_Flower_Blossom_Scroll	62		//457
+IP_Seaside_Costume_Scroll	63		//458
+IP_Smithy_Lucky_Egg	64				//459
+IP_Ganymede_Lucky_Egg	65			//460
+IP_LastAngel_LuckyScroll	66		//461
+IP_Valkyrie_Lucky_Egg	67			//462
+IP_Splash_Rainbow_Lucky_Egg	68		//463
+IP_Shapeshifter_Costume	69			//464
+IP_Almighty_Lucky_Egg	70			//465
+IP_Burning_Feather_Costume_Scroll	71	//466
+IP_Animal_Costume_Scroll	72		//467
+IP_Midgard_Lucky_Scroll	73			//468
+IP_Blessing_Scarlet_Egg	74			//469
+IP_SOMETHING_CANDY_HOLDER	75		//472
+IP_Noive_Box	76					//481
 
 SC_ALL	-1
 SC_NONE	-1

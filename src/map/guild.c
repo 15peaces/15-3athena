@@ -35,7 +35,7 @@
 static DBMap* guild_db; // int guild_id -> struct guild*
 static DBMap* guild_infoevent_db; // int guild_id -> struct eventlist*
 static DBMap* castle_db; // int castle_id -> struct guild_castle*
-static DBMap* guild_expcache_db; // int char_id -> struct guild_expcache*
+static DBMap* guild_expcache_db; // uint32 char_id -> struct guild_expcache*
 
 struct eventlist {
 	char name[EVENT_NAME_LENGTH];
@@ -58,8 +58,8 @@ struct{
 struct guild_expcache
 {
 	int guild_id;
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	uint64 exp;
 };
 static struct eri *expcache_ers; //For handling of guild exp payment.
@@ -73,7 +73,7 @@ unsigned short guild_flags_count;
 /*==========================================
  * Retrieves and validates the sd pointer for this guild member [Skotlex]
  *------------------------------------------*/
-static TBL_PC* guild_sd_check(int guild_id, int account_id, int char_id)
+static TBL_PC* guild_sd_check(int guild_id, uint32 account_id, uint32 char_id)
 {
 	TBL_PC* sd = map_id2sd(account_id);
 
@@ -196,7 +196,7 @@ struct map_session_data* guild_getavailablesd(struct guild* g)
 }
 
 /// lookup: player AID/CID -> member index
-int guild_getindex(struct guild *g,int account_id,int char_id)
+int guild_getindex(struct guild *g,uint32 account_id,uint32 char_id)
 {
 	int i;
 
@@ -313,7 +313,7 @@ bool guild_create(struct map_session_data *sd, const char *name)
 }
 
 //Whether or not to create guild
-void guild_created(int account_id,int guild_id)
+void guild_created(uint32 account_id,int guild_id)
 {
 	struct map_session_data *sd=map_id2sd(account_id);
 
@@ -657,7 +657,7 @@ void guild_member_joined(struct map_session_data *sd)
 /*==========================================
  * Add a player to a given guild_id
  *----------------------------------------*/
-void guild_member_added(int guild_id,int account_id,int char_id,int flag)
+void guild_member_added(int guild_id,uint32 account_id,uint32 char_id,int flag)
 {
 	struct map_session_data *sd= map_id2sd(account_id),*sd2;
 	struct guild *g;
@@ -702,7 +702,7 @@ void guild_member_added(int guild_id,int account_id,int char_id,int flag)
 }
 
 // ƒMƒ‹ƒh’E‘Þ—v‹
-int guild_leave(struct map_session_data* sd, int guild_id, int account_id, int char_id, const char* mes)
+int guild_leave(struct map_session_data* sd, int guild_id, uint32 account_id, uint32 char_id, const char* mes)
 {
 	struct guild *g;
 
@@ -733,7 +733,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, int account_id, int c
 }
 
 // ƒMƒ‹ƒh’Ç•ú—v‹
-int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, int char_id, const char* mes)
+int guild_expulsion(struct map_session_data* sd, int guild_id, uint32 account_id, uint32 char_id, const char* mes)
 {
 	struct map_session_data *tsd;
 	struct guild *g;
@@ -776,7 +776,7 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, int account_id, i
 	return 0;
 }
 
-int guild_member_withdraw(int guild_id, int account_id, int char_id, int flag, const char* name, const char* mes)
+int guild_member_withdraw(int guild_id, uint32 account_id, uint32 char_id, int flag, const char* name, const char* mes)
 {
 	int i;
 	struct guild* g = guild_search(guild_id);
@@ -857,7 +857,7 @@ int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 	return 0;
 }
 
-void guild_recv_memberinfoshort(int guild_id, int account_id, int char_id, int online, int lv, int class_, int last_login)
+void guild_recv_memberinfoshort(int guild_id, uint32 account_id, uint32 char_id, int online, int lv, int class_, int last_login)
 { // cleaned up [LuzZza]
 	
 	int i,alv,c,idx=-1,om=0,oldonline=-1;
@@ -936,7 +936,7 @@ int guild_send_message(struct map_session_data *sd,const char *mes,int len)
 	return 0;
 }
 // ƒMƒ‹ƒh‰ï˜bŽóM
-int guild_recv_message(int guild_id,int account_id,const char *mes,int len)
+int guild_recv_message(int guild_id,uint32 account_id,const char *mes,int len)
 {
 	struct guild *g;
 	if( (g=guild_search(guild_id))==NULL)
@@ -945,7 +945,7 @@ int guild_recv_message(int guild_id,int account_id,const char *mes,int len)
 	return 0;
 }
 // ƒMƒ‹ƒhƒƒ“ƒo‚Ì–ðE•ÏX
-int guild_change_memberposition(int guild_id,int account_id,int char_id,short idx)
+int guild_change_memberposition(int guild_id,uint32 account_id,uint32 char_id,short idx)
 {
 	return intif_guild_change_memberinfo(guild_id,account_id,char_id,GMI_POSITION,&idx,sizeof(idx));
 }
@@ -1134,7 +1134,7 @@ int guild_skillup(TBL_PC* sd, int skill_id)
 	return 0;
 }
 // ƒXƒLƒ‹ƒ|ƒCƒ“ƒgŠ„‚èU‚è’Ê’m
-int guild_skillupack(int guild_id,int skill_id,int account_id)
+int guild_skillupack(int guild_id,int skill_id,uint32 account_id)
 {
 	struct map_session_data *sd=map_id2sd(account_id);
 	struct guild *g=guild_search(guild_id);
@@ -1281,7 +1281,7 @@ int guild_reqalliance(struct map_session_data *sd,struct map_session_data *tsd)
 	return 0;
 }
 // ƒMƒ‹ƒhŠ©—U‚Ö‚Ì•Ô“š
-int guild_reply_reqalliance(struct map_session_data *sd,int account_id,int flag)
+int guild_reply_reqalliance(struct map_session_data *sd,uint32 account_id,int flag)
 {
 	struct map_session_data *tsd;
 
@@ -1584,7 +1584,7 @@ int guild_gm_change(int guild_id, uint32 char_id)
 }
 
 //Notification from Char server that a guild's master has changed. [Skotlex]
-int guild_gm_changed(int guild_id, int account_id, int char_id, time_t time)
+int guild_gm_changed(int guild_id, uint32 account_id, uint32 char_id, time_t time)
 {
 	struct guild *g;
 	struct guild_member gm;
@@ -2168,8 +2168,8 @@ static DBData create_expcache(DBKey key, va_list args)
 	struct guild_expcache* c;
 
 	int guild_id = va_arg(args, int);
-	int account_id = va_arg(args, int);
-	int char_id = va_arg(args, int);
+	uint32 account_id = va_arg(args, int);
+	uint32 char_id = va_arg(args, int);
 
 	c = ers_alloc(expcache_ers, struct guild_expcache);
 	c->guild_id = guild_id;
@@ -2217,7 +2217,7 @@ static int guild_addexp_timer(int tid, int64 tick, int id, intptr_t data)
 }
 
 /// Increase this player's exp contribution to his guild.
-unsigned int guild_addexp(int guild_id, int account_id, int char_id, unsigned int exp)
+unsigned int guild_addexp(int guild_id, uint32 account_id, uint32 char_id, unsigned int exp)
 {
 	struct guild_expcache* c = db_data2ptr(guild_expcache_db->ensure(guild_expcache_db, db_i2key(char_id), create_expcache, guild_id, account_id, char_id));
 

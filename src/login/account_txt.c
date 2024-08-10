@@ -47,9 +47,9 @@ static void account_db_txt_destroy(AccountDB* self);
 static bool account_db_txt_get_property(AccountDB* self, const char* key, char* buf, size_t buflen);
 static bool account_db_txt_set_property(AccountDB* self, const char* option, const char* value);
 static bool account_db_txt_create(AccountDB* self, struct mmo_account* acc);
-static bool account_db_txt_remove(AccountDB* self, const int account_id);
+static bool account_db_txt_remove(AccountDB* self, const uint32 account_id);
 static bool account_db_txt_save(AccountDB* self, const struct mmo_account* acc);
-static bool account_db_txt_load_num(AccountDB* self, struct mmo_account* acc, const int account_id);
+static bool account_db_txt_load_num(AccountDB* self, struct mmo_account* acc, const uint32 account_id);
 static bool account_db_txt_load_str(AccountDB* self, struct mmo_account* acc, const char* userid);
 static AccountDBIterator* account_db_txt_iterator(AccountDB* self);
 static void account_db_txt_iter_destroy(AccountDBIterator* self);
@@ -117,7 +117,7 @@ static bool account_db_txt_init(AccountDB* self)
 	// load data file
 	while( fgets(line, sizeof(line), fp) != NULL )
 	{
-		int account_id, n;
+		uint32 account_id, n;
 		unsigned int v;
 		struct mmo_account acc;
 		struct mmo_account* tmp;
@@ -276,7 +276,7 @@ static bool account_db_txt_create(AccountDB* self, struct mmo_account* acc)
 	struct mmo_account* tmp;
 
 	// decide on the account id to assign
-	int account_id = ( acc->account_id != -1 ) ? acc->account_id : db->next_account_id;
+	uint32 account_id = ( acc->account_id != -1 ) ? acc->account_id : db->next_account_id;
 
 	// absolute maximum
 	if( account_id > END_ACCOUNT_NUM )
@@ -310,7 +310,7 @@ static bool account_db_txt_create(AccountDB* self, struct mmo_account* acc)
 }
 
 /// find an existing entry for this account id and delete it
-static bool account_db_txt_remove(AccountDB* self, const int account_id)
+static bool account_db_txt_remove(AccountDB* self, const uint32 account_id)
 {
 	AccountDB_TXT* db = (AccountDB_TXT*)self;
 	DBMap* accounts = db->accounts;
@@ -334,7 +334,7 @@ static bool account_db_txt_save(AccountDB* self, const struct mmo_account* acc)
 {
 	AccountDB_TXT* db = (AccountDB_TXT*)self;
 	DBMap* accounts = db->accounts;
-	int account_id = acc->account_id;
+	uint32 account_id = acc->account_id;
 
 	// retrieve previous data
 	struct mmo_account* tmp = (struct mmo_account*)idb_get(accounts, account_id);
@@ -354,7 +354,7 @@ static bool account_db_txt_save(AccountDB* self, const struct mmo_account* acc)
 }
 
 /// retrieve data from db and store it in the provided data structure
-static bool account_db_txt_load_num(AccountDB* self, struct mmo_account* acc, const int account_id)
+static bool account_db_txt_load_num(AccountDB* self, struct mmo_account* acc, const uint32 account_id)
 {
 	AccountDB_TXT* db = (AccountDB_TXT*)self;
 	DBMap* accounts = db->accounts;

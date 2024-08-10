@@ -952,7 +952,7 @@ int hom_call(struct map_session_data *sd)
  * @param flag : does the creation in inter-serv was a success (0:no,1:yes)
  * @return 0:failure, 1:sucess
  */
-int hom_recv_data(int account_id, struct s_homunculus *sh, int flag)
+int hom_recv_data(uint32 account_id, struct s_homunculus *sh, int flag)
 {
 	struct map_session_data *sd;
 	struct homun_data *hd;

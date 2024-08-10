@@ -20,7 +20,7 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg);
 static void mapif_Mail_return(int fd, uint32 char_id, int mail_id);
 static void mapif_Mail_delete(int fd, uint32 char_id, int mail_id, bool deleted);
 
-static int mail_fromsql(int char_id, struct mail_data* md)
+static int mail_fromsql(uint32 char_id, struct mail_data* md)
 {
 	int i;
 	char *data;
@@ -236,8 +236,8 @@ static bool mail_loadmessage(int mail_id, struct mail_message* msg)
 int mail_timer_sub( int limit, enum mail_inbox_type type ){
 	struct{
 		int mail_id;
-		int char_id;
-		int account_id;
+		uint32 char_id;
+		uint32 account_id;
 	}mails[MAIL_MAX_INBOX];
 	int i, map_fd;
 	char* data;
@@ -552,7 +552,7 @@ static void mapif_parse_Mail_send(int fd)
 	{
 		char *data;
 #if PACKETVER < 20150513
-		int account_id = RFIFOL(fd,4);
+		uint32 account_id = RFIFOL(fd,4);
 
 		Sql_GetData(sql_handle, 0, &data, NULL);
 		if (atoi(data) != account_id)
@@ -607,7 +607,7 @@ bool mail_sendmail(int send_id, const char* send_name, int dest_id, const char* 
 	return true;
 }
 
-static void mapif_Mail_receiver_send( int fd, int requesting_char_id, int char_id, int class_, int base_level, const char* name ){
+static void mapif_Mail_receiver_send( int fd, int requesting_char_id, uint32 char_id, int class_, int base_level, const char* name ){
 	WFIFOHEAD(fd,38);
 	WFIFOW(fd,0) = 0x384e;
 	WFIFOL(fd,2) = requesting_char_id;

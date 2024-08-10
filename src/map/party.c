@@ -31,7 +31,7 @@
 
 
 static DBMap* party_db; // int party_id -> struct party_data* (releases data)
-static DBMap* party_booking_db; // int char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
+static DBMap* party_booking_db; // uint32 char_id -> struct party_booking_ad_info* (releases data) // Party Booking [Spiria]
 static unsigned long party_booking_nextid = 1;
 
 int party_send_xy_timer(int tid, int64 tick, int id, intptr_t data);
@@ -98,7 +98,7 @@ struct map_session_data* party_getavailablesd(struct party_data *p)
  * Retrieves and validates the sd pointer for this party member [Skotlex]
  *------------------------------------------*/
 
-static TBL_PC* party_sd_check(int party_id, int account_id, int char_id)
+static TBL_PC* party_sd_check(int party_id, uint32 account_id, uint32 char_id)
 {
 	TBL_PC* sd = map_id2sd(account_id);
 
@@ -189,7 +189,7 @@ bool party_create(struct map_session_data* sd, const char* name, int item, int i
 
 
 /// Party creation notification.
-void party_created(int account_id, int char_id, int fail, int party_id, const char* name)
+void party_created(uint32 account_id, uint32 char_id, int fail, int party_id, const char* name)
 {
 	struct map_session_data *sd;
 	sd=map_id2sd(account_id);
@@ -216,13 +216,13 @@ void party_created(int account_id, int char_id, int fail, int party_id, const ch
 
 }
 
-int party_request_info(int party_id, int char_id)
+int party_request_info(int party_id, uint32 char_id)
 {
 	return intif_request_partyinfo(party_id, char_id);
 }
 
 /// Invoked (from char-server) when the party info is not found.
-int party_recv_noinfo(int party_id, int char_id)
+int party_recv_noinfo(int party_id, uint32 char_id)
 {
 	party_broken(party_id);
 	if( char_id != 0 )// requester
@@ -273,7 +273,7 @@ static void party_check_state(struct party_data *p)
 	}
 }
 
-int party_recv_info(struct party* sp, int char_id)
+int party_recv_info(struct party* sp, uint32 char_id)
 {
 	struct party_data* p;
 	struct party_member* member;
@@ -482,7 +482,7 @@ void party_member_joined(struct map_session_data *sd)
 
 /// Invoked (from char-server) when a new member is added to the party.
 /// flag: 0-success, 1-failure
-int party_member_added(int party_id,int account_id,int char_id, int flag)
+int party_member_added(int party_id,uint32 account_id,uint32 char_id, int flag)
 {
 	struct map_session_data *sd = map_id2sd(account_id),*sd2;
 	struct party_data *p = party_search(party_id);
@@ -539,7 +539,7 @@ int party_member_added(int party_id,int account_id,int char_id, int flag)
 }
 
 /// Party member 'sd' requesting kick of member with <account_id, name>.
-int party_removemember(struct map_session_data* sd, int account_id, char* name)
+int party_removemember(struct map_session_data* sd, uint32 account_id, char* name)
 {
 	struct party_data *p;
 	int i;
@@ -663,7 +663,7 @@ int party_changeoption(struct map_session_data *sd,int exp,int item)
 /// flag bitfield:
 ///     &0x01 - exp change denied
 ///     &0x10 - item change denied
-void party_optionchanged(int party_id, int account_id, int exp, int item, int flag)
+void party_optionchanged(int party_id, uint32 account_id, int exp, int item, int flag)
 {
 	struct party_data *p;
 	struct map_session_data *sd=map_id2sd(account_id);
@@ -738,7 +738,7 @@ bool party_changeleader(struct map_session_data *sd, struct map_session_data *ts
 /// - logs in or out
 /// - changes jobs
 /// - gains a level
-int party_recv_movemap(int party_id, int account_id, int char_id, unsigned short map, int online, int lv, unsigned short class_)
+int party_recv_movemap(int party_id, uint32 account_id, uint32 char_id, unsigned short map, int online, int lv, unsigned short class_)
 
 {
 	struct party_member* m;
@@ -847,7 +847,7 @@ int party_send_message(struct map_session_data *sd,const char *mes,int len)
 	return 0;
 }
 
-int party_recv_message(int party_id,int account_id,const char *mes,int len)
+int party_recv_message(int party_id,uint32 account_id,const char *mes,int len)
 {
 	struct party_data *p;
 	if( (p=party_search(party_id))==NULL)

@@ -82,7 +82,7 @@ int mmo_auth_new(const char* userid, const char* pass, const char sex, const cha
 
 struct auth_node {
 
-	int account_id;
+	uint32 account_id;
 	uint32 login_id1;
 	uint32 login_id2;
 	uint32 ip;
@@ -91,7 +91,7 @@ struct auth_node {
 	uint8 clienttype;
 };
 
-static DBMap* auth_db; // int account_id -> struct auth_node*
+static DBMap* auth_db; // uint32 account_id -> struct auth_node*
 
 
 //-----------------------------------------------------
@@ -99,12 +99,12 @@ static DBMap* auth_db; // int account_id -> struct auth_node*
 //-----------------------------------------------------
 struct online_login_data {
 
-	int account_id;
+	uint32 account_id;
 	int waiting_disconnect;
 	int char_server;
 };
 
-static DBMap* online_db; // int account_id -> struct online_login_data*
+static DBMap* online_db; // uint32 account_id -> struct online_login_data*
 static int waiting_disconnect_timer(int tid, int64 tick, int id, intptr_t data);
 
 static DBData create_online_user(DBKey key, va_list args)
@@ -117,7 +117,7 @@ static DBData create_online_user(DBKey key, va_list args)
 	return db_ptr2data(p);
 }
 
-struct online_login_data* add_online_user(int char_server, int account_id)
+struct online_login_data* add_online_user(int char_server, uint32 account_id)
 {
 	struct online_login_data* p;
 	p = idb_ensure(online_db, account_id, create_online_user);
@@ -130,7 +130,7 @@ struct online_login_data* add_online_user(int char_server, int account_id)
 	return p;
 }
 
-void remove_online_user(int account_id)
+void remove_online_user(uint32 account_id)
 {
 	struct online_login_data* p;
 	p = (struct online_login_data*)idb_get(online_db, account_id);
@@ -442,7 +442,7 @@ int parse_fromchar(int fd)
 		{
 			struct auth_node* node;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			uint32 login_id1 = RFIFOL(fd,6);
 			uint32 login_id2 = RFIFOL(fd,10);
 			uint8 sex = RFIFOB(fd,14);
@@ -519,7 +519,7 @@ int parse_fromchar(int fd)
 			struct mmo_account acc;
 			char email[40];
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			safestrncpy(email, (char*)RFIFOP(fd,6), 40); remove_control_chars(email);
 			RFIFOSKIP(fd,46);
 
@@ -547,7 +547,7 @@ int parse_fromchar(int fd)
 				int gmlevel = 0;
 				char birthdate[10+1] = "";
 				char pincode[PINCODE_LENGTH + 1];
-				int account_id = RFIFOL(fd,2);
+				uint32 account_id = RFIFOL(fd,2);
 
 				memset(pincode, 0, PINCODE_LENGTH + 1);
 
@@ -594,7 +594,7 @@ int parse_fromchar(int fd)
 			char actual_email[40];
 			char new_email[40];
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			safestrncpy(actual_email, (char*)RFIFOP(fd,6), 40);
 			safestrncpy(new_email, (char*)RFIFOP(fd,46), 40);
 			RFIFOSKIP(fd, 86);
@@ -628,7 +628,7 @@ int parse_fromchar(int fd)
 		{
 			struct mmo_account acc;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			unsigned int state = RFIFOL(fd,6);
 			RFIFOSKIP(fd,10);
 
@@ -663,7 +663,7 @@ int parse_fromchar(int fd)
 		{
 			struct mmo_account acc;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			int timediff = RFIFOL(fd, 6);
 			RFIFOSKIP(fd, 10);
 
@@ -710,7 +710,7 @@ int parse_fromchar(int fd)
 		{
 			struct mmo_account acc;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			RFIFOSKIP(fd,6);
 
 			if( !accounts->load_num(accounts, &acc, account_id) )
@@ -744,7 +744,7 @@ int parse_fromchar(int fd)
 		{
 			struct mmo_account acc;
 
-			int account_id = RFIFOL(fd,4);
+			uint32 account_id = RFIFOL(fd,4);
 
 			if( !accounts->load_num(accounts, &acc, account_id) )
 				ShowStatus("Char-server '%s': receiving (from the char-server) of account_reg2 (account: %d not found, ip: %s).\n", server[id].name, account_id, ip);
@@ -783,7 +783,7 @@ int parse_fromchar(int fd)
 		{
 			struct mmo_account acc;
 
-			int account_id = RFIFOL(fd,2);
+			uint32 account_id = RFIFOL(fd,2);
 			RFIFOSKIP(fd,6);
 
 			if( !accounts->load_num(accounts, &acc, account_id) )
@@ -842,8 +842,8 @@ int parse_fromchar(int fd)
 			struct mmo_account acc;
 			size_t off;
 
-			int account_id = RFIFOL(fd,2);
-			int char_id = RFIFOL(fd,6);
+			uint32 account_id = RFIFOL(fd,2);
+			uint32 char_id = RFIFOL(fd,6);
 			RFIFOSKIP(fd,10);
 
 			WFIFOHEAD(fd,ACCOUNT_REG2_NUM*sizeof(struct global_reg));

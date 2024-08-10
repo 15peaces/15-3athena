@@ -5,6 +5,79 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/10/2024
+	r469 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn469*.sql files!
+			-This will also reset all unique item IDs!
+		*Fixed and re-enabled the unique item id system.
+			-Also the GUID field in item_package_db.txt is now working.
+		*Added full support for the item merge system to merge separated items in player's inventory.
+			-Enabled npc/other/item_merge.txt and it's now usable.
+			-Added client iterface.
+			-Added script commands.
+		*Item Database updates:
+			-Added more than 400 missing items including their item packages & combo scripts.
+			-Moved more than 200 stable items.
+			-Changed wrong flag values from 6 to 4.
+			-Changed all Shadow Gears to item type 12.
+			-Fixed some item bonusses.
+			-Added check for IT_SHADOWGEAR's script restriction before executing it.
+		*Official Item BindOnEquip Support
+			-Added item flag value: 8 to init default item with BindOnEquip. Item with this flag will be character bound item once equipped.
+			-Re-arranged fixed drom flag from 8 to 16. 
+			-Added optional config 'default_bind_on_equip' in conf/battle/items.conf to set default bind type. By default the type is character bound.
+			-Thanks to @rathena
+		*Fixed item_db parser:
+			-map server would crash with mismatching curly braces in unequip script field
+			-the parser wouldn't accept specific combinations of curly braces in the uniquip script field.
+		*Optimized the item package handling.
+			-Saved almost 160MB of RAM by removing ugly fixed array sizes.
+			-Also speeded up loading the packages.
+			-Broadcasts for special items are finally working.
+		*Fixed an issue with announce script command to properly support bc_blue and bc_woe.
+		*Some misc. cleaning and optimations.
+			-Correcting some checks for some bonuses.
+			-pc_is_same_equip_index function is now used to move all item index checks, removing redundancy in some cases.
+			-Some random in-source documentations and changes of return types.
+			-Removed some leftovers.
+			-Renamed itemdb_other (DBMap) to itemdb
+			-updated some doc files.
+			-Changed account_id and char_id variables to uint32 as this is the value they can be in DB.
+			-Modified @whodrops result for monster list to: "- <monster name> (<mob_id>): <rate>%"
+		*Re-added missing damage formulars for Rebellion skills.
+		*Fixed Mutanted Homunculus damage formulars.
+		*Gates of Hell and Bakuretsu Kunai now uses weapon element and are forced neutral for the final element.
+		*Forced guild notice changes to save immediately.
+		*Macro clean up for Element, Race, Race2, Class, & Size validation check.
+		*Removed unused parameters in battle_calc_bg_damage() and battle_calc_gvg_damage().
+		*Some buyingstore fixes:
+			-Fixed "missing" buyingstore search (purchase type search) in searchstore, by adding DBMap *buyingstore_db.
+			-Added nullpo checks on some buyingstore.c functions.
+			-Added do_init_buyingstore() and do_final_buyingstore().
+		*Script command query_sql will now return -1 on an empty result or failed result.
+		*Corrected Devotion behavior.
+			-Failing to cast Devotion to the 6th player
+			-Only player who devotes other that 'shout' Auto Guard when it active also with the walk delay
+			-Status icon that inherited from devoter won't be displayed at devoted player
+			-Reflect Damage on devoted player won't reflect normal attack, only melee skill attack
+			-Added config 'devotion_rdamage_skill_only' for backward compability, ignores the behavior above.
+			-Thanks to @rathena
+		*Implemented MD_RANDOMTARGET.
+			-Thanks to @rathena
+		*Rewrote the hard monster AI. Monsters will now behave a lot closer to official servers:
+			-Monsters will now attack immediately when they are chasing a target and it comes into attack range.
+			-Monsters will now chase their target during their aDelay, but they still have to wait for aMotion to be able to move again.
+			-Monsters will now rethink their chase in a configurable interval (see monster_chase_refresh in monster.conf), official value is once per cell, previously it was once per 3 cells
+			-Monsters will now stop when they rethink their chase and their target is gone (player hides or target loot was picked), regardless of the monster_ai setting (note: if you want the old behavior, just increase monster_chase_refresh instead)
+		*Fixed characters moving to unavailable slots using Character Moving System.
+		*Fixed EXP calculation overload.
+			-Added macro apply_rate(val,rate) & apply_rate2(val,rate,per)
+		*Added check to clear skill unit group that created by NPC/script before the NPC/script unloaded.
+		*Switching arrows no longer stops attacks.
+		*Looter monsters will now randomly pick items rather than going for the closest one.
+		*Updated Napalm Vulcan damage to official.
+		*Updated Expanded Super Novice and Super Baby to be able to do anything normal Super Novices can do. Guardian Angel, Dori Dori, etc.
+
 07/20/2024
 	r468 [15peaces]
 		*Fixed Venom Splasher consuming a second Red Gemstone.

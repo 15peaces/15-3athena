@@ -1063,7 +1063,7 @@ packet_ver: 22
 0x02d0,-1
 0x02d1,-1
 0x02d2,-1
-0x02d3,4
+0x02d3,4,ZC_NOTIFY_BIND_ON_EQUIP,2
 0x02d4,29
 0x02d5,2
 0x02d6,6,viewplayerequip,2
@@ -1475,7 +1475,7 @@ packet_ver: 25
 
 //2009-12-01aRagexeRE
 //0x07fc,10
-0x07fd,-1
+0x07fd,-1,ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN,0
 0x07fe,26
 //0x07ff,-1
 
@@ -1774,6 +1774,11 @@ packet_keys: 0x01581359,0x452D6FFA,0x6AFB6E2E // [Shakto]
 0x0915,-1 //ZC_NOTIFY_STANDENTRY8
 0x0916,26,guildinvite2,2
 0x0977,14 //Monster HP Bar
+// Merge Item
+0x096D,-1,ZC_MERGE_ITEM_OPEN,2:4 // ZC_MERGE_ITEM_OPEN
+0x096E,-1,mergeitem_req,2:4 // CZ_REQ_MERGE_ITEM
+0x096F,7,ZC_ACK_MERGE_ITEM,2:4:6:7 // ZC_ACK_MERGE_ITEM
+0x0974,2,mergeitem_cancel,0 // CZ_CANCEL_MERGE_ITEM
 
 // 2012-05-02aRagexeRE
 0x097d,288 // ZC_ACK_RANKING

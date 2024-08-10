@@ -29,7 +29,7 @@ struct Damage {
 };
 
 //(Used in read pc.c,) attribute table (battle_attr_fix)
-extern int attr_fix_table[4][ELE_NONE][ELE_NONE];
+extern int attr_fix_table[4][ELE_MAX][ELE_MAX];
 
 struct map_session_data;
 struct mob_data;
@@ -49,20 +49,42 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 // ダメージ最終計算
 int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_list *target, int nk, int s_ele, int s_ele_, int64 damage, int left, int flag);
 int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Damage *d,int64 damage,int skill_id,int skill_lv);
-int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
-int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int div_,int skill_id,int skill_lv,int flag);
+int64 battle_calc_gvg_damage(struct block_list *src,struct block_list *bl,int64 damage,int skill_id,int flag);
+int64 battle_calc_bg_damage(struct block_list *src,struct block_list *bl,int64 damage,int skill_id,int flag);
 
-enum {	// 最終計算のフラグ
-	BF_WEAPON	= 0x0001,
-	BF_MAGIC	= 0x0002,
-	BF_MISC		= 0x0004,
-	BF_SHORT	= 0x0010,
-	BF_LONG		= 0x0040,
-	BF_SKILL	= 0x0100,
-	BF_NORMAL	= 0x0200,
-	BF_WEAPONMASK=0x000f,
-	BF_RANGEMASK= 0x00f0,
-	BF_SKILLMASK= 0x0f00,
+/// Flag of the final calculation
+enum e_battle_flag {
+	BF_WEAPON = 0x0001, /// Weapon attack
+	BF_MAGIC = 0x0002, /// Magic attack
+	BF_MISC = 0x0004, /// Misc attack
+
+	BF_SHORT = 0x0010, /// Short attack
+	BF_LONG = 0x0040, /// Long attack
+
+	BF_SKILL = 0x0100, /// Skill attack
+	BF_NORMAL = 0x0200, /// Normal attack
+
+	BF_WEAPONMASK = BF_WEAPON | BF_MAGIC | BF_MISC, /// Weapon attack mask
+	BF_RANGEMASK = BF_SHORT | BF_LONG, /// Range attack mask
+	BF_SKILLMASK = BF_SKILL | BF_NORMAL, /// Skill attack mask
+};
+
+/// Battle check target [Skotlex]
+enum e_battle_check_target {
+	BCT_NOONE = 0x000000, /// No one
+	BCT_SELF = 0x010000, /// Self
+	BCT_ENEMY = 0x020000, /// Enemy
+	BCT_PARTY = 0x040000, /// Party members
+	BCT_GUILDALLY = 0x080000, /// Only allies, NOT guildmates
+	BCT_NEUTRAL = 0x100000, /// Neutral target
+	BCT_SAMEGUILD = 0x200000, /// Guildmates, No Guild Allies
+
+	BCT_ALL = 0x3F0000, /// All targets
+
+	BCT_GUILD = BCT_SAMEGUILD | BCT_GUILDALLY, /// Guild AND Allies (BCT_SAMEGUILD|BCT_GUILDALLY)
+	BCT_NOGUILD = BCT_ALL & ~BCT_GUILD, /// Except guildmates
+	BCT_NOPARTY = BCT_ALL & ~BCT_PARTY, /// Except party members
+	BCT_NOENEMY = BCT_ALL & ~BCT_ENEMY, /// Except enemy
 };
 
 int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay, bool additional_effects);
@@ -78,22 +100,6 @@ struct block_list* battle_getenemyarea(struct block_list *src, int x, int y, int
 
 int battle_gettarget(struct block_list *bl);
 int battle_getcurrentskill(struct block_list *bl);
-
-enum e_battle_check_target
-{//New definitions [Skotlex]
-	BCT_NOONE = 0x000000,
-	BCT_SELF = 0x010000,
-	BCT_ENEMY = 0x020000,
-	BCT_PARTY = 0x040000,
-	BCT_GUILDALLY = 0x080000, // Only allies, NOT guildmates
-	BCT_NEUTRAL = 0x100000,
-	BCT_SAMEGUILD = 0x200000, // No Guild Allies
-	BCT_GUILD = 0x280000, // Guild AND Allies (BCT_SAMEGUILD|BCT_GUILDALLY)
-	BCT_NOGUILD = 0x170000, // This should be (~BCT_GUILD&BCT_ALL)
-	BCT_NOPARTY = 0x3b0000, // This should be (~BCT_PARTY&BCT_ALL)
-	BCT_NOENEMY = 0x3d0000, // This should be (~BCT_ENEMY&BCT_ALL)
-	BCT_ALL = 0x3f0000,
-};
 
 #define	is_boss(bl)	(status_get_class_(bl) == CLASS_BOSS)	// Can refine later [Aru]
 
@@ -657,6 +663,9 @@ extern struct Battle_Config
 	int allow_equip_restricted_item;
 	int guild_leaderchange_delay;
 	int guild_leaderchange_woe;
+	int default_bind_on_equip;
+	int devotion_rdamage_skill_only;
+	int mob_chase_refresh;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

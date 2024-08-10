@@ -40,7 +40,7 @@ bool mapif_elemental_save(struct s_elemental* elem) {
 	return flag;
 }
 
-bool mapif_elemental_load(int elem_id, int char_id, struct s_elemental *elem) {
+bool mapif_elemental_load(int elem_id, uint32 char_id, struct s_elemental *elem) {
 	char* data;
 
 	memset(elem, 0, sizeof(struct s_elemental));
@@ -106,7 +106,7 @@ static void mapif_parse_elemental_create(int fd, struct s_elemental* elem) {
 	mapif_elemental_send(fd, elem, result);
 }
 
-static void mapif_parse_elemental_load(int fd, int elem_id, int char_id) {
+static void mapif_parse_elemental_load(int fd, int elem_id, uint32 char_id) {
 	struct s_elemental elem;
 	bool result = mapif_elemental_load(elem_id, char_id, &elem);
 	mapif_elemental_send(fd, &elem, result);

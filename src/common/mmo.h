@@ -414,7 +414,7 @@ struct global_reg {
 
 //Holds array of global registries, used by the char server and converter.
 struct accreg {
-	int account_id, char_id;
+	uint32 account_id, char_id;
 	int reg_num;
 	struct global_reg reg[MAX_REG_NUM];
 };
@@ -462,8 +462,8 @@ struct s_storage {
 };
 
 struct s_pet {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	int pet_id;
 	short class_;
 	short level;
@@ -480,7 +480,7 @@ struct s_pet {
 struct s_homunculus {	//[orn]
 	char name[NAME_LENGTH];
 	int hom_id;
-	int char_id;
+	uint32 char_id;
 	short class_;
 	int hp,max_hp,sp,max_sp;
 	unsigned int intimacy;	//[orn]
@@ -503,7 +503,7 @@ struct s_homunculus {	//[orn]
 
 struct s_mercenary {
 	int mercenary_id;
-	int char_id;
+	uint32 char_id;
 	short class_;
 	int hp, sp;
 	unsigned int kill_count;
@@ -512,7 +512,7 @@ struct s_mercenary {
 
 struct s_elemental {
 	int elemental_id;
-	int char_id;
+	uint32 char_id;
 	short class_;
 	int hp, max_hp, sp, max_sp;
 	unsigned short batk, matk, amotion;
@@ -521,8 +521,8 @@ struct s_elemental {
 };
 
 struct s_friend {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	char name[NAME_LENGTH];
 };
 
@@ -668,8 +668,8 @@ struct registry {
 };
 
 struct party_member {
-	int account_id;
-	int char_id;
+	uint32 account_id;
+	uint32 char_id;
 	char name[NAME_LENGTH];
 	unsigned short class_;
 	unsigned short map;
@@ -689,7 +689,7 @@ struct party {
 
 struct map_session_data;
 struct guild_member {
-	int account_id, char_id;
+	uint32 account_id, char_id;
 	short hair,hair_color,gender,class_,lv;
 	uint64 exp;
 	int exp_payper;
@@ -716,7 +716,7 @@ struct guild_alliance {
 struct guild_expulsion {
 	char name[NAME_LENGTH];
 	char mes[40];
-	int account_id;
+	uint32 account_id;
 };
 
 struct guild_skill {
@@ -1020,6 +1020,9 @@ enum bound_type {
 	BOUND_PARTY, /// 3 - Party Bound
 	BOUND_CHAR, /// 4 - Character Bound
 	BOUND_MAX,
+
+	BOUND_ONEQUIP = 1, ///< Show notification when item will be bound on equip
+	BOUND_DISPYELLOW = 2, /// Shows the item name in yellow color
 };
 
 enum e_party_member_withdraw {

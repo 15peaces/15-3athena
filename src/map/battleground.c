@@ -379,7 +379,7 @@ int bg_send_xy_timer(int tid, int64 tick, int id, intptr_t data)
  * @return the position (starting at 1).
  * @retval 0 if the queue doesn't exist or the given account ID isn't present in it.
  */
-int bg_id2pos(int queue_id, int account_id)
+int bg_id2pos(int queue_id, uint32 account_id)
 {
 	struct script_queue *queue = script_queue_get(queue_id);
 	if (queue)

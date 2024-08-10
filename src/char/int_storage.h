@@ -11,7 +11,7 @@ int inter_storage_init(void);
 void inter_storage_final(void);
 int inter_storage_save(void);
 int inter_guild_storage_save(void);
-int inter_storage_delete(int account_id);
+int inter_storage_delete(uint32 account_id);
 int inter_guild_storage_delete(int guild_id);
 int inter_storage_parse_frommap(int fd);
 
@@ -22,7 +22,7 @@ extern char guild_storage_txt[1024];
 bool storage_fromstr(char* str, int* account_id, struct storage_data* p);
 int guild_storage_fromstr(char *str,struct guild_storage *p);
 
-bool storage_load(int account_id, struct storage_data* storage);
-bool storage_save(int account_id, struct storage_data* storage);
+bool storage_load(uint32 account_id, struct storage_data* storage);
+bool storage_save(uint32 account_id, struct storage_data* storage);
 
 #endif /* _INT_STORAGE_H_ */

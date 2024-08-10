@@ -656,7 +656,7 @@ int guild_calcinfo(struct guild *g)
 // map serverへの通信
 
 // ギルド作成可否
-int mapif_guild_created(int fd, int account_id, struct guild *g)
+int mapif_guild_created(int fd, uint32 account_id, struct guild *g)
 {
 	WFIFOHEAD(fd, 10);
 	WFIFOW(fd,0) = 0x3830;
@@ -701,7 +701,7 @@ int mapif_guild_info(int fd, struct guild *g)
 }
 
 // メンバ追加可否
-int mapif_guild_memberadded(int fd, int guild_id, int account_id, int char_id, int flag)
+int mapif_guild_memberadded(int fd, int guild_id, uint32 account_id, uint32 char_id, int flag)
 {
 	WFIFOHEAD(fd, 15);
 	WFIFOW(fd,0) = 0x3832;
@@ -715,7 +715,7 @@ int mapif_guild_memberadded(int fd, int guild_id, int account_id, int char_id, i
 }
 
 // 脱退/追放通知
-int mapif_guild_withdraw(int guild_id, int account_id, int char_id, int flag, const char *name, const char *mes)
+int mapif_guild_withdraw(int guild_id, uint32 account_id, uint32 char_id, int flag, const char *name, const char *mes)
 {
 	unsigned char buf[79];
 
@@ -765,7 +765,7 @@ int mapif_guild_broken(int guild_id, int flag)
 }
 
 // ギルド内発言
-int mapif_guild_message(int guild_id, int account_id, char *mes, int len, int sfd)
+int mapif_guild_message(int guild_id, uint32 account_id, char *mes, int len, int sfd)
 {
 	unsigned char buf[2048];
 
@@ -794,7 +794,7 @@ int mapif_guild_basicinfochanged(int guild_id, int type, const DBData data, int 
 }
 
 // ギルドメンバ情報変更通知
-int mapif_guild_memberinfochanged(int guild_id, int account_id, int char_id, int type, const DBData data, int len)
+int mapif_guild_memberinfochanged(int guild_id, uint32 account_id, uint32 char_id, int type, const DBData data, int len)
 {
 	unsigned char buf[4096];
 
@@ -811,7 +811,7 @@ int mapif_guild_memberinfochanged(int guild_id, int account_id, int char_id, int
 }
 
 // ギルドスキルアップ通知
-int mapif_guild_skillupack(int guild_id, int skill_id, int account_id)
+int mapif_guild_skillupack(int guild_id, int skill_id, uint32 account_id)
 {
 	unsigned char buf[14];
 
@@ -930,7 +930,7 @@ int mapif_guild_castle_datasave(int castle_id, int index, int value)
 // map serverからの通信
 
 // ギルド作成要求
-int mapif_parse_CreateGuild(int fd, int account_id, char *name, struct guild_member *master)
+int mapif_parse_CreateGuild(int fd, uint32 account_id, char *name, struct guild_member *master)
 {
 	struct guild *g;
 	int i;
@@ -1043,7 +1043,7 @@ int mapif_parse_GuildAddMember(int fd, int guild_id, struct guild_member *m)
 }
 
 // Delete member from guild
-int mapif_parse_GuildLeave(int fd, int guild_id, int account_id, int char_id, int flag, const char *mes)
+int mapif_parse_GuildLeave(int fd, int guild_id, uint32 account_id, uint32 char_id, int flag, const char *mes)
 {
 	int i, j;
 
@@ -1088,7 +1088,7 @@ int mapif_parse_GuildLeave(int fd, int guild_id, int account_id, int char_id, in
 }
 
 // オンライン/Lv更新
-int mapif_parse_GuildChangeMemberInfoShort(int fd, int guild_id, int account_id, int char_id, int online, int lv, int class_)
+int mapif_parse_GuildChangeMemberInfoShort(int fd, int guild_id, uint32 account_id, uint32 char_id, int online, int lv, int class_)
 {
 	struct guild *g;
 	int i, sum, c;
@@ -1166,7 +1166,7 @@ int mapif_parse_BreakGuild(int fd, int guild_id)
 }
 
 // ギルドメッセージ送信
-int mapif_parse_GuildMessage(int fd, int guild_id, int account_id, char *mes, int len)
+int mapif_parse_GuildMessage(int fd, int guild_id, uint32 account_id, char *mes, int len)
 {
 	return mapif_guild_message(guild_id, account_id, mes, len, fd);
 }
@@ -1200,7 +1200,7 @@ int mapif_parse_GuildBasicInfoChange(int fd, int guild_id, int type, const char 
 }
 
 // ギルドメンバデータ変更要求
-int mapif_parse_GuildMemberInfoChange(int fd, int guild_id, int account_id, int char_id, int type, const char *data, int len)
+int mapif_parse_GuildMemberInfoChange(int fd, int guild_id, uint32 account_id, uint32 char_id, int type, const char *data, int len)
 {
 	int i;
 	struct guild *g;
@@ -1285,7 +1285,7 @@ int mapif_parse_GuildMemberInfoChange(int fd, int guild_id, int account_id, int 
 	return 0;
 }
 
-int inter_guild_sex_changed(int guild_id,int account_id,int char_id, short gender)
+int inter_guild_sex_changed(int guild_id,uint32 account_id,uint32 char_id, short gender)
 {
 	return mapif_parse_GuildMemberInfoChange(0, guild_id, account_id, char_id, GMI_GENDER, (const char*)&gender, sizeof(gender));
 }
@@ -1306,7 +1306,7 @@ int mapif_parse_GuildPosition(int fd, int guild_id, int idx, struct guild_positi
 }
 
 // ギルドスキルアップ要求
-int mapif_parse_GuildSkillUp(int fd, int guild_id, int skill_id, int account_id, int max)
+int mapif_parse_GuildSkillUp(int fd, int guild_id, int skill_id, uint32 account_id, int max)
 {
 	struct guild *g = (struct guild*)idb_get(guild_db, guild_id);
 	int idx = skill_id - GD_SKILLBASE;
@@ -1554,7 +1554,7 @@ int inter_guild_parse_frommap(int fd)
 }
 
 // サーバーから脱退要求（キャラ削除用）
-int inter_guild_leave(int guild_id, int account_id, int char_id)
+int inter_guild_leave(int guild_id, uint32 account_id, uint32 char_id)
 {
 	return mapif_parse_GuildLeave(-1, guild_id, account_id, char_id, 0, "** Character Deleted **");
 }

@@ -37,7 +37,7 @@ enum e_char_delete_restriction {
 };
 
 int memitemdata_to_txt(const struct item items[], int max, int id, int fileswitch);
-int inventory_to_txt(const struct item items[], int max, int char_id);
+int inventory_to_txt(const struct item items[], int max, uint32 char_id);
 
 struct mmo_charstatus* search_character(int aid, int cid);
 struct mmo_charstatus* search_character_byname(char* character_name);
@@ -55,10 +55,10 @@ int char_family(int cid1, int cid2, int cid3);
 
 int char_log(char *fmt, ...);
 
-int request_accreg2(int account_id, int char_id);
-int char_parse_Registry(int account_id, int char_id, unsigned char *buf, int len);
+int request_accreg2(uint32 account_id, uint32 char_id);
+int char_parse_Registry(uint32 account_id, uint32 char_id, unsigned char *buf, int len);
 int save_accreg2(unsigned char *buf, int len);
-int char_account_reg_reply(int fd,int account_id,int char_id);
+int char_account_reg_reply(int fd,uint32 account_id,uint32 char_id);
 
 extern int char_name_option;
 extern char char_name_letters[];

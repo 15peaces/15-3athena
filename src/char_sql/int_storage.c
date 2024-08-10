@@ -123,7 +123,7 @@ void inter_storage_sql_final(void)
 }
 
 // q?f[^?
-void inter_storage_delete(int account_id)
+void inter_storage_delete(uint32 account_id)
 {
 	if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `account_id`='%d'", storage_db, account_id) )
 		Sql_ShowDebug(sql_handle);
@@ -139,7 +139,7 @@ void inter_guild_storage_delete(int guild_id)
 //---------------------------------------------------------
 // packet from map server
 
-bool mapif_load_guild_storage(int fd,int account_id,int guild_id, char flag)
+bool mapif_load_guild_storage(int fd,uint32 account_id,int guild_id, char flag)
 {
 	if( SQL_ERROR == Sql_Query(sql_handle, "SELECT `guild_id` FROM `%s` WHERE `guild_id`='%d'", guild_db, guild_id) )
 		Sql_ShowDebug(sql_handle);
@@ -166,7 +166,7 @@ bool mapif_load_guild_storage(int fd,int account_id,int guild_id, char flag)
 	WFIFOSET(fd, 12);
 	return true;
 }
-void mapif_save_guild_storage_ack(int fd,int account_id,int guild_id,int fail)
+void mapif_save_guild_storage_ack(int fd,uint32 account_id,int guild_id,int fail)
 {
 	WFIFOHEAD(fd,11);
 	WFIFOW(fd,0)=0x3819;
@@ -237,7 +237,7 @@ int mapif_parse_itembound_retrieve(int fd)
 	int j, i=0, s; 
 	bool found=false; 
 	struct item items[MAX_INVENTORY]; 
-	int char_id = RFIFOL(fd,2); 
+	uint32 char_id = RFIFOL(fd,2); 
 	int aid = RFIFOL(fd,6); 
 	int guild_id = RFIFOW(fd,10); 
 

@@ -25,7 +25,7 @@
  * @param[in]   p           pointer to map-sent character achievements.
  * @return number of achievements saved.
  */
-int inter_achievement_tosql(int char_id, struct char_achievements *cp, const struct char_achievements *p)
+int inter_achievement_tosql(uint32 char_id, struct char_achievements *cp, const struct char_achievements *p)
 {
 	StringBuf buf;
 	int i = 0, rows = 0;
@@ -87,7 +87,7 @@ int inter_achievement_tosql(int char_id, struct char_achievements *cp, const str
  * @param[out] cp       pointer to character achievements structure.
  * @return true on success, false on failure.
  */
-bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
+bool inter_achievement_fromsql(uint32 char_id, struct char_achievements *cp)
 {
 	StringBuf buf;
 	char *data;
@@ -149,7 +149,7 @@ bool inter_achievement_fromsql(int char_id, struct char_achievements *cp)
  * @param[in]  char_id Character ID.
  * @param[in]  cp      Pointer to character's achievement data vector.
  */
-static void inter_send_achievements_to_map(int fd, int char_id, const struct char_achievements *cp)
+static void inter_send_achievements_to_map(int fd, uint32 char_id, const struct char_achievements *cp)
 {
 	int i = 0;
 	int data_size = 0;
@@ -186,7 +186,7 @@ DBData inter_achievement_ensure_char_achievements(union DBKey key, va_list args)
  * @param[in] fd       socket descriptor
  * @param[in] char_id  character Id.
  */
-static void inter_achievement_load(int fd, int char_id)
+static void inter_achievement_load(int fd, uint32 char_id)
 {
 	struct char_achievements *cp = NULL;
 
@@ -206,7 +206,7 @@ static void inter_achievement_load(int fd, int char_id)
  */
 static void inter_parse_load_achievements(int fd)
 {
-	int char_id = 0;
+	uint32 char_id = 0;
 
 	/* Read received information from map-server. */
 	RFIFOHEAD(fd);
@@ -222,7 +222,7 @@ static void inter_parse_load_achievements(int fd)
  * @param[in]  char_id      character identifier.
  * @param[out] p            pointer to character achievements vector.
  */
-static void inter_achievement_save(int char_id, struct char_achievements *p)
+static void inter_achievement_save(uint32 char_id, struct char_achievements *p)
 {
 	struct char_achievements *cp = NULL;
 

@@ -2366,6 +2366,7 @@ void script_hardcoded_constants(void)
 	script_set_constant("BF_SKILL", BF_SKILL, false);
 	script_set_constant("BF_NORMAL", BF_NORMAL, false);
 	// Item Bound
+	script_set_constant("BOUND_NONE", BOUND_NONE, false);
 	script_set_constant("BOUND_ACCOUNT", BOUND_ACCOUNT, false);
 	script_set_constant("BOUND_GUILD", BOUND_GUILD, false);
 	script_set_constant("BOUND_PARTY", BOUND_PARTY, false);
@@ -6201,6 +6202,7 @@ BUILDIN_FUNC(checkweight2)
  * getitembound <item id>,<amount>,<type>{,<account ID>}; 
  * getitembound "<item id>",<amount>,<type>{,<account ID>}; 
  * Type: 
+ *	0 - No bound
  *	1 - Account Bound 
  *	2 - Guild Bound 
  *	3 - Party Bound 
@@ -6212,27 +6214,23 @@ BUILDIN_FUNC(getitem) {
 	struct item it;
 	TBL_PC *sd;
 	struct script_data *data;
+	struct item_data *id = NULL;
 
 	data=script_getdata(st,2);
 	get_val(st,data);
 	if( data_isstring(data) )
 	{// "<item name>"
 		const char *name=conv_str(st,data);
-		struct item_data *item_data = itemdb_searchname(name);
-		if( item_data == NULL ) {
+		id = itemdb_searchname(name);
+		if (id == NULL) {
 			ShowError("buildin_getitem: Nonexistant item %s requested.\n", name);
 			return 1; //No item created.
 		}
-		nameid=item_data->nameid;
+		nameid=id->nameid;
 	} else if( data_isint(data) )
 	{// <item id>
 		nameid=conv_num(st,data);
-		//Violet Box, Blue Box, etc - random item pick
-		if( nameid < 0 ) {
-			nameid=itemdb_searchrandomid(-nameid);
-			flag = 1;
-		}
-		if( nameid <= 0 || !itemdb_exists(nameid) ) {
+		if (!(id = itemdb_exists(nameid))) {
 			ShowError("buildin_getitem: Nonexistant item %d requested.\n", nameid);
 			return 1; //No item created.
 		}
@@ -6251,20 +6249,19 @@ BUILDIN_FUNC(getitem) {
 		it.identify=1;
 	else
 		it.identify=itemdb_isidentified(nameid);
+	it.bound = BOUND_NONE;
 
-	if( !strcmp(script_getfuncname(st),"getitembound") ) { 
-		char bound = script_getnum(st,4); 
-		if (bound > BOUND_NONE && bound < BOUND_MAX) {
-			it.bound = bound;
-			if (script_hasdata(st, 5))
-				sd = map_id2sd(script_getnum(st, 5));
-			else
-				sd = script_rid2sd(st); // Attached player
+	if( !strcmp(script_getfuncname(st),"getitembound") ) {
+		char bound = script_getnum(st,4);
+		if (bound < BOUND_NONE || bound >= BOUND_MAX) {
+			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound);
+			return 1;
 		}
-		else { //Not a correct bound type
-			ShowError("script_getitembound: Not a correct bound type! Type=%d\n",bound); 
-			return 1; 
-		} 
+		if (script_hasdata(st, 5))
+			sd = map_id2sd(script_getnum(st, 5));
+		else
+			sd = script_rid2sd(st); // Attached player
+		it.bound = bound;
 	} else if( script_hasdata(st,4) ) 
 		sd=map_id2sd(script_getnum(st,4)); // <Account ID>
 	else
@@ -6274,7 +6271,7 @@ BUILDIN_FUNC(getitem) {
 		return 0;
 
 	//Check if it's stackable.
-	if (!itemdb_isstackable(nameid))
+	if (!itemdb_isstackable2(id))
 		get_count = 1;
 	else
 		get_count = amount;
@@ -6285,7 +6282,7 @@ BUILDIN_FUNC(getitem) {
 			if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT))) {
 				clif_additem(sd, 0, 0, flag);
 				if( pc_candrop(sd,&it) )
-					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 	}
@@ -6294,7 +6291,17 @@ BUILDIN_FUNC(getitem) {
 }
 
 /*==========================================
+ * getitem2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
+ * getitem2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>{,<account ID>};
  *
+ * getitembound2 <item id>,<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>{,<account ID>};
+ * getitembound2 "<item name>",<amount>,<identify>,<refine>,<attribute>,<card1>,<card2>,<card3>,<card4>,<bound type>{,<account ID>};
+ * Type:
+ *	0 - No bound
+ *	1 - Account Bound
+ *	2 - Guild Bound
+ *	3 - Party Bound
+ *	4 - Character Bound
  *------------------------------------------*/
 BUILDIN_FUNC(getitem2) {
 	unsigned short nameid, amount;
@@ -6306,18 +6313,16 @@ BUILDIN_FUNC(getitem2) {
 	TBL_PC *sd;
 	struct script_data *data;
 
-	if( !strcmp(script_getfuncname(st),"getitembound2") ) { 
-		bound = script_getnum(st,11); 
-		if (bound > BOUND_NONE && bound < BOUND_MAX) {
-			if (script_hasdata(st, 12))
-				sd = map_id2sd(script_getnum(st, 12));
-			else
-				sd = script_rid2sd(st); // Attached player
+	if( !strcmp(script_getfuncname(st),"getitembound2") ) {
+		bound = script_getnum(st,11);
+		if (bound < BOUND_NONE || bound >= BOUND_MAX) {
+			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound);
+			return 1;
 		}
-		else {
-			ShowError("script_getitembound2: Not a correct bound type! Type=%d\n",bound); 
-			return 1; 
-		}
+		if (script_hasdata(st, 12))
+			sd = map_id2sd(script_getnum(st, 12));
+		else
+			sd = script_rid2sd(st); // Attached player
 	} else if( script_hasdata(st,11) )
 		sd=map_id2sd(script_getnum(st,11)); // <Account ID>
 	else
@@ -6382,7 +6387,7 @@ BUILDIN_FUNC(getitem2) {
 		item_tmp.bound=bound;
 
 		//Check if it's stackable.
-		if (!itemdb_isstackable(nameid))
+		if (!itemdb_isstackable2(item_data))
 			get_count = 1;
 		else
 			get_count = amount;
@@ -6393,7 +6398,7 @@ BUILDIN_FUNC(getitem2) {
 				if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_SCRIPT))) {
 					clif_additem(sd, 0, 0, flag);
 					if( pc_candrop(sd,&item_tmp) )
-						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 				}
 			}
 		}
@@ -6613,7 +6618,7 @@ BUILDIN_FUNC(makeitem)
 		else
 			item_tmp.identify=itemdb_isidentified(nameid);
 
-		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,0);
+		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,0,0);
 	}
 
 	return 0;
@@ -6686,13 +6691,113 @@ BUILDIN_FUNC(makeitem2) {
 		item_tmp.card[2] = script_getnum(st, 12);
 		item_tmp.card[3] = script_getnum(st, 13);
 
-		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4);
+		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4, 0);
 	}
 	else
 		return 1;
 	return 0;
 }
 
+/** Merges separated stackable items because of guid
+* mergeitem {<char_id>};
+* @param char_id Char ID (Optional)
+* @author [Cydh]
+*/
+BUILDIN_FUNC(mergeitem) {
+	struct map_session_data *sd;
+
+	if (!script_charid2sd(2, sd))
+		return 1;
+
+	clif_merge_item_open(sd);
+	return 0;
+}
+
+/** Merges separated stackable items because of guid (Unofficial)
+* mergeitem2 {<item_id>,{<char_id>}};
+* mergeitem2 {"<item name>",{<char_id>}};
+* @param item Item ID/Name for merging specific item (Optional)
+* @author [Cydh]
+*/
+BUILDIN_FUNC(mergeitem2) {
+	struct map_session_data *sd;
+	struct item *items = NULL;
+	uint16 i, count = 0;
+	int nameid = 0;
+
+	if (!script_charid2sd(3, sd))
+		return 1;
+
+	if (script_hasdata(st, 2)) {
+		struct script_data *data = script_getdata(st, 2);
+		struct item_data *id;
+		get_val(st, data);
+
+		if (data_isstring(data)) {// "<item name>"
+			const char *name = conv_str(st, data);
+			if (!(id = itemdb_searchname(name))) {
+				ShowError("buildin_mergeitem2: Nonexistant item %s requested.\n", name);
+				script_pushint(st, count);
+				return 1;
+			}
+			nameid = id->nameid;
+		}
+		else if (data_isint(data)) {// <item id>
+			nameid = conv_num(st, data);
+			if (!(id = itemdb_exists(nameid))) {
+				ShowError("buildin_mergeitem2: Nonexistant item %d requested.\n", nameid);
+				script_pushint(st, count);
+				return 1;
+			}
+		}
+	}
+
+	for (i = 0; i < MAX_INVENTORY; i++) {
+		struct item *it = &sd->inventory.u.items_inventory[i];
+		if (!it || !it->unique_id || it->expire_time || !itemdb_isstackable(it->nameid))
+			continue;
+		if ((!nameid || (nameid == it->nameid))) {
+			uint8 k;
+			if (!count) {
+				CREATE(items, struct item, 1);
+				memcpy(&items[count++], it, sizeof(struct item));
+				pc_delitem(sd, i, it->amount, 0, 0, LOG_TYPE_NPC);
+				continue;
+			}
+			for (k = 0; k < count; k++) {
+				// Find Match
+				if (&items[k] && items[k].nameid == it->nameid && items[k].bound == it->bound && memcmp(items[k].card, it->card, sizeof(it->card)) == 0) {
+					items[k].amount += it->amount;
+					pc_delitem(sd, i, it->amount, 0, 0, LOG_TYPE_NPC);
+					break;
+				}
+			}
+			if (k >= count) {
+				// New entry
+				RECREATE(items, struct item, count + 1);
+				memcpy(&items[count++], it, sizeof(struct item));
+				pc_delitem(sd, i, it->amount, 0, 0, LOG_TYPE_NPC);
+			}
+		}
+	}
+
+	if (!items) // Nothing todo here
+		return 0;
+
+	// Retrieve the items
+	for (i = 0; i < count; i++) {
+		uint8 flag = 0;
+		if (!&items[i])
+			continue;
+		items[i].id = 0;
+		items[i].unique_id = 0;
+		if ((flag = pc_additem(sd, &items[i], items[i].amount, LOG_TYPE_NPC)))
+			clif_additem(sd, i, items[i].amount, flag);
+	}
+	aFree(items);
+	script_pushint(st, count);
+	return 0;
+}
 
 /// Counts / deletes the current item given by idx.
 /// Used by buildin_delitem_search
@@ -6921,7 +7026,7 @@ BUILDIN_FUNC(delitem)
 
 	if( script_hasdata(st,4) )
 	{
-		int account_id = script_getnum(st,4);
+		uint32 account_id = script_getnum(st,4);
 		sd = map_id2sd(account_id); // <account id>
 		if( sd == NULL )
 		{
@@ -7017,7 +7122,7 @@ BUILDIN_FUNC(delitem2)
 
 	if( script_hasdata(st,11) )
 	{
-		int account_id = script_getnum(st,11);
+		uint32 account_id = script_getnum(st,11);
 		sd = map_id2sd(account_id); // <account id>
 		if( sd == NULL )
 		{
@@ -9490,7 +9595,7 @@ BUILDIN_FUNC(killmonsterall)
 BUILDIN_FUNC(clone)
 {
 	TBL_PC *sd, *msd=NULL;
-	int char_id,master_id=0,x,y, mode = 0, flag = 0, m;
+	uint32 char_id,master_id=0,x,y, mode = 0, flag = 0, m;
 	unsigned int duration = 0;
 	const char *map,*event="";
 
@@ -9929,29 +10034,31 @@ BUILDIN_FUNC(announce)
 	int         fontAlign = script_hasdata(st,7) ? script_getnum(st,7) : 0;     // default fontAlign
 	int         fontY     = script_hasdata(st,8) ? script_getnum(st,8) : 0;     // default fontY
 	
-	if (flag&0x0f) // Broadcast source or broadcast region defined
+	if (flag&(BC_TARGET_MASK | BC_SOURCE_MASK)) // Broadcast source or broadcast region defined
 	{
 		send_target target;
-		struct block_list *bl = (flag&0x08) ? map_id2bl(st->oid) : (struct block_list *)script_rid2sd(st); // If bc_npc flag is set, use NPC as broadcast source
+		struct block_list *bl = (flag&BC_NPC) ? map_id2bl(st->oid) : (struct block_list *)script_rid2sd(st); // If bc_npc flag is set, use NPC as broadcast source
 		if (bl == NULL)
 			return 0;
 		
-		flag &= 0x07;
-		target = (flag == 1) ? ALL_SAMEMAP :
-		         (flag == 2) ? AREA :
-		         (flag == 3) ? SELF :
-		                       ALL_CLIENT;
+		switch (flag&BC_TARGET_MASK) {
+		case BC_MAP:	target = ALL_SAMEMAP;	break;
+		case BC_AREA:	target = AREA;			break;
+		case BC_SELF:	target = SELF;			break;
+		default:		target = ALL_CLIENT;	break; // BC_ALL
+		}
+
 		if (fontColor)
 			clif_broadcast2(bl, mes, (int)strlen(mes)+1, strtol(fontColor, (char **)NULL, 0), fontType, fontSize, fontAlign, fontY, target);
 		else
-			clif_broadcast(bl, mes, (int)strlen(mes)+1, flag&0xf0, target);
+			clif_broadcast(bl, mes, (int)strlen(mes)+1, flag&BC_COLOR_MASK, target);
 	}
 	else
 	{
 		if (fontColor)
 			intif_broadcast2(mes, (int)strlen(mes)+1, strtol(fontColor, (char **)NULL, 0), fontType, fontSize, fontAlign, fontY);
 		else
-			intif_broadcast(mes, (int)strlen(mes)+1, flag&0xf0);
+			intif_broadcast(mes, (int)strlen(mes)+1, flag&BC_COLOR_MASK);
 	}
 	return 0;
 }
@@ -9991,7 +10098,7 @@ BUILDIN_FUNC(mapannounce)
 		return 0;
 
 	map_foreachinmap(buildin_announce_sub, m, BL_PC,
-			mes, strlen(mes)+1, flag&0xf0, fontColor, fontType, fontSize, fontAlign, fontY);
+			mes, strlen(mes)+1, flag&BC_COLOR_MASK, fontColor, fontType, fontSize, fontAlign, fontY);
 	return 0;
 }
 /*==========================================
@@ -10017,7 +10124,7 @@ BUILDIN_FUNC(areaannounce)
 		return 0;
 
 	map_foreachinarea(buildin_announce_sub, m, x0, y0, x1, y1, BL_PC,
-		mes, strlen(mes)+1, flag&0xf0, fontColor, fontType, fontSize, fontAlign, fontY);
+		mes, strlen(mes)+1, flag&BC_COLOR_MASK, fontColor, fontType, fontSize, fontAlign, fontY);
 	return 0;
 }
 
@@ -11978,7 +12085,7 @@ BUILDIN_FUNC(successremovecards)
 
 			if((flag=pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))){	// Ž‚Ä‚È‚¢‚È‚çƒhƒƒbƒv
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 	}
@@ -12009,7 +12116,7 @@ BUILDIN_FUNC(successremovecards)
 		pc_delitem(sd, i, 1, 0, 3, LOG_TYPE_SCRIPT);
 		if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {	// ????????h???b?v
 			clif_additem(sd,0,0,flag);
-			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 		}
 
 		clif_misceffect(&sd->bl,3);
@@ -12057,7 +12164,7 @@ BUILDIN_FUNC(failedremovecards)
 
 				if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {
 					clif_additem(sd,0,0,flag);
-					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 				}
 			}
 		}
@@ -12086,7 +12193,7 @@ BUILDIN_FUNC(failedremovecards)
 
 			if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
 			}
 		}
 		clif_misceffect(&sd->bl,2);
@@ -14125,12 +14232,10 @@ BUILDIN_FUNC(isequippedcnt)
 		for (j=0; j<EQI_MAX; j++) {
 			int index;
 			index = sd->equip_index[j];
-			if(index < 0) continue;
-			if(j == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index) continue;
-			if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index) continue;
-			if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index)) continue;
-			if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index) continue;
-			if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)) continue;
+			if (index < 0)
+				continue;
+			if (pc_is_same_equip_index((enum equip_index)j, sd->equip_index, index))
+				continue;
 			
 			if(!sd->inventory_data[index])
 				continue;
@@ -14186,12 +14291,10 @@ BUILDIN_FUNC(isequipped)
 		for (j=0; j<EQI_MAX; j++)
 		{
 			index = sd->equip_index[j];
-			if(index < 0) continue;
-			if(j == EQI_HAND_R && sd->equip_index[EQI_HAND_L] == index) continue;
-			if(j == EQI_HEAD_MID && sd->equip_index[EQI_HEAD_LOW] == index) continue;
-			if(j == EQI_HEAD_TOP && (sd->equip_index[EQI_HEAD_MID] == index || sd->equip_index[EQI_HEAD_LOW] == index)) continue;
-			if(j == EQI_COSTUME_HEAD_MID && sd->equip_index[EQI_COSTUME_HEAD_LOW] == index) continue;
-			if(j == EQI_COSTUME_HEAD_TOP && (sd->equip_index[EQI_COSTUME_HEAD_MID] == index || sd->equip_index[EQI_COSTUME_HEAD_LOW] == index)) continue;
+			if (index < 0)
+				continue;
+			if (pc_is_same_equip_index((enum equip_index)i, sd->equip_index, index))
+				continue;
 	
 			if(!sd->inventory_data[index])
 				continue;
@@ -15449,14 +15552,14 @@ int buildin_query_sql_sub(struct script_state* st, Sql* handle)
 	if( SQL_ERROR == Sql_QueryStr(handle, query) )
 	{
 		Sql_ShowDebug(handle);
-		script_pushint(st, 0);
+		script_pushint(st, -1);
 		return 1;
 	}
 
 	if( Sql_NumRows(handle) == 0 )
 	{// No data received
 		Sql_FreeResult(handle);
-		script_pushint(st, 0);
+		script_pushint(st, -1);
 		return 0;
 	}
 
@@ -17284,14 +17387,10 @@ BUILDIN_FUNC(unitstopwalk)
 	struct block_list* bl;
 
 	unit_id = script_getnum(st,2);
-
 	bl = map_id2bl(unit_id);
 
-	if (bl != NULL) {
- 		unit_stop_walking(bl,4);
-		if (bl->type == BL_MOB)
- 			((TBL_MOB*)bl)->target_id = 0;
- 	}
+	if (bl != NULL)
+		unit_stop_walking(bl, 0);
  
  	return 0;
  }
@@ -18522,7 +18621,7 @@ BUILDIN_FUNC(instance_announce)
 		
 	for( i = 0; i < instance[instance_id].num_map; i++ )
 		map_foreachinmap(buildin_announce_sub, instance[instance_id].map[i], BL_PC,
-			mes, strlen(mes)+1, flag&0xf0, fontColor, fontType, fontSize, fontAlign, fontY);
+			mes, strlen(mes)+1, flag&BC_COLOR_MASK, fontColor, fontType, fontSize, fontAlign, fontY);
 
 	return 0;
 }
@@ -19441,7 +19540,7 @@ BUILDIN_FUNC(guild_addmember) {
 * @author [Cydh]
 */
 BUILDIN_FUNC(guild_delmember) {
-	int char_id = script_getnum(st,2);
+	uint32 char_id = script_getnum(st,2);
 	TBL_PC *sd = map_charid2sd(char_id);
 
 	// Player is online
@@ -19467,7 +19566,7 @@ BUILDIN_FUNC(guild_delmember) {
 			return 0;
 		}
 		else {
-			int account_id = script_getnum(st,5);
+			uint32 account_id = script_getnum(st,5);
 			unsigned short i;
 			if (g->member[0].account_id == account_id && g->member[0].char_id == char_id) {
 				ShowError("buildin_guild_delmember: Cannot expel guild leader (GID: %d/AID: %d/CID: %d).\n", g->guild_id, account_id, char_id);
@@ -19496,7 +19595,7 @@ BUILDIN_FUNC(guild_delmember) {
 */
 BUILDIN_FUNC(guild_changegm) {
 	int guild_id = script_getnum(st, 2);
-	int char_id = script_getnum(st, 3);
+	uint32 char_id = script_getnum(st, 3);
 	struct guild *g = guild_search(guild_id);
 	TBL_PC *sd = map_charid2sd(char_id);
 
@@ -20483,7 +20582,7 @@ BUILDIN_FUNC(achievement_progress)
 	int obj_idx = script_getnum(st, 3);
 	int progress = script_getnum(st, 4);
 	int incremental = script_getnum(st, 5);
-	int account_id = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
+	uint32 account_id = script_hasdata(st, 6) ? script_getnum(st, 6) : 0;
 	const struct achievement_data *ad = NULL;
 
 	if ((ad = achievement_get(aid)) == NULL) {
@@ -20674,6 +20773,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getitempackage,"i"),
 	BUILDIN_DEF(makeitem,"visii"),
 	BUILDIN_DEF(makeitem2, "visiiiiiiiii"),
+	BUILDIN_DEF(mergeitem,"?"),
+	BUILDIN_DEF(mergeitem2,"??"),
 	BUILDIN_DEF(delitem,"vi?"),
 	BUILDIN_DEF2(delitem,"storagedelitem","vi?"),
 	BUILDIN_DEF2(delitem,"cartdelitem","vi?"),

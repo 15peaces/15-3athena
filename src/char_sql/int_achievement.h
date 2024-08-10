@@ -9,8 +9,8 @@ struct char_achievements;
 
 struct DBMap *char_achievements;
 
-int inter_achievement_tosql(int char_id, struct char_achievements *cp, const struct char_achievements *p);
-bool inter_achievement_fromsql(int char_id, struct char_achievements *cp);
+int inter_achievement_tosql(uint32 char_id, struct char_achievements *cp, const struct char_achievements *p);
+bool inter_achievement_fromsql(uint32 char_id, struct char_achievements *cp);
 DBData inter_achievement_ensure_char_achievements(union DBKey key, va_list args);
 int inter_achievement_parse_frommap(int fd);
 
