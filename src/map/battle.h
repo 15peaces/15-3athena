@@ -666,6 +666,7 @@ extern struct Battle_Config
 	int default_bind_on_equip;
 	int devotion_rdamage_skill_only;
 	int mob_chase_refresh;
+	int magiccrasher_renewal;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

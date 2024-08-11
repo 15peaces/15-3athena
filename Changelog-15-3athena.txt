@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+08/11/2024
+	r470 [15peaces]
+		*Some Item Database updates
+			-Added missing bonus to Lucky_Day item.
+			-Fixed some item types.
+		*Added magiccrasher_renewal battle config.
+			-Set this to yes to use the renewal formular for this skill (Adding MATK to formular).
+			-Default is no.
+		*Some preperations for new item packets.
+			-Added support for ZC_INVENTORY_START / ZC_INVENTORY_END packets.
+			-Added new inventory packet IDs & lengths.
+				-These are not yet full supported!
+
 08/10/2024
 	r469 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn469*.sql files!

@@ -69,17 +69,6 @@
 19623,C_Bijofnil_Wings,Costume Bijofnil Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,477,{},{},{}
 19989,C_Mouton_Life,Costume Mouton Life,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1156,{},{},{}
 
-
-
-
-
-// Re-Test with updated item info.
-
-
-
-
-
-
 //Currently not working / Client Files missing in kRO (renewal versions)
 20244,C_Zealotus_Mask,Costume Zealotus Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,200,{},{},{}
 20245,C_Cat_Paw_Hairpin,Costume Cat Paw Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,447,{},{},{}
@@ -985,7 +974,6 @@
 4877,Speed_of_Light,Speed of Light,6,20,,10,,,,,,,,,,,,,{ /*TODO: Confirm the rate*/ autobonus "{ bonus bAspdRate,100; bonus bFlee,100; bonus2 bHPLossRate,400,1000; bonus2 bSPLossRate,50,1000;}",10,5000,BF_WEAPON,"{ specialeffect2 EF_AGIUP2; }"; },{},{ heal 0,-300; }
 4878,Muscular_Endurance,Muscular Endurance,6,20,,10,,,,,,,,,,,,,{ autobonus2 "{ bonus bDef,1000; bonus2 bAddRace,RC_All,-50; bonus bMatkRate,-50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_GUARD3; }"; },{},{ heal 0,-300; }
 4879,Hawk_Eye,Hawk Eye,6,20,,10,,,,,,,,,,,,,{ autobonus "{ bonus bDex,200; bonus2 bSPLossRate,50,1000; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_BASH3D6; }"; },{},{ heal 0,-300; }
-4880,Lucky_Day,Lucky Day,6,20,,10,,,,,,,,,,,,,{ autobonus "{ bonus bLuk,200; }",10,5000,BF_WEAPON|BF_MAGIC,"{ specialeffect2 1029; }"; },{},{ heal 0,-300; }
 4881,DelayafterAttack4Lv,DelayAfterAttack Lv4,6,10,,,,,,,,,,,,,,,{ bonus bAspdRate,10; bonus bDelayrate,-10; },{},{}
 4882,ATK_+_1%,ATK+1%,6,10,,,,,,,,,,,,,,,{ bonus bAtkRate,1; },{},{}
 4883,MATK_+_1%,MATK+1%,6,10,,,,,,,,,,,,,,,{ bonus bMatkRate,1; },{},{}
@@ -1845,7 +1833,6 @@
 18539,Skull_Cap,Skull Cap,4,40,,200,,5,,1,0xFFFFFFFF,63,2,256,,10,1,713,{ bonus bMatkRate,2; set .@r, getrefine(); if(.@r >= 5) { bonus bMatkRate,3; } if(.@r >= 7) { bonus bMatkRate,3; } },{},{}
 18540,Evil_Mask,Evil Mask,4,20,,1000,,3,,0,0xFFFFFFFF,63,2,513,,10,0,714,{ bonus2 bSPLossRate,1,2000; bonus bAspdRate,1; },{},{}
 18541,Little_Feather_Hat,Little Feather Hat,4,20,,500,,1,,1,0xFFFFFFFF,63,2,256,,30,1,715,{ bonus bDex,2; bonus bCritAtkRate,10; },{},{}
-18542,Love_Guard,Love Guard,4,20,,500,,10,,1,0xFFFFFFFF,63,2,768,,10,1,716,{ bonus bHealPower2,5; bonus bAddItemHealRate,5; bonus bHealPower,(getrefine()>6)?5:2; },{},{}
 18543,Witchs_Hat,Witchs Hat,4,20,,300,,7,,1,0xFFFFFFFF,63,2,256,,20,1,717,{ bonus bMdef,5; bonus bCastrate,(getrefine()>6?10:5); },{},{}
 18544,Blrabbit_Hband,Blrabbit Hband,4,20,,100,,6,,0,0xFFFFFFFF,63,2,256,,30,1,718,{},{},{}
 18545,Whrabbit_Hband,Whrabbit Hband,4,20,,100,,6,,0,0xFFFFFFFF,63,2,256,,30,1,719,{},{},{}
@@ -1856,7 +1843,6 @@
 18550,Asgard_Blessing,Asgard Blessing,4,20,,300,,3,,1,0xFFFFFFFF,63,2,256,,30,1,724,{ bonus bAllStats,2; bonus2 bSubEle,Ele_All,5; bonus2 bHPRegenRate,(MaxHp/100),10000; },{},{}
 18551,Galaxy_Circlet,Galaxy Circlet,4,20,,1000,,5,,1,0xFFFFFFFF,63,2,256,,50,1,725,{ set .@r, getrefine(); set .@a, .@r*10; set .@b, .@r/2; bonus bMdef,5; bonus bMaxHP,.@a; bonus bMaxSP,.@a; bonus2 bSubEle,Ele_Earth,.@b; bonus2 bSubEle,Ele_Fire,.@b; bonus2 bSubEle,Ele_Water,.@b; },{},{}
 18552,Proba_Angel_Blessing,Proba Angel Blessing,4,20,,1200,,0,,1,0xFFFFFFFF,63,2,256,,10,1,444,{ bonus bLuk,2; },{},{}
-18553,Mini_Tree,Mini Tree,4,20,,50,,5,,0,0xFFFFFFFF,63,2,256,,0,1,727,{ bonus2 bResEff,Eff_Stun,20; bonus2 bResEff,Eff_Curse,20; bonus2 bResEff,Eff_Blind,20; bonus2 bResEff,Eff_Confusion,20; bonus2 bAddMonsterDropItem,12130,300; bonus2 bAddMonsterDropItem,12130,644; },{},{}
 18568,Humming_Bird,Humming Bird,4,20,,100,,3,,0,0xFFFFFFFF,63,2,256,,10,0,702,{ bonus bMdef,6; },{},{}
 18573,White_Feather,White Feather,4,20,,500,,2,,1,0xFFFFFFFF,63,2,256,,30,1,741,{ set .@r, getrefine(); if(.@r<5){ bonus bHit,20; bonus bMaxHPrate,-10; } else if(.@r<7){ bonus bHit,10; } else if(.@r<9){ bonus bHit,7;bonus bMaxHPrate,3; } else { bonus bHit,4;bonus bMaxHPrate,4; } },{},{}
 18574,Lord_of_Death,Lord of Death,4,20,,1000,,10,,1,0xFFFFFFFF,63,2,256,,70,1,742,{ bonus bMdef,5; set .@r, getrefine(); bonus2 bAddClass,Class_Boss,(.@r>5?.@r+5:10); bonus2 bMagicAddClass,Class_Boss,(.@r>5?.@r+5:10); bonus2 bSubClass,Class_Normal,-5; },{},{}
@@ -1908,6 +1894,7 @@
 18620,Heart_Eye_Patch,Heart Eyepatch,4,5,,50,,2,,0,0xFFFFFFFF,63,2,512,,20,1,779,{},{},{}
 
 // New Items (Renewal)
+18553,Mini_Tree,Mini Tree,5,20,,50,,5,,0,0xFFFFFFFF,63,2,256,,0,1,727,{ bonus2 bResEff,Eff_Stun,20; bonus2 bResEff,Eff_Curse,20; bonus2 bResEff,Eff_Blind,20; bonus2 bResEff,Eff_Confusion,20; bonus2 bAddMonsterDropItem,12130,300; bonus2 bAddMonsterDropItem,12130,644; },{},{}
 18554,King_Prawn_Hat,King Prawn Hat,5,20,,1000,,8,,0,0xFFFFFFFF,63,2,256,,0,0,728,{ bonus2 bAddItemGroupHealRate,IG_Fish,100; },{},{}
 18555,General_Helmet,General Helmet,5,20,,200,,3,,1,0xFFFFFFFF,63,2,256,,10,1,729,{ bonus bMdef,3; bonus2 bAddRace,RC_Dragon,5; bonus2 bMagicAddRace,RC_Dragon,5; bonus2 bSubRace,RC_Dragon,5; bonus3 bAddMonsterDropItem,7444,RC_Dragon,2; },{},{}
 18556,Angel_Helmet,Angel Helmet,5,0,,0,,0,,0,0xFFFFFFFF,63,2,512,,0,0,3,{ bonus3 bAddMonsterIdDropItem,6464,2220,310; },{},{}
@@ -2967,7 +2954,7 @@
 4877,Speed_Of_Light,Speed of Light,6,20,,10,,,,,,,,,,,,,{ /*TODO: Confirm the rate*/ autobonus "{ bonus bAspdRate,100; bonus bFlee,100; bonus2 bHPLossRate,400,1000; bonus2 bSPLossRate,50,1000;}",10,5000,BF_WEAPON,"{ specialeffect2 EF_AGIUP2; }"; },{},{ heal 0,-300; }
 4878,Muscle_Fool,Muscle Fool,6,20,,10,,,,,,,,,,,,,{ autobonus2 "{ bonus bVit,200; bonus2 bAddRace,RC_All,-50; bonus bMatkRate,-50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_GUARD3; }"; },{},{ heal 0,-300; }
 4879,Hawkeye,Hawkeye,6,20,,10,,,,,,,,,,,,,{ autobonus "{ bonus bDex,200; bonus2 bSPLossRate,50,1000; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_BASH3D6; }"; },{},{ heal 0,-300; }
-4880,Lucky_Day,Lucky Day,6,20,,10,,,,,,,,,,,,,{ autobonus "{ bonus bLuk,200; }",10,5000,BF_WEAPON|BF_MAGIC,"{ specialeffect2 EF_DANCE_BLADE_ATK; }"; },{},{ heal 0,-300; }
+4880,Lucky_Day,Lucky Day,6,0,,0,,,,,,,,,,,,,{ autobonus "{ bonus bLuk,200; bonus2 bAddMonsterDropItem,7444,10; }",15,5000,BF_WEAPON|BF_MAGIC,"{ specialeffect2 EF_MVP; showscript \"LUCKY MAX !!\"; }"; autobonus2 "{ bonus bLuk,200; bonus2 bAddMonsterDropItem,7444,1; }",1,5000,BF_WEAPON|BF_MAGIC,"{ specialeffect2 EF_MVP; showscript \"LUCKY MAX !!\"; }"; },{},{}
 4881,Attack_Delay_4,Attack Delay 4,6,10,,,,,,,,,,,,,,,{ bonus bAspdRate,10; },{},{}
 4882,Atk1p,ATK + 1%,6,10,,,,,,,,,,,,,,,{ bonus bAtkRate,1; },{},{}
 4883,Matk1p,MATK + 1%,6,10,,,,,,,,,,,,,,,{ bonus bMatkRate,1; },{},{}

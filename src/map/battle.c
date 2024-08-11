@@ -2389,7 +2389,7 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 	{
 		i = (is_attack_critical(wd, src, target, skill_id, skill_lv, false) ? 1 : 0) |
 			(is_skill_using_arrow(src, skill_id) ? 2 : 0) |
-			(skill_id == HW_MAGICCRASHER ? 4 : 0) |
+			((!battle_config.magiccrasher_renewal && skill_id == HW_MAGICCRASHER) ? 4 : 0) |
 			(!skill_id && sc && sc->data[SC_CHANGE] ? 4 : 0) |
 			(skill_id == MO_EXTREMITYFIST ? 8 : 0) |
 			(sc && sc->data[SC_WEAPONPERFECTION] ? 8 : 0);
@@ -4187,6 +4187,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		int64 bonus_damage = battle_calc_skill_constant_addition(wd, src, target, skill_id, skill_lv); // other skill bonuses
 
 		ATK_ADD(wd.damage, wd.damage2, bonus_damage);
+
+		if (battle_config.magiccrasher_renewal && skill_id == HW_MAGICCRASHER) { // Add weapon attack for MATK onto Magic Crasher
+			struct status_data *sstatus = status_get_status_data(src);
+
+			if (sstatus->matk_max > sstatus->matk_min) {
+				ATK_ADD(wd.damage, wd.damage2, sstatus->matk_min + rnd() % (sstatus->matk_max - sstatus->matk_min));
+			}
+			else
+				ATK_ADD(wd.damage, wd.damage2, sstatus->matk_min);
+		}
 		
 		// add any miscellaneous player ATK bonuses	
 		if (sd && skill_id && (i = pc_skillatk_bonus(sd, skill_id))) {
@@ -7067,6 +7077,7 @@ static const struct _battle_data {
 	{ "default_bind_on_equip",              &battle_config.default_bind_on_equip,           BOUND_CHAR, BOUND_NONE, BOUND_MAX - 1, },
 	{ "devotion_rdamage_skill_only",        &battle_config.devotion_rdamage_skill_only,     1,      0,      1,				},
 	{ "monster_chase_refresh",              &battle_config.mob_chase_refresh,               1,      0,      30,				},
+	{ "magiccrasher_renewal",				&battle_config.magiccrasher_renewal,			0,      0,      1,				},
 		//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

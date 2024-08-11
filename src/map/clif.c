@@ -80,6 +80,13 @@ enum mail_type {
 };
 #endif
 
+enum e_inventory_type {
+	INVTYPE_INVENTORY = 0,
+	INVTYPE_CART = 1,
+	INVTYPE_STORAGE = 2,
+	INVTYPE_GUILD_STORAGE = 3,
+};
+
 /** Converts item type to display it on client if necessary.
 * @param nameid: Item ID
 * @return item type. For IT_PETEGG will be displayed as IT_ARMOR. If Shadow Weapon of IT_SHADOWGEAR as IT_WEAPON and else as IT_ARMOR
@@ -2621,7 +2628,14 @@ void clif_item_sub_v5(unsigned char *buf, int n, int idx, struct item *i, struct
 	int offset = 0;
 
 	WBUFW(buf, n) = idx; //index
+
+#if PACKETVER < 20181002
 	WBUFW(buf, n + 2) = (id->view_id > 0) ? id->view_id : i->nameid;
+#else
+	WBUFL(buf, n + 2) = (id->view_id > 0) ? id->view_id : i->nameid;
+	n = n + 2;
+#endif
+
 	WBUFB(buf, n + 4) = itemtype(id->nameid);
 
 	if (!normal)
@@ -2691,6 +2705,40 @@ void clif_item_sub(unsigned char *buf, int n, int idx, struct item *i, struct it
 #endif
 }
 
+static void clif_inventoryStart(struct map_session_data *sd, enum e_inventory_type type, const char *name) {
+#if PACKETVER >= 20181002
+	nullpo_retv(sd);
+	nullpo_retv(name);
+
+	char buf[29];
+	memset(buf, 0, sizeof(buf));
+
+	int strLen = (int)safestrnlen(name, 24) + 1;
+	if (strLen > 24)
+		strLen = 24;
+	const int len = 5+strLen;
+
+	WBUFW(buf, 0) = 0x0b08;
+	WBUFW(buf, 2) = len;
+	WBUFB(buf, 4) = type;
+	safestrncpy(WBUFP(buf, 5), name, strLen);
+	clif_send(buf, len, &sd->bl, SELF);
+#endif
+}
+
+static void clif_inventoryEnd(struct map_session_data *sd, enum e_inventory_type type) {
+#if PACKETVER >= 20181002
+	nullpo_retv(sd);
+
+	char buf[4];
+
+	WBUFW(buf, 0) = 0x0b0b;
+	WBUFB(buf, 2) = type;
+	WBUFB(buf, 3) = 0;
+	clif_send(buf, packet_len(0x0b0b), &sd->bl, SELF);
+#endif
+}
+
 void clif_favorite_item(struct map_session_data* sd, unsigned short index);
 
 //Unified inventory function which sends all of the inventory (requires two packets, one for equipable items and one for stackable ones. [Skotlex]
@@ -2699,14 +2747,22 @@ void clif_inventorylist(struct map_session_data *sd) {
 	unsigned char *buf;
 	unsigned char *bufe;
 
+#if PACKETVER >= 20181002
+	enum e_inventory_type type = INVTYPE_INVENTORY;
+
+	clif_inventoryStart(sd, type, "");
+#endif
+
 #if PACKETVER < 5
 	const int s = 10; //Entry size.
 #elif PACKETVER < 20080102
 	const int s = 18;
 #elif PACKETVER < 20120925
 	const int s = 22;
-#else
+#elif PACKETVER < 20181002
 	const int s = 24;
+#else
+	const int s = 26;
 #endif
 #if PACKETVER < 20071002
 	const int se = 20;
@@ -2716,8 +2772,10 @@ void clif_inventorylist(struct map_session_data *sd) {
 	const int se = 28;
 #elif PACKETVER < 20150226
 	const int se = 31;
-#else
+#elif PACKETVER < 20181002
 	const int se = 57;
+#else
+	const int se = 59;
 #endif
 
 	buf = (unsigned char*)aMalloc(MAX_INVENTORY * s + 4);
@@ -2746,8 +2804,10 @@ void clif_inventorylist(struct map_session_data *sd) {
 		WBUFW(buf,0)=0x1ee;
 #elif PACKETVER < 20120925
 		WBUFW(buf,0)=0x2e8;
-#else
+#elif PACKETVER < 20181002
 		WBUFW(buf,0)=0x991;
+#else
+		WBUFW(buf,0)=0xb09;
 #endif
 		WBUFW(buf,2)=4+n*s;
 		clif_send(buf, WBUFW(buf,2), &sd->bl, SELF);
@@ -2762,8 +2822,10 @@ void clif_inventorylist(struct map_session_data *sd) {
 		WBUFW(bufe,0)=0x2d0;
 #elif PACKETVER < 20150226
 		WBUFW(bufe,0)=0x992;
-#else
+#elif PACKETVER < 20181002
 		WBUFW(bufe,0)=0xa0d;
+#else
+		WBUFW(buf,0)=0xb0a;
 #endif
 		WBUFW(bufe,2)=4+ne*se;
 		clif_send(bufe, WBUFW(bufe,2), &sd->bl, SELF);
@@ -2780,10 +2842,18 @@ void clif_inventorylist(struct map_session_data *sd) {
 
 	if( buf ) aFree(buf);
 	if( bufe ) aFree(bufe);
+
+#if PACKETVER >= 20181002
+	clif_inventoryEnd(sd, type);
+#endif
 }
 
 //Required when items break/get-repaired. Only sends equippable item list.
+// TODO: update for newer clients lager...
 void clif_equiplist(struct map_session_data *sd) {
+#if PACKETVER > 20181002
+	clif_inventorylist(sd);
+#else
 	int i,n,fd = sd->fd;
 	unsigned char *buf;
 #if PACKETVER < 20071002
@@ -2824,6 +2894,7 @@ void clif_equiplist(struct map_session_data *sd) {
 		WBUFW(buf,2)=4+n*cmd;
 		WFIFOSET(fd,WFIFOW(fd,2));
 	}
+#endif
 }
 
 void clif_storagelist(struct map_session_data* sd, struct item* items, int items_length)
@@ -22089,7 +22160,7 @@ void packetdb_readdb(void)
 	    0,  0,  7,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0,  0,  0,  2,
 	   10,  0,  0,  0, 11,  0,  0, 32,  0,  0,  0,  0,  0,  0,  0,  0,
 //#0x0B00
-	    8, 40,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,
+	    8, 40,  0,  0,  0,  0,  0,  0,  0, -1, -1,  4,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,
