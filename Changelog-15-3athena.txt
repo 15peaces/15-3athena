@@ -6,6 +6,16 @@
 //			--More Details.
 //========================================
 
+08/14/2024
+	r471 [15peaces]
+		*Spell Fist will now double damage with Double Attack.
+		*Some more clean ups to skills that have a sliding effect.
+		*Adjusted Falcon Assault to take arrow elements into effect.
+		*Some fixes to storages.
+			-It is possible to use teleport with the storage window open.
+			-Storage will be restored after teleport usage.
+		*Added missing baselevel requirement check to pc_is_taekwon_ranker macro.
+
 08/11/2024
 	r470 [15peaces]
 		*Some Item Database updates

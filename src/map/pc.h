@@ -1133,8 +1133,8 @@ void pc_itemcd_do(struct map_session_data *sd, bool load);
 void pc_damage_log_add(struct map_session_data *sd, int id);
 void pc_damage_log_clear(struct map_session_data *sd, int id);
 
-/// Check if player is Taekwon Ranker and the level is >= 90 (battle_config.taekwon_ranker_min_lv)
-#define pc_is_taekwon_ranker(sd) (((sd)->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && pc_famerank((sd)->status.char_id,MAPID_TAEKWON))
+/// Check if player is Taekwon Ranker and the level is >= 90
+#define pc_is_taekwon_ranker(sd) (((sd)->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && (sd)->status.base_level >= 90 && pc_famerank((sd)->status.char_id,MAPID_TAEKWON))
 
 uint64 pc_generate_unique_id(struct map_session_data *sd); // Unique Item ID
 

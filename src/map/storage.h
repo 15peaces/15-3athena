@@ -24,6 +24,7 @@ void storage_storageget(struct map_session_data *sd,int index,int amount);
 void storage_storageaddfromcart(struct map_session_data *sd,int index,int amount);
 void storage_storagegettocart(struct map_session_data *sd,int index,int amount);
 void storage_storageclose(struct map_session_data *sd);
+void storage_sortitem(struct item* items, unsigned int size);
 void do_init_storage(void);
 void do_final_storage(void);
 void do_reconnect_storage(void);

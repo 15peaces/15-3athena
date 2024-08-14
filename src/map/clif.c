@@ -10215,6 +10215,34 @@ void clif_disp_overheadcolor(struct block_list* bl, uint32 color, const char *ms
 	clif_send(buf, WBUFW(buf,2), bl, AREA_CHAT_WOC);
 }
 
+/**
+ * Notifies the client that the storage window is still open
+ *
+ * Should only be used in cases where the client closed the
+ * storage window without server's consent
+ */
+void clif_refresh_storagewindow(struct map_session_data *sd) {
+	// Notify the client that the storage is open
+	if (sd->state.storage_flag == 1) {
+		storage_sortitem(sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
+		clif_storagelist(sd, sd->storage.u.items_storage, ARRAYLENGTH(sd->storage.u.items_storage));
+		clif_updatestorageamount(sd, sd->storage.amount, MAX_STORAGE);
+	}
+	// Notify the client that the gstorage is open otherwise it will
+	// remain locked forever and nobody will be able to access it
+	if (sd->state.storage_flag == 2) {
+		struct s_storage *gstor = guild2storage2(sd->status.guild_id);
+
+		if (!gstor) // Shouldn't happen. The information should already be at the map-server
+			intif_request_guild_storage(sd->status.account_id, sd->status.guild_id);
+		else {
+			storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+			clif_storagelist(sd, gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+			clif_updatestorageamount(sd, gstor->amount, MAX_GUILD_STORAGE);
+		}
+	}
+}
+
 // refresh the client's screen, getting rid of any effects
 void clif_refresh(struct map_session_data *sd)
 {
@@ -10288,6 +10316,7 @@ void clif_refresh(struct map_session_data *sd)
 		pc_disguise(sd, 0);
 		pc_disguise(sd, disguise);
 	}
+	clif_refresh_storagewindow(sd);
 }
 
 
@@ -12989,10 +13018,6 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 
 		skill_id != SU_GROOMING && sd->state.storage_flag && !(inf&INF_SELF_SKILL)) //SELF skills can be used with the storage open
 		return;
 
-	//Some self skills need to close the storage to work properly
-	if (skill_id == AL_TELEPORT && sd->state.storage_flag)
-		storage_storageclose(sd);
-
 	if( pc_issit(sd) )
 		return;
 
@@ -13243,7 +13268,8 @@ void clif_parse_UseSkillMap(int fd, struct map_session_data* sd) {
 	if( sd->sc.data[SC__MANHOLE] )
 		return;
 
-	if( pc_cant_act(sd) )
+	//It is possible to use teleport with the storage window open.
+	if (pc_cant_act(sd) && !sd->state.storage_flag && skill_id != AL_TELEPORT)
 	{
 		sd->menuskill_id = sd->menuskill_val = 0;
 		return;

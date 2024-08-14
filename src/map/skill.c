@@ -4529,8 +4529,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		unsigned int dir = map_calc_dir(bl, src->x, src->y);
 
 		// teleport to target (if not on WoE grounds)
-		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1) )
+		if (!map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1))
+		{
 			clif_slide(src, bl->x, bl->y);
+			clif_fixpos(src);
+		}
 
 		// cause damage and knockback if the path to target was a straight one
 		if( path )
@@ -5280,8 +5283,10 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{	//You don't move on GVG grounds.
 			short x, y;
 			map_search_freecell(bl, 0, &x, &y, 1, 1, 0);
-			if (unit_movepos(src, x, y, 0, 0))
-				clif_slide(src,src->x,src->y);
+			if (unit_movepos(src, x, y, 0, 0)) {
+				clif_slide(src, src->x, src->y);
+				clif_fixpos(src);
+			}
 		}
 		if ( skill_id == NJ_KIRIKAGE )
 			status_change_end(src, SC_HIDING, INVALID_TIMER);
@@ -12979,10 +12984,14 @@ int skill_castend_map (struct map_session_data *sd, short skill_id, const char *
 	{
 	case AL_TELEPORT:
 	case ALL_ODINS_RECALL:
+		//The storage window is closed automatically by the client when there's
+		//any kind of map change, so we need to restore it automatically.
 		if(strcmp(map,"Random")==0)
 			pc_randomwarp(sd,CLR_TELEPORT);
 		else if (sd->menuskill_val > 1 || skill_id == ALL_ODINS_RECALL) //Need lv2 to be able to warp here.
 			pc_setpos(sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
+
+		clif_refresh_storagewindow(sd);
 		break;
 
 	case AL_WARP:

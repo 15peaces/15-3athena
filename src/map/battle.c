@@ -5150,8 +5150,16 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	s_ele = skill_get_ele(skill_id, skill_lv);
 	if (s_ele < 0 && s_ele != -3) //Attack that takes weapon's element for misc attacks? Make it neutral [Skotlex]
 		s_ele = ELE_NEUTRAL;
-	else if (s_ele == -3) //Use random element
-		s_ele = rnd()%ELE_ALL;
+	else if (s_ele == -3) { //Use random element
+		if (skill_id == SN_FALCONASSAULT) {
+			if (sstatus->rhw.ele && !status_get_attack_sc_element(src, status_get_sc(src)))
+				s_ele = sstatus->rhw.ele;
+			else
+				s_ele = status_get_attack_sc_element(src, status_get_sc(src));
+		}
+		else
+			s_ele = rnd() % ELE_ALL;
+	}
 
 	//Skill Range Criteria
 	md.flag |= battle_range_type(src, target, skill_id, skill_lv);
@@ -5868,8 +5876,10 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 		if( sc->data[SC_SPELLFIST] ) 
 		{
-			if( --( sc->data[SC_SPELLFIST]->val1 ) >= 0 )
-				wd = battle_calc_attack( BF_MAGIC,src,target,sc->data[SC_SPELLFIST]->val3,sc->data[SC_SPELLFIST]->val4,flag );
+			if (--(sc->data[SC_SPELLFIST]->val1) >= 0) {
+				wd = battle_calc_attack(BF_MAGIC, src, target, sc->data[SC_SPELLFIST]->val3, sc->data[SC_SPELLFIST]->val4, flag);
+				DAMAGE_DIV_FIX(wd.damage, wd.div_); // Double the damage for multiple hits.
+			}
 			else
 				status_change_end(src,SC_SPELLFIST,-1);
 		}
