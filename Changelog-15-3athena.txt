@@ -6,6 +6,13 @@
 //			--More Details.
 //========================================
 
+08/16/2024
+	r472 [15peaces]
+		*Added some checks to status_damage function.
+		*Some cleaning.
+		*Fixed bSetDefRace and bSetMDefRace not zeroing out values.
+		*Updated the display message for using items that have a delay.
+
 08/14/2024
 	r471 [15peaces]
 		*Spell Fist will now double damage with Double Attack.
@@ -9694,8 +9701,9 @@
 		*Added full support for the 2012-04-10aRagexeRE client.
 		*Completed the support for the new character creation system.
 			-Characters made will start out with all stats set to 1 and have 48 stat points to use.
-		* PACKET_VER is now set to 20120410 since the recommended client to use is 2012-04-10aRagexeRE and is the client we're doing development with.
+		*PACKET_VER is now set to 20120410 since the recommended client to use is 2012-04-10aRagexeRE and is the client we're doing development with.
 
 03/03/2014
 	r2 [15peaces]
-	*Added eAthena revision 15265 base base version. This will be updated later as needed.
+		*Added eAthena revision 15265 base base version. This will be updated later as needed.
+	

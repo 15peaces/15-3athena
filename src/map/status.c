@@ -1430,6 +1430,8 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	int hp = (int)cap_value(dhp, INT_MIN, INT_MAX);
 	int sp = (int)cap_value(dsp, INT_MIN, INT_MAX);
 
+	nullpo_ret(target);
+
 	if(sp && !(target->type&BL_CONSUME))
 		sp = 0; //Not a valid SP target.
 
@@ -1447,7 +1449,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return (int)skill_unit_ondamaged((struct skill_unit *)target, src, hp, gettick());
 
 	status = status_get_status_data(target);
-	if( status == &dummy_status )
+	if(!status || status == &dummy_status)
 		return 0;
 
 	if ((unsigned int)hp >= status->hp) {
@@ -3164,6 +3166,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->add_drop)
 		+ sizeof(sd->itemhealrate)
 		+ sizeof(sd->subele2)
+		+ sizeof(sd->def_set_race)
+		+ sizeof(sd->mdef_set_race)
 	);
 
 	memset(&sd->bonus, 0, sizeof(sd->bonus));

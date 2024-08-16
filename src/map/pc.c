@@ -5434,10 +5434,10 @@ uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, int64 tic
 				int64 e_tick = DIFF_TICK(sd->item_delay[i].tick, tick) / 1000;
 				char e_msg[CHAT_SIZE_MAX];
 				if (e_tick > 99)
-					sprintf(e_msg, msg_txt(sd,802), // Able to use %.1f min later.
+					sprintf(e_msg, msg_txt(sd,802), // Item Failed. [%s] is cooling down. Wait %.1f minutes.
 						itemdb_jname(sd->item_delay[i].nameid), (double)e_tick / 60);
 				else
-					sprintf(e_msg, msg_txt(sd,803), // Able to use %d sec later.
+					sprintf(e_msg, msg_txt(sd,803), // Item Failed. [%s] is cooling down. Wait %.1f seconds.
 						itemdb_jname(sd->item_delay[i].nameid), e_tick + 1);
 				clif_displaymessagecolor(sd, e_msg, COLOR_YELLOW);
 				return 1; // Delay has not expired yet
