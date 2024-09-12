@@ -6,6 +6,120 @@
 //			--More Details.
 //========================================
 
+09/12/2024
+	r473 [15peaces]
+		*Field Manuals (SC_EXPBOOST and SC_JEXPBOOST) now increase EXP gained from NPC quests (through the getexp script command).
+		*Fixed HP_BASILICA.		
+			-It won't crash the map-server anymore on changing maps.
+		*Added support for UF_NOKNOCKBACK flag in skill_unit_db.
+			-Also moved UF_SINGLEANIMATION flag to 0x2000. It is the same flag as rAs UF_RANGEDSINGLEUNIT so it is easier to port skills from there if you want to. You won't need to re-check and switch the skill unit flags for them.
+		*Fixed knockback direction for AC_SHOWER, now using target to attacker direction.
+		*Various cleanups & fixing.
+			-Added and cleaned up comments.
+			-Added checks to prevent map server crashes.
+			-Some Rebellion fixes.
+			-Fixed some Basilica bugs.
+			-Fixed potential map server crashes
+		*Re-Added support for the min_npc_vending_distance battle config...
+		*Fixed an issue where no item-granded drops are dropped anymore.
+		*Added some support for the CZ_PARTY_CONFIG.
+			-/refuse is not yet working.
+		*Added 'spawn_direction' config to client.conf for keeping a character's face direction when teleporting/changing maps/logging in. Default is always North (official).
+		*Reverted some parts of the recent Super Novice updates..
+			-follow-up 9df96cf
+			-this caused some issues with some renewal class limits.			
+		*Merged config option knockback_left from rathena
+			-Now the default direction is "east" and consequently the knockback direction is "west" when standing
+				--This means if the source cell (ground target center or position of caster) is on the same cell as the target, it will be knocked back to the west
+				--This also can effect other things like how an object is placed when cast on the cell you are currently standing on
+			-If you disable the option it will use the old behavior and use the direction of the unit as default direction (and backwards as knock direction)
+			-Special thanks to @rathena
+		*Optimized the knockback / instant movement code
+			-skill_blown will call clif_blown and ensures the correct client information already, so it's no longer necessary to manually call clif_slide and clif_fixpos after it
+			-replaced all calls of clif_slide and then clif_fixpos in row with a single call of clif_blown, makes the code look a lot cleaner
+		*Fixed the reflected magic damage to always hit the target and not the paladin when it's not reflected by kaite.
+		*Fixed npcwalkto script command.
+			-Also some updates to npc's status data handling.
+		*SC_BLEEDING is now attached to caster to give exp.
+		*Restricted skill_trap_type config to GvG only.
+		*Fixed chorus skills were not checking the partner condition.
+			-Add kind of handler in skill_check_condition_castbegin for group check and move some from unit_skilluse_id2 (wich not really meant for checks)
+		*Fixed map crash when a monster uses GS_FULLBUSTER.
+		*Maximize Power no longer stops SP regeneration.
+		*MC_VENDING/ALL_BUYING_STORE now immediately fails when it cannot be used on this map/cell.
+		*Added support for some NPC_ skills.
+		*Revert a recent change, wrong commented line makes misc damage won't be relected.
+		*Fixed 'devotion_rdamage' doesn't work for Magic Skills.
+			-Note: When this active to reflect magic damage, it still displays dummy damage value on devoted player, and this is custom config at first place. :P			
+		*Official Icewall implementation and other fixes
+			-Implemented the official icewall characteristic that monsters can only leave an icewall cell to the west or south, the changes include:
+				--The "sight" path check no longer checks for the current cell so standing on an icewall allows you to see/attack into any direction
+				--The path finding will still ignore the current cell as before but the walk routine will not allow to walk east or north while standing on an icewall cell
+				--This leads monsters in the situation where they go through an AI loop not allowing them to escape the icewall (if their target is north or east of them)
+				--Monster in this situation will use idle skills and if they get attacked will use their rudeattacked skills if available, similar to traps like Spiderweb
+				--Added a configuration icewall_walk_block that allows to configure how long a monster should go through the AI loop before the server allows it any movement, this "safety" system is official and seems to equal about 75 AI loops; if you want 
+				--to disable the whole icewall system so that monsters don't get stuck in icewall at all, just set this to 0
+			-Implemented the official calculation for "direction"; now you will be considered horizontal/vertical/diagonally aligned with a target cell in the exact same way as on official servers, this is for example used to determine whether an icewall or a 
+			-firewall should be horizontal, vertical or diagonal; the only thing that is still unofficial is the default direction (officially always "west"); effectively now there are more situations considered diagonal than before
+			-Further cleanups on the idle skill use code for immobile monsters and monsters near a player but without a target (now skill using will always go via mob_unlocktarget)
+				--This also fixes that monsters switched to idle mode and start to use idle skills one second too late
+		*Warp portal no longer ignores knock back and snap's unit positioning.
+		*Fixed (assistant/slave)summons/clone, where they dissappeared when going up to a nobranch mapflag map.
+		*'npcskill' now uses AREA_SIZE as maximum distance rather than using skill distance.
+		*Updated the unit engine to cache attacker count rather than utilise CPU intensive block iterations.
+			-This update removes two unofficial settings, nothing that will go amiss
+		*Fixed unit_teleport_timer not removing an unnecessary timer.
+		*Fixed teleport typo causing some crashs.
+		*Updated monster skill use behavior so monsters use skills the same way and at the same rhythm as official servers, the changes include:
+			-Unified the "monster can't move by default" and the "monster trapped" code as it really should behave exactly the same
+			-Fixed a bug that caused the "monster skill use" routine to be called 20 times more often than it should in some situations
+			-When a monster attacks you and you run away from it, the monster will now check if it has a ranged skill on "attack" state before switching to chase state
+			-Monsters will now always do a normal attack before using "attack" state skills
+			-Fixed a bug that caused monsters to switch to idle mode and never use their chase skills when they get hit continuously
+			-Changed default for skillrange_from_weapon from 30 (all but player) to 0 (none); monsters will now use all skills at the skill range and not at their own attack range, if they get tanked from farther away than skill range, they won't use these skills
+		*Updated ranges to work as on official servers, the changes include:
+			-Implemented new functions "check_distance_client" and "distance_client", that instead of the server-sided square range system use the circular one that the client uses; these functions should be used for units that send their commands via the client 
+			- (players mostly)
+			-Applied the new distance algorithm to some player-specific range checks, players will now have a circular attack range that reflects their attack range on the client; this makes it impossible to hack the client for more diagonal range
+			-Removed the arbitrary +1 range bonus at range checks; as monsters now react fluently, they won't need it anymore, that means a monster with for example 4 attack range will now only attack targets within a 9x9 area around it, the moment you step out 
+			- of this area, the attacks will stop (if the monster can move it will follow you); as for players, the extra cell attack range when on a linear line to the target now is integrated into the distance algorithm, that means a player with attack range 
+			- 4 can attack from 5 cells away when directly on line with a monster, but no longer diagonally as range is circular for players now
+			-Implemented a new "step action" feature to reflect official chase range behavior; when an attack or skill is used inside the attack range, it will act exactly as now, the skill is used once the signal from the client was received; however, 
+			- if an attack or skill is used outside the attack range, the player should move into the chase area which is 1 cell inside the attack range border; the client actually sends us where to use the attack / skill from, but previously we just dropped 
+			- that information the moment an attack request came; now instead of stopping the player instantly on an attack request, the player will continue moving to the target cell and then automatically use the command received earlier (it will be remembered);
+			- this change was absolutely necessary as the client sends the attack request slightly before attack range is reached, execution on official servers only takes place on every full cell moved; the new system copies this behavior
+		*Implemented an improved hit-lock system, the changes include:
+			-MVPs are no longer immune to being stopped by a hit unless they used Endure
+			-When hitting any unit, it will stop for its "dMotion" interval, exactly at the end of "dMotion" it will continue walking (official behavior); this helps getting more "move" packets to be displayed
+			-The unit that was hit will be immune to being stopped for another "dMotion" interval, this allows to slow down any units by hitting them frequently, but makes it almost impossible to completely stop them forever (depends a lot of ASPD and dMotion 
+			- value); this does not affect special hit-lock properties (some skills and events should set delay anyway)
+			-The unit that was hit will no longer be "pulled" to the next cell; this caused a lot of position lag, it should be much better now Random walking, monster target dropping
+		*Implemented official behavior for (random walking of) monsters
+			-Updated the interval between walks from 3-6 seconds to 4-5 seconds
+			-Added a define MIN_RANDOMWALKTIME that is now used anywhere the interval is applied so it's easier to change
+			-Monsters will no longer attempt to walk to the cell they are currently standing on (note: still requires a proper "no cell stacking" implementation)
+			-Monsters will only target a cell within a 15x15 area around them
+			-Moved the "mob_ai" 0x008 configuration setting to mob_unlocktarget, so it applies to all cases of monsters unlocking targets
+			-Fixed a bug that caused monsters to never use their idle skills even if the define MOB_LAZYSKILLPERC was set
+			-Monsters now use complex path searching for their random walk, so they can also walk around corners now (OFFICIAL_WALKPATH still applies!)
+			-Monsters will no longer stop when using "walk" skills (they are supposed to be used while walking)
+			-Increased chase range of monsters by 2
+			-Monsters will no longer be able to do normal attacks when hiding
+			-If out of any reason a monster on "attack" state can't move and can't do normal attacks, it will now use "attack" state skills
+			-The order of monster thought processing is now equal to official servers
+		*Added Official Sight Blaster behavior
+			-Sight Blaster's AoE is now 3x3
+			-Sight Blaster will now prevent traps from triggering as long as they are knocked back
+			-Fixed a bug that caused Sight Blaster to not work on traps and ice walls at all
+			-Sight Blaster will no longer expire when the attack was reflected
+			-Sight Blaster will now expire when hitting an ice wall
+			-Sight Blaster will now properly protect you from being attacked from its AoE range
+		*Sight, Ruwach and Sight Blaster will now check for a target every 20ms (previously every 250ms)
+		*Step action will now be canceled when being knocked back (skills won't be executed anymore when knocked out of range)
+		*When knock back magic is reflected it will no longer lead to the caster being knocked back
+		*Activated traps can no longer be hit
+		*Fixed a problem that left "trap ghosts" forever on the screen when a trap was knocked out of the screen
+		
 08/16/2024
 	r472 [15peaces]
 		*Added some checks to status_damage function.

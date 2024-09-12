@@ -38,6 +38,11 @@ int attr_fix_table[4][ELE_MAX][ELE_MAX];
 struct Battle_Config battle_config;
 static struct eri *delay_damage_ers; //For battle delay damage structures.
 
+/**
+ * Returns the current/list skill used by the bl
+ * @param bl
+ * @return skill_id
+ */
 int battle_getcurrentskill(struct block_list *bl)
 {	//Returns the current/last skill in use by this bl.
 	struct unit_data *ud;
@@ -45,10 +50,10 @@ int battle_getcurrentskill(struct block_list *bl)
 	if( bl->type == BL_SKILL )
 	{
 		struct skill_unit * su = (struct skill_unit*)bl;
-		return su->group?su->group->skill_id:0;
+		return (su && su->group ? su->group->skill_id : 0);
 	}
 	ud = unit_bl2ud(bl);
-	return ud?ud->skill_id:0;
+	return (ud ? ud->skill_id : 0);
 }
 
 /*==========================================
@@ -1589,9 +1594,6 @@ int64 battle_addmastery(struct map_session_data *sd,struct block_list *target,in
 			break;
 	}
 
-	if (sd && (skill = pc_checkskill(sd, BS_WEAPONRESEARCH)) > 0) // weapon research bonus applies to all weapons
-		damage += skill * 2;
-
 	if (sd->sc.data[SC_GN_CARTBOOST]) // cart boost adds mastery type damage
 		damage += 10 * sd->sc.data[SC_GN_CARTBOOST]->val1;
 
@@ -1772,7 +1774,7 @@ static bool target_has_infinite_defense(struct block_list *target, int skill_id)
 
 	if (target->type == BL_SKILL) {
 		TBL_SKILL *su = (TBL_SKILL*)target;
-		if (su->group && (su->group->skill_id == WM_REVERBERATION || su->group->skill_id == WM_POEMOFNETHERWORLD))
+		if (su && su->group && (su->group->skill_id == WM_REVERBERATION || su->group->skill_id == WM_POEMOFNETHERWORLD))
 			return true;
 	}
 	return (tstatus->mode&MD_PLANT && skill_id != RA_CLUSTERBOMB);
@@ -1981,7 +1983,7 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 	hitrate = 80; //Default hitrate
 
 	if (battle_config.agi_penalty_type && battle_config.agi_penalty_target&target->type) {
-		unsigned char attacker_count = unit_counttargeted(target, battle_config.agi_penalty_count_lv); //256 max targets should be a sane max
+		unsigned char attacker_count = unit_counttargeted(target);
 		if (attacker_count >= battle_config.agi_penalty_count) {
 			if (battle_config.agi_penalty_type == 1)
 				flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num)) / 100;
@@ -3642,7 +3644,7 @@ struct Damage battle_calc_defense_reduction(struct Damage wd, struct block_list 
 
 	if (battle_config.vit_penalty_type && battle_config.vit_penalty_target&target->type) {
 		unsigned char target_count; //256 max targets should be a sane max
-		target_count = unit_counttargeted(target, battle_config.vit_penalty_count_lv);
+		target_count = unit_counttargeted(target);
 		if (target_count >= battle_config.vit_penalty_count) {
 			if (battle_config.vit_penalty_type == 1) {
 				if (!tsc || !tsc->data[SC_STEELBODY])
@@ -4271,6 +4273,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 			ATK_ADD(wd.damage, wd.damage2, 15 * skill_lv);
 		if (skill_id != CR_SHIELDBOOMERANG) //Only Shield boomerang doesn't takes the Star Crumbs bonus.
 			ATK_ADD2(wd.damage, wd.damage2, wd.div_*sd->right_weapon.star, wd.div_*sd->left_weapon.star);
+		if (skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
+			ATK_ADD(wd.damage, wd.damage2, 4);
 		if (skill_id == MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count. [Skotlex]
 			ATK_ADD(wd.damage, wd.damage2, wd.div_*sd->spiritball_old * 3);
 		}
@@ -5099,7 +5103,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			ad.damage = battle_calc_bg_damage(src, target, ad.damage, skill_id, ad.flag);
 	}
 
-	//battle_do_reflect(BF_MAGIC,&ad, src, target, skill_id, skill_lv); //WIP
+	//battle_do_reflect(BF_MAGIC,&ad, src, target, skill_id, skill_lv); //WIP - Magic skill has own handler at skill_attack
 	return ad;
 }
 
@@ -5365,9 +5369,8 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 				battle_config.agi_penalty_target&target->type)
 			{	
 				unsigned char attacker_count; //256 max targets should be a sane max
-				attacker_count = unit_counttargeted(target,battle_config.agi_penalty_count_lv);
-				if(attacker_count >= battle_config.agi_penalty_count)
-				{
+				attacker_count = unit_counttargeted(target);
+				if (attacker_count >= battle_config.agi_penalty_count) {
 					if (battle_config.agi_penalty_type == 1)
 						flee = (flee * (100 - (attacker_count - (battle_config.agi_penalty_count - 1))*battle_config.agi_penalty_num))/100;
 					else //asume type 2: absolute reduction
@@ -5435,7 +5438,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 	if (tstatus->mode&MD_IGNOREMISC && md.flag&(BF_MISC))	//misc @TODO optimize me
 		md.damage = md.damage2 = 1;
 
-	//battle_do_reflect(BF_MISC, &md, src, target, skill_id, skill_lv); //WIP
+	battle_do_reflect(BF_MISC, &md, src, target, skill_id, skill_lv); //WIP
 
 	return md;
 }
@@ -6268,7 +6271,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			TBL_SKILL *su = (TBL_SKILL*)target;
 			if( !su->group )
 				return 0;
-		if( skill_get_inf2(su->group->skill_id)&INF2_TRAP ) { //Only a few skills can target traps...
+			if (su && su->group && skill_get_inf2(su->group->skill_id)&INF2_TRAP && su->group->unit_id != UNT_USED_TRAPS) { //Only a few skills can target traps...
 				switch( battle_getcurrentskill(src) ) {
 					case 0://you can hit them without skills
 					case MA_REMOVETRAP:
@@ -6347,17 +6350,22 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		case BL_SKILL:
 		{
 			struct skill_unit *su = (struct skill_unit *)src;
-			if (!su->group)
-				return 0;
+			struct status_change* sc = status_get_sc(target);
 
-			if (su->group->src_id == target->id)
-			{
+			if (!su || !su->group)
+				return 0;
+			if (su->group->src_id == target->id) {
 				int inf2;
 				inf2 = skill_get_inf2(su->group->skill_id);
 				if (inf2&INF2_NO_TARGET_SELF)
 					return -1;
 				if (inf2&INF2_TARGET_SELF)
 					return 1;
+			}
+			//Status changes that prevent traps from triggering
+			if (sc && sc->count && skill_get_inf2(su->group->skill_id)&INF2_TRAP) {
+				if (sc->data[SC_SIGHTBLASTER] && sc->data[SC_SIGHTBLASTER]->val2 > 0 && sc->data[SC_SIGHTBLASTER]->val4 % 2 == 0)
+					return -1;
 			}
 			break;
 		}
@@ -6524,7 +6532,7 @@ bool battle_check_range(struct block_list *src, struct block_list *bl, int range
 	if( src->type == BL_PC )
 	{ // Range for players' attacks and skills should always have a circular check. [Inkfish]
 		int dx = src->x - bl->x, dy = src->y - bl->y;
-		if( !check_distance(dx*dx + dy*dy, 0, range*range+(dx&&dy?1:0)) )
+		if( !check_distance_client(dx*dx + dy*dy, 0, range*range+(dx&&dy?1:0)) )
 			return false;
 	}
 	else
@@ -6707,12 +6715,10 @@ static const struct _battle_data {
 	{ "agi_penalty_type",                   &battle_config.agi_penalty_type,                1,      0,      2,              },
 	{ "agi_penalty_count",                  &battle_config.agi_penalty_count,               3,      2,      INT_MAX,        },
 	{ "agi_penalty_num",                    &battle_config.agi_penalty_num,                 10,     0,      INT_MAX,        },
-	{ "agi_penalty_count_lv",               &battle_config.agi_penalty_count_lv,            ATK_FLEE, 0,    INT_MAX,        },
 	{ "vit_penalty_target",                 &battle_config.vit_penalty_target,              BL_PC,  BL_NUL, BL_ALL,         },
 	{ "vit_penalty_type",                   &battle_config.vit_penalty_type,                1,      0,      2,              },
 	{ "vit_penalty_count",                  &battle_config.vit_penalty_count,               3,      2,      INT_MAX,        },
 	{ "vit_penalty_num",                    &battle_config.vit_penalty_num,                 5,      0,      INT_MAX,        },
-	{ "vit_penalty_count_lv",               &battle_config.vit_penalty_count_lv,            ATK_MISS, 0,    INT_MAX,        },
 	{ "weapon_defense_type",                &battle_config.weapon_defense_type,             0,      0,      INT_MAX,        },
 	{ "magic_defense_type",                 &battle_config.magic_defense_type,              0,      0,      INT_MAX,        },
 	{ "skill_reiteration",                  &battle_config.skill_reiteration,               BL_NUL, BL_NUL, BL_ALL,         },
@@ -6942,6 +6948,7 @@ static const struct _battle_data {
 	{ "invincible.nodamage",                &battle_config.invincible_nodamage,             0,      0,      1,              },
 	{ "mob_slave_keep_target",              &battle_config.mob_slave_keep_target,           0,      0,      1,              },
 	{ "autospell_check_range",              &battle_config.autospell_check_range,           0,      0,      1,              },
+	{ "knockback_left",                     &battle_config.knockback_left,                  1,      0,      1,				},
 	{ "client_reshuffle_dice",              &battle_config.client_reshuffle_dice,           0,      0,      1,              },
 	{ "client_sort_storage",                &battle_config.client_sort_storage,             0,      0,      1,              },
 	{ "gm_check_minlevel",                  &battle_config.gm_check_minlevel,               60,     0,      100,            },
@@ -7088,7 +7095,11 @@ static const struct _battle_data {
 	{ "devotion_rdamage_skill_only",        &battle_config.devotion_rdamage_skill_only,     1,      0,      1,				},
 	{ "monster_chase_refresh",              &battle_config.mob_chase_refresh,               1,      0,      30,				},
 	{ "magiccrasher_renewal",				&battle_config.magiccrasher_renewal,			0,      0,      1,				},
-		//Episode System [15peaces]
+	{ "arrow_shower_knockback",             &battle_config.arrow_shower_knockback,          1,      0,      1,				},
+	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,		3,      0,      100				},
+	{ "spawn_direction",                    &battle_config.spawn_direction,                 0,      0,      1,				},
+	{ "icewall_walk_block",                 &battle_config.icewall_walk_block,              75,     0,      255,			},
+	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
 };

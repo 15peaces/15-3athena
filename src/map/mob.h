@@ -26,6 +26,8 @@
 #define MIN_MOBTHINKTIME 100
 //Min time before mobs do a check to call nearby friends for help (or for slaves to support their master)
 #define MIN_MOBLINKTIME 1000
+//Min time between random walks
+#define MIN_RANDOMWALKTIME 4000
 
 //Distance that slaves should keep from their master.
 #define MOB_SLAVEDISTANCE 2
@@ -234,6 +236,7 @@ struct mob_data {
 	short move_fail_count;
 	short lootitem_count;
 	short min_chase;
+	unsigned char walktoxy_fail_count; //Pathfinding succeeds but the actual walking failed (e.g. Icewall lock)
 	
 	int deletetimer;
 	int master_id,master_dist;

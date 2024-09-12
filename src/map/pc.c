@@ -2375,11 +2375,16 @@ static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigne
 {
 	uint8 i;
 	struct item_group *group_ = NULL;
+
+	if (!nameid && !group) {
+		ShowWarning("pc_bonus_item_drop: No Item ID nor Item Group ID specified.\n");
+		return;
+	}
 	if (nameid && !itemdb_exists(nameid)) {
 		ShowWarning("pc_bonus_item_drop: Invalid item id\n", nameid);
 		return;
 	}
-	if (!group || (group_ = itemdb_group_exists(group)) == NULL) {
+	if (group && (group_ = itemdb_group_exists(group)) == NULL) {
 		ShowWarning("pc_bonus_item_drop: Invalid Item Group %hu\n", group);
 		return;
 	}
@@ -6688,6 +6693,7 @@ int pc_stop_following (struct map_session_data *sd)
 		sd->followtimer = INVALID_TIMER;
 	}
 	sd->followtarget = -1;
+	sd->ud.target_to = 0;
 
 	unit_stop_walking(&sd->bl, 1);
 
@@ -6743,7 +6749,7 @@ int pc_checkbaselevelup(struct map_session_data *sd)
 	status_calc_pc(sd, SCO_FORCE);
 	status_percent_heal(&sd->bl,100,100);
 
-	if (sd->class_&JOBL_SUPER_NOVICE)
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
 	{
 		sc_start(&sd->bl,status_skill2sc(PR_KYRIE),100,1,skill_get_time(PR_KYRIE,1));
 		sc_start(&sd->bl,status_skill2sc(PR_IMPOSITIO),100,1,skill_get_time(PR_IMPOSITIO,1));
@@ -6835,16 +6841,19 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 	int bonus = 0;
 	struct status_data *status = status_get_status_data(src);
 
-	if (sd->expaddrace[status->race])
-		bonus += sd->expaddrace[status->race];	
-	if (sd->expaddrace[RC_ALL])
-		bonus += sd->expaddrace[RC_ALL];
+	if (src) 
+	{
+		if (sd->expaddrace[status->race])
+			bonus += sd->expaddrace[status->race];
+		if (sd->expaddrace[RC_ALL])
+			bonus += sd->expaddrace[RC_ALL];
 
-	if (battle_config.pk_mode && 
-		(int)(status_get_lv(src) - sd->status.base_level) >= 20)
-		bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]	
+		if (battle_config.pk_mode &&
+			(int)(status_get_lv(src) - sd->status.base_level) >= 20)
+			bonus += 15; // pk_mode additional exp if monster >20 levels [Valaris]
+	}
 
-	if (sd->sc.data[SC_EXPBOOST])
+	if (&sd->sc && sd->sc.data[SC_EXPBOOST])
 		bonus += sd->sc.data[SC_EXPBOOST]->val1;
 
 	if (*base_exp) {
@@ -6852,7 +6861,7 @@ static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsi
 		*base_exp =  cap_value(exp, 1, UINT_MAX);
 	}
 
-	if (sd->sc.data[SC_JEXPBOOST])
+	if (&sd->sc && sd->sc.data[SC_JEXPBOOST])
 		bonus += sd->sc.data[SC_JEXPBOOST]->val1;
 
 	if (*job_exp) {
@@ -6912,7 +6921,7 @@ int pc_gainexp(struct map_session_data *sd, struct block_list *src, unsigned int
 		((pc_is_maxbaselv(sd)) ? 4 : 0) |
 		((pc_is_maxjoblv(sd)) ? 8 : 0);
 
-	if(src) pc_calcexp(sd, &base_exp, &job_exp, src);
+	pc_calcexp(sd, &base_exp, &job_exp, src); // Give (J)EXPBOOST for quests even if src is NULL.
 
 	nextb = pc_nextbaseexp(sd);
 	nextj = pc_nextjobexp(sd);
@@ -7958,7 +7967,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 
 	// Activate Steel body if a super novice dies at 99+% exp [celest]
 		// Super Novices have no kill or die functions attached when saved by their angel
-	if (sd->class_&JOBL_SUPER_NOVICE && !sd->state.snovice_dead_flag) {
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && !sd->state.snovice_dead_flag) {
 		unsigned int next = pc_nextbaseexp(sd);
 		if (exp && get_percentage(sd->status.base_exp, next) >= 99) {
 			sd->state.snovice_dead_flag = 1;
@@ -9675,7 +9684,7 @@ bool pc_setregistry(struct map_session_data *sd,const char *reg,int64 val,int ty
 	case 3: //Char reg
 		if( !strcmp(reg,"PC_DIE_COUNTER") && sd->die_counter != val )
 		{
-			i = (!sd->die_counter && sd->class_&JOBL_SUPER_NOVICE);
+			i = (!sd->die_counter && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE);
 			sd->die_counter = (int)val;
 			if( i )
 				status_calc_pc(sd, SCO_NONE); // Lost the bonus.

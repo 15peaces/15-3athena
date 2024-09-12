@@ -246,7 +246,8 @@ enum e_skill_unit_flag {
 	UF_ENSEMBLE			= 0x0200,	// Duet
 	UF_SONG				= 0x0400,	// Song
 	UF_DUALMODE			= 0x0800,	// Spells should trigger both ontimer and onplace/onout/onleft effects.
-	UF_SINGLEANIMATION	= 0x1000,// Displays a single animation at center of AoE.
+	UF_NOKNOCKBACK		= 0x1000,	// Skill unit cannot be knocked back
+	UF_SINGLEANIMATION	= 0x2000,	// Displays a single animation at center of AoE.
 };
 
 // Create Database item
@@ -364,7 +365,7 @@ int skill_addtimerskill(struct block_list *src,int64 tick,int target,int x,int y
 // 追加?果
 int skill_additional_effect( struct block_list* src, struct block_list *bl,uint16 skill_id,uint16 skill_lv,int attack_type,int dmg_lv,int64 tick);
 int skill_counter_additional_effect( struct block_list* src, struct block_list *bl,uint16 skill_id,uint16 skill_lv,int attack_type,int64 tick);
-int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, int flag);
+int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, unsigned char flag);
 int skill_break_equip(struct block_list *bl, unsigned short where, int rate, int flag);
 int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int lv, int time);
 // ユニットスキル
@@ -378,7 +379,7 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
 
-int64 skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int64 damage,int64 tick);
+int64 skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int64 damage);
 
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
@@ -417,7 +418,7 @@ bool skill_check_cloaking(struct block_list *bl, struct status_change_entry *sce
 bool skill_check_camouflage(struct block_list *bl, struct status_change_entry *sce);
 
 // ステ?タス異常
-int skill_enchant_elemental_end(struct block_list *bl, int type);
+void skill_enchant_elemental_end(struct block_list *bl, int type);
 int skillnotok(int skill_id, struct map_session_data *sd);
 int skillnotok_homun(int skill_id, struct homun_data *hd);
 int skillnotok_mercenary(int skill_id, struct mercenary_data *md);

@@ -1446,7 +1446,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 	}
 
 	if (target->type == BL_SKILL)
-		return (int)skill_unit_ondamaged((struct skill_unit *)target, src, hp, gettick());
+		return (int)skill_unit_ondamaged((struct skill_unit *)target, src, hp);
 
 	status = status_get_status_data(target);
 	if(!status || status == &dummy_status)
@@ -2021,6 +2021,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				sc->data[SC_SILENCE] ||
 				sc->data[SC_DEEPSLEEP] ||
 				sc->data[SC_CRYSTALIZE] ||
+				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || // Only Basilica caster that can cast, and only Basilica to cancel it
 				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
 				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
 				sc->data[SC_STEELBODY] ||
@@ -2685,9 +2686,9 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 					bonus += 250;
 			}
 
-			if (sd->class_&JOBL_SUPER_NOVICE && sd->status.base_level >= 99)
+			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 99)
 				bonus += 2000; // Supernovice lvl99 hp bonus.
-			if (sd->class_&JOBL_SUPER_NOVICE && sd->status.base_level >= 150)
+			if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.base_level >= 150)
 				bonus += 2000; // Supernovice lvl150 hp bonus.
 		}
 
@@ -3444,7 +3445,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 	}
 
 	// If a Super Novice has never died and is at least joblv 70, he gets all stats +10
-	if (((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_THIRDMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0){
+	if (((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.job_level >= 70 || (sd->class_&MAPID_THIRDMASK) == MAPID_SUPER_NOVICE_E) && sd->die_counter == 0) {
 		status->str += 10;
 		status->agi += 10;
 		status->vit += 10;
@@ -4252,7 +4253,6 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 			bl->type == BL_PC && (((TBL_PC*)bl)->class_&MAPID_UPPERMASK) == MAPID_MONK &&
 			(sc->data[SC_EXTREMITYFIST] || (sc->data[SC_EXPLOSIONSPIRITS] && (!sc->data[SC_SPIRIT] || sc->data[SC_SPIRIT]->val2 != SL_MONK)))
 			)
-		|| sc->data[SC_MAXIMIZEPOWER]
 		|| sc->data[SC_VITALITYACTIVATION]
 		|| sc->data[SC_OBLIVIONCURSE]
 	)	//No natural SP regen
@@ -6752,7 +6752,7 @@ struct status_data *status_get_status_data(struct block_list *bl) {
 		case BL_HOM: return &((TBL_HOM*)bl)->battle_status;
 		case BL_MER: return &((TBL_MER*)bl)->battle_status;
 		case BL_ELEM: return &((TBL_ELEM*)bl)->battle_status;
-		case BL_NPC: return ((mobdb_checkid(((TBL_NPC*)bl)->class_) == 0) ? &((TBL_NPC*)bl)->status : &dummy_status);
+		case BL_NPC: return &((TBL_NPC*)bl)->status;
 		default:
 			return &dummy_status;
 	}
@@ -6767,7 +6767,7 @@ struct status_data *status_get_base_status(struct block_list *bl) {
 		case BL_HOM: return &((TBL_HOM*)bl)->base_status;
 		case BL_MER: return &((TBL_MER*)bl)->base_status;
 		case BL_ELEM: return &((TBL_ELEM*)bl)->base_status;
-		case BL_NPC: return ((mobdb_checkid(((TBL_NPC*)bl)->class_) == 0) ? &((TBL_NPC*)bl)->status : NULL);
+		case BL_NPC: return &((TBL_NPC*)bl)->status;
 		default:
 			return NULL;
 	}
@@ -6786,8 +6786,6 @@ signed char status_get_def(struct block_list *bl)
 
 unsigned short status_get_speed(struct block_list *bl)
 {
-	if(bl->type==BL_NPC)//Only BL with speed data but no status_data [Skotlex]
-		return ((struct npc_data *)bl)->speed;
 	return status_get_status_data(bl)->speed;
 }
 
@@ -6826,7 +6824,9 @@ int status_get_party_id(struct block_list *bl)
 			return ((TBL_ELEM*)bl)->master->status.party_id;
 		break;
 	case BL_SKILL:
-		return ((TBL_SKILL*)bl)->group->party_id;
+		if (((TBL_SKILL*)bl)->group)
+			return ((TBL_SKILL*)bl)->group->party_id;
+		break;
 	}
 	return 0;
 }
@@ -6868,7 +6868,9 @@ int status_get_guild_id(struct block_list *bl)
 			return ((TBL_NPC*)bl)->u.scr.guild_id;
 		break;
 	case BL_SKILL:
-		return ((TBL_SKILL*)bl)->group->guild_id;
+		if (((TBL_SKILL*)bl)->group)
+			return ((TBL_SKILL*)bl)->group->guild_id;
+		break;
 	}
 	return 0;
 }
@@ -8812,13 +8814,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			else
 				val4 |= battle_config.monster_cloak_check_type&7;
 			break;
-		case SC_SIGHTBLASTER:
-			tick = -1; // Duration sent to the client should be infinite
 		case SC_SIGHT:			/* splash status */
 		case SC_RUWACH:
+		case SC_SIGHTBLASTER:
 			val3 = skill_get_splash(val2, val1); //Val2 should bring the skill-id.
-			val2 = tick/250;
-			tick_time = 10;
+			val2 = tick/20;
+			tick_time = 20;
 			break;
 
 		//Permanent effects.
@@ -8914,7 +8915,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 
 		case SC_JOINTBEAT:
 			if( val2&BREAK_NECK )
-				sc_start(bl,SC_BLEEDING,100,val1,skill_get_time2(status_sc2skill(type),val1));
+				sc_start2(bl,SC_BLEEDING,100,val1,src->id,skill_get_time2(status_sc2skill(type),val1));
 			break;
 
 		case SC_BERSERK:
@@ -10403,7 +10404,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			unit_stop_walking(bl,1);
 			break;
 		case SC_ANKLE:
-			if (battle_config.skill_trap_type)
+			if (battle_config.skill_trap_type || !map_flag_gvg(bl->m))
 				unit_stop_walking(bl, 1);
 			break;
 		case SC_HIDING:
@@ -11273,7 +11274,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			if (sce->val3) { //Clear the group.
 				struct skill_unit_group* group = skill_id2group(sce->val3);
 				sce->val3 = 0;
-				skill_delunitgroup(group);
+				if (group)
+					skill_delunitgroup(group);
 			}
 			break;
 		case SC_HERMODE: 
@@ -11281,7 +11283,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				skill_clear_unitgroup(bl);
 			break;
 		case SC_BASILICA: //Clear the skill area. [Skotlex]
-				skill_clear_unitgroup(bl);
+			if (sce->val3 && sce->val4 == bl->id) {
+				struct skill_unit_group* group = skill_id2group(sce->val3);
+				sce->val3 = 0;
+				if (group)
+					skill_delunitgroup(group);
+			}
 				break;
 		case SC_TRICKDEAD:
 			if (vd) vd->dead_sit = 0;
@@ -11901,11 +11908,18 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_SIGHT:
 	case SC_RUWACH:
 	case SC_SIGHTBLASTER:
-		map_foreachinrange( status_change_timer_sub, bl, sce->val3, BL_CHAR, bl, sce, type, tick);
+		if (type == SC_SIGHTBLASTER) {
+			//Restore trap immunity
+			if (sce->val4 % 2)
+				sce->val4--;
+			map_foreachinrange(status_change_timer_sub, bl, sce->val3, BL_CHAR | BL_SKILL, bl, sce, type, tick);
+		}
+		else
+			map_foreachinrange(status_change_timer_sub, bl, sce->val3, BL_CHAR, bl, sce, type, tick);
 
 		if( --(sce->val2)>0 ){
-			sc_timer_next(250+tick, status_change_timer, bl->id, data);
-			sce->val4 += 250;// Part of Shadow Form removal check. [Rytech]
+			sce->val4 += 20; // Use for Shadow Form 2 seconds checking.
+			sc_timer_next(20 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;
@@ -11972,8 +11986,9 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_BLEEDING:
 		if (--(sce->val4) >= 0) {
 			unsigned int hp =  rnd()%600 + 200;
+			struct block_list* src = map_id2bl(sce->val2);
 			map_freeblock_lock();
-			status_fix_damage(NULL, bl, ( sd || hp < status->hp ) ? hp : status->hp-1, 0);
+			status_fix_damage(src, bl, ( sd || hp < status->hp ) ? hp : status->hp-1, 0);
 			if (sc->data[type]) {
 				if( status->hp == 1 ) break;
 				sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
@@ -12988,8 +13003,14 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	case SC_SIGHTBLASTER:
 		if (battle_check_target(src, bl, BCT_ENEMY) > 0 && status_check_skilluse(src, bl, WZ_SIGHTBLASTER, sce->val1, 2))
 		{
-			if (sce && !(bl->type&BL_SKILL) && skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, 1, tick, 0)) { //The hit is not counted if it's against a trap
+			struct skill_unit *su = (struct skill_unit *)bl;
+			if (sce && skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, sce->val1, tick, 0x10000)
+				&& (!su || !su->group || !(skill_get_inf2(su->group->skill_id)&INF2_TRAP))) { // The hit is not counted if it's against a trap
 				sce->val2 = 0; // This signals it to end.
+			}
+			else if ((bl->type&BL_SKILL) && sce->val4 % 2 == 0) {
+				//Remove trap immunity temporarily so it triggers if you still stand on it
+				sce->val4++;
 			}
 		}
 		break;

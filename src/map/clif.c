@@ -1999,9 +1999,10 @@ void clif_changemapserver(struct map_session_data* sd, unsigned short map_index,
 	WFIFOSET(fd,packet_len(cmd));
 }
 
-
+/// In many situations (knockback, backslide, etc.) Aegis sends both clif_slide and clif_fixpos
+/// This function combines both calls and allows to simplify the calling code
 void clif_blown(struct block_list *bl)
-{ // Official servers send both packets.
+{
 	clif_slide(bl, bl->x, bl->y);
 	clif_fixpos(bl);
 }
@@ -5625,6 +5626,10 @@ int clif_outsight(struct block_list *bl,va_list ap)
 		case BL_SKILL:
 			clif_clearchar_skillunit((struct skill_unit *)bl,tsd->fd);
 			break;
+		case BL_NPC:
+			if (!(((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE))
+				clif_clearunit_single(bl->id, CLR_OUTSIGHT, tsd->fd);
+			break;
 		default:
 			if ((vd=status_get_viewdata(bl)) && vd->class_ != INVISIBLE_CLASS)
 				clif_clearunit_single(bl->id,CLR_OUTSIGHT,tsd->fd);
@@ -5634,7 +5639,10 @@ int clif_outsight(struct block_list *bl,va_list ap)
 	if (sd && sd->fd)
 	{	//sd is watching tbl go out of view.
 		nullpo_ret(tbl);
-		if ((vd=status_get_viewdata(tbl)) && vd->class_ != INVISIBLE_CLASS)
+		if (tbl->type == BL_SKILL) //Trap knocked out of sight
+			clif_clearchar_skillunit((struct skill_unit *)tbl, sd->fd);
+		else if (((vd = status_get_viewdata(tbl)) && vd->class_ != INVISIBLE_CLASS) &&
+			!(bl->type == BL_NPC && (((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)))
 			clif_clearunit_single(tbl->id,CLR_OUTSIGHT,sd->fd);
 	}
 	return 0;
@@ -6858,9 +6866,9 @@ void clif_broadcast(struct block_list* bl, const char* mes, int len, int type, e
 		aFree(buf);
 }
 
-
 /*==========================================
- * グローバルメッセージ
+ * Displays a message on a 'bl' to all it's nearby clients
+ * Used by npc_globalmessage
  *------------------------------------------*/
 void clif_GlobalMessage(struct block_list* bl, const char* message)
 {
@@ -6874,7 +6882,6 @@ void clif_MainChatMessage(const char* message)
 {
 	clif_notify_chat(NULL, message, CHAT_MAINCHAT);
 }
-
 
 /// Send broadcast message with font formatting (ZC_BROADCAST2).
 /// 01c3 <packet len>.W <fontColor>.L <fontType>.W <fontSize>.W <fontAlign>.W <fontY>.W <message>.?B
@@ -7118,7 +7125,7 @@ void clif_wis_end(int fd, int flag)
 
 	WFIFOHEAD(fd, packet_len(packet));
 	WFIFOW(fd, 0) = packet;
-	WFIFOB(fd, 2) = flag;
+	WFIFOB(fd, 2) = (char)flag;
 #if PACKETVER >= 20131223
 	WFIFOL(fd, 3) = sd->bl.id;
 #endif
@@ -8091,13 +8098,23 @@ void clif_party_info(struct party_data* p, struct map_session_data *sd)
 	}
 }
 
+/// Request to change party invitation tick.
+/// value:
+///	 0 = disabled
+///	 1 = enabled
+void clif_parse_PartyTick(int fd, struct map_session_data* sd)
+{
+	bool flag = RFIFOB(fd, 6) ? true : false;
+	sd->status.allow_party = flag;
+	clif_partyinvitationstate(sd, flag);
+}
 
 /// The player's 'party invite' state, sent during login (ZC_PARTY_CONFIG).
 /// 02c9 <flag>.B
 /// flag:
 ///     0 = allow party invites
 ///     1 = auto-deny party invites
-void clif_partyinvitationstate(struct map_session_data* sd)
+void clif_partyinvitationstate(struct map_session_data* sd, bool flag)
 {
 	int fd;
 	nullpo_retv(sd);
@@ -8105,7 +8122,7 @@ void clif_partyinvitationstate(struct map_session_data* sd)
 
 	WFIFOHEAD(fd, packet_len(0x2c9));
 	WFIFOW(fd, 0) = 0x2c9;
-	WFIFOB(fd, 2) = 0; // not implemented
+	WFIFOB(fd, 2) = flag;
 	WFIFOSET(fd, packet_len(0x2c9));
 }
 
@@ -9948,8 +9965,16 @@ void clif_GM_kick(struct map_session_data *sd, struct map_session_data *tsd)
 
 	if( fd > 0 )
 		clif_authfail_fd(fd, 15);
-	else
+	else {
+		// Close vending/buyingstore
+		if (sd) {
+			if (tsd->state.vending)
+				vending_closevending(tsd);
+			else if (tsd->state.buyingstore)
+				buyingstore_close(tsd);
+		}
 		map_quit(tsd);
+	}
 
 	if (sd)
 		clif_GM_kickack(sd, tsd->status.account_id);
@@ -10627,7 +10652,7 @@ void clif_feel_info(struct map_session_data* sd, unsigned char feel_level, unsig
 {
 	char mapname[MAP_NAME_LENGTH_EXT];
 
-	mapindex_getmapname_ext(map[sd->feel_map[feel_level].m].name, mapname);
+	mapindex_getmapname_ext(mapindex_id2name(sd->feel_map[feel_level].index), mapname);
 	clif_starskill(sd, mapname, 0, feel_level, type ? 1 : 0);
 }
 
@@ -11419,7 +11444,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	if( sd->state.changemap )
 	{// restore information that gets lost on map-change
 #if PACKETVER >= 20070918
-		clif_partyinvitationstate(sd);
+		clif_partyinvitationstate(sd, sd->status.allow_party);
 		clif_equipcheckbox(sd);
 #endif
 
@@ -11523,8 +11548,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_clearunit_area(&sd->bl, CLR_DEAD);
 	else {
 		skill_usave_trigger(sd);
-		// Uncomment if you want to make player face in the same direction he was facing right before warping. [Skotlex]
-		//clif_changed_dir(&sd->bl, SELF);
+		if (battle_config.spawn_direction)
+			clif_changed_dir(&sd->bl, SELF);
 	}
 
 //	Trigger skill effects if you appear standing on them
@@ -12038,7 +12063,6 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		pc_setsit(sd);
 		skill_sit(sd,1);
 		clif_sitting(&sd->bl, true);
-		clif_status_load(&sd->bl, SI_SIT, 1);
 	break;
 	case 0x03: // standup		
 		if (!pc_issit(sd))
@@ -13294,9 +13318,17 @@ void clif_parse_RequestMemo(int fd,struct map_session_data *sd)
 void clif_parse_ProduceMix(int fd,struct map_session_data *sd)
 {
 	// -1 is used by produce script command.
-	if( sd->menuskill_id != -1 && sd->menuskill_id != AM_PHARMACY && sd->menuskill_id != SA_CREATECON &&
-		sd->menuskill_id != RK_RUNEMASTERY && sd->menuskill_id != GC_RESEARCHNEWPOISON)
-		return;
+	switch (sd->menuskill_id) 
+	{
+		case -1:
+		case AM_PHARMACY:
+		case SA_CREATECON:
+		case RK_RUNEMASTERY:
+		case GC_RESEARCHNEWPOISON:
+			break;
+		default:
+			return;
+	}
 
 	if (pc_istrading(sd)) {
 		//Make it fail to avoid shop exploits where you sell something different than you see.
@@ -14249,6 +14281,13 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	}
 	if( map_getcell(sd->bl.m,sd->bl.x,sd->bl.y,CELL_CHKNOVENDING) ) {
 		clif_displaymessage (sd->fd, msg_txt(sd,204)); // "You can't open a shop on this cell."
+		return;
+	}
+	if (vending_checknearnpc(&sd->bl)) {
+		char output[150];
+		sprintf(output, "You're too close to a NPC, you must be at least %d cells away from any NPC.", battle_config.min_npc_vending_distance);
+		clif_displaymessage(sd->fd, output);
+		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
 		return;
 	}
 	if (message[0] == '\0') {// invalid input
@@ -15869,7 +15908,7 @@ void clif_parse_NoviceDoriDori(int fd, struct map_session_data *sd)
 ///       "Help me out~ Please~ T_T"
 void clif_parse_NoviceExplosionSpirits(int fd, struct map_session_data *sd)
 {
-	if (sd->class_&JOBL_SUPER_NOVICE)
+	if ((sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE)
 	{
 		unsigned int next = pc_nextbaseexp(sd);
 
@@ -17401,6 +17440,8 @@ void clif_parse_Mail_getattach( int fd, struct map_session_data *sd ){
 	int attachment = packet_id == 0x9f1 ? MAIL_ATT_ZENY : packet_id == 0x9f3 ? MAIL_ATT_ITEM : MAIL_ATT_NONE;
 #endif
 
+	if (!chrif_isconnected())
+		return;
 	if( mail_id <= 0 )
 		return;
 	if( mail_invalid_operation(sd) )
@@ -17494,6 +17535,9 @@ void clif_parse_Mail_delete(int fd, struct map_session_data *sd) {
 #endif
 	int i, j;
 
+
+	if (!chrif_isconnected())
+		return;
 	if( mail_id <= 0 )
 		return;
 	if( mail_invalid_operation(sd) )
@@ -17560,6 +17604,8 @@ void clif_parse_Mail_setattach(int fd, struct map_session_data *sd)
 #endif
 	unsigned char flag;
 
+	if (!chrif_isconnected())
+		return;
 	if (idx < 0 || amount < 0)
 		return;
 
@@ -17615,11 +17661,11 @@ void clif_parse_Mail_winopen(int fd, struct map_session_data *sd)
 /// 09ec <packet len>.W <recipient>.24B <sender>.24B <zeny>.Q <title length>.W <body length>.W <title>.?B <body>.?B (CZ_REQ_WRITE_MAIL)
 /// 0a6e <packet len>.W <recipient>.24B <sender>.24B <zeny>.Q <title length>.W <body length>.W <char id>.L <title>.?B <body>.?B (CZ_REQ_WRITE_MAIL2)
 void clif_parse_Mail_send(int fd, struct map_session_data *sd){
+	if (!chrif_isconnected())
+		return;
+
 #if PACKETVER < 20150513
 	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-
-	if( !chrif_isconnected() )
-		return;
 
 	if( RFIFOW(fd,info->pos[0]) < 69 ) {
 		ShowWarning("Invalid Msg Len from account %d.\n", sd->status.account_id);
@@ -22455,6 +22501,7 @@ void packetdb_readdb(void)
 		// Merge Item
 		{ clif_parse_merge_item_req, "mergeitem_req" },
 		{ clif_parse_merge_item_cancel, "mergeitem_cancel" },
+		{ clif_parse_PartyTick, "partytick" },
 		{NULL,NULL}
 	};
 

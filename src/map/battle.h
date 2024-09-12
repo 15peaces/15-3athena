@@ -348,10 +348,7 @@ extern struct Battle_Config
 	int pk_level_range;
 
 	int manner_system; // end additions [Valaris]
-	int show_mob_info; 
-
-	int agi_penalty_count_lv;
-	int vit_penalty_count_lv;
+	int show_mob_info;
 
 	int gx_allhit;
 	int gx_disptype;
@@ -517,6 +514,7 @@ extern struct Battle_Config
 	int invincible_nodamage;
 	int mob_slave_keep_target;
 	int autospell_check_range;	//Enable range check for autospell bonus. [L0ne_W0lf]
+	int knockback_left;
 	int client_reshuffle_dice;  // Reshuffle /dice
 	int client_sort_storage;
 	int gm_check_minlevel;  // min GM level for /check
@@ -667,6 +665,10 @@ extern struct Battle_Config
 	int devotion_rdamage_skill_only;
 	int mob_chase_refresh;
 	int magiccrasher_renewal;
+	int arrow_shower_knockback;
+	int min_npc_vending_distance;
+	int spawn_direction;
+	int icewall_walk_block;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

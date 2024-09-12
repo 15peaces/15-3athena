@@ -1206,4 +1206,6 @@ void clif_notify_bindOnEquip(struct map_session_data *sd, int n);
 
 void clif_merge_item_open(struct map_session_data *sd);
 
+void clif_partyinvitationstate(struct map_session_data* sd, bool flag);
+
 #endif /* _CLIF_H_ */

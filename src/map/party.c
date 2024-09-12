@@ -772,7 +772,7 @@ void party_send_movemap(struct map_session_data *sd)
 {
 	struct party_data *p;
 
-	if( sd->status.party_id==0 )
+	if (!sd->status.party_id)
 		return;
 
 	intif_party_changemap(sd,1);

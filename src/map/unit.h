@@ -28,15 +28,20 @@ struct unit_data {
 	int   skilltarget;
 	int   skilltimer;
 	int   target;
+	int   target_to;
 	int   attacktimer;
 	int   walktimer;
-	int	chaserange;
+	int   chaserange;
+	bool  stepaction; //Action should be executed on step [Playtester]
+	int   steptimer; //Timer that triggers the action [Playtester]
+	uint16 stepskill_id, stepskill_lv; //Remembers skill that should be casted on step [Playtester]
 	int64 attackabletime;
 	int64 canact_tick;
 	int64 canmove_tick;
 	bool immune_attack; ///< Whether the unit is immune to attacks
 	uint8 dir;
 	unsigned char walk_count;
+	unsigned char target_count;
 	struct {
 		unsigned change_walk_target : 1 ;
 		unsigned skillcastcancel : 1 ;
@@ -109,8 +114,8 @@ int unit_blown(struct block_list* bl, int dx, int dy, int count, int flag);
 bool unit_can_reach_pos(struct block_list *bl,int x,int y,int easy);
 bool unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, int easy, short *x, short *y);
 
-// UŒ‚ŠÖ˜A
-int unit_stop_attack(struct block_list *bl);
+// Unit attack functions
+void unit_stop_attack(struct block_list *bl);
 int unit_attack(struct block_list *src,int target_id,int continuous);
 int unit_cancel_combo(struct block_list *bl);
 
@@ -122,12 +127,17 @@ int unit_skilluse_pos(struct block_list *src, short skill_x, uint16 skill_y, uin
 int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel);
 int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, uint16 skill_id, uint16 skill_lv, int casttime, int castcancel);
 
+// Step timer used for delayed attack and skill use
+int unit_step_timer(int tid, int64 tick, int id, intptr_t data);
+void unit_stop_stepaction(struct block_list *bl);
+
 static int unit_attack_timer(int tid, int64 tick, int id, intptr_t data);
 
-// ‰r¥ƒLƒƒƒ“ƒZƒ‹
+// Cancel unit cast
 int unit_skillcastcancel(struct block_list *bl,char type);
 
-int unit_counttargeted(struct block_list *bl,int target_lv);
+int unit_counttargeted(struct block_list *bl);
+int unit_set_target(struct unit_data* ud, int target_id);
 
 // unit_data ‚Ì‰Šú‰»ˆ—
 void unit_dataset(struct block_list *bl);

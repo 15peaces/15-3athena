@@ -932,7 +932,7 @@ static int pet_randomwalk(struct pet_data *pd,int64 tick)
 			else
 				c+=pd->status.speed;
 		}
-		pd->next_walktime = tick+rnd()%3000+3000+c;
+		pd->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME + c;
 
 		return 1;
 	}

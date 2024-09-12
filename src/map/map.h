@@ -21,11 +21,12 @@ struct item_data;
 //Only chars affected are those defined in BL_CHAR (mobs and players currently)
 //#define CELL_NOSTACK
 
-//Uncomment to enable circular area checks.
-//By default, all range checks in Aegis are of Square shapes, so a weapon range
-//  of 10 allows you to attack from anywhere within a 21x21 area.
-//Enabling this changes such checks to circular checks, which is more realistic,
-//  but is not the official behaviour.
+/// Uncomment to enable circular area checks.
+/// By default, most server-sided range checks in Aegis are of square shapes, so a monster
+/// with a range of 4 can attack anything within a 9x9 area.
+/// Client-sided range checks are, however, are always circular.
+/// Enabling this changes all checks to circular checks, which is more realistic,
+/// but is not the official behaviour.
 //#define CIRCULAR_AREA
 
 #define msg_config_read(cfgName,isnew) map_msg_config_read(cfgName,isnew)
@@ -65,7 +66,6 @@ void map_msg_reload(void);
 #define JOBL_UPPER 0x1000 //4096
 #define JOBL_BABY 0x2000  //8192
 #define JOBL_THIRD 0x4000 //16384
-#define JOBL_SUPER_NOVICE 0x8000 //32768
 
 //for filtering and quick checking.
 #define MAPID_BASEMASK 0x00ff //Checking 1st Jobs.
@@ -107,7 +107,8 @@ enum {
 	MAPID_SUMMER2,
 	MAPID_SUMMONER,
 //2-1 Jobs
-	MAPID_KNIGHT = JOBL_2_1 | 0x1,
+	MAPID_SUPER_NOVICE = JOBL_2_1 | 0x0,
+	MAPID_KNIGHT,
 	MAPID_WIZARD,
 	MAPID_HUNTER,
 	MAPID_PRIEST,
@@ -161,7 +162,8 @@ enum {
 	MAPID_BABY_NINJA,
 	MAPID_BABY_SUMMONER = JOBL_BABY | 0x11,
 //Baby 2-1 Jobs
-	MAPID_BABY_KNIGHT = JOBL_BABY | JOBL_2_1 | 0x1,
+	MAPID_SUPER_BABY = JOBL_BABY | JOBL_2_1 | 0x0,
+	MAPID_BABY_KNIGHT,
 	MAPID_BABY_WIZARD,
 	MAPID_BABY_HUNTER,
 	MAPID_BABY_PRIEST,
@@ -179,7 +181,8 @@ enum {
 	MAPID_BABY_ROGUE,
 	MAPID_BABY_SOUL_LINKER,
 //3-1 Jobs
-	MAPID_RUNE_KNIGHT = JOBL_THIRD | JOBL_2_1 | 0x1,
+	MAPID_SUPER_NOVICE_E = JOBL_THIRD | JOBL_2_1 | 0x0,
+	MAPID_RUNE_KNIGHT,
 	MAPID_WARLOCK,
 	MAPID_RANGER,
 	MAPID_ARCH_BISHOP,
@@ -209,7 +212,8 @@ enum {
 	MAPID_GENETIC_T,
 	MAPID_SHADOW_CHASER_T,
 //Baby 3-1 Jobs
-	MAPID_BABY_RUNE_KNIGHT = JOBL_THIRD | JOBL_BABY | JOBL_2_1 | 0x1,
+	MAPID_SUPER_BABY_E = JOBL_THIRD | JOBL_BABY | JOBL_2_1 | 0x0,
+	MAPID_BABY_RUNE_KNIGHT,
 	MAPID_BABY_WARLOCK,
 	MAPID_BABY_RANGER,
 	MAPID_BABY_ARCH_BISHOP,
@@ -224,11 +228,6 @@ enum {
 	MAPID_BABY_GENETIC,
 	MAPID_BABY_SHADOW_CHASER,
 	MAPID_BABY_SOUL_REAPER,
-//Super Novices
-	MAPID_SUPER_NOVICE = JOBL_SUPER_NOVICE|JOBL_2_1|0x0,
-	MAPID_SUPER_BABY = JOBL_SUPER_NOVICE|JOBL_BABY|JOBL_2_1|0x0,
-	MAPID_SUPER_NOVICE_E = JOBL_SUPER_NOVICE|JOBL_THIRD|JOBL_2_1|0x0,
-	MAPID_SUPER_BABY_E = JOBL_SUPER_NOVICE|JOBL_THIRD|JOBL_BABY|JOBL_2_1|0x0,
 };
 
 //Max size for inputs to Graffiti, Talkie Box and Vending text prompts
@@ -701,13 +700,6 @@ struct map_data {
 	int jexp;	// map experience multiplicator
 	int bexp;	// map experience multiplicator
 	int nocommand; //Blocks @/# commands for non-gms. [Skotlex]
-	/**
-	 * Ice wall reference counter
-	 * - since there are a thounsand mobs out there in a lot of maps checking on,
-	 * - every targetting for icewall on attack path would just be a waste, so,
-	 * - this counter allows icewall checking be only run when there is a actual ice wall on the map
-	 **/
-	int icewall_num;
 	// Instance Variables
 	int instance_id;
 	int instance_src_map;

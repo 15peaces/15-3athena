@@ -47,7 +47,9 @@
 
 #define IDLE_SKILL_INTERVAL 10	//Active idle skills should be triggered every 1 second (1000/MIN_MOBTHINKTIME)
 
-#define MOB_LAZYSKILLPERC 0	// Probability for mobs far from players from doing their IDLE skill. (rate of 1000 minute)
+// Probability for mobs far from players from doing their IDLE skill. (rate of 1000 minute)
+// in Aegis, this is 100% for mobs that have been activated by players and none otherwise.
+#define MOB_LAZYSKILLPERC(md) (md->state.spotted?1000:0)
 // Move probability for mobs away from players (rate of 1000 minute)
 // in Aegis, this is 100% for mobs that have been activated by players and none otherwise.
 #define MOB_LAZYMOVEPERC(md) (md->state.spotted?1000:0)
@@ -987,7 +989,7 @@ int mob_spawn (struct mob_data *md)
 
 	md->state.aggressive = md->status.mode&MD_ANGRY?1:0;
 	md->state.skillstate = MSS_IDLE;
-	md->next_walktime = tick+rnd()%5000+1000;
+	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME;
 	md->last_linktime = tick;
 	md->last_pcneartime = 0;
 
@@ -1117,12 +1119,6 @@ static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 			((*target) == NULL || !check_distance_bl(&md->bl, *target, dist)) &&
 			battle_check_range(&md->bl, bl, md->db->range2)
 		) { //Pick closest target?
-			if (map[bl->m].icewall_num &&
-				!path_search_long(NULL, bl->m, md->bl.x, md->bl.y, bl->x, bl->y, CELL_CHKICEWALL)) {
-
-				if (!check_distance_bl(&md->bl, bl, status_get_range(&md->bl)))
-					return 0;
-			}
 			(*target) = bl;
 			md->target_id=bl->id;
 			md->min_chase= dist + md->db->range3;
@@ -1200,6 +1196,8 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 		md->target_id=bl->id;
 		md->min_chase=md->db->range3;
 	}
+	else
+		mob_stop_walking(md, 1); // Stop walking immediately if item is no longer on the ground.
 	return 0;
 }
 
@@ -1272,7 +1270,7 @@ static int mob_ai_sub_hard_slavemob(struct mob_data *md,int64 tick)
 			int16 x = bl->x, y = bl->y;
 
 			if (map_search_freecell(&md->bl, bl->m, &x, &y, MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE, 1)) {
-				if (unit_walktoxy(&md->bl, x, y, 0) == 0) { // Slave is too far from master (outside of battle_config.max_walk_path range), stay put
+				if (unit_walktoxy(&md->bl, x, y, 0) == 0) { // Slave is too far from master, stay put
 					mob_stop_walking(md, USW_FIXPOS);
 					return 0; // Fail here so target will be picked back up when in range
 				} else { // Slave will walk back to master if in range
@@ -1333,26 +1331,28 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 		md->state.skillstate = MSS_IDLE;
 	case MSS_IDLE:
 		// Idle skill.
-		if ((md->target_id || !(++md->ud.walk_count%IDLE_SKILL_INTERVAL)) &&
-			mobskill_use(md, tick, -1))
+		if (!(++md->ud.walk_count%IDLE_SKILL_INTERVAL) && mobskill_use(md, tick, -1))
 			break;
 		//Random walk.
 		if (!md->master_id &&
 			DIFF_TICK(md->next_walktime, tick) <= 0 &&
 			!mob_randomwalk(md,tick))
 			//Delay next random walk when this one failed.
-			md->next_walktime=tick+rnd()%3000;
+			md->next_walktime = tick + rnd() % 1000;
 		break;
 	default:
 		mob_stop_attack(md);
 		mob_stop_walking(md, 1); //Stop chasing.
 		md->state.skillstate = MSS_IDLE;
-		md->next_walktime=tick+rnd()%3000+3000;
+		if (battle_config.mob_ai & 0x8) //Walk instantly after dropping target
+			md->next_walktime = tick + rnd() % 1000;
+		else
+			md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME;
 		break;
 	}
 	if (md->target_id) {
 		md->target_id=0;
-		md->ud.target = 0;
+		unit_set_target(&md->ud, 0);
 	}
 	return 0;
 }
@@ -1375,6 +1375,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	
 	d =12-md->move_fail_count;
 	if(d<5) d=5;
+	if(d>7) d=7;
 	for(i=0;i<retrycount;i++){	// Search of a movable place
 		int r=rnd();
 		int x=r%(d*2+1)-d;
@@ -1382,7 +1383,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 		x+=md->bl.x;
 		y+=md->bl.y;
 
-		if((map_getcell(md->bl.m,x,y,CELL_CHKPASS)) && unit_walktoxy(&md->bl,x,y,1)){
+		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
 			break;
 		}
 	}
@@ -1404,7 +1405,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	}
 	md->state.skillstate=MSS_WALK;
 	md->move_fail_count=0;
-	md->next_walktime = tick+rnd()%3000+3000+c;
+	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME + c;
 	return 1;
 }
 
@@ -1486,7 +1487,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				return true; //Chasing this target.
 			if (md->ud.walktimer != INVALID_TIMER && md->ud.walkpath.path_pos <= battle_config.mob_chase_refresh)
 				return true; //Walk at least "mob_chase_refresh" cells before dropping the target
-			mob_unlocktarget(md, tick - (battle_config.mob_ai & 0x8 ? 3000 : 0)); //Immediately do random walk.
+			mob_unlocktarget(md, tick); //Unlock target
 			tbl = NULL;
 		}
 	}
@@ -1507,6 +1508,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
 					md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
 				|| !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
+				|| md->walktoxy_fail_count > 0
 			    )
 			&&  md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
 			&&  !mobskill_use(md, tick, MSC_RUDEATTACKED) // If can't rude Attack
@@ -1530,6 +1532,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
 						md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
 					|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
+					|| md->walktoxy_fail_count > 0
 				)
 				) )
 			{ // Rude attacked
@@ -1674,8 +1677,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 
 	//Attempt to attack.
 	//At this point we know the target is attackable, we just gotta check if the range matches.
-	if (battle_check_range (&md->bl, tbl, md->status.rhw.range))
-	{	//Target within range, engage
+	if (battle_check_range(&md->bl, tbl, md->status.rhw.range) && !(md->sc.option&OPTION_HIDE))
+	{	//Target within range and able to use normal attack, engage
 		if (md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER)
 		{ //Only attack if no more attack delay left
 			if (tbl->type == BL_PC)
@@ -1696,25 +1699,28 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		return true;
 	}
 
-	//Out of range...
-	if (!(mode&MD_CANMOVE) || (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0))
-	{	//Can't chase. Immobile and trapped mobs should unlock target and use an idle skill on next interval.
-		if ((md->ud.target != tbl->id || md->ud.attacktimer == INVALID_TIMER))
-		{ //Only unlock target to use idle skill if no more attack left
-			md->ud.walk_count = (md->ud.walk_count + 1) % 250;
-			if (!(md->ud.walk_count%IDLE_SKILL_INTERVAL))
-				mob_unlocktarget(md, tick);
-		}
-		return true;
-	}
-
-	//Before a monster starts to chase a target, it will check if it has a ranged "attack" skill to use on it.
+	//Monsters in berserk state, unable to use normal attacks, will always attempt a skill
 	if (md->ud.walktimer == INVALID_TIMER && (md->state.skillstate == MSS_BERSERK || md->state.skillstate == MSS_ANGRY))
 	{
 		if (DIFF_TICK(md->ud.canmove_tick, tick) <= MIN_MOBTHINKTIME && DIFF_TICK(md->ud.canact_tick, tick) < -MIN_MOBTHINKTIME * IDLE_SKILL_INTERVAL)
 		{ //Only use skill if able to walk on next tick and not used a skill the last second
 			mobskill_use(md, tick, -1);
 		}
+	}
+
+	//Target still in attack range, no need to chase the target
+	if (battle_check_range(&md->bl, tbl, md->status.rhw.range))
+		return true;
+
+	//Out of range...
+	if (!(mode&MD_CANMOVE) || (!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0))
+	{	//Can't chase. Immobile and trapped mobs should unlock target and use an idle skill.
+		if (md->ud.attacktimer == INVALID_TIMER)
+		{ //Only unlock target if no more attack delay left
+			//This handles triggering idle/walk skill.
+			mob_unlocktarget(md, tick);
+		}
+		return true;
 	}
 
 	if (md->ud.walktimer != INVALID_TIMER && md->ud.target == tbl->id &&
@@ -1814,20 +1820,17 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 
 	if( DIFF_TICK(md->next_walktime,tick) < 0 && (status_get_mode(&md->bl)&MD_CANMOVE) && unit_can_move(&md->bl) )
 	{
-		if( map[md->bl.m].users > 0 )
-		{
-			if( rnd()%1000 < MOB_LAZYMOVEPERC(md) )
-				mob_randomwalk(md, tick);
-			else
-			if( rnd()%1000 < MOB_LAZYSKILLPERC ) //Chance to do a mob's idle skill.
-				mobskill_use(md, tick, -1);
-		}
-		else
-		{
-			if( rnd()%1000 < MOB_LAZYMOVEPERC(md) )
-				mob_randomwalk(md, tick);
-		}
+		if (rnd() % 1000 < MOB_LAZYMOVEPERC(md))
+			mob_randomwalk(md, tick);
 	}
+	else if (md->ud.walktimer == INVALID_TIMER)
+	{
+		//Because it is not unset when the mob finishes walking.
+		md->state.skillstate = MSS_IDLE;
+		if (rnd() % 1000 < MOB_LAZYSKILLPERC(md)) //Chance to do a mob's idle skill.
+			mobskill_use(md, tick, -1);
+	}
+
 	return 0;
 }
 
@@ -2777,7 +2780,7 @@ void mob_revive(struct mob_data *md, unsigned int hp)
 	int64 tick = gettick();
 	md->state.skillstate = MSS_IDLE;
 	md->last_thinktime = tick;
-	md->next_walktime = tick+rnd()%50+5000;
+	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME;
 	md->last_linktime = tick;
 	md->last_pcneartime = 0;
 	memset(md->dmglog, 0, sizeof(md->dmglog));	// Reset the damage done on the rebirthed monster, otherwise will grant full exp + damage done. [Valaris] 
@@ -3299,11 +3302,11 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 				case MSC_SLAVELT:		// slave < num
 					flag = (mob_countslave(&md->bl) < c2 ); break;
 				case MSC_ATTACKPCGT:	// attack pc > num
-					flag = (unit_counttargeted(&md->bl, 0) > c2); break;
+					flag = (unit_counttargeted(&md->bl) > c2); break;
 				case MSC_SLAVELE:		// slave <= num
 					flag = (mob_countslave(&md->bl) <= c2 ); break;
 				case MSC_ATTACKPCGE:	// attack pc >= num
-					flag = (unit_counttargeted(&md->bl, 0) >= c2); break;
+					flag = (unit_counttargeted(&md->bl) >= c2); break;
 				case MSC_AFTERSKILL:
 					flag = (md->ud.skill_id == c2); break;
 				case MSC_RUDEATTACKED:
@@ -3313,7 +3316,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 				case MSC_MASTERHPLTMAXRATE:
 					flag = ((fbl = mob_getmasterhpltmaxrate(md, ms[i].cond2)) != NULL); break;
 				case MSC_MASTERATTACKED:
-					flag = (md->master_id > 0 && (fbl=map_id2bl(md->master_id)) && unit_counttargeted(fbl, 0) > 0); break;
+					flag = (md->master_id > 0 && (fbl=map_id2bl(md->master_id)) && unit_counttargeted(fbl) > 0); break;
 				case MSC_ALCHEMIST:
 					flag = (md->state.alchemist);
 					break;
@@ -3847,6 +3850,9 @@ static bool mob_parse_dbrow(char** str)
 		if (db->range3 < db->range2)
 			db->range3 = db->range2;
 	}
+
+	//Tests showed that chase range is effectively 2 cells larger than expected [Playtester]
+	db->range3 += 2;
 	
 	status->size = atoi(str[22]);
 	status->race = atoi(str[23]);

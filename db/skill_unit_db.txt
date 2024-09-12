@@ -15,7 +15,8 @@
 //      0x0200(UF_ENSEMBLE)			Ensemble skill
 //      0x0400(UF_SONG)				Song skill
 //      0x0800(UF_DUALMODE)			Spell has effects both at an interval and when you step in/out
-//      0x1000(UF_SINGLEANIMATION)	Displays a single animation at center of AoE.
+//      0x1000(UF_NOKNOCKBACK)		Cannot be knocked back (only unit that can be damaged)
+//      0x2000(UF_SINGLEANIMATION)	Displays a single animation at center of AoE.
 // 	Example: 0x006 = 0x002+0x004 -> Cannot be stacked nor cast near targets
 //
 // Notes:
@@ -28,7 +29,7 @@
  12,0x7e,    ,  0, 0,  -1,all,   0x003	//MG_SAFETYWALL
  18,0x7f,    , -1, 0,  20,enemy, 0x010	//MG_FIREWALL
  21,0x86,    ,  0, 2,1000,enemy, 0x018	//MG_THUNDERSTORM
- 25,0x85,    ,  1, 0,  -1,all,   0x1003	//AL_PNEUMA
+ 25,0x85,    ,  1, 0,  -1,all,   0x2003	//AL_PNEUMA
  27,0x81,0x80,  0, 0,  -1,all,   0x00E	//AL_WARP
  47,0x86,    ,  0, 2,1000,enemy, 0x080	//AC_SHOWER
  70,0x83,    , -1, 1,1000,all,   0x018	//PR_SANCTUARY
@@ -36,7 +37,7 @@
  80,0x87,0x88,  0, 1,2000,enemy, 0x006	//WZ_FIREPILLAR
  83,0x86,    ,  0, 3,1000,enemy, 0x010	//WZ_METEOR
  85,0x86,    ,  0, 6:6:6:6:6:6:6:6:6:6:8,1250,enemy,0x018	//WZ_VERMILION
- 87,0x8d,    , -1, 0,  -1,all,   0x010	//WZ_ICEWALL
+ 87,0x8d,    , -1, 0,  -1,all,   0x1010	//WZ_ICEWALL
  89,0x86,    ,  0, 5, 450,enemy, 0x018	//WZ_STORMGUST
  91,0x86,    ,  0, 2,1000,enemy, 0x010	//WZ_HEAVENDRIVE
  92,0x8e,    ,  2, 0,  -1,enemy, 0x010	//WZ_QUAGMIRE
@@ -78,7 +79,7 @@
 330,0xaf,    ,  3, 0,  -1,all,   0x140	//DC_SERVICEFORYOU
 336,0xb2,    ,  0,-1,  -1,noone, 0x000	//WE_CALLPARTNER
 339,0x86,    , -1, 0, 300,enemy, 0x000	//NPC_DARKGRANDCROSS
-362,0xb4,    ,  0, 2, 300,all,   0x000	//HP_BASILICA
+362,0xb4,    ,  2, 0, 300,all,   0x2000	//HP_BASILICA
 369,0xb3,    , -1, 0,10000,all,  0x008	//PA_GOSPEL
 395,0xb5,    ,  4, 0,  -1,all,   0x200	//CG_MOONLIT
 404,0xb6,    , -1, 0,  -1,all,   0x000	//PF_FOGWALL
@@ -118,7 +119,7 @@
 
 2216,0xcb,    , -1, 2,2000,enemy, 0x018	//WL_EARTHSTRAIN //Temp code
 //2216,0xcb,    , -1, 0,1000,enemy, 0x018	//WL_EARTHSTRAIN //To be enabled when new animation is added. [15peaces]
-2238,0xd8,    ,  0, 1,1000,enemy, 0x006	//RA_ELECTRICSHOCKER
+2238,0xd8,    ,  0, 1,1000,enemy, 0x1006	//RA_ELECTRICSHOCKER
 2239,0xd9,    ,  0, 1,1000,enemy, 0x006	//RA_CLUSTERBOMB
 2249,0xd2,    ,  0, 1,1000,enemy, 0x022	//RA_MAGENTATRAP
 2250,0xd3,    ,  0, 1,1000,enemy, 0x022	//RA_COBALTTRAP
@@ -131,15 +132,15 @@
 2299,0xcc,    ,  0, 1,1000,enemy, 0x006	//SC_MANHOLE
 
 2300,0xcd,    ,  0, 1,1000,all,   0x006	//SC_DIMENSIONDOOR - Recode me please.
-2301,0xce,    ,  2, 0,  -1,all,   0x1014	//SC_CHAOSPANIC
-2302,0xcf,    ,  2, 0,  -1,all,   0x1002	//SC_MAELSTROM
-2303,0xd0,    ,  3, 0,  -1,all,   0x1010	//SC_BLOODYLUST
+2301,0xce,    ,  2, 0,  -1,all,   0x2014	//SC_CHAOSPANIC
+2302,0xcf,    ,  2, 0,  -1,all,   0x2002	//SC_MAELSTROM
+2303,0xd0,    ,  3, 0,  -1,all,   0x2010	//SC_BLOODYLUST
 2304,0xd1,    ,  0, 2,1000,enemy, 0x018	//SC_FEINTBOMB
 2319,0xec,    ,  3, 0,  -1,enemy, 0x000	//LG_BANDING
 
-2414,0xda,    ,  0, 0,1000,enemy, 0x006	//WM_REVERBERATION
+2414,0xda,    ,  0, 0,1000,enemy, 0x1006	//WM_REVERBERATION
 2418,0xdb,    ,  0, 5, 300,enemy, 0x800	//WM_SEVERE_RAINSTORM
-2419,0xde,    ,  0, 1,1000,enemy, 0x006  //WM_POEMOFNETHERWORLD
+2419,0xde,    ,  0, 1,1000,enemy, 0x1006  //WM_POEMOFNETHERWORLD
 
 2443,0xdc,    ,  0, 0,1000,enemy, 0x00A	//SO_FIREWALK
 2444,0xdd,    ,  0, 0,1000,enemy, 0x00A	//SO_ELECTRICWALK
@@ -148,15 +149,15 @@
 2449,0xdf,    ,  0, 3:3:4:4:5,500,enemy,  0x018	//SO_PSYCHIC_WAVE
 //2450,0xe0,    ,  3, 0, 500,enemy, 0x018	//SO_CLOUD_KILL - Old Cloud Kill Animation for 2014 and lower clients.
 2450,0xe0,    ,  0, 3, 500,enemy, 0x018	//SO_CLOUD_KILL
-2452,0xe4,    ,  3, 0,  -1,all,   0x1010	//SO_WARMER
+2452,0xe4,    ,  3, 0,  -1,all,   0x2010	//SO_WARMER
 2453,0xeb,    ,  0, 1:1:2:2:3,500,enemy,0x018	//SO_VACUUM_EXTREME
-2465,0xf1,    ,  1, 0,  -1,all,   0x1010	//SO_FIRE_INSIGNIA
-2466,0xf2,    ,  1, 0,  -1,all,   0x1010	//SO_WATER_INSIGNIA
-2467,0xf3,    ,  1, 0,  -1,all,   0x1010	//SO_WIND_INSIGNIA
-2468,0xf4,    ,  1, 0,  -1,all,   0x1010	//SO_EARTH_INSIGNIA
+2465,0xf1,    ,  1, 0,  -1,all,   0x2010	//SO_FIRE_INSIGNIA
+2466,0xf2,    ,  1, 0,  -1,all,   0x2010	//SO_WATER_INSIGNIA
+2467,0xf3,    ,  1, 0,  -1,all,   0x2010	//SO_WIND_INSIGNIA
+2468,0xf4,    ,  1, 0,  -1,all,   0x2010	//SO_EARTH_INSIGNIA
 
 2479,0xe5,    ,  0, 1,1000,enemy, 0x006	//GN_THORNS_TRAP
-2482,0xe6,0x7f, -1, 1,  -1,all,   0x000	//GN_WALLOFTHORN - Official inverval is 100ms, but -1 is used for now due to Firewall.
+2482,0xe6,0x7f, -1, 1,  -1,all,   0x1000	//GN_WALLOFTHORN - Official inverval is 100ms, but -1 is used for now due to Firewall.
 2485,0xe7,    ,  0, 2,2000,enemy, 0x098	//GN_DEMONIC_FIRE
 2487,0xe8,    ,  0, 2, 500,all,   0x000	//GN_FIRE_EXPANSION_SMOKE_POWDER - Recode to a within AoE only effect.
 2488,0xe9,    ,  0, 2, 500,all,   0x000	//GN_FIRE_EXPANSION_TEAR_GAS - Recode to a within AoE only effect.
@@ -166,25 +167,25 @@
 2567,0x105,   , -1, 0,1000,enemy, 0x018	//RL_FIRE_RAIN
 2571,0x86,    ,  0, 2,1000,enemy, 0x018	//RL_HAMMER_OF_GOD
 
-2587,0x109,   ,  2, 0,  -1,enemy,0x1018	//SJ_BOOKOFCREATINGSTAR
+2587,0x109,   ,  2, 0,  -1,enemy,0x2018	//SJ_BOOKOFCREATINGSTAR
 
 3010,0xfc,    ,  0, 0,2000,enemy, 0x01A	//KO_MAKIBISHI - Need to know how often these things hit.
-3020,0xf8,    ,  2, 0,1000,all,   0x101A	//KO_ZENKAI
+3020,0xf8,    ,  2, 0,1000,all,   0x201A	//KO_ZENKAI
 
 5006,0x101,   ,  0, 3,500,enemy,   0x018	//NC_MAGMA_ERUPTION
 
-5013,0x102,   ,  3, 0,200,friend,   0x1018	//LG_KINGS_GRACE
+5013,0x102,   ,  3, 0,200,friend,   0x2018	//LG_KINGS_GRACE
 
-5027,0x106,   ,  1:1:2:2:3, 0,  -1,enemy, 0x1010	//SU_CN_POWDERING
+5027,0x106,   ,  1:1:2:2:3, 0,  -1,enemy, 0x2010	//SU_CN_POWDERING
 5028,0x86,    ,  0, 3,1000,enemy, 0x010	//SU_CN_METEOR
 5042,0x86,    ,  0, 3,1000,enemy, 0x010	//SU_CN_METEOR2
-5048,0x107,   ,  2:2:3:3:4, 0,  -1,enemy, 0x1010	//SU_NYANGGRASS
+5048,0x107,   ,  2:2:3:3:4, 0,  -1,enemy, 0x2010	//SU_NYANGGRASS
 
 8020,0xf5,    ,  3, 0,   0,enemy, 0x018	//MH_POISON_MIST // Inverval is set in source since its variable with this skill.
 8033,0x7e,    ,  0, 0,  -1,all,   0x003	//MH_STEINWAND
 8025,0x86,    ,  0, 2:2:3:3:4,1000,enemy, 0x018	//MH_XENO_SLASHER
 8041,0xf6,    ,  1:1:2:2:3, 0,2000,enemy, 0x018	//MH_LAVA_SLIDE CHECK - How often does this skill hit? iRO Wiki says 2 seconds. [Rytech]
-8043,0xf7,    ,  1, 0,500,enemy, 0x1018	//MH_VOLCANIC_ASH
+8043,0xf7,    ,  1, 0,500,enemy, 0x2018	//MH_VOLCANIC_ASH
 
 8208,0x86,    ,  0, 2,1000,enemy, 0x080	//MA_SHOWER
 8209,0x90,    ,  0, 1,1000,enemy, 0x006	//MA_SKIDTRAP
@@ -192,9 +193,9 @@
 8211,0x95,    ,  0, 1,1000,enemy, 0x006	//MA_SANDMAN
 
 8403,0xed,    , -1, 0,  20,enemy, 0x010	//EL_FIRE_MANTLE
-8406,0xee,    ,  1, 0,  -1,all,   0x1010	//EL_WATER_BARRIER
-8409,0xef,    ,  1, 0,  -1,all,   0x1010	//EL_ZEPHYR
-8412,0xf0,    ,  1, 0,  -1,all,   0x1010	//EL_POWER_OF_GAIA
+8406,0xee,    ,  1, 0,  -1,all,   0x2010	//EL_WATER_BARRIER
+8409,0xef,    ,  1, 0,  -1,all,   0x2010	//EL_ZEPHYR
+8412,0xf0,    ,  1, 0,  -1,all,   0x2010	//EL_POWER_OF_GAIA
 
 10006,0x10a,   ,  2, 0,  -1,guild, 0x040	//GD_LEADERSHIP 
 10007,0x10b,   ,  2, 0,  -1,guild, 0x040	//GD_GLORYWOUNDS 
