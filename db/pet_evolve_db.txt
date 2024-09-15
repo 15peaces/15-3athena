@@ -14,7 +14,7 @@
 //1029,9090,639:Queens_Hair_Ornament:954:732,3:1:300:6
 //1041,9107,Elixir_Bandage:7511:969:4248,3:200:30:1
 //1052,9106,707:Grasshoppers_Leg:508:4057,3:777:200:1
-//1057,9091,634:753:7182:4051,3:2:300:1
+1057,9091,634:753:7182:4051,3:2:300:1
 //1063,Leaf_Lunatic_Egg,Great_Leaf:Clover:Four_Leaf_Clover:Leaf_Lunatic_Card,100:250:30:1
 //1090,9088,503:2282:509:909,20:1:50:200
 //1109,Diabolic_Egg_,Contracts_In_Shadow:Petite_DiablOfs_Wing:1009:Deviruchi_Card,3:250:30:1

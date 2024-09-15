@@ -6,6 +6,31 @@
 //			--More Details.
 //========================================
 
+09/15/2024
+	r474 [15peaces]
+		*Added Choco Pet
+			-Also enabled evolution from Yoyo to Choco.
+		*Added some database entries to prepare for ep 16.1 updates.
+			-Also did some cleaning.
+			-Added some missing quest-db entries	
+		*Knockback, stop effects and Skid Trap reworked, monster chase and direction updates, code optimizations
+			-Created a new function unit_blown_immune that will now serve as the central function to determine if an object can be knocked back or stopped
+				--Moved the check code from skill_blown to unit_blown_immune
+				--Several stopping effects and traps will now use unit_blown_immune to check if the object can be stopped, if not, the object will always move to its target cell before stopping Bosses and monsters immune to knockback will now no longer 
+				  be stopped by such traps.
+				--Expanded the configuration skill_trap_type and moved its checks into unit_blown_immune, so it's possible to switch the "no stop" behavior off for GVG/BG and monsters individually
+			-Monster chase range updates
+				--Updated monster_chase_range in monster.conf from 1 to 3; I originally thought official value is 1, but after some in-depth tests it's 3 for the most important situations
+				--When a monster cannot issue new "move" commands because it was affected by a status change, but is still moving due to knockback immunity, it will no longer unlock its target and stop
+				--Fixed a bug that always caused the chase path monsters calculated to be 1 cell too short causing them to recalculate their path one cell before their goal every single time
+			-Fixed the direction calculation once again and optimized it at the same time
+				--Now the calculated direction is 100% official
+				--Added a new function map_calc_dir_xy that allows to check for a direction between two cells without the need of a block_list
+				--map_calc_dir will now just use map_calc_dir_xy to avoid duplicate code
+			-Implemented Skid Trap properly
+				--The direction of the knockback will now be "away from position of the caster during cast" rather than "away from trap"
+				--Skid Trap will now stop the target for 3 seconds; this works even in GVG/BG and on bosses, even though the actual knockback doesn't happen
+
 09/12/2024
 	r473 [15peaces]
 		*Field Manuals (SC_EXPBOOST and SC_JEXPBOOST) now increase EXP gained from NPC quests (through the getexp script command).

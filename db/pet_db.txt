@@ -128,5 +128,6 @@
 2200,J_TAINI,Tiny,0,9057,0,512,80,60,10,100,250,20,0,150,1,0,300,300,800,0,{},{}
 2210,XMAS_LUNATIC,Christmas Snow Rabbit,0,9058,0,529,80,60,10,100,250,20,0,150,1,0,300,300,800,0,{},{ bonus2 bExpAddRace,RC_All,5; }
 2313,TIKBALANG,Tikbalang,12699,9059,0,528,80,60,10,100,250,20,1000,150,1,0,300,300,800,0,{},{ bonus2 bAddDamageClass,2320,10; bonus2 bAddDamageClass,2321,10; bonus2 bAddDamageClass,2322,10; bonus2 bAddDamageClass,2317,10; bonus2 bAddDamageClass,2318,10; bonus2 bAddDamageClass,2327,10; bonus2 bAddDamageClass,2319,10; bonus2 bAddDamageClass,2333,10; bonus2 bAddDamageClass,2332,10; }
+1214,CHOCO,Choco,0,9091,0,537,2,120,15,100,250,20,0,150,0,0,300,300,800,1,{},{bonus bLongAtkRate,3; bonus bCritical,9;}
 1242,MARIN,Marin,12789,9061,10039,6534,80,60,50,100,250,20,2000,150,1,0,300,300,800,0,{},{}
 2398,LITTLE_PORING,Novice Poring,12846,9062,0,531,80,60,1000,0,250,0,5000,150,0,0,300,300,800,0,{},{ bonus bHPrecovRate,50; }

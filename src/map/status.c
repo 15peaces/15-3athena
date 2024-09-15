@@ -10401,10 +10401,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_SV_ROOTTWIST:
 		case SC_NEEDLE_OF_PARALYZE:
 		case SC_TINDER_BREAKER:
-			unit_stop_walking(bl,1);
-			break;
 		case SC_ANKLE:
-			if (battle_config.skill_trap_type || !map_flag_gvg(bl->m))
+			if (!unit_blown_immune(bl, 0x1))
 				unit_stop_walking(bl, 1);
 			break;
 		case SC_HIDING:

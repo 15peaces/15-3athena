@@ -8194,6 +8194,21 @@
 20241,C_Eclipse_Hat,Costume Eclipse Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,922,{},{},{}
 20242,C_Snownow_Hat,Costume Snownow Hat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1313,{},{},{}
 20243,C_Choco_Mint_Bonnet,Costume Choco Mint Bonnet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1314,{},{},{}
+20244,C_Zealotus_Mask,Costume Zealotus Mask,5,0,,0,,,,0,0xFFFFFFFF,63,2,3072,,,,200,{},{},{}
+20245,C_Cat_Paw_Hairpin,Costume Cat Paw Hairpin,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,447,{},{},{}
+20246,C_Decoration_of_Time,Costume Decoration of Time,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1309,{},{},{}
+20247,C_Black_Hand_of_Fate,Costume Black Hand of Fate,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1310,{},{},{}
+20248,C_Black_Strong_Hair,Costume Black Hand of Fate,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1315,{},{},{}
+20249,C_Red_Strong_Hair,Costume Red Hand of Fate,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1316,{},{},{}
+//
+20251,C_Rose_Cascade,Costume Rose Cascade,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,920,{},{},{}
+20252,C_Mage_Decoration,Costume Mage Decoration,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1150,{},{},{}
+20253,C_Drooping_Alicel,Costume Drooping Alicel,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,784,{},{},{}
+20254,C_Yellow_Ribbon,Costume Yellow Ribbon,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,243,{},{},{}
+20255,C_Love_Cheeks,Costume Love Cheeks,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1318,{},{},{}
+20256,C_Honey_Pancake,Costume Honey Pancake,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1319,{},{},{}
+20257,C_Black_Rabbit_Bonnet,Costume Black Rabbit Bonnet,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1320,{},{},{}
+20258,C_Blue_Headdress,Costume Blue Headdress,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1321,{},{},{}
 //
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
 
