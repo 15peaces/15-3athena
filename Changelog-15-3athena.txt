@@ -6,6 +6,22 @@
 //			--More Details.
 //========================================
 
+09/17/2024
+	r475 [15peaces]
+		*Autobonus fixes:
+			-Autobonus now works with combined positions rather than just a single position
+			-Autobonus should now also work with all equipment slots instead of just the first 15
+			-This does NOT fix problems with multiple auto-bonuses activating at the same time
+			-Fixed "Autocast on magic hit" having its chance halved
+		*Monsters will now stop instantly if their target is completely non-existent
+			-This is mainly for looters that had their loot taken
+			-Hide and most other situations still use the configuration setting monster_chase_refresh
+		*Fixed NPC_STONESKIN, NPC_ANTIMAGIC, NPC_MAGICMIRROR
+			-Using the skills will now be 100% successful (can't be resisted)
+			-Fixed skills not working for players (e.g. Ulfhedinn, Mithril Magic Cape, Platinum Shield)
+			-Fixed level 5 and 10 not working at all
+			-NPC_STONESKIN and NPC_ANTIMAGIC will no longer change DEF/MDEF, instead they will increase/reduce physical/magical damage percentually, this IS official behavior
+
 09/15/2024
 	r474 [15peaces]
 		*Added Choco Pet

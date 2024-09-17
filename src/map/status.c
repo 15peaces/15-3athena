@@ -5849,8 +5849,6 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		return 0;
 	if (sc->data[SC_DEFSET])
 		return sc->data[SC_DEFSET]->val1;
-	if(sc->data[SC_ARMORCHANGE])
-		def += sc->data[SC_ARMORCHANGE]->val2;
 	if(sc->data[SC_DRUMBATTLE])
 		def += sc->data[SC_DRUMBATTLE]->val3;
 	if(sc->data[SC_DEFENCE])	//[orn]
@@ -6020,8 +6018,6 @@ static signed char status_calc_mdef(struct block_list *bl, struct status_change 
 		mdef += (sc->data[SC_ENDURE]->val4 == 0) ? sc->data[SC_ENDURE]->val1 : 1;
 	if (sc->data[SC_CONCENTRATION])
 		mdef += 1; //Skill info says it adds a fixed 1 Mdef point.
-	if(sc->data[SC_ARMORCHANGE])
-		mdef += sc->data[SC_ARMORCHANGE]->val3;
 	if (sc->data[SC_STONEHARDSKIN])
 		mdef += sc->data[SC_STONEHARDSKIN]->val2;
 	if (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 3)
@@ -7384,12 +7380,6 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	case SC_NORECOVER:
 		natural_def = false;
 		break;
-
-	case SC_MAGICMIRROR:
-	case SC_ARMORCHANGE:
-		if (sd) //Duration greatly reduced for players.
-			tick /= 15;
-		sc_def2 = status_get_lv(bl) * 20 + status->vit * 25 + status->agi * 10; // Lineal Reduction of Rate
 	default:
 		//Effect that cannot be reduced? Likely a buff.
 		if (!(rnd()%10000 < rate))
@@ -9276,6 +9266,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 20*val1; //Heal effectiveness decrease
 			break;
 		case SC_MAGICMIRROR:
+			val1 = 1 + ((val1 - 1) % 5);
 		case SC_SLOWCAST:
 			val2 = 20*val1; //Magic reflection/cast rate
 			break;
@@ -9289,6 +9280,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val2 = 20;
 				val3 =-20;
 			}
+			val1 = 1 + ((val1 - 1) % 5);
 			val2*=val1; //20% per level
 			val3*=val1;
 			break;

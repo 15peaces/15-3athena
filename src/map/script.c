@@ -3969,14 +3969,18 @@ static int db_script_free_code_sub(DBKey key, DBData *data, va_list ap)
 	return 0;
 }
 
-void script_run_autobonus(const char *autobonus, int id, int pos)
+void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos)
 {
 	struct script_code *script = (struct script_code *)strdb_get(autobonus_db, autobonus);
 
 	if( script )
 	{
-		current_equip_item_index = pos;
-		run_script(script,0,id,0);
+		int j;
+		ARR_FIND(0, EQI_MAX, j, sd->equip_index[j] >= 0 && sd->inventory.u.items_inventory[sd->equip_index[j]].equip == pos);
+		if (j < EQI_MAX)
+			current_equip_item_index = sd->equip_index[j];
+
+		run_script(script, 0, sd->bl.id, 0);
 	}
 }
 

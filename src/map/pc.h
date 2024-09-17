@@ -106,7 +106,7 @@ struct s_autobonus {
 	unsigned int duration;
 	char *bonus_script, *other_script;
 	int active;
-	unsigned short pos;
+	unsigned int pos;
 };
 
 ///Timed bonus 'bonus_script' struct [Cydh]
@@ -187,7 +187,7 @@ struct map_session_data {
 		unsigned short autoloot;
 		int autolootid[AUTOLOOTITEM_SIZE]; // [Zephyrus]
 		unsigned int autolooting : 1; //performance-saver, autolooting state for @alootid
-		unsigned short autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
+		unsigned int autobonus; //flag to indicate if an autobonus is activated. [Inkfish]
 		unsigned improv_flag : 1;
 		unsigned magicmushroom_flag : 1;
 		unsigned no_gemstone : 1; // If a skill have a partner near, it don't consume gemstone but SP from all (ADORAMUS, COMET)
@@ -901,7 +901,7 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 
 int pc_updateweightstatus(struct map_session_data *sd);
 
-int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short atk_type,const char *o_script,unsigned short pos,bool onskill);
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short atk_type,const char *o_script,unsigned int pos,bool onskill);
 int pc_exeautobonus(struct map_session_data* sd,struct s_autobonus *bonus);
 int pc_endautobonus(int tid, int64 tick, int id, intptr_t data);
 int pc_delautobonus(struct map_session_data* sd,struct s_autobonus *bonus,char max,bool restore);

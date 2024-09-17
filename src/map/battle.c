@@ -1040,6 +1040,14 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				damage >>= 2; //75% reduction
 		}
 
+		if (sc->data[SC_ARMORCHANGE]) {
+			//On official servers, SC_ARMORCHANGE does not change DEF/MDEF but rather increases/decreases the damage
+			if (flag&BF_WEAPON)
+				damage = damage * (sc->data[SC_ARMORCHANGE]->val2) / 100;
+			else if (flag&BF_MAGIC)
+				damage = damage * (sc->data[SC_ARMORCHANGE]->val3) / 100;
+		}
+
 		if( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
 		{
 			if( (flag&(BF_SHORT|BF_WEAPON)) == (BF_SHORT|BF_WEAPON) )

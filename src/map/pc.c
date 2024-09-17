@@ -2435,7 +2435,7 @@ static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigne
 	return;
 }
 
-int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned short pos,bool onskill)
+int pc_addautobonus(struct s_autobonus *bonus,char max,const char *script,short rate,unsigned int dur,short flag,const char *other_script,unsigned int pos,bool onskill)
 {
 	int i;
 
@@ -2483,14 +2483,19 @@ int pc_delautobonus(struct map_session_data* sd, struct s_autobonus *autobonus,c
 	{
 		if( autobonus[i].active != INVALID_TIMER )
 		{
-			if( restore && sd->state.autobonus&autobonus[i].pos )
+			if( restore && (sd->state.autobonus&autobonus[i].pos) == autobonus[i].pos)
 			{
 				if( autobonus[i].bonus_script )
 				{
 					int j;
-					ARR_FIND( 0, EQI_MAX, j, sd->equip_index[j] >= 0 && sd->inventory.u.items_inventory[sd->equip_index[j]].equip == autobonus[i].pos );
-					if( j < EQI_MAX )
-						script_run_autobonus(autobonus[i].bonus_script,sd->bl.id,sd->equip_index[j]);
+					unsigned int equip_pos = 0;
+					//Create a list of all equipped positions to see if all items needed for the autobonus are still present [Playtester]
+					for (j = 0; j < EQI_MAX; j++) {
+						if (sd->equip_index[j] >= 0)
+							equip_pos |= sd->inventory.u.items_inventory[sd->equip_index[j]].equip;
+					}
+					if ((equip_pos&autobonus[i].pos) == autobonus[i].pos)
+						script_run_autobonus(autobonus[i].bonus_script, sd, autobonus[i].pos);
 				}
 				continue;
 			}
@@ -2519,9 +2524,14 @@ int pc_exeautobonus(struct map_session_data *sd,struct s_autobonus *autobonus)
 	if( autobonus->other_script )
 	{
 		int j;
-		ARR_FIND( 0, EQI_MAX, j, sd->equip_index[j] >= 0 && sd->inventory.u.items_inventory[sd->equip_index[j]].equip == autobonus->pos );
-		if( j < EQI_MAX )
-			script_run_autobonus(autobonus->other_script,sd->bl.id,sd->equip_index[j]);
+		unsigned int equip_pos = 0;
+		//Create a list of all equipped positions to see if all items needed for the autobonus are still present [Playtester]
+		for (j = 0; j < EQI_MAX; j++) {
+			if (sd->equip_index[j] >= 0)
+				equip_pos |= sd->inventory.u.items_inventory[sd->equip_index[j]].equip;
+		}
+		if ((equip_pos&autobonus->pos) == autobonus->pos)
+			script_run_autobonus(autobonus->other_script, sd, autobonus->pos);
 	}
 
 	autobonus->active = add_timer(gettick()+autobonus->duration, pc_endautobonus, sd->bl.id, (intptr_t)autobonus);
