@@ -473,8 +473,15 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 		ud->steptimer = add_timer(tick + i, unit_step_timer, bl->id, 0);
 	}
 		
-	if(ud->state.change_walk_target)
-		return unit_walktoxy_sub(bl);
+	if (ud->state.change_walk_target) {
+		if (unit_walktoxy_sub(bl)) {
+			return 1;
+		}
+		else {
+			clif_fixpos(bl);
+			return 0;
+		}
+	}
 
 	ud->walkpath.path_pos++;
 	if(ud->walkpath.path_pos>=ud->walkpath.path_len)

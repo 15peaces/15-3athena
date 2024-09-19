@@ -6,6 +6,32 @@
 //			--More Details.
 //========================================
 
+09/19/2024
+	r476 [15peaces]
+		*Fixed up the damage code in regards of damage against plants
+			-Rewrote DAMAGE_DIV_FIX so that it rounds damage down when number of hits is negative (damage split on hits)
+			-Created a function battle_apply_div_fix that does not only call DAMAGE_DIV_FIX but also makes sure that damage can only become 0 when the custom config setting skill_min_damage is not set for the current skill type
+			-skill_min_damage is now 0 by default (official: all types can fail against plants as long as skills have negative number of hits), if set, all skills will deal as much damage as hits
+			-Restructured and renamed function now known as "is_infinite_defense" that will work for all 3 damage types and returns if damage is infinite for the current situation, it will now also properly consider all "MD_IGNORE" modes
+			-Fixed the order of processing of all 3 skill types in regards of plant damage: first all calculations are done, then plant damage is applied and then DAMAGE_DIV_FIX is applied
+			-Sonic Blow and Rapid Shower are now skills with negative number of hits (i.e. they can't hit plants officially)
+			-Traps can no longer ignore plant mode (only way to damage plant more is via status changes)
+			-Final Strike is now able to hit plants (deals 1 HP damage)
+			-When left-hand-wielding, you will now always deal 2 damage to plants per attack, regardless of whether double attack triggers or you don't even have a weapon in the right hand
+			-There will no longer be backhand damage to plants (Katar)
+		*Land Mine is now a single target skill, the trap still triggers in a 3x3 area, but will only hit the first target that touches it
+		*Changed the "Don't return reflect damage" flag from 0x1000 to 0x1000000 as apparently the other flag was already used; updated function description so it's easier to see
+		*Improved SC_SIGHTBLASTER structure slightly
+		*1st Transcendent Spirit will now work as on official servers
+			-The max total stat that is granted by the skill is now BaseLevel-10 with a maximum of 50 instead of always 50
+			-It will now work as Marionette Control and calculate the bonus at cast time rather than overwrite all existing bonuses
+			-Agi Up and Blessing will now cancel the soul link
+		*Fixed various problems that caused position lags on the client
+			-Added a define ACTIVEPATHSEARCH in mob.c; if active (default and official), monsters will only grab targets if the walk path to the target is shorter or equal their search range; search range depends on whether the monster is moving or not 
+			- (range2 for standing monsters and range3 for walking monsters); this requires a lot of CPU load, if it causes trouble, just comment the define for old behavior
+			-Fixed a bug that made monsters display "irregular movement with position lag" continuously when a status change ended that changed their walk speed
+			-If the path search fails while a unit is already moving, we will now issue of fixpos packet so that the unit does not only stop moving on the server, but also on the client
+
 09/17/2024
 	r475 [15peaces]
 		*Autobonus fixes:

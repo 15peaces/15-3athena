@@ -2759,11 +2759,10 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
  * flag can hold a bunch of information:
  * flag&0xFFF is passed to the underlying battle_calc_attack for processing
  *      (usually holds number of targets, or just 1 for simple splash attacks)
- * flag&0x01000 is used to tag that this is a splash-attack (so the damage
- *      packet shouldn't display a skill animation)
- * flag&0x02000 is used to signal that the skill_lv should be passed as -1 to the
- *      client (causes player characters to not scream skill name)
- * flag&0x10000 - Return 0 if damage was reflected
+	 flag&0xF000 - Values from enum e_skill_display
+ *        flag&0x3F0000 - Values from enum e_battle_check_target
+ *
+ *        flag&0x1000000 - Return 0 if damage was reflected
  *-------------------------------------------------------------------------*/
 int64 skill_attack (int attack_type, struct block_list* src, struct block_list *dsrc, struct block_list *bl, int skill_id, int skill_lv, int64 tick, int flag)
 {
@@ -3385,7 +3384,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	map_freeblock_unlock();
 
-	if ((flag & 0x10000) && rmdamage == 1)
+	if ((flag & 0x1000000) && rmdamage == 1)
 		return 0; //Should return 0 when damage was reflected
 
 	return damage;
@@ -14247,6 +14246,12 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			break;
 
 		case UNT_LANDMINE:
+			//Land Mine only hits single target
+			skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+			sg->unit_id = UNT_USED_TRAPS; //Changed ID so it does not invoke a for each in area again.
+			sg->limit = 1500;
+			break;
+
 		case UNT_CLAYMORETRAP:
 		case UNT_BLASTMINE:
 		case UNT_SHOCKWAVE:
