@@ -2521,7 +2521,7 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 int skill_blown(struct block_list* src, struct block_list* target, int count, int direction, unsigned char flag)
 {
 	int dx = 0, dy = 0;
-	int reason = 0, checkflag = 0;
+	uint8 reason = 0, checkflag = 0;
 
 	nullpo_ret(src);
 	nullpo_ret(target);
@@ -2809,16 +2809,20 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if(src->type==BL_PET)
 	{ // [Valaris]
 		struct pet_data *pd = (TBL_PET*)src;
-		if (pd->a_skill && pd->a_skill->div_ && pd->a_skill->id == skill_id)
-		{
-			int element = skill_get_ele(skill_id, skill_lv);
-			if (skill_id == -1)
-				element = sstatus->rhw.ele;
-			if (element != ELE_NEUTRAL || !(battle_config.attack_attr_none&BL_PET))
-				dmg.damage=battle_attr_fix(src, bl, skill_lv, element, tstatus->def_ele, tstatus->ele_lv);
+		if (pd->a_skill && pd->a_skill->div_ && pd->a_skill->id == skill_id) { //petskillattack2
+			if (!is_infinite_defense(bl, dmg.flag)) {
+				int element = skill_get_ele(skill_id, skill_lv);
+				/*if (skill_id == -1) Does it ever worked?
+					element = sstatus->rhw.ele;*/
+				if (element != ELE_NEUTRAL || !(battle_config.attack_attr_none&BL_PET))
+					dmg.damage = battle_attr_fix(src, bl, pd->a_skill->damage, element, tstatus->def_ele, tstatus->ele_lv);
+				else
+					dmg.damage = pd->a_skill->damage; // Fixed damage
+
+			}
 			else
-				dmg.damage= skill_lv;
-			dmg.damage2=0;
+				dmg.damage = 1 * pd->a_skill->div_;
+			dmg.damage2 = 0;
 			dmg.div_= pd->a_skill->div_;
 		}
 	}
@@ -6191,6 +6195,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		status_kill(bl);
 		break;
 	case SA_REVERSEORCISH:
+	case ALL_REVERSEORCISH:
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,
 			sc_start(bl,type,100,skill_lv,skill_get_time(skill_id, skill_lv)));
 		break;
@@ -14204,7 +14209,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					if( td )
 						sec = DIFF_TICK32(td->tick, tick);
 					unit_movepos(bl, src->bl.x, src->bl.y, 0, 0);
-					if (!unit_blown_immune(bl, 0x1))
+					if ((sg->unit_id == UNT_MANHOLE && bl->type == BL_PC) || !unit_blown_immune(bl, 0x1))
 					{
 						clif_fixpos(bl);
 						sg->val2 = bl->id;

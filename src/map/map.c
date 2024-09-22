@@ -1903,6 +1903,8 @@ int map_quit(struct map_session_data *sd)
 		status_change_end(&sd->bl, SC_READYDOWN, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_READYTURN, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_READYCOUNTER, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_CBC, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_EQC, INVALID_TIMER);
 		if (battle_config.debuff_on_logout&1) 
 		{
 			status_change_end(&sd->bl, SC_ORCISH, INVALID_TIMER);

@@ -13113,11 +13113,18 @@ BUILDIN_FUNC(petrecovery)
 {
 	struct pet_data *pd;
 	TBL_PC *sd=script_rid2sd(st);
+	int sc;
 
 	if(sd==NULL || sd->pd==NULL)
-		return 0;
+		return 1;
 
-	pd=sd->pd;
+	sc = script_getnum(st, 2);
+	if (sc <= SC_NONE || sc >= SC_MAX) {
+		ShowError("buildin_petrecovery: Invalid SC type: %d\n", sc);
+		return 1;
+	}
+
+	pd = sd->pd;
 	
 	if (pd->recovery)
 	{ //Halt previous bonus
@@ -13126,7 +13133,7 @@ BUILDIN_FUNC(petrecovery)
 	} else //Init
 		pd->recovery = (struct pet_recovery *)aMalloc(sizeof(struct pet_recovery));
 		
-	pd->recovery->type = (sc_type)script_getnum(st,2);
+	pd->recovery->type = (sc_type)sc;
 	pd->recovery->delay = script_getnum(st,3);
 	pd->recovery->timer = INVALID_TIMER;
 
@@ -13183,18 +13190,27 @@ BUILDIN_FUNC(petskillattack)
 	struct pet_data *pd;
 	struct script_data *data;
 	TBL_PC *sd=script_rid2sd(st);
+	int id = 0;
 
 	if(sd==NULL || sd->pd==NULL)
-		return 0;
+		return 1;
 
-	pd=sd->pd;
+	data = script_getdata(st, 2);
+	get_val(st, data);
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : skill_get_index(script_getnum(st, 2)));
+	if (!id) {
+		ShowError("buildin_petskillattack: Invalid skill defined!\n");
+		return 1;
+	}
+
+	pd = sd->pd;
+
 	if (pd->a_skill == NULL)
 		pd->a_skill = (struct pet_skill_attack *)aMalloc(sizeof(struct pet_skill_attack));
 				
-	data = script_getdata(st, 2);
-	get_val(st, data); // Convert into value in case of a variable
-	pd->a_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	pd->a_skill->lv=script_getnum(st,3);
+	pd->a_skill->id = id;
+	pd->a_skill->damage = 0;
+	pd->a_skill->lv = (unsigned short)min(script_getnum(st, 3), skill_get_max(pd->a_skill->id));
 	pd->a_skill->div_ = 0;
 	pd->a_skill->rate=script_getnum(st,4);
 	pd->a_skill->bonusrate=script_getnum(st,5);
@@ -13205,25 +13221,34 @@ BUILDIN_FUNC(petskillattack)
 /*==========================================
  * pet attack skills [Valaris]
  *------------------------------------------*/
-/// petskillattack2 <skill id>,<level>,<div>,<rate>,<bonusrate>
-/// petskillattack2 "<skill name>",<level>,<div>,<rate>,<bonusrate>
+/// petskillattack2 <skill id>,<damage>,<div>,<rate>,<bonusrate>
+/// petskillattack2 "<skill name>",<damage>,<div>,<rate>,<bonusrate>
 BUILDIN_FUNC(petskillattack2)
 {
 	struct pet_data *pd;
 	TBL_PC *sd=script_rid2sd(st);
 	struct script_data *data;
+	int id = 0;
 
 	if(sd==NULL || sd->pd==NULL)
-		return 0;
+		return 1;
 
-	pd=sd->pd;
+	data = script_getdata(st, 2);
+	get_val(st, data);
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : skill_get_index(script_getnum(st, 2)));
+	if (!id) {
+		ShowError("buildin_petskillattack2: Invalid skill defined!\n");
+		return 1;
+	}
+
+	pd = sd->pd;
+
 	if (pd->a_skill == NULL)
 		pd->a_skill = (struct pet_skill_attack *)aMalloc(sizeof(struct pet_skill_attack));
 				
-	data = script_getdata(st, 2);
-	get_val(st, data); // Convert into value in case of a variable
-	pd->a_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	pd->a_skill->lv=script_getnum(st,3);
+	pd->a_skill->id = id;
+	pd->a_skill->damage = script_getnum(st, 3); // Fixed damage
+	pd->a_skill->lv = (unsigned short)skill_get_max(pd->a_skill->id); // Adjust to max skill level
 	pd->a_skill->div_ = script_getnum(st,4);
 	pd->a_skill->rate=script_getnum(st,5);
 	pd->a_skill->bonusrate=script_getnum(st,6);
@@ -13241,11 +13266,21 @@ BUILDIN_FUNC(petskillsupport)
 	struct pet_data *pd;
 	struct script_data *data;
 	TBL_PC *sd=script_rid2sd(st);
+	int id = 0;
 
 	if(sd==NULL || sd->pd==NULL)
-		return 0;
+		return 1;
 
-	pd=sd->pd;
+	data = script_getdata(st, 2);
+	get_val(st, data);
+	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : skill_get_index(script_getnum(st, 2)));
+	if (!id) {
+		ShowError("buildin_petskillsupport: Invalid skill defined!\n");
+		return 1;
+	}
+
+	pd = sd->pd;
+
 	if (pd->s_skill)
 	{ //Clear previous skill
 		if (pd->s_skill->timer != INVALID_TIMER)
@@ -13258,13 +13293,11 @@ BUILDIN_FUNC(petskillsupport)
 	} else //init memory
 		pd->s_skill = (struct pet_skill_support *) aMalloc(sizeof(struct pet_skill_support)); 
 	
-	data = script_getdata(st, 2);
-	get_val(st, data); // Convert into value in case of a variable
-	pd->s_skill->id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	pd->s_skill->lv=script_getnum(st,3);
-	pd->s_skill->delay=script_getnum(st,4);
-	pd->s_skill->hp=script_getnum(st,5);
-	pd->s_skill->sp=script_getnum(st,6);
+	pd->s_skill->id = id;
+	pd->s_skill->lv = script_getnum(st, 3);
+	pd->s_skill->delay = script_getnum(st, 4);
+	pd->s_skill->hp = script_getnum(st, 5);
+	pd->s_skill->sp = script_getnum(st, 6);
 
 	//Use delay as initial offset to avoid skill/heal exploits
 	if (battle_config.pet_equip_required && pd->pet.equip == 0)

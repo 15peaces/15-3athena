@@ -445,7 +445,7 @@ int pet_data_init(struct map_session_data *sd, struct s_pet *pet)
 		run_script(pet_db[i].pet_script,0,sd->bl.id,0);
 
 	if (pd->petDB) {
-		if (pd->petDB->equip_script)
+		if (pd->petDB->pet_loyal_script)
 			status_calc_pc(sd, SCO_NONE);
 
 		if (battle_config.pet_hungry_delay_rate != 100)
@@ -1332,9 +1332,9 @@ void read_petdb()
 			script_free_code(pet_db[j].pet_script);
 			pet_db[j].pet_script = NULL;
 		}
-		if( pet_db[j].equip_script )
+		if( pet_db[j].pet_loyal_script )
 		{
-			script_free_code(pet_db[j].equip_script);
+			script_free_code(pet_db[j].pet_loyal_script);
 			pet_db[j].pet_script = NULL;
 		}
 	}
@@ -1445,12 +1445,12 @@ void read_petdb()
 			pet_db[j].change_target_rate=atoi(str[19]);
 			pet_db[j].autofeed = atoi(str[20]);
 			pet_db[j].pet_script = NULL;
-			pet_db[j].equip_script = NULL;
+			pet_db[j].pet_loyal_script = NULL;
 
 			if( *str[21] )
 				pet_db[j].pet_script = parse_script(str[21], filename[i], lines, 0);
 			if( *str[22] )
-				pet_db[j].equip_script = parse_script(str[22], filename[i], lines, 0);
+				pet_db[j].pet_loyal_script = parse_script(str[22], filename[i], lines, 0);
 
 			j++;
 			entries++;
@@ -1609,10 +1609,10 @@ void do_final_pet(void)
 			script_free_code(pet_db[i].pet_script);
 			pet_db[i].pet_script = NULL;
 		}
-		if( pet_db[i].equip_script )
+		if( pet_db[i].pet_loyal_script)
 		{
-			script_free_code(pet_db[i].equip_script);
-			pet_db[i].equip_script = NULL;
+			script_free_code(pet_db[i].pet_loyal_script);
+			pet_db[i].pet_loyal_script = NULL;
 		}
 
 		/* Pet Evolution [Dastgir/Hercules] */

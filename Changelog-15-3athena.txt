@@ -6,6 +6,23 @@
 //			--More Details.
 //========================================
 
+09/22/2024
+	r477 [15peaces]
+		*Some misc optimisation.
+			-Please don't forget to add the upgrade_15-3athena_svn477.sql file!
+		*Some item updates.
+			-Fixed some item bonusses.
+			-Added some missing items.
+		*ALL_REVERSEORCISH
+			-Added full support for this skill.
+		*A little cleanup for Pets
+			-Separated damage value for petskillattack2 to its own var 'damage', that previously use 'lv' var to store the value.
+			-Added validation for pet script commands
+				--Skill for petskillattack, petskillattack2, & petskillsupport
+				--SC range for petrecovery.
+		*Fixed another potential map crash.
+			-SC_EQC & SC_CBC shouldn't be saved on logout.
+
 09/19/2024
 	r476 [15peaces]
 		*Fixed up the damage code in regards of damage against plants

@@ -5398,7 +5398,7 @@
 12344,Pinguicula's_fruit_Jam,Pinguicula's Fruit Jam,2,0,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ specialeffect2 EF_POTION_BERSERK; sc_start SC_SPL_ATK,600000,10; },{},{}
 12345,Luciola's_Honey_Jam,Luciola's Honey Jam,2,0,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ specialeffect2 EF_GUARD; sc_start SC_SPL_DEF,600000,10; },{},{}
 12346,Unripe_Acorn,Unripe Acorn,2,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ heal -100,0; },{},{}
-12347,Acorn_Jelly,Acorn Jelly,2,11,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ALL_REVERSEORCISH",1; },{},{}
+12347,Acorn_Jelly,Acorn Jelly,11,0,,0,,,,,0xFFFFFFFF,7,2,,,,,,{ itemskill "ALL_REVERSEORCISH",1; },{},{}
 12348,Manuk's_Faith,Manuk's Faith,2,0,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ specialeffect2 EF_POTION_BERSERK; sc_start SC_MANU_MATK,600000,10; },{},{}
 12349,Cornus'_Tears,Cornus' Tears,2,0,,50,,,,,0xFFFFFFFF,7,2,,,,,,{ specialeffect2 EF_POTION_BERSERK; sc_start SC_SPL_MATK,600000,10; },{},{}
 12350,Angeling_Potion,Angeling Potion,11,20,,100,,,,,0xFFFFFFFF,7,2,,,,,,{ skilleffect "AL_BLESSING",0; sc_start SC_BLESSING,120000,5; itemskill "AL_ANGELUS",5; },{},{}

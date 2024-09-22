@@ -108,6 +108,9 @@ int battle_check_target(struct block_list *src, struct block_list *target,int fl
 bool battle_check_range(struct block_list *src,struct block_list *bl,int range);
 
 void battle_consume_ammo(TBL_PC*sd, int skill, int lv);
+
+bool is_infinite_defense(struct block_list *target, int flag);
+
 // İ’è
 
 // Human Styles and Colors

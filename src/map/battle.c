@@ -1776,7 +1776,7 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 /*=======================================================
  * Should infinite defense be applied on target? (plant)
  *-------------------------------------------------------*/
-static bool is_infinite_defense(struct block_list *target, int flag)
+bool is_infinite_defense(struct block_list *target, int flag)
 {
 	struct status_data *tstatus = status_get_status_data(target);
 

@@ -40,7 +40,7 @@ struct s_pet_db {
 	int defence_attack_rate;
 	int change_target_rate;
 	int autofeed;
-	struct script_code *equip_script;
+	struct script_code *pet_loyal_script;
 	struct script_code *pet_script;
 
 	/* Pet Evolution */
@@ -78,6 +78,7 @@ struct pet_bonus {
 struct pet_skill_attack { //Attack Skill
 	unsigned short id;
 	unsigned short lv;
+	unsigned short damage; // Fixed damage value of petskillattack2
 	unsigned short div_; //0 = Normal skill. >0 = Fixed damage (lv), fixed div_.
 	unsigned short rate; //Base chance of skill ocurrance (10 = 10% of attacks)
 	unsigned short bonusrate; //How being 100% loyal affects cast rate (10 = At 1000 intimacy->rate+10%
@@ -114,7 +115,7 @@ struct pet_data {
 	} state;
 	int move_fail_count;
 	int64 next_walktime, last_thinktime;
-	short rate_fix;	//Support rate as modified by intimacy (1000 = 100%) [Skotlex]
+	unsigned short rate_fix;	//Support rate as modified by intimacy (1000 = 100%) [Skotlex]
 
 	struct pet_recovery* recovery;
 	struct pet_bonus* bonus;

@@ -5477,6 +5477,8 @@ Flags (bitmask):
 	256 : Remove when Madogear is activated or deactivated.
 	512 : Remove when receive damage.
 	1024: Script is permanent, cannot be cleared by bonus_script_clear
+	2048: Force to add duplicated script. This flag cannot be stacked with 1024,
+	      if both are defined, 1024 will be checked first and ignore this flag.
 
 Types:
 	This will be used to decide negative or positive buff for 'debuff_on_logout'.
