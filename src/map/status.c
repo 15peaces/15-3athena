@@ -4265,10 +4265,7 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 			regen->sregen->rate.hp += 300;
 	}
 	if (sc->data[SC_MAGNIFICAT])
-	{
-		regen->rate.hp += 100;
 		regen->rate.sp += 100;
-	}
 
 	if (sc->data[SC_CATNIPPOWDER])
 	{// Rate increase is unknown. Also not sure if this stacks with other increases. [Rytech]
@@ -8885,7 +8882,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 					for (i = 0; i < 5; i++)
 					{	//See if there are devoted characters, and pass the status to them. [Skotlex]
 						if (sd->devotion[i] && (tsd = map_id2sd(sd->devotion[i])))
-							status_change_start(src, &tsd->bl, type, 10000, val1, 5 + val1 * 5, val3, val4, tick, 1);
+							status_change_start(src, &tsd->bl, type, 10000, val1, val2, val3, val4, tick, 1);
 					}
 				}
 			}
@@ -10829,6 +10826,12 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_FOOD_DEX_CASH:
 				case SC_FOOD_INT_CASH:
 				case SC_FOOD_LUK_CASH:
+				case SC_SAVAGE_STEAK:
+				case SC_COCKTAIL_WARG_BLOOD:
+				case SC_MINOR_BBQ:
+				case SC_SIROMA_ICE_TEA:
+				case SC_DROCERA_HERB_STEAMED:
+				case SC_PUTTI_TAILS_NOODLES:
 				case SC_ALL_RIDING:
 				case SC_ON_PUSH_CART:
 				case SC_MOONSTAR:
@@ -13313,7 +13316,7 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 	struct view_data *vd = NULL;
 	struct regen_data_sub *sregen;
 	struct map_session_data *sd;
-	int val, rate, bonus = 0, flag, heal_interval;
+	int val, rate, multi = 1, flag, heal_interval;
 
 	regen = status_get_regen_data( bl );
 	if ( !regen ) 
@@ -13401,15 +13404,15 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 	{
 		if(!vd) vd = status_get_viewdata(bl);
 		if(vd && vd->dead_sit == 2)
-			bonus += 100;
+			multi += 1; //This causes the interval to be halved
 		if(regen->state.gc)
-			bonus += 100;
+			multi += 1; //This causes the interval to be halved
 	}
 
 	//Natural Hp regen
 	if (flag&RGN_HP)
 	{
-		rate = natural_heal_diff_tick * (regen->rate.hp + bonus) / 100;
+		rate = (int)(natural_heal_diff_tick * (regen->rate.hp / 100. * multi));
 		if (!(sc && sc->data[SC_GENTLETOUCH_REVITALIZE]) && ud && ud->walktimer != INVALID_TIMER)
 			rate/=2;
 
@@ -13437,7 +13440,7 @@ static int status_natural_heal( struct block_list* bl, va_list args )
 	//Natural SP regen
 	if (flag&RGN_SP)
 	{
-		rate = natural_heal_diff_tick * (regen->rate.sp + bonus) / 100;
+		rate = (int)(natural_heal_diff_tick * (regen->rate.sp/100. * multi));
 
 		regen->tick.sp += rate;
 

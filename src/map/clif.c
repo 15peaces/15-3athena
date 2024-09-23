@@ -12912,17 +12912,24 @@ static void clif_parse_UseSkillToId_homun(struct homun_data *hd, struct map_sess
 
 	if( !hd )
 		return;
-	if( skillnotok_homun(skill_id, hd) )
+	if (skillnotok_homun(skill_id, hd))
+	{
+		clif_emotion(&hd->bl, E_DOTS);
 		return;
+	}
 	if( hd->bl.id != target_id && skill_get_inf(skill_id)&INF_SELF_SKILL )
 		target_id = hd->bl.id;
 	if( sd->ud.skilltimer != INVALID_TIMER ){
 		if( skill_id != SA_CASTCANCEL &&
 		!(skill_id == SO_SPELLFIST && (sd->ud.skill_id == MG_FIREBOLT || sd->ud.skill_id == MG_COLDBOLT || sd->ud.skill_id == MG_LIGHTNINGBOLT)) )
  			return;
- 	}
-	else if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
+	}
+	else if (DIFF_TICK(tick, hd->ud.canact_tick) < 0) {
+		clif_emotion(&hd->bl, E_DOTS);
+		if (hd->master)
+			clif_skill_fail(hd->master, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
 		return;
+	}
 
 	lv = hom_checkskill(hd, skill_id);
 	if( skill_lv > lv )
@@ -12960,12 +12967,17 @@ static void clif_parse_UseSkillToPos_homun(struct homun_data *hd, struct map_ses
 	int lv;
 	if( !hd )
 		return;
-	if( skillnotok_homun(skill_id, hd) )
+	if (skillnotok_homun(skill_id, hd))
+	{
+		clif_emotion(&hd->bl, E_DOTS);
 		return;
+	}
 	if( hd->ud.skilltimer != INVALID_TIMER )
 		return;
-	if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 )
-	{
+	else if( DIFF_TICK(tick, hd->ud.canact_tick) < 0 ) {
+		clif_emotion(&hd->bl, E_DOTS);
+		if (hd->master)
+			clif_skill_fail(hd->master, skill_id, USESKILL_FAIL_SKILLINTERVAL, 0, 0);
 		clif_skill_fail(hd->master, skill_id, 4, 0, 0);
 		return;
 	}

@@ -151,7 +151,7 @@
 #define MAX_GUARDIANS 8	//Local max per castle. [Skotlex]
 #define MAX_QUEST_OBJECTIVES 3 //Max quest objectives for a quest
 #define MAX_QUEST_DROPS 3 ///Max quest drops for a quest
-#define MAX_PC_BONUS_SCRIPT 20 // cydh bonus_script
+#define MAX_PC_BONUS_SCRIPT 50 ///Max bonus script can be fetched from `bonus_script` table on player load [Cydh]
 #define MAX_ITEM_RDM_OPT 5	 /// Max item random option [Napster] 
 #define MAX_CLAN 500
 #define MAX_CLANALLIANCE 6
