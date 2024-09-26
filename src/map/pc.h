@@ -360,6 +360,12 @@ struct map_session_data {
 		short value;
 		int rate, tick;
 	} def_set_race[RC_MAX], mdef_set_race[RC_MAX];
+	struct s_bonus_vanish_race {
+		short hp_rate, ///< Rate 0 - 10000 (100%)
+			hp_per,	   ///< % HP vanished
+			sp_rate,   ///< Rate 0 - 10000 (100%)
+			sp_per;	   ///< % SP vanished
+	} vanish_race[RC_MAX];
 	// zeroed structures end here
 	// manually zeroed structures start here.
 	struct s_autobonus autobonus[MAX_PC_BONUS], autobonus2[MAX_PC_BONUS], autobonus3[MAX_PC_BONUS]; //Auto script on attack, when attacked, on skill usage

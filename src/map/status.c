@@ -1762,7 +1762,7 @@ int status_heal(struct block_list *bl,int64 hhp,int64 hsp, int flag)
 //If rates are < 0, percent is of max HP/SP
 //If !flag, this is heal, otherwise it is damage.
 //Furthermore, if flag==2, then the target must not die from the substraction.
-int status_percent_change(struct block_list *src,struct block_list *target,signed char hp_rate, signed char sp_rate, int flag)
+int status_percent_change(struct block_list *src, struct block_list *target, int8 hp_rate, int8 sp_rate, uint8 flag)
 {
 	struct status_data *status;
 	unsigned int hp  =0, sp = 0;
@@ -1772,15 +1772,11 @@ int status_percent_change(struct block_list *src,struct block_list *target,signe
 	if (hp_rate > 99)
 		hp = status->hp;
 	else if (hp_rate > 0)
-		hp = status->hp>10000?
-			hp_rate*(status->hp/100):
-			((int64)hp_rate*status->hp)/100;
+		hp = apply_rate(status->hp, hp_rate);
 	else if (hp_rate < -99)
 		hp = status->max_hp;
 	else if (hp_rate < 0)
-		hp = status->max_hp>10000?
-			(-hp_rate)*(status->max_hp/100):
-			((int64)-hp_rate*status->max_hp)/100;
+		hp = (apply_rate(status->max_hp, -hp_rate));
 	if (hp_rate && !hp)
 		hp = 1;
 
@@ -1790,11 +1786,11 @@ int status_percent_change(struct block_list *src,struct block_list *target,signe
 	if (sp_rate > 99)
 		sp = status->sp;
 	else if (sp_rate > 0)
-		sp = ((int64)sp_rate*status->sp)/100;
+		sp = apply_rate(status->sp, sp_rate);
 	else if (sp_rate < -99)
 		sp = status->max_sp;
 	else if (sp_rate < 0)
-		sp = ((int64)-sp_rate)*status->max_sp/100;
+		sp = (apply_rate(status->max_sp, -sp_rate));
 	if (sp_rate && !sp)
 		sp = 1;
 
@@ -3168,6 +3164,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->subele2)
 		+ sizeof(sd->def_set_race)
 		+ sizeof(sd->mdef_set_race)
+		+ sizeof(sd->vanish_race)
 	);
 
 	memset(&sd->bonus, 0, sizeof(sd->bonus));
@@ -8432,14 +8429,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				if(sce->val1 > val1)
 					return 1;
 				break;
-			case SC_KAAHI:
-				//Kaahi overwrites previous level regardless of existing level.
-				//Delete timer if it exists.
-				if (sce->val4 != INVALID_TIMER) {
-					delete_timer(sce->val4,kaahi_heal_timer);
-					sce->val4 = INVALID_TIMER;
-				}
-				break;
 			case SC_JAILED:
 				//When a player is already jailed, do not edit the jail data.
 				val2 = sce->val2;
@@ -9116,7 +9105,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_KAAHI:
 			val2 = 200*val1; //HP heal
 			val3 = 5*val1; //SP cost 
-			val4 = INVALID_TIMER;	//Kaahi Timer.
 			break;
 		case SC_BLESSING:
 			if ((!undead_flag && status->race!=RC_DEMON) || bl->type == BL_PC)
@@ -10337,9 +10325,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl, LOOK_CLOTHES_COLOR, vd->cloth_color);
 			break;
-		case SC_KAAHI:
-			val4 = INVALID_TIMER;
-			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -11322,11 +11307,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				skill_delunitgroup(group);
 			}
 			break;
-		case SC_KAAHI:
-			//Delete timer if it exists.
-			if (sce->val4 != INVALID_TIMER)
-				delete_timer(sce->val4,kaahi_heal_timer);
-			break;
 		case SC_JAILED:
 			if(tid == INVALID_TIMER)
 				break;
@@ -11802,40 +11782,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		npc_touch_areanpc(sd,bl->m,bl->x,bl->y); //Trigger on-touch event.
 
 	ers_free(sc_data_ers, sce);
-	return 1;
-}
-
-int kaahi_heal_timer(int tid, int64 tick, int id, intptr_t data)
-{
-	struct block_list *bl;
-	struct status_change *sc;
-	struct status_change_entry *sce;
-	struct status_data *status;
-	int hp;
-
-	if(!((bl=map_id2bl(id))&&
-		(sc=status_get_sc(bl)) &&
-		(sce = sc->data[SC_KAAHI])))
-		return 0;
-
-	if(sce->val4 != tid) {
-		ShowError("kaahi_heal_timer: Timer mismatch: %d != %d\n", tid, sce->val4);
-		sce->val4 = INVALID_TIMER;
-		return 0;
-	}
-
-	status=status_get_status_data(bl);
-	if(!status_charge(bl, 0, sce->val3)) {
-		sce->val4 = INVALID_TIMER;
-		return 0;
-	}
-
-	hp = status->max_hp - status->hp;
-	if (hp > sce->val2)
-		hp = sce->val2;
-	if (hp)
-		status_heal(bl, hp, 0, 2);
-	sce->val4 = INVALID_TIMER;
 	return 1;
 }
 
@@ -13750,7 +13696,6 @@ int status_readdb(void)
 int do_init_status(void)
 {
 	add_timer_func_list(status_change_timer,"status_change_timer");
-	add_timer_func_list(kaahi_heal_timer,"kaahi_heal_timer");
 	add_timer_func_list(status_natural_heal_timer,"status_natural_heal_timer");
 	initChangeTables();
 	initDummyData();

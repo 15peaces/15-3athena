@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/26/2024
+	r479 [15peaces]
+		*Added 'bonus3 bHPVanishRaceRate,r,n,x' (2074) and 'bonus3 bSPVanishRaceRate,r,n,x' (2075)
+			-This also fixed Velum item bonusses.
+		*Corrected documentation about 'bHPVanishRate' and 'bSPVanishRate', rate should be n/100%, 10000 for 100%
+		*'bHPVanishRate' and 'bSPVanishRate' applied regardless the target's Race and map (before, if target is player bHPVanishRate only works in PVP/GVG maps)
+		*Removed Kaahi timer system
+			-Kaahi will now heal BEFORE the damage is dealt
+			-Heals will no longer get lost due to timer system
+			-Decreased Kaahi duration 1800->350 seconds
+		*Added a check to make sure script has data before trying to free null values.
+		*Corrected damage calculation of Dragon Breath skills.
+
 09/23/2024
 	r478 [15peaces]
 		*Follow up 2746415
