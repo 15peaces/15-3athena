@@ -1588,6 +1588,11 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
+				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:		case SC_MTF_MATK:
+				case SC_MTF_MLEATKED:		case SC_MTF_CRIDAMAGE:
+				case SC_MTF_ASPD2:		case SC_MTF_RANGEATK2:	case SC_MTF_MATK2:
+				case SC_2011RWC_SCROLL:		case SC_JP_EVENT04:	case SC_MTF_MHP:
+				case SC_MTF_MSP:		case SC_MTF_PUMPKIN:	case SC_MTF_HITFLEE:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
 				case SC_APPLEIDUN:	case SC_HUMMING:		case SC_DONTFORGETME:
@@ -8184,8 +8189,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 				// Monster Transformation
-				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
-				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
+				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:		case SC_MTF_MATK:
+				case SC_MTF_MLEATKED:		case SC_MTF_CRIDAMAGE:
+				case SC_MTF_ASPD2:		case SC_MTF_RANGEATK2:	case SC_MTF_MATK2:
+				case SC_2011RWC_SCROLL:		case SC_JP_EVENT04:	case SC_MTF_MHP:
+				case SC_MTF_MSP:		case SC_MTF_PUMPKIN:	case SC_MTF_HITFLEE:
 				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:
@@ -10031,8 +10039,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_REUSE_LIMIT_ASPD_POTION:	case SC_REUSE_MILLENNIUMSHIELD:	case SC_REUSE_CRUSHSTRIKE:
 				case SC_REUSE_STORMBLAST:	case SC_ALL_RIDING_REUSE_LIMIT:
 				// Monster Transformation
-				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:	case SC_MTF_MATK:
-				case SC_MTF_MLEATKED:	case SC_MTF_CRIDAMAGE:
+				case SC_MTF_ASPD:		case SC_MTF_RANGEATK:		case SC_MTF_MATK:
+				case SC_MTF_MLEATKED:		case SC_MTF_CRIDAMAGE:
+				case SC_MTF_ASPD2:		case SC_MTF_RANGEATK2:	case SC_MTF_MATK2:
+				case SC_2011RWC_SCROLL:		case SC_JP_EVENT04:	case SC_MTF_MHP:
+				case SC_MTF_MSP:		case SC_MTF_PUMPKIN:	case SC_MTF_HITFLEE:
 				case SC_DORAM_BUF_01:	case SC_DORAM_BUF_02:
 					continue;
 				case SC_WHISTLE:	case SC_ASSNCROS:		case SC_POEMBRAGI:

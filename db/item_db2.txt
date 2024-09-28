@@ -4701,12 +4701,12 @@
 22747,Dengeki_Shot_Cartridge,Dengeki Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13218,500; },{},{}
 22748,Hearthstone_Shot_Cartridge,Hearthstone Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13219,500; },{},{}
 22749,Purification_Shot_Cartridge,Purification Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13220,500; },{},{}
-22750,Trans_Scroll_Horn_Scaraba,Transformation Scroll(Horn Scaraba),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "2161",1200000,SC_NONE; /*ASPD + 2, HIT + 10*/ },{},{}
-22751,Trans_Scroll_Wanderer,Transformation Scroll(Wanderer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "1208",1200000,SC_NONE; /*ASPD + 2, HIT + 10*/ },{},{}
-22752,Trans_Scroll_Gazeti,Transformation Scroll(Gazeti),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "1778",1200000,SC_NONE; /*Ranged Attack +30%*/ },{},{}
-22753,Trans_Scroll_Kobold_Archer,Transformation Scroll(Kobold Archer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "1282",1200000,SC_NONE; /*Ranged Attack +30%*/ },{},{}
-22754,Trans_Scroll_Necromancer,Transformation Scroll(Necromancer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "1870",1200000,SC_NONE; /*Ranged Attack +30%*/ },{},{}
-22755,Trans_Scroll_Wind_Ghost,Transformation Scroll(Wind Ghost),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform "1263",1200000,SC_NONE; /*MATK + 50*/ },{},{}
+22750,Trans_Scroll_Horn_Scaraba,Transformation Scroll(Horn Scaraba),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 2161,1200000,SC_MTF_ASPD2; },{},{}
+22751,Trans_Scroll_Wanderer,Transformation Scroll(Wanderer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1208,1200000,SC_MTF_ASPD2; },{},{}
+22752,Trans_Scroll_Gazeti,Transformation Scroll(Gazeti),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1778,1200000,SC_MTF_RANGEATK2; },{},{}
+22753,Trans_Scroll_Kobold_Archer,Transformation Scroll(Kobold Archer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1282,1200000,SC_MTF_RANGEATK2; },{},{}
+22754,Trans_Scroll_Necromancer,Transformation Scroll(Necromancer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1870,1200000,SC_MTF_RANGEATK2; },{},{}
+22755,Trans_Scroll_Wind_Ghost,Transformation Scroll(Wind Ghost),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1263,1200000,SC_MTF_MATK2; },{},{}
 22757,Collection_Of_Scrolls_Magical_Transformation,Collection Of Scrolls Magical Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22755,1; getitem 22754,1; },{},{}
 22758,Collection_Of_Scrolls_Shooting_Transformation,Collection Of Scrolls Shooting Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22753,1; getitem 22752,1; },{},{}
 22759,Collection_Of_Scrolls_Attack_Speed_Transformation,Collection Of Scrolls Attack Speed Transformation,18,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22751,1; getitem 22750,1; },{},{}
@@ -4836,7 +4836,6 @@
 22614,Premium_Manual,Premium Manual,2,2,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start SC_EXPBOOST,8640000,50; sc_start SC_ITEMBOOST,8640000,200; },{},{}
 22619,Ghost_Scroll,Ghost Scroll,3,10,,0,,,,,,,,,,,,,{},{},{}
 22620,Box_Of_Memories,Box Of Memories,3,10,,0,,,,,,,,,,,,,{},{},{}
-22621,Barbecued_Squid,Barbecued Squid,3,10,,250,,,,,,,,,,,,,{},{},{}
 22648,Angel_Ring_Package,Angel Ring Package,3,10,,10,,,,,,,,,,,,,{},{},{}
 22649,Devil_Ring_Package,Devil Ring Package,3,10,,10,,,,,,,,,,,,,{},{},{}
 22653,Wet_Card_Album,Wet Card Album,2,10000,,50,,,,,0xFFFFFFFF,63,2,,,,,,{ /* TODO */ },{},{}
@@ -4873,7 +4872,7 @@
 5895,RCC2013_ANV_Hat,RCC2013 ANV Hat,5,20,,2500,,7,,1,0xFFFFFFFF,63,2,256,,1,0,1109,{ bonus2 bAddClass,Class_All,2; bonus bMatkRate,2; },{},{}
 6720,Status_Reset_Coupon,Status Reset Coupon,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,1,,,{ resetstatus; },{},{}
 6721,Status_Reset_Coupon,Status Reset Coupon,18,10,,0,,,,0,0xFFFFFFFF,63,2,,,1,,,{ resetstatus; },{},{}
-12883,Almighty,Almighty,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_BASH3D; sc_start SC_INCALLSTATUS,1800000,10; /* SetBuff "EFST_2011RWC_SCROLL" 1800 1800 */ },{},{}
+12883,Almighty,Almighty,2,20,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_BASH3D; sc_start SC_2011RWC_SCROLL,1800000,10; },{},{}
 13085,Volcano_Knife,Volcano Knife,4,10,,200,80,,,0,0x280002E,63,2,2,4,60,,1,{ bonus bAgi,2; bonus bMaxHPrate,2; bonus2 bSubEle,Ele_Fire,2; bonus2 bSubEle,Ele_Water,-5; if(getrefine()==7){ bonus bMaxHPrate,1; bonus2 bSubEle,Ele_Fire,3; } if (getrefine()>7) { bonus bMaxHPrate,getrefine()-7; bonus2 bSubEle,Ele_Fire,getrefine()-7; } },{},{}
 13089,FaceWorm_Leg,FaceWorm Leg,4,10,,500,0:50,110,,0,0xFFFFFFFF,63,2,2,3,24,1,1,{ bonus bAtkEle,Ele_Poison; },{},{}
 14609,Spoiled_Cuisine,Spoiled Cuisine,2,5000,,300,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 10,10; },{},{}

@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+09/28/2024
+	r480 [15peaces]
+		*Added missing monster transformation bonuses & fixed others.
+		*Updated setunitdata to recalculate the object's information and update the client immediately.
+		*For setunitdata, map name can also be passed in as a valid value instead of map ID.
+			-Also added support for some missing values.
+		*Added mapid2name script command.
+		*Added status_set_maxhp and status_set_maxsp functions.
+
 09/26/2024
 	r479 [15peaces]
 		*Added 'bonus3 bHPVanishRaceRate,r,n,x' (2074) and 'bonus3 bSPVanishRaceRate,r,n,x' (2075)

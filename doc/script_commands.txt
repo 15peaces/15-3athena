@@ -2932,6 +2932,13 @@ Notice that NPC objects disabled with 'disablenpc' will still be located.
 
 ---------------------------------------
 
+*mapid2name(<map ID>)
+
+Returns the map name of the given map ID. Returns an empty string if given
+map ID doesn't exist.
+
+---------------------------------------
+
 *getgmlevel()
 
 This function will return the GM level of the account to which the invoking 
@@ -6066,7 +6073,7 @@ Returns "Unknown" if unit is not found.
 ---------------------------------------
 
 *getunitdata <GID>,<arrayname>;
-*setsetdata <GID>,<parameter>,<new value>;
+*setunitdata <GID>,<parameter>,<new value>;
 
 This is used to get and set special data related to the unit.
 With getunitdata, the array given will be filled with the current data. In setunitdata

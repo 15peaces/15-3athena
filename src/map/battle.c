@@ -2089,6 +2089,13 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 			hitrate += 3 * skill;
 	}
 
+	if (sc) {
+		if (sc->data[SC_MTF_ASPD])
+			hitrate += 5;
+		if (sc->data[SC_MTF_ASPD2])
+			hitrate += 10;
+	}
+
 	hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
 	return (rnd() % 100 < hitrate);
 }
@@ -3571,7 +3578,7 @@ static int64 battle_calc_skill_constant_addition(struct Damage wd, struct block_
 /*==============================================================
  * Stackable SC bonuses added on top of calculated skill damage
  *--------------------------------------------------------------*/
-struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, uint16 skill_id)
+struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, struct block_list *target, uint16 skill_id, uint16 skill_lv)
 {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct status_change *sc = status_get_sc(src);
@@ -3621,7 +3628,13 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, u
 		if ((wd.flag&(BF_LONG | BF_MAGIC)) == BF_LONG) {
 			// Monster Transformation bonus
 			if (sc->data[SC_MTF_RANGEATK]) {
-				ATK_ADD(wd.damage, wd.damage2, 25);
+				ATK_ADDRATE(wd.damage, wd.damage2, 25);
+			}
+			if (sc->data[SC_MTF_RANGEATK2]) {
+				ATK_ADDRATE(wd.damage, wd.damage2, 30);
+			}
+			if (sc->data[SC_MTF_CRIDAMAGE] && is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
+				ATK_ADDRATE(wd.damage, wd.damage2, 25);
 			}
 			if (sc->data[SC_ARCLOUSEDASH]) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 10);
@@ -4256,7 +4269,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		}
 
 		// final attack bonuses that aren't affected by cards
-		wd = battle_attack_sc_bonus(wd, src, skill_id);
+		wd = battle_attack_sc_bonus(wd, src, target, skill_id, skill_lv);
 
 		// check if attack ignores DEF
 		if (!attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_L) || !attack_ignores_def(wd, src, target, skill_id, skill_lv, EQI_HAND_R))

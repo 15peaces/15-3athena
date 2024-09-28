@@ -807,6 +807,19 @@ typedef enum sc_type {
 	SC_DORAM_BUF_01,
 	SC_DORAM_BUF_02,
 
+	// Monster Transformation
+	SC_MTF_ASPD2,
+	SC_MTF_RANGEATK2,
+	SC_MTF_MATK2,
+	SC_2011RWC_SCROLL,
+	SC_JP_EVENT04,
+	
+	// 2014 Halloween Event
+	SC_MTF_MHP,
+	SC_MTF_MSP,
+	SC_MTF_PUMPKIN,
+	SC_MTF_HITFLEE,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 
@@ -1442,8 +1455,8 @@ enum si_type {
 //	SI_SKF_MATK = 635,
 //	SI_REWARD_PLUSONLYJOBEXP = 636,
 //	SI_HANDICAPSTATE_NORECOVER = 637,
-//	SI_SET_NUM_DEF = 638,
-//	SI_SET_NUM_MDEF = 639,
+	SI_SET_NUM_DEF = 638,
+	SI_SET_NUM_MDEF = 639,
 //	SI_SET_PER_DEF = 640,
 //	SI_SET_PER_MDEF = 641,
 //	SI_PARTYBOOKING_SEARCH_DELAY = 642,
@@ -1468,7 +1481,7 @@ enum si_type {
 //	SI_TETANY = 661,
 //	SI_GM_BATTLE = 662,
 //	SI_GM_BATTLE2 = 663,
-//	SI_2011RWC_SCROLL = 664,
+	SI_2011RWC_SCROLL = 664,
 	SI_ACTIVE_MONSTER_TRANSFORM = 665,
 //	SI_MYSTICPOWDER = 666,
 //	SI_ECLAGE_RECALL = 667,
@@ -1504,7 +1517,7 @@ enum si_type {
 //	SI_JP_EVENT01 = 697,
 //	SI_JP_EVENT02 = 698,
 //	SI_JP_EVENT03 = 699,
-//	SI_JP_EVENT04 = 700,
+	SI_JP_EVENT04 = 700,
 //	SI_TELEPORT_FIXEDCASTINGDELAY = 701,
 //	SI_GEFFEN_MAGIC1 = 702,
 //	SI_GEFFEN_MAGIC2 = 703,
@@ -1597,10 +1610,10 @@ enum si_type {
 	// SI_CHUSEOK_WEEKEND = 790,
 	// SI_ALL_LIGHTGUARD = 791,
 	// SI_ALL_LIGHTGUARD_COOL_TIME = 792,
-	// SI_MTF_MHP = 793,
-	// SI_MTF_MSP = 794,
-	// SI_MTF_PUMPKIN = 795,
-	// SI_MTF_HITFLEE = 796,
+	SI_MTF_MHP = 793,
+	SI_MTF_MSP = 794,
+	SI_MTF_PUMPKIN = 795,
+	SI_MTF_HITFLEE = 796,
 	// SI_MTF_CRIDAMAGE2 = 797,
 	// SI_MTF_SPDRAIN = 798,
 	// SI_ACUO_MINT_GUM = 799,
@@ -1622,11 +1635,11 @@ enum si_type {
 	SI_JUMPINGCLAN = 815,
 /*
 	SI_JP_OTP = 816,
-	SI_HANDICAPTOLERANCE_LEVELGAP = 817,
+	SI_HANDICAPTOLERANCE_LEVELGAP = 817,*/
 	SI_MTF_RANGEATK2 = 818,
 	SI_MTF_ASPD2 = 819,
 	SI_MTF_MATK2 = 820,
-	SI_SHOW_NPCHPBAR = 821,
+/*	SI_SHOW_NPCHPBAR = 821,
 	SI_FLOWERSMOKE = 822,
 	SI_FSTONE = 823,*/
 	SI_DAILYSENDMAILCNT = 824,
@@ -2311,7 +2324,9 @@ int status_percent_change(struct block_list *src, struct block_list *target, int
 #define status_kill(bl) status_percent_damage(NULL, bl, 100, 0, true)
 //Used to set the hp/sp of an object to an absolute value (can't kill)
 int status_set_hp(struct block_list *bl, unsigned int hp, int flag);
+int status_set_maxhp(struct block_list *bl, unsigned int hp, int flag);
 int status_set_sp(struct block_list *bl, unsigned int sp, int flag);
+int status_set_maxsp(struct block_list *bl, unsigned int hp, int flag);
 int status_heal(struct block_list *bl,int64 hhp,int64 hsp, int flag);
 int status_revive(struct block_list *bl, unsigned char per_hp, unsigned char per_sp);
 //Fixed HP/SP recovery resurrection function needed for the WM_DEADHILLHERE skill. [Rytech]

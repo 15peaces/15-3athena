@@ -10473,6 +10473,10 @@ BUILDIN_FUNC(sc_end)
 			case SC_ALL_RIDING:
 			case SC_STYLE_CHANGE:
 			case SC_MONSTER_TRANSFORM:
+			case SC_MTF_ASPD:					case SC_MTF_RANGEATK:			case SC_MTF_MATK:
+			case SC_MTF_MLEATKED:				case SC_MTF_CRIDAMAGE:			case SC_MTF_ASPD2:
+			case SC_MTF_RANGEATK2:				case SC_MTF_MATK2:				case SC_MTF_MHP:
+			case SC_MTF_MSP:					case SC_MTF_PUMPKIN:			case SC_MTF_HITFLEE:
 			case SC_ATTHASTE_CASH:
 			case SC_REUSE_LIMIT_A:				case SC_REUSE_LIMIT_B:			case SC_REUSE_LIMIT_C:
 			case SC_REUSE_LIMIT_D:				case SC_REUSE_LIMIT_E:			case SC_REUSE_LIMIT_F:
@@ -14027,7 +14031,7 @@ BUILDIN_FUNC(getsavepoint)
 }
 
 /*==========================================
-  * Get position for  char/npc/pet/mob objects. Added by Lorky
+  * Get position for  char/NPC/pet/hom/merc/elem objects. Added by Lorky
   *
   *     int getMapXY(MapName$,MapX,MapY,type,[CharName$]);
   *             where type:
@@ -14038,7 +14042,7 @@ BUILDIN_FUNC(getsavepoint)
   *                                0 - Character coord
   *                                1 - NPC coord
   *                                2 - Pet coord
-  *                                3 - Mob coord (not released)
+  *                                3 - Mob coord (see 'getunitdata')
   *                                4 - Homun coord
   *                                5 - Mercenary coord
   *                                6 - Elemental coord
@@ -14109,7 +14113,7 @@ BUILDIN_FUNC(getmapxy)
 				bl = &sd->pd->bl;
 			break;
 		case 3:	//Get Mob Position
-			break; //Not supported?
+			break; //see 'getunitdata'
 		case 4:	//Get Homun Position
 			if(script_hasdata(st,6))
 				sd=map_nick2sd(script_getstr(st,6));
@@ -14186,6 +14190,22 @@ BUILDIN_FUNC(getmapxy)
 
 	//Return Success value
 	script_pushint(st,0);
+	return 0;
+}
+
+/// Returns the map name of given map ID.
+///
+/// mapid2name <map ID>;
+BUILDIN_FUNC(mapid2name)
+{
+	uint16 m = script_getnum(st, 2);
+
+	if (m < 0 || m >= MAX_MAP_PER_SERVER) {
+		script_pushstr(st, "");
+		return 1;
+	}
+
+	script_pushstrcopy(st, map[m].name);
 	return 0;
 }
 
@@ -16867,7 +16887,7 @@ BUILDIN_FUNC(setunitdata) {
 			case UMOB_SIZE: md->status.size = (unsigned char)value; break;
 			case UMOB_LEVEL: md->level = (unsigned short)value; break;
 			case UMOB_HP: status_set_hp(bl, (unsigned int)value, 0); clif_name_area(&md->bl); break;
-			case UMOB_MAXHP: md->status.max_hp = (unsigned int)value; clif_name_area(&md->bl); break;
+			case UMOB_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); clif_name_area(&md->bl); break;
 			case UMOB_MASTERAID: md->master_id = value; break;
 			case UMOB_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UMOB_X: if (!unit_walktoxy(bl, (short)value, md->bl.y, 2)) unit_movepos(bl, (short)value, md->bl.y, 0, 0); break;
@@ -16926,9 +16946,9 @@ BUILDIN_FUNC(setunitdata) {
 			case UHOM_SIZE: hd->base_status.size = (unsigned char)value; break;
 			case UHOM_LEVEL: hd->homunculus.level = (unsigned short)value; break;
 			case UHOM_HP: status_set_hp(bl, (unsigned int)value, 0); break;
-			case UHOM_MAXHP: (unsigned int)value; break;
+			case UHOM_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
 			case UHOM_SP: status_set_sp(bl, (unsigned int)value, 0); break;
-			case UHOM_MAXSP: (unsigned int)value; break;
+			case UHOM_MAXSP: status_set_maxsp(bl, (unsigned int)value, 0); break;
 			case UHOM_MASTERCID: hd->homunculus.char_id = (uint32)value; break;
 			case UHOM_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UHOM_X: if (!unit_walktoxy(bl, (short)value, hd->bl.y, 2)) unit_movepos(bl, (short)value, hd->bl.y, 0, 0); break;
@@ -16976,7 +16996,7 @@ BUILDIN_FUNC(setunitdata) {
 			case UPET_SIZE: pd->status.size = (unsigned char)value; break;
 			case UPET_LEVEL: pd->pet.level = (unsigned short)value; break;
 			case UPET_HP: status_set_hp(bl, (unsigned int)value, 0); break;
-			case UPET_MAXHP: (unsigned int)value; break;
+			case UPET_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
 			case UPET_MASTERAID: pd->pet.account_id = (unsigned int)value; break;
 			case UPET_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UPET_X: if (!unit_walktoxy(bl, (short)value, pd->bl.y, 2)) unit_movepos(bl, (short)value, md->bl.y, 0, 0); break;
@@ -17023,7 +17043,7 @@ BUILDIN_FUNC(setunitdata) {
 		switch (type) {
 			case UMER_SIZE: mc->base_status.size = (unsigned char)value; break;
 			case UMER_HP: status_set_hp(bl, (unsigned int)value, 0); break;
-			case UMER_MAXHP: (unsigned int)value; break;
+			case UMER_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
 			case UMER_MASTERCID: mc->mercenary.char_id = (uint32)value; break;
 			case UMER_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UMER_X: if (!unit_walktoxy(bl, (short)value, mc->bl.y, 2)) unit_movepos(bl, (short)value, mc->bl.y, 0, 0); break;
@@ -17070,9 +17090,9 @@ BUILDIN_FUNC(setunitdata) {
 		switch (type) {
 			case UELE_SIZE: ed->base_status.size = (unsigned char)value; break;
 			case UELE_HP: status_set_hp(bl, (unsigned int)value, 0); break;
-			//case UELE_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
+			case UELE_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
 			case UELE_SP: status_set_sp(bl, (unsigned int)value, 0); break;
-			//case UELE_MAXSP: status_set_maxsp(bl, (unsigned int)value, 0); break;
+			case UELE_MAXSP: status_set_maxsp(bl, (unsigned int)value, 0); break;
 			case UELE_MASTERCID: ed->elemental.char_id = (uint32)value; break;
 			case UELE_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UELE_X: if (!unit_walktoxy(bl, (short)value, ed->bl.y, 2)) unit_movepos(bl, (short)value, ed->bl.y, 0, 0); break;
@@ -17120,19 +17140,17 @@ BUILDIN_FUNC(setunitdata) {
 			case UNPC_DISPLAY: status_set_viewdata(bl, (unsigned short)value); break;
 			case UNPC_LEVEL: nd->level = (unsigned int)value; break;
 			case UNPC_HP: status_set_hp(bl, (unsigned int)value, 0); break;
-			case UNPC_MAXHP: (unsigned int)value; break;
+			case UNPC_MAXHP: status_set_maxhp(bl, (unsigned int)value, 0); break;
 			case UNPC_MAPID: if (mapname) value = map_mapname2mapid(mapname); unit_warp(bl, (short)value, 0, 0, CLR_TELEPORT); break;
 			case UNPC_X: if (!unit_walktoxy(bl, (short)value, nd->bl.y, 2)) unit_movepos(bl, (short)value, nd->bl.x, 0, 0); break;
 			case UNPC_Y: if (!unit_walktoxy(bl, nd->bl.x, (short)value, 2)) unit_movepos(bl, nd->bl.x, (short)value, 0, 0); break;
 			case UNPC_LOOKDIR: unit_setdir(bl, (uint8)value); break;
-/*Disabled until supported [15peaces]
-			case UNPC_STR: nd->params.str = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_AGI: nd->params.agi = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_VIT: nd->params.vit = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_INT: nd->params.int_ = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_DEX: nd->params.dex = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_LUK: nd->params.luk = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-*/
+			case UNPC_STR: nd->status.str = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_AGI: nd->status.agi = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_VIT: nd->status.vit = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_INT: nd->status.int_ = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_DEX: nd->status.dex = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_LUK: nd->status.luk = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
 			case UNPC_PLUSALLSTAT: nd->stat_point = (unsigned int)value; break;
 			case UNPC_ATKRANGE: nd->status.rhw.range = (unsigned short)value; break;
 			case UNPC_ATK: nd->status.rhw.atk = (unsigned short)value; break;
@@ -21061,6 +21079,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(npcwalkto,"ii"), // [Valaris]
 	BUILDIN_DEF(npcstop,""), // [Valaris]
 	BUILDIN_DEF(getmapxy,"rrri?"),	//by Lorky [Lupus]
+	BUILDIN_DEF(mapid2name, "i"),
 	BUILDIN_DEF(checkoption1,"i"),
 	BUILDIN_DEF(checkoption2,"i"),
 	BUILDIN_DEF(guildgetexp,"i"),
