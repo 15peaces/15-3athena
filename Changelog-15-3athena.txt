@@ -6,6 +6,12 @@
 //			--More Details.
 //========================================
 
+09/29/2024
+	r481 [15peaces]
+		*Follow up 2d32eb4
+			-Fixed monster transformation scrolls statusses & Removed hardcoded values.
+		*Corrected HP/SP values for Ninja & Gunslinger jobs.
+	
 09/28/2024
 	r480 [15peaces]
 		*Added missing monster transformation bonuses & fixed others.

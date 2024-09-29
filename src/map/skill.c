@@ -3294,7 +3294,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			}
 			else {
 				bool isDevotRdamage = false;
-				if (battle_config.devotion_rdamage && battle_config.devotion_rdamage > rand() % 100)
+				if (battle_config.devotion_rdamage && battle_config.devotion_rdamage > rnd() % 100)
 					isDevotRdamage = true;
 				// If !isDevotRdamage, reflected magics are done directly on the target not on paladin
 				// This check is only for magical skill.

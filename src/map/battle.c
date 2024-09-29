@@ -2091,9 +2091,9 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 
 	if (sc) {
 		if (sc->data[SC_MTF_ASPD])
-			hitrate += 5;
+			hitrate += sc->data[SC_MTF_ASPD]->val2;
 		if (sc->data[SC_MTF_ASPD2])
-			hitrate += 10;
+			hitrate += sc->data[SC_MTF_ASPD2]->val2;
 	}
 
 	hitrate = cap_value(hitrate, battle_config.min_hitrate, battle_config.max_hitrate);
@@ -2451,10 +2451,6 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 
 			if (is_attack_critical(wd, src, target, skill_id, skill_lv, false) && sd->bonus.crit_atk_rate) {
 				ATK_ADDRATE(wd.damage, wd.damage2, sd->bonus.crit_atk_rate);
-			}
-
-			if (is_attack_critical(wd, src, target, skill_id, skill_lv, false) && sc && sc->data[SC_MTF_CRIDAMAGE]) {
-				ATK_ADDRATE(wd.damage, wd.damage2, 25);
 			}
 
 			if (sd->status.party_id && (skill = pc_checkskill(sd, TK_POWER)) > 0) {
@@ -3628,13 +3624,10 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 		if ((wd.flag&(BF_LONG | BF_MAGIC)) == BF_LONG) {
 			// Monster Transformation bonus
 			if (sc->data[SC_MTF_RANGEATK]) {
-				ATK_ADDRATE(wd.damage, wd.damage2, 25);
+				ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_MTF_RANGEATK]->val1);
 			}
 			if (sc->data[SC_MTF_RANGEATK2]) {
-				ATK_ADDRATE(wd.damage, wd.damage2, 30);
-			}
-			if (sc->data[SC_MTF_CRIDAMAGE] && is_attack_critical(wd, src, target, skill_id, skill_lv, false)) {
-				ATK_ADDRATE(wd.damage, wd.damage2, 25);
+				ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_MTF_RANGEATK2]->val1);
 			}
 			if (sc->data[SC_ARCLOUSEDASH]) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 10);
@@ -5930,8 +5923,8 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			merc_hom_addspiritball(hd,MAX_HOMUN_SPHERES);
 	}
 
-	if (tsc && tsc->data[SC_MTF_MLEATKED] && rnd() % 100 < 20)
-		clif_skill_nodamage(target, target, SM_ENDURE, 5, sc_start(target, SC_ENDURE, 100, 5, skill_get_time(SM_ENDURE, 5)));
+	if (tsc && tsc->data[SC_MTF_MLEATKED] && rnd() % 100 < tsc->data[SC_MTF_MLEATKED]->val2)
+		clif_skill_nodamage(target, target, SM_ENDURE, tsc->data[SC_MTF_MLEATKED]->val1, status_change_start(src, target, SC_ENDURE, 10000, tsc->data[SC_MTF_MLEATKED]->val1, 0, 0, 0, skill_get_time(SM_ENDURE, tsc->data[SC_MTF_MLEATKED]->val1), 0));
 
 	if (tsc && tsc->data[SC_KAAHI] && tstatus->hp < tstatus->max_hp && status_charge(target, 0, tsc->data[SC_KAAHI]->val3)) {
 		int hp_heal = tstatus->max_hp - tstatus->hp;

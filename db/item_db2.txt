@@ -4701,12 +4701,12 @@
 22747,Dengeki_Shot_Cartridge,Dengeki Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13218,500; },{},{}
 22748,Hearthstone_Shot_Cartridge,Hearthstone Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13219,500; },{},{}
 22749,Purification_Shot_Cartridge,Purification Shot Cartridge,18,10,,250,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 13220,500; },{},{}
-22750,Trans_Scroll_Horn_Scaraba,Transformation Scroll(Horn Scaraba),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 2161,1200000,SC_MTF_ASPD2; },{},{}
-22751,Trans_Scroll_Wanderer,Transformation Scroll(Wanderer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1208,1200000,SC_MTF_ASPD2; },{},{}
-22752,Trans_Scroll_Gazeti,Transformation Scroll(Gazeti),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1778,1200000,SC_MTF_RANGEATK2; },{},{}
-22753,Trans_Scroll_Kobold_Archer,Transformation Scroll(Kobold Archer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1282,1200000,SC_MTF_RANGEATK2; },{},{}
-22754,Trans_Scroll_Necromancer,Transformation Scroll(Necromancer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1870,1200000,SC_MTF_RANGEATK2; },{},{}
-22755,Trans_Scroll_Wind_Ghost,Transformation Scroll(Wind Ghost),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1263,1200000,SC_MTF_MATK2; },{},{}
+22750,Trans_Scroll_Horn_Scaraba,Transformation Scroll(Horn Scaraba),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 2161,1200000,SC_MTF_ASPD2,2,10; },{},{}
+22751,Trans_Scroll_Wanderer,Transformation Scroll(Wanderer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1208,1200000,SC_MTF_ASPD2,2,10; },{},{}
+22752,Trans_Scroll_Gazeti,Transformation Scroll(Gazeti),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1778,1200000,SC_MTF_RANGEATK2,30; },{},{}
+22753,Trans_Scroll_Kobold_Archer,Transformation Scroll(Kobold Archer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1282,1200000,SC_MTF_RANGEATK2,30; },{},{}
+22754,Trans_Scroll_Necromancer,Transformation Scroll(Necromancer),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1870,1200000,SC_MTF_RANGEATK2,30; },{},{}
+22755,Trans_Scroll_Wind_Ghost,Transformation Scroll(Wind Ghost),2,10,,10,,,,0,0xFFFFFFFF,63,2,,,,,,{ transform 1263,1200000,SC_MTF_MATK2,50; },{},{}
 22757,Collection_Of_Scrolls_Magical_Transformation,Collection Of Scrolls Magical Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22755,1; getitem 22754,1; },{},{}
 22758,Collection_Of_Scrolls_Shooting_Transformation,Collection Of Scrolls Shooting Transformation,18,10,,200,,,,0,0xFFFFFFFF,63,2,,,,,,{ getitem 22753,1; getitem 22752,1; },{},{}
 22759,Collection_Of_Scrolls_Attack_Speed_Transformation,Collection Of Scrolls Attack Speed Transformation,18,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem 22751,1; getitem 22750,1; },{},{}

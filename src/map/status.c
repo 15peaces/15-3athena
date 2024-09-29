@@ -3949,7 +3949,9 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			sd->subele[ELE_FIRE] -= 100;
 		}
 		if (sc->data[SC_MTF_MLEATKED])
-			sd->subele[ELE_NEUTRAL] += 2;
+			sd->subele[ELE_NEUTRAL] += sc->data[SC_MTF_MLEATKED]->val3;
+		if (sc->data[SC_MTF_CRIDAMAGE])
+			sd->bonus.crit_atk_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;
 	}
 
 	status_cpy(&sd->battle_status, status);
@@ -5698,7 +5700,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	if(sc->data[SC_CHILLY_AIR_OPTION])
 		matk += 120;
 	if (sc->data[SC_MTF_MATK2])
-		matk += 50;
+		matk += sc->data[SC_MTF_MATK2]->val1;
 	if (sc->data[SC_2011RWC_SCROLL])
 		matk += 30;
 	if(sc->data[SC_MAGICPOWER] && sc->data[SC_MAGICPOWER]->val4)
@@ -5710,7 +5712,7 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 	if (sc->data[SC_SHRIMP])
 		matk += matk * 10 / 100;
 	if (sc->data[SC_MTF_MATK])
-		matk += matk * 25 / 100;
+		matk += matk * sc->data[SC_MTF_MATK]->val1 / 100;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val4 == 2)
 		matk -= 30 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_CATNIPPOWDER])
@@ -5788,6 +5790,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit += sc->data[SC_SOULFALCON]->val3;
 	if (sc->data[SC_MTF_HITFLEE])
 		hit += sc->data[SC_MTF_HITFLEE]->val1;
+	if (sc->data[SC_MTF_ASPD])
+		hit += sc->data[SC_MTF_ASPD]->val2;
 	if(sc->data[SC_INCHITRATE])
 		hit += hit * sc->data[SC_INCHITRATE]->val1/100;
 	if(sc->data[SC_ADJUSTMENT])
@@ -6404,9 +6408,9 @@ static short status_calc_aspd_amount(struct block_list *bl, struct status_change
 	if (sc->data[SC_EXTRACT_SALAMINE_JUICE]) // Correct way to handle? [15peaces]
 		aspd_amount += sc->data[SC_EXTRACT_SALAMINE_JUICE]->val1;
 	if (sc->data[SC_MTF_ASPD])
-		aspd_amount -= 10;
+		aspd_amount -= sc->data[SC_MTF_ASPD]->val1;
 	if (sc->data[SC_MTF_ASPD2])
-		aspd_amount -= 20;
+		aspd_amount -= sc->data[SC_MTF_ASPD2]->val1;
 
 	return (short)cap_value(aspd_amount,0,SHRT_MAX);
 }
