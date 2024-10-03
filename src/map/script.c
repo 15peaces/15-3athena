@@ -16519,7 +16519,7 @@ BUILDIN_FUNC(getunitdata) {
 	char* name;
 	struct script_data *data = script_getdata(st, 3);
 
-	if (!data_isreference(script_getdata(st, 3))) {
+	if (!data_isreference(data)) {
 		ShowWarning("buildin_getunitdata: Error in argument! Please give a variable to store values in.\n");
 		script_pushint(st, -1);
 		return 1;
@@ -16542,8 +16542,8 @@ BUILDIN_FUNC(getunitdata) {
 		case BL_NPC:  nd = map_id2nd(bl->id); break;
 	}
 
-	num = st->stack->stack_data[st->start+3].u.num;
-	name = (char *)(str_buf+str_data[num&0x00ffffff].str);
+	num = reference_getuid(data);
+	name = reference_getname(data);
 
 #define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)(int)(var__),data->ref)
 
@@ -17145,12 +17145,12 @@ BUILDIN_FUNC(setunitdata) {
 			case UNPC_X: if (!unit_walktoxy(bl, (short)value, nd->bl.y, 2)) unit_movepos(bl, (short)value, nd->bl.x, 0, 0); break;
 			case UNPC_Y: if (!unit_walktoxy(bl, nd->bl.x, (short)value, 2)) unit_movepos(bl, nd->bl.x, (short)value, 0, 0); break;
 			case UNPC_LOOKDIR: unit_setdir(bl, (uint8)value); break;
-			case UNPC_STR: nd->status.str = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_AGI: nd->status.agi = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_VIT: nd->status.vit = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_INT: nd->status.int_ = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_DEX: nd->status.dex = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
-			case UNPC_LUK: nd->status.luk = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_STR: nd->params.str = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_AGI: nd->params.agi = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_VIT: nd->params.vit = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_INT: nd->params.int_ = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_DEX: nd->params.dex = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
+			case UNPC_LUK: nd->params.luk = (unsigned short)value; status_calc_misc(bl, &nd->status, nd->level); break;
 			case UNPC_PLUSALLSTAT: nd->stat_point = (unsigned int)value; break;
 			case UNPC_ATKRANGE: nd->status.rhw.range = (unsigned short)value; break;
 			case UNPC_ATK: nd->status.rhw.atk = (unsigned short)value; break;

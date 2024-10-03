@@ -641,6 +641,9 @@ bMagicSPGainValue	2043
 bMagicHPGainValue	2044
 bAddMonsterIdDropItem	2045
 
+bComaClass	2047
+bComaRace	2048
+
 bSkillCooldown	2050
 bSkillUseSP	2055
 bMagicAtkEle	2056
@@ -663,6 +666,8 @@ bAddClassDropItemGroup	2071
 bAddItemGroupHealRate	2073
 bHPVanishRaceRate	2074
 bSPVanishRaceRate	2075
+
+bSubDefEle	2079
 
 bDropAddRace	2085
 bDropAddClass	2086

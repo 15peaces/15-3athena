@@ -425,15 +425,26 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 
 /*==========================================
  * Calculates card bonuses damage adjustments.
+ * @param attack_type @see enum e_battle_flag
+ * @param src Attacker
+ * @param target Target
+ * @param nk Skill's nk @see enum e_skill_nk [NK_NO_CARDFIX_ATK|NK_NO_ELEFIX|NK_NO_CARDFIX_DEF]
+ * @param rh_ele Right-hand weapon element
+ * @param lh_ele Left-hand weapon element (BF_MAGIC and BF_MISC ignore this value)
+ * @param damage Original damage
+ * @param left Left hand flag (BF_MISC and BF_MAGIC ignore flag value)
+ *         3: Calculates attacker bonuses in both hands.
+ *         2: Calculates attacker bonuses in right-hand only.
+ *         0 or 1: Only calculates target bonuses.
+ * @param flag Misc value of skill & damage flags
+ * @return damage Damage diff between original damage and after calculation
  *------------------------------------------*/
-int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_list *target, int nk, int s_ele, int s_ele_, int64 damage, int left, int flag) {
+int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_list *target, int nk, int rh_ele, int lh_ele, int64 damage, int left, int flag) {
 	struct map_session_data *sd, *tsd;
-	short cardfix = 1000, t_class, s_class, s_race2, t_race2;
+	short cardfix = 1000, t_class, s_class, s_race2, t_race2, s_defele;
 	struct status_data *sstatus, *tstatus;
-	struct status_change *sc;
 	int i;
 	int64 original_damage;
-	short passive_long_atk_rate = 0;
 
 	if (!damage)
 		return 0;
@@ -447,18 +458,19 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 	sstatus = status_get_status_data(src);
 	tstatus = status_get_status_data(target);
 	s_race2 = status_get_race2(src);
-
-	sc = status_get_sc(src);
+	s_defele = (tsd) ? status_get_element(src) : ELE_NONE;
 
 	switch (attack_type) {
 	case BF_MAGIC:
+		// Affected by attacker ATK bonuses
 		if (sd && !(nk&NK_NO_CARDFIX_ATK)) {
 			cardfix = cardfix * (100 + sd->magic_addrace[tstatus->race] + sd->magic_addrace[RC_ALL]) / 100;
-			if (!(nk&NK_NO_ELEFIX))
+			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
 				cardfix = cardfix * (100 + sd->magic_addele[tstatus->def_ele] + sd->magic_addele[ELE_ALL]) / 100;
+				cardfix = cardfix * (100 + sd->magic_atk_ele[rh_ele] + sd->magic_atk_ele[ELE_ALL]) / 100;
+			}
 			cardfix = cardfix * (100 + sd->magic_addsize[tstatus->size] + sd->magic_addsize[SZ_ALL]) / 100;
 			cardfix = cardfix * (100 + sd->magic_addclass[tstatus->class_] + sd->magic_addclass[CLASS_ALL]) / 100;
-			cardfix = cardfix * (100 + sd->magic_atk_ele[s_ele] + sd->magic_atk_ele[ELE_ALL]) / 100;
 			for (i = 0; i < ARRAYLENGTH(sd->add_mdmg) && sd->add_mdmg[i].rate; i++) {
 				if (sd->add_mdmg[i].class_ == t_class) {
 					cardfix = cardfix * (100 + sd->add_mdmg[i].rate) / 100;
@@ -468,14 +480,16 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 			if (cardfix != 1000)
 				damage = damage * cardfix / 1000;
 		}
-		if (tsd && !(nk&NK_NO_CARDFIX_DEF)) { // Target cards.
+		
+		// Affected by target DEF bonuses
+		if (tsd && !(nk&NK_NO_CARDFIX_DEF)) {
 			cardfix = 1000; // reset var for target
 
-			if (!(nk&NK_NO_ELEFIX)) {
-				int ele_fix = tsd->subele[s_ele] + tsd->subele[ELE_ALL];
+			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
+				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
-					if (tsd->subele2[i].ele != s_ele)
+					if (tsd->subele2[i].ele != rh_ele)
 						continue;
 					if (!(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
 						((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
@@ -483,6 +497,8 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 						continue;
 					ele_fix += tsd->subele2[i].rate;
 				}
+				if (s_defele != ELE_NONE)
+					ele_fix += tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL];
 				cardfix = cardfix * (100 - ele_fix) / 100;
 			}
 			cardfix = cardfix * (100 - tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL]) / 100;
@@ -513,13 +529,14 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 		break;
 	case BF_WEAPON:
 		t_race2 = status_get_race2(target);
-		if (sd && !(nk&NK_NO_CARDFIX_ATK) && (left & 2)) { //Attacker cards should be checked
+		// Affected by attacker ATK bonuses
+		if (sd && !(nk&NK_NO_CARDFIX_ATK) && (left & 2)) {
 			short cardfix_ = 1000;
 
-			if (sd->state.arrow_atk) {
+			if (sd->state.arrow_atk) { // Ranged attack
 				cardfix = cardfix * (100 + sd->right_weapon.addrace[tstatus->race] + sd->arrow_addrace[tstatus->race] +
 					sd->right_weapon.addrace[RC_ALL] + sd->arrow_addrace[RC_ALL]) / 100;
-				if (!(nk&NK_NO_ELEFIX)) {
+				if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
 					int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->arrow_addele[tstatus->def_ele] +
 						sd->right_weapon.addele[ELE_ALL] + sd->arrow_addele[ELE_ALL];
 
@@ -543,9 +560,11 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 			else { // Melee attack
 				int skill = 0;
 
+				// Calculates each right & left hand weapon bonuses separatedly
 				if (!battle_config.left_cardfix_to_right) {
+					// Right-handed weapon
 					cardfix = cardfix * (100 + sd->right_weapon.addrace[tstatus->race] + sd->right_weapon.addrace[RC_ALL]) / 100;
-					if (!(nk&NK_NO_ELEFIX)) {
+					if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
 						int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->right_weapon.addele[ELE_ALL];
 
 						for (i = 0; ARRAYLENGTH(sd->right_weapon.addele2) > i && sd->right_weapon.addele2[i].rate != 0; i++) {
@@ -563,9 +582,9 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 					cardfix = cardfix * (100 + sd->right_weapon.addrace2[t_race2]) / 100;
 					cardfix = cardfix * (100 + sd->right_weapon.addclass[tstatus->class_] + sd->right_weapon.addclass[CLASS_ALL]) / 100;
 
-					if (left & 1) {
+					if (left & 1) { // Left-handed weapon
 						cardfix_ = cardfix_ * (100 + sd->left_weapon.addrace[tstatus->race] + sd->left_weapon.addrace[RC_ALL]) / 100;
-						if (!(nk&NK_NO_ELEFIX)) {
+						if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
 							int ele_fix_lh = sd->left_weapon.addele[tstatus->def_ele] + sd->left_weapon.addele[ELE_ALL];
 
 							for (i = 0; ARRAYLENGTH(sd->left_weapon.addele2) > i && sd->left_weapon.addele2[i].rate != 0; i++) {
@@ -584,7 +603,10 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 						cardfix_ = cardfix_ * (100 + sd->left_weapon.addclass[tstatus->class_] + sd->left_weapon.addclass[CLASS_ALL]) / 100;
 					}
 				}
+				// Calculates right & left hand weapon as unity
 				else {
+					//! CHECKME: If 'left_cardfix_to_right' is yes, doesn't need to check NK_NO_ELEFIX?
+					//if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
 					int ele_fix = sd->right_weapon.addele[tstatus->def_ele] + sd->left_weapon.addele[tstatus->def_ele]
 						+ sd->right_weapon.addele[ELE_ALL] + sd->left_weapon.addele[ELE_ALL];
 
@@ -606,9 +628,10 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 							continue;
 						ele_fix += sd->left_weapon.addele2[i].rate;
 					}
+					cardfix = cardfix * (100 + ele_fix) / 100;
+					//}
 					cardfix = cardfix * (100 + sd->right_weapon.addrace[tstatus->race] + sd->left_weapon.addrace[tstatus->race] +
 						sd->right_weapon.addrace[RC_ALL] + sd->left_weapon.addrace[RC_ALL]) / 100;
-					cardfix = cardfix * (100 + ele_fix) / 100;
 					cardfix = cardfix * (100 + sd->right_weapon.addsize[tstatus->size] + sd->left_weapon.addsize[tstatus->size] +
 						sd->right_weapon.addsize[SZ_ALL] + sd->left_weapon.addsize[SZ_ALL]) / 100;
 					cardfix = cardfix * (100 + sd->right_weapon.addrace2[t_race2] + sd->left_weapon.addrace2[t_race2]) / 100;
@@ -618,6 +641,8 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 				if (sd->status.weapon == W_KATAR && (skill = pc_checkskill(sd, ASC_KATAR)) > 0) // Adv. Katar Mastery functions similar to a +%ATK card on official [helvetica]
 					cardfix = cardfix * (100 + (10 + 2 * skill)) / 100;
 			}
+
+			//! CHECKME: These right & left hand weapon ignores 'left_cardfix_to_right'?
 			for (i = 0; i < ARRAYLENGTH(sd->right_weapon.add_dmg) && sd->right_weapon.add_dmg[i].rate; i++) {
 				if (sd->right_weapon.add_dmg[i].class_ == t_class) {
 					cardfix = cardfix * (100 + sd->right_weapon.add_dmg[i].rate) / 100;
@@ -641,12 +666,13 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 			else if (cardfix != 1000)
 				damage = damage * cardfix / 1000;
 		}
-		else if (tsd && !(nk&NK_NO_CARDFIX_DEF) && !(left & 2)) { //Target cards should be checked
-			if (!(nk&NK_NO_ELEFIX)) {
-				int ele_fix = tsd->subele[s_ele] + tsd->subele[ELE_ALL];
+		// Affected by target DEF bonuses
+		else if( tsd && !(nk&NK_NO_CARDFIX_DEF) && !(left&2) ) {
+				if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
+					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
-					if (tsd->subele2[i].ele != s_ele)
+					if (tsd->subele2[i].ele != rh_ele)
 						continue;
 					if (!(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
 						((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
@@ -655,11 +681,12 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 					ele_fix += tsd->subele2[i].rate;
 				}
 				cardfix = cardfix * (100 - ele_fix) / 100;
-				if (left & 1 && s_ele_ != s_ele) {
-					int ele_fix_lh = tsd->subele[s_ele_] + tsd->subele[ELE_ALL];
+				
+				if (left & 1 && lh_ele != rh_ele) {
+					int ele_fix_lh = tsd->subele[lh_ele] + tsd->subele[ELE_ALL];
 
 					for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
-						if (tsd->subele2[i].ele != s_ele_)
+						if (tsd->subele2[i].ele != lh_ele)
 							continue;
 						if (!(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
 							((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
@@ -669,6 +696,8 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 					}
 					cardfix = cardfix * (100 - ele_fix_lh) / 100;
 				}
+
+				cardfix = cardfix * (100 - tsd->subdefele[s_defele] - tsd->subdefele[ELE_ALL]) / 100;
 			}
 			cardfix = cardfix * (100 - tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL]) / 100;
 			cardfix = cardfix * (100 - tsd->subrace2[s_race2]) / 100;
@@ -690,13 +719,15 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 				damage = damage * cardfix / 1000;
 		}
 		break;
+
 	case BF_MISC:
-		if (tsd && !(nk&NK_NO_CARDFIX_DEF)) { // misc damage reduction from equipment
-			if (!(nk&NK_NO_ELEFIX)) {
-				int ele_fix = tsd->subele[s_ele] + tsd->subele[ELE_ALL];
+		// Affected by target DEF bonuses
+		if (tsd && !(nk&NK_NO_CARDFIX_DEF)) {
+			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
+				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
-					if (tsd->subele2[i].ele != s_ele)
+					if (tsd->subele2[i].ele != rh_ele)
 						continue;
 					if (!(((tsd->subele2[i].flag)&flag)&BF_WEAPONMASK &&
 						((tsd->subele2[i].flag)&flag)&BF_RANGEMASK &&
@@ -704,6 +735,8 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 						continue;
 					ele_fix += tsd->subele2[i].rate;
 				}
+				if (s_defele != ELE_NONE)
+					ele_fix += tsd->subdefele[s_defele] + tsd->subdefele[ELE_ALL];
 				cardfix = cardfix * (100 - ele_fix) / 100;
 			}
 			cardfix = cardfix * (100 - tsd->subsize[sstatus->size] - tsd->subsize[SZ_ALL]) / 100;
@@ -715,13 +748,58 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 				cardfix = cardfix * (100 - tsd->bonus.near_attack_def_rate) / 100;
 			else	// BF_LONG (there's no other choice)
 				cardfix = cardfix * (100 - tsd->bonus.long_attack_def_rate) / 100;
-			if (cardfix != 10000)
+			if (cardfix != 1000)
 				damage = damage * cardfix / 1000;
 		}
 		break;
 	}
 
 	return damage - original_damage;
+}
+
+/**
+ * Check Safety Wall and Pneuma effect.
+ * Maybe expand this to move checks the target's SC from battle_calc_damage?
+ * @param src Attacker
+ * @param target Target of attack
+ * @param sc STatus Change
+ * @param d Damage data
+ * @param damage Damage received
+ * @param skill_id
+ * @param skill_lv
+ * @return True:Damage inflicted, False:Missed
+ **/
+bool battle_check_sc(struct block_list *src, struct block_list *target, struct status_change *sc, struct Damage *d, int64 damage, uint16 skill_id, uint16 skill_lv) {
+	if (!sc)
+		return true;
+	if (sc->data[SC_SAFETYWALL] && (d->flag&(BF_SHORT | BF_MAGIC)) == BF_SHORT) {
+		struct skill_unit_group* group = skill_id2group(sc->data[SC_SAFETYWALL]->val3);
+		uint16 skill_id_val = sc->data[SC_SAFETYWALL]->val2;
+		if (group) {
+			if (skill_id_val == MH_STEINWAND) {
+				if (--group->val2 <= 0)
+					skill_delunitgroup(group);
+				d->dmg_lv = ATK_BLOCK;
+				if ((group->val3 - damage) > 0)
+					group->val3 -= (int)cap_value(damage, INT_MIN, INT_MAX);
+				else
+					skill_delunitgroup(group);
+				return false;
+			}
+			//in RE, SW possesses a lifetime equal to group val2, (3x caster hp, or homon formula)
+			d->dmg_lv = ATK_BLOCK;
+			if (--group->val2 <= 0)
+				skill_delunitgroup(group);
+			return false;
+		}
+		status_change_end(target, SC_SAFETYWALL, INVALID_TIMER);
+	}
+	if ((sc->data[SC_PNEUMA] || sc->data[SC_NEUTRALBARRIER] || sc->data[SC_ZEPHYR]) && (d->flag&(BF_MAGIC | BF_LONG)) == BF_LONG) {
+		d->dmg_lv = ATK_BLOCK;
+		skill_blown(src, target, skill_get_blewcount(skill_id, skill_lv), -1, 0);
+		return false;
+	}
+	return true;
 }
 
 /*==========================================
@@ -803,33 +881,11 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			return 0;
 		}
 
-		if( sc->data[SC_SAFETYWALL] && (flag&(BF_SHORT|BF_MAGIC)) == BF_SHORT ) {
-			struct skill_unit_group* group = skill_id2group(sc->data[SC_SAFETYWALL]->val3);
-			int skill_id = sc->data[SC_SAFETYWALL]->val2;
-			if (group) {
-				if (skill_id == MH_STEINWAND) {
-					if (--group->val2 <= 0)
-						skill_delunitgroup(group);
-					d->dmg_lv = ATK_BLOCK;
-					return 0;
-				}
-				if (--group->val2<=0)
-					skill_delunitgroup(group);
-				d->dmg_lv = ATK_BLOCK;
-				return 0;
-			}
-			status_change_end(bl, SC_SAFETYWALL, INVALID_TIMER);
-		}
-
-		if (sc->data[SC__MANHOLE]) {
-			d->dmg_lv = ATK_BLOCK;
+		if (!battle_check_sc(src, bl, sc, d, damage, skill_id, skill_lv))
 			return 0;
-		}
 
-		if (((sc->data[SC_PNEUMA] || sc->data[SC_NEUTRALBARRIER] || sc->data[SC_ZEPHYR]) && (flag&(BF_MAGIC | BF_LONG)) == BF_LONG))
-		{
+		if (sc->data[SC__MANHOLE] || (src->type == BL_PC && sc->data[SC_KINGS_GRACE])) {
 			d->dmg_lv = ATK_BLOCK;
-			skill_blown(src, bl, skill_get_blewcount(skill_id, skill_lv), -1, 0);
 			return 0;
 		}
 
@@ -861,6 +917,9 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				delay = 200;
 			else
 				delay = 100;
+
+			if (sd && pc_issit(sd))
+				pc_setstand(sd, true);
 
 			// Devo fix [15peaces]
 			if( sce_d && (d_bl = map_id2bl(sce_d->val1)) &&
@@ -1485,7 +1544,7 @@ static int battle_calc_drain(int64 damage, int rate, int per)
 {
 	int64 diff = 0;
 
-	if (per && rnd()%1000 < rate) {
+	if (per && (rate > 1000 || rnd() % 1000 < rate)) {
 		diff = (damage * per) / 100;
 		if (diff == 0) {
 			if (per > 0)
@@ -2859,10 +2918,19 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 	case NJ_KIRIKAGE:
 		skillratio += 100 * (skill_lv - 1);
 		break;
-	case KN_CHARGEATK:
-	{
-		int k = (wd.miscflag - 1) / 3; //+100% every 3 cells of distance
-		if (k > 2) k = 2; // ...but hard-limited to 300%.
+	case KN_CHARGEATK: { // +100% every 3 cells of distance but hard-limited to 500%
+		unsigned int k = wd.miscflag / 3;
+
+		if (k < 2)
+			k = 0;
+		else if (k > 1 && k < 3)
+			k = 1;
+		else if (k > 2 && k < 4)
+			k = 2;
+		else if (k > 3 && k < 5)
+			k = 3;
+		else
+			k = 4;
 		skillratio += 100 * k;
 	}
 	break;
@@ -3831,6 +3899,18 @@ struct Damage battle_calc_attack_plant(struct Damage wd, struct block_list *src,
 		}
 	}
 
+	if (attack_hits && target->type == BL_MOB) {
+		struct status_change *sc = status_get_sc(target);
+		struct mob_data *md = BL_CAST(BL_MOB, target);
+		if (sc &&
+			class_ != MOBID_EMPERIUM && !mob_is_battleground(md) &&
+			!battle_check_sc(src, target, sc, &wd, 1, skill_id, skill_lv))
+		{
+			wd.damage = wd.damage2 = 0;
+			return wd;
+		}
+	}
+
 	if (attack_hits && class_ == MOBID_EMPERIUM) {
 		if (target && map_flag_gvg2(target->m) && !battle_can_hit_gvg_target(src, target, skill_id, (skill_id) ? BF_SKILL : 0)) {
 			wd.damage = wd.damage2 = 0;
@@ -4160,7 +4240,7 @@ void battle_do_reflect(int attack_type, struct Damage *wd, struct block_list* sr
 			struct block_list *d_bl = battle_check_devotion(src);
 
 			rdelay = clif_damage(src, (!d_bl) ? src : d_bl, tick, wd->amotion, sstatus->dmotion, rdamage, 1, DMG_ENDURE, 0, false);
-			if (tsd) battle_drain(tsd, src, rdamage, rdamage, sstatus->race, sstatus->class_);
+			if (tsd) battle_drain(tsd, src, rdamage, rdamage, sstatus->race, sstatus->class_, is_infinite_defense(src, wd->flag));
 			//Use Reflect Shield to signal this kind of skill trigger. [Skotlex]
 			battle_delay_damage(tick, wd->amotion, target, (!d_bl) ? src : d_bl, 0, CR_REFLECTSHIELD, 0, rdamage, ATK_DEF, rdelay, true);
 			skill_additional_effect(target, (!d_bl) ? src : d_bl, CR_REFLECTSHIELD, 1, BF_WEAPON | BF_SHORT | BF_NORMAL, ATK_DEF, tick);
@@ -4179,7 +4259,7 @@ void battle_do_reflect(int attack_type, struct Damage *wd, struct block_list* sr
 			else if (attack_type == BF_WEAPON || attack_type == BF_MISC) {
 				rdelay = clif_damage(src, (!d_bl) ? src : d_bl, tick, wd->amotion, sstatus->dmotion, rdamage, 1, DMG_ENDURE, 0, false);
 				if (tsd)
-					battle_drain(tsd, src, rdamage, rdamage, sstatus->race, sstatus->class_);
+					battle_drain(tsd, src, rdamage, rdamage, sstatus->race, sstatus->class_, is_infinite_defense(src, wd->flag));
 				// It appears that official servers give skill reflect damage a longer delay
 				battle_delay_damage(tick, wd->amotion, target, (!d_bl) ? src : d_bl, 0, CR_REFLECTSHIELD, 0, rdamage, ATK_DEF, rdelay, true);
 				skill_additional_effect(target, (!d_bl) ? src : d_bl, CR_REFLECTSHIELD, 1, BF_WEAPON | BF_SHORT | BF_NORMAL, ATK_DEF, tick);
@@ -4199,6 +4279,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	struct status_change *tsc = status_get_sc(target);
 	struct status_data *tstatus = status_get_status_data(target);
 	int right_element, left_element;
+	bool infdef = false;
 
 	memset(&wd, 0, sizeof(wd));
 
@@ -4233,7 +4314,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 
 	if (!is_attack_hitting(wd, src, target, skill_id, skill_lv, true))
 		wd.dmg_lv = ATK_FLEE;
-	else if (!is_infinite_defense(target, wd.flag)) { //no need for math against plants
+	else if (!(infdef = is_infinite_defense(target, wd.flag))) { //no need for math against plants
 		int ratio;
 		int i;
 
@@ -4374,7 +4455,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	}
 
 	// only do 1 dmg to plant, no need to calculate rest
-	if (is_infinite_defense(target, wd.flag))
+	if (infdef)
 		return battle_calc_attack_plant(wd, src, target, skill_id, skill_lv, wflag);
 
 
@@ -5594,11 +5675,11 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 	return cap_value(min(rdamage, max_damage), INT_MIN, INT_MAX);
 }
 
-void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int class_)
+void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int class_, bool infdef)
 {
 	struct weapon_data *wd;
 	int64 *damage;
-	int thp = 0, tsp = 0, rhp = 0, rsp = 0, hp = 0, sp = 0;
+	int thp = 0, tsp = 0, hp = 0, sp = 0;
 	uint8 i = 0;
 	short vrate_hp = 0, vrate_sp = 0, v_hp = 0, v_sp = 0;
 
@@ -5606,16 +5687,20 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldama
 		return;
 
 	// Check for vanish HP/SP. !CHECKME: Which first, drain or vanish?
-	vrate_hp = cap_value(sd->bonus.hp_vanish_rate + sd->vanish_race[race].hp_rate + sd->vanish_race[RC_ALL].hp_rate, SHRT_MIN, SHRT_MAX);
-	v_hp = cap_value(sd->bonus.hp_vanish_per + sd->vanish_race[race].hp_per + sd->vanish_race[RC_ALL].hp_per, INT8_MIN, INT8_MAX);
-	vrate_sp = cap_value(sd->bonus.sp_vanish_rate + sd->vanish_race[race].sp_rate + sd->vanish_race[RC_ALL].sp_rate, SHRT_MIN, SHRT_MAX);
-	v_sp = cap_value(sd->bonus.sp_vanish_per + sd->vanish_race[race].sp_per + sd->vanish_race[RC_ALL].sp_per, INT8_MIN, INT8_MAX);
+	vrate_hp = cap_value(sd->bonus.hp_vanish_rate + sd->hp_vanish_race[race].rate + sd->hp_vanish_race[RC_ALL].rate, SHRT_MIN, SHRT_MAX);
+	v_hp = cap_value(sd->bonus.hp_vanish_per + sd->hp_vanish_race[race].per + sd->hp_vanish_race[RC_ALL].per, SHRT_MIN, SHRT_MAX);
+	vrate_sp = cap_value(sd->bonus.sp_vanish_rate + sd->sp_vanish_race[race].rate + sd->sp_vanish_race[RC_ALL].rate, SHRT_MIN, SHRT_MAX);
+	v_sp = cap_value(sd->bonus.sp_vanish_per + sd->sp_vanish_race[race].per + sd->sp_vanish_race[RC_ALL].per, SHRT_MIN, SHRT_MAX);
 	if (v_hp > 0 && vrate_hp > 0 && (vrate_hp >= 10000 || rnd() % 10000 < vrate_hp))
 		i |= 1;
 	if (v_sp > 0 && vrate_sp > 0 && (vrate_sp >= 10000 || rnd() % 10000 < vrate_sp))
 		i |= 2;
-	if (i)
-		status_percent_damage(&sd->bl, tbl, (i & 1 ? (int8)v_hp : 0), (i & 2 ? (int8)v_sp : 0), false);
+	if (i) {
+		if (infdef)
+			status_zap(tbl, v_hp ? v_hp / 100 : 0, v_sp ? v_sp / 100 : 0);
+		else
+			status_percent_damage(&sd->bl, tbl, (i & 1 ? (int8)(-v_hp) : 0), (i & 2 ? (int8)(-v_sp) : 0), false);
+	}
 	i = 0;
 
 	for (i = 0; i < 4; i++) {
@@ -5624,87 +5709,50 @@ void battle_drain(TBL_PC *sd, struct block_list *tbl, int64 rdamage, int64 ldama
 		else { wd = &sd->left_weapon; damage = &ldamage; }
 		if (*damage <= 0) continue;
 		if (i == 1 || i == 3) {
-			hp = wd->hp_drain_class[class_].value + wd->hp_drain_class[CLASS_ALL].value;
-			if (wd->hp_drain_class[class_].rate)
-				hp += battle_calc_drain(*damage, wd->hp_drain_class[class_].rate, wd->hp_drain_class[class_].per);
-			if (wd->hp_drain_class[CLASS_ALL].rate)
-				hp += battle_calc_drain(*damage, wd->hp_drain_class[CLASS_ALL].rate, wd->hp_drain_class[CLASS_ALL].per);
-		
-			sp = wd->sp_drain_class[class_].value + wd->sp_drain_class[CLASS_ALL].value;
-			if (wd->sp_drain_class[class_].rate)
-				sp += battle_calc_drain(*damage, wd->sp_drain_class[class_].rate, wd->sp_drain_class[class_].per);
-			if (wd->sp_drain_class[CLASS_ALL].rate)
-				sp += battle_calc_drain(*damage, wd->sp_drain_class[CLASS_ALL].rate, wd->sp_drain_class[CLASS_ALL].per);
+			hp = wd->hp_drain_class[class_] + wd->hp_drain_class[CLASS_ALL];
+			hp += battle_calc_drain(*damage, wd->hp_drain_rate.rate, wd->hp_drain_rate.per);
+			sp = wd->sp_drain_class[class_] + wd->sp_drain_class[CLASS_ALL];
+			sp += battle_calc_drain(*damage, wd->sp_drain_rate.rate, wd->sp_drain_rate.per);
 
 			if (hp) {
-				if (wd->hp_drain_class[class_].type)
-					rhp += hp;
-				if (wd->hp_drain_class[CLASS_ALL].type)
-					rhp += hp;
+				//rhp += hp;
 				thp += hp;
 			}
 
 			if (sp) {
-				if (wd->sp_drain_class[class_].type)
-					rsp += sp;
-				if (wd->sp_drain_class[CLASS_ALL].type)
-					rsp += sp;
+				//rsp += sp;
 				tsp += sp;
 			}
 		}
 		else {
-			hp = wd->hp_drain_race[race].value + wd->hp_drain_race[RC_ALL].value;
-			if (wd->hp_drain_race[race].rate)
-				hp += battle_calc_drain(*damage, wd->hp_drain_race[race].rate, wd->hp_drain_race[race].per);
-			if (wd->hp_drain_race[RC_ALL].rate)
-				hp += battle_calc_drain(*damage, wd->hp_drain_race[RC_ALL].rate, wd->hp_drain_race[RC_ALL].per);
-
-			sp = wd->sp_drain_race[race].value + wd->sp_drain_race[RC_ALL].value;
-			if (wd->sp_drain_race[race].rate)
-				sp += battle_calc_drain(*damage, wd->sp_drain_race[race].rate, wd->sp_drain_race[race].per);
-			if (wd->sp_drain_race[RC_ALL].rate)
-				sp += battle_calc_drain(*damage, wd->sp_drain_race[RC_ALL].rate, wd->sp_drain_race[RC_ALL].per);
+			hp = wd->hp_drain_race[race] + wd->hp_drain_race[RC_ALL];
+			sp = wd->sp_drain_race[race] + wd->sp_drain_race[RC_ALL];
 
 			if (hp) {
-				if (wd->hp_drain_race[race].type)
-					rhp += hp;
-				if (wd->hp_drain_race[RC_ALL].type)
-					rhp += hp;
+				//rhp += hp;
 				thp += hp;
 			}
 
 			if (sp) {
-				if (wd->sp_drain_race[race].type)
-					rsp += sp;
-				if (wd->sp_drain_race[RC_ALL].type)
-					rsp += sp;
+				//rsp += sp;
 				tsp += sp;
 			}
 		}
 	}
 
-	if (sd->sp_gain_race_attack[race])
-		tsp += sd->sp_gain_race_attack[race];
-	if (sd->sp_gain_race_attack[RC_ALL])
-		tsp += sd->sp_gain_race_attack[RC_ALL];
-	if (sd->hp_gain_race_attack[race])
-		thp += sd->hp_gain_race_attack[race];
-	if (sd->hp_gain_race_attack[RC_ALL])
-		thp += sd->hp_gain_race_attack[RC_ALL];
-
 	if (!thp && !tsp) return;
 
 	status_heal(&sd->bl, thp, tsp, battle_config.show_hp_sp_drain?3:1);
 	
-	if (rhp || rsp)
-		status_zap(tbl, rhp, rsp);
+	//if (rhp || rsp)
+		//status_zap(tbl, rhp, rsp);
 }
 
 // Deals the same damage to targets in area. [pakpil]
 int battle_damage_area( struct block_list *bl, va_list ap)
 {
 	int64 tick;
-	int amotion, dmotion, damage;
+	int amotion, dmotion, damage, flag;
 	struct block_list *src;
 
 	nullpo_retr(0, bl);
@@ -5714,12 +5762,13 @@ int battle_damage_area( struct block_list *bl, va_list ap)
 	amotion=va_arg(ap,int);
 	dmotion=va_arg(ap,int);
 	damage=va_arg(ap,int);
+	flag = va_arg(ap, int);
 
 	if (bl != src && battle_check_target(src, bl, BCT_ENEMY) > 0 && !(bl->type == BL_MOB && ((TBL_MOB*)bl)->mob_id == MOBID_EMPERIUM))
 	{
 		map_freeblock_lock();
 		if (src->type == BL_PC)
-			battle_drain((TBL_PC*)src, bl, damage, damage, status_get_race(bl), status_get_class_(bl));
+			battle_drain((TBL_PC*)src, bl, damage, damage, status_get_race(bl), status_get_class_(bl), is_infinite_defense(bl, flag));
 		if (amotion)
 			battle_delay_damage(tick, amotion, src, bl, 0, CR_REFLECTSHIELD, 0, damage, ATK_DEF, 0, true);
 		else
@@ -6188,9 +6237,9 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	if (sd) {
 		if (wd.flag & BF_WEAPON && src != target && damage > 0) {
 			if (battle_config.left_cardfix_to_right)
-				battle_drain(sd, target, wd.damage, wd.damage, tstatus->race, tstatus->class_);
+				battle_drain(sd, target, wd.damage, wd.damage, tstatus->race, tstatus->class_, is_infinite_defense(target, wd.flag));
 			else
-				battle_drain(sd, target, wd.damage, wd.damage2, tstatus->race, tstatus->class_);
+				battle_drain(sd, target, wd.damage, wd.damage2, tstatus->race, tstatus->class_, is_infinite_defense(target, wd.flag));
 		}
 	}
 

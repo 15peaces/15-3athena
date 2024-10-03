@@ -6,12 +6,32 @@
 //			--More Details.
 //========================================
 
+10/03/2024
+	r482 [15peaces]
+		*Charge Attack has now a range of 14 cells and can do up to 500% damage.
+		*Magnum Break will not hit hidden targets anymore.
+		*Auto Guard will force a player to stand when being targeted to avoid client desync.
+		*Now coma triggered on every attack types.
+		*Item bonus updates:
+			-Added `bonus2 bSubDefEle,e,x;` -> reduce x% damage received from monster with element e.
+			-Added `bonus2 bComaRace,r,n;` and `bonus2 bComaClass,c,n;` -> replacing the current usages of `bWeaponComaRace` and `bWeaponComaClass`.
+				--This bonus has no effect for GVG and BG monsters.
+			-Replaced `bonus2 bHPDrainValue,n,x;` for x = 0 to `bonus bHPGainAttack,n;`. Since x = 1 is same as `bonus bHPDrainValue,n;` and if there are items with bonus with 'x' is different, the value will be sum'd but the type switched.
+			-Replaced `bonus2 bSPDrainValue,n,x;` for x = 0 to `bonus bSPGainAttack,n;`. Since x = 1 is same as `bonus bSPDrainValue,n;` and if there are items with bonus with 'x' is different, the value will be sum'd but the type switched.
+			-Replaced `bonus3 bSPDrainRate,n,x,y;` for y = 0 to `bonus2 bSPGainAttackRate,n,x;`. Since y = 1 is same as `bonus2 bSPDrainRate,x,n;` and if there are items with bonus with 'x' is different, the value will be sum'd but the type switched.
+			-Fixed some item scripts.
+			-Updated the documentations.
+		*Added mob_is_gvg macro.
+		*Fixed Incantation Samurai Card.
+			-Unequipping a weapon with Incantation Samurai card will not kill you if you have less than 999 hp and are on a non-pvp map.
+		*Fixed some index's which would access an invalid array position, crashing the server.
+
 09/29/2024
 	r481 [15peaces]
 		*Follow up 2d32eb4
 			-Fixed monster transformation scrolls statusses & Removed hardcoded values.
 		*Corrected HP/SP values for Ninja & Gunslinger jobs.
-	
+
 09/28/2024
 	r480 [15peaces]
 		*Added missing monster transformation bonuses & fixed others.

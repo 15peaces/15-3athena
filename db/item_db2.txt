@@ -4985,7 +4985,7 @@
 13064,Academy_Knife,Academy Knife,4,0,,700,110,,1,1,0x02021040,63,2,2,1,1,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
 13065,Academy_Eti_Knife,Academy Eti Knife,4,0,,1200,120,,1,1,0x00000001,63,2,2,1,1,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
 13066,P_Dagger3,Eden Dagger III,4,0,,0,165,,1,0,0x3E9F7EEF,63,2,2,3,60,0,1,{bonus bAddMatk,80;},{},{}
-13067,Caress,Keris,4,20,,700,107:70,,1,1,0x3E9F7EEF,18,2,2,3,30,1,1,{ bonus2 bHpDrainRate,20,10; },{},{}
+13067,Caress,Keris,4,20,,700,107:70,,1,1,0x3E9F7EEF,18,2,2,3,30,1,1,{ bonus2 bHPDrainRate,20,10; },{},{}
 13068,Saurel,Pompano,4,0,,0,160:100,,3,0,0x3E9F7EEF,63,2,2,1,50,0,1,{ bonus bUnbreakableWeapon,0; autobonus "{ bonus bBaseAtk,30; }",10,7000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bAddMatk,20; }",10,7000,BF_MAGIC,"{ specialeffect2 EF_SUFFRAGIUM; }"; if(BaseLevel>99) { bonus bBaseAtk,10; bonus bAddMatk,10; } },{},{}
 13069,Aztoe_Nail,As-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bAddMatk, 80; bonus bAtkEle,Ele_Wind; bonus2 bAddEff,Eff_Freeze,100+(getrefine()*50); },{},{}
 13070,Scarletto_Nail,Scarlet-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bAddMatk,80; bonus bAtkEle,Ele_Fire; bonus2 bAddEff,Eff_Stone,100+(getrefine()*50); },{},{}
