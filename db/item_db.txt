@@ -2176,7 +2176,7 @@
 4207,Mysteltainn_Card,Mysteltainn Card,6,20,,10,,,,,,,,32,,,,,{ bonus2 bSubSize,0,25; bonus bDef,1; },{},{}
 4208,Miyabi_Ningyo_Card,Miyabi Doll Card,6,20,,10,,,,,,,,64,,,,,{ bonus bMaxSPrate,10; bonus2 bSkillAtk,"MG_FROSTDIVER",5; },{},{}
 4209,Violy_Card,Violy Card,6,20,,10,,,,,,,,136,,,,,{ bonus3 bAutoSpell,"BA_FROSTJOKER",1+4*(getskilllv("BA_FROSTJOKER")==5),20; },{},{}
-4210,Wander_Man_Card,Wanderer Card,6,20,,10,,,,,,,,4,,,,,{ if(BaseClass == Job_Thief) bonus bFlee,20; if(isequipped(4172,4257,4230,4272) == 0) { bonus3 bAutoSpell,"RG_INTIMIDATE",1,20; } else { bonus bAgi,5; bonus bStr,5; bonus bAspdRate,5; bonus bSpeedRate,25; bonus bHPDrainValue,1; if(BaseClass == Job_Thief) bonus bNoGemStone,0; } },{},{}
+4210,Wander_Man_Card,Wanderer Card,6,20,,10,,,,,,,,4,,,,,{ if(BaseClass == Job_Thief) bonus bFlee,20; if(isequipped(4172,4257,4230,4272) == 0) { bonus3 bAutoSpell,"RG_INTIMIDATE",1,20; } else { bonus bAgi,5; bonus bStr,5; bonus bAspdRate,5; bonus bSpeedRate,25; bonus bSPDrainValue,1; if(BaseClass == Job_Thief) bonus bNoGemStone,0; } },{},{}
 4211,Vocal_Card,Vocal Card,6,20,,10,,,,,,,,4,,,,,{ bonus bMdef,3; if(isequipped(4021)) bonus bFlee,18; },{},{}
 4212,Bon_Gun_Card,Bongun Card,6,20,,10,,,,,,,,136,,,,,{ bonus3 bAutoSpell,"SM_BASH",1,20; bonus2 bAddSkillBlow,"SM_BASH",5; bonus2 bAddDefMonster,1026,-100; },{},{}
 4213,Brilight_Card,Brilight Card,6,20,,10,,,,,,,,16,,,,,{ bonus2 bAddEffWhenHit,Eff_Silence,600; },{},{}

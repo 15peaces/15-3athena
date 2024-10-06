@@ -392,6 +392,9 @@ void mercenary_damage(struct mercenary_data *md, int hp, int sp)
 
 void mercenary_heal(struct mercenary_data *md, int hp, int sp)
 {
+	if (md->master == NULL)
+		return;
+
 	if( hp )
 		clif_mercenary_updatestatus(md->master, SP_HP);
 	if( sp )

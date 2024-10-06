@@ -134,7 +134,7 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd);
 int pet_hungry_val(struct pet_data *pd);
 int pet_get_card4_value(int rename_flag, int intimacy);
 void pet_set_intimate(struct pet_data *pd, int value);
-int pet_target_check(struct map_session_data *sd,struct block_list *bl,int type);
+int pet_target_check(struct pet_data *pd,struct block_list *bl,int type);
 int pet_unlocktarget(struct pet_data *pd);
 int pet_sc_check(struct map_session_data *sd, int type); //Skotlex
 int search_petDB_index(int key,int type);

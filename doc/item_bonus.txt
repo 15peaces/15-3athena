@@ -320,14 +320,14 @@ bonus3 bAddEff,n,x,y;			Adds a x/10000 chance to cause effect n to the target wh
 									ATF_TARGET: Trigger effect on target (default)
 									ATF_SHORT: Trigger on melee attacks
 									ATF_LONG: Trigger in ranged attacks (default: trigger on all attacks)
-
+bonus4 bAddEff,eff,n,y,t;     	Adds a n/100% chance to cause status eff for t milliseconds on the target when attacking
 bonus3 bAddEffWhenHit,n,x,y;	x/10000 chance to cause n state to the enemy when being hit by physical damage.
 								y is the trigger criteria:
 									ATF_SELF: Trigger effect on self.
 									ATF_TARGET: Trigger effect on target (default)
 									ATF_SHORT: Trigger on melee attacks
 									ATF_LONG: Trigger in ranged attacks (default: trigger on all attacks)
-
+bonus4 bAddEffWhenHit,eff,n,y,t;	Adds a n/100% chance to cause status eff for t milliseconds on the target when being hit by physical damage
 bonus3 bAddMonsterDropItemGroup,n,x,y;	Adds a y/100% chance to get an item of group type n when you kill a
 										monster of race x (Check db/item_group_db.txt)
 									0=Formless, 1=Undead, 2=Brute, 3=Plant, 4=Insect,
@@ -431,6 +431,7 @@ bonus3 bAddEffOnSkill,s,x,n;	Adds a n/100% chance to cause status change x on en
 bonus4 bAddEffOnSkill,s,x,n,t;	Adds a n/100% chance to cause status change x when using skill s (supports skill names)
 								t:	ATF_SELF   = causes status change to oneself
 									ATF_TARGET = causes status change to the enemy
+bonus5 bAddEffOnSkill,sk,eff,n,y,t;	Adds a n/100% chance to cause status eff for t milliseconds on the target when using skill sk
 bonus bNoMiscDamage,n;	Adds n% reduction to received misc damage.
 bonus bLongAtkRate,n;	Increases damage of ranged attacks by n%.
 bonus bUnstripable,n;	Armor cannot be taken off via strip skills (n is meaningless)

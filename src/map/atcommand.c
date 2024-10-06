@@ -955,7 +955,7 @@ ACMD_FUNC(whogm)
 	memset(match_text, '\0', sizeof(match_text));
 	memset(player_name, '\0', sizeof(player_name));
 
-	if (sscanf(message, "%199[^\n]", match_text) < 1)
+	if (sscanf(message, "%255[^\n]", match_text) < 1)
 		strcpy(match_text, "");
 	for (j = 0; match_text[j]; j++)
 		match_text[j] = TOLOWER(match_text[j]);
@@ -1584,7 +1584,7 @@ ACMD_FUNC(kami)
 			return -1;
 		}
 
-		sscanf(message, "%199[^\n]", atcmd_output);
+		sscanf(message, "%255[^\n]", atcmd_output);
 
 		if (strstr(command, "l") != NULL)
 			clif_broadcast(&sd->bl, atcmd_output, strlen(atcmd_output) + 1, BC_DEFAULT, ALL_SAMEMAP);
@@ -8847,7 +8847,7 @@ ACMD_FUNC(me)
 		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
 		return -1;
 
-	if (!message || !*message || sscanf(message, "%199[^\n]", tempmes) < 0) {
+	if (!message || !*message || sscanf(message, "%255[^\n]", tempmes) < 0) {
 		clif_displaymessage(fd, "Please, enter a message (usage: @me <message>).");
 		return -1;
 	}

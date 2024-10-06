@@ -762,6 +762,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		{ // Trigger status effects
 			enum sc_type type;
 			int i;
+			unsigned int time = 0;
+
 			for( i = 0; i < ARRAYLENGTH(sd->addeff) && sd->addeff[i].flag; i++ )
 			{
 				rate = sd->addeff[i].rate;
@@ -785,32 +787,32 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 						continue; //Range Failed.
 				}
 
-				type =  sd->addeff[i].id;
-				skill = skill_get_time2(status_sc2skill(type),7);
+				type = sd->addeff[i].sc;
+				time = sd->addeff[i].duration;
 
 				if (sd->addeff[i].flag&ATF_TARGET)
-					status_change_start(src,bl,type,rate,7,0,(type == SC_BURNING)?src->id:0,0,skill,0);
+					status_change_start(src,bl,type,rate,7,0,(type == SC_BURNING)?src->id:0,0, time,0);
 
 				if (sd->addeff[i].flag&ATF_SELF)
-					status_change_start(src,src,type,rate,7,0,(type == SC_BURNING)?src->id:0,0,skill,0);
+					status_change_start(src,src,type,rate,7,0,(type == SC_BURNING)?src->id:0,0, time,0);
 			}
 		}
 
 		if( skill_id )
 		{ // Trigger status effects on skills
 			enum sc_type type;
-			int i;
-			for( i = 0; i < ARRAYLENGTH(sd->addeff3) && sd->addeff3[i].skill; i++ )
-			{
-				if( skill_id != sd->addeff3[i].skill || !sd->addeff3[i].rate )
+			uint8 i;
+			unsigned int time = 0;
+			for (i = 0; i < ARRAYLENGTH(sd->addeff_onskill) && sd->addeff_onskill[i].skill_id; i++) {
+				if (skill_id != sd->addeff_onskill[i].skill_id || !sd->addeff_onskill[i].rate)
 					continue;
-				type = sd->addeff3[i].id;
-				skill = skill_get_time2(status_sc2skill(type),7);
+				type = sd->addeff_onskill[i].sc;
+				time = sd->addeff[i].duration;
 
-				if( sd->addeff3[i].target&ATF_TARGET )
-					status_change_start(src,bl,type,sd->addeff3[i].rate,7,0,0,0,skill,0);
-				if( sd->addeff3[i].target&ATF_SELF )
-					status_change_start(src,src,type,sd->addeff3[i].rate,7,0,0,0,skill,0);
+				if (sd->addeff_onskill[i].target&ATF_TARGET)
+					status_change_start(src, bl, type, sd->addeff_onskill[i].rate, 7, 0, 0, 0, time, 0);
+				if (sd->addeff_onskill[i].target&ATF_SELF)
+					status_change_start(src, src, type, sd->addeff_onskill[i].rate, 7, 0, 0, 0, time, 0);
 			}
 
 			//"While the damage can be blocked by Pneuma, the chance to break armor remains", irowiki. [Cydh]
@@ -2142,27 +2144,27 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	if(dstsd && attack_type&BF_WEAPON)
 	{	//Counter effects.
 		enum sc_type type;
-		int i, time;
-		for(i=0; i < ARRAYLENGTH(dstsd->addeff2) && dstsd->addeff2[i].flag; i++)
-		{
-			rate = dstsd->addeff2[i].rate;
+		uint8 i;
+		unsigned int time = 0;
+		for (i = 0; i < ARRAYLENGTH(dstsd->addeff_atked) && dstsd->addeff_atked[i].flag; i++) {
+			rate = dstsd->addeff_atked[i].rate;
 			if (attack_type&BF_LONG)
-				rate+=dstsd->addeff2[i].arrow_rate;
-			if (!rate) continue;
+				rate += dstsd->addeff_atked[i].arrow_rate;
+			if (!rate)
+				continue;
 
-			if ((dstsd->addeff2[i].flag&(ATF_LONG|ATF_SHORT)) != (ATF_LONG|ATF_SHORT))
-			{	//Trigger has range consideration.
-				if((dstsd->addeff2[i].flag&ATF_LONG && !(attack_type&BF_LONG)) ||
-					(dstsd->addeff2[i].flag&ATF_SHORT && !(attack_type&BF_SHORT)))
+			if ((dstsd->addeff_atked[i].flag&(ATF_LONG | ATF_SHORT)) != (ATF_LONG | ATF_SHORT)) {	//Trigger has range consideration.
+				if ((dstsd->addeff_atked[i].flag&ATF_LONG && !(attack_type&BF_LONG)) ||
+					(dstsd->addeff_atked[i].flag&ATF_SHORT && !(attack_type&BF_SHORT)))
 					continue; //Range Failed.
 			}
-			type = dstsd->addeff2[i].id;
-			time = skill_get_time2(status_sc2skill(type),7);
+			type = dstsd->addeff_atked[i].sc;
+			time = dstsd->addeff_atked[i].duration;
 
-			if (dstsd->addeff2[i].flag&ATF_TARGET)
+			if (dstsd->addeff_atked[i].flag&ATF_TARGET)
 				status_change_start(src,src,type,rate,7,0,0,0,time,0);
 
-			if (dstsd->addeff2[i].flag&ATF_SELF && !status_isdead(bl))
+			if (dstsd->addeff_atked[i].flag&ATF_SELF && !status_isdead(bl))
 				status_change_start(src,bl,type,rate,7,0,0,0,time,0);
 		}
 	}
@@ -7269,7 +7271,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		map_foreachinrange(skill_area_sub,src,
 			skill_get_splash(skill_id, skill_lv),BL_CHAR|BL_SKILL,
-			src,skill_id,skill_lv,tick, flag|BCT_ENEMY|1,
+			src,skill_id,skill_lv,tick, flag|BCT_ENEMY|SD_ANIMATION|1,
 			skill_castend_damage_id);
 		break;
 
@@ -13472,29 +13474,33 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 
 	case GS_GROUNDDRIFT:
 		{
-		int element[5]={ELE_WIND,ELE_DARK,ELE_POISON,ELE_WATER,ELE_FIRE};
-
-		val1 = status->rhw.ele;
-		if (!val1)
-			val1=element[rnd()%5];
-
-		switch (val1)
-		{
-			case ELE_FIRE:
-				subunt++;
-			case ELE_WATER:
-				subunt++;
-			case ELE_POISON:
-				subunt++;
-			case ELE_DARK:
-				subunt++;
-			case ELE_WIND:
-				break;
-			default:
-				subunt=rnd()%5;
-				break;
+		// Ground Drift Element is decided when it's placed.
+		int ele = skill_get_ele(skill_id, skill_lv);
+		int element[5] = { ELE_WIND, ELE_DARK, ELE_POISON, ELE_WATER, ELE_FIRE };
+		if (ele == -3)
+			val1 = element[rnd() % 5]; // Use random from available unit visual?
+		else if (ele == -2)
+			val1 = status_get_attack_sc_element(src, sc);
+		else if (ele == -1) {
+			val1 = status->rhw.ele;
+			if (sc && sc->data[SC_ENCHANTARMS])
+				val1 = sc->data[SC_ENCHANTARMS]->val2;
 		}
-
+		switch (val1) {
+		case ELE_FIRE:
+			subunt++;
+		case ELE_WATER:
+			subunt++;
+		case ELE_POISON:
+			subunt++;
+		case ELE_DARK:
+			subunt++;
+		case ELE_WIND:
+			break;
+		default:
+			subunt = rnd() % 5;
+			break;
+		}
 		break;
 		}
 

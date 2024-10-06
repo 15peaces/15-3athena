@@ -3236,8 +3236,8 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		+ sizeof(sd->autospell2)
 		+ sizeof(sd->autospell3)
 		+ sizeof(sd->addeff)
-		+ sizeof(sd->addeff2)
-		+ sizeof(sd->addeff3)
+		+ sizeof(sd->addeff_atked)
+		+ sizeof(sd->addeff_onskill)
 		+ sizeof(sd->skillatk)
 		+ sizeof(sd->skillheal)
 		+ sizeof(sd->skillheal2)
@@ -5035,6 +5035,10 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 	else
 	if( bl->type == BL_MER ) {
 		TBL_MER* md = BL_CAST(BL_MER, bl);
+
+		if (!md->master)
+			return;
+
 		if( b_status.rhw.atk != status->rhw.atk || b_status.rhw.atk2 != status->rhw.atk2 )
 			clif_mercenary_updatestatus(md->master, SP_ATK1);
 		if( b_status.matk_max != status->matk_max )
@@ -5063,6 +5067,10 @@ void status_calc_bl_(struct block_list* bl, enum scb_flag flag, enum e_status_ca
 	else
 	if( bl->type == BL_ELEM ) {
 		TBL_ELEM* ed = BL_CAST(BL_ELEM, bl);
+
+		if (!ed->master)
+			return;
+
 		if( b_status.max_hp != status->max_hp )
 			clif_elemental_updatestatus(ed->master, SP_MAXHP);
 		if( b_status.max_sp != status->max_sp )
@@ -8433,6 +8441,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		status_change_end(bl, SC_FOOD_INT_CASH, INVALID_TIMER);
 		status_change_end(bl, SC_FOOD_DEX_CASH, INVALID_TIMER);
 		status_change_end(bl, SC_FOOD_LUK_CASH, INVALID_TIMER);
+		break;
+	case SC_IMPOSITIO:
+		if (sc && sc->data[SC_IMPOSITIO] && sc->data[SC_IMPOSITIO]->val1 > val1) //Replace higher level effect for lower.
+			status_change_end(bl, SC_IMPOSITIO, INVALID_TIMER);
 		break;
 	}
 

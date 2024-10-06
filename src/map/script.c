@@ -16515,7 +16515,6 @@ BUILDIN_FUNC(getunitdata) {
 	TBL_PET* pd = NULL;
 	TBL_ELEM* ed = NULL;
 	TBL_NPC* nd = NULL;
-	int64 num;
 	char* name;
 	struct script_data *data = script_getdata(st, 3);
 
@@ -16542,7 +16541,6 @@ BUILDIN_FUNC(getunitdata) {
 		case BL_NPC:  nd = map_id2nd(bl->id); break;
 	}
 
-	num = reference_getuid(data);
 	name = reference_getname(data);
 
 #define getunitdata_sub(idx__,var__) setd_sub(st,sd,name,(idx__),(void *)(int)(var__),data->ref)

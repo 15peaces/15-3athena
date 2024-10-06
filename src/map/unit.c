@@ -2557,7 +2557,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 		ud->attacktarget_lv = battle_weapon_attack(src,target,tick,0);
 
 		if(sd && sd->status.pet_id > 0 && sd->pd && battle_config.pet_attack_support)
-			pet_target_check(sd,target,0);
+			pet_target_check(sd->pd,target,0);
 		map_freeblock_unlock();
 
 		ud->attackabletime = tick + sstatus->adelay;
@@ -3219,6 +3219,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			}
 			if( sd )
 				sd->pd = NULL;
+			pd->master = NULL;
 			break;
 		}
 		case BL_MOB:
@@ -3293,6 +3294,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			}
 			if( sd )
 				sd->hd = NULL;
+			hd->master = NULL;
 			break;
 		}
 		case BL_MER:
@@ -3311,6 +3313,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->md = NULL;
 
 			mercenary_contract_stop(md);
+			md->master = NULL;
 			break;
 		}
 		case BL_ELEM:
@@ -3330,6 +3333,7 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 				sd->ed = NULL;
 
 			elem_summon_stop(ed);
+			ed->master = NULL;
 			break;
 		}
 	}

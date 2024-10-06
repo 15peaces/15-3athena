@@ -364,7 +364,7 @@ int hom_levelup(struct homun_data *hd)
 	clif_hominfo(hd->master, hd, 0);
 	clif_homskillinfoblock(hd->master);
 
-	if ( battle_config.homunculus_show_growth ) {
+	if (hd->master && battle_config.homunculus_show_growth ) {
 		char output[256];
 
 		sprintf(output,
@@ -579,7 +579,7 @@ int hom_gainexp(struct homun_data *hd,int exp)
 		clif_disp_onlyself(hd->master, output, strlen(output));
 	}
 
-	if(hd->homunculus.exp < hd->exp_next) {
+	if(hd->master && hd->homunculus.exp < hd->exp_next) {
 		clif_hominfo(hd->master,hd,0);
 		return 0;
 	}
@@ -627,7 +627,8 @@ int hom_decrease_intimacy(struct homun_data * hd, unsigned int value)
 
 void hom_heal(struct homun_data *hd)
 {
-	clif_hominfo(hd->master,hd,0);
+	if (hd->master)
+		clif_hominfo(hd->master,hd,0);
 }
 
 void hom_save(struct homun_data *hd)

@@ -6,6 +6,28 @@
 //			--More Details.
 //========================================
 
+10/06/2024
+	r483 [15peaces]
+		*Fixed Sightrasher doesn't check target's status.
+		*Some misc cleaning.
+			-Also some more item fixes.
+		*Added more missing item bonusses:
+			-bonus4 bAddEff,eff,n,y,t;
+				--Adds a n/100% chance to cause status eff for t milliseconds on the target when attacking
+				--Just like `bonus3 bAddEff,eff,n,y;` but with user-defined duration;
+			-bonus4 bAddEffWhenHit,eff,n,y,t;
+				--Adds a n/100% chance to cause status eff for t milliseconds on the target when being hit by physical damage
+				--Just like `bonus3 bAddEffWhenHit,eff,n,y;` but with user-defined duration;
+			-bonus5 bAddEffOnSkill,sk,eff,n,y,t;
+				--Adds a n/100% chance to cause status eff for t milliseconds on the target when using skill sk
+				--Just like `bonus4 bAddEffOnSkill,sk,eff,n,y;` but with user-defined duration;
+		*Fixed Shield Chain to always be Neutral damage.
+		*(Attempted to) fix Ground Drift damage calculation.
+		*PR_IMPOSITIO
+			-Lower levels of Impositio Manus will now overwrite higher levels.
+				--For example, someone with level 5 IM activated will have +25 ATK from the skill, but if level 1 IM were used on them their ATK would drop to only +5. Therefore, this skill can be used offensively.
+		*Fixed long broadcast messages getting truncated.
+
 10/03/2024
 	r482 [15peaces]
 		*Charge Attack has now a range of 14 cells and can do up to 500% damage.
