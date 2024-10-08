@@ -20466,22 +20466,24 @@ void skill_usave_add(struct map_session_data * sd, int skill_id, int skill_lv) {
 
 	sus->skill_id = skill_id;
 	sus->skill_lv = skill_lv;
-
-	return;
 }
 
-void skill_usave_trigger(struct map_session_data *sd) {
-	struct skill_usave * sus = NULL;
+/**
+ * Loads saved skill unit entries for this player after map load
+ * @param sd: Player
+ */
+void skill_usave_trigger(struct map_session_data *sd)
+{
+	struct skill_usave *sus = NULL;
+	struct skill_unit_group *group = NULL;
 
-	if (!(sus = idb_get(skillusave_db, sd->status.char_id))) {
+	if (!(sus = idb_get(skillusave_db, sd->status.char_id)))
 		return;
-	}
 
-	skill_unitsetting(&sd->bl, sus->skill_id, sus->skill_lv, sd->bl.x, sd->bl.y, 0);
-
+	if ((group = skill_unitsetting(&sd->bl, sus->skill_id, sus->skill_lv, sd->bl.x, sd->bl.y, 0)))
+		if (sus->skill_id == NC_NEUTRALBARRIER || sus->skill_id == NC_STEALTHFIELD)
+			sc_start2(&sd->bl, (sus->skill_id == NC_NEUTRALBARRIER ? SC_NEUTRALBARRIER_MASTER : SC_STEALTHFIELD_MASTER), 100, sus->skill_lv, group->group_id, skill_get_time(sus->skill_id, sus->skill_lv));
 	idb_remove(skillusave_db, sd->status.char_id);
-
-	return;
 }
 
 /*

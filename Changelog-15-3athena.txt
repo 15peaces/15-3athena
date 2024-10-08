@@ -6,6 +6,13 @@
 //			--More Details.
 //========================================
 
+10/08/2024
+	r484 [15peaces]
+		*Some small optimisation in status_change_start.
+		*Corrected a missed variable type conversion.
+		*Fixed SC_JAILED to work for dead characters.
+		*Updated HP/SP Increase Potions to use the official statuses.
+
 10/06/2024
 	r483 [15peaces]
 		*Fixed Sightrasher doesn't check target's status.

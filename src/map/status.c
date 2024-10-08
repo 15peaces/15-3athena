@@ -4402,8 +4402,8 @@ void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, str
 /// @param flag bitfield of values from enum scb_flag
 void status_calc_bl_main(struct block_list *bl, /*enum scb_flag*/int flag)
 {
-	const struct status_data *b_status = status_get_base_status(bl);
-	struct status_data *status = status_get_status_data(bl);
+	const struct status_data *b_status = status_get_base_status(bl); // Base Status
+	struct status_data *status = status_get_status_data(bl); // Battle Status
 	struct status_change *sc = status_get_sc(bl);
 	TBL_PC *sd = BL_CAST(BL_PC,bl);
 	int temp;
@@ -7784,7 +7784,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		}
 	}
 	
-	if( status_isdead(bl) && type != SC_NOCHAT )
+	if (status_isdead(bl) && (type != SC_NOCHAT && type != SC_JAILED)) // SC_NOCHAT and SC_JAILED should work even on dead characters
 		return 0;
 
 	if (status_change_isDisabledOnMap(type, bl->m))
@@ -7797,16 +7797,17 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			return 0; //Emperium/BG Monsters can't be afflicted by status changes
 	}
 
-	sd = BL_CAST(BL_PC, bl);
-	hd = BL_CAST(BL_HOM, bl);
-	ed = BL_CAST(BL_ELEM, bl);
-
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
 	{
 		tick = status_get_sc_def(src, bl, type, rate, tick, flag);
-		if( !tick ) return 0;
+		if( !tick )
+			return 0;
 	}
+
+	sd = BL_CAST(BL_PC, bl);
+	hd = BL_CAST(BL_HOM, bl);
+	ed = BL_CAST(BL_ELEM, bl);
 
 	undead_flag = battle_check_undead(status->race,status->def_ele);
 	//Check for inmunities / sc fails
