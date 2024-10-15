@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/15/2024
+	r485 [15peaces]
+		*Blacksmith skill updates
+			-Power-Thrust will no longer affects players that don't have a weapon equipped
+			-If weapon requirements on Adrenaline Rush or Power-Thrust are not met, the target will no longer display the buff animation
+			-Party members now only gain +5% ATK from Power-Thrust on all skill levels
+			-Hilt binding now increases the duration of Adrenaline Rush, Power-Thrust and Power Maximize for all party members as long as the caster has learned it
+		*Fixed Sightblaster printing errors to the map server log every time it's not used against a trap.
+		*Kaahi is now able to overwrite higher levels.
 
 10/08/2024
 	r484 [15peaces]

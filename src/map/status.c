@@ -7859,8 +7859,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				return 0; //Overthrust can't take effect if under Max Overthrust. [Skotlex]
 			break;
 		case SC_ADRENALINE:
-			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE)))
-				return 0;
 			if (sc->data[SC_QUAGMIRE] ||
 				sc->data[SC_DECREASEAGI] ||
 				sc->data[SC_ADORAMUS]
@@ -7868,8 +7866,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				return 0;
 			break;
 		case SC_ADRENALINE2:
-			if(sd && !pc_check_weapontype(sd,skill_get_weapontype(BS_ADRENALINE2)))
-				return 0;
 			if (sc->data[SC_QUAGMIRE] ||
 				sc->data[SC_DECREASEAGI] ||
 				sc->data[SC_ADORAMUS]
@@ -8315,9 +8311,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	case SC_FEAR:
 		status_change_end(bl, SC_BLIND, INVALID_TIMER);
 		break;
-	case SC_FIGHTINGSPIRIT:
-		status_change_end(bl, type, INVALID_TIMER); // Remove previous one.
-		break;
 	//Group A Status
 	case SC_SWING:
 	case SC_SYMPHONY_LOVE:
@@ -8443,9 +8436,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		status_change_end(bl, SC_FOOD_DEX_CASH, INVALID_TIMER);
 		status_change_end(bl, SC_FOOD_LUK_CASH, INVALID_TIMER);
 		break;
+	case SC_FIGHTINGSPIRIT:
 	case SC_IMPOSITIO:
-		if (sc && sc->data[SC_IMPOSITIO] && sc->data[SC_IMPOSITIO]->val1 > val1) //Replace higher level effect for lower.
-			status_change_end(bl, SC_IMPOSITIO, INVALID_TIMER);
+	case SC_KAAHI:
+		//These status changes always overwrite themselves even when a lower level is cast
+		status_change_end(bl, type, INVALID_TIMER);
 		break;
 	}
 
@@ -9270,18 +9265,21 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_MAXOVERTHRUST:
 			val2 = 20*val1; //Power increase
 			break;
-		case SC_OVERTHRUST:
-			//val2 holds if it was casted on self, or is bonus received from others
-			val3 = 5*val1; //Power increase
-			if(sd && pc_checkskill(sd,BS_HILTBINDING)>0)
-				tick += tick / 10;
-			break;
 		case SC_ADRENALINE2:
 		case SC_ADRENALINE:
-			val3 = (val2) ? 300 : 200; // aspd increase
 		case SC_WEAPONPERFECTION:
-			if(sd && pc_checkskill(sd,BS_HILTBINDING)>0)
-				tick += tick / 10;
+			{
+				struct map_session_data * s_sd = BL_CAST(BL_PC, src);
+				if (type == SC_OVERTHRUST) {
+					// val2 holds if it was casted on self, or is bonus received from others
+					val3 = (val2) ? 5 * val1 : 5; // Power increase
+				}
+				else if (type == SC_ADRENALINE2 || type == SC_ADRENALINE) {
+					val3 = (val2) ? 300 : 200; // Aspd increase
+				}
+				if (s_sd && pc_checkskill(s_sd, BS_HILTBINDING) > 0)
+					tick += tick / 10; //If caster has Hilt Binding, duration increases by 10%
+			}
 			break;
 		case SC_CONCENTRATION:
 			val2 = 5*val1; //Batk/Watk Increase
@@ -13114,8 +13112,10 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 	case SC_SIGHTBLASTER:
 		if (battle_check_target(src, bl, BCT_ENEMY) > 0 && status_check_skilluse(src, bl, WZ_SIGHTBLASTER, sce->val1, 2))
 		{
-			struct skill_unit *su = (struct skill_unit *)bl;
 			if (sce) {
+				struct skill_unit *su = NULL;
+				if (bl->type == BL_SKILL)
+					su = (struct skill_unit *)bl;
 				if (skill_attack(BF_MAGIC, src, src, bl, WZ_SIGHTBLASTER, sce->val1, tick, 0x1000000)
 					&& (!su || !su->group || !(skill_get_inf2(su->group->skill_id)&INF2_TRAP))) { // The hit is not counted if it's against a trap
 					sce->val2 = 0; // This signals it to end.
