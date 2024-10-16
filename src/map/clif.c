@@ -12053,7 +12053,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 		}
 
-		if (sd->ud.skilltimer != INVALID_TIMER || (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING))
+		if (sd->ud.skilltimer != INVALID_TIMER || (sd->sc.opt1 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING))
 			break;
 
 		if (sd->sc.count && (
@@ -12074,6 +12074,10 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			clif_standing(&sd->bl, false);
 			return;
 		}
+
+		if (sd->sc.opt1 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
+			break;
+
 		if (pc_setstand(sd, false)) {
 			skill_sit(sd, 0);
 			clif_standing(&sd->bl, true);

@@ -253,25 +253,27 @@ void initChangeTables(void)
 	set_sc( KN_TWOHANDQUICKEN	, SC_TWOHANDQUICKEN	, SI_TWOHANDQUICKEN	, SCB_ASPD );
 	set_sc( KN_AUTOCOUNTER		, SC_AUTOCOUNTER	, SI_AUTOCOUNTER	, SCB_NONE );
 	
-	set_sc( PR_IMPOSITIO         , SC_IMPOSITIO       , SI_IMPOSITIO       , SCB_WATK );
-	set_sc( PR_SUFFRAGIUM        , SC_SUFFRAGIUM      , SI_SUFFRAGIUM      , SCB_NONE );
-	set_sc( PR_ASPERSIO          , SC_ASPERSIO        , SI_ASPERSIO        , SCB_ATK_ELE );
-	set_sc( PR_BENEDICTIO        , SC_BENEDICTIO      , SI_BENEDICTIO      , SCB_DEF_ELE );
-	set_sc( PR_SLOWPOISON        , SC_SLOWPOISON      , SI_SLOWPOISON      , SCB_REGEN );
-	set_sc( PR_KYRIE             , SC_KYRIE           , SI_KYRIE           , SCB_NONE );
-	set_sc( PR_MAGNIFICAT        , SC_MAGNIFICAT      , SI_MAGNIFICAT      , SCB_REGEN );
-	set_sc( PR_GLORIA            , SC_GLORIA          , SI_GLORIA          , SCB_LUK );
-	add_sc( PR_LEXDIVINA         , SC_SILENCE         );
-	set_sc( PR_LEXAETERNA        , SC_AETERNA         , SI_AETERNA         , SCB_NONE );
-	add_sc( WZ_METEOR            , SC_STUN            );
-	add_sc( WZ_VERMILION         , SC_BLIND           );
-	add_sc( WZ_FROSTNOVA         , SC_FREEZE          );
-	add_sc( WZ_STORMGUST         , SC_FREEZE          );
-	set_sc( WZ_QUAGMIRE          , SC_QUAGMIRE        , SI_QUAGMIRE        , SCB_AGI|SCB_DEX|SCB_ASPD|SCB_SPEED );
-	set_sc( BS_ADRENALINE        , SC_ADRENALINE      , SI_ADRENALINE      , SCB_ASPD );
-	set_sc( BS_WEAPONPERFECT     , SC_WEAPONPERFECTION, SI_WEAPONPERFECTION, SCB_NONE );
-	set_sc( BS_OVERTHRUST        , SC_OVERTHRUST      , SI_OVERTHRUST      , SCB_NONE );
-	set_sc( BS_MAXIMIZE          , SC_MAXIMIZEPOWER   , SI_MAXIMIZEPOWER   , SCB_REGEN );
+	set_sc( PR_IMPOSITIO		, SC_IMPOSITIO			, SI_IMPOSITIO       , SCB_WATK );
+	set_sc( PR_SUFFRAGIUM		, SC_SUFFRAGIUM			, SI_SUFFRAGIUM      , SCB_NONE );
+	set_sc( PR_ASPERSIO			, SC_ASPERSIO			, SI_ASPERSIO        , SCB_ATK_ELE );
+	set_sc( PR_BENEDICTIO		, SC_BENEDICTIO			, SI_BENEDICTIO      , SCB_DEF_ELE );
+	set_sc( PR_SLOWPOISON		, SC_SLOWPOISON			, SI_SLOWPOISON      , SCB_REGEN );
+	set_sc( PR_KYRIE			, SC_KYRIE				, SI_KYRIE           , SCB_NONE );
+	set_sc( PR_MAGNIFICAT		, SC_MAGNIFICAT			, SI_MAGNIFICAT      , SCB_REGEN );
+	set_sc( PR_GLORIA			, SC_GLORIA				, SI_GLORIA          , SCB_LUK );
+	add_sc( PR_STRECOVERY		, SC_BLIND				);
+	add_sc( PR_LEXDIVINA		, SC_SILENCE			);
+	set_sc( PR_LEXAETERNA		, SC_AETERNA			, SI_AETERNA         , SCB_NONE );
+	add_sc( WZ_METEOR			, SC_STUN				);
+	add_sc( WZ_VERMILION		, SC_BLIND				);
+	add_sc( WZ_FROSTNOVA		, SC_FREEZE				);
+	add_sc( WZ_STORMGUST		, SC_FREEZE				);
+	set_sc( WZ_QUAGMIRE			, SC_QUAGMIRE			, SI_QUAGMIRE        , SCB_AGI|SCB_DEX|SCB_ASPD|SCB_SPEED );
+	add_sc( BS_HAMMERFALL		, SC_STUN				);
+	set_sc( BS_ADRENALINE		, SC_ADRENALINE			, SI_ADRENALINE      , SCB_ASPD );
+	set_sc( BS_WEAPONPERFECT	, SC_WEAPONPERFECTION	, SI_WEAPONPERFECTION, SCB_NONE );
+	set_sc( BS_OVERTHRUST		, SC_OVERTHRUST			, SI_OVERTHRUST      , SCB_NONE );
+	set_sc( BS_MAXIMIZE			, SC_MAXIMIZEPOWER		, SI_MAXIMIZEPOWER   , SCB_REGEN );
 	
 	// Hunter
 	add_sc( HT_LANDMINE		, SC_STUN	);
@@ -8217,6 +8219,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		status_change_end(bl, SC_CLOSECONFINE, INVALID_TIMER);
 		status_change_end(bl, SC_CLOSECONFINE2, INVALID_TIMER);
 		break;
+	case SC_FREEZE:
+		status_change_end(bl, SC_AETERNA, INVALID_TIMER);
+		break;
 	case SC_BERSERK:
 		if(battle_config.berserk_cancels_buffs)
 		{
@@ -8468,6 +8473,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			case SC_L_LIFEPOTION:
 			case SC_BOSSMAPINFO:
 			case SC_STUN:
+				if (sc->data[SC_DANCING])
+					unit_stop_walking(bl, 1);
 			case SC_SLEEP:
 			case SC_POISON:
 			case SC_CURSE:
@@ -10507,23 +10514,25 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	//Those that make you stop attacking/walking....
 	switch (type)
 	{
-		case SC_FREEZE:
-		case SC_STUN:
-		case SC_SLEEP:
-		case SC_STONE:
 		case SC_IMPRISON:
 		case SC_DEEPSLEEP:
 		case SC_CRYSTALIZE:
 			if (sd && pc_issit(sd)) //Avoid sprite sync problems.
 				pc_setstand(sd, true);
+		case SC_FREEZE:
+		case SC_STUN:
+			if (sc->data[SC_DANCING])
+				unit_stop_walking(bl, 1);
 		case SC_TRICKDEAD:
+			status_change_end(bl, SC_DANCING, INVALID_TIMER);
+		case SC_SLEEP:
+		case SC_STONE:
 		case SC__MANHOLE:
 		case SC_FALLENEMPIRE:
 		case SC_CURSEDCIRCLE_ATKER:
 		case SC_CURSEDCIRCLE_TARGET:
 		case SC_GRAVITYCONTROL:
 			unit_stop_attack(bl);
-			status_change_end(bl, SC_DANCING, INVALID_TIMER);
 			// Cancel cast when get status [LuzZza]
 			if (battle_config.sc_castcancel&bl->type)
 				unit_skillcastcancel(bl, 0);
@@ -10933,6 +10942,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_READYCOUNTER:
 				case SC_READYTURN:
 				case SC_DODGE:
+				case SC_MIRACLE:
 				case SC_JAILED:
 				case SC_EXPBOOST:
 				case SC_ITEMBOOST:
@@ -12043,7 +12053,12 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_STONE:
 		if(sc->opt1 == OPT1_STONEWAIT && sce->val3) {
 			sce->val4 = 0;
-			unit_stop_walking(bl,1);
+			unit_stop_attack(bl);
+			if (sc->data[SC_DANCING]) {
+				unit_stop_walking(bl, 1);
+				status_change_end(bl, SC_DANCING, INVALID_TIMER);
+			}
+			status_change_end(bl, SC_AETERNA, INVALID_TIMER);
 			sc->opt1 = OPT1_STONE;
 			clif_changeoption(bl);
 			sc_timer_next(1000+tick,status_change_timer, bl->id, data );

@@ -1473,8 +1473,10 @@ int unit_set_walkdelay(struct block_list *bl, int64 tick, int delay, int type)
 			return 0;
 	} else {
 		//Don't set walk delays when already trapped.
-		if (!unit_can_move(bl))
+		if (!unit_can_move(bl)) {
+			unit_stop_walking(bl, 4); //Unit might still be moving even though it can't move
 			return 0;
+		}
 	}
 	ud->canmove_tick = tick + delay;
 	if (ud->walktimer != INVALID_TIMER)

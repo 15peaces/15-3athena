@@ -5,6 +5,31 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/16/2024
+	r486 [15peaces]
+		*Miracle no longer dispels on death.
+		*Scream and Frost Joke
+			-The delay until the status change kicks in was increased from 2s to 3s
+			-Aftercast delay in was increased from 3s to 4s
+			-Duration of Freeze from Frost Joke increased from 10-14s to 30s
+		*Hammer Fall, Lex Divina and offensive Status Recovery
+			-A delay of 1 second until the status change kicks in was added
+			-Hammer Fall will hit the targets that are in the AoE before the delay (so you can't dodge)
+			-Offensive Status Recovery's base duration reduced from 30s to 20s and base chance increased to 100%
+			-Increased the maximum number of skill timers from 15 to 40 as they are needed for delayed status changes
+		*Scream, Frost Joke and Hammer Fall no longer make a target stop
+			-Similar behavior to e.g. Ankle Snare against bosses or in WoE
+			-If the target was singing/dancing, it will still stop and the song/dance will be canceled
+			-Fixed a bug that caused position lag when targets that are still moving but can't move anymore are hit
+		*Freeze, Stun, Sleep and Stone behavior
+			-These status changes no longer make the target stand up
+			-Sleep and Stone (first phase) no longer make the target stop moving/singing/dancing
+			-Stone (second phase) will now make the target stop singing/dancing, but only make you stop moving in this one case
+			-You can now sit down while in the first phase of Stone
+			-You can no longer stand up while having any of these status changes (except first phase of Stone)
+			-Stone and Freeze now remove Lex Aeterna
+				-For stone this refers to the second phase
+
 10/15/2024
 	r485 [15peaces]
 		*Blacksmith skill updates

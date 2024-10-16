@@ -3889,6 +3889,11 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					range = skill_get_splash(skl->skill_id, skl->skill_lv);
 					map_foreachinarea(skill_frostjoke_scream,skl->map,skl->x-range,skl->y-range,skl->x+range,skl->y+range,BL_CHAR,src,skl->skill_id,skl->skill_lv,tick);
 					break;
+				case PR_LEXDIVINA:
+				case PR_STRECOVERY:
+				case BS_HAMMERFALL:
+					status_change_start(src, target, status_skill2sc(skl->skill_id), skl->type*100, skl->skill_lv, 0, 0, 0, skill_get_time2(skl->skill_id, skl->skill_lv), 0);
+					break;
 				case NPC_EARTHQUAKE:
 					if (skl->type > 1)
 						skill_addtimerskill(src, tick + 250, src->id, 0, 0, skl->skill_id, skl->skill_lv, skl->type - 1, skl->flag);
@@ -6083,7 +6088,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if( tsce )
 			status_change_end(bl,type, INVALID_TIMER);
 		else
-			sc_start(bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv));
+			skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skill_id, skill_lv, 100, flag);
 		clif_skill_nodamage (src, bl, skill_id, skill_lv, 1);
 		break;
 
@@ -7167,8 +7172,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case BS_HAMMERFALL:
-		clif_skill_nodamage(src,bl,skill_id,skill_lv,
-			sc_start(bl,SC_STUN,(20 + 10 * skill_lv),skill_lv,skill_get_time2(skill_id,skill_lv)));
+		skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skill_id, skill_lv, (20 + 10 * skill_lv), flag);
 		break;
 	case RG_RAID:
 		skill_area_temp[1] = 0;
@@ -7487,7 +7491,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case BA_FROSTJOKER:
 	case DC_SCREAM:
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-		skill_addtimerskill(src,tick+2000,bl->id,src->x,src->y,skill_id,skill_lv,0,flag);
+		skill_addtimerskill(src,tick+3000,bl->id,src->x,src->y,skill_id,skill_lv,0,flag);
 
 		if (md) {
 			// custom hack to make the mob display the skill, because these skills don't show the skill use text themselves
@@ -7620,14 +7624,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		//Other confirms
 		status_change_end(bl, SC_NETHERWORLD, INVALID_TIMER);
 
-		//Is this equation really right? It looks so... special.
 		if(battle_check_undead(tstatus->race,tstatus->def_ele))
-		{
-			status_change_start(src, bl, SC_BLIND,
-				100*(100-(tstatus->int_/2+tstatus->vit/3+tstatus->luk/10)),
-				1,0,0,0,
-				skill_get_time2(skill_id, skill_lv) * (100-(tstatus->int_+tstatus->vit)/2)/100,0);
-		}
+			skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skill_id, skill_lv, 100, flag);
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		if(dstmd)
 			mob_unlocktarget(dstmd,tick);
