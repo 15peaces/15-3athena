@@ -4778,9 +4778,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += 10 * sd->charmball;
 						break;
 					case NJ_BAKUENRYU:// Raging Fire Dragon
-						skillratio += 50*(skill_lv-1);
+						skillratio += 50 + 150 * skill_lv;
 						if( sd && sd->charmball > 0 && sd->charmball_type == CHARM_FIRE )
-							skillratio += 15 * sd->charmball;
+							skillratio += 45 * sd->charmball;
 						break;
 					case NJ_HYOUSENSOU:// Spear of Ice
 						if( sd && sd->charmball > 0 && sd->charmball_type == CHARM_WATER )

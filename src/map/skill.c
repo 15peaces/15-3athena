@@ -3890,6 +3890,12 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					map_foreachinarea(skill_frostjoke_scream,skl->map,skl->x-range,skl->y-range,skl->x+range,skl->y+range,BL_CHAR,src,skl->skill_id,skl->skill_lv,tick);
 					break;
 				case PR_LEXDIVINA:
+					if (src->type == BL_MOB) {
+						// Monsters use the default duration when casting Lex Divina
+						status_change_start(src, target, status_skill2sc(skl->skill_id), skl->type*100, skl->skill_lv, 0, 0, 0, skill_get_time2(status_sc2skill(status_skill2sc(skl->skill_id)), 1), 0);
+						break;
+					}
+					// Fall through
 				case PR_STRECOVERY:
 				case BS_HAMMERFALL:
 					status_change_start(src, target, status_skill2sc(skl->skill_id), skl->type*100, skl->skill_lv, 0, 0, 0, skill_get_time2(skl->skill_id, skl->skill_lv), 0);
@@ -4134,6 +4140,18 @@ static int skill_reveal_trap (struct block_list *bl, va_list ap)
 		return 1;
 	}
 	return 0;
+}
+
+/**
+ * Attempt to reaveal trap in area
+ * @param src Skill caster
+ * @param range Affected range
+ * @param x
+ * @param y
+ **/
+void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y) {
+	nullpo_retv(src);
+	map_foreachinarea(skill_reveal_trap, src->m, x - range, y - range, x + range, y + range, BL_SKILL);
 }
 
 static int skill_trigger_reverberation(struct block_list *bl, va_list ap)
@@ -4736,7 +4754,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RG_RAID:
 	case HW_NAPALMVULCAN:
 	case NJ_HUUMA:
-	case NJ_BAKUENRYU:
 	case ASC_METEORASSAULT:
 	case GS_DESPERADO:
 	case GS_SPREADATTACK:
@@ -4868,6 +4885,12 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			if ( skill_id == SU_LUNATICCARROTBEAT2 )
 				skill_id = SU_LUNATICCARROTBEAT;
 		}
+		break;
+
+	//Place units around target
+	case NJ_BAKUENRYU:
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
+		skill_unitsetting(src, skill_id, skill_lv, bl->x, bl->y, 0);
 		break;
 
 	case RL_QD_SHOT:
@@ -6739,11 +6762,12 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case AC_CONCENTRATION:
 		{
+			int splash = skill_get_splash(skill_id, skill_lv);
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,
 				sc_start(bl,type,100,skill_lv,skill_get_time(skill_id,skill_lv)));
+			skill_reveal_trap_inarea(src, splash, src->x, src->y);
 			map_foreachinrange( status_change_timer_sub, src,
-				skill_get_splash(skill_id, skill_lv), BL_CHAR,
-				src,NULL,type,tick);
+				splash, BL_CHAR, src, NULL, type, tick);
 		}
 		break;
 
@@ -7279,8 +7303,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			skill_castend_damage_id);
 		break;
 
-	case NJ_HYOUSYOURAKU:
-	case NJ_RAIGEKISAI:
 	case WZ_FROSTNOVA:
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		skill_area_temp[1] = 0;
@@ -7558,14 +7580,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if(status_isimmune(bl) || !tsc)
 				break;
 
-			if (tsc->data[SC_STONE]) {
-				status_change_end(bl, SC_STONE, INVALID_TIMER);
+			if (tsc->data[type]) {
+				status_change_end(bl, type, INVALID_TIMER);
 				if (sd) clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
 			if ( sc && sc->data[SC_PETROLOGY_OPTION] )
 				stone_chance += 25;
-			if (sc_start4(bl,SC_STONE,stone_chance,
+			if (sc_start4(bl,type,stone_chance,
 				skill_lv, 0, 0, skill_get_time(skill_id, skill_lv),
 				skill_get_time2(skill_id,skill_lv)))
 					clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
@@ -12144,9 +12166,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		map_foreachinarea( status_change_timer_sub,
 			src->m, x-i, y-i, x+i,y+i,BL_CHAR,
 			src,NULL,SC_SIGHT,tick);
-		if(battle_config.traps_setting&1)
-		map_foreachinarea( skill_reveal_trap,
-			src->m, x-i, y-i, x+i,y+i,BL_SKILL);
+		skill_reveal_trap_inarea(src, i, x, y);
 		break;
 
 	case SO_ARRULLO:

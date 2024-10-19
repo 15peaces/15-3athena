@@ -94,7 +94,7 @@ static unsigned int status_calc_maxhp(struct block_list *bl, uint64 maxhp);
 static unsigned int status_calc_maxsp(struct block_list *bl, uint64 maxsp);
 static unsigned char status_calc_element(struct block_list *bl, struct status_change *sc, int element);
 static unsigned char status_calc_element_lv(struct block_list *bl, struct status_change *sc, int lv);
-static unsigned short status_calc_mode(struct block_list *bl, struct status_change *sc, int mode);
+static enum e_mode status_calc_mode(struct block_list *bl, struct status_change *sc, enum e_mode mode);
 
 /**
  * Returns the status change associated with a skill.
@@ -6702,10 +6702,10 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 	return (unsigned char)cap_value(element,0,UCHAR_MAX);
 }
 
-static unsigned short status_calc_mode(struct block_list *bl, struct status_change *sc, int mode)
+static enum e_mode status_calc_mode(struct block_list *bl, struct status_change *sc, enum e_mode mode)
 {
 	if(!sc || !sc->count)
-		return cap_value(mode, 0, USHRT_MAX);
+		return cap_value(mode, 0, INT_MAX);
 	if(sc->data[SC_MODECHANGE]) {
 		if (sc->data[SC_MODECHANGE]->val2)
 			mode = sc->data[SC_MODECHANGE]->val2; //Set mode
@@ -6714,7 +6714,7 @@ static unsigned short status_calc_mode(struct block_list *bl, struct status_chan
 		if (sc->data[SC_MODECHANGE]->val4)
 			mode&=~sc->data[SC_MODECHANGE]->val4; //Del mode
 	}
-	return cap_value(mode,0,USHRT_MAX);
+	return cap_value(mode,0, INT_MAX);
 }
 
 const char* status_get_name(struct block_list *bl)
@@ -8792,6 +8792,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val3 = 50;
 			val2 = 3*((val1+1)/3);
 			if (val1 > 4) val2--;
+			//Suiton is a special case, stop effect is forced and only happens when target enters it
+			if (!unit_blown_immune(bl, 0x1))
+				unit_stop_walking(bl, 9);
 			break;
 		case SC_ONEHAND:
 		case SC_TWOHANDQUICKEN:
@@ -8853,11 +8856,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 
 		case SC_STONE:
-			val3 = tick/1000; //Petrified HP-damage iterations.
+			val4 = max(val4, 100); // Incubation time
+			val3 = (tick - val4) / 100; // Petrified timer iterations
 			if(val3 < 1) val3 = 1; 
-			tick = val4; //Petrifying time.
-			if (tick < 1000)
-				tick = 1000; //Min time
+			tick = val4;
 			calc_flag = 0; //Actual status changes take effect on petrified state.
 			break;
 
@@ -12033,8 +12035,10 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 				sce->val4--;
 			map_foreachinrange(status_change_timer_sub, bl, sce->val3, BL_CHAR | BL_SKILL, bl, sce, type, tick);
 		}
-		else
+		else {
 			map_foreachinrange(status_change_timer_sub, bl, sce->val3, BL_CHAR, bl, sce, type, tick);
+			skill_reveal_trap_inarea(bl, sce->val3, bl->x, bl->y);
+		}
 
 		if( --(sce->val2)>0 ){
 			sce->val4 += 20; // Use for Shadow Form 2 seconds checking.
@@ -12061,14 +12065,20 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			status_change_end(bl, SC_AETERNA, INVALID_TIMER);
 			sc->opt1 = OPT1_STONE;
 			clif_changeoption(bl);
-			sc_timer_next(1000+tick,status_change_timer, bl->id, data );
+			sc_timer_next(100+tick,status_change_timer, bl->id, data );
 			status_calc_bl(bl, StatusChangeFlagTable[type]);
 			return 0;
 		}
-		if(--(sce->val3) > 0) {
-			if(++(sce->val4)%5 == 0 && status->hp > status->max_hp/4)
-				status_percent_damage(NULL, bl, 1, 0, false);
-			sc_timer_next(1000+tick,status_change_timer, bl->id, data );
+		if (++(sce->val4) % 50 == 0 && status->hp > status->max_hp / 4) {
+			if (sce->val2 && bl->type == BL_MOB) {
+				struct block_list *src = map_id2bl(sce->val2);
+				if (src)
+					mob_log_damage((TBL_MOB*)bl, src, apply_rate(status->hp, 1));
+			}
+			status_percent_damage(NULL, bl, 1, 0, false);
+		}
+		if (--(sce->val3) > 0) {
+			sc_timer_next(100 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

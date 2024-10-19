@@ -463,6 +463,8 @@ int64 skill_attack( int attack_type, struct block_list* src, struct block_list *
 void skill_usave_add(struct map_session_data * sd, int skill_id, int skill_lv);
 void skill_usave_trigger(struct map_session_data *sd);
 
+void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
+
 void skill_reload(void);
 
 //RequiredState

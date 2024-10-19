@@ -5,6 +5,23 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/19/2024
+	r487 [15peaces]
+		*Ninja Skills fixes:
+			-Exploding Dragon, Lightning Jolt and Snowflake Draft are now unit skills
+				--They no longer can deal damage on Land Protector
+				--They will deal damage instantly, regardless of your ASPD
+			-Exploding Dragon now deals 150%+150%*level damage divided by number of hits, it can no longer damage plants
+			-Snowflake Draft's freeze base duration is now 2500ms+5000ms*level
+			-Watery Evasion now makes non-Ninja enemies stop when they walk on it and are not knock-back immune
+		*Added some skills and effects that can reveal hidden traps.
+		*Some cleaning.
+		*Added official status change base durations for Silence and Stone
+			-Items, NPC_SILENCEATTACK and NPC_WIDESILENCE and monster Lex Divina use the default silence duration
+			-Incubation time for Stone is now subtracted from the Stone duration
+			-Incubation time is now 100ms for all Stone skills except Stone Curse (5 seconds)
+			-The Stone timer is now more exact and now deal 1% HP damage exactly every 5 seconds, even if it's on the last tick
+
 10/16/2024
 	r486 [15peaces]
 		*Miracle no longer dispels on death.
