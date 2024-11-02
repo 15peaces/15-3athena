@@ -137,7 +137,7 @@
 //Should hold the max of GLOBAL/ACCOUNT/ACCOUNT2 (needed for some arrays that hold all three)
 #define MAX_REG_NUM 256
 #define DEFAULT_WALK_SPEED 150
-#define MIN_WALK_SPEED 0
+#define MIN_WALK_SPEED 20
 #define MAX_WALK_SPEED 1000
 #define MAX_STORAGE 600 // Max number of storage slots a player can have, (up to ~850 tested)
 #define MAX_GUILD_STORAGE  100*5	// Max storage is 100 * GD_GUILD_STORAGE level. [Rytech]
@@ -358,6 +358,8 @@ enum e_skill_flag
 	SKILL_FLAG_PLAGIARIZED,
 	SKILL_FLAG_PERM_GRANTED, // Permanent, granted through someway e.g. script
 	SKILL_FLAG_REPLACED_LV_0, // temporary skill overshadowing permanent skill of level 'N - SKILL_FLAG_REPLACED_LV_0'
+	//SKILL_FLAG_PERM_GRANTED, // permanent, granted through someway e.g. script
+	SKILL_FLAG_TMP_COMBO = 6, //@FIXME for homon combo atm
 	//...
 };
 

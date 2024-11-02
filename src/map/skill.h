@@ -465,6 +465,9 @@ void skill_usave_trigger(struct map_session_data *sd);
 
 void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
 
+void skill_combo_toogle_inf(struct block_list* bl, uint16 skill_id, int inf);
+void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_list *bl, uint16 skill_id, uint16 skill_lv, int64 tick);
+
 void skill_reload(void);
 
 //RequiredState

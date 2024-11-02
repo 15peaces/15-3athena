@@ -1460,11 +1460,11 @@ static void clif_soulball_single(int fd, struct map_session_data *sd)
  * MILLENNIUMSHIELD_STATE_STAND =  0x0
  * MILLENNIUMSHIELD_STATE_MOVE =  0x1
  *-----------------------------------------*/
-static void clif_millenniumshield_single(int fd, struct map_session_data *sd, short shield_count)
+static void clif_millenniumshield_single(int fd, struct block_list *bl, short shield_count)
 {
 	WFIFOHEAD(fd, packet_len(0x440));
 	WFIFOW(fd,0)=0x440;
-	WFIFOL(fd,2)=sd->bl.id;
+	WFIFOL(fd,2)=bl->id;
 	WFIFOW(fd,6)=shield_count;
 	WFIFOW(fd,8)=0;
 	WFIFOSET(fd, packet_len(0x440));
@@ -1553,9 +1553,9 @@ int clif_spawn(struct block_list *bl)
 			if (sd->spiritball > 0)
 				clif_spiritball(sd);
 			if (sd->shieldball > 0)
-				clif_millenniumshield(sd, sd->shieldball);
+				clif_millenniumshield(&sd->bl, sd->shieldball);
 			if (sd->rageball > 0)
-				clif_millenniumshield(sd, sd->rageball);
+				clif_millenniumshield(&sd->bl, sd->rageball);
 			if (sd->charmball > 0)
 				clif_spiritball_attribute(sd);
 			if (sd->soulball > 0)
@@ -1777,9 +1777,10 @@ int clif_homskillinfoblock(struct map_session_data *sd)
 	WFIFOW(fd,0)=0x235;
 	for ( i = 0; i < MAX_HOMUNSKILL; i++){
 		if( (id = hd->homunculus.hskill[i].id) != 0 ){
+			int combo = (hd->homunculus.hskill[i].flag)&SKILL_FLAG_TMP_COMBO;
 			j = id - HM_SKILLBASE;
 			WFIFOW(fd,len  ) = id;
-			WFIFOL(fd,len+2) = skill_get_inf(id);
+			WFIFOL(fd,len+2) = ((combo) ? INF_SELF_SKILL : skill_get_inf(id));
 			WFIFOW(fd,len+6) = hd->homunculus.hskill[j].lv;
 			WFIFOW(fd,len+8) = skill_get_sp(id,hd->homunculus.hskill[j].lv);
 			WFIFOW(fd,len+10)= skill_get_range2(&sd->hd->bl, id,hd->homunculus.hskill[j].lv);
@@ -5012,10 +5013,10 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 		clif_spiritball_single(dstsd);
 
 	if (dstsd->shieldball > 0)
-		clif_millenniumshield_single(sd->fd, dstsd, dstsd->shieldball);
+		clif_millenniumshield_single(sd->fd, &dstsd->bl, dstsd->shieldball);
 
 	if (dstsd->rageball > 0)
-		clif_millenniumshield_single(sd->fd, dstsd, dstsd->rageball);
+		clif_millenniumshield_single(sd->fd, &dstsd->bl, dstsd->rageball);
 
 	if (dstsd->charmball > 0)
 		clif_spiritball_attribute_single(sd->fd, dstsd);
@@ -8832,17 +8833,15 @@ void clif_spiritball(struct map_session_data *sd)
  * MILLENNIUMSHIELD_STATE_STAND =  0x0
  * MILLENNIUMSHIELD_STATE_MOVE =  0x1
  *-----------------------------------------*/
-int clif_millenniumshield(struct map_session_data *sd, short shield_count )
+int clif_millenniumshield(struct block_list* bl, short shield_count )
 {
 	unsigned char buf[10];
 
-	nullpo_ret(sd);
-
 	WBUFW(buf,0) = 0x440;
-	WBUFL(buf,2) = sd->bl.id;
+	WBUFL(buf,2) = bl->id;
 	WBUFW(buf,6) = shield_count;
 	WBUFW(buf,8) = 0;
-	clif_send(buf,packet_len(0x440),&sd->bl,AREA);
+	clif_send(buf,packet_len(0x440),bl,AREA);
 	return 0;
 }
 
@@ -10294,9 +10293,9 @@ void clif_refresh(struct map_session_data *sd)
 	if (sd->spiritball)
 		clif_spiritball_single(sd);
 	if (sd->shieldball)
-		clif_millenniumshield_single(sd->fd, sd, sd->shieldball);
+		clif_millenniumshield_single(sd->fd, &sd->bl, sd->shieldball);
 	if (sd->rageball)
-		clif_millenniumshield_single(sd->fd, sd, sd->rageball);
+		clif_millenniumshield_single(sd->fd, &sd->bl, sd->rageball);
 	if (sd->charmball)
 		clif_spiritball_attribute_single(sd->fd, sd);
 	if (sd->soulball)

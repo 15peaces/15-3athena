@@ -1200,7 +1200,7 @@ bool clif_attendance_timediff(struct map_session_data *sd);
 int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
 
 void clif_hom_spiritball(struct homun_data *hd);
-int clif_millenniumshield(struct map_session_data *sd, short shield_count);
+int clif_millenniumshield(struct block_list* bl, short shield_count);
 
 void clif_notify_bindOnEquip(struct map_session_data *sd, int n);
 

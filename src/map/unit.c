@@ -1522,7 +1522,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	struct map_session_data *sd = NULL;
 	struct block_list * target = NULL;
 	int64 tick = gettick();
-	int temp = 0, range;
+	int combo = 0, range;
 
 	nullpo_ret(src);
 	if(status_isdead(src))
@@ -1541,12 +1541,12 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	{
 		if (sc->data[SC_COMBO]->val2)
 			target_id = sc->data[SC_COMBO]->val2;
-		else
+		else if (target_id == src->id || ud->target > 0)
 			target_id = ud->target;
 
 		if (skill_get_inf(skill_id)&INF_SELF_SKILL && skill_get_nk(skill_id)&NK_NO_DAMAGE)// exploit fix
 			target_id = src->id;
-		temp = 1;
+		combo = 1;
 	}
 	else if (target_id == src->id &&
 		skill_get_inf(skill_id)&INF_SELF_SKILL &&
@@ -1554,7 +1554,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	skill_id == SR_DRAGONCOMBO)
 	{
 		target_id = ud->target; //Auto-select target. [Skotlex]
-		temp = 1;
+		combo = 1;
 	}
 
 	if (sd) {
@@ -1599,7 +1599,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		if (target)
 			target_id = target->id;
 	}
-	if (src->type==BL_HOM)
+	else if (src->type==BL_HOM)
 	switch(skill_id)
 	{ //Homun-auto-target skills.
 		case HLIF_HEAL:
@@ -1722,7 +1722,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 
 	//Check range when not using skill on yourself or is a combo-skill during attack
 	//(these are supposed to always have the same range as your attack)
-	if( src->id != target_id && (!temp || ud->attacktimer == INVALID_TIMER) )
+	if( src->id != target_id && (!combo || ud->attacktimer == INVALID_TIMER) )
 	{
 		if( skill_get_state(ud->skill_id) == ST_MOVE_ENABLE )
 		{
@@ -1738,7 +1738,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			return 0; // Arrow-path check failed.
 	}
 
-	if (!temp && skill_id != SR_DRAGONCOMBO) //Stop attack on non-combo skills [Skotlex]
+	if (!combo && skill_id != SR_DRAGONCOMBO) //Stop attack on non-combo skills [Skotlex]
 		unit_stop_attack(src);
 	else if(ud->attacktimer != INVALID_TIMER) //Elsewise, delay current attack sequence
 		ud->attackabletime = tick + status_get_adelay(src);
@@ -1746,12 +1746,12 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	ud->state.skillcastcancel = castcancel;
 
 	//temp: Used to signal force cast now.
-	temp = 0;
+	combo = 0;
 	
 	switch(skill_id){
 	case ALL_RESURRECTION:
 		if(battle_check_undead(tstatus->race,tstatus->def_ele)) {	
-			temp = 1;
+			combo = 1;
 		} else if (!status_isdead(target))
 			return 0; //Can't cast on non-dead characters.
 	break;
@@ -1765,10 +1765,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 			sc->data[SC_COMBO]->val1 == CH_TIGERFIST ||
 			sc->data[SC_COMBO]->val1 == CH_CHAINCRUSH))
 			casttime = 0;
-		temp = 1;
+		combo = 1;
 	break;
 	case SA_SPELLBREAKER:
-		temp = 1;
+		combo = 1;
 	break;
 	case ST_CHASEWALK:
 		if (sc && sc->data[SC_CHASEWALK])
@@ -1805,7 +1805,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	case SR_GATEOFHELL:
 		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE)
 			casttime = 0;
-		temp = 1;
+		combo = 1;
 	break;
 	}
   	
@@ -1824,7 +1824,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		casttime = 0;
 	}
 
-	if( casttime > 0 || temp )
+	if( casttime > 0 || combo)
 	{ 
 		unit_stop_walking(src,1);
 

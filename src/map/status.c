@@ -87,7 +87,6 @@ static signed char status_calc_mdef(struct block_list *, struct status_change *,
 static signed short status_calc_mdef2(struct block_list *, struct status_change *, int);
 static unsigned short status_calc_speed(struct block_list *, struct status_change *, int);
 static short status_calc_aspd_amount(struct block_list *, struct status_change *, int);
-static short status_calc_aspd_amount(struct block_list *, struct status_change *, int);
 static short status_calc_aspd_rate(struct block_list *, struct status_change *, int);
 static unsigned short status_calc_dmotion(struct block_list *bl, struct status_change *sc, int dmotion);
 static unsigned int status_calc_maxhp(struct block_list *bl, uint64 maxhp);
@@ -6534,7 +6533,7 @@ static short status_calc_aspd_rate(struct block_list *bl, struct status_change *
 	if(sc->data[SC_ATTHASTE_CASH])
 		aspd_rate -= sc->data[SC_ATTHASTE_CASH]->val2;
 	if(sc->data[SC_DONTFORGETME])
-		aspd_rate += 10 * sc->data[SC_DONTFORGETME]->val2;
+		aspd_rate += sc->data[SC_DONTFORGETME]->val2;
 	if(sc->data[SC_LONGING])
 		aspd_rate += sc->data[SC_LONGING]->val2;
 	if(sc->data[SC_STEELBODY])
@@ -9218,22 +9217,23 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 
 		case SC_COMBO:
 		{
-			//val1: Skill ID
-			//val2: When given, target (for autotargetting skills)
-			//val3: When set, this combo time should NOT delay attack/movement
-			//val3: TK: Last used kick
-			//val4: TK: Combo time
+			// val1: Skill ID
+			// val2: When given, target (for autotargetting skills)
+			// val3: When set, this combo time should NOT delay attack/movement
+			// val3: If set to 2 this combo will delay ONLY attack
+			// val3: TK: Last used kick
+			// val4: TK: Combo time
 			struct unit_data *ud = unit_bl2ud(bl);
-			if (ud && !val3) 
-			{
-				tick += 300 * battle_config.combo_delay_rate/100;
-				ud->attackabletime = gettick()+tick;
-				unit_set_walkdelay(bl, gettick(), tick, 1);
+			if (ud && (!val3 || val3 == 2)) {
+				tick += 300 * battle_config.combo_delay_rate / 100;
+				ud->attackabletime = gettick() + tick;
+				if (!val3)
+					unit_set_walkdelay(bl, gettick(), tick, 1);
 			}
 			val3 = 0;
 			val4 = tick;
-		}
 			break;
+		}
 		case SC_EARTHSCROLL:
 			val2 = 11-val1; //Chance to consume: 11-skill_lv%
 			break;
@@ -10875,17 +10875,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				case TK_COUNTER:
 					clif_skill_nodamage(bl,bl,TK_READYCOUNTER,1,1);
 					break;
-				case MO_TRIPLEATTACK:
-						clif_skillupdateinfo(sd, SR_DRAGONCOMBO, INF_SELF_SKILL, 1);
-					break;
-				case MO_COMBOFINISH:
-				case CH_TIGERFIST:
-				case CH_CHAINCRUSH:
-				case SR_DRAGONCOMBO:
-				case SR_FALLENEMPIRE:
-				case TK_JUMPKICK:
-					if( sd )
-						clif_skillupdateinfoblock(sd);
+				default: //rest just toogle inf to enable autotarget
+					skill_combo_toogle_inf(bl, sce->val1, INF_SELF_SKILL);
 					break;
 			}
 			break;
@@ -11382,21 +11373,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_COMBO:
-			if (sd){
-				switch (sce->val1) {
-					case MO_COMBOFINISH:
-					case CH_TIGERFIST:
-					case CH_CHAINCRUSH:
-						clif_skillupdateinfo(sd, MO_EXTREMITYFIST, 0, 0);
-						break;
-					case TK_JUMPKICK:
-						clif_skillupdateinfo(sd, TK_JUMPKICK, 0, 0);
-						break;
-					case SR_DRAGONCOMBO:
-						clif_skillupdateinfo(sd, SR_DRAGONCOMBO, INF_ATTACK_SKILL, 1);
-						break;
-				}
-			}
+			skill_combo_toogle_inf(bl, sce->val1, 0);
 			break;
 
 		case SC_MARIONETTE:

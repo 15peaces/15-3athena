@@ -5,6 +5,47 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+11/02/2024
+	r488 [15peaces]
+		*Blaze Shield now properly slows down enemies while still making sure they take all the hits while moving over a fire cell
+		*Fixed some skills still having damage delay, even though their source is a unit (BL_SKILL)
+		*Sanctuary knock-back is now 2 cells instead of 1 and pushes "away from cell center of each cell", similar to Storm Gust
+		*Some other fixes, cleaning & optimisations.
+		*Added support for a 'force drop' flag(4) for map_addflooritem and applied it appropriately.
+		*Fix map crash when a monster uses GS_FULLBUSTER.
+		*'getmonsterinfo' command no longer outputs an error when the supplied mob doesn't exist.
+		*Updated Don't Forget Me ASPD decrease and movement speed formulas.
+		*Fixed statpoint_renewal.txt.
+			-Updated to latest official version for lvl 175+.
+		*Fixed an issue with attack_attr_none setting that caused huge number of card effects to be nullified on monsters.
+		*Set player's state, 'monster_ignore' when autotrade.
+		*Fixed damage calculation for some skills:
+			-RK_DRAGONBREATH, RK_DRAGONBREATH_WATER, NC_SELFDESTRUCTION, KO_HAPPOKUNAI.
+		*Fixed a potential map server crash when attacking traps.
+		*Fixed a problem that sometimes randomly a status change was removed on logout although it shouldn't
+			-Special thanks to @rathena
+		*Sight Blaster will now always be removed on logout
+		*Implemented official formula for Gypsy's Kiss / Service For You.		
+		*Combo skill updates
+			-Rewrite & cleaned up skill_combo so it's easier to understand and update
+				--Thanks to @rathena
+			-Monk updates
+				--Default combo delay is now (1000 - 4*AGI - 2*DEX) milliseconds, it will be used when none is specified in the skill_cast_db.txt
+				--Fixed DEX increasing combo delay rather than decreasing it
+				--Fixed "Triple Attack" not giving any "can act" delay so you were able to use a skill right when it triggered
+				--Fixed combo delays of all combo skills (turns out they all use the default in both pre-re and re!)
+				--Fixed "Palm Strike" in renewal having cast time rather than cast delay
+				--Monk Spirit now reduces the SP cost of all Monk/Champion combo skills to 2 SP
+			-Taekwon updates
+				--Stances will no longer give you walk delay when they trigger
+				--You can still use the Kick after moving as long as it's still within the combo delay
+			-Hunter updates
+				--Beast Strafing is now a target skill, you can target any brute or insect monster with it regardless of your previous target
+				--You no longer need to target a brute or insect monster with Double Strafe for the combo to trigger
+				--If the combo triggers you no longer get walk and attack delay (that means you can still use DS continuously)
+				--You can still use Beast Strafe after moving as long as it's still within the combo delay
+
 10/19/2024
 	r487 [15peaces]
 		*Ninja Skills fixes:

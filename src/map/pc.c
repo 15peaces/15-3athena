@@ -276,7 +276,7 @@ static int pc_shieldball_timer(int tid, int64 tick, int id, intptr data)
 		memmove(sd->shield_timer+i, sd->shield_timer+i+1, (sd->shieldball-i)*sizeof(int));
 	sd->shield_timer[sd->shieldball] = INVALID_TIMER;
 
-	clif_millenniumshield(sd, sd->shieldball);
+	clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
 }
@@ -313,7 +313,7 @@ int pc_addshieldball(struct map_session_data *sd,int interval,int max, int shiel
 	sd->shieldball++;
 	sd->shieldball_health = sd->shieldball_set_health;
 	sc_start(&sd->bl, SC_MILLENNIUMSHIELD, 100, 0, 0);
-	clif_millenniumshield(sd, sd->shieldball);
+	clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
 }
@@ -356,7 +356,7 @@ int pc_delshieldball(struct map_session_data *sd,int count,int type)
 	}
 
 	if(!type)
-		clif_millenniumshield(sd, sd->shieldball);
+		clif_millenniumshield(&sd->bl, sd->shieldball);
 
 	return 0;
 }
@@ -388,7 +388,7 @@ static int pc_rageball_timer(int tid, int64 tick, int id, intptr data)
 		memmove(sd->rage_timer+i, sd->rage_timer+i+1, (sd->rageball-i)*sizeof(int));
 	sd->rage_timer[sd->rageball] = INVALID_TIMER;
 
-	clif_millenniumshield(sd, sd->rageball);
+	clif_millenniumshield(&sd->bl, sd->rageball);
 
 	return 0;
 }
@@ -420,7 +420,7 @@ int pc_addrageball(struct map_session_data *sd,int interval,int max)
 		memmove(sd->rage_timer+i+1, sd->rage_timer+i, (sd->rageball-i)*sizeof(int));
 	sd->rage_timer[i] = tid;
 	sd->rageball++;
-	clif_millenniumshield(sd, sd->rageball);
+	clif_millenniumshield(&sd->bl, sd->rageball);
 
 	return 0;
 }
@@ -456,7 +456,7 @@ int pc_delrageball(struct map_session_data *sd,int count,int type)
 	}
 
 	if(!type)
-		clif_millenniumshield(sd, sd->rageball);
+		clif_millenniumshield(&sd->bl, sd->rageball);
 
 	return 0;
 }

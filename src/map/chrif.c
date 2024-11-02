@@ -1275,9 +1275,12 @@ int chrif_save_scdata(struct map_session_data *sd)
 		if (sc->data[i]->timer != INVALID_TIMER)
 		{
 			timer = get_timer(sc->data[i]->timer);
-			if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
+			if (timer == NULL || timer->func != status_change_timer)
 				continue;
-			data.tick = DIFF_TICK32(timer->tick, tick); //Duration that is left before ending.
+			if (DIFF_TICK(timer->tick, tick) > 0)
+				data.tick = DIFF_TICK32(timer->tick, tick); //Duration that is left before ending.
+			else
+				data.tick = 0; //Negative tick does not necessarily mean that sc has expired
 		} else
 			data.tick = -1; //Infinite duration
 		data.type = i;

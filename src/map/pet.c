@@ -1102,7 +1102,7 @@ static int pet_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 	while (ditem) {
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_charid,list->second_charid,list->third_charid,0,0);
+			list->first_charid,list->second_charid,list->third_charid,4,0);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);

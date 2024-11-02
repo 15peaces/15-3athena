@@ -6624,7 +6624,7 @@ BUILDIN_FUNC(makeitem)
 		else
 			item_tmp.identify=itemdb_isidentified(nameid);
 
-		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,0,0);
+		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
 	}
 
 	return 0;
@@ -16247,7 +16247,7 @@ BUILDIN_FUNC(getmonsterinfo)
 
 	mob_id	= script_getnum(st,2);
 	if (!mobdb_checkid(mob_id)) {
-		ShowError("buildin_getmonsterinfo: Wrong Monster ID: %i\n", mob_id);
+		//ShowError("buildin_getmonsterinfo: Wrong Monster ID: %i\n", mob_id);
 		if ( !script_getnum(st,3) ) //requested a string
 			script_pushconststr(st,"null");
 		else

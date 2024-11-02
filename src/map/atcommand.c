@@ -4129,7 +4129,7 @@ ACMD_FUNC(shieldball)
 	sd->shieldball_health = sd->shieldball_set_health = health;
 	if ( sd->shieldball > 0 )
 		sc_start(&sd->bl, SC_MILLENNIUMSHIELD, 100, 0, 0);
-	clif_millenniumshield(sd, sd->shieldball);
+	clif_millenniumshield(&sd->bl, sd->shieldball);
 	// no message, player can look the difference
 
 	return 0;
@@ -4152,7 +4152,7 @@ ACMD_FUNC(rageball)
 	if( sd->rageball > 0 )
 		pc_delrageball(sd, sd->rageball, 1);
 	sd->rageball = number;
-	clif_millenniumshield(sd, sd->rageball);
+	clif_millenniumshield(&sd->bl, sd->rageball);
 	// no message, player can look the difference
 
 	return 0;
@@ -6697,7 +6697,7 @@ void getring (struct map_session_data* sd)
 
 	if((flag = pc_additem(sd,&item_tmp,1,LOG_TYPE_COMMAND))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0);
 	}
 }
 
@@ -6820,6 +6820,7 @@ ACMD_FUNC(autotrade)
 	}
 	
 	sd->state.autotrade = 1;
+	sd->state.monster_ignore = 1;
 	if( battle_config.at_timeout )
 	{
 		int timeout = atoi(message);
