@@ -6,6 +6,22 @@
 //			--More Details.
 //========================================
 
+11/04/2024
+	r489 [15peaces]
+		*Some memleak fixes while mapexit.
+		*Fixed BS_ADRENALINE & some other skills causing map crashes if casted by monsters.
+		*Improved Icewall walk block implementation
+			-Moved the configuration setting "icewall_walk_block" to monster.conf
+			-Split the configuration into mob_icewall_walk_block and boss_icewall_walk_block so it can be configured for bosses separately
+			-Expanded the configuration
+				--If the value is set to 1, monsters on an ice wall cell will behave like trapped monsters, that means they won't be able to move at all, they will use idle skills and if they are attacked while nobody is in their attack range, they will use
+				-- their rudeattacked skills; this is equal to official behavior of bosses
+				--If the value is set to 2-255, it will behave as before but monsters in the AI loop now use both idle and chase skills, but will no longer use their rudeattacked skills even if attacked from range; this is equal to official behavior of 
+				-- normal monsters
+				--Official values would be "220" for normal monsters (loop until Icewall expiration) and "1" for bosses (behave like trapped monster) on most official servers, but as some official servers have a less exploitable implementation (from 
+				-- looping AI only  a limited amount of times up to outright blocking Icewall on all maps with bosses), we decided for less exploitable default values for now which are 75 for normal monsters (loop 15-35 seconds) and 0 for bosses 
+				-- (impossible to trap in Icewall)
+
 11/02/2024
 	r488 [15peaces]
 		*Blaze Shield now properly slows down enemies while still making sure they take all the hits while moving over a fire cell

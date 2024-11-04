@@ -7245,7 +7245,8 @@ static const struct _battle_data {
 	{ "arrow_shower_knockback",             &battle_config.arrow_shower_knockback,          1,      0,      1,				},
 	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,		3,      0,      100				},
 	{ "spawn_direction",                    &battle_config.spawn_direction,                 0,      0,      1,				},
-	{ "icewall_walk_block",                 &battle_config.icewall_walk_block,              75,     0,      255,			},
+	{ "mob_icewall_walk_block",             &battle_config.mob_icewall_walk_block,         75,      0,      255,			},
+	{ "boss_icewall_walk_block",            &battle_config.boss_icewall_walk_block,         0,      0,      255,			},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

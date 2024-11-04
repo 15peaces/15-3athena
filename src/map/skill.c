@@ -3575,7 +3575,7 @@ static int skill_check_unit_range_sub (struct block_list *bl, va_list ap)
 		case GN_THORNS_TRAP:
 		case GN_HELLS_PLANT:
 			//Non stackable on themselves and traps (including venom dust which does not has the trap inf2 set)
-			if (skill_id != g_skillid && !(skill_get_inf2(g_skillid)&INF2_TRAP) && g_skillid != AS_VENOMDUST)
+			if (skill_id != g_skillid && !(skill_get_inf2(g_skillid)&INF2_TRAP) && g_skillid != AS_VENOMDUST && g_skillid != MH_POISON_MIST)
 				return 0;
 			break;
 		default: //Avoid stacking with same kind of trap. [Skotlex]
@@ -7440,7 +7440,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case BS_OVERTHRUST:
 		if (sd == NULL || sd->status.party_id == 0 || (flag & 1)) {
 			int weapontype = skill_get_weapontype(skill_id);
-			if (!weapontype || pc_check_weapontype(dstsd, weapontype)) {
+			if (!weapontype || !dstsd || pc_check_weapontype(dstsd, weapontype)) {
 				clif_skill_nodamage(bl, bl, skill_id, skill_lv,
 					status_change_start(src, bl, type, 10000, skill_lv, (src == bl) ? 1 : 0, 0, 0, skill_get_time(skill_id, skill_lv),0));
 			}
@@ -21315,6 +21315,7 @@ static void skill_destroy_requirement(void) {
 	for (i = 0; i < MAX_SKILL; i++) {
 		if (skill_db[i].require.eqItem_count)
 			aFree(skill_db[i].require.eqItem);
+		skill_db[i].require.eqItem_count = 0;
 	}
 }
 

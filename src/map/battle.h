@@ -671,7 +671,8 @@ extern struct Battle_Config
 	int arrow_shower_knockback;
 	int min_npc_vending_distance;
 	int spawn_direction;
-	int icewall_walk_block;
+	int mob_icewall_walk_block;
+	int boss_icewall_walk_block;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;
