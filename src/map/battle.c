@@ -254,7 +254,7 @@ int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct
   	if (sc && sc->data[SC_DEVOTION] && sc->data[SC_DEVOTION]->val1)
  		d_tbl = map_id2bl(sc->data[SC_DEVOTION]->val1);
 
-	if( sc && (sc->data[SC_DEVOTION] || sc->data[SC_WATER_SCREEN_OPTION]) &&
+	if(d_tbl && sc && (sc->data[SC_DEVOTION] || sc->data[SC_WATER_SCREEN_OPTION]) &&
 		check_distance_bl(target,d_tbl,sc->data[SC_DEVOTION]->val3) && //Devo Range fix [15peaces]
 		damage > 0 )
 		damage = 0;
@@ -278,7 +278,7 @@ int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct
 	dat->damage = damage;
 	dat->dmg_lv = dmg_lv;
 	dat->delay = ddelay;
-	dat->distance = distance_bl(src, target)+10; //Attack should connect regardless unless you teleported.
+	dat->distance = distance_bl(src, target) + (battle_config.snap_dodge ? 10 : AREA_SIZE);
 	dat->additional_effects = additional_effects;
 	dat->src_type = src->type;
 	if (src->type != BL_PC && amotion > 1000)
@@ -4610,12 +4610,11 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 	switch(skill_id)
 	{
 		case MG_FIREWALL:
-		case NJ_KAENSIN:
 		case EL_FIRE_MANTLE:
-			ad.dmotion = 1; //No flinch animation.
 			if (tstatus->def_ele == ELE_FIRE || battle_check_undead(tstatus->race, tstatus->def_ele))
 				ad.blewcount = 0; //No knockback
-			break;
+			//Fall through
+		case NJ_KAENSIN:
 		case PR_SANCTUARY:
 			ad.dmotion = 1; //No flinch animation.
 			break;
@@ -6923,7 +6922,8 @@ static const struct _battle_data {
 	{ "bone_drop",                          &battle_config.bone_drop,                       0,      0,      2,              },
 	{ "buyer_name",                         &battle_config.buyer_name,                      1,      0,      1,              },
 	{ "skill_wall_check",                   &battle_config.skill_wall_check,                1,      0,      1,              },
-	{ "cell_stack_limit",                   &battle_config.cell_stack_limit,                1,      1,      255,            },
+	{ "official_cell_stack_limit",          &battle_config.official_cell_stack_limit,       1,      1,      255,			},
+	{ "custom_cell_stack_limit",            &battle_config.custom_cell_stack_limit,         1,      1,      255,			},
 	{ "dancing_weaponswitch_fix",			&battle_config.dancing_weaponswitch_fix,		1,      0,      1,				},
 // eAthena additions
 	{ "item_logarithmic_drops",             &battle_config.logarithmic_drops,               0,      0,      1,              },
@@ -7247,6 +7247,7 @@ static const struct _battle_data {
 	{ "spawn_direction",                    &battle_config.spawn_direction,                 0,      0,      1,				},
 	{ "mob_icewall_walk_block",             &battle_config.mob_icewall_walk_block,         75,      0,      255,			},
 	{ "boss_icewall_walk_block",            &battle_config.boss_icewall_walk_block,         0,      0,      255,			},
+	{ "snap_dodge",                         &battle_config.snap_dodge,                      0,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },
@@ -7354,8 +7355,8 @@ void battle_adjust_conf()
 #endif
 
 #ifndef CELL_NOSTACK
-	if (battle_config.cell_stack_limit != 1)
-		ShowWarning("Battle setting 'cell_stack_limit' takes no effect as this server was compiled without Cell Stack Limit support.\n");
+	if (battle_config.custom_cell_stack_limit != 1)
+		ShowWarning("Battle setting 'custom_cell_stack_limit ' takes no effect as this server was compiled without Cell Stack Limit support.\n");
 #endif
 }
 

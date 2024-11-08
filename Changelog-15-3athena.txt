@@ -6,6 +6,29 @@
 //			--More Details.
 //========================================
 
+11/08/2024
+	r490 [15peaces]
+		*Corrected RAG203 [1] item price & also corrected item id in Rebellion Weapons shop.
+		*No cell stacking implemented (official version).
+			-Split config cell_stack_limit into custom_cell_stack_limit (previous feature) and official_cell_stack_limit (see below)
+			-Expanded map_count_oncell by a flag parameter, currently only one flag is supported: only count standing units (needed for official cell stack feature)
+			-Added a new function map_closest_freecell that will return the closest free cell using the same order that official servers use
+			-Monsters will now actively search for a free cell when starting to walk randomly and when unlocking target
+			-When any unit finishes walking (regularly) and is not on a free cell, it will now actively search for a free cell
+			-Step actions will be delayed until a suitable cell was found, they will even be executed when the player walked slightly out of attack range
+		*Fixed Snap dodge bug.
+			-Thanks to @HerculesWS		
+		*Improved the Waterball implementation
+			-The interval between Waterballs is now 150ms (previously 125ms); due to the timer interval it will alternate between 140ms and 160ms (yes, this is official)
+			-While the Waterball effect is active, players and non-boss monsters can no longer walk
+			-Added a server-sided canact delay each time a Waterball is shot, which is equal to the one the client gives; this is to prevent hackers from being able to mass-cast Waterball; you can still multi-cast Waterball if your aMotion is shorter
+			- than the Waterball interval (i.e. 186 ASPD or higher)
+			-The Waterball effect is no longer canceled when the target hides behind an obstacle, but no waterballs will fly and no damage will be applied; walkdelay will remain, but there won't be any canact delay for the caster (meaning he can cast
+			- another spell); if the target comes out of its cover during the duration, it will be hit again (this also fixes an exploit against MVPs)
+			-Waterball now has a max duration of 10 seconds, even if more water cells are available, the effect will stop; this means that level 10 monster water ball will now only hit up to 67 times
+		*Fixed Crimson Fire Formation having a knock-back effect although it shouldn't.
+			-It will hit once every 20ms with no knock-back, regardless of whether the target is undead, non-undead or a player
+
 11/04/2024
 	r489 [15peaces]
 		*Some memleak fixes while mapexit.

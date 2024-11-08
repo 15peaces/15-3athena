@@ -1372,6 +1372,11 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 		md->target_id=0;
 		unit_set_target(&md->ud, 0);
 	}
+
+	if (map_count_oncell(md->bl.m, md->bl.x, md->bl.y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
+		unit_walktoxy(&md->bl, md->bl.x, md->bl.y, 8);
+	}
+
 	return 0;
 }
 /*==========================================
@@ -1401,7 +1406,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 		x+=md->bl.x;
 		y+=md->bl.y;
 
-		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
+		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 8)) {
 			break;
 		}
 	}

@@ -481,7 +481,8 @@ extern struct Battle_Config
 	int allow_skill_without_day; // [Komurka]
 	int allow_es_magic_pc; // [Skotlex]
 	int skill_wall_check; // [Skotlex]
-	int cell_stack_limit; // [Skotlex]
+	int official_cell_stack_limit; // [Playtester]
+	int custom_cell_stack_limit; // [Skotlex]
 	int skill_caster_check; // [Skotlex]
 	int sc_castcancel; // [Skotlex]
 	int pc_sc_def_rate; // [Skotlex]
@@ -673,6 +674,7 @@ extern struct Battle_Config
 	int spawn_direction;
 	int mob_icewall_walk_block;
 	int boss_icewall_walk_block;
+	int snap_dodge;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

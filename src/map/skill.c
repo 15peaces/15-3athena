@@ -45,6 +45,7 @@
 
 
 #define SKILLUNITTIMER_INTERVAL	100
+#define WATERBALL_INTERVAL	150
 
 // ranges reserved for mapping skill ids to skilldb offsets
 #define HM_SKILLRANGEMIN 1201// 1201 - 1400
@@ -3984,11 +3985,15 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 					break;
 				case WZ_WATERBALL:
 					// Official behaviour is to hit as long as there is a line of sight, regardless of distance
-					range = path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKNOREACH);
-					if (!status_isdead(target) && range)
+					if (!status_isdead(target) && path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKNOREACH)) {
+						//Apply canact delay here to prevent hacks (unlimited waterball casting)
+						ud->canact_tick = tick + skill_delayfix(src, skl->skill_id, skl->skill_lv);
 						skill_attack(BF_MAGIC,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
-					if (skl->type>1 && !status_isdead(target) && !status_isdead(src) && range) {
-						skill_addtimerskill(src,tick+125,target->id,0,0,skl->skill_id,skl->skill_lv,skl->type-1,skl->flag);
+					}
+					if (skl->type > 1 && !status_isdead(target) && !status_isdead(src)) {
+						//Timer will continue and walkdelay set until target is dead, even if there is currently no line of sight
+						unit_set_walkdelay(src, tick, WATERBALL_INTERVAL, 1);
+						skill_addtimerskill(src, tick + WATERBALL_INTERVAL, target->id, 0, 0, skl->skill_id, skl->skill_lv, skl->type - 1, skl->flag);
 					} else {
 						struct status_change *sc = status_get_sc(src);
 						if(sc) {
@@ -5312,8 +5317,11 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					}
 				}
 
+			if (count > (10000 / WATERBALL_INTERVAL) + 1) //Waterball has a max duration of 10 seconds [Playtester]
+				count = (10000 / WATERBALL_INTERVAL) + 1;
+
 			if( count > 1 ) // queue the remaining count - 1 timerskill Waterballs
-				skill_addtimerskill(src,tick+150,bl->id,0,0,skill_id,skill_lv,count-1,flag);
+				skill_addtimerskill(src,tick+WATERBALL_INTERVAL,bl->id,0,0,skill_id,skill_lv,count-1,flag);
 		}
 		skill_attack(BF_MAGIC, src, src, bl, skill_id, skill_lv, tick, flag);
 		break;
@@ -8350,7 +8358,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			}
 
 			clif_skill_nodamage(src,bl,TK_HIGHJUMP,skill_lv,1);
-			if(!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB) && map_getcell(src->m,x,y,CELL_CHKREACH)) {
+			if(!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB,0) && map_getcell(src->m,x,y,CELL_CHKREACH)) {
 				clif_slide(src,x,y);
 				unit_movepos(src, x, y, 1, 0);
 			}
@@ -12853,7 +12861,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 			}
 			else
 				clif_skill_nodamage(src,src,SU_LOPE,skill_lv,1);
-			if(!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB) && map_getcell(src->m,x,y,CELL_CHKREACH))
+			if(!map_count_oncell(src->m,x,y,BL_PC|BL_NPC|BL_MOB,0) && map_getcell(src->m,x,y,CELL_CHKREACH))
 			{
 				clif_slide(src,x,y);
 				unit_movepos(src, x, y, 1, 0);
@@ -12959,7 +12967,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 	// Plant Cultivation [Celest]
 	case CR_CULTIVATION:
 		if (sd) {
-			if( map_count_oncell(src->m,x,y,BL_CHAR) > 0 )
+			if( map_count_oncell(src->m,x,y,BL_CHAR,0) > 0 )
 			{
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				return 1;
@@ -14181,7 +14189,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		ts->tick = tick+sg->interval;
 
 		if ((skill_id==CR_GRANDCROSS || skill_id==NPC_GRANDDARKNESS) && !battle_config.gx_allhit)
-			ts->tick += sg->interval*(map_count_oncell(bl->m,bl->x,bl->y,BL_CHAR)-1);
+			ts->tick += sg->interval*(map_count_oncell(bl->m,bl->x,bl->y,BL_CHAR,0)-1);
 	}
 
 	switch (sg->unit_id)

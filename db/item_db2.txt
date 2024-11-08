@@ -3600,7 +3600,7 @@
 13138,Dark_Rose,Dark Rose,4,20,,1800,150,,7,2,0x01000000,7,2,34,3,120,1,17,{ bonus bAspdRate,10; if(getrefine() >= 7) bonus bLongAtkRate,15; if(getrefine() >= 9) bonus bAspd,1; },{},{}
 // Rifle - 13190/13195 = Need official autocast chance.
 13189,Color_Scope,Color Scope,4,1350000,,1200,240,,9,2,0x01000000,7,2,34,3,105,1,18,{ bonus bHit,20; bonus bCriticalRate,30; },{},{}
-13190,RAG203,RAG203,4,10,,1300,260,,9,1,0x01000000,7,2,34,3,140,1,18,{ bonus bHit,10; bonus bCriticalRate,15; bonus3 bAutoSpell,"AL_DECAGI",1,50; },{},{}
+13190,RAG203,RAG203,4,1800000,,1300,260,,9,1,0x01000000,7,2,34,3,140,1,18,{ bonus bHit,10; bonus bCriticalRate,15; bonus3 bAutoSpell,"AL_DECAGI",1,50; },{},{}
 //13191,
 13195,RAG203_,RAG203,4,1800000,,1300,260,,9,0,0x01000000,7,2,34,3,140,1,18,{ bonus bHit,10; bonus bCriticalRate,15; bonus3 bAutoSpell,"AL_DECAGI",1,50; },{},{}
 28223,Just_Finish,Just Finish,4,20,,2000,200,,9,2,0x01000000,7,2,34,3,120,1,18,{ bonus bLongAtkRate,15; if(getrefine() >= 7) { bonus2 bSkillAtk,"RL_MASS_SPIRAL",30; bonus2 bSkillAtk,"RL_AM_BLAST",30; } /*if(getrefine() >= 9) bonus2 bSkillCooldown,"RL_AM_BLAST",1000*/ },{},{}

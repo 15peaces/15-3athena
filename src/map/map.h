@@ -16,9 +16,9 @@
 struct npc_data;
 struct item_data;
 
-//Uncomment to enable the Cell Stack Limit mod.
-//It's only config is the battle_config cell_stack_limit.
-//Only chars affected are those defined in BL_CHAR (mobs and players currently)
+/// Uncomment to enable the Cell Stack Limit mod.
+/// It's only config is the battle_config custom_cell_stack_limit.
+/// Only chars affected are those defined in BL_CHAR
 //#define CELL_NOSTACK
 
 /// Uncomment to enable circular area checks.
@@ -948,11 +948,12 @@ int map_foreachinpath(int(*func)(struct block_list*, va_list), int m, int x0, in
 int map_foreachinmap(int(*func)(struct block_list*, va_list), int m, int type, ...);
 int map_foreachininstance(int(*func)(struct block_list*, va_list), int16 instance_id, int type, ...);
 //blockŠÖ˜A‚É’Ç‰Á
-int map_count_oncell(int m, int x, int y, int type);
+int map_count_oncell(int m, int x, int y, int type, int flag);
 struct skill_unit *map_find_skill_unit_oncell(struct block_list *, int x, int y, int skill_id, struct skill_unit *, int flag);
 // ˆêŽž“IobjectŠÖ˜A
 int map_get_new_object_id(void);
 int map_search_freecell(struct block_list *src, int m, short *x, short *y, int rx, int ry, int flag);
+bool map_closest_freecell(int16 m, int16 *x, int16 *y, int type, int flag);
 //
 int map_quit(struct map_session_data *);
 // npc
