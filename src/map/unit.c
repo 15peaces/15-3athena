@@ -609,6 +609,8 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 	
 	if( ud == NULL) return 0;
 
+	if (!path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKWALL)) return 0;
+
 	if (bl->type == BL_PC)
 		sd = BL_CAST(BL_PC, bl);
 
@@ -1573,7 +1575,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		sc = NULL; //Unneeded
 
 	//temp: used to signal combo-skills right now.
-	if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_id)
+	if (sc && sc->data[SC_COMBO] && skill_is_combo(skill_id))
 	{
 		if (sc->data[SC_COMBO]->val2)
 			target_id = sc->data[SC_COMBO]->val2;
@@ -1860,14 +1862,14 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		casttime = 0;
 	}
 
+	unit_stop_walking(src, 1);// eventhough this is not how official works but this will do the trick.
+	// in official this is triggered even if no cast time.
+	clif_skillcasting(src, src->id, target_id, 0, 0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
+
 	if( casttime > 0 || combo)
 	{ 
-		unit_stop_walking(src,1);
-
 		// SC_MAGICPOWER needs to switch states at start of cast
 		skill_toggle_magicpower(src, skill_id);
-
-		clif_skillcasting(src, src->id, target_id, 0,0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 
 		if (sd && target->type == BL_MOB)
 		{
@@ -2113,14 +2115,15 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		if (!src->prev) return 0; //Warped away!
 	}
 
+	unit_stop_walking(src, 1);
+	// in official this is triggered even if no cast time.
+	clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
+
 	if( casttime > 0 )
 	{
-		unit_stop_walking(src,1);
-
 		// SC_MAGICPOWER needs to switch states at start of cast
 		skill_toggle_magicpower(src, skill_id);
 
-		clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 		ud->skilltimer = add_timer( tick+casttime, skill_castend_pos, src->id, 0 );
 		if( (sd && pc_checkskill(sd,SA_FREECAST) > 0) || skill_id == LG_EXEEDBREAK )
 			status_calc_bl(&sd->bl, SCB_SPEED);
@@ -2491,7 +2494,8 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 	if( src == NULL || src->prev == NULL || target==NULL || target->prev == NULL )
 		return 0;
 
-	if( status_isdead(src) || status_isdead(target) || !status_check_skilluse(src, target, 0, 0, 0) )
+	if( status_isdead(src) || status_isdead(target) || 	battle_check_target(src,target,BCT_ENEMY) <= 0 || !status_check_skilluse(src, target, 0, 0, 0) ||
+			!path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL) )
 		return 0; // can't attack under these conditions
 
 	if( src->m != target->m )

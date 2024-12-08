@@ -22,6 +22,9 @@
 // Mutated Homunculus skills will also use the renewal system. Their ID's are in the 8017 - 8043 range.
 //==========================================
 
+//-- ALL_PARTYFLEE
+693,0,0,0,300000,0,0,0
+
 //===== Rune Knight ========================
 //-- RK_ENCHANTBLADE
 2001,1000,0,0,0,0,300000,0

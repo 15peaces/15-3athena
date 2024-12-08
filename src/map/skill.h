@@ -208,6 +208,7 @@ struct skill_unit_group {
 	int unit_id;
 	int group_id;
 	int unit_count,alive_count;
+	int item_id; //store item used.
 	struct skill_unit *unit;
 	struct {
 		unsigned ammo_consume : 1;
@@ -378,6 +379,7 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 #define skill_delunitgroup(group) skill_delunitgroup_(group,__FILE__,__LINE__,__func__)
 int skill_clear_unitgroup(struct block_list *src);
 int skill_clear_group(struct block_list *bl, int flag);
+void ext_skill_unit_onplace(struct skill_unit *src, struct block_list *bl, int64 tick);
 
 int64 skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int64 damage);
 
@@ -465,6 +467,7 @@ void skill_usave_trigger(struct map_session_data *sd);
 
 void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
 
+bool skill_is_combo(int skill_id);
 void skill_combo_toogle_inf(struct block_list* bl, uint16 skill_id, int inf);
 void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_list *bl, uint16 skill_id, uint16 skill_lv, int64 tick);
 

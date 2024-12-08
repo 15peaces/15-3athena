@@ -5096,7 +5096,7 @@ ACMD_FUNC(mount)
 	}
 
 	//Players with the Groomy status or riding a rental mount can not mount on regular mounts.
-	if (sd->sc.data[SC__GROOMY] || sd->sc.data[SC_ALL_RIDING])
+	if (&sd->sc && (sd->sc.data[SC__GROOMY] || sd->sc.data[SC_ALL_RIDING]))
 		return -1;
 
 	// Checks for Knight, Crusader, Lord Knight, Paladin, Baby Knight, and Baby Crusader.

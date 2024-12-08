@@ -22,6 +22,26 @@
 #include <stdio.h>
 #include <string.h>
 
+struct vending_entry {
+	int cartinventory_id;
+	int amount;
+	int price;
+	int index;
+};
+struct vending {
+	int account_id;
+	int char_id;
+	int vendor_id;
+	int m;
+	int x;
+	int y;
+	unsigned char sex;
+	char title[MESSAGE_SIZE];
+	uint32 count;
+	struct vending_entry* entries;
+	struct map_session_data *sd;
+};
+
 static int vending_nextid = 0;
 static DBMap *vending_db;
 
@@ -44,6 +64,11 @@ void vending_closevending(struct map_session_data* sd)
 
 	if( sd->state.vending )
 	{
+		if (Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE vending_id = %d;", vending_items_db, sd->vender_id) != SQL_SUCCESS ||
+			Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE `id` = %d;", vendings_db, sd->vender_id) != SQL_SUCCESS) {
+			Sql_ShowDebug(mmysql_handle);
+		}
+
 		sd->state.vending = false;
 		sd->vender_id = 0;
 		clif_closevendingboard(&sd->bl, 0);
@@ -196,6 +221,18 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 		pc_additem(sd, &vsd->cart.u.items_cart[idx], amount, LOG_TYPE_VENDING);
 		vsd->vending[vend_list[i]].amount -= amount;
 		z += ((double)vsd->vending[i].value * (double)amount);
+
+		if (vsd->vending[vend_list[i]].amount) {
+			if (Sql_Query(mmysql_handle, "UPDATE `%s` SET `amount` = %d WHERE `vending_id` = %d and `cartinventory_id` = %d", vending_items_db, vsd->vending[vend_list[i]].amount, vsd->vender_id, vsd->cart.u.items_cart[idx].id) != SQL_SUCCESS) {
+				Sql_ShowDebug(mmysql_handle);
+			}
+		}
+		else {
+			if (Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE `vending_id` = %d and `cartinventory_id` = %d", vending_items_db, vsd->vender_id, vsd->cart.u.items_cart[idx].id) != SQL_SUCCESS) {
+				Sql_ShowDebug(mmysql_handle);
+			}
+		}
+
 		pc_cart_delitem(vsd, idx, amount, 0, LOG_TYPE_VENDING);
 		if( battle_config.vending_tax )
 			z -= z * (battle_config.vending_tax/10000.);
@@ -248,24 +285,6 @@ void vending_purchasereq(struct map_session_data* sd, int aid, int uid, const ui
 	}
 }
 
-static int vending_checknearnpc_sub(struct block_list* bl, va_list args) {
-	struct npc_data *nd = (struct npc_data*)bl;
-
-	if (nd->sc.option & (OPTION_HIDE | OPTION_INVISIBLE))
-		return 1;
-
-	return 1;
-}
-
-bool vending_checknearnpc(struct block_list * bl) {
-
-	if (battle_config.min_npc_vending_distance > 0 &&
-		map_foreachinrange(vending_checknearnpc_sub, bl, battle_config.min_npc_vending_distance, BL_NPC))
-		return true;
-
-	return false;
-}
-
 /*==========================================
  * Open shop
  * data := {<index>.w <amount>.w <value>.l}[count]
@@ -273,6 +292,8 @@ bool vending_checknearnpc(struct block_list * bl) {
 void vending_openvending(struct map_session_data* sd, const char* message, const uint8* data, int count) {
 	int i, j;
 	int vending_skill_lvl;
+	char message_sql[MESSAGE_SIZE * 2];
+
 	nullpo_retv(sd);
 
 	if (pc_isdead(sd) || !sd->state.prevend || pc_istrading(sd)) {
@@ -296,14 +317,6 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 
 	if (save_settings&CHARSAVE_VENDING) // Avoid invalid data from saving
 		chrif_save(sd, CSAVE_INVENTORY | CSAVE_CART);
-
-	if (vending_checknearnpc(&sd->bl)) {
-		char output[50];
-		sprintf(output, "You're too close to a NPC, you must be at least %d cells away from any NPC.", battle_config.min_npc_vending_distance);
-		clif_displaymessage(sd->fd, output);
-		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
-		return;
-	}
 
 	// filter out invalid items
 	i = 0;
@@ -350,6 +363,18 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 	sd->vender_id = vending_getuid();
 	sd->vend_num = i;
 	safestrncpy(sd->message, message, MESSAGE_SIZE);
+
+	Sql_EscapeString(mmysql_handle, message_sql, sd->message);
+
+	if (Sql_Query(mmysql_handle, "INSERT INTO `%s`(`id`,`account_id`,`char_id`,`sex`,`map`,`x`,`y`,`title`) VALUES( %d, %d, %d, '%c', '%s', %d, %d, '%s');", vendings_db, sd->vender_id, sd->status.account_id, sd->status.char_id, sd->status.sex == 2 ? 'F' : 'M', map[sd->bl.m].name, sd->bl.x, sd->bl.y, message_sql) != SQL_SUCCESS) {
+		Sql_ShowDebug(mmysql_handle);
+	}
+
+	for (i = 0; i < count; i++) {
+		if (Sql_Query(mmysql_handle, "INSERT INTO `%s`(`vending_id`,`index`,`cartinventory_id`,`amount`,`price`) VALUES( %d, %d, %d, %d, %d );", vending_items_db, sd->vender_id, i, sd->cart.u.items_cart[sd->vending[i].index].id, sd->vending[i].amount, sd->vending[i].value) != SQL_SUCCESS) {
+			Sql_ShowDebug(mmysql_handle);
+		}
+	}
 
 	clif_openvending(sd,sd->bl.id,sd->vending);
 	clif_showvendingboard(&sd->bl,message,0);

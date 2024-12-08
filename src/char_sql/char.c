@@ -3717,9 +3717,6 @@ int parse_frommap(int fd)
 					WFIFOW(fd,2) = 14 + count * sizeof(struct skill_cooldown_data);
 					WFIFOW(fd,12) = count;
 					WFIFOSET(fd,WFIFOW(fd,2));
-					//Clear the data once loaded.
-					if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `account_id` = '%d' AND `char_id`='%d'", skillcooldown_db, aid, cid) )
-						Sql_ShowDebug(sql_handle);
 				}
 			}
 			Sql_FreeResult(sql_handle);

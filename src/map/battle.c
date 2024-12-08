@@ -1950,6 +1950,11 @@ static bool is_attack_critical(struct Damage wd, struct block_list *src, struct 
 			cri <<= 1;
 		}
 		switch (skill_id) {
+		case 0:
+			if (sc && !sc->data[SC_AUTOCOUNTER])
+				break;
+			clif_specialeffect(src, 131, AREA);
+			status_change_end(src, SC_AUTOCOUNTER, INVALID_TIMER);
 		case KN_AUTOCOUNTER:
 			if (battle_config.auto_counter_type &&
 				(battle_config.auto_counter_type&src->type))
@@ -2074,8 +2079,8 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 
 	hitrate += sstatus->hit - flee;
 
-	if (wd.flag&BF_LONG && !skill_id && //Fogwall's hit penalty is only for normal ranged attacks.
-		tsc && tsc->data[SC_FOGWALL])
+	//Fogwall's hit penalty is only for normal ranged attacks.
+	if ((wd.flag&(BF_LONG | BF_MAGIC)) == BF_LONG && !skill_id && tsc && tsc->data[SC_FOGWALL])
 		hitrate -= 50;
 
 	if (sd && is_skill_using_arrow(src, skill_id))
@@ -2356,12 +2361,6 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 
 	int t_class = status_get_class(target);
 
-	if (sc) {
-		if (sc->data[SC_CAMOUFLAGE]) {
-			ATK_ADD(wd.damage, wd.damage2, 30 * min(10, sc->data[SC_CAMOUFLAGE]->val3)); //max +300atk
-		}
-	}
-
 	if (sd && battle_skill_stacks_masteries_vvs(skill_id) &&
 		skill_id != MO_INVESTIGATE &&
 		skill_id != MO_EXTREMITYFIST &&
@@ -2375,17 +2374,27 @@ static struct Damage battle_calc_attack_masteries(struct Damage wd, struct block
 			wd.damage2 = battle_addmastery(sd, target, wd.damage2, 1);
 		}
 
-		if (sc && sc->data[SC_MIRACLE]) i = 2; //Star anger
-		else
-			ARR_FIND(0, MAX_PC_FEELHATE, i, t_class == sd->hate_mob[i]);
-		if (i < MAX_PC_FEELHATE && (skill = pc_checkskill(sd, sg_info[i].anger_id)))
-		{
-			int skillratio = sd->status.base_level + sstatus->dex + sstatus->luk;
-			if (i == 2) skillratio += sstatus->str; //Star Anger
-			if (skill < 4)
-				skillratio /= 12 - 3 * skill;
-			ATK_ADDRATE(wd.damage, wd.damage2, skillratio);
+		if (sc) {
+			if (sc->data[SC_MIRACLE])
+				i = 2; //Star anger
+			else
+				ARR_FIND(0, MAX_PC_FEELHATE, i, t_class == sd->hate_mob[i]);
+
+			if (i < MAX_PC_FEELHATE && (skill = pc_checkskill(sd, sg_info[i].anger_id)))
+			{
+				int skillratio = sd->status.base_level + sstatus->dex + sstatus->luk;
+				if (i == 2) 
+					skillratio += sstatus->str; //Star Anger
+				if (skill < 4)
+					skillratio /= 12 - 3 * skill;
+				ATK_ADDRATE(wd.damage, wd.damage2, skillratio);
+			}
+
+			if (sc->data[SC_CAMOUFLAGE]) {
+				ATK_ADD(wd.damage, wd.damage2, 30 * min(10, sc->data[SC_CAMOUFLAGE]->val3)); //max +300atk
+			}
 		}
+
 		if (skill_id == NJ_SYURIKEN && (skill = pc_checkskill(sd, NJ_TOBIDOUGU)) > 0) {
 			ATK_ADD(wd.damage, wd.damage2, 3 * skill);
 		}
@@ -2662,10 +2671,26 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio += sc->data[SC_OVERTHRUST]->val3;
 		if (sc->data[SC_MAXOVERTHRUST])
 			skillratio += sc->data[SC_MAXOVERTHRUST]->val2;
-		if (sc->data[SC_BERSERK] || sc->data[SC_SATURDAY_NIGHT_FEVER] || sc->data[SC__BLOODYLUST])
+		if (sc->data[SC_BERSERK] || sc->data[SC__BLOODYLUST])
 			skillratio += 100;
-		if (sc->data[SC_ZENKAI] && sstatus->rhw.ele == sc->data[SC_ZENKAI]->val2)
-			skillratio += sc->data[SC_ZENKAI]->val1 * 2;
+		if (sc->data[SC_CRUSHSTRIKE] && (!skill_id || skill_id == KN_AUTOCOUNTER)) {
+			if (sd) { //ATK [{Weapon Level * (Weapon Upgrade Level + 6) * 100} + (Weapon ATK) + (Weapon Weight)]%
+				short index = sd->equip_index[EQI_HAND_R];
+				if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
+					skillratio += -100 + sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
+					100 * sd->inventory_data[index]->wlv * (sd->inventory.u.items_inventory[index].refine + 6);
+			}
+			status_change_end(src, SC_CRUSHSTRIKE, INVALID_TIMER);
+			skill_break_equip(src, EQP_WEAPON, 2000, BCT_SELF);
+		}
+		if (sc->data[SC_EXEEDBREAK] && !skill_id) {
+			skillratio += -100 + sc->data[SC_EXEEDBREAK]->val2;
+			status_change_end(src, SC_EXEEDBREAK, INVALID_TIMER);
+		}
+		if (sc->data[SC_HEAT_BARREL])
+			skillratio += 200;
+		if (sc->data[SC_P_ALTER])
+			skillratio += sc->data[SC_P_ALTER]->val2;
 	}
 
 	switch (skill_id)
@@ -2999,30 +3024,22 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
-	case RK_IGNITIONBREAK: {
-		// 3x3 cell Damage = ATK [{(Skill Level x 300) x (1 + [(Caster's Base Level - 100) / 100])}] %
-		// 7x7 cell Damage = ATK [{(Skill Level x 250) x (1 + [(Caster's Base Level - 100) / 100])}] %
-		// 11x11 cell Damage = ATK [{(Skill Level x 200) x (1 + [(Caster's Base Level - 100) / 100])}] %
-		int dmg = 300; // Base maximum damage at less than 3 cells.
-		i = distance_bl(src, target);
-		if (i > 7)
-			dmg -= 100; // Greather than 7 cells. (200 damage)
-		else if (i > 3)
-			dmg -= 50; // Greater than 3 cells, less than 7. (250 damage)
-		dmg = (dmg * skill_lv) * (100 + (status_get_lv(src) - 100) / 12) / 100;
-		// Elemental check, 1.5x damage if your element is fire.
-		if (sstatus->rhw.ele == ELE_FIRE)
-			dmg += dmg / 2;
-		skillratio = dmg;
-	}
-						   break;
-	case RK_CRUSHSTRIKE:
-		if (sd)
-		{//ATK [{Weapon Level * (Weapon Upgrade Level + 6) * 100} + (Weapon ATK) + (Weapon Weight)]%
-			short index = sd->equip_index[EQI_HAND_R];
-			if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_WEAPON)
-				skillratio = sd->inventory_data[index]->weight / 10 + sstatus->rhw.atk +
-				100 * sd->inventory_data[index]->wlv * (sd->inventory.u.items_inventory[index].refine + 6);
+	case RK_IGNITIONBREAK: 
+		{
+			// 3x3 cell Damage = ATK [{(Skill Level x 300) x (1 + [(Caster's Base Level - 100) / 100])}] %
+			// 7x7 cell Damage = ATK [{(Skill Level x 250) x (1 + [(Caster's Base Level - 100) / 100])}] %
+			// 11x11 cell Damage = ATK [{(Skill Level x 200) x (1 + [(Caster's Base Level - 100) / 100])}] %
+			int dmg = 300; // Base maximum damage at less than 3 cells.
+			i = distance_bl(src, target);
+			if (i > 7)
+				dmg -= 100; // Greather than 7 cells. (200 damage)
+			else if (i > 3)
+				dmg -= 50; // Greater than 3 cells, less than 7. (250 damage)
+			dmg = (dmg * skill_lv) * (100 + (status_get_lv(src) - 100) / 12) / 100;
+			// Elemental check, 1.5x damage if your element is fire.
+			if (sstatus->rhw.ele == ELE_FIRE)
+				dmg += dmg / 2;
+			skillratio = dmg;
 		}
 		break;
 	case RK_STORMBLAST:
@@ -3676,8 +3693,10 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 {
 	struct map_session_data *sd = BL_CAST(BL_PC, src);
 	struct status_change *sc = status_get_sc(src);
+	struct status_data *sstatus = status_get_status_data(src);
 	//The following are applied on top of current damage and are stackable.
 	if (sc) {
+		//ATK percent modifier (in pre-renewal, it's applied multiplicatively after the skill ratio)
 		if (sc->data[SC_TRUESIGHT])
 			ATK_ADDRATE(wd.damage, wd.damage2, 2 * sc->data[SC_TRUESIGHT]->val1);
 		if (sc->data[SC_GLOOMYDAY] &&
@@ -3719,7 +3738,21 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 		if (sc->data[SC_P_ALTER]) {
 			ATK_ADD(wd.damage, wd.damage2, sc->data[SC_P_ALTER]->val2);
 		}
+		if (sc->data[SC_ZENKAI] && sstatus->rhw.ele == sc->data[SC_ZENKAI]->val2) {
+			ATK_ADD(wd.damage, wd.damage2, 200);
+		}
 		if ((wd.flag&(BF_LONG | BF_MAGIC)) == BF_LONG) {
+			if (sc->data[SC_UNLIMIT]) {
+				switch (skill_id) {
+				case RA_WUGDASH:
+				case RA_WUGSTRIKE:
+				case RA_WUGBITE:
+					break;
+				default:
+					ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_UNLIMIT]->val2);
+					break;
+				}
+			}
 			// Monster Transformation bonus
 			if (sc->data[SC_MTF_RANGEATK]) {
 				ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_MTF_RANGEATK]->val1);
@@ -3884,10 +3917,6 @@ struct Damage battle_calc_attack_post_defense(struct Damage wd, struct block_lis
 	//Set to min of 1
 	if (is_attack_right_handed(src, skill_id) && wd.damage < 1) wd.damage = 1;
 	if (is_attack_left_handed(src, skill_id) && wd.damage2 < 1) wd.damage2 = 1;
-
-	if (skill_id == NJ_KUNAI) {
-		ATK_ADD(wd.damage, wd.damage2, 60);
-	}
 
 	switch (skill_id) {
 
@@ -5993,12 +6022,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 			pc_addspiritball(sd, skill_get_time2(SR_GENTLETOUCH_ENERGYGAIN,sce->val1), spheremax);
 		}
-		if ( sc->data[SC_CRUSHSTRIKE] )
-		{
-			skill_attack(BF_WEAPON,src,src,target,RK_CRUSHSTRIKE,sc->data[SC_CRUSHSTRIKE]->val1,tick,flag);
-			status_change_end(src, SC_CRUSHSTRIKE, INVALID_TIMER);
-			return ATK_MISS;
-		}
 		if ( hd && (sce = sc->data[SC_STYLE_CHANGE]) && sce->val1 == FIGHTER_STYLE && rnd()%100 < sce->val2 )
 			merc_hom_addspiritball(hd,MAX_HOMUN_SPHERES);
 	}
@@ -6018,11 +6041,6 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if(sc) 
 	{
-		if( sc->data[SC_EXEEDBREAK] ) 
-		{
-			wd.damage = wd.damage * sc->data[SC_EXEEDBREAK]->val1 / 100;
-			status_change_end( src,SC_EXEEDBREAK,-1 );
-		}
 		if( sc->data[SC_SPELLFIST] ) 
 		{
 			if (--(sc->data[SC_SPELLFIST]->val1) >= 0) {
@@ -6089,6 +6107,12 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	if (sd && sd->bonus.splash_range > 0 && damage > 0)
 		skill_castend_damage_id(src, target, 0, 1, tick, 0);
+
+	if (target->type == BL_SKILL && damage > 0) {
+		TBL_SKILL *su = (TBL_SKILL*)target;
+		if (su->group && su->group->skill_id == HT_BLASTMINE)
+			skill_blown(src, target, 3, -1, 0);
+	}
 
 	map_freeblock_lock();
 
@@ -7248,6 +7272,7 @@ static const struct _battle_data {
 	{ "mob_icewall_walk_block",             &battle_config.mob_icewall_walk_block,         75,      0,      255,			},
 	{ "boss_icewall_walk_block",            &battle_config.boss_icewall_walk_block,         0,      0,      255,			},
 	{ "snap_dodge",                         &battle_config.snap_dodge,                      0,      0,      1,				},
+	{ "stormgust_knockback",                &battle_config.stormgust_knockback,             1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

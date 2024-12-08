@@ -527,7 +527,7 @@ void initChangeTables(void)
 	set_sc( CASH_INCAGI          , SC_INCREASEAGI     , SI_INCREASEAGI     , SCB_AGI|SCB_SPEED );
 	set_sc( CASH_ASSUMPTIO       , SC_ASSUMPTIO       , SI_ASSUMPTIO       , SCB_NONE );
 
-	//set_sc( ALL_PARTYFLEE        , SC_INCFLEE         , SI_PARTYFLEE       , SCB_NONE );
+	set_sc(ALL_PARTYFLEE, SC_PARTYFLEE, SI_PARTYFLEE, SCB_NONE);
 
 	set_sc( CR_SHRINK            , SC_SHRINK          , SI_SHRINK          , SCB_NONE );
 	set_sc( RG_CLOSECONFINE      , SC_CLOSECONFINE2   , SI_CLOSECONFINE2   , SCB_NONE );
@@ -5869,6 +5869,8 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee += 30;
 	if(sc->data[SC_SPEED])
 		flee += 10 + sc->data[SC_SPEED]->val1 * 10;
+	if (sc->data[SC_PARTYFLEE])
+		flee += sc->data[SC_PARTYFLEE]->val1 * 10;
 	if(sc->data[SC_MERC_FLEEUP])
 		flee += sc->data[SC_MERC_FLEEUP]->val2;
 	if( sc->data[SC_HALLUCINATIONWALK] )
@@ -8446,6 +8448,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		//These status changes always overwrite themselves even when a lower level is cast
 		status_change_end(bl, type, INVALID_TIMER);
 		break;
+	case SC_INVINCIBLE:
+		status_change_end(bl, SC_INVINCIBLEOFF, INVALID_TIMER);
+		break;
+	case SC_INVINCIBLEOFF:
+		status_change_end(bl, SC_INVINCIBLE, INVALID_TIMER);
+		break;
 	}
 
 	//Check for overlapping fails
@@ -8869,6 +8877,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			int diff = status->max_hp*(bl->type==BL_PC?10:15)/100;
 			if (status->hp - diff < status->max_hp>>2)
 				diff = status->hp - (status->max_hp>>2);
+			if (val2 && bl->type == BL_MOB) {
+				struct block_list* src = map_id2bl(val2);
+				if (src)
+					mob_log_damage((TBL_MOB*)bl, src, diff);
+			}
 			status_zap(bl, diff, 0);
 		}
 		// fall through
@@ -12066,6 +12079,11 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	case SC_DPOISON:
 		if (--(sce->val3) > 0) {
 			if (!sc->data[SC_SLOWPOISON]) {
+				if (sce->val2 && bl->type == BL_MOB) {
+					struct block_list* src = map_id2bl(sce->val2);
+					if (src)
+						mob_log_damage((TBL_MOB*)bl, src, sce->val4);
+				}
 				map_freeblock_lock();
 				status_zap(bl, sce->val4, 0);
 				if (sc->data[type]) // Check if the status still last ( can be dead since then ).
@@ -13332,6 +13350,10 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 		return 0;
 
 	tick = gettick();
+
+	//Boss monsters resistance
+	if ((status_get_mode(src)&MD_BOSS) || (status_get_mode(bl)&MD_BOSS))
+		return 0;
 	
 	for( i = SC_COMMON_MIN; i < SC_MAX; i++ )
 	{

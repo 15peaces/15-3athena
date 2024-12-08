@@ -6818,6 +6818,11 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 		sd->status.job_level ++;
 		sd->status.skill_point ++;
 
+		if (pc_is_maxjoblv(sd)) {
+			sd->status.job_exp = min(sd->status.job_exp, MAX_LEVEL_JOB_EXP);
+			break;
+		}
+
 	} while ((next=pc_nextjobexp(sd)) > 0 && sd->status.job_exp >= next);
 
 	clif_updatestatus(sd,SP_JOBLEVEL);
@@ -6846,10 +6851,11 @@ int pc_checkjoblevelup(struct map_session_data *sd)
 static void pc_calcexp(struct map_session_data *sd, unsigned int *base_exp, unsigned int *job_exp, struct block_list *src)
 {
 	int bonus = 0;
-	struct status_data *status = status_get_status_data(src);
 
 	if (src) 
 	{
+		struct status_data *status = status_get_status_data(src);
+
 		if (sd->expaddrace[status->race])
 			bonus += sd->expaddrace[status->race];
 		if (sd->expaddrace[RC_ALL])

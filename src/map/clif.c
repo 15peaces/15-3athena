@@ -11386,7 +11386,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		else if (sd->sc.option&OPTION_WUGRIDER)
 			clif_status_load(&sd->bl, SI_WUGRIDER, 1);
 
-		else if (sd->sc.data[SC_ALL_RIDING])
+		else if (&sd->sc && sd->sc.data[SC_ALL_RIDING])
 			clif_status_load(&sd->bl, SI_ALL_RIDING, 1);
 
 		if(sd->status.manner < 0)
@@ -11981,7 +11981,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 
 	if (sd->sc.count &&
 		(sd->sc.data[SC_TRICKDEAD] ||
-		sd->sc.data[SC_AUTOCOUNTER] ||
+		(sd->sc.data[SC_AUTOCOUNTER] && action_type != 0x07) ||
 		sd->sc.data[SC_BLADESTOP] ||
 		sd->sc.data[SC_DEEPSLEEP] ||
 		sd->sc.data[SC_CRYSTALIZE] ||
@@ -14302,13 +14302,7 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 		clif_displaymessage (sd->fd, msg_txt(sd,204)); // "You can't open a shop on this cell."
 		return;
 	}
-	if (vending_checknearnpc(&sd->bl)) {
-		char output[150];
-		sprintf(output, "You're too close to a NPC, you must be at least %d cells away from any NPC.", battle_config.min_npc_vending_distance);
-		clif_displaymessage(sd->fd, output);
-		clif_skill_fail(sd, MC_VENDING, USESKILL_FAIL_LEVEL, 0, 0);
-		return;
-	}
+
 	if (message[0] == '\0') {// invalid input
 		return;
 	}
@@ -21815,6 +21809,11 @@ void DumpUnknownPacket(int fd, TBL_PC *sd, int cmd, int packet_len) {
 }
 #endif
 
+/* [Ind] placeholder for unsupported incoming packets (avoids server disconnecting client) */
+void __attribute__((unused)) clif_parse_dull(int fd, struct map_session_data *sd) {
+	return;
+}
+
 /// Main client packet processing function
 static int clif_parse(int fd)
 {
@@ -22521,6 +22520,7 @@ void packetdb_readdb(void)
 		{ clif_parse_merge_item_req, "mergeitem_req" },
 		{ clif_parse_merge_item_cancel, "mergeitem_cancel" },
 		{ clif_parse_PartyTick, "partytick" },
+		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};
 

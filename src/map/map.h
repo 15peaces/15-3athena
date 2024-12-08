@@ -907,6 +907,8 @@ extern char mob_db_db[32];
 extern char mob_db2_db[32];
 extern char market_table[32];
 extern char db_roulette_table[32];
+extern char vendings_db[32];
+extern char vending_items_db[32];
 
 #endif /* not TXT_ONLY */
 

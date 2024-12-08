@@ -5,6 +5,69 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/08/2024
+	r491 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn491.sql file!
+		*Fixed a bug where Storm Gust and other miscellaneous skills were not sending the packets to the client; prior to this revision, if you used, SG for example, you wouldn't see the mobs push until you @refresh.		
+		*Fixed misc issues with traps:
+			-if Hunter traps expire it will now return either Booby Trap or Alloy Trap depending on item used.
+			-update list of skills that can hit/damage/affect traps.
+			-damage through skills can now be shown when hitting traps.
+			-proper knock back behaviors
+			-proper animation when triggers and triggering of item bonus script 'bHPDrainRate'
+		*Added full support for ALL_PARTYFLEE skill.
+		*Fixed weapon check in dual wielding where it doesn't function properly specially in checking with the dual-wield constants.
+		*Updated Chemical Protection skills to its official behavior.
+		*Added a missing check to pc_checkjoblevelup.
+			-Before it was possible to get a joblevel above max limit in some cases.
+		*Fixed an issue with Sealed Shrine and NPC_INVINCIBLEOFF and NPC_INVINCIBLE.
+		*Fixed a missing null pointer check on NC_MAGNETICFIELD.
+		*Wug rider may no longer be used on rangers with a falcon.
+		*Fixed Bard/Dancer songs duration exploit.
+		*Fixed skill_weaponrefine function to only allow refinement up to +10.
+		*Poison and edp poison now give proper exp to caster vs mobs.
+		*Warp Portal will now cease to function after warping first user if its target is the same point where it was casted.
+		*'bautospellonskill' should now work properly.
+		*HT_REMOVETRAP now shows a skill fail message when it fails.
+		*After casting skills it should now check for the path if it is ok to execute same as official behavior.
+		*Now caster should not hit/chase target between an obstacle same as official behavior.
+		*Fixed Enriched White PotionZs (#12428) bonus script.
+		*Castend now also checks if the required weapon matches, fixing any possible exploits where a character manages to change weapon during cast/animation (e.g. sonic blow).
+		*If you stand on a warp portal with chat room, after you close it you will now be warped properly.
+		*Fixed an animation problem when casting skills.
+		*Fixed wizard sightblaster skill which was not knocking back traps.
+		*Fixed soul linker Swoo(Eswoo) skill to make proper application of stun to caster and target when the second is shrunkened.
+		*Small improvement in case someone uses logarithmic drops with 1x rate, saving a few ms on start in that case.
+		*Misc. fixes & cleaning.
+		*Fix a map crash when an unconditional_skill GM casts Tetra Vortex with less than 4 spheres.
+		*Live vendor data is now stored in SQL.
+		*Added some missing SC bonuses from skills & fixed others.
+		*Fixed Spider Web and other trap skills not working correctly.
+		*Added support for clif_parse_dull.
+			-It is a placeholder for unsupported incoming packets (avoids DCs).
+			-Also did some cleaning in packet_db.
+			-Fixes 2013-12-23+ clients from disconnecting after executing /limitedsale command.
+		*Icewall stacking update
+			-If you now cast Icewall on an existing ice wall cell, the duration (HP) will no longer be refreshed
+			-If casting Icewall doesn't change any cell, there won't be a skill animation/sound anymore (SP will still be consumed)
+		*Land Protector now behaves like on official servers
+			-Land Protector now protects from units being placed on it, no matter if they have splash range or not
+			-Land Protector no longer protects from damage from units not outside Land Protector that splash inside
+			-Meteor Storm no longer shows meteors falling if they would land on Land Protector
+			-Pneuma can no longer be placed next to Land Protector
+			-Also cleaned up the code a bit, so the checks are done where they should be done
+		*Ground skill splash ranges updated to their official values
+			-Lord of Vermilion places units in a 11x11 area with 3x3 splash range each
+			-Storm Gust places units in a 9x9 area with 3x3 splash range each
+			-Heaven's Drive places units in a 5x5 area with no splash range
+			-Venom Dust now has a splash range of 3x3 and is consequently larger than before
+		*Storm Gust's knock-back behavior updated to official
+			-Storm Gust was not pushing mobs as per the official mechanic (randomly) as it was pushing one cell backwards.
+			-Each of Storm Gust's units will knock back "Away from center"
+			-As units in the south-west are processed first, the knock-back direction will usually be north-east
+			-At the edges the knock-back direction will be "to the outside"
+			-Land Protector and Ganbantein will influence the knock-back behavior strongly, e.g. if Storm Gust has a hole in the middle, it will have a "suck in" effect
+			-Added a config option for those who want the old "random direction" behavior from eAthena
 
 11/08/2024
 	r490 [15peaces]

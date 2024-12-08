@@ -9169,7 +9169,7 @@ BUILDIN_FUNC(hascashmount)
 	if (sd == NULL)
 		return true;
 
-	if (sd->sc.data[SC_ALL_RIDING]) {
+	if (&sd->sc && sd->sc.data[SC_ALL_RIDING]) {
 		script_pushint(st, 1);
 	} else {
 		script_pushint(st, 0);
@@ -9196,7 +9196,7 @@ BUILDIN_FUNC(setcashmount)
 		clif_msg(sd, NEED_REINS_OF_MOUNT);
 		script_pushint(st, 0); // Can't mount with one of these
 	} else {
-		if (sd->sc.data[SC_ALL_RIDING]) {
+		if (&sd->sc && sd->sc.data[SC_ALL_RIDING]) {
 			status_change_end(&sd->bl, SC_ALL_RIDING, INVALID_TIMER);
 		} else {
 			sc_start(&sd->bl, SC_ALL_RIDING, 100, battle_config.all_riding_speed, -1);

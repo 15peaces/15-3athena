@@ -826,7 +826,7 @@ extern unsigned int equip[EQI_MAX];
 
 //Weapon check considering dual wielding.
 #define pc_check_weapontype(sd, type) ((type)&((sd)->status.weapon < MAX_WEAPON_TYPE? \
-	1<<(sd)->status.weapon:(1<<(sd)->weapontype1)|(1<<(sd)->weapontype2)))
+	1<<(sd)->status.weapon:(1<<(sd)->weapontype1)|(1<<(sd)->weapontype2)|(1<<(sd)->status.weapon)))
 //Checks if the given class value corresponds to a player class. [Skotlex]
 #define pcdb_checkid(class_) \
 ( \

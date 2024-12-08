@@ -78,6 +78,8 @@ char mob_db_db[32] = "mob_db";
 char mob_db2_db[32] = "mob_db2";
 char market_table[32] = "npc_market_data";
 char db_roulette_table[32] = "db_roulette";
+char vendings_db[32] = "vendings";
+char vending_items_db[32] = "vending_items";
 
 // log database
 char log_db_ip[32] = "127.0.0.1";
@@ -2876,13 +2878,10 @@ int map_getcellp(struct map_data* m,int x,int y,cell_chk cellchk)
 		// base gat type checks
 		case CELL_CHKWALL:
 			return (!cell.walkable && !cell.shootable);
-			//return (map_cell2gat(cell) == 1);
 		case CELL_CHKWATER:
 			return (cell.water);
-			//return (map_cell2gat(cell) == 3);
 		case CELL_CHKCLIFF:
 			return (!cell.walkable && cell.shootable);
-			//return (map_cell2gat(cell) == 5);
 
 		// base cell type checks
 		case CELL_CHKNPC:
@@ -3756,6 +3755,10 @@ int inter_config_read(char *cfgName)
 			strcpy(market_table, w2); 
 		else if( strcmpi(w1, "db_roulette_table") == 0)
 			strcpy(db_roulette_table, w2);
+		else if (strcmpi(w1, "vending_db") == 0)
+			strcpy(vendings_db, w2);
+		else if (strcmpi(w1, "vending_items_db") == 0)
+			strcpy(vending_items_db, w2);
 		else
 		//Map Server SQL DB
 		if(strcmpi(w1,"map_server_ip")==0)
