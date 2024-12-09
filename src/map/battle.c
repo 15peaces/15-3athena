@@ -14,23 +14,15 @@
 #include "map.h"
 #include "path.h"
 #include "pc.h"
-#include "status.h"
-#include "skill.h"
 #include "homunculus.h"
 #include "mercenary.h"
 #include "elemental.h"
-#include "mob.h"
-#include "itemdb.h"
-#include "clif.h"
 #include "pet.h"
 #include "guild.h"
 #include "party.h"
-#include "battle.h"
 #include "battleground.h"
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
 
 int attr_fix_table[4][ELE_MAX][ELE_MAX];
@@ -855,8 +847,8 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 	if( sc && sc->data[SC_INVINCIBLE] && !sc->data[SC_INVINCIBLEOFF] )
 		return 1;
 
-	if (skill_id == PA_PRESSURE || skill_id == SP_SOULEXPLOSION)
-		return damage; //This skill bypass everything else.
+	if (skill_id == PA_PRESSURE || skill_id == HW_GRAVITATION  || skill_id == SP_SOULEXPLOSION)
+		return damage; //These skills bypass everything else.
 
 	// Nothing can reduce the damage, but Safety Wall and Millennium Shield can block it completely.
 	// So can defense sphere's but what the heck is that??? [Rytech]
@@ -2327,7 +2319,7 @@ static struct Damage battle_calc_element_damage(struct Damage wd, struct block_l
 		}
 		if (is_attack_left_handed(src, skill_id) && wd.damage2 > 0)
 			wd.damage2 = battle_attr_fix(src, target, wd.damage2, left_element, tstatus->def_ele, tstatus->ele_lv);
-		if (sc && sc->data[SC_WATK_ELEMENT])
+		if (sc && sc->data[SC_WATK_ELEMENT] && (wd.damage || wd.damage2))
 		{ // Descriptions indicate this means adding a percent of a normal attack in another element. [Skotlex]
 			int damage = battle_calc_base_damage(sstatus, &sstatus->rhw, sc, tstatus->size, sd, (is_skill_using_arrow(src, skill_id) ? 2 : 0)) * sc->data[SC_WATK_ELEMENT]->val2 / 100;
 			wd.damage += battle_attr_fix(src, target, damage, sc->data[SC_WATK_ELEMENT]->val1, tstatus->def_ele, tstatus->ele_lv);
@@ -2701,7 +2693,10 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		break;
 	case SM_MAGNUM:
 	case MS_MAGNUM:
-		skillratio += 20 * skill_lv;
+		if (wd.miscflag == 1)
+			skillratio += 20 * skill_lv; //Inner 3x3 circle takes 100%+20%*level damage [Playtester]
+		else
+			skillratio += 10 * skill_lv; //Outer 5x5 circle takes 100%+10%*level damage [Playtester]
 		break;
 	case MC_MAMMONITE:
 		skillratio += 50 * skill_lv;
@@ -4800,9 +4795,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case WZ_FIREPILLAR:
 						if (skill_lv > 10)
-							skillratio += 100;
+							skillratio += 2300; //200% MATK each hit
 						else
-							skillratio -= 80;
+							skillratio += -60 + 20 * skill_lv; //20% MATK each hit
 						break;
 					case WZ_SIGHTRASHER:
 						skillratio += 20*skill_lv;
@@ -5205,7 +5200,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			
 				//Constant/misc additions from skills
 				if (skill_id == WZ_FIREPILLAR)
-					MATK_ADD(50);
+					MATK_ADD(100 + 50 * skill_lv);
 			}
 		}
 
@@ -6157,7 +6152,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 			i = 0; //Max chance, no skill_lv reduction. [Skotlex]
 		//reduction only for skill_lv > 1
 		if (skill_lv > 1) {
-			if (i >= 50) skill_lv -= 2;
+			if (i >= 50) skill_lv /= 2;
 			else if (i >= 15) skill_lv--;
 		}
 		sp = skill_get_sp(skill_id,skill_lv) * 2 / 3;

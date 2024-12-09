@@ -2043,7 +2043,6 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 			(sc->data[SC_TRICKDEAD] && skill_id != NV_TRICKDEAD)
 			|| ((sc->data[SC_AUTOCOUNTER] || sc->data[SC_DEATHBOUND]) && !flag)
 			|| (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF && skill_id != PA_GOSPEL)
-			|| (sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF && flag != 2)
 			|| (sc->data[SC_SUHIDE] && skill_id != SU_HIDE)
 		)
 			return 0;

@@ -207,6 +207,7 @@ struct skill_unit_group {
 	char *valstr;
 	int unit_id;
 	int group_id;
+	int link_group_id; /// Linked group that should be deleted if this one is deleted
 	int unit_count,alive_count;
 	int item_id; //store item used.
 	struct skill_unit *unit;

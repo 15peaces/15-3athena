@@ -6,6 +6,29 @@
 //			--More Details.
 //========================================
 12/08/2024
+	r492 [15peaces]
+		*Some misc cleaning.
+		*Fire Pillar fixes
+			-Fire Pillar can no longer hit plants.
+			-Fixed damage formular.
+		*Magnum Break damage fixed
+			-The 20% fire damage bonus now only applies if the base damage is at least 1.
+			-Targets two cells away will now only take 100%+10%*level damage.
+		*Hindsight, Song/Dance Effect fixes
+			-Fixed Hindsight often casting level 0 of a skill when the selected auto-skill was of level 2.
+			-Fixed song and dance effects staying forever on the screen if the bard / dancer walked out of sight.
+		*Gravitational Field will now work as official servers
+			-Fixed range of Ganbantein (16->14) and Gravitational Field (9->14)
+			-Gravitational Field never misses and can hit hidden targets
+			-Similar to Pressure the damage can not be increased or decreased by any means, it even hits GTB users and users protected by Devotion/Sacrifice
+			-You can no longer do normal attacks while the skill is active
+			-You now can use skills while the skill is active, however, other skills are unable to deal any damage as long as Gravitational Field is active
+			-Added the possibility to link different skill unit groups together; if a skill unit group gets deleted, the linked skill unit groups are deleted as well;
+				--this was needed because when being hit, all Gravitational Fields of the person being hit need to be removed.
+			-Gravitational Field can no longer overlap with itself
+		*Pressure and Gravitational Field will now be considered "physical normal attacks" and can consequently trigger Autospells; unlike manually cast spells, Autospells can deal damage while Gravitational Field is active
+
+12/08/2024
 	r491 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn491.sql file!
 		*Fixed a bug where Storm Gust and other miscellaneous skills were not sending the packets to the client; prior to this revision, if you used, SG for example, you wouldn't see the mobs push until you @refresh.		

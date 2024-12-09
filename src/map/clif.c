@@ -12022,6 +12022,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			sd->sc.data[SC_HEAT_BARREL_AFTER] ||
 			sd->sc.data[SC_KINGS_GRACE] ||
 			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) ||
+			(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
 			sd->sc.data[SC_ALL_RIDING])
 			return;
 

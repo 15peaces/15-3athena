@@ -149,7 +149,7 @@
 79,9,8,2,6,0,0,10,1:2:3:4:5:6:7:8:9:10,yes,0,0,0,magic,0,	PR_MAGNUS,Magnus Exorcismus
 
 // Wizard
-80,9,8,2,3,0x20,1:1:1:1:1:2:2:2:2:2:2,10,3:4:5:6:7:8:9:10:11:12:12,yes,0,0x80,5,magic,0,	WZ_FIREPILLAR,Fire Pillar
+80,9,8,2,3,0x20,1:1:1:1:1:2:2:2:2:2:2,10,-3:-4:-5:-6:-7:-8:-9:-10:-11:-12:-12,yes,0,0x80,5,magic,0,	WZ_FIREPILLAR,Fire Pillar
 81,0,6,4,3,0x2,7,10,1,yes,0,0,0,magic,5,		WZ_SIGHTRASHER,Sightrasher
 //82,9,6,2,3,0,0,10,1,yes,0,0,0,magic,0,	WZ_FIREIVY,Fire Ivy
 83,9,8,2,3,0,3:3:3:3:3:3:3:3:3:3:14,10,1:1:2:2:3:3:4:4:5:5:15,yes,0,0,0,magic,0,	WZ_METEOR,Meteor Storm
@@ -630,8 +630,8 @@
 480,5,8,1,0,0,0,5,5,no,0,0,0,weapon,0,		PA_SHIELDCHAIN,Shield Chain
 481,0,0,0,0,0,0,5,0,no,0,0,0,none,0,		HP_MANARECHARGE,Mana Recharge
 482,0,6,4,0,0x1,0,5,1,no,0,0,0,magic,0,		PF_DOUBLECASTING,Double Casting
-483,16,6,2,0,0x1,1:2:3:4:5,1,1,no,0,0,0,none,0,	HW_GANBANTEIN,Ganbantein
-484,9,6,2,2,0x91,0,5,1,yes,0,0,0,misc,0,	HW_GRAVITATION,Gravitation Field
+483,14,6,2,0,0x1,1:2:3:4:5,1,1,no,0,0,0,none,0,	HW_GANBANTEIN,Ganbantein
+484,14,6,2,2,0xD1,0,5,1,yes,0,0,0,misc,0,	HW_GRAVITATION,Gravitation Field
 485,-2,6,1,-1,0x8,0,10,1,no,0,0,0,weapon,0,	WS_CARTTERMINATION,Cart Termination
 486,0,6,4,0,0x1,0,5,1,no,0,0,0,weapon,0,	WS_OVERTHRUSTMAX,Maximum Power Thrust
 487,0,6,4,0,0x1,0,5,1,no,0,0,0,none,0,		CG_LONGINGFREEDOM,Longing for Freedom

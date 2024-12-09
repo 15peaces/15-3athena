@@ -1018,6 +1018,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		status_percent_damage(src, bl, 0, 15+5*skill_lv, false);
 		break;
 
+	case HW_GRAVITATION:
+		//Pressure and Gravitation can trigger physical autospells
+		attack_type |= BF_NORMAL;
+		attack_type |= BF_WEAPON;
+		break;
+
 	case RG_RAID:
 		sc_start(bl,SC_STUN,(10+3*skill_lv),skill_lv,skill_get_time(skill_id,skill_lv));
 		sc_start(bl,SC_BLIND,(10+3*skill_lv),skill_lv,skill_get_time2(skill_id,skill_lv));
@@ -2965,7 +2971,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 {
 	struct Damage dmg;
 	struct status_data *sstatus, *tstatus;
-	struct status_change *sc;
+	struct status_change *sc, *ssc;
 	struct map_session_data *sd, *tsd;
 	int type=0;
 	int64 damage;
@@ -2993,11 +2999,16 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	sstatus = status_get_status_data(src);
 	tstatus = status_get_status_data(bl);
+	ssc = status_get_sc(src);
 	sc= status_get_sc(bl);
 	if (sc && !sc->count) sc = NULL; //Don't need it.
 
 	 //Trick Dead protects you from damage, but not from buffs and the like, hence it's placed here.
 	if (sc && sc->data[SC_TRICKDEAD])
+		return 0;
+
+	//When Gravitational Field is active, damage can only be dealt by Gravitational Field and Autospells
+	if (ssc && ssc->data[SC_GRAVITATION] && ssc->data[SC_GRAVITATION]->val3 == BCT_SELF && skill_id != HW_GRAVITATION && !sd->state.autocast)
 		return 0;
 
 	dmg = battle_calc_attack(attack_type,src,bl,skill_id,skill_lv,flag&0xFFF);
@@ -3294,7 +3305,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	if( !dmg.amotion )
 	{ //Instant damage
-		if (!sc || !(sc->data[SC_DEVOTION] || sc->data[SC_WATER_SCREEN_OPTION]))
+		if (!sc || !(sc->data[SC_DEVOTION] || sc->data[SC_WATER_SCREEN_OPTION] || skill_id == HW_GRAVITATION))
 			status_fix_damage(src,bl,damage,dmg.dmotion); //Deal damage before knockback to allow stuff like firewall+storm gust combo.
 		if( !status_isdead(bl) && additional_effects )
 			skill_additional_effect(src,bl,skill_id,skill_lv,dmg.flag,dmg.dmg_lv,tick);
@@ -3408,7 +3419,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if (dmg.amotion)
 		battle_delay_damage(tick, dmg.amotion,src,bl,dmg.flag,skill_id,skill_lv,damage,dmg.dmg_lv,dmg.dmotion, additional_effects);
 
-	if (sc && sc->data[SC_DEVOTION] && (skill_id != PA_PRESSURE && skill_id != SJ_NOVAEXPLOSING && skill_id != SP_SOULEXPLOSION))
+	if (sc && sc->data[SC_DEVOTION] && (skill_id != PA_PRESSURE && skill_id != HW_GRAVITATION && skill_id != SJ_NOVAEXPLOSING && skill_id != SP_SOULEXPLOSION))
 	{
 		struct status_change_entry *sce = sc->data[SC_DEVOTION];
 		struct block_list *d_bl = map_id2bl(sce->val1);
@@ -4875,8 +4886,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_SPLASHATTACK:
 		flag |= SD_PREAMBLE; // a fake packet will be sent for the first target to be hit
 	case AS_SPLASHER:
-	case SM_MAGNUM:
-	case MS_MAGNUM:
 	case HT_BLITZBEAT:
 	case AC_SHOWER:
 	case MA_SHOWER:
@@ -5080,6 +5089,14 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		{
 			skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag);
 			skill_castend_damage_id(src, bl, SJ_FALLINGSTAR_ATK2, skill_lv, tick, 0);
+		}
+		break;
+
+	case SM_MAGNUM:
+	case MS_MAGNUM:
+		if (flag & 1) {
+			//Damage depends on distance, so add it to flag if it is > 1
+			skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag | distance_bl(src, bl));
 		}
 		break;
 
@@ -13450,6 +13467,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 {
 	struct skill_unit_group *group;
 	int i,limit,val1=0,val2=0,val3=0,dir=-1;
+	int link_group_id = 0;
 	int target,interval,range,unit_flag,req_item=0;
 	struct s_skill_unit_layout *layout;
 	struct map_session_data *sd;
@@ -13777,13 +13795,18 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 	case GD_HAWKEYES:
 		limit = 1000000;//it doesn't matter
 		break;
+
+	case HW_GRAVITATION:
+		if (sc && sc->data[SC_GRAVITATION] && sc->data[SC_GRAVITATION]->val3 == BCT_SELF)
+			link_group_id = sc->data[SC_GRAVITATION]->val4;
 	}
 
-
+	// Init skill unit group
 	nullpo_retr(NULL, group=skill_initunitgroup(src,layout->count,skill_id,skill_lv,skill_get_unit_id(skill_id,flag&1)+subunt, limit, interval));
 	group->val1=val1;
 	group->val2=val2;
 	group->val3=val3;
+	group->link_group_id = link_group_id;
 	group->target_flag=target;
 	group->bl_flag= skill_get_unit_bl_target(skill_id);
 	group->state.ammo_consume = (sd && sd->state.arrow_atk && skill_id != GS_GROUNDDRIFT); //Store if this skill needs to consume ammo.
@@ -13975,8 +13998,8 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	sc = status_get_sc(bl);
 	ssc = status_get_sc(ss);
 
-	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != SO_EARTHGRAVE)
-		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive, Earth Strain, and Earth Grave. [Skotlex]
+	if (sc && sc->option&OPTION_HIDE && sg->skill_id != WZ_HEAVENDRIVE && sg->skill_id != HW_GRAVITATION && sg->skill_id != WL_EARTHSTRAIN && sg->skill_id != SO_EARTHGRAVE)
+		return 0; //Hidden characters are immune to AoE skills except Heaven's Drive, Gravitation Field, Earth Strain, and Earth Grave. [Skotlex]
 
 	type = status_skill2sc(sg->skill_id);
 	sce = (sc && type != -1)?sc->data[type]:NULL;
@@ -18290,6 +18313,7 @@ static int skill_cell_overlap(struct block_list *bl, va_list ap)
 			break;
 		case WZ_ICEWALL:
 		case HP_BASILICA:
+		case HW_GRAVITATION:
 			//These can't be placed on top of themselves (duration can't be refreshed)
 			if (unit->group->skill_id == skill_id)
 			{
@@ -18710,6 +18734,7 @@ struct skill_unit_group* skill_initunitgroup (struct block_list* src, int count,
 	group->guild_id   = status_get_guild_id(src);
 	group->bg_id      = bg_team_get_id(src);
 	group->group_id   = skill_get_new_group_id();
+	group->link_group_id = 0;
 	group->unit       = (struct skill_unit *)aCalloc(count,sizeof(struct skill_unit));
 	group->unit_count = count;
 	group->alive_count = 0;
@@ -18747,6 +18772,7 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 	struct unit_data *ud;
 	struct status_change *sc;
 	int i,j;
+	int link_group_id;
 
 	if( group == NULL )
 	{
@@ -18861,6 +18887,9 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 	group->group_id=0;
 	group->unit_count=0;
 
+	link_group_id = group->link_group_id;
+	group->link_group_id = 0;
+
 	// locate this group, swap with the last entry and delete it
 	ARR_FIND( 0, MAX_SKILLUNITGROUP, i, ud->skillunit[i] == group );
 	ARR_FIND( i, MAX_SKILLUNITGROUP, j, ud->skillunit[j] == NULL ); j--;
@@ -18872,6 +18901,12 @@ int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int li
 	}
 	else
 		ShowError("skill_delunitgroup: Group not found! (src_id: %d skill_id: %d)\n", group->src_id, group->skill_id);
+
+	if (link_group_id) {
+		struct skill_unit_group* group = skill_id2group(link_group_id);
+		if (group)
+			skill_delunitgroup(group);
+	}
 
 	return 1;
 }
@@ -19387,6 +19422,7 @@ int skill_unit_move_unit_group (struct skill_unit_group *group, int m, int dx, i
 		{
 			case 0:
 			//Cell moves independently, safely move it.
+				map_foreachinmovearea(clif_outsight, &unit1->bl, AREA_SIZE, dx, dy, BL_PC, &unit1->bl);
 				map_moveblock(&unit1->bl, unit1->bl.x+dx, unit1->bl.y+dy, tick);
 				break;
 			case 1:
@@ -19394,10 +19430,14 @@ int skill_unit_move_unit_group (struct skill_unit_group *group, int m, int dx, i
 			//and has no cell moving into it (flag == 2)
 				for(;j<group->unit_count;j++)
 				{
+					int dx2, dy2;
 					if(m_flag[j]!=2 || !group->unit[j].alive)
 						continue;
 					//Move to where this cell would had moved.
 					unit2 = &group->unit[j];
+					dx2 = unit2->bl.x + dx - unit1->bl.x;
+					dy2 = unit2->bl.y + dy - unit1->bl.y;
+					map_foreachinmovearea(clif_outsight, &unit1->bl, AREA_SIZE, dx2, dy2, BL_PC, &unit1->bl);
 					map_moveblock(&unit1->bl, unit2->bl.x+dx, unit2->bl.y+dy, tick);
 					j++; //Skip this cell as we have used it.
 					break;
