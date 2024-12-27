@@ -986,6 +986,8 @@ int mob_spawn (struct mob_data *md)
 	md->target_id = 0;
 	md->move_fail_count = 0;
 	md->ud.state.attack_continue = 0;
+	md->ud.target_to = 0;
+	md->ud.dir = 0;
 
 	if( md->spawn_timer != INVALID_TIMER )
 	{
@@ -1009,6 +1011,7 @@ int mob_spawn (struct mob_data *md)
 	md->tdmg = 0;
 	if (md->lootitems)
 		memset(md->lootitems, 0, sizeof(*md->lootitems));
+
 	md->lootitem_count = 0;
 
 	if(md->db->option)
@@ -1209,13 +1212,19 @@ static int mob_ai_sub_hard_lootsearch(struct block_list *bl,va_list ap)
 	target= va_arg(ap,struct block_list**);
 
 	dist=distance_bl(&md->bl, bl);
-	if (mob_can_reach(md, bl, dist + 1, MSS_LOOT) && (*target) == NULL) {
+	if (mob_can_reach(md, bl, dist + 1, MSS_LOOT) && (
+		(*target) == NULL ||
+		(battle_config.monster_loot_search_type && md->target_id > bl->id) ||
+		(!battle_config.monster_loot_search_type && !check_distance_bl(&md->bl, *target, dist)) // New target closer than previous one.
+		))
+	{
 		(*target) = bl;
 		md->target_id=bl->id;
 		md->min_chase=md->db->range3;
 	}
-	else
+	else if (!battle_config.monster_loot_search_type)
 		mob_stop_walking(md, 1); // Stop walking immediately if item is no longer on the ground.
+
 	return 0;
 }
 
@@ -1370,10 +1379,12 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 	}
 	if (md->target_id) {
 		md->target_id=0;
+		md->ud.target_to = 0;
 		unit_set_target(&md->ud, 0);
 	}
 
-	if (map_count_oncell(md->bl.m, md->bl.x, md->bl.y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
+	if (battle_config.official_cell_stack_limit > 0
+		&& map_count_oncell(md->bl.m, md->bl.x, md->bl.y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
 		unit_walktoxy(&md->bl, md->bl.x, md->bl.y, 8);
 	}
 
@@ -1422,7 +1433,7 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 	speed=status_get_speed(&md->bl);
 	for(i=c=0;i<md->ud.walkpath.path_len;i++){	// The next walk start time is calculated.
 		if(md->ud.walkpath.path[i]&1)
-			c+=speed*14/10;
+			c+=speed*MOVE_DIAGONAL_COST/MOVE_COST;
 		else
 			c+=speed;
 	}
@@ -1529,9 +1540,10 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			if( !battle_check_range(&md->bl, tbl, md->status.rhw.range)
 			&&  ( //Can't attack back and can't reach back.
 				(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
-					md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
+					md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]
+					|| md->walktoxy_fail_count > 0)
+				)
 				|| !mob_can_reach(md, tbl, md->min_chase, MSS_RUSH)
-				|| md->walktoxy_fail_count > 0
 			    )
 			&&  md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
 			&&  !mobskill_use(md, tick, MSC_RUDEATTACKED) // If can't rude Attack
@@ -1548,14 +1560,14 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			if( md->bl.m != abl->m || abl->prev == NULL
 				|| (dist = distance_bl(&md->bl, abl)) >= MAX_MINCHASE // Attacker longer than visual area
 				|| battle_check_target(&md->bl, abl, BCT_ENEMY) <= 0 // Attacker is not enemy of mob
-				|| status_isdead(abl) // Attacker is Dead (Reflecting Damage?)
 				|| (battle_config.mob_ai&0x2 && !status_check_skilluse(&md->bl, abl, 0, 0, 0)) // Cannot normal attack back to Attacker
 				|| (!battle_check_range(&md->bl, abl, md->status.rhw.range) // Not on Melee Range and ...
 				&& ( // Reach check
 					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
-						md->sc.data[SC_DEEPSLEEP] || md->sc.data[SC_CRYSTALIZE] || md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]))
+						 md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP] 
+						|| md->walktoxy_fail_count > 0)
+					)
 					|| !mob_can_reach(md, abl, dist + md->db->range3, MSS_RUSH)
-					|| md->walktoxy_fail_count > 0
 				)
 				) )
 			{ // Rude attacked
@@ -1607,7 +1619,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 	if (!tbl && can_move && mode&MD_LOOTER && md->lootitems && DIFF_TICK(tick, md->ud.canact_tick) > 0 &&
 		(md->lootitem_count < LOOTITEM_SIZE || battle_config.monster_loot_type != 1))
 	{	// Scan area for items to loot, avoid trying to loot if the mob is full and can't consume the items.
-		map_foreachinrange (mob_ai_sub_hard_lootsearch, &md->bl, view_range, BL_ITEM, md, &tbl);
+		map_foreachinshootrange(mob_ai_sub_hard_lootsearch, &md->bl, view_range, BL_ITEM, md, &tbl);
 	}
 
 	if ((!tbl && mode&MD_AGGRESSIVE) || md->state.skillstate == MSS_FOLLOW || slave_lost_target)
@@ -1653,7 +1665,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			mob_unlocktarget (md, tick);
 			return true;
 		}
-		if (!check_distance_bl(&md->bl, tbl, 1))
+		if (!check_distance_bl(&md->bl, tbl, 0))
 		{	//Still not within loot range.
 			if (!(mode&MD_CANMOVE))
 			{	//A looter that can't move? Real smart.
@@ -1663,7 +1675,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			if (!can_move) //Stuck. Wait before walking.
 				return true;
 			md->state.skillstate = MSS_LOOT;
-			if (!unit_walktobl(&md->bl, tbl, 1, 1))
+			if (!unit_walktobl(&md->bl, tbl, 0, 1))
 				mob_unlocktarget(md, tick); //Can't loot...
 			return true;
 		}
@@ -2291,8 +2303,6 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 			case MDLF_HOMUN:  dmgbltypes|= BL_HOM; break;
 			case MDLF_PET:    dmgbltypes|= BL_PET; break;
 		}
-		if (md->db->mexp)
-			pc_damage_log_clear(tsd, md->bl.id);
 	}
 
 	// determines, if the monster was killed by homunculus' damage only
@@ -2432,6 +2442,8 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 			achievement_validate_mob_kill(tmpsd[i], md->mob_id); // Achievements [Smokexyz/Hercules]
 		}
+		if (md->db->mexp)
+			pc_damage_log_clear(tmpsd[i], md->bl.id);
 	}
 	
 	for(i=0;i<pnum;i++) //Party share.
@@ -2949,6 +2961,8 @@ int mob_class_change (struct mob_data *md, int class_)
 	//Need to update name display.
 	clif_name_area(&md->bl);
 
+	status_change_end(&md->bl, SC_KEEPING, INVALID_TIMER);
+
 	return 0;
 }
 
@@ -2986,7 +3000,7 @@ int mob_warpslave_sub(struct block_list *bl,va_list ap)
 		return 0;
 
 	map_search_freecell(master, 0, &x, &y, range, range, 0);
-	unit_warp(&md->bl, master->m, x, y,CLR_RESPAWN);
+	unit_warp(&md->bl, master->m, x, y, CLR_TELEPORT);
 	return 1;
 }
 
@@ -3981,7 +3995,8 @@ static bool mob_parse_dbrow(char** str)
 			db->dropitem[i].p = 0; //No drop.
 			continue;
 		}
-		type = itemdb_type(db->dropitem[i].nameid);
+		id = itemdb_search(db->dropitem[i].nameid);
+		type = id->type;
 		rate = atoi(str[k+1]);
 
 		if( (mob_id >= 1324 && mob_id <= 1363) || (mob_id >= 1938 && mob_id <= 1946) )
@@ -4026,7 +4041,6 @@ static bool mob_parse_dbrow(char** str)
 		//calculate and store Max available drop chance of the item
 		if( db->dropitem[i].p && (mob_id < 1324 || mob_id > 1363) && (mob_id < 1938 || mob_id > 1946) )
 		{ //Skip treasure chests.
-			id = itemdb_search(db->dropitem[i].nameid);
 			if (id->flag.fixed_drop)
 				db->dropitem[i].p = rate;
 			if (id->nameid == 500) {

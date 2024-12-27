@@ -278,9 +278,9 @@ OnTouch:
 	mes "[Sailor]";
 	mes "Lets head toward Izlude!";
 	close2;
-	if (checkquest(21001))
+	if (isbegin_quest(21001) == 1)
 		erasequest 21001;
-	if (checkquest(21002))
+	if (isbegin_quest(21002) == 1)
 		erasequest 21002;
 	warp("izlude"+strnpcinfo(2), 196, 209);
 	end;

@@ -90,6 +90,13 @@ int unit_walktoxy_sub(struct block_list *bl)
 	if( !path_search(&wpd,bl->m,bl->x,bl->y,ud->to_x,ud->to_y,ud->state.walk_easy,CELL_CHKNOPASS) )
 		return 0;
 
+#ifdef OFFICIAL_WALKPATH
+	if (!path_search_long(NULL, bl->m, bl->x, bl->y, ud->to_x, ud->to_y, CELL_CHKNOPASS) // Check if there is an obstacle between
+		&& wpd.path_len > 14	// Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
+		&& (bl->type != BL_NPC)) // If type is a NPC, please disregard.
+		return 0;
+#endif
+
 	memcpy(&ud->walkpath,&wpd,sizeof(wpd));
 	
 	if (ud->target_to && ud->chaserange>1) {
@@ -537,9 +544,9 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 	else {	//Stopped walking. Update to_x and to_y to current location [Skotlex]
 		ud->to_x = bl->x;
 		ud->to_y = bl->y;
-		ud->target_to = 0;
 
-		if (map_count_oncell(bl->m, x, y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
+		if (battle_config.official_cell_stack_limit > 0
+			&& map_count_oncell(bl->m, x, y, BL_CHAR | BL_NPC, 1) > battle_config.official_cell_stack_limit) {
 			//Walked on occupied cell, call unit_walktoxy again
 			if (ud->steptimer != INVALID_TIMER) {
 				//Execute step timer on next step instead
@@ -601,6 +608,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 {
 	struct unit_data* ud = NULL;
 	struct status_change* sc = NULL;
+	struct walkpath_data wpd;
 	TBL_PC *sd = NULL;
 
 	nullpo_ret(bl);
@@ -609,7 +617,19 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 	
 	if( ud == NULL) return 0;
 
-	if (!path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKWALL)) return 0;
+
+	if (!path_search(&wpd, bl->m, bl->x, bl->y, x, y, flag & 1, CELL_CHKNOPASS)) // Count walk path cells
+		return 0;
+
+#ifdef OFFICIAL_WALKPATH
+	if (!path_search_long(NULL, bl->m, bl->x, bl->y, x, y, CELL_CHKNOPASS) // Check if there is an obstacle between
+		&& wpd.path_len > 14	// Official number of walkable cells is 14 if and only if there is an obstacle between. [malufett]
+		&& (bl->type != BL_NPC)) // If type is a NPC, please disregard.
+		return 0;
+#endif
+
+	if ((wpd.path_len > MAX_WALKPATH) && (bl->type != BL_NPC))
+		return 0;
 
 	if (bl->type == BL_PC)
 		sd = BL_CAST(BL_PC, bl);
@@ -722,7 +742,7 @@ static int unit_walktobl_sub(int tid, int64 tick, int id, intptr_t data)
  * @param tbl: Target object
  * @param range: How close to get to target (or attack range if flag&2)
  * @param flag: Extra behaviour \n
- *	&1: Use hard path seek (obstacles will be walked around if possible) \n
+ *	&1: Use easy path seek (obstacles will not be walked around)
  *	&2: Start attacking upon arrival within range, otherwise just walk to target
  * @return 1: Started walking or set timer 0: Failed
  *------------------------------------------*/
@@ -742,7 +762,14 @@ int unit_walktobl(struct block_list *bl, struct block_list *tbl, int range, int 
 	if (!unit_can_reach_bl(bl, tbl, distance_bl(bl, tbl)+1, flag&1, &ud->to_x, &ud->to_y)) {
 		ud->to_x = bl->x;
 		ud->to_y = bl->y;
+		ud->target_to = 0;
+
 		return 0;
+	}
+	else if (range == 0) {
+		//Should walk on the same cell as target (for looters)
+		ud->to_x = tbl->x;
+		ud->to_y = tbl->y;
 	}
 
 	ud->state.walk_easy = flag&1;
@@ -1802,7 +1829,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		   (sc->data[SC_COMBO]->val1 == MO_COMBOFINISH ||
 			sc->data[SC_COMBO]->val1 == CH_TIGERFIST ||
 			sc->data[SC_COMBO]->val1 == CH_CHAINCRUSH))
-			casttime = 0;
+			casttime = -1;
 		combo = 1;
 	break;
 	case SA_SPELLBREAKER:
@@ -1810,15 +1837,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	break;
 	case ST_CHASEWALK:
 		if (sc && sc->data[SC_CHASEWALK])
-			casttime = 0;
+			casttime = -1;
 	break;
 	case TK_RUN:
 		if (sc && sc->data[SC_RUN])
-			casttime = 0;
+			casttime = -1;
 	break;
 	case HP_BASILICA:
 		if( sc && sc->data[SC_BASILICA] )
-			casttime = 0; // No Casting time on basilica cancel
+			casttime = -1; // No Casting time on basilica cancel
 	break;
 	case KN_CHARGEATK:
 		{
@@ -1837,12 +1864,12 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		break;
 	case RA_WUGDASH:
 		if (sc && sc->data[SC_WUGDASH])
-			casttime = 0;
+			casttime = -1;
 		break;
 	case SR_TIGERCANNON:
 	case SR_GATEOFHELL:
 		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE)
-			casttime = 0;
+			casttime = -1;
 		combo = 1;
 	break;
 	}
@@ -1862,40 +1889,34 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		casttime = 0;
 	}
 
-	unit_stop_walking(src, 1);// eventhough this is not how official works but this will do the trick.
+	if (!ud->state.running) //need TK_RUN or WUGDASH handler to be done before that.
+		unit_stop_walking(src, 1);// eventhough this is not how official works but this will do the trick.
+
 	// in official this is triggered even if no cast time.
 	clif_skillcasting(src, src->id, target_id, 0, 0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 
-	if( casttime > 0 || combo)
-	{ 
-		// SC_MAGICPOWER needs to switch states at start of cast
-		skill_toggle_magicpower(src, skill_id);
+	if (sd && target->type == BL_MOB) {
+		TBL_MOB *md = (TBL_MOB*)target;
 
-		if (sd && target->type == BL_MOB)
-		{
-			TBL_MOB *md = (TBL_MOB*)target;
-			mobskill_event(md, src, tick, -1); //Cast targetted skill event.
-			if (tstatus->mode&(MD_CASTSENSOR_IDLE|MD_CASTSENSOR_CHASE) &&
-				battle_check_target(target, src, BCT_ENEMY) > 0)
-			{
-				switch (md->state.skillstate) {
-				case MSS_RUSH:
-				case MSS_FOLLOW:
-					if (!(tstatus->mode&MD_CASTSENSOR_CHASE))
-						break;
-					md->target_id = src->id;
-					md->state.aggressive = (tstatus->mode&MD_ANGRY)?1:0;
-					md->min_chase = md->db->range3;
+		mobskill_event(md, src, tick, -1); // Cast targetted skill event.
+		if (tstatus->mode&(MD_CASTSENSOR_IDLE | MD_CASTSENSOR_CHASE) && battle_check_target(target, src, BCT_ENEMY) > 0) {
+			switch (md->state.skillstate) {
+			case MSS_RUSH:
+			case MSS_FOLLOW:
+				if (!(tstatus->mode&MD_CASTSENSOR_CHASE))
 					break;
-				case MSS_IDLE:
-				case MSS_WALK:
-					if (!(tstatus->mode&MD_CASTSENSOR_IDLE))
-						break;
-					md->target_id = src->id;
-					md->state.aggressive = (tstatus->mode&MD_ANGRY)?1:0;
-					md->min_chase = md->db->range3;
+				md->target_id = src->id;
+				md->state.aggressive = (tstatus->mode&MD_ANGRY) ? 1 : 0;
+				md->min_chase = md->db->range3;
+				break;
+			case MSS_IDLE:
+			case MSS_WALK:
+				if (!(tstatus->mode&MD_CASTSENSOR_IDLE))
 					break;
-				}
+				md->target_id = src->id;
+				md->state.aggressive = (tstatus->mode&MD_ANGRY) ? 1 : 0;
+				md->min_chase = md->db->range3;
+				break;
 			}
 		}
 	}
@@ -2386,8 +2407,8 @@ bool unit_can_reach_bl(struct block_list *bl,struct block_list *tbl, int range, 
 	
 	if (map_getcell(tbl->m,tbl->x-dx,tbl->y-dy,CELL_CHKNOPASS))
 	{	//Look for a suitable cell to place in.
-		for(i=0;i<9 && map_getcell(tbl->m,tbl->x-dirx[i],tbl->y-diry[i],CELL_CHKNOPASS);i++);
-		if (i==9) return false; //No valid cells.
+		for(i=0;i<8 && map_getcell(tbl->m,tbl->x-dirx[i],tbl->y-diry[i],CELL_CHKNOPASS);i++);
+		if (i==8) return false; //No valid cells.
 		dx = dirx[i];
 		dy = diry[i];
 	}
@@ -2494,8 +2515,11 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 	if( src == NULL || src->prev == NULL || target==NULL || target->prev == NULL )
 		return 0;
 
-	if( status_isdead(src) || status_isdead(target) || 	battle_check_target(src,target,BCT_ENEMY) <= 0 || !status_check_skilluse(src, target, 0, 0, 0) ||
-			!path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL) )
+	if( status_isdead(src) || status_isdead(target) || 	battle_check_target(src,target,BCT_ENEMY) <= 0 || !status_check_skilluse(src, target, 0, 0, 0) 
+#ifdef OFFICIAL_WALKPATH
+		|| !path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL)
+#endif
+	)
 		return 0; // can't attack under these conditions
 
 	if( src->m != target->m )
@@ -2886,7 +2910,6 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 			chat_leavechat(sd,0);
 		if(sd->trade_partner)
 			trade_tradecancel(sd);
-		buyingstore_close(sd);
 		searchstore_close(sd);
 		if (sd->menuskill_id != AL_TELEPORT) {
 			if (sd->state.storage_flag == 1)

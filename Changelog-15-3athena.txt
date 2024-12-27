@@ -5,6 +5,45 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/27/2024
+	r493 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn493.sql file!
+			-This fixes a display error with some permanent granted skills...
+		*Fixed mapcache compilation.
+			-The mapcache now got its own main routine. No need to do all the initialisation for stuff that's not needed there.
+		*Updated/optimized/fixed monster AI.
+			-Monsters no longer use rudeattacked skills when they receive reflected damage from a player who died.
+			-Fixed a behavior which didn't unlock target when it was out of range.
+			-Corrected mob_warpslave_sub call with CLR_TELEPORT instead of CLR_RESPAWN.
+			-Fixed behavior of looter monsters:
+				--They will now by default always target the oldest item in their view range (which makes it seemingly random), rather than always the most south-western item available
+				--Added monster_loot_search_type to change this back to old athena style.
+				--Their loot range is now "0" meaning they need to be on the same cell as the item to loot it
+				--Their AI will no longer get stuck in an endless loop when someone drops an item around the corner
+		*Small changes to Izlude Academy warp checks.
+			-uses isbegin_quest instead of checkquest now.
+		*Fixed Sg_Weapon_Supply_Box.
+		*Improved Performance on Mob DB loading.
+		*NPC_KEEPING no longer remains on monster after its class is changed.
+		*Pathfinding now works exactly as on the client
+			-This should solve most of the position lag problems, especially ones that caused monsters to suddenly appear next to you (happened especially often when using icewall)
+			-Added a new heap implementation to db.h (POP2, PUSH2, SIFTUP, SIFTDOWN, UPDATE) that simulates the heap that the client uses, there was no other way to reproduce 100% exact behavior
+			-I recommend using the old heap implementation for everything else
+			-Updated path.c to use the new heap macros and also fixed the order in which the different possible directions are pushed into heap
+		*Direction fixes
+			-Updated the config setting attack_direction_change from 15 to 0 (official value); that means that a unit's direction will no longer change when it attacks; knock-back effects from e.g. Firewall will depend on the last direction the target 
+			-walked into instead.
+			-Ensured that the default direction of a monster is always "north", so that immobile monsters will now always be knocked back to the south by e.g. Firewall on default settings, unless a skill like e.g. Backstab changes their direction.
+		*Fixed a bug that stopped characters server-sided and caused position lag when closing a skill menu.
+		*Walkpath loop fix
+			-Move requests one cell west will now be ignored if the target cell is occupied
+			-You can now set official_cell_stack_limit to 0 to completely disable it including the limitation above
+		*Added OFFICIAL_WALKPATH define.
+			-We recently fixed a behavior in *athena that has always made walking easier/smoother, unlike how it actually is meant to be, however since users have been exposed to this behavior for so many years I'm adding this to disable it in order 
+				-to save endless posts/bug reports on a intended feature.
+			-Also implemented official walk path dealing with obstacle.
+		*Fixed a glitch which caused running skills from not stopping when recasted.
+
 12/08/2024
 	r492 [15peaces]
 		*Some misc cleaning.

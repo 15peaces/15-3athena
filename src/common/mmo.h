@@ -357,10 +357,10 @@ enum e_skill_flag
 	SKILL_FLAG_TEMPORARY,
 	SKILL_FLAG_PLAGIARIZED,
 	SKILL_FLAG_PERM_GRANTED, // Permanent, granted through someway e.g. script
-	SKILL_FLAG_REPLACED_LV_0, // temporary skill overshadowing permanent skill of level 'N - SKILL_FLAG_REPLACED_LV_0'
-	//SKILL_FLAG_PERM_GRANTED, // permanent, granted through someway e.g. script
-	SKILL_FLAG_TMP_COMBO = 6, //@FIXME for homon combo atm
-	//...
+	SKILL_FLAG_TMP_COMBO, //@FIXME for homunculus combo atm
+
+	//! NOTE: This flag be the last flag, and don't change the value if not needed!
+	SKILL_FLAG_REPLACED_LV_0 = 10, // temporary skill overshadowing permanent skill of level 'N - SKILL_FLAG_REPLACED_LV_0',
 };
 
 //OPTION: (EFFECTSTATE_)

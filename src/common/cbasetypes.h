@@ -271,6 +271,7 @@ typedef char bool;
 //#define swap(a,b) ((a == b) || ((a ^= b), (b ^= a), (a ^= b)))
 // Avoid "value computed is not used" warning and generates the same assembly code
 #define swap(a,b) if( (a) != (b) ) ( ( (a) ^= (b) ), ( (b) ^= (a) ), ( (a) ^= (b) ) )
+#define swap_ptr(a,b) if ((a) != (b)) ((a) = (void*)((intptr_t)(a) ^ (intptr_t)(b)), (b) = (void*)((intptr_t)(a) ^ (intptr_t)(b)), (a) = (void*)((intptr_t)(a) ^ (intptr_t)(b)))
 
 //////////////////////////////////////////////////////////////////////////
 // should not happen

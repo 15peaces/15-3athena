@@ -3327,7 +3327,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			// This ensures the storm randomly pushes instead of exactly a cell backwards per official mechanics.
 			case WZ_STORMGUST:
 				if (!battle_config.stormgust_knockback)
-					direction = rand()%8;
+					direction = rnd()%8;
 				break;
 			case MC_CARTREVOLUTION:
 				if (battle_config.cart_revo_knockback)
@@ -11947,8 +11947,10 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 				skill_consume_requirement(sd,ud->skill_id,ud->skill_lv,1);
 		}
 
+#ifdef OFFICIAL_WALKPATH
 		if (!path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL))
 			break;
+#endif
 
 		if ((src->type == BL_HOM || src->type == BL_MER || src->type == BL_ELEM) && !skill_check_condition_mercenary(src, ud->skill_id, ud->skill_lv, 1))
 			break;
@@ -13253,7 +13255,6 @@ int skill_castend_map (struct map_session_data *sd, short skill_id, const char *
 	}
 
 	pc_stop_attack(sd);
-	pc_stop_walking(sd,0);
 
 	if(battle_config.skill_log && battle_config.skill_log&BL_PC)
 		ShowInfo("PC %d skill castend skill =%d map=%s\n",sd->bl.id,skill_id,map);

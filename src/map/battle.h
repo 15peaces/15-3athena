@@ -676,6 +676,7 @@ extern struct Battle_Config
 	int boss_icewall_walk_block;
 	int snap_dodge;
 	int stormgust_knockback;
+	int monster_loot_search_type;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

@@ -2,7 +2,8 @@
 // For more information, see LICENCE in the main folder
 
 #include "../common/cbasetypes.h"
-#include "../common/core.h"
+#include "../common/db.h"
+#include "../common/strlib.h"
 #include "../common/grfio.h"
 #include "../common/malloc.h"
 #include "../common/mmo.h"
@@ -14,7 +15,15 @@
 
 #ifndef _WIN32
 #include <unistd.h>
+#else
+#include <direct.h>
 #endif
+
+int runflag = 1;
+int arg_c = 0;
+char **arg_v = NULL;
+
+char *SERVER_NAME = NULL;
 
 #define NO_WATER 1000000
 
@@ -47,7 +56,6 @@ struct map_info {
 	int16 ys;
 	int32 len;
 };
-
 
 /*************************************
 * Big-endian compatibility functions *
@@ -335,7 +343,7 @@ int do_init(int argc, char** argv)
 
 	ShowInfo("%d maps now in cache\n", header.map_count);
 
-	runflag = SERVER_STATE_STOP; // MINICORE
+	runflag = 0; // MINICORE
 	return 0;
 }
 
@@ -344,3 +352,36 @@ int parse_console(const char* buf) { return 0; }
 void set_server_type(void) { }
 void do_shutdown(void) { }
 void do_abort(void) { }
+
+/*======================================
+ *	MAINROUTINE FOR MAPCACHE
+ *--------------------------------------*/
+int main(int argc, char **argv)
+{
+	{// initialize program arguments
+		char *p1 = SERVER_NAME = argv[0];
+		if ((p1 = strrchr(argv[0], '/')) != NULL || (p1 = strrchr(argv[0], '\\')) != NULL) {
+			char *pwd = NULL; //path working directory
+			int n = 0;
+			SERVER_NAME = ++p1;
+			n = p1 - argv[0]; //calc dir name len
+			pwd = safestrncpy(malloc(n + 1), argv[0], n);
+			if (chdir(pwd) != 0)
+				ShowError("Couldn't change working directory to %s for %s, runtime will probably fail", pwd, SERVER_NAME);
+			free(pwd);
+		}
+		arg_c = argc;
+		arg_v = argv;
+	}
+
+	do_init(argc, argv);
+
+	// Main runtime cycle
+	while (runflag != 0) {
+		;
+	}
+
+	do_final();
+
+	return 0;
+}

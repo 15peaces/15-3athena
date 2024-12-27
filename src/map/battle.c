@@ -6941,7 +6941,7 @@ static const struct _battle_data {
 	{ "bone_drop",                          &battle_config.bone_drop,                       0,      0,      2,              },
 	{ "buyer_name",                         &battle_config.buyer_name,                      1,      0,      1,              },
 	{ "skill_wall_check",                   &battle_config.skill_wall_check,                1,      0,      1,              },
-	{ "official_cell_stack_limit",          &battle_config.official_cell_stack_limit,       1,      1,      255,			},
+	{ "official_cell_stack_limit",          &battle_config.official_cell_stack_limit,       1,      0,      255,			},
 	{ "custom_cell_stack_limit",            &battle_config.custom_cell_stack_limit,         1,      1,      255,			},
 	{ "dancing_weaponswitch_fix",			&battle_config.dancing_weaponswitch_fix,		1,      0,      1,				},
 // eAthena additions
@@ -7268,6 +7268,7 @@ static const struct _battle_data {
 	{ "boss_icewall_walk_block",            &battle_config.boss_icewall_walk_block,         0,      0,      255,			},
 	{ "snap_dodge",                         &battle_config.snap_dodge,                      0,      0,      1,				},
 	{ "stormgust_knockback",                &battle_config.stormgust_knockback,             1,      0,      1,				},
+	{ "monster_loot_search_type",           &battle_config.monster_loot_search_type,        1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

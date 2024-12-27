@@ -19,6 +19,12 @@
 /// Max number of items on @autolootid list
 #define AUTOLOOTITEM_SIZE 10
 
+//Comment to disable the official walk path
+// -- The official walkpath disables users from taking non-clear walk paths,
+// -- e.g. if they want to get around a obstacle they have to walk around it,
+// -- while with OFFICIAL_WALKPATH disabled if they click to walk around a obstacle the server will do it automatically
+#define OFFICIAL_WALKPATH
+
 /// Comment to disable the official packet obfuscation support.
 /// When enabled, make sure there is value for 'packet_keys' of used packet version or
 /// defined 'packet_keys_use' in db/packet_db.txt.
