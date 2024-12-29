@@ -8097,7 +8097,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			pet_unlocktarget(sd->pd);
 	}
 
-	if( sd->status.hom_id > 0 && battle_config.homunculus_auto_vapor )
+	if( sd->status.hom_id > 0 && battle_config.homunculus_auto_vapor  && sd->hd)
 		hom_vaporize(sd, 0);
 
 	if( sd->md )

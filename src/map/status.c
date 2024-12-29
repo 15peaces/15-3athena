@@ -1713,22 +1713,6 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		return hp+sp;
 	}
 
-	if( !(flag&8) && sc && sc->data[SC_LIGHT_OF_REGENE] )
-	{ //flag&8 = Disable Light of Regeneration
-		//Look for Osiris Card's bonus effect on the character and revive 100% or revive normally
-		if ( target->type == BL_PC && BL_CAST(BL_PC,target)->special_state.restart_full_recover == 1 )
-			status_revive(target, 100, 100);
-		else
-			status_revive(target, sc->data[SC_LIGHT_OF_REGENE]->val2, 0);
-		status_change_clear(target,0);
-		clif_skill_nodamage(target,target,ALL_RESURRECTION,1,1);
-
-		if( target->type == BL_MOB ) 
-			((TBL_MOB*)target)->state.rebirth = 1;
-
-		return hp+sp;
-	}
-
 	if( target->type == BL_MOB && sc && sc->data[SC_REBIRTH] && !((TBL_MOB*)target)->state.rebirth )
 	{// Ensure the monster has not already rebirthed before doing so.
 		status_revive(target, sc->data[SC_REBIRTH]->val2, 0);
@@ -10977,6 +10961,7 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_ALL_RIDING:
 				case SC_ON_PUSH_CART:
 				case SC_MOONSTAR:
+				case SC_LIGHT_OF_REGENE:
 				case SC_STRANGELIGHTS:
 				case SC_SUPER_STAR:
 				case SC_DECORATION_OF_MUSIC:

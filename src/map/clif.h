@@ -807,7 +807,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 
 void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid);
 
-void clif_skill_setunit(struct skill_unit *unit);
+void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, enum send_target target, uint8 flag);
 void clif_skill_delunit(struct skill_unit *unit);
 
 void clif_skillunit_update(struct block_list* bl);
@@ -1207,5 +1207,6 @@ void clif_notify_bindOnEquip(struct map_session_data *sd, int n);
 void clif_merge_item_open(struct map_session_data *sd);
 
 void clif_partyinvitationstate(struct map_session_data* sd, bool flag);
+void clif_party_leaderchanged(struct map_session_data *sd, int prev_leader_aid, int new_leader_aid);
 
 #endif /* _CLIF_H_ */

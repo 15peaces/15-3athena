@@ -246,9 +246,8 @@ int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct
   	if (sc && sc->data[SC_DEVOTION] && sc->data[SC_DEVOTION]->val1)
  		d_tbl = map_id2bl(sc->data[SC_DEVOTION]->val1);
 
-	if(d_tbl && sc && (sc->data[SC_DEVOTION] || sc->data[SC_WATER_SCREEN_OPTION]) &&
-		check_distance_bl(target,d_tbl,sc->data[SC_DEVOTION]->val3) && //Devo Range fix [15peaces]
-		damage > 0 )
+	if (d_tbl && check_distance_bl(target, d_tbl, sc->data[SC_DEVOTION]->val3) &&
+		damage > 0 && skill_id != PA_PRESSURE && skill_id != CR_REFLECTSHIELD)
 		damage = 0;
 
 	if (!battle_config.delay_battle_damage) {
@@ -904,7 +903,6 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 			struct status_change_entry *sce_d = sc->data[SC_DEVOTION];
 			struct block_list *d_bl = NULL;
 
-			clif_skill_nodamage(bl,bl,CR_AUTOGUARD,sce->val1,1);
 			// different delay depending on skill level [celest]
 			if (sce->val1 <= 5)
 				delay = 300;
@@ -4465,7 +4463,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		if (skill_id == GS_GROUNDDRIFT)
 			ATK_ADD(wd.damage, wd.damage2, 50 * skill_lv);
 		if (skill_id != CR_SHIELDBOOMERANG) //Only Shield boomerang doesn't takes the Star Crumbs bonus.
-			ATK_ADD2(wd.damage, wd.damage2, wd.div_*sd->right_weapon.star, wd.div_*sd->left_weapon.star);
+			ATK_ADD2(wd.damage, wd.damage2, ((wd.div_ < 1) ? 1 : wd.div_) * sd->right_weapon.star, ((wd.div_ < 1) ? 1 : wd.div_) * sd->left_weapon.star);
 		if (skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.damage, wd.damage2, 4);
 		if (skill_id == MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count. [Skotlex]
@@ -6436,26 +6434,24 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			TBL_SKILL *su = (TBL_SKILL*)target;
 			if (!su || !su->group)
 				return 0;
-			if (skill_get_inf2(su->group->skill_id)&INF2_TRAP && su->group->unit_id != UNT_USED_TRAPS) { //Only a few skills can target traps...
-				switch( battle_getcurrentskill(src) ) {
-					case 0://you can hit them without skills
-					case MA_REMOVETRAP:
-					case HT_REMOVETRAP:
-					case AC_SHOWER:
-					case MA_SHOWER:
-					case WZ_SIGHTRASHER:
-					case WZ_SIGHTBLASTER:
-					case SM_MAGNUM:
-					case MS_MAGNUM:
-					case RA_DETONATOR:
-					case RA_SENSITIVEKEEN:
-					case RL_FIRE_RAIN:
-						state |= BCT_ENEMY;
-						strip_enemy = 0;
-						break;
-					default:
-						return 0;
+			if (skill_get_inf2(su->group->skill_id)&INF2_TRAP && su->group->unit_id != UNT_USED_TRAPS) {
+				uint16 skill_id = battle_getcurrentskill(src);
+				if (!skill_id || su->group->skill_id == WM_REVERBERATION || su->group->skill_id == WM_POEMOFNETHERWORLD) {
+					;
 				}
+				else if (skill_get_inf2(skill_id)&INF2_HIT_TRAP) { // Only a few skills can target traps
+					switch (skill_id) {
+					case RK_DRAGONBREATH:
+					case RK_DRAGONBREATH_WATER:
+						// Can only hit traps in PVP/GVG maps
+						if (!map[m].flag.pvp && !map[m].flag.gvg)
+							return 0;
+					}
+				}
+				else
+					return 0;
+				state |= BCT_ENEMY;
+				strip_enemy = 0;
 			}
 			else if (su->group->skill_id == WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN)
 			{

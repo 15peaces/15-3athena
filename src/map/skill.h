@@ -83,6 +83,7 @@ enum e_skill_inf2
 	INF2_SUB_SKILL		= 0x04000,
 	INF2_BOOST_PASSIVE	= 0x08000,
 	INF2_NOLP			= 0x10000,  // Spells that can ignore Land Protector
+	INF2_HIT_TRAP		= 0x20000,
 };
 
 //Walk intervals at which chase-skills are attempted to be triggered.

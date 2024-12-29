@@ -5,6 +5,25 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/29/2024
+	r494 [15peaces]
+		*Updated some item effects.
+		*Fixed swapped value between 'nk' and 'inf' for MH_LIGHT_OF_REGENE & MH_OVERED_BOOST
+		*Updated MH_LIGHT_OF_REGENE skill.
+		*Autotrader data is now probably deleted when you re-login with that account.
+		*Added support for ZC_CHANGE_GROUP_MASTER packet.
+		*Rewrite of clif_getareachar_skillunit to support target value instead of always sending to self only.
+			-Also split ZC_SKILL_ENTRY2 part (new function: clif_graffiti) since it is only used for Graffiti.
+			-Updated & fixed trap visibility to official behavior.
+				--Already placed traps are invisible by enemies entering the screen by default.
+			-Thanks to @rathena
+		*Documented already used 'NeedLevel' for Homunculus skill tree.
+			-Old 'JobLevel' is used as 'NeedLevel'.
+		*Fixed an issue that caused the damage output to be halved in some cases with high forged weapons.
+		*Fixed Shockwave Trap (HT_SHOCKWAVE) SP reduction, should be % of MaxSP not % of 'current' SP.
+		*Added skill flag INF2_HIT_TRAP (0x20000) to remove hardcoded 'skill that can hit traps'.
+			-NOTE: Client-side's factor also determines that skill can be targeted to trap-type skill or not.
+
 12/27/2024
 	r493 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn493.sql file!
