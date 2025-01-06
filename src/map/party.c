@@ -24,6 +24,7 @@
 #include "status.h"
 #include "itemdb.h"
 #include "achievement.h"
+#include "trade.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,6 +220,21 @@ void party_created(uint32 account_id, uint32 char_id, int fail, int party_id, co
 int party_request_info(int party_id, uint32 char_id)
 {
 	return intif_request_partyinfo(party_id, char_id);
+}
+
+
+/**
+ * Close trade window if party member is kicked when trade a party bound item
+ * @param sd
+ **/
+static void party_trade_bound_cancel(struct map_session_data *sd) {
+#ifdef BOUND_ITEMS
+	nullpo_retv(sd);
+	if (sd->state.isBoundTrading&(1 << BOUND_PARTY))
+		trade_tradecancel(sd);
+#else
+	;
+#endif
 }
 
 /// Invoked (from char-server) when the party info is not found.
@@ -559,6 +575,8 @@ int party_removemember(struct map_session_data* sd, uint32 account_id, char* nam
 	if( i == MAX_PARTY )
 		return 0; // no such char in party
 
+	party_trade_bound_cancel(sd);
+
 	intif_party_leave(p->party.party_id,account_id,p->party.member[i].char_id,p->party.member[i].name,PARTY_MEMBER_WITHDRAW_EXPEL); 
 	return 1;
 }
@@ -576,6 +594,8 @@ int party_leave(struct map_session_data *sd)
 	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
 	if( i == MAX_PARTY )
 		return 0;
+
+	party_trade_bound_cancel(sd);
 
 	intif_party_leave(p->party.party_id,sd->status.account_id,sd->status.char_id,sd->status.name,PARTY_MEMBER_WITHDRAW_LEAVE); 
 	return 1;
@@ -602,10 +622,13 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 	if( sd && sd->status.party_id == party_id ) {
 #ifdef BOUND_ITEMS 
 		int idxlist[MAX_INVENTORY]; //or malloc to reduce consumtion 
-		int j,i; 
-		j = pc_bound_chk(sd,3,idxlist); 
-		for(i=0;i<j;i++) 
-			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1,LOG_TYPE_OTHER);
+		int j,i;
+
+		party_trade_bound_cancel(sd);
+		j = pc_bound_chk(sd,3,idxlist);
+
+		for(i=0;i<j;i++)
+			pc_delitem(sd,idxlist[i],sd->inventory.u.items_inventory[idxlist[i]].amount,0,1, LOG_TYPE_BOUND_REMOVAL);
 #endif
 		sd->status.party_id = 0;
 		clif_name_area(&sd->bl); //Update name display [Skotlex]

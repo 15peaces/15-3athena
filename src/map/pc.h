@@ -209,6 +209,7 @@ struct map_session_data {
 		bool keepshop; // Whether shop data should be removed when the player disconnects
 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not
 		bool pc_loaded; // Ensure inventory data and status data is loaded before we calculate player stats
+		uint8 isBoundTrading; // Player is currently add bound item to trade list [Cydh]
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -734,32 +735,6 @@ struct {
 		uint8 gm_lv;
 	} noenter_map;
 } job_info[CLASS_COUNT];
-
-//Equip position constants
-enum equip_pos {
-	EQP_HEAD_LOW		= 0x0001, 
-	EQP_HEAD_MID		= 0x0200,
-	EQP_HEAD_TOP		= 0x0100,
-	EQP_HAND_R			= 0x0002,
-	EQP_HAND_L			= 0x0020,
-	EQP_ARMOR			= 0x0010,
-	EQP_SHOES			= 0x0040,
-	EQP_GARMENT			= 0x0004,
-	EQP_ACC_L			= 0x0008,
-	EQP_ACC_R			= 0x0080,
-	EQP_AMMO			= 0x8000,
-	EQP_COSTUME_HEAD_TOP= 0x0400,
-	EQP_COSTUME_HEAD_MID= 0x0800,
-	EQP_COSTUME_HEAD_LOW= 0x1000,
-	EQP_COSTUME_GARMENT = 0x2000,
-	EQP_COSTUME_FLOOR	= 0x4000,
-	EQP_SHADOW_ARMOR	= 0x10000,
-	EQP_SHADOW_WEAPON	= 0x20000,
-	EQP_SHADOW_SHIELD	= 0x40000,
-	EQP_SHADOW_SHOES	= 0x80000,
-	EQP_SHADOW_ACC_R	= 0x100000,
-	EQP_SHADOW_ACC_L	= 0x200000,
-};
 
 extern unsigned int equip[EQI_MAX];
 

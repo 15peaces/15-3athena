@@ -6397,7 +6397,7 @@ ACMD_FUNC(dropall)
 	for (i = 0; i < MAX_INVENTORY; i++) {
 		if (sd->inventory.u.items_inventory[i].amount) {
 			if ((item_data = itemdb_exists(sd->inventory.u.items_inventory[i].nameid)) == NULL) {
-				ShowDebug("Non-existant item %d on dropall list (account_id: %d, char_id: %d)\n", sd->inventory.u.items_inventory[i].nameid, sd->status.account_id, sd->status.char_id);
+				ShowDebug("Non-existant Item %hu on dropall list (account_id: %d, char_id: %d)\n", sd->inventory.u.items_inventory[i].nameid, sd->status.account_id, sd->status.char_id);
 				continue;
 			}
 			if (!pc_candrop(sd, &sd->inventory.u.items_inventory[i]))
@@ -7056,7 +7056,7 @@ ACMD_FUNC(autolootitem)
 				if (sd->state.autolootid[i] == 0)
 					continue;
 				if (!(item_data = itemdb_exists(sd->state.autolootid[i]))) {
-					ShowDebug("Non-existant item %d on autolootitem list (account_id: %d, char_id: %d)", sd->state.autolootid[i], sd->status.account_id, sd->status.char_id);
+					ShowDebug("Non-existant Item %hu on autolootitem list (account_id: %d, char_id: %d)", sd->state.autolootid[i], sd->status.account_id, sd->status.char_id);
 					continue;
 				}
 

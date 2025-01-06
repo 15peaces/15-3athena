@@ -26,6 +26,7 @@
 #include "log.h"
 #include "atcommand.h"
 #include "episode.h"
+#include "trade.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -366,6 +367,20 @@ int guild_npc_request_info(int guild_id,const char *event)
 	}
 
 	return guild_request_info(guild_id);
+}
+
+/**
+ * Close trade window if party member is kicked when trade a party bound item
+ * @param sd
+ **/
+static void guild_trade_bound_cancel(struct map_session_data *sd) {
+#ifdef BOUND_ITEMS
+	nullpo_retv(sd);
+	if (sd->state.isBoundTrading&(1 << BOUND_GUILD))
+		trade_tradecancel(sd);
+#else
+	;
+#endif
 }
 
 //Confirmation of the character belongs to guild
@@ -728,6 +743,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, uint32 account_id, ui
 		}
 	}
 
+	guild_trade_bound_cancel(sd);
 	intif_guild_leave(sd->status.guild_id, sd->status.account_id, sd->status.char_id,0,mes);
 	return 0;
 }
@@ -770,12 +786,24 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, uint32 account_id
 
 	// find the member and perform expulsion
 	i = guild_getindex(g, account_id, char_id);
-	if( i != -1 && strcmp(g->member[i].name,g->master) != 0 ) //Can't expel the GL!
-		intif_guild_leave(g->guild_id,account_id,char_id,1,mes);
+	if (i != -1 && strcmp(g->member[i].name, g->master) != 0) { //Can't expel the GL!
+		if (tsd)
+			guild_trade_bound_cancel(tsd);
+		intif_guild_leave(g->guild_id, account_id, char_id, 1, mes);
+	}
 
 	return 0;
 }
 
+/**
+* A confirmation from inter-serv that player is kicked successfully
+* @param guild_Id
+* @param account_id
+* @param char_id
+* @param flag
+* @param name
+* @param mes
+*/
 int guild_member_withdraw(int guild_id, uint32 account_id, uint32 char_id, int flag, const char* name, const char* mes)
 {
 	int i;
@@ -789,6 +817,11 @@ int guild_member_withdraw(int guild_id, uint32 account_id, uint32 char_id, int f
 	i = guild_getindex(g, account_id, char_id);
 	if( i == -1 )
 		return 0; // not a member (inconsistency!)
+
+#ifdef BOUND_ITEMS
+//Guild bound item check
+	guild_retrieveitembound(char_id, account_id, guild_id);
+#endif
 
 	online_member_sd = guild_getavailablesd(g);
 	if(online_member_sd == NULL)
@@ -824,6 +857,56 @@ int guild_member_withdraw(int guild_id, uint32 account_id, uint32 char_id, int f
 	}
 	return 0;
 }
+
+#ifdef BOUND_ITEMS
+/**
+* Retrieve guild bound items from kicked member
+* @param char_id
+* @param account_id
+* @param guild_id
+*/
+void guild_retrieveitembound(uint32 char_id, uint32 account_id, int guild_id) {
+	TBL_PC *sd = map_charid2sd(char_id);
+	if (sd) { //Character is online
+		int32 idxlist[MAX_INVENTORY];
+		int32 j;
+		j = pc_bound_chk(sd, BOUND_GUILD, idxlist);
+		if (j) {
+			struct s_storage* stor = guild2storage(sd->status.guild_id);
+			struct guild* g = guild_search(guild_id);
+			int32 i;
+			if (stor && stor->status) { //Someone is in guild storage, close them
+				for (i = 0; i < g->max_member; i++) {
+					TBL_PC *pl_sd = g->member[i].sd;
+					if (pl_sd && pl_sd->state.storage_flag == 2)
+						storage_guild_storageclose(pl_sd);
+				}
+			}
+			for (i = 0; i < j; i++) { //Loop the matching items, gstorage_additem takes care of opening storage
+				if (stor)
+					storage_guild_additem(sd, stor, &sd->inventory.u.items_inventory[idxlist[i]], sd->inventory.u.items_inventory[idxlist[i]].amount);
+				pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 4, LOG_TYPE_GSTORAGE);
+			}
+			storage_guild_storageclose(sd); //Close and save the storage
+		}
+	}
+	else { //Character is offline, ask char server to do the job
+		struct s_storage* stor = guild2storage2(guild_id);
+		struct guild* g = guild_search(guild_id);
+		if (!g)
+			return;
+		if (stor && stor->status) { //Someone is in guild storage, close them
+			int32 i;
+			for (i = 0; i < g->max_member; i++) {
+				TBL_PC *pl_sd = g->member[i].sd;
+				if (pl_sd && pl_sd->state.storage_flag == 2)
+					storage_guild_storageclose(pl_sd);
+			}
+		}
+		intif_itembound_guild_retrieve(char_id, account_id, guild_id);
+	}
+}
+#endif
 
 int guild_send_memberinfoshort(struct map_session_data *sd,int online)
 { // cleaned up [LuzZza]
@@ -1464,9 +1547,9 @@ int guild_allianceack(int guild_id1, int guild_id2, int account_id1, int account
 	for(i=0;i<2-(flag&1);i++){	// Retransmission of the relationship list to all members
 		if(g[i]!=NULL)
 			for (j = 0; j < g[i]->max_member; j++) {
-				struct map_session_data *sd = g[i]->member[j].sd;
-				if (sd != NULL)
-					clif_guild_allianceinfo(sd);
+				struct map_session_data *sd_mem = g[i]->member[j].sd;
+				if (sd_mem != NULL)
+					clif_guild_allianceinfo(sd_mem);
 			}
 	}
 	return 0;
@@ -1519,6 +1602,7 @@ int castle_guild_broken_sub(DBKey key, DBData *data, va_list ap)
 int guild_broken(int guild_id, int flag)
 {
 	struct guild* g = guild_search(guild_id);
+	struct map_session_data *sd = NULL;
 	int i;
 
 	if( g == NULL )
@@ -1530,7 +1614,7 @@ int guild_broken(int guild_id, int flag)
 	// update members
 	for( i = 0; i < g->max_member; ++i )
 	{
-		struct map_session_data* sd = g->member[i].sd;
+		sd = g->member[i].sd;
 		if( sd == NULL )
 			continue;
 
@@ -1705,7 +1789,7 @@ int guild_break(struct map_session_data *sd,char *name)
 	//Guild bound item check - Removes the bound flag
 	j = pc_bound_chk(sd, 2, idxlist);
 	for (i = 0; i < j; i++)
-		sd->inventory.u.items_inventory[idxlist[i]].bound = BOUND_NONE;
+		pc_delitem(sd, idxlist[i], sd->inventory.u.items_inventory[idxlist[i]].amount, 0, 1, LOG_TYPE_BOUND_REMOVAL);
 #endif
 
 	intif_guild_break(g->guild_id);

@@ -47,6 +47,7 @@ struct char_session_data {
 	uint32 pincode_seed;
 	time_t pincode_change;
 	uint16 pincode_try;
+	uint8 flag; // &1 - Retrieving guild bound items
 };
 
 enum e_char_delete {
@@ -72,6 +73,8 @@ int mapif_send(int fd,unsigned char *buf,unsigned int len);
 int char_married(int pl1,int pl2);
 int char_child(int parent_id, int child_id);
 int char_family(int pl1,int pl2,int pl3);
+
+void disconnect_player(uint32 account_id);
 
 int char_parse_ackchangesex(int fd, struct char_session_data* sd);
 int char_parse_ackchangecharsex(uint32 char_id, int sex);
@@ -129,6 +132,10 @@ extern int log_inter;
 
 extern int mail_return_days;
 extern int mail_delete_days;
+
+void char_set_session_flag_(int account_id, int val, bool set);
+#define char_set_session_flag(account_id, val)   ( char_set_session_flag_((account_id), (val), true)  )
+#define char_unset_session_flag(account_id, val) ( char_set_session_flag_((account_id), (val), false) )
 
 //For use in packets that depend on an sd being present [Skotlex]
 #define FIFOSD_CHECK(rest) { if(RFIFOREST(fd) < rest) return 0; if (sd==NULL || !sd->auth) { RFIFOSKIP(fd,rest); return 0; } }

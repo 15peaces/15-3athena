@@ -6237,7 +6237,7 @@ BUILDIN_FUNC(getitem) {
 	{// <item id>
 		nameid=conv_num(st,data);
 		if (!(id = itemdb_exists(nameid))) {
-			ShowError("buildin_getitem: Nonexistant item %d requested.\n", nameid);
+			ShowError("buildin_getitem: Nonexistant Item %hu requested.\n", nameid);
 			return 1; //No item created.
 		}
 	} else {
@@ -6751,7 +6751,7 @@ BUILDIN_FUNC(mergeitem2) {
 		else if (data_isint(data)) {// <item id>
 			nameid = conv_num(st, data);
 			if (!(id = itemdb_exists(nameid))) {
-				ShowError("buildin_mergeitem2: Nonexistant item %d requested.\n", nameid);
+				ShowError("buildin_mergeitem2: Nonexistant Item %hu requested.\n", nameid);
 				script_pushint(st, count);
 				return 1;
 			}
@@ -16160,7 +16160,7 @@ BUILDIN_FUNC(addmonsterdrop)
 	rate = script_getnum(st, 4);
 
 	if (!itemdb_exists(item_id)) {
-		ShowError("addmonsterdrop: Nonexistant item %d requested.\n", item_id);
+		ShowError("addmonsterdrop: Nonexistant Item %hu requested.\n", item_id);
 		return 1;
 	}
 
@@ -16211,7 +16211,7 @@ BUILDIN_FUNC(delmonsterdrop)
 	item_id=script_getnum(st,3);
 
 	if (!itemdb_exists(item_id)) {
-		ShowError("delmonsterdrop: Nonexistant item %d requested.\n", item_id);
+		ShowError("delmonsterdrop: Nonexistant Item %hu requested.\n", item_id);
 		return 1;
 	}
 

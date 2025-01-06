@@ -2464,6 +2464,25 @@ void disconnect_player(uint32 account_id)
 		set_eof(i);
 }
 
+/**
+* Set 'flag' value of char_session_data
+* @param account_id
+* @param value
+* @param set True: set the value by using '|= val', False: unset the value by using '&= ~val'
+**/
+void char_set_session_flag_(int account_id, int val, bool set) {
+	int i;
+	struct char_session_data* sd;
+
+	ARR_FIND(0, fd_max, i, session[i] && (sd = (struct char_session_data*)session[i]->session_data) && sd->account_id == account_id);
+	if (i < fd_max) {
+		if (set)
+			sd->flag |= val;
+		else
+			sd->flag &= ~val;
+	}
+}
+
 static void char_auth_ok(int fd, struct char_session_data *sd)
 {
 	struct online_char_data* character;
@@ -4545,6 +4564,15 @@ int char_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 
 		char_id = atoi(data);
 		Sql_FreeResult(sql_handle);
+
+		// Prevent select a char while retrieving guild bound items
+		if (sd->flag & 1) {
+			WFIFOHEAD(fd, 3);
+			WFIFOW(fd, 0) = 0x6c;
+			WFIFOB(fd, 2) = 0; // rejected from server
+			WFIFOSET(fd, 3);
+			return 1;
+		}
 
 		/* client doesn't let it get to this point if you're banned, so its a forged packet */
 		if (sd->found_char[slot] == char_id && sd->unban_time[slot] > time(NULL)) {

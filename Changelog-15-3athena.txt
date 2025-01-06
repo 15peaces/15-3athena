@@ -5,6 +5,33 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/06/2025
+	r495 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn495_log.sql file!
+		*Fixed wrong var in SP_ADD_ITEMGROUP_HEAL_RATE statement.
+		*Weapon endow removal updated
+			-Now weapon endow effects will no longer be removed when unequipping / changing a shield.
+			-Now weapon endow effects will be removed when dual wielding and unequipping / changing one of the two weapons.
+		*Guild Bound items are now removed when someone is offline and expelled.
+		*Some misc cleaning & fixing.
+		*Changed Guild/Party Bound Item Retrieval Methods:
+			-Now resend the list to map-server from char/inter-server to avoid "weird" item allocation on guild storage. Example, previously you will meet stacked item like GUID does, but it shouldn't!
+			-Also will check the maximum amount that can be store in guild store. If guild storage is full (the slots or item stack limit is reach) the rest value/item will be dropped.
+			-Withdrawn members will now lose guild bound items - they will be stored in guild storage.
+			-The withdrawn guild member will now prevented to login when retriving items are in progress.
+			-Delete guild bound items from guild master when guild is disbanded! Previously, the bound type just changed to NONE. Also for party bound item.
+			-If withdrawn guild/party member is trading bound item when be withdrawn, the trade will be canceled!
+			-If the guild member is being withdrawn when open guild storage, storage will be closed first waiting for next item retrieval.
+			-Added `picklog` type 'F' for logging deleted bound item because of kicked from guild/party.
+		*Fixed an issue with the 'item_check' config not saving the unique ID when enabled.
+		*Fixed ammo type fail messages for different ammo types.
+		*Monster Vulture's Eye and Snake's Eye range bonus removed.
+		*Official monster/MVP target selection
+			-Monsters with mode MD_CHANGETARGET_MELEE will now only change targets on "attack" state if they are attacked by a normal attack
+			-Monsters will change targets if the target is within "attack range+1" distance instead of a static distance of 3
+			-When a monster gets attacked, it will now switch to the attacker even if the attacker is farther away than its current target and the current target is auto-attacking it
+			-Angry mode monsters will now always switch target to the first person that attacked them
+
 12/29/2024
 	r494 [15peaces]
 		*Updated some item effects.

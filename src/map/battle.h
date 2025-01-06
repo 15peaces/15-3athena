@@ -87,6 +87,7 @@ enum e_battle_check_target {
 	BCT_NOENEMY = BCT_ALL & ~BCT_ENEMY, /// Except enemy
 };
 
+void battle_damage(struct block_list *src, struct block_list *target, int64 damage, int delay, uint16 skill_lv, uint16 skill_id, enum damage_lv dmg_lv, unsigned short attack_type, bool additional_effects, int64 tick);
 int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay, bool additional_effects);
 int battle_damage_area( struct block_list *bl, va_list ap);
 // ’ÊíUŒ‚ˆ—‚Ü‚Æ‚ß

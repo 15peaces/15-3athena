@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `picklog` (
   `id` int(11) NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `char_id` int(11) NOT NULL default '0',
-  `type` enum('T','V','P','M','S','N','D','C','O','U','A','R','G','E','I','B','L','K','Y','Q','X','$','Z') NOT NULL default 'P',
+  `type` enum('T','V','P','M','S','N','D','C','O','U','A','R','G','E','I','B','L','K','Y','Q','X','$','Z','F') NOT NULL default 'P',
   `nameid` smallint(5) unsigned NOT NULL default '0',
   `amount` int(11) NOT NULL default '1',
   `refine` tinyint(3) unsigned NOT NULL default '0',

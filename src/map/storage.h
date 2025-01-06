@@ -36,6 +36,7 @@ void storage_guild_delete(int guild_id);
 char storage_guild_storageopen(struct map_session_data *sd);
 bool storage_guild_additem(struct map_session_data *sd,struct s_storage *stor,struct item *item_data,int amount);
 bool storage_guild_delitem(struct map_session_data *sd,struct s_storage *stor,int n,int amount);
+bool storage_guild_additem2(struct s_storage* stor, struct item* item, int32 amount);
 void storage_guild_storageadd(struct map_session_data *sd,int index,int amount);
 void storage_guild_storageget(struct map_session_data *sd,int index,int amount);
 void storage_guild_storageaddfromcart(struct map_session_data *sd,int index,int amount);

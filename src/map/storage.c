@@ -607,6 +607,52 @@ bool storage_guild_additem(struct map_session_data* sd, struct s_storage* stor, 
 	return true;
 }
 
+/**
+ * Attempt to add an item in guild storage, then refresh i
+ * @param stor : guild_storage
+ * @param item : item to add
+ * @param amount : number of item to add
+ * @return True : success, False : fail
+ */
+bool storage_guild_additem2(struct s_storage* stor, struct item* item, int32 amount) {
+	struct item_data *id;
+	int32 i;
+
+	nullpo_ret(stor);
+	nullpo_ret(item);
+
+	if (item->nameid == 0 || amount <= 0 || !(id = itemdb_exists(item->nameid)))
+		return false;
+
+	if (item->expire_time)
+		return false;
+
+	if (itemdb_isstackable2(id)) { // Stackable
+		for (i = 0; i < MAX_GUILD_STORAGE; i++) {
+			if (compare_item(&stor->u.items_guild[i], item)) {
+				// Set the amount, make it fit with max amount
+				amount = min(amount, MAX_AMOUNT - stor->u.items_guild[i].amount);
+				if (amount != item->amount)
+					ShowWarning("storage_guild_additem2: Stack limit reached! Altered amount of item \"" CL_WHITE "%s" CL_RESET "\" (%u). '" CL_WHITE "%d" CL_RESET "' -> '" CL_WHITE"%d" CL_RESET "'.\n", id->name, id->nameid, item->amount, amount);
+				stor->u.items_guild[i].amount += amount;
+				stor->dirty = true;
+				return true;
+			}
+		}
+	}
+
+	// Add the item
+	for (i = 0; i < MAX_GUILD_STORAGE && stor->u.items_guild[i].nameid; i++);
+	if (i >= MAX_GUILD_STORAGE)
+		return false;
+
+	memcpy(&stor->u.items_guild[i], item, sizeof(stor->u.items_guild[0]));
+	stor->u.items_guild[i].amount = amount;
+	stor->amount++;
+	stor->dirty = true;
+	return true;
+}
+
 /*==========================================
  * Attempt to delete an item in guild storage, then refresh it
  * @param sd : player

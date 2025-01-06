@@ -113,6 +113,10 @@ void guild_flag_add(struct npc_data *nd);
 void guild_flag_remove(struct npc_data *nd);
 void guild_flags_clear(void);
 
+#ifdef BOUND_ITEMS
+void guild_retrieveitembound(uint32 char_id, uint32 account_id, int guild_id); 
+#endif
+
 void do_final_guild(void);
 
 #endif /* _GUILD_H_ */

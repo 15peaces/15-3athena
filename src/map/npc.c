@@ -1418,7 +1418,7 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 
 		if( !itemdb_isstackable(nameid) && amount > 1 )
 		{	//Exploit? You can't buy more than 1 of equipment types o.O
-			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %d!\n",
+			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable Item %hu!\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 			amount = item_list[i].qty = 1;
 		}

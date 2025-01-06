@@ -310,7 +310,7 @@ int skill_get_range2 (struct block_list *bl, uint16 id, uint16 lv)
 			if( bl->type == BL_PC )
 				range += pc_checkskill((TBL_PC*)bl, AC_VULTURE);
 			else
-				range += 10; //Assume level 10?
+				range += 0; //No range increase on official.
 			break;
 		// added to allow GS skills to be effected by the range of Snake Eyes [Reddozen]
 		case GS_RAPIDSHOWER:
@@ -321,7 +321,7 @@ int skill_get_range2 (struct block_list *bl, uint16 id, uint16 lv)
 			if (bl->type == BL_PC)
 				range += pc_checkskill((TBL_PC*)bl, GS_SNAKEEYE);
 			else
-				range += 10; //Assume level 10?
+				range += 0; //No range increase on official.
 			break;
 		case NJ_KIRIKAGE:
 			if (bl->type == BL_PC)
@@ -10015,14 +10015,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 	break;
 	case AB_PRAEFATIO:
-		if( sd == NULL || sd->status.party_id == 0 || flag & 1 )
+		if( !sd || sd->status.party_id == 0 || flag & 1 )
 			clif_skill_nodamage(bl, bl, skill_id, skill_lv, sc_start4(bl, type, 100, skill_lv, 0, 0, skill_id, skill_get_time(skill_id, skill_lv)));
 		else if( sd )
 			party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skill_id, skill_lv), src, skill_id, skill_lv, tick, flag|BCT_PARTY|1, skill_castend_nodamage_id);
 		break;
 
 	case AB_CHEAL:
-		if( sd == NULL || sd->status.party_id == 0 || flag & 1 )
+		if( !sd || sd->status.party_id == 0 || flag & 1 )
 		{
 			if( sd && tstatus && !battle_check_undead(tstatus->race, tstatus->def_ele) )
 			{
@@ -10062,7 +10062,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case AB_LAUDAAGNUS:
 	case AB_LAUDARAMUS:
-		if( sd == NULL || sd->status.party_id == 0 || (flag & 1) )
+		if( !sd || sd->status.party_id == 0 || (flag & 1) )
 		{
 			if ( rnd()%100 < 60+10*skill_lv )
 			{

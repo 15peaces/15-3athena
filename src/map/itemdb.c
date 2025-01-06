@@ -704,7 +704,7 @@ static void itemdb_read_itemgroup_sub(const char* filename)
 		}
 		nameid = atoi(str[1]);
 		if (!itemdb_exists(nameid)) {
-			ShowWarning("itemdb_read_itemgroup: Non-existant item %d in %s:%d\n", nameid, filename, ln);
+			ShowWarning("itemdb_read_itemgroup: Non-existant Item %hu in %s:%d\n", nameid, filename, ln);
 			continue;
 		}
 		k = atoi(str[2]);
@@ -807,7 +807,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 
 		nameid = atoi(str[1]);
 		if (!itemdb_exists(nameid)) {
-			ShowWarning("itemdb_read_itempackage: Non-existant item %d in %s:%d\n", nameid, filename, ln);
+			ShowWarning("itemdb_read_itempackage: Non-existant Item %hu in %s:%d\n", nameid, filename, ln);
 			continue;
 		}
 
@@ -816,7 +816,7 @@ static void itemdb_read_itempackage_sub(const char* filename)
 		if (str[3] != NULL)
 			amt = atoi(str[3]);
 		if (amt <= 0 || amt > MAX_AMOUNT) {
-			ShowWarning("itemdb_read_itempackage: Invalid amount ('%d') set for item %d in %s:%d\nresetting to 1.", amt, str[0], filename, ln);
+			ShowWarning("itemdb_read_itempackage: Invalid amount ('%d') set for Item %hu in %s:%d\nresetting to 1.", amt, str[0], filename, ln);
 			amt = 1;
 			continue;
 		}
@@ -1243,7 +1243,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 	/* 
 	if ( !str[4][0] && !str[5][0])
 	{  
-		ShowWarning("itemdb_parse_dbrow: No buying/selling price defined for item %d (%s), using 20/10z\n",       nameid, id->jname);
+		ShowWarning("itemdb_parse_dbrow: No buying/selling price defined for Item %hu (%s), using 20/10z\n",       nameid, id->jname);
 		id->value_buy = 20;
 		id->value_sell = 10;
 	} else
@@ -1277,7 +1277,7 @@ static bool itemdb_parse_dbrow(char** str, const char* source, int line, int scr
 
 	if (id->type != IT_SHADOWGEAR && id->equip&EQP_SHADOW_EQUIPS)
 	{
-		ShowWarning("Item %d (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
+		ShowWarning("Item %hu (%s) have invalid equipment slot! Making it an etc item.\n", nameid, id->jname);
 		id->type = IT_ETC;
 	}
 
@@ -1725,7 +1725,7 @@ void itemdb_parse_attendance_db(void)
 		}
 
 		if (!itemdb_exists(id)) {
-			ShowWarning("itemdb_parse_attendance_db: unknown item %d, line #%d, skipping.\n", id, lines);
+			ShowWarning("itemdb_parse_attendance_db: unknown Item %hu, line #%d, skipping.\n", id, lines);
 			continue;
 		}
 

@@ -43,7 +43,7 @@ static const int packet_len_table[] = {
 	39,-1,15,15,15+NAME_LENGTH,21, 7,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3820
 	10,-1,15, 0, 79,23, 7,-1,  0,-1,-1,-1, 14,67,186,-1, //0x3830
 	-1, 0, 0,18,  0, 0, 0, 0, -1,75,-1,11, 11,-1, 38, 0, //0x3840
-	-1,-1, 7, 7,  7,11, 8, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
+	-1,-1, 7, 7,  7,11, 8,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
 	-1, 7,-1, 0, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
 	-1, 3, 3, 0,  0, 0, 0, 0, -1, 3, 3, 0,  0, 0,  0, 0, //0x3870  Mercenaries [Zephyrus] Elementals [Rytech]
 	12,-1, 7, 3,  0, 0, 0, 0,  0, 0,-1, 8,  0, 0,  0, 0, //0x3880  Pet System,  Storages
@@ -2386,25 +2386,65 @@ void intif_parse_broadcast_obtain_special_item(int fd) {
 * Item Bound System 
 *------------------------------------------*/ 
  #ifdef BOUND_ITEMS 
-void intif_itembound_req(uint32 char_id,int aid,int guild_id) { 
+/**
+ * ZI 0x3056 <char_id>.L <account_id>.L <guild_id>.W
+ * Request inter-serv to delete some bound item, for non connected cid
+ * @param char_id : Char to delete item ID
+ * @param aid : Account to delete item ID
+ * @param guild_id : Guild of char
+ */
+void intif_itembound_guild_retrieve(uint32 char_id, uint32 account_id, int guild_id) {
 	struct s_storage *gstor = guild2storage2(guild_id); 
 	WFIFOHEAD(inter_fd,12); 
 	WFIFOW(inter_fd,0) = 0x3056; 
 	WFIFOL(inter_fd,2) = char_id; 
-	WFIFOL(inter_fd,6) = aid; 
+	WFIFOL(inter_fd,6) = account_id;
 	WFIFOW(inter_fd,10) = guild_id; 
 	WFIFOSET(inter_fd,12); 
-	if(gstor) 
-		gstor->lock = 1; //Lock for retrieval process 
+	if (gstor)
+		gstor->lock = true; //Lock for retrieval process
+	ShowInfo("Request guild bound item(s) retrieval for CID = "CL_WHITE"%d"CL_RESET", AID = %d, Guild ID = "CL_WHITE"%d"CL_RESET".\n", char_id, account_id, guild_id);
 } 
  
-//3856 
+/**
+ * Acknowledge the good deletion of the bound item
+ * (unlock the guild storage)
+ * @struct : 0x3856 <aid>.L <gid>.W
+ * @param fd : Char-serv link
+ */
 void intif_parse_itembound_ack(int fd) { 
 	struct s_storage *gstor; 
 	int guild_id = RFIFOW(char_fd,6); 
 
 	gstor = guild2storage2(guild_id); 
-	if(gstor) gstor->lock = 0; //Unlock now that operation is completed 
+	if(gstor) gstor->lock = false; //Unlock now that operation is completed 
+}
+
+/**
+* IZ 0x3857 <size>.W <count>.W <guild_id>.W { <item>.?B }.*MAX_INVENTORY
+* Received the retrieved guild bound items from inter-server, store them to guild storage.
+* @param fd
+* @author [Cydh]
+*/
+void intif_parse_itembound_store2gstorage(int fd) {
+	unsigned short i, failed = 0;
+	short count = RFIFOW(fd, 4), guild_id = RFIFOW(fd, 6);
+	struct s_storage *gstor = guild2storage(guild_id);
+	if (!gstor) {
+		ShowError("intif_parse_itembound_store2gstorage: Guild '%d' not found.\n", guild_id);
+		return;
+	}
+	//@TODO: Gives some actions for item(s) that cannot be stored because storage is full or reach the limit of stack amount
+	for (i = 0; i < count; i++) {
+		struct item *item = (struct item*)RFIFOP(fd, 8 + i * sizeof(struct item));
+		if (!item)
+			continue;
+		if (!storage_guild_additem2(gstor, item, item->amount))
+			failed++;
+	}
+	ShowInfo("Retrieved '"CL_WHITE"%d"CL_RESET"' (failed: %d) guild bound item(s) for Guild ID = "CL_WHITE"%d"CL_RESET".\n", count, failed, guild_id);
+	gstor->lock = false;
+	gstor->status = false;
 }
 #endif
 
@@ -2779,6 +2819,7 @@ int intif_parse(int fd)
 //Bound items 
 #ifdef BOUND_ITEMS 
 	case 0x3856:    intif_parse_itembound_ack(fd); break;
+	case 0x3857:	intif_parse_itembound_store2gstorage(fd); break;
 #endif
 
 // Quest system

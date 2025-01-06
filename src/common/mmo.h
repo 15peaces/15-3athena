@@ -317,6 +317,32 @@ struct item {
 	uint64 unique_id;
 };
 
+//Equip position constants
+enum equip_pos {
+	EQP_HEAD_LOW = 0x0001,
+	EQP_HEAD_MID = 0x0200,
+	EQP_HEAD_TOP = 0x0100,
+	EQP_HAND_R = 0x0002,
+	EQP_HAND_L = 0x0020,
+	EQP_ARMOR = 0x0010,
+	EQP_SHOES = 0x0040,
+	EQP_GARMENT = 0x0004,
+	EQP_ACC_L = 0x0008,
+	EQP_ACC_R = 0x0080,
+	EQP_AMMO = 0x8000,
+	EQP_COSTUME_HEAD_TOP = 0x0400,
+	EQP_COSTUME_HEAD_MID = 0x0800,
+	EQP_COSTUME_HEAD_LOW = 0x1000,
+	EQP_COSTUME_GARMENT = 0x2000,
+	EQP_COSTUME_FLOOR = 0x4000,
+	EQP_SHADOW_ARMOR = 0x10000,
+	EQP_SHADOW_WEAPON = 0x20000,
+	EQP_SHADOW_SHIELD = 0x40000,
+	EQP_SHADOW_SHOES = 0x80000,
+	EQP_SHADOW_ACC_R = 0x100000,
+	EQP_SHADOW_ACC_L = 0x200000,
+};
+
 //Equip indexes constants. (eg: sd->equip_index[EQI_AMMO] returns the index
 //where the arrows are equipped)
 enum equip_index {
