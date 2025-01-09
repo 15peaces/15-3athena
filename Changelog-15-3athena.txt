@@ -5,6 +5,75 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/09/2025
+	r496 [15peaces]
+		*Fixed Pneuma / Arrow Shower / Ranges
+			-Pneuma now also protects against knockback from ranged skills
+			-Arrow Shower cast by monsters is now always a melee skill and cannot be blocked by Pneuma, but can always be blocked by Safety Wall
+			-When monsters cast a skill that has no specific rule, it will be considered melee when the target is within a 7x7 area around the monster, rather than a 11x11 area
+		*Fixed Charge Attack
+			-Damage: 0-3 cells 100%, 4-6 cells 200%, 7-9 cells 300%, 10-12 cells 400%, 13 cells 500%
+			-Cast time: 0-3 cells 500ms, 4-6 cells 1000ms, 7+ cells 1500ms
+			-The caster will now move to the cell next to the target rather than right on it
+			-When the attack misses, there won't be knockback (but the caster will still move)			
+		*Fixed the Spear Mastery riding bonus not working
+		*Fixed Spear Stab only giving +15% per level instead of +20% (it used to be +15% pre-trans, but is +20% in pre-re and re)
+		*Implemented proper behavior of range when players use skills
+			-All skills with range 4 or higher are considered ranged and can be blocked by Pneuma instead of Safety Wall
+			-This mainly affects Spear Stab which is now ranged instead of melee
+		*Fixed 'Elemental Resistance Potions' doesn't work without changing any equipment.
+			-Moved player's Elemental resistance & attack bonus from status_calc_pc_ that need SCB_BASE to status_calc_atk_ele_pc and status_calc_def_ele_pc as a child of SCB_ATK_ELE and SCB_DEF_ELE (doesn't need to calculate everything just for these points).
+		*Monster random walk code optimized
+			-Monsters will now always find a cell to walk to on first attempt as long as there is at least one cell available
+			-Performance for searching a cell improved, a monster no longer tries the same cell twice
+			-Removed the "MOB can't move" warning by default; the warning could appear with legit behavior like using Icewall and actually made the monster re-spawn
+			-Added a config option to monster.conf, where you can re-enable the warning and the re-spawning again
+		*Implemented the official line of damage algorithm that official servers use; it will calculate the direction between caster and target and apply one of eight possible AoEs
+			-Added a config setting with which you can switch back to the custom emulator path algorithm
+			-Updated Brandish Spear(5x5), Focused Arrow Strike(13x3), First Wind(5-9x3), NPC Breath attacks(14x7), Flame Launcher(5x3) and Cannon Spear(11x3) to use this algorithm and corrected range, splash and maxcount values for all these skills
+			-Fixed Brandish Spear's AoE being completely wrong and having holes in its AoE when attacking diagonally; also fixed the knock back being 3 instead of 2 and not working at all for the longest reach; Brandish Spear's AoE width and length can 
+			-now be defined in skill_db.txt
+			-Focused Arrow Strike, First Wind and NPC breath attacks will at least hit one target, if no enemy is on the AoE, the target will be hit instead; Brandish Spear, Flame Launcher and Cannon Spear can completely miss
+		*The following monster level 10 skills now have their official effect
+			-Two-Hand Quicken: Increases ASPD by 70%. Duration 300s.
+			-Lord of Vermilion: Deploys units in a 15x15 area that splash 1 cell into LP each. 520% damage per wave.
+			-Thunderstorm: 20 Hits, 7x7 AoE. Splashes 3 cells into LP.
+			-Decrease Agility: Reduces Agi by 50. Duration 130s.
+			-Hammer Fall: 25x25 AoE. 100% base stun chance.
+			-Monster level 10 Frost Diver now deals 500% damage and has a 100% freeze base chance
+		*aMotion delay is now set at cast begin.
+			-When casting a spell with cast time shorter than aMotion, the delay will now be set to aMotion or min_skill_delay_limit
+			-aMotion and min_skill_delay_limit are no longer applied at cast end nor by auto spells
+			-Aftercast delay can only increase the delay and never decrease it
+			-When there is no aftercast delay, the client will no longer show a non-existent 10 second delay
+			-Removed "double cast" code of Jupitel and Waterball, it's no longer needed as it fits into the official delay system
+			-Added a constant SECURITY_CASTTIME, which is added at cast begin and subtracted at cast end to prevent hackers to send in skill packets before the timer triggers cast end
+			-Set skill_amotion_leniency to 0 by default as it applies delay at cast end and would consequently block the official system from working; you can set it back to 90 or even 140 for increased security
+		*Thunder Storm, Exploding Dragon, Lightning Jolt and Snowflake Draft can now damage more than just once every 500ms
+		*Official status change base durations for Freeze and Blind
+			-Snowflake Draft now has a skill-specific duration of 5s*level
+			-Items, Storm Gust, Frost Joke, NPC_ICEBREATH and NPC_WIDEFREEZE use the default freeze duration
+			-All items and skills that cause blind now have a base duration of 30s
+			-Fixed NPC_DARKCROSS and NPC_GRANDDARKNESS not giving the blind status change
+		*Fixed status base chances of Jack Frost and Status Traps
+			-Jack Frost: 200% freeze chance instead of 100%
+			-Land Mine: 10% stun chance instead of 35%-55%
+			-Flasher: 100% blind chance instead of 40%-80%
+			-Freezing Trap: 100% freeze chance of instead 38%-50%
+			-Sandman Sleep and Throw Stone Blind base duration is now 30s
+		*Leap now has a shorter distance when used diagonally
+		*When monsters switch modes from or to angry mode, the aggressive bit will now be set properly
+		*Line of Sight System updated
+			-You can now target walls with ground skills
+			-Updated path check to not check the last cell
+			-Unit skills will now place units depending on line of sight to the caster rather than the cast center
+			-Implemented a new algorithm that retrieves all units in an area that are in line of sight with the area center
+			-Arrow Shower, Dragon Breath, Cold Slower, Wind Cutter and Arms Cannon now use the new algorithm (Arrow Shower is no longer a unit skill)
+			-Nodamage skills will no longer fail when the target walked around a corner
+			-The following damage skills will no longer damage through walls:
+				--Raging Thrust, Tornado Kick, Splash Attack, Venom Splasher, Fireball, Meteor Assault, Desperado, Spread Attack, Pulse Strike, Hell's Judgment, Vampire Gift, Magnum Break, Sightrasher, Frost Nova, Explosion, Self Destruction, 
+				--Firing Trap, Icebound Trap, Cluster Bomb, Claymore, Fire Pillar
+
 01/06/2025
 	r495 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn495_log.sql file!

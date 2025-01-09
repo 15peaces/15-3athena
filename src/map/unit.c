@@ -1930,7 +1930,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		ud->state.skillcastcancel = 0;
 
 	if( !sd || sd->skillitem != skill_id || skill_get_cast(skill_id,skill_lv) )
-		ud->canact_tick = tick + casttime + 100;
+		ud->canact_tick = tick + max(casttime, max(status_get_amotion(src), battle_config.min_skill_delay_limit)) + SECURITY_CASTTIME;
 	if( sd )
 	{
 		switch( skill_id )
@@ -2055,12 +2055,6 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 	if (!status_check_skilluse(src, NULL, skill_id, skill_lv, 0))
 		return 0;
 
-	if( map_getcell(src->m, skill_x, skill_y, CELL_CHKWALL) )
-	{// can't cast ground targeted spells on wall cells
-		if (sd) clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
-		return 0;
-	}
-
 	/* 射程と障害物チェック */
 	bl.type = BL_NUL;
 	bl.m = src->m;
@@ -2103,7 +2097,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 	ud->state.skillcastcancel = castcancel&&casttime>0?1:0;
 	if( !sd || sd->skillitem != skill_id || skill_get_cast(skill_id,skill_lv) )
-		ud->canact_tick  = tick + casttime + 100;
+		ud->canact_tick = tick + max(casttime, max(status_get_amotion(src), battle_config.min_skill_delay_limit)) + SECURITY_CASTTIME;
 //	if( sd )
 //	{
 //		switch( skill_id )

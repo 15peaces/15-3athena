@@ -2763,7 +2763,7 @@
 2534,Blue Faceworm Queen@WZ_STORMGUST,chase,89,10,2000,1000,5000,no,target,always,,,,,,,,
 2534,Blue Faceworm Queen@WZ_STORMGUST,attack,89,10,2000,1000,5000,no,target,always,,,,,,,,
 2534,Blue Faceworm Queen@NPC_WATERATTACK,attack,184,9,3000,500,5000,no,target,always,,,,,,,,
-2534,Blue Faceworm Queen@MG_FROSTDIVER,chase,15,10,10000,500,5000,yes,target,always,,,,,,,,
+2534,Blue Faceworm Queen@MG_FROSTDIVER,chase,15,40,10000,500,5000,yes,target,always,,,,,,,,
 2535,Yellow Faceworm Queen@WZ_VERMILION,attack,85,10,2000,1000,10000,no,target,always,,,,,,,,
 2535,Yellow Faceworm Queen@WZ_VERMILION,chase,85,10,5000,1000,10000,no,target,always,,,,,,,,
 2535,Yellow Faceworm Queen@NPC_WIDEBLEEDING,chase,665,3,10000,2000,30000,no,self,always,,,,,,,36,

@@ -678,6 +678,8 @@ extern struct Battle_Config
 	int snap_dodge;
 	int stormgust_knockback;
 	int monster_loot_search_type;
+	int mob_stuck_warning;
+	int skill_eightpath_algorithm;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

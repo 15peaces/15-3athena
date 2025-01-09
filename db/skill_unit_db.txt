@@ -28,15 +28,14 @@
 
  12,0x7e,    ,  0, 0,  -1,all,   0x003	//MG_SAFETYWALL
  18,0x7f,    , -1, 0,  20,enemy, 0x010	//MG_FIREWALL
- 21,0x86,    ,  0, 2,1000,enemy, 0x018	//MG_THUNDERSTORM
+ 21,0x86,    ,  0, 2:2:2:2:2:2:2:2:2:2:3,1000,enemy, 0x010	//MG_THUNDERSTORM
  25,0x85,    ,  1, 0,  -1,all,   0x2003	//AL_PNEUMA
  27,0x81,0x80,  0, 0,  -1,all,   0x00E	//AL_WARP
- 47,0x86,    ,  0, 2,1000,enemy, 0x080	//AC_SHOWER
  70,0x83,    , -1, 1,1000,all,   0x018	//PR_SANCTUARY
  79,0x84,    , -1, 1,3000,enemy, 0x018	//PR_MAGNUS
  80,0x87,0x88,  0, 1,2000,enemy, 0x006	//WZ_FIREPILLAR
  83,0x86,    ,  0, 3,1000,enemy, 0x010	//WZ_METEOR
- 85,0x86,    ,  5, 1:1:1:1:1:1:1:1:1:1:3,1250,enemy,0x018	//WZ_VERMILION
+ 85,0x86,    ,  5:5:5:5:5:5:5:5:5:5:7, 1,1250,enemy,0x018	//WZ_VERMILION
  87,0x8d,    , -1, 0,  -1,all,   0x1010	//WZ_ICEWALL
  89,0x86,    ,  4, 1, 450,enemy, 0x018	//WZ_STORMGUST
  91,0x86,    ,  2, 0,1000,enemy, 0x010	//WZ_HEAVENDRIVE
@@ -89,16 +88,16 @@
 428,0x86,    ,  0, 1, 100,enemy, 0x000	//SG_SUN_WARM
 429,0x86,    ,  0, 1, 100,enemy, 0x000	//SG_MOON_WARM
 430,0x86,    ,  0, 1, 100,enemy, 0x000	//SG_STAR_WARM
-484,0xb8,    ,  2, 0,1000,enemy, 0x808	//HW_GRAVITATION
+484,0xb8,    ,  2, 0,1000,enemy, 0x818	//HW_GRAVITATION
 488,0xb9,    ,  3, 0,  -1,all,   0x200	//CG_HERMODE
 516,0x86,    ,  3, 0, 100,enemy, 0x000	//GS_DESPERADO
 521,0xbe,    ,  0, 1,1000,enemy, 0x000	//GS_GROUNDDRIFT
 527,0xbc,    , -1, 0,2000,enemy, 0x018	//NJ_TATAMIGAESHI
 535,0xbd,    , -1, 0, 100,enemy, 0x010	//NJ_KAENSIN
-536,0x86,    ,  2, 0,1000,enemy, 0x018	//NJ_BAKUENRYU
+536,0x86,    ,  2, 0,1000,enemy, 0x010	//NJ_BAKUENRYU
 538,0xbb,    ,  1:1:1:2:2:2:3:3:3:4,0,-1,all,0x010	//NJ_SUITON
-539,0x86,    ,  3, 0,1000,enemy, 0x018	//NJ_HYOUSYOURAKU
-541,0x86,    ,  2:2:3:3:4, 0,1000,enemy, 0x018	//NJ_RAIGEKISAI
+539,0x86,    ,  3, 0,1000,enemy, 0x010	//NJ_HYOUSYOURAKU
+541,0x86,    ,  2:2:3:3:4, 0,1000,enemy, 0x010	//NJ_RAIGEKISAI
 
 //594,0xc3,    ,  2, 0,1000,enemy, 0x018	//DE_WAVE
 
@@ -190,7 +189,6 @@
 8041,0xf6,    ,  1:1:2:2:3, 0,2000,enemy, 0x018	//MH_LAVA_SLIDE CHECK - How often does this skill hit? iRO Wiki says 2 seconds. [Rytech]
 8043,0xf7,    ,  1, 0,500,enemy, 0x2018	//MH_VOLCANIC_ASH
 
-8208,0x86,    ,  0, 2,1000,enemy, 0x080	//MA_SHOWER
 8209,0x90,    ,  0, 1,1000,enemy, 0x006	//MA_SKIDTRAP
 8210,0x93,    ,  0, 0,1000,enemy, 0x006	//MA_LANDMINE
 8211,0x95,    ,  0, 1,1000,enemy, 0x006	//MA_SANDMAN

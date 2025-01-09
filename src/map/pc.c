@@ -3344,7 +3344,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	case SP_SUBELE:
 		PC_BONUS_CHK_ELEMENT(type2, SP_SUBELE);
 		if(sd->state.lr_flag != 2)
-			sd->subele[type2]+=val;
+			sd->subele_script[type2]+=val;
 		break;
 	case SP_SUBRACE:
 		PC_BONUS_CHK_RACE(type2, SP_SUBRACE);
@@ -3379,7 +3379,7 @@ void pc_bonus2(struct map_session_data *sd,int type,int type2,int val)
 	case SP_MAGIC_ADDELE:
 		PC_BONUS_CHK_ELEMENT(type2, SP_MAGIC_ADDELE);
 		if(sd->state.lr_flag != 2)
-			sd->magic_addele[type2]+=val;
+			sd->magic_addele_script[type2]+=val;
 		break;
 	case SP_MAGIC_ADDRACE:
 		PC_BONUS_CHK_RACE(type2, SP_MAGIC_ADDRACE);

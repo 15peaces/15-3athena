@@ -480,7 +480,8 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 		if (sd && !(nk&NK_NO_CARDFIX_ATK)) {
 			cardfix = cardfix * (100 + sd->magic_addrace[tstatus->race] + sd->magic_addrace[RC_ALL]) / 100;
 			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
-				cardfix = cardfix * (100 + sd->magic_addele[tstatus->def_ele] + sd->magic_addele[ELE_ALL]) / 100;
+					cardfix = cardfix * (100 + sd->magic_addele[tstatus->def_ele] + sd->magic_addele[ELE_ALL] + 
+						sd->magic_addele_script[tstatus->def_ele] + sd->magic_addele_script[ELE_ALL]) / 100;
 				cardfix = cardfix * (100 + sd->magic_atk_ele[rh_ele] + sd->magic_atk_ele[ELE_ALL]) / 100;
 			}
 			cardfix = cardfix * (100 + sd->magic_addsize[tstatus->size] + sd->magic_addsize[SZ_ALL]) / 100;
@@ -499,7 +500,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 			cardfix = 1000; // reset var for target
 
 			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
-				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
+				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
 					if (tsd->subele2[i].ele != rh_ele)
@@ -683,7 +684,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 		// Affected by target DEF bonuses
 		else if( tsd && !(nk&NK_NO_CARDFIX_DEF) && !(left&2) ) {
 				if( !(nk&NK_NO_ELEFIX) ) { // Affected by Element modifier bonuses
-					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
+					int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
 					if (tsd->subele2[i].ele != rh_ele)
@@ -697,7 +698,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 				cardfix = cardfix * (100 - ele_fix) / 100;
 				
 				if (left & 1 && lh_ele != rh_ele) {
-					int ele_fix_lh = tsd->subele[lh_ele] + tsd->subele[ELE_ALL];
+					int ele_fix_lh = tsd->subele[lh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[lh_ele] + tsd->subele_script[ELE_ALL];
 
 					for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
 						if (tsd->subele2[i].ele != lh_ele)
@@ -737,7 +738,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 		// Affected by target DEF bonuses
 		if (tsd && !(nk&NK_NO_CARDFIX_DEF)) {
 			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
-				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL];
+				int ele_fix = tsd->subele[rh_ele] + tsd->subele[ELE_ALL] + tsd->subele_script[rh_ele] + tsd->subele_script[ELE_ALL];
 
 				for (i = 0; ARRAYLENGTH(tsd->subele2) > i && tsd->subele2[i].rate != 0; i++) {
 					if (tsd->subele2[i].ele != rh_ele)
@@ -810,7 +811,6 @@ bool battle_check_sc(struct block_list *src, struct block_list *target, struct s
 	}
 	if ((sc->data[SC_PNEUMA] || sc->data[SC_NEUTRALBARRIER] || sc->data[SC_ZEPHYR]) && (d->flag&(BF_MAGIC | BF_LONG)) == BF_LONG) {
 		d->dmg_lv = ATK_BLOCK;
-		skill_blown(src, target, skill_get_blewcount(skill_id, skill_lv), -1, 0);
 		return false;
 	}
 	return true;
@@ -1806,10 +1806,14 @@ static int battle_range_type(struct block_list *src, struct block_list *target, 
 	if (skill_get_inf2(skill_id) & INF2_TRAP)
 		return BF_SHORT;
 
+	// When monsters use Arrow Shower, it is always short range
+	if (src->type == BL_MOB && skill_id == AC_SHOWER)
+		return BF_SHORT;
+
 	// Skill Range Criteria
 	if (battle_config.skillrange_by_distance &&(src->type&battle_config.skillrange_by_distance)) 
 	{ //based on distance between src/target [Skotlex]
-		if (check_distance_bl(src, target, 5))
+		if (check_distance_bl(src, target, 3))
 			return BF_SHORT;
 
 		return BF_LONG;
@@ -1823,7 +1827,7 @@ static int battle_range_type(struct block_list *src, struct block_list *target, 
 		return BF_LONG;
 
 	// Based on used skill's range
-	if (skill_get_range2(src, skill_id, skill_lv) < 5)
+	if (skill_get_range2(src, skill_id, skill_lv) < 4)
 		return BF_SHORT;
 
 	return BF_LONG;
@@ -2746,7 +2750,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += 10 * skill_lv;
 		break;
 	case KN_SPEARSTAB:
-		skillratio += 15 * skill_lv;
+		skillratio += 20 * skill_lv;
 		break;
 	case KN_SPEARBOOMERANG:
 		skillratio += 50 * skill_lv;
@@ -2756,12 +2760,12 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 	{
 		int ratio = 100 + 20 * skill_lv;
 		skillratio += ratio - 100;
-		if (skill_lv > 3 && wd.miscflag == 1) skillratio += ratio / 2;
-		if (skill_lv > 6 && wd.miscflag == 1) skillratio += ratio / 4;
-		if (skill_lv > 9 && wd.miscflag == 1) skillratio += ratio / 8;
-		if (skill_lv > 6 && wd.miscflag == 2) skillratio += ratio / 2;
-		if (skill_lv > 9 && wd.miscflag == 2) skillratio += ratio / 4;
-		if (skill_lv > 9 && wd.miscflag == 3) skillratio += ratio / 2;
+		if (skill_lv > 3 && wd.miscflag == 0) skillratio += ratio / 2;
+		if (skill_lv > 6 && wd.miscflag == 0) skillratio += ratio / 4;
+		if (skill_lv > 9 && wd.miscflag == 0) skillratio += ratio / 8;
+		if (skill_lv > 6 && wd.miscflag == 1) skillratio += ratio / 2;
+		if (skill_lv > 9 && wd.miscflag == 1) skillratio += ratio / 4;
+		if (skill_lv > 9 && wd.miscflag == 2) skillratio += ratio / 2;
 		break;
 	}
 	case KN_BOWLINGBASH:
@@ -2987,17 +2991,10 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += 100 * (skill_lv - 1);
 		break;
 	case KN_CHARGEATK: { // +100% every 3 cells of distance but hard-limited to 500%
-		unsigned int k = wd.miscflag / 3;
-
-		if (k < 2)
+		unsigned int k = (wd.miscflag - 1) / 3;
+		if (k < 0)
 			k = 0;
-		else if (k > 1 && k < 3)
-			k = 1;
-		else if (k > 2 && k < 4)
-			k = 2;
-		else if (k > 3 && k < 5)
-			k = 3;
-		else
+		else if (k > 4)
 			k = 4;
 		skillratio += 100 * k;
 	}
@@ -5867,7 +5864,7 @@ void battle_autocast_aftercast(struct block_list* src, short skill_id, short ski
 		delay = skill_delayfix(src, skill_id, skill_lv);
 		if (DIFF_TICK(ud->canact_tick, tick + delay) < 0)
 		{
-			ud->canact_tick = tick + delay;
+			ud->canact_tick = max(tick + delay, ud->canact_tick);
 			if (battle_config.display_status_timers && sd && skill_get_delay(skill_id, skill_lv))
 				clif_status_change(src, SI_ACTIONDELAY, 1, delay, 0, 0, 1);
 		}
@@ -5997,7 +5994,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		}
 		if (rnd() % 100 < triple_rate) {
 			//Need to apply canact_tick here because it doesn't go through skill_castend_id
-			sd->ud.canact_tick = tick + skill_delayfix(src, MO_TRIPLEATTACK, skillv);
+			sd->ud.canact_tick = max(tick + skill_delayfix(src, MO_TRIPLEATTACK, skillv), sd->ud.canact_tick);
 			if (skill_attack(BF_WEAPON, src, src, target, MO_TRIPLEATTACK, skillv, tick, 0))
 				return ATK_DEF;
 			return ATK_MISS;
@@ -7288,6 +7285,8 @@ static const struct _battle_data {
 	{ "snap_dodge",                         &battle_config.snap_dodge,                      0,      0,      1,				},
 	{ "stormgust_knockback",                &battle_config.stormgust_knockback,             1,      0,      1,				},
 	{ "monster_loot_search_type",           &battle_config.monster_loot_search_type,        1,      0,      1,				},
+	{ "monster_stuck_warning",              &battle_config.mob_stuck_warning,               0,      0,      1,				},
+	{ "skill_eightpath_algorithm",          &battle_config.skill_eightpath_algorithm,       1,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

@@ -89,6 +89,10 @@ enum e_skill_inf2
 //Walk intervals at which chase-skills are attempted to be triggered.
 #define WALK_SKILL_INTERVAL 5
 
+/// Time that's added to canact delay on castbegin and substracted on castend
+/// This is to prevent hackers from sending a skill packet after cast but before a timer triggers castend
+#define SECURITY_CASTTIME 100
+
 // Flags passed to skill_attack/skill_area_sub
 enum e_skill_display
 {
@@ -398,19 +402,10 @@ int skill_consume_requirement(struct map_session_data *sd, short skill, short lv
 struct skill_condition skill_get_requirement(struct map_session_data *sd, short skill, short lv);
 
 int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* skill_lv, int range, int cast_flag);
-// -- moonsoul	(added skill_check_unit_cell)
-int skill_check_unit_cell(int skill_id,int m,int x,int y,int unit_id);
-int skill_unit_out_all( struct block_list *bl,int64 tick,int range);
 int skill_unit_move(struct block_list *bl,int64 tick,int flag);
 int skill_unit_move_unit_group( struct skill_unit_group *group, int m,int dx,int dy);
 
-struct skill_unit_group *skill_check_dancing( struct block_list *src );
-
-// ‰r¥ƒLƒƒƒ“ƒZƒ‹
-int skill_castcancel(struct block_list *bl,int type);
-
 int skill_sit (struct map_session_data *sd, int type);
-void skill_brandishspear(struct block_list* src, struct block_list* bl, int skill_id, int skill_lv, int64 tick, int flag);
 void skill_repairweapon(struct map_session_data *sd, int idx);
 void skill_identify(struct map_session_data *sd,int idx);
 void skill_weaponrefine(struct map_session_data *sd,int idx); // [Celest]
