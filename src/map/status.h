@@ -2189,6 +2189,16 @@ enum e_status_bonus {
 	STATUS_BONUS_RATE = 1,
 };
 
+/// Flags for status_change_start and status_get_sc_def
+enum e_status_change_start_flags {
+	SCSTART_NONE = 0x0,
+	SCSTART_NOAVOID = 0x01, /// Cannot be avoided (it has to start)
+	SCSTART_NOTICKDEF = 0x02, /// Tick should not be reduced (by statuses or bonuses)
+	SCSTART_LOADED = 0x04, /// When sc_data loaded (fetched from table), no values (val1 ~ val4) have to be altered/recalculate
+	SCSTART_NORATEDEF = 0x08, /// Rate should not be reduced (by statuses or bonuses)
+	SCSTART_NOICON = 0x10, /// Status icon won't be sent to client
+};
+
 //Define to determine who gets HP/SP consumed on doing skills/etc. [Skotlex]
 #define BL_CONSUME (BL_PC|BL_HOM|BL_MER|BL_ELEM)
 //Define to determine who has regen
@@ -2398,22 +2408,21 @@ struct status_change *status_get_sc(struct block_list *bl);
 int status_isdead(struct block_list *bl);
 int status_isimmune(struct block_list *bl);
 
-int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int tick, int flag);
+int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int64 tick, int flag);
 //Short version, receives rate in 1->100 range, and does not uses a flag setting. Also src & bl are the same.
 #define sc_start(bl, type, rate, val1, tick) status_change_start(bl,bl,type,100*(rate),val1,0,0,0,tick,0)
 #define sc_start2(bl, type, rate, val1, val2, tick) status_change_start(bl,bl,type,100*(rate),val1,val2,0,0,tick,0)
 #define sc_start4(bl, type, rate, val1, val2, val3, val4, tick) status_change_start(bl,bl,type,100*(rate),val1,val2,val3,val4,tick,0)
 
-int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag);
+int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int64 duration,int flag);
 int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const char* file, int line);
 #define status_change_end(bl,type,tid) status_change_end_(bl,type,tid,__FILE__,__LINE__)
-int kaahi_heal_timer(int tid, int64 tick, int id, intptr_t data);
 int status_change_timer(int tid, int64 tick, int id, intptr_t data);
 int status_change_timer_sub(struct block_list* bl, va_list ap);
 int status_change_clear(struct block_list* bl, int type);
 int status_change_clear_buffs(struct block_list* bl, int type);
 void status_change_clear_onChangeMap(struct block_list *bl, struct status_change *sc);
-int status_change_spread( struct block_list *src, struct block_list *bl );
+int status_change_spread(struct block_list *src, struct block_list *bl);
 
 #define status_calc_bl(bl, flag) status_calc_bl_(bl, (enum scb_flag)(flag), false)
 #define status_calc_mob(md, opt) status_calc_bl_(&(md)->bl, SCB_ALL, opt)

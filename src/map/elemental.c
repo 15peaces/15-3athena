@@ -1177,7 +1177,7 @@ int elemskill_use(struct elemental_data *ed, int64 tick, int bypass)
 
 		map_freeblock_lock();
 
-		if( !battle_check_range(&ed->bl,bl,skill_get_range2(&ed->bl, skill_id, 1)) ||
+		if( !battle_check_range(&ed->bl,bl,skill_get_range2(&ed->bl, skill_id, 1, true)) ||
 			!unit_skilluse_pos2(&ed->bl, x, y, skill_id, 1, cast_time, 0) )
 		{
 			map_freeblock_unlock();
@@ -1193,7 +1193,7 @@ int elemskill_use(struct elemental_data *ed, int64 tick, int bypass)
 
 		map_freeblock_lock();
 
-		if( !battle_check_range(&ed->bl,bl,skill_get_range2(&ed->bl, skill_id, 1)) ||
+		if( !battle_check_range(&ed->bl,bl,skill_get_range2(&ed->bl, skill_id, 1, true)) ||
 			!unit_skilluse_id2(&ed->bl, bl->id, skill_id, 1, cast_time, 0) )
 		{
 			map_freeblock_unlock();

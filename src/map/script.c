@@ -8049,15 +8049,16 @@ BUILDIN_FUNC(delequip) {
 	TBL_PC *sd;
 
 	pos = script_getnum(st,2);
-	if (!(sd = map_charid2sd(script_getnum(st,3)))) {
+	if (!script_charid2sd(3, sd)) {
 		st->state = END;
 		return 1;
 	}
 
-	if (pos > 0 && pos <= ARRAYLENGTH(equip))
-		i = pc_checkequip(sd,equip[pos-1],false);
+	if (pos > 0 && pos <= ARRAYLENGTH(equip)) {
+		i = pc_checkequip(sd, equip[pos - 1], false);
+	}
 	if (i >= 0) {
-		pc_unequipitem(sd,i,3); //recalculate bonus
+		bool t = pc_unequipitem(sd,i,3); //recalculate bonus
 		ret = !(pc_delitem(sd,i,1,0,2,LOG_TYPE_SCRIPT));
 	}
 	else {
@@ -10503,7 +10504,8 @@ BUILDIN_FUNC(sc_end)
 BUILDIN_FUNC(getscrate)
 {
 	struct block_list *bl;
-	int type,rate;
+	int type;
+	int64 rate;
 
 	type=script_getnum(st,2);
 	rate=script_getnum(st,3);
@@ -18939,7 +18941,7 @@ static int buildin_mobuseskill_sub(struct block_list *bl,va_list ap)
 		case 0: tbl = map_id2bl(md->bl.id); break;
 		case 1: tbl = map_id2bl(md->target_id); break;
 		case 2: tbl = map_id2bl(md->master_id); break;
-		default:tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),skill_get_range2(&md->bl, skill_id, skill_lv)); break;
+		default:tbl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),skill_get_range2(&md->bl, skill_id, skill_lv, true)); break;
 	}
 
 	if( !tbl )

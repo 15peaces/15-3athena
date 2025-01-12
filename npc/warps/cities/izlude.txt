@@ -241,6 +241,7 @@ OnTouch:
 
 OnInit:
 	questinfo(21001, QTYPE_QUEST, 1, Job_Novice);
+	end;
 }
 
 iz_int,47,30,3	script	noviship#room1-2	45,2,2,{
@@ -258,6 +259,7 @@ iz_int,56,15,0	script	noviship	45,2,2,{
 OnTouch:
 	savepoint("int_land"+strnpcinfo(2), 77, 101);
 	warp("int_land"+strnpcinfo(2), 85, 107);
+	end;
 }
 
 int_land,49,57,0	script	noviship#izlude	45,2,2,{
@@ -282,7 +284,11 @@ OnTouch:
 		erasequest 21001;
 	if (isbegin_quest(21002) == 1)
 		erasequest 21002;
-	warp("izlude"+strnpcinfo(2), 196, 209);
+
+	.@map$ = "izlude";
+	if (strnpcinfo(NPC_NAME_HIDDEN) != "izlude")
+		.@map$ = .@map$ + strnpcinfo(NPC_NAME_HIDDEN);
+	warp(.@map$, 196, 209);
 	end;
 }
 

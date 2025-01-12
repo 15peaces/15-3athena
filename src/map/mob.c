@@ -55,7 +55,7 @@
 #define MOB_LAZYMOVEPERC(md) (md->state.spotted?1000:0)
 #define MOB_MAX_DELAY (24*3600*1000)
 #define MAX_MINCHASE 30	//Max minimum chase value to use for mobs.
-#define RUDE_ATTACKED_COUNT 2	//After how many rude-attacks should the skill be used?
+#define RUDE_ATTACKED_COUNT 1	//After how many rude-attacks should the skill be used?
 #define MAX_MOB_CHAT 50 //Max Skill's messages
 
 // On official servers, monsters will only seek targets that are closer to walk to than their
@@ -1580,7 +1580,8 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				)
 				) )
 			{ // Rude attacked
-				if (md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
+				if (abl->id != md->bl.id //Self damage does not cause rude attack
+					&& md->state.attacked_count++ >= RUDE_ATTACKED_COUNT
 				&& !mobskill_use(md, tick, MSC_RUDEATTACKED) && can_move
 				&& !tbl && unit_escape(&md->bl, abl, rnd()%10 +1))
 				{	//Escaped.
@@ -2064,8 +2065,6 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 		return; //Do nothing for absorbed damage.
 	if( !damage && !(src->type&DEFAULT_ENEMY_TYPE(md)) )
 		return; //Do not log non-damaging effects from non-enemies.
-	if( src->id == md->bl.id )
-		return; //Do not log self-damage.
 
 	switch( src->type )
 	{
@@ -2138,6 +2137,12 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 		default: //For all unhandled types.
 			md->attacked_id = src->id;
 	}
+
+	//Self damage increases tap bonus
+	if (!char_id && src->id == md->bl.id) {
+		char_id = src->id;
+		flag = MDLF_SELF;
+	}
 	
 	if( char_id )
 	{ //Log damage...
@@ -2177,7 +2182,7 @@ void mob_log_damage(struct mob_data *md, struct block_list *src, int damage)
 //Call when a mob has received damage.
 void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 {
-	if (damage > 0)
+	if (src && damage > 0)
 	{	//Store total damage...
 		if (UINT_MAX - (unsigned int)damage > md->tdmg)
 			md->tdmg+=damage;
@@ -2187,12 +2192,11 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 			damage = (int)(UINT_MAX - md->tdmg);
 			md->tdmg = UINT_MAX;
 		}
-		if (md->state.aggressive)
-			//No longer aggressive, change to retaliate AI.
+		if ((src != &md->bl) && md->state.aggressive) //No longer aggressive, change to retaliate AI.
 			md->state.aggressive = 0;
 
 		//Log damage
-		if (src) mob_log_damage(md, src, damage);
+		mob_log_damage(md, src, damage);
 
 		// Achievements [Smokexyz/Hercules]
 		if (src != NULL && src->type == BL_PC)
@@ -2274,9 +2278,14 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 	memset(tmpsd,0,sizeof(tmpsd));
 	for(i = 0, count = 0, mvp_damage = 0; i < DAMAGELOG_SIZE && md->dmglog[i].id; i++)
 	{
-		struct map_session_data* tsd = map_charid2sd(md->dmglog[i].id);
-
-		if(tsd == NULL)
+		struct map_session_data* tsd = NULL;
+		if (md->dmglog[i].flag == MDLF_SELF) {
+			//Self damage counts as exp tap
+			count++;
+			continue;
+		}
+		tsd = map_charid2sd(md->dmglog[i].id);
+		if (tsd == NULL)
 			continue; // skip empty entries
 		if(tsd->bl.m != m)
 			continue; // skip players not on this map
@@ -3370,7 +3379,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			switch (skill_target) {
 				case MST_RANDOM: //Pick a random enemy within skill range.
 					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
-						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv, true));
 					break;
 				case MST_TARGET:
 				case MST_AROUND5:
@@ -3404,7 +3413,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			}
 			md->skillidx = i;
 			map_freeblock_lock();
-			if( !battle_check_range(&md->bl,bl,skill_get_range2(&md->bl, ms[i].skill_id,ms[i].skill_lv)) ||
+			if( !battle_check_range(&md->bl,bl,skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv, true)) ||
 				!unit_skilluse_pos2(&md->bl, x, y,ms[i].skill_id, ms[i].skill_lv,ms[i].casttime, ms[i].cancel) )
 			{
 				map_freeblock_unlock();
@@ -3415,7 +3424,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			switch (skill_target) {
 				case MST_RANDOM: //Pick a random enemy within skill range.
 					bl = battle_getenemy(&md->bl, DEFAULT_ENEMY_TYPE(md),
-						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv));
+						skill_get_range2(&md->bl, ms[i].skill_id, ms[i].skill_lv, true));
 					break;
 				case MST_TARGET:
 					bl = map_id2bl(md->target_id);
@@ -3441,7 +3450,7 @@ int mobskill_use(struct mob_data *md, int64 tick, int event)
 			if (!bl) continue;
 			md->skillidx = i;
 			map_freeblock_lock();
-			if( !battle_check_range(&md->bl,bl,skill_get_range2(&md->bl, ms[i].skill_id,ms[i].skill_lv)) ||
+			if( !battle_check_range(&md->bl,bl,skill_get_range2(&md->bl, ms[i].skill_id,ms[i].skill_lv, true)) ||
 				!unit_skilluse_id2(&md->bl, bl->id,ms[i].skill_id, ms[i].skill_lv,ms[i].casttime, ms[i].cancel) )
 			{
 				map_freeblock_unlock();

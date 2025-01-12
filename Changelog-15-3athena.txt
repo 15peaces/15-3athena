@@ -6,6 +6,48 @@
 //			--More Details.
 //========================================
 01/09/2025
+	r497 [15peaces]
+		*Ground Drift fixes
+			-The damage is now delayed by aMotion; as the status effect kicks in immediately, damage will break Freeze
+			-The base chance for a status change is now 50% instead of 5%
+		*Changed more remaining tick values to int64.
+		*Status changes that cause damage reworked
+			-Created a better structure for status changes with intervals and integrated the status changes Stone, Poison, Deadly Poison, Bleeding, Magic Mushroom, Burning, Pyrexia, Leech's End and Toxin into the new structure
+				--The exact remaining duration of these status changes will now be stored
+				--The correct duration is reloaded when logging back in, you can't avoid a single tick be re-logging
+				--It will now show the correct duration on the icon of the status change after re-logging, no longer negative values
+				--The durations are now accurately transferred when using Deadly Infect
+				--These status changes now use unified code, which makes it much easier to integrate more status changes into this structure with low risk of breaking something
+			-Removed all the status change specific logging of damage and integrated it into the normal logging behavior
+				--The following skills deal "No source" damage: Stone, Poison, Deadly Poison, Bleeding, Coma, Magic Mushroom
+				--The following skills deal "Self" damage: Burning, Pyrexia, Leech's End, Toxin
+				--"No source" will neither be logged nor contribute to the total damage, your exp share doesn't increase from the damage, but it also won't cause the monster to give less EXP, it won't break freeze or similar status changes, it won't make you 
+				--stand up, it won't make you stop moving, it won't prevent you from logging out
+				--"Self" damage will now be logged and contribute to the total damage, it makes monster give the exp tap bonus, but also makes monsters give less exp the more "self damage" they've taken, it will break freeze and similar status changes, it 
+				--will make you stand up properly now, it will make you flinch and stop moving, it will prevent you from logging out, but angry type monsters will not lose their aggressive bit from it and it will not cause monsters to use their rude-attack skill
+				--Monsters will now use their rude-attack skill on the first rude-attack as long as the damage does not come from self
+				--When a monster takes damage from a status change, its HP meter will now be updated
+			-Burning now has an interval of 3s and a minimum duration of 10s
+			-Pyrexia now causes blind for Pyrexia's duration instead of just 30s
+			-Ground Drift's poison base duration is now 60s
+			-Fixed a bug where the minimum duration failed to apply when the received duration was below 1ms
+			-map_foreachindir and map_foreachinshootarea will now properly print their function names in case of an error
+		*Some more fixes to new Intro warps
+			-Added some missing end;
+			-Fixed wrong warp of izlude.
+		*Changed Sara's Memory & Ghost Palace monsters to fit pre-renewal calculations.
+		*Added some missing quest_db entries.
+		*Snap, Ganbantein, Gravitational Field, Flying Kick fixes
+			-Snap now has a server-sided range of 14
+			-Snap, Ganbantein and Gravitational Field will no longer cause you to move if you target a cell out of range
+			-Snap and Flying Kick will now check for obstacles on a linear path rather than on the normal walkpath
+			-Range specified in skill_db is now equal to the client-sided range
+			-Some range code cleanup
+		*Fixed delequip.
+			-Now it won't get scripts stucked anymore.
+			-Fixes several not working entchantment scripts.
+
+01/09/2025
 	r496 [15peaces]
 		*Fixed Pneuma / Arrow Shower / Ranges
 			-Pneuma now also protects against knockback from ranged skills

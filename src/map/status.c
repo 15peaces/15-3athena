@@ -94,6 +94,7 @@ static unsigned int status_calc_maxsp(struct block_list *bl, uint64 maxsp);
 static unsigned char status_calc_element(struct block_list *bl, struct status_change *sc, int element);
 static unsigned char status_calc_element_lv(struct block_list *bl, struct status_change *sc, int lv);
 static enum e_mode status_calc_mode(struct block_list *bl, struct status_change *sc, enum e_mode mode);
+static int status_get_sc_interval(enum sc_type type);
 
 /**
  * Returns the status change associated with a skill.
@@ -2093,6 +2094,7 @@ int status_check_skilluse(struct block_list *src, struct block_list *target, int
 				(sc->data[SC_BASILICA] && (sc->data[SC_BASILICA]->val4 != src->id || skill_id != HP_BASILICA)) || // Only Basilica caster that can cast, and only Basilica to cancel it
 				(sc->data[SC_MARIONETTE] && skill_id != CG_MARIONETTE) || //Only skill you can use is marionette again to cancel it
 				(sc->data[SC_MARIONETTE2] && skill_id == CG_MARIONETTE) || //Cannot use marionette if you are being buffed by another
+				(sc->data[SC_ANKLE] && skill_id == AL_TELEPORT) ||
 				sc->data[SC_STEELBODY] ||
 				sc->data[SC_BERSERK] ||
 				sc->data[SC_OBLIVIONCURSE] ||
@@ -7397,10 +7399,38 @@ void status_change_init(struct block_list *bl)
 	memset(sc, 0, sizeof (struct status_change));
 }
 
+/*========================================== [Playtester]
+* Returns the interval for status changes that iterate multiple times
+* through the timer (e.g. those that deal damage in regular intervals)
+* @param type: Status change (SC_*)
+*------------------------------------------*/
+static int status_get_sc_interval(enum sc_type type)
+{
+	switch (type) {
+		case SC_POISON:
+		case SC_DPOISON:
+		case SC_LEECHESEND:
+			return 1000;
+		case SC_BURNING:
+		case SC_PYREXIA:
+			return 3000;
+		case SC_MAGICMUSHROOM:
+			return 4000;
+		case SC_STONE:
+			return 5000;
+		case SC_BLEEDING:
+		case SC_TOXIN:
+			return 10000;
+		default:
+			break;
+	}
+	return 0;
+}
+
 //Applies SC defense to a given status change.
 //Returns the adjusted duration based on flag values.
 //the flag values are the same as in status_change_start.
-int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int tick, int flag)
+int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_type type, int rate, int64 tick, int flag)
 {
 	bool natural_def = true;
 	//Percentual resistance: 10000 = 100% Resist
@@ -7629,12 +7659,9 @@ int status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_typ
 	if (!(rnd()%10000 < rate))
 		return 0;
 
-	//Even if a status change doesn't have a duration, it should still trigger
-	if (tick < 1) return 1;
-
 	//Rate reduction
  	if (flag&2)
-		return tick;
+		return max(tick, 1);
 
 	// Status's placed here use special formula's for reducing the duration instead of using tick_def.
 	switch (type)
@@ -7767,7 +7794,7 @@ void status_display_remove(struct map_session_data *sd, enum sc_type type) {
  *  &8: rate should not be reduced
  * &16: don't send SI
  *------------------------------------------*/
-int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int tick,int flag)
+int status_change_start(struct block_list* src, struct block_list* bl,enum sc_type type,int rate,int val1,int val2,int val3,int val4,int64 duration,int flag)
 {
 	struct map_session_data *sd = NULL;
 	struct homun_data *hd;
@@ -7840,10 +7867,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	//Adjust tick according to status resistances
 	if( !(flag&(1|4)) )
 	{
-		tick = status_get_sc_def(src, bl, type, rate, tick, flag);
-		if( !tick )
+		duration = status_get_sc_def(src, bl, type, rate, duration, flag);
+		if( !duration)
 			return 0;
 	}
+
+	int32 tick = (int32)duration;
 
 	sd = BL_CAST(BL_PC, bl);
 	hd = BL_CAST(BL_HOM, bl);
@@ -8900,10 +8929,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 
 		case SC_STONE:
-			val4 = max(val4, 100); // Incubation time
-			val3 = (tick - val4) / 100; // Petrified timer iterations
-			if(val3 < 1) val3 = 1; 
-			tick = val4;
+			val3 = max(val3, 100); // Incubation time
+			val4 = max(tick - val3, 100); // Petrify time
+			tick = val3;
 			calc_flag = 0; //Actual status changes take effect on petrified state.
 			break;
 
@@ -8914,32 +8942,26 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			int diff = status->max_hp*(bl->type==BL_PC?10:15)/100;
 			if (status->hp - diff < status->max_hp>>2)
 				diff = status->hp - (status->max_hp>>2);
-			if (val2 && bl->type == BL_MOB) {
-				struct block_list* src = map_id2bl(val2);
-				if (src)
-					mob_log_damage((TBL_MOB*)bl, src, diff);
-			}
 			status_zap(bl, diff, 0);
 		}
 		// fall through
-		case SC_POISON:				/* “Å */
-		val3 = tick/1000; //Damage iterations
-		if(val3 < 1) val3 = 1;
-		tick_time = 1000;
-		//val4: HP damage
-		if (bl->type == BL_PC)
-			val4 = (type == SC_DPOISON) ? 3 + status->max_hp/50 : 3 + status->max_hp*3/200;
-		else
-			val4 = (type == SC_DPOISON) ? 3 + status->max_hp/100 : 3 + status->max_hp/200;
-		
-		break;
+		case SC_POISON:
+		case SC_BLEEDING:
+		case SC_BURNING:
+		case SC_TOXIN:
+		case SC_MAGICMUSHROOM:
+		case SC_LEECHESEND:
+			tick_time = status_get_sc_interval(type);
+			val4 = tick - tick_time; // Remaining time
+			break;
+		case SC_PYREXIA:
+			//Causes blind for duration of pyrexia, unreducable and unavoidable, but can be healed with e.g. green potion
+			status_change_start(src, bl, SC_BLIND, 10000, val1, 0, 0, 0, tick, SCSTART_NOAVOID | SCSTART_NOTICKDEF | SCSTART_NORATEDEF);
+			tick_time = status_get_sc_interval(type);
+			val4 = tick - tick_time; // Remaining time	
+			break;
 		case SC_CONFUSION:
 			clif_emotion(bl,E_WHAT);
-			break;
-		case SC_BLEEDING:
-			val4 = tick/10000;
-			if (!val4) val4 = 1;
-			tick_time = 10000;
 			break;
 		case SC_S_LIFEPOTION:
 		case SC_L_LIFEPOTION:
@@ -9221,11 +9243,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		}
 
 		case SC_COMA: //Coma. Sends a char to 1HP. If val2, do not zap sp
-			if (val3 && bl->type == BL_MOB) {
-				struct block_list* src = map_id2bl(val3);
-				if (src)
-					mob_log_damage((TBL_MOB*)bl, src, status->hp - 1);
-			}
 			status_zap(bl, status->hp-1, val2?0:status->sp);
 			return 1;
 			break;
@@ -9545,10 +9562,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_REBIRTH:
 			val2 = 20*val1; //% of life to be revived with
 			break;
-		case SC_BURNING:
-			val4 = tick / 3000;
-			tick = 3000;
-			break;
 		case SC_DEEPSLEEP:
 			val4 = tick / 2000;
 			tick = 2000;
@@ -9629,22 +9642,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			tick_time = 5000;
 			val_flag |= 1|2;
 			break;
-		case SC_TOXIN:
-			val4 = tick / 10000;
-			tick_time = 10000;
-			break;
-		case SC_MAGICMUSHROOM:
-			val4 = tick / 4000;
-			tick_time = 4000;
-			break;
-		case SC_PYREXIA:
-			val4 = tick / 3000;
-			tick_time = 3000;
-			break;
-		case SC_LEECHESEND:
-			val4 = tick / 1000;
-			tick_time = 1000;
- 			break;
 		case SC_OBLIVIONCURSE:
 			val4 = tick / 3000;
 			tick_time = 3000;
@@ -10525,6 +10522,21 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			clif_changelook(bl,LOOK_SHIELD,0);
 			clif_changelook(bl, LOOK_CLOTHES_COLOR, vd->cloth_color);
 			break;
+		case SC_STONE:
+			if (val3 > 0)
+				break; //Incubation time still active
+			//Fall through
+		case SC_POISON:
+		case SC_DPOISON:
+		case SC_BLEEDING:
+		case SC_BURNING:
+		case SC_TOXIN:
+		case SC_MAGICMUSHROOM:
+		case SC_PYREXIA:
+		case SC_LEECHESEND:
+			tick_time = tick;
+			tick = tick_time + max(val4, 0);
+			break;
 		case SC_SWORDCLAN:
 		case SC_ARCWANDCLAN:
 		case SC_GOLDENMACECLAN:
@@ -10642,7 +10654,12 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	switch(type)
 	{
 		//OPT1
-		case SC_STONE:		sc->opt1 = OPT1_STONEWAIT;	break;
+	case SC_STONE:
+		if (val3 > 0)
+			sc->opt1 = OPT1_STONEWAIT;
+		else
+			sc->opt1 = OPT1_STONE;
+		break;
 		case SC_FREEZE:		sc->opt1 = OPT1_FREEZE;		break;
 		case SC_STUN:		sc->opt1 = OPT1_STUN;		break;
 		case SC_SLEEP:		sc->opt1 = OPT1_SLEEP;		break;
@@ -10899,7 +10916,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			status_percent_heal(bl, 0, 100); // Recover Full SP
 			break;
 		case SC_FEAR:
-			sc_start(bl, SC_ANKLE, 100, 1, 2000);
+			status_change_start(src, bl, SC_ANKLE, 10000, val1, 0, 0, 0, 2000, SCSTART_NOAVOID | SCSTART_NOTICKDEF | SCSTART_NORATEDEF);
 			break;
 		case SC_WUGDASH:
 			{
@@ -11142,7 +11159,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			//delays status change ending so that a skill that sets opt1 fails to 
 			//trigger when it also removed one
 			case SC_STONE:
-				sce->val3 = 0; //Petrify time counter.
+				sce->val4 = -1; // Petrify time
 			case SC_FREEZE:
 			case SC_STUN:
 			case SC_SLEEP:
@@ -11417,8 +11434,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			if (sce->val2 > 0) {
 				//Caster has been unlocked... nearby chars need to be unlocked.
 				int range = 1
-					+skill_get_range2(bl, status_sc2skill(type), sce->val1)
-					+skill_get_range2(bl, TF_BACKSLIDING, 1); //Since most people use this to escape the hold....
+					+ skill_get_range2(bl, status_sc2skill(type), sce->val1, true)
+					+ skill_get_range2(bl, TF_BACKSLIDING, 1, true); // Since most people use this to escape the hold....
 				map_foreachinarea(status_change_timer_sub, 
 					bl->m, bl->x-range, bl->y-range, bl->x+range,bl->y+range,BL_CHAR,bl,sce,type,gettick());
 			}
@@ -11981,6 +11998,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 	struct status_data *status;
 	struct status_change *sc;
 	struct status_change_entry *sce;
+	int interval = status_get_sc_interval(type);
+	bool dounlock = false;
 
 	bl = map_id2bl(id);
 	if(!bl)
@@ -12083,8 +12102,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_STONE:
-		if(sc->opt1 == OPT1_STONEWAIT && sce->val3) {
-			sce->val4 = 0;
+		if (sc->opt1 == OPT1_STONEWAIT && sce->val4) {
+			sce->val3 = 0; //Incubation time used up
 			unit_stop_attack(bl);
 			if (sc->data[SC_DANCING]) {
 				unit_stop_walking(bl, 1);
@@ -12093,42 +12112,98 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			status_change_end(bl, SC_AETERNA, INVALID_TIMER);
 			sc->opt1 = OPT1_STONE;
 			clif_changeoption(bl);
-			sc_timer_next(100+tick,status_change_timer, bl->id, data );
+			sc_timer_next(min(sce->val4, interval) + tick, status_change_timer, bl->id, data);
+			sce->val4 -= interval; //Remaining time
 			status_calc_bl(bl, StatusChangeFlagTable[type]);
 			return 0;
 		}
-		if (++(sce->val4) % 50 == 0 && status->hp > status->max_hp / 4) {
-			if (sce->val2 && bl->type == BL_MOB) {
-				struct block_list *src = map_id2bl(sce->val2);
-				if (src)
-					mob_log_damage((TBL_MOB*)bl, src, apply_rate(status->hp, 1));
-			}
+		if (sce->val4 >= 0 && !(sce->val3) && status->hp > status->max_hp / 4) {
 			status_percent_damage(NULL, bl, 1, 0, false);
-		}
-		if (--(sce->val3) > 0) {
-			sc_timer_next(100 + tick, status_change_timer, bl->id, data);
-			return 0;
 		}
 		break;
 
 	case SC_POISON:
-		if(status->hp <= max(status->max_hp>>2, (unsigned int)sce->val4)) //Stop damaging after 25% HP left.
-			break;
 	case SC_DPOISON:
-		if (--(sce->val3) > 0) {
-			if (!sc->data[SC_SLOWPOISON]) {
-				if (sce->val2 && bl->type == BL_MOB) {
-					struct block_list* src = map_id2bl(sce->val2);
-					if (src)
-						mob_log_damage((TBL_MOB*)bl, src, sce->val4);
-				}
+		if (sce->val4 >= 0 && !sc->data[SC_SLOWPOISON]) {
+			int64 damage = 0;
+			if (sd)
+				damage = (type == SC_DPOISON) ? 2 + status->max_hp / 50 : 2 + status->max_hp * 3 / 200;
+			else
+				damage = (type == SC_DPOISON) ? 2 + status->max_hp / 100 : 2 + status->max_hp / 200;
+			if (status->hp > max(status->max_hp / 4, damage)) // Stop damaging after 25% HP left.
+				status_zap(bl, damage, 0);
+		}
+		break;
+	case SC_BLEEDING:
+		if (sce->val4 >= 0) {
+			int64 damage = rnd() % 600 + 200;
+			if (!sd && damage >= status->hp)
+				damage = status->hp - 1; // No deadly damage for monsters
+			map_freeblock_lock();
+			dounlock = true;
+			status_zap(bl, damage, 0);
+		}
+		break;
+	case SC_BURNING:
+		if (sce->val4 >= 0) {
+			int64 damage = 1000 + (3 * status->max_hp) / 100; // Deals fixed (1000 + 3%*MaxHP)
+			map_freeblock_lock();
+			dounlock = true;
+			status_fix_damage(bl, bl, damage, clif_damage(bl, bl, tick, 0, 1, damage, 1, DMG_NORMAL, 0, false));
+		}
+		break;
+	case SC_TOXIN:
+		if (sce->val4 >= 0) { // Damage is every 10 seconds including 3%sp drain.
+			map_freeblock_lock();
+			dounlock = true;
+			status_damage(bl, bl, 1, status->max_sp * 3 / 100, clif_damage(bl, bl, tick, status->amotion, status->dmotion + 500, 1, 1, DMG_NORMAL, 0, false), 0);
+		}
+		break;
+	case SC_MAGICMUSHROOM:
+		if (sce->val4 >= 0) {
+			bool flag = 0;
+			int64 damage = status->max_hp * 3 / 100;
+			if (status->hp <= damage)
+				damage = status->hp - 1; // Cannot Kill
+			if (damage > 0) { // 3% Damage each 4 seconds
 				map_freeblock_lock();
-				status_zap(bl, sce->val4, 0);
-				if (sc->data[type]) // Check if the status still last ( can be dead since then ).
-					sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
+				status_zap(bl, damage, 0);
+				flag = !sc->data[type]; // Killed? Should not
 				map_freeblock_unlock();
 			}
-			return 0;
+			if (!flag)
+			{ // Random Skill Cast
+				if (sd && !pc_issit(sd)) //can't cast if sit
+				{
+					int mushroom_skillid = 0;
+					unit_stop_attack(bl);
+					unit_skillcastcancel(bl, 1);
+					do
+					{
+						int i = rnd() % MAX_SKILL_MAGICMUSHROOM_DB;
+						mushroom_skillid = skill_magicmushroom_db[i].skill_id;
+					} while (mushroom_skillid == 0);
+					switch (skill_get_casttype(mushroom_skillid)) { // Magic Mushroom skills are buffs or area damage
+					case CAST_GROUND:
+						skill_castend_pos2(bl, bl->x, bl->y, mushroom_skillid, 1, tick, 0);
+						break;
+					case CAST_NODAMAGE:
+						skill_castend_nodamage_id(bl, bl, mushroom_skillid, 1, tick, 0);
+						break;
+					case CAST_DAMAGE:
+						skill_castend_damage_id(bl, bl, mushroom_skillid, 1, tick, 0);
+						break;
+					}
+				}
+				clif_emotion(bl, E_HEH);
+			}
+		}
+		break;
+	case SC_PYREXIA:
+		if (sce->val4 >= 0) {
+			map_freeblock_lock();
+			dounlock = true;
+			status_fix_damage(bl, bl, 100, clif_damage(bl, bl, tick, status->amotion, status->dmotion + 500, 100, 1, DMG_NORMAL, 0, false));
 		}
 		break;
 
@@ -12146,21 +12221,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			bl->m == sd->feel_map[2].m)
 		{	//Timeout will be handled by pc_setpos
 			sce->timer = INVALID_TIMER;
-			return 0;
-		}
-		break;
-
-	case SC_BLEEDING:
-		if (--(sce->val4) >= 0) {
-			unsigned int hp =  rnd()%600 + 200;
-			struct block_list* src = map_id2bl(sce->val2);
-			map_freeblock_lock();
-			status_fix_damage(src, bl, ( sd || hp < status->hp ) ? hp : status->hp-1, 0);
-			if (sc->data[type]) {
-				if( status->hp == 1 ) break;
-				sc_timer_next(10000 + tick, status_change_timer, bl->id, data);
-			}
-			map_freeblock_unlock();
 			return 0;
 		}
 		break;
@@ -12344,18 +12404,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			return 0;
 		}
 		break;
-	case SC_BURNING:
-		if (--(sce->val4) > 0)
-		{
-			map_freeblock_lock();
-			clif_damage(bl, bl, tick, 0, 0, 1000 + 3 * status->max_hp / 100, 0, 0, 0, false);
-			status_fix_damage(bl,bl,1000+3*status->max_hp/100,0);
-			if (sc->data[type]) // Target still lives. [LimitLine]
-				sc_timer_next(3000 + tick, status_change_timer, bl->id, data );
-			map_freeblock_unlock();
-			return 0;
-		}
-		break;
 	case SC_DEEPSLEEP:
 		if( --(sce->val4) >= 0 )
 		{// Recovers 3% of the player's MaxHP/MaxSP every 2 seconds.
@@ -12392,104 +12440,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
-	case SC_PYREXIA:
-		if( --(sce->val4) >= 0 )
-		{
-			map_freeblock_lock();
-			clif_damage(bl,bl,tick,status_get_amotion(bl),0,100,0,0,0, false);
-			status_fix_damage(NULL,bl,100,0);
-			if (sc->data[type]) {
-				if( sce->val4 == 10 )
-					sc_start(bl,SC_BLIND,100,sce->val1,30000); // Blind status for the final 30 seconds
-				sc_timer_next(3000+tick,status_change_timer,bl->id,data);
-			}
-			map_freeblock_unlock();
-			return 0;
-		}
-		break;
-
-	case SC_LEECHESEND:
-		if( --(sce->val4) >= 0 )
-		{
-			int damage = status->max_hp/100;
-			if( sd && (sd->status.class_ == JOB_GUILLOTINE_CROSS || sd->status.class_ == JOB_GUILLOTINE_CROSS_T || sd->status.class_ == JOB_BABY_GUILLOTINE_CROSS) )
-				damage += 3 * status->vit;
-			else
-				damage += 7 * status->vit;
-
-			unit_skillcastcancel(bl, 2);
-			map_freeblock_lock();
-			status_zap(bl,damage,0);
-			if (sc->data[type])
-				sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
-			map_freeblock_unlock();
-			return 0;
-		}
-		break;
-
-	case SC_MAGICMUSHROOM:
-		if( --(sce->val4) >= 0 )
-		{
-			bool flag = 0;
-			int damage = status->max_hp * 3 / 100;
-			if( status->hp <= damage )
-				damage = status->hp - 1; // Cannot Kill
-
-			if( damage > 0 )
-			{ // 3% Damage each 4 seconds
-				map_freeblock_lock();
-				status_zap(bl,damage,0);
-				flag = !sc->data[type]; // Killed? Should not
-				map_freeblock_unlock();
-			}
-
-			if( !flag )
-			{ // Random Skill Cast
-				if (sd && !pc_issit(sd)) //can't cast if sit
-				{
-					int mushroom_skillid = 0;
-					unit_stop_attack(bl);
-					unit_skillcastcancel(bl,1);
-					do
-					{
-						int i = rnd() % MAX_SKILL_MAGICMUSHROOM_DB;
-						mushroom_skillid = skill_magicmushroom_db[i].skill_id;
-					}
-					while( mushroom_skillid == 0 );
-
-					switch( skill_get_casttype(mushroom_skillid) )
-					{ // Magic Mushroom skills are buffs or area damage
-						case CAST_GROUND:
-							skill_castend_pos2(bl,bl->x,bl->y,mushroom_skillid,1,tick,0);
-							break;
-						case CAST_NODAMAGE:
-							skill_castend_nodamage_id(bl,bl,mushroom_skillid,1,tick,0);
-							break;
-						case CAST_DAMAGE:
-							skill_castend_damage_id(bl,bl,mushroom_skillid,1,tick,0);
-							break;
-					}
-				}
-
-				clif_emotion(bl,18);
-				sc_timer_next(4000+tick,status_change_timer,bl->id,data);
-			}
-			return 0;
-		}
-		break;
-
-	case SC_TOXIN:
-		if( --(sce->val4) >= 0 )
-		{ //Damage is every 10 seconds including 3%sp drain.
-			map_freeblock_lock();
-			clif_damage(bl,bl,tick,status_get_amotion(bl),1,1,0,0,0, false);
-			status_damage(NULL,bl,1,status->max_sp*3/100,0,16);
-			if (sc->data[type])
-				sc_timer_next(10000 + tick, status_change_timer, bl->id, data );
-			map_freeblock_unlock();
-			return 0;
-		}
-		break;
 	case SC_OBLIVIONCURSE:
 		if( --(sce->val4) >= 0 )
 		{
@@ -13107,7 +13057,19 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	}
 
-	// default for all non-handled control paths is to end the status
+	// If status has an interval and there is at least 100ms remaining time, wait for next interval
+	if (interval > 0 && sc->data[type] && sce->val4 >= 100) {
+		sc_timer_next(min(sce->val4, interval) + tick, status_change_timer, bl->id, data);
+		sce->val4 -= interval;
+		if (dounlock)
+			map_freeblock_unlock();
+		return 0;
+	}
+
+	if (dounlock)
+		map_freeblock_unlock();
+
+	// Default for all non-handled control paths is to end the status
 	return status_change_end( bl,type,tid );	
 #undef sc_timer_next
 }
@@ -13375,16 +13337,21 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 	return 0;
 }
 
-int status_change_spread( struct block_list *src, struct block_list *bl )
+/**
+ * Infect a user with status effects (SC_DEADLYINFECT)
+ * @param src: Object initiating change on bl [PC|MOB|HOM|MER|ELEM]
+ * @param bl: Object to change
+ * @return 1: Success 0: Fail
+ */
+int status_change_spread(struct block_list *src, struct block_list *bl)
 {
 	int i, flag = 0;
-	struct status_data* status = status_get_status_data(bl);
 	struct status_change *sc = status_get_sc(src);
-	const struct TimerData *timer;
+	const struct TimerData *timer = NULL;
 	int64 tick;
 	struct status_change_data data;
 
-	if( !sc || !sc->count )
+	if (!sc || !sc->count)
 		return 0;
 
 	tick = gettick();
@@ -13392,78 +13359,74 @@ int status_change_spread( struct block_list *src, struct block_list *bl )
 	//Boss monsters resistance
 	if ((status_get_mode(src)&MD_BOSS) || (status_get_mode(bl)&MD_BOSS))
 		return 0;
-	
-	for( i = SC_COMMON_MIN; i < SC_MAX; i++ )
-	{
-		if( !sc->data[i] || i == SC_COMMON_MAX )
-			continue;
 
-		switch( i )
-		{
-			//Debuffs that can be spreaded through Deadly Infect
-			// NOTE: We'll add/delte SCs when we are able to confirm it.
-			//First we list the common status's that can be spreaded.
-			//case SC_STONE:
-			//case SC_FREEZE:
-			case SC_STUN:
-			//case SC_SLEEP:
-			case SC_POISON:
-			case SC_CURSE:
-			case SC_SILENCE:
-			case SC_CONFUSION:
-			case SC_BLIND:
-			case SC_BLEEDING:
-			case SC_DPOISON:
-			case SC_FEAR:
-			case SC_BURNING:
-			//case SC_IMPRISON:
-			//case SC_DEEPSLEEP:
-			case SC_FROST:
-			case SC_CRYSTALIZE:
-			//case SC_NOCHAT:
-			case SC_HALLUCINATION:
-			case SC_SIGNUMCRUCIS:
-			case SC_DECREASEAGI:
+	for (i = SC_COMMON_MIN; i < SC_MAX; i++) {
+		if (!sc->data[i] || i == SC_COMMON_MAX)
+			continue;
+		if (sc->data[i]->timer != INVALID_TIMER) {
+			timer = get_timer(sc->data[i]->timer);
+			if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick, tick) < 0)
+				continue;
+		}
+
+		switch (i) {
+			// Debuffs that can be spread.
+			// NOTE: We'll add/delete SCs when we are able to confirm it.
+		case SC_DEATHHURT:
+		case SC_PARALYSE:
+		case SC_CURSE:
+		case SC_SILENCE:
+		case SC_CONFUSION:
+		case SC_BLIND:
+		case SC_HALLUCINATION:
+		case SC_SIGNUMCRUCIS:
+		case SC_DECREASEAGI:
 			//case SC_SLOWDOWN:
 			//case SC_MINDBREAKER:
 			//case SC_WINKCHARM:
 			//case SC_STOP:
-			case SC_ORCISH:
-			//case SC_STRIPWEAPON://Omg I got infected and had the urge to strip myself physically.
-			//case SC_STRIPSHIELD://No this is stupid and shouldnt be spreadable at all.
-			//case SC_STRIPARMOR:// Disabled until I can confirm if it does or not. [Rytech]
+		case SC_ORCISH:
+			//case SC_STRIPWEAPON: // Omg I got infected and had the urge to strip myself physically.
+			//case SC_STRIPSHIELD: // No this is stupid and shouldnt be spreadable at all.
+			//case SC_STRIPARMOR: // Disabled until I can confirm if it does or not. [Rytech]
 			//case SC_STRIPHELM:
 			//case SC__STRIPACCESSORY:
-			//case SC_WUGBITE:
-			//Guillotine Cross Poisons
-			case SC_TOXIN:
-			case SC_PARALYSE:
-			case SC_VENOMBLEED:
-			case SC_MAGICMUSHROOM:
-			case SC_DEATHHURT:
-			case SC_PYREXIA:
-			//case SC_OBLIVIONCURSE:
-			case SC_LEECHESEND:
-				if (sc->data[i]->timer != -1)
-				{
-					timer = get_timer(sc->data[i]->timer);
-					if (timer == NULL || timer->func != status_change_timer || DIFF_TICK(timer->tick,tick) < 0)
-						continue;
-						data.tick = DIFF_TICK32(timer->tick, tick);
-				} else
-					data.tick = -1;
-				data.val1 = sc->data[i]->val1;
-				data.val2 = sc->data[i]->val2;
-				data.val3 = sc->data[i]->val3;
-				data.val4 = sc->data[i]->val4;
-				status_change_start(src, bl, (sc_type)i, 10000, data.val1, data.val2, data.val3, data.val4, data.tick, 1|2|8 );
-					flag = 1;
-				break;
-			default:
-				continue;
-				break;
+			//case SC_BITE:
+		case SC_FEAR:
+		case SC_FREEZE:
+		case SC_VENOMBLEED:
+			if (sc->data[i]->timer != INVALID_TIMER)
+				data.tick = DIFF_TICK(timer->tick, tick);
+			else
+				data.tick = INVALID_TIMER;
+			break;
+			// Special cases
+		case SC_TOXIN:
+		case SC_MAGICMUSHROOM:
+		case SC_PYREXIA:
+		case SC_LEECHESEND:
+		case SC_POISON:
+		case SC_DPOISON:
+		case SC_BLEEDING:
+		case SC_BURNING:
+			if (sc->data[i]->timer != INVALID_TIMER)
+				data.tick = DIFF_TICK(timer->tick, tick) + sc->data[i]->val4;
+			else
+				data.tick = INVALID_TIMER;
+			break;
+		default:
+			continue;
+		}
+		if (i) {
+			data.val1 = sc->data[i]->val1;
+			data.val2 = sc->data[i]->val2;
+			data.val3 = sc->data[i]->val3;
+			data.val4 = sc->data[i]->val4;
+			status_change_start(src, bl, (sc_type)i, 10000, data.val1, data.val2, data.val3, data.val4, data.tick, SCSTART_NOAVOID | SCSTART_NOTICKDEF | SCSTART_NORATEDEF);
+			flag = 1;
 		}
 	}
+
 	return flag;
 }
 

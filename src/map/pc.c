@@ -7387,7 +7387,7 @@ int pc_skillup(struct map_session_data *sd, uint16 skill_id)
 			pc_check_skilltree(sd, skill_id); // Check if a new skill can Lvlup
 
 		lv = sd->status.skill[skill_id].lv;
-		range = skill_get_range2(&sd->bl, skill_id, lv);
+		range = skill_get_range2(&sd->bl, skill_id, lv, false);
 		upgradable = (lv < skill_tree_get_max(sd->status.skill[skill_id].id, sd->status.class_)) ? 1 : 0;
 		clif_skillup(sd, skill_id, lv, range, upgradable);
 
@@ -7898,7 +7898,7 @@ void pc_damage(struct map_session_data *sd,struct block_list *src,unsigned int h
 	if (hp) clif_updatestatus(sd,SP_HP);
 	else return;
 	
-	if( !src || src == &sd->bl )
+	if(!src)
 		return;
 
 	if (pc_issit(sd))
