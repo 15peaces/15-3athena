@@ -680,6 +680,8 @@ extern struct Battle_Config
 	int monster_loot_search_type;
 	int mob_stuck_warning;
 	int skill_eightpath_algorithm;
+	int can_damage_skill;
+	int mob_eye_range_bonus;
 	//Episode System [15peaces]
 	int feature_episode;
 	int episode_readdb;

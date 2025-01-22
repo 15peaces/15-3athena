@@ -792,75 +792,6 @@ static int pc_inventory_rental_end(int tid, int64 tick, int id, intptr_t data)
 	return 1;
 }
 
-/* Assumes I is valid (from default areas where it is called, it is) */
-void pc_rental_expire(struct map_session_data *sd, int i)
-{
-	short nameid = sd->inventory.u.items_inventory[i].nameid;
-
-	switch (nameid) {
-	case ITEMID_BOARDING_HALTER:
-		if (&sd->sc && sd->sc.data[SC_ALL_RIDING])
-			status_change_end(&sd->bl, SC_ALL_RIDING, INVALID_TIMER);
-		break;
-	case ITEMID_LOVE_ANGEL:
-		if (sd->status.font == 1) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_SQUIRREL:
-		if (sd->status.font == 2) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_GOGO:
-		if (sd->status.font == 3) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_PICTURE_DIARY:
-		if (sd->status.font == 4) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_MINI_HEART:
-		if (sd->status.font == 5) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_NEWCOMER:
-		if (sd->status.font == 6) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_KID:
-		if (sd->status.font == 7) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_MAGIC_CASTLE:
-		if (sd->status.font == 8) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	case ITEMID_BULGING_HEAD:
-		if (sd->status.font == 9) {
-			sd->status.font = 0;
-			clif_font(sd);
-		}
-		break;
-	}
-	clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
-	pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
-}
-
 void pc_inventory_rental_clear(struct map_session_data *sd)
 {
 	if( sd->rental_timer != INVALID_TIMER )
@@ -882,8 +813,12 @@ void pc_inventory_rentals(struct map_session_data *sd)
 		if( sd->inventory.u.items_inventory[i].expire_time == 0 )
 			continue;
 
-		if (sd->inventory.u.items_inventory[i].expire_time <= time(NULL))
-			pc_rental_expire(sd, i);
+		if (sd->inventory.u.items_inventory[i].expire_time <= time(NULL)) {
+			if (sd->inventory_data[i]->unequip_script)
+				run_script(sd->inventory_data[i]->unequip_script, 0, sd->bl.id, fake_nd->bl.id);
+			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
+			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
+		}
 		else {
 			expire_tick = (int64)(sd->inventory.u.items_inventory[i].expire_time - time(NULL)) * 1000;
 			clif_rental_time(sd->fd, sd->inventory.u.items_inventory[i].nameid, (int)(expire_tick / 1000));
@@ -10331,6 +10266,11 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		return false;
 	}
 
+	if (!sd->inventory.u.items_inventory[n].equip) {
+		clif_unequipitemack(sd, n, 0, 0);
+		return false; //Nothing to unequip
+	}
+
 	if( !(flag&2) && sd->sc.count && 
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_KYOUGAKU] ||// Prevents unequipping anything.
 		(sd->sc.data[SC_PYROCLASTIC] && sd->inventory.u.items_inventory[n].equip & EQP_HAND_R)) )// Can't unequip weapon.
@@ -10402,15 +10342,24 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 
 	clif_unequipitemack(sd,n,sd->inventory.u.items_inventory[n].equip,1);
 
-	if ((sd->inventory.u.items_inventory[n].equip & EQP_ARMS) && sd->inventory_data[n]->type == IT_WEAPON && //On weapon change (right and left hand)
-		(!sd->sc.data[SC_SEVENWIND] || sd->sc.data[SC_ASPERSIO])) //Check for seven wind (but not level seven!)
-		skill_enchant_elemental_end(&sd->bl,-1);
+	// On weapon change (right and left hand)
+	if ((sd->inventory.u.items_inventory[n].equip & EQP_ARMS) && sd->inventory_data[n]->type == IT_WEAPON) {
+		if (!sd->sc.data[SC_SEVENWIND] || sd->sc.data[SC_ASPERSIO]) //Check for seven wind (but not level seven!)
+			skill_enchant_elemental_end(&sd->bl, SC_NONE);
+		status_change_end(&sd->bl, SC_FEARBREEZE, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_EXEEDBREAK, INVALID_TIMER);
+		status_change_end(&sd->bl, SC_P_ALTER, INVALID_TIMER);
+	}
 
 	if(sd->inventory.u.items_inventory[n].equip & EQP_ARMOR) {
 		// On Armor Change...
 		status_change_end(&sd->bl, SC_BENEDICTIO, INVALID_TIMER);
 		status_change_end(&sd->bl, SC_ARMOR_RESIST, INVALID_TIMER);
 	}
+
+	// On ammo change
+	if (sd->inventory_data[n]->type == IT_AMMO)
+		status_change_end(&sd->bl, SC_P_ALTER, INVALID_TIMER);
 
 	if( sd->state.autobonus&sd->inventory.u.items_inventory[n].equip )
 		sd->state.autobonus &= ~sd->inventory.u.items_inventory[n].equip; //Check for activated autobonus [Inkfish]

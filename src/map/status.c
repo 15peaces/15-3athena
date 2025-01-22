@@ -8228,6 +8228,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			status_change_end(bl, SC_CURSE, INVALID_TIMER);
 			if (sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 				status_change_end(bl, SC_STONE, INVALID_TIMER);
+			if (sc->data[SC_CURSE]) {
+				status_change_end(bl, SC_CURSE, INVALID_TIMER);
+				return 1; // End Curse and do not give stat boost
+			}
 		}
 		if (sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_HIGH)
 			status_change_end(bl, SC_SPIRIT, INVALID_TIMER);
@@ -11029,7 +11033,6 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_SIROMA_ICE_TEA:
 				case SC_DROCERA_HERB_STEAMED:
 				case SC_PUTTI_TAILS_NOODLES:
-				case SC_ALL_RIDING:
 				case SC_ON_PUSH_CART:
 				case SC_MOONSTAR:
 				case SC_LIGHT_OF_REGENE:
@@ -11966,14 +11969,16 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		}
 	}
 
-	if (calc_flag)
-	{
-		if (type == SC_MAGICPOWER) {
+	if (calc_flag) {
+		switch (type) {
+		case SC_MAGICPOWER:
 			//If Mystical Amplification ends, MATK is immediately recalculated
-			status_calc_bl_(bl, calc_flag, true);
-		}
-		else
+			status_calc_bl_(bl, calc_flag, SCO_FORCE);
+			break;
+		default:
 			status_calc_bl(bl, calc_flag);
+			break;
+		}
 	}
 
 	if(opt_flag&4) //Out of hiding, invoke on place.
@@ -13396,7 +13401,7 @@ int status_change_spread(struct block_list *src, struct block_list *bl)
 		case SC_FREEZE:
 		case SC_VENOMBLEED:
 			if (sc->data[i]->timer != INVALID_TIMER)
-				data.tick = DIFF_TICK(timer->tick, tick);
+				data.tick = DIFF_TICK32(timer->tick, tick);
 			else
 				data.tick = INVALID_TIMER;
 			break;
@@ -13410,7 +13415,7 @@ int status_change_spread(struct block_list *src, struct block_list *bl)
 		case SC_BLEEDING:
 		case SC_BURNING:
 			if (sc->data[i]->timer != INVALID_TIMER)
-				data.tick = DIFF_TICK(timer->tick, tick) + sc->data[i]->val4;
+				data.tick = DIFF_TICK32(timer->tick, tick) + sc->data[i]->val4;
 			else
 				data.tick = INVALID_TIMER;
 			break;

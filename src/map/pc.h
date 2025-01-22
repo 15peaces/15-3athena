@@ -1084,7 +1084,6 @@ int map_night_timer(int tid, int64 tick, int id, intptr_t data); // by [yor]
 void pc_inventory_rentals(struct map_session_data *sd);
 void pc_inventory_rental_clear(struct map_session_data *sd);
 void pc_inventory_rental_add(struct map_session_data *sd, int seconds);
-void pc_rental_expire(struct map_session_data *sd, int i);
 
 int pc_read_motd(void); // [Valaris]
 int pc_disguise(struct map_session_data *sd, int class_);

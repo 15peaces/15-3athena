@@ -471,6 +471,8 @@ enum useskill_fail_cause
 	USESKILL_FAIL_MSG = 86,
 	USESKILL_FAIL_MAP = 87,
 	USESKILL_FAIL_SUMMON_SP_INSUFFICIENT = 88,
+
+	USESKILL_FAIL_MAX
 };
 
 enum clif_messages {
@@ -807,7 +809,7 @@ void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, i
 
 void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid);
 
-void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, enum send_target target, uint8 flag);
+void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, enum send_target target, bool visible);
 void clif_skill_delunit(struct skill_unit *unit);
 
 void clif_skillunit_update(struct block_list* bl);

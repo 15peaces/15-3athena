@@ -6452,10 +6452,10 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 		case BL_SKILL:
 		{
 			TBL_SKILL *su = (TBL_SKILL*)target;
+			uint16 skill_id = battle_getcurrentskill(src);
 			if (!su || !su->group)
 				return 0;
 			if (skill_get_inf2(su->group->skill_id)&INF2_TRAP && su->group->unit_id != UNT_USED_TRAPS) {
-				uint16 skill_id = battle_getcurrentskill(src);
 				if (!skill_id || su->group->skill_id == WM_REVERBERATION || su->group->skill_id == WM_POEMOFNETHERWORLD) {
 					;
 				}
@@ -6463,9 +6463,13 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 					switch (skill_id) {
 					case RK_DRAGONBREATH:
 					case RK_DRAGONBREATH_WATER:
+					case NC_SELFDESTRUCTION:
+					case NC_AXETORNADO:
+					case SR_SKYNETBLOW:
 						// Can only hit traps in PVP/GVG maps
 						if (!map[m].flag.pvp && !map[m].flag.gvg)
 							return 0;
+						break;
 					}
 				}
 				else
@@ -6473,8 +6477,25 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 				state |= BCT_ENEMY;
 				strip_enemy = 0;
 			}
-			else if (su->group->skill_id == WZ_ICEWALL || su->group->skill_id == GN_WALLOFTHORN)
-			{
+			else if (su->group->skill_id == WZ_ICEWALL || (su->group->skill_id == GN_WALLOFTHORN && skill_id != GN_CARTCANNON)) {
+				switch (skill_id) {
+				case RK_DRAGONBREATH:
+				case RK_DRAGONBREATH_WATER:
+				case NC_SELFDESTRUCTION:
+				case NC_AXETORNADO:
+				case SR_SKYNETBLOW:
+					// Can only hit icewall in PVP/GVG maps
+					if (!map[m].flag.pvp && !map[m].flag.gvg)
+						return 0;
+					break;
+				case HT_CLAYMORETRAP:
+					// Can't hit icewall
+					return 0;
+				default:
+					// Usually BCT_ALL stands for only hitting chars, but skills specifically set to hit traps also hit icewall
+					if ((flag&BCT_ALL) == BCT_ALL && !skill_get_inf2(skill_id)&INF2_HIT_TRAP)
+						return -1;
+				}
 				state |= BCT_ENEMY;
 				strip_enemy = 0;
 			} else	//Excepting traps and icewall, you should not be able to target skills.
@@ -6610,8 +6631,8 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 	}
 	
 	if( (flag&BCT_ALL) == BCT_ALL )
-	{ //All actually stands for all attackable chars 
-		if( target->type&BL_CHAR )
+	{ //All actually stands for all attackable chars, icewall and traps
+		if (target->type&(BL_CHAR | BL_SKILL))
 			return 1;
 		else
 			return -1;
@@ -6756,7 +6777,7 @@ static const struct _battle_data {
 	{ "player_damage_delay_rate",           &battle_config.pc_damage_delay_rate,            100,    0,      INT_MAX,        },
 	{ "defunit_not_enemy",                  &battle_config.defnotenemy,                     0,      0,      1,              },
 	{ "gvg_traps_target_all",               &battle_config.vs_traps_bctall,                 BL_PC,  BL_NUL, BL_ALL,         },
-	{ "traps_setting",                      &battle_config.traps_setting,                   0,      0,      1,              },
+	{ "traps_setting",                      &battle_config.traps_setting,                   0,      0,      2,              },
 	{ "summon_flora_setting",               &battle_config.summon_flora,                    1|2,    0,      1|2,            },
 	{ "clear_skills_on_death",              &battle_config.clear_unit_ondeath,              BL_NUL, BL_NUL, BL_ALL,         },
 	{ "clear_skills_on_warp",               &battle_config.clear_unit_onwarp,               BL_ALL, BL_NUL, BL_ALL,         },
@@ -7275,7 +7296,7 @@ static const struct _battle_data {
 	{ "guild_leaderchange_woe",				&battle_config.guild_leaderchange_woe,			0,		0,		1,				},
 	{ "default_bind_on_equip",              &battle_config.default_bind_on_equip,           BOUND_CHAR, BOUND_NONE, BOUND_MAX - 1, },
 	{ "devotion_rdamage_skill_only",        &battle_config.devotion_rdamage_skill_only,     1,      0,      1,				},
-	{ "monster_chase_refresh",              &battle_config.mob_chase_refresh,               1,      0,      30,				},
+	{ "monster_chase_refresh",              &battle_config.mob_chase_refresh,               3,      0,      30,				},
 	{ "magiccrasher_renewal",				&battle_config.magiccrasher_renewal,			0,      0,      1,				},
 	{ "arrow_shower_knockback",             &battle_config.arrow_shower_knockback,          1,      0,      1,				},
 	{ "min_npc_vending_distance",           &battle_config.min_npc_vending_distance,		3,      0,      100				},
@@ -7287,6 +7308,8 @@ static const struct _battle_data {
 	{ "monster_loot_search_type",           &battle_config.monster_loot_search_type,        1,      0,      1,				},
 	{ "monster_stuck_warning",              &battle_config.mob_stuck_warning,               0,      0,      1,				},
 	{ "skill_eightpath_algorithm",          &battle_config.skill_eightpath_algorithm,       1,      0,      1,				},
+	{ "can_damage_skill",                   &battle_config.can_damage_skill,                1,      0,      BL_ALL,			},
+	{ "monster_eye_range_bonus",            &battle_config.mob_eye_range_bonus,             0,      0,      10,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

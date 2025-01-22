@@ -5,6 +5,59 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/22/2025
+	r498 [15peaces]
+		*Fixed an issue with the status_change_data that caused several status changes to break.
+			-follow up 973f737
+		*Cleaned up rental item expiration
+			-Boarding Halter will now properly be removed on expiration when a player is logged out.
+			-Removed hard coded checks for other official rental items.
+			-Rental items now call the OnUnequip Script of the item which can be used to remove player states.
+			-Updated various items in the database to match the new format.	
+		*Trap Invisibility fixes
+			-Changed `traps_setting` config values.
+				-- 0 = Always visible (default)
+				-- 1 = Enable invisibility in versus maps (GVG/PVP/BG)
+				-- 2 = Enable invisibility in all maps
+			-Added skill unit flag `UF_HIDDEN_TRAP = 0x4000` for trap invisibility.
+		*Cleaned up skill fail checks on `skill_castend_id`.
+		*Fixed Magnum Break to not hit hidden targets.
+		*Genetic Change Material will no longer ignore if the created item is stackable or not.
+		*Blessing no longer gives stat bonuses when Curse is active.
+		*Fixed TF_BACKSLIDE with 'no-knockback' bonus.
+		*Fixed possible map crashes caused by SG Warm skills and TK_COUNTER.
+			-Thanks to @rathena
+		*Resolves a check for skills that have required equipment items to check for all items in the list.
+			-Also added the official fail message.
+		*Updated Flying Side Kick effect
+			-Fog Wall should still apply to players who use Flying Side Kick to get out.
+		*Some cleaning.
+		*Implemented Waterball and Jupitel Thunder double cast.
+			-Waterball and Jupitel now won't apply a delay after they have been cast and won't notify the client about the spell until 150ms later, if another skill request is received, it will actually be cast as well
+			-To prevent exploits this behavior can only be used every 2 seconds
+			-This allows you to cast a spell after Jupitel that would not have enough range to be cast after knockback
+		*Finally implemented the official waterball unit behavior
+			-When casting Waterball, water, deluge and suiton units will be turned into waterball units
+			-These waterball units are then turned into waterballs one-by-one
+			-All unit behavior now also applies to waterball, special handling is now solved via db files
+			-If there are multiple waterball timers active at the same time, they will actually compete for the waterball units
+			-When waterball does not deal damage (100% resist), it will now cancel, allowing you to act and move again
+			-Waterball now uses UNT_DUMMYSKILL.
+		*Mystical Amplification improved
+			-Mystical Amplification will now toggle at cast begin rather than cast end
+			-When Mystical Amplification ends, spell damage will be immediately lower even for ongoing spells
+		*Mystical Amplification cast time can no longer be reduced by item bonuses except Staff of Destruction.
+		*Deluge/Volcano/Gale will no longer be blocked by UNT_DUMMYSKILL units.
+		*Added a configuration with which you can set the level of Vulture's Eye and Snake's Eye that monsters have learned.
+		*NPC_EVILLAND updates
+			-NPC_EVILLAND now has 3+level intervals, a target range of 7 and ignores flee,
+			-NPC_EVILLAND's area of effect per unit is now 11x11 on level 1-9 and 27x27 on level 10
+			-NPC_EVILLAND now ignores Devotion
+		*Sanctuary updates
+			-Sanctuary now has exactly 1+3*level heal intervals, regardless of number of players healed
+			-Sanctuary will end early when 3+level targets have been hit, targets currently on Sanctuary might still be hit when it expires
+		*Chorus skills now work as long as another performer is in the same party and on screen as the caster -- no longer has to be adjacent to caster.
+
 01/09/2025
 	r497 [15peaces]
 		*Ground Drift fixes

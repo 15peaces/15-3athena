@@ -230,7 +230,9 @@ struct skill_unit {
 
 	int limit;
 	int val1,val2;
-	short alive,range;
+	short range;
+	unsigned alive : 1;
+	unsigned hidden : 1;
 };
 
 #define MAX_SKILLUNITGROUPTICKSET 25
@@ -255,6 +257,7 @@ enum e_skill_unit_flag {
 	UF_DUALMODE			= 0x0800,	// Spells should trigger both ontimer and onplace/onout/onleft effects.
 	UF_NOKNOCKBACK		= 0x1000,	// Skill unit cannot be knocked back
 	UF_SINGLEANIMATION	= 0x2000,	// Displays a single animation at center of AoE.
+	UF_HIDDEN_TRAP		= 0x4000,	// Hidden trap [Cydh]
 };
 
 // Create Database item
@@ -378,7 +381,7 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 // ユニットスキル
 struct skill_unit_group* skill_id2group(int group_id);
 struct skill_unit_group *skill_unitsetting(struct block_list* src, short skill_id, short skill_lv, short x, short y, int flag);
-struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2);
+struct skill_unit *skill_initunit (struct skill_unit_group *group, int idx, int x, int y, int val1, int val2, bool hidden);
 int skill_delunit(struct skill_unit *unit);
 struct skill_unit_group *skill_initunitgroup(struct block_list* src, int count, short skill_id, short skill_lv, int unit_id, int limit, int interval);
 int skill_delunitgroup_(struct skill_unit_group *group, const char* file, int line, const char* func);
@@ -388,6 +391,10 @@ int skill_clear_group(struct block_list *bl, int flag);
 void ext_skill_unit_onplace(struct skill_unit *src, struct block_list *bl, int64 tick);
 
 int64 skill_unit_ondamaged(struct skill_unit *src,struct block_list *bl,int64 damage);
+
+// Skill unit visibility [Cydh]
+void skill_getareachar_skillunit_visibilty(struct skill_unit *su, enum send_target target);
+void skill_getareachar_skillunit_visibilty_single(struct skill_unit *su, struct block_list *bl);
 
 int skill_castfix( struct block_list *bl, int skill_id, int skill_lv);
 //int skill_castfix_sc( struct block_list *bl, int time);
@@ -467,6 +474,8 @@ void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
 bool skill_is_combo(int skill_id);
 void skill_combo_toogle_inf(struct block_list* bl, uint16 skill_id, int inf);
 void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_list *bl, uint16 skill_id, uint16 skill_lv, int64 tick);
+
+void skill_reveal_trap_inarea(struct block_list *src, int range, int x, int y);
 
 void skill_reload(void);
 

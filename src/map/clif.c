@@ -5462,7 +5462,7 @@ static void clif_graffiti(struct block_list *bl, struct skill_unit *unit, enum s
 /// 08c7 <lenght>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.B <range>.W <visible>.B (ZC_SKILL_ENTRY3)
 /// 099f <lenght>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.L <range>.W <visible>.B (ZC_SKILL_ENTRY4)
 /// 09ca <lenght>.W <id> L <creator id>.L <x>.W <y>.W <unit id>.L <range>.B <visible>.B <skill level>.B (ZC_SKILL_ENTRY5)
-void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, enum send_target target, uint8 flag) {
+void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, enum send_target target, bool visible) {
 	int header = 0, unit_id = 0, pos = 0, fd = 0, len = -1;
 	unsigned char buf[128];
 	
@@ -5482,23 +5482,8 @@ void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, 
 	else
 		unit_id = unit->group->unit_id;
 
-	if (flag && battle_config.traps_setting&1) {
-		switch (unit->group->skill_id) {
-		case HT_ANKLESNARE:
-			if (!map_flag_vs(((TBL_PC*)bl)->bl.m))
-				break;
-		case HT_SKIDTRAP:
-		case MA_SKIDTRAP:
-		case HT_SHOCKWAVE:
-		case HT_SANDMAN:
-		case MA_SANDMAN:
-		case HT_FLASHER:
-		case HT_FREEZINGTRAP:
-		case MA_FREEZINGTRAP:
-			unit_id = UNT_DUMMYSKILL; // Use invisible unit id for Hunter's traps
-			break;
-		}
-	}
+	if (!visible)
+		unit_id = UNT_DUMMYSKILL; // Hack to makes hidden trap really hidden!
 
 #if PACKETVER >= 3
 	if (unit_id == UNT_GRAFFITI) { // Graffiti [Valaris]
@@ -5532,22 +5517,22 @@ void clif_getareachar_skillunit(struct block_list *bl, struct skill_unit *unit, 
 	switch (header) {
 		case 0x011f:
 			WBUFB(buf,pos+14) = unit_id;
-			WBUFB(buf,pos+15) = 1;
+			WBUFB(buf,pos+15) = visible;
 			break;
 		case 0x08c7:
 			WBUFB(buf,pos+14) = unit_id;
 			WBUFW(buf,pos+15) = unit->range;
-			WBUFB(buf,pos+17) = 1;
+			WBUFB(buf,pos+17) = visible;
 			break;
 		case 0x099f:
 			WBUFL(buf,pos+14) = unit_id;
 			WBUFW(buf,pos+18) = unit->range;
-			WBUFB(buf,pos+20) = 1;
+			WBUFB(buf,pos+20) = visible;
 			break;
 		case 0x09ca:
 			WBUFL(buf,pos+14) = unit_id;
 			WBUFB(buf,pos+18) = (unsigned char)unit->range;
-			WBUFB(buf,pos+19) = 1;
+			WBUFB(buf,pos+19) = visible;
 			WBUFB(buf,pos+20) = (unsigned char)unit->group->skill_lv;
 			break;
 	}
@@ -5622,7 +5607,7 @@ static int clif_getareachar(struct block_list* bl,va_list ap)
 		clif_getareachar_item(sd,(struct flooritem_data*) bl);
 		break;
 	case BL_SKILL:
-		clif_getareachar_skillunit(&sd->bl, (TBL_SKILL*)bl, SELF, 1);
+		skill_getareachar_skillunit_visibilty_single((TBL_SKILL*)bl, &sd->bl);
 		break;
 	default:
 		if(&sd->bl == bl)
@@ -5714,7 +5699,7 @@ int clif_insight(struct block_list *bl,va_list ap)
 			clif_getareachar_item(tsd,(struct flooritem_data*)bl);
 			break;
 		case BL_SKILL:
-			clif_getareachar_skillunit(&tsd->bl, (TBL_SKILL*)bl, SELF, 1);
+			skill_getareachar_skillunit_visibilty_single((TBL_SKILL*)bl, &tsd->bl);
 			break;
 		default:
 			clif_getareachar_unit(tsd,bl);
@@ -18372,7 +18357,8 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 	}
 }
 
-/* Thanks to Yommy */
+/// Closes shop (CZ_NPC_TRADE_QUIT).
+/// 09d4
 void clif_parse_NPCShopClosed(int fd, struct map_session_data *sd) {
 	nullpo_retv(sd);
 	sd->npc_shopid = 0;
@@ -20857,7 +20843,7 @@ void clif_favorite_item(struct map_session_data* sd, unsigned short index) {
  **/
 void clif_broadcast_obtain_special_item(const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname) {
 	unsigned char buf[9 + NAME_LENGTH * 2];
-	unsigned short pos = 0, cmd = 0;
+	unsigned short cmd = 0;
 	struct s_packet_db *info = NULL;
 
 	if (!(cmd = packet_db_ack[clif_config.packet_db_ver][ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN]))

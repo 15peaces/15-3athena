@@ -59,7 +59,8 @@ struct view_data* hom_get_viewdata(int class_)
 
 void hom_damage(struct homun_data *hd)
 {
-	clif_hominfo(hd->master,hd,0);
+	if (hd->master)
+		clif_hominfo(hd->master, hd, 0);
 }
 
 int merc_hom_addspiritball(struct homun_data *hd, int max)

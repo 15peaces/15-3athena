@@ -17,6 +17,7 @@
 //      0x0800(UF_DUALMODE)			Spell has effects both at an interval and when you step in/out
 //      0x1000(UF_NOKNOCKBACK)		Cannot be knocked back (only unit that can be damaged)
 //      0x2000(UF_SINGLEANIMATION)	Displays a single animation at center of AoE.
+//      0x4000(UF_HIDDEN_TRAP) 		Hidden trap, see 'traps_setting' skill config to enable this flag
 // 	Example: 0x006 = 0x002+0x004 -> Cannot be stacked nor cast near targets
 //
 // Notes:
@@ -36,6 +37,7 @@
  80,0x87,0x88,  0, 1,2000,enemy, 0x006	//WZ_FIREPILLAR
  83,0x86,    ,  0, 3,1000,enemy, 0x010	//WZ_METEOR
  85,0x86,    ,  5:5:5:5:5:5:5:5:5:5:7, 1,1250,enemy,0x018	//WZ_VERMILION
+ 86,0x86,    ,  0:1:1:2:2:2:2:2:2:2, 0,-1,noone, 0x010	//WZ_WATERBALL
  87,0x8d,    , -1, 0,  -1,all,   0x1010	//WZ_ICEWALL
  89,0x86,    ,  4, 1, 450,enemy, 0x018	//WZ_STORMGUST
  91,0x86,    ,  2, 0,1000,enemy, 0x010	//WZ_HEAVENDRIVE
@@ -49,7 +51,7 @@
 121,0x97,    ,  0, 1,1000,enemy, 0x006	//HT_FREEZINGTRAP
 122,0x8f,    ,  0, 1,1000,enemy, 0x006	//HT_BLASTMINE
 123,0x98,    ,  0, 1,1000,enemy, 0x006	//HT_CLAYMORETRAP
-125,0x99,    ,  0, 1,1000,all,   0x000	//HT_TALKIEBOX
+125,0x99,    ,  0, 1,1000,all,   0x040	//HT_TALKIEBOX
 140,0x92,    , -1, 1,1000,enemy, 0x000	//AS_VENOMDUST
 220,0xb0,    ,  0, 0,  -1,all,   0x002	//RG_GRAFFITI
 229,0xb1,    ,  0, 1,1000,enemy, 0x006	//AM_DEMONSTRATION
@@ -107,7 +109,7 @@
 //631,0xc8,    ,  2, 0,1000,enemy, 0x018	//DA_RUNNER
 //632,0xc9,    ,  2, 0,1000,enemy, 0x018	//DA_TRANSFER
 
-670,0xc7,    ,  1, 4:7:10:13:16:19:22:25:28:31,1000,all,0x008	//NPC_EVILLAND
+670,0xc7,    ,  1, 5:5:5:5:5:5:5:5:5:13,1000,all,0x008	//NPC_EVILLAND
 //706,0xfd,    ,  0, 0,1000,all, 0x000	//NPC_VENOMFOG//Need information.
 //709,0xfe,    ,  0, 0,1000,all, 0x000	//NPC_ICEMINE/Need information.
 //711,0xff,    ,  0, 0,1000,all, 0x000	//NPC_FLAMECROSS/Need information.
