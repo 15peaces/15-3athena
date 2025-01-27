@@ -470,7 +470,7 @@ void initChangeTables(void)
 	add_sc( SL_STUN		, SC_STUN	);
 	set_sc( SL_SWOO		, SC_SWOO	, SI_SWOO	, SCB_SPEED);
 	set_sc( SL_SKE		, SC_SKE	, SI_BLANK	, SCB_BATK|SCB_WATK|SCB_DEF|SCB_DEF2 );
-	set_sc( SL_SKA		, SC_SKA	, SI_BLANK	, SCB_DEF|SCB_MDEF|SCB_SPEED|SCB_ASPD );
+	set_sc( SL_SKA		, SC_SKA	, SI_BLANK	, SCB_DEF2|SCB_MDEF2|SCB_SPEED|SCB_ASPD );
 	set_sc( SL_SMA		, SC_SMA	, SI_SMA	, SCB_NONE );
 
 	// 2nd Job And Other Skills
@@ -1536,8 +1536,11 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		sp = 0;
 	}
 
-	if (target->type == BL_SKILL)
-		return (int)skill_unit_ondamaged((struct skill_unit *)target, src, hp);
+	if (target->type == BL_SKILL) {
+		if (!src || src->type&battle_config.can_damage_skill)
+			return (int)skill_unit_ondamaged((struct skill_unit *)target, src, hp);
+		return 0;
+	}
 
 	status = status_get_status_data(target);
 	if(!status || status == &dummy_status)
@@ -6003,8 +6006,6 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 
 	if(sc->data[SC_BERSERK])
 		return 0;
-	if(sc->data[SC_SKA])
-		return sc->data[SC_SKA]->val3;
 	if(sc->data[SC_BARRIER])
 		return 100;
 	if(sc->data[SC_KEEPING])
@@ -9139,7 +9140,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if(val4 == BCT_SELF) {	// self effect
 				val2 = tick/10000;
 				tick_time = 10000;
-				status_change_clear_buffs(bl,3); //Remove buffs/debuffs
+				status_change_clear_buffs(bl,11); //Remove buffs/debuffs
 			}
 			break;
 
@@ -9432,11 +9433,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val2 = 20*val1; //matk increase.
 			val3 = 12*val1; //mdef2 reduction.
 			break;
-		case SC_SKA:  
-			val2 = tick/1000;  
-			val3 = rnd()%100; //Def changes randomly every second...  
-			tick = 1000;  
-			break;  
 		case SC_JAILED:
 			//Val1 is duration in minutes. Use INT_MAX to specify 'unlimited' time.
 			tick = val1>0?1000:250;
@@ -11877,7 +11873,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		case SC_STEELBODY:
 		case SC_SKA:
 			sc->opt3 &= ~OPT3_STEELBODY;
-			opt_flag = 0;
+			if (type == SC_SKA)
+				opt_flag = 8;
+			else
+				opt_flag = 0;
 			break;
 		case SC_BLADESTOP:
 			sc->opt3 &= ~OPT3_BLADESTOP;
@@ -12058,14 +12057,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		sc_timer_next(sce->val2+tick, status_change_timer, bl->id, data);
 		return 0;
 	break;
-
-	case SC_SKA:  
-		if(--(sce->val2)>0){  
-			sce->val3 = rnd()%100; //Random defense.  
-			sc_timer_next(1000+tick, status_change_timer,bl->id, data);  
-			return 0;  
-		}  
-		break;
 
 	case SC_HIDING:
 		if(--(sce->val2)>0){
@@ -13165,10 +13156,15 @@ int status_change_timer_sub(struct block_list* bl, va_list ap)
 
 /*==========================================
  * Clears buffs/debuffs of a character.
- * type&1 -> buffs 
- * type&2 -> debuffs
+ * @param bl: Object to clear [PC|MOB|HOM|MER|ELEM]
+ * @param type: Type to remove
+ *  SCCB_BUFFS: Clear Buffs
+ *  SCCB_DEBUFFS: Clear Debuffs
+ *  SCCB_REFRESH: Clear specific debuffs through RK_REFRESH
+ *  SCCB_CHEM_PROTECT: Clear AM_CP_ARMOR/HELM/SHIELD/WEAPON
+ *  SCCB_LUXANIMA: Bonus Script removed through RK_LUXANIMA
  *------------------------------------------*/
-int status_change_clear_buffs (struct block_list* bl, int type)
+int status_change_clear_buffs (struct block_list* bl, uint8 type)
 {
 	int i;
 	struct status_change *sc= status_get_sc(bl);
@@ -13176,7 +13172,7 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 	if (!sc || !sc->count)
 		return 0;
 
-	if (type&2) //Debuffs
+	if (type&(SCCB_DEBUFFS | SCCB_REFRESH)) //Debuffs
 	for( i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++ )
 	{
 		status_change_end(bl, (sc_type)i, INVALID_TIMER);
@@ -13204,10 +13200,6 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_JAILED:
 			case SC_ANKLE:
 			case SC_BLADESTOP:
-			case SC_CP_WEAPON:
-			case SC_CP_SHIELD:
-			case SC_CP_ARMOR:
-			case SC_CP_HELM:
 			case SC_STRFOOD:
 			case SC_AGIFOOD:
 			case SC_VITFOOD:
@@ -13287,6 +13279,15 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_MTF_PUMPKIN:
 			case SC_MTF_HITFLEE:
 				continue;
+
+			// Chemical Protection is only removed by some skills
+			case SC_CP_WEAPON:
+			case SC_CP_SHIELD:
+			case SC_CP_ARMOR:
+			case SC_CP_HELM:
+				if (!(type&SCCB_CHEM_PROTECT))
+					continue;
+				break;
 				
 			//Debuffs that can be removed.
 			case SC_HALLUCINATION:
@@ -13307,17 +13308,17 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 			case SC_ADORAMUS:
 			case SC_VACUUM_EXTREME:
 			case SC_MAGNETICFIELD:
-				if (!(type&2))
+				if (!(type&SCCB_DEBUFFS))
 					continue;
 				break;
 			//The rest are buffs that can be removed.
 			case SC_BERSERK:
-				if (!(type&1))
+				if (!(type&SCCB_BUFFS))
 					continue;
 			  	sc->data[i]->val2 = 0;
 				break;
 			default:
-				if (!(type&1))
+				if (!(type&SCCB_BUFFS))
 					continue;
 				break;
 		}
@@ -13326,10 +13327,10 @@ int status_change_clear_buffs (struct block_list* bl, int type)
 		//Removes bonus_script
 		if (bl->type == BL_PC) {
 			i = 0;
-			if (type&1) i |= BSF_REM_BUFF;
-			if (type&2) i |= BSF_REM_DEBUFF;
-			if (type&4) i |= BSF_REM_ON_REFRESH;
-			if (type&8) i |= BSF_REM_ON_LUXANIMA;
+			if (type&SCCB_BUFFS) i |= BSF_REM_BUFF;
+			if (type&SCCB_DEBUFFS) i |= BSF_REM_DEBUFF;
+			if (type&SCCB_REFRESH) i |= BSF_REM_ON_REFRESH;
+			if (type&SCCB_LUXANIMA) i |= BSF_REM_ON_LUXANIMA;
 			pc_bonus_script_clear(BL_CAST(BL_PC,bl),i);
 		}
 	}

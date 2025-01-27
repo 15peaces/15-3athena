@@ -5,6 +5,51 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/27/2025
+	r499 [15peaces]
+		*Fixed Dispel
+			-Dispell is now usable outside PvP in Duels.
+			-Dispell is now usable outside PvP in the caster's party.
+		*The following monster level 10 skills now have their official effect
+			-Brandish Spear: 5x5 line of damage. 562% damage to all cells.
+			-Magnum Break: 9x9 AoE. 600% damage to all cells.
+			-Mammonite: 1200% damage.
+			-Fireball: 510% damage.
+		*When used by monsters, Brandish Spear and Magnum Break now always deal full damage, independent of distance.
+		*Fixed PR_REDEMPTIO requirement
+			-Only charge the Base EXP.
+			-Lost EXP will be displayed.
+		*NPC_LICK now has a base chance of 20%*level and a base duration of 5s
+		*Excruciating Palm now has a base duration 5s
+		*Sightless Mind now has a base duration of 30s	
+		*Implemented official behavior when attacking icewalls and traps with skills.
+			-Skills hitting icewalls and traps: Arrow Shower, Cold Slower, Tornado Kick, Sightless Mind, Meteor Assault, Spread Attack, Throw Huuma, Sightrasher, Sight Blaster, Earth Shaker, Rampage Blaster, Feint Bomb, Magnum Break, Fire Trap, 
+			- Ice Trap, Cart Revolution, Napalm Vulcan, Triple Attack, Occult Impaction, Throw Spirit Sphere, Asura Strike, Spear Stab, Spiral Pierce, Holy Cross
+			-Can target icewalls and traps but have strange behavior: Bowling Bash, Focused Arrow Strike, First Wind
+			-Can hit icewalls and traps, but not target traps: Grimtooth, Raging Thrust, Blitz Beat, Napalm Beat, Fireball, Vulcan Arm, Tiger Cannon
+			-Can hit icewalls and traps ONLY in PVP: Dragon Breath, Suicidal Destruction, Axe Tornado, Sky Blow
+			-Can hit icewalls only: All other single target skills, Counter Slash
+			-Can target icewalls but have strange behavior: Brandish Spear, Wind Cutter, Cannon Spear, Flame Launcher
+			-Can not hit icewalls and traps: All unit skills, Frost Nova, Comet, Arms Cannon, Fatal Menace, Lion Howling
+			-Can destroy traps but not hit icewalls: Claymore Trap
+			-When monsters use skills, they hit icewalls and traps and the damage displays, but they will no longer deal actual damage to the icewall or trap
+				--Added an option to skill.conf with which you can define which types can damage icewalls and traps, by default it's 1 (player only), if you want to revert to previous behavior, set it to 31 (all)
+			-Fixed an issue where traps could not hit icewalls and other traps in PVP
+			-Taekwon combos can now trigger on traps
+			-Fixed an issue that caused damage to be displayed twice when attacking a trap with certain skills
+		*Fixed Talkie Box being triggered by monsters
+		*The High Priestess Card from Tarot Card of Fate now removes Chemical Protection (all)
+		*Gospel now removes Chemical Protection (all) on the caster
+		*status_change_clear_buffs updates.
+			-Changed all flag bitmask values to readable constants.
+			-Added better support for SCCB_REFRESH (&4) flag.
+		*Fixed Eska.
+			-Eska no longer changes hard DEF
+			-Eska increases soft DEF by a random 0~99 each hit
+			-Eska no longer uses a weird timer that doesn't work anyway
+			-Fixed the effect of Eska not being removed when the status change ends on monsters
+		*Some clean-up.
+
 01/22/2025
 	r498 [15peaces]
 		*Fixed an issue with the status_change_data that caused several status changes to break.
