@@ -746,7 +746,8 @@ RC_All	11
 Class_Normal	0
 Class_Boss	1
 Class_Guardian	2
-Class_All	3
+Class_Battlefield	3
+Class_All	4
 
 RC2_None	0
 RC2_Goblin	1
@@ -755,6 +756,10 @@ RC2_Orc	3
 RC2_Golem	4
 RC2_Guardian	5
 RC2_Ninja	6
+RC2_Scaraba	7
+RC2_Gvg	8
+RC2_Battlefield	9
+RC2_Treasure	10
 
 Size_Small	0
 Size_Medium	1

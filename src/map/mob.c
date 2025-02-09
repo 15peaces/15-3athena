@@ -342,6 +342,7 @@ struct mob_data* mob_spawn_dataset(struct spawn_data *data)
  * &2: Apply a monster check level.
  * &4: Selected monster should not be a boss type
  * &8: Selected monster must have normal spawn.
+ * &16: Selected monster should not be a plant type
  * lv: Mob level to check against
  *------------------------------------------*/
 int mob_get_random_id(int type, int flag, int lv)
@@ -362,8 +363,9 @@ int mob_get_random_id(int type, int flag, int lv)
 		mob_is_clone(class_) ||
 		(flag&1 && mob->summonper[type] <= rnd() % 1000000) ||
 		(flag&2 && lv < mob->lv) ||
-		(flag&4 && mob->status.mode&MD_BOSS) ||
-		(flag&8 && mob->spawn[0].qty < 1)
+		(flag&4 && status_has_mode(&mob->status, MD_STATUS_IMMUNE)) ||
+		(flag&8 && mob->spawn[0].qty < 1) ||
+		(flag&16 && status_has_mode(&mob->status, MD_IGNOREMELEE | MD_IGNOREMAGIC | MD_IGNORERANGED | MD_IGNOREMISC))
 	) && (i++) < MAX_MOB_DB);
 
 	if(i >= MAX_MOB_DB)  // no suitable monster found, use fallback for given list
@@ -884,7 +886,7 @@ int mob_delayspawn(int tid, int64 tick, int id, intptr_t data)
  *------------------------------------------*/
 int mob_setdelayspawn(struct mob_data *md)
 {
-	unsigned int spawntime, mode;
+	unsigned int spawntime;
 	struct mob_db *db;
 
 	if (!md->spawn) //Doesn't has respawn data!
@@ -896,15 +898,14 @@ int mob_setdelayspawn(struct mob_data *md)
 
 	//Apply the spawn delay fix [Skotlex]
 	db = mob_db(md->spawn->class_);
-	mode = db->status.mode;
-	if (mode & MD_BOSS) {	//Bosses
+	if (status_has_mode(&db->status, MD_STATUS_IMMUNE)) { // Status Immune
 		if (battle_config.boss_spawn_delay != 100) {
 			// Divide by 100 first to prevent overflows
 			//(precision loss is minimal as duration is in ms already)
 			spawntime = spawntime / 100 * battle_config.boss_spawn_delay;
 		}
 	}
-	else if (mode&MD_PLANT) {	//Plants
+	else if (status_has_mode(&db->status, MD_IGNOREMELEE | MD_IGNOREMAGIC | MD_IGNORERANGED | MD_IGNOREMISC)) { // Plant type
 		if (battle_config.plant_spawn_delay != 100) {
 			spawntime = spawntime / 100 * battle_config.plant_spawn_delay;
 		}
@@ -1120,7 +1121,7 @@ static int mob_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 	{
 	case BL_PC:
 		if (((TBL_PC*)bl)->state.gangsterparadise &&
-			!(status_get_mode(&md->bl)&MD_BOSS))
+			!(status_get_mode(&md->bl)&MD_STATUS_IMMUNE))
 			return 0; //Gangster paradise protection.
 		if( md->sc.count && md->sc.data[SC_SIREN] && md->sc.data[SC_SIREN]->val2 == bl->id )
 			return 0;
@@ -1523,7 +1524,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 			(md->ud.walktimer != INVALID_TIMER && !(battle_config.mob_ai&0x1) && !check_distance_bl(&md->bl, tbl, md->min_chase)) ||
 			(
 				tbl->type == BL_PC &&
-				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_BOSS)) ||
+				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_STATUS_IMMUNE)) ||
 				((TBL_PC*)tbl)->invincible_timer != INVALID_TIMER)
 		)) {	//No valid target
 			if (mob_warpchase(md, tbl))
@@ -1831,7 +1832,7 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 
 	if(battle_config.mob_active_time &&
 		md->last_pcneartime &&
- 		!(md->status.mode&MD_BOSS) &&
+ 		!(md->status.mode&MD_STATUS_IMMUNE) &&
 		DIFF_TICK(tick,md->last_thinktime) > MIN_MOBTHINKTIME)
 	{
 		if (DIFF_TICK(tick,md->last_pcneartime) < battle_config.mob_active_time)
@@ -1841,7 +1842,7 @@ static int mob_ai_sub_lazy(struct mob_data *md, va_list args)
 
 	if(battle_config.boss_active_time &&
 		md->last_pcneartime &&
-		(md->status.mode&MD_BOSS) &&
+		(md->status.mode&MD_STATUS_IMMUNE) &&
 		DIFF_TICK(tick,md->last_thinktime) > MIN_MOBTHINKTIME)
 	{
 		if (DIFF_TICK(tick,md->last_pcneartime) < battle_config.boss_active_time)
@@ -2207,7 +2208,7 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 		clif_name_area(&md->bl);
 
 #if PACKETVER >= 20120404
-	if (!(md->status.mode&MD_BOSS)) {
+	if (!(md->status.mode&MD_STATUS_IMMUNE)) {
 		int i;
 		for (i = 0; i < DAMAGELOG_SIZE; i++) { // must show hp bar to all char who already hit the mob.
 			struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
@@ -2734,8 +2735,10 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 		}
 
 		if (sd) {
+			struct mob_data *mission_md = map_id2md(sd->mission_mobid);
+
 			if (sd->mission_mobid == md->mob_id ||
-				(battle_config.taekwon_mission_mobname == 1 && mob_is_goblin(md, sd->mission_mobid)) ||
+				(battle_config.taekwon_mission_mobname == 1 && status_get_race2(&md->bl) == RC2_GOBLIN && status_get_race2(&mission_md->bl) == RC2_GOBLIN && mission_md) ||
 				(battle_config.taekwon_mission_mobname == 2 && mob_is_samename(md, sd->mission_mobid))) { //TK_MISSION [Skotlex]
 				if (++sd->mission_count >= 100 && (temp = mob_get_random_id(0, 0xE, sd->status.base_level))) {
 					pc_addfame(sd, 1);
@@ -2923,7 +2926,7 @@ int mob_class_change (struct mob_data *md, int class_)
 	if (md->guardian_data)
 		return 0; //Guardians/Emperium
 
-	if(mob_is_treasure(md))
+	if (status_get_race2(&md->bl) == RC2_TREASURE)
 		return 0; //Treasure Boxes
 
 	if( md->special_state.ai > 1 )
@@ -3117,26 +3120,7 @@ int mob_summonslave(struct mob_data *md2,int *value,int amount,int skill_id)
 		if (hp_rate) //Scale HP
 			md->status.hp = md->status.max_hp*hp_rate/100;
 
-		//Inherit the aggressive mode of the master.
-		if (battle_config.slaves_inherit_mode && md->master_id)
-	  	{
-			switch (battle_config.slaves_inherit_mode) {
-			case 1: //Always aggressive
-				if (!(md->status.mode&MD_AGGRESSIVE))
-					sc_start4(&md->bl, SC_MODECHANGE, 100,1,0, MD_AGGRESSIVE, 0, 0);
-				break;
-			case 2: //Always passive
-				if (md->status.mode&MD_AGGRESSIVE)
-					sc_start4(&md->bl, SC_MODECHANGE, 100,1,0, 0, MD_AGGRESSIVE, 0);
-				break;
-			default: //Copy master.
-				if (md2->status.mode&MD_AGGRESSIVE)
-					sc_start4(&md->bl, SC_MODECHANGE, 100,1,0, MD_AGGRESSIVE, 0, 0);
-				else
-					sc_start4(&md->bl, SC_MODECHANGE, 100,1,0, 0, MD_AGGRESSIVE, 0);
-				break;
-			}
-		}
+		status_calc_slave_mode(md, md2);
 
 		if (md2->state.copy_master_mode)
 			md->status.mode = md2->status.mode;
@@ -3918,10 +3902,8 @@ static bool mob_parse_dbrow(char** str)
 	if (!battle_config.monster_active_enable)
 		status->mode &= ~MD_AGGRESSIVE;
 
-	if (status_has_mode(status, MD_BOSS|/*MD_STATUS_IMMUNE|*/MD_KNOCKBACK_IMMUNE|MD_DETECTOR))
+	if (status_has_mode(status, MD_STATUS_IMMUNE|MD_KNOCKBACK_IMMUNE|MD_DETECTOR))
 		status->class_ = CLASS_BOSS;
-	else if (mob_is_guardian(mob_id))
-		status->class_ = CLASS_GUARDIAN;
 	else // Store as Normal and overwrite in mob_race2_db for special Class
 		status->class_ = CLASS_NORMAL;
 	
@@ -3992,8 +3974,8 @@ static bool mob_parse_dbrow(char** str)
 		}
 	}
 
-	is_mvp = status_has_mode(status, MD_MVP);
-	is_boss = status_has_mode(status, MD_BOSS);
+	is_mvp = status_has_mode(&db->status, MD_MVP);
+	is_boss = (db->status.class_ == CLASS_BOSS);
 	
 	for(i = 0; i < MAX_MOB_DROP; i++) {
 		int rate = 0, rate_adjust, type;
@@ -4009,8 +3991,8 @@ static bool mob_parse_dbrow(char** str)
 		type = id->type;
 		rate = atoi(str[k+1]);
 
-		if( (mob_id >= 1324 && mob_id <= 1363) || (mob_id >= 1938 && mob_id <= 1946) )
-		{	//Treasure box drop rates [Skotlex]
+		//Treasure box drop rates [Skotlex]
+		if (db->race2 == RC2_TREASURE) {
 			rate_adjust = battle_config.item_rate_treasure;
 			ratemin = battle_config.item_drop_treasure_min;
 			ratemax = battle_config.item_drop_treasure_max;
@@ -4586,7 +4568,7 @@ static bool mob_parse_row_mobskilldb(char** str, int columns, int current)
 		{
 			if (mob_db_data[i] == NULL)
 				continue;
-			if (mob_db_data[i]->status.mode&MD_BOSS)
+			if (mob_db_data[i]->status.mode&MD_STATUS_IMMUNE)
 			{
 				if (!(mob_id&2)) //Skill not for bosses
 					continue;
@@ -4661,6 +4643,12 @@ static bool mob_readdb_race2(char* fields[], int columns, int current)
 			continue;
 		}
 		mob_db_data[mobid]->race2 = race;
+
+		// Apply Aegis Class
+		if (race == RC2_GUARDIAN)
+			mob_db_data[mobid]->status.class_ = CLASS_GUARDIAN;
+		else if (race == RC2_BATTLEFIELD)
+			mob_db_data[mobid]->status.class_ = CLASS_BATTLEFIELD;
 	}
 	return true;
 }

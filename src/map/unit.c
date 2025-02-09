@@ -356,8 +356,8 @@ static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data)
 	dx = dirx[(int)dir];
 	dy = diry[(int)dir];
 
-	//Get icewall walk block depending on boss mode (players can't be trapped)
-	if (md && md->status.mode&MD_BOSS)
+	// Get icewall walk block depending on Status Immune mode (players can't be trapped)
+	if (md && status_has_mode(&md->status, MD_STATUS_IMMUNE))
 		icewall_walk_block = battle_config.boss_icewall_walk_block;
 	else if (md)
 		icewall_walk_block = battle_config.mob_icewall_walk_block;
@@ -972,26 +972,26 @@ int unit_escape(struct block_list *bl, struct block_list *target, short dist)
  *		1: Easy path check (no obstacle on movement path)
  *		2: Long path check (no obstacle on line from start to destination)
  * @param checkpath: Whether or not to do a cell and path check for NOPASS and NOREACH
- * @return 1: Success 0: Fail
+ * @return true: Success false: Fail
  *------------------------------------------*/
-int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath)
+bool unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath)
 {
 	short dx,dy;
 	uint8 dir;
 	struct unit_data        *ud = NULL;
 	struct map_session_data *sd = NULL;
 
-	nullpo_ret(bl);
+	nullpo_retr(false, bl);
 	sd = BL_CAST(BL_PC, bl);
 	ud = unit_bl2ud(bl);
 
-	if( ud == NULL) return 0;
+	if( ud == NULL) return false;
 
 	unit_stop_walking(bl,1);
 	unit_stop_attack(bl);
 
 	if( checkpath && (map_getcell(bl->m,dst_x,dst_y,CELL_CHKNOPASS) || !path_search(NULL,bl->m,bl->x,bl->y,dst_x,dst_y,easy,CELL_CHKNOREACH)) )
-		return 0; // unreachable
+		return false; // unreachable
 
 	ud->to_x = dst_x;
 	ud->to_y = dst_y;
@@ -1016,7 +1016,7 @@ int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool
 		if(map_getcell(bl->m,bl->x,bl->y,CELL_CHKNPC)) {
 			npc_touch_areanpc(sd,bl->m,bl->x,bl->y);
 			if (bl->prev == NULL) //Script could have warped char, abort remaining of the function.
-				return 0;
+				return false;
 		} else
 			sd->areanpc_id=0;
 
@@ -1041,7 +1041,7 @@ int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool
 			}
 		}
 	}
-	return 1;
+	return true;
 }
 
 /*==========================================
@@ -1169,12 +1169,11 @@ int unit_blown(struct block_list* bl, int dx, int dy, int count, int flag)
  *      0x4 - Boss attack
  * @return reason for immunity
  *		0 - can be knocked back / stopped
- *		1 - at WOE/BG map;
- *		2 - target is emperium
- *		3 - target is MD_KNOCKBACK_IMMUNE|MD_BOSS;
- *		4 - target is in Basilica area;
- *		5 - target has 'special_state.no_knockback';
- *      6 - target is trap that cannot be knocked back
+ *		1 - at WOE/BG map
+ *		2 - target is MD_KNOCKBACK_IMMUNE
+ *		3 - target is in Basilica area
+ *		4 - target has 'special_state.no_knockback'
+ *		5 - target is trap that cannot be knocked back
  */
 uint8 unit_blown_immune(struct block_list* bl, uint8 flag)
 {
@@ -1185,30 +1184,27 @@ uint8 unit_blown_immune(struct block_list* bl, uint8 flag)
 	switch (bl->type) {
 	case BL_MOB: {
 		struct mob_data* md = BL_CAST(BL_MOB, bl);
-		// Emperium can't be knocked back
-		if (md->mob_id == MOBID_EMPERIUM)
-			return 2;
-		// Bosses or immune can't be knocked back
-		if ((flag & 0x1) && status_get_mode(bl)&(MD_KNOCKBACK_IMMUNE | MD_BOSS)
+		// Immune can't be knocked back
+		if (((flag & 0x1) && status_bl_has_mode(bl, MD_KNOCKBACK_IMMUNE))
 			&& ((flag & 0x2) || !(battle_config.skill_trap_type & 0x2)))
-			return 3;
+			return 2;
 	}
 				 break;
 	case BL_PC: {
 		struct map_session_data *sd = BL_CAST(BL_PC, bl);
 		// Basilica caster can't be knocked-back by normal monsters.
 		if (!(flag & 0x4) && &sd->sc && sd->sc.data[SC_BASILICA] && sd->sc.data[SC_BASILICA]->val4 == sd->bl.id)
-			return 4;
+			return 3;
 		// Target has special_state.no_knockback (equip)
 		if ((flag&(0x1 | 0x2)) && sd->special_state.no_knockback)
-			return 5;
+			return 4;
 	}
 				break;
 	case BL_SKILL: {
 		struct skill_unit* su = (struct skill_unit *)bl;
 		// Trap cannot be knocked back
 		if (su && su->group && skill_get_unit_flag(su->group->skill_id)&UF_NOKNOCKBACK)
-			return 6;
+			return 5;
 	}
 				   break;
 	}
@@ -1488,8 +1484,8 @@ int unit_can_move(struct block_list *bl)
 	// Icewall walk block special trapped monster mode
 	if (bl->type == BL_MOB) {
 		struct mob_data *md = BL_CAST(BL_MOB, bl);
-		if (md && ((md->status.mode&MD_BOSS && battle_config.boss_icewall_walk_block == 1 && map_getcell(bl->m, bl->x, bl->y, CELL_CHKICEWALL))
-			|| (!(md->status.mode&MD_BOSS) && battle_config.mob_icewall_walk_block == 1 && map_getcell(bl->m, bl->x, bl->y, CELL_CHKICEWALL)))) {
+		if (md && ((status_has_mode(&md->status, MD_STATUS_IMMUNE) && battle_config.boss_icewall_walk_block == 1 && map_getcell(bl->m, bl->x, bl->y, CELL_CHKICEWALL))
+			|| (!status_has_mode(&md->status, MD_STATUS_IMMUNE) && battle_config.mob_icewall_walk_block == 1 && map_getcell(bl->m, bl->x, bl->y, CELL_CHKICEWALL)))) {
 			md->walktoxy_fail_count = 1; //Make sure rudeattacked skills are invoked
 			return 0;
 		}
@@ -1537,7 +1533,7 @@ int unit_set_walkdelay(struct block_list *bl, int64 tick, int delay, int type)
 	
 	if (type) {
 		//Bosses can ignore skill induced walkdelay (but not damage induced)
-		if(bl->type == BL_MOB && (((TBL_MOB*)bl)->status.mode&MD_BOSS))
+		if (bl->type == BL_MOB && status_has_mode(status_get_status_data(bl), MD_STATUS_IMMUNE))
 			return 0;
 		//Make sure walk delay is not decreased
 		if (DIFF_TICK(ud->canmove_tick, tick+delay) > 0)
@@ -1605,9 +1601,10 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		sc = NULL; //Unneeded
 
 	//temp: used to signal combo-skills right now.
-	if (sc && sc->data[SC_COMBO] && skill_is_combo(skill_id))
-	{
-		if (sc->data[SC_COMBO]->val2)
+	if (sc && sc->data[SC_COMBO] && skill_is_combo(skill_id) && (sc->data[SC_COMBO]->val1 == skill_id || (sd ? skill_check_condition_castbegin(sd, skill_id, skill_lv) : 0))) {
+		if (skill_is_combo(skill_id) == 2 && target_id == src->id && ud->target > 0)
+			target_id = ud->target;
+		else if (sc->data[SC_COMBO]->val2)
 			target_id = sc->data[SC_COMBO]->val2;
 		else if (target_id == src->id || ud->target > 0)
 			target_id = ud->target;
@@ -2178,7 +2175,8 @@ int unit_set_target(struct unit_data* ud, int target_id)
 	if (ud->target != target_id) {
 		if (ud->target && (target = map_id2bl(ud->target)) && (ux = unit_bl2ud(target)) && ux->target_count > 0)
 			ux->target_count--;
-		if (target_id && (target = map_id2bl(target_id)) && (ux = unit_bl2ud(target)))
+		
+		if (target_id && (target = map_id2bl(target_id)) && (ux = unit_bl2ud(target)) && ux->target_count < 255)
 			ux->target_count++;
 	}
 

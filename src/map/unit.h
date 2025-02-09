@@ -105,7 +105,7 @@ int unit_set_walkdelay(struct block_list *bl, int64 tick, int delay, int type);
 
 int unit_escape(struct block_list *bl, struct block_list *target, short dist);
 // ˆÊ’u‚Ì‹­§ˆÚ“®(‚«”ò‚Î‚µ‚È‚Ç)
-int unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath);
+bool unit_movepos(struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath);
 int unit_warp(struct block_list *bl, short map, short x, short y, clr_type type);
 int unit_setdir(struct block_list *bl,unsigned char dir);
 uint8 unit_getdir(struct block_list *bl);

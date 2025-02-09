@@ -342,6 +342,7 @@ enum e_classAE {
 	CLASS_NORMAL = 0,
 	CLASS_BOSS,
 	CLASS_GUARDIAN,
+	CLASS_BATTLEFIELD,
 	CLASS_ALL,
 	CLASS_MAX //auto upd enum for array len
 };
@@ -355,6 +356,9 @@ enum e_race2 {
 	RC2_GUARDIAN,
 	RC2_NINJA,
 	RC2_SCARABA,
+	RC2_GVG,
+	RC2_BATTLEFIELD,
+	RC2_TREASURE,
 	RC2_MAX
 };
 

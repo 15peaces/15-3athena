@@ -8086,7 +8086,7 @@ ACMD_FUNC(showmobs)
 // Uncomment the following line to show mini-bosses & MVP.
 //#define SHOW_MVP
 #ifndef SHOW_MVP
-	if(mob_db(mob_id)->status.mode&MD_BOSS){
+	if(mob_db(mob_id)->status.mode&MD_STATUS_IMMUNE){
 		snprintf(atcmd_output, sizeof atcmd_output, "Can't show Boss mobs!");
 		clif_displaymessage(fd, atcmd_output);
 		return 0;
@@ -10201,10 +10201,9 @@ ACMD_FUNC(adopt)
 		return 0;
 	}
 
-	if (response < ADOPT_MORE_CHILDREN) { // No displaymessage for client-type responses
-		sprintf(atcmd_output, msg_txt(sd,748 + response - 1));
-		clif_displaymessage(fd, atcmd_output);
-	}
+	if (response < ADOPT_MORE_CHILDREN) // No displaymessage for client-type responses
+		clif_displaymessage(fd, msg_txt(sd, 748 + response - 1));
+
 	return -1;
 }
 

@@ -101,6 +101,7 @@ int overbrand_brandish_nounit_pos;
 //early declaration
 static int skill_check_unit_range(struct block_list *bl, int x, int y, int skill_id, int skill_lv);
 static int skill_check_unit_range2(struct block_list *bl, int x, int y, int skill_id, int skill_lv);
+static bool skill_check_unit_movepos(uint8 check_flag, struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath);
 
 //Since only mob-casted splash skills can hit ice-walls
 static inline int splash_target(struct block_list* bl)
@@ -766,35 +767,33 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	tstatus = status_get_status_data(bl);
 
 	// Taekwon combos activate on traps, so we need to check them even for targets that don't have status
-	if (sd && skill_id == 0 && !(attack_type&BF_SKILL)) {
-		// Chance to trigger Taekwon kicks [Dralnu]
-		if (sc && !sc->data[SC_COMBO]) {
-			if (sc->data[SC_READYSTORM] &&
-				sc_start4(src, SC_COMBO, 15, TK_STORMKICK,
-					bl->id, 2, 0,
-					(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
-				; //Stance triggered
-			else if (sc->data[SC_READYDOWN] &&
-				sc_start4(src, SC_COMBO, 15, TK_DOWNKICK,
-					bl->id, 2, 0,
-					(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
-				; //Stance triggered
-			else if (sc->data[SC_READYTURN] &&
-				sc_start4(src, SC_COMBO, 15, TK_TURNKICK,
-					bl->id, 2, 0,
-					(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
-				; //Stance triggered
-			else if (sc->data[SC_READYCOUNTER]) { //additional chance from SG_FRIEND [Komurka]
-				rate = 20;
-				if (sc->data[SC_SKILLRATE_UP] && sc->data[SC_SKILLRATE_UP]->val1 == TK_COUNTER) {
-					rate += rate * sc->data[SC_SKILLRATE_UP]->val2 / 100;
-					status_change_end(src, SC_SKILLRATE_UP, INVALID_TIMER);
-				}
-				sc_start4(src, SC_COMBO, rate, TK_COUNTER,
-					bl->id, 2, 0,
-					(2000 - 4 * sstatus->agi - 2 * sstatus->dex))
-					; //Stance triggered
+	if (sd && skill_id == 0 && !(attack_type&BF_SKILL) && sc) {
+		// Chance to trigger Taekwon kicks
+		if (sc->data[SC_READYSTORM] &&
+			sc_start4(src, SC_COMBO, 15, TK_STORMKICK,
+				0, 2, 0,
+				(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
+			; //Stance triggered
+		else if (sc->data[SC_READYDOWN] &&
+			sc_start4(src, SC_COMBO, 15, TK_DOWNKICK,
+				0, 2, 0,
+				(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
+			; //Stance triggered
+		else if (sc->data[SC_READYTURN] &&
+			sc_start4(src, SC_COMBO, 15, TK_TURNKICK,
+				0, 2, 0,
+				(2000 - 4 * sstatus->agi - 2 * sstatus->dex)))
+			; //Stance triggered
+		else if (sc->data[SC_READYCOUNTER]) { //additional chance from SG_FRIEND [Komurka]
+			rate = 20;
+			if (sc->data[SC_SKILLRATE_UP] && sc->data[SC_SKILLRATE_UP]->val1 == TK_COUNTER) {
+				rate += rate * sc->data[SC_SKILLRATE_UP]->val2 / 100;
+				status_change_end(src, SC_SKILLRATE_UP, INVALID_TIMER);
 			}
+			sc_start4(src, SC_COMBO, rate, TK_COUNTER,
+				0, 2, 0,
+				(2000 - 4 * sstatus->agi - 2 * sstatus->dex))
+			; //Stance triggered
 		}
 	}
 
@@ -1124,7 +1123,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 
 	case LK_SPIRALPIERCE:
 	case ML_SPIRALPIERCE:
-		sc_start(bl,SC_STOP,(15+skill_lv*5),0,skill_get_time2(skill_id,skill_lv));
+		if (dstsd || (dstmd && status_bl_has_mode(bl, MD_STATUS_IMMUNE))) //Does not work on status immune
+			sc_start(bl,SC_STOP,(15+skill_lv*5),0,skill_get_time2(skill_id,skill_lv));
 		break;
 
 	case ST_REJECTSWORD:
@@ -1289,7 +1289,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	case RA_COBALTTRAP:
 	case RA_MAIZETRAP:
 	case RA_VERDURETRAP:
-		if( dstmd && !(dstmd->status.mode&MD_BOSS) )
+		if( dstmd && !(dstmd->status.mode&MD_STATUS_IMMUNE) )
 			sc_start2(bl,SC_ELEMENTALCHANGE,100,skill_lv,skill_get_ele(skill_id,skill_lv),skill_get_time2(skill_id,skill_lv));
 		break;
 	case RA_FIRINGTRAP:
@@ -1359,7 +1359,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		rate = 32 + 8 * skill_lv;
 		if( rnd()%100 < rate && dstsd ) // Uses skill_addtimerskill to avoid damage and setsit packet overlaping. Officially clif_setsit is received about 500 ms after damage packet.
 			skill_addtimerskill(src,tick+500,bl->id,0,0,skill_id,skill_lv,BF_WEAPON,0);
-		else if( dstmd && !is_boss(bl) )
+		else if( dstmd )
 			sc_start(bl,SC_STOP,100,skill_lv,skill_get_time(skill_id,skill_lv));
 		break;
 	case LG_RAYOFGENESIS:	// 50% chance to cause Blind on Undead and Demon monsters.
@@ -1385,7 +1385,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	case SR_WINDMILL:
 		if (dstsd)
 			skill_addtimerskill(src, tick + 500, bl->id, 0, 0, skill_id, skill_lv, BF_WEAPON, 0);
-		else if (dstmd && !is_boss(bl))
+		else if (dstmd)
 			sc_start(bl, SC_STUN, 100, skill_lv, 1000 * rnd() % 4);
 		break;
 	case SR_GENTLETOUCH_QUIET:
@@ -1423,7 +1423,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		break;
 	case SO_CLOUD_KILL:
 		sc_start(bl, SC_POISON, 10 + 10 * skill_lv, skill_lv, skill_get_time2(skill_id, skill_lv)); // Need official rate. [LimitLine]
-		if(tstatus->mode & ~MD_BOSS ) // Boss monsters should be immune to elemental change trough Cloud Kill. Confirm this. [LimitLine]
+		if(tstatus->mode&~MD_STATUS_IMMUNE ) // Boss monsters should be immune to elemental change trough Cloud Kill. Confirm this. [LimitLine]
 			sc_start2(bl, SC_ELEMENTALCHANGE, 10 + 10 * skill_lv, skill_lv, 5, skill_get_time2(skill_id, skill_lv)); // Need official rate. [LimitLine]
 		break;
 	case SO_VARETYR_SPEAR:
@@ -1839,7 +1839,7 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	}
 
 	// Coma
-	if (sd && sd->special_state.bonus_coma && (!md || !mob_is_gvg(md) || !mob_is_battleground(md))) {
+	if (sd && sd->special_state.bonus_coma && (!md || status_get_race2(&md->bl) != RC2_GVG || status_get_class(&md->bl) != CLASS_BATTLEFIELD)) {
 		rate = 0;
 		//! TODO: Filter the skills that shouldn't inflict coma bonus, to avoid some non-damage skills inflict coma. [Cydh]
 		if (!skill_id || !(skill_get_nk(skill_id)&NK_NO_DAMAGE)) {
@@ -2021,24 +2021,12 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 
 	//Polymorph
 	if(sd && sd->bonus.classchange && attack_type&BF_WEAPON &&
-		dstmd && !(tstatus->mode&MD_BOSS) &&
+		dstmd && !(tstatus->mode&MD_STATUS_IMMUNE) &&
 		(rnd()%10000 < sd->bonus.classchange))
 	{
-		struct mob_db *mob;
-		int class_;
-		skill = 0;
-		do {
-			do {
-				class_ = rnd() % MAX_MOB_DB;
-			} while (!mobdb_checkid(class_));
-
-			rate = rnd() % 1000000;
-			mob = mob_db(class_);
-		} while (
-			(mob->status.mode&(MD_BOSS|MD_PLANT) || mob->summonper[0] <= rate) &&
-		  	(skill++) < 2000);
-		if (skill < 2000)
-			mob_class_change(dstmd,class_);
+		int class_ = mob_get_random_id(0, 1, 0);
+		if (class_ != 0 && mobdb_checkid(class_))
+			mob_class_change(dstmd, class_);
 	}
 
 	return 0;
@@ -2463,7 +2451,7 @@ int skill_break_equip (struct block_list *bl, unsigned short where, int rate, in
 				where&=~where_list[i];
 			else if (rnd()%10000 >= rate)
 				where&=~where_list[i];
-			else if (!sd && !(status_get_mode(bl)&MD_BOSS)) //Cause Strip effect.
+			else if (!sd) //Cause Strip effect.
 				sc_start(bl,scatk[i],100,0,skill_get_time(status_sc2skill(scatk[i]),1));
 		}
 	}
@@ -2562,7 +2550,7 @@ int skill_strip_equip(struct block_list *bl, unsigned short where, int rate, int
 		0x02 - ignores players' special_state.no_knockback;
 		These flags "return 'count' instead of 0 if target is cannot be knocked back":
 		0x04 - at WOE/BG map;
-		0x08 - if target is MD_KNOCKBACK_IMMUNE|MD_BOSS;
+		0x08 - if target is MD_KNOCKBACK_IMMUNE;
 		0x10 - if target has 'special_state.no_knockback';
 		0x20 - if target is in Basilica area;
  * @return Number of knocked back cells done
@@ -2583,18 +2571,17 @@ int skill_blown(struct block_list* src, struct block_list* target, int count, in
 		checkflag |= 0x1; // Offensive
 	if (!(flag & 0x2))
 		checkflag |= 0x2; // Knockback type
-	if (is_boss(src))
+	if (status_get_class_(src) == CLASS_BOSS)
 		checkflag |= 0x4; // Boss attack
 
 	// Get reason and check for flags
 	reason = unit_blown_immune(target, checkflag);
 	switch (reason) {
 	case 1: return ((flag & 0x04) ? count : 0); // No knocking back in WoE / BG
-	case 2: return count; // Emperium can't be knocked back
-	case 3: return ((flag & 0x08) ? count : 0); // Bosses or immune can't be knocked back
-	case 4: return ((flag & 0x20) ? count : 0); // Basilica caster can't be knocked-back by normal monsters.
-	case 5: return ((flag & 0x10) ? count : 0); // Target has special_state.no_knockback (equip)
-	case 6: return count; // Trap cannot be knocked back
+	case 2: return ((flag & 0x08) ? count : 0); // Immune can't be knocked back
+	case 3: return ((flag & 0x20) ? count : 0); // Basilica caster can't be knocked-back by normal monsters.
+	case 4: return ((flag & 0x10) ? count : 0); // Target has special_state.no_knockback (equip)
+	case 5: return count; // Trap cannot be knocked back
 	}
 
 	if (direction == -1) // <optimized>: do the computation here instead of outside
@@ -2621,7 +2608,7 @@ static int skill_magic_reflect(struct block_list* src, struct block_list* bl, in
 	if( sd && sd->bonus.magic_damage_return && type && rnd()%100 < sd->bonus.magic_damage_return )
 		return 1;
 
-	if( is_boss(src) )
+	if (status_get_class_(src) == CLASS_BOSS)
 		return 0;
 
 	// status-based reflection
@@ -2805,10 +2792,12 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 /**
  * Checks whether a skill can be used in combos or not
  * @param skill_id: Target skill
- * @return true: Skill is a combo, false: otherwise
+ * @return	0: Skill is not a combo
+ *			1: Skill is a normal combo
+ *			2: Skill is combo that prioritizes auto-target even if val2 is set
  * @author Panikon
  **/
-bool skill_is_combo(int skill_id) {
+int skill_is_combo(int skill_id) {
 	switch (skill_id) {
 	case MO_CHAINCOMBO:
 	case MO_COMBOFINISH:
@@ -2823,13 +2812,14 @@ bool skill_is_combo(int skill_id) {
 	case HT_POWER:
 	case GC_COUNTERSLASH:
 	case GC_WEAPONCRUSH:
-	case SR_FALLENEMPIRE:
 	case SR_DRAGONCOMBO:
+		return 1;
+	case SR_FALLENEMPIRE:
 	case SR_TIGERCANNON:
 	case SR_GATEOFHELL:
-		return true;
+		return 2;
 	}
-	return false;
+	return 0;
 }
 
 /*
@@ -2913,24 +2903,34 @@ void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_l
 	if (sd) { //player only
 		switch (skill_id) {
 			case MO_TRIPLEATTACK:
-				if (pc_checkskill(sd, MO_CHAINCOMBO) > 0 || pc_checkskill(sd, SR_DRAGONCOMBO) > 0)
+				if (pc_checkskill(sd, MO_CHAINCOMBO) > 0 || pc_checkskill(sd, SR_DRAGONCOMBO) > 0) {
 					duration = 1;
+					target_id = 0; // Will target current auto-target instead
+				}
 				break;
 			case MO_CHAINCOMBO:
-				if (pc_checkskill(sd, MO_COMBOFINISH) > 0 && sd->spiritball > 0)
+				if (pc_checkskill(sd, MO_COMBOFINISH) > 0 && sd->spiritball > 0) {
 					duration = 1;
+					target_id = 0; // Will target current auto-target instead
+				}
 				break;
 			case MO_COMBOFINISH:
 				if (sd->status.party_id > 0) //bonus from SG_FRIEND [Komurka]
 					party_skill_check(sd, sd->status.party_id, MO_COMBOFINISH, skill_lv);
-				if (pc_checkskill(sd, CH_TIGERFIST) > 0 && sd->spiritball > 0)
+				if (pc_checkskill(sd, CH_TIGERFIST) > 0 && sd->spiritball > 0) {
 					duration = 1;
+					target_id = 0; // Will target current auto-target instead
+				}
 			case CH_TIGERFIST:
-				if (!duration && pc_checkskill(sd, CH_CHAINCRUSH) > 0 && sd->spiritball > 1)
+				if (!duration && pc_checkskill(sd, CH_CHAINCRUSH) > 0 && sd->spiritball > 1) {
 					duration = 1;
+					target_id = 0; // Will target current auto-target instead
+				}
 			case CH_CHAINCRUSH:
-				if (!duration && pc_checkskill(sd, MO_EXTREMITYFIST) > 0 && sd->spiritball > 0 && sd->sc.data[SC_EXPLOSIONSPIRITS])
+				if (!duration && pc_checkskill(sd, MO_EXTREMITYFIST) > 0 && sd->spiritball > 0 && sd->sc.data[SC_EXPLOSIONSPIRITS]) {
 					duration = 1;
+					target_id = 0; // Will target current auto-target instead
+				}
 				break;
 			case AC_DOUBLE:
 				if (pc_checkskill(sd, HT_POWER)) {
@@ -2938,7 +2938,7 @@ void skill_combo(struct block_list* src, struct block_list *dsrc, struct block_l
 						nodelay = 1; //Neither gives walk nor attack delay
 						target_id = 0; //Does not need to be used on previous target
 				}
-					break;
+				break;
 			case SR_DRAGONCOMBO:
 				if (pc_checkskill(sd, SR_FALLENEMPIRE) > 0)
 					duration = 1;
@@ -3004,6 +3004,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	nullpo_ret(src);	//Source is the master behind the attack (player/mob/pet)
 	nullpo_ret(dsrc); //dsrc is the actual originator of the damage, can be the same as src, or a skill casted by src.
 	nullpo_ret(bl); //Target to be attacked.
+
+	if (status_bl_has_mode(bl, MD_SKILL_IMMUNE) || (status_get_class(bl) == MOBID_EMPERIUM ))
+		return 0;
 
 	if (src != dsrc) {
 		//When caster is not the src of attack, this is a ground skill, and as such, do the relevant target checking. [Skotlex]
@@ -3367,31 +3370,22 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 		if ( skill_id == SR_KNUCKLEARROW )
 		{
-			struct mob_data* tmd = BL_CAST(BL_MOB, bl);
-			static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1};
-			static int dy[] = {-1, 0, 1,  0, -1, -1, 1,  1};
-			bool wall_damage = true;
-			int i = 0;
-
 			// Main attack has no flag set which allows the knockback code to be processed.
 			// If a flag is detected, then it means the knockback code was already ran.
 			if ( !flag )
 			{
-				// Knock back the target first if possible before we do a wall check.
-				skill_blown(dsrc,bl,dmg.blewcount,direction,0x04);
+				short x = bl->x, y = bl->y;
 
-				// Check if the target will receive wall damage.
-				// Targets that can be knocked back will receive wall damage if pushed next to a wall.
-				// Player's with anti-knockback and boss monsters will always receive wall damage.
-				if ( !((tsd && tsd->special_state.no_knockback) || (tmd && is_boss(bl))) )
-				{// Is there a wall next to the target?
-					ARR_FIND( 0, 8, i, map_getcell(bl->m, bl->x+dx[i], bl->y+dy[i], CELL_CHKNOPASS) != 0 );
-					if( i == 8 )// No wall detected.
-						wall_damage = false;
-				}
+				// Ignore knockback damage bonus if in WOE (player cannot be knocked in WOE)
+				// Boss & Immune Knockback (mode or from bonus bNoKnockBack) target still remains the damage bonus
+				if (skill_blown(dsrc, bl, dmg.blewcount, direction, 0x04) < dmg.blewcount)
+					skill_addtimerskill(src, tick + 300 * ((flag & 2) ? 1 : 2), bl->id, 0, 0, skill_id, skill_lv, BF_WEAPON, flag | 4);
 
-				if ( wall_damage == true )// Deal wall damage if the above check detected a wall or the target has anti-knockback.
-					skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, SR_KNUCKLEARROW, skill_lv, BF_WEAPON, flag|1 );
+				direction = -1;
+
+				// Move attacker to the target position after knocked back
+				if ((bl->x != x || bl->y != y) && skill_check_unit_movepos(5, src, bl->x, bl->y, 1, 1))
+					clif_blown(src);
 			}
 		}
 		if (skill_id == LG_OVERBRAND_BRANDISH)
@@ -3421,7 +3415,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			// Check if the target will receive wall damage.
 			// Targets that can be knocked back will receive wall damage if pushed next to a wall.
 			// Player's with anti-knockback and boss monsters will always receive wall damage.
-			if (!((tsd && tsd->special_state.no_knockback) || (tmd && is_boss(bl))))
+			if (!((tsd && tsd->special_state.no_knockback) || (tmd && status_get_class_(bl) == CLASS_BOSS)))
 			{// Is there a wall next to the target?
 				ARR_FIND(0, 8, i, map_getcell(bl->m, bl->x + dx[i], bl->y + dy[i], CELL_CHKNOPASS) != 0);
 				if (i == 8)// No wall detected.
@@ -3443,7 +3437,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 
 	//Delayed damage must be dealt after the knockback (it needs to know actual position of target)
 	if (dmg.amotion)
-		battle_delay_damage(tick, dmg.amotion,src,bl,dmg.flag,skill_id,skill_lv,damage,dmg.dmg_lv,dmg.dmotion, additional_effects);
+		battle_delay_damage(tick, dmg.amotion,src,bl,dmg.flag,skill_id,skill_lv,damage,dmg.dmg_lv,dmg.dmotion, additional_effects, false);
 
 	if (sc && sc->data[SC_DEVOTION] && (skill_id != PA_PRESSURE && skill_id != HW_GRAVITATION && skill_id != NPC_EVILLAND && skill_id != SJ_NOVAEXPLOSING && skill_id != SP_SOULEXPLOSION))
 	{
@@ -3486,7 +3480,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		}
 	}
 
-	if (damage > 0 && !(tstatus->mode&MD_BOSS))
+	if (damage > 0 && !(tstatus->mode&MD_STATUS_IMMUNE))
 	{
 		if (skill_id == RG_INTIMIDATE && rnd()%100 < (50 + skill_lv * 5 + status_get_lv(src) - status_get_lv(bl)))
 			skill_addtimerskill(src, tick + 800, bl->id, 0, 0, skill_id, skill_lv, 0, flag);
@@ -3515,9 +3509,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 	if (sd && src != bl && damage > 0 && (dmg.flag&BF_WEAPON || (dmg.flag&BF_MISC && (skill_id == RA_CLUSTERBOMB || skill_id == RA_FIRINGTRAP || skill_id == RA_ICEBOUNDTRAP || skill_id == RK_DRAGONBREATH))))
 	{
 		if (battle_config.left_cardfix_to_right)
-			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->class_, is_infinite_defense(bl, dmg.flag));
+			battle_drain(sd, bl, dmg.damage, dmg.damage, tstatus->race, tstatus->class_);
 		else
-			battle_drain(sd, bl, dmg.damage, dmg.damage2, tstatus->race, tstatus->class_, is_infinite_defense(bl, dmg.flag));
+			battle_drain(sd, bl, dmg.damage, dmg.damage2, tstatus->race, tstatus->class_);
 	}
 
 	if( damage > 0){ 
@@ -4795,7 +4789,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		unsigned int dir = map_calc_dir(bl, src->x, src->y);
 
 		// teleport to target (if not on WoE grounds)
-		if (!map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1))
+		if (skill_check_unit_movepos(3, src, bl->x, bl->y, 0, 1))
 		{
 			skill_blown(src, src, 1, (dir + 4) % 8, 0); //Target position is actually one cell next to the target
 		}
@@ -4832,9 +4826,8 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case LG_PINPOINTATTACK:
-		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 1, 1) ) {
+		if (skill_check_unit_movepos(3, src, bl->x, bl->y, 1, 1))
 			clif_blown(src);
-		}
 		skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
  		break;
 
@@ -5875,7 +5868,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case SR_KNUCKLEARROW:
 		// teleport to target (if not on WoE grounds)
-		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground && unit_movepos(src, bl->x, bl->y, 0, 1) )
+		if (skill_check_unit_movepos(5, src, bl->x, bl->y, 1, 1))
 			// Self knock back 1 cell to make it appear you warped
 			// next to the enemy you targeted from the direction
 			// you attacked from.
@@ -5974,7 +5967,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MH_EQC:
-		if (!(tstatus->mode&MD_BOSS))// Not usable on boss monsters.
+		if (!(tstatus->mode&MD_STATUS_IMMUNE))// Not usable on boss monsters.
 			skill_attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
 		break;
 
@@ -6115,7 +6108,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int heal = skill_calc_heal(src, bl, skill_id, skill_lv, true);
 			int heal_get_jobexp;
 
-			if( status_isimmune(bl) || (dstmd && (dstmd->mob_id == MOBID_EMPERIUM || mob_is_battleground(dstmd))) )
+			if (status_isimmune(bl) || (dstmd && (status_get_class(bl) == MOBID_EMPERIUM || status_get_class_(bl) == CLASS_BATTLEFIELD)))
 				heal=0;
 
 			if (sd && dstsd && sd->status.partner_id == dstsd->status.char_id && (sd->class_&MAPID_UPPERMASK) == MAPID_SUPER_NOVICE && sd->status.sex == 0)
@@ -6129,7 +6122,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 			if( tsc && tsc->count )
 			{
-				if( tsc->data[SC_KAITE] && !(sstatus->mode&MD_BOSS) )
+				if( tsc->data[SC_KAITE] && !(sstatus->mode&MD_STATUS_IMMUNE) )
 				{ //Bounce back heal
 					if (--tsc->data[SC_KAITE]->val2 <= 0)
 						status_change_end(bl, SC_KAITE, INVALID_TIMER);
@@ -6398,7 +6391,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		if (dstmd)
 		{
 			int class_;
-			if ( sd && dstmd->status.mode&MD_BOSS )
+			if (sd && status_has_mode(&dstmd->status, MD_STATUS_IMMUNE))
 			{
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				break;
@@ -6406,7 +6399,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			class_ = skill_id==SA_MONOCELL?1002:mob_get_random_id(4, 1, 0);
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 			mob_class_change(dstmd,class_);
-			if( tsc && dstmd->status.mode&MD_BOSS )
+			if (tsc && status_has_mode(&dstmd->status, MD_STATUS_IMMUNE))
 			{
 				const enum sc_type scs[] = { SC_QUAGMIRE, SC_PROVOKE, SC_ROKISWEIL, SC_GRAVITATION, SC_SUITON, SC_STRIPWEAPON, SC_STRIPSHIELD, SC_STRIPARMOR, SC_STRIPHELM, SC_BLADESTOP };
 				for (i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++)
@@ -6417,8 +6410,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		}
 		break;
 	case SA_DEATH:
-		if ( sd && dstmd && dstmd->status.mode&MD_BOSS )
-		{
+		if (sd && dstmd && status_has_mode(&dstmd->status, MD_STATUS_IMMUNE)) {
 			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			break;
 		}
@@ -6960,21 +6952,19 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SM_PROVOKE:
 	case SM_SELFPROVOKE:
 	case MER_PROVOKE:
-		if( (tstatus->mode&MD_BOSS) || battle_check_undead(tstatus->race,tstatus->def_ele) )
-		{
+		if (status_has_mode(tstatus, MD_STATUS_IMMUNE) || battle_check_undead(tstatus->race, tstatus->def_ele)) {
 			map_freeblock_unlock();
 			return 1;
 		}
-		//TODO: How much does base level affects? Dummy value of 1% per level difference used. [Skotlex]
-		clif_skill_nodamage(src,bl,skill_id == SM_SELFPROVOKE ? SM_PROVOKE : skill_id,skill_lv,
-			(i = sc_start(bl,type, skill_id == SM_SELFPROVOKE ? 100:( 50 + 3*skill_lv + status_get_lv(src) - status_get_lv(bl)), skill_lv, skill_get_time(skill_id,skill_lv))));
-		if( !i )
+		// Official chance is 70% + 3%*skill_lv + srcBaseLevel% - tarBaseLevel%
+		if (!(i = status_change_start(src, bl, type, skill_id == SM_SELFPROVOKE ? 10000 : ((70 + 3 * skill_lv + status_get_lv(src) - status_get_lv(bl))*100), skill_lv, 0, 0, 0, skill_get_time(skill_id, skill_lv), 0)))
 		{
 			if( sd )
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			map_freeblock_unlock();
 			return 0;
 		}
+		clif_skill_nodamage(src, bl, skill_id == SM_SELFPROVOKE ? SM_PROVOKE : skill_id, skill_lv, i);
 		unit_skillcastcancel(bl, 2);
 
 		if( tsc && tsc->count )
@@ -7056,7 +7046,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					break;
 
 				// Boss monster's arn't affected.
-				if ( tstatus->mode&MD_BOSS )
+				if ( tstatus->mode&MD_STATUS_IMMUNE )
 					break;
 
 				if( (dstsd && dstsd->sc.data[type] && dstsd->sc.data[type]->val1 != src->id) || // Cant curse a player that was already cursed from another source.
@@ -7332,7 +7322,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			// Check if the target will receive wall damage.
 			// Targets that can be knocked back will receive wall damage if pushed next to a wall.
 			// Player's with anti-knockback and boss monsters will always receive wall damage.
-			if ( !((dstsd && dstsd->special_state.no_knockback) || (tmd && is_boss(bl))) )
+			if ( !((dstsd && dstsd->special_state.no_knockback) || (tmd && status_get_class_(src) == CLASS_BOSS)) )
 			{// Is there a wall next to the target?
 				ARR_FIND( 0, 8, i, map_getcell(bl->m, bl->x+dx[i], bl->y+dy[i], CELL_CHKNOPASS) != 0 );
 				if( i == 8 )// No wall detected.
@@ -7351,8 +7341,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{	// split the if for readability, and included gunslingers in the check so that their coins cannot be removed [Reddozen]
 			i = dstsd->spiritball * 7;
 			pc_delspiritball(dstsd,dstsd->spiritball,0);
-		} else if (dstmd && !(tstatus->mode&MD_BOSS) && rnd() % 100 < 20)
-		{	// check if target is a monster and not a Boss, for the 20% chance to absorb 2 SP per monster's level [Reddozen]
+		} else if (dstmd && !(tstatus->mode&MD_STATUS_IMMUNE) && rnd() % 100 < 20)
+		{	// check if target is a monster and not status immune, for the 20% chance to absorb 2 SP per monster's level [Reddozen]
 			i = 2 * dstmd->level;
 			mob_target(dstmd,src,0);
 		}
@@ -7741,7 +7731,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			if( status_get_lv(src) > status_get_lv(bl)
 			&&  (tstatus->race == RC_DEMON || tstatus->race == RC_DEMIHUMAN || tstatus->race == RC_PLAYER || tstatus->race == RC_ANGEL)
-			&&  !(tstatus->mode&MD_BOSS) )
+			&&  !(tstatus->mode&MD_STATUS_IMMUNE) )
 				clif_skill_nodamage(src, bl, skill_id, skill_lv, sc_start2(bl, type, 70, skill_lv, src->id, skill_get_time(skill_id, skill_lv)));
 			else
 			{
@@ -7778,7 +7768,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			short stone_chance = 20 + 4 * skill_lv;
 
-			if (tstatus->mode&MD_BOSS) {
+			if (tstatus->mode&MD_STATUS_IMMUNE) {
 				if (sd) clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 				break;
 			}
@@ -7908,8 +7898,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			break;
 		}
-		if( dstmd && dstmd->mob_id == MOBID_EMPERIUM )
-			break; // Cannot be Used on Emperium
 
 		clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		clif_skill_estimation(sd, bl);
@@ -8514,8 +8502,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 					break; //Nothing to cancel.
 				bl_skillid = ud->skill_id;
 				bl_skilllv = ud->skill_lv;
-				if (tstatus->mode & MD_BOSS)
-				{	//Only 10% success chance against bosses. [Skotlex]
+				if (status_has_mode(tstatus, MD_STATUS_IMMUNE)) { //Only 10% success chance against status immune. [Skotlex]
 					if (rnd()%100 < 90)
 					{
 						if (sd) clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
@@ -8596,9 +8583,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SA_ELEMENTFIRE:
 	case SA_ELEMENTGROUND:
 	case SA_ELEMENTWIND:
-		if(sd && !dstmd) //Only works on monsters.
-			break;
-		if(tstatus->mode&MD_BOSS)
+		if (sd && !dstmd && status_has_mode(tstatus, MD_STATUS_IMMUNE)) // Only works on non-immune monsters.
 			break;
 	case NPC_ATTRICHANGE:
 	case NPC_CHANGEWATER:
@@ -9006,7 +8991,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case AS_SPLASHER:
-		if(tstatus->mode&MD_BOSS || tstatus-> hp > tstatus->max_hp*3/4) {
+		if(tstatus->mode&MD_STATUS_IMMUNE || tstatus-> hp > tstatus->max_hp*3/4) {
 			if (sd) clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			map_freeblock_unlock();
 			return 1;
@@ -9022,7 +9007,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 
 	case PF_MINDBREAKER:
 		{
-			if(tstatus->mode&MD_BOSS || battle_check_undead(tstatus->race,tstatus->def_ele))
+			if(status_has_mode(tstatus, MD_STATUS_IMMUNE) || battle_check_undead(tstatus->race,tstatus->def_ele))
 			{
 				map_freeblock_unlock();
 				return 1;
@@ -9083,7 +9068,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	// Slim Pitcher
 	case CR_SLIMPITCHER:
 		// Updated to block Slim Pitcher from working on barricades and guardian stones.
-		if( dstmd && (dstmd->mob_id == MOBID_EMPERIUM || (dstmd->mob_id >= MOBID_BARRICADE1 && dstmd->mob_id <= MOBID_GUARDIAN_STONE2)) )
+		if( dstmd && (dstmd->mob_id == MOBID_EMPERIUM || status_get_class_(bl) == CLASS_BATTLEFIELD))
 			break;
 		if (potion_hp || potion_sp) {
 			int hp = potion_hp, sp = potion_sp;
@@ -9149,7 +9134,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		{
 			int eff, count = -1;
 			if (rnd() % 100 > skill_lv * 8 || (tsc && tsc->data[SC_BASILICA]) ||
-				(dstmd && ((dstmd->guardian_data && dstmd->mob_id == MOBID_EMPERIUM) || mob_is_battleground(dstmd)))) {
+				(dstmd && ((dstmd->guardian_data && dstmd->mob_id == MOBID_EMPERIUM) || status_get_class_(bl) == CLASS_BATTLEFIELD))) {
 				if( sd )
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 
@@ -10336,7 +10321,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			short status_flag = 0;
 
 			// Target check. Can only be casted on monsters, enemy players, or yourself. Also fails if target is already imprisoned.
-			if (!(bl->type == BL_MOB || bl->type == BL_PC && battle_check_target(src, bl, BCT_ENEMY) > 0 || src == bl) || tstatus->mode&MD_BOSS || (tsc && tsc->data[SC_IMPRISON])) 
+			if (!(bl->type == BL_MOB || bl->type == BL_PC && battle_check_target(src, bl, BCT_ENEMY) > 0 || src == bl) || status_get_class_(bl) == CLASS_BOSS || (tsc && tsc->data[SC_IMPRISON])) 
 			{
 				clif_skill_fail(sd,skill_id,USESKILL_FAIL_TOTARGET,0,0);
 				break;
@@ -10673,7 +10658,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SC_WEAKNESS:
 		if( !(tsc && tsc->data[type]) )
 		{
-			if (is_boss(bl))
+			if (status_get_class_(bl) == CLASS_BOSS)
 				break;
 
 			//First we set the success chance based on the caster's build which increases the chance.
@@ -11505,7 +11490,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int caster_y = src->y;
 			int target_x = bl->x;
 			int target_y = bl->y;
-			if ( !is_boss(bl) )
+			if ( !status_get_class_(bl) == CLASS_BOSS)
 			{
 				clif_skill_nodamage(bl,bl,skill_id,skill_lv,1);// Caster
 				unit_movepos(src,target_x,target_y,0,0);
@@ -11777,6 +11762,9 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	struct map_session_data *sd = BL_CAST(BL_PC,  src);
 	struct status_change*sc, *tsc = status_get_sc(target);
 
+	if (src != target && (status_bl_has_mode(target, MD_SKILL_IMMUNE) || (status_get_class(target) == MOBID_EMPERIUM && !(skill_id == MO_TRIPLEATTACK || skill_id == HW_GRAVITATION))) && skill_get_casttype(skill_id) == CAST_NODAMAGE)
+		return USESKILL_FAIL_MAX; // Don't show a skill fail message (NoDamage type doesn't consume requirements)
+
 	switch (skill_id) {
 		case RG_BACKSTAP:
 			{
@@ -11843,7 +11831,8 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	}
 
 	switch (skill_id) {
-		// Cannot be casted to Emperium
+		// Cannot be casted to Emperium,
+		case WZ_ESTIMATION:
 		case SL_SKE:
 		case SL_SKA:
 			if (target->type == BL_MOB && ((TBL_MOB*)target)->mob_id == MOBID_EMPERIUM)
@@ -12069,8 +12058,13 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		{
 			if( !skill_check_condition_castend(sd, ud->skill_id, ud->skill_lv) )
 				break;
-			else
-				skill_consume_requirement(sd,ud->skill_id,ud->skill_lv,1);
+			else {
+				skill_consume_requirement(sd, ud->skill_id, ud->skill_lv, 1);
+				if (src != target && (status_bl_has_mode(target, MD_SKILL_IMMUNE) || (status_get_class(target) == MOBID_EMPERIUM && !(ud->skill_id == MO_TRIPLEATTACK || ud->skill_id == HW_GRAVITATION))) && skill_get_casttype(ud->skill_id) == CAST_DAMAGE) {
+					clif_skill_fail(sd, ud->skill_id, USESKILL_FAIL_LEVEL, 0, 0);
+					break; // Show a skill fail message (Damage type consumes requirements)
+				}
+			}
 		}
 
 #ifdef OFFICIAL_WALKPATH
@@ -13065,11 +13059,8 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		}
 		break;
 	case NJ_SHADOWJUMP:
-		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground )
-		{	//You don't move on GVG grounds.
-			unit_movepos(src, x, y, 1, 0);
-			clif_slide(src,x,y);
-		}
+		if (skill_check_unit_movepos(3, src, x, y, 1, 0)) //You don't move on GVG grounds.
+			clif_blown(src);
 		status_change_end(src, SC_HIDING, INVALID_TIMER);
 		break;
 
@@ -14363,8 +14354,8 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 	case UNT_BASILICA:
 	{
 		int i = battle_check_target(bl, bl, BCT_ENEMY);
-		if (i > 0 && !(status_get_mode(bl)&MD_BOSS))
-		{ // knock-back any enemy except Boss
+
+		if (i > 0) {
 			skill_blown(ss, bl, skill_get_blewcount(skill_id, sg->skill_lv), unit_getdir(bl), 0);
 			break;
 		}
@@ -14390,7 +14381,7 @@ static int skill_unit_onplace (struct skill_unit *src, struct block_list *bl, in
 		break;
 
 	case UNT_WALLOFTHORN:
-		if( status_get_mode(bl)&MD_BOSS )
+		if( status_get_mode(bl)&MD_STATUS_IMMUNE)
 			break;	// iRO Wiki says that this skill don't affect to Boss monsters.
 		if( battle_check_target(ss,bl,BCT_ENEMY) <= 0 )
 			skill_blown(&src->bl,bl,skill_get_blewcount(sg->skill_id,sg->skill_lv),unit_getdir(bl),0);
@@ -14507,7 +14498,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			{
 				int heal = skill_calc_heal(ss,bl,sg->skill_id,sg->skill_lv,true);
 				struct mob_data *md = BL_CAST(BL_MOB, bl);
-				if( md && mob_is_battleground(md) )
+				if (md && status_get_class_(bl) == CLASS_BATTLEFIELD)
 					break;
 				if( tstatus->hp >= tstatus->max_hp )
 					break;
@@ -14643,7 +14634,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 			if( bl->id != ss->id )
 			{
 				int sec = skill_get_time2(sg->skill_id,sg->skill_lv);
-				if(status_get_mode(bl)&MD_BOSS)
+				if(status_get_mode(bl)&MD_STATUS_IMMUNE)
 					break;
 				if (status_change_start(ss,bl,type,10000,sg->skill_lv,sg->group_id,0,0,sec, 8))
 				{
@@ -14867,8 +14858,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		case UNT_BASILICA:
 			{
 				int i = battle_check_target(&src->bl, bl, BCT_ENEMY);
-				if( i > 0 && !(status_get_mode(bl)&MD_BOSS) )
-				{ // knock-back any enemy except Boss
+				if (i > 0) {
 					skill_blown(&src->bl, bl, skill_get_blewcount(skill_id, sg->skill_lv), unit_getdir(bl), 0);
 					break;
 				}
@@ -17817,12 +17807,16 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 int skill_autospell (struct map_session_data *sd, int skill_id)
 {
 	int skill_lv;
+	uint16 idx = 0;
 	int maxlv=1,lv;
 
 	nullpo_ret(sd);
 
 	skill_lv = sd->menuskill_val;
-	lv=pc_checkskill(sd,skill_id);
+	if ((idx = skill_get_index(skill_id)) == 0)
+		return 0;
+
+	lv = (sd->status.skill[idx].id == skill_id) ? sd->status.skill[idx].lv : 0;
 
 	if(skill_lv <= 0 || !lv) return 0; // Player must learn the skill before doing auto-spell [Lance]
 
@@ -21474,6 +21468,22 @@ int skill_stasis_check(struct block_list *bl, int skill_id)
 		return 1;
 
 	return 0;//Any skills thats not the above will work.
+}
+
+/**
+ * Check before do `unit_movepos` call
+ * @param check_flag Flags: 1:Check for BG map, 2:Check for GVG map on WOE, 4:Check for GVG map
+ * @return True:If unit can be moved, False:If check on flags are met or unit cannot be moved.
+ **/
+static bool skill_check_unit_movepos(uint8 check_flag, struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath) {
+	nullpo_retr(false, bl);
+	if (check_flag & 1 && map[bl->m].flag.battleground)
+		return false;
+	if (check_flag & 2 && map_flag_gvg(bl->m))
+		return false;
+	if (check_flag & 4 && map_flag_gvg2(bl->m))
+		return false;
+	return unit_movepos(bl, dst_x, dst_y, easy, checkpath);
 }
 
 /*==========================================

@@ -9,6 +9,8 @@ struct mob_data;
 struct pet_data;
 struct homun_data;
 struct mercenary_data;
+struct elemental_data;
+struct npc_data;
 struct status_change;
 
 //Use this to refer the max refinery level [Skotlex]
@@ -2024,34 +2026,39 @@ extern short current_equip_opt_index;
 //Mode definitions to clear up code reading. [Skotlex]
 enum e_mode
 {
- 	MD_CANMOVE				= 0x000001,
- 	MD_LOOTER				= 0x000002,
- 	MD_AGGRESSIVE			= 0x000004,
- 	MD_ASSIST				= 0x000008,
- 	MD_CASTSENSOR_IDLE		= 0x000010,
- 	MD_BOSS					= 0x000020,
- 	MD_PLANT				= 0x000040,
- 	MD_CANATTACK			= 0x000080,
- 	MD_DETECTOR				= 0x000100,
- 	MD_CASTSENSOR_CHASE		= 0x000200,
- 	MD_CHANGECHASE			= 0x000400,
- 	MD_ANGRY				= 0x000800,
- 	MD_CHANGETARGET_MELEE	= 0x001000,
- 	MD_CHANGETARGET_CHASE	= 0x002000,
- 	MD_TARGETWEAK			= 0x004000,
- 	MD_RANDOMTARGET			= 0x008000,
- 	MD_IGNOREMELEE			= 0x010000,
- 	MD_IGNOREMAGIC			= 0x020000,
- 	MD_IGNORERANGED			= 0x040000,
- 	MD_MVP					= 0x080000,
- 	MD_IGNOREMISC			= 0x100000,
- 	MD_KNOCKBACK_IMMUNE		= 0x200000,
-	MD_NORANDOM_WALK		= 0x400000,
-	MD_NOCAST_SKILL			= 0x800000,
+ 	MD_CANMOVE				= 0x0000001,
+ 	MD_LOOTER				= 0x0000002,
+ 	MD_AGGRESSIVE			= 0x0000004,
+ 	MD_ASSIST				= 0x0000008,
+ 	MD_CASTSENSOR_IDLE		= 0x0000010,
+	MD_NORANDOM_WALK		= 0x0000020,
+	MD_NOCAST_SKILL			= 0x0000040,
+ 	MD_CANATTACK			= 0x0000080,
+	//FREE					= 0x0000100,
+ 	MD_CASTSENSOR_CHASE		= 0x0000200,
+ 	MD_CHANGECHASE			= 0x0000400,
+ 	MD_ANGRY				= 0x0000800,
+ 	MD_CHANGETARGET_MELEE	= 0x0001000,
+ 	MD_CHANGETARGET_CHASE	= 0x0002000,
+ 	MD_TARGETWEAK			= 0x0004000,
+ 	MD_RANDOMTARGET			= 0x0008000,
+ 	MD_IGNOREMELEE			= 0x0010000,
+ 	MD_IGNOREMAGIC			= 0x0020000,
+ 	MD_IGNORERANGED			= 0x0040000,
+ 	MD_MVP					= 0x0080000,
+ 	MD_IGNOREMISC			= 0x0100000,
+ 	MD_KNOCKBACK_IMMUNE		= 0x0200000,
+	MD_TELEPORT_BLOCK		= 0x0400000,
+	//FREE					= 0x0800000,
+	//FREE					= 0x1000000,
+	MD_DETECTOR				= 0x2000000,
+	MD_STATUS_IMMUNE		= 0x4000000,
+	MD_SKILL_IMMUNE			= 0x8000000,
 };
 
 #define MD_MASK 0x000FFFF
-#define ATR_MASK 0xFF0000
+#define ATR_MASK 0x0FF0000
+#define CL_MASK 0xF000000
 
 //Status change option definitions (options are what makes status changes visible to chars
 //who were not on your field of sight when it happened)
@@ -2333,6 +2340,8 @@ int status_type2relevant_bl_types(int type);
 int status_damage(struct block_list *src,struct block_list *target, int64 dhp, int64 dsp, int walkdelay, int flag);
 //Define for standard HP damage attacks.
 #define status_fix_damage(src, target, hp, walkdelay) status_damage(src, target, hp, 0, walkdelay, 0)
+//Define for standard SP damage attacks.
+#define status_fix_spdamage(src, target, sp, walkdelay) status_damage(src, target, 0, sp, walkdelay, 0)
 //Define for standard HP/SP damage triggers.
 #define status_zap(bl, hp, sp) status_damage(NULL, bl, hp, sp, 0, 1)
 //Define for standard HP/SP skill-related cost triggers (mobs require no HP/SP to use skills)
@@ -2403,6 +2412,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 #define status_get_size(bl) status_get_status_data(bl)->size
 #define status_get_mode(bl) status_get_status_data(bl)->mode
 #define status_has_mode(status,md) (((status)->mode&(md)) == (md))
+#define status_bl_has_mode(bl,md) status_has_mode(status_get_status_data((bl)),(md))
 int status_get_party_id(struct block_list *bl);
 int status_get_guild_id(struct block_list *bl);
 int status_get_emblem_id(struct block_list *bl);
@@ -2456,6 +2466,9 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 void status_calc_regen_rate(struct block_list *bl, struct regen_data *regen, struct status_change *sc);
 
 int status_getrefinebonus(int lv,int type);
+
+void status_calc_slave_mode(struct mob_data *md, struct mob_data *mmd);
+
 int status_check_skilluse(struct block_list *src, struct block_list *target, int skill_id, int skill_lv, int flag); // [Skotlex]
 int status_check_visibility(struct block_list *src, struct block_list *target); //[Skotlex]
 

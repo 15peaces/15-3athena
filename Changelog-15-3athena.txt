@@ -5,6 +5,40 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+02/09/2025
+	r500 [15peaces]
+		*Overhaul of the mob mode system
+			-This rewrite allows for better adaptation from the Aegis Class and Attribute fields.
+			-Slaves are now properly assigned an official slave mode of CanWalk, CanAttack, and NoRandomWalk.
+			-Removed extra Boss checks and adjusted others to use their proper functions.
+			-Properly implemented Skill Immunity mode to match Aegis.
+			-Updated the mob_db and mob_skill_db to match the new mode structure.
+				--Included a Perl tool (tools/convert_monstermode.pl) to allow people to convert their custom mobs to the new mode structure.
+			-Thanks to @rathena for the base!
+		*Cleaned up usage of unit_movepos and GVG/BG map checks on skill.c
+		*Some Combo fixes (activation, targeting & more).
+			-You no longer need to use combo skills on the enemy that triggered the combo except for Flying Side Kick.
+			-Taekwon stances can now activate even when another stance is still active.
+			-Sura combos will now target the trigger of the combo if you currently don't have any auto-target
+			-Fixed Tumbling sometimes displaying the stance even though it didn't trigger
+			-Fixed Tumbling not triggering when suffering the "Burning" status effect
+		*Provoke chance and animation fixes
+			-The Provoke chance is now 70% + 3%*skill_lv + srcBaseLevel% - tarBaseLevel%
+			-When Provoke fails, it will no longer make the caster display any animation
+		*Resolved several compile warnings.
+		*When using auto spell, it will no longer print error messages to the map-server when no valid skill was selected
+			-Note: This needs to be done because the client sends us random IDs if the user simply presses on "Ok" without selecting a skill, so it's technically not an error, but expected behavior that needs to be handled.
+		*Implemented the official effect of Vellum Vanish
+			-The Vellum Vanish bonus only refers to bHPVanishRaceRate and bSPVanishRaceRate.
+			-Vellum Vanish items no longer deal physical damage except on skill usage.
+			-Skill usage with Vellum Vanish does not cause vanish.
+			-HP and SP Vellum Vanish items do not stack (SP will override HP).
+		*Fixed two possible defense overflow exploits.
+		*Some item fixes.
+			-Fixed Lord_of_Death and Red_Baby_Dragon item effects.
+			-Fixed some equip types.
+
 01/27/2025
 	r499 [15peaces]
 		*Fixed Dispel

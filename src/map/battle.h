@@ -41,7 +41,7 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 
 int64 battle_calc_return_damage(struct block_list *src, struct block_list *bl, int64 *damage, int flag, int skill_id, bool status_reflect);
 
-void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int class_, bool infdef);
+void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int class_);
 
 int battle_attr_ratio(int atk_elem,int def_type, int def_lv);
 int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 damage,int atk_elem,int def_type, int def_lv);
@@ -87,8 +87,8 @@ enum e_battle_check_target {
 	BCT_NOENEMY = BCT_ALL & ~BCT_ENEMY, /// Except enemy
 };
 
-void battle_damage(struct block_list *src, struct block_list *target, int64 damage, int delay, uint16 skill_lv, uint16 skill_id, enum damage_lv dmg_lv, unsigned short attack_type, bool additional_effects, int64 tick);
-int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay, bool additional_effects);
+void battle_damage(struct block_list *src, struct block_list *target, int64 damage, int delay, uint16 skill_lv, uint16 skill_id, enum damage_lv dmg_lv, unsigned short attack_type, bool additional_effects, int64 tick, bool isspdamage);
+int battle_delay_damage (int64 tick, int amotion, struct block_list *src, struct block_list *target, int attack_type, int skill_id, int skill_lv, int64 damage, enum damage_lv dmg_lv, int ddelay, bool additional_effects, bool isspdamage);
 int battle_damage_area( struct block_list *bl, va_list ap);
 // ’ÊíUŒ‚ˆ—‚Ü‚Æ‚ß
 enum damage_lv battle_weapon_attack( struct block_list *bl,struct block_list *target,int64 tick,int flag);
@@ -102,7 +102,7 @@ struct block_list* battle_getenemyarea(struct block_list *src, int x, int y, int
 int battle_gettarget(struct block_list *bl);
 int battle_getcurrentskill(struct block_list *bl);
 
-#define	is_boss(bl)	(status_get_class_(bl) == CLASS_BOSS)	// Can refine later [Aru]
+//#define	is_boss(bl)	(status_get_class_(bl) == CLASS_BOSS)	// Can refine later [Aru]
 
 int battle_check_undead(int race,int element);
 int battle_check_target(struct block_list *src, struct block_list *target,int flag);

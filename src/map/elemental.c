@@ -473,7 +473,7 @@ static int elem_ai_sub_hard_activesearch(struct block_list *bl,va_list ap)
 	{
 	case BL_PC:
 		if (((TBL_PC*)bl)->state.gangsterparadise &&
-			!(status_get_mode(&ed->bl)&MD_BOSS))
+			!(status_get_mode(&ed->bl)&MD_STATUS_IMMUNE))
 			return 0; //Gangster paradise protection.
 	default:
 		if (battle_config.hom_setting&0x4 &&
@@ -701,7 +701,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 			(ed->ud.walktimer != INVALID_TIMER && !(battle_config.elem_ai&0x1) && !check_distance_bl(&ed->bl, tbl, ed->min_chase)) ||
 			(
 				tbl->type == BL_PC &&
-				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_BOSS)) ||
+				((((TBL_PC*)tbl)->state.gangsterparadise && !(mode&MD_STATUS_IMMUNE)) ||
 				((TBL_PC*)tbl)->invincible_timer != INVALID_TIMER)
 		) )
 		{	//Unlock current target.
