@@ -1027,6 +1027,16 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_STRANGELIGHTS] = SI_STRANGELIGHTS;
 	StatusIconChangeTable[SC_SUPER_STAR] = SI_SUPER_STAR;
 	StatusIconChangeTable[SC_DECORATION_OF_MUSIC] = SI_DECORATION_OF_MUSIC;
+	StatusIconChangeTable[SC_LJOSALFAR] = SI_LJOSALFAR;
+	StatusIconChangeTable[SC_MERMAID_LONGING] = SI_MERMAID_LONGING;
+	StatusIconChangeTable[SC_HAT_EFFECT] = SI_HAT_EFFECT;
+	StatusIconChangeTable[SC_FLOWERSMOKE] = SI_FLOWERSMOKE;
+	StatusIconChangeTable[SC_FSTONE] = SI_FSTONE;
+	StatusIconChangeTable[SC_HAPPINESS_STAR] = SI_HAPPINESS_STAR;
+	StatusIconChangeTable[SC_MAPLE_FALLS] = SI_MAPLE_FALLS;
+	StatusIconChangeTable[SC_TIME_ACCESSORY] = SI_TIME_ACCESSORY;
+	StatusIconChangeTable[SC_MAGICAL_FEATHER] = SI_MAGICAL_FEATHER;
+
 	// Elemental Resist Potions
 	StatusIconChangeTable[SC_ARMOR_ELEMENT_WATER] = SI_RESIST_PROPERTY_WATER;
 	StatusIconChangeTable[SC_ARMOR_ELEMENT_EARTH] = SI_RESIST_PROPERTY_GROUND;
@@ -1222,6 +1232,15 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_STRANGELIGHTS] |= SCB_NONE;
 	StatusChangeFlagTable[SC_SUPER_STAR] |= SCB_NONE;
 	StatusChangeFlagTable[SC_DECORATION_OF_MUSIC] |= SCB_NONE;
+	StatusChangeFlagTable[SC_LJOSALFAR] |= SCB_NONE;
+	StatusChangeFlagTable[SC_MERMAID_LONGING] |= SCB_NONE;
+	StatusChangeFlagTable[SC_HAT_EFFECT] |= SCB_NONE;
+	StatusChangeFlagTable[SC_FLOWERSMOKE] |= SCB_NONE;
+	StatusChangeFlagTable[SC_FSTONE] |= SCB_NONE;
+	StatusChangeFlagTable[SC_HAPPINESS_STAR] |= SCB_NONE;
+	StatusChangeFlagTable[SC_MAPLE_FALLS] |= SCB_NONE;
+	StatusChangeFlagTable[SC_TIME_ACCESSORY] |= SCB_NONE;
+	StatusChangeFlagTable[SC_MAGICAL_FEATHER] |= SCB_NONE;
 
 	// Mechanic
 	StatusChangeFlagTable[SC_STEALTHFIELD_MASTER] |= SCB_SPEED;
@@ -1354,6 +1373,15 @@ void initChangeTables(void)
 	StatusDisplayType[SC_SUPER_STAR] = true;
 	StatusDisplayType[SC_STRANGELIGHTS] = true;
 	StatusDisplayType[SC_DECORATION_OF_MUSIC] = true;
+	StatusDisplayType[SC_LJOSALFAR] = true;
+	StatusDisplayType[SC_MERMAID_LONGING] = true;
+	StatusDisplayType[SC_HAT_EFFECT] = true;
+	StatusDisplayType[SC_FLOWERSMOKE] = true;
+	StatusDisplayType[SC_FSTONE] = true;
+	StatusDisplayType[SC_HAPPINESS_STAR] = true;
+	StatusDisplayType[SC_MAPLE_FALLS] = true;
+	StatusDisplayType[SC_TIME_ACCESSORY] = true;
+	StatusDisplayType[SC_MAGICAL_FEATHER] = true;
 }
 
 static void initDummyData(void)
@@ -9082,6 +9110,15 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_STRANGELIGHTS:
 		case SC_SUPER_STAR:
 		case SC_DECORATION_OF_MUSIC:
+		case SC_LJOSALFAR:
+		case SC_MERMAID_LONGING:
+		case SC_HAT_EFFECT:
+		case SC_FLOWERSMOKE:
+		case SC_FSTONE:
+		case SC_HAPPINESS_STAR:
+		case SC_MAPLE_FALLS:
+		case SC_TIME_ACCESSORY:
+		case SC_MAGICAL_FEATHER:
 			tick = -1;
 			break;
 
@@ -9224,7 +9261,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (sd && val2 == SL_HIGH) {
 				int stat, max_stat;
 				// Fetch target's stats
-				struct status_data* status2 = status_get_status_data(bl); // Battle status
+				struct status_data* status2 = status_get_base_status(bl); // Battle status
 				val3 = 0;
 				val4 = 0;
 				max_stat = (status_get_lv(bl) - 10 < 50) ? status_get_lv(bl) - 10 : 50;
@@ -11068,6 +11105,15 @@ int status_change_clear(struct block_list* bl, int type)
 				case SC_STRANGELIGHTS:
 				case SC_SUPER_STAR:
 				case SC_DECORATION_OF_MUSIC:
+				case SC_LJOSALFAR:
+				case SC_MERMAID_LONGING:
+				case SC_HAT_EFFECT:
+				case SC_FLOWERSMOKE:
+				case SC_FSTONE:
+				case SC_HAPPINESS_STAR:
+				case SC_MAPLE_FALLS:
+				case SC_TIME_ACCESSORY:
+				case SC_MAGICAL_FEATHER:
 				case SC_SPRITEMABLE:
 				case SC_DORAM_BUF_01:
 				case SC_DORAM_BUF_02:
@@ -13262,6 +13308,15 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 			case SC_STRANGELIGHTS:
 			case SC_SUPER_STAR:
 			case SC_DECORATION_OF_MUSIC:
+			case SC_LJOSALFAR:
+			case SC_MERMAID_LONGING:
+			case SC_HAT_EFFECT:
+			case SC_FLOWERSMOKE:
+			case SC_FSTONE:
+			case SC_HAPPINESS_STAR:
+			case SC_MAPLE_FALLS:
+			case SC_TIME_ACCESSORY:
+			case SC_MAGICAL_FEATHER:
 			case SC_ELECTRICSHOCKER:
 			case SC__MANHOLE:
 			case SC_MILLENNIUMSHIELD:

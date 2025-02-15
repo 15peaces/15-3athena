@@ -5581,3 +5581,11 @@
 28386,Fallen_Monk_Rosary,Fallen Monk Rosary,5,0,,100,,,,1,0xFFFFFFFF,63,2,136,1,20,0,,{ bonus bAspdRate,5; bonus bCritical,5; bonus2 bSkillUseSP,"CH_SOULCOLLECT",-5; if (BaseLevel > 14) bonus2 bSkillAtk,"SR_DRAGONCOMBO",BaseLevel/15; if (BaseLevel > 19) bonus2 bSkillAtk,"SR_KNUCKLEARROW",BaseLevel/20; if (BaseLevel > 29) bonus2 bSkillAtk,"SR_SKYNETBLOW",BaseLevel/30; },{},{}
 28410,Sapphire_Wrist,Sapphire Wrist,5,0,,500,,3,,1,0xFFFFFFFF,63,2,136,1,50,1,,{ bonus bDex,5; bonus bLuk,5; bonus bInt,5; bonus2 bSkillAtk,"GN_SPORE_EXPLOSION",BaseLevel/5; bonus2 bVariableCastrate,"CR_ACIDDEMONSTRATION",-(BaseLevel/4); .@n = getskilllv(478); /*CR_SLIMPITCHER*/ bonus bDex,.@n/2; bonus bLuk,.@n/2; bonus bInt,.@n/2; bonus bMatk,(.@n/2)*20; },{},{}
 28411,Emerald_Earring,Emerald Earring,5,0,,500,,3,,1,0xFFFFFFFF,63,2,136,1,50,1,,{ bonus bDex,5; bonus bAgi,5; bonus bInt,5; bonus2 bSkillAtk,"CG_ARROWVULCAN",BaseLevel; bonus2 bSkillAtk,"BA_MUSICALSTRIKE",BaseLevel; bonus2 bSkillAtk,"DC_THROWARROW",BaseLevel; bonus2 bSkillAtk,"WM_METALICSOUND",2*(BaseLevel/5); .@n = getskilllv(2413); /*WM_METALICSOUND*/ bonus2 bVariableCastrate,"WM_METALICSOUND",.@n/2; bonus bDex,.@n/2; bonus bAgi,.@n/2; bonus bInt,.@n/2; bonus bMatk,(.@n/2)*20; },{},{}
+
+//Costumes with effect (renewal)
+19022,Floating_Stone_Of_Intelligence,Floating Stone Of Intelligence,5,,,,,,,,0xFFFFFFFF,63,2,256,,,,1230,{},{ sc_start SC_FSTONE,-1,0; },{ sc_end SC_FSTONE; } // jRO Item
+20062,C_Angel_Stair,Costume Angel Stair,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,,{},{ sc_start SC_HAT_EFFECT,-1,0; },{ sc_end SC_HAT_EFFECT; }
+20099,C_Flying_Ljosalfar,Flying Ljosalfar,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,1,1,1,1239,{},{ sc_start SC_LJOSALFAR,-1,0; },{ sc_end SC_LJOSALFAR; }
+20154,C_Maple_Which_Falls,Costume Maple Which Falls,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,1,1275,{},{ sc_start SC_MAPLE_FALLS,-1,0; },{ sc_end SC_MAPLE_FALLS; }
+20209,C_Mermaid_Bubbles,Costume Mermaid Bubbles,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1299,{},{ sc_start SC_MERMAID_LONGING,-1,0; },{ sc_end SC_MERMAID_LONGING; } // jRO Item
+20246,C_Decoration_Time,Costume Decoration Time,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,1,1309,{},{ sc_start SC_TIME_ACCESSORY,-1,0; },{ sc_end SC_TIME_ACCESSORY; }

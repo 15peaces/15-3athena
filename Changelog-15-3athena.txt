@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/15/2025
+	r501 [15peaces]
+		*Fixed an issue with duplicated primary keys of sc_data table.
+			-Please don't forget to add the upgrade_15-3athena_svn501.sql file!
+		*Fixed Rebirth Spirit (SL_HIGH) not increasing stats on recast.
+		*Implemented some costumes with visual effects.
 
 02/09/2025
 	r500 [15peaces]
