@@ -1157,6 +1157,17 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_2011RWC_SCROLL] = SI_2011RWC_SCROLL;
 	StatusIconChangeTable[SC_JP_EVENT04] = SI_JP_EVENT04;
 
+	// Item Status Changes
+	StatusIconChangeTable[SC_GVG_GIANT] = SI_GVG_GIANT;
+	StatusIconChangeTable[SC_GVG_GOLEM] = SI_GVG_GOLEM;
+	StatusIconChangeTable[SC_GVG_STUN] = SI_GVG_STUN;
+	StatusIconChangeTable[SC_GVG_STONE] = SI_GVG_STONE;
+	StatusIconChangeTable[SC_GVG_FREEZ] = SI_GVG_FREEZ;
+	StatusIconChangeTable[SC_GVG_SLEEP] = SI_GVG_SLEEP;
+	StatusIconChangeTable[SC_GVG_CURSE] = SI_GVG_CURSE;
+	StatusIconChangeTable[SC_GVG_SILENCE] = SI_GVG_SILENCE;
+	StatusIconChangeTable[SC_GVG_BLIND] = SI_GVG_BLIND;
+
 	//Other SC which are not necessarily associated to skills.
 	StatusChangeFlagTable[SC_ASPDPOTION0] |= SCB_ASPD;
 	StatusChangeFlagTable[SC_ASPDPOTION1] |= SCB_ASPD;
@@ -7942,17 +7953,22 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	undead_flag = battle_check_undead(status->race,status->def_ele);
 	//Check for inmunities / sc fails
 	switch (type) {
-		case SC_FREEZE:
-			// Warmer makes you immune to freezing.
-			if ( sc->data[SC_WARMER] )
-				return 0;
 		case SC_STONE:
-			//Undead are immune to Freeze/Stone
-			if (undead_flag && !(flag&1))
+			if (sc->data[SC_GVG_STONE])
+				return 0;
+		case SC_FREEZE:
+			// Undead are immune to Freeze/Stone
+			if (undead_flag && !(flag&SCSTART_NOAVOID))
+				return 0;
+			if (sc->data[SC_GVG_FREEZ])
 				return 0;
 			break;
 		case SC_SLEEP:
+			if (sc->data[SC_GVG_SLEEP])
+				return 0;
 		case SC_STUN:
+			if (sc->data[SC_GVG_STUN])
+				return 0;
 		case SC_BURNING:
 			// Burning can't be given to someone in freezing status.
 			if ( type == SC_BURNING && sc->data[SC_FROST] )
@@ -7967,8 +7983,18 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_FROST:
 		case SC_CRYSTALIZE:
+			if (sc->data[SC_GVG_FREEZ])
+				return 0;
 			// Burning makes you immune to freezing.
 			if ( type == SC_FROST && sc->data[SC_BURNING] || sc->data[SC_WARMER] )
+				return 0;
+			break;
+		case SC_CURSE:
+			if (sc->data[SC_GVG_CURSE])
+				return 0;
+			break;
+		case SC_SILENCE:
+			if (sc->data[SC_GVG_SILENCE])
 				return 0;
 			break;
 		case SC_SIGNUMCRUCIS:
@@ -11017,6 +11043,18 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 					break;
 			}
 			break;
+		case SC_GVG_GIANT:
+		case SC_GVG_GOLEM:
+		case SC_GVG_STUN:
+		case SC_GVG_STONE:
+		case SC_GVG_FREEZ:
+		case SC_GVG_SLEEP:
+		case SC_GVG_CURSE:
+		case SC_GVG_SILENCE:
+		case SC_GVG_BLIND:
+			if (val1 || val2)
+				status_zap(bl, val1 ? val1 : 0, val2 ? val2 : 0);
+			break;
 	}
 
 	if( opt_flag&2 && sd && sd->touching_id )
@@ -11040,7 +11078,15 @@ int status_change_clear(struct block_list* bl, int type)
 
 	sc = status_get_sc(bl);
 
-	if (!sc || !sc->count)
+	if (!sc)
+		return 0;
+
+	//cleaning all extras vars
+	sc->comet_x = 0;
+	sc->comet_y = 0;
+	sc->sg_counter = 0;
+
+	if (!sc->count)
 		return 0;
 
 	for(i = 0; i < SC_MAX; i++)
@@ -11184,11 +11230,6 @@ int status_change_clear(struct block_list* bl, int type)
 	sc->opt2 = 0;
 	sc->opt3 = 0;
 	sc->option &= OPTION_MASK;
-
-	//cleaning all extras vars
-	sc->comet_x = 0;
-	sc->comet_y = 0;
-	sc->sg_counter = 0;
 
 	if( type == 0 || type == 2 )
 		clif_changeoption(bl);

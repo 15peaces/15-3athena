@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/16/2025
+	r502 [15peaces]
+		*Item Updates and New Status Changes
+			-Implemented items including effects for the respective items:
+				--12874,Frost_Giant_Blood: SC_GVG_GIANT
+				--12875,Golem_Stone: SC_GVG_GOLEM
+				--12876,Elf_Tear_Stun: SC_GVG_STUN
+				--12877,Elf_Tear_Stone_Curse: SC_GVG_STONE
+				--12878,Elf_Tear_Freezing: SC_GVG_FREEZ
+				--12879,Elf_Tear_Sleep: SC_GVG_SLEEP
+				--12880,Elf_Tear_Curse: SC_GVG_CURSE
+				--12881,Elf_Tear_Silence: SC_GVG_SILENCE
+				--12882,Elf_Tear_Blind: SC_GVG_BLIND
+			-Thanks to @rathena
+			-Some other updates to items. Changed some values to fit pre-renewal calculations.
+		*Fixed extra status variables not being cleared correctly when the killed unit did not have any status change.
+			-(e.g. SG counter will now be set back to 0 when a monster dies).
+
 02/15/2025
 	r501 [15peaces]
 		*Fixed an issue with duplicated primary keys of sc_data table.

@@ -71,25 +71,15 @@
 20250,C_White_Strong_Hair,Costume White Hand of Fate,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1317,{},{},{}
 
 //Currently not working / Client Files missing in kRO (renewal versions)
-
-
-20259,C_Pink_Clover,Costume Pink Clover,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1322,{},{},{}
 20271,C_Sunflower,Costume Sunflower,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,37,{},{},{}
 20272,C_Unicorn_Horn,Costume Unicorn Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,42,{},{},{}
 20307,C_Beginner_Cap,Costume Beginner Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1348,{if(BaseLevel<100) {	bonus bHit,30-(3*(BaseLevel/10)); bonus bMaxHP,1000-(100*(BaseLevel/10)); bonus bMaxSP,200-(20*(BaseLevel/10)); bonus bCastrate,-10+(BaseLevel/10); bonus bHealPower,150-(10*(BaseLevel/10)); bonus bHealPower2,10*(BaseLevel/10); bonus bAddItemHealRate,10*(BaseLevel/10);}},{},{}
 20757,Heavenly_Wings1,Heavenly Wings1,5,0,,0,,1,,1,0xFFFFFFFF,63,2,4,,,,9,{	bonus bAllStats,3; skill AL_INCAGI,3;},{},{}
 20758,Heavenly_Wings2,Heavenly Wings2,5,0,,0,,1,,1,0xFFFFFFFF,63,2,4,,,,9,{	bonus bAllStats,3; skill AL_INCAGI,3;},{},{}
-20763,C_Amistr_Bag,Costume Amistr Bag,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,,,4,{},{},{}
 22812,Sealed_Dracula_Scroll,Sealed Dracula Scroll,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",22813,19937,17314, 6635),1; },{},{}
 22813,Bearer's_Shadow_Box,Bearer's Shadow Box,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",24180,24181,24182,28183,24184,24185),1; },{},{}
 
-// Monster Transformation Items and others (renewal)
-18856,W_King_Tiger_Doll_Hat,W King Tiger Doll Hat,5,10,,0,,10,,0,0xFFFFFFFF,63,2,256,,1,1,973,{ bonus bStr,2; bonus bDex,2; bonus2 bAddRace,RC_Brute,10; set .@r, getrefine(); autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",3*.@r,3000,BF_NORMAL,"{ transform 1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Traaaansformation-!! Eddga form!!\"; }"; autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,25*.@r; }",.@r,3000,BF_NORMAL,"{ transform 1115,3000; specialeffect2 EF_POTION_BERSERK; showscript \"Traaaansformation-!! Eddga form!!\"; }"; },{},{} 
-19538,Full_Moon,Full Moon,4,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,780,{ autobonus "{ bonus bMatk,50; bonus bBaseAtk,50; }",10,5000; },{},{} 
-
 //Heroic Gears (Renewal Versions!)
-15093,Heroic_Plate,Heroic Plate,5,10,,4000,,120,,1,0x00004082,63,2,16,,160,1,,{ bonus bMdef,5; bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; bonus bHit,10; bonus bFlee,10; bonus2 bSkillAtk,"LG_BANISHINGPOINT",10; bonus2 bSkillAtk,"RK_HUNDREDSPEAR",10; set .@r, getrefine(); bonus5 bAutoSpell,"AL_HEAL",10,50+.@r,BF_SHORT,0; bonus5 bAutoSpell,"WZ_STORMGUST",10,50+.@r,BF_SHORT,1; },{},{}
-15094,Heroic_Magic_Coat,Heroic Magic Coat,5,10,,800,,50,,1,0x00010204,63,2,16,,160,1,,{ bonus bMatk,10; bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bFlee,10; bonus2 bSkillAtk,"WL_CRIMSONROCK",10; bonus2 bSkillAtk,"SO_PSYCHIC_WAVE",10; set .@r, getrefine(); if (.@r) { bonus bFixedCastrate,21-.@r/2; bonus bNoCastCancel2,1; bonus bMdef,.@r/2; } },{},{}
 15095,Heroic_Judgement_Shawl,Heroic Judgement Shawl,5,10,,500,,7,,1,0x00008110,63,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; bonus bHit,10; bonus bFlee,10; bonus2 bSkillAtk,"AB_JUDEX",10; bonus2 bSkillAtk,"AB_ADORAMUS",10; bonus2 bSkillAtk,"SR_DRAGONCOMBO",10; bonus2 bSkillAtk,"SR_SKYNETBLOW",10; bonus2 bSkillAtk,"SR_EARTHSHAKER",10; set .@r, getrefine(); bonus5 bAutoSpell,"PR_KYRIE",1,50+.@r,BF_SHORT,0; bonus5 bAutoSpell,"PR_LEXAETERNA",10,50+.@r,BF_SHORT,0; },{},{}
 15096,Heroic_Trade-Mail,Heroic Trade-Mail,5,10,,500,,100,,1,0x00040420,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; set .@r, getrefine(); if(readparam(bStr) >= 90) bonus bStr,.@r/2; if(readparam(bInt) >= 90) bonus bInt,.@r/2; if(readparam(bAgi) >= 90) bonus bAgi,.@r/2; if(readparam(bVit) >= 90) bonus bVit,.@r/2; if(readparam(bDex) >= 90) bonus bDex,.@r/2; if(readparam(bLuk) >= 90) bonus bLuk,.@r/2; },{},{}
 15097,Heroic_Hidden_Cloth,Heroic Hidden Cloth,5,10,,200,,70,,1,0x00021040,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus2 bSkillAtk,"SC_FATALMENACE",10; bonus2 bSkillAtk,"SC_TRIANGLESHOT",10; bonus2 bSkillAtk,"GC_CROSSIMPACT",10; bonus2 bSkillAtk,"GC_CROSSRIPPERSLASHER",10; autobonus "{ bonus bCritical,20; bonus bFlee,20; bonus bAtkRate,10; bonus bMatkRate,10; }",(5+getrefine())*10,10000; },{},{}
@@ -5589,3 +5579,17 @@
 20154,C_Maple_Which_Falls,Costume Maple Which Falls,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,1,1275,{},{ sc_start SC_MAPLE_FALLS,-1,0; },{ sc_end SC_MAPLE_FALLS; }
 20209,C_Mermaid_Bubbles,Costume Mermaid Bubbles,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,1,1,1299,{},{ sc_start SC_MERMAID_LONGING,-1,0; },{ sc_end SC_MERMAID_LONGING; } // jRO Item
 20246,C_Decoration_Time,Costume Decoration Time,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,1,1,1309,{},{ sc_start SC_TIME_ACCESSORY,-1,0; },{ sc_end SC_TIME_ACCESSORY; }
+
+// Usables
+12860,Mommy_Day_Cake,Mommy Day Cake,2,0,,200,,,,,0xFFFFFFFF,63,2,,,,,,{ percentheal 50,50; skilleffect "HP_ASSUMPTIO",0; sc_start SC_ASSUMPTIO,100000,5; },{},{}
+12863,Treasure_Chest_Summoned_II,Treasure Chest Summoned II,2,10,,0,,,,,0xFFFFFFFF,63,2,,,,,,{ monster "this",-1,-1,"--ja--",rand(1324,1363),1,""; },{},{}
+12873,TE_Potion_Box,TE Potion Box,18,0,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ getitem(11558,10); },{},{}
+12874,Frost_Giant_Blood,Frost Giant Blood,2,0,,100,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_POTION_CON; sc_start4 SC_GVG_GIANT,10000,3000,0,100,100; },{},{}
+12875,Golem_Stone,Golem Stone,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ specialeffect2 EF_POTION_CON; sc_start4 SC_GVG_GOLEM,10000,0,200,50,50; },{},{}
+12876,Elf_Tear_Stun,Elf Tear Stun,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_STUN,10000,3000,0; },{},{}
+12877,Elf_Tear_Stone_Curse,Elf Tear Stone Curse,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_STONE,10000,3000,0; },{},{}
+12878,Elf_Tear_Freezing,Elf Tear Freezing,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_FREEZ,10000,3000,0; },{},{}
+12879,Elf_Tear_Sleep,Elf Tear Sleep,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_SLEEP,10000,3000,0; },{},{}
+12880,Elf_Tear_Curse,Elf Tear Curse,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_CURSE,10000,3000,0; },{},{}
+12881,Elf_Tear_Silence,Elf Tear Silence,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_SILENCE,10000,3000,0; },{},{}
+12882,Elf_Tear_Blind,Elf Tear Blind,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_BLIND,10000,3000,0; },{},{}

@@ -1182,6 +1182,13 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 				status_change_end(bl, SC_STONEHARDSKIN, INVALID_TIMER);
 		}
 
+		if (src->type == BL_PC && sc->data[SC_GVG_GOLEM]) {
+			if (flag&BF_WEAPON)
+				damage -= damage * sc->data[SC_GVG_GOLEM]->val3 / 100;
+			if (flag&BF_MAGIC)
+				damage -= damage * sc->data[SC_GVG_GOLEM]->val4 / 100;
+		}
+
 		//Finally added to remove the status of immobile when aimedbolt is used. [Jobbie]
 		if (skill_id == RA_AIMEDBOLT && (sc->data[SC_WUGBITE] || sc->data[SC_ANKLE] || sc->data[SC_ELECTRICSHOCKER]))
 		{
@@ -1276,6 +1283,9 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		//(since battle_drain is strictly for players currently)
 		if ((sce=sc->data[SC_BLOODLUST]) && flag&BF_WEAPON && damage > 0 && rnd()%100 < sce->val3)
 			status_heal(src, damage*sce->val4/100, 0, 3);
+
+		if (flag&BF_MAGIC && bl->type == BL_PC && sc->data[SC_GVG_GIANT] && sc->data[SC_GVG_GIANT]->val4)
+			damage += damage * sc->data[SC_GVG_GIANT]->val4 / 100;
 
 		if( sd && (sce = sc->data[SC_FORCEOFVANGUARD]) && rnd()%100 < sce->val2 )
 			pc_addrageball(sd, skill_get_time(LG_FORCEOFVANGUARD,sce->val1), sce->val3);
@@ -3770,6 +3780,10 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 			if (sd && skill_summoner_power(sd, POWER_OF_LIFE) == 1) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 20);
 			}
+		}
+
+		if (sd && wd.flag&BF_WEAPON && sc->data[SC_GVG_GIANT] && sc->data[SC_GVG_GIANT]->val3) {
+			ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_GVG_GIANT]->val3);
 		}
 	}
 	return wd;
