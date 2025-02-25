@@ -1,11 +1,11 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= Map Flags for Jails ( ATCommand @jail <player> )
 //===== By: ==================================================
-//= eAthena Dev Team
+//= 15-3athena Dev Team
 //===== Current Version: =====================================
-//= 1.0
+//= 1.1
 //===== Compatible With: =====================================
-//=
+//= 15-3athena Project
 //===== Description: =========================================
 //= pvp: Turns on PvP mode
 //= pvp_noparty: Can't attack player in same party
@@ -15,10 +15,21 @@
 //= nosave: No saving respawn point allowed. Use SavePoint to use the
 //=                players previous savepoint, or choose one manually.
 //= noteleport: No Teleporting allowed.  No f-wings or b-wings.
+//= hidemobhpbar: No HP bar will be displayed for monsters.
 //===== Additional Comments: =================================
 //= 
 //============================================================
 
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_jail	-1,{
+Oninit:
+	// Episode 14.2
+	if(getepisode() >= 142){
+		setmapflag "sec_pri",mf_hidemobhpbar;
+	}
+}
 
 // No Memory =============================
 sec_pri	mapflag	nomemo

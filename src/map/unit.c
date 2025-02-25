@@ -1440,7 +1440,7 @@ int unit_can_move(struct block_list *bl)
 			|| sc->data[SC_TRICKDEAD]
 			|| sc->data[SC_BLADESTOP]
 			|| sc->data[SC_BLADESTOP_WAIT]
-			|| (sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
+			|| sc->data[SC_SPIDERWEB]
 			|| (sc->data[SC_DANCING] && sc->data[SC_DANCING]->val4 && (
 				!sc->data[SC_LONGING] ||
 				(sc->data[SC_DANCING]->val1&0xFFFF) == CG_MOONLIT ||
@@ -2859,6 +2859,8 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		status_change_end(bl, SC_CHASEWALK, INVALID_TIMER);
 		if (sc->data[SC_GOSPEL] && sc->data[SC_GOSPEL]->val4 == BCT_SELF)
 			status_change_end(bl, SC_GOSPEL, INVALID_TIMER);
+		if (sc->data[SC_PROVOKE] && sc->data[SC_PROVOKE]->timer == INVALID_TIMER)
+			status_change_end(bl, SC_PROVOKE, INVALID_TIMER); //End infinite provoke to prevent exploit
 		status_change_end(bl, SC_CHANGE, INVALID_TIMER);
 		status_change_end(bl, SC_STOP, INVALID_TIMER);
 		status_change_end(bl, SC_ELECTRICSHOCKER, INVALID_TIMER);

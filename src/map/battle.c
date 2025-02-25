@@ -380,11 +380,10 @@ int64 battle_attr_fix(struct block_list *src, struct block_list *target, int64 d
 				break;
 			case ELE_FIRE:
 				if (tsc->data[SC_SPIDERWEB]) {
-					tsc->data[SC_SPIDERWEB]->val1 = 0; // free to move now
-					if (tsc->data[SC_SPIDERWEB]->val2-- > 0)
-						damage <<= 1; // double damage
-					if (tsc->data[SC_SPIDERWEB]->val2 == 0)
-						status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
+					//Double damage
+					damage *= 2;
+					//Remove a unit group or end whole status change
+					status_change_end(target, SC_SPIDERWEB, INVALID_TIMER);
 				}
 				if (tsc->data[SC_THORNS_TRAP])
 					status_change_end(target, SC_THORNS_TRAP, INVALID_TIMER);
@@ -2995,7 +2994,7 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += 100 * (skill_lv - 1);
 		break;
 	case KN_CHARGEATK: { // +100% every 3 cells of distance but hard-limited to 500%
-		unsigned int k = (wd.miscflag - 1) / 3;
+		int k = (wd.miscflag - 1) / 3;
 		if (k < 0)
 			k = 0;
 		else if (k > 4)
@@ -5441,7 +5440,15 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 		md.damage=500+300*skill_lv;
 		break;
 	case PA_GOSPEL:
-		md.damage = 1+rnd()%9999;
+		if (mflag > 0)
+			md.damage = (rnd() % 4000) + 1500;
+		else {
+			md.damage = (rnd() % 5000) + 3000;
+			md.damage -= (md.damage * (int64)status_get_def(target)) / 100;
+			md.damage -= tstatus->def2;
+			if (md.damage < 0)
+				md.damage = 0;
+		}
 		break;
 	case CR_ACIDDEMONSTRATION: // updated the formula based on a Japanese formula found to be exact [Reddozen]
 		if(tstatus->vit+sstatus->int_) //crash fix
@@ -7385,6 +7392,7 @@ static const struct _battle_data {
 	{ "skill_eightpath_algorithm",          &battle_config.skill_eightpath_algorithm,       1,      0,      1,				},
 	{ "can_damage_skill",                   &battle_config.can_damage_skill,                1,      0,      BL_ALL,			},
 	{ "monster_eye_range_bonus",            &battle_config.mob_eye_range_bonus,             0,      0,      10,				},
+	{ "tarotcard_equal_chance",             &battle_config.tarotcard_equal_chance,          0,      0,      1,				},
 	//Episode System [15peaces]
 	{ "feature.episode",					&battle_config.feature_episode,		           152,    10,      152,            },
 	{ "episode.readdb",						&battle_config.episode_readdb,		           0,		0,      1,              },

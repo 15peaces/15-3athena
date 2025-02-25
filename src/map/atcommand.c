@@ -4303,7 +4303,6 @@ ACMD_FUNC(breakguild)
                 clif_displaymessage(fd, msg_txt(sd,252)); // You are not in a guild. 
                 return -1; 
         } 
-        return 0; 
 } 
 
 /*==========================================
@@ -4985,6 +4984,8 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "AllowKS | ");
 	if (map[m_id].flag.reset)
 		strcat(atcmd_output, "Reset | ");
+	if (map[m_id].flag.hidemobhpbar)
+		strcat(atcmd_output, " HideMobHPBar |");
 	clif_displaymessage(fd, atcmd_output);
 
 	strcpy(atcmd_output,"Other Flags: ");
@@ -5008,6 +5009,10 @@ ACMD_FUNC(mapinfo)
 		strcat(atcmd_output, "Src4instance |");
 	if (map[m_id].flag.nosunmoonstarmiracle)
 		strcat(atcmd_output, "NoSunMoonStarMiracle | ");
+	if (map[m_id].flag.notomb)
+		strcat(atcmd_output, " NoTomb |");
+	if (map[m_id].flag.nocostume)
+		strcat(atcmd_output, " NoCostume |");
 	if (map[m_id].flag.pairship_startable)
 		strcat(atcmd_output, "PrivateAirshipStartable | ");
 	if (map[m_id].flag.pairship_endable)
@@ -8973,8 +8978,8 @@ ACMD_FUNC(mapflag)
 				clif_displaymessage(fd, "rain           nightenabled     nogo       noexp       nobaseexp");
 				clif_displaymessage(fd, "nojobexp       noloot           nomvploot  restricted  loadevent");
 				clif_displaymessage(fd, "nochat         partylock        guildlock  nosunmoonstarmiracle");
-				clif_displaymessage(fd, "town           notomb");
-
+				clif_displaymessage(fd, "town           notomb           nocostume  hidemobhpbar");
+				clif_displaymessage(fd, "PrivateAirshipStartable         PrivateAirshipEndable");
 				clif_displaymessage(fd, "");
 				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-8) to set a zone, 0 to turn off all zones for the map");
 				return -1;
@@ -9050,10 +9055,7 @@ ACMD_FUNC(mapflag)
 			map_foreachinmap(atcommand_pvpoff_sub,sd->bl.m, BL_PC);
 			map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
 		}
-	}
-
-	// TODO: Add support for the following mapflags [Hybrid]
-	/*
+	}	
 	else if (!strcmpi(map_flag,"pvp_noparty")) {
 		map[m].flag.pvp_noparty=state;
 	}
@@ -9065,7 +9067,7 @@ ACMD_FUNC(mapflag)
 	}
 	else if (!strcmpi(map_flag,"pvp_nocalcrank")) {
 		map[m].flag.pvp_nocalcrank=state;
-	} */
+	}
 	else if (!strcmpi(map_flag,"gvg")) {
 		map[m].flag.gvg = state;
 		if (state) {
@@ -9097,9 +9099,7 @@ ACMD_FUNC(mapflag)
 			map_foreachinmap(atcommand_stopattack,sd->bl.m, BL_CHAR, 0);
 		}
 	}
-
-	// TODO: Add support for the other GVG mapflags
-	/*else if (!strcmpi(map_flag,"gvg_noparty")) {
+	else if (!strcmpi(map_flag,"gvg_noparty")) {
 		map[m].flag.gvg_noparty=state;
 	}
 	else if (!strcmpi(map_flag,"gvg_dungeon")) {
@@ -9110,13 +9110,14 @@ ACMD_FUNC(mapflag)
 			map[m].flag.pvp=0;
 		}
 	}
-	else if (!strcmpi(map_flag,"gvg_castle")) {
-		map[m].flag.gvg_castle=state;
+	else if (!strcmpi(map_flag, "gvg_castle")) {
+		map[m].flag.gvg_castle = state;
 		if (map[m].flag.pvp)
 		{
 			clif_displaymessage(fd, "You can't set PvP and GvG flags for the same map! Removing PvP flags.");
-			map[m].flag.pvp=0;
+			map[m].flag.pvp = 0;
 		}
+	}
 	else if (!strcmpi(map_flag,"gvg_te_castle")) {
 		map[m].flag.gvg_te_castle=state;
 		if (map[m].flag.pvp)
@@ -9129,7 +9130,7 @@ ACMD_FUNC(mapflag)
 			clif_displaymessage(fd, "You can't set GvG and GvG:TE flags for the same map! Removing GvG flags.");
 			map[m].flag.gvg=0;
 		}
-	} */
+	}
 	else if (!strcmpi(map_flag,"noexppenalty")) {
 		map[m].flag.noexppenalty=state;
 	}
@@ -9230,6 +9231,18 @@ ACMD_FUNC(mapflag)
 	}
 	else if (!strcmpi(map_flag, "notomb")) {
 	map[m].flag.notomb = state;
+	}
+	else if (!strcmpi(map_flag, "PrivateAirshipStartable")) {
+	map[m].flag.pairship_startable = state;
+	}
+	else if (!strcmpi(map_flag, "PrivateAirshipEndable")) {
+	map[m].flag.pairship_endable = state;
+	}
+	else if (!strcmpi(map_flag, "nocostume")) {
+	map[m].flag.nocostume = state;
+	}
+	else if (!strcmpi(map_flag, "hidemobhpbar")) {
+	map[m].flag.hidemobhpbar = state;
 	}
 	else
 	{

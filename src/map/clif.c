@@ -1193,7 +1193,7 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 	WBUFW(buf,53) = sd?sd->status.font:0;
 #endif
 #if PACKETVER >= 20131223
-	if ( battle_config.monster_hp_bars_info && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
+	if ( battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
 		WBUFL(buf,55) = status_get_max_hp(bl);		// maxHP
 		WBUFL(buf,59) = status_get_hp(bl);		// HP
 		WBUFB(buf,63) = (bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0)) ? 1 : 0;		// isBoss
@@ -1338,7 +1338,7 @@ static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool
 	WBUFW(buf,60) = sd?sd->status.font:0;
 #endif
 #if PACKETVER >= 20131223
-	if ( battle_config.monster_hp_bars_info && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
+	if ( battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
 		WBUFL(buf,62) = status_get_max_hp(bl);		// maxHP
 		WBUFL(buf,66) = status_get_hp(bl);		// HP
 		WBUFB(buf,70) = (bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0)) ? 1 : 0;		// isBoss
@@ -1677,7 +1677,7 @@ void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag)
 	status = &hd->battle_status;
 	memset(buf, 0, packet_len(cmd));
 	WBUFW(buf, 0) = cmd;
-	memcpy(WBUFP(buf, 2), hd->homunculus.name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf, 2), hd->homunculus.name, NAME_LENGTH);
 	// Bit field, bit 0 : rename_flag (1 = already renamed), bit 1 : homunc vaporized (1 = true), bit 2 : homunc dead (1 = true)
 	WBUFB(buf, 26) = (battle_config.hom_rename ? 0 : hd->homunculus.rename_flag) | (hd->homunculus.vaporize << 1) | (hd->homunculus.hp ? 0 : 4);
 	WBUFW(buf, 27) = hd->homunculus.level;
@@ -3603,22 +3603,41 @@ void clif_updateparam_area(struct map_session_data* sd, short type, int value)
 }
 
 
-/// Updates sprite/style properties of an object.
 /// 00c3 <id>.L <type>.B <value>.B (ZC_SPRITE_CHANGE)
 /// 01d7 <id>.L <type>.B <value>.L (ZC_SPRITE_CHANGE2)
-void clif_changelook(struct block_list *bl,int type,int val)
-{
-	unsigned char buf[16];
+void clif_sprite_change(struct block_list *bl, int id, int type, int val, int val2, enum send_target target) {
+	unsigned char buf[32];
+
+#if PACKETVER < 4
+	const int cmd = 0xc3;
+#else
+	const int cmd = 0x1d7;
+#endif
+	WBUFW(buf,0) = cmd;
+	WBUFL(buf,2) = id;
+	WBUFB(buf,6) = type;
+	WBUFW(buf,7) = val;
+
+#if PACKETVER >= 4
+	WBUFW(buf,9) = val2;
+#endif
+
+	clif_send(buf,packet_len(cmd), bl, target);
+}
+
+
+/// Updates sprite/style properties of an object.
+void clif_changelook(struct block_list *bl, int type, int val) {
 	struct map_session_data* sd;
 	struct status_change* sc;
 	struct view_data* vd;
 	enum send_target target = AREA;
+	int val2 = 0;
 	nullpo_retv(bl);
 
 	sd = BL_CAST(BL_PC, bl);
 	sc = status_get_sc(bl);
 	vd = status_get_viewdata(bl);
-	//nullpo_ret(vd);
 	if( vd ) //temp hack to let Warp Portal change appearance
 	switch(type)
 	{
@@ -3641,6 +3660,9 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		case LOOK_BASE:
 			if (!sd) break;
 
+			if (val == INVISIBLE_CLASS)
+				return;
+
 			if (sd->sc.option&OPTION_COSTUME)
 				vd->weapon = vd->shield = 0;
 
@@ -3660,6 +3682,11 @@ void clif_changelook(struct block_list *bl,int type,int val)
 					vd->cloth_color = 0;
 				if (sd->sc.option&OPTION_SUMMER2 && battle_config.summer2_ignorepalette)
 					vd->cloth_color = 0;
+				if (vd->body_style && (
+					sd->sc.option&OPTION_WEDDING || sd->sc.option&OPTION_XMAS ||
+					sd->sc.option&OPTION_SUMMER || sd->sc.option&OPTION_HANBOK ||
+					sd->sc.option&OPTION_OKTOBERFEST))
+					vd->body_style = 0;
 			}
 		break;
 		case LOOK_HAIR:
@@ -3734,67 +3761,33 @@ void clif_changelook(struct block_list *bl,int type,int val)
 		target = SELF;
 
 #if PACKETVER < 4
-	WBUFW(buf,0)=0xc3;
-	WBUFL(buf,2)=bl->id;
-	WBUFB(buf,6)=type;
-	WBUFB(buf,7)=val;
-	clif_send(buf,packet_len(0xc3),bl,target);
+	clif_sprite_change(bl, bl->id, type, val, 0, target);
 #else
-	WBUFW(buf,0)=0x1d7;
-	WBUFL(buf,2)=bl->id;
 	if(type == LOOK_WEAPON || type == LOOK_SHIELD) {
-		WBUFB(buf,6)=LOOK_WEAPON;
-		WBUFW(buf,7)=vd->weapon;
-		WBUFW(buf,9)=vd->shield;
-	} else {
-		WBUFB(buf,6)=type;
-		WBUFL(buf,7)=val;
+		nullpo_retv(vd);
+		type = LOOK_WEAPON;
+		val = vd->weapon;
+		val2 = vd->shield;
 	}
-	clif_send(buf,packet_len(0x1d7),bl,target);
+	if (disguised(bl)) {
+		clif_sprite_change(bl, bl->id, type, val, val2, AREA_WOS);
+		clif_sprite_change(bl, -bl->id, type, val, val2, SELF);
+	}
+	else
+		clif_sprite_change(bl, bl->id, type, val, val2, target);
 	unit_refresh(bl);
 #endif
 }
 
 //Sends a change-base-look packet required for traps as they are triggered.
-void clif_changetraplook(struct block_list *bl,int val)
-{
-	unsigned char buf[32];
-#if PACKETVER < 4
-	WBUFW(buf,0)=0xc3;
-	WBUFL(buf,2)=bl->id;
-	WBUFB(buf,6)=LOOK_BASE;
-	WBUFB(buf,7)=val;
-	clif_send(buf,packet_len(0xc3),bl,AREA);
-#else
-	WBUFW(buf,0)=0x1d7;
-	WBUFL(buf,2)=bl->id;
-	WBUFB(buf,6)=LOOK_BASE;
-	WBUFW(buf,7)=val;
-	WBUFW(buf,9)=0;
-	clif_send(buf,packet_len(0x1d7),bl,AREA);
-#endif
+void clif_changetraplook(struct block_list *bl, int val) {
+	clif_sprite_change(bl, bl->id, LOOK_BASE, val, 0, AREA);
 }
 
-//For the stupid cloth-dye bug. Resends the given view data to the area specified by bl.
-void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_target target)
-{
-	unsigned char buf[32];
-#if PACKETVER < 4
-	WBUFW(buf,0)=0xc3;
-	WBUFL(buf,2)=id;
-	WBUFB(buf,6)=type;
-	WBUFB(buf,7)=val;
-	clif_send(buf,packet_len(0xc3),bl,target);
-#else
-	WBUFW(buf,0)=0x1d7;
-	WBUFL(buf,2)=id;
-	WBUFB(buf,6)=type;
-	WBUFW(buf,7)=val;
-	WBUFW(buf,9)=0;
-	clif_send(buf,packet_len(0x1d7),bl,target);
-#endif
+/// For the stupid cloth-dye bug. Resends the given view data to the area specified by bl.
+void clif_refreshlook(struct block_list *bl, int id, int type, int val, enum send_target target) {
+	clif_sprite_change(bl, id, type, val, 0, target);
 }
-
 
 /// Character status (ZC_STATUS).
 /// 00bd <stpoint>.W <str>.B <need str>.B <agi>.B <need agi>.B <vit>.B <need vit>.B
@@ -4329,6 +4322,11 @@ void clif_changeoption(struct block_list* bl)
 	} else
 		clif_send(buf,packet_len(0x119),bl,AREA);
 #endif
+
+	//Whenever we send "changeoption" to the client, the provoke icon is lost
+	//There is probably an option for the provoke icon, but as we don't know it, we have to do this for now
+	if (sc->data[SC_PROVOKE] && sc->data[SC_PROVOKE]->timer == INVALID_TIMER)
+		clif_status_change(bl, StatusIconChangeTable[SC_PROVOKE], 1, -1, 0, 0, 0);
 }
 
 void clif_changeoption_target(struct block_list *bl, struct block_list *target_bl, enum send_target target)
@@ -4607,17 +4605,18 @@ void clif_joinchatok(struct map_session_data *sd,struct chat_data* cd)
 	if (cd->owner->type == BL_NPC) {
 		WFIFOL(fd, 30) = 1;
 		WFIFOL(fd, 8) = 0;
-		memcpy(WFIFOP(fd, 12), ((struct npc_data *)cd->owner)->name, NAME_LENGTH);
+		safestrncpy(WFIFOP(fd, 12), ((struct npc_data *)cd->owner)->name, NAME_LENGTH);
 		for (i = 0; i < cd->users; i++) {
 			WFIFOL(fd, 8 + (i + 1) * 28) = 1;
-			memcpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
+			safestrncpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
 		}
 	}
-	else
+	else {
 		for (i = 0; i < cd->users; i++) {
-			WFIFOL(fd, 8+i*28) = (i != 0 || cd->owner->type == BL_NPC);
-			memcpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
+			WFIFOL(fd, 8 + i * 28) = (i != 0 || cd->owner->type == BL_NPC);
+			safestrncpy(WFIFOP(fd, 8 + (i + t) * 28 + 4), cd->usersd[i]->status.name, NAME_LENGTH);
 		}
+	}
 	WFIFOSET(fd, WFIFOW(fd, 2));
 }
 
@@ -4633,7 +4632,7 @@ void clif_addchat(struct chat_data* cd,struct map_session_data *sd)
 
 	WBUFW(buf, 0) = 0xdc;
 	WBUFW(buf, 2) = cd->users;
-	memcpy(WBUFP(buf, 4),sd->status.name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf, 4),sd->status.name,NAME_LENGTH);
 	clif_send(buf,packet_len(0xdc),&sd->bl,CHAT_WOS);
 }
 
@@ -4652,11 +4651,11 @@ void clif_changechatowner(struct chat_data* cd, struct map_session_data* sd)
 
 	WBUFW(buf, 0) = 0xe1;
 	WBUFL(buf, 2) = 1;
-	memcpy(WBUFP(buf,6),cd->usersd[0]->status.name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,6),cd->usersd[0]->status.name,NAME_LENGTH);
 
 	WBUFW(buf,30) = 0xe1;
 	WBUFL(buf,32) = 0;
-	memcpy(WBUFP(buf,36),sd->status.name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,36),sd->status.name,NAME_LENGTH);
 
 	clif_send(buf,packet_len(0xe1)*2,&sd->bl,CHAT);
 }
@@ -4676,7 +4675,7 @@ void clif_leavechat(struct chat_data* cd, struct map_session_data* sd, bool flag
 
 	WBUFW(buf, 0) = 0xdd;
 	WBUFW(buf, 2) = cd->users-1;
-	memcpy(WBUFP(buf,4),sd->status.name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,4),sd->status.name,NAME_LENGTH);
 	WBUFB(buf,28) = flag;
 
 	clif_send(buf,packet_len(0xdd),&sd->bl,CHAT);
@@ -5212,6 +5211,25 @@ static int clif_calc_walkdelay(struct block_list *bl,int delay, int type, int da
 	return delay>0?delay:1; //Return 1 to specify there should be no noticeable delay, but you should stop walking.
 }
 
+/*========================================== [Playtester]
+ * Returns hallucination damage the client displays
+ *------------------------------------------*/
+static int clif_hallucination_damage()
+{
+	int digit = rnd() % 5 + 1;
+	switch (digit)
+	{
+	case 1:
+		return (rnd() % 10);
+	case 2:
+		return (rnd() % 100);
+	case 3:
+		return (rnd() % 1000);
+	case 4:
+		return (rnd() % 10000);
+	}
+	return (rnd() % 32767);
+}
 
 /// Sends a 'damage' packet (src performs action on dst)
 /// 008a <src ID>.L <dst ID>.L <server tick>.L <src speed>.L <dst speed>.L <damage>.W <div>.W <type>.B <damage2>.W (ZC_NOTIFY_ACT)
@@ -5256,8 +5274,8 @@ int clif_damage(struct block_list* src, struct block_list* dst, int64 tick, int 
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION]) {
-			if(damage) damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
-			if(damage2) damage2 = damage2*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
+			if (damage) damage = clif_hallucination_damage();
+			if (damage2) damage2 = clif_hallucination_damage();
 		}
 	}
 
@@ -6068,7 +6086,7 @@ int clif_skill_damage(struct block_list *src,struct block_list *dst,int64 tick,i
 	sc = status_get_sc(dst);
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION] && damage)
-			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
+			damage = clif_hallucination_damage();
 	}
 
 #if PACKETVER < 3
@@ -6164,7 +6182,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 
 	if(sc && sc->count) {
 		if(sc->data[SC_HALLUCINATION] && damage)
-			damage = damage*(sc->data[SC_HALLUCINATION]->val2) + rnd()%100;
+			damage = clif_hallucination_damage();
 	}
 
 	WBUFW(buf,0)=0x115;
@@ -6758,7 +6776,7 @@ void clif_displaymessagecolor_target(struct block_list *bl, unsigned long color,
 	nullpo_retv(bl);
 
 	if (msg_len > sizeof(buf) - 12) {
-		ShowWarning("clif_messagecolor: Truncating too long message '%s' (len=%u).\n", msg, msg_len);
+		ShowWarning("clif_displaymessagecolor_target: Truncating too long message '%s' (len=%u).\n", msg, msg_len);
 		msg_len = sizeof(buf) - 12;
 	}
 	if (rgb2bgr)
@@ -6932,7 +6950,7 @@ void clif_map_property(struct block_list *bl, enum map_property property, enum s
 		((map[bl->m].flag.pvp ? 1 : 0) << 5) |// COUNT_PK - Show the PvP counter
 		((map[bl->m].flag.partylock ? 1 : 0) << 6) |// NO_PARTY_FORMATION - Prevents party creation/modification (Might be used for instance dungeons)
 		((map[bl->m].flag.battleground ? 1 : 0) << 7) |// BATTLEFIELD - Unknown (Does something for battlegrounds areas)
-		(0 << 8) |// DISABLE_COSTUMEITEM - Unknown - (Prevents wearing of costume items?)
+		((map[bl->m].flag.nocostume ? 1 : 0) << 8) |// DISABLE_COSTUMEITEM - Disable costume sprites
 		(1 << 9) |// USECART - Allow opening cart inventory (Well force it to always allow it)
 		((map[bl->m].flag.nosunmoonstarmiracle ? 0 : 1) << 10);// SUNMOONSTAR_MIRACLE - Blocks Star Gladiator's Miracle from activating
 				  //(1<<11);// Unused bits. 1 - 10 is 0x1 length and 11 is 0x15 length. May be used for future settings.
@@ -7983,8 +8001,8 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 	WBUFW(buf,10 + offset) = p->data[member_id].x;
 	WBUFW(buf,12 + offset) = p->data[member_id].y;
 	WBUFB(buf,14 + offset) = ( m->online ) ? 0 : 1;// state: 0-online 1-offline
-	memcpy(WBUFP(buf,15 + offset), p->party.name, NAME_LENGTH);
-	memcpy(WBUFP(buf,39 + offset), m->name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,15 + offset), p->party.name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,39 + offset), m->name, NAME_LENGTH);
 	mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,63 + offset));
 	WBUFB(buf,79 + offset) = (p->party.item&1)?1:0;
 	WBUFB(buf,80 + offset) = (p->party.item&2)?1:0;
@@ -8021,7 +8039,7 @@ void clif_party_info(struct party_data* p, struct map_session_data *sd)
 	nullpo_retv(p);
 
 	WBUFW(buf, 0) = packet_num;
-	memcpy(WBUFP(buf,4), p->party.name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,4), p->party.name, NAME_LENGTH);
 	for(i = 0, c = 0; i < MAX_PARTY; i++)
 	{
 		struct party_member* m = &p->party.member[i];
@@ -8107,7 +8125,7 @@ void clif_party_invite(struct map_session_data *sd,struct map_session_data *tsd)
 	WFIFOHEAD(fd,packet_len(cmd));
 	WFIFOW(fd,0)=cmd;
 	WFIFOL(fd,2)=sd->status.party_id;
-	memcpy(WFIFOP(fd,6),p->party.name,NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,6),p->party.name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(cmd));
 }
 
@@ -8229,7 +8247,7 @@ void clif_party_withdraw(struct map_session_data *sd, uint32 account_id, const c
 
 	WBUFW(buf,0) = 0x0105;
 	WBUFL(buf,2) = account_id;
-	memcpy(WBUFP(buf,6), name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,6), name, NAME_LENGTH);
 	WBUFB(buf,6+NAME_LENGTH) = result;
 
 	clif_send(buf, 2+4+NAME_LENGTH+1, &sd->bl, target);
@@ -8590,7 +8608,7 @@ void clif_send_petstatus(struct map_session_data *sd)
 	pet = &sd->pd->pet;
 	WFIFOHEAD(fd,packet_len(0x1a2));
 	WFIFOW(fd,0)=0x1a2;
-	memcpy(WFIFOP(fd,2),pet->name,NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,2),pet->name,NAME_LENGTH);
 	WFIFOB(fd,26)=battle_config.pet_rename?0:pet->rename_flag;
 	WFIFOW(fd,27)=pet->level;
 	WFIFOW(fd,29)=pet->hungry;
@@ -9016,7 +9034,7 @@ void clif_guild_belonginfo(struct map_session_data *sd)
 	WFIFOL(fd,10)=g->position[ps].mode;
 	WFIFOB(fd, 14) = (bool)(sd->state.gmaster_flag == 1);
 	WFIFOL(fd,15)=0;  // InterSID (unknown purpose)
-	memcpy(WFIFOP(fd,19),g->name,NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,19),g->name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x16c));
 }
 
@@ -9154,9 +9172,9 @@ void clif_guild_basicinfo(struct map_session_data *sd)
 	WFIFOL(fd,34)=0;	// Honor: (left) Vulgar [-100,100] Famed (right)
 	WFIFOL(fd,38)=0;	// Virtue: (down) Wicked [-100,100] Righteous (up)
 	WFIFOL(fd,42)=g->emblem_id;
-	memcpy(WFIFOCP(fd,46),g->name, NAME_LENGTH);
+	safestrncpy(WFIFOCP(fd,46),g->name, NAME_LENGTH);
 #if PACKETVER < 20161228
-	memcpy(WFIFOCP(fd,70),g->master, NAME_LENGTH);
+	safestrncpy(WFIFOCP(fd,70),g->master, NAME_LENGTH);
 #endif
 	// Calculate the number of castles owned.
 	safestrncpy(WFIFOCP(fd,70+offset),msg_txt(sd,300+guild_castle_count(g->guild_id)),MAP_NAME_LENGTH_EXT); // "'N' castles"
@@ -9187,7 +9205,7 @@ void clif_guild_allianceinfo(struct map_session_data *sd)
 		if(a->guild_id>0){
 			WFIFOL(fd,c*32+4)=a->opposition;
 			WFIFOL(fd,c*32+8)=a->guild_id;
-			memcpy(WFIFOP(fd,c*32+12),a->name,NAME_LENGTH);
+			safestrncpy(WFIFOP(fd,c*32+12),a->name,NAME_LENGTH);
 			c++;
 		}
 	}
@@ -9243,7 +9261,7 @@ void clif_guild_memberlist(struct map_session_data *sd)
 		WFIFOL(fd,c*size+30)=m->position;
 #if PACKETVER < 20161228
 		memset(WFIFOP(fd,c*size+34),0,50);
-		memcpy(WFIFOCP(fd,c*size+84),m->name,NAME_LENGTH);
+		safestrncpy(WFIFOCP(fd,c*size+84),m->name,NAME_LENGTH);
 #else
 		WFIFOL(fd, c*size + 34) = m->last_login;
 #endif
@@ -9270,7 +9288,7 @@ void clif_guild_positionnamelist(struct map_session_data *sd)
 	WFIFOW(fd, 0)=0x166;
 	for(i=0;i<MAX_GUILDPOSITION;i++){
 		WFIFOL(fd,i*28+4)=i;
-		memcpy(WFIFOP(fd,i*28+8),g->position[i].name,NAME_LENGTH);
+		safestrncpy(WFIFOP(fd,i*28+8),g->position[i].name,NAME_LENGTH);
 	}
 	WFIFOW(fd,2)=i*28+4;
 	WFIFOSET(fd,WFIFOW(fd,2));
@@ -9334,7 +9352,7 @@ void clif_guild_positionchanged(struct guild *g,int idx)
 	WBUFL(buf, 8)=g->position[idx].mode;
 	WBUFL(buf,12)=idx;
 	WBUFL(buf,16)=g->position[idx].exp_mode;
-	memcpy(WBUFP(buf,20),g->position[idx].name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,20),g->position[idx].name,NAME_LENGTH);
 	// }*
 	if( (sd=guild_getavailablesd(g))!=NULL )
 		clif_send(buf,WBUFW(buf,2),&sd->bl,GUILD);
@@ -9481,7 +9499,7 @@ void clif_guild_invite(struct map_session_data *sd,struct guild *g)
 	WFIFOHEAD(fd,packet_len(0x16a));
 	WFIFOW(fd,0)=0x16a;
 	WFIFOL(fd,2)=g->guild_id;
-	memcpy(WFIFOP(fd,6),g->name,NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,6),g->name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x16a));
 }
 
@@ -9516,7 +9534,7 @@ void clif_guild_leave(struct map_session_data *sd,const char *name,const char *m
 	nullpo_retv(sd);
 
 	WBUFW(buf, 0)=0x15a;
-	memcpy(WBUFP(buf, 2),name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf, 2),name,NAME_LENGTH);
 	memcpy(WBUFP(buf,26),mes,40);
 	clif_send(buf,packet_len(0x15a),&sd->bl,GUILD_NOBG);
 }
@@ -9575,7 +9593,7 @@ void clif_guild_expulsionlist(struct map_session_data* sd)
 
 		if( e->account_id > 0 )
 		{
-			memcpy(WFIFOP(fd,4 + c*offset), e->name, NAME_LENGTH);
+			safestrncpy(WFIFOP(fd,4 + c*offset), e->name, NAME_LENGTH);
 #if PACKETVER < 20100803
 			memset(WFIFOP(fd,4 + c*offset+24), 0, NAME_LENGTH); // account name (not used for security reasons)
 			memcpy(WFIFOP(fd,4 + c*offset+48), e->mes, 40);
@@ -9627,7 +9645,7 @@ void clif_guild_reqalliance(struct map_session_data *sd,uint32 account_id,const 
 	WFIFOHEAD(fd,packet_len(0x171));
 	WFIFOW(fd,0)=0x171;
 	WFIFOL(fd,2)=account_id;
-	memcpy(WFIFOP(fd,6),name,NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,6),name,NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x171));
 }
 
@@ -9707,7 +9725,7 @@ void clif_guild_allianceadded(struct guild *g,int idx)
 	WBUFW(buf,0)=0x185;
 	WBUFL(buf,2)=g->alliance[idx].opposition;
 	WBUFL(buf,6)=g->alliance[idx].guild_id;
-	memcpy(WBUFP(buf,10),g->alliance[idx].name,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,10),g->alliance[idx].name,NAME_LENGTH);
 	clif_send(buf,packet_len(0x185),guild_getavailablesd(g),GUILD);
 }
 */
@@ -9791,7 +9809,7 @@ void clif_callpartner(struct map_session_data *sd)
 		const char *p = map_charid2nick(sd->status.partner_id);
 		struct map_session_data *p_sd = pc_get_partner(sd);
 		if (p != NULL && p_sd != NULL && !p_sd->state.autotrade)
-			memcpy(WBUFP(buf,2), p, NAME_LENGTH);
+			safestrncpy(WBUFP(buf,2), p, NAME_LENGTH);
 		else
 			WBUFB(buf,2) = 0;
 	}
@@ -9831,7 +9849,7 @@ void clif_divorced(struct map_session_data* sd, const char* name)
 	fd=sd->fd;
 	WFIFOHEAD(fd,packet_len(0x205));
 	WFIFOW(fd,0)=0x205;
-	memcpy(WFIFOP(fd,2), name, NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,2), name, NAME_LENGTH);
 	WFIFOSET(fd, packet_len(0x205));
 }
 
@@ -10384,26 +10402,26 @@ void clif_name(struct block_list* src, struct block_list *bl, send_target target
 		break;
 	//[blackhole89]
 	case BL_HOM:
-		memcpy(WBUFP(buf,6), ((TBL_HOM*)bl)->homunculus.name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,6), ((TBL_HOM*)bl)->homunculus.name, NAME_LENGTH);
 		break;
 	case BL_MER:
-		memcpy(WBUFP(buf,6), ((TBL_MER*)bl)->db->name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,6), ((TBL_MER*)bl)->db->name, NAME_LENGTH);
 		break;
 	case BL_ELEM:
-		memcpy(WBUFP(buf,6), ((TBL_ELEM*)bl)->db->name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,6), ((TBL_ELEM*)bl)->db->name, NAME_LENGTH);
 		break;
 	case BL_PET:
-		memcpy(WBUFP(buf,6), ((TBL_PET*)bl)->pet.name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,6), ((TBL_PET*)bl)->pet.name, NAME_LENGTH);
 		break;
 	case BL_NPC:
-		memcpy(WBUFP(buf,6), ((TBL_NPC*)bl)->name, NAME_LENGTH);
+		safestrncpy(WBUFP(buf,6), ((TBL_NPC*)bl)->name, NAME_LENGTH);
 		break;
 	case BL_MOB:
 		{
 			struct mob_data *md = (struct mob_data *)bl;
 			nullpo_retv(md);
 
-			memcpy(WBUFP(buf,6), md->name, NAME_LENGTH);
+			safestrncpy(WBUFP(buf,6), md->name, NAME_LENGTH);
 			if( md->guardian_data && md->guardian_data->guild_id )
 			{
 #if PACKETVER >= 20150513
@@ -10412,8 +10430,8 @@ void clif_name(struct block_list* src, struct block_list *bl, send_target target
 				WBUFW(buf, 0) = cmd = 0x195;
 #endif
 				WBUFB(buf,30) = 0;
-				memcpy(WBUFP(buf,54), md->guardian_data->guild_name, NAME_LENGTH);
-				memcpy(WBUFP(buf,78), md->guardian_data->castle->castle_name, NAME_LENGTH);
+				safestrncpy(WBUFP(buf,54), md->guardian_data->guild_name, NAME_LENGTH);
+				safestrncpy(WBUFP(buf,78), md->guardian_data->castle->castle_name, NAME_LENGTH);
 			}
 			else if( battle_config.show_mob_info )
 			{
@@ -10434,7 +10452,7 @@ void clif_name(struct block_list* src, struct block_list *bl, send_target target
 				if( str_p != mobhp )
 				{
 					*(str_p-3) = '\0'; //Remove trailing space + pipe.
-					memcpy(WBUFP(buf,30), mobhp, NAME_LENGTH);
+					safestrncpy(WBUFP(buf,30), mobhp, NAME_LENGTH);
 					WBUFB(buf,54) = 0;
 					WBUFB(buf,78) = 0;
 				}
@@ -10445,7 +10463,7 @@ void clif_name(struct block_list* src, struct block_list *bl, send_target target
 		}
 		break;
 	case BL_CHAT:	//FIXME: Clients DO request this... what should be done about it? The chat's title may not fit... [Skotlex]
-//		memcpy(WBUFP(buf,6), (struct chat*)->title, NAME_LENGTH);
+//		safestrncpy(WBUFP(buf,6), (struct chat*)->title, NAME_LENGTH);
 //		break;
 		return;
 	default:
@@ -11176,6 +11194,8 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 #else
 	clif_changelook(&sd->bl,LOOK_WEAPON,0);
 #endif
+
+	pc_set_costume_view(sd);
 
 	if(sd->vd.cloth_color)
 		clif_refreshlook(&sd->bl,sd->bl.id,LOOK_CLOTHES_COLOR,sd->vd.cloth_color,SELF);
@@ -12146,7 +12166,7 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 				set_var(sd,output,(char *) split_data[i]);
 			}
 			
-			sprintf(output, "%s::OnWhisperGlobal", npc->exname);
+			safesnprintf(output,sizeof(output),"%s::%s", npc->exname,script_config.onwhisper_event_name);
 			npc_event(sd,output,0); // Calls the NPC label
 
 			return;
@@ -14065,7 +14085,7 @@ void clif_PartyBookingSearchAck(int fd, struct party_booking_ad_info** results, 
 	{
 		pb_ad = results[i];
 		WFIFOL(fd,i*size+5) = pb_ad->index;
-		memcpy(WFIFOP(fd,i*size+9),pb_ad->charname,NAME_LENGTH);
+		safestrncpy(WFIFOP(fd,i*size+9),pb_ad->charname,NAME_LENGTH);
 		WFIFOL(fd,i*size+33) = pb_ad->starttime;  // FIXME: This is expire time
 		WFIFOW(fd,i*size+37) = pb_ad->p_detail.level;
 		WFIFOW(fd,i*size+39) = pb_ad->p_detail.mapid;
@@ -14128,7 +14148,7 @@ void clif_PartyBookingInsertNotify(struct map_session_data* sd, struct party_boo
 
 	WBUFW(buf,0) = 0x809;
 	WBUFL(buf,2) = pb_ad->index;
-	memcpy(WBUFP(buf,6),pb_ad->charname,NAME_LENGTH);
+	safestrncpy(WBUFP(buf,6),pb_ad->charname,NAME_LENGTH);
 	WBUFL(buf,30) = pb_ad->starttime;  // FIXME: This is expire time
 	WBUFW(buf,34) = pb_ad->p_detail.level;
 	WBUFW(buf,36) = pb_ad->p_detail.mapid;
@@ -15830,7 +15850,7 @@ void clif_PMIgnoreList(struct map_session_data* sd)
 
 	for( i = 0; i < ARRAYLENGTH(sd->ignore) && sd->ignore[i].name[0]; i++ )
 	{
-		memcpy(WFIFOP(fd,4+i*NAME_LENGTH), sd->ignore[i].name, NAME_LENGTH);
+		safestrncpy(WFIFOP(fd,4+i*NAME_LENGTH), sd->ignore[i].name, NAME_LENGTH);
 	}
 
 	WFIFOW(fd,2) = 4+i*NAME_LENGTH;
@@ -15962,7 +15982,7 @@ void clif_friendslist_send(struct map_session_data *sd)
 		WFIFOL(fd, 4 + offset * i + 0) = sd->status.friends[i].account_id;
 		WFIFOL(fd, 4 + offset * i + 4) = sd->status.friends[i].char_id;
 #if PACKETVER < 20180221
-		memcpy(WFIFOP(fd, 4 + offset * i + 8), &sd->status.friends[i].name, NAME_LENGTH);
+		safestrncpy(WFIFOP(fd, 4 + offset * i + 8), sd->status.friends[i].name, NAME_LENGTH);
 #endif
 	}
 
@@ -15999,7 +16019,7 @@ void clif_friendslist_reqack(struct map_session_data *sd, struct map_session_dat
 	{
 		WFIFOL(fd,4) = f_sd->status.account_id;
 		WFIFOL(fd,8) = f_sd->status.char_id;
-		memcpy(WFIFOP(fd, 12), f_sd->status.name,NAME_LENGTH);
+		safestrncpy(WFIFOP(fd, 12), f_sd->status.name,NAME_LENGTH);
 	}
 	WFIFOSET(fd, packet_len(0x209));
 }
@@ -16015,7 +16035,7 @@ void clif_friendlist_req(struct map_session_data* sd, uint32 account_id, uint32 
 	WFIFOW(fd,0) = 0x207;
 	WFIFOL(fd,2) = account_id;
 	WFIFOL(fd,6) = char_id;
-	memcpy(WFIFOP(fd,10), name, NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,10), name, NAME_LENGTH);
 	WFIFOSET(fd,packet_len(0x207));
 }
 
@@ -16114,7 +16134,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 
 		f_sd->status.friends[i].account_id = sd->status.account_id;
 		f_sd->status.friends[i].char_id = sd->status.char_id;
-		memcpy(f_sd->status.friends[i].name, sd->status.name, NAME_LENGTH);
+		safestrncpy(f_sd->status.friends[i].name, sd->status.name, NAME_LENGTH);
 		clif_friendslist_reqack(f_sd, sd, 0);
 
 		achievement_validate_friend_add(f_sd); // Achievements [Smokexyz/Hercules]
@@ -16134,7 +16154,7 @@ void clif_parse_FriendsListReply(int fd, struct map_session_data *sd)
 
 			sd->status.friends[i].account_id = f_sd->status.account_id;
 			sd->status.friends[i].char_id = f_sd->status.char_id;
-			memcpy(sd->status.friends[i].name, f_sd->status.name, NAME_LENGTH);
+			safestrncpy(sd->status.friends[i].name, f_sd->status.name, NAME_LENGTH);
 			clif_friendslist_reqack(sd, f_sd, 0);
 			
 			achievement_validate_friend_add(sd); // Achievements [Smokexyz/Hercules]
@@ -16340,15 +16360,15 @@ void clif_blacksmith(struct map_session_data* sd)
 			if (strcmp(smith_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(smith_fame_list[i].id)) != NULL)
 			{
-				strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), name, NAME_LENGTH);
+				safestrncpy((char *)(WFIFOP(fd, 2 + 24 * i)), name, NAME_LENGTH);
 			} else
-				strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), smith_fame_list[i].name, NAME_LENGTH);
+				safestrncpy((char *)(WFIFOP(fd, 2 + 24 * i)), smith_fame_list[i].name, NAME_LENGTH);
 		} else
-			strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "None", 5);
+			safestrncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "None", 5);
 		WFIFOL(fd, 242 + i * 4) = smith_fame_list[i].fame;
 	}
 	for(;i < 10; i++) { //In case the MAX is less than 10.
-		strncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "Unavailable", 12);
+		safestrncpy((char *)(WFIFOP(fd, 2 + 24 * i)), "Unavailable", 12);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}
 
@@ -16393,15 +16413,15 @@ void clif_alchemist(struct map_session_data* sd)
 			if (strcmp(chemist_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(chemist_fame_list[i].id)) != NULL)
 			{
-				memcpy(WFIFOP(fd, 2 + 24 * i), name, NAME_LENGTH);
+				safestrncpy(WFIFOP(fd, 2 + 24 * i), name, NAME_LENGTH);
 			} else
-				memcpy(WFIFOP(fd, 2 + 24 * i), chemist_fame_list[i].name, NAME_LENGTH);
+				safestrncpy(WFIFOP(fd, 2 + 24 * i), chemist_fame_list[i].name, NAME_LENGTH);
 		} else
-			memcpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
+			safestrncpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = chemist_fame_list[i].fame;
 	}
 	for(;i < 10; i++) { //In case the MAX is less than 10.
-		memcpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
+		safestrncpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}
 
@@ -16446,15 +16466,15 @@ void clif_taekwon(struct map_session_data* sd)
 			if (strcmp(taekwon_fame_list[i].name, "-") == 0 &&
 				(name = map_charid2nick(taekwon_fame_list[i].id)) != NULL)
 			{
-				memcpy(WFIFOP(fd, 2 + 24 * i), name, NAME_LENGTH);
+				safestrncpy(WFIFOP(fd, 2 + 24 * i), name, NAME_LENGTH);
 			} else
-				memcpy(WFIFOP(fd, 2 + 24 * i), taekwon_fame_list[i].name, NAME_LENGTH);
+				safestrncpy(WFIFOP(fd, 2 + 24 * i), taekwon_fame_list[i].name, NAME_LENGTH);
 		} else
-			memcpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
+			safestrncpy(WFIFOP(fd, 2 + 24 * i), "None", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = taekwon_fame_list[i].fame;
 	}
 	for(;i < 10; i++) { //In case the MAX is less than 10.
-		memcpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
+		safestrncpy(WFIFOP(fd, 2 + 24 * i), "Unavailable", NAME_LENGTH);
 		WFIFOL(fd, 242 + i * 4) = 0;
 	}
 	WFIFOSET(fd, packet_len(0x226));
@@ -16492,7 +16512,7 @@ void clif_ranking_pk(struct map_session_data* sd)
 	WFIFOHEAD(fd,packet_len(0x238));
 	WFIFOW(fd,0) = 0x238;
 	for(i=0;i<10;i++){
-		memcpy(WFIFOP(fd,i*24+2), "Unknown", NAME_LENGTH);
+		safestrncpy(WFIFOP(fd,i*24+2), "Unknown", NAME_LENGTH);
 		WFIFOL(fd,i*4+242) = 0;
 	}
 	WFIFOSET(fd, packet_len(0x238));
@@ -16965,7 +16985,7 @@ void clif_Mail_refreshinbox(struct map_session_data *sd,enum mail_inbox_type typ
 		WFIFOL(fd,8+73*j) = msg->id;
 		memcpy(WFIFOP(fd,12+73*j), msg->title, MAIL_TITLE_LENGTH);
 		WFIFOB(fd,52+73*j) = (msg->status != MAIL_UNREAD);
-		memcpy(WFIFOP(fd,53+73*j), msg->send_name, NAME_LENGTH);
+		safestrncpy(WFIFOP(fd,53+73*j), msg->send_name, NAME_LENGTH);
 		WFIFOL(fd,77+73*j) = (uint32)msg->timestamp;
 		j++;
 	}
@@ -18517,7 +18537,7 @@ void clif_Adopt_request(struct map_session_data *sd, struct map_session_data *sr
 	WFIFOW(fd,0) = 0x1f6;
 	WFIFOL(fd,2) = src->status.account_id;
 	WFIFOL(fd,6) = p_id;
-	memcpy(WFIFOP(fd,10), src->status.name, NAME_LENGTH);
+	safestrncpy(WFIFOP(fd,10), src->status.name, NAME_LENGTH);
 	WFIFOSET(fd,34);
 }
 
@@ -18820,7 +18840,7 @@ void clif_quest_send_mission(struct map_session_data * sd)
 			WFIFOL(fd, i*104+22+j*30) = qi->objectives[j].mob;
 			WFIFOW(fd, i*104+26+j*30) = sd->quest_log[i].count[j];
 			mob = mob_db(qi->objectives[j].mob);
-			memcpy(WFIFOP(fd, i*104+28+j*30), mob->jname, NAME_LENGTH);
+			safestrncpy(WFIFOP(fd, i*104+28+j*30), mob->jname, NAME_LENGTH);
 		}
 	}
 
@@ -19301,7 +19321,7 @@ void clif_bg_hp(struct map_session_data *sd) {
 	WBUFW(buf,0) = cmd;
 	WBUFL(buf,2) = sd->status.account_id;
 #if PACKETVER < 20140613
-    memcpy(WBUFP(buf,6), sd->status.name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,6), sd->status.name, NAME_LENGTH);
     if( sd->battle_status.max_hp > INT16_MAX ) { // To correctly display the %hp bar. [Skotlex]
 		WBUFW(buf,30) = sd->battle_status.hp/(sd->battle_status.max_hp/100);
         WBUFW(buf,32) = 100;
@@ -19331,7 +19351,7 @@ void clif_bg_xy(struct map_session_data *sd)
 
 	WBUFW(buf,0)=0x2df;
 	WBUFL(buf,2)=sd->status.account_id;
-	memcpy(WBUFP(buf,6), sd->status.name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,6), sd->status.name, NAME_LENGTH);
 	WBUFW(buf,30)=sd->status.class_;
 	WBUFW(buf,32)=sd->bl.x;
 	WBUFW(buf,34)=sd->bl.y;
@@ -19369,7 +19389,7 @@ void clif_bg_message(struct battleground_data *bg, int src_id, const char *name,
 	WBUFW(buf,0) = 0x2dc;
 	WBUFW(buf,2) = len + NAME_LENGTH + 8;
 	WBUFL(buf,4) = src_id;
-	memcpy(WBUFP(buf,8), name, NAME_LENGTH);
+	safestrncpy(WBUFP(buf,8), name, NAME_LENGTH);
 	memcpy(WBUFP(buf,32), mes, len);
 	clif_send(buf,WBUFW(buf,2), &sd->bl, BG);
 
@@ -21035,7 +21055,7 @@ void clif_equipswitch_list(struct map_session_data* sd) {
 	for (i = 0, offset = 4, position = 0; i < EQI_MAX; i++) {
 		short index = sd->equip_switch_index[i];
 
-		if (index >= 0 && !(position & equip[i])) {
+		if (index >= 0 && !(position & equip_bitmask[i])) {
 			WFIFOW(fd, offset) = index + 2;
 			WFIFOL(fd, offset + 2) = sd->inventory.u.items_inventory[index].equipSwitch;
 			position |= sd->inventory.u.items_inventory[index].equipSwitch;

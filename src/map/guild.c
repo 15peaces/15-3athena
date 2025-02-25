@@ -710,9 +710,6 @@ void guild_member_added(int guild_id,uint32 account_id,uint32 char_id,int flag)
 	if( sd2!=NULL )
 		clif_guild_inviteack(sd2,2);
 
-	//Next line commented because it do nothing, look at guild_recv_info [LuzZza]
-	//clif_charnameupdate(sd); //Update display name [Skotlex]
-
 	return;
 }
 

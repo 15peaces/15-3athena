@@ -36,6 +36,7 @@ extern struct Script_Config {
 
 	const char* ontouch_name;
 	const char* ontouch2_name;
+	const char* onwhisper_event_name;
 } script_config;
 
 typedef enum c_op {
@@ -185,6 +186,16 @@ enum questinfo_types {
 	QTYPE_NONE = 9999
 };
 
+enum getmapxy_types {
+	UNITTYPE_PC = 0,
+	UNITTYPE_NPC,
+	UNITTYPE_PET,
+	UNITTYPE_MOB,
+	UNITTYPE_HOM,
+	UNITTYPE_MER,
+	UNITTYPE_ELEM,
+};
+
 enum unitdata_mobtypes {
 	UMOB_SIZE = 0,
 	UMOB_LEVEL,
@@ -209,6 +220,7 @@ enum unitdata_mobtypes {
 	UMOB_SHIELD,
 	UMOB_WEAPON,
 	UMOB_LOOKDIR,
+	UMOB_CANMOVETICK,
 	UMOB_STR,
 	UMOB_AGI,
 	UMOB_VIT,

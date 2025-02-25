@@ -210,24 +210,24 @@ void initChangeTables(void)
 	memset(SCDisabled, 0, sizeof(SCDisabled));
 
 	//First we define the skill for common ailments. These are used in skill_additional_effect through sc cards. [Skotlex]
-	set_sc( NPC_PETRIFYATTACK		, SC_STONE           , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
-	set_sc( NPC_WIDEFREEZE			, SC_FREEZE          , SI_BLANK           , SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
-	set_sc( NPC_STUNATTACK			, SC_STUN            , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_SLEEPATTACK			, SC_SLEEP           , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_POISON				, SC_POISON          , SI_BLANK           , SCB_DEF2|SCB_REGEN );
-	set_sc( NPC_CURSEATTACK			, SC_CURSE           , SI_BLANK           , SCB_LUK|SCB_BATK|SCB_WATK|SCB_SPEED );
-	set_sc( NPC_SILENCEATTACK		, SC_SILENCE         , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_WIDECONFUSE			, SC_CONFUSION       , SI_BLANK           , SCB_NONE );
-	set_sc( NPC_BLINDATTACK			, SC_BLIND           , SI_BLANK           , SCB_HIT|SCB_FLEE );
-	set_sc( NPC_BLEEDING			, SC_BLEEDING        , SI_BLEEDING        , SCB_REGEN );
-	set_sc( NPC_POISON				, SC_DPOISON         , SI_BLANK           , SCB_DEF2|SCB_REGEN );
-	add_sc( ALL_REVERSEORCISH		, SC_ORCISH);
-	set_sc( NPC_WIDEHEALTHFEAR		, SC_FEAR            , SI_BLANK           , SCB_HIT|SCB_FLEE );
-	set_sc( NPC_WIDEBODYBURNNING	, SC_BURNING         , SI_BLANK           , SCB_MDEF );
-	//set_sc( WL_WHITEIMPRISON     , SC_IMPRISON        , SI_BLANK           , SCB_NONE );// No imprison skill for NPC's....yet.
-	set_sc( NPC_WIDE_DEEP_SLEEP  , SC_DEEPSLEEP       , SI_DEEP_SLEEP      , SCB_NONE );
-	set_sc( NPC_WIDEFROSTMISTY   , SC_FROST           , SI_FROSTMISTY      , SCB_DEF|SCB_SPEED|SCB_ASPD );
-	set_sc( NPC_WIDECOLD         , SC_CRYSTALIZE      , SI_COLD            , SCB_NONE );
+	set_sc( NPC_PETRIFYATTACK		, SC_STONE		, SI_BLANK		, SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
+	set_sc( NPC_WIDEFREEZE			, SC_FREEZE		, SI_BLANK		, SCB_DEF_ELE|SCB_DEF|SCB_MDEF );
+	set_sc( NPC_STUNATTACK			, SC_STUN		, SI_BLANK		, SCB_NONE );
+	set_sc( NPC_SLEEPATTACK			, SC_SLEEP		, SI_BLANK		, SCB_NONE );
+	set_sc( NPC_POISON				, SC_POISON		, SI_BLANK		, SCB_DEF2|SCB_REGEN );
+	set_sc(NPC_WIDECURSE			, SC_CURSE		, SI_BLANK		, SCB_LUK|SCB_BATK|SCB_WATK|SCB_SPEED );
+	set_sc( NPC_SILENCEATTACK		, SC_SILENCE	, SI_BLANK		, SCB_NONE );
+	set_sc( NPC_WIDECONFUSE			, SC_CONFUSION	, SI_BLANK		, SCB_NONE );
+	set_sc( NPC_BLINDATTACK			, SC_BLIND		, SI_BLANK		, SCB_HIT|SCB_FLEE );
+	set_sc( NPC_BLEEDING			, SC_BLEEDING	, SI_BLEEDING	, SCB_REGEN );
+	set_sc( NPC_POISON				, SC_DPOISON	, SI_BLANK		, SCB_DEF2|SCB_REGEN );
+	add_sc( ALL_REVERSEORCISH		, SC_ORCISH		);
+	set_sc( NPC_WIDEHEALTHFEAR		, SC_FEAR		, SI_BLANK		, SCB_HIT|SCB_FLEE );
+	set_sc( NPC_WIDEBODYBURNNING	, SC_BURNING	, SI_BLANK		, SCB_MDEF );
+	//set_sc( WL_WHITEIMPRISON		, SC_IMPRISON	, SI_BLANK		, SCB_NONE );// No imprison skill for NPC's....yet.
+	set_sc( NPC_WIDE_DEEP_SLEEP		, SC_DEEPSLEEP	, SI_DEEP_SLEEP	, SCB_NONE );
+	set_sc( NPC_WIDEFROSTMISTY		, SC_FROST		, SI_FROSTMISTY	, SCB_DEF|SCB_SPEED|SCB_ASPD );
+	set_sc( NPC_WIDECOLD			, SC_CRYSTALIZE	, SI_COLD		, SCB_NONE );
 
 	//The main status definitions
 	add_sc( SM_BASH              , SC_STUN            );
@@ -482,6 +482,7 @@ void initChangeTables(void)
 	set_sc( WS_OVERTHRUSTMAX	, SC_MAXOVERTHRUST	, SI_MAXOVERTHRUST	, SCB_NONE );
 	set_sc( CG_LONGINGFREEDOM	, SC_LONGING		, SI_LONGING		, SCB_SPEED | SCB_ASPD);
 	set_sc( CG_HERMODE			, SC_HERMODE		, SI_HERMODE		, SCB_NONE);
+	set_sc(CG_TAROTCARD			, SC_TAROTCARD		, SI_TAROT			, SCB_NONE);
 	set_sc( ITEM_ENCHANTARMS	, SC_ENCHANTARMS	, SI_BLANK			, SCB_ATK_ELE );
 	set_sc( SL_HIGH				, SC_SPIRIT			, SI_SPIRIT			, SCB_ALL );
 	set_sc( KN_ONEHAND			, SC_ONEHAND		, SI_ONEHAND		, SCB_ASPD );
@@ -1332,9 +1333,6 @@ void initChangeTables(void)
 	// RODEX
 	StatusChangeFlagTable[SC_DAILYSENDMAILCNT] |= SCB_NONE;
 
-	if( !battle_config.display_hallucination ) //Disable Hallucination.
-		StatusIconChangeTable[SC_HALLUCINATION] = SI_BLANK;
-
 	// misc
 	StatusChangeFlagTable[SC_DEFSET] |= SCB_DEF|SCB_DEF2;
 	StatusChangeFlagTable[SC_MDEFSET] |= SCB_MDEF|SCB_MDEF2;
@@ -1463,6 +1461,7 @@ int status_set_hp(struct block_list *bl, unsigned int hp, int flag)
 int status_set_maxhp(struct block_list *bl, unsigned int maxhp, int flag)
 {
 	struct status_data *status;
+	int64 heal;
 
 	if (maxhp < 1)
 		return 0;
@@ -1475,13 +1474,13 @@ int status_set_maxhp(struct block_list *bl, unsigned int maxhp, int flag)
 	if (maxhp == status->max_hp)
 		return 0;
 
-	if (maxhp > status->max_hp) {
-		status_heal(bl, maxhp - status->max_hp, 0, 1 | flag);
-	}
-	else
-		status_zap(bl, status->max_hp - maxhp, 0);
-
+	heal = maxhp - status->max_hp;
 	status->max_hp = maxhp;
+
+	if (heal > 0)
+		status_heal(bl, heal, 0, 1 | flag);
+	else
+		status_zap(bl, -heal, 0);
 
 	return maxhp;
 }
@@ -5989,7 +5988,7 @@ static signed short status_calc_flee(struct block_list *bl, struct status_change
 		flee -= 10;
 	if (sc->data[SC_ANGRIFFS_MODUS])
 		flee -= 40 + 20 * sc->data[SC_ANGRIFFS_MODUS]->val1;
-	if(sc->data[SC_SPIDERWEB] && sc->data[SC_SPIDERWEB]->val1)
+	if(sc->data[SC_SPIDERWEB])
 		flee -= flee * 50/100;
 	if(sc->data[SC_BERSERK])
 		flee -= flee * 50/100;
@@ -7726,7 +7725,7 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 		//Item resistance (only applies to rate%)
 		if(sd && SC_COMMON_MIN <= type && type <= SC_COMMON_MAX)
 		{
-			if( sd->reseff[type-SC_COMMON_MIN] > 0 )
+			if( sd->reseff[type-SC_COMMON_MIN])
 				rate -= rate*sd->reseff[type-SC_COMMON_MIN]/10000;
 			if (sd->sc.data[SC_COMMONSC_RESIST])
 				rate -= rate*sd->sc.data[SC_COMMONSC_RESIST]->val1/100;
@@ -9565,10 +9564,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if(status->mode&MD_STATUS_IMMUNE)
 				tick /= 5; //TODO: Reduce skill's duration. But for how long?
 			break;
-		case SC_SPIDERWEB:
-			if( bl->type == BL_PC )
-				tick /= 2;
-			break;
 		case SC_ARMOR:
 			//NPC_DEFENDER:
 			val2 = 80; //Damage reduction
@@ -9623,9 +9618,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_INCHEALRATE:
 			if (val1 < 1)
 				val1 = 1;
-			break;
-		case SC_HALLUCINATION:
-			val2 = 5+val1; //Factor by which displayed damage is increased by
 			break;
 		case SC_DOUBLECAST:
 			val2 = 30+10*val1; //Trigger rate
@@ -10449,10 +10441,13 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val1 = MOBID_PORING; // Default poring
 			break;
 		case SC_APPLEIDUN:
+		{
+			struct map_session_data * s_sd = BL_CAST(BL_PC, src);
 			val2 = (5 + 2 * val1) + (status_get_vit(bl) / 10); //HP Rate: (5 + 2 * skill_lv) + (vit/10) + (BA_MUSICALLESSON level)
-			if (sd)
-				val2 += pc_checkskill(sd, BA_MUSICALLESSON);
+			if (s_sd)
+				val2 += pc_checkskill(s_sd, BA_MUSICALLESSON) / 2;
 			break;
+		}
 		case SC_EPICLESIS:
 			val2 = 5 * val1; //HP rate bonus
 			switch (val1) { //! FIXME, looks so weird!
@@ -11270,6 +11265,41 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 		if (type == SC_ENDURE && sce->val4)
 			//Do not end infinite endure.
 			return 0;
+		if (type == SC_SPIDERWEB) {
+			//Delete the unit group first to expire found in the status change
+			struct skill_unit_group *group = NULL, *group2 = NULL;
+			int64 tick = gettick();
+			int pos = 1;
+			if (sce->val2)
+				if (!(group = skill_id2group(sce->val2)))
+					sce->val2 = 0;
+			if (sce->val3) {
+				if (!(group2 = skill_id2group(sce->val3)))
+					sce->val3 = 0;
+				else if (!group || ((group->limit - DIFF_TICK32(tick, group->tick)) > (group2->limit - DIFF_TICK32(tick, group2->tick)))) {
+					group = group2;
+					pos = 2;
+				}
+			}
+			if (sce->val4) {
+				if (!(group2 = skill_id2group(sce->val4)))
+					sce->val4 = 0;
+				else if (!group || ((group->limit - DIFF_TICK32(tick, group->tick)) > (group2->limit - DIFF_TICK32(tick, group2->tick)))) {
+					group = group2;
+					pos = 3;
+				}
+			}
+			if (pos == 1)
+				sce->val2 = 0;
+			else if (pos == 2)
+				sce->val3 = 0;
+			else if (pos == 3)
+				sce->val4 = 0;
+			if (group)
+				skill_delunitgroup(group);
+			if (!status_isdead(bl) && (sce->val2 || sce->val3 || sce->val4))
+				return 0; //Don't end the status change yet as there are still unit groups associated with it
+		}
 		if (sce->timer != INVALID_TIMER) //Could be a SC with infinite duration
 			delete_timer(sce->timer,status_change_timer);
 		if (sc->opt1)

@@ -1,0 +1,192 @@
+//===== 15-3athena Script ====================================
+//= Mapflag: hidemobhpbar.
+//===== Description: =========================================
+//= Hide monster's HP bar (added in episode 14.2).
+//===== By: ==================================================
+//= 15-3athena Dev Team
+//===== Current Version: =====================================
+//= 1.1
+//===== Compatible With: =====================================
+//= 15-3athena Project
+//===== Additional Comments: =================================
+//= 1.0 First Version. [Lemongrass]
+//= 1.1 Added support for episode mapflags [15peaces]
+//============================================================
+
+//============================================================
+// Episode specific mapflags will be set in this script [15peaces]
+//============================================================
+	-	script	_ep_mf_hidemobhpbar	-1,{
+Oninit:
+	// Episode 14.2
+	if(getepisode() >= 142){
+		// PvP ========================
+		setmapflag "pvp_y_1-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_1-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_1-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_1-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_2-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_2-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_2-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_2-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_3-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_3-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_3-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_3-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_4-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_4-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_4-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_4-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_5-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_5-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_5-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_5-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_6-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_6-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_6-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_6-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_7-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_7-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_7-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_7-4",mf_hidemobhpbar;
+		setmapflag "pvp_y_8-1",mf_hidemobhpbar;
+		setmapflag "pvp_y_8-2",mf_hidemobhpbar;
+		setmapflag "pvp_y_8-3",mf_hidemobhpbar;
+		setmapflag "pvp_y_8-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_1-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_1-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_1-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_1-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_1-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_2-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_2-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_2-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_2-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_2-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_3-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_3-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_3-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_3-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_3-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_4-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_4-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_4-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_4-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_4-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_5-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_5-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_5-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_5-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_5-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_6-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_6-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_6-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_6-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_6-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_7-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_7-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_7-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_7-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_7-5",mf_hidemobhpbar;
+		setmapflag "pvp_n_8-1",mf_hidemobhpbar;
+		setmapflag "pvp_n_8-2",mf_hidemobhpbar;
+		setmapflag "pvp_n_8-3",mf_hidemobhpbar;
+		setmapflag "pvp_n_8-4",mf_hidemobhpbar;
+		setmapflag "pvp_n_8-5",mf_hidemobhpbar;
+		setmapflag "pvp_2vs2",mf_hidemobhpbar;
+		
+		// Aldebaran Turbo Track =======
+		setmapflag "turbo_e_4",mf_hidemobhpbar;
+		setmapflag "turbo_e_8",mf_hidemobhpbar;
+		setmapflag "turbo_e_16",mf_hidemobhpbar;
+
+		// GvG Arenas =================
+		setmapflag "guild_vs1",mf_hidemobhpbar;
+		setmapflag "guild_vs2",mf_hidemobhpbar;
+		setmapflag "guild_vs3",mf_hidemobhpbar;
+		setmapflag "guild_vs4",mf_hidemobhpbar;
+		setmapflag "guild_vs5",mf_hidemobhpbar;
+
+		// Guild Castles ==============
+		setmapflag "aldeg_cas01",mf_hidemobhpbar;
+		setmapflag "aldeg_cas02",mf_hidemobhpbar;
+		setmapflag "aldeg_cas03",mf_hidemobhpbar;
+		setmapflag "aldeg_cas04",mf_hidemobhpbar;
+		setmapflag "aldeg_cas05",mf_hidemobhpbar;
+		setmapflag "gefg_cas01",mf_hidemobhpbar;
+		setmapflag "gefg_cas02",mf_hidemobhpbar;
+		setmapflag "gefg_cas03",mf_hidemobhpbar;
+		setmapflag "gefg_cas04",mf_hidemobhpbar;
+		setmapflag "gefg_cas05",mf_hidemobhpbar;
+		setmapflag "payg_cas01",mf_hidemobhpbar;
+		setmapflag "payg_cas02",mf_hidemobhpbar;
+		setmapflag "payg_cas03",mf_hidemobhpbar;
+		setmapflag "payg_cas04",mf_hidemobhpbar;
+		setmapflag "payg_cas05",mf_hidemobhpbar;
+		setmapflag "prtg_cas01",mf_hidemobhpbar;
+		setmapflag "prtg_cas02",mf_hidemobhpbar;
+		setmapflag "prtg_cas03",mf_hidemobhpbar;
+		setmapflag "prtg_cas04",mf_hidemobhpbar;
+		setmapflag "prtg_cas05",mf_hidemobhpbar;
+		setmapflag "schg_cas01",mf_hidemobhpbar;
+		setmapflag "schg_cas02",mf_hidemobhpbar;
+		setmapflag "schg_cas03",mf_hidemobhpbar;
+		setmapflag "schg_cas04",mf_hidemobhpbar;
+		setmapflag "schg_cas05",mf_hidemobhpbar;
+		setmapflag "arug_cas01",mf_hidemobhpbar;
+		setmapflag "arug_cas02",mf_hidemobhpbar;
+		setmapflag "arug_cas03",mf_hidemobhpbar;
+		setmapflag "arug_cas04",mf_hidemobhpbar;
+		setmapflag "arug_cas05",mf_hidemobhpbar;
+
+		// Novice Guild Castles =======
+		//setmapflag "n_castle",mf_hidemobhpbar;
+		setmapflag "nguild_alde",mf_hidemobhpbar;
+		setmapflag "nguild_gef",mf_hidemobhpbar;
+		setmapflag "nguild_pay",mf_hidemobhpbar;
+		setmapflag "nguild_prt",mf_hidemobhpbar;
+
+		// Guild Dungeons =============
+		setmapflag "gld_dun01",mf_hidemobhpbar;
+		setmapflag "gld_dun02",mf_hidemobhpbar;
+		setmapflag "gld_dun03",mf_hidemobhpbar;
+		setmapflag "gld_dun04",mf_hidemobhpbar;
+		setmapflag "arug_dun01",mf_hidemobhpbar;
+		setmapflag "schg_dun01",mf_hidemobhpbar;
+		setmapflag "gld2_ald",mf_hidemobhpbar;
+		setmapflag "gld2_gef",mf_hidemobhpbar;
+		setmapflag "gld2_pay",mf_hidemobhpbar;
+		setmapflag "gld2_prt",mf_hidemobhpbar;
+		setmapflag "teg_dun01",mf_hidemobhpbar;
+		setmapflag "teg_dun02",mf_hidemobhpbar;
+
+		// Battlegrounds ==============
+		setmapflag "bat_c01",mf_hidemobhpbar;
+		setmapflag "bat_c02",mf_hidemobhpbar;
+		setmapflag "bat_c03",mf_hidemobhpbar;
+		setmapflag "bat_b01",mf_hidemobhpbar;
+		setmapflag "bat_b02",mf_hidemobhpbar;
+		setmapflag "bat_a01",mf_hidemobhpbar;
+		setmapflag "bat_a02",mf_hidemobhpbar;
+		
+		// Izlude Academy
+		setmapflag "iz_ac01",mf_hidemobhpbar;
+		setmapflag "iz_ac01_a",mf_hidemobhpbar;
+		setmapflag "iz_ac01_b",mf_hidemobhpbar;
+		setmapflag "iz_ac01_c",mf_hidemobhpbar;
+		setmapflag "iz_ac01_d",mf_hidemobhpbar;
+
+		// WoE TE castle
+		setmapflag "te_prtcas01",mf_hidemobhpbar;
+		setmapflag "te_prtcas02",mf_hidemobhpbar;
+		setmapflag "te_prtcas03",mf_hidemobhpbar;
+		setmapflag "te_prtcas04",mf_hidemobhpbar;
+		setmapflag "te_prtcas05",mf_hidemobhpbar;
+		setmapflag "te_aldecas1",mf_hidemobhpbar;
+		setmapflag "te_aldecas2",mf_hidemobhpbar;
+		setmapflag "te_aldecas3",mf_hidemobhpbar;
+		setmapflag "te_aldecas4",mf_hidemobhpbar;
+		setmapflag "te_aldecas5",mf_hidemobhpbar;
+	}
+	end;
+}

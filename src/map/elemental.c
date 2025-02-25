@@ -719,7 +719,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 		{	//Rude attacked check.
 			if( !battle_check_range(&ed->bl, tbl, ed->battle_status.rhw.range)
 			&&  ( //Can't attack back and can't reach back.
-			      (!can_move && DIFF_TICK(tick, ed->ud.canmove_tick) > 0 && (battle_config.elem_ai&0x2 || (ed->sc.data[SC_SPIDERWEB] && ed->sc.data[SC_SPIDERWEB]->val1) ||
+			      (!can_move && DIFF_TICK(tick, ed->ud.canmove_tick) > 0 && (battle_config.elem_ai&0x2 || ed->sc.data[SC_SPIDERWEB] ||
 					ed->sc.data[SC_DEEPSLEEP] || ed->sc.data[SC_CRYSTALIZE] || ed->sc.data[SC_WUGBITE] || ed->sc.data[SC__MANHOLE] || ed->sc.data[SC_VACUUM_EXTREME] || ed->sc.data[SC_THORNS_TRAP] ))
 			      || !elem_can_reach(ed, tbl, ed->min_chase, MSS_RUSH)
 			    )
@@ -741,7 +741,7 @@ static bool elem_ai_sub_hard(struct elemental_data *ed, unsigned int tick)
 				|| (battle_config.elem_ai&0x2 && !status_check_skilluse(&ed->bl, abl, 0, 0, 0)) // Cannot normal attack back to Attacker
 				|| (!battle_check_range(&ed->bl, abl, ed->battle_status.rhw.range) // Not on Melee Range and ...
 				&& ( // Reach check
-					(!can_move && DIFF_TICK(tick, ed->ud.canmove_tick) > 0 && (battle_config.elem_ai&0x2 || (ed->sc.data[SC_SPIDERWEB] && ed->sc.data[SC_SPIDERWEB]->val1) ||
+					(!can_move && DIFF_TICK(tick, ed->ud.canmove_tick) > 0 && (battle_config.elem_ai&0x2 || ed->sc.data[SC_SPIDERWEB] ||
 					ed->sc.data[SC_DEEPSLEEP] || ed->sc.data[SC_CRYSTALIZE] || ed->sc.data[SC_WUGBITE] || ed->sc.data[SC__MANHOLE] || ed->sc.data[SC_VACUUM_EXTREME] || ed->sc.data[SC_THORNS_TRAP] ))
 					|| !elem_can_reach(ed, abl, dist+ed->db->range3, MSS_RUSH)
 				)

@@ -1549,7 +1549,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 		{	//Rude attacked check.
 			if( !battle_check_range(&md->bl, tbl, md->status.rhw.range)
 			&&  ( //Can't attack back and can't reach back.
-				(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
+				(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || md->sc.data[SC_SPIDERWEB] ||
 					md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP]
 					|| md->walktoxy_fail_count > 0)
 				)
@@ -1573,7 +1573,7 @@ static bool mob_ai_sub_hard(struct mob_data *md, int64 tick)
 				|| (battle_config.mob_ai&0x2 && !status_check_skilluse(&md->bl, abl, 0, 0, 0)) // Cannot normal attack back to Attacker
 				|| (!battle_check_range(&md->bl, abl, md->status.rhw.range) // Not on Melee Range and ...
 				&& ( // Reach check
-					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || (md->sc.data[SC_SPIDERWEB] && md->sc.data[SC_SPIDERWEB]->val1) ||
+					(!can_move && DIFF_TICK(tick, md->ud.canmove_tick) > 0 && (battle_config.mob_ai & 0x2 || md->sc.data[SC_SPIDERWEB] ||
 						 md->sc.data[SC_WUGBITE] || md->sc.data[SC__MANHOLE] || md->sc.data[SC_VACUUM_EXTREME] || md->sc.data[SC_THORNS_TRAP] 
 						|| md->walktoxy_fail_count > 0)
 					)
@@ -2208,7 +2208,7 @@ void mob_damage(struct mob_data *md, struct block_list *src, int damage)
 		clif_name_area(&md->bl);
 
 #if PACKETVER >= 20120404
-	if (!(md->status.mode&MD_STATUS_IMMUNE)) {
+	if (battle_config.monster_hp_bars_info && !map[md->bl.m].flag.hidemobhpbar) {
 		int i;
 		for (i = 0; i < DAMAGELOG_SIZE; i++) { // must show hp bar to all char who already hit the mob.
 			struct map_session_data *sd = map_charid2sd(md->dmglog[i].id);
@@ -2993,7 +2993,7 @@ void mob_heal(struct mob_data *md,unsigned int heal)
 		clif_name_area(&md->bl);
 #if PACKETVER >= 20131223
 	// Resend ZC_NOTIFY_MOVEENTRY (Version 10 or higher) packet to update HP bar.
-	if ( battle_config.monster_hp_bars_info == 1 )
+	if ( battle_config.monster_hp_bars_info && !map[md->bl.m].flag.hidemobhpbar)
 		clif_send(buf,clif_set_unit_walking( &md->bl, ud, buf),&md->bl,AREA);
 #endif
 }

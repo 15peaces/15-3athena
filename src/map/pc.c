@@ -70,12 +70,6 @@ struct fame_list smith_fame_list[MAX_FAME_LIST];
 struct fame_list chemist_fame_list[MAX_FAME_LIST];
 struct fame_list taekwon_fame_list[MAX_FAME_LIST];
 
-//If your code editor program isnt showing code details properly (Example being the info bubbles that appear when
-//hovering your mouse over certain pieces of code or when typing certain things), commet the below line and make your edits.
-//Be sure to uncommet the below line when your done making your edits or else you will get errors/warnings when compiling.
-//Note: EQP_AMMO must always be at the end of the equip_pos setup because its treated a special way in the equip_index.
-static unsigned int equip_pos[EQI_MAX] = { EQP_ACC_L,EQP_ACC_R,EQP_SHOES,EQP_GARMENT,EQP_HEAD_LOW,EQP_HEAD_MID,EQP_HEAD_TOP,EQP_ARMOR,EQP_HAND_L,EQP_HAND_R,EQP_COSTUME_HEAD_LOW,EQP_COSTUME_HEAD_MID,EQP_COSTUME_HEAD_TOP,EQP_COSTUME_GARMENT,EQP_COSTUME_FLOOR,EQP_SHADOW_ARMOR,EQP_SHADOW_WEAPON,EQP_SHADOW_SHIELD,EQP_SHADOW_SHOES,EQP_SHADOW_ACC_R,EQP_SHADOW_ACC_L,EQP_AMMO };
-
 #define MOTD_LINE_SIZE 128
 static char motd_text[MOTD_LINE_SIZE][CHAT_SIZE_MAX]; // Message of the day buffer [Valaris]
 
@@ -1068,7 +1062,7 @@ void pc_setequipindex(struct map_session_data *sd)
 			continue;
 		if(sd->inventory.u.items_inventory[i].equip) {
 			for(j=0;j<EQI_MAX;j++)
-				if(sd->inventory.u.items_inventory[i].equip & equip_pos[j])
+				if(sd->inventory.u.items_inventory[i].equip & equip_bitmask[j])
 					sd->equip_index[j] = i;
 
 			if(sd->inventory.u.items_inventory[i].equip & EQP_HAND_R)
@@ -1089,7 +1083,7 @@ void pc_setequipindex(struct map_session_data *sd)
 		}
 		if (sd->inventory.u.items_inventory[i].equipSwitch) {
 			for (uint8 j = 0; j < EQI_MAX; j++) {
-				if (sd->inventory.u.items_inventory[i].equipSwitch & equip_pos[j]) {
+				if (sd->inventory.u.items_inventory[i].equipSwitch & equip_bitmask[j]) {
 					sd->equip_switch_index[j] = i;
 				}
 			}
@@ -5955,8 +5949,8 @@ short pc_checkequip(struct map_session_data *sd,int pos, bool checkall)
 	nullpo_retr(-1, sd);
 
 	for(i=0;i<EQI_MAX;i++){
-		if (pos & equip[i]) {
-			if (checkall && (pos&~equip[i]) != 0 && sd->equip_index[i] == -1) {
+		if (pos & equip_bitmask[i]) {
+			if (checkall && (pos&~equip_bitmask[i]) != 0 && sd->equip_index[i] == -1) {
 				// Check all if any match is found
 				continue;
 			}
@@ -5974,7 +5968,7 @@ short pc_checkequip(struct map_session_data *sd,int pos, bool checkall)
 bool pc_checkequip2(struct map_session_data *sd, int nameid) {
 	int i;
 	for (i = 0; i < EQI_MAX; i++) {
-		if (equip_pos[i]) {
+		if (equip_bitmask[i]) {
 			int idx = sd->equip_index[i];
 			if (sd->inventory.u.items_inventory[idx].nameid == nameid)
 				return true;
@@ -9123,12 +9117,15 @@ void pc_changelook(struct map_session_data *sd,int type,int val)
 		break;
 	case LOOK_HEAD_BOTTOM:
 		sd->status.head_bottom=val;
+		sd->setlook_head_bottom = val;
 		break;
 	case LOOK_HEAD_TOP:
 		sd->status.head_top=val;
+		sd->setlook_head_top = val;
 		break;
 	case LOOK_HEAD_MID:
 		sd->status.head_mid=val;
+		sd->setlook_head_mid = val;
 		break;
 	case LOOK_HAIR_COLOR:	//Use the battle_config limits! [Skotlex]
 		if ((sd->class_&MAPID_BASEMASK) == MAPID_SUMMONER)
@@ -9977,8 +9974,7 @@ void pc_cleareventtimer(struct map_session_data *sd)
 *------------------------------------------*/
 bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswitch)
 {
-	int i,j,pos,flag=0,iflag;
-	int head_low = 0, head_mid = 0, head_top = 0, robe = 0;
+	int i,pos,flag=0,iflag;
 	struct item_data *id;
 	short* equip_index;
 
@@ -10098,7 +10094,7 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 
 	if (equipswitch) {
 		for (i = 0; i < EQI_MAX; i++) {
-			if (pos&equip_pos[i]) {
+			if (pos&equip_bitmask[i]) {
 				// If there was already an item assigned to this slot
 				if (sd->equip_switch_index[i] >= 0) {
 					pc_equipswitch_remove(sd, sd->equip_switch_index[i]);
@@ -10114,7 +10110,7 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 	}
 	else {
 		for (i = 0; i<EQI_MAX; i++) {
-			if (pos & equip_pos[i]) {
+			if (pos & equip_bitmask[i]) {
 				if (sd->equip_index[i] >= 0) //Slot taken, remove item from there.
 					pc_unequipitem(sd, sd->equip_index[i], 2 | 4);
 
@@ -10160,59 +10156,10 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 		clif_changelook(&sd->bl,LOOK_SHIELD,sd->status.shield);
 	}
 
-	head_low = sd->status.head_bottom;
-	head_mid = sd->status.head_mid;
-	head_top = sd->status.head_top;
-	robe = sd->status.robe;
+	if (pos & EQP_SHOES)
+		clif_changelook(&sd->bl, LOOK_SHOES, 0);
 
-	sd->status.head_bottom = sd->status.head_mid = sd->status.head_top = sd->status.robe = 0;
-
-	//Added check to prevent sending the same look on multiple slots ->
-	//causes client to redraw item on top of itself. (suggested by Lupus)
-	// Normal headgear checks
-	if ((j = sd->equip_index[EQI_HEAD_LOW]) != -1 && (id = sd->inventory_data[j])) {
-		if (!(id->equip&(EQP_HEAD_MID | EQP_HEAD_TOP)))
-			sd->status.head_bottom = id->look;
-		else
-			sd->status.head_bottom = 0;
-	}
-	if ((j = sd->equip_index[EQI_HEAD_MID]) != -1 && (id = sd->inventory_data[j])) {
-		if (!(id->equip&(EQP_HEAD_TOP)))
-			sd->status.head_mid = id->look;
-		else
-			sd->status.head_mid = 0;
-	}
-	if ((j = sd->equip_index[EQI_HEAD_TOP]) != -1 && (id = sd->inventory_data[j]))
-		sd->status.head_top = id->look;
-	if ((j = sd->equip_index[EQI_GARMENT]) != -1 && (id = sd->inventory_data[j]))
-		sd->status.robe = id->look;
-
-	// Costumes check
-	if ((j = sd->equip_index[EQI_COSTUME_HEAD_LOW]) != -1 && (id = sd->inventory_data[j])) {
-		if (!(id->equip&(EQP_COSTUME_HEAD_MID | EQP_COSTUME_HEAD_TOP)))
-			sd->status.head_bottom = id->look;
-		else
-			sd->status.head_bottom = 0;
-	}
-	if ((j = sd->equip_index[EQI_COSTUME_HEAD_MID]) != -1 && (id = sd->inventory_data[j])) {
-		if (!(id->equip&EQP_COSTUME_HEAD_TOP))
-			sd->status.head_mid = id->look;
-		else
-			sd->status.head_mid = 0;
-	}
-	if ((j = sd->equip_index[EQI_COSTUME_HEAD_TOP]) != -1 && (id = sd->inventory_data[j]))
-		sd->status.head_top = id->look;
-	if ((j = sd->equip_index[EQI_COSTUME_GARMENT]) != -1 && (id = sd->inventory_data[j]))
-		sd->status.robe = id->look;
-
-	if (head_low != sd->status.head_bottom)
-		clif_changelook(&sd->bl, LOOK_HEAD_BOTTOM, sd->status.head_bottom);
-	if (head_mid != sd->status.head_mid)
-		clif_changelook(&sd->bl, LOOK_HEAD_MID, sd->status.head_mid);
-	if (head_top != sd->status.head_top)
-		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
-	if (robe != sd->status.robe)
-		clif_changelook(&sd->bl, LOOK_ROBE, sd->status.robe);
+	pc_set_costume_view(sd);
 
 	pc_checkallowskill(sd); //Check if status changes should be halted.
 	iflag = sd->npc_item_flag;
@@ -10284,7 +10231,7 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		return false;
 	}
 	for(i=0;i<EQI_MAX;i++) {
-		if(sd->inventory.u.items_inventory[n].equip & equip_pos[i])
+		if(sd->inventory.u.items_inventory[n].equip & equip_bitmask[i])
 			sd->equip_index[i] = -1;
 	}
 
@@ -10301,43 +10248,11 @@ bool pc_unequipitem(struct map_session_data *sd,int n,int flag)
 		pc_calcweapontype(sd);
 		clif_changelook(&sd->bl,LOOK_SHIELD,sd->status.shield);
 	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_LOW && pc_checkequip(sd,EQP_COSTUME_HEAD_LOW, false) == -1 ) {
-		sd->status.head_bottom = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_TOP && pc_checkequip(sd,EQP_COSTUME_HEAD_TOP, false) == -1 ) {
-		sd->status.head_top = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_HEAD_MID && pc_checkequip(sd,EQP_COSTUME_HEAD_MID, false) == -1 ) {
-		sd->status.head_mid = 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
-	}
 	if(sd->inventory.u.items_inventory[n].equip & EQP_SHOES)
 		clif_changelook(&sd->bl,LOOK_SHOES,0);
-	if(sd->inventory.u.items_inventory[n].equip & EQP_GARMENT && pc_checkequip(sd,EQP_COSTUME_GARMENT, false) == -1 )
-	{
-		sd->status.robe = 0;
-		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_TOP) {
-		sd->status.head_top = ( pc_checkequip(sd,EQP_HEAD_TOP, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_TOP, false)]->look : 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_TOP,sd->status.head_top);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_MID) {
-		sd->status.head_mid = ( pc_checkequip(sd,EQP_HEAD_MID, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_MID, false)]->look : 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_MID,sd->status.head_mid);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_HEAD_LOW) {
-		sd->status.head_bottom = ( pc_checkequip(sd,EQP_HEAD_LOW, false) >= 0 ) ? sd->inventory_data[pc_checkequip(sd,EQP_HEAD_LOW, false)]->look : 0;
-		clif_changelook(&sd->bl,LOOK_HEAD_BOTTOM,sd->status.head_bottom);
-	}
-	if(sd->inventory.u.items_inventory[n].equip & EQP_COSTUME_GARMENT) {
-		sd->status.robe = (pc_checkequip(sd, EQP_GARMENT, false) >= 0) ? sd->inventory_data[pc_checkequip(sd, EQP_GARMENT, false)]->look : 0;
-		clif_changelook(&sd->bl,LOOK_ROBE,sd->status.robe);
-	}
 
 	clif_unequipitemack(sd,n,sd->inventory.u.items_inventory[n].equip,1);
+	pc_set_costume_view(sd);
 
 	// On weapon change (right and left hand)
 	if ((sd->inventory.u.items_inventory[n].equip & EQP_ARMS) && sd->inventory_data[n]->type == IT_WEAPON) {
@@ -10420,7 +10335,7 @@ int pc_equipswitch(struct map_session_data* sd, int index) {
 		for (int i = 0; i < EQI_MAX; i++) {
 			int unequip_index = sd->equip_index[i];
 
-			if (unequip_index >= 0 && position & equip_pos[i]) {
+			if (unequip_index >= 0 && position & equip_bitmask[i]) {
 				struct item* unequip_item = &sd->inventory.u.items_inventory[unequip_index];
 
 				// Store the unequipped index and position mask for later
@@ -10441,7 +10356,7 @@ int pc_equipswitch(struct map_session_data* sd, int index) {
 		for (int i = 0; i < EQI_MAX; i++) {
 			int exchange_index = sd->equip_switch_index[i];
 
-			if (exchange_index >= 0 && all_position & equip_pos[i]) {
+			if (exchange_index >= 0 && all_position & equip_bitmask[i]) {
 				struct item* exchange_item = &sd->inventory.u.items_inventory[exchange_index];
 
 				// Store the target position
@@ -12099,6 +12014,82 @@ void pc_damage_log_clear(struct map_session_data *sd, int id)
 		if (i < DAMAGELOG_SIZE_PC)
 			sd->dmglog[i] = 0;
 	}
+}
+
+/**
+ * Tells client about player's costume view on mapchange for checking 'nocostume' mapflag.
+ * @param sd
+ **/
+void pc_set_costume_view(struct map_session_data *sd) {
+	int i = -1, head_low = 0, head_mid = 0, head_top = 0, robe = 0;
+	struct item_data *id = NULL;
+
+	nullpo_retv(sd);
+
+	head_low = sd->status.head_bottom;
+	head_mid = sd->status.head_mid;
+	head_top = sd->status.head_top;
+	robe = sd->status.robe;
+
+	sd->status.head_bottom = sd->status.head_mid = sd->status.head_top = sd->status.robe = 0;
+
+	//Added check to prevent sending the same look on multiple slots ->
+	//causes client to redraw item on top of itself. (suggested by Lupus)
+	// Normal headgear checks
+	if ((i = sd->equip_index[EQI_HEAD_LOW]) != -1 && (id = sd->inventory_data[i])) {
+		if (!(id->equip&(EQP_HEAD_MID | EQP_HEAD_TOP)))
+			sd->status.head_bottom = id->look;
+		else
+			sd->status.head_bottom = 0;
+	}
+	if ((i = sd->equip_index[EQI_HEAD_MID]) != -1 && (id = sd->inventory_data[i])) {
+		if (!(id->equip&(EQP_HEAD_TOP)))
+			sd->status.head_mid = id->look;
+		else
+			sd->status.head_mid = 0;
+	}
+	if ((i = sd->equip_index[EQI_HEAD_TOP]) != -1 && (id = sd->inventory_data[i]))
+		sd->status.head_top = id->look;
+	if ((i = sd->equip_index[EQI_GARMENT]) != -1 && (id = sd->inventory_data[i]))
+		sd->status.robe = id->look;
+
+	// Costumes check
+	if (!map[sd->bl.m].flag.nocostume) {
+		if ((i = sd->equip_index[EQI_COSTUME_HEAD_LOW]) != -1 && (id = sd->inventory_data[i])) {
+			if (!(id->equip&(EQP_COSTUME_HEAD_MID | EQP_COSTUME_HEAD_TOP)))
+				sd->status.head_bottom = id->look;
+			else
+				sd->status.head_bottom = 0;
+		}
+		if ((i = sd->equip_index[EQI_COSTUME_HEAD_MID]) != -1 && (id = sd->inventory_data[i])) {
+			if (!(id->equip&EQP_COSTUME_HEAD_TOP))
+				sd->status.head_mid = id->look;
+			else
+				sd->status.head_mid = 0;
+		}
+		if ((i = sd->equip_index[EQI_COSTUME_HEAD_TOP]) != -1 && (id = sd->inventory_data[i]))
+			sd->status.head_top = id->look;
+		if ((i = sd->equip_index[EQI_COSTUME_GARMENT]) != -1 && (id = sd->inventory_data[i]))
+			sd->status.robe = id->look;
+	}
+
+	if (sd->setlook_head_bottom)
+		sd->status.head_bottom = sd->setlook_head_bottom;
+	if (sd->setlook_head_mid)
+		sd->status.head_mid = sd->setlook_head_mid;
+	if (sd->setlook_head_top)
+		sd->status.head_top = sd->setlook_head_top;
+	if (sd->setlook_robe)
+		sd->status.robe = sd->setlook_robe;
+
+	if (head_low != sd->status.head_bottom)
+		clif_changelook(&sd->bl, LOOK_HEAD_BOTTOM, sd->status.head_bottom);
+	if (head_mid != sd->status.head_mid)
+		clif_changelook(&sd->bl, LOOK_HEAD_MID, sd->status.head_mid);
+	if (head_top != sd->status.head_top)
+		clif_changelook(&sd->bl, LOOK_HEAD_TOP, sd->status.head_top);
+	if (robe != sd->status.robe)
+		clif_changelook(&sd->bl, LOOK_ROBE, sd->status.robe);
 }
 
 /*Unique item ID function

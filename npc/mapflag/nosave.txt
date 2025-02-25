@@ -8,7 +8,7 @@
 //= 15-3athena Project
 //===== Additional Comments: =================================
 //= 1.8 Added support for episode mapflags [15peaces]
-//= 1.9 1.1 Added GVG TE maps. [15peaces]
+//= 1.9 Added GVG TE maps. [15peaces]
 //============================================================
 
 //============================================================

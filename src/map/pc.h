@@ -38,6 +38,33 @@
 #define MAX_RUNE 60 //Max number of runes a Rune Knight can carry of each type.
 #define MAX_SPELLBOOK 7 //Max number or spells a Warlock can preserve.
 
+/**
+ * Translation table from athena equip index to aegis bitmask
+*/
+static unsigned int equip_bitmask[EQI_MAX] = {
+	EQP_ACC_L,				// EQI_ACC_L
+	EQP_ACC_R,				// EQI_ACC_R
+	EQP_SHOES,				// EQI_SHOES
+	EQP_GARMENT,			// EQI_GARMENT
+	EQP_HEAD_LOW,			// EQI_HEAD_LOW
+	EQP_HEAD_MID,			// EQI_HEAD_MID
+	EQP_HEAD_TOP,			// EQI_HEAD_TOP
+	EQP_ARMOR,				// EQI_ARMOR
+	EQP_HAND_L,				// EQI_HAND_L
+	EQP_HAND_R,				// EQI_HAND_R
+	EQP_COSTUME_HEAD_TOP,	// EQI_COSTUME_HEAD_TOP
+	EQP_COSTUME_HEAD_MID,	// EQI_COSTUME_HEAD_MID
+	EQP_COSTUME_HEAD_LOW,	// EQI_COSTUME_HEAD_LOW
+	EQP_COSTUME_GARMENT,	// EQI_COSTUME_GARMENT
+	EQP_AMMO,				// EQI_AMMO
+	EQP_SHADOW_ARMOR,		// EQI_SHADOW_ARMOR
+	EQP_SHADOW_WEAPON,		// EQI_SHADOW_WEAPON
+	EQP_SHADOW_SHIELD,		// EQI_SHADOW_SHIELD
+	EQP_SHADOW_SHOES,		// EQI_SHADOW_SHOES
+	EQP_SHADOW_ACC_R,		// EQI_SHADOW_ACC_R
+	EQP_SHADOW_ACC_L		// EQI_SHADOW_ACC_L
+};
+
 #define equip_index_check(i) ( (i) >= EQI_ACC_L && (i) < EQI_MAX )
 
 struct weapon_data {
@@ -246,6 +273,7 @@ struct map_session_data {
 	int fd;
 	unsigned short mapindex;
 	unsigned char head_dir; //0: Look forward. 1: Look right, 2: Look left.
+	short setlook_head_top, setlook_head_mid, setlook_head_bottom, setlook_robe; ///< Stores 'setlook' script command values.
 	unsigned int client_tick;
 	int npc_id,areanpc_id,npc_shopid,touching_id;
 	int npc_item_flag; //Marks the npc_id with which you can use items during interactions with said npc (see script command enable_itemuse)
@@ -272,6 +300,7 @@ struct map_session_data {
 	time_t emotionlasttime; // to limit flood with emotion packets
 
 	short skillitem,skillitemlv;
+	bool skillitem_keep_requirement;
 	short skillid_old,skilllv_old;
 	short skillid_dance,skilllv_dance;
 	short cook_mastery; // range: [0,1999] [Inkfish]
@@ -738,8 +767,6 @@ struct {
 	} noenter_map;
 } job_info[CLASS_COUNT];
 
-extern unsigned int equip[EQI_MAX];
-
 #define EQP_WEAPON EQP_HAND_R
 #define EQP_SHIELD EQP_HAND_L
 #define EQP_ARMS (EQP_HAND_R|EQP_HAND_L)
@@ -1125,6 +1152,8 @@ void pc_damage_log_clear(struct map_session_data *sd, int id);
 
 /// Check if player is Taekwon Ranker and the level is >= 90
 #define pc_is_taekwon_ranker(sd) (((sd)->class_&MAPID_UPPERMASK) == MAPID_TAEKWON && (sd)->status.base_level >= 90 && pc_famerank((sd)->status.char_id,MAPID_TAEKWON))
+
+void pc_set_costume_view(struct map_session_data *sd);
 
 uint64 pc_generate_unique_id(struct map_session_data *sd); // Unique Item ID
 

@@ -274,6 +274,14 @@ static int npc_event_export(struct npc_data *nd, int i)
 	if ((lname[0] == 'O' || lname[0] == 'o') && (lname[1] == 'N' || lname[1] == 'n')) {
 		struct event_data *ev;
 		char buf[EVENT_NAME_LENGTH];
+
+		// NPC:<name> the prefix uses 4 characters
+		if (!strncasecmp(lname, script_config.onwhisper_event_name, NAME_LENGTH) && strlen(nd->exname) > (NAME_LENGTH - 4)) {
+			// The client only allows that many character so that NPC could not be whispered by unmodified clients
+			ShowWarning("Whisper event in npc '"CL_WHITE"%s"CL_RESET"' was ignored, because it's name is too long.\n", nd->exname);
+			return 0;
+		}
+
 		snprintf(buf, ARRAYLENGTH(buf), "%s::%s", nd->exname, lname);
 		// generate the data and insert it
 		CREATE(ev, struct event_data, 1);
@@ -1240,12 +1248,7 @@ int npc_buysellsel(struct map_session_data* sd, int id, int type)
 	}
 	if (nd->sc.option & OPTION_INVISIBLE) // can't buy if npc is not visible (hack?)
 		return 1;
-	if( nd->class_ < 0 && !sd->state.callshop ) {// not called through a script and is not a visible NPC so an invalid call
-		return 1;
-	}
 
-	// reset the callshop state for future calls
-	sd->state.callshop = 0;
 	sd->npc_shopid = id;
 
 	if (type == 0) {
@@ -3948,6 +3951,10 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.pairship_endable = (state) ? 1 : 0;
 	else if (!strcmpi(w3, "notomb"))
 		map[m].flag.notomb = (state) ? 1 : 0;
+	else if (!strcmpi(w3, "nocostume"))
+		map[m].flag.nocostume = state;
+	else if (!strcmpi(w3, "hidemobhpbar"))
+		map[m].flag.hidemobhpbar = state;
 	else
 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 

@@ -846,6 +846,8 @@ typedef enum sc_type {
 	SC_GVG_SILENCE,
 	SC_GVG_BLIND,
 
+	SC_TAROTCARD,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 

@@ -5,6 +5,103 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/25/2025
+	r503 [15peaces]
+		*Fixed `bResEff` cannot be used to increase the rate (for reducing resistance).
+		*Fixed Tarot Card of Fate
+			-Implemented official chances for each Tarot Card to occur
+				-- 15%: LOVERS
+				-- 10%: FOOL, MAGICIAN, HIGH PRIESTESS, STRENGTH, SUN
+				-- 8%: TEMPERANCE
+				-- 7%: CHARIOT
+				-- 6%: THE HANGED MAN
+				-- 5%: DEATH, STAR
+				-- 2%: TOWER
+				-- 1%: WHEEL OF FORTUNE, DEVIL
+			-The SUN tarot card will give you the tarot card status change
+				-- The status change makes you immune to other tarot card effects
+				-- The affected person will see a tarot card icon and the duration of the effect
+			-Fixed LOVERS healing self instead of the target
+			-The LOVERS tarot card now displays on self instead of target
+		*Fiber Lock / Spider Web fixes
+			-Fiber Lock's duration now depends on the map and how many fiber locks have been stacked
+				-- PVM: 1st - 8s, 2nd - 16s (default - 8s)
+				-- PVP: 1st - 4s, 2nd - 8s, 3rd - 12s (default - 4s)
+			-Fiber Lock now always doubles fire damage
+			-When a unit affected by Fiber Lock takes fire damage, the Fiber Lock that lasts shortest is now removed
+			-A unit can now only move when all Fiber Locks on it were removed or have expired
+			-When a unit with multiple Fiber Locks on it dies, not all Fiber Locks are removed
+			-A unit can no longer be affected by more than 3 Fiber Locks at the same time
+		*Official Gospel chances, effects and duration
+			-Chance of Gospel to trigger increased from 10%*skill_lv to 50%+5%*skill_lv
+			-Gospel's Heal effect now heals 1000-9999 HP instead of 1-9999 HP
+			-Blessing and Increase Agi effects now last for 4 minutes instead of 60 seconds
+			-Increase Defense now only lasts 10 seconds instead of 60 seconds
+			-Gospel's damage is now twice likely to trigger with one of two different effects
+			-Fixed Gospel's damage not showing the Holy Cross effect
+			-Gospel's first damage effect deals 3000-7999 damage which is reduced by DEF (percentual)
+			-Gospel's second damage effect deals 1500-5499 damage which cannot be reduced by DEF
+			-Curse, Blind and Poison effect now last 30 minutes instead of 60 seconds
+			-Provoke lasts infinite, but is removed when changing maps or logging out
+			-Fixed Provoke's icon from disappearing whenever a status changes
+			-DEF, ATK, Flee and Speed super debuffs now only last 20 seconds instead of 60 seconds
+		*Official status change base duration for curse
+			-Curse base duration is 30 seconds
+			-Napalm Vulcan, Tarot Card of Fate, NPC_HELLJUDGEMENT, NPC_WIDECURSE use this duration
+			-NPC_CURSEATTACK has a fixed 30 seconds duration
+		*Official status change base duration for poison
+			-Poison base duration is 60 seconds
+			-Duration is no longer halved for monsters
+			-Envenom, Venom Dust, Venom Splasher, Tarot Card of Fate, NPC_POISON, NPC_ACIDBREATH use this duration
+		*NPC_STOP now has a duration of 15 seconds instead of 10 seconds
+		*NPC_HELLPOWER and NPC_WIDEHELLDIGNITY now have a duration of 180 seconds instead of 300 seconds
+		*Tarot Card of Fate uses base duration for Curse, Poison, Stone, Freeze and Stun
+			-For Confusion and Stop the duration remains fixed to 30 seconds
+		*All NPC status skills now have a 20%*skill_lv chance to trigger instead of 50%+10%*skill_lv
+			-NPC_HALLUCINATION and NPC_HELLPOWER now only affect you to 20% instead of 100%/60%
+		*Damage shown by Hallucination is now completely random instead of being multiplied by 6
+		*The animation is now shown when trying to resurrect someone affected by Hell Power
+		*Added official song and dance formulas
+			-Fixed musical lessons not having any effect on Song of Lutie's MaxHP bonus (lesson/2)
+			-Song of Lutie now heals 1 HP more every 2 vit instead of 5 HP more every 10 vit
+			-Perfect Tablature's perfect dodge bonus is now (skill_lv+1)/2 + luk/30 + lesson/5
+			-Focus Ballet's hit bonus is now 1 + 2*skill_lv + dex/10 + lesson
+			-Slow Grace's ASPD decrease is now 5 + 3*skill_lv + dex/10 + lesson
+			-Slow Grace's speed decrease is now 5 + 3*skill_lv + agi/10 + lesson
+			-Impressive Riff's ASPD increase is now 5 + skill_lv + agi/20 + lesson/2
+			-Lady Luck's critical bonus is now 10 + skill_lv + luk/10 + 0.5*lesson (not rounded down)
+		*Added master id check in setunitdata script command.
+		*Some misc fixes.
+		*Some Unit script command fixes
+			-Added missing UMOB_CANMOVETICK option to unit controller commands.
+			-Added support for UNITTYPE_* constants.
+			-Corrected the mercenary client refresh function in setunitdata using monster data rather than mercenary data.
+		*Corrected the return value for script command query_sql
+			-Should return 0 on an empty query and -1 on a query failure.
+			-Updated script command documentation.
+		*Made a new argument for script command getequipweaponlv
+			-Added -1 which will return the weapon level that the item is compounded on.
+		*Refactored EQI constants
+			-Removed constants from const.txt file. Constants will now be exported from source.
+			-All constants now match to each other fixing several problems with converting them internal.
+			-This should also fix remaining issues with a number of equip- related script commands.
+		*Expanded itemskill script command to allow skill requirements checking.
+		*Initial release of `nocostume` map flag to follow official `DISABLE_COSTUMEITEM` map property.
+		*Merged warp and warpchar into a single function
+			-the warp command now allows you to warp other players.
+			-the warpchar script command is still usable for backward compatibility and is now a alias of the warp command.
+		*Fixed random options being removed on failed cardremoval.
+		*Sanity zero-termination for NAME_LENGTH usages.
+		*Increased EVENT_NAME_LENGTH from 51 to 77 characters because it uses NPCs exname which can be up to 50 characters now.
+		*Added new mapflag `hidemobhpbar` to hides monster's HP bar on a map.
+			-Only takes effect on episode 14.2 & newer.
+		*Added support for char_id to readparam.
+		*Fixed showdigit's start values.
+		*Revamped script command setunitdata.
+			-Resolved mobs having certain stats getting reset to their database value when the mob's status is recalculated.
+			-Resolved some monster, homunculus, mercenary, and elemental stats not properly recalculating when setting the unit data.
+		*Fixed SC_MDEFSET being set by the wrong condition.
+
 02/16/2025
 	r502 [15peaces]
 		*Item Updates and New Status Changes

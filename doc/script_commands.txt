@@ -2230,13 +2230,14 @@ Also useful when passing arrays to functions or accessing another npc's arrays:
 
 ---------------------------------------
 
-*readparam(<parameter number>{, "<player name>"})
+*readparam(<parameter number>{,"<character name>"})
+*readparam(<parameter number>{,<char_id>})
 
-This function will return the basic stats of an invoking character, referred to 
-by the parameter number. Instead of a number, you can use a parameter name if it 
-is defined in "db/const.txt".
+This function will return the specified stat of the invoking character, or, if a
+character name or character id is specified, of that player. The stat can either
+be a number or parameter name, defined in "db/const.txt".
 
-For reference, in there these things are defined:
+Some example parameters:
 
 StatusPoint, BaseLevel, SkillPoint, Class, Upper, Zeny, Sex, Weight, MaxWeight,
 JobLevel, BaseExp, JobExp, NextBaseExp, NextJobExp, Hp, MaxHp, Sp, MaxSp,
@@ -2641,6 +2642,9 @@ This function returns the weapon level for the weapon equipped in the specified
 equipment slot on the invoking character. For a list of equipment slots see 
 'getequipid'.
 
+If -1 is passed as the equipment slot argument then the weapon level for the item calling this function, 
+assuming it is called by an item script, will be returned. Otherwise, 0 will be returned.
+
 Only EQI_HAND_L and EQI_HAND_R normally make sense, since only weapons 
 have a weapon level. You can, however, probably, use this field for other 
 equippable custom items as a flag or something. 
@@ -2891,16 +2895,12 @@ not variables or the search was not successful.
 
 Type is the type of object to search for:
 
-  0 - Character object
-  1 - NPC object
-  2 - Pet object
-  3 - Monster object
-  4 - Homunculus object
-  5 - Mercenary object
-  6 - Elemental object
-  
-While 3 is meant to look for a monster object, no searching will be done if you 
-specify type 3, and the function will always return -1.
+	0 - UNITTYPE_PC   - Character object
+	1 - UNITTYPE_NPC  - NPC object
+	2 - UNITTYPE_PET  - Pet object
+	4 - UNITTYPE_HOM  - Homunculus object
+	5 - UNITTYPE_MER  - Mercenary object
+	6 - UNITTYPE_ELEM - Elemental object
 
 The search string is optional. If it is not specified, the location of the 
 invoking character will always be returned for types 0 and 2, the location of 
@@ -3941,9 +3941,10 @@ will be seen to everyone around but not in chat window.
 
 ---------------------------------------
 
-*warp "<map name>",<x>,<y>;
+*warp "<map name>",<x>,<y>{,<char id>};
+*warpchar "<map name>",<x>,<y>{,<char id>};
 
-This command will take the invoking character to the specified map, and if 
+This commands will take the invoking character or <char id>, if specified, to the specified map, and if 
 wanted, specified coordinates too, but these can be random.
 
     warp "place",50,55;
@@ -4014,21 +4015,9 @@ close2;
 set @id,getcharid(1);
 warpparty "prontera",150,100,@id;
 close;
- 
+
 ---------------------------------------
- 
-*warpchar "<mapname>",<x>,<y>,<char_id>;
- 
-Warps another player to specified map and coordinate given the char id, which you can get with
-getcharid(0,<player_name>). Obviously this is useless if you want to warp the same player that
-is executing this script, unless it's some kind of "chosen" script. 
- 
-Example:
- 
-warpchar "prontera",150,100,150001;
- 
----------------------------------------
- 
+
 *warpguild "<mapname>",<x>,<y>,<guild_id>;
  
 Warps a guild to specified map and coordinate given the guild id, which you can get with 
@@ -4763,17 +4752,22 @@ The default setting, 'item_enabled_npc', is defined in 'conf/battle/items.conf'.
 
 ---------------------------------------
 
-*itemskill <skill id>,<skill level>;
-*itemskill "<skill name>",<skill level>;
+*itemskill <skill id>,<skill level>{,<keep requirement>};
+*itemskill "<skill name>",<skill level>{,<keep requirement>};
 
 This command meant for item scripts to replicate single-use skills in usable
 items. It will not work properly, if there is a visible dialog window or menu.
 If the skill is self or auto-targeting, it will be used immediately otherwise a
 target cursor is shown.
 
+If <keep requirement> parameter is set to true, the skill's requirements will be checked.
+
 // When Anodyne is used, it will cast Endure (8), Level 1, as if the actual
 // skill has been used from skill tree.
 605,Anodyne,Anodyne,11,2000,0,100,,,,,10477567,2,,,,,{ itemskill 8,1; },{}
+
+// When Sienna_Execrate_Scroll_1_5 is used, it will cast Sienna Execrate Level 5 and consumes 2 Red_Gemstone.
+23194,Sienna_Execrate_Scroll_1_5,Level 5 Sienna Execrate,11,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "WL_SIENNAEXECRATE",5,true; },{},{}
 
 ---------------------------------------
 
@@ -6090,7 +6084,7 @@ Parameters (indexes) for monsters are:
 	UMOB_LEVEL		UMOB_SPEED		UMOB_HAIRCOLOR		UMOB_LOOKDIR	UMOB_SLAVECPYMSTRMD		UMOB_HIT		UMOB_AMOTION
 	UMOB_HP			UMOB_MODE		UMOB_HEADBOTTOM		UMOB_STR		UMOB_DMGIMMUNE			UMOB_FLEE		UMOB_ADELAY
 	UMOB_MAXHP		UMOB_AI			UMOB_HEADMIDDLE		UMOB_AGI		UMOB_ATKRANGE			UMOB_PDODGE		UMOB_DMOTION
-	UMOB_MASTERAID	UMOB_SCOPTION	UMOB_HEADTOP		UMOB_VIT		UMOB_ATK				UMOB_CRIT
+	UMOB_MASTERAID	UMOB_SCOPTION	UMOB_HEADTOP		UMOB_VIT		UMOB_ATK				UMOB_CRIT		UMOB_CANMOVETICK
 	UMOB_MAPID		UMOB_SEX		UMOB_CLOTHCOLOR		UMOB_INT		UMOB_MATK				UMOB_RACE
 	UMOB_X			UMOB_CLASS		UMOB_SHIELD			UMOB_DEX		UMOB_DEF				UMOB_ELETYPE
 
@@ -7502,7 +7496,8 @@ Example:
 *query_sql "your MySQL query", <array variable> {,<array variable>, ...};
 *query_logsql "your MySQL query", <array variable> {,<array variable>, ...};
 
-Puts up to 128 rows of values into the arrays and returns the number of rows.
+Executes an SQL query. A 'select' query can fill array variables with up to 2 billion rows of
+values, and will return the number of rows (i.e. array size) or -1 on failure.
 
 Example:
 set @nb, query_sql("select name,fame from `char` ORDER BY fame DESC LIMIT 5", @name$, @fame);
@@ -7781,11 +7776,9 @@ of the "clock" and can be one of the following values:
     1 - Incremental counter (1 tick/second).
     2 - Decremental counter (1 tick/second). Does not stop at zero,
         but overflows.
-    3 - Decremental counter (1 tick/second). Two digits only, stops
+    3 - Decremental counter (2 ticks/second). Two digits only, stops
         at zero.
 
-For type 1 and 2 the start value is set by using negative number of
-the one intended to set (ex. -10 starts the counter at 10 seconds).
 Except for type 3 the value is interpreted as seconds and formatted
 as time in days, hours, minutes and seconds. Note, that the official
 script command does not have the optional parameter.
@@ -7793,7 +7786,7 @@ script command does not have the optional parameter.
     // displays 23:59:59 for 5 seconds
     showdigit 86399;
 
-    // counter that starts at 60 and runs for 60 seconds
+    // counter that starts at 60 and runs for 30 seconds
     showdigit 60,3;
 
 ---------------------------------------
