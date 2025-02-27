@@ -1641,7 +1641,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 			if ((sce=sc->data[SC_ENDURE]) && !sce->val4 && !sc->data[SC_CONCENTRATION]) {
 				//Endure count is only reduced by non-players on non-gvg maps.
 				//val4 signals infinite endure. [Skotlex]
-				if (src && src->type != BL_PC && !map_flag_gvg(target->m) && !map[target->m].flag.battleground && --(sce->val2) < 0)
+				if (src && src->type != BL_PC && !map_flag_gvg2(target->m) && !map[target->m].flag.battleground && --(sce->val2) < 0)
 					status_change_end(target, SC_ENDURE, INVALID_TIMER);
 			}
 			if ((sce=sc->data[SC_GRAVITATION]) && sce->val3 == BCT_SELF)
@@ -1737,7 +1737,7 @@ int status_damage(struct block_list *src,struct block_list *target,int64 dhp, in
 		}
 	}
    
-	if( sc && sc->data[SC_KAIZEL] && !map_flag_gvg(target->m) )
+	if( sc && sc->data[SC_KAIZEL] && !map_flag_gvg2(target->m) )
 	{ //flag&8 = disable Kaizel
 		int time = skill_get_time2(SL_KAIZEL,sc->data[SC_KAIZEL]->val1);
 		//Look for Osiris Card's bonus effect on the character and revive 100% or revive normally
@@ -6673,7 +6673,7 @@ static unsigned short status_calc_dmotion(struct block_list *bl, struct status_c
 	if (sc->data[SC_ENDURE] || (bl->type == BL_MOB && status_get_class_(bl) == CLASS_BOSS))
 		return 0;
 
-	if( !sc || !sc->count || map_flag_gvg(bl->m) || map[bl->m].flag.battleground )
+	if( !sc || !sc->count || map_flag_gvg2(bl->m) || map[bl->m].flag.battleground )
 		return cap_value(dmotion,0,USHRT_MAX);
 		
 	if( sc->data[SC_ENDURE] )
@@ -8312,7 +8312,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		//TO-DO Blessing and Agi up should do 1 damage against players on Undead Status, even on PvM
 		//but cannot be plagiarized (this requires aegis investigation on packets and official behavior) [Brainstorm]
 		if ((!undead_flag && status->race!=RC_DEMON) || bl->type == BL_PC) {
-			status_change_end(bl, SC_CURSE, INVALID_TIMER);
 			if (sc->data[SC_STONE] && sc->opt1 == OPT1_STONE)
 				status_change_end(bl, SC_STONE, INVALID_TIMER);
 			if (sc->data[SC_CURSE]) {
@@ -8775,7 +8774,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			break;
 		case SC_ENDURE:
 			val2 = 7; // Hit-count [Celest]
-			if( !(flag&1) && (bl->type&(BL_PC|BL_MER)) && !map_flag_gvg(bl->m) && !map[bl->m].flag.battleground && !val4 )
+			if( !(flag&1) && (bl->type&(BL_PC|BL_MER)) && !map_flag_gvg2(bl->m) && !map[bl->m].flag.battleground && !val4 )
 			{
 				struct map_session_data *tsd;
 				if( sd )
@@ -9092,7 +9091,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if (sc->data[SC_SPIRIT] && sc->data[SC_SPIRIT]->val2 == SL_ROGUE)
 				val3 -= 40;
 			val4 = 10+val1*2; //SP cost.
-			if (map_flag_gvg(bl->m) || map[bl->m].flag.battleground) val4 *= 5;
+			if (map_flag_gvg2(bl->m) || map[bl->m].flag.battleground) val4 *= 5;
 			break;
 		case SC_CLOAKING:
 			if (!sd) //Monsters should be able to walk with no penalties. [Skotlex]
@@ -9330,7 +9329,7 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if( (d_bl = map_id2bl(val1)) && (d_sc = status_get_sc(d_bl)) && d_sc->count )
 			{ // Inherits Status From Source
 				const enum sc_type types[] = { SC_AUTOGUARD, SC_DEFENDER, SC_REFLECTSHIELD, SC_ENDURE };
-				int i = (map_flag_gvg(bl->m) || map[bl->m].flag.battleground)?2:3;
+				int i = (map_flag_gvg2(bl->m) || map[bl->m].flag.battleground)?2:3;
 				while( i >= 0 )
 				{
 					enum sc_type type2 = types[i];
@@ -11022,19 +11021,23 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_COMBO:
 			switch (sce->val1) {
 				case TK_STORMKICK:
+					skill_combo_toggle_inf(bl, TK_JUMPKICK, 0);
 					clif_skill_nodamage(bl,bl,TK_READYSTORM,1,1);
 					break;
 				case TK_DOWNKICK:
+					skill_combo_toggle_inf(bl, TK_JUMPKICK, 0);
 					clif_skill_nodamage(bl,bl,TK_READYDOWN,1,1);
 					break;
 				case TK_TURNKICK:
+					skill_combo_toggle_inf(bl, TK_JUMPKICK, 0);
 					clif_skill_nodamage(bl,bl,TK_READYTURN,1,1);
 					break;
 				case TK_COUNTER:
+					skill_combo_toggle_inf(bl, TK_JUMPKICK, 0);
 					clif_skill_nodamage(bl,bl,TK_READYCOUNTER,1,1);
 					break;
-				default: //rest just toogle inf to enable autotarget
-					skill_combo_toogle_inf(bl, sce->val1, INF_SELF_SKILL);
+				default: //rest just toggle inf to enable autotarget
+					skill_combo_toggle_inf(bl, sce->val1, INF_SELF_SKILL);
 					break;
 			}
 			break;
@@ -11590,7 +11593,7 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			}
 			break;
 		case SC_COMBO:
-			skill_combo_toogle_inf(bl, sce->val1, 0);
+			skill_combo_toggle_inf(bl, sce->val1, 0);
 			break;
 
 		case SC_MARIONETTE:

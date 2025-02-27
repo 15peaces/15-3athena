@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/27/2025
+	r504 [15peaces]
+		*Taekwon Kick Damage, Sprint, Flying Kick
+			-Counter Kick, Heel Drop, Storm Kick and Counter Kick now get a +10 ATK bonus per level of Sprint
+				--This bonus is on top of the normal +10 ATK bonus from Sprint for fists
+			-Using Flying Kick as a counter will now deal 4%*baselevel damage
+			-Using Flying Kick while running will now deal 4%*baselevel damage regardless of skill level used
+				--When having the spurt buff on top, it will deal 8%*baselevel damage instead
+			-Tumbling is now properly removed on logout
+			-Fixed a problem that sometimes caused Tumbling to become unusable
+		*Fixed Blessing ending Curse before the Curse check.
+		*Adjusted various GvG checks to ignore the Agit mode check.
+
 02/25/2025
 	r503 [15peaces]
 		*Fixed `bResEff` cannot be used to increase the rate (for reducing resistance).

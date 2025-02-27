@@ -547,7 +547,7 @@ void guild_invite(struct map_session_data *sd,struct map_session_data *tsd)
 		return;
 	}
 
-	if(tsd->status.guild_id > 0 || tsd->guild_invite > 0 || (battle_config.guild_disable_invite == -1 && map_flag_gvg(tsd->bl.m)))
+	if(tsd->status.guild_id > 0 || tsd->guild_invite > 0 || (battle_config.guild_disable_invite == -1 && map_flag_gvg2(tsd->bl.m)))
 	{	//Can't invite people inside castles. [Skotlex]
 		clif_guild_inviteack(sd,0);
 		return;
@@ -725,7 +725,7 @@ int guild_leave(struct map_session_data* sd, int guild_id, uint32 account_id, ui
 	if(g==NULL)
 		return 0;
 
-	if (sd->status.account_id != account_id || sd->status.char_id != char_id || sd->status.guild_id!=guild_id || (battle_config.guild_disable_expel == -1 && map_flag_gvg(sd->bl.m)))
+	if (sd->status.account_id != account_id || sd->status.char_id != char_id || sd->status.guild_id!=guild_id || (battle_config.guild_disable_expel == -1 && map_flag_gvg2(sd->bl.m)))
 		return 0;
 
 	if (battle_config.guild_disable_expel > 0) {
@@ -766,7 +766,7 @@ int guild_expulsion(struct map_session_data* sd, int guild_id, uint32 account_id
 		return 0;	//Expulsion permission
 
   	//Can't leave inside guild castles.
-	if ((tsd = map_id2sd(account_id)) && tsd->status.char_id == char_id && (battle_config.guild_disable_expel == -1 && map_flag_gvg(sd->bl.m)))
+	if ((tsd = map_id2sd(account_id)) && tsd->status.char_id == char_id && (battle_config.guild_disable_expel == -1 && map_flag_gvg2(sd->bl.m)))
 		return 0;
 
 	if (battle_config.guild_disable_expel > 0) {

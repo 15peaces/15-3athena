@@ -2823,7 +2823,7 @@ int skill_is_combo(int skill_id) {
 /*
  * Combo handler, start stop combo status
  */
-void skill_combo_toogle_inf(struct block_list* bl, uint16 skill_id, int inf) {
+void skill_combo_toggle_inf(struct block_list* bl, uint16 skill_id, int inf) {
 	TBL_PC *sd = BL_CAST(BL_PC, bl);
 	
 	switch (skill_id) {
@@ -4824,7 +4824,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case LG_PINPOINTATTACK:
-		if (skill_check_unit_movepos(3, src, bl->x, bl->y, 1, 1))
+		if (skill_check_unit_movepos(5, src, bl->x, bl->y, 1, 1))
 			clif_blown(src);
 		skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
  		break;
@@ -5534,7 +5534,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case KO_JYUMONJIKIRI:
 	case NJ_KIRIKAGE:
-		if( !map_flag_gvg(src->m) && !map[src->m].flag.battleground )
+		if( !map_flag_gvg2(src->m) && !map[src->m].flag.battleground )
 		{	//You don't move on GVG grounds.
 			short x, y;
 			map_search_freecell(bl, 0, &x, &y, 1, 1, 0);
@@ -6318,7 +6318,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			break;
 
 	case ALL_RESURRECTION:
-		if(sd && (map_flag_gvg(bl->m) || map[bl->m].flag.battleground))
+		if(sd && (map_flag_gvg2(bl->m) || map[bl->m].flag.battleground))
 		{	//No reviving in WoE grounds!
 			clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 			break;
@@ -13132,7 +13132,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		}
 		break;
 	case NJ_SHADOWJUMP:
-		if (skill_check_unit_movepos(3, src, x, y, 1, 0)) //You don't move on GVG grounds.
+		if (skill_check_unit_movepos(5, src, x, y, 1, 0)) //You don't move on GVG grounds.
 			clif_blown(src);
 		status_change_end(src, SC_HIDING, INVALID_TIMER);
 		break;
@@ -13786,7 +13786,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 		ARR_FIND(0, MAX_SKILL_ITEM_REQUIRE, i, req.itemid[i] && (req.itemid[i] == ITEMID_TRAP || req.itemid[i] == ITEMID_SPECIAL_ALLOY_TRAP));
 		if (req.itemid[i])
 			req_item = req.itemid[i];
-		if (map_flag_gvg(src->m) || map[src->m].flag.battleground)
+		if (map_flag_gvg2(src->m) || map[src->m].flag.battleground)
 			limit *= 4; // longer trap times in WOE [celest]
 		if (battle_config.vs_traps_bctall && map_flag_vs(src->m) && (src->type&battle_config.vs_traps_bctall))
 			target = BCT_ALL;
@@ -17689,7 +17689,7 @@ int skill_delayfix (struct block_list *bl, int skill_id, int skill_lv)
 					time /= 2;
 				break;
 			case AS_SONICBLOW:
-				if (!map_flag_gvg(bl->m) && !map[bl->m].flag.battleground && sc->data[SC_SPIRIT]->val2 == SL_ASSASIN)
+				if (!map_flag_gvg2(bl->m) && !map[bl->m].flag.battleground && sc->data[SC_SPIRIT]->val2 == SL_ASSASIN)
 					time /= 2;
 				break;
 		}
@@ -21589,7 +21589,7 @@ int skill_stasis_check(struct block_list *bl, int skill_id)
 
 /**
  * Check before do `unit_movepos` call
- * @param check_flag Flags: 1:Check for BG map, 2:Check for GVG map on WOE, 4:Check for GVG map
+ * @param check_flag Flags: 1:Check for BG maps, 2:Check for GVG maps on WOE times, 4:Check for GVG maps regardless Agit flags
  * @return True:If unit can be moved, False:If check on flags are met or unit cannot be moved.
  **/
 static bool skill_check_unit_movepos(uint8 check_flag, struct block_list *bl, short dst_x, short dst_y, int easy, bool checkpath) {

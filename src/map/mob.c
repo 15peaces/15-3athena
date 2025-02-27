@@ -1310,7 +1310,7 @@ static int mob_ai_sub_hard_slavemob(struct mob_data *md,int64 tick)
 				}
 			}
 		}	
-	} else if (bl->m != md->bl.m && map_flag_gvg(md->bl.m)) {
+	} else if (bl->m != md->bl.m && map_flag_gvg2(md->bl.m)) {
 		//Delete the summoned mob if it's in a gvg ground and the master is elsewhere. [Skotlex]
 		status_kill(&md->bl);
 		return 1;

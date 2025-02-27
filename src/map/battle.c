@@ -2936,21 +2936,20 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += 60 + 20 * skill_lv;
 		break;
 	case TK_TURNKICK:
-		skillratio += 90 + 30 * skill_lv;
-		break;
 	case TK_COUNTER:
 		skillratio += 90 + 30 * skill_lv;
 		break;
 	case TK_JUMPKICK:
-		skillratio += -70 + 10 * skill_lv;
+		//Different damage formulas depending on damage trigger
 		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == skill_id)
-			skillratio += 10 * status_get_lv(src) / 3; //Tumble bonus
-		if (wd.miscflag)
-		{
-			skillratio += 10 * status_get_lv(src) / 3; //Running bonus (TODO: What is the real bonus?)
-			if (sc && sc->data[SC_SPURT])  // Spurt bonus
+			skillratio += -100 + 4 * status_get_lv(src); //Tumble formula [4%*baselevel]
+		else if (wd.miscflag) {
+			skillratio += -100 + 4 * status_get_lv(src); //Running formula [4%*baselevel]
+			if (sc && sc->data[SC_SPURT]) //Spurt formula [8%*baselevel]
 				skillratio *= 2;
 		}
+		else
+			skillratio += -70 + 10 * skill_lv;
 		break;
 	case GS_TRIPLEACTION:
 		skillratio += 50 * skill_lv;
@@ -3720,7 +3719,7 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 		}
 		if (sc->data[SC_SPIRIT]) {
 			if (skill_id == AS_SONICBLOW && sc->data[SC_SPIRIT]->val2 == SL_ASSASIN) {
-				ATK_ADDRATE(wd.damage, wd.damage2, map_flag_gvg(src->m) ? 25 : 100); //+25% dmg on woe/+100% dmg on nonwoe
+				ATK_ADDRATE(wd.damage, wd.damage2, map_flag_gvg2(src->m) ? 25 : 100); //+25% dmg on woe/+100% dmg on nonwoe
 			}
 			else if (skill_id == CR_SHIELDBOOMERANG && (sc->data[SC_SPIRIT]->val2 == SL_CRUSADER)) {
 				ATK_ADDRATE(wd.damage, wd.damage2, 100);
@@ -4447,19 +4446,8 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		case TK_STORMKICK:
 		case TK_TURNKICK:
 		case TK_COUNTER:
-		case TK_JUMPKICK:
-			if (sd && pc_checkskill(sd, TK_RUN)) {
-				uint8 i;
-				uint16 skill = pc_checkskill(sd, TK_RUN);
-
-				switch (skill) {
-				case 1: case 4: case 7: case 10: i = 1; break;
-				case 2: case 5: case 8: i = 2; break;
-				default: i = 0; break;
-				}
-				if (sd->weapontype1 == W_FIST && sd->weapontype2 == W_FIST)
-					ATK_ADD(wd.damage, wd.damage2, 10 * skill - i);
-			}
+			if (sd && sd->weapontype1 == W_FIST && sd->weapontype2 == W_FIST)
+				ATK_ADD(wd.damage, wd.damage2, 10 * pc_checkskill(sd, TK_RUN));
 			break;
 		case SR_GATEOFHELL:
 			{
