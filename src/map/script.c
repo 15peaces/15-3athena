@@ -19802,30 +19802,6 @@ BUILDIN_FUNC(clan_leave)
 }
 
 /**
- * Show clan emblem next to npc name
- */
-static BUILDIN_FUNC(clan_master)
-{
-	struct npc_data *nd = map_id2nd(st->oid);
-	int clan_id = script_getnum(st, 2);
-
-	if (nd == NULL) {
-		script_pushint(st, false);
-		return 1;
-	}
-	else if (clan_id <= 0) {
-		script_pushint(st, false);
-		ShowError("buildin_clan_master: Received Invalid Clan ID %d\n", clan_id);
-		return 1;
-	}
-
-	clif_status_change(&nd->bl, SI_CLAN_INFO, 1, 9999, 0, clan_id, 0);
-
-	script_pushint(st, true);
-	return 0;
-}
-
-/**
  * Turns a player into a monster and optionally can grant a SC attribute effect.
  * montransform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
  * active_transform <monster name/ID>, <duration>, <sc type>, <val1>, <val2>, <val3>, <val4>;
@@ -20959,7 +20935,6 @@ struct script_function buildin_func[] = {
 	// Clan system
 	BUILDIN_DEF(clan_join,"i?"),
 	BUILDIN_DEF(clan_leave,"?"),
-	BUILDIN_DEF(clan_master,"i"),
 	BUILDIN_DEF(strcharinfo,"i"),
 	BUILDIN_DEF(strnpcinfo,"i"),
 	BUILDIN_DEF(getequipid,"i"),

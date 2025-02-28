@@ -1621,9 +1621,22 @@ int clif_spawn(struct block_list *bl)
 				clif_specialeffect(&nd->bl,423,AREA);
 			else if( nd->size == 1 )
 				clif_specialeffect(&nd->bl,421,AREA);
-			// Added to display clan emblems on npcs. [15peaces]
-			if (nd->sc.count && nd->sc.data[SC_CLAN_INFO])
-				clif_status_change(&nd->bl, SI_CLAN_INFO, 1, 9999, 0, nd->sc.data[SC_CLAN_INFO]->val2, 0);
+#if PACKETVER >= 20111108
+			if (nd->sc.count)
+			{
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{
+					if (!nd->sc.data[i])
+						continue;
+
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					clif_efst_status_change_sub(bl, bl, AREA);
+				}
+			}
+#endif
+
 		}
 		break;
 	case BL_PET:
@@ -5119,7 +5132,24 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 				clif_specialeffect_single(bl,423,sd->fd);
 			else if( nd->size == 1 )
 				clif_specialeffect_single(bl,421,sd->fd);
-			clif_efst_status_change_sub(&sd->bl, bl, SELF);
+#if PACKETVER >= 20111108
+			if (nd->sc.count)
+			{// Starting the check at SC_ALL_RIDING since all SC's after this don't use OPT3.
+			//  Starting at 0 would just waste CPU cycles. [Rytech]
+				for (i = SC_ALL_RIDING; i < SC_MAX; i++)
+				{// If SC is not active, check for the next one.
+					if (!nd->sc.data[i])
+						continue;
+
+					// Don't bother sending the packet if the SC has no icon data.
+					if (status_sc2icon(i) == SI_BLANK)
+						continue;
+
+					// Status active and has a icon for showing possible animation? Send it.
+					clif_efst_status_change_sub(&sd->bl, bl, SELF);
+				}
+			}
+#endif
 		}
 		break;
 	case BL_MOB:

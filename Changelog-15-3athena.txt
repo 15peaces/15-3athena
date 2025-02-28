@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+02/28/2025
+	r505 [15peaces]
+		*Finally added clan emblems to NPCs.
+			-Removed unneeded clan_master script command. sc_start2 is good enough to start this status.
+			-Also fixed SC_CLAN_INFO status.
+		*Fixed a wrong configuration value.
+		*Fixed character deletion on 2014-10-22 client.
+
 02/27/2025
 	r504 [15peaces]
 		*Taekwon Kick Damage, Sprint, Flying Kick

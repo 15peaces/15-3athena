@@ -169,7 +169,7 @@ prt_in,33,114,5	script	Raffam Oranpere	10058,{
 	end;
 	
 OnInit:
-	clan_master(SWORDCLAN);
+	sc_start2 SC_SWORDCLAN, -1, 0, SWORDCLAN, 10000, 0, getnpcid(0);
 	end;
 }
 
@@ -336,7 +336,7 @@ prt_in,35,114,5	script	Devon Aire	10059,{
 	end;
 	
 OnInit:
-	clan_master(ARCWANDCLAN);
+	sc_start2 SC_ARCWANDCLAN, -1, 0, ARCWANDCLAN, 10000, 0, getnpcid(0);
 	end;
 }
 
@@ -480,7 +480,7 @@ prt_in,37,114,5	script	Berman Aire	10060,{
 	end;
 	
 OnInit:
-	clan_master(GOLDENMACECLAN);
+	sc_start2 SC_GOLDENMACECLAN, -1, 0, GOLDENMACECLAN, 10000, 0, getnpcid(0);
 	end;
 }
 
@@ -633,6 +633,6 @@ prt_in,39,114,5	script	Shaam Rumi	10027,{
 	end;
 	
 OnInit:
-	clan_master(CROSSBOWCLAN);
+	sc_start2 SC_CROSSBOWCLAN, -1, 0, CROSSBOWCLAN, 10000, 0, getnpcid(0);
 	end;
 }
