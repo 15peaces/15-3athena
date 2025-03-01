@@ -3206,6 +3206,7 @@ void clif_guild_xy_remove(struct map_session_data *sd)
 /// 0121 <current count>.W <max count>.W <current weight>.L <max weight>.L (ZC_NOTIFY_CARTITEM_COUNTINFO)
 /// 013a <atk range>.W (ZC_ATTACK_RANGE)
 /// 0141 <status id>.L <base status>.L <plus status>.L (ZC_COUPLESTATUS)
+/// 0acb <var id>.W <value>.Q (ZC_LONGPAR_CHANGE2)
 int clif_updatestatus(struct map_session_data *sd,int type)
 {
 	int fd,len=8;
@@ -3311,12 +3312,32 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 	case SP_MATK2:
 		WFIFOL(fd,4)=sd->battle_status.matk_min;
 		break;
-
-
 	case SP_ZENY:
-		WFIFOW(fd,0)=0xb1;
-		WFIFOL(fd,4)=sd->status.zeny;
+		WFIFOW(fd, 0) = 0xb1;
+		WFIFOL(fd, 4) = sd->status.zeny;
 		break;
+#if PACKETVER >= 20170830
+	case SP_BASEEXP:
+		WFIFOW(fd, 0) = 0xacb;
+		WFIFOQ(fd, 4) = sd->status.base_exp;
+		len = packet_len(0xacb);
+		break;
+	case SP_JOBEXP:
+		WFIFOW(fd, 0) = 0xacb;
+		WFIFOQ(fd, 4) = sd->status.job_exp;
+		len = packet_len(0xacb);
+		break;
+	case SP_NEXTBASEEXP:
+		WFIFOW(fd, 0) = 0xacb;
+		WFIFOQ(fd, 4) = pc_nextbaseexp(sd);
+		len = packet_len(0xacb);
+		break;
+	case SP_NEXTJOBEXP:
+		WFIFOW(fd, 0) = 0xacb;
+		WFIFOQ(fd, 4) = pc_nextjobexp(sd);
+		len = packet_len(0xacb);
+		break;
+#else
 	case SP_BASEEXP:
 		WFIFOW(fd,0)=0xb1;
 		WFIFOL(fd,4)=sd->status.base_exp;
@@ -3333,8 +3354,9 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		WFIFOW(fd,0)=0xb1;
 		WFIFOL(fd,4)=pc_nextjobexp(sd);
 		break;
-
-		// 00be èIóπ
+#endif
+	
+	// SP_U<STAT> are used to update the amount of points necessary to increase that stat
 	case SP_USTR:
 	case SP_UAGI:
 	case SP_UVIT:
@@ -19842,7 +19864,8 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index)
 }
 
 /// Display gained exp (ZC_NOTIFY_EXP).
-/// 07f6 <account id>.L <amount>.L <var id>.W <exp type>.W
+/// 07f6 <account id>.L <amount>.L <var id>.W <exp type>.W (ZC_NOTIFY_EXP)
+/// 0acc <account id>.L <amount>.Q <var id>.W <exp type>.W (ZC_NOTIFY_EXP2)
 /// var id:
 ///     SP_BASEEXP, SP_JOBEXP
 /// exp type:
@@ -19856,18 +19879,30 @@ void clif_equip_damaged(struct map_session_data *sd, int equip_index)
 void clif_displayexp(struct map_session_data *sd, unsigned int exp, char type, bool quest, bool lost)
 {
 	int fd;
+	int offset;
+#if PACKETVER >= 20170830
+	int cmd = 0xacc;
+#else
+	int cmd = 0x7f6;
+#endif
 
 	nullpo_retv(sd);
 
 	fd = sd->fd;
 
-	WFIFOHEAD(fd, packet_len(0x7f6));
-	WFIFOW(fd,0) = 0x7f6;
+	WFIFOHEAD(fd, packet_len(cmd));
+	WFIFOW(fd, 0) = cmd;
 	WFIFOL(fd,2) = sd->bl.id;
+#if PACKETVER >= 20170830
+	WFIFOQ(fd, 6) = (int64)u64min((uint64)exp, INT_MAX) * (lost ? -1 : 1);
+	offset = 4;
+#else
 	WFIFOL(fd,6) = (int)umin(exp, INT_MAX) * (lost ? -1 : 1);
-	WFIFOW(fd,10) = type;
- 	WFIFOW(fd,12) = (quest && type != SP_JOBEXP) ? 1 : 0; // NOTE: Somehow JobEXP always in yellow color 
-	WFIFOSET(fd,packet_len(0x7f6));
+	offset = 0;
+#endif
+	WFIFOW(fd, 10 + offset) = type;
+	WFIFOW(fd, 12 + offset) = (quest && type != SP_JOBEXP) ? 1 : 0; // NOTE: Somehow JobEXP always in yellow color
+	WFIFOSET(fd, packet_len(cmd));
 }
 
 /// S 07e4 <length>.w <option>.l <val>.l {<index>.w <amount>.w).4b* (CZ_ITEMLISTWIN_RES)

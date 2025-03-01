@@ -5,6 +5,17 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+03/01/2025
+	r506 [15peaces]
+		*Fixed char creation errors.
+			-This also fixed a exploid alowing to create multible characters with exactly the same name.
+			-You should update asap to fix this. Also you should check your character database for multible characters with the same name...
+		*Cleaned up character deletion code and added proper return values.
+		*Added support for new display exp command allowing for int64 values.
+			-Added support for ZC_NOTIFY_EXP2 and ZC_LONGPAR_CHANGE2 packets.
+			-Requires a 20170830 client or newer.
+
 02/28/2025
 	r505 [15peaces]
 		*Finally added clan emblems to NPCs.

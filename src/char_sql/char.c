@@ -242,7 +242,7 @@ struct online_char_data {
 };
 
 static int chardb_waiting_disconnect(int tid, int64 tick, int id, intptr_t data);
-int delete_char_sql(uint32 char_id);
+enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 char_id);
 
 static DBMap* auth_db; // uint32 account_id -> struct auth_node*
 static DBMap* online_char_db; // uint32 account_id -> struct online_char_data*
@@ -1222,7 +1222,7 @@ int mmo_chars_fromsql(struct char_session_data* sd, uint8* buf)
 	for( i = 0; i < MAX_CHARS && SQL_SUCCESS == SqlStmt_NextRow( stmt ); i++ )
 	{
 		if (p.delete_date && p.delete_date < time(NULL)) {
-			delete_char_sql(p.char_id);
+			delete_char_sql(sd, p.char_id);
 			i--;
 			continue;
 		}
@@ -1343,7 +1343,7 @@ int mmo_chars_fromsql_per_page(int fd, struct char_session_data* sd)
 		for( i = (page_num*3); i < (page_num*3+send_cnt) && SQL_SUCCESS == SqlStmt_NextRow(stmt); i++ )
 		{
 			if (p.delete_date && p.delete_date < time(NULL)) {
-				delete_char_sql(p.char_id);
+				delete_char_sql(sd, p.char_id);
 				i--;
 				continue;
 			}
@@ -1759,7 +1759,8 @@ int make_new_char_sql(struct char_session_data* sd, char* name_, int str, int ag
 #endif
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1];
-	uint32 char_id, flag, k;
+	uint32 char_id;
+	int32 flag, k;
 
 	safestrncpy(name, name_, NAME_LENGTH);
 	normalize_name(name,TRIM_CHARS);
@@ -1925,22 +1926,34 @@ int divorce_char_sql(int partner_id1, int partner_id2)
 /* Returns 0 if successful
  * Returns < 0 for error
  */
-int delete_char_sql(uint32 char_id)
+enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 char_id)
 {
 	char name[NAME_LENGTH];
 	char esc_name[NAME_LENGTH*2+1]; //Name needs be escaped.
 	int account_id, party_id, guild_id, hom_id, ele_id, base_level, partner_id, father_id, mother_id;
+	time_t delete_date;
 	char* data;
 	size_t len;
+	int i;
 
-	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id`,`elemental_id`,`partner_id`,`father`,`mother` FROM `%s` WHERE `char_id`='%d'", char_db, char_id))
+	ARR_FIND(0, MAX_CHARS, i, sd->found_char[i] == char_id);
+
+	// Such a character does not exist in the account
+	if (i == MAX_CHARS) {
+		ShowInfo("Char deletion aborted: %s, Account ID: %u, Character ID: %u\n", name, sd->account_id, char_id);
+		return CHAR_DELETE_NOTFOUND;
+	}
+
+	if (SQL_ERROR == Sql_Query(sql_handle, "SELECT `name`,`account_id`,`party_id`,`guild_id`,`base_level`,`homun_id`,`partner_id`,`father`,`mother`,`elemental_id`,`delete_date` FROM `%s` WHERE `account_id`='%u' AND `char_id`='%u'", char_db, sd->account_id, char_id)) {
 		Sql_ShowDebug(sql_handle);
+		return CHAR_DELETE_DATABASE;
+	}
 
 	if( SQL_SUCCESS != Sql_NextRow(sql_handle) )
 	{
-		ShowError("delete_char_sql: Unable to fetch character data, deletion aborted.\n");
+		ShowInfo("Char deletion aborted: %s, Account ID: %u, Character ID: %u\n", name, sd->account_id, char_id);
 		Sql_FreeResult(sql_handle);
-		return -1;
+		return CHAR_DELETE_NOTFOUND;
 	}
 
 	Sql_GetData(sql_handle, 0, &data, &len); safestrncpy(name, data, NAME_LENGTH);
@@ -1953,28 +1966,33 @@ int delete_char_sql(uint32 char_id)
 	Sql_GetData(sql_handle, 7, &data, NULL); partner_id = atoi(data);
 	Sql_GetData(sql_handle, 8, &data, NULL); father_id = atoi(data);
 	Sql_GetData(sql_handle, 9, &data, NULL); mother_id = atoi(data);
+	Sql_GetData(sql_handle,10, &data, NULL); delete_date = strtoul(data, NULL, 10);
 
 	Sql_EscapeStringLen(sql_handle, esc_name, name, min(len, NAME_LENGTH));
 	Sql_FreeResult(sql_handle);
 
 	//check for config char del condition [Lupus]
-	// TODO: Move this out to packet processing (0x68/0x1fb).
 	if( ( char_del_level > 0 && base_level >= char_del_level )
 	 || ( char_del_level < 0 && base_level <= -char_del_level )
 	) {
 			ShowInfo("Char deletion aborted: %s, BaseLevel: %i\n", name, base_level);
-			return -1;
+			return CHAR_DELETE_BASELEVEL;
 	}
 
 	if (char_del_restriction&CHAR_DEL_RESTRICT_GUILD && guild_id) // character is in guild
 	{
 		ShowInfo("Char deletion aborted: %s, Guild ID: %i\n", name, guild_id);
-		return -1;
+		return CHAR_DELETE_GUILD;
 	}
 	if (char_del_restriction&CHAR_DEL_RESTRICT_PARTY && party_id) // character is in party
 	{
 		ShowInfo("Char deletion aborted: %s, Party ID: %i\n", name, party_id);
-		return -1;
+		return CHAR_DELETE_PARTY;
+	}
+
+	if (char_del_delay > 0 && (!delete_date || delete_date > time(NULL))) { // not queued or delay not yet passed
+		ShowInfo("Char deletion aborted: %s, Time was not set or has not been reached yet.\n", name);
+		return CHAR_DELETE_TIME;
 	}
 
 	/* Divorce [Wizputer] */
@@ -1988,7 +2006,7 @@ int delete_char_sql(uint32 char_id)
 
 		if( SQL_ERROR == Sql_Query(sql_handle, "UPDATE `%s` SET `child`='0' WHERE `char_id`='%d' OR `char_id`='%d'", char_db, father_id, mother_id) )
 			Sql_ShowDebug(sql_handle);
-		if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `id` = '410'AND (`char_id`='%d' OR `char_id`='%d')", skill_db, father_id, mother_id) )
+		if( SQL_ERROR == Sql_Query(sql_handle, "DELETE FROM `%s` WHERE `id` = '410' AND (`char_id`='%d' OR `char_id`='%d')", skill_db, father_id, mother_id) )
 			Sql_ShowDebug(sql_handle);
 
 		WBUFW(buf,0) = 0x2b25;
@@ -2109,7 +2127,11 @@ int delete_char_sql(uint32 char_id)
 		mapif_parse_BreakGuild(0,guild_id);
 	else if( guild_id )
 		inter_guild_leave(guild_id, account_id, char_id);// Leave your guild.
-	return 0;
+
+	// refresh character list cache
+	sd->found_char[i] = -1;
+
+	return CHAR_DELETE_OK;
 }
 
 //---------------------------------------------------------------------
@@ -2144,7 +2166,7 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 #if PACKETVER < 20170906
 	WBUFL(buf, 4) = min(p->base_exp, INT32_MAX);
 #else
-	WBUFQ(buf, 4) = min(p->base_exp, INT32_MAX);
+	WBUFQ(buf, 4) = u64min((uint64)p->base_exp, INT64_MAX);
 	offset += 4;
 	buf = WBUFP(buffer, offset);
 #endif
@@ -2152,7 +2174,7 @@ int mmo_char_tobuf(uint8* buffer, struct mmo_charstatus* p)
 #if PACKETVER < 20170906
 	WBUFL(buf, 12) = min(p->job_exp, INT32_MAX);
 #else
-	WBUFQ(buf, 12) = min(p->job_exp, INT32_MAX);
+	WBUFQ(buf, 12) = u64min((uint64)p->job_exp, INT64_MAX);
 	offset += 4;
 	buf = WBUFP(buffer, offset);
 #endif
@@ -4278,7 +4300,9 @@ void char_delete2_ack(int fd, uint32 char_id, uint32 result, time_t delete_date)
 ///     3 = (0x719) A database error occurred.
 ///     4 = (0x71d) Deleting not yet possible time.
 ///     5 = (0x71e) Date of birth do not match.
-///     ? = (0x718) An unknown error has occurred.
+/// 6 Name does not match.
+/// 7 Character Deletion has failed because you have entered an incorrect e-mail address.
+/// Any (0x718): An unknown error has occurred.
 void char_delete2_accept_ack(int fd, uint32 char_id, uint32 result)
 {
 #if PACKETVER >= 20130000
@@ -4412,10 +4436,7 @@ static void char_delete2_req(int fd, struct char_session_data* sd)
 static void char_delete2_accept(int fd, struct char_session_data* sd)
 {
 	char birthdate[8+1];
-	uint32 char_id, i, k;
-	unsigned int base_level;
-	char* data;
-	time_t delete_date;
+	uint32 char_id;
 
 	char_id = RFIFOL(fd,2);
 
@@ -4432,55 +4453,36 @@ static void char_delete2_accept(int fd, struct char_session_data* sd)
 	birthdate[7] = RFIFOB(fd,11);
 	birthdate[8] = 0;
 
-	ARR_FIND( 0, MAX_CHARS, i, sd->found_char[i] == char_id );
-	if( i == MAX_CHARS )
-	{// character not found
-		char_delete2_accept_ack(fd, char_id, 3);
-		return;
-	}
-
-	if( SQL_SUCCESS != Sql_Query(sql_handle, "SELECT `base_level`,`delete_date` FROM `%s` WHERE `char_id`='%d'", char_db, char_id) || SQL_SUCCESS != Sql_NextRow(sql_handle) )
-	{// data error
-		Sql_ShowDebug(sql_handle);
-		char_delete2_accept_ack(fd, char_id, 3);
-		return;
-	}
-
-	Sql_GetData(sql_handle, 0, &data, NULL); base_level = (unsigned int)strtoul(data, NULL, 10);
-	Sql_GetData(sql_handle, 1, &data, NULL); delete_date = strtoul(data, NULL, 10);
-
-	if( !delete_date || delete_date>time(NULL) )
-	{// not queued or delay not yet passed
-		char_delete2_accept_ack(fd, char_id, 4);
-		return;
-	}
-
-	if (!char_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) { // Only check for birthdate
+	// Only check for birthdate
+	if (!char_delchar_check(sd, birthdate, CHAR_DEL_BIRTHDATE)) {
 		char_delete2_accept_ack(fd, char_id, 5);
 		return;
 	}
 
-	if( ( char_del_level > 0 && base_level >= (unsigned int)char_del_level ) || ( char_del_level < 0 && base_level <= (unsigned int)(-char_del_level) ) || !(char_del_option&2) )
-	{// character level config restriction
-		char_delete2_accept_ack(fd, char_id, 2);
-		return;
-	}
-
-	// success
-	if( delete_char_sql(char_id) < 0 )
-	{
+	switch (delete_char_sql(sd, char_id)) {
+		// success
+	case CHAR_DELETE_OK:
+		char_delete2_accept_ack(fd, char_id, 1);
+		break;
+		// data error
+	case CHAR_DELETE_DATABASE:
+		// character not found
+	case CHAR_DELETE_NOTFOUND:
 		char_delete2_accept_ack(fd, char_id, 3);
-		return;
+		break;
+		// in a party
+	case CHAR_DELETE_PARTY:
+		// in a guild
+	case CHAR_DELETE_GUILD:
+		// character level config restriction
+	case CHAR_DELETE_BASELEVEL:
+		char_delete2_accept_ack(fd, char_id, 2);
+		break;
+		// not queued or delay not yet passed
+	case CHAR_DELETE_TIME:
+		char_delete2_accept_ack(fd, char_id, 4);
+		break;
 	}
-
-	// refresh character list cache
-	for(k = i; k < MAX_CHARS-1; k++)
-	{
-		sd->found_char[k] = sd->found_char[k+1];
-	}
-	sd->found_char[MAX_CHARS-1] = -1;
-
-	char_delete2_accept_ack(fd, char_id, 1);
 }
 
 
@@ -4510,6 +4512,22 @@ static void char_delete2_cancel(int fd, struct char_session_data* sd)
 	}
 
 	char_delete2_cancel_ack(fd, char_id, 1);
+}
+
+/**
+ * Inform client that his deletion request was refused
+ * 0x70 <ErrorCode>B HC_REFUSE_DELETECHAR
+ * @param fd
+ * @param ErrorCode
+ *	00 = Incorrect Email address
+ *	01 = Invalid Slot
+ *	02 = In a party or guild
+ */
+void char_refuse_delchar(int fd, uint8 errCode) {
+	WFIFOHEAD(fd, 3);
+	WFIFOW(fd, 0) = 0x70;
+	WFIFOB(fd, 2) = errCode;
+	WFIFOSET(fd, 3);
 }
 
 // R 06C <ErrorCode>B HEADER_HC_REFUSE_ENTER
@@ -4694,7 +4712,7 @@ int char_parse_charselect(int fd, struct char_session_data* sd,uint32 ipl){
 
 int parse_char(int fd)
 {
-	int i, ch;
+	int i;
 	char email[40];
 	unsigned short cmd;
 	struct char_session_data* sd;
@@ -4840,15 +4858,21 @@ int parse_char(int fd)
 				i = make_new_char_sql(sd, (char*)RFIFOP(fd,2),RFIFOB(fd,26),RFIFOB(fd,27),RFIFOB(fd,28),RFIFOB(fd,29),RFIFOB(fd,30),RFIFOB(fd,31),RFIFOB(fd,32),RFIFOW(fd,33),RFIFOW(fd,35));
 #endif
 
-			//'Charname already exists' (-1), 'Char creation denied' (-2) and 'You are underaged' (-3)
 			if (i < 0)
 			{
 				WFIFOHEAD(fd,3);
 				WFIFOW(fd,0) = 0x6e;
 				switch (i) {
-				case -1: WFIFOB(fd,2) = 0x00; break;
-				case -2: WFIFOB(fd,2) = 0xFF; break;
-				case -3: WFIFOB(fd,2) = 0x01; break;
+					// 'Charname already exists' (-1)
+					case -1: WFIFOB(fd,2) = 0x00; break;
+					// 'Char creation denied' (-2)
+					case -2: WFIFOB(fd,2) = 0xFF; break;
+					// 'You are underaged' (-3)
+					case -3: WFIFOB(fd,2) = 0x01; break;
+					//  'Symbols in Character Names are forbidden' (unused)
+					//case -: WFIFOB(fd, 2) = 0x02; break;
+					//  'You are not elegible to open the Character Slot' (unused)
+					//case -: WFIFOB(fd, 2) = 0x03; break;
 				}
 				WFIFOSET(fd,3);
 			}
@@ -4866,9 +4890,7 @@ int parse_char(int fd)
 				WFIFOSET(fd,len);
 
 				// add new entry to the chars list
-				ARR_FIND( 0, MAX_CHARS, ch, sd->found_char[ch] == -1 );
-				if( ch < MAX_CHARS )
-					sd->found_char[ch] = i; // the char_id of the new char
+				sd->found_char[char_dat.slot] = i;
 			}
 
 #if PACKETVER >= 20151029
@@ -4889,47 +4911,35 @@ int parse_char(int fd)
 			if (cmd == 0x68) FIFOSD_CHECK(46);
 			if (cmd == 0x1fb) FIFOSD_CHECK(56);
 		{
-			int cid = RFIFOL(fd,2);
+			uint32 cid = RFIFOL(fd,2);
 
-			ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%d (%d)"CL_RESET"\n", sd->account_id, cid);
+			ShowInfo(CL_RED"Request Char Deletion: "CL_GREEN"%u (%u)"CL_RESET"\n", sd->account_id, cid);
 			memcpy(email, RFIFOP(fd,6), 40);
 			RFIFOSKIP(fd,( cmd == 0x68) ? 46 : 56);
 			
 			if (!char_delchar_check(sd, email, char_del_option)) {
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x70;
-				WFIFOB(fd,2) = 0; // 00 = Incorrect Email address
-				WFIFOSET(fd,3);
+				char_refuse_delchar(fd, 0);
 				break;
 			}
-
-			// check if this char exists
-			ARR_FIND( 0, MAX_CHARS, i, sd->found_char[i] == cid );
-			if( i == MAX_CHARS )
-			{ // Such a character does not exist in the account
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd,0) = 0x70;
-				WFIFOB(fd,2) = 0;
-				WFIFOSET(fd,3);
-				break;
-			}
-
-			// remove char from list and compact it
-			for(ch = i; ch < MAX_CHARS-1; ch++)
-				sd->found_char[ch] = sd->found_char[ch+1];
-			sd->found_char[MAX_CHARS-1] = -1;
-			
+		
 			/* Delete character */
-			if(delete_char_sql(cid)<0){
-				//can't delete the char
-				//either SQL error or can't delete by some CONFIG conditions
-				//del fail
-				WFIFOHEAD(fd,3);
-				WFIFOW(fd, 0) = 0x70;
-				WFIFOB(fd, 2) = 0;
-				WFIFOSET(fd, 3);
-				break;
+			switch (delete_char_sql(sd, cid)) {
+				case CHAR_DELETE_OK:
+					break;
+				case CHAR_DELETE_DATABASE:
+				case CHAR_DELETE_BASELEVEL:
+				case CHAR_DELETE_TIME:
+					char_refuse_delchar(fd, 0);
+					return 1;
+				case CHAR_DELETE_NOTFOUND:
+					char_refuse_delchar(fd, 1);
+					return 1;
+				case CHAR_DELETE_GUILD:
+				case CHAR_DELETE_PARTY:
+					char_refuse_delchar(fd, 2);
+					return 1;
 			}
+
 			/* Char successfully deleted.*/
 			WFIFOHEAD(fd,2);
 			WFIFOW(fd,0) = 0x6f;
