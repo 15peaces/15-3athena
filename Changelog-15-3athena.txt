@@ -6,6 +6,23 @@
 //			--More Details.
 //========================================
 
+03/03/2025
+	r507 [15peaces]
+		*Fixed some possible map crashes:
+			-Caused by mobsearch atcommand.
+				--Also prevents accessing a nullpointer from a non existant mob when using.
+			-Caused by setquest in login events.
+		*Fixed a display bug with pin code on 2018-01-24+ clients
+			-The button to access pin code menu after entering the correct code was likely removed in these clients.
+			-It was rendered in between all the characters if we send out the PASSED state instead of the OK state.
+		*Added some missing packet-db entries.
+		*Fixed login mail notification.
+			-Always update the top right icon and the N icon in the menu bar no matter what inter server call it was.
+		*Added clan name display
+			-Clients that do not support this ignore this anyway.
+			-Party name is not displayed when you are in a clan unlike with a guild.
+			-You can use display_party_name if you want to show it.
+
 03/01/2025
 	r506 [15peaces]
 		*Fixed char creation errors.

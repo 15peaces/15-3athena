@@ -157,14 +157,26 @@ bool char_move_enabled = true;
 bool char_movetoused = true;
 bool char_moves_unlimited = false;
 
-// Pincode system
-#define PINCODE_OK 0
-#define PINCODE_ASK 1
-#define PINCODE_NOTSET 2
-#define PINCODE_EXPIRED 3
-#define PINCODE_NEW 4
-#define PINCODE_PASSED 7
-#define	PINCODE_WRONG 8
+/// Pincode system
+enum pincode_state {
+	PINCODE_OK = 0,
+	PINCODE_ASK = 1,
+	PINCODE_NOTSET = 2,
+	PINCODE_EXPIRED = 3,
+	PINCODE_NEW = 4,
+	PINCODE_ILLEGAL = 5,
+#if 0
+	PINCODE_KSSN = 6, // Not supported since we do not store KSSN
+#endif
+#if PACKETVER >= 20180124
+	// The button for pin code access was removed
+	PINCODE_PASSED = PINCODE_OK,
+#else
+	PINCODE_PASSED = 7,
+#endif
+	PINCODE_WRONG = 8,
+	PINCODE_MAXSTATE
+};
 
 bool pincode_enabled = true;
 int pincode_changetime = 0;

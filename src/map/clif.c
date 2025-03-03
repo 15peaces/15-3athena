@@ -10441,8 +10441,12 @@ void clif_name(struct block_list* src, struct block_list *bl, send_target target
 				safestrncpy(WBUFCP(buf, 54), sd->guild->name, NAME_LENGTH);
 				safestrncpy(WBUFCP(buf, 78), sd->guild->position[position].name, NAME_LENGTH);
 			}
-			else
-			{ //Assume no guild.
+			else if (sd->clan)
+			{
+				WBUFB(buf, 54) = 0;
+				safestrncpy(WBUFCP(buf, 78), sd->clan->name, NAME_LENGTH);
+			}
+			else { //Assume no guild and no clan
 				WBUFB(buf,54) = 0;
 				WBUFB(buf,78) = 0;
 			}
@@ -13287,6 +13291,7 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 /// Request to use a ground skill.
 /// 0116 <skill lv>.W <skill id>.W <x>.W <y>.W (CZ_USE_SKILL_TOGROUND)
 /// 0366 <skill lv>.W <skill id>.W <x>.W <y>.W (CZ_USE_SKILL_TOGROUND2)
+/// 0AF4 <skill lv>.W <skill id>.W <x>.W <y>.W <unknown>.B (CZ_USE_SKILL_TOGROUND3)
 /// There are various variants of this packet, some of them have padding between fields.
 void clif_parse_UseSkillToPos(int fd, struct map_session_data *sd)
 {
@@ -13300,6 +13305,8 @@ void clif_parse_UseSkillToPos(int fd, struct map_session_data *sd)
 		RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]), //skill num
 		RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[2]), //pos x
 		RFIFOW(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[3]), //pos y
+		// TODO: find out what this is intended to do
+		//RFIFOB(fd, info->pos[4])
 		-1	//Skill more info.
 	);
 }

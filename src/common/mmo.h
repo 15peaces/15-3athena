@@ -106,7 +106,7 @@
 //April 2010 and newer clients don't need to be hexed. Setting server side is enough.
 //Keep this setting at a multiple of 3.
 #if PACKETVER >= 20180620
-	//Set to 15 to fill the first page of the new char select window.
+	//Default is 15 here(?)
 	#define MAX_CHARS 15
 #elif PACKETVER >= 20100401
 	//Default was 12 here.
