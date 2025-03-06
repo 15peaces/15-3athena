@@ -802,3 +802,8 @@ IG_Flamel_Card,547,1		// Condensed White Potion
 59,610,15	//Leaf_Of_Yggdrasil
 59,616,5	//Old_Card_Album
 59,5198,1	//Drooping_Bunny
+
+// Token Of Siegfried
+IG_Token_Of_Siegfried,6293,1	// F_Token_Of_Siegfried
+IG_Token_Of_Siegfried,6316,1	// E_Token_Of_Siegfried
+IG_Token_Of_Siegfried,7621,1	// Token_Of_Siegfried

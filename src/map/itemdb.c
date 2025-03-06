@@ -44,6 +44,28 @@ struct item_package *itemdb_package_exists(unsigned short package_id)
 	return (struct item_package *)uidb_get(itemdb_package, package_id);
 }
 
+/**
+ * Check if an item exists from a group in a player's inventory
+ * @param group_id: Item Group ID
+ * @return Item's index if found or -1 otherwise
+ */
+int itemdb_group_item_exists_pc(struct map_session_data *sd, unsigned short group_id)
+{
+	struct item_group *group = (struct item_group *)uidb_get(itemdb_group, group_id);
+
+	if (!group)
+		return -1;
+
+	for (int i = 0; i < group->qty; i++) {
+		int item_position = pc_search_inventory(sd, group->nameid[i]);
+		
+		if (item_position != -1)
+			return item_position;
+	}
+
+	return -1;
+}
+
 /*==========================================
  * –¼‘O‚ÅŒŸõ—p
  *------------------------------------------*/
@@ -1755,7 +1777,7 @@ void itemdb_parse_attendance_db(void)
 */
 static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	uint16 nameid = atoi(fields[0]);
-	uint8 flag;
+	uint16 flag;
 	bool set;
 	struct item_data *id;
 
@@ -1773,6 +1795,25 @@ static bool itemdb_read_flag(char* fields[], int columns, int current) {
 	if (flag & 8) id->flag.bindOnEquip = true;
 	if (flag & 16) id->flag.broadcast = 1;
 	if (flag & 32) id->flag.fixed_drop = set ? 1 : 0;
+
+	if (flag & 64) {
+		id->flag.dropEffect = 1;
+	}
+	else if (flag & 128) {
+		id->flag.dropEffect = 2;
+	}
+	else if (flag & 256) {
+		id->flag.dropEffect = 3;
+	}
+	else if (flag & 512) {
+		id->flag.dropEffect = 4;
+	}
+	else if (flag & 1024) {
+		id->flag.dropEffect = 5;
+	}
+	else if (flag & 2048) {
+		id->flag.dropEffect = 6;
+	}
 
 	return true;
 }

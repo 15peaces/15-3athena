@@ -973,7 +973,7 @@ bool map_addnpc(int, struct npc_data *);
 int map_clearflooritem_timer(int tid, int64 tick, int id, intptr_t data);
 int map_removemobs_timer(int tid, int64 tick, int id, intptr_t data);
 void map_clearflooritem(struct block_list* bl);
-int map_addflooritem(struct item *item_data, int amount, int m, int x, int y, int first_charid, int second_charid, int third_charid, int flags, unsigned short mob_id);
+int map_addflooritem(struct item *item_data, int amount, int m, int x, int y, int first_charid, int second_charid, int third_charid, int flags, unsigned short mob_id, bool canShowEffect);
 
 // ƒLƒƒƒ‰id„ƒLƒƒƒ‰–¼ •ÏŠ·ŠÖ˜A
 void map_addnickdb(int charid, const char* nick);

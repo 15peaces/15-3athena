@@ -287,6 +287,7 @@ enum item_itemid
 //The only item group required by the code to be known. See const.txt for the full list.
 #define IG_FINDINGORE 6
 #define IG_POTION 37
+#define IG_TOKEN_OF_SIEGFRIED 60
 
 #define MAX_RANDGROUP 4 // For item packages
 
@@ -358,6 +359,7 @@ struct item_data {
 		unsigned broadcast : 1; ///< Will be broadcasted if someone obtain the item [Cydh]
 		unsigned fixed_drop : 1;
 		bool bindOnEquip; ///< Set item as bound when equipped
+		uint8 dropEffect; ///< Drop Effect Mode
 	} flag;
 	struct {// used by item_nouse.txt
 		unsigned int flag;
@@ -427,6 +429,7 @@ struct s_random_opt_data* itemdb_randomopt_exists(short id);
 #define itemdb_traderight(n) (itemdb_search(n)->flag.trade_restriction)
 #define itemdb_viewid(n) (itemdb_search(n)->view_id)
 #define itemdb_autoequip(n) (itemdb_search(n)->flag.autoequip)
+#define itemdb_dropeffect(n) (itemdb_search(n)->flag.dropEffect)
 const char* itemdb_typename(enum item_types type);
 const char* itemdb_weapon_typename(int type);
 const char* itemdb_armor_typename(int type);
@@ -471,6 +474,7 @@ void itemdb_package_item(struct map_session_data *sd, int packageid);
 
 struct item_group *itemdb_group_exists(unsigned short group_id);
 struct item_package *itemdb_package_exists(unsigned short package_id);
+int itemdb_group_item_exists_pc(struct map_session_data *sd, unsigned short group_id);
 
 bool itemdb_isNoEquip(struct item_data *id, uint16 m);
 

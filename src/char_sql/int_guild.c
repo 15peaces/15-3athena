@@ -643,7 +643,7 @@ int inter_guild_ReadEXP(void)
 		return 1;
 	}
 	i=0;
-	while(fgets(line, sizeof(line), fp) && i < 100)
+	while(fgets(line, sizeof(line), fp) && i < MAX_GUILDLEVEL)
 	{
 		if(line[0]=='/' && line[1]=='/')
 			continue;
@@ -839,7 +839,7 @@ unsigned int guild_nextexp(int level)
 {
 	if (level == 0)
 		return 1;
-	if (level < 100 && level > 0) // Change by hack
+	if (level < MAX_GUILDLEVEL && level > 0) // Change by hack
 		return guild_exp[level-1];
 
 	return 0;
@@ -1471,23 +1471,23 @@ int mapif_parse_GuildMessage(int fd,int guild_id,uint32 account_id,char *mes,int
 // Modification of the guild 
 int mapif_parse_GuildBasicInfoChange(int fd,int guild_id,int type,const char *data,int len)
 {
-	struct guild * g;
-	short dw=*((short *)data);
-	g = inter_guild_fromsql(guild_id);
-	if(g==NULL)
+	struct guild *g = inter_guild_fromsql(guild_id);
+
+	if (!g)
 		return 0;
 
-	switch(type)
-	{
+	short data_value = *((short *)data);
+
+	switch (type) {
 		case GBI_GUILDLV:
-			if(dw>0 && g->guild_lv+dw<=50)
-			{
-				g->guild_lv+=dw;
-				g->skill_point+=dw;
+			if (data_value > 0 && g->guild_lv + data_value <= MAX_GUILDLEVEL) {
+				g->guild_lv += data_value;
+				g->skill_point += data_value;
 			}
-			else if(dw<0 && g->guild_lv+dw>=1)
-				g->guild_lv+=dw;
-			mapif_guild_info(-1,g);
+			else if (data_value < 0 && g->guild_lv + data_value >= 1)
+				g->guild_lv += data_value;
+
+			mapif_guild_info(-1, g);
 			g->save_flag |= GS_LEVEL;
 			return 0;
 		default:

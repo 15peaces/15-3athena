@@ -2428,6 +2428,8 @@ packet_keys: 0x5ed10a48,0x667f4301,0x2e5d761f
 0x0364,5,hommenu,4
 0x0437,36,storagepassword,0
 
+0x0AB2,7
+
 0x0AC0,26,mailrefresh,2:10
 0x0AC1,26,mailrefresh,2:10
 

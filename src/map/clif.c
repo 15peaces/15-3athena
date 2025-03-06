@@ -831,11 +831,15 @@ void clif_charselectok(int id, uint8 ok)
 }
 
 /// Makes an item appear on the ground.
-/// 009e <id>.L <name id>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY)
-/// 084b <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY4)
-void clif_dropflooritem(struct flooritem_data* fitem)
+/// 009E <id>.L <name id>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY)
+/// 084B <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY4)
+/// 0ADD <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W <show drop effect>.B <drop effect mode>.W (ZC_ITEM_FALL_ENTRY5)
+void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect)
 {
-#if PACKETVER >= 20130000
+#if PACKETVER >= 20180418
+	uint8 buf[22];
+	uint32 header = 0xadd;
+#elif PACKETVER >= 20130000
 	uint8 buf[19];
 	uint32 header = 0x84b;
 #else
@@ -859,6 +863,24 @@ void clif_dropflooritem(struct flooritem_data* fitem)
 	WBUFB(buf, offset + 13) = fitem->subx;
 	WBUFB(buf, offset + 14) = fitem->suby;
 	WBUFW(buf, offset + 15) = fitem->item_data.amount;
+#if PACKETVER >= 20180418
+	if (canShowEffect) {
+		uint8 dropEffect = itemdb_dropeffect(fitem->item_data.nameid);
+
+		if (dropEffect > 0) {
+			WBUFB(buf, offset + 17) = 1;
+			WBUFW(buf, offset + 18) = dropEffect - 1;
+		}
+		else {
+			WBUFB(buf, offset + 17) = 0;
+			WBUFW(buf, offset + 18) = 0;
+		}
+	}
+	else {
+		WBUFB(buf, offset + 17) = 0;
+		WBUFW(buf, offset + 18) = 0;
+	}
+#endif
 	clif_send(buf, packet_len(header), &fitem->bl, AREA);
 }
 
@@ -6424,7 +6446,7 @@ void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
 {
 	struct status_data *status;
 	unsigned char buf[64];
-	int i;//, fix;
+	int i,fix;
 
 	nullpo_retv(sd);
 	nullpo_retv(dst);
@@ -6446,9 +6468,8 @@ void clif_skill_estimation(struct map_session_data *sd,struct block_list *dst)
 		+(battle_config.estimation_type&2?status->mdef2:0);
 	WBUFW(buf,18)= status->def_ele;
 	for(i=0;i<9;i++)
-		WBUFB(buf,20+i)= (unsigned char)battle_attr_ratio(i+1,status->def_ele, status->ele_lv);
 //		The following caps negative attributes to 0 since the client displays them as 255-fix. [Skotlex]
-//		WBUFB(buf,20+i)= (unsigned char)((fix=battle_attr_ratio(i+1,status->def_ele, status->ele_lv))<0?0:fix);
+		WBUFB(buf,20+i)= (unsigned char)((fix=battle_attr_ratio(i+1,status->def_ele, status->ele_lv))<0?0:fix);
 
 	clif_send(buf,packet_len(0x18c),&sd->bl,sd->status.party_id>0?PARTY_SAMEMAP:SELF);
 }
@@ -8394,6 +8415,22 @@ void clif_party_hp(struct map_session_data *sd)
 	WBUFL(buf,10) = sd->battle_status.max_hp;
 #endif
 	clif_send(buf,packet_len(cmd),&sd->bl,PARTY_AREA_WOS);
+}
+
+/// Notifies the party members of a character's death or revival.
+/// 0AB2 <GID>.L <dead>.B
+void clif_party_dead(struct map_session_data *sd) {
+#if PACKETVER >= 20170502
+	unsigned char buf[7];
+
+	nullpo_retv(sd);
+
+	WBUFW(buf, 0) = 0xab2;
+	WBUFL(buf, 2) = sd->status.account_id;
+	WBUFB(buf, 6) = pc_isdead(sd);
+
+	clif_send(buf, packet_len(0xab2), &sd->bl, PARTY);
+#endif
 }
 
 /// Updates job and level info of a party member.
@@ -11533,7 +11570,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 #endif
 
 	/* Guild Aura Init */
-	if (sd->state.gmaster_flag) {
+	if (sd->guild && sd->state.gmaster_flag) {
 		guild_guildaura_refresh(sd, GD_LEADERSHIP, guild_checkskill(sd->guild, GD_LEADERSHIP));
 		guild_guildaura_refresh(sd, GD_GLORYWOUNDS, guild_checkskill(sd->guild, GD_GLORYWOUNDS));
 		guild_guildaura_refresh(sd, GD_SOULCOLD, guild_checkskill(sd->guild, GD_SOULCOLD));
@@ -16726,30 +16763,7 @@ void clif_parse_HomMenu(int fd, struct map_session_data *sd)
 /// 0292
 void clif_parse_AutoRevive(int fd, struct map_session_data *sd)
 {
-	int item_position = pc_search_inventory(sd, ITEMID_TOKEN_OF_SIEGFRIED);
-	uint8 hp = 100, sp = 100;
-
-	if (item_position < 0) {
-		if (sd->sc.data[SC_LIGHT_OF_REGENE]) {
-			// HP restored
-			hp = sd->sc.data[SC_LIGHT_OF_REGENE]->val2;
-			sp = 0;
-		}
-		else
-			return;
-	}
-
-	if (sd->sc.data[SC_HELLPOWER]) //Cannot res while under the effect of SC_HELLPOWER.
-		return;
-
-	if (!status_revive(&sd->bl, hp, sp))
-		return;
-	
-	if (item_position < 0)
-		status_change_end(&sd->bl, SC_LIGHT_OF_REGENE, INVALID_TIMER);
-	else
-		pc_delitem(sd, item_position, 1, 0, 1, LOG_TYPE_CONSUME);
-	clif_skill_nodamage(&sd->bl, &sd->bl, ALL_RESURRECTION, 4, 1);
+	pc_revive_item(sd);
 }
 
 
@@ -21286,6 +21300,10 @@ void clif_parse_equipswitch_request_single(int fd, struct map_session_data* sd) 
 		return;
 	}
 
+	// Check if the item exists
+	if (sd->inventory_data[index] == NULL)
+		return;
+
 	// Check if the item was already added to equip switch
 	if (sd->inventory.u.items_inventory[index].equipSwitch) {
 		if (sd->npc_id) {
@@ -21299,10 +21317,10 @@ void clif_parse_equipswitch_request_single(int fd, struct map_session_data* sd) 
 		}
 
 		pc_equipswitch(sd, index);
+		return;
 	}
-	else {
-		pc_equipitem(sd, index, pc_equippoint(sd, index), true);
-	}
+
+	pc_equipitem(sd, index, pc_equippoint(sd, index), true);
 #endif
 }
 
@@ -22281,7 +22299,7 @@ void packetdb_readdb(void)
 		0,  0,  0,  0,  0,  0,  0, 20, 34,  2,  0,  0,  0,  0,  0, 10,
 		9,	7, 10,	0,	0,	0,	6,	0,	0,	0,	0,	0,	0,	0,	0,	0,
 		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,
-		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, 24,
+		0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0, -1, 24,
 //#0x0900
 		0,  0,  0,  0,  0,  0,  0,  0,  5,  0,  0,  0,  0,  0,  0, -1,
 		0,  0,  0,  0, -1, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -22320,7 +22338,7 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+	    0,  0,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 //#0x0AC0
 		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 22,  0,  0,

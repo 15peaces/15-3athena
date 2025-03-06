@@ -6340,7 +6340,7 @@ BUILDIN_FUNC(getitem) {
 			if ((flag = pc_additem(sd, &it, get_count, LOG_TYPE_SCRIPT))) {
 				clif_additem(sd, 0, 0, flag);
 				if( pc_candrop(sd,&it) )
-					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+					map_addflooritem(&it,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 			}
 		}
 	}
@@ -6456,7 +6456,7 @@ BUILDIN_FUNC(getitem2) {
 				if ((flag = pc_additem(sd, &item_tmp, get_count, LOG_TYPE_SCRIPT))) {
 					clif_additem(sd, 0, 0, flag);
 					if( pc_candrop(sd,&item_tmp) )
-						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+						map_addflooritem(&item_tmp,get_count,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 				}
 			}
 		}
@@ -6676,7 +6676,7 @@ BUILDIN_FUNC(makeitem)
 		else
 			item_tmp.identify=itemdb_isidentified(nameid);
 
-		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0);
+		map_addflooritem(&item_tmp,amount,m,x,y,0,0,0,4,0,false);
 	}
 
 	return 0;
@@ -6749,7 +6749,7 @@ BUILDIN_FUNC(makeitem2) {
 		item_tmp.card[2] = script_getnum(st, 12);
 		item_tmp.card[3] = script_getnum(st, 13);
 
-		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4, 0);
+		map_addflooritem(&item_tmp, amount, m, x, y, 0, 0, 0, 4, 0, false);
 	}
 	else
 		return 1;
@@ -12152,7 +12152,7 @@ BUILDIN_FUNC(successremovecards)
 
 			if((flag=pc_additem(sd,&item_tmp,1,LOG_TYPE_SCRIPT))){	// Ž‚Ä‚È‚¢‚È‚çƒhƒƒbƒv
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 			}
 		}
 	}
@@ -12183,7 +12183,7 @@ BUILDIN_FUNC(successremovecards)
 		pc_delitem(sd, i, 1, 0, 3, LOG_TYPE_SCRIPT);
 		if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {	// ????????h???b?v
 			clif_additem(sd,0,0,flag);
-			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+			map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 		}
 
 		clif_misceffect(&sd->bl,3);
@@ -12231,7 +12231,7 @@ BUILDIN_FUNC(failedremovecards)
 
 				if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {
 					clif_additem(sd,0,0,flag);
-					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+					map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 				}
 			}
 		}
@@ -12267,7 +12267,7 @@ BUILDIN_FUNC(failedremovecards)
 
 			if ((flag = pc_additem(sd, &item_tmp, 1, LOG_TYPE_SCRIPT))) {
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 			}
 		}
 		clif_misceffect(&sd->bl,2);
@@ -20841,6 +20841,58 @@ BUILDIN_FUNC(checklang)
 	return 0;
 }
 
+BUILDIN_FUNC(is_guild_leader)
+{
+	TBL_PC* sd = NULL;
+	struct guild* guild_data;
+	int guild_id;
+
+	if ((sd = script_rid2sd(st)) == NULL) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (script_hasdata(st, 2))
+		guild_id = script_getnum(st, 2);
+	else
+		guild_id = sd->status.guild_id;
+
+	guild_data = guild_search(guild_id);
+	if (guild_data)
+		script_pushint(st, (guild_data->member[0].char_id == sd->status.char_id));
+	else
+		script_pushint(st, false);
+	return 0;
+}
+
+BUILDIN_FUNC(is_party_leader)
+{
+	TBL_PC* sd = NULL;
+	struct party_data* p_data;
+	int p_id, i = 0;
+
+	if ((sd = script_rid2sd(st)) == NULL) {
+		script_pushint(st, false);
+		return 1;
+	}
+
+	if (script_hasdata(st, 2))
+		p_id = script_getnum(st, 2);
+	else
+		p_id = sd->status.party_id;
+
+	p_data = party_search(p_id);
+	if (p_data) {
+		ARR_FIND(0, MAX_PARTY, i, p_data->data[i].sd == sd);
+		if (i < MAX_PARTY) {
+			script_pushint(st, p_data->party.member[i].leader);
+			return 0;
+		}
+	}
+	script_pushint(st, false);
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -21367,5 +21419,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(achievement_iscompleted, "i?"),
 	BUILDIN_DEF(achievement_progress, "iiii?"),
 	BUILDIN_DEF(adopt, "vv"),
+	BUILDIN_DEF(is_guild_leader, "?"),
+	BUILDIN_DEF(is_party_leader, "?"),
 	{NULL,NULL,NULL},
 };

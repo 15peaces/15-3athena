@@ -815,6 +815,7 @@ IG_Flamel_Card	56//70
 IG_Candy_Holder	57 //389
 IG_Lucky_Bag	58 //390
 IG_Holy_Egg_2	59 //391
+IG_TOKEN_OF_SIEGFRIED	60 //490
 
 //Item Packages
 IP_Aspersio_5_Scroll_Box	1		// 92

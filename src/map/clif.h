@@ -665,7 +665,7 @@ void clif_authok(struct map_session_data *sd);
 void clif_authrefuse(int fd, uint8 error_code);
 void clif_authfail_fd(int fd, int type);
 void clif_charselectok(int id, uint8 ok);
-void clif_dropflooritem(struct flooritem_data* fitem);
+void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect);
 void clif_clearflooritem(struct flooritem_data *fitem, int fd);
 
 void clif_clearunit_single(int id, clr_type type, int fd);
@@ -890,6 +890,7 @@ void clif_party_hp(struct map_session_data *sd);
 void clif_hpmeter_single(int fd, int id, unsigned int hp, unsigned int maxhp);
 int clif_hpmeter(struct map_session_data *sd);
 int clif_hpmeter_sub(struct block_list *bl, va_list ap);
+void clif_party_dead(struct map_session_data *sd);
 int clif_party_job_and_level(struct map_session_data *sd);
 
 // guild

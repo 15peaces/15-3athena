@@ -2434,6 +2434,13 @@ returns "null" instead of the character name, and -1 for the other types.
 
 ---------------------------------------
 
+*is_party_leader({<party ID>})
+
+This command will return true if the player attached to the script is the leader
+of his/her party, or, if a party ID is specified, of that party.
+
+---------------------------------------
+
 *getlook(<type>)
 
 This function will return the number for the current character look value 
@@ -3104,6 +3111,13 @@ Maybe you want to make a room only guild masters can enter:
 
 This function will return the character ID number of the guild master of the 
 guild specified by the ID. 0 if the character is not a guild master of any guild.
+
+---------------------------------------
+
+*is_guild_leader({<guild ID>})
+
+This command will return true if the player attached to the script is the leader
+of his/her guild, or, if a guild ID is specified, of that guild.
 
 ---------------------------------------
 

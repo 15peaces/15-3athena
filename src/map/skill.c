@@ -5808,7 +5808,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					item_tmp.nameid = sg->item_id ? sg->item_id : ITEMID_TRAP;
 					item_tmp.identify = 1;
 					if( item_tmp.nameid )
-						map_addflooritem(&item_tmp, 1, bl->m, bl->x, bl->y, 0, 0, 0, 0, 0);
+						map_addflooritem(&item_tmp, 1, bl->m, bl->x, bl->y, 0, 0, 0, 0, 0, false);
 				}
 				skill_delunit(su);
 			}
@@ -8148,7 +8148,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			eflag = pc_additem(sd,&item_tmp,1,LOG_TYPE_OTHER);
 			if(eflag) {
 				clif_additem(sd,0,0,eflag);
-				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+				map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 			}
 		}
 		break;
@@ -9069,7 +9069,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 								if (item_tmp.nameid && (flag = pc_additem(sd, &item_tmp, item_tmp.amount, LOG_TYPE_OTHER)))
 								{
 									clif_additem(sd,0,0,flag);
-									map_addflooritem(&item_tmp,item_tmp.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0);
+									map_addflooritem(&item_tmp,item_tmp.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0,false);
 								}
 							}
 						}
@@ -9083,7 +9083,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 						if( item_tmp.nameid && (flag=pc_additem(sd,&item_tmp,1,LOG_TYPE_OTHER)) )
 						{
 							clif_additem(sd,0,0,flag);
-							map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0);
+							map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,4,0,false);
 						}
 					}
 				}
@@ -19226,7 +19226,7 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 						memset(&item_tmp,0,sizeof(item_tmp));
 						item_tmp.nameid = ( group->unit_id >= UNT_MAGENTATRAP && group->unit_id <= UNT_CLUSTERBOMB ) ? ITEMID_SPECIAL_ALLOY_TRAP:ITEMID_TRAP;
 						item_tmp.identify = 1;
-						map_addflooritem(&item_tmp,1,bl->m,bl->x,bl->y,0,0,0,4,0);
+						map_addflooritem(&item_tmp,1,bl->m,bl->x,bl->y,0,0,0,4,0,false);
 					}
 					skill_delunit(unit);
 				}
@@ -20208,7 +20208,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 							for (l = 0; l < total_qty; l += tmp_item.amount) {
 								if ((flag = pc_additem(sd, &tmp_item, tmp_item.amount, LOG_TYPE_PRODUCE))) {
 									clif_additem(sd, 0, 0, flag);
-									map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
+									map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0, false);
 								}
 							}
 							k++;
@@ -20225,7 +20225,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 			if((flag = pc_additem(sd, &tmp_item, tmp_item.amount, LOG_TYPE_PRODUCE)))
 			{
 				clif_additem(sd, 0, 0, flag);
-				map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
+				map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0, false);
 			}
 			if (skill_id == GN_MIX_COOKING || skill_id == GN_MAKEBOMB || skill_id == GN_S_PHARMACY)
 				clif_msg_skill(sd, skill_id, ITEM_PRODUCE_SUCCESS);
@@ -20280,7 +20280,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 					tmp_item.identify = 1;
 					if (flag = pc_additem(sd, &tmp_item, tmp_item.amount, LOG_TYPE_PRODUCE)) {
 						clif_additem(sd, 0, 0, flag);
-						map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
+						map_addflooritem(&tmp_item, tmp_item.amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0, false);
 					}
 					clif_msg_skill(sd, skill_id, ITEM_PRODUCE_FAIL);
 				}
@@ -20337,7 +20337,7 @@ int skill_arrow_create (struct map_session_data *sd, unsigned short nameid)
 			continue;
 		if((flag = pc_additem(sd,&tmp_item,tmp_item.amount,LOG_TYPE_PRODUCE))) {
 			clif_additem(sd,0,0,flag);
-			map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+			map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 		}
 	}
 
@@ -20636,7 +20636,7 @@ int skill_elementalanalysis(struct map_session_data* sd, int n, int skill_lv, un
 			if (flag != 0)
 			{
 				clif_additem(sd,0,0,flag);
-				map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+				map_addflooritem(&tmp_item,tmp_item.amount,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 			}
 		}
 

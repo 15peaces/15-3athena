@@ -6,6 +6,24 @@
 //			--More Details.
 //========================================
 
+03/06/2025
+	r508 [15peaces]
+		*Fixing party death icon in newer clients.
+		*Implemented is_party_leader and is_guild_leader script commands.
+		*Added some additional guild loading checks.
+		*Add drop highlighting effect feature.
+		*Fixed Defending Aura effect taking twice as incorrect Devotion behavior (leftover from old fixes).
+		*Corrected guild level increases.
+			-Resolves guild levels being capped to various hard coded limits rather than using the constant.
+		*Some cleaning.
+		*A minor fix that corrects a problem when hatching eggs from pets to clients after 20180704.
+		*Resolved a potential crash with the equip switch feature and invalid items.	
+		*Sense's negative informational stats will now be capped to 0.
+		*Fixed CZ_STANDING_RESURRECTION.
+			-Player can force to resurrect as long as they have valid Token of Siegfried even in auto respawn maps
+			-Created an item group used to remove hard coding of Token of Siegfried.
+				--Added the other Token of Siegfried's to work with this feature.
+
 03/03/2025
 	r507 [15peaces]
 		*Fixed some possible map crashes:

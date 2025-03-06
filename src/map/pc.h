@@ -664,6 +664,8 @@ struct map_session_data {
 #endif
 
 	uint16 dmglog[DAMAGELOG_SIZE_PC];  ///target ids
+
+	int respawn_tid;
 };
 
 struct eri *pc_sc_display_ers; /// Player's SC display table
@@ -892,7 +894,7 @@ char pc_checkadditem(struct map_session_data*,unsigned short,int);
 uint8 pc_inventoryblank(struct map_session_data*);
 int pc_search_inventory(struct map_session_data *sd,unsigned short item_id);
 int pc_payzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd);
-int pc_additem(struct map_session_data *sd, struct item *item_data, int amount, e_log_pick_type log_type);
+enum e_additem_result pc_additem(struct map_session_data *sd, struct item *item_data, int amount, e_log_pick_type log_type);
 int pc_getzeny(struct map_session_data *sd, int zeny, enum e_log_pick_type type, struct map_session_data *tsd);
 int pc_delitem(struct map_session_data *sd, int n, int amount, int type, short reason, e_log_pick_type log_type);
 
@@ -903,7 +905,7 @@ int pc_bound_chk(TBL_PC *sd,enum bound_type type,int *idxlist);
 int pc_paycash(struct map_session_data *sd, int price, int points, e_log_pick_type type);
 int pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_type type);
 
-unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type);
+enum e_additem_result pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type);
 int pc_cart_delitem(struct map_session_data *sd,int n,int amount,int type, e_log_pick_type log_type);
 int pc_putitemtocart(struct map_session_data *sd,int idx,int amount);
 void pc_getitemfromcart(struct map_session_data *sd,int idx,int amount);
@@ -983,6 +985,7 @@ int pc_close_npc_timer(int tid, int64 tick, int id, intptr_t data);
 void pc_close_npc(struct map_session_data *sd, int flag);
 int pc_dead(struct map_session_data *sd,struct block_list *src);
 void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp);
+bool pc_revive_item(struct map_session_data *sd);
 void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int type);
 int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp);
 int pc_percentheal(struct map_session_data *sd,int,int);

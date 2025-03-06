@@ -1386,6 +1386,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->invincible_timer = INVALID_TIMER;
 	sd->npc_timer_id = INVALID_TIMER;
 	sd->pvp_timer = INVALID_TIMER;
+	sd->respawn_tid = INVALID_TIMER;
 	
 	sd->canuseitem_tick = tick;
 	sd->canusecashfood_tick = tick;
@@ -4459,14 +4460,14 @@ int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
  *   4 = no free place found
  *   5 = max amount reached
  *------------------------------------------*/
-int pc_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type)
+enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type)
 {
 	struct item_data *data;
 	int16 i;
 	unsigned int w;
 
-	nullpo_retr(1, sd);
-	nullpo_retr(1, item_data);
+	nullpo_retr(ADDITEM_INVALID, sd);
+	nullpo_retr(ADDITEM_INVALID, item_data);
 
 	if( item_data->nameid <= 0 || amount <= 0 )
 		return ADDITEM_INVALID;
@@ -4633,7 +4634,7 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 		return false;
 	}
 
-	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2, 0))
+	if (!map_addflooritem(&sd->inventory.u.items_inventory[n], amount, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 2, 0, false))
 		return false;
 	
 	pc_delitem(sd, n, amount, 1, 0, LOG_TYPE_PICKDROP_PLAYER);
@@ -5070,28 +5071,28 @@ int pc_useitem(struct map_session_data *sd,int n) {
  * @param sd
  * @param item
  * @param amount
- * @return 0 = success; 1 = fail; 2 = no slot
+ * @return see e_additem_result
  *------------------------------------------*/
-unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type)
+enum e_additem_result pc_cart_additem(struct map_session_data *sd,struct item *item_data,int amount, e_log_pick_type log_type)
 {
 	struct item_data *data;
 	int i,w;
 
-	nullpo_retr(1, sd);
-	nullpo_retr(1, item_data);
+	nullpo_retr(ADDITEM_INVALID, sd);
+	nullpo_retr(ADDITEM_INVALID, item_data);
 
 	if(item_data->nameid <= 0 || amount <= 0)
-		return 1;
+		return ADDITEM_INVALID;
 	data = itemdb_search(item_data->nameid);
 
 	if( !itemdb_cancartstore(item_data, pc_isGM(sd)) || (item_data->bound > BOUND_ACCOUNT && !pc_can_give_bounded_items(sd->gmlevel)))
 	{ // Check item trade restrictions	[Skotlex]
 		clif_displaymessage (sd->fd, msg_txt(sd,264));
-		return 1;
+		return ADDITEM_INVALID;
 	}
 
 	if ((w = data->weight*amount) + sd->cart_weight > sd->cart_weight_max)
-		return 1;
+		return ADDITEM_OVERWEIGHT;
 
 	i = MAX_CART;
 	if( itemdb_isstackable2(data) && !item_data->expire_time )
@@ -5107,7 +5108,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item_data
 	if( i < MAX_CART )
 	{// item already in cart, stack it
 		if(sd->cart.u.items_cart[i].amount+amount > MAX_AMOUNT)
-			return 2; // no room
+			return ADDITEM_OVERAMOUNT; // no room
 
 		sd->cart.u.items_cart[i].amount+=amount;
 		clif_cart_additem(sd,i,amount);
@@ -5116,7 +5117,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item_data
 	{// item not stackable or not present, add it
 		ARR_FIND( 0, MAX_CART, i, sd->cart.u.items_cart[i].nameid == 0 );
 		if( i == MAX_CART )
-			return 2; // no room
+			return ADDITEM_OVERAMOUNT; // no room
 
 		memcpy(&sd->cart.u.items_cart[i],item_data,sizeof(sd->cart.u.items_cart[0]));
 		sd->cart.u.items_cart[i].id = 0;
@@ -5133,7 +5134,7 @@ unsigned char pc_cart_additem(struct map_session_data *sd,struct item *item_data
 	sd->cart_weight += w;
 	clif_updatestatus(sd,SP_CARTINFO);
 
-	return 0;
+	return ADDITEM_SUCCESS;
 }
 
 /*==========================================
@@ -7757,6 +7758,7 @@ static int pc_respawn_timer(int tid, int64 tick, int id, intptr_t data)
 	if( sd != NULL )
 	{
 		sd->pvp_point=0;
+		sd->respawn_tid = INVALID_TIMER;
 		pc_respawn(sd,CLR_OUTSIGHT);
 	}
 
@@ -7913,7 +7915,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 				pc_setinvincibletimer(sd, battle_config.pc_invincible_time);
 			sc_start(&sd->bl, status_skill2sc(MO_STEELBODY), 100, 5, skill_get_time(MO_STEELBODY, 5));
 			if (map_flag_gvg2(sd->bl.m))
-				pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
+				sd->respawn_tid = pc_respawn_timer(INVALID_TIMER, gettick(), sd->bl.id, 0);
 			return 0;
 		}
 	}
@@ -8043,6 +8045,8 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 
 	pc_setdead(sd);
 
+	clif_party_dead(sd);
+
 	pc_setglobalreg(sd, "PC_DIE_COUNTER", sd->die_counter + 1);
 	pc_setparam(sd, SP_KILLERRID, src ? src->id : 0);
 
@@ -8151,7 +8155,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		item_tmp.card[1]=0;
 		item_tmp.card[2]=GetWord(sd->status.char_id,0); // CharId
 		item_tmp.card[3]=GetWord(sd->status.char_id,1);
-		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+		map_addflooritem(&item_tmp,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 	}
 
 	//Remove bonus_script when dead
@@ -8283,14 +8287,14 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		}
 		if( sd->pvp_point < 0 )
 		{
-			add_timer(tick+1000, pc_respawn_timer,sd->bl.id,0);
+			sd->respawn_tid = add_timer(tick+1000, pc_respawn_timer,sd->bl.id,0);
 			return 1|8;
 		}
 	}
 	//GvG
 	if( map_flag_gvg2(sd->bl.m) )
 	{
-		add_timer(tick+1000, pc_respawn_timer, sd->bl.id, 0);
+		sd->respawn_tid = add_timer(tick+1000, pc_respawn_timer, sd->bl.id, 0);
 		return 1|8;
 	}
 	else if( sd->bg_id )
@@ -8298,7 +8302,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 		struct battleground_data *bg = bg_team_search(sd->bg_id);
 		if( bg && bg->mapindex > 0 )
 		{ // Respawn by BG
-			add_timer(tick+1000, pc_respawn_timer, sd->bl.id, 0);
+			sd->respawn_tid = add_timer(tick+1000, pc_respawn_timer, sd->bl.id, 0);
 			return 1|8;
 		}
 	}
@@ -8326,10 +8330,45 @@ void pc_revive(struct map_session_data *sd,unsigned int hp, unsigned int sp)
 		guild_guildaura_refresh(sd, GD_HAWKEYES, guild_checkskill(sd->guild, GD_HAWKEYES));
 	}
 }
+
+bool pc_revive_item(struct map_session_data *sd) {
+	nullpo_retr(false, sd);
+
+	if (!pc_isdead(sd) || sd->respawn_tid != INVALID_TIMER)
+		return false;
+
+	if (sd->sc.data[SC_HELLPOWER]) // Cannot resurrect while under the effect of SC_HELLPOWER.
+		return false;
+
+	int16 item_position = itemdb_group_item_exists_pc(sd, IG_TOKEN_OF_SIEGFRIED);
+	uint8 hp = 100, sp = 100;
+
+	if (item_position < 0) {
+		if (sd->sc.data[SC_LIGHT_OF_REGENE]) {
+			hp = sd->sc.data[SC_LIGHT_OF_REGENE]->val2;
+			sp = 0;
+		}
+		else
+			return false;
+	}
+
+	if (!status_revive(&sd->bl, hp, sp))
+		return false;
+
+	if (item_position < 0)
+		status_change_end(&sd->bl, SC_LIGHT_OF_REGENE, INVALID_TIMER);
+	else
+		pc_delitem(sd, item_position, 1, 0, 1, LOG_TYPE_CONSUME);
+
+	clif_skill_nodamage(&sd->bl, &sd->bl, ALL_RESURRECTION, 4, 1);
+
+	return true;
+}
+
 // script? ˜A
 //
 /*==========================================
- * script—pPCƒXƒe?ƒ^ƒX?‚Ýo‚µ
+ * script reading pc status registry
  *------------------------------------------*/
 int pc_readparam(struct map_session_data* sd,int type)
 {
@@ -10896,7 +10935,13 @@ bool pc_setstand(struct map_session_data *sd, bool force){
 
 	//Reset sitting tick.
 	sd->ssregen.tick.hp = sd->ssregen.tick.sp = 0;
-	sd->state.dead_sit = sd->vd.dead_sit = 0;
+	if (pc_isdead(sd)) {
+		sd->state.dead_sit = sd->vd.dead_sit = 0;
+		clif_party_dead(sd);
+	}
+	else {
+		sd->state.dead_sit = sd->vd.dead_sit = 0;
+	}
 
 	return true;
 }

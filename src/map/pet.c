@@ -370,10 +370,11 @@ int pet_return_egg(struct map_session_data *sd, struct pet_data *pd)
 		tmp_item.card[3] = pet_get_card4_value(pd->pet.rename_flag, pd->pet.intimate);
 		if ((flag = pc_additem(sd, &tmp_item, 1, LOG_TYPE_OTHER)) != 0) {
 			clif_additem(sd, 0, 0, flag);
-			map_addflooritem(&tmp_item, 1, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0);
+			map_addflooritem(&tmp_item, 1, sd->bl.m, sd->bl.x, sd->bl.y, 0, 0, 0, 0, 0, false);
 		}
 	}
 #if PACKETVER >= 20180704
+	clif_inventorylist(sd);
 	clif_send_petdata(sd, pd, 6, 0);
 #endif
 
@@ -673,7 +674,7 @@ int pet_get_egg(uint32 account_id, short pet_class, int pet_id)
 	tmp_item.card[3] = pet_get_card4_value(0, pet_db[i].intimate);
 	if((ret = pc_additem(sd,&tmp_item,1,LOG_TYPE_PICKDROP_PLAYER))) {
 		clif_additem(sd,0,0,ret);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 	}
 
 	return 1;
@@ -822,7 +823,7 @@ static int pet_unequipitem(struct map_session_data *sd, struct pet_data *pd) {
 	tmp_item.identify = 1;
 	if((flag = pc_additem(sd,&tmp_item,1,LOG_TYPE_OTHER))) {
 		clif_additem(sd,0,0,flag);
-		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0);
+		map_addflooritem(&tmp_item,1,sd->bl.m,sd->bl.x,sd->bl.y,0,0,0,0,0,false);
 	}
 	if( battle_config.pet_equip_required )
 	{ // Skotlex: halt support timers if needed
@@ -1102,7 +1103,7 @@ static int pet_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 	while (ditem) {
 		map_addflooritem(&ditem->item_data,ditem->item_data.amount,
 			list->m,list->x,list->y,
-			list->first_charid,list->second_charid,list->third_charid,4,0);
+			list->first_charid,list->second_charid,list->third_charid,4,0,false);
 		ditem_prev = ditem;
 		ditem = ditem->next;
 		ers_free(item_drop_ers, ditem_prev);
