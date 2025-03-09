@@ -2434,6 +2434,18 @@ void script_hardcoded_constants(void)
 	export_constant(EQI_SHADOW_ACC_R);
 	export_constant(EQI_SHADOW_ACC_L);
 
+	/* refine cost types */
+	export_constant(REFINE_COST_NORMAL);
+	export_constant(REFINE_COST_OVER10);
+	export_constant(REFINE_COST_HD);
+	export_constant(REFINE_COST_ENRICHED);
+	export_constant(REFINE_COST_OVER10_HD);
+	export_constant(REFINE_COST_MAX);
+
+	/* refine information types */
+	script_set_constant("REFINE_MATERIAL_ID", 0, false);
+	script_set_constant("REFINE_ZENY_COST", 1, false);
+
 	/* misc */
 	script_set_constant("BF_WEAPON", BF_WEAPON, false);
 	script_set_constant("BF_MAGIC", BF_MAGIC, false);
@@ -20893,6 +20905,49 @@ BUILDIN_FUNC(is_party_leader)
 	return 0;
 }
 
+/**
+ * Get an equipment's refine cost
+ * getequiprefinecost(<equipment slot>,<type>,<information>{,<char id>})
+ */
+BUILDIN_FUNC(getequiprefinecost) {
+	int i = -1, slot, type, info;
+	TBL_PC* sd = NULL;
+
+	slot = script_getnum(st, 2);
+	type = script_getnum(st, 3);
+	info = script_getnum(st, 4);
+
+	if (!script_charid2sd(5, sd)) {
+		script_pushint(st, 0);
+		return 1;
+	}
+
+	if (type < 0 || type >= REFINE_COST_MAX) {
+		script_pushint(st, -1);
+		return 0;
+	}
+
+	if (equip_index_check(slot))
+		i = pc_checkequip(sd, equip_bitmask[slot], false);
+	
+	if (i < 0) {
+		script_pushint(st, -1);
+		return 0;
+	}
+
+	int weapon_lv = sd->inventory_data[i]->wlv;
+	if (sd->inventory_data[i]->type == IT_SHADOWGEAR) {
+		if (sd->inventory_data[i]->equip == EQP_SHADOW_WEAPON)
+			weapon_lv = REFINE_TYPE_WEAPON4;
+		else
+			weapon_lv = REFINE_TYPE_SHADOW;
+	}
+
+	script_pushint(st, status_get_refine_cost(weapon_lv, type, info));
+
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -21421,5 +21476,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(adopt, "vv"),
 	BUILDIN_DEF(is_guild_leader, "?"),
 	BUILDIN_DEF(is_party_leader, "?"),
+	BUILDIN_DEF(getequiprefinecost, "iii?"),
 	{NULL,NULL,NULL},
 };

@@ -1,0 +1,53 @@
+// 15-3athena Refine Costs Database
+//
+// Note: currently only used by Shadow Refiner. Might update the other refiners later...
+//
+// Structure of Database:
+// ItemType,CostType,Zeny,Material
+//
+//	ItemType:	Item Type to refine (0 = Armor, 1 = Lv.1 Weapons, 2 = Lv.2 Weapons, 3 = Lv.3 Weapons, 4 = Lv.4 Weapons, 5 = Shadow Equip).
+//	CostType:	Refinement type (0 = normal, 1 = normal over +10, 2 = HD, 3 = Enriched, 4 = HD over +10).
+//	Zeny:		Zeny cost for this type of refinement.
+//	Material:	ItemID of refinement material.
+
+// Armors
+0,0,2000,985
+0,1,100000,6223
+0,2,20000,6241
+0,3,2000,7619
+0,4,100000,6225
+
+// Lv.1 Weapons
+1,0,50,1010
+1,1,100000,6224
+1,2,20000,6240
+1,3,2000,7620
+1,4,100000,6226
+
+// Lv.2 Weapons
+2,0,200,1011
+2,1,100000,6224
+2,2,20000,6240
+2,3,2000,7620
+2,4,100000,6226
+
+// Lv.3 Weapons
+3,0,5000,984
+3,1,100000,6224
+3,2,20000,6240
+3,3,2000,7620
+3,4,100000,6226
+
+// Lv.4 Weapons
+4,0,20000,984
+4,1,100000,6224
+4,2,20000,6240
+4,3,2000,7620
+4,4,100000,6226
+
+// Shadow Equip
+5,0,20000,985
+5,1,0,0
+5,2,20000,6241
+5,3,2000,7619
+5,4,0,0

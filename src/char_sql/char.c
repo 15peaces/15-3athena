@@ -1952,7 +1952,7 @@ enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 ch
 
 	// Such a character does not exist in the account
 	if (i == MAX_CHARS) {
-		ShowInfo("Char deletion aborted: %s, Account ID: %u, Character ID: %u\n", name, sd->account_id, char_id);
+		ShowInfo("Char deletion aborted: Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
 		return CHAR_DELETE_NOTFOUND;
 	}
 
@@ -1963,7 +1963,7 @@ enum e_char_del_response delete_char_sql(struct char_session_data* sd, uint32 ch
 
 	if( SQL_SUCCESS != Sql_NextRow(sql_handle) )
 	{
-		ShowInfo("Char deletion aborted: %s, Account ID: %u, Character ID: %u\n", name, sd->account_id, char_id);
+		ShowInfo("Char deletion aborted: Account ID: %u, Character ID: %u\n", sd->account_id, char_id);
 		Sql_FreeResult(sql_handle);
 		return CHAR_DELETE_NOTFOUND;
 	}

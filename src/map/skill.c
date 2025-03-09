@@ -6946,7 +6946,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		// Duration of status is set to 4x the amotion to make it last just long enough to apply ATK boost to all 4 skills.
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,sc_start(src,type,100,skill_lv,4 * status_get_amotion(src)));
 		skill_addtimerskill(src, tick, bl->id, 0, 0, SR_DRAGONCOMBO, (sd ? pc_checkskill(sd, SR_DRAGONCOMBO) : 10), BF_WEAPON, flag);
-		skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, SR_FALLENEMPIRE, (sd ? pc_checkskill(sd, SR_FALLENEMPIRE) : 5), BF_WEAPON, flag);
+		skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, SR_FALLENEMPIRE, (sd ? pc_checkskill(sd, SR_FALLENEMPIRE) : 10), BF_WEAPON, flag);
 		skill_addtimerskill(src, tick + (2 * status_get_amotion(src)), bl->id, 0, 0, SR_TIGERCANNON, (sd ? pc_checkskill(sd, SR_TIGERCANNON) : 10), BF_WEAPON, flag);
 		skill_addtimerskill(src, tick + (3 * status_get_amotion(src)), bl->id, 0, 0, SR_SKYNETBLOW, (sd ? pc_checkskill(sd, SR_SKYNETBLOW) : 5), BF_WEAPON, flag);
 		break;

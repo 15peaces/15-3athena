@@ -17,6 +17,34 @@ struct status_change;
 #define MAX_REFINE 20
 #define MAX_REFINE_BONUS 5
 
+/// Refine type
+enum refine_type {
+	REFINE_TYPE_ARMOR = 0,
+	REFINE_TYPE_WEAPON1 = 1,
+	REFINE_TYPE_WEAPON2 = 2,
+	REFINE_TYPE_WEAPON3 = 3,
+	REFINE_TYPE_WEAPON4 = 4,
+	REFINE_TYPE_SHADOW = 5,
+	REFINE_TYPE_MAX = 6
+};
+
+/// Refine cost type
+enum refine_cost_type {
+	REFINE_COST_NORMAL = 0,
+	REFINE_COST_OVER10,
+	REFINE_COST_HD,
+	REFINE_COST_ENRICHED,
+	REFINE_COST_OVER10_HD,
+	REFINE_COST_MAX
+};
+
+struct refine_cost {
+	unsigned short type, nameid;
+	int zeny;
+};
+
+int status_get_refine_cost(int weapon_lv, int type, bool what);
+
 // Status changes listing. These code are for use by the server. 
 typedef enum sc_type {
 	SC_NONE = -1,
@@ -2044,7 +2072,7 @@ enum e_joint_break
 extern int current_equip_item_index;
 extern int current_equip_card_id;
 
-extern int percentrefinery[5][MAX_REFINE+1]; //The last slot always has a 0% success chance [Skotlex]
+extern int percentrefinery[REFINE_TYPE_MAX][MAX_REFINE+1]; //The last slot always has a 0% success chance [Skotlex]
 extern short current_equip_opt_index; 
 
 //Mode definitions to clear up code reading. [Skotlex]

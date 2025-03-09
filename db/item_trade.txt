@@ -265,8 +265,8 @@
 2824,499,100	// Mage_Manual
 2856,87,100		// Half_Megin
 2872,475,100	// G Honor Certificate
-2997,507,100	//RWC_Gold_Brooch
-2999,507,100	//RWC_Brooch
+2997,219,100	//RWC_Gold_Brooch
+2999,219,100	//RWC_Brooch
 // Sealed Cards
 4485,507,100		// Sealed Gloom Under Night Card
 4489,507,100		// Sealed Pharaoh Card

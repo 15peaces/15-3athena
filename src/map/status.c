@@ -51,8 +51,13 @@ enum e_regen
 };
 
 static int refinebonus[MAX_REFINE_BONUS][3];	// 精錬ボーナステーブル(refine_db.txt)
-int percentrefinery[5][MAX_REFINE+1];	// 精錬成功率(refine_db.txt)
+int percentrefinery[REFINE_TYPE_MAX][MAX_REFINE+1];	// 精錬成功率(refine_db.txt)
 static int atkmods[3][MAX_WEAPON_TYPE];	// 武器ATKサイズ修正(size_fix.txt)
+
+// TODO: rewrite refine system later to use this struct... [15peaces]
+static struct {
+	struct refine_cost cost[REFINE_COST_MAX];
+} refine_info[REFINE_TYPE_MAX];
 
 static struct eri *sc_data_ers; //For sc_data entries
 static struct status_data dummy_status;
@@ -13934,6 +13939,17 @@ void status_change_clear_onChangeMap(struct block_list *bl, struct status_change
 	}
 }
 
+/**
+ * Returns refine cost (zeny or item) for a weapon level.
+ * @param weapon_lv Weapon level
+ * @param type Refine type (can be retrieved from refine_cost_type enum)
+ * @param what true = returns zeny, false = returns item id
+ * @return Refine cost for a weapon level
+ */
+int status_get_refine_cost(int weapon_lv, int type, bool what) {
+	return what ? refine_info[weapon_lv].cost[type].zeny : refine_info[weapon_lv].cost[type].nameid;
+}
+
 /*==========================================
  * Read status_disabled.txt file
  * @param str: Fields passed from sv_readdb
@@ -13990,6 +14006,29 @@ static bool status_readdb_refine(char* fields[], int columns, int current)
 	{
 		percentrefinery[current][i] = atoi(fields[3+i]);
 	}
+	return true;
+}
+
+static bool  status_readdb_refine_cost(char* fields[], int columns, int current)
+{
+	int type, zeny, nameid;
+
+	current = atoi(fields[0]);
+
+	if (current < 0 || current >= REFINE_TYPE_MAX)
+		return false;
+
+	type = atoi(fields[1]);
+
+	if (type < 0 || type >= REFINE_COST_MAX)
+		return false;
+
+	zeny = atoi(fields[2]);
+	nameid = atoi(fields[3]);
+
+	refine_info[current].cost[type].zeny = zeny;
+	refine_info[current].cost[type].nameid = nameid;
+
 	return true;
 }
 
@@ -14098,6 +14137,7 @@ int status_readdb(void)
  	sv_readdb(db_path, "status_disabled.txt", ',', 2,                 2,                  -1,                           &status_readdb_status_disabled); 
 	sv_readdb(db_path, "size_fix.txt",        ',', MAX_WEAPON_TYPE,   MAX_WEAPON_TYPE,    ARRAYLENGTH(atkmods),         &status_readdb_sizefix);
 	sv_readdb(db_path, "refine_db.txt",       ',', 3+MAX_REFINE+1,    3+MAX_REFINE+1,     ARRAYLENGTH(percentrefinery), &status_readdb_refine);
+	sv_readdb(db_path, "refine_cost_db.txt",  ',', 4,                 4,                  -1,                           &status_readdb_refine_cost);
 
 	return 0;
 }

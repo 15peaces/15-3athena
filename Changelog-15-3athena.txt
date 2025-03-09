@@ -6,6 +6,26 @@
 //			--More Details.
 //========================================
 
+03/09/2025
+	r509 [15peaces]
+		*Vending will now be stopped if an invalid list is received.
+		*Added full support for packet structs to make future client development easier.
+			-Thanks to @rathena for the base.
+		*Changed some item related packets to structs & updated to support 20181121 clients.
+			-With this client we need to use int values for ItemIDs.
+			-The client is far away from beeing stable, so only use it for test purposes...
+				--With this update done npcs are viewable again. You also can see items in shops again.
+		*Fixed some item bonusses.
+		*Changed some monsters to fit pre-renewal calculations.
+		*Updated max level of SR_FALLENEMPIRE and SR_KNUCKLEARROW.
+		*Updated some trading restrictions.
+		*Added full support for Shadow Gear Refinement.
+			-Self-Note: Need to rewrite the whole refinement system... the coding is a outdated mess.
+				--Did some basic work for this now...
+			-Added refine_cost_db.txt to allow changing the refining costs. Currently only the Shadow Refiner is affected by this... more will be added later.
+			-Added Shadow Equip entries to the refine database.
+				-These are basicly the same as for normal armors, but max refine is 10 for these.
+
 03/06/2025
 	r508 [15peaces]
 		*Fixing party death icon in newer clients.

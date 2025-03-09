@@ -59,7 +59,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <DisableSpecificWarnings>4018;4100;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4018;4100;4200;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>config.vc.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -86,7 +86,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4018;4100;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4018;4100;4200;4800;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ForcedIncludeFiles>config.vc.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -173,6 +173,8 @@
     <ClInclude Include="..\src\map\mercenary.h" />
     <ClInclude Include="..\src\map\mob.h" />
     <ClInclude Include="..\src\map\npc.h" />
+	<ClInclude Include="..\src\map\packets.h" />
+    <ClInclude Include="..\src\map\packets_struct.h" />
     <ClInclude Include="..\src\map\party.h" />
     <ClInclude Include="..\src\map\path.h" />
     <ClInclude Include="..\src\map\pc.h" />

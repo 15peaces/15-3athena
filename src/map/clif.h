@@ -6,6 +6,9 @@
 
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
+
+#include "packets.h"
+
 struct item;
 struct s_storage;
 //#include "map.h"
@@ -1022,7 +1025,7 @@ void clif_feel_hate_reset(struct map_session_data *sd);
 void clif_hominfo(struct map_session_data *sd, struct homun_data *hd, int flag);
 int clif_homskillinfoblock(struct map_session_data *sd);
 void clif_homskillup(struct map_session_data *sd, int skill_id);	//[orn]
-int clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
+void clif_hom_food(struct map_session_data *sd,int foodid,int fail);	//[orn]
 void clif_send_homdata(struct map_session_data *sd, int state, int param);	//[orn]
 
 void clif_zc_config(struct map_session_data* sd, enum CZ_CONFIG type, int flag);
@@ -1199,8 +1202,6 @@ void clif_private_airship_response(struct map_session_data *sd, uint32 flag);
 
 void clif_open_ui_req_sub(int fd, struct map_session_data* sd, enum out_ui_type ui_type);
 bool clif_attendance_timediff(struct map_session_data *sd);
-
-int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer);
 
 void clif_hom_spiritball(struct homun_data *hd);
 int clif_millenniumshield(struct block_list* bl, short shield_count);

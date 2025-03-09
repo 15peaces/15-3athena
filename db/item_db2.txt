@@ -2840,7 +2840,7 @@
 13313,Huuma_Swirling_Petal,Swirling Petal Huuma Shuriken,4,100000,,1500,150,,1,2,0x02000000,7,2,34,3,110,1,22,{ bonus bMatk,50; bonus2 bSkillAtk,"KO_HUUMARANKA",20; },{},{}
 13314,Huuma_Fluttering_Snow,Fluttering Snow Huuma Shuriken,4,100000,,1500,200,,1,0,0x02000000,7,2,34,4,110,1,22,{ bonus bMatk,50; bonus bAtkEle,Ele_Water; bonus3 bAutoSpell,"NJ_HYOUSYOURAKU",(getskilllv("NJ_HYOUSYOURAKU")?getskilllv("NJ_HYOUSYOURAKU"):1),100; },{},{}
 13315,Huuma_Thunderstorm,Thunderstorm Huuma Shuriken,4,100000,,1500,200,,1,0,0x02000000,7,2,34,4,110,1,22,{ bonus bMatk,50; bonus bAtkEle,Ele_Wind; bonus3 bAutoSpell,"NJ_RAIGEKISAI",(getskilllv("NJ_RAIGEKISAI")?getskilllv("NJ_RAIGEKISAI"):1),100; },{},{}
-13316,Upg_Huuma_Shuriken,Upgraded Huuma Shuriken,4,20,,1500,55,,1,1,0x02000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); bonus bAddMatk,5*getrefine(); bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) {bonus bBaseAtk,5*((BaseLevel-60)/10);} },{},{}
+13316,Upg_Huuma_Shuriken,Upgraded Huuma Shuriken,4,20,,1500,55,,1,1,0x02000000,7,2,34,3,1,1,22,{ bonus bUnbreakableWeapon,0; bonus bBaseAtk,10*getrefine(); bonus bMatk,5*getrefine(); bonus bLongAtkRate,getrefine(); if(BaseLevel>=70) {bonus bBaseAtk,5*((BaseLevel-60)/10);} },{},{}
 // Armors
 15053,Special_Ninja_Suit,Special Ninja Suit,5,10000,,1200,,10,,0,0x02000000,7,2,16,,100,1,0,{ bonus bAgi,1+(getrefine()/3); if(isequipped(2171)) bonus bAgi,2; },{},{}
 15054,Ninja_Scale_Armor,Ninja Scale Armor,5,10000,,1800,,13,,1,0x02000000,7,2,16,,100,1,0,{ bonus bMaxHPRate,15; bonus bMaxSPRate,-30; if(isequipped(2172)) {bonus bAtkRate,10; bonus bStr,2;} },{},{}
@@ -3895,7 +3895,7 @@
 13213,Slug_Ammo_SH,Slug Ammo SH,10,1000,,1000,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
 13214,Slug_Ammo_XH,Slug Ammo XH,10,1200,,1200,30,,,,0x01000000,7,2,32768,,99,,3,{},{},{}
 // Shadow Equips - Promotion Set
-24012,S_Promotion_Weapon,Promotion Shadow Weapon,12,20,,0,,0,,0,0xFFFFFFFF,7,2,131072,,1,1,0,{ bonus bDex,1; bonus bAtk,getrefine(); bonus bAddMatk,getrefine(); },{},{}
+24012,S_Promotion_Weapon,Promotion Shadow Weapon,12,20,,0,,0,,0,0xFFFFFFFF,7,2,131072,,1,1,0,{ bonus bDex,1; bonus bAtk,getrefine(); bonus bMatk,getrefine(); },{},{}
 24013,S_Promotion_Armor,Promotion Shadow Armor,12,20,,0,,0,,0,0xFFFFFFFF,7,2,65536,,1,1,0,{ bonus bLuk,1; bonus bMaxHP,10*getrefine(); },{},{}
 24014,S_Promotion_Shoes,Promotion Shadow Shoes,12,20,,0,,0,,0,0xFFFFFFFF,7,2,524288,,1,1,0,{ bonus bAgi,1; bonus bMaxHP,10*getrefine(); },{},{}
 24015,S_Promotion_Shield,Promotion Shadow Shield,12,20,,0,,0,,0,0xFFFFFFFF,7,2,262144,,1,1,0,{ bonus bVit,1; bonus bMaxHP,10*getrefine(); },{},{}
@@ -4955,8 +4955,8 @@
 32014,Brute_Spear,Brute Spear,4,0,0,,150,,3,0,0x00004080,56,2,2,4,100,1,4,{ .@r = getrefine(); bonus bUnbreakableWeapon,0; bonus2 bIgnoreDefRaceRate,RC_All,5*.@r; bonus2 bAddRace,RC_Player_Human,80 + (.@r > 8 ? 20 : 0) + (.@r > 7 ? 35 : 0); if(.@r > 9){ bonus bMaxHPrate,15; bonus bMaxSPrate,15; } },{},{}
 
 //Eden Group Equipment
-13050,P_Dagger1,Eden Dagger I,4,0,,0,124,,1,0,0x3E9F7EEF,63,2,2,2,26,0,1,{bonus bAddMatk,60;},{},{}
-13051,P_Dagger2,Eden Dagger II,4,0,,0,158,,1,0,0x3E9F7EEF,63,2,2,2,40,0,1,{bonus bAddMatk,70;},{},{}
+13050,P_Dagger1,Eden Dagger I,4,0,,0,124,,1,0,0x3E9F7EEF,63,2,2,2,26,0,1,{bonus bMatk,60;},{},{}
+13051,P_Dagger2,Eden Dagger II,4,0,,0,158,,1,0,0x3E9F7EEF,63,2,2,2,40,0,1,{bonus bMatk,70;},{},{}
 13052,Tourist_Dagger,Tourist Dagger,4,0,,500,51,,1,0,0xFA9F7EEF,7,2,2,1,1,0,1,{ bonus bAgi,2; },{},{}
 13053,F_Moonlight_Sword_C,Moonlight Sword,4,2,,0,85,,1,0,0x028F5EEE,7,2,2,4,0,0,1,{},{},{}
 13054,F_Combat_Knife_C,Combat Knife,4,1,,0,129,,1,0,0x028F5EEE,7,2,2,4,1,0,1,{},{},{}
@@ -4966,16 +4966,16 @@
 13058,E_Combat_Knife_C,Combad Knife,4,1,,0,129,,1,0,0x028F5EEE,7,2,2,4,1,0,1,{},{},{}
 13059,E_Asura_C,Asura,4,1,,0,120,,1,0,0x02000000,7,2,2,1,1,0,1,{},{},{}
 13060,E_Counter_Dagger_C,Counter Dagger,4,1,,0,209,,1,0,0x00810204,63,2,2,4,1,0,1,{},{},{}
-13061,Black_Wing,Black Wing,4,20,10,600,142,,1,1,0x00020000,8,2,2,3,102,1,1,{ bonus2 bSkillAtk,"SC_FATALMENACE",30+(getrefine()*2); bonus bMatkRate,(getrefine()*3); if (isequipped(2747)) { bonus bHit,5; bonus bAddMatk,5; bonus2 bUseSPrate,"SC_ENERVATION",20; bonus2 bUseSPrate,"SC_GROOMY",20; } },{},{}
-13062,Ancient_Dagger,Ancient Dagger,4,20,10,600,107,,1,0,0x000F5EEE,2,2,2,4,120,1,1,{ bonus bAddMatk,120; bonus bMaxSP,100; bonus bSPrecovRate,5; bonus2 bAddEff2,Eff_Curse,50; },{},{}
+13061,Black_Wing,Black Wing,4,20,10,600,142,,1,1,0x00020000,8,2,2,3,102,1,1,{ bonus2 bSkillAtk,"SC_FATALMENACE",30+(getrefine()*2); bonus bMatkRate,(getrefine()*3); if (isequipped(2747)) { bonus bHit,5; bonus bMatk,5; bonus2 bUseSPrate,"SC_ENERVATION",20; bonus2 bUseSPrate,"SC_GROOMY",20; } },{},{}
+13062,Ancient_Dagger,Ancient Dagger,4,20,10,600,107,,1,0,0x000F5EEE,2,2,2,4,120,1,1,{ bonus bMatk,120; bonus bMaxSP,100; bonus bSPrecovRate,5; bonus2 bAddEff2,Eff_Curse,50; },{},{}
 13063,Adventure_Knife,Adventure Knife,4,0,,0,60,,1,0,0x02021040,63,2,2,1,1,0,1,{ bonus bUnbreakableWeapon,0; },{},{}
 13064,Academy_Knife,Academy Knife,4,0,,700,110,,1,1,0x02021040,63,2,2,1,1,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
 13065,Academy_Eti_Knife,Academy Eti Knife,4,0,,1200,120,,1,1,0x00000001,63,2,2,1,1,1,1,{ bonus bUnbreakableWeapon,0; },{},{}
-13066,P_Dagger3,Eden Dagger III,4,0,,0,165,,1,0,0x3E9F7EEF,63,2,2,3,60,0,1,{bonus bAddMatk,80;},{},{}
+13066,P_Dagger3,Eden Dagger III,4,0,,0,165,,1,0,0x3E9F7EEF,63,2,2,3,60,0,1,{bonus bMatk,80;},{},{}
 13067,Caress,Keris,4,20,,700,107:70,,1,1,0x3E9F7EEF,18,2,2,3,30,1,1,{ bonus2 bHPDrainRate,20,10; },{},{}
-13068,Saurel,Pompano,4,0,,0,160:100,,3,0,0x3E9F7EEF,63,2,2,1,50,0,1,{ bonus bUnbreakableWeapon,0; autobonus "{ bonus bBaseAtk,30; }",10,7000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bAddMatk,20; }",10,7000,BF_MAGIC,"{ specialeffect2 EF_SUFFRAGIUM; }"; if(BaseLevel>99) { bonus bBaseAtk,10; bonus bAddMatk,10; } },{},{}
-13069,Aztoe_Nail,As-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bAddMatk, 80; bonus bAtkEle,Ele_Wind; bonus2 bAddEff,Eff_Freeze,100+(getrefine()*50); },{},{}
-13070,Scarletto_Nail,Scarlet-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bAddMatk,80; bonus bAtkEle,Ele_Fire; bonus2 bAddEff,Eff_Stone,100+(getrefine()*50); },{},{}
+13068,Saurel,Pompano,4,0,,0,160:100,,3,0,0x3E9F7EEF,63,2,2,1,50,0,1,{ bonus bUnbreakableWeapon,0; autobonus "{ bonus bBaseAtk,30; }",10,7000,BF_WEAPON,"{ specialeffect2 EF_ENHANCE; }"; autobonus "{ bonus bMatk,20; }",10,7000,BF_MAGIC,"{ specialeffect2 EF_SUFFRAGIUM; }"; if(BaseLevel>99) { bonus bBaseAtk,10; bonus bMatk,10; } },{},{}
+13069,Aztoe_Nail,As-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bMatk, 80; bonus bAtkEle,Ele_Wind; bonus2 bAddEff,Eff_Freeze,100+(getrefine()*50); },{},{}
+13070,Scarletto_Nail,Scarlet-nail,4,56000,,500,160,,1,0,0x000654E2,63,2,2,4,110,1,1,{ bonus bMatk,80; bonus bAtkEle,Ele_Fire; bonus2 bAddEff,Eff_Stone,100+(getrefine()*50); },{},{}
 
 // Costumes (renewal)
 19507,Clear_Sun,Clear Sun,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,654,{ bonus bUnbreakableHelm,0; },{},{}
@@ -5027,7 +5027,6 @@
 20500,T_Archangel_Wing,Archangel Wing,5,0,,0,,0,,0,0xFFFFFFFF,7,2,8192,,1,0,1,{ bonus bUnbreakableHelm,0; },{},{}
 20600,Fantastic_Aura,Fantastic Aura,5,0,,0,,0,,0,0xFFFFFFFF,7,2,16384,,1,0,0,{ bonus bUnbreakableHelm,0; },{},{}
 20700,Egir_Manteau,Egir Manteau,5,200000,,300,,10,,1,0xFFFFFFFF,7,2,4,,110,1,0,{ bonus bUnbreakableHelm,0; },{},{}
-20724,Love_Dad_Wings_2012,Love Dad Wings 2012,5,0,,100,,15,,1,0xFFFFFFFF,7,2,4,,1,1,5,{},{},{}
 
 // Doram related & more (renewal)
 1198,Hairtail,Cutlass,4,0,,0,220,,3,0,0x00004082,7,2,34,1,50,0,3,{ bonus bUnbreakableWeapon,0; bonus bCritical,20; bonus bCritAtkRate,50; if(BaseLevel>99) { bonus bBaseAtk,50; } },{},{}

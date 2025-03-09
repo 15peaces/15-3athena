@@ -103,6 +103,47 @@ static inline int itemtype(int nameid) {
 	return ( type == IT_PETEGG ) ? IT_ARMOR : type;
 }
 
+// TODO: doc
+static inline uint16 client_index(uint16 server_index) {
+	return server_index + 2;
+}
+
+static inline uint16 server_index(uint16 client_index) {
+	return client_index - 2;
+}
+
+static inline uint16 client_storage_index(uint16 server_index) {
+	return server_index + 1;
+}
+
+static inline uint16 server_storage_index(uint16 client_index) {
+	return client_index - 1;
+}
+
+#if PACKETVER >= 20181121
+static inline uint32 client_nameid(uint32 server_nameid) {
+	uint32 view = itemdb_viewid(server_nameid);
+
+	if (view > 0) {
+		return view;
+	}
+	else {
+		return server_nameid;
+	}
+}
+#else
+static inline uint16 client_nameid(uint32 server_nameid) {
+	uint32 view = itemdb_viewid(server_nameid);
+
+	if (view > 0) {
+		return (uint16)view;
+	}
+	else {
+		return (uint16)server_nameid;
+	}
+}
+#endif
+
 static inline void WBUFPOS(uint8* p, unsigned short pos, short x, short y, unsigned char dir)
 {
 	p += pos;
@@ -834,54 +875,48 @@ void clif_charselectok(int id, uint8 ok)
 /// 009E <id>.L <name id>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY)
 /// 084B <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W (ZC_ITEM_FALL_ENTRY4)
 /// 0ADD <id>.L <name id>.W <type>.W <identified>.B <x>.W <y>.W <subX>.B <subY>.B <amount>.W <show drop effect>.B <drop effect mode>.W (ZC_ITEM_FALL_ENTRY5)
-void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect)
-{
-#if PACKETVER >= 20180418
-	uint8 buf[22];
-	uint32 header = 0xadd;
-#elif PACKETVER >= 20130000
-	uint8 buf[19];
-	uint32 header = 0x84b;
-#else
-	uint8 buf[17];
-	uint32 header = 0x09e;
-#endif
-	int view, offset = 0;
+void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect) {
 	nullpo_retv(fitem);
-	if (fitem->item_data.nameid == 0)
+
+	if (fitem->item_data.nameid <= 0) {
 		return;
-	WBUFW(buf, offset + 0) = header;
-	WBUFL(buf, offset + 2) = fitem->bl.id;
-	WBUFW(buf, offset + 6) = ((view = itemdb_viewid(fitem->item_data.nameid)) > 0) ? view : fitem->item_data.nameid;
-#if PACKETVER >= 20130000
-	WBUFW(buf, offset + 8) = itemtype(fitem->item_data.nameid);
-	offset += 2;
+	}
+
+	int view = itemdb_viewid(fitem->item_data.nameid);
+
+	struct packet_dropflooritem p;
+
+	p.PacketType = dropflooritemType;
+	p.ITAID = fitem->bl.id;
+	p.ITID = (view > 0) ? view : fitem->item_data.nameid;
+#if PACKETVER >= 20130000 /* not sure date */
+	p.type = itemtype(fitem->item_data.nameid);
 #endif
-	WBUFB(buf, offset + 8) = fitem->item_data.identify;
-	WBUFW(buf, offset + 9) = fitem->bl.x;
-	WBUFW(buf, offset + 11) = fitem->bl.y;
-	WBUFB(buf, offset + 13) = fitem->subx;
-	WBUFB(buf, offset + 14) = fitem->suby;
-	WBUFW(buf, offset + 15) = fitem->item_data.amount;
+	p.IsIdentified = fitem->item_data.identify ? 1 : 0;
+	p.xPos = fitem->bl.x;
+	p.yPos = fitem->bl.y;
+	p.subX = fitem->subx;
+	p.subY = fitem->suby;
+	p.count = fitem->item_data.amount;
 #if PACKETVER >= 20180418
 	if (canShowEffect) {
 		uint8 dropEffect = itemdb_dropeffect(fitem->item_data.nameid);
 
 		if (dropEffect > 0) {
-			WBUFB(buf, offset + 17) = 1;
-			WBUFW(buf, offset + 18) = dropEffect - 1;
+			p.showdropeffect = 1;
+			p.dropeffectmode = dropEffect - 1;
 		}
 		else {
-			WBUFB(buf, offset + 17) = 0;
-			WBUFW(buf, offset + 18) = 0;
+			p.showdropeffect = 0;
+			p.dropeffectmode = 0;
 		}
 	}
 	else {
-		WBUFB(buf, offset + 17) = 0;
-		WBUFW(buf, offset + 18) = 0;
+		p.showdropeffect = 0;
+		p.dropeffectmode = 0;
 	}
 #endif
-	clif_send(buf, packet_len(header), &fitem->bl, AREA);
+	clif_send(&p, sizeof(p), &fitem->bl, AREA);
 }
 
 
@@ -1039,353 +1074,405 @@ static int clif_setlevel(struct block_list* bl)
 	return lv;
 }
 
-/// Prepares 'unit standing/spawning' packet (ZC_NOTIFY_NEWENTRY/ZC_NOTIFY_STANDENTRY).
-/// Currently supports up to v11.
-static int clif_set_unit_idle(struct block_list* bl, unsigned char* buffer, bool spawn) {
-	struct map_session_data* sd;
+/*==========================================
+ * Prepares 'unit standing/spawning' packet
+ *------------------------------------------*/
+static void clif_set_unit_idle(struct block_list* bl, bool walking, send_target target, struct block_list* tbl) {
+	nullpo_retv(bl);
+
+	struct map_session_data* sd = BL_CAST(BL_PC, bl);
 	struct status_change* sc = status_get_sc(bl);
 	struct view_data* vd = status_get_viewdata(bl);
-	struct status_data *status = NULL;
-	unsigned char *buf = WBUFP(buffer, 0);
-#if PACKETVER < 20091103
-	bool type = !pcdb_checkid(vd->class_);
-#endif
-	unsigned short offset = 0;
-#if PACKETVER >= 20091103
-	const char *name;
-#endif
-	sd = BL_CAST(BL_PC, bl);
+	int g_id = status_get_guild_id(bl);
 
 #if PACKETVER < 20091103
-	if(type)
-		WBUFW(buf,0) = spawn?0x7c:0x78;
-	else
+	if (!pcdb_checkid(vd->class_)) {
+		struct packet_idle_unit2 p;
+
+		p.PacketType = idle_unit2Type;
+#if PACKETVER >= 20071106
+		p.objecttype = clif_bl_type(bl, walking);
 #endif
-#if PACKETVER < 4
-		WBUFW(buf,0) = spawn?0x79:0x78;
-#elif PACKETVER < 7
-		WBUFW(buf,0) = spawn?0x1d9:0x1d8;
-#elif PACKETVER < 20080102
-		WBUFW(buf,0) = spawn?0x22b:0x22a;
-#elif PACKETVER < 20091103
-		WBUFW(buf,0) = spawn?0x2ed:0x2ee;
-#elif PACKETVER < 20101124
-		WBUFW(buf,0) = spawn?0x7f8:0x7f9;
-#elif PACKETVER < 20120221
-		WBUFW(buf,0) = spawn ? 0x858 : 0x857;
-#elif PACKETVER < 20131223
-		WBUFW(buf,0) = spawn ? 0x90f : 0x915;
-#elif PACKETVER < 20150513
-		WBUFW(buf,0) = spawn ? 0x9dc : 0x9dd;
-#else
-		WBUFW(buf,0) = spawn ? 0x9fe : 0x9ff;
+		p.GID = bl->id;
+		p.speed = status_get_speed(bl);
+		p.bodyState = (sc) ? sc->opt1 : 0;
+		p.healthState = (sc) ? sc->opt2 : 0;
+		p.effectState = (sc) ? sc->option : 0;
+		p.job = vd->class_;
+		p.head = vd->hair_style;
+		p.weapon = vd->weapon;
+		p.accessory = vd->head_bottom;
+		if (bl->type == BL_NPC && vd->class_ == FLAG_CLASS) {
+			// The hell, why flags work like this?
+			p.shield = status_get_emblem_id(bl);
+			p.accessory2 = GetWord(g_id, 1);
+			p.accessory3 = GetWord(g_id, 0);
+		}
+		else {
+			p.shield = vd->shield;
+			p.accessory2 = vd->head_top;
+			p.accessory3 = vd->head_mid;
+		}
+		p.headpalette = vd->hair_color;
+		p.bodypalette = vd->cloth_color;
+		p.headDir = (sd) ? sd->head_dir : 0;
+		p.GUID = g_id;
+		p.GEmblemVer = status_get_emblem_id(bl);
+		p.honor = (sd) ? sd->status.manner : 0;
+		p.virtue = (sc) ? sc->opt3 : 0;
+		p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
+		p.sex = vd->sex;
+		WBUFPOS(&p.PosDir[0], 0, bl->x, bl->y, unit_getdir(bl));
+		p.xSize = p.ySize = (sd) ? 5 : 0;
+		p.state = vd->dead_sit;
+		p.clevel = clif_setlevel(bl);
+
+		clif_send(&p, sizeof(p), tbl, target);
+
+		return;
+}
 #endif
 
+	struct packet_idle_unit p;
+
+	p.PacketType = idle_unitType;
 #if PACKETVER >= 20091103
-	name = status_get_name(bl);
+	p.PacketLength = sizeof(p);
+	p.objecttype = clif_bl_type(bl);
+#endif
 #if PACKETVER >= 20131223
-	status = status_get_status_data(bl);
-#if PACKETVER < 20110111
-	WBUFW(buf,2) = (spawn ? 62 : 63)+strlen(name);
-#elif PACKETVER < 20120221
-	WBUFW(buf,2) = (uint16)((spawn ? 64 : 65)+strlen(name));
-#elif PACKETVER < 20130807
-	WBUFW(buf,2) = (uint16)((spawn ? 77 : 78)+strlen(name));
+	p.AID = bl->id;
+	p.GID = (sd) ? sd->status.char_id : 0; // CCODE
 #else
-	WBUFW(buf,2) = (uint16)((spawn ? 79 : 80)+strlen(name));
+	p.GID = bl->id;
 #endif
-#endif
-	WBUFB(buf,4) = clif_bl_type(bl);
-	offset+=3;
-	buf = WBUFP(buffer,offset);
-#elif PACKETVER >= 20071106
-	if (type) { //Non-player packets
-		WBUFB(buf,2) = clif_bl_type(bl);
-		offset++;
-		buf = WBUFP(buffer,offset);
-	}
-#endif
-	WBUFL(buf, 2) = bl->id;
-#if PACKETVER >= 20131223
-	WBUFL(buf,6) = (sd) ? sd->status.char_id : 0;	// GID/CCODE
-	offset+=4;
-	buf = WBUFP(buffer,offset);
-#endif
-	WBUFW(buf, 6) = status_get_speed(bl);
-	WBUFW(buf, 8) = (sc)? sc->opt1 : 0;
-	WBUFW(buf,10) = (sc)? sc->opt2 : 0;
-#if PACKETVER < 20091103
-	if (type&&spawn) { //uses an older and different packet structure
-		WBUFW(buf,12) = (sc)? sc->option : 0;
-		WBUFW(buf,14) = vd->hair_style;
-		WBUFW(buf,16) = vd->weapon;
-		WBUFW(buf,18) = vd->head_bottom;
-		WBUFW(buf,20) = vd->class_; //Pet armor (ignored by client)
-		WBUFW(buf,22) = vd->shield;
-	} else {
-#endif
-#if PACKETVER >= 20091103
-		WBUFL(buf,12) = (sc)? sc->option : 0;
-		offset+=2;
-		buf = WBUFP(buffer,offset);
-#elif PACKETVER >= 7
-		if (!type) {
-			WBUFL(buf,12) = (sc)? sc->option : 0;
-			offset+=2;
-			buf = WBUFP(buffer,offset);
-		} else
-			WBUFW(buf,12) = (sc)? sc->option : 0;
-#else
-		WBUFW(buf,12) = (sc)? sc->option : 0;
-#endif
-		WBUFW(buf,14) = vd->class_;
-		WBUFW(buf,16) = vd->hair_style;
-		WBUFW(buf,18) = vd->weapon;
-#if PACKETVER < 4
-		WBUFW(buf,20) = vd->head_bottom;
-		WBUFW(buf,22) = vd->shield;
-#else
-		WBUFW(buf,20) = vd->shield;
-		WBUFW(buf,22) = vd->head_bottom;
-#endif
-#if PACKETVER < 20091103
-	}
-#endif
-	WBUFW(buf,24) = vd->head_top;
-	WBUFW(buf,26) = vd->head_mid;
+	p.speed = status_get_speed(bl);
+	p.bodyState = (sc) ? sc->opt1 : 0;
+	p.healthState = (sc) ? sc->opt2 : 0;
 
-	if( bl->type == BL_NPC && vd->class_ == FLAG_CLASS )
-	{	//The hell, why flags work like this?
-		WBUFW(buf,22) = status_get_emblem_id(bl);
-		WBUFW(buf,24) = GetWord(status_get_guild_id(bl), 1);
-		WBUFW(buf,26) = GetWord(status_get_guild_id(bl), 0);
-	}
+	// npc option changed?
+	if (tbl && tbl->type == BL_PC && bl->type == BL_NPC) {
+		struct map_session_data* sd = (struct map_session_data*)tbl;
+		struct npc_data* nd = (struct npc_data*)bl;
+		int option = (sc) ? sc->option : 0;
 
-	WBUFW(buf,28) = vd->hair_color;
-	WBUFW(buf,30) = vd->cloth_color;
-	WBUFW(buf,32) = (sd)? sd->head_dir : 0;
-#if PACKETVER < 20091103
-	if (type&&spawn) { //End of packet 0x7c
-		WBUFB(buf,34) = (sd)?sd->status.karma:0; // karma
-		WBUFB(buf,35) = vd->sex;
-		WBUFPOS(buf,36,bl->x,bl->y,unit_getdir(bl));
-		WBUFB(buf,39) = 0;
-		WBUFB(buf,40) = 0;
-		return packet_len(0x7c);
+		p.effectState = option;
 	}
-#endif
-#if PACKETVER >= 20110111
-	WBUFW(buf,34) = vd->robe;
-	offset+= 2;
-	buf = WBUFP(buffer,offset);
-#endif
-	WBUFL(buf,34) = status_get_guild_id(bl);
-	WBUFW(buf,38) = status_get_emblem_id(bl);
-	WBUFW(buf,40) = (sd)? sd->status.manner : 0;
-#if PACKETVER >= 20091103
-	WBUFL(buf,42) = (sc)? sc->opt3 : 0;
-	offset+=2;
-	buf = WBUFP(buffer,offset);
-#elif PACKETVER >= 7
-	if (!type) {
-		WBUFL(buf,42) = (sc)? sc->opt3 : 0;
-		offset+=2;
-		buf = WBUFP(buffer,offset);
-	} else
-		WBUFW(buf,42) = (sc)? sc->opt3 : 0;
-#else
-	WBUFW(buf,42) = (sc)? sc->opt3 : 0;
-#endif
-	WBUFB(buf,44) = (sd)? sd->status.karma : 0;
-	WBUFB(buf,45) = vd->sex;
-	WBUFPOS(buf,46,bl->x,bl->y,unit_getdir(bl));
-	WBUFB(buf,49) = (sd)? 5 : 0;
-	WBUFB(buf,50) = (sd)? 5 : 0;
-	if (!spawn) {
-		WBUFB(buf,51) = vd->dead_sit;
-		offset++;
-		buf = WBUFP(buffer,offset);
+	else {
+		p.effectState = (sc) ? sc->option : 0;
 	}
-	WBUFW(buf,51) = clif_setlevel(bl);
-#if PACKETVER < 20091103
-	if (type) //End for non-player packet
-		return packet_len(WBUFW(buffer,0));
+	p.job = vd->class_;
+	p.head = vd->hair_style;
+	p.weapon = vd->weapon;
+#if PACKETVER < 7 || PACKETVER >= 20181121
+	p.shield = vd->shield;
 #endif
+	if (bl->type == BL_NPC && vd->class_ == FLAG_CLASS) {
+		// The hell, why flags work like this?
+		p.accessory = status_get_emblem_id(bl);
+		p.accessory2 = GetWord(g_id, 1);
+		p.accessory3 = GetWord(g_id, 0);
+	}
+	else {
+		p.accessory = vd->head_bottom;
+		p.accessory2 = vd->head_top;
+		p.accessory3 = vd->head_mid;
+	}
+	p.headpalette = vd->hair_color;
+	p.bodypalette = vd->cloth_color;
+	p.headDir = (sd) ? sd->head_dir : 0;
+#if PACKETVER >= 20101124
+	p.robe = vd->robe;
+#endif
+	p.GUID = g_id;
+	p.GEmblemVer = status_get_emblem_id(bl);
+	p.honor = (sd) ? sd->status.manner : 0;
+	p.virtue = (sc) ? sc->opt3 : 0;
+	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
+	p.sex = vd->sex;
+	WBUFPOS(&p.PosDir[0], 0, bl->x, bl->y, unit_getdir(bl));
+	p.xSize = p.ySize = (sd) ? 5 : 0;
+	p.state = vd->dead_sit;
+	p.clevel = clif_setlevel(bl);
 #if PACKETVER >= 20080102
-	WBUFW(buf,53) = sd?sd->status.font:0;
+	p.font = (sd) ? sd->status.font : 0;
 #endif
-#if PACKETVER >= 20131223
-	if ( battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
-		WBUFL(buf,55) = status_get_max_hp(bl);		// maxHP
-		WBUFL(buf,59) = status_get_hp(bl);		// HP
-		WBUFB(buf,63) = (bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0)) ? 1 : 0;		// isBoss
-	} else {
-		WBUFL(buf,55) = -1;		// maxHP
-		WBUFL(buf,59) = -1;		// HP
-		WBUFB(buf,63) = 0;		// isBoss
+#if PACKETVER >= 20120221
+	if (battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && (status_get_hp(bl) < status_get_max_hp(bl))) {
+		p.maxHP = status_get_max_hp(bl);
+		p.HP = status_get_hp(bl);
 	}
+	else {
+		p.maxHP = -1;
+		p.HP = -1;
+	}
+	p.isBoss = (bl->type == BL_MOB && (((TBL_MOB *)bl)->db->mexp > 0)) ? 1 : 0;
 #endif
 #if PACKETVER >= 20150513
-	WBUFW(buf,64) = vd->body_style;	// body
-	offset+= 2;
-	buf = WBUFP(buffer,offset);
+	p.body = vd->body_style;
 #endif
+	/* Might be earlier, this is when the named item bug began */
+#if PACKETVER >= 20131223
+	safestrncpy(p.name, status_get_name(bl), NAME_LENGTH);
+#endif
+
+	if (disguised(bl)) {
 #if PACKETVER >= 20091103
-#if PACKETVER >= 20120221
-	safestrncpy(WBUFCP(buf,64), name, NAME_LENGTH);
+		p.objecttype = pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x5; //PC_TYPE : NPC_MOB_TYPE
+#if PACKETVER >= 20131223
+		p.AID = -bl->id;
 #else
-	safestrncpy(WBUFCP(buf,55), name, NAME_LENGTH);
+		p.GID = -bl->id;
 #endif
-	return WBUFW(buffer,2);
 #else
-	return packet_len(WBUFW(buffer,0));
+		p.GID = -bl->id;
 #endif
+	}
+
+	clif_send(&p, sizeof(p), tbl, target);
 }
 
-/// Prepares 'unit walking' packet (ZC_NOTIFY_MOVEENTRY).
-/// Currently supports up to v11.
- int clif_set_unit_walking(struct block_list* bl, struct unit_data* ud, unsigned char* buffer)
-{
+static void clif_spawn_unit(struct block_list *bl, enum send_target target) {
+	nullpo_retv(bl);
+
+	struct map_session_data* sd = BL_CAST(BL_PC, bl);
+	struct status_change* sc = status_get_sc(bl);
+	struct view_data* vd = status_get_viewdata(bl);
+	int g_id = status_get_guild_id(bl);
+
+#if PACKETVER < 20091103
+	if (!pcdb_checkid(vd->class_)) {
+		struct packet_spawn_unit2 p;
+
+		p.PacketType = spawn_unit2Type;
+#if PACKETVER >= 20071106
+		p.objecttype = clif_bl_type(bl, false);
+#endif
+		p.GID = bl->id;
+		p.speed = status_get_speed(bl);
+		p.bodyState = (sc) ? sc->opt1 : 0;
+		p.healthState = (sc) ? sc->opt2 : 0;
+		p.effectState = (sc) ? sc->option : 0;
+		p.head = vd->hair_style;
+		p.weapon = vd->weapon;
+		p.accessory = vd->head_bottom;
+		p.job = vd->class_;
+		if (bl->type == BL_NPC && vd->class_ == FLAG_CLASS) {
+			// The hell, why flags work like this?
+			p.shield = status_get_emblem_id(bl);
+			p.accessory2 = GetWord(g_id, 1);
+			p.accessory3 = GetWord(g_id, 0);
+		}
+		else {
+			p.shield = vd->shield;
+			p.accessory2 = vd->head_top;
+			p.accessory3 = vd->head_mid;
+		}
+		p.headpalette = vd->hair_color;
+		p.bodypalette = vd->cloth_color;
+		p.headDir = (sd) ? sd->head_dir : 0;
+		p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
+		p.sex = vd->sex;
+		WBUFPOS(&p.PosDir[0], 0, bl->x, bl->y, unit_getdir(bl));
+		p.xSize = p.ySize = (sd) ? 5 : 0;
+
+		clif_send(&p, sizeof(p), bl, target);
+		return;
+	}
+#endif
+
+	struct packet_spawn_unit p;
+
+	p.PacketType = spawn_unitType;
+#if PACKETVER >= 20091103
+	p.PacketLength = sizeof(p);
+	p.objecttype = clif_bl_type(bl);
+#endif
+#if PACKETVER >= 20131223
+	p.AID = bl->id;
+	p.GID = (sd) ? sd->status.char_id : 0; // CCODE
+#else
+	p.GID = bl->id;
+#endif
+	p.speed = status_get_speed(bl);
+	p.bodyState = (sc) ? sc->opt1 : 0;
+	p.healthState = (sc) ? sc->opt2 : 0;
+	p.effectState = (sc) ? sc->option : 0;
+	p.job = vd->class_;
+	p.head = vd->hair_style;
+	p.weapon = vd->weapon;
+#if PACKETVER < 7 || PACKETVER >= 20181121
+	p.shield = vd->shield;
+#endif
+	if (bl->type == BL_NPC && vd->class_ == FLAG_CLASS) {
+		// The hell, why flags work like this?
+		p.accessory = status_get_emblem_id(bl);
+		p.accessory2 = GetWord(g_id, 1);
+		p.accessory3 = GetWord(g_id, 0);
+	}
+	else {
+		p.accessory = vd->head_bottom;
+		p.accessory2 = vd->head_top;
+		p.accessory3 = vd->head_mid;
+	}
+	p.headpalette = vd->hair_color;
+	p.bodypalette = vd->cloth_color;
+	p.headDir = (sd) ? sd->head_dir : 0;
+#if PACKETVER >= 20101124
+	p.robe = vd->robe;
+#endif
+	p.GUID = g_id;
+	p.GEmblemVer = status_get_emblem_id(bl);
+	p.honor = (sd) ? sd->status.manner : 0;
+	p.virtue = (sc) ? sc->opt3 : 0;
+	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
+	p.sex = vd->sex;
+	WBUFPOS(&p.PosDir[0], 0, bl->x, bl->y, unit_getdir(bl));
+	p.xSize = p.ySize = (sd) ? 5 : 0;
+	p.clevel = clif_setlevel(bl);
+#if PACKETVER >= 20080102
+	p.font = (sd) ? sd->status.font : 0;
+#endif
+#if PACKETVER >= 20120221
+	if (battle_config.monster_hp_bars_info && bl->type == BL_MOB && !map[bl->m].flag.hidemobhpbar && (status_get_hp(bl) < status_get_max_hp(bl))) {
+		p.maxHP = status_get_max_hp(bl);
+		p.HP = status_get_hp(bl);
+	}
+	else {
+		p.maxHP = -1;
+		p.HP = -1;
+	}
+
+	p.isBoss = (bl->type == BL_MOB && (((TBL_MOB *)bl)->db->mexp > 0)) ? 1 : 0;
+#endif
+#if PACKETVER >= 20150513
+	p.body = vd->body_style;
+#endif
+	/* Might be earlier, this is when the named item bug began */
+#if PACKETVER >= 20131223
+	safestrncpy(p.name, status_get_name(bl), NAME_LENGTH);
+#endif
+
+	if (disguised(bl)) {
+		nullpo_retv(sd);
+
+		if (sd->status.class_ != sd->disguise) {
+			clif_send(&p, sizeof(p), bl, target);
+		}
+
+#if PACKETVER >= 20091103
+		p.objecttype = pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x5; //PC_TYPE : NPC_MOB_TYPE
+#if PACKETVER >= 20131223
+		p.AID = -bl->id;
+#else
+		p.GID = -bl->id;
+#endif
+#else
+		p.GID = -bl->id;
+#endif
+		clif_send(&p, sizeof(p), bl, SELF);
+	}
+	else {
+		clif_send(&p, sizeof(p), bl, target);
+	}
+}
+
+/*==========================================
+ * Prepares 'unit walking' packet
+ *------------------------------------------*/
+static void clif_set_unit_walking(struct block_list *bl, struct map_session_data *tsd, struct unit_data *ud, enum send_target target) {
+	nullpo_retv(bl);
+	nullpo_retv(ud);
+
 	struct map_session_data* sd;
 	struct status_change* sc = status_get_sc(bl);
 	struct view_data* vd = status_get_viewdata(bl);
-	struct status_data *status = NULL;
-	unsigned char* buf = WBUFP(buffer,0);
-#if PACKETVER >= 7
-	unsigned short offset = 0;
-#endif
-#if PACKETVER >= 20091103
-	const char *name;
-#endif
+	struct packet_unit_walking p;
+	int g_id = status_get_guild_id(bl);
 
 	sd = BL_CAST(BL_PC, bl);
 
-#if PACKETVER < 4
-	WBUFW(buf, 0) = 0x7b;
-#elif PACKETVER < 7
-	WBUFW(buf, 0) = 0x1da;
-#elif PACKETVER < 20080102
-	WBUFW(buf, 0) = 0x22c;
-#elif PACKETVER < 20091103
-	WBUFW(buf, 0) = 0x2ec;
-#elif PACKETVER < 20101124
-	WBUFW(buf, 0) = 0x7f7;
-#elif PACKETVER < 20120221
-	WBUFW(buf, 0) = 0x856;
-#elif PACKETVER < 20131223
-	WBUFW(buf, 0) = 0x914;
-#elif PACKETVER < 20150513
-	WBUFW(buf, 0) = 0x9db;
-#else
-	WBUFW(buf, 0) = 0x9fd;
-#endif
-
+	p.PacketType = unit_walkingType;
 #if PACKETVER >= 20091103
-	name = status_get_name(bl);
-#if PACKETVER >= 20131223
-	status = status_get_status_data(bl);
-#if PACKETVER < 20110111
-	WBUFW(buf, 2) = (uint16)(69+strlen(name));
-#elif PACKETVER < 20120221
-	WBUFW(buf, 2) = (uint16)(71+strlen(name));
-#elif PACKETVER < 20130807
-	WBUFW(buf, 2) = (uint16)(84+strlen(name));
-#else
-	WBUFW(buf, 2) = (uint16)(86+strlen(name));
-#endif
-#endif
-	offset+=2;
-	buf = WBUFP(buffer,offset);
+	p.PacketLength = sizeof(p);
 #endif
 #if PACKETVER >= 20071106
-	WBUFB(buf, 2) = clif_bl_type(bl);
-	offset++;
-	buf = WBUFP(buffer,offset);
+	p.objecttype = clif_bl_type(bl);
 #endif
-	WBUFL(buf, 2) = bl->id;
 #if PACKETVER >= 20131223
-	WBUFL(buf,6) = (sd) ? sd->status.char_id : 0;	// GID/CCODE
-	offset+=4;
-	buf = WBUFP(buffer,offset);
-#endif
-	WBUFW(buf, 6) = status_get_speed(bl);
-	WBUFW(buf, 8) = (sc)? sc->opt1 : 0;
-	WBUFW(buf,10) = (sc)? sc->opt2 : 0;
-#if PACKETVER < 7
-	WBUFW(buf,12) = (sc)? sc->option : 0;
+	p.AID = bl->id;
+	p.GID = (sd) ? sd->status.char_id : 0; // CCODE
 #else
-	WBUFL(buf,12) = (sc)? sc->option : 0;
-	offset+=2; //Shift the rest of elements by 2 bytes.
-	buf = WBUFP(buffer,offset);
+	p.GID = bl->id;
 #endif
-	WBUFW(buf,14) = vd->class_;
-	WBUFW(buf,16) = vd->hair_style;
-	WBUFW(buf,18) = vd->weapon;
-#if PACKETVER < 4
-	WBUFW(buf,20) = vd->head_bottom;
-	WBUFL(buf,22) = gettick();
-	WBUFW(buf,26) = vd->shield;
-#else
-	WBUFW(buf,20) = vd->shield;
-	WBUFW(buf,22) = vd->head_bottom;
-	WBUFL(buf,24) = (unsigned int)gettick();
+	p.speed = status_get_speed(bl);
+	p.bodyState = (sc) ? sc->opt1 : 0;
+	p.healthState = (sc) ? sc->opt2 : 0;
+	p.effectState = (sc) ? sc->option : 0;
+	p.job = vd->class_;
+	p.head = vd->hair_style;
+	p.weapon = vd->weapon;
+	p.accessory = vd->head_bottom;
+	p.moveStartTime = (unsigned int)gettick();
+#if PACKETVER < 7 || PACKETVER >= 20181121
+	p.shield = vd->shield;
 #endif
-	WBUFW(buf,28) = vd->head_top;
-	WBUFW(buf,30) = vd->head_mid;
-	WBUFW(buf,32) = vd->hair_color;
-	WBUFW(buf,34) = vd->cloth_color;
-	WBUFW(buf,36) = (sd)? sd->head_dir : 0;
-#if PACKETVER >= 20110111
-	WBUFW(buf,38) = vd->robe;
-	offset+= 2;
-	buf = WBUFP(buffer,offset);
+	p.accessory2 = vd->head_top;
+	p.accessory3 = vd->head_mid;
+	p.headpalette = vd->hair_color;
+	p.bodypalette = vd->cloth_color;
+	p.headDir = (sd) ? sd->head_dir : 0;
+#if PACKETVER >= 20101124
+	p.robe = vd->robe;
 #endif
-	WBUFL(buf,38) = status_get_guild_id(bl);
-	WBUFW(buf,42) = status_get_emblem_id(bl);
-	WBUFW(buf,44) = (sd)? sd->status.manner : 0;
-#if PACKETVER < 7
-	WBUFW(buf,46) = (sc)? sc->opt3 : 0;
-#else
-	WBUFL(buf,46) = (sc)? sc->opt3 : 0;
-	offset+=2; //Shift the rest of elements by 2 bytes.
-	buf = WBUFP(buffer,offset);
-#endif
-	WBUFB(buf,48) = (sd)? sd->status.karma : 0;
-	WBUFB(buf,49) = vd->sex;
-	WBUFPOS2(buf,50,bl->x,bl->y,ud->to_x,ud->to_y,8,8);
-	WBUFB(buf,56) = (sd)? 5 : 0;
-	WBUFB(buf,57) = (sd)? 5 : 0;
-	WBUFW(buf,58) = clif_setlevel(bl);
+	p.GUID = g_id;
+	p.GEmblemVer = status_get_emblem_id(bl);
+	p.honor = (sd) ? sd->status.manner : 0;
+	p.virtue = (sc) ? sc->opt3 : 0;
+	p.isPKModeON = (sd && sd->status.karma) ? 1 : 0;
+	p.sex = vd->sex;
+	WBUFPOS2(&p.MoveData[0], 0, bl->x, bl->y, ud->to_x, ud->to_y, 8, 8);
+	p.xSize = p.ySize = (sd) ? 5 : 0;
+	p.clevel = clif_setlevel(bl);
 #if PACKETVER >= 20080102
-	WBUFW(buf,60) = sd?sd->status.font:0;
+	p.font = (sd) ? sd->status.font : 0;
 #endif
-#if PACKETVER >= 20131223
-	if ( battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && status_get_hp(bl) < status_get_max_hp(bl) ) {
-		WBUFL(buf,62) = status_get_max_hp(bl);		// maxHP
-		WBUFL(buf,66) = status_get_hp(bl);		// HP
-		WBUFB(buf,70) = (bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0)) ? 1 : 0;		// isBoss
-	} else {
-		WBUFL(buf,62) = -1;		// maxHP
-		WBUFL(buf,66) = -1;		// HP
-		WBUFB(buf,70) = 0;		// isBoss
+#if PACKETVER >= 20120221
+	if (battle_config.monster_hp_bars_info && !map[bl->m].flag.hidemobhpbar && bl->type == BL_MOB && (status_get_hp(bl) < status_get_max_hp(bl))) {
+		p.maxHP = status_get_max_hp(bl);
+		p.HP = status_get_hp(bl);
 	}
+	else {
+		p.maxHP = -1;
+		p.HP = -1;
+	}
+
+	p.isBoss = (bl->type == BL_MOB && (((TBL_MOB*)bl)->db->mexp > 0)) ? 1 : 0;
 #endif
 #if PACKETVER >= 20150513
-	WBUFW(buf,71) = vd->body_style;	// body
-	offset+= 2;
-	buf = WBUFP(buffer,offset);
+	p.body = vd->body_style;
 #endif
+	/* Might be earlier, this is when the named item bug began */
+#if PACKETVER >= 20131223
+	safestrncpy(p.name, status_get_name(bl), NAME_LENGTH);
+#endif
+
+	clif_send(&p, sizeof(p), tsd ? &tsd->bl : bl, target);
+
+	if (disguised(bl)) {
 #if PACKETVER >= 20091103
-#if PACKETVER >= 20120221
-	safestrncpy(WBUFCP(buf,71), name, NAME_LENGTH);
+		p.objecttype = pcdb_checkid(status_get_viewdata(bl)->class_) ? 0x0 : 0x5; //PC_TYPE : NPC_MOB_TYPE
+#if PACKETVER >= 20131223
+		p.AID = -bl->id;
 #else
-	safestrncpy(WBUFCP(buf,62), name, NAME_LENGTH);
+		p.GID = -bl->id;
 #endif
-	return WBUFW(buffer,2);
 #else
-	return packet_len(WBUFW(buffer,0));
+		p.GID = -bl->id;
 #endif
-}
+		clif_send(&p, sizeof(p), bl, SELF);
+	}
+	}
 
 //Modifies the buffer for disguise characters and sends it to self.
 //Used for spawn/walk packets, where the ID offset changes for packetver >=9
@@ -1547,20 +1634,20 @@ void clif_weather(int m)
 
 int clif_spawn(struct block_list *bl)
 {
-	unsigned char buf[128];
 	struct view_data *vd;
 	short i;
-	int len;
 
 	vd = status_get_viewdata(bl);
 	if (!vd || vd->class_ == INVISIBLE_CLASS ||
 		bl->type == BL_NPC && !((TBL_NPC*)bl)->chat_id && ((TBL_NPC*)bl)->sc.option&OPTION_INVISIBLE)
 		return 0;
 
-	len = clif_set_unit_idle(bl, buf,true);
-	clif_send(buf, len, bl, AREA_WOS);
-	if (disguised(bl))
-		clif_setdisguise(bl, buf, len);
+	if (bl->type == BL_NPC && !vd->dead_sit) {
+		clif_set_unit_idle(bl, false, AREA_WOS, bl);
+	}
+	else {
+		clif_spawn_unit(bl, AREA_WOS);
+	}
 
 	if (vd->cloth_color)
 		clif_refreshlook(bl,bl->id,LOOK_CLOTHES_COLOR,vd->cloth_color,AREA_WOS);
@@ -1850,16 +1937,21 @@ void clif_homskillup(struct map_session_data *sd, int skill_id)
 	WFIFOSET(fd,packet_len(0x239));
 }
 
-int clif_hom_food(struct map_session_data *sd,int foodid,int fail)	//[orn]
-{
-	int fd=sd->fd;
-	WFIFOHEAD(fd,packet_len(0x22f));
-	WFIFOW(fd,0)=0x22f;
-	WFIFOB(fd,2)=fail;
-	WFIFOW(fd,3)=foodid;
-	WFIFOSET(fd,packet_len(0x22f));
+/// Result of request to feed a homun/merc.
+/// 022f <result>.B <name id>.W (ZC_FEED_MER)
+/// result:
+///     0 = failure
+///     1 = success
+void clif_hom_food(struct map_session_data *sd, int foodid, int fail) {
+	nullpo_retv(sd);
 
-	return 0;
+	struct PACKET_ZC_FEED_MER p;
+
+	p.packetType = 0x22f;
+	p.result = fail;
+	p.itemId = client_nameid(foodid);
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 
@@ -1879,17 +1971,12 @@ void clif_walkok(struct map_session_data *sd)
 
 static void clif_move2(struct block_list *bl, struct view_data *vd, struct unit_data *ud)
 {
-	uint8 buf[128];
-	int len;
 	struct status_change *sc = NULL;
 
 	if ((sc = status_get_sc(bl)) && sc->option&(OPTION_HIDE | OPTION_CLOAK | OPTION_INVISIBLE | OPTION_CHASEWALK))
 		clif_ally_only = true;
 	
-	len = clif_set_unit_walking(bl,ud,buf);
-	clif_send(buf,len,bl,AREA_WOS);
-	if (disguised(bl))
-		clif_setdisguise(bl, buf, len);
+	clif_set_unit_walking(bl, NULL, ud, AREA_WOS);
 		
 	if(vd->cloth_color)
 		clif_refreshlook(bl,bl->id,LOOK_CLOTHES_COLOR,vd->cloth_color,AREA_WOS);
@@ -2086,37 +2173,36 @@ void clif_npcbuysell(struct map_session_data* sd, int id)
 }
 
 
-/// Presents list of items, that can be bought in an NPC shop (ZC_PC_PURCHASE_ITEMLIST).
-/// 00c6 <packet len>.W { <price>.L <discount price>.L <item type>.B <name id>.W }*
-void clif_buylist(struct map_session_data *sd, struct npc_data *nd)
-{
-	int fd,i,c;
-	bool discount;
-
+/// Presents list of items, that can be bought in an NPC shop.
+/// 00c6 <packet len>.W { <price>.L <discount price>.L <item type>.B <name id>.W }* (ZC_PC_PURCHASE_ITEMLIST)
+void clif_buylist(struct map_session_data *sd, struct npc_data *nd) {
 	nullpo_retv(sd);
 	nullpo_retv(nd);
 
-	fd = sd->fd;
-	WFIFOHEAD(fd, 4 + nd->u.shop.count * 11);
-	WFIFOW(fd,0) = 0xc6;
+	int fd = sd->fd;
 
-	c = 0;
-	discount = nd->u.shop.discount;
-	for( i = 0; i < nd->u.shop.count; i++ )
-	{
-		struct item_data* id = itemdb_exists(nd->u.shop.shop_item[i].nameid);
-		int val = nd->u.shop.shop_item[i].value;
-		if( id == NULL )
-			continue;
-		WFIFOL(fd, 4+c*11) = val;
-		WFIFOL(fd, 8+c*11) = (discount) ? pc_modifybuyvalue(sd,val) : val;
-		WFIFOB(fd,12+c*11) = itemtype(id->nameid);
-		WFIFOW(fd,13+c*11) = ( id->view_id > 0 ) ? id->view_id : id->nameid;
-		c++;
+	if (!session_isActive(fd)) {
+		return;
 	}
 
-	WFIFOW(fd,2) = 4 + c*11;
-	WFIFOSET(fd,WFIFOW(fd,2));
+	uint16 len = sizeof(struct PACKET_ZC_PC_PURCHASE_ITEMLIST) + nd->u.shop.count * sizeof(struct PACKET_ZC_PC_PURCHASE_ITEMLIST_sub);
+	WFIFOHEAD(fd, len);
+	struct PACKET_ZC_PC_PURCHASE_ITEMLIST *p = (struct PACKET_ZC_PC_PURCHASE_ITEMLIST *)WFIFOP(fd, 0);
+	p->packetType = 0xc6;
+
+	int count = 0;
+	for (int i = 0, discount = nd->u.shop.discount; i < nd->u.shop.count; i++) {
+		int val = nd->u.shop.shop_item[i].value;
+
+		p->items[count].price = val;
+		p->items[count].discountPrice = (discount) ? pc_modifybuyvalue(sd, val) : val;
+		p->items[count].itemType = itemtype(nd->u.shop.shop_item[i].nameid);
+		p->items[count].itemId = client_nameid(nd->u.shop.shop_item[i].nameid);
+		count++;
+	}
+
+	p->packetLength = sizeof(struct PACKET_ZC_PC_PURCHASE_ITEMLIST) + count * sizeof(struct PACKET_ZC_PC_PURCHASE_ITEMLIST_sub);
+	WFIFOSET(fd, p->packetLength);
 }
 
 
@@ -3663,23 +3749,17 @@ void clif_updateparam_area(struct map_session_data* sd, short type, int value)
 /// 00c3 <id>.L <type>.B <value>.B (ZC_SPRITE_CHANGE)
 /// 01d7 <id>.L <type>.B <value>.L (ZC_SPRITE_CHANGE2)
 void clif_sprite_change(struct block_list *bl, int id, int type, int val, int val2, enum send_target target) {
-	unsigned char buf[32];
+	struct PACKET_ZC_SPRITE_CHANGE p;
 
-#if PACKETVER < 4
-	const int cmd = 0xc3;
-#else
-	const int cmd = 0x1d7;
-#endif
-	WBUFW(buf,0) = cmd;
-	WBUFL(buf,2) = id;
-	WBUFB(buf,6) = type;
-	WBUFW(buf,7) = val;
-
+	p.packetType = sendLookType;
+	p.AID = id;
+	p.type = type;
+	p.val = val;
 #if PACKETVER >= 4
-	WBUFW(buf,9) = val2;
+	p.val2 = val2;
 #endif
 
-	clif_send(buf,packet_len(cmd), bl, target);
+	clif_send(&p, sizeof(p), bl, target);
 }
 
 
@@ -5101,11 +5181,9 @@ static void clif_getareachar_pc(struct map_session_data* sd,struct map_session_d
 
 void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 {
-	uint8 buf[128];
 	struct unit_data *ud;
 	struct view_data *vd;
 	int i;
-	int len;
 	
 	vd = status_get_viewdata(bl);
 	if (!vd || vd->class_ == INVISIBLE_CLASS ||
@@ -5113,8 +5191,12 @@ void clif_getareachar_unit(struct map_session_data* sd,struct block_list *bl)
 		return;
 
 	ud = unit_bl2ud(bl);
-	len = ( ud && ud->walktimer != INVALID_TIMER ) ? clif_set_unit_walking(bl,ud,buf) : clif_set_unit_idle(bl,buf,false);
-	clif_send(buf,len,&sd->bl,SELF);
+
+	if (ud && ud->walktimer != INVALID_TIMER) {
+		clif_set_unit_walking(bl, sd, ud, SELF);
+	}
+	else
+		clif_set_unit_idle(bl, false, SELF, &sd->bl);
 
 	if (vd->cloth_color)
 		clif_refreshlook(&sd->bl,bl->id,LOOK_CLOTHES_COLOR,vd->cloth_color,SELF);
