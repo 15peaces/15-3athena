@@ -66,6 +66,26 @@ enum packet_headers {
 #else
 	unit_walkingType = 0x9fd,
 #endif
+#if PACKETVER < 20061218
+	additemType = 0x0a0,
+#elif PACKETVER < 20071002
+	additemType = 0x29a,
+#elif PACKETVER < 20120925
+	additemType = 0x2d4,
+#elif PACKETVER < 20150226
+	additemType = 0x990,
+#elif PACKETVER < 20160921
+	additemType = 0xa0c,
+#else
+	additemType = 0xa37,
+#endif
+#if PACKETVER >= 20150226
+	cartaddType = 0xa0b,
+#elif PACKETVER >= 5
+	cartaddType = 0x1c5,
+#else
+	cartaddType = 0x124,
+#endif
 #if PACKETVER >= 20180418
 	dropflooritemType = 0xadd,
 #elif PACKETVER > 20130000 /* not sure date */
@@ -73,16 +93,398 @@ enum packet_headers {
 #else
 	dropflooritemType = 0x9e,
 #endif
+#if PACKETVER >= 20181002
+	inventorylistnormalType = 0xb09,
+#elif PACKETVER >= 20120925
+	inventorylistnormalType = 0x991,
+#elif PACKETVER >= 20080102
+	inventorylistnormalType = 0x2e8,
+#elif PACKETVER >= 20071002
+	inventorylistnormalType = 0x1ee,
+#else
+	inventorylistnormalType = 0xa3,
+#endif
+#if PACKETVER >= 20181002
+	inventorylistequipType = 0xb0a,
+#elif PACKETVER >= 20150226
+	inventorylistequipType = 0xa0d,
+#elif PACKETVER >= 20120925
+	inventorylistequipType = 0x992,
+#elif PACKETVER >= 20080102
+	inventorylistequipType = 0x2d0,
+#elif PACKETVER >= 20071002
+	inventorylistequipType = 0x295,
+#else
+	inventorylistequipType = 0xa4,
+#endif
+#if PACKETVER >= 20181002
+		cartlistnormalType = 0xb09,
+#elif PACKETVER >= 20120925
+		cartlistnormalType = 0x993,
+#elif PACKETVER >= 20080102
+		cartlistnormalType = 0x2e9,
+#elif PACKETVER >= 20071002
+		cartlistnormalType = 0x1ef,
+#else
+		cartlistnormalType = 0x123,
+#endif
+#if PACKETVER >= 20181002
+		cartlistequipType = 0xb0a,
+#elif PACKETVER >= 20150226
+		cartlistequipType = 0xa0f,
+#elif PACKETVER >= 20120925
+		cartlistequipType = 0x994,
+#elif PACKETVER >= 20080102
+		cartlistequipType = 0x2d2,
+#elif PACKETVER >= 20071002
+		cartlistequipType = 0x297,
+#else
+		cartlistequipType = 0x122,
+#endif
+#if PACKETVER >= 20150226
+		storageaddType = 0xa0a,
+#elif PACKETVER >= 5
+		storageaddType = 0x1c4,
+#else
+		storageaddType = 0xf4,
+#endif
+#if PACKETVER >= 20150226
+		tradeaddType = 0xa09,
+#elif PACKETVER >= 20100223
+		tradeaddType = 0x80f,
+#else
+		tradeaddType = 0x0e9,
+#endif
+#if PACKETVER < 20100105
+		vendinglistType = 0x133,
+#else
+		vendinglistType = 0x800,
+#endif
 #if PACKETVER >= 4
 	sendLookType = 0x1d7,
 #else
 	sendLookType = 0xc3,
+#endif
+#if PACKETVER >= 20180801
+		viewequipackType = 0xb03,
+#elif PACKETVER >= 20150226
+		viewequipackType = 0xa2d,
+#elif PACKETVER >= 20120925
+		viewequipackType = 0x997,
+#elif PACKETVER >= 20111207
+	viewequipackType = 0x906,
+#elif PACKETVER >= 20101124
+		viewequipackType = 0x859,
+#else
+		viewequipackType = 0x2d7,
 #endif
 };
 
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(push, 1)
 #endif // not NetBSD < 6 / Solaris
+
+struct EQUIPSLOTINFO {
+#if PACKETVER >= 20181121
+	uint32 card[4];
+#else
+	uint16 card[4];
+#endif
+} __attribute__((packed));
+
+struct ItemOptions {
+	int16 index;
+	int16 value;
+	uint8 param;
+} __attribute__((packed));
+
+struct NORMALITEM_INFO {
+	int16 index;
+#if PACKETVER >= 20181121
+	uint32 ITID;
+#else
+	uint16 ITID;
+#endif
+	uint8 type;
+#if PACKETVER < 20120925
+	uint8 IsIdentified;
+#endif
+	int16 count;
+#if PACKETVER >= 20120925
+	uint32 WearState;
+#else
+	uint16 WearState;
+#endif
+#if PACKETVER >= 5
+	struct EQUIPSLOTINFO slot;
+#endif
+#if PACKETVER >= 20080102
+	int32 HireExpireDate;
+#endif
+#if PACKETVER >= 20120925
+	struct {
+		uint8 IsIdentified : 1;
+		uint8 PlaceETCTab : 1;
+		uint8 SpareBits : 6;
+	} Flag;
+#endif
+} __attribute__((packed));
+
+struct EQUIPITEM_INFO {
+	int16 index;
+#if PACKETVER >= 20181121
+	uint32 ITID;
+#else
+	uint16 ITID;
+#endif
+	uint8 type;
+#if PACKETVER < 20120925
+	uint8 IsIdentified;
+#endif
+#if PACKETVER >= 20120925
+	uint32 location;
+	uint32 WearState;
+#else
+	uint16 location;
+	uint16 WearState;
+#endif
+#if PACKETVER < 20120925
+	uint8 IsDamaged;
+#endif
+	uint8 RefiningLevel;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20071002
+	int32 HireExpireDate;
+#endif
+#if PACKETVER >= 20080102
+	uint16 bindOnEquipType;
+#endif
+#if PACKETVER >= 20100629
+	uint16 wItemSpriteNumber;
+#endif
+#if PACKETVER >= 20150226
+	uint8 option_count;
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+#if PACKETVER >= 20120925
+	struct {
+		uint8 IsIdentified : 1;
+		uint8 IsDamaged : 1;
+		uint8 PlaceETCTab : 1;
+		uint8 SpareBits : 5;
+	} Flag;
+#endif
+} __attribute__((packed));
+
+struct packet_itemlist_normal {
+	int16 PacketType;
+	int16 PacketLength;
+#if PACKETVER >= 20181002
+	uint8 invType;
+#endif
+	struct NORMALITEM_INFO list[MAX_ITEMLIST];
+} __attribute__((packed));
+
+struct packet_itemlist_equip {
+	int16 PacketType;
+	int16 PacketLength;
+#if PACKETVER >= 20181002
+	uint8 invType;
+#endif
+	struct EQUIPITEM_INFO list[MAX_ITEMLIST];
+} __attribute__((packed));
+
+struct ZC_STORE_ITEMLIST_NORMAL {
+	int16 PacketType;
+	int16 PacketLength;
+#if PACKETVER >= 20181002
+	uint8 invType;
+#endif
+#if PACKETVER >= 20120925 && PACKETVER < 20181002
+	char name[NAME_LENGTH];
+#endif
+	struct NORMALITEM_INFO list[MAX_ITEMLIST];
+} __attribute__((packed));
+
+struct ZC_STORE_ITEMLIST_EQUIP {
+	int16 PacketType;
+	int16 PacketLength;
+#if PACKETVER >= 20181002
+	uint8 invType;
+#endif
+#if PACKETVER >= 20120925 && PACKETVER < 20181002
+	char name[NAME_LENGTH];
+#endif
+	struct EQUIPITEM_INFO list[MAX_ITEMLIST];
+} __attribute__((packed));
+
+struct PACKET_ZC_ADD_EXCHANGE_ITEM {
+	int16 packetType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+	uint8 itemType;
+	int32 amount;
+#elif PACKETVER >= 20100223
+	uint16 itemId;
+	uint8 itemType;
+	int32 amount;
+#else
+	int32 amount;
+	uint16 itemId;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ADD_ITEM_TO_STORE {
+	int16 packetType;
+	int16 index;
+	int32 amount;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+#if PACKETVER >= 5
+	uint8 itemType;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ADD_ITEM_TO_CART {
+	int16 packetType;
+	int16 index;
+	int32 amount;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+#if PACKETVER >= 5
+	uint8 itemType;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_REPAIRITEMLIST_sub {
+	int16 index;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 refine;  // unused?
+	struct EQUIPSLOTINFO slot;  // unused?
+} __attribute__((packed));
+
+struct PACKET_ZC_REPAIRITEMLIST {
+	int16 packetType;
+	int16 packetLength;
+	struct PACKET_ZC_REPAIRITEMLIST_sub items[];
+} __attribute__((packed));
+
+struct PACKET_ZC_NOTIFY_WEAPONITEMLIST_sub {
+	int16 index;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 refine;  // unused?
+	struct EQUIPSLOTINFO slot;  // unused?
+} __attribute__((packed));
+
+struct PACKET_ZC_NOTIFY_WEAPONITEMLIST {
+	int16 packetType;
+	int16 packetLength;
+	struct PACKET_ZC_NOTIFY_WEAPONITEMLIST_sub items[];
+} __attribute__((packed));
+
+struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC_sub {
+	uint32 price;
+	uint16 amount;
+	int16 index;
+	uint8 itemType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+	// [4144] date 20160921 not confirmed. Can be bigger or smaller
+#if PACKETVER >= 20160921
+	uint32 location;
+	uint16 viewSprite;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC {
+	int16 packetType;
+	int16 packetLength;
+	uint32 AID;
+#if PACKETVER >= 20100105
+	uint32 venderId;
+#endif
+	struct PACKET_ZC_PC_PURCHASE_ITEMLIST_FROMMC_sub items[];
+} __attribute__((packed));
+
+struct packet_additem {
+	int16 PacketType;
+	uint16 Index;
+	uint16 count;
+#if PACKETVER >= 20181121
+	uint32 nameid;
+#else
+	uint16 nameid;
+#endif
+	uint8 IsIdentified;
+	uint8 IsDamaged;
+	uint8 refiningLevel;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20120925
+	uint32 location;
+#else
+	uint16 location;
+#endif
+	uint8 type;
+	uint8 result;
+#if PACKETVER >= 20061218
+	int32 HireExpireDate;
+#endif
+#if PACKETVER >= 20071002
+	uint16 bindOnEquipType;
+#endif
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+#if PACKETVER >= 20160921
+	uint8 favorite;
+	uint16 look;
+#endif
+} __attribute__((packed));
 
 struct packet_dropflooritem {
 	int16 PacketType;
@@ -117,6 +519,22 @@ struct PACKET_ZC_FEED_MER {
 #endif
 } __attribute__((packed));
 
+struct packet_npc_market_purchase_sub {
+#if PACKETVER >= 20181121
+	uint32 ITID;
+#else
+	uint16 ITID;
+#endif
+	int32 qty;
+} __attribute__((packed));
+
+struct packet_npc_market_purchase {
+	int16 PacketType;
+	int16 PacketLength;
+	struct packet_npc_market_purchase_sub list[];
+} __attribute__((packed));
+
+
 struct PACKET_ZC_PC_PURCHASE_ITEMLIST_sub {
 	uint32 price;
 	uint32 discountPrice;
@@ -132,6 +550,188 @@ struct PACKET_ZC_PC_PURCHASE_ITEMLIST {
 	int16 packetType;
 	int16 packetLength;
 	struct PACKET_ZC_PC_PURCHASE_ITEMLIST_sub items[];
+} __attribute__((packed));
+
+#if PACKETVER >= 20131120
+/* inner struct figured by Ind after some annoying hour of debugging (data Thanks to Yommy) */
+struct PACKET_ZC_NPC_MARKET_OPEN_sub {
+#if PACKETVER >= 20181121
+	uint32 nameid;
+#else
+	uint16 nameid;
+#endif
+	uint8 type;
+	uint32 price;
+	uint32 qty;
+	uint16 weight;
+} __attribute__((packed));
+
+struct PACKET_ZC_NPC_MARKET_OPEN {
+	int16 packetType;
+	int16 packetLength;
+	struct PACKET_ZC_NPC_MARKET_OPEN_sub list[];
+} __attribute__((packed));
+#endif
+
+struct PACKET_ZC_NPC_MARKET_PURCHASE_RESULT_sub {
+#if PACKETVER >= 20181121
+	uint32 ITID;
+#else
+	uint16 ITID;
+#endif
+	uint16 qty;
+	uint32 price;
+} __attribute__((packed));
+
+#if PACKETVER >= 20131120
+struct PACKET_ZC_NPC_MARKET_PURCHASE_RESULT {
+	int16 PacketType;
+	int16 PacketLength;
+	uint8 result;
+	struct PACKET_ZC_NPC_MARKET_PURCHASE_RESULT_sub list[];
+} __attribute__((packed));
+#endif
+
+struct PACKET_ZC_PC_PURCHASE_MYITEMLIST_sub {
+	uint32 price;
+	int16 index;
+	int16 amount;
+	uint8 itemType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_PC_PURCHASE_MYITEMLIST {
+	int16 packetType;
+	int16 packetLength;
+	uint32 AID;
+	struct PACKET_ZC_PC_PURCHASE_MYITEMLIST_sub items[];
+} __attribute__((packed));
+
+struct packet_viewequip_ack {
+	int16 PacketType;
+	int16 PacketLength;
+	char characterName[NAME_LENGTH];
+	int16 job;
+	int16 head;
+	int16 accessory;
+	int16 accessory2;
+	int16 accessory3;
+#if PACKETVER >= 20101124
+	int16 robe;
+#endif
+	int16 headpalette;
+	int16 bodypalette;
+#if PACKETVER >= 20180801
+	int16 body2;
+#endif
+	uint8 sex;
+	// [4144] need remove MAX_INVENTORY from here
+	struct EQUIPITEM_INFO list[MAX_INVENTORY];
+} __attribute__((packed));
+
+struct PACKET_ZC_SEARCH_STORE_INFO_ACK_sub {
+	uint32 storeId;
+	uint32 AID;
+	char shopName[MESSAGE_SIZE];
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 itemType;
+	uint32 price;
+	uint16 amount;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+#if PACKETVER >= 20150226
+	struct ItemOptions option_data[MAX_ITEM_RDM_OPT];
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_SEARCH_STORE_INFO_ACK {
+	int16 packetType;
+	int16 packetLength;
+	uint8 firstPage;
+	uint8 nextPage;
+	uint8 usesCount;
+	struct PACKET_ZC_SEARCH_STORE_INFO_ACK_sub items[];
+} __attribute__((packed));
+
+
+struct PACKET_ZC_ADD_ITEM_TO_MAIL {
+	int16 PacketType;
+	int8 result;
+	int16 index;
+	int16 count;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	int8 type;
+	int8 IsIdentified;
+	int8 IsDamaged;
+	int8 refiningLevel;
+	struct EQUIPSLOTINFO slot;
+	struct ItemOptions optionData[MAX_ITEM_RDM_OPT];
+	int16 weight;
+	uint8 favorite;
+	uint32 location;
+} __attribute__((packed));
+
+struct PACKET_ZC_READ_MAIL {
+	int16 PacketType;
+	int16 PacketLength;
+	int8 opentype;
+	int64 MailID;
+	int16 TextcontentsLength;
+	int64 zeny;
+	int8 ItemCnt;
+} __attribute__((packed));
+
+struct mail_item {
+	int16 count;
+#if PACKETVER >= 20181121
+	uint32 ITID;
+#else
+	uint16 ITID;
+#endif
+	int8 IsIdentified;
+	int8 IsDamaged;
+	int8 refiningLevel;
+	struct EQUIPSLOTINFO slot;
+	uint32 location;
+	uint8 type;
+	uint16 viewSprite;
+	uint16 bindOnEquip;
+	struct ItemOptions optionData[MAX_ITEM_RDM_OPT];
+} __attribute__((packed));
+
+struct PACKET_ZC_ITEM_PICKUP_PARTY {
+	int16 packetType;
+	uint32 AID;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 identified;
+	uint8 damaged;
+	uint8 refine;
+	struct EQUIPSLOTINFO slot;
+	uint16 location;
+	uint8 itemType;
 } __attribute__((packed));
 
 struct packet_idle_unit2 {

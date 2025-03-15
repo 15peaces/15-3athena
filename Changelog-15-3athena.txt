@@ -6,6 +6,16 @@
 //			--More Details.
 //========================================
 
+03/15/2025
+	r510 [15peaces]
+		*Changed some more (item related) packets to structs & updated to support 20181121 clients.
+			-With this client we need to use int values for ItemIDs.
+			-With this done, items are working fine with this client.
+			-However, the client is not yet fully stable and needs some more testing.
+		*Fixed some more issues related to equip indexes...
+			-All headgears are now displayed correctly again.
+			-Fixed an issue where equipped ammo was not used.
+	
 03/09/2025
 	r509 [15peaces]
 		*Vending will now be stopped if an invalid list is received.

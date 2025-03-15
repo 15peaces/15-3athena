@@ -97,7 +97,7 @@ void vending_vendinglistreq(struct map_session_data* sd, int id)
 
 	sd->vended_id = vsd->vender_id;  // register vending uid
 
-	clif_vendinglist(sd, id, vsd->vending);
+	clif_vendinglist(sd, vsd);
 }
 
 /*==========================================

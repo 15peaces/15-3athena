@@ -4,10 +4,26 @@
 #ifndef PACKETS_H
 #define PACKETS_H
 
+// Required for MESSAGE_SIZE
+#include "map.h"
+
 #define UNAVAILABLE_STRUCT int8 _____unavailable
+
+/* packet size constant for itemlist */
+#if MAX_INVENTORY > MAX_STORAGE && MAX_INVENTORY > MAX_CART
+#define MAX_ITEMLIST MAX_INVENTORY
+#elif MAX_CART > MAX_INVENTORY && MAX_CART > MAX_STORAGE
+#define MAX_ITEMLIST MAX_CART
+#else
+#define MAX_ITEMLIST MAX_STORAGE
+#endif
+
+#define DEFINE_PACKET_HEADER(name, id) const uint16 HEADER_##name = id;
 
 #include "packets_struct.h"
 
 #undef UNAVAILABLE_STRUCT
+
+#undef DEFINE_PACKET_HEADER
 
 #endif /* PACKETS_H */

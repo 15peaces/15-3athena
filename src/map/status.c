@@ -3384,7 +3384,7 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 			}
 		}
 		else if(sd->inventory_data[index]->type == IT_ARMOR) {
-			if (!((battle_config.costume_refine_def != 1 && i >= EQI_COSTUME_HEAD_LOW && i <= EQI_COSTUME_FLOOR) ||
+			if (!((battle_config.costume_refine_def != 1 && i >= EQI_COSTUME_HEAD_TOP && i <= EQI_COSTUME_GARMENT) ||
 				(battle_config.shadow_refine_def != 1 && i >= EQI_SHADOW_ARMOR && i <= EQI_SHADOW_ACC_L)))
 				refinedef += sd->inventory.u.items_inventory[index].refine * refinebonus[0][0];
 			if(sd->inventory_data[index]->script && (!itemdb_isNoEquip(sd->inventory_data[index], sd->bl.m))) {

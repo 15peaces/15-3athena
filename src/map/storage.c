@@ -127,7 +127,7 @@ int storage_storageopen(struct map_session_data *sd)
 	
 	sd->state.storage_flag = 1;
 	storage_sortitem(sd->storage.u.items_storage, MAX_STORAGE);
-	clif_storagelist(sd, sd->storage.u.items_storage, MAX_STORAGE);
+	clif_storagelist(sd, sd->storage.u.items_storage, MAX_STORAGE, "Storage");
 	clif_updatestorageamount(sd, sd->storage.amount, MAX_STORAGE);
 	return 0;
 }
@@ -542,7 +542,7 @@ char storage_guild_storageopen(struct map_session_data* sd)
 	gstor->status = true;
 	sd->state.storage_flag = 2;
 	storage_sortitem(gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
-	clif_storagelist(sd, gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild));
+	clif_storagelist(sd, gstor->u.items_guild, ARRAYLENGTH(gstor->u.items_guild), "Guild Storage");
 	clif_updatestorageamount(sd, gstor->amount, MAX_GUILD_STORAGE);
 	return 0;
 }
