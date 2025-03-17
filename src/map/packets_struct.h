@@ -118,6 +118,30 @@ enum packet_headers {
 	inventorylistequipType = 0xa4,
 #endif
 #if PACKETVER >= 20181002
+		storageListNormalType = 0xb09,
+#elif PACKETVER >= 20120925
+		storageListNormalType = 0x995,
+#elif PACKETVER >= 20080102
+		storageListNormalType = 0x2ea,
+#elif PACKETVER >= 20071002
+		storageListNormalType = 0x295,
+#else
+		storageListNormalType = 0xa5,
+#endif
+#if PACKETVER >= 20181002
+		storageListEquipType = 0xb0a,
+#elif PACKETVER >= 20150226
+		storageListEquipType = 0xa10,
+#elif PACKETVER >= 20120925
+		storageListEquipType = 0x996,
+#elif PACKETVER >= 20080102
+		storageListEquipType = 0x2d1,
+#elif PACKETVER >= 20071002
+		storageListEquipType = 0x296,
+#else
+		storageListEquipType = 0xa6,
+#endif
+#if PACKETVER >= 20181002
 		cartlistnormalType = 0xb09,
 #elif PACKETVER >= 20120925
 		cartlistnormalType = 0x993,
@@ -534,7 +558,6 @@ struct packet_npc_market_purchase {
 	struct packet_npc_market_purchase_sub list[];
 } __attribute__((packed));
 
-
 struct PACKET_ZC_PC_PURCHASE_ITEMLIST_sub {
 	uint32 price;
 	uint32 discountPrice;
@@ -616,6 +639,93 @@ struct PACKET_ZC_PC_PURCHASE_MYITEMLIST {
 	int16 packetLength;
 	uint32 AID;
 	struct PACKET_ZC_PC_PURCHASE_MYITEMLIST_sub items[];
+} __attribute__((packed));
+
+struct PACKET_ZC_PC_CASH_POINT_ITEMLIST_sub {
+	uint32 price;
+	uint32 discountPrice;
+	uint8 itemType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_PC_CASH_POINT_ITEMLIST {
+	int16 packetType;
+	int16 packetLength;
+	uint32 cashPoints;
+#if PACKETVER >= 20070711
+	uint32 kafraPoints;
+#endif
+	struct PACKET_ZC_PC_CASH_POINT_ITEMLIST_sub items[];
+} __attribute__((packed));
+
+struct PACKET_CZ_PC_BUY_CASH_POINT_ITEM_sub {
+	uint16 amount;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct PACKET_CZ_PC_BUY_CASH_POINT_ITEM {
+	int16 packetType;
+#if PACKETVER >= 20101116
+	int16 packetLength;
+	uint32 kafraPoints;
+	uint16 count;
+	struct PACKET_CZ_PC_BUY_CASH_POINT_ITEM_sub items[];
+#else
+	uint16 itemId;
+	uint16 amount;
+#if PACKETVER >= 20070711
+	uint32 kafraPoints;
+#endif
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ACK_SCHEDULER_CASHITEM_sub {
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint32 price;
+} __attribute__((packed));
+
+#if PACKETVER >= 20101123
+struct PACKET_ZC_SE_PC_BUY_CASHITEM_RESULT {
+	int16 packetType;
+	uint32 itemId;  // unused
+	uint16 result;
+	uint32 cashPoints;
+	uint32 kafraPoints;
+} __attribute__((packed));
+#endif
+
+struct PACKET_ZC_ACK_SCHEDULER_CASHITEM {
+	int16 packetType;
+	int16 packetLength;
+	int16 count;
+	int16 tabNum;
+	struct PACKET_ZC_ACK_SCHEDULER_CASHITEM_sub items[];
+} __attribute__((packed));
+
+struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST_sub {
+	uint32 itemId;
+	uint32 amount;
+	uint16 tab;
+} __attribute__((packed));
+
+struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST {
+	int16 packetType;
+	int16 packetLength;
+	uint16 count;
+	uint32 kafraPoints;
+	struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST_sub items[];
 } __attribute__((packed));
 
 struct packet_viewequip_ack {
@@ -1032,6 +1142,20 @@ struct PACKET_ZC_SPRITE_CHANGE {
 #else
 	uint8 val;
 #endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ACK_TOUSESKILL {
+	int16 packetType;
+	uint16 skillId;
+#if PACKETVER >= 20181121
+	int32 btype;
+	uint32 itemId;
+#else
+	int16 btype;
+	uint16 itemId;
+#endif
+	uint8 flag;
+	uint8 cause;
 } __attribute__((packed));
 
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute

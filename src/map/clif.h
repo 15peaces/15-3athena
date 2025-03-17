@@ -1165,8 +1165,8 @@ void clif_parse_NPCMarketPurchase(int fd, struct map_session_data *sd);
 /// CashShop
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd);
 void clif_parse_CashShopClose(int fd, struct map_session_data *sd);
-void clif_parse_CashShopSchedule(int fd, struct map_session_data *sd);
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd);
+void clif_cashshop_result(struct map_session_data *sd, unsigned short item_id, uint16 result);
 void do_final_cashshop(void);
 
 /// Roulette

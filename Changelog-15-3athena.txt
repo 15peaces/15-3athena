@@ -6,6 +6,12 @@
 //			--More Details.
 //========================================
 
+03/17/2025
+	r511 [15peaces]
+		*Fixed cashshops for 20181121 clients.
+		*Updated some more packets to support 20181121 clients.
+		*Fixed storagelist packets for clients older than 20181121 clients.
+
 03/15/2025
 	r510 [15peaces]
 		*Changed some more (item related) packets to structs & updated to support 20181121 clients.
