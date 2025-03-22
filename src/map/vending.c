@@ -419,7 +419,7 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 
 	for( idx = 0; idx < s->item_count; idx++ )
 	{
-		ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)s->itemlist[idx] );
+		ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)s->itemlist[idx].itemId);
 		if( i == sd->vend_num )
 		{// not found
 			continue;
@@ -446,7 +446,7 @@ bool vending_searchall(struct map_session_data* sd, const struct s_search_store_
 
 			for( c = 0; c < slot && it->card[c]; c ++ )
 			{
-				ARR_FIND( 0, s->card_count, cidx, s->cardlist[cidx] == it->card[c] );
+				ARR_FIND( 0, s->card_count, cidx, s->cardlist[cidx].itemId == it->card[c] );
 				if( cidx != s->card_count )
 				{// found
 					break;

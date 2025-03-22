@@ -49,7 +49,7 @@ enum
 {// packet DB
 	MIN_PACKET_DB  = 0x064,
 	MAX_PACKET_DB  = 0xC00,
-	MAX_PACKET_VER = 45,
+	MAX_PACKET_VER = 46,
 	MAX_PACKET_POS = 20,
 };
 
@@ -715,10 +715,10 @@ void clif_refreshlook(struct block_list *bl,int id,int type,int val,enum send_ta
 void clif_arrowequip(struct map_session_data *sd,int val); //self
 void clif_arrow_fail(struct map_session_data *sd,int type); //self
 void clif_arrow_create_list(struct map_session_data *sd);	//self
-int clif_elementalconverter_list(struct map_session_data *sd);
-int clif_poison_list(struct map_session_data *sd, int skill_lv);
-int clif_magicdecoy_list(struct map_session_data *sd, short x, short y);
-int clif_spellbook_list(struct map_session_data *sd);	//self
+void clif_elementalconverter_list(struct map_session_data *sd);
+void clif_poison_list(struct map_session_data *sd, uint16 skill_lv);
+void clif_magicdecoy_list(struct map_session_data *sd, uint16 skill_lv, short x, short y);
+void clif_spellbook_list(struct map_session_data *sd);	//self
 int clif_skill_select_request( struct map_session_data *sd ); //self
 int clif_skill_itemlistwindow( struct map_session_data *sd, int skill_id, int skill_lv ); //self
 void clif_statusupack(struct map_session_data *sd,int type,int ok,int val);	// self
@@ -807,7 +807,7 @@ void clif_skill_warppoint(struct map_session_data* sd, short skill_id, short ski
 void clif_skill_memomessage(struct map_session_data* sd, int type);
 void clif_skill_teleportmessage(struct map_session_data *sd, int type);
 void clif_skill_produce_mix_list(struct map_session_data *sd, int skill_id, int trigger);
-void clif_cooking_list(struct map_session_data *sd, int trigger, int skill_id, int qty, int list_type);
+void clif_cooking_list(struct map_session_data *sd, int trigger, uint16 skill_id, int qty, int list_type);
 
 void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid);
 

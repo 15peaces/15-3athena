@@ -12690,7 +12690,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		break;
 
 	case NC_MAGICDECOY:
-		if( sd ) clif_magicdecoy_list(sd,x,y);
+		if( sd ) clif_magicdecoy_list(sd,skill_lv,x,y);
  		break;
 
 	case SC_FEINTBOMB:

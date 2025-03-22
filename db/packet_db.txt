@@ -2489,7 +2489,7 @@ packet_keys: 0x7def7677,0x351f36e6,0x52303485
 
 // Note: Clients after 2018-03-07bRagexeRE do not obfuscate packets anymore!
 // Note 2: Clients after 2018-03-07bRagexeRE do not have shuffled packets anymore
-//2018-06-21aRagexeRE+
+//2018-06-21aRagexeRE
 packet_ver: 45
 packet_keys: 0x00000000,0x00000000,0x00000000
 0x0437,7,actionrequest,2:6
@@ -2548,5 +2548,15 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0xb0b,4
 0xb39,-1
 
+//2018-11-21bRagexe+
+//Uses all same packets as ver 45, but now with int-sized itemIDs. [15peaces]
+packet_ver: 46
+packet_keys: 0x00000000,0x00000000,0x00000000
+0x0436,19,wanttoconnection,2:6:10:14:18 //needed to tell the server it is a "new" packet version. [15peaces]
+0x018e,18,producemix,4:8:12:16
+0x01ae,6,selectarrow,4
+0x01fd,6,repairitem,4
+0x025b,8,cooking,2:4
+
 //Add new packets here
-//packet_ver: 45
+//packet_ver: 47

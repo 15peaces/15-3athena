@@ -6,6 +6,15 @@
 //			--More Details.
 //========================================
 
+03/22/2025
+	r512 [15peaces]
+		*Fixed remaining packets for 20181121 clients.
+			-Fixed sending of storages full of equip.
+			-This client should now be stable. If there are any hidden bugs are left, please let me know.
+			-Changed default packet version to 20181121.
+			-Added new packet_ver 46 for this client.
+				--Some kind of hack to support old packets with new sizes. The packet structures did not change at all. ^^
+
 03/17/2025
 	r511 [15peaces]
 		*Fixed cashshops for 20181121 clients.

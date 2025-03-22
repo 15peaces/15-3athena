@@ -5,7 +5,7 @@
 #define MAP_ACHIEVEMENTS_H
 
 #include "../common/db.h"
-#include "map.h" // enum _sp
+//#include "map.h" // enum _sp
 
 #define ACHIEVEMENT_NAME_LENGTH 50
 #define OBJECTIVE_DESCRIPTION_LENGTH 100

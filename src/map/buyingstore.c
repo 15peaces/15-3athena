@@ -92,7 +92,7 @@ bool buyingstore_setup(struct map_session_data* sd, unsigned char slots)
 }
 
 
-void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned char result, const char* storename, const uint8* itemlist, unsigned int count)
+void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned char result, const char* storename, const struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub* itemlist, unsigned int count)
 {
 	unsigned int i, weight, listidx;
 
@@ -140,48 +140,45 @@ void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 	// check item list
 	for( i = 0; i < count; i++ )
 	{// itemlist: <name id>.W <amount>.W <price>.L
-		unsigned short nameid, amount;
-		int price, idx;
-		struct item_data* id;
+		int idx;
+		
+		const struct PACKET_CZ_REQ_OPEN_BUYING_STORE_sub *item = &itemlist[i];
+		struct item_data* id = itemdb_exists(item->itemId);
 
-		nameid = RBUFW(itemlist,i*8+0);
-		amount = RBUFW(itemlist,i*8+2);
-		price  = RBUFL(itemlist,i*8+4);
-
-		if( ( id = itemdb_exists(nameid) ) == NULL || amount == 0 )
-		{// invalid input
+		// invalid input
+		if (id == NULL || item->amount == 0) {
 			break;
 		}
 
-		if( price <= 0 || price > BUYINGSTORE_MAX_PRICE )
+		if(item->price <= 0 || item->price > BUYINGSTORE_MAX_PRICE )
 		{// invalid price: unlike vending, items cannot be bought at 0 Zeny
 			break;
 		}
 
-		if( !id->flag.buyingstore || !itemdb_cantrade_sub(id, pc_isGM(sd), pc_isGM(sd)) || ( idx = pc_search_inventory(sd, nameid) ) == -1 )
+		if( !id->flag.buyingstore || !itemdb_cantrade_sub(id, pc_isGM(sd), pc_isGM(sd)) || ( idx = pc_search_inventory(sd, item->itemId) ) == -1 )
 		{// restrictions: allowed, no character-bound items and at least one must be owned
 			break;
 		}
 
-		if( sd->inventory.u.items_inventory[idx].amount+amount > BUYINGSTORE_MAX_AMOUNT )
+		if( sd->inventory.u.items_inventory[idx].amount+item->amount > BUYINGSTORE_MAX_AMOUNT )
 		{// too many items of same kind
 			break;
 		}
 
 		if( i )
 		{// duplicate check. as the client does this too, only malicious intent should be caught here
-			ARR_FIND( 0, i, listidx, sd->buyingstore.items[listidx].nameid == nameid );
+			ARR_FIND( 0, i, listidx, sd->buyingstore.items[listidx].nameid == item->itemId);
 			if( listidx != i )
 			{// duplicate
-				ShowWarning("buyingstore_create: Found duplicate item on buying list (nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n", nameid, amount, sd->status.account_id, sd->status.char_id);
+				ShowWarning("buyingstore_create: Found duplicate item on buying list (nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n", item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
 				break;
 			}
 		}
 
-		weight+= id->weight*amount;
-		sd->buyingstore.items[i].nameid = nameid;
-		sd->buyingstore.items[i].amount = amount;
-		sd->buyingstore.items[i].price  = price;
+		weight += id->weight*item->amount;
+		sd->buyingstore.items[i].nameid = item->itemId;
+		sd->buyingstore.items[i].amount = item->amount;
+		sd->buyingstore.items[i].price = item->price;
 	}
 
 	if( i != count )
@@ -260,10 +257,10 @@ void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 }
 
 
-void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned int buyer_id, const uint8* itemlist, unsigned int count)
+void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned int buyer_id, const struct PACKET_CZ_REQ_TRADE_BUYING_STORE_sub* itemlist, unsigned int count)
 {
 	int zeny = 0;
-	unsigned int i, weight, listidx, k;
+	unsigned int weight;
 	struct map_session_data* pl_sd;
 
 	nullpo_retv(sd);
@@ -307,91 +304,87 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 	weight = pl_sd->weight;
 
 	// check item list
-	for( i = 0; i < count; i++ )
-	{// itemlist: <index>.W <name id>.W <amount>.W
-		unsigned short nameid, amount;
-		int index;
+	for (int i = 0; i < count; i++) {
+		const struct PACKET_CZ_REQ_TRADE_BUYING_STORE_sub* item = &itemlist[i];
 
-		index  = RBUFW(itemlist,i*6+0)-2;
-		nameid = RBUFW(itemlist,i*6+2);
-		amount = RBUFW(itemlist,i*6+4);
-
-		if( i )
-		{// duplicate check. as the client does this too, only malicious intent should be caught here
-			ARR_FIND( 0, i, k, RBUFW(itemlist,k*6+0)-2 == index );
-			if( k != i )
-			{// duplicate
-				ShowWarning("buyingstore_trade: Found duplicate item on selling list (prevnameid=%hu, prevamount=%hu, nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n",
-					RBUFW(itemlist,k*6+2), RBUFW(itemlist,k*6+4), nameid, amount, sd->status.account_id, sd->status.char_id);
-				clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		// duplicate check. as the client does this too, only malicious intent should be caught here
+		for (int k = 0; k < i; k++) {
+			// duplicate
+			if (itemlist[k].index == item->index && k != i) {
+				ShowWarning("buyingstore_trade: Found duplicate item on selling list (prevnameid=%hu, prevamount=%hu, nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n", itemlist[k].itemId, itemlist[k].amount, item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
+				clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 				return;
 			}
 		}
 
-		if( index < 0 || index >= ARRAYLENGTH(sd->inventory.u.items_inventory) || sd->inventory_data[index] == NULL || sd->inventory.u.items_inventory[index].nameid != nameid || sd->inventory.u.items_inventory[index].amount < amount )
-		{// invalid input
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		int index = item->index - 2; // TODO: clif::server_index
+
+		// invalid input
+		if (index < 0 || index >= ARRAYLENGTH(sd->inventory.u.items_inventory) || sd->inventory_data[index] == NULL || sd->inventory.u.items_inventory[index].nameid != item->itemId || sd->inventory.u.items_inventory[index].amount < item->amount) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 			return;
 		}
 
-		if( sd->inventory.u.items_inventory[index].expire_time || (sd->inventory.u.items_inventory[index].bound && !pc_can_give_bounded_items(sd->gmlevel)) || !itemdb_cantrade(&sd->inventory.u.items_inventory[index], pc_isGM(sd), pc_isGM(pl_sd)) || memcmp(sd->inventory.u.items_inventory[index].card, buyingstore_blankslots, sizeof(buyingstore_blankslots)) )
-		{// non-tradable item
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		// non-tradable item
+		if (sd->inventory.u.items_inventory[index].expire_time || (sd->inventory.u.items_inventory[index].bound && !pc_can_give_bounded_items(pc_isGM(sd))) || !itemdb_cantrade(&sd->inventory.u.items_inventory[index], pc_isGM(sd), pc_isGM(pl_sd)) || memcmp(sd->inventory.u.items_inventory[index].card, buyingstore_blankslots, sizeof(buyingstore_blankslots))) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 			return;
 		}
 
-		ARR_FIND( 0, pl_sd->buyingstore.slots, listidx, pl_sd->buyingstore.items[listidx].nameid == nameid );
-		if( listidx == pl_sd->buyingstore.slots || pl_sd->buyingstore.items[listidx].amount == 0 )
-		{// there is no such item or the buyer has already bought all of them
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		int listidx;
+
+		ARR_FIND(0, pl_sd->buyingstore.slots, listidx, pl_sd->buyingstore.items[listidx].nameid == item->itemId);
+
+		// there is no such item or the buyer has already bought all of them
+		if (listidx == pl_sd->buyingstore.slots || pl_sd->buyingstore.items[listidx].amount == 0) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 			return;
 		}
 
-		if( pl_sd->buyingstore.items[listidx].amount < amount )
-		{// buyer does not need that much of the item
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_COUNT, nameid);
+		// buyer does not need that much of the item
+		if (pl_sd->buyingstore.items[listidx].amount < item->amount) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_COUNT, item->itemId);
 			return;
 		}
 
-		if( pc_checkadditem(pl_sd, nameid, amount) == CHKADDITEM_OVERAMOUNT )
-		{// buyer does not have enough space for this item
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		// buyer does not have enough space for this item
+		if (pc_checkadditem(pl_sd, item->itemId, item->amount) == CHKADDITEM_OVERAMOUNT) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 			return;
 		}
 
-		if( amount*(unsigned int)sd->inventory_data[index]->weight > pl_sd->max_weight-weight )
-		{// normally this is not supposed to happen, as the total weight is
-		 // checked upon creation, but the buyer could have gained items
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, nameid);
+		// normally this is not supposed to happen, as the total weight is
+		// checked upon creation, but the buyer could have gained items
+		if (item->amount * (unsigned int)sd->inventory_data[index]->weight > pl_sd->max_weight - weight) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 			return;
 		}
-		weight+= amount*sd->inventory_data[index]->weight;
 
-		if( amount*pl_sd->buyingstore.items[listidx].price > pl_sd->buyingstore.zenylimit-zeny )
-		{// buyer does not have enough zeny
-			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_ZENY, nameid);
+		weight += item->amount * sd->inventory_data[index]->weight;
+
+		// buyer does not have enough zeny
+		if (item->amount * pl_sd->buyingstore.items[listidx].price > pl_sd->buyingstore.zenylimit - zeny) {
+			clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_ZENY, item->itemId);
 			return;
 		}
-		zeny+= amount*pl_sd->buyingstore.items[listidx].price;
+
+		zeny += item->amount * pl_sd->buyingstore.items[listidx].price;
 	}
 
 	// process item list
-	for( i = 0; i < count; i++ )
-	{// itemlist: <index>.W <name id>.W <amount>.W
-		unsigned short nameid, amount;
-		int index;
+	for (int i = 0; i < count; i++) {
+		const struct PACKET_CZ_REQ_TRADE_BUYING_STORE_sub* item = &itemlist[i];
+		int listidx;
 
-		index  = RBUFW(itemlist,i*6+0)-2;
-		nameid = RBUFW(itemlist,i*6+2);
-		amount = RBUFW(itemlist,i*6+4);
+		ARR_FIND(0, pl_sd->buyingstore.slots, listidx, pl_sd->buyingstore.items[listidx].nameid == item->itemId);
+		zeny = item->amount * pl_sd->buyingstore.items[listidx].price;
 
-		ARR_FIND( 0, pl_sd->buyingstore.slots, listidx, pl_sd->buyingstore.items[listidx].nameid == nameid );
-		zeny = amount*pl_sd->buyingstore.items[listidx].price;
+		int index = item->index - 2; // TODO: clif::server_index
 
 		// move item
-		pc_additem(pl_sd, &sd->inventory.u.items_inventory[index], amount, LOG_TYPE_BUYING_STORE);
-		pc_delitem(sd, index, amount, 1, 0, LOG_TYPE_BUYING_STORE);
-		pl_sd->buyingstore.items[listidx].amount-= amount;
+		pc_additem(pl_sd, &sd->inventory.u.items_inventory[index], item->amount, LOG_TYPE_BUYING_STORE);
+		pc_delitem(sd, index, item->amount, 1, 0, LOG_TYPE_BUYING_STORE);
+		pl_sd->buyingstore.items[listidx].amount -= item->amount;
 
 		// pay up
 		pc_payzeny(pl_sd, zeny, LOG_TYPE_BUYING_STORE, sd);
@@ -399,8 +392,8 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 		pl_sd->buyingstore.zenylimit-= zeny;
 
 		// notify clients
-		clif_buyingstore_delete_item(sd, index, amount, pl_sd->buyingstore.items[listidx].price);
-		clif_buyingstore_update_item(pl_sd, nameid, amount, sd->status.char_id, zeny);
+		clif_buyingstore_delete_item(sd, index, item->amount, pl_sd->buyingstore.items[listidx].price);
+		clif_buyingstore_update_item(pl_sd, item->itemId, item->amount, sd->status.char_id, zeny);
 	}
 
 	if (save_settings&128) {
@@ -409,6 +402,7 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 	}
 
 	// check whether or not there is still something to buy
+	int i;
 	ARR_FIND( 0, pl_sd->buyingstore.slots, i, pl_sd->buyingstore.items[i].amount != 0 );
 	if( i == pl_sd->buyingstore.slots )
 	{// everything was bought
@@ -470,7 +464,7 @@ bool buyingstore_searchall(struct map_session_data* sd, const struct s_search_st
 
 	for( idx = 0; idx < s->item_count; idx++ )
 	{
-		ARR_FIND( 0, sd->buyingstore.slots, i, sd->buyingstore.items[i].nameid == s->itemlist[idx] && sd->buyingstore.items[i].amount );
+		ARR_FIND( 0, sd->buyingstore.slots, i, sd->buyingstore.items[i].nameid == s->itemlist[idx].itemId && sd->buyingstore.items[i].amount );
 		if( i == sd->buyingstore.slots )
 		{// not found
 			continue;
