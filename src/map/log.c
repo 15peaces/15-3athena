@@ -109,7 +109,7 @@ static char log_cashtype2char(e_log_cash_type type) {
 
 
 /// check if this item should be logged according the settings
-static bool should_log_item(unsigned short nameid, int amount, int refine)
+static bool should_log_item(t_itemid nameid, int amount, int refine)
 {
 	int filter = log_config.filter;
 	struct item_data* id;
@@ -214,7 +214,7 @@ void log_pick(struct block_list* bl, e_log_pick_type type, unsigned short nameid
 	{
 		if( itm == NULL )
 		{//We log common item
-			if( SQL_ERROR == Sql_Query(logmysql_handle, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%c', '%hu', '%d', '%s')",
+			if( SQL_ERROR == Sql_Query(logmysql_handle, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `map`) VALUES (NOW(), '%d', '%c', '%u', '%d', '%s')",
 				log_config.log_pick, id, log_picktype2char(type), nameid, amount, mapname) )
 			{
 				Sql_ShowDebug(logmysql_handle);
@@ -223,7 +223,7 @@ void log_pick(struct block_list* bl, e_log_pick_type type, unsigned short nameid
 		}
 		else
 		{//We log Extended item
-			if( SQL_ERROR == Sql_Query(logmysql_handle, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`, `bound`, `unique_id`) VALUES (NOW(), '%d', '%c', '%hu', '%d', '%d', '%hu', '%hu', '%hu', '%hu', '%s', '%d', '%"PRIu64"')",
+			if( SQL_ERROR == Sql_Query(logmysql_handle, "INSERT DELAYED INTO `%s` (`time`, `char_id`, `type`, `nameid`, `amount`, `refine`, `card0`, `card1`, `card2`, `card3`, `map`, `bound`, `unique_id`) VALUES (NOW(), '%d', '%c', '%u', '%d', '%d', '%u', '%u', '%u', '%u', '%s', '%d', '%"PRIu64"')",
 				log_config.log_pick, id, log_picktype2char(type), itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname, itm->bound, itm->unique_id) )
 			{
 				Sql_ShowDebug(logmysql_handle);
@@ -245,11 +245,11 @@ void log_pick(struct block_list* bl, e_log_pick_type type, unsigned short nameid
 
 		if( itm == NULL )
 		{//We log common item
-			fprintf(logfp,"%s - %d\t%c\t%hu,%d,%s\n", timestring, id, log_picktype2char(type), nameid, amount, mapname);
+			fprintf(logfp,"%s - %d\t%c\t%u,%d,%s\n", timestring, id, log_picktype2char(type), nameid, amount, mapname);
 		}
 		else
 		{//We log Extended item
-			fprintf(logfp,"%s - %d\t%c\t%hu,%d,%d,%hu,%hu,%hu,%hu,%s,%d,'%"PRIu64"'\n", timestring, id, log_picktype2char(type), itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname, itm->bound, itm->unique_id);
+			fprintf(logfp,"%s - %d\t%c\t%u,%d,%d,%u,%u,%u,%u,%s,%d,'%"PRIu64"'\n", timestring, id, log_picktype2char(type), itm->nameid, amount, itm->refine, itm->card[0], itm->card[1], itm->card[2], itm->card[3], mapname, itm->bound, itm->unique_id);
 		}
 		fclose(logfp);
 	}

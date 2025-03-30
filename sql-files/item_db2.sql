@@ -4,7 +4,7 @@
 
 DROP TABLE IF EXISTS `item_db2`;
 CREATE TABLE `item_db2` (
-  `id` smallint(5) unsigned NOT NULL default '0',
+  `id` int(10) unsigned NOT NULL default '0',
   `name_english` varchar(50) NOT NULL default '',
   `name_japanese` varchar(50) NOT NULL default '',
   `type` tinyint(2) unsigned NOT NULL default '0',

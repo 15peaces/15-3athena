@@ -42,7 +42,7 @@ enum e_buyingstore_failure
 
 
 static unsigned int buyingstore_nextid = 0;
-static const unsigned short buyingstore_blankslots[MAX_SLOTS] = { 0 };  // used when checking whether or not an item's card slots are blank
+static const t_itemid buyingstore_blankslots[MAX_SLOTS] = { 0 };  // used when checking whether or not an item's card slots are blank
 static const struct item_option buyingstore_blankoptions[MAX_ITEM_RDM_OPT] = { 0 };  // used when checking whether or not an item's random options are blank
 
 
@@ -170,7 +170,7 @@ void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 			ARR_FIND( 0, i, listidx, sd->buyingstore.items[listidx].nameid == item->itemId);
 			if( listidx != i )
 			{// duplicate
-				ShowWarning("buyingstore_create: Found duplicate item on buying list (nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n", item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
+				ShowWarning("buyingstore_create: Found duplicate item on buying list (nameid=%u, amount=%hu, account_id=%d, char_id=%d).\n", item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
 				break;
 			}
 		}
@@ -311,7 +311,7 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 		for (int k = 0; k < i; k++) {
 			// duplicate
 			if (itemlist[k].index == item->index && k != i) {
-				ShowWarning("buyingstore_trade: Found duplicate item on selling list (prevnameid=%hu, prevamount=%hu, nameid=%hu, amount=%hu, account_id=%d, char_id=%d).\n", itemlist[k].itemId, itemlist[k].amount, item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
+				ShowWarning("buyingstore_trade: Found duplicate item on selling list (prevnameid=%u, prevamount=%hu, nameid=%u, amount=%hu, account_id=%d, char_id=%d).\n", itemlist[k].itemId, itemlist[k].amount, item->itemId, item->amount, sd->status.account_id, sd->status.char_id);
 				clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, item->itemId);
 				return;
 			}
@@ -429,7 +429,7 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 
 
 /// Checks if an item is being bought in given player's buying store.
-bool buyingstore_search(struct map_session_data* sd, unsigned short nameid)
+bool buyingstore_search(struct map_session_data* sd, t_itemid nameid)
 {
 	unsigned int i;
 

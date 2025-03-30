@@ -385,7 +385,7 @@ void vending_openvending(struct map_session_data* sd, const char* message, const
 
 
 /// Checks if an item is being sold in given player's vending.
-bool vending_search(struct map_session_data* sd, unsigned short nameid)
+bool vending_search(struct map_session_data* sd, t_itemid nameid)
 {
 	int i;
 
@@ -394,7 +394,7 @@ bool vending_search(struct map_session_data* sd, unsigned short nameid)
 		return false;
 	}
 
-	ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == (short)nameid );
+	ARR_FIND( 0, sd->vend_num, i, sd->cart.u.items_cart[sd->vending[i].index].nameid == nameid );
 	if( i == sd->vend_num )
 	{// not found
 		return false;

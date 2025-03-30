@@ -7,7 +7,7 @@
 #define MAX_QUEST_DB (62238 + 1) // Highest quest ID + 1
 
 struct quest_dropitem {
-	uint16 nameid;
+	t_itemid nameid;
 	uint16 count;
 	uint16 rate;
 	uint16 mob_id;

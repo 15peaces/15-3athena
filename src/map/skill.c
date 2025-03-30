@@ -80,7 +80,7 @@ struct s_skill_improvise_db skill_improvise_db[MAX_SKILL_IMPROVISE_DB];
 struct s_skill_magicmushroom_db skill_magicmushroom_db[MAX_SKILL_MAGICMUSHROOM_DB];
 
 struct s_skill_changematerial_db {
-	int itemid;
+	t_itemid itemid;
 	short rate;
 	int qty[5];
 	short qty_rate[5];
@@ -3762,7 +3762,8 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 	struct status_change *sc;
 	struct map_session_data *sd = NULL;
 	int i, j, hp, sp, hp_rate, sp_rate, state, mhp, spiritball;
-	int itemid[MAX_SKILL_ITEM_REQUIRE],amount[ARRAYLENGTH(itemid)],index[ARRAYLENGTH(itemid)];
+	t_itemid itemid[MAX_SKILL_ITEM_REQUIRE];
+	int amount[ARRAYLENGTH(itemid)], index[ARRAYLENGTH(itemid)];
 
 	if( lv < 1 || lv > MAX_SKILL_LEVEL )
 		return 0;
@@ -3952,7 +3953,7 @@ static int skill_check_condition_mercenary(struct block_list *bl, int skill, int
 	for( i = 0; i < ARRAYLENGTH(itemid); i++ )
 	{
 		index[i] = -1;
-		if( itemid[i] < 1 ) continue; // No item
+		if( itemid[i] == 0 ) continue; // No item
 		index[i] = pc_search_inventory(sd, itemid[i]);
 		if( index[i] < 0 || sd->inventory.u.items_inventory[index[i]].amount < amount[i] )
 		{
@@ -11320,7 +11321,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case GN_SLINGITEM:
 		if( sd ) 
 		{
-			short ammo_id = 0, baselv;
+			short baselv;
 
 			// Check if there's any ammo equipped.
 			i = sd->equip_index[EQI_AMMO];
@@ -11328,7 +11329,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				break; // No ammo.
 
 			// Check if ammo ID is that of a Genetic throwing item.
-			ammo_id = sd->inventory_data[i]->nameid;
+			t_itemid ammo_id = sd->inventory_data[i]->nameid;
 			if (!(itemid_is_sling_atk(ammo_id) || itemid_is_sling_buff(ammo_id)))
 				break;
 
@@ -13674,7 +13675,8 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 	struct skill_unit_group *group;
 	int i,limit,val1=0,val2=0,val3=0,dir=-1;
 	int link_group_id = 0;
-	int target,interval,range,unit_flag,req_item=0;
+	int target,interval,range,unit_flag;
+	t_itemid req_item = 0;
 	struct s_skill_unit_layout *layout;
 	struct map_session_data *sd;
 	struct elemental_data *ed;
@@ -15785,11 +15787,13 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 				sd->inventory.u.items_inventory[i].amount < 1
 				)
 			{	//Something went wrong, item exploit?
-				sd->itemid = sd->itemindex = -1;
+				sd->itemid = 0;
+				sd->itemindex = -1;
 				return 0;
 			}
 			//Consume
-			sd->itemid = sd->itemindex = -1;
+			sd->itemid = 0;
+			sd->itemindex = -1;
 			if( skill_id == WZ_EARTHSPIKE && sc && sc->data[SC_EARTHSCROLL] && rnd()%100 > sc->data[SC_EARTHSCROLL]->val2 ) // [marquis007]
 				; //Do not consume item.
 			else if( sd->inventory.u.items_inventory[i].expire_time == 0 )
@@ -16632,7 +16636,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 	//check if equiped item
 	if (require.eqItem_count) {
 		for (i = 0; i < require.eqItem_count; i++) {
-			int reqeqit = require.eqItem[i];
+			t_itemid reqeqit = require.eqItem[i];
 			if (!reqeqit) break; //no more required item get out of here
 			if (!pc_checkequip2(sd, reqeqit)) {
 				if (i == require.eqItem_count) {
@@ -17748,8 +17752,8 @@ int skill_cooldownfix (struct block_list *bl, int skill_id, int skill_lv)
  *------------------------------------------*/
 void skill_repairweapon (struct map_session_data *sd, int idx)
 {
-	int material;
-	int materials[4] = { 1002, 998, 999, 756 };
+	t_itemid material;
+	t_itemid materials[4] = { 1002, 998, 999, 756 };
 	struct item *item;
 	struct map_session_data *target_sd;
 
@@ -17830,7 +17834,7 @@ void skill_weaponrefine (struct map_session_data *sd, int idx)
 		if(item->nameid > 0 && ditem->type == IT_WEAPON)
 		{
 			int i = 0, ep = 0, per;
-			int material[5] = { 0, ITEMID_PHRACON, ITEMID_EMVERETARCON, ITEMID_ORIDECON, ITEMID_ORIDECON, };
+			t_itemid material[5] = { 0, ITEMID_PHRACON, ITEMID_EMVERETARCON, ITEMID_ORIDECON, ITEMID_ORIDECON, };
 
 			if (ditem->flag.no_refine) { 	// if the item isn't refinable
 				clif_skill_fail(sd, sd->menuskill_id, USESKILL_FAIL_LEVEL, 0, 0);
@@ -19649,7 +19653,7 @@ int skill_unit_move_unit_group (struct skill_unit_group *group, int m, int dx, i
 /*==========================================
  *
  *------------------------------------------*/
-int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, int trigger, int qty)
+int skill_can_produce_mix (struct map_session_data *sd, t_itemid nameid, int trigger, int qty)
 {
 	int i,j;
 
@@ -19690,7 +19694,7 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 	}
 
 	for(j=0;j<MAX_PRODUCE_RESOURCE;j++){
-		int id;
+		t_itemid id;
 		if( (id=skill_produce_db[i].mat_id[j]) <= 0 )
 			continue;
 		if(skill_produce_db[i].mat_amount[j] <= 0) {
@@ -19712,7 +19716,7 @@ int skill_can_produce_mix (struct map_session_data *sd, unsigned short nameid, i
 /*==========================================
  *
  *------------------------------------------*/
-int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty)
+int skill_produce_mix (struct map_session_data *sd, int skill_id, t_itemid nameid, int slot1, int slot2, int slot3, int qty)
 {
 	int slot[3];
 	int i,sc,ele,idx,equip,wlv = 0,make_per,flag = 0,skill_lv = 0,temp_qty = 0;
@@ -19788,7 +19792,8 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	}
 
 	for(i=0;i<MAX_PRODUCE_RESOURCE;i++){
-		int j,id,x;
+		int j,x;
+		t_itemid id;
 		if( (id=skill_produce_db[idx].mat_id[i]) <= 0 )
 			continue;
 		num++;
@@ -20302,7 +20307,7 @@ int skill_produce_mix (struct map_session_data *sd, int skill_id, unsigned short
 	return 0;
 }
 
-int skill_arrow_create (struct map_session_data *sd, unsigned short nameid)
+int skill_arrow_create (struct map_session_data *sd, t_itemid nameid)
 {
 	int i,j,flag,index=-1;
 	struct item tmp_item;
@@ -20344,7 +20349,7 @@ int skill_arrow_create (struct map_session_data *sd, unsigned short nameid)
 	return 0;
 }
 
-int skill_poisoningweapon( struct map_session_data *sd, int nameid)
+int skill_poisoningweapon( struct map_session_data *sd, t_itemid nameid)
 {
 
 	sc_type type;
@@ -20415,7 +20420,7 @@ void skill_toggle_magicpower(struct block_list *bl, short skill_id)
 	}
 }
 
-int skill_magicdecoy(struct map_session_data *sd, int nameid)
+int skill_magicdecoy(struct map_session_data *sd, t_itemid nameid)
 {
 	short item = 0;
 	short mobid = 0;
@@ -20468,7 +20473,7 @@ int skill_magicdecoy(struct map_session_data *sd, int nameid)
 }
 
 // Warlock Spellbooks. [LimitLine]
-int skill_spellbook (struct map_session_data *sd, int nameid)
+int skill_spellbook (struct map_session_data *sd, t_itemid nameid)
 {
 	int i, j, points, skill_id, preserved = 0, max_preserve;
 	nullpo_retr(0,sd);
@@ -20647,7 +20652,8 @@ int skill_elementalanalysis(struct map_session_data* sd, int n, int skill_lv, un
 
 int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list)
 {
-	int i, j, k, c, p = 0, nameid, amount;
+	int i, j, k, c, p = 0, amount;
+	t_itemid nameid;
 	
 	nullpo_ret(sd);
 	nullpo_ret(item_list);
@@ -21935,7 +21941,7 @@ static bool skill_parse_row_producedb(char* split[], int columns, int current)
 {// ProduceItemID,ItemLV,RequireSkill,RequireSkillLv,MaterialID1,MaterialAmount1,......
 	int x,y;
 
-	int i = atoi(split[0]);
+	int i = strtoul(split[0], NULL, 10);
 	if( !i )
 		return false;
 
@@ -21957,7 +21963,7 @@ static bool skill_parse_row_createarrowdb(char* split[], int columns, int curren
 {// SourceID,MakeID1,MakeAmount1,...,MakeID5,MakeAmount5
 	int x,y;
 
-	int i = atoi(split[0]);
+	int i = strtoul(split[0], NULL, 10);
 	if( !i )
 		return false;
 
@@ -21997,7 +22003,7 @@ static bool skill_parse_row_spellbookdb(char* split[], int columns, int current)
 {// SkillID,PreservePoints]
 	int skill_id = atoi(split[0]),
 		points = atoi(split[1]),
-		nameid = atoi(split[2]);
+		nameid = strtoul(split[2], NULL, 10);
 
 	if( !skill_get_index(skill_id) || !skill_get_max(skill_id) )
 		ShowError("spellbook_db: Invalid skill ID %d\n", skill_id);
@@ -22066,7 +22072,7 @@ static bool skill_parse_row_magicmushroomdb(char* split[], int column, int curre
 
 static bool skill_parse_row_changematerialdb(char* split[], int columns, int current)
 {// SkillID
-	int i = atoi(split[0]);
+	int i = strtoul(split[0], NULL, 10);;
 	short j = atoi(split[1]);
 	int x, y;
 

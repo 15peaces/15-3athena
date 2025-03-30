@@ -39,7 +39,8 @@ enum refine_cost_type {
 };
 
 struct refine_cost {
-	unsigned short type, nameid;
+	unsigned short type;
+	t_itemid nameid;
 	int zeny;
 };
 

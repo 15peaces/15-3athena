@@ -38,7 +38,7 @@ enum e_searchstore_effecttype
 
 
 /// type for shop search function
-typedef bool (*searchstore_search_t)(struct map_session_data* sd, unsigned short nameid);
+typedef bool (*searchstore_search_t)(struct map_session_data* sd, t_itemid nameid);
 typedef bool (*searchstore_searchall_t)(struct map_session_data* sd, const struct s_search_store_search* s);
 
 
@@ -156,7 +156,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	{
 		if( !itemdb_exists(itemlist[i].itemId) )
 		{
-			ShowWarning("searchstore_query: Client resolved item %hu is not known.\n", itemlist[i]);
+			ShowWarning("searchstore_query: Client resolved item %u is not known.\n", itemlist[i]);
 			clif_search_store_info_failed(sd, SSI_FAILED_NOTHING_SEARCH_ITEM);
 			return;
 		}
@@ -165,7 +165,7 @@ void searchstore_query(struct map_session_data* sd, unsigned char type, unsigned
 	{
 		if( !itemdb_exists(cardlist[i].itemId) )
 		{
-			ShowWarning("searchstore_query: Client resolved card %hu is not known.\n", cardlist[i]);
+			ShowWarning("searchstore_query: Client resolved card %u is not known.\n", cardlist[i]);
 			clif_search_store_info_failed(sd, SSI_FAILED_NOTHING_SEARCH_ITEM);
 			return;
 		}
@@ -289,7 +289,7 @@ void searchstore_close(struct map_session_data* sd)
 }
 
 
-void searchstore_click(struct map_session_data* sd, uint32 account_id, int store_id, unsigned short nameid)
+void searchstore_click(struct map_session_data* sd, uint32 account_id, int store_id, t_itemid nameid)
 {
 	unsigned int i;
 	struct map_session_data* pl_sd;
@@ -305,7 +305,7 @@ void searchstore_click(struct map_session_data* sd, uint32 account_id, int store
 	ARR_FIND( 0, sd->searchstore.count, i,  sd->searchstore.items[i].store_id == store_id && sd->searchstore.items[i].account_id == account_id && sd->searchstore.items[i].nameid == nameid );
 	if( i == sd->searchstore.count )
 	{// no such result, crafted
-		ShowWarning("searchstore_click: Received request with item %hu of account %d, which is not part of current result set (account_id=%d, char_id=%d).\n", nameid, account_id, sd->bl.id, sd->status.char_id);
+		ShowWarning("searchstore_click: Received request with item %u of account %d, which is not part of current result set (account_id=%d, char_id=%d).\n", nameid, account_id, sd->bl.id, sd->status.char_id);
 		clif_search_store_info_failed(sd, SSI_FAILED_SSILIST_CLICK_TO_OPEN_STORE);
 		return;
 	}
@@ -380,7 +380,7 @@ void searchstore_clearremote(struct map_session_data* sd)
 
 
 /// receives results from a store-specific callback
-bool searchstore_result(struct map_session_data* sd, int store_id, uint32 account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine, const struct item_option* option)
+bool searchstore_result(struct map_session_data* sd, int store_id, uint32 account_id, const char* store_name, t_itemid nameid, unsigned short amount, unsigned int price, const t_itemid* card, unsigned char refine, const struct item_option* option)
 {
 	struct s_search_store_info_item* ssitem;
 

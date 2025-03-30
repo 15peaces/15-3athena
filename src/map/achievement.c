@@ -1,13 +1,8 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
-
-#include "achievement.h"
-
-#include "itemdb.h"
-#include "mob.h"
-#include "party.h"
-#include "pc.h"
-#include "script.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "../common/db.h"
 #include "../common/malloc.h"
@@ -15,9 +10,12 @@
 #include "../common/showmsg.h"
 #include "../common/strlib.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "achievement.h"
+#include "itemdb.h"
+#include "mob.h"
+#include "party.h"
+#include "pc.h"
+#include "script.h"
 
 /**
  * Retrieve an achievement via it's ID.

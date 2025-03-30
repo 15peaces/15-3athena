@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+03/30/2025
+	r513 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn513 sql-files!
+		*Corrected guild relay script
+			-Corrected the value of the variable guildtime to match the value in official script.
+		*Fixed a few possible crashes.
+		*Converted some more item related packets to structs.
+		*Added support for itemids up to ~2 billion.
+			-Added Concentrated_* potions to test the new range.
 
 03/22/2025
 	r512 [15peaces]

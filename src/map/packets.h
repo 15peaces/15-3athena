@@ -20,12 +20,6 @@
 
 #include "packets_struct.h"
 
-const int16 MAX_INVENTORY_ITEM_PACKET_NORMAL = ((INT16_MAX - (sizeof(struct packet_itemlist_normal) - (sizeof(struct NORMALITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct NORMALITEM_INFO));
-const int16 MAX_INVENTORY_ITEM_PACKET_EQUIP = ((INT16_MAX - (sizeof(struct packet_itemlist_equip) - (sizeof(struct EQUIPITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct EQUIPITEM_INFO));
-
-const int16 MAX_STORAGE_ITEM_PACKET_NORMAL = ((INT16_MAX - (sizeof(struct ZC_STORE_ITEMLIST_NORMAL) - (sizeof(struct NORMALITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct NORMALITEM_INFO));
-const int16 MAX_STORAGE_ITEM_PACKET_EQUIP = ((INT16_MAX - (sizeof(struct ZC_STORE_ITEMLIST_EQUIP) - (sizeof(struct EQUIPITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct EQUIPITEM_INFO));
-
 #undef UNAVAILABLE_STRUCT
 
 #undef DEFINE_PACKET_HEADER

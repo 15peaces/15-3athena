@@ -1,5 +1,9 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
 
 #include "../common/cbasetypes.h"
 #include "../common/mmo.h"
@@ -44,11 +48,6 @@
 #ifndef TXT_ONLY
 #include "mail.h"
 #endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 
 // extern variables
 char atcommand_symbol = '@'; // first char of the commands
@@ -1674,7 +1673,6 @@ ACMD_FUNC(item)
 {
 	char item_name[100];
 	int number = 0, flag = 0, bound = BOUND_NONE;
-	unsigned short item_id;
 	struct item item_tmp;
 	struct item_data *item_data;
 	int get_count, i;
@@ -1707,13 +1705,13 @@ ACMD_FUNC(item)
 		number = 1;
 
 	if ((item_data = itemdb_searchname(item_name)) == NULL &&
-	    (item_data = itemdb_exists(atoi(item_name))) == NULL)
+	    (item_data = itemdb_exists(strtoul(item_name, NULL, 10))) == NULL)
 	{
 		clif_displaymessage(fd, msg_txt(sd,19)); // Invalid item ID or name.
 		return -1;
 	}
 
-	item_id = item_data->nameid;
+	t_itemid item_id = item_data->nameid;
 	get_count = number;
 	//Check if it's stackable.
 	if (!itemdb_isstackable2(item_data))
@@ -1744,7 +1742,7 @@ ACMD_FUNC(item2)
 	struct item item_tmp;
 	struct item_data *item_data;
 	char item_name[100];
-	unsigned short item_id;
+	t_itemid item_id;
 	int number = 0, bound = BOUND_NONE;
 	int identify = 0, refine = 0, attr = 0;
 	int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
@@ -1781,7 +1779,7 @@ ACMD_FUNC(item2)
 
 	item_id = 0;
 	if ((item_data = itemdb_searchname(item_name)) != NULL ||
-	    (item_data = itemdb_exists(atoi(item_name))) != NULL)
+	    (item_data = itemdb_exists(strtoul(item_name, NULL, 10))) != NULL)
 		item_id = item_data->nameid;
 
 	if (item_id > 500) {
@@ -3052,7 +3050,7 @@ ACMD_FUNC(refine)
 ACMD_FUNC(produce)
 {
 	char item_name[100];
-	unsigned short item_id;
+	t_itemid item_id;
 	int attribute = 0, star = 0;
 	struct item_data *item_data;
 	struct item tmp_item;
@@ -3070,7 +3068,7 @@ ACMD_FUNC(produce)
 	}
 
 	if ((item_data = itemdb_searchname(item_name)) == NULL &&
-	    (item_data = itemdb_exists(atoi(item_name))) == NULL)
+	    (item_data = itemdb_exists(strtoul(item_name, NULL, 10))) == NULL)
 	{
 		clif_displaymessage(fd, msg_txt(sd,170)); //This item is not an equipment.
 		return -1;
@@ -3484,17 +3482,26 @@ ACMD_FUNC(makeegg)
 		return -1;
 	}
 
-	if ((item_data = itemdb_searchname(message)) != NULL) // for egg name
-		id = item_data->nameid;
-	else
-	if ((id = mobdb_searchname(message)) != 0) // for monster name
+	// for monster name
+	if ((id = mobdb_searchname(message)) != 0)
 		;
 	else
 		id = atoi(message);
 
 	pet_id = search_petDB_index(id, PET_CLASS);
-	if (pet_id < 0)
-		pet_id = search_petDB_index(id, PET_EGG);
+	if (pet_id < 0) {
+		t_itemid nameid;
+
+		// for egg name
+		if ((item_data = itemdb_searchname(message)) != NULL) {
+			nameid = item_data->nameid;
+		}
+		else {
+			nameid = strtoul(message, NULL, 10);
+		}
+
+		pet_id = search_petDB_index(nameid, PET_EGG);
+	}
 	if (pet_id >= 0) {
 		sd->catch_target_class = pet_db[pet_id].class_;
 		intif_create_pet(
@@ -6402,7 +6409,7 @@ ACMD_FUNC(dropall)
 	for (i = 0; i < MAX_INVENTORY; i++) {
 		if (sd->inventory.u.items_inventory[i].amount) {
 			if ((item_data = itemdb_exists(sd->inventory.u.items_inventory[i].nameid)) == NULL) {
-				ShowDebug("Non-existant Item %hu on dropall list (account_id: %d, char_id: %d)\n", sd->inventory.u.items_inventory[i].nameid, sd->status.account_id, sd->status.char_id);
+				ShowDebug("Non-existant Item %u on dropall list (account_id: %d, char_id: %d)\n", sd->inventory.u.items_inventory[i].nameid, sd->status.account_id, sd->status.char_id);
 				continue;
 			}
 			if (!pc_candrop(sd, &sd->inventory.u.items_inventory[i]))
@@ -6689,7 +6696,7 @@ ACMD_FUNC(skilltree)
 void getring (struct map_session_data* sd)
 {
 	int flag;
-	unsigned short item_id;
+	t_itemid item_id;
 	struct item item_tmp;
 	item_id = (sd->status.sex) ? WEDDING_RING_M : WEDDING_RING_F;
 
@@ -7004,7 +7011,7 @@ ACMD_FUNC(autolootitem)
 
 	if (action < 3) // add or remove
 	{
-		if ((item_data = itemdb_exists(atoi(message))) == NULL)
+		if ((item_data = itemdb_exists(strtoul(message, NULL, 10))) == NULL)
 			item_data = itemdb_searchname(message);
 
 		if (!item_data) {
@@ -7061,7 +7068,7 @@ ACMD_FUNC(autolootitem)
 				if (sd->state.autolootid[i] == 0)
 					continue;
 				if (!(item_data = itemdb_exists(sd->state.autolootid[i]))) {
-					ShowDebug("Non-existant Item %hu on autolootitem list (account_id: %d, char_id: %d)", sd->state.autolootid[i], sd->status.account_id, sd->status.char_id);
+					ShowDebug("Non-existant Item %u on autolootitem list (account_id: %d, char_id: %d)", sd->state.autolootid[i], sd->status.account_id, sd->status.char_id);
 					continue;
 				}
 
@@ -8019,7 +8026,7 @@ ACMD_FUNC(mobinfo)
 		strcpy(atcmd_output, " ");
 		j = 0;
 		for (i = 0; i < MAX_MOB_DROP; i++) {
-			if (mob->dropitem[i].nameid <= 0 || mob->dropitem[i].p < 1 || (item_data = itemdb_exists(mob->dropitem[i].nameid)) == NULL)
+			if (mob->dropitem[i].nameid == 0 || mob->dropitem[i].p < 1 || (item_data = itemdb_exists(mob->dropitem[i].nameid)) == NULL)
 				continue;
 			if (item_data->slot)
 				sprintf(atcmd_output2, " - %s[%d]  %02.02f%%", item_data->jname, item_data->slot, (float)mob->dropitem[i].p / 100);
@@ -8042,7 +8049,7 @@ ACMD_FUNC(mobinfo)
 			strcpy(atcmd_output, " MVP Items:");
 			j = 0;
 			for (i = 0; i < 3; i++) {
-				if (mob->mvpitem[i].nameid <= 0 || (item_data = itemdb_exists(mob->mvpitem[i].nameid)) == NULL)
+				if (mob->mvpitem[i].nameid == 0 || (item_data = itemdb_exists(mob->mvpitem[i].nameid)) == NULL)
 					continue;
 				if (mob->mvpitem[i].p > 0) {
 					j++;
@@ -8582,7 +8589,7 @@ ACMD_FUNC(iteminfo)
 		clif_displaymessage(fd, "Please, enter Item name or its ID (usage: @ii/@iteminfo <item name or ID>).");
 		return -1;
 	}
-	if ((item_array[0] = itemdb_exists(atoi(message))) == NULL)
+	if ((item_array[0] = itemdb_exists(strtoul(message, NULL, 10))) == NULL)
 		count = itemdb_searchname_array(item_array, MAX_SEARCH, message);
 
 	if (!count) {
@@ -8674,7 +8681,7 @@ ACMD_FUNC(whodrops)
 		clif_displaymessage(fd, "Please, enter Item name or its ID (usage: @whodrops <item name or ID>).");
 		return -1;
 	}
-	if ((item_array[0] = itemdb_exists(atoi(message))) == NULL)
+	if ((item_array[0] = itemdb_exists(strtoul(message, NULL, 10))) == NULL)
 		count = itemdb_searchname_array(item_array, MAX_SEARCH, message);
 
 	if (!count) {
@@ -9846,9 +9853,9 @@ ACMD_FUNC(itemlist)
 		}
 
 		if( it->refine )
-			StringBuf_Printf(&buf, "%d %s %+d (%s, id: %d)", it->amount, itd->jname, it->refine, itd->name, it->nameid);
+			StringBuf_Printf(&buf, "%d %s %+d (%s, id: %u)", it->amount, itd->jname, it->refine, itd->name, it->nameid);
 		else
-			StringBuf_Printf(&buf, "%d %s (%s, id: %d)", it->amount, itd->jname, itd->name, it->nameid);
+			StringBuf_Printf(&buf, "%d %s (%s, id: %u)", it->amount, itd->jname, itd->name, it->nameid);
 
 		if( it->equip )
 		{
@@ -9956,7 +9963,7 @@ ACMD_FUNC(itemlist)
 				if( counter2 != 1 )
 					StringBuf_AppendStr(&buf, ", ");
 
-				StringBuf_Printf(&buf, "#%d %s (id: %d)", counter2, card->jname, card->nameid);
+				StringBuf_Printf(&buf, "#%d %s (id: %u)", counter2, card->jname, card->nameid);
 			}
 
 			if( counter2 > 0 )
@@ -10047,7 +10054,7 @@ ACMD_FUNC(stats)
 ACMD_FUNC(delitem)
 {
 	char item_name[100];
-	unsigned short nameid;
+	t_itemid nameid;
 	int amount = 0, total, idx;
 	struct item_data* id;
 
@@ -10059,7 +10066,7 @@ ACMD_FUNC(delitem)
 		return -1;
 	}
 
-	if( ( id = itemdb_searchname(item_name) ) != NULL || ( id = itemdb_exists(atoi(item_name)) ) != NULL )
+	if( ( id = itemdb_searchname(item_name) ) != NULL || ( id = itemdb_exists(strtoul(item_name, NULL, 10)) ) != NULL )
 	{
 		nameid = id->nameid;
 	}

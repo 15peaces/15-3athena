@@ -1459,6 +1459,132 @@ struct PACKET_ZC_MAKINGITEM_LIST {
 	struct PACKET_ZC_MAKINGITEM_LIST_sub items[];
 } __attribute__((packed));
 
+struct PACKET_ZC_ACK_WEAPONREFINE {
+	int16 packetType;
+	int32 result;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ACK_REQMAKINGITEM {
+	int16 packetType;
+	int16 result;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_MVP_GETTING_ITEM {
+	int16 packetType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_CASH_TIME_COUNTER {
+	int16 packetType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint32 seconds;
+} __attribute__((packed));
+
+struct PACKET_ZC_CASH_ITEM_DELETE {
+	int16 packetType;
+	uint16 index;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+
+struct packet_roulette_generate_ack {
+	int16 PacketType;
+	uint8 Result;
+	uint16 Step;
+	uint16 Idx;
+#if PACKETVER >= 20181121
+	uint32 AdditionItemID;
+#else
+	uint16 AdditionItemID;
+#endif
+	int32 RemainGold;
+	int32 RemainSilver;
+	int32 RemainBronze;
+} __attribute__((packed));
+
+/* made possible thanks to Yommy!! */
+struct packet_package_item_announce {
+	int16 PacketType;
+	int16 PacketLength;
+	uint8 type;
+#if PACKETVER
+	uint32 ItemID;
+#else
+	uint16 ItemID;
+#endif
+	int8 len;
+	char Name[NAME_LENGTH];
+	int8 unknown;  // probably unused
+#if PACKETVER
+	uint32 BoxItemID;
+#else
+	uint16 BoxItemID;
+#endif
+} __attribute__((packed));
+
+/* made possible thanks to Yommy!! */
+struct packet_item_drop_announce {
+	int16 PacketType;
+	int16 PacketLength;
+	uint8 type;
+#if PACKETVER_MAIN_NUM >= 20181121 || PACKETVER_RE_NUM >= 20180704 || PACKETVER_ZERO_NUM >= 20181114
+	uint32 ItemID;
+#else
+	uint16 ItemID;
+#endif
+	int8 len;
+	char Name[NAME_LENGTH];
+	char monsterNameLen;
+	char monsterName[NAME_LENGTH];
+} __attribute__((packed));
+
+struct PACKET_CZ_PRIVATE_AIRSHIP_REQUEST {
+	int16 PacketType;
+	char mapName[MAP_NAME_LENGTH_EXT];
+#if PACKETVER >= 20181121
+	uint32 ItemID;
+#else
+	uint16 ItemID;
+#endif
+} __attribute__((packed));
+
+struct PACKET_ZC_ITEM_ENTRY {
+	int16 packetType;
+	uint32 AID;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+	uint8 identify;
+	uint16 x;
+	uint16 y;
+	uint16 amount;
+	uint8 subX;
+	uint8 subY;
+} __attribute__((packed));
+
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(pop)
 #endif // not NetBSD < 6 / Solaris

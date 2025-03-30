@@ -2482,7 +2482,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		for (i = 0; i < MAX_MOB_DROP; i++)
 		{
-			if (md->db->dropitem[i].nameid <= 0)
+			if (md->db->dropitem[i].nameid == 0)
 				continue;
 			if (!(it = itemdb_exists(md->db->dropitem[i].nameid)))
 				continue;
@@ -2562,7 +2562,7 @@ int mob_dead(struct mob_data *md, struct block_list *src, int type)
 
 		if(sd) {
 			// process script-granted extra drop bonuses
-			uint16 dropid = 0;
+			t_itemid dropid = 0;
 
 			for (i = 0; i < ARRAYLENGTH(sd->add_drop); i++) {
 				if (!&sd->add_drop[i] || (!sd->add_drop[i].nameid && !sd->add_drop[i].group))
@@ -3954,7 +3954,7 @@ static bool mob_parse_dbrow(char** str)
 	
 	// MVP Drops: MVP1id,MVP1per,MVP2id,MVP2per,MVP3id,MVP3per
 	for(i = 0; i < 3; i++) {
-		db->mvpitem[i].nameid = atoi(str[32+i*2]);
+		db->mvpitem[i].nameid = strtoul(str[32+i*2], NULL, 10);
 		if (!db->mvpitem[i].nameid) {
 			db->mvpitem[i].p = 0; //No item....
 			continue;
@@ -3983,7 +3983,7 @@ static bool mob_parse_dbrow(char** str)
 		unsigned short ratemin, ratemax;
 		struct item_data *id;
 		k = 38+i*2;
-		db->dropitem[i].nameid = atoi(str[k]);
+		db->dropitem[i].nameid = strtoul(str[k], NULL, 10);
 		if (!db->dropitem[i].nameid) {
 			db->dropitem[i].p = 0; //No drop.
 			continue;

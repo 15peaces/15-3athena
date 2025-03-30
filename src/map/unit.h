@@ -54,14 +54,15 @@ struct unit_data {
 };
 
 struct view_data {
-	unsigned short
-		class_,
+	unsigned short class_;
+	t_itemid
 		weapon,
 		shield, //Or left-hand weapon.
 		robe,
 		head_top,
 		head_mid,
-		head_bottom,
+		head_bottom;
+	uint16
 		hair_style,
 		hair_color,
 		cloth_color,

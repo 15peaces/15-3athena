@@ -14011,7 +14011,8 @@ static bool status_readdb_refine(char* fields[], int columns, int current)
 
 static bool  status_readdb_refine_cost(char* fields[], int columns, int current)
 {
-	int type, zeny, nameid;
+	int type, zeny;
+	t_itemid nameid;
 
 	current = atoi(fields[0]);
 
@@ -14024,7 +14025,7 @@ static bool  status_readdb_refine_cost(char* fields[], int columns, int current)
 		return false;
 
 	zeny = atoi(fields[2]);
-	nameid = atoi(fields[3]);
+	nameid = strtoul(fields[3], NULL, 10);
 
 	refine_info[current].cost[type].zeny = zeny;
 	refine_info[current].cost[type].nameid = nameid;

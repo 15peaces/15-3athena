@@ -5,13 +5,14 @@
 #define MAP_ACHIEVEMENTS_H
 
 #include "../common/db.h"
+#include "../common/mmo.h"
 //#include "map.h" // enum _sp
 
 #define ACHIEVEMENT_NAME_LENGTH 50
 #define OBJECTIVE_DESCRIPTION_LENGTH 100
 
 struct achievement;
-struct map_session_data;
+//struct map_session_data;
 struct char_achievements;
 
 /**
@@ -115,7 +116,7 @@ struct achievement_objective {
 	 */
 	union {
 		int achieve_id;
-		unsigned short itemid;
+		t_itemid itemid;
 		enum _sp status_type;
 		int weapon_lv;
 	} unique;
@@ -127,7 +128,8 @@ struct achievement_objective {
 };
 
 struct achievement_reward_item {
-	int id, amount;
+	t_itemid id;
+	int amount;
 };
 
 struct achievement_rewards {

@@ -1292,7 +1292,7 @@ static int npc_buylist_sub(struct map_session_data* sd, uint16 n, struct s_npc_b
 /*==========================================
  * Cash Shop Buy
  *------------------------------------------*/
-int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amount, int points)
+int npc_cashshop_buy(struct map_session_data *sd, t_itemid nameid, int amount, int points)
 {
 	struct npc_data *nd = (struct npc_data *)map_id2bl(sd->npc_shopid);
 	struct item_data *item;
@@ -1323,7 +1323,7 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 
 	if(!itemdb_isstackable(nameid) && amount > 1)
 	{
-		ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n",
+		ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %u!\n",
 			sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 		amount = 1;
 	}
@@ -1344,7 +1344,7 @@ int npc_cashshop_buy(struct map_session_data *sd, unsigned short nameid, int amo
 
 	if( (double)nd->u.shop.shop_item[i].value * amount > INT_MAX )
 	{
-		ShowWarning("npc_cashshop_buy: Item '%s' (%hu) price overflow attempt!\n", item->name, nameid);
+		ShowWarning("npc_cashshop_buy: Item '%s' (%u) price overflow attempt!\n", item->name, nameid);
 		ShowDebug("(NPC:'%s' (%s,%d,%d), player:'%s' (%d/%d), value:%d, amount:%d)\n",
 					nd->exname, map[nd->bl.m].name, nd->bl.x, nd->bl.y, sd->status.name, sd->status.account_id, sd->status.char_id, nd->u.shop.shop_item[i].value, amount);
 		return 5;
@@ -1421,7 +1421,7 @@ int npc_cashshop_buylist(struct map_session_data* sd, int n, struct s_npc_buy_li
 
 		if( !itemdb_isstackable(nameid) && amount > 1 )
 		{	//Exploit? You can't buy more than 1 of equipment types o.O
-			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable Item %hu!\n",
+			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable Item %u!\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 			amount = item_list[i].qty = 1;
 		}
@@ -1517,7 +1517,8 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 	memset(market_index, 0, sizeof(market_index));
 	// process entries in buy list, one by one
 	for( i = 0; i < n; ++i ) {
-		unsigned short nameid, amount;
+		unsigned short amount;
+		t_itemid nameid;
 		int value;
 
 		// find this entry in the shop's sell list
@@ -1545,7 +1546,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
 			return 3; // item no longer in itemdb
 
 		if( !itemdb_isstackable(nameid) && amount > 1 ) { //Exploit? You can't buy more than 1 of equipment types o.O
-			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %hu!\n",
+			ShowWarning("Player %s (%d:%d) sent a hexed packet trying to buy %d of nonstackable item %u!\n",
 				sd->status.name, sd->status.account_id, sd->status.char_id, amount, nameid);
 			amount = item_list[i].qty = 1;
 		}
@@ -1646,7 +1647,7 @@ uint8 npc_buylist(struct map_session_data* sd, uint16 n, struct s_npc_buy_list* 
  	}
 
 	for( i = 0; i < n; ++i ) {
-		unsigned short nameid = item_list[i].nameid;
+		t_itemid nameid = item_list[i].nameid;
 		unsigned short amount = item_list[i].qty;
 
 #if PACKETVER >= 20131223
@@ -1754,7 +1755,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// verify the sell list
 	for( i = 0; i < n; i++ )
 	{
-		unsigned short nameid;
+		t_itemid nameid;
 		int amount, idx, value;
 
 		idx    = item_list[i*2]-2;
@@ -1790,7 +1791,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
 	// delete items
 	for( i = 0; i < n; i++ )
 	{
-		unsigned short nameid;
+		t_itemid nameid;
 		int amount, idx;
 
 		idx    = item_list[i*2]-2;
@@ -1847,7 +1848,7 @@ int npc_selllist(struct map_session_data* sd, int n, unsigned short* item_list)
  **/
 void npc_market_tosql(const char *exname, struct npc_item_list *list) {
 	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
-	if (SQL_ERROR == SqlStmt_Prepare(stmt, "REPLACE INTO `%s` (`name`,`nameid`,`price`,`amount`,`flag`) VALUES ('%s','%hu','%d','%hu','%"PRIu8"')",
+	if (SQL_ERROR == SqlStmt_Prepare(stmt, "REPLACE INTO `%s` (`name`,`nameid`,`price`,`amount`,`flag`) VALUES ('%s','%u','%d','%hu','%"PRIu8"')",
 		market_table, exname, list->nameid, list->value, list->qty, list->flag) ||
 		SQL_ERROR == SqlStmt_Execute(stmt))
 		SqlStmt_ShowDebug(stmt);
@@ -1860,14 +1861,14 @@ void npc_market_tosql(const char *exname, struct npc_item_list *list) {
  * @param nameid Item ID
  * @param clear True: will removes all records related with the NPC
  **/
-void npc_market_delfromsql_(const char *exname, unsigned short nameid, bool clear) {
+void npc_market_delfromsql_(const char *exname, t_itemid nameid, bool clear) {
 	SqlStmt* stmt = SqlStmt_Malloc(mmysql_handle);
 	if (clear) {
 		if( SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s'", market_table, exname) ||
 			SQL_ERROR == SqlStmt_Execute(stmt))
 			SqlStmt_ShowDebug(stmt);
 	} else {
-		if (SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s' AND `nameid`='%d' LIMIT 1", market_table, exname, nameid) ||
+		if (SQL_ERROR == SqlStmt_Prepare(stmt, "DELETE FROM `%s` WHERE `name`='%s' AND `nameid`='%u' LIMIT 1", market_table, exname, nameid) ||
 			SQL_ERROR == SqlStmt_Execute(stmt))
 			SqlStmt_ShowDebug(stmt);
 	}
@@ -1905,7 +1906,7 @@ static int npc_market_checkall_sub(DBKey key, DBData* data, va_list ap) {
 		uint16 j;
 
 		if (!list->nameid || !itemdb_exists(list->nameid)) {
-			ShowError("npc_market_checkall_sub: NPC '%s' sells invalid item '%hu', deleting...\n", nd->exname, list->nameid);
+			ShowError("npc_market_checkall_sub: NPC '%s' sells invalid item '%u', deleting...\n", nd->exname, list->nameid);
 			npc_market_delfromsql(nd->exname, list->nameid);
 			continue;
 		}
@@ -1930,7 +1931,7 @@ static int npc_market_checkall_sub(DBKey key, DBData* data, va_list ap) {
 			npc_market_tosql(nd->exname, &nd->u.shop.shop_item[j]);
 		}
 		else { // Removing "out-of-date" entry
-			ShowError("npc_market_checkall_sub: NPC '%s' does not sell item %hu (qty %hu), deleting...\n", nd->exname, list->nameid, list->qty);
+			ShowError("npc_market_checkall_sub: NPC '%s' does not sell item %u (qty %hu), deleting...\n", nd->exname, list->nameid, list->qty);
 			npc_market_delfromsql(nd->exname, list->nameid);
 		}
 	}
@@ -1993,7 +1994,7 @@ static void npc_market_fromsql(void) {
 			strdb_put(NPCMarketDB, market->exname, market);
 		}
 
-		Sql_GetData(mmysql_handle, 1, &data, NULL); list.nameid = atoi(data);
+		Sql_GetData(mmysql_handle, 1, &data, NULL); list.nameid = strtoul(data, NULL, 10);
 		Sql_GetData(mmysql_handle, 2, &data, NULL); list.value = atoi(data);
 		Sql_GetData(mmysql_handle, 3, &data, NULL); list.qty = atoi(data);
 		Sql_GetData(mmysql_handle, 4, &data, NULL); list.flag = atoi(data);
@@ -2471,7 +2472,7 @@ static const char* npc_parse_warp(char* w1, char* w2, char* w3, char* w4, const 
 static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const char* start, const char* buffer, const char* filepath) {
 	char *p, point_str[32];
 	int x, y, dir, m, is_discount = 0, episode_ident = 0, min_episode = 0, max_episode = 0;
-	unsigned short nameid = 0;
+	t_itemid nameid = 0;
 	struct npc_data *nd;
 	enum npc_subtype type;
 
@@ -2519,7 +2520,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			break;
 #endif
 		case NPCTYPE_ITEMSHOP: {
-			if (sscanf(p, ",%hu:%11d,", &nameid, &is_discount) < 1) {
+			if (sscanf(p, ",%u:%11d,", &nameid, &is_discount) < 1) {
 				ShowError("npc_parse_shop: Invalid item cost definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
 				return strchr(start, '\n'); // skip and continue
 			}
@@ -2582,7 +2583,8 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 	nd->u.shop.count = 0;
 	while ( p ) {
-		unsigned short nameid2, qty = 0;
+		unsigned short qty = 0;
+		t_itemid nameid2;
 		int value;
 		struct item_data* id;
 		bool skip = false;
@@ -2592,14 +2594,14 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		switch(type) {
 			case NPCTYPE_MARKETSHOP:
 #if PACKETVER >= 20131223
-				if (sscanf(p, ",%hu:%d:%hu", &nameid2, &value, &qty) != 3) {
+				if (sscanf(p, ",%u:%d:%hu", &nameid2, &value, &qty) != 3) {
 					ShowError("npc_parse_shop: (MARKETSHOP) Invalid item definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
 					skip = true;
 				}
 #endif
 				break;
 			default:
-				if (sscanf(p, ",%hu:%d", &nameid2, &value) != 2) {
+				if (sscanf(p, ",%u:%d", &nameid2, &value) != 2) {
 					ShowError("npc_parse_shop: Invalid item definition in file '%s', line '%d'. Ignoring the rest of the line...\n * w1=%s\n * w2=%s\n * w3=%s\n * w4=%s\n", filepath, strline(buffer, start - buffer), w1, w2, w3, w4);
 					skip = true;
 				}
@@ -2610,7 +2612,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 			break;
 
 		if( (id = itemdb_exists(nameid2)) == NULL ) {
-			ShowWarning("npc_parse_shop: Invalid sell item in file '%s', line '%d' (id '%hu').\n", filepath, strline(buffer,start-buffer), nameid2);
+			ShowWarning("npc_parse_shop: Invalid sell item in file '%s', line '%d' (id '%u').\n", filepath, strline(buffer,start-buffer), nameid2);
 			p = strchr(p+1,',');
 			continue;
 		}
@@ -2620,15 +2622,15 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 		}
 		if (value == 0 && (type == NPCTYPE_SHOP || type == NPCTYPE_MARKETSHOP))
 		{ // NPC selling items for free!
-			ShowWarning("npc_parse_shop: Item %s [%d] is being sold for FREE in file '%s', line '%d'.\n",
+			ShowWarning("npc_parse_shop: Item %s [%u] is being sold for FREE in file '%s', line '%d'.\n",
 				id->name, nameid, filepath, strline(buffer, start - buffer));
 		}
 		if( type == NPCTYPE_SHOP && value*0.75 < id->value_sell*1.24 ) { // Exploit possible: you can buy and sell back with profit
-			ShowWarning("npc_parse_shop: Item %s [%hu] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
+			ShowWarning("npc_parse_shop: Item %s [%u] discounted buying price (%d->%d) is less than overcharged selling price (%d->%d) at file '%s', line '%d'.\n",
 				id->name, nameid2, value, (int)(value*0.75), id->value_sell, (int)(id->value_sell*1.24), filepath, strline(buffer,start-buffer));
 		}
 		if (type == NPCTYPE_MARKETSHOP && (qty < -1 || qty > UINT16_MAX)) {
-			ShowWarning("npc_parse_shop: Item %s [%hu] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",
+			ShowWarning("npc_parse_shop: Item %s [%u] is stocked with invalid value %d, changed to 1. File '%s', line '%d'.\n",
 				id->name, nameid2, filepath, strline(buffer,start-buffer));
 			qty = 1;
 		}
@@ -3761,7 +3763,7 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 			int drop_id = 0, drop_type = 0;
 			if (!strcmpi(drop_arg1, "random"))
 				drop_id = -1;
-			else if (itemdb_exists((drop_id = atoi(drop_arg1))) == NULL)
+			else if (itemdb_exists((strtol(drop_arg1, NULL, 10))) == NULL)
 				drop_id = 0;
 			if (!strcmpi(drop_arg2, "inventory"))
 				drop_type = 1;

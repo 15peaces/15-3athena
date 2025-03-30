@@ -22,10 +22,10 @@ struct pet_evolve_data {
 struct s_pet_db {
 	short class_;
 	char name[NAME_LENGTH],jname[NAME_LENGTH];
-	short itemID;
-	short EggID;
-	short AcceID;
-	short FoodID;
+	t_itemid itemID;
+	t_itemid EggID;
+	t_itemid AcceID;
+	t_itemid FoodID;
 	int fullness;
 	int hungry_delay;
 	int r_hungry;
@@ -129,7 +129,7 @@ struct pet_data {
 
 
 
-int pet_create_egg(struct map_session_data *sd, unsigned short item_id);
+int pet_create_egg(struct map_session_data *sd, t_itemid item_id);
 int pet_return_egg(struct map_session_data *sd, struct pet_data *pd);
 int pet_hungry_val(struct pet_data *pd);
 int pet_get_card4_value(int rename_flag, int intimacy);

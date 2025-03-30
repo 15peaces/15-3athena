@@ -4,10 +4,7 @@
 #ifndef _ITEMDB_H_
 #define _ITEMDB_H_
 
-#include "../common/mmo.h" // ITEM_NAME_LENGTH
-
-///Maximum allowed Item ID (range: 1 ~ 65,534)
-#define MAX_ITEMID USHRT_MAX
+#include "../common/mmo.h"
 
 #define MAX_RANDITEM	11000
 
@@ -304,8 +301,8 @@ enum item_itemid
 /// Struct of Roulette db
 struct s_roulette_db
 {
-	unsigned short *nameid[MAX_ROULETTE_LEVEL], /// Item ID
-		           *qty[MAX_ROULETTE_LEVEL]; /// Amount of Item ID
+	t_itemid *nameid[MAX_ROULETTE_LEVEL]; /// Item ID
+	short *qty[MAX_ROULETTE_LEVEL]; /// Amount of Item ID
 	int *flag[MAX_ROULETTE_LEVEL]; /// Whether the item is for loss or win
 	int items[MAX_ROULETTE_LEVEL]; /// Number of items in the list for each
 } rd;
@@ -315,7 +312,7 @@ enum {
 } item_nouse_list;
 
 struct item_data {
-	unsigned short nameid;
+	t_itemid nameid;
 	char name[ITEM_NAME_LENGTH],jname[ITEM_NAME_LENGTH];
 	//Do not add stuff between value_buy and wlv (see how getiteminfo works)
 	int value_buy;
@@ -372,7 +369,7 @@ struct item_data {
 struct item_group {
 	uint16 id;
 	uint16 qty;
-	unsigned short nameid[MAX_RANDITEM];
+	t_itemid nameid[MAX_RANDITEM];
 };
 
 struct item_package {
@@ -383,7 +380,7 @@ struct item_package {
 };
 
 struct item_package_entry {
-	unsigned short nameid;
+	t_itemid nameid;
 	unsigned short prob; // Rate
 	unsigned short amount;
 	unsigned short group;
@@ -402,15 +399,15 @@ struct s_random_opt_data
 /* attendance data */
 struct attendance_entry {
 	int day;
-	int nameid;
+	t_itemid nameid;
 	int qty;
 };
 VECTOR_DECL(struct attendance_entry) attendance_data;
 
 struct item_data* itemdb_searchname(const char *name);
 int itemdb_searchname_array(struct item_data** data, int size, const char *str);
-struct item_data* itemdb_search(unsigned short nameid);
-struct item_data* itemdb_exists(unsigned short nameid);
+struct item_data* itemdb_search(t_itemid nameid);
+struct item_data* itemdb_exists(t_itemid nameid);
 struct s_random_opt_data* itemdb_randomopt_exists(short id);
 #define itemdb_name(n) itemdb_search(n)->name
 #define itemdb_jname(n) itemdb_search(n)->jname
@@ -464,7 +461,7 @@ bool itemdb_ishatched_egg(struct item* item);
 
 bool itemdb_isequip2(struct item_data *id);
 #define itemdb_isequip(nameid) itemdb_isequip2(itemdb_search(nameid))
-char itemdb_isidentified(unsigned short);
+char itemdb_isidentified(t_itemid nameid);
 bool itemdb_isstackable2(struct item_data *id);
 #define itemdb_isstackable(nameid) itemdb_isstackable2(itemdb_search(nameid))
 

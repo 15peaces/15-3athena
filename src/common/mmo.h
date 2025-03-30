@@ -120,6 +120,8 @@
 // Setting is 1 for yes and 0 for no.
 #define ALLOW_OTHER_RACES 1
 
+typedef uint32 t_itemid;
+
 //Number of slots carded equipment can have. Never set to less than 4 as they are also used to keep the data of forged items/equipment. [Skotlex]
 //Note: The client seems unable to receive data for more than 4 slots due to all related packets having a fixed size.
 #define MAX_SLOTS 4
@@ -301,13 +303,13 @@ struct item_option {
 
 struct item {
 	int id;
-	unsigned short nameid;
+	t_itemid nameid;
 	short amount;
 	unsigned int equip; // location(s) where item is equipped (using enum equip_pos for bitmasking)
 	char identify;
 	char refine;
 	char attribute;
-	unsigned short card[MAX_SLOTS];
+	t_itemid card[MAX_SLOTS];
 	struct item_option option[MAX_ITEM_RDM_OPT];		// max of 5 random options can be supported.
 	unsigned int expire_time;
 	unsigned char favorite;
@@ -493,8 +495,8 @@ struct s_pet {
 	int pet_id;
 	short class_;
 	short level;
-	short egg_id;//pet egg id
-	short equip;//pet equip name_id
+	t_itemid egg_id;//pet egg id
+	t_itemid equip;//pet equip name_id
 	short intimate;//pet friendly
 	short hungry;//pet hungry
 	char name[NAME_LENGTH];

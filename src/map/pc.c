@@ -13,6 +13,7 @@
 #include "../common/utils.h"
 #include "../common/mmo.h" //NAME_LENGTH
 
+#include "achievement.h"
 #include "atcommand.h" // get_atcommand_level()
 #include "battle.h" // battle_config
 #include "battleground.h"
@@ -42,7 +43,6 @@
 #include "storage.h"
 #include "pc.h"
 #include "quest.h"
-#include "achievement.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -89,7 +89,7 @@ const struct sg_data sg_info[MAX_PC_FEELHATE] = {
 DBMap* itemcd_db = NULL; // char_id -> struct skill_cd
 struct item_cd {
 	int64 tick[MAX_ITEMDELAYS];//tick
-	unsigned short nameid[MAX_ITEMDELAYS];//skill id
+	t_itemid nameid[MAX_ITEMDELAYS];//skill id
 };
 
 //Converts a class to its array index for CLASS_COUNT defined arrays.
@@ -810,12 +810,12 @@ void pc_inventory_rentals(struct map_session_data *sd)
 		if (sd->inventory.u.items_inventory[i].expire_time <= time(NULL)) {
 			if (sd->inventory_data[i]->unequip_script)
 				run_script(sd->inventory_data[i]->unequip_script, 0, sd->bl.id, fake_nd->bl.id);
-			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
+			clif_rental_expired(sd, i, sd->inventory.u.items_inventory[i].nameid);
 			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
 		}
 		else {
 			expire_tick = (int64)(sd->inventory.u.items_inventory[i].expire_time - time(NULL)) * 1000;
-			clif_rental_time(sd->fd, sd->inventory.u.items_inventory[i].nameid, (int)(expire_tick / 1000));
+			clif_rental_time(sd, sd->inventory.u.items_inventory[i].nameid, (int)(expire_tick / 1000));
 			next_tick = min(expire_tick, next_tick);
 			c++;
 		}
@@ -852,7 +852,7 @@ void pc_inventory_rental_add(struct map_session_data *sd, int seconds)
 /**
  * Check if player is autolooting given itemID.
  */
-bool pc_isautolooting(struct map_session_data *sd, int nameid)
+bool pc_isautolooting(struct map_session_data *sd, t_itemid nameid)
 {
 	int i = 0;
 
@@ -996,7 +996,7 @@ int pc_setinventorydata(struct map_session_data *sd)
 	nullpo_retr(1, sd);
 
 	for(i=0;i<MAX_INVENTORY;i++) {
-		uint16 id = sd->inventory.u.items_inventory[i].nameid;
+		t_itemid id = sd->inventory.u.items_inventory[i].nameid;
 		sd->inventory_data[i] = id?itemdb_search(id):NULL;
 	}
 	return 0;
@@ -1058,7 +1058,7 @@ void pc_setequipindex(struct map_session_data *sd)
 	}
 
 	for(i=0;i<MAX_INVENTORY;i++) {
-		if(sd->inventory.u.items_inventory[i].nameid <= 0)
+		if(sd->inventory.u.items_inventory[i].nameid == 0)
 			continue;
 		if(sd->inventory.u.items_inventory[i].equip) {
 			for(j=0;j<EQI_MAX;j++)
@@ -1118,7 +1118,7 @@ void pc_setequipindex(struct map_session_data *sd)
  * @param nameid : itemid
  * @return 1:yes, 0:no
  */
-bool pc_isequipped(struct map_session_data *sd, unsigned short nameid)
+bool pc_isequipped(struct map_session_data *sd, t_itemid nameid)
 {
 	uint8 i;
 
@@ -2329,7 +2329,7 @@ static int pc_bonus_addeff_onskill(struct s_addeffectonskill* effect, int max, e
 	return 1;
 }
 
-static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, unsigned short nameid, uint16 group, int class_, short race, int rate)
+static void pc_bonus_item_drop(struct s_add_drop *drop, const short max, t_itemid nameid, uint16 group, int class_, short race, int rate)
 {
 	uint8 i;
 	struct item_group *group_ = NULL;
@@ -4101,7 +4101,7 @@ int pc_skill(TBL_PC* sd, int id, int level, int flag)
 int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 {
 	int i;
-	unsigned short nameid;
+	t_itemid nameid;
 
 	nullpo_ret(sd);
 
@@ -4109,9 +4109,9 @@ int pc_insert_card(struct map_session_data* sd, int idx_card, int idx_equip)
 		return 0; //Invalid item index.
 	if( idx_card < 0 || idx_card >= MAX_INVENTORY || sd->inventory_data[idx_card] == NULL )
 		return 0; //Invalid card index.
-	if( sd->inventory.u.items_inventory[idx_equip].nameid <= 0 || sd->inventory.u.items_inventory[idx_equip].amount < 1 )
+	if( sd->inventory.u.items_inventory[idx_equip].nameid == 0 || sd->inventory.u.items_inventory[idx_equip].amount < 1 )
 		return 0; // target item missing
-	if( sd->inventory.u.items_inventory[idx_card].nameid <= 0 || sd->inventory.u.items_inventory[idx_card].amount < 1 )
+	if( sd->inventory.u.items_inventory[idx_card].nameid == 0 || sd->inventory.u.items_inventory[idx_card].amount < 1 )
 		return 0; // target card missing
 	if( sd->inventory_data[idx_equip]->type != IT_WEAPON && sd->inventory_data[idx_equip]->type != IT_ARMOR )
 		return 0; // only weapons and armor are allowed
@@ -4208,7 +4208,7 @@ int pc_modifysellvalue(struct map_session_data *sd,int orig_value)
  * @param amount
  * @return e_chkitem_result
  *------------------------------------------*/
-char pc_checkadditem(struct map_session_data *sd,unsigned short nameid,int amount)
+char pc_checkadditem(struct map_session_data *sd, t_itemid nameid, int amount)
 {
 	int i;
 
@@ -4438,7 +4438,7 @@ int pc_getcash(struct map_session_data *sd, int cash, int points, e_log_pick_typ
  * @param nameid Find this Item!
  * @return Stored index in inventory, or -1 if not found.
  *------------------------------------------*/
-int pc_search_inventory(struct map_session_data *sd,unsigned short item_id)
+int pc_search_inventory(struct map_session_data *sd, t_itemid item_id)
 {
 	int16 i;
 	nullpo_retr(-1, sd);
@@ -4544,12 +4544,12 @@ enum e_additem_result pc_additem(struct map_session_data *sd,struct item *item_d
 	/* rental item check */
 	if (item_data->expire_time) {
 		if (time(NULL) > item_data->expire_time) {
-			clif_rental_expired(sd->fd, i, sd->inventory.u.items_inventory[i].nameid);
+			clif_rental_expired(sd, i, sd->inventory.u.items_inventory[i].nameid);
 			pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 1, 0, LOG_TYPE_OTHER);
 		}
 		else {
 			unsigned int seconds = (unsigned int)(item_data->expire_time - time(NULL));
-			clif_rental_time(sd->fd, sd->inventory.u.items_inventory[i].nameid, seconds);
+			clif_rental_time(sd, sd->inventory.u.items_inventory[i].nameid, seconds);
 			pc_inventory_rental_add(sd, seconds);
 		}
 	}
@@ -4611,7 +4611,7 @@ bool pc_dropitem(struct map_session_data *sd,int n,int amount)
 	if(amount <= 0)
 		return false;
 
-	if(sd->inventory.u.items_inventory[n].nameid <= 0 ||
+	if(sd->inventory.u.items_inventory[n].nameid == 0 ||
 		sd->inventory.u.items_inventory[n].amount <= 0 ||
 		sd->inventory.u.items_inventory[n].amount < amount ||
 		sd->state.trading || sd->state.vending ||
@@ -4728,7 +4728,7 @@ bool pc_takeitem(struct map_session_data *sd,struct flooritem_data *fitem)
 int pc_isUseitem(struct map_session_data *sd,int n)
 {
 	struct item_data *item;
-	unsigned short nameid;
+	t_itemid nameid;
 
 	nullpo_ret(sd);
 
@@ -4877,7 +4877,7 @@ int pc_isUseitem(struct map_session_data *sd,int n)
  *------------------------------------------*/
 int pc_useitem(struct map_session_data *sd,int n) {
 	int64 tick = gettick();
-	unsigned short nameid;
+	t_itemid nameid;
 	int amount;
 	struct script_code *script;
 	struct item item;
@@ -5256,7 +5256,7 @@ void pc_getitemfromcart(struct map_session_data *sd,int idx,int amount)
 int pc_show_steal(struct block_list *bl,va_list ap)
 {
 	struct map_session_data *sd;
-	int itemid;
+	t_itemid itemid;
 
 	struct item_data *item=NULL;
 	char output[100];
@@ -5265,7 +5265,7 @@ int pc_show_steal(struct block_list *bl,va_list ap)
 	itemid=va_arg(ap,int);
 
 	if((item=itemdb_exists(itemid))==NULL)
-		sprintf(output,"%s stole an Unknown Item (id: %i).",sd->status.name, itemid);
+		sprintf(output,"%s stole an Unknown Item (id: %u).",sd->status.name, itemid);
 	else
 		sprintf(output,"%s stole %s.",sd->status.name,item->jname);
 	clif_displaymessage( ((struct map_session_data *)bl)->fd, output);
@@ -5277,7 +5277,8 @@ int pc_show_steal(struct block_list *bl,va_list ap)
  *------------------------------------------*/
 int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int lv)
 {
-	int i,itemid,flag;
+	int i,flag;
+	t_itemid itemid;
 	double rate;
 	struct status_data *sd_status, *md_status;
 	struct mob_data *md;
@@ -5387,7 +5388,7 @@ uint8 pc_itemcd_add(struct map_session_data *sd, struct item_data *id, int64 tic
 			sd->item_delay[i].tick = tick + sd->inventory_data[n]->delay;
 	}
 	else {// should not happen
-		ShowError("pc_itemcd_add: Exceeded item delay array capacity! (nameid=%hu, char_id=%d)\n", id->nameid, sd->status.char_id);
+		ShowError("pc_itemcd_add: Exceeded item delay array capacity! (nameid=%u, char_id=%d)\n", id->nameid, sd->status.char_id);
 	}
 	//clean up used delays so we can give room for more
 	for (i = 0; i < MAX_ITEMDELAYS; i++) {
@@ -5963,7 +5964,7 @@ short pc_checkequip(struct map_session_data *sd,int pos, bool checkall)
  * Check if sd as nameid equiped somewhere
  * -return true,false
  *------------------------------------------*/
-bool pc_checkequip2(struct map_session_data *sd, int nameid) {
+bool pc_checkequip2(struct map_session_data *sd, t_itemid nameid) {
 	int i;
 	for (i = 0; i < EQI_MAX; i++) {
 		if (equip_bitmask[i]) {
@@ -8749,7 +8750,7 @@ void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int ty
 /*==========================================
  * HP/SP‰ñ•œ
  *------------------------------------------*/
-int pc_itemheal(struct map_session_data *sd,int itemid, int hp,int sp)
+int pc_itemheal(struct map_session_data *sd, t_itemid itemid, int hp,int sp)
 {
 	int bonus, penalty;
 
@@ -10041,7 +10042,7 @@ bool pc_equipitem(struct map_session_data *sd, int n, int req_pos, bool equipswi
 	pos = pc_equippoint(sd,n); //With a few exceptions, item should go in all specified slots.
 
 	if(battle_config.battle_log && !equipswitch)
-		ShowInfo("equip %hu(%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
+		ShowInfo("equip %u(%d) %x:%x\n",sd->inventory.u.items_inventory[n].nameid,n,id?id->equip:0,req_pos);
 
 	uint8 res = pc_isequip(sd, n);
 
@@ -10512,7 +10513,7 @@ void pc_checkitem(struct map_session_data *sd)
  *------------------------------------------*/
 void pc_check_available_item(struct map_session_data *sd) {
 	int i;
-	unsigned short nameid;
+	t_itemid nameid;
 	char output[256];
 
 	nullpo_retv(sd);
@@ -10524,9 +10525,9 @@ void pc_check_available_item(struct map_session_data *sd) {
 			if (!nameid)
 				continue;
 			if (!itemdb_available(nameid)) {
-				sprintf(output, msg_txt(sd,816), nameid); // Item %hu has been removed from your inventory.
+				sprintf(output, msg_txt(sd,816), nameid); // Item %u has been removed from your inventory.
 				clif_displaymessage(sd->fd, output);
-				ShowWarning("Removed invalid/disabled item id %hu from inventory (amount=%d, char_id=%d).\n", nameid, sd->inventory.u.items_inventory[i].amount, sd->status.char_id);
+				ShowWarning("Removed invalid/disabled item id %u from inventory (amount=%d, char_id=%d).\n", nameid, sd->inventory.u.items_inventory[i].amount, sd->status.char_id);
 				pc_delitem(sd, i, sd->inventory.u.items_inventory[i].amount, 0, 0, LOG_TYPE_OTHER);
 				continue;
 			}
@@ -10542,9 +10543,9 @@ void pc_check_available_item(struct map_session_data *sd) {
 			if (!nameid)
 				continue;
 			if (!itemdb_available(nameid)) {
-				sprintf(output, msg_txt(sd,817), nameid); // Item %hu has been removed from your cart.
+				sprintf(output, msg_txt(sd,817), nameid); // Item %u has been removed from your cart.
 				clif_displaymessage(sd->fd, output);
-				ShowWarning("Removed invalid/disabled item id %hu from cart (amount=%d, char_id=%d).\n", nameid, sd->cart.u.items_cart[i].amount, sd->status.char_id);
+				ShowWarning("Removed invalid/disabled item id %u from cart (amount=%d, char_id=%d).\n", nameid, sd->cart.u.items_cart[i].amount, sd->status.char_id);
 				pc_cart_delitem(sd, i, sd->cart.u.items_cart[i].amount, 0, LOG_TYPE_OTHER);
 				continue;
 			}
@@ -10560,9 +10561,9 @@ void pc_check_available_item(struct map_session_data *sd) {
 			if (!nameid)
 				continue;
 			if (!itemdb_available(nameid)) {
-				sprintf(output, msg_txt(sd,818), nameid); // Item %hu has been removed from your storage.
+				sprintf(output, msg_txt(sd,818), nameid); // Item %u has been removed from your storage.
 				clif_displaymessage(sd->fd, output);
-				ShowWarning("Removed invalid/disabled item id %hu from storage (amount=%d, char_id=%d).\n", nameid, sd->storage.u.items_storage[i].amount, sd->status.char_id);
+				ShowWarning("Removed invalid/disabled item id %u from storage (amount=%d, char_id=%d).\n", nameid, sd->storage.u.items_storage[i].amount, sd->status.char_id);
 				storage_delitem(sd, i, sd->storage.u.items_storage[i].amount);
 				continue;
 			}
@@ -11961,7 +11962,7 @@ void pc_cell_basilica(struct map_session_data *sd) {
 * @param nameid Item ID
 * @return Heal rate
 **/
-short pc_get_itemgroup_bonus(struct map_session_data* sd, uint16 nameid) {
+short pc_get_itemgroup_bonus(struct map_session_data* sd, t_itemid nameid) {
 	short bonus = 0;
 	uint8 i;
 

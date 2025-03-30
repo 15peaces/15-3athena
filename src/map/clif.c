@@ -87,11 +87,17 @@ enum e_inventory_type {
 	INVTYPE_GUILD_STORAGE = 3,
 };
 
+const int16 MAX_INVENTORY_ITEM_PACKET_NORMAL = ((INT16_MAX - (sizeof(struct packet_itemlist_normal) - (sizeof(struct NORMALITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct NORMALITEM_INFO));
+const int16 MAX_INVENTORY_ITEM_PACKET_EQUIP = ((INT16_MAX - (sizeof(struct packet_itemlist_equip) - (sizeof(struct EQUIPITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct EQUIPITEM_INFO));
+
+const int16 MAX_STORAGE_ITEM_PACKET_NORMAL = ((INT16_MAX - (sizeof(struct ZC_STORE_ITEMLIST_NORMAL) - (sizeof(struct NORMALITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct NORMALITEM_INFO));
+const int16 MAX_STORAGE_ITEM_PACKET_EQUIP = ((INT16_MAX - (sizeof(struct ZC_STORE_ITEMLIST_EQUIP) - (sizeof(struct EQUIPITEM_INFO) * MAX_ITEMLIST))) / sizeof(struct EQUIPITEM_INFO));
+
 /** Converts item type to display it on client if necessary.
 * @param nameid: Item ID
 * @return item type. For IT_PETEGG will be displayed as IT_ARMOR. If Shadow Weapon of IT_SHADOWGEAR as IT_WEAPON and else as IT_ARMOR
 */
-static inline int itemtype(int nameid) {
+static inline int itemtype(t_itemid nameid) {
 	struct item_data* id = itemdb_search(nameid); //Use itemdb_search, so non-existance item will use dummy data and won't crash the server. bugreport:8468
 	int type = id->type;
 	if( type == IT_SHADOWGEAR ) {
@@ -121,8 +127,8 @@ static inline uint16 server_storage_index(uint16 client_index) {
 }
 
 #if PACKETVER >= 20181121
-static inline uint32 client_nameid(uint32 server_nameid) {
-	uint32 view = itemdb_viewid(server_nameid);
+static inline t_itemid client_nameid(t_itemid server_nameid) {
+	t_itemid view = itemdb_viewid(server_nameid);
 
 	if (view > 0) {
 		return view;
@@ -132,14 +138,18 @@ static inline uint32 client_nameid(uint32 server_nameid) {
 	}
 }
 #else
-static inline uint16 client_nameid(uint32 server_nameid) {
-	uint32 view = itemdb_viewid(server_nameid);
+static inline t_itemid client_nameid(t_itemid server_nameid) {
+	t_itemid view = itemdb_viewid(server_nameid);
 
 	if (view > 0) {
-		return (uint16)view;
+		if (view > UINT16_MAX) {
+			return (uint16)UNKNOWN_ITEM_ID;
+		}
 	}
 	else {
-		return (uint16)server_nameid;
+		if (server_nameid > UINT16_MAX) {
+			return (uint16)UNKNOWN_ITEM_ID;
+		}
 	}
 }
 #endif
@@ -376,9 +386,10 @@ static int clif_send_sub(struct block_list *bl, va_list ap)
 	nullpo_ret(bl);
 	nullpo_ret(sd = (struct map_session_data *)bl);
 
-	fd = sd->fd;
-	if (!fd) //Don't send to disconnected clients.
+	// Don't send to disconnected clients.
+	if (!session_isActive(fd = sd->fd)) {
 		return 0;
+	}
 
 	buf = va_arg(ap,unsigned char*);
 	len = va_arg(ap,int);
@@ -410,9 +421,6 @@ static int clif_send_sub(struct block_list *bl, va_list ap)
 	}
 	break;
 	}
-
-	if (session[fd] == NULL)
-		return 0;
 
 	/* unless visible, hold it here */
 	if (clif_ally_only && !sd->special_state.intravision && battle_check_target(src_bl, &sd->bl, BCT_ENEMY) > 0)
@@ -461,11 +469,11 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 		iter = mapit_getallusers();
 		while( (tsd = (TBL_PC*)mapit_next(iter)) != NULL )
 		{
-			if( packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
+			if (session_isActive(fd = tsd->fd) && packet_db[tsd->packet_ver][RBUFW(buf, 0)].len)
 			{ // packet must exist for the client version
 				WFIFOHEAD(tsd->fd, len);
-				memcpy(WFIFOP(tsd->fd,0), buf, len);
-				WFIFOSET(tsd->fd,len);
+				memcpy(WFIFOP(tsd->fd, 0), buf, len);
+				WFIFOSET(tsd->fd, len);
 			}
 		}
 		mapit_free(iter);
@@ -475,7 +483,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 		iter = mapit_getallusers();
 		while( (tsd = (TBL_PC*)mapit_next(iter)) != NULL )
 		{
-			if( bl->m == tsd->bl.m && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
+			if( bl->m == tsd->bl.m && session_isActive(fd = tsd->fd) && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
 			{ // packet must exist for the client version
 				WFIFOHEAD(tsd->fd, len);
 				memcpy(WFIFOP(tsd->fd,0), buf, len);
@@ -513,13 +521,10 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 			for(i = 0; i < cd->users; i++) {
 				if (type == CHAT_WOS && cd->usersd[i] == sd)
 					continue;
-				if (packet_db[cd->usersd[i]->packet_ver][RBUFW(buf,0)].len) { // packet must exist for the client version
-					if ((fd=cd->usersd[i]->fd) >0 && session[fd]) // Added check to see if session exists [PoW]
-					{
-						WFIFOHEAD(fd,len);
-						memcpy(WFIFOP(fd,0), buf, len);
-						WFIFOSET(fd,len);
-					}
+				if (session_isActive(fd = cd->usersd[i]->fd) && packet_db[cd->usersd[i]->packet_ver][RBUFW(buf,0)].len) { // packet must exist for the client version
+					WFIFOHEAD(fd,len);
+					memcpy(WFIFOP(fd,0), buf, len);
+					WFIFOSET(fd,len);
 				}
 			}
 		}
@@ -557,7 +562,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 				if( (sd = p->data[i].sd) == NULL )
 					continue;
 
-				if( !(fd=sd->fd) )
+				if (!session_isActive(fd = sd->fd))
 					continue;
 
 				if( sd->bl.id == bl->id && (type == PARTY_WOS || type == PARTY_SAMEMAP_WOS || type == PARTY_AREA_WOS) )
@@ -582,7 +587,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 			iter = mapit_getallusers();
 			while( (tsd = (TBL_PC*)mapit_next(iter)) != NULL )
 			{
-				if( tsd->partyspy == p->party.party_id && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
+				if( tsd->partyspy == p->party.party_id && session_isActive(fd = tsd->fd) && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
 				{ // packet must exist for the client version
 					WFIFOHEAD(tsd->fd, len);
 					memcpy(WFIFOP(tsd->fd,0), buf, len);
@@ -602,7 +607,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 		{
 			if( type == DUEL_WOS && bl->id == tsd->bl.id )
 				continue;
-			if( sd->duel_group == tsd->duel_group && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
+			if( sd->duel_group == tsd->duel_group && session_isActive(fd = tsd->fd) && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
 			{ // packet must exist for the client version
 				WFIFOHEAD(tsd->fd, len);
 				memcpy(WFIFOP(tsd->fd,0), buf, len);
@@ -613,7 +618,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 		break;
 
 	case SELF:
-		if (sd && (fd=sd->fd) && packet_db[sd->packet_ver][RBUFW(buf,0)].len) { // packet must exist for the client version
+		if (sd && session_isActive(fd = sd->fd) && packet_db[sd->packet_ver][RBUFW(buf,0)].len) { // packet must exist for the client version
 			WFIFOHEAD(fd,len);
 			memcpy(WFIFOP(fd,0), buf, len);
 			WFIFOSET(fd,len);
@@ -639,7 +644,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 			for(i = 0; i < g->max_member; i++) {
 				if( (sd = g->member[i].sd) != NULL )
 				{
-					if( !(fd=sd->fd) )
+					if (!session_isActive(fd = sd->fd))
 						continue;
 					
 					if( type == GUILD_NOBG && sd->bg_id )
@@ -668,7 +673,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 			iter = mapit_getallusers();
 			while( (tsd = (TBL_PC*)mapit_next(iter)) != NULL )
 			{
-				if( tsd->guildspy == g->guild_id && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
+				if( tsd->guildspy == g->guild_id && session_isActive(fd = tsd->fd) && packet_db[tsd->packet_ver][RBUFW(buf,0)].len )
 				{ // packet must exist for the client version
 					WFIFOHEAD(tsd->fd, len);
 					memcpy(WFIFOP(tsd->fd,0), buf, len);
@@ -693,7 +698,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 		{
 			for( i = 0; i < MAX_BG_MEMBERS; i++ )
 			{
-				if( (sd = bg->members[i].sd) == NULL || !(fd = sd->fd) )
+				if( (sd = bg->members[i].sd) == NULL || !session_isActive(fd = sd->fd) )
 					continue;
 				if( sd->bl.id == bl->id && (type == BG_WOS || type == BG_SAMEMAP_WOS || type == BG_AREA_WOS) )
 					continue;
@@ -734,7 +739,7 @@ int clif_send(const void* buf, int len, struct block_list* bl, enum send_target 
 
 			for (i = 0; i < clan->max_member; i++)
 			{
-				if ((sd = clan->members[i]) == NULL || !(fd = sd->fd))
+				if ((sd = clan->members[i]) == NULL || !session_isActive(fd = sd->fd) )
 					continue;
 
 				if (packet_db[sd->packet_ver][RBUFW(buf,0)].len)
@@ -878,17 +883,15 @@ void clif_charselectok(int id, uint8 ok)
 void clif_dropflooritem(struct flooritem_data* fitem, bool canShowEffect) {
 	nullpo_retv(fitem);
 
-	if (fitem->item_data.nameid <= 0) {
+	if (fitem->item_data.nameid == 0) {
 		return;
 	}
-
-	int view = itemdb_viewid(fitem->item_data.nameid);
 
 	struct packet_dropflooritem p;
 
 	p.PacketType = dropflooritemType;
 	p.ITAID = fitem->bl.id;
-	p.ITID = (view > 0) ? view : fitem->item_data.nameid;
+	p.ITID = client_nameid(fitem->item_data.nameid);
 #if PACKETVER >= 20130000 /* not sure date */
 	p.type = itemtype(fitem->item_data.nameid);
 #endif
@@ -1003,7 +1006,7 @@ void clif_clearunit_delayed(struct block_list* bl, clr_type type, int64 tick)
 	add_timer(tick, clif_clearunit_delayed_sub, (int)type, (intptr_t)tbl);
 }
 
-void clif_get_weapon_view(struct map_session_data* sd, unsigned short *rhand, unsigned short *lhand)
+void clif_get_weapon_view(struct map_session_data* sd, t_itemid *rhand, t_itemid *lhand)
 {
 	if (sd->sc.option&OPTION_COSTUME)
 	{
@@ -2563,32 +2566,13 @@ static void clif_addcards(struct EQUIPSLOTINFO* buf, struct item* item) {
 	}
 
 	// Normal items.
-	if (item->card[i] > 0 && (j = itemdb_viewid(item->card[i])) > 0) {
-		buf->card[0] = j;
-	}
-	else {
-		buf->card[0] = item->card[i];
-	}
-
-	if (item->card[++i] > 0 && (j = itemdb_viewid(item->card[i])) > 0) {
-		buf->card[1] = j;
-	}
-	else {
-		buf->card[1] = item->card[i];
-	}
-
-	if (item->card[++i] > 0 && (j = itemdb_viewid(item->card[i])) > 0) {
-		buf->card[2] = j;
-	}
-	else {
-		buf->card[2] = item->card[i];
-	}
-
-	if (item->card[++i] > 0 && (j = itemdb_viewid(item->card[i])) > 0) {
-		buf->card[3] = j;
-	}
-	else {
-		buf->card[3] = item->card[i];
+	for (int k = 0; k < 4; k++, i++) {
+		if (item->card[i] > 0) {
+			buf->card[k] = client_nameid(item->card[i]);
+		}
+		else {
+			buf->card[k] = 0;
+		}
 	}
 }
 
@@ -2665,7 +2649,7 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 #endif
 	}
 	else {
-		if (n < 0 || n >= MAX_INVENTORY || sd->inventory.u.items_inventory[n].nameid <= 0 || sd->inventory_data[n] == NULL) {
+		if (n < 0 || n >= MAX_INVENTORY || sd->inventory.u.items_inventory[n].nameid == 0 || sd->inventory_data[n] == NULL) {
 			return;
 		}
 
@@ -2881,7 +2865,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 	int normal = 0;
 
 	for (int i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->inventory.u.items_inventory[i].nameid <= 0 || sd->inventory_data[i] == NULL) {
+		if (sd->inventory.u.items_inventory[i].nameid == 0 || sd->inventory_data[i] == NULL) {
 			continue;
 		}
 
@@ -2949,7 +2933,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 	/* on 20120925 onwards this is a field on clif_item_equip/normal */
 #if PACKETVER >= 20111122 && PACKETVER < 20120925
 	for (int i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->inventory.u.items_inventory[i].nameid <= 0 || sd->inventory_data[i] == NULL)
+		if (sd->inventory.u.items_inventory[i].nameid == 0 || sd->inventory_data[i] == NULL)
 			continue;
 
 		if (sd->inventory.u.items_inventory[i].favorite)
@@ -2977,7 +2961,7 @@ void clif_storagelist(struct map_session_data* sd, struct item* items, int items
 	int normal = 0;
 
 	for (int i = 0; i < items_length; i++) {
-		if (items[i].nameid <= 0) {
+		if (items[i].nameid == 0) {
 			continue;
 		}
 
@@ -3065,7 +3049,7 @@ void clif_cartlist(struct map_session_data *sd) {
 	int equip = 0;
 
 	for (int i = 0; i < MAX_CART; i++) {
-		if (sd->cart.u.items_cart[i].nameid <= 0) {
+		if (sd->cart.u.items_cart[i].nameid == 0) {
 			continue;
 		}
 
@@ -3721,7 +3705,7 @@ void clif_changelook(struct block_list *bl, int type, int val) {
 #if PACKETVER > 3
 			if (sd) {
 				int n;
-				if((n = sd->equip_index[2]) >= 0 && sd->inventory_data[n]) {
+				if((n = sd->equip_index[EQI_SHOES]) >= 0 && sd->inventory_data[n]) {
 					if(sd->inventory_data[n]->view_id > 0)
 						val = sd->inventory_data[n]->view_id;
 					else
@@ -3906,7 +3890,7 @@ void clif_arrow_create_list(struct map_session_data *sd) {
 
 	int count = 0;
 	for (int i = 0; i < MAX_SKILL_ARROW_DB; i++) {
-		short nameid = skill_arrow_db[i].nameid;
+		t_itemid nameid = skill_arrow_db[i].nameid;
 
 		if (!itemdb_exists(nameid)) {
 			continue;
@@ -4429,7 +4413,7 @@ void clif_useitemack(struct map_session_data *sd, int index, int amount, bool ok
 		return;
 	}
 
-	if (index < 0 || index >= MAX_INVENTORY || sd->inventory.u.items_inventory[index].nameid <= 0 || sd->inventory_data[index] == NULL) {
+	if (index < 0 || index >= MAX_INVENTORY || sd->inventory.u.items_inventory[index].nameid == 0 || sd->inventory_data[index] == NULL) {
 		return;
 	}
 
@@ -4766,7 +4750,7 @@ void clif_tradeadditem(struct map_session_data* sd, struct map_session_data* tsd
 	if (index) {
 		index = server_index(index);
 
-		if (index >= MAX_INVENTORY || sd->inventory.u.items_inventory[index].nameid <= 0 || sd->inventory_data[index] == NULL) {
+		if (index >= MAX_INVENTORY || sd->inventory.u.items_inventory[index].nameid == 0 || sd->inventory_data[index] == NULL) {
 			return;
 		}
 
@@ -5429,23 +5413,22 @@ void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target 
 /// 009d <id>.L <name id>.W <identified>.B <x>.W <y>.W <amount>.W <subX>.B <subY>.B
 void clif_getareachar_item(struct map_session_data* sd,struct flooritem_data* fitem)
 {
-	int view,fd;
-	fd=sd->fd;
+	nullpo_retv(sd);
+	nullpo_retv(fitem);
 
-	WFIFOHEAD(fd,packet_len(0x9d));
-	WFIFOW(fd,0)=0x9d;
-	WFIFOL(fd,2)=fitem->bl.id;
-	if((view = itemdb_viewid(fitem->item_data.nameid)) > 0)
-		WFIFOW(fd,6)=view;
-	else
-		WFIFOW(fd,6)=fitem->item_data.nameid;
-	WFIFOB(fd,8)=fitem->item_data.identify;
-	WFIFOW(fd,9)=fitem->bl.x;
-	WFIFOW(fd,11)=fitem->bl.y;
-	WFIFOW(fd,13)=fitem->item_data.amount;
-	WFIFOB(fd,15)=fitem->subx;
-	WFIFOB(fd,16)=fitem->suby;
-	WFIFOSET(fd,packet_len(0x9d));
+	struct PACKET_ZC_ITEM_ENTRY p;
+
+	p.packetType = 0x9d;
+	p.AID = fitem->bl.id;
+	p.itemId = client_nameid(fitem->item_data.nameid);
+	p.identify = fitem->item_data.identify;
+	p.x = fitem->bl.x;
+	p.y = fitem->bl.y;
+	p.amount = fitem->item_data.amount;
+	p.subX = fitem->subx;
+	p.subY = fitem->suby;
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 /// Notifes client about Graffiti
@@ -6005,7 +5988,7 @@ void clif_skillcastcancel(struct block_list* bl)
 /// if(result!=0) doesn't display any of the previous messages
 /// Note: when this packet is received an unknown flag is always set to 0,
 /// suggesting this is an ACK packet for the UseSkill packets and should be sent on success too [FlavioJS]
-void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fail_cause type,int btype, int val)
+void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fail_cause type,int btype, t_itemid itemId)
 {
 	int fd;
 
@@ -6034,7 +6017,7 @@ void clif_skill_fail(struct map_session_data *sd,int skill_id, enum useskill_fai
 	p.packetType = 0x110;
 	p.skillId = skill_id;
 	p.btype = btype;
-	p.itemId = val;
+	p.itemId = itemId;
 	p.flag = 0; // 0 - failed
 	p.cause = type;
 
@@ -7045,13 +7028,13 @@ void clif_refine(int fd, int fail, int index, int val)
 ///     1 = "weapon upgraded: %s" MsgStringTable[912] in rgb(0,205,205)
 ///     2 = "cannot upgrade %s until you level up the upgrade weapon skill" MsgStringTable[913] in rgb(255,200,200)
 ///     3 = "you lack the item %s to upgrade the weapon" MsgStringTable[914] in rgb(255,200,200)
-void clif_upgrademessage(int fd, int result, unsigned short item_id)
+void clif_upgrademessage(int fd, int result, t_itemid item_id)
 {
-	WFIFOHEAD(fd,packet_len(0x223));
-	WFIFOW(fd,0)=0x223;
-	WFIFOL(fd,2)=result;
-	WFIFOW(fd,6)=item_id;
-	WFIFOSET(fd,packet_len(0x223));
+	struct PACKET_ZC_ACK_WEAPONREFINE p;
+
+	p.packetType = 0x223;
+	p.result = result;
+	p.itemId = client_nameid(item_id);
 }
 
 
@@ -7223,7 +7206,7 @@ void clif_item_identify_list(struct map_session_data *sd) {
 	WFIFOW(fd,0)=0x177;
 	for(i=c=0;i<MAX_INVENTORY;i++){
 		if(sd->inventory.u.items_inventory[i].nameid > 0 && !sd->inventory.u.items_inventory[i].identify){
-			WFIFOW(fd,c*2+4)=i+2;
+			WFIFOW(fd,c*2+4)=client_index(i);
 			c++;
 		}
 	}
@@ -7278,7 +7261,7 @@ void clif_item_repair_list(struct map_session_data *sd, struct map_session_data 
 	for (int i = 0; i < MAX_INVENTORY; i++) {
 		if (dstsd->inventory.u.items_inventory[i].nameid > 0 && dstsd->inventory.u.items_inventory[i].attribute != 0 && !itemdb_ishatched_egg(&dstsd->inventory.u.items_inventory[i])) {
 			p->items[c].index = i;
-			p->items[c].itemId = dstsd->inventory.u.items_inventory[i].nameid;
+			p->items[c].itemId = client_nameid(dstsd->inventory.u.items_inventory[i].nameid);
 			p->items[c].refine = dstsd->inventory.u.items_inventory[i].refine;
 			clif_addcards(&p->items[c].slot, &dstsd->inventory.u.items_inventory[i]);
 			c++;
@@ -7425,7 +7408,7 @@ void clif_cart_additem(struct map_session_data *sd, int n, int amount) {
 		return;
 }
 
-	if (n < 0 || n >= MAX_CART || sd->cart.u.items_cart[n].nameid <= 0) {
+	if (n < 0 || n >= MAX_CART || sd->cart.u.items_cart[n].nameid == 0) {
 		return;
 	}
 
@@ -8494,22 +8477,19 @@ void clif_movetoattack(struct map_session_data *sd,struct block_list *bl)
 /// 5 = Failure (Rune Knight)
 /// 6 = Success (Genetic)
 /// 7 = Failure (Genetic)
-void clif_produceeffect(struct map_session_data* sd,int flag,unsigned short nameid)
+void clif_produceeffect(struct map_session_data* sd,int flag, t_itemid nameid)
 {
-	int view,fd;
-
 	nullpo_retv(sd);
 
-	fd = sd->fd;
-	clif_solved_charname(fd, sd->status.char_id, sd->status.name);
-	WFIFOHEAD(fd,packet_len(0x18f));
-	WFIFOW(fd, 0)=0x18f;
-	WFIFOW(fd, 2)=flag;
-	if((view = itemdb_viewid(nameid)) > 0)
-		WFIFOW(fd, 4)=view;
-	else
-		WFIFOW(fd, 4)=nameid;
-	WFIFOSET(fd,packet_len(0x18f));
+	clif_solved_charname(sd->fd, sd->status.char_id, sd->status.name);
+
+	struct PACKET_ZC_ACK_REQMAKINGITEM p;
+
+	p.packetType = 0x18f;
+	p.result = flag;
+	p.itemId = client_nameid(nameid);
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 /// Initiates the pet taming process (ZC_START_CAPTURE).
@@ -8564,11 +8544,11 @@ void clif_sendegg(struct map_session_data *sd)
 	WFIFOW(fd,0)=0x1a6;
 	if(sd->status.pet_id <= 0) {
 		for(i=0,n=0;i<MAX_INVENTORY;i++){
-			if(sd->inventory.u.items_inventory[i].nameid<=0 || sd->inventory_data[i] == NULL ||
+			if(sd->inventory.u.items_inventory[i].nameid==0 || sd->inventory_data[i] == NULL ||
 			   sd->inventory_data[i]->type!=IT_PETEGG ||
 			   sd->inventory.u.items_inventory[i].amount<=0)
 				continue;
-			WFIFOW(fd,n*2+4)=i+2;
+			WFIFOW(fd,n*2+4)=client_index(i);
 			n++;
 		}
 	}
@@ -8949,20 +8929,14 @@ void clif_mvp_effect(struct map_session_data *sd)
 
 /// MVP item reward message (ZC_MVP_GETTING_ITEM).
 /// 010a <name id>.W
-void clif_mvp_item(struct map_session_data *sd, unsigned short nameid)
+void clif_mvp_item(struct map_session_data *sd, t_itemid nameid)
 {
-	int view,fd;
+	struct PACKET_ZC_MVP_GETTING_ITEM p;
 
-	nullpo_retv(sd);
+	p.packetType = 0x10a;
+	p.itemId = client_nameid(nameid);
 
-	fd=sd->fd;
-	WFIFOHEAD(fd,packet_len(0x10a));
-	WFIFOW(fd,0)=0x10a;
-	if((view = itemdb_viewid(nameid)) > 0)
-		WFIFOW(fd,2)=view;
-	else
-		WFIFOW(fd,2)=nameid;
-	WFIFOSET(fd,packet_len(0x10a));
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 
@@ -10738,7 +10712,7 @@ void clif_viewequip_ack(struct map_session_data* sd, struct map_session_data* ts
 		int k = tsd->equip_index[i];
 
 		if (k >= 0) {
-			if (tsd->inventory.u.items_inventory[k].nameid <= 0 || tsd->inventory_data[k] == NULL) { // Item doesn't exist
+			if (tsd->inventory.u.items_inventory[k].nameid == 0 || tsd->inventory_data[k] == NULL) { // Item doesn't exist
 				continue;
 			}
 
@@ -13528,7 +13502,7 @@ void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
 
 	if (sd->menuskill_id != MC_IDENTIFY)
 		return;
-	if( idx == -1 )
+	if (idx < 0 || idx >= MAX_INVENTORY || sd->inventory.u.items_inventory[idx].nameid == 0 || sd->inventory_data[idx] == NULL || sd->inventory.u.items_inventory[idx].identify)
 	{// cancel pressed
 		sd->menuskill_val = sd->menuskill_id = 0;
 		sd->state.workinprogress = WIP_DISABLE_NONE;
@@ -18351,7 +18325,7 @@ void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 	}
 }
 
-void clif_cashshop_result(struct map_session_data *sd, unsigned short item_id, uint16 result) {
+void clif_cashshop_result(struct map_session_data *sd, t_itemid item_id, uint16 result) {
 #if PACKETVER >= 20101123
 	nullpo_retv(sd);
 
@@ -19258,25 +19232,29 @@ void clif_elemental_info(struct map_session_data *sd) {
 
 /// Notification about the remaining time of a rental item (ZC_CASH_TIME_COUNTER).
 /// 0298 <name id>.W <seconds>.L
-void clif_rental_time(int fd, unsigned short nameid, int seconds)
+void clif_rental_time(struct map_session_data* sd, t_itemid nameid, int seconds)
 { // '<ItemName>' item will disappear in <seconds/60> minutes.
-	WFIFOHEAD(fd,packet_len(0x298));
-	WFIFOW(fd,0) = 0x298;
-	WFIFOW(fd,2) = nameid;
-	WFIFOL(fd,4) = seconds;
-	WFIFOSET(fd,packet_len(0x298));
+	struct PACKET_ZC_CASH_TIME_COUNTER p;
+
+	p.packetType = 0x298;
+	p.itemId = client_nameid(nameid);
+	p.seconds = seconds;
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 
 /// Deletes a rental item from client's inventory (ZC_CASH_ITEM_DELETE).
 /// 0299 <index>.W <name id>.W
-void clif_rental_expired(int fd, int index, unsigned short nameid)
+void clif_rental_expired(struct map_session_data* sd, int index, t_itemid nameid)
 { // '<ItemName>' item has been deleted from the Inventory
-	WFIFOHEAD(fd,packet_len(0x299));
-	WFIFOW(fd,0) = 0x299;
-	WFIFOW(fd,2) = index+2;
-	WFIFOW(fd,4) = nameid;
-	WFIFOSET(fd,packet_len(0x299));
+	struct PACKET_ZC_CASH_ITEM_DELETE p;
+
+	p.packetType = 0x299;
+	p.index = client_index(index);
+	p.itemId = client_nameid(nameid);
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 
@@ -19780,7 +19758,7 @@ void clif_party_show_picker(struct map_session_data* sd, struct item* item_data)
 
 	p.packetType = 0x2b8;
 	p.AID = sd->status.account_id;
-	p.itemId = item_data->nameid;
+	p.itemId = client_nameid(item_data->nameid);
 	p.identified = item_data->identify;
 	p.damaged = item_data->attribute;
 	p.refine = item_data->refine;
@@ -20154,11 +20132,11 @@ void clif_buyingstore_trade_failed_buyer(struct map_session_data* sd, short resu
 /// Updates the zeny limit and an item in the buying store item list.
 /// 081b <name id>.W <amount>.W <limit zeny>.L (ZC_UPDATE_ITEM_FROM_BUYING_STORE)
 /// 09e6 <name id>.W <amount>.W <zeny>.L <limit zeny>.L <GID>.L <Date>.L (ZC_UPDATE_ITEM_FROM_BUYING_STORE2)
-void clif_buyingstore_update_item(struct map_session_data* sd, unsigned short nameid, unsigned short amount, uint32 char_id, int zeny) {
+void clif_buyingstore_update_item(struct map_session_data* sd, t_itemid nameid, unsigned short amount, uint32 char_id, int zeny) {
 	struct PACKET_ZC_UPDATE_ITEM_FROM_BUYING_STORE p;
 
 	p.packetType = buyingStoreUpdateItemType;
-	p.itemId = nameid;
+	p.itemId = client_nameid(nameid);
 	p.amount = amount;
 	p.zenyLimit = sd->buyingstore.zenylimit;
 #if PACKETVER >= 20141016
@@ -20196,7 +20174,7 @@ void clif_buyingstore_delete_item(struct map_session_data* sd, short index, unsi
 ///     6 = "The trade failed, because the entered amount of item %s is higher, than the buyer is willing to buy." (0x6d3, MSI_BUYINGSTORE_TRADE_OVERCOUNT)
 ///     7 = "The trade failed, because the buyer is lacking required balance." (0x6d1, MSI_BUYINGSTORE_TRADE_LACKBUYERZENY)
 ///     ? = nothing
-void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, unsigned short nameid) {
+void clif_buyingstore_trade_failed_seller(struct map_session_data* sd, short result, t_itemid nameid) {
 	struct PACKET_ZC_FAILED_TRADE_BUYING_STORE_TO_SELLER p;
 
 	p.packetType = 0x824;
@@ -20758,22 +20736,22 @@ void clif_parse_RouletteRecvItem(int fd, struct map_session_data* sd)
  * @param prizeIdx
  * @param bonusItemID
  */
-void clif_roulette_generate_ack(struct map_session_data *sd, unsigned char result, short stage, short prizeIdx, short bonusItemID)
+void clif_roulette_generate_ack(struct map_session_data *sd, unsigned char result, short stage, short prizeIdx, t_itemid bonusItemID)
 {
-	int fd = sd->fd;
-
 	nullpo_retv(sd);
 
-	WFIFOHEAD(fd,packet_len(0xa20));
-	WFIFOW(fd,0) = 0xa20;
-	WFIFOB(fd,2) = result;
-	WFIFOW(fd,3) = stage;
-	WFIFOW(fd,5) = prizeIdx;
-	WFIFOW(fd,7) = bonusItemID;
-	WFIFOL(fd,9) = sd->roulette_point.gold;
-	WFIFOL(fd,13) = sd->roulette_point.silver;
-	WFIFOL(fd,17) = sd->roulette_point.bronze;
-	WFIFOSET(fd,packet_len(0xa20));
+	struct packet_roulette_generate_ack p;
+
+	p.PacketType = 0xa20;
+	p.Result = result;
+	p.Step = stage;
+	p.Idx = prizeIdx;
+	p.AdditionItemID = bonusItemID;
+	p.RemainGold = sd->roulette_point.gold;
+	p.RemainSilver = sd->roulette_point.silver;
+	p.RemainBronze = sd->roulette_point.bronze;
+
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 /// Move Item from or to Personal Tab (CZ_WHATSOEVER) [FE]
@@ -20823,46 +20801,62 @@ void clif_favorite_item(struct map_session_data* sd, unsigned short index) {
  * type: ITEMOBTAIN_TYPE_BOXITEM & ITEMOBTAIN_TYPE_MONSTER_ITEM "[playername] ... [surcename] ... [itemname]" -> MsgStringTable[1629]
  * type: ITEMOBTAIN_TYPE_NPC "[playername] ... [itemname]" -> MsgStringTable[1870]
  **/
-void clif_broadcast_obtain_special_item(const char *char_name, unsigned short nameid, unsigned short container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type, const char *srcname) {
-	unsigned char buf[9 + NAME_LENGTH * 2];
-	unsigned short cmd = 0;
-	struct s_packet_db *info = NULL;
-
-	if (!(cmd = packet_db_ack[clif_config.packet_db_ver][ZC_BROADCASTING_SPECIAL_ITEM_OBTAIN]))
-		return;
-
-	if (!(info = &packet_db[clif_config.packet_db_ver][cmd]) || info->len == 0)
-		return;
-
-	WBUFW(buf, 0) = 0x7fd;
-	WBUFB(buf, 4) = type;
-	WBUFW(buf, 5) = nameid;
-	WBUFB(buf, 7) = NAME_LENGTH;
-	safestrncpy((char *)WBUFP(buf, 8), char_name, NAME_LENGTH);
-
+void clif_broadcast_obtain_special_item(const char *char_name, t_itemid nameid, t_itemid container, enum BROADCASTING_SPECIAL_ITEM_OBTAIN type) {
 	switch (type) {
 	case ITEMOBTAIN_TYPE_BOXITEM:
-		WBUFW(buf, 2) = 11 + NAME_LENGTH;
-		WBUFB(buf, 8 + NAME_LENGTH) = 0;
-		WBUFW(buf, 9 + NAME_LENGTH) = container;
-		break;
-
-	case ITEMOBTAIN_TYPE_MONSTER_ITEM:
 	{
-		struct mob_db *db = mob_db(container);
-		WBUFW(buf, 2) = 9 + NAME_LENGTH * 2;
-		WBUFB(buf, 8 + NAME_LENGTH) = NAME_LENGTH;
-		safestrncpy((char *)WBUFP(buf, 9 + NAME_LENGTH), db->name, NAME_LENGTH);
+		struct packet_package_item_announce p;
+
+		p.PacketType = 0x7fd;
+		p.type = type;
+		p.ItemID = client_nameid(nameid);
+		p.len = NAME_LENGTH;
+		safestrncpy(p.Name, char_name, sizeof(p.Name));
+		p.unknown = 0x2; // some strange byte, IDA shows.. BYTE3(BoxItemIDLength) = 2;
+		p.BoxItemID = client_nameid(container);
+
+#if PACKETVER >= 20181121
+		p.PacketLength = 15 + p.len;
+#else
+		p.PacketLength = 11 + p.len;
+#endif
+
+		clif_send(&p, p.PacketLength, NULL, ALL_CLIENT);
 	}
 	break;
 
+	case ITEMOBTAIN_TYPE_MONSTER_ITEM:
 	case ITEMOBTAIN_TYPE_NPC:
-	default:
-		WBUFW(buf, 2) = 8 + NAME_LENGTH;
-		break;
-	}
+	{
+		struct packet_item_drop_announce p;
 
-	clif_send(buf, WBUFW(buf, 2), NULL, ALL_CLIENT);
+		p.PacketType = 0x7fd;
+		p.type = type;
+		p.ItemID = client_nameid(nameid);
+		p.len = NAME_LENGTH;
+		safestrncpy(p.Name, char_name, sizeof(p.Name));
+
+		if (type == ITEMOBTAIN_TYPE_MONSTER_ITEM) {
+			struct mob_db *db = mob_db(container);
+
+			p.monsterNameLen = NAME_LENGTH;
+			safestrncpy(p.monsterName, db->name, NAME_LENGTH);
+		}
+		else {
+			p.monsterNameLen = 0;
+			p.monsterName[0] = '\0';
+		}
+
+#if PACKETVER >= 20181121
+		p.PacketLength = 12 + p.len + p.monsterNameLen;
+#else
+		p.PacketLength = 8 + p.len + p.monsterNameLen;
+#endif
+
+		clif_send(&p, p.PacketLength, NULL, ALL_CLIENT);
+	}
+	break;
+	}
 }
 
 /// Show body view windows (ZC_DRESSROOM_OPEN).
@@ -20895,7 +20889,7 @@ void clif_parse_Oneclick_Itemidentify(int fd, struct map_session_data *sd) {
 	// - Invalid item ID or item doesn't exist
 	// - Item is already identified
 	if (idx < 0 || idx >= MAX_INVENTORY ||
-		sd->inventory.u.items_inventory[idx].nameid <= 0 || sd->inventory_data[idx] == NULL ||
+		sd->inventory.u.items_inventory[idx].nameid == 0 || sd->inventory_data[idx] == NULL ||
 		sd->inventory.u.items_inventory[idx].identify)
 			return;
 
@@ -21272,14 +21266,13 @@ void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
 		return;
 	}
 
-	char* map_name;
-	uint16 ItemID;
+	const struct PACKET_CZ_PRIVATE_AIRSHIP_REQUEST *p = (struct PACKET_CZ_PRIVATE_AIRSHIP_REQUEST *)RFIFOP(fd, 0);
 
-	map_name = (char*)RFIFOP(fd, 2);
-	map_name[MAP_NAME_LENGTH_EXT - 1] = '\0';
-	ItemID = RFIFOW(fd, 18);
+	char mapname[MAP_NAME_LENGTH_EXT];
 
-	int16 mapindex = mapindex_name2id(map_name);
+	safestrncpy(mapname, p->mapName, MAP_NAME_LENGTH_EXT);
+
+	int16 mapindex = mapindex_name2id(mapname);
 
 	// Check if we know the mapname
 	if (mapindex < 0) {
@@ -21314,12 +21307,12 @@ void clif_parse_private_airship_request(int fd, struct map_session_data *sd)
 	}
 
 	// Check if the item sent by the client is known to us
-	if (!itemdb_exists(ItemID)) {
+	if (!itemdb_exists(p->ItemID)) {
 		clif_private_airship_response(sd, P_AIRSHIP_ITEM_INVALID);
 		return;
 	}
 
-	int idx = pc_search_inventory(sd, ItemID);
+	int idx = pc_search_inventory(sd, p->ItemID);
 
 	// Check if the player has the item at all
 	if (idx < 0) {
@@ -21969,7 +21962,11 @@ void packetdb_readdb(void)
 #endif
 	//#0x0080
 	    7,  3,  2,  2,  2,  5, 16, 12, 10,  7, 29,  2, -1, -1, -1,  0, // 0x8b changed to 2 (was 23)
+#if PACKETVER < 20181121
 	    7, 22, 28,  2,  6, 30, -1, -1,  3, -1, -1,  5,  9, 17, 17,  6,
+#else
+		7, 22, 28,  2,  6, 30, -1, -1,  3, -1, -1,  5,  9, 19, 17,  6,
+#endif
 #if PACKETVER <= 20100622
 	   23,  6,  6, -1, -1, -1, -1,  8,  7,  6,  7,  4,  7,  0, -1,  6,
 #else
@@ -21980,11 +21977,21 @@ void packetdb_readdb(void)
 	    7,  2,  6,  8,  6,  7, -1, -1, -1, -1,  3,  3,  6,  3,  2, 27, // 0xcd change to 3 (was 6)
 	    3,  4,  4,  2, -1, -1,  3, -1,  6, 14,  3, -1, 28, 29, -1, -1,
 	   30, 30, 26,  2,  6, 26,  3,  3,  8, 19,  5,  2,  3,  2,  2,  2,
+#if PACKETVER < 20181121
 	    3,  2,  6,  8, 21,  8,  8,  2,  2, 26,  3, -1,  6, 27, 30, 10,
+#else
+		3,  2,  6,  8, 23,  8,  8,  2,  2, 26,  3, -1,  6, 27, 30, 10,
+#endif
 	//#0x0100
+#if PACKETVER < 20181121
 	    2,  6,  6, 30, 79, 31, 10, 10, -1, -1,  4,  6,  6,  2, 11, -1,
 	   10, 39,  4, 10, 31, 35, 10, 18,  2, 13, 15, 20, 68,  2,  3, 16,
-	    6, 14, -1, -1, 21,  8,  8,  8,  8,  8,  2,  2,  3,  4,  2, -1,
+		6, 14, -1, -1, 21,  8,  8,  8,  8,  8,  2,  2,  3,  4,  2, -1,
+#else
+		2,  6,  6, 30, 79, 31, 10, 10, -1, -1,  6,  6,  6,  2, 11, -1,
+	   12, 39,  4, 10, 31, 35, 10, 18,  2, 13, 15, 20, 68,  2,  3, 16,
+		6, 14, -1, -1, 23,  8,  8,  8,  8,  8,  2,  2,  3,  4,  2, -1,
+#endif
 	    6, 86,  6, -1, -1,  7, -1,  6,  3, 16,  4,  4,  4,  6, 24, 26,
 	//#0x0140
 	   22, 14,  6, 10, 23, 19,  6, 39,  8,  9,  6, 27, -1,  2,  6,  6,
@@ -21995,7 +22002,7 @@ void packetdb_readdb(void)
 #if PACKETVER < 20181121
 	    6,  3,106, 10, 10, 34,  0,  6,  8,  4,  4,  4, 29, -1, 10,  6,
 #else
-		6,  3,106, 10, 10, 34,  0,  6,  8,  4,  4,  4, 29, -1, 18,  6,
+		6,  3,106, 10, 10, 34,  0,  6,  8,  4,  4,  4, 29, -1, 18,  8,
 #endif
 #if PACKETVER < 1
 	   90, 86, 24,  6, 30,102,  8,  4,  8,  4, 14, 10, -1,  6,  2,  6,
@@ -22028,8 +22035,10 @@ void packetdb_readdb(void)
 	   22,  0, 26, 26, 42,  6,  6,  2,  2,282,282, 10, 10, -1, -1, 66,
 #if PACKETVER < 20071106
 	   10, -1, -1,  8, 10,  2,282, 18, 18, 15, 58, 57, 64,  5, 71,  5,
-#else // 0x22c changed
+#elif PACKETVER < 20180221 // 0x22c changed
 	   10, -1, -1,  8, 10,  2,282, 18, 18, 15, 58, 57, 65,  5, 71,  5,
+#else
+	   10, -1, -1, 10, 10,  2,282, 18, 18, 15, 58, 57, 65,  5, 71,  5,
 #endif
 	   12, 26,  9, 11, -1, -1, 10,  2,282, 11,  4, 36,  6, -1,  4,  2,
 	//#0x0240
@@ -22049,9 +22058,17 @@ void packetdb_readdb(void)
  #else
 	    0,  0,  0,  6, 14,  0,  0, -1, -1, 12, 18,  0,  0,  0,  0,  0, // 0x288 changed to -1
 #endif
+#if PACKETVER < 20181121
 	    0,  4,  0, 70, 10,  0,  0,  0,  8,  6, 27, 80,  0, -1,  0,  0,
+#else
+	    0,  4,  0, 70, 10,  0,  0,  0, 10,  8, 27, 80,  0, -1,  0,  0,
+#endif
 	    0,  0,  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+#if PACKETVER < 20181121
 	   85, -1, -1,107,  6, -1,  7,  7, 22,191,  0,  8,  0,  0,  0,  0,
+#else
+	   85, -1, -1,107,  6, -1,  7,  7, 24,191,  0,  8,  0,  0,  0,  0,
+#endif
 	//#0x02C0
 	    0, -1,  0,  0,  0, 30, 30,  0,  0,  3,  0, 65,  4, 71, 10,  0,
 	   -1, -1, -1,  0, 29,  0,  6, -1, 10, 10,  3,  0, -1, 32,  6, 36,
@@ -22168,7 +22185,11 @@ void packetdb_readdb(void)
 	   -1, -1, 18,  4,  8,  6,  2,  4, 14, 50, 18,  6,  2,  3, 14, 20,
 #endif
 	    3, -1,  8, -1,  86, 2,  6,  6, -1, -1,  4, 10, 10, 22,  8,  0,
+#if PACKETVER < 20181121
 	    0,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
+#else
+	    0,  0,  0,  0,  8,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
+#endif
 	    0,  0,  0,  0,  0, -1, -1,  3,  2, 66,  5,  2, 12,  6,  0,  0,
 	//#0x0840
 #if PACKETVER < 20130000
@@ -22217,7 +22238,11 @@ void packetdb_readdb(void)
 	  269,  0,  0,  2,  6, 48,  6,  9, 26, 45, 47, 47, 56, -1, 14,  0,
 #endif
 		-1, 0,  0, 26, 10,  0,  0,  0, 14,  2, 23,  2, -1,  2,  3,  2,
+#if PACKETVER < 20181121
 	   21,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  7,
+#else
+	   25,  3,  5, -1, 66,  6,  7,  8,  3,  0,  0,  0,  0, -1,  6,  7,
+#endif
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
 //#0x0A40
  		0,  0,  0, 85, -1,  0, 14,  3,  2, 20,  6,  0,  0,  0,  0,  0,

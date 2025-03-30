@@ -116,9 +116,9 @@ struct skill_condition {
 		state,
 		hp_rate,
 		sp_rate;
-	int itemid[MAX_SKILL_ITEM_REQUIRE],
-		amount[MAX_SKILL_ITEM_REQUIRE];
-	int *eqItem;
+	t_itemid itemid[MAX_SKILL_ITEM_REQUIRE];
+	int amount[MAX_SKILL_ITEM_REQUIRE];
+	t_itemid *eqItem;
 	uint8 eqItem_count;
 };
 
@@ -133,11 +133,11 @@ struct s_skill_require {
 		ammo,
 		ammo_qty[MAX_SKILL_LEVEL],
 		state,
-		spiritball[MAX_SKILL_LEVEL],
-		itemid[MAX_SKILL_ITEM_REQUIRE],
-		amount[MAX_SKILL_ITEM_REQUIRE];
-		int *eqItem;
-		uint8 eqItem_count;
+		spiritball[MAX_SKILL_LEVEL];
+	t_itemid itemid[MAX_SKILL_ITEM_REQUIRE];
+	int amount[MAX_SKILL_ITEM_REQUIRE];
+	t_itemid *eqItem;
+	uint8 eqItem_count;
 };
 
 /// Database skills.
@@ -214,7 +214,7 @@ struct skill_unit_group {
 	int group_id;
 	int link_group_id; /// Linked group that should be deleted if this one is deleted
 	int unit_count,alive_count;
-	int item_id; //store item used.
+	t_itemid item_id; //store item used.
 	struct skill_unit *unit;
 	struct {
 		unsigned ammo_consume : 1;
@@ -262,7 +262,7 @@ enum e_skill_unit_flag {
 
 // Create Database item
 struct s_skill_produce_db {
-	unsigned short nameid;
+	t_itemid nameid;
 	int trigger;
 	int req_skill,req_skill_lv,itemlv;
 	int mat_id[MAX_PRODUCE_RESOURCE],mat_amount[MAX_PRODUCE_RESOURCE];
@@ -271,7 +271,7 @@ extern struct s_skill_produce_db skill_produce_db[MAX_SKILL_PRODUCE_DB];
 
 // Creating database arrow
 struct s_skill_arrow_db {
-	unsigned short nameid;
+	t_itemid nameid;
 	int trigger;
 	int cre_id[MAX_ARROW_RESOURCE],cre_amount[MAX_ARROW_RESOURCE];
 };
@@ -286,7 +286,7 @@ struct s_skill_abra_db {
 extern struct s_skill_abra_db skill_abra_db[MAX_SKILL_ABRA_DB];
 
 struct s_skill_spellbook_db {
-	int nameid;
+	t_itemid nameid;
 	int skill_id;
 	int points;
 };
@@ -435,13 +435,13 @@ int skill_blockpc_end(int tid, int64 tick, int id, intptr_t data);
 int skill_chastle_mob_changetarget(struct block_list *bl,va_list ap);
 
 // Item creation
-int skill_can_produce_mix( struct map_session_data *sd, unsigned short nameid, int trigger, int qty);
-int skill_produce_mix( struct map_session_data *sd, int skill_id, unsigned short nameid, int slot1, int slot2, int slot3, int qty );
+int skill_can_produce_mix( struct map_session_data *sd, t_itemid nameid, int trigger, int qty);
+int skill_produce_mix( struct map_session_data *sd, int skill_id, t_itemid nameid, int slot1, int slot2, int slot3, int qty );
 
-int skill_arrow_create( struct map_session_data *sd,unsigned short nameid);
-int skill_poisoningweapon( struct map_session_data *sd, int nameid);
-int skill_magicdecoy( struct map_session_data *sd, int nameid);
-int skill_spellbook( struct map_session_data *sd, int nameid);	// Warlock Spellbooks. [LimitLine]
+int skill_arrow_create( struct map_session_data *sd, t_itemid nameid);
+int skill_poisoningweapon( struct map_session_data *sd, t_itemid nameid);
+int skill_magicdecoy( struct map_session_data *sd, t_itemid nameid);
+int skill_spellbook( struct map_session_data *sd, t_itemid nameid);	// Warlock Spellbooks. [LimitLine]
 int skill_select_menu( struct map_session_data *sd, int flag, int skill_id); // Shadow Cheser Auto Shadow Spell [pakpil]
 int skill_elementalanalysis(struct map_session_data *sd, int n, int type, unsigned short *item_list); // Sorcerer Four Elemental Analisys.
 int skill_changematerial(struct map_session_data *sd, int n, unsigned short *item_list);	// Genetic Change Material.

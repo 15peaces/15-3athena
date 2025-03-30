@@ -2553,10 +2553,24 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 packet_ver: 46
 packet_keys: 0x00000000,0x00000000,0x00000000
 0x0436,19,wanttoconnection,2:6:10:14:18 //needed to tell the server it is a "new" packet version. [15peaces]
+0x009d,19
+0x00f4,23
+0x010a,6
+0x0110,12
+0x0124,23
 0x018e,18,producemix,4:8:12:16
 0x01ae,6,selectarrow,4
+0x018f,8
 0x01fd,6,repairitem,4
+0x0223,10
 0x025b,8,cooking,2:4
+0x0298,10
+0x0299,8
+0x02b8,24
+0x0365,14,searchstoreinfolistitemclick,2,6,10
+0x0824,8
+0x09D6,-1,npcmarketpurchase,0
+0x0A20,25
 
 //Add new packets here
 //packet_ver: 47

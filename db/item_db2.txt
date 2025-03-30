@@ -5592,3 +5592,8 @@
 12880,Elf_Tear_Curse,Elf Tear Curse,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_CURSE,10000,3000,0; },{},{}
 12881,Elf_Tear_Silence,Elf Tear Silence,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_SILENCE,10000,3000,0; },{},{}
 12882,Elf_Tear_Blind,Elf Tear Blind,2,0,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ sc_start2 SC_GVG_BLIND,10000,3000,0; },{},{}
+
+//New ID-range testing
+1100003,Concentrated_R_P,Concentrated Red Potion,0,10,,2,,,,,0xFFFFFFFF,63,2,,,120,,,{ itemheal rand(655,675),0; },{},{}
+1100004,Concentrated_B_P,Concentrated Blue Potion,0,10,,2,,,,,0xFFFFFFFF,63,2,,,120,,,{ itemheal 0,rand(340,360); },{},{}
+1100005,Concentrated_G_P,Concentrated Gold Potion,0,10,,2,,,,,0xFFFFFFFF,63,2,,,180,,,{ itemheal rand(2730,2750),0; },{},{}

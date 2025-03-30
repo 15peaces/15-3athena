@@ -50,9 +50,9 @@ bool searchstore_querynext(struct map_session_data* sd);
 void searchstore_next(struct map_session_data* sd);
 void searchstore_clear(struct map_session_data* sd);
 void searchstore_close(struct map_session_data* sd);
-void searchstore_click(struct map_session_data* sd, uint32 account_id, int store_id, unsigned short nameid);
+void searchstore_click(struct map_session_data* sd, uint32 account_id, int store_id, t_itemid nameid);
 bool searchstore_queryremote(struct map_session_data* sd, uint32 account_id);
 void searchstore_clearremote(struct map_session_data* sd);
-bool searchstore_result(struct map_session_data* sd, int store_id, uint32 account_id, const char* store_name, unsigned short nameid, unsigned short amount, unsigned int price, const unsigned short* card, unsigned char refine, const struct item_option* option);
+bool searchstore_result(struct map_session_data* sd, int store_id, uint32 account_id, const char* store_name, t_itemid nameid, unsigned short amount, unsigned int price, const t_itemid* card, unsigned char refine, const struct item_option* option);
 
 #endif  // _SEARCHSTORE_H_
