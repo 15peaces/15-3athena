@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/03/2025
+	r514 [15peaces]
+		*Fixed a possible map crash with unittalk script command.
+		*Instances no longer leave "broken" timers behind. Instances also will destroy themselves upon @reloadscript since they break at that.
+
 03/30/2025
 	r513 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn513 sql-files!

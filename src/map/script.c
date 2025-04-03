@@ -17583,19 +17583,20 @@ BUILDIN_FUNC(unittalk)
 
 	message = script_getstr(st, 3);
 
-	if (script_hasdata(st, 4)) {
-		if (script_getnum(st, 4) == BC_SELF) {
-			if (!script_rid2bl(2, bl))
-			{
-				ShowWarning("script: unittalk: bc_self can't be used for non-players objects.\n");
-				return 1;
-			}
-			target = SELF;
-		}
-	}
-
-	if( bl != NULL ) {
+	if (script_rid2bl(2, bl))
+	{
+		send_target target = AREA;
 		struct StringBuf sbuf;
+
+		if (script_hasdata(st, 4)) {
+			if (script_getnum(st, 4) == BC_SELF) {
+				if (map_id2sd(bl->id) == NULL) {
+					ShowWarning("script: unittalk: bc_self can't be used for non-players objects.\n");
+					return 1;
+				}
+				target = SELF;
+			}
+		}
 
 		StringBuf_Init(&sbuf);
 		StringBuf_Printf(&sbuf, "%s", message);
