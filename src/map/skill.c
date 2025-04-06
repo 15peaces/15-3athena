@@ -4566,14 +4566,16 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SU_BITE:
 	case SU_SCAROFTAROU:
 	case SU_PICKYPECK:
-	case MH_NEEDLE_OF_PARALYZE:
-	case MH_SONIC_CRAW:
-	case MH_SILVERVEIN_RUSH:
-	case MH_MIDNIGHT_FRENZY:
 	case MH_CBC:
 	case EL_WIND_SLASH:
 	case EL_STONE_HAMMER:
 		skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag);
+		break;
+	case MH_NEEDLE_OF_PARALYZE:
+	case MH_SONIC_CRAW:
+	case MH_MIDNIGHT_FRENZY:
+	case MH_SILVERVEIN_RUSH:
+		skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag);
 		break;
 	case NC_MAGMA_ERUPTION:
 		skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag | SD_ANIMATION);
@@ -12935,6 +12937,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 	case MH_STEINWAND:
 	case MH_LAVA_SLIDE:
 	case MH_VOLCANIC_ASH:
+	case NPC_VENOMFOG:
 		flag|=1;//Set flag to 1 to prevent deleting ammo (it will be deleted on group-delete).
 	case GS_GROUNDDRIFT: //Ammo should be deleted right away.
 		skill_unitsetting(src,skill_id,skill_lv,x,y,0);
@@ -14975,6 +14978,7 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 		case UNT_ELECTRICWALK:
 		case UNT_PSYCHIC_WAVE:
 		case UNT_FIRE_RAIN:
+		case UNT_VENOMFOG:
 			skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			break;
 
@@ -15925,6 +15929,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		}
 	case RL_HEAT_BARREL:
 	case RL_HAMMER_OF_GOD:
+	case RL_E_CHAIN:
 		if( sd->spiritball > 0 && sd->spiritball < require.spiritball )
 			sd->spiritball_old = require.spiritball = sd->spiritball;
 		else
@@ -17050,6 +17055,10 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 					pc_delspiritball(sd,req.spiritball,0);
 					break;
 			}
+		}
+		else if (req.spiritball == -1) {
+			sd->spiritball_old = sd->spiritball;
+			pc_delspiritball(sd, sd->spiritball, 0);
 		}
 
 		if(req.zeny > 0)

@@ -10169,6 +10169,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 				val3 = 200;
 			val4 = 25 + 5 * val1;// HIT Reduction
 			break;
+		case SC_E_CHAIN:
+			val2 = 10;
+			if (sd)
+				val2 = sd->spiritball_old;
+			break;
 		case SC_ANTI_M_BLAST:
 			val2 = 10 * val1;// Player Damage Resistance Reduction.
 			break;

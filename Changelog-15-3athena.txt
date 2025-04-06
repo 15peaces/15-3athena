@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/06/2025
+	r515 [15peaces]
+		*Added support for NPC_VENOMFOG skill.
+		*Fixed RL_E_CHAIN.
+			-GS_CHAINACTION will now trigger as it should.
+		*Some other fixes.
+
 04/03/2025
 	r514 [15peaces]
 		*Fixed a possible map crash with unittalk script command.

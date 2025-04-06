@@ -110,7 +110,7 @@
 //632,0xc9,    ,  2, 0,1000,enemy, 0x018	//DA_TRANSFER
 
 670,0xc7,    ,  1, 5:5:5:5:5:5:5:5:5:13,1000,all,0x008	//NPC_EVILLAND
-//706,0xfd,    ,  0, 0,1000,all, 0x000	//NPC_VENOMFOG//Need information.
+706,0xfd,      ,  2, 0,1000,enemy,0x0018	//NPC_VENOMFOG
 //709,0xfe,    ,  0, 0,1000,all, 0x000	//NPC_ICEMINE/Need information.
 //711,0xff,    ,  0, 0,1000,all, 0x000	//NPC_FLAMECROSS/Need information.
 //719,0x100,   ,  0, 0,1000,all, 0x000	//NPC_HELLBURNING/Need information.

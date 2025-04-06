@@ -2611,15 +2611,15 @@ static struct Damage battle_calc_multi_attack(struct Damage wd, struct block_lis
 				wd.type = 0x08;
 			}
 		}
-		else if (((sd->weapontype1 == W_REVOLVER && (skill_lv = pc_checkskill(sd, GS_CHAINACTION)) > 0) //Normal Chain Action effect
-			|| (sd && sc->count && sc->data[SC_E_CHAIN] && (skill_lv = sc->data[SC_E_CHAIN]->val2) > 0)) //Chain Action of ETERNAL_CHAIN
+		if (wd.div_ == 1 && ((sd->weapontype1 == W_REVOLVER && (skill_lv = pc_checkskill(sd, GS_CHAINACTION)) > 0) //Normal Chain Action effect
+			|| (sc && sc->count && sc->data[SC_E_CHAIN] && (skill_lv = sc->data[SC_E_CHAIN]->val2) > 0)) //Chain Action of ETERNAL_CHAIN
 			&& rnd() % 100 < 5 * skill_lv) //Sucess rate
 		{
 			wd.div_ = skill_get_num(GS_CHAINACTION, skill_lv);
 			wd.type = 0x08;
 			sc_start(src, SC_E_QD_SHOT_READY, 100, target->id, skill_get_time(RL_QD_SHOT, 1));
 		}
-		else if (sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW
+		if (sc && sc->data[SC_FEARBREEZE] && sd->weapontype1 == W_BOW
 			&& (i = sd->equip_index[EQI_AMMO]) >= 0 && sd->inventory_data[i] && sd->inventory.u.items_inventory[i].amount > 1) {
 			int chance = rnd() % 100;
 			wd.type = 0x08;
@@ -5130,6 +5130,9 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						break;
 					case EL_STONE_RAIN:
 						skillratio = 900;
+						break;
+					case NPC_VENOMFOG:
+						skillratio += 600 + 100 * skill_lv;
 						break;
 				}
 
