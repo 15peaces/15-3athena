@@ -41,9 +41,13 @@ struct npc_item_list {
 
 /// List of bought/sold item for NPC shops
 struct s_npc_buy_list {
-	unsigned short qty;		///< Amount of item will be bought
-	t_itemid nameid;	///< ID of item will be bought
-};
+	uint16 qty;		///< Amount of item will be bought
+#if PACKETVER >= 20181121
+	uint32 nameid;	///< ID of item will be bought
+#else
+	uint16 nameid;	///< ID of item will be bought
+#endif
+} __attribute__((packed));
 
 struct npc_data {
 	struct block_list bl;
@@ -87,7 +91,7 @@ struct npc_data {
 		struct {
 			struct npc_item_list *shop_item;
 			uint16 count;
-			int itemshop_nameid; // Item Shop cost item ID
+			t_itemid itemshop_nameid; // Item Shop cost item ID
 			char pointshop_str[32]; // Point Shop cost variable name
 			bool discount;
 		} shop;

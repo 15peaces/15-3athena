@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/12/2025
+	r516 [15peaces]
+		*Fixed wrong expected packet length with CZ_MOVE_ITEM_FROM_STORE_TO_BODY2 packet on 20181121 clients.
+		*Fixed CZ_PC_PURCHASE_ITEMLIST packet.
+		*OnAgitInit events are now executed on reloadnpc to refresh the flag's emblems.
+
 04/06/2025
 	r515 [15peaces]
 		*Added support for NPC_VENOMFOG skill.

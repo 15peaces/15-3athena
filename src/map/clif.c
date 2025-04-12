@@ -12512,16 +12512,26 @@ void clif_npc_buy_result(struct map_session_data* sd, unsigned char result)
 
 /// Request to buy chosen items from npc shop (CZ_PC_PURCHASE_ITEMLIST).
 /// 00c8 <packet len>.W { <amount>.W <name id>.W }*
-void clif_parse_NpcBuyListSend(int fd, struct map_session_data* sd)
-{
-	struct s_packet_db* info = &packet_db[sd->packet_ver][RFIFOW(fd,0)];
-	uint16 n = (RFIFOW(fd,info->pos[0])-4) /4;
-	int result;
+void clif_parse_NpcBuyListSend(int fd, struct map_session_data* sd) {
+	const struct PACKET_CZ_PC_PURCHASE_ITEMLIST *p = (struct PACKET_CZ_PC_PURCHASE_ITEMLIST *)RFIFOP(fd, 0);
 
-	if( sd->state.trading || !sd->npc_shopid )
+	uint16 n = (p->packetLength - sizeof(struct PACKET_CZ_PC_PURCHASE_ITEMLIST)) / sizeof(struct PACKET_CZ_PC_PURCHASE_ITEMLIST_sub);
+	int result;
+	
+	if (sd->state.trading || !sd->npc_shopid)
 		result = 1;
 	else
-		result = npc_buylist(sd, n, (struct s_npc_buy_list*)RFIFOP(fd,info->pos[1]));
+	{
+		struct s_npc_buy_list *items;
+		CREATE(items, struct s_npc_buy_list, n+1);
+
+		for (uint16 i = 0; i < n; i++) {
+			items[i].nameid = p->items[i].itemId;
+			items[i].qty = p->items[i].amount;
+		}
+
+		result = npc_buylist(sd, n, items);
+	}
 
 	sd->npc_shopid = 0; //Clear shop data.
 	clif_npc_buy_result(sd, result);

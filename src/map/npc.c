@@ -2656,6 +2656,7 @@ static const char* npc_parse_shop(char* w1, char* w2, char* w3, char* w4, const 
 
 		nd->u.shop.shop_item[nd->u.shop.count].nameid = nameid2;
 		nd->u.shop.shop_item[nd->u.shop.count].value = value;
+
 #if PACKETVER >= 20131223
 		nd->u.shop.shop_item[nd->u.shop.count].flag = 0;
 		if (type == NPCTYPE_MARKETSHOP)
@@ -4265,6 +4266,11 @@ int npc_reload(void)
 	//Re-read the NPC Script Events cache.
 	npc_read_event_script();
 
+	/* refresh guild castle flags on all woe setups */
+	npc_event_doall("OnAgitInit");
+	npc_event_doall("OnAgitInit2");
+	npc_event_doall("OnAgitInit3");
+
 	//Execute the OnInit event for freshly loaded npcs. [Skotlex]
 	ShowStatus("Event '"CL_WHITE"OnInit"CL_RESET"' executed with '"CL_WHITE"%d"CL_RESET"' NPCs.\n",npc_event_doall("OnInit"));
 	
@@ -4290,6 +4296,7 @@ bool npc_unloadfile(const char* path) {
 	for (nd = dbi_first(iter); dbi_exists(iter); nd = dbi_next(iter)) {
 		if (nd->path && strcasecmp(nd->path, path) == 0) {
 			found = true;
+			npc_unload_duplicates(nd);/* unload any npcs which could duplicate this but be in a different file */
 			npc_unload(nd, true);
 		}
 	}
