@@ -48,6 +48,9 @@ static struct accreg *accreg_pt;
 unsigned int party_share_level = 10;
 char main_chat_nick[16] = "Main";
 
+struct s_storage_table *int_storages = NULL; ///< Storage name & table information
+uint8 int_storage_count=0;			  ///< Number of available storage
+
 // recv. packet list
 int inter_recv_packet_length[] = {
 	-1,-1, 7,-1, -1,13,36, 0,  0,-1, 0, 0,  0, 0,  0, 0,	// 3000-
@@ -58,7 +61,7 @@ int inter_recv_packet_length[] = {
 	-1,-1,10,10,  0,-1,12, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3050-  Auction System [Zephyrus]
 	 6,-1, 6,-1,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3060-  Quest system [Kevin] [Inkfish] / Achievements [Aleos]
 	-1,10, 6,-1,  0, 0, 0, 0, -1,10, 6,-1,  0, 0,  0, 0,	// 3070-  Mercenary packets [Zephyrus] Elementals [Rytech]
-	52,14,-1, 6,  0, 0, 0, 0,  0, 0,11,-1,  0, 0,  0, 0,	// 3080-  Pet System, Storage
+	52,14,-1, 6,  0, 0, 0, 0,  0, 0,12,-1,  0, 0,  0, 0,	// 3080-  Pet System, Storage
 	-1,10,-1, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 3090-  Homunculus packets [albator]
 	 2,-1, 6, 6,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0,	// 30A0-  Clan packets
 };
@@ -349,12 +352,6 @@ void inter_final(void)
 	if (accreg_pt) aFree(accreg_pt);
 	return;
 }
-
-int inter_mapif_init(int fd)
-{
-	return 0;
-}
-
 
 //--------------------------------------------------------
 
@@ -833,6 +830,25 @@ static void mapif_parse_save_achievements(int fd)
 	VECTOR_CLEAR(p);
 }
 
+/**
+  * IZ 0x388c <len>.W { <storage_table>.? }*?
+  * Sends storage information to map-server
+  * @param fd
+  **/
+void inter_Storage_sendInfo(int fd) {
+	int size = sizeof(struct s_storage_table), len = 4 + int_storage_count * size, i = 0;
+	// Send storage table information
+	WFIFOHEAD(fd, len);
+	WFIFOW(fd, 0) = 0x388c;
+	WFIFOW(fd, 2) = len;
+	for (i = 0; i < int_storage_count; i++) {
+		if (!&int_storages[i] || !int_storages[i].name)
+			continue;
+		memcpy(WFIFOP(fd, 4 + size * i), &int_storages[i], size);
+	}
+	WFIFOSET(fd, len);
+}
+
 //--------------------------------------------------------
 
 /// Returns the length of the next complete packet to process,
@@ -902,6 +918,24 @@ int inter_parse_frommap(int fd)
 
 	RFIFOSKIP( fd, len );
 	return 1;
+}
+
+int inter_mapif_init(int fd)
+{
+	CREATE(int_storages, struct s_storage_table, 2);
+	
+	int_storages[0].id = 0;
+	safestrncpy(int_storages[0].name, "Storage", NAME_LENGTH);
+	safestrncpy(int_storages[0].table, storage_db, 512);
+
+	int_storages[1].id = 1;
+	safestrncpy(int_storages[1].name, "Storage", NAME_LENGTH);
+	safestrncpy(int_storages[1].table, storage2_db, 512);
+
+	int_storage_count=2;
+
+	inter_Storage_sendInfo(fd);
+	return 0;
 }
 
 #endif //TXT_SQL_CONVERT

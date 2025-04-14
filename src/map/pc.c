@@ -1426,6 +1426,7 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	memset(&sd->inventory, 0, sizeof(struct s_storage));
 	memset(&sd->cart, 0, sizeof(struct s_storage));
 	memset(&sd->storage, 0, sizeof(struct s_storage));
+	memset(&sd->storage2, 0, sizeof(struct s_storage));
 	memset(&sd->equip_index, -1, sizeof(sd->equip_index));
 	memset(&sd->equip_switch_index, -1, sizeof(sd->equip_switch_index));
 
@@ -1687,9 +1688,9 @@ int pc_reg_received(struct map_session_data *sd)
 	sd->state.active = 1;
 	sd->state.pc_loaded = false; // Ensure inventory data and status data is loaded before we calculate player stats
 
-	intif_storage_request(sd,TABLE_INVENTORY); // Request inventory data
-	intif_storage_request(sd,TABLE_CART); // Request cart data
-	intif_storage_request(sd,TABLE_STORAGE); // Request storage data
+	intif_storage_request(sd,TABLE_INVENTORY, 0); // Request inventory data
+	intif_storage_request(sd,TABLE_CART, 0); // Request cart data
+	intif_storage_request(sd,TABLE_STORAGE, 0); // Request storage data
 
 	if (sd->status.party_id)
 		party_member_joined(sd);
@@ -10564,7 +10565,7 @@ void pc_check_available_item(struct map_session_data *sd) {
 				sprintf(output, msg_txt(sd,818), nameid); // Item %u has been removed from your storage.
 				clif_displaymessage(sd->fd, output);
 				ShowWarning("Removed invalid/disabled item id %u from storage (amount=%d, char_id=%d).\n", nameid, sd->storage.u.items_storage[i].amount, sd->status.char_id);
-				storage_delitem(sd, i, sd->storage.u.items_storage[i].amount);
+				storage_delitem(sd, &sd->storage, i, sd->storage.u.items_storage[i].amount);
 				continue;
 			}
 			if (!sd->storage.u.items_storage[i].unique_id && !itemdb_isstackable(nameid))

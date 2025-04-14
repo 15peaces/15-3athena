@@ -1,6 +1,7 @@
 // Copyright (c) Athena Dev Teams - Licensed under GNU GPL
 // For more information, see LICENCE in the main folder
 
+#include "../common/malloc.h"
 #include "../common/mmo.h"
 #include "../common/showmsg.h"
 #include "../common/socket.h"
@@ -15,6 +16,18 @@
 #define STORAGE_MEMINC	16
 
 /**
+ * Get table name of storage
+ * @param id Storage ID
+ * @return Table name
+ **/
+const char *inter_Storage_getTableName(uint8 id) {
+	if(id)
+		return storage2_db;
+	
+	return storage_db;
+}
+
+/**
  * Save inventory entries to SQL
  * @param char_id: Character ID to save
  * @param p: Inventory entries
@@ -22,7 +35,7 @@
  */
 static int inventory_tosql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_inventory, MAX_INVENTORY, char_id, TABLE_INVENTORY);
+	return char_memitemdata_to_sql(p->u.items_inventory, MAX_INVENTORY, char_id, TABLE_INVENTORY, p->stor_id);
 }
 
 /**
@@ -33,7 +46,7 @@ static int inventory_tosql(uint32 char_id, struct s_storage* p)
  */
 static int storage_tosql(uint32 account_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_storage, MAX_STORAGE, account_id, TABLE_STORAGE);
+	return char_memitemdata_to_sql(p->u.items_storage, MAX_STORAGE, account_id, TABLE_STORAGE, p->stor_id);
 }
 
 #ifndef TXT_SQL_CONVERT
@@ -45,7 +58,7 @@ static int storage_tosql(uint32 account_id, struct s_storage* p)
  */
 static int cart_tosql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_to_sql(p->u.items_cart, MAX_CART, char_id, TABLE_CART);
+	return char_memitemdata_to_sql(p->u.items_cart, MAX_CART, char_id, TABLE_CART, p->stor_id);
 }
 
 /**
@@ -56,7 +69,7 @@ static int cart_tosql(uint32 char_id, struct s_storage* p)
  */
 static bool inventory_fromsql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_from_sql(p, MAX_INVENTORY, char_id, TABLE_INVENTORY);
+	return char_memitemdata_from_sql(p, MAX_INVENTORY, char_id, TABLE_INVENTORY, p->stor_id);
 }
 
 /**
@@ -67,7 +80,7 @@ static bool inventory_fromsql(uint32 char_id, struct s_storage* p)
  */
 static bool cart_fromsql(uint32 char_id, struct s_storage* p)
 {
-	return char_memitemdata_from_sql(p, MAX_CART, char_id, TABLE_CART);
+	return char_memitemdata_from_sql(p, MAX_CART, char_id, TABLE_CART, p->stor_id);
 }
 
 /**
@@ -78,7 +91,7 @@ static bool cart_fromsql(uint32 char_id, struct s_storage* p)
  */
 static bool storage_fromsql(uint32 account_id, struct s_storage* p)
 {
-	return char_memitemdata_from_sql(p, MAX_STORAGE, account_id, TABLE_STORAGE);
+	return char_memitemdata_from_sql(p, MAX_STORAGE, account_id, TABLE_STORAGE, p->stor_id);
 }
 #endif //TXT_SQL_CONVERT
 
@@ -91,7 +104,7 @@ static bool storage_fromsql(uint32 account_id, struct s_storage* p)
 bool guild_storage_tosql(int guild_id, struct s_storage* p)
 {
 	//ShowInfo("Guild Storage has been saved (GID: %d)\n", guild_id);
-	return char_memitemdata_to_sql(p->u.items_guild, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE);
+	return char_memitemdata_to_sql(p->u.items_guild, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE, p->stor_id);
 }
 
 #ifndef TXT_SQL_CONVERT
@@ -103,7 +116,7 @@ bool guild_storage_tosql(int guild_id, struct s_storage* p)
  */
 bool guild_storage_fromsql(int guild_id, struct s_storage* p)
 {
-	return char_memitemdata_from_sql(p, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE);
+	return char_memitemdata_from_sql(p, MAX_GUILD_STORAGE, guild_id, TABLE_GUILD_STORAGE, p->stor_id);
 }
 
 //---------------------------------------------------------
@@ -143,9 +156,9 @@ bool mapif_load_guild_storage(int fd,uint32 account_id,int guild_id, char flag)
 	else if( Sql_NumRows(sql_handle) > 0 )
 	{// guild exists
 		Sql_FreeResult(sql_handle);
-		WFIFOHEAD(fd, sizeof(struct s_storage)+13);
+		WFIFOHEAD(fd, (uint16)sizeof(struct s_storage)+13);
 		WFIFOW(fd,0) = 0x3818;
-		WFIFOW(fd,2) = sizeof(struct s_storage)+13;
+		WFIFOW(fd,2) = (uint16)sizeof(struct s_storage)+13;
 		WFIFOL(fd,4) = account_id;
 		WFIFOL(fd,8) = guild_id;
 		WFIFOB(fd,12) = flag; //1 open storage, 0 don't open 
@@ -409,7 +422,7 @@ int mapif_parse_itembound_retrieve(int fd)
  * @param result
  */
 static void mapif_storage_data_loaded(int fd, uint32 account_id, char type, struct s_storage entries, bool result) {
-	uint16 size = sizeof(struct s_storage) + 10;
+	uint16 size = (uint16)sizeof(struct s_storage) + 10;
 	
 	WFIFOHEAD(fd, size);
 	WFIFOW(fd, 0) = 0x388a;
@@ -427,24 +440,27 @@ static void mapif_storage_data_loaded(int fd, uint32 account_id, char type, stru
  * @param fd
  * @param account_id
  * @param type
+ * @param stor_id
  */
-void mapif_storage_saved(int fd, uint32 account_id, uint32 char_id, bool sucess, char type) {
+void mapif_storage_saved(int fd, uint32 account_id, uint32 char_id, bool sucess, char type, uint8 stor_id) {
 	WFIFOHEAD(fd,8);
 	WFIFOW(fd, 0) = 0x388b;
 	WFIFOL(fd, 2) = account_id;
 	WFIFOB(fd, 6) = sucess;
 	WFIFOB(fd, 7) = type;
-	WFIFOSET(fd,8);
+	WFIFOB(fd, 8) = stor_id;
+	WFIFOSET(fd, 9);
 }
 
 /**
  * Requested inventory/cart/storage data for a player
- * ZI 0x308a <type>.B <account_id>.L <char_id>.L
+ * ZI 0x308a <type>.B <account_id>.L <char_id>.L <storage_id>.B
  * @param fd
  */
 bool mapif_parse_StorageLoad(int fd) {
 	uint32 aid, cid;
 	int type;
+	uint8 stor_id;
 	struct s_storage stor;
 	bool res = true;
 
@@ -452,8 +468,10 @@ bool mapif_parse_StorageLoad(int fd) {
 	type = RFIFOB(fd,2);
 	aid = RFIFOL(fd,3);
 	cid = RFIFOL(fd,7);
+	stor_id = RFIFOB(fd, 11);
 
 	memset(&stor, 0, sizeof(struct s_storage));
+	stor.stor_id = stor_id;
 
 	//ShowInfo("Loading storage for AID=%d.\n", aid);
 	switch (type) 
@@ -499,7 +517,7 @@ bool mapif_parse_StorageSave(int fd) {
 		case TABLE_CART:		cart_tosql(cid, &stor); break;
 		default: return false;
 	}
-	mapif_storage_saved(fd, aid, cid, true, type);
+	mapif_storage_saved(fd, aid, cid, true, type, stor.stor_id);
 	return false;
 }
 

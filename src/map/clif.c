@@ -13692,10 +13692,11 @@ void clif_parse_MoveToKafra(int fd, struct map_session_data *sd)
 	}
 
 	if (sd->state.storage_flag == 1)
-		storage_storageadd(sd, item_index, item_amount);
-	else
-	if (sd->state.storage_flag == 2)
+		storage_storageadd(sd, &sd->storage, item_index, item_amount);
+	else if (sd->state.storage_flag == 2)
 		storage_guild_storageadd(sd, item_index, item_amount);
+	else if (sd->state.storage_flag == 3)
+		storage_storageadd(sd, &sd->storage2, item_index, item_amount);
 }
 
 
@@ -13711,10 +13712,11 @@ void clif_parse_MoveFromKafra(int fd,struct map_session_data *sd)
 	item_amount = RFIFOL(fd,packet_db[sd->packet_ver][RFIFOW(fd,0)].pos[1]);
 
 	if (sd->state.storage_flag == 1)
-		storage_storageget(sd, item_index, item_amount);
-	else
-	if(sd->state.storage_flag == 2)
+		storage_storageget(sd, &sd->storage, item_index, item_amount);
+	else if(sd->state.storage_flag == 2)
 		storage_guild_storageget(sd, item_index, item_amount);
+	else if (sd->state.storage_flag == 3)
+		storage_storageget(sd, &sd->storage2, item_index, item_amount);
 }
 
 
@@ -13738,10 +13740,11 @@ void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd)
 	}
 
 	if (sd->state.storage_flag == 1)
-		storage_storageaddfromcart(sd, idx, amount);
-	else
-	if (sd->state.storage_flag == 2)
+		storage_storageaddfromcart(sd, &sd->storage, idx, amount);
+	else if (sd->state.storage_flag == 2)
 		storage_guild_storageaddfromcart(sd, idx, amount);
+	else if (sd->state.storage_flag == 3)
+		storage_storageaddfromcart(sd, &sd->storage2, idx, amount);
 }
 
 
@@ -13749,16 +13752,20 @@ void clif_parse_MoveToKafraFromCart(int fd, struct map_session_data *sd)
 /// 0128 <index>.W <amount>.L
 void clif_parse_MoveFromKafraToCart(int fd, struct map_session_data *sd)
 {
+	int idx = RFIFOW(fd, 2) - 1;
+	int amount = RFIFOL(fd, 4);
+
 	if( sd->state.vending )
 		return;
 	if (!pc_iscarton(sd))
 		return;
 
 	if (sd->state.storage_flag == 1)
-		storage_storagegettocart(sd, RFIFOW(fd,2)-1, RFIFOL(fd,4));
-	else
-	if (sd->state.storage_flag == 2)
-		storage_guild_storagegettocart(sd, RFIFOW(fd,2)-1, RFIFOL(fd,4));
+		storage_storagegettocart(sd, &sd->storage, idx, amount);
+	else if (sd->state.storage_flag == 2)
+		storage_guild_storagegettocart(sd, idx, amount);
+	else if (sd->state.storage_flag == 3)
+		storage_storagegettocart(sd, &sd->storage2, idx, amount);
 }
 
 
@@ -13768,9 +13775,10 @@ void clif_parse_CloseKafra(int fd, struct map_session_data *sd)
 {
 	if( sd->state.storage_flag == 1 )
 		storage_storageclose(sd);
-	else
-	if( sd->state.storage_flag == 2 )
+	else if( sd->state.storage_flag == 2 )
 		storage_guild_storageclose(sd);
+	else if (sd->state.storage_flag == 3)
+		storage_storage2_close(sd);
 }
 
 

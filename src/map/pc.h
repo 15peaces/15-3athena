@@ -185,7 +185,7 @@ struct map_session_data {
 		unsigned int arrow_atk : 1;
 		unsigned int gangsterparadise : 1;
 		unsigned int rest : 1;
-		unsigned int storage_flag : 2; //0: closed, 1: Normal Storage open, 2: guild storage open [Skotlex]
+		unsigned int storage_flag : 3; //0: closed, 1: Normal Storage open, 2: guild storage open, 3: Storage2 open [Skotlex]
 		unsigned int snovice_dead_flag : 1; //Explosion spirits on death: 0 off, 1 used.
 		unsigned int abra_flag : 1; // Abracadabra bugfix by Aru
 		unsigned int gmaster_flag : 1; // is guildmaster? (caches sd->status.name == g->master)
@@ -261,7 +261,7 @@ struct map_session_data {
 	struct registry save_reg;
 
 	// Item Storages
-	struct s_storage storage;
+	struct s_storage storage, storage2;
 	struct s_storage inventory;
 	struct s_storage cart;
 	

@@ -18,4 +18,6 @@ int storage_fromsql(uint32 account_id, struct storage_data* p);
 int storage_tosql(uint32 account_id,struct storage_data *p);
 int guild_storage_tosql(int guild_id, struct guild_storage *p);
 
+const char *inter_Storage_getTableName(uint8 id);
+
 #endif /* _INT_STORAGE_SQL_H_ */

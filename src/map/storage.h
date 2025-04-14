@@ -10,6 +10,9 @@ struct item;
 //#include "map.h"
 struct map_session_data;
 
+extern struct s_storage_table *storage_db;
+extern int storage_count;
+
 enum e_storage_add {
 	STORAGE_ADD_OK,
 	STORAGE_ADD_NOROOM,
@@ -17,12 +20,12 @@ enum e_storage_add {
 	STORAGE_ADD_INVALID,
 };
 
-int storage_delitem(struct map_session_data* sd, int n, int amount);
+int storage_delitem(struct map_session_data* sd, struct s_storage *stor, int n, int amount);
 int storage_storageopen(struct map_session_data *sd);
-void storage_storageadd(struct map_session_data *sd,int index,int amount);
-void storage_storageget(struct map_session_data *sd,int index,int amount);
-void storage_storageaddfromcart(struct map_session_data *sd,int index,int amount);
-void storage_storagegettocart(struct map_session_data *sd,int index,int amount);
+void storage_storageadd(struct map_session_data *sd, struct s_storage *stor, int index,int amount);
+void storage_storageget(struct map_session_data *sd, struct s_storage *stor, int index,int amount);
+void storage_storageaddfromcart(struct map_session_data *sd, struct s_storage *stor, int index,int amount);
+void storage_storagegettocart(struct map_session_data *sd, struct s_storage *stor, int index,int amount);
 void storage_storageclose(struct map_session_data *sd);
 void storage_sortitem(struct item* items, unsigned int size);
 void do_init_storage(void);
@@ -45,5 +48,13 @@ void storage_guild_storageclose(struct map_session_data *sd);
 void storage_guild_storage_quit(struct map_session_data *sd,int flag);
 bool storage_guild_storagesave(uint32 account_id, int guild_id, int flag);
 void storage_guild_storagesaved(int guild_id); //Ack from char server that guild store was saved.
+
+// Storage 2
+void storage_storage2_open(struct map_session_data *sd);
+bool storage_storage2_load(struct map_session_data *sd, uint8 num);
+void storage_storage2_save(struct map_session_data *sd);
+void storage_storage2_saved(struct map_session_data *sd);
+void storage_storage2_close(struct map_session_data *sd);
+void storage_storage2_quit(struct map_session_data *sd);
 
 #endif /* _STORAGE_H_ */

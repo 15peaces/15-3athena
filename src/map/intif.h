@@ -125,7 +125,7 @@ void intif_request_achievements(uint32 char_id);
 void intif_achievements_save(struct map_session_data *sd);
 
 // STORAGE
-bool intif_storage_request(struct map_session_data *sd, enum storage_type type);
+bool intif_storage_request(struct map_session_data *sd, enum storage_type type, uint8 stor_id);
 bool intif_storage_save(struct map_session_data *sd, struct s_storage *stor);
 
 bool CheckForCharServer(void);

@@ -73,8 +73,8 @@ enum e_char_del_response {
 
 unsigned int char_server_fd(uint32 account_id);
 
-int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch);
-bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum storage_type tableswitch );
+int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch, uint8 stor_id);
+bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum storage_type tableswitch, uint8 stor_id);
 
 int mapif_sendall(unsigned char *buf,unsigned int len);
 int mapif_sendallwos(int fd,unsigned char *buf,unsigned int len);
@@ -107,6 +107,7 @@ extern char cart_db[256];
 extern char inventory_db[256];
 extern char charlog_db[256];
 extern char storage_db[256];
+extern char storage2_db[256];
 extern char interlog_db[256];
 extern char reg_db[256];
 extern char skill_db[256];

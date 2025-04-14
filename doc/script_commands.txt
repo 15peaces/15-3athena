@@ -5135,6 +5135,12 @@ window, to avoid any disruption when both windows overlap.
 
 ---------------------------------------
 
+*openstorage2;
+ 
+Just like 'openstorage' command, except this command can open additional storage. 
+
+---------------------------------------
+
 *openmail;
 
 This will open a character's Mail window on the client connected to the 

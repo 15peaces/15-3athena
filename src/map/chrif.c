@@ -314,6 +314,8 @@ int chrif_save(struct map_session_data *sd, int flag)
 	//For data sync
 	if (sd->state.storage_flag == 2)
 		storage_guild_storagesave(sd->status.account_id, sd->status.guild_id, flag);
+	if (sd->storage2.dirty)
+		intif_storage_save(sd, &sd->storage2);
 
 	if (flag&CSAVE_QUITTING)
 		sd->state.storage_flag = 0; //Force close it.
@@ -1932,14 +1934,10 @@ void do_init_chrif(void)
 	auth_db_ers = ers_new(sizeof(struct auth_node), "chrif.c::auth_db_ers", ERS_OPT_NONE);
 
 	add_timer_func_list(check_connect_char_server, "check_connect_char_server");
-	// add_timer_func_list(ping_char_server, "ping_char_server"); //Disabled, no need anymore. [15peaces]
 	add_timer_func_list(auth_db_cleanup, "auth_db_cleanup");
 
 	// establish map-char connection if not present
 	add_timer_interval(gettick() + 1000, check_connect_char_server, 0, 0, 10 * 1000);
-
-	// keep the map-char connection alive
-	// add_timer_interval(gettick() + 1000, ping_char_server, 0, 0, ((int)stall_time-2) * 1000); //Disabled, no need anymore. [15peaces]
 
 	// wipe stale data for timed-out client connection requests
 	add_timer_interval(gettick() + 1000, auth_db_cleanup, 0, 0, 30 * 1000);

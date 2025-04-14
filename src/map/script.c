@@ -6933,7 +6933,7 @@ static void buildin_delitem_delete(struct map_session_data* sd, int idx, int* am
 				pc_cart_delitem(sd,idx,delamount,0,LOG_TYPE_SCRIPT);
 				break;
 			case TABLE_STORAGE:
-				storage_delitem(sd,idx,delamount);
+				storage_delitem(sd, &sd->storage, idx,delamount);
 				break;
 			case TABLE_GUILD_STORAGE:
 				gstor->lock = true;
@@ -9141,6 +9141,18 @@ BUILDIN_FUNC(openstorage)
 		return 0;
 
 	storage_storageopen(sd);
+	return 0;
+}
+
+BUILDIN_FUNC(openstorage2)
+{
+	TBL_PC* sd;
+
+	sd = script_rid2sd(st);
+	if (sd == NULL)
+		return 0;
+
+	script_pushint(st, storage_storage2_load(sd, 1));
 	return 0;
 }
 
@@ -21129,6 +21141,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(gettime,"i"),
 	BUILDIN_DEF(gettimestr,"si"),
 	BUILDIN_DEF(openstorage,""),
+	BUILDIN_DEF(openstorage2, ""),
 	BUILDIN_DEF(guildopenstorage,""),
 	BUILDIN_DEF(itemskill,"vi?"),
 	BUILDIN_DEF(produce,"i"),

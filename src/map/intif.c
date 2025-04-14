@@ -46,7 +46,7 @@ static const int packet_len_table[] = {
 	-1,-1, 7, 7,  7,11, 8,-1,  0, 0, 0, 0,  0, 0,  0, 0, //0x3850  Auctions [Zephyrus] itembound[Akinari] 
 	-1, 7,-1, 0, 14, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3860  Quests [Kevin] [Inkfish] / Achievements [Aleos]
 	-1, 3, 3, 0,  0, 0, 0, 0, -1, 3, 3, 0,  0, 0,  0, 0, //0x3870  Mercenaries [Zephyrus] Elementals [Rytech]
-	12,-1, 7, 3,  0, 0, 0, 0,  0, 0,-1, 8,  0, 0,  0, 0, //0x3880  Pet System,  Storages
+	12,-1, 7, 3,  0, 0, 0, 0,  0, 0,-1, 9, -1, 0,  0, 0, //0x3880  Pet System,  Storages
 	-1,-1, 7, 3,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x3890  Homunculus [albator]
 	-1,-1, 8, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0,  0, 0, //0x38A0  Clans
 };
@@ -2558,13 +2558,18 @@ static bool intif_parse_StorageReceived(int fd)
 		return false;
 	}
 
+	p = (struct s_storage *)RFIFOP(fd, 10);
+
 	switch (type)
 	{ 
 		case TABLE_INVENTORY:
 			stor = &sd->inventory;
 			break;
 		case TABLE_STORAGE:
-			stor = &sd->storage;
+			if (p->stor_id == 0)
+				stor = &sd->storage;
+			else
+				stor = &sd->storage2;
 			break;
 		case TABLE_CART:
 			stor = &sd->cart;
@@ -2573,15 +2578,15 @@ static bool intif_parse_StorageReceived(int fd)
 			return false;
 	}
 
-	if (stor->status)
-	{ // Already open.. lets ignore this update
-		ShowWarning("intif_parse_StorageReceived: storage received for a client already open (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
-		return false;
-	}
-	if (stor->dirty)
-	{ // Already have storage, and it has been modified and not saved yet! Exploit!
-		ShowWarning("intif_parse_StorageReceived: received storage for an already modified non-saved storage! (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
-		return false;
+	if (stor->stor_id == p->stor_id) {
+		if (stor->status) { // Already open.. lets ignore this update
+			ShowWarning("intif_parse_StorageReceived: storage received for a client already open (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
+			return false;
+		}
+		if (stor->dirty) { // Already have storage, and it has been modified and not saved yet! Exploit!
+			ShowWarning("intif_parse_StorageReceived: received storage for an already modified non-saved storage! (User %d:%d)\n", sd->status.account_id, sd->status.char_id);
+			return false;
+		}
 	}
 	if (RFIFOW(fd,2)-10 != sz_stor)
 	{
@@ -2589,8 +2594,6 @@ static bool intif_parse_StorageReceived(int fd)
 		stor->status = false;
 		return false;
 	}
-
-	p = (struct s_storage *)RFIFOP(fd,10);
 
 	memcpy(stor, p, sz_stor); //copy the items data to correct destination
 
@@ -2632,6 +2635,8 @@ static bool intif_parse_StorageReceived(int fd)
 			break;
 
 		case TABLE_STORAGE:
+			if (stor->stor_id)
+				storage_storage2_open(sd);
 			break;
 	}
 	return true;
@@ -2653,12 +2658,14 @@ static void intif_parse_StorageSaved(int fd)
 				break;
 			case TABLE_STORAGE: //storage
 				//ShowInfo("Storage has been saved (AID: %d).\n", RFIFOL(fd, 2));
+				if (RFIFOB(fd, 8))
+					storage_storage2_saved(map_id2sd(RFIFOL(fd, 2)));
 				sd->storage.dirty = false;
 				break;
 			case TABLE_CART: // cart
 				//ShowInfo("Cart has been saved (AID: %d).\n", RFIFOL(fd, 2));
 				if( sd && sd->state.prevend ){
-					intif_storage_request(sd,TABLE_CART);
+					intif_storage_request(sd,TABLE_CART,0);
 				}
 				break;
 			default:
@@ -2669,23 +2676,51 @@ static void intif_parse_StorageSaved(int fd)
 }
 
 /**
+  * IZ 0x388c <len>.W { <storage_table>.? }*?
+  * Receive storage information
+  **/
+void intif_parse_StorageInfo_recv(int fd) {
+	int i, size = sizeof(struct s_storage_table), count = (RFIFOW(fd, 2) - 4) / size;
+
+	storage_count = 0;
+	if (storage_db)
+		aFree(storage_db);
+	storage_db = NULL;
+
+	for (i = 0; i < count; i++) {
+		char name[NAME_LENGTH + 1];
+		safestrncpy(name, (char *)RFIFOP(fd, 5 + size * i), NAME_LENGTH);
+		if (!name || name[0] == '\0')
+			continue;
+		RECREATE(storage_db, struct s_storage_table, storage_count + 1);
+		memcpy(&storage_db[storage_count], RFIFOP(fd, 4 + size * i), size);
+		storage_count++;
+	}
+
+	if (battle_config.etc_log)
+		ShowInfo("Received '"CL_WHITE"%d"CL_RESET"' storage info from inter-server.\n", storage_count);
+}
+
+/**
  * Request inventory/cart/storage data for a player
- * ZI 0x308a <type>.B <account_id>.L <char_id>.L
+ * ZI 0x308a <type>.B <account_id>.L <char_id>.L <storage_id>.B
  * @param sd: Player data
  * @param type: Storage type
+  * @param stor_id: Storage ID
  * @return false - error, true - message sent
  */
-bool intif_storage_request(struct map_session_data *sd, enum storage_type type)
+bool intif_storage_request(struct map_session_data *sd, enum storage_type type, uint8 stor_id)
 {
 	if (CheckForCharServer())
 		return false;
 
-	WFIFOHEAD(inter_fd, 11);
+	WFIFOHEAD(inter_fd, 12);
 	WFIFOW(inter_fd, 0) = 0x308a;
 	WFIFOB(inter_fd, 2) = type;
 	WFIFOL(inter_fd, 3) = sd->status.account_id;
 	WFIFOL(inter_fd, 7) = sd->status.char_id;
-	WFIFOSET(inter_fd, 11);
+	WFIFOB(inter_fd, 11) = stor_id;
+	WFIFOSET(inter_fd, 12);
 	return true;
 }
 
@@ -2846,6 +2881,7 @@ int intif_parse(int fd)
 // Storage
 	case 0x388a:	intif_parse_StorageReceived(fd); break;
 	case 0x388b:	intif_parse_StorageSaved(fd); break;
+	case 0x388c:	intif_parse_StorageInfo_recv(fd); break;
 
 // Homunculus System
 	case 0x3890:	intif_parse_CreateHomunculus(fd); break;

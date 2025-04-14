@@ -20,6 +20,7 @@
 #include "int_mercenary.h"
 #include "int_elemental.h"
 #include "int_party.h"
+#include "int_storage.h"
 #include "int_achievement.h"
 #include "char.h"
 #include "inter.h"
@@ -49,6 +50,7 @@ char cart_db[256] = "cart_inventory";
 char inventory_db[256] = "inventory";
 char charlog_db[256] = "charlog";
 char storage_db[256] = "storage";
+char storage2_db[256] = "storage2";
 char interlog_db[256] = "interlog";
 char reg_db[256] = "global_reg_value";
 char skill_db[256] = "skill";
@@ -776,7 +778,7 @@ int mmo_char_tosql(uint32 char_id, struct mmo_charstatus* p)
 }
 
 /// Saves an array of 'item' entries into the specified table.
-int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch) {
+int char_memitemdata_to_sql(const struct item items[], int max, int id, enum storage_type tableswitch, uint8 stor_id) {
 	StringBuf buf;
 	SqlStmt* stmt;
 	int i, j, offset = 0, errors = 0;
@@ -799,7 +801,7 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 			break;
 		case TABLE_STORAGE:
 			printname = "Storage";
-			tablename = storage_db;
+			tablename = inter_Storage_getTableName(stor_id);
 			selectoption = "account_id";
 			break;
 		case TABLE_GUILD_STORAGE:
@@ -983,14 +985,14 @@ int char_memitemdata_to_sql(const struct item items[], int max, int id, enum sto
 		errors++;
 	}
 
-	ShowInfo("Saved %s data for %s: %d\n", printname, selectoption, id);
+	ShowInfo("Saved %s (%d) data to table %s for %s: %d\n", printname, stor_id, tablename, selectoption, id);
 	StringBuf_Destroy(&buf);
 	aFree(flag);
 	
 	return errors;
 }
 
-bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum storage_type tableswitch ){
+bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum storage_type tableswitch, uint8 stor_id){
 	StringBuf buf;
 	SqlStmt* stmt;
 	int i,j, offset = 0;
@@ -1012,7 +1014,7 @@ bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum stora
 			break;
 		case TABLE_STORAGE:
 			printname = "Storage";
-			tablename = storage_db;
+			tablename = inter_Storage_getTableName(stor_id);
 			selectoption = "account_id";
 			storage = p->u.items_storage;
 			break;
@@ -1030,6 +1032,7 @@ bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum stora
 	memset(p, 0, sizeof(struct s_storage)); //clean up memory
 	p->id = id;
 	p->type = tableswitch;
+	p->stor_id = stor_id;
 
 	stmt = SqlStmt_Malloc(sql_handle);
 	if (stmt == NULL) {
@@ -1088,7 +1091,7 @@ bool char_memitemdata_from_sql( struct s_storage* p, int max, int id, enum stora
 		memcpy(&storage[i], &item, sizeof(item));
 
 	p->amount = i;
-	ShowInfo("Loaded %s data from DB for %s: %d (total: %d)\n", printname, selectoption, id, p->amount);
+	ShowInfo("Loaded %s (%d) data from table %s for %s: %d (total: %d)\n", printname, p->stor_id, tablename, selectoption, id, p->amount);
 
 	SqlStmt_FreeResult(stmt);
 	SqlStmt_Free(stmt);
@@ -5829,6 +5832,8 @@ void sql_config_read(const char* cfgName)
 			safestrncpy(charlog_db, w2, sizeof(charlog_db));
 		else if(!strcmpi(w1,"storage_db"))
 			safestrncpy(storage_db, w2, sizeof(storage_db));
+		else if (!strcmpi(w1, "storage2_db"))
+			safestrncpy(storage2_db, w2, sizeof(storage2_db));
 		else if(!strcmpi(w1,"reg_db"))
 			safestrncpy(reg_db, w2, sizeof(reg_db));
 		else if(!strcmpi(w1,"skill_db"))

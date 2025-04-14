@@ -1112,6 +1112,27 @@ ACMD_FUNC(storage)
 	return 0;
 }
 
+/*==========================================
+ *
+ *------------------------------------------*/
+ACMD_FUNC(storage2)
+{
+	nullpo_retr(-1, sd);
+
+	if (sd->npc_id || sd->state.vending || sd->state.buyingstore || sd->state.trading || sd->state.storage_flag)
+		return -1;
+
+	if (storage_storage2_load(sd, 1) == 0)
+	{	//Already open.
+		clif_displaymessage(fd, msg_txt(sd, 250));
+		return -1;
+	}
+
+	clif_displaymessage(fd, "Storage opened.");
+
+	return 0;
+}
+
 
 /*==========================================
  *
@@ -1135,6 +1156,11 @@ ACMD_FUNC(guildstorage)
 
 	if (sd->state.storage_flag == 2) {
 		clif_displaymessage(fd, msg_txt(sd,251));
+		return -1;
+	}
+
+	if (sd->state.storage_flag == 3) {
+		clif_displaymessage(fd, msg_txt(sd, 250));
 		return -1;
 	}
 
@@ -6456,7 +6482,7 @@ ACMD_FUNC(storeall)
 			if(sd->inventory.u.items_inventory[i].equip != 0)
 				pc_unequipitem(sd, i, 3);
 			pc_equipswitch_remove(sd, i);
-			storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
+			storage_storageadd(sd, &sd->storage, i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	storage_storageclose(sd);
@@ -6494,7 +6520,7 @@ ACMD_FUNC(storeit) {
 	for (i = 0; i < MAX_INVENTORY; i++) {
 		if (sd->inventory.u.items_inventory[i].amount) {
 			if(sd->inventory.u.items_inventory[i].equip == 0)
-				storage_storageadd(sd,  i, sd->inventory.u.items_inventory[i].amount);
+				storage_storageadd(sd, &sd->storage, i, sd->inventory.u.items_inventory[i].amount);
 		}
 	}
 	storage_storageclose(sd);
@@ -10446,6 +10472,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "load",              40,40,     atcommand_load },
 	{ "speed",             40,40,     atcommand_speed },
 	{ "storage",            1,1,      atcommand_storage },
+	{ "storage2",           1,1,      atcommand_storage2 },
 	{ "gstorage",          50,50,     atcommand_guildstorage },
 	{ "option",            40,40,     atcommand_option },
 	{ "hide",              40,40,     atcommand_hide }, // + /hide
