@@ -4773,10 +4773,8 @@ BUILDIN_FUNC(callfunc)
 		{
 			const char* name = reference_getname(data);
 			if (name[0] == '.') {
-				if (!ref) {
-					ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*), 1);
-					ref[0] = (name[1] == '@' ? st->stack->var_function : st->script->script_vars);
-				}
+				ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*), 1);
+				ref[0] = (name[1] == '@' ? st->stack->var_function : st->script->script_vars);
 				data->ref = ref;
 			}
 		}
@@ -7734,7 +7732,7 @@ BUILDIN_FUNC(getequipname)
 	i = pc_checkequip(sd, equip_bitmask[num], false);
 	if( i < 0 )
 	{
-		script_pushint(st,-1);
+		script_pushconststr(st, "");
 		return 0;
 	}
 
@@ -12560,7 +12558,10 @@ BUILDIN_FUNC(strmobinfo)
 
 	if(!mobdb_checkid(class_))
 	{
-		script_pushint(st,0);
+		if (num < 3) //requested a string
+			script_pushconststr(st, "");
+		else
+			script_pushint(st, 0);
 		return 0;
 	}
 
@@ -16497,7 +16498,7 @@ BUILDIN_FUNC(searchitem)
 
 	for( i = 0; i < count; ++start, ++i )
 	{// Set array
-		void* v = (void*)items[i]->nameid;
+		void* v = (void*)__64BPRTSIZE((int)items[i]->nameid);
 		set_reg(st, sd, reference_uid(id, start), name, v, reference_getref(data));
 	}
 

@@ -452,7 +452,7 @@ void storage_storagegettocart(struct map_session_data* sd, struct s_storage *sto
 	if (result != STORAGE_ADD_OK)
 		return;
 
-	if ((flag = pc_cart_additem(sd, &sd->storage.u.items_storage[index], amount, LOG_TYPE_STORAGE)) == 0)
+	if ((flag = pc_cart_additem(sd, &stor->u.items_storage[index], amount, LOG_TYPE_STORAGE)) == 0)
 		storage_delitem(sd, stor, index, amount);
 	else {
 		clif_storageitemremoved(sd, index, 0);

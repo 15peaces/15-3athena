@@ -5,6 +5,28 @@
 // 		- Details.
 //			--More Details.
 //========================================
+04/23/2025
+	r518 [15peaces]
+		*Fixed an item duplication exploid related to the 2 storages system.
+			-You should update ASAP!
+		*Some small script updates (npcskill usage).
+		*Fixed strmobinfo() to output empty strings for 'name' instead of zeros.
+		*Fixed getequipname() returning -1 instead of an empty string.
+		*Fixed "callfunc" script command.
+		*Idle timer now resets on more actions:
+			-Idle timer now resets when player sits/stands.
+			-Idle timer resets when sending a chat message (global, main, guild, party, or battleground).
+
+04/14/2025
+	r517 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn517 sql-file!
+		*Added support for a 2nd storage.
+			-This is based on rAs premium storage and allows you to increase the storage size for your players.
+			-With the recent changes on the itemID size it is impossible to increase the storage size by default.
+			-Now you can at least give your players more space by using this 2nd storage.
+			-The 2nd storage can be accessed using the @storage2 command or using the openstorage2 script command.
+				--Thanks to @rathena for the base.
+
 04/12/2025
 	r516 [15peaces]
 		*Fixed wrong expected packet length with CZ_MOVE_ITEM_FROM_STORE_TO_BODY2 packet on 20181121 clients.

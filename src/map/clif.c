@@ -11796,6 +11796,9 @@ void clif_parse_GlobalMessage(int fd, struct map_session_data* sd)
 	map_foreachinrange(npc_chat_sub, &sd->bl, AREA_SIZE, BL_NPC, output, strlen(output), &sd->bl);
 #endif
 
+	// Reset idle time when using normal chat.
+	sd->idletime = last_tick;
+
 	// Chat logging type 'O' / Global Chat
 	log_chat(LOG_CHAT_GLOBAL, 0, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, NULL, message);
 	//achievement_update_objective(sd, AG_CHAT, 1, sd->bl.m); //! TODO: What's the official use of this achievement type?
@@ -12022,6 +12025,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		)) //No sitting during these states either.
 			break;
 
+		sd->idletime = last_tick;
 		pc_setsit(sd);
 		skill_sit(sd,1);
 		clif_sitting(&sd->bl, true);
@@ -12037,6 +12041,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		if (sd->sc.opt1 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 			break;
 
+		sd->idletime = last_tick;
 		if (pc_setstand(sd, false)) {
 			skill_sit(sd, 0);
 			clif_standing(&sd->bl, true);
@@ -12106,6 +12111,9 @@ void clif_parse_WisMessage(int fd, struct map_session_data* sd)
 	// validate packet and retrieve name and message
 	if (!clif_process_message(sd, true, target, message, output))
 		return;
+
+	// Reset idle time when using whisper/main chat.
+	sd->idletime = last_tick;
 
 	// Chat logging type 'W' / Whisper
 	log_chat(LOG_CHAT_WHISPER, 0, sd->status.char_id, sd->status.account_id, mapindex_id2name(sd->mapindex), sd->bl.x, sd->bl.y, target, message);
@@ -14015,6 +14023,9 @@ void clif_parse_PartyMessage(int fd, struct map_session_data* sd)
 	if (!clif_process_message(sd, false, name, message, output))
 		return;
 
+	// Reset idle time when using party chat.
+	sd->idletime = last_tick;
+
 	party_send_message(sd, output, strlen(output) + 1);
 }
 
@@ -14649,6 +14660,9 @@ void clif_parse_GuildMessage(int fd, struct map_session_data* sd)
 	// validate packet and retrieve name and message
 	if (!clif_process_message(sd, false, name, message, output))
 		return;
+	
+	// Reset idle time when using guild chat.
+	sd->idletime = last_tick;
 
 	if (sd->bg_id)
 		bg_send_message(sd, output, strlen(output));
@@ -19392,6 +19406,9 @@ void clif_parse_BattleChat(int fd, struct map_session_data* sd)
 
 	if (!clif_process_message(sd, false, name, message, output))
 		return;
+
+	// Reset idle time when using battleground chat.
+	sd->idletime = last_tick;
 
 	bg_send_message(sd, output, strlen(output));
 }

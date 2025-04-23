@@ -4370,7 +4370,7 @@ static void map_helpscreen(bool do_exit)
  *------------------------------------------------------*/
 static void map_versionscreen(bool do_exit)
 {
-	ShowInfo(CL_WHITE"15-3athena SVN version: %s" CL_RESET"\n", get_svn_revision()); // TODO: change this to git, we don't use svn anymore...
+	ShowInfo(CL_WHITE"15-3athena GIT hash: %s" CL_RESET"\n", get_git_hash());
 	ShowInfo(CL_GREEN"Project page:"CL_RESET"\thttps://15peaces.com/blog/index.php/15-3athena/\n");
 	ShowInfo(CL_GREEN"GitHub:"CL_RESET"\thttps://github.com/15peaces/15-3athena/\n");
 	ShowInfo(CL_GREEN"Facebook group:"CL_RESET"\thttps://www.facebook.com/groups/153athena/\n");

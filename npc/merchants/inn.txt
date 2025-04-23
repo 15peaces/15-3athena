@@ -1,12 +1,12 @@
-//===== eAthena Script ======================================= 
+//===== 15-3athena Script ====================================
 //= Inn Npcs
 //===== By: ================================================== 
 //= Darkchild (1.1)
 //= Playtester (1.2)
 //===== Current Version: ===================================== 
-//= 3.0a
+//= 3.0b
 //===== Compatible With: ===================================== 
-//= eAthena 1.0+
+//= 15-3athena Project
 //===== Description: ========================================= 
 //= Inn Npcs, Save and Heal
 //============================================================
@@ -46,6 +46,7 @@
 //= 2.9 Added switch menus, updated to match AEGIS scripts. [Kisuka]
 //= 3.0 Added Brasilis inn receptionist. [L0ne_W0lf]
 //= 3.0a Updated dialog for Brasilis inn. [L0ne_W0lf]
+//= 3.0b Added 'npcskill' command. [15peaces]
 //============================================================ 
 
 
@@ -149,8 +150,7 @@ lhz_in02,230,284,4	script	Hotel Employee#01	86,{
 		close2;
 		warp "lhz_in02",219,150;
 		percentheal 100,100;
-		sc_start SC_BLESSING,240000,10;
-		skilleffect AL_BLESSING,0;
+		npcskill "AL_BLESSING",10,99,99;
 		end;
 	case 3:
 		mes "[Hotel Employee]";
