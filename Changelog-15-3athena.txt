@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/21/2025
+	r519 [15peaces]
+		*Updated some skill usages on certain maps.
+			-Masquerade - Ignorance is no longer usable in instances.
+			-Dimension Door, Chaos Panic, Bloody Lust, and Sling Item are no longer usabled in towns.
+		*Misc cleaned-up.
+			-cleanded up pc_jobchange.
+		*Fixed the prompt script command to return 255 again on cancel.
+
 04/23/2025
 	r518 [15peaces]
 		*Fixed an item duplication exploid related to the 2 storages system.

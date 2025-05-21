@@ -4462,7 +4462,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		if (skill_id != MC_CARTREVOLUTION && pc_checkskill(sd, BS_HILTBINDING) > 0)
 			ATK_ADD(wd.damage, wd.damage2, 4);
 		if (skill_id == MO_FINGEROFFENSIVE) { //The finger offensive spheres on moment of attack do count. [Skotlex]
-			ATK_ADD(wd.damage, wd.damage2, wd.div_*sd->spiritball_old * 3);
+			ATK_ADD(wd.damage, wd.damage2, ((wd.div_ < 1) ? 1 : wd.div_) * sd->spiritball_old * 3);
 		}
 		else {
 			ATK_ADD(wd.damage, wd.damage2, wd.div_*sd->spiritball * 3);

@@ -1,11 +1,11 @@
-//===== eAthena Script =======================================
+//===== 15-3athena Script ====================================
 //= The Eye of Hellion Quest.
 //===== By: ==================================================
 //= MasterOfMuppets
 //===== Current Version: =====================================
-//= 1.9
+//= 2.0
 //===== Compatible With: =====================================
-//= eAthena SVN
+//= 15-3athena Project
 //===== Description: =========================================
 //= [Aegis Conversion]
 //= Quest for getting a Nile Rose
@@ -21,6 +21,7 @@
 //= 1.7 Corrected reminants from aegis conversion. [L0en_w0lf]
 //= 1.8 Replaced effect numerics with constants. [L0ne_W0lf]
 //= 1.9 Removed duplicate text. [Kisuka]
+//= 2.0 Updated EXP rewards.
 //============================================================
 
 morocc_in,116,101,3	script	Old Scholar Tyus#hellion	735,3,3,{

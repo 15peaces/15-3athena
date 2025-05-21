@@ -717,7 +717,7 @@ void pc_addfame(struct map_session_data *sd,int count)
 // Check whether a player ID is in the fame rankers' list of its job, returns his/her position if so, 0 else
 unsigned char pc_famerank(uint32 char_id, int job)
 {
-	int i;
+	uint8 i;
 	
 	switch(job){
 		case MAPID_BLACKSMITH: // Blacksmith
@@ -1224,7 +1224,7 @@ bool pc_adoption(struct map_session_data *p1_sd, struct map_session_data *p2_sd,
 	jobexp = b_sd->status.job_exp;
 
 	job = pc_mapid2jobid(b_sd->class_|JOBL_BABY, b_sd->status.sex);
-	if( job != -1 && !pc_jobchange(b_sd, job, 0) )
+	if( job != -1 && pc_jobchange(b_sd, job, 0) )
 	{ // Success, proceed to configure parents and baby skills
 		p1_sd->status.child = b_sd->status.char_id;
 		p2_sd->status.child = b_sd->status.char_id;
@@ -1823,6 +1823,19 @@ int pc_calc_skilltree(struct map_session_data *sd)
 				sd->status.skill[i-8].id = i - 8;
 				sd->status.skill[i-8].lv = sd->status.skill[i].lv; // Set the level to the same as the linking skill
 				sd->status.skill[i-8].flag = SKILL_FLAG_TEMPORARY; // Tag it as a non-savable, non-uppable, bonus skill
+			}
+		}
+	}
+
+	// Removes Taekwon Ranker skill bonus
+	if ((sd->class_&MAPID_UPPERMASK) != MAPID_TAEKWON) {
+		uint16 c_ = pc_class2idx(JOB_TAEKWON);
+		for (i = 0; i < MAX_SKILL_TREE; i++) {
+			uint16 x = skill_get_index(skill_tree[c_][i].id), id;
+			if ((id = sd->status.skill[x].id)) {
+				if (id == NV_BASIC || id == NV_FIRSTAID || id == WE_CALLBABY)
+					continue;
+				sd->status.skill[x].id = 0;
 			}
 		}
 	}
@@ -8879,20 +8892,20 @@ static int jobchange_killclone(struct block_list *bl, va_list ap)
  * @param upper 1 - JOBL_UPPER; 2 - JOBL_BABY
  * @return True if success, false if failed
  **/
-int pc_jobchange(struct map_session_data *sd,int job, int upper)
+bool pc_jobchange(struct map_session_data *sd,int job, char upper)
 {
 	int i, fame_flag=0;
 	int b_class;
 
-	nullpo_ret(sd);
+	nullpo_retr(false, sd);
 
 	if (job < 0)
-		return 1;
+		return false;
 
 	//Normalize job.
 	b_class = pc_jobid2mapid(job);
 	if (b_class == -1)
-		return 1;
+		return false;
 	switch (upper) {
 		case 1:
 			b_class|= JOBL_UPPER; 
@@ -8905,10 +8918,10 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 	//That is, if you try to jobchange into dancer, it will turn you to bard.	
 	job = pc_mapid2jobid(b_class, sd->status.sex);
 	if (job == -1)
-		return 1;
+		return false;
 	
 	if ((unsigned short)b_class == sd->class_)
-		return 1; //Nothing to change.
+		return false; //Nothing to change.
 	// Changing from 2nd to 3rd job.
 	if (b_class&JOBL_THIRD) {
 		if (!(sd->class_&JOBL_THIRD) )
@@ -9103,7 +9116,7 @@ int pc_jobchange(struct map_session_data *sd,int job, int upper)
 
 	achievement_validate_jobchange(sd); // Achievements [Smokexyz/Hercules]
 
-	return 0;
+	return true;
 }
 
 /*==========================================

@@ -989,7 +989,7 @@ bool pc_revive_item(struct map_session_data *sd);
 void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int type);
 int pc_itemheal(struct map_session_data *sd, t_itemid itemid, int hp,int sp);
 int pc_percentheal(struct map_session_data *sd,int,int);
-int pc_jobchange(struct map_session_data *,int, int);
+bool pc_jobchange(struct map_session_data *sd, int job, char upper);
 void pc_setoption(struct map_session_data *,int);
 bool pc_setcart(struct map_session_data* sd, int type);
 void pc_setfalcon(struct map_session_data* sd, int flag);
