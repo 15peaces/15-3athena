@@ -4325,8 +4325,11 @@ void clif_changeoption(struct block_list* bl)
 
 	//Whenever we send "changeoption" to the client, the provoke icon is lost
 	//There is probably an option for the provoke icon, but as we don't know it, we have to do this for now
-	if (sc->data[SC_PROVOKE] && sc->data[SC_PROVOKE]->timer == INVALID_TIMER)
-		clif_status_change(bl, StatusIconChangeTable[SC_PROVOKE], 1, -1, 0, 0, 0);
+	if (sc->data[SC_PROVOKE]) {
+		const struct TimerData *td = get_timer(sc->data[SC_PROVOKE]->timer);
+
+		clif_status_change(bl, StatusIconChangeTable[SC_PROVOKE], 1, (!td ? -1 : DIFF_TICK(td->tick, gettick())), 0, 0, 0);
+	}
 }
 
 void clif_changeoption_target(struct block_list *bl, struct block_list *target_bl, enum send_target target)
@@ -11635,17 +11638,30 @@ void clif_progressbar_abort(struct map_session_data * sd)
 }
 
 
-/// Notification from the client, that the progress bar has reached 100% (CZ_PROGRESS).
-/// 02f1
-void clif_parse_progressbar(int fd, struct map_session_data * sd)
-{
-	int npc_id = sd->progressbar.npc_id;
+/// Notification from the client, that the progress bar has reached 100%.
+/// 02f1 (CZ_PROGRESS)
+void clif_parse_progressbar(int fd, struct map_session_data * sd) {
+	// No progressbar active, ignore it
+	if (!sd->progressbar.npc_id) {
+		return;
+	}
 
-	if( gettick() < sd->progressbar.timeout && sd->st )
-		sd->st->state = END;
+	int npc_id = sd->progressbar.npc_id;
+	bool closing = false;
+
+	// Check if the progress was canceled
+	if (gettick() < sd->progressbar.timeout && sd->st) {
+		closing = true;
+		sd->st->state = CLOSE; // will result in END in npc_scriptcont
+
+		// If a message window was open, offer a close button to the user
+		if (sd->st->mes_active) {
+			clif_scriptclose(sd, npc_id);
+		}
+	}
 
 	sd->progressbar.timeout = sd->state.workinprogress = sd->progressbar.npc_id = 0;
-	npc_scriptcont(sd, npc_id, false);
+	npc_scriptcont(sd, npc_id, closing);
 }
 
 
@@ -19379,27 +19395,29 @@ void clif_bg_xy_remove(struct map_session_data *sd)
 /// 02dc <packet len>.W <account id>.L <name>.24B <message>.?B
 void clif_bg_message(struct battleground_data *bg, int src_id, const char *name, const char *mes, int len)
 {
-	struct map_session_data *sd;
-	unsigned char *buf;
-	if( !bg->count || (sd = bg_getavailablesd(bg)) == NULL )
+	struct map_session_data *sd = bg_getavailablesd(bg);
+
+	if( !bg->count || sd == NULL )
 		return;
 
-	buf = (unsigned char*)aMalloc((len + NAME_LENGTH + 8)*sizeof(unsigned char));
+	// limit length
+	len = min(len + 1, CHAT_SIZE_MAX);
+
+	unsigned char buf[8 + NAME_LENGTH + CHAT_SIZE_MAX];
 
 	WBUFW(buf,0) = 0x2dc;
 	WBUFW(buf,2) = len + NAME_LENGTH + 8;
 	WBUFL(buf,4) = src_id;
 	safestrncpy(WBUFP(buf,8), name, NAME_LENGTH);
-	memcpy(WBUFP(buf,32), mes, len);
-	clif_send(buf,WBUFW(buf,2), &sd->bl, BG);
+	safestrncpy(WBUFCP(buf, 8 + NAME_LENGTH), mes, len);
 
-	if( buf )
-		aFree(buf);
+	clif_send(buf, WBUFW(buf, 2), &sd->bl, BG);
 }
 
 
-/// Validates and processes battlechat messages [pakpil] (CZ_BATTLEFIELD_CHAT).
-/// 0x2db <packet len>.W <text>.?B (<name> : <message>) 00
+/// Validates and processes battlechat messages.
+/// All messages that are sent after enabling battleground chat with /battlechat.
+/// 02DB <packet len>.W <text>.?B (CZ_BATTLEFIELD_CHAT)
 void clif_parse_BattleChat(int fd, struct map_session_data* sd)
 {
 	char name[NAME_LENGTH], message[CHAT_SIZE_MAX], output[CHAT_SIZE_MAX + NAME_LENGTH * 2];
@@ -21709,6 +21727,11 @@ void clif_parse_merge_item_req(int fd, struct map_session_data* sd) {
 
 	for (i = 0, j = 0; i < n; i++) {
 		unsigned short idx = RFIFOW(fd, info->pos[1] + i * 2) - 2;
+
+		if (idx < 0 || idx >= MAX_INVENTORY) {
+			return;
+		}
+
 		if (!clif_merge_item_check((id = sd->inventory_data[idx]), &sd->inventory.u.items_inventory[idx]))
 			continue;
 		indexes[j] = idx;
@@ -21766,6 +21789,40 @@ void clif_party_leaderchanged(struct map_session_data *sd, int prev_leader_aid, 
 	WBUFL(buf, 2) = prev_leader_aid;
 	WBUFL(buf, 6) = new_leader_aid;
 	clif_send(buf, packet_len(0x7fc), &sd->bl, PARTY);
+}
+
+/// Activates the client camera info or updates the client camera with the given values.
+/// 0A78 <type>.B <range>.F <rotation>.F <latitude>.F
+void clif_camerainfo(struct map_session_data* sd, bool show, float range, float rotation, float latitude) {
+#if PACKETVER >= 20160525
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, packet_len(0xa78));
+	WFIFOW(fd, 0) = 0xa78;
+	WFIFOB(fd, 2) = show;
+	WFIFOF(fd, 3) = range;
+	WFIFOF(fd, 7) = rotation;
+	WFIFOF(fd, 11) = latitude;
+	WFIFOSET(fd, packet_len(0xa78));
+#endif
+}
+
+/// Activates or deactives the client camera info or updates the camera settings.
+/// This packet is triggered by /viewpointvalue or /setcamera
+/// 0A77 <type>.B <range>.F <rotation>.F <latitude>.F
+void clif_parse_camerainfo(int fd, struct map_session_data* sd) {
+	char command[CHAT_SIZE_MAX];
+
+	// /viewpointvalue
+	if (RFIFOB(fd, 2) == 1) {
+		safesnprintf(command, sizeof(command), "%ccamerainfo", atcommand_symbol);
+		// /setcamera
+	}
+	else {
+		safesnprintf(command, sizeof(command), "%ccamerainfo %03.03f %03.03f %03.03f", atcommand_symbol, RFIFOF(fd, 3), RFIFOF(fd, 7), RFIFOF(fd, 11));
+	}
+
+	is_atcommand(fd, sd, command, 1);
 }
 
 #ifdef DUMP_UNKNOWN_PACKET
@@ -22283,7 +22340,7 @@ void packetdb_readdb(void)
  		0,  0,  0, 85, -1,  0, 14,  3,  2, 20,  6,  0,  0,  0,  0,  0,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0, -1,  0,  0,
- 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,
+ 		0,  0,  0,  0,  0,  0,  0, 15, 15,  0,  0,  0,  0, -1,  0,  0,
 //#0x0A80
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
@@ -22565,6 +22622,7 @@ void packetdb_readdb(void)
 		{ clif_parse_merge_item_req, "mergeitem_req" },
 		{ clif_parse_merge_item_cancel, "mergeitem_cancel" },
 		{ clif_parse_PartyTick, "partytick" },
+		{ clif_parse_camerainfo, "pcamerainfo" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

@@ -1210,4 +1210,6 @@ void clif_merge_item_open(struct map_session_data *sd);
 void clif_partyinvitationstate(struct map_session_data* sd, bool flag);
 void clif_party_leaderchanged(struct map_session_data *sd, int prev_leader_aid, int new_leader_aid);
 
+void clif_camerainfo(struct map_session_data* sd, bool show, float range, float rotation, float latitude);
+
 #endif /* _CLIF_H_ */

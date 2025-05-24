@@ -20948,6 +20948,23 @@ BUILDIN_FUNC(is_party_leader)
 	return 0;
 }
 
+BUILDIN_FUNC(camerainfo) {
+#if PACKETVER < 20160525
+	ShowError("buildin_camerainfo: This command requires PACKETVER 2016-05-25 or newer.\n");
+	return SCRIPT_CMD_FAILURE;
+#else
+	struct map_session_data* sd;
+
+	if (!script_charid2sd(5, sd)) {
+		return 1;
+	}
+
+	clif_camerainfo(sd, false, script_getnum(st, 2) / 100.0f, script_getnum(st, 3) / 100.0f, script_getnum(st, 4) / 100.0f);
+
+	return 0;
+#endif
+}
+
 /**
  * Get an equipment's refine cost
  * getequiprefinecost(<equipment slot>,<type>,<information>{,<char id>})
@@ -21521,5 +21538,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(is_guild_leader, "?"),
 	BUILDIN_DEF(is_party_leader, "?"),
 	BUILDIN_DEF(getequiprefinecost, "iii?"),
+	BUILDIN_DEF(camerainfo, "iii?"),
 	{NULL,NULL,NULL},
 };

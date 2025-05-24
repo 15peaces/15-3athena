@@ -10446,6 +10446,32 @@ ACMD_FUNC(unloadnpcfile) {
 	return 0;
 }
 
+/**
+ * Displays camera information from the client.
+ * Usage: @camerainfo or client command /viewpointvalue or /setcamera on supported clients
+ */
+ACMD_FUNC(camerainfo) {
+	nullpo_retr(-1, sd);
+
+	if (message == NULL || message[0] == '\0') {
+		clif_camerainfo(sd, true, 0.0f, 0.0f, 0.0f);
+		return 0;
+	}
+
+	float range = 0;
+	float rotation = 0;
+	float latitude = 0;
+
+	if (sscanf(message, "%f %f %f", &range, &rotation, &latitude) < 3) {
+		clif_displaymessage(fd, msg_txt(sd, 768)); // Usage @camerainfo range rotation latitude
+		return -1;
+	}
+
+	clif_camerainfo(sd, false, range, rotation, latitude);
+
+	return 0;
+}
+
 /*==========================================
  * atcommand_info[] structure definition
  *------------------------------------------*/
@@ -10783,7 +10809,10 @@ AtCommandInfo atcommand_info[] = {
 	{ "reloadmsgconf",     99,99,     atcommand_reloadmsgconf },
 	{ "fullstrip",         50,50,     atcommand_fullstrip },
 	{ "set",               50,50,     atcommand_set },
-	{ "unloadnpcfile",     80,80,     atcommand_unloadnpcfile }
+	{ "unloadnpcfile",     80,80,     atcommand_unloadnpcfile },
+	{ "camerainfo",	       80,80,     atcommand_camerainfo },
+	{ "viewpointvalue",    80,80,     atcommand_camerainfo },
+	{ "setcamera",         80,80,     atcommand_camerainfo },
 };
 
 

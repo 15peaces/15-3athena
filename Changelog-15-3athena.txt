@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+05/24/2025
+	r520 [15peaces]
+		*Fixed zero termination for bg messages.
+		*Added support for /viewpointvalue command
+			-Additionally added a script command to update the player's camera.
+			-Added a new atcommand camerainfo for this, which is limited to admins.
+			-Requires a 2016-05-25 or newer client.
+		*Corrected skills that give bonuses while sitting.
+			-Corrected Gangster's Paradise not releasing the monster invulnerability state when standing up around multiple Rogue's that know Gangster's Paradise.
+			-Same fix goes for Taekwon's Peaceful Break and Happy Break.
+		*Fixed some more server crashes.
+		*Fixed the Provoke icon getting removed when clif_changeoption is called and it's not an infinite duration.
+		*Fixed some issues with progressbars.
+			-Fixed if progress was being canceled and a message window was active, the user would be stuck, because no close button would show.
+
 05/21/2025
 	r519 [15peaces]
 		*Updated some skill usages on certain maps.

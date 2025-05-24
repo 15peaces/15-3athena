@@ -412,7 +412,7 @@ int skill_check_pc_partner(struct map_session_data *sd, short skill_id, short* s
 int skill_unit_move(struct block_list *bl,int64 tick,int flag);
 int skill_unit_move_unit_group( struct skill_unit_group *group, int m,int dx,int dy);
 
-int skill_sit (struct map_session_data *sd, int type);
+int skill_sit (struct map_session_data *sd, bool sitting);
 void skill_repairweapon(struct map_session_data *sd, int idx);
 void skill_identify(struct map_session_data *sd,int idx);
 void skill_weaponrefine(struct map_session_data *sd,int idx); // [Celest]
