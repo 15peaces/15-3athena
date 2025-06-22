@@ -669,7 +669,10 @@ bAddItemGroupHealRate	2073
 bHPVanishRaceRate	2074
 bSPVanishRaceRate	2075
 
-bSubDefEle	2079
+bSubDefEle	2078
+
+bMagicAddRace2	2081
+bIgnoreMdefRace2Rate	2082
 
 bDropAddRace	2085
 bDropAddClass	2086
@@ -740,6 +743,7 @@ RC2_Scaraba	7
 RC2_Gvg	8
 RC2_Battlefield	9
 RC2_Treasure	10
+RC2_BioLab	11
 
 Size_Small	0
 Size_Medium	1

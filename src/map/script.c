@@ -214,6 +214,29 @@ static bool script_nick2sd_(struct script_state *st, uint8 loc, struct map_sessi
 }
 
 /**
+ * Get `sd` from a mapid in `loc` param instead of attached rid
+ * @param st Script
+ * @param loc Location to look mapid in script parameter
+ * @param sd Variable that will be assigned
+ * @return True if `sd` is assigned, false otherwise
+ **/
+static bool script_mapid2sd_(struct script_state *st, uint8 loc, struct map_session_data **sd, const char *func) {
+	if (script_hasdata(st, loc)) {
+		int32 id_ = script_getnum(st, loc);
+		if (!(*sd = map_id2sd(id_))) {
+			ShowError("%s: Player with map id '%d' is not found.\n", func, id_);
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	else
+		*sd = script_rid2sd(st);
+	return (*sd) ? true : false;
+}
+
+/**
  * Get `bl` from an ID in `loc` param, if ID is 0 will return the `bl` of the script's activator.
  * @param st Script
  * @param loc Location to look for ID in script parameter
@@ -238,6 +261,7 @@ static bool script_rid2bl_(struct script_state *st, uint8 loc, struct block_list
 
 #define script_charid2sd(loc,sd) script_charid2sd_(st,(loc),&(sd),__FUNCTION__)
 #define script_nick2sd(loc,sd) script_nick2sd_(st,(loc),&(sd),__FUNCTION__)
+#define script_mapid2sd(loc,sd) script_mapid2sd_(st,(loc),&(sd),__FUNCTION__)
 #define script_rid2bl(loc,bl) script_rid2bl_(st,(loc),&(bl),__FUNCTION__)
 
 /// temporary buffer for passing around compiled bytecode
@@ -2441,6 +2465,20 @@ void script_hardcoded_constants(void)
 	export_constant(REFINE_COST_ENRICHED);
 	export_constant(REFINE_COST_OVER10_HD);
 	export_constant(REFINE_COST_MAX);
+
+	/* block action */
+	export_constant(PCBLOCK_MOVE);
+	export_constant(PCBLOCK_ATTACK);
+	export_constant(PCBLOCK_SKILL);
+	export_constant(PCBLOCK_USEITEM);
+	export_constant(PCBLOCK_CHAT);
+	export_constant(PCBLOCK_IMMUNE);
+	export_constant(PCBLOCK_SITSTAND);
+	export_constant(PCBLOCK_COMMANDS);
+	export_constant(PCBLOCK_NPCCLICK);
+	export_constant(PCBLOCK_NPC);
+	export_constant(PCBLOCK_EMOTION);
+	export_constant(PCBLOCK_ALL);
 
 	/* refine information types */
 	script_set_constant("REFINE_MATERIAL_ID", 0, false);
@@ -5072,7 +5110,7 @@ BUILDIN_FUNC(areapercentheal)
 }
 /*==========================================
  * Warpparty - [Fredzilla] [Paradox924X]
- * Syntax: warpparty "to_mapname",x,y,Party_ID,{"from_mapname"};
+ * Syntax: warpparty "to_mapname",x,y,Party_ID,{<"from_mapname">,<range x>,<range y>};
  * If 'from_mapname' is specified, only the party members on that map will be warped
  *------------------------------------------*/
 BUILDIN_FUNC(warpparty)
@@ -5080,9 +5118,7 @@ BUILDIN_FUNC(warpparty)
 	TBL_PC *sd = NULL;
 	TBL_PC *pl_sd;
 	struct party_data* p;
-	int type;
-	int mapindex = 0, m = -1;
-	int i;
+	int type, mapindex = 0, m = -1, i, rx = 0, ry = 0;
 
 	const char* str = script_getstr(st,2);
 	int x = script_getnum(st,3);
@@ -5091,6 +5127,10 @@ BUILDIN_FUNC(warpparty)
 	const char* str2 = NULL;
 	if ( script_hasdata(st,6) )
 		str2 = script_getstr(st,6);
+	if (script_hasdata(st, 7))
+		rx = script_getnum(st, 7);
+	if (script_hasdata(st, 8))
+		ry = script_getnum(st, 8);
 
 	p = party_search(p_id);
 	if(!p)
@@ -5153,7 +5193,20 @@ BUILDIN_FUNC(warpparty)
 				pc_setpos(pl_sd,sd->status.save_point.map,sd->status.save_point.x,sd->status.save_point.y,CLR_TELEPORT);
 		break;
 		case 3: // Leader
+			if (p->party.member[i].leader)
+				continue;
 		case 4: // m,x,y
+			if (rx || ry) {
+				int x1 = x + rx, y1 = y + ry,
+					x0 = x - rx, y0 = y - ry;
+				uint8 attempts = 10;
+
+				do {
+					x = x0 + rnd() % (x1 - x0 + 1);
+					y = y0 + rnd() % (y1 - y0 + 1);
+				} while ((--attempts) > 0 && !map_getcell(m, x, y, CELL_CHKPASS));
+			}
+
 			if(!map[pl_sd->bl.m].flag.noreturn && !map[pl_sd->bl.m].flag.nowarp && pc_job_can_entermap((enum e_job)pl_sd->status.class_, m, pl_sd->gmlevel)) 
 				pc_setpos(pl_sd,mapindex,x,y,CLR_TELEPORT);
 		break;
@@ -6397,6 +6450,10 @@ BUILDIN_FUNC(getitem2)
 		else
 			sd = script_rid2sd(st); // Attached player
 	}
+	else if (script_hasdata(st, 11))
+		sd = map_id2sd(script_getnum(st, 11)); // <Account ID>
+	else
+		sd = script_rid2sd(st); // Attached player
 
 	if (sd == NULL) // no target
 		return 0;
@@ -7759,7 +7816,7 @@ BUILDIN_FUNC(getbrokenid)
 
 	num=script_getnum(st,2);
 	for(i=0; i<MAX_INVENTORY; i++) {
-		if(sd->inventory.u.items_inventory[i].attribute){
+		if (sd->inventory.u.items_inventory[i].card[0] != CARD0_PET && sd->inventory.u.items_inventory[i].attribute) {
 				brokencounter++;
 				if(num==brokencounter){
 					id=sd->inventory.u.items_inventory[i].nameid;
@@ -7788,7 +7845,7 @@ BUILDIN_FUNC(repair)
 
 	num=script_getnum(st,2);
 	for(i=0; i<MAX_INVENTORY; i++) {
-		if(sd->inventory.u.items_inventory[i].attribute){
+		if (sd->inventory.u.items_inventory[i].card[0] != CARD0_PET && sd->inventory.u.items_inventory[i].attribute) {
 				repaircounter++;
 				if(num==repaircounter){
 					sd->inventory.u.items_inventory[i].attribute=0;
@@ -7816,8 +7873,7 @@ BUILDIN_FUNC(repairall)
 
 	for (i = 0; i < MAX_INVENTORY; i++)
 	{
-		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].attribute)
-		{
+		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].card[0] != CARD0_PET && sd->inventory.u.items_inventory[i].attribute) {
 			sd->inventory.u.items_inventory[i].attribute = 0;
 			clif_produceeffect(sd, 0, sd->inventory.u.items_inventory[i].nameid);
 			repaircounter++;
@@ -16563,6 +16619,32 @@ BUILDIN_FUNC(pcblockmove)
 	return 0;
 }
 
+BUILDIN_FUNC(setpcblock)
+{
+	TBL_PC *sd;
+
+	if (script_mapid2sd(4, sd)) {
+		enum e_pcblock_action_flag type = (enum e_pcblock_action_flag)script_getnum(st, 2);
+
+		if (script_getnum(st, 3) > 0)
+			sd->state.block_action |= type;
+		else
+			sd->state.block_action &= ~type;
+	}
+	return 0;
+}
+
+BUILDIN_FUNC(getpcblock)
+{
+	TBL_PC *sd;
+
+	if (script_mapid2sd(2, sd))
+		script_pushint(st, sd->state.block_action);
+	else
+		script_pushint(st, 0);
+	return 0;
+}
+
 BUILDIN_FUNC(pcfollow)
 {
 	int id, targetid;
@@ -21008,6 +21090,33 @@ BUILDIN_FUNC(getequiprefinecost) {
 	return 0;
 }
 
+/*==========================================
+ * identifyall({<type>{,<account_id>}})
+ * <type>:
+ *	true: identify the items and returns the count of unidentified items (default)
+ *	false: returns the count of unidentified items only
+ *------------------------------------------*/
+BUILDIN_FUNC(identifyall) {
+	TBL_PC *sd;
+	bool identify_item = true;
+
+	if (script_hasdata(st, 2))
+		identify_item = script_getnum(st, 2) != 0;
+
+	if (!script_hasdata(st, 3))
+		script_rid2sd(st);
+	else
+		sd = map_id2sd(script_getnum(st, 3));
+
+	if (sd == NULL) {
+		script_pushint(st, -1);
+		return 0;
+	}
+	script_pushint(st, pc_identifyall(sd, identify_item));
+
+	return 0;
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -21040,7 +21149,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(warp,"sii?"),
 	BUILDIN_DEF2(warp, "warpchar", "sii?"),
 	BUILDIN_DEF(areawarp,"siiiisii"),
-	BUILDIN_DEF(warpparty,"siii?"), // [Fredzilla] [Paradox924X]
+	BUILDIN_DEF(warpparty,"siii???"), // [Fredzilla] [Paradox924X]
 	BUILDIN_DEF(warpguild,"siii"), // [Fredzilla]
 	BUILDIN_DEF(setlook,"ii"),
 	BUILDIN_DEF(changelook,"ii"), // Simulates but don't Store it
@@ -21395,6 +21504,8 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(pcfollow,"ii"),
 	BUILDIN_DEF(pcstopfollow,"i"),
 	BUILDIN_DEF(pcblockmove,"ii"),
+	BUILDIN_DEF(setpcblock, "ii?"),
+	BUILDIN_DEF(getpcblock, "?"),
 	// <--- [zBuffer] List of player cont commands
 	// [zBuffer] List of mob control commands --->
 	BUILDIN_DEF(unitexists,"i"),
@@ -21539,5 +21650,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(is_party_leader, "?"),
 	BUILDIN_DEF(getequiprefinecost, "iii?"),
 	BUILDIN_DEF(camerainfo, "iii?"),
+	BUILDIN_DEF(identifyall, "??"),
 	{NULL,NULL,NULL},
 };

@@ -38,6 +38,14 @@
 #define MAX_RUNE 60 //Max number of runes a Rune Knight can carry of each type.
 #define MAX_SPELLBOOK 7 //Max number or spells a Warlock can preserve.
 
+enum prevent_logout_trigger {
+	PLT_NONE = 0,
+	PLT_LOGIN = 1,
+	PLT_ATTACK = 2,
+	PLT_SKILL = 4,
+	PLT_DAMAGE = 8
+};
+
 /**
  * Translation table from athena equip index to aegis bitmask
 */
@@ -201,7 +209,6 @@ struct map_session_data {
 		unsigned int trading :1; //[Skotlex] is 1 only after a trade has started.
 		unsigned int can_tradeack : 1; // client can send a tradeack
 		unsigned int deal_locked :2; //1: Clicked on OK. 2: Clicked on TRADE
-		unsigned int monster_ignore :1; // for monsters to ignore a character [Valaris] [zzo]
 		unsigned int size :2; // for tiny/large types
 		unsigned int night :1; //Holds whether or not the player currently has the SI_NIGHT effect on. [Skotlex]
 		unsigned int blockedmove :1;
@@ -237,6 +244,7 @@ struct map_session_data {
 		bool mail_writing; // Whether the player is currently writing a mail in RODEX or not
 		bool pc_loaded; // Ensure inventory data and status data is loaded before we calculate player stats
 		uint8 isBoundTrading; // Player is currently add bound item to trade list [Cydh]
+		unsigned int block_action : 10;
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -366,6 +374,8 @@ struct map_session_data {
 	short sp_gain_race[RC_MAX];
 	int dropaddrace[RC_MAX];
 	int dropaddclass[CLASS_MAX];
+	int magic_addrace2[RC2_MAX];
+	int ignore_mdef_by_race2[RC2_MAX];
 	// zeroed arrays end here.
 	// zeroed structures start here
 	struct s_autospell autospell[MAX_PC_BONUS], autospell2[MAX_PC_BONUS], autospell3[MAX_PC_BONUS];
@@ -443,8 +453,9 @@ struct map_session_data {
 		short add_steal_rate;
 		short add_heal_rate, add_heal2_rate;
 		short sp_gain_value, hp_gain_value, magic_sp_gain_value, magic_hp_gain_value;
-		short sp_vanish_rate, hp_vanish_rate;
-		short sp_vanish_per, hp_vanish_per;
+		int sp_vanish_rate, hp_vanish_rate;
+		int sp_vanish_per, hp_vanish_per;
+		int sp_vanish_flag, hp_vanish_flag;
 		unsigned short unbreakable;	// chance to prevent ANY equipment breaking [celest]
 		unsigned short unbreakable_equip; //100% break resistance on certain equipment
 		unsigned short unstripable_equip;
@@ -777,6 +788,7 @@ struct {
 #define EQP_COSTUME_HELM (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW)
 #define EQP_COSTUME (EQP_COSTUME_HEAD_TOP|EQP_COSTUME_HEAD_MID|EQP_COSTUME_HEAD_LOW|EQP_COSTUME_GARMENT|EQP_COSTUME_FLOOR)
 #define EQP_SHADOW_ACC (EQP_SHADOW_ACC_L|EQP_SHADOW_ACC_R)
+#define EQP_SHADOW_ARMS (EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD)
 #define EQP_SHADOW_EQUIPS (EQP_SHADOW_ARMOR|EQP_SHADOW_WEAPON|EQP_SHADOW_SHIELD|EQP_SHADOW_SHOES|EQP_SHADOW_ACC_R|EQP_SHADOW_ACC_L)
 // Needed for exact slot position checks.
 #define EQP_HELM_TL (EQP_HEAD_TOP|EQP_HEAD_LOW)
@@ -934,6 +946,8 @@ int pc_skill(struct map_session_data* sd, int id, int level, int flag);
 
 int pc_insert_card(struct map_session_data *sd,int idx_card,int idx_equip);
 
+int pc_identifyall(struct map_session_data *sd, bool identify_item);
+
 int pc_steal_item(struct map_session_data *sd,struct block_list *bl, int skill_lv);
 int pc_steal_coin(struct map_session_data *sd,struct block_list *bl);
 
@@ -1050,6 +1064,7 @@ void pc_regen (struct map_session_data *sd, int64 diff_tick);
 bool pc_setstand(struct map_session_data *sd, bool force);
 int pc_split_atoi(char* str, int* val, char sep, int max);
 bool pc_candrop(struct map_session_data *sd,struct item *item);
+bool pc_can_attack(struct map_session_data *sd, int target_id);
 
 int pc_jobid2mapid(unsigned short b_class);	// Skotlex
 int pc_mapid2jobid(unsigned short class_, int sex);	// Skotlex

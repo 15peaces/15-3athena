@@ -4805,7 +4805,11 @@ ACMD_FUNC(reloadscript)
 
 	iter = mapit_getallusers();
 	for (pl_sd = (TBL_PC*)mapit_first(iter); mapit_exists(iter); pl_sd = (TBL_PC*)mapit_next(iter))
-		pc_close_npc(pl_sd, 2);
+	{
+		pc_close_npc(pl_sd, 1);
+		clif_cutin(pl_sd, "", 255);
+		pl_sd->state.block_action = 0;
+	}
 	mapit_free(iter);
 
 	flush_fifos();
@@ -5464,7 +5468,7 @@ ACMD_FUNC(repairall)
 
 	count = 0;
 	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].attribute == 1) {
+		if (sd->inventory.u.items_inventory[i].nameid && sd->inventory.u.items_inventory[i].card[0] != CARD0_PET && sd->inventory.u.items_inventory[i].attribute == 1) {
 			sd->inventory.u.items_inventory[i].attribute = 0;
 			clif_produceeffect(sd, 0, sd->inventory.u.items_inventory[i].nameid);
 			count++;
@@ -6858,7 +6862,7 @@ ACMD_FUNC(autotrade)
 	}
 	
 	sd->state.autotrade = 1;
-	sd->state.monster_ignore = 1;
+	sd->state.block_action |= PCBLOCK_IMMUNE;
 	if( battle_config.at_timeout )
 	{
 		int timeout = atoi(message);
@@ -7406,7 +7410,8 @@ ACMD_FUNC(npctalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT))
+		|| (sd->state.block_action & PCBLOCK_CHAT))
 		return -1;
 
 	if(!ifcolor) {
@@ -7457,7 +7462,8 @@ ACMD_FUNC(pettalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT))
+		|| (sd->state.block_action & PCBLOCK_CHAT))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%99[^\n]", mes) < 1) {
@@ -7910,14 +7916,8 @@ ACMD_FUNC(identify)
 *-----------------------------------------------*/
 ACMD_FUNC(identifyall)
 {
-	int i;
 	nullpo_retr(-1, sd);
-	for (i = 0; i < MAX_INVENTORY; i++) {
-		if (sd->inventory.u.items_inventory[i].nameid > 0 && sd->inventory.u.items_inventory[i].identify != 1) {
-			sd->inventory.u.items_inventory[i].identify = 1;
-			clif_item_identified(sd, i, 0);
-		}
-	}
+	pc_identifyall(sd, true);
 	return 0;
 }
 
@@ -8363,7 +8363,8 @@ ACMD_FUNC(homtalk)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT))
+		|| (sd->state.block_action & PCBLOCK_CHAT))
 		return -1;
 
 	if ( !hom_is_active(sd->hd) ) {
@@ -8884,7 +8885,8 @@ ACMD_FUNC(me)
 
 	if (sd->sc.count && //no "chatting" while muted.
 		(sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)))
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT))
+		|| (sd->state.block_action & PCBLOCK_CHAT))
 		return -1;
 
 	if (!message || !*message || sscanf(message, "%255[^\n]", tempmes) < 0) {
@@ -8934,12 +8936,13 @@ ACMD_FUNC(monsterignore)
 {
 	nullpo_retr(-1, sd);
 
-	if (!sd->state.monster_ignore) {
-		sd->state.monster_ignore = 1;
-		clif_displaymessage(sd->fd, "You are now immune to attacks.");
-	} else {
-		sd->state.monster_ignore = 0;
-		clif_displaymessage(sd->fd, "Returned to normal state.");
+	if (sd->state.block_action & PCBLOCK_IMMUNE) {
+		sd->state.block_action &= ~PCBLOCK_IMMUNE;
+		clif_displaymessage(sd->fd, msg_txt(sd, 771)); // Returned to normal state.
+	}
+	else {
+		sd->state.block_action |= PCBLOCK_IMMUNE;
+		clif_displaymessage(sd->fd, msg_txt(sd, 770)); // You are now immune to attacks.
 	}
 
 	return 0;
@@ -9527,6 +9530,8 @@ ACMD_FUNC(cash)
 		}
 		else 
 		{
+			if (-value > sd->cashPoints) //By command, if cash < value, force it to remove allMore actions
+				value = -sd->cashPoints;
 			if ((ret = pc_paycash(sd, -value, 0, LOG_TYPE_COMMAND)) >= 0) {
 				sprintf(output, msg_txt(sd, 410), ret, sd->cashPoints);
 				clif_disp_onlyself(sd, output, strlen(output));
@@ -9550,6 +9555,8 @@ ACMD_FUNC(cash)
 		}
 		else
 		{
+			if (-value > sd->kafraPoints) //By command, if cash < value, force it to remove allAdd commentMore actions
+				value = -sd->kafraPoints;
 			if ((ret = pc_paycash(sd, -value, -value, LOG_TYPE_COMMAND)) >= 0) {
 				sprintf(output, msg_txt(sd, 411), ret, sd->kafraPoints);
 				clif_disp_onlyself(sd, output, strlen(output));
@@ -10953,6 +10960,12 @@ bool is_atcommand(const int fd, struct map_session_data* sd, const char* message
 	//check to see if any params exist within this command
 	if( sscanf(atcmd_msg, "%99s %99[^\n]", command, params) < 2 )
 		params[0] = '\0';
+
+	if (type == 1 && (sd->state.block_action & PCBLOCK_COMMANDS)) {
+		sprintf(output, msg_txt(sd, 154), command); // %s failed.
+		clif_displaymessage(fd, output);
+		return true;
+	}
 
 	// @commands (script based) 
 	if (type == 1 && atcmd_binding_count > 0) {

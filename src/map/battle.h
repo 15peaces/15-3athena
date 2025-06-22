@@ -239,6 +239,9 @@ extern struct Battle_Config
 	int pet_max_atk2; //[Skotlex]
 	int pet_no_gvg; //Disables pets in gvg. [Skotlex]
 	int pet_autofeed;
+	int feature_petevolution;
+	int pet_autofeed_rate;
+	int pet_autofeed_always;
 	int pet_equip_required;
 
 	int skill_min_damage;
@@ -264,6 +267,8 @@ extern struct Battle_Config
 	int max_aspd;
 	int max_walk_speed;	//Maximum walking speed after buffs [Skotlex]
 	int max_hp;
+	int max_hp_lv99;
+	int max_hp_lv150;
 	int max_sp;
 	int max_lv, aura_lv;
 	int max_parameter, max_baby_parameter;
@@ -339,6 +344,7 @@ extern struct Battle_Config
 	int item_drop_adddrop_min,item_drop_adddrop_max; //[Skotlex]
 
 	int prevent_logout;	// Added by RoVeRT
+	int prevent_logout_trigger;
 
 	int alchemist_summon_reward;	// [Valaris]
 	int drops_by_luk;

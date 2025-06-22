@@ -34,6 +34,7 @@ int party_check_empty(struct party_data *p);
 int mapif_parse_PartyLeave(int fd, int party_id, uint32 account_id, uint32 char_id, char *name, enum e_party_member_withdraw type); 
 int party_check_exp_share(struct party_data *p);
 int mapif_party_optionchanged(int fd,struct party *p, uint32 account_id, int flag);
+int party_check_family_share(struct party_data *p);
 
 //Updates party's level range and unsets even share if broken.
 static int int_party_check_lv(struct party_data *p) {
@@ -86,11 +87,9 @@ static void int_party_calc_state(struct party_data *p)
 	//max/min levels.
 	for(i=0;i<MAX_PARTY;i++){
 		lv=p->party.member[i].lv;
-		if (!lv) continue;
-		if(p->party.member[i].online &&
-			//On families, the kid is not counted towards exp share rules.
-			p->party.member[i].char_id != p->family)
-		{
+		if (!lv) 
+			continue;
+		if (p->party.member[i].online) {
 			if( lv < p->min_lv ) p->min_lv=lv;
 			if( p->max_lv < lv ) p->max_lv=lv;
 		}
@@ -312,10 +311,45 @@ struct party_data* search_partyname(char* str)
 	return p;
 }
 
+int party_check_family_share(struct party_data *p) {
+	int i;
+	unsigned short map = 0;
+	if (!p->family)
+		return 0;
+	for (i = 0; i < MAX_PARTY; i++) {
+		if (p->party.member[i].char_id == p->family) {
+			map = p->party.member[i].map;
+			break;
+		}
+	}
+
+	for (i = 0; i < MAX_PARTY; i++) {
+		struct party_member * mem = &(p->party.member[i]);
+		if (mem->lv == 0)
+			continue;
+		if (p->family == mem->char_id) {
+			continue;
+		}
+		if (mem->online == 0) {
+			//everyone should be online to share
+			return 0;
+		}
+		if (mem->map != map) {
+			//everyone should be on the same map
+			return 0;
+		}
+		if (mem->lv < 70) {
+			//parents must both be above 70
+			return 0;
+		}
+	}
+	return 1;
+}
+
 // Returns whether this party can keep having exp share or not.
 int party_check_exp_share(struct party_data *p)
 {
-	return (p->party.count < 2 || p->max_lv - p->min_lv <= party_share_level);
+	return (p->party.count < 2 || p->max_lv - p->min_lv <= party_share_level || party_check_family_share(p));
 }
 
 // Is there any member in the party?
@@ -572,6 +606,9 @@ int mapif_parse_PartyChangeOption(int fd,int party_id,uint32 account_id,int exp,
 	if(!p)
 		return 0;
 
+	if (p->size == 2 || p->size == 3) //check family state. Also accept either of their parents.More actions
+		int_party_calc_state(p);
+
 	p->party.exp=exp;
 	if( exp && !party_check_exp_share(p) ){
 		flag|=0x01;
@@ -691,6 +728,7 @@ int mapif_parse_PartyChangeMap(int fd, int party_id, uint32 account_id, uint32 c
 	if (p->party.member[i].map != map) {
 		p->party.member[i].map = map;
 		mapif_party_membermoved(&p->party, i);
+		int_party_check_lv(p);
 	}
 	return 0;
 }

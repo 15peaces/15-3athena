@@ -1423,6 +1423,7 @@ int unit_can_move(struct block_list *bl)
 		pc_issit(sd) ||
 		sd->state.vending ||
 		sd->state.buyingstore ||
+		(sd->state.block_action & PCBLOCK_MOVE) ||
 		sd->state.blockedmove
 	))
 		return 0; //Can't move
@@ -1989,7 +1990,7 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		skill_castend_id(ud->skilltimer, tick, src->id, 0);
 
 
-	if (sd)
+	if (sd && battle_config.prevent_logout_trigger&PLT_SKILL)
 		sd->canlog_tick = gettick();
 
 	return 1;
@@ -2156,7 +2157,7 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 		skill_castend_pos(ud->skilltimer,tick,src->id,0);
 	}
 
-	if (sd)
+	if (sd && battle_config.prevent_logout_trigger&PLT_SKILL)
 		sd->canlog_tick = gettick();
 
 	return 1;
@@ -2285,6 +2286,10 @@ int unit_attack(struct block_list *src,int target_id,int continuous)
 		}
 		if( pc_is90overweight(sd) )
 		{ // overweight - stop attacking
+			unit_stop_attack(src);
+			return 0;
+		}
+		if (!pc_can_attack(sd, target_id)) {
 			unit_stop_attack(src);
 			return 0;
 		}
@@ -2521,7 +2526,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 #ifdef OFFICIAL_WALKPATH
 		|| !path_search_long(NULL, src->m, src->x, src->y, target->x, target->y, CELL_CHKWALL)
 #endif
-	)
+		|| (sd && !pc_can_attack(sd, target->id)))
 		return 0; // can't attack under these conditions
 
 	if( src->m != target->m )
@@ -2649,7 +2654,7 @@ static int unit_attack_timer_sub(struct block_list* src, int tid, int64 tick)
 		ud->attacktimer = add_timer(ud->attackabletime, unit_attack_timer, src->id, 0);
 	}
 
-	if (sd)
+	if (sd && battle_config.prevent_logout_trigger&PLT_ATTACK)
 		sd->canlog_tick = gettick();
 
 	return 1;

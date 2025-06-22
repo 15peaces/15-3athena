@@ -1213,9 +1213,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		sc_start(bl,SC_FLING,100, sd?sd->spiritball_old:5,skill_get_time(skill_id,skill_lv));
 		break;
 	case GS_DISARM:
-		rate = 3*skill_lv;
-		if (sstatus->dex > tstatus->dex)
-			rate += (sstatus->dex - tstatus->dex)/5; //TODO: Made up formula
+		rate = sstatus->dex / (4 * (7 - skill_lv)) + sstatus->luk / (4 * (6 - skill_lv));
+		rate = rate + status_get_lv(src) - (tstatus->agi * rate / 100) - tstatus->luk - status_get_lv(bl);
 		skill_strip_equip(bl, EQP_WEAPON, rate, skill_lv, skill_get_time(skill_id,skill_lv));
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		break;
@@ -2007,8 +2006,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		{
 			if( rnd()%1000 >= sd->autobonus[i].rate )
 				continue;
-			if( sd->autobonus[i].active != INVALID_TIMER )
-				continue;
 			if (!(((sd->autobonus[i].atk_type)&attack_type)&BF_WEAPONMASK &&
 				((sd->autobonus[i].atk_type)&attack_type)&BF_RANGEMASK &&
 				((sd->autobonus[i].atk_type)&attack_type)&BF_SKILLMASK))
@@ -2120,8 +2117,6 @@ int skill_onskillusage(struct map_session_data *sd, struct block_list *bl, int s
 		for( i = 0; i < ARRAYLENGTH(sd->autobonus3); i++ )
 		{
 			if( rnd()%1000 >= sd->autobonus3[i].rate )
-				continue;
-			if( sd->autobonus3[i].active != INVALID_TIMER )
 				continue;
 			if( sd->autobonus3[i].atk_type != skill_id )
 				continue;
@@ -2381,8 +2376,6 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		for( i = 0; i < ARRAYLENGTH(dstsd->autobonus2); i++ )
 		{
 			if( rnd()%1000 >= dstsd->autobonus2[i].rate )
-				continue;
-			if( dstsd->autobonus2[i].active != INVALID_TIMER )
 				continue;
 			if (!(((dstsd->autobonus2[i].atk_type)&attack_type)&BF_WEAPONMASK &&
 				((dstsd->autobonus2[i].atk_type)&attack_type)&BF_RANGEMASK &&
@@ -17365,9 +17358,9 @@ struct skill_condition skill_get_requirement(struct map_session_data* sd, short 
 							break;
 					}
 				}
+				else if (sc->data[SC_RAISINGDRAGON]) //Only Asura will consume all remaining balls under RD status. [Jobbie]
+					req.spiritball = max((sd) ? sd->spiritball : 15, 5);
 			}
-			else if (sc->data[SC_RAISINGDRAGON]) //Only Asura will consume all remaining balls under RD status. [Jobbie]
-			req.spiritball = max((sd) ? sd->spiritball : 15, 5);
 			break;
 		case SR_RAMPAGEBLASTER:
 			req.spiritball = sd->spiritball?sd->spiritball:15;

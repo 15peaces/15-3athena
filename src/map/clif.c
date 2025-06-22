@@ -3223,8 +3223,6 @@ int clif_updatestatus(struct map_session_data *sd,int type)
 		// On officials the HP never go below 1, even if you die [Lemongrass]
 		// On officials the HP Novice class never go below 50%, even if you die [Napster]
 		WFIFOL(fd,4)= sd->battle_status.hp ? sd->battle_status.hp : (sd->class_&MAPID_UPPERMASK) != MAPID_NOVICE ? 1 : sd->battle_status.max_hp/2;
-		if (map[sd->bl.m].hpmeter_visible)
-			clif_hpmeter(sd);
 		break;
 	case SP_SP:
 		WFIFOL(fd,4)=sd->battle_status.sp;
@@ -10949,8 +10947,9 @@ static bool clif_process_message(struct map_session_data* sd, bool whisperFormat
 	}
 
 	if (sd->sc.data[SC_BERSERK] || sd->sc.data[SC_DEEPSLEEP] ||
-		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT))
-		return false;
+		(sd->sc.data[SC_NOCHAT] && sd->sc.data[SC_NOCHAT]->val1&MANNER_NOCHAT)
+		|| (sd->state.block_action & PCBLOCK_CHAT))
+		return false; //no "chatting" while muted.
 
 	return true;
 }
@@ -11271,7 +11270,7 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		if( battle_config.pet_no_gvg && map_flag_gvg(sd->bl.m) )
 		{	//Return the pet to egg. [Skotlex]
 			clif_displaymessage(sd->fd, "Pets are not allowed in Guild Wars.");
-			pet_menu(sd, 3); //Option 3 is return to egg.
+			pet_return_egg(sd, sd->pd);
 		}
 		else
 		{
@@ -11405,6 +11404,24 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 #if PACKETVER >= 20070918
 		clif_partyinvitationstate(sd, sd->status.allow_party);
 		clif_equipcheckbox(sd);
+#endif
+
+#if PACKETVER >= 20141008
+		if (battle_config.pet_autofeed_always) {
+			// Always send ON or OFF
+			if (sd->pd && battle_config.pet_autofeed) {
+				clif_zc_config(sd, CZ_CONFIG_PET_AUTOFEEDING, sd->pd->pet.autofeed);
+			}
+			else {
+				clif_zc_config(sd, CZ_CONFIG_PET_AUTOFEEDING, false);
+			}
+		}
+		else {
+			// Only send when enabled
+			if (sd->pd && battle_config.pet_autofeed && sd->pd->pet.autofeed) {
+				clif_zc_config(sd, CZ_CONFIG_PET_AUTOFEEDING, true);
+			}
+		}
 #endif
 
 		if (sd->status.guild_id && battle_config.guild_notice_changemap == 1){
@@ -11915,6 +11932,11 @@ void clif_parse_Emotion(int fd, struct map_session_data *sd)
 		}
 		sd->emotionlasttime = time(NULL);
 
+		if (sd->state.block_action & PCBLOCK_EMOTION) {
+			clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1, 0);
+			return;
+		}
+
 		if(battle_config.client_reshuffle_dice && emoticon>=E_DICE1 && emoticon<=E_DICE6)
 		{// re-roll dice
 			emoticon = rnd()%6+E_DICE1;
@@ -11922,7 +11944,7 @@ void clif_parse_Emotion(int fd, struct map_session_data *sd)
 
 		clif_emotion(&sd->bl, emoticon);
 	} else
-		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1,0);
+		clif_skill_fail(sd, 1, USESKILL_FAIL_LEVEL, 1, 0);
 }
 
 
@@ -11966,8 +11988,6 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		sd->sc.data[SC_DEATHBOUND] ||
 		sd->sc.data[SC__MANHOLE] ||
 		sd->sc.data[SC_FALLENEMPIRE] ||
-		sd->sc.data[SC_CURSEDCIRCLE_ATKER] ||
-		sd->sc.data[SC_CURSEDCIRCLE_TARGET] ||
 		sd->sc.data[SC_GRAVITYCONTROL] ||
 		sd->sc.data[SC_NEWMOON] ||
 		sd->sc.data[SC_SUHIDE]
@@ -11995,9 +12015,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 			return;
 
 		// Can't attack
-		if (sd->sc.data[SC_BASILICA] ||
-			sd->sc.data[SC__SHADOWFORM] ||
-			sd->sc.data[SC_HEAT_BARREL_AFTER] ||
+		if (sd->sc.data[SC_HEAT_BARREL_AFTER] ||
 			sd->sc.data[SC_KINGS_GRACE] ||
 			(sd->sc.data[SC_SIREN] && sd->sc.data[SC_SIREN]->val2 == target_id) ||
 			(sd->sc.data[SC_GRAVITATION] && sd->sc.data[SC_GRAVITATION]->val3 == BCT_SELF) ||
@@ -12041,6 +12059,11 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 		)) //No sitting during these states either.
 			break;
 
+		if (sd->state.block_action & PCBLOCK_SITSTAND) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 794)); // This action is currently blocked.
+			break;
+		}
+
 		sd->idletime = last_tick;
 		pc_setsit(sd);
 		skill_sit(sd,1);
@@ -12056,6 +12079,11 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 
 		if (sd->sc.opt1 && sd->sc.opt1 != OPT1_STONEWAIT && sd->sc.opt1 != OPT1_BURNING)
 			break;
+
+		if (sd->state.block_action & PCBLOCK_SITSTAND) {
+			clif_displaymessage(sd->fd, msg_txt(sd, 794)); // This action is currently blocked.
+			break;
+		}
 
 		sd->idletime = last_tick;
 		if (pc_setstand(sd, false)) {
@@ -12370,8 +12398,10 @@ void clif_parse_UseItem(int fd, struct map_session_data *sd)
 		return;
 	}
 	
-	if ((!sd->npc_id && pc_istrading(sd)) || sd->chatID)
+	if ((!sd->npc_id && pc_istrading(sd)) || sd->chatID || (sd->state.block_action & PCBLOCK_USEITEM)) {
+		clif_msg(sd, WORK_IN_PROGRESS);
 		return;
+	}
 
 	//Whether the item is used or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
@@ -13029,6 +13059,11 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 
 		return; //Using a ground/passive skill on a target? WRONG.
 	}
 
+	if (sd->state.block_action & PCBLOCK_SKILL) {
+		clif_msg(sd, WORK_IN_PROGRESS);
+		return;
+	}
+
 	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{
 		clif_parse_UseSkillToId_homun(sd->hd, sd, tick, skill_id, skill_lv, target_id);
@@ -13160,6 +13195,11 @@ static void clif_parse_UseSkillToPosSub(int fd, struct map_session_data *sd, sho
 
 	if( !(skill_get_inf(skill_id)&INF_GROUND_SKILL) )
 		return; //Using a target skill on the ground? WRONG.
+
+	if (sd->state.block_action & PCBLOCK_SKILL) {
+		clif_msg(sd, WORK_IN_PROGRESS);
+		return;
+	}
 
 	if( skill_id >= HM_SKILLBASE && skill_id < HM_SKILLBASE + MAX_HOMUNSKILL )
 	{

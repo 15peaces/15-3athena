@@ -175,12 +175,15 @@ bonus2 bAddDefMonster,n,x;		x% physical damage reduction against monsters of cla
 bonus2 bAddMDefMonster,n,x;		x% magical damage reduction against monsters of class n
 								Against players, n is their job id.
 bonus2 bIgnoreMdefRaceRate,n,x;	Disregard x% of the target's MDEF if the target belongs to race n;
+bonus2 bIgnoreMdefRace2Rate,mr,n; 	Disregard n% of the target's MDEF if the target belongs to monster race mr
 bonus2 bHPDrainRate,x,n;		Adds a x/10% chance to drain n% HP from inflicted damage when attacking
 bonus2 bSPDrainRate,x,n;		Adds a x/10% chance to drain n% SP from inflicted damage when attacking
-bonus2 bHPVanishRate,x,n;		Add a x/100% chance of decreasing enemy's HP amount by n% when attacking
-bonus2 bSPVanishRate,x,n;		Add a x/100% chance of decreasing enemy's SP amount by n% when attacking
-bonus3 bHPVanishRaceRate,r,x,n;		Add a x/100% chance of decreasing enemy's HP amount by n% when attacking, depends on enemy race r
-bonus3 bSPVanishRaceRate,r,x,n;		Add a x/100% chance of decreasing enemy's SP amount by n% when attacking, depends on enemy race r
+bonus2 bHPVanishRate,x,n;		Add a x/10% chance of decreasing enemy's HP amount by n% with a normal attack
+bonus3 bHPVanishRaceRate,r,x,n;		Add a x/10% chance of decreasing enemy's HP amount by n% when attacking, depends on enemy race r
+bonus3 bHPVanishRate,x,n,bf;	Add a x/10% chance of decreasing enemy's HP amount by n% when attacking with trigger criteria bf
+bonus2 bSPVanishRate,x,n;		Add a x/10% chance of decreasing enemy's SP amount by n% with a normal attack
+bonus3 bSPVanishRaceRate,r,x,n;		Add a x/10% chance of decreasing enemy's SP amount by n% when attacking, depends on enemy race r
+bonus3 bSPVanishRate,x,n,bf;	Add a x/10% chance of decreasing enemy's SP amount by n% when attacking with trigger criteria bf
 bonus2 bAddMonsterDropItem,n,x;		Adds a x/100% chance for item n to be dropped, when killing any monster.
 									if 'x' is negative value, then it's a part of formula
 										chance = -x*(killed_mob_level/10)+1
@@ -305,8 +308,9 @@ bonus2 bSPRegenRate,n,x;		Gain n SP every x milliseconds
 bonus2 bSPLossRate,n,x;			Lose n SP every x milliseconds
 bonus2 bExpAddRace,n,x;			Increase exp gained by x% vs. enemies of race n
 bonus2 bSPGainRace,n,x;			When killing a monster of race n by physical attack gain x amount of sp
-bonus2 bSubRace2,n,x;			Damage x% reduction from enemies of race n
-							(Check db/mob_race2_db.txt)
+bonus2 bSubRace2,mr,x;			Damage x% reduction from enemies of race mr
+bonus2 bMagicAddRace2,mr,x;		+x% magic damage against monster race mr
+							(Check db/mob_race2_db.txt for mr)
 
 bonus2 bAddMonsterDropItemGroup,n,x;	Adds a x/100% chance to get an item of group type n when you kill a monster 
 									(Check db/item_group_db.txt)

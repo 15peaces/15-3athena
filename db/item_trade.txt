@@ -265,8 +265,8 @@
 2824,499,100	// Mage_Manual
 2856,87,100		// Half_Megin
 2872,475,100	// G Honor Certificate
-2997,219,100	//RWC_Gold_Brooch
-2999,219,100	//RWC_Brooch
+2997,475,100	//RWC_Gold_Brooch
+2999,475,100	//RWC_Brooch
 // Sealed Cards
 4485,507,100		// Sealed Gloom Under Night Card
 4489,507,100		// Sealed Pharaoh Card
@@ -400,7 +400,6 @@
 5373,73,100		// Darkness_Helm
 5374,73,100		// Gigantic Majestic Goat
 5375,73,100		// L_Orc_Hero_Helm
-5376,73,100		// Flying Evil Wing
 5377,73,100		// Gentleman's Pipe
 5378,73,100		// Rabbit_Ear_Hat
 5380,73,100		// Fish Head Hat
@@ -478,15 +477,15 @@
 6036,507,100 	// Invite_To_Meeting
 6037,507,100	// Rough_File
 6038,507,100 	// Neat_Report
-6039,507,100 	// Piece_Of_Fish
-6040,507,100 	// Some_Of_Report
-6042,507,100		// Ordinary_Branch
+6039,499,100 	// Piece_Of_Fish
+6040,499,100 	// Some_Of_Report
+6042,499,100		// Ordinary_Branch
 6043,507,100 	// Letter_From_Lugen
 6044,507,100 	// Letter_From_Otto
 6045,507,100	// Supply_Box
 6046,507,100	// Clothing_Dye_Coupon
 6047,507,100	// Clothing_Dye_Coupon2
-6048,507,100 	// Unidentified_Mineral
+6048,499,100 	// Unidentified_Mineral
 6049,507,100 	// Marlin
 6051,499,100	// Gray_Hollow
 6052,507,100	// Ornamental_Hairpin
@@ -836,10 +835,10 @@
 9035,73,100		// Red_Deleter_Egg
 9036,73,100		// Diabolic_Egg
 9037,73,100		// Wanderer_Egg
-11013,507,100	// Expedition_Report_Vol1
-11014,507,100 	// Expedition_Report_Vol2
-11015,507,100 	// Expedition_Report_Vol3
-11016,507,100 	// Expedition_Report_Vol4
+11013,499,100	// Expedition_Report_Vol1
+11014,499,100 	// Expedition_Report_Vol2
+11015,499,100 	// Expedition_Report_Vol3
+11016,499,100 	// Expedition_Report_Vol4
 11503,507,100	// Siege_White_Potion
 11504,507,100	// Siege_Blue_Potion
 11565,507,100	//White_Potion
@@ -1654,7 +1653,7 @@
 14206,507,100	// F_Int_Dish_Box50
 14207,507,100	// F_Battle_Manual_Box1
 14208,507,100	// F_Battle_Manual_Box5
-14209,507,100	// F_Siegfried_Box5
+14209,475,100	// F_Siegfried_Box5
 14210,507,100	// F_Siegfried_Box20
 14211,507,100	// F_Kafra_Card_Box30
 14212,507,100	// F_Kafra_Card_Box50
@@ -1810,7 +1809,7 @@
 14589,507,100	// Pty_Inc_Agi_Scroll
 14590,507,100	// Pty_Assumptio_Scroll
 14591,507,100	// Siege_Teleport_Scroll
-14592,507,100	// Job_Manual50
+14592,475,100	// Job_Manual50
 14593,507,100	// Magic_Power_Scroll
 14594,507,100	// Quagmire_Scroll
 14597,507,100	// PhreeoniS
@@ -1826,12 +1825,12 @@
 14608,73,100	// Manchu-Han Imperial Feast
 14613,507,100	//RWC_Scroll_2012
 14614,507,100	//Ex_Def_Potion
-14616,507,100	//STR_Biscuit_Stick
-14617,507,100	//VIT_Biscuit_Stick
-14618,507,100	//AGI_Biscuit_Stick
-14619,507,100	//INT_Biscuit_Stick
-14620,507,100	//DEX_Biscuit_Stick
-14621,507,100	//LUK_Biscuit_Stick
+14616,475,100	//STR_Biscuit_Stick
+14617,475,100	//VIT_Biscuit_Stick
+14618,475,100	//AGI_Biscuit_Stick
+14619,475,100	//INT_Biscuit_Stick
+14620,475,100	//DEX_Biscuit_Stick
+14621,475,100	//LUK_Biscuit_Stick
 14623,507,100	//Golden_Treasure_Box
 14627,507,100	//Christmas_Scroll
 14628,507,100	//Costume_Festival_Box
@@ -2029,7 +2028,7 @@
 18775,507,100	//Improved_Welding_Mask
 18776,507,100	//Improved_Kiss_Of_Angel
 18779,507,100	//RWC_Champ_Crown_First_Place
-18780,507,100	//RWC_Champ_Crown_Second_Place
+18780,475,100	//RWC_Champ_Crown_Second_Place
 18781,507,100	//RWC_Champ_Crown_Third_Place
 18796,507,100	//RWC_Champ_Crown_Fourth_Place
 18828,87,100	// 2012RMSCNO1

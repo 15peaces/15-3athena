@@ -866,6 +866,9 @@ int npc_touch_areanpc(struct map_session_data* sd, int m, int x, int y)
 	//if(sd->npc_id)
 	//	return 1;
 
+	if (sd->state.block_action & PCBLOCK_NPCCLICK)
+		return 0;
+
 	for(i=0;i<map[m].npc_num;i++)
 	{
 		if (map[m].npc[i]->sc.option&OPTION_INVISIBLE) {
@@ -1141,6 +1144,11 @@ int npc_click(struct map_session_data* sd, struct npc_data* nd)
 	//Hidden/Disabled npc.
 	if (nd->class_ < 0 || nd->sc.option&(OPTION_INVISIBLE|OPTION_HIDE))
 		return 1;
+
+	if (sd->state.block_action & PCBLOCK_NPCCLICK) {
+		clif_msg(sd, WORK_IN_PROGRESS);
+		return 1;
+	}
 	
 	switch(nd->subtype) {
 		case NPCTYPE_SHOP:

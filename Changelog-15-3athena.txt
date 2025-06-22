@@ -5,6 +5,85 @@
 // 		- Details.
 //			--More Details.
 //========================================
+06/22/2025
+	r521 [15peaces]
+		*Added pc_can_attack function.
+			-Fixed an issue when players couldn't attack they also couldn't talk to NPC with mob view IDs. 
+			-Thanks to @rathena
+		*Fixed some uninitialized/null variable crashes.
+		*Fixed some item trading restrictions.
+		*Added *.exe to gitignore list.
+		*Add Requiem weapon set
+			-Also implemented two item bonuses bMagicAddRace2 and bIgnoreMdefRace2Rate.
+		*Removed an uneeded status_calc_pc call in pc_reg_received.
+			-It is already done in intif_parse_StorageReceived.
+		*Made prevent_logout effect on log-in optional
+			-kRO does not prevent players from logging out after connecting to its zone servers.
+			-Added a new config "prevent_logout_trigger".
+		*Some updates to pc_isUseitem function.
+			-It now returns bool values.
+			-Novice Fly Wings (12323) now cannot be used in `noteleport` maps.
+			-Novice Butterfly Wings (12324) now cannot be used in `noreturn` maps.
+			-Removed empty script check for usable items.
+				--Usable items that don't have a script will now execute as normal.
+				--Before, items that have a special effect with no script were not displaying their effect since the check was stopping any execution.
+			-Removed hardcoded checks for SC_ITEMBOOST, SC_EXPBOOST, and SC_JEXPBOOST.
+				--Players are able to still consume these items even if the status is already active.
+		*Updated Giant Fly Wing behavior
+			-Party members should be recalled to their own positions in a 3x3 area around the party leader.
+			-Added two missing client messages.
+			-Adjusted script command warpparty to support range values.
+			-Adjusted script command warpparty to not warp the party leader if "Leader" is passed as the map.
+		*Homunculi configuration adjustments to official.
+			-Homunculi will no longer autoloot items by default.
+			-Homunculi will not Vaporize if their HP is below 80% when the master dies.
+			-The battle configuration homunculus_auto_vapor is now a percentage value to allow for further customization.
+			-Thanks to @rathena
+		*Fixed bonus4 bAutoSpellOnSkill applied on wrong target.
+			-Target is now determined by the AutoSpell, not the caster.
+		*Updated Rogue Spirit potion bonus.
+			-Added missing 50% HP bonus.
+			-Removed extra 50% SP bonus.
+			-Cleaned up overall pc_itemheal function calculations.
+		*Allows families to share exp as on officials.
+		*Changed atcommand follow behavior to continue to follow the target even if the target dies.
+		*Fixed enchant items not properly calling the unequip item script.
+		*Moved the restricted equipment failure check before the Super Novice Soul Link check.
+		*Corrected Disarm and Steal Coin formulas.
+			-Updated Disarm's strip chance.
+			-Updated Steal Coin's steal chance.
+			-Updated Steal Coin's zeny amount.
+			-Thanks to @rathena
+		*Applied the official maximum HP limits on players.
+			-Official notice: http://ro.gnjoy.com/news/notice/View.asp?BBSMode=10001&seq=6322
+			-Levels caps are as follows: Lv 99 = 330k; Lv 150 = 660k; Lv 175 = 1.1m
+		*Fixed autobonus.
+			-Enabled autobonus to be reactivated.
+			-Thanks to @rathena
+		*Fixed logging of #CASHPOINTS and #KAFRAPOINTS.
+			-#CASHPOINTS and #KAFRAPOINTS now will be logged correctly when used by scripting
+			-Fixed a bug where points removed cash as well
+			-Small cleanup for pc_paycash and pc_getcash
+			-Thanks to @rathena
+		*Implemented script command identifyall.
+		*Item bonuses AddEle, AddRace, AddClass, and AddSize now work with shields.
+		*Resolved a rare case if a player logs in and the server hasn't fully initialized all of the player's items that the auto-save timer fires off and saves the player with no items.
+		*Fixed accessory equipping with cards.
+			-Accessories that have cards which require specific left/right locations must take priority.
+		*Corrected Vellum and Vanish item bonuses
+			-Cleaned up the way Vellum damage and Vanish damage are calculated.
+			-Implemented bonus3 bSPVanishRate/bHPVanishRate.
+			-Updated Mental Destroyer item bonus.
+			-Thanks to @rathena
+		*Some updates & fixes to pet system.
+			-Added some missing configs.
+		*Added setpcblock and getpcblock script commands.
+			-'setpcblock' command prevents/allows the player from doing the given type of action.
+			-'getpcblock' command return the bit-mask value of the currently enabled block flags.
+			-see script_command doc for more infos.
+			-Thanks to @rathena
+		*Some misc fixes.
+
 05/24/2025
 	r520 [15peaces]
 		*Fixed zero termination for bg messages.

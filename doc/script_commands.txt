@@ -2935,6 +2935,14 @@ Merge all stackable items that separated by GUID flags
 If no item ID/name given, all possible items in player's inventory will be merged.
 
 ---------------------------------------
+
+*identifyall({<type>{,<account_id>}});
+
+Returns the count of unidentified items in the player inventory.
+If <type> is true the command will identify all the unidentified items as well (default).
+If <type> is false the command only returns the count of unidentified items.
+
+---------------------------------------
 //
 2,1.- End of item-related commands.
 //
@@ -4053,7 +4061,7 @@ See also 'warp'.
 
 ---------------------------------------
  
-*warpparty "<to_mapname>",<x>,<y>,<party_id>,{"<from_mapname>"};
+*warpparty "<to_mapname>",<x>,<y>,<party_id>,{"<from_mapname>",<range x>,<range y>};
  
 Warps a party to specified map and coordinate given the party ID, which you can get with
 getcharid(1). You can also request another party id given a member's name with getcharid(1,<player_name>).
@@ -4068,6 +4076,10 @@ Leader:       All party members are warped to the leader's position. The leader 
               be online and in the current map-server for this to work.
 
 If you specify a from_mapname, warpparty will only affect those on that map.
+
+The <range x> and <range y> optional values allow for a randomization with theAdd commentMore actions
+player's warp point. The values will randomly add or subtract from the given <x>
+and <y> coordinates.
 
 Example:
 mes "[Party Warper]";
@@ -5719,6 +5731,58 @@ Example(s):
 
 --------------------------------------- 
 
+*setpcblock <type>,<state>{,<account ID>};
+*getpcblock {<account ID>};
+
+'setpcblock' command prevents/allows the player from doing the given <type> of action according
+to the <state> during the player session (note: @reloadscript also removes all <type>).
+The <type> values are bit-masks, multiples of <type> can be added to change the player action.
+
+The action is blocked when the <state> is true, while false allows the action again.
+
+'getpcblock' command return the bit-mask value of the currently
+enabled block flags.
+
+Available <type>:
+	PCBLOCK_MOVE			Prevent the player from moving.
+	PCBLOCK_ATTACK			Prevent the player from attacking.
+	PCBLOCK_SKILL			Prevent the player from using skills/itemskills.
+	PCBLOCK_USEITEM			Prevent the player from using usable items.
+	PCBLOCK_CHAT			Prevent the player from sending global/guild/party/whisper messages.
+	PCBLOCK_IMMUNE			Prevent the player from being hit by monsters.
+	PCBLOCK_SITSTAND		Prevent the player from sitting/standing.
+	PCBLOCK_COMMANDS		Prevent the player from using atcommands/charcommands.
+	PCBLOCK_NPCCLICK		Prevent the player from clicking/touching any NPC/shop/warp.
+	PCBLOCK_EMOTION			Prevent the player from using emotions.
+	PCBLOCK_NPC				Simulate NPC interaction. Useful for NPC with no mes window. Sum of PCBLOCK_MOVE|PCBLOCK_SKILL|PCBLOCK_USEITEM|PCBLOCK_COMMANDS|PCBLOCK_NPCCLICK.
+	PCBLOCK_ALL				Sum of all the flags.
+
+Examples:
+
+// Make the attached player invulnerable to monster (same as @monsterignore)
+	setpcblock PCBLOCK_IMMUNE, true;
+
+// Prevents the attached player from attacking and using skills
+	setpcblock PCBLOCK_ATTACK|PCBLOCK_SKILL, true;
+
+// Re-enables attack, skills and item use
+	setpcblock PCBLOCK_ATTACK|PCBLOCK_SKILL|PCBLOCK_USEITEM, false;
+
+// getpcblock related checks
+	if (getpcblock() & PCBLOCK_IMMUNE)
+		mes "You are invulnerable!";
+
+	if (getpcblock() & (PCBLOCK_MOVE|PCBLOCK_SITSTAND))
+		mes "You can't walk or sit.";
+
+	if ((getpcblock() & (PCBLOCK_ATTACK|PCBLOCK_SKILL)) == 0)
+		mes "You can attack and use skills.";
+
+	if (getpcblock() & PCBLOCK_CHAT)
+		mes "You can't chat.";
+
+---------------------------------------
+
 ==================================
 |5.- Mob / NPC -related commands.|
 ==================================
@@ -7258,11 +7322,12 @@ This command will display a picture, usually an NPC illustration, also called
 cutin, for the currently attached client. The position parameter determines the
 placement of the illustration and takes following values:
 
-    0 - bottom left corner 
-    1 - bottom middle 
-    2 - bottom right corner 
-    3 - middle of screen in a movable window with an empty title bar 
-    4 - middle of screen without the window header, but still movable 
+    0 	- bottom left corner
+    1 	- bottom middle
+    2 	- bottom right corner
+    3 	- middle of screen in a movable window with an empty title bar
+    4 	- middle of screen without the window header, but still movable
+	255	- clear all displayed cutins
 
 
 The picture is read from data\texture\유저인터페이스\illust, from both the GRF archive

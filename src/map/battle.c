@@ -474,6 +474,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 	sstatus = status_get_status_data(src);
 	tstatus = status_get_status_data(target);
 	s_race2 = status_get_race2(src);
+	t_race2 = status_get_race2(target);
 	s_defele = (tsd) ? status_get_element(src) : ELE_NONE;
 
 //Official servers apply the cardfix value on a base of 1000 and round down the reduction/increase
@@ -483,7 +484,7 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 	case BF_MAGIC:
 		// Affected by attacker ATK bonuses
 		if (sd && !(nk&NK_NO_CARDFIX_ATK)) {
-			cardfix = cardfix * (100 + sd->magic_addrace[tstatus->race] + sd->magic_addrace[RC_ALL]) / 100;
+			cardfix = cardfix * (100 + sd->magic_addrace[tstatus->race] + sd->magic_addrace[RC_ALL] + sd->magic_addrace2[t_race2]) / 100;
 			if (!(nk&NK_NO_ELEFIX)) { // Affected by Element modifier bonuses
 					cardfix = cardfix * (100 + sd->magic_addele[tstatus->def_ele] + sd->magic_addele[ELE_ALL] + 
 						sd->magic_addele_script[tstatus->def_ele] + sd->magic_addele_script[ELE_ALL]) / 100;
@@ -546,7 +547,6 @@ int64 battle_calc_cardfix(int attack_type, struct block_list *src, struct block_
 		}
 		break;
 	case BF_WEAPON:
-		t_race2 = status_get_race2(target);
 		// Affected by attacker ATK bonuses
 		if (sd && !(nk&NK_NO_CARDFIX_ATK) && (left & 2)) {
 			short cardfix_ = 1000;
@@ -5221,6 +5221,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 			{
 				i = sd->ignore_mdef_by_race[tstatus->race] + sd->ignore_mdef_by_race[RC_ALL];
 				i += sd->ignore_mdef_by_class[tstatus->class_] + sd->ignore_mdef_by_class[CLASS_ALL];
+				i += sd->ignore_mdef_by_race2[status_get_race2(target)];
 				if (i)
 				{
 					if (i > 100) i = 100;
@@ -5635,6 +5636,35 @@ struct Damage battle_calc_misc_attack(struct block_list *src,struct block_list *
 
 	return md;
 }
+
+/**
+ * Calculate vanish damage on a target
+ * @param sd: Player with vanish item
+ * @param target: Target to vanish HP/SP
+ * @param flag: Damage struct battle flag
+ */
+void battle_vanish_damage(struct map_session_data *sd, struct block_list *target, int flag)
+{
+	nullpo_retv(sd);
+	nullpo_retv(target);
+
+	// bHPVanishRate
+	int16 vanish_rate_hp = cap_value(sd->bonus.hp_vanish_rate, 0, INT16_MAX);
+	int8 vanish_hp = cap_value(sd->bonus.hp_vanish_per, INT8_MIN, INT8_MAX);
+	// bSPVanishRate
+	int16 vanish_rate_sp = cap_value(sd->bonus.sp_vanish_rate, 0, INT16_MAX);
+	int8 vanish_sp = cap_value(sd->bonus.sp_vanish_per, INT8_MIN, INT8_MAX);
+
+	if (vanish_hp && !(vanish_rate_hp && sd->bonus.hp_vanish_flag & flag && (vanish_rate_hp >= 1000 || rnd() % 1000 < vanish_rate_hp)))
+		vanish_hp = 0;
+
+	if (vanish_sp && !(vanish_rate_sp && sd->bonus.sp_vanish_flag & flag && (vanish_rate_sp >= 1000 || rnd() % 1000 < vanish_rate_sp)))
+		vanish_sp = 0;
+
+	if (vanish_hp > 0 || vanish_sp > 0)
+		status_percent_damage(&sd->bl, target, -vanish_hp, -vanish_sp, false); // Damage HP/SP applied once
+}
+
 /*==========================================
  * Battle main entry, from skill_attack
  *------------------------------------------*/
@@ -5660,6 +5690,12 @@ struct Damage battle_calc_attack(int attack_type,struct block_list *bl,struct bl
 	}
 	else // Some skills like Weaponry Research will cause damage even if attack is dodged
 		d.dmg_lv = ATK_DEF;
+
+	struct map_session_data *sd = BL_CAST(BL_PC, bl);
+
+		if (sd && d.damage + d.damage2 > 1)
+			battle_vanish_damage(sd, target, d.flag);
+
 	return d;
 }
 
@@ -5733,99 +5769,53 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 }
 
 /**
- * Calculate vanish from target
+ * Calculate Vellum damage on a target
  * @param sd: Player with vanish item
  * @param target: Target to vanish HP/SP
- * @param wd: Reference to Damage struct
+ * @param wd: Damage struct reference
+ * @return True on damage done or false if not
  */
-void battle_vanish(struct map_session_data *sd, struct block_list *target, struct Damage *wd)
+bool battle_vellum_damage(struct map_session_data *sd, struct block_list *target, struct Damage *wd)
 {
-	struct status_data *tstatus;
-	int hp = 0, sp = 0, race = status_get_race(target);
-	short vrate_hp = 0, vrate_sp = 0, v_hp = 0, v_sp = 0,
-		vellum_rate_hp = 0, vellum_rate_sp = 0, vellum_hp = 0, vellum_sp = 0;
-	uint8 i = 0;
+	nullpo_retr(false, sd);
+	nullpo_retr(false, target);
+	nullpo_retr(false, wd);
 
-	nullpo_retv(sd);
-	nullpo_retv(target);
-
-	tstatus = status_get_status_data(target);
-	wd->isspdamage = false;
-
-	// bHPVanishRate
-	hp = (sd->bonus.hp_vanish_rate * 10);
-	vrate_hp = cap_value(hp, 0, SHRT_MAX);
-	hp = sd->bonus.hp_vanish_per;
-	v_hp = cap_value(hp, SHRT_MIN, SHRT_MAX);
-
+	struct status_data *tstatus = status_get_status_data(target);
 	// bHPVanishRaceRate
-	hp = sd->hp_vanish_race[race].rate + sd->hp_vanish_race[RC_ALL].rate;
-	vellum_rate_hp = cap_value(hp, 0, SHRT_MAX);
-	hp = sd->hp_vanish_race[race].per + sd->hp_vanish_race[RC_ALL].per;
-	vellum_hp = cap_value(hp, SHRT_MIN, SHRT_MAX);
-	
-	// bSPVanishRate
-	sp = (sd->bonus.sp_vanish_rate * 10);
-	vrate_sp = cap_value(sp, 0, SHRT_MAX);
-	sp = sd->bonus.sp_vanish_per + sd->sp_vanish_race[race].per + sd->sp_vanish_race[RC_ALL].per;
-	v_sp = cap_value(sp, SHRT_MIN, SHRT_MAX);
-
+	int16 vellum_rate_hp = cap_value(sd->hp_vanish_race[tstatus->race].rate + sd->hp_vanish_race[RC_ALL].rate, 0, INT16_MAX);
+	int8 vellum_hp = cap_value(sd->hp_vanish_race[tstatus->race].per + sd->hp_vanish_race[RC_ALL].per, INT8_MIN, INT8_MAX);
 	// bSPVanishRaceRate
-	sp = sd->sp_vanish_race[race].rate + sd->sp_vanish_race[RC_ALL].rate;
-	vellum_rate_sp = cap_value(sp, 0, SHRT_MAX);
-	sp = sd->sp_vanish_race[race].per + sd->sp_vanish_race[RC_ALL].per;
-	vellum_sp = cap_value(sp, SHRT_MIN, SHRT_MAX);
+	int16 vellum_rate_sp = cap_value(sd->sp_vanish_race[tstatus->race].rate + sd->sp_vanish_race[RC_ALL].rate, 0, INT16_MAX);
+		int8 vellum_sp = cap_value(sd->sp_vanish_race[tstatus->race].per + sd->sp_vanish_race[RC_ALL].per, INT8_MIN, INT8_MAX);
 
-	if (wd->flag) {
-		// The HP and SP vanish bonus from these items can't stack because of the special damage display.
-		if (vellum_hp && vellum_rate_hp && (vellum_rate_hp >= 10000 || rnd() % 10000 < vellum_rate_hp))
-			i = 1;
-
-		if (vellum_sp && vellum_rate_sp && (vellum_rate_sp >= 10000 || rnd() % 10000 < vellum_rate_sp))
-			i = 2;
-
-		if (i == 1) {
-			wd->damage = apply_rate(tstatus->max_hp, vellum_hp);
-			wd->damage2 = 0;
-		}
-
-		if (i == 2) {
-			wd->damage = apply_rate(tstatus->max_sp, vellum_sp);
-			wd->damage2 = 0;
-			wd->isspdamage = true;
-		}
+	// The HP and SP damage bonus from these items don't stack because of the special damage display for SP.
+	// Vellum damage overrides any other damage done as well.
+	if (vellum_hp && vellum_rate_hp && (vellum_rate_hp >= 1000 || rnd() % 1000 < vellum_rate_hp)) {
+		wd->damage = apply_rate(tstatus->max_hp, vellum_hp);
+		wd->damage2 = 0;
 	}
-	else {
-		if (v_hp && vrate_hp && (vrate_hp >= 10000 || rnd() % 10000 < vrate_hp))
-			i |= 1;
-
-		if (v_sp && vrate_sp && (vrate_sp >= 10000 || rnd() % 10000 < vrate_sp))
-			i |= 2;
-
-		if (i)
-			status_percent_damage(&sd->bl, target, (i & 1) ? (int8)(-v_hp) : 0, (i & 2) ? (int8)(-v_sp) : 0, false);
+	else if (vellum_sp && vellum_rate_sp && (vellum_rate_sp >= 1000 || rnd() % 1000 < vellum_rate_sp)) {
+		wd->damage = apply_rate(tstatus->max_sp, vellum_sp);
+		wd->damage2 = 0;
+		wd->isspdamage = true;
 	}
+	else
+		return false;
+
+	return true;
 }
 
 void battle_drain(struct map_session_data *sd, struct block_list *tbl, int64 rdamage, int64 ldamage, int race, int class_)
 {
 	struct weapon_data *wd;
-	struct Damage d;
 	int64 *damage;
 	int thp = 0, tsp = 0, hp = 0, sp = 0;
-	uint8 i = 0;
 
 	if (!CHK_RACE(race) && !CHK_CLASS(class_))
 		return;
 
-	memset(&d, 0, sizeof(d));
-
-	// Check for vanish HP/SP. !CHECKME: Which first, drain or vanish?
-	battle_vanish(sd, tbl, &d);
-
-	i = 0;
-
-	for (i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		//First two iterations: Right hand
 		if (i < 2) { wd = &sd->right_weapon; damage = &rdamage; }
 		else { wd = &sd->left_weapon; damage = &ldamage; }
@@ -5938,6 +5928,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	int64 damage;
 	int skillv;
 	struct Damage wd;
+	bool vellum_damage = false;
 
 	nullpo_retr(ATK_NONE, src);
 	nullpo_retr(ATK_NONE, target);
@@ -6104,16 +6095,15 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 	}
 
 	wd = battle_calc_attack( BF_WEAPON, src, target, 0, 0, flag );
-	wd.isspdamage = false; // Default normal attacks to non-SP Damage attack until battle_vanish is determined
 
-	if (sd && wd.damage + wd.damage2 > 0)
-		battle_vanish(sd, target, &wd);
+	if (sd && wd.damage + wd.damage2 > 0 && battle_vellum_damage(sd, target, &wd))
+		vellum_damage = true;
 
 	if(sc) 
 	{
 		if( sc->data[SC_SPELLFIST] ) 
 		{
-			if (--(sc->data[SC_SPELLFIST]->val1) >= 0) {
+			if (--(sc->data[SC_SPELLFIST]->val1) >= 0 && !vellum_damage) {
 				wd = battle_calc_attack(BF_MAGIC, src, target, sc->data[SC_SPELLFIST]->val3, sc->data[SC_SPELLFIST]->val4, flag);
 				DAMAGE_DIV_FIX(wd.damage, wd.div_); // Double the damage for multiple hits.
 			}
@@ -6145,7 +6135,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 		return ATK_NONE;
 	}*/
 
-	if( sd && sc && sc->data[SC_GIANTGROWTH] && (wd.flag&BF_SHORT) && rnd()%100 < sc->data[SC_GIANTGROWTH]->val2 )
+	if( sd && sc && sc->data[SC_GIANTGROWTH] && (wd.flag&BF_SHORT) && rnd()%100 < sc->data[SC_GIANTGROWTH]->val2 && !vellum_damage)
 	{
 		if ( battle_config.giant_growth_behavior == 1 )
 			wd.damage *= 2;// Double Damage - 2017 Behavior
@@ -6188,7 +6178,7 @@ enum damage_lv battle_weapon_attack(struct block_list* src, struct block_list* t
 
 	battle_delay_damage(tick, wd.amotion, src, target, wd.flag, 0, 0, damage, wd.dmg_lv, wd.dmotion, true, false);
 
-	if( tsc && tsc->data[SC_DEVOTION] )
+	if( tsc && tsc->data[SC_DEVOTION] && !vellum_damage)
 	{
 		struct status_change_entry *sce = tsc->data[SC_DEVOTION];
 		struct block_list *d_bl = map_id2bl(sce->val1);
@@ -6578,7 +6568,7 @@ int battle_check_target( struct block_list *src, struct block_list *target,int f
 			if( t_bl == s_bl ) break;
 			sd = BL_CAST(BL_PC, t_bl);
 
-			if( sd->state.monster_ignore && flag&BCT_ENEMY )
+			if((sd->state.block_action & PCBLOCK_IMMUNE) && flag&BCT_ENEMY )
 				return 0; // Global inminuty only to Attacks
 			if( sd->status.karma && s_bl->type == BL_PC && ((TBL_PC*)s_bl)->status.karma )
 				state |= BCT_ENEMY; // Characters with bad karma may fight amongst them
@@ -6930,6 +6920,9 @@ static const struct _battle_data {
 	{ "pet_max_atk2",                       &battle_config.pet_max_atk2,                    1000,   0,      INT_MAX,        },
 	{ "pet_disable_in_gvg",                 &battle_config.pet_no_gvg,                      0,      0,      1,              },
 	{ "pet_autofeed",						&battle_config.pet_autofeed,					1,      0,      1,				},
+	{ "feature.petevolution",               &battle_config.feature_petevolution,            1,      0,      1,				},
+	{ "pet_autofeed_rate",                  &battle_config.pet_autofeed_rate,	           89,      0,    100,				},
+	{ "pet_autofeed_always",                &battle_config.pet_autofeed_always,             1,      0,      1,				},
 	{ "skill_min_damage",                   &battle_config.skill_min_damage,                2|4,    0,      1|2|4,          },
 	{ "finger_offensive_type",              &battle_config.finger_offensive_type,           0,      0,      1,              },
 	{ "heal_exp",                           &battle_config.heal_exp,                        0,      0,      INT_MAX,        },
@@ -6954,7 +6947,9 @@ static const struct _battle_data {
 	{ "max_walk_speed",                     &battle_config.max_walk_speed,                  300,    100,    100*DEFAULT_WALK_SPEED, },
 	{ "max_lv",                             &battle_config.max_lv,                          99,       0,    150,            },
 	{ "aura_lv",                            &battle_config.aura_lv,                         99,       0,    INT_MAX,        },
-	{ "max_hp",                             &battle_config.max_hp,                          32500,  100,    1000000000,     },
+	{ "max_hp_lv99",                        &battle_config.max_hp_lv99,                    330000,  100,    1000000000,		},
+	{ "max_hp_lv150",                       &battle_config.max_hp_lv150,                   660000,  100,    1000000000,		},
+	{ "max_hp",                             &battle_config.max_hp,                        1100000,  100,    1000000000,		},
 	{ "max_sp",                             &battle_config.max_sp,                          32500,  100,    1000000000,     },
 	{ "max_cart_weight",                    &battle_config.max_cart_weight,                 8000,   100,    1000000,        },
 	{ "max_parameter",                      &battle_config.max_parameter,                   99,     10,     10000,          },
@@ -7075,6 +7070,7 @@ static const struct _battle_data {
 	{ "item_rate_adddrop",                  &battle_config.item_rate_adddrop,               100,    0,      1000000,        },
 	{ "item_rate_treasure",                 &battle_config.item_rate_treasure,              100,    0,      1000000,        },
 	{ "prevent_logout",                     &battle_config.prevent_logout,                  10000,  0,      60000,          },
+	{ "prevent_logout_trigger",             &battle_config.prevent_logout_trigger,          0xE,    0,      0xF,			},
 	{ "alchemist_summon_reward",            &battle_config.alchemist_summon_reward,         1,      0,      2,              },
 	{ "drops_by_luk",                       &battle_config.drops_by_luk,                    0,      0,      INT_MAX,        },
 	{ "drops_by_luk2",                      &battle_config.drops_by_luk2,                   0,      0,      INT_MAX,        },
@@ -7201,7 +7197,7 @@ static const struct _battle_data {
 	{ "auction_feeperhour",                 &battle_config.auction_feeperhour,              12000,  0,      INT_MAX,        },
 	{ "auction_maximumprice",               &battle_config.auction_maximumprice,            500000000, 0,   MAX_ZENY,       },
 	{ "gm_viewequip_min_lv",                &battle_config.gm_viewequip_min_lv,             0,      0,      99,             },
-	{ "homunculus_auto_vapor",              &battle_config.homunculus_auto_vapor,           1,      0,      1,              },
+	{ "homunculus_auto_vapor",              &battle_config.homunculus_auto_vapor,          80,      0,      100,            },
 	{ "display_status_timers",              &battle_config.display_status_timers,           1,      0,      1,              },
 	{ "skill_add_heal_rate",                &battle_config.skill_add_heal_rate,            39,      0,      INT_MAX,        },
 	{ "eq_single_target_reflectable",       &battle_config.eq_single_target_reflectable,    1,      0,      1,              },
@@ -7452,6 +7448,17 @@ void battle_adjust_conf()
 		battle_config.feature_banking = 0;
 	}
 #endif 
+
+#if PACKETVER < 20141008
+	if (battle_config.feature_petevolution) {
+		ShowWarning("conf/battle/feature.conf petevolution is enabled but it requires PACKETVER 2014-10-08 or newer, disabling...\n");
+		battle_config.feature_petevolution = 0;
+	}
+	if (battle_config.pet_autofeed) {
+		ShowWarning("conf/battle/pet.conf pet auto feed is enabled but it requires PACKETVER 2014-10-08 or newer, disabling...\n");
+		battle_config.pet_autofeed = 0;
+	}
+#endif
 
 #if PACKETVER < 20141022
 	if (battle_config.feature_roulette) {
