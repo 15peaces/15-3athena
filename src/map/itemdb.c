@@ -1771,6 +1771,212 @@ void itemdb_parse_attendance_db(void)
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
 }
 
+static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
+{
+	nullpo_retr(false, data);
+	nullpo_retr(false, data->lapineddukddak);
+
+	uint32 lines = 0, cnt = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	sprintf(file, "db/item_lapineddukddak_source.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("itemdb_parse_lapineddukddak_sources: File not found \"%s\", skipping.\n", file);
+		return false;
+	}
+
+	VECTOR_INIT(data->lapineddukddak->SourceItems);
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i, sid, amt;
+		t_itemid nameid;
+
+		struct item_data *edata = NULL;
+		struct itemlist_entry item = { 0 };
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 3; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("itemdb_parse_lapineddukddak_sources: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				continue;
+			}
+		}
+
+		sid = atoi(str[0]);
+		if (sid < 0) {
+			ShowWarning("itemdb_parse_lapineddukddak_sources: Invalid id %d in %s:%d\n", id, file, lines);
+			continue;
+		}
+
+		if (id != sid) // ignore line.
+			continue;
+
+		nameid = strtoul(str[1], NULL, 10);
+		if (nameid == 0 || nameid == dummy_item->nameid)
+		{
+			ShowWarning("itemdb_parse_lapineddukddak_sources: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
+			continue;
+		}
+
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_parse_lapineddukddak_sources: unknown item '%d', skipping.\n", nameid);
+			continue;
+		}
+
+		edata = itemdb_search(nameid);
+		item.id = edata->nameid;
+
+		amt = atoi(str[2]);
+		if (amt < 1) {
+			ShowWarning("itemdb_parse_lapineddukddak_sources: invalid amount %d in %s:%d. Must be at least 1, skipping.\n", amt, file, lines);
+			continue;
+		}
+		item.amount = amt;
+
+		VECTOR_ENSURE(data->lapineddukddak->SourceItems, 1, 1);
+		VECTOR_PUSH(data->lapineddukddak->SourceItems, item);
+		cnt++;
+	}
+
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
+	return true;
+}
+
+void itemdb_parse_lapineddukddak_db(void)
+{
+	uint32 lines = 0, cnt = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	sprintf(file, "db/item_lapineddukddak_db.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("itemdb_parse_lapineddukddak_db: File not found \"%s\", skipping.\n", file);
+		return;
+	}
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i;
+		int id, needcount, refmin, refmax;
+		t_itemid nameid;
+
+		struct item_data *data = NULL;
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 6; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("itemdb_parse_lapineddukddak_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				continue;
+			}
+		}
+
+		id = atoi(str[0]);
+		if (id < 0) {
+			ShowWarning("itemdb_parse_lapineddukddak_db: Invalid id %d in %s:%d\n", id, file, lines);
+			continue;
+		}
+
+		nameid = strtoul(str[1], NULL, 10);
+		if (nameid == 0 || nameid == dummy_item->nameid)
+		{
+			ShowWarning("itemdb_parse_lapineddukddak_db: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
+			continue;
+		}
+
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_parse_lapineddukddak_db: unknown item '%d', skipping.\n", nameid);
+			continue;
+		}
+
+		data = itemdb_search(nameid);
+
+		needcount = atoi(str[2]);
+		if (needcount < 1) {
+			ShowWarning("itemdb_parse_lapineddukddak_db: invalid NeedCount %d in %s:%d. Must be at least 1, skipping.\n", needcount, file, lines);
+			continue;
+		}
+
+		refmin = atoi(str[3]);
+		if (refmin < 0 || refmin > 20)
+			refmin = 0;
+		
+		refmax = atoi(str[4]);
+		if (refmax < 0 || refmax > 20)
+			refmax = 0;
+
+		data->lapineddukddak = aCalloc(1, sizeof(struct item_lapineddukddak));
+
+		data->lapineddukddak->NeedCount = (int16)needcount;
+		data->lapineddukddak->NeedRefineMin = (int8)refmin;
+		data->lapineddukddak->NeedRefineMax = (int8)refmax;
+
+		itemdb_parse_lapineddukddak_sources(id, data);
+
+		if (*str[5])
+			data->lapineddukddak->script = parse_script(str[5], file, lines, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+		cnt++;
+	}
+
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
+}
+
 /** Misc Item flags
 * <item_id>,<flag>
 * &1 - As dead branch item
@@ -1976,4 +2182,5 @@ void do_init_itemdb(void)
 
 	VECTOR_INIT(attendance_data);
 	itemdb_parse_attendance_db();
+	itemdb_parse_lapineddukddak_db();
 }

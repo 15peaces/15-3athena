@@ -7,35 +7,35 @@
 #Database: log
 #Table: picklog
 CREATE TABLE IF NOT EXISTS `picklog` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` INT NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `char_id` int(11) NOT NULL default '0',
+  `char_id` INT NOT NULL default '0',
   `type` enum('T','V','P','M','S','N','D','C','O','U','A','R','G','E','I','B','L','K','Y','Q','X','$','Z','F') NOT NULL default 'P',
-  `nameid` int(10) unsigned NOT NULL default '0',
-  `amount` int(11) NOT NULL default '1',
-  `refine` tinyint(3) unsigned NOT NULL default '0',
-  `card0` int(10) unsigned NOT NULL default '0',
-  `card1` int(10) unsigned NOT NULL default '0',
-  `card2` int(10) unsigned NOT NULL default '0',
-  `card3` int(10) unsigned NOT NULL default '0',
-  `option_id0` smallint(5) unsigned NOT NULL default '0',
-  `option_val0` smallint(5) unsigned NOT NULL default '0',
-  `option_parm0` tinyint(3) unsigned NOT NULL default '0',
-  `option_id1` smallint(5) unsigned NOT NULL default '0',
-  `option_val1` smallint(5) unsigned NOT NULL default '0',
-  `option_parm1` tinyint(3) unsigned NOT NULL default '0',
-  `option_id2` smallint(5) unsigned NOT NULL default '0',
-  `option_val2` smallint(5) unsigned NOT NULL default '0',
-  `option_parm2` tinyint(3) unsigned NOT NULL default '0',
-  `option_id3` smallint(5) unsigned NOT NULL default '0',
-  `option_val3` smallint(5) unsigned NOT NULL default '0',
-  `option_parm3` tinyint(3) unsigned NOT NULL default '0',
-  `option_id4` smallint(5) unsigned NOT NULL default '0',
-  `option_val4` smallint(5) unsigned NOT NULL default '0',
-  `option_parm4` tinyint(3) unsigned NOT NULL default '0',
-  `unique_id` bigint(20) unsigned NOT NULL default '0',
+  `nameid` INT unsigned NOT NULL default '0',
+  `amount` INT NOT NULL default '1',
+  `refine` TINYINT unsigned NOT NULL default '0',
+  `card0` INT unsigned NOT NULL default '0',
+  `card1` INT unsigned NOT NULL default '0',
+  `card2` INT unsigned NOT NULL default '0',
+  `card3` INT unsigned NOT NULL default '0',
+  `option_id0` SMALLINT unsigned NOT NULL default '0',
+  `option_val0` SMALLINT unsigned NOT NULL default '0',
+  `option_parm0` TINYINT unsigned NOT NULL default '0',
+  `option_id1` SMALLINT unsigned NOT NULL default '0',
+  `option_val1` SMALLINT unsigned NOT NULL default '0',
+  `option_parm1` TINYINT unsigned NOT NULL default '0',
+  `option_id2` SMALLINT unsigned NOT NULL default '0',
+  `option_val2` SMALLINT unsigned NOT NULL default '0',
+  `option_parm2` TINYINT unsigned NOT NULL default '0',
+  `option_id3` SMALLINT unsigned NOT NULL default '0',
+  `option_val3` SMALLINT unsigned NOT NULL default '0',
+  `option_parm3` TINYINT unsigned NOT NULL default '0',
+  `option_id4` SMALLINT unsigned NOT NULL default '0',
+  `option_val4` SMALLINT unsigned NOT NULL default '0',
+  `option_parm4` TINYINT unsigned NOT NULL default '0',
+  `unique_id` BIGINT unsigned NOT NULL default '0',
   `map` varchar(11) NOT NULL default '',
-  `bound` tinyint(1) unsigned NOT NULL default '0', 
+  `bound` TINYINT unsigned NOT NULL default '0', 
   PRIMARY KEY  (`id`),
   INDEX (`type`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -44,12 +44,12 @@ CREATE TABLE IF NOT EXISTS `picklog` (
 #Database: log
 #Table: zenylog
 CREATE TABLE IF NOT EXISTS `zenylog` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` INT NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
-  `char_id` int(11) NOT NULL default '0',
-  `src_id` int(11) NOT NULL default '0',
+  `char_id` INT NOT NULL default '0',
+  `src_id` INT NOT NULL default '0',
   `type` enum('T','V','P','M','S','N','D','C','A','E','I','B') NOT NULL default 'S',
-  `amount` int(11) NOT NULL default '0',
+  `amount` INT NOT NULL default '0',
   `map` varchar(11) NOT NULL default '',
   PRIMARY KEY  (`id`),
   INDEX (`type`)
@@ -58,10 +58,10 @@ CREATE TABLE IF NOT EXISTS `zenylog` (
 #Database: log
 #Table: branchlog
 CREATE TABLE IF NOT EXISTS `branchlog` (
-  `branch_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `branch_id` MEDIUMINT unsigned NOT NULL auto_increment,
   `branch_date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `account_id` int(11) NOT NULL default '0',
-  `char_id` int(11) NOT NULL default '0',
+  `account_id` INT NOT NULL default '0',
+  `char_id` INT NOT NULL default '0',
   `char_name` varchar(25) NOT NULL default '',
   `map` varchar(11) NOT NULL default '',
   PRIMARY KEY  (`branch_id`),
@@ -72,12 +72,12 @@ CREATE TABLE IF NOT EXISTS `branchlog` (
 #Database: log
 #Table: mvplog
 CREATE TABLE IF NOT EXISTS `mvplog` (
-  `mvp_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `mvp_id` MEDIUMINT unsigned NOT NULL auto_increment,
   `mvp_date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `kill_char_id` int(11) NOT NULL default '0',
-  `monster_id` smallint(6) NOT NULL default '0',
-  `prize` int(10) unsigned NOT NULL default '0',
-  `mvpexp` bigint(20) unsigned NOT NULL default '0',
+  `kill_char_id` INT NOT NULL default '0',
+  `monster_id` SMALLINT NOT NULL default '0',
+  `prize` INT unsigned NOT NULL default '0',
+  `mvpexp` BIGINT unsigned NOT NULL default '0',
   `map` varchar(11) NOT NULL default '',
   PRIMARY KEY  (`mvp_id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 ;
@@ -85,10 +85,10 @@ CREATE TABLE IF NOT EXISTS `mvplog` (
 #Database: log
 #Table: atcommandlog
 CREATE TABLE IF NOT EXISTS `atcommandlog` (
-  `atcommand_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `atcommand_id` MEDIUMINT unsigned NOT NULL auto_increment,
   `atcommand_date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `account_id` int(11) unsigned NOT NULL default '0',
-  `char_id` int(11) unsigned NOT NULL default '0',
+  `account_id` INT unsigned NOT NULL default '0',
+  `char_id` INT unsigned NOT NULL default '0',
   `char_name` varchar(25) NOT NULL default '',
   `map` varchar(11) NOT NULL default '',
   `command` varchar(255) NOT NULL default '',
@@ -100,10 +100,10 @@ CREATE TABLE IF NOT EXISTS `atcommandlog` (
 #Database: log
 #Table: npclog
 CREATE TABLE IF NOT EXISTS `npclog` (
-  `npc_id` mediumint(9) unsigned NOT NULL auto_increment,
+  `npc_id` MEDIUMINT unsigned NOT NULL auto_increment,
   `npc_date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `account_id` int(11) unsigned NOT NULL default '0',
-  `char_id` int(11) unsigned NOT NULL default '0',
+  `account_id` INT unsigned NOT NULL default '0',
+  `char_id` INT unsigned NOT NULL default '0',
   `char_name` varchar(25) NOT NULL default '',
   `map` varchar(11) NOT NULL default '',
   `mes` varchar(255) NOT NULL default '',
@@ -116,15 +116,15 @@ CREATE TABLE IF NOT EXISTS `npclog` (
 #Database: log
 #Table: chatlog
 CREATE TABLE IF NOT EXISTS `chatlog` (
-  `id` bigint(20) NOT NULL auto_increment,
+  `id` BIGINT NOT NULL auto_increment,
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `type` enum('O','W','P','G','M') NOT NULL default 'O',
-  `type_id` int(11) NOT NULL default '0',
-  `src_charid` int(11) NOT NULL default '0',
-  `src_accountid` int(11) NOT NULL default '0',
+  `type_id` INT NOT NULL default '0',
+  `src_charid` INT NOT NULL default '0',
+  `src_accountid` INT NOT NULL default '0',
   `src_map` varchar(11) NOT NULL default '',
-  `src_map_x` smallint(4) NOT NULL default '0',
-  `src_map_y` smallint(4) NOT NULL default '0',
+  `src_map_x` SMALLINT NOT NULL default '0',
+  `src_map_y` SMALLINT NOT NULL default '0',
   `dst_charname` varchar(25) NOT NULL default '',
   `message` varchar(150) NOT NULL default '',
   PRIMARY KEY  (`id`),
@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `loginlog` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',
   `ip` varchar(15) NOT NULL default '',
   `user` varchar(23) NOT NULL default '',
-  `rcode` tinyint(4) NOT NULL default '0',
+  `rcode` TINYINT NOT NULL default '0',
   `log` varchar(255) NOT NULL default '',
   INDEX (`ip`)
 ) ENGINE=MyISAM ;
@@ -146,12 +146,12 @@ CREATE TABLE IF NOT EXISTS `loginlog` (
 #Database: log
 #Table: cashlog
 CREATE TABLE IF NOT EXISTS `cashlog` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `char_id` int(11) NOT NULL DEFAULT '0',
+  `char_id` INT NOT NULL DEFAULT '0',
   `type` enum('T','V','P','M','S','N','D','C','A','E','I','B','$') NOT NULL DEFAULT 'S',
   `cash_type` enum('O','K','C') NOT NULL DEFAULT 'O',
-  `amount` int(11) NOT NULL DEFAULT '0',
+  `amount` INT NOT NULL DEFAULT '0',
   `map` varchar(11) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   INDEX `type` (`type`)

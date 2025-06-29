@@ -1,0 +1,14 @@
+// 15-3athena LapineDdukDdak Database
+//
+// Structure of Database:
+// ID,nameid,NeedCount,NeedRefineMin,NeedRefineMax,{Script}
+//	ID: 			Unique ID of the LapineDdukDdak box, must be the same as the source items ID
+//	nameid:			Box nameid
+//	NeedCount:  	The required amount of unique source items
+//	NeedRefineMin:	The minimum refine for each of the source items
+//	NeedRefineMax:	The maximum refine for each of the source items
+//	Script:			Script - Executes on success
+//
+//	Note: for the list of the source items see item_lapineddukddak_source.txt file!
+
+0,23665,3,7,0,{} // PhysicalMagical_Mix

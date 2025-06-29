@@ -21865,6 +21865,106 @@ void clif_parse_camerainfo(int fd, struct map_session_data* sd) {
 	is_atcommand(fd, sd, command, 1);
 }
 
+bool clif_lapineDdukDdak_open(struct map_session_data *sd, int item_id)
+{
+#if PACKETVER >= 20160601
+	nullpo_retr(false, sd);
+	nullpo_retr(false, itemdb_exists(item_id));
+	struct PACKET_ZC_LAPINEDDUKDDAK_OPEN p;
+
+	p.packetType = 0x0a4e;
+	p.itemId = item_id;
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+
+	sd->state.lapine_ui = 1;
+	return true;
+#else
+	return false;
+#endif // PACKETVER >= 20160601
+}
+
+static bool clif_lapineDdukDdak_result(struct map_session_data *sd, enum lapineddukddak_result result)
+{
+#if PACKETVER >= 20160601
+	nullpo_retr(false, sd);
+	struct PACKET_ZC_LAPINEDDUKDDAK_RESULT p;
+
+	p.packetType = 0x0a50;
+	p.result = result;
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+	return true;
+#else
+	return false;
+#endif // PACKETVER >= 20160601
+}
+
+static void clif_parse_lapineDdukDdak_ack(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20160302
+	const struct PACKET_CZ_LAPINEDDUKDDAK_ACK *p = (struct PACKET_CZ_LAPINEDDUKDDAK_ACK *)RFIFOP(fd, 0);
+	struct item_data *it = itemdb_exists(p->itemId);
+
+	if (it == NULL || it->lapineddukddak == NULL)
+		return;
+	if (pc_cant_act(sd))
+		return;
+	if (pc_search_inventory(sd, it->nameid) < 0)
+		return;
+
+	if (((p->packetLength - sizeof(struct PACKET_CZ_LAPINEDDUKDDAK_ACK)) / sizeof(struct PACKET_CZ_LAPINEDDUKDDAK_ACK_sub)) != it->lapineddukddak->NeedCount)
+		return;
+
+	for (int i = 0; i < it->lapineddukddak->NeedCount; ++i) {
+		int16 idx = p->items[i].index - 2;
+
+		struct item itr = sd->inventory.u.items_inventory[idx];
+		int j = 0;
+		for (j = 0; j < VECTOR_LENGTH(it->lapineddukddak->SourceItems); ++j) {
+			if (itr.nameid == VECTOR_INDEX(it->lapineddukddak->SourceItems, j).id) {
+				// Validate that the amount sent in the packet is matching the database
+				if (p->items[i].count != VECTOR_INDEX(it->lapineddukddak->SourceItems, j).amount) {
+					clif_lapineDdukDdak_result(sd, LAPINEDDKUKDDAK_INSUFFICIENT_AMOUNT);
+					return;
+				}
+
+				// Validate that the player have enough of the item
+				if (itr.amount < VECTOR_INDEX(it->lapineddukddak->SourceItems, j).amount) {
+					clif_lapineDdukDdak_result(sd, LAPINEDDKUKDDAK_INSUFFICIENT_AMOUNT);
+					return;
+				}
+
+				// Validate refine rate requirement
+				if ((itemdb_type(itr.nameid) == IT_ARMOR || itemdb_type(itr.nameid) == IT_WEAPON)
+					&& (itr.refine < it->lapineddukddak->NeedRefineMin || itr.refine > it->lapineddukddak->NeedRefineMax))
+					return;
+
+				// All requirements are met, move to the next one
+				break;
+			}
+		}
+		// The item is not in sources list
+		if (j == VECTOR_LENGTH(it->lapineddukddak->SourceItems)) {
+			clif_lapineDdukDdak_result(sd, LAPINEDDKUKDDAK_INVALID_ITEM);
+			return;
+		}
+	}
+
+	for (int i = 0; i < it->lapineddukddak->NeedCount; ++i)
+		pc_delitem(sd, p->items[i].index - 2, p->items[i].count, 0, 0, LOG_TYPE_SCRIPT);
+	if (it->lapineddukddak->script != NULL)
+		script_run_item_lapineddukddak_script(sd, it, fake_nd->bl.id);
+	clif_lapineDdukDdak_result(sd, LAPINEDDKUKDDAK_SUCCESS);
+	return;
+#endif // PACKETVER >= 20160302
+}
+
+static void clif_parse_lapineDdukDdak_close(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20160504
+	sd->state.lapine_ui = 0;
+#endif // PACKETVER >= 20160504
+}
+
 #ifdef DUMP_UNKNOWN_PACKET
 void DumpUnknownPacket(int fd, TBL_PC *sd, int cmd, int packet_len) {
 	const char* packet_txt = "save/packet.txt";
@@ -22377,10 +22477,10 @@ void packetdb_readdb(void)
 #endif
  	  106,  0,  0,  0,  0,  4,  0, 59,  3,  0,  0,  0,  0,  0,  0,  0,
 //#0x0A40
- 		0,  0,  0, 85, -1,  0, 14,  3,  2, 20,  6,  0,  0,  0,  0,  0,
+ 		0,  0,  0, 85, -1,  0, 14,  3,  2, 20,  6,  0,  0,  0,  0, -1,
 		0, 34,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 		0,  0,  0,  0,  0,  0,  0,  0,  3,  0,  0,  0,  0, -1,  0,  0,
- 		0,  0,  0,  0,  0,  0,  0, 15, 15,  0,  0,  0,  0, -1,  0,  0,
+ 		2,  0,  0,  0,  0,  0,  0, 15, 15,  0,  0,  0,  0, -1,  0,  0,
 //#0x0A80
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
@@ -22663,6 +22763,8 @@ void packetdb_readdb(void)
 		{ clif_parse_merge_item_cancel, "mergeitem_cancel" },
 		{ clif_parse_PartyTick, "partytick" },
 		{ clif_parse_camerainfo, "pcamerainfo" },
+		{ clif_parse_lapineDdukDdak_ack, "plapineDdukDdak_ack" },
+		{ clif_parse_lapineDdukDdak_close , "plapineDdukDdak_close" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

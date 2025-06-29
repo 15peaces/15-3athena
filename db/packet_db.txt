@@ -2396,6 +2396,9 @@ packet_keys: 0x09366971,0x005672F1,0x6F3712AE
 0x0A7D,-1 //ZC_ACK_MAIL_LIST2
 0x0A84,94 //ZC_GUILD_INFO3
 0x0AA5,-1 //ZC_MEMBERMGR_INFO2
+0x0a4e,4
+0x0a4f,-1,plapineDdukDdak_ack,0
+0x0a70,2,plapineDdukDdak_close,0
 
 //2017-06-14dRagexeRE
 packet_ver: 43
@@ -2572,6 +2575,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x0824,8
 0x09D6,-1,npcmarketpurchase,0
 0x0A20,25
+0x0a4e,6
 
 //Add new packets here
 //packet_ver: 47

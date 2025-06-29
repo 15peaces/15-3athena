@@ -313,6 +313,22 @@ enum {
 	NOUSE_SITTING = 0x01,
 } item_nouse_list;
 
+/** Convenience item list (entry) used in various functions */
+struct itemlist_entry {
+	t_itemid id;       ///< Item ID or (inventory) index
+	int16 amount; ///< Amount
+};
+/** Convenience item list used in various functions */
+VECTOR_STRUCT_DECL(itemlist, struct itemlist_entry);
+
+struct item_lapineddukddak {
+	int16 NeedCount;
+	int8 NeedRefineMin;
+	int8 NeedRefineMax;
+	VECTOR_DECL(struct itemlist_entry) SourceItems;
+	struct script_code *script;
+};
+
 struct item_data {
 	t_itemid nameid;
 	char name[ITEM_NAME_LENGTH],jname[ITEM_NAME_LENGTH];
@@ -364,6 +380,7 @@ struct item_data {
 		unsigned int flag;
 		unsigned short override;
 	} item_usage;
+	struct item_lapineddukddak *lapineddukddak;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]
 };

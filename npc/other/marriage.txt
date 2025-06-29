@@ -362,7 +362,7 @@ prt_church,97,100,4	script	Wedding Staff#w	71,{
 			Emotion e_lv;
 			next;
 			mes "[Marry Happy]";
-			if (Sex == SEX_MALE) {
+			if (Sex == SEX_FEMALE) {
 				mes "Since you're the bride,";
 				mes "you need to wait for the";
 				mes "groom to speak to Bishop";

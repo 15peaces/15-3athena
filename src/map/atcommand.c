@@ -1814,8 +1814,7 @@ ACMD_FUNC(item2)
 
 		loop = 1;
 		get_count = number;
-		if (item_data->type == IT_WEAPON || item_data->type == IT_ARMOR ||
-			item_data->type == IT_PETEGG || item_data->type == IT_PETARMOR) {
+		if (!itemdb_isstackable2(item_data)) {
 			loop = number;
 			get_count = 1;
 			if (item_data->type == IT_PETEGG) {

@@ -5603,3 +5603,15 @@
 1840,Requiem_Knuckle,Requiem Knuckle,4,20,,500,150:100,,1,0,0x00008100,63,2,2,4,100,1,12,{ .@r = getrefine(); .@b = 40; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
 1942,Requiem_Violin,Requiem Violin,4,20,,500,160:120,,1,,0x00080000,63,1,2,4,100,1,13,{ .@r = getrefine(); .@b = 40; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+20; } if(.@r>=7) bonus2 bSkillAtk,"CG_ARROWVULCAN",200; bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
 2032,Requiem_Wizardry_Staff,Requiem Wizardry Staff,4,20,,500,100:230,,1,,0xFFFFFFFF,63,2,2,4,100,1,10,{ .@r = getrefine(); .@b = 40; .@c = 5; if(.@r>=5){ .@b += (.@r-5)*15+20; .@c += .@r-5; } bonus2 bMagicAddRace2,RC2_BioLab,.@b; bonus2 bSubRace2,RC2_BioLab,.@c; bonus2 bIgnoreMdefRace2Rate,RC2_BioLab,(.@r-5)*10; },{},{}
+
+
+// ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV{:eLV_max},Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
+
+//LapineDdukDdak testing (renewal)
+23665,PhysicalMagical_Mix,PhysicalMagical_Mix,3,10,,10,,,,,,,,,,,,,{},{},{}
+24018,S_Physical_Earring,Shadow Physical Earring,12,10,,0,,,,,0xFFFFFFFF,63,2,1048576,0,0,1,0,{bonus bAspdRate,(getrefine()>=7)?2:1;},{},{}
+24019,S_Physical_Weapon,Shadow Physical Weapon,12,10,,0,,,,,0xFFFFFFFF,63,2,131072,0,0,1,0,{bonus bBaseAtk,10; if (getrefine()>=7) { bonus bAtkRate,1; }},{},{}
+24020,S_Physical_Pendant,Shadow Physical Pendant,12,10,,0,,,,,0xFFFFFFFF,63,2,2097152,0,0,1,0,{bonus bMaxHP,100;if (getrefine()>=7) { bonus bMaxHPrate,1; }},{},{}
+24021,S_Magical_Earring,Shadow Magical Earring,12,10,,0,,,,,0xFFFFFFFF,63,2,1048576,0,0,1,0,{bonus bCastrate,-(getrefine()>=7)?2:1;},{},{}
+24022,S_Magical_Weapon,Shadow Magical Weapon,12,10,,0,,,,,0xFFFFFFFF,63,2,131072,0,0,1,0,{bonus bMatk,10; if (getrefine()>=7) { bonus bMatkRate,1; }},{},{}
+24023,S_Magical_Pendant,Shadow Magical Pendant,12,10,,0,,,,,0xFFFFFFFF,63,2,2097152,0,0,1,0,{bonus bMaxSP,50; if (getrefine()>=7) { bonus bMaxSPrate,1; }},{},{}

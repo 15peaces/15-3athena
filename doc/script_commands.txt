@@ -2943,6 +2943,13 @@ If <type> is true the command will identify all the unidentified items as well (
 If <type> is false the command only returns the count of unidentified items.
 
 ---------------------------------------
+
+*openlapineddukddakboxui(<item_id>)
+
+Opens lapine ddukddak user interface for the player
+returns true on success and false on failure
+
+---------------------------------------
 //
 2,1.- End of item-related commands.
 //

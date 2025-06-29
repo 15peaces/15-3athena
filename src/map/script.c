@@ -21117,6 +21117,37 @@ BUILDIN_FUNC(identifyall) {
 	return 0;
 }
 
+BUILDIN_FUNC(openlapineddukddakboxui)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+	if (sd == NULL)
+		return false;
+	const int item_id = script_getnum(st, 2);
+	struct item_data *it = itemdb_exists(item_id);
+	if (it == NULL) {
+		ShowError("buildin_openlapineddukddakboxui: Item %d is not valid\n", item_id);
+		script_reportfunc(st);
+		script_reportsrc(st);
+		script_pushint(st, false);
+		return true;
+	}
+	clif_lapineDdukDdak_open(sd, item_id);
+	script_pushint(st, true);
+	return true;
+}
+
+/**
+ * Run item lapineddukddak script for item.
+ *
+ * @param sd    player session data. Must be correct and checked before.
+ * @param data  unequipped item data. Must be correct and checked before.
+ * @param oid   npc id. Can be also 0 or fake npc id.
+ */
+void script_run_item_lapineddukddak_script(struct map_session_data *sd, struct item_data *data, int oid)
+{
+	run_script(data->lapineddukddak->script, 0, sd->bl.id, oid);
+}
+
 /// declarations that were supposed to be exported from npc_chat.c
 #ifdef PCRE_SUPPORT
 BUILDIN_FUNC(defpattern);
@@ -21651,5 +21682,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(getequiprefinecost, "iii?"),
 	BUILDIN_DEF(camerainfo, "iii?"),
 	BUILDIN_DEF(identifyall, "??"),
+	BUILDIN_DEF(openlapineddukddakboxui, "i"),
 	{NULL,NULL,NULL},
 };

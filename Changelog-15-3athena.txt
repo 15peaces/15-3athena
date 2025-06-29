@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+
+06/29/2025
+	r522 [15peaces]
+		*Basic implementation of LapineDdukDdak System.
+			-Added one database entry for testing. More to be added as needed...
+		*Updated @item2 command to be able to refine shadow equipment.
+		*Add some missing warp portals of Yuno and Lighthalzen.
+		*Fixed a typo in marriage script.
+		*Fixed some sql warnings with mysql servers v8+
+
 06/22/2025
 	r521 [15peaces]
 		*Added pc_can_attack function.

@@ -625,6 +625,12 @@ enum CZ_CONFIG {
 	CZ_CONFIG_HOMUNCULUS_AUTOFEEDING = 3,
 };
 
+enum lapineddukddak_result {
+	LAPINEDDKUKDDAK_SUCCESS = 0,
+	LAPINEDDKUKDDAK_INSUFFICIENT_AMOUNT = 5,
+	LAPINEDDKUKDDAK_INVALID_ITEM = 7,
+};
+
 /// Attendance System
 enum in_ui_type {
 	IN_UI_ATTENDANCE = 5
@@ -1213,5 +1219,7 @@ void clif_partyinvitationstate(struct map_session_data* sd, bool flag);
 void clif_party_leaderchanged(struct map_session_data *sd, int prev_leader_aid, int new_leader_aid);
 
 void clif_camerainfo(struct map_session_data* sd, bool show, float range, float rotation, float latitude);
+
+bool clif_lapineDdukDdak_open(struct map_session_data *sd, int item_id);
 
 #endif /* _CLIF_H_ */

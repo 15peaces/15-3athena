@@ -1,0 +1,15 @@
+// 15-3athena LapineDdukDdak Source Items Database
+//
+// Structure of Database:
+// ID,nameid,amount
+//	ID: 		Unique ID of the LapineDdukDdak box, must be the same as in the main database.
+//	nameid:		nameid allowed to be converted
+//	amount:  	amount needed to be allowed
+
+// PhysicalMagical_Mix (23665)
+0,24018,1
+0,24019,1
+0,24020,1
+0,24021,1
+0,24022,1
+0,24023,1

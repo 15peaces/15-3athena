@@ -622,6 +622,8 @@ struct DBMap* script_get_label_db(void);
 struct DBMap* script_get_userfunc_db(void);
 void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos);
 
+void script_run_item_lapineddukddak_script(struct map_session_data *sd, struct item_data *data, int oid);
+
 bool script_get_parameter(const char* name, int* value);
 bool script_get_constant(const char* name, int* value);
 void script_set_constant_(const char* name, int value, const char* constant_name, bool isparameter);
