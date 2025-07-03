@@ -1866,8 +1866,6 @@ static bool itemdb_parse_lapineddukddak_sources(int id, struct item_data *data)
 		VECTOR_PUSH(data->lapineddukddak->SourceItems, item);
 		cnt++;
 	}
-
-	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
 	return true;
 }
 

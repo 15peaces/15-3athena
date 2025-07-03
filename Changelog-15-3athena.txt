@@ -6,6 +6,12 @@
 //			--More Details.
 //========================================
 
+07/03/2025
+	r523 [15peaces]
+		*Removed some leftovers.
+		*Fixed reading water level from rsw version 2.2+
+		*Updated PR_STRECOVERY to only cure status effects if defence element is not Undead.
+
 06/29/2025
 	r522 [15peaces]
 		*Basic implementation of LapineDdukDdak System.

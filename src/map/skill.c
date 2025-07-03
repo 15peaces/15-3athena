@@ -7956,30 +7956,39 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case PR_STRECOVERY:
-		if(status_isimmune(bl)) {
+		if(status_isimmune(bl) != 0) {
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,0);
 			break;
 		}
-		if (tsc && tsc->opt1) {
-			status_change_end(bl, SC_FREEZE, INVALID_TIMER);
-			status_change_end(bl, SC_STONE, INVALID_TIMER);
-			status_change_end(bl, SC_SLEEP, INVALID_TIMER);
-			status_change_end(bl, SC_STUN, INVALID_TIMER);
-			status_change_end(bl, SC_IMPRISON, INVALID_TIMER);
-			//Burning is also removed too right? All the other BODYSTATE stuff is removed by this skill. Need confirm. [Rytech]
-			//status_change_end(bl, SC_BURNING, INVALID_TIMER);
+		if (!battle_check_undead(tstatus->race, tstatus->def_ele)) {
+			if (tsc != NULL && tsc->opt1 != 0) {
+				status_change_end(bl, SC_FREEZE, INVALID_TIMER);
+				status_change_end(bl, SC_STONE, INVALID_TIMER);
+				status_change_end(bl, SC_SLEEP, INVALID_TIMER);
+				status_change_end(bl, SC_STUN, INVALID_TIMER);
+				status_change_end(bl, SC_IMPRISON, INVALID_TIMER);
+				//Burning is also removed too right? All the other BODYSTATE stuff is removed by this skill. Need confirm. [Rytech]
+				//status_change_end(bl, SC_BURNING, INVALID_TIMER);
+			}
+			//Change in kRO on 6/26/2012
+			status_change_end(bl, SC_STASIS, INVALID_TIMER);
+
+			//Other confirms
+			status_change_end(bl, SC_NETHERWORLD, INVALID_TIMER);
 		}
-		//Change in kRO on 6/26/2012
-		status_change_end(bl, SC_STASIS, INVALID_TIMER);
+		else {
+			int rate = 100 * (100 - (tstatus->int_ / 2 + tstatus->vit / 3 + tstatus->luk / 10));
+			int duration = skill_get_time2(skill_id, skill_lv);
 
-		//Other confirms
-		status_change_end(bl, SC_NETHERWORLD, INVALID_TIMER);
+			duration *= (100 - (tstatus->int_ + tstatus->vit) / 2) / 100;
+			status_change_start(src, bl, SC_BLIND, rate, 1, 0, 0, 0, duration, 0);
+		}
 
-		if(battle_check_undead(tstatus->race,tstatus->def_ele))
-			skill_addtimerskill(src, tick + 1000, bl->id, 0, 0, skill_id, skill_lv, 100, flag);
 		clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-		if(dstmd)
+
+		if(dstmd != NULL)
 			mob_unlocktarget(dstmd,tick);
+
 		break;
 
 	// Mercenary Supportive Skills
