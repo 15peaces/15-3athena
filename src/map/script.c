@@ -2509,6 +2509,12 @@ void script_hardcoded_constants(void)
 	script_set_constant("UNITTYPE_HOM", UNITTYPE_HOM, false);
 	script_set_constant("UNITTYPE_MER", UNITTYPE_MER, false);
 	script_set_constant("UNITTYPE_ELEM", UNITTYPE_ELEM, false);
+
+	// Itemskill
+	script_set_constant("ISF_NONE", ISF_NONE, false);
+	script_set_constant("ISF_IGNORECONDITIONS", ISF_IGNORECONDITIONS, false);
+	script_set_constant("ISF_INSTANTCAST", ISF_INSTANTCAST, false);
+	script_set_constant("ISF_CASTONSELF", ISF_CASTONSELF, false);
 }
 
 /*==========================================
@@ -9227,35 +9233,43 @@ BUILDIN_FUNC(guildopenstorage)
 /*==========================================
  * Make player use a skill trought item usage
  *------------------------------------------*/
-/// itemskill <skill id>,<level>
-/// itemskill "<skill name>",<level>
+/// itemskill(<skill id>, <skill level>{, <flag>});
+/// itemskill("<skill name>", <skill level>{, <flag>});
 BUILDIN_FUNC(itemskill)
 {
-	int id;
-	int lv;
-	bool keep_requirement;
-	TBL_PC* sd;
+	struct map_session_data *sd = script_rid2sd(st);
 	struct script_data *data;
 
-	sd = script_rid2sd(st);
 	if( sd == NULL || sd->ud.skilltimer != INVALID_TIMER )
 		return 0;
 
 	data = script_getdata(st, 2);
-	get_val(st, data); // Convert into value in case of a variable
-	id = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
-	lv = script_getnum(st,3);
-	if (script_hasdata(st, 4)) {
-		keep_requirement = (script_getnum(st, 4) != 0);
-	}
-	else {
-		keep_requirement = false;
+	sd->skillitem = (data_isstring(data) ? skill_name2id(script_getstr(st, 2)) : script_getnum(st, 2));
+	sd->skillitemlv = script_getnum(st, 3);
+	sd->state.itemskill_conditions_checked = 0; // Skill casting items will check the conditions prior to the target selection in AEGIS. Thus we need a flag to prevent checking them twice.
+
+	int flag = script_hasdata(st, 4) ? script_getnum(st, 4) : ISF_NONE;
+
+	sd->state.itemskill_no_conditions = ((flag & ISF_IGNORECONDITIONS) == ISF_IGNORECONDITIONS) ? 1 : 0; // Unset in pc_itemskill_clear().
+
+	if (sd->state.itemskill_no_conditions == 0) {
+		if (skill_check_condition_castbegin(sd, sd->skillitem, sd->skillitemlv) == 0
+			|| skill_check_condition_castend(sd, sd->skillitem, sd->skillitemlv) == 0) {
+			return 0;
+		}
+
+		sd->state.itemskill_conditions_checked = 1; // Unset in pc_itemskill_clear().
 	}
 
-	sd->skillitem=id;
-	sd->skillitemlv=lv;
-	sd->skillitem_keep_requirement = keep_requirement;
-	clif_item_skill(sd,id,lv);
+	sd->state.itemskill_no_casttime = ((flag & ISF_INSTANTCAST) == ISF_INSTANTCAST) ? 1 : 0; // Unset in pc_itemskill_clear().
+	sd->state.itemskill_castonself = ((flag & ISF_CASTONSELF) == ISF_CASTONSELF) ? 1 : 0; // Unset in pc_itemskill_clear().
+
+	// itemskill_conditions_checked/itemskill_no_conditions/itemskill_no_casttime/itemskill_castonself abuse prevention. Unset in pc_itemskill_clear().
+	sd->itemskill_id = sd->skillitem;
+	sd->itemskill_lv = sd->skillitemlv;
+
+	clif_item_skill(sd, sd->skillitem, sd->skillitemlv);
+
 	return 0;
 }
 /*==========================================

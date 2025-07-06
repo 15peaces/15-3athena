@@ -4957,6 +4957,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	int64 tick = gettick();
 	t_itemid nameid;
 	int amount;
+	bool removeItem = false;
 	struct script_code *script;
 	struct item item;
 	struct item_data *id;
@@ -5100,6 +5101,14 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		clif_msg(sd, ITEM_CANT_USE_AREA); // This item cannot be used within this area
 		if (battle_config.allow_consume_restricted_item) {
 			clif_useitemack(sd, n, sd->inventory.u.items_inventory[n].amount - 1, true);
+
+			// If Earth Spike Scroll is used while SC_EARTHSCROLL is active, there is a chance to don't consume the scroll. [Kenpachi]
+			if ((nameid == ITEMID_EARTH_SCROLL_1_3 || nameid == ITEMID_EARTH_SCROLL_1_5)
+				&& sd->sc.count > 0 && sd->sc.data[SC_EARTHSCROLL] != NULL
+				&& rnd() % 100 > sd->sc.data[SC_EARTHSCROLL]->val2) {
+				return 0;
+			}
+
 			pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME);
 		}
 		return 0;/* regardless, effect is not run */
@@ -5121,7 +5130,7 @@ int pc_useitem(struct map_session_data *sd,int n) {
 		if( item.expire_time == 0 && sd->itemid != ITEMID_BOARDING_HALTER && sd->itemid != ITEMID_PARA_TEAM_MARK)
 		{
 			clif_useitemack(sd,n,amount-1,true);
-			pc_delitem(sd,n,1,1,0,LOG_TYPE_CONSUME); // Rental Usable Items are not deleted until expiration
+			removeItem = true;
 		}
 		else
 			clif_useitemack(sd,n,0,false);
@@ -5136,6 +5145,36 @@ int pc_useitem(struct map_session_data *sd,int n) {
 
 	run_script(script,0,sd->bl.id,fake_nd->bl.id);
 	potion_flag = 0;
+
+	// If Earth Spike Scroll is used while SC_EARTHSCROLL is active, there is a chance to don't consume the scroll. [Kenpachi]
+	if ((nameid == ITEMID_EARTH_SCROLL_1_3 || nameid == ITEMID_EARTH_SCROLL_1_5) && sd->sc.count > 0
+		&& sd->sc.data[SC_EARTHSCROLL] != NULL && rnd() % 100 > sd->sc.data[SC_EARTHSCROLL]->val2) {
+		removeItem = false;
+	}
+
+	if (removeItem)
+		pc_delitem(sd, n, 1, 1, 0, LOG_TYPE_CONSUME);
+
+	return 1;
+}
+
+/**
+ * Sets state flags and helper variables, used by itemskill() script command, to 0.
+ *
+ * @param sd The character's session data.
+ * @return 0 if parameter sd is NULL, otherwise 1.
+ */
+int pc_itemskill_clear(struct map_session_data *sd)
+{
+	nullpo_ret(sd);
+
+	sd->itemskill_id = 0;
+	sd->itemskill_lv = 0;
+	sd->state.itemskill_conditions_checked = 0;
+	sd->state.itemskill_no_conditions = 0;
+	sd->state.itemskill_no_casttime = 0;
+	sd->state.itemskill_castonself = 0;
+
 	return 1;
 }
 

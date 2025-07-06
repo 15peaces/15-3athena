@@ -584,7 +584,7 @@ CREATE TABLE IF NOT EXISTS `login` (
   `pincode` varchar(4) NOT NULL DEFAULT '',
   `pincode_change` INT unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY  (`account_id`),
-  KEY `name` (`userid`)
+  UNIQUE KEY `name` (`userid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2000000; 
 
 -- added standard accounts for servers, VERY INSECURE!!!

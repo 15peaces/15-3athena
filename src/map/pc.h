@@ -246,6 +246,10 @@ struct map_session_data {
 		uint8 isBoundTrading; // Player is currently add bound item to trade list [Cydh]
 		unsigned int block_action : 10;
 		unsigned int lapine_ui : 1;
+		unsigned int itemskill_conditions_checked : 1; // Used by itemskill() script command, to prevent second check of conditions after target was selected.
+		unsigned int itemskill_no_conditions : 1; // Used by itemskill() script command, to ignore skill conditions and don't consume them.
+		unsigned int itemskill_no_casttime : 1; // Used by itemskill() script command, to cast skill instantaneously.
+		unsigned int itemskill_castonself : 1; // Used by itemskill() script command, to forcefully cast skill on invoking character.
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -678,6 +682,15 @@ struct map_session_data {
 	uint16 dmglog[DAMAGELOG_SIZE_PC];  ///target ids
 
 	int respawn_tid;
+
+	/*
+	 * itemskill_conditions_checked/itemskill_no_conditions/itemskill_no_casttime/itemskill_castonself abuse prevention.
+	 * If a skill, casted by itemskill() script command, is aborted while target selection,
+	 * the map server gets no notification where these states could be unset.
+	 * Thus we need this helper variables to prevent abusing these states for next skill cast.
+	 */
+	int itemskill_id;
+	int itemskill_lv;
 };
 
 struct eri *pc_sc_display_ers; /// Player's SC display table
@@ -815,6 +828,7 @@ struct {
 #define pc_isidle(sd)         ( (sd)->chatID || (sd)->state.vending || (sd)->state.buyingstore || DIFF_TICK(last_tick, (sd)->idletime) >= battle_config.idle_no_share )
 #define pc_istrading(sd)      ( (sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->state.trading )
 #define pc_cant_act(sd)       ( (sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->chatID || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag  || (sd)->state.prevend || (sd)->state.lapine_ui == 1)
+#define pc_cant_act_except_lapine(sd) ((sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->chatID || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag || (sd)->state.prevend)
 #define pc_cant_act2(sd)      ( (sd)->state.vending || (sd)->state.buyingstore || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag || (sd)->state.prevend || (sd)->state.lapine_ui == 1) // equals pc_cant_act except it doesn't check for chat rooms or npcs
 #define pc_setdir(sd,b,h)     ( (sd)->ud.dir = (b) ,(sd)->head_dir = (h) )
 #define pc_setchatid(sd,n)    ( (sd)->chatID = n )
@@ -1175,5 +1189,7 @@ void pc_damage_log_clear(struct map_session_data *sd, int id);
 void pc_set_costume_view(struct map_session_data *sd);
 
 uint64 pc_generate_unique_id(struct map_session_data *sd); // Unique Item ID
+
+int pc_itemskill_clear(struct map_session_data *sd);
 
 #endif /* _PC_H_ */

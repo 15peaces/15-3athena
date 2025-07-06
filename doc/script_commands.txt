@@ -4832,22 +4832,37 @@ The default setting, 'item_enabled_npc', is defined in 'conf/battle/items.conf'.
 
 ---------------------------------------
 
-*itemskill <skill id>,<skill level>{,<keep requirement>};
-*itemskill "<skill name>",<skill level>{,<keep requirement>};
+*itemskill(<skill id>, <skill level>{, <flag>})
+*itemskill("<skill name>", <skill level>{, <flag>})
 
 This command meant for item scripts to replicate single-use skills in usable
 items. It will not work properly, if there is a visible dialog window or menu.
 If the skill is self or auto-targeting, it will be used immediately otherwise a
 target cursor is shown.
 
-If <keep requirement> parameter is set to true, the skill's requirements will be checked.
+Optional value <flag> is a bitmask to manipulate how the skill is casted.
+Since <flag> is a bitmask, the flags can be summed up.
+Possible flags are:
+ - 0x00 - ISF_NONE		- Skill is casted as if has been used from skill tree.
+				  (Same like <flag> was omitted.)
+ - 0x01 - ISF_IGNORECONDITIONS	- Skill requirements are ignored and not consumed
+ - 0x02 - ISF_INSTANTCAST	- Skill is casted instantaneously.
+ - 0x04 - ISF_CASTONSELF	- Skill is forcefully casted on invoking character,
+				  without showing the target selection cursor.
 
-// When Anodyne is used, it will cast Endure (8), Level 1, as if the actual
-// skill has been used from skill tree.
-605,Anodyne,Anodyne,11,2000,0,100,,,,,10477567,2,,,,,{ itemskill 8,1; },{}
+Important: Items which use itemskill() should be of type IT_USABLE.
+           If the item type is IT_DELAYCONSUME and ISF_IGNORECONDITIONS is set,
+           the item won't be consumed when using the item!
+		   
+// When Anodyne is used, it will cast Endure, Level 1, as if the actual skill
+// has been used from skill tree.
+	itemskill("SM_ENDURE", 1);
 
-// When Sienna_Execrate_Scroll_1_5 is used, it will cast Sienna Execrate Level 5 and consumes 2 Red_Gemstone.
-23194,Sienna_Execrate_Scroll_1_5,Level 5 Sienna Execrate,11,10,,10,,,,,0xFFFFFFFF,63,2,,,,,,{ itemskill "WL_SIENNAEXECRATE",5,true; },{},{}
+// Instantaneously cast Level 10 Increase Agility on invoking character,
+// without checking/consuming skill requirements.
+	itemskill("AL_INCAGI", 10, ISF_IGNORECONDITIONS | ISF_INSTANTCAST | ISF_CASTONSELF);
+// Instaed of using the constants, one could also do it like this:
+	itemskill("AL_INCAGI", 10, 7);
 
 ---------------------------------------
 

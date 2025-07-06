@@ -597,6 +597,16 @@ enum e_pcblock_action_flag {
 	PCBLOCK_ALL = 0x3FF,
 };
 
+/**
+ * Option flags for itemskill() script command.
+ **/
+enum itemskill_flag {
+	ISF_NONE = 0x00,
+	ISF_IGNORECONDITIONS = 0x01, // Ignore skill conditions and don't consume them.
+	ISF_INSTANTCAST = 0x02, // Cast skill instantaneously.
+	ISF_CASTONSELF = 0x04, // Forcefully cast skill on invoking character without showing the target selection cursor.
+};
+
 const char* skip_space(const char* p);
 void script_error(const char* src, const char* file, int start_line, const char* error_msg, const char* error_pos);
 

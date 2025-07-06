@@ -1982,6 +1982,9 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 					skill_castend_damage_id(src, tbl, skill, skill_lv, tick, 0);
 					break;
 			}
+
+			pc_itemskill_clear(sd);
+
 			sd->state.autocast = 0;
 			//Set canact delay. [Skotlex]
 			ud = unit_bl2ud(src);
@@ -15728,6 +15731,22 @@ int skill_isammotype (struct map_session_data *sd, int skill)
 	);
 }
 
+/**
+ * Checks if a skill is casted by an item (itemskill() script command).
+ *
+ * @param sd The charcater's session data.
+ * @param skill_id The skill's ID.
+ * @param skill_lv The skill's level.
+ * @return true if skill is casted by an item, otherwise false.
+ */
+bool skill_is_item_skill(struct map_session_data *sd, int skill_id, int skill_lv)
+{
+	nullpo_retr(false, sd);
+
+	return (sd->skillitem == skill_id && sd->skillitemlv == skill_lv
+		&& sd->itemskill_id == skill_id && sd->itemskill_lv == skill_lv);
+}
+
 int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id, uint16 skill_lv)
 {
 	struct status_data *status;
@@ -15738,7 +15757,16 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 
 	nullpo_ret(sd);
 
-	if (sd->chatID) return 0;
+	if (skill_lv < 1 || skill_lv > MAX_SKILL_LEVEL)
+		return 0;
+
+	if (sd->chatID)
+		return 0;
+
+	if ((sd->state.itemskill_conditions_checked == 1 || sd->state.itemskill_no_conditions == 1)
+		&& skill_is_item_skill(sd, skill_id, skill_lv)) {
+		return 1;
+	}
 
 	if( battle_config.gm_skilluncond && pc_isGM(sd)>= battle_config.gm_skilluncond && sd->skillitem != skill_id )
 	{	//GMs don't override the skillItem check, otherwise they can use items without them being consumed! [Skotlex]	
@@ -15789,7 +15817,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			if( (i = sd->itemindex) == -1 ||
 				sd->inventory.u.items_inventory[i].nameid != sd->itemid ||
 				sd->inventory_data[i] == NULL ||
-				!sd->inventory_data[i]->flag.delay_consume ||
 				sd->inventory.u.items_inventory[i].amount < 1
 				)
 			{	//Something went wrong, item exploit?
@@ -15797,20 +15824,18 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 				sd->itemindex = -1;
 				return 0;
 			}
+
 			//Consume
 			sd->itemid = 0;
 			sd->itemindex = -1;
-			if( skill_id == WZ_EARTHSPIKE && sc && sc->data[SC_EARTHSCROLL] && rnd()%100 > sc->data[SC_EARTHSCROLL]->val2 ) // [marquis007]
-				; //Do not consume item.
-			else if( sd->inventory.u.items_inventory[i].expire_time == 0 )
+			if (sd->inventory.u.items_inventory[i].expire_time == 0 && sd->inventory_data[i]->flag.delay_consume == 1)
 				pc_delitem(sd,i,1,0,0,LOG_TYPE_CONSUME); // Rental usable items are not consumed until expiration
 		}
 		if (!sd->skillitem_keep_requirement)
 			return 1;
 	}
 
-	if( pc_is90overweight(sd) )
-	{
+	if (pc_is90overweight(sd) && sd->skillitem != skill_id) { /// Skill casting items ignore the overweight restriction. [Kenpachi]
 		clif_skill_fail(sd,skill_id,USESKILL_FAIL_WEIGHTOVER,0,0);
 		return 0;
 	}
@@ -15831,9 +15856,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			if( sc && sc->data[status_skill2sc(skill_id)] )
 				return 1;
 	}
-
-	if( skill_lv < 1 || skill_lv > MAX_SKILL_LEVEL )
-		return 0;
 
 	require = skill_get_requirement( sd, skill_id, skill_lv );
 
@@ -16692,7 +16714,7 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		}
 	}
 
-	if( require.sp > 0 && status->sp < (unsigned int)require.sp) {
+	if( require.sp > 0 && status->sp < (unsigned int)require.sp && sd->skillitem != skill_id) {  // Skill casting items and Hocus-Pocus skills don't consume SP. [Kenpachi]
 		clif_skill_fail(sd, skill_id,USESKILL_FAIL_SP_INSUFFICIENT,0,0);
 		return 0;
 	}
@@ -16772,6 +16794,11 @@ int skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id, 
 	if( sd->chatID )
 		return 0;
 
+	if ((sd->state.itemskill_conditions_checked == 1 || sd->state.itemskill_no_conditions == 1)
+		&& skill_is_item_skill(sd, skill_id, skill_lv)) {
+		return 1;
+	}
+
 	if( battle_config.gm_skilluncond && pc_isGM(sd) >= battle_config.gm_skilluncond && sd->skillitem != skill_id)
 	{	//GMs don't override the skillItem check, otherwise they can use items without them being consumed! [Skotlex]	
 		sd->state.arrow_atk = skill_get_ammotype(skill_id)?1:0; //Need to do arrow state check.
@@ -16817,8 +16844,7 @@ int skill_check_condition_castend(struct map_session_data* sd, uint16 skill_id, 
 		return 1;
 	}
 
-	if( pc_is90overweight(sd) )
-	{
+	if (pc_is90overweight(sd) && sd->skillitem != skill_id) { // Skill casting items ignore the overweight restriction. [Kenpachi]
 		clif_skill_fail(sd, skill_id,USESKILL_FAIL_WEIGHTOVER,0,0);
 		return 0;
 	}
@@ -17005,6 +17031,9 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 
 	nullpo_ret(sd);
 
+	if (sd->state.itemskill_no_conditions == 1 && skill_is_item_skill(sd, skill, lv))
+		return 1;
+
 	req = skill_get_requirement(sd,skill,lv);
 
 	if( type&1 )
@@ -17014,8 +17043,12 @@ int skill_consume_requirement( struct map_session_data *sd, short skill, short l
 			case MC_IDENTIFY:
 				req.sp = 0;
 				break;
+			case WZ_EARTHSPIKE:
+				if (sd->sc.count > 0 && sd->sc.data[SC_EARTHSCROLL] != NULL) // If Earth Spike Scroll is used while SC_EARTHSCROLL is active, 10 SP are consumed. [Kenpachi]
+					req.sp = 10;
+				break;
 			default:
-				if (sd->state.autocast)
+				if (sd->state.autocast == 1 || sd->skillitem == skill) // Skill casting items and Hocus-Pocus skills don't consume SP. [Kenpachi]
 					req.sp = 0;
 				break;
 		}

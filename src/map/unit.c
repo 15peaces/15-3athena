@@ -1372,11 +1372,15 @@ int unit_skilluse_id(struct block_list *src, int target_id, uint16 skill_id, uin
 			 return 0;
 	}
 
-	return unit_skilluse_id2(
-		src, target_id, skill_id, skill_lv,
-		skill_castfix(src, skill_id, skill_lv),
-		skill_get_castcancel(skill_id)
-	);
+	int casttime = skill_castfix(src, skill_id, skill_lv);
+	int castcancel = skill_get_castcancel(skill_id);
+	int ret = unit_skilluse_id2(src, target_id, skill_id, skill_lv, casttime, castcancel);
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+
+	if (sd != NULL)
+		pc_itemskill_clear(sd);
+
+	return ret;
 }
 
 /*==========================================
@@ -1896,6 +1900,9 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 	// SC_MAGICPOWER needs to switch states at start of cast
 	skill_toggle_magicpower(src, skill_id);
 
+	if (sd != NULL && sd->state.itemskill_no_casttime == 1 && skill_is_item_skill(sd, skill_id, skill_lv))
+		casttime = 0;
+
 	// in official this is triggered even if no cast time.
 	clif_skillcasting(src, src->id, target_id, 0, 0, skill_id, skill_get_ele(skill_id, skill_lv), casttime);
 
@@ -2007,11 +2014,15 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
  *------------------------------------------*/
 int unit_skilluse_pos(struct block_list *src, short skill_x, uint16 skill_y, uint16 skill_id, short skill_lv)
 {
-	return unit_skilluse_pos2(
-		src, skill_x, skill_y, skill_id, skill_lv,
-		skill_castfix(src, skill_id, skill_lv),
-		skill_get_castcancel(skill_id)
-	);
+	int casttime = skill_castfix(src, skill_id, skill_lv);
+	int castcancel = skill_get_castcancel(skill_id);
+	int ret = unit_skilluse_pos2(src, skill_x, skill_y, skill_id, skill_lv, casttime, castcancel);
+	struct map_session_data *sd = BL_CAST(BL_PC, src);
+
+	if (sd != NULL)
+		pc_itemskill_clear(sd);
+
+	return ret;
 }
 
 /*==========================================
@@ -2138,6 +2149,9 @@ int unit_skilluse_pos2( struct block_list *src, short skill_x, short skill_y, ui
 
 	// SC_MAGICPOWER needs to switch states at start of cast
 	skill_toggle_magicpower(src, skill_id);
+
+	if (sd != NULL && sd->state.itemskill_no_casttime == 1 && skill_is_item_skill(sd, skill_id, skill_lv))
+		casttime = 0;
 
 	// in official this is triggered even if no cast time.
 	clif_skillcasting(src, src->id, 0, skill_x, skill_y, skill_id, skill_get_ele(skill_id, skill_lv), casttime);

@@ -1636,6 +1636,28 @@ struct PACKET_ZC_LAPINEDDUKDDAK_RESULT {
 } __attribute__((packed));
 #endif // PACKETVER >= 20160601
 
+#if PACKETVER >= 20170726
+struct PACKET_ZC_LAPINEUPGRADE_OPEN {
+	int16 packetType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
+#endif
+} __attribute__((packed));
+#endif
+
+struct PACKET_ZC_AUTORUN_SKILL {
+	int16 packetType;
+	uint16 skill_id;
+	uint32 skill_type;
+	uint16 skill_lv;
+	uint16 skill_sp;
+	uint16 skill_range;
+	char skill_name[NAME_LENGTH];
+	char up_flag;
+} __attribute__((packed));
+
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(pop)
 #endif // not NetBSD < 6 / Solaris

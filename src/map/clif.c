@@ -2223,6 +2223,9 @@ void clif_selllist(struct map_session_data *sd)
 			if( !itemdb_cansell(&sd->inventory.u.items_inventory[i], pc_isGM(sd)) )
 				continue;
 
+			if (sd->inventory.u.items_inventory[i].favorite != 0)
+				continue; // Cannot Sell Favorite item
+
 			if( sd->inventory.u.items_inventory[i].expire_time || (sd->inventory.u.items_inventory[i].bound && !pc_can_give_bounded_items(sd->gmlevel)) ) 
 				continue; // Cannot Sell Rental Items or Account Bounded Items 
 	 
@@ -7378,21 +7381,28 @@ void clif_item_refine_list(struct map_session_data *sd) {
 /// 0147 <skill id>.W <type>.L <level>.W <sp cost>.W <atk range>.W <skill name>.24B <upgradable>.B
 void clif_item_skill(struct map_session_data *sd,int skill_id,int skill_lv)
 {
-	int fd;
-
 	nullpo_retv(sd);
 
-	fd=sd->fd;
-	WFIFOHEAD(fd,packet_len(0x147));
-	WFIFOW(fd, 0)=0x147;
-	WFIFOW(fd, 2)=skill_id;
-	WFIFOL(fd, 4)=skill_get_inf(skill_id);
-	WFIFOW(fd, 8)=skill_lv;
-	WFIFOW(fd,10)=skill_get_sp(skill_id,skill_lv);
-	WFIFOW(fd,12)=skill_get_range2(&sd->bl, skill_id, skill_lv, false);
-	safestrncpy((char*)WFIFOP(fd,14),skill_get_name(skill_id),NAME_LENGTH);
-	WFIFOB(fd,38)=0;
-	WFIFOSET(fd,packet_len(0x147));
+	int fd = sd->fd;
+
+	WFIFOHEAD(fd, sizeof(struct PACKET_ZC_AUTORUN_SKILL));
+
+	struct PACKET_ZC_AUTORUN_SKILL *p = (struct PACKET_ZC_AUTORUN_SKILL *)WFIFOP(fd, 0);
+	int type = skill_get_inf(skill_id);
+
+	if (sd->state.itemskill_castonself == 1 && skill_is_item_skill(sd, skill_id, skill_lv))
+		type = INF_SELF_SKILL;
+
+	p->packetType = 0x0147;
+	p->skill_id = skill_id;
+	p->skill_type = type;
+	p->skill_lv = skill_lv;
+	p->skill_sp = skill_get_sp(skill_id, skill_lv);
+	p->skill_range = skill_get_range2(&sd->bl, skill_id, skill_lv, false);
+	safestrncpy(p->skill_name, skill_get_name(skill_id), NAME_LENGTH);
+	p->up_flag = 0;
+
+	WFIFOSET(fd, sizeof(struct PACKET_ZC_AUTORUN_SKILL));
 }
 
 
@@ -13357,6 +13367,7 @@ void clif_parse_UseSkillMap(int fd, struct map_session_data* sd) {
 
 	pc_delinvincibletimer(sd);
 	skill_castend_map(sd,skill_id,map_name);
+	pc_itemskill_clear(sd);
 }
 
 
@@ -21901,12 +21912,15 @@ static bool clif_lapineDdukDdak_result(struct map_session_data *sd, enum lapined
 static void clif_parse_lapineDdukDdak_ack(int fd, struct map_session_data *sd)
 {
 #if PACKETVER >= 20160302
+	if (sd->state.lapine_ui == 0)
+		return;
+
 	const struct PACKET_CZ_LAPINEDDUKDDAK_ACK *p = (struct PACKET_CZ_LAPINEDDUKDDAK_ACK *)RFIFOP(fd, 0);
 	struct item_data *it = itemdb_exists(p->itemId);
 
 	if (it == NULL || it->lapineddukddak == NULL)
 		return;
-	if (pc_cant_act(sd))
+	if (pc_cant_act_except_lapine(sd))
 		return;
 	if (pc_search_inventory(sd, it->nameid) < 0)
 		return;
@@ -21963,6 +21977,23 @@ static void clif_parse_lapineDdukDdak_close(int fd, struct map_session_data *sd)
 #if PACKETVER >= 20160504
 	sd->state.lapine_ui = 0;
 #endif // PACKETVER >= 20160504
+}
+
+static bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id)
+{
+#if PACKETVER >= 20170726
+	nullpo_retr(false, sd);
+	nullpo_retr(false, itemdb_exists(item_id));
+	struct PACKET_ZC_LAPINEUPGRADE_OPEN p;
+
+	p.packetType = 0x0ab4;
+	p.itemId = item_id;
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+
+	return true;
+#else
+	return false;
+#endif  // PACKETVER >= 20170726
 }
 
 #ifdef DUMP_UNKNOWN_PACKET

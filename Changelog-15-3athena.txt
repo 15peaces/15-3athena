@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/06/2025
+	r524 [15peaces]
+		*Please don't forget to add the upgrade_15-3athena_svn524.sql file!
+		*Modified itemskill() script command to be usable like AEGIS' SkillToMe command.
+		*Fixed favorite items to can't be sold to NPCs.
+		*Fix security checks in lapin ack packet handler.
+		*Added support for packet ZC_LAPINEUPGRADE_OPEN.
 
 07/03/2025
 	r523 [15peaces]
