@@ -2446,14 +2446,16 @@ packet_keys: 0x5ed10a48,0x667f4301,0x2e5d761f
 0x0a44,-1
 
 // Equip switch
-0x0A97,8,equipswitch_add,2,4
+0x0A97,8,equipswitch_add,2:4
 0x0A98,10
-0x0A99,4,equipswitch_remove,2,4
+0x0A99,4,equipswitch_remove,2:4
 0x0A9A,10
 0x0A9B,-1
 0x0A9C,2,equipswitch_request,0
 0x0A9D,4
 0x0ACE,4,equipswitch_request_single,0
+
+0x0ab6,6,pLapineUpgrade_makeItem,0
 
 //2017-09-06cRagexeRE
 packet_ver: 44
@@ -2576,6 +2578,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x09D6,-1,npcmarketpurchase,0
 0x0A20,25
 0x0a4e,6
+0x0ab6,8,pLapineUpgrade_makeItem,0
 
 //Add new packets here
 //packet_ver: 47

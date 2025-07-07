@@ -21996,6 +21996,31 @@ static bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id)
 #endif  // PACKETVER >= 20170726
 }
 
+/// result: 0 = success; 1 = failed.
+static bool clif_lapineUpgrade_result(struct map_session_data *sd, uint16 result)
+{
+#if PACKETVER >= 20170726
+	nullpo_retr(false, sd);
+	struct PACKET_ZC_LAPINEUPGRADE_RESULT p;
+
+	p.packetType = 0x0ab7;
+	p.result = result;
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
+
+	return true;
+#else
+	return false;
+#endif  // PACKETVER >= 20170726
+}
+
+static void clif_parse_lapineUpgrade_makeItem(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20170111
+	ShowError("Lapin upgrade not implimented yet.\n");
+	clif_lapineUpgrade_result(sd, 1); // send fail result for now...
+#endif  // PACKETVER >= 20170111
+}
+
 #ifdef DUMP_UNKNOWN_PACKET
 void DumpUnknownPacket(int fd, TBL_PC *sd, int cmd, int packet_len) {
 	const char* packet_txt = "save/packet.txt";
@@ -22516,7 +22541,12 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0, 94,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-	    0,  0,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+#if PACKETVER < 20181121
+	    0,  0,  7,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+#else
+		0,  0,  7,  0,  0,  0,  8,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+#endif
+
 //#0x0AC0
 		26,26,  0,  0, -1,156,  0,  0,  0,  0,  0, 12, 18,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 22,  0,  0,
@@ -22795,7 +22825,8 @@ void packetdb_readdb(void)
 		{ clif_parse_PartyTick, "partytick" },
 		{ clif_parse_camerainfo, "pcamerainfo" },
 		{ clif_parse_lapineDdukDdak_ack, "plapineDdukDdak_ack" },
-		{ clif_parse_lapineDdukDdak_close , "plapineDdukDdak_close" },
+		{ clif_parse_lapineDdukDdak_close, "plapineDdukDdak_close" },
+		{ clif_parse_lapineUpgrade_makeItem, "pLapineUpgrade_makeItem" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

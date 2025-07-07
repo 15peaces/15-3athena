@@ -1645,7 +1645,23 @@ struct PACKET_ZC_LAPINEUPGRADE_OPEN {
 	uint16 itemId;
 #endif
 } __attribute__((packed));
+
+struct PACKET_CZ_LAPINEUPGRADE_MAKE_ITEM {
+	int16 packetType;
+#if PACKETVER >= 20181121
+	uint32 itemId;
+#else
+	uint16 itemId;
 #endif
+	uint16 index;
+} __attribute__((packed));
+
+struct PACKET_ZC_LAPINEUPGRADE_RESULT {
+	int16 packetType;
+	uint16 result;
+} __attribute__((packed));
+
+#endif  // PACKETVER >= 20170111
 
 struct PACKET_ZC_AUTORUN_SKILL {
 	int16 packetType;

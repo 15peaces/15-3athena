@@ -5,6 +5,11 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/07/2025
+	r525 [15peaces]
+		*Added pre-support for packet CZ_LAPINEUPGRADE_MAKE_ITEM
+		*Added support for packet ZC_LAPINEUPGRADE_RESULT
+		
 07/06/2025
 	r524 [15peaces]
 		*Please don't forget to add the upgrade_15-3athena_svn524.sql file!
