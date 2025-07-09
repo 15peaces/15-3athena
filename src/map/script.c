@@ -16198,7 +16198,15 @@ BUILDIN_FUNC(npcshopdelitem) {
 		}
 	}
 
-	RECREATE(nd->u.shop.shop_item, struct npc_item_list, size);
+	int alloc_size = size;
+	if (size < 0) {
+		size = 0;
+		alloc_size = 1;
+	}
+	else if (size < 1) {
+		alloc_size = 1;
+	}
+	RECREATE(nd->u.shop.shop_item, struct npc_item_list, alloc_size);
 	nd->u.shop.count = size;
 
 	script_pushint(st,1);

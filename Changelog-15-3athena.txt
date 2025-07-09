@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/09/2025
+	r526 [15peaces]
+		*Multiple SC fixes
+			-First and foremost an ancient status_change_timer issue which'd cause a timer deletion error when an status within status_change_timer kills the unit.
+			-This commit also fixes some pointer/map-free-block logic.
+			-Removed misleading debug code for nonexistent skill unit group when ending SC_DANCING.
+			-Special Thanks to @HerculesWS
+		*Fixed a crash in npcshopdelitem script command.
+
 07/07/2025
 	r525 [15peaces]
 		*Added pre-support for packet CZ_LAPINEUPGRADE_MAKE_ITEM

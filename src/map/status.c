@@ -11080,7 +11080,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_BOSSMAPINFO:
-			clif_bossmapinfo(sd->fd, map_id2boss(sce->val1), 0); // First Message
+			if (sd)
+				clif_bossmapinfo(sd->fd, map_id2boss(sce->val1), 0); // First Message
 			break;
 		case SC_MERC_HPUP:
 		case SC_FULL_THROTTLE:
@@ -11322,7 +11323,7 @@ int status_change_clear(struct block_list* bl, int type)
 /*==========================================
  * ステータス異常終了
  *------------------------------------------*/
-int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const char* file, int line)
+int status_change_end_(struct block_list* bl, enum sc_type type, int tid)
 {
 	struct map_session_data *sd;
 	struct homun_data *hd;
@@ -11336,7 +11337,6 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 	nullpo_ret(bl);
 	
 	sc = status_get_sc(bl);
-	status = status_get_status_data(bl);
 
 	if(type < 0 || type >= SC_MAX || !sc || !(sce = sc->data[type]))
 		return 0;
@@ -11347,6 +11347,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 
 	if (sce->timer != tid && tid != INVALID_TIMER)
 		return 0;
+
+	status = status_get_status_data(bl);
 
 	if (tid == INVALID_TIMER) {
 		if (type == SC_ENDURE && sce->val4)
@@ -11585,25 +11587,8 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 			break;
 		case SC_DANCING:
 			{
-				const char* prevfile = "<unknown>";
-				int prevline = 0;
 				struct map_session_data *dsd;
 				struct status_change_entry *dsc;
-
-				if( sd )
-				{
-					if( sd->delunit_prevfile )
-					{// initially this is NULL, when a character logs in
-						prevfile = sd->delunit_prevfile;
-						prevline = sd->delunit_prevline;
-					}
-					else
-					{
-						prevfile = "<none>";
-					}
-					sd->delunit_prevfile = file;
-					sd->delunit_prevline = line;
-				}
 
 				if(sce->val4 && sce->val4 != BCT_SELF && (dsd=map_id2sd(sce->val4)))
 				{// end status on partner as well
@@ -11619,18 +11604,10 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				{// erase associated land skill
 					struct skill_unit_group *group;
 					group = skill_id2group(sce->val2);
-					if( group == NULL )
-					{
-						ShowDebug("status_change_end: SC_DANCING is missing skill unit group (val1=%d, val2=%d, val3=%d, val4=%d, timer=%d, tid=%d, char_id=%d, map=%s, x=%d, y=%d, prev=%s:%d, from=%s:%d). Please report this! (#3504)\n",
-							sce->val1, sce->val2, sce->val3, sce->val4, sce->timer, tid,
-							sd ? sd->status.char_id : 0,
-							mapindex_id2name(map_id2index(bl->m)), bl->x, bl->y,
-							prevfile, prevline,
-							file, line);
-					}
 
 					sce->val2 = 0;
-					skill_delunitgroup(group);
+					if (group)
+						skill_delunitgroup(group);
 				}
 
 				if((sce->val1&0xFFFF) == CG_MOONLIT)
@@ -11763,10 +11740,12 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid, const 
 				break;
 			// Note: vending/buying is closed by unit_remove_map, no
 			// need to do it here.
-			map_quit(sd);
-			// Because map_quit calls status_change_end with tid -1
-			// from here it's not neccesary to continue
-			return 1;
+			if (sd) {
+				map_quit(sd);
+				// Because map_quit calls status_change_end with tid -1
+				// from here it's not neccesary to continue
+				return 1;
+			}
 			break;
 		case SC_READING_SB:
 			if( sd ) memset(sd->rsb,0,sizeof(sd->rsb)); // Clear all Spell Books
@@ -12263,6 +12242,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	}
 
+	sce->timer = INVALID_TIMER;
+
 	sd = BL_CAST(BL_PC, bl);
 	ed = BL_CAST(BL_ELEM, bl);
 
@@ -12293,7 +12274,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		sc_timer_next(sce->val2+tick, status_change_timer, bl->id, data);
 		return 0;
-	break;
 
 	case SC_HIDING:
 		if(--(sce->val2)>0){
@@ -12406,6 +12386,8 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			}
 			if (!flag)
 			{ // Random Skill Cast
+				map_freeblock_lock();
+
 				if (sd && !pc_issit(sd)) //can't cast if sit
 				{
 					int mushroom_skillid = 0;
@@ -12429,6 +12411,10 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 					}
 				}
 				clif_emotion(bl, E_HEH);
+				if (sc->data[type])
+					sc_timer_next(4000 + tick, status_change_timer, bl->id, data);
+
+				map_freeblock_unlock();
 			}
 		}
 		break;
@@ -12700,9 +12686,13 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 
 	case SC_RENOVATIO:
 		if( --(sce->val4) >= 0 ) {
+			map_freeblock_lock();
 			if(!battle_check_undead(status->race, status->def_ele))
 				status_heal(bl, status->max_hp * (sce->val1 + 4) / 100, 0, 2);
-			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			if (sc->data[type]) {
+				sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			}
+			map_freeblock_unlock();
 			return 0;
 		}
 		break;
@@ -12892,6 +12882,7 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 			if (sc->data[type])
 				sc_timer_next(1000 + tick, status_change_timer, bl->id, data);
 			map_freeblock_unlock();
+			return 0;
 		}
 		break;
 
@@ -13409,6 +13400,8 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 	if (!sc || !sc->count)
 		return 0;
 
+	map_freeblock_lock();
+
 	if (type&(SCCB_DEBUFFS | SCCB_REFRESH)) //Debuffs
 	for( i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++ )
 	{
@@ -13585,6 +13578,8 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 	sc->comet_x = 0;
 	sc->comet_y = 0;
 	sc->sg_counter = 0;
+
+	map_freeblock_unlock();
 
 	return 0;
 }

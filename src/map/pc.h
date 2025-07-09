@@ -644,10 +644,6 @@ struct map_session_data {
 
 	VECTOR_DECL(int) script_queues;
 
-	// temporary debugging of bug #3504
-	const char* delunit_prevfile;
-	int delunit_prevline;
-
 	int bank_vault; ///< Bank Vault
 
 	/// Bonus Script [Cydh]
