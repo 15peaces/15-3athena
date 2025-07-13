@@ -5,6 +5,21 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/13/2025
+	r527 [15peaces]
+		*Fixed wrong comments in attr_fix.txt.
+		*Fixed possible exploit in Dokebi Battle Quest.
+		*Add support for rsw formats up to 2.5 for reading water level.
+		*CR_SHIELDBOOMERANG; PA_SHIELDCHAIN
+			-Removed double calculation of shield refine bonus.
+		*CR_SHIELDBOOMERANG; PA_SHIELDCHAIN; LG_SHIELDPRESS; LG_EARTHDRIVE
+			-Fixed damage calculation.
+		*SO_POISON_BUSTER
+			-Removed outdated poison state requirement.
+		*Fixed Old Glastheim instance.
+		*Increase the grf filename buffer size.
+		*Fix too big shift in socket.c
+
 07/09/2025
 	r526 [15peaces]
 		*Multiple SC fixes

@@ -2946,7 +2946,7 @@ void clif_inventorylist(struct map_session_data *sd) {
 }
 
 //Required when items break/get-repaired. Only sends equippable item list.
-// TODO: update for newer clients lager...
+// TODO: update for newer clients later...
 void clif_equiplist(struct map_session_data *sd) {
 	// TODO: implement again => only send equip part
 	clif_inventorylist(sd);

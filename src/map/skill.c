@@ -4965,6 +4965,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SR_WINDMILL:
 	case SR_RIDEINLIGHTNING:
 	case SO_VARETYR_SPEAR:
+	case SO_POISON_BUSTER:
 	case GN_CART_TORNADO:
 	case GN_CARTCANNON:
 	case GN_SPORE_EXPLOSION:
@@ -5932,23 +5933,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			status_change_end(bl, SC_BEYOND_OF_WARCRY, INVALID_TIMER);
 			status_change_end(bl, SC_UNLIMITED_HUMMING_VOICE, INVALID_TIMER);
 			status_change_end(bl, SC_FRIGG_SONG, INVALID_TIMER);
-		}
-		break;
-
-	case SO_POISON_BUSTER:
-		if ( flag&1 )
-		{
-			skill_attack(BF_MAGIC, src, src, bl, skill_id, skill_lv, tick, flag);
-		}
-		else if (sd)
-		{
-			if (tsc && tsc->data[SC_POISON])
-			{
-				map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), splash_target(src), src, skill_id, skill_lv, tick, flag | BCT_ENEMY | SD_SPLASH | 1, skill_castend_damage_id);
-				status_change_end(bl, SC_POISON, INVALID_TIMER);
-			}
-			else
-				clif_skill_fail(sd, skill_id, 0, 0, 0);
 		}
 		break;
 

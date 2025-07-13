@@ -5597,12 +5597,12 @@
 1100005,Concentrated_G_P,Concentrated Gold Potion,0,10,,2,,,,,0xFFFFFFFF,63,2,,,180,,,{ itemheal rand(2730,2750),0; },{},{}
 
 //Requiem weapon set (renewal)
-1446,Requiem_Spear,Requiem Spear,4,20,,1000,130,,3,,0x00004080,63,2,2,4,100,1,4,{ .@r = getrefine(); .@b = 40; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
-1499,Requiem_Lance,Requiem Lance,4,20,,1500,220,,3,,0x00004080,63,2,34,4,100,1,5,{ .@r = getrefine(); .@b = 40; .@c = 5; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+30; .@c += (.@r-5); } bonus2 bAddRace2,RC2_BioLab,.@b; bonus2 bSubRace2,RC2_BioLab,.@c; },{},{}
-1698,Requiem_Arc_Wand,Requiem Arc Wand,4,20,,500,80:145,,1,,0xFFFFFFFF,63,2,2,4,100,1,10,{ .@r = getrefine(); .@b = 40; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bMagicAddRace2,RC2_BioLab,.@b; },{},{}
-1840,Requiem_Knuckle,Requiem Knuckle,4,20,,500,150:100,,1,0,0x00008100,63,2,2,4,100,1,12,{ .@r = getrefine(); .@b = 40; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
-1942,Requiem_Violin,Requiem Violin,4,20,,500,160:120,,1,,0x00080000,63,1,2,4,100,1,13,{ .@r = getrefine(); .@b = 40; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+20; } if(.@r>=7) bonus2 bSkillAtk,"CG_ARROWVULCAN",200; bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
-2032,Requiem_Wizardry_Staff,Requiem Wizardry Staff,4,20,,500,100:230,,1,,0xFFFFFFFF,63,2,2,4,100,1,10,{ .@r = getrefine(); .@b = 40; .@c = 5; if(.@r>=5){ .@b += (.@r-5)*15+20; .@c += .@r-5; } bonus2 bMagicAddRace2,RC2_BioLab,.@b; bonus2 bSubRace2,RC2_BioLab,.@c; bonus2 bIgnoreMdefRace2Rate,RC2_BioLab,(.@r-5)*10; },{},{}
+1446,Requiem_Spear,Requiem Spear,4,20,,100,130,,3,,0x00004080,63,2,2,4,100,1,4,{ .@r = getrefine(); .@b = 40; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
+1499,Requiem_Lance,Requiem Lance,4,20,,150,220,,3,,0x00004080,63,2,34,4,100,1,5,{ .@r = getrefine(); .@b = 40; .@c = 5; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+30; .@c += (.@r-5); } bonus2 bAddRace2,RC2_BioLab,.@b; bonus2 bSubRace2,RC2_BioLab,.@c; },{},{}
+1698,Requiem_Arc_Wand,Requiem Arc Wand,4,20,,50,80:145,,1,,0xFFFFFFFF,63,2,2,4,100,1,10,{ .@r = getrefine(); .@b = 40; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bMagicAddRace2,RC2_BioLab,.@b; },{},{}
+1840,Requiem_Knuckle,Requiem Knuckle,4,20,,50,150:100,,1,0,0x00008100,63,2,2,4,100,1,12,{ .@r = getrefine(); .@b = 40; if(.@r>=5){ .@b += (.@r-5)*15+20; } bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
+1942,Requiem_Violin,Requiem Violin,4,20,,50,160:120,,1,,0x00080000,63,1,2,4,100,1,13,{ .@r = getrefine(); .@b = 40; bonus bUnbreakableWeapon,1; if(.@r>=5){ .@b += (.@r-5)*15+20; } if(.@r>=7) bonus2 bSkillAtk,"CG_ARROWVULCAN",200; bonus2 bAddRace2,RC2_BioLab,.@b; },{},{}
+2032,Requiem_Wizardry_Staff,Requiem Wizardry Staff,4,20,,50,100:230,,1,,0xFFFFFFFF,63,2,2,4,100,1,10,{ .@r = getrefine(); .@b = 40; .@c = 5; if(.@r>=5){ .@b += (.@r-5)*15+20; .@c += .@r-5; } bonus2 bMagicAddRace2,RC2_BioLab,.@b; bonus2 bSubRace2,RC2_BioLab,.@c; bonus2 bIgnoreMdefRace2Rate,RC2_BioLab,(.@r-5)*10; },{},{}
 
 //LapineDdukDdak testing (renewal)
 23665,PhysicalMagical_Mix,PhysicalMagical_Mix,3,10,,10,,,,,,,,,,,,,{},{},{}
@@ -5612,3 +5612,6 @@
 24021,S_Magical_Earring,Shadow Magical Earring,12,10,,0,,,,,0xFFFFFFFF,63,2,1048576,0,0,1,0,{bonus bCastrate,-(getrefine()>=7)?2:1;},{},{}
 24022,S_Magical_Weapon,Shadow Magical Weapon,12,10,,0,,,,,0xFFFFFFFF,63,2,131072,0,0,1,0,{bonus bMatk,10; if (getrefine()>=7) { bonus bMatkRate,1; }},{},{}
 24023,S_Magical_Pendant,Shadow Magical Pendant,12,10,,0,,,,,0xFFFFFFFF,63,2,2097152,0,0,1,0,{bonus bMaxSP,50; if (getrefine()>=7) { bonus bMaxSPrate,1; }},{},{}
+
+// Missing (renewal)
+32007,Jirant_Spear,God Eater Dragon Spear,4,0,,380,360:280,,3,1,0x00004080,63,2,2,4,130,1,4,{ bonus bMatk, 280; .@r = getrefine(); bonus bStr,3; bonus bDex,5; bonus2 bSkillAtk,"RK_DRAGONBREATH",50; bonus2 bSkillAtk,"RK_DRAGONBREATH_WATER",50; bonus2 bHPDrainRate,1000,1; bonus2 bAddRace,RC_All,2*.@r; bonus bAspdRate,2*.@r; bonus bDelayrate,-.@r; if(.@r>=7) {bonus2 bHPDrainRate,1000,2;} if(.@r>=9) {bonus2 bHPDrainRate,1000,3;} if(.@r>=10) {bonus bFixedCastrate,-70;} },{},{}

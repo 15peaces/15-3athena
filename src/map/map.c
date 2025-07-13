@@ -3572,7 +3572,7 @@ int map_waterheight(char* mapname)
 		}
 		int major_version = rsw[4];
 		int minor_version = rsw[5];
-		if (major_version > 2 || (major_version == 2 && minor_version > 2)) {
+		if (major_version > 2 || (major_version == 2 && minor_version > 5)) {
 			ShowWarning("Failed to find water level for %s (%s)\n", mapname, fn);
 			aFree(rsw);
 			return NO_WATER;
@@ -3583,8 +3583,11 @@ int map_waterheight(char* mapname)
 			return NO_WATER;
 		}
 		int offset = 166;
+		if (major_version == 2 && minor_version >= 5) {
+			offset += 4;
+		}
 		if (major_version == 2 && minor_version >= 2) {
-			offset = 167;
+			offset += 1;
 		}
 
 		//Load water height from file

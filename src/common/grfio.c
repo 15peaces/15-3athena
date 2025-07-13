@@ -23,7 +23,7 @@ typedef struct _FILELIST {
 	int		declen;				// original size
 	int		srcpos;				// position of entry in grf
 	char	type;
-	char	fn[128-4*5];		// file name
+	char	fn[256-4*5];		// file name
 	char*	fnd;				// if the file was cloned, contains name of original file
 	char	gentry;				// owner of this file (-1 = data dir, otherwise gentry_table[gentry])
 	bool    checklocal;         // local file check (true = check data dir before checking grf)

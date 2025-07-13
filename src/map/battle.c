@@ -2463,13 +2463,12 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 		wd.damage = sstatus->batk;
 		if (sd) {
 			short index = sd->equip_index[EQI_HAND_L];
-			if (index >= 0 &&
-				sd->inventory_data[index] &&
-				sd->inventory_data[index]->type == IT_ARMOR)
+			if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
 				ATK_ADD(wd.damage, wd.damage2, sd->inventory_data[index]->weight / 10);
 		}
 		else
-			break;
+			ATK_ADD(wd.damage, wd.damage2, sstatus->rhw.atk2); //Else use Atk2
+		break;
 	
 	case RK_DRAGONBREATH:
 	case RK_DRAGONBREATH_WATER:
@@ -4468,13 +4467,6 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 			ATK_ADD(wd.damage, wd.damage2, wd.div_*sd->spiritball * 3);
 		}
 
-		if (skill_id == CR_SHIELDBOOMERANG || skill_id == PA_SHIELDCHAIN)
-		{ //Refine bonus applies after cards and elements.
-			short index = sd->equip_index[EQI_HAND_L];
-			if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
-				ATK_ADD(wd.damage, wd.damage2, 10 * sd->inventory.u.items_inventory[index].refine);
-		}
-
 		//Card Fix for attacker (sd), 2 is added to the "left" flag meaning "attacker cards only"
 		switch (skill_id) {
 		case RK_DRAGONBREATH:
@@ -5020,7 +5012,8 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio += sc->data[SC_COOLER_OPTION]->val2;
 						break;
 					case SO_POISON_BUSTER:
-						skillratio += 900 + 300 * skill_lv;
+						skillratio += -100 + 1000 + 300 * skill_lv;
+						skillratio += sstatus->int_;
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * status_get_base_lv_effect(src) / 120;
 						if (sc && sc->data[SC_CURSED_SOIL_OPTION])
