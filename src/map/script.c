@@ -828,6 +828,17 @@ int add_str(const char* p)
 	return str_num++;
 }
 
+int add_variable(const char *varname)
+{
+	int key = search_str(varname);
+
+	if (key < 0) {
+		key = add_str(varname);
+		str_data[key].type = C_NAME;
+	}
+
+	return key;
+}
 
 /// Appends 1 byte to the script buffer.
 static void add_scriptb(int a)
@@ -10189,6 +10200,48 @@ BUILDIN_FUNC(playerattached)
 		script_pushint(st,0);
 	else
 		script_pushint(st,st->rid);
+	return 0;
+}
+
+/**
+ * Announces a colored text in '<char_name> Shouts : <message>' format.
+ * Default color is white ("FFFFFF").
+ *
+ * This is a special use case of packet 0x009a where the message's first 34 bytes
+ * are reserved for string "micc" (4B) which identifies the broadcast as megaphone shout,
+ * the character's name (24B) and the text color (6B).
+ *
+ * 009a <packet len>.W <micc>.4B <char name>.24B <color>.6B <message>.?B
+ *
+ **/
+BUILDIN_FUNC(loudhailer)
+{
+	const char *mes = script_getstr(st, 2);
+	size_t len_mes = strlen(mes);
+
+	Assert_retr(1, len_mes + 33 < CHAT_SIZE_MAX); // +33 because of the '<char_name> Shouts : ' message prefix.
+
+	const char *color = script_hasdata(st, 3) ? script_getstr(st, 3) : "FFFFFF";
+
+	Assert_retr(1, strlen(color) == 6);
+
+	struct map_session_data *sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return 1;
+
+	char mes_formatted[CHAT_SIZE_MAX + 30] = "";
+
+	strcpy(mes_formatted, sd->status.name);
+	strcpy(mes_formatted + 24, color);
+	safesnprintf(mes_formatted + 30, CHAT_SIZE_MAX, "%s Shouts : %s", sd->status.name, mes);
+
+	size_t len_formatted = 30 + strlen(sd->status.name) + 10 + len_mes + 1;
+
+	clif_broadcast(&sd->bl, mes_formatted, (int)len_formatted, BC_MEGAPHONE, ALL_CLIENT);
+
+	sd->state.using_megaphone = 0;
+
 	return 0;
 }
 
@@ -21158,6 +21211,28 @@ BUILDIN_FUNC(openlapineddukddakboxui)
 	return true;
 }
 
+BUILDIN_FUNC(openlapineupgradeui)
+{
+	struct map_session_data *sd = script_rid2sd(st);
+
+	if (sd == NULL)
+		return false;
+
+	const int item_id = script_getnum(st, 2);
+	struct item_data *it = itemdb_exists(item_id);
+	if (it == NULL || it->lapineupgrade == NULL) {
+		ShowError("buildin_openlapineupgradeui: Item %d is not valid\n", item_id);
+		script_reportfunc(st);
+		script_reportsrc(st);
+		script_pushint(st, false);
+		return true;
+	}
+
+	clif_lapineUpgrade_open(sd, item_id);
+	script_pushint(st, true);
+	return true;
+}
+
 /**
  * Run item lapineddukddak script for item.
  *
@@ -21168,6 +21243,18 @@ BUILDIN_FUNC(openlapineddukddakboxui)
 void script_run_item_lapineddukddak_script(struct map_session_data *sd, struct item_data *data, int oid)
 {
 	run_script(data->lapineddukddak->script, 0, sd->bl.id, oid);
+}
+
+/**
+ * Run item lapineddukddak script for item.
+ *
+ * @param sd    player session data. Must be correct and checked before.
+ * @param data  unequipped item data. Must be correct and checked before.
+ * @param oid   npc id. Can be also 0 or fake npc id.
+ */
+void script_run_item_lapineupgrade_script(struct map_session_data *sd, struct item_data *data, int oid)
+{
+	run_script(data->lapineupgrade->script, 0, sd->bl.id, oid);
 }
 
 /// declarations that were supposed to be exported from npc_chat.c
@@ -21349,6 +21436,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(attachnpctimer,"?"), // attached the player id to the npc timer [Celest]
 	BUILDIN_DEF(detachnpctimer,"?"), // detached the player id from the npc timer [Celest]
 	BUILDIN_DEF(playerattached,""), // returns id of the current attached player. [Skotlex]
+	BUILDIN_DEF(loudhailer, "s?"),
 	BUILDIN_DEF(announce,"si?????"),
 	BUILDIN_DEF(mapannounce,"ssi?????"),
 	BUILDIN_DEF(areaannounce,"siiiisi?????"),
@@ -21705,5 +21793,6 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(camerainfo, "iii?"),
 	BUILDIN_DEF(identifyall, "??"),
 	BUILDIN_DEF(openlapineddukddakboxui, "i"),
+	BUILDIN_DEF(openlapineupgradeui, "i"),
 	{NULL,NULL,NULL},
 };

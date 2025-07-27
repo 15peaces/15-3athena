@@ -633,6 +633,7 @@ struct DBMap* script_get_userfunc_db(void);
 void script_run_autobonus(const char *autobonus, struct map_session_data *sd, unsigned int pos);
 
 void script_run_item_lapineddukddak_script(struct map_session_data *sd, struct item_data *data, int oid);
+void script_run_item_lapineupgrade_script(struct map_session_data *sd, struct item_data *data, int oid);
 
 bool script_get_parameter(const char* name, int* value);
 bool script_get_constant(const char* name, int* value);
@@ -647,6 +648,7 @@ void do_init_script(void);
 void do_final_script(void);
 int add_str(const char* p);
 const char* get_str(int id);
+int add_variable(const char *varname);
 void script_reload(void);
 
 // @commands (script based) 

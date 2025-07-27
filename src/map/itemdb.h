@@ -155,6 +155,7 @@ enum item_itemid
 	ITEMID_BUBBLE_GUM					= 12210,
 	ITEMID_GIANT_FLY_WING				= 12212,
 	ITEMID_NEURALIZER					= 12213,
+	ITEMID_MEGAPHONE					= 12221,
 	ITEMID_M_CENTER_POTION				= 12241,
 	ITEMID_M_AWAKENING_POTION			= 12242,
 	ITEMID_M_BERSERK_POTION				= 12243,
@@ -331,6 +332,15 @@ struct item_lapineddukddak {
 	struct script_code *script;
 };
 
+struct item_lapineupgrade {
+	int8 NeedRefineMin;
+	int8 NeedRefineMax;
+	int8 NeedOptionMin;
+	bool NoEnchant;
+	VECTOR_DECL(struct itemlist_entry) TargetItems;
+	struct script_code *script;
+};
+
 struct item_data {
 	t_itemid nameid;
 	char name[ITEM_NAME_LENGTH],jname[ITEM_NAME_LENGTH];
@@ -383,6 +393,7 @@ struct item_data {
 		unsigned short override;
 	} item_usage;
 	struct item_lapineddukddak *lapineddukddak;
+	struct item_lapineupgrade *lapineupgrade;
 	short gm_lv_trade_override;	//GM-level to override trade_restriction
 	enum sc_type delay_sc; ///< Use delay group if any instead using player's item_delay data [Cydh]
 };

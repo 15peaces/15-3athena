@@ -5,6 +5,25 @@
 // 		- Details.
 //			--More Details.
 //========================================
+07/27/2025
+	r528 [15peaces]
+		*Update map list and other constants.
+			-Also rebuild mapcache with some new maps.
+		*Add packet CZ_LAPINEUPGRADE_CLOSE.
+		*Implement Lapine Upgrade interface.
+		*Added some missing items & fixed/moved others.
+		*Updated Megaphone_ Item to work like on official servers.
+			-Implemented loudhailer() script command.
+			-Added state using_megaphone to struct map_session_data.
+			-Don't show NPC speech bubble when opening input box by Megaphone.
+			-Enable all actions enabled on official servers while Megaphone input box is present.
+			-Thanks to @herculesWS
+		*Moved equip check from pc_setpos to parse_LoadEndAck
+			-Prevent unequipping items on login before calculating the character's status data.
+		*Fixed convex mirror effect, now shows position of boss on the map properly if there is on the particular map.
+		*Fixed an issue that caused status changes to be set with an infinite timer.
+			-Follow-up @e088428
+
 07/13/2025
 	r527 [15peaces]
 		*Fixed wrong comments in attr_fix.txt.

@@ -2456,21 +2456,23 @@ void clif_scriptinput(struct map_session_data *sd, int npcid)
 ///   - close inputstr window
 void clif_scriptinputstr(struct map_session_data *sd, int npcid)
 {
-	int fd;
-	struct block_list *bl = NULL;
-
 	nullpo_retv(sd);
 
-	if (!sd->state.using_fake_npc && (npcid == fake_nd->bl.id || ((bl = map_id2bl(npcid)) && (bl->m!=sd->bl.m ||
-	   bl->x<sd->bl.x-AREA_SIZE-1 || bl->x>sd->bl.x+AREA_SIZE+1 ||
-	   bl->y<sd->bl.y-AREA_SIZE-1 || bl->y>sd->bl.y+AREA_SIZE+1))))
-	   clif_sendfakenpc(sd, npcid);
+	struct block_list *bl = map_id2bl(npcid);
+	int x1 = sd->bl.x - AREA_SIZE - 1;
+	int x2 = sd->bl.x + AREA_SIZE + 1;
+	int y1 = sd->bl.y - AREA_SIZE - 1;
+	int y2 = sd->bl.y + AREA_SIZE + 1;
+	bool out_of_sight = (bl != NULL && (bl->m != sd->bl.m || bl->x < x1 || bl->x > x2 || bl->y < y1 || bl->y > y2));
 
-	fd=sd->fd;
-	WFIFOHEAD(fd, packet_len(0x1d4));
-	WFIFOW(fd,0)=0x1d4;
-	WFIFOL(fd,2)=npcid;
-	WFIFOSET(fd,packet_len(0x1d4));
+	if (sd->state.using_fake_npc == 0 && sd->state.using_megaphone == 0 && (npcid == fake_nd->bl.id || out_of_sight)) {
+		clif_sendfakenpc(sd, npcid);
+	}
+
+	WFIFOHEAD(sd->fd, packet_len(0x1d4));
+	WFIFOW(sd->fd, 0) = 0x1d4;
+	WFIFOL(sd->fd, 2) = (sd->state.using_megaphone == 0) ? npcid : 0;
+	WFIFOSET(sd->fd, packet_len(0x1d4));
 }
 
 
@@ -6813,7 +6815,7 @@ void clif_displayformatted(struct map_session_data* sd, const char* fmt, ...)
 /// 009a <packet len>.W <message>.?B
 void clif_broadcast(struct block_list* bl, const char* mes, int len, int type, enum send_target target)
 {
-	int lp = (type&BC_COLOR_MASK) ? 4 : 0;
+	int lp = ((type & BC_COLOR_MASK) != 0 || (type & BC_MEGAPHONE) != 0) ? 4 : 0;
 	unsigned char *buf = (unsigned char*)aMalloc((4 + lp + len)*sizeof(unsigned char));
 
 	WBUFW(buf,0) = 0x9a;
@@ -6822,6 +6824,8 @@ void clif_broadcast(struct block_list* bl, const char* mes, int len, int type, e
 		WBUFL(buf,4) = 0x65756c62; //If there's "blue" at the beginning of the message, game client will display it in blue instead of yellow.
 	else if (type&BC_WOE)
 		WBUFL(buf,4) = 0x73737373; //If there's "ssss", game client will recognize message as 'WoE broadcast'.
+	else if ((type & BC_MEGAPHONE) != 0)
+		WBUFL(buf, 4) = 0x6363696d; // If there's "micc" at the beginning of the message, the game client will recognize message as 'Megaphone shout'.
 	memcpy(WBUFP(buf, 4 + lp), mes, len);
 	clif_send(buf, WBUFW(buf,2), bl, target);
 	
@@ -11162,6 +11166,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 {
 	bool guild_notice = false;
 
+	if (sd->state.using_megaphone != 0)
+		sd->state.using_megaphone = 0;
+
 	if(sd->bl.prev != NULL)
 		return;
 	
@@ -11342,6 +11349,13 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_updatestatus(sd,SP_NEXTJOBEXP);
 		clif_updatestatus(sd,SP_SKILLPOINT);
 		clif_initialstatus(sd);
+
+		// Unequip items which can't be equipped by the character.
+		for (int i = 0; i < EQI_MAX; i++) {
+			if (sd->equip_index[i] >= 0)
+				if (pc_isequip(sd, sd->equip_index[i]) != ITEM_EQUIP_ACK_OK)
+					pc_unequipitem(sd, sd->equip_index[i], ITEM_EQUIP_ACK_FAIL);
+		}
 
 		if (sd->sc.option&OPTION_FALCON)
 			clif_status_load(&sd->bl, SI_FALCON, 1);
@@ -11709,7 +11723,7 @@ void clif_parse_WalkToXY(int fd, struct map_session_data *sd) {
 	else if(sd->progressbar.npc_id) {
 		clif_progressbar_abort(sd);
 		return; // First walk attempt cancels the progress bar
-	} else if (pc_cant_act(sd))
+	} else if (pc_cant_act_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0))
 		return;
 
 	if(sd->sc.data[SC_RUN] || sd->sc.data[SC_WUGDASH] )
@@ -12018,7 +12032,7 @@ void clif_parse_ActionRequest_sub(struct map_session_data *sd, int action_type, 
 	case 0x00: // once attack
 	case 0x07: // continuous attack
 
-		if (pc_cant_act(sd) || sd->sc.option&OPTION_HIDE || sd->sc.option&OPTION_WUGRIDER)
+		if (pc_cant_act_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || sd->sc.option&OPTION_HIDE || sd->sc.option&OPTION_WUGRIDER)
 			return;
 
 		if( sd->sc.option&OPTION_COSTUME)
@@ -12329,7 +12343,7 @@ void clif_parse_TakeItem(int fd, struct map_session_data *sd)
 		if (fitem == NULL || fitem->bl.type != BL_ITEM || fitem->bl.m != sd->bl.m)
 			break;
 	
-		if (pc_cant_act(sd))
+		if (pc_cant_act_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0))
 			break;
 
 		if(sd->sc.count && (
@@ -12370,7 +12384,7 @@ void clif_parse_DropItem(int fd, struct map_session_data *sd)
 		if (pc_isdead(sd))
 			break;
 
-		if (pc_cant_act2(sd) || sd->npc_id)
+		if (pc_cant_act_except_npc_chat(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0))
 			break;
 
 		if (sd->sc.count && (
@@ -12440,7 +12454,7 @@ void clif_parse_EquipItem(int fd,struct map_session_data *sd) {
 		return; //Out of bounds check.
 	
 	if(sd->npc_id) {
-		if (!sd->npc_item_flag)
+		if (!sd->npc_item_flag && !sd->state.using_megaphone)
 			return;
 	} else if (sd->state.storage_flag || (sd->sc.opt1 && sd->sc.opt1 != OPT1_BURNING))
 		; //You can equip/unequip stuff while storage is open/under status changes
@@ -12488,7 +12502,7 @@ void clif_parse_UnequipItem(int fd,struct map_session_data *sd)
 	}
 
 	if (sd->npc_id) {
-		if (!sd->npc_item_flag)
+		if (!sd->npc_item_flag && !sd->state.using_megaphone)
 			return;
 	}
 	else if (sd->state.storage_flag || sd->sc.opt1)
@@ -12767,7 +12781,7 @@ void clif_parse_TradeRequest(int fd,struct map_session_data *sd)
 	
 	t_sd = map_id2sd(RFIFOL(fd,2));
 
-	if(!sd->chatID && pc_cant_act(sd))
+	if (pc_cant_act_except_npc_chat(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0))
 		return; //You can trade while in a chatroom.
 
 	if(t_sd){
@@ -12864,10 +12878,12 @@ void clif_parse_StopAttack(int fd,struct map_session_data *sd)
 /// 0126 <index>.W <amount>.L
 void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
 {
-	if (pc_istrading(sd))
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || sd->state.prevend != 0)
 		return;
+
 	if (!pc_iscarton(sd))
 		return;
+
 	pc_putitemtocart(sd,RFIFOW(fd,2)-2,RFIFOL(fd,4));
 }
 
@@ -12876,8 +12892,12 @@ void clif_parse_PutItemToCart(int fd,struct map_session_data *sd)
 /// 0127 <index>.W <amount>.L
 void clif_parse_GetItemFromCart(int fd,struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || sd->state.prevend != 0)
+		return;
+
 	if (!pc_iscarton(sd))
 		return;
+
 	pc_getitemfromcart(sd,RFIFOW(fd,2)-2,RFIFOL(fd,4));
 }
 
@@ -13089,7 +13109,7 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 
 	// Whether skill fails or not is irrelevant, the char ain't idle. [Skotlex]
 	sd->idletime = last_tick;
 
-	if (sd->npc_id) {
+	if (sd->npc_id && sd->state.using_megaphone == 0) {
 		if (pc_hasprogress(sd, WIP_DISABLE_SKILLITEM) || !sd->npc_item_flag || !(inf & INF_SELF_SKILL)) {
 			clif_msg(sd, WORK_IN_PROGRESS);
 			return;
@@ -13551,8 +13571,11 @@ void clif_parse_NpcAmountInput(int fd,struct map_session_data *sd)
 /// 01d5 <packet len>.W <npc id>.L <string>.?B
 void clif_parse_NpcStringInput(int fd, struct map_session_data* sd)
 {
+	if ((sd->state.trading != 0 || pc_isvending(sd) || pc_isdead(sd)) && sd->state.using_megaphone == 0)
+		return;
+
 	int message_len = RFIFOW(fd,2)-8;
-	int npcid = RFIFOL(fd,4);
+	int npcid = (sd->state.using_megaphone == 0) ? RFIFOL(fd, 4) : sd->npc_id;
 	const char* message = (char*)RFIFOP(fd,8);
 	
 	if( message_len <= 0 )
@@ -13915,6 +13938,9 @@ void clif_storagepassword_result(struct map_session_data* sd, short result, shor
 /// 01e8 <party name>.24B <item pickup rule>.B <item share rule>.B (CZ_MAKE_GROUP2)
 void clif_parse_CreateParty(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	char* name = (char*)RFIFOP(fd,2);
 	name[NAME_LENGTH-1] = '\0';
 
@@ -13934,6 +13960,9 @@ void clif_parse_CreateParty(int fd, struct map_session_data *sd)
 
 void clif_parse_CreateParty2(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	char* name = (char*)RFIFOP(fd,2);
 	int item1 = RFIFOB(fd,26);
 	int item2 = RFIFOB(fd,27);
@@ -13958,6 +13987,9 @@ void clif_parse_CreateParty2(int fd, struct map_session_data *sd)
 /// 00fc <account id>.L (CZ_REQ_JOIN_GROUP)
 void clif_parse_PartyInvite(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	struct map_session_data *t_sd;
 	
 	if(map[sd->bl.m].flag.partylock)
@@ -13981,6 +14013,9 @@ void clif_parse_PartyInvite(int fd, struct map_session_data *sd)
 /// 02c4 <char name>.24B (CZ_PARTY_JOIN_REQ)
 void clif_parse_PartyInvite2(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	struct map_session_data *t_sd;
 	char *name = (char*)RFIFOP(fd,2);
 	name[NAME_LENGTH-1] = '\0';
@@ -14027,6 +14062,9 @@ void clif_parse_ReplyPartyInvite2(int fd,struct map_session_data *sd)
 /// 0100
 void clif_parse_LeaveParty(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	if(map[sd->bl.m].flag.partylock)
 	{	//Guild locked.
 		clif_displaymessage(fd, msg_txt(sd,227));
@@ -14040,6 +14078,9 @@ void clif_parse_LeaveParty(int fd, struct map_session_data *sd)
 /// 0103 <account id>.L <char name>.24B
 void clif_parse_RemovePartyMember(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	if(map[sd->bl.m].flag.partylock)
 	{	//Guild locked.
 		clif_displaymessage(fd, msg_txt(sd,227));
@@ -14054,6 +14095,9 @@ void clif_parse_RemovePartyMember(int fd, struct map_session_data *sd)
 /// 07d7 <exp share rule>.L <item pickup rule>.B <item share rule>.B (CZ_GROUPINFO_CHANGE_V2)
 void clif_parse_PartyChangeOption(int fd, struct map_session_data *sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	struct party_data *p;
 	int i;
 
@@ -14101,6 +14145,9 @@ void clif_parse_PartyMessage(int fd, struct map_session_data* sd)
 /// 07da <account id>.L
 void clif_parse_PartyChangeLeader(int fd, struct map_session_data* sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	party_changeleader(sd, map_id2sd(RFIFOL(fd,2)));
 }
 
@@ -14112,6 +14159,9 @@ void clif_parse_PartyChangeLeader(int fd, struct map_session_data* sd)
 /// 0802 <level>.W <map id>.W { <job>.W }*6
 void clif_parse_PartyBookingRegisterReq(int fd, struct map_session_data* sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	short level = RFIFOW(fd,2);
 	short mapid = RFIFOW(fd,4);
 	short job[PARTY_BOOKING_JOBS];
@@ -14144,7 +14194,10 @@ void clif_PartyBookingRegisterAck(struct map_session_data *sd, int flag)
 /// Request to search for party booking advertisments (CZ_PARTY_BOOKING_REQ_SEARCH).
 /// 0804 <level>.W <map id>.W <job>.W <last index>.L <result count>.W
 void clif_parse_PartyBookingSearchReq(int fd, struct map_session_data* sd)
-{	
+{
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	short level = RFIFOW(fd,2);
 	short mapid = RFIFOW(fd,4);
 	short job = RFIFOW(fd,6);
@@ -14188,6 +14241,9 @@ void clif_PartyBookingSearchAck(int fd, struct party_booking_ad_info** results, 
 /// 0806
 void clif_parse_PartyBookingDeleteReq(int fd, struct map_session_data* sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	if(party_booking_delete(sd))
 		clif_PartyBookingDeleteAck(sd, 0);
 }
@@ -14215,6 +14271,9 @@ void clif_PartyBookingDeleteAck(struct map_session_data* sd, int flag)
 /// 0808 { <job>.W }*6
 void clif_parse_PartyBookingUpdateReq(int fd, struct map_session_data* sd)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	short job[PARTY_BOOKING_JOBS];
 	int i;
 	
@@ -14229,6 +14288,9 @@ void clif_parse_PartyBookingUpdateReq(int fd, struct map_session_data* sd)
 /// 0809 <index>.L <char name>.24B <expire time>.L <level>.W <map id>.W { <job>.W }*6
 void clif_PartyBookingInsertNotify(struct map_session_data* sd, struct party_booking_ad_info* pb_ad)
 {
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isvending(sd))
+		return;
+
 	int i;
 	uint8 buf[38+PARTY_BOOKING_JOBS*2];
 
@@ -14289,10 +14351,9 @@ void clif_parse_CloseVending(int fd, struct map_session_data* sd)
 /// 0130 <account id>.L
 void clif_parse_VendingListReq(int fd, struct map_session_data* sd)
 {
-	if( sd->npc_id )
-	{// using an NPC
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isdead(sd))
 		return;
-	}
+
 	vending_vendinglistreq(sd,RFIFOL(fd,2));
 }
 
@@ -14339,6 +14400,11 @@ void clif_parse_OpenVending(int fd, struct map_session_data* sd) {
 	short len = (short)RFIFOW(fd, info->pos[0]);
 	const char* message = RFIFOCP(fd, info->pos[1]);
 	const uint8* data = (uint8*)RFIFOP(fd, info->pos[3]);
+
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0)
+		|| pc_isdead(sd) || sd->state.vending != 0 || sd->state.buyingstore != 0) {
+		return;
+	}
 	
 	if (len < 0)
 		return;
@@ -18651,46 +18717,47 @@ void clif_parse_Adopt_reply(int fd, struct map_session_data *sd)
 /// Convex Mirror (ZC_BOSS_INFO).
 /// 0293 <infoType>.B <x>.L <y>.L <minHours>.W <minMinutes>.W <maxHours>.W <maxMinutes>.W <monster name>.51B
 /// infoType:
-///     0 = No boss on this map (BOSS_INFO_NOT).
+///     0 = No boss on this map (BOSS_INFO_NONE).
 ///     1 = Boss is alive (position update) (BOSS_INFO_ALIVE).
 ///     2 = Boss is alive (initial announce) (BOSS_INFO_ALIVE_WITHMSG).
 ///     3 = Boss is dead (BOSS_INFO_DEAD).
-void clif_bossmapinfo(int fd, struct mob_data *md, short flag)
+void clif_bossmapinfo(int fd, struct mob_data *md, enum bossmap_info_type flag)
 {
-	WFIFOHEAD(fd,70);
-	memset(WFIFOP(fd,0),0,70);
-	WFIFOW(fd,0) = 0x293;
+	WFIFOHEAD(fd, 70);
+	memset(WFIFOP(fd, 0), 0, 70);
+	WFIFOW(fd, 0) = 0x293;
+	WFIFOB(fd, 2) = flag;
 
-	if( md != NULL )
-	{
-		if( md->bl.prev != NULL )
-		{ // Boss on This Map
-			if( flag )
-			{
-				WFIFOB(fd,2) = 1;
-				WFIFOL(fd,3) = md->bl.x;
-				WFIFOL(fd,7) = md->bl.y;
+	switch (flag) {
+	case BOSS_INFO_NONE:
+		break;
+	case BOSS_INFO_ALIVE:
+	case BOSS_INFO_ALIVE_WITHMSG:
+		if (md != NULL) {
+			WFIFOL(fd, 3) = md->bl.x;
+			WFIFOL(fd, 7) = md->bl.y;
+		}
+		break;
+	case BOSS_INFO_DEAD:
+		if (md != NULL) {
+			const struct TimerData *timer_data = get_timer(md->spawn_timer);
+				unsigned int seconds;
+				int hours, minutes;
+
+				seconds = (unsigned int)(DIFF_TICK(timer_data->tick, gettick()) / 1000 + 60);
+				hours = seconds / (60 * 60);
+				seconds = seconds - (60 * 60 * hours);
+				minutes = seconds / 60;
+
+				WFIFOB(fd,2) = 3;
+				WFIFOW(fd,11) = hours; // Hours
+				WFIFOW(fd,13) = minutes; // Minutes
 			}
-			else
-				WFIFOB(fd,2) = 2; // First Time
-		}
-		else if (md->spawn_timer != INVALID_TIMER)
-		{ // Boss is Dead
-			const struct TimerData * timer_data = get_timer(md->spawn_timer);
-			unsigned int seconds;
-			int hours, minutes;
-
-			seconds = (unsigned int)(DIFF_TICK(timer_data->tick, gettick()) / 1000 + 60);
-			hours = seconds / (60 * 60);
-			seconds = seconds - (60 * 60 * hours);
-			minutes = seconds / 60;
-
-			WFIFOB(fd,2) = 3;
-			WFIFOW(fd,11) = hours; // Hours
-			WFIFOW(fd,13) = minutes; // Minutes
-		}
-		safestrncpy((char*)WFIFOP(fd,19), md->db->jname, NAME_LENGTH);
+			break;
 	}
+
+	if (md != NULL)
+		safestrncpy(WFIFOP(fd, 19), md->db->jname, NAME_LENGTH);
 
 	WFIFOSET(fd,70);
 }
@@ -20025,6 +20092,10 @@ void clif_buyingstore_open(struct map_session_data* sd)
 ///     0 = cancel
 ///     1 = open
 static void clif_parse_ReqOpenBuyingStore(int fd, struct map_session_data* sd) {
+	
+	if (pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0) || pc_isdead(sd))
+		return;
+
 	const struct PACKET_CZ_REQ_OPEN_BUYING_STORE *p = (struct PACKET_CZ_REQ_OPEN_BUYING_STORE *)RFIFOP(fd, 0);
 
 	// TODO: Make this check global for all variable length packets.
@@ -21880,7 +21951,10 @@ bool clif_lapineDdukDdak_open(struct map_session_data *sd, int item_id)
 {
 #if PACKETVER >= 20160601
 	nullpo_retr(false, sd);
-	nullpo_retr(false, itemdb_exists(item_id));
+
+	if (itemdb_exists(item_id) == NULL)
+		return false;
+
 	struct PACKET_ZC_LAPINEDDUKDDAK_OPEN p;
 
 	p.packetType = 0x0a4e;
@@ -21979,21 +22053,32 @@ static void clif_parse_lapineDdukDdak_close(int fd, struct map_session_data *sd)
 #endif // PACKETVER >= 20160504
 }
 
-static bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id)
+bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id)
 {
 #if PACKETVER >= 20170726
 	nullpo_retr(false, sd);
-	nullpo_retr(false, itemdb_exists(item_id));
+
+	if (itemdb_exists(item_id) == NULL)
+		return false;
+
 	struct PACKET_ZC_LAPINEUPGRADE_OPEN p;
 
 	p.packetType = 0x0ab4;
 	p.itemId = item_id;
 	clif_send(&p, sizeof(p), &sd->bl, SELF);
 
+	sd->state.lapine_ui = 1;
 	return true;
 #else
 	return false;
 #endif  // PACKETVER >= 20170726
+}
+
+static void clif_parse_lapineUpgrade_close(int fd, struct map_session_data *sd)
+{
+#if PACKETVER >= 20170111
+	sd->state.lapine_ui = 0;
+#endif  // PACKETVER >= 20170111
 }
 
 /// result: 0 = success; 1 = failed.
@@ -22016,8 +22101,92 @@ static bool clif_lapineUpgrade_result(struct map_session_data *sd, uint16 result
 static void clif_parse_lapineUpgrade_makeItem(int fd, struct map_session_data *sd)
 {
 #if PACKETVER >= 20170111
-	ShowError("Lapin upgrade not implimented yet.\n");
-	clif_lapineUpgrade_result(sd, 1); // send fail result for now...
+	const struct PACKET_CZ_LAPINEUPGRADE_MAKE_ITEM *p = (struct PACKET_CZ_LAPINEUPGRADE_MAKE_ITEM *)RFIFOP(fd, 0);
+	struct item_data *it = itemdb_exists(p->itemId);
+
+	if (it == NULL || it->lapineupgrade == NULL)
+		return;
+
+	if (sd->state.lapine_ui != 1)
+		return;
+
+	if (pc_cant_act_except_lapine(sd))
+		return;
+
+	if (pc_search_inventory(sd, it->nameid) == -1)
+		return;
+
+	const int index = p->index - 2;
+	if (index < 0 || index >= MAX_INVENTORY)
+		return;
+
+	int i;
+
+	for (i = 0; i < VECTOR_LENGTH(it->lapineupgrade->TargetItems); ++i) {
+		struct itemlist_entry *entry = &VECTOR_INDEX(it->lapineupgrade->TargetItems, i);
+
+		if (entry->id != sd->inventory.u.items_inventory[index].nameid)
+			continue;
+
+		if (it->lapineupgrade->NeedRefineMin > sd->inventory.u.items_inventory[index].refine
+			|| it->lapineupgrade->NeedRefineMax < sd->inventory.u.items_inventory[index].refine) {
+			clif_lapineUpgrade_result(sd, 1);
+			return;
+		}
+
+		if (it->lapineupgrade->NoEnchant) {
+			int j;
+
+			ARR_FIND(0, MAX_SLOTS, j, sd->inventory.u.items_inventory[index].card[j] != 0);
+
+			if (j != MAX_SLOTS) {
+				clif_lapineUpgrade_result(sd, 1);
+				return;
+			}
+		}
+
+		if (it->lapineupgrade->NeedOptionMin > 0) {
+			int options = 0;
+			for (int j = 0; j < MAX_ITEM_RDM_OPT; ++j) {
+				if (sd->inventory.u.items_inventory[index].option[j].id != 0)
+					options++;
+			}
+
+			if (it->lapineupgrade->NeedOptionMin > options) {
+				clif_lapineUpgrade_result(sd, 1);
+				return;
+			}
+		}
+
+		break;
+}
+
+	if (i == VECTOR_LENGTH(it->lapineupgrade->TargetItems)) {
+		clif_lapineUpgrade_result(sd, 1);
+		return;
+	}
+
+	if (it->lapineupgrade->script != NULL) {
+		pc_setreg(sd, add_variable("@lapine_itemid"), sd->inventory.u.items_inventory[index].nameid);
+		pc_setreg(sd, add_variable("@lapine_idx"), index);
+		pc_setreg(sd, add_variable("@lapine_refine"), sd->inventory.u.items_inventory[index].refine);
+		pc_setreg(sd, add_variable("@lapine_attribute"), sd->inventory.u.items_inventory[index].attribute);
+		pc_setreg(sd, add_variable("@lapine_bound"), sd->inventory.u.items_inventory[index].bound);
+
+		for (int j = 0; j < MAX_SLOTS; ++j)
+			pc_setreg(sd, reference_uid(add_variable("@lapine_card"), j), sd->inventory.u.items_inventory[index].card[j]);
+
+		for (int j = 0; j < MAX_ITEM_RDM_OPT; ++j) {
+			pc_setreg(sd, reference_uid(add_variable("@lapine_option_idx"), j), sd->inventory.u.items_inventory[index].option[j].id);
+			pc_setreg(sd, reference_uid(add_variable("@lapine_option_value"), j), sd->inventory.u.items_inventory[index].option[j].value);
+			pc_setreg(sd, reference_uid(add_variable("@lapine_option_param"), j), sd->inventory.u.items_inventory[index].option[j].param);
+		}
+
+		script_run_item_lapineupgrade_script(sd, it, fake_nd->bl.id);
+	}
+
+	clif_lapineUpgrade_result(sd, 0);
+	return;
 #endif  // PACKETVER >= 20170111
 }
 
@@ -22542,9 +22711,9 @@ void packetdb_readdb(void)
 	    0,  0,  0,  0,  0,  0,  0,  8, 10,  4, 10, -1,  2,  4,  4,  0,
 	    0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 #if PACKETVER < 20181121
-	    0,  0,  7,  0,  0,  0,  6,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+	    0,  0,  7,  0,  0,  2,  6,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 #else
-		0,  0,  7,  0,  0,  0,  8,  0,  0,  0,  0,  0,  0, 10,  0,  0,
+		0,  0,  7,  0,  0,  2,  8,  0,  0,  0,  0,  0,  0, 10,  0,  0,
 #endif
 
 //#0x0AC0
@@ -22827,6 +22996,7 @@ void packetdb_readdb(void)
 		{ clif_parse_lapineDdukDdak_ack, "plapineDdukDdak_ack" },
 		{ clif_parse_lapineDdukDdak_close, "plapineDdukDdak_close" },
 		{ clif_parse_lapineUpgrade_makeItem, "pLapineUpgrade_makeItem" },
+		{ clif_parse_lapineUpgrade_close , "pLapineUpgrade_close" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

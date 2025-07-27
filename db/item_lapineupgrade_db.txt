@@ -1,0 +1,28 @@
+// 15-3athena Lapine Upgrade Database
+//
+// Structure of Database:
+// ID,nameid,NeedRefineMin,NeedRefineMax,NeedOptionMin,NoEnchants,{Script}
+//	ID: 			Unique ID, must be the same as the target items ID
+//	nameid:			Box nameid
+//	NeedRefineMin:	The minimum refine
+//	NeedRefineMax:	The maximum refine
+//	NeedOptionMin:	The minmum options
+//	NoEnchants:		item shall not have enchants or cards (1: True)
+//	Script:			Script - Executes on success
+//						Note:
+//						-----
+//						The following temporary variables that hold the target item info
+//						are defined while executing:
+//							@lapine_itemid
+//							@lapine_idx
+//							@lapine_refine
+//							@lapine_attribute
+//							@lapine_bound
+//							@lapine_card[MAX_SLOTS]
+//							@lapine_option_idx[MAX_ITEM_OPTIONS]
+//							@lapine_option_value[MAX_ITEM_OPTIONS]
+//							@lapine_option_param[MAX_ITEM_OPTIONS]
+//
+//	Note: for the list of the target items see item_lapineupgrade_target.txt file!
+
+0,9514,0,20,0,1,{} // Ein_Ddbox

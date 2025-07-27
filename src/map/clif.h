@@ -161,6 +161,8 @@ typedef enum broadcast_flags {
 	BC_WOE = 0x20,
 	BC_COLOR_MASK = 0x30, // BC_YELLOW|BC_BLUE|BC_WOE
 
+	BC_MEGAPHONE = 0x40,
+
 	BC_DEFAULT = BC_ALL | BC_PC | BC_YELLOW
 } broadcast_flags;
 
@@ -640,6 +642,16 @@ enum out_ui_type {
 	OUT_UI_ATTENDANCE = 7
 };
 
+/**
+ * Convex Mirror (ZC_BOSS_INFO)
+ **/
+enum bossmap_info_type {
+	BOSS_INFO_NONE = 0,      // No Boss within the map
+	BOSS_INFO_ALIVE,         // Boss is still alive
+	BOSS_INFO_ALIVE_WITHMSG, // Boss is alive (on item use)
+	BOSS_INFO_DEAD,          // Boss is dead
+};
+
 struct cash_item_data {
 	t_itemid id;
 	uint32 price;
@@ -1084,7 +1096,7 @@ void clif_Auction_close(int fd, unsigned char flag);
 void clif_parse_Auction_cancelreg(int fd, struct map_session_data *sd);
 #endif
 
-void clif_bossmapinfo(int fd, struct mob_data *md, short flag);
+void clif_bossmapinfo(int fd, struct mob_data *md, enum bossmap_info_type flag);
 void clif_cashshop_show(struct map_session_data *sd, struct npc_data *nd);
 
 // ADOPTION
@@ -1221,5 +1233,6 @@ void clif_party_leaderchanged(struct map_session_data *sd, int prev_leader_aid, 
 void clif_camerainfo(struct map_session_data* sd, bool show, float range, float rotation, float latitude);
 
 bool clif_lapineDdukDdak_open(struct map_session_data *sd, int item_id);
+bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id);
 
 #endif /* _CLIF_H_ */

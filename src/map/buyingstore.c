@@ -103,8 +103,9 @@ void buyingstore_create(struct map_session_data* sd, int zenylimit, unsigned cha
 		return;
 	}
 
-	if( !battle_config.feature_buying_store || pc_istrading(sd) || sd->buyingstore.slots == 0 || count > sd->buyingstore.slots || zenylimit <= 0 || zenylimit > sd->status.zeny || !storename[0] )
-	{// disabled or invalid input
+	if (battle_config.feature_buying_store == 0 || pc_istrading_except_npc(sd) || sd->state.prevend != 0
+		|| (sd->npc_id != 0 && sd->state.using_megaphone == 0) || sd->buyingstore.slots == 0
+		|| count > sd->buyingstore.slots || zenylimit <= 0 || zenylimit > sd->status.zeny || *storename == '\0') { // Disabled or invalid input.
 		sd->buyingstore.slots = 0;
 		clif_buyingstore_open_failed(sd, BUYINGSTORE_CREATE, 0);
 		return;
@@ -231,8 +232,8 @@ void buyingstore_open(struct map_session_data* sd, uint32 account_id)
 
 	nullpo_retv(sd);
 
-	if( !battle_config.feature_buying_store || pc_istrading(sd) )
-	{// not allowed to sell
+	if (battle_config.feature_buying_store == 0 || pc_istrading_except_npc(sd) || sd->state.prevend != 0
+		|| (sd->npc_id != 0 && sd->state.using_megaphone == 0)) { // Not allowed to sell.
 		return;
 	}
 
@@ -270,8 +271,8 @@ void buyingstore_trade(struct map_session_data* sd, uint32 account_id, unsigned 
 		return;
 	}
 
-	if( !battle_config.feature_buying_store || pc_istrading(sd) )
-	{// not allowed to sell
+	if (battle_config.feature_buying_store == 0 || pc_istrading_except_npc(sd) || sd->state.prevend != 0
+		|| (sd->npc_id != 0 && sd->state.using_megaphone == 0)) { // Not allowed to sell.
 		clif_buyingstore_trade_failed_seller(sd, BUYINGSTORE_TRADE_SELLER_FAILED, 0);
 		return;
 	}

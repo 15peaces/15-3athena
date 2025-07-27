@@ -2455,6 +2455,7 @@ packet_keys: 0x5ed10a48,0x667f4301,0x2e5d761f
 0x0A9D,4
 0x0ACE,4,equipswitch_request_single,0
 
+0x0ab5,2,pLapineUpgrade_close,0
 0x0ab6,6,pLapineUpgrade_makeItem,0
 
 //2017-09-06cRagexeRE

@@ -1975,6 +1975,212 @@ void itemdb_parse_lapineddukddak_db(void)
 	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
 }
 
+static bool itemdb_parse_lapineupgrade_targets(int id, struct item_data *data)
+{
+	nullpo_retr(false, data);
+	nullpo_retr(false, data->lapineupgrade);
+
+	uint32 lines = 0, cnt = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	sprintf(file, "db/item_lapineupgrade_target.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("itemdb_parse_lapineupgrade_targets: File not found \"%s\", skipping.\n", file);
+		return false;
+	}
+
+	VECTOR_INIT(data->lapineupgrade->TargetItems);
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i, sid, amt;
+		t_itemid nameid;
+
+		struct item_data *edata = NULL;
+		struct itemlist_entry item = { 0 };
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 3; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("itemdb_parse_lapineupgrade_targets: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				continue;
+			}
+		}
+
+		sid = atoi(str[0]);
+		if (sid < 0) {
+			ShowWarning("itemdb_parse_lapineupgrade_targets: Invalid id %d in %s:%d\n", id, file, lines);
+			continue;
+		}
+
+		if (id != sid) // ignore line.
+			continue;
+
+		nameid = strtoul(str[1], NULL, 10);
+		if (nameid == 0 || nameid == dummy_item->nameid)
+		{
+			ShowWarning("itemdb_parse_lapineupgrade_targets: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
+			continue;
+		}
+
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_parse_lapineupgrade_targets: unknown item '%d', skipping.\n", nameid);
+			continue;
+		}
+
+		edata = itemdb_search(nameid);
+		item.id = edata->nameid;
+
+		amt = atoi(str[2]);
+		if (amt < 1) {
+			ShowWarning("itemdb_parse_lapineupgrade_targets: invalid amount %d in %s:%d. defaulting to 1...\n", amt, file, lines);
+			amt = 1;
+		}
+		item.amount = amt;
+
+		VECTOR_ENSURE(data->lapineupgrade->TargetItems, 1, 1);
+		VECTOR_PUSH(data->lapineupgrade->TargetItems, item);
+		cnt++;
+	}
+	return true;
+}
+
+void itemdb_parse_lapineupgrade_db(void)
+{
+	uint32 lines = 0, cnt = 1;
+	char line[1024];
+
+	char file[256];
+	FILE* fp;
+
+	sprintf(file, "db/item_lapineupgrade_db.txt");
+	fp = fopen(file, "r");
+	if (fp == NULL)
+	{
+		ShowWarning("itemdb_parse_lapineupgrade_db: File not found \"%s\", skipping.\n", file);
+		return;
+	}
+
+	// process rows one by one
+	while (fgets(line, sizeof(line), fp))
+	{
+		char *str[32], *p;
+		int i,id,refmin,refmax,opts;
+		bool NoEntchant = false;
+		t_itemid nameid;
+
+		struct item_data *data = NULL;
+
+		lines++;
+		if (line[0] == '/' && line[1] == '/')
+			continue;
+		memset(str, 0, sizeof(str));
+
+		p = line;
+
+		while (ISSPACE(*p))
+			++p;
+
+		if (*p == '\0')
+			continue;// empty line
+
+		for (i = 0; i < 7; ++i)
+		{
+			str[i] = p;
+			p = strchr(p, ',');
+			if (p == NULL)
+				break;// comma not found
+			*p = '\0';
+			++p;
+
+			if (str[i] == NULL)
+			{
+				ShowError("itemdb_parse_lapineupgrade_db: Insufficient columns in line %d of \"%s\", skipping.\n", lines, file);
+				continue;
+			}
+		}
+
+		id = atoi(str[0]);
+		if (id < 0) {
+			ShowWarning("itemdb_parse_lapineupgrade_db: Invalid id %d in %s:%d\n", id, file, lines);
+			continue;
+		}
+
+		nameid = strtoul(str[1], NULL, 10);
+		if (nameid == 0 || nameid == dummy_item->nameid)
+		{
+			ShowWarning("itemdb_parse_lapineupgrade_db: Invalid id %d in line %d of \"%s\", skipping.\n", atoi(str[1]), lines, file);
+			continue;
+		}
+
+		if (!itemdb_exists(nameid)) {
+			ShowWarning("itemdb_parse_lapineupgrade_db: unknown item '%d', skipping.\n", nameid);
+			continue;
+		}
+
+		data = itemdb_search(nameid);
+
+		refmin = atoi(str[2]);
+		if (refmin < 0 || refmin > 20)
+			refmin = 0;
+
+		refmax = atoi(str[3]);
+		if (refmax < 0 || refmax > 20)
+			refmax = 0;
+
+		opts = atoi(str[4]);
+		if (opts < 0 || opts > 5)
+			opts = 0;
+
+		if (atoi(str[5]) == 1)
+			NoEntchant = true;
+
+		data->lapineupgrade = aCalloc(1, sizeof(struct item_lapineupgrade));
+
+		data->lapineupgrade->NeedRefineMin = (int8)refmin;
+		data->lapineupgrade->NeedRefineMax = (int8)refmax;
+		data->lapineupgrade->NeedOptionMin = (int8)opts;
+		data->lapineupgrade->NoEnchant = NoEntchant;
+
+		itemdb_parse_lapineupgrade_targets(id, data);
+
+		if (*str[6])
+			data->lapineupgrade->script = parse_script(str[6], file, lines, SCRIPT_IGNORE_EXTERNAL_BRACKETS);
+
+		cnt++;
+	}
+
+	ShowStatus("Done reading '"CL_WHITE"%d"CL_RESET"' entries in '"CL_WHITE"%s"CL_RESET"'.\n", cnt - 1, file);
+}
+
 /** Misc Item flags
 * <item_id>,<flag>
 * &1 - As dead branch item
@@ -2181,4 +2387,5 @@ void do_init_itemdb(void)
 	VECTOR_INIT(attendance_data);
 	itemdb_parse_attendance_db();
 	itemdb_parse_lapineddukddak_db();
+	itemdb_parse_lapineupgrade_db();
 }

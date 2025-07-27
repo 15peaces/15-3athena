@@ -74,24 +74,14 @@
 20271,C_Sunflower,Costume Sunflower,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,37,{},{},{}
 20272,C_Unicorn_Horn,Costume Unicorn Horn,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,42,{},{},{}
 20307,C_Beginner_Cap,Costume Beginner Cap,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1348,{if(BaseLevel<100) {	bonus bHit,30-(3*(BaseLevel/10)); bonus bMaxHP,1000-(100*(BaseLevel/10)); bonus bMaxSP,200-(20*(BaseLevel/10)); bonus bCastrate,-10+(BaseLevel/10); bonus bHealPower,150-(10*(BaseLevel/10)); bonus bHealPower2,10*(BaseLevel/10); bonus bAddItemHealRate,10*(BaseLevel/10);}},{},{}
+20311,Costume_Magical_Booster,Costume Magical Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,873,{},{},{}
 20757,Heavenly_Wings1,Heavenly Wings1,5,0,,0,,1,,1,0xFFFFFFFF,63,2,4,,,,9,{	bonus bAllStats,3; skill AL_INCAGI,3;},{},{}
 20758,Heavenly_Wings2,Heavenly Wings2,5,0,,0,,1,,1,0xFFFFFFFF,63,2,4,,,,9,{	bonus bAllStats,3; skill AL_INCAGI,3;},{},{}
 22812,Sealed_Dracula_Scroll,Sealed Dracula Scroll,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",22813,19937,17314, 6635),1; },{},{}
 22813,Bearer's_Shadow_Box,Bearer's Shadow Box,2,10,,10,,,,,,,,,,,,,{ getitem callfunc("F_Rand",24180,24181,24182,28183,24184,24185),1; },{},{}
 
-//Heroic Gears (Renewal Versions!)
-15095,Heroic_Judgement_Shawl,Heroic Judgement Shawl,5,10,,500,,7,,1,0x00008110,63,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; bonus bHit,10; bonus bFlee,10; bonus2 bSkillAtk,"AB_JUDEX",10; bonus2 bSkillAtk,"AB_ADORAMUS",10; bonus2 bSkillAtk,"SR_DRAGONCOMBO",10; bonus2 bSkillAtk,"SR_SKYNETBLOW",10; bonus2 bSkillAtk,"SR_EARTHSHAKER",10; set .@r, getrefine(); bonus5 bAutoSpell,"PR_KYRIE",1,50+.@r,BF_SHORT,0; bonus5 bAutoSpell,"PR_LEXAETERNA",10,50+.@r,BF_SHORT,0; },{},{}
-15096,Heroic_Trade-Mail,Heroic Trade-Mail,5,10,,500,,100,,1,0x00040420,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus bMatk,10; bonus bBaseAtk,10; set .@r, getrefine(); if(readparam(bStr) >= 90) bonus bStr,.@r/2; if(readparam(bInt) >= 90) bonus bInt,.@r/2; if(readparam(bAgi) >= 90) bonus bAgi,.@r/2; if(readparam(bVit) >= 90) bonus bVit,.@r/2; if(readparam(bDex) >= 90) bonus bDex,.@r/2; if(readparam(bLuk) >= 90) bonus bLuk,.@r/2; },{},{}
-15097,Heroic_Hidden_Cloth,Heroic Hidden Cloth,5,10,,200,,70,,1,0x00021040,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; bonus2 bSkillAtk,"SC_FATALMENACE",10; bonus2 bSkillAtk,"SC_TRIANGLESHOT",10; bonus2 bSkillAtk,"GC_CROSSIMPACT",10; bonus2 bSkillAtk,"GC_CROSSRIPPERSLASHER",10; autobonus "{ bonus bCritical,20; bonus bFlee,20; bonus bAtkRate,10; bonus bMatkRate,10; }",(5+getrefine())*10,10000; },{},{}
-15098,Heroic_Target_Suit,Heroic Target Suit,5,10,,200,,60,,1,0x00080808,56,2,16,,160,1,,{ bonus bMaxHPrate,5; bonus bMaxSPrate,5; set .@r, getrefine(); bonus bAllStats,1; bonus5 bAutoSpell,"AC_CONCENTRATION",10,(5+.@r)*5,BG_WEAPON,0; bonus5 bAutoSpell,"AC_DOUBLE",10,(5+.@r)*5,BG_WEAPON,1;  bonus5 bAutoSpell,"AC_CHARGEARROW",10,(5+.@r)*5,BG_WEAPON,0; },{},{}
-
 
 //New Costumes from jRO
-20311,Costume_Magical_Booster,Costume Magical Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,873,{},{},{}
-20312,Costume_Barons_Evil_Eye,Costume Baron's Evil Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,989,{},{},{}
-20313,Costume_CD_in_Mouth,Costume CD in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,815,{},{},{}
-20314,Costume_New_Wave_Sunglasses,Costume New Wave Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,856,{},{},{}
-20315,Costume_Analyze_Eye,Costume Analyze Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1351,{},{},{}
 20316,Costume_Seraph_Wing_Helm,Costume Seraph Wing Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1352,{},{},{}
 20317,Costume_Nekomimi_Cyber_Headphone,Costume Nekomimi Cyber Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1353,{},{},{}
 20318,Costume_Charleston_Antenna,Costume Charleston Antenna,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1354,{},{},{}
@@ -5615,3 +5605,24 @@
 
 // Missing (renewal)
 32007,Jirant_Spear,God Eater Dragon Spear,4,0,,380,360:280,,3,1,0x00004080,63,2,2,4,130,1,4,{ bonus bMatk, 280; .@r = getrefine(); bonus bStr,3; bonus bDex,5; bonus2 bSkillAtk,"RK_DRAGONBREATH",50; bonus2 bSkillAtk,"RK_DRAGONBREATH_WATER",50; bonus2 bHPDrainRate,1000,1; bonus2 bAddRace,RC_All,2*.@r; bonus bAspdRate,2*.@r; bonus bDelayrate,-.@r; if(.@r>=7) {bonus2 bHPDrainRate,1000,2;} if(.@r>=9) {bonus2 bHPDrainRate,1000,3;} if(.@r>=10) {bonus bFixedCastrate,-70;} },{},{}
+
+// Lapine Upgrade testing
+1867,Ein_1HKNUCK,Ein_1HKNUCK,3,0,,0,,,,,,,,,,,,,{},{},{}
+2058,Ein_BHSTAFF,Ein_BHSTAFF,3,0,,0,,,,,,,,,,,,,{},{},{}
+9514,Ein_Ddbox,Ein_Ddbox,3,0,,0,,,,,,,,,,,,,{},{},{}
+13346,Ein_BHHuuma,Ein_BHHuuma,3,0,,0,,,,,,,,,,,,,{},{},{}
+16099,Ein_1HHAMMER,Ein_1HHAMMER,3,0,,0,,,,,,,,,,,,,{},{},{}
+18190,Ein_BHBOW,Ein_BHBOW,3,0,,0,,,,,,,,,,,,,{},{},{}
+21054,Ein_BHSWORD,Ein_BHSWORD,3,0,,0,,,,,,,,,,,,,{},{},{}
+26162,Ein_1HWAND,Ein_1HWAND,3,0,,0,,,,,,,,,,,,,{},{},{}
+26215,Ein_1HWHIP,Ein_1HWHIP,3,0,,0,,,,,,,,,,,,,{},{},{}
+28045,Ein_BHKATAR,Ein_BHKATAR,3,0,,0,,,,,,,,,,,,,{},{},{}
+28140,Ein_BHAXE,Ein_BHAXE,3,0,,0,,,,,,,,,,,,,{},{},{}
+28635,Ein_1HBOOK,Ein_1HBOOK,3,0,,0,,,,,,,,,,,,,{},{},{}
+28771,Ein_1HDAGGER,Ein_1HDAGGER,3,0,,0,,,,,,,,,,,,,{},{},{}
+28772,Ein_1HMAGGER,Ein_1HMAGGER,3,0,,0,,,,,,,,,,,,,{},{},{}
+32026,Ein_1HSPEAR,Ein_1HSPEAR,3,0,,0,,,,,,,,,,,,,{},{},{}
+32110,Ein_1HLUTE,Ein_1HLUTE,3,0,,0,,,,,,,,,,,,,{},{},{}
+32303,Ein_1HGUN,Ein_1HGUN,3,0,,0,,,,,,,,,,,,,{},{},{}
+32352,Ein_1HSWORD,Ein_1HSWORD,3,0,,0,,,,,,,,,,,,,{},{},{}
+550006,Ein_1H_Foxtail,Ein_1H_Foxtail,3,0,,0,,,,,,,,,,,,,{},{},{}

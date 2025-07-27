@@ -117,7 +117,7 @@ bool mail_removezeny( struct map_session_data *sd, bool flag ){
  * @return see enum mail_attach_result in mail.h
  */
 enum mail_attach_result mail_setitem(struct map_session_data *sd, short idx, uint32 amount) {
-	if( pc_istrading(sd) )
+	if(pc_istrading_except_npc(sd) || (sd->npc_id != 0 && sd->state.using_megaphone == 0))
 		return MAIL_ATTACH_ERROR;
 
 	if( idx == 0 ) { // Zeny Transfer

@@ -9141,10 +9141,9 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			if( sd != NULL )
 			{
 				struct mob_data *boss_md = map_getmob_boss(bl->m); // Search for Boss on this Map
-				if( boss_md == NULL || boss_md->bl.prev == NULL )
-				{ // No MVP on this map - MVP is dead
-					clif_bossmapinfo(sd->fd, boss_md, 1);
-					return 0; // No need to start SC
+				if (boss_md == NULL) {
+					clif_bossmapinfo(sd->fd, boss_md, BOSS_INFO_NONE); // No MVP in the Map
+					return 0;
 				}
 				val1 = boss_md->bl.id;
 				if( (val4 = tick/1000) < 1 )
@@ -11080,8 +11079,8 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			}
 			break;
 		case SC_BOSSMAPINFO:
-			if (sd)
-				clif_bossmapinfo(sd->fd, map_id2boss(sce->val1), 0); // First Message
+			if (sd != NULL)
+				clif_bossmapinfo(sd->fd, map_id2boss(sce->val1), BOSS_INFO_ALIVE_WITHMSG); // First Message
 			break;
 		case SC_MERC_HPUP:
 		case SC_FULL_THROTTLE:
@@ -12242,8 +12241,6 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	}
 
-	sce->timer = INVALID_TIMER;
-
 	sd = BL_CAST(BL_PC, bl);
 	ed = BL_CAST(BL_ELEM, bl);
 
@@ -12459,17 +12456,24 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_BOSSMAPINFO:
-		if( sd && --(sce->val4) >= 0 )
-		{
+		if (sd != NULL && --(sce->val4) >= 0) {
 			struct mob_data *boss_md = map_id2boss(sce->val1);
-			if( boss_md && sd->bl.m == boss_md->bl.m )
-			{
-				clif_bossmapinfo(sd->fd, boss_md, 1); // Update X - Y on minimap
-				if (boss_md->bl.prev != NULL) {
-					sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			if (boss_md != NULL) {
+				if (sd->bl.m != boss_md->bl.m) { // Changed map
+					return 0;
+				}
+				else if (boss_md->bl.prev != NULL) { // Boss monster still alive, update x and y position on map
+					sce->val2 = 0;
+					clif_bossmapinfo(sd->fd, boss_md, BOSS_INFO_ALIVE);
+				}
+				else if (boss_md->spawn_timer != INVALID_TIMER && sce->val2 == 0) { // Boss monster is dead
+					sce->val2 = 1;
+					clif_bossmapinfo(sd->fd, boss_md, BOSS_INFO_DEAD);
 					return 0;
 				}
 			}
+			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
+			return 0;
 		}
 		break;
 

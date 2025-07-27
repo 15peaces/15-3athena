@@ -2950,6 +2950,13 @@ Opens lapine ddukddak user interface for the player
 returns true on success and false on failure
 
 ---------------------------------------
+
+*openlapineupgradeui(<item_id>)
+
+Opens lapine ddukddak upgrade user interface for the player
+returns true on success and false on failure
+
+---------------------------------------
 //
 2,1.- End of item-related commands.
 //
@@ -6686,6 +6693,16 @@ currently ignored by the client and appears always green.
 //
 5,1.- End of time-related commands
 //
+
+*loudhailer("<message>"{, "<color>"})
+
+Announces a colored text in '<char_name> Shouts : <message>' format.
+<color> must be a string in "RRGGBB" format. If <color> is omitted,
+white ("FFFFFF") will be used.
+This command is specially created for the Megaphone_ item (12221),
+but will work in NPCs, too.
+
+---------------------------------------
 
 *announce "<text>",<flag>{,<fontColor>{,<fontType>{,<fontSize>{,<fontAlign>{,<fontY>}}}}};
 

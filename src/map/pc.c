@@ -5143,6 +5143,9 @@ int pc_useitem(struct map_session_data *sd,int n) {
 	if( itemdb_iscashfood(nameid) )
 		sd->canusecashfood_tick = tick + battle_config.cashfood_use_interval;
 
+	if (nameid == ITEMID_MEGAPHONE)
+		sd->state.using_megaphone = 1;
+
 	run_script(script,0,sd->bl.id,fake_nd->bl.id);
 	potion_flag = 0;
 
@@ -5632,7 +5635,6 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 	sd->state.workinprogress = WIP_DISABLE_NONE;
 	if( sd->state.changemap )
 	{ // Misc map-changing settings
-		int i;
 		sd->state.pmap = sd->bl.m;
 		if (sd->sc.count)
 		{ // Cancel some map related stuff.
@@ -5671,12 +5673,6 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 			if( s_bl )
 				status_change_end(s_bl,SC__SHADOWFORM,INVALID_TIMER);
 			sd->shadowform_id = 0;
-		}
-
-		for (i = 0; i < EQI_MAX; i++) {
-			if (sd->equip_index[i] >= 0)
-				if (pc_isequip(sd, sd->equip_index[i]) != ITEM_EQUIP_ACK_OK)
-					pc_unequipitem(sd, sd->equip_index[i], ITEM_EQUIP_ACK_FAIL);
 		}
 
 		if (battle_config.clear_unit_onwarp&BL_PC)

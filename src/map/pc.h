@@ -250,6 +250,7 @@ struct map_session_data {
 		unsigned int itemskill_no_conditions : 1; // Used by itemskill() script command, to ignore skill conditions and don't consume them.
 		unsigned int itemskill_no_casttime : 1; // Used by itemskill() script command, to cast skill instantaneously.
 		unsigned int itemskill_castonself : 1; // Used by itemskill() script command, to forcefully cast skill on invoking character.
+		unsigned int using_megaphone : 1; // Whether the character is currently using a Megephone (ID=12221).
 	} state;
 	struct {
 		unsigned char no_weapon_damage, no_magic_damage, no_misc_damage;
@@ -823,8 +824,12 @@ struct {
 #define pc_issit(sd)          ( (sd)->vd.dead_sit == 2 )
 #define pc_isidle(sd)         ( (sd)->chatID || (sd)->state.vending || (sd)->state.buyingstore || DIFF_TICK(last_tick, (sd)->idletime) >= battle_config.idle_no_share )
 #define pc_istrading(sd)      ( (sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->state.trading )
+#define pc_istrading_except_npc(sd) ( (sd)->state.vending || (sd)->state.buyingstore || (sd)->state.trading )
+#define pc_isvending(sd)      ((sd)->state.vending || (sd)->state.prevend || (sd)->state.buyingstore)
 #define pc_cant_act(sd)       ( (sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->chatID || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag  || (sd)->state.prevend || (sd)->state.lapine_ui == 1)
 #define pc_cant_act_except_lapine(sd) ((sd)->npc_id || (sd)->state.vending || (sd)->state.buyingstore || (sd)->chatID || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag || (sd)->state.prevend)
+#define pc_cant_act_except_npc(sd) ( (sd)->state.vending != 0 || (sd)->state.buyingstore != 0 || (sd)->chatID != 0 || ((sd)->sc.opt1 != 0 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading != 0 || (sd)->state.storage_flag != 0 || (sd)->state.prevend != 0 || (sd)->state.lapine_ui == 1)
+#define pc_cant_act_except_npc_chat(sd) ( (sd)->state.vending != 0 || (sd)->state.buyingstore != 0 || ((sd)->sc.opt1 != 0 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading != 0 || (sd)->state.storage_flag != 0 || (sd)->state.prevend != 0 || (sd)->state.lapine_ui == 1)
 #define pc_cant_act2(sd)      ( (sd)->state.vending || (sd)->state.buyingstore || ((sd)->sc.opt1 && (sd)->sc.opt1 != OPT1_BURNING) || (sd)->state.trading || (sd)->state.storage_flag || (sd)->state.prevend || (sd)->state.lapine_ui == 1) // equals pc_cant_act except it doesn't check for chat rooms or npcs
 #define pc_setdir(sd,b,h)     ( (sd)->ud.dir = (b) ,(sd)->head_dir = (h) )
 #define pc_setchatid(sd,n)    ( (sd)->chatID = n )
