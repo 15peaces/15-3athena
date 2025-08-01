@@ -1391,6 +1391,11 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->npc_timer_id = INVALID_TIMER;
 	sd->pvp_timer = INVALID_TIMER;
 	sd->respawn_tid = INVALID_TIMER;
+
+	sd->skill_keep_using.tid = INVALID_TIMER;
+	sd->skill_keep_using.skill_id = 0;
+	sd->skill_keep_using.level = 0;
+	sd->skill_keep_using.target = 0;
 	
 	sd->canuseitem_tick = tick;
 	sd->canusecashfood_tick = tick;
@@ -4517,6 +4522,7 @@ int pc_search_inventory(struct map_session_data *sd, t_itemid item_id)
 	nullpo_retr(-1, sd);
 
 	ARR_FIND( 0, MAX_INVENTORY, i, sd->inventory.u.items_inventory[i].nameid == item_id && (sd->inventory.u.items_inventory[i].amount > 0 || item_id == 0) );
+
 	return ( i < MAX_INVENTORY ) ? i : -1;
 }
 
@@ -8147,6 +8153,11 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 			duel_leave(sd->duel_group, sd);
 		if(sd->duel_invite > 0)
 			duel_reject(sd->duel_invite, sd);
+	}
+
+	if (sd->skill_keep_using.tid != INVALID_TIMER) {
+		delete_timer(sd->skill_keep_using.tid, skill_keep_using);
+		sd->skill_keep_using.tid = INVALID_TIMER;
 	}
 
 	pc_close_npc(sd, 2); //close npc if we were using one

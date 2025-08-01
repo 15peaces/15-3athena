@@ -1674,6 +1674,20 @@ struct PACKET_ZC_AUTORUN_SKILL {
 	char up_flag;
 } __attribute__((packed));
 
+#if PACKETVER >= 20181002
+struct PACKET_CZ_USE_SKILL_START {
+	int16 packetType;
+	int16 skillId;
+	int16 skillLv;
+	uint32 targetId;
+} __attribute__((packed));
+
+struct PACKET_CZ_USE_SKILL_END {
+	int16 packetType;
+	int16 skillId;
+} __attribute__((packed));
+#endif
+
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(pop)
 #endif // not NetBSD < 6 / Solaris

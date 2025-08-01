@@ -1235,4 +1235,6 @@ void clif_camerainfo(struct map_session_data* sd, bool show, float range, float 
 bool clif_lapineDdukDdak_open(struct map_session_data *sd, int item_id);
 bool clif_lapineUpgrade_open(struct map_session_data *sd, int item_id);
 
+void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 skill_lv, int target_id);
+
 #endif /* _CLIF_H_ */

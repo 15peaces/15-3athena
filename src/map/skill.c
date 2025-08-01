@@ -226,7 +226,7 @@ int skill_get_ammotype( uint16 skill_id )                   { skill_get (skill_d
 int skill_get_ammo_qty( uint16 skill_id, uint16 skill_lv )  { skill_get2 (skill_db[skill_id].require.ammo_qty[skill_lv-1], skill_id, skill_lv); }
 int skill_get_state( uint16 skill_id )                      { skill_get (skill_db[skill_id].require.state, skill_id); }
 int skill_get_spiritball( uint16 skill_id, uint16 skill_lv ){ skill_get2 (skill_db[skill_id].require.spiritball[skill_lv-1], skill_id, skill_lv); }
-int skill_get_itemid( uint16 skill_id, int idx )            { skill_get3 (skill_db[skill_id].require.itemid[idx], skill_id, idx); }
+t_itemid skill_get_itemid( uint16 skill_id, int idx )       { skill_get3 (skill_db[skill_id].require.itemid[idx], skill_id, idx); }
 int skill_get_itemqty( uint16 skill_id, int idx )           { skill_get3 (skill_db[skill_id].require.amount[idx], skill_id, idx); }
 int skill_get_itemeq( uint16 skill_id, int idx )            { skill_get3 (skill_db[skill_id].require.eqItem[idx], skill_id, idx); }
 
@@ -8230,14 +8230,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			if( sd )
 			{
 				x = skill_lv%11 - 1;
-				i = pc_search_inventory(sd, skill_get_itemid(skill_id,x+1));
+				i = pc_search_inventory(sd, skill_get_itemid(skill_id,x));
 				if(i < 0 || skill_get_itemid(skill_id, x + 1) <= 0)
 				{
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					map_freeblock_unlock();
 					return 1;
 				}
-				if(sd->inventory_data[i] == NULL || sd->inventory.u.items_inventory[i].amount < skill_get_itemqty(skill_id,x+1))
+				if(sd->inventory_data[i] == NULL || sd->inventory.u.items_inventory[i].amount < skill_get_itemqty(skill_id,x))
 				{
 					clif_skill_fail(sd,skill_id,USESKILL_FAIL_LEVEL,0,0);
 					map_freeblock_unlock();
@@ -11948,6 +11948,17 @@ static int8 skill_castend_id_check(struct block_list *src, struct block_list *ta
 	return -1;
 }
 
+int skill_keep_using(int tid, int64 tick, int id, intptr_t data) {
+	struct map_session_data* sd = map_id2sd(id);
+
+	if (sd && sd->skill_keep_using.skill_id) {
+		sd->skill_keep_using.tid = INVALID_TIMER;
+		clif_parse_skill_toid(sd, sd->skill_keep_using.skill_id, sd->skill_keep_using.level, sd->skill_keep_using.target);
+	}
+
+	return 0;
+}
+
 /**
  * Check & process skill to target on castend. Determines if skill is 'damage' or 'nodamage'
  * @param tid
@@ -12121,8 +12132,9 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 
 		if( sd )
 		{
-			if( !skill_check_condition_castend(sd, ud->skill_id, ud->skill_lv) )
+			if (!skill_check_condition_castend(sd, ud->skill_id, ud->skill_lv)) {
 				break;
+			}
 			else {
 				skill_consume_requirement(sd, ud->skill_id, ud->skill_lv, 1);
 				if (src != target && (status_bl_has_mode(target, MD_SKILL_IMMUNE) || (status_get_class(target) == MOBID_EMPERIUM && !(ud->skill_id == MO_TRIPLEATTACK || ud->skill_id == HW_GRAVITATION))) && skill_get_casttype(ud->skill_id) == CAST_DAMAGE) {
@@ -12198,6 +12210,10 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		else
 			skill_castend_damage_id(src,target,ud->skill_id,ud->skill_lv,tick,flag);
 
+		if (sd && sd->skill_keep_using.tid == INVALID_TIMER && sd->skill_keep_using.skill_id > 0 && sd->skill_keep_using.skill_id == ud->skill_id && !skillnotok(ud->skill_id, sd) && skill_check_condition_castbegin(sd, ud->skill_id, ud->skill_lv)) {
+			sd->skill_keep_using.tid = add_timer(sd->ud.canact_tick + 100, skill_keep_using, sd->bl.id, 0);
+		}
+
 		if(sc && sc->count) {
 			if(sc->data[SC_SPIRIT] &&
 				sc->data[SC_SPIRIT]->val2 == SL_WIZARD &&
@@ -12258,8 +12274,16 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 	//You can't place a skill failed packet here because it would be
 	//sent in ALL cases, even cases where skill_check_condition fails
 	//which would lead to double 'skill failed' messages u.u [Skotlex]
-	if(sd)
+	if (sd) {
 		sd->skillitem = sd->skillitemlv = sd->skillitem_keep_requirement = 0;
+		if (sd->skill_keep_using.skill_id > 0) {
+			sd->skill_keep_using.skill_id = 0;
+			if (sd->skill_keep_using.tid != INVALID_TIMER) {
+				delete_timer(sd->skill_keep_using.tid, skill_keep_using);
+				sd->skill_keep_using.tid = INVALID_TIMER;
+			}
+		}
+	}
 	else if(md)
 		md->skillidx = -1;
 	return 0;
@@ -22218,6 +22242,7 @@ void do_init_skill (void)
 	add_timer_func_list(skill_castend_pos,"skill_castend_pos");
 	add_timer_func_list(skill_timerskill,"skill_timerskill");
 	add_timer_func_list(skill_blockpc_end, "skill_blockpc_end");
+	add_timer_func_list(skill_keep_using, "skill_keep_using");
 
 	add_timer_interval(gettick()+SKILLUNITTIMER_INTERVAL,skill_unit_timer,0,0,SKILLUNITTIMER_INTERVAL);
 }

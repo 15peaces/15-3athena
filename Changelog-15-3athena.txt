@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/01/2025
+	r529 [15peaces]
+		*Added full support for 2 new skill packets which might be needed in future:
+			-CZ_USE_SKILL_START, CZ_USE_SKILL_END.
+			-The only skill known to use it right now is GC_ROLLINGCUTTER.
+			-Requires a 2018-10-02 client or newer.
+		*Fixed AM_POTIONPITCHER and AM_BERSERKPITCHER requirement checks.
+			-Also updated skill_get_itemid to support new itemID-range.
+		*Fixed some item types.
+
 07/27/2025
 	r528 [15peaces]
 		*Update map list and other constants.

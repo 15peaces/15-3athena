@@ -2566,7 +2566,7 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x010a,6
 0x0110,12
 0x0124,23
-0x018e,18,producemix,4:8:12:16
+0x018e,18,producemix,2:4:8:12:16
 0x01ae,6,selectarrow,4
 0x018f,8
 0x01fd,6,repairitem,4
@@ -2580,6 +2580,8 @@ packet_keys: 0x00000000,0x00000000,0x00000000
 0x0A20,25
 0x0a4e,6
 0x0ab6,8,pLapineUpgrade_makeItem,0
+0x0b10,10,pUseSkillStart,2:4:6
+0x0b11,4,pUseSkillEnd,2
 
 //Add new packets here
 //packet_ver: 47

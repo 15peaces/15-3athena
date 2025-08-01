@@ -22190,6 +22190,55 @@ static void clif_parse_lapineUpgrade_makeItem(int fd, struct map_session_data *s
 #endif  // PACKETVER >= 20170111
 }
 
+void clif_parse_StartUseSkillToId(int32 fd, struct map_session_data* sd) {
+#if PACKETVER >= 20181002
+	const struct PACKET_CZ_USE_SKILL_START* p = (struct PACKET_CZ_USE_SKILL_START*)RFIFOP(fd, 0);
+
+	// Only rolling cutter is supported for now
+	if (p->skillId != GC_ROLLINGCUTTER) {
+		return;
+	}
+
+	// Already running - cant happen on officials, since only one skill is supported
+	if (sd->skill_keep_using.skill_id != 0) {
+		return;
+	}
+
+	sd->skill_keep_using.tid = INVALID_TIMER;
+	sd->skill_keep_using.skill_id = p->skillId;
+	sd->skill_keep_using.level = p->skillLv;
+	sd->skill_keep_using.target = p->targetId;
+
+	clif_parse_skill_toid(sd, sd->skill_keep_using.skill_id, sd->skill_keep_using.level, sd->skill_keep_using.target);
+#endif
+}
+
+void clif_parse_StopUseSkillToId(int32 fd, struct map_session_data* sd) {
+#if PACKETVER >= 20181002
+	const struct PACKET_CZ_USE_SKILL_END* p = (struct PACKET_CZ_USE_SKILL_END*)RFIFOP(fd, 0);
+
+	// Not running
+	if (sd->skill_keep_using.skill_id == 0) {
+		return;
+	}
+
+#if 0
+	// Hack
+	if (p->skillId != sd->skill_keep_using.skill_id) {
+		return;
+	}
+#endif
+
+	if (sd->skill_keep_using.tid != INVALID_TIMER) {
+		delete_timer(sd->skill_keep_using.tid, skill_keep_using);
+		sd->skill_keep_using.tid = INVALID_TIMER;
+	}
+	sd->skill_keep_using.skill_id = 0;
+	sd->skill_keep_using.level = 0;
+	sd->skill_keep_using.target = 0;
+#endif
+}
+
 #ifdef DUMP_UNKNOWN_PACKET
 void DumpUnknownPacket(int fd, TBL_PC *sd, int cmd, int packet_len) {
 	const char* packet_txt = "save/packet.txt";
@@ -22723,7 +22772,7 @@ void packetdb_readdb(void)
 	   10,  0,  0,  0, 11,  0,  0, 32,  0,  0,  0,  0,  0,  0,  0,  0,
 //#0x0B00
 	    8, 40,  0,  0,  0,  0,  0,  0,  0, -1, -1,  4,  0,  0,  0,  0,
-	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	   10,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	    0,  0,  0,  0,  0,  0,  0,  0,  0, -1,  0,  0,  0,  0,  0,  0,
 	};
@@ -22997,6 +23046,8 @@ void packetdb_readdb(void)
 		{ clif_parse_lapineDdukDdak_close, "plapineDdukDdak_close" },
 		{ clif_parse_lapineUpgrade_makeItem, "pLapineUpgrade_makeItem" },
 		{ clif_parse_lapineUpgrade_close , "pLapineUpgrade_close" },
+		{ clif_parse_StartUseSkillToId, "pUseSkillStart" },
+		{ clif_parse_StopUseSkillToId, "pUseSkillEnd" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

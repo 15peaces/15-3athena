@@ -357,7 +357,7 @@ int skill_get_ammotype(uint16 skill_id);
 int skill_get_ammo_qty(uint16 skill_id, uint16 skill_lv);
 int skill_get_state(uint16 skill_id);
 int skill_get_spiritball(uint16 skill_id, uint16 skill_lv);
-int skill_get_itemid(uint16 skill_id, int idx);
+t_itemid skill_get_itemid(uint16 skill_id, int idx);
 int skill_get_itemqty(uint16 skill_id, int idx);
 
 int skill_tree_get_max(int id, int b_class);
@@ -366,6 +366,7 @@ int skill_name2id(const char* name);
 
 int skill_isammotype(struct map_session_data *sd, int skill);
 bool skill_is_item_skill(struct map_session_data *sd, int skill_id, int skill_lv);
+int skill_keep_using(int tid, int64 tick, int id, intptr_t data);
 int skill_castend_id(int tid, int64 tick, int id, intptr_t data);
 int skill_castend_pos(int tid, int64 tick, int id, intptr_t data);
 int skill_castend_map( struct map_session_data *sd,short skill_id, const char *map);

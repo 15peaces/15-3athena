@@ -688,6 +688,13 @@ struct map_session_data {
 	 */
 	int itemskill_id;
 	int itemskill_lv;
+
+	struct {
+		int32 tid;
+		uint16 skill_id;
+		uint16 level;
+		int32 target;
+	} skill_keep_using;
 };
 
 struct eri *pc_sc_display_ers; /// Player's SC display table
