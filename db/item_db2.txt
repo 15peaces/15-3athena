@@ -5626,3 +5626,6 @@
 32303,Ein_1HGUN,Ein_1HGUN,3,0,,0,,,,,,,,,,,,,{},{},{}
 32352,Ein_1HSWORD,Ein_1HSWORD,3,0,,0,,,,,,,,,,,,,{},{},{}
 550006,Ein_1H_Foxtail,Ein_1H_Foxtail,3,0,,0,,,,,,,,,,,,,{},{},{}
+
+// New Madogear
+100158,Mado_Box02,Mado Strengthening Suit,2,10000,,300,,,,,0x00000400,8,2,,,100,,,{ setmadogear 1, 2; },{ },{ }

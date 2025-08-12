@@ -9394,7 +9394,7 @@ void pc_changelook(struct map_session_data *sd,int type,int val)
 /*==========================================
  * Give an option (type) to player (sd) and display it to client
  *------------------------------------------*/
-void pc_setoption(struct map_session_data *sd,int type)
+void pc_setoption_(struct map_session_data *sd,int type, int32 subtype)
 {
 	int p_type, new_look=0;
 	nullpo_retv(sd);
@@ -9428,9 +9428,10 @@ void pc_setoption(struct map_session_data *sd,int type)
 		status_calc_pc(sd, SCO_NONE); //Update movement speed.
 	}
 
-	//No icon is displayed when mounted in a Mado, but we still need to update the movement speed. [Rytech] [3ceam r747]
+	//We still need to update the movement speed. [Rytech] [3ceam r747]
 	if (type&OPTION_MADOGEAR && !(p_type&OPTION_MADOGEAR))
 	{//Merchant, Blacksmith, and Whitesmith buffs are removed when mounted on a mado.
+		clif_status_change(&sd->bl, SI_MADOGEAR_TYPE, 1, 0, subtype, 0, 0);
 		status_calc_pc(sd, SCO_NONE); //Update movement speed.
 		status_change_end(&sd->bl,SC_ADRENALINE,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_WEAPONPERFECTION,INVALID_TIMER);
@@ -9443,6 +9444,7 @@ void pc_setoption(struct map_session_data *sd,int type)
 		pc_bonus_script_clear(sd,BSF_REM_ON_MADOGEAR); // cydh bonus_script
 	} else if (!(type&OPTION_MADOGEAR) && p_type&OPTION_MADOGEAR) // [3ceam r747]
 	{//Mechanic mado buffs are removed when unmounting from a mado.
+		clif_status_change(&sd->bl, SI_MADOGEAR_TYPE, 0, 0, subtype, 0, 0);
 		status_calc_pc(sd, SCO_NONE); //Update movement speed.
 		status_change_end(&sd->bl,SC_ACCELERATION,INVALID_TIMER);
 		status_change_end(&sd->bl,SC_HOVERING,INVALID_TIMER);
@@ -9650,13 +9652,16 @@ void pc_setwugrider(TBL_PC* sd, int flag)
 /*==========================================
  * Mounts the player in a mado through script command.
  *------------------------------------------*/
-void pc_setmadogear(TBL_PC* sd, int flag)
+void pc_setmadogear_(struct map_session_data* sd, int flag, uint16 type)
 {
+	if ((sd->class_ & MAPID_THIRDMASK) != MAPID_MECHANIC)
+		return;
+
 	if( flag ){
 		if( pc_checkskill(sd,NC_MADOLICENCE) > 0 )
-			pc_setoption(sd, sd->sc.option|OPTION_MADOGEAR);
+			pc_setoption_(sd, sd->sc.option|OPTION_MADOGEAR, type);
 	} else if( pc_ismadogear(sd) ){
-		pc_setoption(sd, sd->sc.option&~OPTION_MADOGEAR);
+		pc_setoption_(sd, sd->sc.option&~OPTION_MADOGEAR, type);
 	}
 		}
 

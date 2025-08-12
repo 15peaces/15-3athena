@@ -5,6 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/12/2025
+	r530 [15peaces]
+		*Note:
+			-I created a Web-/API-Server to get rid of the "There was an error when loading the data account settings. (Please restart to retry.)"- error on newer clients.
+			-It is based on my webserver-project and customized/configured to communicate with the client.
+			-This server currently only sends dummy data to the client. I will extend the support later as needed.
+			-It is written in c# and can be found here: https://github.com/15peaces/15-3athena_webserver/
+		*Added some pre-support for new Reinforced Madogears.
+			-Client support is currently missing, but it is already supported server-sided.
+			-I don't know the exact client date here, but might be a 2019/2020 client needed...
+		*WZ_METEOR; WL_COMET; SU_CN_METEOR
+			-Fixed some issues with these skills related to their unit behaviors.
+
 08/01/2025
 	r529 [15peaces]
 		*Added full support for 2 new skill packets which might be needed in future:

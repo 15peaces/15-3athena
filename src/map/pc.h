@@ -1027,14 +1027,16 @@ void pc_heal(struct map_session_data *sd,unsigned int hp,unsigned int sp, int ty
 int pc_itemheal(struct map_session_data *sd, t_itemid itemid, int hp,int sp);
 int pc_percentheal(struct map_session_data *sd,int,int);
 bool pc_jobchange(struct map_session_data *sd, int job, char upper);
-void pc_setoption(struct map_session_data *,int);
+void pc_setoption_(struct map_session_data *sd, int type, int32 subtype);
+#define pc_setoption(sd,type) pc_setoption_(sd, type, 0);
 bool pc_setcart(struct map_session_data* sd, int type);
 void pc_setfalcon(struct map_session_data* sd, int flag);
 void pc_setriding(struct map_session_data* sd, int flag);
 void pc_setdragon(struct map_session_data* sd, int flag);
 void pc_setwug(struct map_session_data* sd, int flag);
 void pc_setwugrider(struct map_session_data* sd, int flag);
-void pc_setmadogear(struct map_session_data* sd, int flag);
+void pc_setmadogear_(struct map_session_data* sd, int flag, uint16 type);
+#define pc_setmadogear(sd,flag)  pc_setmadogear_(sd, flag, 0)
 void pc_changelook(struct map_session_data *,int,int);
 void pc_equiplookall(struct map_session_data *sd);
 

@@ -4208,20 +4208,20 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 			if(src->m != skl->map)
 				break;
 			switch( skl->skill_id ){
-				case WZ_METEOR:
-				case SU_CN_METEOR:
-				case SU_CN_METEOR2:
-					if( skl->type >= 0 ){
-						int x = skl->type>>16, y = skl->type&0xFFFF;
-						if( path_search_long(NULL, src->m, src->x, src->y, x, y, CELL_CHKWALL) )
-							skill_unitsetting(src,skl->skill_id,skl->skill_lv,x,y,skl->flag);
-						if (path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL)
-							&& !map_getcell(src->m, skl->x, skl->y, CELL_CHKLANDPROTECTOR))
-							clif_skill_poseffect(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,tick);
-					}
-					else if( path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL) )
-						skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,skl->flag);
-					break;
+				//case WZ_METEOR:
+				//case SU_CN_METEOR:
+				//case SU_CN_METEOR2:
+				//	if( skl->type >= 0 ){
+				//		int x = skl->type>>16, y = skl->type&0xFFFF;
+				//		if( path_search_long(NULL, src->m, src->x, src->y, x, y, CELL_CHKWALL) )
+				//			skill_unitsetting(src,skl->skill_id,skl->skill_lv,x,y,skl->flag);
+				//		if (path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL)
+				//			&& !map_getcell(src->m, skl->x, skl->y, CELL_CHKLANDPROTECTOR))
+				//			clif_skill_poseffect(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,tick);
+				//	}
+				//	else if( path_search_long(NULL, src->m, src->x, src->y, skl->x, skl->y, CELL_CHKWALL) )
+				//		skill_unitsetting(src,skl->skill_id,skl->skill_lv,skl->x,skl->y,skl->flag);
+				//	break;
 				case WL_EARTHSTRAIN:
 				case RL_FIRE_RAIN:
 					// skl->type = original direction, to avoid change it if caster walks in the waves progress.
@@ -10563,11 +10563,13 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case RA_WUGMASTERY:
-		if( sd ){
-			if( !pc_iswug(sd) )
-				pc_setoption(sd,sd->sc.option|OPTION_WUG);
-			else
-				pc_setoption(sd,sd->sc.option&~OPTION_WUG);
+		if (sd) {
+			if (!pc_iswug(sd)) {
+				pc_setoption(sd, sd->sc.option|OPTION_WUG);
+			}
+			else {
+				pc_setoption(sd, sd->sc.option&~OPTION_WUG);
+			}
 			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
 		}
 		break;
@@ -13076,56 +13078,27 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		i = skill_get_splash(skill_id, skill_lv);
 		map_foreachinarea(skill_graffitiremover,src->m,x-i,y-i,x+i,y+i,BL_SKILL);
 		break;
-	case WZ_METEOR:
 	case SU_CN_METEOR:
-		{
-			int area = skill_get_splash(skill_id, skill_lv), n;
-			short tmpx = 0, tmpy = 0, x1 = 0, y1 = 0, drop_timer = 0;
-			signed char drop_count = 0;
-
-			if ( skill_id == WZ_METEOR )
-			{
-				drop_count = 2 + (skill_lv>>1);
-				drop_timer = 1000;
-			}
-			else
-			{// SU_CN_METEOR
-				drop_count = 2 + skill_lv;
-				drop_timer = 700;
-				if( sd && (n = pc_search_inventory(sd,ITEMID_CATNIP_FRUIT)) >= 0 )
-				{// If catnip is in the caster's inventory, switch to alternate skill ID to give a chance to curse.
-					pc_delitem(sd,n,1,0,1,LOG_TYPE_CONSUME);
-					skill_id = SU_CN_METEOR2;
-				}
-			}
-
-			for (i = 0; i < drop_count; i++)
-			{
-				// Creates a random Cell in the Splash Area
-				tmpx = x - area + rnd()%(area * 2 + 1);
-				tmpy = y - area + rnd()%(area * 2 + 1);
-
-				if (i == 0 && path_search_long(NULL, src->m, src->x, src->y, tmpx, tmpy, CELL_CHKWALL)
-					&& !map_getcell(src->m, tmpx, tmpy, CELL_CHKLANDPROTECTOR))
-					clif_skill_poseffect(src,skill_id,skill_lv,tmpx,tmpy,tick);
-
-				if( i > 0 )
-					skill_addtimerskill(src, tick + i * drop_timer, 0, tmpx, tmpy, skill_id, skill_lv, (x1 << 16) | y1, flag & 2); //Only pass the Magic Power flag
-
-				x1 = tmpx;
-				y1 = tmpy;
-			}
-
-			skill_addtimerskill(src,tick+i*drop_timer,0,tmpx,tmpy,skill_id,skill_lv,-1,flag&2);
-
-			// Switch back to original skill ID in case there's more to be done beyond here.
-			if ( skill_id == SU_CN_METEOR2 )
-				skill_id = SU_CN_METEOR;
-
-			if (skill_id == SU_CN_METEOR && sd && pc_checkskill(sd, SU_SPIRITOFLAND) > 0)
-				sc_start(src, SC_SPIRITOFLAND_AUTOCAST, 100, skill_lv, skill_get_time(SU_SPIRITOFLAND, 1));
+		if (sd) {
+			if (pc_search_inventory(sd, ITEMID_CATNIP_FRUIT) >= 0)
+				skill_id = SU_CN_METEOR2;
+			if (pc_checkskill(sd, SU_SPIRITOFLAND))
+				sc_start(src, SC_SPIRITOFLAND_AUTOCAST, 100, 100, skill_get_time(SU_SPIRITOFLAND, 1));
 		}
-		break;
+		//fallthrough
+	case WZ_METEOR:
+	{
+		int32 area = skill_get_splash(skill_id, skill_lv);
+		int16 tmpx = 0, tmpy = 0;
+
+		for (i = 1; i <= skill_get_time(skill_id, skill_lv) / skill_get_unit_interval(skill_id); i++) {
+			// Creates a random Cell in the Splash Area
+			tmpx = x - area + rnd() % (area * 2 + 1);
+			tmpy = y - area + rnd() % (area * 2 + 1);
+			skill_unitsetting(src, skill_id, skill_lv, tmpx, tmpy, flag + i * skill_get_unit_interval(skill_id));
+		}
+	}
+	break;
 
 	case AL_WARP:
 		if(sd)
@@ -13757,7 +13730,13 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 	case NPC_EVILLAND:
 		val1=skill_lv+3;
 		break;
-
+	case WZ_METEOR:
+	case SU_CN_METEOR:
+	case SU_CN_METEOR2:
+	case NPC_RAINOFMETEOR:
+		limit = flag;
+		flag = 0; // Flag should not influence anything else for these skills
+		break;
 	case WZ_FIREPILLAR:
 		if (map_getcell(src->m, x, y, CELL_CHKLANDPROTECTOR))
 			return NULL;
@@ -14668,16 +14647,20 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 					{
 						if( bl->type == BL_PC )
 							status_zap(bl, 0, 15); // sp damage to players
-						else // mobs
-						if( status_charge(ss, 0, 2) ) // costs 2 SP per hit
-						{
-							if( !skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick+count*sg->interval,0) )
-								status_charge(ss, 0, 8); //costs additional 8 SP if miss
-						}
-						else
-						{ //should end when out of sp.
-							sg->limit = DIFF_TICK32(tick, sg->tick);
-							break;
+						else {// mobs
+							// Bosses trigger the effect only 1 out of 5 times
+							if (status_get_class_(bl) == CLASS_BOSS && (rnd_value(1,5) <= 4))
+								continue;
+							if (status_charge(ss, 0, 2)) // costs 2 SP per hit
+							{
+								if (!skill_attack(BF_WEAPON, ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick + count * sg->interval, 0))
+									status_charge(ss, 0, 8); //costs additional 8 SP if miss
+							}
+							else
+							{ //should end when out of sp.
+								sg->limit = DIFF_TICK32(tick, sg->tick);
+								break;
+							}
 						}
 					} while(sg->interval > 0 && x == bl->x && y == bl->y &&
 						++count < SKILLUNITTIMER_INTERVAL/sg->interval && !status_isdead(bl) );
@@ -14695,11 +14678,15 @@ int skill_unit_onplace_timer (struct skill_unit *src, struct block_list *bl, int
 						skill_attack(BF_WEAPON,ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 					break;
 
+				case NPC_COMET:
+				case WL_COMET:
+					if (map_getcell(bl->m, bl->x, bl->y, CELL_CHKLANDPROTECTOR) == 0)// Nothing should happen if the target is on Land Protector
+						skill_attack(skill_get_type(sg->skill_id), ss, &src->bl, bl, sg->skill_id, sg->skill_lv, tick, 0);
+					break;
+
 				default:
 					skill_attack(skill_get_type(sg->skill_id),ss,&src->bl,bl,sg->skill_id,sg->skill_lv,tick,0);
 			}
-			if (skill_get_unit_interval(sg->skill_id) >= skill_get_time(sg->skill_id, sg->skill_lv))
-				sg->unit_id = UNT_USED_TRAPS;
 			break;
 
 		case UNT_FIREPILLAR_WAITING:
@@ -19375,6 +19362,11 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 				break;
 
 			default:
+				if (group->val2 == 1 && (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
+					group->skill_id == NPC_RAINOFMETEOR )) {
+					// Deal damage before expiration
+					break;
+				}
 				skill_delunit(unit);
 		}
 	}
@@ -19421,6 +19413,22 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 					skill_delunitgroup(group);
 				}
 				break;
+			default:
+				if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
+					 group->skill_id == NPC_RAINOFMETEOR) {
+					if (group->val2 == 0 && (DIFF_TICK(tick, group->tick) >= group->limit - group->interval || DIFF_TICK(tick, group->tick) >= unit->limit - group->interval)) {
+						// Unit will expire the next interval, start dropping Meteor
+						struct block_list *src = map_id2bl(group->src_id);
+
+						if (src != NULL) {
+							clif_skill_poseffect(src, group->skill_id, group->skill_lv, bl->x, bl->y, tick);
+							group->val2 = 1;
+						}
+					}
+					// No damage until expiration
+					return 0;
+				}
+				break;
 		}
 	}
 
@@ -19448,6 +19456,12 @@ static int skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 				group->target_flag=BCT_NOONE;
 				group->bl_flag= BL_NUL;
 			}
+		}
+		else if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
+			group->skill_id == NPC_RAINOFMETEOR ||
+			((group->skill_id == CR_GRANDCROSS || group->skill_id == NPC_GRANDDARKNESS) && unit->val1 <= 0)) {
+			skill_delunit(unit);
+			return 0;
 		}
 	}
 

@@ -9060,6 +9060,7 @@ BUILDIN_FUNC(setmadogear)
 {
 	int flag = 1;
 	TBL_PC* sd;
+	uint16 type = 0;
 
 	sd = script_rid2sd(st);
 	if( sd == NULL )
@@ -9067,7 +9068,16 @@ BUILDIN_FUNC(setmadogear)
 
 	if( script_hasdata(st,2) )
 		flag = script_getnum(st,2);
-	pc_setmadogear(sd, flag);
+	if (script_hasdata(st, 3)) {
+		type = script_getnum(st, 3);
+
+		if (type == 1 || type >= 3) {
+			ShowError("buildin_setmadogear: Invalid mado gear type %hu, defaulting to robot...\n", type);
+			type = 0;
+		}
+	}
+
+	pc_setmadogear_(sd, flag, type);
 
 	return 0;
 }
@@ -21400,7 +21410,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(checkwug,""),
 	BUILDIN_DEF(setwugrider,"?"),
 	BUILDIN_DEF(checkwugrider,""),
-	BUILDIN_DEF(setmadogear,"?"),
+	BUILDIN_DEF(setmadogear,"??"),
 	BUILDIN_DEF(checkmadogear,""),
 	BUILDIN_DEF2(savepoint,"save","sii"),
 	BUILDIN_DEF(savepoint,"sii"),

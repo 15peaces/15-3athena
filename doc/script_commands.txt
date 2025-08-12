@@ -3819,12 +3819,16 @@ Example: if (checkwugrider()) mes "We have detected that your mounted on a Warg.
 
 ---------------------------------------
 
-*setmadogear {<flag>};
+*setmadogear {<flag>{,type}};
 *checkmadogear()
 
 'setmadogear' Command Info: The flag sets if the player will be mounted or dismounted to a Mado.
 Flag 0: Dismounted player from the Mado.
 Flag 1: Mounts the player to a Mado.
+
+Type 0: (Default)
+Type 1: (unused)
+Type 2: Reinforced
 
 Example: setmadogear 1; // Mounts the player to a Mado.
 
