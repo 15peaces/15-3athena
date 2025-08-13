@@ -1819,7 +1819,7 @@
 2825,Shaman_EaringB,Shaman Earrings,5,20,,100,,0,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ bonus bInt,2; },{},{}
 2826,Dark_Knight_BeltB,Dark Knight Belt,5,20,,500,,1,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ bonus bDex,2; bonus bAgi,1; },{},{}
 2827,Dark_Knight_GloveB,Dark Knight Glove,5,20,,500,,1,,0,0xFFFFFFFF,7,2,136,,1,0,0,{ autobonus "{ bonus bMaxHPRate,10; }",10,10000,0,"{ specialeffect2 EF_POTION_BERSERK; }"; },{},{}
-2828,Upg_Clip,Upg Clip,5,20,,100,,0,,1,0xFFFFFFFF,7,2,136,,1,0,0,{},{},{}
+2828,Upg_Clip,Upg Clip,5,20,,100,,0,,1,0xFFFFFFFF,7,2,136,,1,0,0,{bonus bMaxSP,50; bonus bMaxHPrate,3;},{},{}
 2829,Greed_Clip,Greed Clip,5,0,,0,,0,,0,0xFFFFFFFE,7,2,136,,10,0,0,{},{},{}
 2830,Magingiorde_C,Megingjard,5,20,,0,,2,,0,0xFFFFFFFF,7,2,136,,94,0,0,{ bonus bStr,40; bonus bMdef,7; },{},{}
 2831,Brysinggamen_C,Brisingamen,5,20,,0,,1,,0,0xFFFFFFFF,7,2,136,,94,0,0,{ bonus bStr,6; bonus bInt,6; bonus bVit,6; bonus bAgi,6; bonus bLuk,10; bonus bMdef,5; },{},{}

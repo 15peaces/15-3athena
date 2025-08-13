@@ -3240,7 +3240,8 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case LG_RAYOFGENESIS:
-		skillratio += 200 + 300 * skill_lv;
+		skillratio += -100 + 350 * skill_lv;
+		skillratio += sstatus->int_ * 3;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;

@@ -5,6 +5,16 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/13/2025
+	r531 [15peaces]
+		*LG_RAYOFGENESIS
+			-Corrected skillratio & added int bonus.
+		*Added missing Sap_Jelly drop.
+			-Pet is not yet supported.
+		*Fixed Gold_Coin_Basket Buy/Sell price.
+		*Added missing Upg_Clip script.
+		*Fixed storage condition in lasagna town.
+
 08/12/2025
 	r530 [15peaces]
 		*Note:

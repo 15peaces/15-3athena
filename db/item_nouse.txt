@@ -130,3 +130,6 @@
 14594,1,100  // Quagmire_Scroll
 14599,1,100  // Greed_Scroll_C
 14606,1,100  // Job_Manual25
+23187,1,100  // Sap_Jelly
+23188,1,100  // Unprocessed_Parts
+23189,1,100  // SmallDoll_Needle

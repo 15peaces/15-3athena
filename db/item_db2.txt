@@ -1533,7 +1533,7 @@
 6608,Coagulated_Spell,Coagulated Spell,3,0,,0,,,,,,,,,,,,,{},{},{}
 6609,Glast_Decayed_Nail,Glast Decayed Nail,3,82,,10,,,,,,,,,,,,,{},{},{}
 6610,Glast_Horrendous_Mouth,Glast Horrendous Mouth,3,390,,10,,,,,,,,,,,,,{},{},{}
-6612,Gold_Coin_Basket,Gold Coin Basket,3,20,,200,,,,,,,,,,,,,{},{},{}
+6612,Gold_Coin_Basket,Gold Coin Basket,3,300000,,200,,,,,,,,,,,,,{},{},{}
 6613,Flashy_Brooch,Flashy Brooch,3,20,,10,,,,,,,,,,,,,{},{},{}
 6698,Wooden_Axe,Wooden Axe,3,10,,1000,,,,,,,,,,,,,{},{},{}
 6699,Faith_Silence,Faith Silence,3,10,,0,,,,,,,,,,,,,{},{},{}
@@ -5629,3 +5629,6 @@
 
 // New Madogear
 100158,Mado_Box02,Mado Strengthening Suit,2,10000,,300,,,,,0x00000400,8,2,,,100,,,{ setmadogear 1, 2; },{ },{ }
+
+// missing Taming item
+23187,Sap_Jelly,Sap Jelly,2,10,,0,,,,,0xFFFFFFFF,7,2,,,,,,{/*pet(NINE_TAIL)*/;},{},{}

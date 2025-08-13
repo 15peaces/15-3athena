@@ -29,7 +29,7 @@
 //1275,9120,Alices_Apron:511:985:4253,500:200:30:1
 //1379,9116,7120:510:935:4166,500:100:100:1
 //1416,9115,Mightysoul_Essence:4202:4265:4272,30:10:10:10
-//1180,Cat_o_Nine_Tails_Egg,Sap_Jelly:Fox_Tail:Punisher:Nine_Tail_Card,3:999:1:1
+//1180,Cat_o_Nine_Tails_Egg,23187:Fox_Tail:Punisher:Nine_Tail_Card,3:999:1:1
 //1307,Moonlight_Flower_Egg,Mightysoul_Essence:Nine_Tail_Card:Sohee_Card:Munak_Card,30:10:10:10
 //1622,Abandoned_Teddy_Bear_Egg,SmallDoll_Needle:Cursed_Seal:Cardinal_Jewel_:4340,3:300:50:1
 //1622,9118,7317:518:727:4340,500:100:10:1
