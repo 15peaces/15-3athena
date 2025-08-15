@@ -927,12 +927,23 @@ void pc_makesavestatus(struct map_session_data *sd) {
 		sd->status.last_point.y = sd->bl.y;
 	}
 
-	if(map[sd->bl.m].flag.nosave || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) ){
+	if(map[sd->bl.m].flag.nosave || map[sd->bl.m].instance_id >= 0 || map_getcell( sd->bl.m, sd->bl.x, sd->bl.y, CELL_CHKPVP ) ){
 		struct map_data *m=&map[sd->bl.m];
 		if(m->save.map)
 			memcpy(&sd->status.last_point,&m->save,sizeof(sd->status.last_point));
 		else
 			memcpy(&sd->status.last_point,&sd->status.save_point,sizeof(sd->status.last_point));
+	}
+	if (sd->status.last_point.map == 0) {
+		sd->status.last_point.map = 1;
+		sd->status.last_point.x = 0;
+		sd->status.last_point.y = 0;
+	}
+
+	if (sd->status.save_point.map == 0) {
+		sd->status.save_point.map = 1;
+		sd->status.save_point.x = 0;
+		sd->status.save_point.y = 0;
 	}
 
 	return;
@@ -1448,6 +1459,11 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 	sd->sc.option = sd->status.option; //This is the actual option used in battle.
 
 	unit_dataset(&sd->bl);
+
+	sd->disguise = -1;
+
+	sd->instance = NULL;
+	sd->instances = 0;
 
 	sd->guild_x = -1;
 	sd->guild_y = -1;
@@ -5608,31 +5624,52 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 		pc_setrestartvalue(sd,1);
 	}
 
- 	if( map[m].flag.src4instance ) {
+	if (map[m].flag.src4instance) {
 		struct party_data *p;
-		int j = 0;
+		bool stop = false;
+		int i = 0, j = 0;
 
-		m = map_mapindex2mapid(mapindex);
-		if( map[m].flag.src4instance && sd->status.party_id && (p = party_search(sd->status.party_id)) != NULL && p->instance_id )
-		{
-			// Request the mapid of this src map into the instance of the party
-			int im = instance_map2imap(m, p->instance_id);
-			if( im < 0 )
-				; // Player will enter the src map for instances
-			else
-			{ // Changes destiny to the instance map, not the source map
-				m = im;
+		if (sd->instances) {
+			for (i = 0; i < sd->instances; i++) {
+				if (sd->instance[i] >= 0) {
+					ARR_FIND(0, instances[sd->instance[i]].num_map, j, map[instances[sd->instance[i]].map[j]].instance_src_map == m && !map[instances[sd->instance[i]].map[j]].custom_name);
+					if (j != instances[sd->instance[i]].num_map)
+						break;
+				}
+			}
+			if (i != sd->instances) {
+				m = instances[sd->instance[i]].map[j];
 				mapindex = map_id2index(m);
+				stop = true;
 			}
 		}
-
-		/* we hit a instance, if empty we populate the spawn data */
-		if( map[m].instance_id >= 0 && instance[map[m].instance_id].respawn.map == 0 &&
-		    instance[map[m].instance_id].respawn.x == 0 &&
-		    instance[map[m].instance_id].respawn.y == 0) {
-			instance[map[m].instance_id].respawn.map = mapindex;
-			instance[map[m].instance_id].respawn.x = x;
-			instance[map[m].instance_id].respawn.y = y;
+		if (!stop && sd->status.party_id && (p = party_search(sd->status.party_id)) && p->instances) {
+			for (i = 0; i < p->instances; i++) {
+				if (p->instance[i] >= 0) {
+					ARR_FIND(0, instances[p->instance[i]].num_map, j, map[instances[p->instance[i]].map[j]].instance_src_map == m && !map[instances[p->instance[i]].map[j]].custom_name);
+					if (j != instances[p->instance[i]].num_map)
+						break;
+				}
+			}
+			if (i != p->instances) {
+				m = instances[p->instance[i]].map[j];
+				mapindex = map_id2index(m);
+				stop = true;
+			}
+		}
+		if (!stop && sd->status.guild_id && sd->guild && sd->guild->instances) {
+			for (i = 0; i < sd->guild->instances; i++) {
+				if (sd->guild->instance[i] >= 0) {
+					ARR_FIND(0, instances[sd->guild->instance[i]].num_map, j, map[instances[sd->guild->instance[i]].map[j]].instance_src_map == m && !map[instances[sd->guild->instance[i]].map[j]].custom_name);
+					if (j != instances[sd->guild->instance[i]].num_map)
+						break;
+				}
+			}
+			if (i != sd->guild->instances) {
+				m = instances[sd->guild->instance[i]].map[j];
+				mapindex = map_id2index(m);
+				stop = true;
+			}
 		}
 	}
 
@@ -5642,6 +5679,10 @@ int pc_setpos(struct map_session_data* sd, unsigned short mapindex, int x, int y
 	if( sd->state.changemap )
 	{ // Misc map-changing settings
 		sd->state.pmap = sd->bl.m;
+
+		if (map[m].cell == (struct mapcell *)0xdeadbeaf)
+			map_cellfromcache(&map[m]);
+
 		if (sd->sc.count)
 		{ // Cancel some map related stuff.
 			if (sd->sc.data[SC_JAILED])
@@ -5824,7 +5865,7 @@ char pc_randomwarp(struct map_session_data *sd, clr_type type)
 	} while((map_getcell(m, x, y, CELL_CHKNOPASS) || (!battle_config.teleport_on_portal && npc_check_areanpc(1, m, x, y, 1))) && (i++) < 1000);
 
 	if (i < 1000)
-		return pc_setpos(sd,map[sd->bl.m].index,x,y,type);
+		return pc_setpos(sd,map_id2index(sd->bl.m),x,y,type);
 
 	return 3;
 }
@@ -8347,7 +8388,7 @@ int pc_dead(struct map_session_data *sd,struct block_list *src)
 	if(map[sd->bl.m].flag.pvp_nightmaredrop)
 	{ // Moved this outside so it works when PVP isn't enabled and during pk mode [Ancyker]
 		int j;
-		for(j=0;j<MAX_DROP_PER_MAP;j++){
+		for (j = 0; j < map[sd->bl.m].drop_list_count; j++) {
 			int id = map[sd->bl.m].drop_list[j].drop_id;
 			int type = map[sd->bl.m].drop_list[j].drop_type;
 			int per = map[sd->bl.m].drop_list[j].drop_per;
@@ -12132,7 +12173,7 @@ bool pc_job_can_entermap(enum e_job jobid, int m, int gm_lv) {
 	if (m < 0)
 		return true;
 
-	if (m >= MAX_MAP_PER_SERVER || !map[m].cell)
+	if (m >= map_num || !map[m].cell)
 		return false;
 
 	if (!pcdb_checkid(jobid))

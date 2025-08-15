@@ -8172,11 +8172,18 @@ This command will open a book item at the specified page.
 ========================
 ---------------------------------------
 
-*instance_create("<instance name>",<party id>);
+*instance_create("<instance_name>", <owner_id>{, <owner_type>})
 
-Create an instance using the name "<instance name>" for the Party of <party id>.
-Most instance_* commands are used in conjunction with this command and depend
-on the ID this command returns.
+Creates an instance using the name "<instance_name>" for the <owner_id> of
+<owner_type> (when not provided, defaults to IOT_PARTY). Most instance_*
+commands are used in conjunction with this command and depend on the
+ID this command returns.
+
+Valid <owner_type> values:
+- IOT_NONE  (0) - <owner_id> can be any arbitrary number.
+- IOT_CHAR  (1) - <owner_id> is account ID.
+- IOT_PARTY (2) - <owner_id> is party ID.
+- IOT_GUILD (3) - <owner_id> is guild ID.
 
 Example: 
 	// Store the Party ID of the invoking character.
@@ -8191,32 +8198,31 @@ Example:
 	}
 ---------------------------------------
 
-*instance_destroy {<instance id>};
+*instance_destroy({<instance id>})
 
-Destroys instance with the ID <instance id>. If no ID is specified, the instance,
-the script is attached to, is used. If the script is not attached to an instance,
-the instance of the currently attached player's party is used. If no player is
-currently attached, the command fails and causes the script to halt.
+Destroys instance with the ID <instance id>. If no ID is specified, the
+instance the script is attached to is used. If in the end no instance_id,
+is found the command halts the script execution.
 
 ---------------------------------------
 
-*instance_attachmap("<map name>",<instance id>{,<use base name>});
+*instance_attachmap("<map name>", <instance id>{, <use base name>{, "<new map name>"}})
 
-Attaches the map "<map name>" to the instance specified with <instance id>. The
-optional parameter specifies, whether a map requires emulation for instancing (1)
-or not (0 = default).
+Attaches the map "<map name>" to the instance specified with
+<instance id>. The optional parameter specifies, whether a map requires
+emulation for instancing (true) or not (false = default). if use base name is specified,
+and "<new map name>" too the server will instance the map under the "<new map name>",
+name.
 
 Returns the resulting map name on success or an empty string on failure.
 
 ---------------------------------------
 
-*instance_detachmap "<map name>"{,<instance id>};
+*instance_detachmap("<map name>"{, <instance id>})
 
-Detach the map "<map name>" to the instance with the <instance id>. If no ID is
-specified, the instance, the script is attached to, is used. If the script is not
-attached to an instance, the instance of the currently attached player's party is
-used. If no player is currently attached, the command fails and causes the script
-to halt.
+Detach the map "<map name>" to the instance with the <instance id>. If no
+ID is specified, the instance the script is attached to is used. If in the
+end no instance_id is found the command halts the script execution.
 
 ---------------------------------------
 
@@ -8227,12 +8233,11 @@ source maps to the instanced maps.
 
 ---------------------------------------
 
-*instance_announce <instance id>,"<text>",<flag>{,<fontColor>{,<fontType>{,<fontSize>{,<fontAlign>{,<fontY>}}}}};
+*instance_announce(<instance id>, "<text>", <flag>{, <fontColor>{, <fontType>{, <fontSize>{, <fontAlign>{, <fontY>}}}}})
 
-Works like announce, but has the <instance id> parameter. If instance id is 0, the
-instance, the script is attached to, is used. If the script is not attached to an
-instance, the instance of the currently attached player's party is used. If no
-player is currently attached, the command fails and causes the script to halt.
+Works like announce, but has the <instance id> parameter. If instance id
+is -1, the instance the script is attached to is used. If in the
+end no instance_id is found the command halts the script execution.
 
 ---------------------------------------
 
@@ -8242,36 +8247,31 @@ Attaches the current script to the instance given by <instance id>.
 
 ---------------------------------------
 
-*instance_npcname("<npc name>"{,<instance id>});
+*instance_npcname("<npc name>"{, <instance id>})
 
-Retrieves the unique name given to a copy of an NPC given by "<npc name>" in an
-instance specified <instance id>. If no ID is specified, the instance, the script
-is attached to, is used. If the script is not attached to an instance, the
-instance of the currently attached player's party is used. If no player is
-currently attached, the command fails and causes the script to halt.
-
----------------------------------------
-
-*has_instance("<map name>"{,<instance id>});
-
-Checks whether or not the given map belongs to specified instance. If no ID is
-specified, the instance, the script is attached to, is used. If the script is not
-attached to an instance, the instance of the currently attached player's party
-is used. If no player is currently attached, the command fails and causes the
-script to halt.
-
-Returns the name of the instanced map on success, otherwise an empty string.
+Retrieves the unique name given to a copy of an NPC given by "<npc name>"
+in an instance specified <instance id>. If no ID is specified, the
+instance the script is attached to is used. If in the end no instance_id,
+is found the command halts the script execution.
 
 ---------------------------------------
 
-*instance_id({<type>});
+*has_instance("<map name>"{, <instance id>})
 
-Retrieves the instance id, depending on <type>. If type is not given, it defaults
-to 0.
+Checks whether or not the given map belongs to specified instance. If no
+ID is specified, the instance the script is attached to is used. If the
+script is not attached to an instance, it'll try to check whether the,
+player attached to the script possesses an instance with a map matching
+"<map name>". If in the end no instance_id is found the command halts the,
+script execution.
 
-Type:
-    0 - Instance ID the script is attached to.
-    1 - Instance ID of the currently attached player's party.
+Returns name of the instanced map on success, otherwise an empty string.
+
+---------------------------------------
+
+*instance_id()
+
+Retrieves the instance id of the script it is being run on.
 
 ---------------------------------------
 
@@ -8285,17 +8285,17 @@ the command fails and causes the script to halt.
 
 ---------------------------------------
 
-*instance_set_timeout <alive timeout>,<idle timeout>{,<instance id>};
+*instance_set_timeout(<alive timeout>, <idle timeout>{, <instance id>})
 
-Sets the timeout values for an instance given by <instance id>. If no ID is
-specified, the instance, the script is attached to, is used. If the script is
-not attached to an instance, the instance of the currently attached player's
-party is used. If no player is currently attached, the command fails and causes
-the script to halt.
+Sets the timeout values for an instance given by <instance id>. If no ID
+is specified, the instance the script is attached to is used. If in the end,
+no instance_id is found the command halts the script execution.
 
-Parameter <alive timeout> specifies the total amount of time the instance will
-exist. Parameter <idle timeout> specifies how long players have, when they are
-outside of the instance, until it is destroyed.
+Parameter <alive timeout> specifies the total amount of time the instance
+will exist. Parameter <idle timeout> specifies how long players have, when
+they are outside of the instance, until it is destroyed.
+
+Both timeout values are in seconds.
 
 ---------------------------------------
 

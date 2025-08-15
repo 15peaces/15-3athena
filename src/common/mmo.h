@@ -86,8 +86,6 @@
 	#define MAX_HOTKEYS 38
 #endif
 
-#define MAX_MAP_PER_SERVER 1500 // Increased to allow creation of Instance Maps
-
 #ifndef INVENTORY_BASE_SIZE
 	#define INVENTORY_BASE_SIZE 100 // Amount of inventory slots each player has
 #endif
@@ -777,6 +775,9 @@ struct guild {
 	time_t last_leader_change;
 
 	unsigned short save_flag; // for TXT saving
+
+	short *instance;
+	unsigned short instances;
 };
 
 struct guild_castle {

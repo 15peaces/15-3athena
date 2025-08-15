@@ -2094,7 +2094,7 @@ void clif_changemap(struct map_session_data *sd, short m, int x, int y)
 
 	WFIFOHEAD(fd,packet_len(0x91));
 	WFIFOW(fd,0) = 0x91;
-	mapindex_getmapname_ext(map[m].name, (char*)WFIFOP(fd,2));
+	mapindex_getmapname_ext(map[m].custom_name ? map[map[m].instance_src_map].name : map[m].name, (char*)WFIFOP(fd, 2));
 	WFIFOW(fd,18) = x;
 	WFIFOW(fd,20) = y;
 	WFIFOSET(fd,packet_len(0x91));
@@ -5395,7 +5395,7 @@ void clif_changemapcell(int fd, int m, int x, int y, int type, enum send_target 
 	WBUFW(buf,2) = x;
 	WBUFW(buf,4) = y;
 	WBUFW(buf,6) = type;
-	mapindex_getmapname_ext(map[m].name,(char*)WBUFP(buf,8));
+	mapindex_getmapname_ext(map[m].custom_name ? map[map[m].instance_src_map].name : map[m].name, (char*)WBUFP(buf, 8));
 
 	if( fd )
 	{
@@ -7999,7 +7999,7 @@ void clif_party_member_info(struct party_data *p, int member_id, send_target typ
 	WBUFB(buf,14 + offset) = ( m->online ) ? 0 : 1;// state: 0-online 1-offline
 	safestrncpy(WBUFP(buf,15 + offset), p->party.name, NAME_LENGTH);
 	safestrncpy(WBUFP(buf,39 + offset), m->name, NAME_LENGTH);
-	mapindex_getmapname_ext(mapindex_id2name(m->map), (char*)WBUFP(buf,63 + offset));
+	mapindex_getmapname_ext(map[sd->bl.m].custom_name ? map[map[sd->bl.m].instance_src_map].name : map[sd->bl.m].name, (char*)WBUFP(buf,63 + offset));
 	WBUFB(buf,79 + offset) = (p->party.item&1)?1:0;
 	WBUFB(buf,80 + offset) = (p->party.item&2)?1:0;
 	clif_send(buf,packet_len(packet_num),&sd->bl,type);
@@ -11236,9 +11236,9 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 	{// increment the number of pvp players on the map
 		map[sd->bl.m].users_pvp++;
 	}
-	if( map[sd->bl.m].instance_id )
+	if( map[sd->bl.m].instance_id >=0 )
 	{
-		instance[map[sd->bl.m].instance_id].users++;
+		instances[map[sd->bl.m].instance_id].users++;
 		instance_check_idle(map[sd->bl.m].instance_id);
 	}
 	sd->state.debug_remove_map = 0; // temporary state to track double remove_map's [FlavioJS]
@@ -19820,10 +19820,27 @@ void clif_font(struct map_session_data *sd)
 int clif_instance(int instance_id, int type, int flag)
 {
 	struct map_session_data *sd;
-	struct party_data *p;
 	unsigned char buf[255];
+	enum send_target target = PARTY;
 
-	if( (p = party_search(instance[instance_id].party_id)) == NULL || (sd = party_getavailablesd(p)) == NULL )
+	switch (instances[instance_id].owner_type) {
+	case IOT_NONE:
+		return 0;
+	case IOT_GUILD:
+		target = GUILD;
+		sd = guild_getavailablesd(guild_search(instances[instance_id].owner_id));
+		break;
+	case IOT_PARTY:
+		/* default is already PARTY */
+		sd = party_getavailablesd(party_search(instances[instance_id].owner_id));
+		break;
+	case IOT_CHAR:
+		target = SELF;
+		sd = map_id2sd(instances[instance_id].owner_id);
+		break;
+	}
+
+	if(!sd)
 		return 0;
 
 	switch( type )
@@ -19833,33 +19850,32 @@ int clif_instance(int instance_id, int type, int flag)
 		// Required to start the instancing information window on Client
 		// This window re-appear each "refresh" of client automatically until type 4 is send to client.
 		WBUFW(buf,0) = 0x02CB;
-		memcpy(WBUFP(buf,2),instance[instance_id].name,INSTANCE_NAME_LENGTH);
+		memcpy(WBUFP(buf,2),instances[instance_id].name,INSTANCE_NAME_LENGTH);
 		WBUFW(buf,63) = flag;
-		clif_send(buf,packet_len(0x02CB),&sd->bl,PARTY);
+		clif_send(buf,packet_len(0x02CB),&sd->bl,target);
 		break;
 	case 2:
 		// S 0x2cc <Standby Position>.W
 		// To announce Instancing queue creation if no maps available
 		WBUFW(buf,0) = 0x02CC;
 		WBUFW(buf,2) = flag;
-		clif_send(buf,packet_len(0x02CC),&sd->bl,PARTY);
+		clif_send(buf,packet_len(0x02CC),&sd->bl, target);
 		break;
 	case 3:
 	case 4:
 		// S 0x2cd <Instance Name>.61B <Instance Remaining Time>.L <Instance Noplayers close time>.L
 		WBUFW(buf,0) = 0x02CD;
-		memcpy(WBUFP(buf,2),instance[instance_id].name,61);
-		if( type == 3 )
-		{
-			WBUFL(buf,63) = (uint32)instance[instance_id].progress_timeout;
+		memcpy(WBUFP(buf, 2), instances[instance_id].name, 61);
+		if (type == 3) {
+			WBUFL(buf, 63) = instances[instance_id].progress_timeout;
 			WBUFL(buf,67) = 0;
 		}
 		else
 		{
 			WBUFL(buf,63) = 0;
-			WBUFL(buf,67) = (uint32)instance[instance_id].idle_timeout;
+			WBUFL(buf,67) = instances[instance_id].idle_timeout;
 		}
-		clif_send(buf,packet_len(0x02CD),&sd->bl,PARTY);
+		clif_send(buf,packet_len(0x02CD),&sd->bl, target);
 		break;
 	case 5:
 		// S 0x2ce <Message ID>.L
@@ -19871,7 +19887,7 @@ int clif_instance(int instance_id, int type, int flag)
 		WBUFW(buf,0) = 0x02CE;
 		WBUFL(buf,2) = flag;
 		//WBUFL(buf,6) = EnterLimitDate;
-		clif_send(buf,packet_len(0x02CE),&sd->bl,PARTY);
+		clif_send(buf,packet_len(0x02CE),&sd->bl, target);
 		break;
 	}
 	return 0;
@@ -19879,21 +19895,21 @@ int clif_instance(int instance_id, int type, int flag)
 
 void clif_instance_join(int fd, int instance_id)
 {
-	if( instance[instance_id].idle_timer != INVALID_TIMER )
+	if( instances[instance_id].idle_timer != INVALID_TIMER )
 	{
 		WFIFOHEAD(fd,packet_len(0x02CD));
 		WFIFOW(fd,0) = 0x02CD;
-		memcpy(WFIFOP(fd,2),instance[instance_id].name,61);
+		memcpy(WFIFOP(fd,2),instances[instance_id].name,61);
 		WFIFOL(fd,63) = 0;
-		WFIFOL(fd,67) = (uint32)instance[instance_id].idle_timeout;
+		WFIFOL(fd,67) = instances[instance_id].idle_timeout;
 		WFIFOSET(fd,packet_len(0x02CD));
 	}
-	else if( instance[instance_id].progress_timer != INVALID_TIMER )
+	else if( instances[instance_id].progress_timer != INVALID_TIMER )
 	{
 		WFIFOHEAD(fd,packet_len(0x02CD));
 		WFIFOW(fd,0) = 0x02CD;
-		memcpy(WFIFOP(fd,2),instance[instance_id].name,61);
-		WFIFOL(fd,63) = (uint32)instance[instance_id].progress_timeout;;
+		memcpy(WFIFOP(fd,2),instances[instance_id].name,61);
+		WFIFOL(fd,63) = instances[instance_id].progress_timeout;
 		WFIFOL(fd,67) = 0;
 		WFIFOSET(fd,packet_len(0x02CD));
 	}
@@ -19901,7 +19917,7 @@ void clif_instance_join(int fd, int instance_id)
 	{
 		WFIFOHEAD(fd,packet_len(0x02CB));
 		WFIFOW(fd,0) = 0x02CB;
-		memcpy(WFIFOP(fd,2),instance[instance_id].name,61);
+		memcpy(WFIFOP(fd,2),instances[instance_id].name,61);
 		WFIFOW(fd,63) = 0;
 		WFIFOSET(fd,packet_len(0x02CB));
 	}

@@ -378,10 +378,10 @@ int chrif_sendmap(int fd)
 	int i;
 	ShowStatus("Sending maps to char server...\n");
 	// Sending normal maps, not instances
-	WFIFOHEAD(fd, 4 + instance_start * 4);
+	WFIFOHEAD(fd, 4 + instance_start_id * 4);
 	WFIFOW(fd,0) = 0x2afa;
-	for(i = 0; i < instance_start; i++)
-		WFIFOW(fd,4+i*4) = map[i].index;
+	for(i = 0; i < instance_start_id; i++)
+		WFIFOW(fd,4+i*4) = map_id2index(i);
 	WFIFOW(fd,2) = 4 + i * 4;
 	WFIFOSET(fd,WFIFOW(fd,2));
 
@@ -1839,8 +1839,7 @@ static int check_connect_char_server(int tid, int64 tick, int id, intptr_t data)
 		}
 
 		chrif_state = 0;
-		char_fd = make_connection(char_ip, char_port, 10);
-		if (char_fd == -1)
+		if ((char_fd = make_connection(char_ip, char_port, 10)) == -1)
 		{	//Attempt to connect later. [Skotlex]
 			return 0;
 		}

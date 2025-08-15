@@ -18151,7 +18151,7 @@ static void skill_unitsetmapcell (struct skill_unit *src, int skill_id, int skil
 
 	for( y = src->bl.y - range; y <= src->bl.y + range; ++y )
 		for( x = src->bl.x - range; x <= src->bl.x + range; ++x )
-			map_setcell(src->bl.m, x, y, cell, flag);
+			map[src->bl.m].setcell(src->bl.m, x, y, cell, flag);
 }
 
 /*==========================================

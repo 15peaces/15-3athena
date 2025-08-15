@@ -9,7 +9,7 @@
 
 struct mmo_charstatus;
 
-#define MAX_MAP_SERVERS 30
+#define MAX_MAP_SERVERS 2
 #define DEFAULT_AUTOSAVE_INTERVAL 300*1000
 
 #define msg_config_read(cfgName) char_msg_config_read(cfgName)
@@ -24,7 +24,8 @@ struct mmo_map_server {
 	uint32 ip;
 	uint16 port;
 	int users;
-	unsigned short map[MAX_MAP_PER_SERVER];
+	unsigned short *map;
+	unsigned short maps;
 };
 extern struct mmo_map_server server[MAX_MAP_SERVERS];
 

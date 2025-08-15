@@ -2290,8 +2290,8 @@ static void npc_parsename(struct npc_data* nd, const char* name, const char* sta
 		}
 		while( npc_name2id(newname) != NULL );
 
-		strcpy(this_mapname, (nd->bl.m==-1?"(not on a map)":mapindex_id2name(map[nd->bl.m].index)));
-		strcpy(other_mapname, (dnd->bl.m==-1?"(not on a map)":mapindex_id2name(map[dnd->bl.m].index)));
+		strcpy(this_mapname, (nd->bl.m == -1 ? "(not on a map)" : mapindex_id2name(map_id2index(nd->bl.m))));
+		strcpy(other_mapname, (dnd->bl.m == -1 ? "(not on a map)" : mapindex_id2name(map_id2index(dnd->bl.m))));
 
 		ShowWarning("npc_parsename: Duplicate unique name in file '%s', line'%d'. Renaming '%s' to '%s'.\n", filepath, strline(buffer,start-buffer), nd->exname, newname);
 		ShowDebug("this npc:\n   display name '%s'\n   unique name '%s'\n   map=%s, x=%d, y=%d\n", nd->name, nd->exname, this_mapname, nd->bl.x, nd->bl.y);
@@ -3174,7 +3174,7 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 {
 	char newname[NPC_NAME_LENGTH+1];
 
-	if( map[m].instance_id == 0 )
+	if(m == -1 || map[m].instance_id == -1 )
 		return 1;
 
 	snprintf(newname, ARRAYLENGTH(newname), "dup_%d_%d", map[m].instance_id, snd->bl.id);
@@ -3190,9 +3190,7 @@ int npc_duplicate4instance(struct npc_data *snd, int m)
 		int dm = map_mapindex2mapid(snd->u.warp.mapindex), im;
 		if( dm < 0 ) return 1;
 
-		im = instance_mapid2imapid(dm, map[m].instance_id);
-		if( im == -1 )
-		{
+		if ((im = instance_mapid2imapid(dm, map[m].instance_id)) == -1) {
 			ShowError("npc_duplicate4instance: warp (%s) leading to instanced map (%s), but instance map is not attached to current instance (%d).\n", map[dm].name, snd->exname, map[m].instance_id);
 			return 1;
 		}
@@ -3274,14 +3272,14 @@ void npc_setcells(struct npc_data* nd)
 		return; // Other types doesn't have touch area
 	}
 
-	if (m < 0 || xs < 0 || ys < 0)
+	if (m < 0 || xs < 0 || ys < 0 || map[m].cell == (struct mapcell *)0xdeadbeaf) //invalid range or map
 		return;
 
 	for (i = y-ys; i <= y+ys; i++) {
 		for (j = x-xs; j <= x+xs; j++) {
 			if (map_getcell(m, j, i, CELL_CHKNOPASS))
 				continue;
-			map_setcell(m, j, i, CELL_NPC, true);
+			map[m].setcell(m, j, i, CELL_NPC, true);
 		}
 	}
 }
@@ -3308,7 +3306,7 @@ void npc_unsetcells(struct npc_data* nd)
 		ys = nd->u.scr.ys;
 	}
 
-	if (m < 0 || xs < 0 || ys < 0)
+	if (m < 0 || xs < 0 || ys < 0 || map[m].cell == (struct mapcell *)0xdeadbeaf)
 		return;
 
 	//Locate max range on which we can locate npc cells
@@ -3321,7 +3319,7 @@ void npc_unsetcells(struct npc_data* nd)
 	//Erase this npc's cells
 	for (i = y-ys; i <= y+ys; i++)
 		for (j = x-xs; j <= x+xs; j++)
-			map_setcell(m, j, i, CELL_NPC, false);
+			map[m].setcell(m, j, i, CELL_NPC, false);
 
 	//Re-deploy NPC cells for other nearby npcs.
 	map_foreachinarea( npc_unsetcells_sub, m, x0, y0, x1, y1, BL_NPC, nd->bl.id );
@@ -3624,7 +3622,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 	db = mob_db(class_);
 	for( i = 0; i < ARRAYLENGTH(db->spawn); ++i )
 	{
-		if (map[mob.m].index == db->spawn[i].mapindex)
+		if (map_id2index(mob.m) == db->spawn[i].mapindex)
 		{	//Update total
 			db->spawn[i].qty += mob.num;
 			//Re-sort list
@@ -3642,7 +3640,7 @@ static const char* npc_parse_mob(char* w1, char* w2, char* w3, char* w4, const c
 		if (mob.num > db->spawn[i].qty)
 		{	//Insert into list
 			memmove(&db->spawn[i+1], &db->spawn[i], sizeof(db->spawn) -(i+1)*sizeof(db->spawn[0]));
-			db->spawn[i].mapindex = map[mob.m].index;
+			db->spawn[i].mapindex = map_id2index(mob.m);
 			db->spawn[i].qty = mob.num;
 			break;
 		}
@@ -3781,16 +3779,11 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 			else if (!strcmpi(drop_arg2,"all"))
 				drop_type = 3;
 
-			if (drop_id != 0){
-				int i;
-				for (i = 0; i < MAX_DROP_PER_MAP; i++) {
-					if (map[m].drop_list[i].drop_id == 0){
-						map[m].drop_list[i].drop_id = drop_id;
-						map[m].drop_list[i].drop_type = drop_type;
-						map[m].drop_list[i].drop_per = drop_per;
-						break;
-					}
-				}
+			if (drop_id != 0) {
+				RECREATE(map[m].drop_list, struct map_drop_list, ++map[m].drop_list_count);
+				map[m].drop_list[map[m].drop_list_count - 1].drop_id = drop_id;
+				map[m].drop_list[map[m].drop_list_count - 1].drop_type = drop_type;
+				map[m].drop_list[map[m].drop_list_count - 1].drop_per = drop_per;
 				map[m].flag.pvp_nightmaredrop = 1;
 			}
 		} else if (!state) //Disable

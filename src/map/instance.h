@@ -4,22 +4,36 @@
 #ifndef _INSTANCE_H_
 #define _INSTANCE_H_
 
-#define MAX_MAP_PER_INSTANCE 10
-#define MAX_INSTANCE 500
-
 #define INSTANCE_NAME_LENGTH (60+1)
 
-typedef enum instance_state { INSTANCE_FREE, INSTANCE_IDLE, INSTANCE_BUSY } instance_state;
+extern unsigned short instance_start_id;
+extern unsigned short instance_count;
 
-struct s_instance {
+typedef enum instance_state {
+	INSTANCE_FREE,
+	INSTANCE_IDLE,
+	INSTANCE_BUSY
+} instance_state;
+
+enum instance_owner_type {
+	IOT_NONE,
+	IOT_CHAR,
+	IOT_PARTY,
+	IOT_GUILD,
+	/* ... */
+	IOT_MAX,
+};
+
+struct instance_data {
+	unsigned short id;
 	char name[INSTANCE_NAME_LENGTH]; // Instance Name - required for clif functions.
 	instance_state state;
-	unsigned short instance_id;
-	int party_id;
+	enum instance_owner_type owner_type;
+	int owner_id;
 
-	int map[MAX_MAP_PER_INSTANCE];
-	int num_map;
-	int users;
+	unsigned short *map;
+	unsigned short num_map;
+	unsigned short users;
 
 	struct DBMap* vars; // Instance Variable for scripts
 	
@@ -34,13 +48,12 @@ struct s_instance {
 	struct point respawn;/* reload spawn */
 };
 
-extern int instance_start;
-extern struct s_instance instance[MAX_INSTANCE];
+struct instance_data *instances;
 
 bool instance_is_valid(int instance_id);
 
-int instance_create(int party_id, const char *name);
-int instance_add_map(const char *name, int instance_id, bool usebasename);
+int instance_create(int owner_id, const char *name, enum instance_owner_type type);
+int instance_add_map(const char *name, int instance_id, bool usebasename, const char *map_name);
 void instance_del_map(int m);
 int instance_map2imap(int m, int instance_id);
 int instance_mapname2imap(const char *map_name, int instance_id);

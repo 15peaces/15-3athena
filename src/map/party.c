@@ -117,12 +117,22 @@ static TBL_PC* party_sd_check(int party_id, uint32 account_id, uint32 char_id)
 	return sd;
 }
 
+int party_db_final(DBKey key, DBData *data, va_list ap) {
+	struct party_data *p;
+
+	if ((p = db_data2ptr(data)) && p->instance)
+		aFree(p->instance);
+
+	return 0;
+}
+
 /*==========================================
- * I—¹
+ * Destructor
+ * Called in map shutdown, cleanup var
  *------------------------------------------*/
 void do_final_party(void)
 {
-	party_db->destroy(party_db,NULL);
+	party_db->destroy(party_db, party_db_final);
 	party_booking_db->destroy(party_booking_db,NULL); // Party Booking [Spiria]
 }
 // ‰Šú‰»
@@ -298,7 +308,7 @@ int party_recv_info(struct party* sp, uint32 char_id)
 	int removed_count = 0;
 	int added[MAX_PARTY];// member_id in new data
 	int added_count = 0;
-	int i;
+	int i,j;
 	int member_id;
 	
 	nullpo_ret(sp);
@@ -335,6 +345,8 @@ int party_recv_info(struct party* sp, uint32 char_id)
 			if( sp->member[member_id].char_id != 0 )
 				added[added_count++] = member_id;
 		CREATE(p, struct party_data, 1);
+		p->instance = NULL;
+		p->instances = 0;
 		idb_put(party_db, sp->party_id, p);
 	}
 	while( removed_count > 0 )// no longer in party
@@ -366,8 +378,14 @@ int party_recv_info(struct party* sp, uint32 char_id)
 		clif_party_member_info(p, member_id, PARTY);
 		clif_party_option(p, member_id, SELF);
 		clif_party_info(p,NULL);
-		if( p->instance_id != 0 )
-			clif_instance_join(sd->fd, p->instance_id);
+		for (j = 0; j < p->instances; j++) {
+			if (p->instance[j] >= 0) {
+				if (instances[p->instance[j]].idle_timer == INVALID_TIMER && instances[p->instance[j]].progress_timer == INVALID_TIMER)
+					continue;
+				clif_instance_join(sd->fd, p->instance[j]);
+				break;
+			}
+		}
 	}
 	if( char_id != 0 )// requester
 	{
@@ -488,9 +506,17 @@ void party_member_joined(struct map_session_data *sd)
 	ARR_FIND( 0, MAX_PARTY, i, p->party.member[i].account_id == sd->status.account_id && p->party.member[i].char_id == sd->status.char_id );
 	if (i < MAX_PARTY)
 	{
+		int j;
+
 		p->data[i].sd = sd;
-		if( p->instance_id )
-			clif_instance_join(sd->fd,p->instance_id);
+		for (j = 0; j < p->instances; j++) {
+			if (p->instance[j] >= 0) {
+				if (instances[p->instance[j]].idle_timer == INVALID_TIMER && instances[p->instance[j]].progress_timer == INVALID_TIMER)
+					continue;
+				clif_instance_join(sd->fd, p->instance[j]);
+				break;
+			}
+		}
 	}
 	else
 		sd->status.party_id = 0; //He does not belongs to the party really?
@@ -502,7 +528,7 @@ int party_member_added(int party_id,uint32 account_id,uint32 char_id, int flag)
 {
 	struct map_session_data *sd = map_id2sd(account_id),*sd2;
 	struct party_data *p = party_search(party_id);
-	int i;
+	int i, j;
 
 	if(sd == NULL || sd->status.char_id != char_id || !sd->party_joining ) {
 		if (!flag) //Char logged off before being accepted into party.
@@ -548,8 +574,14 @@ int party_member_added(int party_id,uint32 account_id,uint32 char_id, int flag)
 	clif_party_xy(sd);
 	clif_name_area(&sd->bl); //Update char name's display [Skotlex]
 
-	if( p->instance_id )
-		clif_instance_join(sd->fd, p->instance_id);
+	for (j = 0; j < p->instances; j++) {
+		if (p->instance[j] >= 0) {
+			if (instances[p->instance[j]].idle_timer == INVALID_TIMER && instances[p->instance[j]].progress_timer == INVALID_TIMER)
+				continue;
+			clif_instance_join(sd->fd, p->instance[j]);
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -633,7 +665,7 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 		sd->status.party_id = 0;
 		clif_name_area(&sd->bl); //Update name display [Skotlex]
 		//TODO: hp bars should be cleared too
-		if( p->instance_id )
+		if (p->instances)
 			instance_check_kick(sd);
 	}
 
@@ -644,16 +676,17 @@ int party_member_withdraw(int party_id, uint32 account_id, uint32 char_id, char 
 int party_broken(int party_id)
 {
 	struct party_data* p;
-	int i;
+	int i, j;
 
 	p = party_search(party_id);
 	if( p == NULL )
 		return 0;
 		
-	if( p->instance_id )
-	{
-		instance[p->instance_id].party_id = 0;
-		instance_destroy( p->instance_id );
+	for (j = 0; j < p->instances; j++) {
+		if (p->instance[j] >= 0) {
+			instance_destroy(p->instance[j]);
+			instances[p->instance[j]].owner_id = 0;
+		}
 	}
 
 	for( i = 0; i < MAX_PARTY; i++ )

@@ -5,6 +5,36 @@
 // 		- Details.
 //			--More Details.
 //========================================
+08/15/2025
+	r532 [15peaces]
+		*Removed leftovers...
+		*Changed/optimized the map cache handling
+			-With this update I was able to reduce the RAM usage of the map server by ~100MB!
+			-Beyond the memory usage drop there is also a significant processing speed improvement which can be noticed during boot and map cache loading.
+			-We now use a smart map cache handler that loads its data only when a map is necessary (the data is then kept until shut down).
+			-Thanks to @HerculesWS
+		*Instance Rework
+			-Instance Functionality/Feature
+				--Server may now create instances of any maps regardless of client-side edits, e.g. one can clone prontera and call it "mymapname"
+				--Instances may now be available in 4 distinct ways, by nobody (server type instance, to be used with special map names), by a sole character, by a party, or by a guild
+			-Script Command Changes
+				--instance_create 2nd param is now called owner_id instead of party_id, and it got a 3rd optional param that defines what kind of owner id it is (when not provided, assumes party_id, for backwards compatibility).
+				-- available options are (IOT_ stands for INSTANCE OWNER TYPE) IOT_NONE (0), IOT_CHAR (1), IOT_PARTY (2) and IOT_GUILD (3).
+				--instance_destroy no longer autodetects instance id from party id
+				--instance_attachmap now supports a 4th, optional, param, "<new map name>", it will allow you to specify a entirely new map name for the instance (without the need of client-side edits).
+				-- This option can be best employed when used on a instance of <owner_type> IOT_NONE
+				--instance_detachmap no longer autodetects instance id from party id
+				--instance_id no longer supports any param
+				--instance_set_timeout no longer autodetects instance id from party id
+				--instance_announce no longer autodetects instance id from party id, and to tell it to autodetect from the attached script you must set instance_id param as -1 as opposed to 0
+				--instance_npcname no longer autodetects instance id from party id
+				--has_instance no longer autodetects instance from party, however it now checks if attached player possesses a instance with same map as has_instance(<param>) checks for
+				--instance_warpall no longer autodetects instance from party
+			-Other Changes
+				--Instance IDs (valid ones) are now always >= 0 as opposed to > 0 (update your scripts!)
+			-This is the 1st step to make newer forms & features of instances possible.
+			-Thanks to @HerculesWS
+
 08/13/2025
 	r531 [15peaces]
 		*LG_RAYOFGENESIS

@@ -3005,9 +3005,9 @@ int unit_remove_map_(struct block_list *bl, clr_type clrtype, const char* file, 
 		{// decrement the number of active pvp players on the map
 			--map[bl->m].users_pvp;
 		}
-		if( map[bl->m].instance_id )
+		if( map[bl->m].instance_id >= 0 )
 		{
-			instance[map[bl->m].instance_id].users--;
+			instances[map[bl->m].instance_id].users--;
 			instance_check_idle(map[bl->m].instance_id);
 		}
 		if (sd->state.hpmeter_visible)
@@ -3247,6 +3247,10 @@ int unit_free(struct block_list *bl, clr_type clrtype)
 			if (sd->qi_display) {
 				aFree(sd->qi_display);
 				sd->qi_display = NULL;
+			}
+			if (sd->instance != NULL) {
+				aFree(sd->instance);
+				sd->instance = NULL;
 			}
 			sd->qi_count = 0;
 #if PACKETVER >= 20150513

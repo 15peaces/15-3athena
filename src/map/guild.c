@@ -27,6 +27,7 @@
 #include "atcommand.h"
 #include "episode.h"
 #include "trade.h"
+#include "instance.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -438,6 +439,8 @@ void guild_recv_info(struct guild *sg)
 	if ((g = guild_search(sg->guild_id)) == NULL) {
 		guild_new = true;
 		g=(struct guild *)aCalloc(1,sizeof(struct guild));
+		g->instance = NULL;
+		g->instances = 0;
 		idb_put(guild_db,sg->guild_id,g);
 		before=*sg;
 
@@ -844,6 +847,9 @@ int guild_member_withdraw(int guild_id, uint32 account_id, uint32 char_id, int f
 		sd->status.guild_id = 0;
 		sd->guild = NULL;
 		sd->guild_emblem_id = 0;
+
+		if (g->instances)
+			instance_check_kick(sd);
 		
 		clif_name_area(&sd->bl); //Update display name [Skotlex]
 		status_change_end(&sd->bl, SC_LEADERSHIP, INVALID_TIMER);
@@ -2349,6 +2355,16 @@ void do_init_guild(void)
 
 void do_final_guild(void)
 {
+	DBIterator *iter = db_iterator(guild_db);
+	struct guild *g;
+
+	for (g = dbi_first(iter); dbi_exists(iter); g = dbi_next(iter)) {
+		if (g->instance != NULL) {
+			aFree(g->instance);
+			g->instance = NULL;
+		}
+	}
+
 	db_destroy(guild_db);
 	guild_expcache_db->destroy(guild_expcache_db, guild_expcache_db_final);
 	guild_infoevent_db->destroy(guild_infoevent_db, eventlist_db_final);

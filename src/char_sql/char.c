@@ -3455,7 +3455,7 @@ int search_mapserver(unsigned short map, uint32 ip, uint16 port);
 /// Initializes a server structure.
 void mapif_server_init(int id)
 {
-	memset(&server[id], 0, sizeof(server[id]));
+	//memset(&server[id], 0, sizeof(server[id]));
 	server[id].fd = -1;
 }
 
@@ -3482,7 +3482,7 @@ void mapif_server_reset(int id)
 	WBUFL(buf,4) = htonl(server[id].ip);
 	WBUFW(buf,8) = htons(server[id].port);
 	j = 0;
-	for(i = 0; i < MAX_MAP_PER_SERVER; i++)
+	for(i = 0; i < server[id].maps; i++)
 		if (server[id].map[i])
 			WBUFW(buf,10+(j++)*4) = server[id].map[i];
 	if (j > 0) {
@@ -3616,7 +3616,11 @@ int parse_frommap(int fd)
 			if (RFIFOREST(fd) < 4 || RFIFOREST(fd) < RFIFOW(fd,2))
 				return 0;
 
-			memset(server[id].map, 0, sizeof(server[id].map));
+			if (server[id].map != NULL) { aFree(server[id].map); server[id].map = NULL; }
+
+			server[id].maps = (RFIFOW(fd, 2) - 4) / 4;
+			CREATE(server[id].map, unsigned short, server[id].maps);
+
 			j = 0;
 			for(i = 4; i < RFIFOW(fd,2); i += 4) {
 				server[id].map[j] = RFIFOW(fd,i);
@@ -5196,7 +5200,6 @@ int parse_char(int fd)
 					server[i].ip = ntohl(RFIFOL(fd,54));
 					server[i].port = ntohs(RFIFOW(fd,58));
 					server[i].users = 0;
-					memset(server[i].map, 0, sizeof(server[i].map));
 					session[fd]->func_parse = parse_frommap;
 					session[fd]->flag.server = 1;
 					realloc_fifo(fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
@@ -5358,12 +5361,11 @@ int check_connect_login_server(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 
 	ShowInfo("Attempt to connect to login-server...\n");
-	login_fd = make_connection(login_ip, login_port, 10);
-	if (login_fd == -1)
-	{	//Try again later. [Skotlex]
+	if ((login_fd = make_connection(login_ip, login_port, 10)) == -1) { //Try again later. [Skotlex]
 		login_fd = 0;
 		return 0;
 	}
+
 	session[login_fd]->func_parse = parse_fromlogin;
 	session[login_fd]->flag.server = 1;
 	realloc_fifo(login_fd, FIFOSIZE_SERVERLINK, FIFOSIZE_SERVERLINK);
@@ -6139,6 +6141,8 @@ int char_config_read( const char* cfgName )
 
 void do_final(void)
 {
+	int i;
+
 	ShowStatus("Terminating...\n");
 
 	set_all_offline(-1);
@@ -6167,6 +6171,10 @@ void do_final(void)
 
 	Sql_Free(sql_handle);
 	mapindex_final();
+
+	for (i = 0; i < MAX_MAP_SERVERS; i++)
+		if (server[i].map)
+			aFree(server[i].map);
 
 	ShowStatus("Finished.\n");
 }
@@ -6205,6 +6213,11 @@ void do_shutdown(void)
 
 int do_init(int argc, char **argv)
 {
+	int i;
+
+	for (i = 0; i < MAX_MAP_SERVERS; i++)
+		server[i].map = NULL;
+
 	//Read map indexes
 	mapindex_init();
 	start_point.map = mapindex_name2id("new_zone01");

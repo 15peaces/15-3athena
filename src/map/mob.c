@@ -523,7 +523,7 @@ int mob_once_spawn(struct map_session_data* sd, int m, short x, short y, const c
 			continue;
 
 		if(class_ == MOBID_EMPERIUM) {
-			struct guild_castle* gc = guild_mapindex2gc(map[m].index);
+			struct guild_castle* gc = guild_mapindex2gc(map_id2index(m));
 			struct guild* g = gc?guild_search(gc->guild_id):NULL;
 			if(gc) {
 				md->guardian_data = (struct guardian_data*)aCalloc(1, sizeof(struct guardian_data));
@@ -1249,7 +1249,7 @@ static int mob_warpchase_sub(struct block_list *bl,va_list ap)
 	if(nd->subtype != NPCTYPE_WARP)
 		return 0; //Not a warp
 
-	if(nd->u.warp.mapindex != map[target->m].index)
+	if(nd->u.warp.mapindex != map_id2index(target->m))
 		return 0; //Does not lead to the same map.
 
 	cur_distance = distance_blxy(target, nd->u.warp.x, nd->u.warp.y);

@@ -43,14 +43,13 @@ void map_msg_reload(void);
 #define DAMAGELOG_SIZE 30
 #define LOOTITEM_SIZE 10
 #define MAX_MOBSKILL 50
-#define MAX_MOB_LIST_PER_MAP 128
+#define MAX_MOB_LIST_PER_MAP 100
 #define MAX_EVENTQUEUE 5
 #define MAX_EVENTTIMER 32
 #define NATURAL_HEAL_INTERVAL 500
 #define MIN_FLOORITEM 2
 #define MAX_FLOORITEM START_ACCOUNT_NUM
 #define MAX_LEVEL 200
-#define MAX_DROP_PER_MAP 48
 #define MAX_IGNORE_LIST 20 // official is 14
 #define MAX_VENDING 12
 #define MAX_MAP_SIZE 512*512 // Wasn't there something like this already? Can't find it.. [Shinryo]
@@ -82,6 +81,7 @@ static DBMap* nick_db=NULL; // uint32 char_id -> struct charid2nick* (requested 
 static DBMap* charid_db=NULL; // uint32 char_id -> struct map_session_data*
 static DBMap* regen_db=NULL; // int id -> struct block_list* (status_natural_heal processing)
 static DBMap* map_msg_db = NULL;
+extern struct map_data *map;
 
 //First Jobs
 //Note the oddity of the novice:
@@ -455,7 +455,6 @@ enum _sp {
 	SP_BASECLASS, SP_KILLERRID, SP_KILLEDRID, SP_BANK_VAULT, SP_ROULETTE_BRONZE, SP_ROULETTE_SILVER, // 120-125
 	SP_ROULETTE_GOLD, SP_BASETHIRD, SP_CHARMOVE, SP_CASHPOINTS, SP_KAFRAPOINTS, // 126-130
 	SP_PCDIECOUNTER, SP_COOKMASTERY, // 131-132
-	SP_MAX_HAIR_DYE=140, SP_MAX_HAIR_STYLE, SP_MAX_BODY_DYE, SP_MAX_BODY_STYLE, // 140-143
 
 	// Mercenaries
 	SP_MERCFLEE=165, SP_MERCKILLS=189, SP_MERCFAITH=190,
@@ -624,6 +623,12 @@ struct questinfo {
 	unsigned short *jobid;
 };
 
+struct map_drop_list {
+	int drop_id;
+	int drop_type;
+	int drop_per;
+};
+
 struct map_data {
 	char name[MAP_NAME_LENGTH];
 	unsigned short index; // The map index used by the mapindex* functions.
@@ -700,11 +705,8 @@ struct map_data {
 	} flag;
 	struct point save;
 	struct npc_data *npc[MAX_NPC_PER_MAP];
-	struct {
-		int drop_id;
-		int drop_type;
-		int drop_per;
-	} drop_list[MAX_DROP_PER_MAP];
+	struct map_drop_list *drop_list;
+	unsigned short drop_list_count;
 
 	struct spawn_data *moblist[MAX_MOB_LIST_PER_MAP]; // [Wizputer]
 	int mob_delete_timer;	// [Skotlex]
@@ -720,6 +722,13 @@ struct map_data {
 	struct questinfo *qi_data;
 	unsigned short qi_count;
 	unsigned short hpmeter_visible;
+
+	bool custom_name; ///< Whether the instanced map is using a custom name
+
+	/* */
+	int(*getcellp)(struct map_data* m, int16 x, int16 y, cell_chk cellchk);
+	void(*setcell) (int16 m, int16 x, int16 y, cell_t cell, bool flag);
+	char *cellPos;
 };
 
 /// Stores information about a remote map (for multi-mapserver setups).
@@ -732,12 +741,10 @@ struct map_data_other_server {
 	uint16 port;
 };
 
-int map_getcell(int,int,int,cell_chk);
-int map_getcellp(struct map_data*,int,int,cell_chk);
-void map_setcell(int m, int x, int y, cell_t cell, bool flag);
+int map_getcell(int16 m, int16 x, int16 y, cell_chk cellchk);
 void map_setgatcell(int m, int x, int y, int gat);
 
-extern struct map_data map[];
+struct map_data *map;
 extern int map_num;
 
 extern int autosave_interval;
@@ -935,6 +942,8 @@ enum save_settings_type {
 	CHARSAVE_BANK		= 0x080, /// After every bank transaction (deposit/withdraw)
 	CHARSAVE_ALL		= 0xFFF, /// Always
 };
+
+void map_cellfromcache(struct map_data *m);
 
 // ŽI‘S‘Ìî•ñ
 void map_setusers(int);

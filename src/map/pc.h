@@ -632,6 +632,9 @@ struct map_session_data {
 	struct sc_display_entry **sc_display;
 	unsigned char sc_display_count;
 
+	short *instance;
+	unsigned short instances;
+
 	unsigned char delayed_damage; //[Ind]
 
 	/* Possible Thanks to Yommy~ / herc.ws! */
