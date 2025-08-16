@@ -13606,17 +13606,17 @@ void clif_parse_NpcCloseClicked(int fd,struct map_session_data *sd)
 /// index:
 ///     -1 = cancel
 void clif_parse_ItemIdentify(int fd,struct map_session_data *sd) {
-	short idx = RFIFOW(fd,2);
+	uint16 idx = server_index(RFIFOW(fd,2));
 
 	if (sd->menuskill_id != MC_IDENTIFY)
 		return;
-	if (idx < 0 || idx >= MAX_INVENTORY || sd->inventory.u.items_inventory[idx].nameid == 0 || sd->inventory_data[idx] == NULL || sd->inventory.u.items_inventory[idx].identify)
+	if (idx >= MAX_INVENTORY || sd->inventory.u.items_inventory[idx].nameid == 0 || sd->inventory_data[idx] == NULL || sd->inventory.u.items_inventory[idx].identify)
 	{// cancel pressed
 		sd->menuskill_val = sd->menuskill_id = 0;
 		sd->state.workinprogress = WIP_DISABLE_NONE;
 		return;
 	}
-	skill_identify(sd,idx-2);
+	skill_identify(sd,idx);
 	sd->menuskill_val = sd->menuskill_id = 0;
 }
 

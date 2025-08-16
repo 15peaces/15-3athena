@@ -21209,14 +21209,14 @@ BUILDIN_FUNC(getequiprefinecost) {
  *	false: returns the count of unidentified items only
  *------------------------------------------*/
 BUILDIN_FUNC(identifyall) {
-	TBL_PC *sd;
+	struct map_session_data *sd;
 	bool identify_item = true;
 
 	if (script_hasdata(st, 2))
 		identify_item = script_getnum(st, 2) != 0;
 
 	if (!script_hasdata(st, 3))
-		script_rid2sd(st);
+		sd = script_rid2sd(st);
 	else
 		sd = map_id2sd(script_getnum(st, 3));
 

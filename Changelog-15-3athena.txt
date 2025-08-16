@@ -6,6 +6,20 @@
 //			--More Details.
 //========================================
 08/15/2025
+	r533 [15peaces]
+		*Fixed MC_IDENTIFY using wrong inventory index value.
+			-This also fixes the Magnifier item.
+		*Fixed identifyall script command crashing map server.
+		*LG_RAYOFGENESIS
+			-Updated/fixed skill effect to official.
+			-Updated Maxlevel to 10.
+			-Removed Inspiration requirement.
+		*High Wizard Aftercast Values
+			-Ganbantein now has an aftercast delay of 5s
+			-Gravitational Field now has an aftercast delay of 5s-9s
+		*Fixed White_Wing_Suits defense.
+
+08/15/2025
 	r532 [15peaces]
 		*Removed leftovers...
 		*Changed/optimized the map cache handling

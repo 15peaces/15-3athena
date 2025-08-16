@@ -4541,7 +4541,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case LG_BANISHINGPOINT:
 	case LG_SHIELDPRESS:
 	case LG_RAGEBURST:
-	case LG_RAYOFGENESIS:
 	case LG_HESPERUSLIT:
 	case SR_DRAGONCOMBO:
 	case SR_SKYNETBLOW:
@@ -4960,6 +4959,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NC_SELFDESTRUCTION:
 	case NC_AXETORNADO:
 	case LG_MOONSLASHER:
+	case LG_RAYOFGENESIS:
 	case LG_EARTHDRIVE:
 	case SR_RAMPAGEBLASTER:
 	case SR_WINDMILL:
@@ -7524,6 +7524,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
 	case SR_HOWLINGOFLION:
+	case LG_RAYOFGENESIS:
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
 	case RL_D_TAIL:
@@ -12738,16 +12739,6 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
  		}
 		break;
 
-	case LG_RAYOFGENESIS:
-		if (status_charge(src, status_get_max_hp(src) * 3 * skill_lv / 100,0))
-		{
-			i = skill_get_splash(skill_id, skill_lv);
-			map_foreachinarea(skill_area_sub, src->m, x - i, y - i, x + i, y + i, BL_CHAR, src, skill_id, skill_lv, tick, flag|BCT_ENEMY|1, skill_castend_damage_id);
-		}
-		else if(sd)
-			clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
-		break;
-
 	case WM_DOMINION_IMPULSE:
 		i = skill_get_splash(skill_id, skill_lv);
 		map_foreachinarea(skill_trigger_reverberation, src->m, x - i, y - i, x + i, y + i, BL_SKILL);
@@ -15596,12 +15587,6 @@ int skill_check_condition_char_sub (struct block_list *bl, va_list ap)
 				p_sd[(*c)++] = tsd->bl.id;
 			return 1;
 		}
-		case LG_RAYOFGENESIS:
-		{
-			if (sd->status.party_id == tsd->status.party_id && (tsd->class_&MAPID_THIRDMASK) == MAPID_ROYAL_GUARD && tsd->sc.data[SC_BANDING])
-				p_sd[(*c)++] = tsd->bl.id;
-			return 1;
-		}
 			default: //Warning: Assuming Ensemble Dance/Songs for code speed. [Skotlex]
 				{
 					int skill_lv;
@@ -16383,13 +16368,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			return 0;
 		}
 		break;
-	case LG_BANDING:
-		if (sc && sc->data[SC_INSPIRATION])
-		{
-			clif_skill_fail(sd, skill_id, 0, 0, 0);
-			return 0;
-		}
-		break;
 	case LG_PRESTIGE:
 		if( sc && (sc->data[SC_BANDING] || sc->data[SC_INSPIRATION]) ){
 			clif_skill_fail(sd, skill_id,0,0,0);
@@ -16403,15 +16381,9 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			sd->rageball_old = require.spiritball;
 		break;
 	case LG_RAYOFGENESIS:
+	case LG_BANDING:
 		if (sc && sc->data[SC_INSPIRATION])
 			return 1;	// Don't check for partner.
-		if (!(sc && sc->data[SC_BANDING]))
-		{
-			clif_skill_fail(sd, skill_id, USESKILL_FAIL, 0, 0);
-			return 0;
-		}
-		else if (skill_check_pc_partner(sd, skill_id, &skill_lv, skill_get_range(skill_id, skill_lv), 0) < 1)
-			return 0; // Just fails, no msg here.
 		break;
 	case LG_HESPERUSLIT:
 		if (!sc || !sc->data[SC_BANDING])
