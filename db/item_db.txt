@@ -8210,6 +8210,7 @@
 20313,Costume_CD_in_Mouth,Costume CD in Mouth,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,815,{},{},{}
 20314,Costume_New_Wave_Sunglasses,Costume New Wave Sunglasses,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,856,{},{},{}
 20315,Costume_Analyze_Eye,Costume Analyze Eye,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,,,,1351,{},{},{}
+20316,Costume_Seraph_Wing_Helm,Costume Seraph Wing Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1352,{},{},{}
 //
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
 

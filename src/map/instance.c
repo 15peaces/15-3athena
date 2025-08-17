@@ -112,6 +112,9 @@ int instance_create(int owner_id, const char *name, enum instance_owner_type typ
 	instances[i].owner_id = owner_id;
 	instances[i].owner_type = type;
 	instances[i].vars = idb_alloc(DB_OPT_RELEASE_DATA);
+	instances[i].respawn.map = 0;
+	instances[i].respawn.y = 0;
+	instances[i].respawn.x = 0;
 
 	safestrncpy(instances[i].name, name, sizeof(instances[i].name));
 
@@ -210,6 +213,13 @@ int instance_add_map(const char *name, int instance_id, bool usebasename, const 
 
 	memset(map[im].moblist, 0x00, sizeof(map[im].moblist));
 	map[im].mob_delete_timer = INVALID_TIMER;
+
+	//Mimic questinfo
+	if (map[m].qi_count) {
+		map[im].qi_count = map[m].qi_count;
+		CREATE(map[im].qi_data, struct questinfo, map[im].qi_count);
+		memcpy(map[im].qi_data, map[m].qi_data, map[im].qi_count * sizeof(struct questinfo));
+	}
 
 	map[im].m = im;
 	map[im].instance_id = instance_id;
@@ -391,6 +401,9 @@ void instance_del_map(int m)
 	aFree(map[m].block);
 	aFree(map[m].block_mob);
 
+	if (map[m].qi_data)
+		aFree(map[m].qi_data);
+
 	// Remove from instance
 	for (i = 0; i < instances[map[m].instance_id].num_map; i++) {
 		if (instances[map[m].instance_id].map[i] == m) {
@@ -549,10 +562,12 @@ void instance_set_timeout(int instance_id, unsigned int progress_timeout, unsign
 	if (progress_timeout) {
 		instances[instance_id].progress_timeout = now + progress_timeout;
 		instances[instance_id].progress_timer = add_timer(gettick() + progress_timeout * 1000, instance_destroy_timer, instance_id, 0);
+		instances[instance_id].original_progress_timeout = progress_timeout;
 	}
 	else {
 		instances[instance_id].progress_timeout = 0;
 		instances[instance_id].progress_timer = INVALID_TIMER;
+		instances[instance_id].original_progress_timeout = 0;
 	}
 		
 	if (idle_timeout) {

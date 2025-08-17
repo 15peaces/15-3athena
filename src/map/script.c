@@ -18498,15 +18498,19 @@ BUILDIN_FUNC(showevent)
 {
   TBL_PC *sd = script_rid2sd(st);
   struct npc_data *nd = map_id2nd(st->oid);
-  int state, color;
+  int state, color = 0;
 
   if( sd == NULL || nd == NULL )
      return 0;
   state = script_getnum(st, 2);
-  color = script_getnum(st, 3);
-
-  if( color < 0 || color > 4 )
-     color = 0; // set default color
+  if (script_hasdata(st, 3)) {
+	  color = script_getnum(st, 3);
+	  if (color < 0 || color > 4) {
+		  ShowWarning("buildin_showevent: invalid color '%d', changing to 0\n", color);
+		  script_reportfunc(st);
+		  color = 0;
+	  }
+  }
 
   clif_quest_show_event(sd, &nd->bl, state, color);
   return 0;
@@ -21783,7 +21787,7 @@ struct script_function buildin_func[] = {
 	BUILDIN_DEF(checkquest, "i?"),
 	BUILDIN_DEF(isbegin_quest,"i"),
 	BUILDIN_DEF(changequest, "ii"),
-	BUILDIN_DEF(showevent, "ii"),
+	BUILDIN_DEF(showevent, "i?"),
 	// Bound items [Xantara] & [Akinari] 
 	BUILDIN_DEF2(getitem,"getitembound","vii?"), 
 	BUILDIN_DEF2(getitem2,"getitembound2","viiiiiiiii?"), 

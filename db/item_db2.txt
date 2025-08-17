@@ -82,7 +82,6 @@
 
 
 //New Costumes from jRO
-20316,Costume_Seraph_Wing_Helm,Costume Seraph Wing Helm,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1352,{},{},{}
 20317,Costume_Nekomimi_Cyber_Headphone,Costume Nekomimi Cyber Headphone,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,,,,1353,{},{},{}
 20318,Costume_Charleston_Antenna,Costume Charleston Antenna,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1354,{},{},{}
 20319,Costume_Crimson_Booster,Costume Crimson Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1355,{},{},{}
@@ -5630,4 +5629,9 @@
 100158,Mado_Box02,Mado Strengthening Suit,2,10000,,300,,,,,0x00000400,8,2,,,100,,,{ setmadogear 1, 2; },{ },{ }
 
 // missing Taming item
-23187,Sap_Jelly,Sap Jelly,2,10,,0,,,,,0xFFFFFFFF,7,2,,,,,,{/*pet(NINE_TAIL)*/;},{},{}
+23187,Sap_Jelly,Sap Jelly,2,10,,0,,,,,0xFFFFFFFF,7,2,,,,,,{pet(1180);},{},{}
+
+// renewal (WIP)
+490319,aegis_490319,Y.S.F. Ring,5,10,,10,,0,,1,0x00000080,48,2,8,,100,0,0,{ bonus bVit,20; bonus bMaxHPrate,15; bonus bLongAtkRate,10; bonus bPerfectHitAddRate,15; bonus2 bSubRace,RC_Player_Human,3; bonus2 bSubRace,RC_Player_Doram,3; bonus2 bSkillCooldown,"RK_HUNDREDSPEAR",-1000; bonus2 bSkillAtk,"RK_DRAGONBREATH_WATER",BaseLevel/2; bonus2 bSkillAtk,"RK_DRAGONBREATH",BaseLevel/2; bonus2 bSkillAtk,"RK_HUNDREDSPEAR",3*(BaseLevel/2); },{},{}
+490320,Ash_Ring,Ashes Ring,5,10,,10,,10,,1,0xFFFFFFFE,63,2,136,,75,0,0,{ bonus bMdef,15; bonus2 bAddRace,RC_All,5; bonus2 bMagicAddRace,RC_All,5; bonus2 bSubRace,RC_Dragon,5; },{},{}
+490690,Dragon_Ring_US,Dragon Eye Ring,5,10,,10,,0,,1,0xFFFFFFFE,63,2,8,,100,0,0,{ /*TODO*/ },{},{}

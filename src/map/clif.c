@@ -2584,7 +2584,7 @@ static void clif_addcards(struct EQUIPSLOTINFO* buf, struct item* item) {
 /// Fills in part of the item buffers that calls for variable bonuses data. [Napster]
 /// A maximum of 5 random options can be supported.
 static uint8 clif_add_random_options(struct ItemOptions buf[MAX_ITEM_RDM_OPT], struct item* it) {
-	nullpo_retr(0, it);
+	nullpo_ret(buf);
 
 	uint8 count = 0;
 
@@ -2631,29 +2631,12 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 
 	struct packet_additem p;
 
-	if (fail) {
-		p.nameid = 0;
-		p.IsIdentified = 0;
-		p.IsDamaged = 0;
-		p.refiningLevel = 0;
-		clif_addcards(&p.slot, NULL);
-		p.location = 0;
-		p.type = 0;
-#if PACKETVER >= 20061218
-		p.HireExpireDate = 0;
-#endif
-#if PACKETVER >= 20071002
-		p.bindOnEquipType = 0;
-#endif
-#if PACKETVER >= 20150226
-		clif_add_random_options(p.option_data, NULL);
-#endif
-#if PACKETVER >= 20160921
-		p.favorite = 0;
-		p.look = 0;
-#endif
-	}
-	else {
+	p.PacketType = additemType;
+	p.Index = client_index(n);
+	p.count = amount;
+	p.result = fail;
+
+	if(!fail) {
 		if (n < 0 || n >= MAX_INVENTORY || sd->inventory.u.items_inventory[n].nameid == 0 || sd->inventory_data[n] == NULL) {
 			return;
 		}
@@ -2682,11 +2665,6 @@ void clif_additem(struct map_session_data *sd, int n, int amount, unsigned char 
 		p.look = sd->inventory_data[n]->look;
 #endif
 	}
-
-	p.PacketType = additemType;
-	p.Index = client_index(n);
-	p.count = amount;
-	p.result = fail;
 
 	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }

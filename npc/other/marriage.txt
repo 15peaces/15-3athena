@@ -661,7 +661,7 @@ prt_church,100,128,4	script	Bishop#w	60,{
 				getpartymember(getcharid(1));
 				set .@partymembercount,$@partymembercount;
 				if (.@partymembercount == 2) {
-					if (sex == SEX_MALE) {
+					if (sex == SEX_FEMALE) {
 						if (strcharinfo(0) == $@wed_bride$) {
 							mes "[Vomars]";
 							mes "Young lovers, please";

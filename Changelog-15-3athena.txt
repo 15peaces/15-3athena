@@ -5,7 +5,19 @@
 // 		- Details.
 //			--More Details.
 //========================================
-08/15/2025
+08/17/2025
+	r534 [15peaces]
+		*Added some missing items.
+		*Fixed a nullpo info caused by clif_additem.
+		*Re-added instance respawn & questinfo support.
+			-Follow-up @7de826d (r532)
+		*Updated Visual Studio v15 project files target platform version.
+		*Added Nine Tail Pet.
+		*Added Magma Dungeon 3 spawns (currently disabled until mobs are added)
+		*Fixed another wedding bug
+		*Made color value in showevent script command optional.
+		
+08/16/2025
 	r533 [15peaces]
 		*Fixed MC_IDENTIFY using wrong inventory index value.
 			-This also fixes the Magnifier item.

@@ -8481,7 +8481,7 @@ Return the state of the quest:
 
 ---------------------------------------
 
-*showevent <state>, <color>;
+*showevent <state>{,<color>};
 
 Show a colored mark in the mini-map like "viewpoint" and an emotion on top of a NPC.
 This is used to indicate that a NPC has a quest or an event to certain player/s.
@@ -8493,7 +8493,7 @@ state can be:
 	Other value may cause client crashes.
 
 color can be:
-	0 = yellow
+	0 = yellow (default)
 	1 = orange
 	2 = green
 	3 = blue
