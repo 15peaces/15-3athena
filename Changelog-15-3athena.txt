@@ -7,6 +7,13 @@
 //========================================
 08/17/2025
 	r534 [15peaces]
+		*Fixed slaves_inherit_mode config doesn't accept values > 3.
+			-Also changed default value to 4 which is official.
+		*Fixed Map Zone/ID/Index Bug
+		*Fixed an issue where all characters where detected as disguised...
+
+08/17/2025
+	r534 [15peaces]
 		*Added some missing items.
 		*Fixed a nullpo info caused by clif_additem.
 		*Re-added instance respawn & questinfo support.

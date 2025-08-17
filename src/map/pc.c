@@ -1460,8 +1460,6 @@ bool pc_authok(struct map_session_data *sd, int login_id2, time_t expiration_tim
 
 	unit_dataset(&sd->bl);
 
-	sd->disguise = -1;
-
 	sd->instance = NULL;
 	sd->instances = 0;
 

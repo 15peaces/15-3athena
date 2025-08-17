@@ -150,7 +150,7 @@ struct map_cache_map_info {
 	int32 len;
 };
 
-uint16 index2mapid[MAX_MAPINDEX];
+int16 index2mapid[MAX_MAPINDEX];
 
 char map_cache_file[256]="db/map_cache.dat";
 char db_path[256] = "db";
@@ -959,11 +959,9 @@ int map_forcountinarea(int (*func)(struct block_list*,va_list), int m, int x0, i
 }
 
 /*==========================================
- * ‹éŒ`(x0,y0)-(x1,y1)‚ª(dx,dy)ˆÚ“®‚µ‚½Žb?
- * —ÌˆæŠO‚É‚È‚é—Ìˆæ(‹éŒ`‚©LŽšŒ`)?‚Ìobj‚É
- * ?‚µ‚Äfunc‚ðŒÄ‚Ô
- *
- * dx,dy‚Í-1,0,1‚Ì‚Ý‚Æ‚·‚éi‚Ç‚ñ‚È’l‚Å‚à‚¢‚¢‚Á‚Û‚¢Hj
+* For what I get
+* Move bl and do func* with va_list while moving.
+* Mouvement is set by dx dy wich are distance in x and y
  *------------------------------------------*/
 int map_foreachinmovearea(int (*func)(struct block_list*,va_list), struct block_list* center, int range, int dx, int dy, int type, ...)
 {
@@ -2935,7 +2933,7 @@ int map_mapindex2mapid(unsigned short mapindex)
 	if (!mapindex || mapindex > MAX_MAPINDEX)
 		return -1;
 	
-	return index2mapid[mapindex] == 0 ? -1 : index2mapid[mapindex];
+	return index2mapid[mapindex];
 }
 
 /*==========================================
@@ -3699,7 +3697,7 @@ void map_addmap2db(struct map_data *m)
 
 void map_removemapdb(struct map_data *m)
 {
-	index2mapid[m->index] = 0;
+	index2mapid[m->index] = -1;
 }
 
 /*======================================
@@ -3756,7 +3754,7 @@ int map_readallmaps (void)
 
 		map[i].index = mapindex_name2id(map[i].name);
 
-		if (index2mapid[map_id2index(i)] != 0) {
+		if (index2mapid[map_id2index(i)] != -1) {
 			ShowWarning("Map %s already loaded!"CL_CLL"\n", map[i].name);
 			if (map[i].cell && map[i].cell != (struct mapcell *)0xdeadbeaf) {
 				aFree(map[i].cell);
@@ -4748,7 +4746,7 @@ int do_init(int argc, char *argv[])
 		}
 	}
 
-	memset(&index2mapid, 0, sizeof(index2mapid));
+	memset(&index2mapid, -1, sizeof(index2mapid));
 
 	map_config_read(MAP_CONF_NAME);
 	chrif_checkdefaultlogin();

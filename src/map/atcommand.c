@@ -1227,6 +1227,7 @@ ACMD_FUNC(hide)
 			sd->pvp_timer = INVALID_TIMER;
 		}
 	}
+	ShowDebug("acmd_hide: disguise: %d, class: %d, map: %d, x: %d, y:%d\n", sd->disguise, sd->status.class_, sd->bl.m , sd->bl.x , sd->bl.y);
 	clif_changeoption(&sd->bl);
 
 	return 0;
