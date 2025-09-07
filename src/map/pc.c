@@ -7857,6 +7857,8 @@ int pc_skillatk_bonus(struct map_session_data *sd, int skill_id)
 	int i, bonus = 0;
 	nullpo_ret(sd);
 
+	skill_id = skill_dummy2skill_id(skill_id);
+
 	ARR_FIND(0, ARRAYLENGTH(sd->skillatk), i, sd->skillatk[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillatk) ) bonus = sd->skillatk[i].val;
 
@@ -7866,6 +7868,8 @@ int pc_skillatk_bonus(struct map_session_data *sd, int skill_id)
 int pc_skillheal_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = sd->bonus.add_heal_rate;
+
+	skill_id = skill_dummy2skill_id(skill_id);
 
 	if( bonus )
 	{
@@ -7889,6 +7893,8 @@ int pc_skillheal_bonus(struct map_session_data *sd, int skill_id)
 int pc_skillheal2_bonus(struct map_session_data *sd, int skill_id)
 {
 	int i, bonus = sd->bonus.add_heal2_rate;
+
+	skill_id = skill_dummy2skill_id(skill_id);
 
 	ARR_FIND(0, ARRAYLENGTH(sd->skillheal2), i, sd->skillheal2[i].id == skill_id);
 	if( i < ARRAYLENGTH(sd->skillheal2) ) bonus += sd->skillheal2[i].val;

@@ -9013,7 +9013,7 @@ ACMD_FUNC(mapflag)
 				clif_displaymessage(fd, "nojobexp       noloot           nomvploot  restricted  loadevent");
 				clif_displaymessage(fd, "nochat         partylock        guildlock  nosunmoonstarmiracle");
 				clif_displaymessage(fd, "town           notomb           nocostume  hidemobhpbar");
-				clif_displaymessage(fd, "PrivateAirshipStartable         PrivateAirshipEndable");
+				clif_displaymessage(fd, "PrivateAirshipStartable         PrivateAirshipEndable  nocashshop");
 				clif_displaymessage(fd, "");
 				clif_displaymessage(fd, "Restricted mapflag: use Zones (1-8) to set a zone, 0 to turn off all zones for the map");
 				return -1;
@@ -9277,6 +9277,9 @@ ACMD_FUNC(mapflag)
 	}
 	else if (!strcmpi(map_flag, "hidemobhpbar")) {
 	map[m].flag.hidemobhpbar = state;
+	}
+	else if (!strcmpi(map_flag, "nocashshop")) {
+	map[m].flag.nocashshop = state;
 	}
 	else
 	{

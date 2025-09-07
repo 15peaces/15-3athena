@@ -18314,6 +18314,11 @@ void clif_parse_cashshop_buy(int fd, struct map_session_data *sd)
  */
 
 void clif_parse_CashShopOpen(int fd, struct map_session_data *sd) {
+	if (map[sd->bl.m].flag.nocashshop) {
+		clif_displaymessagecolor(sd, msg_txt(sd, 860), COLOR_RED); //Cash Shop is disabled in this map
+		return;
+	}
+
 	sd->npc_shopid = -1; // Set npc_shopid when using cash shop from "cash shop" button
 
 	WFIFOHEAD(fd, 10);
@@ -18357,6 +18362,11 @@ void clif_parse_CashShopReqTab(int fd, struct map_session_data *sd) {
 void clif_cashshop_list(int fd, struct map_session_data* sd) {
 	nullpo_retv(sd);
 
+	if (map[sd->bl.m].flag.nocashshop) {
+		clif_displaymessagecolor(sd, msg_txt(sd, 860), COLOR_RED); //Cash Shop is disabled in this map
+		return;
+	}
+
 	if (!session_isActive(fd)) {
 		return;
 	}
@@ -18387,6 +18397,11 @@ void clif_cashshop_list(int fd, struct map_session_data* sd) {
 
 void clif_parse_CashShopBuy(int fd, struct map_session_data *sd) {
 	unsigned short i, j;
+
+	if (map[sd->bl.m].flag.nocashshop) {
+		clif_displaymessagecolor(sd, msg_txt(sd, 860), COLOR_RED); //Cash Shop is disabled in this map
+		return;
+	}
 
 	struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST* p = (struct PACKET_CZ_SE_PC_BUY_CASHITEM_LIST*)RFIFOP(fd, 0);
 

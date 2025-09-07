@@ -367,6 +367,64 @@ int skill_get_range2(struct block_list *bl, uint16 id, uint16 lv, bool isServer)
 	return range;
 }
 
+/** Copy Referral: dummy skills should point to their source.
+ * @param skill_id Dummy skill ID
+ * @return Real skill id if found
+ **/
+uint16 skill_dummy2skill_id(uint16 skill_id) {
+	switch (skill_id) {
+		case AB_DUPLELIGHT_MELEE:
+		case AB_DUPLELIGHT_MAGIC:
+			return AB_DUPLELIGHT;
+		case WL_CHAINLIGHTNING_ATK:
+			return WL_CHAINLIGHTNING;
+		case WL_TETRAVORTEX_FIRE:
+		case WL_TETRAVORTEX_WATER:
+		case WL_TETRAVORTEX_WIND:
+		case WL_TETRAVORTEX_GROUND:
+			return WL_TETRAVORTEX;
+		case WL_SUMMON_ATK_FIRE:
+			return WL_SUMMONFB;
+		case WL_SUMMON_ATK_WIND:
+			return WL_SUMMONBL;
+		case WL_SUMMON_ATK_WATER:
+			return WL_SUMMONWB;
+		case WL_SUMMON_ATK_GROUND:
+			return WL_SUMMONSTONE;
+		case LG_OVERBRAND_BRANDISH:
+		case LG_OVERBRAND_PLUSATK:
+			return LG_OVERBRAND;
+		case WM_REVERBERATION_MELEE:
+		case WM_REVERBERATION_MAGIC:
+			return WM_REVERBERATION;
+		case WM_SEVERE_RAINSTORM_MELEE:
+			return WM_SEVERE_RAINSTORM;
+		case GN_CRAZYWEED_ATK:
+			return GN_CRAZYWEED;
+		case GN_HELLS_PLANT_ATK:
+			return GN_HELLS_PLANT;
+		case GN_SLINGITEM_RANGEMELEEATK:
+			return GN_SLINGITEM;
+		case RL_R_TRIP_PLUSATK:
+			return RL_R_TRIP;
+		case NPC_MAXPAIN_ATK:
+			return NPC_MAXPAIN;
+		case SU_CN_METEOR2:
+			return SU_CN_METEOR;
+		case SU_SV_ROOTTWIST_ATK:
+			return SU_SV_ROOTTWIST;
+		case SU_LUNATICCARROTBEAT2:
+			return SU_LUNATICCARROTBEAT;
+		case NPC_REVERBERATION_ATK:
+			return NPC_REVERBERATION;
+		case NPC_MAGMA_ERUPTION_DOTDAMAGE:
+			return NPC_MAGMA_ERUPTION;
+		case NPC_DANCINGBLADE_ATK:
+			return NPC_DANCINGBLADE;
+	}
+	return skill_id;
+}
+
 /** Calculates heal value of skill's effect
  * @param src
  * @param target
@@ -719,10 +777,10 @@ struct s_skill_nounit_layout* skill_get_nounit_layout (int skill_id, int skill_l
 {
 	if( skill_id == RK_WINDCUTTER )
 		return &skill_nounit_layout[windcutter_nounit_pos + dir];
-	else if( skill_id == LG_OVERBRAND )
+	/*else if( skill_id == LG_OVERBRAND )
 		return &skill_nounit_layout[overbrand_nounit_pos + dir];
 	else if( skill_id == LG_OVERBRAND_BRANDISH )
-		return &skill_nounit_layout[overbrand_brandish_nounit_pos + dir];
+		return &skill_nounit_layout[overbrand_brandish_nounit_pos + dir];*/
 
 	ShowError("skill_get_nounit_layout: unknown no-unit layout for skill %d (level %d)\n", skill_id, skill_lv);
 	return &skill_nounit_layout[0];
@@ -2641,91 +2699,7 @@ static void skill_do_copy(struct block_list* src, struct block_list *bl, uint16 
 		short idx;
 		unsigned char lv;
 
-		// Copy Referal: dummy skills should point to their source upon copying
-		switch (skill_id)
-		{
-		case AB_DUPLELIGHT_MELEE:
-		case AB_DUPLELIGHT_MAGIC:
-			skill_id = AB_DUPLELIGHT;
-			break;
-		case WL_CHAINLIGHTNING_ATK:
-			skill_id = WL_CHAINLIGHTNING;
-			break;
-		case WL_TETRAVORTEX_FIRE:
-		case WL_TETRAVORTEX_WATER:
-		case WL_TETRAVORTEX_WIND:
-		case WL_TETRAVORTEX_GROUND:
-			skill_id = WL_TETRAVORTEX;
-			break;
-		case WL_SUMMON_ATK_FIRE:
-			skill_id = WL_SUMMONFB;
-			break;
-		case WL_SUMMON_ATK_WIND:
-			skill_id = WL_SUMMONBL;
-			break;
-		case WL_SUMMON_ATK_WATER:
-			skill_id = WL_SUMMONWB;
-			break;
-		case WL_SUMMON_ATK_GROUND:
-			skill_id = WL_SUMMONSTONE;
-			break;
-		case LG_OVERBRAND_BRANDISH:
-		case LG_OVERBRAND_PLUSATK:
-			skill_id = LG_OVERBRAND;
-			break;
-		case SR_CRESCENTELBOW_AUTOSPELL:
-			skill_id = SR_CRESCENTELBOW;
-			break;
-		case WM_REVERBERATION_MELEE:
-		case WM_REVERBERATION_MAGIC:
-			skill_id = WM_REVERBERATION;
-			break;
-		case WM_SEVERE_RAINSTORM_MELEE:
-			skill_id = WM_SEVERE_RAINSTORM;
-			break;
-		case GN_CRAZYWEED_ATK:
-			skill_id = GN_CRAZYWEED;
-			break;
-		case GN_FIRE_EXPANSION_SMOKE_POWDER:
-		case GN_FIRE_EXPANSION_TEAR_GAS:
-		case GN_FIRE_EXPANSION_ACID:
-			skill_id = GN_FIRE_EXPANSION;
-			break;
-		case GN_HELLS_PLANT_ATK:
-			skill_id = GN_HELLS_PLANT;
-			break;
-		case GN_SLINGITEM_RANGEMELEEATK:
-			skill_id = GN_SLINGITEM;
-			break;
-			//case RL_GLITTERING_GREED_ATK:
-			//	copy_skillid = RL_GLITTERING_GREED;
-			//	break;
-		case RL_R_TRIP_PLUSATK:
-			skill_id = RL_R_TRIP;
-			break;
-		case SJ_FALLINGSTAR_ATK:
-		case SJ_FALLINGSTAR_ATK2:
-			skill_id = SJ_FALLINGSTAR;
-			break;
-		case OB_OBOROGENSOU_TRANSITION_ATK:
-			skill_id = OB_OBOROGENSOU;
-			break;
-		case NC_MAGMA_ERUPTION_DOTDAMAGE:
-			skill_id = NC_MAGMA_ERUPTION;
-			break;
-		case SU_CN_METEOR2:
-			skill_id = SU_CN_METEOR;
-			break;
-		case SU_SV_ROOTTWIST_ATK:
-			skill_id = SU_SV_ROOTTWIST;
-			break;
-		case SU_PICKYPECK_DOUBLE_ATK:
-			skill_id = SU_PICKYPECK;
-			break;
-		case SU_LUNATICCARROTBEAT2:
-			skill_id = SU_LUNATICCARROTBEAT;
-			break;
-		}
+		skill_id = skill_dummy2skill_id(skill_id);
 
 		//Use skill index, avoiding out-of-bound array [Cydh]
 		if ((idx = skill_get_index(skill_id)) < 0)
@@ -3270,10 +3244,10 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		// even tho its not official. It just looks and feels much better.
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skill_id, -2, type);
 		break;
-	case LG_OVERBRAND_BRANDISH:
+	/*case LG_OVERBRAND_BRANDISH:
 	case LG_OVERBRAND_PLUSATK:
 		dmg.dmotion = clif_skill_damage(src,bl,tick,dmg.amotion,dmg.dmotion,damage,dmg.div_,skill_id,-1,5);
-		break;
+		break;*/
 	case EL_CIRCLE_OF_FIRE:
 	case EL_STONE_RAIN:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, 0, -2, 5);
@@ -3382,7 +3356,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 					clif_blown(src);
 			}
 		}
-		if (skill_id == LG_OVERBRAND_BRANDISH)
+		/*if (skill_id == LG_OVERBRAND_BRANDISH)
 		{
 			if (skill_blown(dsrc, bl, dmg.blewcount, direction, 0x04|0x08|0x10|0x20))
 			{
@@ -3395,7 +3369,7 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 			else
 				skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, LG_OVERBRAND_PLUSATK, skill_lv, BF_WEAPON, flag);
  		}
-		else if (skill_id == RL_R_TRIP)
+		else*/ if (skill_id == RL_R_TRIP)
 		{
 			struct mob_data* tmd = BL_CAST(BL_MOB, bl);
 			static int dx[] = { 0, 1, 0, -1, -1,  1, 1, -1 };
@@ -4182,11 +4156,11 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 						}
 					}
 					break;
-				case LG_OVERBRAND_BRANDISH:
+				/*case LG_OVERBRAND_BRANDISH:
 				case LG_OVERBRAND_PLUSATK:
-				//case SR_KNUCKLEARROW://Shouldnt be needed since its set as a weapon attack in another part of the source. Will disable for now. [Rytech]
 					skill_attack(BF_WEAPON, src, src, target, skl->skill_id, skl->skill_lv, tick, skl->flag|SD_LEVEL);
 					break;
+				*/
 				case CH_PALMSTRIKE:
 				{
 					struct status_change* tsc = status_get_sc(target);
@@ -4947,6 +4921,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case RK_IGNITIONBREAK:
 	case GC_ROLLINGCUTTER:
 	case GC_COUNTERSLASH:
+	case LG_OVERBRAND:
 	case AB_JUDEX:
 	case AB_ADORAMUS:
 	case WL_SOULEXPANSION:
@@ -5856,13 +5831,9 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 			skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
  		break;
 
-	case LG_OVERBRAND:
-		skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag|SD_LEVEL);
-		break;
-
-	case LG_OVERBRAND_BRANDISH:
+	/*case LG_OVERBRAND_BRANDISH:
 		skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, skill_id, skill_lv, BF_WEAPON, flag | SD_LEVEL);
-		break;
+		break;*/
 
 	case SR_KNUCKLEARROW:
 		// teleport to target (if not on WoE grounds)
@@ -6792,7 +6763,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case ALL_FULL_THROTTLE:
 	case SU_ARCLOUSEDASH:
 	case SU_FRESHSHRIMP:
-		clif_skill_nodamage( src, bl, skill_id, skill_lv, sc_start( bl, type, 100, skill_lv, skill_get_time( skill_id, skill_lv ) ) );
+		clif_skill_nodamage( src, bl, skill_id, skill_lv, status_change_start(src, bl, type, 10000, skill_lv, 0, 0, 0, skill_get_time( skill_id, skill_lv ), 0) );
 		break;
 
 	case NPC_HALLUCINATION:
@@ -7524,6 +7495,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SR_SKYNETBLOW:
 	case SR_RAMPAGEBLASTER:
 	case SR_HOWLINGOFLION:
+	case LG_OVERBRAND:
 	case LG_RAYOFGENESIS:
 	case RL_FIREDANCE:
 	case RL_R_TRIP:
@@ -12720,7 +12692,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 		sc_start(src, SC_HIDING, 100, (sd ? pc_checkskill(sd, TF_HIDING) : 10), skill_get_time(TF_HIDING, (sd ? pc_checkskill(sd, TF_HIDING) : 10)));
 		break;
 
-	case LG_OVERBRAND:
+	/*case LG_OVERBRAND:
 		{
 			int dir = map_calc_dir(src, x, y);
 			struct s_skill_nounit_layout  *layout;
@@ -12737,7 +12709,7 @@ int skill_castend_pos2(struct block_list* src, int x, int y, int skill_id, int s
 			for (i = 0; i < layout->count; i++)
 				map_foreachincell(skill_area_sub, src->m, x+layout->dx[i], y+layout->dy[i], BL_CHAR, src, LG_OVERBRAND_BRANDISH, skill_lv, tick, flag|BCT_ENEMY,skill_castend_damage_id);
  		}
-		break;
+		break;*/
 
 	case WM_DOMINION_IMPULSE:
 		i = skill_get_splash(skill_id, skill_lv);

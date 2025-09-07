@@ -3222,18 +3222,19 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = 0; // Prevent damage since level 2 is MATK. [Aleos]
 		break;
 	case LG_OVERBRAND:
-		skillratio = 400 * skill_lv + 50 * (sd ? pc_checkskill(sd, CR_SPEARQUICKEN) : 10);
+		skillratio += -100 + 350 * skill_lv;
+		skillratio += ((sd) ? pc_checkskill(sd, CR_SPEARQUICKEN) * 50 : 0);
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 150;
 		break;
-	case LG_OVERBRAND_BRANDISH:
+	/*case LG_OVERBRAND_BRANDISH:
 		skillratio = 300 * skill_lv + sstatus->str + sstatus->dex;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 150;
 		break;
 	case LG_OVERBRAND_PLUSATK:
 		skillratio = 200 * skill_lv;
-		break;
+		break;*/
 	case LG_MOONSLASHER:
 		skillratio = 120 * skill_lv + 80 * (sd ? pc_checkskill(sd, LG_OVERBRAND) : 5);
 		if (level_effect_bonus == 1)

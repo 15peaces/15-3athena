@@ -5,6 +5,24 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/07/2025
+	r536 [15peaces]
+		*Some misc fixes.
+		*Corrected map_quit call with CLR_RESPAWN instead of CLR_TELEPORT.
+		*Added nocashshop mapflag.
+			-disables the usage of the cashshop button as well as any attempts to purchase (in case the flag is turned on after someone gets the shop open).
+			-it is enabled on all pvp/gvg maps by default.
+		*Added missing Love_Piece item bonus.
+		*Updated Overbrand Skill to latest official version.
+			-Removed knockback.
+			-Updated damage ratio.
+		*Added iROs eden group quests (disabled by default).
+			-Some parts are custom/placeholders.
+			-Some items don't exist or work probably on 15-3athena since they are iRO customized.
+			-VIP content is disabled & not supported.
+		*Added official cash Headgear Dyer.
+		*Added some missing items.
+
 08/17/2025
 	r535 [15peaces]
 		*Fixed slaves_inherit_mode config doesn't accept values > 3.

@@ -420,6 +420,7 @@ mf_pairship_endable	57
 mf_notomb	58
 mf_nocostume	59
 mf_hidemobhpbar	60
+mf_nocashshop	61
 
 cell_walkable		0
 cell_shootable		1

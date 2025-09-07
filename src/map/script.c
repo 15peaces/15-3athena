@@ -473,6 +473,7 @@ enum {
 	MF_NOTOMB,
 	MF_NOCOSTUME,
 	MF_HIDEMOBHPBAR,
+	MF_NOCASHSHOP,
 };
 
 const char* script_op2name(int op)
@@ -11630,6 +11631,7 @@ BUILDIN_FUNC(getmapflag)
 			case MF_NOTOMB:				script_pushint(st, map[m].flag.notomb); break;
 			case MF_NOCOSTUME:			script_pushint(st, map[m].flag.nocostume); break;
 			case MF_HIDEMOBHPBAR:		script_pushint(st, map[m].flag.hidemobhpbar); break;
+			case MF_NOCASHSHOP:         script_pushint(st, map[m].flag.nocashshop); break;
 		}
 	}
 
@@ -11736,6 +11738,7 @@ BUILDIN_FUNC(setmapflag)
 			case MF_NOTOMB:				map[m].flag.notomb = 1; break;
 			case MF_NOCOSTUME:			map[m].flag.nocostume = 1; break;
 			case MF_HIDEMOBHPBAR:		map[m].flag.hidemobhpbar = 1; break;
+			case MF_NOCASHSHOP:         map[m].flag.nocashshop = 1; break;
 		}
 	}
 
@@ -11827,6 +11830,7 @@ BUILDIN_FUNC(removemapflag)
 			case MF_NOTOMB:				map[m].flag.notomb = 0; break;
 			case MF_NOCOSTUME:			map[m].flag.nocostume = 0; break;
 			case MF_HIDEMOBHPBAR:		map[m].flag.hidemobhpbar = 0; break;
+			case MF_NOCASHSHOP:         map[m].flag.nocashshop = 0; break;
 		}
 	}
 

@@ -354,7 +354,7 @@
 //-- LG_EXEEDBREAK
 2316,5000:5500:6000:6500:7000,0,1000,0,0,300000,0
 //-- LG_OVERBRAND
-2317,500,0,2000,0,0,0,0
+2317,0,500,1000,300,0,0,0
 //-- LG_PRESTIGE
 2318,1000,2000,0,60000,0,30000:45000:60000:75000:90000,0
 //-- LG_BANDING // Can't do a infinite duration for this skill due to how it works. A hour duration should be enough.

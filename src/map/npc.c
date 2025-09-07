@@ -3959,6 +3959,8 @@ static const char* npc_parse_mapflag(char* w1, char* w2, char* w3, char* w4, con
 		map[m].flag.nocostume = state;
 	else if (!strcmpi(w3, "hidemobhpbar"))
 		map[m].flag.hidemobhpbar = state;
+	else if (!strcmpi(w3, "nocashshop"))
+	map[m].flag.nocashshop = state;
 	else
 		ShowError("npc_parse_mapflag: unrecognized mapflag '%s' (file '%s', line '%d').\n", w3, filepath, strline(buffer,start-buffer));
 

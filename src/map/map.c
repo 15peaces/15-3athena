@@ -193,8 +193,7 @@ int map_usercount(void)
 //
 
 /*==========================================
- * block‚ðfree‚·‚é‚Æ‚«free‚Ì?‚í‚è‚ÉŒÄ‚Ô
- * ƒƒbƒN‚³‚ê‚Ä‚¢‚é‚Æ‚«‚Íƒoƒbƒtƒ@‚É‚½‚ß‚é
+ * Attempt to free a map blocklist
  *------------------------------------------*/
 int map_freeblock (struct block_list *bl)
 {
@@ -411,7 +410,7 @@ int map_moveblock(struct block_list *bl, int x1, int y1, int64 tick)
 		status_change_end(bl, SC_MAGICROD, INVALID_TIMER);
 		status_change_end(bl, SC_ROLLINGCUTTER, INVALID_TIMER);
 		status_change_end(bl, SC_SU_STOOP, INVALID_TIMER);
-		if (sc->data[SC_PROPERTYWALK] && sc->data[SC_PROPERTYWALK]->val3 >= skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2))
+		if (sc && sc->data[SC_PROPERTYWALK] && sc->data[SC_PROPERTYWALK]->val3 >= skill_get_maxcount(sc->data[SC_PROPERTYWALK]->val1, sc->data[SC_PROPERTYWALK]->val2))
 			status_change_end(bl, SC_PROPERTYWALK, INVALID_TIMER);
 
 	} else
@@ -2296,7 +2295,7 @@ int map_quit(struct map_session_data *sd)
 	// Return loot to owner
 	if( sd->pd ) pet_lootitem_drop(sd->pd, sd);
 
-	unit_remove_map_pc(sd,CLR_TELEPORT);
+	unit_remove_map_pc(sd, CLR_RESPAWN);
 	
 	if( map[sd->bl.m].instance_id >=0 )
 	{ // Avoid map conflicts and warnings on next login

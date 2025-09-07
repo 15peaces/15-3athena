@@ -1,0 +1,135 @@
+//===== 15-3athena Script ====================================
+//= Map flags that disable cash shop usage
+//===== By: ==================================================
+//= 15-3athena Dev Team
+//===== Current Version: =====================================
+//= 1.0
+//===== Description: =========================================
+//= pvp: Turns on PvP mode
+//===== Additional Comments: =================================
+//= 1.0 First version. [15peaces]
+//============================================================
+
+//============================================================
+// Global Mapflags / Episode unknown
+//============================================================
+// PvP ========================
+pvp_y_1-1	mapflag	nocashshop
+pvp_y_1-2	mapflag	nocashshop
+pvp_y_1-3	mapflag	nocashshop
+pvp_y_1-4	mapflag	nocashshop
+//pvp_y_1-5	mapflag	nocashshop
+pvp_y_2-1	mapflag	nocashshop
+pvp_y_2-2	mapflag	nocashshop
+pvp_y_2-3	mapflag	nocashshop
+pvp_y_2-4	mapflag	nocashshop
+//pvp_y_2-5	mapflag	nocashshop
+pvp_y_3-1	mapflag	nocashshop
+pvp_y_3-2	mapflag	nocashshop
+pvp_y_3-3	mapflag	nocashshop
+pvp_y_3-4	mapflag	nocashshop
+//pvp_y_3-5	mapflag	nocashshop
+pvp_y_4-1	mapflag	nocashshop
+pvp_y_4-2	mapflag	nocashshop
+pvp_y_4-3	mapflag	nocashshop
+pvp_y_4-4	mapflag	nocashshop
+//pvp_y_4-5	mapflag	nocashshop
+pvp_y_5-1	mapflag	nocashshop
+pvp_y_5-2	mapflag	nocashshop
+pvp_y_5-3	mapflag	nocashshop
+pvp_y_5-4	mapflag	nocashshop
+//pvp_y_5-5	mapflag	nocashshop
+pvp_y_6-1	mapflag	nocashshop
+pvp_y_6-2	mapflag	nocashshop
+pvp_y_6-3	mapflag	nocashshop
+pvp_y_6-4	mapflag	nocashshop
+//pvp_y_6-5	mapflag	nocashshop
+pvp_y_7-1	mapflag	nocashshop
+pvp_y_7-2	mapflag	nocashshop
+pvp_y_7-3	mapflag	nocashshop
+pvp_y_7-4	mapflag	nocashshop
+//pvp_y_7-5	mapflag	nocashshop
+pvp_y_8-1	mapflag	nocashshop
+pvp_y_8-2	mapflag	nocashshop
+pvp_y_8-3	mapflag	nocashshop
+pvp_y_8-4	mapflag	nocashshop
+//pvp_y_8-5	mapflag	nocashshop
+pvp_n_1-1	mapflag	nocashshop
+pvp_n_1-2	mapflag	nocashshop
+pvp_n_1-3	mapflag	nocashshop
+pvp_n_1-4	mapflag	nocashshop
+pvp_n_1-5	mapflag	nocashshop
+pvp_n_2-1	mapflag	nocashshop
+pvp_n_2-2	mapflag	nocashshop
+pvp_n_2-3	mapflag	nocashshop
+pvp_n_2-4	mapflag	nocashshop
+pvp_n_2-5	mapflag	nocashshop
+pvp_n_3-1	mapflag	nocashshop
+pvp_n_3-2	mapflag	nocashshop
+pvp_n_3-3	mapflag	nocashshop
+pvp_n_3-4	mapflag	nocashshop
+pvp_n_3-5	mapflag	nocashshop
+pvp_n_4-1	mapflag	nocashshop
+pvp_n_4-2	mapflag	nocashshop
+pvp_n_4-3	mapflag	nocashshop
+pvp_n_4-4	mapflag	nocashshop
+pvp_n_4-5	mapflag	nocashshop
+pvp_n_5-1	mapflag	nocashshop
+pvp_n_5-2	mapflag	nocashshop
+pvp_n_5-3	mapflag	nocashshop
+pvp_n_5-4	mapflag	nocashshop
+pvp_n_5-5	mapflag	nocashshop
+pvp_n_6-1	mapflag	nocashshop
+pvp_n_6-2	mapflag	nocashshop
+pvp_n_6-3	mapflag	nocashshop
+pvp_n_6-4	mapflag	nocashshop
+pvp_n_6-5	mapflag	nocashshop
+pvp_n_7-1	mapflag	nocashshop
+pvp_n_7-2	mapflag	nocashshop
+pvp_n_7-3	mapflag	nocashshop
+pvp_n_7-4	mapflag	nocashshop
+pvp_n_7-5	mapflag	nocashshop
+pvp_n_8-1	mapflag	nocashshop
+pvp_n_8-2	mapflag	nocashshop
+pvp_n_8-3	mapflag	nocashshop
+pvp_n_8-4	mapflag	nocashshop
+pvp_n_8-5	mapflag	nocashshop
+pvp_2vs2	mapflag	nocashshop
+
+// Guild Castles ==========
+aldeg_cas02	mapflag	nocashshop
+aldeg_cas03	mapflag	nocashshop
+aldeg_cas04	mapflag	nocashshop
+aldeg_cas05	mapflag	nocashshop
+gefg_cas01	mapflag	nocashshop
+gefg_cas02	mapflag	nocashshop
+gefg_cas03	mapflag	nocashshop
+gefg_cas04	mapflag	nocashshop
+gefg_cas05	mapflag	nocashshop
+payg_cas01	mapflag	nocashshop
+payg_cas02	mapflag	nocashshop
+payg_cas03	mapflag	nocashshop
+payg_cas04	mapflag	nocashshop
+payg_cas05	mapflag	nocashshop
+prtg_cas01	mapflag	nocashshop
+prtg_cas02	mapflag	nocashshop
+prtg_cas03	mapflag	nocashshop
+prtg_cas04	mapflag	nocashshop
+prtg_cas05	mapflag	nocashshop
+
+//============================================================
+// RECHECK NEEDED, came after ep5??
+//============================================================
+// PvP ========================
+
+//Aldebaran Turbo Track
+turbo_e_4	mapflag	nocashshop
+turbo_e_8	mapflag	nocashshop
+turbo_e_16	mapflag	nocashshop
+
+// GvG Arenas =============
+guild_vs1	mapflag	nocashshop
+guild_vs2	mapflag	nocashshop
+guild_vs3	mapflag	nocashshop
+guild_vs4	mapflag	nocashshop
+guild_vs5	mapflag	nocashshop

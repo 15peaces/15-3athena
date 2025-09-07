@@ -702,6 +702,7 @@ struct map_data {
 		unsigned notomb : 1;
 		unsigned nocostume : 1; // Disable costume sprites [Cydh]
 		unsigned hidemobhpbar : 1;
+		unsigned nocashshop : 1;
 	} flag;
 	struct point save;
 	struct npc_data *npc[MAX_NPC_PER_MAP];
