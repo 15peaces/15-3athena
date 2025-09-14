@@ -1688,6 +1688,11 @@ struct PACKET_CZ_USE_SKILL_END {
 } __attribute__((packed));
 #endif
 
+struct PACKET_CZ_MEMORIALDUNGEON_COMMAND {
+	int16 packetType;
+	int32 command;
+} __attribute__((packed));
+
 #if !defined(sun) && (!defined(__NETBSD__) || __NetBSD_Version__ >= 600000000) // NetBSD 5 and Solaris don't like pragma pack but accept the packed attribute
 #pragma pack(pop)
 #endif // not NetBSD < 6 / Solaris

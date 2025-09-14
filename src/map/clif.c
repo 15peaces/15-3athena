@@ -22248,6 +22248,16 @@ void clif_parse_StopUseSkillToId(int32 fd, struct map_session_data* sd) {
 #endif
 }
 
+void clif_parse_memorial_dungeon_command(int fd, struct map_session_data *sd)
+{
+	const struct PACKET_CZ_MEMORIALDUNGEON_COMMAND *p = (struct PACKET_CZ_MEMORIALDUNGEON_COMMAND*)RFIFOP(fd, 0);
+
+	switch (p->command) {
+	case COMMAND_MEMORIALDUNGEON_DESTROY_FORCE:
+		instance_force_destroy(sd);
+	}
+}
+
 #ifdef DUMP_UNKNOWN_PACKET
 void DumpUnknownPacket(int fd, TBL_PC *sd, int cmd, int packet_len) {
 	const char* packet_txt = "save/packet.txt";
@@ -23057,6 +23067,7 @@ void packetdb_readdb(void)
 		{ clif_parse_lapineUpgrade_close , "pLapineUpgrade_close" },
 		{ clif_parse_StartUseSkillToId, "pUseSkillStart" },
 		{ clif_parse_StopUseSkillToId, "pUseSkillEnd" },
+		{ clif_parse_memorial_dungeon_command , "pMemorialDungeonCommand" },
 		{ clif_parse_dull, "dull" },
 		{NULL,NULL}
 	};

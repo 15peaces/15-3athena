@@ -64,6 +64,7 @@ void instance_init(int instance_id);
 void instance_check_idle(int instance_id);
 void instance_check_kick(struct map_session_data *sd);
 void instance_set_timeout(int instance_id, unsigned int progress_timeout, unsigned int idle_timeout);
+void instance_force_destroy(struct map_session_data *sd);
 
 void do_reload_instance(void);
 void do_final_instance(void);

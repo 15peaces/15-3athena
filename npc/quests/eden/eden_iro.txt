@@ -1165,7 +1165,7 @@ auction_03,145,47,2	shop	Tool Dealer#annex	83,611:-1,501:-1,502:-1,503:-1,506:-1
 
 // Fallen_Angel_Wing Enchant
 //============================================================
-moc_para01,179,27,3	script	Dark Luhir#new10	4_F_VALKYRIE2,{
+moc_para01,179,27,3	script	Dark Luhir#new10	403,{
 	disable_items;
 	mes "[Dark Luhir]";
 	mes "Hello~ I am giving away extra stats to those who have a Fallen Angel Wing item.";

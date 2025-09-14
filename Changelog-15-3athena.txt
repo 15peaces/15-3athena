@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/17/2025
+	r537 [15peaces]
+		*Some instance (crash) fixes.
+		*Add missing checks to instance.c
+		*Implement PACKET_CZ_MEMORIALDUNGEON_COMMAND.
+			-The "Destroy Instance" Button is now working.
+
 09/07/2025
 	r536 [15peaces]
 		*Some misc fixes.

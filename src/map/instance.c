@@ -57,6 +57,8 @@ int instance_create(int owner_id, const char *name, enum instance_owner_type typ
 	short *iptr = NULL;
 	int i, j;
 
+	nullpo_retr(-1, name);
+
 	switch (type) {
 	case IOT_NONE:
 		break;
@@ -90,7 +92,7 @@ int instance_create(int owner_id, const char *name, enum instance_owner_type typ
 	}
 
 	if (type != IOT_NONE && *icptr) {
-		ARR_FIND(0, *icptr, i, strcmp(instances[iptr[i]].name, name) == 0);
+		ARR_FIND(0, *icptr, i, iptr[i] != -1 && strcmp(instances[iptr[i]].name, name) == 0);
 		if (i != *icptr)
 			return -4;/* already got this instance */
 	}
@@ -150,7 +152,9 @@ int instance_create(int owner_id, const char *name, enum instance_owner_type typ
 int instance_add_map(const char *name, int instance_id, bool usebasename, const char *map_name)
 {
 	int m = map_mapname2mapid(name), i, im = -1;
-	size_t num_cell, size;
+	size_t num_cell, size, j;
+
+	nullpo_retr(-1, name);
 
 	if( m < 0 )
 		return -1; // source map not found
@@ -171,7 +175,7 @@ int instance_add_map(const char *name, int instance_id, bool usebasename, const 
 		return -4;
 	}
 
-	ARR_FIND(instance_start_id, map_num, i, !map[i].name[0] == 0); // Searching for a Free Map
+	ARR_FIND(instance_start_id, map_num, i, map[i].name[0] == 0); // Searching for a Free Map
 
 	if (i < map_num)
 		im = i; // Unused map found (old instance)
@@ -203,6 +207,19 @@ int instance_add_map(const char *name, int instance_id, bool usebasename, const 
 	num_cell = map[im].xs * map[im].ys;
 	CREATE( map[im].cell, struct mapcell, num_cell );
 	memcpy( map[im].cell, map[m].cell, num_cell * sizeof(struct mapcell) );
+
+	// Appropriately clear cell data
+	for (j = 0; j < num_cell; j++) {
+		map[im].cell[j].basilica = 0;
+		map[im].cell[j].icewall = 0;
+		map[im].cell[j].npc = 0;
+		map[im].cell[j].landprotector = 0;
+		map[im].cell[j].maelstrom = 0;
+		map[im].cell[j].pvp = 0;
+#ifdef CELL_NOSTACK
+		map[im].cell[j].cell_bl = 0; //Holds amount of bls in this cell.
+#endif
+	}
 
 	size = map[im].bxs * map[im].bys * sizeof(struct block_list*);
 	map[im].block = (struct block_list**)aCalloc(size, 1);
@@ -276,6 +293,8 @@ int instance_mapname2imap(const char *map_name, int instance_id) {
  *--------------------------------------*/
 int instance_mapid2imapid(int m, int instance_id)
 {
+	Assert_retr(-1, m >= 0 && m < map_num);
+
 	if( map[m].flag.src4instance == 0 )
 		return m; // not instances found for this map
 	else if( map[m].instance_id >= 0 )
@@ -494,9 +513,12 @@ void instance_destroy(int instance_id)
 			iptr[j] = -1;
 	}
 
-	while (instances[instance_id].num_map && last != instances[instance_id].map[0]) { // Remove all maps from instance
-		last = instances[instance_id].map[0];
-		instance_del_map(instances[instance_id].map[0]);
+	if (instances[instance_id].map)
+	{
+		while (instances[instance_id].num_map && last != instances[instance_id].map[0]) { // Remove all maps from instance
+			last = instances[instance_id].map[0];
+			instance_del_map(instances[instance_id].map[0]);
+		}
 	}
 
 	if (instances[instance_id].vars)
@@ -592,12 +614,74 @@ void instance_check_kick(struct map_session_data *sd)
 {
 	int m = sd->bl.m;
 
+	nullpo_retv(sd);
+
 	clif_instance_leave(sd->fd);
 	if (map[m].instance_id >= 0) { // User was on the instance map
 		if( map[m].save.map )
 			pc_setpos(sd, map[m].save.map, map[m].save.x, map[m].save.y, CLR_TELEPORT);
 		else
 			pc_setpos(sd, sd->status.save_point.map, sd->status.save_point.x, sd->status.save_point.y, CLR_TELEPORT);
+	}
+}
+
+/**
+ * Look up existing memorial dungeon of the player and destroy it
+ *
+ * @param sd session data.
+ *
+ */
+void instance_force_destroy(struct map_session_data *sd)
+{
+	nullpo_retv(sd);
+
+	for (int i = 0; i < instance_count; ++i) {
+		switch (instances[i].owner_type) {
+		case IOT_CHAR:
+		{
+			if (instances[i].owner_id != sd->status.account_id)
+				continue;
+			break;
+		}
+		case IOT_PARTY:
+		{
+			int party_id = sd->status.party_id;
+			if (instances[i].owner_id != party_id)
+				continue;
+			int j = 0;
+			struct party_data *pt = party_search(party_id);
+			nullpo_retv(pt);
+
+			ARR_FIND(0, MAX_PARTY, j, pt->party.member[j].leader);
+			if (j == MAX_PARTY) {
+				ShowWarning("clif_parse_memorial_dungeon_command: trying to destroy a party instance, while the party has no leader.");
+				return;
+			}
+			if (pt->party.member[j].char_id != sd->status.char_id) {
+				ShowWarning("clif_parse_memorial_dungeon_command: trying to destroy a party instance, from a non party-leader player.");
+				return;
+			}
+			break;
+		}
+		case IOT_GUILD:
+		{
+			int guild_id = sd->status.guild_id;
+			if (instances[i].owner_id != guild_id)
+				continue;
+			struct guild *g = guild_search(guild_id);
+			nullpo_retv(g);
+
+			if (g->member[0].char_id != sd->status.char_id) {
+				ShowWarning("clif_parse_memorial_dungeon_command: trying to destroy a guild instance, from a non guild-master player.");
+				return;
+			}
+			break;
+		}
+		default:
+			continue;
+		}
+		instance_destroy(instances[i].id);
+		return;
 	}
 }
 

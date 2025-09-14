@@ -3248,7 +3248,7 @@ int npc_instanceinit(struct npc_data* nd)
 	snprintf(evname, ARRAYLENGTH(evname), "%s::OnInstanceInit", nd->exname);
 
 	if( ( ev = (struct event_data*)strdb_get(ev_db, evname) ) )
-		run_script(nd->u.scr.script,ev->pos,0,nd->bl.id);
+		run_script(ev->nd->u.scr.script,ev->pos,0,ev->nd->bl.id);
 
 	return 0;
 }

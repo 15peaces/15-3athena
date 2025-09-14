@@ -3920,7 +3920,7 @@ static void script_attach_state(struct script_state* st)
 }
 
 /*==========================================
- * スクリプトの実行メイン部分
+ * The main part of the script execution
  *------------------------------------------*/
 void run_script_main(struct script_state *st)
 {
@@ -3933,8 +3933,10 @@ void run_script_main(struct script_state *st)
 	script_attach_state(st);
 
 	nd = map_id2nd(st->oid);
-	if( nd )
+	if( nd && nd->bl.m >= 0)
 		st->instance_id = map[nd->bl.m].instance_id;
+	else
+		st->instance_id = -1;
 
 	if(st->state == RERUNLINE) {
 		run_func(st);
@@ -12555,7 +12557,7 @@ BUILDIN_FUNC(mobcount)	// Added by RoVeRT
 		return 0;
 	}
 	
-	if( map[m].flag.src4instance && map[m].instance_id >= 0 && st->instance_id >= 0 && (m = instance_mapid2imapid(m, st->instance_id)) < 0 )
+	if( map[m].flag.src4instance == -1 && map[m].instance_id >= 0 && st->instance_id >= 0 && (m = instance_mapid2imapid(m, st->instance_id)) < 0 )
 	{
 		script_pushint(st,-1);
 		return 0;
@@ -14410,7 +14412,7 @@ BUILDIN_FUNC(getmapxy)
 			script_pushint(st,-1);
 			return 1;
 	}
-	if (!bl) { //No object found.
+	if (!bl || bl->m == -1) { //No object found.
 		script_pushint(st,-1);
 		return 0;
 	}

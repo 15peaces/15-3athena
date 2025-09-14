@@ -652,6 +652,10 @@ enum bossmap_info_type {
 	BOSS_INFO_DEAD,          // Boss is dead
 };
 
+enum memorial_dungeon_command {
+	COMMAND_MEMORIALDUNGEON_DESTROY_FORCE = 0x3,
+};
+
 struct cash_item_data {
 	t_itemid id;
 	uint32 price;
