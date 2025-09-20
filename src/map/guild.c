@@ -359,7 +359,7 @@ int guild_npc_request_info(int guild_id,const char *event)
 		struct eventlist* ev;
 		DBData prev;
 
-		ev=(struct eventlist *)aCalloc(sizeof(struct eventlist),1);
+		ev=(struct eventlist *)aCalloc(1, sizeof(struct eventlist));
 		memcpy(ev->name,event,strlen(event));
 		
 		//The one in the db (if present) becomes the next event from this.

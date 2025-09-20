@@ -4839,7 +4839,7 @@ BUILDIN_FUNC(callfunc)
 		{
 			const char* name = reference_getname(data);
 			if (name[0] == '.') {
-				ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*), 1);
+				ref = (struct DBMap**)aCalloc(1, sizeof(struct DBMap*));
 				ref[0] = (name[1] == '@' ? st->stack->var_function : st->script->script_vars);
 				data->ref = ref;
 			}
@@ -4888,7 +4888,7 @@ BUILDIN_FUNC(callsub)
 			const char* name = reference_getname(data);
 			if (name[0] == '.' && name[1] == '@') {
 				if (!ref) {
-					ref = (struct DBMap**)aCalloc(sizeof(struct DBMap*), 1);
+					ref = (struct DBMap**)aCalloc(1, sizeof(struct DBMap*));
 					ref[0] = st->stack->var_function;
 				}
 				data->ref = ref;

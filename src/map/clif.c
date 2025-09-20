@@ -11316,7 +11316,10 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 			status_calc_bl(&sd->ed->bl, SCB_SPEED);
 	}
 
+	bool first_time = false;
+
 	if(sd->state.connect_new) {
+		first_time = true;
 		int lv;
 		guild_notice = true;
 		clif_skillupdateinfoblock(sd);
@@ -11543,6 +11546,21 @@ void clif_parse_LoadEndAck(int fd,struct map_session_data *sd)
 		clif_Mail_new(sd, 0, NULL, NULL);
 	}
 #endif
+
+	if (first_time) {
+		int i;
+
+		ARR_FIND(0, instance_count, i, instance_is_active(instances[i])
+			&& instances[i].owner_type == IOT_CHAR && instances[i].owner_id == sd->status.account_id);
+
+		if (i < instance_count) {
+			sd->instances = 1;
+			CREATE(sd->instance, short, 1);
+			sd->instance[0] = instances[i].id;
+			clif_instance_join(sd->fd, instances[i].id);
+		}
+	}
+
 	sd->state.connect_new = 0;
 	sd->state.changemap = false;
 }

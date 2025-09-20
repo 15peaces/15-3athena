@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/20/2025
+	r538 [15peaces]
+		*Reloading instances will now also reload instance mapflags.
+		*Instance will now restored on relog if still active.
+		*prevent giving bad instance info to players
+			-Properly clean up freed instance data to prevent link by partial info.
+			-Mark instance being destroyed to stop sending info to player after timeout.
+		*Fixed instance reload initializing a bad instance
+			-Destroyed instances (invalid) are kept in memory for reuse, but they should not be reinitialized during a reload. Just keep its memory space as is.
+		*Freed instance maps will now marked as invalid
+			-Otherwise, server will try to free it again during shutdown and fail.
+		*Fixed order of aCalloc parameters in entire src folder
+			-aCalloc should be called with (number of elements, size of each element) or gcc 14 will warn.
+
 09/17/2025
 	r537 [15peaces]
 		*Some instance (crash) fixes.

@@ -35,7 +35,7 @@ bool instance_is_valid(int instance_id) {
 		return false;
 	}
 
-	if (instances[instance_id].state == INSTANCE_FREE) {// uninitialized/freed instance slot
+	if (!instance_is_active(instances[instance_id])) { // uninitialized/freed/being freed instance slot
 		return false;
 	}
 
@@ -46,7 +46,7 @@ bool instance_is_valid(int instance_id) {
 /*--------------------------------------
  * name : instance name
  * Return value could be
- * -4 = already exists | -3 = no free instances | -2 = owner not found | -1 = invalid type
+ * -4 = already exists | -2 = owner not found | -1 = invalid type
  * On success return instance_id
  *--------------------------------------*/
 int instance_create(int owner_id, const char *name, enum instance_owner_type type) {
@@ -222,8 +222,8 @@ int instance_add_map(const char *name, int instance_id, bool usebasename, const 
 	}
 
 	size = map[im].bxs * map[im].bys * sizeof(struct block_list*);
-	map[im].block = (struct block_list**)aCalloc(size, 1);
-	map[im].block_mob = (struct block_list**)aCalloc(size, 1);
+	map[im].block = (struct block_list**)aCalloc(1, size);
+	map[im].block_mob = (struct block_list**)aCalloc(1, size);
 
 	memset(map[im].npc, 0x00, sizeof(map[i].npc));
 	map[im].npc_num = 0;
@@ -439,6 +439,7 @@ void instance_del_map(int m)
 
 	map_removemapdb(&map[m]);
 	memset(&map[m], 0x00, sizeof(map[0]));
+	map[m].m = -1; // Marks this map as unallocated so server doesn't try to clean it up later on.
 	map[m].name[0] = 0;
 	map[m].instance_id = -1;
 	map[m].mob_delete_timer = INVALID_TIMER;
@@ -463,18 +464,19 @@ void instance_destroy(int instance_id)
 	struct party_data *p = NULL;
 	struct guild *g = NULL;
 	short *iptr = NULL;
-	int type, j, last = 0;
+	int j, last = 0;
 	unsigned int now = (unsigned int)time(NULL);
 
 	if (!instance_is_valid(instance_id))
 		return; // nothing to do
 
-	if( instances[instance_id].progress_timeout && instances[instance_id].progress_timeout <= now )
-		type = 1;
-	else if( instances[instance_id].idle_timeout && instances[instance_id].idle_timeout <= now )
-		type = 2;
-	else
-		type = 3;
+	int type = 3; // other reason (default)
+	bool idle = (instances[instance_id].users == 0);
+
+	if (!idle && instances[instance_id].progress_timeout && instances[instance_id].progress_timeout <= now)
+		type = 1; // progress timeout
+	else if(idle && instances[instance_id].idle_timeout && instances[instance_id].idle_timeout <= now)
+		type = 2; // idle timeout
 
 	clif_instance(instance_id, 5, type); // Report users this instance has been destroyed
 
@@ -513,6 +515,9 @@ void instance_destroy(int instance_id)
 			iptr[j] = -1;
 	}
 
+	// mark it as being destroyed so server doesn't try to give players more information about it
+	instances[instance_id].state = INSTANCE_DESTROYING;
+
 	if (instances[instance_id].map)
 	{
 		while (instances[instance_id].num_map && last != instances[instance_id].map[0]) { // Remove all maps from instance
@@ -534,9 +539,11 @@ void instance_destroy(int instance_id)
 	if (instances[instance_id].map)
 		aFree(instances[instance_id].map);
 
+
+	// Clean up remains of the old instance and mark it as available for a new one
+	memset(&instances[instance_id], 0x0, sizeof(instances[0]));
 	instances[instance_id].map = NULL;
 	instances[instance_id].state = INSTANCE_FREE;
-	instances[instance_id].num_map = 0;
 }
 
 /*--------------------------------------
@@ -685,6 +692,27 @@ void instance_force_destroy(struct map_session_data *sd)
 	}
 }
 
+/**
+ * reloads the map flags from the source map
+ *
+ * @param instance_id
+ */
+void instance_reload_map_flags(int instance_id)
+{
+	Assert_retv(instance_is_valid(instance_id));
+
+	const struct instance_data *curInst = &instances[instance_id];
+
+	for (int i = 0; i < curInst->num_map; i++) {
+		struct map_data *dstMap = &map[curInst->map[i]];
+		const struct map_data *srcMap = &map[dstMap->instance_src_map];
+
+		memcpy(&dstMap->flag, &srcMap->flag, sizeof(struct map_flag));
+
+		dstMap->flag.src4instance = 0;
+	}
+}
+
 void do_reload_instance(void) {
 	struct s_mapiterator *iter;
 	struct map_session_data *sd;
@@ -693,6 +721,9 @@ void do_reload_instance(void) {
 	do_final_instance();
 	
 	for(i = 0; i < instance_count; i++) {
+		if (!instance_is_valid(i))
+			continue; // don't try to restart an invalid instance
+
 		for(k = 0; k < instances->num_map; k++) {
 			if( !map[map[instances[i].map[k]].instance_src_map].flag.src4instance )
 				break;
@@ -703,6 +734,7 @@ void do_reload_instance(void) {
 		else {
 			/* populate the instance again */
 			instance_init(i);
+			instance_reload_map_flags(i);
 			/* restart timers */
 			instance_set_timeout(i,instances[i].original_progress_timeout,instances[i].idle_timeoutval);
 		}

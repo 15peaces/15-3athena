@@ -124,7 +124,7 @@ int inter_homun_init()
 		return 1;
 	while(fgets(line, sizeof(line), fp))
 	{
-		p = (struct s_homunculus*)aCalloc(sizeof(struct s_homunculus), 1);
+		p = (struct s_homunculus*)aCalloc(1, sizeof(struct s_homunculus));
 		if(p==NULL){
 			ShowFatalError("int_homun: out of memory!\n");
 			exit(EXIT_FAILURE);
@@ -255,7 +255,7 @@ int mapif_rename_homun_ack(int fd, uint32 account_id, uint32 char_id, int flag, 
 int mapif_create_homun(int fd)
 {
 	struct s_homunculus *p;
-	p= (struct s_homunculus *) aCalloc(sizeof(struct s_homunculus), 1);
+	p= (struct s_homunculus *) aCalloc(1, sizeof(struct s_homunculus));
 	if(p==NULL){
 		ShowFatalError("int_homun: out of memory !\n");
 		//Sending the received data will pass hom_id == 0 <- fail.
@@ -286,7 +286,7 @@ int mapif_load_homun(int fd)
 
 static void* create_homun(DBKey key, va_list args) {
 	struct s_homunculus *p;
-	p=(struct s_homunculus *)aCalloc(sizeof(struct s_homunculus),1);
+	p=(struct s_homunculus *)aCalloc(1, sizeof(struct s_homunculus));
 	p->hom_id = key.i;
 	return p;
 }

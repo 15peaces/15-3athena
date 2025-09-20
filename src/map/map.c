@@ -3775,8 +3775,8 @@ int map_readallmaps (void)
 		map[i].bys = (map[i].ys + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
 		size = map[i].bxs * map[i].bys * sizeof(struct block_list*);
-		map[i].block = (struct block_list**)aCalloc(size, 1);
-		map[i].block_mob = (struct block_list**)aCalloc(size, 1);
+		map[i].block = (struct block_list**)aCalloc(1, size);
+		map[i].block_mob = (struct block_list**)aCalloc(1, size);
 
 		map[i].getcellp = map_sub_getcellp;
 		map[i].setcell = map_sub_setcell;

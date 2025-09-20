@@ -9,10 +9,19 @@
 extern unsigned short instance_start_id;
 extern unsigned short instance_count;
 
+/**
+ * true if instance is in an active/playable state.
+ * In other words, if a player can interact with it.
+ * 
+ * @param inst instance_data to be checked
+ */
+#define instance_is_active(inst) ((inst).state == INSTANCE_IDLE || (inst).state == INSTANCE_BUSY)
+
 typedef enum instance_state {
 	INSTANCE_FREE,
 	INSTANCE_IDLE,
-	INSTANCE_BUSY
+	INSTANCE_BUSY,
+	INSTANCE_DESTROYING,
 } instance_state;
 
 enum instance_owner_type {

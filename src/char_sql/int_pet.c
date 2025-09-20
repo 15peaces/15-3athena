@@ -104,7 +104,7 @@ int inter_pet_fromsql(int pet_id, struct s_pet* p)
 
 int inter_pet_sql_init(void){
 	//memory alloc
-	pet_pt = (struct s_pet*)aCalloc(sizeof(struct s_pet), 1);
+	pet_pt = (struct s_pet*)aCalloc(1, sizeof(struct s_pet));
 	return 0;
 }
 void inter_pet_sql_final(void){

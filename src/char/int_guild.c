@@ -413,7 +413,7 @@ int inter_guild_init()
 			continue;
 		}
 
-		g = (struct guild *) aCalloc(sizeof(struct guild), 1);
+		g = (struct guild *) aCalloc(1, sizeof(struct guild));
 		if(g == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
 			exit(EXIT_FAILURE);
@@ -441,7 +441,7 @@ int inter_guild_init()
 
 	while(fgets(line, sizeof(line), fp))
 	{
-		gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
+		gc = (struct guild_castle *) aCalloc(1, sizeof(struct guild_castle));
 		if(gc == NULL){
 			ShowFatalError("int_guild: out of memory!\n");
 			exit(EXIT_FAILURE);
@@ -462,7 +462,7 @@ int inter_guild_init()
 		ShowStatus(" %s - making Default Data...\n", castle_txt);
 		//デフォルトデータを作成
 		for(i = 0; i < MAX_GUILDCASTLE; i++) {
-			gc = (struct guild_castle *) aCalloc(sizeof(struct guild_castle), 1);
+			gc = (struct guild_castle *) aCalloc(1, sizeof(struct guild_castle));
 			if (gc == NULL) {
 				ShowFatalError("int_guild: out of memory!\n");
 				exit(EXIT_FAILURE);
@@ -964,7 +964,7 @@ int mapif_parse_CreateGuild(int fd, uint32 account_id, char *name, struct guild_
 			}
 	}
 
-	g = (struct guild *) aCalloc(sizeof(struct guild), 1);
+	g = (struct guild *) aCalloc(1, sizeof(struct guild));
 	if (g == NULL) {
 		ShowFatalError("int_guild: CreateGuild: out of memory !\n");
 		mapif_guild_created(fd, account_id, NULL);

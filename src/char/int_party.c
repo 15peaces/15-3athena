@@ -189,7 +189,7 @@ int inter_party_init() {
 			continue;
 		}
 
-		p = (struct party_data*)aCalloc(sizeof(struct party_data), 1);
+		p = (struct party_data*)aCalloc(1, sizeof(struct party_data));
 		if (p == NULL){
 			ShowFatalError("int_party: out of memory!\n");
 			exit(EXIT_FAILURE);

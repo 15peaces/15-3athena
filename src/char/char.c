@@ -1241,7 +1241,7 @@ void mmo_char_sync(void)
 		return;
 	}
 
-	id = (int*)aCalloc(sizeof(int), char_num);
+	id = (int*)aCalloc(char_num, sizeof(int));
 
 	// Sorting before save (by [Yor])
 	for(i = 0; i < char_num; i++) {
@@ -3012,7 +3012,7 @@ void char_read_fame_list(void)
 		return;
 	}
 
-	id = (int*)aCalloc(sizeof(int), char_num);
+	id = (int*)aCalloc(char_num, sizeof(int));
 
 	for(i = 0; i < char_num; i++) {
 		id[i] = i;

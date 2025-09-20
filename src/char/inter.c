@@ -116,7 +116,7 @@ int inter_accreg_init(void) {
 		return 1;
 	while(fgets(line, sizeof(line), fp))
 	{
-		reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
+		reg = (struct accreg*)aCalloc(1, sizeof(struct accreg));
 		if (reg == NULL) {
 			ShowFatalError("inter: accreg: out of memory!\n");
 			exit(EXIT_FAILURE);
@@ -460,7 +460,7 @@ int mapif_parse_broadcast(int fd)
 static struct WisData* mapif_create_whisper(int fd, char* src, char* dst, char* mes, int meslen)
 {
 	static int wisid = 0;
-	struct WisData* wd = (struct WisData *)aCalloc(sizeof(struct WisData), 1);
+	struct WisData* wd = (struct WisData *)aCalloc(1, sizeof(struct WisData));
 	if (wd == NULL){
 		ShowFatalError("inter: WisRequest: out of memory !\n");
 		return NULL;
@@ -553,7 +553,7 @@ int mapif_parse_WisToGM(int fd) {
 
 static void* create_accreg(DBKey key, va_list args) {
 	struct accreg *reg;
-	reg = (struct accreg*)aCalloc(sizeof(struct accreg), 1);
+	reg = (struct accreg*)aCalloc(1, sizeof(struct accreg));
 	reg->account_id = key.i;
 	return reg;
 }

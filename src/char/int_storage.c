@@ -118,13 +118,13 @@ bool guild_storage_fromtxt(int guild_id, struct s_storage* p)
 
 static void* create_storage(DBKey key, va_list args)
 {
-	return (struct storage_data *) aCalloc(sizeof(struct storage_data), 1);
+	return (struct storage_data *) aCalloc(1, sizeof(struct storage_data));
 }
 
 static void* create_guildstorage(DBKey key, va_list args)
 {
 	struct guild_storage* gs = NULL;
-	gs = (struct guild_storage *) aCalloc(sizeof(struct guild_storage), 1);
+	gs = (struct guild_storage *) aCalloc(1, sizeof(struct guild_storage));
 	gs->guild_id=key.i;
 	return gs;
 }
@@ -181,7 +181,7 @@ int inter_storage_init()
 		uint32 account_id;
 		struct storage_data *s;
 
-		s = (struct storage_data*)aCalloc(sizeof(struct storage_data), 1);
+		s = (struct storage_data*)aCalloc(1, sizeof(struct storage_data));
 		if( s == NULL )
 		{
 			ShowFatalError("int_storage: out of memory!\n");
@@ -214,7 +214,7 @@ int inter_storage_init()
 		struct guild_storage *gs;
 
 		sscanf(line,"%d",&tmp_int);
-		gs = (struct guild_storage*)aCalloc(sizeof(struct guild_storage), 1);
+		gs = (struct guild_storage*)aCalloc(1, sizeof(struct guild_storage));
 		if(gs==NULL){
 			ShowFatalError("int_storage: out of memory!\n");
 			exit(EXIT_FAILURE);

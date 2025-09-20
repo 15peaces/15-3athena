@@ -93,7 +93,7 @@ int inter_pet_init()
 		return 1;
 	while(fgets(line, sizeof(line), fp))
 	{
-		p = (struct s_pet*)aCalloc(sizeof(struct s_pet), 1);
+		p = (struct s_pet*)aCalloc(1, sizeof(struct s_pet));
 		if(p==NULL){
 			ShowFatalError("int_pet: out of memory!\n");
 			exit(EXIT_FAILURE);
@@ -224,7 +224,7 @@ int mapif_create_pet(int fd,uint32 account_id,uint32 char_id,short pet_class,sho
 	short pet_equip,short intimate,short hungry,char rename_flag,char incuvate,char *pet_name)
 {
 	struct s_pet *p;
-	p= (struct s_pet *) aCalloc(sizeof(struct s_pet), 1);
+	p= (struct s_pet *) aCalloc(1, sizeof(struct s_pet));
 	if(p==NULL){
 		ShowFatalError("int_pet: out of memory !\n");
 		mapif_pet_created(fd,account_id,NULL);
@@ -286,7 +286,7 @@ int mapif_load_pet(int fd,uint32 account_id,uint32 char_id,int pet_id)
 
 static void* create_pet(DBKey key, va_list args) {
 	struct s_pet *p;
-	p=(struct s_pet *)aCalloc(sizeof(struct s_pet),1);
+	p=(struct s_pet *)aCalloc(1, sizeof(struct s_pet));
 	p->pet_id = key.i;
 	return p;
 }
