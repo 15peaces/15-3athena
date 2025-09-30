@@ -2122,6 +2122,9 @@ static bool is_attack_hitting(struct Damage wd, struct block_list *src, struct b
 			if (sd && pc_checkskill(sd, AS_SONICACCEL) > 0)
 				hitrate += hitrate * 50 / 100;
 			break;
+		case RK_SONICWAVE:
+			hitrate += hitrate * 3 * skill_lv / 100; // !TODO: Confirm the hitrate bonus
+			break;
 		case MC_CARTREVOLUTION:
 		case GN_CART_TORNADO:
 		case GN_CARTCANNON:
@@ -3000,8 +3003,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		skillratio += ((skill_lv - 1) % 5 + 1) * 100;
 		break;
 	case RK_SONICWAVE:
-		skillratio = (skill_lv + 5) * 100; // ATK = {((Skill Level + 5) x 100) x (1 + [(Caster's Base Level - 100) / 200])} %
-		skillratio = skillratio * (100 + (status_get_lv(src) - 100) / 2) / 100;
+		skillratio += -100 + 1050 + 150 * skill_lv;
+		if (level_effect_bonus == 1)
+			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case RK_HUNDREDSPEAR:
 		skillratio += 500 + (80 * skill_lv);

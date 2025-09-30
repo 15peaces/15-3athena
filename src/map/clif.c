@@ -3966,7 +3966,8 @@ void clif_poison_list(struct map_session_data *sd, uint16 skill_lv) {
 		p->packetLength = sizeof(struct PACKET_ZC_MAKINGARROW_LIST) + count * sizeof(struct PACKET_ZC_MAKINGARROW_LIST_sub);
 		WFIFOSET(fd, p->packetLength);
 		sd->menuskill_id = GC_POISONINGWEAPON;
-		sd->menuskill_val = skill_lv;
+		sd->menuskill_val = count;
+		sd->menuskill_itemused = skill_lv;
 	}
 	else {
 		clif_skill_fail(sd, GC_POISONINGWEAPON, USESKILL_FAIL_GUILLONTINE_POISON, 0, 0);

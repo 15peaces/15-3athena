@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+09/30/2025
+	r539 [15peaces]
+		*RK_SONICWAVE; RK_ENCHANTBLADE
+			-Updated skills to latest official versions.
+		*GC_POISONINGWEAPON
+			-Fixed durations of the poisons.
+		*Fixed IRENE_ELDER mob mode.
+
 09/20/2025
 	r538 [15peaces]
 		*Reloading instances will now also reload instance mapflags.
