@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/04/2025
+	r540 [15peaces]
+		*Updated some item_trade restrictions.
+		*Fixed SO_SPELLFIST was not casting.
+			-Also added double attack support.
+		*Fixed Sara's Memory instance ignored the cooldown.
+
 09/30/2025
 	r539 [15peaces]
 		*RK_SONICWAVE; RK_ENCHANTBLADE

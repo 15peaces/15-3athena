@@ -139,7 +139,7 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 		close;
 	}
 	set .@sara_time, checkquest(15002, PLAYTIME);
-	if (.@sara_time == 1) {
+	if (.@sara_time == 0 || .@sara_time == 1) {
 		mes "[Leon the Adventurer]";
 		mes "I think that in about 20 hours after you last entered the rift will stable enough for you to";
 		mes	"transverse it again.";
@@ -147,7 +147,7 @@ dali,138,118,0	script	Dimensional Device#dimen	10007,{
 	} else if (.@sara_time == 2) {
 		erasequest 15002;
 		end;
-	} else if (.@sara_time == -1 || .@sara_time == 0) {
+	} else if (.@sara_time == -1) {
 		set .@party_id, getcharid(1);
 		set .@p_name$, getpartyname(.@party_id);
 		set .@md_name$, "Sara's Memory";

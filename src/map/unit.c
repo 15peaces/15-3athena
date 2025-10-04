@@ -1729,11 +1729,16 @@ int unit_skilluse_id2(struct block_list *src, int target_id, uint16 skill_id, ui
 		else
 			switch(skill_id){
 				case SA_CASTCANCEL:
-				case SO_SPELLFIST:
 					if(ud->skill_id != skill_id){
 						sd->skillid_old = ud->skill_id;
 						sd->skilllv_old = ud->skill_lv;
 					}
+					break;
+				case MG_FIREBOLT:
+				case MG_LIGHTNINGBOLT:
+				case MG_COLDBOLT:
+					sd->skillid_old = skill_id;
+					sd->skilllv_old = skill_lv;
 					break;
 				case BD_ENCORE:
 					//Prevent using the dance skill if you no longer have the skill in your tree. 

@@ -13134,7 +13134,8 @@ void clif_parse_skill_toid(struct map_session_data* sd, uint16 skill_id, uint16 
 	
 	if( sd->ud.skilltimer != INVALID_TIMER )
 	{
-		if( skill_id != SA_CASTCANCEL )
+		if (skill_id != SA_CASTCANCEL &&
+			!(skill_id == SO_SPELLFIST && (sd->ud.skill_id == MG_FIREBOLT || sd->ud.skill_id == MG_COLDBOLT || sd->ud.skill_id == MG_LIGHTNINGBOLT)))
 			return;
 	}
 	else if( DIFF_TICK(tick, sd->ud.canact_tick) < 0 && skill_id != SO_SPELLFIST )

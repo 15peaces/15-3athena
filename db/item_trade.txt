@@ -462,7 +462,7 @@
 5817,507,100	// Valentine_Pledge
 5820,467,100		// Black_Elven_Ears
 5864,507,100	//Shadow_Booster
-6000,507,100		// Dark_Ashes
+6000,475,100	// Dark_Ashes
 6001,507,100	// Essence_Of_Fire
 6002,121,100	// Token_Of_Apostle
 6005,467,100		// New_Year_Rice_Cake
@@ -500,7 +500,7 @@
 6082,507,100	// Spirit_Of_Alfheim
 6084,507,100	// Bradium_Fragments
 6085,507,100	// Shaggy_Muffler
-6121,507,100	//Makeover_Brush
+6121,506,100	//Makeover_Brush
 6122,507,100	//Paint_brush
 6124,507,100	//Wolf's_Flute
 6151,499,100	// Peice_Of_Great_Bradium

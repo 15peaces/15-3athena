@@ -8582,11 +8582,14 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		unit_skillcastcancel(src,1);
 		if(sd) {
 			int sp = skill_get_sp(sd->skillid_old,sd->skilllv_old);
+			if (skill_id == SO_SPELLFIST) { // enable Double Attack [15peaces]
+				sc_start4(src, type, 100, skill_lv + 1, skill_lv, sd->skillid_old, sd->skilllv_old, skill_get_time(skill_id, skill_lv));
+				sd->skillid_old = sd->skilllv_old = 0;
+				break;
+			}
 			sp = sp * (90 - (skill_lv-1)*20) / 100;
 			if(sp < 0) sp = 0;
 			status_zap(src, 0, sp);
-			if( skill_id == SO_SPELLFIST )
-				sc_start4(src,type,100,skill_lv+1,skill_lv,(sd->skillid_old)?sd->skillid_old:MG_FIREBOLT,(sd->skilllv_old)?sd->skilllv_old:skill_lv,skill_get_time(skill_id,skill_lv));
 		}
 		break;
 	case SA_SPELLBREAKER:
@@ -11973,8 +11976,7 @@ int skill_castend_id(int tid, int64 tick, int id, intptr_t data)
 		return 0;
 	}
 
-	if(ud->skill_id != SA_CASTCANCEL  &&
-	!(ud->skill_id == SO_SPELLFIST && (sd && (sd->skillid_old == MG_FIREBOLT || sd->skillid_old == MG_COLDBOLT || sd->skillid_old == MG_LIGHTNINGBOLT))) )
+	if (ud->skill_id != SA_CASTCANCEL && ud->skill_id != SO_SPELLFIST)
 	{// otherwise handled in unit_skillcastcancel()
 		if( ud->skilltimer != tid ) {
 			ShowError("skill_castend_id: Timer mismatch %d!=%d!\n", ud->skilltimer, tid);
@@ -15845,8 +15847,12 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 				return 0;
 			}
 			break;
-		case SA_CASTCANCEL:
 		case SO_SPELLFIST:
+			if (sd->skillid_old != MG_FIREBOLT && sd->skillid_old != MG_COLDBOLT && sd->skillid_old != MG_LIGHTNINGBOLT) {
+				clif_skill_fail(sd, skill_id, USESKILL_FAIL_LEVEL, 0, 0);
+				return 0;
+			}
+		case SA_CASTCANCEL:
 			if( sd->ud.skilltimer == INVALID_TIMER) 
 			{
 				clif_skill_fail(sd, skill_id,USESKILL_FAIL_LEVEL,0,0);
