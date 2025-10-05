@@ -488,7 +488,7 @@ void initChangeTables(void)
 	set_sc( CG_LONGINGFREEDOM	, SC_LONGING		, SI_LONGING		, SCB_SPEED | SCB_ASPD);
 	set_sc( CG_HERMODE			, SC_HERMODE		, SI_HERMODE		, SCB_NONE);
 	set_sc(CG_TAROTCARD			, SC_TAROTCARD		, SI_TAROT			, SCB_NONE);
-	set_sc( ITEM_ENCHANTARMS	, SC_ENCHANTARMS	, SI_BLANK			, SCB_ATK_ELE );
+	set_sc( ITEM_ENCHANTARMS	, SC_ENCHANTARMS	, SI_WEAPONPROPERTY , SCB_ATK_ELE );
 	set_sc( SL_HIGH				, SC_SPIRIT			, SI_SPIRIT			, SCB_ALL );
 	set_sc( KN_ONEHAND			, SC_ONEHAND		, SI_ONEHAND		, SCB_ASPD );
 	set_sc( GS_FLING			, SC_FLING			, SI_BLANK			, SCB_DEF|SCB_DEF2 );
@@ -560,6 +560,7 @@ void initChangeTables(void)
 	set_sc( RK_VITALITYACTIVATION	, SC_VITALITYACTIVATION	, SI_VITALITYACTIVATION	, SCB_REGEN );
 	set_sc( RK_FIGHTINGSPIRIT		, SC_FIGHTINGSPIRIT		, SI_FIGHTINGSPIRIT		, SCB_WATK|SCB_ASPD );
 	set_sc( RK_ABUNDANCE			, SC_ABUNDANCE			, SI_ABUNDANCE			, SCB_NONE );
+	set_sc( RK_LUXANIMA				, SC_LUXANIMA			, SI_LUXANIMA			, SCB_NONE);
 
 	// Guillotine Cross
 	set_sc_with_vfx( GC_VENOMIMPRESS      , SC_VENOMIMPRESS		, SI_VENOMIMPRESS       , SCB_NONE );
@@ -1099,11 +1100,11 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_LIFE_FORCE_F] = SI_LIFE_FORCE_F;
 
 	// Warlock Spheres
-	StatusIconChangeTable[SC_SUMMON1] = SI_SUMMON1;
-	StatusIconChangeTable[SC_SUMMON2] = SI_SUMMON2;
-	StatusIconChangeTable[SC_SUMMON3] = SI_SUMMON3;
-	StatusIconChangeTable[SC_SUMMON4] = SI_SUMMON4;
-	StatusIconChangeTable[SC_SUMMON5] = SI_SUMMON5;
+	StatusIconChangeTable[SC_SPHERE_1] = SI_SUMMON1;
+	StatusIconChangeTable[SC_SPHERE_2] = SI_SUMMON2;
+	StatusIconChangeTable[SC_SPHERE_3] = SI_SUMMON3;
+	StatusIconChangeTable[SC_SPHERE_4] = SI_SUMMON4;
+	StatusIconChangeTable[SC_SPHERE_5] = SI_SUMMON5;
 
 	StatusIconChangeTable[SC_REBOUND] = SI_REBOUND;
 	StatusIconChangeTable[SC_H_MINE_SPLASH] = SI_H_MINE_SPLASH;
@@ -1164,6 +1165,7 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_JP_EVENT04] = SI_JP_EVENT04;
 
 	// Item Status Changes
+	StatusIconChangeTable[SC_ENCHANTARMS] = SI_WEAPONPROPERTY;
 	StatusIconChangeTable[SC_GVG_GIANT] = SI_GVG_GIANT;
 	StatusIconChangeTable[SC_GVG_GOLEM] = SI_GVG_GOLEM;
 	StatusIconChangeTable[SC_GVG_STUN] = SI_GVG_STUN;
@@ -2843,6 +2845,8 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += (600 * sc->data[SC_INSPIRATION]->val1);
 			if (sc->data[SC_MTF_MHP])
 				bonus += sc->data[SC_MTF_MHP]->val1;
+			if (sc->data[SC_LUXANIMA])
+				bonus += sc->data[SC_LUXANIMA]->val3;
 
 			//Decreasing
 			if (sc->data[SC_MARIONETTE])
@@ -3032,6 +3036,8 @@ static int status_get_spbonus(struct block_list *bl, enum e_status_bonus type) {
 				bonus += sc->data[SC_ENERGY_DRINK_RESERCH]->val4;
 			if (sc->data[SC_VITATA_500])
 				bonus += sc->data[SC_VITATA_500]->val2;
+			if (sc->data[SC_LUXANIMA])
+				bonus += sc->data[SC_LUXANIMA]->val3;
 
 			//Decreasing
 		}
@@ -3935,6 +3941,11 @@ int status_calc_pc_(struct map_session_data* sd, enum e_status_calc_opt opt)
 		}
 		if (sc->data[SC_MTF_CRIDAMAGE])
 			sd->bonus.crit_atk_rate += sc->data[SC_MTF_CRIDAMAGE]->val1;
+		if (sc->data[SC_LUXANIMA]) {
+			pc_bonus2(sd, SP_ADDSIZE, SZ_ALL, sc->data[SC_LUXANIMA]->val3);
+			sd->bonus.crit_atk_rate += sc->data[SC_LUXANIMA]->val3;
+			sd->bonus.long_attack_atk_rate += sc->data[SC_LUXANIMA]->val3;
+		}
 	}
 
 	status_cpy(&sd->battle_status, status);
@@ -6790,7 +6801,7 @@ unsigned char status_calc_attack_element(struct block_list *bl, struct status_ch
 	if(!sc || !sc->count)
 		return cap_value(element, 0, UCHAR_MAX);
 	if(sc->data[SC_ENCHANTARMS])
-		return sc->data[SC_ENCHANTARMS]->val2;
+		return sc->data[SC_ENCHANTARMS]->val1;
 	if(sc->data[SC_WATERWEAPON] || (sc->data[SC_WATER_INSIGNIA] && sc->data[SC_WATER_INSIGNIA]->val1 == 2) || sc->data[SC_TIDAL_WEAPON] || sc->data[SC_TIDAL_WEAPON_OPTION])
 		return ELE_WATER;
 	if (sc->data[SC_EARTHWEAPON] || (sc->data[SC_EARTH_INSIGNIA] && sc->data[SC_EARTH_INSIGNIA]->val1 == 2))
@@ -8683,6 +8694,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	case SC_INVINCIBLEOFF:
 		status_change_end(bl, SC_INVINCIBLE, INVALID_TIMER);
 		break;
+	case SC_ENCHANTARMS:
+		status_change_end(bl, SC_ENCHANTARMS, INVALID_TIMER);
+		status_change_end(bl, SC_ASPERSIO, INVALID_TIMER);
+		break;
 	}
 
 	//Check for overlapping fails
@@ -8782,7 +8797,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			case SC_ASPDPOTION3:
 			case SC_ATKPOTION:
 			case SC_MATKPOTION:
-			case SC_ENCHANTARMS:
 			case SC_ARMOR_ELEMENT_WATER:
 			case SC_ARMOR_ELEMENT_EARTH:
 			case SC_ARMOR_ELEMENT_FIRE:
@@ -9646,10 +9660,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			//end previous enchants
 			skill_enchant_elemental_end(bl,type);
 			//Make sure the received element is valid.
-			if (val2 >= ELE_ALL)
-				val2 = val2% ELE_ALL;
-			else if (val2 < 0)
-				val2 = rnd()% ELE_ALL;
+			if (val1 >= ELE_ALL)
+				val1 = val1% ELE_ALL;
+			else if (val1 < 0)
+				val1 = rnd()% ELE_ALL;
+			val_flag |= 1;
 			break;
 		case SC_CRITICALWOUND:
 			val2 = 20*val1; //Heal effectiveness decrease
@@ -9788,6 +9803,10 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_GIANTGROWTH:
 			val2 = 15; // Triple damage success rate.
 			break;
+		case SC_LUXANIMA:
+			val2 = 15; // Storm Blast success %
+			val3 = 30; // Damage/HP/SP % increase
+			break;
 		case SC_VENOMIMPRESS:
 			val2 = 10 * val1;
 			val_flag |= 1|2;
@@ -9852,6 +9871,19 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 		case SC_READING_SB:
 			// val2 = sp reduction per second
 			tick_time = 10000;
+			break;
+		case SC_SPHERE_1:
+		case SC_SPHERE_2:
+		case SC_SPHERE_3:
+		case SC_SPHERE_4:
+		case SC_SPHERE_5:
+			if (!sd)
+				return 0;	// Should only work on players.
+			val4 = tick / 1000;
+			if (val4 < 1)
+				val4 = 1;
+			tick_time = 1000; // [GodLesZ] tick time
+			val_flag |= 1;
 			break;
 		case SC_STEALTHFIELD_MASTER:
 			val4 = tick / (2000 + 1000 * val1);
@@ -12715,11 +12747,11 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		}
 		break;
 
-	case SC_SUMMON1:
-	case SC_SUMMON2:
-	case SC_SUMMON3:
-	case SC_SUMMON4:
-	case SC_SUMMON5:
+	case SC_SPHERE_1:
+	case SC_SPHERE_2:
+	case SC_SPHERE_3:
+	case SC_SPHERE_4:
+	case SC_SPHERE_5:
 		if( --(sce->val4) >= 0 )
 		{
 			if( !status_charge(bl, 0, 1) )
@@ -13407,10 +13439,10 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 	map_freeblock_lock();
 
 	if (type&(SCCB_DEBUFFS | SCCB_REFRESH)) //Debuffs
-	for( i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++ )
-	{
-		status_change_end(bl, (sc_type)i, INVALID_TIMER);
-	}
+		for( i = SC_COMMON_MIN; i <= SC_COMMON_MAX; i++ )
+		{
+			status_change_end(bl, (sc_type)i, INVALID_TIMER);
+		}
 
 	for( i = SC_COMMON_MAX+1; i < SC_MAX; i++ )
 	{
@@ -13531,7 +13563,26 @@ int status_change_clear_buffs (struct block_list* bl, uint8 type)
 				if (!(type&SCCB_CHEM_PROTECT))
 					continue;
 				break;
-				
+
+			// Removed by RK_LUXANIMA
+			case SC_BURNING:
+			case SC_FROST:
+			case SC_MARSHOFABYSS:
+			case SC_TOXIN:
+			case SC_PARALYSE:
+			case SC_VENOMBLEED:
+			case SC_MAGICMUSHROOM:
+			case SC_DEATHHURT:
+			case SC_PYREXIA:
+			case SC_OBLIVIONCURSE:
+			case SC_LEECHESEND:
+			case SC_CRYSTALIZE:
+			case SC_DEEPSLEEP:
+			case SC_MANDRAGORA:
+				if (!(type&SCCB_LUXANIMA))
+					continue;
+				break;
+
 			//Debuffs that can be removed.
 			case SC_HALLUCINATION:
 			case SC_QUAGMIRE:

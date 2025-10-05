@@ -391,11 +391,11 @@ typedef enum sc_type {
 	SC_MARSHOFABYSS,
 	SC_RECOGNIZEDSPELL,
 	SC_STASIS,
-	SC_SUMMON1,
-	SC_SUMMON2,
-	SC_SUMMON3,
-	SC_SUMMON4,
-	SC_SUMMON5,
+	SC_SPHERE_1,
+	SC_SPHERE_2,
+	SC_SPHERE_3,
+	SC_SPHERE_4,
+	SC_SPHERE_5,
 	SC_READING_SB, // From iROwiki : your SP slowly drains depending on the number of spells frozen
 	/*SC_SPELLBOOK1,
 	SC_SPELLBOOK2,
@@ -877,6 +877,9 @@ typedef enum sc_type {
 
 	SC_TAROTCARD,
 
+	SC_LUXANIMA,
+	SC_REUSE_LIMIT_LUXANIMA,
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 } sc_type;
 
@@ -947,7 +950,7 @@ enum si_type {
 	SI_PROVIDENCE		= 61,
 	SI_DEFENDER		= 62,
 	SI_MAGICROD = 63,
-//	SI_WEAPONPROPERTY = 64,
+	SI_WEAPONPROPERTY = 64,
 	SI_AUTOSPELL		= 65,
 //	SI_SPECIALZONE = 66,
 //	SI_MASK = 67,
@@ -2031,7 +2034,7 @@ SI_NV_TRANSCENDENCE = 1131,
 //	SI_ = 1151,
 //	SI_ = 1152,
 //	SI_ = 1153,
-//	SI_LUXANIMA = 1154,
+	SI_LUXANIMA = 1154,
 //	SI_BATH_FOAM_A = 1155,
 //	SI_BATH_FOAM_B = 1156,
 //	SI_BATH_FOAM_C = 1157,

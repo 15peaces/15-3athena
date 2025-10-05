@@ -671,13 +671,13 @@ OnTouch:
 	next;
 	mes "[Sweet Wife]";
 	mes "Really? I'm that beautiful? I love you, honey~";
-	emotion e_kis2,0,"Sweet Married Couple#dew2";
+	emotion e_kis2,0,"Sweet Married Couple#2";
 	next;
 	mes "[Sweet Married Couple]";
 	mes "Hahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahahaha";
 	mes "Hohohohohohohohohohohohohohohohohohohohohohohohohohohohohohohohohohohoho";
 	emotion e_heh;
-	emotion e_heh,0,"Sweet Married Couple#dew2";
+	emotion e_heh,0,"Sweet Married Couple#2";
 	next;
 	mes "Come on now, I'm growing tired of this. Let's go.";
 	close;

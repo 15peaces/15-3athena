@@ -967,6 +967,8 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 			if((sce=sc->data[SC_EDP]))
 				sc_start4(bl,SC_DPOISON,sce->val2, sce->val1,src->id,0,0,
 					skill_get_time2(ASC_EDP,sce->val1));
+			if ((sce = sc->data[SC_LUXANIMA]) && rnd() % 100 < sce->val2)
+				skill_castend_nodamage_id(src, bl, RK_STORMBLAST, 1, tick, 0);
 		}
 	}
 	break;
@@ -1385,9 +1387,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		if ((sd ? pc_checkskill(sd, NC_AXEBOOMERANG) : 5) > 0 && rnd() % 100 < 5 * skill_lv)
 			skill_castend_damage_id(src, bl, NC_AXEBOOMERANG, (sd ? pc_checkskill(sd, NC_AXEBOOMERANG) : 5), tick, 1);
 		break;
-	case LG_SHIELDPRESS:
-		sc_start(bl, SC_STUN, 30 + 8 * skill_lv + sstatus->dex / 10 + status_get_job_lv_effect(src) / 4, skill_lv, skill_get_time(skill_id, skill_lv));
- 		break;
 	case LG_PINPOINTATTACK:
 		rate = 5 * (sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5) + (sstatus->agi + status_get_base_lv_effect(src)) / 10;
 
@@ -3191,6 +3190,9 @@ int64 skill_attack (int attack_type, struct block_list* src, struct block_list *
 		clif_skill_nodamage(src, bl, skill_id, -2, 1);
 		clif_skill_damage(src, bl, tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skill_id, -2, 5);
 		break;
+	case LG_SHIELDPRESS:
+		clif_skill_damage(dsrc, bl, tick, status_get_amotion(src), dmg.dmotion, damage, dmg.div_, skill_id, -1, DMG_SINGLE);
+		break;
 	case SC_FEINTBOMB:
 		dmg.dmotion = clif_skill_damage(dsrc,bl,tick, dmg.amotion, dmg.dmotion, damage, dmg.div_, skill_id, -1, 5);
 		break;
@@ -4535,7 +4537,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case SU_BITE:
 	case SU_SCAROFTAROU:
 	case SU_PICKYPECK:
-	case MH_CBC:
 	case EL_WIND_SLASH:
 	case EL_STONE_HAMMER:
 		skill_attack(BF_WEAPON, src, src, bl, skill_id, skill_lv, tick, flag);
@@ -5620,7 +5621,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				positions[5] = {-1,-1,-1,-1,-1 },
 				i, j = 0, k, subskill = 0;
 
-			for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
+			for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
 				if( sc->data[i] )
 				{
 					spheres[j] = i;
@@ -5721,7 +5722,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				int spheres[5] = { 0, 0, 0, 0, 0 },
 					positions[5] = {-1,-1,-1,-1,-1 };
 
-				for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
+				for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
 					if( sc && sc->data[i] )
 					{
 						spheres[j] = i;
@@ -5908,7 +5909,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		break;
 
 	case MH_STAHL_HORN:
-	case MH_TINDER_BREAKER:
 		if( unit_movepos(src, bl->x, bl->y, 1, 1) )
 		{	// Self knock back 1 cell to make it appear you warped
 			// next to the enemy you targeted from the direction
@@ -5918,10 +5918,32 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
+	case MH_TINDER_BREAKER:
+	case MH_CBC:
 	case MH_EQC:
-		if (!(tstatus->mode&MD_STATUS_IMMUNE))// Not usable on boss monsters.
-			skill_attack(BF_MISC,src,src,bl,skill_id,skill_lv,tick,flag);
-		break;
+	{
+		TBL_HOM *hd = BL_CAST(BL_HOM, src);
+		int32 duration = max(skill_lv, (status_get_str(src) / 7 - status_get_str(bl) / 10)) * 1000; //Yommy formula
+		sc_type type;
+
+		if (skill_id == MH_TINDER_BREAKER) {
+			type = SC_TINDER_BREAKER_POSTDELAY;
+			if (unit_movepos(src, bl->x, bl->y, 1, 1)) {
+				clif_blown(src);
+				clif_skill_poseffect(src, skill_id, skill_lv, bl->x, bl->y, tick);
+			}
+		}
+		else if (skill_id == MH_CBC) {
+			type = SC_CBC;
+		}
+		else if (skill_id == MH_EQC) {
+			type = SC_EQC;
+		}
+
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, status_change_start(src, bl, type, 10000, skill_lv, src->id, 0, 0, duration, 0));
+		skill_attack(skill_get_type(skill_id), src, src, bl, skill_id, skill_lv, tick, flag);
+	}
+	break;
 
 	case 0:
 		if(sd) {
@@ -6618,9 +6640,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case ITEM_ENCHANTARMS:
-		clif_skill_nodamage(src,bl,skill_id,skill_lv,
-			sc_start2(bl,type,100,skill_lv,
-				skill_get_ele(skill_id,skill_lv), skill_get_time(skill_id,skill_lv)));
+		clif_skill_nodamage(src,bl,skill_id,skill_lv,status_change_start(src,bl,type,10000,skill_get_ele(skill_id,skill_lv),0,0,0,skill_get_time(skill_id,skill_lv),0));
 		break;
 
 	case TK_SEVENWIND:
@@ -9880,117 +9900,9 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		break;
 
 	case RK_LUXANIMA:
-		{
-			const enum sc_type scs[] = { SC_REFRESH, SC_GIANTGROWTH, SC_STONEHARDSKIN, SC_VITALITYACTIVATION, SC_ABUNDANCE, SC_MILLENNIUMSHIELD };
-			short rune_effect[] = { RK_REFRESH, RK_GIANTGROWTH, RK_STONEHARDSKIN, RK_VITALITYACTIVATION, RK_ABUNDANCE, RK_MILLENNIUMSHIELD };
-			unsigned char buff_attempt = 100;// Safety to prevent infinite looping in the randomizer.
-			short rune_buff = 0;
-			bool rune_active = false;
-
-			i = 0;
-
-			if( sd == NULL || sd->status.party_id == 0 || (flag&1) )
-			{// Remove the BCT_PARTY and 1 flags so only the flag for the rune_buff is left. 
-				i = flag - 262145;
-
-				// Convert from flag to array number.
-				if ( i == LUX_REFRESH )
-					rune_buff = 0;
-				else if ( i == LUX_GIANTGROWTH )
-					rune_buff = 1;
-				else if ( i == LUX_STONEHARDSKIN )
-					rune_buff = 2;
-				else if ( i == LUX_VITALITYACTIVATION )
-					rune_buff = 3;
-				else if ( i == LUX_ABUNDANCE )
-					rune_buff = 4;
-				else if ( i == LUX_MILLENNIUMSHIELD )
-					rune_buff = 5;
-
-				if ( src == bl )// Sacrificed your rune buff.
-				{
-					if ( i == LUX_MILLENNIUMSHIELD )
-						pc_delshieldball(sd, sd->shieldball, 0);
-					else
-						status_change_end(bl, scs[rune_buff], INVALID_TIMER);
-				}
-				else
-				{// Buff surrounding party members with sacrificed rune buff.
-					if ( i == LUX_MILLENNIUMSHIELD )
-					{
-						if ( dstsd )
-						{
-							unsigned char generate = rnd()%100 + 1;//Generates a number between 1 - 100 which is used to determine how many shields it will generate.
-							unsigned char shieldnumber = 1;
-
-							if ( generate >= 1 && generate <= 50 )//50% chance for 2 shields.
-								shieldnumber = 2;
-							else if ( generate >= 51 && generate <= 80 )//30% chance for 3 shields.
-								shieldnumber = 3;
-							else if ( generate >= 81 && generate <= 100 )//20% chance for 4 shields.
-								shieldnumber = 4;
-
-							// Remove old shields if any exist.
-							pc_delshieldball(dstsd, dstsd->shieldball, 1);
-
-							clif_skill_nodamage(bl,bl,RK_MILLENNIUMSHIELD,1,1);
-							for (i = 0; i < shieldnumber; i++)
-								pc_addshieldball(dstsd, skill_get_time(skill_id,skill_lv), shieldnumber, battle_config.millennium_shield_health);
-						}
-
-					}
-					else if ( i == LUX_STONEHARDSKIN )
-						clif_skill_nodamage(bl, bl, rune_effect[rune_buff], skill_lv, sc_start2(bl, scs[rune_buff], 100, skill_lv, status_get_job_lv_effect(src)*(sd ? pc_checkskill(sd, RK_RUNEMASTERY) : 10), skill_get_time(skill_id, skill_lv)));
-					else
-						clif_skill_nodamage(bl, bl, rune_effect[rune_buff], skill_lv, sc_start(bl,scs[rune_buff],100,skill_lv,skill_get_time(skill_id,skill_lv)));
-				}
-			}
-			else if( sd && pc_checkskill(sd,RK_RUNEMASTERY) >= 10 )
-			{
-				if (sc)
-				{// Check if any of the listed passable rune buffs are active.
-					for (i = 0; i < ARRAYLENGTH(scs); i++)
-					{
-						if (sc->data[scs[i]])
-						{// If a rune buff is found, mark true.
-							rune_active = true;
-							break;// End the check.
-						}
-					}
-
-					// Rune buff found? 1 or more of them are likely active.
-					if ( rune_active )
-						while ( rune_buff == 0 && buff_attempt > 0 )
-						{// Randomly select a possible buff and see if its active.
-							i = rnd()%6;
-
-							// Selected rune buff active? If yes then prepare it to give to surrounding players.
-							if (sc->data[scs[i]])
-							{// Convert to a flag to pass on to the script under flag&1.
-								if ( i == 0 )
-									rune_buff = LUX_REFRESH;
-								else if ( i == 1 )
-									rune_buff = LUX_GIANTGROWTH;
-								else if ( i == 2 )
-									rune_buff = LUX_STONEHARDSKIN;
-								else if ( i == 3 )
-									rune_buff = LUX_VITALITYACTIVATION;
-								else if ( i == 4 )
-									rune_buff = LUX_ABUNDANCE;
-								else if ( i == 5 )
-									rune_buff = LUX_MILLENNIUMSHIELD;
-							}
-							else
-								--buff_attempt;
-						}
-				}
-
-				if ( rune_buff > 0 )
-					party_foreachsamemap(skill_area_sub, sd, skill_get_splash(skill_id, skill_lv), src, skill_id, skill_lv, tick, flag|BCT_PARTY|rune_buff|1, skill_castend_nodamage_id);
-
-				clif_skill_nodamage(src,bl,skill_id,1,1);
-			}
-		}
+		status_change_clear_buffs(bl, SCCB_LUXANIMA); // For bonus_script
+		status_change_start(src, bl, type, 10000, skill_lv, 0, 0, 0, skill_get_time(skill_id, skill_lv), 0);
+		clif_skill_nodamage(src, bl, skill_id, skill_lv, true);
 		break;
 
 	case GC_ROLLINGCUTTER:
@@ -10308,8 +10220,8 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 				case SC_LEADERSHIP:		case SC_GLORYWOUNDS:	case SC_SOULCOLD:
 				case SC_HAWKEYES:
 				// Only removeable by Dispell
-				case SC_SUMMON1:		case SC_SUMMON2:		case SC_SUMMON3:		
-				case SC_SUMMON4:		case SC_SUMMON5:		/*case SC_SPELLBOOK1:		
+				case SC_SPHERE_1:		case SC_SPHERE_2:		case SC_SPHERE_3:		
+				case SC_SPHERE_4:		case SC_SPHERE_5:		/*case SC_SPELLBOOK1:		
 				case SC_SPELLBOOK2:		case SC_SPELLBOOK3:		case SC_SPELLBOOK4:		
 				case SC_SPELLBOOK5:		case SC_SPELLBOOK6:		case SC_SPELLBOOK7:*/
 				case SC_DAILYSENDMAILCNT:
@@ -10477,27 +10389,11 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 		case WL_SUMMONWB:
 		case WL_SUMMONSTONE:
 		{
-			short element = 0, sctype = 0, pos = -1;
+			enum e_wl_spheres element = 0;
 			struct status_change *sc = status_get_sc(src);
 			if( !sc ) 
 				break;
-	
-			for( i = SC_SUMMON1; i <= SC_SUMMON5; i++ )
-			{
-				if( !sctype && !sc->data[i] )
-					sctype = i; // Take the free SC
-				if( sc->data[i] )
-					pos = max(sc->data[i]->val2,pos);
-			}
 
-			if( !sctype )
-			{
-				if( sd ) // No free slots to put SC
-					clif_skill_fail(sd,skill_id,0x13,0,0);
-				break;
-			}
-
-			pos++; // Used in val2 for SC. Indicates the order of this ball
 			switch( skill_id )
 			{ // Set val1. The SC element for this ball
 			case WL_SUMMONFB:    element = WLS_FIRE;  break;
@@ -10506,7 +10402,31 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			case WL_SUMMONSTONE: element = WLS_STONE; break;
 			}
 
-			sc_start4(src,(sc_type)sctype,100,element,pos,skill_lv,0,skill_get_time(skill_id,skill_lv));
+			if (skill_lv == 1) {
+				sc_type sphere = SC_NONE;
+
+				for (i = SC_SPHERE_1; i <= SC_SPHERE_5; i++) {
+					if (!sc->data[i]) {
+						sphere = i; // Take the free SC
+						break;
+					}
+				}
+
+				if (sphere == SC_NONE) {
+					if (sd) // No free slots to put SC
+						clif_skill_fail(sd, skill_id, USESKILL_FAIL_SUMMON,0,0);
+					break;
+				}
+
+				sc_start2(src, sphere, 100, element, skill_lv, skill_get_time(skill_id, skill_lv));
+			}
+			else {
+				for (i = SC_SPHERE_1; i <= SC_SPHERE_5; i++) {
+					status_change_end(src, i, INVALID_TIMER); // Removes previous type
+					sc_start2(src, i, 100, element, skill_lv, skill_get_time(skill_id, skill_lv));
+				}
+			}
+
 			clif_skill_nodamage(src,bl,skill_id,0,0);
 		}
 		break;
@@ -13876,7 +13796,7 @@ struct skill_unit_group* skill_unitsetting (struct block_list *src, short skill_
 		else if (ele == -1) {
 			val1 = status->rhw.ele;
 			if (sc && sc->data[SC_ENCHANTARMS])
-				val1 = sc->data[SC_ENCHANTARMS]->val2;
+				val1 = sc->data[SC_ENCHANTARMS]->val1;
 		}
 		switch (val1) {
 		case ELE_FIRE:
@@ -16274,8 +16194,8 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 	case WL_SUMMONSTONE:
 		if( sc )
 		{
-			ARR_FIND(SC_SUMMON1,SC_SUMMON5+1,i,!sc->data[i]);
-			if( i == SC_SUMMON5+1 )
+			ARR_FIND(SC_SPHERE_1,SC_SPHERE_5+1,i,!sc->data[i]);
+			if( i == SC_SPHERE_5+1 )
 			{ // No more free slots
 				clif_skill_fail(sd, skill_id,USESKILL_FAIL_SPELLBOOK_PRESERVATION_POINT,0,0);
 				return 0;

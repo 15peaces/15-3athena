@@ -5,6 +5,22 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/05/2025
+	r541 [15peaces]
+		*Added some missing items.
+		*Added some missing Con-Chliina Crewman (Lasagna npc) duplicates.
+		*Corrected some npc names.
+		*Some cleaning.
+		*WL_SUMMON* skills
+			-Fixed status changes displayed the wrong elements.
+			-Renamed SCs to SC_SPHERE_ as they are named on 3ceam & rAthena.
+		*Fixed MH_EQC skill.
+		*LG_SHIELDPRESS; RK_LUXANIMA
+			-Updated skills to latest official versions.
+		*Added status icons to Elemental Converters.
+		*Updated clif_skill_nodamage.
+			-Replaced "tick" value with success boolean. The tick value was nothing else at all...
+
 10/04/2025
 	r540 [15peaces]
 		*Updated some item_trade restrictions.

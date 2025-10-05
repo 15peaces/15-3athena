@@ -6189,7 +6189,7 @@ int clif_skill_damage2(struct block_list *src,struct block_list *dst,int64 tick,
 /// Non-damaging skill effect.
 /// 011a <skill id>.W <skill lv>.W <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL)
 /// 09cb <skill id>.W <skill lv>.L <dst id>.L <src id>.L <result>.B (ZC_USE_SKILL2)
-int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal, int64 tick)
+int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_id,int heal, bool success)
 {
 	unsigned char buf[32];
 	short offset = 0;
@@ -6198,8 +6198,6 @@ int clif_skill_nodamage(struct block_list *src,struct block_list *dst,int skill_
 #else
 	short packet_num = 0x9cb;
 #endif
-
-	bool success = (tick != 0);
 
 	nullpo_ret(dst);
 
@@ -6571,6 +6569,7 @@ void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, 
 	unsigned char i;
 	struct sc_display_entry **sc_display;
 	unsigned char sc_display_count;
+	bool spheres_sent;
 
 	nullpo_retv(bl);
 
@@ -6580,6 +6579,7 @@ void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, 
 
 			sc_display = sd->sc_display;
 			sc_display_count = sd->sc_display_count;
+			spheres_sent = !sd->state.connect_new;
 			}
 			break;
 		case BL_NPC: {
@@ -6587,6 +6587,7 @@ void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, 
 
 			sc_display = nd->sc_display;
 			sc_display_count = nd->sc_display_count;
+			spheres_sent = true;
 			}
 			break;
 		default:
@@ -6601,6 +6602,19 @@ void clif_efst_status_change_sub(struct block_list *tbl, struct block_list *bl, 
 
 		if (td)
 			tick = DIFF_TICK(td->tick, gettick());
+
+		// Status changes that need special handling
+		switch (type) {
+		case SC_SPHERE_1:
+		case SC_SPHERE_2:
+		case SC_SPHERE_3:
+		case SC_SPHERE_4:
+		case SC_SPHERE_5:
+			if (spheres_sent) {
+				target = AREA_WOS;
+			}
+			break;
+	}
 #if PACKETVER > 20120418
 		clif_efst_status_change(tbl, bl->id, target, StatusIconChangeTable[type], tick, sc_display[i]->val1, sc_display[i]->val2, sc_display[i]->val3);
 #else

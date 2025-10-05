@@ -2247,7 +2247,7 @@ static int battle_get_weapon_element(struct Damage wd, struct block_list *src, s
 				element = sd->charmball_type;
 			if (sc) { // check for endows
 				if (sc->data[SC_ENCHANTARMS])
-					element = sc->data[SC_ENCHANTARMS]->val2;
+					element = sc->data[SC_ENCHANTARMS]->val1;
 			}
 		}
 	}
@@ -2264,6 +2264,22 @@ static int battle_get_weapon_element(struct Damage wd, struct block_list *src, s
 	case LK_SPIRALPIERCE:
 		if (!sd)
 			element = ELE_NEUTRAL; //forced neutral for monsters
+		break;
+	case RK_DRAGONBREATH:
+		if (sc) {
+			if (sc->data[SC_LUXANIMA]) // Lux Anima has priority over Giant Growth
+				element = ELE_DARK;
+			else if (sc->data[SC_GIANTGROWTH])
+				element = ELE_HOLY;
+		}
+		break;
+	case RK_DRAGONBREATH_WATER:
+		if (sc) {
+			if (sc->data[SC_LUXANIMA]) // Lux Anima has priority over Fighting Spirit
+				element = ELE_NEUTRAL;
+			else if (sc->data[SC_FIGHTINGSPIRIT])
+				element = ELE_GHOST;
+		}
 		break;
 	case RL_H_MINE:
 	case SJ_PROMINENCEKICK:
@@ -2461,7 +2477,6 @@ struct Damage battle_calc_skill_base_damage(struct Damage wd, struct block_list 
 		break;
 	case CR_SHIELDBOOMERANG:
 	case PA_SHIELDCHAIN:
-	case LG_SHIELDPRESS:
 	case LG_EARTHDRIVE:
 		wd.damage = sstatus->batk;
 		if (sd) {
@@ -3193,9 +3208,12 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case LG_SHIELDPRESS:
-		skillratio = 150 * skill_lv + sstatus->str;
+		skillratio += -100 + 200 * skill_lv;
 		if (sd)
 		{
+			// Shield Press only considers base STR without job bonus
+			skillratio += sd->status.str;
+
 			short index = sd->equip_index[EQI_HAND_L];
 			if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
 				skillratio += sd->inventory_data[index]->weight / 10;
@@ -3702,8 +3720,7 @@ struct Damage battle_attack_sc_bonus(struct Damage wd, struct block_list *src, s
 			ATK_ADDRATE(wd.damage, wd.damage2, 2 * sc->data[SC_TRUESIGHT]->val1);
 		if (sc->data[SC_GLOOMYDAY] &&
 			(skill_id == LK_SPIRALPIERCE || skill_id == KN_BRANDISHSPEAR ||
-				skill_id == CR_SHIELDBOOMERANG || skill_id == PA_SHIELDCHAIN ||
-				skill_id == LG_SHIELDPRESS)) {
+				skill_id == CR_SHIELDBOOMERANG || skill_id == PA_SHIELDCHAIN)) {
 			ATK_ADDRATE(wd.damage, wd.damage2, sc->data[SC_GLOOMYDAY]->val2);
 		}
 		if (sc->data[SC_SPIRIT]) {
@@ -4342,6 +4359,7 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 	struct Damage wd;
 	struct status_change *sc = status_get_sc(src);
 	struct status_change *tsc = status_get_sc(target);
+	struct status_data *sstatus = status_get_status_data(src);
 	struct status_data *tstatus = status_get_status_data(target);
 	int right_element, left_element;
 	bool infdef = false;
@@ -4437,6 +4455,16 @@ static struct Damage battle_calc_weapon_attack(struct block_list *src, struct bl
 		case TK_COUNTER:
 			if (sd && sd->weapontype1 == W_FIST && sd->weapontype2 == W_FIST)
 				ATK_ADD(wd.damage, wd.damage2, 10 * pc_checkskill(sd, TK_RUN));
+			break;
+		case LG_SHIELDPRESS:
+			if (sd) {
+				int32 damagevalue = 0;
+				int16 index = sd->equip_index[EQI_HAND_L];
+
+				if (index >= 0 && sd->inventory_data[index] && sd->inventory_data[index]->type == IT_ARMOR)
+					damagevalue = sstatus->vit * sd->inventory.u.items_inventory[index].refine;
+				ATK_ADD(wd.damage, wd.damage2, damagevalue);
+			}
 			break;
 		case SR_GATEOFHELL:
 			{
