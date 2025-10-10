@@ -6531,7 +6531,7 @@ static short status_calc_aspd_amount(struct block_list *bl, struct status_change
 		return cap_value(aspd_amount,0,SHRT_MAX);
 
 	if (sc->data[SC_FIGHTINGSPIRIT])
-		aspd_amount += 4 * sc->data[SC_FIGHTINGSPIRIT]->val2;
+		aspd_amount += sc->data[SC_FIGHTINGSPIRIT]->val2;
 	if (sc->data[SC_HEAT_BARREL])
 		aspd_amount += 10 * sc->data[SC_HEAT_BARREL]->val1;
 	if (sc->data[SC_SOULSHADOW])

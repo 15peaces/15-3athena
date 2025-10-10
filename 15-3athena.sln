@@ -1,24 +1,24 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
+# Visual Studio 19
 VisualStudioVersion = 15.0.28307.1231
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "char-server_sql", "vcproj-15\char-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E4E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "char-server_sql", "vcproj\char-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E4E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "char-server_txt", "vcproj-15\char-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E3E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "char-server_txt", "vcproj\char-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E3E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login-server_sql", "vcproj-15\login-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E5E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login-server_sql", "vcproj\login-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E5E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login-server_txt", "vcproj-15\login-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E2E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "login-server_txt", "vcproj\login-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E2E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map-server_sql", "vcproj-15\map-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E6E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map-server_sql", "vcproj\map-server_sql.vcxproj", "{D356871D-58E1-450B-967A-E6E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map-server_txt", "vcproj-15\map-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E1E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "map-server_txt", "vcproj\map-server_txt.vcxproj", "{D356871D-58E1-450B-967A-E1E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mapcache", "vcproj-15\mapcache.vcxproj", "{D356871D-58E1-450B-967A-E7E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mapcache", "vcproj\mapcache.vcxproj", "{D356871D-58E1-450B-967A-E7E9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txt-converter-char", "vcproj-15\txt-converter-char.vcxproj", "{D356871D-58E1-450B-967A-EAE9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txt-converter-char", "vcproj\txt-converter-char.vcxproj", "{D356871D-58E1-450B-967A-EAE9646175AF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txt-converter-login", "vcproj-15\txt-converter-login.vcxproj", "{D356871D-58E1-450B-967A-E9E9646175AF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "txt-converter-login", "vcproj\txt-converter-login.vcxproj", "{D356871D-58E1-450B-967A-E9E9646175AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

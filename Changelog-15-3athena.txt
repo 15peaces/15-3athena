@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/10/2025
+	r542 [15peaces]
+		*Visual Studio changes:
+			-Removed old vs-11 project files.
+				--You can still use them for now if you want to, but I won't update or support them anymore.
+				--Visual Studio 2012 is 13 years old now and completely outdated. If you still use it, you should think about upgrading to 2013/2015 or newer...
+			-Renamed the vs-15 project, removed version numbering.
+				-There is no need to keep project files for all VS versions anymore.
+				-You can use this project for Visual Studio 2017 and newer.
+				-The recommended and default version is now Visual Studio 2019.
+		*Added missing effect to Arrow_Of_Elf_Cntr item.
+		*RK_FIGHTINGSPIRIT
+			-Updated skill to latest official versions.
+
 10/05/2025
 	r541 [15peaces]
 		*Added some missing items.

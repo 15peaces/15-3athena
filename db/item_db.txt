@@ -5618,7 +5618,7 @@
 12572,Cheer_Scarf10_Box2,Cheer Scarf10 Box2,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12573,Fruit_Basket,Fruit Basket,2,20,,50,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
 12574,Mora_Berry,Mora Berry,2,0,,20,,,,,0xFFFFFFFF,63,2,,,,,,{ itemheal 0,rand(50,65); specialeffect2 EF_GUARD; bonus_script "{ bonus2 bAddDefMonster,2137,50; bonus2 bAddDefMonster,2136,50; bonus2 bAddDefMonster,2134,50; bonus2 bAddDefMonster,2133,50; bonus2 bAddDefMonster,2132,50; }",120; },{},{}
-12575,Arrow_Of_Elf_Cntr,Arrow Of Elf Cntr,2,500,,250,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
+12575,Arrow_Of_Elf_Cntr,Arrow Of Elf Cntr,2,500,,250,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 1773,500;},{},{}
 12576,Hunting_Arrow_Cntr,Hunting Arrow Cntr,2,500,,250,,,,,0xFFFFFFFF,7,2,,,,,,{ getitem 1774,500; },{},{}
 12577,Lucky_Egg_C6,Lucky Egg C6,2,20,,10,,,,,0xFFFFFFFF,7,2,,,,,,{getitem 13208,200;},{},{}
 12578,Rapid_Life_Water,Rapid Life Water,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{},{},{}
