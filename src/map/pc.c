@@ -5955,7 +5955,7 @@ bool pc_memo(struct map_session_data* sd, int pos)
 		pos = 0;
 	}
 
-	if (map[sd->bl.m].instance_id) {
+	if (map[sd->bl.m].instance_id >= 0) {
 		clif_displaymessage(sd->fd, msg_txt(sd, 438)); // You cannot create a memo in an instance.
 		return false;
 	}

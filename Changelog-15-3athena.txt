@@ -5,6 +5,12 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/14/2025
+	r543 [15peaces]
+		*Fixed an issue where memo commands always failed with an instance error.
+			-This was related to our instance system rewrite, sorry...
+		*Fixed ZC_FEED_PET packet for 20181121+ clients.
+
 10/10/2025
 	r542 [15peaces]
 		*Visual Studio changes:
@@ -17,7 +23,7 @@
 				-The recommended and default version is now Visual Studio 2019.
 		*Added missing effect to Arrow_Of_Elf_Cntr item.
 		*RK_FIGHTINGSPIRIT
-			-Updated skill to latest official versions.
+			-Updated skill to latest official version.
 
 10/05/2025
 	r541 [15peaces]

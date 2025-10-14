@@ -8657,18 +8657,15 @@ void clif_pet_emotion(struct pet_data *pd,int param)
 /// result:
 ///     0 = failure
 ///     1 = success
-void clif_pet_food(struct map_session_data *sd,int foodid,int fail)
+void clif_pet_food(struct map_session_data *sd, int32 foodid, bool success)
 {
-	int fd;
+	struct PACKET_ZC_FEED_PET p;
 
-	nullpo_retv(sd);
+	p.packetType = 0x1a3;
+	p.result = success;
+	p.itemId = client_nameid(foodid);
 
-	fd=sd->fd;
-	WFIFOHEAD(fd,packet_len(0x1a3));
-	WFIFOW(fd,0)=0x1a3;
-	WFIFOB(fd,2)=fail;
-	WFIFOW(fd,3)=foodid;
-	WFIFOSET(fd,packet_len(0x1a3));
+	clif_send(&p, sizeof(p), &sd->bl, SELF);
 }
 
 
