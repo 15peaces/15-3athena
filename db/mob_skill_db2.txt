@@ -2855,6 +2855,9 @@
 2160,Luciola Vespa@NPC_COMBOATTACK,attack,171,1,3000,0,5000,yes,target,always,0,,,,,,,
 2160,Luciola Vespa@NPC_BLEEDING,attack,660,3,200,0,3000,yes,target,always,0,,,,,,32,
 
+3505,DR_BIG_EGGRING@NPC_SUMMONSLAVE,attack,196,4,10000,2000,10000,no,self,slavele,3,3508,,,,,,
+3505,DR_BIG_EGGRING@NPC_SUMMONSLAVE,idle,196,4,10000,2000,10000,no,self,slavele,3,3508,,,,,,
+
 // Sorcerer's Elementals - Code is unable to read these skill ID's. Disable for now.
 //2114,Agni@EL_FIRE_ARROW,attack,8425,1,500,1000,10000,no,target,always,0,,,,,,,
 //2115,Agni@EL_FIRE_BOMB,attack,8426,1,500,1000,10000,no,target,always,0,,,,,,,

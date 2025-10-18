@@ -2400,7 +2400,6 @@
 2881,Orleans_Necklace,Orleans Necklace,5,20,,100,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bDex,2; bonus bMatk,20; },{},{}
 4581,Rudo_Card,Rudo Card,6,20,,10,,,,,,,,64,,,,,{ autobonus "{ bonus bAgi,44; heal 0,-40; }",500,3000,0,"{ sc_start SC_SPEEDUP1,3000,50; }"; },{},{}
 5770,Splash_Hat,Splash Hat,5,20,,100,,3,,1,0xFFFFFFFF,63,2,256,,1,1,649,{ autobonus "{}",3,180000,BF_WEAPON,"{ sc_start SC_WINDWEAPON,180000,1; specialeffect2 EF_ENHANCE; }"; },{},{} 
-5985,Noble_Mask,Noble Mask,5,0,,200,,,,0,0xFFFFFFFF,63,2,256,,30,0,1409,{ bonus2 bSkillAtk,"PA_SACRIFICE",BaseLevel*2; bonus2 bSkillVariableCast,"PA_PRESSURE",-2000; bonus2 bSkillVariableCast,"CR_DEVOTION",-2000; if (BaseLevel > 149) { bonus bMaxHPrate,3; bonus bAspdRate,3; } else if (BaseLevel > 99) { bonus bMaxHPrate,2; bonus bAspdRate,2; } else { bonus bMaxHPrate,1; bonus bAspdRate,1; } },{},{}
 6434,Fix_Kit,Fix Kit,3,0,,1000,,,,,,,,,,,,,{},{},{}
 6435,Fresh_Fruit,Fresh Fruit,3,0,,100,,,,,,,,,,,,,{},{},{}
 6436,Ptotection_Seagod,Sea God's Call,3,20,,0,,,,,,,,,,,,,{},{},{}
@@ -5078,7 +5077,7 @@
 5973,Ancient_Elven_Ear_J,Ancient Elven Ear J,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,1,70,1,665,{ bonus bLuk,10; bonus bMdef,10; bonus bFlee2,2; },{},{}
 5979,C_Angel_Fluttering,C Angel Fluttering,5,0,,0,,,,0,0xFFFFFFFF,63,2,4096,1,1,1,1380,{/*hatefid HAT_EF_ANGEL_FLUTTERING*/},{},{}
 5980,C_Classical_Fhat,C Classical Fhat,5,0,,0,,,,0,0xFFFFFFFF,63,2,1024,1,1,1,1381,{},{},{}
-5985,Noble_Mask,Noble Mask,5,0,,200,,,,0,0xFFFFFFFF,63,2,256,1,30,1,1409,{ bonus2 bSkillAtk,"PA_SACRIFICE",BaseLevel*2; bonus2 bSkillVariableCast,"PA_PRESSURE",-2000; bonus2 bSkillVariableCast,"CR_DEVOTION",-2000; if (BaseLevel > 149) { bonus bMaxHPrate,3; bonus bAspdRate,3; } else  if (BaseLevel > 99) { bonus bMaxHPrate,2; bonus bAspdRate,2; } else { bonus bMaxHPrate,1; bonus bAspdRate,1; } },{},{}
+5985,Noble_Mask,Noble Mask,5,0,,200,,,,0,0xFFFFFFFF,63,2,512,1,30,1,1409,{ bonus2 bSkillAtk,"PA_SACRIFICE",BaseLevel*2; bonus2 bSkillVariableCast,"PA_PRESSURE",-2000; bonus2 bSkillVariableCast,"CR_DEVOTION",-2000; if (BaseLevel > 149) { bonus bMaxHPrate,3; bonus bAspdRate,3; } else  if (BaseLevel > 99) { bonus bMaxHPrate,2; bonus bAspdRate,2; } else { bonus bMaxHPrate,1; bonus bAspdRate,1; } },{},{}
 6921,Dehumidifiers,Dehumidifiers,3,10,,10,,,,,,,,,,,,,{},{},{}
 6922,Sandpaper,Sandpaper,3,10,,10,,,,,,,,,,,,,{},{},{}
 6923,Bright_Fire_Lights,Bright Fire Lights,3,10,,10,,,,,,,,,,,,,{},{},{}

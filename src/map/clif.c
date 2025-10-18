@@ -5699,6 +5699,7 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 {
 	int fd;
 	int i,len,id;
+	bool haveCallPartnerSkill = false;
 
 	nullpo_retv(sd);
 
@@ -5715,6 +5716,12 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 			if (len + 37 > 8192)
 				break;
 
+			// skip WE_CALLPARTNER and send it in special way
+			if (id == WE_CALLPARTNER) {
+				haveCallPartnerSkill = true;
+				continue;
+			}
+
 			WFIFOW(fd,len)   = id;
 			WFIFOL(fd, len + 2) = skill_get_inf(id);
 			WFIFOW(fd,len+6) = sd->status.skill[i].lv;
@@ -5730,6 +5737,12 @@ void clif_skillupdateinfoblock(struct map_session_data *sd)
 	}
 	WFIFOW(fd,2)=len;
 	WFIFOSET(fd,len);
+
+	// adoption fix
+	if (haveCallPartnerSkill) {
+		clif_addskill(sd, WE_CALLPARTNER);
+		clif_skillupdateinfo(sd, WE_CALLPARTNER, 0, 0);
+	}
 
 	// workaround for gm_all_skill; send the remaining skills one by one to bypass packet size limit
 	for (; i < MAX_SKILL; i++)

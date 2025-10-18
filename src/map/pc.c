@@ -7441,8 +7441,8 @@ int pc_skillup(struct map_session_data *sd, uint16 skill_id)
 		}
 		else
 		{
-			check_1st_job = sd->change_level[0]+8;
-			check_2nd_job = sd->change_level[1]+sd->change_level[0]+7;
+			check_1st_job = (sd->change_level[0] > 0 ? sd->change_level[0] + 8 : 58);
+			check_2nd_job = (sd->change_level[1] > 0 ? sd->change_level[0] + sd->change_level[1] + 7 : (sd->class_ & JOBL_UPPER) ? 127 : 107);
 		}
 
 		if ( used_skill_points < check_1st_job )

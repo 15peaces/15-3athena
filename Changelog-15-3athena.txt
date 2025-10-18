@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/18/2025
+	r544 [15peaces]
+		*Fixed an issue where despawned/teleported monsters are still displayed until refreshing.
+		*Fixed Noble_Mask equip position.
+		*Fixed adoption context menu.
+		*Added Big Eggring spawn and updated monster stats.
+		*Fixed skillpoint checks on skill-levelups.
+	
 10/14/2025
 	r543 [15peaces]
 		*Fixed an issue where memo commands always failed with an instance error.
