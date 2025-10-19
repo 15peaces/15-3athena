@@ -490,3 +490,7 @@ bool distance_client(int dx, int dy)
 
 	return ((int)temp_dist);
 }
+
+bool direction_diagonal(enum directions direction) {
+	return direction == DIR_NORTHWEST || direction == DIR_SOUTHWEST || direction == DIR_SOUTHEAST || direction == DIR_NORTHEAST;
+}

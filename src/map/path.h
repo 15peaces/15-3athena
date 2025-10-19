@@ -11,6 +11,19 @@
 
 #define MAX_WALKPATH 32
 
+enum directions {
+	DIR_CENTER = -1,
+	DIR_NORTH = 0,
+	DIR_NORTHWEST = 1,
+	DIR_WEST = 2,
+	DIR_SOUTHWEST = 3,
+	DIR_SOUTH = 4,
+	DIR_SOUTHEAST = 5,
+	DIR_EAST = 6,
+	DIR_NORTHEAST = 7,
+	DIR_MAX
+};
+
 struct walkpath_data {
 	unsigned char path_len,path_pos;
 	unsigned char path[MAX_WALKPATH];
@@ -53,5 +66,7 @@ unsigned int distance(int dx, int dy);
 #define distance_client_bl(bl1, bl2) distance_client((bl1)->x - (bl2)->x, (bl1)->y - (bl2)->y)
 #define distance_client_blxy(bl, x1, y1) distance_client((bl)->x-(x1), (bl)->y-(y1))
 #define distance_client_xy(x0, y0, x1, y1) distance_client((x0)-(x1), (y0)-(y1))
+
+bool direction_diagonal(enum directions direction);
 
 #endif /* _PATH_H_ */

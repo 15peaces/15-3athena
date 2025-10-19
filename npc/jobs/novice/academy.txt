@@ -14268,7 +14268,7 @@ izlude_d,158,130,4	duplicate(Repair Man#iz)	Repair Man#iz_d	86
 // = Old Novice Training Grounds
 // = These NPCs will teleport any stuck player to the new starting area.
 // =============================================================================
-new_1-1,53,114,3	script	Training Instructor#1a	92,{
+new_1-1,55,114,3	script	Training Instructor#1a	92,{
 	mes "[Training Instructor]";
 	mes "The training grounds have been revised.";
 	mes "I will send you to Izlude.";

@@ -678,7 +678,7 @@ int unit_walktoxy( struct block_list *bl, short x, short y, int flag)
 	unit_stop_attack(bl); //Sets target to 0
 	
 	sc = status_get_sc(bl);
-	if (sc && (sc->data[SC_CONFUSION] || sc->data[SC_CONFUSION]) ) //Randomize the target position
+	if (sc && sc->data[SC_CONFUSION] ) //Randomize the target position
 		map_random_dir(bl, &ud->to_x, &ud->to_y);
 
 	if(ud->walktimer != INVALID_TIMER) {
@@ -877,6 +877,28 @@ int unit_run(struct block_list *bl)
 		return 0;
 	}
 	return 1;
+}
+
+/**
+ * Returns duration of an object's current walkpath
+ * @param bl: Object that is moving
+ * @return Duration of the walkpath
+ */
+int64 unit_get_walkpath_time(struct block_list *bl)
+{
+	int64 time = 0;
+	uint16 speed = status_get_speed(bl);
+	struct unit_data* ud = unit_bl2ud(bl);
+
+	// The next walk start time is calculated.
+	for (uint8 i = 0; i < ud->walkpath.path_len; i++) {
+		if (direction_diagonal(ud->walkpath.path[i]))
+			time += speed * MOVE_DIAGONAL_COST / MOVE_COST;
+		else
+			time += speed;
+	}
+
+	return time;
 }
 
 /*==========================================

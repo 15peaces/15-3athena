@@ -86,9 +86,10 @@ enum e_unit_stop_walking {
 // 歩行開始
 //     戻り値は、0 ( 成功 ), 1 ( 失敗 )
 static int unit_walktoxy_timer(int tid, int64 tick, int id, intptr_t data);
-int unit_walktoxy( struct block_list *bl, short x, short y, int easy);
+int unit_walktoxy( struct block_list *bl, short x, short y, int flag);
 int unit_walktobl( struct block_list *bl, struct block_list *target, int range, int easy);
 int unit_run(struct block_list *bl);
+int64 unit_get_walkpath_time(struct block_list* bl);
 int unit_wugdash(struct block_list *bl, struct map_session_data *sd);// [Jobbie]
 int unit_calc_pos(struct block_list *bl, int tx, int ty, int dir);
 int unit_delay_walktoxy_timer(int tid, int64 tick, int id, intptr_t data);

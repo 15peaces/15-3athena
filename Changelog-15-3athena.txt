@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+10/19/2025
+	r545 [15peaces]
+		*Fixed Lord_of_Death equip location.
+		*Added setpcblock to lasagna scripts to mimic some npc interaction.
+		*Moved Training Instructor in old Training Grounds (custom position to keep the Old Novice Grounds still active and usable).
+		*Correct Position of Payon Shrimp Trader.
+		*Some corrections to mobs randomwalk walkpath.
+
 10/18/2025
 	r544 [15peaces]
 		*Fixed an issue where despawned/teleported monsters are still displayed until refreshing.

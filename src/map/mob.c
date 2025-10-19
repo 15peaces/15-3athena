@@ -1400,35 +1400,83 @@ int mob_unlocktarget(struct mob_data *md, int64 tick)
 int mob_randomwalk(struct mob_data *md,int64 tick)
 {
 	const int d = 7;
-	int i, c, r, dx, dy;
-	int speed;
+	int i, r, rdir, dx, dy, max;
 
 	nullpo_ret(md);
+
+	// Initialize next_walktime
+	if (md->next_walktime == INVALID_TIMER) {
+		md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME;
+		return 1;
+	}
 
 	if(DIFF_TICK(md->next_walktime,tick)>0 ||
 		(status_get_mode(&md->bl)&MD_NORANDOM_WALK) ||
 		!unit_can_move(&md->bl) ||
 		!(status_get_mode(&md->bl)&MD_CANMOVE))
 		return 0;
+
+	// Make sure the monster has no target anymore, otherwise the walkpath will check for it
+	md->ud.state.attack_continue = 0;
+	md->ud.target_to = 0;
 	
 	r = rnd();
+	rdir = rnd() % 4; // Randomize direction in which we iterate to prevent monster cluttering up in one corner
 	dx = r % (d * 2 + 1) - d;
 	dy = r / (d * 2 + 1) % (d * 2 + 1) - d;
+	max = (d * 2 + 1) * (d * 2 + 1);
 	for (i = 0; i < d*d; i++) {	// Search of a movable place
 		int x = dx + md->bl.x;
 		int y = dy + md->bl.y;
-		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 8)) {
+		if (((x != md->bl.x) || (y != md->bl.y)) && map_getcell(md->bl.m, x, y, CELL_CHKPASS) && unit_walktoxy(&md->bl, x, y, 0)) {
 			break;
 		}
-		// Could not move to cell, try the next one
-		if (++dx > d) {
-			dx = -d;
-			if (++dy > d) {
-				dy = -d;
+		// Could not move to cell, try the 7th cell in direction randomly decided by rdir
+		// We don't move step-by-step because this will make monster stick to the walls
+		switch (rdir) {
+		case 0:
+			dx += d;
+			if (dx > d) {
+				dx -= d * 2 + 1;
+				dy += d;
+				if (dy > d) {
+					dy -= d * 2 + 1;
+				}
 			}
+			break;
+		case 1:
+			dx -= d;
+			if (dx < -d) {
+				dx += d * 2 + 1;
+				dy -= d;
+				if (dy < -d) {
+					dy += d * 2 + 1;
+				}
+			}
+			break;
+		case 2:
+			dy += d;
+			if (dy > d) {
+				dy -= d * 2 + 1;
+				dx += d;
+				if (dx > d) {
+					dx -= d * 2 + 1;
+				}
+			}
+			break;
+		case 3:
+			dy -= d;
+			if (dy < -d) {
+				dy += d * 2 + 1;
+				dx -= d;
+				if (dx < -d) {
+					dx += d * 2 + 1;
+				}
+			}
+			break;
 		}
 	}
-	if (i == d * d) {
+	if (i == max) {
 		// None of the available cells worked, try again next interval
 		if (battle_config.mob_stuck_warning) {
 			md->move_fail_count++;
@@ -1440,16 +1488,9 @@ int mob_randomwalk(struct mob_data *md,int64 tick)
 		}
 		return 0;
 	}
-	speed=status_get_speed(&md->bl);
-	for(i=c=0;i<md->ud.walkpath.path_len;i++){	// The next walk start time is calculated.
-		if(md->ud.walkpath.path[i]&1)
-			c+=speed*MOVE_DIAGONAL_COST/MOVE_COST;
-		else
-			c+=speed;
-	}
-	md->state.skillstate=MSS_WALK;
-	md->move_fail_count=0;
-	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME + c;
+	md->state.skillstate = MSS_WALK;
+	md->move_fail_count = 0;
+	md->next_walktime = tick + rnd() % 1000 + MIN_RANDOMWALKTIME + unit_get_walkpath_time(&md->bl);
 	return 1;
 }
 
