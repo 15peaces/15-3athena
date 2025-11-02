@@ -2021,7 +2021,7 @@ static int is_attack_piercing(struct Damage wd, struct block_list *src, struct b
 	return 0;
 }
 
-static bool battle_skill_get_damage_properties(uint16 skill_id, int is_splash)
+static int battle_skill_get_damage_properties(uint16 skill_id, int is_splash)
 {
 	int nk = skill_get_nk(skill_id);
 	if (!skill_id && is_splash) //If flag, this is splash damage from Baphomet Card and it always hits.
@@ -2206,7 +2206,7 @@ static bool attack_ignores_def(struct Damage wd, struct block_list *src, struct 
 		}
 	}
 
-	return (nk&NK_IGNORE_DEF);
+	return ((nk&NK_IGNORE_DEF) != 0);
 }
 
 /*================================================

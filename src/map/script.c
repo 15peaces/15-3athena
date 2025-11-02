@@ -2881,7 +2881,7 @@ void get_val(struct script_state* st, struct script_data* data)
 			break;
 		case '\'':
 			if( st->instance_id >=0 )
-				data->u.num = (int)i64db_iget(instances[st->instance_id].vars, reference_getuid(data));
+				data->u.num = i64db_i64get(instances[st->instance_id].vars, reference_getuid(data));
 			else {
 				ShowWarning("script:get_val: cannot access instance variable '%s', defaulting to 0\n", name);
 				data->u.num = 0;
@@ -2943,7 +2943,8 @@ static int set_reg(struct script_state* st, TBL_PC* sd, int64 num, const char* n
 		case '\'':
 			if (st->instance_id >=0) {
 				i64db_remove(instances[st->instance_id].vars, num);
-				if (str[0]) i64db_put(instances[st->instance_id].vars, num, aStrdup(str));
+				if (str[0])
+					i64db_put(instances[st->instance_id].vars, num, aStrdup(str));
 			}
 			return 1;
 		default:

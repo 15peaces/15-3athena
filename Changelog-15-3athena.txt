@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/02/2025
+	r546 [15peaces]
+		*Updated Sura skill tree (required pre-skills).
+		*Fixed battle_skill_get_damage_properties return value.
+			-This also fixes the NK_IGNORE_DEF & NK_IGNORE_FLEE damage flags.
+		*Fixed get_val getting wrong formated values for integer instance variables.
+			-This should fix various instance related bugs.
+
 10/19/2025
 	r545 [15peaces]
 		*Fixed Lord_of_Death equip location.
