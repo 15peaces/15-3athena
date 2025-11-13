@@ -6761,6 +6761,7 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 	case SC_DEADLYINFECT:
 	case LG_EXEEDBREAK:
 	case LG_PRESTIGE:
+	case LG_INSPIRATION:
 	case SR_CRESCENTELBOW:
 	case SR_LIGHTNINGWALK:
 	case SR_GENTLETOUCH_ENERGYGAIN:
@@ -10800,19 +10801,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			clif_skill_nodamage(src, bl, skill_id, skill_lv, 1);
 		}
  		break;
-
-	case LG_INSPIRATION:
-		if( sd ){
-			if( !map[src->m].flag.noexppenalty ){
-				sd->status.base_exp -= min(sd->status.base_exp, pc_nextbaseexp(sd) * 1 / 100); //1% penalty.
-				sd->status.job_exp -= min(sd->status.job_exp, pc_nextjobexp(sd) * 1 / 100);
-				clif_updatestatus(sd,SP_BASEEXP);
-				clif_updatestatus(sd,SP_JOBEXP);
-			}
-			clif_skill_nodamage(bl,src,skill_id,skill_lv,
-				sc_start(bl, type, 100, skill_lv, skill_get_time(skill_id, skill_lv)));
-		}
-		break;
 
 	case SR_RAISINGDRAGON:
 		if (sd)
@@ -16262,7 +16250,9 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 		}
 		break;
 	case LG_PRESTIGE:
-		if( sc && (sc->data[SC_BANDING] || sc->data[SC_INSPIRATION]) ){
+		if (sc && sc->data[SC_INSPIRATION])
+			return 1;	// Don't check for partner.
+		if (sc && sc->data[SC_BANDING]){
 			clif_skill_fail(sd, skill_id,0,0,0);
 			return 0;
 		}

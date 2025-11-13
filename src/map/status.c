@@ -2842,7 +2842,7 @@ static int status_get_hpbonus(struct block_list *bl, enum e_status_bonus type) {
 			if (sc->data[SC_CROSSBOWCLAN])
 				bonus += 30;
 			if (sc->data[SC_INSPIRATION])
-				bonus += (600 * sc->data[SC_INSPIRATION]->val1);
+				bonus += (4 * sc->data[SC_INSPIRATION]->val1);
 			if (sc->data[SC_MTF_MHP])
 				bonus += sc->data[SC_MTF_MHP]->val1;
 			if (sc->data[SC_LUXANIMA])
@@ -5801,18 +5801,18 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 // - 2. Calculate increases by a percentage.
 // - 3. Calculate decreases by a fixed amount.
 // - 4. Calculate decreases by a percentage.
-static unsigned short status_calc_matk(struct block_list *bl, struct status_change *sc, int matk)
+static unsigned short status_calc_matk(struct block_list* bl, struct status_change* sc, int matk)
 {
-	if(!sc || !sc->count)
-		return cap_value(matk,0,USHRT_MAX);
+	if (!sc || !sc->count)
+		return cap_value(matk, 0, USHRT_MAX);
 
-	if(sc->data[SC_MATKPOTION])
+	if (sc->data[SC_MATKPOTION])
 		matk += sc->data[SC_MATKPOTION]->val1;
-	if(sc->data[SC_MATKFOOD])
+	if (sc->data[SC_MATKFOOD])
 		matk += sc->data[SC_MATKFOOD]->val1;
-	if(sc->data[SC_MOONLIT_SERENADE])
+	if (sc->data[SC_MOONLIT_SERENADE])
 		matk += sc->data[SC_MOONLIT_SERENADE]->val4;
-	if(sc->data[SC_MANA_PLUS])
+	if (sc->data[SC_MANA_PLUS])
 		matk += sc->data[SC_MANA_PLUS]->val1;
 	if (sc->data[SC_FIRE_INSIGNIA] && sc->data[SC_FIRE_INSIGNIA]->val1 == 3)
 		matk += 50;
@@ -5820,12 +5820,14 @@ static unsigned short status_calc_matk(struct block_list *bl, struct status_chan
 		matk += 40 + 30 * sc->data[SC_ODINS_POWER]->val1;
 	if (sc->data[SC_SOULFAIRY])
 		matk += sc->data[SC_SOULFAIRY]->val2;
-	if(sc->data[SC_IZAYOI])
+	if (sc->data[SC_IZAYOI])
 		matk += sc->data[SC_IZAYOI]->val2;
 	if (sc->data[SC_ZANGETSU] && sc->data[SC_ZANGETSU]->val4 == 1)
 		matk += 20 * sc->data[SC_ZANGETSU]->val1 + sc->data[SC_ZANGETSU]->val2;
 	if (sc->data[SC_SPIRITOFLAND_MATK])
 		matk += sc->data[SC_SPIRITOFLAND_MATK]->val2;
+	if (sc->data[SC_INSPIRATION])
+		matk += sc->data[SC_INSPIRATION]->val2;
 	if(sc->data[SC_AQUAPLAY_OPTION])
 		matk += 40;
 	if(sc->data[SC_COOLER_OPTION])
@@ -5917,8 +5919,8 @@ static signed short status_calc_hit(struct block_list *bl, struct status_change 
 		hit += 20; // RockmanEXE; changed based on updated [Reddozen]
 	if(sc->data[SC_MERC_HITUP])
 		hit += sc->data[SC_MERC_HITUP]->val2;
-	if(sc->data[SC_INSPIRATION])//Unable to add job level check at this time with current coding. Will add later. [Rytech]
-		hit += 5 * sc->data[SC_INSPIRATION]->val1 + 25;
+	if(sc->data[SC_INSPIRATION])
+		hit += 12 * sc->data[SC_INSPIRATION]->val1;
 	if(sc->data[SC_SOULFALCON])
 		hit += sc->data[SC_SOULFALCON]->val3;
 	if (sc->data[SC_MTF_HITFLEE])
@@ -10147,11 +10149,11 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			tick_time = 1000;
  			break;
 		case SC_INSPIRATION:
-			val2 = 40 * val1 + 3 * status_get_job_lv_effect(bl);// ATK Bonus
-			val3 = status_get_base_lv_effect(bl) / 10 + status_get_job_lv_effect(bl) / 5;// All Stats Bonus
+			val2 = 40 * val1; // ATK/MATK
+			val3 = 6 * val1; //All stat bonus
 			val4 = tick / 5000;
-			tick_time = 5000;
-			status_change_clear_buffs(bl,3); //Remove buffs/debuffs
+			tick_time = 5000; // [GodLesZ] tick time
+			status_change_clear_buffs(bl, SCCB_DEBUFFS); // Remove debuffs
 			break;
 		case SC_SPELLFIST:
 			val_flag |= 1|2|4;
@@ -12949,15 +12951,11 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 		break;
 
 	case SC_INSPIRATION:
-		if(--(sce->val4) >= 0)
-		{
-			int hp = status->max_hp * (35 - 5 * sce->val1) / 1000;
-			int sp = status->max_sp * (45 - 5 * sce->val1) / 1000;
-			
-			if( !status_charge(bl,hp,sp) ) 
+		if (--(sce->val4) >= 0) {
+			if (!status_charge(bl, status->max_hp * (35 - 5 * sce->val1) / 1000, status->max_sp * (45 - 5 * sce->val1) / 1000))
 				break;
 
-			sc_timer_next(5000+tick,status_change_timer,bl->id, data);
+			sc_timer_next(5000 + tick, status_change_timer, bl->id, data);
 			return 0;
 		}
 		break;

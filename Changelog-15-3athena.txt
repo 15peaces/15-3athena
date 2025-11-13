@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/13/2025
+	r547 [15peaces]
+		*Updated some item bonusses & job restrictions.
+		*Changed some monsters to fit pre-renewal calculations.
+		*LG_INSPIRATION; NC_ARMSCANNON
+			-Updated skills & statuses to their latest official versions.
+
 11/02/2025
 	r546 [15peaces]
 		*Updated Sura skill tree (required pre-skills).

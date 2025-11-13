@@ -2281,6 +2281,11 @@ static int battle_get_weapon_element(struct Damage wd, struct block_list *src, s
 				element = ELE_GHOST;
 		}
 		break;
+	case GN_CARTCANNON:
+	case NC_ARMSCANNON:
+		if (sd && sd->state.arrow_atk > 0)
+			element = sd->bonus.arrow_ele;
+		break;
 	case RL_H_MINE:
 	case SJ_PROMINENCEKICK:
 		if (wflag & 8)// Explosion damage for howling mine deals fire damage according to description.
@@ -3147,14 +3152,9 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 150;
 		break;
 	case NC_ARMSCANNON:
-		switch (tstatus->size) {
-		case SZ_SMALL: skillratio += 100 + 500 * skill_lv; break;// Small
-		case SZ_MEDIUM: skillratio += 100 + 400 * skill_lv; break;// Medium
-		case SZ_BIG: skillratio += 100 + 300 * skill_lv; break;// Large
-		}
+		skillratio += -100 + 400 + 350 * skill_lv;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 120;
-		//NOTE: Their's some other factors that affects damage, but not sure how exactly. Will recheck one day. [Rytech]
 		break;
 	case NC_AXEBOOMERANG:
 		skillratio += 60 + 40 * skill_lv;
@@ -3281,15 +3281,11 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case LG_HESPERUSLIT:
-		skillratio = 120 * skill_lv;
-		if (sc && sc->data[SC_BANDING])
-		{
-			skillratio += 200 * sc->data[SC_BANDING]->val2;
-			if ((battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 6 || sc->data[SC_BANDING]->val2 == 6))
-				skillratio = skillratio * 150 / 100;
-		}
 		if (sc && sc->data[SC_INSPIRATION])
-			skillratio += 600;
+			skillratio += -100 + 450 * skill_lv;
+		else
+			skillratio += -100 + 300 * skill_lv;
+		skillratio += sstatus->vit / 6; // !TODO: What's the VIT bonus?
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;

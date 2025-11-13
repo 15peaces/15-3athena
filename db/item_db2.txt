@@ -2239,7 +2239,7 @@
 
 
 // Missing items (renewal)
-2959,Fidelity_Necklace,Fidelity Necklace,5,20,,300,,0,,1,0xFFFFFFFF,63,2,136,,50,0,0,{ bonus bAgi,2; bonus2 bSubRace,RC_Brute,3; },{},{}
+2959,Fidelity_Necklace,Fidelity Necklace,5,20,,300,,0,,1,0xFFFFFFFF,63,2,136,,50,0,0,{ bonus bAgi,2; bonus2 bSubRace,RC_Brute,3;  if(isequipped(18756)){.@r=3+(3*getequiprefinerycnt(EQI_HEAD_TOP)); autobonus "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,30; }",.@r,5000,BF_WEAPON,"{ transform 1785,5000; specialeffect2 EF_POTION_BERSERK; }"; autobonus2 "{ bonus2 bSPLossRate,5,1000; bonus bBaseAtk,30; }",.@r,5000,BF_WEAPON,"{ transform 1785,5000; specialeffect2 EF_POTION_BERSERK; }";}},{},{}
 2960,Badge_Of_Manny,Badge Of Manny,5,20,,200,,0,,1,0xFFFFFFFF,63,2,136,,0,0,0,{ bonus bAllStats,1; },{},{}
 4488,Sealed_D_Lord_Card,Sealed Dark Lord Card,6,20,,10,,,,,,,,64,,,,,{ bonus3 bAutoSpellWhenHit,"WZ_METEOR",5,50; },{},{}
 4489,Sealed_Pharaoh_Card,Sealed Pharaoh Card,6,20,,10,,,,,,,,769,,,,,{ bonus bUseSPrate,-15; },{},{}
@@ -2325,7 +2325,6 @@
 19535,C_Sinsuncho_Hat,Costume Sinsuncho Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,730,{ bonus bUnbreakableHelm,1; bonus bStr,1; bonus2 bExpAddRace,RC_All,1; },{},{}
 19536,C_Rose_Corsage,Costume Rose Corsage,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,533,{ bonus bUnbreakableHelm,1; bonus bInt,1; },{},{}
 19537,C_Gryphon_Hat,Costume Gryphon Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,591,{ bonus bUnbreakableHelm,1; },{},{}
-19538,Full_Moon,Full Moon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,780,{ autobonus "{ bonus bBaseAtk,50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus "{ bonus bMatk,50; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; /* showscript */ }"; },{},{}
 19539,C_Reginleif_Hairband,Costume Hairband Of Reginleif,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,468,{ bonus bAllStats,1; },{},{}
 19540,C_Rabbit_Earplug,Costume Rabbit Earplugs,5,20,,0,,0,,0,0xFFFFFFFF,63,2,7168,,1,0,515,{ bonus bAgi,1; bonus bFlee,2; },{},{}
 19541,C_Romantic_White_Flower,Costume Romantic White Flower,5,20,,0,,0,,0,0xFFFFFFFF,63,2,4096,,1,0,259,{ bonus bUnbreakableHelm,1; },{},{}
@@ -3239,7 +3238,6 @@
 19535,C_Sinsuncho_Hat,Costume Sinsuncho Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,730,{ bonus bUnbreakableHelm,0; bonus bStr,1; bonus2 bExpAddRace,RC_All,1; },{},{}
 19536,C_Rose_Corsage,Costume Rose Corsage,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,533,{ bonus bUnbreakableHelm,0; bonus bInt,1; },{},{}
 19537,C_Gryphon_Hat,Costume Gryphon Hat,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,591,{ bonus bUnbreakableHelm,0; },{},{}
-19538,Full_Moon,Full Moon,5,0,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,780,{ autobonus "{ bonus bBaseAtk,50; }",10,5000,BF_WEAPON,"{ specialeffect2 EF_POTION_BERSERK; /* showscript */ }"; autobonus "{ bonus bMatk,50; }",5,5000,BF_MAGIC,"{ specialeffect2 EF_ENERGYCOAT; /* showscript */ }"; },{},{}
 19539,C_Reginleif_Hairband,Costume Hairband Of Reginleif,5,20,,0,,0,,0,0xFFFFFFFF,63,2,1024,,1,0,468,{ bonus bAllStats,1; },{},{}
 19550,C_Blush,Costume Blush,5,20,,100,,0,,0,0xFFFFFFFF,63,2,2048,,100,0,125,{ bonus bUnbreakableHelm,0; },{},{}
 19551,C_Elven_Ears,Costume Elven Ears,5,20,,100,,0,,0,0xFFFFFFFF,63,2,2048,,100,0,73,{ bonus bUnbreakableHelm,0; },{},{}
@@ -3305,18 +3303,18 @@
 //Faceworm Nest (renewal)
 20717,FaceWorm_Skin,Gigant Snake Skin,5,10,,400,,38,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,10; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
 20718,FaceWorm_Skin_,Gigant Snake Skin,5,10,,400,,38,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,10; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
-22107,Modified_Str_Boots,Modified Str Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
-22108,Modified_Int_Boots,Modified Int Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22109,Modified_Agi_Boots,Modified Agi Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22110,Modified_Vit_Boots,Modified Vit Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22111,Modified_Dex_Boots,Modified Dex Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22112,Modified_Luk_Boots,Modified Luk Boots,5,20,,600,,25,,0,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
-22113,Modified_Str_Boots_,Modified Str Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
-22114,Modified_Int_Boots_,Modified Int Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22115,Modified_Agi_Boots_,Modified Agi Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22116,Modified_Vit_Boots_,Modified Vit Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22117,Modified_Dex_Boots_,Modified Dex Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22118,Modified_Luk_Boots_,Modified Luk Boots,5,20,,600,,25,,1,0x60000000,63,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
+22107,Modified_Str_Boots,Modified Str Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
+22108,Modified_Int_Boots,Modified Int Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
+22109,Modified_Agi_Boots,Modified Agi Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
+22110,Modified_Vit_Boots,Modified Vit Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
+22111,Modified_Dex_Boots,Modified Dex Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
+22112,Modified_Luk_Boots,Modified Luk Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
+22113,Modified_Str_Boots_,Modified Str Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
+22114,Modified_Int_Boots_,Modified Int Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
+22115,Modified_Agi_Boots_,Modified Agi Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
+22116,Modified_Vit_Boots_,Modified Vit Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
+22117,Modified_Dex_Boots_,Modified Dex Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
+22118,Modified_Luk_Boots_,Modified Luk Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
 
 //===================================================================
 // New Garments
@@ -3546,7 +3544,6 @@
 27167,Faceworm_Larva_Card,Faceworm Larva Card,6,20,,10,,,,,,,,4,,,,,{ bonus2 bSubEle,Ele_Neutral,15; bonus2 bMagicAtkEle,Ele_Water,getrefine()*3; },{},{}
 27168,Irene_High_Elder_Card,Irene High Elder Card,6,20,,10,,,,,,,,4,,,,,{ bonus bHit,10 + 5 * (getrefine()/3); },{},{}
 27169,Payon_Soldier_Card,Payon Soldier Card,6,20,,10,,,,,,,,2,,,,,{ set .@atk, 5; set .@r, getrefine(); if(getiteminfo(getequipid(EQI_HAND_R),11) == W_SPEAR && .@r >= 10){ set .@atk, .@atk + 20; if(.@r >= 14){ set .@atk, .@atk + 20; } } bonus bAtk,.@atk; bonus bMatk,.@atk; },{},{}
-27170,Shotgun_Buffalo_Bandit_Card,Shotgun Buffalo Bandit Card,6,20,,10,,,,,,,,128,,,,,{ bonus bAgi,7; bonus bHit,7; },{},{}
 28391,S_Thief_Earring,Thief Shadow Earring,12,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bFlee,.@val; }",200,5000,"TF_THROWSTONE","{ specialeffect2 EF_ENHANCE; }"; },{},{}
 28392,S_Archer_Earring,Archer Shadow Earring,12,0,,0,,,,0,0xFFFFFFFF,63,2,1048576,,1,1,,{ autobonus3 "{ set .@val, 30+(getrefine()*10); bonus bBaseAtk,.@val; bonus bHit,.@val; }",200,5000,"AC_DOUBLE","{ specialeffect2 EF_ENHANCE; }"; },{},{}
 
@@ -3954,7 +3951,7 @@
 25285,Brown_Rat_Tail,Brown Rat Tail,3,0,,10,,,,,,,,,,,,,{},{},{}
 26107,Elder_Staff,Elder Staff,4,0,,500,60,,1,3,0x00008110,63,2,2,3,100,1,10,{ bonus bMatk, 150; set .@r, getrefine(); set .@bonus, 10; if (.@r>=7) { set .@bonus,.@bonus+5; } if (.@r>=9) { set .@bonus,.@bonus+10; } bonus bHealPower,.@bonus; },{},{}
 26200,Hippie_Rope,Hippie Rope,4,0,,1000,140,,2,2,0x00080000,56,0,2,3,100,1,14,{ set .@r, getrefine(); set .@lvl, getskilllv("DC_DANCINGLESSON"); bonus bAspdRate,.@lvl; if (.@r>=7) bonus bBaseAtk,(5*.@lvl); if (.@r>=9) bonus bAspd,1; },{},{}
-27170,Shotgun_Buffalo_Bandit_Card,Shotgun Buffalo Bandit Card,6,20,,10,,,,,,,,128,,,,,{ bonus bAgi,7; bonus bHit,7; if(isequipped(27171)){ bonus bStr,3; bonus2 bAddRace,RC_All,3; } if(isequipped(27172)){ bonus2 bAddSize,Size_Small,15; bonus2 bMagicAddSize,Size_Small,15; } if(isequipped(27173)){ bonus2 bSkillAtk,"GS_SPREADATTACK",50; }},{},{}
+27170,Shotgun_Buffalo_Bandit_Card,Shotgun Buffalo Bandit Card,6,20,,10,,,,,,,,128,,,,,{ bonus bAgi,7; bonus bHit,7; if(isequipped(27171)){ bonus bStr,3; bonus bAtkRate,3; } if(isequipped(27172)){ bonus2 bAddSize,Size_Small,15; bonus2 bMagicAddSize,Size_Small,15; } if(isequipped(27173)){ bonus2 bSkillAtk,"GS_SPREADATTACK",50; }},{},{}
 27171,Revolver_Buffalo_Bandit_Card,Revolver Buffalo Bandit Card,6,20,,10,,,,,,,,8,,,,,{ bonus bStr,4; bonus2 bAddRace,RC_All,4; if(isequipped(27174)){ bonus2 bSkillAtk,"GS_RAPIDSHOWER",50; } if(isequipped(27175)){ bonus2 bAddSize,Size_Small,10; bonus2 bMagicAddSize,Size_Small,10; }},{},{}
 27172,Scimitar_Buffalo_Bandit_Card,Scimitar Buffalo Bandit Card,6,20,,10,,,,,,,,2,,,,,{ set .@bonus, 5; set .@type, getiteminfo(getequipid(EQI_COMPOUND_ON),11); if (.@type == W_DAGGER) { set .@r, getrefine(); if (.@r>=10) { set .@bonus,.@bonus+20; } if (.@r>=14) { set .@bonus,.@bonus+20; } } bonus bBaseAtk,.@bonus; bonus bMatk,.@bonus; },{},{}
 27173,Elite_Shotgun_Buffalo_Bandit_Card,Elite Shotgun Buffalo Bandit Card,6,20,,10,,,,,,,,2,,,,,{ set .@bonus, 10; set .@r, getrefine(); if (.@r>=10) { set .@bonus,.@bonus+20; } if (.@r>=14) { set .@bonus,.@bonus+20; } bonus2 bSkillAtk,"GS_SPREADATTACK",.@bonus; },{},{}
@@ -4990,7 +4987,6 @@
 19535,C_Sinsuncho_Hat,Costume Sinsuncho Hat,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,730,{ bonus bUnbreakableHelm,0; bonus bStr,1; },{},{}
 19536,C_Rose_Corsage,Costume Rose Corsage,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,533,{ bonus bUnbreakableHelm,0; bonus bInt,1; },{},{}
 19537,C_Gryphon_Hat,Costume Gryphon Hat,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,591,{ bonus bUnbreakableHelm,0; },{},{}
-19538,Full_Moon,Full Moon,5,0,,0,,0,,0,0xFFFFFFFF,7,2,1024,,1,0,780,{ bonus bUnbreakableHelm,0; },{},{}
 19541,C_Romantic_White_Flower,Costume Romantic White Flower,5,20,,0,,0,,0,0xFFFFFFFF,7,2,4096,,1,0,259,{ bonus bUnbreakableHelm,0; },{},{}
 19542,C_Devil_Whisper,Costume Devil Whisper,5,20,,0,,0,,0,0xFFFFFFFF,7,2,2048,,1,0,712,{ bonus bUnbreakableHelm,0; },{},{}
 19543,Oliver_Wolf_Hood,Oliver Wold Hood,5,20,,300,,0,,1,0xFFFFFFFF,7,2,1024,,70,0,849,{ bonus bUnbreakableHelm,0; },{},{}
