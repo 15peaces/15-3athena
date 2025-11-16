@@ -8207,9 +8207,9 @@ BUILDIN_FUNC(delequip) {
 	short i = -1;
 	int pos;
 	int8 ret;
-	TBL_PC *sd;
+	TBL_PC* sd;
 
-	pos = script_getnum(st,2);
+	pos = script_getnum(st, 2);
 	if (!script_charid2sd(3, sd)) {
 		st->state = END;
 		return 1;
@@ -8219,8 +8219,8 @@ BUILDIN_FUNC(delequip) {
 		i = pc_checkequip(sd, equip_bitmask[pos], false);
 	}
 	if (i >= 0) {
-		bool t = pc_unequipitem(sd,i,3); //recalculate bonus
-		ret = !(pc_delitem(sd,i,1,0,2,LOG_TYPE_SCRIPT));
+		bool t = pc_unequipitem(sd, i, 3); //recalculate bonus
+		ret = !(pc_delitem(sd, i, 1, 0, 2, LOG_TYPE_SCRIPT));
 	}
 	else {
 		ShowError("buildin_delequip: No item equipped at pos %d (CID=%d/AID=%d).\n", pos, sd->status.char_id, sd->status.account_id);
@@ -8228,7 +8228,7 @@ BUILDIN_FUNC(delequip) {
 		return 1;
 	}
 
-	script_pushint(st,ret);
+	script_pushint(st, ret);
 	return 0;
 }
 

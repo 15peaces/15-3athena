@@ -4099,6 +4099,7 @@ static int skill_timerskill(int tid, int64 tick, int id, intptr_t data)
 				case WL_TETRAVORTEX_WATER:
 				case WL_TETRAVORTEX_WIND:
 				case WL_TETRAVORTEX_GROUND:
+					clif_skill_nodamage(src, target, skl->skill_id, skl->skill_lv, true);
 					skill_attack(BF_MAGIC,src,src,target,skl->skill_id,skl->skill_lv,tick,skl->flag);
 					if( skl->type >= 3 )
 					{ // Final Hit
@@ -5658,7 +5659,15 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 					case WLS_STONE: subskill = WL_TETRAVORTEX_GROUND; k |= 8; break;
 
 				}
-				skill_addtimerskill(src, tick + 250 * i, bl->id, k, 0, subskill, skill_lv, i, flag);
+
+				if (skill_lv > 5) {
+					skill_area_temp[0] = abs(i - SC_SPHERE_5);
+					skill_area_temp[1] = k;
+					map_foreachinrange(skill_area_sub, bl, skill_get_splash(skill_id, skill_lv), BL_CHAR, src, subskill, skill_lv, tick, flag | BCT_ENEMY, skill_castend_damage_id);
+				}
+				else
+					skill_addtimerskill(src, tick + abs(i - SC_SPHERE_5) * 200, bl->id, k, 0, subskill, skill_lv, abs(i - SC_SPHERE_5), flag);
+
 				status_change_end(src,spheres[i],INVALID_TIMER);
 			}
 		}

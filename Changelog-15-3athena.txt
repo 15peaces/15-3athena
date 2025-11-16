@@ -5,6 +5,13 @@
 // 		- Details.
 //			--More Details.
 //========================================
+11/16/2025
+	r548 [15peaces]
+		*Removed outdated & bugged Old Glastheim merchant npcs.
+			-Replaced them by the already existing & working versions.
+		*WL_TETRAVORTEX
+			-Updated to latest official version.
+
 11/13/2025
 	r547 [15peaces]
 		*Updated some item bonusses & job restrictions.
