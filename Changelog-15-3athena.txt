@@ -7,6 +7,16 @@
 //========================================
 11/16/2025
 	r548 [15peaces]
+		*Added missing Suspicious Bottle to Pet Groomers.
+		*Added Vin_Chaud item.
+		*Added pre support for All_Shadow_Cube.
+			-Item-package will be implemented later.
+		*Fixed some item trading restrictions.
+		*RK_HUNDREDSPEAR
+			-Updated to latest official version.		
+
+11/16/2025
+	r548 [15peaces]
 		*Removed outdated & bugged Old Glastheim merchant npcs.
 			-Replaced them by the already existing & working versions.
 		*WL_TETRAVORTEX

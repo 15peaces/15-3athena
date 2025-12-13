@@ -1287,12 +1287,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 	case NPC_CRITICALWOUND:
 		sc_start(bl,SC_CRITICALWOUND,100,skill_lv,skill_get_time2(skill_id,skill_lv));
 		break;
-	case RK_HUNDREDSPEAR:
-		if ( pc_checkskill(sd,KN_SPEARBOOMERANG) > 0 && rnd()%100 < 10 + 3 * skill_lv ) {
-			skill_castend_damage_id(src,bl,KN_SPEARBOOMERANG,pc_checkskill(sd,KN_SPEARBOOMERANG),tick,0);
-			skill_blown(src,bl,6,-1,0);//Target gets knocked back 6 cells if Speer Boomerang is autocasted.
-		}
-		break;
 	case RK_WINDCUTTER:
 		sc_start(bl,SC_FEAR,3+2*skill_lv,skill_lv,skill_get_time(skill_id,skill_lv));
 		break;
@@ -4504,7 +4498,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_CRITICALWOUND:
 	case NPC_HELLPOWER:
 	case RK_SONICWAVE:
-	case RK_HUNDREDSPEAR:
 	case RK_WINDCUTTER:
 	case RK_DRAGONBREATH:
 	case GC_CROSSIMPACT:
@@ -4921,6 +4914,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 	case NPC_HELLJUDGEMENT:
 	case NPC_VAMPIRE_GIFT:
 	case RK_IGNITIONBREAK:
+	case RK_HUNDREDSPEAR:
 	case GC_ROLLINGCUTTER:
 	case GC_COUNTERSLASH:
 	case LG_OVERBRAND:

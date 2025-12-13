@@ -430,6 +430,7 @@
 22558,2 //Lucky_Bag
 22669,2 //HALLOWEEN_G_BOX
 22685,2 //Solo_Christmas_Gift
+100709,2 //All_Shadow_Cube
 
 // GUID
 12900,4 //Battle_Manual_Box

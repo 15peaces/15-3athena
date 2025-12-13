@@ -2,6 +2,7 @@
 //
 // Structure of Database:
 // ID,AegisName,Name,Type,Buy,Sell,Weight,ATK,DEF,Range,Slots,Job,Upper,Gender,Loc,wLV,eLV{:eLV_max},Refineable,View,{ Script },{ OnEquip_Script },{ OnUnequip_Script }
+
 //
 // THQ Quest Items
 //=============================================================
@@ -5652,3 +5653,5 @@
 16429,Tomahawk_Box_,Tomahawk Box,2,20,10,1,,,,,0xFFFFFFFF,63,2,,,,,,{rentitem 1374,604800;},{},{}
 16430,Rudra_Bow_Box,Rudra Bow Box,2,20,10,1,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem 1729,604800; },{},{}
 16431,Pole_Axe_Box_,Pole Axe Box,2,20,10,1,,,,,0xFFFFFFFF,63,2,,,,,,{ rentitem 1419,604800; },{},{}
+23202,Vin_Chaud,Mulled Wine,2,0,,40,,,,,0xFFFFFFFF,7,2,,,,,,{ percentheal 0,7; },{},{}
+100709,All_Shadow_Cube,All Shadow Cube,2,0,,10,,,,,0xFFFFFFFF,7,2,,,,,,{/*getitempackage(IP_ALL_SHADOW_CUBE);*/},{},{}

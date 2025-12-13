@@ -3028,15 +3028,11 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case RK_HUNDREDSPEAR:
-		skillratio += 500 + (80 * skill_lv);
-		if (sd) {
-			short index = sd->equip_index[EQI_HAND_R];
-			if (index >= 0 && sd->inventory_data[index]
-				&& sd->inventory_data[index]->type == IT_WEAPON)
-				skillratio += max(10000 - sd->inventory_data[index]->weight, 0) / 10;
+		skillratio += -100 + 600 + 200 * skill_lv;
+		if (sd)
 			skillratio += 50 * pc_checkskill(sd, LK_SPIRALPIERCE);
-		} // (1 + [(Casters Base Level - 100) / 200])
-		skillratio = skillratio * (100 + (status_get_lv(src) - 100) / 2) / 100;
+		if (level_effect_bonus == 1)
+			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case RK_WINDCUTTER:
 		skillratio = (skill_lv + 2) * 50;

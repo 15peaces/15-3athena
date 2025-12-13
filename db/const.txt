@@ -899,6 +899,7 @@ IP_Midgard_Lucky_Scroll	73			//468
 IP_Blessing_Scarlet_Egg	74			//469
 IP_SOMETHING_CANDY_HOLDER	75		//472
 IP_Noive_Box	76					//481
+IP_ALL_SHADOW_CUBE	77				//1427
 
 SC_ALL	-1
 SC_NONE	-1

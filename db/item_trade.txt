@@ -578,7 +578,7 @@
 6657,507,100	//Memory_Of_Jack
 6658,507,100	//Halloween_Coin
 6671,507,100	//Geffen_Coin_Magic_Tournament
-6672,507,100	//RWC_Inicializer
+6672,467,100	//Gray_Shard
 6673,507,100	//Bossnia_Tickets
 6674,507,100	//GM_Coin
 6684,507,100		// TokenOfHero
@@ -2155,6 +2155,7 @@
 22812,507,100 	// Sealed_Dracula_Scroll
 22813,507,100 	// Bearer's_Shadow_Box
 22823,507,100	// Sealed_Sniper_Scroll
+23202,467,100	// Vin_Chaud
 25043,499,100	// Thorny_Vine_Flute
 25045,499,100	// Luxurious_Cloth
 25046,499,100	// Boarding_Pass
