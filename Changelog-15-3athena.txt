@@ -5,15 +5,27 @@
 // 		- Details.
 //			--More Details.
 //========================================
-11/16/2025
-	r548 [15peaces]
+12/14/2025
+	r550 [15peaces]
+		*GC_ROLLINGCUTTER; GC_CROSSRIPPERSLASHER; SR_GATEOFHELL; SP_SPA
+			-Updated to latest official version.
+		*WL_TETRAVORTEX
+			-Cleaned up coding
+			-This also fixed an issue with the cooldown activating before skill casting.
+		*SP_SOULCOLLECT
+			-Added missing status icon.
+		*Updated some monster spawns.
+		*Fixed a nullpo error in status_calc_regen.
+
+12/13/2025
+	r549 [15peaces]
 		*Added missing Suspicious Bottle to Pet Groomers.
 		*Added Vin_Chaud item.
 		*Added pre support for All_Shadow_Cube.
 			-Item-package will be implemented later.
 		*Fixed some item trading restrictions.
 		*RK_HUNDREDSPEAR
-			-Updated to latest official version.		
+			-Updated to latest official version.
 
 11/16/2025
 	r548 [15peaces]

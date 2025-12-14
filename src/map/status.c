@@ -1114,6 +1114,7 @@ void initChangeTables(void)
 	// Star Emperor / Soul Reaper
 	StatusIconChangeTable[SC_USE_SKILL_SP_SPA] = SI_USE_SKILL_SP_SPA;
 	StatusIconChangeTable[SC_USE_SKILL_SP_SHA] = SI_USE_SKILL_SP_SHA;
+	StatusIconChangeTable[SC_SOULENERGY] = SI_SOULENERGY;
 
 	// Summoner
 	StatusIconChangeTable[SC_SPRITEMABLE] = SI_SPRITEMABLE;
@@ -4344,44 +4345,51 @@ void status_calc_regen(struct block_list *bl, struct status_data *status, struct
 			val = regen->sp*(100+3*skill)/100;
 			regen->sp = cap_value(val, 1, SHRT_MAX);
 		}
-		//Only players have skill/sitting skill regen for now.
-		sregen = regen->sregen;
-
-		val = 0;
-		if( (skill=pc_checkskill(sd,SM_RECOVERY)) > 0 )
-			val += skill*5 + skill*status->max_hp/500;
-		sregen->hp = cap_value(val, 0, SHRT_MAX);
-
-		val = 0;
-		if( (skill=pc_checkskill(sd,MG_SRECOVERY)) > 0 )
-			val += skill*3 + skill*status->max_sp/500;
-		if( (skill=pc_checkskill(sd,NJ_NINPOU)) > 0 )
-			val += skill*3 + skill*status->max_sp/500;
-		if( (skill=pc_checkskill(sd,WM_LESSON)) > 0 )
-			val += skill * 3 + skill*status->max_sp / 500;
-		sregen->sp = cap_value(val, 0, SHRT_MAX);
-
-		// Skill-related recovery (only when sit)
-		sregen = regen->ssregen;
-
-		val = 0;
-		if( (skill=pc_checkskill(sd,MO_SPIRITSRECOVERY)) > 0 )
-			val += skill*4 + skill*status->max_hp/500;
-
-		if( (skill=pc_checkskill(sd,TK_HPTIME)) > 0 && sd->state.rest )
-			val += skill*30 + skill*status->max_hp/500;
-		sregen->hp = cap_value(val, 0, SHRT_MAX);
-
-		val = 0;
-		if( (skill=pc_checkskill(sd,TK_SPTIME)) > 0 && sd->state.rest )
+		
+		if (regen->sregen != NULL)
 		{
-			val += skill*3 + skill*status->max_sp/500;
-			if ((skill=pc_checkskill(sd,SL_KAINA)) > 0) //Power up Enjoyable Rest
-				val += (30+10*skill)*val/100;
+			//Only players have skill/sitting skill regen for now.
+			sregen = regen->sregen;
+
+			val = 0;
+			if ((skill = pc_checkskill(sd, SM_RECOVERY)) > 0)
+				val += skill * 5 + skill * status->max_hp / 500;
+			sregen->hp = cap_value(val, 0, SHRT_MAX);
+
+			val = 0;
+			if ((skill = pc_checkskill(sd, MG_SRECOVERY)) > 0)
+				val += skill * 3 + skill * status->max_sp / 500;
+			if ((skill = pc_checkskill(sd, NJ_NINPOU)) > 0)
+				val += skill * 3 + skill * status->max_sp / 500;
+			if ((skill = pc_checkskill(sd, WM_LESSON)) > 0)
+				val += skill * 3 + skill * status->max_sp / 500;
+			sregen->sp = cap_value(val, 0, SHRT_MAX);
 		}
-		if( (skill=pc_checkskill(sd,MO_SPIRITSRECOVERY)) > 0 )
-			val += skill*2 + skill*status->max_sp/500;
-		sregen->sp = cap_value(val, 0, SHRT_MAX);
+
+		if (regen->ssregen != NULL)
+		{
+			// Skill-related recovery (only when sit)
+			sregen = regen->ssregen;
+
+			val = 0;
+			if ((skill = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0)
+				val += skill * 4 + skill * status->max_hp / 500;
+
+			if ((skill = pc_checkskill(sd, TK_HPTIME)) > 0 && sd->state.rest)
+				val += skill * 30 + skill * status->max_hp / 500;
+			sregen->hp = cap_value(val, 0, SHRT_MAX);
+
+			val = 0;
+			if ((skill = pc_checkskill(sd, TK_SPTIME)) > 0 && sd->state.rest)
+			{
+				val += skill * 3 + skill * status->max_sp / 500;
+				if ((skill = pc_checkskill(sd, SL_KAINA)) > 0) //Power up Enjoyable Rest
+					val += (30 + 10 * skill) * val / 100;
+			}
+			if ((skill = pc_checkskill(sd, MO_SPIRITSRECOVERY)) > 0)
+				val += skill * 2 + skill * status->max_sp / 500;
+			sregen->sp = cap_value(val, 0, SHRT_MAX);
+		}
 	}
 
 	if( bl->type == BL_HOM )
@@ -12002,6 +12010,15 @@ int status_change_end_(struct block_list* bl, enum sc_type type, int tid)
 		case SC_ITEMSCRIPT: // Removes Buff Icons
 			if (sd && sce->val2 != SI_BLANK)
 				clif_status_load(bl, (enum si_type)sce->val2, 0);
+			break;
+		case SC_SOULENERGY:
+			if (sd != NULL && sd->soulball > 0) {
+				// When SC_SOULENERGY ends, removes all soulball if SC_SOULCOLLECT is active otherwise 1
+				if (sc->data[SC_SOULCOLLECT])
+					pc_delsoulball(sd, sd->soulball, 0);
+				else
+					pc_delsoulball(sd, 1, 0);
+			}
 			break;
 		}
 

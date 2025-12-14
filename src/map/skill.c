@@ -2286,6 +2286,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 		if (sc && sc->data[SC_BANDING] && (battle_config.hesperuslit_bonus_stack == 1 && sc->data[SC_BANDING]->val2 >= 7 || sc->data[SC_BANDING]->val2 == 7))
 			party_foreachsamemap(party_sub_count_banding, sd, 3, 2);
 		break;
+	case SP_SPA:
+		sc_start(src, SC_USE_SKILL_SP_SPA, 100, skill_lv, skill_get_time(skill_id, skill_lv));
+		break;
 	}
 
 	if(sd && (sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR && map[bl->m].flag.nosunmoonstarmiracle == 0 && 
@@ -2604,6 +2607,7 @@ int skill_blown(struct block_list* src, struct block_list* target, int count, in
 {
 	int dx = 0, dy = 0;
 	uint8 reason = 0, checkflag = 0;
+	struct status_change *tsc = status_get_sc(target);
 
 	nullpo_ret(src);
 	nullpo_ret(target);
@@ -2636,6 +2640,12 @@ int skill_blown(struct block_list* src, struct block_list* target, int count, in
 	{	// take the reversed 'direction' and reverse it
 		dx = -dirx[direction];
 		dy = -diry[direction];
+	}
+
+	if (tsc) {
+		if (tsc->data[SC_ROLLINGCUTTER])
+			status_change_end(target, SC_ROLLINGCUTTER, INVALID_TIMER);
+		// others will be moved here, too...
 	}
 
 	return unit_blown(target, dx, dy, count, flag);	// send over the proper flag
@@ -5571,7 +5581,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		else
 		{
 			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
-			status_change_end(src,SC_ROLLINGCUTTER, INVALID_TIMER);
 		}
 		break;
 
@@ -5612,46 +5621,34 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 
 	case WL_TETRAVORTEX:
 		if (sd && sc) { // No SC? No spheres
-			int spheres[5] = { 0, 0, 0, 0, 0 },
-				positions[5] = {-1,-1,-1,-1,-1 },
-				i, j = 0, k, subskill = 0;
+			int32 i, k = 0;
 
-			for( i = SC_SPHERE_1; i <= SC_SPHERE_5; i++ )
-				if( sc->data[i] )
-				{
-					spheres[j] = i;
-					positions[j] = sc->data[i]->val2;
-					j++;
-				}
+			if (sc->data[SC_SPHERE_5]) // If 5 spheres, remove last one (based on reverse order) and only do 4 actions (Official behavior)
+				status_change_end(src, SC_SPHERE_1, INVALID_TIMER);
 
-			if( j < 4 )
-			{ // Need 4 spheres minimum
-				clif_skill_fail(sd,skill_id,0,0,0);
-				break;
-			}
+			for (i = SC_SPHERE_5; i >= SC_SPHERE_1; i--) { // Loop should always be 4 for regular players, but unconditional_skill could be less
+				if (sc->data[i] == NULL)
+					continue;
 
-			// Sphere Sort, this time from new to old
-			for( i = 0; i <= j - 2; i++ )
-				for( k = i + 1; k <= j - 1; k++ )
-					if( positions[i] < positions[k] )
-					{
-						swap(positions[i],positions[k]);
-						swap(spheres[i],spheres[k]);
-					}
+				uint16 subskill = 0;
 
-			if (j == 5) { // If 5 spheres, remove last one and only do 4 actions
-				status_change_end(src, spheres[4], INVALID_TIMER);
-				j = 4;
-			}
-
-			k = 0;
-			for (i = 0; i < j; i++) { // Loop should always be 4 for regular players, but unconditional_skill could be less
-				switch (sc->data[spheres[i]]->val1) {
-					case WLS_FIRE:  subskill = WL_TETRAVORTEX_FIRE; k |= 1; break;
-					case WLS_WIND:  subskill = WL_TETRAVORTEX_WIND; k |= 4; break;
-					case WLS_WATER: subskill = WL_TETRAVORTEX_WATER; k |= 2; break;
-					case WLS_STONE: subskill = WL_TETRAVORTEX_GROUND; k |= 8; break;
-
+				switch (sc->data[i]->val1) {
+				case WLS_FIRE:
+					subskill = WL_TETRAVORTEX_FIRE;
+					k |= 1;
+					break;
+				case WLS_WIND:
+					subskill = WL_TETRAVORTEX_WIND;
+					k |= 4;
+					break;
+				case WLS_WATER:
+					subskill = WL_TETRAVORTEX_WATER;
+					k |= 2;
+					break;
+				case WLS_STONE:
+					subskill = WL_TETRAVORTEX_GROUND;
+					k |= 8;
+					break;
 				}
 
 				if (skill_lv > 5) {
@@ -5661,8 +5658,7 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 				}
 				else
 					skill_addtimerskill(src, tick + abs(i - SC_SPHERE_5) * 200, bl->id, k, 0, subskill, skill_lv, abs(i - SC_SPHERE_5), flag);
-
-				status_change_end(src,spheres[i],INVALID_TIMER);
+				status_change_end(src, i, INVALID_TIMER);
 			}
 		}
 		break;
@@ -16188,6 +16184,27 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 			}
 		}
 		break;
+	case WL_TETRAVORTEX: // moved sphere check to precast to avoid triggering cooldown per official behavior -helvetica
+		{
+			int32 active_spheres = 0, req_spheres = 0;
+
+			for (i = SC_SPHERE_1; i <= SC_SPHERE_5; i++) {
+				if (sc && sc->data[i])
+					active_spheres++;
+			}
+
+			// Cast requirement
+			if (skill_id == WL_TETRAVORTEX)
+				req_spheres = 4;
+			else if (skill_id == WL_RELEASE && skill_lv == 2) // Only level 2 uses Spheres
+				req_spheres = 1;
+
+			if (active_spheres < req_spheres) { // Need minimum amount of spheres
+				clif_skill_fail(sd, skill_id, (skill_id == WL_RELEASE) ? USESKILL_FAIL_SUMMON_NONE : USESKILL_FAIL_LEVEL,0,0);
+				return false;
+			}
+		}
+		break;
 	case AB_LAUDAAGNUS:
 	case AB_LAUDARAMUS:
 		if( !sd->status.party_id )
@@ -16206,13 +16223,6 @@ int skill_check_condition_castbegin(struct map_session_data* sd, uint16 skill_id
 	case GC_WEAPONCRUSH:
 		if( !(sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == GC_WEAPONBLOCKING) )	{
 			clif_skill_fail(sd, skill_id, USESKILL_FAIL_GC_WEAPONBLOCKING, 0, 0);
-			return 0;
-		}
-		break;
-	case GC_CROSSRIPPERSLASHER:
-		if( !(sc && sc->data[SC_ROLLINGCUTTER]) )
-		{
-			clif_skill_fail(sd, skill_id, USESKILL_FAIL_CONDITION, 0, 0);
 			return 0;
 		}
 		break;

@@ -3086,16 +3086,16 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 			skillratio += 2 * sstatus->agi + 200;
 		break;
 	case GC_ROLLINGCUTTER:
-		skillratio += -50 + 50 * skill_lv;
+		skillratio += -100 + 50 + 80 * skill_lv;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
 	case GC_CROSSRIPPERSLASHER:
-		skillratio += 300 + 80 * skill_lv;
+		skillratio += -100 + 80 * skill_lv + (sstatus->agi * 3);
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		if (sc && sc->data[SC_ROLLINGCUTTER])
-			skillratio += sc->data[SC_ROLLINGCUTTER]->val1 * sstatus->agi;
+			skillratio += sc->data[SC_ROLLINGCUTTER]->val1 * 200;
 		break;
 	case AB_DUPLELIGHT_MELEE:
 		skillratio += 10 * skill_lv;
@@ -3360,11 +3360,13 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		break;
 	case SR_GATEOFHELL:
 		if (sc && sc->data[SC_COMBO])
-			skillratio = 800 * skill_lv;
+			skillratio += -100 + 800 * skill_lv;
 		else
-			skillratio = 500 * skill_lv;
+			skillratio += -100 + 500 * skill_lv;
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
+		if (sc && sc->data[SC_GENTLETOUCH_REVITALIZE])
+			skillratio += skillratio * 30 / 100;
 		break;
 	case SR_GENTLETOUCH_QUIET:
 		skillratio = 100 * skill_lv + sstatus->dex;
@@ -3654,15 +3656,6 @@ static int64 battle_calc_skill_constant_addition(struct Damage wd, struct block_
 	case RA_WUGBITE:
 		if (sd)
 			atk = (30 * pc_checkskill(sd, RA_TOOTHOFWUG));
-		break;
-	case SR_GATEOFHELL:
-		atk = (sstatus->max_hp - status_get_hp(src));
-		if (sc && sc->data[SC_COMBO] && sc->data[SC_COMBO]->val1 == SR_FALLENEMPIRE) {
-			atk = (((int64)sstatus->max_sp * (1 + skill_lv * 2 / 10)) + 40 * status_get_lv(src));
-		}
-		else {
-			atk = (((int64)sstatus->sp * (1 + skill_lv * 2 / 10)) + 10 * status_get_lv(src));
-		}
 		break;
 	case SR_TIGERCANNON: // (Tiger Cannon skill level x 240) + (Target Base Level x 40)
 		atk = (skill_lv * 240 + status_get_lv(target) * 40);
@@ -5079,7 +5072,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 							skillratio = 400 + 100 * skill_lv;
 						break;
 					case SP_SPA:
-						skillratio = 500 + 250 * skill_lv;
+						skillratio = 400 + 250 * skill_lv;
 						if( level_effect_bonus == 1 )
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						break;

@@ -607,6 +607,9 @@ int pc_addsoulball(struct map_session_data *sd,int interval,int max)
 
 	nullpo_ret(sd);
 
+	// Save previous soulball number
+	int32 val = sd->soulball;
+
 	if(max > MAX_SKILL_LEVEL)
 		max = MAX_SKILL_LEVEL;
 	if(sd->soulball < 0)
@@ -628,6 +631,11 @@ int pc_addsoulball(struct map_session_data *sd,int interval,int max)
 		memmove(sd->soul_timer+i+1, sd->soul_timer+i, (sd->soulball-i)*sizeof(int));
 	sd->soul_timer[i] = tid;
 	sd->soulball++;
+
+	// Refresh the SC_SOULENERGY timer (which is 10 minutes by default) if the number has changed. The soul is removed when the timer expire.
+	if (sd->soulball != val)
+		sc_start(&sd->bl, SC_SOULENERGY, 100, sd->soulball, skill_get_time2(SP_SOULCOLLECT, 1));
+
 	clif_soulball(sd);
 
 	return 0;
@@ -662,6 +670,11 @@ int pc_delsoulball(struct map_session_data *sd,int count,int type)
 		sd->soul_timer[i-count] = sd->soul_timer[i];
 		sd->soul_timer[i] = INVALID_TIMER;
 	}
+
+	if (sd->soulball == 0)
+		status_change_end(&sd->bl, SC_SOULENERGY, INVALID_TIMER);
+	else
+		sc_start(&sd->bl, SC_SOULENERGY, 100, sd->soulball, skill_get_time2(SP_SOULCOLLECT, 1));	// refresh val1 and status MATK
 
 	if(!type)
 		clif_soulball(sd);
@@ -1751,6 +1764,9 @@ int pc_reg_received(struct map_session_data *sd)
 		sd->state.connect_new = 1;
 		clif_parse_LoadEndAck(sd->fd, sd);
 	}
+
+	if (sd->sc.data[SC_SOULENERGY])
+		sd->soulball = sd->sc.data[SC_SOULENERGY]->val1;
 
 	// Achievements [Smokexyz/Hercules]
 	intif_request_achievements(sd->status.char_id);
