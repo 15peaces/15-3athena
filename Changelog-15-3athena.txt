@@ -5,6 +5,14 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/18/2025
+	r551 [15peaces]
+		*Fixed wrong calculation in status_get_sc_def function.
+			-This also fixes the SC_FREEZE (and other statuses too) never triggered because the tick was always 0.
+		*NC_POWERSWING
+			-Updated to latest official version.
+		*Fixed RC_Boss, RC_NonBoss and RC_All equip bonusses.
+
 12/14/2025
 	r550 [15peaces]
 		*GC_ROLLINGCUTTER; GC_CROSSRIPPERSLASHER; SR_GATEOFHELL; SP_SPA

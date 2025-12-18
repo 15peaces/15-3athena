@@ -7802,7 +7802,7 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 		break;
 
 	default:
-		tick -= tick*tick_def/100;
+		tick -= tick*tick_def/10000;
 		break;
 	}
 

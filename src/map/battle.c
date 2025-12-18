@@ -3162,12 +3162,12 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
-	case NC_POWERSWING:
-		skillratio += 200 + 100 * skill_lv;
+	case NC_POWERSWING: // According to current sources, only the str + dex gets modified by level [Akinari]
+		skillratio += 300 + 100 * skill_lv;
 		if (level_effect_bonus == 1)
-			skillratio += (sstatus->str + sstatus->dex) * status_get_base_lv_effect(src) / 100;
+			skillratio += ((sstatus->str + sstatus->dex)/2) * status_get_base_lv_effect(src) / 100;
 		else
-			skillratio += sstatus->str + sstatus->dex;
+			skillratio += ((sstatus->str + sstatus->dex) / 2);
 		break;
 	case NC_AXETORNADO:
 		skillratio += 100 + 100 * skill_lv + sstatus->vit;

@@ -1378,8 +1378,6 @@ int skill_additional_effect (struct block_list* src, struct block_list *bl, uint
 		break;
 	case NC_POWERSWING:
 		sc_start(bl, SC_STUN, 10, skill_lv, skill_get_time(skill_id, skill_lv));
-		if ((sd ? pc_checkskill(sd, NC_AXEBOOMERANG) : 5) > 0 && rnd() % 100 < 5 * skill_lv)
-			skill_castend_damage_id(src, bl, NC_AXEBOOMERANG, (sd ? pc_checkskill(sd, NC_AXEBOOMERANG) : 5), tick, 1);
 		break;
 	case LG_PINPOINTATTACK:
 		rate = 5 * (sd ? pc_checkskill(sd, LG_PINPOINTATTACK) : 5) + (sstatus->agi + status_get_base_lv_effect(src)) / 10;
