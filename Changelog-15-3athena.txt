@@ -5,6 +5,15 @@
 // 		- Details.
 //			--More Details.
 //========================================
+12/23/2025
+	r552 [15peaces]
+		*SP_SWHOO
+			-Updated to latest official version.
+		*Added missing Orleans_Necklace combo scripts.
+		*Fixed 'Healer Haru' npc to grant first aid permanently to doram race.
+		*Fixed SC_ARMORCHANGE calculation.
+			-This fixes the inverted NPC_STONESKIN effect.
+
 12/18/2025
 	r551 [15peaces]
 		*Fixed wrong calculation in status_get_sc_def function.

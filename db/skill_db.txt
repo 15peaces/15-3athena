@@ -1364,7 +1364,7 @@
 2601,9,6,1,0,0x3,3,5,1,yes,0,0,0,magic,0,	SP_SOULCURSE,Soul Curse
 2602,9,6,1,-2,0,0,10,1,yes,0,0,0,magic,0,	SP_SPA,Espa
 2603,9,6,1,-2,0x2,1:1:2:2:2,5,1,yes,0,0,0,magic,0,	SP_SHA,Esha
-2604,9,8,1,-2,0x2,1:1:1:2:2:2:3,7,-5,yes,0,0,0,magic,0,	SP_SWHOO,Eswhoo
+2604,9,8,1,-2,0x2,1:1:1:2:2:2:3:3:3:4,10,-5,yes,0,0,0,magic,0,	SP_SWHOO,Eswhoo
 2605,11,6,4,0,0x3,1:1:2:2:3:3:4,7,1,yes,0,0,0,magic,0,	SP_SOULUNITY,Soul Unity
 2606,9,6,1,0,0x1,0,5,1,yes,0,0,0,magic,0,	SP_SOULDIVISION,Soul Division
 2607,0,6,4,0,0x1,0,5,1,yes,0,0,0,magic,0,	SP_SOULREAPER,Soul Reaper

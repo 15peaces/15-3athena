@@ -2287,6 +2287,9 @@ int skill_counter_additional_effect (struct block_list* src, struct block_list *
 	case SP_SPA:
 		sc_start(src, SC_USE_SKILL_SP_SPA, 100, skill_lv, skill_get_time(skill_id, skill_lv));
 		break;
+	case SP_SWHOO:
+		sc_start(src, SC_USE_SKILL_SP_SHA, 100, skill_lv, skill_get_time(skill_id, skill_lv));
+		break;
 	}
 
 	if(sd && (sd->class_&MAPID_UPPERMASK) == MAPID_STAR_GLADIATOR && map[bl->m].flag.nosunmoonstarmiracle == 0 && 

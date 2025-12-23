@@ -1120,7 +1120,7 @@
 2120,Improved_Arm_Guard_,Advanced Arm Guard,5,40000,,150,,4,,1,0x02000000,7,2,32,,50,1,1,{ bonus bMdef,5; },{},{}
 2121,Memorize_Book_,Memory Book,5,20,,1000,,3,,1,0x00810204,7,2,32,,0,1,5,{ bonus bInt,1; bonus bMdef,2; if (isequipped(2717,2239)) { bonus bHPrecovRate,15; bonus bSPrecovRate,15; bonus bMatkRate,7; }; },{},{}
 2122,Platinum_Shield,Platinum Shield,5,20,,1200,,5,,0,0x000FFFFE,2,2,32,,68,1,4,{ bonus bMdef,5; bonus2 bSubSize,1,15; bonus2 bSubSize,2,15; bonus2 bSubRace,RC_Undead,10; bonus5 bAutoSpellWhenHit,"NPC_MAGICMIRROR",7,150,BF_MAGIC,0; },{},{}
-2123,Orleans_Server,Orleans's Server,5,20,,1000,,5,,1,0x000FFFFE,2,2,32,,55,1,4,{ bonus bMdef,2; bonus bMagicDamageReturn,5; if (isequipped(2701)) bonus bCastrate,-10; },{},{}
+2123,Orleans_Server,Orleans's Server,5,20,,1000,,5,,1,0x000FFFFE,2,2,32,,55,1,4,{ bonus bMdef,2; bonus bMagicDamageReturn,5; if (isequipped(2701)) {bonus bCastrate,-10;}; if (isequipped(2881)) {bonus bMatk,getequiprefinerycnt(EQI_HAND_L)*2;} },{},{}
 2124,Thorny_Buckler,Thorny Buckler,5,20,,1000,,5,,1,0x000FFFFE,2,2,32,,55,1,2,{ bonus bMdef,2; if (isequipped(2702)) { bonus bAspdRate,10; bonus bShortWeaponDamageReturn,5; } },{},{}
 2125,Strong_Shield,Strong Shield,5,20,,2500,,4,,1,0x000FFFFE,2,2,32,,75,1,4,{ bonus bNoKnockback,0; bonus2 bSubEle,Ele_Neutral,-20; bonus2 bSubEle,Ele_Fire,-20; bonus2 bSubEle,Ele_Water,-20; bonus2 bSubEle,Ele_Wind,-20; bonus2 bSubEle,Ele_Earth,-20; bonus2 bSubEle,Ele_Dark,-20; bonus2 bSubEle,Ele_Holy,-20; bonus2 bSubEle,Ele_Ghost,-20; },{},{}
 2126,Guyak_Shield,Guyak Shield,5,20,,700,,3,,0,0xFFFFFFFE,7,2,32,,75,1,2,{ bonus bMdef,3; },{},{}
@@ -1356,7 +1356,7 @@
 //2362,Red_Aodai,Red Robe,5,20,,500,,0,,0,0xFFFFFFFE,7,2,16,,1,1,0,{ bonus bAllStats,3; bonus bMdef,5; },{},{}
 //2363,White_Aodai,White Robe,5,20,,500,,0,,0,0x00000001,7,2,16,,1,1,0,{ bonus bAllStats,3; bonus bMdef,5; },{},{}
 2364,Meteo_Plate_Armor,Meteo Plate Armor,5,20,,3000,,10,,1,0x000444A2,2,2,16,,55,1,0,{ bonus2 bResEff,Eff_Stun,3000; bonus2 bResEff,Eff_Freeze,3000; },{},{}
-2365,Orleans_Gown,Orleans's Gown,5,20,,300,,2,,1,0x000FFFFE,2,2,16,,55,1,0,{ bonus bCastrate,15; bonus bNoCastCancel,0; },{},{}
+2365,Orleans_Gown,Orleans's Gown,5,20,,300,,2,,1,0x000FFFFE,2,2,16,,55,1,0,{ bonus bCastrate,15; bonus bNoCastCancel,0; if(isequipped(2881)){bonus bDelayRate,-15;}; },{},{}
 2366,Divine_Cloth,Divine Cloth,5,20,,1500,,6,,1,0x000FFFFE,2,2,16,,55,1,0,{ bonus2 bResEff,Eff_Curse,500; bonus2 bResEff,Eff_Silence,500; bonus2 bResEff,Eff_Stun,500; bonus2 bResEff,Eff_Stone,500; bonus2 bResEff,Eff_Sleep,500; },{},{}
 2367,Sniping_Suit,Sniping Suit,5,20,,750,,5,,1,0x00000800,2,2,16,,50,1,0,{ bonus bMdef,5; bonus bCritical,6+(readparam(bLuk)/10); bonus bDelayRate,-23; },{},{}
 2368,Golden_Armor,Golden Armor,5,20,,2000,,4,,0,0xFFFFFFFF,7,2,16,,0,0,0,{ bonus bMdef,4; },{},{}
@@ -1692,7 +1692,7 @@
 2698,Vesper_Core03_C,Vesper Core 03,5,1,,0,,1,,0,0xFFFFFFFE,7,2,136,,1,0,0,{ bonus bMdef,3; bonus bAgi,3; bonus bFlee,5; },{},{}
 2699,Vesper_Core04_C,Vesper Core 04,5,1,,0,,1,,0,0xFFFFFFFE,7,2,136,,1,0,0,{ bonus bMdef,3; bonus bDex,3; bonus bHit,10; },{},{}
 2700,Red_Silk_Seal,Red Silk Seal,5,20,,100,,0,,0,0x00004082,2,2,136,,60,0,0,{},{},{}
-2701,Orleans_Glove,Orleans's Glove,5,20,,100,,0,,1,0x000FFFFE,2,2,136,,90,0,0,{ bonus bDex,2; bonus bMatkRate,3; },{},{}
+2701,Orleans_Glove,Orleans's Glove,5,20,,100,,0,,1,0x000FFFFE,2,2,136,,90,0,0,{ bonus bDex,2; bonus bMatkRate,3; if(isequipped(2881)){bonus bMatkRate,20;};},{},{}
 2702,Bison_Horn,Bison Horn,5,20,,100,,0,,1,0x000FFFFE,2,2,136,,90,0,0,{ bonus bAgi,2; },{},{}
 2703,Expert_Ring,Expert Ring,5,20,,150,,0,,1,0x000FFFFE,2,2,136,,50,0,0,{ bonus bDelayRate,-5; bonus bUseSPrate,5; },{},{}
 2704,Golden_Accessory,Golden Accessories,5,20,,100,,4,,0,0xFFFFFFFF,7,2,136,,0,0,0,{ bonus bMdef,4; },{},{}
@@ -8216,7 +8216,10 @@
 20319,Costume_Crimson_Booster,Costume Crimson Booster,5,0,,0,,,,0,0xFFFFFFFF,63,2,2048,,,,1355,{},{},{}
 //
 20706,Amistr_Bag,Amistr Bag,5,0,,500,,2,,0,0xFFFFFFFF,63,2,4,,,,4,{	bonus bAllStats,1; bonus2 bSubEle,Ele_Neutral,5; bonus2 bSubEle,Ele_Water,5; bonus2 bSubEle,Ele_Earth,5; bonus2 bSubEle,Ele_Fire,5; bonus2 bSubEle,Ele_Wind,5; bonus2 bSubEle,Ele_Poison,5; bonus2 bSubEle,Ele_Holy,5; bonus2 bSubEle,Ele_Dark,5; bonus2 bSubEle,Ele_Ghost,5; bonus2 bSubEle,Ele_Undead,5;},{},{}
-
+//Faceworm Nest
+20717,FaceWorm_Skin,Gigant Snake Skin,5,10,,400,,8,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,8; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
+20718,FaceWorm_Skin_,Gigant Snake Skin,5,10,,400,,8,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,8; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
+//
 20724,Love_Dad_Wings_2012,Love Dad Wings 2012,5,0,,100,,3,,1,0xFFFFFFFF,63,2,4,,1,1,5,{ set .@r, getrefine(); if ((readparam(bStr)>89)) { bonus bAllStats,1; bonus bStr,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } if ((readparam(bAgi)>89)) { bonus bAllStats,1; bonus bAgi,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } if ((readparam(bVit)>89)) { bonus bAllStats,1; bonus bVit,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } if ((readparam(bInt)>89)) { bonus bAllStats,1; bonus bInt,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } if ((readparam(bDex)>89)) { bonus bAllStats,1; bonus bDex,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } if ((readparam(bLuk)>89)) { bonus bAllStats,1; bonus bLuk,.@r; bonus bMaxHPRate,1; bonus bMaxSPRate,1; } },{},{}
 
 20727,C_Brilliant_Golden_Wings,Brilliant Golden Wings,5,0,,0,,,,0,0xFFFFFFFF,63,2,8192,,,,5,{},{},{}

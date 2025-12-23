@@ -1101,9 +1101,9 @@ int64 battle_calc_damage(struct block_list *src,struct block_list *bl,struct Dam
 		if (sc->data[SC_ARMORCHANGE]) {
 			//On official servers, SC_ARMORCHANGE does not change DEF/MDEF but rather increases/decreases the damage
 			if (flag&BF_WEAPON)
-				damage = damage * (sc->data[SC_ARMORCHANGE]->val2) / 100;
+				damage -= damage * (sc->data[SC_ARMORCHANGE]->val2) / 100;
 			else if (flag&BF_MAGIC)
-				damage = damage * (sc->data[SC_ARMORCHANGE]->val3) / 100;
+				damage -= damage * (sc->data[SC_ARMORCHANGE]->val3) / 100;
 		}
 
 		if( sc->data[SC_FIRE_EXPANSION_SMOKE_POWDER] )
@@ -5080,7 +5080,7 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						skillratio = 5 * skill_lv;
 						break;
 					case SP_SWHOO:
-						skillratio = 1100 + 200 * skill_lv;
+						skillratio = 1000 + 200 * skill_lv;
 						if( level_effect_bonus == 1 )
 							skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 						break;
