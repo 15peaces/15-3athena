@@ -1068,9 +1068,9 @@ void initChangeTables(void)
 	StatusIconChangeTable[SC_HALLUCINATIONWALK_POSTDELAY] = SI_HALLUCINATIONWALK_POSTDELAY;
 
 	// Royal Guard status change icons
-	StatusIconChangeTable[SC_SHIELDSPELL_DEF] = SI_SHIELDSPELL_DEF;
-	StatusIconChangeTable[SC_SHIELDSPELL_MDEF] = SI_SHIELDSPELL_MDEF;
-	StatusIconChangeTable[SC_SHIELDSPELL_REF] = SI_SHIELDSPELL_REF;
+	StatusIconChangeTable[SC_SHIELDSPELL_HP] = SI_SHIELDSPELL;
+	StatusIconChangeTable[SC_SHIELDSPELL_SP] = SI_SHIELDSPELL;
+	StatusIconChangeTable[SC_SHIELDSPELL_ATK] = SI_SHIELDSPELL;
 	StatusIconChangeTable[SC_BANDING] = SI_BANDING;
 
 	// Sura status change icons
@@ -1275,8 +1275,7 @@ void initChangeTables(void)
 	StatusChangeFlagTable[SC_HALLUCINATIONWALK_POSTDELAY] |= SCB_ASPD|SCB_SPEED;
 
 	// Royal Guard
-	StatusChangeFlagTable[SC_SHIELDSPELL_DEF] |= SCB_WATK;
-	StatusChangeFlagTable[SC_SHIELDSPELL_REF] |= SCB_DEF;
+	StatusChangeFlagTable[SC_SHIELDSPELL_ATK] |= SCB_WATK | SCB_MATK;
 	StatusChangeFlagTable[SC_BANDING] |= SCB_WATK | SCB_DEF | SCB_REGEN;
 
 	// Genetic & Genetics New Food Items
@@ -5694,8 +5693,8 @@ static unsigned short status_calc_watk(struct block_list *bl, struct status_chan
 		watk += 30 * sc->data[SC_CAMOUFLAGE]->val2;
 	if(sc->data[SC_STRIKING])
 		watk += sc->data[SC_STRIKING]->val2;
-	if(sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 3)
-		watk += sc->data[SC_SHIELDSPELL_DEF]->val2;
+	if (sc->data[SC_SHIELDSPELL_ATK])
+		watk += sc->data[SC_SHIELDSPELL_ATK]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )
 		watk += (10 + 10 * sc->data[SC_BANDING]->val1) * sc->data[SC_BANDING]->val2;
 	if(sc->data[SC_INSPIRATION])
@@ -5836,6 +5835,8 @@ static unsigned short status_calc_matk(struct block_list* bl, struct status_chan
 		matk += sc->data[SC_SPIRITOFLAND_MATK]->val2;
 	if (sc->data[SC_INSPIRATION])
 		matk += sc->data[SC_INSPIRATION]->val2;
+	if (sc->data[SC_SHIELDSPELL_ATK])
+		matk += sc->data[SC_SHIELDSPELL_ATK]->val2;
 	if(sc->data[SC_AQUAPLAY_OPTION])
 		matk += 40;
 	if(sc->data[SC_COOLER_OPTION])
@@ -6112,8 +6113,6 @@ static signed char status_calc_def(struct block_list *bl, struct status_change *
 		def += sc->data[SC_DEFENCE]->val2;
 	if (sc->data[SC_STONEHARDSKIN])
 		def += sc->data[SC_STONEHARDSKIN]->val2;
-	if( sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 2 )
-		def += sc->data[SC_SHIELDSPELL_REF]->val2;
 	if (sc->data[SC_PRESTIGE])
 		def += sc->data[SC_PRESTIGE]->val2;
 	if( sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1 )//DEF formula divided by 10 to balance it for us on pre_renewal mechanics. [Rytech]
@@ -7538,6 +7537,10 @@ static int status_get_sc_interval(enum sc_type type)
 		case SC_BLEEDING:
 		case SC_TOXIN:
 			return 10000;
+		case SC_SHIELDSPELL_HP:
+			return 3000;
+		case SC_SHIELDSPELL_SP:
+			return 5000;
 		default:
 			break;
 	}
@@ -7741,8 +7744,6 @@ int64 status_get_sc_def(struct block_list *src, struct block_list *bl, enum sc_t
 			sc_def += sc->data[SC_SCRESIST]->val1 * 100; //Status resist
 		else if (sc->data[SC_SIEGFRIED])
 			sc_def += sc->data[SC_SIEGFRIED]->val3 * 100; //Status resistance.
-		else if (sc->data[SC_SHIELDSPELL_REF] && sc->data[SC_SHIELDSPELL_REF]->val1 == 1)
-			sc_def += sc->data[SC_SHIELDSPELL_REF]->val2 * 100; //Status resistance.
 	}
 
 	//When tick def not set, reduction is the same for both.
@@ -8612,15 +8613,6 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 	case SC_LG_REFLECTDAMAGE:
 		status_change_end(bl,SC_REFLECTSHIELD,INVALID_TIMER);
 		break;
-	// Remove previous status changes.
-	case SC_SHIELDSPELL_DEF:
-	case SC_SHIELDSPELL_MDEF:
-	case SC_SHIELDSPELL_REF:
-		status_change_end(bl,SC_MAGNIFICAT,INVALID_TIMER);
-		status_change_end(bl,SC_SHIELDSPELL_DEF,INVALID_TIMER);
-		status_change_end(bl,SC_SHIELDSPELL_MDEF,INVALID_TIMER);
-		status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
- 		break;
 	case SC_BANDING:
 		status_change_end(bl, SC_PRESTIGE, INVALID_TIMER);
 		break;
@@ -10147,10 +10139,18 @@ int status_change_start(struct block_list* src, struct block_list* bl,enum sc_ty
 			val3 = tick / 5000;
 			tick_time = 5000;
 			break;
-		case SC_SHIELDSPELL_DEF:
-		case SC_SHIELDSPELL_MDEF:
-		case SC_SHIELDSPELL_REF:
-			val_flag |= 1|2;
+		case SC_SHIELDSPELL_HP:
+			val2 = 3; // 3% HP every 3 seconds
+			tick_time = status_get_sc_interval(type);
+			val4 = tick - tick_time; // Remaining time
+			break;
+		case SC_SHIELDSPELL_SP:
+			val2 = 3; // 3% SP every 5 seconds
+			tick_time = status_get_sc_interval(type);
+			val4 = tick - tick_time; // Remaining time
+			break;
+		case SC_SHIELDSPELL_ATK:
+			val2 = 150; // WATK/MATK bonus
 			break;
 		case SC_MAGNETICFIELD:
 			val3 = tick / 1000;
@@ -12964,6 +12964,18 @@ int status_change_timer(int tid, int64 tick, int id, intptr_t data)
 				break;
 			sc_timer_next(2000 + 1000 * sce->val1 + tick, status_change_timer, bl->id, data);
 			return 0;
+		}
+		break;
+
+	case SC_SHIELDSPELL_HP:
+		if (sce->val4 >= 0 && status->hp < status->max_hp) {
+			status_heal(bl, status->max_hp * sce->val2 / 100, 0, 1);
+		}
+		break;
+
+	case SC_SHIELDSPELL_SP:
+		if (sce->val4 >= 0 && status->sp < status->max_sp) {
+			status_heal(bl, 0, status->max_sp * sce->val2 / 100, 1);
 		}
 		break;
 

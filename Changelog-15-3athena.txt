@@ -5,6 +5,20 @@
 // 		- Details.
 //			--More Details.
 //========================================
+01/01/2026
+	r553 [15peaces]
+		*Some item updates
+			-Fixed some trading restrictions
+			-Fixed some item locations.
+			-Balanced some items for pre-renewal calculations.
+		*Added @unlootitem command.
+			-Enables/disables unlooting an item, just like @alootid but by ignoring these items instead of looting them.
+			-This will also overwrite the @alootid- setting, so the items on this list will always be ignored!
+		*Added some new/missing SI_ constants.
+			-Also added support for ne new Shield Spell status icon.
+		*LG_SHIELDSPELL
+			-Updated to latest official version.
+
 12/23/2025
 	r552 [15peaces]
 		*SP_SWHOO

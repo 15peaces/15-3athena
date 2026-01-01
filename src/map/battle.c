@@ -3229,16 +3229,6 @@ static int battle_calc_attack_skill_ratio(struct Damage wd, struct block_list *s
 		if (level_effect_bonus == 1)
 			skillratio = skillratio * status_get_base_lv_effect(src) / 100;
 		break;
-	case LG_SHIELDSPELL:// [(Casters Base Level x 4) + (Shield DEF x 10) + (Casters VIT x 2)] %
-		if (sd) {
-			struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];
-			skillratio = status_get_lv(src) * 4 + status_get_vit(src) * 2;
-			if (shield_data)
-				skillratio += shield_data->def * 10;
-		}
-		else
-			skillratio = 0; // Prevent damage since level 2 is MATK. [Aleos]
-		break;
 	case LG_OVERBRAND:
 		skillratio += -100 + 350 * skill_lv;
 		skillratio += ((sd) ? pc_checkskill(sd, CR_SPEARQUICKEN) * 50 : 0);
@@ -4972,12 +4962,6 @@ struct Damage battle_calc_magic_attack(struct block_list *src,struct block_list 
 						if (level_effect_bonus == 1)
 							skillratio = skillratio * (200 + status_get_base_lv_effect(src) - 100) / 200;
 						break;
-					case LG_SHIELDSPELL:
-					if ( sd && skill_lv == 2 )
-						skillratio = 4 * status_get_base_lv_effect(src) + 100 * sd->bonus.shieldmdef + 2 * sstatus->int_;
-					else
-						skillratio = 0;//Prevents MATK damage from being done on LV 1 usage since LV 1 us ATK. [Rytech]
-					break;
 					case LG_RAYOFGENESIS:
 						skillratio = 300 * skill_lv;
 						if (sc && sc->data[SC_BANDING] && sc->data[SC_BANDING]->val2 > 1)
@@ -5759,10 +5743,6 @@ int64 battle_calc_return_damage(struct block_list* bl, struct block_list *src, i
 						status_change_end(bl, SC_DEATHBOUND, INVALID_TIMER);
 						rdamage += rd1 * 70 / 100; // Target receives 70% of the amplified damage. [Rytech]
 					}
-				}
-				if (sc->data[SC_SHIELDSPELL_DEF] && sc->data[SC_SHIELDSPELL_DEF]->val1 == 2 && !(src->type == BL_MOB && status_bl_has_mode(src, MD_STATUS_IMMUNE))) {
-					rdamage += damage * sc->data[SC_SHIELDSPELL_DEF]->val2 / 100;
-					if (rdamage < 1) rdamage = 1;
 				}
 			}
 		}

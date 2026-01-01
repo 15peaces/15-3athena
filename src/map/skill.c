@@ -5825,13 +5825,6 @@ int skill_castend_damage_id (struct block_list* src, struct block_list *bl, int 
 		}
 		break;
 
-	case LG_SHIELDSPELL:
-		if ( skill_lv == 1 )
-			skill_attack(BF_WEAPON,src,src,bl,skill_id,skill_lv,tick,flag);
-		else if ( skill_lv == 2 )
-			skill_attack(BF_MAGIC,src,src,bl,skill_id,skill_lv,tick,flag);
- 		break;
-
 	/*case LG_OVERBRAND_BRANDISH:
 		skill_addtimerskill(src, tick + status_get_amotion(src), bl->id, 0, 0, skill_id, skill_lv, BF_WEAPON, flag | SD_LEVEL);
 		break;*/
@@ -7502,6 +7495,18 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			int time = skill_get_time(skill_id, skill_lv) + 3000 * (sd ? pc_checkskill(sd, GC_RESEARCHNEWPOISON) : 10);
 			clif_skill_nodamage(src, bl, skill_id, skill_lv, sc_start(bl, type, 100, skill_lv, time));
 		}
+		break;
+
+	case LG_SHIELDSPELL:
+		if (skill_lv == 1)
+			type = SC_SHIELDSPELL_HP;
+		else if (skill_lv == 2)
+			type = SC_SHIELDSPELL_SP;
+		else
+			type = SC_SHIELDSPELL_ATK;
+
+		clif_skill_nodamage(src, bl, skill_id, skill_lv,
+			status_change_start(src, bl, type, 10000, skill_lv, 0, 0, 0, skill_get_time(skill_id, skill_lv), 0));
 		break;
 
 	//List of self skills that give damage around caster
@@ -10672,124 +10677,6 @@ int skill_castend_nodamage_id (struct block_list *src, struct block_list *bl, in
 			sc_start( bl, type, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
 		clif_skill_nodamage( src, bl, skill_id, skill_lv, 1 );
  		break;
-
-	case LG_SHIELDSPELL:
-		if (sd)
-		{
-			signed char refinebonus = 0;
-			short effect_number = rnd()%3 + 1;// Effect Number. Each level has 3 unique effects thats randomly picked from.
-			short shield_bonus = 0;// Shield Stats. DEF/MDEF/Refine is taken from shield and ran through a formula.
-			short splash_range = 0;// Splash AoE. Used for splash AoE ATK/MATK and Lex Divina.
-			struct item_data *shield_data = sd->inventory_data[sd->equip_index[EQI_HAND_L]];// Checks DEF of shield.
-			struct item *shield = &sd->inventory.u.items_inventory[sd->equip_index[EQI_HAND_L]];// Checks refine of shield.
-
-			// Skill will first check if a shield is equipped. If none is found on the caster the skill will fail.
-			if( !shield_data || shield_data->type != IT_ARMOR )
-			{
-				clif_skill_fail(sd, skill_id, 0, 0, 0);
-				break;
-			}
-
-			// Set how the bonus from the shield's refine will be handled.
-			if ( MAX_REFINE > 10 )// +20 Refine Limit
-				refinebonus = shield->refine;
-			else// +10 Refine Limit
-				refinebonus = 2 * shield->refine;
-
-			switch( skill_lv )
-			{
-				case 1:
-					{
-						if ( effect_number == 1 )
-						{// Don't bother setting the splash AoE size unless effect 1 is going to trigger.
-							if ( shield_data->def >= 0 && shield_data->def <= 4 )
-								splash_range = 1;
-							else if ( shield_data->def >= 5 && shield_data->def <= 8 )
-								splash_range = 2;
-							else
-								splash_range = 3;
-						}
-
-						switch( effect_number )
-						{
-							case 1://Splash AoE ATK
-								sc_start(bl, SC_SHIELDSPELL_DEF, 100, effect_number, -1);
-								clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, 6);
-								map_foreachinrange(skill_area_sub, src, splash_range, BL_CHAR, src, skill_id, skill_lv, tick, flag | BCT_ENEMY | 1, skill_castend_damage_id);
-								status_change_end(bl,SC_SHIELDSPELL_DEF,-1);
-								break;
-							case 2://Damage Reflecting Increase.
-								shield_bonus = shield_data->def;
-								sc_start2(bl,SC_SHIELDSPELL_DEF,100,effect_number,shield_bonus,shield_data->def * 10 * 1000);
- 								break;
-							case 3://Weapon Attack Increase.
-								shield_bonus = 10 * shield_data->def;
-								sc_start2(bl,SC_SHIELDSPELL_DEF,100,effect_number,shield_bonus,shield_data->def * 10 * 3000);
- 								break;
-						}
-					}
-					break;
-
-				case 2:
-					{
-						if ( effect_number != 3 )
-						{// Don't bother setting the splash AoE size unless effect 1 or 2 is going to trigger.
-							if ( sd->bonus.shieldmdef >= 0 && sd->bonus.shieldmdef <= 3 )//Info says between 1 - 3, but ill make it go as low as 0 for now. [Rytech]
-								splash_range = 1;
-							else if ( sd->bonus.shieldmdef >= 4 && sd->bonus.shieldmdef <= 5 )
-								splash_range = 2;
-							else
-								splash_range = 3;
-						}
-						switch( effect_number )
-						{
-							case 1://Splash AoE MATK
-								sc_start(bl,SC_SHIELDSPELL_MDEF,100,effect_number,-1);
-								clif_skill_damage(src,bl,tick, status_get_amotion(src), 0, -30000, 1, skill_id, skill_lv, 6);
-								map_foreachinrange(skill_area_sub,src,splash_range,BL_CHAR,src,skill_id,skill_lv,tick,flag|BCT_ENEMY|2,skill_castend_damage_id);
-								status_change_end(bl,SC_SHIELDSPELL_MDEF,-1);
-								break;
-							case 2://Splash AoE Lex Divina
-								shield_bonus = sd->bonus.shieldmdef;// Shield's MDEF = Level of Lex Divina to cast.
-								if ( shield_bonus > 10 )
-									shield_bonus = 10;// Don't cast any level above 10.
-								sc_start(bl,SC_SHIELDSPELL_MDEF,100,effect_number,-1);
-								map_foreachinrange(skill_area_sub,src,splash_range,BL_CHAR,src,PR_LEXDIVINA,shield_bonus,tick,flag|BCT_ENEMY|1,skill_castend_nodamage_id);
-								status_change_end(bl,SC_SHIELDSPELL_MDEF,-1);
-								break;
-							case 3://Magnificat
-								if (sc_start(bl, SC_SHIELDSPELL_MDEF, 100, effect_number, sd->bonus.shieldmdef * 30000))
-									clif_skill_nodamage(src, bl, PR_MAGNIFICAT, skill_lv, sc_start(bl, SC_MAGNIFICAT, 100, 1, sd->bonus.shieldmdef * 30000));
-								break;
-						}
-					}
-					break;
-
-				case 3:
-					{
-						switch (effect_number)
-						{
-							case 1://Status Resistance Increase. This is for common status's.
-								shield_bonus = 2 * refinebonus + sstatus->luk / 10;
-								sc_start2(bl, SC_SHIELDSPELL_REF, 100, effect_number, shield_bonus, refinebonus * 30000);
-								break;
-							case 2://DEF Increase / Using Converted DEF Increase Formula For Pre-renewal Mechanics.
-								shield_bonus = refinebonus / 2;// Half the increase amount.
-								sc_start2(bl, SC_SHIELDSPELL_REF, 100, effect_number, shield_bonus, refinebonus * 20000);
-								break;
-							case 3://HP Recovery
-								sc_start(bl, SC_SHIELDSPELL_REF, 100, effect_number, -1);
-								shield_bonus = sstatus->max_hp * (status_get_base_lv_effect(src) / 10 + refinebonus) / 100;
-								status_heal(bl, shield_bonus, 0, 2);
-								status_change_end(bl,SC_SHIELDSPELL_REF,INVALID_TIMER);
-							break;
-						}
-					}
-					break;
-			}
-			clif_skill_nodamage(src,bl,skill_id,skill_lv,1);
-		}
-		break;
 
 	case LG_PIETY:
 		if (flag&1)

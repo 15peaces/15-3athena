@@ -2005,6 +2005,8 @@ static int mob_delay_item_drop(int tid, int64 tick, int id, intptr_t data)
 static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, struct item_drop *ditem, int loot, int drop_rate, unsigned short flag)
 {
 	TBL_PC* sd;
+	int i = 0;
+	bool ignore = false;
 
 	//Logs items, dropped by mobs [Lupus]
 	if (loot)
@@ -2016,10 +2018,19 @@ static void mob_item_drop(struct mob_data *md, struct item_drop_list *dlist, str
 	if( sd == NULL ) sd = map_charid2sd(dlist->second_charid);
 	if( sd == NULL ) sd = map_charid2sd(dlist->third_charid);
 
+	// Check unlooting list.
+	if (sd->state.unlooting) {
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] == ditem->item_data.nameid);
+
+		if (i != AUTOLOOTITEM_SIZE)
+			ignore = true;
+	}
+
 	if( sd
 		&& (drop_rate <= sd->state.autoloot || pc_isautolooting(sd, ditem->item_data.nameid))
 		&& (battle_config.idle_no_autoloot == 0 || DIFF_TICK(last_tick, sd->idletime) < battle_config.idle_no_autoloot)
 		&& (battle_config.homunculus_autoloot?1:!flag)
+		&& !ignore
 #ifdef AUTOLOOT_DISTANCE
 		&& sd->bl.m == md->bl.m
 		&& check_distance_blxy(&sd->bl, dlist->x, dlist->y, AUTOLOOT_DISTANCE)

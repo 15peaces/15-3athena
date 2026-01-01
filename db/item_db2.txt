@@ -1831,11 +1831,9 @@
 18596,Sprout_Hat,Sprout Hat,4,20,,200,,4,,0,0xFFFFFFFF,63,2,256,,70,1,758,{ skill "WZ_HEAVENDRIVE",3; },{},{}
 18597,Mercury_Riser,Mercury Riser,4,40,,200,,10,,1,0xFFFFFFFF,63,2,256,,0,1,759,{ bonus2 bSubRace,RC_DemiHuman,10; bonus2 bAddRace,RC_DemiHuman,10; bonus bAspdRate,3; bonus bDelayrate,-3; set .@r, getrefine(); if(.@r >= 7) { bonus bAspdRate,2; bonus bDelayrate,-2; } if(.@r >= 9) { bonus bAspdRate,2; bonus bDelayrate,-2; }},{},{}
 18598,Mini_Tree_J,Mini Tree J,4,20,,50,,0,,1,0xFFFFFFFF,63,2,256,,0,0,727,{ bonus bMdef,20; },{},{}
-18599,Black_Devil_Mask,Black Devil Mask,4,20,,100,,0,,0,0xFFFFFFFF,63,2,512,,0,0,760,{ bonus bAllStats,2; },{},{}
 18600,Cat_Ear_Beret,Cat Ear Beret,4,20,,100,,5,,1,0xFFFFFFFF,63,2,256,,0,1,761,{ bonus bAtkRate,5; set .@r, getrefine(); if(.@r < 5) set .@r, 5; bonus2 bSubRace,RC_DemiHuman,(.@r - 5); bonus2 bAddRace,RC_DemiHuman,(.@r - 5); },{},{}
 18601,Red_Bread_Hat,Red Bread Hat,4,20,,300,,0,,1,0xFFFFFFFF,63,2,256,,0,1,762,{ bonus bMdef,5; set .@r, getrefine(); if (.@r < 5) set .@r, 5; bonus2 bSubRace,RC_DemiHuman,(.@r - 5); bonus2 bMagicAddRace,RC_DemiHuman,(.@r - 5); },{},{}
 18602,Watermelon_Bite,Watermelon Bite,4,20,,100,,4,,0,0xFFFFFFFF,63,2,1,,30,0,763,{},{},{}
-18603,Black_Devil_Mask_,Black Devil Mask,4,20,,100,,0,,1,0xFFFFFFFF,63,2,512,,0,0,760,{ bonus bAllStats,1; },{},{}
 18604,Falcon_Mask,Falcon Mask,4,10,,30,,0,,0,0xFFFFFFFF,63,2,513,,50,0,782,{ bonus2 bAddEle,Ele_Water,5; },{},{}
 18605,Dark_Age,Dark Age,4,20,,200,,3,,1,0xFFFFFFFF,63,2,256,,10,1,766,{ bonus bMdef,3; },{},{}
 18606,Tear_Drop,Tear Drop,4,20,,100,,1,,0,0xFFFFFFFF,63,2,513,,30,0,767,{},{},{}
@@ -2944,21 +2942,6 @@
 21014,Infinity_Two-Handed_Sword,Infinity Two-Handed Sword,4,20,,500,230,,1,1,0x00004082,56,2,34,4,100,1,3,{},{},{}
 21015,Crimson_Two-Handed_Sword,Crimson Two-Handed Sword,4,20,,1700,170,,1,2,0x00004082,63,2,34,3,70,1,3,{ set .@r, getrefine(); bonus bBaseAtk,((BaseLevel/10)*5)+(.@r<=15?pow(.@r,2):225); bonus bMatk,(.@r<=15?(pow(.@r,2)/2):225); },{},{}
 21016,Two_Handed_Sword_of_Vicious_Mind,Two-Handed Sword of Vicious Mind,4,20,,2200,220,,1,1,0x00004082,63,2,34,4,160,1,3,{ bonus bAtk,pow(min(getrefine(),15),2); },{},{}
-//===================================================================
-// New Shoes
-//===================================================================
-22000,Temporal_Str_Boots,Temporal Boots Of Strength,5,20,,600,,25,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bAtk,50; },{},{}
-22001,Temporal_Int_Boots,Temporal Boots Of Intelligence,5,20,,600,,20,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22002,Temporal_Agi_Boots,Temporal Boots Of Agility,5,20,,600,,25,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22003,Temporal_Vit_Boots,Temporal Boots Of Vitality,5,20,,600,,25,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22004,Temporal_Dex_Boots,Temporal Boots Of Dexterity,5,20,,600,,25,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22005,Temporal_Luk_Boots,Temporal Boots Of Luck,5,20,,600,,20,,0,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
-22006,Temporal_Str_Boots_,Temporal Boots Of Strength,5,20,,600,,25,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bAtk,50; },{},{}
-22007,Temporal_Vit_Boots_,Temporal Boots Of Vitality,5,20,,600,,25,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22008,Temporal_Dex_Boots_,Temporal Boots Of Dexterity,5,20,,600,,25,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22009,Temporal_Int_Boots_,Temporal Boots Of Intelligence,5,20,,600,,20,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22010,Temporal_Agi_Boots_,Temporal Boots Of Agility,5,20,,600,,25,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22011,Temporal_Luk_Boots_,Temporal Boots Of Luck,5,20,,600,,20,,1,0xFFFFFFFF,56,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
 
 // Costumes (remewal)
 31601,C_Under_Rim_Glasses_Blue,C Under Rim Glasses Blue,5,0,,,,0,,0,0xFFFFFFFF,63,2,2048,,1,,1805,{},{},{}
@@ -3303,18 +3286,6 @@
 //Faceworm Nest (renewal)
 20717,FaceWorm_Skin,Gigant Snake Skin,5,10,,400,,8,,0,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,8; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
 20718,FaceWorm_Skin_,Gigant Snake Skin,5,10,,400,,8,,1,0xFFFFFFFF,63,2,4,,1,1,0,{ bonus bMdef,8; if(isequipped(22000) || isequipped(22001) || isequipped(22002) || isequipped(22003) || isequipped(22004) || isequipped(22005) || isequipped(22006) || isequipped(22007) || isequipped(22008) || isequipped(22009) || isequipped(22010) || isequipped(22011) || isequipped(22107) || isequipped(22108) || isequipped(22109) || isequipped(22110) || isequipped(22111) || isequipped(22112) || isequipped(22113) || isequipped(22114) || isequipped(22115) || isequipped(22116) || isequipped(22117) || isequipped(22118)){bonus bMaxHPRate,15; bonus bMaxSPRate,5;} },{},{}
-22107,Modified_Str_Boots,Modified Str Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
-22108,Modified_Int_Boots,Modified Int Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22109,Modified_Agi_Boots,Modified Agi Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22110,Modified_Vit_Boots,Modified Vit Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22111,Modified_Dex_Boots,Modified Dex Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22112,Modified_Luk_Boots,Modified Luk Boots,5,20,,600,,25,,0,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
-22113,Modified_Str_Boots_,Modified Str Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAtk,7*(.@r/3); if(readparam(bStr)>=120) bonus bBaseAtk,50; },{},{}
-22114,Modified_Int_Boots_,Modified Int Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMdef,5; bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMatk,10*(.@r/3); if(readparam(bInt)>=120) bonus bMatk,60; },{},{}
-22115,Modified_Agi_Boots_,Modified Agi Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bAspdRate,3*(.@r/3); if(readparam(bAgi)>=120) bonus bAspd,1; },{},{}
-22116,Modified_Vit_Boots_,Modified Vit Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(300*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); if(readparam(bVit)>=120) bonus bMaxHPrate,8; },{},{}
-22117,Modified_Dex_Boots_,Modified Dex Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bDex,3*(.@r/3); if(readparam(bDex)>=120){ bonus bLongAtkRate,5; bonus bFixedCast,-500; } },{},{}
-22118,Modified_Luk_Boots_,Modified Luk Boots,5,20,,600,,25,,1,0x03000000,1,2,64,,99,1,,{ set .@r, getrefine(); bonus bMaxHP,300+(100*(.@r/3)); bonus bMaxSP,30+(10*(.@r/3)); bonus bMdef,5; bonus bCritAtkRate,2*(.@r/3); if(readparam(bLuk)>=120) bonus bCritAtkRate,30; },{},{}
 
 //===================================================================
 // New Garments

@@ -420,9 +420,9 @@
 5430,65,100		// Sacred_Torch_Coronet
 5431,73,100		// Chicken_Hat
 5450,507,100		// Sun_Cap
-5451,507,100		// Dragonhelm_Gold
-5452,507,100		// Dragonhelm_Silver
-5453,507,100		// Dragonhelm_Copper
+5451,479,100		// Dragonhelm_Gold
+5452,479,100		// Dragonhelm_Silver
+5453,479,100		// Dragonhelm_Copper
 5460,499,100	// Adv_Dragon_Skull
 5461,499,100	// Adv_Whisper_Mask
 5462,457,100	// Spiked Scarf
@@ -1813,9 +1813,9 @@
 14573,73,100	// Red_Burning_Stone
 14574,73,100	// Skull_Of_Vagabond
 14587,507,100	// Repair_Scroll_
-14588,507,100	// Pty_Blessing_Scroll
-14589,507,100	// Pty_Inc_Agi_Scroll
-14590,507,100	// Pty_Assumptio_Scroll
+14588,479,100	// Pty_Blessing_Scroll
+14589,479,100	// Pty_Inc_Agi_Scroll
+14590,479,100	// Pty_Assumptio_Scroll
 14591,507,100	// Siege_Teleport_Scroll
 14592,475,100	// Job_Manual50
 14593,507,100	// Magic_Power_Scroll

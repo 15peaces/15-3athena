@@ -350,8 +350,8 @@
 2313,0,1000,1000,0,0,300000,0
 //-- LG_RAGEBURST
 2314,0,0,3000,0,0,0,0
-//-- LG_SHIELDSPELL //Durations are hard coded as they follow special formula's for each level and effect.
-2315,1000,0,1000,2000,0,0,0
+//-- LG_SHIELDSPELL
+2315,1000,0,1000,2000,0,90000,0
 //-- LG_EXEEDBREAK
 2316,5000:5500:6000:6500:7000,0,1000,0,0,300000,0
 //-- LG_OVERBRAND

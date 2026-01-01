@@ -7116,6 +7116,107 @@ ACMD_FUNC(autolootitem)
 }
 
 /*==========================================
+ * @unlootid
+ *------------------------------------------*/
+ACMD_FUNC(unlootitem)
+{
+	struct item_data* item_data = NULL;
+	int i;
+	int action = 3; // 1=add, 2=remove, 3=help+list (default), 4=reset
+
+	nullpo_retr(-1, sd);
+
+	if (message && *message) {
+		if (message[0] == '+') {
+			message++;
+			action = 1;
+		}
+		else if (message[0] == '-') {
+			message++;
+			action = 2;
+		}
+		else if (!strcmp(message, "reset"))
+			action = 4;
+	}
+
+	if (action < 3) // add or remove
+	{
+		if ((item_data = itemdb_exists(strtoul(message, NULL, 10))) == NULL)
+			item_data = itemdb_searchname(message);
+
+		if (!item_data) {
+			// No items founds in the DB with Id or Name
+			clif_displaymessage(fd, msg_txt(sd, 804)); // Item not found.
+			return -1;
+		}
+	}
+
+	switch (action) {
+	case 1:
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] == item_data->nameid);
+		if (i != AUTOLOOTITEM_SIZE) {
+			clif_displaymessage(fd, msg_txt(sd, 870)); // You're already ignoring this item.
+			return -1;
+		}
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] == 0);
+		if (i == AUTOLOOTITEM_SIZE) {
+			clif_displaymessage(fd, msg_txt(sd, 871)); // Your unlootitem list is full. Remove some items first with @unlootid -<item name or ID>.
+			return -1;
+		}
+		sd->state.unlootid[i] = item_data->nameid; // Unloot Activated
+		sprintf(atcmd_output, msg_txt(sd, 872), item_data->name, item_data->jname, item_data->nameid); // Ignoring item: '%s'/'%s' {%u}
+		clif_displaymessage(fd, atcmd_output);
+		sd->state.unlooting = 1;
+		break;
+	case 2:
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] == item_data->nameid);
+		if (i == AUTOLOOTITEM_SIZE) {
+			clif_displaymessage(fd, msg_txt(sd, 873)); // You're currently not ignoring this item.
+			return -1;
+		}
+		sd->state.unlootid[i] = 0;
+		sprintf(atcmd_output, msg_txt(sd, 874), item_data->name, item_data->jname, item_data->nameid); // Removed item: '%s'/'%s' {%u} from your unlootitem list.
+		clif_displaymessage(fd, atcmd_output);
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] != 0);
+		if (i == AUTOLOOTITEM_SIZE) {
+			sd->state.unlooting = 0;
+		}
+		break;
+	case 3:
+		sprintf(atcmd_output, msg_txt(sd, 875), AUTOLOOTITEM_SIZE); // You can have %d items on your unlootitem list.
+		clif_displaymessage(fd, atcmd_output);
+		clif_displaymessage(fd, msg_txt(sd, 876)); // To add an item to the list, use "@unlootid +<item name or ID>". To remove an item, use "@unlootid -<item name or ID>".
+		clif_displaymessage(fd, msg_txt(sd, 877)); // "@unlootid reset" will clear your unlootitem list.
+		ARR_FIND(0, AUTOLOOTITEM_SIZE, i, sd->state.unlootid[i] != 0);
+		if (i == AUTOLOOTITEM_SIZE) {
+			clif_displaymessage(fd, msg_txt(sd, 878)); // Your unlootitem list is empty.
+		}
+		else {
+			clif_displaymessage(fd, msg_txt(sd, 879)); // Items on your autolootitem list:
+			for (i = 0; i < AUTOLOOTITEM_SIZE; i++)
+			{
+				if (sd->state.unlootid[i] == 0)
+					continue;
+				if (!(item_data = itemdb_exists(sd->state.unlootid[i]))) {
+					ShowDebug("Non-existant Item %u on unlootitem list (account_id: %d, char_id: %d)", sd->state.unlootid[i], sd->status.account_id, sd->status.char_id);
+					continue;
+				}
+
+				sprintf(atcmd_output, "'%s'/'%s' {%u}", item_data->name, item_data->jname, item_data->nameid);
+				clif_displaymessage(fd, atcmd_output);
+			}
+		}
+		break;
+	case 4:
+		memset(sd->state.unlootid, 0, sizeof(sd->state.unlootid));
+		clif_displaymessage(fd, msg_txt(sd, 880)); // Your unlootitem list has been reset.
+		sd->state.unlooting = 0;
+		break;
+	}
+	return 0;
+}
+
+/*==========================================
  * It is made to rain.
  *------------------------------------------*/
 ACMD_FUNC(rain)
@@ -10729,6 +10830,7 @@ AtCommandInfo atcommand_info[] = {
 	{ "changelook",        60,60,     atcommand_changelook },
 	{ "autoloot",          10,10,     atcommand_autoloot },
 	{ "alootid",           10,10,     atcommand_autolootitem },
+	{ "unlootid",          10,10,     atcommand_unlootitem },
 	{ "mobinfo",            1,1,      atcommand_mobinfo },
 	{ "monsterinfo",        1,1,      atcommand_mobinfo },
 	{ "mi",                 1,1,      atcommand_mobinfo },
